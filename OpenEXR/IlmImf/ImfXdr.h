@@ -103,7 +103,7 @@
 //----------------------------------------------------------------------------
 
 #include <ImfInt64.h>
-#include <Iex.h>
+#include <IexMathExc.h>
 #include <half.h>
 #include <limits.h>
 

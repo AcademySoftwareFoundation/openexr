@@ -41,6 +41,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfOpaqueAttribute.h>
+#include <Iex.h>
 #include <string.h>
 
 namespace Imf {
