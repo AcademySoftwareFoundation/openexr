@@ -104,6 +104,7 @@ IMF_STD_ATTRIBUTE_IMP (expTime, ExpTime, float)
 IMF_STD_ATTRIBUTE_IMP (aperture, Aperture, float)
 IMF_STD_ATTRIBUTE_IMP (isoSpeed, IsoSpeed, float)
 IMF_STD_ATTRIBUTE_IMP (envmap, Envmap, Envmap)
+IMF_STD_ATTRIBUTE_IMP (keyCode, KeyCode, KeyCode)
 
 
 } // namespace Imf

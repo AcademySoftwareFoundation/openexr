@@ -54,6 +54,7 @@
 #include <ImfEnvmapAttribute.h>
 #include <ImfFloatAttribute.h>
 #include <ImfIntAttribute.h>
+#include <ImfKeyCodeAttribute.h>
 #include <ImfLineOrderAttribute.h>
 #include <ImfMatrixAttribute.h>
 #include <ImfOpaqueAttribute.h>
@@ -61,6 +62,8 @@
 #include <ImfStringAttribute.h>
 #include <ImfTileDescriptionAttribute.h>
 #include <ImfVecAttribute.h>
+
+#include <Iex.h>
 
 #include <sstream>
 
@@ -97,6 +100,7 @@ staticInitialize ()
 	EnvmapAttribute::registerAttributeType();
 	FloatAttribute::registerAttributeType();
 	IntAttribute::registerAttributeType();
+	KeyCodeAttribute::registerAttributeType();
 	LineOrderAttribute::registerAttributeType();
 	M33fAttribute::registerAttributeType();
 	M44fAttribute::registerAttributeType();

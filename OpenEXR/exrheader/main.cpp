@@ -48,6 +48,7 @@
 #include <ImfEnvmapAttribute.h>
 #include <ImfFloatAttribute.h>
 #include <ImfIntAttribute.h>
+#include <ImfKeyCodeAttribute.h>
 #include <ImfLineOrderAttribute.h>
 #include <ImfMatrixAttribute.h>
 #include <ImfPreviewImageAttribute.h>
@@ -297,6 +298,25 @@ printInfo (const char fileName[])
 		dynamic_cast <const IntAttribute *> (a))
 	{
 	    cout << ": " << ta->value();
+	}
+	else if (const KeyCodeAttribute *ta =
+		dynamic_cast <const KeyCodeAttribute *> (a))
+	{
+	    cout << ":\n"
+		    "    film manufacturer code " <<
+			    ta->value().filmMfcCode() << "\n"
+		    "    film type code " <<
+			    ta->value().filmType() << "\n"
+		    "    prefix " <<
+			    ta->value().prefix() << "\n"
+		    "    count " <<
+			    ta->value().count() << "\n"
+		    "    perf offset " <<
+			    ta->value().perfOffset() << "\n"
+		    "    perfs per frame " <<
+			    ta->value().perfsPerFrame() << "\n"
+		    "    perfs per count " <<
+			    ta->value().perfsPerCount();
 	}
 	else if (const LineOrderAttribute *ta =
 		dynamic_cast <const LineOrderAttribute *> (a))

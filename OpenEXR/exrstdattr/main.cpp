@@ -128,6 +128,19 @@ usageMessage (const char argv0[], bool verbose = false)
 		"        indicates that the image is an environment map\n"
 		"        (string, LATLONG or CUBE)\n"
 		"\n"
+		"  -keyCode i i i i i i i\n"
+		"        key code that uniquely identifies a motion\n"
+		"        picture film frame using 7 integers:\n"
+	        "         * film manufacturer code (0 - 99)\n"
+	        "         * film type code (0 - 99)\n"
+	        "         * prefix to identify film roll (0 - 999999)\n"
+	        "         * count, increments once every perfsPerCount\n"
+		"           perforations (0 - 9999)\n"
+	        "         * offset of frame, in perforations from\n"
+		"           zero-frame reference mark (0 - 119)\n"
+	        "         * number of perforations per frame (1 - 15)\n"
+	        "         * number of perforations per count (20 - 120)\n"
+		"\n"
 		"  -pixelAspectRatio f\n"
 		"        width divided by height of a pixel\n"
 		"        (float, >= 0)\n"
@@ -409,14 +422,33 @@ getEnvmap (const char attrName[],
 }
 
 
+void
+getKeyCode (const char attrName[],
+	    int argc,
+	    char **argv,
+	    int &i,
+	    AttrMap &attrs)
+{
+    if (i > argc - 8)
+	usageMessage (argv[0]);
+
+    KeyCodeAttribute *a = new KeyCodeAttribute;
+    attrs[attrName] = a;
+
+    a->value().setFilmMfcCode   (strtol (argv[i + 1], 0, 0));
+    a->value().setFilmType      (strtol (argv[i + 2], 0, 0));
+    a->value().setPrefix        (strtol (argv[i + 3], 0, 0));
+    a->value().setCount         (strtol (argv[i + 4], 0, 0));
+    a->value().setPerfOffset    (strtol (argv[i + 5], 0, 0));
+    a->value().setPerfsPerFrame (strtol (argv[i + 6], 0, 0));
+    a->value().setPerfsPerCount (strtol (argv[i + 7], 0, 0));
+    i += 8;
+}
+
+
 int
 main(int argc, char **argv)
 {
-    const char *inFileName = 0;
-    const char *outFileName = 0;
-
-    AttrMap attrs;
-
     //
     // Parse the command line.
     //
@@ -424,117 +456,126 @@ main(int argc, char **argv)
     if (argc < 2)
 	usageMessage (argv[0], true);
 
-    int i = 1;
-
-    while (i < argc)
-    {
-	const char *attrName = argv[i] + 1;
-
-	if (!strcmp (argv[i], "-chromaticities"))
-	{
-	    getChromaticities (attrName, argc, argv, i, attrs);
-	}
-	else if (!strcmp (argv[i], "-whiteLuminance"))
-	{
-	    getFloat (attrName, argc, argv, i, attrs);
-	}
-	else if (!strcmp (argv[i], "-xDensity"))
-	{
-	    getFloat (attrName, argc, argv, i, attrs, isPositive);
-	}
-	else if (!strcmp (argv[i], "-owner"))
-	{
-	    getString (attrName, argc, argv, i, attrs);
-	}
-	else if (!strcmp (argv[i], "-comments"))
-	{
-	    getString (attrName, argc, argv, i, attrs);
-	}
-	else if (!strcmp (argv[i], "-capDate"))
-	{
-	    getString (attrName, argc, argv, i, attrs, isDate);
-	}
-	else if (!strcmp (argv[i], "-utcOffset"))
-	{
-	    getFloat (attrName, argc, argv, i, attrs);
-	}
-	else if (!strcmp (argv[i], "-longitude"))
-	{
-	    getFloat (attrName, argc, argv, i, attrs);
-	}
-	else if (!strcmp (argv[i], "-latitude"))
-	{
-	    getFloat (attrName, argc, argv, i, attrs);
-	}
-	else if (!strcmp (argv[i], "-altitude"))
-	{
-	    getFloat (attrName, argc, argv, i, attrs);
-	}
-	else if (!strcmp (argv[i], "-focus"))
-	{
-	    getPosFloatOrInf (attrName, argc, argv, i, attrs);
-	}
-	else if (!strcmp (argv[i], "-expTime"))
-	{
-	    getFloat (attrName, argc, argv, i, attrs, isPositive);
-	}
-	else if (!strcmp (argv[i], "-aperture"))
-	{
-	    getFloat (attrName, argc, argv, i, attrs, isPositive);
-	}
-	else if (!strcmp (argv[i], "-isoSpeed"))
-	{
-	    getFloat (attrName, argc, argv, i, attrs, isPositive);
-	}
-	else if (!strcmp (argv[i], "-envmap"))
-	{
-	    getEnvmap (attrName, argc, argv, i, attrs);
-	}
-	else if (!strcmp (argv[i], "-pixelAspectRatio"))
-	{
-	    getFloat (attrName, argc, argv, i, attrs, isPositive);
-	}
-	else if (!strcmp (argv[i], "-screenWindowWidth"))
-	{
-	    getFloat (attrName, argc, argv, i, attrs, isNonNegative);
-	}
-	else if (!strcmp (argv[i], "-screenWindowCenter"))
-	{
-	    getV2f (attrName, argc, argv, i, attrs);
-	}
-	else if (!strcmp (argv[i], "-h"))
-	{
-	    usageMessage (argv[0], true);
-	}
-	else
-	{
-	    if (inFileName == 0)
-		inFileName = argv[i];
-	    else
-		outFileName = argv[i];
-
-	    i += 1;
-	}
-    }
-
-    if (inFileName == 0 || outFileName == 0)
-	usageMessage (argv[0]);
-
-    if (!strcmp (inFileName, outFileName))
-    {
-	cerr << "Input and output cannot be the same file." << endl;
-	return 1;
-    }
-
-    //
-    // Load the input file, add the new attributes,
-    // and save the result in the output file.
-    //
-
     int exitStatus = 0;
 
     try
     {
+	const char *inFileName = 0;
+	const char *outFileName = 0;
+
+	AttrMap attrs;
+
+	int i = 1;
+
+	while (i < argc)
+	{
+	    const char *attrName = argv[i] + 1;
+
+	    if (!strcmp (argv[i], "-chromaticities"))
+	    {
+		getChromaticities (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-whiteLuminance"))
+	    {
+		getFloat (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-xDensity"))
+	    {
+		getFloat (attrName, argc, argv, i, attrs, isPositive);
+	    }
+	    else if (!strcmp (argv[i], "-owner"))
+	    {
+		getString (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-comments"))
+	    {
+		getString (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-capDate"))
+	    {
+		getString (attrName, argc, argv, i, attrs, isDate);
+	    }
+	    else if (!strcmp (argv[i], "-utcOffset"))
+	    {
+		getFloat (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-longitude"))
+	    {
+		getFloat (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-latitude"))
+	    {
+		getFloat (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-altitude"))
+	    {
+		getFloat (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-focus"))
+	    {
+		getPosFloatOrInf (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-expTime"))
+	    {
+		getFloat (attrName, argc, argv, i, attrs, isPositive);
+	    }
+	    else if (!strcmp (argv[i], "-aperture"))
+	    {
+		getFloat (attrName, argc, argv, i, attrs, isPositive);
+	    }
+	    else if (!strcmp (argv[i], "-isoSpeed"))
+	    {
+		getFloat (attrName, argc, argv, i, attrs, isPositive);
+	    }
+	    else if (!strcmp (argv[i], "-envmap"))
+	    {
+		getEnvmap (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-keyCode"))
+	    {
+		getKeyCode (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-pixelAspectRatio"))
+	    {
+		getFloat (attrName, argc, argv, i, attrs, isPositive);
+	    }
+	    else if (!strcmp (argv[i], "-screenWindowWidth"))
+	    {
+		getFloat (attrName, argc, argv, i, attrs, isNonNegative);
+	    }
+	    else if (!strcmp (argv[i], "-screenWindowCenter"))
+	    {
+		getV2f (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-h"))
+	    {
+		usageMessage (argv[0], true);
+	    }
+	    else
+	    {
+		if (inFileName == 0)
+		    inFileName = argv[i];
+		else
+		    outFileName = argv[i];
+
+		i += 1;
+	    }
+	}
+
+	if (inFileName == 0 || outFileName == 0)
+	    usageMessage (argv[0]);
+
+	if (!strcmp (inFileName, outFileName))
+	{
+	    cerr << "Input and output cannot be the same file." << endl;
+	    return 1;
+	}
+
+	//
+	// Load the input file, add the new attributes,
+	// and save the result in the output file.
+	//
+
 	InputFile in (inFileName);
 	Header header = in.header();
 

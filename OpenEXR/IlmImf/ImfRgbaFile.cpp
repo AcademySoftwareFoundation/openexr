@@ -46,6 +46,7 @@
 #include <ImfRgbaYca.h>
 #include <ImfStandardAttributes.h>
 #include <ImathFun.h>
+#include <Iex.h>
 #include <string.h>
 #include <algorithm>
 
