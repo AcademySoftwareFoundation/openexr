@@ -47,6 +47,7 @@
 #include <ImfName.h>
 #include <ImfPixelType.h>
 #include <map>
+#include <set>
 
 
 namespace Imf {
@@ -137,6 +138,57 @@ class ChannelList
     ConstIterator		find (const char name[]) const;
 
     
+    //-----------------------------------------------------------------
+    // Support for image layers:
+    //
+    // In an image file with many channels it is sometimes useful to
+    // group the channels into "layers", that is, into sets of channels
+    // that logically belong together.  Grouping channels into layers
+    // is done using a naming convention:  channel C in layer L is
+    // called "L.C".
+    //
+    // For example, a computer graphic image may contain separate
+    // R, G and B channels for light that originated at each of
+    // several different virtual light sources.  The channels in
+    // this image might be called "light1.R", "light1.G", "light1.B",
+    // "light2.R", "light2.G", "light2.B", etc.
+    // 
+    // Note that this naming convention allows layers to be nested;
+    // for example, "light1.specular.R" identifies the "R" channel
+    // in the "specular" sub-layer of layer "light1".
+    //
+    // Channel names that don't contain a "." or that contain a
+    // "." only at the beginning or at the end are not considered
+    // to be part of any layer.
+    //
+    // layers(lns)		sorts the channels in this ChannelList
+    //				into layers and stores the names of
+    //				all layers, sorted alphabetically,
+    //				into string set lns.
+    //
+    // channelsInLayer(ln,f,l)	stores a pair of iterators in f and l
+    // 				such that the loop
+    //
+    // 				for (ConstIterator i = f; f != l; ++i)
+    // 				   ...
+    //
+    //				iterates over all channels in layer ln.
+    //				channelsInLayer (ln, l, p) calls
+    //				channelsWithPrefix (ln + ".", l, p).
+    //
+    //-----------------------------------------------------------------
+
+    void		layers (std::set <std::string> &layerNames) const;
+
+    void		channelsInLayer (const std::string &layerName,
+	    				 Iterator &first,
+					 Iterator &last);
+
+    void		channelsInLayer (const std::string &layerName,
+	    				 ConstIterator &first,
+					 ConstIterator &last) const;
+
+
     //-------------------------------------------------------------------
     // Find all channels whose name begins with a given prefix:
     //
@@ -144,8 +196,8 @@ class ChannelList
     // such that the following loop iterates over all channels whose name
     // begins with string p:
     //
-    //		for (ConstIterator i = f; f < l; ++i)
-    //		    ...;
+    //		for (ConstIterator i = f; f != l; ++i)
+    //		    ...
     //
     //-------------------------------------------------------------------
 
