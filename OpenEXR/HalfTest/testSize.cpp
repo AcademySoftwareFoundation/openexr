@@ -2,6 +2,7 @@
 #include <half.h>
 #include <iostream>
 #include <assert.h>
+#include <stddef.h>
 
 
 using namespace std;
@@ -15,10 +16,10 @@ testSize ()
     half h[2];
 
     int size = sizeof (half);
-    int algn = (char *)&h[1] - (char *)&h[0];
+    ptrdiff_t algn = (char *)&h[1] - (char *)&h[0];
 
     cout << "sizeof  (half) = " << size << endl;
-    cout << "alignof (half) = " << algn << endl;
+    cout << "alignof (half) = " << (int) algn << endl;
 
     assert (size == 2 && algn == 2);
 

@@ -7,6 +7,17 @@
 
 using namespace std;
 
+namespace {
+
+float
+drand()
+{
+    return static_cast<float> (rand()/(RAND_MAX+1.0f));
+}
+
+} // namespace
+
+
 void
 testNormalizedConversionError()
 {
@@ -16,7 +27,7 @@ testNormalizedConversionError()
 
     for (int i = 0; i < 20000000; i++)
     {
-	float f (drand48() * HALF_MAX);
+	float f (drand() * HALF_MAX);
 
 	if (f < HALF_NRM_MIN)
 	    continue;
@@ -58,7 +69,7 @@ testDenormalizedConversionError()
 
     for (int i = 0; i < 20000000; i++)
     {
-	float f (drand48() * (HALF_NRM_MIN - HALF_MIN));
+	float f (drand() * (HALF_NRM_MIN - HALF_MIN));
 
 	if (i & 1)
 	    f = -f;
@@ -100,7 +111,7 @@ testNormalizedRounding (int n)
 
     for (int i = 0; i < 200000; i++)
     {
-	half h (drand48() * HALF_MAX);
+	half h (drand() * HALF_MAX);
 
 	if (h < HALF_NRM_MIN)
 	    continue;
@@ -149,7 +160,7 @@ testDenormalizedRounding (int n)
 
     for (int i = 0; i < 200000; i++)
     {
-	half h (drand48() * (HALF_NRM_MIN - HALF_MIN));
+	half h (drand() * (HALF_NRM_MIN - HALF_MIN));
 
 	if (i & 1)
 	    h = -h;
