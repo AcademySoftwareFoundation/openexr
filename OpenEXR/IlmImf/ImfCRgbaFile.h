@@ -91,7 +91,7 @@ typedef struct ImfRgba ImfRgba;
 #define IMF_MAGIC               20000630
 
 /*
-** Version number; this must be the same as Imf::VERSION
+** Version number; this must be the same as Imf::EXR_VERSION
 */
 
 #define IMF_VERSION_NUMBER      2

@@ -74,7 +74,7 @@ const int VERSION_FLAGS_FIELD	= 0xffffff00;
 // Value that goes into VERSION_NUMBER_FIELD.
 //
 
-const int VERSION		= 2;
+const int EXR_VERSION		= 2;
 
 
 //

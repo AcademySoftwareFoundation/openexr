@@ -771,7 +771,7 @@ Header::writeTo (OStream &os, bool isTiled) const
 
     Xdr::write <StreamIO> (os, MAGIC);
 
-    int version = isTiled ? makeTiled (VERSION) : VERSION;
+    int version = isTiled ? makeTiled (EXR_VERSION) : EXR_VERSION;
     Xdr::write <StreamIO> (os, version);
 
     //
@@ -838,12 +838,12 @@ Header::readFrom (IStream &is, int &version)
 	throw Iex::InputExc ("File is not an image file.");
     }
 
-    if (getVersion (version) != 1 && getVersion (version) != VERSION)
+    if (getVersion (version) != 1 && getVersion (version) != EXR_VERSION)
     {
 	THROW (Iex::InputExc, "Cannot read "
 			      "version " << getVersion (version) << " "
 			      "image files.  Current file format version "
-			      "is " << VERSION << ".");
+			      "is " << EXR_VERSION << ".");
     }
     
     if (!supportsFlags (getFlags (version)))
