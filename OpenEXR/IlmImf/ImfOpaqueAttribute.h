@@ -37,16 +37,6 @@
 #ifndef INCLUDED_IMF_OPAQUE_ATTRIBUTE_H
 #define INCLUDED_IMF_OPAQUE_ATTRIBUTE_H
 
-//
-//	Copyright  (c)  2000    Industrial   Light   and   Magic.
-//	All   rights   reserved.    Used   under   authorization.
-//	This material contains the confidential  and  proprietary
-//	information   of   Industrial   Light   and   Magic   and
-//	may not be copied in whole or in part without the express
-//	written   permission   of  Industrial Light  and   Magic.
-//	This  copyright  notice  does  not   imply   publication.
-//
-
 //-----------------------------------------------------------------------------
 //
 //	class OpaqueAttribute
