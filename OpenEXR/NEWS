@@ -1,4 +1,6 @@
 Version 1.1.0:
+    - IlmImfExamples: Updated to include examples of how to use
+      the tiling and mip/ripmapping interfaces.
     - exrmakepreview: A new utility for embedding preview images
       in OpenEXR files.
     - exrenvmap: A new utility for creating OpenEXR environment maps.

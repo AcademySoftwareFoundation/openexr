@@ -1,4 +1,7 @@
 Version 1.1.0:
+	* IlmImfExamples: Updated to latest versions of example
+	  source code, includes tiling and multi-res images.
+	  (Florian Kainz)
 	* exrmakepreview: A new utility to create preview images.
 	  (Florian Kainz)
 	* exrenvmap: A new utility to create OpenEXR environment
