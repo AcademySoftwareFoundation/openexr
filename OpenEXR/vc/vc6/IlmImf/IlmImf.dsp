@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /GR /GX /O2 /I "../../../IlmImf" /I "../../../Iex" /I "../../../Imath" /I "../../../Half" /I "../../../../zlib/include" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "PLATFORM_WIN32" /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "../../../IlmImf" /I "../../../Iex" /I "../../../Imath" /I "../../../Half" /I "../../../../zlib/include" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "PLATFORM_WIN32" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -69,7 +69,7 @@ PostBuild_Cmds=post-build
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /GZ /c
-# ADD CPP /nologo /MTd /W3 /Gm /GR /GX /ZI /Od /I "../../../IlmImf" /I "../../../Iex" /I "../../../Imath" /I "../../../Half" /I "../../../../zlib/include" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "PLATFORM_WIN32" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "../../../IlmImf" /I "../../../Iex" /I "../../../Imath" /I "../../../Half" /I "../../../../zlib/include" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "PLATFORM_WIN32" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -219,6 +219,10 @@ SOURCE=..\..\..\IlmImf\ImfAttribute.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\IlmImf\ImfAutoArray.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\IlmImf\ImfBoxAttribute.h
 # End Source File
 # Begin Source File
@@ -350,10 +354,5 @@ SOURCE=..\..\..\IlmImf\ImfXdr.h
 SOURCE=..\..\..\IlmImf\ImfZipCompressor.h
 # End Source File
 # End Group
-
-SOURCE=..\..\..\IlmImf\ImfAutoArray.h
-# End Source File
-# End Group
-
 # End Target
 # End Project
