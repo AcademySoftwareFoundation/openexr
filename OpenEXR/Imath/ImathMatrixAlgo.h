@@ -168,11 +168,6 @@ template <class T>  void	extractEulerZYX
 
 template <class T>  Quat<T>	extractQuat (const Matrix44<T> &mat);
 
-//
-// The following ifdef corrects an ICE with VC++7.1.
-// fatal error C1001: INTERNAL COMPILER ERROR
-//
-#if defined PLATFORM_WINDOWS && _MSC_VER >= 1300
 template <class T>  bool	extractSHRT 
                                     (const Matrix44<T> &mat,
 				     Vec3<T> &s,
@@ -180,8 +175,7 @@ template <class T>  bool	extractSHRT
 				     Vec3<T> &r,
 				     Vec3<T> &t,
 				     bool exc /*= true*/,
-				     typename Euler<T>::Order rOrder /*= Euler<T>::XYZ*/);
-
+				     typename Euler<T>::Order rOrder);
 
 template <class T>  bool	extractSHRT 
                                     (const Matrix44<T> &mat,
@@ -190,18 +184,6 @@ template <class T>  bool	extractSHRT
 				     Vec3<T> &r,
 				     Vec3<T> &t,
 				     bool exc = true);
-
-#else
-template <class T>  bool	extractSHRT 
-                                    (const Matrix44<T> &mat,
-				     Vec3<T> &s,
-				     Vec3<T> &h,
-				     Vec3<T> &r,
-				     Vec3<T> &t,
-				     bool exc = true,
-				     typename Euler<T>::Order rOrder =
-				     Euler<T>::XYZ);
-#endif
 
 template <class T>  bool	extractSHRT 
                                     (const Matrix44<T> &mat,
@@ -687,11 +669,6 @@ extractQuat (const Matrix44<T> &mat)
   return quat;
 }
 
-//
-// The following ifdef corrects an ICE with VC++7.1.
-// fatal error C1001: INTERNAL COMPILER ERROR
-//
-#if defined PLATFORM_WINDOWS && _MSC_VER >= 1300
 template <class T>
 bool 
 extractSHRT (const Matrix44<T> &mat,
@@ -701,17 +678,6 @@ extractSHRT (const Matrix44<T> &mat,
 	     Vec3<T> &t,
 	     bool exc /* = true */ ,
 	     typename Euler<T>::Order rOrder /* = Euler<T>::XYZ */ )
-#else
-template <class T>
-bool 
-extractSHRT (const Matrix44<T> &mat,
-	     Vec3<T> &s,
-	     Vec3<T> &h,
-	     Vec3<T> &r,
-	     Vec3<T> &t,
-	     bool exc /* = true */ ,
-	     typename Euler<T>::Order rOrder /* = Euler<T>::XYZ */ )
-#endif
 {
     Matrix44<T> rot;
 

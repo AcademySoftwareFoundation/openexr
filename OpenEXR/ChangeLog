@@ -1,3 +1,6 @@
+	* Removed Imath::TMatrix<T> and related classes, which are not
+	  used anywhere in OpenEXR.
+	  (Florian Kainz)
 	* Added minimal support for "image layers" to class Imf::ChannelList
 	  (Florian Kainz)
 	* Added new isComplete() method to InputFile, TiledInputFile
