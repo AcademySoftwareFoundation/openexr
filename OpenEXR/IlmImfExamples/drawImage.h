@@ -37,7 +37,7 @@
 #include <ImfArray.h>
 
 
-typedef struct GZ
+struct GZ
 {
     half  g;
     float z;

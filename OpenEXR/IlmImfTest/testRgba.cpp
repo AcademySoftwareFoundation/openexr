@@ -73,7 +73,7 @@ writeReadRGBA (const char fileName[],
 	       LineOrder lorder,
 	       Compression comp)
 {
-#ifdef PLATFORM_WIN32
+#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
     string tmpfile;
 #else
     string tmpfile ("/var/tmp/");

@@ -237,14 +237,14 @@ testExistingStreams ()
 	Array2D<Rgba> p1 (H, W);
 
 	fillPixels1 (p1, W, H);
-#ifdef PLATFORM_WIN32
+#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
 	writeReadScanLines ("imf_test_streams.exr", W, H, p1);
 #else
 	writeReadScanLines ("/var/tmp/imf_test_streams.exr", W, H, p1);
 #endif
 
 	fillPixels2 (p1, W, H);
-#ifdef PLATFORM_WIN32
+#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
 	writeReadTiles ("imf_test_streams.exr", W, H, p1);
 #else
 	writeReadTiles ("/var/tmp/imf_test_streams.exr", W, H, p1);

@@ -179,7 +179,7 @@ testTiledYa ()
     {
         cout << "Testing tiled luminance input and output" << endl;
 
-	#ifdef PLATFORM_WIN32
+        #if defined(PLATFORM_WIN32) || defined(__MWERKS__)
 	    const char *fileName = "imf_test_tiled_ya.exr";
 	#else
 	    const char *fileName = "/var/tmp/imf_test_tiled_ya.exr";

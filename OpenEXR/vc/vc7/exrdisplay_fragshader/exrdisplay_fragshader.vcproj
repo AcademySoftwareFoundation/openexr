@@ -22,7 +22,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../../../IlmImf,../../../Iex,../../../Imath,../../../Half,../../../exrdisplay,../../../../fltk,../../../../nvidia/SDK/inc"
-				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;PLATFORM_WIN32;HAVE_FRAGMENT_SHADERS;HAVE_IOS_BASE;HAVE_STL_LIMITS"
+				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;PLATFORM_WIN32;HAVE_FRAGMENT_SHADERS;HAVE_IOS_BASE;HAVE_STL_LIMITS;NOMINMAX"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				ForceConformanceInForLoopScope="TRUE"
@@ -84,7 +84,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../../../IlmImf,../../../Iex,../../../Imath,../../../Half,../../../exrdisplay,../../../../fltk,../../../../nvidia/SDK/inc"
-				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;PLATFORM_WIN32;HAVE_FRAGMENT_SHADERS;HAVE_IOS_BASE;HAVE_STL_LIMITS"
+				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;PLATFORM_WIN32;HAVE_FRAGMENT_SHADERS;HAVE_IOS_BASE;HAVE_STL_LIMITS;NOMINMAX"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				ForceConformanceInForLoopScope="TRUE"
@@ -182,7 +182,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\exrdisplay\main.cpp">
+				RelativePath="..\..\..\exrdisplay\loadImage.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -202,7 +202,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\exrdisplay\loadImage.cpp">
+				RelativePath="..\..\..\exrdisplay\main.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool

@@ -201,7 +201,7 @@ readWriteFiles (const char fileName1[],
 void
 testPreviewImage ()
 {
-#ifdef PLATFORM_WIN32
+#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
     const char * filename1 = "imf_preview1.exr";
     const char * filename2 = "imf_preview2.exr";
 #else

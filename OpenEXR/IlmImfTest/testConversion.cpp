@@ -10,7 +10,6 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <paths.h>
 
 using namespace std;
 using namespace Imath;
@@ -289,11 +288,18 @@ testImageChannel (const char fileName[],
 		  int width, int height,
 		  Compression compression)
 {
+    #if defined(PLATFORM_WIN32) || defined(__MWERKS__)
+        std::string fn;
+    #else
+	std::string fn ("/var/tmp/");
+    #endif
+    fn += fileName;
+
     testScanLineImageChannel <OutType, OutTypeTag, InType, InTypeTag>
-	(fileName, width, height, compression);
+	(fn.c_str (), width, height, compression);
 
     testTiledImageChannel <OutType, OutTypeTag, InType, InTypeTag>
-	(fileName, width, height, compression);
+	(fn.c_str (), width, height, compression);
 }
 
 
@@ -317,47 +323,47 @@ testConversion ()
 	for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
 	{
 	    testImageChannel <unsigned int, UINT, unsigned int, UINT>
-			     ("/var/tmp/imf_test_conv.exr",
+			     ("imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <unsigned int, UINT, half, HALF>
-			     ("/var/tmp/imf_test_conv.exr",
+			     ("imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <unsigned int, UINT, float, FLOAT>
-			     ("/var/tmp/imf_test_conv.exr",
+			     ("imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <half, HALF, unsigned int, UINT>
-			     ("/var/tmp/imf_test_conv.exr",
+			     ("imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <half, HALF, half, HALF>
-			     ("/var/tmp/imf_test_conv.exr",
+			     ("imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <half, HALF, float, FLOAT>
-			     ("/var/tmp/imf_test_conv.exr",
+			     ("imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <float, FLOAT, unsigned int, UINT>
-			     ("/var/tmp/imf_test_conv.exr",
+			     ("imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <float, FLOAT, half, HALF>
-			     ("/var/tmp/imf_test_conv.exr",
+			     ("imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <float, FLOAT, float, FLOAT>
-			     ("/var/tmp/imf_test_conv.exr",
+			     ("imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
