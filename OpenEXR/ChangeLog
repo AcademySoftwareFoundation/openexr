@@ -1,3 +1,4 @@
+	* Small change in ImfAttribute.h to make IlmImf compile with gcc 2.95.
 	* Updated ImfDoubleAttribute.h for Codewarrior on MacOS.
 	* Added exrheader utility.
 	* Update to AUTHORS file.
