@@ -96,7 +96,7 @@ class TMatrixBase
     // Matrix of given size, content undefined.
     //----------------------------------------
 
-    TMatrixBase(size_t numRows, size_t numColumns, Order ord = ROW_MAJOR);
+    TMatrixBase(int numRows, int numColumns, Order ord = ROW_MAJOR);
 
 
     //------
@@ -111,8 +111,8 @@ class TMatrixBase
     // Size lookup.
     //-------------
 
-    size_t numRows() const;
-    size_t numColumns() const;
+    int numRows() const;
+    int numColumns() const;
     size_t size() const;
     bool empty() const;
 
@@ -231,7 +231,7 @@ class TMatrixBase
   protected:
 
     void setData(T * p) const;
-    void setSize(size_t numRows, size_t numColumns) const;
+    void setSize(int numRows, int numColumns) const;
     void setStride(size_t rowStride, size_t columnStride) const;
 
 
@@ -254,7 +254,7 @@ class TMatrixBase
     // set appropriately by a derived class.
 
     mutable T * _dataP;
-    mutable size_t _nrows, _ncols;
+    mutable int _nrows, _ncols;
     mutable size_t _rowStride, _colStride;
 };
  
@@ -293,7 +293,7 @@ TMatrixBase<T>::setStride(size_t rowStride, size_t columnStride) const
 
 template<typename T>
 inline void
-TMatrixBase<T>::setSize(size_t numRows, size_t numColumns) const
+TMatrixBase<T>::setSize(int numRows, int numColumns) const
 {
     _nrows = numRows;
     _ncols = numColumns;
@@ -320,7 +320,7 @@ TMatrixBase<T>::TMatrixBase(Order ord)
 
 template<typename T>
 inline
-TMatrixBase<T>::TMatrixBase(size_t numRows, size_t numColumns, Order ord)
+TMatrixBase<T>::TMatrixBase(int numRows, int numColumns, Order ord)
 {
     setData(0);
     setSize(numRows, numColumns);
@@ -333,14 +333,14 @@ TMatrixBase<T>::TMatrixBase(size_t numRows, size_t numColumns, Order ord)
 
 // Size lookup
 template<typename T>
-inline size_t
+inline int
 TMatrixBase<T>::numRows() const
 {
     return _nrows;
 }
 
 template<typename T>
-inline size_t
+inline int
 TMatrixBase<T>::numColumns() const
 {
     return _ncols;
@@ -350,7 +350,7 @@ template<typename T>
 inline size_t
 TMatrixBase<T>::size() const
 {
-    return _nrows * _ncols;
+    return size_t (_nrows) * size_t (_ncols);
 }
 
 template<typename T>

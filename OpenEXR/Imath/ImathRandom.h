@@ -269,7 +269,7 @@ Rand32::nextb ()
 {
     next ();
     // Return the 31st (most significant) bit, by and-ing with 2 ^ 31.
-    return _state & 2147483648UL;
+    return !!(_state & 2147483648UL);
 }
 
 
@@ -301,9 +301,9 @@ Rand48::init (unsigned long int seed)
 {
     seed = (seed * 0xa5a573a5L) ^ 0x5a5a5a5aL;
 
-    _state[0] = seed;
-    _state[1] = seed >> 16;
-    _state[2] = seed;
+    _state[0] = (unsigned short int) (seed);
+    _state[1] = (unsigned short int) (seed >> 16);
+    _state[2] = (unsigned short int) (seed);
 }
 
 
@@ -398,7 +398,7 @@ solidSphereRand (Rand &rand)
     do
     {
 	for (unsigned int i = 0; i < Vec::dimensions(); i++)
-	    v[i] = rand.nextf (-1.0, 1.0);
+	    v[i] = (typename Vec::BaseType) rand.nextf (-1, 1);
     }
     while (v.length2() > 1);
 
@@ -416,7 +416,7 @@ hollowSphereRand (Rand &rand)
     do
     {
 	for (unsigned int i = 0; i < Vec::dimensions(); i++)
-	    v[i] = rand.nextf (-1.0, 1.0);
+	    v[i] = (typename Vec::BaseType) rand.nextf (-1, 1);
 
 	length = v.length();
     }
@@ -436,8 +436,8 @@ gaussRand (Rand &rand)
 			// and sqrt() functions instead of logf() and sqrtf().
     do
     {
-	x = rand.nextf (-1.0, 1.0);
-	y = rand.nextf (-1.0, 1.0);
+	x = float (rand.nextf (-1, 1));
+	y = float (rand.nextf (-1, 1));
 	length2 = x * x + y * y;
     }
     while (length2 >= 1 || length2 == 0);

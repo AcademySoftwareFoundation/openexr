@@ -169,7 +169,7 @@ class InputFile
 				     const char *&pixelData,
 				     int &pixelDataSize);
 
-    class Data;
+    struct Data;
     
   private:
 

@@ -765,8 +765,8 @@ inline void Euler<T>::setOrder(typename Euler<T>::Order p)
 {
     set( p & 0x2000 ? Z : (p & 0x1000 ? Y : X),	// initial axis
 	 !(p & 0x1),	    			// static?
-	 p & 0x100,				// permutation even?
-	 p & 0x10 );				// initial repeats?
+	 !!(p & 0x100),				// permutation even?
+	 !!(p & 0x10));				// initial repeats?
 }
 
 template<class T>

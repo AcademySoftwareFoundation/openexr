@@ -411,7 +411,7 @@ class TiledOutputFile
     void		updatePreviewImage (const PreviewRgba newPixels[]);
 
 
-    class Data;
+    struct Data;
 
   private:
 

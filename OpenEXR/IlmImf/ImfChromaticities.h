@@ -56,10 +56,10 @@ struct Chromaticities
     Imath::V2f	blue;
     Imath::V2f	white;
 
-    Chromaticities (const Imath::V2f &red   = Imath::V2f (0.6400, 0.3300),
-		    const Imath::V2f &green = Imath::V2f (0.3000, 0.6000),
-		    const Imath::V2f &blue  = Imath::V2f (0.1500, 0.0600),
-		    const Imath::V2f &white = Imath::V2f (0.3127, 0.3290));
+    Chromaticities (const Imath::V2f &red   = Imath::V2f (0.6400f, 0.3300f),
+		    const Imath::V2f &green = Imath::V2f (0.3000f, 0.6000f),
+		    const Imath::V2f &blue  = Imath::V2f (0.1500f, 0.0600f),
+		    const Imath::V2f &white = Imath::V2f (0.3127f, 0.3290f));
 };
 
 
