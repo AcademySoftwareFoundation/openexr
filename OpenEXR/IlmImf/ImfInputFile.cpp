@@ -49,6 +49,7 @@
 #include <ImathFun.h>
 #include <ImfXdr.h>
 #include <ImfArray.h>
+#include <ImfConvert.h>
 #include <Iex.h>
 #include <string>
 #include <vector>
@@ -81,7 +82,8 @@ namespace {
 
 struct InSliceInfo
 {
-    PixelType		type;
+    PixelType	        typeInFrameBuffer;
+    PixelType           typeInFile;
     char *		base;
     size_t		xStride;
     size_t		yStride;
@@ -91,7 +93,8 @@ struct InSliceInfo
     bool		skip;
     double		fillValue;
 
-    InSliceInfo (PixelType type = HALF,
+    InSliceInfo (PixelType typeInFrameBuffer = HALF,
+		 PixelType typeInFile = HALF,
 	         char *base = 0,
 	         size_t xStride = 0,
 	         size_t yStride = 0,
@@ -103,14 +106,16 @@ struct InSliceInfo
 };
 
 
-InSliceInfo::InSliceInfo (PixelType t,
+InSliceInfo::InSliceInfo (PixelType tifb,
+			  PixelType tifl,
 			  char *b,
 			  size_t xs, size_t ys,
 			  int xsm, int ysm,
 			  bool f, bool s,
 			  double fv)
 :
-    type (t),
+    typeInFrameBuffer (tifb),
+    typeInFile (tifl),
     base (b),
     xStride (xs),
     yStride (ys),
@@ -419,14 +424,6 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 	if (i == channels.end())
 	    continue;
 
-	if (i.channel().type != j.slice().type)
-	{
-	    THROW (Iex::ArgExc, "Pixel type of \"" << i.name() << "\" channel "
-			        "of input file \"" << fileName() << "\" is "
-			        "not compatible with the frame buffer's "
-			        "pixel type.");
-	}
-
 	if (i.channel().xSampling != j.slice().xSampling ||
 	    i.channel().ySampling != j.slice().ySampling)
 	{
@@ -458,6 +455,7 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 	    //
 
 	    slices.push_back (InSliceInfo (i.channel().type,
+					   i.channel().type,
 					   0, // base
 					   0, // xStride
 					   0, // yStride
@@ -482,6 +480,8 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 	}
 
 	slices.push_back (InSliceInfo (j.slice().type,
+				       fill ? j.slice().type:
+				              i.channel().type,
 				       j.slice().base,
 				       j.slice().xStride,
 				       j.slice().yStride,
@@ -553,7 +553,17 @@ InputFile::readPixels (int scanLine1, int scanLine2)
 	    y = maxY;
 	    dy = -1;
 	}
-
+        
+	bool forceXdr = false;	// Used to force the lineBuffer to be
+				// interpreted as Xdr.  This is needed
+				// if the compressor output pixel data
+				// in the machine's native format, but
+				// lineBuffer contains uncompressed
+				// data in Xdr format. (In a compressed
+				// image file, pixel data that cannot
+				// be compressed because they are too
+				// random, are stored in uncompressed
+				// form.)
 	while (numScanLines)
 	{
 	    //
@@ -566,12 +576,19 @@ InputFile::readPixels (int scanLine1, int scanLine2)
 	    {
 		int minY, maxY, dataSize;
 		readPixelData (_data, y, minY, maxY, dataSize);
+                forceXdr = false;
 
 		//
-		// Uncompress the data.
+		// Uncompress the data, if necessary
 		//
 
-		if (_data->compressor && dataSize < (int) _data->lineBufferSize)
+		int uncompressedSize = 0;
+		int max = std::min (maxY, _data->maxY);
+
+		for (int i = minY - _data->minY; i <= max - _data->minY; ++i)
+		    uncompressedSize += (int) _data->bytesPerLine[i];
+
+		if (_data->compressor && dataSize < uncompressedSize)
 		{
 		    dataSize = _data->compressor->uncompress
 				    (_data->lineBuffer, dataSize, minY,
@@ -579,7 +596,15 @@ InputFile::readPixels (int scanLine1, int scanLine2)
 		}
 		else
 		{
-		    _data->uncompressedData = _data->lineBuffer;
+		    //
+                    // If the line is uncompressed, but the compressor
+                    // says that it's in native format, don't believe it.
+		    //
+
+                    if (_data->format != Compressor::XDR)
+                        forceXdr = true;
+
+                    _data->uncompressedData = _data->lineBuffer;
 		}
 
 		_data->lineBufferMinY = minY;
@@ -632,7 +657,7 @@ InputFile::readPixels (int scanLine1, int scanLine2)
 		    // the frame buffer contains no slice for this channel.
 		    //
 
-		    switch (slice.type)
+		    switch (slice.typeInFile)
 		    {
 		      case UINT:
 		      
@@ -682,7 +707,7 @@ InputFile::readPixels (int scanLine1, int scanLine2)
 			// Store a default value in the frame buffer.
 			//
 
-			switch (slice.type)
+			switch (slice.typeInFrameBuffer)
 			{
 			  case UINT:
 			  
@@ -731,7 +756,7 @@ InputFile::readPixels (int scanLine1, int scanLine2)
 			    throw Iex::ArgExc ("Unknown pixel data type.");
 			}
 		    }
-		    else if (_data->format == Compressor::XDR)
+		    else if (_data->format == Compressor::XDR || forceXdr)
 		    {
 			//
 			// The compressor produced data for this
@@ -739,38 +764,122 @@ InputFile::readPixels (int scanLine1, int scanLine2)
 			//
 			// Convert the pixels from the file's machine-
 			// independent representation, and store the
-			// results the frame buffer.
+			// results in the frame buffer.
 			//
 
-			switch (slice.type)
+			switch (slice.typeInFrameBuffer)
 			{
 			  case UINT:
 		    
-			    while (pixelPtr <= endPtr)
+			    switch (slice.typeInFile)
 			    {
-				Xdr::read <CharPtrIO>
-				    (readPtr, *(unsigned int *) pixelPtr);
-				pixelPtr += slice.xStride;
+			      case UINT:
+
+				while (pixelPtr <= endPtr)
+				{
+				    Xdr::read <CharPtrIO>
+					(readPtr, *(unsigned int *) pixelPtr);
+				    pixelPtr += slice.xStride;
+				}
+				break;
+
+			      case HALF:
+
+				while (pixelPtr <= endPtr)
+				{
+				    half h;
+				    Xdr::read <CharPtrIO> (readPtr, h);
+				    *(unsigned int *) pixelPtr = halfToUint (h);
+				    pixelPtr += slice.xStride;
+				}
+				break;
+
+			      case FLOAT:
+
+				while (pixelPtr <= endPtr)
+				{
+				    float f;
+				    Xdr::read <CharPtrIO> (readPtr, f);
+				    *(unsigned int *)pixelPtr = floatToUint (f);
+				    pixelPtr += slice.xStride;
+				}
+				break;
 			    }
 			    break;
 
 			  case HALF:
 
-			    while (pixelPtr <= endPtr)
+			    switch (slice.typeInFile)
 			    {
-				Xdr::read <CharPtrIO>
-				    (readPtr, *(half *) pixelPtr);
-				pixelPtr += slice.xStride;
+			      case UINT:
+
+				while (pixelPtr <= endPtr)
+				{
+				    unsigned int ui;
+				    Xdr::read <CharPtrIO> (readPtr, ui);
+				    *(half *) pixelPtr = uintToHalf (ui);
+				    pixelPtr += slice.xStride;
+				}
+				break;
+			      
+			      case HALF:
+
+				while (pixelPtr <= endPtr)
+				{
+				    Xdr::read <CharPtrIO>
+					(readPtr, *(half *) pixelPtr);
+				    pixelPtr += slice.xStride;
+				}
+				break;
+
+			      case FLOAT:
+
+				while (pixelPtr <= endPtr)
+				{
+				    float f;
+				    Xdr::read <CharPtrIO> (readPtr, f);
+				    *(half *) pixelPtr = floatToHalf (f);
+				    pixelPtr += slice.xStride;
+				}
+				break;
 			    }
 			    break;
 
 			  case FLOAT:
 
-			    while (pixelPtr <= endPtr)
+			    switch (slice.typeInFile)
 			    {
-				Xdr::read <CharPtrIO>
-				    (readPtr, *(float *) pixelPtr);
-				pixelPtr += slice.xStride;
+			      case UINT:
+
+				while (pixelPtr <= endPtr)
+				{
+				    unsigned int ui;
+				    Xdr::read <CharPtrIO> (readPtr, ui);
+				    *(float *) pixelPtr = float (ui);
+				    pixelPtr += slice.xStride;
+				}
+				break;
+
+			      case HALF:
+
+				while (pixelPtr <= endPtr)
+				{
+				    half h;
+				    Xdr::read <CharPtrIO> (readPtr, h);
+				    *(float *) pixelPtr = float (h);
+				    pixelPtr += slice.xStride;
+				}
+				break;
+
+			      case FLOAT:
+
+				while (pixelPtr <= endPtr)
+				{
+				    Xdr::read <CharPtrIO>
+					(readPtr, *(float *) pixelPtr);
+				    pixelPtr += slice.xStride;
+				}
+				break;
 			    }
 			    break;
 
@@ -784,45 +893,158 @@ InputFile::readPixels (int scanLine1, int scanLine2)
 			//
 			// The compressor produced data for this
 			// channel in the machine's native format.
-			//
-			// Convert the pixels from the file's machine-
-			// independent representation, and store the
-			// results the frame buffer.
+			// Copy the results into the frame buffer.
 			//
 
-			switch (slice.type)
+			switch (slice.typeInFrameBuffer)
 			{
 			  case UINT:
 		    
-			    while (pixelPtr <= endPtr)
+			    switch (slice.typeInFile)
 			    {
-				for (size_t i = 0; i < sizeof (unsigned int); ++i)
-				    pixelPtr[i] = readPtr[i];
+			      case UINT:
 
-				readPtr += sizeof (unsigned int);
-				pixelPtr += slice.xStride;
+				while (pixelPtr <= endPtr)
+				{
+				    for (size_t i = 0;
+					 i < sizeof (unsigned int);
+					 ++i)
+				    {
+					pixelPtr[i] = readPtr[i];
+				    }
+
+				    readPtr += sizeof (unsigned int);
+				    pixelPtr += slice.xStride;
+				}
+				break;
+
+			      case HALF:
+
+				while (pixelPtr <= endPtr)
+				{
+				    half h = *(half *) readPtr;
+				    *(unsigned int *) pixelPtr = halfToUint (h);
+				    readPtr += sizeof (half);
+				    pixelPtr += slice.xStride;
+				}
+				break;
+
+			      case FLOAT:
+
+				while (pixelPtr <= endPtr)
+				{
+				    float f;
+
+				    for (size_t i = 0; i < sizeof (float); ++i)
+				    {
+					((char *)&f)[i] = readPtr[i];
+				    }
+
+				    *(unsigned int *)pixelPtr = floatToUint (f);
+				    readPtr += sizeof (float);
+				    pixelPtr += slice.xStride;
+				}
+				break;
 			    }
 			    break;
 
 			  case HALF:
 
-			    while (pixelPtr <= endPtr)
+			    switch (slice.typeInFile)
 			    {
-				*(half *) pixelPtr = *(half *)readPtr;
-				readPtr += sizeof (half);
-				pixelPtr += slice.xStride;
+			      case UINT:
+
+				while (pixelPtr <= endPtr)
+				{
+				    unsigned int ui;
+
+				    for (size_t i = 0;
+					 i < sizeof (unsigned int);
+					 ++i)
+				    {
+					((char *)&ui)[i] = readPtr[i];
+				    }
+
+				    *(half *) pixelPtr = uintToHalf (ui);
+				    readPtr += sizeof (unsigned int);
+				    pixelPtr += slice.xStride;
+				}
+				break;
+
+			      case HALF:
+
+				while (pixelPtr <= endPtr)
+				{
+				    *(half *) pixelPtr = *(half *)readPtr;
+				    readPtr += sizeof (half);
+				    pixelPtr += slice.xStride;
+				}
+				break;
+
+			      case FLOAT:
+
+				while (pixelPtr <= endPtr)
+				{
+				    float f;
+
+				    for (size_t i = 0; i < sizeof (float); ++i)
+				    {
+					((char *)&f)[i] = readPtr[i];
+				    }
+
+				    *(half *) pixelPtr = floatToHalf (f);
+				    readPtr += sizeof (float);
+				    pixelPtr += slice.xStride;
+				}
+				break;
 			    }
 			    break;
 
 			  case FLOAT:
 
-			    while (pixelPtr <= endPtr)
+			    switch (slice.typeInFile)
 			    {
-				for (size_t i = 0; i < sizeof (float); ++i)
-				    pixelPtr[i] = readPtr[i];
+			      case UINT:
 
-				readPtr += sizeof (float);
-				pixelPtr += slice.xStride;
+				while (pixelPtr <= endPtr)
+				{
+				    unsigned int ui;
+
+				    for (size_t i = 0;
+					 i < sizeof (unsigned int);
+					 ++i)
+				    {
+					((char *)&ui)[i] = readPtr[i];
+				    }
+
+				    *(float *) pixelPtr = float (ui);
+				    readPtr += sizeof (unsigned int);
+				    pixelPtr += slice.xStride;
+				}
+				break;
+
+			      case HALF:
+
+				while (pixelPtr <= endPtr)
+				{
+				    half h = *(half *) readPtr;
+				    *(float *) pixelPtr = float (h);
+				    readPtr += sizeof (half);
+				    pixelPtr += slice.xStride;
+				}
+				break;
+
+			      case FLOAT:
+
+				while (pixelPtr <= endPtr)
+				{
+				    for (size_t i = 0; i < sizeof (float); ++i)
+					pixelPtr[i] = readPtr[i];
+
+				    readPtr += sizeof (float);
+				    pixelPtr += slice.xStride;
+				}
+				break;
 			    }
 			    break;
 
