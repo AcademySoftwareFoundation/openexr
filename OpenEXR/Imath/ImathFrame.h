@@ -137,7 +137,7 @@ template<class T> Matrix44<T> nextFrame
     if( ti.length() != 0.0 && tj.length() != 0.0 )
     {
         ti.normalize(); tj.normalize();
-        float dot = ti.dot( tj ); 
+        T dot = ti.dot( tj ); 
 
         //
         //  This is *really* necessary :
