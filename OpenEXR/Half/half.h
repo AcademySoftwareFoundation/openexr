@@ -87,20 +87,7 @@
 
 #include <iostream>
 
-#if defined (OPENEXR_DLL)
-    #if defined (HALF_EXPORTS)
-        #define HALF_API __declspec(dllexport)
-        #define HALF_EXPORT_CONST extern __declspec(dllexport)
-    #else
-        #define HALF_API __declspec(dllimport)
-	#define HALF_EXPORT_CONST extern __declspec(dllimport)
-    #endif
-#else
-    #define HALF_API
-#endif
-
-
-class HALF_API half
+class half
 {
   public:
 
@@ -229,7 +216,7 @@ class HALF_API half
     unsigned short	_h;
 
     //---------------------------------------------------
-    // Yay, Windows dynamic libraries don't like static
+    // Windows dynamic libraries don't like static
     // member variables.
     //---------------------------------------------------
 #ifndef OPENEXR_DLL
@@ -238,14 +225,17 @@ class HALF_API half
 #endif
 };
 
-
-#ifdef OPENEXR_DLL
-//--------------
-// Lookup tables
-//--------------
-
-HALF_EXPORT_CONST half::uif	  _toFloat[1 << 16];
-HALF_EXPORT_CONST unsigned short  _eLut[1 << 9];
+#if defined(OPENEXR_DLL)
+    //--------------------------------------
+    // Lookup tables defined for Windows DLL
+    //--------------------------------------
+    #if defined(HALF_EXPORTS)
+        extern __declspec(dllexport) half::uif		_toFloat[1 << 16];
+        extern __declspec(dllexport) unsigned short	_eLut[1 << 9];
+    #else
+        extern __declspec(dllimport) half::uif		_toFloat[1 << 16];
+        extern __declspec(dllimport) unsigned short	_eLut[1 << 9];
+    #endif
 #endif
 
 

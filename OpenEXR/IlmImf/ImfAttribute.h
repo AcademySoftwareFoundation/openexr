@@ -395,25 +395,23 @@ TypedAttribute<T>::unRegisterAttributeType ()
 
 } // namespace Imf
 
-#if defined(OPENEXR_DLL)
-    #ifdef _MSC_VER
+#if defined(OPENEXR_DLL) && defined(_MSC_VER)
     // Tell MS VC++ to disable "non dll-interface class used as base
     // for dll-interface class" and "no suitable definition provided
     // for explicit template"
     #pragma warning (disable : 4275 4661)
-    #endif
 
     #if defined (ILMIMF_EXPORTS)
  	#define IMF_EXPIMP_TEMPLATE
     #else
  	#define IMF_EXPIMP_TEMPLATE extern
     #endif
+
     IMF_EXPIMP_TEMPLATE template class Imf::TypedAttribute<float>;
     IMF_EXPIMP_TEMPLATE template class Imf::TypedAttribute<double>;
 
-    #ifdef _MSC_VER
-    #pragma warning (default : 4275 4661)
-    #endif
+    #pragma warning(default : 4251)
+    #undef EXTERN_TEMPLATE
 #endif
 
 // Metrowerks compiler wants the .cpp file inlined, too

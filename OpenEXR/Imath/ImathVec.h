@@ -46,7 +46,6 @@
 #include <ImathExc.h>
 #include <ImathLimits.h>
 #include <ImathMath.h>
-#include <ImathApi.h>
 
 #include <iostream>
 
@@ -1414,40 +1413,5 @@ operator * (T a, const Vec3<T> &v)
 
 
 } // namespace Imath
-
-#if defined PLATFORM_WINDOWS
-
-    #ifdef _MSC_VER
-    // Disable MS VC++ warnings about non-public methods of public
-    // exported classes.
-    #pragma warning(disable : 4251)
-    #endif
-
-    #include <vector>
-
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API Imath::Vec2	<int>;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API Imath::Vec2	<float>;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API Imath::Vec2	<double>;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API Imath::Vec3	<int>;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API Imath::Vec3	<float>;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API Imath::Vec3	<double>;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Imath::Vec2	<int> >;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Imath::Vec2	<int> >;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Imath::Vec2	<float> >;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Imath::Vec2	<float> >;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Imath::Vec2	<double> >;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Imath::Vec2	<double> >;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Imath::Vec3	<int> >;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Imath::Vec3	<int> >;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Imath::Vec3	<float> >;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Imath::Vec3	<float> >;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Imath::Vec3	<double> >;
-    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Imath::Vec3	<double> >;
-
-    #ifdef _MSC_VER
-    #pragma warning(default : 4251)
-    #endif
-
-#endif
 
 #endif

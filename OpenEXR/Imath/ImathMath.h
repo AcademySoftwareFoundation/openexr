@@ -194,8 +194,10 @@ struct Math<float>
    static float	fabs  (float x)			{return ::fabsf (x);}
    static float	floor (float x)			{return ::floorf (x);}
    static float	fmod  (float x, float y)	{return ::fmodf (x, y);}
-#if !defined(PLATFORM_OSF1) && !defined(PLATFORM_WINDOWS)
+#if !defined(PLATFORM_OSF1) && !defined(_MSC_VER)
    static float	hypot (float x, float y)	{return ::hypotf (x, y);}
+#else
+   static float hypot (float x, float y)	{return ::sqrtf(x*x + y*y);}
 #endif
 };
 #endif
