@@ -152,6 +152,7 @@ Imath/Makefile
 ImathTest/Makefile
 exrdisplay/Makefile
 exrheader/Makefile
+IlmImfExamples/Makefile
 doc/Makefile
 ])
 
