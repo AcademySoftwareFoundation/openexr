@@ -48,6 +48,7 @@
 #include <ImfPixelType.h>
 #include <map>
 #include <set>
+#include <string>
 
 
 namespace Imf {
