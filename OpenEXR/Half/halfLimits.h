@@ -48,7 +48,7 @@
 //
 //------------------------------------------------------------------------
 
-#if !defined (GCC_VERSION_295)
+#ifdef HAVE_STL_LIMITS
 #include <limits>
 #include <half.h>
 
