@@ -55,4 +55,9 @@ template <> const char *DoubleAttribute::staticTypeName ();
 
 } // namespace Imf
 
+// Metrowerks compiler wants the .cpp file inlined, too
+#ifdef __MWERKS__
+#include <ImfDoubleAttribute.cpp>
+#endif
+
 #endif
