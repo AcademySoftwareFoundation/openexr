@@ -1,3 +1,5 @@
+	* Added new intersectT method in ImathSphere.h
+	* Fixed some bugs in ImathQuat.h
 	* Proper use of fltk-config to get platform-specific FLTK
 	  compile- and link-time flags.
 	* exrdisplay uses Imath::Math<T>::pow instead of powf now.
