@@ -48,6 +48,13 @@
 #include <set>
 
 
+enum Extrapolation
+{
+    CLAMP,
+    WRAP
+};
+
+
 void	makeTiled (const char inFileName[],
 	           const char outFileName[],
 		   Imf::LevelMode mode,
@@ -56,6 +63,8 @@ void	makeTiled (const char inFileName[],
 		   int tileSizeX,
 		   int tileSizeY,
 		   const std::set<std::string> &doNotFilter,
+		   Extrapolation extX,
+		   Extrapolation extY,
 		   bool verbose);
 
 

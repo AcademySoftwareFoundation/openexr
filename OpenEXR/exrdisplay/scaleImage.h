@@ -85,4 +85,13 @@ void	scaleY (float f,
 void	normalizePixels (int dw, int dh, Imf::Array<Imf::Rgba> &pixels);
 
 
+//
+// Swap the left and right half of and image; then swap the
+// top and bottom half, so that the four corners of the image
+// end up in the center.
+//
+
+void	swapPixels (int dw, int dh, Imf::Array<Imf::Rgba> &pixels);
+
+
 #endif
