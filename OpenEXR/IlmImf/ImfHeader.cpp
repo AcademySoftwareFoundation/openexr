@@ -78,46 +78,8 @@ using Imath::Box2i;
 using Imath::V2i;
 using Imath::V2f;
 
+
 namespace {
-
-
-void
-staticInitialize ()
-{
-    static bool initialized = false;
-
-    if (!initialized)
-    {
-	//
-	// One-time initialization -- register
-	// some predefined attribute types.
-	//
-	
-	Box2fAttribute::registerAttributeType();
-	Box2iAttribute::registerAttributeType();
-	ChannelListAttribute::registerAttributeType();
-	ChromaticitiesAttribute::registerAttributeType();
-	DoubleAttribute::registerAttributeType();
-	EnvmapAttribute::registerAttributeType();
-	FloatAttribute::registerAttributeType();
-	IntAttribute::registerAttributeType();
-	KeyCodeAttribute::registerAttributeType();
-	LineOrderAttribute::registerAttributeType();
-	M33fAttribute::registerAttributeType();
-	M44fAttribute::registerAttributeType();
-	PreviewImageAttribute::registerAttributeType();
-	StringAttribute::registerAttributeType();
-	TileDescriptionAttribute::registerAttributeType();
-	TimeCodeAttribute::registerAttributeType();
-	V2fAttribute::registerAttributeType();
-	V2iAttribute::registerAttributeType();
-	V3fAttribute::registerAttributeType();
-	V3iAttribute::registerAttributeType();
-
-	initialized = true;
-    }
-}
-
 
 void
 initialize (Header &header,
@@ -927,6 +889,44 @@ Header::readFrom (IStream &is, int &version)
 		throw;
 	    }
 	}
+    }
+}
+
+
+void
+staticInitialize ()
+{
+    static bool initialized = false;
+
+    if (!initialized)
+    {
+	//
+	// One-time initialization -- register
+	// some predefined attribute types.
+	//
+	
+	Box2fAttribute::registerAttributeType();
+	Box2iAttribute::registerAttributeType();
+	ChannelListAttribute::registerAttributeType();
+	ChromaticitiesAttribute::registerAttributeType();
+	DoubleAttribute::registerAttributeType();
+	EnvmapAttribute::registerAttributeType();
+	FloatAttribute::registerAttributeType();
+	IntAttribute::registerAttributeType();
+	KeyCodeAttribute::registerAttributeType();
+	LineOrderAttribute::registerAttributeType();
+	M33fAttribute::registerAttributeType();
+	M44fAttribute::registerAttributeType();
+	PreviewImageAttribute::registerAttributeType();
+	StringAttribute::registerAttributeType();
+	TileDescriptionAttribute::registerAttributeType();
+	TimeCodeAttribute::registerAttributeType();
+	V2fAttribute::registerAttributeType();
+	V2iAttribute::registerAttributeType();
+	V3fAttribute::registerAttributeType();
+	V3iAttribute::registerAttributeType();
+
+	initialized = true;
     }
 }
 
