@@ -118,7 +118,13 @@ struct Math
 #if defined(PLATFORM_SUNOS5) // SUN does not seem to have floating point funcs !!
 //   static T	modf  (T x, T *y)	{return ::modf (double(x), double(y));}
 #else
-   static T	modf  (T x, T *y)	{return ::modf (double(x), double(y));}
+   static T	modf  (T x, T *iptr)
+   {
+        double ival;
+        T rval( ::modf (double(x),&ival));
+	*iptr = ival;
+	return rval;
+   }
 #endif
    static T	pow   (T x, T y)	{return ::pow (double(x), double(y));}
    static T	sqrt  (T x)		{return ::sqrt (double(x));}

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -75,12 +75,10 @@ template <class T> class Shear6
     //-------------
 
     Shear6 ();			   // (0 0 0 0 0 0)
-    Shear6 (T a);		   // (a a a a a a)
     Shear6 (T XY, T XZ, T YZ);	   // (XY XZ YZ 0 0 0)
     Shear6 (const Vec3<T> &v);     // (v.x v.y v.z 0 0 0)
     template <class S>             // (v.x v.y v.z 0 0 0)
 	Shear6 (const Vec3<S> &v);
-    Shear6 (const T a[6]);	   // (a[0] a[1] a[2] a[3] a[4] a[5])
     Shear6 (T XY, T XZ, T YZ,      // (XY XZ YZ YX ZX ZY)
 	    T YX, T ZX, T ZY);	
 
@@ -95,7 +93,6 @@ template <class T> class Shear6
     const Shear6 &	operator = (const Shear6 &h);
     template <class S> 
 	const Shear6 &	operator = (const Vec3<S> &v);
-    const Shear6 &	operator = (T a);
 
 
     //----------------------
@@ -156,7 +153,6 @@ template <class T> class Shear6
     //------------------------
 
     const Shear6 &	operator += (const Shear6 &h);
-    const Shear6 &	operator += (T a);
     Shear6		operator + (const Shear6 &h) const;
 
 
@@ -165,7 +161,6 @@ template <class T> class Shear6
     //---------------------------
 
     const Shear6 &	operator -= (const Shear6 &h);
-    const Shear6 &	operator -= (T a);
     Shear6		operator - (const Shear6 &h) const;
 
 
@@ -195,16 +190,6 @@ template <class T> class Shear6
     const Shear6 &	operator /= (T a);
     Shear6		operator / (const Shear6 &h) const;
     Shear6		operator / (T a) const;
-
-
-    //------------------------------------------------------------
-    // Component-wise comparison -- (must be true for all for a 1)
-    //------------------------------------------------------------
-
-    bool		operator <  (const Shear6 &h) const;
-    bool		operator <= (const Shear6 &h) const;
-    bool		operator >  (const Shear6 &h) const;
-    bool		operator >= (const Shear6 &h) const;
 
 
     //----------------------------------------------------------
@@ -284,25 +269,6 @@ inline
 Shear6<T>::Shear6 ()
 {
     xy = xz = yz = yx = zx = zy = 0;
-}
-
-template <class T>
-inline
-Shear6<T>::Shear6 (T a)
-{
-    xy = xz = yz = yx = zx = zy = a;
-}
-
-template <class T>
-inline
-Shear6<T>::Shear6 (const T a[6]) 
-{
-    xy = a[0];
-    xz = a[1];
-    yz = a[2];
-    yx = a[3];
-    zx = a[4];
-    zy = a[5];
 }
 
 template <class T>
@@ -403,19 +369,6 @@ Shear6<T>::operator = (const Vec3<S> &v)
     yx = 0;
     zx = 0;
     zy = 0;
-    return *this;
-}
-
-template <class T>
-inline const Shear6<T> &
-Shear6<T>::operator = (T a)
-{
-    xy = a;
-    xz = a;
-    yz = a;
-    yx = a;
-    zx = a;
-    zy = a;
     return *this;
 }
 
@@ -540,19 +493,6 @@ Shear6<T>::operator += (const Shear6 &h)
 }
 
 template <class T>
-inline const Shear6<T> &
-Shear6<T>::operator += (T a)
-{
-    xy += a;
-    xz += a;
-    yz += a;
-    yx += a;
-    zx += a;
-    zy += a;
-    return *this;
-}
-
-template <class T>
 inline Shear6<T>
 Shear6<T>::operator + (const Shear6 &h) const
 {
@@ -570,19 +510,6 @@ Shear6<T>::operator -= (const Shear6 &h)
     yx -= h.yx;
     zx -= h.zx;
     zy -= h.zy;
-    return *this;
-}
-
-template <class T>
-inline const Shear6<T> &
-Shear6<T>::operator -= (T a)
-{
-    xy -= a;
-    xz -= a;
-    yz -= a;
-    yx -= a;
-    zx -= a;
-    zy -= a;
     return *this;
 }
 
@@ -696,39 +623,6 @@ Shear6<T>::operator / (T a) const
 {
     return Shear6 (xy / a, xz / a, yz / a,
 		   yx / a, zx / a, zy / a);
-}
-
-
-template <class T>
-inline bool
-Shear6<T>::operator < (const Shear6<T> &h) const
-{
-    return xy < h.xy  &&  xz < h.xz  &&  yz < h.yz  &&
-	   yx < h.yx  &&  zx < h.zx  &&  zy < h.zy;
-}
-
-template <class T>
-inline bool
-Shear6<T>::operator > (const Shear6<T> &h) const
-{
-    return xy > h.xy  &&  xz > h.xz  &&  yz > h.yz  &&
-	   yx > h.yx  &&  zx > h.zx  &&  zy > h.zy;
-}
-
-template <class T>
-inline bool
-Shear6<T>::operator <= (const Shear6<T> &h) const
-{
-    return xy <= h.xy  &&  xz <= h.xz  &&  yz <= h.yz  &&
-	   yx <= h.yx  &&  zx <= h.zx  &&  zy <= h.zy;
-}
-
-template <class T>
-inline bool
-Shear6<T>::operator >= (const Shear6<T> &h) const
-{
-    return xy >= h.xy  &&  xz >= h.xz  &&  yz >= h.yz  &&
-	   yx >= h.yx  &&  zx >= h.zx  &&  zy >= h.zy;
 }
 
 

@@ -57,12 +57,11 @@ testShear ()
     float    	        array[6] = { 1.0F, 2.0F, 3.0F, 4.0F, 5.0F, 6.0F };
     Imath::Shear6f    	testConstructor1;
     Imath::Shear6f    	testConstructor2( testConstructor1 );
-    Imath::Shear6f    	testConstructor3( array );
 
-    testConstructor3 = testConstructor2; 
+    testConstructor1 = testConstructor2; 
 
-    Imath::Shear6f    	testConstructor4( 52, 128, 254, 127, 12, -20 );
-    Imath::Shear6f    	A( testConstructor4 );
+    Imath::Shear6f    	testConstructor3( 52, 128, 254, 127, 12, -20 );
+    Imath::Shear6f    	A( testConstructor3 );
     Imath::Shear6f    	B = A;
     Imath::Shear6f    	X, Y, tmp;
 
@@ -94,10 +93,6 @@ testShear ()
 
     B = A;
     assert( B == A );
-    assert( B <= A );
-    assert( B >= A );
-    assert( !( B < A ) );
-    assert( !( B > A ) );
     assert( !( B != A ) );
 
     X = Y = Imath::Shear6f( 0.123f, -0.420f,  0.501f, 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -58,8 +58,7 @@ class Color3: public Vec3 <T>
     //-------------
 
     Color3 ();			// no initialization
-    Color3 (T a);		// (a a a)
-    Color3 (const T a[3]);	// (a[0] a[1] a[2])
+    explicit Color3 (T a);	// (a a a)
     Color3 (T a, T b, T c);	// (a b c)
 
 
@@ -71,7 +70,6 @@ class Color3: public Vec3 <T>
     template <class S> Color3 (const Vec3<S> &v);
 
     const Color3 &	operator = (const Color3 &c);
-    const Color3 &	operator = (T a);
 
 
     //------------------------
@@ -79,7 +77,6 @@ class Color3: public Vec3 <T>
     //------------------------
 
     const Color3 &	operator += (const Color3 &c);
-    const Color3 &	operator += (T a);
     Color3		operator + (const Color3 &c) const;
 
 
@@ -88,7 +85,6 @@ class Color3: public Vec3 <T>
     //---------------------------
 
     const Color3 &	operator -= (const Color3 &c);
-    const Color3 &	operator -= (T a);
     Color3		operator - (const Color3 &c) const;
 
 
@@ -139,8 +135,7 @@ template <class T> class Color4
     //-------------
 
     Color4 ();			    	// no initialization
-    Color4 (T a);			// (a a a a)
-    Color4 (const T a[4]);     	    	// (a[0] a[1] a[2] a[3])
+    explicit Color4 (T a);		// (a a a a)
     Color4 (T a, T b, T c, T d);	// (a b c d)
 
 
@@ -152,7 +147,6 @@ template <class T> class Color4
     template <class S> Color4 (const Color4<S> &v);
 
     const Color4 &	operator = (const Color4 &v);
-    const Color4 &	operator = (T a);
 
 
     //----------------------
@@ -191,7 +185,6 @@ template <class T> class Color4
     //------------------------
 
     const Color4 &	operator += (const Color4 &v);
-    const Color4 &	operator += (T a);
     Color4		operator + (const Color4 &v) const;
 
 
@@ -200,7 +193,6 @@ template <class T> class Color4
     //---------------------------
 
     const Color4 &	operator -= (const Color4 &v);
-    const Color4 &	operator -= (T a);
     Color4		operator - (const Color4 &v) const;
 
 
@@ -230,16 +222,6 @@ template <class T> class Color4
     const Color4 &	operator /= (T a);
     Color4		operator / (const Color4 &v) const;
     Color4		operator / (T a) const;
-
-
-    //------------------------------------------------------------
-    // Component-wise comparison -- (must be true for all for a 1)
-    //------------------------------------------------------------
-
-    bool		operator <  (const Color4 &v) const;
-    bool		operator <= (const Color4 &v) const;
-    bool		operator >  (const Color4 &v) const;
-    bool		operator >= (const Color4 &v) const;
 
 
     //----------------------------------------------------------
@@ -316,13 +298,6 @@ Color3<T>::Color3 (T a): Vec3 <T> (a)
 
 template <class T>
 inline
-Color3<T>::Color3 (const T a[3]): Vec3 <T> (a)
-{
-    // empty
-}
-
-template <class T>
-inline
 Color3<T>::Color3 (T a, T b, T c): Vec3 <T> (a, b, c)
 {
     // empty
@@ -353,25 +328,9 @@ Color3<T>::operator = (const Color3 &c)
 
 template <class T>
 inline const Color3<T> &
-Color3<T>::operator = (T a)
-{
-    *((Vec3<T> *) this) = a;
-    return *this;
-}
-
-template <class T>
-inline const Color3<T> &
 Color3<T>::operator += (const Color3 &c)
 {
     *((Vec3<T> *) this) += c;
-    return *this;
-}
-
-template <class T>
-inline const Color3<T> &
-Color3<T>::operator += (T a)
-{
-    *((Vec3<T> *) this) += a;
     return *this;
 }
 
@@ -387,14 +346,6 @@ inline const Color3<T> &
 Color3<T>::operator -= (const Color3 &c)
 {
     *((Vec3<T> *) this) -= c;
-    return *this;
-}
-
-template <class T>
-inline const Color3<T> &
-Color3<T>::operator -= (T a)
-{
-    *((Vec3<T> *) this) -= a;
     return *this;
 }
 
@@ -514,16 +465,6 @@ Color4<T>::Color4 (T x)
 
 template <class T>
 inline
-Color4<T>::Color4 (const T x[4]) 
-{
-    r = x[0];
-    g = x[1];
-    b = x[2];
-    a = x[3];
-}
-
-template <class T>
-inline
 Color4<T>::Color4 (T x, T y, T z, T w)
 {
     r = x;
@@ -561,17 +502,6 @@ Color4<T>::operator = (const Color4 &v)
     g = v.g;
     b = v.b;
     a = v.a;
-    return *this;
-}
-
-template <class T>
-inline const Color4<T> &
-Color4<T>::operator = (T x)
-{
-    r = x;
-    g = x;
-    b = x;
-    a = x;
     return *this;
 }
 
@@ -661,17 +591,6 @@ Color4<T>::operator += (const Color4 &v)
 }
 
 template <class T>
-inline const Color4<T> &
-Color4<T>::operator += (T x)
-{
-    r += x;
-    g += x;
-    b += x;
-    a += x;
-    return *this;
-}
-
-template <class T>
 inline Color4<T>
 Color4<T>::operator + (const Color4 &v) const
 {
@@ -686,17 +605,6 @@ Color4<T>::operator -= (const Color4 &v)
     g -= v.g;
     b -= v.b;
     a -= v.a;
-    return *this;
-}
-
-template <class T>
-inline const Color4<T> &
-Color4<T>::operator -= (T x)
-{
-    r -= x;
-    g -= x;
-    b -= x;
-    a -= x;
     return *this;
 }
 
@@ -797,38 +705,6 @@ Color4<T>::operator / (T x) const
     return Color4 (r / x, g / x, b / x, a / x);
 }
 
-
-template <class T>
-inline bool
-Color4<T>::operator < (const Color4<T> &v) const
-{
-    return r < v.r && g < v.g && b < v.b && a < v.a;
-}
-
-template <class T>
-inline bool
-Color4<T>::operator > (const Color4<T> &v) const
-{
-    return r > v.r && g > v.g && b > v.b && a > v.a;
-}
-
-template <class T>
-inline bool
-Color4<T>::operator <= (const Color4<T> &v) const
-{
-    return r <= v.r && g <= v.g && b <= v.b && a <= v.a;
-}
-
-template <class T>
-inline bool
-Color4<T>::operator >= (const Color4<T> &v) const
-{
-    return r >= v.r && g >= v.g && b >= v.b && a >= v.a;
-}
-
-//-----------------------------
-// Stream output implementation
-//-----------------------------
 
 template <class T>
 std::ostream &

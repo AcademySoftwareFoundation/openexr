@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -71,10 +71,9 @@ template <class T> class Vec2
     // Constructors
     //-------------
 
-    Vec2 ();			// no initialization
-    Vec2 (T a);			// (a a)
-    Vec2 (const T a[2]);	// (a[0] a[1])
-    Vec2 (T a, T b);		// (a b)
+    Vec2 ();                        // no initialization
+    explicit Vec2 (T a);            // (a a)
+    Vec2 (T a, T b);                // (a b)
 
 
     //---------------------------------
@@ -85,7 +84,6 @@ template <class T> class Vec2
     template <class S> Vec2 (const Vec2<S> &v);
 
     const Vec2 &	operator = (const Vec2 &v);
-    const Vec2 &	operator = (T a);
 
 
     //----------------------
@@ -162,7 +160,6 @@ template <class T> class Vec2
     //------------------------
 
     const Vec2 &	operator += (const Vec2 &v);
-    const Vec2 &	operator += (T a);
     Vec2		operator + (const Vec2 &v) const;
 
 
@@ -171,7 +168,6 @@ template <class T> class Vec2
     //---------------------------
 
     const Vec2 &	operator -= (const Vec2 &v);
-    const Vec2 &	operator -= (T a);
     Vec2		operator - (const Vec2 &v) const;
 
 
@@ -201,16 +197,6 @@ template <class T> class Vec2
     const Vec2 &	operator /= (T a);
     Vec2		operator / (const Vec2 &v) const;
     Vec2		operator / (T a) const;
-
-
-    //------------------------------------------------------------
-    // Component-wise comparison -- (must be true for all for a 1)
-    //------------------------------------------------------------
-
-    bool		operator <  (const Vec2 &v) const;
-    bool		operator <= (const Vec2 &v) const;
-    bool		operator >  (const Vec2 &v) const;
-    bool		operator >= (const Vec2 &v) const;
 
 
     //----------------------------------------------------------------
@@ -279,10 +265,9 @@ template <class T> class Vec3
     // Constructors
     //-------------
 
-    Vec3 ();			// no initialization
-    Vec3 (T a);			// (a a a)
-    Vec3 (const T a[3]);	// (a[0] a[1] a[2])
-    Vec3 (T a, T b, T c);	// (a b c)
+    Vec3 ();			   // no initialization
+    explicit Vec3 (T a);           // (a a a)
+    Vec3 (T a, T b, T c);	   // (a b c)
 
 
     //---------------------------------
@@ -293,7 +278,6 @@ template <class T> class Vec3
     template <class S> Vec3 (const Vec3<S> &v);
 
     const Vec3 &	operator = (const Vec3 &v);
-    const Vec3 &	operator = (T a);
 
 
     //----------------------
@@ -369,7 +353,6 @@ template <class T> class Vec3
     //------------------------
 
     const Vec3 &	operator += (const Vec3 &v);
-    const Vec3 &	operator += (T a);
     Vec3		operator + (const Vec3 &v) const;
 
 
@@ -378,7 +361,6 @@ template <class T> class Vec3
     //---------------------------
 
     const Vec3 &	operator -= (const Vec3 &v);
-    const Vec3 &	operator -= (T a);
     Vec3		operator - (const Vec3 &v) const;
 
 
@@ -408,16 +390,6 @@ template <class T> class Vec3
     const Vec3 &	operator /= (T a);
     Vec3		operator / (const Vec3 &v) const;
     Vec3		operator / (T a) const;
-
-
-    //------------------------------------------------------------
-    // Component-wise comparison -- (must be true for all for a 1)
-    //------------------------------------------------------------
-
-    bool		operator <  (const Vec3 &v) const;
-    bool		operator <= (const Vec3 &v) const;
-    bool		operator >  (const Vec3 &v) const;
-    bool		operator >= (const Vec3 &v) const;
 
 
     //----------------------------------------------------------------
@@ -635,14 +607,6 @@ Vec2<T>::Vec2 (T a)
 
 template <class T>
 inline
-Vec2<T>::Vec2 (const T a[2]) 
-{
-    x = a[0];
-    y = a[1];
-}
-
-template <class T>
-inline
 Vec2<T>::Vec2 (T a, T b)
 {
     x = a;
@@ -672,15 +636,6 @@ Vec2<T>::operator = (const Vec2 &v)
 {
     x = v.x;
     y = v.y;
-    return *this;
-}
-
-template <class T>
-inline const Vec2<T> &
-Vec2<T>::operator = (T a)
-{
-    x = a;
-    y = a;
     return *this;
 }
 
@@ -811,15 +766,6 @@ Vec2<T>::operator += (const Vec2 &v)
 }
 
 template <class T>
-inline const Vec2<T> &
-Vec2<T>::operator += (T a)
-{
-    x += a;
-    y += a;
-    return *this;
-}
-
-template <class T>
 inline Vec2<T>
 Vec2<T>::operator + (const Vec2 &v) const
 {
@@ -832,15 +778,6 @@ Vec2<T>::operator -= (const Vec2 &v)
 {
     x -= v.x;
     y -= v.y;
-    return *this;
-}
-
-template <class T>
-inline const Vec2<T> &
-Vec2<T>::operator -= (T a)
-{
-    x -= a;
-    y -= a;
     return *this;
 }
 
@@ -929,34 +866,6 @@ inline Vec2<T>
 Vec2<T>::operator / (T a) const
 {
     return Vec2 (x / a, y / a);
-}
-
-template <class T>
-inline bool
-Vec2<T>::operator < (const Vec2<T>& v) const
-{
-    return x < v.x && y < v.y;
-}
-
-template <class T>
-inline bool
-Vec2<T>::operator > (const Vec2<T>& v) const
-{
-    return x > v.x && y > v.y;
-}
-
-template <class T>
-inline bool
-Vec2<T>::operator <= (const Vec2<T>& v) const
-{
-    return x <= v.x && y <= v.y;
-}
-
-template <class T>
-inline bool
-Vec2<T>::operator >= (const Vec2<T>& v) const
-{
-    return x >= v.x && y >= v.y;
 }
 
 template <class T>
@@ -1081,15 +990,6 @@ Vec3<T>::Vec3 (T a)
 
 template <class T>
 inline
-Vec3<T>::Vec3 (const T a[3]) 
-{
-    x = a[0];
-    y = a[1];
-    z = a[2];
-}
-
-template <class T>
-inline
 Vec3<T>::Vec3 (T a, T b, T c)
 {
     x = a;
@@ -1123,16 +1023,6 @@ Vec3<T>::operator = (const Vec3 &v)
     x = v.x;
     y = v.y;
     z = v.z;
-    return *this;
-}
-
-template <class T>
-inline const Vec3<T> &
-Vec3<T>::operator = (T a)
-{
-    x = a;
-    y = a;
-    z = a;
     return *this;
 }
 
@@ -1284,16 +1174,6 @@ Vec3<T>::operator += (const Vec3 &v)
 }
 
 template <class T>
-inline const Vec3<T> &
-Vec3<T>::operator += (T a)
-{
-    x += a;
-    y += a;
-    z += a;
-    return *this;
-}
-
-template <class T>
 inline Vec3<T>
 Vec3<T>::operator + (const Vec3 &v) const
 {
@@ -1307,16 +1187,6 @@ Vec3<T>::operator -= (const Vec3 &v)
     x -= v.x;
     y -= v.y;
     z -= v.z;
-    return *this;
-}
-
-template <class T>
-inline const Vec3<T> &
-Vec3<T>::operator -= (T a)
-{
-    x -= a;
-    y -= a;
-    z -= a;
     return *this;
 }
 
@@ -1412,34 +1282,6 @@ Vec3<T>::operator / (T a) const
     return Vec3 (x / a, y / a, z / a);
 }
 
-
-template <class T>
-inline bool
-Vec3<T>::operator < (const Vec3<T> &v) const
-{
-    return x < v.x && y < v.y && z < v.z;
-}
-
-template <class T>
-inline bool
-Vec3<T>::operator > (const Vec3<T> &v) const
-{
-    return x > v.x && y > v.y && z > v.z;
-}
-
-template <class T>
-inline bool
-Vec3<T>::operator <= (const Vec3<T> &v) const
-{
-    return x <= v.x && y <= v.y && z <= v.z;
-}
-
-template <class T>
-inline bool
-Vec3<T>::operator >= (const Vec3<T> &v) const
-{
-    return x >= v.x && y >= v.y && z >= v.z;
-}
 
 template <class T>
 inline T
