@@ -132,7 +132,7 @@ generatePreview (const char inFileName[],
 	    preview.r = gamma (pixel.r, m);
 	    preview.g = gamma (pixel.g, m);
 	    preview.b = gamma (pixel.b, m);
-	    preview.a = int (clamp (pixel.a * 255.f, 0.f, 255.f) * .5f);
+	    preview.a = int (clamp (pixel.a * 255.f, 0.f, 255.f) + .5f);
 	}
     }
 }
