@@ -40,6 +40,8 @@
 
 #include <ImathVec.h>
 #include <ImathMatrix.h>
+#include <IexMathExc.h>
+#include <ImathFun.h>
 
 inline void glVertex    ( const Imath::V3f &v ) { glVertex3f(v.x,v.y,v.z);   }
 inline void glVertex    ( const Imath::V2f &v ) { glVertex2f(v.x,v.y);       }
@@ -68,27 +70,65 @@ inline void glDisableTexture()
     glDisable(GL_TEXTURE_2D);
 }
 
+namespace {
+    
+const float GL_FLOAT_MAX = 1.8e+19; // sqrt (FLT_MAX)
+
+inline bool
+badFloat (float f)
+{
+    return !Imath::finitef (f) || f < - GL_FLOAT_MAX || f > GL_FLOAT_MAX;
+}
+
+} // namespace
+	
+inline void
+throwBadMatrix (const Imath::M44f& m)
+{
+    if (badFloat (m[0][0]) ||
+	badFloat (m[0][1]) ||
+	badFloat (m[0][2]) ||
+	badFloat (m[0][3]) || 
+	badFloat (m[1][0]) ||
+	badFloat (m[1][1]) ||
+	badFloat (m[1][2]) ||
+	badFloat (m[1][3]) || 
+	badFloat (m[2][0]) ||
+	badFloat (m[2][1]) ||
+	badFloat (m[2][2]) ||
+	badFloat (m[2][3]) || 
+	badFloat (m[3][0]) ||
+	badFloat (m[3][1]) ||
+	badFloat (m[3][2]) ||
+	badFloat (m[3][3]))
+	throw Iex::OverflowExc ("GL matrix overflow");
+}
+
 inline void 
 glMultMatrix( const Imath::M44f& m ) 
 { 
+    throwBadMatrix (m);
     glMultMatrixf( (GLfloat*)m[0] ); 
 }
 
 inline void 
 glMultMatrix( const Imath::M44f* m ) 
 { 
+    throwBadMatrix (*m);
     glMultMatrixf( (GLfloat*)(*m)[0] ); 
 }
 
 inline void 
 glLoadMatrix( const Imath::M44f& m ) 
 { 
+    throwBadMatrix (m);
     glLoadMatrixf( (GLfloat*)m[0] ); 
 }
 
 inline void 
 glLoadMatrix( const Imath::M44f* m ) 
 { 
+    throwBadMatrix (*m);
     glLoadMatrixf( (GLfloat*)(*m)[0] ); 
 }
 
