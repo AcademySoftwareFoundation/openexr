@@ -275,7 +275,7 @@ void			printBits   (char  c[35], float f);
 // results if they are.
 //-------------------------------------------------------------------------
 
-#if defined(WIN32) || defined(PLATFORM_WINDOWS)
+#if defined(PLATFORM_WINDOWS)
 
 #define HALF_MIN	5.96046448e-08f	// Smallest positive half
 

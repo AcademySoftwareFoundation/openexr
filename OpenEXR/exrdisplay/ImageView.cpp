@@ -46,9 +46,11 @@
 #include <halfFunction.h>
 #include <algorithm>
 
-#if defined PLATFORM_WIN32
+#if defined PLATFORM_WINDOWS
+#ifdef WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #endif
 #include <windows.h>
 #include <GL/gl.h>
