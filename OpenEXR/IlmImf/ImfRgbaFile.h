@@ -59,7 +59,7 @@ namespace Imf {
 
 class OutputFile;
 class InputFile;
-class PreviewRgba;
+struct PreviewRgba;
 
 
 //
