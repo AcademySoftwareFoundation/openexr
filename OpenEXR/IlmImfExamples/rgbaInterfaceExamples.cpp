@@ -56,7 +56,7 @@ using namespace std;
 using namespace Imf;
 using namespace Imath;
 
-#if defined PLATFORM_WIN32
+#if defined PLATFORM_WIN32 && _MSC_VER < 1300
 namespace
 {
 template<class T>
