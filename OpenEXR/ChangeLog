@@ -1,4 +1,13 @@
 Version 1.1.1:
+	* Half: operator= and variants now return by reference rather
+	  than by value.  This brings half into conformance with
+	  built-in types.  (Drew Hess)
+	* Half: remove copy constructor, let compiler supply its
+	  own.  This improves performance up to 25% on some
+	  expressions using half.  (Drew Hess)
+	* configure: don't try to be fancy with CXXFLAGS, just use
+	  what the user supplies or let configure choose a sensible
+	  default if CXXFLAGS is not defined.
         * IlmImf: fixed a bug in reading scanline files on big-endian
           architectures.  (Drew Hess)
 	* exrmaketiled: Added an option to select compression type.
