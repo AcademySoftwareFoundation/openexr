@@ -106,13 +106,13 @@ readBackImage (const char fileName[],
 
     FrameBuffer frameBuffer;
 
-    char *base = (char *) (&pixels[0][0] - dw.min.x - dw.min.y * w);
+    Rgba *base = &pixels[0][0] - dw.min.x - dw.min.y * w;
     int xStride = sizeof (pixels[0][0]) * xs;
     int yStride = sizeof (pixels[0][0]) * w * ys;
 
     frameBuffer.insert ("R",                          // name
                         Slice (HALF,                  // type
-                        base + offsetof (Rgba, r),    // base
+                        (char *) &base[0].r,          // base
                         xStride,                      // xStride
                         yStride,                      // yStride
                         xs, ys,                       // x/y sampling
@@ -120,7 +120,7 @@ readBackImage (const char fileName[],
 
     frameBuffer.insert ("G",                          // name
                         Slice (HALF,                  // type
-                        base + offsetof (Rgba, g),    // base
+                        (char *) &base[0].g,          // base
                         xStride,                      // xStride
                         yStride,                      // yStride
                         xs, ys,                       // x/y sampling
@@ -128,7 +128,7 @@ readBackImage (const char fileName[],
                         
     frameBuffer.insert ("B",                          // name
                         Slice (HALF,                  // type
-                        base + offsetof (Rgba, b),    // base
+                        (char *) &base[0].b,          // base
                         xStride,                      // xStride
                         yStride,                      // yStride
                         xs, ys,                       // x/y sampling
@@ -136,7 +136,7 @@ readBackImage (const char fileName[],
                         
     frameBuffer.insert ("A",                          // name
                         Slice (HALF,                  // type
-                        base + offsetof (Rgba, a),    // base
+                        (char *) &base[0].a,          // base
                         xStride,                      // xStride
                         yStride,                      // yStride
                         xs, ys,                       // x/y sampling
@@ -181,34 +181,34 @@ writeImage (const char fileName[],
     OutputFile file (fileName, header);    
     FrameBuffer frameBuffer;
 
-    char *base = (char *) (&pixels[0][0]); 
+    const Rgba *base = &pixels[0][0];
     int xStride = sizeof (pixels[0][0]) * xs;
     int yStride = sizeof (pixels[0][0]) * 0;
 
     frameBuffer.insert ("R",                          // name
                         Slice (HALF,                  // type
-                        base + offsetof (Rgba, r),    // base
+                        (char *) &base[0].r,          // base
                         xStride,                      // xStride
                         yStride,                      // yStride
                         xs, ys));                     // x/y sampling
 
     frameBuffer.insert ("G",                          // name
                         Slice (HALF,                  // type
-                        base + offsetof (Rgba, g),    // base
+                        (char *) &base[0].g,          // base
                         xStride,                      // xStride
                         yStride,                      // yStride
                         xs, ys));                     // x/y sampling
 
     frameBuffer.insert ("B",                          // name
                         Slice (HALF,                  // type
-                        base + offsetof (Rgba, b),    // base
+                        (char *) &base[0].b,          // base
                         xStride,                      // xStride
                         yStride,                      // yStride
                         xs, ys));                     // x/y sampling
 
     frameBuffer.insert ("A",                          // name
                         Slice (HALF,                  // type
-                        base + offsetof (Rgba, a),    // base
+                        (char *) &base[0].a,          // base
                         xStride,                      // xStride
                         yStride,                      // yStride
                         xs, ys));                     // x/y sampling
@@ -217,11 +217,11 @@ writeImage (const char fileName[],
     for (int y = 0; y < height; ++y)
     {
         // set the base address for this scanline
-        base = (char *) (&pixels[y][0]);
-        frameBuffer["R"].base = base + offsetof (Rgba, r);
-        frameBuffer["G"].base = base + offsetof (Rgba, g);
-        frameBuffer["B"].base = base + offsetof (Rgba, b);
-        frameBuffer["A"].base = base + offsetof (Rgba, a);
+        base = &pixels[y][0];
+        frameBuffer["R"].base = (char *) &base[0].r;
+        frameBuffer["G"].base = (char *) &base[0].g;
+        frameBuffer["B"].base = (char *) &base[0].b;
+        frameBuffer["A"].base = (char *) &base[0].a;
         
         // set the framebuffer and write the pixels
         file.setFrameBuffer (frameBuffer);

@@ -41,6 +41,7 @@
 #include <half.h>
 #include <ImathRandom.h>
 #include <ImfTileDescriptionAttribute.h>
+#include <compareFloat.h>
 
 #include <stdio.h>
 #include <assert.h>
@@ -340,7 +341,7 @@ writeRead (const Array2D<unsigned int> &pi1,
             {
                 assert (pi1[y][x] == pi2[y][x]);
                 assert (ph1[y][x] == ph2[y][x]);
-                assert (pf1[y][x] == pf2[y][x]);
+                assert (equivalent (pf1[y][x], pf2[y][x], comp));
             }
         }
     }

@@ -147,7 +147,8 @@ writeRead (const Array2D<unsigned int> &pi1,
         TiledOutputFile out (fileName, hdr);
         out.setFrameBuffer (fb);
         
-        int startTileY, endTileY;
+        int startTileY = -1;
+	int endTileY = -1;
         int dy;
 
         switch (mode)

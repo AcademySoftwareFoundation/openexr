@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -40,6 +40,7 @@
 #include <ImfArray.h>
 #include <ImathRandom.h>
 #include <half.h>
+#include <compareFloat.h>
 
 #include <stdio.h>
 #include <assert.h>
@@ -324,12 +325,7 @@ writeRead (const Array2D<unsigned int> &pi1,
 	    {
 		assert (pi1[y][x] == pi2[y][x]);
 		assert (ph1[y][x].bits() == ph2[y][x].bits());
-
-		union {float f; int i;} u1, u2;
-		u1.f = pf1[y][x];
-		u2.f = pf2[y][x];
-
-		assert (u1.i == u2.i);
+		assert (equivalent (pf1[y][x], pf2[y][x], comp));
 	    }
 	}
     }

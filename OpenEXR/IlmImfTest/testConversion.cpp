@@ -1,47 +1,16 @@
-///////////////////////////////////////////////////////////////////////////
-//
-// Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-///////////////////////////////////////////////////////////////////////////
-
-
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
+#include <ImfTiledOutputFile.h>
+#include <ImfTiledInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
 #include <ImfConvert.h>
 #include <half.h>
+#include <compareFloat.h>
 
 #include <stdio.h>
 #include <assert.h>
+#include <paths.h>
 
 using namespace std;
 using namespace Imath;
@@ -135,16 +104,33 @@ testNumbers ()
 }
 
 
+template <class T>
+bool
+isEquivalent (T t1, T t2, Compression compression)
+{
+    return t1 == t2;
+}
+
+
+template<>
+bool
+isEquivalent (float t1, float t2, Compression compression)
+{
+    return equivalent (t1, t2, compression);
+}
+
+
 template <class OutType, PixelType OutTypeTag,
           class InType,  PixelType InTypeTag>
 void
-testImageChannel (const char fileName[],
-		  int width, int height,
-		  Compression compression)
+testScanLineImageChannel (const char fileName[],
+		          int width, int height,
+			  Compression compression)
 {
-    cout << "compression " << compression << ", " <<
+    cout << "scan lines, "
+	    "compression " << compression << ", " <<
 	    "output type " << OutTypeTag << ", " <<
-	    "input type " << InTypeTag << ": " << flush;
+	    "input type " << InTypeTag << ":\n    " << flush;
 
     Array2D<OutType> outPixels (height, width);
 
@@ -196,12 +182,118 @@ testImageChannel (const char fileName[],
     cout << "comparing" << flush;
 
     for (int y = 0; y < height; ++y)
+    {
 	for (int x = 0; x < width; ++x)
-	    assert (inPixels[y][x] == InType (outPixels[y][x]));
+	{
+	    assert (isEquivalent (inPixels[y][x],
+				  InType (outPixels[y][x]),
+				  compression));
+	}
+    }
 
     cout << endl;
 
     remove (fileName);
+}
+
+
+template <class OutType, PixelType OutTypeTag,
+          class InType,  PixelType InTypeTag>
+void
+testTiledImageChannel (const char fileName[],
+		       int width, int height,
+		       Compression compression)
+{
+    cout << "tiles, "
+	    "compression " << compression << ", " <<
+	    "output type " << OutTypeTag << ", " <<
+	    "input type " << InTypeTag << ":\n    " << flush;
+
+    Array2D<OutType> outPixels (height, width);
+
+    for (int y = 0; y < height; ++y)
+	for (int x = 0; x < width; ++x)
+	    outPixels[y][x] = x * 10 + y;
+
+    {
+	Header hdr (width, height);
+
+	hdr.setTileDescription (TileDescription (67, 67, ONE_LEVEL));
+
+	hdr.compression() = compression;
+
+	hdr.channels().insert ("X", 				// name
+			       Channel (OutTypeTag));		// type
+
+	FrameBuffer fb;
+
+	fb.insert ("X",						// name
+		   Slice (OutTypeTag,				// type
+		          (char *) &outPixels[0][0],		// base
+			  sizeof (outPixels[0][0]),		// xStride
+			  sizeof (outPixels[0][0]) * width));	// yStride
+
+	cout << "writing " << flush;
+
+	TiledOutputFile out (fileName, hdr);
+	out.setFrameBuffer (fb);
+
+	for (int dy = 0; dy < out.numYTiles(); ++dy)
+	    for (int dx = 0; dx < out.numXTiles(); ++dx)
+		out.writeTile (dx, dy);
+    }
+
+    Array2D<InType> inPixels (height, width);
+
+    {
+	cout << "reading " << flush;
+
+	FrameBuffer fb;
+
+	fb.insert ("X",						// name
+		   Slice (InTypeTag,				// type
+		          (char *) &inPixels[0][0],		// base
+			  sizeof (inPixels[0][0]),		// xStride
+			  sizeof (inPixels[0][0]) * width));	// yStride
+
+	TiledInputFile in (fileName);
+	in.setFrameBuffer (fb);
+
+	for (int dy = 0; dy < in.numYTiles(); ++dy)
+	    for (int dx = 0; dx < in.numXTiles(); ++dx)
+		in.readTile (dx, dy);
+    }
+
+    cout << "comparing" << flush;
+
+    for (int y = 0; y < height; ++y)
+    {
+	for (int x = 0; x < width; ++x)
+	{
+	    assert (isEquivalent (inPixels[y][x],
+				  InType (outPixels[y][x]),
+				  compression));
+	}
+    }
+
+    cout << endl;
+
+    remove (fileName);
+}
+
+
+template <class OutType, PixelType OutTypeTag,
+          class InType,  PixelType InTypeTag>
+void
+testImageChannel (const char fileName[],
+		  int width, int height,
+		  Compression compression)
+{
+    testScanLineImageChannel <OutType, OutTypeTag, InType, InTypeTag>
+	(fileName, width, height, compression);
+
+    testTiledImageChannel <OutType, OutTypeTag, InType, InTypeTag>
+	(fileName, width, height, compression);
 }
 
 
@@ -212,12 +304,6 @@ testImageChannel (const char fileName[],
 void
 testConversion ()
 {
-#ifdef PLATFORM_WIN32
-    const char * filename = "imf_test_conv.exr";
-#else
-    const char * filename = "/var/tmp/imf_test_conv.exr";
-#endif
-
     try
     {
 	cout << "Testing conversion between pixel data types" << endl;
@@ -231,47 +317,47 @@ testConversion ()
 	for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
 	{
 	    testImageChannel <unsigned int, UINT, unsigned int, UINT>
-			     (filename,
+			     ("/var/tmp/imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <unsigned int, UINT, half, HALF>
-			     (filename,
+			     ("/var/tmp/imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <unsigned int, UINT, float, FLOAT>
-			     (filename,
+			     ("/var/tmp/imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <half, HALF, unsigned int, UINT>
-			     (filename,
+			     ("/var/tmp/imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <half, HALF, half, HALF>
-			     (filename,
+			     ("/var/tmp/imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <half, HALF, float, FLOAT>
-			     (filename,
+			     ("/var/tmp/imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <float, FLOAT, unsigned int, UINT>
-			     (filename,
+			     ("/var/tmp/imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <float, FLOAT, half, HALF>
-			     (filename,
+			     ("/var/tmp/imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <float, FLOAT, float, FLOAT>
-			     (filename,
+			     ("/var/tmp/imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
