@@ -137,7 +137,7 @@ check (istream &is, T c)
 
 template <>
 void
-check (istream &is, const char c[])
+check (istream &is, const char * c)
 {
     char v[1024];
 
