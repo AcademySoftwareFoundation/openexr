@@ -172,12 +172,33 @@ class RgbaOutputFile
 
     void			updatePreviewImage (const PreviewRgba[]);
 
+
+    //-----------------------------------------------------------------------
+    // Rounding control for luminance/chroma images:
+    //
+    // If the output file contains luminance and chroma channels (WRITE_YC
+    // or WRITE_YCA), then the the significands of the luminance and
+    // chroma values are rounded to roundY and roundC bits respectively (see
+    // function half::round()).  Rounding improves compression, with minimal
+    // image degradation, usually much less than the degradation caused by
+    // chroma subsampling.  By default, roundY is 7, and roundC is 5.
+    //
+    // If the output file contains RGB channels or a luminance channel,
+    // without chroma, then no rounding is performed.
+    //-----------------------------------------------------------------------
+
+    void			setYCRounding (unsigned int roundY,
+					       unsigned int roundC);
+
   private:
 
     RgbaOutputFile (const RgbaOutputFile &);		  // not implemented
     RgbaOutputFile & operator = (const RgbaOutputFile &); // not implemented
 
+    class ToYca;
+
     OutputFile *		_outputFile;
+    ToYca *			_toYca;
 };
 
 
@@ -261,7 +282,10 @@ class RgbaInputFile
     RgbaInputFile (const RgbaInputFile &);		  // not implemented
     RgbaInputFile & operator = (const RgbaInputFile &);   // not implemented
 
+    class FromYca;
+
     InputFile *			_inputFile;
+    FromYca *			_fromYca;
 };
 
 
