@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -65,13 +65,23 @@ ImageViewFragShader::ImageViewFragShader (int x, int y,
 					  int width, int height,
 					  const char label[],
 					  const Imf::Rgba pixels[],
+					  int dw, int dh,
+					  int dx, int dy,
 					  float exposure,
 					  float defog,
 					  float kneeLow,
 					  float kneeHigh,
 					  const std::string & filename)
 :
-    ImageView (x, y, width, height, label, pixels, exposure, defog, kneeLow, 
+    ImageView (x, y,
+	       width, height,
+	       label,
+	       pixels,
+	       dw, dh,
+	       dx, dy,
+	       exposure,
+	       defog,
+	       kneeLow, 
 	       kneeHigh),
     _useSoftware (false),
     _fsFilename (filename)
@@ -120,9 +130,6 @@ ImageViewFragShader::loadTexture ()
     // load OpenEXR image as OpenGL texture
     //
 
-    int width = w ();
-    int height = h ();
-
     GLenum target = GL_TEXTURE_RECTANGLE_NV;
     glGenTextures (1, &_texture);
     glBindTexture (target, _texture);
@@ -133,7 +140,7 @@ ImageViewFragShader::loadTexture ()
     
     glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
     
-    glTexImage2D (target, 0, GL_FLOAT_RGBA16_NV, width, height, 0, 
+    glTexImage2D (target, 0, GL_FLOAT_RGBA16_NV, _dw, _dh, 0, 
 		  GL_RGBA, GL_HALF_FLOAT_NV, _rawPixels);
     
     //
@@ -162,9 +169,17 @@ ImageViewFragShader::draw()
     {
 	if (!initGL ())
 	    _useSoftware = true;
+
+	//
+	// Set up camera.
+	//
+
+	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity ();
-	glViewport (0, 0, w(), h());
-	glOrtho (0, w(), h(), 0, -1, 1);
+	glViewport (0, 0, w (), h ());
+	glOrtho (0, w (), h (), 0, -1, 1);
+	glMatrixMode (GL_MODELVIEW);
+	glLoadIdentity ();
     }
 
     if (_useSoftware)
@@ -173,6 +188,9 @@ ImageViewFragShader::draw()
 	ImageView::draw ();
 	return;
     }
+
+    glClearColor (0.3, 0.3, 0.3, 1.0);
+    glClear (GL_COLOR_BUFFER_BIT);
 
     //
     // Set fragment program parameters.  See ImageView.cpp for details
@@ -200,9 +218,9 @@ ImageViewFragShader::draw()
     glEnable (GL_TEXTURE_RECTANGLE_NV);
     glBegin (GL_QUADS);
     glTexCoord2f (0.0, 0.0); glVertex2f(0.0, 0.0);
-    glTexCoord2f (w(), 0.0); glVertex2f(w(), 0.0);
-    glTexCoord2f (w(), h()); glVertex2f(w(), h());
-    glTexCoord2f (0.0, h()); glVertex2f(0.0, h());
+    glTexCoord2f (_dw, 0.0); glVertex2f(_dw, 0.0);
+    glTexCoord2f (_dw, _dh); glVertex2f(_dw, _dh);
+    glTexCoord2f (0.0, _dh); glVertex2f(0.0, _dh);
     glEnd ();
     glDisable (GL_TEXTURE_RECTANGLE_NV);
     glDisable (GL_FRAGMENT_PROGRAM_NV);

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -61,9 +61,11 @@ class ImageViewFragShader: public ImageView
   public:
 
     ImageViewFragShader(int x, int y,
-			int w, int h,
+			int w, int h,           // display window w and h
 			const char label[],
 			const Imf::Rgba pixels[/* w*h */],
+			int dw, int dh,		// data window width and height
+			int dx, int dy,		// data window offset
 			float exposure,
 			float defog,
 			float kneeLow,

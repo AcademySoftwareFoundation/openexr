@@ -27,9 +27,11 @@ else
 fragshader_sources =
 endif
 
-exrdisplay_SOURCES = main.cpp ImageView.cpp ImageView.h $(fragshader_sources)
+exrdisplay_SOURCES = main.cpp ImageView.cpp ImageView.h $(fragshader_sources) \
+		     loadImage.cpp loadImage.h scaleImage.cpp scaleImage.h
 
-noinst_HEADERS = ImageView.h ImageViewFragShader.h
+noinst_HEADERS = ImageView.h ImageViewFragShader.h loadImage.h scaleImage.h
 
 EXTRA_DIST = main.cpp ImageView.cpp ImageView.h ImageViewFragShader.cpp \
-	     ImageViewFragShader.h exrdisplay.fp30 exrdisplay.cg README
+	     ImageViewFragShader.h exrdisplay.fp30 exrdisplay.cg README \
+	     loadImage.h loadImage.cpp scaleImage.cpp scaleImage.h

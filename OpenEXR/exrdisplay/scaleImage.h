@@ -33,67 +33,48 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#ifndef INCLUDED_IMAGE_VIEW_H
-#define INCLUDED_IMAGE_VIEW_H
+#ifndef INCLUDED_SCALE_IMAGE_H
+#define INCLUDED_SCALE_IMAGE_H
 
 //----------------------------------------------------------------------------
 //
-//	class ImageView -- draws an Imf::Rgba image in an OpenGl window
+//	Functions to scale an image.
 //
 //----------------------------------------------------------------------------
 
-#include <FL/Fl_Gl_Window.H>
 #include <ImfRgba.h>
 #include <ImfArray.h>
 
 
-class ImageView: public Fl_Gl_Window
-{
-  public:
+//
+// Scale an image horizontally or vertically, by a factor of
+// approximately f (f is adjusted slightly so that the corners
+// of the display window and the data window fall on integer
+// pixel locations).
+//
+// f		scale factor; must be >= 1.0
+//
+// w, h		width and height of the display window
+//
+// dw, dh	width and height of the data window
+//
+// dx, dy	offset of the data window's upper left
+// 		corner from the display window's upper
+// 		left corner
+//
+// pixels	the image's pixel array
+//
 
-    static float        knee (float x, float f);
-    static float        findKneeF (float x, float y);
+void	scaleX (float f,
+		int &w, int &h,
+		int &dw, int &dh,
+		int &dx, int &dy,
+		Imf::Array<Imf::Rgba> &pixels);
 
-    ImageView (int x, int y,
-	       int w, int h,            // display window width and height
-	       const char label[],
-	       const Imf::Rgba pixels[/* w*h */],
-	       int dw, int dh,		// data window width and height
-	       int dx, int dy,		// data window offset
-	       float exposure,
-	       float defog,
-	       float kneeLow,
-	       float kneeHigh);
-
-    virtual void        setExposure (float exposure);
-    virtual void	setDefog (float defog);
-    virtual void	setKneeLow (float low);
-    virtual void	setKneeHigh (float high);
-    
-    virtual void	draw();
-
- protected:
-
-    virtual void        updateScreenPixels ();
-    void		computeFogColor ();
-
-    float		_exposure;
-    float		_defog;
-    float		_kneeLow;
-    float		_kneeHigh;
-    const Imf::Rgba *	_rawPixels;
-    float		_fogR;
-    float		_fogG;
-    float		_fogB;
-    int			_dw;
-    int			_dh;
-    int			_dx;
-    int			_dy;
-
- private:
-
-    Imf::Array<unsigned char>	_screenPixels;
-};
-
+void	scaleY (float f, 
+		int &w, int &h, 
+		int &dw, int &dh,
+		int &dx, int &dy,
+		Imf::Array<Imf::Rgba> &pixels);
 
 #endif
