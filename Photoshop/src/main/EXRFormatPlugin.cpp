@@ -113,14 +113,12 @@ void EXRFormatPlugin::DoAbout (AboutRecord* inAboutRec)
         inAboutRec->sSPBasic->AcquireSuite (kADMBasicSuite, kADMBasicSuiteVersion6, (void**) &basicSuite);
 
         if (basicSuite != NULL)
-        {          
-            // basicSuite->PluginAboutBox doesn't seem to work well with Photoshop 7 for the Mac
-        
-            basicSuite->MessageAlert ("OpenEXR Format v1.0\n\n"
+        {                      
+            basicSuite->MessageAlert ("OpenEXR Format v1.0.7\n\n"
                                       "Format by Florian Kainz, Rod Bogart, Josh Pines, and Drew Hess\n"
-                                      "Plug-in by Paul Schneider\n\n"
+                                      "Plug-in by Paul Schneider\n"
                                       "www.openexr.com");
-            
+
             inAboutRec->sSPBasic->ReleaseSuite (kADMBasicSuite, kADMBasicSuiteVersion6);
             basicSuite = NULL;
         }
@@ -636,7 +634,7 @@ void PluginMain
 	
 	// catch out-of-memory exception
 	
-	catch (const std::bad_alloc& ba)
+	catch (const std::bad_alloc&)
 	{
 		*outResult = memFullErr;
 	}
