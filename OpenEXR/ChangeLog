@@ -1,3 +1,7 @@
+	* [exrdisplay] Download half framebuffer to texture memory 
+	  instead of converting to float first.  Requires latest
+	  Nvidia drivers.
+
 Version 1.0.5:
         * Fixed IlmImf.dll to use static runtime libs (Andreas).
 	* Added exrheader project to Visual Studio 6.0 workspace.
