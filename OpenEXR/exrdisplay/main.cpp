@@ -130,6 +130,7 @@ makeMainWindow (const char imageFile[],
 		bool zeroOneExposure,
 		bool normalize,
 		bool swap,
+		bool bloom,
 		bool useFragmentShader,
 		const char * fragmentShaderName)
 {
@@ -239,6 +240,13 @@ makeMainWindow (const char imageFile[],
 	scaleX (pixelAspect, w, h, dw, dh, dx, dy, mainWindow->pixels);
     else
 	scaleY (1 / pixelAspect, w, h, dw, dh, dx, dy, mainWindow->pixels);
+
+    //
+    // If necessary, simulate blooming.
+    //
+
+    if (bloom)
+	addBlooming (dw, dh, mainWindow->pixels);
 
     //
     // Build main window
@@ -437,6 +445,12 @@ usageMessage (const char argv0[], bool verbose = false)
 		"          (Useful for checking the seams of wrap-around\n"
 		"          texture map images.)\n"
 		"\n"
+		"-b        approximates the blooming effect that occurs\n"
+		"          when high-contrast images are recorded on\n"
+		"          photographic film.  Blooming reduces aliasing\n"
+		"          in computer-generated images that contain very\n"
+		"          bright areas adjacent to dark areas.\n"
+		"\n"
 		"-h        prints this message\n";
 
 	 cerr << endl;
@@ -457,6 +471,7 @@ main(int argc, char **argv)
     bool zeroOneExposure = false;
     bool normalize = false;
     bool swap = false;
+    bool bloom = false;
     bool useFragmentShader = false;
     const char * fragmentShaderName = 0;
     
@@ -577,6 +592,15 @@ main(int argc, char **argv)
 	    swap = true;
 	    i += 1;
 	}
+	else if (!strcmp (argv[i], "-b"))
+	{
+	    //
+	    // Simulate blooming.
+	    //
+
+	    bloom = true;
+	    i += 1;
+	}
 	else if (!strcmp (argv[i], "-f"))
 	{
 	    //
@@ -648,6 +672,7 @@ main(int argc, char **argv)
 						 zeroOneExposure,
 						 normalize,
 						 swap,
+						 bloom,
 						 useFragmentShader,
 						 fragmentShaderName ?
 						 fragmentShaderName : "");
