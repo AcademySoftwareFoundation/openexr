@@ -1,3 +1,5 @@
+	* Added Custom low-level file I/O examples to IlmImfExamples
+	  and to the docs/api.html document.  (Florian Kainz)
 	* Eliminated most warnings messages when OpenEXR is compiled
 	  with Visual C++.  The OpenEXR code uses lots of (intentional
 	  and unintended) implicit type conversions.  By default, Visual
