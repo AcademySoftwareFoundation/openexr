@@ -10,7 +10,7 @@ LDADD = -L$(top_builddir)/Iex -L$(top_builddir)/Half \
 	-L$(top_builddir)/Imath -L$(top_builddir)/IlmImf \
 	-lIlmImf -lImath -lHalf -lIex -lz
 
-exrenvmap_SOURCES = main.cpp makePreview.cpp makePreview.h
+exrmakepreview_SOURCES = main.cpp makePreview.cpp makePreview.h
 
 noinst_HEADERS = makePreview.h
 
