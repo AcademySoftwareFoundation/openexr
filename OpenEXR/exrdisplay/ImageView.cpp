@@ -41,7 +41,11 @@
 //----------------------------------------------------------------------------
 
 #include <ImageView.h>
+#ifdef PLATFORM_DARWIN_PPC
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 #include <ImathMath.h>
 #include <ImathFun.h>
 #include <halfFunction.h>
@@ -194,7 +198,7 @@ namespace {
 float
 knee (float x, float f)
 {
-    return logf (x * f + 1) / f;
+    return Imath::Math<float>::log (x * f + 1) / f;
 }
 
 
