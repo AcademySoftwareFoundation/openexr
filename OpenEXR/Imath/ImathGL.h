@@ -133,5 +133,34 @@ glLoadMatrix( const Imath::M44f* m )
 }
 
 
+namespace Imath {
+
+//
+// Class objects that push/pop the GL state. These objects assist with
+// proper cleanup of the state when exceptions are thrown.
+//
+
+class GLPushMatrix {
+  public:
+
+    GLPushMatrix ()			{ glPushMatrix(); }
+    ~GLPushMatrix()			{ glPopMatrix(); }
+};
+
+class GLPushAttrib {
+  public:
+
+    GLPushAttrib (GLbitfield mask)	{ glPushAttrib (mask); }
+    ~GLPushAttrib()			{ glPopAttrib(); }
+};
+
+class GLBegin {
+  public:
+
+    GLBegin (GLenum mode)		{ glBegin (mode); }
+    ~GLBegin()				{ glEnd(); }
+};
+
+} // namespace Imath
 
 #endif
