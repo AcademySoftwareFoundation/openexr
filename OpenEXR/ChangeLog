@@ -1,3 +1,11 @@
+	* Bumped OpenEXR version to 1.2 and .so versions to 2.0.0 in
+	  preparation for the release.  (Drew Hess)
+	* Imath: fixed ImathTMatrix.h to work with gcc 3.4.  (Drew Hess)
+	* Another quoting fix in openexr.m4.  (Drew Hess)
+	* Quoting fix in acinclude.m4 for automake 1.8.  (Brad Hards)
+	* Imath: put inline at beginning of declaration in ImathMatrix.h
+	  to fix a warning.  (Ken McGaugh)
+	* Imath: made Vec equalWith*Error () methods const.
 	* Cleaned up compile-time Win32 support.  (Florian Kainz)
 	* Bug fix: Reading a particular broken PIZ-compressed file
 	  caused crashes by indexing off the end of an array.

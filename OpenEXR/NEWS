@@ -1,3 +1,24 @@
+Version 1.2:
+    - Production-ready release.
+    - Support for gcc 3.4.
+    - Supports gcc 2.95 again.
+    - IlmImf: bug fix for handling broken OpenEXR files without
+      crashing.
+
+Version 1.1.1:
+    - Added Pixar's new "slightly lossy" image compression method
+      for FLOAT channels, called PXR24.  HALF and UINT channels
+      are compressed without loss.
+    - Changed top-level LICENSE file to allow for other copyright
+      holders for individual files.
+    - Reading tiled files with the scanline interface is faster.
+    - OpenEXR now supports YCA (luminance/chroma/alpha) images with
+      subsampled chroma channels.
+    - IlmImf: various bug fixes.
+    - The half class is now faster in some expressions.
+    - New tiled file format.  The new format is incompatible with
+      the format used by 1.1.0.
+
 Version 1.1.0:
     - IlmImfExamples: Updated to include examples of how to use
       the tiling and mip/ripmapping interfaces.
