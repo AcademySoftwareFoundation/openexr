@@ -198,10 +198,17 @@ printTimeCode (TimeCode tc)
     cout << "    "
 	    "time " <<
 	    setfill ('0') <<
+#ifndef HAVE_COMPLETE_IOMANIP
+	    setw (2) << tc.hours() << ":" <<
+	    setw (2) << tc.minutes() << ":" <<
+	    setw (2) << tc.seconds() << ":" <<
+	    setw (2) << tc.frame() << "\n" <<
+#else
 	    setw (2) << right << tc.hours() << ":" <<
 	    setw (2) << right << tc.minutes() << ":" <<
 	    setw (2) << right << tc.seconds() << ":" <<
 	    setw (2) << right << tc.frame() << "\n" <<
+#endif
 	    setfill (' ') <<
 	    "    "
 	    "drop frame " << tc.dropFrame() << ", "
