@@ -5,7 +5,7 @@ Currently, OpenEXR has only been tested on Windows XP with Visual
 Studio 6.0 and the Intel C++ compiler version 7.0.  You can obtain an
 evaluation license for Intel's compiler here:
 
-http://developer.intel.com/software/products/compilers/cwin/eval.htm
+  http://developer.intel.com/software/products/compilers/cwin/eval.htm
 
 Due to limitations in Microsoft's C++ implementation in Visual Studio
 6.0, OpenEXR won't compile with the Microsoft Visual C++ 6.0 compiler.
@@ -16,34 +16,51 @@ break the existing API.  We hope to have support for Visual C++ 7.0
 If you want to use OpenEXR with Visual Studio 6.0 and the Microsoft
 Visual C++ 6.0 compiler, you can use the ImfCRgbaFile C interface via
 the IlmImf DLL.  Make sure you build the IlmImfDll project in the
-workspace file to generate this DLL.
+workspace file if you want to use this DLL.
 
+See the AUTHORS file for a list of people who contributed to the Win32
+port of OpenEXR.
+
+
+Compiling OpenEXR in Visual Studio 6.0
+--------------------------------------
+
+If you don't want or don't need to build these libraries from scratch,
 You can download the latest release of the pre-compiled OpenEXR
 libraries for Visual Studio 6.0 here:
 
-http://savannah.nongnu.org/files/?group=openexr
+  http://savannah.nongnu.org/files/?group=openexr
 
 The Visual Studio 6.0 workspace file for OpenEXR is vc\vc6\OpenEXR.dsw
 
-You'll need a compiled version of zlib in order to build the IlmImf
-library.  You'll need a compiled version of FLTK 1.1.x in order to
-build the exrdisplay viewer.  You can get source code for these
-libraries here:
+You'll need a compiled version of zlib (preferably version 1.1.4) in 
+order to build the IlmImf library.  You'll need a compiled version 
+of FLTK 1.1.x in order to build the exrdisplay viewer.  You can get 
+source code for these libraries here:
 
 http://www.gzip.org/zlib/
 http://www.fltk.org
+
+FLTK comes with a workspace file for Visual Studio 6.0.  zlib does not,
+so we have included one for you in the vc\vc6\zlib directory.  It works
+with zlib 1.1.4.  Copy all the files in that directory into your zlib 
+source directory and build the zlib targets (zlib.lib and zlibd.lib).  
+If you want to use the IlmImf DLL, you must also build a zlib 
+library which uses statically linked runtime libs.  The included 
+zlib_static project file will build those (zlib_static.lib and
+zlibd_static.lib).
 
 Note that by default, the OpenEXR Visual Studio 6.0 workspace expects
 the zlib and FLTK libraries in the following locations (assuming
 OpenEXR\ is your OpenEXR source directory):
 
   zlib\
-       include\
-               zconf.h
-               zlib.h
-       lib\
-           zlib.lib
-           zlib.dll
+       zconf.h
+       zlib.h
+       zlib.lib
+       zlibd.lib
+       zlib_static.lib
+       zlibd_static.lib
   fltk\
        FL\
           Enumerations.H
@@ -52,6 +69,8 @@ OpenEXR\ is your OpenEXR source directory):
        lib\
            fltk.lib
            fltkgl.lib
+	   fltkd.lib
+	   fltkgld.lib
   OpenEXR\...
 
 In order to build the fragment shader version of exrdisplay, you'll need
@@ -63,9 +82,6 @@ SDK to be rooted in the same directory as the OpenEXR source directory:
 	     inc\
   OpenEXR\...
   
-See the AUTHORS file for a list of people who contributed to the Win32
-port of OpenEXR.
-
 
 Known bugs
 ----------
