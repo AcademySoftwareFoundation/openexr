@@ -126,7 +126,17 @@ static void CenterRectInRect
 		ow = cw / dx;
 		oh = ch / dx;
 	}
+
+	if (cw < bw)
+	{
+		ow = cw;
+	}
 	
+	if (ch < bh)
+	{
+		oh = ch;
+	}
+        	
 	outRect.left 	= inBoundsRect.left + ((bw - ow) / 2);
 	outRect.top 	= inBoundsRect.top + ((bh - oh) / 2);
 	outRect.right	= outRect.left + ow;
