@@ -43,6 +43,7 @@
 #include <ImathLimits.h>
 #include <ImathFun.h>
 #include <algorithm>
+#include <math.h>
 
 using namespace Imf;
 using namespace Imath;
