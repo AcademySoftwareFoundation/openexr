@@ -32,6 +32,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+
+#include <tmpDir.h>
+
 #include <ImfTiledOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImathRandom.h>
@@ -581,11 +584,7 @@ writeCopyReadRIP (const char fileName[],
 void
 writeCopyRead (int w, int h, int xs, int ys)
 {
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-    const char * filename = "imf_test_copy.exr";
-#else
-    const char * filename = "/var/tmp/imf_test_copy.exr";
-#endif
+    const char *filename = IMF_TMP_DIR "imf_test_copy.exr";
 
     for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
     {

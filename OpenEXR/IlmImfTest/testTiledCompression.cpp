@@ -32,6 +32,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+
+#include <tmpDir.h>
+
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImfTiledOutputFile.h>
@@ -52,10 +55,8 @@ using namespace Imf;
 
 #ifdef WIN32
 	#define isnan _isnan	
-
 #elif defined (PLATFORM_DARWIN_PPC) && !defined (__MWERKS__)
 	extern "C" int isnan (double); 
-
 #endif
 
 namespace {
@@ -154,7 +155,6 @@ fillPixels4 (Array2D<unsigned int> &pi,
                 pf[y][x] = u.f;
             }
             while (isnan(pf[y][x]));
-
         }
 }
 
@@ -362,11 +362,7 @@ writeRead (const Array2D<unsigned int> &pi,
            int dx,
            int dy)
 {
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-    const char * filename = "imf_test_comp.exr";
-#else
-    const char * filename = "/var/tmp/imf_test_comp.exr";
-#endif
+    const char *filename = IMF_TMP_DIR "imf_test_comp.exr";
 
     for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
     {

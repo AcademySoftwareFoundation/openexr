@@ -37,14 +37,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
 #include <algorithm>
 #include <ImathMatrix.h>
 #include <ImathTMatrix.h>
 #include <ImathTMatrixAlgo.h>
 
-#ifndef PLATFORM_WIN32
-    #include <assert.h>
-#endif
 
 using namespace Imath;
 

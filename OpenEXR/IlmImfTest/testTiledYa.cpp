@@ -36,6 +36,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+
+#include <tmpDir.h>
+
 #include <ImfTiledRgbaFile.h>
 #include <ImfArray.h>
 #include <stdio.h>
@@ -179,11 +182,7 @@ testTiledYa ()
     {
         cout << "Testing tiled luminance input and output" << endl;
 
-        #if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-	    const char *fileName = "imf_test_tiled_ya.exr";
-	#else
-	    const char *fileName = "/var/tmp/imf_test_tiled_ya.exr";
-	#endif
+	const char *fileName = IMF_TMP_DIR "imf_test_tiled_ya.exr";
 
 	Box2i dataWindow (V2i (-17, -29), V2i (348, 556));
 	writeReadYa (dataWindow, 19, 27, fileName, waves);

@@ -33,6 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+#include <tmpDir.h>
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
@@ -73,13 +74,6 @@ writeReadRGBA (const char fileName[],
 	       LineOrder lorder,
 	       Compression comp)
 {
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-    string tmpfile;
-#else
-    string tmpfile ("/var/tmp/");
-#endif
-    tmpfile.append (fileName);
-
     //
     // Save the selected channels of RGBA image p1; save the
     // scan lines in the specified order.  Read the image back
@@ -99,14 +93,14 @@ writeReadRGBA (const char fileName[],
     header.compression() = comp;
 
     {
-	remove (tmpfile.c_str ());
-	RgbaOutputFile out (tmpfile.c_str (), header, channels);
+	remove (fileName);
+	RgbaOutputFile out (fileName, header, channels);
 	out.setFrameBuffer (&p1[0][0], 1, width);
 	out.writePixels (height);
     }
 
     {
-	RgbaInputFile in (tmpfile.c_str ());
+	RgbaInputFile in (fileName);
 	const Box2i &dw = in.dataWindow();
 	
 	int w = dw.max.x - dw.min.x + 1;
@@ -154,7 +148,7 @@ writeReadRGBA (const char fileName[],
 	}
     }
 
-    remove (tmpfile.c_str ());
+    remove (fileName);
 }
 
 
@@ -178,13 +172,13 @@ testRgba ()
 	{
 	    for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
 	    {
-		writeReadRGBA ("imf_test_rgba.exr",
+		writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
 			       W, H, p1,
 			       WRITE_RGBA,
 			       LineOrder (lorder),
 			       Compression (comp));
 
-		writeReadRGBA ("imf_test_rgba.exr",
+		writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
 			       W, H, p1,
 			       WRITE_RGB,
 			       LineOrder (lorder),

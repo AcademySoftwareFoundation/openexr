@@ -33,10 +33,13 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+#include <tmpDir.h>
+
 #include <ImfRgbaFile.h>
 #include <ImfTiledRgbaFile.h>
 #include <ImfStdIO.h>
 #include <ImfArray.h>
+
 #include <stdio.h>
 #include <assert.h>
 
@@ -237,18 +240,10 @@ testExistingStreams ()
 	Array2D<Rgba> p1 (H, W);
 
 	fillPixels1 (p1, W, H);
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-	writeReadScanLines ("imf_test_streams.exr", W, H, p1);
-#else
-	writeReadScanLines ("/var/tmp/imf_test_streams.exr", W, H, p1);
-#endif
+	writeReadScanLines (IMF_TMP_DIR "imf_test_streams.exr", W, H, p1);
 
 	fillPixels2 (p1, W, H);
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-	writeReadTiles ("imf_test_streams.exr", W, H, p1);
-#else
-	writeReadTiles ("/var/tmp/imf_test_streams.exr", W, H, p1);
-#endif
+	writeReadTiles (IMF_TMP_DIR "imf_test_streams.exr", W, H, p1);
 
 	cout << "ok\n" << endl;
     }

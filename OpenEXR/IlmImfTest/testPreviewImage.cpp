@@ -33,6 +33,8 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+#include <tmpDir.h>
+
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
 #include <ImfPreviewImage.h>
@@ -201,13 +203,8 @@ readWriteFiles (const char fileName1[],
 void
 testPreviewImage ()
 {
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-    const char * filename1 = "imf_preview1.exr";
-    const char * filename2 = "imf_preview2.exr";
-#else
-    const char * filename1 = "/var/tmp/imf_preview1.exr";
-    const char * filename2 = "/var/tmp/imf_preview2.exr";
-#endif
+    const char *filename1 = IMF_TMP_DIR "imf_preview1.exr";
+    const char *filename2 = IMF_TMP_DIR "imf_preview2.exr";
 
     try
     {

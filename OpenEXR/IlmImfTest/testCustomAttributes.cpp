@@ -33,6 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+#include <tmpDir.h>
 
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
@@ -261,11 +262,7 @@ testCustomAttributes ()
 	Array2D<float> pf (H, W);
 	fillPixels (pf, W, H);
 
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-    const char * filename = "imf_test_custom_attr.exr";
-#else
-    const char * filename = "/var/tmp/imf_test_custom_attr.exr";
-#endif
+	const char *filename = IMF_TMP_DIR "imf_test_custom_attr.exr";
 
 	writeReadCustomAttr (pf, filename, W, H);
 

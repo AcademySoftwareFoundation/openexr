@@ -33,6 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+#include <tmpDir.h>
 
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
@@ -344,11 +345,7 @@ writeRead (const Array2D<unsigned int> &pi,
 	   int dx,
 	   int dy)
 {
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-    const char * filename = "imf_test_comp.exr";
-#else
-    const char * filename = "/var/tmp/imf_test_comp.exr";
-#endif
+    const char *filename = IMF_TMP_DIR "imf_test_comp.exr";
 
     for (int xs = 1; xs <= 2; ++xs)
     {

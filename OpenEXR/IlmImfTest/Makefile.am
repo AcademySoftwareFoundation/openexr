@@ -2,7 +2,7 @@
 
 check_PROGRAMS = IlmImfTest
 
-IlmImfTest_SOURCES = main.cpp testAttributes.cpp testChannels.cpp \
+IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
 		     testCompression.cpp testCopyPixels.cpp \
 		     testCustomAttributes.cpp testHuf.cpp testLineOrder.cpp \
 		     testLut.cpp testRgba.cpp testSampleImages.cpp \
