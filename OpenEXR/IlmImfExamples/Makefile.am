@@ -2,6 +2,7 @@
 
 if BUILD_IMFEXAMPLES
 imfexamples_PROGRAMS = imfexamples
+noinst_PROGRAMS = imfexamples
 endif
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex \
@@ -24,3 +25,4 @@ examplesdir = $(datadir)/doc/OpenEXR-@OPENEXR_VERSION@/examples
 examples_DATA = $(imfexamples_SOURCES)
 
 imfexamplesdir = $(examplesdir)
+
