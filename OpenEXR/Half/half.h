@@ -244,6 +244,13 @@ void			printBits   (char  c[35], float f);
 // Limits
 //-------
 
+//----------------------------------------------------------------
+// Visual C++ will complain if these are not float constants,
+// but at least one other compiler (gcc 2.96) produces incorrect
+// results if they are.
+//----------------------------------------------------------------
+
+#ifdef WIN32
 #define HALF_MIN	5.96046448e-08f	// Smallest positive half
 
 #define HALF_NRM_MIN	6.10351562e-05f	// Smallest positive normalized half
@@ -252,6 +259,16 @@ void			printBits   (char  c[35], float f);
 
 #define HALF_EPSILON	0.00097656f	// Smallest positive e for which
 					// half (1.0 + e) != half (1.0)
+#else
+#define HALF_MIN	5.96046448e-08	// Smallest positive half
+
+#define HALF_NRM_MIN	6.10351562e-05	// Smallest positive normalized half
+
+#define HALF_MAX	65504.0		// Largest positive half
+
+#define HALF_EPSILON	0.00097656	// Smallest positive e for which
+					// half (1.0 + e) != half (1.0)
+#endif // WIN32
 
 #define HALF_MANT_DIG	11		// Number of digits in mantissa
 					// (significand + hidden leading 1)
