@@ -2,7 +2,7 @@ dnl
 dnl Nvidia SDK
 dnl
 
-AC_DEFUN(AM_PATH_NVSDK,
+AC_DEFUN([AM_PATH_NVSDK],
 [dnl
 dnl Get the cflags
 dnl
@@ -65,7 +65,7 @@ dnl
 dnl FLTK with GL support
 dnl
 
-AC_DEFUN(AM_PATH_FLTK,
+AC_DEFUN([AM_PATH_FLTK],
 [dnl 
 dnl Get the cflags and libraries
 dnl
