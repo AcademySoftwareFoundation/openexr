@@ -74,7 +74,7 @@ testMagic ()
 	cout << "Testing magic number" << endl;
 
 	testFile ("comp_none.exr", true);
-	testFile ("main.cpp", false);
+	testFile ("invalid.exr", false);
 
 	cout << "ok\n" << endl;
     }
