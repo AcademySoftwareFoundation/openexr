@@ -56,5 +56,11 @@ files (we simply haven't had time yet).  We do expect to support this
 environment again in the next release.
 
 
+Fragment shader version of exrdisplay
+-------------------------------------
+
+The fragment shader version of exrdisplay does not yet handle offset
+display windows correctly.  We will fix this in the next release.
+
 
 
