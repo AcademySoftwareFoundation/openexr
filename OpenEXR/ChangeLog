@@ -1,3 +1,8 @@
+	* Bug fix: Reading a PIZ-compressed file with an invalid
+	  Huffman code table caused crashes by indexing off the
+	  end of an array.
+	  (Florian Kainz)
+
 Version 1.2.2:
 	* Updated README to remove option for building with Visual C++ 6.0.
 	  (Drew Hess)
