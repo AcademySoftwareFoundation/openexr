@@ -136,6 +136,27 @@ class ChannelList
     Iterator			find (const char name[]);
     ConstIterator		find (const char name[]) const;
 
+    
+    //-------------------------------------------------------------------
+    // Find all channels whose name begins with a given prefix:
+    //
+    // channelsWithPrefix(p,f,l) stores a pair of iterators in f and l
+    // such that the following loop iterates over all channels whose name
+    // begins with string p:
+    //
+    //		for (ConstIterator i = f; f < l; ++i)
+    //		    ...;
+    //
+    //-------------------------------------------------------------------
+
+    void			channelsWithPrefix (const char prefix[],
+						    Iterator &first,
+						    Iterator &last);
+
+    void			channelsWithPrefix (const char prefix[],
+						    ConstIterator &first,
+						    ConstIterator &last) const;
+
     //------------
     // Operator ==
     //------------

@@ -158,6 +158,38 @@ ChannelList::find (const char name[]) const
 }
 
 
+void		
+ChannelList::channelsWithPrefix (const char prefix[],
+				 Iterator &first,
+				 Iterator &last)
+{
+    first = last = _map.lower_bound (prefix);
+    int n = strlen (prefix);
+
+    while (last != Iterator (_map.end()) &&
+	   strncmp (last.name(), prefix, n) <= 0)
+    {
+	++last;
+    }
+}
+
+
+void
+ChannelList::channelsWithPrefix (const char prefix[],
+				 ConstIterator &first,
+				 ConstIterator &last) const
+{
+    first = last = _map.lower_bound (prefix);
+    int n = strlen (prefix);
+
+    while (last != ConstIterator (_map.end()) &&
+	   strncmp (last.name(), prefix, n) <= 0)
+    {
+	++last;
+    }
+}
+
+
 bool		
 ChannelList::operator == (const ChannelList &other) const
 {

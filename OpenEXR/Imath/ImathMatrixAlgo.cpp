@@ -45,9 +45,9 @@
 #include <ImathMatrixAlgo.h>
 
 #if defined(OPENEXR_DLL)
-#define EXPORT_CONST __declspec(dllexport)
+    #define EXPORT_CONST __declspec(dllexport)
 #else
-#define EXPORT_CONST const
+    #define EXPORT_CONST const
 #endif
 
 namespace Imath {
