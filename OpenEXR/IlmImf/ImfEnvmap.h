@@ -48,8 +48,8 @@
 //	Environment maps can be stored in scanline-based or in tiled
 //	OpenEXR files.  The fact that an image is an environment map
 //	is indicated by the presence of an EnvmapAttribute whose name
-//	is "envmap" (convenience functions to access this attribute
-//	are defined in header file ImfStandardAttributes.h).
+//	is "envmap". (Convenience functions to access this attribute
+//	are defined in header file ImfStandardAttributes.h.)
 //	The attribute's value defines the mapping from 3D directions
 //	to 2D pixel space locations.
 //
@@ -64,7 +64,7 @@
 //	dataWindow parameter.  For scanline-based images, and for
 //	tiled images with level mode ONE_LEVEL, the dataWindow
 //	parameter should be set to the image's data window, as
-//	defined in the image's header.  For tiled images with level
+//	defined in the image header.  For tiled images with level
 //	mode MIPMAP_LEVELS or RIPMAP_LEVELS, the data window of the
 //	image level that is being accessed should be used instead.
 //	(See the dataWindowForLevel() methods in ImfTiledInputFile.h
@@ -95,13 +95,13 @@ enum Envmap
 // The environment is pojected onto the image using polar coordinates
 // (latitude and longitude).  A pixel's x coordinate corresponds to
 // its longitude, and the y coordinate corresponds to its latitude.
-// Pixel (dataWindow.min.x, dataWindow.min.y) has longitude -pi and
-// latitude -pi/2; pixel (dataWindow.max.x, dataWindow.max.y) has
-// longitude +pi and latitude +pi/2.
+// Pixel (dataWindow.min.x, dataWindow.min.y) has latitude +pi/2 and
+// longitude +pi; pixel (dataWindow.max.x, dataWindow.max.y) has
+// latitude -pi/2 and longitude -pi.
 //
 // In 3D space, latitudes -pi/2 and +pi/2 correspond to the negative and
-// positive z direction.  Latitude 0, longitude 0 points into positive
-// x direction; and latitude 0, longitude pi/2 points into positive y
+// positive y direction.  Latitude 0, longitude 0 points into positive
+// z direction; and latitude 0, longitude pi/2 points into positive x
 // direction.
 //
 // The size of the data window should be 2*N by N pixels (width by height),
@@ -112,7 +112,7 @@ namespace LatLongMap
 {
     //----------------------------------------------------
     // Convert a 3D direction to a 2D vector whose x and y
-    // compontents represent the corresponding latitude
+    // components represent the corresponding latitude
     // and longitude.
     //----------------------------------------------------
 
@@ -274,8 +274,8 @@ namespace CubeMap
 
     //----------------------------------------------------
     // Convert the coordinates of a pixel within a face
-    // [in the range from (0,0) to (s-1,s1), where
-    // s == sizeOfFace(dataWindow)-1] to pixel coordinates
+    // [in the range from (0,0) to (s-1,s-1), where
+    // s == sizeOfFace(dataWindow)] to pixel coordinates
     // in the environment map.
     //----------------------------------------------------
 
@@ -296,7 +296,7 @@ namespace CubeMap
     // V2f pif, pos;
     //
     // faceAndPixelPosition (dir, dw, f, pif);
-    // pos = pixelPosition (dw, f, pif);
+    // pos = pixelPosition (f, dw, pif);
     //
     //--------------------------------------------------------------
 
