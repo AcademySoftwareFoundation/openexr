@@ -1,9 +1,0 @@
-If you're using OpenEXR from CVS, you should run the bootstrap script
-to create the auto* files.  It's a good idea to run this whenever you
-update OpenEXR from CVS.
-
-Then run './configure' and make.
-
-Note that the configure.ac file requires a fairly new version of
-automake.
-
