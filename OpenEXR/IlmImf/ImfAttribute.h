@@ -206,9 +206,17 @@ class TypedAttribute: public Attribute
     static const TypedAttribute &	cast (const Attribute &attribute);
 
 
-    //-----------------------------
-    // Register this attribute type
-    //-----------------------------
+    //---------------------------------------------------------------
+    // Register this attribute type so that Attribute::newAttribute()
+    // knows how to make objects of this type.
+    //
+    // Note that this function is not thread-safe because it modifies
+    // a global variable in the IlmIlm library.  A thread in a multi-
+    // threaded program may call registerAttributeType() only when no
+    // other thread is accessing any functions or classes in the
+    // IlmImf library.
+    //
+    //---------------------------------------------------------------
 
     static void				registerAttributeType ();
 

@@ -369,6 +369,23 @@ class Header::ConstIterator
 };
 
 
+//------------------------------------------------------------------------
+// Library initialization:
+//
+// In a multithreaded program, staticInitialize() must be called once
+// during startup, before the program accesses any other functions or
+// classes in the IlmImf library.  Calling staticInitialize() in this
+// way avoids races during initialization of the library's global
+// variables.
+//
+// Single-threaded programs are not required to call staticInitialize();
+// initialization of the library's global variables happens automatically.
+//
+//------------------------------------------------------------------------
+
+void staticInitialize ();
+
+
 //-----------------
 // Inline Functions
 //-----------------
