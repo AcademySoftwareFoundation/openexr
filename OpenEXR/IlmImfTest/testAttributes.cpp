@@ -199,58 +199,116 @@ channelList ()
 {
     cout << "channel list" << endl;
 
-    ChannelList channels;
+    {
+	// test channelsWithPrefix()
 
-    channels.insert ("b.0", Channel (HALF, 1, 1));
-    channels.insert ("b.1", Channel (HALF, 1, 1));
-    channels.insert ("b.2", Channel (HALF, 1, 1));
-    channels.insert ("d.3", Channel (HALF, 1, 1));
-    channels.insert ("e.4", Channel (HALF, 1, 1));
+	ChannelList channels;
 
-    ChannelList::ConstIterator first;
-    ChannelList::ConstIterator last;
+	channels.insert ("b0", Channel (HALF, 1, 1));
+	channels.insert ("b1", Channel (HALF, 1, 1));
+	channels.insert ("b2", Channel (HALF, 1, 1));
+	channels.insert ("d3", Channel (HALF, 1, 1));
+	channels.insert ("e4", Channel (HALF, 1, 1));
 
-    channels.channelsWithPrefix ("a.", first, last);
-    assert (first != channels.end());
-    assert (first == last);
+	ChannelList::Iterator first;
+	ChannelList::Iterator last;
 
-    channels.channelsWithPrefix ("b.", first, last);
-    assert (first != channels.end());
-    assert (first != last);
-    assert (first++.name() == Name ("b.0"));
-    assert (first++.name() == Name ("b.1"));
-    assert (first++.name() == Name ("b.2"));
-    assert (first == last);
+	channels.channelsWithPrefix ("a", first, last);
+	assert (first != channels.end());
+	assert (first == last);
 
-    channels.channelsWithPrefix ("b.1", first, last);
-    assert (first != channels.end());
-    assert (first != last);
-    assert (first++.name() == Name ("b.1"));
-    assert (first == last);
+	channels.channelsWithPrefix ("b", first, last);
+	assert (first != channels.end());
+	assert (first != last);
+	assert (first++.name() == Name ("b0"));
+	assert (first++.name() == Name ("b1"));
+	assert (first++.name() == Name ("b2"));
+	assert (first == last);
 
-    channels.channelsWithPrefix ("b.1.1", first, last);
-    assert (first != channels.end());
-    assert (first == last);
+	channels.channelsWithPrefix ("b1", first, last);
+	assert (first != channels.end());
+	assert (first != last);
+	assert (first++.name() == Name ("b1"));
+	assert (first == last);
 
-    channels.channelsWithPrefix ("c.", first, last);
-    assert (first != channels.end());
-    assert (first == last);
+	channels.channelsWithPrefix ("b11", first, last);
+	assert (first != channels.end());
+	assert (first == last);
 
-    channels.channelsWithPrefix ("d.", first, last);
-    assert (first != channels.end());
-    assert (first != last);
-    assert (first++.name() == Name ("d.3"));
-    assert (first == last);
+	channels.channelsWithPrefix ("c", first, last);
+	assert (first != channels.end());
+	assert (first == last);
 
-    channels.channelsWithPrefix ("e.", first, last);
-    assert (first != channels.end());
-    assert (first != last);
-    assert (first++.name() == Name ("e.4"));
-    assert (first == last);
+	channels.channelsWithPrefix ("d", first, last);
+	assert (first != channels.end());
+	assert (first != last);
+	assert (first++.name() == Name ("d3"));
+	assert (first == last);
 
-    channels.channelsWithPrefix ("f.", first, last);
-    assert (first == channels.end());
-    assert (first == last);
+	channels.channelsWithPrefix ("e", first, last);
+	assert (first != channels.end());
+	assert (first != last);
+	assert (first++.name() == Name ("e4"));
+	assert (first == last);
+
+	channels.channelsWithPrefix ("f", first, last);
+	assert (first == channels.end());
+	assert (first == last);
+    }
+
+    {
+	// Test support for layers
+	
+	ChannelList channels;
+
+	channels.insert ("a",   Channel (HALF, 1, 1));
+	channels.insert (".a",  Channel (HALF, 1, 1));
+	channels.insert ("a.",  Channel (HALF, 1, 1));
+
+	channels.insert ("layer1.R", Channel (HALF, 1, 1));
+	channels.insert ("layer1.G", Channel (HALF, 1, 1));
+	channels.insert ("layer1.B", Channel (HALF, 1, 1));
+
+	channels.insert ("layer1.sublayer1.AA", Channel (HALF, 1, 1));
+	channels.insert ("layer1.sublayer1.R", Channel (HALF, 1, 1));
+	channels.insert ("layer1.sublayer1.G", Channel (HALF, 1, 1));
+	channels.insert ("layer1.sublayer1.B", Channel (HALF, 1, 1));
+
+	channels.insert ("layer1.sublayer2.R", Channel (HALF, 1, 1));
+
+	channels.insert ("layer2.R", Channel (HALF, 1, 1));
+	channels.insert ("layer2.G", Channel (HALF, 1, 1));
+	channels.insert ("layer2.B", Channel (HALF, 1, 1));
+
+	set <string> layerNames;
+	channels.layers (layerNames);
+
+	set<string>::iterator i = layerNames.begin();
+	assert (*i++ == "layer1");
+	assert (*i++ == "layer1.sublayer1");
+	assert (*i++ == "layer1.sublayer2");
+	assert (*i++ == "layer2");
+	assert (i == layerNames.end());
+
+	ChannelList::ConstIterator first, last;
+
+	channels.channelsInLayer ("layer1.sublayer1", first, last);
+	assert (first != channels.end());
+	assert (first != last);
+	assert (first++.name() == Name ("layer1.sublayer1.AA"));
+	assert (first++.name() == Name ("layer1.sublayer1.B"));
+	assert (first++.name() == Name ("layer1.sublayer1.G"));
+	assert (first++.name() == Name ("layer1.sublayer1.R"));
+	assert (first == last);
+
+	channels.channelsInLayer ("layer2", first, last);
+	assert (first != channels.end());
+	assert (first != last);
+	assert (first++.name() == Name ("layer2.B"));
+	assert (first++.name() == Name ("layer2.G"));
+	assert (first++.name() == Name ("layer2.R"));
+	assert (first == last);
+    }
 }
 
 
