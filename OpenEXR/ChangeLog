@@ -1,3 +1,6 @@
+Version 1.1.0:
+	* exrdisplay: Support for tiled images, mip/ripmaps, preview
+	  images, and display windows.  (Florian Kainz, Drew Hess)
 	* exrmaketiled: A new utility which generates tiled
 	  versions of OpenEXR images.  (Florian Kainz)
 	* IlmImf: Changed Imf::VERSION to Imf::EXR_VERSION to
