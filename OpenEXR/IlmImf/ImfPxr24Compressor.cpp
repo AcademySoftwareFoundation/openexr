@@ -307,7 +307,7 @@ Pxr24Compressor::compress (const char *inPtr,
 	{
 	    const Channel &c = i.channel();
 
-	    if (modp (y, c.ySampling != 0))
+	    if (modp (y, c.ySampling) != 0)
 		continue;
 
 	    int n = numSamples (c.xSampling, minX, maxX);
@@ -452,7 +452,7 @@ Pxr24Compressor::uncompress (const char *inPtr,
 	{
 	    const Channel &c = i.channel();
 
-	    if (modp (y, c.ySampling != 0))
+	    if (modp (y, c.ySampling) != 0)
 		continue;
 
 	    int n = numSamples (c.xSampling, minX, maxX);
