@@ -19,17 +19,23 @@ AC_ARG_WITH(nvsdk-prefix,[  --with-nvsdk-prefix=PFX  Prefix where Nvidia SDK is 
   no_nvsdk=""
 
   ac_save_CXXFLAGS="$CXXFLAGS"
+  ac_save_LDFLAGS="$LDFLAGS"
   CXXFLAGS="$CXXFLAGS $NVSDK_CXXFLAGS"
+  LDFLAGS="-lGL"
 
+  AC_LANG_SAVE
+  AC_LANG_CPLUSPLUS
   AC_TRY_LINK([
 #include <GL/gl.h>
 #include <GL/glu.h>
 #define GLH_EXT_SINGLE_FILE
 #include <glh/glh_extensions.h>],
 [
-    glh_init_extensions ("GL_ARB_multitexture " "GL_NV_vertex_program " "GL_NV_fragment_program "));
+    glh_init_extensions ("GL_ARB_multitexture " "GL_NV_vertex_program " "GL_NV_fragment_program ");
 ],, no_nvsdk=yes)
+  AC_LANG_RESTORE
   CXXFLAGS="$ac_save_CXXFLAGS"
+  LDFLAGS="$ac_save_LDFLAGS"
 
   if test "x$no_nvsdk" = "x" ; then
     AC_MSG_RESULT(yes)
@@ -45,8 +51,9 @@ AC_ARG_WITH(nvsdk-prefix,[  --with-nvsdk-prefix=PFX  Prefix where Nvidia SDK is 
     echo "***     - Your Nvidia SDK is out of date.  Please update it"
     echo "***       to the latest version."
     echo "***"
-    echo "*** The exrdisplay program will not be built with pixel shader"
-    echo "*** support because it depends on the Nvidia SDK."
+    echo "*** The exrdisplay program will not be built with fragment shader"
+    echo "*** support because the fragment shader support depends on the"
+    echo "*** Nvidia SDK."
     NVSDK_CXXFLAGS=""
     ifelse([$2], , :, [$2])
   fi

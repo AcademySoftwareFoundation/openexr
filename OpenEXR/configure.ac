@@ -34,14 +34,19 @@ fi
 export PKG_CONFIG_PATH
 
 dnl
-dnl check for Nvidia SDK
-dnl
-AM_PATH_NVSDK(have_nvsdk=yes, have_nvsdk=no)
-
-dnl
 dnl check for FLTK
 dnl
 AM_PATH_FLTK(have_fltk=yes, have_fltk=no)
+
+dnl
+dnl check for Nvidia SDK
+dnl
+if test $have_fltk = "yes"; then
+  AM_PATH_NVSDK(have_nvsdk=yes, have_nvsdk=no)
+  if test $have_nvsdk = "yes"; then
+    AC_DEFINE(HAVE_FRAGMENT_SHADERS)
+  fi
+fi
 
 dnl Checks for libraries.
 
@@ -131,8 +136,8 @@ AC_SUBST(AM_CXXFLAGS)
 dnl OS X istream::read bug workaround
 AC_ARG_ENABLE(osx-istream-hack, [  --enable-osx-istream-hack  Workaround for OS X istream::read bug], AC_DEFINE(BROKEN_ISTREAM_HACK),)
 
-AM_CONDITIONAL(HAVE_NVSDK, test "x$have_nvsdk" = xyes)
 AM_CONDITIONAL(HAVE_FLTK, test "x$have_fltk" = xyes)
+AM_CONDITIONAL(HAVE_NVSDK, test "x$have_nvsdk" = xyes)
 
 AC_OUTPUT([
 Makefile
@@ -154,7 +159,7 @@ AC_MSG_RESULT([
 ---------------------------------------------
 Summary for OpenEXR features:
 
-use Nvidia SDK                                  $have_nvsdk
 build exrdisplay FLTK application		$have_fltk
+    use Nvidia SDK				$have_nvsdk
 ---------------------------------------------
 ])
