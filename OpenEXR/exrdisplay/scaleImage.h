@@ -38,7 +38,7 @@
 
 //----------------------------------------------------------------------------
 //
-//	Functions to scale an image.
+//	Image scaling and filtering functions.
 //
 //----------------------------------------------------------------------------
 
@@ -92,6 +92,13 @@ void	normalizePixels (int dw, int dh, Imf::Array<Imf::Rgba> &pixels);
 //
 
 void	swapPixels (int dw, int dh, Imf::Array<Imf::Rgba> &pixels);
+
+
+//
+// Filter the image to simulate blooming in a photographic film image.
+//
+
+void	addBlooming (int dw, int dh, Imf::Array<Imf::Rgba> &pixels);
 
 
 #endif

@@ -35,15 +35,17 @@
 
 //----------------------------------------------------------------------------
 //
-//	Functions to scale a an image.
+//	Image scaling and filtering functions.
 //
 //----------------------------------------------------------------------------
 
 #include <scaleImage.h>
 #include <ImathLimits.h>
+#include <ImathFun.h>
 #include <algorithm>
 
 using namespace Imf;
+using namespace Imath;
 using std::min;
 using std::max;
 
@@ -267,5 +269,108 @@ swapPixels (int dw, int dh, Array<Rgba> &pixels)
 
 	for (int x = 0; x < dw; ++x)
 	    pixels[dw * y + x] = tmp[x];
+    }
+}
+
+
+half
+makeFinite (half h)
+{
+    if (h.isFinite())
+	return h;
+
+    if (h.isInfinity() && !h.isNegative())
+	return HALF_MAX;
+
+    return 0;
+}
+
+
+void
+addBlooming (int dw, int dh, Imf::Array<Imf::Rgba> &pixels)
+{
+    //
+    // Build a blooming filter kernel.
+    //
+    // Caveats:
+    //
+    // * The kernel has been derived by experimentation; it
+    //   is not a simulation of the light scattering process
+    //   that occurs in real photographic film.
+    //
+    // * Because of its radial symmetry, the filter kernel
+    //   is not separable; convolving the image with this
+    //   kernel is rather slow.
+    // 
+
+    static const int N = 25;
+    float kernel[N * 2 + 1][N * 2 + 1];
+    float total = 0;
+
+    for (int i = -N; i <= N; ++i)
+    {
+	for (int j = -N; j <= N; ++j)
+	{
+	    float r = sqrt (float (i * i + j * j));
+	    float v = exp (-2.3f * r) + 0.005f * exp (-0.5f * r);
+
+	    kernel[i + N][j + N] = v;
+	    total += v;
+	}
+    }
+
+    for (int i = -N; i <= N; ++i)
+	for (int j = -N; j <= N; ++j)
+	    kernel[i + N][j + N] /= total;
+
+    //
+    // Eliminate non-finite values from the input pixel data.
+    //
+
+    Array<Rgba> tmp (dw * dh);
+
+    for (int i = 0; i < dw * dh; ++i)
+    {
+	Rgba &pi = pixels[i];
+	Rgba &p = tmp[i];
+
+	p.r = makeFinite (pi.r);
+	p.g = makeFinite (pi.g);
+	p.b = makeFinite (pi.b);
+    }
+
+    //
+    // Apply the filter kernel to the image.
+    //
+
+    for (int y = 0; y < dh; ++y)
+    {
+	for (int x = 0; x < dw; ++x)
+	{
+	    float r = 0;
+	    float g = 0;
+	    float b = 0;
+
+	    for (int i = -N; i <= N; ++i)
+	    {
+		for (int j = -N; j <= N; ++j)
+		{
+		    const Rgba &pi = tmp[clamp (y + i, 0, dh - 1) * dw +
+					 clamp (x + j, 0, dw - 1)];
+
+		    float k = kernel[i + N][j + N];
+
+		    r += pi.r * k;
+		    g += pi.g * k;
+		    b += pi.b * k;
+		}
+	    }
+
+	    Rgba &p = pixels[y * dw + x];
+
+	    p.r = r;
+	    p.g = g;
+	    p.b = b;
+	}
     }
 }
