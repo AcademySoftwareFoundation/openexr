@@ -238,7 +238,7 @@ writeCopyReadMIP (const char fileName[],
     
     hdr.setTileDescription(TileDescription(xSize, ySize, MIPMAP_LEVELS, rmode));
     
-    std::vector< Array2D<half> > levels;
+    Array < Array2D<half> > levels;
 
     {
         cout << " writing" << flush;
@@ -247,7 +247,7 @@ writeCopyReadMIP (const char fileName[],
         TiledOutputFile out (fileName, hdr);
         
         int numLevels = out.numLevels();
-        levels = std::vector< Array2D<half> >(numLevels, Array2D<half> ());
+	levels.resizeErase (numLevels);
 
         int i;
         
@@ -320,7 +320,7 @@ writeCopyReadMIP (const char fileName[],
         int dwy = dw.min.y;
 
         int numLevels = in.numLevels();
-        std::vector< Array2D<half> > levels2(numLevels, Array2D<half> ());
+        Array < Array2D<half> > levels2 (numLevels);
 
         int startTileY, endTileY;
         int dy;
@@ -336,8 +336,8 @@ writeCopyReadMIP (const char fileName[],
             fb.insert ("H",
                        Slice (HALF,
                               (char *) &levels2[level][-dwy][-dwx],
-                              sizeof (levels[level][0][0]),
-                              sizeof (levels[level][0][0]) * levelWidth));
+                              sizeof (levels2[level][0][0]),
+                              sizeof (levels2[level][0][0]) * levelWidth));
 
             in.setFrameBuffer (fb);
             
@@ -413,7 +413,7 @@ writeCopyReadRIP (const char fileName[],
     
     hdr.setTileDescription(TileDescription(xSize, ySize, RIPMAP_LEVELS, rmode));
     
-    std::vector< std::vector< Array2D<half> > > levels;
+    Array2D < Array2D<half> > levels;
 
     {
         cout << " writing" << flush;
@@ -421,9 +421,7 @@ writeCopyReadRIP (const char fileName[],
         remove (fileName);
         TiledOutputFile out (fileName, hdr);
         
-        levels = std::vector< std::vector< Array2D<half> > > (out.numYLevels(),
-                    std::vector< Array2D<half> >(out.numXLevels(),
-                                                 Array2D<half>()));
+	levels.resizeErase (out.numYLevels(), out.numXLevels());
                                      
         int i;
         
@@ -510,10 +508,8 @@ writeCopyReadRIP (const char fileName[],
 
         int numXLevels = in.numXLevels();
         int numYLevels = in.numYLevels();
-        std::vector< std::vector< Array2D<half> > >
-            levels2(numYLevels,
-                    std::vector< Array2D<half> >(numXLevels,
-                                                 Array2D<half>()));                              
+	Array2D < Array2D<half> > levels2 (numYLevels, numXLevels);
+
         int startTileY, endTileY;
         int dy;
         

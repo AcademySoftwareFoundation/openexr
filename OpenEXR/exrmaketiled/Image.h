@@ -213,7 +213,7 @@ template <class T>
 void
 TypedImageChannel<T>::resize (int width, int height)
 {
-    _pixels.resizeErase (height, width);
+    _pixels.resizeEraseUnsafe (height, width);
 }
 
 

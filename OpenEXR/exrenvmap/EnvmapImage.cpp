@@ -69,8 +69,8 @@ EnvmapImage::EnvmapImage (Envmap type, const Box2i &dataWindow):
 void
 EnvmapImage::resize (Envmap type, const Box2i &dataWindow)
 {
-    _pixels.resizeErase (dataWindow.max.y - dataWindow.min.y + 1,
-			 dataWindow.max.x - dataWindow.min.x + 1);
+    _pixels.resizeEraseUnsafe (dataWindow.max.y - dataWindow.min.y + 1,
+			       dataWindow.max.x - dataWindow.min.x + 1);
     _type = type;
     _dataWindow = dataWindow;
 

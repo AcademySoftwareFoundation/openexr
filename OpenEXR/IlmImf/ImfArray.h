@@ -97,12 +97,23 @@ class Array
     //------------------------------------------------------
     // Resize and clear the array (the contents of the array
     // are not preserved across the resize operation).
+    //
+    // resizeEraseUnsafe() is more memory efficient than
+    // resizeErase() because it deletes the old memory block
+    // before allocating a new one, but if allocating the
+    // new block throws an exception, resizeEraseUnsafe()
+    // leaves the array in an unusable state.
+    //
     //------------------------------------------------------
 
-    void resizeErase (long size)	{delete [] _data; _data = new T[size];}
+    void resizeErase (long size);
+    void resizeEraseUnsafe (long size);
 
 
   private:
+
+    Array (const Array &);		// Copying and assignment
+    Array & operator = (const Array &);	// are not implemented
 
     T * _data;
 };
@@ -133,21 +144,52 @@ class Array2D
     //------------------------------------------------------
     // Resize and clear the array (the contents of the array
     // are not preserved across the resize operation).
+    //
+    // resizeEraseUnsafe() is more memory efficient than
+    // resizeErase() because it deletes the old memory block
+    // before allocating a new one, but if allocating the
+    // new block throws an exception, resizeEraseUnsafe()
+    // leaves the array in an unusable state.
+    //
     //------------------------------------------------------
 
     void resizeErase (long sizeX, long sizeY);
+    void resizeEraseUnsafe (long sizeX, long sizeY);
 
 
   private:
+
+    Array2D (const Array2D &);			// Copying and assignment
+    Array2D & operator = (const Array2D &);	// are not implemented
 
     long	_sizeY;
     T *		_data;
 };
 
 
-//-----------------------------
-// Implementation of Array2D<T>
-//-----------------------------
+//---------------
+// Implementation
+//---------------
+
+template <class T>
+inline void
+Array<T>::resizeErase (long size)
+{
+    T *tmp = new T[size];
+    delete [] _data;
+    _data = tmp;
+}
+
+
+template <class T>
+inline void
+Array<T>::resizeEraseUnsafe (long size)
+{
+    delete [] _data;
+    _data = 0;
+    _data = new T[size];
+}
+
 
 template <class T>
 inline
@@ -199,6 +241,18 @@ Array2D<T>::resizeErase (long sizeX, long sizeY)
     delete [] _data;
     _sizeY = sizeY;
     _data = tmp;
+}
+
+
+template <class T>
+inline void
+Array2D<T>::resizeEraseUnsafe (long sizeX, long sizeY)
+{
+    delete [] _data;
+    _data = 0;
+    _sizeY = 0;
+    _data = new T[sizeX * sizeY];
+    _sizeY = sizeY;
 }
 
 
