@@ -33,67 +33,51 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#ifndef INCLUDED_IMAGE_VIEW_H
-#define INCLUDED_IMAGE_VIEW_H
+#ifndef INCLUDED_LOAD_IMAGE_H
+#define INCLUDED_LOAD_IMAGE_H
 
 //----------------------------------------------------------------------------
 //
-//	class ImageView -- draws an Imf::Rgba image in an OpenGl window
+//	Functions to load OpenEXR images into a pixel array.
 //
 //----------------------------------------------------------------------------
 
-#include <FL/Fl_Gl_Window.H>
 #include <ImfRgba.h>
 #include <ImfArray.h>
+#include <ImathBox.h>
 
 
-class ImageView: public Fl_Gl_Window
-{
-  public:
+//
+// Load "the image" from the specified image file.
+// If the file is tiled, load the level (0,0) image.
+//
 
-    static float        knee (float x, float f);
-    static float        findKneeF (float x, float y);
+void	loadImage (const char fileName[],
+		   Imath::Box2i &displayWindow,
+		   Imath::Box2i &dataWindow,
+		   float &pixelAspectRatio,
+		   Imf::Array<Imf::Rgba> &pixels);
 
-    ImageView (int x, int y,
-	       int w, int h,            // display window width and height
-	       const char label[],
-	       const Imf::Rgba pixels[/* w*h */],
-	       int dw, int dh,		// data window width and height
-	       int dx, int dy,		// data window offset
-	       float exposure,
-	       float defog,
-	       float kneeLow,
-	       float kneeHigh);
+//
+// For a tiled image file, load the level (lx, ly) image.
+//
 
-    virtual void        setExposure (float exposure);
-    virtual void	setDefog (float defog);
-    virtual void	setKneeLow (float low);
-    virtual void	setKneeHigh (float high);
-    
-    virtual void	draw();
+void	loadTiledImage (const char fileName[],
+			int lx,
+			int ly,
+			Imath::Box2i &displayWindow,
+			Imath::Box2i &dataWindow,
+		        float &pixelAspectRatio,
+			Imf::Array<Imf::Rgba> &pixels);
 
- protected:
+//
+// Load the preview image from the specified image file.
+//
 
-    virtual void        updateScreenPixels ();
-    void		computeFogColor ();
-
-    float		_exposure;
-    float		_defog;
-    float		_kneeLow;
-    float		_kneeHigh;
-    const Imf::Rgba *	_rawPixels;
-    float		_fogR;
-    float		_fogG;
-    float		_fogB;
-    int			_dw;
-    int			_dh;
-    int			_dx;
-    int			_dy;
-
- private:
-
-    Imf::Array<unsigned char>	_screenPixels;
-};
-
+void	loadPreviewImage (const char fileName[],
+			  Imath::Box2i &displayWindow,
+			  Imath::Box2i &dataWindow,
+			  float &pixelAspectRatio,
+			  Imf::Array<Imf::Rgba> &pixels);
 
 #endif

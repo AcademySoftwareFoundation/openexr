@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -62,12 +62,22 @@ float fmax (float a, float b)
 { 
     return (a >= b) ? a : b;
 }
+float fmin (float a, float b)
+{
+    return (a <= b) ? a : b;
+}
+#else
+using std::min;
+using std::max;
 #endif
+
 
 ImageView::ImageView (int x, int y,
 		      int w, int h,
 		      const char label[],
 		      const Imf::Rgba pixels[],
+		      int dw, int dh,
+		      int dx, int dy,
 		      float exposure,
 		      float defog,
 		      float kneeLow,
@@ -79,10 +89,14 @@ ImageView::ImageView (int x, int y,
     _kneeLow (kneeLow),
     _kneeHigh (kneeHigh),
     _rawPixels (pixels),
-    _screenPixels (w * h * 3),
     _fogR (0),
     _fogG (0),
-    _fogB (0)
+    _fogB (0),
+    _dw (dw),
+    _dh (dh),
+    _dx (dx),
+    _dy (dy),
+    _screenPixels (dw * dh * 3)
 {
     computeFogColor();
     updateScreenPixels();
@@ -135,17 +149,33 @@ ImageView::draw()
 	glOrtho(0, w(), h(), 0, -1, 1);
     }
 
-    glColor3f (1, 0, 1);
+    glClearColor (0.3, 0.3, 0.3, 1.0);
     glClear (GL_COLOR_BUFFER_BIT);
 
-    for (int y = 0; y < h(); ++y)
-    {
-	glRasterPos2i (0, y + 1);
+    if (_dx + _dw <= 0 || _dx >= w())
+	return;
 
-	glDrawPixels (w(), 1,
-		      GL_RGB,
-		      GL_UNSIGNED_BYTE,
-		      _screenPixels + y * w() * 3);
+    for (int y = 0; y < _dh; ++y)
+    {
+	if (y + _dy < 0 || y + _dy >= h())
+	    continue;
+
+#ifdef PLATFORM_WIN32
+	glRasterPos2i (fmax (0, _dx), y + _dy + 1);
+	glDrawPixels (_dw + fmin (0, _dx),			      // width
+		      1,					      // height
+		      GL_RGB,					      // format
+		      GL_UNSIGNED_BYTE,				      // type
+		      _screenPixels + (y * _dw - fmin (0, _dx)) * 3); // pixels
+#else
+	glRasterPos2i (max (0, _dx), y + _dy + 1);
+	glDrawPixels (_dw + min (0, _dx),			     // width
+		      1,					     // height
+		      GL_RGB,					     // format
+		      GL_UNSIGNED_BYTE,				     // type
+		      _screenPixels + (y * _dw - min (0, _dx)) * 3); // pixels
+#endif
+
     }
 }
 
@@ -157,7 +187,7 @@ ImageView::computeFogColor ()
     _fogG = 0;
     _fogB = 0;
 
-    for (int j = 0; j < w() * h(); ++j)
+    for (int j = 0; j < _dw * _dh; ++j)
     {
 	const Imf::Rgba &rp = _rawPixels[j];
 
@@ -171,9 +201,9 @@ ImageView::computeFogColor ()
 	    _fogB += rp.b;
     }
 
-    _fogR /= w() * h();
-    _fogG /= w() * h();
-    _fogB /= w() * h();
+    _fogR /= _dw * _dh;
+    _fogG /= _dw * _dh;
+    _fogB /= _dw * _dh;
 }
 
 
@@ -241,7 +271,7 @@ namespace {
 //     maximum intensity).
 //
 //  5) Gamma-correct the pixel values, assuming that the
-//     screen's gamma is 0.4545 (or 1/2.2).
+//     screen's gamma is 2.2 (or 1 / 0.4545).
 //
 //  6) Scale the values such that pixels middle gray
 //     pixels are mapped to 84.66 (or 3.5 f-stops below
@@ -279,7 +309,7 @@ Gamma::operator () (half h)
 #ifdef PLATFORM_WIN32
     float x = fmax (0.f, (h - d)); 
 #else
-    float x = std::max (0.f, (h - d));
+    float x = max (0.f, (h - d));
 #endif
 
     //
@@ -335,7 +365,7 @@ ImageView::updateScreenPixels ()
 		       _kneeHigh),
 		-HALF_MAX, HALF_MAX);
 
-    for (int j = 0; j < w() * h(); ++j)
+    for (int j = 0; j < _dw * _dh; ++j)
     {
 	const Imf::Rgba &rp = _rawPixels[j];
 	unsigned char *sp = _screenPixels + j * 3;

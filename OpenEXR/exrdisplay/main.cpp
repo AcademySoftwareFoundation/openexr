@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -50,12 +50,19 @@
 #include <ImageViewFragShader.h>
 #endif
 #include <ImfArray.h>
-#include <ImfRgbaFile.h>
+#include <loadImage.h>
+#include <scaleImage.h>
 
 #include <iostream>
+#include <algorithm>
 #include <string>
 #include <exception>
 #include <string.h>
+#include <stdlib.h>
+
+using namespace Imath;
+using namespace Imf;
+using namespace std;
 
 
 struct MainWindow
@@ -112,42 +119,92 @@ MainWindow::kneeHighSliderCallback (Fl_Widget *widget, void *data)
 
 
 MainWindow *
-makeMainWindow (const char * imageName, bool useFragmentShader,
+makeMainWindow (const char imageFile[],
+		bool preview,
+		int lx,
+		int ly,
+		bool noDisplayWindow,
+		bool noAspect,
+		bool useFragmentShader,
 		const char * fragmentShaderName)
 {
     MainWindow *mainWindow = new MainWindow;
 
     //
-    // Read file imageName.
+    // Read the image file.
     //
 
-    Imf::RgbaInputFile in (imageName);
+    Box2i displayWindow;
+    Box2i dataWindow;
+    float pixelAspect;
 
-    int w = in.dataWindow().max.x - in.dataWindow().min.x + 1;
-    int h = in.dataWindow().max.y - in.dataWindow().min.y + 1;
-    int dx = in.dataWindow().min.x;
-    int dy = in.dataWindow().min.y;
-
-    mainWindow->pixels.resizeErase (w * h);
-    in.setFrameBuffer (mainWindow->pixels - dx - dy * w, 1, w);
-
-    try
+    if (preview)
     {
-	in.readPixels (in.dataWindow().min.y, in.dataWindow().max.y);
+	loadPreviewImage (imageFile,
+			  displayWindow,
+			  dataWindow,
+			  pixelAspect,
+			  mainWindow->pixels);
     }
-    catch (const std::exception &e)
+    else if (lx >= 0 || ly >= 0)
     {
-	std::cerr << e.what() << std::endl;
+	loadTiledImage (imageFile,
+			lx, ly,
+			displayWindow,
+			dataWindow,
+			pixelAspect,
+			mainWindow->pixels);
     }
+    else
+    {
+	loadImage (imageFile,
+		   displayWindow,
+		   dataWindow,
+		   pixelAspect,
+		   mainWindow->pixels);
+    }
+    
+    int w  = displayWindow.max.x - displayWindow.min.x + 1;
+    int h  = displayWindow.max.y - displayWindow.min.y + 1;
+    int dw = dataWindow.max.x - dataWindow.min.x + 1;
+    int dh = dataWindow.max.y - dataWindow.min.y + 1;
+    int dx = dataWindow.min.x - displayWindow.min.x;
+    int dy = dataWindow.min.y - displayWindow.min.y;
+
+    if (noDisplayWindow)
+    {
+	w = dw;
+	h = dh;
+	dx = 0;
+	dy = 0;
+    }
+
+    if (noAspect)
+    {
+	pixelAspect = 1;
+    }
+
+    //
+    // Stretch the image horizontally or vertically to make the
+    // pixels square (assuming that we are going to display the
+    // image on a screen with square pixels).
+    //
+
+    if (pixelAspect > 1)
+	scaleX (pixelAspect, w, h, dw, dh, dx, dy, mainWindow->pixels);
+    else
+	scaleY (1 / pixelAspect, w, h, dw, dh, dx, dy, mainWindow->pixels);
 
     //
     // Build main window
     //
 
+    int mw = max (200, w);
+
     Fl::set_color (FL_GRAY, 150, 150, 150);
 
     mainWindow->window =
-	new Fl_Window (w + 10, h + 110, imageName);
+	new Fl_Window (mw + 10, h + 110, imageFile);
 
     //
     // Add exposure slider
@@ -157,7 +214,7 @@ makeMainWindow (const char * imageName, bool useFragmentShader,
 	new Fl_Box (5, 5, 60, 20, "exposure");
 
     mainWindow->exposureSlider =
-	new Fl_Value_Slider (70, 5, w - 65, 20, "");
+	new Fl_Value_Slider (70, 5, mw - 65, 20, "");
 
     enum Fl_When when = useFragmentShader ? FL_WHEN_CHANGED : FL_WHEN_RELEASE;
 
@@ -178,7 +235,7 @@ makeMainWindow (const char * imageName, bool useFragmentShader,
 	new Fl_Box (5, 30, 60, 20, "defog");
 
     mainWindow->defogSlider =
-	new Fl_Value_Slider (70, 30, w - 65, 20, "");
+	new Fl_Value_Slider (70, 30, mw - 65, 20, "");
 
     mainWindow->defogSlider->type (FL_HORIZONTAL);
     mainWindow->defogSlider->range (0.0, 0.01);
@@ -197,7 +254,7 @@ makeMainWindow (const char * imageName, bool useFragmentShader,
 	new Fl_Box (5, 55, 60, 20, "knee low");
 
     mainWindow->kneeLowSlider =
-	new Fl_Value_Slider (70, 55, w - 65, 20, "");
+	new Fl_Value_Slider (70, 55, mw - 65, 20, "");
 
     mainWindow->kneeLowSlider->type (FL_HORIZONTAL);
     mainWindow->kneeLowSlider->range (-3.0, 3.0);
@@ -216,27 +273,39 @@ makeMainWindow (const char * imageName, bool useFragmentShader,
 	new Fl_Box (5, 80, 60, 20, "knee high");
 
     mainWindow->kneeHighSlider =
-	new Fl_Value_Slider (70, 80, w - 65, 20, "");
+	new Fl_Value_Slider (70, 80, mw - 65, 20, "");
 
     mainWindow->kneeHighSlider->type (FL_HORIZONTAL);
     mainWindow->kneeHighSlider->range (3.5, 7.5);
     mainWindow->kneeHighSlider->step (1, 8);
-    mainWindow->kneeHighSlider->value (5.0);
+    mainWindow->kneeHighSlider->value (preview? 3.5: 5.0);
     mainWindow->kneeHighSlider->when (when);
 
     mainWindow->kneeHighSlider->callback
 	(MainWindow::kneeHighSliderCallback, mainWindow);
 
     //
-    // Add image view
+    // Add image view:
+    //
+    // w, h		width and height of the display window
+    //
+    // dw, dh		width and height of the data window
+    //
+    // dx, dy		offset of the data window's upper left
+    // 			corner from the display window's upper
+    // 			left corner
     //
 
 #ifdef HAVE_FRAGMENT_SHADERS
     if (useFragmentShader)
     {
 	mainWindow->image =
-	    new ImageViewFragShader (5, 105, w, h, "",
+	    new ImageViewFragShader (5 + (mw - w) / 2, 105, 
+				     w, h,
+				     "",
 				     mainWindow->pixels,
+				     dw, dh,
+				     dx, dy,
 				     mainWindow->exposureSlider->value(),
 				     mainWindow->defogSlider->value(),
 				     mainWindow->kneeLowSlider->value(),
@@ -246,8 +315,12 @@ makeMainWindow (const char * imageName, bool useFragmentShader,
     else
     {
 	mainWindow->image =
-	    new ImageView (5, 105, w, h, "",
+	    new ImageView (5 + (mw - w) / 2, 105, 
+			   w, h,
+			   "",
 			   mainWindow->pixels,
+			   dw, dh,
+			   dx, dy,
 			   mainWindow->exposureSlider->value(),
 			   mainWindow->defogSlider->value(),
 			   mainWindow->kneeLowSlider->value(),
@@ -255,8 +328,12 @@ makeMainWindow (const char * imageName, bool useFragmentShader,
     }
 #else
     mainWindow->image =
-	new ImageView (5, 105, w, h, "",
+	new ImageView (5 + (mw - w) / 2, 105,
+		       w, h,
+		       "",
 		       mainWindow->pixels,
+		       dw, dh,
+		       dx, dy,
 		       mainWindow->exposureSlider->value(),
 		       mainWindow->defogSlider->value(),
 		       mainWindow->kneeLowSlider->value(),
@@ -272,76 +349,186 @@ makeMainWindow (const char * imageName, bool useFragmentShader,
 
 
 void
-usage (char * pname)
+usageMessage (const char argv0[], bool verbose = false)
 {
-    std::cerr << "usage: " << pname << " [-f [fragshader]] imagefile" <<
-	std::endl << std::endl;
-    std::cerr << "options:" << std::endl << std::endl;
-    std::cerr << "    -f [fragshader]    Use a fragment shader to render the image (if supported)." << std::endl;
-    std::cerr << "                       If the optional fragshader is specified, use it" << std::endl;
-    std::cerr << "                       rather than the built-in fragment shader." << std::endl;
+    cerr << "usage: " << argv0 << " [options] imagefile" << endl;
+
+    if (verbose)
+    {
+	cerr << "\n"
+	        "Displays an OpenEXR image on the screen.\n"
+		"\n"
+		"Options:\n"
+		"\n"
+		"-p                displays the preview (thumbnail)\n"
+		"                  image instead of the main image\n"
+		"\n"
+		"-l lx ly          displays level (lx,ly) of a tiled\n"
+		"                  multiresolution image\n"
+		"\n"
+		"-w                displays all pixels in the data window,\n"
+		"                  ignoring the display window\n"
+		"\n"
+		"-a                ignores the image's pixel aspect ratio,\n"
+		"                  and does not scale the image to make\n"
+		"                  the pixels square\n"
+		"\n"
+	        "-f                Use the built-in fragment shader to\n"
+	        "                  render the image (if supported).\n"
+	        "\n"
+	        "-fn fragshader    Use the specified fragment shader to\n"
+	        "                  render the image (if supported).\n"
+	        "\n"
+		"-h                prints this message\n";
+
+	 cerr << endl;
+    }
+
+    exit (1);
 }
+
 
 int
 main(int argc, char **argv)
 {
-    int exitStatus = 1;
+    const char *imageFile = 0;
+    bool preview = false;
+    bool noDisplayWindow = false;
+    bool noAspect = false;
     bool useFragmentShader = false;
-    std::string fragmentShaderName;
-    std::string imageFileName;
-
-    if (argc < 2 || argc > 4)
-    {
-	usage (argv[0]);
-	return exitStatus;
-    }
+    const char * fragmentShaderName = 0;
     
-    std::string arg (argv[1]);
-    if (arg == "-f")
+    int lx = -1;
+    int ly = -1;
+
+    //
+    // Parse the command line.
+    //
+
+    if (argc < 2)
+	usageMessage (argv[0], true);
+
+    int i = 1;
+
+    while (i < argc)
     {
-	useFragmentShader = true;
-	if (argc == 4)
+	if (!strcmp (argv[i], "-p"))	
 	{
-	    fragmentShaderName = argv[2];
-	    imageFileName = argv[3];
+	    //
+	    // Show the preview image
+	    //
+
+	    preview = true;
+	    i += 1;
 	}
-	else if (argc == 3)
-	    imageFileName = argv[2];
+	else if (!strcmp (argv[i], "-l"))
+	{
+	    //
+	    // Assume that the image file is tiled,
+	    // and show level (lx,ly) of the tiled image
+	    //
+
+	    if (i > argc - 3)
+		usageMessage (argv[0]);
+
+	    lx = strtol (argv[i + 1], 0, 0);
+	    ly = strtol (argv[i + 2], 0, 0);
+	    i += 3;
+	}
+	else if (!strcmp (argv[i], "-w"))
+	{
+	    //
+	    // Ignore the file's display window
+	    //
+
+	    noDisplayWindow = true;
+	    i += 1;
+	}
+	else if (!strcmp (argv[i], "-a"))
+	{
+	    //
+	    // Ignore the file's pixel aspect ratio
+	    //
+
+	    noAspect = true;
+	    i += 1;
+	}
+	else if (!strcmp (argv[i], "-f"))
+	{
+	    //
+	    // Use the built-in fragment shader.
+	    //
+
+	    useFragmentShader = true;
+	    i += 1;
+	}
+	else if (!strcmp (argv[i], "-fn"))
+	{
+	    //
+	    // Use the specified fragment shader.
+	    //
+
+	    useFragmentShader = true;
+	    fragmentShaderName = argv[i + 1];
+	    i += 2;
+	}
+	else if (!strcmp (argv[i], "-h"))
+	{
+	    //
+	    // Print help message
+	    //
+
+	    usageMessage (argv[0], true);
+	}
 	else
 	{
-	    usage (argv[0]);
-	    return exitStatus;
+	    //
+	    // image file name
+	    //
+
+	    imageFile = argv[i];
+	    i += 1;
 	}
     }
-    else if (argc > 2)
-    {
-	usage (argv[0]);
-	return exitStatus;
-    }
-    else
-	imageFileName = arg;
-    
+
+    if (imageFile == 0)
+	usageMessage (argv[0]);
+
 #ifndef HAVE_FRAGMENT_SHADERS
     if (useFragmentShader)
     {
-	std::cerr << argv[0] << " was not compiled with fragment shader support," << std::endl;
-	std::cerr << "falling back to software" << std::endl;
+	cerr << argv[0] << " was not compiled with fragment shader "
+	    "support," << endl;
+	cerr << "falling back to software" << endl;
 	useFragmentShader = false;
-	fragmentShaderName.erase ();
+	fragmentShaderName = 0;
     }
 #endif
 
+    //
+    // Load the specified image file,
+    // open a window on the screen, and
+    // display the image.
+    //
+
+    int exitStatus = 0;
+
     try
     {
-	MainWindow *mainWindow = makeMainWindow (imageFileName.c_str (),
+	MainWindow *mainWindow = makeMainWindow (imageFile,
+						 preview,
+						 lx, ly,
+						 noDisplayWindow,
+						 noAspect,
 						 useFragmentShader,
-						 fragmentShaderName.c_str ());
+						 fragmentShaderName);
+
 	mainWindow->window->show (1, argv);
 	exitStatus = Fl::run();
     }
-    catch (const std::exception &e)
+    catch (const exception &e)
     {
-	std::cerr << e.what() << std::endl;
+	cerr << e.what() << endl;
 	exitStatus = 1;
     }
 
