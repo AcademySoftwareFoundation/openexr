@@ -112,7 +112,7 @@ class Box
     bool			intersects(const T &point) const;
     bool			intersects(const Box<T> &box) const;
 
-    int				majorAxis() const;
+    unsigned int		majorAxis() const;
 
     //----------------
     //	Classification
@@ -187,7 +187,7 @@ inline void Box<T>::makeEmpty()
 template <class T>
 inline void Box<T>::extendBy(const T& point)
 {
-    for (int i=0; i<min.dimensions(); i++)
+    for (unsigned int i=0; i<min.dimensions(); i++)
     {
 	if ( point[i] < min[i] ) min[i] = point[i];
 	if ( point[i] > max[i] ) max[i] = point[i];
@@ -197,7 +197,7 @@ inline void Box<T>::extendBy(const T& point)
 template <class T>
 inline void Box<T>::extendBy(const Box<T>& box)
 {
-    for (int i=0; i<min.dimensions(); i++)
+    for (unsigned int i=0; i<min.dimensions(); i++)
     {
 	if ( box.min[i] < min[i] ) min[i] = box.min[i];
 	if ( box.max[i] > max[i] ) max[i] = box.max[i];
@@ -241,12 +241,12 @@ inline bool Box<T>::hasVolume() const
 }
 
 template<class T>
-inline int Box<T>::majorAxis() const
+inline unsigned int Box<T>::majorAxis() const
 {
-    int major = 0;
+    unsigned int major = 0;
     T s = size();
 
-    for (int i=1; i<min.dimensions(); i++)
+    for (unsigned int i=1; i<min.dimensions(); i++)
     {
 	if ( s[i] > s[major] ) major = i;
     }
