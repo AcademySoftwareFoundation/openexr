@@ -50,6 +50,7 @@
 void	makeTiled (const char inFileName[],
 	           const char outFileName[],
 		   Imf::LevelMode mode,
+		   Imf::LevelRoundingMode roundingMode,
 		   int tileSizeX,
 		   int tileSizeY,
 		   const std::set<std::string> &doNotFilter,

@@ -380,6 +380,7 @@ void
 makeTiled (const char inFileName[],
 	   const char outFileName[],
 	   LevelMode mode,
+	   LevelRoundingMode roundingMode,
 	   int tileSizeX,
 	   int tileSizeY,
 	   const set<string> &doNotFilter,
@@ -407,10 +408,13 @@ makeTiled (const char inFileName[],
 	{
 	    //
 	    // Proper low-pass filtering and subsampling
-	    // of environment maps is not yet implemented.
+	    // of environment maps is not implemented in
+	    // this program.
 	    //
 
-	    throw Iex::NoImplExc ("Can't handle environment maps yet.");
+	    throw Iex::NoImplExc ("This program cannot generate "
+				  "multiresolution environment maps.  "
+				  "Use exrenvmap instead.");
 	}
 
 	image0.resize (header.dataWindow());
@@ -438,7 +442,9 @@ makeTiled (const char inFileName[],
 	in.readPixels (header.dataWindow().min.y, header.dataWindow().max.y);
     }
 
-    header.setTileDescription (TileDescription (tileSizeX, tileSizeY, mode));
+    header.setTileDescription (TileDescription (tileSizeX, tileSizeY,
+						mode, roundingMode));
+
     header.compression() = ZIP_COMPRESSION;
     header.lineOrder() = INCREASING_Y;
 
