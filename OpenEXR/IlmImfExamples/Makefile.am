@@ -16,7 +16,7 @@ imfexamples_SOURCES = main.cpp drawImage.cpp rgbaInterfaceExamples.cpp \
 		      generalInterfaceExamples.cpp drawImage.h \
 		      rgbaInterfaceExamples.h generalInterfaceExamples.h
 
-examplesdir = $(datadir)/doc/examples
+examplesdir = $(datadir)/doc/OpenEXR-@OPENEXR_VERSION@/examples
 examples_DATA = $(imfexamples_SOURCES)
 
-imfexamplesdir = $(datadir)/doc/examples
+imfexamplesdir = $(examplesdir)
