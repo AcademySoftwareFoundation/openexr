@@ -96,7 +96,6 @@ class half
     //-------------
 
     half ();			// no initialization
-    half (const half &h);
     half (float f);
 
 
@@ -118,20 +117,20 @@ class half
     // Assignment
     //-----------
 
-    half		operator = (half  h);
-    half		operator = (float f);
+    half &		operator = (half  h);
+    half &		operator = (float f);
 
-    half		operator += (half  h);
-    half		operator += (float f);
+    half &		operator += (half  h);
+    half &		operator += (float f);
 
-    half		operator -= (half  h);
-    half		operator -= (float f);
+    half &		operator -= (half  h);
+    half &		operator -= (float f);
 
-    half		operator *= (half  h);
-    half		operator *= (float f);
+    half &		operator *= (half  h);
+    half &		operator *= (float f);
 
-    half		operator /= (half  h);
-    half		operator /= (float f);
+    half &		operator /= (half  h);
+    half &		operator /= (float f);
 
 
     //---------------------------------------------------------
@@ -404,13 +403,6 @@ half::half ()
 }
 
 
-inline
-half::half (const half &h)
-{
-    _h = h._h;
-}
-
-
 //----------------------------
 // Half-from-float constructor
 //----------------------------
@@ -557,7 +549,7 @@ half::operator - () const
 }
 
 
-inline half	
+inline half &
 half::operator = (half h)
 {
     _h = h._h;
@@ -565,7 +557,7 @@ half::operator = (half h)
 }
 
 
-inline half	
+inline half &
 half::operator = (float f)
 {
     *this = half (f);
@@ -573,7 +565,7 @@ half::operator = (float f)
 }
 
 
-inline half	
+inline half &
 half::operator += (half h)
 {
     *this = half (float (*this) + float (h));
@@ -581,7 +573,7 @@ half::operator += (half h)
 }
 
 
-inline half	
+inline half &
 half::operator += (float f)
 {
     *this = half (float (*this) + f);
@@ -589,7 +581,7 @@ half::operator += (float f)
 }
 
 
-inline half	
+inline half &
 half::operator -= (half h)
 {
     *this = half (float (*this) - float (h));
@@ -597,7 +589,7 @@ half::operator -= (half h)
 }
 
 
-inline half	
+inline half &
 half::operator -= (float f)
 {
     *this = half (float (*this) - f);
@@ -605,7 +597,7 @@ half::operator -= (float f)
 }
 
 
-inline half	
+inline half &
 half::operator *= (half h)
 {
     *this = half (float (*this) * float (h));
@@ -613,7 +605,7 @@ half::operator *= (half h)
 }
 
 
-inline half	
+inline half &
 half::operator *= (float f)
 {
     *this = half (float (*this) * f);
@@ -621,7 +613,7 @@ half::operator *= (float f)
 }
 
 
-inline half	
+inline half &
 half::operator /= (half h)
 {
     *this = half (float (*this) / float (h));
@@ -629,7 +621,7 @@ half::operator /= (half h)
 }
 
 
-inline half	
+inline half &
 half::operator /= (float f)
 {
     *this = half (float (*this) / f);
