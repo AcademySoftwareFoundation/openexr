@@ -1,4 +1,10 @@
 Version 1.1.0:
+	* IlmImf: Changed the orientation of lat-long envmaps to
+	  match typical panoramic camera setups.  (Florian Kainz)
+	* IlmImf: Fixed a bug where partially-completed files with
+	  DECREASING_Y could not be read.  (Florian Kainz)
+	* IlmImf: Added support for selectable rounding mode (up/down)
+	  when generating multiresolution files.  (Florian Kainz)
 	* exrdisplay: Support for tiled images, mip/ripmaps, preview
 	  images, and display windows.  (Florian Kainz, Drew Hess)
 	* exrmaketiled: A new utility which generates tiled
@@ -21,6 +27,7 @@ Version 1.1.0:
 	  comparisons.  (Nick Rasmussen)
 	
 Version 1.0.7:
+	* Fixed a typo in one of the IlmImfTest tests. (Paul Schneider)
 	* Fixed a bug in exrdisplay that causes the image to display
 	  as all black if there's a NaN or infinity in an OpenEXR
 	  image. (Florian Kainz)

@@ -61,16 +61,18 @@ fillPixels (Array2D<half> &ph, int width, int height)
 
 void
 writeCopyReadONE (const char fileName1[],
-	       const char fileName2[],
-	       int width,
-	       int height,
-	       int xSize, 
-	       int ySize,
-	       int xOffset,
-	       int yOffset,
-	       Compression comp)
+		  const char fileName2[],
+		  int width,
+		  int height,
+		  int xSize, 
+		  int ySize,
+		  int xOffset,
+		  int yOffset,
+		  Compression comp,
+		  LevelRoundingMode rmode)
 {
     cout << "levelMode 0, " << "compression " << comp <<
+	    ", roundingMode " << rmode <<
             ", xOffset " << xOffset << ", yOffset " << yOffset << endl;
     
     Header hdr ((Box2i (V2i (0, 0),			// display window
@@ -82,7 +84,7 @@ writeCopyReadONE (const char fileName1[],
     hdr.lineOrder() = INCREASING_Y;
     hdr.channels().insert ("H", Channel (HALF, 1, 1));
     
-    hdr.setTileDescription(TileDescription(xSize, ySize, ONE_LEVEL));
+    hdr.setTileDescription(TileDescription(xSize, ySize, ONE_LEVEL, rmode));
 
     Array2D<half> ph1 (height, width);
     fillPixels (ph1, width, height);
@@ -168,16 +170,18 @@ writeCopyReadONE (const char fileName1[],
 
 void
 writeCopyReadMIP (const char fileName1[],
-	       const char fileName2[],
-	       int width,
-	       int height,
-	       int xSize, 
-	       int ySize,
-	       int xOffset,
-	       int yOffset,
-	       Compression comp)
+		  const char fileName2[],
+		  int width,
+		  int height,
+		  int xSize, 
+		  int ySize,
+		  int xOffset,
+		  int yOffset,
+		  Compression comp,
+		  LevelRoundingMode rmode)
 {
     cout << "levelMode 1, " << "compression " << comp <<
+	    ", roundingMode " << rmode <<
             ", xOffset " << xOffset << ", yOffset " << yOffset << endl;
     
     Header hdr ((Box2i (V2i (0, 0),			// display window
@@ -189,7 +193,7 @@ writeCopyReadMIP (const char fileName1[],
     hdr.lineOrder() = INCREASING_Y;
     hdr.channels().insert ("H", Channel (HALF, 1, 1));
     
-    hdr.setTileDescription(TileDescription(xSize, ySize, MIPMAP_LEVELS));    
+    hdr.setTileDescription(TileDescription(xSize, ySize, MIPMAP_LEVELS, rmode));
     
     std::vector< Array2D<half> > levels;
 
@@ -292,16 +296,18 @@ writeCopyReadMIP (const char fileName1[],
 
 void
 writeCopyReadRIP (const char fileName1[],
-	       const char fileName2[],
-	       int width,
-	       int height,
-	       int xSize, 
-	       int ySize,
-	       int xOffset,
-	       int yOffset,
-	       Compression comp)
+		  const char fileName2[],
+		  int width,
+		  int height,
+		  int xSize, 
+		  int ySize,
+		  int xOffset,
+		  int yOffset,
+		  Compression comp,
+		  LevelRoundingMode rmode)
 {
     cout << "levelMode 2, " << "compression " << comp <<
+	    ", roundingMode " << rmode <<
             ", xOffset " << xOffset << ", yOffset " << yOffset << endl;
     
     Header hdr ((Box2i (V2i (0, 0),			// display window
@@ -313,7 +319,7 @@ writeCopyReadRIP (const char fileName1[],
     hdr.lineOrder() = INCREASING_Y;
     hdr.channels().insert ("H", Channel (HALF, 1, 1));
     
-    hdr.setTileDescription(TileDescription(xSize, ySize, RIPMAP_LEVELS));    
+    hdr.setTileDescription(TileDescription(xSize, ySize, RIPMAP_LEVELS, rmode));
     
     std::vector< std::vector< Array2D<half> > > levels;
 
@@ -438,14 +444,17 @@ writeCopyRead (int w, int h, int xs, int ys, int dx, int dy)
 
     for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
     {
-        writeCopyReadONE (filename1, filename2, w, h, xs, ys, dx, dy,
-                          Compression (comp));
+	for (int rmode = 0; rmode < NUM_ROUNDINGMODES; ++rmode)
+	{
+	    writeCopyReadONE (filename1, filename2, w, h, xs, ys, dx, dy,
+			      Compression (comp), LevelRoundingMode (rmode));
 
-        writeCopyReadMIP (filename1, filename2, w, h, xs, ys, dx, dy,
-                          Compression (comp));
-                          
-        writeCopyReadRIP (filename1, filename2, w, h, xs, ys, dx, dy,
-                          Compression (comp));
+	    writeCopyReadMIP (filename1, filename2, w, h, xs, ys, dx, dy,
+			      Compression (comp), LevelRoundingMode (rmode));
+			      
+	    writeCopyReadRIP (filename1, filename2, w, h, xs, ys, dx, dy,
+			      Compression (comp), LevelRoundingMode (rmode));
+	}
     }
 }
 

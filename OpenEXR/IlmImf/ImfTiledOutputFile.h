@@ -150,9 +150,10 @@ class TiledOutputFile
     unsigned int	tileXSize () const;
     unsigned int	tileYSize () const;
     LevelMode		levelMode () const;
+    LevelRoundingMode	levelRoundingMode () const;
 
 
-    //------------------------------------------------------------------
+    //--------------------------------------------------------------------
     // Number of levels:
     //
     // numXLevels() returns the file's number of levels in x direction.
@@ -161,11 +162,16 @@ class TiledOutputFile
     //      return value is: 1
     //
     //	if levelMode() == MIPMAP_LEVELS:
-    //      return value is: floor (log (max (w, h)) / log (2)) + 1
+    //      return value is: rfunc (log (max (w, h)) / log (2)) + 1
     //
     //	if levelMode() == RIPMAP_LEVELS:
-    //      return value is: floor (log (w) / log (2)) + 1
+    //      return value is: rfunc (log (w) / log (2)) + 1
     //
+    //	where
+    //	    w is the width of the image's data window,  max.x - min.x + 1,
+    //	    y is the height of the image's data window, max.y - min.y + 1,
+    //	    and rfunc(x) is either floor(x), or ceil(x), depending on
+    //	    whether levelRoundingMode() returns ROUND_DOWN or ROUND_UP.
     //
     // numYLevels() returns the file's number of levels in y direction.
     //
@@ -173,7 +179,7 @@ class TiledOutputFile
     //      return value is the same as for numXLevels()
     //
     //	if levelMode() == RIPMAP_LEVELS:
-    //      return value is: floor (log (h) / log (2)) + 1
+    //      return value is: rfunc (log (h) / log (2)) + 1
     //
     //
     // numLevels() is a convenience function for use with MIPMAP_LEVELS
@@ -188,7 +194,7 @@ class TiledOutputFile
     // isValidLevel(lx, ly) returns true if the file contains 
     // a level with level number (lx, ly), false if not.
     //
-    //------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
     int			numLevels () const;
     int			numXLevels () const;
@@ -203,14 +209,14 @@ class TiledOutputFile
     // number (lx, *), where * is any number.
     //
     //	return value is:
-    //      floor (w / pow (2, lx))
+    //      max (1, rfunc (w / pow (2, lx)))
     //
     //
     // levelHeight(ly) returns the height of a level with level
     // number (*, ly), where * is any number.
     //
     //	return value is:
-    //      floor (h / pow (2, ly))
+    //      max (1, rfunc (h / pow (2, ly)))
     //
     //---------------------------------------------------------
 

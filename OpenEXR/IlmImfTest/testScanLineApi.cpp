@@ -86,7 +86,8 @@ writeRead (const Array2D<unsigned int> &pi1,
            int xOffset,
            int yOffset,
            Compression comp,
-           LevelMode mode)
+           LevelMode mode,
+	   LevelRoundingMode rmode)
 {
     //
     // Write the pixel data in pi1, ph1 and ph2 to a tiled
@@ -100,8 +101,9 @@ writeRead (const Array2D<unsigned int> &pi1,
     //
 
     cout << "levelMode " << mode <<
+	    ", roundingMode " << rmode <<
             ", line order " << lorder <<
-            ", tileSize " << xSize << "x" << ySize <<
+            ",\ntileSize " << xSize << "x" << ySize <<
             ", xOffset " << xOffset <<
             ", yOffset "<< yOffset << endl;
 
@@ -116,7 +118,7 @@ writeRead (const Array2D<unsigned int> &pi1,
     hdr.channels().insert ("H", Channel (HALF));
     hdr.channels().insert ("F", Channel (FLOAT));
     
-    hdr.setTileDescription(TileDescription(xSize, ySize, mode));
+    hdr.setTileDescription(TileDescription(xSize, ySize, mode, rmode));
     {
         FrameBuffer fb; 
 
@@ -406,6 +408,7 @@ writeRead (const Array2D<unsigned int> &pi,
            int H,
            LineOrder lorder,
            Compression comp,
+	   LevelRoundingMode rmode,
            int dx, int dy,
            int xSize, int ySize)
 {
@@ -416,11 +419,11 @@ writeRead (const Array2D<unsigned int> &pi,
 #endif
 
     writeRead (pi, ph, pf, filename, lorder, W, H,
-               xSize, ySize, dx, dy, comp, ONE_LEVEL);
+               xSize, ySize, dx, dy, comp, ONE_LEVEL, rmode);
     writeRead (pi, ph, pf, filename, lorder, W, H,
-               xSize, ySize, dx, dy, comp, MIPMAP_LEVELS);
+               xSize, ySize, dx, dy, comp, MIPMAP_LEVELS, rmode);
     writeRead (pi, ph, pf, filename, lorder, W, H,
-               xSize, ySize, dx, dy, comp, RIPMAP_LEVELS);
+               xSize, ySize, dx, dy, comp, RIPMAP_LEVELS, rmode);
 }
 
 } // namespace
@@ -445,45 +448,56 @@ testScanLineApi ()
 
 	for (int lorder = 0; lorder < NUM_LINEORDERS; ++lorder)
 	{
-	    writeRead (pi, ph, pf,  W, H, 
-		       LineOrder (lorder),
-		       ZIP_COMPRESSION,
-		       0, 0, 1, 1);
+	    for (int rmode = 0; rmode < NUM_ROUNDINGMODES; ++rmode)
+	    {
+		writeRead (pi, ph, pf,  W, H, 
+			   LineOrder (lorder),
+			   ZIP_COMPRESSION,
+			   LevelRoundingMode (rmode),
+			   0, 0, 1, 1);
 
-	    writeRead (pi, ph, pf, W, H, 
-		       LineOrder (lorder),
-		       ZIP_COMPRESSION,
-		       DX, DY, 1, 1);
-	    
-	    writeRead (pi, ph, pf, W, H,
-		       LineOrder (lorder),
-		       ZIP_COMPRESSION,
-		       0, 0, 24, 26);
+		writeRead (pi, ph, pf, W, H, 
+			   LineOrder (lorder),
+			   ZIP_COMPRESSION,
+			   LevelRoundingMode (rmode),
+			   DX, DY, 1, 1);
+		
+		writeRead (pi, ph, pf, W, H,
+			   LineOrder (lorder),
+			   ZIP_COMPRESSION,
+			   LevelRoundingMode (rmode),
+			   0, 0, 24, 26);
 
-	    writeRead (pi, ph, pf, W, H,
-		       LineOrder (lorder),
-		       ZIP_COMPRESSION,
-		       DX, DY, 24, 26);
-	    
-	    writeRead (pi, ph, pf, W, H,
-		       LineOrder (lorder),
-		       ZIP_COMPRESSION,
-		       0, 0, 48, 81);
+		writeRead (pi, ph, pf, W, H,
+			   LineOrder (lorder),
+			   ZIP_COMPRESSION,
+			   LevelRoundingMode (rmode),
+			   DX, DY, 24, 26);
+		
+		writeRead (pi, ph, pf, W, H,
+			   LineOrder (lorder),
+			   ZIP_COMPRESSION,
+			   LevelRoundingMode (rmode),
+			   0, 0, 48, 81);
 
-	    writeRead (pi, ph, pf, W, H,
-		       LineOrder (lorder),
-		       ZIP_COMPRESSION,
-		       DX, DY, 48, 81);
-		       
-	    writeRead (pi, ph, pf, W, H,
-		       LineOrder (lorder),
-		       ZIP_COMPRESSION,
-		       0, 0, 128, 96);
+		writeRead (pi, ph, pf, W, H,
+			   LineOrder (lorder),
+			   ZIP_COMPRESSION,
+			   LevelRoundingMode (rmode),
+			   DX, DY, 48, 81);
+			   
+		writeRead (pi, ph, pf, W, H,
+			   LineOrder (lorder),
+			   ZIP_COMPRESSION,
+			   LevelRoundingMode (rmode),
+			   0, 0, 128, 96);
 
-	    writeRead (pi, ph, pf, W, H,
-		       LineOrder (lorder),
-		       ZIP_COMPRESSION,
-		       DX, DY, 128, 96);
+		writeRead (pi, ph, pf, W, H,
+			   LineOrder (lorder),
+			   ZIP_COMPRESSION,
+			   LevelRoundingMode (rmode),
+			   DX, DY, 128, 96);
+	    }
 	}
 
         cout << "ok\n" << endl;

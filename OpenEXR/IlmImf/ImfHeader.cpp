@@ -626,6 +626,10 @@ Header::sanityCheck (bool isTiled) const
 	    tileDesc.mode != RIPMAP_LEVELS)
 	    throw Iex::ArgExc ("Invalid level mode in image header.");
 
+	if (tileDesc.roundingMode != ROUND_UP &&
+	    tileDesc.roundingMode != ROUND_DOWN)
+	    throw Iex::ArgExc ("Invalid level rounding mode in image header.");
+
 	if (lineOrder != INCREASING_Y &&
 	    lineOrder != DECREASING_Y &&
 	    lineOrder != RANDOM_Y)
@@ -668,8 +672,6 @@ Header::sanityCheck (bool isTiled) const
 	     i != channels.end();
 	     ++i)
 	{
-	    const Channel &channel = i.channel();
-	
 	    if (i.channel().type != UINT &&
 		i.channel().type != HALF &&
 		i.channel().type != FLOAT)
@@ -699,8 +701,6 @@ Header::sanityCheck (bool isTiled) const
 	     i != channels.end();
 	     ++i)
 	{
-	    const Channel &channel = i.channel();
-	
 	    if (i.channel().type != UINT &&
 		i.channel().type != HALF &&
 		i.channel().type != FLOAT)
