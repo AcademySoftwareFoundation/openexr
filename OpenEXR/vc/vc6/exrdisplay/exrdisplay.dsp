@@ -52,6 +52,10 @@ BSC32=bscmake.exe
 LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 zlib.lib fltk.lib fltkgl.lib opengl32.lib glu32.lib comctl32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib ws2_32.lib /nologo /entry:"mainCRTStartup" /subsystem:console /machine:I386 /out:"..\bin\exrdisplay.exe" /libpath:"../../../../fltk/lib" /libpath:"../../../../zlib/lib"
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy  ..\..\..\..\zlib\lib\zlib.dll  ..\bin\ 
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "exrdisplay - Win32 Debug"
 
@@ -78,6 +82,10 @@ LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 zlib.lib fltkd.lib fltkgld.lib glu32.lib opengl32.lib comctl32.lib wsock32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:console /debug /machine:I386 /out:"..\bin\exrdisplay.exe" /pdbtype:sept /libpath:"../../../../fltk/lib" /libpath:"../../../../zlib/lib"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy  ..\..\..\..\zlib\lib\zlib.dll  ..\bin\ 
+# End Special Build Tool
 
 !ENDIF 
 
