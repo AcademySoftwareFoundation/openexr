@@ -35,7 +35,7 @@ CXXFLAGS="-O2 -march=i686"
 CFLAGS="-O2"
 CXXFLAGS="-O2"
 %endif
-./configure --prefix=%{_prefix}
+./configure --prefix=%{_prefix} $OPENEXR_RPMBUILD_OPTS
 make
 
 %install
@@ -61,10 +61,10 @@ rm -rf %{buildroot}
 
 %files devel
 %defattr(-, root, root)
-%{_includedir}/OpenEXR
+%{_includedir}/%{name}
 %{_libdir}/*.a
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*
 %{_datadir}/aclocal/openexr.m4
-%{_datadir}/doc/examples/*
+%{_datadir}/doc/%{name}-%{version}/examples/*
 
