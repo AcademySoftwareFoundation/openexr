@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -86,14 +86,14 @@ OpaqueAttribute::copy () const
 
 
 void	
-OpaqueAttribute::writeValueTo (std::ostream &os, int version) const
+OpaqueAttribute::writeValueTo (OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _data, _dataSize);
 }
 
 
 void	
-OpaqueAttribute::readValueFrom (std::istream &is, int size, int version)
+OpaqueAttribute::readValueFrom (IStream &is, int size, int version)
 {
     _data.resizeErase (size);
     _dataSize = size;

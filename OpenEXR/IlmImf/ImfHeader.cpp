@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -41,22 +41,25 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfHeader.h>
-#include <ImfIO.h>
+#include <ImfStdIO.h>
 #include <ImfVersion.h>
 #include <ImfCompressor.h>
+#include <ImfMisc.h>
 
 #include <ImfBoxAttribute.h>
 #include <ImfChannelListAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfCompressionAttribute.h>
-#include <ImfFloatAttribute.h>
 #include <ImfDoubleAttribute.h>
+#include <ImfEnvmapAttribute.h>
+#include <ImfFloatAttribute.h>
 #include <ImfIntAttribute.h>
 #include <ImfLineOrderAttribute.h>
 #include <ImfMatrixAttribute.h>
 #include <ImfOpaqueAttribute.h>
 #include <ImfPreviewImageAttribute.h>
 #include <ImfStringAttribute.h>
+#include <ImfTileDescriptionAttribute.h>
 #include <ImfVecAttribute.h>
 
 #include <sstream>
@@ -86,22 +89,24 @@ staticInitialize ()
 	// some predefined attribute types.
 	//
 	
-	Box2iAttribute::registerAttributeType();
 	Box2fAttribute::registerAttributeType();
+	Box2iAttribute::registerAttributeType();
 	ChannelListAttribute::registerAttributeType();
 	ChromaticitiesAttribute::registerAttributeType();
-	FloatAttribute::registerAttributeType();
 	DoubleAttribute::registerAttributeType();
+	EnvmapAttribute::registerAttributeType();
+	FloatAttribute::registerAttributeType();
 	IntAttribute::registerAttributeType();
 	LineOrderAttribute::registerAttributeType();
 	M33fAttribute::registerAttributeType();
 	M44fAttribute::registerAttributeType();
-	StringAttribute::registerAttributeType();
-	V2iAttribute::registerAttributeType();
-	V2fAttribute::registerAttributeType();
-	V3iAttribute::registerAttributeType();
-	V3fAttribute::registerAttributeType();
 	PreviewImageAttribute::registerAttributeType();
+	StringAttribute::registerAttributeType();
+	TileDescriptionAttribute::registerAttributeType();
+	V2fAttribute::registerAttributeType();
+	V2iAttribute::registerAttributeType();
+	V3fAttribute::registerAttributeType();
+	V3iAttribute::registerAttributeType();
 
 	initialized = true;
     }
@@ -484,6 +489,33 @@ Header::compression () const
 }
 
 
+void
+Header::setTileDescription(const TileDescription& td)
+{
+    insert ("tiles", TileDescriptionAttribute (td));
+}
+
+
+bool
+Header::hasTileDescription() const
+{
+    return findTypedAttribute <TileDescriptionAttribute> ("tiles") != 0;
+}
+
+
+TileDescription &
+Header::tileDescription ()
+{
+    return typedAttribute <TileDescriptionAttribute> ("tiles").value();
+}
+
+
+const TileDescription &
+Header::tileDescription () const
+{
+    return typedAttribute <TileDescriptionAttribute> ("tiles").value();
+}
+
 void		
 Header::setPreviewImage (const PreviewImage &pi)
 {
@@ -513,7 +545,7 @@ Header::hasPreviewImage () const
 
 
 void		
-Header::sanityCheck () const
+Header::sanityCheck (bool isTiled) const
 {
     //
     // The display window and the data window
@@ -568,15 +600,42 @@ Header::sanityCheck () const
 	throw Iex::ArgExc ("Invalid screen window width in image header.");
 
     //
-    // The line order must be one of the predefined values.
+    // If the file is tiled, verify that the tile description has resonable
+    // values and check to see if the lineOrder is one of the predefined 3.
+    // If the file is not tiled, then the lineOrder can only be INCREASING_Y
+    // or DECREASING_Y.
     //
 
     LineOrder lineOrder = this->lineOrder();
 
-    if (lineOrder != INCREASING_Y &&
-	lineOrder != DECREASING_Y)
+    if (isTiled)
     {
-	throw Iex::ArgExc ("Invalid line order in image header.");
+	if (!hasTileDescription())
+	{
+	    throw Iex::ArgExc ("Tiled image has no tile "
+			       "description attribute.");
+	}
+
+	const TileDescription &tileDesc = tileDescription();
+
+	if (tileDesc.xSize <= 0 || tileDesc.ySize <= 0)
+	    throw Iex::ArgExc ("Invalid tile size in image header.");
+
+	if (tileDesc.mode != ONE_LEVEL &&
+	    tileDesc.mode != MIPMAP_LEVELS &&
+	    tileDesc.mode != RIPMAP_LEVELS)
+	    throw Iex::ArgExc ("Invalid level mode in image header.");
+
+	if (lineOrder != INCREASING_Y &&
+	    lineOrder != DECREASING_Y &&
+	    lineOrder != RANDOM_Y)
+	    throw Iex::ArgExc ("Invalid line order in image header.");
+    }
+    else
+    {
+	if (lineOrder != INCREASING_Y &&
+	    lineOrder != DECREASING_Y)
+	    throw Iex::ArgExc ("Invalid line order in image header.");
     }
 
     //
@@ -589,82 +648,121 @@ Header::sanityCheck () const
     //
     // Check the channel list:
     //
-    // For each channel, the type must be one of the predefined values,
-    // and the x and y coordinates of the data window's corners must be
-    // divisible by the x and y subsampling factors.
+    // If the file is tiled then for each channel, the type must be one of the
+    // predefined values, and the x and y sampling must both be 1.
+    //
+    // If the file is not tiled then for each channel, the type must be one of
+    // the predefined values, and the x and y coordinates of the data window's
+    // corners must be divisible by the x and y subsampling factors.
     //
     // The channel's compression method is not checked here; the check
-    // is done when the apropriate compression or decompression routines
+    // is done when the appropriate compression or decompression routines
     // are selected.
     //
 
     const ChannelList &channels = this->channels();
-
-    for (ChannelList::ConstIterator i = channels.begin();
-	 i != channels.end();
-	 ++i)
+    
+    if (isTiled)
     {
-	const Channel &channel = i.channel();
+	for (ChannelList::ConstIterator i = channels.begin();
+	     i != channels.end();
+	     ++i)
+	{
+	    const Channel &channel = i.channel();
 	
-	if (i.channel().type != UINT &&
-	    i.channel().type != HALF &&
-	    i.channel().type != FLOAT)
-	{
-	    THROW (Iex::ArgExc, "Pixel type of \"" << i.name() << "\" "
-			        "image channel is invalid.");
-	}
+	    if (i.channel().type != UINT &&
+		i.channel().type != HALF &&
+		i.channel().type != FLOAT)
+	    {
+		THROW (Iex::ArgExc, "Pixel type of \"" << i.name() << "\" "
+			            "image channel is invalid.");
+	    }
 
-	if (i.channel().xSampling < 1)
-	{
-	    THROW (Iex::ArgExc, "The x subsampling factor for the "
-			        "\"" << i.name() << "\" channel "
-				"is invalid.");
-	}
+	    if (i.channel().xSampling != 1)
+	    {
+		THROW (Iex::ArgExc, "The x subsampling factor for the "
+				    "\"" << i.name() << "\" channel "
+				    "is not 1.");
+	    }	
 
-	if (i.channel().ySampling < 1)
-	{
-	    THROW (Iex::ArgExc, "The y subsampling factor for the "
-			        "\"" << i.name() << "\" channel "
-				"is invalid.");
+	    if (i.channel().ySampling != 1)
+	    {
+		THROW (Iex::ArgExc, "The y subsampling factor for the "
+				    "\"" << i.name() << "\" channel "
+				    "is not 1.");
+	    }	
 	}
-
-	if (dataWindow.min.x % i.channel().xSampling)
+    }
+    else
+    {
+	for (ChannelList::ConstIterator i = channels.begin();
+	     i != channels.end();
+	     ++i)
 	{
-	    THROW (Iex::ArgExc, "The minimum x coordinate of the "
-			        "image's data window is not a multiple "
-			        "of the x subsampling factor of "
-			        "the \"" << i.name() << "\" channel.");
-	}
+	    const Channel &channel = i.channel();
+	
+	    if (i.channel().type != UINT &&
+		i.channel().type != HALF &&
+		i.channel().type != FLOAT)
+	    {
+		THROW (Iex::ArgExc, "Pixel type of \"" << i.name() << "\" "
+			            "image channel is invalid.");
+	    }
 
-	if (dataWindow.min.y % i.channel().ySampling)
-	{
-	    THROW (Iex::ArgExc, "The minimum y coordinate of the "
-			        "image's data window is not a multiple "
-			        "of the y subsampling factor of "
-			        "the \"" << i.name() << "\" channel.");
-	}
+	    if (i.channel().xSampling < 1)
+	    {
+		THROW (Iex::ArgExc, "The x subsampling factor for the "
+				    "\"" << i.name() << "\" channel "
+				    "is invalid.");
+	    }
 
-	if ((dataWindow.max.x - dataWindow.min.x + 1) % i.channel().xSampling)
-	{
-	    THROW (Iex::ArgExc, "Number of pixels per row in the "
-			        "image's data window is not a multiple "
-			        "of the x subsampling factor of "
-			        "the \"" << i.name() << "\" channel.");
-	}
+	    if (i.channel().ySampling < 1)
+	    {
+		THROW (Iex::ArgExc, "The y subsampling factor for the "
+				    "\"" << i.name() << "\" channel "
+				    "is invalid.");
+	    }
 
-	if ((dataWindow.max.y - dataWindow.min.y + 1) % i.channel().ySampling)
-	{
-	    THROW (Iex::ArgExc, "Number of pixels per column in the "
-			        "image's data window is not a multiple "
-			        "of the y subsampling factor of "
-			        "the \"" << i.name() << "\" channel.");
+	    if (dataWindow.min.x % i.channel().xSampling)
+	    {
+		THROW (Iex::ArgExc, "The minimum x coordinate of the "
+				    "image's data window is not a multiple "
+				    "of the x subsampling factor of "
+				    "the \"" << i.name() << "\" channel.");
+	    }
+
+	    if (dataWindow.min.y % i.channel().ySampling)
+	    {
+		THROW (Iex::ArgExc, "The minimum y coordinate of the "
+				    "image's data window is not a multiple "
+				    "of the y subsampling factor of "
+				    "the \"" << i.name() << "\" channel.");
+	    }
+
+	    if ((dataWindow.max.x - dataWindow.min.x + 1) %
+		    i.channel().xSampling)
+	    {
+		THROW (Iex::ArgExc, "Number of pixels per row in the "
+				    "image's data window is not a multiple "
+				    "of the x subsampling factor of "
+				    "the \"" << i.name() << "\" channel.");
+	    }
+
+	    if ((dataWindow.max.y - dataWindow.min.y + 1) %
+		    i.channel().ySampling)
+	    {
+		THROW (Iex::ArgExc, "Number of pixels per column in the "
+				    "image's data window is not a multiple "
+				    "of the y subsampling factor of "
+				    "the \"" << i.name() << "\" channel.");
+	    }
 	}
     }
 }
 
 
-long
-Header::writeTo (std::ostream &os) const
+Int64
+Header::writeTo (OStream &os, bool isTiled) const
 {
     //
     // Write a "magic number" to identify the file as an image file.
@@ -672,14 +770,16 @@ Header::writeTo (std::ostream &os) const
     //
 
     Xdr::write <StreamIO> (os, MAGIC);
-    Xdr::write <StreamIO> (os, VERSION);
+
+    int version = isTiled ? makeTiled (VERSION) : VERSION;
+    Xdr::write <StreamIO> (os, version);
 
     //
     // Write all attributes.  If we have a preview image attribute,
     // keep track of its position in the file.
     //
 
-    long previewPosition = 0;
+    Int64 previewPosition = 0;
 
     const Attribute *preview =
 	    findTypedAttribute <PreviewImageAttribute> ("preview");
@@ -698,10 +798,10 @@ Header::writeTo (std::ostream &os) const
 	// and the value itself.
 	//
 
-	std::ostringstream ss;
-	i.attribute().writeValueTo (ss, VERSION);
+	StdOSStream oss;
+	i.attribute().writeValueTo (oss, version);
 
-	std::string s = ss.str();
+	std::string s = oss.str();
 	Xdr::write <StreamIO> (os, (int) s.length());
 
 	if (&i.attribute() == preview)
@@ -721,7 +821,7 @@ Header::writeTo (std::ostream &os) const
 
 
 void
-Header::readFrom (std::istream &is, int &version)
+Header::readFrom (IStream &is, int &version)
 {
     //
     // Read the magic number and the file format version number.
@@ -734,12 +834,24 @@ Header::readFrom (std::istream &is, int &version)
     Xdr::read <StreamIO> (is, version);
 
     if (magic != MAGIC)
+    {
 	throw Iex::InputExc ("File is not an image file.");
+    }
 
-    if (version != 1 && version != VERSION)
-	THROW (Iex::InputExc, "Cannot read version " << version << " "
+    if (getVersion (version) != 1 && getVersion (version) != VERSION)
+    {
+	THROW (Iex::InputExc, "Cannot read "
+			      "version " << getVersion (version) << " "
 			      "image files.  Current file format version "
 			      "is " << VERSION << ".");
+    }
+    
+    if (!supportsFlags (getFlags (version)))
+    {
+	THROW (Iex::InputExc, "Cannot read image.  The file format "
+			      "version number's flag field contains "
+			      "unrecognized flags.");
+    }
 
     //
     // Read all attributes.

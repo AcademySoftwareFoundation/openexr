@@ -70,7 +70,6 @@ struct CharIO
     readChars (istream &is, char c[], int n)
     {
 	is.read (c, n);
-	checkError (is);
 	return true;
     }
 };
@@ -99,6 +98,8 @@ writeData (ostream &os)
     Xdr::write<CharIO>    (os, (signed long) -2045678901);
     Xdr::write<CharIO>    (os, (unsigned long) 1345678901u);
     Xdr::write<CharIO>    (os, (unsigned long) 2456789012u);
+    Xdr::write<CharIO>    (os, (Int64) 0x1122334455667788ll);
+    Xdr::write<CharIO>    (os, (Int64) 0xf1f2f3f4f5f6f7f8ll);
     Xdr::write<CharIO>    (os, (float) 0.0f);
     Xdr::write<CharIO>    (os, (float) 3.141592653589793f);
     Xdr::write<CharIO>    (os, (float) 6.141592653589793f);
@@ -200,6 +201,8 @@ readData (istream &is)
     check (is, (signed long) -2045678901);
     check (is, (unsigned long) 1345678901u);
     check (is, (unsigned long) 2456789012u);
+    check (is, (Int64) 0x1122334455667788ll);
+    check (is, (Int64) 0xf1f2f3f4f5f6f7f8ll);
     check (is, (float) 0.0f);
     check (is, (float) 3.141592653589793f);
     check (is, (float) 6.141592653589793f);

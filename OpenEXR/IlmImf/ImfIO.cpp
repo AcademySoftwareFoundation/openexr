@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,87 +33,59 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
-
 //-----------------------------------------------------------------------------
 //
-//	Low-level image file I/O routines
+//	Low-level file input and output for OpenEXR.
 //
 //-----------------------------------------------------------------------------
 
 #include <ImfIO.h>
-#include <Iex.h>
-#include <errno.h>
 
 namespace Imf {
 
 
-void
-clearError ()
+IStream::IStream (const char fileName[]): _fileName (fileName)
 {
-    errno = 0;
+    // empty
 }
 
 
-bool
-checkError (std::istream &is)
+IStream::~IStream ()
 {
-    if (!is)
-    {
-	if (errno)
-	    Iex::throwErrnoExc();
-
-#ifdef BROKEN_ISTREAM_HACK
-	// HACK - this is a workaround for a bug in Apple's
-	// implementation of istream::read.  It's present as of
-	// OS X 10.2.3 and the December 2002 developer's tools.
-	//
-	// When OpenEXR reaches the end of the file, Apple's
-	// istream implementation mistakenly sets the stream's
-	// failbit.  This hack clears the bits, but note that it
-	// may cause problems if there is a legitimate error
-	// condition.
-	
-	is.clear (std::ios_base::goodbit);
-#endif	
-	return false;
-    }
-
-    return true;
+    // empty
 }
 
 
 void
-checkError (std::ostream &os)
+IStream::clear ()
 {
-    if (!os)
-    {
-	if (errno)
-	    Iex::throwErrnoExc();
-
-	throw Iex::ErrnoExc ("File output failed.");
-    }
+    // empty
 }
 
 
-void
-StreamIO::writeChars (std::ostream &os, const char c[/*n*/], int n)
+const char *
+IStream::fileName () const
 {
-    clearError();
-    os.write (c, n);
-    checkError (os);
+    return _fileName.c_str();
 }
 
 
-bool
-StreamIO::readChars (std::istream &is, char c[/*n*/], int n)
+OStream::OStream (const char fileName[]): _fileName (fileName)
 {
-    if (!is)
-	throw Iex::InputExc ("Unexpected end of file.");
+    // empty
+}
 
-    clearError();
-    is.read (c, n);
-    return checkError (is);
+
+OStream::~OStream ()
+{
+    // empty
+}
+
+
+const char *
+OStream::fileName () const
+{
+    return _fileName.c_str();
 }
 
 

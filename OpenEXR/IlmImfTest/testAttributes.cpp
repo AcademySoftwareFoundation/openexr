@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -43,7 +43,9 @@
 #include <ImfBoxAttribute.h>
 #include <ImfChannelListAttribute.h>
 #include <ImfCompressionAttribute.h>
+#include <ImfChromaticitiesAttribute.h>
 #include <ImfFloatAttribute.h>
+#include <ImfEnvmapAttribute.h>
 #include <ImfDoubleAttribute.h>
 #include <ImfIntAttribute.h>
 #include <ImfLineOrderAttribute.h>
@@ -93,6 +95,8 @@ writeReadAttr (const Array2D<float> &pf1,
     V3i    a10 (37, 38, 39);
     V3f    a11 (37.5, 38.5, 39.5);
     double a12 (7.12342341419);
+    Chromaticities a13 (V2f (1, 2), V2f (3, 4), V2f (5, 6), V2f (7, 8));
+    Envmap a14 (ENVMAP_CUBE);
 
     //
     // Write an image file with extra attributes in the header
@@ -113,6 +117,8 @@ writeReadAttr (const Array2D<float> &pf1,
 	hdr.insert ("a10", V3iAttribute    (a10));
 	hdr.insert ("a11", V3fAttribute    (a11));
 	hdr.insert ("a12", DoubleAttribute (a12));
+	hdr.insert ("a13", ChromaticitiesAttribute (a13));
+	hdr.insert ("a14", EnvmapAttribute         (a14));
 
 	hdr.channels().insert ("F",			// name
 			       Channel (FLOAT,		// type
@@ -165,6 +171,20 @@ writeReadAttr (const Array2D<float> &pf1,
 	assert (hdr.typedAttribute <V3iAttribute>    ("a10").value() == a10);
 	assert (hdr.typedAttribute <V3fAttribute>    ("a11").value() == a11);
 	assert (hdr.typedAttribute <DoubleAttribute> ("a12").value() == a12);
+
+	assert (hdr.typedAttribute <ChromaticitiesAttribute>
+					("a13").value().red == a13.red);
+
+	assert (hdr.typedAttribute <ChromaticitiesAttribute>
+					("a13").value().green == a13.green);
+
+	assert (hdr.typedAttribute <ChromaticitiesAttribute>
+					("a13").value().blue == a13.blue);
+
+	assert (hdr.typedAttribute <ChromaticitiesAttribute>
+					("a13").value().white == a13.white);
+
+	assert (hdr.typedAttribute <EnvmapAttribute> ("a14").value() == a14);
     }
 
     remove (fileName);

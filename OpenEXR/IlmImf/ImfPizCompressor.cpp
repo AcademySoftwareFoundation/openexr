@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 //-----------------------------------------------------------------------------
 //
 //	class PizCompressor
@@ -60,6 +59,7 @@ namespace Imf {
 using Imath::divp;
 using Imath::modp;
 using Imath::Box2i;
+using Imath::V2i;
 
 namespace {
 
@@ -259,6 +259,59 @@ PizCompressor::compress (const char *inPtr,
 			 int minY,
 			 const char *&outPtr)
 {
+    return compress (inPtr,
+		     inSize,
+		     Box2i (V2i (_minX, minY),
+			    V2i (_maxX, minY + numScanLines() - 1)),
+		     outPtr);
+}
+
+
+int
+PizCompressor::compressTile (const char *inPtr,
+			     int inSize,
+			     Imath::Box2i range,
+			     const char *&outPtr)
+{
+    return compress (inPtr, inSize, range, outPtr);
+}
+
+
+int
+PizCompressor::uncompress (const char *inPtr,
+			   int inSize,
+			   int minY,
+			   const char *&outPtr)
+{
+    return uncompress (inPtr,
+		       inSize,
+		       Box2i (V2i (_minX, minY),
+			      V2i (_maxX, minY + numScanLines() - 1)),
+		       outPtr);
+}
+
+
+int
+PizCompressor::uncompressTile (const char *inPtr,
+			       int inSize,
+			       Imath::Box2i range,
+			       const char *&outPtr)
+{
+    return uncompress (inPtr, inSize, range, outPtr);
+}
+
+
+int
+PizCompressor::compress (const char *inPtr,
+			 int inSize,
+			 Imath::Box2i range,
+			 const char *&outPtr)
+{
+    //
+    // This is the compress function which is used by both the tiled and
+    // scanline compression routines.
+    //
+
     //
     // Special case ­- empty input buffer
     //
@@ -279,10 +332,16 @@ PizCompressor::compress (const char *inPtr,
     // two interleaved 16-bit channels.
     //
 
-    int maxY = minY + numScanLines() - 1;
+    int minX = range.min.x;
+    int maxX = range.max.x;
+    int minY = range.min.y;
+    int maxY = range.max.y;
     
     if (maxY > _maxY)
-	maxY = _maxY;
+        maxY = _maxY;
+    
+    if (maxX > _maxX)
+        maxX = _maxX;
 
     unsigned short *tmpBufferEnd = _tmpBuffer;
     int i = 0;
@@ -296,8 +355,8 @@ PizCompressor::compress (const char *inPtr,
 	cd.start = tmpBufferEnd;
 	cd.end = cd.start;
 
-	cd.nx = numSamples (c.channel().xSampling, _minX, _maxX);
-	cd.ny = numSamples (c.channel().ySampling,  minY,  maxY);
+	cd.nx = numSamples (c.channel().xSampling, minX, maxX);
+	cd.ny = numSamples (c.channel().ySampling, minY, maxY);
 	cd.ys = c.channel().ySampling;
 
 	cd.size = pixelTypeSize (c.channel().type) / pixelTypeSize (HALF);
@@ -427,11 +486,16 @@ PizCompressor::compress (const char *inPtr,
 int
 PizCompressor::uncompress (const char *inPtr,
 			   int inSize,
-			   int minY,
+			   Imath::Box2i range,
 			   const char *&outPtr)
 {
     //
-    // Special case ­- empty input buffer
+    // This is the cunompress function which is used by both the tiled and
+    // scanline decompression routines.
+    //
+    
+    //
+    // Special case - empty input buffer
     //
 
     if (inSize == 0)
@@ -444,10 +508,16 @@ PizCompressor::uncompress (const char *inPtr,
     // Determine the layout of the compressed pixel data
     //
 
-    int maxY = minY + numScanLines() - 1;
+    int minX = range.min.x;
+    int maxX = range.max.x;
+    int minY = range.min.y;
+    int maxY = range.max.y;
     
     if (maxY > _maxY)
-	maxY = _maxY;
+        maxY = _maxY;
+    
+    if (maxX > _maxX)
+        maxX = _maxX;
 
     unsigned short *tmpBufferEnd = _tmpBuffer;
     int i = 0;
@@ -461,8 +531,8 @@ PizCompressor::uncompress (const char *inPtr,
 	cd.start = tmpBufferEnd;
 	cd.end = cd.start;
 
-	cd.nx = numSamples (c.channel().xSampling, _minX, _maxX);
-	cd.ny = numSamples (c.channel().ySampling,  minY,  maxY);
+	cd.nx = numSamples (c.channel().xSampling, minX, maxX);
+	cd.ny = numSamples (c.channel().ySampling, minY, maxY);
 	cd.ys = c.channel().ySampling;
 
 	cd.size = pixelTypeSize (c.channel().type) / pixelTypeSize (HALF);

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -59,7 +59,7 @@ V2iAttribute::staticTypeName ()
 
 template <>
 void
-V2iAttribute::writeValueTo (std::ostream &os, int version) const
+V2iAttribute::writeValueTo (OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value.x);
     Xdr::write <StreamIO> (os, _value.y);
@@ -68,7 +68,7 @@ V2iAttribute::writeValueTo (std::ostream &os, int version) const
 
 template <>
 void
-V2iAttribute::readValueFrom (std::istream &is, int size, int version)
+V2iAttribute::readValueFrom (IStream &is, int size, int version)
 {
     Xdr::read <StreamIO> (is, _value.x);
     Xdr::read <StreamIO> (is, _value.y);
@@ -85,7 +85,7 @@ V2fAttribute::staticTypeName ()
 
 template <>
 void
-V2fAttribute::writeValueTo (std::ostream &os, int version) const
+V2fAttribute::writeValueTo (OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value.x);
     Xdr::write <StreamIO> (os, _value.y);
@@ -94,7 +94,7 @@ V2fAttribute::writeValueTo (std::ostream &os, int version) const
 
 template <>
 void
-V2fAttribute::readValueFrom (std::istream &is, int size, int version)
+V2fAttribute::readValueFrom (IStream &is, int size, int version)
 {
     Xdr::read <StreamIO> (is, _value.x);
     Xdr::read <StreamIO> (is, _value.y);
@@ -111,7 +111,7 @@ V3iAttribute::staticTypeName ()
 
 template <>
 void
-V3iAttribute::writeValueTo (std::ostream &os, int version) const
+V3iAttribute::writeValueTo (OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value.x);
     Xdr::write <StreamIO> (os, _value.y);
@@ -121,7 +121,7 @@ V3iAttribute::writeValueTo (std::ostream &os, int version) const
 
 template <>
 void
-V3iAttribute::readValueFrom (std::istream &is, int size, int version)
+V3iAttribute::readValueFrom (IStream &is, int size, int version)
 {
     Xdr::read <StreamIO> (is, _value.x);
     Xdr::read <StreamIO> (is, _value.y);
@@ -139,7 +139,7 @@ V3fAttribute::staticTypeName ()
 
 template <>
 void
-V3fAttribute::writeValueTo (std::ostream &os, int version) const
+V3fAttribute::writeValueTo (OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value.x);
     Xdr::write <StreamIO> (os, _value.y);
@@ -149,7 +149,7 @@ V3fAttribute::writeValueTo (std::ostream &os, int version) const
 
 template <>
 void
-V3fAttribute::readValueFrom (std::istream &is, int size, int version)
+V3fAttribute::readValueFrom (IStream &is, int size, int version)
 {
     Xdr::read <StreamIO> (is, _value.x);
     Xdr::read <StreamIO> (is, _value.y);

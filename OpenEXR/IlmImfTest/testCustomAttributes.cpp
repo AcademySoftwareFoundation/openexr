@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -65,8 +65,8 @@ struct Glorp
 
 typedef TypedAttribute<Glorp> GlorpAttribute;
 template <> const char *GlorpAttribute::staticTypeName ();
-template <> void GlorpAttribute::writeValueTo (std::ostream &, int) const;
-template <> void GlorpAttribute::readValueFrom (std::istream &, int, int);
+template <> void GlorpAttribute::writeValueTo (OStream &, int) const;
+template <> void GlorpAttribute::readValueFrom (IStream &, int, int);
 
 template <>
 const char *
@@ -78,7 +78,7 @@ GlorpAttribute::staticTypeName ()
 
 template <>
 void
-GlorpAttribute::writeValueTo (std::ostream &os, int version) const
+GlorpAttribute::writeValueTo (OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value.a);
     Xdr::write <StreamIO> (os, _value.b);
@@ -87,7 +87,7 @@ GlorpAttribute::writeValueTo (std::ostream &os, int version) const
 
 template <>
 void
-GlorpAttribute::readValueFrom (std::istream &is, int size, int version)
+GlorpAttribute::readValueFrom (IStream &is, int size, int version)
 {
     Xdr::read <StreamIO> (is, _value.a);
     Xdr::read <StreamIO> (is, _value.b);

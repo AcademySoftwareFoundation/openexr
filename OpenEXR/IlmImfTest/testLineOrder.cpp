@@ -199,7 +199,7 @@ testLineOrder ()
 	const char * filename = "/var/tmp/imf_test_lorder.exr";
 #endif
 
-	for (int lorder = 0; lorder < NUM_LINEORDERS; ++lorder)
+	for (int lorder = 0; lorder < RANDOM_Y; ++lorder)
 	{
 	    writeRead (ph,
 		       filename,

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -34,6 +34,8 @@
 
 #include <ImfRgbaFile.h>
 #include <ImfStandardAttributes.h>
+#include <ImfArray.h>
+#include <ImathRandom.h>
 #include <fstream>
 #include <iomanip>
 #include <stdio.h>
@@ -143,15 +145,260 @@ writeReadChromaticities (const char fileName[])
 
 
 void
+latLongMap (const char fileName1[], const char fileName2[])
+{
+    cout << "latitude-longitude environment map" << endl;
+    const int W = 360;
+    const int H = 180;
+
+    Header header (W, H);
+    addEnvmap (header, ENVMAP_LATLONG);
+
+    V2f pos;
+
+    pos = LatLongMap::latLong (V3f (1, 0, 0));
+    assert (pos.equalWithAbsError (V2f (0, 0), 1e-6f));
+
+    pos = LatLongMap::latLong (V3f (0, 1, 0));
+    assert (pos.equalWithAbsError (V2f (0, M_PI/2), 1e-6f));
+
+    pos = LatLongMap::latLong (V3f (0, -1, 0));
+    assert (pos.equalWithAbsError (V2f (0, -M_PI/2), 1e-6f));
+
+    pos = LatLongMap::latLong (V3f (1, 0, 1));
+    assert (pos.equalWithAbsError (V2f (M_PI/4, 0), 1e-6f));
+
+    pos = LatLongMap::latLong (V3f (1, 0, -1));
+    assert (pos.equalWithAbsError (V2f (-M_PI/4, 0), 1e-6f));
+
+    pos = LatLongMap::pixelPosition (header.dataWindow(), V2f (-M_PI/2, -M_PI));
+    assert (pos.equalWithAbsError (V2f (0, 0), 1e-6f * W));
+
+    pos = LatLongMap::pixelPosition(header.dataWindow(), V2f (M_PI/2, M_PI));
+    assert (pos.equalWithAbsError (V2f (header.dataWindow().max), 1e-6f * W));
+
+    Array2D<Rgba> pixels (H, W);
+
+    for (int y = 0; y < H; ++y)
+    {
+	for (int x = 0; x < W; ++x)
+	{
+	    Rgba &p = pixels[y][x];
+	    V3f dir = LatLongMap::direction (header.dataWindow(), V2f (x, y));
+
+	    p.r = dir.x + 1;
+	    p.g = dir.y + 1;
+	    p.b = dir.z + 1;
+	}
+    }
+
+    {
+	RgbaOutputFile out (fileName1, header, WRITE_RGB);
+	out.setFrameBuffer (&pixels[0][0], 1, W);
+	out.writePixels (H);
+    }
+
+    Rand48 rand (0);
+
+    for (int i = 0; i < W * H * 3; ++i)
+    {
+	V3f dir = hollowSphereRand<V3f> (rand);
+	V2f pos = LatLongMap::pixelPosition (header.dataWindow(), dir);
+
+	Rgba &p = pixels[int (pos.y + 0.5)][int (pos.x + 0.5)];
+
+	p.r = (dir.x + 1) * 0.8;
+	p.g = (dir.y + 1) * 0.8;
+	p.b = (dir.z + 1) * 0.8;
+
+	V3f dir1 = LatLongMap::direction (header.dataWindow(), pos);
+	assert (dir.equalWithAbsError (dir1.normalized(), 1e-6f));
+    }
+
+    {
+	RgbaOutputFile out (fileName2, header, WRITE_RGB);
+	out.setFrameBuffer (&pixels[0][0], 1, W);
+	out.writePixels (H);
+    }
+
+
+    // remove (filename1);
+    // remove (filename2);
+}
+
+
+void
+cubeMap (const char fileName1[], const char fileName2[])
+{
+    cout << "cube environment map" << endl;
+    const int N = 128;
+    const int W = N;
+    const int H = N * 6;
+
+    Header header (W, H);
+    addEnvmap (header, ENVMAP_CUBE);
+
+    int sof = CubeMap::sizeOfFace (header.dataWindow());
+
+    assert (sof == N);
+
+    for (int face1 = 0; face1 < 6; ++face1)
+    {
+	Box2i dw1 = CubeMap::dataWindowForFace (CubeMapFace (face1),
+						header.dataWindow());
+
+	assert (dw1.max.x - dw1.min.x == sof - 1);
+	assert (dw1.max.y - dw1.min.y == sof - 1);
+	assert (header.dataWindow().intersects (dw1.min));
+	assert (header.dataWindow().intersects (dw1.max));
+
+	for (int face2 = face1 + 1; face2 < 6; ++face2)
+	{
+	    Box2i dw2 = CubeMap::dataWindowForFace (CubeMapFace (face2),
+						    header.dataWindow());
+	    assert (!dw1.intersects (dw2));
+	}
+    }
+
+    CubeMapFace face;
+    V2f pos;
+
+    CubeMap::faceAndPixelPosition (V3f (1, 0, 0),
+				   header.dataWindow(),
+				   face, pos);
+    
+    assert (face == CUBEFACE_POS_X);
+    assert (pos.equalWithAbsError (V2f ((sof - 1), (sof - 1)) / 2, 1e-6 * W));
+
+    CubeMap::faceAndPixelPosition (V3f (-1, 0, 0),
+	                           header.dataWindow(),
+				   face, pos);
+    
+    assert (face == CUBEFACE_NEG_X);
+    assert (pos.equalWithAbsError (V2f ((sof - 1), (sof - 1)) / 2, 1e-6 * W));
+
+    CubeMap::faceAndPixelPosition (V3f (0, 1, 0),
+	    			   header.dataWindow(),
+				   face, pos);
+    
+    assert (face == CUBEFACE_POS_Y);
+    assert (pos.equalWithAbsError (V2f ((sof - 1), (sof - 1)) / 2, 1e-6 * W));
+
+    CubeMap::faceAndPixelPosition (V3f (0, -1, 0),
+	    			   header.dataWindow(),
+				   face, pos);
+    
+    assert (face == CUBEFACE_NEG_Y);
+    assert (pos.equalWithAbsError (V2f ((sof - 1), (sof - 1)) / 2, 1e-6 * W));
+
+    CubeMap::faceAndPixelPosition (V3f (0, 0, 1),
+	    			   header.dataWindow(),
+				   face, pos);
+    
+    assert (face == CUBEFACE_POS_Z);
+    assert (pos.equalWithAbsError (V2f ((sof - 1), (sof - 1)) / 2, 1e-6 * W));
+
+    CubeMap::faceAndPixelPosition (V3f (0, 0, -1),
+	    			   header.dataWindow(),
+				   face, pos);
+    
+    assert (face == CUBEFACE_NEG_Z);
+    assert (pos.equalWithAbsError (V2f ((sof - 1), (sof - 1)) / 2, 1e-6 * W));
+
+    Array2D<Rgba> pixels (H, W);
+
+    for (int y = 0; y < H; ++y)
+    {
+	for (int x = 0; x < W; ++x)
+	{
+	    Rgba &p = pixels[y][x];
+	    p.r = p.g = p.b = 0;
+	}
+    }
+
+    for (int face = 0; face < 6; ++face)
+    {
+	for (int y = 0; y < sof; ++y)
+	{
+	    for (int x = 0; x < sof; ++x)
+	    {
+		V2f px = CubeMap::pixelPosition (CubeMapFace (face),
+						 header.dataWindow(),
+						 V2f (x, y));
+
+		Rgba &p = pixels[int (px.y + 0.5)][int (px.x + 0.5)];
+
+		V3f dir = CubeMap::direction (CubeMapFace (face),
+			                      header.dataWindow(),
+					      V2f (x, y));
+		dir.normalize();
+
+		p.r = dir.x + 1;
+		p.g = dir.y + 1;
+		p.b = dir.z + 1;
+	    }
+	}
+    }
+
+    {
+	RgbaOutputFile out (fileName1, header, WRITE_RGB);
+	out.setFrameBuffer (&pixels[0][0], 1, W);
+	out.writePixels (H);
+    }
+
+    for (int y = 0; y < H; ++y)
+    {
+	for (int x = 0; x < W; ++x)
+	{
+	    Rgba &p = pixels[y][x];
+	    assert (p.r != 0 || p.g != 0 || p.b != 0);
+	}
+    }
+
+    Rand48 rand (0);
+
+    for (int i = 0; i < W * H * 3; ++i)
+    {
+	V3f dir = hollowSphereRand<V3f> (rand);
+
+	CubeMapFace face;
+	V2f pif;
+
+	CubeMap::faceAndPixelPosition (dir, header.dataWindow(), face, pif);
+
+	V2f pos = CubeMap::pixelPosition (face, header.dataWindow(), pif);
+
+	Rgba &p = pixels[int (pos.y + 0.5)][int (pos.x + 0.5)];
+
+	p.r = (dir.x + 1) * 0.8;
+	p.g = (dir.y + 1) * 0.8;
+	p.b = (dir.z + 1) * 0.8;
+
+	V3f dir1 = CubeMap::direction (face, header.dataWindow(), pif);
+	assert (dir.equalWithAbsError (dir1.normalized(), 1e-6f));
+    }
+
+    {
+	RgbaOutputFile out (fileName2, header, WRITE_RGB);
+	out.setFrameBuffer (&pixels[0][0], 1, W);
+	out.writePixels (H);
+    }
+
+    // remove (filename1);
+    // remove (filename2);
+}
+
+
+void
 generatedFunctions ()
 {
     //
     // Most optional standard attributes are of type string, float,
     // etc.  The attribute types are already being tested elsewhere
-    // (testAttributes.cpp), and the convenience functions to access
+    // (testAttributes.C), and the convenience functions to access
     // the standard attributes are all generated via macros.  Here
     // we just verify that all the convenience functions exist
-    // (that is, ImfStandardAttributes.cpp and ImfStandardAttributes.h
+    // (that is, ImfStandardAttributes.C and ImfStandardAttributes.h
     // contain the right macro invocations).  If any functions are
     // missing, we should get an error during compiling or linking.
     //
@@ -174,6 +421,7 @@ generatedFunctions ()
     assert (hasExpTime (header) == false);
     assert (hasAperture (header) == false);
     assert (hasIsoSpeed (header) == false);
+    assert (hasEnvmap (header) == false);
 }
 
 
@@ -186,14 +434,41 @@ testStandardAttributes ()
     try
     {
 	cout << "Testing optional standard attributes" << endl;
+	cout << fixed;
 
 	convertRGBtoXYZ();
+
+	{
 #ifdef PLATFORM_WIN32
-	const char * filename = "imf_test_chromaticities.exr";
+	    const char * filename = "imf_test_chromaticities.exr";
 #else
-	const char * filename = "/var/tmp/imf_test_chromaticities.exr";
+	    const char * filename = "/var/tmp/imf_test_chromaticities.exr";
 #endif
-	writeReadChromaticities (filename);
+	    writeReadChromaticities (filename);
+	}
+
+	{
+#ifdef PLATFORM_WIN32
+	    const char * fn1 = "imf_test_latlong1.exr";
+	    const char * fn2 = "imf_test_latlong2.exr";
+#else
+	    const char * fn1 = "/var/tmp/imf_test_latlong1.exr";
+	    const char * fn2 = "/var/tmp/imf_test_latlong1.exr";
+#endif
+	    latLongMap (fn1, fn2);
+	}
+
+	{
+#ifdef PLATFORM_WIN32
+	    const char * fn1 = "imf_test_cube1.exr";
+	    const char * fn2 = "imf_test_cube2.exr";
+#else
+	    const char * fn1 = "/var/tmp/imf_test_cube1.exr";
+	    const char * fn2 = "/var/tmp/imf_test_cube2.exr";
+#endif
+	    cubeMap (fn1, fn2);
+	}
+
 	generatedFunctions();
 
 	cout << "ok\n" << endl;

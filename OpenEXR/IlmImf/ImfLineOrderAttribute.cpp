@@ -57,7 +57,7 @@ LineOrderAttribute::staticTypeName ()
 
 template <>
 void
-LineOrderAttribute::writeValueTo (std::ostream &os, int version) const
+LineOrderAttribute::writeValueTo (OStream &os, int version) const
 {
     unsigned char tmp = _value;
     Xdr::write <StreamIO> (os, tmp);
@@ -66,7 +66,7 @@ LineOrderAttribute::writeValueTo (std::ostream &os, int version) const
 
 template <>
 void
-LineOrderAttribute::readValueFrom (std::istream &is, int size, int version)
+LineOrderAttribute::readValueFrom (IStream &is, int size, int version)
 {
     unsigned char tmp;
     Xdr::read <StreamIO> (is, tmp);

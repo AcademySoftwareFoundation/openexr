@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -58,8 +58,11 @@ ZipCompressor::ZipCompressor
     _tmpBuffer (0),
     _outBuffer (0)
 {
-    _tmpBuffer = new char [maxScanLineSize * numScanLines];
-    _outBuffer = new char [maxScanLineSize * numScanLines * 3 / 2];
+    _tmpBuffer =
+	new char [maxScanLineSize * numScanLines];
+
+    _outBuffer =
+	new char [int (ceil (maxScanLineSize * numScanLines * 1.01)) + 100];
 }
 
 
@@ -138,7 +141,7 @@ ZipCompressor::compress (const char *inPtr,
     // Compress the data using zlib
     //
 
-    uLongf outSize = inSize * 3 / 2;
+    uLongf outSize = int(ceil(inSize * 1.01)) + 100;
 
     if (Z_OK != ::compress ((Bytef *)_outBuffer, &outSize,
 			    (const Bytef *) _tmpBuffer, inSize))

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -49,7 +49,11 @@ namespace Imf {
 enum LineOrder
 {
     INCREASING_Y = 0,	// first scan line has lowest y coordinate
+
     DECREASING_Y = 1,	// first scan line has highest y coordinate
+
+    RANDOM_Y = 2,       // only for tiled files; tiles are written
+    			// in random order
 
     NUM_LINEORDERS	// number of different line orders
 };

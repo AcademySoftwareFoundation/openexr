@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -96,10 +96,10 @@ class OpaqueAttribute: public Attribute
     // I/O and copying
     //----------------
 
-    virtual void		writeValueTo (std::ostream &os,
+    virtual void		writeValueTo (OStream &os,
 					      int version) const;
 
-    virtual void		readValueFrom (std::istream &is,
+    virtual void		readValueFrom (IStream &is,
 					       int size,
 					       int version);
 

@@ -1,4 +1,13 @@
 Version 1.1.0:
+    - IlmImf: Support for environment maps.
+    - IlmImf: Support for abstracted stream I/O.  You can
+      wrap the IStream and OStream classes around your API
+      of choice (FILE *, fd, even an HTTP 1.1 stream) as long
+      as it supports seeking.
+    - IlmImf: Support for tiled and mip/ripmapped files.  This
+      requires a new file format.
+    - Imath: added TMatrix*, generic 2D matricies and algorithms.
+    - Imath: various updates and bug fixes.
 
 Version 1.0.7:
     - Support for "optional standard" attributes:

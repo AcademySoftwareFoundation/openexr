@@ -47,6 +47,8 @@
 
 namespace Imf {
 
+using Imath::Box2i;
+
 
 Compressor::Compressor (const Header &hdr): _header (hdr) {}
 
@@ -58,6 +60,26 @@ Compressor::Format
 Compressor::format () const
 {
     return XDR;
+}
+
+
+int
+Compressor::compressTile (const char *inPtr,
+			  int inSize,
+			  Box2i range,
+			  const char *&outPtr)
+{
+    return compress (inPtr, inSize, range.min.y, outPtr);
+}
+
+             
+int
+Compressor::uncompressTile (const char *inPtr,
+			    int inSize,
+			    Box2i range,
+			    const char *&outPtr)
+{
+    return uncompress (inPtr, inSize, range.min.y, outPtr);
 }
 
 
@@ -101,6 +123,34 @@ newCompressor (Compression c, int maxScanLineSize, const Header &hdr)
       case PIZ_COMPRESSION:
 
 	return new PizCompressor (hdr, maxScanLineSize, 32);
+
+      default:
+
+	return 0;
+    }
+}
+
+
+Compressor *
+newTileCompressor (Compression c,
+		   int tileLineSize,
+		   int numTileLines,
+		   const Header &hdr)
+{
+    switch (c)
+    {
+      case RLE_COMPRESSION:
+
+	return new RleCompressor (hdr, tileLineSize * numTileLines);
+
+      case ZIPS_COMPRESSION:
+      case ZIP_COMPRESSION:
+
+	return new ZipCompressor (hdr, tileLineSize, numTileLines);
+
+      case PIZ_COMPRESSION:
+
+	return new PizCompressor (hdr, tileLineSize, numTileLines);
 
       default:
 

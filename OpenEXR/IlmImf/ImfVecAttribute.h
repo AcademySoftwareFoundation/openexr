@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -55,26 +55,26 @@ namespace Imf {
 
 typedef TypedAttribute<Imath::V2i> V2iAttribute;
 template <> const char *V2iAttribute::staticTypeName ();
-template <> void V2iAttribute::writeValueTo (std::ostream &, int) const;
-template <> void V2iAttribute::readValueFrom (std::istream &, int, int);
+template <> void V2iAttribute::writeValueTo (OStream &, int) const;
+template <> void V2iAttribute::readValueFrom (IStream &, int, int);
 
 
 typedef TypedAttribute<Imath::V2f> V2fAttribute;
 template <> const char *V2fAttribute::staticTypeName ();
-template <> void V2fAttribute::writeValueTo (std::ostream &, int) const;
-template <> void V2fAttribute::readValueFrom (std::istream &, int, int);
+template <> void V2fAttribute::writeValueTo (OStream &, int) const;
+template <> void V2fAttribute::readValueFrom (IStream &, int, int);
 
 
 typedef TypedAttribute<Imath::V3i> V3iAttribute;
 template <> const char *V3iAttribute::staticTypeName ();
-template <> void V3iAttribute::writeValueTo (std::ostream &, int) const;
-template <> void V3iAttribute::readValueFrom (std::istream &, int, int);
+template <> void V3iAttribute::writeValueTo (OStream &, int) const;
+template <> void V3iAttribute::readValueFrom (IStream &, int, int);
 
 
 typedef TypedAttribute<Imath::V3f> V3fAttribute;
 template <> const char *V3fAttribute::staticTypeName ();
-template <> void V3fAttribute::writeValueTo (std::ostream &, int) const;
-template <> void V3fAttribute::readValueFrom (std::istream &, int, int);
+template <> void V3fAttribute::writeValueTo (OStream &, int) const;
+template <> void V3fAttribute::readValueFrom (IStream &, int, int);
 
 
 } // namespace Imf

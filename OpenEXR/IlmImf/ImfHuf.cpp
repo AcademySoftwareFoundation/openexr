@@ -46,6 +46,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfHuf.h>
+#include <ImfInt64.h>
 #include <ImfAutoArray.h>
 #include <Iex.h>
 #include <string.h>
@@ -69,9 +70,6 @@ const int HUF_DECBITS = 14;			// decoding bit size (>= 8)
 const int HUF_ENCSIZE = (1 << HUF_ENCBITS) + 1;	// encoding table size
 const int HUF_DECSIZE =  1 << HUF_DECBITS;	// decoding table size
 const int HUF_DECMASK = HUF_DECSIZE - 1;
-
-
-typedef long long unsigned int Int64;		// 64-bit integer data type
 
 
 struct HufDec

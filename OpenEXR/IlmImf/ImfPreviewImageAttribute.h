@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -55,10 +55,10 @@ template <>
 const char *PreviewImageAttribute::staticTypeName ();
 
 template <>
-void PreviewImageAttribute::writeValueTo (std::ostream &, int) const;
+void PreviewImageAttribute::writeValueTo (OStream &, int) const;
 
 template <>
-void PreviewImageAttribute::readValueFrom (std::istream &, int, int);
+void PreviewImageAttribute::readValueFrom (IStream &, int, int);
 
 
 } // namespace Imf

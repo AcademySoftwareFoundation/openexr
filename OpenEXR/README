@@ -41,10 +41,10 @@ supports fragment shaders if you have the Nvidia Cg SDK and a graphics
 card capable of running fp30 profile fragment shaders.  See
 exrdisplay/README for details.
 
-We have also released an OpenEXR display driver for Renderman and a
-plugin for Adobe Photoshop (on both Windows and MacOS).  These are
-packaged separately.  Go to our GNU Savannah web page to download
-them:
+We have also released an OpenEXR display driver for Renderman, a file I/O
+plugin for Shake, and a file I/O plugin for Adobe Photoshop (on both 
+Windows and MacOS).  These are packaged separately.  Go to our GNU 
+Savannah web page to download them:
 
 http://savannah.nongnu.org/files/?group=openexr
 

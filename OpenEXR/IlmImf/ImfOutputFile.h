@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -60,16 +60,32 @@ class OutputFile
     // Constructor -- opens the file and writes the file header.
     // The file header is also copied into the OutputFile object,
     // and can later be accessed via the header() method.
+    // Destroying this OutputFile object automatically closes
+    // the file.
     //-----------------------------------------------------------
 
     OutputFile (const char fileName[], const Header &header);
 
 
-    //------------------------------------------------------
-    // Destructor -- closes the file.
-    // Closing the file before writing all scan lines within
-    // the data window results in an incomplete file.
-    //------------------------------------------------------
+    //------------------------------------------------------------
+    // Constructor -- attaches the new OutputFile object to a file
+    // that has already been opened, and writes the file header.
+    // The file header is also copied into the OutputFile object,
+    // and can later be accessed via the header() method.
+    // Destroying this OutputFile object does not automatically
+    // close the file.
+    //------------------------------------------------------------
+
+    OutputFile (OStream &os, const Header &header);
+
+
+    //-------------------------------------------------
+    // Destructor
+    //
+    // Destroying the OutputFile object before writing
+    // all scan lines within the data window results in
+    // an incomplete file.
+    //-------------------------------------------------
 
     virtual ~OutputFile ();
 
@@ -186,6 +202,8 @@ class OutputFile
 
     OutputFile (const OutputFile &);			// not implemented
     OutputFile & operator = (const OutputFile &);	// not implemented
+
+    void		initialize (const Header &header);
 
     Data *		_data;
 };

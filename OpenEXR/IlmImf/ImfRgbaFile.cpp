@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -37,7 +37,6 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class Rgba
 //	class RgbaOutputFile
 //	class RgbaInputFile
 //
@@ -94,6 +93,28 @@ RgbaOutputFile::RgbaOutputFile (const char name[],
 
     hd.channels() = ch;
     _outputFile = new OutputFile (name, hd);
+}
+
+
+RgbaOutputFile::RgbaOutputFile (OStream &os,
+				const Header &header,
+				RgbaChannels rgbaChannels):
+    _outputFile (0)
+{
+    Header hd (header);
+    ChannelList ch;
+
+    if (rgbaChannels & WRITE_R)
+	ch.insert ("R", Channel (HALF, 1, 1));
+    if (rgbaChannels & WRITE_G)
+	ch.insert ("G", Channel (HALF, 1, 1));
+    if (rgbaChannels & WRITE_B)
+	ch.insert ("B", Channel (HALF, 1, 1));
+    if (rgbaChannels & WRITE_A)
+	ch.insert ("A", Channel (HALF, 1, 1));
+
+    hd.channels() = ch;
+    _outputFile = new OutputFile (os, hd);
 }
 
 
@@ -285,6 +306,13 @@ RgbaOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 
 RgbaInputFile::RgbaInputFile (const char name[]):
     _inputFile (new InputFile (name))
+{
+    // empty
+}
+
+
+RgbaInputFile::RgbaInputFile (IStream &is):
+    _inputFile (new InputFile (is))
 {
     // empty
 }

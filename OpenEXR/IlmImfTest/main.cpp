@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -50,9 +50,21 @@
 #include <testConversion.h>
 #include <testStandardAttributes.h>
 #include <testNativeFormat.h>
+#include <testTiledRgba.h>
+#include <testTiledCompression.h>
+#include <testTiledCopyPixels.h>
+#include <testTiledLineOrder.h>
+#include <testScanLineApi.h>
+#include <testExistingStreams.h>
 
+#include <stdlib.h>
 #include <iostream>
 #include <string.h>
+
+#ifdef PLATFORM_REDHAT_IA32
+    #include <unistd.h>
+    #include <sstream>
+#endif
 
 #define TEST(x) if (argc < 2 || !strcmp (argv[1], #x)) x();
 
@@ -76,8 +88,31 @@ main (int argc, char *argv[])
     TEST (testSampleImages);
     TEST (testPreviewImage);
     TEST (testConversion);
+    TEST (testTiledLineOrder);
+    TEST (testTiledRgba);
+    TEST (testTiledCompression);
+    TEST (testTiledCopyPixels);
+    TEST (testScanLineApi);
+    TEST (testExistingStreams);
     TEST (testStandardAttributes);
     TEST (testNativeFormat);
+
+    #ifdef PLATFORM_REDHAT_IA32
+
+	//
+	// Allow the user to check for file descriptor leaks
+	//
+
+	std::cout << "open file descriptors:" << std::endl;
+
+	std::stringstream ss;
+	ss << "ls -lG /proc/" << getpid() << "/fd";
+	
+	system (ss.str().c_str());
+
+	std::cout << std::endl;
+
+    #endif
 
     return 0;
 }

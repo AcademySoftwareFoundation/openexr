@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -41,20 +41,16 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfInputFile.h>
+#include <ImfScanLineInputFile.h>
+#include <ImfTiledInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfMisc.h>
-#include <ImfIO.h>
-#include <ImfCompressor.h>
-#include <ImathBox.h>
-#include <ImathFun.h>
-#include <ImfXdr.h>
-#include <ImfArray.h>
-#include <ImfConvert.h>
+#include <ImfStdIO.h>
 #include <Iex.h>
-#include <string>
-#include <vector>
 #include <fstream>
-#include <assert.h>
+#include <algorithm>
+#include <ImfVersion.h>
+#include <half.h>
 
 #if defined PLATFORM_WIN32 && _MSC_VER < 1300
 namespace
@@ -70,310 +66,388 @@ inline T max (const T &a, const T &b) { return (a >= b) ? a : b; }
 namespace Imf {
 
 using Imath::Box2i;
-using Imath::divp;
-using Imath::modp;
-using std::string;
-using std::vector;
-using std::ifstream;
 
 
-namespace {
+//
+// Struct InputFile::Data stores things that will be
+// needed between calls to readPixels
+//
 
-
-struct InSliceInfo
+struct InputFile::Data
 {
-    PixelType	        typeInFrameBuffer;
-    PixelType           typeInFile;
-    char *		base;
-    size_t		xStride;
-    size_t		yStride;
-    int			xSampling;
-    int			ySampling;
-    bool		fill;
-    bool		skip;
-    double		fillValue;
+    Header              header;
+    int                 version;
+    IStream *		is;
+    bool		deleteStream;
 
-    InSliceInfo (PixelType typeInFrameBuffer = HALF,
-		 PixelType typeInFile = HALF,
-	         char *base = 0,
-	         size_t xStride = 0,
-	         size_t yStride = 0,
-	         int xSampling = 1,
-	         int ySampling = 1,
-	         bool fill = false,
-	         bool skip = false,
-	         double fillValue = 0.0);
+    TiledInputFile *	tFile;
+    ScanLineInputFile *	sFile;
+
+    LineOrder		lineOrder;      // the file's lineorder
+    int			minY;           // data window's min y coord
+    int			maxY;           // data window's max x coord
+    
+    FrameBuffer		tFileBuffer;
+    FrameBuffer *	cachedBuffer;
+    
+    int			cachedTileY;
+    int			offset;
+
+     Data (bool del);
+    ~Data ();
+
+    void		deleteCachedBuffer();
 };
 
 
-InSliceInfo::InSliceInfo (PixelType tifb,
-			  PixelType tifl,
-			  char *b,
-			  size_t xs, size_t ys,
-			  int xsm, int ysm,
-			  bool f, bool s,
-			  double fv)
-:
-    typeInFrameBuffer (tifb),
-    typeInFile (tifl),
-    base (b),
-    xStride (xs),
-    yStride (ys),
-    xSampling (xsm),
-    ySampling (ysm),
-    fill (f),
-    skip (s),
-    fillValue (fv)
+InputFile::Data::Data (bool del):
+    is (0),
+    deleteStream (del),
+    tFile (0),
+    sFile (0),
+    cachedBuffer (0),
+    cachedTileY (-1)
 {
     // empty
 }
 
 
-} // namespace
-
-
-struct InputFile::Data
+InputFile::Data::~Data ()
 {
-  public:
-    string		fileName;
-    Header		header;
-    int			version;
-    FrameBuffer		frameBuffer;
-    LineOrder		lineOrder;
-    int			minX;
-    int			maxX;
-    int			minY;
-    int			maxY;
-    vector<long>	lineOffsets;
-    int			linesInBuffer;
-    int			lineBufferMinY;
-    int			lineBufferMaxY;
-    int			nextLineBufferMinY;
-    size_t		lineBufferSize;
-    Array<char>		lineBuffer;
-    const char *	uncompressedData;
-    vector<size_t>	bytesPerLine;
-    vector<size_t>	offsetInLineBuffer;
-    Compressor *	compressor;
-    Compressor::Format	format;
-    vector<InSliceInfo>	slices;
-    ifstream		is;
+    if (deleteStream)
+	delete is;
 
-     Data (): compressor (0) {}
-    ~Data () {delete compressor;}
-};
+    delete tFile;
+    delete sFile;
+    deleteCachedBuffer();
+}
+
+
+void	
+InputFile::Data::deleteCachedBuffer()
+{
+    //
+    // Delete the cached frame buffer, and all memory
+    // allocated for the slices in the cached frameBuffer.
+    //
+
+    if (cachedBuffer)
+    {
+	for (FrameBuffer::Iterator k = cachedBuffer->begin();
+	     k != cachedBuffer->end();
+	     ++k)
+	{
+	    Slice &s = k.slice();
+
+	    switch (s.type)
+	    {
+	      case UINT:
+
+		delete [] (((unsigned int *)s.base) + offset);
+		break;
+
+	      case HALF:
+
+		delete [] ((half *)s.base + offset);
+		break;
+
+	      case FLOAT:
+
+		delete [] (((float *)s.base) + offset);
+		break;
+	    }                
+	}
+
+	//
+	// delete the cached frame buffer
+	//
+
+	delete cachedBuffer;        
+	cachedBuffer = 0;
+    }
+}
 
 
 namespace {
 
-
 void
-reconstructLineOffsets (ifstream &is, vector<long> &lineOffsets)
+bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
 {
-    long position = is.tellg();
+    //
+    // bufferedReadPixels reads each row of tiles that intersect the
+    // scan-line range (scanLine1 to scanLine2). The previous row of
+    // tiles is cached in order to prevent redundent tile reads when
+    // accessing scanlines sequentially.
+    //
 
-    try
+#if defined PLATFORM_WIN32 && _MSC_VER < 1300
+    int minY = min (scanLine1, scanLine2);
+    int maxY = max (scanLine1, scanLine2);
+#else
+    int minY = std::min (scanLine1, scanLine2);
+    int maxY = std::max (scanLine1, scanLine2);
+#endif
+
+    if (minY < ifd->minY || maxY >  ifd->maxY)
     {
-	for (unsigned int i = 0; i < lineOffsets.size(); i++)
-	{
-	    if (!is)
-		break;
-
-	    long lineOffset = is.tellg();
-
-	    int y;
-	    Xdr::read <StreamIO> (is, y);
-
-	    if (!is)
-		break;
-
-	    int dataSize;
-	    Xdr::read <StreamIO> (is, dataSize);
-
-	    if (!is)
-		break;
-
-	    Xdr::skip <StreamIO> (is, dataSize);
-	    lineOffsets[i] = lineOffset;
-	}
-    }
-    catch (...)
-    {
-	//
-	// Suppress all exceptions.  This functions is
-	// called only to reconstruct the line offset
-	// table for incomplete files, and exceptions
-	// are likely.
-	//
+        throw Iex::ArgExc ("Tried to read scan line outside "
+			   "the image file's data window.");
     }
 
-    is.clear();
-    is.seekg (position);
-}
+    //
+    // The minimum and maximum y tile coordinates that intersect this
+    // scanline range
+    //
 
+    int minDy = (minY - ifd->minY) / ifd->tFile->tileYSize();
+    int maxDy = (maxY - ifd->minY) / ifd->tFile->tileYSize();
 
-void
-readLineOffsets (ifstream &is, vector<long> &lineOffsets)
-{
-    for (unsigned int i = 0; i < lineOffsets.size(); i++)
+    //
+    // Figure out which one is first in the file so we can read without seeking
+    //
+
+    int yStart, yEnd, yStep;
+
+    if (ifd->lineOrder == DECREASING_Y)
     {
-	Xdr::read <StreamIO> (is, lineOffsets[i]);
+        yStart = maxDy;
+        yEnd = minDy - 1;
+        yStep = -1;
     }
-
-    for (unsigned int i = 0; i < lineOffsets.size(); i++)
-    {
-	if (lineOffsets[i] <= 0)
-	{
-	    //
-	    // Invalid data in the line offset table mean that
-	    // the file is probably incomplete (the table is
-	    // the last thing written to the file).  Either
-	    // some process is still busy writing the file,
-	    // or writing the file was aborted.
-	    //
-	    // We should still be able to read the existing
-	    // parts of the file.  In order to do this, we
-	    // have to make a sequential scan over the scan
-	    // line data to reconstruct the line offset table.
-	    //
-
-	    reconstructLineOffsets (is, lineOffsets);
-	    break;
-	}
-    }
-}
-
-
-
-void
-readPixelData (InputFile::Data *ifd, int y, int &minY, int &maxY, int &dataSize)
-{
-    long lineOffset =
-       ifd->lineOffsets[(y - ifd->minY) / ifd->linesInBuffer];
-
-    if (lineOffset == 0)
-	THROW (Iex::InputExc, "Scan line " << y << " is missing.");
-
-    //
-    // Seek to the start of the scan line in the file,
-    // if necessary.
-    //
-
-    minY = lineBufferMinY (y, ifd->minY, ifd->linesInBuffer);
-    maxY = lineBufferMaxY (y, ifd->minY, ifd->linesInBuffer);
-
-    if (ifd->nextLineBufferMinY != minY)
-    {
-	ifd->is.seekg (lineOffset);
-	checkError (ifd->is);
-    }
-
-    #ifdef DEBUG
-
-	assert (long (ifd->is.tellg()) == lineOffset);
-
-    #endif
-
-    //
-    // Read the data block's header.
-    //
-
-    int yInFile;
-
-    Xdr::read <StreamIO> (ifd->is, yInFile);
-    Xdr::read <StreamIO> (ifd->is, dataSize);
-
-    if (yInFile != minY)
-	throw Iex::InputExc ("Unexpected data block y coordinate.");
-
-    if (dataSize > (int) ifd->lineBufferSize)
-	throw Iex::InputExc ("Unexpected data block length.");
-
-    //
-    // Read the pixel data.
-    //
-
-    ifd->is.read (ifd->lineBuffer, dataSize);
-    checkError (ifd->is);
-
-    //
-    // Keep track of which scan line is the next one in
-    // the file, so that we can avoid redundant seekg()
-    // operations (seekg() can be fairly expensive).
-    //
-
-    if (ifd->lineOrder == INCREASING_Y)
-	ifd->nextLineBufferMinY = minY + ifd->linesInBuffer;
     else
-	ifd->nextLineBufferMinY = minY - ifd->linesInBuffer;
-}
+    {
+        yStart = minDy;
+        yEnd = maxDy + 1;
+        yStep = 1;
+    }
 
+    //
+    // the number of pixels in a row of tiles
+    //
+
+    int tileRowSize = ifd->tFile->levelWidth(0) * ifd->tFile->tileYSize();
+
+    //
+    // Read the tiles into our temporary framebuffer and copy them into
+    // the user's buffer
+    //
+
+    for (int j = yStart; j != yEnd; j += yStep)
+    {
+        Box2i tileRange = ifd->tFile->dataWindowForTile (0, j, 0);
+
+#if defined PLATFORM_WIN32 && _MSC_VER < 1300
+        int minYThisRow = max (minY, tileRange.min.y);
+        int maxYThisRow = min (maxY, tileRange.max.y);
+#else
+        int minYThisRow = std::max (minY, tileRange.min.y);
+        int maxYThisRow = std::min (maxY, tileRange.max.y);
+#endif
+
+        if (j != ifd->cachedTileY)
+        {
+            //
+            // We don't have any valid buffered info, so we need to read in
+            // from the file.
+            //
+
+            //
+            // If cachedBuffer is not 0 then that means we already have
+            // some data buffered. We must delete the memory allocated for
+            // the previous cachedBuffer before continuing.
+            //
+
+            if (ifd->cachedBuffer)
+		ifd->deleteCachedBuffer();
+
+            //
+            // Then, allocate a framebuffer big enough to store all tiles in
+            // this row of tiles and save it as cachedBuffer.
+            //
+
+            ifd->cachedBuffer = new FrameBuffer();
+            ifd->cachedTileY = j;
+
+            ifd->offset = tileRange.min.y * ifd->tFile->levelWidth(0) +
+                          tileRange.min.x;
+
+            for (FrameBuffer::ConstIterator k = ifd->tFileBuffer.begin();
+                 k != ifd->tFileBuffer.end();
+		 ++k)
+            {
+                Slice s = k.slice();
+
+                switch (s.type)
+                {
+		  case UINT:
+
+		    ifd->cachedBuffer->insert
+			(k.name(),
+			 Slice (UINT,
+				(char *)(new unsigned int[tileRowSize] -
+				     ifd->offset),
+				 sizeof (unsigned int),
+				 sizeof (unsigned int) *
+				     ifd->tFile->levelWidth(0)));
+		    break;
+
+		  case HALF:
+
+		    ifd->cachedBuffer->insert
+			(k.name(),
+			 Slice (HALF,
+				(char *)(new half[tileRowSize] -
+				     ifd->offset),
+				 sizeof (half),
+				 sizeof (half) *
+				     ifd->tFile->levelWidth(0)));
+		    break;
+
+		  case FLOAT:
+
+		    ifd->cachedBuffer->insert
+			(k.name(),
+			 Slice (FLOAT,
+				(char *)(new float[tileRowSize] -
+				     ifd->offset),
+				 sizeof(float),
+				 sizeof(float) *
+				     ifd->tFile->levelWidth(0)));
+		    break;
+
+		  default:
+
+		    throw Iex::ArgExc ("Unknown pixel data type.");
+                }
+            }
+
+            ifd->tFile->setFrameBuffer (*ifd->cachedBuffer);
+
+            //
+            // Read in the whole row of tiles into cachedBuffer.
+            //
+
+            for (int i = 0; i < ifd->tFile->numXTiles (0); ++i)
+                ifd->tFile->readTile (i, j, 0);
+        }
+
+        //
+        // Copy the data from our cached framebuffer into the user's
+        // framebuffer.
+        //
+
+        Box2i levelRange = ifd->tFile->dataWindowForLevel(0);
+
+        for (FrameBuffer::ConstIterator k = ifd->cachedBuffer->begin();
+             k != ifd->cachedBuffer->end();
+             ++k)
+        {
+            Slice fromSlice = k.slice();		// slice to write from
+            Slice toSlice = ifd->tFileBuffer[k.name()];	// slice to write to
+
+            char *fromPtr, *toPtr;
+            int size = pixelTypeSize (toSlice.type);
+
+            for (int y = minYThisRow; y <= maxYThisRow; ++y)
+            {
+		//
+                // Set the pointers to the start of the y scanline in
+                // this row of tiles
+		//
+
+                fromPtr = fromSlice.base +
+                          y * fromSlice.yStride +
+                          levelRange.min.x * fromSlice.xStride;
+
+                toPtr   = toSlice.base +
+                          y * toSlice.yStride +
+                          levelRange.min.x * toSlice.xStride;
+
+		//
+                // Copy all pixels for the scanline in this row of tiles
+		//
+
+                for (int x = levelRange.min.x; x <= levelRange.max.x; ++x)
+                {
+                    for (size_t i = 0; i < size; ++i)
+                        toPtr[i] = fromPtr[i];
+
+                    fromPtr += fromSlice.xStride;
+                    toPtr += toSlice.xStride;
+                }
+            }
+        }
+    }
+}
 
 } // namespace
 
 
+
 InputFile::InputFile (const char fileName[]):
-    _data (new Data)
+    _data (new Data (true))
 {
     try
     {
-	_data->fileName = fileName;
-#ifndef HAVE_IOS_BASE
-	_data->is.open (fileName, std::ios::binary|std::ios::in);
-#else
-	_data->is.open (fileName, std::ios_base::binary);
-#endif
-
-	if (!_data->is)
-	    Iex::throwErrnoExc();
-
-	_data->header.readFrom (_data->is, _data->version);
-	_data->header.sanityCheck();
-	_data->lineOrder = _data->header.lineOrder();
-
-	const Box2i &dataWindow = _data->header.dataWindow();
-
-	_data->minX = dataWindow.min.x;
-	_data->maxX = dataWindow.max.x;
-	_data->minY = dataWindow.min.y;
-	_data->maxY = dataWindow.max.y;
-	_data->lineOffsets.resize (dataWindow.max.y - dataWindow.min.y + 1);
-
-	int maxBytesPerLine = bytesPerLineTable (_data->header,
-						 _data->bytesPerLine);
-
-	_data->compressor = newCompressor (_data->header.compression(),
-					   maxBytesPerLine,
-					   _data->header);
-
-	_data->linesInBuffer = _data->compressor?
-				   _data->compressor->numScanLines(): 1;
-
-	_data->format = _data->compressor?
-				_data->compressor->format(): Compressor::XDR;
-
-	_data->lineBufferSize = maxBytesPerLine * _data->linesInBuffer;
-	_data->lineBuffer.resizeErase (_data->lineBufferSize);
-	_data->lineBufferMinY = _data->minY - 1;
-	_data->lineBufferMaxY = _data->minY - 1;
-	_data->nextLineBufferMinY = _data->minY - 1;
-	_data->uncompressedData = 0;
-
-	offsetInLineBufferTable (_data->bytesPerLine,
-				 _data->linesInBuffer,
-				 _data->offsetInLineBuffer);
-
-	int lineOffsetSize = (dataWindow.max.y - dataWindow.min.y +
-			      _data->linesInBuffer) / _data->linesInBuffer;
-
-	_data->lineOffsets.resize (lineOffsetSize);
-	readLineOffsets (_data->is, _data->lineOffsets);
+	_data->is = new StdIFStream (fileName);
+	initialize();
     }
     catch (Iex::BaseExc &e)
     {
 	delete _data;
-	REPLACE_EXC (e, "Cannot read image file \"" << fileName << "\". " << e);
-	throw;
+
+        REPLACE_EXC (e, "Cannot read image file "
+			"\"" << fileName << "\". " << e);
+        throw;
+    }
+}
+
+
+InputFile::InputFile (IStream &is):
+    _data (new Data (false))
+{
+    try
+    {
+	_data->is = &is;
+	initialize();
+    }
+    catch (Iex::BaseExc &e)
+    {
+	delete _data;
+
+        REPLACE_EXC (e, "Cannot read image file "
+			"\"" << is.fileName() << "\". " << e);
+        throw;
+    }
+}
+
+
+void
+InputFile::initialize ()
+{
+    _data->header.readFrom (*_data->is, _data->version);
+    _data->header.sanityCheck (isTiled (_data->version));
+
+    if (isTiled (_data->version))
+    {
+	_data->lineOrder = _data->header.lineOrder();
+
+	//
+	// Save the dataWindow information
+	//
+
+	const Box2i &dataWindow = _data->header.dataWindow();
+	_data->minY = dataWindow.min.y;
+	_data->maxY = dataWindow.max.y;
+    
+	_data->tFile = new TiledInputFile (_data->header,
+					   _data->is,
+					   _data->version);
+    }
+    else
+    {
+	_data->sFile = new ScanLineInputFile (_data->header,
+					      _data->is);
     }
 }
 
@@ -387,7 +461,7 @@ InputFile::~InputFile ()
 const char *
 InputFile::fileName () const
 {
-    return _data->fileName.c_str();
+    return _data->is->fileName();
 }
 
 
@@ -405,675 +479,68 @@ InputFile::version () const
 }
 
 
-void	
+void
 InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
-    //
-    // Check if the new frame buffer descriptor is
-    // compatible with the image file header.
-    //
-
-    const ChannelList &channels = _data->header.channels();
-
-    for (FrameBuffer::ConstIterator j = frameBuffer.begin();
-	 j != frameBuffer.end();
-	 ++j)
+    if (isTiled (_data->version))
     {
-	ChannelList::ConstIterator i = channels.find (j.name());
+	//
+        // Invalidate the cached buffer if the new frameBuffer has
+        // different types than the old.
+	//
 
-	if (i == channels.end())
-	    continue;
+        const ChannelList &channels = _data->header.channels();
 
-	if (i.channel().xSampling != j.slice().xSampling ||
-	    i.channel().ySampling != j.slice().ySampling)
-	{
-	    THROW (Iex::ArgExc, "X and/or y subsampling factors "
-				"of \"" << i.name() << "\" channel "
-				"of input file \"" << fileName() << "\" are "
-				"not compatible with the frame buffer's "
-				"subsampling factors.");
-	}
+        for (FrameBuffer::ConstIterator j = frameBuffer.begin();
+             j != frameBuffer.end();
+             ++j)
+        {
+            ChannelList::ConstIterator i = channels.find (j.name());
+
+            //
+            // If the new frameBuffer has channels that the old one didn't
+            // have, or the channels in the new frameBuffer have different
+            // types than the ones in the old frameBuffer, then we must
+            // invalidate the cache.
+            //
+
+            if (i == channels.end() || i.channel().type != j.slice().type)
+            {
+                _data->cachedTileY = -1;
+                break;
+            }
+        }
+    
+	_data->tFileBuffer = frameBuffer;
     }
-
-    //
-    // Initialize the slice table for readPixels().
-    //
-
-    vector<InSliceInfo> slices;
-    ChannelList::ConstIterator i = channels.begin();
-
-    for (FrameBuffer::ConstIterator j = frameBuffer.begin();
-	 j != frameBuffer.end();
-	 ++j)
+    else
     {
-	while (i != channels.end() && strcmp (i.name(), j.name()) < 0)
-	{
-	    //
-	    // Channel i is present in the file but not
-	    // in the frame buffer; data for channel i
-	    // will be skipped during readPixels().
-	    //
-
-	    slices.push_back (InSliceInfo (i.channel().type,
-					   i.channel().type,
-					   0, // base
-					   0, // xStride
-					   0, // yStride
-					   i.channel().xSampling,
-					   i.channel().ySampling,
-					   false,  // fill
-					   true, // skip
-					   0.0)); // fillValue
-	    ++i;
-	}
-
-	bool fill = false;
-
-	if (i == channels.end() || strcmp (i.name(), j.name()) > 0)
-	{
-	    //
-	    // Channel i is present in the frame buffer, but not in the file.
-	    // In the frame buffer, slice j will be filled with a default value.
-	    //
-
-	    fill = true;
-	}
-
-	slices.push_back (InSliceInfo (j.slice().type,
-				       fill ? j.slice().type:
-				              i.channel().type,
-				       j.slice().base,
-				       j.slice().xStride,
-				       j.slice().yStride,
-				       j.slice().xSampling,
-				       j.slice().ySampling,
-				       fill,
-				       false, // skip
-				       j.slice().fillValue));
-
-	if (i != channels.end() && !fill)
-	    ++i;
+        _data->sFile->setFrameBuffer (frameBuffer);
     }
-
-    //
-    // Store the new frame buffer.
-    //
-
-    _data->frameBuffer = frameBuffer;
-    _data->slices = slices;
 }
 
 
 const FrameBuffer &
 InputFile::frameBuffer () const
 {
-    return _data->frameBuffer;
+    if (isTiled (_data->version))
+	return _data->tFileBuffer;
+    else
+	return _data->sFile->frameBuffer();
 }
 
 
-void	
+void
 InputFile::readPixels (int scanLine1, int scanLine2)
 {
-    try
-    {
-	if (_data->slices.size() == 0)
-	    throw Iex::ArgExc ("No frame buffer specified "
-			       "as pixel data source.");
-
-	//
-	// Try to read the scan lines in the same order as in
-	// the file to reduce the overhead of seek operations.
-	//
-
-#if defined PLATFORM_WIN32 && _MSC_VER < 1300
-	int minY = min (scanLine1, scanLine2);
-	int maxY = max (scanLine1, scanLine2);
-#else
-	int minY = std::min (scanLine1, scanLine2);
-	int maxY = std::max (scanLine1, scanLine2);
-#endif
-
-	if (minY < _data->minY || maxY > _data->maxY)
-	{
-	    throw Iex::ArgExc ("Tried to read scan line outside "
-			       "the image file's data window.");
-	}
-
-	int numScanLines = maxY - minY + 1;
-	int y;
-	int dy;
-
-	if (_data->lineOrder == INCREASING_Y)
-	{
-	    y = minY;
-	    dy = 1;
-	}
-	else
-	{
-	    y = maxY;
-	    dy = -1;
-	}
-        
-	bool forceXdr = false;	// Used to force the lineBuffer to be
-				// interpreted as Xdr.  This is needed
-				// if the compressor output pixel data
-				// in the machine's native format, but
-				// lineBuffer contains uncompressed
-				// data in Xdr format. (In a compressed
-				// image file, pixel data that cannot
-				// be compressed because they are too
-				// random, are stored in uncompressed
-				// form.)
-	while (numScanLines)
-	{
-	    //
-	    // If necessary, read the data block, that
-	    // contains line y, from the output file.
-	    //
-
-	    if (y < _data->lineBufferMinY ||
-		y > _data->lineBufferMaxY)
-	    {
-		int minY, maxY, dataSize;
-		readPixelData (_data, y, minY, maxY, dataSize);
-                forceXdr = false;
-
-		//
-		// Uncompress the data, if necessary
-		//
-
-		int uncompressedSize = 0;
-		int max = std::min (maxY, _data->maxY);
-
-		for (int i = minY - _data->minY; i <= max - _data->minY; ++i)
-		    uncompressedSize += (int) _data->bytesPerLine[i];
-
-		if (_data->compressor && dataSize < uncompressedSize)
-		{
-		    dataSize = _data->compressor->uncompress
-				    (_data->lineBuffer, dataSize, minY,
-				     _data->uncompressedData);
-		}
-		else
-		{
-		    //
-                    // If the line is uncompressed, but the compressor
-                    // says that it's in native format, don't believe it.
-		    //
-
-                    if (_data->format != Compressor::XDR)
-                        forceXdr = true;
-
-                    _data->uncompressedData = _data->lineBuffer;
-		}
-
-		_data->lineBufferMinY = minY;
-		_data->lineBufferMaxY = maxY;
-	    }
-
-	    //
-	    // Convert one scan line's worth of pixel data back
-	    // from the machine-independent representation, and
-	    // store the result in the frame buffer.
-	    //
-
-	    const char *readPtr = _data->uncompressedData +
-				  _data->offsetInLineBuffer[y - _data->minY];
-
-	    //
-	    // Iterate over all image channels.
-	    //
-
-	    for (unsigned int i = 0; i < _data->slices.size(); ++i)
-	    {
-		//
-		// Test if scan line y of this channel is
-		// contains any data (the scan line contains
-		// data only if y % ySampling == 0).
-		//
-
-		const InSliceInfo &slice = _data->slices[i];
-
-		if (modp (y, slice.ySampling) != 0)
-		    continue;
-
-		//
-		// Find the x coordinates of the leftmost and rightmost
-		// sampled pixels (i.e. pixels within the data window
-		// for which x % xSampling == 0).
-		//
-
-		int dMinX = divp (_data->minX, slice.xSampling);
-		int dMaxX = divp (_data->maxX, slice.xSampling);
-
-		//
-		// Iterate over the sampled pixels.
-		//
-
-		if (slice.skip)
-		{
-		    //
-		    // The file contains data for this channel, but
-		    // the frame buffer contains no slice for this channel.
-		    //
-
-		    switch (slice.typeInFile)
-		    {
-		      case UINT:
-		      
-			Xdr::skip <CharPtrIO>
-			    (readPtr,
-			     Xdr::size <unsigned int> () *
-			     (dMaxX - dMinX + 1));
-			break;
-
-		      case HALF:
-
-			Xdr::skip <CharPtrIO>
-			    (readPtr,
-			     Xdr::size <half> () *
-			     (dMaxX - dMinX + 1));
-			break;
-
-		      case FLOAT:
-
-			Xdr::skip <CharPtrIO>
-			    (readPtr,
-			     Xdr::size <float> () *
-			     (dMaxX - dMinX + 1));
-			break;
-
-		      default:
-
-			throw Iex::ArgExc ("Unknown pixel data type.");
-		    }
-		}
-		else
-		{
-		    //
-		    // The frame buffer contains a slice for this channel.
-		    //
-
-		    char *linePtr  = slice.base +
-				     divp (y, slice.ySampling) * slice.yStride;
-
-		    char *pixelPtr = linePtr + dMinX * slice.xStride;
-		    char *endPtr   = linePtr + dMaxX * slice.xStride;
-
-		    if (slice.fill)
-		    {
-			//
-			// The file contains no data for this channel.
-			// Store a default value in the frame buffer.
-			//
-
-			switch (slice.typeInFrameBuffer)
-			{
-			  case UINT:
-			  
-			    {
-				unsigned int fillValue =
-				    (unsigned int) (slice.fillValue);
-
-				while (pixelPtr <= endPtr)
-				{
-				    *(unsigned int *) pixelPtr = fillValue;
-				    pixelPtr += slice.xStride;
-				}
-			    }
-			    break;
-
-			  case HALF:
-
-			    {
-				half fillValue =
-				    half (slice.fillValue);
-
-				while (pixelPtr <= endPtr)
-				{
-				    *(half *) pixelPtr = fillValue;
-				    pixelPtr += slice.xStride;
-				}
-			    }
-			    break;
-
-			  case FLOAT:
-
-			    {
-				float fillValue =
-				    float (slice.fillValue);
-
-				while (pixelPtr <= endPtr)
-				{
-				    *(float *) pixelPtr = fillValue;
-				    pixelPtr += slice.xStride;
-				}
-			    }
-			    break;
-
-			  default:
-
-			    throw Iex::ArgExc ("Unknown pixel data type.");
-			}
-		    }
-		    else if (_data->format == Compressor::XDR || forceXdr)
-		    {
-			//
-			// The compressor produced data for this
-			// channel in Xdr format.
-			//
-			// Convert the pixels from the file's machine-
-			// independent representation, and store the
-			// results in the frame buffer.
-			//
-
-			switch (slice.typeInFrameBuffer)
-			{
-			  case UINT:
-		    
-			    switch (slice.typeInFile)
-			    {
-			      case UINT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    Xdr::read <CharPtrIO>
-					(readPtr, *(unsigned int *) pixelPtr);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case HALF:
-
-				while (pixelPtr <= endPtr)
-				{
-				    half h;
-				    Xdr::read <CharPtrIO> (readPtr, h);
-				    *(unsigned int *) pixelPtr = halfToUint (h);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case FLOAT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    float f;
-				    Xdr::read <CharPtrIO> (readPtr, f);
-				    *(unsigned int *)pixelPtr = floatToUint (f);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-			    }
-			    break;
-
-			  case HALF:
-
-			    switch (slice.typeInFile)
-			    {
-			      case UINT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    unsigned int ui;
-				    Xdr::read <CharPtrIO> (readPtr, ui);
-				    *(half *) pixelPtr = uintToHalf (ui);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-			      
-			      case HALF:
-
-				while (pixelPtr <= endPtr)
-				{
-				    Xdr::read <CharPtrIO>
-					(readPtr, *(half *) pixelPtr);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case FLOAT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    float f;
-				    Xdr::read <CharPtrIO> (readPtr, f);
-				    *(half *) pixelPtr = floatToHalf (f);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-			    }
-			    break;
-
-			  case FLOAT:
-
-			    switch (slice.typeInFile)
-			    {
-			      case UINT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    unsigned int ui;
-				    Xdr::read <CharPtrIO> (readPtr, ui);
-				    *(float *) pixelPtr = float (ui);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case HALF:
-
-				while (pixelPtr <= endPtr)
-				{
-				    half h;
-				    Xdr::read <CharPtrIO> (readPtr, h);
-				    *(float *) pixelPtr = float (h);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case FLOAT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    Xdr::read <CharPtrIO>
-					(readPtr, *(float *) pixelPtr);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-			    }
-			    break;
-
-			  default:
-
-			    throw Iex::ArgExc ("Unknown pixel data type.");
-			}
-		    }
-		    else
-		    {
-			//
-			// The compressor produced data for this
-			// channel in the machine's native format.
-			// Copy the results into the frame buffer.
-			//
-
-			switch (slice.typeInFrameBuffer)
-			{
-			  case UINT:
-		    
-			    switch (slice.typeInFile)
-			    {
-			      case UINT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    for (size_t i = 0;
-					 i < sizeof (unsigned int);
-					 ++i)
-				    {
-					pixelPtr[i] = readPtr[i];
-				    }
-
-				    readPtr += sizeof (unsigned int);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case HALF:
-
-				while (pixelPtr <= endPtr)
-				{
-				    half h = *(half *) readPtr;
-				    *(unsigned int *) pixelPtr = halfToUint (h);
-				    readPtr += sizeof (half);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case FLOAT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    float f;
-
-				    for (size_t i = 0; i < sizeof (float); ++i)
-				    {
-					((char *)&f)[i] = readPtr[i];
-				    }
-
-				    *(unsigned int *)pixelPtr = floatToUint (f);
-				    readPtr += sizeof (float);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-			    }
-			    break;
-
-			  case HALF:
-
-			    switch (slice.typeInFile)
-			    {
-			      case UINT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    unsigned int ui;
-
-				    for (size_t i = 0;
-					 i < sizeof (unsigned int);
-					 ++i)
-				    {
-					((char *)&ui)[i] = readPtr[i];
-				    }
-
-				    *(half *) pixelPtr = uintToHalf (ui);
-				    readPtr += sizeof (unsigned int);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case HALF:
-
-				while (pixelPtr <= endPtr)
-				{
-				    *(half *) pixelPtr = *(half *)readPtr;
-				    readPtr += sizeof (half);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case FLOAT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    float f;
-
-				    for (size_t i = 0; i < sizeof (float); ++i)
-				    {
-					((char *)&f)[i] = readPtr[i];
-				    }
-
-				    *(half *) pixelPtr = floatToHalf (f);
-				    readPtr += sizeof (float);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-			    }
-			    break;
-
-			  case FLOAT:
-
-			    switch (slice.typeInFile)
-			    {
-			      case UINT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    unsigned int ui;
-
-				    for (size_t i = 0;
-					 i < sizeof (unsigned int);
-					 ++i)
-				    {
-					((char *)&ui)[i] = readPtr[i];
-				    }
-
-				    *(float *) pixelPtr = float (ui);
-				    readPtr += sizeof (unsigned int);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case HALF:
-
-				while (pixelPtr <= endPtr)
-				{
-				    half h = *(half *) readPtr;
-				    *(float *) pixelPtr = float (h);
-				    readPtr += sizeof (half);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case FLOAT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    for (size_t i = 0; i < sizeof (float); ++i)
-					pixelPtr[i] = readPtr[i];
-
-				    readPtr += sizeof (float);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-			    }
-			    break;
-
-			  default:
-
-			    throw Iex::ArgExc ("Unknown pixel data type.");
-			}
-		    }
-		}
-	    }
-
-	    //
-	    // Advance to the next scan line.
-	    //
-
-	    numScanLines -= 1;
-	    y += dy;
-	}
-    }
-    catch (Iex::BaseExc &e)
-    {
-	REPLACE_EXC (e, "Error reading pixel data from image "
-		        "file \"" << fileName() << "\". " << e);
-	throw;
-    }
+    if (isTiled (_data->version))
+        bufferedReadPixels (_data, scanLine1, scanLine2);
+    else
+        _data->sFile->readPixels (scanLine1, scanLine2);
 }
 
 
-void	
+void
 InputFile::readPixels (int scanLine)
 {
     readPixels (scanLine, scanLine);
@@ -1087,15 +554,13 @@ InputFile::rawPixelData (int firstScanLine,
 {
     try
     {
-	if (firstScanLine < _data->minY || firstScanLine > _data->maxY)
+	if (isTiled (_data->version))
 	{
-	    throw Iex::ArgExc ("Tried to read scan line outside "
-			       "the image file's data window.");
+	    throw Iex::ArgExc ("Tried to read a raw scanline "
+			       "from a tiled image.");
 	}
-
-	int dummy1, dummy2;
-	readPixelData (_data, firstScanLine, dummy1, dummy2, pixelDataSize);
-	pixelData = _data->lineBuffer;
+        
+        _data->sFile->rawPixelData (firstScanLine, pixelData, pixelDataSize);
     }
     catch (Iex::BaseExc &e)
     {
@@ -1103,6 +568,44 @@ InputFile::rawPixelData (int firstScanLine,
 		        "file \"" << fileName() << "\". " << e);
 	throw;
     }
+}
+
+
+void
+InputFile::rawTileData (int &dx, int &dy,
+			int &lx, int &ly,
+			const char *&pixelData,
+			int &pixelDataSize)
+{
+    try
+    {
+	if (!isTiled (_data->version))
+	{
+	    throw Iex::ArgExc ("Tried to read a raw tile "
+			       "from a scanline-based image.");
+	}
+        
+        _data->tFile->rawTileData (dx, dy, lx, ly, pixelData, pixelDataSize);
+    }
+    catch (Iex::BaseExc &e)
+    {
+	REPLACE_EXC (e, "Error reading tile data from image "
+		        "file \"" << fileName() << "\". " << e);
+	throw;
+    }
+}
+
+
+TiledInputFile*
+InputFile::tFile()
+{
+    if (!isTiled (_data->version))
+    {
+	throw Iex::ArgExc ("Cannot get a TiledInputFile pointer "
+			   "from an InputFile that is not tiled.");
+    }
+
+    return _data->tFile;
 }
 
 

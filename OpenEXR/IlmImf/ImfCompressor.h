@@ -44,6 +44,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfCompression.h>
+#include <ImathBox.h>
 
 namespace Imf {
 
@@ -158,6 +159,11 @@ class Compressor
 				  int minY,
 				  const char *&outPtr) = 0;
 
+    virtual int		compressTile (const char *inPtr,
+				      int inSize,
+				      Imath::Box2i range,
+				      const char *&outPtr);
+
     //-------------------------------------------------------------------------
     // Uncompress an array of bytes that has been compressed by compress():
     //
@@ -178,6 +184,12 @@ class Compressor
 				    int inSize,
 				    int minY,
 				    const char *&outPtr) = 0;
+
+    virtual int		uncompressTile (const char *inPtr,
+					int inSize,
+					Imath::Box2i range,
+					const char *&outPtr);
+
   private:
 
     const Header &	_header;
@@ -209,6 +221,29 @@ bool		isValidCompression (Compression c);
 Compressor *	newCompressor (Compression c,
 			       int maxScanLineSize,
 			       const Header &hdr);
+
+
+//-----------------------------------------------------------------
+// Construct a Compressor for compression type c for a tiled image:
+//
+//  tileLineSize	Maximum number of bytes per uncompressed
+//			line in a tile.
+//
+//  numTileLines	Maximum number of lines in a tile.
+//
+//  header		Header of the input or output file whose
+//			pixels will be compressed or uncompressed.
+//
+//  return value	A pointer to a new Compressor object (it
+//			is the caller's responsibility to delete
+//			the object), or 0 (if c is NO_COMPRESSION).
+//
+//-----------------------------------------------------------------
+
+Compressor *    newTileCompressor (Compression c,
+				   int tileLineSize,
+				   int numTileLines,
+				   const Header &hdr);
 
 
 } // namespace Imf

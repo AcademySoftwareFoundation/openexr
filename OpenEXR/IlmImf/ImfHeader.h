@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -46,6 +46,8 @@
 #include <ImfLineOrder.h>
 #include <ImfCompression.h>
 #include <ImfName.h>
+#include <ImfTileDescription.h>
+#include <ImfInt64.h>
 #include <ImathVec.h>
 #include <ImathBox.h>
 #include <Iex.h>
@@ -57,6 +59,8 @@ namespace Imf {
 
 class Attribute;
 class ChannelList;
+class IStream;
+class OStream;
 class PreviewImage;
 
 
@@ -226,6 +230,35 @@ class Header
 
 
     //----------------------------------------------------------------------
+    // Tile Description:
+    //
+    // The tile description is a TileDescriptionAttribute whose name
+    // is "tiles".  The "tiles" attribute must be present in any tiled
+    // image file. When present, it describes various properties of the
+    // tiles that make up the file.
+    //
+    // Convenience functions:
+    //
+    // setTileDescription(td)
+    //     calls insert ("tiles", TileDescriptionAttribute (td))
+    //
+    // previewImage()
+    //     returns typedAttribute<TileDescriptionAttribute>("tiles").value()
+    //
+    // hasPreviewImage()
+    //     return findTypedAttribute<TileDescriptionAttribute>("tiles") != 0
+    //
+    //----------------------------------------------------------------------
+
+    void			setTileDescription (const TileDescription & td);
+
+    TileDescription &		tileDescription ();
+    const TileDescription &	tileDescription () const;
+
+    bool			hasTileDescription() const;
+
+
+    //----------------------------------------------------------------------
     // Preview image:
     //
     // The preview image is a PreviewImageAttribute whose name is "preview".
@@ -258,9 +291,12 @@ class Header
     // Sanity check -- examines the header, and throws an exception
     // if it finds something wrong (empty display window, negative
     // pixel aspect ratio, unknown compression sceme etc.)
+    //
+    // set isTiled to true if you are checking a tiled/multi-res
+    // header
     //-------------------------------------------------------------
 
-    void			sanityCheck () const;
+    void			sanityCheck (bool isTiled = false) const;
 
 
     //------------------------------------------------------------------
@@ -274,8 +310,10 @@ class Header
     //------------------------------------------------------------------
 
 
-    long			writeTo (std::ostream &os) const;
-    void			readFrom (std::istream &is, int &version);
+    Int64			writeTo (OStream &os,
+					 bool isTiled = false) const;
+
+    void			readFrom (IStream &is, int &version);
 
   private:
 

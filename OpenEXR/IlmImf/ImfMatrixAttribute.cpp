@@ -57,7 +57,7 @@ M33fAttribute::staticTypeName ()
 
 template <>
 void
-M33fAttribute::writeValueTo (std::ostream &os, int version) const
+M33fAttribute::writeValueTo (OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value[0][0]);
     Xdr::write <StreamIO> (os, _value[0][1]);
@@ -75,7 +75,7 @@ M33fAttribute::writeValueTo (std::ostream &os, int version) const
 
 template <>
 void
-M33fAttribute::readValueFrom (std::istream &is, int size, int version)
+M33fAttribute::readValueFrom (IStream &is, int size, int version)
 {
     Xdr::read <StreamIO> (is, _value[0][0]);
     Xdr::read <StreamIO> (is, _value[0][1]);
@@ -101,7 +101,7 @@ M44fAttribute::staticTypeName ()
 
 template <>
 void
-M44fAttribute::writeValueTo (std::ostream &os, int version) const
+M44fAttribute::writeValueTo (OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value[0][0]);
     Xdr::write <StreamIO> (os, _value[0][1]);
@@ -127,7 +127,7 @@ M44fAttribute::writeValueTo (std::ostream &os, int version) const
 
 template <>
 void
-M44fAttribute::readValueFrom (std::istream &is, int size, int version)
+M44fAttribute::readValueFrom (IStream &is, int size, int version)
 {
     Xdr::read <StreamIO> (is, _value[0][0]);
     Xdr::read <StreamIO> (is, _value[0][1]);
