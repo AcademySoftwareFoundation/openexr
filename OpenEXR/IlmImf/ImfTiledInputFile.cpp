@@ -32,7 +32,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-
 //-----------------------------------------------------------------------------
 //
 //	class TiledInputFile
@@ -176,9 +175,9 @@ struct TiledInputFile::Data
 TiledInputFile::Data::Data (bool del):
     numXTiles (0),
     numYTiles (0),
-    uncompressedData (0),
     compressor (0),
     is (0),
+    uncompressedData (0),
     deleteStream (del)
 {
     // empty
@@ -563,6 +562,25 @@ TiledInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
             ++i;
     }
 
+    while (i != channels.end())
+    {
+	//
+	// Channel i is present in the file but not
+	// in the frame buffer; data for channel i
+	// will be skipped during readPixels().
+	//
+
+	slices.push_back (TInSliceInfo (i.channel().type,
+					i.channel().type,
+					0, // base
+					0, // xStride
+					0, // yStride
+					false,  // fill
+					true, // skip
+					0.0)); // fillValue
+	++i;
+    }
+
     //
     // Store the new frame buffer.
     //
@@ -606,6 +624,8 @@ TiledInputFile::readTile (int dx, int dy, int lx, int ly)
 
         Box2i tileRange = dataWindowForTile (dx, dy, lx, ly);
 
+        int numPixelsPerScanLine = tileRange.max.x - tileRange.min.x + 1;
+                              
         int numPixelsInTile = (tileRange.max.x - tileRange.min.x + 1) *
                               (tileRange.max.y - tileRange.min.y + 1);
 
@@ -657,660 +677,507 @@ TiledInputFile::readTile (int dx, int dy, int lx, int ly)
         // store the result in the frame buffer.
         //
 
-        //
-        // Iterate over all image channels.
-        //
-        
         const char *readPtr = _data->uncompressedData; // points to where we
 						       // read from in the
 						       // tile block
-        
-        for (unsigned int i = 0; i < _data->slices.size(); ++i)
-        {
-            const TInSliceInfo &slice = _data->slices[i];
+	//
+	// Iterate over the scan lines in the tile.
+	//
+	
+	for (int y = tileRange.min.y; y <= tileRange.max.y; ++y)
+	{
+	    //
+	    // Iterate over all image channels.
+	    //
+	    
+	    for (unsigned int i = 0; i < _data->slices.size(); ++i)
+	    {
+		const TInSliceInfo &slice = _data->slices[i];
 
-            //
-            // Iterate over the sampled pixels.
-            //
+		//
+		// Iterate over the sampled pixels.
+		//
 
-            if (slice.skip)
-            {
-                //
-                // The file contains data for this channel, but
-                // the frame buffer contains no slice for this channel.
-                //
+		if (slice.skip)
+		{
+		    //
+		    // The file contains data for this channel, but
+		    // the frame buffer contains no slice for this channel.
+		    //
 
-                switch (slice.typeInFile)
-                {
-                  case UINT:
+		    switch (slice.typeInFile)
+		    {
+		      case UINT:
 
-                    Xdr::skip <CharPtrIO>
-                        (readPtr, Xdr::size <unsigned int>() * numPixelsInTile);
-		    break;
+			Xdr::skip <CharPtrIO>
+			    (readPtr, Xdr::size <unsigned int>() *
+			     numPixelsPerScanLine);
 
-                  case HALF:
+			break;
 
-                    Xdr::skip <CharPtrIO>
-                        (readPtr, Xdr::size <half>() * numPixelsInTile);
-                    break;
+		      case HALF:
 
-                  case FLOAT:
+			Xdr::skip <CharPtrIO>
+			    (readPtr, Xdr::size <half>() *
+			     numPixelsPerScanLine);
 
-                    Xdr::skip <CharPtrIO>
-                        (readPtr, Xdr::size <float>() * numPixelsInTile);
-                    break;
+			break;
 
-                  default:
+		      case FLOAT:
 
-                    throw Iex::ArgExc ("Unknown pixel data type.");
-                }
-            }
-            else
-            {
-                //
-                // The frame buffer contains a slice for this channel.
-                //
+			Xdr::skip <CharPtrIO>
+			    (readPtr, Xdr::size <float>() *
+			     numPixelsPerScanLine);
 
-                char *pixelPtr; // points to where we write to
-				// in the framebuffer
+			break;
 
-                if (slice.fill)
-                {
-                    //
-                    // The file contains no data for this channel.
-                    // Store a default value in the frame buffer.
-                    //
+		      default:
 
-                    switch (slice.typeInFrameBuffer)
-                    {
-                      case UINT:
+			throw Iex::ArgExc ("Unknown pixel data type.");
+		    }
+		}
+		else
+		{
+		    //
+		    // The frame buffer contains a slice for this channel.
+		    //
 
-                        {
-			    unsigned int fillValue =
-				(unsigned int) (slice.fillValue);
+		    //
+		    // pixelPtr points to where we write to
+		    // in the frame buffer
+		    //
 
-			    for (int i = tileRange.min.y;
-				 i <= tileRange.max.y;
-				 ++i)
+		    char *pixelPtr = slice.base +
+				     y * slice.yStride +
+				     tileRange.min.x * slice.xStride;
+
+		    if (slice.fill)
+		    {
+			//
+			// The file contains no data for this channel.
+			// Store a default value in the frame buffer.
+			//
+
+			switch (slice.typeInFrameBuffer)
+			{
+			  case UINT:
+
 			    {
-				pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+				unsigned int fillValue =
+				    (unsigned int) (slice.fillValue);
 
-				for (int j = tileRange.min.x;
-				     j <= tileRange.max.x;
-				     ++j)
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
 				{
 				    *(unsigned int *) pixelPtr = fillValue;
 				    pixelPtr += slice.xStride;
 				}
 			    }
-                        }
-			break;
+			    break;
 
-                      case HALF:
+			  case HALF:
 
-		        {
-			    half fillValue =
-			    half (slice.fillValue);
-
-			    for (int i = tileRange.min.y;
-				 i <= tileRange.max.y;
-				 ++i)
 			    {
-				pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+				half fillValue = half (slice.fillValue);
 
-				for (int j = tileRange.min.x;
-				     j <= tileRange.max.x;
-				     ++j)
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
 				{
 				    *(half *) pixelPtr = fillValue;
 				    pixelPtr += slice.xStride;
 				}
 			    }
-                        }
-			break;
+			    break;
 
-                      case FLOAT:
+			  case FLOAT:
 
-                        {
-			    float fillValue =
-			    float (slice.fillValue);
-
-			    for (int i = tileRange.min.y;
-				 i <= tileRange.max.y;
-				 ++i)
 			    {
-				pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+				float fillValue = float (slice.fillValue);
 
-				for (int j = tileRange.min.x;
-				     j <= tileRange.max.x;
-				     ++j)
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
 				{
 				    *(float *) pixelPtr = fillValue;
 				    pixelPtr += slice.xStride;
 				}
 			    }
-                        }
-			break;
+			    break;
 
-                      default:
+			  default:
 
-                        throw Iex::ArgExc ("Unknown pixel data type.");
-                    }
-                }
-                else if (_data->format == Compressor::XDR || forceXdr)
-                {
-                    //
-                    // The compressor produced data for this
-                    // channel in Xdr format.
-                    //
-                    // Convert the pixels from the file's machine-
-                    // independent representation, and store the
-                    // results the frame buffer.
-                    //
+			    throw Iex::ArgExc ("Unknown pixel data type.");
+			}
+		    }
+		    else if (_data->format == Compressor::XDR || forceXdr)
+		    {
+			//
+			// The compressor produced data for this
+			// channel in Xdr format.
+			//
+			// Convert the pixels from the file's machine-
+			// independent representation, and store the
+			// results the frame buffer.
+			//
 
-                    switch (slice.typeInFrameBuffer)
-                    {
-                      case UINT:
-                      
-                        switch (slice.typeInFile)
-                        {
-                          case UINT:
+			switch (slice.typeInFrameBuffer)
+			{
+			  case UINT:
+			  
+			    switch (slice.typeInFile)
+			    {
+			      case UINT:
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
-
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    Xdr::read <CharPtrIO>
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    Xdr::read <CharPtrIO>
 					(readPtr, *(unsigned int *) pixelPtr);
 
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
+				    pixelPtr += slice.xStride;
+				}
 
-                          case HALF:
+				break;
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			      case HALF:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    half h;
-                                    Xdr::read <CharPtrIO> (readPtr, h);
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    half h;
+				    Xdr::read <CharPtrIO> (readPtr, h);
 
-                                    *(unsigned int *) pixelPtr = halfToUint (h);
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
+				    *(unsigned int *) pixelPtr = halfToUint (h);
+				    pixelPtr += slice.xStride;
+				}
 
-                          case FLOAT:
+				break;
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			      case FLOAT:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x; ++j)
-                                {
-                                    float f;
-                                    Xdr::read <CharPtrIO> (readPtr, f);
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    float f;
+				    Xdr::read <CharPtrIO> (readPtr, f);
 
-                                    *(unsigned int *)pixelPtr = floatToUint (f);
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
-                        }
-                        break;
+				    *(unsigned int *)pixelPtr = floatToUint (f);
+				    pixelPtr += slice.xStride;
+				}
 
-                      case HALF:
-                        
-                        switch (slice.typeInFile)
-                        {
-                          case UINT:
+				break;
+			    }
+			    break;
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			  case HALF:
+			    
+			    switch (slice.typeInFile)
+			    {
+			      case UINT:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    unsigned int ui;
-                                    Xdr::read <CharPtrIO> (readPtr, ui);
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    unsigned int ui;
+				    Xdr::read <CharPtrIO> (readPtr, ui);
 
-                                    *(half *) pixelPtr = uintToHalf (ui);
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
+				    *(half *) pixelPtr = uintToHalf (ui);
+				    pixelPtr += slice.xStride;
+				}
 
-                          case HALF:
+				break;
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			      case HALF:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    Xdr::read <CharPtrIO>
-                                        (readPtr, *(half *) pixelPtr);
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    Xdr::read <CharPtrIO>
+					(readPtr, *(half *) pixelPtr);
 
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
+				    pixelPtr += slice.xStride;
+				}
 
-                          case FLOAT:
+				break;
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			      case FLOAT:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    float f;
-                                    Xdr::read <CharPtrIO> (readPtr, f);
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    float f;
+				    Xdr::read <CharPtrIO> (readPtr, f);
 
-                                    *(half *) pixelPtr = floatToHalf (f);
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
-                        }
-                        break;
+				    *(half *) pixelPtr = floatToHalf (f);
+				    pixelPtr += slice.xStride;
+				}
 
-                      case FLOAT:
+				break;
+			    }
+			    break;
 
-                        switch (slice.typeInFile)
-                        {
-                          case UINT:
+			  case FLOAT:
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			    switch (slice.typeInFile)
+			    {
+			      case UINT:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    unsigned int ui;
-                                    Xdr::read <CharPtrIO> (readPtr, ui);
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    unsigned int ui;
+				    Xdr::read <CharPtrIO> (readPtr, ui);
 
-                                    *(float *) pixelPtr = float (ui);
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
+				    *(float *) pixelPtr = float (ui);
+				    pixelPtr += slice.xStride;
+				}
 
-                          case HALF:
+				break;
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			      case HALF:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    half h;
-                                    Xdr::read <CharPtrIO> (readPtr, h);
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    half h;
+				    Xdr::read <CharPtrIO> (readPtr, h);
 
-                                    *(float *) pixelPtr = float (h);
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
+				    *(float *) pixelPtr = float (h);
+				    pixelPtr += slice.xStride;
+				}
 
-                          case FLOAT:
+				break;
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			      case FLOAT:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    Xdr::read <CharPtrIO>
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    Xdr::read <CharPtrIO>
 					(readPtr, *(float *) pixelPtr);
 
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
-                        }
-                        break;
+				    pixelPtr += slice.xStride;
+				}
 
-                      default:
+				break;
+			    }
+			    break;
 
-                        throw Iex::ArgExc ("Unknown pixel data type.");
-                    }
-                }
-                else
-                {
-                    //
-                    // The compressor produced data for this
-                    // channel in the machine's native format.
-                    //
-                    // Convert the pixels from the file's machine-
-                    // dependent representation, and store the
-                    // results the frame buffer.
-                    //
+			  default:
 
-                    switch (slice.typeInFrameBuffer)
-                    {
-                      case UINT:
-                      
-                        switch (slice.typeInFile)
-                        {
-                          case UINT:
+			    throw Iex::ArgExc ("Unknown pixel data type.");
+			}
+		    }
+		    else
+		    {
+			//
+			// The compressor produced data for this
+			// channel in the machine's native format.
+			//
+			// Convert the pixels from the file's machine-
+			// dependent representation, and store the
+			// results the frame buffer.
+			//
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			switch (slice.typeInFrameBuffer)
+			{
+			  case UINT:
+			  
+			    switch (slice.typeInFile)
+			    {
+			      case UINT:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    for (size_t i = 0;
-                                         i < sizeof (unsigned int);
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    for (size_t i = 0;
+					 i < sizeof (unsigned int);
 					 ++i)
 				    {
 					pixelPtr[i] = readPtr[i];
 				    }
 
-                                    readPtr += sizeof (unsigned int);
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
+				    readPtr += sizeof (unsigned int);
+				    pixelPtr += slice.xStride;
+				}
 
-                          case HALF:
+				break;
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			      case HALF:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    half h = *(half *) readPtr;
-                                    *(unsigned int *) pixelPtr = halfToUint (h);
-                                    readPtr += sizeof (half);
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    half h = *(half *) readPtr;
+				    *(unsigned int *) pixelPtr = halfToUint (h);
+				    readPtr += sizeof (half);
+				    pixelPtr += slice.xStride;
+				}
 
-                          case FLOAT:
+				break;
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			      case FLOAT:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    float f;
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    float f;
 
-                                    for (size_t i = 0; i < sizeof (float); ++i)
-                                    {
-                                        ((char *)&f)[i] = readPtr[i];
-                                    }
+				    for (size_t i = 0; i < sizeof (float); ++i)
+				    {
+					((char *)&f)[i] = readPtr[i];
+				    }
 
-                                    *(unsigned int *)pixelPtr = floatToUint (f);
-                                    readPtr += sizeof (float);
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
-                        }
-                        break;
+				    *(unsigned int *)pixelPtr = floatToUint (f);
+				    readPtr += sizeof (float);
+				    pixelPtr += slice.xStride;
+				}
 
-                      case HALF:
+				break;
+			    }
+			    break;
 
-                        switch (slice.typeInFile)
-                        {
-                          case UINT:
+			  case HALF:
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			    switch (slice.typeInFile)
+			    {
+			      case UINT:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    unsigned int ui;
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    unsigned int ui;
 
-                                    for (size_t i = 0;
-                                         i < sizeof (unsigned int);
-                                         ++i)
-                                    {
-                                        ((char *)&ui)[i] = readPtr[i];
-                                    }
+				    for (size_t i = 0;
+					 i < sizeof (unsigned int);
+					 ++i)
+				    {
+					((char *)&ui)[i] = readPtr[i];
+				    }
 
-                                    *(half *) pixelPtr = uintToHalf (ui);
-                                    readPtr += sizeof (unsigned int);
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
+				    *(half *) pixelPtr = uintToHalf (ui);
+				    readPtr += sizeof (unsigned int);
+				    pixelPtr += slice.xStride;
+				}
 
-                          case HALF:
+				break;
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			      case HALF:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    *(half *) pixelPtr = *(half *)readPtr;
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    *(half *) pixelPtr = *(half *)readPtr;
 
-                                    readPtr += sizeof (half);
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
+				    readPtr += sizeof (half);
+				    pixelPtr += slice.xStride;
+				}
 
-                          case FLOAT:
+				break;
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			      case FLOAT:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    float f;
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    float f;
 
-                                    for (size_t i = 0; i < sizeof (float); ++i)
-                                    {
-                                        ((char *)&f)[i] = readPtr[i];
-                                    }
+				    for (size_t i = 0; i < sizeof (float); ++i)
+				    {
+					((char *)&f)[i] = readPtr[i];
+				    }
 
-                                    *(half *) pixelPtr = floatToHalf (f);
-                                    readPtr += sizeof (float);
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
-                        }
-                        break;
+				    *(half *) pixelPtr = floatToHalf (f);
+				    readPtr += sizeof (float);
+				    pixelPtr += slice.xStride;
+				}
 
-                      case FLOAT:
+				break;
+			    }
+			    break;
 
-                        switch (slice.typeInFile)
-                        {
-                          case UINT:
+			  case FLOAT:
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			    switch (slice.typeInFile)
+			    {
+			      case UINT:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    unsigned int ui;
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    unsigned int ui;
 
-                                    for (size_t i = 0;
-                                         i < sizeof (unsigned int);
-                                         ++i)
-                                    {
-                                        ((char *)&ui)[i] = readPtr[i];
-                                    }
+				    for (size_t i = 0;
+					 i < sizeof (unsigned int);
+					 ++i)
+				    {
+					((char *)&ui)[i] = readPtr[i];
+				    }
 
-                                    *(float *) pixelPtr = float (ui);
-                                    readPtr += sizeof (unsigned int);
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
+				    *(float *) pixelPtr = float (ui);
+				    readPtr += sizeof (unsigned int);
+				    pixelPtr += slice.xStride;
+				}
 
-                          case HALF:
+				break;
 
-                            for (int i = tileRange.min.y;
-                                 i <= tileRange.max.y;
-				 ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			      case HALF:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    half h = *(half *) readPtr;
-                                    *(float *) pixelPtr = float (h);
-                                    readPtr += sizeof (half);
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    half h = *(half *) readPtr;
+				    *(float *) pixelPtr = float (h);
+				    readPtr += sizeof (half);
+				    pixelPtr += slice.xStride;
+				}
 
-                          case FLOAT:
+				break;
 
-                            for (int i = tileRange.min.y;
-                                i <= tileRange.max.y; ++i)
-                            {
-                                pixelPtr = slice.base +
-					   i * slice.yStride +
-					   tileRange.min.x * slice.xStride;
+			      case FLOAT:
 
-                                for (int j = tileRange.min.x;
-                                     j <= tileRange.max.x;
-				     ++j)
-                                {
-                                    for (size_t i = 0; i < sizeof (float); ++i)
-                                        pixelPtr[i] = readPtr[i];
+				for (int x = tileRange.min.x;
+				     x <= tileRange.max.x;
+				     ++x)
+				{
+				    for (size_t i = 0; i < sizeof (float); ++i)
+					pixelPtr[i] = readPtr[i];
 
-                                    readPtr += sizeof (float);
-                                    pixelPtr += slice.xStride;
-                                }
-                            }
-                            break;
-                        }
-                        break;
+				    readPtr += sizeof (float);
+				    pixelPtr += slice.xStride;
+				}
 
-                      default:
+				break;
+			    }
+			    break;
 
-                        throw Iex::ArgExc ("Unknown pixel data type.");
-                    }
-                }
-            }
-        }
+			  default:
+
+			    throw Iex::ArgExc ("Unknown pixel data type.");
+			}
+		    }
+		}
+	    }
+	}
     }
     catch (Iex::BaseExc &e)
     {

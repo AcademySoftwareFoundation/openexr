@@ -122,7 +122,7 @@ class TiledRgbaOutputFile
 						    Imath::V2f (0, 0),
 			 float screenWindowWidth = 1,
 			 LineOrder lineOrder = INCREASING_Y,
-			 Compression compression = PIZ_COMPRESSION);
+			 Compression compression = ZIP_COMPRESSION);
 
 
     //-----------------------------------------------
@@ -144,7 +144,7 @@ class TiledRgbaOutputFile
 						    Imath::V2f (0, 0),
 			 float screenWindowWidth = 1,
 			 LineOrder lineOrder = INCREASING_Y,
-			 Compression compression = PIZ_COMPRESSION);
+			 Compression compression = ZIP_COMPRESSION);
 
 
     virtual ~TiledRgbaOutputFile ();
@@ -250,7 +250,10 @@ class TiledRgbaOutputFile
     TiledRgbaOutputFile (const TiledRgbaOutputFile &);	
     TiledRgbaOutputFile & operator = (const TiledRgbaOutputFile &);
 
+    class ToYa;
+
     TiledOutputFile *            _outputFile;
+    ToYa *			_toYa;
 };
 
 
@@ -394,7 +397,10 @@ class TiledRgbaInputFile
     TiledRgbaInputFile (const TiledRgbaInputFile &);
     TiledRgbaInputFile & operator = (const TiledRgbaInputFile &);
 
+    class FromYa;
+
     TiledInputFile *	_inputFile;
+    FromYa *		_fromYa;
 };
 
 
