@@ -1,0 +1,53 @@
+License
+-------
+
+OpenEXR is distributed under a free software license.  See the file 
+named COPYING for the license details.
+
+OpenEXR on Win32 platforms
+--------------------------
+
+Currently, OpenEXR has only been tested on Windows XP with Visual
+Studio 6.0 and the Intel C++ compiler version 7.0.  You can obtain an
+evaluation license for Intel's compiler here:
+
+http://developer.intel.com/software/products/compilers/cwin/eval.htm
+
+Due to limitations in Microsoft's C++ implementation in Visual Studio
+6.0, OpenEXR won't compile with the Microsoft Visual C++ 6.0 compiler.
+The changes required to make OpenEXR compile with Visual C++ 6.0 would
+break the existing API.  We hope to have support for Visual C++ 7.0
+(aka Visual Studio .NET) at a later date.
+
+If you want to use OpenEXR with Visual Studio 6.0 and the Microsoft
+Visual C++ 6.0 compiler, you can use the ImfCRgbaFile C interface via
+the IlmImf DLL.  This DLL is provided with this distribution.
+
+You'll need a compiled version of zlib in order to use the IlmImf
+library.  A zlib DLL is included with this release in the lib\zlib
+directory.  The zlib copyright notice is included below.
+
+Zlib copyright notice:
+Copyright notice:
+
+ (C) 1995-2002 Jean-loup Gailly and Mark Adler
+
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
+
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
+
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
+
+  Jean-loup Gailly        Mark Adler
+  jloup@gzip.org          madler@alumni.caltech.edu
+
