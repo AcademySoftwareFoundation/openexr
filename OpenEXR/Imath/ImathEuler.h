@@ -139,7 +139,11 @@ template <class T>
 class Euler : public Vec3<T>
 {
   public:
-
+ 
+    using Vec3<T>::x;
+    using Vec3<T>::y;
+    using Vec3<T>::z;
+    
     enum Order
     {
 	//
@@ -422,14 +426,14 @@ inline Euler<T>::Euler( T xi, T yi, T zi,
 }
 
 template<class T>
-inline Euler<T>::Euler( const Matrix33<T> &M, typename Euler<T>::Order p )
+inline Euler<T>::Euler( const Matrix33<T> &M, typename Euler::Order p )
 {
     setOrder(p);
     extract(M);
 }
 
 template<class T>
-inline Euler<T>::Euler( const Matrix44<T> &M, typename Euler<T>::Order p )
+inline Euler<T>::Euler( const Matrix44<T> &M, typename Euler::Order p )
 {
     setOrder(p);
     extract(M);
