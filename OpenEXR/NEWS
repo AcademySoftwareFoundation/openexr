@@ -1,3 +1,23 @@
+Version 1.2.2:
+    - New build system for Windows; support for DLLs.
+    - Imath: Removed TMatrix<T> classes; these classes are still
+      under development and are too difficult to keep in sync
+      with OpenEXR CVS.
+    - IlmImf: support for image layers in ChannelList.
+    - IlmImf: added isComplete() method to file classes to check
+      whether a file is complete.
+    - IlmImf: exposed staticInitialize() in ImfHeader.h in
+      order to allow thread-safe library initialization in
+      multithreaded applications.
+    - IlmImf: New "time code" standard attribute.
+    - exrdisplay: support for displaying wrap-around texture map
+      images.
+    - exrmaketiled: can now specify wrap mode.
+    - IlmImf: New "wrapmodes" standard attribute to indicate
+      extrapolation mode for mipmaps and ripmaps.
+    - IlmImf: New "key code" standard attribute to identify motion
+      picture film frames.
+
 Version 1.2.1:
     - reduced memory footprint of exrenvmap and exrmaketiled 
       utilities.

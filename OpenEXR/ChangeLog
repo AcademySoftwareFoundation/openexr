@@ -1,3 +1,8 @@
+Version 1.2.2:
+	* Removed vc/vc6 directory; Visual C++ 6.0 is no longer
+	  supported.  (Drew Hess)
+	* Updated README.win32 with details of new build system.
+	  (Florian Kainz, Drew Hess)
 	* New build system for Windows / Visual C++ 7 builds both
 	  static libraries and DLLs.
 	  (Nick Porcino)

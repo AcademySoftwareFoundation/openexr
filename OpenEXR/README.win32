@@ -2,21 +2,17 @@ OpenEXR on Win32 platforms
 --------------------------
 
 OpenEXR has been tested on Windows XP with Visual Studio .NET 2003
-(version 7.1); and with Visual Studio 6.0 and version 7.0 of the Intel
-C++ compiler.  You can obtain an evaluation license for Intel's compiler
-here:
-
-  http://developer.intel.com/software/products/compilers/cwin/eval.htm
+(version 7.1).
 
 Due to limitations in Microsoft's C++ implementation in Visual Studio
 6.0, OpenEXR won't compile with the Microsoft Visual C++ 6.0 compiler.
 The changes required to make OpenEXR compile with Visual C++ 6.0 would
 break the existing API.
 
-If you want to use OpenEXR with Visual Studio 6.0 and the Microsoft
-Visual C++ 6.0 compiler, you can use the ImfCRgbaFile C interface via
-the IlmImf DLL.  Make sure you build the IlmImfDll project in the
-workspace file if you want to use this DLL.
+It should be possible to link against the ImfCRgbaFile C interface
+with Microsoft Visual C++ 6.0 using the IlmImf DLLs built by Visual
+C++ 7.1 or higher.  However, we have not tested this configuration.
+Please let us know if you have problems.
 
 See the AUTHORS file for a list of people who contributed to the Win32
 port of OpenEXR.
@@ -30,8 +26,7 @@ some releases may be available as pre-compiled libraries.  Check here:
 
   http://openexr.com/downloads
 
-The projects for Visual Studio 6.0 and .NET 2003 can be found in
-vc\vc6 and vc\vc7, respectively.
+The projects for Visual Studio .NET 2003 can be found in vc\vc7.
 
 You'll need a compiled version of zlib (version 1.2.1) in order to build
 the IlmImf library.  You'll need a compiled version of FLTK 1.1.x in order
@@ -118,9 +113,4 @@ Building OpenEXR requires the following steps:
 Known bugs
 ----------
 
-The IlmImfTest testCustomAttributes test fails with Visual Studio 6.0
-and the Intel C++ compiler version 7.0.  It appears to be specific to
-the test, not any of the OpenEXR libraries themselves.  It's #ifdef'ed
-out at the moment to ensure the other tests in IlmImfTest will run.
-
-
+None.
