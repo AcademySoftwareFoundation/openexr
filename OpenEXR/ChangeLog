@@ -1,4 +1,5 @@
 Version 1.0.5:
+        * Fixed IlmImf.dll to use static runtime libs (Andreas).
 	* Added exrheader project to Visual Studio 6.0 workspace.
 	* Added some example code showing how to use the IlmImf library.
 	  (Florian)
