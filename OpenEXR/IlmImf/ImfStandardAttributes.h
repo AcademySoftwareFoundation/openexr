@@ -207,6 +207,37 @@ IMF_STD_ATTRIBUTE_DEF (envmap, Envmap, Envmap)
 IMF_STD_ATTRIBUTE_DEF (keyCode, KeyCode, KeyCode)
 
 
+//
+// wrapmodes -- determines how texture map images are extrapolated.
+// If an OpenEXR file is used as a texture map for 3D rendering,
+// texture coordinates (0.0, 0.0) and (1.0, 1.0) correspond to
+// the upper left and lower right corners of the data window.
+// If the image is mapped onto a surface with texture coordinates
+// outside the zero-to-one range, then the image must be extrapolated.
+// This attribute tells the renderer how to do this extrapolation.
+// The attribute contains either a pair of comma-separated keywords,
+// to specify separate extrapolation modes for the horizontal and
+// vertical directions; or a single keyword, to specify extrapolation
+// in both directions (e.g. "clamp,periodic" or "clamp").  Extra white
+// space surrounding the keywords is allowed, but should be ignored
+// by the renderer ("clamp, black " is equivalent to "clamp,black").
+// The keywords listed below are predefined; some renderers may support
+// additional extrapolation modes:
+//
+//	black		pixels outside the zero-to-one range are black
+//
+//	clamp		texture coordinates less than 0.0 and greater
+//			than 1.0 are clamped to 0.0 and 1.0 respectively
+//
+//	periodic	the texture image repeats periodically
+//
+//	mirror		the texture image repeats periodically, but
+//			every other instance is mirrored
+//
+
+IMF_STD_ATTRIBUTE_DEF (wrapmodes, Wrapmodes, std::string)
+
+
 } // namespace Imf
 
 #endif

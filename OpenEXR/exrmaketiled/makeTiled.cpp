@@ -61,9 +61,37 @@ using namespace std;
 
 namespace {
 
+string
+extToString (Extrapolation ext)
+{
+    switch (ext)
+    {
+      case BLACK:
+	return "black";
+
+      case CLAMP:
+	return "clamp";
+
+      case PERIODIC:
+	return "periodic";
+
+      case MIRROR:
+	return "mirror";
+    }
+}
+
+
+int
+mirror (int x, int w)
+{
+    int d = divp (x, w);
+    int m = modp (x, w);
+    return (d & 1)? w - 1 - m: m;
+}
+
 
 template <class T>
-inline double
+double
 sampleX (const TypedImageChannel<T> &channel,
 	 int w,
 	 double x,
@@ -79,28 +107,48 @@ sampleX (const TypedImageChannel<T> &channel,
     int xt = xs + 1;
     double s = xt - x;
     double t = 1 - s;
+    double vs;
+    double vt;
 
     switch (ext)
     {
+      case BLACK:
+
+	  vs = (xs >= 0 && xs < w)? double (channel (xs, y)): 0.0;
+	  vt = (xt >= 0 && xt < w)? double (channel (xt, y)): 0.0;
+	  break;
+
       case CLAMP:
 
 	  xs = clamp (xs, 0, w - 1);
 	  xt = clamp (xt, 0, w - 1);
+	  vs = channel (xs, y);
+	  vt = channel (xt, y);
 	  break;
 
-      case WRAP:
+      case PERIODIC:
 
 	  xs = modp (xs, w);
 	  xt = modp (xt, w);
+	  vs = channel (xs, y);
+	  vt = channel (xt, y);
+	  break;
+
+      case MIRROR:
+
+	  xs = mirror (xs, w);
+	  xt = mirror (xt, w);
+	  vs = channel (xs, y);
+	  vt = channel (xt, y);
 	  break;
     }
 
-    return s * channel (xs, y) + t * channel (xt, y);
+    return s * vs + t * vt;
 }
 
 
 template <class T>
-inline double
+double
 sampleY (const TypedImageChannel<T> &channel,
          int h,
 	 int x,
@@ -116,23 +164,43 @@ sampleY (const TypedImageChannel<T> &channel,
     int yt = ys + 1;
     double s = yt - y;
     double t = 1 - s;
+    double vs;
+    double vt;
 
     switch (ext)
     {
+      case BLACK:
+
+	  vs = (ys >= 0 && ys < h)? double (channel (x, ys)): 0.0;
+	  vt = (yt >= 0 && yt < h)? double (channel (x, yt)): 0.0;
+	  break;
+
       case CLAMP:
 
 	  ys = clamp (ys, 0, h - 1);
 	  yt = clamp (yt, 0, h - 1);
+	  vs = channel (x, ys);
+	  vt = channel (x, yt);
 	  break;
 
-      case WRAP:
+      case PERIODIC:
 
 	  ys = modp (ys, h);
 	  yt = modp (yt, h);
+	  vs = channel (x, ys);
+	  vt = channel (x, yt);
+	  break;
+
+      case MIRROR:
+
+	  ys = mirror (ys, h);
+	  yt = mirror (yt, h);
+	  vs = channel (x, ys);
+	  vt = channel (x, yt);
 	  break;
     }
 
-    return s * channel (x, ys) + t * channel (x, yt);
+    return s * vs + t * vt;
 }
 
 
@@ -476,11 +544,19 @@ makeTiled (const char inFileName[],
 	in.readPixels (header.dataWindow().min.y, header.dataWindow().max.y);
     }
 
+    //
+    // Generate the header for the output file by modifying
+    // the input file's header
+    //
+
     header.setTileDescription (TileDescription (tileSizeX, tileSizeY,
 						mode, roundingMode));
 
     header.compression() = compression;
     header.lineOrder() = INCREASING_Y;
+
+    if (mode != ONE_LEVEL)
+	addWrapmodes (header, extToString (extX) + "," + extToString (extY));
 
     //
     // Store the highest-resolution level of the image in the output file

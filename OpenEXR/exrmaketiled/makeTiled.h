@@ -50,8 +50,10 @@
 
 enum Extrapolation
 {
+    BLACK,
     CLAMP,
-    WRAP
+    PERIODIC,
+    MIRROR
 };
 
 
