@@ -143,10 +143,6 @@ class Euler : public Vec3<T>
     using Vec3<T>::x;
     using Vec3<T>::y;
     using Vec3<T>::z;
-    
-    using Vec3<T>::x;
-    using Vec3<T>::y;
-    using Vec3<T>::z;
 
     enum Order
     {
