@@ -107,11 +107,7 @@ SOURCE=.\gzio.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\infblock.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\infcodes.c
+SOURCE=.\infback.c
 # End Source File
 # Begin Source File
 
@@ -124,14 +120,6 @@ SOURCE=.\inflate.c
 # Begin Source File
 
 SOURCE=.\inftrees.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\infutil.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\minigzip.c
 # End Source File
 # Begin Source File
 
@@ -151,15 +139,11 @@ SOURCE=.\zutil.c
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\crc32.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\deflate.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\infblock.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\infcodes.h
 # End Source File
 # Begin Source File
 
@@ -171,11 +155,11 @@ SOURCE=.\inffixed.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\inftrees.h
+SOURCE=.\inflate.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\infutil.h
+SOURCE=.\inftrees.h
 # End Source File
 # Begin Source File
 
@@ -184,6 +168,10 @@ SOURCE=.\trees.h
 # Begin Source File
 
 SOURCE=.\zconf.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\zconf.in.h
 # End Source File
 # Begin Source File
 
