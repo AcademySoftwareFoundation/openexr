@@ -836,7 +836,7 @@ Header::readFrom (IStream &is, int &version)
 	throw Iex::InputExc ("File is not an image file.");
     }
 
-    if (getVersion (version) != 1 && getVersion (version) != EXR_VERSION)
+    if (getVersion (version) != EXR_VERSION)
     {
 	THROW (Iex::InputExc, "Cannot read "
 			      "version " << getVersion (version) << " "
