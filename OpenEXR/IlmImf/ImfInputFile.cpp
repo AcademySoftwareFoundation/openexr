@@ -32,8 +32,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-
-
 //-----------------------------------------------------------------------------
 //
 //	class InputFile
@@ -47,10 +45,13 @@
 #include <ImfMisc.h>
 #include <ImfStdIO.h>
 #include <Iex.h>
+#include <ImfVersion.h>
+#include <ImathFun.h>
+#include <half.h>
 #include <fstream>
 #include <algorithm>
-#include <ImfVersion.h>
-#include <half.h>
+
+namespace Imf {
 
 #if defined PLATFORM_WIN32 && _MSC_VER < 1300
 namespace
@@ -63,9 +64,9 @@ inline T max (const T &a, const T &b) { return (a >= b) ? a : b; }
 }
 #endif
 
-namespace Imf {
-
 using Imath::Box2i;
+using Imath::divp;
+using Imath::modp;
 
 
 //
@@ -284,11 +285,13 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
 		    ifd->cachedBuffer->insert
 			(k.name(),
 			 Slice (UINT,
-				(char *)(new unsigned int[tileRowSize] -
+				(char *)(new unsigned int[tileRowSize] -	
 				     ifd->offset),
 				 sizeof (unsigned int),
 				 sizeof (unsigned int) *
-				     ifd->tFile->levelWidth(0)));
+				     ifd->tFile->levelWidth(0),
+				 1, 1,
+				 s.fillValue));
 		    break;
 
 		  case HALF:
@@ -300,7 +303,9 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
 				     ifd->offset),
 				 sizeof (half),
 				 sizeof (half) *
-				     ifd->tFile->levelWidth(0)));
+				     ifd->tFile->levelWidth(0),
+				 1, 1,
+				 s.fillValue));
 		    break;
 
 		  case FLOAT:
@@ -312,7 +317,9 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
 				     ifd->offset),
 				 sizeof(float),
 				 sizeof(float) *
-				     ifd->tFile->levelWidth(0)));
+				     ifd->tFile->levelWidth(0),
+				 1, 1,
+				 s.fillValue));
 		    break;
 
 		  default:
@@ -348,7 +355,18 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
             char *fromPtr, *toPtr;
             int size = pixelTypeSize (toSlice.type);
 
-            for (int y = minYThisRow; y <= maxYThisRow; ++y)
+	    int xStart = levelRange.min.x;
+	    int yStart = minYThisRow;
+
+	    while (modp (xStart, toSlice.xSampling) != 0)
+		++xStart;
+
+	    while (modp (yStart, toSlice.ySampling) != 0)
+		++yStart;
+
+            for (int y = yStart;
+		 y <= maxYThisRow;
+		 y += toSlice.ySampling)
             {
 		//
                 // Set the pointers to the start of the y scanline in
@@ -357,23 +375,25 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
 
                 fromPtr = fromSlice.base +
                           y * fromSlice.yStride +
-                          levelRange.min.x * fromSlice.xStride;
+                          xStart * fromSlice.xStride;
 
-                toPtr   = toSlice.base +
-                          y * toSlice.yStride +
-                          levelRange.min.x * toSlice.xStride;
+                toPtr = toSlice.base +
+                        divp (y, toSlice.ySampling) * toSlice.yStride +
+                        divp (xStart, toSlice.xSampling) * toSlice.xStride;
 
 		//
                 // Copy all pixels for the scanline in this row of tiles
 		//
 
-                for (int x = levelRange.min.x; x <= levelRange.max.x; ++x)
+                for (int x = xStart;
+		     x <= levelRange.max.x;
+		     x += toSlice.xSampling)
                 {
-                    for (size_t i = 0; i < size; ++i)
-                        toPtr[i] = fromPtr[i];
+		    for (size_t i = 0; i < size; ++i)
+			toPtr[i] = fromPtr[i];
 
-                    fromPtr += fromSlice.xStride;
-                    toPtr += toSlice.xStride;
+		    fromPtr += fromSlice.xStride * toSlice.xSampling;
+		    toPtr += toSlice.xStride;
                 }
             }
         }
@@ -485,32 +505,28 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
     if (isTiled (_data->version))
     {
 	//
-        // Invalidate the cached buffer if the new frameBuffer has
-        // different types than the old.
+        // Invalidate the cached buffer if the new frame buffer
+	// has a different set of channels than the old frame
+	// buffer, or if the type of a channel has changed.
 	//
 
-        const ChannelList &channels = _data->header.channels();
+	const FrameBuffer &oldFrameBuffer = _data->tFileBuffer;
 
-        for (FrameBuffer::ConstIterator j = frameBuffer.begin();
-             j != frameBuffer.end();
-             ++j)
-        {
-            ChannelList::ConstIterator i = channels.find (j.name());
+	FrameBuffer::ConstIterator i = oldFrameBuffer.begin();
+	FrameBuffer::ConstIterator j = frameBuffer.begin();
 
-            //
-            // If the new frameBuffer has channels that the old one didn't
-            // have, or the channels in the new frameBuffer have different
-            // types than the ones in the old frameBuffer, then we must
-            // invalidate the cache.
-            //
+	while (i != oldFrameBuffer.end())
+	{
+	    if (strcmp (i.name(), j.name()) || i.slice().type != j.slice().type)
+		break;
 
-            if (i == channels.end() || i.channel().type != j.slice().type)
-            {
-                _data->cachedTileY = -1;
-                break;
-            }
-        }
-    
+	    ++i;
+	    ++j;
+	}
+
+	if (i != oldFrameBuffer.end() || j != frameBuffer.end())
+	    _data->cachedTileY = -1;
+
 	_data->tFileBuffer = frameBuffer;
     }
     else
