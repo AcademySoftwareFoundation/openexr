@@ -79,6 +79,14 @@ struct HufDec
 
 
 void
+invalidNBits ()
+{
+    throw InputExc ("Error in header for Huffman-encoded data "
+		    "(invalid number of bits).");
+}
+
+
+void
 tooMuchData ()
 {
     throw InputExc ("Error in Huffman-encoded data "
@@ -107,6 +115,22 @@ invalidTableSize ()
 {
     throw InputExc ("Error in Huffman-encoded data "
 		    "(invalid code table size).");
+}
+
+
+void
+unexpectedEndOfTable ()
+{
+    throw InputExc ("Error in Huffman-encoded data "
+		    "(unexpected end of code table data).");
+}
+
+
+void
+tableTooLong ()
+{
+    throw InputExc ("Error in Huffman-encoded data "
+		    "(code table is longer than expected).");
 }
 
 
@@ -444,6 +468,7 @@ hufPackEncTable
 void
 hufUnpackEncTable
     (const char**	pcode,		// io: ptr to packed table (updated)
+     int		ni,		// i : input size (in bytes)
      int		im,		// i : min hcode index
      int		iM,		// i : max hcode index
      Int64*		hcode)		//  o: encoding table [HUF_ENCSIZE]
@@ -456,11 +481,20 @@ hufUnpackEncTable
 
     for (; im <= iM; im++)
     {
+	if (p - *pcode > ni)
+	    unexpectedEndOfTable();
+
 	Int64 l = hcode[im] = getBits (6, c, lc, p); // code length
 
 	if (l == (Int64) LONG_ZEROCODE_RUN)
 	{
+	    if (p - *pcode > ni)
+		unexpectedEndOfTable();
+
 	    int zerun = getBits (8, c, lc, p) + SHORTEST_LONG_RUN;
+
+	    if (im + zerun > iM + 1)
+		tableTooLong();
 
 	    while (zerun--)
 		hcode[im++] = 0;
@@ -470,6 +504,9 @@ hufUnpackEncTable
 	else if (l >= (Int64) SHORT_ZEROCODE_RUN)
 	{
 	    int zerun = l - SHORT_ZEROCODE_RUN + 2;
+
+	    if (im + zerun > iM + 1)
+		tableTooLong();
 
 	    while (zerun--)
 		hcode[im++] = 0;
@@ -954,17 +991,20 @@ hufUncompress (const char compressed[],
     if (im < 0 || im >= HUF_ENCSIZE || iM < 0 || iM >= HUF_ENCSIZE)
 	invalidTableSize();
 
-    compressed += 20;
+    const char *ptr = compressed + 20;
 
     AutoArray <Int64, HUF_ENCSIZE> freq;
     AutoArray <HufDec, HUF_DECSIZE> hdec;
 
-    hufUnpackEncTable (&compressed, im, iM, freq);
+    hufUnpackEncTable (&ptr, nCompressed - (ptr - compressed), im, iM, freq);
 
     try
     {
+	if (nBits > 8 * (nCompressed - (ptr - compressed)))
+	    invalidNBits();
+
 	hufBuildDecTable (freq, im, iM, hdec);
-	hufDecode (freq, hdec, compressed, nBits, iM, nRaw, raw);
+	hufDecode (freq, hdec, ptr, nBits, iM, nRaw, raw);
     }
     catch (...)
     {
