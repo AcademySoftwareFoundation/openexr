@@ -54,17 +54,6 @@
 using namespace Imf;
 using namespace std;
 
-#if defined PLATFORM_WIN32 && _MSC_VER < 1300
-namespace
-{
-template<class T>
-inline T min (const T &a, const T &b) { return (a <= b) ? a : b; }
-
-template<class T>
-inline T max (const T &a, const T &b) { return (a >= b) ? a : b; }
-}
-#endif
-
 namespace
 {
 

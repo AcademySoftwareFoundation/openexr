@@ -53,16 +53,6 @@
 
 namespace Imf {
 
-#if defined PLATFORM_WIN32 && _MSC_VER < 1300
-namespace
-{
-template<class T>
-inline T min (const T &a, const T &b) { return (a <= b) ? a : b; }
-
-template<class T>
-inline T max (const T &a, const T &b) { return (a >= b) ? a : b; }
-}
-#endif
 
 using Imath::Box2i;
 using Imath::divp;
@@ -181,13 +171,8 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
     // accessing scanlines sequentially.
     //
 
-#if defined PLATFORM_WIN32 && _MSC_VER < 1300
-    int minY = min (scanLine1, scanLine2);
-    int maxY = max (scanLine1, scanLine2);
-#else
     int minY = std::min (scanLine1, scanLine2);
     int maxY = std::max (scanLine1, scanLine2);
-#endif
 
     if (minY < ifd->minY || maxY >  ifd->maxY)
     {
@@ -237,13 +222,8 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
     {
         Box2i tileRange = ifd->tFile->dataWindowForTile (0, j, 0);
 
-#if defined PLATFORM_WIN32 && _MSC_VER < 1300
-        int minYThisRow = max (minY, tileRange.min.y);
-        int maxYThisRow = min (maxY, tileRange.max.y);
-#else
         int minYThisRow = std::max (minY, tileRange.min.y);
         int maxYThisRow = std::min (maxY, tileRange.max.y);
-#endif
 
         if (j != ifd->cachedTileY)
         {

@@ -46,12 +46,6 @@
 #include <sstream>
 #endif
 
-#if defined (PLATFORM_WIN32)
-#    ifndef for
-#        define for if (0) { } else for
-#    endif
-#endif
-
 using namespace std;
 using namespace Imf;
 

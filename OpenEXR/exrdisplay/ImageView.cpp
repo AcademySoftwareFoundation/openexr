@@ -58,19 +58,8 @@
 #include <GL/gl.h>
 #endif
 
-#if defined PLATFORM_WIN32
-float fmax (float a, float b) 
-{ 
-    return (a >= b) ? a : b;
-}
-float fmin (float a, float b)
-{
-    return (a <= b) ? a : b;
-}
-#else
 using std::min;
 using std::max;
-#endif
 using Imath::clamp;
 
 
@@ -162,22 +151,12 @@ ImageView::draw()
 	if (y + _dy < 0 || y + _dy >= h())
 	    continue;
 
-#ifdef PLATFORM_WIN32
-	glRasterPos2i (fmax (0, _dx), y + _dy + 1);
-	glDrawPixels (_dw + fmin (0, _dx),			      // width
-		      1,					      // height
-		      GL_RGB,					      // format
-		      GL_UNSIGNED_BYTE,				      // type
-		      _screenPixels + static_cast<ptrdiff_t> ((y * _dw - fmin (0, _dx)) * 3)); // pixels
-#else
 	glRasterPos2i (max (0, _dx), y + _dy + 1);
 	glDrawPixels (_dw + min (0, _dx),			     // width
 		      1,					     // height
 		      GL_RGB,					     // format
 		      GL_UNSIGNED_BYTE,				     // type
 		      _screenPixels + static_cast<ptrdiff_t> ((y * _dw - min (0, _dx)) * 3)); // pixels
-#endif
-
     }
 }
 
@@ -279,11 +258,7 @@ Gamma::operator () (half h)
     // Defog
     //
 
-#ifdef PLATFORM_WIN32
-    float x = fmax (0.f, (h - d)); 
-#else
     float x = max (0.f, (h - d));
-#endif
 
     //
     // Exposure

@@ -1,3 +1,44 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2003, Industrial Light & Magic, a division of Lucasfilm
+// Entertainment Company Ltd.  Portions contributed and copyright held by
+// others as indicated.  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above
+//       copyright notice, this list of conditions and the following
+//       disclaimer.
+//
+//     * Redistributions in binary form must reproduce the above
+//       copyright notice, this list of conditions and the following
+//       disclaimer in the documentation and/or other materials provided with
+//       the distribution.
+//
+//     * Neither the name of Industrial Light & Magic nor the names of
+//       any other contributors to this software may be used to endorse or
+//       promote products derived from this software without specific prior
+//       written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+// IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+// PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+// LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+// NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//////////////////////////////////////////////////////////////////////////////
+
+
+#include <tmpDir.h>
+
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImfTiledOutputFile.h>
@@ -288,18 +329,11 @@ testImageChannel (const char fileName[],
 		  int width, int height,
 		  Compression compression)
 {
-    #if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-        std::string fn;
-    #else
-	std::string fn ("/var/tmp/");
-    #endif
-    fn += fileName;
-
     testScanLineImageChannel <OutType, OutTypeTag, InType, InTypeTag>
-	(fn.c_str (), width, height, compression);
+	(fileName, width, height, compression);
 
     testTiledImageChannel <OutType, OutTypeTag, InType, InTypeTag>
-	(fn.c_str (), width, height, compression);
+	(fileName, width, height, compression);
 }
 
 
@@ -323,47 +357,47 @@ testConversion ()
 	for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
 	{
 	    testImageChannel <unsigned int, UINT, unsigned int, UINT>
-			     ("imf_test_conv.exr",
+			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <unsigned int, UINT, half, HALF>
-			     ("imf_test_conv.exr",
+			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <unsigned int, UINT, float, FLOAT>
-			     ("imf_test_conv.exr",
+			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <half, HALF, unsigned int, UINT>
-			     ("imf_test_conv.exr",
+			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <half, HALF, half, HALF>
-			     ("imf_test_conv.exr",
+			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <half, HALF, float, FLOAT>
-			     ("imf_test_conv.exr",
+			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <float, FLOAT, unsigned int, UINT>
-			     ("imf_test_conv.exr",
+			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <float, FLOAT, half, HALF>
-			     ("imf_test_conv.exr",
+			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
 	    testImageChannel <float, FLOAT, float, FLOAT>
-			     ("imf_test_conv.exr",
+			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 

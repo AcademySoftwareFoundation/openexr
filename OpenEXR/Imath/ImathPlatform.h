@@ -52,13 +52,6 @@
 
 #define M_PI 3.14159265358979323846
 
-// Visual C++ and Intel's Visual C++ compiler don't like "for" variable 
-// scoping, this gets around it
-
-#define for if(0) { } else for
-
-inline float hypotf (float x, float y) { return ::sqrt (x*x + y*y); }
-
 #endif
 
 //-----------------------------------------------------------------------------
@@ -95,4 +88,3 @@ inline float hypotf (float x, float y) { return ::sqrt (x*x + y*y); }
 #endif
 
 #endif // INCLUDED_IMATHPLATFORM_H
-

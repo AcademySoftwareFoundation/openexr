@@ -44,16 +44,6 @@
 #include <ImfMisc.h>
 #include <ImfChannelList.h>
 
-#if defined PLATFORM_WIN32 && _MSC_VER < 1300
-namespace
-{
-template<class T>
-inline T min (const T &a, const T &b) { return (a <= b) ? a : b; }
-
-template<class T>
-inline T wmax (const T &a, const T &b) { return (a >= b) ? a : b; }
-}
-#endif
 
 namespace Imf {
 
@@ -74,11 +64,7 @@ levelSize (int min, int max, int l, LevelRoundingMode rmode)
     if (rmode == ROUND_UP && size * b < a)
 	size += 1;
 
-#if defined PLATFORM_WIN32 && _MSC_VER < 1300
-    return wmax (size, 1);
-#else
     return std::max (size, 1);
-#endif
 }
 
 
@@ -113,13 +99,8 @@ dataWindowForTile (const TileDescription &tileDesc,
     V2i levelMax = dataWindowForLevel
 		       (tileDesc, minX, maxX, minY, maxY, lx, ly).max;
 
-#if defined PLATFORM_WIN32 && _MSC_VER < 1300
-    tileMax = V2i (min (tileMax[0], levelMax[0]),
-		   min (tileMax[1], levelMax[1]));
-#else
     tileMax = V2i (std::min (tileMax[0], levelMax[0]),
 		   std::min (tileMax[1], levelMax[1]));
-#endif
 
     return Box2i (tileMin, tileMax);
 }
@@ -213,12 +194,7 @@ calculateNumXLevels (const TileDescription& tileDesc,
 	{
 	  int w = maxX - minX + 1;
 	  int h = maxY - minY + 1;
-
-#if defined PLATFORM_WIN32 && _MSC_VER < 1300
-	  num = roundLog2 (wmax (w, h), tileDesc.roundingMode) + 1;
-#else
 	  num = roundLog2 (std::max (w, h), tileDesc.roundingMode) + 1;
-#endif
 	}
         break;
 
@@ -258,12 +234,7 @@ calculateNumYLevels (const TileDescription& tileDesc,
 	{
 	  int w = maxX - minX + 1;
 	  int h = maxY - minY + 1;
-
-#if defined PLATFORM_WIN32 && _MSC_VER < 1300
-	  num = roundLog2 (wmax (w, h), tileDesc.roundingMode) + 1;
-#else
 	  num = roundLog2 (std::max (w, h), tileDesc.roundingMode) + 1;
-#endif
 	}
         break;
 

@@ -32,6 +32,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+
+#include <tmpDir.h>
+
 #include <ImfRgbaFile.h>
 #include <ImfStandardAttributes.h>
 #include <ImfArray.h>
@@ -444,33 +447,19 @@ testStandardAttributes ()
 	convertRGBtoXYZ();
 
 	{
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-	    const char * filename = "imf_test_chromaticities.exr";
-#else
-	    const char * filename = "/var/tmp/imf_test_chromaticities.exr";
-#endif
+	    const char *filename = IMF_TMP_DIR "imf_test_chromaticities.exr";
 	    writeReadChromaticities (filename);
 	}
 
 	{
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-	    const char * fn1 = "imf_test_latlong1.exr";
-	    const char * fn2 = "imf_test_latlong2.exr";
-#else
-	    const char * fn1 = "/var/tmp/imf_test_latlong1.exr";
-	    const char * fn2 = "/var/tmp/imf_test_latlong1.exr";
-#endif
+	    const char *fn1 = IMF_TMP_DIR "imf_test_latlong1.exr";
+	    const char *fn2 = IMF_TMP_DIR "imf_test_latlong2.exr";
 	    latLongMap (fn1, fn2);
 	}
 
 	{
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-	    const char * fn1 = "imf_test_cube1.exr";
-	    const char * fn2 = "imf_test_cube2.exr";
-#else
-	    const char * fn1 = "/var/tmp/imf_test_cube1.exr";
-	    const char * fn2 = "/var/tmp/imf_test_cube2.exr";
-#endif
+	    const char *fn1 = IMF_TMP_DIR "imf_test_cube1.exr";
+	    const char *fn2 = IMF_TMP_DIR "imf_test_cube2.exr";
 	    cubeMap (fn1, fn2);
 	}
 
