@@ -1,3 +1,8 @@
+	* Update to AUTHORS file.
+	* Added a README.win32 file.
+	* Added project files for Visual Studio 6.0.
+	* Initial Win32 port.  Requires Visual Studio 6.0 and Intel C++
+	  compiler version 7.0.
 	* Added new intersectT method in ImathSphere.h
 	* Fixed some bugs in ImathQuat.h
 	* Proper use of fltk-config to get platform-specific FLTK
