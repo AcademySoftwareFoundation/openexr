@@ -40,12 +40,13 @@
 //	16-bit Huffman compression and decompression.
 //
 //	The source code in this file is derived from the 8-bit
-//	Huffman compression and decompression routines.
+//	Huffman compression and decompression routines written
+//	by Christian Rouet for his PIZ image file format.
 //
 //-----------------------------------------------------------------------------
 
-#include <memory>
 #include <ImfHuf.h>
+#include <ImfAutoArray.h>
 #include <Iex.h>
 #include <string.h>
 #include <assert.h>
@@ -63,7 +64,7 @@ namespace {
 
 
 const int HUF_ENCBITS = 16;			// literal (value) bit length
-const int HUF_DECBITS = 16;			// decoding bit size (>= 8)
+const int HUF_DECBITS = 14;			// decoding bit size (>= 8)
 
 const int HUF_ENCSIZE = (1 << HUF_ENCBITS) + 1;	// encoding table size
 const int HUF_DECSIZE =  1 << HUF_DECBITS;	// decoding table size
@@ -225,13 +226,11 @@ hufBuildEncTable
     static const int LEAF  = 0x80000;
     static const int INDEX = 0x7ffff;
 
-    // Temporary table dependencies, and heap for quickly finding min frq 
-    // value
-    auto_ptr< int > hlink_buf (new int [HUF_ENCSIZE]);
-    auto_ptr< Int64 * > fHeap_buf (new Int64* [HUF_ENCSIZE]);
+    // Temporary table dependencies,
+    // and heap for quickly finding min frq value
 
-    int * hlink = hlink_buf.get ();
-    Int64** fHeap = fHeap_buf.get ();
+    AutoArray <int, HUF_ENCSIZE> hlink;
+    AutoArray <Int64 *, HUF_ENCSIZE> fHeap;
 
     *im= 0;
 
@@ -257,15 +256,17 @@ hufBuildEncTable
     fHeap[nf] = &frq[*iM];
     nf++;
 
-    make_heap (fHeap, fHeap + nf, FHeapCompare());
+    make_heap (&fHeap[0], &fHeap[nf], FHeapCompare());
 
     //
     // Init scode & loop on all values
     //
 
+    //
     // Temporary encoding table
-    auto_ptr< Int64 > scode_buf (new Int64 [HUF_ENCSIZE]);
-    Int64 * scode = scode_buf.get ();
+    //
+
+    AutoArray <Int64, HUF_ENCSIZE> scode;
 
     memset (scode, 0, sizeof (Int64) * HUF_ENCSIZE);
 
@@ -278,14 +279,14 @@ hufBuildEncTable
 	//
 
 	int mm = fHeap[0] - frq;
-	pop_heap (fHeap, fHeap + nf, FHeapCompare());
+	pop_heap (&fHeap[0], &fHeap[nf], FHeapCompare());
 	--nf;
 
 	int m = fHeap[0] - frq;
-	pop_heap (fHeap, fHeap + nf, FHeapCompare());
+	pop_heap (&fHeap[0], &fHeap[nf], FHeapCompare());
 
 	frq[m ] += frq[mm];
-	push_heap (fHeap, fHeap + nf, FHeapCompare());
+	push_heap (&fHeap[0], &fHeap[nf], FHeapCompare());
 
 	hlink[mm] &= ~LEAF;	// unmark min value
 
@@ -711,20 +712,20 @@ hufDecode
 
 	while (lc >= HUF_DECBITS)
 	{
-	    const HufDec *pl = hdecod + ((c >> (lc-HUF_DECBITS)) & HUF_DECMASK);
+	    const HufDec pl = hdecod[(c >> (lc-HUF_DECBITS)) & HUF_DECMASK];
 
-	    if (pl->len)
+	    if (pl.len)
 	    {
 		//
 		// Get short code
 		//
 
-		lc -= pl->len;
-		getCode (pl->lit, rlc, c, lc, in, out, oe);
+		lc -= pl.len;
+		getCode (pl.lit, rlc, c, lc, in, out, oe);
 	    }
 	    else
 	    {
-		if (!pl->p)
+		if (!pl.p)
 		    invalidCode(); // wrong code
 
 		//
@@ -733,16 +734,16 @@ hufDecode
 
 		int j;
 
-		for (j = 0; j < pl->lit; j++)
+		for (j = 0; j < pl.lit; j++)
 		{
-		    int	l = hufLength (hcode[pl->p[j]]);
+		    int	l = hufLength (hcode[pl.p[j]]);
 
 		    while (lc < l && in < ie)	// get more bits
 			getChar (c, lc, in);
 
 		    if (lc >= l)
 		    {
-			if (hufCode (hcode[pl->p[j]]) ==
+			if (hufCode (hcode[pl.p[j]]) ==
 				((c >> (lc - l)) & ((Int64(1) << l) - 1)))
 			{
 			    //
@@ -750,13 +751,13 @@ hufDecode
 			    //
 
 			    lc -= l;
-			    getCode (pl->p[j], rlc, c, lc, in, out, oe);
+			    getCode (pl.p[j], rlc, c, lc, in, out, oe);
 			    break;
 			}
 		    }
 		}
 
-		if (j == pl->lit)
+		if (j == pl.lit)
 		    invalidCode(); // Not found
 	    }
 	}
@@ -772,12 +773,12 @@ hufDecode
 
     while (lc > 0)
     {
-	const HufDec *pl = hdecod + ((c << (HUF_DECBITS - lc)) & HUF_DECMASK);
+	const HufDec pl = hdecod[(c << (HUF_DECBITS - lc)) & HUF_DECMASK];
 
-	if (pl->len)
+	if (pl.len)
 	{
-	    lc -= pl->len;
-	    getCode (pl->lit, rlc, c, lc, in, out, oe);
+	    lc -= pl.len;
+	    getCode (pl.lit, rlc, c, lc, in, out, oe);
 	}
 	else
 	{
@@ -842,8 +843,7 @@ hufCompress (const unsigned short raw[],
     if (nRaw == 0)
 	return 0;
 
-    auto_ptr< Int64 > freq_buf (new Int64 [HUF_ENCSIZE]);
-    Int64 * freq = freq_buf.get ();
+    AutoArray <Int64, HUF_ENCSIZE> freq;
 
     countFrequencies (freq, raw, nRaw);
 
@@ -890,10 +890,8 @@ hufUncompress (const char compressed[],
 
     compressed += 20;
 
-    auto_ptr< Int64 > freq_buf (new Int64 [HUF_ENCSIZE]);
-    auto_ptr< HufDec > hdec_buf (new HufDec [HUF_DECSIZE]);
-    Int64 * freq = freq_buf.get ();
-    HufDec * hdec = hdec_buf.get ();
+    AutoArray <Int64, HUF_ENCSIZE> freq;
+    AutoArray <HufDec, HUF_DECSIZE> hdec;
 
     hufUnpackEncTable (&compressed, im, iM, freq);
 

@@ -40,7 +40,6 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <memory>
 #include <ImfPizCompressor.h>
 #include <ImfHeader.h>
 #include <ImfChannelList.h>
@@ -52,6 +51,7 @@
 #include <Iex.h>
 #include <ImfIO.h>
 #include <ImfXdr.h>
+#include <ImfAutoArray.h>
 #include <string.h>
 #include <assert.h>
 
@@ -364,18 +364,18 @@ PizCompressor::compress (const char *inPtr,
     // Compress the range of the pixel data
     //
 
-    std::auto_ptr< unsigned char > bitmap (new unsigned char [BITMAP_SIZE]);
+    AutoArray <unsigned char, BITMAP_SIZE> bitmap;
     unsigned short minNonZero;
     unsigned short maxNonZero;
 
     bitmapFromData (_tmpBuffer,
 		    tmpBufferEnd - _tmpBuffer,
-		    bitmap.get (),
+		    bitmap,
 		    minNonZero, maxNonZero);
 
-    std::auto_ptr< unsigned short > lut (new unsigned short [USHORT_RANGE]);
-    unsigned short maxValue = forwardLutFromBitmap (bitmap.get (), lut.get ());
-    applyLut (lut.get (), _tmpBuffer, tmpBufferEnd - _tmpBuffer);
+    AutoArray <unsigned short, USHORT_RANGE> lut;
+    unsigned short maxValue = forwardLutFromBitmap (bitmap, lut);
+    applyLut (lut, _tmpBuffer, tmpBufferEnd - _tmpBuffer);
 
     //
     // Store range compression info in _outBuffer
@@ -388,7 +388,7 @@ PizCompressor::compress (const char *inPtr,
 
     if (minNonZero <= maxNonZero)
     {
-	Xdr::write <CharPtrIO> (buf, (char *) bitmap.get () + minNonZero,
+	Xdr::write <CharPtrIO> (buf, (char *) &bitmap[0] + minNonZero,
 				maxNonZero - minNonZero + 1);
     }
 
@@ -477,20 +477,20 @@ PizCompressor::uncompress (const char *inPtr,
     unsigned short minNonZero;
     unsigned short maxNonZero;
 
-    std::auto_ptr< unsigned char > bitmap (new unsigned char [BITMAP_SIZE]);
-    memset (bitmap.get (), 0, sizeof (unsigned char) * BITMAP_SIZE);
+    AutoArray <unsigned char, BITMAP_SIZE> bitmap;
+    memset (bitmap, 0, sizeof (unsigned char) * BITMAP_SIZE);
 
     Xdr::read <CharPtrIO> (inPtr, minNonZero);
     Xdr::read <CharPtrIO> (inPtr, maxNonZero);
 
     if (minNonZero <= maxNonZero)
     {
-	Xdr::read <CharPtrIO> (inPtr, (char *) bitmap.get () + minNonZero,
+	Xdr::read <CharPtrIO> (inPtr, (char *) &bitmap[0] + minNonZero,
 			       maxNonZero - minNonZero + 1);
     }
 
-    std::auto_ptr< unsigned short > lut (new unsigned short [USHORT_RANGE]);
-    unsigned short maxValue = reverseLutFromBitmap (bitmap.get (), lut.get ());
+    AutoArray <unsigned short, USHORT_RANGE> lut;
+    unsigned short maxValue = reverseLutFromBitmap (bitmap, lut);
 
     //
     // Huffman decoding
@@ -522,7 +522,7 @@ PizCompressor::uncompress (const char *inPtr,
     // Expand the pixel data to their original range
     //
 
-    applyLut (lut.get (), _tmpBuffer, tmpBufferEnd - _tmpBuffer);
+    applyLut (lut, _tmpBuffer, tmpBufferEnd - _tmpBuffer);
     
     //
     // Rearrange the pixel data into the format expected by the caller.

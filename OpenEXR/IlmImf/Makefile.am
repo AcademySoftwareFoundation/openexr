@@ -28,7 +28,7 @@ libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 		       ImfArray.h ImfCompression.h ImfLineOrder.h \
 		       ImfName.h ImfPixelType.h ImfVersion.h ImfXdr.h \
 		       ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
-		       ImfPizCompressor.h ImfMisc.h
+		       ImfPizCompressor.h ImfMisc.h ImfAutoArray.h
 
 
 libIlmImfincludedir = $(includedir)/OpenEXR
@@ -48,7 +48,7 @@ libIlmImfinclude_HEADERS = ImfAttribute.h ImfBoxAttribute.h \
 			   ImfName.h ImfPixelType.h ImfVersion.h ImfXdr.h
 
 noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
-		 ImfPizCompressor.h ImfMisc.h
+		 ImfPizCompressor.h ImfMisc.h ImfAutoArray.h
 
 EXTRA_DIST = $(noinst_HEADERS)
 
