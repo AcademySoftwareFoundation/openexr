@@ -93,7 +93,7 @@
     {				\
 	std::stringstream s;	\
 	s << text;		\
-	exc += s.str();		\
+	exc.append (s);		\
     }				\
     while (0)
 
@@ -102,7 +102,7 @@
     {				\
 	std::stringstream s;	\
 	s << text;		\
-	exc = s.str();		\
+	exc.assign (s);		\
     }				\
     while (0)
 
