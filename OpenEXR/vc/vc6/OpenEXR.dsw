@@ -198,6 +198,54 @@ Package=<4>
 
 ###############################################################################
 
+Project: "exrheader"=.\exrheader\exrheader.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Half
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Iex
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IlmImf
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Imath
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "imfexamples"=.\imfexamples\imfexamples.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Half
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Iex
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IlmImf
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Imath
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Global:
 
 Package=<5>
