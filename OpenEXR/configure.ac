@@ -91,6 +91,18 @@ AC_MSG_RESULT($ios_base)
 AC_LANG_RESTORE
 
 
+dnl Checks for <limits>
+AC_MSG_CHECKING(for <limits> support in C++ standard library)
+stl_limits="no"
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+AC_TRY_COMPILE([#include <limits>],[
+],
+AC_DEFINE(HAVE_STL_LIMITS) stl_limits=yes)
+AC_MSG_RESULT($stl_limits)
+AC_LANG_RESTORE
+
+
 dnl Checks for "restrict" support in compiler
 AC_MSG_CHECKING(for restrict keyword support)
 has_restrict="yes"
@@ -149,6 +161,7 @@ Makefile
 OpenEXR.pc
 openexr.spec
 Half/Makefile
+HalfTest/Makefile
 Iex/Makefile
 IexTest/Makefile
 IlmImf/Makefile
