@@ -155,9 +155,13 @@ template <class S, class T>
 void
 write (T &out, unsigned long v);
 
-template <class S, class T>
-void
-write (T &out, Int64 v);
+#if ULONG_MAX != 18446744073709551615LU
+
+    template <class S, class T>
+    void
+    write (T &out, Int64 v);
+
+#endif
 
 template <class S, class T>
 void
@@ -234,9 +238,13 @@ template <class S, class T>
 void
 read (T &in, unsigned long &v);
 
-template <class S, class T>
-void
-read (T &in, Int64 &v);
+#if ULONG_MAX != 18446744073709551615LU
+
+    template <class S, class T>
+    void
+    read (T &in, Int64 &v);
+
+#endif
 
 template <class S, class T>
 void
@@ -484,23 +492,27 @@ write (T &out, unsigned long v)
 }
 
 
-template <class S, class T>
-void
-write (T &out, Int64 v)
-{
-    unsigned char b[8];
+#if ULONG_MAX != 18446744073709551615LU
 
-    b[0] = v;
-    b[1] = v >> 8;
-    b[2] = v >> 16;
-    b[3] = v >> 24;
-    b[4] = v >> 32;
-    b[5] = v >> 40;
-    b[6] = v >> 48;
-    b[7] = v >> 56;
+    template <class S, class T>
+    void
+    write (T &out, Int64 v)
+    {
+        unsigned char b[8];
 
-    writeUnsignedChars<S> (out, b, 8);
-}
+        b[0] = v;
+        b[1] = v >> 8;
+        b[2] = v >> 16;
+        b[3] = v >> 24;
+        b[4] = v >> 32;
+        b[5] = v >> 40;
+        b[6] = v >> 48;
+        b[7] = v >> 56;
+
+        writeUnsignedChars<S> (out, b, 8);
+    }
+
+#endif
 
 
 template <class S, class T>
@@ -762,23 +774,27 @@ read (T &in, unsigned long &v)
 }
 
 
-template <class S, class T>
-void
-read (T &in, Int64 &v)
-{
-    unsigned char b[8];
+#if ULONG_MAX != 18446744073709551615LU
 
-    readUnsignedChars<S> (in, b, 8);
+    template <class S, class T>
+    void
+    read (T &in, Int64 &v)
+    {
+        unsigned char b[8];
 
-    v =  ((Int64) b[0]        & 0x00000000000000ffLL) |
-	(((Int64) b[1] << 8)  & 0x000000000000ff00LL) |
-	(((Int64) b[2] << 16) & 0x0000000000ff0000LL) |
-	(((Int64) b[3] << 24) & 0x00000000ff000000LL) |
-	(((Int64) b[4] << 32) & 0x000000ff00000000LL) |
-	(((Int64) b[5] << 40) & 0x0000ff0000000000LL) |
-	(((Int64) b[6] << 48) & 0x00ff000000000000LL) |
-	 ((Int64) b[7] << 56);
-}
+        readUnsignedChars<S> (in, b, 8);
+
+        v =  ((Int64) b[0]        & 0x00000000000000ffLL) |
+	    (((Int64) b[1] << 8)  & 0x000000000000ff00LL) |
+	    (((Int64) b[2] << 16) & 0x0000000000ff0000LL) |
+	    (((Int64) b[3] << 24) & 0x00000000ff000000LL) |
+	    (((Int64) b[4] << 32) & 0x000000ff00000000LL) |
+	    (((Int64) b[5] << 40) & 0x0000ff0000000000LL) |
+	    (((Int64) b[6] << 48) & 0x00ff000000000000LL) |
+	    ((Int64) b[7] << 56);
+    }
+
+#endif
 
 
 template <class S, class T>
