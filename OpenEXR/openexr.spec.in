@@ -1,0 +1,61 @@
+%define version		@OPENEXR_VERSION@
+%define release		1
+
+Summary: A high-dynamic-range image file library.
+Name: OpenEXR
+Version: %{version}
+Release: %{release}
+Group: System Environment/Libraries
+License: Modified BSD
+URL: http://www.openexr.org/
+Source: http://savannah.nongnu.org/download/openexr/OpenEXR.pkg/1.0.5/OpenEXR-1.0.5.tar.gz
+BuildRoot: %{_tmppath}/%{name}-%{version}-root
+
+%description
+OpenEXR is an image file format and library developed by Industrial Light and Magic, and later released to the public. It provides a high dynamic range and is compatible with Cg shaders.
+
+%package devel
+Summary: Headers for developing programs that will use %{name}.
+Group: Development/Libraries
+Requires: %{name} = %{version}
+
+%description devel
+This package contains the static libraries and header files needed for
+developing applications with OpenEXR.
+
+
+%prep
+%setup -q -n OpenEXR-%{version}
+
+%build
+%configure --enable-static --enable-shared
+make %{?_smp_mflags}
+
+%install
+rm -rf %{buildroot}
+make DESTDIR=%{buildroot} install
+
+# new redhat versions don't use .la
+rm -f %{buildroot}%{_libdir}/*.la
+
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
+%clean
+rm -rf %{buildroot}
+
+%files
+%defattr(-, root, root)
+%doc AUTHORS ChangeLog COPYING NEWS README
+%{_libdir}/*.so.*
+%{_bindir}/exrdisplay
+
+
+%files devel
+%defattr(-, root, root)
+%{_includedir}/OpenEXR
+%{_libdir}/*.a
+%{_libdir}/*.so
+%{_datadir}/aclocal/openexr.m4
+
