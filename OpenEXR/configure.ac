@@ -138,6 +138,7 @@ IlmImfTest/Makefile
 Imath/Makefile
 ImathTest/Makefile
 exrdisplay/Makefile
+exrheader/Makefile
 doc/Makefile
 ])
 
