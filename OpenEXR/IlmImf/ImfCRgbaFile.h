@@ -43,10 +43,14 @@ extern "C" {
 #endif
 
 /*
- * Define IMF_DLL to create a Win32 dll
+ * Define IMF_DLL and OPENEXR_DLL to create a Win32 dll
  */
-#ifdef IMF_DLL
-#  define IMF_EXPORT __declspec(dllexport)
+#ifdef OPENEXR_DLL
+#  if defined(IMF_DLL) || defined(ILMIMF_EXPORTS)
+#    define IMF_EXPORT __declspec(dllexport)
+#  else
+#    define IMF_EXPORT __declspec(dllimport)
+#  endif
 #else
 #  define IMF_EXPORT
 #endif
