@@ -44,6 +44,7 @@
 
 using namespace Imf;
 using std::min;
+using std::max;
 
 
 int
@@ -182,4 +183,52 @@ scaleY (float f,
     }
 
     dh = dh1;
+}
+
+
+void
+normalizePixels (int dw, int dh, Imf::Array<Imf::Rgba> &pixels)
+{
+    float pMax = -FLT_MAX;
+    float pMin =  FLT_MAX;
+
+    for (int i = 0; i < dw * dh; ++i)
+    {
+	const Rgba &p = pixels[i];
+
+	if (p.r.isFinite())
+	{
+	    pMax = max (float (p.r), pMax);
+	    pMin = min (float (p.r), pMin);
+	}
+
+	if (p.g.isFinite())
+	{
+	    pMax = max (float (p.g), pMax);
+	    pMin = min (float (p.g), pMin);
+	}
+
+	if (p.b.isFinite())
+	{
+	    pMax = max (float (p.b), pMax);
+	    pMin = min (float (p.b), pMin);
+	}
+    }
+
+    if (pMax <= pMin)
+	pMax = pMin + 1;
+
+    for (int i = 0; i < dw * dh; ++i)
+    {
+	Rgba &p = pixels[i];
+
+	if (p.r.isFinite())
+	    p.r = (p.r - pMin) / (pMax - pMin);
+
+	if (p.g.isFinite())
+	    p.g = (p.g - pMin) / (pMax - pMin);
+
+	if (p.b.isFinite())
+	    p.b = (p.b - pMin) / (pMax - pMin);
+    }
 }

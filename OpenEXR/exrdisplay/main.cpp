@@ -120,11 +120,14 @@ MainWindow::kneeHighSliderCallback (Fl_Widget *widget, void *data)
 
 MainWindow *
 makeMainWindow (const char imageFile[],
+		const char channel[],
 		bool preview,
 		int lx,
 		int ly,
 		bool noDisplayWindow,
 		bool noAspect,
+		bool zeroOneExposure,
+		bool normalize,
 		bool useFragmentShader,
 		const char * fragmentShaderName)
 {
@@ -148,20 +151,45 @@ makeMainWindow (const char imageFile[],
     }
     else if (lx >= 0 || ly >= 0)
     {
-	loadTiledImage (imageFile,
-			lx, ly,
-			displayWindow,
-			dataWindow,
-			pixelAspect,
-			mainWindow->pixels);
+	if (channel)
+	{
+	    loadTiledImageChannel (imageFile,
+				   channel,
+				   lx, ly,
+				   displayWindow,
+				   dataWindow,
+				   pixelAspect,
+				   mainWindow->pixels);
+	}
+	else
+	{
+	    loadTiledImage (imageFile,
+			    lx, ly,
+			    displayWindow,
+			    dataWindow,
+			    pixelAspect,
+			    mainWindow->pixels);
+	}
     }
     else
     {
-	loadImage (imageFile,
-		   displayWindow,
-		   dataWindow,
-		   pixelAspect,
-		   mainWindow->pixels);
+	if (channel)
+	{
+	    loadImageChannel (imageFile,
+			      channel,
+			      displayWindow,
+			      dataWindow,
+			      pixelAspect,
+			      mainWindow->pixels);
+	}
+	else
+	{
+	    loadImage (imageFile,
+		       displayWindow,
+		       dataWindow,
+		       pixelAspect,
+		       mainWindow->pixels);
+	}
     }
     
     int w  = displayWindow.max.x - displayWindow.min.x + 1;
@@ -183,6 +211,13 @@ makeMainWindow (const char imageFile[],
     {
 	pixelAspect = 1;
     }
+
+    //
+    // Normalize the pixel data if necessary.
+    //
+
+    if (normalize)
+	normalizePixels (dw, dh, mainWindow->pixels);
 
     //
     // Stretch the image horizontally or vertically to make the
@@ -221,7 +256,7 @@ makeMainWindow (const char imageFile[],
     mainWindow->exposureSlider->type (FL_HORIZONTAL);
     mainWindow->exposureSlider->range (-10.0, +10.0);
     mainWindow->exposureSlider->step (1, 8);
-    mainWindow->exposureSlider->value (0.0);
+    mainWindow->exposureSlider->value (zeroOneExposure? 1.0: 0.0);
     mainWindow->exposureSlider->when (when);
 
     mainWindow->exposureSlider->callback
@@ -278,7 +313,7 @@ makeMainWindow (const char imageFile[],
     mainWindow->kneeHighSlider->type (FL_HORIZONTAL);
     mainWindow->kneeHighSlider->range (3.5, 7.5);
     mainWindow->kneeHighSlider->step (1, 8);
-    mainWindow->kneeHighSlider->value (preview? 3.5: 5.0);
+    mainWindow->kneeHighSlider->value ((preview | zeroOneExposure)? 3.5: 5.0);
     mainWindow->kneeHighSlider->when (when);
 
     mainWindow->kneeHighSlider->callback
@@ -360,26 +395,33 @@ usageMessage (const char argv0[], bool verbose = false)
 		"\n"
 		"Options:\n"
 		"\n"
-		"-p                displays the preview (thumbnail)\n"
-		"                  image instead of the main image\n"
+		"-p        displays the preview (thumbnail)\n"
+		"          image instead of the main image\n"
 		"\n"
-		"-l lx ly          displays level (lx,ly) of a tiled\n"
-		"                  multiresolution image\n"
+		"-l lx ly  displays level (lx,ly) of a tiled\n"
+		"          multiresolution image\n"
 		"\n"
-		"-w                displays all pixels in the data window,\n"
-		"                  ignoring the display window\n"
+		"-w        displays all pixels in the data window,\n"
+		"          ignoring the display window\n"
 		"\n"
-		"-a                ignores the image's pixel aspect ratio,\n"
-		"                  and does not scale the image to make\n"
-		"                  the pixels square\n"
+		"-a        ignores the image's pixel aspect ratio,\n"
+		"          and does not scale the image to make\n"
+		"          the pixels square\n"
 		"\n"
-	        "-f                Use the built-in fragment shader to\n"
-	        "                  render the image (if supported).\n"
-	        "\n"
-	        "-fn fragshader    Use the specified fragment shader to\n"
-	        "                  render the image (if supported).\n"
-	        "\n"
-		"-h                prints this message\n";
+		"-c x      loads only image channel x\n"
+		"\n"
+		"-1        sets exposure and knee sliders so that pixel\n"
+		"          value 0.0 becomes black, and 1.0 becomes white\n"
+		"\n"
+		"-n        normalizes the pixels so that the smallest\n"
+		"          value becomes 0.0 and the largest value\n"
+		"          becomes 1.0\n"
+		"\n"
+		"-A        same as -c A -1 (displays alpha)\n"
+		"\n"
+		"-Z        same as -c Z -n (displays depth)\n"
+		"\n"
+		"-h        prints this message\n";
 
 	 cerr << endl;
     }
@@ -392,9 +434,12 @@ int
 main(int argc, char **argv)
 {
     const char *imageFile = 0;
+    const char *channel = 0;
     bool preview = false;
     bool noDisplayWindow = false;
     bool noAspect = false;
+    bool zeroOneExposure = false;
+    bool normalize = false;
     bool useFragmentShader = false;
     const char * fragmentShaderName = 0;
     
@@ -451,6 +496,59 @@ main(int argc, char **argv)
 	    //
 
 	    noAspect = true;
+	    i += 1;
+	}
+	else if (!strcmp (argv[i], "-c"))
+	{
+	    //
+	    // Load only one image channel.
+	    //
+
+	    if (i > argc - 2)
+		usageMessage (argv[0]);
+
+	    channel = argv[i + 1];
+	    i += 2;
+	}
+	else if (!strcmp (argv[i], "-1"))
+	{
+	    //
+	    // Display 0.0 to 1.0 range.
+	    //
+
+	    zeroOneExposure = true;
+	    i += 1;
+	}
+	else if (!strcmp (argv[i], "-n"))
+	{
+	    //
+	    // Normalize pixels.
+	    //
+
+	    zeroOneExposure = true;
+	    normalize = true;
+	    i += 1;
+	}
+	else if (!strcmp (argv[i], "-A"))
+	{
+	    //
+	    // Display alpha
+	    //
+
+	    zeroOneExposure = true;
+	    normalize = false;
+	    channel = "A";
+	    i += 1;
+	}
+	else if (!strcmp (argv[i], "-Z"))
+	{
+	    //
+	    // Display depth
+	    //
+
+	    zeroOneExposure = true;
+	    normalize = true;
+	    channel = "Z";
 	    i += 1;
 	}
 	else if (!strcmp (argv[i], "-f"))
@@ -516,10 +614,13 @@ main(int argc, char **argv)
     try
     {
 	MainWindow *mainWindow = makeMainWindow (imageFile,
+						 channel,
 						 preview,
 						 lx, ly,
 						 noDisplayWindow,
 						 noAspect,
+						 zeroOneExposure,
+						 normalize,
 						 useFragmentShader,
 						 fragmentShaderName ?
 						 fragmentShaderName : "");
