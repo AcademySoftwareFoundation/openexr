@@ -50,7 +50,7 @@
 #include <ImfInt64.h>
 #include <ImathVec.h>
 #include <ImathBox.h>
-#include <Iex.h>
+#include <IexBaseExc.h>
 #include <map>
 #include <iosfwd>
 

@@ -41,6 +41,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfAttribute.h>
+#include <Iex.h>
 #include <string.h>
 #include <map>
 

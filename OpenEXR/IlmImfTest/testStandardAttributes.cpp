@@ -408,6 +408,74 @@ cubeMap (const char fileName1[], const char fileName2[])
 
 
 void
+writeReadKeyCode (const char fileName[])
+{
+    cout << "key code attribute" << endl;
+
+    cout << "writing, ";
+
+    KeyCode k1 (12,	// filmMfcCode
+	        34,	// filmType
+		123456,	// prefix
+		1234,	// count
+		45,	// perfOffset
+		3,	// perfsPerFrame
+		80);	// perfsPerCount
+
+    assert (k1.filmMfcCode() == 12);
+    assert (k1.filmType() == 34);
+    assert (k1.prefix() == 123456);
+    assert (k1.count() == 1234);
+    assert (k1.perfOffset() == 45);
+    assert (k1.perfsPerFrame() == 3);
+    assert (k1.perfsPerCount() == 80);
+
+    static const int W = 100;
+    static const int H = 100;
+
+    Header header (W, H);
+    assert (hasKeyCode (header) == false);
+
+    addKeyCode (header, k1);
+    assert (hasKeyCode (header) == true);
+
+    {
+	RgbaOutputFile out (fileName, header);
+	Rgba pixels[W];
+
+	for (int i = 0; i < W; ++i)
+	{
+	    pixels[i].r = 1;
+	    pixels[i].g = 1;
+	    pixels[i].b = 1;
+	    pixels[i].a = 1;
+	}
+
+	out.setFrameBuffer (pixels, 1, 0);
+	out.writePixels (H);
+    }
+
+    cout << "reading, comparing" << endl;
+
+    {
+	RgbaInputFile in (fileName);
+	const KeyCode &k2 = keyCode (in.header());
+
+	assert (hasKeyCode (in.header()) == true);
+	assert (k1.filmMfcCode() == k2.filmMfcCode());
+	assert (k1.filmType() == k2.filmType());
+	assert (k1.prefix() == k2.prefix());
+	assert (k1.count() == k2.count());
+	assert (k1.perfOffset() == k2.perfOffset());
+	assert (k1.perfsPerFrame() == k2.perfsPerFrame());
+	assert (k1.perfsPerCount() == k2.perfsPerCount());
+    }
+
+    remove (fileName);
+}
+
+
+void
 generatedFunctions ()
 {
     //
@@ -440,6 +508,7 @@ generatedFunctions ()
     assert (hasAperture (header) == false);
     assert (hasIsoSpeed (header) == false);
     assert (hasEnvmap (header) == false);
+    assert (hasKeyCode (header) == false);
 }
 
 
@@ -470,6 +539,11 @@ testStandardAttributes ()
 	    const char *fn1 = IMF_TMP_DIR "imf_test_cube1.exr";
 	    const char *fn2 = IMF_TMP_DIR "imf_test_cube2.exr";
 	    cubeMap (fn1, fn2);
+	}
+
+	{
+	    const char *filename = IMF_TMP_DIR "imf_test_keycode.exr";
+	    writeReadKeyCode (filename);
 	}
 
 	generatedFunctions();

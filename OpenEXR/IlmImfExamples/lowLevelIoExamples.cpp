@@ -48,6 +48,7 @@
 
 #include <ImfRgbaFile.h>
 #include <ImfIO.h>
+#include <Iex.h>
 #include <drawImage.h>
 
 #include <iostream>

@@ -43,7 +43,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <Iex.h>
+#include <IexBaseExc.h>
 #include <ImfIO.h>
 #include <ImfXdr.h>
 

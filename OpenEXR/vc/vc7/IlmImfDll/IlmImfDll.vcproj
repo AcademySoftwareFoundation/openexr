@@ -703,6 +703,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfKeyCode.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfKeyCodeAttribute.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfLineOrderAttribute.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -906,9 +912,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -934,6 +937,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfRgbaFile.cpp">
@@ -1289,6 +1295,12 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfIO.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfKeyCode.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfKeyCodeAttribute.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfLineOrder.h">

@@ -48,6 +48,7 @@
 #include <ImfStandardAttributes.h>
 #include <ImfRgbaYca.h>
 #include <ImfArray.h>
+#include <Iex.h>
 
 namespace Imf {
 

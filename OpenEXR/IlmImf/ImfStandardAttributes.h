@@ -59,6 +59,7 @@
 #include <ImfStringAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfEnvmapAttribute.h>
+#include <ImfKeyCodeAttribute.h>
 
 
 #define IMF_STD_ATTRIBUTE_DEF(name,suffix,type)				      \
@@ -195,6 +196,15 @@ IMF_STD_ATTRIBUTE_DEF (isoSpeed, IsoSpeed, float)
 //
 
 IMF_STD_ATTRIBUTE_DEF (envmap, Envmap, Envmap)
+
+
+//
+// keyCode -- for motion picture film frames.  Identifies film
+// manufacturer, film type, film roll and frame position within
+// the roll.
+//
+
+IMF_STD_ATTRIBUTE_DEF (keyCode, KeyCode, KeyCode)
 
 
 } // namespace Imf
