@@ -42,7 +42,7 @@
 
 #include <ImageView.h>
 #include <GL/gl.h>
-#include <math.h>
+#include <ImathMath.h>
 #include <ImathFun.h>
 #include <halfFunction.h>
 
@@ -235,10 +235,11 @@ struct Gamma
 
 
 Gamma::Gamma (float exposure, float defog, float kneeLow, float kneeHigh):
-    m (powf (2, exposure + 2.47393)),
+    m (Imath::Math<float>::pow (2, exposure + 2.47393)),
     d (defog),
-    kl (powf (2, kneeLow)),
-    f (findKneeF (powf (2, kneeHigh) - kl, powf (2, 3.5) - kl))
+    kl (Imath::Math<float>::pow (2, kneeLow)),
+    f (findKneeF (Imath::Math<float>::pow (2, kneeHigh) - kl, 
+		  Imath::Math<float>::pow (2, 3.5) - kl))
 {}
 
 
@@ -268,7 +269,7 @@ Gamma::operator () (half h)
     // Gamma
     //
 
-    x = powf (x, 0.4545f);
+    x = Imath::Math<float>::pow (x, 0.4545f);
 
     //
     // Scale and clamp
