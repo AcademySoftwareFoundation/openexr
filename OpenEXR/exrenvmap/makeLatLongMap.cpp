@@ -62,6 +62,7 @@ makeLatLongMap (const char inFileName[],
 	        int tileHeight,
 	        LevelMode levelMode,
 	        LevelRoundingMode roundingMode,
+		Compression compression,
 	        int mapWidth,
 	        float padTop,
 	        float padBottom,
@@ -140,6 +141,7 @@ makeLatLongMap (const char inFileName[],
 
     header.dataWindow() = Box2i (V2i (0, 0), V2i (mapWidth - 1, mapHeight - 1));
     header.displayWindow() = header.dataWindow();
+    header.compression() = compression;
 
     addEnvmap (header, ENVMAP_LATLONG);
 
