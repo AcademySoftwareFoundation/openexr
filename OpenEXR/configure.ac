@@ -33,12 +33,8 @@ fi
 export PKG_CONFIG_PATH
 
 dnl
-dnl check for X11 and FLTK
+dnl check for FLTK
 dnl
-AC_PATH_XTRA
-if test x"$no_x" != x"yes"; then
-    AC_DEFINE(HAVE_X11)
-fi
 AM_PATH_FLTK(have_fltk=yes, have_fltk=no)
 
 dnl Checks for libraries.
@@ -125,6 +121,9 @@ AM_CXXFLAGS="$EXTRA_OPT_CFLAGS $EXTRA_CPU_CFLAGS"
 
 AC_SUBST(AM_CFLAGS)
 AC_SUBST(AM_CXXFLAGS)
+
+dnl OS X istream::read bug workaround
+AC_ARG_ENABLE(osx-istream-hack, [  --enable-osx-istream-hack  Workaround for OS X istream::read bug], AC_DEFINE(BROKEN_ISTREAM_HACK),)
 
 AM_CONDITIONAL(HAVE_FLTK, test "x$have_fltk" = xyes)
 
