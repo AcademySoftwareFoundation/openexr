@@ -407,7 +407,7 @@ typedef struct ImfTiledInputFile ImfTiledInputFile;
 
 IMF_EXPORT ImfTiledInputFile *	ImfOpenTiledInputFile (const char name[]);
 
-IMF_EXPORT int		ImfCloseTiledInputFile (ImfInputFile *in);
+IMF_EXPORT int		ImfCloseTiledInputFile (ImfTiledInputFile *in);
 
 IMF_EXPORT int		ImfTiledInputSetFrameBuffer (ImfTiledInputFile *in,
 						     ImfRgba *base,

@@ -1045,7 +1045,7 @@ ImfOpenTiledOutputFile (const char name[],
 
 
 int		
-ImfCloseOutputFile (ImfTiledOutputFile *out)
+ImfCloseTiledOutputFile (ImfTiledOutputFile *out)
 {
     try
     {
