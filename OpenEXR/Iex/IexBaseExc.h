@@ -51,6 +51,10 @@
 
 namespace Iex {
 
+#if defined PLATFORM_WINDOWS && _MSC_VER
+// Tell MS VC++ to suppress exception specification warnings
+#pragma warning(disable:4290)
+#endif
 
 //-------------------------------
 // Our most basic exception class
@@ -253,6 +257,9 @@ BaseExc::stackTrace () const
     return _stackTrace;
 }
 
+#if defined PLATFORM_WINDOWS && _MSC_VER
+#pragma warning(default:4290)
+#endif
 
 } // namespace Iex
 
