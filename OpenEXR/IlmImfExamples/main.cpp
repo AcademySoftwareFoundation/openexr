@@ -35,7 +35,9 @@
 
 
 #include <rgbaInterfaceExamples.h>
+#include <rgbaInterfaceTiledExamples.h>
 #include <generalInterfaceExamples.h>
+#include <generalInterfaceTiledExamples.h>
 #include <iostream>
 #include <stdexcept>
 
@@ -47,6 +49,9 @@ main (int argc, char *argv[])
     {
 	rgbaInterfaceExamples();
 	generalInterfaceExamples();
+
+        rgbaInterfaceTiledExamples();
+        generalInterfaceTiledExamples();
     }
     catch (const std::exception &exc)
     {

@@ -13,8 +13,11 @@ LDADD = -L$(top_builddir)/Iex -L$(top_builddir)/Half \
 	-lIlmImf -lImath -lHalf -lIex -lz
 
 imfexamples_SOURCES = main.cpp drawImage.cpp rgbaInterfaceExamples.cpp \
-		      generalInterfaceExamples.cpp drawImage.h \
-		      rgbaInterfaceExamples.h generalInterfaceExamples.h
+		      rgbaInterfaceTiledExamples.cpp \
+		      generalInterfaceExamples.cpp generalInterfaceTiledExamples.cpp \
+              generalInterfaceTiledExamples.h drawImage.h \
+		      rgbaInterfaceExamples.h generalInterfaceExamples.h \
+		      rgbaInterfaceTiledExamples.h
 
 examplesdir = $(datadir)/doc/OpenEXR-@OPENEXR_VERSION@/examples
 examples_DATA = $(imfexamples_SOURCES)
