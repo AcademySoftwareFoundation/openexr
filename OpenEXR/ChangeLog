@@ -1,3 +1,10 @@
+Version 1.2.0:
+	* Production-ready release.
+	* Disable long double warnings on OS X.  (Drew Hess)
+	* Add new source files to VC7 IlmImfDll target.  (Drew Hess)
+	* Iex: change the way that APPEND_EXC and REPLACE_EXC modify
+	  their what() string to work around an issue with Visual C++
+	  7.1.  (Florian Kainz, Nick Porcino)
 	* Bumped OpenEXR version to 1.2 and .so versions to 2.0.0 in
 	  preparation for the release.  (Drew Hess)
 	* Imath: fixed ImathTMatrix.h to work with gcc 3.4.  (Drew Hess)
