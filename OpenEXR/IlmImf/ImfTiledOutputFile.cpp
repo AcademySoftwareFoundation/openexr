@@ -32,7 +32,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-
 //-----------------------------------------------------------------------------
 //
 //	class TiledOutputFile
@@ -476,7 +475,9 @@ bufferedTileWrite (TiledOutputFile::Data *ofd,
 
 
 void
-convertToXdr (TiledOutputFile::Data *ofd, int numPixels, int inSize)
+convertToXdr (TiledOutputFile::Data *ofd,
+	      int numScanLines,
+	      int numPixelsPerScanLine)
 {
     //
     // Convert the contents of a TiledOutputFile's tileBuffer from the 
@@ -493,60 +494,66 @@ convertToXdr (TiledOutputFile::Data *ofd, int numPixels, int inSize)
 
     //
     // Set these to point to the start of the tile.
-    // We will write to toPtr, and write from fromPtr.
+    // We will write to toPtr, and read from fromPtr.
     //
 
     char *toPtr = ofd->tileBuffer;
-    char *fromPtr = toPtr;
+    const char *fromPtr = toPtr;
 
     //
-    // Iterate over all slices in the file.
+    // Iterate over all scan lines in the tile.
     //
 
-    for (unsigned int i = 0; i < ofd->slices.size(); ++i)
+    for (int y = 0; y < numScanLines; ++y)
     {
-	const TOutSliceInfo &slice = ofd->slices[i];
+	//
+	// Iterate over all slices in the file.
+	//
 
-	//
-	// Convert the samples in place.
-	//
-            
-	int j;
-	switch (slice.type)
+	for (unsigned int i = 0; i < ofd->slices.size(); ++i)
 	{
-	  case UINT:
+	    const TOutSliceInfo &slice = ofd->slices[i];
 
-	    for (j = 0; j < numPixels; ++j)
+	    //
+	    // Convert the samples in place.
+	    //
+		
+	    switch (slice.type)
 	    {
-		Xdr::write <CharPtrIO>
-		    (toPtr, *(const unsigned int *) fromPtr);
-		fromPtr += sizeof(unsigned int);
+	      case UINT:
+
+		for (int j = 0; j < numPixelsPerScanLine; ++j)
+		{
+		    Xdr::write <CharPtrIO>
+			(toPtr, *(const unsigned int *) fromPtr);
+		    fromPtr += sizeof(unsigned int);
+		}
+		break;
+
+	      case HALF:
+
+		for (int j = 0; j < numPixelsPerScanLine; ++j)
+		{
+		    Xdr::write <CharPtrIO>
+			(toPtr, *(const half *) fromPtr);
+		    fromPtr += sizeof(half);
+		}
+		break;
+
+	      case FLOAT:
+
+		for (int j = 0; j < numPixelsPerScanLine; ++j)
+		{
+		    Xdr::write <CharPtrIO>
+			(toPtr, *(const float *) fromPtr);
+		    fromPtr += sizeof(float);
+		}
+		break;
+
+	      default:
+
+		throw Iex::ArgExc ("Unknown pixel data type.");
 	    }
-	    break;
-
-	  case HALF:
-
-	    for (j = 0; j < numPixels; ++j)
-	    {
-		Xdr::write <CharPtrIO>
-		    (toPtr, *(const half *) fromPtr);
-		fromPtr += sizeof(half);
-	    }
-	    break;
-
-	  case FLOAT:
-
-	    for (j = 0; j < numPixels; ++j)
-	    {
-		Xdr::write <CharPtrIO>
-		    (toPtr, *(const float *) fromPtr);
-		fromPtr += sizeof(float);
-	    }
-	    break;
-
-	  default:
-
-	    throw Iex::ArgExc ("Unknown pixel data type.");
 	}
     }
 
@@ -662,7 +669,7 @@ TiledOutputFile::initialize (const Header &header)
 				      _data->numYTiles);
 
     _data->previewPosition =
-	_data->header.writeTo(*_data->os, true);
+	_data->header.writeTo(*_data->os, _data->version, true);
 
     _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_data->os);
     _data->currentPosition = _data->os->tellp();
@@ -835,218 +842,194 @@ TiledOutputFile::writeTile (int dx, int dy, int lx, int ly)
 
 	Box2i tileRange = dataWindowForTile (dx, dy, lx, ly);
 
-	int numPixelsInTile = (tileRange.max.x - tileRange.min.x + 1) *
-			      (tileRange.max.y - tileRange.min.y + 1);
+	int numScanLines = tileRange.max.y - tileRange.min.y + 1;
+	int numPixelsPerScanLine = tileRange.max.x - tileRange.min.x + 1;
 
 	//
-	// Iterate over all image channels.
+	// Iterate over the scan lines in the tile.
 	//
-
-	for (unsigned int i = 0; i < _data->slices.size(); ++i)
+	
+	for (int y = tileRange.min.y; y <= tileRange.max.y; ++y)
 	{
-	    const TOutSliceInfo &slice = _data->slices[i];
-
 	    //
-	    // Iterate over the sampled pixels.
+	    // Iterate over all image channels.
 	    //
 
-	    if (slice.zero)
+	    for (unsigned int i = 0; i < _data->slices.size(); ++i)
 	    {
+		const TOutSliceInfo &slice = _data->slices[i];
+
 		//
-		// The frame buffer contains no data for this channel.
-		// Store zeroes in _data->tileBuffer.
+		// Iterate over the sampled pixels.
 		//
 
-		if (_data->format == Compressor::XDR)
+		if (slice.zero)
 		{
 		    //
-		    // The compressor expects data in Xdr format.
+		    // The frame buffer contains no data for this channel.
+		    // Store zeroes in _data->tileBuffer.
 		    //
 
-		    switch (slice.type)
+		    if (_data->format == Compressor::XDR)
 		    {
-		      case UINT:
+			//
+			// The compressor expects data in Xdr format.
+			//
 
-			for (int i = 0; i < numPixelsInTile; ++i)
-			    Xdr::write <CharPtrIO>
-			    (toPtr, (unsigned int) 0);
-			break;
+			switch (slice.type)
+			{
+			  case UINT:
 
-		      case HALF:
+			    for (int i = 0; i < numPixelsPerScanLine; ++i)
+				Xdr::write <CharPtrIO>
+				    (toPtr, (unsigned int) 0);
+			    break;
 
-			for (int i = 0; i < numPixelsInTile; ++i)
-			    Xdr::write <CharPtrIO> (toPtr, (half) 0);
-			break;
+			  case HALF:
 
-		      case FLOAT:
+			    for (int i = 0; i < numPixelsPerScanLine; ++i)
+				Xdr::write <CharPtrIO> (toPtr, (half) 0);
 
-			for (int i = 0; i < numPixelsInTile; ++i)
-			    Xdr::write <CharPtrIO> (toPtr, (float) 0);
-			break;
+			    break;
 
-		      default:
+			  case FLOAT:
 
-			throw Iex::ArgExc ("Unknown pixel data type.");
+			    for (int i = 0; i < numPixelsPerScanLine; ++i)
+				Xdr::write <CharPtrIO> (toPtr, (float) 0);
+
+			    break;
+
+			  default:
+
+			    throw Iex::ArgExc ("Unknown pixel data type.");
+			}
+		    }
+		    else
+		    {
+			//
+			// The compressor expects data in
+			// the machine's native format.
+			//
+
+			switch (slice.type)
+			{
+			  case UINT:
+
+			    for (int i = 0; i < numPixelsPerScanLine; ++i)
+			    {
+				static unsigned int ui = 0;
+
+				for (size_t i = 0; i < sizeof (ui); ++i)
+				    *toPtr++ = ((char *) &ui)[i];
+			    }
+			    break;
+
+			  case HALF:
+
+			    for (int i = 0; i < numPixelsPerScanLine; ++i)
+			    {
+				*(half *) toPtr = half (0);
+				toPtr += sizeof (half);
+			    }
+			    break;
+
+			  case FLOAT:
+
+			    for (int i = 0; i < numPixelsPerScanLine; ++i)
+			    {
+				static float f = 0;
+
+				for (size_t i = 0; i < sizeof (f); ++i)
+				    *toPtr++ = ((char *) &f)[i];
+			    }
+			    break;
+
+			  default:
+
+			    throw Iex::ArgExc ("Unknown pixel data type.");
+			}
 		    }
 		}
 		else
 		{
 		    //
-		    // The compressor expects data in
-		    // the machine's native format.
+		    // The frame buffer contains data for this channel.
+		    // If necessary, convert the pixel data to
+		    // a machine-independent representation,
+		    // and store in _data->tileBuffer.
 		    //
 
-		    switch (slice.type)
+		    const char *fromPtr = slice.base +
+					  y * slice.yStride +
+					  tileRange.min.x * slice.xStride;
+
+		    if (_data->format == Compressor::XDR)
 		    {
-		      case UINT:
+			//
+			// The compressor expects data in Xdr format
+			//
 
-			for (int i = 0; i < numPixelsInTile; ++i)
+			switch (slice.type)
 			{
-			    static unsigned int ui = 0;
+			  case UINT:
 
-			    for (size_t i = 0; i < sizeof (ui); ++i)
-				*toPtr++ = ((char *) &ui)[i];
-			}
-			break;
-
-		      case HALF:
-
-			for (int i = 0; i < numPixelsInTile; ++i)
-			{
-			    *(half *) toPtr = half (0);
-			    toPtr += sizeof (half);
-			}
-			break;
-
-		      case FLOAT:
-
-			for (int i = 0; i < numPixelsInTile; ++i)
-			{
-			    static float f = 0;
-
-			    for (size_t i = 0; i < sizeof (f); ++i)
-				*toPtr++ = ((char *) &f)[i];
-			}
-			break;
-
-		      default:
-
-			throw Iex::ArgExc ("Unknown pixel data type.");
-		    }
-		}
-	    }
-	    else
-	    {
-		//
-		// The frame buffer contains data for this channel.
-		// If necessary, convert the pixel data to
-		// a machine-independent representation,
-		// and store in _data->tileBuffer.
-		//
-
-		const char *fromPtr;
-
-		if (_data->format == Compressor::XDR)
-		{
-		    //
-		    // The compressor expects data in Xdr format
-		    //
-
-		    switch (slice.type)
-		    {
-		      case UINT:
-
-			for (int i = tileRange.min.y;
-			     i <= tileRange.max.y;
-			     ++i)
-			{
-			    fromPtr = slice.base +
-				      i * slice.yStride +
-				      tileRange.min.x * slice.xStride;
-
-			    for (int j = tileRange.min.x;
-				 j <= tileRange.max.x;
-				 ++j)
+			    for (int x = tileRange.min.x;
+				 x <= tileRange.max.x;
+				 ++x)
 			    {
 				Xdr::write <CharPtrIO>
 				    (toPtr, *(unsigned int *) fromPtr);
 
 				fromPtr += slice.xStride;
 			    }
-			}
-			break;
+			    
+			    break;
 
-		      case HALF:
+			  case HALF:
 
-			for (int i = tileRange.min.y;
-			     i <= tileRange.max.y;
-			     ++i)
-			{
-			    fromPtr = slice.base +
-				      i * slice.yStride +
-				      tileRange.min.x * slice.xStride;
-
-			    for (int j = tileRange.min.x;
-				 j <= tileRange.max.x;
-				 ++j)
+			    for (int x = tileRange.min.x;
+				 x <= tileRange.max.x;
+				 ++x)
 			    {
 				Xdr::write <CharPtrIO>
 				    (toPtr, *(half *) fromPtr);
 
 				fromPtr += slice.xStride;
 			    }
-			}
-			break;
+			    break;
 
-		      case FLOAT:
+			  case FLOAT:
 
-			for (int i = tileRange.min.y;
-			     i <= tileRange.max.y;
-			     ++i)
-			{
-			    fromPtr = slice.base +
-				      i * slice.yStride +
-				      tileRange.min.x * slice.xStride;
-
-			    for (int j = tileRange.min.x;
-				 j <= tileRange.max.x;
-				 ++j)
+			    for (int x = tileRange.min.x;
+				 x <= tileRange.max.x;
+				 ++x)
 			    {
 				Xdr::write <CharPtrIO>
 				    (toPtr, *(float *) fromPtr);
 
 				fromPtr += slice.xStride;
 			    }
+			    break;
+
+			  default:
+
+			    throw Iex::ArgExc ("Unknown pixel data type.");
 			}
-			break;
-
-		      default:
-
-			throw Iex::ArgExc ("Unknown pixel data type.");
 		    }
-		}
-		else
-		{
-		    //
-		    // The compressor expects data in the
-		    // machine's native format.
-		    //
-
-		    switch (slice.type)
+		    else
 		    {
-		      case UINT:
+			//
+			// The compressor expects data in the
+			// machine's native format.
+			//
 
-			for (int i = tileRange.min.y;
-			     i <= tileRange.max.y;
-			     ++i)
+			switch (slice.type)
 			{
-			    fromPtr = slice.base +
-				      i * slice.yStride +
-				      tileRange.min.x * slice.xStride;
+			  case UINT:
 
-			    for (int j = tileRange.min.x;
-				 j <= tileRange.max.x;
-				 ++j)
+			    for (int x = tileRange.min.x;
+				 x <= tileRange.max.x;
+				 ++x)
 			    {
 				for (size_t i = 0;
 				     i < sizeof (unsigned int);
@@ -1057,56 +1040,38 @@ TiledOutputFile::writeTile (int dx, int dy, int lx, int ly)
 
 				fromPtr += slice.xStride;
 			    }
-			}
-			break;
+			    break;
 
-		      case HALF:
+			  case HALF:
 
-			for (int i = tileRange.min.y;
-			     i <= tileRange.max.y;
-			     ++i)
-			{
-			    fromPtr = slice.base +
-				      i * slice.yStride +
-				      tileRange.min.x * slice.xStride;
-
-			    for (int j = tileRange.min.x;
-				 j <= tileRange.max.x;
-				 ++j)
+			    for (int x = tileRange.min.x;
+				 x <= tileRange.max.x;
+				 ++x)
 			    {
 				*(half *)toPtr = *(half *)fromPtr;
 
 				toPtr += sizeof (half);
 				fromPtr += slice.xStride;
 			    }
+			    break;
+
+			  case FLOAT:
+
+			    for (int x = tileRange.min.x;
+				 x <= tileRange.max.x;
+				 ++x)
+			    {
+				for (size_t i = 0; i < sizeof (float); ++i)
+				    *toPtr++ = fromPtr[i];
+
+				fromPtr += slice.xStride;
+			    }
+			    break;
+
+			  default:
+
+			    throw Iex::ArgExc ("Unknown pixel data type.");
 			}
-			break;
-
-		      case FLOAT:
-
-			for (int i = tileRange.min.y;
-			     i <= tileRange.max.y;
-			     ++i)
-			{
-			    fromPtr = slice.base +
-				      i * slice.yStride +
-				      tileRange.min.x * slice.xStride;
-
-    				for (int j = tileRange.min.x;
-    				    j <= tileRange.max.x;
-				    ++j)
-    				{
-    				    for (size_t i = 0; i < sizeof (float); ++i)
-    					*toPtr++ = fromPtr[i];
-
-    				    fromPtr += slice.xStride;
-    				}
-			}
-			break;
-
-		      default:
-
-			throw Iex::ArgExc ("Unknown pixel data type.");
 		    }
 		}
 	    }
@@ -1139,7 +1104,7 @@ TiledOutputFile::writeTile (int dx, int dy, int lx, int ly)
 		// so we need to convert the lineBuffer to Xdr.
 		//
 
-		convertToXdr (_data, numPixelsInTile, dataSize);
+		convertToXdr (_data, numScanLines, numPixelsPerScanLine);
 	    }
 	}
 
