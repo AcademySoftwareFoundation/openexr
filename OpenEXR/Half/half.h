@@ -87,7 +87,21 @@
 
 #include <iostream>
 
-class half
+#if defined (OPENEXR_DLL)
+    #if defined (HALF_EXPORTS)
+        #define HALF_API __declspec(dllexport)
+        #define HALF_EXPORT_CONST extern __declspec(dllexport)
+    #else
+        #define HALF_API __declspec(dllimport)
+	#define HALF_EXPORT_CONST extern __declspec(dllimport)
+    #endif
+#else
+    #define HALF_API
+    #define HALF_EXPORT_CONST extern const
+#endif
+
+
+class HALF_API half
 {
   public:
 
@@ -212,13 +226,8 @@ class half
 
     static short	convert (int i);
     static float	overflow ();
-    static bool		selftest ();
 
     unsigned short	_h;
-
-    static const uif		_toFloat[1 << 16];
-    static const unsigned short	_eLut[1 << 9];
-    static const bool		_itWorks;
 };
 
 
@@ -240,17 +249,16 @@ void			printBits   (char  c[19], half  h);
 void			printBits   (char  c[35], float f);
 
 
-//-------
+//-------------------------------------------------------------------------
 // Limits
-//-------
-
-//----------------------------------------------------------------
-// Visual C++ will complain if these are not float constants,
-// but at least one other compiler (gcc 2.96) produces incorrect
+//
+// Visual C++ will complain if HALF_MIN, HALF_NRM_MIN etc. are not float
+// constants, but at least one other compiler (gcc 2.96) produces incorrect
 // results if they are.
-//----------------------------------------------------------------
+//-------------------------------------------------------------------------
 
-#ifdef WIN32
+#if defined(WIN32) || defined(PLATFORM_WINDOWS)
+
 #define HALF_MIN	5.96046448e-08f	// Smallest positive half
 
 #define HALF_NRM_MIN	6.10351562e-05f	// Smallest positive normalized half
@@ -260,6 +268,7 @@ void			printBits   (char  c[35], float f);
 #define HALF_EPSILON	0.00097656f	// Smallest positive e for which
 					// half (1.0 + e) != half (1.0)
 #else
+
 #define HALF_MIN	5.96046448e-08	// Smallest positive half
 
 #define HALF_NRM_MIN	6.10351562e-05	// Smallest positive normalized half
@@ -268,7 +277,8 @@ void			printBits   (char  c[35], float f);
 
 #define HALF_EPSILON	0.00097656	// Smallest positive e for which
 					// half (1.0 + e) != half (1.0)
-#endif // WIN32
+#endif
+
 
 #define HALF_MANT_DIG	11		// Number of digits in mantissa
 					// (significand + hidden leading 1)
@@ -408,6 +418,13 @@ void			printBits   (char  c[35], float f);
 //
 //---------------------------------------------------------------------------
 
+//--------------
+// Lookup tables
+//--------------
+
+HALF_EXPORT_CONST half::uif	  halfToFloatLut[1 << 16];
+HALF_EXPORT_CONST unsigned short  halfELut[1 << 9];
+
 
 //--------------------
 // Simple constructors
@@ -460,7 +477,7 @@ half::half (float f)
 
 	register int e = (x.i >> 23) & 0x000001ff;
 
-	e = _eLut[e];
+	e = halfELut[e];
 
 	if (e)
 	{
@@ -490,7 +507,7 @@ half::half (float f)
 inline
 half::operator float () const
 {
-    return _toFloat[_h].f;
+    return halfToFloatLut[_h].f;
 }
 
 
@@ -752,5 +769,6 @@ half::setBits (unsigned short bits)
     _h = bits;
 }
 
+#undef HALF_EXPORT_CONST
 
 #endif
