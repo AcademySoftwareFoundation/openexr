@@ -33,8 +33,3 @@ TESTS = IlmImfTest
 
 EXTRA_DIST = comp_none.exr comp_piz.exr comp_rle.exr comp_zip.exr \
              comp_zips.exr test_native1.exr test_native2.exr invalid.exr
-
-# autoconf defines a VERSION macro which conflicts with Imf::VERSION, so 
-# we have to undefine the VERSION macro when compiling IlmImf
-
-IlmImfTest_CXXFLAGS = $(AM_CXXFLAGS) -UVERSION

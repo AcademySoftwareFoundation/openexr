@@ -83,9 +83,3 @@ EXTRA_DIST = $(noinst_HEADERS)
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Half -I$(top_srcdir)/Iex \
 	   -I$(top_srcdir)/Imath
-
-# autoconf defines a VERSION macro which conflicts with Imf::VERSION, so 
-# we have to undefine the VERSION macro when compiling IlmImf
-
-libIlmImf_la_CXXFLAGS = $(AM_CXXFLAGS) -UVERSION
-
