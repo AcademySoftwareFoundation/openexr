@@ -25,27 +25,25 @@
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;PLATFORM_WIN32;HAVE_FRAGMENT_SHADERS;HAVE_IOS_BASE;HAVE_STL_LIMITS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
-				PrecompiledHeaderFile=".\Debug/exrdisplay_fragshader.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"
-				CompileAs="0"/>
+				CompileAs="0"
+				DisableSpecificWarnings="4290"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="zlibd.lib fltkd.lib fltkgld.lib glu32.lib opengl32.lib comctl32.lib wsock32.lib"
 				OutputFile="..\bin\exrdisplay.exe"
-				LinkIncremental="1"
+				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="../../../../fltk/lib,../../../../zlib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/exrdisplay.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -89,26 +87,25 @@
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;PLATFORM_WIN32;HAVE_FRAGMENT_SHADERS;HAVE_IOS_BASE;HAVE_STL_LIMITS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="TRUE"
+				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
-				PrecompiledHeaderFile=".\Release/exrdisplay_fragshader.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
-				CompileAs="0"/>
+				DebugInformationFormat="3"
+				CompileAs="0"
+				DisableSpecificWarnings="4290"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="zlib.lib fltk.lib fltkgl.lib opengl32.lib glu32.lib comctl32.lib ws2_32.lib"
 				OutputFile="..\bin\exrdisplay.exe"
-				LinkIncremental="2"
+				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="../../../../fltk/lib,../../../../zlib"
-				ProgramDatabaseFile=".\Release/exrdisplay.pdb"
+				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				EntryPointSymbol="mainCRTStartup"
 				TargetMachine="1"/>
