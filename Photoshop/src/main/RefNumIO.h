@@ -6,7 +6,6 @@
 #define INCLUDED_REFNUM_IO_H
 
 #include <ImfIO.h>
-#include <PITypes.h>
 
 
 //-------------------------------------------------------------------------------
@@ -43,7 +42,6 @@ class RefNumOFStream : public Imf::OStream
 	public:
 	
 							RefNumOFStream			(short				refNum, 
-													 const  FSSpec*		fsSpec,
 													 const char 		fileName[]);
 		virtual 			~RefNumOFStream			();
 		
@@ -53,8 +51,7 @@ class RefNumOFStream : public Imf::OStream
     	
     private:
     
-    	short			_refNum;
-    	bool			_closeWhenFinished;
+    	short				_refNum;
 };
 
 #endif
