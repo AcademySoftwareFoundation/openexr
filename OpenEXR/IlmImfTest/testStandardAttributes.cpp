@@ -440,7 +440,6 @@ testStandardAttributes ()
     try
     {
 	cout << "Testing optional standard attributes" << endl;
-	cout << fixed;
 
 	convertRGBtoXYZ();
 
