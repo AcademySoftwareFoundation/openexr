@@ -59,6 +59,8 @@ class TMatrixData : public TMatrixBase<T>
 {
   public:
 
+    TMatrixData(typename TMatrixBase<T>::Order ord =
+		TMatrixBase<T>::ROW_MAJOR);
     ~TMatrixData();
 
 
@@ -89,15 +91,6 @@ class TMatrixData : public TMatrixBase<T>
 
     TMatrixData(const TMatrixData & m);
     TMatrixData & operator = (const TMatrixData & m);
-
-
-  private:
-
-    //--------------------------
-    // Non default-constructible
-    //--------------------------
-
-    TMatrixData();
 };
 
 	
@@ -109,9 +102,9 @@ class TMatrixData : public TMatrixBase<T>
 
 template<typename T>
 inline
-TMatrixData<T>::TMatrixData()
-{
-}
+TMatrixData<T>::TMatrixData(typename TMatrixBase<T>::Order ord)
+    : TMatrixBase<T>(ord)
+{}
 
 template<typename T>
 inline
