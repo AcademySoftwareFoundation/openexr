@@ -188,7 +188,12 @@ testStandardAttributes ()
 	cout << "Testing optional standard attributes" << endl;
 
 	convertRGBtoXYZ();
-	writeReadChromaticities ("/var/tmp/imf_test_chromaticities.exr");
+#ifdef PLATFORM_WIN32
+	const char * filename = "imf_test_chromaticities.exr";
+#else
+	const char * filename = "/var/tmp/imf_test_chromaticities.exr";
+#endif
+	writeReadChromaticities (filename);
 	generatedFunctions();
 
 	cout << "ok\n" << endl;
