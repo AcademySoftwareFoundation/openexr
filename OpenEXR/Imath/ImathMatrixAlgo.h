@@ -157,6 +157,16 @@ template <class T>  void	extractEulerZYX
 
 template <class T>  Quat<T>	extractQuat (const Matrix44<T> &mat);
 
+#if defined PLATFORM_WIN32 && _MSC_VER >= 1300
+template <class T>  bool	extractSHRT 
+                                    (const Matrix44<T> &mat,
+				     Vec3<T> &s,
+				     Vec3<T> &h,
+				     Vec3<T> &r,
+				     Vec3<T> &t,
+				     bool exc = true,
+				     Eulerf::Order rOrder = Eulerf::XYZ);
+#else
 template <class T>  bool	extractSHRT 
                                     (const Matrix44<T> &mat,
 				     Vec3<T> &s,
@@ -166,6 +176,7 @@ template <class T>  bool	extractSHRT
 				     bool exc = true,
 				     typename Euler<T>::Order rOrder =
 				     Euler<T>::XYZ);
+#endif
 
 template <class T>  bool	extractSHRT 
                                     (const Matrix44<T> &mat,
@@ -651,7 +662,17 @@ extractQuat (const Matrix44<T> &mat)
   return quat;
 }
 
-
+#if defined PLATFORM_WIN32 && _MSC_VER >= 1300
+template <class T>
+bool 
+extractSHRT (const Matrix44<T> &mat,
+	     Vec3<T> &s,
+	     Vec3<T> &h,
+	     Vec3<T> &r,
+	     Vec3<T> &t,
+	     bool exc /* = true */ ,
+	     Eulerf::Order rOrder /* = Eulerf::XYZ */ )
+#else
 template <class T>
 bool 
 extractSHRT (const Matrix44<T> &mat,
@@ -661,6 +682,7 @@ extractSHRT (const Matrix44<T> &mat,
 	     Vec3<T> &t,
 	     bool exc /* = true */ ,
 	     typename Euler<T>::Order rOrder /* = Euler<T>::XYZ */ )
+#endif
 {
     Matrix44<T> rot;
 
