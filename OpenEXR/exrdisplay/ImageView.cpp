@@ -160,9 +160,15 @@ ImageView::computeFogColor ()
     for (int j = 0; j < w() * h(); ++j)
     {
 	const Imf::Rgba &rp = _rawPixels[j];
-	_fogR += rp.r;
-	_fogG += rp.g;
-	_fogB += rp.b;
+
+	if (rp.r.isFinite())
+	    _fogR += rp.r;
+
+	if (rp.g.isFinite())
+	    _fogG += rp.g;
+
+	if (rp.b.isFinite())
+	    _fogB += rp.b;
     }
 
     _fogR /= w() * h();
