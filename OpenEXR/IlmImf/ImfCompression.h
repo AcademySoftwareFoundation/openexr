@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -53,6 +53,7 @@ enum Compression
     ZIPS_COMPRESSION = 2,	// zlib compression, one scan line at a time
     ZIP_COMPRESSION = 3,	// zlib compression, in blocks of 16 scan lines
     PIZ_COMPRESSION = 4,	// piz-based wavelet compression
+    PXR24_COMPRESSION = 5,	// lossy 24-bit float compression
 
     NUM_COMPRESSION_METHODS	// number of different compression methods
 };
