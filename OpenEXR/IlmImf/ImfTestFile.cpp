@@ -65,6 +65,7 @@ isOpenExrFile (const char fileName[], bool &tiled)
     }
     catch (...)
     {
+	tiled = false;
 	return false;
     }
 }
@@ -109,6 +110,7 @@ isOpenExrFile (IStream &is, bool &tiled)
     catch (...)
     {
 	is.clear();
+	tiled = false;
 	return false;
     }
 }

@@ -1,3 +1,5 @@
+	* exrenvmap and exrmaketiled use slightly less memory
+	  (Florian Kainz)
 	* Added functions to IlmImf for quickly testing if a file
 	  is an OpenEXR file, and whether the file is scan-line
 	  based or tiled. (Florian Kainz)
