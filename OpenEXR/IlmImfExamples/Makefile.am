@@ -1,6 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
-bin_PROGRAMS = imfexamples
+if BUILD_IMFEXAMPLES
+imfexamples_PROGRAMS = imfexamples
+endif
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex \
            -I$(top_srcdir)/Half -I$(top_srcdir)/Imath \
@@ -13,3 +15,8 @@ LDADD = -L$(top_builddir)/Iex -L$(top_builddir)/Half \
 imfexamples_SOURCES = main.cpp drawImage.cpp rgbaInterfaceExamples.cpp \
 		      generalInterfaceExamples.cpp drawImage.h \
 		      rgbaInterfaceExamples.h generalInterfaceExamples.h
+
+examplesdir = $(datadir)/doc/examples
+examples_DATA = $(imfexamples_SOURCES)
+
+imfexamplesdir = $(datadir)/doc/examples
