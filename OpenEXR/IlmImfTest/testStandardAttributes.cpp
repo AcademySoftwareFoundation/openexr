@@ -228,8 +228,8 @@ latLongMap (const char fileName1[], const char fileName2[])
     }
 
 
-    // remove (filename1);
-    // remove (filename2);
+    remove (fileName1);
+    remove (fileName2);
 }
 
 
@@ -390,8 +390,8 @@ cubeMap (const char fileName1[], const char fileName2[])
 	out.writePixels (H);
     }
 
-    // remove (filename1);
-    // remove (filename2);
+    remove (fileName1);
+    remove (fileName2);
 }
 
 
