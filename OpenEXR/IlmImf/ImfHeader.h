@@ -242,10 +242,10 @@ class Header
     // setTileDescription(td)
     //     calls insert ("tiles", TileDescriptionAttribute (td))
     //
-    // previewImage()
+    // tileDescription()
     //     returns typedAttribute<TileDescriptionAttribute>("tiles").value()
     //
-    // hasPreviewImage()
+    // hasTileDescription()
     //     return findTypedAttribute<TileDescriptionAttribute>("tiles") != 0
     //
     //----------------------------------------------------------------------
