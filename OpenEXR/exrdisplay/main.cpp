@@ -521,7 +521,8 @@ main(int argc, char **argv)
 						 noDisplayWindow,
 						 noAspect,
 						 useFragmentShader,
-						 fragmentShaderName);
+						 fragmentShaderName ?
+						 fragmentShaderName : "");
 
 	mainWindow->window->show (1, argv);
 	exitStatus = Fl::run();
