@@ -381,6 +381,7 @@ makeTiled (const char inFileName[],
 	   const char outFileName[],
 	   LevelMode mode,
 	   LevelRoundingMode roundingMode,
+	   Compression compression,
 	   int tileSizeX,
 	   int tileSizeY,
 	   const set<string> &doNotFilter,
@@ -445,7 +446,7 @@ makeTiled (const char inFileName[],
     header.setTileDescription (TileDescription (tileSizeX, tileSizeY,
 						mode, roundingMode));
 
-    header.compression() = ZIP_COMPRESSION;
+    header.compression() = compression;
     header.lineOrder() = INCREASING_Y;
 
     //
