@@ -1,3 +1,9 @@
+	* Added functions to IlmImf for quickly testing if a file
+	  is an OpenEXR file, and whether the file is scan-line
+	  based or tiled. (Florian Kainz)
+	* Added preview image examples to IlmImfExamples.  Added
+	  description of preview images and environment maps to
+	  docs/api.html (Florian Kainz)
 	* Bug fix: PXR24 compression did not work properly for channels
 	  with ySampling != 1.
 	  (Florian Kainz)
@@ -16,7 +22,6 @@
           declared as const. (Colette Mullenhoff, Arkell Rasiah)
         * Fixes for gcc34. Mainly typename/template/using/this syntax
           correctness changes. (Nick Ramussen, Arkell Rasiah)
-        * Eliminated most warnings messages when OpenEXR is compiled
 	* Added Custom low-level file I/O examples to IlmImfExamples
 	  and to the docs/api.html document.  (Florian Kainz)
 	* Eliminated most warnings messages when OpenEXR is compiled

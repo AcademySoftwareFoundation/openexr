@@ -70,6 +70,8 @@ the examples can easily be compiled and run.
     <ul type="none">
 	<li><a href="#sec_6_1">6.1 Is this an OpenEXR File?</a></li>
 	<li><a href="#sec_6_2">6.2 Custom Low-Level File I/O</a></li>
+	<li><a href="#sec_6_3">6.3 Preview Images</a></li>
+	<li><a href="#sec_6_4">6.4 Environment Maps</a></li>
     </ul>
 
 </ul>
@@ -1816,7 +1818,7 @@ The declaration of class <code>IStream</code> looks like this:
 
 	...
     };
-</code</pre>
+</code></pre>
 
 Our derived class needs a public constructor,
 and it must override four methods:
@@ -1839,7 +1841,7 @@ and it must override four methods:
 
 	FILE *		_file;
     };
-</code</pre>
+</code></pre>
 
 <code>read(c,n)</code> reads <code>n</code> bytes from the file, and
 stores them in array <code>c</code>.  If reading hits the end of the
@@ -1866,7 +1868,7 @@ If <code>read(c,n)</code> hits the end of the file after reading
 
 	return feof (_file);
     }
-</code</pre>
+</code></pre>
 
 <code>tellg()</code> returns the current reading position, in bytes,
 from the beginning of the file.  The next call to <code>read()</code>
@@ -1878,7 +1880,7 @@ will begin reading at the indicated position:
     {
 	return ftell (_file);
     }
-</code</pre>
+</code></pre>
 
 <code>seekg(pos)</code> sets the current reading position to
 <code>pos</code> bytes from the beginning of the file:
@@ -1890,7 +1892,7 @@ will begin reading at the indicated position:
 	clearerr (_file);
 	fseek (_file, pos, SEEK_SET);
     }
-</code</pre>
+</code></pre>
 
 <code>clear()</code> clears any error flags that may be set
 on the file after a <code>read()</code> or <code>seekg()</code>
@@ -1930,7 +1932,310 @@ After that, we read the image as usual
     }
 </code></pre>
 
+<a name = sec_6_3><h4>6.3 Preview Images</h4></a>
+<p>
 
+Graphical user interfaces for selecting image files often represent
+files as small preview or "thumbnail" images.  In order to make loading
+and displaying the preview images fast, OpenEXR files support storing
+preview images in the file headers.
+<p>
+
+A preview image is an attribute whose value is of type
+<code>PreviewImage</code>.
+A <code>PreviewImage</code> object is an array of pixels of type
+<code>PreviewRgba</code>.
+A pixel has four components, <code>r</code>, <code>g</code>,
+<code>b</code> and <code>a</code>, of type <code>unsigned char</code>,
+where <code>r</code>, <code>g</code> and <code>b</code> are the
+pixel's red, green and blue components, encoded with a gamma of 2.2.
+<code>a</code> is the pixel's alpha channel;
+<code>r</code>, <code>g</code> and <code>b</code> should be
+premultiplied by <code>a</code>.
+On a typical display with 8-bits per component, the preview image
+can be shown by simply loading the
+<code>r</code>, <code>g</code> and <code>b</code> components into the
+display's frame buffer.  (No gamma correction or tone mapping is required.)
+<p>
+
+The code fragment below shows how to test if an OpenEXR file
+has a preview image, and how to access a preview image's pixels:
+<p>
+
+<pre><code>
+    RgbaInputFile file (fileName);
+
+    if (file.header().hasPreviewImage())
+    {
+	const PreviewImage &amp;preview = file.header().previewImage();
+
+	for (int y = 0; y &lt; preview.height(); ++y)
+	    for (int x = 0; x &lt; preview.width(); ++x)
+	    {
+		const PreviewRgba &amp;pixel = preview.pixel (x, y);
+		... 
+	    }
+    }
+</code></pre>
+
+Writing an OpenEXR file with a preview image is shown in the following
+example.  Since the preview image is an attribute in the file's header,
+it is entirely separate from the main image.  Here the preview
+image is a smaller version of the main image, but this is not required;
+in some cases storing an easily recognizable icon may be more appropriate.
+This example uses the RGBA-only interface to write a scan-line based
+file, but preview images are also supported for files that are written
+using the general interface, and for tiled files.
+<p>
+
+<pre><code>
+    void
+    writeRgbaWithPreview1 (const char fileName[],
+			   const Array2D <Rgba> &amp;pixels,
+			   int width,
+			   int height)
+    {
+	Array2D &lt;PreviewRgba&gt; previewPixels;					    // 1
+	int previewWidth;							    // 2
+	int previewHeight;							    // 3
+
+	makePreviewImage (pixels, width, height,				    // 4
+			  previewPixels, previewWidth, previewHeight);
+
+	Header header (width, height);						    // 5
+
+	header.setPreviewImage							    // 6
+	    (PreviewImage (previewWidth, previewHeight, &amp;previewPixels[0][0]));
+
+	RgbaOutputFile file (fileName, header, WRITE_RGBA);			    // 7
+	file.setFrameBuffer (&amp;pixels[0][0], 1, width);				    // 8
+	file.writePixels (height);						    // 9
+    }
+</code></pre>
+
+Lines 1 through 4 generate the preview image.
+Line 5 creates a header for the image file.
+Line 6 converts the preview image into a <code>PreviewImage</code>
+attribute, and adds the attribute to the header.
+Lines 7 through 9 store the header (with the preview image) and
+the main image in a file.
+<p>
+
+Function <code>makePreviewImage()</code>, called in line 4,
+generates the preview image by scaling the main image down
+to one eighth of its original width and height:
+<p>
+
+<pre><code>
+    void
+    makePreviewImage (const Array2D <Rgba> &amp;pixels,
+		      int width,
+		      int height,
+		      Array2D <PreviewRgba> &amp;previewPixels,
+		      int &amp;previewWidth,
+		      int &amp;previewHeight)
+    {
+	const int N = 8;
+
+	previewWidth  = width / N;
+	previewHeight = height / N;
+	previewPixels.resizeErase (previewHeight, previewWidth);
+
+	for (int y = 0; y &lt; previewHeight; ++y)
+	{
+	    for (int x = 0; x &lt; previewWidth; ++x)
+	    {
+		const Rgba  &amp;inPixel = pixels[y * N][x * N];
+		PreviewRgba &amp;outPixel = previewPixels[y][x];
+
+		outPixel.r = gamma (inPixel.r);
+		outPixel.g = gamma (inPixel.g);
+		outPixel.b = gamma (inPixel.b);
+		outPixel.a = int (clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
+	    }
+	}
+    }
+</code></pre>
+
+To make this example easier to read, scaling the image is
+done by just sampling every eighth pixel of every eighth scan line.
+This can lead to aliasing artifacts in the preview image; for a
+higher-quality preview image, the main image should be lowpass-filtered
+before it is subsampled.
+<p>
+
+Function <code>makePreviewImage()</code> calls <code>gamma()</code>
+to convert the floating-point red, green, and blue components of the
+sampled main image pixels to <code>unsigned char</code> values.
+<code>gamma()</code> is a simplified version of what the exrdisplay
+program does in order to show an OpenEXR image's floating-point
+pixels on the screen (for details, see exrdisplay's source code):
+<p>
+
+<pre><code>
+    unsigned char
+    gamma (float x)
+    {
+	x = pow (5.5555f * max (0.f, x), 0.4545f) * 84.66f;
+	return (unsigned char) clamp (x, 0.f, 255.f);
+    }
+</code></pre>
+
+<code>makePreviewImage()</code> converts the pixels' alpha component
+to <code>unsigned char</code> by by linearly mapping the range
+[0.0,&nbsp;1.0] to [0,&nbsp;255].
+<p>
+
+Some programs write image files one scan line or tile at a time,
+while the image is being generated.
+Since the image does not yet exist when the file is opened for
+writing, it is not possible to store a preview image in the
+file's header at this time (unless the preview image is an icon
+that has nothing to do with the main image).
+However, it is possible to store a blank preview image in the header
+when the file is opened.
+The preview image can then be updated as the pixels become available.
+This is demonstrated in the following example:
+<p>
+
+<pre><code>
+    void
+    writeRgbaWithPreview2 (const char fileName[],
+			   int width,
+			   int height)
+    {
+	Array &lt;Rgba&gt; pixels (width);
+
+	const int N = 8;					 
+
+	int previewWidth = width / N;
+	int previewHeight = height / N;
+	Array2D &lt;PreviewRgba&gt; previewPixels (previewHeight, previewWidth);
+
+	Header header (width, height);
+	header.setPreviewImage (PreviewImage (previewWidth, previewHeight));
+
+	RgbaOutputFile file (fileName, header, WRITE_RGBA);
+	file.setFrameBuffer (pixels, 1, 0);
+
+	for (int y = 0; y &lt; height; ++y)
+	{
+	    generatePixels (pixels, width, height, y);
+	    file.writePixels (1);
+
+	    if (y % N == 0)
+	    {
+		for (int x = 0; x &lt; width; x += N)
+		{
+		    const Rgba  &amp;inPixel = pixels[x];
+		    PreviewRgba &amp;outPixel = previewPixels[y / N][x / N];
+
+		    outPixel.r = gamma (inPixel.r);
+		    outPixel.g = gamma (inPixel.g);
+		    outPixel.b = gamma (inPixel.b);
+		    outPixel.a = int (clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
+		}
+	    }
+	}
+
+	file.updatePreviewImage (&amp;previewPixels[0][0]);
+    }
+</code></pre>
+<p>
+
+<a name = sec_6_4><h4>6.4 Environment Maps</h4></a>
+
+An environment map is an image that represents an omnidirectional
+view of a three-dimensional scene, as seen from a particular 3D
+location.  Every pixel in the image corresponds to a 3D direction,
+and the data stored in the pixel represent the amount of light
+arriving from this direction.
+In 3D rendering applications, environment maps are often used
+for image-based lighting techniques that appoximate how objects
+are illuminated by their surroundings.
+Environment maps with enough dynamic range to represent even the
+brightest light sources in the environment are sometimes called
+"light probe images."
+<p>
+
+In an OpenEXR file, an environment map is stored as a rectangular
+pixel array, just like any other image, but an attribute in the
+file header indicates that the image is an environment map.
+The attribute's value, which is of type <code>Envmap</code>,
+specifies the relation between 2D pixel locations and 3D directions.
+<code>Envmap</code> is an enumeration type.
+Two values are possible:
+<p>
+
+<table>
+<tr>
+<td valign="top"><code>ENVMAP_LATLONG</code></td>
+
+<td valign="top">
+    Latitude-Longitude Map:
+
+    The environment is projected onto the image using polar coordinates
+    (latitude and longitude).  A pixel's x coordinate corresponds to
+    its longitude, and the y coordinate corresponds to its latitude.
+    The pixel in the upper left corner of the data window has latitude
+    +&pi;/2 and longitude +&pi;; the pixel in the lower right corner
+    has latitude -&pi;/2 and longitude -&pi;.
+    <p>
+
+    In 3D space, latitudes -&pi;/2 and +&pi;/2 correspond to the negative and
+    positive y direction.  Latitude 0, longitude 0 points into positive
+    z direction; latitude 0, longitude &pi;/2 points into positive x direction.
+    <p>
+
+    For a latitude-longitude map, the size of the data window should
+    be 2*N by N pixels (width by height), where N can be any integer
+    greater than 0.
+    <p>
+
+    <img src="images/latlongMap.png">
+    <p>
+</td>
+
+<tr>
+<td valign="top"><code>ENVMAP_CUBE</code></td>
+
+<td valign="top">
+    Cube Map:
+
+    The environment is projected onto the six faces of an
+    axis-aligned cube.  The cube's faces are then arranged
+    in a 2D image as shown below.
+    <p>
+    For a cube map, the size of the data window should be N by 6*N pixels
+    (width by height), where N can be any integer greater than 0.
+    <p>
+
+    <img src="images/cubeMap.png">
+</td>
+</tr>
+</table>
+<p>
+
+The following code fragment tests if an OpenEXR file contains an
+environment map, and if it does, which kind:
+<p>
+
+<pre><code>
+    RgbaInputFile file (fileName);
+
+    if (hasEnvmap (file.header()))
+    {
+	Envmap type = envmap (file.header());
+	...
+    }
+</code></pre>
+
+For each kind of environment map, the IlmImf library provides a set of
+routines that convert from 3D directions to 2D floating-point pixel
+locations and back.
+Those routines are useful in application programs that create
+environment maps, and in programs that perform map lookups.
+For details, see header file <code>ImfEnvmap.h</code>.
 <p>
 </body>
 </html>

@@ -4,7 +4,7 @@
 // Digital Ltd. LLC
 // 
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -32,53 +32,102 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------
+//
+//	Utility routines to test quickly if a given
+//	file is an OpenEXR file, and whether the
+//	file is scanline-based or tiled.
+//
+//-----------------------------------------------------------------------------
 
-#include <ImfRgbaFile.h>
-#include <ImfArray.h>
+
+#include <ImfTestFile.h>
+#include <ImfStdIO.h>
+#include <ImfXdr.h>
+#include <ImfVersion.h>
+
+namespace Imf {
 
 
-struct GZ
+bool
+isOpenExrFile (const char fileName[], bool &tiled)
 {
-    half  g;
-    float z;
-};
+    try
+    {
+	StdIFStream is (fileName);
+
+	int magic, version;
+	Xdr::read <StreamIO> (is, magic);
+	Xdr::read <StreamIO> (is, version);
+
+	tiled = isTiled (version);
+	return magic == MAGIC;
+    }
+    catch (...)
+    {
+	return false;
+    }
+}
 
 
-void drawImage1 (Imf::Array2D<Imf::Rgba> &pixels,
-		 int width,
-		 int height);
+bool
+isOpenExrFile (const char fileName[])
+{
+    bool tiled;
+    return isOpenExrFile (fileName, tiled);
+}
 
-void drawImage2 (Imf::Array2D<half>  &gPixels,
-		 Imf::Array2D<float> &zPixels,
-		 int width,
-		 int height);
 
-void drawImage3 (Imf::Array2D<Imf::Rgba> &pixels,
-                 int width,
-                 int height,
-                 int xMin, int xMax,
-                 int yMin, int yMax,
-                 int xLevel = 0, int yLevel = 0);
+bool
+isTiledOpenExrFile (const char fileName[])
+{
+    bool exr, tiled;
+    exr = isOpenExrFile (fileName, tiled);
+    return exr && tiled;
+}
 
-void drawImage4 (Imf::Array2D<Imf::Rgba> &pixels,
-                 int width,
-                 int height,
-                 int xMin, int xMax,
-                 int yMin, int yMax,
-                 int xLevel = 0, int yLevel = 0);
 
-void drawImage5 (Imf::Array2D<Imf::Rgba> &pixels,
-                 int width,
-                 int height,
-                 int xMin, int xMax,
-                 int yMin, int yMax,
-                 int xLevel = 0, int yLevel = 0);
+bool
+isOpenExrFile (IStream &is, bool &tiled)
+{
+    try
+    {
+	Int64 pos = is.tellg();
 
-void drawImage6 (Imf::Array2D<GZ> &pixels,
-		 int width,
-		 int height);
+	if (pos != 0)
+	    is.seekg (0);
 
-void drawImage7 (Imf::Array<Imf::Rgba> &pixels,
-		 int width,
-		 int height,
-		 int y);
+	int magic, version;
+	Xdr::read <StreamIO> (is, magic);
+	Xdr::read <StreamIO> (is, version);
+
+	is.seekg (pos);
+
+	tiled = isTiled (version);
+	return magic == MAGIC;
+    }
+    catch (...)
+    {
+	is.clear();
+	return false;
+    }
+}
+
+
+bool
+isOpenExrFile (IStream &is)
+{
+    bool tiled;
+    return isOpenExrFile (is, tiled);
+}
+
+
+bool
+isTiledOpenExrFile (IStream &is)
+{
+    bool exr, tiled;
+    exr = isOpenExrFile (is, tiled);
+    return exr && tiled;
+}
+
+} // namespace Imf

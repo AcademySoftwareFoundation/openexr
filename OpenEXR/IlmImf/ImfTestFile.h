@@ -4,7 +4,7 @@
 // Digital Ltd. LLC
 // 
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -33,52 +33,31 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <ImfRgbaFile.h>
-#include <ImfArray.h>
+#ifndef INCLUDED_IMF_TEST_FILE_H
+#define INCLUDED_IMF_TEST_FILE_H
+
+//-----------------------------------------------------------------------------
+//
+//	Utility routines to test quickly if a given
+//	file is an OpenEXR file, and whether the
+//	file is scanline-based or tiled.
+//
+//-----------------------------------------------------------------------------
 
 
-struct GZ
-{
-    half  g;
-    float z;
-};
+namespace Imf {
+
+class IStream;
 
 
-void drawImage1 (Imf::Array2D<Imf::Rgba> &pixels,
-		 int width,
-		 int height);
+bool isOpenExrFile (const char fileName[], bool &isTiled);
+bool isOpenExrFile (const char fileName[]);
+bool isTiledOpenExrFile (const char fileName[]);
+bool isOpenExrFile (IStream &is, bool &isTiled);
+bool isOpenExrFile (IStream &is);
+bool isTiledOpenExrFile (IStream &is);
 
-void drawImage2 (Imf::Array2D<half>  &gPixels,
-		 Imf::Array2D<float> &zPixels,
-		 int width,
-		 int height);
 
-void drawImage3 (Imf::Array2D<Imf::Rgba> &pixels,
-                 int width,
-                 int height,
-                 int xMin, int xMax,
-                 int yMin, int yMax,
-                 int xLevel = 0, int yLevel = 0);
+} // namespace Imf
 
-void drawImage4 (Imf::Array2D<Imf::Rgba> &pixels,
-                 int width,
-                 int height,
-                 int xMin, int xMax,
-                 int yMin, int yMax,
-                 int xLevel = 0, int yLevel = 0);
-
-void drawImage5 (Imf::Array2D<Imf::Rgba> &pixels,
-                 int width,
-                 int height,
-                 int xMin, int xMax,
-                 int yMin, int yMax,
-                 int xLevel = 0, int yLevel = 0);
-
-void drawImage6 (Imf::Array2D<GZ> &pixels,
-		 int width,
-		 int height);
-
-void drawImage7 (Imf::Array<Imf::Rgba> &pixels,
-		 int width,
-		 int height,
-		 int y);
+#endif
