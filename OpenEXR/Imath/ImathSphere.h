@@ -64,12 +64,32 @@ class Sphere3
     Sphere3() : center(0,0,0), radius(0) {}
     Sphere3(const Vec3<T> &c, T r) : center(c), radius(r) {}
 
-    //------------
-    //	Utilities
-    //------------
+    //-------------------------------------------------------------------
+    //	Utilities:
+    //
+    //	s.circumscribe(b)	sets center and radius of sphere s
+    //				so that the s tightly encloses box b.
+    //
+    //	s.intersectT (l, t)	If sphere s and line l intersect, then
+    //				intersectT() computes the smallest t,
+    //				t >= 0, so that l(t) is a point on the
+    //				sphere.  intersectT() then returns true.
+    //
+    //				If s and l do not intersect, intersectT()
+    //				returns false.
+    //
+    //	s.intersect (l, i)	If sphere s and line l intersect, then
+    //				intersect() calls s.intersectT(l,t) and
+    //				computes i = l(t).
+    //
+    //				If s and l do not intersect, intersect()
+    //				returns false.
+    //
+    //-------------------------------------------------------------------
 
     void circumscribe(const Box<Vec3<T> > &box);
     bool intersect(const Line3<T> &l, Vec3<T> &intersection) const;
+    bool intersectT(const Line3<T> &l, T &t) const;
 };
 
 
@@ -92,8 +112,9 @@ void Sphere3<T>::circumscribe(const Box<Vec3<T> > &box)
     radius = (box.max - center).length();
 }
 
+
 template <class T>
-bool Sphere3<T>::intersect(const Line3<T> &line, Vec3<T> &intersection) const
+bool Sphere3<T>::intersectT(const Line3<T> &line, T &t) const
 {
     bool doesIntersect = true;
 
@@ -103,26 +124,51 @@ bool Sphere3<T>::intersect(const Line3<T> &line, Vec3<T> &intersection) const
 
     // compute discriminant
     // if negative, there is no intersection
+
     T discr = B*B - 4.0*C;
-    if (discr < 0.0) {
+
+    if (discr < 0.0)
+    {
 	// line and Sphere3 do not intersect
+
 	doesIntersect = false;
     }
-    else {
+    else
+    {
 	// t0: (-B - sqrt(B^2 - 4AC)) / 2A  (A = 1)
+
 	T sqroot = Math<T>::sqrt(discr);
-	T t = (-B - sqroot) * 0.5;
-	if (t < 0.0) {
+	t = (-B - sqroot) * 0.5;
+
+	if (t < 0.0)
+	{
 	    // no intersection, try t1: (-B + sqrt(B^2 - 4AC)) / 2A  (A = 1)
+
 	    t = (-B + sqroot) * 0.5;
 	}
 
-	if (t < 0.0) doesIntersect = false;
-	else intersection = line(t);
+	if (t < 0.0)
+	    doesIntersect = false;
     }
 
     return doesIntersect;
+}
 
+
+template <class T>
+bool Sphere3<T>::intersect(const Line3<T> &line, Vec3<T> &intersection) const
+{
+    T t;
+
+    if (intersectT (line, t))
+    {
+	intersection = line(t);
+	return true;
+    }
+    else
+    {
+	return false;
+    }
 }
 
 
