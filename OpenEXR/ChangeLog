@@ -1,0 +1,61 @@
+Version 1.0.4:
+        * OpenEXR is now covered by a modified BSD license.  See LICENSE
+	  for the new terms.
+
+Version 1.0.3:
+
+	* OpenEXR is now in sf.net CVS.
+	* Imf::Xdr namespace cleanups.
+	* Some IlmImfTest cleanups for OS X.
+	* Use .cpp extension in exrdisplay sources.
+	* Iex cleanups.
+	* Make IlmImf compile with Metrowerks Codewarrior.
+	* Change large automatic stacks in ImfHuf.C to auto_ptrs allocated
+	  off the heap.  MacOS X default stack size isn't large enough.
+	* std::ios fix for MacOS X in ImfInputFile.C.
+	* Added new FP predecessor/successor functions to Imath, added
+	  tests to ImathTest
+	* Fixed a bug in Imath::extractSHRT for 3x3 matricies when
+	  exactly one of the original scaling factors is negative, updated
+	  ImathTest to check this case.
+	* Install include files when 'make install' is run.
+	* exrdisplay requires fltk 1.1+ now in an effort to support
+	  a MacOS X display program (fltk 1.1 runs on OS X), though this
+	  is untested.
+	* renamed configure.in to configure.ac
+	* Removed some tests from IexTest that are no longer used.
+	* Removed ImfHalfXdr.h, it's not used anymore.
+	* Revamped the autoconf system, added some compile-time 
+          optimizations, a pkgconfig target, and some maintainer-specific
+          stuff.
+
+Version 1.0.2:
+
+        * More OS X fixes in Imath, IlmImf and IlmImfTest.
+        * Imath updates.
+        * Fixed a rotation bug in Imath
+
+Version 1.0.1:
+
+	* Used autoconf 2.53 and automake 1.6 to generate build environment.
+	* Makefile.am cleanups.
+	* OS X fixes.
+        * removed images directory (now distributed separately).
+
+Version 1.0:
+
+        * first official release.
+        * added some high-level documentation, removed the old OpenEXR.html
+          documentation.
+        * fixed a few nagging build problems.
+	* bumped IMV_VERSION_NUMBER to 2
+
+Version 0.9:
+
+	* added exrdisplay viewer application.
+	* cleanup _data in Imf::InputFile and Imf::OutputFile constructors.
+	* removed old ILM copyright notices.
+
+Version 0.8:
+
+	* Initial release.

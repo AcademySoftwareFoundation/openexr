@@ -1,0 +1,665 @@
+<html>
+<head>
+   <link type="text/css" rel=StyleSheet href="exrdocStyle.css">
+   <title>OpenEXR</title>
+</head>
+
+<body>
+<h2>
+The OpenEXR File Format
+</h2>
+
+
+<h3>
+Introduction
+</h3>
+
+Industrial Light&nbsp;+&nbsp;Magic
+implemented its own extended dynamic range file format in Summer 2000.
+The existing 8-bit file format used at the time could
+not accurately reproduce images with extreme contrast between the darkest
+and brightest regions, or images with very subtle color gradations.
+<p>
+ILM's extended dynamic range file format has been employed successfully in
+the movies Harry Potter, Men in Black II, and Signs.  Several shows currently
+in production at ILM are using the new format.
+<p>
+Realizing that various other parties are interested in an extended dynamic
+range file format, ILM decided to polish its new file format a bit, and
+to publish it.  OpenEXR is the result.
+
+<h3>
+Features of OpenEXR
+</h3>
+
+<dl>
+<dt>
+high dynamic range
+<dd>
+    Pixel data are stored as 16-bit or 32-bit floating-point numbers.
+    With 16 bits, the representable dynamic range is significantly higher
+    than the range of most image capture devices:
+    10<sup>9</sup> or 30 f-stops without loss of precision, and an
+    additional 10 f-stops at the low end with some loss of precision.
+    Most 8-bit file formats have around 7 to 10 stops.
+    <p>
+
+<dt>
+good color resolution
+<dd>
+    with 16-bit floating-point numbers, color resolution
+    is 1024 steps per f-stop,
+    as opposed to somewhere around 20 to 70 steps per f-stop
+    for most 8-bit file formats.
+    Even after significant processing,
+    for example extensive color correction,
+    images tend to show no noticeable color banding.
+    <p>
+
+<dt>
+compatible with graphics hardware
+<dd>
+    The 16-bit floating-point data format is fully compatible with
+    the 16-bit frame-buffer data format used in some new graphics
+    hardware.
+    Images can be transferred back and forth between an OpenEXR file
+    and a 16-bit floating-point frame buffer without losing data.
+    <p>
+
+<dt>
+lossless data compression
+<dd>
+    The data compression methods currently implemented in OpenEXR
+    are lossless; repeatedly compressing and uncompressing an image
+    does not change the image data.
+    With the current compression methods, photographic images with
+    significant amounts of film grain tend to shrink to somewhere
+    between 35 and 55 percent of their uncompressed size.
+    New lossless and lossy compression schemes can be added in the
+    future.
+    <p>
+
+<dt>
+arbitrary image channels
+<dd>
+    OpenEXR images can contain an arbitrary number and combination
+    of image channels, for example red, green, blue, and alpha,
+    Y, U, and V (luminance, and two sub-sampled chroma channels),
+    depth, surface normal directions, or motion vectors.
+    <p>
+
+<dt>
+ability to store additional data
+<dd>
+    Often it is necessary to annotate images with additional data;
+    for example, color timing information, process tracking data,
+    or camera position and view direction.
+    OpenEXR allows storing of an arbitrary number of extra "attributes",
+    of arbitrary type, in an image file.
+    Software that reads OpenEXR files ignores attributes it does
+    not understand.
+    <p>
+
+<dt>
+easy-to-use C++ and C programming interfaces
+<dd>
+    In order to make writing and reading OpenEXR files easy,
+    the file format was designed together with a C++ programming interface.
+    Two levels of access to image files are provided:
+    a fully general interface for writing and reading files with
+    arbitrary sets of image channels,
+    and a specialized interface for the most common case
+    (red, green, blue, and alpha channels, or some subset of those).
+    Additionally, a C-callable version of the programming interface 
+    supports reading and writing OpenEXR files from programs written
+    in C.
+    <p>
+
+<dt>
+portability
+<dd>
+    The OpenEXR file format is hardware and operating system independent.
+    While implementing the C and C++ programming interfaces,
+    an effort was made to use only language features and library
+    functions that comply with the C and C++ ISO standards.
+    The resulting code is known to work on Linux (Intel x86),
+    SGI Irix (Mips), and Mac OSX (PowerPC).
+    <p>
+</dl>
+
+
+<h3>
+Overview of the OpenEXR File Format
+</h3>
+
+<h4>
+Terminology
+</h4>
+
+<ul>
+<li>
+<em>Pixel space</em> is a 2D coordinate system with x increasing
+from left to right and y increasing from top to bottom.  
+<em>pixels</em> are data samples, taken at integer coordinate
+locations in pixel space.
+<p>
+
+<li>
+The boundaries of an OpenEXR image are given as an
+axis-parallel rectangular region in pixel space, the
+<em>display window</em>.
+The display window is defined by the positions of the pixels
+in the upper left and lower right corners,
+(x<sub>min</sub>,&nbsp;y<sub>min</sub>) and
+(x<sub>max</sub>,&nbsp;y<sub>max</sub>).
+<p>
+
+<li>
+An OpenEXR file may not have pixel data for all the pixels
+in the display window,
+or the file may have pixel data beyond the boundaries of
+the display window.
+The region for which pixel data are available is defined by a
+second axis-parallel rectangle in pixel space, the <em>data window</em>.  
+<p>
+
+Examples:
+<p>
+
+    <ul>
+    <li>
+    Assume that we are producing a movie with a resolution of 1920 by 1080
+    pixels.  The display window for all frames of the movie is
+    (0,&nbsp;0) - (1919,&nbsp;1079).
+    For most images, in particular finished frames that will
+    be recorded on film, the data window is the same as the display window,
+    but for some images that are used in producing the finished frames,
+    the data window differs from the display window:
+    <p>
+
+    <li>
+    For a background plate that will be heavily post-processed,
+    extra pixels, beyond the edge of the film frame, are recorded,
+    and the data window is set to (-100,&nbsp;-100) - (2019,&nbsp;1179).
+    The extra pixels are not normally displayed.  Their existence
+    allows operations such
+    as large kernel blurs or simulated camera shake to avoid edge artifacts.
+
+    <p>
+    <img src = "windowExample1.png">
+    <p>
+
+    <li>
+    While tweaking a computer-generated element, an artist
+    repeatedly renders the same frame.  To save time, the
+    artist renders only a small region of interest close
+    to the center of the image.  The data window of the
+    image is set to (1000,&nbsp;400) - (1400,&nbsp;800).
+    When the image is displayed, the display program
+    fills the area outside the data window with some default color.
+
+    <p>
+    <img src = "windowExample2.png">
+    <p>
+    </ul>
+
+<li>
+Every OpenEXR image contains one or more <em>image channels</em>.
+Each channel has a name, a data type, and x and y <em>sampling rates</em>.
+<p>
+The channel's name is a text string, for example "R", "Z" or "yVelocity".
+The name tells programs that read the image file how to interpret the
+data in the channel.
+<p>
+For a few channel names, interpretation of the data is predefined:
+
+<table>
+
+    <tr>
+    <th align = left>
+    name
+    </th>
+    <th align = left>
+    interpretation
+    </th>
+    </tr>
+
+    <tr>
+    <td valign = top>R</td>
+    <td>red intensity</td>
+    </tr>
+
+    <tr>
+    <td valign = top>G</td>
+    <td>green intensity</td>
+    </tr>
+
+    <tr>
+    <td valign = top>B</td>
+    <td>blue intensity</td>
+    </tr>
+
+    <tr>
+    <td valign = top>A</td>
+    <td>
+    alpha/opacity:
+    0.0 means the pixel is transparent;
+    1.0 means the pixel is opaque.
+    By convention, all color channels are premultiplied by alpha, so that
+    "foreground&nbsp;+&nbsp;(1-alpha)&nbsp;×&nbsp;background"
+    performs a correct "over" operation.
+    </td>
+    </tr>
+
+</table>
+<p>
+
+Three channel data types are currently supported:
+
+<table>
+
+    <tr>
+    <th align = left>
+    type name
+    </th>
+    <th align = left>
+    description
+    </th>
+    </tr>
+
+    <tr>
+    <td valign = top>HALF</td>
+    <td>
+    16-bit floating-point numbers; for regular image data.
+    (see below, <a href=#halftype>The HALF Data Type</a>)
+    </td>
+    </tr>
+
+    <td valign = top>FLOAT</td>
+    <td>
+    32-bit IEEE-754 floating-point numbers;
+    used where the range or precision of 16-bit
+    number is not sufficient, for example, depth channels.
+    </td>
+    </tr>
+
+    <td valign = top>UINT</td>
+    <td>
+    32-bit unsigned integers;
+    for discrete per-pixel data, for example, object identifiers.
+    </td>
+    </tr>
+
+</table>
+<p>
+
+The channel's x and y sampling rates, s<sub>x</sub> and s<sub>y</sub>,
+determine for which of the pixels in the image's data window
+data are stored in the file:
+Data for a pixel at pixel space coordinates (x,&nbsp;y) are stored
+only if
+x&nbsp;mod&nbsp;s<sub>x</sub>&nbsp;=&nbsp;0,
+and
+y&nbsp;mod&nbsp;s<sub>y</sub>&nbsp;=&nbsp;0.
+<br>
+For RGBA (red, green, blue, alpha) images,
+s<sub>x</sub> and s<sub>y</sub> are 1 for
+all channels, and each channel contains data for every pixel.
+For other types of images, some channels may be sub-sampled.
+For example, in 4:2:2 YUV images
+(with one luminance and two chroma channels),
+s<sub>x</sub> and s<sub>y</sub> would be 1 for the "Y" channel,
+but for the "U" and "V" channels, s<sub>x</sub> would be 2,
+indicating that chroma data are only given for every other pixel.
+(Note that the "U" and "V" data are stored at the same pixel locations
+in the file, though typically they would be sampled from different sites;
+see the <a href=#recs>Recommendations and Open Issues section</a>, below.)
+<p>
+</ul>
+
+<h4>
+File Structure
+</h4>
+
+An OpenEXR file has two main parts:
+the <em>header</em> and the <em>pixels</em>.
+<p>
+
+The header is a list of <em>attributes</em> that describe the pixels.
+An attribute is a named data item of an arbitrary type.
+To ensure that OpenEXR files written by one program can be read by
+other programs, certain required attributes must be present in all
+OpenEXR file headers:
+<p>
+
+<table>
+
+    <tr>
+    <th align = left>
+    name
+    </th>
+    <th align = left>
+    description
+    </th>
+    </tr>
+
+    <tr>
+    <td valign = top>displayWindow,<br>dataWindow</td>
+    <td valign = top>
+    The image's display and data window.
+    </td>
+
+    <tr>
+    <td valign = top>pixelAspectRatio</td>
+    <td>
+    Width divided by height of a pixel when the image
+    is displayed with the correct aspect ratio.
+    A pixel's width (height) is the distance between the
+    centers of two horizontally (vertically) adjacent pixels
+    on the display.
+    </td>
+
+    <tr>
+    <td valign = top>channels</td>
+    <td valign = top>
+    Description of the image channels stored in in the file.
+    </td>
+
+    <tr>
+    <td valign = top>compression</td>
+    <td valign = top>
+    Specifies the compression method applied to the pixel data of all
+      channels in the file.
+    </td>
+
+    <tr>
+    <td valign = top>lineOrder</td>
+    <td valign = top>
+    Specifies in what order the scan lines in the file are stored
+    in the file (increasing Y or decreasing Y).
+    </td>
+
+</table>
+<p>
+
+Besides the required attributes, a program may may place any number
+of additional attributes in the file's header.
+Often it is necessary to annotate images with additional data,
+for example color timing information, process tracking data,
+or camera position and view direction.
+Those data can be packaged as extra attributes in the image file's header.
+<p>
+
+In an OpenEXR file, the pixels of an image are stored in horizontal
+rows or <em>scan lines</em>.
+When an image file is written, the scan lines must be written either
+in increasing Y order (top scan line first) or in decreasing Y order
+(bottom scan line first).
+When an image file is read, random-access to the scan lines is possible;
+the scan lines can be read in any order.
+Reading the scan lines in the same order as they were written
+causes the file to be read sequentially, without "seek" operations,
+and as fast as possible.
+<p>
+
+
+<h4>
+Data Compression
+</h4>
+
+OpenEXR currently offers three different data compression methods,
+with various speed versus compression ratio tradeoffs.
+All three compression schemes are lossless; compressing and
+uncompressing does not alter the pixel data.
+Optionally, the pixels can be stored in uncompressed form.
+With fast filesystems, uncompressed files can be written
+and read significantly faster than compressed files.
+<p>
+
+Supported compression schemes:
+
+<table>
+
+    <tr>
+    <th align = left>
+    name
+    </th>
+    <th align = left>
+    description
+    </th>
+    </tr>
+
+    <tr>
+    <td valign = top>PIZ</td>
+    <td valign = top>
+    A wavelet transform is applied to the pixel data,
+    and the result is Huffman-encoded.
+    This scheme tends to provide the best compression ratio for
+    the types of images that are typically processed at
+    Industrial Light&nbsp;+&nbsp;Magic.
+    Files are compressed and decompressed at roughly the same speed.
+    For photographic images with significant amounts of film grain
+    (OpenEXR sample images and frames from ILM's current productions)
+    the files are reduced to between 35 and 55 percent of their
+    uncompressed size.
+    </td>
+    </tr>
+
+    <tr>
+    <td valign = top>ZIP</td>
+    <td valign = top>
+    Differences between horizontally adjacent pixels are compressed
+    using the open source zlib library.
+    ZIP decompression is faster than PIZ decompression,
+    but ZIP compression is significantly slower.
+    Photographic images tend to shrink to between 45 and 55 percent
+    of their uncompressed size.
+    </td>
+    
+    </tr>
+
+    <tr>
+    <td valign = top>RLE</td>
+    <td valign = top>
+    Run-length encoding of differences between
+    horizontally adjacent pixels.
+    This method is fast, and works well for images with large flat areas,
+    but for photographic images, compressed file size is usually between 
+    60 and 75 percent of the uncompressed size.
+    </td>
+    </tr>
+
+</table>
+<p>
+
+<h3>
+<a name = halftype>
+The HALF Data Type
+</a>
+</h3>
+
+Image channels of type HALF are stored as 16-bit floating-point numbers.
+The 16-bit floating-point data type is implemented as a C++ class,
+<code>half</code>, which was designed to behave as much as possible like the
+standard floating-point data types built into the C++ language.
+In arithmetic expressions, numbers of type <code>half</code> can be
+mixed freely with <code>float</code> and <code>double</code> numbers;
+in most cases, conversions to and from <code>half</code> happen
+automatically.
+<p>
+
+<code>half</code> numbers have 1 sign bit,
+5 exponent bits, and 10 mantissa bits.
+The interpretation of the sign, exponent and mantissa is
+analogous to IEEE-754 floating-point numbers.
+<code>half</code> supports normalized and denormalized numbers,
+infinities and NANs (Not A Number).
+The range of representable numbers is roughly
+6.0×10<sup>-8</sup> - 6.5×10<sup>4</sup>;
+numbers smaller than 6.1×10<sup>-5</sup>are denormalized.
+Conversions from <code>float</code> to <code>half</code> round
+the mantissa to 10 bits; the 13 least significant bits are lost.
+Conversions from <code>half</code> to <code>float</code> are
+lossless; all <code>half</code> numbers are exactly representable
+as <code>float</code> values.
+<p>
+
+The data type implemented by class <code>half</code>
+is identical to Nvidia's 16-bit floating-point format ("fp16&nbsp;/&nbsp;half").
+16-bit data, including infinities and NANs, can be transferred between
+OpenEXR files and Nvidia 16-bit floating-point frame buffers without
+losing any bits.
+<p>
+
+<h3>
+What's in the Numbers?
+</h3>
+
+We store linear values in the RGB 16-bit floats.  By this we mean that
+each value is linear relative to the amount of light it represents.
+This implies that display of images requires some processing to
+account for the non-linear response of a typical display.  In its
+simplest form, this is a power function to perform gamma correction.
+There many recent papers on the subject of tone mapping to
+represent the high dynamic range of light values on a display.  By
+storing linear data in the file (double the number, double the light),
+we have the best starting point for these downstream algorithms.
+Also, most commercial renderers produce linear values (before gamma is
+applied to output to lower precision formats).
+<p>
+
+With this linear relationship established, the question remains, What
+number is white?  The convention we employ is to determine a middle
+gray object, and assign it the photographic 18% gray value, or .18 in
+the floating point scheme.  Other pixel values can be easily
+determined from there (a stop brighter is .36, another stop is .72).
+The value 1.0 has no special significance (it is not a clamping limit,
+as in other formats); it roughly represents light coming from a 100%
+reflector (slightly brighter than paper white).  But there are many
+brighter pixel values available to represent objects such as fire and
+highlights.
+
+The range of normalized 16-bit floats can represent thirty stops of
+information with 1024 steps per stop.  We have eighteen and a half
+stops over middle gray, and eleven and a half below.  The denormalized
+numbers provide an additional ten stops with decreasing precision per
+stop.
+<p>
+
+<h3>
+<a name=recs>
+Recommendations and Open Issues
+</a>
+</h3>
+
+<h4>
+RGB Color
+</h4>
+
+Simply calling the R channel red is not sufficient information to
+determine accurately the color that should be displayed for a given
+pixel value.  We suggest that a set of CIE coordinates be provided as
+attributes (RedCIE, GreenCIE, BlueCIE, WhiteCIE) which will define the
+intended colors stored in the OpenEXR file.  The attributes are 2D
+vectors (type v2f) containing the CIE x,y locations for the primaries,
+plus a white point.
+Since there is no maximum white value, we suggest storing the color
+locations for the 18% pixel values.  The white point would then be the
+desired CIE location of (.18, .18, .18).  If the primaries and white
+point for a given display are known, a color transform can correctly
+be done.  The OpenEXR package does not perform this transformation;
+it is left to the display software.
+In the absence of specific CIE coordinates,
+the display software would assume the primaries match the display.
+<p>
+
+<h4>
+Channel Names
+</h4>
+
+An OpenEXR image can have any number of channels with arbitrary names.
+The specialized RGBA image interface assumes that channels with the
+names "R", "G", "B" and "A" mean red, green, blue and alpha.
+No predefined meaning has been assigned to any other channels.
+However, for a few channel names we recommend the interpretations
+given in the table below.
+We expect this table to grow over time
+as users employ OpenEXR for data such as
+shadow maps, motion-vector fields or
+images with more than three color channels.
+
+<table>
+
+    <tr>
+    <th align = left>
+    name
+    </th>
+    <th align = left>
+    interpretation
+    </th>
+    </tr>
+
+    <tr>
+    <td valign = top>Y</td>
+    <td valign = top>
+    luminance, used either alone, for gray-scale images,
+    or in combination with U and V for color images.
+    </td>
+    </tr>
+
+    <tr>
+    <td valign = top>U, V</td>
+    <td valign = top>
+    chroma for YUV images, see <a name=#yuv>below</a>.
+    </td>
+    </tr>
+
+    <tr>
+    <td valign = top>AR, AG, AB</td>
+    <td valign = top>
+    red, green and blue alpha/opacity, for colored mattes (required to
+    composite images of objects like colored glass correctly).
+    </td>
+    </tr>
+
+</table>
+<p>
+
+<h4>
+<a name=yuv>
+YUV Images
+</a>
+</h4>
+
+We haven't done much work with high dynamic-range YUV images.
+We have no recommendations on how to handle chroma
+subsampling or how to interpret individual YUV triples.
+A future version of OpenEXR should probably have a specialized
+YUV file interface that handles these and other issues.
+We are open to suggestions and code submissions for this interface.
+<p>
+
+<h3>
+Contact
+</h3>
+
+Mail to: dhess@ilm.com (Note: this is temporary; a public OpenEXR
+mail list will be created soon.)
+<p>
+
+<h3>
+Credits
+</h3>
+
+The ILM OpenEXR file format was designed and implemented by
+Florian&nbsp;Kainz and Rod&nbsp;Bogart.  The PIZ compression scheme is
+based on an algorithm by Christian&nbsp;Rouet.  Josh&nbsp;Pines helped
+extend the PIZ algorithm for 16-bit and found optimizations for the
+<code>float</code> to <code>half</code> conversions.  Drew&nbsp;Hess
+packaged and adapted ILM's internal source code for public release.
+
+<p>
+Industrial Light + Magic, Marin County, California, August 2002.
+
+</body>
+</html>

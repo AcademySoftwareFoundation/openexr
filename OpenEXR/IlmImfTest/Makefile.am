@@ -1,0 +1,25 @@
+## Process this file with automake to produce Makefile.in
+
+check_PROGRAMS = IlmImfTest
+
+IlmImfTest_SOURCES = main.cpp testAttributes.cpp testChannels.cpp \
+		     testCompression.cpp testCopyPixels.cpp \
+		     testCustomAttributes.cpp testHuf.cpp testLineOrder.cpp \
+		     testLut.cpp testRgba.cpp testSampleImages.cpp \
+		     testWav.cpp testXdr.cpp testAttributes.h testChannels.h \
+		     testCompression.h testCopyPixels.h \
+		     testCustomAttributes.h testHuf.h testLineOrder.h \
+		     testLut.h testRgba.h testSampleImages.h testWav.h \
+		     testXdr.h
+
+INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Half -I$(top_srcdir)/Iex \
+	   -I$(top_srcdir)/Imath -I$(top_srcdir)/IlmImf
+
+LDADD = -L$(top_builddir)/Iex -L$(top_builddir)/Half \
+	-L$(top_builddir)/Imath -L$(top_builddir)/IlmImf \
+	-lIlmImf -lImath -lIex -lHalf -lz
+
+TESTS = IlmImfTest
+
+EXTRA_DIST = comp_none.exr comp_piz.exr comp_rle.exr comp_zip.exr \
+             comp_zips.exr
