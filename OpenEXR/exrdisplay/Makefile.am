@@ -16,6 +16,9 @@ LDADD = @FLTK_LDFLAGS@ \
 install-exec-hook:
 	@FLTK_CONFIG@ --post $(DESTDIR)$(bindir)/exrdisplay
 
+else
+install-exec-hook:
+
 endif
 
 if HAVE_NVSDK
