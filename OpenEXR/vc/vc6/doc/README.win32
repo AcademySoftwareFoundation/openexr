@@ -8,17 +8,16 @@ named COPYING for the license details.
 OpenEXR on Win32 platforms
 --------------------------
 
-Currently, OpenEXR has only been tested on Windows XP with Visual
-Studio 6.0 and the Intel C++ compiler version 7.0.  You can obtain an
-evaluation license for Intel's compiler here:
+OpenEXR has been tested on Windows XP with Visual Studio .NET 2003;
+and with Visual Studio 6.0 and the Intel C++ compiler version 7.0.
+You can obtain an evaluation license for Intel's compiler here:
 
 http://developer.intel.com/software/products/compilers/cwin/eval.htm
 
 Due to limitations in Microsoft's C++ implementation in Visual Studio
 6.0, OpenEXR won't compile with the Microsoft Visual C++ 6.0 compiler.
 The changes required to make OpenEXR compile with Visual C++ 6.0 would
-break the existing API.  We hope to have support for Visual C++ 7.0
-(aka Visual Studio .NET) at a later date.
+break the existing API.
 
 If you want to use OpenEXR with Visual Studio 6.0 and the Microsoft
 Visual C++ 6.0 compiler, you can use the ImfCRgbaFile C interface and
@@ -41,6 +40,18 @@ If you want to compile the OpenEXR distribution from scratch, download
 the source tarball from our Savannah website at:
 
   http://savannah.nongnu.org/files/?group=openexr
+
+
+Known bugs
+----------
+
+There is a bug in the Imath library, specifically in ImathEuler.h,
+that occurs only when Imath is compiled with Visual Studio .NET 2003.
+We'll look into the problem when we have a chance, but it doesn't
+affect OpenEXR per se as the none of the OpenEXR code uses
+ImathEuler.h.  If you use ImathEuler.h on Win32, you should probably
+use Visual Studio 6.0 with the Intel C++ compiler (or fix the bug and
+let us know what the problem was ;).
 
 
 Half, Iex, Imath, and IlmImf static libraries
@@ -67,7 +78,10 @@ libraries as well.  IlmImf also depends on zlib, which is not part of
 the OpenEXR source code distribution.  Its copyright notice is
 included below.  You can obtain zlib from http://www.gzip.org/zlib.
 For your convenience, we've included debug and release static
-libraries for zlib in this prebuilt distribution.
+libraries for zlib in this prebuilt distribution.  Additionally, a
+zlib project file for both Visual Studio 6 and Visual Studio .NET 2003
+is included if you want to build zlib from scratch; see
+vc\vc[67]\zlib.
 
 
 IlmImf.dll
