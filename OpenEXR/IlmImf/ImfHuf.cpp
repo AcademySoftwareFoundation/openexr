@@ -104,6 +104,13 @@ invalidCode ()
 }
 
 
+void
+invalidTableSize ()
+{
+    throw InputExc ("Error in Huffman-encoded data (invalid code table size).");
+}
+
+
 inline Int64
 hufLength (Int64 code)
 {
@@ -885,6 +892,9 @@ hufUncompress (const char compressed[],
     int iM = readUInt (compressed + 4);
     // int tableLength = readUInt (compressed + 8);
     int nBits = readUInt (compressed + 12);
+
+    if (im < 0 || im >= HUF_ENCSIZE || iM < 0 || iM >= HUF_ENCSIZE)
+	invalidTableSize();
 
     compressed += 20;
 
