@@ -50,6 +50,8 @@ using namespace Imf;
 using namespace std;
 
 
+namespace {
+
 void
 usageMessage (const char argv0[], bool verbose = false)
 {
@@ -102,6 +104,9 @@ usageMessage (const char argv0[], bool verbose = false)
 		"\n"
 		"-u         sets level size rounding to ROUND_UP\n"
 		"\n"
+		"-z x       sets the data compression method to x\n"
+		"           (none/rle/zip/piz/pxr24, default is zip)\n"
+		"\n"
 		"-v         verbose mode\n"
 		"\n"
 		"-h         prints this message\n";
@@ -113,6 +118,43 @@ usageMessage (const char argv0[], bool verbose = false)
 }
 
 
+Compression
+getCompression (const string &str)
+{
+    Compression c;
+
+    if (str == "no" || str == "none" || str == "NO" || str == "NONE")
+    {
+	c = NO_COMPRESSION;
+    }
+    else if (str == "rle" || str == "RLE")
+    {
+	c = RLE_COMPRESSION;
+    }
+    else if (str == "zip" || str == "ZIP")
+    {
+	c = ZIP_COMPRESSION;
+    }
+    else if (str == "piz" || str == "PIZ")
+    {
+	c = PIZ_COMPRESSION;
+    }
+    else if (str == "pxr24" || str == "PXR24")
+    {
+	c = PXR24_COMPRESSION;
+    }
+    else
+    {
+	cerr << "Unknown compression method \"" << str << "\"." << endl;
+	exit (1);
+    }
+
+    return c;
+}
+
+} // namespace
+
+
 int
 main(int argc, char **argv)
 {
@@ -121,6 +163,7 @@ main(int argc, char **argv)
     Envmap type = ENVMAP_CUBE;
     LevelMode levelMode = ONE_LEVEL;
     LevelRoundingMode roundingMode = ROUND_DOWN;
+    Compression compression = ZIP_COMPRESSION;
     int mapWidth = 256;
     int tileWidth = 64;
     int tileHeight = 64;
@@ -280,6 +323,18 @@ main(int argc, char **argv)
 	    roundingMode = ROUND_UP;
 	    i += 1;
 	}
+	else if (!strcmp (argv[i], "-z"))
+	{
+	    //
+	    // Set compression method
+	    //
+
+	    if (i > argc - 2)
+		usageMessage (argv[0]);
+
+	    compression = getCompression (argv[i + 1]);
+	    i += 2;
+	}
 	else if (!strcmp (argv[i], "-v"))
 	{
 	    //
@@ -328,7 +383,7 @@ main(int argc, char **argv)
 	    makeCubeMap (inFile, outFile,
 			 tileWidth, tileHeight,
 			 levelMode, roundingMode,
-			 mapWidth,
+			 compression, mapWidth,
 			 padTop, padBottom,
 			 filterRadius, numSamples,
 			 verbose);
@@ -338,7 +393,7 @@ main(int argc, char **argv)
 	    makeLatLongMap (inFile, outFile,
 			    tileWidth, tileHeight,
 			    levelMode, roundingMode,
-			    mapWidth,
+			    compression, mapWidth,
 			    padTop, padBottom,
 			    filterRadius, numSamples,
 			    verbose);
