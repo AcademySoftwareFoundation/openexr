@@ -37,6 +37,16 @@
 #ifndef INCLUDED_IMATHLIMITS_H
 #define INCLUDED_IMATHLIMITS_H
 
+//---------------------------------------------------------------------
+//
+//  Win32 compilers define min and max as macros.  How lovely is that?
+//
+//---------------------------------------------------------------------
+
+#if defined PLATFORM_WIN32
+#define NOMINMAX
+#endif
+
 //----------------------------------------------------------------
 //
 //	Limitations of the basic C++ numerical data types
