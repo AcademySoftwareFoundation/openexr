@@ -1,4 +1,14 @@
 Version 1.1.0:
+	* exrmakepreview: A new utility to create preview images.
+	  (Florian Kainz)
+	* exrenvmap: A new utility to create OpenEXR environment
+	  maps.  (Florian Kainz)
+	* exrstdattr: A new utility to modify standard 
+	  attributes.  (Florian Kainz)
+	* Updated exrheader to print level rounding mode and
+	  preview image size.  (Florian Kainz)
+	* Updated exrmaketiled to use level rounding mode.
+	  (Florian Kainz)
 	* IlmImf: Changed the orientation of lat-long envmaps to
 	  match typical panoramic camera setups.  (Florian Kainz)
 	* IlmImf: Fixed a bug where partially-completed files with
