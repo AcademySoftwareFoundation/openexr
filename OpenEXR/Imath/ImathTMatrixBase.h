@@ -38,6 +38,7 @@
 
 #include <IexBaseExc.h>
 #include <vector>
+#include <iterator>
 #include <assert.h>
 
 //-------------------------------------------------------------------------
@@ -83,8 +84,6 @@ class TMatrixBase
     typedef T &       reference;
     typedef const T & const_reference;
 	
-    virtual ~TMatrixBase();
-
 
     //--------------
     // Empty matrix.
@@ -197,9 +196,10 @@ class TMatrixBase
     // otherwise along the columns.  
     //--------------------------------------------------------------------
     
-    typedef T * iterator;
-    typedef const T * const_iterator;
-
+    typedef T *                                   iterator;
+    typedef const T *                             const_iterator;
+    typedef std::reverse_iterator<iterator>       reverse_iterator;
+    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
     //----------------------------------------------------------------
     // Iterators pointing to the begin and end of storage.
@@ -209,6 +209,11 @@ class TMatrixBase
     iterator end();
     const_iterator begin() const;
     const_iterator end() const;
+
+    reverse_iterator rbegin();
+    reverse_iterator rend();
+    const_reverse_iterator rbegin() const;
+    const_reverse_iterator rend() const;
 
 
     //---------------------------------------------------------------
@@ -230,6 +235,7 @@ class TMatrixBase
 	
 
   protected:
+    virtual ~TMatrixBase();
 
     void setData(T * p) const;
     void setSize(int numRows, int numColumns) const;
@@ -488,6 +494,34 @@ inline typename TMatrixBase<T>::const_iterator
 TMatrixBase<T>::end() const
 {
     return data() + size();
+}
+
+template<typename T>
+inline typename TMatrixBase<T>::reverse_iterator
+TMatrixBase<T>::rbegin()
+{
+    return reverse_iterator(end());
+}
+
+template<typename T>
+inline typename TMatrixBase<T>::reverse_iterator
+TMatrixBase<T>::rend()
+{
+    return reverse_iterator(begin());
+}
+
+template<typename T>
+inline typename TMatrixBase<T>::const_reverse_iterator
+TMatrixBase<T>::rbegin() const
+{
+    return const_reverse_iterator(end());
+}
+
+template<typename T>
+inline typename TMatrixBase<T>::const_reverse_iterator
+TMatrixBase<T>::rend() const
+{
+    return const_reverse_iterator(begin());
 }
 
 // Transposition
