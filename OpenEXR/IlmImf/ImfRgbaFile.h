@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -42,7 +42,6 @@
 //
 //	Simplified RGBA image I/O
 //
-//	class Rgba
 //	class RgbaOutputFile
 //	class RgbaInputFile
 //
@@ -50,6 +49,7 @@
 
 #include <ImfHeader.h>
 #include <ImfFrameBuffer.h>
+#include <ImfRgba.h>
 #include <ImathVec.h>
 #include <ImathBox.h>
 #include <half.h>
@@ -60,35 +60,6 @@ namespace Imf {
 class OutputFile;
 class InputFile;
 struct PreviewRgba;
-
-
-//
-// RGBA pixel
-//
-
-struct Rgba
-{
-    half	r;
-    half	g;
-    half	b;
-    half	a;
-};
-
-
-//
-// Channels in an RGBA file
-//
-
-enum RgbaChannels
-{
-    WRITE_R    = 0x1,
-    WRITE_G    = 0x2,
-    WRITE_B    = 0x4,
-    WRITE_A    = 0x8,
-    WRITE_RGB  = 0x7,
-    WRITE_RGBA = 0xf
-};
-
 
 //
 // RGBA output file.
@@ -103,6 +74,17 @@ class RgbaOutputFile
     //---------------------------------------------------
 
     RgbaOutputFile (const char name[],
+		    const Header &header,
+		    RgbaChannels rgbaChannels = WRITE_RGBA);
+
+
+    //----------------------------------------------------
+    // Constructor -- header is constructed by the caller,
+    // file is opened by the caller, destructor will not
+    // automatically close the file.
+    //----------------------------------------------------
+
+    RgbaOutputFile (OStream &os,
 		    const Header &header,
 		    RgbaChannels rgbaChannels = WRITE_RGBA);
 
@@ -207,11 +189,28 @@ class RgbaInputFile
 {
   public:
 
-    //---------------------------
-    // Constructor and destructor
-    //---------------------------
+    //-------------------------------------------------------
+    // Constructor -- opens the file with the specified name,
+    // destructor will automatically close the file.
+    //-------------------------------------------------------
 
     RgbaInputFile (const char name[]);
+
+
+    //-----------------------------------------------------------
+    // Constructor -- attaches the new RgbaInputFile object to a
+    // file that has already been opened by the caller.
+    // Destroying the RgbaInputFile object will not automatically
+    // close the file.
+    //-----------------------------------------------------------
+
+    RgbaInputFile (IStream &is);
+
+
+    //-----------
+    // Destructor
+    //-----------
+
     virtual ~RgbaInputFile ();
 
     //-----------------------------------------------------

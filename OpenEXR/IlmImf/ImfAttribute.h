@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -81,10 +81,10 @@ class Attribute
     // Type-specific attribute I/O and copying
     //----------------------------------------
 
-    virtual void		writeValueTo (std::ostream &os,
+    virtual void		writeValueTo (OStream &os,
 					      int version) const = 0;
 
-    virtual void		readValueFrom (std::istream &is,
+    virtual void		readValueFrom (IStream &is,
 					       int size,
 					       int version) = 0;
 
@@ -186,10 +186,10 @@ class TypedAttribute: public Attribute
     // Depending on type T, these functions may have to be specialized.
     //-----------------------------------------------------------------
 
-    virtual void		writeValueTo (std::ostream &os,
+    virtual void		writeValueTo (OStream &os,
 					      int version) const;
 
-    virtual void		readValueFrom (std::istream &is,
+    virtual void		readValueFrom (IStream &is,
 					       int size,
 					       int version);
 
@@ -303,7 +303,7 @@ TypedAttribute<T>::copy () const
 
 template <class T>
 void		
-TypedAttribute<T>::writeValueTo (std::ostream &os, int version) const
+TypedAttribute<T>::writeValueTo (OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value);
 }
@@ -311,7 +311,7 @@ TypedAttribute<T>::writeValueTo (std::ostream &os, int version) const
 
 template <class T>
 void		
-TypedAttribute<T>::readValueFrom (std::istream &is, int size, int version)
+TypedAttribute<T>::readValueFrom (IStream &is, int size, int version)
 {
     Xdr::read <StreamIO> (is, _value);
 }

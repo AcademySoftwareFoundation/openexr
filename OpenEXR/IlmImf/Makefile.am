@@ -35,7 +35,17 @@ libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 		       ImfChromaticities.cpp ImfChromaticities.h \
 		       ImfChromaticitiesAttribute.cpp \
 		       ImfChromaticitiesAttribute.h \
-		       ImfStandardAttributes.cpp ImfStandardAttributes.h
+		       ImfStandardAttributes.cpp ImfStandardAttributes.h \
+		       ImfStdIO.cpp ImfStdIO.h ImfEnvmap.cpp ImfEnvmap.h \
+		       ImfEnvmapAttribute.cpp ImfEnvmapAttribute.h \
+		       ImfInt64.h ImfRgba.h ImfScanLineInputFile.cpp \
+		       ImfScanLineInputFile.h ImfTiledInputFile.cpp \
+		       ImfTiledMisc.cpp ImfTiledOutputFile.cpp \
+		       ImfTiledRgbaFile.cpp ImfTileDescriptionAttribute.cpp \
+		       ImfTileOffsets.cpp ImfTileDescription.h \
+		       ImfTileDescriptionAttribute.h ImfTileOffsets.h \
+		       ImfTiledInputFile.h ImfTiledMisc.h \
+		       ImfTiledOutputFile.h ImfTiledRgbaFile.h
 
 
 libIlmImfincludedir = $(includedir)/OpenEXR
@@ -56,10 +66,18 @@ libIlmImfinclude_HEADERS = ImfAttribute.h ImfBoxAttribute.h \
 			   ImfConvert.h ImfPreviewImage.h \
 			   ImfPreviewImageAttribute.h ImfChromaticities.h \
 			   ImfChromaticitiesAttribute.h \
-			   ImfStandardAttributes.h
+			   ImfStandardAttributes.h \
+		       	   ImfEnvmap.h \
+		       	   ImfEnvmapAttribute.h \
+		           ImfInt64.h ImfRgba.h \
+		           ImfTileDescription.h \
+		           ImfTileDescriptionAttribute.h \
+		           ImfTiledInputFile.h \
+		           ImfTiledOutputFile.h ImfTiledRgbaFile.h
 
 noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
-		 ImfPizCompressor.h ImfMisc.h ImfAutoArray.h
+		 ImfPizCompressor.h ImfMisc.h ImfAutoArray.h ImfTiledMisc.h \
+		 ImfTileOffsets.h ImfScanLineInputFile.h
 
 EXTRA_DIST = $(noinst_HEADERS)
 

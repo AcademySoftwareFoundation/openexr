@@ -1,3 +1,7 @@
+	* IlmImf: Environment map support.  (Florian Kainz)
+	* IlmImf: Abstracted stream I/O support.  (Florian Kainz)
+	* IlmImf: Support for tiled and mip/ripmapped files;
+	  requires new file format.  (Wojciech Jarosz, Florian Kainz)
 	* Imath: TMatrix*, generic 2D matricies and algorithms.
 	  (Francesco Callari)
 	* Imath: major quaternions cleanup.  (Cary Phillips)

@@ -52,8 +52,8 @@ namespace Imf {
 
 typedef TypedAttribute<LineOrder> LineOrderAttribute;
 template <> const char *LineOrderAttribute::staticTypeName ();
-template <> void LineOrderAttribute::writeValueTo (std::ostream &, int) const;
-template <> void LineOrderAttribute::readValueFrom (std::istream &, int, int);
+template <> void LineOrderAttribute::writeValueTo (OStream &, int) const;
+template <> void LineOrderAttribute::readValueFrom (IStream &, int, int);
 
 
 } // namespace Imf

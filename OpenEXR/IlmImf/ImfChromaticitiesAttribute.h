@@ -56,10 +56,10 @@ template <>
 const char *ChromaticitiesAttribute::staticTypeName ();
 
 template <>
-void ChromaticitiesAttribute::writeValueTo (std::ostream &, int) const;
+void ChromaticitiesAttribute::writeValueTo (OStream &, int) const;
 
 template <>
-void ChromaticitiesAttribute::readValueFrom (std::istream &, int, int);
+void ChromaticitiesAttribute::readValueFrom (IStream &, int, int);
 
 
 } // namespace Imf

@@ -56,7 +56,7 @@ CompressionAttribute::staticTypeName ()
 
 template <>
 void
-CompressionAttribute::writeValueTo (std::ostream &os, int version) const
+CompressionAttribute::writeValueTo (OStream &os, int version) const
 {
     unsigned char tmp = _value;
     Xdr::write <StreamIO> (os, tmp);
@@ -65,7 +65,7 @@ CompressionAttribute::writeValueTo (std::ostream &os, int version) const
 
 template <>
 void
-CompressionAttribute::readValueFrom (std::istream &is, int size, int version)
+CompressionAttribute::readValueFrom (IStream &is, int size, int version)
 {
     unsigned char tmp;
     Xdr::read <StreamIO> (is, tmp);

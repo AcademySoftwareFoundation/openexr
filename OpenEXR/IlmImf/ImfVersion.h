@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,6 +33,9 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+#ifndef INCLUDED_IMF_VERSION_H
+#define INCLUDED_IMF_VERSION_H
+
 //-----------------------------------------------------------------------------
 //
 //	Magic and version number.
@@ -43,8 +46,62 @@
 namespace Imf {
 
 
-const int MAGIC = 20000630;	// Magic number that identifies OpenEXR files
-const int VERSION = 2;		// The current OpenEXR file format version
+//
+// The MAGIC number is stored in the first four bytes of every
+// OpenEXR image file.  This can be used to quickly test whether
+// a given file is an OpenEXR image file (see isImfMagic(), below).
+//
+
+const int MAGIC = 20000630;
+
+
+//
+// The second item in each OpenEXR image file, right after the
+// magic number, is a four-byte file version identifier.  Depending
+// on a file's version identifier, a file reader can enable various
+// backwards-compatibility switches, or it can quickly reject files
+// that it cannot read.
+//
+// The version identifier is split into an 8-bit version number,
+// and a 24-bit flags field.
+//
+
+const int VERSION_NUMBER_FIELD	= 0x000000ff;
+const int VERSION_FLAGS_FIELD	= 0xffffff00;
+
+
+//
+// Value that goes into VERSION_NUMBER_FIELD.
+//
+
+const int VERSION		= 2;
+
+
+//
+// Flags that can go into VERSION_FLAGS_FIELD.
+// Flags can only occupy the 1 bits in VERSION_FLAGS_FIELD.
+//
+
+const int TILED_FLAG		= 0x00000100;
+
+
+//
+// Bitwise OR of all known flags.
+//
+
+const int ALL_FLAGS		= TILED_FLAG;
+
+
+//
+// Utility functions
+//
+
+inline bool  isTiled (int version)	{return version & TILED_FLAG;}
+inline int   makeTiled (int version)	{return version | TILED_FLAG;}
+inline int   makeNotTiled (int version) {return version & ~TILED_FLAG;}
+inline int   getVersion (int version)	{return version & VERSION_NUMBER_FIELD;}
+inline int   getFlags (int version)	{return version & VERSION_FLAGS_FIELD;}
+inline bool  supportsFlags (int flags)	{return !(flags & ~ALL_FLAGS);}
 
 
 //
@@ -52,7 +109,9 @@ const int VERSION = 2;		// The current OpenEXR file format version
 // file is probably an OpenEXR image file, false if not.
 //
 
-bool isImfMagic (const char bytes[4]);
+bool	     isImfMagic (const char bytes[4]);
 
 
 } // namespace Imf
+
+#endif

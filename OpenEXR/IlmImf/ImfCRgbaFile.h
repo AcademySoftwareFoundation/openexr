@@ -310,6 +310,41 @@ IMF_EXPORT const ImfHeader *	ImfOutputHeader (const ImfOutputFile *out);
 IMF_EXPORT int			ImfOutputChannels (const ImfOutputFile *out);
 
 /*
+** Tiled RGBA output file
+*/
+
+IMF_EXPORT struct ImfTiledOutputFile;
+typedef struct ImfTiledOutputFile ImfTiledOutputFile;
+
+IMF_EXPORT ImfTiledOutputFile *	ImfOpenTiledOutputFile (const char name[],
+					        const ImfHeader *hdr,
+						int channels,
+						int xSize, int ySize,
+						int mode);
+
+IMF_EXPORT int		ImfCloseTiledOutputFile (ImfTiledOutputFile *out);
+
+IMF_EXPORT int		ImfTiledOutputSetFrameBuffer (ImfTiledOutputFile *out,
+						      const ImfRgba *base,
+						      size_t xStride,
+						      size_t yStride);
+
+IMF_EXPORT int		ImfTiledOutputWriteTile (ImfTiledOutputFile *out,
+						 int dx, int dy,
+						 int lx, int ly);
+
+IMF_EXPORT const ImfHeader *	ImfTiledOutputHeader (const ImfTiledOutputFile *out);
+
+IMF_EXPORT int		ImfTiledOutputChannels (const ImfTiledOutputFile *out);
+
+IMF_EXPORT int		ImfTiledOutputTileXSize (const ImfTiledOutputFile *out);
+
+IMF_EXPORT int		ImfTiledOutputTileYSize (const ImfTiledOutputFile *out);
+
+IMF_EXPORT int		ImfTiledOutputLevelMode (const ImfTiledOutputFile *out);
+
+
+/*
 ** RGBA input file
 */
 
@@ -334,6 +369,39 @@ IMF_EXPORT const ImfHeader *	ImfInputHeader (const ImfInputFile *in);
 IMF_EXPORT int			ImfInputChannels (const ImfInputFile *in);
 
 IMF_EXPORT const char *            ImfInputFileName (const ImfInputFile *in);
+
+
+/*
+** Tiled RGBA input file
+*/
+
+IMF_EXPORT struct ImfTiledInputFile;
+typedef struct ImfTiledInputFile ImfTiledInputFile;
+
+IMF_EXPORT ImfTiledInputFile *	ImfOpenTiledInputFile (const char name[]);
+
+IMF_EXPORT int		ImfCloseTiledInputFile (ImfInputFile *in);
+
+IMF_EXPORT int		ImfTiledInputSetFrameBuffer (ImfTiledInputFile *in,
+						     ImfRgba *base,
+						     size_t xStride,
+						     size_t yStride);
+
+IMF_EXPORT int		ImfTiledInputReadTile (ImfTiledInputFile *in,
+					       int dx, int dy,
+					       int lx, int ly);
+
+IMF_EXPORT const ImfHeader *	ImfTiledInputHeader (const ImfTiledInputFile *in);
+
+IMF_EXPORT int		ImfTiledInputChannels (const ImfTiledInputFile *in);
+
+IMF_EXPORT const char *		ImfTiledInputFileName (const ImfTiledInputFile *in);
+
+IMF_EXPORT int		ImfTiledInputTileXSize (const ImfTiledInputFile *in);
+
+IMF_EXPORT int		ImfTiledInputTileYSize (const ImfTiledInputFile *in);
+
+IMF_EXPORT int		ImfTiledInputLevelMode (const ImfTiledInputFile *in);
 
 /*
 ** Lookup tables

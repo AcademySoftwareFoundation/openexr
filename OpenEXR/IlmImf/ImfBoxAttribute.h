@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -53,14 +53,14 @@ namespace Imf {
 
 typedef TypedAttribute<Imath::Box2i> Box2iAttribute;
 template <> const char *Box2iAttribute::staticTypeName ();
-template <> void Box2iAttribute::writeValueTo (std::ostream &, int) const;
-template <> void Box2iAttribute::readValueFrom (std::istream &, int, int);
+template <> void Box2iAttribute::writeValueTo (OStream &, int) const;
+template <> void Box2iAttribute::readValueFrom (IStream &, int, int);
 
 
 typedef TypedAttribute<Imath::Box2f> Box2fAttribute;
 template <> const char *Box2fAttribute::staticTypeName ();
-template <> void Box2fAttribute::writeValueTo (std::ostream &, int) const;
-template <> void Box2fAttribute::readValueFrom (std::istream &, int, int);
+template <> void Box2fAttribute::writeValueTo (OStream &, int) const;
+template <> void Box2fAttribute::readValueFrom (IStream &, int, int);
 
 
 } // namespace Imf

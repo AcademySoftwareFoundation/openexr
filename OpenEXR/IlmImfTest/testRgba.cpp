@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -174,7 +174,7 @@ testRgba ()
 	Array2D<Rgba> p1 (H, W);
 	fillPixels (p1, W, H);
 
-	for (int lorder = 0; lorder < NUM_LINEORDERS; ++lorder)
+	for (int lorder = 0; lorder < RANDOM_Y; ++lorder)
 	{
 	    for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
 	    {

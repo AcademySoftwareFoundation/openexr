@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -52,8 +52,8 @@ namespace Imf {
 
 typedef TypedAttribute<std::string> StringAttribute;
 template <> const char *StringAttribute::staticTypeName ();
-template <> void StringAttribute::writeValueTo (std::ostream &, int) const;
-template <> void StringAttribute::readValueFrom (std::istream &, int, int);
+template <> void StringAttribute::writeValueTo (OStream &, int) const;
+template <> void StringAttribute::readValueFrom (IStream &, int, int);
 
 
 } // namespace Imf

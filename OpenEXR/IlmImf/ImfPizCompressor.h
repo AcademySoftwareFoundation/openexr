@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,13 +33,12 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #ifndef INCLUDED_IMF_PIZ_COMPRESSOR_H
 #define INCLUDED_IMF_PIZ_COMPRESSOR_H
 
 //-----------------------------------------------------------------------------
 //
-//	class PizCompressor -- uses Wavelet and Huffman encoding
+//	class PizCompressor -- uses Wavelet and Huffman encoding.
 //
 //-----------------------------------------------------------------------------
 
@@ -64,15 +63,35 @@ class PizCompressor: public Compressor
     virtual int		compress (const char *inPtr,
 				  int inSize,
 				  int minY,
-				  const char *&outPtr);
+				  const char *&outPtr);                  
+                  
+    virtual int		compressTile (const char *inPtr,
+				      int inSize,
+				      Imath::Box2i range,
+				      const char *&outPtr);
 
     virtual int		uncompress (const char *inPtr,
 				    int inSize,
 				    int minY,
 				    const char *&outPtr);
+                    
+    virtual int		uncompressTile (const char *inPtr,
+					int inSize,
+					Imath::Box2i range,
+					const char *&outPtr);
   private:
 
     struct ChannelData;
+    
+    int			compress (const char *inPtr,
+				  int inSize,
+				  Imath::Box2i range,
+				  const char *&outPtr);
+ 
+    int			uncompress (const char *inPtr,
+				    int inSize,
+				    Imath::Box2i range,
+				    const char *&outPtr);
 
     int			_maxScanLineSize;
     Format		_format;

@@ -55,7 +55,7 @@ ChromaticitiesAttribute::staticTypeName ()
 
 template <>
 void
-ChromaticitiesAttribute::writeValueTo (std::ostream &os, int version) const
+ChromaticitiesAttribute::writeValueTo (OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value.red.x);
     Xdr::write <StreamIO> (os, _value.red.y);
@@ -70,7 +70,7 @@ ChromaticitiesAttribute::writeValueTo (std::ostream &os, int version) const
 
 template <>
 void
-ChromaticitiesAttribute::readValueFrom (std::istream &is, int size, int version)
+ChromaticitiesAttribute::readValueFrom (IStream &is, int size, int version)
 {
     Xdr::read <StreamIO> (is, _value.red.x);
     Xdr::read <StreamIO> (is, _value.red.y);

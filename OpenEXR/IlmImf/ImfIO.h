@@ -33,51 +33,151 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #ifndef INCLUDED_IMF_IO_H
 #define INCLUDED_IMF_IO_H
 
 //-----------------------------------------------------------------------------
 //
-//	Low-level image file I/O routines
+//	Low-level file input and output for OpenEXR.
 //
 //-----------------------------------------------------------------------------
 
-#include <iostream>
+#include <ImfInt64.h>
+#include <string>
 
 namespace Imf {
 
+//-----------------------------------------------------------
+// class IStream -- an abstract base class for input streams.
+//-----------------------------------------------------------
 
-//----------------------------------------------------------
-// Clear the error status for checkError() (sets errno to 0)
-//----------------------------------------------------------
+class IStream
+{
+  public:
 
-void		clearError ();
+    //-----------
+    // Destructor
+    //-----------
+
+    virtual ~IStream ();
+
+    //------------------------------------------------------
+    // Read from the stream:
+    //
+    // read(c,n) reads n bytes from the stream, and stores
+    // them in array c.  If the stream contains less than n
+    // bytes, or if an I/O error occurs, read(c,n) throws
+    // an exception.  If read(c,n) reads the last byte from
+    // the file it returns false, otherwise it returns true.
+    //------------------------------------------------------
+
+    virtual bool	read (char c[/*n*/], int n) = 0;
 
 
-//------------------------------------------
-// Check the error status on an istream:
-//
-// * If an I/O error occurred on the stream,
-//   throw an exception.
-//
-// * If the stream has already been read all
-//   the way to the end, return false.
-//
-// * Otherwise, return true.
-//
-//------------------------------------------
+    //--------------------------------------------------------
+    // Get the current reading position, in bytes from the
+    // beginning of the file.  If the next call to read() will
+    // read the first byte in the file, tellg() returns 0.
+    //--------------------------------------------------------
 
-bool		checkError (std::istream &is);
+    virtual Int64	tellg () = 0;
 
 
-//------------------------------------------
-// Check the error status on an ostream:
-// If an I/O error occurred on the stream,
-// throw an exception.
-//------------------------------------------
+    //-------------------------------------------
+    // Set the current reading position.
+    // After calling seekg(i), tellg() returns i.
+    //-------------------------------------------
 
-void		checkError (std::ostream &os);
+    virtual void	seekg (Int64 pos) = 0;
+
+
+    //------------------------------------------------------
+    // Clear error conditions after an operation has failed.
+    //------------------------------------------------------
+
+    virtual void	clear ();
+
+
+    //------------------------------------------------------
+    // Get the name of the file associated with this stream.
+    //------------------------------------------------------
+
+    const char *	fileName () const;
+
+  protected:
+
+    IStream (const char fileName[]);
+
+  private:
+
+    IStream (const IStream &);			// not implemented
+    IStream & operator = (const IStream &);	// not implemented
+
+    std::string		_fileName;
+};
+
+
+//-----------------------------------------------------------
+// class OStream -- an abstract base class for output streams
+//-----------------------------------------------------------
+
+class OStream
+{
+  public:
+
+    //-----------
+    // Destructor
+    //-----------
+
+    virtual ~OStream ();
+
+
+    //----------------------------------------------------------
+    // Write to the stream:
+    //
+    // write(c,n) takes n bytes from array c, and stores them
+    // in the stream.  If an I/O error occurs, write(c,n) throws
+    // an exception.
+    //----------------------------------------------------------
+
+    virtual void	write (const char c[/*n*/], int n) = 0;
+
+
+    //---------------------------------------------------------
+    // Get the current writing position, in bytes from the
+    // beginning of the file.  If the next call to write() will
+    // start writing at the beginning of the file, tellp()
+    // returns 0.
+    //---------------------------------------------------------
+
+    virtual Int64	tellp () = 0;
+
+
+    //-------------------------------------------
+    // Set the current writing position.
+    // After calling seekp(i), tellp() returns i.
+    //-------------------------------------------
+
+    virtual void	seekp (Int64 pos) = 0;
+
+
+    //------------------------------------------------------
+    // Get the name of the file associated with this stream.
+    //------------------------------------------------------
+
+    const char *	fileName () const;
+
+  protected:
+
+    OStream (const char fileName[]);
+
+  private:
+
+    OStream (const OStream &);			// not implemented
+    OStream & operator = (const OStream &);	// not implemented
+
+    std::string		_fileName;
+};
 
 
 //-----------------------
@@ -86,8 +186,17 @@ void		checkError (std::ostream &os);
 
 struct StreamIO
 {
-    static void	writeChars (std::ostream &os, const char c[/*n*/], int n);
-    static bool	readChars (std::istream &is, char c[/*n*/], int n);
+    static void
+    writeChars (OStream &os, const char c[/*n*/], int n)
+    {
+	os.write (c, n);
+    }
+
+    static bool
+    readChars (IStream &is, char c[/*n*/], int n)
+    {
+	return is.read (c, n);
+    }
 };
 
 

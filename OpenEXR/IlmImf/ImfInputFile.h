@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,36 +33,52 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #ifndef INCLUDED_IMF_INPUT_FILE_H
 #define INCLUDED_IMF_INPUT_FILE_H
 
 //-----------------------------------------------------------------------------
 //
-//	class InputFile
+//	class InputFile -- a scanline-based interface that can be used
+//	to read both scanline-based and tiled OpenEXR image files.
 //
 //-----------------------------------------------------------------------------
 
 #include <ImfHeader.h>
 #include <ImfFrameBuffer.h>
+#include <ImfTiledOutputFile.h>
+#include <string>
+#include <fstream>
 
 namespace Imf {
+
+class TiledInputFile;
+class ScanLineInputFile;
 
 
 class InputFile
 {
   public:
 
-    //---------------------------------------------------------
-    // Constructor -- opens the file and reads the file header.
-    //---------------------------------------------------------
+    //-----------------------------------------------------------
+    // A constructor that opens the file with the specified name.
+    // Destroying the InputFile object will close the file.
+    //-----------------------------------------------------------
 
     InputFile (const char fileName[]);
 
 
-    //-------------------------------
-    // Destructor -- closes the file.
-    //-------------------------------
+    //-------------------------------------------------------------
+    // A constructor that attaches the new InputFile object to a
+    // file that has already been opened.  Destroying the InputFile
+    // object will not close the file.
+    //-------------------------------------------------------------
+
+    InputFile (IStream &is);
+
+
+    //-----------
+    // Destructor
+    //-----------
 
     virtual ~InputFile ();
 
@@ -141,14 +157,30 @@ class InputFile
     void		rawPixelData (int firstScanLine,
 				      const char *&pixelData,
 				      int &pixelDataSize);
+                                     
+    //--------------------------------------------------
+    // Read a tile of raw pixel data from the file,
+    // without uncompressing it (this function is
+    // used to implement TiledOutputFile::copyPixels()).
+    //--------------------------------------------------
+
+    void		rawTileData (int &dx, int &dy,
+				     int &lx, int &ly,
+				     const char *&pixelData,
+				     int &pixelDataSize);
 
     class Data;
-
+    
   private:
 
     InputFile (const InputFile &);			// not implemented
     InputFile & operator = (const InputFile &);		// not implemented
 
+    void		initialize ();
+    TiledInputFile *	tFile ();
+    
+    friend void TiledOutputFile::copyPixels (InputFile &);
+    
     Data *		_data;
 };
 

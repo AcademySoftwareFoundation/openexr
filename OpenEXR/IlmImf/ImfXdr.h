@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #ifndef INCLUDED_IMF_XDR_H
 #define INCLUDED_IMF_XDR_H
 
@@ -103,6 +102,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include <ImfInt64.h>
 #include <Iex.h>
 #include <half.h>
 #include <limits.h>
@@ -154,6 +154,10 @@ write (T &out, signed long v);
 template <class S, class T>
 void
 write (T &out, unsigned long v);
+
+template <class S, class T>
+void
+write (T &out, Int64 v);
 
 template <class S, class T>
 void
@@ -232,6 +236,10 @@ read (T &in, unsigned long &v);
 
 template <class S, class T>
 void
+read (T &in, Int64 &v);
+
+template <class S, class T>
+void
 read (T &in, float &v);
 
 template <class S, class T>
@@ -274,13 +282,6 @@ size ();
 //---------------
 // Implementation
 //---------------
-
-#if ULONG_MAX == 18446744073709551615LU
-    typedef      long unsigned int Int64;
-#else
-    typedef long long unsigned int Int64;
-#endif
-
 
 template <class S, class T>
 inline void
@@ -478,6 +479,25 @@ write (T &out, unsigned long v)
 	#error write<T> (T &out, unsigned long v) not implemented
 
     #endif
+
+    writeUnsignedChars<S> (out, b, 8);
+}
+
+
+template <class S, class T>
+void
+write (T &out, Int64 v)
+{
+    unsigned char b[8];
+
+    b[0] = v;
+    b[1] = v >> 8;
+    b[2] = v >> 16;
+    b[3] = v >> 24;
+    b[4] = v >> 32;
+    b[5] = v >> 40;
+    b[6] = v >> 48;
+    b[7] = v >> 56;
 
     writeUnsignedChars<S> (out, b, 8);
 }
@@ -739,6 +759,25 @@ read (T &in, unsigned long &v)
 	#error read<T> (T &in, unsigned long &v) not implemented
 
     #endif
+}
+
+
+template <class S, class T>
+void
+read (T &in, Int64 &v)
+{
+    unsigned char b[8];
+
+    readUnsignedChars<S> (in, b, 8);
+
+    v =  ((Int64) b[0]        & 0x00000000000000ffLL) |
+	(((Int64) b[1] << 8)  & 0x000000000000ff00LL) |
+	(((Int64) b[2] << 16) & 0x0000000000ff0000LL) |
+	(((Int64) b[3] << 24) & 0x00000000ff000000LL) |
+	(((Int64) b[4] << 32) & 0x000000ff00000000LL) |
+	(((Int64) b[5] << 40) & 0x0000ff0000000000LL) |
+	(((Int64) b[6] << 48) & 0x00ff000000000000LL) |
+	 ((Int64) b[7] << 56);
 }
 
 

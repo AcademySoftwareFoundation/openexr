@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -58,6 +58,7 @@
 #include <ImfFloatAttribute.h>
 #include <ImfStringAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
+#include <ImfEnvmapAttribute.h>
 
 
 #define IMF_STD_ATTRIBUTE_DEF(name,suffix,type)				      \
@@ -184,6 +185,16 @@ IMF_STD_ATTRIBUTE_DEF (aperture, Aperture, float)
 //
 
 IMF_STD_ATTRIBUTE_DEF (isoSpeed, IsoSpeed, float)
+
+
+//
+// envmap -- if this attribute is present, the image represents
+// an environment map.  The attribute's value defines how 3D
+// directions are mapped to 2D pixel locations.  For details
+// see header file ImfEnvmap.h
+//
+
+IMF_STD_ATTRIBUTE_DEF (envmap, Envmap, Envmap)
 
 
 } // namespace Imf

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 //-----------------------------------------------------------------------------
 //
 //	class OutputFile
@@ -44,14 +43,13 @@
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfMisc.h>
-#include <ImfIO.h>
+#include <ImfStdIO.h>
 #include <ImfCompressor.h>
 #include <ImathBox.h>
 #include <ImathFun.h>
 #include <ImfArray.h>
 #include <ImfXdr.h>
 #include <ImfPreviewImageAttribute.h>
-#include <ImfVersion.h>
 #include <Iex.h>
 #include <string>
 #include <vector>
@@ -115,19 +113,18 @@ OutSliceInfo::OutSliceInfo (PixelType t,
 
 struct OutputFile::Data
 {
-  public:
-    string		 fileName;
     Header		 header;
+    int			 version;
+    Int64		 previewPosition;
     FrameBuffer		 frameBuffer;
-    long                 previewPosition;
     int			 currentScanLine;
     int			 missingScanLines;
     LineOrder		 lineOrder;
     int			 minX;
     int			 maxX;
     int			 minY;
-    int                  maxY;
-    vector<long>	 lineOffsets;
+    int			 maxY;
+    vector<Int64>	 lineOffsets;
     int			 linesInBuffer;
     size_t		 lineBufferSize;
     int			 lineBufferMinY;
@@ -139,22 +136,42 @@ struct OutputFile::Data
     Compressor *	 compressor;
     Compressor::Format	 format;
     vector<OutSliceInfo> slices;
-    ofstream		 os;
-    long		 lineOffsetsPosition;
-    long		 currentPosition;
+    OStream *		 os;
+    bool		 deleteStream;
+    Int64		 lineOffsetsPosition;
+    Int64		 currentPosition;
 
-     Data (): compressor (0) {}
-    ~Data () {delete compressor;}
+     Data (bool del);
+    ~Data ();
 };
+
+
+OutputFile::Data::Data (bool del):
+    os (0),
+    compressor (0),
+    deleteStream (del),
+    lineOffsetsPosition (0)
+{
+    // empty
+}
+
+
+OutputFile::Data::~Data ()
+{
+    if (deleteStream)
+	delete os;
+
+    delete compressor;
+}
 
 
 namespace {
 
 
-long
-writeLineOffsets (ofstream &os, const vector<long> &lineOffsets)
+Int64
+writeLineOffsets (OStream &os, const vector<Int64> &lineOffsets)
 {
-    long pos = os.tellp();
+    Int64 pos = os.tellp();
 
     if (pos == -1)
 	Iex::throwErrnoExc ("Cannot determine current file position (%T).");
@@ -177,31 +194,31 @@ writePixelData (OutputFile::Data *ofd,
     // without calling tellp() (tellp() can be fairly expensive).
     //
 
-    long currentPosition = ofd->currentPosition;
+    Int64 currentPosition = ofd->currentPosition;
     ofd->currentPosition = 0;
 
     if (currentPosition == 0)
-	currentPosition = ofd->os.tellp();
+	currentPosition = ofd->os->tellp();
 
     ofd->lineOffsets[(ofd->currentScanLine - ofd->minY) / ofd->linesInBuffer] =
 	currentPosition;
 
     #ifdef DEBUG
 
-	assert (long (ofd->os.tellp()) == currentPosition);
+	assert (ofd->os->tellp() == currentPosition);
 
     #endif
 
-    Xdr::write <StreamIO> (ofd->os, ofd->lineBufferMinY);
-    Xdr::write <StreamIO> (ofd->os, pixelDataSize);
-    ofd->os.write (pixelData, pixelDataSize);
-    checkError (ofd->os);
+    Xdr::write <StreamIO> (*ofd->os, ofd->lineBufferMinY);
+    Xdr::write <StreamIO> (*ofd->os, pixelDataSize);
+    ofd->os->write (pixelData, pixelDataSize);
 
     ofd->currentPosition = currentPosition +
 			   Xdr::size<int>() +
 			   Xdr::size<int>() +
 			   pixelDataSize;
 }
+
 
 void
 convertToXdr (OutputFile::Data *ofd, int inSize)
@@ -219,8 +236,8 @@ convertToXdr (OutputFile::Data *ofd, int inSize)
     // intermediate temporary buffer.
     //
    
-    unsigned int startY, endY;		// The first and last scanlines in
-    					// the file that are in the lineBuffer.
+    int startY, endY;		// The first and last scanlines in
+    				// the file that are in the lineBuffer.
     int dy;
     
     if (ofd->lineOrder == INCREASING_Y)
@@ -240,7 +257,7 @@ convertToXdr (OutputFile::Data *ofd, int inSize)
     // Iterate over all scanlines in the lineBuffer to convert.
     //
 
-    for (unsigned int y = startY; y != endY; y += dy)
+    for (int y = startY; y != endY; y += dy)
     {
 	//
         // Set these to point to the start of line y.
@@ -338,86 +355,103 @@ convertToXdr (OutputFile::Data *ofd, int inSize)
 
 
 OutputFile::OutputFile (const char fileName[], const Header &header):
-    _data (new Data)
+    _data (new Data (true))
 {
     try
     {
-	_data->lineOffsetsPosition = -1;
-
 	header.sanityCheck();
-
-	_data->header = header;
-	_data->fileName = fileName;
-
-	const Box2i &dataWindow = header.dataWindow();
-
-	_data->currentScanLine = (header.lineOrder() == INCREASING_Y)?
-				     dataWindow.min.y: dataWindow.max.y;
-
-	_data->missingScanLines = dataWindow.max.y - dataWindow.min.y + 1;
-	_data->lineOrder = header.lineOrder();
-	_data->minX = dataWindow.min.x;
-	_data->maxX = dataWindow.max.x;
-	_data->minY = dataWindow.min.y;
-	_data->maxY = dataWindow.max.y;
-
-	size_t maxBytesPerLine = bytesPerLineTable (_data->header,
-						    _data->bytesPerLine);
-
-	_data->compressor = newCompressor (_data->header.compression(),
-					   maxBytesPerLine,
-					   _data->header);
-
-	_data->linesInBuffer = _data->compressor?
-				   _data->compressor->numScanLines(): 1;
-
-	_data->format = _data->compressor?
-			    _data->compressor->format(): Compressor::XDR;
-
-	_data->lineBufferSize = maxBytesPerLine * _data->linesInBuffer;
-	_data->lineBuffer.resizeErase (_data->lineBufferSize);
-	_data->endOfLineBufferData = _data->lineBuffer;
-
-	_data->lineBufferMinY = lineBufferMinY (_data->currentScanLine,
-						_data->minY,
-						_data->linesInBuffer);
-
-	_data->lineBufferMaxY = lineBufferMaxY (_data->currentScanLine,
-						_data->minY,
-						_data->linesInBuffer);
-
-	int lineOffsetSize = (dataWindow.max.y - dataWindow.min.y +
-			      _data->linesInBuffer) / _data->linesInBuffer;
-
-	_data->lineOffsets.resize (lineOffsetSize);
-
-	offsetInLineBufferTable (_data->bytesPerLine,
-				 _data->linesInBuffer,
-				 _data->offsetInLineBuffer);
-
-#ifndef HAVE_IOS_BASE
-	_data->os.open (fileName, std::ios::binary);
-#else
-	_data->os.open (fileName, std::ios_base::binary);
-#endif
-
-	if (!_data->os)
-	    Iex::throwErrnoExc();
-
-	_data->previewPosition =
-	    _data->header.writeTo (_data->os);
-
-	_data->lineOffsetsPosition =
-	    writeLineOffsets (_data->os, _data->lineOffsets);
-
-	_data->currentPosition = _data->os.tellp();
+	_data->os = new StdOFStream (fileName);
+	initialize (header);
     }
     catch (Iex::BaseExc &e)
     {
 	delete _data;
-	REPLACE_EXC (e, "Cannot open image file \"" << fileName << "\". " << e);
+
+	REPLACE_EXC (e, "Cannot open image file "
+			"\"" << fileName << "\". " << e);
 	throw;
     }
+}
+
+
+OutputFile::OutputFile (OStream &os, const Header &header):
+    _data (new Data (false))
+{
+    try
+    {
+	header.sanityCheck();
+	_data->os = &os;
+	initialize (header);
+    }
+    catch (Iex::BaseExc &e)
+    {
+	delete _data;
+
+	REPLACE_EXC (e, "Cannot open image file "
+			"\"" << os.fileName() << "\". " << e);
+	throw;
+    }
+}
+
+
+void
+OutputFile::initialize (const Header &header)
+{
+    _data->header = header;
+
+    const Box2i &dataWindow = header.dataWindow();
+
+    _data->currentScanLine = (header.lineOrder() == INCREASING_Y)?
+				 dataWindow.min.y: dataWindow.max.y;
+
+    _data->missingScanLines = dataWindow.max.y - dataWindow.min.y + 1;
+    _data->lineOrder = header.lineOrder();
+    _data->minX = dataWindow.min.x;
+    _data->maxX = dataWindow.max.x;
+    _data->minY = dataWindow.min.y;
+    _data->maxY = dataWindow.max.y;
+
+    size_t maxBytesPerLine = bytesPerLineTable (_data->header,
+						_data->bytesPerLine);
+
+    _data->compressor = newCompressor (_data->header.compression(),
+				       maxBytesPerLine,
+				       _data->header);
+
+    _data->linesInBuffer = _data->compressor?
+			       _data->compressor->numScanLines(): 1;
+
+    _data->format = _data->compressor?
+			_data->compressor->format(): Compressor::XDR;
+
+    _data->lineBufferSize = maxBytesPerLine * _data->linesInBuffer;
+    _data->lineBuffer.resizeErase (_data->lineBufferSize);
+    _data->endOfLineBufferData = _data->lineBuffer;
+
+    _data->lineBufferMinY = lineBufferMinY (_data->currentScanLine,
+					    _data->minY,
+					    _data->linesInBuffer);
+
+    _data->lineBufferMaxY = lineBufferMaxY (_data->currentScanLine,
+					    _data->minY,
+					    _data->linesInBuffer);
+
+    int lineOffsetSize = (dataWindow.max.y - dataWindow.min.y +
+			  _data->linesInBuffer) / _data->linesInBuffer;
+
+    _data->lineOffsets.resize (lineOffsetSize);
+
+    offsetInLineBufferTable (_data->bytesPerLine,
+			     _data->linesInBuffer,
+			     _data->offsetInLineBuffer);
+
+    _data->previewPosition =
+	_data->header.writeTo (*_data->os);
+
+    _data->lineOffsetsPosition =
+	writeLineOffsets (*_data->os, _data->lineOffsets);
+
+    _data->currentPosition = _data->os->tellp();
 }
 
 
@@ -425,13 +459,12 @@ OutputFile::~OutputFile ()
 {
     if (_data)
     {
-	if (_data->lineOffsetsPosition >= 0)
+	if (_data->lineOffsetsPosition > 0)
 	{
 	    try
 	    {
-		_data->os.seekp (_data->lineOffsetsPosition);
-		checkError (_data->os);
-		writeLineOffsets (_data->os, _data->lineOffsets);
+		_data->os->seekp (_data->lineOffsetsPosition);
+		writeLineOffsets (*_data->os, _data->lineOffsets);
 	    }
 	    catch (...)
 	    {
@@ -452,7 +485,7 @@ OutputFile::~OutputFile ()
 const char *
 OutputFile::fileName () const
 {
-    return _data->fileName.c_str();
+    return _data->os->fileName();
 }
 
 
@@ -797,8 +830,12 @@ OutputFile::writePixels (int numScanLines)
 
 			    while (pixelPtr <= endPtr)
 			    {
-				for (size_t i = 0; i < sizeof (unsigned int); ++i)
+				for (size_t i = 0;
+				     i < sizeof (unsigned int);
+				     ++i)
+				{
 				    *writePtr++ = pixelPtr[i];
+				}
 
 				pixelPtr += slice.xStride;
 			    }
@@ -941,6 +978,15 @@ OutputFile::copyPixels (InputFile &in)
     const Header &hdr = header();
     const Header &inHdr = in.header();
 
+    if (inHdr.find("tiles") != inHdr.end())
+    {
+	THROW (Iex::ArgExc, "Cannot copy pixels from image "
+			    "file \"" << in.fileName() << "\" to image "
+			    "file \"" << fileName() << "\". The input file is "
+			    "tiled, but the output file is not. Try using "
+			    "TiledOutputFile::copyPixels instead.");
+    }
+
     if (!(hdr.dataWindow() == inHdr.dataWindow()))
     {
 	THROW (Iex::ArgExc, "Cannot copy pixels from image "
@@ -1042,17 +1088,13 @@ OutputFile::updatePreviewImage (const PreviewRgba newPixels[])
     // preview image, and jump back to the saved file position.
     //
 
-    long savedPosition = _data->os.tellp();
+    Int64 savedPosition = _data->os->tellp();
 
     try
     {
-	_data->os.seekp (_data->previewPosition);
-	checkError (_data->os);
-
-	pia.writeValueTo (_data->os, VERSION);
-
-	_data->os.seekp (savedPosition);
-	checkError (_data->os);
+	_data->os->seekp (_data->previewPosition);
+	pia.writeValueTo (*_data->os, _data->version);
+	_data->os->seekp (savedPosition);
     }
     catch (Iex::BaseExc &e)
     {

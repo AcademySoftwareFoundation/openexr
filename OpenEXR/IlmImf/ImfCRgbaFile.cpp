@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -32,6 +32,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+
 //-----------------------------------------------------------------------------
 //
 //	C interface to C++ classes Imf::RgbaOutputFile and Imf::RgbaInputFile
@@ -41,6 +42,7 @@
 
 #include <ImfCRgbaFile.h>
 #include <ImfRgbaFile.h>
+#include <ImfTiledRgbaFile.h>
 #include <ImfIntAttribute.h>
 #include <ImfFloatAttribute.h>
 #include <ImfDoubleAttribute.h>
@@ -106,6 +108,20 @@ outfile (const ImfOutputFile *out)
 }
 
 
+inline Imf::TiledRgbaOutputFile *
+outfile (ImfTiledOutputFile *out)
+{
+    return (Imf::TiledRgbaOutputFile *) out;
+}
+
+
+inline const Imf::TiledRgbaOutputFile *
+outfile (const ImfTiledOutputFile *out)
+{
+    return (const Imf::TiledRgbaOutputFile *) out;
+}
+
+
 inline Imf::RgbaInputFile *
 infile (ImfInputFile *in)
 {
@@ -117,6 +133,20 @@ inline const Imf::RgbaInputFile *
 infile (const ImfInputFile *in)
 {
     return (const Imf::RgbaInputFile *) in;
+}
+
+
+inline Imf::TiledRgbaInputFile *
+infile (ImfTiledInputFile *in)
+{
+    return (Imf::TiledRgbaInputFile *) in;
+}
+
+
+inline const Imf::TiledRgbaInputFile *
+infile (const ImfTiledInputFile *in)
+{
+    return (const Imf::TiledRgbaInputFile *) in;
 }
 
 
@@ -990,6 +1020,117 @@ ImfOutputChannels (const ImfOutputFile *out)
 }
 
 
+ImfTiledOutputFile *	
+ImfOpenTiledOutputFile (const char name[],
+			const ImfHeader *hdr,
+			int channels,
+			int xSize, int ySize,
+			int mode)
+{
+    try
+    {
+	return (ImfTiledOutputFile *) new Imf::TiledRgbaOutputFile
+		    (name, *header(hdr),
+		     Imf::RgbaChannels (channels),
+		     xSize, ySize,
+		     Imf::LevelMode (mode));
+    }
+    catch (const std::exception &e)
+    {
+	setErrorMessage (e);
+	return 0;
+    }
+}
+
+
+int		
+ImfCloseOutputFile (ImfTiledOutputFile *out)
+{
+    try
+    {
+	delete outfile (out);
+	return 1;
+    }
+    catch (const std::exception &e)
+    {
+	setErrorMessage (e);
+	return 0;
+    }
+}
+
+
+int		
+ImfTiledOutputSetFrameBuffer (ImfTiledOutputFile *out,
+			      const ImfRgba *base,
+			      size_t xStride,
+			      size_t yStride)
+{
+    try
+    {
+	outfile(out)->setFrameBuffer ((Imf::Rgba *)base, xStride, yStride);
+	return 1;
+    }
+    catch (const std::exception &e)
+    {
+	setErrorMessage (e);
+	return 0;
+    }
+}
+
+
+int		
+ImfTiledOutputWriteTile (ImfTiledOutputFile *out,
+			 int dx, int dy,
+			 int lx, int ly)
+{
+    try
+    {
+	outfile(out)->writeTile (dx, dy, lx, ly);
+	return 1;
+    }
+    catch (const std::exception &e)
+    {
+	setErrorMessage (e);
+	return 0;
+    }
+}
+
+
+const ImfHeader *
+ImfTiledOutputHeader (const ImfTiledOutputFile *out)
+{
+    return (const ImfHeader *) &outfile(out)->header();
+}
+
+
+int
+ImfTiledOutputChannels (const ImfTiledOutputFile *out)
+{
+    return outfile(out)->channels();
+}
+
+
+int
+ImfTiledOutputTileXSize (const ImfTiledOutputFile *out)
+{
+    return outfile(out)->tileXSize();
+}
+
+
+int
+ImfTiledOutputTileYSize (const ImfTiledOutputFile *out)
+{
+    return outfile(out)->tileYSize();
+}
+
+
+int
+ImfTiledOutputLevelMode (const ImfTiledOutputFile *out)
+{
+    return outfile(out)->levelMode();
+}
+
+
 ImfInputFile *	
 ImfOpenInputFile (const char name[])
 {
@@ -1074,6 +1215,116 @@ const char *
 ImfInputFileName (const ImfInputFile *in)
 {
     return infile(in)->fileName();
+}
+
+
+ImfTiledInputFile *	
+ImfOpenTiledInputFile (const char name[])
+{
+    try
+    {
+	return (ImfTiledInputFile *) new Imf::TiledRgbaInputFile (name);
+    }
+    catch (const std::exception &e)
+    {
+	setErrorMessage (e);
+	return 0;
+    }
+}
+
+
+int
+ImfCloseTiledInputFile (ImfTiledInputFile *in)
+{
+    try
+    {
+	delete infile (in);
+	return 1;
+    }
+    catch (const std::exception &e)
+    {
+	setErrorMessage (e);
+	return 0;
+    }
+}
+
+
+int		
+ImfTiledInputSetFrameBuffer (ImfTiledInputFile *in,
+			     ImfRgba *base,
+			     size_t xStride,
+			     size_t yStride)
+{
+    try
+    {
+	infile(in)->setFrameBuffer ((Imf::Rgba *) base, xStride, yStride);
+	return 1;
+    }
+    catch (const std::exception &e)
+    {
+	setErrorMessage (e);
+	return 0;
+    }
+}
+
+
+int
+ImfTiledInputReadTile (ImfTiledInputFile *in,
+		       int dx, int dy,
+		       int lx, int ly)
+{
+    try
+    {
+	infile(in)->readTile (dx, dy, lx, ly);
+	return 1;
+    }
+    catch (const std::exception &e)
+    {
+	setErrorMessage (e);
+	return 0;
+    }
+}
+
+
+const ImfHeader *
+ImfTiledInputHeader (const ImfTiledInputFile *in)
+{
+    return (const ImfHeader *) &infile(in)->header();
+}
+
+
+int
+ImfTiledInputChannels (const ImfTiledInputFile *in)
+{
+    return infile(in)->channels();
+}
+
+
+const char *
+ImfTiledInputFileName (const ImfTiledInputFile *in)
+{
+    return infile(in)->fileName();
+}
+
+
+int
+ImfTiledInputTileXSize (const ImfTiledInputFile *in)
+{
+    return infile(in)->tileXSize();
+}
+
+
+int
+ImfTiledInputTileYSize (const ImfTiledInputFile *in)
+{
+    return infile(in)->tileYSize();
+}
+
+
+int
+ImfTiledInputLevelMode (const ImfTiledInputFile *in)
+{
+    return infile(in)->levelMode();
 }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -56,7 +56,7 @@ StringAttribute::staticTypeName ()
 
 template <>
 void
-StringAttribute::writeValueTo (std::ostream &os, int version) const
+StringAttribute::writeValueTo (OStream &os, int version) const
 {
     int size = _value.size();
 
@@ -67,7 +67,7 @@ StringAttribute::writeValueTo (std::ostream &os, int version) const
 
 template <>
 void
-StringAttribute::readValueFrom (std::istream &is, int size, int version)
+StringAttribute::readValueFrom (IStream &is, int size, int version)
 {
     _value.resize (size);
 
