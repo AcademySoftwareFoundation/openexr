@@ -1,3 +1,5 @@
+	* Added minimal support for "image layers" to class Imf::ChannelList
+	  (Florian Kainz)
 	* Added new isComplete() method to InputFile, TiledInputFile
 	  etc., that checks if a file is complete or if any pixels
 	  are missing (for example, because writing the file was

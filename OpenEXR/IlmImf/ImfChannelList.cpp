@@ -45,6 +45,9 @@
 #include <Iex.h>
 
 
+using std::string;
+using std::set;
+
 namespace Imf {
 
 
@@ -155,6 +158,43 @@ ChannelList::ConstIterator
 ChannelList::find (const char name[]) const
 {
     return _map.find (name);
+}
+
+
+void
+ChannelList::layers (set <string> &layerNames) const
+{
+    layerNames.clear();
+
+    for (ConstIterator i = begin(); i != end(); ++i)
+    {
+	string layerName = i.name();
+	size_t pos = layerName.rfind ('.');
+
+	if (pos != string::npos && pos != 0 && pos + 1 < layerName.size())
+	{
+	    layerName.erase (pos);
+	    layerNames.insert (layerName);
+	}
+    }
+}
+
+
+void
+ChannelList::channelsInLayer (const string &layerName,
+			      Iterator &first,
+			      Iterator &last)
+{
+    channelsWithPrefix ((layerName + '.').c_str(), first, last);
+}
+
+
+void
+ChannelList::channelsInLayer (const string &layerName,
+			      ConstIterator &first,
+			      ConstIterator &last) const
+{
+    channelsWithPrefix ((layerName + '.').c_str(), first, last);
 }
 
 
