@@ -208,7 +208,7 @@ testAttributes ()
 	Array2D<float> pf (H, W);
 	fillPixels (pf, W, H);
 
-#ifdef PLATFORM_WIN32
+#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
 	const char * filename = "imf_test_attr.exr";
 #else
 	const char * filename = "/var/tmp/imf_test_attr.exr";

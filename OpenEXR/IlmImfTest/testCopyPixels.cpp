@@ -167,7 +167,7 @@ writeCopyRead (const Array2D<half> &ph1,
 void
 writeCopyRead (const Array2D<half> &ph, int w, int h, int dx, int dy)
 {
-#ifdef PLATFORM_WIN32
+#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
     const char * filename1 = "imf_test_copy1.exr";
     const char * filename2 = "imf_test_copy2.exr";
 #else

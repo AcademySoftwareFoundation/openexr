@@ -234,7 +234,7 @@ void
 readCopyRead (const char* infilename,
               unsigned int correctChecksum)
 {
-#ifdef PLATFORM_WIN32
+#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
     const char * outfilename = "imf_test_native.exr";
 #else
     const char * outfilename = "/var/tmp/imf_test_native.exr";

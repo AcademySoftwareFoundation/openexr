@@ -193,7 +193,7 @@ testLineOrder ()
 	Array2D<half> ph (H, W);
 	fillPixels (ph, W, H);
 
-#ifdef PLATFORM_WIN32
+#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
 	const char * filename = "imf_test_lorder.exr";
 #else
 	const char * filename = "/var/tmp/imf_test_lorder.exr";

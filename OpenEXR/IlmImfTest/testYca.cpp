@@ -206,7 +206,7 @@ testYca ()
     {
         cout << "Testing luminance/chroma input and output" << endl;
 
-	#ifdef PLATFORM_WIN32
+        #if defined(PLATFORM_WIN32) || defined(__MWERKS__)
 	    const char *fileName = "imf_test_yca.exr";
 	#else
 	    const char *fileName = "/var/tmp/imf_test_yca.exr";

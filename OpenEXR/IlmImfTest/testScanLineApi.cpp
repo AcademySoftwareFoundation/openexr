@@ -411,7 +411,7 @@ writeRead (const Array2D<unsigned int> &pi,
            int dx, int dy,
            int xSize, int ySize)
 {
-#ifdef PLATFORM_WIN32
+#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
     const char * filename = "imf_test_scanline_api.exr";
 #else
     const char * filename = "/var/tmp/imf_test_scanline_api.exr";

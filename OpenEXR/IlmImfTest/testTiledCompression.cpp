@@ -362,7 +362,7 @@ writeRead (const Array2D<unsigned int> &pi,
            int dx,
            int dy)
 {
-#ifdef PLATFORM_WIN32
+#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
     const char * filename = "imf_test_comp.exr";
 #else
     const char * filename = "/var/tmp/imf_test_comp.exr";

@@ -404,7 +404,7 @@ writeReadRGBARIP (const char fileName[],
 void
 writeRead (int W, int H, Compression comp, int xSize, int ySize)
 {
-#ifdef PLATFORM_WIN32
+#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
     const char * filename = "imf_test_tiled_rgba.exr";
 #else
     const char * filename = "/var/tmp/imf_test_tiled_rgba.exr";
