@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -40,19 +40,20 @@
 //-----------------------------------------------------------------------------
 
 
+#include <ImfVersion.h>
+
 namespace Imf {
 
 
-const int MAGIC = 20000630;	// Magic number that identifies OpenEXR files
-const int VERSION = 2;		// The current OpenEXR file format version
-
-
-//
-// Given the first four bytes of a file, returns true if the
-// file is probably an OpenEXR image file, false if not.
-//
-
-bool isImfMagic (const char bytes[4]);
+bool
+isImfMagic (const char bytes[4])
+{
+    return bytes[0] == ((MAGIC >>  0) & 0x00ff) &&
+	   bytes[1] == ((MAGIC >>  8) & 0x00ff) &&
+	   bytes[2] == ((MAGIC >> 16) & 0x00ff) &&
+	   bytes[3] == ((MAGIC >> 24) & 0x00ff);
+}
 
 
 } // namespace Imf
+
