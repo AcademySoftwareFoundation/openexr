@@ -114,18 +114,24 @@ typedef struct ImfRgba ImfRgba;
 #define IMF_ZIPS_COMPRESSION	2
 #define IMF_ZIP_COMPRESSION	3
 #define IMF_PIZ_COMPRESSION	4
+#define IMF_PXR24_COMPRESSION	5
 
 
 /*
 ** Channels; values must be the same as in Imf::RgbaChannels.
 */
 
-#define IMF_WRITE_R		0x1
-#define IMF_WRITE_G		0x2
-#define IMF_WRITE_B		0x4
-#define IMF_WRITE_A		0x8
-#define IMF_WRITE_RGB		0x7
-#define IMF_WRITE_RGBA		0xf
+#define IMF_WRITE_R		0x01
+#define IMF_WRITE_G		0x02
+#define IMF_WRITE_B		0x04
+#define IMF_WRITE_A		0x08
+#define IMF_WRITE_Y		0x10
+#define IMF_WRITE_C		0x20
+#define IMF_WRITE_RGB		0x07
+#define IMF_WRITE_RGBA		0x0f
+#define IMF_WRITE_YC		0x30
+#define IMF_WRITE_YA		0x18
+#define IMF_WRITE_YCA		0x38
 
 
 /*
