@@ -71,6 +71,7 @@ float fmin (float a, float b)
 using std::min;
 using std::max;
 #endif
+using Imath::clamp;
 
 
 ImageView::ImageView (int x, int y,
@@ -208,46 +209,10 @@ ImageView::computeFogColor ()
 }
 
 
-// static
-float
-ImageView::knee (float x, float f)
-{
-    return Imath::Math<float>::log (x * f + 1) / f;
-}
-
-
-// static
-float
-ImageView::findKneeF (float x, float y)
-{
-    float f0 = 0;
-    float f1 = 1;
-
-    while (knee (x, f1) > y)
-    {
-	f0 = f1;
-	f1 = f1 * 2;
-    }
-
-    for (int i = 0; i < 30; ++i)
-    {
-	float f2 = (f0 + f1) / 2;
-	float y2 = knee (x, f2);
-
-	if (y2 < y)
-	    f1 = f2;
-	else
-	    f0 = f2;
-    }
-
-    return (f0 + f1) / 2;
-}
-
-
 namespace {
 
 //
-// Conversion from raw pixel data to data for the OpenGl frame buffer:
+// Conversion from raw pixel data to data for the OpenGL frame buffer:
 //
 //  1) Compensate for fogging by subtracting defog
 //     from the raw pixel values.
@@ -282,12 +247,19 @@ namespace {
 //
 
 
+float
+knee (double x, double f)
+{
+    return float (Imath::Math<double>::log (x * f + 1) / f);
+}
+
+
 struct Gamma
 {
     float m, d, kl, f;
 
     Gamma (float exposure, float defog, float kneeLow, float kneeHigh);
-    unsigned char operator () (half h);
+    float operator () (half h);
 };
 
 
@@ -295,12 +267,12 @@ Gamma::Gamma (float exposure, float defog, float kneeLow, float kneeHigh):
     m (Imath::Math<float>::pow (2, exposure + 2.47393)),
     d (defog),
     kl (Imath::Math<float>::pow (2, kneeLow)),
-    f (ImageView::findKneeF (Imath::Math<float>::pow (2, kneeHigh) - kl, 
-			     Imath::Math<float>::pow (2, 3.5) - kl))
+    f (findKneeF (Imath::Math<float>::pow (2, kneeHigh) - kl, 
+		  Imath::Math<float>::pow (2, 3.5) - kl))
 {}
 
 
-unsigned char
+float
 Gamma::operator () (half h)
 {
     //
@@ -324,7 +296,7 @@ Gamma::operator () (half h)
     //
 
     if (x > kl)
-	x = kl + ImageView::knee (x - kl, f);
+	x = kl + knee (x - kl, f);
 
     //
     // Gamma
@@ -336,43 +308,99 @@ Gamma::operator () (half h)
     // Scale and clamp
     //
 
-    return char (Imath::clamp (x * 84.66f, 0.f, 255.f));
+    return clamp (x * 84.66f, 0.f, 255.f);
+}
+
+
+//
+//  Dithering: Reducing the raw 16-bit pixel data to 8 bits for the
+//  OpenGL frame buffer can sometimes lead to contouring in smooth
+//  color ramps.  Dithering with a simple Bayer pattern eliminates
+//  visible contouring.
+//
+
+unsigned char
+dither (float v, int x, int y)
+{
+    static const float d[4][4] =
+    {
+	 0.f / 16,  8.f / 16,  2.f / 16, 10.f / 16,
+	12.f / 16,  4.f / 16, 14.f / 16,  6.f / 16,
+	 3.f / 16, 11.f / 16,  1.f / 16,  9.f / 16,
+	15.f / 16,  7.f / 16, 13.f / 16,  5.f / 16,
+    };
+
+    return (unsigned char) (v + d[y & 3][x & 3]);
 }
 
 } // namespace
 
 
+// static
+float
+ImageView::findKneeF (float x, float y)
+{
+    float f0 = 0;
+    float f1 = 1;
+
+    while (knee (x, f1) > y)
+    {
+	f0 = f1;
+	f1 = f1 * 2;
+    }
+
+    for (int i = 0; i < 30; ++i)
+    {
+	float f2 = (f0 + f1) / 2;
+	float y2 = knee (x, f2);
+
+	if (y2 < y)
+	    f1 = f2;
+	else
+	    f0 = f2;
+    }
+
+    return (f0 + f1) / 2;
+}
+
+
 void
 ImageView::updateScreenPixels ()
 {
-    halfFunction<unsigned char>
+    halfFunction<float>
 	rGamma (Gamma (_exposure,
 		       _defog * _fogR,
 		       _kneeLow,
 		       _kneeHigh),
 		-HALF_MAX, HALF_MAX);
 
-    halfFunction<unsigned char>
+    halfFunction<float>
 	gGamma (Gamma (_exposure,
 		       _defog * _fogG,
 		       _kneeLow,
 		       _kneeHigh),
 		-HALF_MAX, HALF_MAX);
 
-    halfFunction<unsigned char>
+    halfFunction<float>
 	bGamma (Gamma (_exposure,
 		       _defog * _fogB,
 		       _kneeLow,
 		       _kneeHigh),
 		-HALF_MAX, HALF_MAX);
 
-    for (int j = 0; j < _dw * _dh; ++j)
+    for (int y = 0; y < _dh; ++y)
     {
-	const Imf::Rgba &rp = _rawPixels[j];
-	unsigned char *sp = _screenPixels + j * 3;
+	int i = y * _dw;
 
-	sp[0] = rGamma (rp.r);
-	sp[1] = gGamma (rp.g);
-	sp[2] = bGamma (rp.b);
+	for (int x = 0; x < _dw; ++x)
+	{
+	    int j = i + x;
+	    const Imf::Rgba &rp = _rawPixels[j];
+	    unsigned char *sp = _screenPixels + j * 3;
+
+	    sp[0] = dither (rGamma (rp.r), x, y);
+	    sp[1] = dither (gGamma (rp.g), x, y);
+	    sp[2] = dither (bGamma (rp.b), x, y);
+	}
     }
 }

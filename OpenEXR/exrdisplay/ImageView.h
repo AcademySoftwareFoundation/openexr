@@ -51,7 +51,6 @@ class ImageView: public Fl_Gl_Window
 {
   public:
 
-    static float        knee (float x, float f);
     static float        findKneeF (float x, float y);
 
     ImageView (int x, int y,

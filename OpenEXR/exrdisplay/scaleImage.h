@@ -77,4 +77,12 @@ void	scaleY (float f,
 		int &dx, int &dy,
 		Imf::Array<Imf::Rgba> &pixels);
 
+//
+// Normalize the pixel values in an image so that the smallest
+// value becomes 0.0 and the largest value becomes 1.0.
+//
+
+void	normalizePixels (int dw, int dh, Imf::Array<Imf::Rgba> &pixels);
+
+
 #endif
