@@ -12,7 +12,9 @@ IlmImfTest_SOURCES = main.cpp testAttributes.cpp testChannels.cpp \
 		     testLut.h testRgba.h testSampleImages.h testWav.h \
 		     testXdr.h testConversion.cpp testConversion.h \
 		     testNativeFormat.cpp testNativeFormat.h \
-		     testPreviewImage.cpp testPreviewImage.h
+		     testPreviewImage.cpp testPreviewImage.h \
+		     testMagic.cpp testMagic.h testStandardAttributes.cpp \
+		     testStandardAttributes.h
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Half -I$(top_srcdir)/Iex \
 	   -I$(top_srcdir)/Imath -I$(top_srcdir)/IlmImf
@@ -25,3 +27,8 @@ TESTS = IlmImfTest
 
 EXTRA_DIST = comp_none.exr comp_piz.exr comp_rle.exr comp_zip.exr \
              comp_zips.exr test_native1.exr test_native2.exr
+
+# autoconf defines a VERSION macro which conflicts with Imf::VERSION, so 
+# we have to undefine the VERSION macro when compiling IlmImf
+
+IlmImfTest_CXXFLAGS = $(AM_CXXFLAGS) -UVERSION
