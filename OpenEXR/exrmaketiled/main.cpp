@@ -82,7 +82,8 @@ usageMessage (const char argv0[], bool verbose = false)
 		"          outside the image's data window.  This requires\n"
 		"          extrapolating the image.  Option -e specifies\n"
 		"          how the image is extrapolated horizontally and\n"
-		"          vertically (clamp/wrap, default is clamp).\n"
+		"          vertically (black/clamp/periodic/mirror, default\n"
+		"          is clamp).\n"
 		"\n"
 		"-t x y    sets the tile size in the output image to\n"
 		"          x by y pixels (default is 64 by 64)\n"
@@ -145,13 +146,21 @@ getExtrapolation (const string &str)
 {
     Extrapolation e;
 
-    if (str == "clamp" || str == "CLAMP")
+    if (str == "black" || str == "BLACK")
+    {
+	e = BLACK;
+    }
+    else if (str == "clamp" || str == "CLAMP")
     {
 	e = CLAMP;
     }
-    else if (str == "wrap" || str == "WRAP")
+    else if (str == "periodic" || str == "PERIODIC")
     {
-	e = WRAP;
+	e = PERIODIC;
+    }
+    else if (str == "mirror" || str == "MIRROR")
+    {
+	e = MIRROR;
     }
     else
     {
