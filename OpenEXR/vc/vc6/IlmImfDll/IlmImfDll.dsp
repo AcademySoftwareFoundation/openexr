@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "../../../IlmImf" /I "../../../Iex" /I "../../../Imath" /I "../../../Half" /I "../../../../zlib/include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "PLATFORM_WIN32" /D "IMF_DLL" /YX /FD /c
+# ADD CPP /nologo /MT /W3 /GR /GX /O2 /I "../../../IlmImf" /I "../../../Iex" /I "../../../Imath" /I "../../../Half" /I "../../../../zlib/include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "PLATFORM_WIN32" /D "IMF_DLL" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -53,7 +53,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /machine:I386
-# ADD LINK32 zlib.lib kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:windows /dll /machine:I386 /out:"../lib/IlmImf/IlmImf.dll" /libpath:"../../../../zlib/lib"
+# ADD LINK32 zlib.lib kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:windows /dll /machine:I386 /out:"../lib/IlmImfdll/IlmImf.dll" /implib:"../lib/IlmImfdll/IlmImfdll.lib" /libpath:"../../../../zlib/lib"
+# SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "IlmImfDll - Win32 Debug"
 
@@ -69,7 +70,7 @@ LINK32=xilink6.exe
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "../../../IlmImf" /I "../../../Iex" /I "../../../Imath" /I "../../../Half" /I "../../../../zlib/include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "PLATFORM_WIN32" /D "IMF_DLL" /YX /FD /GZ /c
+# ADD CPP /nologo /MTd /W3 /Gm /GR /GX /ZI /Od /I "../../../IlmImf" /I "../../../Iex" /I "../../../Imath" /I "../../../Half" /I "../../../../zlib/include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "PLATFORM_WIN32" /D "IMF_DLL" /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -79,7 +80,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 zlib.lib kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:windows /dll /debug /machine:I386 /out:"../lib/IlmImf/IlmImfd.dll" /pdbtype:sept /libpath:"../../../../zlib/lib"
+# ADD LINK32 zlib.lib kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:windows /dll /debug /machine:I386 /out:"../lib/IlmImfdll/IlmImfd.dll" /implib:"../lib/IlmImfdll/IlmImfdlld.lib" /pdbtype:sept /libpath:"../../../../zlib/lib"
+# SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
 
@@ -350,6 +352,222 @@ SOURCE=..\..\..\IlmImf\ImfXdr.h
 
 SOURCE=..\..\..\IlmImf\ImfZipCompressor.h
 # End Source File
+# End Group
+# Begin Group "Imath"
+
+# PROP Default_Filter ""
+# Begin Group "Source Files No. 1"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathColorAlgo.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathFun.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathMatrixAlgo.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathShear.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathVec.cpp
+# End Source File
+# End Group
+# Begin Group "Header Files No. 1"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathBox.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathBoxAlgo.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathColor.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathColorAlgo.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathEuler.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathExc.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathFrame.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathFrustum.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathFun.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathGL.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathGLU.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathHalfLimits.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathInterval.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathLimits.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathLine.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathLineAlgo.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathMath.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathMatrix.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathMatrixAlgo.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathPlane.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathPlatform.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathQuat.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathRandom.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathRoots.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathShear.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathSphere.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathVec.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Imath\ImathVecAlgo.h
+# End Source File
+# End Group
+# End Group
+# Begin Group "Iex"
+
+# PROP Default_Filter ""
+# Begin Group "Source Files No. 2"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\..\Iex\IexBaseExc.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Iex\IexThrowErrnoExc.cpp
+# End Source File
+# End Group
+# Begin Group "Header Files No. 2"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\..\Iex\Iex.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Iex\IexBaseExc.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Iex\IexErrnoExc.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Iex\IexMacros.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Iex\IexMathExc.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Iex\IexThrowErrnoExc.h
+# End Source File
+# End Group
+# End Group
+# Begin Group "Half"
+
+# PROP Default_Filter ""
+# Begin Group "Source Files No. 3"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\..\Half\half.cpp
+# End Source File
+# End Group
+# Begin Group "Header Files No. 3"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\..\Half\half.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Half\halfFunction.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Half\halfLimits.h
+# End Source File
+# End Group
 # End Group
 # End Target
 # End Project
