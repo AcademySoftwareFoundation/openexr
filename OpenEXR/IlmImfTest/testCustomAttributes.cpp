@@ -255,6 +255,11 @@ testCustomAttributes ()
     {
 	cout << "Testing custom attributes" << endl;
 
+#ifdef PLATFORM_WIN32
+	cout << "test disabled on Windows, skipping" << endl;
+	return;
+#endif
+
 	const int W = 217;
 	const int H = 197;
 

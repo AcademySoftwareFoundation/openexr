@@ -170,7 +170,7 @@ readWriteFiles (const char fileName1[],
     cout << "comparing files " << fileName2 << " and " << fileName3 << endl;
 
     {
-	#if defined (HAVE_NO_STL_IOS_BASE)
+	#ifndef HAVE_STL_IOS_BASE
 	    ifstream file2 (fileName2, std::ios::binary|std::ios::in);
 	    ifstream file3 (fileName3, std::ios::binary|std::ios::in);
 	#else

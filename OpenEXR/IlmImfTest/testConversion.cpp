@@ -42,7 +42,6 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <paths.h>
 
 using namespace std;
 using namespace Imath;
