@@ -43,6 +43,7 @@
 //----------------------------------------------------------------------------
 
 #include <ImfTileDescription.h>
+#include <ImfCompression.h>
 #include <string>
 #include <set>
 
@@ -51,6 +52,7 @@ void	makeTiled (const char inFileName[],
 	           const char outFileName[],
 		   Imf::LevelMode mode,
 		   Imf::LevelRoundingMode roundingMode,
+		   Imf::Compression compression,
 		   int tileSizeX,
 		   int tileSizeY,
 		   const std::set<std::string> &doNotFilter,
