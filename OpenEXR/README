@@ -50,7 +50,7 @@ C++ compiler.  See README.win32 for details.
 PLATFORM-SPECIFIC NOTES
 -----------------------
 
-OS X:
+OS X with Apple developer tools:
 
 Short story: to work around some issues we're having with OpenEXR
 on OS X right now, build OpenEXR like so:
@@ -75,4 +75,14 @@ OpenEXR won't work on OS X without it.  See README.OSX for details.
 
 OpenEXR doesn't support shared libs on OS X yet, either.  You can
 build them, but you may have problems linking them into applications.
+
+
+OS X with Metrowerks CodeWarrior:
+
+There is a separate distribution which contains project files for
+Metrowerks' CodeWarior compiler on OS X.  The istream hack described
+above isn't necessary with CW.  Go to our downloads page to obtain the
+CW project files:
+
+http://savannah.nongnu.org/files/?group=openexr
 
