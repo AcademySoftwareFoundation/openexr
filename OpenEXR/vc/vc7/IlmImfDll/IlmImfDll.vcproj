@@ -354,6 +354,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfEnvmap.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfEnvmapAttribute.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfFloatAttribute.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -680,6 +686,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfScanLineInputFile.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfStandardAttributes.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -700,6 +709,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfStdIO.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfStringAttribute.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -718,6 +730,24 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTileDescriptionAttribute.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTiledInputFile.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTiledMisc.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTiledOutputFile.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTiledRgbaFile.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTileOffsets.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfVecAttribute.cpp">
@@ -846,6 +876,12 @@
 				RelativePath="..\..\..\IlmImf\ImfDoubleAttribute.h">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfEnvmap.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfEnvmapAttribute.h">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfFloatAttribute.h">
 			</File>
 			<File
@@ -909,10 +945,37 @@
 				RelativePath="..\..\..\IlmImf\ImfRleCompressor.h">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfScanLineInputFile.h">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfStandardAttributes.h">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfStdIO.h">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfStringAttribute.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTileDescription.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTileDescriptionAttribute.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTiledInputFile.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTiledMisc.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTiledOutputFile.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTiledRgbaFile.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTileOffsets.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfVecAttribute.h">

@@ -377,7 +377,7 @@ Euler<T>::Euler() :
 {}
 
 template<class T>
-Euler<T>::Euler(Euler<T>::Order p) :
+Euler<T>::Euler(typename Euler<T>::Order p) :
     Vec3<T>(0,0,0),
     _frameStatic(true),
     _initialRepeated(false),
@@ -389,8 +389,8 @@ Euler<T>::Euler(Euler<T>::Order p) :
 
 template<class T>
 inline Euler<T>::Euler( const Vec3<T> &v, 
-			Euler<T>::Order p, 
-			Euler<T>::InputLayout l ) 
+			typename Euler<T>::Order p, 
+			typename Euler<T>::InputLayout l ) 
 {
     setOrder(p); 
     if ( l == XYZLayout ) setXYZVector(v);
@@ -413,8 +413,8 @@ inline Euler<T>::Euler(const Euler<T> &euler,Order p)
 
 template<class T>
 inline Euler<T>::Euler( T xi, T yi, T zi, 
-			Euler<T>::Order p,
-			Euler<T>::InputLayout l)
+			typename Euler<T>::Order p,
+			typename Euler<T>::InputLayout l)
 {
     setOrder(p);
     if ( l == XYZLayout ) setXYZVector(Vec3<T>(xi,yi,zi));
@@ -422,14 +422,14 @@ inline Euler<T>::Euler( T xi, T yi, T zi,
 }
 
 template<class T>
-inline Euler<T>::Euler( const Matrix33<T> &M, Euler::Order p )
+inline Euler<T>::Euler( const Matrix33<T> &M, typename Euler<T>::Order p )
 {
     setOrder(p);
     extract(M);
 }
 
 template<class T>
-inline Euler<T>::Euler( const Matrix44<T> &M, Euler::Order p )
+inline Euler<T>::Euler( const Matrix44<T> &M, typename Euler<T>::Order p )
 {
     setOrder(p);
     extract(M);
@@ -738,7 +738,7 @@ Quat<T> Euler<T>::toQuat() const
 
 template<class T>
 inline bool
-Euler<T>::legal(Euler<T>::Order order)
+Euler<T>::legal(typename Euler<T>::Order order)
 {
     return (order & ~Legal) ? false : true;
 }
@@ -757,7 +757,7 @@ Euler<T>::order() const
 }
 
 template<class T>
-inline void Euler<T>::setOrder(Euler::Order p)
+inline void Euler<T>::setOrder(typename Euler<T>::Order p)
 {
     set( p & 0x2000 ? Z : (p & 0x1000 ? Y : X),	// initial axis
 	 !(p & 0x1),	    			// static?
@@ -766,7 +766,7 @@ inline void Euler<T>::setOrder(Euler::Order p)
 }
 
 template<class T>
-void Euler<T>::set(Euler::Axis axis,
+void Euler<T>::set(typename Euler<T>::Axis axis,
 		   bool relative,
 		   bool parityEven,
 		   bool firstRepeats)

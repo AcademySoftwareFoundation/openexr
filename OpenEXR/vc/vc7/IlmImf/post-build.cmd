@@ -38,6 +38,17 @@ copy ImfPreviewImageAttribute.h %instdir%
 copy ImfChromaticities.h %instdir%
 copy ImfChromaticitiesAttribute.h %instdir%
 copy ImfStandardAttributes.h %instdir%
+copy ImfStdIO.h  %instdir%
+copy ImfEnvmap.h  %instdir%
+copy ImfEnvmapAttribute.h  %instdir%
+copy ImfInt64.h  %instdir%
+copy ImfRgba.h %instdir%     
+copy ImfTileDescription.h  %instdir%
+copy ImfTileDescriptionAttribute.h  %instdir%
+copy ImfTiledInputFile.h  %instdir%
+copy ImfTiledOutputFile.h  %instdir%
+copy ImfTiledRgbaFile.h %instdir%
+		       
 mkdir ..\vc\vc7\lib\zlib
 copy ..\..\zlib\zlib.lib ..\vc\vc7\lib\zlib
 copy ..\..\zlib\zlibd.lib ..\vc\vc7\lib\zlib

@@ -277,6 +277,9 @@ $(TargetPath)
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImfTest\testExistingStreams.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImfTest\testHuf.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -386,6 +389,9 @@ $(TargetPath)
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImfTest\testScanLineApi.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImfTest\testStandardAttributes.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -404,6 +410,18 @@ $(TargetPath)
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImfTest\testTiledCompression.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImfTest\testTiledCopyPixels.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImfTest\testTiledLineOrder.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImfTest\testTiledRgba.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImfTest\testWav.cpp">
@@ -468,6 +486,9 @@ $(TargetPath)
 				RelativePath="..\..\..\IlmImfTest\testCustomAttributes.h">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImfTest\testExistingStreams.h">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImfTest\testHuf.h">
 			</File>
 			<File
@@ -492,7 +513,22 @@ $(TargetPath)
 				RelativePath="..\..\..\IlmImfTest\testSampleImages.h">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImfTest\testScanLineApi.h">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImfTest\testStandardAttributes.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImfTest\testTiledCompression.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImfTest\testTiledCopyPixels.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImfTest\testTiledLineOrder.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImfTest\testTiledRgba.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImfTest\testWav.h">

@@ -49,6 +49,10 @@ using namespace std;
 using namespace Imath;
 using namespace Imf;
 
+#ifdef WIN32
+#define isnan _isnan
+#endif
+
 namespace {
 
 void

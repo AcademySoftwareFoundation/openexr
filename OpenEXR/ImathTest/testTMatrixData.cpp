@@ -34,7 +34,6 @@
 
 #include <vector>
 #include <iostream>
-#include <assert.h>
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>

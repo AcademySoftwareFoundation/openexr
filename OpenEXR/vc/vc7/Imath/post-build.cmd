@@ -30,3 +30,7 @@ copy ImathInterval.h %instdir%
 copy ImathGLU.h %instdir%
 copy ImathFrame.h %instdir%
 copy ImathPlatform.h %instdir%
+copy ImathTMatrixBase.h %instdir%
+copy ImathTMatrix.h %instdir% 
+copy ImathTMatrixAlgo.h %instdir%
+copy ImathTMatrixData.h %instdir%
