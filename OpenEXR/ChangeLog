@@ -1,3 +1,10 @@
+	* Proper use of fltk-config to get platform-specific FLTK
+	  compile- and link-time flags.
+	* exrdisplay uses Imath::Math<T>::pow instead of powf now.
+	  powf is not availble on all platforms.
+	* Roll OS X "hack" into the source until Apple fixes their
+	  istream implementation.
+	
 Version 1.0.4:
         * OpenEXR is now covered by a modified BSD license.  See LICENSE
 	  for the new terms.
