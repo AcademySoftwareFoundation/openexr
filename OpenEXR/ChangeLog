@@ -1,3 +1,42 @@
+Version 1.1.1:
+	* exrmaketiled: Added an option to select compression type.
+	  (Florian Kainz)
+	* exrenvmap: Added an option to select compression type.
+	  (Florian Kainz)
+	* exrdisplay: Added some new command-line options.  (Florian Kainz)
+	* IlmImf: Added Pixar's new "slightly lossy" image compression
+	  method.  The new method, named PXR24, preserves HALF and
+	  UINT data without loss, but FLOAT pixels are converted to
+	  a 24-bit representation.  PXR24 appears to compress
+	  FLOAT depth buffers very well without losing much accuracy.
+	  (Loren Carpenter, Florian Kainz)
+	* Changed top-level LICENSE file to allow for other copyright
+	  holders for individual files.
+	* IlmImf: TILED FILE FORMAT CHANGE.  TiledOutputFile was
+	  incorrectly interleaving channels and scanlines before
+	  passing pixel data to a compressor.  The lossless compressors
+	  still work, but lossy compressors do not.  Fix the bug by
+	  interleaving channels and scanlines in tiled files in the
+	  same way as ScanLineOutputFile does.  Programs compiled with
+	  the new version of IlmImf cannot read tiled images produced
+	  with version 1.1.0.  (Florian Kainz)
+	* IlmImf: ImfXdr.h fix for 64-bit architectures.  (Florian Kainz)
+	* IlmImf: OpenEXR now supports YCA (luminance/chroma/alpha)
+	  images with subsampled chroma channels.  When an image
+	  is written with the RGBA convenience interface, selecting
+	  WRITE_YCA instead of WRITE_RGBA causes the library to
+	  convert the pixels to YCA format.  If WRITE_Y is selected,
+	  only luminance is stored in the file (for black and white
+	  images).  When an image file is read with the RGBA convenience
+	  interface, YCA data are automatically converted back to RGBA.
+	  (Florian Kainz)
+	* IlmImf: speed up reading tiled files as scan lines.
+	  (Florian Kainz)
+	* Half:  Fixed subtle bug in Half where signaling float NaNs
+	  were being converted to inf in half.  (Florian Kainz)
+	* gcc 3.3 compiler warning cleanups.  (various)
+	* Imath: ImathEuler.h fixes for gcc 3.4.  (Garrick Meeker)
+	
 Version 1.1.0:
 	* Added new targets to Visual C++ .NET 2003 project
 	  for exrmaketiled, exrenvmap, exrmakepreview, and exrstdattr.
