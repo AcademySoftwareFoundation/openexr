@@ -51,6 +51,9 @@ class ImageView: public Fl_Gl_Window
 {
   public:
 
+    static float        knee (float x, float f);
+    static float        findKneeF (float x, float y);
+
     ImageView (int x, int y,
 	       int w, int h,
 	       const char label[],
@@ -60,27 +63,30 @@ class ImageView: public Fl_Gl_Window
 	       float kneeLow,
 	       float kneeHigh);
 
-    void		setExposure (float exposure);
-    void		setDefog (float defog);
-    void		setKneeLow (float low);
-    void		setKneeHigh (float high);
+    virtual void        setExposure (float exposure);
+    virtual void	setDefog (float defog);
+    virtual void	setKneeLow (float low);
+    virtual void	setKneeHigh (float high);
     
     virtual void	draw();
 
-  private:
+ protected:
 
+    virtual void        updateScreenPixels ();
     void		computeFogColor ();
-    void		updateScreenPixels ();
 
-    float			_exposure;
-    float			_defog;
-    float			_kneeLow;
-    float			_kneeHigh;
-    const Imf::Rgba *		_rawPixels;
+    float		_exposure;
+    float		_defog;
+    float		_kneeLow;
+    float		_kneeHigh;
+    const Imf::Rgba *	_rawPixels;
+    float		_fogR;
+    float		_fogG;
+    float		_fogB;
+
+ private:
+
     Imf::Array<unsigned char>	_screenPixels;
-    float			_fogR;
-    float			_fogG;
-    float			_fogB;
 };
 
 

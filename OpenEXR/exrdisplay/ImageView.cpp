@@ -171,6 +171,42 @@ ImageView::computeFogColor ()
 }
 
 
+// static
+float
+ImageView::knee (float x, float f)
+{
+    return Imath::Math<float>::log (x * f + 1) / f;
+}
+
+
+// static
+float
+ImageView::findKneeF (float x, float y)
+{
+    float f0 = 0;
+    float f1 = 1;
+
+    while (knee (x, f1) > y)
+    {
+	f0 = f1;
+	f1 = f1 * 2;
+    }
+
+    for (int i = 0; i < 30; ++i)
+    {
+	float f2 = (f0 + f1) / 2;
+	float y2 = knee (x, f2);
+
+	if (y2 < y)
+	    f1 = f2;
+	else
+	    f0 = f2;
+    }
+
+    return (f0 + f1) / 2;
+}
+
+
 namespace {
 
 //
@@ -208,39 +244,6 @@ namespace {
 //  7) Clamp the values to [0, 255].
 //
 
-float
-knee (float x, float f)
-{
-    return Imath::Math<float>::log (x * f + 1) / f;
-}
-
-
-float
-findKneeF (float x, float y)
-{
-    float f0 = 0;
-    float f1 = 1;
-
-    while (knee (x, f1) > y)
-    {
-	f0 = f1;
-	f1 = f1 * 2;
-    }
-
-    for (int i = 0; i < 30; ++i)
-    {
-	float f2 = (f0 + f1) / 2;
-	float y2 = knee (x, f2);
-
-	if (y2 < y)
-	    f1 = f2;
-	else
-	    f0 = f2;
-    }
-
-    return (f0 + f1) / 2;
-}
-
 
 struct Gamma
 {
@@ -255,8 +258,8 @@ Gamma::Gamma (float exposure, float defog, float kneeLow, float kneeHigh):
     m (Imath::Math<float>::pow (2, exposure + 2.47393)),
     d (defog),
     kl (Imath::Math<float>::pow (2, kneeLow)),
-    f (findKneeF (Imath::Math<float>::pow (2, kneeHigh) - kl, 
-		  Imath::Math<float>::pow (2, 3.5) - kl))
+    f (ImageView::findKneeF (Imath::Math<float>::pow (2, kneeHigh) - kl, 
+			     Imath::Math<float>::pow (2, 3.5) - kl))
 {}
 
 
@@ -284,7 +287,7 @@ Gamma::operator () (half h)
     //
 
     if (x > kl)
-	x = kl + knee (x - kl, f);
+	x = kl + ImageView::knee (x - kl, f);
 
     //
     // Gamma
