@@ -8,6 +8,8 @@ EXTRA_DIST = vc6/OpenEXR.dsw vc6/doc/README.win32 vc6/doc/COPYING \
 	     vc6/exrdisplay_fragshader/exrdisplay_fragshader.dsp \
 	     vc6/exrheader/exrheader.dsp vc6/Half/post-build.cmd \
 	     vc6/Iex/post-build.cmd vc6/IlmImf/post-build.cmd \
-	     vc6/Imath/post-build.cmd vc6/imfexamples/imfexamples.dsp
+	     vc6/Imath/post-build.cmd vc6/imfexamples/imfexamples.dsp \
+	     vc6/imfexamples/post-build.cmd vc6/zlib/zlib.dsw \
+	     vc6/zlib/zlib.dsp vc6/zlib/zlib_static.dsp
 
 
