@@ -52,6 +52,7 @@ if test $have_fltk = "yes"; then
   if test $have_nvsdk = "yes"; then
     AC_DEFINE(HAVE_FRAGMENT_SHADERS)
   fi
+else have_nvsdk = "no"
 fi
 
 dnl Checks for libraries.
