@@ -555,7 +555,7 @@ Header::sanityCheck (bool isTiled) const
     }
 
     //
-    // The screen window width must be greater than 0.
+    // The screen window width must not be less than 0.
     // The size of the screen window can vary over a wide
     // range (fish-eye lens to astronomical telescope),
     // so we can't limit the screen window width to a
