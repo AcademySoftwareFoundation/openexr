@@ -40,6 +40,7 @@
 //----------------------------------------------------------------------------
 
 #include <scaleImage.h>
+#include <ImathLimits.h>
 #include <algorithm>
 
 using namespace Imf;
@@ -189,8 +190,8 @@ scaleY (float f,
 void
 normalizePixels (int dw, int dh, Imf::Array<Imf::Rgba> &pixels)
 {
-    float pMax = -FLT_MAX;
-    float pMin =  FLT_MAX;
+    float pMax = -Imath::limits<float>::max ();
+    float pMin =  Imath::limits<float>::max ();
 
     for (int i = 0; i < dw * dh; ++i)
     {
