@@ -9,7 +9,6 @@ guarantee that it works in all cases.  Thanks to our resident Mac
 programming guru, Paul Schneider <pauls@ilm.com>, for the workaround and 
 bug details.  
 
-
 Workaround:
 ------------
 
@@ -35,4 +34,15 @@ stream's eofbit and failbit are set (line 793).  This is incorrect if all
 of the requested characters were inserted into the output stream before
 EOF was read.  One possible fix would be to add a check for 
 _M_gcount < __n on line 792, in addition to the check for __eof.
+
+
+Using CodeWarrior:
+------------------
+
+If you have Metrowerks CodeWarrior, you can download the separate
+CodeWarrior project files and use it to build OpenEXR.  CodeWarrior
+doesn't require the istream workaround.  See here for the project
+files:
+
+http://savannah.nongnu.org/files/?group=openexr
 
