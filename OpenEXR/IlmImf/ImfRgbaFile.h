@@ -59,6 +59,7 @@ namespace Imf {
 
 class OutputFile;
 class InputFile;
+class PreviewRgba;
 
 
 //
@@ -181,6 +182,13 @@ class RgbaOutputFile
     LineOrder			lineOrder () const;
     Compression			compression () const;
     RgbaChannels		channels () const;
+
+
+    // --------------------------------------------------------------------
+    // Update the preview image (see Imf::OutputFile::updatePreviewImage())
+    // --------------------------------------------------------------------
+
+    void			updatePreviewImage (const PreviewRgba[]);
 
   private:
 

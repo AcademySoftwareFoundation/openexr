@@ -54,6 +54,7 @@
 #include <ImfLineOrderAttribute.h>
 #include <ImfMatrixAttribute.h>
 #include <ImfOpaqueAttribute.h>
+#include <ImfPreviewImageAttribute.h>
 #include <ImfStringAttribute.h>
 #include <ImfVecAttribute.h>
 
@@ -98,6 +99,7 @@ staticInitialize ()
 	V2fAttribute::registerAttributeType();
 	V3iAttribute::registerAttributeType();
 	V3fAttribute::registerAttributeType();
+	PreviewImageAttribute::registerAttributeType();
 
 	initialized = true;
     }
@@ -481,6 +483,34 @@ Header::compression () const
 
 
 void		
+Header::setPreviewImage (const PreviewImage &pi)
+{
+    insert ("preview", PreviewImageAttribute (pi));
+}
+
+
+PreviewImage &
+Header::previewImage ()
+{
+    return typedAttribute <PreviewImageAttribute> ("preview").value();
+}
+
+
+const PreviewImage &
+Header::previewImage () const
+{
+    return typedAttribute <PreviewImageAttribute> ("preview").value();
+}
+
+
+bool		
+Header::hasPreviewImage () const
+{
+    return findTypedAttribute <PreviewImageAttribute> ("preview") != 0;
+}
+
+
+void		
 Header::sanityCheck () const
 {
     //
@@ -631,7 +661,7 @@ Header::sanityCheck () const
 }
 
 
-void
+long
 Header::writeTo (std::ostream &os) const
 {
     //
@@ -643,8 +673,14 @@ Header::writeTo (std::ostream &os) const
     Xdr::write <StreamIO> (os, VERSION);
 
     //
-    // Write all attributes.
+    // Write all attributes.  If we have a preview image attribute,
+    // keep track of its position in the file.
     //
+
+    long previewPosition = 0;
+
+    const Attribute *preview =
+	    findTypedAttribute <PreviewImageAttribute> ("preview");
 
     for (ConstIterator i = begin(); i != end(); ++i)
     {
@@ -665,6 +701,10 @@ Header::writeTo (std::ostream &os) const
 
 	std::string s = ss.str();
 	Xdr::write <StreamIO> (os, (int) s.length());
+
+	if (&i.attribute() == preview)
+	    previewPosition = os.tellp();
+
 	os.write (s.data(), s.length());
     }
 
@@ -673,6 +713,8 @@ Header::writeTo (std::ostream &os) const
     //
 
     Xdr::write <StreamIO> (os, "");
+
+    return previewPosition;
 }
 
 
