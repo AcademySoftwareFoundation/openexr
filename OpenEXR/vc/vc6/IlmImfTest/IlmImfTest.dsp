@@ -114,6 +114,10 @@ SOURCE=..\..\..\IlmImfTest\testCompression.cpp
 # End Source File
 # Begin Source File
 
+SOURCE="\tmp\OpenEXR-1.0.6\IlmImfTest\testConversion.cpp"
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\IlmImfTest\testCopyPixels.cpp
 # End Source File
 # Begin Source File
@@ -131,6 +135,14 @@ SOURCE=..\..\..\IlmImfTest\testLineOrder.cpp
 # Begin Source File
 
 SOURCE=..\..\..\IlmImfTest\testLut.cpp
+# End Source File
+# Begin Source File
+
+SOURCE="\tmp\OpenEXR-1.0.6\IlmImfTest\testNativeFormat.cpp"
+# End Source File
+# Begin Source File
+
+SOURCE="\tmp\OpenEXR-1.0.6\IlmImfTest\testPreviewImage.cpp"
 # End Source File
 # Begin Source File
 
@@ -166,6 +178,10 @@ SOURCE=..\..\..\IlmImfTest\testCompression.h
 # End Source File
 # Begin Source File
 
+SOURCE="\tmp\OpenEXR-1.0.6\IlmImfTest\testConversion.h"
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\IlmImfTest\testCopyPixels.h
 # End Source File
 # Begin Source File
@@ -183,6 +199,14 @@ SOURCE=..\..\..\IlmImfTest\testLineOrder.h
 # Begin Source File
 
 SOURCE=..\..\..\IlmImfTest\testLut.h
+# End Source File
+# Begin Source File
+
+SOURCE="\tmp\OpenEXR-1.0.6\IlmImfTest\testNativeFormat.h"
+# End Source File
+# Begin Source File
+
+SOURCE="\tmp\OpenEXR-1.0.6\IlmImfTest\testPreviewImage.h"
 # End Source File
 # Begin Source File
 
