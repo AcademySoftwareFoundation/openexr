@@ -15,3 +15,7 @@ exrenvmap_SOURCES = main.cpp EnvmapImage.cpp EnvmapImage.h \
 		    makeLatLongMap.cpp makeLatLongMap.h
 
 noinst_HEADERS = EnvmapImage.h makeCubeMap.h makeLatLongMap.h
+
+EXTRA_DIST = main.cpp EnvmapImage.cpp EnvmapImage.h \
+	     makeCubeMap.cpp makeCubeMap.h \
+	     makeLatLongMap.cpp makeLatLongMap.h
