@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -45,17 +45,22 @@
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfCompressionAttribute.h>
 #include <ImfDoubleAttribute.h>
+#include <ImfEnvmapAttribute.h>
 #include <ImfFloatAttribute.h>
 #include <ImfIntAttribute.h>
 #include <ImfLineOrderAttribute.h>
 #include <ImfMatrixAttribute.h>
 #include <ImfStringAttribute.h>
+#include <ImfTileDescriptionAttribute.h>
 #include <ImfVecAttribute.h>
+#include <ImfVersion.h>
 #include <iostream>
+#include <iomanip>
 
 using namespace Imf;
 using std::cout;
 using std::endl;
+using std::setbase;
 
 
 void
@@ -103,6 +108,10 @@ printLineOrder (LineOrder lo)
 	cout << "decreasing y";
 	break;
 
+      case RANDOM_Y:
+	cout << "random y";
+	break;
+
       default:
 	cout << int (lo);
 	break;
@@ -135,6 +144,50 @@ printPixelType (PixelType pt)
 
 
 void
+printLevelMode (LevelMode lm)
+{
+    switch (lm)
+    {
+      case ONE_LEVEL:
+	cout << "single level";
+	break;
+
+      case MIPMAP_LEVELS:
+	cout << "mip-map";
+	break;
+
+      case RIPMAP_LEVELS:
+	cout << "rip-map";
+	break;
+
+      default:
+	cout << "level mode " << int (lm);
+	break;
+    }
+}
+
+
+void
+printEnvmap (Envmap e)
+{
+    switch (e)
+    {
+      case ENVMAP_LATLONG:
+	cout << "latitude-longitude map";
+	break;
+
+      case ENVMAP_CUBE:
+	cout << "cube-face map";
+	break;
+
+      default:
+	cout << "map type " << int (e);
+	break;
+    }
+}
+
+
+void
 printChannelList (const ChannelList &cl)
 {
     for (ChannelList::ConstIterator i = cl.begin(); i != cl.end(); ++i)
@@ -158,7 +211,10 @@ printInfo (const char fileName[])
 
     cout << "\n" << fileName << ":\n\n";
 
-    cout << "file format version: " << in.version() << "\n";
+    cout << "file format version: " <<
+	    getVersion (in.version()) << ", "
+	    "flags 0x" <<
+	    setbase (16) << getFlags (in.version()) << setbase (10) << "\n";
 
     for (Header::ConstIterator i = h.begin(); i != h.end(); ++i)
     {
@@ -200,6 +256,12 @@ printInfo (const char fileName[])
 		dynamic_cast <const DoubleAttribute *> (a))
 	{
 	    cout << ": " << ta->value();
+	}
+	else if (const EnvmapAttribute *ta =
+		dynamic_cast <const EnvmapAttribute *> (a))
+	{
+	    cout << ": ";
+	    printEnvmap (ta->value());
 	}
 	else if (const FloatAttribute *ta =
 		dynamic_cast <const FloatAttribute *> (a))
@@ -259,6 +321,17 @@ printInfo (const char fileName[])
 	{
 	    cout << ": \"" << ta->value() << "\"";
 	}
+	else if (const TileDescriptionAttribute *ta =
+		dynamic_cast <const TileDescriptionAttribute *> (a))
+	{
+	    cout << ": ";
+
+	    printLevelMode (ta->value().mode);
+
+	    cout << ", tile size " <<
+		    ta->value().xSize << " by " <<
+		    ta->value().ySize << " pixels\n";
+	}
 	else if (const V2iAttribute *ta =
 		dynamic_cast <const V2iAttribute *> (a))
 	{
@@ -309,4 +382,3 @@ main(int argc, char **argv)
 	}
     }
 }
-
