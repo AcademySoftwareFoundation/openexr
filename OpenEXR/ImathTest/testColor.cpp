@@ -64,15 +64,13 @@ testColor ()
 
     assert ( in3 == out3 );
 
-    unsigned char   	array[4];
     Imath::C4c	    	testConstructor1;
     Imath::C4c	    	testConstructor2( testConstructor1 );
-    Imath::C4c	    	testConstructor3( array );
 
-    testConstructor3 = testConstructor2; // use these so the compiler doesn't emit a warning
+    testConstructor1 = testConstructor2; // use these so the compiler doesn't emit a warning
 
-    Imath::C4c	    	testConstructor4( 52, 128, 254, 127 );
-    Imath::C4c	    	A( testConstructor4 );
+    Imath::C4c	    	testConstructor3( 52, 128, 254, 127 );
+    Imath::C4c	    	A( testConstructor3 );
     Imath::C4c	    	B;
     Imath::C4f	    	X, Y, tmp;
 
@@ -101,10 +99,6 @@ testColor ()
 
     B = A;
     assert( B == A );
-    assert( B <= A );
-    assert( B >= A );
-    assert( !( B < A ) );
-    assert( !( B > A ) );
     assert( !( B != A ) );
 
     X = Y = Imath::C4f( 0.123f, -0.420f, 0.501f, 0.998f );

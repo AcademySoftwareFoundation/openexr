@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -31,7 +31,6 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 ///////////////////////////////////////////////////////////////////////////
-
 
 
 #ifndef INCLUDED_IMATHBOX_H
@@ -180,8 +179,8 @@ Box<T>::operator != (const Box<T> &src) const
 template <class T>
 inline void Box<T>::makeEmpty()
 {
-    min = T::baseTypeMax();
-    max = T::baseTypeMin();
+    min = T(T::baseTypeMax());
+    max = T(T::baseTypeMin());
 }
 
 template <class T>
@@ -207,13 +206,21 @@ inline void Box<T>::extendBy(const Box<T>& box)
 template <class T>
 inline bool Box<T>::intersects(const T& point) const
 {
-    return point >= min && point <= max;
+    for (unsigned int i=0; i<min.dimensions(); i++)
+    {
+        if (point[i] < min[i] || point[i] > max[i]) return false;
+    }
+    return true;
 }
 
 template <class T>
 inline bool Box<T>::intersects(const Box<T>& box) const
 {
-    return box.max >= min && box.min <= max;
+    for (unsigned int i=0; i<min.dimensions(); i++)
+    {
+        if (box.max[i] < min[i] || box.min[i] > max[i]) return false;
+    }
+    return true;
 }
 
 template <class T> 
@@ -231,13 +238,21 @@ inline T Box<T>::center() const
 template <class T>
 inline bool Box<T>::isEmpty() const
 {
-    return max[0] < min[0];
+    for (unsigned int i=0; i<min.dimensions(); i++)
+    {
+        if (max[i] < min[i]) return true;
+    }
+    return false;
 }
 
 template <class T>
 inline bool Box<T>::hasVolume() const
 {
-    return max > min;
+    for (unsigned int i=0; i<min.dimensions(); i++)
+    {
+        if (max[i] <= min[i]) return false;
+    }
+    return true;
 }
 
 template<class T>
