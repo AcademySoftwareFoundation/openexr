@@ -1,3 +1,13 @@
+	* Use DLL runtime libs for Win32 libraries rather than static
+	  runtime libs.
+	* Add an exrdisplay_fragshader project to the Visual Studio 6.0
+	  workspace to enable fragment shaders in Win32.
+	* Add an IlmImfDll project to the Visual Studio 6.0 workspace.
+	* In Win32, export the ImfCRgbaFile C interface via a DLL so
+	  that Visual C++ 6.0 users can link against an Intel-compiled
+	  IlmImf.  (Andreas Kahler)
+	* Use auto_ptr in ImfAutoArray on Win32, it doesn't like large 
+	  automatic stacks.
 	* Performance improvements in PIZ decoding, between
 	  20 and 60% speedup on Athlon and Pentium 4 systems.
           (Florian)
