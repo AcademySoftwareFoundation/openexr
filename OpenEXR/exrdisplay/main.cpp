@@ -44,6 +44,7 @@
 #include <FL/Fl_Value_Slider.H>
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Box.H>
+#include <FL/FL_Valuator.H>
 
 #include <ImageView.h>
 #ifdef HAVE_FRAGMENT_SHADERS
