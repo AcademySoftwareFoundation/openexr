@@ -15,7 +15,7 @@ dnl
 dnl OpenEXR
 dnl
 
-AC_DEFUN(AM_PATH_OPENEXR,
+AC_DEFUN([AM_PATH_OPENEXR],
 [dnl 
 dnl Get the cflags and libraries
 dnl
