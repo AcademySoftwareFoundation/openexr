@@ -57,8 +57,6 @@ Attribute::~Attribute () {}
 
 namespace {
 
-typedef Attribute* (AttrConsFn) (void);
-
 struct NameCompare: std::binary_function <const char *, const char *, bool>
 {
     bool
@@ -68,17 +66,20 @@ struct NameCompare: std::binary_function <const char *, const char *, bool>
     }
 };
 
-typedef std::map <const char *, AttrConsFn*, NameCompare> TypeMap;
+
+typedef Attribute* (*Constructor)();
+typedef std::map <const char *, Constructor, NameCompare> TypeMap;
+
 
 TypeMap &
 typeMap ()
 {
-    static TypeMap *typeMapVar = 0;
+    static TypeMap *typeMap = 0;
 
-    if (typeMapVar == 0)
-	typeMapVar = new TypeMap;
+    if (typeMap == 0)
+	typeMap = new TypeMap;
 
-    return *typeMapVar;
+    return *typeMap;
 }
 
 
@@ -94,7 +95,7 @@ Attribute::knownType (const char typeName[])
 
 void	
 Attribute::registerAttributeType (const char typeName[],
-				  AttrConsFn* newAttribute)
+			          Attribute *(*newAttribute)())
 {
     if (typeMap().find (typeName) != typeMap().end())
 	THROW (Iex::ArgExc, "Cannot register image file attribute "

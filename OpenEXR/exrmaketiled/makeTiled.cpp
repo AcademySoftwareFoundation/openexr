@@ -64,20 +64,28 @@ namespace {
 string
 extToString (Extrapolation ext)
 {
+    string str;
+
     switch (ext)
     {
       case BLACK:
-	return "black";
+	str = "black";
+	break;
 
       case CLAMP:
-	return "clamp";
+	str = "clamp";
+	break;
 
       case PERIODIC:
-	return "periodic";
+	str = "periodic";
+	break;
 
       case MIRROR:
-	return "mirror";
+	str = "mirror";
+	break;
     }
+
+    return str;
 }
 
 
