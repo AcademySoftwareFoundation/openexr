@@ -15,6 +15,8 @@ libImath_la_SOURCES = ImathShear.cpp ImathMatrixAlgo.cpp ImathVec.cpp \
 		      ImathFrame.h ImathPlatform.h ImathTMatrixBase.h \
 		      ImathTMatrix.h ImathTMatrixAlgo.h ImathTMatrixData.h
 
+libImath_la_LDFLAGS = -version-info @LIBTOOL_VERSION@
+
 libImathincludedir = $(includedir)/OpenEXR
 
 libImathinclude_HEADERS = ImathColorAlgo.h ImathMatrixAlgo.h ImathVec.h \
