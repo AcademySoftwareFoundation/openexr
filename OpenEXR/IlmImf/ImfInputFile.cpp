@@ -56,7 +56,7 @@
 #include <fstream>
 #include <assert.h>
 
-#if defined PLATFORM_WIN32
+#if defined PLATFORM_WIN32 && _MSC_VER < 1300
 namespace
 {
 template<class T>
@@ -525,7 +525,7 @@ InputFile::readPixels (int scanLine1, int scanLine2)
 	// the file to reduce the overhead of seek operations.
 	//
 
-#ifdef PLATFORM_WIN32
+#if defined PLATFORM_WIN32 && _MSC_VER < 1300
 	int minY = min (scanLine1, scanLine2);
 	int maxY = max (scanLine1, scanLine2);
 #else
