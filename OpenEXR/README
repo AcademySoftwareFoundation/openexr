@@ -33,10 +33,16 @@ the file named COPYING (included in this distribution) for details.
 WHAT'S INCLUDED
 ---------------
 
-The release includes exrdisplay, an image viewer for OpenEXR images; 
-exrheader, a utility for dumping header information from OpenEXR files;
-and exrmaketiled, a utility for generated tiled OpenEXR images from
-other images with support for mipmaps and ripmaps.
+Besides the core OpenEXR libraries, the release includes several 
+utilities for reading, writing, viewing, and manipulating OpenEXR 
+images.  These include:
+
+  * exrdisplay, an image viewer.
+  * exrheader, a utility for dumping header information.
+  * exrstdattr, a utility for modifying OpenEXR standard attributes.
+  * exrmaketiled, for generating tiled and rip/mipmapped images.
+  * exrenvmap, for creating OpenEXR environment maps.
+  * exrmakepreview, for creating preview images for OpenEXR files.
 
 exrdisplay requires FLTK 1.1 or greater and OpenGL.  exrdisplay now
 supports fragment shaders if you have the Nvidia Cg SDK and a graphics
@@ -45,10 +51,8 @@ exrdisplay/README for details.
 
 We have also released an OpenEXR display driver for Renderman, a file I/O
 plugin for Shake, and a file I/O plugin for Adobe Photoshop (on both 
-Windows and MacOS).  These are packaged separately.  Go to our GNU 
-Savannah web page to download them:
-
-http://savannah.nongnu.org/files/?group=openexr
+Windows and MacOS).  These are packaged separately.  Go to 
+http://www.openexr.com to download them.
 
 
 
@@ -79,8 +83,8 @@ OpenEXR subdirectory of the install prefix, e.g. /usr/local/include/OpenEXR.
 
 To build OpenEXR on Windows NT or greater, you have a few choices:
 
-* Use Cygwin and the 'configure' script, see above.
-* Use Visual C++ 6.0 with Intel's C++ compiler.
-* Use Visual Studio .NET 2003 with Microsoft's C++ compiler.
+  * Use Cygwin and the 'configure' script, see above.
+  * Use Visual C++ 6.0 with Intel's C++ compiler.
+  * Use Visual Studio .NET 2003 with Microsoft's C++ compiler.
 
 See README.win32 for details.
