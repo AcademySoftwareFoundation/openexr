@@ -428,6 +428,41 @@ void EXRFormatPlugin::DoOptionsStart ()
 #pragma mark-
 
 //-------------------------------------------------------------------------------
+//	DoEstimateStart
+//-------------------------------------------------------------------------------
+
+void EXRFormatPlugin::DoEstimateStart ()
+{
+	// provide an estimate as to how much disk space
+	// we need to write the file.  If we don't set a 
+	// non-zero size, Photoshop won't open the file!
+	// Thanks to Chris Cox @ Adobe for this fix.
+
+	int32 dataBytes;
+
+
+	// minimum file size estimate is just the header
+
+	mFormatRec->minDataBytes = 100;
+
+
+	// estimate maximum file size if it were uncompressed
+	// header plus 4 channels, 2 bytes per channel
+
+	dataBytes = 100 +
+			4 * 2 * (int32) mFormatRec->imageSize.h * mFormatRec->imageSize.v;
+
+	mFormatRec->maxDataBytes = dataBytes;
+
+		
+	// tell the host not to call us with DoEstimateContinue
+	
+	mFormatRec->data = NULL;
+}
+
+#pragma mark-
+
+//-------------------------------------------------------------------------------
 //	DoWriteStart
 //-------------------------------------------------------------------------------
 
@@ -460,7 +495,7 @@ void EXRFormatPlugin::DoWriteStart ()
 								 Imf::INCREASING_Y,
 								 Globals()->outputCompression);
 
-	RefNumOFStream		stream	(mFormatRec->dataFork, mFormatRec->fileSpec, "EXR File");
+	RefNumOFStream		stream	(mFormatRec->dataFork, "EXR File");
 	RgbaOutputFile		out		(stream, header, (mFormatRec->planes == 3) ? WRITE_RGB : WRITE_RGBA);	
 
 

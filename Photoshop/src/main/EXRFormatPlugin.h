@@ -46,7 +46,7 @@ class EXRFormatPlugin : public PSFormatPlugin
 		virtual void	DoReadFinish			();
 			
 		virtual void	DoOptionsStart			();
-
+		virtual void	DoEstimateStart			();
  		virtual void	DoWriteStart			();
 
 
