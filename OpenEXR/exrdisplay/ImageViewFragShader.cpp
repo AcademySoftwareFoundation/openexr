@@ -51,8 +51,9 @@
 #else
 #include <GL/glu.h>
 #endif
-#define GLH_EXT_SINGLE_FILE
-#include <glh/glh_extensions.h>
+#define GL_GLEXT_PROTOTYPES
+#include <GL/glx.h>
+#include <GL/glext.h>
 
 #include <iostream>
 #include <stdlib.h>
@@ -61,6 +62,17 @@
 #include <ImathMath.h>
 #include <Iex.h>
 
+//
+// XXX dhess - hack
+//
+
+extern "C" {
+void glGenProgramsNV(GLsizei n, GLuint *ids);
+void glBindProgramNV(GLenum target, GLuint id);
+void glLoadProgramNV(GLenum target, GLuint id, GLsizei len, const GLubyte
+ *program);
+void APIENTRY glProgramNamedParameter4fNV(GLuint id, GLsizei len, const GLubyte *name, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
+}
 
 ImageViewFragShader::ImageViewFragShader (int x, int y,
 					  int width, int height,
@@ -68,6 +80,7 @@ ImageViewFragShader::ImageViewFragShader (int x, int y,
 					  const Imf::Rgba pixels[],
 					  int dw, int dh,
 					  int dx, int dy,
+					  Fl_Box *rgbaBox,
 					  float exposure,
 					  float defog,
 					  float kneeLow,
@@ -80,12 +93,13 @@ ImageViewFragShader::ImageViewFragShader (int x, int y,
 	       pixels,
 	       dw, dh,
 	       dx, dy,
+	       rgbaBox,
 	       exposure,
 	       defog,
 	       kneeLow, 
 	       kneeHigh),
-    _useSoftware (false),
-    _fsFilename (filename)
+    _fsFilename (filename),
+    _useSoftware (false)
 {
 }
 
@@ -97,6 +111,7 @@ ImageViewFragShader::initGL ()
 
     try
     {
+#if 0	
 	if (!glh_init_extensions("GL_ARB_multitexture "
 				 "GL_NV_vertex_program "
 				 "GL_NV_fragment_program "))
@@ -105,6 +120,7 @@ ImageViewFragShader::initGL ()
 		   "shader support are not available: " << std::endl <<
 		   "    " << glh_get_unsupported_extensions ());
 	}	    
+#endif
 
 	if (_fsFilename.empty ())
 	    loadBuiltinFragShader ();
@@ -208,8 +224,8 @@ ImageViewFragShader::draw()
     float kl = Imath::Math<float>::pow (2, _kneeLow);
 
     setCgNamedParameter ("kneeLow", kl);
-    setCgNamedParameter ("kneeF", findKneeF (Imath::Math<float>::pow (2, _kneeHigh) - kl,
-					     Imath::Math<float>::pow (2, 3.5) - kl));
+    setCgNamedParameter ("kneeF", findKnee (Imath::Math<float>::pow (2, _kneeHigh) - kl,
+					    Imath::Math<float>::pow (2, 3.5) - kl));
 
     //
     // draw a textured quad
