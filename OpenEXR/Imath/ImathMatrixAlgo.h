@@ -164,7 +164,8 @@ template <class T>  bool	extractSHRT
 				     Vec3<T> &r,
 				     Vec3<T> &t,
 				     bool exc = true,
-				     Eulerf::Order rOrder = Eulerf::XYZ);
+				     typename Euler<T>::Order rOrder =
+				     Euler<T>::XYZ);
 
 template <class T>  bool	extractSHRT 
                                     (const Matrix44<T> &mat,
@@ -659,7 +660,7 @@ extractSHRT (const Matrix44<T> &mat,
 	     Vec3<T> &r,
 	     Vec3<T> &t,
 	     bool exc /* = true */ ,
-	     Eulerf::Order rOrder /* = Eulerf::XYZ */ )
+	     typename Euler<T>::Order rOrder /* = Euler<T>::XYZ */ )
 {
     Matrix44<T> rot;
 
@@ -673,10 +674,10 @@ extractSHRT (const Matrix44<T> &mat,
     t.y = mat[3][1];
     t.z = mat[3][2];
 
-    if (rOrder != Eulerf::XYZ)
+    if (rOrder != Euler<T>::XYZ)
     {
-	Imath::Eulerf eXYZ (r, Imath::Eulerf::XYZ);
-	Imath::Eulerf e (eXYZ, rOrder);
+	Imath::Euler<T> eXYZ (r, Imath::Euler<T>::XYZ);
+	Imath::Euler<T> e (eXYZ, rOrder);
 	r = e.toXYZVector ();
     }
 

@@ -90,8 +90,12 @@ class Quat
     //-----------------------------------------------------
 
     Quat()			    : r(1), v(0,0,0) {}
-    Quat( const Quat<T>& q)	    : r(q.r), v(q.v) {}
+
+    template <class S>
+    Quat( const Quat<S>& q)	    : r(q.r), v(q.v) {}
+
     Quat( T s, T i, T j, T k )	    : r(s), v(i,j,k) {}
+
     Quat( T s, Vec3<T> d ) 	    : r(s), v(d) {}
 
     static Quat<T> identity()	{ return Quat<T>(); }

@@ -74,7 +74,9 @@
 //-----------------------------------------------------------------------------
 
 #if defined __GNUC__
-    #define restrict __restrict
+    #if !defined(restrict)
+    	#define restrict __restrict
+    #endif
 
 #elif defined(__INTEL_COMPILER) || defined(__ICL) || defined(__ICC) || defined(__ECC)
     // supports restrict, do nothing.

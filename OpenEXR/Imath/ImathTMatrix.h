@@ -67,9 +67,6 @@ class TMatrix : public TMatrixBase<T>
     using TMatrixBase<T>::data;
     using TMatrixBase<T>::numColumns;
     using TMatrixBase<T>::numRows;
-    using TMatrixBase<T>::order;
-    using TMatrixBase<T>::setSize;
-    using TMatrixBase<T>::setStride;
 
     ~TMatrix();
 
@@ -199,10 +196,13 @@ class TMatrix : public TMatrixBase<T>
     reverse_iterator        rend();
     const_reverse_iterator  rbegin() const;
     const_reverse_iterator  rend() const;
-
-
+    
+  protected:
+    using TMatrixBase<T>::setData;
+    using TMatrixBase<T>::setSize;
+    using TMatrixBase<T>::setStride;
+    
   private:
-
     mutable std::vector<T> _data;
 };
 
@@ -461,7 +461,7 @@ TMatrix<T>
 TMatrix<T>::identity(int siz, typename TMatrixBase<T>::Order ord)
 {
     TMatrix<T> id(siz, siz, T(0), ord);
-    iterator it = id.begin(), ie = id.end();
+    typename TMatrix<T>::iterator it = id.begin(), ie = id.end();
     const T unit = T(1);
     while (it < ie)
     {

@@ -44,6 +44,7 @@
 //----------------------------------------------------
 
 #include <ImathVec.h>
+#include <half.h>
 
 namespace Imath {
 
@@ -268,12 +269,16 @@ template <class S, class T> Color4<T>	operator * (S a, const Color4<T> &v);
 //-------------------------
 
 typedef Color3<float>		Color3f;
+typedef Color3<half>		Color3h;
 typedef Color3<unsigned char>	Color3c;
+typedef Color3<half>		C3h;
 typedef Color3<float>		C3f;
 typedef Color3<unsigned char>	C3c;
 typedef Color4<float>		Color4f;
+typedef Color4<half>		Color4h;
 typedef Color4<unsigned char>	Color4c;
 typedef Color4<float>		C4f;
+typedef Color4<half>		C4h;
 typedef Color4<unsigned char>	C4c;
 typedef unsigned int		PackedColor;
 
