@@ -157,6 +157,10 @@ template <class T>  void	extractEulerZYX
 
 template <class T>  Quat<T>	extractQuat (const Matrix44<T> &mat);
 
+//
+// The following ifdef corrects an ICE with VC++7.1.
+// fatal error C1001: INTERNAL COMPILER ERROR
+//
 #if defined PLATFORM_WIN32 && _MSC_VER >= 1300
 template <class T>  bool	extractSHRT 
                                     (const Matrix44<T> &mat,
@@ -662,6 +666,10 @@ extractQuat (const Matrix44<T> &mat)
   return quat;
 }
 
+//
+// The following ifdef corrects an ICE with VC++7.1.
+// fatal error C1001: INTERNAL COMPILER ERROR
+//
 #if defined PLATFORM_WIN32 && _MSC_VER >= 1300
 template <class T>
 bool 
