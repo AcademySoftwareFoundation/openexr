@@ -135,8 +135,8 @@ template <class T> class Vec2
     //      abs (this[i] - v[i]) <= e * abs (this[i])
     //-----------------------------------------------------------------------
 
-    bool		equalWithAbsError (const Vec2<T> &v, T e);
-    bool		equalWithRelError (const Vec2<T> &v, T e);
+    bool		equalWithAbsError (const Vec2<T> &v, T e) const;
+    bool		equalWithRelError (const Vec2<T> &v, T e) const;
 
     //------------
     // Dot product
@@ -328,8 +328,8 @@ template <class T> class Vec3
     //      abs (this[i] - v[i]) <= e * abs (this[i])
     //-----------------------------------------------------------------------
 
-    bool		equalWithAbsError (const Vec3<T> &v, T e);
-    bool		equalWithRelError (const Vec3<T> &v, T e);
+    bool		equalWithAbsError (const Vec3<T> &v, T e) const;
+    bool		equalWithRelError (const Vec3<T> &v, T e) const;
 
     //------------
     // Dot product
@@ -707,7 +707,7 @@ Vec2<T>::operator != (const Vec2<S> &v) const
 
 template <class T>
 bool
-Vec2<T>::equalWithAbsError (const Vec2<T> &v, T e)
+Vec2<T>::equalWithAbsError (const Vec2<T> &v, T e) const
 {
     for (int i = 0; i < 2; i++)
 	if (!Imath::equalWithAbsError ((*this)[i], v[i], e))
@@ -718,7 +718,7 @@ Vec2<T>::equalWithAbsError (const Vec2<T> &v, T e)
 
 template <class T>
 bool
-Vec2<T>::equalWithRelError (const Vec2<T> &v, T e)
+Vec2<T>::equalWithRelError (const Vec2<T> &v, T e) const
 {
     for (int i = 0; i < 2; i++)
 	if (!Imath::equalWithRelError ((*this)[i], v[i], e))
@@ -1098,7 +1098,7 @@ Vec3<T>::operator != (const Vec3<S> &v) const
 
 template <class T>
 bool
-Vec3<T>::equalWithAbsError (const Vec3<T> &v, T e)
+Vec3<T>::equalWithAbsError (const Vec3<T> &v, T e) const
 {
     for (int i = 0; i < 3; i++)
 	if (!Imath::equalWithAbsError ((*this)[i], v[i], e))
@@ -1109,7 +1109,7 @@ Vec3<T>::equalWithAbsError (const Vec3<T> &v, T e)
 
 template <class T>
 bool
-Vec3<T>::equalWithRelError (const Vec3<T> &v, T e)
+Vec3<T>::equalWithRelError (const Vec3<T> &v, T e) const
 {
     for (int i = 0; i < 3; i++)
 	if (!Imath::equalWithRelError ((*this)[i], v[i], e))
