@@ -249,7 +249,7 @@ TileOffsets::isValidTile (int dx, int dy, int lx, int ly) const
       case ONE_LEVEL:
 
         if (lx == 0 &&
-	    ly == 0 &
+	    ly == 0 &&
 	    _offsets.size() > 0 &&
             _offsets[0].size() > dy &&
             _offsets[0][dy].size() > dx)
