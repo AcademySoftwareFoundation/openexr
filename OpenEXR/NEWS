@@ -1,4 +1,7 @@
 Version 1.1.0:
+    - exrmaketiled: A new utility which generates tiled versions
+      of OpenEXR images.
+    - exrheader: Support for tiles, mipmaps, environment maps.
     - IlmImf: Support for environment maps.
     - IlmImf: Support for abstracted stream I/O.  You can
       wrap the IStream and OStream classes around your API
