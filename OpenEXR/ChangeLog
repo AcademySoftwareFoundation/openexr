@@ -1,3 +1,18 @@
+	* Random Imath fixes and enhancements.  Note that 
+	  extractSHRT now takes an additional optional
+          argument, see ImathMatrixAlgo.h for details.  (Various)
+	* Added Wojciech Jarosz to AUTHORS file.
+	* Added test cases for uncompressed case, preview images,
+	  frame buffer type conversion.  (Wojciech Jarosz,
+	  Florian Kainz)
+	* Fix a bug in IlmImf where uncompressed data doesn't get
+	  read/written correctly.  (Wojciech Jarosz)
+	* Added support for preview images and preview image
+	  attributes (thumbnail images) in IlmImf.  (Florian Kainz)
+	* Added support for automatic frame buffer type conversion
+	  in IlmImf.  (Florian Kainz)
+	* Cleaned up some compile-time checks.
+	* Added HalfTest unit tests.
 	* [exrdisplay] Download half framebuffer to texture memory 
 	  instead of converting to float first.  Requires latest
 	  Nvidia drivers.
