@@ -19,9 +19,7 @@ AC_ARG_WITH(nvsdk-prefix,[  --with-nvsdk-prefix=PFX  Prefix where Nvidia SDK is 
   no_nvsdk=""
 
   ac_save_CXXFLAGS="$CXXFLAGS"
-  ac_save_LDFLAGS="$LDFLAGS"
   CXXFLAGS="$CXXFLAGS $NVSDK_CXXFLAGS"
-  LDFLAGS="$LDFLAGS $FLTK_LDFLAGS"
 
   AC_TRY_LINK([
 #include <GL/gl.h>
@@ -32,7 +30,6 @@ AC_ARG_WITH(nvsdk-prefix,[  --with-nvsdk-prefix=PFX  Prefix where Nvidia SDK is 
     glh_init_extensions ("GL_ARB_multitexture " "GL_NV_vertex_program " "GL_NV_fragment_program "));
 ],, no_nvsdk=yes)
   CXXFLAGS="$ac_save_CXXFLAGS"
-  LDFLAGS="$ac_save_LDFLAGS"
 
   if test "x$no_nvsdk" = "x" ; then
     AC_MSG_RESULT(yes)
