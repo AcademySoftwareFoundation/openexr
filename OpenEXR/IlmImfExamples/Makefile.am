@@ -1,7 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
 if BUILD_IMFEXAMPLES
-imfexamples_PROGRAMS = imfexamples
 noinst_PROGRAMS = imfexamples
 endif
 
