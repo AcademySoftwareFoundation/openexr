@@ -28,6 +28,7 @@ int		gExr_MaxPixelDepth		=	8;
 void EXRFormatGlobals::Reset ()
 {
 	inputFile		=	NULL;
+	inputStream		=	NULL;
 	
 	DefaultIOSettings();
 }

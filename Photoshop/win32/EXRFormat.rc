@@ -42,12 +42,6 @@ BEGIN
     "\0"
 END
 
-3 TEXTINCLUDE 
-BEGIN
-    "#include ""temp\\EXRFormat.pipl""\0"
-    "#include ""..\\..\\..\\common\\resources\\About.rc""\r\n"
-END
-
 #endif    // APSTUDIO_INVOKED
 
 #endif    // English (U.S.) resources
@@ -60,7 +54,11 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-#include "temp\EXRFormat.pipl"
+#ifdef _DEBUG
+#include "tempDebug\EXRFormat.pipl"
+#else
+#include "tempRelease\EXRFormat.pipl"
+#endif
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 
