@@ -81,7 +81,8 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
      RgbaChannels rgbaChannels,
      int tileXSize,
      int tileYSize,
-     LevelMode mode)
+     LevelMode mode,
+     LevelRoundingMode rmode)
 :
     _outputFile(0)
 {
@@ -98,7 +99,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
 	ch.insert ("A", Channel (HALF, 1, 1));
 
     hd.channels() = ch;
-    hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode));
+    hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode, rmode));
     
     _outputFile = new TiledOutputFile (name, hd);
 }
@@ -111,7 +112,8 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
      RgbaChannels rgbaChannels,
      int tileXSize,
      int tileYSize,
-     LevelMode mode)
+     LevelMode mode,
+     LevelRoundingMode rmode)
 :
     _outputFile(0)
 {
@@ -128,7 +130,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
 	ch.insert ("A", Channel (HALF, 1, 1));
 
     hd.channels() = ch;
-    hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode));
+    hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode, rmode));
     
     _outputFile = new TiledOutputFile (os, hd);
 }
@@ -140,6 +142,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
      int tileXSize,
      int tileYSize,
      LevelMode mode,
+     LevelRoundingMode rmode,
      const Imath::Box2i &displayWindow,
      const Imath::Box2i &dataWindow,
      RgbaChannels rgbaChannels,
@@ -171,7 +174,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
 	ch.insert ("A", Channel (HALF, 1, 1));
 
     hd.channels() = ch;
-    hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode));
+    hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode, rmode));
     
     _outputFile = new TiledOutputFile (name, hd);
 }
@@ -184,6 +187,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
      int tileXSize,
      int tileYSize,
      LevelMode mode,
+     LevelRoundingMode rmode,
      RgbaChannels rgbaChannels,
      float pixelAspectRatio,
      const Imath::V2f screenWindowCenter,
@@ -213,7 +217,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
 	ch.insert ("A", Channel (HALF, 1, 1));
 
     hd.channels() = ch;
-    hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode));
+    hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode, rmode));
     _outputFile = new TiledOutputFile (name, hd);
 }
 
@@ -331,6 +335,13 @@ LevelMode
 TiledRgbaOutputFile::levelMode () const
 {
      return _outputFile->levelMode();
+}
+
+
+LevelRoundingMode
+TiledRgbaOutputFile::levelRoundingMode () const
+{
+     return _outputFile->levelRoundingMode();
 }
 
 
@@ -590,6 +601,13 @@ LevelMode
 TiledRgbaInputFile::levelMode () const
 {
      return _inputFile->levelMode();
+}
+
+
+LevelRoundingMode
+TiledRgbaInputFile::levelRoundingMode () const
+{
+     return _inputFile->levelRoundingMode();
 }
 
 

@@ -69,10 +69,11 @@ class TiledRgbaOutputFile
   public:
 
     //---------------------------------------------------
-    // Constructor -- rgbaChannels, tileXSize, tileYSize
-    // and levelMode overwrite the channel list and tile
-    // description attribute in the header that is passed
-    // as an argument to the constructor
+    // Constructor -- rgbaChannels, tileXSize, tileYSize,
+    // levelMode, and levelRoundingMode overwrite the
+    // channel list and tile description attribute in the
+    // header that is passed as an argument to the
+    // constructor.
     //---------------------------------------------------
 
     TiledRgbaOutputFile (const char name[],
@@ -80,7 +81,8 @@ class TiledRgbaOutputFile
 			 RgbaChannels rgbaChannels,
 			 int tileXSize,
 			 int tileYSize,
-			 LevelMode mode);
+			 LevelMode mode,
+			 LevelRoundingMode rmode = ROUND_DOWN);
 
 
     //---------------------------------------------------
@@ -97,7 +99,8 @@ class TiledRgbaOutputFile
 			 RgbaChannels rgbaChannels,
 			 int tileXSize,
 			 int tileYSize,
-			 LevelMode mode);
+			 LevelMode mode,
+			 LevelRoundingMode rmode = ROUND_DOWN);
 
 
     //------------------------------------------------------
@@ -110,6 +113,7 @@ class TiledRgbaOutputFile
 			 int tileXSize,
 			 int tileYSize,
 			 LevelMode mode,
+			 LevelRoundingMode rmode,
 			 const Imath::Box2i &displayWindow,
 			 const Imath::Box2i &dataWindow = Imath::Box2i(),
 			 RgbaChannels rgbaChannels = WRITE_RGBA,
@@ -133,6 +137,7 @@ class TiledRgbaOutputFile
 			 int tileXSize,
 			 int tileYSize,
 			 LevelMode mode,
+			 LevelRoundingMode rmode = ROUND_DOWN,
 			 RgbaChannels rgbaChannels = WRITE_RGBA,
 			 float pixelAspectRatio = 1,
 			 const Imath::V2f screenWindowCenter =
@@ -180,6 +185,7 @@ class TiledRgbaOutputFile
     unsigned int	tileXSize () const;
     unsigned int	tileYSize () const;
     LevelMode		levelMode () const;
+    LevelRoundingMode	levelRoundingMode () const;
 
     int			numLevels () const;
     int			numXLevels () const;
@@ -328,6 +334,7 @@ class TiledRgbaInputFile
     unsigned int	tileXSize () const;
     unsigned int	tileYSize () const;
     LevelMode		levelMode () const;
+    LevelRoundingMode	levelRoundingMode () const;
 
     int			numLevels () const;
     int			numXLevels () const;

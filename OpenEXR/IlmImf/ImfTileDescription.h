@@ -55,6 +55,15 @@ enum LevelMode
 };
 
 
+enum LevelRoundingMode
+{
+    ROUND_DOWN = 0,
+    ROUND_UP = 1,
+
+    NUM_ROUNDINGMODES	// number of different rounding modes
+};
+
+
 class TileDescription
 {
   public:
@@ -62,14 +71,17 @@ class TileDescription
     unsigned int    xSize;          // size of a tile in the x dimension
     unsigned int    ySize;          // size of a tile in the y dimension
     LevelMode       mode;
+    LevelRoundingMode	roundingMode;
     
     TileDescription (unsigned int xs = 32,
 		     unsigned int ys = 32,
-                     LevelMode m = ONE_LEVEL)
+                     LevelMode m = ONE_LEVEL,
+		     LevelRoundingMode r = ROUND_DOWN)
     :
         xSize (xs),
 	ySize (ys),
-	mode (m)
+	mode (m),
+	roundingMode (r)
     {
 	// empty
     }
@@ -77,9 +89,10 @@ class TileDescription
     bool
     operator == (const TileDescription &other) const
     {
-	return xSize == other.xSize &&
-	       ySize == other.ySize &&
-	       mode  == other.mode;
+	return xSize        == other.xSize &&
+	       ySize        == other.ySize &&
+	       mode         == other.mode &&
+	       roundingMode == other.roundingMode;
     }
 };
 

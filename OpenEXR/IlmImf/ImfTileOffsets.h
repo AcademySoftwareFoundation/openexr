@@ -59,8 +59,8 @@ class TileOffsets
     TileOffsets (LevelMode mode = ONE_LEVEL,
 		 int numXLevels = 0,
 		 int numYLevels = 0,
-		 int *numXTiles = 0,
-		 int *numYTiles = 0);    
+		 const int *numXTiles = 0,
+		 const int *numYTiles = 0);    
 
     // --------
     // File I/O

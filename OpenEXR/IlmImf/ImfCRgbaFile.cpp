@@ -1025,7 +1025,7 @@ ImfOpenTiledOutputFile (const char name[],
 			const ImfHeader *hdr,
 			int channels,
 			int xSize, int ySize,
-			int mode)
+			int mode, int rmode)
 {
     try
     {
@@ -1033,7 +1033,8 @@ ImfOpenTiledOutputFile (const char name[],
 		    (name, *header(hdr),
 		     Imf::RgbaChannels (channels),
 		     xSize, ySize,
-		     Imf::LevelMode (mode));
+		     Imf::LevelMode (mode),
+		     Imf::LevelRoundingMode (rmode));
     }
     catch (const std::exception &e)
     {
@@ -1128,6 +1129,13 @@ int
 ImfTiledOutputLevelMode (const ImfTiledOutputFile *out)
 {
     return outfile(out)->levelMode();
+}
+
+
+int
+ImfTiledOutputLevelRoundingMode (const ImfTiledOutputFile *out)
+{
+    return outfile(out)->levelRoundingMode();
 }
 
 
@@ -1325,6 +1333,13 @@ int
 ImfTiledInputLevelMode (const ImfTiledInputFile *in)
 {
     return infile(in)->levelMode();
+}
+
+
+int
+ImfTiledInputLevelRoundingMode (const ImfTiledInputFile *in)
+{
+    return infile(in)->levelRoundingMode();
 }
 
 
