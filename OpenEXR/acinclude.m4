@@ -96,8 +96,8 @@ dnl
   AC_LANG_CPLUSPLUS
   AC_TRY_LINK([
 #include <stdlib.h>
-#include <FL/Fl.h>
-#include <FL/Fl_Gl_Window.h>],
+#include <FL/Fl.H>
+#include <FL/Fl_Gl_Window.H>],
 [
     Fl_Gl_Window foo (); 
 ],, no_fltk=yes)
