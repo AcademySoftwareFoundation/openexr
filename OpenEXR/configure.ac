@@ -112,10 +112,10 @@ AC_LANG_RESTORE
 
 AC_MSG_CHECKING(for gcc optimization flags)
 old_cflags=$CFLAGS
-CFLAGS="$CFLAGS -O2 -funroll-loops -pipe"
+CFLAGS="$CFLAGS -pipe"
 AC_TRY_COMPILE([#include <stdio.h>],
 [ printf ("hello, world"); ],
-[ EXTRA_OPT_CFLAGS="-O2 -funroll-loops -pipe"],[ EXTRA_OPT_CFLAGS=""])
+[ EXTRA_OPT_CFLAGS="-pipe"],[ EXTRA_OPT_CFLAGS=""])
 CFLAGS=$old_cflags
 AC_MSG_RESULT([$EXTRA_OPT_CFLAGS])
 
