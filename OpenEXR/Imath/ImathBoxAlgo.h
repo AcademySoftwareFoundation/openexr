@@ -86,7 +86,7 @@ inline T clip(const T& in, const Box<T>& box)
 
     T out;
 
-    for (int i=0; i<box.min.dimensions(); i++)
+    for (int i=0; i<(int)box.min.dimensions(); i++)
     {
 	if (in[i] < box.min[i]) out[i] = box.min[i];
 	else if (in[i] > box.max[i]) out[i] = box.max[i];
@@ -272,14 +272,14 @@ transform(const Box< Vec3<S> >& box, const Matrix44<T>& m)
 
 	for (i = 0; i < 3; i++) 
         {
-	    newBox.min[i] = newBox.max[i] = m[3][i];
+	    newBox.min[i] = newBox.max[i] = (S) m[3][i];
 
 	    for (j = 0; j < 3; j++) 
             {
 		float a, b;
 
-		a = m[j][i] * box.min[j];
-		b = m[j][i] * box.max[j];
+		a = (S) m[j][i] * box.min[j];
+		b = (S) m[j][i] * box.max[j];
 
 		if (a < b) 
                 {
