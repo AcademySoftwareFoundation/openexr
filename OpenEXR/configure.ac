@@ -159,6 +159,7 @@ exrdisplay/Makefile
 exrheader/Makefile
 IlmImfExamples/Makefile
 doc/Makefile
+vc/Makefile
 ])
 
 AC_MSG_RESULT([
