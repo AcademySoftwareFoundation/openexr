@@ -61,4 +61,38 @@ inline float hypotf (float x, float y) { return ::sqrt (x*x + y*y); }
 
 #endif
 
+//-----------------------------------------------------------------------------
+//
+//    Fixes for the "restrict" keyword.  These #ifdef's for detecting 
+//    compiler versions courtesy of Boost's select_compiler_config.hpp; 
+//    here is the copyright notice for that file:
+//
+//    (C) Copyright Boost.org 2001. Permission to copy, use, modify, sell and
+//    and distribute this software is granted provided this copyright notice
+//    appears in all copies. This software is provided "as is" without express 
+//    or implied warranty, and with no claim as to its suitability for any 
+//    purpose.
+//
+//    Some compilers support "restrict", in which case we do nothing.
+//    Other compilers support some variant of it (e.g. "__restrict").
+//    If we don't know anything about the compiler, we define "restrict"
+//    to be a no-op.
+//
+//-----------------------------------------------------------------------------
+
+#if defined __GNUC__
+    #define restrict __restrict
+
+#elif defined(__INTEL_COMPILER) || defined(__ICL) || defined(__ICC) || defined(__ECC)
+    // supports restrict, do nothing.
+
+#elif defined __sgi
+    // supports restrict, do nothing.
+
+#else
+    #define restrict
+
 #endif
+
+#endif // INCLUDED_IMATHPLATFORM_H
+

@@ -43,6 +43,7 @@
 //
 //----------------------------------------------------------------
 
+#include <ImathPlatform.h>
 #include <ImathFun.h>
 #include <ImathExc.h>
 #include <ImathVec.h>
@@ -2340,10 +2341,6 @@ Matrix44<T>::operator * (const Matrix44<T> &v) const
     multiply (*this, v, tmp);
     return tmp;
 }
-
-#if defined (PLATFORM_WIN32)
-#define restrict
-#endif
 
 template <class T>
 void
