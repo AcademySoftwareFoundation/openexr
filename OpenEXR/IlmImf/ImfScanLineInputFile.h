@@ -142,7 +142,7 @@ class ScanLineInputFile
 				      const char *&pixelData,
 				      int &pixelDataSize);
 
-    class Data;
+    struct Data;
 
   private:
 

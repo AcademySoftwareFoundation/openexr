@@ -74,7 +74,7 @@ IMF_EXPORT void		ImfHalfToFloatArray (int n,
 ** RGBA pixel; memory layout must be the same as struct Imf::Rgba.
 */
 
-IMF_EXPORT struct ImfRgba
+struct ImfRgba
 {
     ImfHalf	r;
     ImfHalf	g;
@@ -155,7 +155,7 @@ typedef struct ImfRgba ImfRgba;
 ** RGBA file header
 */
 
-IMF_EXPORT struct ImfHeader;
+struct ImfHeader;
 typedef struct ImfHeader ImfHeader;
 
 IMF_EXPORT ImfHeader *	ImfNewHeader (void);
@@ -310,7 +310,7 @@ IMF_EXPORT int		ImfHeaderM44fAttribute (const ImfHeader *hdr,
 ** RGBA output file
 */
 
-IMF_EXPORT struct ImfOutputFile;
+struct ImfOutputFile;
 typedef struct ImfOutputFile ImfOutputFile;
 
 IMF_EXPORT ImfOutputFile *	ImfOpenOutputFile (const char name[],
@@ -338,7 +338,7 @@ IMF_EXPORT int			ImfOutputChannels (const ImfOutputFile *out);
 ** Tiled RGBA output file
 */
 
-IMF_EXPORT struct ImfTiledOutputFile;
+struct ImfTiledOutputFile;
 typedef struct ImfTiledOutputFile ImfTiledOutputFile;
 
 IMF_EXPORT ImfTiledOutputFile *	ImfOpenTiledOutputFile (const char name[],
@@ -375,7 +375,7 @@ IMF_EXPORT int	       	ImfTiledOutputLevelRoundingMode
 ** RGBA input file
 */
 
-IMF_EXPORT struct ImfInputFile;
+struct ImfInputFile;
 typedef struct ImfInputFile ImfInputFile;
 
 IMF_EXPORT ImfInputFile *		ImfOpenInputFile (const char name[]);
@@ -402,7 +402,7 @@ IMF_EXPORT const char *            ImfInputFileName (const ImfInputFile *in);
 ** Tiled RGBA input file
 */
 
-IMF_EXPORT struct ImfTiledInputFile;
+struct ImfTiledInputFile;
 typedef struct ImfTiledInputFile ImfTiledInputFile;
 
 IMF_EXPORT ImfTiledInputFile *	ImfOpenTiledInputFile (const char name[]);
@@ -437,7 +437,7 @@ IMF_EXPORT int	       	ImfTiledInputLevelRoundingMode
 ** Lookup tables
 */
 
-IMF_EXPORT struct ImfLut;
+struct ImfLut;
 typedef struct ImfLut ImfLut;
 
 IMF_EXPORT ImfLut *		ImfNewRound12logLut (int channels);

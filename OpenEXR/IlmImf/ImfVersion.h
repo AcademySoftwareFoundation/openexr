@@ -96,7 +96,7 @@ const int ALL_FLAGS		= TILED_FLAG;
 // Utility functions
 //
 
-inline bool  isTiled (int version)	{return version & TILED_FLAG;}
+inline bool  isTiled (int version)	{return !!(version & TILED_FLAG);}
 inline int   makeTiled (int version)	{return version | TILED_FLAG;}
 inline int   makeNotTiled (int version) {return version & ~TILED_FLAG;}
 inline int   getVersion (int version)	{return version & VERSION_NUMBER_FIELD;}

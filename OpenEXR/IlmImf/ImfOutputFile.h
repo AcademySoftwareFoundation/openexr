@@ -196,7 +196,7 @@ class OutputFile
 
     void		updatePreviewImage (const PreviewRgba newPixels[]);
 
-    class Data;
+    struct Data;
 
   private:
 

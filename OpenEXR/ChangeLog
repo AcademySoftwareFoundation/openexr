@@ -1,3 +1,12 @@
+	* Eliminated most warnings messages when OpenEXR is compiled
+	  with Visual C++.  The OpenEXR code uses lots of (intentional
+	  and unintended) implicit type conversions.  By default, Visual
+	  C++ warns about almost all of them.  Most implicit conversions
+	  have been removed from the .h files, so that including them
+	  should not generate warnings even at warning level 3.  Most
+	  .cpp files are now compiled with warning level 1.
+	  (Florian Kainz)
+
 Version 1.2.0:
 	* Production-ready release.
 	* Disable long double warnings on OS X.  (Drew Hess)

@@ -362,8 +362,8 @@ write (T &out, signed short v)
 {
     signed char b[2];
 
-    b[0] =  v;
-    b[1] =  v >> 8;
+    b[0] =  (signed char) (v);
+    b[1] =  (signed char) (v >> 8);
 
     writeSignedChars<S> (out, b, 2);
 }
@@ -375,8 +375,8 @@ write (T &out, unsigned short v)
 {
     unsigned char b[2];
 
-    b[0] =  v;
-    b[1] =  v >> 8;
+    b[0] =  (unsigned char) (v);
+    b[1] =  (unsigned char) (v >> 8);
 
     writeUnsignedChars<S> (out, b, 2);
 }
@@ -388,10 +388,10 @@ write (T &out, signed int v)
 {
     signed char b[4];
 
-    b[0] =  v;
-    b[1] =  v >> 8;
-    b[2] =  v >> 16;
-    b[3] =  v >> 24;
+    b[0] =  (signed char) (v);
+    b[1] =  (signed char) (v >> 8);
+    b[2] =  (signed char) (v >> 16);
+    b[3] =  (signed char) (v >> 24);
 
     writeSignedChars<S> (out, b, 4);
 }
@@ -403,10 +403,10 @@ write (T &out, unsigned int v)
 {
     unsigned char b[4];
 
-    b[0] =  v;
-    b[1] =  v >> 8;
-    b[2] =  v >> 16;
-    b[3] =  v >> 24;
+    b[0] =  (unsigned char) (v);
+    b[1] =  (unsigned char) (v >> 8);
+    b[2] =  (unsigned char) (v >> 16);
+    b[3] =  (unsigned char) (v >> 24);
 
     writeUnsignedChars<S> (out, b, 4);
 }
@@ -418,10 +418,10 @@ write (T &out, signed long v)
 {
     signed char b[8];
 
-    b[0] = v;
-    b[1] = v >> 8;
-    b[2] = v >> 16;
-    b[3] = v >> 24;
+    b[0] = (signed char) (v);
+    b[1] = (signed char) (v >> 8);
+    b[2] = (signed char) (v >> 16);
+    b[3] = (signed char) (v >> 24);
 
     #if LONG_MAX == 2147483647
 
@@ -442,10 +442,10 @@ write (T &out, signed long v)
 
     #elif LONG_MAX == 9223372036854775807L
 
-	b[4] = v >> 32;
-	b[5] = v >> 40;
-	b[6] = v >> 48;
-	b[7] = v >> 56;
+	b[4] = (signed char) (v >> 32);
+	b[5] = (signed char) (v >> 40);
+	b[6] = (signed char) (v >> 48);
+	b[7] = (signed char) (v >> 56);
 
     #else
 	
@@ -463,10 +463,10 @@ write (T &out, unsigned long v)
 {
     unsigned char b[8];
 
-    b[0] = v;
-    b[1] = v >> 8;
-    b[2] = v >> 16;
-    b[3] = v >> 24;
+    b[0] = (unsigned char) (v);
+    b[1] = (unsigned char) (v >> 8);
+    b[2] = (unsigned char) (v >> 16);
+    b[3] = (unsigned char) (v >> 24);
 
     #if ULONG_MAX == 4294967295U
 
@@ -477,10 +477,10 @@ write (T &out, unsigned long v)
 
     #elif ULONG_MAX == 18446744073709551615LU
 
-	b[4] = v >> 32;
-	b[5] = v >> 40;
-	b[6] = v >> 48;
-	b[7] = v >> 56;
+	b[4] = (unsigned char) (v >> 32);
+	b[5] = (unsigned char) (v >> 40);
+	b[6] = (unsigned char) (v >> 48);
+	b[7] = (unsigned char) (v >> 56);
 
     #else
 	
@@ -500,14 +500,14 @@ write (T &out, unsigned long v)
     {
         unsigned char b[8];
 
-        b[0] = v;
-        b[1] = v >> 8;
-        b[2] = v >> 16;
-        b[3] = v >> 24;
-        b[4] = v >> 32;
-        b[5] = v >> 40;
-        b[6] = v >> 48;
-        b[7] = v >> 56;
+        b[0] = (unsigned char) (v);
+        b[1] = (unsigned char) (v >> 8);
+        b[2] = (unsigned char) (v >> 16);
+        b[3] = (unsigned char) (v >> 24);
+        b[4] = (unsigned char) (v >> 32);
+        b[5] = (unsigned char) (v >> 40);
+        b[6] = (unsigned char) (v >> 48);
+        b[7] = (unsigned char) (v >> 56);
 
         writeUnsignedChars<S> (out, b, 8);
     }
@@ -524,10 +524,10 @@ write (T &out, float v)
 
     unsigned char b[4];
 
-    b[0] = u.i;
-    b[1] = u.i >> 8;
-    b[2] = u.i >> 16;
-    b[3] = u.i >> 24;
+    b[0] = (unsigned char) (u.i);
+    b[1] = (unsigned char) (u.i >> 8);
+    b[2] = (unsigned char) (u.i >> 16);
+    b[3] = (unsigned char) (u.i >> 24);
 
     writeUnsignedChars<S> (out, b, 4);
 }
@@ -542,14 +542,14 @@ write (T &out, double v)
 
     unsigned char b[8];
 
-    b[0] = u.i;
-    b[1] = u.i >> 8;
-    b[2] = u.i >> 16;
-    b[3] = u.i >> 24;
-    b[4] = u.i >> 32;
-    b[5] = u.i >> 40;
-    b[6] = u.i >> 48;
-    b[7] = u.i >> 56;
+    b[0] = (unsigned char) (u.i);
+    b[1] = (unsigned char) (u.i >> 8);
+    b[2] = (unsigned char) (u.i >> 16);
+    b[3] = (unsigned char) (u.i >> 24);
+    b[4] = (unsigned char) (u.i >> 32);
+    b[5] = (unsigned char) (u.i >> 40);
+    b[6] = (unsigned char) (u.i >> 48);
+    b[7] = (unsigned char) (u.i >> 56);
 
     writeUnsignedChars<S> (out, b, 8);
 }
@@ -561,8 +561,8 @@ write (T &out, half v)
 {
     unsigned char b[2];
 
-    b[0] =  v.bits();
-    b[1] =  v.bits() >> 8;
+    b[0] =  (unsigned char) (v.bits());
+    b[1] =  (unsigned char) (v.bits() >> 8);
 
     writeUnsignedChars<S> (out, b, 2);
 }
