@@ -218,7 +218,13 @@ readData (istream &is)
     Xdr::skip<CharIO>  (is, 17);
     check (is, (int) 3);
 
+	// HACK - this is a workaround for a bug in Apple's
+	// implementation of istream::read.  It's present in
+	// gcc 3.1, but fixed in gcc 3.3 and later.
+
+#if !(BROKEN_ISTREAM_HACK)	
     assert (!is == false);
+#endif
 }
 
 
