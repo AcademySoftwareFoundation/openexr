@@ -61,6 +61,7 @@
 #include <ImfPreviewImageAttribute.h>
 #include <ImfStringAttribute.h>
 #include <ImfTileDescriptionAttribute.h>
+#include <ImfTimeCodeAttribute.h>
 #include <ImfVecAttribute.h>
 
 #include <Iex.h>
@@ -107,6 +108,7 @@ staticInitialize ()
 	PreviewImageAttribute::registerAttributeType();
 	StringAttribute::registerAttributeType();
 	TileDescriptionAttribute::registerAttributeType();
+	TimeCodeAttribute::registerAttributeType();
 	V2fAttribute::registerAttributeType();
 	V2iAttribute::registerAttributeType();
 	V3fAttribute::registerAttributeType();

@@ -476,6 +476,277 @@ writeReadKeyCode (const char fileName[])
 
 
 void
+timeCodeMethods ()
+{
+    cout << "time code methods" << endl;
+
+    TimeCode t;
+
+    assert (t.timeAndFlags() == 0);
+    assert (t.userData() == 0);
+
+    // Frames
+
+    t.setTimeAndFlags (0x00000000);
+    t.setFrame (29);
+    assert (t.frame() == 29);
+    assert (t.timeAndFlags() == 0x00000029);
+
+    t.setTimeAndFlags (0xffffffff);
+    t.setFrame (0);
+    assert (t.frame() == 0);
+    assert (t.timeAndFlags() == 0xffffffc0);
+
+    // Seconds
+
+    t.setTimeAndFlags (0x00000000);
+    t.setSeconds (59);
+    assert (t.seconds() == 59);
+    assert (t.timeAndFlags() == 0x00005900);
+
+    t.setTimeAndFlags (0xffffffff);
+    t.setSeconds (0);
+    assert (t.seconds() == 0);
+    assert (t.timeAndFlags() == 0xffff80ff);
+
+    // Minutes
+
+    t.setTimeAndFlags (0x00000000);
+    t.setMinutes (59);
+    assert (t.minutes() == 59);
+    assert (t.timeAndFlags() == 0x00590000);
+
+    t.setTimeAndFlags (0xffffffff);
+    t.setMinutes (0);
+    assert (t.minutes() == 0);
+    assert (t.timeAndFlags() == 0xff80ffff);
+
+    // Hours
+
+    t.setTimeAndFlags (0x00000000);
+    t.setHours (23);
+    assert (t.hours() == 23);
+    assert (t.timeAndFlags() == 0x23000000);
+
+    t.setTimeAndFlags (0xffffffff);
+    t.setHours (0);
+    assert (t.hours() == 0);
+    assert (t.timeAndFlags() == 0xc0ffffff);
+
+    // Drop frame flag
+
+    t.setTimeAndFlags (0x00000000);
+    t.setDropFrame (true);
+    assert (t.dropFrame() == true);
+    assert (t.timeAndFlags() == 0x00000040);
+
+    t.setTimeAndFlags (0xffffffff);
+    t.setDropFrame (false);
+    assert (t.dropFrame() == false);
+    assert (t.timeAndFlags() == 0xffffffbf);
+
+    // Color frame flag
+
+    t.setTimeAndFlags (0x00000000);
+    t.setColorFrame (true);
+    assert (t.colorFrame() == true);
+    assert (t.timeAndFlags() == 0x00000080);
+
+    t.setTimeAndFlags (0xffffffff);
+    t.setColorFrame (false);
+    assert (t.colorFrame() == false);
+    assert (t.timeAndFlags() == 0xffffff7f);
+
+    // Field/phase flag
+
+    t.setTimeAndFlags (0x00000000);
+    t.setFieldPhase (true);
+    assert (t.fieldPhase() == true);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0x00008000);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0x80000000);
+    assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0x00008000);
+
+    t.setTimeAndFlags (0xffffffff);
+    t.setFieldPhase (false);
+    assert (t.fieldPhase() == false);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0xffff7fff);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0x7fffffbf);
+    assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0xffff7f3f);
+
+    t.setTimeAndFlags (0x23595929 | 0x00008000, TimeCode::TV60_PACKING);
+    assert (t.timeAndFlags() == 0x23595929 | 0x00008000);
+
+    t.setTimeAndFlags (0x23595929 | 0x80000000, TimeCode::TV50_PACKING);
+    assert (t.timeAndFlags() == 0x23595929 | 0x00008000);
+
+    t.setTimeAndFlags (0x23595929 | 0x00008000, TimeCode::FILM24_PACKING);
+    assert (t.timeAndFlags() == 0x23595929 | 0x00008000);
+
+    // bgf0
+
+    t.setTimeAndFlags (0x00000000);
+    t.setBgf0 (true);
+    assert (t.bgf0() == true);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0x00800000);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0x00008000);
+    assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0x00800000);
+
+    t.setTimeAndFlags (0xffffffff);
+    t.setBgf0 (false);
+    assert (t.bgf0() == false);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0xff7fffff);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0xffff7fbf);
+    assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0xff7fff3f);
+
+    t.setTimeAndFlags (0x23595929 | 0x00800000, TimeCode::TV60_PACKING);
+    assert (t.timeAndFlags() == 0x23595929 | 0x00800000);
+
+    t.setTimeAndFlags (0x23595929 | 0x00008000, TimeCode::TV50_PACKING);
+    assert (t.timeAndFlags() == 0x23595929 | 0x00800000);
+
+    t.setTimeAndFlags (0x23595929 | 0x00800000, TimeCode::FILM24_PACKING);
+    assert (t.timeAndFlags() == 0x23595929 | 0x00800000);
+
+    // bgf1
+
+    t.setTimeAndFlags (0x00000000);
+    t.setBgf1 (true);
+    assert (t.bgf1() == true);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0x40000000);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0x40000000);
+    assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0x40000000);
+
+    t.setTimeAndFlags (0xffffffff);
+    t.setBgf1 (false);
+    assert (t.bgf1() == false);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0xbfffffff);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0xbfffffbf);
+    assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0xbfffff3f);
+
+    t.setTimeAndFlags (0x23595929 | 0x40000000, TimeCode::TV60_PACKING);
+    assert (t.timeAndFlags() == 0x23595929 | 0x40000000);
+
+    t.setTimeAndFlags (0x23595929 | 0x40000000, TimeCode::TV50_PACKING);
+    assert (t.timeAndFlags() == 0x23595929 | 0x40000000);
+
+    t.setTimeAndFlags (0x23595929 | 0x40000000, TimeCode::FILM24_PACKING);
+    assert (t.timeAndFlags() == 0x23595929 | 0x40000000);
+
+    // bgf2
+
+    t.setTimeAndFlags (0x00000000);
+    t.setBgf2 (true);
+    assert (t.bgf2() == true);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0x80000000);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0x00800000);
+    assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0x80000000);
+
+    t.setTimeAndFlags (0xffffffff);
+    t.setBgf2 (false);
+    assert (t.bgf2() == false);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0x7fffffff);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0xff7fffbf);
+    assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0x7fffff3f);
+
+    t.setTimeAndFlags (0x23595929 | 0x80000000, TimeCode::TV60_PACKING);
+    assert (t.timeAndFlags() == 0x23595929 | 0x80000000);
+
+    t.setTimeAndFlags (0x23595929 | 0x00008000, TimeCode::TV50_PACKING);
+    assert (t.timeAndFlags() == 0x23595929 | 0x80000000);
+
+    t.setTimeAndFlags (0x23595929 | 0x80000000, TimeCode::FILM24_PACKING);
+    assert (t.timeAndFlags() == 0x23595929 | 0x80000000);
+
+    // User-defined data
+    
+    t.setUserData (0x87654321);
+    assert (t.userData() == 0x87654321);
+
+    assert (t.binaryGroup (1) == 1);
+    assert (t.binaryGroup (2) == 2);
+    assert (t.binaryGroup (3) == 3);
+    assert (t.binaryGroup (4) == 4);
+    assert (t.binaryGroup (5) == 5);
+    assert (t.binaryGroup (6) == 6);
+    assert (t.binaryGroup (7) == 7);
+
+    t.setBinaryGroup (1, 2);
+    t.setBinaryGroup (2, 3);
+    t.setBinaryGroup (3, 4);
+    t.setBinaryGroup (4, 5);
+    t.setBinaryGroup (5, 6);
+    t.setBinaryGroup (6, 7);
+    t.setBinaryGroup (7, 8);
+    t.setBinaryGroup (8, 9);
+
+    assert (t.userData() == 0x98765432);
+    
+    // Assignment
+
+    TimeCode t1 (12, 17, 57, 14,	   // hours, minutes, seconds, frame
+		 false, false, false,	   // dropFrame, colorFrame, fieldPhase
+		 false, false, false,	   // bgf0, bgf1, bgf2
+		 1, 2, 3, 4, 5, 6, 7, 8);  // binary groups 1 to 8
+    t = t1;
+
+    assert (t.timeAndFlags() == 0x12175714);
+    assert (t.userData() == 0x87654321);
+}
+
+
+void
+writeReadTimeCode (const char fileName[])
+{
+    cout << "time code attribute" << endl;
+
+    cout << "writing, ";
+
+    TimeCode t1 (0x23595829, 0x12345678, TimeCode::FILM24_PACKING);
+
+    assert (t1.timeAndFlags (TimeCode::FILM24_PACKING) == 0x23595829);
+    assert (t1.userData() == 0x12345678);
+
+    static const int W = 100;
+    static const int H = 100;
+
+    Header header (W, H);
+    assert (hasTimeCode (header) == false);
+
+    addTimeCode (header, t1);
+    assert (hasTimeCode (header) == true);
+
+    {
+	RgbaOutputFile out (fileName, header);
+	Rgba pixels[W];
+
+	for (int i = 0; i < W; ++i)
+	{
+	    pixels[i].r = 1;
+	    pixels[i].g = 1;
+	    pixels[i].b = 1;
+	    pixels[i].a = 1;
+	}
+
+	out.setFrameBuffer (pixels, 1, 0);
+	out.writePixels (H);
+    }
+
+    cout << "reading, comparing" << endl;
+
+    {
+	RgbaInputFile in (fileName);
+	const TimeCode &t2 = timeCode (in.header());
+
+	assert (hasTimeCode (in.header()) == true);
+	assert (t1.timeAndFlags() == t2.timeAndFlags());
+	assert (t1.userData() == t2.userData());
+    }
+
+    remove (fileName);
+}
+
+
+void
 generatedFunctions ()
 {
     //
@@ -509,6 +780,7 @@ generatedFunctions ()
     assert (hasIsoSpeed (header) == false);
     assert (hasEnvmap (header) == false);
     assert (hasKeyCode (header) == false);
+    assert (hasTimeCode (header) == false);
     assert (hasWrapmodes (header) == false);
 }
 
@@ -545,6 +817,12 @@ testStandardAttributes ()
 	{
 	    const char *filename = IMF_TMP_DIR "imf_test_keycode.exr";
 	    writeReadKeyCode (filename);
+	}
+
+	{
+	    timeCodeMethods();
+	    const char *filename = IMF_TMP_DIR "imf_test_timecode.exr";
+	    writeReadTimeCode (filename);
 	}
 
 	generatedFunctions();

@@ -60,6 +60,7 @@
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfEnvmapAttribute.h>
 #include <ImfKeyCodeAttribute.h>
+#include <ImfTimeCodeAttribute.h>
 
 
 #define IMF_STD_ATTRIBUTE_DEF(name,suffix,type)				      \
@@ -205,6 +206,13 @@ IMF_STD_ATTRIBUTE_DEF (envmap, Envmap, Envmap)
 //
 
 IMF_STD_ATTRIBUTE_DEF (keyCode, KeyCode, KeyCode)
+
+
+//
+// timeCode -- time and control code
+//
+
+IMF_STD_ATTRIBUTE_DEF (timeCode, TimeCode, TimeCode)
 
 
 //

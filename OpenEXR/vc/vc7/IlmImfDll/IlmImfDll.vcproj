@@ -912,6 +912,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -937,9 +940,6 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WINDOWS;IMF_DLL;OPENEXR_DLL;$(NoInherit)"/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfRgbaFile.cpp">
@@ -1110,6 +1110,12 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfTileOffsets.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTimeCode.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTimeCodeAttribute.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfVecAttribute.cpp">
@@ -1391,6 +1397,12 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfTileOffsets.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTimeCode.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTimeCodeAttribute.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfVecAttribute.h">
