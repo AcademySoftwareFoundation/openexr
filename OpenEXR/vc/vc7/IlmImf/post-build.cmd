@@ -49,3 +49,7 @@ copy ImfTiledInputFile.h  %instdir%
 copy ImfTiledOutputFile.h  %instdir%
 copy ImfTiledRgbaFile.h %instdir%
 copy ImfRgbaYca.h %instdir%
+copy ImfKeyCode.h %instdir%
+copy ImfKeyCodeAttribute.h %instdir%
+copy ImfTimeCodeAttribute.h %instdir%
+copy ImfTimeCode.h %instdir%
