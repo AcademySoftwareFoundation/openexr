@@ -42,7 +42,9 @@
 #include <ImfInputFile.h>
 #include <ImfBoxAttribute.h>
 #include <ImfChannelListAttribute.h>
+#include <ImfChromaticitiesAttribute.h>
 #include <ImfCompressionAttribute.h>
+#include <ImfDoubleAttribute.h>
 #include <ImfFloatAttribute.h>
 #include <ImfIntAttribute.h>
 #include <ImfLineOrderAttribute.h>
@@ -179,11 +181,25 @@ printInfo (const char fileName[])
 	    cout << ":";
 	    printChannelList (ta->value());
 	}
+	else if (const ChromaticitiesAttribute *ta =
+		dynamic_cast <const ChromaticitiesAttribute *> (a))
+	{
+	    cout << ":\n"
+		    "    red   " << ta->value().red << "\n"
+		    "    green " << ta->value().green << "\n"
+		    "    blue  " << ta->value().blue << "\n"
+		    "    white " << ta->value().white;
+	}
 	else if (const CompressionAttribute *ta =
 		dynamic_cast <const CompressionAttribute *> (a))
 	{
 	    cout << ": ";
 	    printCompression (ta->value());
+	}
+	else if (const DoubleAttribute *ta =
+		dynamic_cast <const DoubleAttribute *> (a))
+	{
+	    cout << ": " << ta->value();
 	}
 	else if (const FloatAttribute *ta =
 		dynamic_cast <const FloatAttribute *> (a))
