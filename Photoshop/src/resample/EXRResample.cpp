@@ -51,7 +51,7 @@ void ResetHalfToIntTable (const GPtr inGlobals)
 
 	// calculate exposure multiplier
 
-	multiplier = pow (2, inGlobals->exposure);
+	multiplier = pow (2.0, inGlobals->exposure);
 		
 	
 		
@@ -80,7 +80,7 @@ void ResetHalfToIntTable (const GPtr inGlobals)
 			
 			if (inGlobals->gamma != 0)
 			{
-			    f = pow (f, 1.0f / inGlobals->gamma);
+			    f = pow ((double) f, 1.0 / inGlobals->gamma);
 			}
 			
 			
@@ -142,7 +142,7 @@ void ResetIntToHalfTable (const GPtr inGlobals)
 
 	// calculate exposure multiplier
 
-	multiplier = pow (2, inGlobals->exposure);
+	multiplier = pow (2.0, inGlobals->exposure);
 	
 		
 	// build table
@@ -172,7 +172,7 @@ void ResetIntToHalfTable (const GPtr inGlobals)
 			
 			if (inGlobals->gamma != 0)
 			{
-			    f = pow (f, inGlobals->gamma);
+			    f = pow ((double) f, inGlobals->gamma);
 			}
 							
 			

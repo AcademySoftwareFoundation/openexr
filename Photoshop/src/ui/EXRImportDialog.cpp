@@ -37,16 +37,20 @@ using Imf::Rgba;
 //	Resource IDs
 // ---------------------------------------------------------------------------
 
-const int                   kResID_ImportDialog     =	500;
-
-const int                   kItem_OK                =	1;
-const int                   kItem_Cancel            =	2;
-const int                   kItem_Exposure          =	3;
-const int                   kItem_Gamma             =	4;
-const int                   kItem_Defaults          =   7;
-const int                   kItem_Preview           =   10;
-const int                   kItem_Unmult            =   11;
-
+enum
+{
+    kItem_OK                =	1,
+    kItem_Cancel,
+    kItem_Defaults,
+    kItem_Sep1,
+    kItem_ExposureLabel,
+    kItem_Exposure,
+    kItem_GammaLabel,
+    kItem_Gamma,   
+    kItem_Unmult,
+    kItem_Sep2,
+    kItem_Preview
+};
 
 // ---------------------------------------------------------------------------
 //	Globals
@@ -425,6 +429,108 @@ static void ASAPI ClickPreview (ADMItemRef inItem, ADMNotifierRef inNotifier)
 #pragma mark-
 
 // ---------------------------------------------------------------------------
+//	BuildDialog
+// ---------------------------------------------------------------------------
+
+static void BuildDialog (ADMDialogRef dialog)
+{
+	ADMItemRef		item;
+	ASRect			rect;
+
+
+	// set the dialog to the correct size
+
+	sDlogSuite->Size (dialog, 474, 285);
+
+
+	// OK button
+
+	ASSetRect (&rect, 388, 260, 468, 280);
+	item = sItemSuite->Create (dialog, kItem_OK, kADMTextPushButtonType, &rect, NULL, NULL, 0);
+	sItemSuite->SetText (item, "OK");	
+
+
+	// cancel button
+
+	ASSetRect (&rect, 296, 260, 376, 280);
+	item = sItemSuite->Create (dialog, kItem_Cancel, kADMTextPushButtonType, &rect, NULL, NULL, 0);
+	sItemSuite->SetText (item, "Cancel");
+
+
+	// defaults button
+
+	ASSetRect (&rect, 8, 260, 88, 280);
+	item = sItemSuite->Create (dialog, kItem_Defaults, kADMTextPushButtonType, &rect, NULL, NULL, 0);
+	sItemSuite->SetText (item, "Defaults");
+
+
+	// separator
+
+	ASSetRect (&rect, 5, 253, 469, 255);
+	item = sItemSuite->Create (dialog, kItem_Sep1, kADMFrameType, &rect, NULL, NULL, 0);
+	sItemSuite->SetItemStyle (item, kADMEtchedFrameStyle);
+	
+
+    // exposure label
+
+    ASSetRect (&rect, 15, 230, 75, 250);
+    item = sItemSuite->Create (dialog, kItem_ExposureLabel, kADMTextStaticType, &rect, NULL, NULL, 0);
+    sItemSuite->SetText (item, "Exposure:");
+    sItemSuite->SetJustify (item, kADMRightJustify);
+
+
+    // exposure control
+
+	ASSetRect (&rect, 80, 230, 160, 250);
+	item = sItemSuite->Create (dialog, kItem_Exposure, kADMSpinEditType, &rect, NULL, NULL, 0);
+
+
+    // gamma label
+
+    ASSetRect (&rect, 165, 230, 225, 250);
+    item = sItemSuite->Create (dialog, kItem_GammaLabel, kADMTextStaticType, &rect, NULL, NULL, 0);
+    sItemSuite->SetText (item, "Gamma:");
+    sItemSuite->SetJustify (item, kADMRightJustify);
+
+
+	// gamma control
+
+	ASSetRect (&rect, 230, 230, 290, 250);
+	item = sItemSuite->Create (dialog, kItem_Gamma, kADMSpinEditType, &rect, NULL, NULL, 0);
+
+
+	// unmult checkbox
+
+	ASSetRect (&rect, 320, 230, 450, 250);
+	item = sItemSuite->Create (dialog, kItem_Unmult, kADMTextCheckBoxType, &rect, NULL, NULL, 0);
+	sItemSuite->SetText (item, "Un-Premultiply");
+
+
+	// separator
+
+	ASSetRect (&rect, 5, 224, 469, 226);
+	item = sItemSuite->Create (dialog, kItem_Sep2, kADMFrameType, &rect, NULL, NULL, 0);
+	sItemSuite->SetItemStyle (item, kADMEtchedFrameStyle);
+	
+	
+	// preview
+		
+	ASSetRect (&rect, 5, 5, 469, 212);
+	item = sItemSuite->Create (dialog, kItem_Preview, kADMUserType, &rect, NULL, NULL, 0);
+
+
+	// if on Windows, swap the OK and Cancel button positions
+
+#if MSWindows
+	item = sDlogSuite->GetItem (dialog, kItem_OK);
+	sItemSuite->Move (item, 296, 260);
+
+	item = sDlogSuite->GetItem (dialog, kItem_Cancel);
+	sItemSuite->Move (item, 388, 260);
+#endif
+}
+
+// ---------------------------------------------------------------------------
 //	DoDialogOK - ADM callback
 // ---------------------------------------------------------------------------
 
@@ -535,7 +641,12 @@ static ASErr ASAPI DoDialogInit (ADMDialogRef dialog)
 	GPtr            globals	= 	(GPtr) sDlogSuite->GetUserData (dialog);
 	ADMItemRef		item	=	NULL;
 	
-	
+
+	// create dialog
+
+    BuildDialog (dialog);
+
+
 	// set dialog title
 	
 	sDlogSuite->SetText (dialog, "EXR Import Settings");
@@ -614,7 +725,7 @@ bool EXRImportDialog (GPtr ioGlobals, SPBasicSuite* inSPBasic, void* inPluginRef
     {
         item = sDlogSuite->Modal ((SPPluginRef) inPluginRef, 
 		                          "EXR Import Settings", 
-		                          kResID_ImportDialog, 
+		                          0, 
 		                          kADMModalDialogStyle, 
 		                          DoDialogInit, 
 		                          ioGlobals, 
