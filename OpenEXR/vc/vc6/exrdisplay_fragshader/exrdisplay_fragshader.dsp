@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="IexTest" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="exrdisplay_fragshader" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=IexTest - Win32 Debug
+CFG=exrdisplay_fragshader - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "IexTest.mak".
+!MESSAGE NMAKE /f "exrdisplay_fragshader.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "IexTest.mak" CFG="IexTest - Win32 Debug"
+!MESSAGE NMAKE /f "exrdisplay_fragshader.mak" CFG="exrdisplay_fragshader - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "IexTest - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "IexTest - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "exrdisplay_fragshader - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "exrdisplay_fragshader - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=IexTest - Win32 Debug
 CPP=xicl6.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "IexTest - Win32 Release"
+!IF  "$(CFG)" == "exrdisplay_fragshader - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "../../../IlmImf" /I "../../../Iex" /I "../../../Imath" /I "../../../Half" /I "../../../IexTest" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "PLATFORM_WIN32" /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "../../../IlmImf" /I "../../../Iex" /I "../../../Imath" /I "../../../Half" /I "../../../exrdisplay" /I "../../../../fltk" /I "../../../../nvidia/SDK/inc" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "PLATFORM_WIN32" /D "HAVE_FRAGMENT_SHADERS" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -51,14 +51,9 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /entry:"mainCRTStartup" /subsystem:console /machine:I386
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-PostBuild_Desc=Running IexTest program....
-PostBuild_Cmds=Release\IexTest.exe
-# End Special Build Tool
+# ADD LINK32 zlib.lib fltk.lib fltkgl.lib opengl32.lib glu32.lib comctl32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib ws2_32.lib /nologo /entry:"mainCRTStartup" /subsystem:console /machine:I386 /out:"..\bin\exrdisplay.exe" /libpath:"../../../../fltk/lib" /libpath:"../../../../zlib/lib"
 
-!ELSEIF  "$(CFG)" == "IexTest - Win32 Debug"
+!ELSEIF  "$(CFG)" == "exrdisplay_fragshader - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -69,9 +64,10 @@ PostBuild_Cmds=Release\IexTest.exe
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "../../../IlmImf" /I "../../../Iex" /I "../../../Imath" /I "../../../Half" /I "../../../IexTest" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "PLATFORM_WIN32" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "../../../IlmImf" /I "../../../Iex" /I "../../../Imath" /I "../../../Half" /I "../../../exrdisplay" /I "../../../../fltk" /I "../../../../nvidia/SDK/inc" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "PLATFORM_WIN32" /D "HAVE_FRAGMENT_SHADERS" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -80,29 +76,28 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /entry:"mainCRTStartup" /subsystem:console /debug /machine:I386 /pdbtype:sept
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-PostBuild_Desc=Running IexTest program....
-PostBuild_Cmds=Debug\IexTest.exe
-# End Special Build Tool
+# ADD LINK32 zlib.lib fltkd.lib fltkgld.lib glu32.lib opengl32.lib comctl32.lib wsock32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:console /debug /machine:I386 /out:"..\bin\exrdisplay.exe" /pdbtype:sept /libpath:"../../../../fltk/lib" /libpath:"../../../../zlib/lib"
 
 !ENDIF 
 
 # Begin Target
 
-# Name "IexTest - Win32 Release"
-# Name "IexTest - Win32 Debug"
+# Name "exrdisplay_fragshader - Win32 Release"
+# Name "exrdisplay_fragshader - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\..\..\IexTest\main.cpp
+SOURCE=..\..\..\exrdisplay\ImageView.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\..\IexTest\testBaseExc.cpp
+SOURCE=..\..\..\exrdisplay\ImageViewFragShader.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\exrdisplay\main.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -110,7 +105,11 @@ SOURCE=..\..\..\IexTest\testBaseExc.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\..\..\IexTest\testBaseExc.h
+SOURCE=..\..\..\exrdisplay\ImageView.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\exrdisplay\ImageViewFragShader.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
