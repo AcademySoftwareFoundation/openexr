@@ -35,6 +35,9 @@ copy ImfXdr.h %instdir%
 copy ImfConvert.h %instdir%
 copy ImfPreviewImage.h %instdir%
 copy ImfPreviewImageAttribute.h %instdir%
+copy ImfChromaticities.h %instdir%
+copy ImfChromaticitiesAttribute.h %instdir%
+copy ImfStandardAttributes.h %instdir%
 mkdir ..\vc\vc7\lib\zlib
 copy ..\..\zlib\zlib.lib ..\vc\vc7\lib\zlib
 copy ..\..\zlib\zlibd.lib ..\vc\vc7\lib\zlib

@@ -138,6 +138,10 @@ SOURCE=..\..\..\IlmImfTest\testLut.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\IlmImfTest\testMagic.cpp
+# End Source File
+# Begin Source File
+
 SOURCE="\tmp\OpenEXR-1.0.6\IlmImfTest\testNativeFormat.cpp"
 # End Source File
 # Begin Source File
@@ -151,6 +155,10 @@ SOURCE=..\..\..\IlmImfTest\testRgba.cpp
 # Begin Source File
 
 SOURCE=..\..\..\IlmImfTest\testSampleImages.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\IlmImfTest\testStandardAttributes.cpp
 # End Source File
 # Begin Source File
 
@@ -202,6 +210,10 @@ SOURCE=..\..\..\IlmImfTest\testLut.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\IlmImfTest\testMagic.h
+# End Source File
+# Begin Source File
+
 SOURCE="\tmp\OpenEXR-1.0.6\IlmImfTest\testNativeFormat.h"
 # End Source File
 # Begin Source File
@@ -215,6 +227,10 @@ SOURCE=..\..\..\IlmImfTest\testRgba.h
 # Begin Source File
 
 SOURCE=..\..\..\IlmImfTest\testSampleImages.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\IlmImfTest\testStandardAttributes.h
 # End Source File
 # Begin Source File
 
