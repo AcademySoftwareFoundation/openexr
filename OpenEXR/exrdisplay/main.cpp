@@ -131,6 +131,7 @@ makeMainWindow (const char imageFile[],
 		bool normalize,
 		bool swap,
 		bool bloom,
+		bool continuousUpdate,
 		bool useFragmentShader,
 		const char * fragmentShaderName)
 {
@@ -269,7 +270,8 @@ makeMainWindow (const char imageFile[],
     mainWindow->exposureSlider =
 	new Fl_Value_Slider (70, 5, mw - 65, 20, "");
 
-    enum Fl_When when = useFragmentShader ? FL_WHEN_CHANGED : FL_WHEN_RELEASE;
+    enum Fl_When when = (useFragmentShader || continuousUpdate)?
+			    FL_WHEN_CHANGED : FL_WHEN_RELEASE;
 
     mainWindow->exposureSlider->type (FL_HORIZONTAL);
     mainWindow->exposureSlider->range (-10.0, +10.0);
@@ -461,6 +463,9 @@ usageMessage (const char argv0[], bool verbose = false)
 		"          in computer-generated images that contain very\n"
 		"          bright areas adjacent to dark areas.\n"
 		"\n"
+		"-u        changing the exposure and knee sliders\n"
+		"          continuously updates the on-screen image\n"
+		"\n"
 		"-h        prints this message\n";
 
 	 cerr << endl;
@@ -482,6 +487,7 @@ main(int argc, char **argv)
     bool normalize = false;
     bool swap = false;
     bool bloom = false;
+    bool continuousUpdate = false;
     bool useFragmentShader = false;
     const char * fragmentShaderName = 0;
     
@@ -611,6 +617,15 @@ main(int argc, char **argv)
 	    bloom = true;
 	    i += 1;
 	}
+	else if (!strcmp (argv[i], "-u"))
+	{
+	    //
+	    // Continuous update.
+	    //
+
+	    continuousUpdate = true;
+	    i += 1;
+	}
 	else if (!strcmp (argv[i], "-f"))
 	{
 	    //
@@ -683,6 +698,7 @@ main(int argc, char **argv)
 						 normalize,
 						 swap,
 						 bloom,
+						 continuousUpdate,
 						 useFragmentShader,
 						 fragmentShaderName ?
 						 fragmentShaderName : "");
