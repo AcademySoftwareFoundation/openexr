@@ -64,6 +64,13 @@ the examples can easily be compiled and run.
 	<li><a href="#sec_5_1">5.1 Writing a Tiled Image File</a></li>
 	<li><a href="#sec_5_2">5.2 Reading a Tiled Image File</a></li>
     </ul>
+<p>
+<li><a href="#sec_6">6 Miscellaneous</a>
+<p>
+    <ul type="none">
+	<li><a href="#sec_6_1">6.1 Is this an OpenEXR File?</a></li>
+	<li><a href="#sec_6_2">6.2 Custom Low-Level File I/O</a></li>
+    </ul>
 
 </ul>
 <br>
@@ -1723,5 +1730,207 @@ version of the <code>readTile()</code> function:
 </pre>
 <p>
 
+<p>
+<a name = sec_6><h3>6 Miscellaneous</h3></a>
+<p>
+<a name = sec_6_1><h4>6.1 Is this an OpenEXR File?</h4></a>
+<p>
+Sometimes we want to test quickly if a given file is an OpenEXR file.
+This can be done by looking at the beginning of the file:
+The first four bytes of every OpenEXR file contain a 32-bit
+integer "magic number", 20000630, in little-endian byte order.
+After reading a file's first four bytes via any of the operating system's
+standard file I/O mechanisms, we can compare them with the
+magic number, either by calling function <code>isImfMagic()</code>,
+or by explicitly testing if the bytes contain the values
+<code>0x76</code>, <code>0x2f</code>, <code>0x31</code>,
+and <code>0x01</code>.
+<p>
+Given a file name, the following function returns true if the
+corresponding file exists, is readable, and contains an OpenEXR image:
+<p>
+
+<pre><code>
+    bool
+    isOpenExrFile (const char fileName[])
+    {
+	std::ifstream f (fileName, std::ios_base::binary);
+
+	char bytes[4];
+	f.read (bytes, sizeof (bytes));
+
+	return !!f &amp;&amp; Imf::isImfMagic (bytes);
+    }
+</code></pre>
+<p>
+
+<a name = sec_6_2><h4>6.2 Custom Low-Level File I/O</h4></a>
+<p>
+In all of the previous file reading and writing examples, we were
+given a file name, and we relied on the constructors for our input
+file or output file objects to open the file.
+In some contexts, for example in a plugin for an
+existing application program, we may have to read from or write to
+a file that has already been opened.  The representation of the open
+file as a C or C++ data type depends on the application program and
+on the operating system.
+<p>
+At its lowest level, the IlmImf library performs file I/O via objects
+of type <code>IStream</code> and <code>OStream</code>.
+<code>IStream</code> and <code>OStream</code> are abstract base
+classes.  The IlmImf library contains two derived classes,
+<code>StdIstream</code> and </code>StdOstream</code>, that implement
+reading from <code>std::ifstream</code> and writing
+to <code>std::ofstream</code> objects.
+An application program can implement alternative file I/O mechanisms
+by deriving its own classes from <code>Istream</code> and <code>Ostream</code>.
+This way, OpenEXR images can be stored in arbitrary file-like objects,
+as long as it is possible to support read, write, seek and tell
+operations with semantics similar to the corresponding
+<code>std::ifstream</code> and <code>std::ofstream</code> methods.
+<p>
+For example, assume that we want to read an OpenEXR image from a C
+stdio file (of type <code>FILE&nbsp;*</code>) that has already been
+opened.  To do this, we derive a new class, <code>C_IStream</code>,
+from <code>IStream</code>.
+The declaration of class <code>IStream</code> looks like this:
+
+<pre><code>
+    class IStream
+    {
+      public:
+
+	virtual ~IStream ();
+
+	virtual bool	read (char c[], int n) = 0;
+	virtual Int64	tellg () = 0;
+	virtual void	seekg (Int64 pos) = 0;
+	virtual void	clear ();
+	const char *	fileName () const;
+
+      protected:
+
+	IStream (const char fileName[]);
+
+      private:
+
+	...
+    };
+</code</pre>
+
+Our derived class needs a public constructor,
+and it must override four methods:
+<p>
+
+<pre><code>
+    class C_IStream: public IStream
+    {
+      public:
+
+	C_IStream (FILE *file, const char fileName[]):
+	    IStream (fileName), _file (file) {}
+
+	virtual bool	read (char c[], int n);
+	virtual Int64	tellg ();
+	virtual void	seekg (Int64 pos);
+	virtual void	clear ();
+
+      private:
+
+	FILE *		_file;
+    };
+</code</pre>
+
+<code>read(c,n)</code> reads <code>n</code> bytes from the file, and
+stores them in array <code>c</code>.  If reading hits the end of the
+file before <code>n</code> bytes have been read, or if an I/O error
+occurs, <code>read(c,n)</code> throws an exception.
+If <code>read(c,n)</code> hits the end of the file after reading
+<code>n</code> bytes, it returns false, otherwise it returns true:
+
+<pre><code>
+    bool
+    C_IStream::read (char c[], int n)
+    {
+	if (n != fread (c, 1, n, _file))
+	{
+	    // fread() failed, but the return value does not distinguish
+	    // between I/O errors and end of file, so we call ferror() to
+	    // determine what happened.
+
+	    if (ferror (_file))
+		Iex::throwErrnoExc();
+	    else
+		throw Iex::InputExc ("Unexpected end of file.");
+	}
+
+	return feof (_file);
+    }
+</code</pre>
+
+<code>tellg()</code> returns the current reading position, in bytes,
+from the beginning of the file.  The next call to <code>read()</code>
+will begin reading at the indicated position:
+
+<pre><code>
+    Int64
+    C_IStream::tellg ()
+    {
+	return ftell (_file);
+    }
+</code</pre>
+
+<code>seekg(pos)</code> sets the current reading position to
+<code>pos</code> bytes from the beginning of the file:
+
+<pre><code>
+    void
+    C_IStream::seekg (Int64 pos)
+    {
+	clearerr (_file);
+	fseek (_file, pos, SEEK_SET);
+    }
+</code</pre>
+
+<code>clear()</code> clears any error flags that may be set
+on the file after a <code>read()</code> or <code>seekg()</code>
+operation has failed:
+
+<pre><code>
+    void
+    C_IStream::clear ()
+    {
+	clearerr (_file);
+    }
+</code></pre>
+
+In order to read an RGBA image from an open C stdio file, we first make a
+<code>C_IStream</code> object.  Then we create an <code>RgbaInputFile</code>,
+passing the <code>C_IStream</code> instead of a file name to the constructor.
+After that, we read the image as usual
+(see <a href = #sec_1_4>section 1.4, Reading an RGBA Image File</a>):
+
+<pre><code>
+    void
+    readRgbaFILE (FILE *cfile,
+		  const char fileName[],
+		  Array2D<Rgba> &amp;pixels,
+		  int &amp;width,
+		  int &amp;height)
+    {
+	C_IStream istr (cfile, fileName);
+	RgbaInputFile file (istr);
+
+	Box2i dw = file.dataWindow();
+	width  = dw.max.x - dw.min.x + 1;
+	height = dw.max.y - dw.min.y + 1;
+	pixels.resizeErase (height, width);
+	file.setFrameBuffer (&amp;pixels[0][0] - dw.min.x - dw.min.y * width, 1, width);
+	file.readPixels (dw.min.y, dw.max.y);
+    }
+</code></pre>
+
+
+<p>
 </body>
 </html>
