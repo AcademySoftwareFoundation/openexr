@@ -1,3 +1,6 @@
+        * Bumped the version to 1.0.5 in prep for release.
+	* Updated README and README.OSX to talk about CodeWarrior 
+          project files.
 	* Incorporated Rodrigo Damazio's patch for an openexr.m4
 	  macro file and an openexr.spec file for building RPMs.
 	* Small change in ImfAttribute.h to make IlmImf compile with gcc 2.95.
