@@ -54,15 +54,14 @@
 #include <ImfPreviewImageAttribute.h>
 #include <ImfStringAttribute.h>
 #include <ImfTileDescriptionAttribute.h>
+#include <ImfTimeCodeAttribute.h>
 #include <ImfVecAttribute.h>
 #include <ImfVersion.h>
 #include <iostream>
 #include <iomanip>
 
 using namespace Imf;
-using std::cout;
-using std::endl;
-using std::setbase;
+using namespace std;
 
 
 void
@@ -190,6 +189,30 @@ printLevelRoundingMode (LevelRoundingMode lm)
 	cout << "mode " << int (lm);
 	break;
     }
+}
+
+
+void
+printTimeCode (TimeCode tc)
+{
+    cout << "    "
+	    "time " <<
+	    setfill ('0') <<
+	    setw (2) << right << tc.hours() << ":" <<
+	    setw (2) << right << tc.minutes() << ":" <<
+	    setw (2) << right << tc.seconds() << ":" <<
+	    setw (2) << right << tc.frame() << "\n" <<
+	    setfill (' ') <<
+	    "    "
+	    "drop frame " << tc.dropFrame() << ", "
+	    "color frame " << tc.colorFrame() << ", "
+	    "field/phase " << tc.fieldPhase() << "\n"
+	    "    "
+	    "bgf0 " << tc.bgf0() << ", "
+	    "bgf1 " << tc.bgf1() << ", "
+	    "bgf2 " << tc.bgf2() << "\n"
+	    "    "
+	    "user data 0x" << hex << tc.userData() << dec;
 }
 
 
@@ -389,6 +412,12 @@ printInfo (const char fileName[])
 		cout << "\n    level sizes rounded ";
 		printLevelRoundingMode (ta->value().roundingMode);
 	    }
+	}
+	else if (const TimeCodeAttribute *ta =
+		dynamic_cast <const TimeCodeAttribute *> (a))
+	{
+	    cout << ":\n";
+	    printTimeCode (ta->value());
 	}
 	else if (const V2iAttribute *ta =
 		dynamic_cast <const V2iAttribute *> (a))

@@ -141,6 +141,14 @@ usageMessage (const char argv0[], bool verbose = false)
 	        "         * number of perforations per frame (1 - 15)\n"
 	        "         * number of perforations per count (20 - 120)\n"
 		"\n"
+		"  -timeCode i i\n"
+		"        SMPTE time and control code, specified as a pair\n"
+		"        of 8-digit base-16 integers.  The first number\n"
+		"        contains the time address and flags (drop frame,\n"
+		"        color frame, field/phase, bgf0, bgf1, bgf2).\n"
+		"        The second number contains the user data and\n"
+		"        control codes.\n"
+		"\n"
 		"  -wrapmodes s\n"
 		"        if the image is used as a texture map, specifies\n"
 		"        how the image should be extrapolated outside the\n"
@@ -452,6 +460,25 @@ getKeyCode (const char attrName[],
 }
 
 
+void
+getTimeCode (const char attrName[],
+	    int argc,
+	    char **argv,
+	    int &i,
+	    AttrMap &attrs)
+{
+    if (i > argc - 3)
+	usageMessage (argv[0]);
+
+    TimeCodeAttribute *a = new TimeCodeAttribute;
+    attrs[attrName] = a;
+
+    a->value().setTimeAndFlags (strtoul (argv[i + 1], 0, 16));
+    a->value().setUserData     (strtoul (argv[i + 2], 0, 16));
+    i += 3;
+}
+
+
 int
 main(int argc, char **argv)
 {
@@ -540,6 +567,10 @@ main(int argc, char **argv)
 	    else if (!strcmp (argv[i], "-keyCode"))
 	    {
 		getKeyCode (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-timeCode"))
+	    {
+		getTimeCode (attrName, argc, argv, i, attrs);
 	    }
 	    else if (!strcmp (argv[i], "-wrapmodes"))
 	    {

@@ -1061,6 +1061,12 @@
 				RelativePath="..\..\..\IlmImf\ImfTileOffsets.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfTimeCode.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTimeCodeAttribute.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfVecAttribute.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1334,6 +1340,12 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfTileOffsets.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTimeCode.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTimeCodeAttribute.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfVecAttribute.h">
