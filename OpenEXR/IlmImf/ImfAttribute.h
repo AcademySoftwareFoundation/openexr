@@ -210,16 +210,12 @@ class TypedAttribute: public Attribute
     // Register this attribute type
     //-----------------------------
 
-    using Attribute::registerAttributeType;
-
     static void				registerAttributeType ();
 
 
     //-----------------------------------------------------
     // Un-register this attribute type (for debugging only)
     //-----------------------------------------------------
-
-    using Attribute::unRegisterAttributeType;
 
     static void				 unRegisterAttributeType ();
 
@@ -377,7 +373,7 @@ template <class T>
 inline void
 TypedAttribute<T>::registerAttributeType ()
 {
-    registerAttributeType (staticTypeName(), makeNewAttribute);
+    Attribute::registerAttributeType (staticTypeName(), makeNewAttribute);
 }
 
 
@@ -385,7 +381,7 @@ template <class T>
 inline void
 TypedAttribute<T>::unRegisterAttributeType ()
 {
-     unRegisterAttributeType (staticTypeName());
+    Attribute::unRegisterAttributeType (staticTypeName());
 }
 
 
