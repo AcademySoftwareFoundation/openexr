@@ -85,7 +85,7 @@ To build OpenEXR on Windows NT or greater, you have a few choices:
 
   * Use Cygwin and the 'configure' script, see above.
   * Use Visual C++ 6.0 with Intel's C++ compiler.
-  * Use Visual Studio .NET 2003 with Microsoft's C++ compiler.
+  * Use Visual Studio .NET 2003 (version 7.1) with Microsoft's C++ compiler.
 
 See README.win32 for details.
 
