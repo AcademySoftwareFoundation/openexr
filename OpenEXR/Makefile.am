@@ -3,7 +3,7 @@
 SUBDIRS = Half Iex IexTest IlmImf IlmImfTest Imath ImathTest \
 	  exrdisplay exrheader doc
 
-EXTRA_DIST = bootstrap README.OSX README.CVS LICENSE
+EXTRA_DIST = bootstrap README.OSX README.CVS LICENSE openexr.m4
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = OpenEXR.pc
