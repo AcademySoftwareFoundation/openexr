@@ -1,3 +1,11 @@
+	* Imath: TMatrix*, generic 2D matricies and algorithms.
+	  (Francesco Callari)
+	* Imath: major quaternions cleanup.  (Cary Phillips)
+	* Imath: added GLBegin, GLPushAttrib, GLPushMatrix objects
+	  for automatic cleanup on exceptions.  (Cary Phillips)
+	* Imath: removed implicit scalar->vector promotions and vector
+	  comparisons.  (Nick Rasmussen)
+	
 Version 1.0.7:
 	* Fixed a bug in exrdisplay that causes the image to display
 	  as all black if there's a NaN or infinity in an OpenEXR
