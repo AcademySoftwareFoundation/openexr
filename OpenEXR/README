@@ -18,6 +18,10 @@ some code that demonstrates how to use the IlmImf library to read
 and write OpenEXR files.  The doc directory contains some high-level
 documentation and history about the OpenEXR format.
 
+If you have questions about using the OpenEXR libraries, you may want
+to join our developer mailing list.  See http://www.openexr.com for
+details.
+
 
 LICENSE
 -------
