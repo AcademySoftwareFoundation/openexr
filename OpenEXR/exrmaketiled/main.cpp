@@ -50,6 +50,7 @@
 using namespace Imf;
 using namespace std;
 
+namespace {
 
 void
 usageMessage (const char argv0[], bool verbose = false)
@@ -79,9 +80,12 @@ usageMessage (const char argv0[], bool verbose = false)
 		"-t x y    sets the tile size in the output image to\n"
 		"          x by y pixels (default is 64 by 64)\n"
 		"\n"
-		"-d        sets level size rounding ROUND_DOWN (default)\n"
+		"-d        sets level size rounding to ROUND_DOWN (default)\n"
 		"\n"
-		"-u        sets level size rounding ROUND_UP\n"
+		"-u        sets level size rounding to ROUND_UP\n"
+		"\n"
+		"-z x      sets the data compression method to x\n"
+		"          (none/rle/zip/piz/pxr24, default is zip)\n"
 		"\n"
 		"-v        verbose mode\n"
 		"\n"
@@ -94,6 +98,43 @@ usageMessage (const char argv0[], bool verbose = false)
 }
 
 
+Compression
+getCompression (const string &str)
+{
+    Compression c;
+
+    if (str == "no" || str == "none" || str == "NO" || str == "NONE")
+    {
+	c = NO_COMPRESSION;
+    }
+    else if (str == "rle" || str == "RLE")
+    {
+	c = RLE_COMPRESSION;
+    }
+    else if (str == "zip" || str == "ZIP")
+    {
+	c = ZIP_COMPRESSION;
+    }
+    else if (str == "piz" || str == "PIZ")
+    {
+	c = PIZ_COMPRESSION;
+    }
+    else if (str == "pxr24" || str == "PXR24")
+    {
+	c = PXR24_COMPRESSION;
+    }
+    else
+    {
+	cerr << "Unknown compression method \"" << str << "\"." << endl;
+	exit (1);
+    }
+
+    return c;
+}
+
+} // namespace
+
+
 int
 main(int argc, char **argv)
 {
@@ -101,6 +142,7 @@ main(int argc, char **argv)
     const char *outFile = 0;
     LevelMode mode = ONE_LEVEL;
     LevelRoundingMode roundingMode = ROUND_DOWN;
+    Compression compression = ZIP_COMPRESSION;
     int tileSizeX = 64;
     int tileSizeY = 64;
     set<string> doNotFilter;
@@ -167,6 +209,13 @@ main(int argc, char **argv)
 
 	    tileSizeX = strtol (argv[i + 1], 0, 0);
 	    tileSizeY = strtol (argv[i + 2], 0, 0);
+
+	    if (tileSizeX <= 0 || tileSizeY <= 0)
+	    {
+		cerr << "Tile size must be greater than zero." << endl;
+		return 1;
+	    }
+
 	    i += 3;
 	}
 	else if (!strcmp (argv[i], "-d"))
@@ -186,6 +235,18 @@ main(int argc, char **argv)
 
 	    roundingMode = ROUND_UP;
 	    i += 1;
+	}
+	else if (!strcmp (argv[i], "-z"))
+	{
+	    //
+	    // Set compression method
+	    //
+
+	    if (i > argc - 2)
+		usageMessage (argv[0]);
+
+	    compression = getCompression (argv[i + 1]);
+	    i += 2;
 	}
 	else if (!strcmp (argv[i], "-v"))
 	{
@@ -231,7 +292,7 @@ main(int argc, char **argv)
     try
     {
 	makeTiled (inFile, outFile,
-		   mode, roundingMode,
+		   mode, roundingMode, compression,
 		   tileSizeX, tileSizeY,
 		   doNotFilter,
 		   verbose);
