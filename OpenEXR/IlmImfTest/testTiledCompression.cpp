@@ -50,9 +50,11 @@ using namespace Imath;
 using namespace Imf;
 
 #ifdef WIN32
-	#define isnan _isnan
-#else
+	#define isnan _isnan	
+
+#elif defined (PLATFORM_DARWIN_PPC) && !defined (__MWERKS__)
 	extern "C" int isnan (double); 
+
 #endif
 
 namespace {
