@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -56,13 +56,6 @@
 using namespace std;
 using namespace Imf;
 using namespace Imath;
-
-
-typedef struct GZ
-{
-    half  g;
-    float z;
-};
 
 
 void
@@ -225,7 +218,7 @@ readGZ1 (const char fileName[],
 
 void
 readGZ2 (const char fileName[],
-	 Array2D<GZ> &gzPixels,
+	 Array2D<GZ> &pixels,
 	 int &width, int &height)
 {
     //
@@ -244,26 +237,24 @@ readGZ2 (const char fileName[],
     Box2i dw = file.header().dataWindow();
     width  = dw.max.x - dw.min.x + 1;
     height = dw.max.y - dw.min.y + 1;
+    int dx = dw.min.x;
+    int dy = dw.min.y;
 
-    gzPixels.resizeErase (height, width);
+    pixels.resizeErase (height, width);
 
     FrameBuffer frameBuffer;
 
-    char *base = (char *) (&gzPixels[0][0] - dw.min.x - dw.min.y * width);
-    int xStride = sizeof (gzPixels[0][0]) * 1;
-    int yStride = sizeof (gzPixels[0][0]) * width;
+    frameBuffer.insert ("G",					 // name
+                        Slice (HALF,				 // type
+			       (char *) &pixels[-dy][-dx].g,	 // base
+				sizeof (pixels[0][0]) * 1,	 // xStride
+				sizeof (pixels[0][0]) * width)); // yStride
 
-    frameBuffer.insert ("G",
-			Slice (HALF,
-			       base + offsetof (GZ, g),
-			       xStride,
-			       yStride));
-
-    frameBuffer.insert ("Z",
-			Slice (FLOAT,
-			       base + offsetof (GZ, z),
-			       xStride,
-			       yStride));
+    frameBuffer.insert ("Z",					 // name
+                        Slice (FLOAT,				 // type
+			       (char *) &pixels[-dy][-dx].z,	 // base
+				sizeof (pixels[0][0]) * 1,	 // xStride
+				sizeof (pixels[0][0]) * width)); // yStride
 
     file.setFrameBuffer (frameBuffer);
     file.readPixels (dw.min.y, dw.max.y);

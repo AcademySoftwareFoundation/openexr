@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -118,7 +118,7 @@ writeRgba3 (const char fileName[],
 	    const Rgba *pixels,
 	    int width,
 	    int height,
-	    const char comment[],
+	    const char comments[],
 	    const M44f &cameraTransform)
 {
     //
@@ -132,7 +132,7 @@ writeRgba3 (const char fileName[],
     //
 
     Header header (width, height);
-    header.insert ("comment", StringAttribute (comment));
+    header.insert ("comments", StringAttribute (comments));
     header.insert ("cameraTransform", M44fAttribute (cameraTransform));
 
     RgbaOutputFile file (fileName, header, WRITE_RGBA);
@@ -210,7 +210,7 @@ readHeader (const char fileName[])
 {
     //
     // Read an image's header from a file, and if the header
-    // contains comment and camera transformation attributes,
+    // contains comments and camera transformation attributes,
     // print the values of those attributes.
     //
     //	- open the file
@@ -220,14 +220,14 @@ readHeader (const char fileName[])
 
     RgbaInputFile file (fileName);
 
-    const StringAttribute *comment =
-	file.header().findTypedAttribute <StringAttribute> ("comment");
+    const StringAttribute *comments =
+	file.header().findTypedAttribute <StringAttribute> ("comments");
 
     const M44fAttribute *cameraTransform = 
 	file.header().findTypedAttribute <M44fAttribute> ("cameraTransform");
 
-    if (comment)
-	cout << "comment\n   " << comment->value() << endl;
+    if (comments)
+	cout << "comments\n   " << comments->value() << endl;
 
     if (cameraTransform)
 	cout << "cameraTransform\n" << cameraTransform->value() << flush;
