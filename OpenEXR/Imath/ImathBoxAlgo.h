@@ -243,9 +243,9 @@ Vec3<T> closestPointOnBox(const Vec3<T>& pt, const Box< Vec3<T> >& box )
     return result;
 }
 
-template <class T>
-Box< Vec3<T> >
-transform(const Box< Vec3<T> >& box, const Matrix44<T>& m)
+template <class S, class T>
+Box< Vec3<S> >
+transform(const Box< Vec3<S> >& box, const Matrix44<T>& m)
 {
     // Transforms Box3f by matrix, enlarging Box3f to contain result.
     // Clever method courtesy of Graphics Gems, pp. 548-550
@@ -268,7 +268,7 @@ transform(const Box< Vec3<T> >& box, const Matrix44<T>& m)
     {
 	// Affine version, use the Graphics Gems hack
 	int		i, j;
-	Box< Vec3<T> >  newBox;
+	Box< Vec3<S> >  newBox;
 
 	for (i = 0; i < 3; i++) 
         {
@@ -298,7 +298,7 @@ transform(const Box< Vec3<T> >& box, const Matrix44<T>& m)
     }
 
     // This is a projection matrix.  Do things the naive way.
-    Vec3<T> points[8];
+    Vec3<S> points[8];
 
     /* Set up the eight points at the corners of the extent */
     points[0][0] = points[1][0] = points[2][0] = points[3][0] = box.min[0];
@@ -310,7 +310,7 @@ transform(const Box< Vec3<T> >& box, const Matrix44<T>& m)
     points[0][2] = points[2][2] = points[4][2] = points[6][2] = box.min[2];
     points[1][2] = points[3][2] = points[5][2] = points[7][2] = box.max[2];
 
-    Box< Vec3<T> > newBox;
+    Box< Vec3<S> > newBox;
     for (int i = 0; i < 8; i++) 
 	newBox.extendBy(points[i] * m);
 

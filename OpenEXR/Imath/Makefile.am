@@ -31,4 +31,4 @@ libImathinclude_HEADERS = ImathColorAlgo.h ImathMatrixAlgo.h ImathVec.h \
 			  ImathTMatrix.h ImathTMatrixAlgo.h
 			  ImathTMatrixData.h
 
-INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex
+INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/Half

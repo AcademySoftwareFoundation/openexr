@@ -172,10 +172,10 @@ std::ostream& operator<< (std::ostream &o, const Line3<T> &line)
     return o << "(" << line.pos << ", " << line.dir << ")";
 }
 
-template<class T>
-inline Line3<T> operator * (const Line3<T> &line, const Matrix44<T> &M)
+template<class S, class T>
+inline Line3<S> operator * (const Line3<S> &line, const Matrix44<T> &M)
 {
-    return Line3<T>( line.pos * M, (line.pos + line.dir) * M );
+    return Line3<S>( line.pos * M, (line.pos + line.dir) * M );
 }
 
 
