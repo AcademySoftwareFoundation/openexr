@@ -89,6 +89,10 @@ printCompression (Compression c)
 	cout << "piz";
 	break;
 
+      case PXR24_COMPRESSION:
+	  cout << "pxr24";
+	  break;
+
       default:
 	cout << int (c);
 	break;
