@@ -1,3 +1,8 @@
+	* Random fixes to readme files for new release.
+	* Fixed openexr.m4, now looks in /usr by default.
+	* Added Visual Studio .NET 2003 "solution."
+	* Fixes for Visual Studio .NET 2003 w/ Microsoft C++ compiler.
+	  (Various)
 	* Random Imath fixes and enhancements.  Note that 
 	  extractSHRT now takes an additional optional
           argument, see ImathMatrixAlgo.h for details.  (Various)
