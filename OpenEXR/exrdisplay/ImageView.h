@@ -51,8 +51,6 @@ class ImageView: public Fl_Gl_Window
 {
   public:
 
-    static float        findKneeF (float x, float y);
-
     ImageView (int x, int y,
 	       int w, int h,            // display window width and height
 	       const char label[],
