@@ -21,14 +21,14 @@ See the AUTHORS file for a list of people who contributed to the Win32
 port of OpenEXR.
 
 
-Compiling OpenEXR in Visual Studio 6.0
---------------------------------------
+Compiling OpenEXR in Visual Studio 
+----------------------------------
 
 If you don't want or don't need to build these libraries from scratch,
-You can download the latest release of the pre-compiled OpenEXR
-libraries for Win32 here:
+some releases may be available as pre-compiled libraries.  Check
+here:
 
-  http://savannah.nongnu.org/files/?group=openexr
+  http://openexr.com/downloads
 
 The projects for Visual Studio 6.0 and .NET 2003 can be found in
 vc\vc6 and vc\vc7, respectively.
