@@ -350,5 +350,10 @@ SOURCE=..\..\..\IlmImf\ImfXdr.h
 SOURCE=..\..\..\IlmImf\ImfZipCompressor.h
 # End Source File
 # End Group
+
+SOURCE=..\..\..\IlmImf\ImfAutoArray.h
+# End Source File
+# End Group
+
 # End Target
 # End Project
