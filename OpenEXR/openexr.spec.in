@@ -1,5 +1,5 @@
 %define version		@OPENEXR_VERSION@
-%define release		1
+%define release		2
 
 Summary: A high-dynamic-range image file library.
 Name: OpenEXR
