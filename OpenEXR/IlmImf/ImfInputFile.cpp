@@ -55,6 +55,17 @@
 #include <fstream>
 #include <assert.h>
 
+#if defined PLATFORM_WIN32
+namespace
+{
+template<class T>
+inline T min (const T &a, const T &b) { return (a <= b) ? a : b; }
+
+template<class T>
+inline T max (const T &a, const T &b) { return (a >= b) ? a : b; }
+}
+#endif
+
 namespace Imf {
 
 using Imath::Box2i;
@@ -514,8 +525,13 @@ InputFile::readPixels (int scanLine1, int scanLine2)
 	// the file to reduce the overhead of seek operations.
 	//
 
+#ifdef PLATFORM_WIN32
+	int minY = min (scanLine1, scanLine2);
+	int maxY = max (scanLine1, scanLine2);
+#else
 	int minY = std::min (scanLine1, scanLine2);
 	int maxY = std::max (scanLine1, scanLine2);
+#endif
 
 	if (minY < _data->minY || maxY > _data->maxY)
 	{

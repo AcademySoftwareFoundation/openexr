@@ -35,6 +35,7 @@
 
 
 #include <ImfWav.h>
+#include <ImathRandom.h>
 #include <ImfArray.h>
 #include <iostream>
 #include <exception>
@@ -51,11 +52,12 @@ void
 fill1_14bit (Array2D <unsigned short> &a,
              Array2D <unsigned short> &b,
              int nx,
-             int ny)
+             int ny,
+	     Imath::Rand48 & rand48)
 {
     for (int y = 0; y < ny; ++y)
 	for (int x = 0; x < nx; ++x)
-	    a[y][x] = b[y][x] = lrand48() & 0x3fff;
+	    a[y][x] = b[y][x] = rand48.nexti() & 0x3fff;
 }
 
 
@@ -63,11 +65,12 @@ void
 fill1_16bit (Array2D <unsigned short> &a,
              Array2D <unsigned short> &b,
              int nx,
-             int ny)
+             int ny,
+	     Imath::Rand48 & rand48)
 {
     for (int y = 0; y < ny; ++y)
 	for (int x = 0; x < nx; ++x)
-	    a[y][x] = b[y][x] = lrand48() & 0xffff;
+	    a[y][x] = b[y][x] = rand48.nexti() & 0xffff;
 }
 
 
@@ -209,10 +212,12 @@ test (int nx, int ny)
     Array2D<unsigned short> a (ny, nx);
     Array2D<unsigned short> b (ny, nx);
 
-    fill1_14bit (a, b, nx, ny);
+    Imath::Rand48 rand48 (0);
+
+    fill1_14bit (a, b, nx, ny, rand48);
     wavEncodeDecode (a, b, nx, ny);
 
-    fill1_16bit (a, b, nx, ny);
+    fill1_16bit (a, b, nx, ny, rand48);
     wavEncodeDecode (a, b, nx, ny);
 
     fill2 (a, b, nx, ny, 0);

@@ -167,11 +167,19 @@ writeCopyRead (const Array2D<half> &ph1,
 void
 writeCopyRead (const Array2D<half> &ph, int w, int h, int dx, int dy)
 {
+#ifdef PLATFORM_WIN32
+    const char * filename1 = "imf_test_copy1.exr";
+    const char * filename2 = "imf_test_copy2.exr";
+#else
+    const char * filename1 = "/var/tmp/imf_test_copy1.exr";
+    const char * filename2 = "/var/tmp/imf_test_copy2.exr";
+#endif
+
     for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
     {
 	writeCopyRead (ph,
-		       "/var/tmp/imf_test_copy1.exr",
-		       "/var/tmp/imf_test_copy2.exr",
+		       filename1,
+		       filename2,
 		       w, h,
 		       dx, dy,
 		       Compression (comp));

@@ -255,13 +255,24 @@ testCustomAttributes ()
     {
 	cout << "Testing custom attributes" << endl;
 
+#ifdef PLATFORM_WIN32
+	cout << "test disabled on Windows, skipping" << endl;
+	return;
+#endif
+
 	const int W = 217;
 	const int H = 197;
 
 	Array2D<float> pf (H, W);
 	fillPixels (pf, W, H);
 
-	writeReadCustomAttr (pf, "/var/tmp/imf_test_custom_attr.exr", W, H);
+#ifdef PLATFORM_WIN32
+    const char * filename = "imf_test_custom_attr.exr";
+#else
+    const char * filename = "/var/tmp/imf_test_custom_attr.exr";
+#endif
+
+	writeReadCustomAttr (pf, filename, W, H);
 
 	cout << "ok\n" << endl;
     }

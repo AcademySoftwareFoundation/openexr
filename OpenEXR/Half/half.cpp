@@ -44,8 +44,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <signal.h>
-#include <unistd.h>
 #include <assert.h>
 #include <half.h>
 
@@ -264,26 +262,26 @@ namespace
 bool
 half::selftest ()
 {
-    testNormalized   ( HALF_MAX);
-    testNormalized   (-HALF_MAX);
-    testNormalized   ( 0.1);
-    testNormalized   (-0.1);
-    testNormalized   ( 0.5);
-    testNormalized   (-0.5);
-    testNormalized   ( 1.0);
-    testNormalized   (-1.0);
-    testNormalized   ( 2.0);
-    testNormalized   (-2.0);
-    testNormalized   ( 3.0);
-    testNormalized   (-3.0);
-    testNormalized   ( 17.0);
-    testNormalized   (-17.0);
-    testNormalized   ( HALF_NRM_MIN);
-    testNormalized   (-HALF_NRM_MIN);
-    testDenormalized ( HALF_MIN);
-    testDenormalized (-HALF_MIN);
-    testDenormalized ( 0.0);
-    testDenormalized (-0.0);
+    testNormalized   ((float)  HALF_MAX);
+    testNormalized   ((float) -HALF_MAX);
+    testNormalized   ( 0.1f);
+    testNormalized   (-0.1f);
+    testNormalized   ( 0.5f);
+    testNormalized   (-0.5f);
+    testNormalized   ( 1.0f);
+    testNormalized   (-1.0f);
+    testNormalized   ( 2.0f);
+    testNormalized   (-2.0f);
+    testNormalized   ( 3.0f);
+    testNormalized   (-3.0f);
+    testNormalized   ( 17.0f);
+    testNormalized   (-17.0f);
+    testNormalized   ((float)  HALF_NRM_MIN);
+    testNormalized   ((float) -HALF_NRM_MIN);
+    testDenormalized ((float)  HALF_MIN);
+    testDenormalized ((float) -HALF_MIN);
+    testDenormalized ( 0.0f);
+    testDenormalized (-0.0f);
 
     return true;
 }

@@ -2341,6 +2341,10 @@ Matrix44<T>::operator * (const Matrix44<T> &v) const
     return tmp;
 }
 
+#if defined (PLATFORM_WIN32)
+#define restrict
+#endif
+
 template <class T>
 void
 Matrix44<T>::multiply (const Matrix44<T> &a,

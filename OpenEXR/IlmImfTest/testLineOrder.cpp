@@ -193,10 +193,16 @@ testLineOrder ()
 	Array2D<half> ph (H, W);
 	fillPixels (ph, W, H);
 
+#ifdef PLATFORM_WIN32
+	const char * filename = "imf_test_lorder.exr";
+#else
+	const char * filename = "/var/tmp/imf_test_lorder.exr";
+#endif
+
 	for (int lorder = 0; lorder < NUM_LINEORDERS; ++lorder)
 	{
 	    writeRead (ph,
-		       "/var/tmp/imf_test_lorder.exr",
+		       filename,
 		       W, H,
 		       LineOrder (lorder));
 	}

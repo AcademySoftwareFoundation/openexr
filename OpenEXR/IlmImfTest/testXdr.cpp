@@ -35,6 +35,7 @@
 
 
 #include <ImfXdr.h>
+#include <ImfIO.h>
 #include <typeinfo>
 #include <string.h>
 #include <assert.h>
@@ -43,6 +44,12 @@
 #include <strstream.h>
 #else
 #include <sstream>
+#endif
+
+#if defined (PLATFORM_WIN32)
+#    ifndef for
+#        define for if (0) { } else for
+#    endif
 #endif
 
 using namespace std;

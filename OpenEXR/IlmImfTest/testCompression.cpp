@@ -309,6 +309,12 @@ writeRead (const Array2D<unsigned int> &pi,
 	   int dx,
 	   int dy)
 {
+#ifdef PLATFORM_WIN32
+    const char * filename = "imf_test_comp.exr";
+#else
+    const char * filename = "/var/tmp/imf_test_comp.exr";
+#endif
+
     for (int xs = 1; xs <= 2; ++xs)
     {
 	for (int ys = 1; ys <= 2; ++ys)
@@ -316,7 +322,7 @@ writeRead (const Array2D<unsigned int> &pi,
 	    for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
 	    {
 		writeRead (pi, ph, pf,
-			   "/var/tmp/imf_test_comp.exr",
+			   filename,
 			   w  * xs, h  * ys,
 			   dx * xs, dy * ys,
 			   Compression (comp),
