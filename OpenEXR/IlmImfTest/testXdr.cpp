@@ -238,6 +238,8 @@ testXdr ()
 
     try
     {
+	assert (sizeof (Int64) == 8);
+
 #if defined (__GNUC__) && __GNUC__ == 2
 	strstream s;
 #else

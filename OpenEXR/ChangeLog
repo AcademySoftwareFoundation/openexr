@@ -1,3 +1,7 @@
+	* Exposed staticInitialize() function in ImfHeader.h in order
+	  to allow thread-safe library initialization in multithreaded
+	  programs.
+	  (Florian Kainz)
 	* Added a new "time code" attribute
 	  (Florian Kainz)
 	* exrmaketiled: when a MIPMAP_LEVELS or RIPMAP_LEVELS image
