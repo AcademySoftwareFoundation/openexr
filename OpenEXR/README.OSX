@@ -1,39 +1,42 @@
-OpenEXR has only been tested on OS X 10.2 (Jaguar).  There's a bug in
-Apple's istream::read implementation in 10.2 that breaks OpenEXR when
-an end-of-file is reached.  There is a workaround for the bug, but it's
-pretty ugly, so you have to explicity enable the workaround when you
-compile OpenEXR using the --enable-osx-istream-hack configure option.
+OpenEXR on MacOS X
+------------------
 
-The workaround and the details of the bug are shown below.  We don't
-guarantee that it works in all cases.  Thanks to our resident Mac
-programming guru, Paul Schneider <pauls@ilm.com>, for the workaround and 
-bug details.  
+Building OpenEXR on MacOS X is just like building it on GNU/Linux.  Follow
+the instructions in the README file under BUILDLING OPENEXR, but see
+below if you are using OS X 10.2 or want to use OpenEXR as a shared
+library.
 
-Workaround:
-------------
-
-The hack is in checkError (istream&) in ImfIO.cpp.  It clears the error bits
-on the stream.  This is a horribly fragile solution, because a) those bits 
-might be correctly set if you really did try to read off the end of the
-stream, and b) after a call to istream::read that grabs the last byte in
-the stream, the stream is unusable until someone calls checkError on it. 
-OpenEXR and the confidence tests always call checkError after reading
-a stream.
+OpenEXR has only been tested on OS X 10.2 (Jaguar) and 10.3 (Panther).
 
 
-Bug details:
-------------
+Known bugs
+----------
 
-In gcc 3.1, basic_istream::read is implemented starting at line 771 in
-bits/istream.tcc.  Note that the variable __c is read at the
-end of the loop at line 790.  The result is that when the loop is
-finished, __c contains the character *after* the last character inserted
-into the output array __s.  This means that if the last byte of the stream
-is requested, __c contains EOF.  After the loop, if __c contains EOF, the
-stream's eofbit and failbit are set (line 793).  This is incorrect if all
-of the requested characters were inserted into the output stream before
-EOF was read.  One possible fix would be to add a check for 
-_M_gcount < __n on line 792, in addition to the check for __eof.
+There's a bug in Apple's istream::read implementation in 10.2 that
+breaks OpenEXR when an end-of-file is reached.  There is a workaround
+for the bug, but it's pretty ugly, so you have to explicity enable the
+workaround when you compile OpenEXR using the
+"--enable-osx-istream-hack" configure option.
+
+There are no known bugs with OpenEXR and 10.3.  The hack described
+above is not necessary if you are building OpenEXR on 10.3.
+
+
+Shared libraries
+----------------
+
+OpenEXR cannot currently be used as a shared library in 10.2.  Use
+the "--enable-shared=no" configure option to prevent configure from
+building shared libraries.  (Building the libraries will probably
+work, but executables linked against them don't function properly.)
+
+OpenEXR does appear to work as a shared library in 10.3, but only with
+the "flat namespace" option.  You may have problems trying to use
+OpenEXR shared libraries with applications that expect OS X's
+two-level namespace.  We have not tested the shared libs extensively,
+though they appear to work with exrdisplay and exrheader, but use them
+at your own risk.  We will support two-level namespace shared libs in
+a future release.
 
 
 Using CodeWarrior:

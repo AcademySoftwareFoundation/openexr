@@ -1,17 +1,16 @@
 OpenEXR on Win32 platforms
 --------------------------
 
-Currently, OpenEXR has only been tested on Windows XP with Visual
-Studio 6.0 and the Intel C++ compiler version 7.0.  You can obtain an
-evaluation license for Intel's compiler here:
+OpenEXR has been tested on Windows XP with Visual Studio .NET 2003;
+and with Visual Studio 6.0 and the Intel C++ compiler version 7.0.
+You can obtain an evaluation license for Intel's compiler here:
 
   http://developer.intel.com/software/products/compilers/cwin/eval.htm
 
 Due to limitations in Microsoft's C++ implementation in Visual Studio
 6.0, OpenEXR won't compile with the Microsoft Visual C++ 6.0 compiler.
 The changes required to make OpenEXR compile with Visual C++ 6.0 would
-break the existing API.  We hope to have support for Visual C++ 7.0
-(aka Visual Studio .NET) at a later date.
+break the existing API.
 
 If you want to use OpenEXR with Visual Studio 6.0 and the Microsoft
 Visual C++ 6.0 compiler, you can use the ImfCRgbaFile C interface via
@@ -27,11 +26,12 @@ Compiling OpenEXR in Visual Studio 6.0
 
 If you don't want or don't need to build these libraries from scratch,
 You can download the latest release of the pre-compiled OpenEXR
-libraries for Visual Studio 6.0 here:
+libraries for Win32 here:
 
   http://savannah.nongnu.org/files/?group=openexr
 
-The Visual Studio 6.0 workspace file for OpenEXR is vc\vc6\OpenEXR.dsw
+The projects for Visual Studio 6.0 and .NET 2003 can be found in
+vc\vc6 and vc\vc7, respectively.
 
 You'll need a compiled version of zlib (preferably version 1.1.4) in 
 order to build the IlmImf library.  You'll need a compiled version 
@@ -41,18 +41,20 @@ source code for these libraries here:
 http://www.gzip.org/zlib/
 http://www.fltk.org
 
-FLTK comes with a workspace file for Visual Studio 6.0.  zlib does not,
-so we have included one for you in the vc\vc6\zlib directory.  It works
-with zlib 1.1.4.  Copy all the files in that directory into your zlib 
-source directory and build the zlib targets (zlib.lib and zlibd.lib).  
-If you want to use the IlmImf DLL, you must also build a zlib 
-library which uses statically linked runtime libs.  The included 
+FLTK comes with a workspace file for Visual Studio 6.0 (and Visual
+Studio .NET 2003 can automatically convert it to a "solution" file).
+zlib does not, so we have included one for you in the vc\vc6\zlib
+directory (or vc\vc7\zlib, if you're using Visual Studio .NET 2003).
+It works with zlib 1.1.4.  Copy all the files in that directory into
+your zlib source directory and build the zlib targets (zlib.lib and
+zlibd.lib).  If you want to use the IlmImf DLL, you must also build a
+zlib library which uses statically linked runtime libs.  The included
 zlib_static project file will build those (zlib_static.lib and
 zlibd_static.lib).
 
-Note that by default, the OpenEXR Visual Studio 6.0 workspace expects
-the zlib and FLTK libraries in the following locations (assuming
-OpenEXR\ is your OpenEXR source directory):
+Note that by default, the OpenEXR Visual Studio project expects the
+zlib and FLTK libraries in the following locations (assuming OpenEXR\
+is your OpenEXR source directory):
 
   zlib\
        zconf.h
@@ -90,4 +92,12 @@ The IlmImfTest testCustomAttributes test fails with Visual Studio 6.0
 and the Intel C++ compiler version 7.0.  It appears to be specific to
 the test, not any of the OpenEXR libraries themselves.  It's #ifdef'ed
 out at the moment to ensure the other tests in IlmImfTest will run.
+
+There is a bug in the Imath library, specifically in ImathEuler.h,
+that occurs only when Imath is compiled with Visual Studio .NET 2003.
+We'll look into the problem when we have a chance, but it doesn't
+affect OpenEXR per se as the none of the OpenEXR code uses
+ImathEuler.h.  If you use ImathEuler.h on Win32, you should probably
+use Visual Studio 6.0 with the Intel C++ compiler (or fix the bug and
+let us know what the problem was ;).
 

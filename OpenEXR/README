@@ -41,11 +41,13 @@ supports fragment shaders if you have the Nvidia Cg SDK and a graphics
 card capable of running fp30 profile fragment shaders.  See
 exrdisplay/README for details.
 
-We have also released an OpenEXR display driver for Renderman.  The
-display driver is packaged separately.  Go to our GNU Savannah web
-page to download the display driver source code:
+We have also released an OpenEXR display driver for Renderman and a
+plugin for Adobe Photoshop (on both Windows and MacOS).  These are
+packaged separately.  Go to our GNU Savannah web page to download
+them:
 
 http://savannah.nongnu.org/files/?group=openexr
+
 
 
 BUILDING OPENEXR
@@ -61,7 +63,7 @@ If you have the Nvidia Cg SDK and you want to build support for
 fragment shaders into exrdisplay, specify the path to the SDK using
 the "--with-nvsdk-prefix" flag.
 
-See below for notes on compiling OpenEXR in OS X.
+See README.OSX for details on building OpenEXR in MacOS X.
 
 Do 'make check' to run confidence tests.  See the INSTALL file for more
 details or try "./configure --help".
@@ -73,47 +75,10 @@ platform.  See below for platform-specific notes.
 All include files needed to use the OpenEXR libraries are installed in the 
 OpenEXR subdirectory of the install prefix, e.g. /usr/local/include/OpenEXR.
 
-To build OpenEXR on Windows NT or greater, you can either use Cygwin
-and the 'configure' script, or you can use Visual C++ 6.0 with Intel's
-C++ compiler.  See README.win32 for details.
+To build OpenEXR on Windows NT or greater, you have a few choices:
 
+* Use Cygwin and the 'configure' script, see above.
+* Use Visual C++ 6.0 with Intel's C++ compiler.
+* Use Visual Studio .NET 2003 with Microsoft's C++ compiler.
 
-PLATFORM-SPECIFIC NOTES
------------------------
-
-OS X with Apple developer tools:
-
-Short story: to work around some issues we're having with OpenEXR
-on OS X right now, build OpenEXR like so:
-
-./configure --enable-osx-istream-hack --enable-shared=no
-make
-make install
-
-Long story:
-
-We've only tested OpenEXR with OS X 10.2 (Jaguar).  It may work with
-the version of gcc 3.1 distributed with the April 2002 developer tools 
-on earlier versions of OS X, but we don't plan on supporting them.  You'll
-probably have a tough time getting OpenEXR to work with gcc 2.95.2 on OS X
-due to lack of sstream, among other things.
-
-There appears to be a bug in Apple's istream::read implementation
-as of OS X 10.2.3 and the December 2002 developer tools.  We
-have a (hacky) workaround for it; to enable it, you must run 
-configure with the --enable-osx-istream-hack option.  At the moment,
-OpenEXR won't work on OS X without it.  See README.OSX for details.
-
-OpenEXR doesn't support shared libs on OS X yet, either.  You can
-build them, but you may have problems linking them into applications.
-
-
-OS X with Metrowerks CodeWarrior:
-
-There is a separate distribution which contains project files for
-Metrowerks' CodeWarior compiler on OS X.  The istream hack described
-above isn't necessary with CW.  Go to our downloads page to obtain the
-CW project files:
-
-http://savannah.nongnu.org/files/?group=openexr
-
+See README.win32 for details.

@@ -19,7 +19,7 @@ AC_DEFUN(AM_PATH_OPENEXR,
 [dnl 
 dnl Get the cflags and libraries
 dnl
-AC_ARG_WITH(openexr-prefix,[  --with-openexr-prefix=PFX   Prefix where libopenexr is installed (optional)], openexr_prefix="$withval", openexr_prefix="")
+AC_ARG_WITH(openexr-prefix,[  --with-openexr-prefix=PFX   Prefix where libopenexr is installed (optional)], openexr_prefix="$withval", openexr_prefix="/usr")
 AC_ARG_ENABLE(openexrtest, [  --disable-openexrtest       Do not try to compile and run a test Openexr program],, enable_openexrtest=yes)
 
   if test "x$openexr_prefix" != "xNONE" ; then
