@@ -46,11 +46,16 @@
 #include <FL/Fl_Box.H>
 
 #include <ImageView.h>
+#ifdef HAVE_FRAGMENT_SHADERS
+#include <ImageViewFragShader.h>
+#endif
 #include <ImfArray.h>
 #include <ImfRgbaFile.h>
 
 #include <iostream>
+#include <string>
 #include <exception>
+#include <string.h>
 
 
 struct MainWindow
@@ -107,7 +112,8 @@ MainWindow::kneeHighSliderCallback (Fl_Widget *widget, void *data)
 
 
 MainWindow *
-makeMainWindow (const char imageName[])
+makeMainWindow (const char * imageName, bool useFragmentShader,
+		const char * fragmentShaderName)
 {
     MainWindow *mainWindow = new MainWindow;
 
@@ -153,11 +159,13 @@ makeMainWindow (const char imageName[])
     mainWindow->exposureSlider =
 	new Fl_Value_Slider (70, 5, w - 65, 20, "");
 
+    enum Fl_When when = useFragmentShader ? FL_WHEN_CHANGED : FL_WHEN_RELEASE;
+
     mainWindow->exposureSlider->type (FL_HORIZONTAL);
     mainWindow->exposureSlider->range (-10.0, +10.0);
     mainWindow->exposureSlider->step (1, 8);
     mainWindow->exposureSlider->value (0.0);
-    mainWindow->exposureSlider->when (FL_WHEN_RELEASE);
+    mainWindow->exposureSlider->when (when);
 
     mainWindow->exposureSlider->callback
 	(MainWindow::exposureSliderCallback, mainWindow);
@@ -176,7 +184,7 @@ makeMainWindow (const char imageName[])
     mainWindow->defogSlider->range (0.0, 0.01);
     mainWindow->defogSlider->step (1, 10000);
     mainWindow->defogSlider->value (0.0);
-    mainWindow->defogSlider->when (FL_WHEN_RELEASE);
+    mainWindow->defogSlider->when (when);
 
     mainWindow->defogSlider->callback
 	(MainWindow::defogSliderCallback, mainWindow);
@@ -195,7 +203,7 @@ makeMainWindow (const char imageName[])
     mainWindow->kneeLowSlider->range (-3.0, 3.0);
     mainWindow->kneeLowSlider->step (1, 8);
     mainWindow->kneeLowSlider->value (0.0);
-    mainWindow->kneeLowSlider->when (FL_WHEN_RELEASE);
+    mainWindow->kneeLowSlider->when (when);
 
     mainWindow->kneeLowSlider->callback
 	(MainWindow::kneeLowSliderCallback, mainWindow);
@@ -214,7 +222,7 @@ makeMainWindow (const char imageName[])
     mainWindow->kneeHighSlider->range (3.5, 7.5);
     mainWindow->kneeHighSlider->step (1, 8);
     mainWindow->kneeHighSlider->value (5.0);
-    mainWindow->kneeHighSlider->when (FL_WHEN_RELEASE);
+    mainWindow->kneeHighSlider->when (when);
 
     mainWindow->kneeHighSlider->callback
 	(MainWindow::kneeHighSliderCallback, mainWindow);
@@ -223,6 +231,29 @@ makeMainWindow (const char imageName[])
     // Add image view
     //
 
+#ifdef HAVE_FRAGMENT_SHADERS
+    if (useFragmentShader)
+    {
+	mainWindow->image =
+	    new ImageViewFragShader (5, 105, w, h, "",
+				     mainWindow->pixels,
+				     mainWindow->exposureSlider->value(),
+				     mainWindow->defogSlider->value(),
+				     mainWindow->kneeLowSlider->value(),
+				     mainWindow->kneeHighSlider->value(),
+				     fragmentShaderName);
+    }
+    else
+    {
+	mainWindow->image =
+	    new ImageView (5, 105, w, h, "",
+			   mainWindow->pixels,
+			   mainWindow->exposureSlider->value(),
+			   mainWindow->defogSlider->value(),
+			   mainWindow->kneeLowSlider->value(),
+			   mainWindow->kneeHighSlider->value());
+    }
+#else
     mainWindow->image =
 	new ImageView (5, 105, w, h, "",
 		       mainWindow->pixels,
@@ -230,6 +261,7 @@ makeMainWindow (const char imageName[])
 		       mainWindow->defogSlider->value(),
 		       mainWindow->kneeLowSlider->value(),
 		       mainWindow->kneeHighSlider->value());
+#endif
 
     mainWindow->image->box (FL_ENGRAVED_BOX);
 
@@ -239,28 +271,78 @@ makeMainWindow (const char imageName[])
 }
 
 
+void
+usage (char * pname)
+{
+    std::cerr << "usage: " << pname << " [-f [fragshader]] imagefile" <<
+	std::endl << std::endl;
+    std::cerr << "options:" << std::endl << std::endl;
+    std::cerr << "    -f [fragshader]    Use a fragment shader to render the image (if supported)." << std::endl;
+    std::cerr << "                       If the optional fragshader is specified, use it" << std::endl;
+    std::cerr << "                       rather than the built-in fragment shader." << std::endl;
+}
+
 int
 main(int argc, char **argv)
 {
     int exitStatus = 1;
+    bool useFragmentShader = false;
+    std::string fragmentShaderName;
+    std::string imageFileName;
 
-    if (argc < 2)
+    if (argc < 2 || argc > 4)
     {
-	std::cerr << "usage: " << argv[0] << " imagefile\n";
+	usage (argv[0]);
+	return exitStatus;
+    }
+    
+    std::string arg (argv[1]);
+    if (arg == "-f")
+    {
+	useFragmentShader = true;
+	if (argc == 4)
+	{
+	    fragmentShaderName = argv[2];
+	    imageFileName = argv[3];
+	}
+	else if (argc == 3)
+	    imageFileName = argv[2];
+	else
+	{
+	    usage (argv[0]);
+	    return exitStatus;
+	}
+    }
+    else if (argc > 2)
+    {
+	usage (argv[0]);
+	return exitStatus;
     }
     else
+	imageFileName = arg;
+    
+#ifndef HAVE_FRAGMENT_SHADERS
+    if (useFragmentShader)
     {
-	try
-	{
-	    MainWindow *mainWindow = makeMainWindow (argv[1]);
-	    mainWindow->window->show (1, argv);
-	    exitStatus = Fl::run();
-	}
-	catch (const std::exception &e)
-	{
-	    std::cerr << e.what() << std::endl;
-	    exitStatus = 1;
-	}
+	std::cerr << argv[0] << " was not compiled with fragment shader support," << std::endl;
+	std::cerr << "falling back to software" << std::endl;
+	useFragmentShader = false;
+	fragmentShaderName.clear ();
+    }
+#endif
+
+    try
+    {
+	MainWindow *mainWindow = makeMainWindow (imageFileName.c_str (),
+						 useFragmentShader,
+						 fragmentShaderName.c_str ());
+	mainWindow->window->show (1, argv);
+	exitStatus = Fl::run();
+    }
+    catch (const std::exception &e)
+    {
+	std::cerr << e.what() << std::endl;
+	exitStatus = 1;
     }
 
     return exitStatus;
