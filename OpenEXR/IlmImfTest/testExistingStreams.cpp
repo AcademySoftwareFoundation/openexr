@@ -37,6 +37,7 @@
 #include <ImfTiledRgbaFile.h>
 #include <ImfStdIO.h>
 #include <ImfArray.h>
+#include <stdio.h>
 #include <assert.h>
 
 using namespace Imf;
@@ -102,7 +103,11 @@ writeReadScanLines (const char fileName[],
 
     {
 	remove (fileName);
+#ifndef HAVE_IOS_BASE
+	std::ofstream os (fileName, ios::binary);
+#else
 	std::ofstream os (fileName, ios_base::binary);
+#endif
 	StdOFStream ofs (os, fileName);
 	RgbaOutputFile out (ofs, header, WRITE_RGBA);
 	out.setFrameBuffer (&p1[0][0], 1, width);
@@ -110,7 +115,11 @@ writeReadScanLines (const char fileName[],
     }
 
     {
+#ifndef HAVE_IOS_BASE
+	std::ifstream is (fileName, ios::binary|ios::in);
+#else
 	std::ifstream is (fileName, ios_base::binary);
+#endif
 	StdIFStream ifs (is, fileName);
 	RgbaInputFile in (ifs);
 
@@ -160,7 +169,11 @@ writeReadTiles (const char fileName[],
 
     {
 	remove (fileName);
+#ifndef HAVE_IOS_BASE
+	std::ofstream os (fileName, ios::binary);
+#else
 	std::ofstream os (fileName, ios_base::binary);
+#endif
 	StdOFStream ofs (os, fileName);
 	TiledRgbaOutputFile out (ofs, header, WRITE_RGBA, 20, 20, ONE_LEVEL);
 	out.setFrameBuffer (&p1[0][0], 1, width);
@@ -171,7 +184,11 @@ writeReadTiles (const char fileName[],
     }
 
     {
+#ifndef HAVE_IOS_BASE
+	std::ifstream is (fileName, ios::binary|ios::in);
+#else
 	std::ifstream is (fileName, ios_base::binary);
+#endif
 	StdIFStream ifs (is, fileName);
 	TiledRgbaInputFile in (ifs);
 
