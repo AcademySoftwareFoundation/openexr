@@ -174,6 +174,9 @@ exrmaketiled/Makefile
 IlmImfExamples/Makefile
 doc/Makefile
 vc/Makefile
+exrstdattr/Makefile
+exrmakepreview/Makefile
+exrenvmap/Makefile
 ])
 
 AC_MSG_RESULT([
