@@ -82,6 +82,7 @@ writeTiledRgbaONE1 (const char fileName[],
                              width, height, // width, height
                              xSize, ySize,  // tile size
                              ONE_LEVEL,     // level mode
+                             ROUND_DOWN,    // rounding mode
                              WRITE_RGB);    // channels in file
 
     out.setFrameBuffer (&p[0][0], 1, width);
@@ -108,6 +109,7 @@ writeTiledRgbaONE2 (const char fileName[],
                              width, height, // width, height
                              xSize, ySize,  // tile size
                              ONE_LEVEL,     // level mode
+                             ROUND_DOWN,    // rounding mode
                              WRITE_RGB);    // channels in file
 
     for (int tileY = 0; tileY < out.numYTiles (); ++tileY)
@@ -146,6 +148,7 @@ writeTiledRgbaMIP1 (const char fileName[],
                              width, height, // width, height
                              xSize, ySize,  // tile size
                              MIPMAP_LEVELS, // level mode
+                             ROUND_DOWN,    // rounding mode
                              WRITE_RGB);    // channels in file
 
     out.setFrameBuffer (&p[0][0], 1, width);
@@ -177,6 +180,7 @@ writeTiledRgbaMIP2 (const char fileName[],
                              width, height, // width, height
                              xSize, ySize,  // tile size
                              MIPMAP_LEVELS, // level mode
+                             ROUND_DOWN,    // rounding mode
                              WRITE_RGB);    // channels in file
 
     for (int level = 0; level < out.numLevels (); ++level)
@@ -218,6 +222,7 @@ writeTiledRgbaRIP1 (const char fileName[],
                              width, height, // width, height
                              xSize, ySize,  // tile size
                              RIPMAP_LEVELS, // level mode
+                             ROUND_DOWN,    // rounding mode
                              WRITE_RGB);    // channels in file
 
     out.setFrameBuffer (&p[0][0], 1, width);
@@ -251,6 +256,7 @@ writeTiledRgbaRIP2 (const char fileName[],
                              width, height, // width, height
                              xSize, ySize,  // tile size
                              RIPMAP_LEVELS, // level mode
+                             ROUND_DOWN,    // rounding mode
                              WRITE_RGB);    // channels in file
 
     for (int ylevel = 0; ylevel < out.numYLevels (); ++ylevel)

@@ -40,8 +40,6 @@
 #include <assert.h>
 #include <vector>
 #include <math.h>
-#include <sys/time.h>
-#include <sys/resource.h>
 
 using namespace Imf;
 using namespace Imath;

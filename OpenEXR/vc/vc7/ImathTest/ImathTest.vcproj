@@ -362,6 +362,12 @@
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="..\..\..\ImathTest\testTMatrix.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\ImathTest\testTMatrixData.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -398,6 +404,12 @@
 			</File>
 			<File
 				RelativePath="..\..\..\ImathTest\testShear.h">
+			</File>
+			<File
+				RelativePath="..\..\..\ImathTest\testTMatrix.h">
+			</File>
+			<File
+				RelativePath="..\..\..\ImathTest\testTMatrixData.h">
 			</File>
 		</Filter>
 		<Filter
