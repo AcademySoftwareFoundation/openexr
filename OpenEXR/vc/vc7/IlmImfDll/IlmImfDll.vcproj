@@ -24,17 +24,15 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;HAVE_IOS_BASE;HAVE_STL_LIMITS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
+				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Debug/IlmImfDll.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"
-				CompileAs="0"/>
+				CompileAs="0"
+				DisableSpecificWarnings="4290"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -42,11 +40,10 @@
 				IgnoreImportLibrary="TRUE"
 				AdditionalDependencies="zlibd_static.lib"
 				OutputFile="../lib/IlmImfdll/IlmImfd.dll"
-				LinkIncremental="1"
+				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="../../../../zlib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/IlmImfd.pdb"
 				SubSystem="2"
 				ImportLibrary="../lib/IlmImfdll/IlmImfdlld.lib"
 				TargetMachine="1"/>
@@ -94,17 +91,15 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;HAVE_IOS_BASE;HAVE_STL_LIMITS"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
-				EnableFunctionLevelLinking="TRUE"
+				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Release/IlmImfDll.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
-				CompileAs="0"/>
+				DebugInformationFormat="3"
+				CompileAs="0"
+				DisableSpecificWarnings="4290"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -115,7 +110,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="../../../../zlib"
-				ProgramDatabaseFile=".\Release/IlmImf.pdb"
+				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				ImportLibrary="../lib/IlmImfdll/IlmImfdll.lib"
 				TargetMachine="1"/>
@@ -314,6 +309,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfConvert.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfCRgbaFile.cpp">
@@ -636,6 +634,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfPreviewImage.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfPreviewImageAttribute.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfRgbaFile.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -716,7 +720,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\IlmImf\ImfVersion.cpp">
+				RelativePath="..\..\..\IlmImf\ImfVecAttribute.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -736,7 +740,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\IlmImf\ImfVecAttribute.cpp">
+				RelativePath="..\..\..\IlmImf\ImfVersion.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -833,6 +837,9 @@
 				RelativePath="..\..\..\IlmImf\ImfCompressor.h">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfConvert.h">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfCRgbaFile.h">
 			</File>
 			<File
@@ -888,6 +895,12 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfPizCompressor.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfPreviewImage.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfPreviewImageAttribute.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfRgbaFile.h">

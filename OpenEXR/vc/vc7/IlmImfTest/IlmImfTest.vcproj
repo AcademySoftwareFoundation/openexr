@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="IlmImfTest"
+	RootNamespace="IlmImfTest"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -25,15 +26,15 @@
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;PLATFORM_WIN32"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
-				PrecompiledHeaderFile=".\Debug/IlmImfTest.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"
-				CompileAs="0"/>
+				CompileAs="0"
+				DisableSpecificWarnings="4290"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -44,7 +45,6 @@
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\..\..\zlib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/IlmImfTest.pdb"
 				SubSystem="1"
 				EntryPointSymbol="mainCRTStartup"
 				TargetMachine="1"/>
@@ -55,10 +55,9 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Running IlmImfTest program..."
-				CommandLine="copy ..\..\..\IlmImfTest\*.exr .
-set path=%path%;..\..\..\..\zlib\lib
-Debug\IlmImfTest.exe
-del *.exr
+				CommandLine="cd ..\..\..\IlmImfTest
+set path=%path%;..\..\zlib\lib
+$(TargetPath)
 "/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -95,25 +94,25 @@ del *.exr
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;PLATFORM_WIN32"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="TRUE"
+				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
-				PrecompiledHeaderFile=".\Release/IlmImfTest.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
-				CompileAs="0"/>
+				Detect64BitPortabilityProblems="TRUE"
+				DebugInformationFormat="3"
+				CompileAs="0"
+				DisableSpecificWarnings="4290"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="zlib.lib odbc32.lib odbccp32.lib"
 				OutputFile=".\Release/IlmImfTest.exe"
-				LinkIncremental="2"
+				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\..\..\zlib"
-				ProgramDatabaseFile=".\Release/IlmImfTest.pdb"
+				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				EntryPointSymbol="mainCRTStartup"
 				TargetMachine="1"/>
@@ -124,10 +123,9 @@ del *.exr
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Running IlmImfTest program..."
-				CommandLine="copy ..\..\..\IlmImfTest\*.exr .
-set path=%path%;..\..\..\..\zlib\lib
-Release\IlmImfTest.exe
-del *.exr
+				CommandLine="cd ..\..\..\IlmImfTest
+set path=%path%;..\..\zlib\lib
+$(TargetPath)
 "/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -368,7 +366,7 @@ del *.exr
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\IlmImfTest\testStandardAttributes.cpp">
+				RelativePath="..\..\..\IlmImfTest\testSampleImages.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -388,7 +386,7 @@ del *.exr
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\IlmImfTest\testSampleImages.cpp">
+				RelativePath="..\..\..\IlmImfTest\testStandardAttributes.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
