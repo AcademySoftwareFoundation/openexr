@@ -1,4 +1,63 @@
 dnl
+dnl Nvidia SDK
+dnl
+
+AC_DEFUN(AM_PATH_NVSDK,
+[dnl
+dnl Get the cflags
+dnl
+AC_ARG_WITH(nvsdk-prefix,[  --with-nvsdk-prefix=PFX  Prefix where Nvidia SDK is installed (optional)],
+	    nvsdk_prefix="$withval", nvsdk_prefix="")
+
+  if test x$nvsdk_prefix != x ; then
+    NVSDK_CXXFLAGS="-DUNIX -I$nvsdk_prefix/inc"
+  else
+    NVSDK_CXXFLAGS=""
+  fi
+
+  AC_MSG_CHECKING(for Nvidia SDK)
+  no_nvsdk=""
+
+  ac_save_CXXFLAGS="$CXXFLAGS"
+  ac_save_LDFLAGS="$LDFLAGS"
+  CXXFLAGS="$CXXFLAGS $NVSDK_CXXFLAGS"
+  LDFLAGS="$LDFLAGS $FLTK_LDFLAGS"
+
+  AC_TRY_LINK([
+#include <GL/gl.h>
+#include <GL/glu.h>
+#define GLH_EXT_SINGLE_FILE
+#include <glh/glh_extensions.h>],
+[
+    glh_init_extensions ("GL_ARB_multitexture " "GL_NV_vertex_program " "GL_NV_fragment_program "));
+],, no_nvsdk=yes)
+  CXXFLAGS="$ac_save_CXXFLAGS"
+  LDFLAGS="$ac_save_LDFLAGS"
+
+  if test "x$no_nvsdk" = "x" ; then
+    AC_MSG_RESULT(yes)
+      ifelse([$1], , :, [$1])
+  else
+    AC_MSG_RESULT(no)
+    echo "*** The Nvidia SDK test program could not be compiled."
+    echo "*** Possible reasons:"
+    echo "***     - The Nvidia SDK is not installed."
+    echo "***     - configure cannot find the SDK (use the"
+    echo "***       --with-nvsdk-prefix option to tell configure where"
+    echo "***       to find it)."
+    echo "***     - Your Nvidia SDK is out of date.  Please update it"
+    echo "***       to the latest version."
+    echo "***"
+    echo "*** The exrdisplay program will not be built with pixel shader"
+    echo "*** support because it depends on the Nvidia SDK."
+    NVSDK_CXXFLAGS=""
+    ifelse([$2], , :, [$2])
+  fi
+  AC_SUBST(NVSDK_CXXFLAGS)
+])
+  
+
+dnl
 dnl FLTK with GL support
 dnl
 
@@ -68,3 +127,4 @@ dnl
   AC_SUBST(FLTK_CXXFLAGS)
   AC_SUBST(FLTK_LDFLAGS)
 ])
+
