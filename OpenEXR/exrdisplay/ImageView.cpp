@@ -167,14 +167,14 @@ ImageView::draw()
 		      1,					      // height
 		      GL_RGB,					      // format
 		      GL_UNSIGNED_BYTE,				      // type
-		      _screenPixels + (y * _dw - fmin (0, _dx)) * 3); // pixels
+		      _screenPixels + static_cast<ptrdiff_t> ((y * _dw - fmin (0, _dx)) * 3)); // pixels
 #else
 	glRasterPos2i (max (0, _dx), y + _dy + 1);
 	glDrawPixels (_dw + min (0, _dx),			     // width
 		      1,					     // height
 		      GL_RGB,					     // format
 		      GL_UNSIGNED_BYTE,				     // type
-		      _screenPixels + (y * _dw - min (0, _dx)) * 3); // pixels
+		      _screenPixels + static_cast<ptrdiff_t> ((y * _dw - min (0, _dx)) * 3)); // pixels
 #endif
 
     }
