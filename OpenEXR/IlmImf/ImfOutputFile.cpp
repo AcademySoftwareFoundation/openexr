@@ -57,17 +57,6 @@
 #include <assert.h>
 
 
-#if defined PLATFORM_WIN32 && _MSC_VER < 1300
-namespace
-{
-template<class T>
-inline T min (const T &a, const T &b) { return (a <= b) ? a : b; }
-
-template<class T>
-inline T max (const T &a, const T &b) { return (a >= b) ? a : b; }
-}
-#endif
-
 namespace Imf {
 
 using Imath::Box2i;
@@ -253,24 +242,14 @@ convertToXdr (OutputFile::Data *ofd, int inSize)
     
     if (ofd->lineOrder == INCREASING_Y)
     {
-#if defined PLATFORM_WIN32 && _MSC_VER < 1300
-	startY = max (ofd->lineBufferMinY, ofd->minY);
-	endY = min (ofd->lineBufferMaxY, ofd->maxY) + 1;
-#else
 	startY = std::max (ofd->lineBufferMinY, ofd->minY);
 	endY = std::min (ofd->lineBufferMaxY, ofd->maxY) + 1;
-#endif
         dy = 1;
     }
     else
     {
-#if defined PLATFORM_WIN32 && _MSC_VER < 1300
-	startY = min (ofd->lineBufferMaxY, ofd->maxY);
-	endY = max (ofd->lineBufferMinY, ofd->minY) - 1;
-#else
 	startY = std::min (ofd->lineBufferMaxY, ofd->maxY);
 	endY = std::max (ofd->lineBufferMinY, ofd->minY) - 1;
-#endif
         dy = -1;
     }
 

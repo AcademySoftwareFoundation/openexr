@@ -53,9 +53,6 @@
 #include <assert.h>
 #include <algorithm>
 
-#if defined (PLATFORM_WIN32)
-#define for if(0) { } else for
-#endif
 
 using namespace std;
 using namespace Iex;

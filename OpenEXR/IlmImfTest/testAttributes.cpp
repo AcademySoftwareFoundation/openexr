@@ -34,6 +34,8 @@
 
 
 
+#include <tmpDir.h>
+
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
@@ -208,11 +210,7 @@ testAttributes ()
 	Array2D<float> pf (H, W);
 	fillPixels (pf, W, H);
 
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-	const char * filename = "imf_test_attr.exr";
-#else
-	const char * filename = "/var/tmp/imf_test_attr.exr";
-#endif
+	const char *filename = IMF_TMP_DIR "imf_test_attr.exr";
 
 	writeReadAttr (pf, filename, W, H);
 

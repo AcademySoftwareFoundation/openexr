@@ -44,11 +44,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#if defined (PLATFORM_WIN32)
-#    ifndef for
-#        define for if (0) { } else for
-#    endif
-#endif
 
 using namespace Imf;
 using namespace std;

@@ -136,11 +136,7 @@ testColor ()
 	    Imath::Math<float>::fabs( ( X.b - Y.b ) - tmp.b ) <= epsilon &&
 	    Imath::Math<float>::fabs( ( X.a - Y.a ) - tmp.a ) <= epsilon );
 
-#if defined (PLATFORM_WIN32)
-    tmp = X.operator * (Y);
-#else
     tmp = X * Y;
-#endif
     
     assert( Imath::Math<float>::fabs( ( X.r * Y.r ) - tmp.r ) <= epsilon &&
     	    Imath::Math<float>::fabs( ( X.g * Y.g ) - tmp.g ) <= epsilon &&

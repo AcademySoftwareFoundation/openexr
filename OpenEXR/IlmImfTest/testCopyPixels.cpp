@@ -33,6 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+#include <tmpDir.h>
 
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
@@ -167,13 +168,8 @@ writeCopyRead (const Array2D<half> &ph1,
 void
 writeCopyRead (const Array2D<half> &ph, int w, int h, int dx, int dy)
 {
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-    const char * filename1 = "imf_test_copy1.exr";
-    const char * filename2 = "imf_test_copy2.exr";
-#else
-    const char * filename1 = "/var/tmp/imf_test_copy1.exr";
-    const char * filename2 = "/var/tmp/imf_test_copy2.exr";
-#endif
+    const char *filename1 = IMF_TMP_DIR "imf_test_copy1.exr";
+    const char *filename2 = IMF_TMP_DIR "imf_test_copy2.exr";
 
     for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
     {

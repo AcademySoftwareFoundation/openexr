@@ -33,6 +33,8 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+#include <tmpDir.h>
+
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
@@ -234,11 +236,7 @@ void
 readCopyRead (const char* infilename,
               unsigned int correctChecksum)
 {
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-    const char * outfilename = "imf_test_native.exr";
-#else
-    const char * outfilename = "/var/tmp/imf_test_native.exr";
-#endif
+    const char *outfilename = IMF_TMP_DIR "imf_test_native.exr";
 
     int w, h;
     Array2D<Imf::Rgba> pixels (1,1);

@@ -36,6 +36,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+#include <tmpDir.h>
+
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
 #include <ImathMath.h>
@@ -206,11 +208,7 @@ testYca ()
     {
         cout << "Testing luminance/chroma input and output" << endl;
 
-        #if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-	    const char *fileName = "imf_test_yca.exr";
-	#else
-	    const char *fileName = "/var/tmp/imf_test_yca.exr";
-	#endif
+	const char *fileName = IMF_TMP_DIR "imf_test_yca.exr";
 
 	Box2i dataWindow[6];
 	dataWindow[0] = Box2i (V2i (0, 0), V2i (1, 17));

@@ -38,12 +38,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
 #include <ImathTMatrix.h>
 #include <ImathTMatrixData.h>
 
-#ifndef PLATFORM_WIN32
-    #include <assert.h>
-#endif
 
 using namespace std;
 using namespace Imath;

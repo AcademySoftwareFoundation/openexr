@@ -33,6 +33,8 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+#include <tmpDir.h>
+
 #include <ImfTiledOutputFile.h>
 #include <ImfTiledInputFile.h>
 #include <ImfInputFile.h>
@@ -411,11 +413,7 @@ writeRead (const Array2D<unsigned int> &pi,
            int dx, int dy,
            int xSize, int ySize)
 {
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
-    const char * filename = "imf_test_scanline_api.exr";
-#else
-    const char * filename = "/var/tmp/imf_test_scanline_api.exr";
-#endif
+    const char *filename = IMF_TMP_DIR "imf_test_scanline_api.exr";
 
     writeRead (pi, ph, pf, filename, lorder, W, H,
                xSize, ySize, dx, dy, comp, ONE_LEVEL, rmode);

@@ -140,11 +140,7 @@ testShear ()
     	    Imath::Math<float>::fabs( ( X.zx - Y.zx ) - tmp.zx ) <= epsilon &&
 	    Imath::Math<float>::fabs( ( X.zy - Y.zy ) - tmp.zy ) <= epsilon );
 
-#if defined (PLATFORM_WIN32)
-    tmp = X.operator * (Y);
-#else
     tmp = X * Y;
-#endif
     
     assert( Imath::Math<float>::fabs( ( X.xy * Y.xy ) - tmp.xy ) <= epsilon &&
     	    Imath::Math<float>::fabs( ( X.xz * Y.xz ) - tmp.xz ) <= epsilon &&
