@@ -1,3 +1,5 @@
+	* Added some example code showing how to use the IlmImf library.
+	  (Florian)
 	* Use DLL runtime libs for Win32 libraries rather than static
 	  runtime libs.
 	* Add an exrdisplay_fragshader project to the Visual Studio 6.0
