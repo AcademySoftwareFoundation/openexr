@@ -186,8 +186,8 @@ PizCompressor::PizCompressor
 :
     Compressor (hdr),
     _maxScanLineSize (maxScanLineSize),
-    _numScanLines (numScanLines),
     _format (XDR),
+    _numScanLines (numScanLines),
     _tmpBuffer (0),
     _outBuffer (0),
     _numChans (0),
