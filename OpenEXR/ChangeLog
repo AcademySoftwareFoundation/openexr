@@ -1,4 +1,8 @@
 Version 1.1.0:
+	* Added new targets to Visual C++ .NET 2003 project
+	  for exrmaketiled, exrenvmap, exrmakepreview, and exrstdattr.
+	  (Drew Hess)
+	* A few assorted Win32 fixes for Imath.  (Drew Hess)
 	* GNU autoconf builds now produce versioned libraries.
 	  This release is 1:0:0.  (Drew Hess)
 	* Fixes for Visual C++ .NET 2003.  (Paul Schneider)
