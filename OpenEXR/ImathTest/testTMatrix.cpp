@@ -116,7 +116,10 @@ static void testConstructorsAndAccessors()
 	    assert(M.data());
 	    unsigned * p = M.data();
 	    for (int i = M.size(); i; --i)
-		assert(*p++ == val);
+	    {
+		assert(*p == val);
+		p++;
+	    }
 	}
 	{
 	    unsigned val = 19u;
@@ -131,7 +134,10 @@ static void testConstructorsAndAccessors()
 	    assert(M.data());
 	    unsigned * p = M.data();
 	    for (int i = M.size(); i; --i)
-		assert(*p++ == val);
+	    {
+		assert(*p == val);
+		p++;
+	    }
 	}
     }
     {
@@ -150,7 +156,11 @@ static void testConstructorsAndAccessors()
 	    assert(N.data());
 	    double * p = N.data(), * q = M.data();
 	    for (int i = M.size(); i; --i)
-		assert(*p++ == *q++);
+	    {
+		assert(*p == *q);
+		p++;
+		q++;
+	    }
 	}
 	{
 	    TMatrix<double> M(4, 9, TMatrix<double>::COLUMN_MAJOR);
@@ -166,7 +176,11 @@ static void testConstructorsAndAccessors()
 	    assert(N.data());
 	    double * p = N.data(), * q = M.data();
 	    for (int i = M.size(); i; --i)
-		assert(*p++ == *q++);
+	    {
+		assert(*p == *q);
+		p++;
+		q++;
+	    }
 	}
     }
     {
@@ -187,7 +201,11 @@ static void testConstructorsAndAccessors()
 	    assert(N.data());
 	    int * p = N.data(), * q = M.data();
 	    for (int i = M.size(); i; --i)
-		assert(*p++ == *q++);
+	    {
+		assert(*p == *q);
+		p++;
+		q++;
+	    }
 	}
 	{
 	    TMatrix<int> M(2, 12, TMatrix<int>::COLUMN_MAJOR);
@@ -205,7 +223,11 @@ static void testConstructorsAndAccessors()
 	    assert(N.data());
 	    int * p = N.data(), * q = M.data();
 	    for (int i = M.size(); i; --i)
-		assert(*p++ == *q++);
+	    {
+		assert(*p == *q);
+		p++;
+		q++;
+	    }
 	}
     }
     {
@@ -229,13 +251,19 @@ static void testNull()
 	TMatrix<int> M = TMatrix<int>::null(3u,4u, TMatrix<int>::ROW_MAJOR);
 	int * p = M.data();
 	for (int i = M.size(); i; --i)
-	    assert (*p++ == 0);
+	{
+	    assert (*p == 0);
+	    p++;
+	}
     }
     {
 	TMatrix<int> M = TMatrix<int>::null(3u,4u, TMatrix<int>::COLUMN_MAJOR);
 	int * p = M.data();
 	for (int i = M.size(); i; --i)
-	    assert (*p++ == 0);
+	{
+	    assert (*p == 0);
+	    p++;
+	}
     }
 }
 
@@ -272,13 +300,19 @@ static void testUncheckedAccess()
 	int * p = M.data();
 	for (int i = 0; i < m; ++i) 
 	    for (int j = 0; j < n; ++j)
-		assert(M[i][j] == *p++);
+	    {
+		assert(M[i][j] == *p);
+		p++;
+	    }
 
 	const TMatrix<int> & N = M;
 	const int * q = N.data();
 	for (int i = 0; i < m; ++i) 
 	    for (int j = 0; j < n; ++j)
-		assert(N[i][j] == *q++);		
+	    {
+		assert(N[i][j] == *q);		
+		q++;		
+	    }
     }
     {
 	TMatrix<int> M(m,n,TMatrix<int>::COLUMN_MAJOR);
@@ -286,13 +320,19 @@ static void testUncheckedAccess()
 	int * p = M.data();
 	for (int j = 0; j < n; ++j)
 	    for (int i = 0; i < m; ++i) 
-		assert(M[i][j] == *p++);
+	    {
+		assert(M[i][j] == *p);
+		p++;
+	    }
 
 	const TMatrix<int> & N = M;
 	const int * q = N.data();
 	for (int j = 0; j < n; ++j)
 	    for (int i = 0; i < m; ++i) 
-		assert(N[i][j] == *q++);
+	    {
+		assert(N[i][j] == *q);
+		q++;
+	    }
     }
 }
 
@@ -308,13 +348,19 @@ static void testCheckedAccess()
 	int * p = M.data();
 	for (int i = 0; i < m; ++i) 
 	    for (int j = 0; j < n; ++j)
-		assert(M(i,j) == *p++);
+	    {
+		assert(M(i,j) == *p);
+		*p++;
+	    }
 		
 	const TMatrix<int> & N = M;
 	const int * q = N.data();
 	for (int i = 0; i < m; ++i) 
 	    for (int j = 0; j < n; ++j)
-		assert(N(i,j) == *q++);
+	    {
+		assert(N(i,j) == *q);
+		q++;
+	    }
 		
 	try
 	{
@@ -331,13 +377,19 @@ static void testCheckedAccess()
 	int * p = M.data();
 	for (int j = 0; j < n; ++j)
 	    for (int i = 0; i < m; ++i) 
-		assert(M(i,j) == *p++);
+	    {
+		assert(M(i,j) == *p);
+		p++;
+	    }
 
 	const TMatrix<int> & N = M;
 	const int * q = N.data();
 	for (int j = 0; j < n; ++j)
 	    for (int i = 0; i < m; ++i) 
-		assert(N(i,j) == *q++);
+	    {
+		assert(N(i,j) == *q);
+		q++;
+	    }
 		
 	try
 	{
@@ -367,7 +419,10 @@ static void testConversions()
 	int * p = M.data();
 	for (int i = 0; i < 3; ++i)
 	    for (int j = 0; j < 3; ++j)
-		assert(m33[i][j] == *p++);
+	    {
+		assert(m33[i][j] == *p);
+		p++;
+	    }
     }
     {
 	Matrix33<int> m33;
@@ -383,7 +438,10 @@ static void testConversions()
 	int  * p = M.data();
 	for (int j = 0; j < 3; ++j)
 	    for (int i = 0; i < 3; ++i)
-		assert(m33[i][j] == *p++);
+	    {
+		assert(m33[i][j] == *p);
+		p++;
+	    }
     }
     std::cout << "  to Matrix33" << std::endl;
     {
@@ -421,8 +479,10 @@ static void testConversions()
 	int * p = M.data();
 	for (int i = 0; i < 4; ++i)
 	    for (int j = 0; j < 4; ++j)
-		assert(m44[i][j] == *p++);
-		
+	    {
+		assert(m44[i][j] == *p);
+		p++;
+	    }
     }
     {
 	Matrix44<int> m44;
@@ -438,7 +498,10 @@ static void testConversions()
 	int * p = M.data();
 	for (int j = 0; j < 4; ++j)
 	    for (int i = 0; i < 4; ++i)
-		assert(m44[i][j] == *p++);
+	    {
+		assert(m44[i][j] == *p);
+		p++;
+	    }
     }
     std::cout << "  to Matrix44" << std::endl;
     {
@@ -581,7 +644,10 @@ static void testSetOrder()
 	int * p = M.data();
 	for (int j = 0; j  < N.numColumns(); ++j)
 	    for (int i = 0; i < N.numRows(); ++i)
-		assert(N(i,j) == *p++);
+	    {
+		assert(N(i,j) == *p);
+		p++;
+	    }
     }
     {
 	TMatrix<int> M(m,n,TMatrix<int>::COLUMN_MAJOR);
@@ -622,7 +688,10 @@ static void testSetOrder()
 	int * p = M.data();
 	for (int i = 0; i < N.numRows(); ++i)
 	    for (int j = 0; j < N.numColumns(); ++j)
-		assert(N(i,j) == *p++);
+	    {
+		assert(N(i,j) == *p);
+		p++;
+	    }
     }
 }
 
@@ -723,11 +792,19 @@ static void testIterators()
 	int * p = M.data();
 	TMatrix<int>::iterator it = M.begin(), ie = M.end();
 	while (it != ie)
-	    assert(*it++ == *p++);
+	{
+	    assert(*it == *p);
+	    it++;
+	    p++;
+	}
 	p = M.data() + M.size() -1;
 	TMatrix<int>::reverse_iterator rit = M.rbegin(), rie = M.rend();
 	while (rit != rie)
-	    assert(*rit++ == *p--);
+	{
+	    assert(*rit == *p);
+	    rit++;
+	    p--;
+	}
 		
 	std::cout << "  const_iterator, const_reverse_iterator" << std::endl;
 		
@@ -741,11 +818,19 @@ static void testIterators()
 	const int * q = N.data();
 	TMatrix<int>::const_iterator cit = N.begin(), cie = N.end();
 	while (cit != cie)
-	    assert(*cit++ == *q++);
+	{
+	    assert(*cit == *q);
+	    cit++;
+	    q++;
+	}
 	q = N.data() + N.size() -1;
 	TMatrix<int>::const_reverse_iterator crit =N.rbegin(), crie =N.rend();
 	while (crit != crie)
-	    assert(*crit++ == *q--);
+	{
+	    assert(*crit == *q);
+	    crit++;
+	    q--;
+	}
     }
 
     {
@@ -762,11 +847,19 @@ static void testIterators()
 	int * p = M.data();
 	TMatrix<int>::iterator it = M.begin(), ie = M.end();
 	while (it != ie)
-	    assert(*it++ == *p++);
+	{
+	    assert(*it == *p);
+	    it++;
+	    p++;
+	}
 	p = M.data() + M.size() -1;
 	TMatrix<int>::reverse_iterator rit = M.rbegin(), rie = M.rend();
 	while (rit != rie)
-	    assert(*rit++ == *p--);
+	{
+	    assert(*rit == *p);
+	    rit++;
+	    p--;
+	}
 		
 	std::cout << "  const_iterator, const_reverse_iterator" << std::endl;
 		
@@ -780,11 +873,19 @@ static void testIterators()
 	const int * q = N.data();
 	TMatrix<int>::const_iterator cit = N.begin(), cie = N.end();
 	while (cit != cie)
-	    assert(*cit++ == *q++);
+	{
+	    assert(*cit == *q);
+	    cit++;
+	    q++;
+	}
 	q = N.data() + N.size() -1;
 	TMatrix<int>::const_reverse_iterator crit =N.rbegin(), crie =N.rend();
 	while (crit != crie)
-	    assert(*crit++ == *q--);
+	{
+	    assert(*crit == *q);
+	    crit++;
+	    q--;
+	}
     }
 }
 
