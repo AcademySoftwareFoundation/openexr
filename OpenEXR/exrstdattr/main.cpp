@@ -141,6 +141,12 @@ usageMessage (const char argv0[], bool verbose = false)
 	        "         * number of perforations per frame (1 - 15)\n"
 	        "         * number of perforations per count (20 - 120)\n"
 		"\n"
+		"  -wrapmodes s\n"
+		"        if the image is used as a texture map, specifies\n"
+		"        how the image should be extrapolated outside the\n"
+		"        zero-to-one texture coordinate range\n"
+		"        (string, e.g. \"clamp\" or \"periodic,clamp\")\n"
+		"\n"
 		"  -pixelAspectRatio f\n"
 		"        width divided by height of a pixel\n"
 		"        (float, >= 0)\n"
@@ -534,6 +540,10 @@ main(int argc, char **argv)
 	    else if (!strcmp (argv[i], "-keyCode"))
 	    {
 		getKeyCode (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-wrapmodes"))
+	    {
+		getString (attrName, argc, argv, i, attrs);
 	    }
 	    else if (!strcmp (argv[i], "-pixelAspectRatio"))
 	    {

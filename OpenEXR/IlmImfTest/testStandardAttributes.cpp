@@ -509,6 +509,7 @@ generatedFunctions ()
     assert (hasIsoSpeed (header) == false);
     assert (hasEnvmap (header) == false);
     assert (hasKeyCode (header) == false);
+    assert (hasWrapmodes (header) == false);
 }
 
 

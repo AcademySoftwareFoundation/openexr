@@ -2,12 +2,16 @@
 	  is produced, low-pass filtering takes samples outside the
 	  image's data window.  This requires extrapolating the image.
 	  The user can now specify how the image is extrapolated
-	  horizontally and vertically (entire image repeats / outermost
-	  row of pixels repeats).
+	  horizontally and vertically (image is surrounded by black /
+	  outermost row of pixels repeats / entire image repeats /
+	  entire image repeats, every other copy is a mirror image).
 	  exrdisplay: added option to swap the top and botton half,
 	  and the left and right half of an image, so that the image's
 	  four corners end up in the center.  This is useful for checking
 	  the seams of wrap-around texture map images.
+	  IlmImf library: Added new "wrapmodes" standard attribute
+	  to indicate the extrapolation mode for MIPMAP_LEVELS and
+	  RIPMAP_LEVELS images.
 	  (Florian Kainz)
 	* Added a new "key code" attribute to identify motion picture
 	  film frames.
