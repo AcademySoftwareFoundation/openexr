@@ -66,4 +66,5 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*
 %{_datadir}/aclocal/openexr.m4
+%{_datadir}/doc/examples/*
 
