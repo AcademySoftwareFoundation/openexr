@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #ifndef INCLUDED_IMATHMATRIXALGO_H
 #define INCLUDED_IMATHMATRIXALGO_H
 
@@ -51,6 +50,7 @@
 
 #include <ImathMatrix.h>
 #include <ImathQuat.h>
+#include <ImathEuler.h>
 #include <ImathExc.h>
 #include <math.h>
 
@@ -71,6 +71,10 @@ extern const M44d identity44d;
 // Extract scale, shear, rotation, and translation values from a matrix:
 // 
 // Notes:
+//
+// This implementation follows the technique described in the paper by
+// Spencer W. Thomas in the Graphics Gems II article: "Decomposing a 
+// Matrix into Simple Transformations", p. 320.
 //
 // - Some of the functions below have an optional exc parameter
 //   that determines the functions' behavior when the matrix'
@@ -153,12 +157,22 @@ template <class T>  void	extractEulerZYX
 
 template <class T>  Quat<T>	extractQuat (const Matrix44<T> &mat);
 
-template <class T>  bool	extractSHRT (const Matrix44<T> &mat,
-					     Vec3<T> &s,
-					     Vec3<T> &h,
-					     Vec3<T> &r,
-					     Vec3<T> &t,
-					     bool exc = true);
+template <class T>  bool	extractSHRT 
+                                    (const Matrix44<T> &mat,
+				     Vec3<T> &s,
+				     Vec3<T> &h,
+				     Vec3<T> &r,
+				     Vec3<T> &t,
+				     bool exc = true,
+				     Eulerf::Order rOrder = Eulerf::XYZ);
+
+template <class T>  bool	extractSHRT 
+                                    (const Matrix44<T> &mat,
+				     Vec3<T> &s,
+				     Vec3<T> &h,
+				     Euler<T> &r,
+				     Vec3<T> &t,
+				     bool exc = true);
 
 //
 // Internal utility function.
@@ -379,6 +393,12 @@ bool
 extractAndRemoveScalingAndShear (Matrix44<T> &mat, 
 				 Vec3<T> &scl, Vec3<T> &shr, bool exc)
 {
+    //
+    // This implementation follows the technique described in the paper by
+    // Spencer W. Thomas in the Graphics Gems II article: "Decomposing a 
+    // Matrix into Simple Transformations", p. 320.
+    //
+
     Vec3<T> row[3];
 
     row[0] = Vec3<T> (mat[0][0], mat[0][1], mat[0][2]);
@@ -391,10 +411,18 @@ extractAndRemoveScalingAndShear (Matrix44<T> &mat,
 	    if (Imath::abs (row[i][j]) > maxVal)
 		maxVal = Imath::abs (row[i][j]);
 
+    //
+    // We normalize the 3x3 matrix here.
+    // It was noticed that this can improve numerical stability significantly,
+    // especially when many of the upper 3x3 matrix's coefficients are very
+    // close to zero; we correct for this step at the end by multiplying the 
+    // scaling factors by maxVal at the end (shear and rotation are not 
+    // affected by the normalization).
+
     if (maxVal != 0)
     {
 	for (int i=0; i < 3; i++)
-	    if (! checkForZeroScaleInRow (maxVal, row[0], exc))
+	    if (! checkForZeroScaleInRow (maxVal, row[i], exc))
 		return false;
 	    else
 		row[i] /= maxVal;
@@ -466,6 +494,9 @@ extractAndRemoveScalingAndShear (Matrix44<T> &mat,
 	mat[i][2] = row[i][2];
     }
 
+    // Correct the scaling factors for the normalization step that we 
+    // performed above; shear and rotation are not affected by the 
+    // normalization.
     scl *= maxVal;
 
     return true;
@@ -627,7 +658,8 @@ extractSHRT (const Matrix44<T> &mat,
 	     Vec3<T> &h,
 	     Vec3<T> &r,
 	     Vec3<T> &t,
-	     bool exc)
+	     bool exc /* = true */ ,
+	     Eulerf::Order rOrder /* = Eulerf::XYZ */ )
 {
     Matrix44<T> rot;
 
@@ -641,7 +673,27 @@ extractSHRT (const Matrix44<T> &mat,
     t.y = mat[3][1];
     t.z = mat[3][2];
 
+    if (rOrder != Eulerf::XYZ)
+    {
+	Imath::Eulerf eXYZ (r, Imath::Eulerf::XYZ);
+	Imath::Eulerf e (eXYZ, rOrder);
+	r = e.toXYZVector ();
+    }
+
     return true;
+}
+
+
+template <class T>
+bool 
+extractSHRT (const Matrix44<T> &mat,
+	     Vec3<T> &s,
+	     Vec3<T> &h,
+	     Euler<T> &r,
+	     Vec3<T> &t,
+	     bool exc /* = true */)
+{
+    return extractSHRT (mat, s, h, r, t, exc, r.order ());
 }
 
 
@@ -653,7 +705,7 @@ checkForZeroScaleInRow (const T& scl,
 {
     for (int i = 0; i < 3; i++)
     {
-	if ((abs (scl) < 1 && abs (row[i]) >= limits<T>::max() * scl))
+	if ((abs (scl) < 1 && abs (row[i]) >= limits<T>::max() * abs (scl)))
 	{
 	    if (exc)
 		throw Imath::ZeroScaleExc ("Cannot remove zero scaling "
@@ -887,10 +939,18 @@ extractAndRemoveScalingAndShear (Matrix33<T> &mat,
 	    if (Imath::abs (row[i][j]) > maxVal)
 		maxVal = Imath::abs (row[i][j]);
 
+    //
+    // We normalize the 2x2 matrix here.
+    // It was noticed that this can improve numerical stability significantly,
+    // especially when many of the upper 2x2 matrix's coefficients are very
+    // close to zero; we correct for this step at the end by multiplying the 
+    // scaling factors by maxVal at the end (shear and rotation are not 
+    // affected by the normalization).
+
     if (maxVal != 0)
     {
 	for (int i=0; i < 2; i++)
-	    if (! checkForZeroScaleInRow (maxVal, row[0], exc))
+	    if (! checkForZeroScaleInRow (maxVal, row[i], exc))
 		return false;
 	    else
 		row[i] /= maxVal;
@@ -1006,7 +1066,7 @@ checkForZeroScaleInRow (const T& scl,
 {
     for (int i = 0; i < 2; i++)
     {
-	if ((abs (scl) < 1 && abs (row[i]) >= limits<T>::max() * scl))
+	if ((abs (scl) < 1 && abs (row[i]) >= limits<T>::max() * abs (scl)))
 	{
 	    if (exc)
 		throw Imath::ZeroScaleExc ("Cannot remove zero scaling "
