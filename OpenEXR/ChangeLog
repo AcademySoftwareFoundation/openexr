@@ -1,3 +1,4 @@
+	* Updated ImfDoubleAttribute.h for Codewarrior on MacOS.
 	* Added exrheader utility.
 	* Update to AUTHORS file.
 	* Added a README.win32 file.
