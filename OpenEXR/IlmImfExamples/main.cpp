@@ -39,6 +39,7 @@
 #include <generalInterfaceExamples.h>
 #include <generalInterfaceTiledExamples.h>
 #include <lowLevelIoExamples.h>
+#include <previewImageExamples.h>
 #include <iostream>
 #include <stdexcept>
 
@@ -55,6 +56,8 @@ main (int argc, char *argv[])
         generalInterfaceTiledExamples();
 
 	lowLevelIoExamples();
+
+	previewImageExamples();
     }
     catch (const std::exception &exc)
     {

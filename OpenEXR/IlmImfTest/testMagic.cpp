@@ -33,8 +33,9 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include <ImfVersion.h>
+#include <ImfTestFile.h>
+#include <ImfStdIO.h>
 #include <iostream>
-#include <fstream>
 #include <exception>
 #include <stdio.h>
 #include <assert.h>
@@ -45,7 +46,7 @@ using namespace std;
 namespace {
 
 void
-testFile (const char fileName[], bool isImfFile)
+testFile1 (const char fileName[], bool isImfFile)
 {
     cout << fileName << " " << flush;
 
@@ -60,7 +61,52 @@ testFile (const char fileName[], bool isImfFile)
 
     assert (!!f && isImfFile == isImfMagic (bytes));
 
-    cout << "is " << (isImfMagic (bytes)? "": "not ") << "an image file\n";
+    cout << "is " << (isImfMagic (bytes)? "": "not ") << "an OpenEXR file\n";
+}
+
+
+void
+testFile2 (const char fileName[], bool exists, bool exrFile, bool tiledFile)
+{
+    cout << fileName << " " << flush;
+
+    bool exr, tiled;
+
+    exr = isOpenExrFile (fileName, tiled);
+    assert (exr == exrFile && tiled == tiledFile);
+
+    exr = isOpenExrFile (fileName);
+    assert (exr == exrFile);
+
+    tiled = isTiledOpenExrFile (fileName);
+    assert (tiled == tiledFile);
+
+    if (exists)
+    {
+	StdIFStream is (fileName);
+
+	exr = isOpenExrFile (is, tiled);
+	assert (exr == exrFile && tiled == tiledFile);
+
+	if (exr)
+	    assert (is.tellg() == 0);
+
+	exr = isOpenExrFile (is);
+	assert (exr == exrFile);
+
+	if (exr)
+	    assert (is.tellg() == 0);
+
+	tiled = isTiledOpenExrFile (is);
+	assert (tiled == tiledFile);
+
+	if (tiled)
+	    assert (is.tellg() == 0);
+    }
+
+    cout << (exists? "exists": "does not exist") << ", " <<
+	    (exr? "is an OpenEXR file": "is not an OpenEXR file") << ", " <<
+	    (tiled? "is tiled": "is not tiled") << endl;
 }
 
 } // namespace
@@ -73,8 +119,13 @@ testMagic ()
     {
 	cout << "Testing magic number" << endl;
 
-	testFile ("comp_none.exr", true);
-	testFile ("invalid.exr", false);
+	testFile1 ("comp_none.exr", true);
+	testFile1 ("invalid.exr", false);
+
+	testFile2 ("tiled.exr", true, true, true);
+	testFile2 ("comp_none.exr", true, true, false);
+	testFile2 ("invalid.exr", true, false, false);
+	testFile2 ("does_not_exist.exr", false, false, false);
 
 	cout << "ok\n" << endl;
     }
