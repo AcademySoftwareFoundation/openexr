@@ -34,6 +34,7 @@ the examples can easily be compiled and run.
     <li><a href = #sec_1_4>1.4 Reading an RGBA Image File</a>
     <li><a href = #sec_1_5>1.5 Reading an RGBA Image File in Chunks</a>
     <li><a href = #sec_1_6>1.6 Reading Custom Attributes</a>
+    <li><a href = #sec_1_7>1.7 Luminance/Chroma and Gray-Scale Images</a>
     </ul>
 <p>
 <li><a href = #sec_2>2 Using the General Interface for Scan-line-based Files</a>
@@ -623,6 +624,85 @@ for example, like this:
 
 
 <p>
+<a name = sec_1_7><h4>1.7 Luminance/Chroma and Gray-Scale Images</h4></a>
+<p>
+Writing an RGBA image file usually preserves the pixels without losing
+any data; saving an image file, and reading it back does not alter
+the pixels' R, G, B and A values.
+Most of the time, lossless data storage is exactly what we want,
+but sometimes file space or transmission bandwidth are limited,
+and we would like to reduce the size of our image files.
+It is often acceptable if the numbers in the pixels change slightly,
+as long as the image still looks just like the original.
+<p>
+The RGBA interface in the IlmImf library supports storing RGB data
+in luminance/chroma format.  The R, G, and B channels are converted
+into a luminance channel, Y, and two chroma channels, RY and BY.
+The Y channel represents a pixel's brightness, and the two chroma
+channels represent its color.
+The human visual system's spatial resolution for color is much lower
+than the spatial resolution for brightness.  This allows us to reduce
+the horizontal and vertical resolution of the RY and BY channels by
+a factor of two.  The visual appearance of the image doesn't change,
+but the image occupies only half as much space, even before data
+compression is applied.
+(For every four pixels, we store four Y values, one RY value,
+and one BY value, instead of four R, four G, and four B values.)
+<p>
+When opening a file for writing, a program can select how it
+wants the pixels to be stored.  The constructors for class
+<code>RgbaOutputFile</code> have an <code>rgbaChannels</code>
+argument, which determines the set of channels in the file:
+<p>
+
+<table>
+  <tr>
+    <td valign="top">
+    <code>WRITE_RGB</code></td>
+    <td valign="top">
+    red, gren, blue </td>
+  </tr>
+  <tr>
+    <td valign="top">
+    <code>WRITE_RGBA</code></td>
+    <td valign="top">
+    red, gren, blue, alpha </td>
+  </tr>
+  <tr>
+    <td valign="top">
+    <code>WRITE_YC</code></td>
+    <td valign="top">
+    luminance, chroma </td>
+  </tr>
+  <tr>
+    <td valign="top">
+    <code>WRITE_YCA</code></td>
+    <td valign="top">
+    luminance, chroma, alpha </td>
+  </tr>
+  <tr>
+    <td valign="top">
+    <code>WRITE_Y</code></td>
+    <td valign="top">
+    luminance only </td>
+  </tr>
+  <tr>
+    <td valign="top">
+    <code>WRITE_YA</code></td>
+    <td valign="top">
+    luminance, alpha </td>
+  </tr>
+</table>
+<p>
+
+<code>WRITE_Y</code> and <code>WRITE_YA</code> provide an efficient way
+to store gray-scale images.  The chroma channels for a gray-scale image
+contain only zeroes, so they can be omitted from the file.
+<p>
+When an image file is opened for reading, class <code>RgbaInputFile</code>
+automatically detects luminance/chroma images, and converts the pixels
+back to RGB format.
+<p>
 <a name = sec_2><h3>2 Using the General Interface for Scan-line-based Files</h3></a>
 
 <p><a name = sec_2_1><h4>2.1 Writing an Image File</h4></a>
@@ -925,7 +1005,9 @@ buffer will be filled with the <code>fillValue</code>.
 The <code>Slice's</code> remaining two parameters,
 <code>xSampling</code> and <code>ySampling</code>
 are used for images where some of the channels are subsampled,
-for instance YUV video data.  Unless an image contains subsampled
+for instance, the RY and BY channels in luminance/chroma images.
+(see <a href = #sec_1_7>section 1.7, Luminance/Chroma and Gray-scale Images</a>).
+Unless an image contains subsampled
 channels, <code>xSampling</code> and <code>ySampling</code>
 should always be set to 1.  
 For details, see header files ImfFrameBuffer.h and ImfChannelList.h.
