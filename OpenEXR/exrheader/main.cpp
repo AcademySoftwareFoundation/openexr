@@ -50,6 +50,7 @@
 #include <ImfIntAttribute.h>
 #include <ImfLineOrderAttribute.h>
 #include <ImfMatrixAttribute.h>
+#include <ImfPreviewImageAttribute.h>
 #include <ImfStringAttribute.h>
 #include <ImfTileDescriptionAttribute.h>
 #include <ImfVecAttribute.h>
@@ -162,6 +163,26 @@ printLevelMode (LevelMode lm)
 
       default:
 	cout << "level mode " << int (lm);
+	break;
+    }
+}
+
+
+void
+printLevelRoundingMode (LevelRoundingMode lm)
+{
+    switch (lm)
+    {
+      case ROUND_DOWN:
+	cout << "down";
+	break;
+
+      case ROUND_UP:
+	cout << "up";
+	break;
+
+      default:
+	cout << "mode " << int (lm);
 	break;
     }
 }
@@ -316,6 +337,13 @@ printInfo (const char fileName[])
 		    ta->value()[3][2] << " " <<
 		    ta->value()[3][3] << ")";
 	}
+	else if (const PreviewImageAttribute *ta =
+		dynamic_cast <const PreviewImageAttribute *> (a))
+	{
+	    cout << ": " <<
+		    ta->value().width()  << " by " <<
+		    ta->value().height() << " pixels";
+	}
 	else if (const StringAttribute *ta =
 		dynamic_cast <const StringAttribute *> (a))
 	{
@@ -324,13 +352,19 @@ printInfo (const char fileName[])
 	else if (const TileDescriptionAttribute *ta =
 		dynamic_cast <const TileDescriptionAttribute *> (a))
 	{
-	    cout << ": ";
+	    cout << ":\n    ";
 
 	    printLevelMode (ta->value().mode);
 
-	    cout << ", tile size " <<
+	    cout << "\n    tile size " <<
 		    ta->value().xSize << " by " <<
-		    ta->value().ySize << " pixels\n";
+		    ta->value().ySize << " pixels";
+
+	    if (ta->value().mode != ONE_LEVEL)
+	    {
+		cout << "\n    level sizes rounded ";
+		printLevelRoundingMode (ta->value().roundingMode);
+	    }
 	}
 	else if (const V2iAttribute *ta =
 		dynamic_cast <const V2iAttribute *> (a))
