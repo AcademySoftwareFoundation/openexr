@@ -26,37 +26,27 @@ Compiling OpenEXR in Visual Studio
 ----------------------------------
 
 If you don't want or don't need to build these libraries from scratch,
-some releases may be available as pre-compiled libraries.  Check
-here:
+some releases may be available as pre-compiled libraries.  Check here:
 
   http://openexr.com/downloads
 
 The projects for Visual Studio 6.0 and .NET 2003 can be found in
 vc\vc6 and vc\vc7, respectively.
 
-You'll need a compiled version of zlib (preferably version 1.2.1,
-though versions as old as 1.4.1 will work) in order to build the IlmImf 
-library.  You'll need a compiled version of FLTK 1.1.x in order to build 
-the exrdisplay viewer.  You can get source code for these libraries here:
+You'll need a compiled version of zlib (version 1.2.1) in order to build
+the IlmImf library.  You'll need a compiled version of FLTK 1.1.x in order
+to build the exrdisplay viewer.  You can get source code for these libraries
+here:
 
-http://www.gzip.org/zlib/
+http://www.zlib.net
 http://www.fltk.org
 
 FLTK comes with a workspace file for Visual Studio 6.0 (and Visual
 Studio .NET 2003 can automatically convert it to a "solution" file).
 
-zlib does not, so we have included one for you in the vc\vc6\zlib
-directory (or vc\vc7\zlib, if you're using Visual Studio .NET 2003).
-It works with zlib 1.2.1.  Copy all the files in that directory into
-your zlib source directory and build the zlib targets (zlib.lib and
-zlibd.lib).  If you want to use the IlmImf DLL, you must also build a
-zlib library which uses statically linked runtime libs.  The included
-zlib_static project file will build those (zlib_static.lib and
-zlibd_static.lib).
-
 Note that by default, the OpenEXR Visual Studio project expects the
-zlib and FLTK libraries in the following locations (assuming OpenEXR\
-is your OpenEXR source directory):
+FLTK libraries in the following locations (assuming OpenEXR\ is your
+OpenEXR source directory):
 
   zlib\
        zconf.h
@@ -85,6 +75,44 @@ SDK to be rooted in the same directory as the OpenEXR source directory:
          SDK\
 	     inc\
   OpenEXR\...
+
+Building OpenEXR requires the following steps:
+
+  * Obtain the zlib (version 1.2.2) source code from www.zlib.net, and
+    build the following configurations:
+    
+      LIB ASM Debug
+      LIB ASM Release
+      DLL ASM Release
+
+  * In directory OpenEXR\vc\vc7, create the following sub-directories:
+
+      OpenEXR\vc\vc7\bin
+      OpenEXR\vc\vc7\lib
+      OpenEXR\vc\vc7\include
+
+  * From the zlib build, copy the following files:
+
+      zlib1.dll                                       -> OpenEXR\vc\vc7\bin
+      zconf.h zlib.h                                  -> OpenEXR\vc\vc7\include
+      zlib1.exp zlib1.lib zlibd.lib zlib.lib vc70.pdb -> OpenEXR\vc\vc7\lib
+
+  * If you want to build exrdisplay, obtain the FLTK source code and build
+    the Debug and Release configurations.
+
+  * Build the Release configuration of createDLL from the createDLL
+    solution file (OpenEXR\vc\vc7\createDLL.sln).
+
+  * Set up the MSVCLINK environment variable to point to
+      c:\Program Files\Microsoft Visual Studio.Net 2003\vc\bin\link.exe
+    or the equivalent on your installation.
+
+  * Open the OpenEXR solution file (OpenEXR\vc\vc7\OpenEXR.sln).
+
+  * Pick the configuration you need (Debug, DebugDLL, Release or ReleaseDLL)
+    and build it.
+
+  * Enjoy.
   
 
 Known bugs
