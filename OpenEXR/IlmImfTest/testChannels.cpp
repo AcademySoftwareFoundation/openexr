@@ -245,7 +245,13 @@ testChannels ()
 	Array2D<half> ph2 (H, W);
 	fillPixels (ph1, ph2, W, H);
 
-	writeRead (ph1, ph2, "/var/tmp/imf_test_channels.exr", W, H);
+#ifdef PLATFORM_WIN32
+	const char * filename = "imf_test_channels.exr";
+#else
+	const char * filename = "/var/tmp/imf_test_channels.exr";
+#endif
+
+	writeRead (ph1, ph2, filename, W, H);
 
 	cout << "ok\n" << endl;
     }

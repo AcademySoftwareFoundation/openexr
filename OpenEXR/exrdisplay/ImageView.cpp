@@ -41,15 +41,28 @@
 //----------------------------------------------------------------------------
 
 #include <ImageView.h>
-#ifdef PLATFORM_DARWIN_PPC
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
 #include <ImathMath.h>
 #include <ImathFun.h>
 #include <halfFunction.h>
 
+#if defined PLATFORM_WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#include <GL/gl.h>
+#elif defined PLATFORM_DARWIN_PPC
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
+
+#if defined PLATFORM_WIN32
+float fmax (float a, float b) 
+{ 
+    return (a >= b) ? a : b;
+}
+#endif
 
 ImageView::ImageView (int x, int y,
 		      int w, int h,
@@ -254,7 +267,11 @@ Gamma::operator () (half h)
     // Defog
     //
 
+#ifdef PLATFORM_WIN32
+    float x = fmax (0.f, (h - d)); 
+#else
     float x = std::max (0.f, (h - d));
+#endif
 
     //
     // Exposure

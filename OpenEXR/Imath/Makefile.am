@@ -12,7 +12,7 @@ libImath_la_SOURCES = ImathShear.cpp ImathMatrixAlgo.cpp ImathVec.cpp \
 		      ImathFrustum.h ImathMath.h ImathGL.h \
 		      ImathColor.h ImathRandom.h ImathRoots.h \
 		      ImathHalfLimits.h ImathInterval.h ImathGLU.h \
-		      ImathFrame.h
+		      ImathFrame.h ImathPlatform.h
 
 libImathincludedir = $(includedir)/OpenEXR
 
@@ -24,6 +24,6 @@ libImathinclude_HEADERS = ImathColorAlgo.h ImathMatrixAlgo.h ImathVec.h \
 			  ImathFrustum.h ImathMath.h ImathGL.h \
 			  ImathColor.h ImathRandom.h ImathRoots.h \
 			  ImathHalfLimits.h ImathInterval.h ImathGLU.h \
-			  ImathFrame.h
+			  ImathFrame.h ImathPlatform.h
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex

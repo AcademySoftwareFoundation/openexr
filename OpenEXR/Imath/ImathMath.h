@@ -80,6 +80,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include <ImathPlatform.h>
 #include <math.h>
 
 //
@@ -135,7 +136,7 @@ struct Math
 };
 
 
-// Sun and Apple don't have floating point funcs
+// Sun, Apple, and Microsoft don't have floating point funcs
 #if defined ( PLATFORM_SUNOS5 ) || defined ( PLATFORM_DARWIN_PPC )
 
 template <>

@@ -35,6 +35,7 @@
 
 
 #include <ImfHuf.h>
+#include <ImathRandom.h>
 #include <ImfArray.h>
 #include <iostream>
 #include <exception>
@@ -43,28 +44,34 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#if defined (PLATFORM_WIN32)
+#    ifndef for
+#        define for if (0) { } else for
+#    endif
+#endif
+
 using namespace Imf;
 using namespace std;
 
 namespace {
 
 void
-fill1 (unsigned short data[/*n*/], int n, float bias)
+fill1 (unsigned short data[/*n*/], int n, float bias, Imath::Rand48 & rand48)
 {
     for (int i = 0; i < n; ++i)
 	data[i] = (unsigned short)
-		  (pow (drand48(), double(bias)) * (USHRT_MAX + 1));
+		  (pow (rand48.nextf(), double(bias)) * (USHRT_MAX + 1));
 }
 
 
 void
-fill2 (unsigned short data[/*n*/], int n, int m)
+fill2 (unsigned short data[/*n*/], int n, int m, Imath::Rand48 & rand48)
 {
     for (int i = 0; i < n; ++i)
 	data[i] = 0;
 
     for (int i = 0; i < m; ++i)
-	data[lrand48() % n] = (unsigned short) (drand48() * (USHRT_MAX + 1));
+	data[rand48.nexti() % n] = (unsigned short) (rand48.nextf() * (USHRT_MAX + 1));
 }
 
 
@@ -138,27 +145,27 @@ testHuf ()
     {
 	cout << "Testing Huffman encoder" << endl;
 
-	srand48 (0);
+	Imath::Rand48 rand48 (0);
 
 	const int N = 1000000;
 	Array <unsigned short> raw (N);
 
-	fill1 (raw, N, 1);		// test various symbol distributions
+	fill1 (raw, N, 1, rand48);	  // test various symbol distributions
 	compressUncompress (raw, N);
-	fill1 (raw, N, 10);
+	fill1 (raw, N, 10, rand48);
 	compressUncompress (raw, N);
-	fill1 (raw, N, 100);
+	fill1 (raw, N, 100, rand48);
 	compressUncompress (raw, N);
-	fill1 (raw, N, 1000);
+	fill1 (raw, N, 1000, rand48);
 	compressUncompress (raw, N);
 
-	fill2 (raw, N, 1);
+	fill2 (raw, N, 1, rand48);
 	compressUncompress (raw, N);
-	fill2 (raw, N, 10);
+	fill2 (raw, N, 10, rand48);
 	compressUncompress (raw, N);
-	fill2 (raw, N, 100);
+	fill2 (raw, N, 100, rand48);
 	compressUncompress (raw, N);
-	fill2 (raw, N, 1000);
+	fill2 (raw, N, 1000, rand48);
 	compressUncompress (raw, N);
 
 	fill3 (raw, N, 0);
