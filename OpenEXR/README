@@ -26,11 +26,13 @@ viewer for examples on how to use IlmImf and Half.  The doc directory
 contains some high-level documentation and history about the OpenEXR
 format.
 
-To build OpenEXR on OS X or GNU/Linux systems, do:
+To build OpenEXR on GNU/Linux or other UNIX-like systems, do:
 
 ./configure
 make
 make install
+
+See below for notes on compiling OpenEXR in OS X.
 
 Do 'make check' to run confidence tests.  See the INSTALL file for more
 details or try "./configure --help".
@@ -51,20 +53,27 @@ PLATFORM-SPECIFIC NOTES
 
 OS X:
 
+Short story: to work around some issues we're having with OpenEXR
+on OS X right now, build OpenEXR like so:
+
+./configure --enable-osx-istream-hack --enable-shared=no
+make
+make install
+
+Long story:
+
 We've only tested OpenEXR with OS X 10.2 (Jaguar).  It may work with
 the version of gcc 3.1 distributed with the April 2002 developer tools 
 on earlier versions of OS X, but we don't plan on supporting them.  You'll
 probably have a tough time getting OpenEXR to work with gcc 2.95.2 on OS X
 due to lack of sstream, among other things.
 
-OpenEXR isn't quite working yet on OS X 10.2 due to a bug in Apple's
-istream::read implementation.  See README.OSX for details and a (hacky)
-workaround.
+There appears to be a bug in Apple's istream::read implementation
+as of OS X 10.2.3 and the December 2002 developer tools.  We
+have a (hacky) workaround for it; to enable it, you must run 
+configure with the --enable-osx-istream-hack option.  At the moment,
+OpenEXR won't work on OS X without it.  See README.OSX for details.
 
-Shared libraries aren't supported yet on OS X.  You can build them, but
-we have't gotten them to link due to undefined symbols; we're probably
-doing something wrong in the Makefile system.  The test suite will 
-automatically try to link shared libraries if you've built them, so
-'make check' will fail.  To run the confidence tests, tell configure
-not to build shared libraries ("./configure --enable-shared=no").
+OpenEXR doesn't support shared libs on OS X yet, either.  You can
+build them, but you may have problems linking them into applications.
 
