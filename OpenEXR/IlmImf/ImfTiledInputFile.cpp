@@ -146,6 +146,9 @@ struct TiledInputFile::Data
     TileOffsets	    tileOffsets;	    // stores offsets in file for
 					    // each tile
 
+    bool	    fileIsComplete;	    // True if no tiles are missing
+    					    // in the file
+
     Int64	    currentPosition;        // file offset for current tile,
 					    // used to prevent unnecessary
 					    // seeking
@@ -221,7 +224,7 @@ readTileData (TiledInputFile::Data *ifd,
     }
 
     //
-    // Seek to the start of the scan line in the file,
+    // Seek to the start of the tile in the file,
     // if necessary.
     //
     
@@ -440,7 +443,7 @@ TiledInputFile::initialize ()
 				      _data->numXTiles,
 				      _data->numYTiles);
 
-    _data->tileOffsets.readFrom (*(_data->is));
+    _data->tileOffsets.readFrom (*(_data->is), _data->fileIsComplete);
 
     _data->currentPosition = _data->is->tellg();
 }
@@ -594,6 +597,13 @@ const FrameBuffer &
 TiledInputFile::frameBuffer () const
 {
     return _data->frameBuffer;
+}
+
+
+bool
+TiledInputFile::isComplete () const
+{
+    return _data->fileIsComplete;
 }
 
 

@@ -526,6 +526,16 @@ InputFile::frameBuffer () const
 }
 
 
+bool
+InputFile::isComplete () const
+{
+    if (isTiled (_data->version))
+	return _data->tFile->isComplete();
+    else
+	return _data->sFile->isComplete();
+}
+
+
 void
 InputFile::readPixels (int scanLine1, int scanLine2)
 {

@@ -66,7 +66,7 @@ class TileOffsets
     // File I/O
     // --------
 
-    void		readFrom (IStream &is);
+    void		readFrom (IStream &is, bool &complete);
     Int64		writeTo (OStream &os) const;
 
 

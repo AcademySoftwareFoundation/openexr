@@ -131,6 +131,7 @@ struct ScanLineInputFile::Data
     int			minY;
     int			maxY;
     vector<Int64>	lineOffsets;
+    bool		fileIsComplete;
     int			linesInBuffer;
     int			lineBufferMinY;
     int			lineBufferMaxY;
@@ -199,12 +200,15 @@ reconstructLineOffsets (IStream &is,
 void
 readLineOffsets (IStream &is,
 		 LineOrder lineOrder,
-		 vector<Int64> &lineOffsets)
+		 vector<Int64> &lineOffsets,
+		 bool &complete)
 {
     for (unsigned int i = 0; i < lineOffsets.size(); i++)
     {
 	Xdr::read <StreamIO> (is, lineOffsets[i]);
     }
+
+    complete = true;
 
     for (unsigned int i = 0; i < lineOffsets.size(); i++)
     {
@@ -223,6 +227,7 @@ readLineOffsets (IStream &is,
 	    // line data to reconstruct the line offset table.
 	    //
 
+	    complete = false;
 	    reconstructLineOffsets (is, lineOrder, lineOffsets);
 	    break;
 	}
@@ -345,7 +350,11 @@ ScanLineInputFile::ScanLineInputFile (const Header &header, IStream *is):
 			      _data->linesInBuffer) / _data->linesInBuffer;
 
 	_data->lineOffsets.resize (lineOffsetSize);
-	readLineOffsets (*_data->is, _data->lineOrder, _data->lineOffsets);
+
+	readLineOffsets (*_data->is,
+			 _data->lineOrder,
+			 _data->lineOffsets,
+			 _data->fileIsComplete);
     }
     catch (...)
     {
@@ -485,6 +494,13 @@ const FrameBuffer &
 ScanLineInputFile::frameBuffer () const
 {
     return _data->frameBuffer;
+}
+
+
+bool
+ScanLineInputFile::isComplete () const
+{
+    return _data->fileIsComplete;
 }
 
 

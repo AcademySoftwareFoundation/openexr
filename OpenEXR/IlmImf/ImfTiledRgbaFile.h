@@ -322,6 +322,7 @@ class TiledRgbaInputFile
     Compression			compression () const;
     RgbaChannels		channels () const;
     const char *                fileName () const;
+    bool			isComplete () const;
 
     //----------------------------------
     // Access to the file format version

@@ -850,6 +850,13 @@ TiledRgbaInputFile::version () const
 }
 
 
+bool
+TiledRgbaInputFile::isComplete () const
+{
+    return _inputFile->isComplete();
+}
+
+
 unsigned int
 TiledRgbaInputFile::tileXSize () const
 {
