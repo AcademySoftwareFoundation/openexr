@@ -94,11 +94,4 @@ and the Intel C++ compiler version 7.0.  It appears to be specific to
 the test, not any of the OpenEXR libraries themselves.  It's #ifdef'ed
 out at the moment to ensure the other tests in IlmImfTest will run.
 
-There is a bug in the Imath library, specifically in ImathEuler.h,
-that occurs only when Imath is compiled with Visual Studio .NET 2003.
-We'll look into the problem when we have a chance, but it doesn't
-affect OpenEXR per se as the none of the OpenEXR code uses
-ImathEuler.h.  If you use ImathEuler.h on Win32, you should probably
-use Visual Studio 6.0 with the Intel C++ compiler (or fix the bug and
-let us know what the problem was ;).
 
