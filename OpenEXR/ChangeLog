@@ -1,3 +1,19 @@
+        * Made template <class T> become  template <class S, class T> for 
+          the transform(ObjectS, ObjectT) methods. This was done to allow
+          for differing templated objects to be passed in e.g.  say a 
+          Box<Vec3<S>> and a Matrix44<T>, where S=float and T=double.
+          (Jeff Yost, Arkell Rasiah)
+        * New method Matrix44::setTheMatrix(). Used for assigning a 
+          M44f to a M44d. (Jeff Yost, Arkell Rasiah)
+        * Added convenience Color typedefs for half versions of Color3
+          and Color4. Note the Makefile.am for both Imath and ImathTest
+          have been updated with -I and/or -L pathing to Half.
+          (Max Chen, Arkell Rasiah)
+        * Methods equalWithAbsError() and equalWithRelError() are now
+          declared as const. (Colette Mullenhoff, Arkell Rasiah)
+        * Fixes for gcc34. Mainly typename/template/using/this syntax
+          correctness changes. (Nick Ramussen, Arkell Rasiah)
+        * Eliminated most warnings messages when OpenEXR is compiled
 	* Added Custom low-level file I/O examples to IlmImfExamples
 	  and to the docs/api.html document.  (Florian Kainz)
 	* Eliminated most warnings messages when OpenEXR is compiled
