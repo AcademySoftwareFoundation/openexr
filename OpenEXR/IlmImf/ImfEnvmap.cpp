@@ -53,13 +53,13 @@ namespace LatLongMap {
 V2f	
 latLong (const V3f &dir)
 {
-    float r = sqrtf (dir.z * dir.z + dir.x * dir.x);
+    float r = sqrt (dir.z * dir.z + dir.x * dir.x);
 
     float latitude = (r < abs (dir.y))?
-			 acosf (r / dir.length()) * sign (dir.y):
-			 asinf (dir.y / dir.length());
+			 acos (r / dir.length()) * sign (dir.y):
+			 asin (dir.y / dir.length());
 
-    float longitude = (dir.z == 0 && dir.x == 0)? 0: atan2f (dir.x, dir.z);
+    float longitude = (dir.z == 0 && dir.x == 0)? 0: atan2 (dir.x, dir.z);
 
     return V2f (latitude, longitude);
 }
@@ -119,9 +119,9 @@ direction (const Box2i &dataWindow, const V2f &pixelPosition)
 {
     V2f ll = latLong (dataWindow, pixelPosition);
 
-    return V3f (sinf (ll.y) * cosf (ll.x),
-		sinf (ll.x),
-		cosf (ll.y) * cosf (ll.x));
+    return V3f (sin (ll.y) * cos (ll.x),
+		sin (ll.x),
+		cos (ll.y) * cos (ll.x));
 }
 
 } // namespace LatLongMap

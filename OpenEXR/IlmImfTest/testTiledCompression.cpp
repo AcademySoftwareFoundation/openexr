@@ -50,7 +50,9 @@ using namespace Imath;
 using namespace Imf;
 
 #ifdef WIN32
-#define isnan _isnan
+	#define isnan _isnan
+#else
+	extern "C" int isnan (double); 
 #endif
 
 namespace {
