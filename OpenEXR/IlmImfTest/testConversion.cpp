@@ -155,7 +155,7 @@ testImageChannel (const char fileName[],
     {
 	Header hdr (width, height);
 
-	hdr.compression() == compression;
+	hdr.compression() = compression;
 
 	hdr.channels().insert ("X", 				// name
 			       Channel (OutTypeTag));		// type
