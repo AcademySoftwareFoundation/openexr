@@ -98,6 +98,20 @@ AC_MSG_RESULT($ios_base)
 AC_LANG_RESTORE
 
 
+dnl Checks for std::right etc. in iomanip
+AC_MSG_CHECKING(for complete iomanip support in C++ standard library)
+complete_iomanip="no"
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+AC_TRY_COMPILE([#include <iomanip>],[
+
+	std::right;
+],
+AC_DEFINE(HAVE_COMPLETE_IOMANIP) complete_iomanip=yes)
+AC_MSG_RESULT($complete_iomanip)
+AC_LANG_RESTORE
+
+
 dnl Checks for <limits>
 AC_MSG_CHECKING(for <limits> support in C++ standard library)
 stl_limits="no"
