@@ -64,4 +64,9 @@ void ChromaticitiesAttribute::readValueFrom (std::istream &, int, int);
 
 } // namespace Imf
 
+// Metrowerks compiler wants the .cpp file inlined, too
+#ifdef __MWERKS__
+#include <ImfChromaticitiesAttribute.cpp>
+#endif
+
 #endif
