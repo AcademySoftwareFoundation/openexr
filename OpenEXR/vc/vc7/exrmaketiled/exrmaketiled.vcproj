@@ -73,7 +73,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="../../../IlmImf,../../../Iex,../../../Imath,../../../Half,../../../exrmaketiled"
-				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;PLATFORM_WIN32;HAVE_IOS_BASE;HAVE_STL_LIMITS"
+				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;PLATFORM_WIN32;HAVE_IOS_BASE;HAVE_STL_LIMITS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				ForceConformanceInForLoopScope="TRUE"
@@ -89,6 +89,59 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="zlib.lib comctl32.lib"
+				OutputFile="..\bin\exrmaketiled.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="../../../../zlib"
+				GenerateDebugInformation="TRUE"
+				SubSystem="1"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Static|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="../../../IlmImf,../../../Iex,../../../Imath,../../../Half,../../../exrmaketiled"
+				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;PLATFORM_WIN32;HAVE_IOS_BASE;HAVE_STL_LIMITS"
+				StringPooling="TRUE"
+				RuntimeLibrary="0"
+				ForceConformanceInForLoopScope="TRUE"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="TRUE"
+				DebugInformationFormat="3"
+				CompileAs="0"
+				DisableSpecificWarnings="4290"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="zlib_static.lib comctl32.lib"
 				OutputFile="..\bin\exrmaketiled.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"

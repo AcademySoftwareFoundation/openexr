@@ -417,9 +417,9 @@ desaturate (const Rgba &in, float f, const V3f &yw, Rgba &out)
 {
     float rgbMax = max (in.r, max (in.g, in.b));
 
-    out.r = max (rgbMax - (rgbMax - in.r) * f, 0.0f);
-    out.g = max (rgbMax - (rgbMax - in.g) * f, 0.0f);
-    out.b = max (rgbMax - (rgbMax - in.b) * f, 0.0f);
+    out.r = max (float (rgbMax - (rgbMax - in.r) * f), 0.0f);
+    out.g = max (float (rgbMax - (rgbMax - in.g) * f), 0.0f);
+    out.b = max (float (rgbMax - (rgbMax - in.b) * f), 0.0f);
     out.a = in.a;
 
     float Yin  = in.r  * yw.x + in.g  * yw.y + in.b  * yw.z;
