@@ -66,8 +66,8 @@ class TMatrixData : public TMatrixBase<T>
     // Matrix of given size, content undefined.
     //----------------------------------------
 
-    TMatrixData(size_t numRows,
-		size_t numColumns,
+    TMatrixData(int numRows,
+		int numColumns,
 		T * data,
 		typename TMatrixBase<T>::Order ord =TMatrixBase<T>::ROW_MAJOR);
 
@@ -76,8 +76,8 @@ class TMatrixData : public TMatrixBase<T>
     // Initialized with a given value upon construction.
     //--------------------------------------------------
     
-    TMatrixData(size_t numRows,
-		size_t numColumns,
+    TMatrixData(int numRows,
+		int numColumns,
 		const T & initVal,
 		T * data,
 		typename TMatrixBase<T>::Order ord =TMatrixBase<T>::ROW_MAJOR);
@@ -121,8 +121,8 @@ TMatrixData<T>::~TMatrixData()
 
 template<typename T>
 inline
-TMatrixData<T>::TMatrixData(size_t numRows,
-			    size_t numColumns,
+TMatrixData<T>::TMatrixData(int numRows,
+			    int numColumns,
 			    T * data,
 			    typename TMatrixBase<T>::Order ord)
     : TMatrixBase<T>(numRows, numColumns, ord)
@@ -135,8 +135,8 @@ TMatrixData<T>::TMatrixData(size_t numRows,
 
 template<typename T>
 inline
-TMatrixData<T>::TMatrixData(size_t numRows,
-			    size_t numColumns,
+TMatrixData<T>::TMatrixData(int numRows,
+			    int numColumns,
 			    const T & t,
 			    T * data,
 			    typename TMatrixBase<T>::Order ord)

@@ -27,7 +27,7 @@
 				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
+				WarningLevel="1"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"
@@ -94,7 +94,7 @@
 				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
+				WarningLevel="1"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"
@@ -906,6 +906,34 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Static|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfRgbaFile.cpp">
@@ -937,6 +965,34 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfRgbaYca.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfRgbaYca.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Static|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfRleCompressor.cpp">
@@ -1158,62 +1214,6 @@
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Static|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\..\IlmImf\ImfRgbaYca.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Static|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"/>
-				</FileConfiguration>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1327,7 +1327,13 @@
 				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.h">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.h">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfRgbaFile.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfRgbaYca.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfRgbaYca.h">
@@ -1382,12 +1388,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfZipCompressor.h">
-			</File>
-			<File
-				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.h">
-			</File>
-			<File
-				RelativePath="..\..\..\IlmImf\ImfRgbaYca.h">
 			</File>
 		</Filter>
 		<Filter

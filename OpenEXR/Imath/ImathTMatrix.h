@@ -85,7 +85,7 @@ class TMatrix : public TMatrixBase<T>
     // Matrix of given size, content undefined.
     //----------------------------------------
 
-    TMatrix(size_t numRows, size_t numColumns,
+    TMatrix(int numRows, int numColumns,
 	    typename TMatrixBase<T>::Order ord = TMatrixBase<T>::ROW_MAJOR);
 
 
@@ -93,7 +93,7 @@ class TMatrix : public TMatrixBase<T>
     // Initialized with a given value.
     //--------------------------------
 
-    TMatrix(size_t numRows, size_t numColumns, const T & initVal,
+    TMatrix(int numRows, int numColumns, const T & initVal,
 	    typename TMatrixBase<T>::Order ord = TMatrixBase<T>::ROW_MAJOR);
 
 
@@ -122,9 +122,9 @@ class TMatrix : public TMatrixBase<T>
     // T(0): such T contructors must be defined when these method are
     // specialized.
     //------------------------------------------------------------------	
-    static TMatrix<T> identity(size_t siz,
+    static TMatrix<T> identity(int siz,
 			       typename TMatrixBase<T>::Order ord = TMatrixBase<T>::ROW_MAJOR);
-    static TMatrix<T> null(size_t numRows, size_t numColumns,
+    static TMatrix<T> null(int numRows, int numColumns,
 			   typename TMatrixBase<T>::Order ord = TMatrixBase<T>::ROW_MAJOR);
 
 
@@ -162,7 +162,7 @@ class TMatrix : public TMatrixBase<T>
     // This method invalidates all currently defined TMatrix iterators. 
     //------------------------------------------------------------------
 
-    void resize(size_t newNumRows, size_t newNumColumns, T value = T());
+    void resize(int newNumRows, int newNumColumns, T value = T());
 
 
     //-----------------------------------------------------------
@@ -242,7 +242,7 @@ TMatrix<T>::TMatrix(typename TMatrixBase<T>::Order ord)
 
 template<typename T>
 inline
-TMatrix<T>::TMatrix(size_t numRows, size_t numColumns,
+TMatrix<T>::TMatrix(int numRows, int numColumns,
 		    typename TMatrixBase<T>::Order ord)
     : TMatrixBase<T>(numRows, numColumns, ord),
       _data(numRows * numColumns)
@@ -252,7 +252,7 @@ TMatrix<T>::TMatrix(size_t numRows, size_t numColumns,
 
 template<typename T>
 inline
-TMatrix<T>::TMatrix(size_t numRows, size_t numColumns, const T & t,
+TMatrix<T>::TMatrix(int numRows, int numColumns, const T & t,
 		    typename TMatrixBase<T>::Order ord)
     : TMatrixBase<T>(numRows, numColumns, ord),
       _data(numRows * numColumns, t)
@@ -318,7 +318,7 @@ TMatrix<T>::operator = (TMatrix<T> const & m)
 // Resize
 template<typename T>
 void
-TMatrix<T>::resize(size_t nRows, size_t nColumns, T val)
+TMatrix<T>::resize(int nRows, int nColumns, T val)
 {
     // Special cases
     if (nRows == numRows() && nColumns == numColumns())
@@ -458,7 +458,7 @@ TMatrix<T>::transposed() const
 // Special matrices
 template<typename T>
 TMatrix<T>
-TMatrix<T>::identity(size_t siz, typename TMatrixBase<T>::Order ord)
+TMatrix<T>::identity(int siz, typename TMatrixBase<T>::Order ord)
 {
     TMatrix<T> id(siz, siz, T(0), ord);
     iterator it = id.begin(), ie = id.end();
@@ -474,8 +474,8 @@ TMatrix<T>::identity(size_t siz, typename TMatrixBase<T>::Order ord)
 
 template<typename T>
 TMatrix<T>
-TMatrix<T>::null(size_t numRows, size_t numColumns,
-				 typename TMatrixBase<T>::Order ord)
+TMatrix<T>::null(int numRows, int numColumns,
+		 typename TMatrixBase<T>::Order ord)
 {
     return TMatrix<T>(numRows, numColumns, T(0), ord);
 }

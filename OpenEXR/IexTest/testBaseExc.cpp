@@ -67,7 +67,7 @@ throwNested()
     {
 	throwArgExc();
     }
-    catch (const Iex::ArgExc &e)
+    catch (const Iex::ArgExc &)
     {
 	try
 	{
@@ -90,11 +90,11 @@ test1 ()
     {
 	throwArgExc();
     }
-    catch (const Iex::ArgExc &e)
+    catch (const Iex::ArgExc &)
     {
 	return;
     }
-    catch (std::exception &e)
+    catch (std::exception &)
     {
 	assert (false);
     }
@@ -115,11 +115,11 @@ test2 ()
     {
 	throwLogicError();
     }
-    catch (const Iex::ArgExc &e)
+    catch (const Iex::ArgExc &)
     {
 	assert (false);
     }
-    catch (std::exception &e)
+    catch (std::exception &)
     {
 	return;
     }
@@ -140,7 +140,7 @@ test3 ()
     {
 	throwArgExc();
     }
-    catch (std::exception &e)
+    catch (std::exception &)
     {
 	return;
     }
@@ -161,11 +161,11 @@ test4 ()
     {
 	throwInt();
     }
-    catch (const Iex::ArgExc &e)
+    catch (const Iex::ArgExc &)
     {
 	assert (false);
     }
-    catch (std::exception &e)
+    catch (std::exception &)
     {
 	assert (false);
     }

@@ -244,13 +244,13 @@ void			printBits   (char  c[35], float f);
 // Limits
 //-------
 
-#define HALF_MIN	5.96046448e-08	// Smallest positive half
+#define HALF_MIN	5.96046448e-08f	// Smallest positive half
 
-#define HALF_NRM_MIN	6.10351562e-05	// Smallest positive normalized half
+#define HALF_NRM_MIN	6.10351562e-05f	// Smallest positive normalized half
 
-#define HALF_MAX	65504.0		// Largest positive half
+#define HALF_MAX	65504.0f	// Largest positive half
 
-#define HALF_EPSILON	0.00097656	// Smallest positive e for which
+#define HALF_EPSILON	0.00097656f	// Smallest positive e for which
 					// half (1.0 + e) != half (1.0)
 
 #define HALF_MANT_DIG	11		// Number of digits in mantissa

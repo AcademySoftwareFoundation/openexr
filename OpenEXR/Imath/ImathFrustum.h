@@ -170,7 +170,13 @@ class Frustum
 template<class T>
 inline Frustum<T>::Frustum()
 {
-    set(0.1,1000.0,-1.,1.,1.,-1.,false);
+    set(T (0.1),
+	T (1000.0),
+	T (-1.0),
+	T (1.0),
+	T (1.0),
+	T (-1.0),
+	false);
 }
 
 template<class T>
