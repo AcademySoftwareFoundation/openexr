@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib.vcproj", "{B7F82A9E-3100-4763-9ACE-F13A5AF01256}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib_static", "zlib_static.vcproj", "{80D38199-2045-4058-933D-DEE89528075E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{B7F82A9E-3100-4763-9ACE-F13A5AF01256}.Debug.ActiveCfg = Debug|Win32
+		{B7F82A9E-3100-4763-9ACE-F13A5AF01256}.Debug.Build.0 = Debug|Win32
+		{B7F82A9E-3100-4763-9ACE-F13A5AF01256}.Release.ActiveCfg = Release|Win32
+		{B7F82A9E-3100-4763-9ACE-F13A5AF01256}.Release.Build.0 = Release|Win32
+		{80D38199-2045-4058-933D-DEE89528075E}.Debug.ActiveCfg = Debug|Win32
+		{80D38199-2045-4058-933D-DEE89528075E}.Debug.Build.0 = Debug|Win32
+		{80D38199-2045-4058-933D-DEE89528075E}.Release.ActiveCfg = Release|Win32
+		{80D38199-2045-4058-933D-DEE89528075E}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
