@@ -1,3 +1,6 @@
+	* Bug fix: PXR24 compression did not work properly for channels
+	  with ySampling != 1.
+	  (Florian Kainz)
         * Made template <class T> become  template <class S, class T> for 
           the transform(ObjectS, ObjectT) methods. This was done to allow
           for differing templated objects to be passed in e.g.  say a 
