@@ -1,3 +1,5 @@
+	* Added a new "time code" attribute
+	  (Florian Kainz)
 	* exrmaketiled: when a MIPMAP_LEVELS or RIPMAP_LEVELS image
 	  is produced, low-pass filtering takes samples outside the
 	  image's data window.  This requires extrapolating the image.

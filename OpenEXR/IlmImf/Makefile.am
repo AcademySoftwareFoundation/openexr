@@ -37,6 +37,8 @@ libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 		       ImfChromaticitiesAttribute.h \
 		       ImfKeyCode.cpp ImfKeyCode.h \
 		       ImfKeyCodeAttribute.cpp ImfKeyCodeAttribute.h \
+		       ImfTimeCode.cpp ImfTimeCode.h \
+		       ImfTimeCodeAttribute.cpp ImfTimeCodeAttribute.h \
 		       ImfStandardAttributes.cpp ImfStandardAttributes.h \
 		       ImfStdIO.cpp ImfStdIO.h ImfEnvmap.cpp ImfEnvmap.h \
 		       ImfEnvmapAttribute.cpp ImfEnvmapAttribute.h \
@@ -73,6 +75,7 @@ libIlmImfinclude_HEADERS = ImfAttribute.h ImfBoxAttribute.h \
 			   ImfPreviewImageAttribute.h ImfChromaticities.h \
 			   ImfChromaticitiesAttribute.h \
 			   ImfKeyCode.h ImfKeyCodeAttribute.h \
+			   ImfTimeCode.h ImfTimeCodeAttribute.h \
 			   ImfStandardAttributes.h \
 		       	   ImfEnvmap.h \
 		       	   ImfEnvmapAttribute.h \
