@@ -155,7 +155,7 @@ namespace LatLongMap
 
     Imath::V3f		direction (const Imath::Box2i &dataWindow,
 				   const Imath::V2f &pixelPosition);
-};
+}
 
 
 //--------------------------------------------------------------
@@ -314,7 +314,7 @@ namespace CubeMap
     Imath::V3f		direction (CubeMapFace face,
 				   const Imath::Box2i &dataWindow,
 				   const Imath::V2f &positionInFace);
-};
+}
 
 
 } // namespace Imf

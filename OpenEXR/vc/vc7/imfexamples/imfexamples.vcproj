@@ -184,6 +184,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImfExamples\generalInterfaceTiledExamples.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImfExamples\main.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -223,6 +226,9 @@
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="..\..\..\IlmImfExamples\rgbaInterfaceTiledExamples.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -234,7 +240,13 @@
 				RelativePath="..\..\..\IlmImfExamples\generalInterfaceExamples.h">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImfExamples\generalInterfaceTiledExamples.h">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImfExamples\rgbaInterfaceExamples.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImfExamples\rgbaInterfaceTiledExamples.h">
 			</File>
 		</Filter>
 		<Filter

@@ -51,7 +51,7 @@ namespace Imf {
 
 class TiledInputFile;
 class InputFile;
-class PreviewRgba;
+struct PreviewRgba;
 
 
 class TiledOutputFile
