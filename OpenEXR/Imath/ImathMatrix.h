@@ -100,7 +100,7 @@ template <class T> class Matrix33
     // Copy constructor and assignment
     //--------------------------------
 
-    template <class S> Matrix33 (const Matrix33<S> &v);
+    Matrix33 (const Matrix33 &v);
 
     const Matrix33 &	operator = (const Matrix33 &v);
     const Matrix33 &	operator = (T a);
@@ -115,9 +115,11 @@ template <class T> class Matrix33
 
     template <class S>
     void		getValue (Matrix33<S> &v) const;
-
     template <class S>
     Matrix33 &		setValue (const Matrix33<S> &v);
+
+    template <class S>
+    Matrix33 &		setTheMatrix (const Matrix33<S> &v);
 
 
     //---------
@@ -131,12 +133,8 @@ template <class T> class Matrix33
     // Equality
     //---------
 
-    template <class S>
-    bool		operator == (const Matrix33<S> &v) const;
-
-    template <class S>
-    bool		operator != (const Matrix33<S> &v) const;
-
+    bool		operator == (const Matrix33 &v) const;
+    bool		operator != (const Matrix33 &v) const;
 
     //-----------------------------------------------------------------------
     // Compare two matrices and test if they are "approximately equal":
@@ -156,8 +154,8 @@ template <class T> class Matrix33
     //      abs (this[i] - v[i][j]) <= e * abs (this[i][j])
     //-----------------------------------------------------------------------
 
-    bool		equalWithAbsError (const Matrix33<T> &v, T e);
-    bool		equalWithRelError (const Matrix33<T> &v, T e);
+    bool		equalWithAbsError (const Matrix33<T> &v, T e) const;
+    bool		equalWithRelError (const Matrix33<T> &v, T e) const;
 
 
     //------------------------
@@ -393,7 +391,7 @@ template <class T> class Matrix44
 				// a a a a
 				// a a a a
 				// a a a a
-				
+
     Matrix44 (const T a[4][4]) ;
 				// a[0][0] a[0][1] a[0][2] a[0][3]
 				// a[1][0] a[1][1] a[1][2] a[1][3]
@@ -419,7 +417,7 @@ template <class T> class Matrix44
     // Copy constructor and assignment
     //--------------------------------
 
-    template <class S> Matrix44 (const Matrix44<S> &v);
+    Matrix44 (const Matrix44 &v);
 
     const Matrix44 &	operator = (const Matrix44 &v);
     const Matrix44 &	operator = (T a);
@@ -434,10 +432,11 @@ template <class T> class Matrix44
 
     template <class S>
     void		getValue (Matrix44<S> &v) const;
-
     template <class S>
     Matrix44 &		setValue (const Matrix44<S> &v);
 
+    template <class S>
+    Matrix44 &		setTheMatrix (const Matrix44<S> &v);
 
     //---------
     // Identity
@@ -450,12 +449,8 @@ template <class T> class Matrix44
     // Equality
     //---------
 
-    template <class S>
-    bool		operator == (const Matrix44<S> &v) const;
-
-    template <class S>
-    bool		operator != (const Matrix44<S> &v) const;
-
+    bool		operator == (const Matrix44 &v) const;
+    bool		operator != (const Matrix44 &v) const;
 
     //-----------------------------------------------------------------------
     // Compare two matrices and test if they are "approximately equal":
@@ -475,8 +470,8 @@ template <class T> class Matrix44
     //      abs (this[i] - v[i][j]) <= e * abs (this[i][j])
     //-----------------------------------------------------------------------
 
-    bool		equalWithAbsError (const Matrix44<T> &v, T e);
-    bool		equalWithRelError (const Matrix44<T> &v, T e);
+    bool		equalWithAbsError (const Matrix44<T> &v, T e) const;
+    bool		equalWithRelError (const Matrix44<T> &v, T e) const;
 
 
     //------------------------
@@ -836,9 +831,8 @@ Matrix33<T>::Matrix33 (T a, T b, T c, T d, T e, T f, T g, T h, T i)
 }
 
 template <class T>
-template <class S>
 inline
-Matrix33<T>::Matrix33 (const Matrix33<S> &v)
+Matrix33<T>::Matrix33 (const Matrix33 &v)
 {
     x[0][0] = v.x[0][0];
     x[0][1] = v.x[0][1];
@@ -931,6 +925,23 @@ Matrix33<T>::setValue (const Matrix33<S> &v)
 }
 
 template <class T>
+template <class S>
+inline Matrix33<T> &
+Matrix33<T>::setTheMatrix (const Matrix33<S> &v)
+{
+    x[0][0] = v.x[0][0];
+    x[0][1] = v.x[0][1];
+    x[0][2] = v.x[0][2];
+    x[1][0] = v.x[1][0];
+    x[1][1] = v.x[1][1];
+    x[1][2] = v.x[1][2];
+    x[2][0] = v.x[2][0];
+    x[2][1] = v.x[2][1];
+    x[2][2] = v.x[2][2];
+    return *this;
+}
+
+template <class T>
 inline void
 Matrix33<T>::makeIdentity()
 {
@@ -946,9 +957,8 @@ Matrix33<T>::makeIdentity()
 }
 
 template <class T>
-template <class S>
 bool
-Matrix33<T>::operator == (const Matrix33<S> &v) const
+Matrix33<T>::operator == (const Matrix33 &v) const
 {
     return x[0][0] == v.x[0][0] &&
 	   x[0][1] == v.x[0][1] &&
@@ -962,9 +972,8 @@ Matrix33<T>::operator == (const Matrix33<S> &v) const
 }
 
 template <class T>
-template <class S>
 bool
-Matrix33<T>::operator != (const Matrix33<S> &v) const
+Matrix33<T>::operator != (const Matrix33 &v) const
 {
     return x[0][0] != v.x[0][0] ||
 	   x[0][1] != v.x[0][1] ||
@@ -979,7 +988,7 @@ Matrix33<T>::operator != (const Matrix33<S> &v) const
 
 template <class T>
 bool
-Matrix33<T>::equalWithAbsError (const Matrix33<T> &m, T e)
+Matrix33<T>::equalWithAbsError (const Matrix33<T> &m, T e) const
 {
     for (int i = 0; i < 3; i++)
 	for (int j = 0; j < 3; j++)
@@ -991,7 +1000,7 @@ Matrix33<T>::equalWithAbsError (const Matrix33<T> &m, T e)
 
 template <class T>
 bool
-Matrix33<T>::equalWithRelError (const Matrix33<T> &m, T e)
+Matrix33<T>::equalWithRelError (const Matrix33<T> &m, T e) const
 {
     for (int i = 0; i < 3; i++)
 	for (int j = 0; j < 3; j++)
@@ -1860,9 +1869,8 @@ Matrix44<T>::Matrix44 (Matrix33<T> r, Vec3<T> t)
 }
 
 template <class T>
-template <class S>
 inline
-Matrix44<T>::Matrix44 (const Matrix44<S> &v)
+Matrix44<T>::Matrix44 (const Matrix44 &v)
 {
     x[0][0] = v.x[0][0];
     x[0][1] = v.x[0][1];
@@ -1990,6 +1998,30 @@ Matrix44<T>::setValue (const Matrix44<S> &v)
 }
 
 template <class T>
+template <class S>
+inline Matrix44<T> &
+Matrix44<T>::setTheMatrix (const Matrix44<S> &v)
+{
+    x[0][0] = v.x[0][0];
+    x[0][1] = v.x[0][1];
+    x[0][2] = v.x[0][2];
+    x[0][3] = v.x[0][3];
+    x[1][0] = v.x[1][0];
+    x[1][1] = v.x[1][1];
+    x[1][2] = v.x[1][2];
+    x[1][3] = v.x[1][3];
+    x[2][0] = v.x[2][0];
+    x[2][1] = v.x[2][1];
+    x[2][2] = v.x[2][2];
+    x[2][3] = v.x[2][3];
+    x[3][0] = v.x[3][0];
+    x[3][1] = v.x[3][1];
+    x[3][2] = v.x[3][2];
+    x[3][3] = v.x[3][3];
+    return *this;
+}
+
+template <class T>
 inline void
 Matrix44<T>::makeIdentity()
 {
@@ -2012,9 +2044,8 @@ Matrix44<T>::makeIdentity()
 }
 
 template <class T>
-template <class S>
 bool
-Matrix44<T>::operator == (const Matrix44<S> &v) const
+Matrix44<T>::operator == (const Matrix44 &v) const
 {
     return x[0][0] == v.x[0][0] &&
 	   x[0][1] == v.x[0][1] &&
@@ -2035,9 +2066,8 @@ Matrix44<T>::operator == (const Matrix44<S> &v) const
 }
 
 template <class T>
-template <class S>
 bool
-Matrix44<T>::operator != (const Matrix44<S> &v) const
+Matrix44<T>::operator != (const Matrix44 &v) const
 {
     return x[0][0] != v.x[0][0] ||
 	   x[0][1] != v.x[0][1] ||
@@ -2059,7 +2089,7 @@ Matrix44<T>::operator != (const Matrix44<S> &v) const
 
 template <class T>
 bool
-Matrix44<T>::equalWithAbsError (const Matrix44<T> &m, T e)
+Matrix44<T>::equalWithAbsError (const Matrix44<T> &m, T e) const
 {
     for (int i = 0; i < 4; i++)
 	for (int j = 0; j < 4; j++)
@@ -2071,7 +2101,7 @@ Matrix44<T>::equalWithAbsError (const Matrix44<T> &m, T e)
 
 template <class T>
 bool
-Matrix44<T>::equalWithRelError (const Matrix44<T> &m, T e)
+Matrix44<T>::equalWithRelError (const Matrix44<T> &m, T e) const
 {
     for (int i = 0; i < 4; i++)
 	for (int j = 0; j < 4; j++)

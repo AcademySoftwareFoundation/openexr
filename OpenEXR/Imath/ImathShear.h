@@ -144,8 +144,8 @@ template <class T> class Shear6
     //      abs (this[i] - h[i]) <= e * abs (this[i])
     //-----------------------------------------------------------------------
 
-    bool		equalWithAbsError (const Shear6<T> &h, T e);
-    bool		equalWithRelError (const Shear6<T> &h, T e);
+    bool		equalWithAbsError (const Shear6<T> &h, T e) const;
+    bool		equalWithRelError (const Shear6<T> &h, T e) const;
 
 
     //------------------------
@@ -458,7 +458,7 @@ Shear6<T>::operator != (const Shear6<S> &h) const
 
 template <class T>
 bool
-Shear6<T>::equalWithAbsError (const Shear6<T> &h, T e)
+Shear6<T>::equalWithAbsError (const Shear6<T> &h, T e) const
 {
     for (int i = 0; i < 6; i++)
 	if (!Imath::equalWithAbsError ((*this)[i], h[i], e))
@@ -469,7 +469,7 @@ Shear6<T>::equalWithAbsError (const Shear6<T> &h, T e)
 
 template <class T>
 bool
-Shear6<T>::equalWithRelError (const Shear6<T> &h, T e)
+Shear6<T>::equalWithRelError (const Shear6<T> &h, T e) const
 {
     for (int i = 0; i < 6; i++)
 	if (!Imath::equalWithRelError ((*this)[i], h[i], e))

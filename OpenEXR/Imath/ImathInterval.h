@@ -187,7 +187,7 @@ Interval<T>::intersects(const T& point) const
 
 template <class T>
 inline bool
-Interval<T>::intersects(const Interval<T>& Interval) const
+Interval<T>::intersects(const Interval<T>& interval) const
 {
     return interval.max >= min && interval.min <= max;
 }
