@@ -1,0 +1,55 @@
+OpenEXR on Win32 platforms
+--------------------------
+
+Currently, OpenEXR has only been tested on Windows XP with Visual
+Studio 6.0 and the Intel C++ compiler version 7.0.  You can obtain an
+evaluation license for Intel's compiler here:
+
+http://developer.intel.com/software/products/compilers/cwin/eval.htm
+
+Due to limitations in Microsoft's C++ implementation in Visual Studio
+6.0, OpenEXR won't compile with the Microsoft Visual C++ 6.0 compiler.
+The changes required to make OpenEXR compile with Visual C++ 6.0 would
+break the existing API.  We hope to have support for Visual C++ 7.0
+(aka Visual Studio .NET) at a later date.
+
+You may be able to use pre-compiled OpenEXR libraries with Visual C++
+6.0, but it can't compile some parts of the OpenEXR header files, so
+your mileage may vary.  You can download the latest release of the
+pre-compiled OpenEXR libraries for Visual Studio 6.0 here:
+
+http://savannah.nongnu.org/files/?group=openexr
+
+The Visual Studio 6.0 workspace file for OpenEXR is contained in the
+vc\vc6\OpenEXR.dsw.
+
+You'll need a compiled version of zlib in order to build the IlmImf
+library.  You'll need a compiled version of FLTK 1.1.x in order to
+build the exrdisplay viewing program.  You can get source code for
+these libraries here:
+
+http://www.gzip.org/zlib/
+http://www.fltk.org
+
+Note that FLTK's Visual Studio 6.0 workspace file builds
+"Multithreaded DLL" versions of the fltk and fltkgl libraries.  These
+builds appear to be incompatible with OpenEXR's static libraries,
+causing conflicts at link time.  OpenEXR doesn't build DLLs, so if you
+want to link exrdisplay, you'll have to change the FLTK project file
+to make it build "Multithreaded" static libraries.
+
+If you have some ideas on how to build OpenEXR DLLs for Win32, email
+dhess@ilm.com.
+
+See the AUTHORS file for a list of people who contributed to the Win32
+port of OpenEXR.
+
+
+Known bugs
+----------
+
+The IlmImfTest testCustomAttributes test fails with Visual Studio 6.0
+and the Intel C++ compiler version 7.0.  It appears to be specific to
+the test, not any of the OpenEXR libraries themselves.  It's #ifdef'ed
+out at the moment to ensure the other tests in IlmImfTest will run.
+
