@@ -135,10 +135,19 @@ AC_MSG_RESULT([$EXTRA_OPT_CFLAGS])
 
 dnl Platform-specific stuff
 case "$host" in
-*irix*) AC_DEFINE(PLATFORM_IRIX) ;;
-*solaris*) AC_DEFINE(PLATFORM_SUNOS5) ;;
-*osf*) AC_DEFINE(PLATFORM_OSF1) ;;
-*darwin*) AC_DEFINE(PLATFORM_DARWIN_PPC) ;;
+*irix*) 
+  AC_DEFINE(PLATFORM_IRIX) 
+  ;;
+*solaris*) 
+  AC_DEFINE(PLATFORM_SUNOS5) 
+  ;;
+*osf*) 
+  AC_DEFINE(PLATFORM_OSF1) 
+  ;;
+*darwin*) 
+  AC_DEFINE(PLATFORM_DARWIN_PPC) 
+  CXXFLAGS="$CXXFLAGS -Wno-long-double"
+  ;;
 esac
 
 dnl Processor-specific optimizations
