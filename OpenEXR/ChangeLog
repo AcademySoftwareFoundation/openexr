@@ -1,3 +1,9 @@
+	* Converted HTML documentation to OpenOffice format to
+	  make maintaining the documents easier:
+	      api.html -> ReadingAndWritingImageFiles.sxw
+	      details.html -> TechnicalIntroduction.sxw
+	  (Florian Kainz)
+
 Version 1.2.1:
 	* exrenvmap and exrmaketiled use slightly less memory
 	  (Florian Kainz)
