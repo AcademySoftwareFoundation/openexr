@@ -47,6 +47,7 @@
 
 #include <ImfBoxAttribute.h>
 #include <ImfChannelListAttribute.h>
+#include <ImfChromaticitiesAttribute.h>
 #include <ImfCompressionAttribute.h>
 #include <ImfFloatAttribute.h>
 #include <ImfDoubleAttribute.h>
@@ -88,6 +89,7 @@ staticInitialize ()
 	Box2iAttribute::registerAttributeType();
 	Box2fAttribute::registerAttributeType();
 	ChannelListAttribute::registerAttributeType();
+	ChromaticitiesAttribute::registerAttributeType();
 	FloatAttribute::registerAttributeType();
 	DoubleAttribute::registerAttributeType();
 	IntAttribute::registerAttributeType();

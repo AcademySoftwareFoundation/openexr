@@ -31,7 +31,11 @@ libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 		       ImfPizCompressor.h ImfMisc.h ImfAutoArray.h \
 		       ImfConvert.cpp ImfConvert.h ImfPreviewImage.cpp \
 		       ImfPreviewImage.h ImfPreviewImageAttribute.cpp \
-		       ImfPreviewImageAttribute.h
+		       ImfPreviewImageAttribute.h ImfVersion.cpp \
+		       ImfChromaticities.cpp ImfChromaticities.h \
+		       ImfChromaticitiesAttribute.cpp \
+		       ImfChromaticitiesAttribute.h \
+		       ImfStandardAttributes.cpp ImfStandardAttributes.h
 
 
 libIlmImfincludedir = $(includedir)/OpenEXR
@@ -50,7 +54,9 @@ libIlmImfinclude_HEADERS = ImfAttribute.h ImfBoxAttribute.h \
 			   ImfArray.h ImfCompression.h ImfLineOrder.h \
 			   ImfName.h ImfPixelType.h ImfVersion.h ImfXdr.h \
 			   ImfConvert.h ImfPreviewImage.h \
-			   ImfPreviewImageAttribute.h
+			   ImfPreviewImageAttribute.h ImfChromaticities.h \
+			   ImfChromaticitiesAttribute.h \
+			   ImfStandardAttributes.h
 
 noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
 		 ImfPizCompressor.h ImfMisc.h ImfAutoArray.h
