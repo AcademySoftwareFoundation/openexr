@@ -1,3 +1,7 @@
+Version 1.0.6:
+	* Added README.win32 to disted files.
+	* Fixed OpenEXR.pc.in pkg-config file, OpenEXR now works
+	  with pkg-config.
 	* Random fixes to readme files for new release.
 	* Fixed openexr.m4, now looks in /usr by default.
 	* Added Visual Studio .NET 2003 "solution."
