@@ -64,6 +64,13 @@ class TMatrix : public TMatrixBase<T>
 {
   public:
 
+    using TMatrixBase<T>::data;
+    using TMatrixBase<T>::numColumns;
+    using TMatrixBase<T>::numRows;
+    using TMatrixBase<T>::order;
+    using TMatrixBase<T>::setSize;
+    using TMatrixBase<T>::setStride;
+
     ~TMatrix();
 
 
@@ -454,7 +461,7 @@ TMatrix<T>
 TMatrix<T>::identity(size_t siz, typename TMatrixBase<T>::Order ord)
 {
     TMatrix<T> id(siz, siz, T(0), ord);
-    TMatrix<T>::iterator it = id.begin(), ie = id.end();
+    iterator it = id.begin(), ie = id.end();
     const T unit = T(1);
     while (it < ie)
     {
