@@ -165,7 +165,9 @@ namespace {
 
 
 void
-reconstructLineOffsets (IStream &is, vector<Int64> &lineOffsets)
+reconstructLineOffsets (IStream &is,
+			LineOrder lineOrder,
+			vector<Int64> &lineOffsets)
 {
     Int64 position = is.tellg();
 
@@ -183,7 +185,10 @@ reconstructLineOffsets (IStream &is, vector<Int64> &lineOffsets)
 
 	    Xdr::skip <StreamIO> (is, dataSize);
 
-	    lineOffsets[i] = lineOffset;
+	    if (lineOrder == INCREASING_Y)
+		lineOffsets[i] = lineOffset;
+	    else
+		lineOffsets[lineOffsets.size() - i - 1] = lineOffset;
 	}
     }
     catch (...)
@@ -202,7 +207,9 @@ reconstructLineOffsets (IStream &is, vector<Int64> &lineOffsets)
 
 
 void
-readLineOffsets (IStream &is, vector<Int64> &lineOffsets)
+readLineOffsets (IStream &is,
+		 LineOrder lineOrder,
+		 vector<Int64> &lineOffsets)
 {
     for (unsigned int i = 0; i < lineOffsets.size(); i++)
     {
@@ -226,7 +233,7 @@ readLineOffsets (IStream &is, vector<Int64> &lineOffsets)
 	    // line data to reconstruct the line offset table.
 	    //
 
-	    reconstructLineOffsets (is, lineOffsets);
+	    reconstructLineOffsets (is, lineOrder, lineOffsets);
 	    break;
 	}
     }
@@ -343,7 +350,7 @@ ScanLineInputFile::ScanLineInputFile (const Header &header, IStream *is):
 			      _data->linesInBuffer) / _data->linesInBuffer;
 
 	_data->lineOffsets.resize (lineOffsetSize);
-	readLineOffsets (*_data->is, _data->lineOffsets);
+	readLineOffsets (*_data->is, _data->lineOrder, _data->lineOffsets);
     }
     catch (...)
     {
