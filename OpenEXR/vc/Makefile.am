@@ -23,6 +23,5 @@ EXTRA_DIST = vc6/OpenEXR.dsw vc6/doc/README.win32 vc6/doc/COPYING \
 	     vc7/Iex/post-build.cmd vc7/IlmImf/post-build.cmd \
 	     vc7/Imath/post-build.cmd vc7/imfexamples/imfexamples.vcproj \
 	     vc7/imfexamples/post-build.cmd vc7/zlib/zlib.sln \
-	     vc7/zlib/zlib.vcproj vc7/zlib/zlib_static.vcproj \
-
+	     vc7/zlib/zlib.vcproj vc7/zlib/zlib_static.vcproj
 
