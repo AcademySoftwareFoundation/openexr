@@ -126,6 +126,15 @@ writeReadChromaticities (const char fileName[])
     {
 	RgbaOutputFile out (fileName, header);
 	Rgba pixels[W];
+
+	for (int i = 0; i < W; ++i)
+	{
+	    pixels[i].r = 1;
+	    pixels[i].g = 1;
+	    pixels[i].b = 1;
+	    pixels[i].a = 1;
+	}
+
 	out.setFrameBuffer (pixels, 1, 0);
 	out.writePixels (H);
     }
