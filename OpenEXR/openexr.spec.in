@@ -8,11 +8,11 @@ Release: %{release}
 Group: System Environment/Libraries
 License: Modified BSD
 URL: http://www.openexr.org/
-Source: http://savannah.nongnu.org/download/openexr/OpenEXR.pkg/1.0.5/OpenEXR-1.0.5.tar.gz
+Source: http://savannah.nongnu.org/download/openexr/%{name}.pkg/%{version}/%{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 %description
-OpenEXR is an image file format and library developed by Industrial Light and Magic, and later released to the public. It provides a high dynamic range and is compatible with Cg shaders.
+OpenEXR is an image file format and library developed by Industrial Light & Magic, and later released to the public. It provides support for high dynamic range and a 16-bit floating point "half" data type which is compatible with the half data type in the Cg programming language.
 
 %package devel
 Summary: Headers for developing programs that will use %{name}.
@@ -28,8 +28,15 @@ developing applications with OpenEXR.
 %setup -q -n OpenEXR-%{version}
 
 %build
-%configure --enable-static --enable-shared
-make %{?_smp_mflags}
+%ifarch i686
+CFLAGS="-O2 -march=i686"
+CXXFLAGS="-O2 -march=i686"
+%else
+CFLAGS="-O2"
+CXXFLAGS="-O2"
+%endif
+./configure --prefix=%{_prefix}
+make
 
 %install
 rm -rf %{buildroot}
@@ -50,12 +57,13 @@ rm -rf %{buildroot}
 %doc AUTHORS ChangeLog COPYING NEWS README
 %{_libdir}/*.so.*
 %{_bindir}/exrdisplay
-
+%{_bindir}/exrheader
 
 %files devel
 %defattr(-, root, root)
 %{_includedir}/OpenEXR
 %{_libdir}/*.a
 %{_libdir}/*.so
+%{_libdir}/pkgconfig/*
 %{_datadir}/aclocal/openexr.m4
 
