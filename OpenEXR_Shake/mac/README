@@ -1,0 +1,21 @@
+
+This project will look for the OpenEXR headers and libraries
+in /usr/local, which is the default installation location.
+
+Shake plugins for OS X currently must be compiled with gcc 3.1.  
+This means that you have to build the EXR libraries with gcc 3.1
+as well.  The easiest way to do this is to start from a fresh
+install of OpenEXR, and execute these commands:
+
+% cd OpenEXR
+% sudo gcc_select 3.1
+% ./bootstrap
+% ./configure --enable-shared=no --enable-osx-istream-hack
+% make
+% sudo make install
+
+After you've done this, you can build the Xcode project which
+will build the Shake plugin.  Note that this will statically
+link the OpenEXR libraries into the plugin, so you won't
+have to install the specially built plugins on every machine.
+
