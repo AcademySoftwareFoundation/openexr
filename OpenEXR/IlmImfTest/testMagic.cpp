@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -32,52 +32,55 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-
-#include <testXdr.h>
-#include <testMagic.h>
-#include <testHuf.h>
-#include <testWav.h>
-#include <testChannels.h>
-#include <testAttributes.h>
-#include <testCustomAttributes.h>
-#include <testLineOrder.h>
-#include <testCompression.h>
-#include <testCopyPixels.h>
-#include <testRgba.h>
-#include <testLut.h>
-#include <testSampleImages.h>
-#include <testPreviewImage.h>
-#include <testConversion.h>
-#include <testStandardAttributes.h>
-#include <testNativeFormat.h>
-
+#include <ImfVersion.h>
 #include <iostream>
-#include <string.h>
+#include <fstream>
+#include <exception>
+#include <stdio.h>
+#include <assert.h>
 
-#define TEST(x) if (argc < 2 || !strcmp (argv[1], #x)) x();
+using namespace Imf;
+using namespace std;
 
-int
-main (int argc, char *argv[])
+namespace {
+
+void
+testFile (const char fileName[], bool isImfFile)
 {
-    std::cout << std::endl;
+    cout << fileName << " " << flush;
 
-    TEST (testMagic);
-    TEST (testXdr);
-    TEST (testHuf);
-    TEST (testWav);
-    TEST (testChannels);
-    TEST (testAttributes);
-    TEST (testCustomAttributes);
-    TEST (testLineOrder);
-    TEST (testCompression);
-    TEST (testCopyPixels);
-    TEST (testRgba);
-    TEST (testLut);
-    TEST (testSampleImages);
-    TEST (testPreviewImage);
-    TEST (testConversion);
-    TEST (testStandardAttributes);
-    TEST (testNativeFormat);
+#ifdef HAVE_STL_IOS_BASE
+    ifstream f (fileName, ios_base::binary);
+#else
+    ifstream f (fileName, ios::binary|ios::in);
+#endif
 
-    return 0;
+    char bytes[4];
+    f.read (bytes, sizeof (bytes));
+
+    assert (!!f && isImfFile == isImfMagic (bytes));
+
+    cout << "is " << (isImfMagic (bytes)? "": "not ") << "an image file\n";
+}
+
+} // namespace
+
+
+void
+testMagic ()
+{
+    try
+    {
+	cout << "Testing magic number" << endl;
+
+	testFile ("comp_none.exr", true);
+	testFile ("Makefile", false);
+
+	cout << "ok\n" << endl;
+    }
+    catch (const std::exception &e)
+    {
+	cerr << "ERROR -- caught exception: " << e.what() << endl;
+	assert (false);
+    }
 }
