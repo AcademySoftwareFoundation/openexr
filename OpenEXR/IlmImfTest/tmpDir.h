@@ -33,7 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
+#if defined(PLATFORM_WINDOWS) || defined(__MWERKS__)
     #define IMF_TMP_DIR ""
 #else
     #define IMF_TMP_DIR "/var/tmp/"
