@@ -44,6 +44,8 @@
 #include <testMatrix.h>
 #include <testExtractEuler.h>
 #include <testExtractSHRT.h>
+#include <testTMatrix.h>
+#include <testTMatrixData.h>
 
 #include <string.h>
 
@@ -62,5 +64,7 @@ main (int argc, char *argv[])
     TEST (testRandom);
     TEST (testExtractEuler);
     TEST (testExtractSHRT);
+    TEST (testTMatrix);
+    TEST (testTMatrixData);
     return 0;
 }
