@@ -327,7 +327,7 @@ main(int argc, char **argv)
 	std::cerr << argv[0] << " was not compiled with fragment shader support," << std::endl;
 	std::cerr << "falling back to software" << std::endl;
 	useFragmentShader = false;
-	fragmentShaderName.clear ();
+	fragmentShaderName.erase ();
     }
 #endif
 
