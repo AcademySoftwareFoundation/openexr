@@ -97,7 +97,6 @@
     #endif
 #else
     #define HALF_API
-    #define HALF_EXPORT_CONST extern const
 #endif
 
 
@@ -228,7 +227,26 @@ class HALF_API half
     static float	overflow ();
 
     unsigned short	_h;
+
+    //---------------------------------------------------
+    // Yay, Windows dynamic libraries don't like static
+    // member variables.
+    //---------------------------------------------------
+#ifndef OPENEXR_DLL
+    static const uif	        _toFloat[1 << 16];
+    static const unsigned short _eLut[1 << 9];
+#endif
 };
+
+
+#ifdef OPENEXR_DLL
+//--------------
+// Lookup tables
+//--------------
+
+HALF_EXPORT_CONST half::uif	  _toFloat[1 << 16];
+HALF_EXPORT_CONST unsigned short  _eLut[1 << 9];
+#endif
 
 
 //-----------
@@ -418,13 +436,6 @@ void			printBits   (char  c[35], float f);
 //
 //---------------------------------------------------------------------------
 
-//--------------
-// Lookup tables
-//--------------
-
-HALF_EXPORT_CONST half::uif	  halfToFloatLut[1 << 16];
-HALF_EXPORT_CONST unsigned short  halfELut[1 << 9];
-
 
 //--------------------
 // Simple constructors
@@ -477,7 +488,7 @@ half::half (float f)
 
 	register int e = (x.i >> 23) & 0x000001ff;
 
-	e = halfELut[e];
+	e = _eLut[e];
 
 	if (e)
 	{
@@ -507,7 +518,7 @@ half::half (float f)
 inline
 half::operator float () const
 {
-    return halfToFloatLut[_h].f;
+    return _toFloat[_h].f;
 }
 
 

@@ -49,22 +49,21 @@
 
 using namespace std;
 
-#if defined (OPENEXR_DLL)
-    #define EXPORT_CONST __declspec(dllexport)
-#else
-    #define EXPORT_CONST const
-#endif
-
 //-------------------------------------------------------------
 // Lookup tables for half-to-float and float-to-half conversion
 //-------------------------------------------------------------
 
-EXPORT_CONST half::uif halfToFloatLut[1 << 16] =
+#if defined (OPENEXR_DLL)
+__declspec(dllexport) half::uif _toFloat[1 << 16] =
     #include <toFloat.h>
-
-EXPORT_CONST unsigned short halfELut[1 << 9] =
+__declspec(dllexport) unsigned short _eLut[1 << 9] =
     #include <eLut.h>
-
+#else
+const half::uif half::_toFloat[1 << 16] =
+    #include <toFloat.h>
+const unsigned short half::_eLut[1 << 9] =
+    #include <eLut.h>
+#endif
 
 //-----------------------------------------------
 // Overflow handler for float-to-half conversion;
