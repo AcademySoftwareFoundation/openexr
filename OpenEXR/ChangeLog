@@ -1,3 +1,6 @@
+	* Updated the README with various information, made
+	  some cosmetic changes for readability.
+	* Added fragment shader support to exrdisplay.
         * Bumped the version to 1.0.5 in prep for release.
 	* Updated README and README.OSX to talk about CodeWarrior 
           project files.
