@@ -10,7 +10,9 @@ IlmImfTest_SOURCES = main.cpp testAttributes.cpp testChannels.cpp \
 		     testCompression.h testCopyPixels.h \
 		     testCustomAttributes.h testHuf.h testLineOrder.h \
 		     testLut.h testRgba.h testSampleImages.h testWav.h \
-		     testXdr.h
+		     testXdr.h testConversion.cpp testConversion.h \
+		     testNativeFormat.cpp testNativeFormat.h \
+		     testPreviewImage.cpp testPreviewImage.h
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Half -I$(top_srcdir)/Iex \
 	   -I$(top_srcdir)/Imath -I$(top_srcdir)/IlmImf
@@ -22,4 +24,4 @@ LDADD = -L$(top_builddir)/Iex -L$(top_builddir)/Half \
 TESTS = IlmImfTest
 
 EXTRA_DIST = comp_none.exr comp_piz.exr comp_rle.exr comp_zip.exr \
-             comp_zips.exr
+             comp_zips.exr test_native1.exr test_native2.exr
