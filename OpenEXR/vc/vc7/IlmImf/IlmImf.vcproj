@@ -616,7 +616,47 @@
 				RelativePath="..\..\..\IlmImf\ImfPreviewImageAttribute.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfRgbaFile.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfRgbaYca.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -909,7 +949,13 @@
 				RelativePath="..\..\..\IlmImf\ImfPreviewImageAttribute.h">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.h">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfRgbaFile.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfRgbaYca.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfRleCompressor.h">

@@ -48,6 +48,7 @@ copy ImfTileDescriptionAttribute.h  %instdir%
 copy ImfTiledInputFile.h  %instdir%
 copy ImfTiledOutputFile.h  %instdir%
 copy ImfTiledRgbaFile.h %instdir%
+copy ImfRgbaYca.h %instdir%
 		       
 mkdir ..\vc\vc7\lib\zlib
 copy ..\..\zlib\zlib.lib ..\vc\vc7\lib\zlib
