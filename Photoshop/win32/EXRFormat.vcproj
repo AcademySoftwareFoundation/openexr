@@ -23,9 +23,9 @@
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				AdditionalIncludeDirectories="..\rsrc,..\src\framework,..\src\main,..\src\resample,..\src\ui,..\sdk\PhotoshopAPI\ADM,..\sdk\PhotoshopAPI\General,..\sdk\PhotoshopAPI\Photoshop,..\sdk\PhotoshopAPI\Pica_sp,..\sdk\PhotoshopAPI\Resources,..\sdk\PhotoshopUtils\Includes,..\..\OpenEXR\Half,..\..\OpenEXR\Iex,..\..\OpenEXR\Imath,..\..\OpenEXR\IlmImf"
-				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV"
 				StringPooling="TRUE"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
 				PrecompiledHeaderFile=""
 				AssemblerListingLocation=".\tempRelease/"
@@ -41,11 +41,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib version.lib"
+				AdditionalDependencies="zlib_static.lib Halfs.lib Iexs.lib IlmImfs.lib Imaths.lib odbc32.lib odbccp32.lib"
 				OutputFile="Release\EXRFormat.8bi"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\Common,..\..\..\Common\Headers\Photoshop,..\..\..\Common\Headers\Photoshop\ADM,..\..\..\Common\Headers\Photoshop\AS,..\..\..\Common\Headers\Photoshop\PICA,..\..\..\Common\Headers\Photoshop\PS-Suites,..\..\..\Common\Headers\SDK,..\..\..\Common\Rez-files\Photoshop,..\..\..\Common\Rez-files\SDK"
+				AdditionalLibraryDirectories="..\..\zlib\;..\..\OpenEXR\vc\vc7\lib\half;..\..\OpenEXR\vc\vc7\lib\iex;..\..\OpenEXR\vc\vc7\lib\ilmimf;..\..\OpenEXR\vc\vc7\lib\imath"
 				IgnoreAllDefaultLibraries="FALSE"
 				ProgramDatabaseFile=".\tempRelease/EXRFormat.pdb"
 				SubSystem="2"
@@ -107,11 +107,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib version.lib"
+				AdditionalDependencies="zlibd.lib Halfd.lib Iexd.lib IlmImfd.lib Imathd.lib odbc32.lib odbccp32.lib"
 				OutputFile=".\Debug\EXRFormat.8bi"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\Common,..\..\..\Common\Headers\Photoshop,..\..\..\Common\Headers\Photoshop\ADM,..\..\..\Common\Headers\Photoshop\AS,..\..\..\Common\Headers\Photoshop\PICA,..\..\..\Common\Headers\Photoshop\PS-Suites,..\..\..\Common\Headers\SDK,..\..\..\Common\Rez-files\Photoshop,..\..\..\Common\Rez-files\SDK"
+				AdditionalLibraryDirectories="..\..\zlib\;..\..\OpenEXR\vc\vc7\lib\half;..\..\OpenEXR\vc\vc7\lib\iex;..\..\OpenEXR\vc\vc7\lib\ilmimf;..\..\OpenEXR\vc\vc7\lib\imath"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\tempDebug/EXRFormat.pdb"
 				SubSystem="2"
@@ -161,7 +161,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -170,7 +169,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
@@ -185,7 +183,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -194,7 +191,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
@@ -209,7 +205,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -218,7 +213,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
@@ -243,7 +237,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -252,7 +245,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
@@ -270,7 +262,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -279,7 +270,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
@@ -298,7 +288,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -307,7 +296,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
@@ -322,7 +310,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -331,7 +318,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
@@ -369,25 +355,6 @@ del &quot;$(IntDir)&quot;\\&quot;$(InputName)&quot;.rr
 			</File>
 			<File
 				RelativePath="EXRFormat.rc">
-			</File>
-		</Filter>
-		<Filter
-			Name="EXR Libraries"
-			Filter="">
-			<File
-				RelativePath="..\..\OpenEXR\vc\vc7\lib\half\Half.lib">
-			</File>
-			<File
-				RelativePath="..\..\OpenEXR\vc\vc7\lib\iex\Iex.lib">
-			</File>
-			<File
-				RelativePath="..\..\OpenEXR\vc\vc7\lib\ilmimf\IlmImf.lib">
-			</File>
-			<File
-				RelativePath="..\..\OpenEXR\vc\vc7\lib\imath\Imath.lib">
-			</File>
-			<File
-				RelativePath="..\..\zlib\zlib_static.lib">
 			</File>
 		</Filter>
 	</Files>
