@@ -1130,6 +1130,112 @@ static void testAlgebra()
 }
 
 
+void
+printTMatrix( Imath::TMatrix<int> & mat)
+{
+    std::cout << "(" << mat.numRows() << "," << mat.numColumns() << ")\n";
+    for(int i=0; i< mat.numRows();i++)
+    {
+        for(int j=0; j< mat.numColumns();j++)
+        {
+            std::cout << mat[i][j] << " ";
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+void
+setTMatrixCol( Imath::TMatrix<int> & mat)
+{
+    for(int i=0; i< mat.numRows();i++)
+    {
+        for(int j=0; j< mat.numColumns();j++)
+        {
+            mat[i][j] = j;
+        }
+    }
+}
+
+void
+setTMatrixRow( Imath::TMatrix<int> & mat)
+{
+    for(int i=0; i< mat.numRows();i++)
+    {
+        for(int j=0; j< mat.numColumns();j++)
+        {
+            mat[i][j] = i;
+        }
+    }
+}
+
+void
+testTMatrix( Imath::TMatrix<int> & mat, int missing)
+{
+    for(int i=0; i< mat.numRows();i++)
+    {
+        for(int j=0; j< mat.numColumns();j++)
+        {
+            if( mat[i][j] == missing)
+            {
+                assert(false);
+                return;
+            }
+        }
+    }    
+}
+
+void
+testColDeletion( int i, int j, int deleteIdx, Imath::TMatrixBase<int>::Order order)
+{
+    printf("--- Test order(%d) column deletion(%d)\n", order, deleteIdx);
+    Imath::TMatrix<int> im(i,j, order);
+    setTMatrixCol(im);
+    printTMatrix(im);
+    im.deleteColumn( deleteIdx );
+    printTMatrix(im);
+    testTMatrix( im, deleteIdx);
+}
+
+void
+testRowDeletion( int i, int j, int deleteIdx, Imath::TMatrixBase<int>::Order order)
+{
+    printf("--- Test order(%d) row deletion(%d)\n", order, deleteIdx);
+    Imath::TMatrix<int> im(i,j, order);
+    setTMatrixRow(im);
+    printTMatrix(im);
+    im.deleteRow( deleteIdx );
+    printTMatrix(im);
+    testTMatrix( im, deleteIdx);
+}
+
+void
+testRowColDeletion()
+{    
+    // (10r x 8c ) matrix
+    testColDeletion(10, 8, 0,Imath::TMatrixBase<int>::COLUMN_MAJOR);
+    testColDeletion(10, 8, 7,Imath::TMatrixBase<int>::COLUMN_MAJOR);
+    testColDeletion(8, 10, 5,Imath::TMatrixBase<int>::COLUMN_MAJOR);
+    testColDeletion(10, 10, 8,Imath::TMatrixBase<int>::COLUMN_MAJOR);
+    
+    testColDeletion(10, 8, 0,Imath::TMatrixBase<int>::ROW_MAJOR);
+    testColDeletion(10, 8, 7,Imath::TMatrixBase<int>::ROW_MAJOR);
+    testColDeletion(8, 10, 5,Imath::TMatrixBase<int>::ROW_MAJOR);
+    testColDeletion(10, 10, 3,Imath::TMatrixBase<int>::ROW_MAJOR);
+    
+    testRowDeletion(10, 8, 0,Imath::TMatrixBase<int>::COLUMN_MAJOR);
+    testRowDeletion(10, 8, 9,Imath::TMatrixBase<int>::COLUMN_MAJOR);
+    testRowDeletion( 7, 10, 5,Imath::TMatrixBase<int>::COLUMN_MAJOR);
+    testRowDeletion(10, 10, 4,Imath::TMatrixBase<int>::COLUMN_MAJOR);
+
+    testRowDeletion(10, 8, 0,Imath::TMatrixBase<int>::ROW_MAJOR);
+    testRowDeletion(10, 8, 9,Imath::TMatrixBase<int>::ROW_MAJOR);
+    testRowDeletion(8, 10, 4,Imath::TMatrixBase<int>::ROW_MAJOR);
+    testRowDeletion(10, 10, 7,Imath::TMatrixBase<int>::ROW_MAJOR);
+
+}
+
+
 void testTMatrix()
 {
 
@@ -1146,6 +1252,7 @@ void testTMatrix()
 	testSetOrder();
 	testResize();
 	testAlgebra();
+        testRowColDeletion();
     }
     catch ( Iex::BaseExc & e ) 
     {
