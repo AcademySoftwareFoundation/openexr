@@ -8,5 +8,5 @@ Name: OpenEXR
 Description: OpenEXR image library
 Version: @OPENEXR_VERSION@
 Libs: -L${libdir} -lIlmImf -lImath -lHalf -lIex -lz
-Cflags: -I${OpenEXR_includedir
+Cflags: -I${OpenEXR_includedir}
 Cxxflags: -I${OpenEXR_includedir}
