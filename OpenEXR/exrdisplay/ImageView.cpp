@@ -152,11 +152,13 @@ ImageView::draw()
 	    continue;
 
 	glRasterPos2i (max (0, _dx), y + _dy + 1);
+
 	glDrawPixels (_dw + min (0, _dx),			     // width
 		      1,					     // height
 		      GL_RGB,					     // format
 		      GL_UNSIGNED_BYTE,				     // type
-		      _screenPixels + static_cast<ptrdiff_t> ((y * _dw - min (0, _dx)) * 3)); // pixels
+		      _screenPixels +				     // pixels
+			static_cast <ptrdiff_t> ((y * _dw - min (0, _dx)) * 3));
     }
 }
 
@@ -233,6 +235,33 @@ knee (double x, double f)
 }
 
 
+float
+findKneeF (float x, float y)
+{
+    float f0 = 0;
+    float f1 = 1;
+
+    while (knee (x, f1) > y)
+    {
+	f0 = f1;
+	f1 = f1 * 2;
+    }
+
+    for (int i = 0; i < 30; ++i)
+    {
+	float f2 = (f0 + f1) / 2;
+	float y2 = knee (x, f2);
+
+	if (y2 < y)
+	    f1 = f2;
+	else
+	    f0 = f2;
+    }
+
+    return (f0 + f1) / 2;
+}
+
+
 struct Gamma
 {
     float m, d, kl, f;
@@ -246,8 +275,8 @@ Gamma::Gamma (float exposure, float defog, float kneeLow, float kneeHigh):
     m (Imath::Math<float>::pow (2, exposure + 2.47393)),
     d (defog),
     kl (Imath::Math<float>::pow (2, kneeLow)),
-    f (ImageView::findKneeF (Imath::Math<float>::pow (2, kneeHigh) - kl, 
-		             Imath::Math<float>::pow (2, 3.5) - kl))
+    f (findKneeF (Imath::Math<float>::pow (2, kneeHigh) - kl, 
+		  Imath::Math<float>::pow (2, 3.5) - kl))
 {}
 
 
@@ -309,34 +338,6 @@ dither (float v, int x, int y)
 }
 
 } // namespace
-
-
-// static
-float
-ImageView::findKneeF (float x, float y)
-{
-    float f0 = 0;
-    float f1 = 1;
-
-    while (knee (x, f1) > y)
-    {
-	f0 = f1;
-	f1 = f1 * 2;
-    }
-
-    for (int i = 0; i < 30; ++i)
-    {
-	float f2 = (f0 + f1) / 2;
-	float y2 = knee (x, f2);
-
-	if (y2 < y)
-	    f1 = f2;
-	else
-	    f0 = f2;
-    }
-
-    return (f0 + f1) / 2;
-}
 
 
 void
