@@ -1,9 +1,10 @@
 OpenEXR on Win32 platforms
 --------------------------
 
-OpenEXR has been tested on Windows XP with Visual Studio .NET 2003;
-and with Visual Studio 6.0 and the Intel C++ compiler version 7.0.
-You can obtain an evaluation license for Intel's compiler here:
+OpenEXR has been tested on Windows XP with Visual Studio .NET 2003
+(version 7.1); and with Visual Studio 6.0 and version 7.0 of the Intel
+C++ compiler.  You can obtain an evaluation license for Intel's compiler
+here:
 
   http://developer.intel.com/software/products/compilers/cwin/eval.htm
 
