@@ -276,6 +276,13 @@ RgbaOutputFile::channels () const
 }
 
 
+void		
+RgbaOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
+{
+    _outputFile->updatePreviewImage (newPixels);
+}
+
+
 RgbaInputFile::RgbaInputFile (const char name[]):
     _inputFile (new InputFile (name))
 {

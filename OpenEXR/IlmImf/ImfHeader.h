@@ -57,6 +57,7 @@ namespace Imf {
 
 class Attribute;
 class ChannelList;
+class PreviewImage;
 
 
 class Header
@@ -224,6 +225,35 @@ class Header
     const Compression &		compression () const;
 
 
+    //----------------------------------------------------------------------
+    // Preview image:
+    //
+    // The preview image is a PreviewImageAttribute whose name is "preview".
+    // This attribute is special -- while an image file is being written,
+    // the pixels of the preview image can be changed repeatedly by calling
+    // OutputFile::updatePreviewImage().
+    //
+    // Convenience functions:
+    //
+    // setPreviewImage(p)
+    //     calls insert ("preview", PreviewImageAttribute (p))
+    //
+    // previewImage()
+    //     returns typedAttribute<PreviewImageAttribute>("preview").value()
+    //
+    // hasPreviewImage()
+    //     return findTypedAttribute<PreviewImageAttribute>("preview") != 0
+    //
+    //----------------------------------------------------------------------
+
+    void			setPreviewImage (const PreviewImage &p);
+
+    PreviewImage &		previewImage ();
+    const PreviewImage &	previewImage () const;
+
+    bool			hasPreviewImage () const;
+
+
     //-------------------------------------------------------------
     // Sanity check -- examines the header, and throws an exception
     // if it finds something wrong (empty display window, negative
@@ -233,11 +263,18 @@ class Header
     void			sanityCheck () const;
 
 
-    //-----------------
-    // Input and output
-    //-----------------
+    //------------------------------------------------------------------
+    // Input and output:
+    //
+    // If the header contains a preview image attribute, then writeTo()
+    // returns the position of that attribute in the output stream; this
+    // information is used by OutputFile::updatePreviewImage().
+    // If the header contains no preview image attribute, then writeTo()
+    // returns 0.
+    //------------------------------------------------------------------
 
-    void			writeTo (std::ostream &os) const;
+
+    long			writeTo (std::ostream &os) const;
     void			readFrom (std::istream &is, int &version);
 
   private:
