@@ -1,11 +1,5 @@
-The OpenEXR distribution is covered by a modified BSD license; see
-the file named COPYING (included in this distribution) for details.
-
-The release includes exrdisplay, an image viewer for OpenEXR images.  
-It requires FLTK 1.1 or greater and OpenGL.
-
-
-About the OpenEXR libraries:
+ABOUT THE OPENEXR LIBRARIES
+----------------------------
 
 Half is a class that encapsulates our 16-bit floating-point format.
 
@@ -24,11 +18,44 @@ viewer for examples on how to use IlmImf and Half.  The doc directory
 contains some high-level documentation and history about the OpenEXR
 format.
 
+
+LICENSE
+-------
+
+The OpenEXR distribution is covered by a modified BSD license; see
+the file named COPYING (included in this distribution) for details.
+
+
+WHAT'S INCLUDED
+---------------
+
+The release includes exrdisplay, an image viewer for OpenEXR images; and
+exrheader, a utility for dumping header information from OpenEXR files.
+
+exrdisplay requires FLTK 1.1 or greater and OpenGL.  exrdisplay now
+supports fragment shaders if you have the Nvidia Cg SDK and a graphics
+card capable of running fp30 profile fragment shaders.  See
+exrdisplay/README for details.
+
+We have also released an OpenEXR display driver for Renderman.  The
+display driver is packaged separately.  Go to our GNU Savannah web
+page to download the display driver source code:
+
+http://savannah.nongnu.org/files/?group=openexr
+
+
+BUILDING OPENEXR
+----------------
+
 To build OpenEXR on GNU/Linux or other UNIX-like systems, do:
 
 ./configure
 make
 make install
+
+If you have the Nvidia Cg SDK and you want to build support for
+fragment shaders into exrdisplay, specify the path to the SDK using
+the "--with-nvsdk-prefix" flag.
 
 See below for notes on compiling OpenEXR in OS X.
 
