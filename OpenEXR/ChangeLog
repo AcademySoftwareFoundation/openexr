@@ -1,4 +1,11 @@
 Version 1.2.2:
+	* Updated README to remove option for building with Visual C++ 6.0.
+	  (Drew Hess)
+	* Some older versions of gcc don't support a full iomanip
+	  implemenation; check for this during configuration. 
+	  (Drew Hess)
+	* Install PDF versions of documentation, remove old/out-of-date
+	  HTML documentation.  (Florian Kainz)
 	* Removed vc/vc6 directory; Visual C++ 6.0 is no longer
 	  supported.  (Drew Hess)
 	* Updated README.win32 with details of new build system.
