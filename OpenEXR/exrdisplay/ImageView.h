@@ -76,6 +76,7 @@ class ImageView: public Fl_Gl_Window
 
     virtual void        updateScreenPixels ();
     void		computeFogColor ();
+    float               findKnee (float x, float y);
 
     float		_exposure;
     float		_defog;
