@@ -178,7 +178,7 @@ writeReadRGBAMIP (const char fileName[],
     header.lineOrder() = INCREASING_Y;
     header.compression() = comp;
     
-    std::vector< Array2D<Rgba> > levels;
+    Array < Array2D<Rgba> > levels;
 
     {
         cout << " writing" << flush;
@@ -188,7 +188,7 @@ writeReadRGBAMIP (const char fileName[],
                                  xSize, ySize, MIPMAP_LEVELS, ROUND_DOWN);
         
         int numLevels = out.numLevels();
-        levels = std::vector< Array2D<Rgba> >(numLevels, Array2D<Rgba> ());
+	levels.resizeErase (numLevels);
 
         for (int level = 0; level < out.numLevels(); ++level)
         {
@@ -214,7 +214,7 @@ writeReadRGBAMIP (const char fileName[],
         int dwy = dw.min.y;
 
         int numLevels = in.numLevels();
-        std::vector< Array2D<Rgba> > levels2(numLevels, Array2D<Rgba> ());
+        Array < Array2D<Rgba> > levels2 (numLevels);
         
         for (int level = 0; level < numLevels; ++level)
         {
@@ -290,7 +290,7 @@ writeReadRGBARIP (const char fileName[],
     header.lineOrder() = INCREASING_Y;
     header.compression() = comp;
     
-    std::vector< std::vector< Array2D<Rgba> > > levels;
+    Array2D < Array2D<Rgba> > levels;
 
     {
         cout << " writing" << flush;
@@ -299,9 +299,7 @@ writeReadRGBARIP (const char fileName[],
         TiledRgbaOutputFile out (fileName, header, channels,
                                  xSize, ySize, RIPMAP_LEVELS, ROUND_UP);
 
-        levels = std::vector< std::vector< Array2D<Rgba> > > (out.numYLevels(),
-                    std::vector< Array2D<Rgba> >(out.numXLevels(),
-                                                 Array2D<Rgba>()));
+	levels.resizeErase (out.numYLevels(), out.numXLevels());
 
         for (int ylevel = 0; ylevel < out.numYLevels(); ++ylevel)
         {            
@@ -332,10 +330,7 @@ writeReadRGBARIP (const char fileName[],
         
         int numXLevels = in.numXLevels();
         int numYLevels = in.numYLevels();
-        std::vector< std::vector< Array2D<Rgba> > >
-            levels2(numYLevels,
-                    std::vector< Array2D<Rgba> >(numXLevels,
-                                                 Array2D<Rgba>()));
+	Array2D < Array2D<Rgba> > levels2 (numYLevels, numXLevels);
         
         for (int ylevel = 0; ylevel < numYLevels; ++ylevel)
         {

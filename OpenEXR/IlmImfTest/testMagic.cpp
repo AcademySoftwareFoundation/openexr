@@ -105,8 +105,8 @@ testFile2 (const char fileName[], bool exists, bool exrFile, bool tiledFile)
     }
 
     cout << (exists? "exists": "does not exist") << ", " <<
-	    (exr? "is an OpenEXR file": "is not an OpenEXR file") << ", " <<
-	    (tiled? "is tiled": "is not tiled") << endl;
+	    (exrFile? "is an OpenEXR file": "is not an OpenEXR file") << ", " <<
+	    (tiledFile? "is tiled": "is not tiled") << endl;
 }
 
 } // namespace
