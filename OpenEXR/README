@@ -13,10 +13,10 @@ Iex is an exception-handling library.
 
 Documentation on all of these libraries is incomplete.  See the .h files
 for API details.  Most of the interfaces are well-documented from
-a programmer's perspective.  See the source for the exrdisplay image
-viewer for examples on how to use IlmImf and Half.  The doc directory
-contains some high-level documentation and history about the OpenEXR
-format.
+a programmer's perspective.  See the IlmImfExamples directory for
+some code that demonstrates how to use the IlmImf library to read
+and write OpenEXR files.  The doc directory contains some high-level
+documentation and history about the OpenEXR format.
 
 
 LICENSE
