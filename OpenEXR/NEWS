@@ -1,3 +1,18 @@
+Version 1.0.7:
+    - Support for "optional standard" attributes:
+	Primary and white point chromaticities.
+	Absolute luminance.
+	Content owner
+	Comments
+	Image acquisition time and place
+	Focus distance
+	Lens aperture
+	Film sensitivity
+      If you want to use these new attributes in your application, see
+      ImfStandardAttributes.h for documentation on what they are and how
+      to use them.
+    - Bug fix in OpaqueAttributes.
+
 Version 1.0.6:
     - Support for embedded preview images (thumbnails).
     - Automatic frame buffer type conversion.

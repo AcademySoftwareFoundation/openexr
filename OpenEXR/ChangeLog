@@ -1,3 +1,17 @@
+Version 1.0.7:
+	* Fixed a bug in exrdisplay that causes the image to display
+	  as all black if there's a NaN or infinity in an OpenEXR
+	  image. (Florian Kainz)
+	* Updated exrheader per recent changes to IlmImf library.
+	  (Florian Kainz)
+	* Changed an errant float to a T in ImathFrame.h nextFrame().
+	  (Cary Phillips)
+	* Support for new "optional standard" attributes
+	  (chromaticities, luminance, comments, etc.).
+	  (Florian Kainz, Greg Ward, Joseph Goldstone)
+	* Fixed a buffer overrun in ImfOpaqueAttribute. (Paul Schneider)
+	* Added new function, isImfMagic (). (Florian Kainz)
+	
 Version 1.0.6:
 	* Added README.win32 to disted files.
 	* Fixed OpenEXR.pc.in pkg-config file, OpenEXR now works
