@@ -574,13 +574,13 @@ timeCodeMethods ()
     assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0xffff7f3f);
 
     t.setTimeAndFlags (0x23595929 | 0x00008000, TimeCode::TV60_PACKING);
-    assert (t.timeAndFlags() == 0x23595929 | 0x00008000);
+    assert (t.timeAndFlags() == (0x23595929 | 0x00008000));
 
     t.setTimeAndFlags (0x23595929 | 0x80000000, TimeCode::TV50_PACKING);
-    assert (t.timeAndFlags() == 0x23595929 | 0x00008000);
+    assert (t.timeAndFlags() == (0x23595929 | 0x00008000));
 
     t.setTimeAndFlags (0x23595929 | 0x00008000, TimeCode::FILM24_PACKING);
-    assert (t.timeAndFlags() == 0x23595929 | 0x00008000);
+    assert (t.timeAndFlags() == (0x23595929 | 0x00008000));
 
     // bgf0
 
@@ -599,13 +599,13 @@ timeCodeMethods ()
     assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0xff7fff3f);
 
     t.setTimeAndFlags (0x23595929 | 0x00800000, TimeCode::TV60_PACKING);
-    assert (t.timeAndFlags() == 0x23595929 | 0x00800000);
+    assert (t.timeAndFlags() == (0x23595929 | 0x00800000));
 
     t.setTimeAndFlags (0x23595929 | 0x00008000, TimeCode::TV50_PACKING);
-    assert (t.timeAndFlags() == 0x23595929 | 0x00800000);
+    assert (t.timeAndFlags() == (0x23595929 | 0x00800000));
 
     t.setTimeAndFlags (0x23595929 | 0x00800000, TimeCode::FILM24_PACKING);
-    assert (t.timeAndFlags() == 0x23595929 | 0x00800000);
+    assert (t.timeAndFlags() == (0x23595929 | 0x00800000));
 
     // bgf1
 
@@ -624,13 +624,13 @@ timeCodeMethods ()
     assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0xbfffff3f);
 
     t.setTimeAndFlags (0x23595929 | 0x40000000, TimeCode::TV60_PACKING);
-    assert (t.timeAndFlags() == 0x23595929 | 0x40000000);
+    assert (t.timeAndFlags() == (0x23595929 | 0x40000000));
 
     t.setTimeAndFlags (0x23595929 | 0x40000000, TimeCode::TV50_PACKING);
-    assert (t.timeAndFlags() == 0x23595929 | 0x40000000);
+    assert (t.timeAndFlags() == (0x23595929 | 0x40000000));
 
     t.setTimeAndFlags (0x23595929 | 0x40000000, TimeCode::FILM24_PACKING);
-    assert (t.timeAndFlags() == 0x23595929 | 0x40000000);
+    assert (t.timeAndFlags() == (0x23595929 | 0x40000000));
 
     // bgf2
 
@@ -649,13 +649,13 @@ timeCodeMethods ()
     assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0x7fffff3f);
 
     t.setTimeAndFlags (0x23595929 | 0x80000000, TimeCode::TV60_PACKING);
-    assert (t.timeAndFlags() == 0x23595929 | 0x80000000);
+    assert (t.timeAndFlags() == (0x23595929 | 0x80000000));
 
-    t.setTimeAndFlags (0x23595929 | 0x00008000, TimeCode::TV50_PACKING);
-    assert (t.timeAndFlags() == 0x23595929 | 0x80000000);
+    t.setTimeAndFlags (0x23595929 | 0x00800000, TimeCode::TV50_PACKING);
+    assert (t.timeAndFlags() == (0x23595929 | 0x80000000));
 
     t.setTimeAndFlags (0x23595929 | 0x80000000, TimeCode::FILM24_PACKING);
-    assert (t.timeAndFlags() == 0x23595929 | 0x80000000);
+    assert (t.timeAndFlags() == (0x23595929 | 0x80000000));
 
     // User-defined data
     

@@ -373,7 +373,7 @@ TimeCode::setTimeAndFlags (unsigned int value, Packing packing)
     if (packing == TV50_PACKING)
     {
 	_time = value &
-		~((1 << 6) | (1 << 15) | (1 << 23) | (1 << 30) | (1 << 31));
+		 ~((1 << 6) | (1 << 15) | (1 << 23) | (1 << 30) | (1 << 31));
 
 	if (value & (1 << 15))
 	    setBgf0 (true);
@@ -387,7 +387,7 @@ TimeCode::setTimeAndFlags (unsigned int value, Packing packing)
 	if (value & (1 << 31))
 	    setFieldPhase (true);
     }
-    if (packing == FILM24_PACKING)
+    else if (packing == FILM24_PACKING)
     {
 	_time = value & ~((1 << 6) | (1 << 7));
     }
