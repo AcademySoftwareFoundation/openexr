@@ -110,6 +110,14 @@ SOURCE=..\..\..\IlmImf\ImfChannelListAttribute.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\IlmImf\ImfChromaticities.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\IlmImf\ImfChromaticitiesAttribute.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\IlmImf\ImfCompressionAttribute.cpp
 # End Source File
 # Begin Source File
@@ -190,11 +198,19 @@ SOURCE=..\..\..\IlmImf\ImfRleCompressor.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\IlmImf\ImfStandardAttributes.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\IlmImf\ImfStringAttribute.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\..\IlmImf\ImfVecAttribute.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\IlmImf\ImfVersion.cpp
 # End Source File
 # Begin Source File
 
@@ -231,6 +247,14 @@ SOURCE=..\..\..\IlmImf\ImfChannelList.h
 # Begin Source File
 
 SOURCE=..\..\..\IlmImf\ImfChannelListAttribute.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\IlmImf\ImfChromaticities.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\IlmImf\ImfChromaticitiesAttribute.h
 # End Source File
 # Begin Source File
 
@@ -327,6 +351,10 @@ SOURCE=..\..\..\IlmImf\ImfRgbaFile.h
 # Begin Source File
 
 SOURCE=..\..\..\IlmImf\ImfRleCompressor.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\IlmImf\ImfStandardAttributes.h
 # End Source File
 # Begin Source File
 

@@ -339,6 +339,9 @@ del *.exr
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImfTest\testMagic.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImfTest\testNativeFormat.cpp">
 			</File>
 			<File
@@ -346,6 +349,26 @@ del *.exr
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImfTest\testRgba.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImfTest\testStandardAttributes.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -456,6 +479,9 @@ del *.exr
 				RelativePath="..\..\..\IlmImfTest\testLut.h">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImfTest\testMagic.h">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImfTest\testNativeFormat.h">
 			</File>
 			<File
@@ -466,6 +492,9 @@ del *.exr
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImfTest\testSampleImages.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImfTest\testStandardAttributes.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImfTest\testWav.h">

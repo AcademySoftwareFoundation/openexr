@@ -203,6 +203,46 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfChromaticities.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfChromaticitiesAttribute.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfCompressionAttribute.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -612,6 +652,26 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfStandardAttributes.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfStringAttribute.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -633,6 +693,26 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfVecAttribute.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfVersion.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -714,6 +794,12 @@
 				RelativePath="..\..\..\IlmImf\ImfChannelListAttribute.h">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfChromaticities.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfChromaticitiesAttribute.h">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfCompression.h">
 			</File>
 			<File
@@ -793,6 +879,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfRleCompressor.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfStandardAttributes.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfStringAttribute.h">
