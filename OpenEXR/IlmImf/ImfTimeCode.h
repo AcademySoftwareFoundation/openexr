@@ -88,7 +88,7 @@
 //	    12 - 14	seconds tens	  seconds tens	    seconds tens
 //	    15		phase flag	  field/phase flag  bgf0
 //	    16 - 19	minutes units	  minutes units	    minutes units
-//	    20 - 22	minutes tens	  minutes tens	    minuts tens
+//	    20 - 22	minutes tens	  minutes tens	    minutes tens
 //	    23		bgf0		  bgf0		    bgf2
 //	    24 - 27	hours units	  hours units	    hours units
 //	    28 - 29	hours tens	  hours tens	    hours tens
