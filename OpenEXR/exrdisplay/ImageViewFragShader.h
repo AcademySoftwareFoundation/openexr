@@ -89,8 +89,6 @@ class ImageViewFragShader: public ImageView
 					     float z = 0,
 					     float w = 0);
 
-    Imf::Array<float>   _floatPixels;
-
     const std::string   _fsFilename;
     bool                _useSoftware;
     GLuint              _texture;

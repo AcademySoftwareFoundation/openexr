@@ -74,8 +74,7 @@ ImageViewFragShader::ImageViewFragShader (int x, int y,
     ImageView (x, y, width, height, label, pixels, exposure, defog, kneeLow, 
 	       kneeHigh),
     _useSoftware (false),
-    _fsFilename (filename),
-    _floatPixels (width * height * 4)
+    _fsFilename (filename)
 {
 }
 
@@ -120,21 +119,9 @@ ImageViewFragShader::loadTexture ()
     //
     // load OpenEXR image as OpenGL texture
     //
-    // note - there is currently a driver bug preventing loading textures 
-    // directly from half float data, so we convert the half data to
-    // an array of floats
-    //
 
     int width = w ();
     int height = h ();
-    float *ptr = _floatPixels;
-    for (int i = 0; i < width * height; ++i)
-    {
-	*ptr++ = _rawPixels[i].r;
-	*ptr++ = _rawPixels[i].g;
-	*ptr++ = _rawPixels[i].b;
-	*ptr++ = _rawPixels[i].a;
-    }
 
     GLenum target = GL_TEXTURE_RECTANGLE_NV;
     glGenTextures (1, &_texture);
@@ -147,7 +134,7 @@ ImageViewFragShader::loadTexture ()
     glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
     
     glTexImage2D (target, 0, GL_FLOAT_RGBA16_NV, width, height, 0, 
-		  GL_RGBA, GL_FLOAT, _floatPixels);
+		  GL_RGBA, GL_HALF_FLOAT_NV, _rawPixels);
     
     //
     // Check for errors
