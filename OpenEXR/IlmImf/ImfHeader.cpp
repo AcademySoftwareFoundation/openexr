@@ -590,8 +590,8 @@ Header::sanityCheck (bool isTiled) const
     // The screen window width must be greater than 0.
     // The size of the screen window can vary over a wide
     // range (fish-eye lens to astronomical telescope),
-    // so we can't limit the screen window width to some
-    // range like the pixel aspect ratio.
+    // so we can't limit the screen window width to a
+    // small range.
     //
 
     float screenWindowWidth = this->screenWindowWidth();
@@ -655,13 +655,11 @@ Header::sanityCheck (bool isTiled) const
     // If the file is tiled then for each channel, the type must be one of the
     // predefined values, and the x and y sampling must both be 1.
     //
-    // If the file is not tiled then for each channel, the type must be one of
-    // the predefined values, and the x and y coordinates of the data window's
-    // corners must be divisible by the x and y subsampling factors.
-    //
-    // The channel's compression method is not checked here; the check
-    // is done when the appropriate compression or decompression routines
-    // are selected.
+    // If the file is not tiled then for each channel, the type must be one
+    // of the predefined values, the x and y coordinates of the data window's
+    // upper left corner must be divisible by the x and y subsampling factors,
+    // and the width and height of the data window must be divisible by the
+    // x and y subsampling factors.
     //
 
     const ChannelList &channels = this->channels();
@@ -848,9 +846,8 @@ Header::readFrom (IStream &is, int &version)
     
     if (!supportsFlags (getFlags (version)))
     {
-	THROW (Iex::InputExc, "Cannot read image.  The file format "
-			      "version number's flag field contains "
-			      "unrecognized flags.");
+	THROW (Iex::InputExc, "The file format version number's flag field "
+			      "contains unrecognized flags.");
     }
 
     //
