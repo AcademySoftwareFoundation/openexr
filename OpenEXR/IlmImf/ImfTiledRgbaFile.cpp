@@ -32,7 +32,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-
 //-----------------------------------------------------------------------------
 //
 //	class TiledRgbaOutputFile
@@ -46,13 +45,56 @@
 #include <ImfTiledInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfTileDescriptionAttribute.h>
+#include <ImfStandardAttributes.h>
+#include <ImfRgbaYca.h>
+#include <ImfArray.h>
 
 namespace Imf {
 
-using Imath::Box2i;
-using Imath::V2i;
+using namespace Imath;
+using namespace RgbaYca;
 
 namespace {
+
+void
+insertChannels (Header &header,
+		RgbaChannels rgbaChannels,
+		const char fileName[])
+{
+    ChannelList ch;
+
+    if (rgbaChannels & (WRITE_Y | WRITE_C))
+    {
+	if (rgbaChannels & WRITE_Y)
+	{
+	    ch.insert ("Y", Channel (HALF, 1, 1));
+	}
+
+	if (rgbaChannels & WRITE_C)
+	{
+	    THROW (Iex::ArgExc, "Cannot open file \"" << fileName << "\" "
+				"for writing.  Tiled image files do not "
+				"support subsampled chroma channels.");
+	}
+    }
+    else
+    {
+	if (rgbaChannels & WRITE_R)
+	    ch.insert ("R", Channel (HALF, 1, 1));
+
+	if (rgbaChannels & WRITE_G)
+	    ch.insert ("G", Channel (HALF, 1, 1));
+
+	if (rgbaChannels & WRITE_B)
+	    ch.insert ("B", Channel (HALF, 1, 1));
+    }
+
+    if (rgbaChannels & WRITE_A)
+	ch.insert ("A", Channel (HALF, 1, 1));
+
+    header.channels() = ch;
+}
+
 
 RgbaChannels
 rgbaChannels (const ChannelList &ch)
@@ -61,18 +103,138 @@ rgbaChannels (const ChannelList &ch)
 
     if (ch.findChannel ("R"))
 	i |= WRITE_R;
+
     if (ch.findChannel ("G"))
 	i |= WRITE_G;
+    
     if (ch.findChannel ("B"))
 	i |= WRITE_B;
+
     if (ch.findChannel ("A"))
 	i |= WRITE_A;
+
+    if (ch.findChannel ("Y"))
+	i |= WRITE_Y;
 
     return RgbaChannels (i);
 }
 
+
+V3f
+ywFromHeader (const Header &header)
+{
+    Chromaticities cr;
+
+    if (hasChromaticities (header))
+	cr = chromaticities (header);
+
+    return computeYw (cr);
+}
+
 } // namespace
 
+
+class TiledRgbaOutputFile::ToYa
+{
+  public:
+
+     ToYa (TiledOutputFile &outputFile, RgbaChannels rgbaChannels);
+
+     void	setFrameBuffer (const Rgba *base,
+				size_t xStride,
+				size_t yStride);
+
+     void	writeTile (int dx, int dy, int lx, int ly);
+
+  private:
+
+     TiledOutputFile &	_outputFile;
+     bool		_writeA;
+     unsigned int	_tileXSize;
+     unsigned int	_tileYSize;
+     V3f		_yw;
+     Array2D <Rgba>	_buf;
+     const Rgba *	_fbBase;
+     size_t		_fbXStride;
+     size_t		_fbYStride;
+};
+
+
+TiledRgbaOutputFile::ToYa::ToYa (TiledOutputFile &outputFile,
+				 RgbaChannels rgbaChannels)
+:
+    _outputFile (outputFile)
+{
+    _writeA = (rgbaChannels & WRITE_A)? true: false;
+    
+    const TileDescription &td = outputFile.header().tileDescription();
+
+    _tileXSize = td.xSize;
+    _tileYSize = td.ySize;
+    _yw = ywFromHeader (_outputFile.header());
+    _buf.resizeErase (_tileYSize, _tileXSize);
+    _fbBase = 0;
+    _fbXStride = 0;
+    _fbYStride = 0;
+}
+
+
+void
+TiledRgbaOutputFile::ToYa::setFrameBuffer (const Rgba *base,
+					   size_t xStride,
+					   size_t yStride)
+{
+    _fbBase = base;
+    _fbXStride = xStride;
+    _fbYStride = yStride;
+}
+
+
+void
+TiledRgbaOutputFile::ToYa::writeTile (int dx, int dy, int lx, int ly)
+{
+    if (_fbBase == 0)
+    {
+	THROW (Iex::ArgExc, "No frame buffer was specified as the "
+			    "pixel data source for image file "
+			    "\"" << _outputFile.fileName() << "\".");
+    }
+
+    //
+    // Copy the tile's RGBA pixels into _buf and convert
+    // them to luminance/alpha format
+    //
+
+    Box2i dw = _outputFile.dataWindowForTile (dx, dy, lx, ly);
+    int width = dw.max.x - dw.min.x + 1;
+
+    for (int y = dw.min.y, y1 = 0; y <= dw.max.y; ++y, ++y1)
+    {
+	for (int x = dw.min.x, x1 = 0; x <= dw.max.x; ++x, ++x1)
+	    _buf[y1][x1] = _fbBase[x * _fbXStride + y * _fbYStride];
+
+	RGBAtoYCA (_yw, width, _writeA, _buf[y1], _buf[y1]);
+    }
+
+    //
+    // Store the contents of _buf in the output file
+    //
+
+    FrameBuffer fb;
+
+    fb.insert ("Y", Slice (HALF,				   // type
+			   (char *) &_buf[-dw.min.y][-dw.min.x].g, // base
+			   sizeof (Rgba),			   // xStride
+			   sizeof (Rgba) * _tileXSize));	   // yStride
+
+    fb.insert ("A", Slice (HALF,				   // type
+			   (char *) &_buf[-dw.min.y][-dw.min.x].a, // base
+			   sizeof (Rgba),			   // xStride
+			   sizeof (Rgba) * _tileXSize));	   // yStride
+
+    _outputFile.setFrameBuffer (fb);
+    _outputFile.writeTile (dx, dy, lx, ly);
+}
 
 
 TiledRgbaOutputFile::TiledRgbaOutputFile
@@ -84,24 +246,16 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
      LevelMode mode,
      LevelRoundingMode rmode)
 :
-    _outputFile(0)
+    _outputFile (0),
+    _toYa (0)
 {
     Header hd (header);
-    ChannelList ch;
-
-    if (rgbaChannels & WRITE_R)
-	ch.insert ("R", Channel (HALF, 1, 1));
-    if (rgbaChannels & WRITE_G)
-	ch.insert ("G", Channel (HALF, 1, 1));
-    if (rgbaChannels & WRITE_B)
-	ch.insert ("B", Channel (HALF, 1, 1));
-    if (rgbaChannels & WRITE_A)
-	ch.insert ("A", Channel (HALF, 1, 1));
-
-    hd.channels() = ch;
+    insertChannels (hd, rgbaChannels, name);
     hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode, rmode));
-    
     _outputFile = new TiledOutputFile (name, hd);
+
+    if (rgbaChannels & WRITE_Y)
+	_toYa = new ToYa (*_outputFile, rgbaChannels);
 }
 
 
@@ -115,24 +269,16 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
      LevelMode mode,
      LevelRoundingMode rmode)
 :
-    _outputFile(0)
+    _outputFile (0),
+    _toYa (0)
 {
     Header hd (header);
-    ChannelList ch;
-
-    if (rgbaChannels & WRITE_R)
-	ch.insert ("R", Channel (HALF, 1, 1));
-    if (rgbaChannels & WRITE_G)
-	ch.insert ("G", Channel (HALF, 1, 1));
-    if (rgbaChannels & WRITE_B)
-	ch.insert ("B", Channel (HALF, 1, 1));
-    if (rgbaChannels & WRITE_A)
-	ch.insert ("A", Channel (HALF, 1, 1));
-
-    hd.channels() = ch;
+    insertChannels (hd, rgbaChannels, os.fileName());
     hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode, rmode));
-    
     _outputFile = new TiledOutputFile (os, hd);
+
+    if (rgbaChannels & WRITE_Y)
+	_toYa = new ToYa (*_outputFile, rgbaChannels);
 }
 
 
@@ -152,7 +298,8 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
      LineOrder lineOrder,
      Compression compression)
 :
-    _outputFile (0)
+    _outputFile (0),
+    _toYa (0)
 {
     Header hd (displayWindow,
 	       dataWindow.isEmpty()? displayWindow: dataWindow,
@@ -162,21 +309,12 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
 	       lineOrder,
 	       compression);
 
-    ChannelList ch;
-
-    if (rgbaChannels & WRITE_R)
-	ch.insert ("R", Channel (HALF, 1, 1));
-    if (rgbaChannels & WRITE_G)
-	ch.insert ("G", Channel (HALF, 1, 1));
-    if (rgbaChannels & WRITE_B)
-	ch.insert ("B", Channel (HALF, 1, 1));
-    if (rgbaChannels & WRITE_A)
-	ch.insert ("A", Channel (HALF, 1, 1));
-
-    hd.channels() = ch;
+    insertChannels (hd, rgbaChannels, name);
     hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode, rmode));
-    
     _outputFile = new TiledOutputFile (name, hd);
+
+    if (rgbaChannels & WRITE_Y)
+	_toYa = new ToYa (*_outputFile, rgbaChannels);
 }
 
 
@@ -195,7 +333,8 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
      LineOrder lineOrder,
      Compression compression)
 :
-    _outputFile (0)
+    _outputFile (0),
+    _toYa (0)
 {
     Header hd (width,
 	       height,
@@ -205,26 +344,19 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
 	       lineOrder,
 	       compression);
 
-    ChannelList ch;
-
-    if (rgbaChannels & WRITE_R)
-	ch.insert ("R", Channel (HALF, 1, 1));
-    if (rgbaChannels & WRITE_G)
-	ch.insert ("G", Channel (HALF, 1, 1));
-    if (rgbaChannels & WRITE_B)
-	ch.insert ("B", Channel (HALF, 1, 1));
-    if (rgbaChannels & WRITE_A)
-	ch.insert ("A", Channel (HALF, 1, 1));
-
-    hd.channels() = ch;
+    insertChannels (hd, rgbaChannels, name);
     hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode, rmode));
     _outputFile = new TiledOutputFile (name, hd);
+
+    if (rgbaChannels & WRITE_Y)
+	_toYa = new ToYa (*_outputFile, rgbaChannels);
 }
 
 
 TiledRgbaOutputFile::~TiledRgbaOutputFile ()
 {
     delete _outputFile;
+    delete _toYa;
 }
 
 
@@ -233,17 +365,24 @@ TiledRgbaOutputFile::setFrameBuffer (const Rgba *base,
 				     size_t xStride,
 				     size_t yStride)
 {
-    size_t xs = xStride * sizeof (Rgba);
-    size_t ys = yStride * sizeof (Rgba);
+    if (_toYa)
+    {
+	_toYa->setFrameBuffer (base, xStride, yStride);
+    }
+    else
+    {
+	size_t xs = xStride * sizeof (Rgba);
+	size_t ys = yStride * sizeof (Rgba);
 
-    FrameBuffer fb;
+	FrameBuffer fb;
 
-    fb.insert ("R", Slice (HALF, (char *) base + offsetof (Rgba, r), xs, ys));
-    fb.insert ("G", Slice (HALF, (char *) base + offsetof (Rgba, g), xs, ys));
-    fb.insert ("B", Slice (HALF, (char *) base + offsetof (Rgba, b), xs, ys));
-    fb.insert ("A", Slice (HALF, (char *) base + offsetof (Rgba, a), xs, ys));
+	fb.insert ("R", Slice (HALF, (char *) &base[0].r, xs, ys));
+	fb.insert ("G", Slice (HALF, (char *) &base[0].g, xs, ys));
+	fb.insert ("B", Slice (HALF, (char *) &base[0].b, xs, ys));
+	fb.insert ("A", Slice (HALF, (char *) &base[0].a, xs, ys));
 
-    _outputFile->setFrameBuffer (fb);
+	_outputFile->setFrameBuffer (fb);
+    }
 }
 
 
@@ -432,70 +571,197 @@ TiledRgbaOutputFile::dataWindowForTile (int dx, int dy, int lx, int ly) const
 void
 TiledRgbaOutputFile::writeTile (int dx, int dy, int l)
 {
-     _outputFile->writeTile (dx, dy, l);
+    if (_toYa)
+	_toYa->writeTile (dx, dy, l, l);
+    else
+	 _outputFile->writeTile (dx, dy, l);
 }
 
 
 void
 TiledRgbaOutputFile::writeTile (int dx, int dy, int lx, int ly)
 {
-     _outputFile->writeTile (dx, dy, lx, ly);
+    if (_toYa)
+	_toYa->writeTile (dx, dy, lx, ly);
+    else
+	 _outputFile->writeTile (dx, dy, lx, ly);
+}
+
+
+class TiledRgbaInputFile::FromYa
+{
+  public:
+
+     FromYa (TiledInputFile &inputFile);
+
+     void	setFrameBuffer (Rgba *base,
+				size_t xStride,
+				size_t yStride);
+
+     void	readTile (int dx, int dy, int lx, int ly);
+
+  private:
+
+     TiledInputFile &	_inputFile;
+     unsigned int	_tileXSize;
+     unsigned int	_tileYSize;
+     V3f		_yw;
+     Array2D <Rgba>	_buf;
+     Rgba *		_fbBase;
+     size_t		_fbXStride;
+     size_t		_fbYStride;
+};
+
+
+TiledRgbaInputFile::FromYa::FromYa (TiledInputFile &inputFile)
+:
+    _inputFile (inputFile)
+{
+    const TileDescription &td = inputFile.header().tileDescription();
+
+    _tileXSize = td.xSize;
+    _tileYSize = td.ySize;
+    _yw = ywFromHeader (_inputFile.header());
+    _buf.resizeErase (_tileYSize, _tileXSize);
+    _fbBase = 0;
+    _fbXStride = 0;
+    _fbYStride = 0;
+}
+
+
+void
+TiledRgbaInputFile::FromYa::setFrameBuffer (Rgba *base,
+					    size_t xStride,
+					    size_t yStride)
+{
+    _fbBase = base;
+    _fbXStride = xStride;
+    _fbYStride = yStride;
+}
+
+
+void
+TiledRgbaInputFile::FromYa::readTile (int dx, int dy, int lx, int ly)
+{
+    if (_fbBase == 0)
+    {
+	THROW (Iex::ArgExc, "No frame buffer was specified as the "
+			    "pixel data destination for image file "
+			    "\"" << _inputFile.fileName() << "\".");
+    }
+
+    //
+    // Read the tile requiested by the caller into _buf.
+    //
+    
+    Box2i dw = _inputFile.dataWindowForTile (dx, dy, lx, ly);
+    FrameBuffer fb;
+
+    fb.insert ("Y", Slice (HALF,				   // type
+			   (char *) &_buf[-dw.min.y][-dw.min.x].g, // base
+			   sizeof (Rgba),			   // xStride
+			   sizeof (Rgba) * _tileXSize));	   // yStride
+
+    fb.insert ("A", Slice (HALF,				   // type
+			   (char *) &_buf[-dw.min.y][-dw.min.x].a, // base
+			   sizeof (Rgba),			   // xStride
+			   sizeof (Rgba) * _tileXSize,		   // yStride
+			   1, 1,				   // sampling
+			   1.0));				   // fillValue
+
+    _inputFile.setFrameBuffer (fb);
+    _inputFile.readTile (dx, dy, lx, ly);
+
+    //
+    // Convert the luminance/alpha pixels to RGBA
+    // and copy them into the caller's frame buffer.
+    //
+
+    int width = dw.max.x - dw.min.x + 1;
+
+    for (int y = dw.min.y, y1 = 0; y <= dw.max.y; ++y, ++y1)
+    {
+	for (int x1 = 0; x1 < width; ++x1)
+	{
+	    _buf[y1][x1].r = 0;
+	    _buf[y1][x1].b = 0;
+	}
+
+	YCAtoRGBA (_yw, width, _buf[y1], _buf[y1]);
+
+	for (int x = dw.min.x, x1 = 0; x <= dw.max.x; ++x, ++x1)
+	{
+	    _fbBase[x * _fbXStride + y * _fbYStride] = _buf[y1][x1];
+	}
+    }
 }
 
 
 TiledRgbaInputFile::TiledRgbaInputFile (const char name[]):
-    _inputFile (new TiledInputFile (name))
+    _inputFile (new TiledInputFile (name)),
+    _fromYa (0)
 {
-    // empty
+    if (channels() & WRITE_Y)
+	_fromYa = new FromYa (*_inputFile);
 }
 
 
 TiledRgbaInputFile::TiledRgbaInputFile (IStream &is):
-    _inputFile (new TiledInputFile (is))
+    _inputFile (new TiledInputFile (is)),
+    _fromYa (0)
 {
-    // empty
+    if (channels() & WRITE_Y)
+	_fromYa = new FromYa (*_inputFile);
 }
 
 
 TiledRgbaInputFile::~TiledRgbaInputFile ()
 {
     delete _inputFile;
+    delete _fromYa;
 }
 
 
 void	
 TiledRgbaInputFile::setFrameBuffer (Rgba *base, size_t xStride, size_t yStride)
 {
-    size_t xs = xStride * sizeof (Rgba);
-    size_t ys = yStride * sizeof (Rgba);
+    if (_fromYa)
+    {
+	_fromYa->setFrameBuffer (base, xStride, yStride);
+    }
+    else
+    {
+	size_t xs = xStride * sizeof (Rgba);
+	size_t ys = yStride * sizeof (Rgba);
 
-    FrameBuffer fb;
+	FrameBuffer fb;
 
-    fb.insert ("R", Slice (HALF,
-			   (char *) base + offsetof (Rgba, r),
-			   xs, ys,
-			   1, 1,	// xSampling, ySampling
-			   0.0));	// fillValue
+	fb.insert ("R", Slice (HALF,
+			       (char *) &base[0].r,
+			       xs, ys,
+			       1, 1,	// xSampling, ySampling
+			       0.0));	// fillValue
 
-    fb.insert ("G", Slice (HALF,
-			   (char *) base + offsetof (Rgba, g),
-			   xs, ys,
-			   1, 1,	// xSampling, ySampling
-			   0.0));	// fillValue
+	fb.insert ("G", Slice (HALF,
+			       (char *) &base[0].g,
+			       xs, ys,
+			       1, 1,	// xSampling, ySampling
+			       0.0));	// fillValue
 
-    fb.insert ("B", Slice (HALF,
-			   (char *) base + offsetof (Rgba, b),
-			   xs, ys,
-			   1, 1,	// xSampling, ySampling
-			   0.0));	// fillValue
+	fb.insert ("B", Slice (HALF,
+			       (char *) &base[0].b,
+			       xs, ys,
+			       1, 1,	// xSampling, ySampling
+			       0.0));	// fillValue
 
-    fb.insert ("A", Slice (HALF,
-			   (char *) base + offsetof (Rgba, a),
-			   xs, ys,
-			   1, 1,	// xSampling, ySampling
-			   1.0));	// fillValue
+	fb.insert ("A", Slice (HALF,
+			       (char *) &base[0].a,
+			       xs, ys,
+			       1, 1,	// xSampling, ySampling
+			       1.0));	// fillValue
 
-    _inputFile->setFrameBuffer (fb);
+	_inputFile->setFrameBuffer (fb);
+    }
 }
 
 
@@ -698,15 +964,22 @@ TiledRgbaInputFile::dataWindowForTile (int dx, int dy, int lx, int ly) const
 void
 TiledRgbaInputFile::readTile (int dx, int dy, int l)
 {
-     _inputFile->readTile (dx, dy, l);
+    if (_fromYa)
+	_fromYa->readTile (dx, dy, l, l);
+    else
+	 _inputFile->readTile (dx, dy, l);
 }
 
 
 void
 TiledRgbaInputFile::readTile (int dx, int dy, int lx, int ly)
 {
-     _inputFile->readTile (dx, dy, lx, ly);
+    if (_fromYa)
+	_fromYa->readTile (dx, dy, lx, ly);
+    else
+	 _inputFile->readTile (dx, dy, lx, ly);
 }
+
 
 void		
 TiledRgbaOutputFile::updatePreviewImage (const PreviewRgba newPixels[])

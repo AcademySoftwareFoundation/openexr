@@ -82,7 +82,7 @@ const int EXR_VERSION		= 2;
 // Flags can only occupy the 1 bits in VERSION_FLAGS_FIELD.
 //
 
-const int TILED_FLAG		= 0x00000100;
+const int TILED_FLAG		= 0x00000200;
 
 
 //
