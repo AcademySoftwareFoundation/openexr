@@ -90,9 +90,9 @@ enum Envmap
 
 
 //-------------------------------------------------------------------------
-// Latitute-Longitude Map:
+// Latitude-Longitude Map:
 //
-// The environment is pojected onto the image using polar coordinates
+// The environment is projected onto the image using polar coordinates
 // (latitude and longitude).  A pixel's x coordinate corresponds to
 // its longitude, and the y coordinate corresponds to its latitude.
 // Pixel (dataWindow.min.x, dataWindow.min.y) has latitude +pi/2 and
@@ -141,7 +141,7 @@ namespace LatLongMap
     //-----------------------------------------------------
     // Convert a 3D direction vector into a corresponding
     // pixel position.  pixelPosition(dw,dir) is equivalent
-    // to pixelPosition(dw,latLong(dw,dir).
+    // to pixelPosition(dw,latLong(dw,dir)).
     //-----------------------------------------------------
 
     Imath::V2f		pixelPosition (const Imath::Box2i &dataWindow,

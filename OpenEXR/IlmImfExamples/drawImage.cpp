@@ -452,3 +452,22 @@ drawImage6 (Array2D<GZ> &px, int w, int h)
 	  1,
 	  0, 0);
 }
+
+
+void
+drawImage7 (Array<Rgba> &px, int w, int h, int y)
+{
+    for (int x = 0; x < w; ++x)
+    {
+	float xc = x - w / 2;
+	float yc = y - h / 2;
+	float a = atan2 (xc, yc);
+	float r = sqrt (xc * xc + yc * yc);
+
+	Rgba &p = px[x];
+	p.r = sin (3.0f * a + 0.3f * sin (0.10f * r)) * 0.5f + 0.5f;
+	p.g = sin (3.0f * a + 0.3f * sin (0.11f * r)) * 0.5f + 0.5f;
+	p.b = sin (3.0f * a + 0.3f * sin (0.12f * r)) * 0.5f + 0.5f;
+	p.a = 1;
+    }
+}

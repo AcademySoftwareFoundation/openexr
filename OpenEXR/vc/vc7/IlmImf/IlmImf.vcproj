@@ -1034,6 +1034,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfTestFile.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfTileDescriptionAttribute.cpp">
 			</File>
 			<File
@@ -1295,6 +1298,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfStringAttribute.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTestFile.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfTileDescription.h">

@@ -906,6 +906,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -931,9 +934,6 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\..\IlmImf\ImfPxr24Compressor.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfRgbaFile.cpp">
@@ -1083,6 +1083,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PLATFORM_WIN32;IMF_DLL;$(NoInherit)"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTestFile.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfTileDescriptionAttribute.cpp">
@@ -1352,6 +1355,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfStringAttribute.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfTestFile.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfTileDescription.h">
