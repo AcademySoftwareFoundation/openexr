@@ -7,10 +7,7 @@
 #
 # You'll need to compile both the OpenEXR libraries and this
 # plugin with the same version of gcc that Shake uses.  As
-# of Shake 3.0, this is gcc 2.95.  Please ensure that your
-# version of gcc 2.95 is 2.95.3 or better, as previous
-# versions may have some problems with OpenEXR (type 
-# 'gcc --version' to find out which version you're using).
+# of Shake 3.5, this is gcc 3.2.
 #
 
 CXXFLAGS = -O2 -fPIC \
@@ -34,14 +31,20 @@ exrFormat.so: exrFormat.C exrFormat.h
 	      $(CXX) -shared -o exrFormat.so exrFormat.o $(LDFLAGS)
 
 dist:
-	mkdir OpenEXR_Shake-1.0
-	cp -Rp  Makefile README exrFormat.C \
-		exrFormat.h mac/English.lproj/InfoPlist.strings \
+	mkdir OpenEXR_Shake-1.0.1
+	mkdir OpenEXR_Shake-1.0.1/mac
+	mkdir OpenEXR_Shake-1.0.1/mac/English.lproj
+	mkdir OpenEXR_Shake-1.0.1/mac/exrFormat.pbproj
+	cp -Rp  Makefile README exrFormat.C exrFormat.h \
+		OpenEXR_Shake-1.0.1
+	cp -Rp  mac/English.lproj/InfoPlist.strings \
 		mac/English.lproj/locversion.plist \
-		mac/exrFormat.pbproj/project.pbxproj \
-		mac/Info.plist mac/version.plist \
-		OpenEXR_Shake-1.0
-	tar -zcvf OpenEXR_Shake-1.0.tar.gz OpenEXR_Shake-1.0 && \
-		rm -rf OpenEXR_Shake-1.0
+		OpenEXR_Shake-1.0.1/mac/English.lproj/
+	cp -Rp	mac/exrFormat.pbproj/project.pbxproj \
+		OpenEXR_Shake-1.0.1/mac/exrFormat.pbproj/
+	cp -Rp  mac/Info.plist mac/version.plist \
+		OpenEXR_Shake-1.0.1/mac
+	tar -zcvf OpenEXR_Shake-1.0.1.tar.gz OpenEXR_Shake-1.0.1 && \
+		rm -rf OpenEXR_Shake-1.0.1
 
 
