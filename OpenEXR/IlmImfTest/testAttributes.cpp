@@ -194,6 +194,66 @@ writeReadAttr (const Array2D<float> &pf1,
 }
 
 
+void
+channelList ()
+{
+    cout << "channel list" << endl;
+
+    ChannelList channels;
+
+    channels.insert ("b.0", Channel (HALF, 1, 1));
+    channels.insert ("b.1", Channel (HALF, 1, 1));
+    channels.insert ("b.2", Channel (HALF, 1, 1));
+    channels.insert ("d.3", Channel (HALF, 1, 1));
+    channels.insert ("e.4", Channel (HALF, 1, 1));
+
+    ChannelList::ConstIterator first;
+    ChannelList::ConstIterator last;
+
+    channels.channelsWithPrefix ("a.", first, last);
+    assert (first != channels.end());
+    assert (first == last);
+
+    channels.channelsWithPrefix ("b.", first, last);
+    assert (first != channels.end());
+    assert (first != last);
+    assert (first++.name() == Name ("b.0"));
+    assert (first++.name() == Name ("b.1"));
+    assert (first++.name() == Name ("b.2"));
+    assert (first == last);
+
+    channels.channelsWithPrefix ("b.1", first, last);
+    assert (first != channels.end());
+    assert (first != last);
+    assert (first++.name() == Name ("b.1"));
+    assert (first == last);
+
+    channels.channelsWithPrefix ("b.1.1", first, last);
+    assert (first != channels.end());
+    assert (first == last);
+
+    channels.channelsWithPrefix ("c.", first, last);
+    assert (first != channels.end());
+    assert (first == last);
+
+    channels.channelsWithPrefix ("d.", first, last);
+    assert (first != channels.end());
+    assert (first != last);
+    assert (first++.name() == Name ("d.3"));
+    assert (first == last);
+
+    channels.channelsWithPrefix ("e.", first, last);
+    assert (first != channels.end());
+    assert (first != last);
+    assert (first++.name() == Name ("e.4"));
+    assert (first == last);
+
+    channels.channelsWithPrefix ("f.", first, last);
+    assert (first == channels.end());
+    assert (first == last);
+}
+
+
 } // namespace
 
 
@@ -213,6 +273,7 @@ testAttributes ()
 	const char *filename = IMF_TMP_DIR "imf_test_attr.exr";
 
 	writeReadAttr (pf, filename, W, H);
+	channelList();
 
 	cout << "ok\n" << endl;
     }

@@ -14,7 +14,7 @@ libImath_la_SOURCES = ImathShear.cpp ImathMatrixAlgo.cpp ImathVec.cpp \
 		      ImathHalfLimits.h ImathInterval.h ImathGLU.h \
 		      ImathFrame.h ImathPlatform.h ImathTMatrixBase.h \
 		      ImathTMatrix.h ImathTMatrixAlgo.h ImathTMatrixData.h \
-		      ImathApi.h ImathBox.cpp ImathRandom.cpp
+		      ImathBox.cpp ImathRandom.cpp
 
 libImath_la_LDFLAGS = -version-info @LIBTOOL_VERSION@
 
@@ -30,6 +30,6 @@ libImathinclude_HEADERS = ImathColorAlgo.h ImathMatrixAlgo.h ImathVec.h \
 			  ImathHalfLimits.h ImathInterval.h ImathGLU.h \
 			  ImathFrame.h ImathPlatform.h ImathTMatrixBase.h \
 			  ImathTMatrix.h ImathTMatrixAlgo.h
-			  ImathTMatrixData.h ImathApi.h
+			  ImathTMatrixData.h
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/Half
