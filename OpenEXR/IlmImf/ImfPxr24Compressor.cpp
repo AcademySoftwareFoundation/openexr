@@ -353,9 +353,10 @@ Pxr24Compressor::compress (const char *inPtr,
 		for (int j = 0; j < n; ++j)
 		{
 		    half pixel;
-
-		    pixel = *(const half *) inPtr;
-		    inPtr += sizeof (half);
+		    char *pPtr = (char *) &pixel;
+		    
+		    for (int k = 0; k < sizeof (pixel); ++k)
+			*pPtr++ = *inPtr++;
 
 		    unsigned int diff = pixel.bits() - previousPixel;
 		    previousPixel = pixel.bits();
@@ -506,8 +507,10 @@ Pxr24Compressor::uncompress (const char *inPtr,
 
 		    pixel += diff;
 
-		    *(half *) writePtr = *(half *) &pixel;
-		    writePtr += sizeof (half);
+		    char *pPtr = (char *) &pixel;
+
+		    for (int k = 0; k < sizeof (half); ++k)
+			*writePtr++ = *pPtr++;
 		}
 
 		break;
