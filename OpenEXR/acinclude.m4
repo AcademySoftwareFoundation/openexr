@@ -33,9 +33,10 @@ dnl
   AC_LANG_CPLUSPLUS
   AC_TRY_LINK([
 #include <stdlib.h>
-#include <Fl/Fl.h>],
+#include <Fl/Fl.h>
+#include <Fl/Fl_Gl_Window.h>],
 [
-  Fl::gl_visual(FL_RGB);
+    Fl_Gl_Window foo (); 
 ],, no_fltk=yes)
   AC_LANG_RESTORE
   CXXFLAGS="$ac_save_CXXFLAGS"
