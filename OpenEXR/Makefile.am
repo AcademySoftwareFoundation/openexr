@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
 SUBDIRS = Half Iex IexTest IlmImf IlmImfTest Imath ImathTest \
-	  exrdisplay exrheader IlmImfExamples doc
+	  exrdisplay exrheader IlmImfExamples doc vc
 
 EXTRA_DIST = bootstrap README.OSX README.CVS LICENSE openexr.m4
 
