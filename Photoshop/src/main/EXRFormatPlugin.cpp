@@ -10,9 +10,9 @@
 
 #include "EXRResample.h"
 
-#include "FSSpecToFullPath.h"
 #include "EXRImportDialog.h"
 #include "EXRExportDialog.h"
+#include "RefNumIO.h"
 
 #include "PIFormat.h"
 #include "PSAutoBuffer.h"
@@ -21,11 +21,13 @@
 #include "ImfRgbaFile.h" 
 #include "ImathBox.h" 
 #include "ImfArray.h" 
+#include "ImfIO.h"
 
 #include "PITypes.h"
 #include "ADMBasic.h"
 
 #include <cassert>
+
 
 
 //-------------------------------------------------------------------------------
@@ -114,7 +116,7 @@ void EXRFormatPlugin::DoAbout (AboutRecord* inAboutRec)
 
         if (basicSuite != NULL)
         {                      
-            basicSuite->MessageAlert ("OpenEXR Format v1.0.7\n\n"
+            basicSuite->MessageAlert ("OpenEXR Format v1.1\n\n"
                                       "Format by Florian Kainz, Rod Bogart, Josh Pines, and Drew Hess\n"
                                       "Plug-in by Paul Schneider\n"
                                       "www.openexr.com");
@@ -135,26 +137,15 @@ void EXRFormatPlugin::DoReadStart ()
 {
 	using namespace Imf;
 	using namespace Imath;
-		
-	std::string     filePath;	
-		
-	
-	// get full path to FSSpec
-	
-	*mResult = FSSpecToFullPath (mFormatRec->fileSpec, filePath);
-	if (*mResult != noErr) return;
-		
-	
-	// construct input file from file path
-	
-	assert( Globals()->inputFile == NULL );
-	Globals()->inputFile = new RgbaInputFile (filePath.c_str());
 
-	if (Globals()->inputFile == NULL)
-	{	
-		*mResult = memFullErr;
-		return;
-	}
+
+	// construct input file from refnum
+	
+	assert( Globals()->inputStream == NULL );
+	assert( Globals()->inputFile   == NULL );
+	
+	Globals()->inputStream 	= new RefNumIFStream (mFormatRec->dataFork, mFormatRec->fileSpec, "EXR File");
+	Globals()->inputFile 	= new RgbaInputFile (* (Globals()->inputStream));
 	
 	
 	// get dimension info
@@ -169,18 +160,23 @@ void EXRFormatPlugin::DoReadStart ()
 
 	// get resampling configuration	
 	// pop up dialog, ask user for config
+	// don't display dialog if running in a host other than Photoshop,
+	// for partial After Effects compatibility
 
-	if (!DoImportPreviewDlog())
+	if (mFormatRec->hostSig == '8BIM' || mFormatRec->hostSig == 'MIB8')
 	{
-		// user hit cancel.  clean up (some hosts like AE won't
-		// call us with the ReadFinish selector in this case)
-		// and return a user canceled error to the host.
-	
-		DoReadFinish();
-	
-		*mResult = userCanceledErr;
+		if (!DoImportPreviewDlog())
+		{
+			// user hit cancel.  clean up (some hosts like AE won't
+			// call us with the ReadFinish selector in this case)
+			// and return a user canceled error to the host.
+		
+			DoReadFinish();
+		
+			*mResult = userCanceledErr;
 
-		return;
+			return;
+		}
 	}
 		
 	
@@ -383,6 +379,9 @@ void EXRFormatPlugin::DoReadFinish ()
 
 	delete Globals()->inputFile;
 	Globals()->inputFile = NULL;
+	
+	delete Globals()->inputStream;
+	Globals()->inputStream = NULL;
 }
 
 #pragma mark-
@@ -432,37 +431,21 @@ void EXRFormatPlugin::DoWriteStart ()
 	using namespace 	Imf;
 	using namespace 	Imath;
 	
-	std::string         filePath;
 	int					done, total;
 	unsigned char* 		pix8;
 	unsigned short*		pix16;	
 
 
-	// On the Mac, a file can't be opened twice for writing
-	// (even by the same process!).  The EXR library wants to
-	// open the file itself, so we'll close it first and hope
-	// that thehost won't try to access it later.
-
-#if Macintosh
-	FSClose (mFormatRec->dataFork);
-	mFormatRec->dataFork = 0;
-#endif			
 	
 	// set globals to reflect the pixels we're recieving, and
-	// rebuilt the LUT to convert integer pixels 
+	// rebuild the LUT to convert integer pixels 
 	// to floating point pixels
 	
 	Globals()->bpc = mFormatRec->depth;
 	ResetIntToHalfTable (Globals());
 			
-	
-	// get full path to FSSpec
-	
-	*mResult = FSSpecToFullPath (mFormatRec->fileSpec, filePath);
-	if (*mResult != noErr) return;	
-		
 
-	// construct output file from file path
+	// construct output file from file spec
 	
 	Header				header	(mFormatRec->imageSize.h, 
 								 mFormatRec->imageSize.v,
@@ -472,9 +455,10 @@ void EXRFormatPlugin::DoWriteStart ()
 								 Imf::INCREASING_Y,
 								 Globals()->outputCompression);
 
-	RgbaOutputFile		out		(filePath.c_str(), header, (mFormatRec->planes == 3) ? WRITE_RGB : WRITE_RGBA);	
-	
-	
+	RefNumOFStream		stream	(mFormatRec->dataFork, mFormatRec->fileSpec, "EXR File");
+	RgbaOutputFile		out		(stream, header, (mFormatRec->planes == 3) ? WRITE_RGB : WRITE_RGBA);	
+
+
 	// tell the host what format we want to recieve pixels in
 	// interleaved RGBA format is always popular
 	// note that we don't align the rowbytes in this case

@@ -13,6 +13,8 @@
 #include <ImfLineOrder.h>
 #include <ImfCompression.h>
 
+class RefNumIFStream;
+
 
 //-------------------------------------------------------------------------------
 //	Limits
@@ -51,6 +53,7 @@ public:
 	int						MaxPixelValue			() const;
 
 	Imf::RgbaInputFile*		inputFile;
+	RefNumIFStream*			inputStream;
 	
 	int						bpc;
 	double					exposure;

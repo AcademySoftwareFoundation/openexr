@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\temp"
-			IntermediateDirectory=".\temp"
+			OutputDirectory=".\tempRelease"
+			IntermediateDirectory=".\tempRelease"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -27,10 +27,10 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				PrecompiledHeaderFile=".\temp/EXRFormat.pch"
-				AssemblerListingLocation=".\temp/"
-				ObjectFile=".\temp/"
-				ProgramDataBaseFileName=".\temp/"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation=".\tempRelease/"
+				ObjectFile=".\tempRelease/"
+				ProgramDataBaseFileName=".\tempRelease/"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
@@ -47,9 +47,9 @@
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\Common,..\..\..\Common\Headers\Photoshop,..\..\..\Common\Headers\Photoshop\ADM,..\..\..\Common\Headers\Photoshop\AS,..\..\..\Common\Headers\Photoshop\PICA,..\..\..\Common\Headers\Photoshop\PS-Suites,..\..\..\Common\Headers\SDK,..\..\..\Common\Rez-files\Photoshop,..\..\..\Common\Rez-files\SDK"
 				IgnoreAllDefaultLibraries="FALSE"
-				ProgramDatabaseFile=".\temp/EXRFormat.pdb"
+				ProgramDatabaseFile=".\tempRelease/EXRFormat.pdb"
 				SubSystem="2"
-				ImportLibrary=".\temp/EXRFormat.lib"
+				ImportLibrary=".\tempRelease/EXRFormat.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -67,7 +67,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG,MSWindows=1"
+				PreprocessorDefinitions="MSWindows=1"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -82,8 +82,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\temp"
-			IntermediateDirectory=".\temp"
+			OutputDirectory=".\tempDebug"
+			IntermediateDirectory=".\tempDebug"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -93,10 +93,10 @@
 				AdditionalIncludeDirectories="..\rsrc,..\src\framework,..\src\main,..\src\resample,..\src\ui,..\sdk\PhotoshopAPI\ADM,..\sdk\PhotoshopAPI\General,..\sdk\PhotoshopAPI\Photoshop,..\sdk\PhotoshopAPI\Pica_sp,..\sdk\PhotoshopAPI\Resources,..\sdk\PhotoshopUtils\Includes,..\..\OpenEXR\Half,..\..\OpenEXR\Iex,..\..\OpenEXR\Imath,..\..\OpenEXR\IlmImf"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV"
 				RuntimeLibrary="2"
-				PrecompiledHeaderFile=".\temp/EXRFormat.pch"
-				AssemblerListingLocation=".\temp/"
-				ObjectFile=".\temp/"
-				ProgramDataBaseFileName=".\temp/"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation=".\tempDebug/"
+				ObjectFile=".\tempDebug/"
+				ProgramDataBaseFileName=".\tempDebug/"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
@@ -108,14 +108,14 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib version.lib"
-				OutputFile="Debug\EXRFormat.8bi"
+				OutputFile=".\Debug\EXRFormat.8bi"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\Common,..\..\..\Common\Headers\Photoshop,..\..\..\Common\Headers\Photoshop\ADM,..\..\..\Common\Headers\Photoshop\AS,..\..\..\Common\Headers\Photoshop\PICA,..\..\..\Common\Headers\Photoshop\PS-Suites,..\..\..\Common\Headers\SDK,..\..\..\Common\Rez-files\Photoshop,..\..\..\Common\Rez-files\SDK"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\temp/EXRFormat.pdb"
+				ProgramDatabaseFile=".\tempDebug/EXRFormat.pdb"
 				SubSystem="2"
-				ImportLibrary=".\temp/EXRFormat.lib"
+				ImportLibrary=".\tempDebug/EXRFormat.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -226,28 +226,10 @@
 				RelativePath="..\src\resample\EXRResample.h">
 			</File>
 			<File
-				RelativePath="..\src\main\FSSpecToFullPath.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
-						BrowseInformation="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV;$(NoInherit)"
-						BrowseInformation="1"/>
-				</FileConfiguration>
+				RelativePath="..\src\main\RefNumIO.cpp">
 			</File>
 			<File
-				RelativePath="..\src\main\FSSpecToFullPath.h">
+				RelativePath="..\src\main\RefNumIO.h">
 			</File>
 		</Filter>
 		<Filter
