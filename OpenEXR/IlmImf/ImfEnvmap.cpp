@@ -41,7 +41,6 @@
 
 #include <ImfEnvmap.h>
 #include <ImathFun.h>
-#include <ImathMath.h>
 #include <algorithm>
 #include <math.h>
 
@@ -49,20 +48,18 @@ using namespace std;
 using namespace Imath;
 
 namespace Imf {
-
 namespace LatLongMap {
 
 V2f	
 latLong (const V3f &dir)
 {
-    float r = Math<float>::sqrt (dir.x * dir.x + dir.y * dir.y);
+    float r = sqrtf (dir.z * dir.z + dir.x * dir.x);
 
-    float latitude = (r < abs (dir.z))?
-			 Math<float>::acos (r / dir.length()) * sign (dir.z):
-			 Math<float>::asin (dir.z / dir.length());
+    float latitude = (r < abs (dir.y))?
+			 acosf (r / dir.length()) * sign (dir.y):
+			 asinf (dir.y / dir.length());
 
-    float longitude = (dir.x == 0 && dir.y == 0) ? 
-	0 : Math<float>::atan2 (dir.y, dir.x);
+    float longitude = (dir.z == 0 && dir.x == 0)? 0: atan2f (dir.x, dir.z);
 
     return V2f (latitude, longitude);
 }
@@ -75,8 +72,9 @@ latLong (const Box2i &dataWindow, const V2f &pixelPosition)
 
     if (dataWindow.max.y > dataWindow.min.y)
     {
-	latitude = ((pixelPosition.y  - dataWindow.min.y) /
-		    (dataWindow.max.y - dataWindow.min.y) - 0.5f) * M_PI;
+	latitude = -M_PI *
+		  ((pixelPosition.y  - dataWindow.min.y) /
+		   (dataWindow.max.y - dataWindow.min.y) - 0.5f);
     }
     else
     {
@@ -85,8 +83,9 @@ latLong (const Box2i &dataWindow, const V2f &pixelPosition)
 
     if (dataWindow.max.x > dataWindow.min.x)
     {
-	longitude = ((pixelPosition.x  - dataWindow.min.x) /
-		     (dataWindow.max.x - dataWindow.min.x) - 0.5f) * (2 * M_PI);
+	longitude = -2 * M_PI *
+		   ((pixelPosition.x  - dataWindow.min.x) /
+		    (dataWindow.max.x - dataWindow.min.x) - 0.5f);
     }
     else
     {
@@ -100,8 +99,8 @@ latLong (const Box2i &dataWindow, const V2f &pixelPosition)
 V2f
 pixelPosition (const Box2i &dataWindow, const V2f &latLong)
 {
-    float x = latLong.y / (2 * M_PI) + 0.5f;
-    float y = latLong.x / M_PI + 0.5f;
+    float x = latLong.y / (-2 * M_PI) + 0.5f;
+    float y = latLong.x / -M_PI + 0.5f;
 
     return V2f (x * (dataWindow.max.x - dataWindow.min.x) + dataWindow.min.x,
 		y * (dataWindow.max.y - dataWindow.min.y) + dataWindow.min.y);
@@ -120,9 +119,9 @@ direction (const Box2i &dataWindow, const V2f &pixelPosition)
 {
     V2f ll = latLong (dataWindow, pixelPosition);
 
-    return V3f (Math<float>::cos (ll.y) * Math<float>::cos (ll.x),
-		Math<float>::sin (ll.y) * Math<float>::cos (ll.x),
-		Math<float>::sin (ll.x));
+    return V3f (sinf (ll.y) * cosf (ll.x),
+		sinf (ll.x),
+		cosf (ll.y) * cosf (ll.x));
 }
 
 } // namespace LatLongMap
@@ -326,5 +325,4 @@ direction (CubeMapFace face, const Box2i &dataWindow, const V2f &positionInFace)
 }
 
 } // namespace CubeMap
-
 } // namespace Imf

@@ -156,25 +156,31 @@ latLongMap (const char fileName1[], const char fileName2[])
 
     V2f pos;
 
-    pos = LatLongMap::latLong (V3f (1, 0, 0));
-    assert (pos.equalWithAbsError (V2f (0, 0), 1e-6f));
-
     pos = LatLongMap::latLong (V3f (0, 1, 0));
-    assert (pos.equalWithAbsError (V2f (0, M_PI/2), 1e-6f));
+    assert (equalWithAbsError (pos.x, float (M_PI/2), 1e-6f));
 
     pos = LatLongMap::latLong (V3f (0, -1, 0));
+    assert (equalWithAbsError (pos.x, float (-M_PI/2), 1e-6f));
+
+    pos = LatLongMap::latLong (V3f (0, 0, 1));
+    assert (pos.equalWithAbsError (V2f (0, 0), 1e-6f));
+
+    pos = LatLongMap::latLong (V3f (1, 0, 0));
+    assert (pos.equalWithAbsError (V2f (0, M_PI/2), 1e-6f));
+
+    pos = LatLongMap::latLong (V3f (-1, 0, 0));
     assert (pos.equalWithAbsError (V2f (0, -M_PI/2), 1e-6f));
 
-    pos = LatLongMap::latLong (V3f (1, 0, 1));
+    pos = LatLongMap::latLong (V3f (0, 1, 1));
     assert (pos.equalWithAbsError (V2f (M_PI/4, 0), 1e-6f));
 
-    pos = LatLongMap::latLong (V3f (1, 0, -1));
+    pos = LatLongMap::latLong (V3f (0, -1, 1));
     assert (pos.equalWithAbsError (V2f (-M_PI/4, 0), 1e-6f));
 
-    pos = LatLongMap::pixelPosition (header.dataWindow(), V2f (-M_PI/2, -M_PI));
+    pos = LatLongMap::pixelPosition (header.dataWindow(), V2f (M_PI/2, M_PI));
     assert (pos.equalWithAbsError (V2f (0, 0), 1e-6f * W));
 
-    pos = LatLongMap::pixelPosition(header.dataWindow(), V2f (M_PI/2, M_PI));
+    pos = LatLongMap::pixelPosition(header.dataWindow(), V2f (-M_PI/2, -M_PI));
     assert (pos.equalWithAbsError (V2f (header.dataWindow().max), 1e-6f * W));
 
     Array2D<Rgba> pixels (H, W);
