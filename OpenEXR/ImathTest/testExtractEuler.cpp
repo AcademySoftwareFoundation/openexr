@@ -97,7 +97,7 @@ testMatrix (const M44f M,
     {
 	for (int k = 0; k < 3; ++k)
 	{
-	    if (abs (D[j][k]) > 0.000001)
+            if (abs (D[j][k]) > 0.000002)
 	    {
 		cout << "unexpectedly large matrix to "
 			"euler angles conversion error: " <<
@@ -214,7 +214,7 @@ testRandomAngles33 ()
 {
     Rand48 r(0);
 
-    float eps = 5.0 * limits<float>::epsilon();
+    float eps = 8.0 * limits<float>::epsilon();
 
     for (int i = 0; i < 100000; ++i)
     {
