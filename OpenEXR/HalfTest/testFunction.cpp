@@ -56,11 +56,11 @@ testFunction ()
     assert (t5 (HALF_MAX)  == -1);
     assert (t5 (-HALF_MAX) == -1);
 
-    assert ( t5(half::posInf()).isInfinity() &&
-	    !t5(half::posInf()).isNegative());
+    assert ( t5(half::posInf()).isInfinity());
+    assert (!t5(half::posInf()).isNegative());
 
-    assert (t5(half::negInf()).isInfinity() &&
-	    t5(half::negInf()).isNegative());
+    assert (t5(half::negInf()).isInfinity());
+    assert (t5(half::negInf()).isNegative());
 
     assert (t5(half::qNan()).isNan());
 
