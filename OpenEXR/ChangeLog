@@ -1,4 +1,11 @@
 Version 1.1.0:
+	* GNU autoconf builds now produce versioned libraries.
+	  This release is 1:0:0.  (Drew Hess)
+	* Fixes for Visual C++ .NET 2003.  (Paul Schneider)
+	* Updated Visual C++ zlib project file to zlib 1.2.1.
+	  (Drew Hess)
+        * exrdisplay: Fixed fragment shader version.  (Drew Hess)
+	* *Test: Fixed some compiler issues.  (Drew Hess)
 	* Imath: Handle "restrict" keyword properly.  (Drew Hess)
 	* IlmImfExamples: Updated to latest versions of example
 	  source code, includes tiling and multi-res images.
