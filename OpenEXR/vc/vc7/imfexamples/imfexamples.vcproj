@@ -267,6 +267,9 @@
 				RelativePath="..\..\..\IlmImfExamples\generalInterfaceTiledExamples.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImfExamples\lowLevelIoExamples.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImfExamples\main.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -337,6 +340,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImfExamples\generalInterfaceTiledExamples.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImfExamples\lowLevelIoExamples.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImfExamples\rgbaInterfaceExamples.h">
