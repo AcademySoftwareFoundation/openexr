@@ -18,8 +18,7 @@ class RefNumIFStream : public Imf::IStream
 {
 	public:
 	
-							RefNumIFStream			(short				refNum, 
-													 const  FSSpec*		fsSpec,
+							RefNumIFStream			(short				refNum,
 													 const char 		fileName[]);
 		virtual 			~RefNumIFStream			();
 		
@@ -31,7 +30,6 @@ class RefNumIFStream : public Imf::IStream
     private:
     
     	short				_refNum;
-    	bool				_closeWhenFinished;
 };
 
 

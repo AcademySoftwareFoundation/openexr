@@ -22,6 +22,7 @@
 #include "ImathBox.h" 
 #include "ImfArray.h" 
 #include "ImfIO.h"
+#include "ImathFun.h"
 
 #include "PITypes.h"
 #include "ADMBasic.h"
@@ -144,7 +145,7 @@ void EXRFormatPlugin::DoReadStart ()
 	assert( Globals()->inputStream == NULL );
 	assert( Globals()->inputFile   == NULL );
 	
-	Globals()->inputStream 	= new RefNumIFStream (mFormatRec->dataFork, mFormatRec->fileSpec, "EXR File");
+	Globals()->inputStream 	= new RefNumIFStream (mFormatRec->dataFork, "EXR File");
 	Globals()->inputFile 	= new RgbaInputFile (* (Globals()->inputStream));
 	
 	
@@ -300,7 +301,11 @@ void EXRFormatPlugin::DoReadContinue ()
 		{
 		    for (int x = 0; x < w; ++x)
 		    {
-		        half a = p2[0][x].a;
+		        // we're going to throw away any alpha data > 1, so 
+                // clamp it to that range before using it for unmulting
+                
+                float a = p2[0][x].a;
+                a = Imath::clamp (a, 0.f, 1.f); 
 		    
 		        if (a != 0)
 		        {
@@ -628,7 +633,7 @@ void PluginMain
 	
 	catch (const std::exception& ex)
 	{
-		if (inSelector == formatSelectorAbout)
+		if (inSelector == formatSelectorAbout || ex.what() == NULL)
 		{
 			*outResult = formatCannotRead;
 		}
