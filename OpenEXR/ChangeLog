@@ -1,4 +1,6 @@
 Version 1.1.1:
+        * IlmImf: fixed a bug in reading scanline files on big-endian
+          architectures.  (Drew Hess)
 	* exrmaketiled: Added an option to select compression type.
 	  (Florian Kainz)
 	* exrenvmap: Added an option to select compression type.
