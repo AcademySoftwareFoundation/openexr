@@ -32,3 +32,6 @@ copy ImfName.h %instdir%
 copy ImfPixelType.h %instdir%
 copy ImfVersion.h %instdir%
 copy ImfXdr.h %instdir%
+mkdir ..\vc\vc6\lib\zlib
+copy ..\..\zlib\zlib.lib ..\vc\vc6\lib\zlib
+copy ..\..\zlib\zlibd.lib ..\vc\vc6\lib\zlib
