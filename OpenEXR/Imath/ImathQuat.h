@@ -62,6 +62,11 @@
 
 namespace Imath {
 
+#if defined PLATFORM_WINDOWS && _MSC_VER
+// Disable MS VC++ warnings about conversion from double to float
+#pragma warning(disable:4244)
+#endif
+
 template <class T>
 class Quat;
 
@@ -675,6 +680,10 @@ inline Quat<T> operator- (const Quat<T>& q)
 {
     return Quat<T>( -q.r, -q.v );
 }
+
+#if defined PLATFORM_WINDOWS && _MSC_VER
+#pragma warning(default:4244)
+#endif
 
 } // namespace Imath
 

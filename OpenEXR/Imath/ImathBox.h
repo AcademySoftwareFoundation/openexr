@@ -63,6 +63,7 @@
 //-------------------------------------------------------------------
 
 #include <ImathVec.h>
+#include <ImathApi.h>
 
 namespace Imath {
 
@@ -271,6 +272,34 @@ inline unsigned int Box<T>::majorAxis() const
 
     return major;
 }
+
+
+#if defined PLATFORM_WINDOWS
+
+    #ifdef _MSC_VER
+    // Disable MS VC++ warnings about non-public methods of public
+    // exported classes.
+    #pragma warning(disable : 4251)
+    #endif
+
+    #include <vector>
+
+    IMATH_EXPIMP_TEMPLATE template class Box<Vec2<short> >;	//V2s
+    IMATH_EXPIMP_TEMPLATE template class Box<Vec2<int> >;		//V2i
+    IMATH_EXPIMP_TEMPLATE template class Box<Vec2<float> >;	//V2f
+    IMATH_EXPIMP_TEMPLATE template class Box<Vec2<double> >;	//V2d
+    IMATH_EXPIMP_TEMPLATE template class Box<Vec3<short> >;	//V3s
+    IMATH_EXPIMP_TEMPLATE template class Box<Vec3<int> >;		//V3i
+    IMATH_EXPIMP_TEMPLATE template class Box<Vec3<float> >;	//V3f
+    IMATH_EXPIMP_TEMPLATE template class Box<Vec2<double> >;	//V3d
+    IMATH_EXPIMP_TEMPLATE template class std::allocator<Box	<Vec3<float> > >;
+    IMATH_EXPIMP_TEMPLATE template class std::vector   <Box	<Vec3<float> > >;
+
+    #ifdef _MSC_VER
+    #pragma warning(default : 4251)
+    #endif
+
+#endif
 
 
 } // namespace Imath

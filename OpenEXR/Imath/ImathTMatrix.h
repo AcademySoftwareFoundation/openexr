@@ -41,6 +41,7 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
+#include <Iex.h>
 
 //-------------------------------------------------------------------------
 //
@@ -161,6 +162,12 @@ class TMatrix : public TMatrixBase<T>
 
     void resize(int newNumRows, int newNumColumns, T value = T());
 
+    //------------------------------------------------------------------
+    // Row, Column manipulation methdos. Will save the previous
+    // contents of the column. 
+    //------------------------------------------------------------------
+    void deleteColumn( int col );
+    void deleteRow( int row );
 
     //-----------------------------------------------------------
     // Transposition out-of-place. The result matrix has the same
@@ -382,6 +389,109 @@ TMatrix<T>::resize(int nRows, int nColumns, T val)
     }
 
     setSize(nRows, nColumns);
+    setData(&(_data.front()));
+}
+
+
+// Resize
+template<typename T>
+void
+TMatrix<T>::deleteColumn(int cdx)
+{ 
+    if( cdx < 0 || numColumns() <= cdx)
+        THROW(Iex::ArgExc, "index out of bounds");
+
+    int oNumRows = numRows();
+    int oNumCols = numColumns();
+    int nNumCols = numColumns() -1;
+
+    if (empty())
+        THROW(Iex::LogicExc, "empty column");
+    
+    std::vector<T> odata(_data);
+    _data.resize(numRows() * nNumCols );
+    
+    if (order() == TMatrixBase<T>::ROW_MAJOR) 
+    {
+        int ndx=0;
+        int odx=0;
+        for( int i=0; i<oNumRows; i++)
+        {
+            for(int j=0; j<cdx; j++, ndx++, odx++)
+                _data[ndx] = odata[odx];
+            odx++;
+            for(int j=cdx+1;j<=nNumCols;j++,ndx++,odx++)
+                _data[ndx] = odata[odx];
+        }
+	setStride(nNumCols, 1);
+    }
+    else
+    {
+        int ndx=0;
+        int odx=0;
+        for( int i=0; i<cdx; i++)
+            for( int j=0; j<oNumRows; j++, odx++, ndx++)
+                 _data[ndx] = odata[odx];
+        odx += oNumRows;
+        for( int i=cdx+1; i<oNumCols; i++)
+            for( int j=0; j<oNumRows; j++, odx++, ndx++)
+                _data[ndx] = odata[odx];
+	setStride(1, oNumRows);
+    }
+
+    setSize(numRows(), nNumCols);
+    setData(&(_data.front()));
+}
+
+// Resize
+template<typename T>
+void
+TMatrix<T>::deleteRow(int rdx)
+{ 
+    if( rdx < 0 || numRows() <= rdx)
+        THROW(Iex::ArgExc, "invalid index");
+
+    int oNumRows = numRows();
+    int oNumCols = numColumns();
+    int nNumRows = numRows()-1;
+
+    if (empty())
+        THROW(Iex::LogicExc, "empty matrix.");
+    
+    std::vector<T> odata(_data);
+    _data.resize(oNumRows * oNumCols );
+    
+    if (order() == TMatrixBase<T>::ROW_MAJOR) 
+    {
+        int ndx=0;
+        int odx=0;
+        for( int i=0; i<rdx; i++)
+            for( int j=0; j<oNumCols; j++, odx++, ndx++)
+                _data[ndx] = odata[odx];
+        odx += oNumCols;
+        for( int i=rdx+1; i<oNumRows; i++)
+            for( int j=0; j<oNumCols; j++, odx++, ndx++)
+                _data[ndx] = odata[odx];
+
+	setStride(oNumCols, 1);
+    }
+    else
+    {
+        int ndx=0;
+        int odx=0;
+        for( int i=0; i<oNumCols; i++)
+        {
+            for(int j=0;j<rdx;j++,odx++, ndx++)
+                _data[ndx] = odata[odx];
+            odx++;
+            for(int j=rdx; j<nNumRows; j++, odx++, ndx++)
+                _data[ndx] = odata[odx];
+         }
+	
+	setStride(1, nNumRows);
+    }
+
+    setSize(nNumRows, oNumCols);
     setData(&(_data.front()));
 }
 

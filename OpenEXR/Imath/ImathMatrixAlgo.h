@@ -48,10 +48,12 @@
 //
 //-------------------------------------------------------------------------
 
+#include <ImathApi.h>
 #include <ImathMatrix.h>
 #include <ImathQuat.h>
 #include <ImathEuler.h>
 #include <ImathExc.h>
+#include <ImathVec.h>
 #include <math.h>
 
 
@@ -61,11 +63,10 @@ namespace Imath {
 // Identity matrices
 //------------------
 
-extern const M33f identity33f;
-extern const M33d identity33d;
-extern const M44f identity44f;
-extern const M44d identity44d;
-
+IMATH_EXPORT_CONST M33f identity33f;
+IMATH_EXPORT_CONST M44f identity44f;
+IMATH_EXPORT_CONST M33d identity33d;
+IMATH_EXPORT_CONST M44d identity44d;
 
 //----------------------------------------------------------------------
 // Extract scale, shear, rotation, and translation values from a matrix:
@@ -161,15 +162,25 @@ template <class T>  Quat<T>	extractQuat (const Matrix44<T> &mat);
 // The following ifdef corrects an ICE with VC++7.1.
 // fatal error C1001: INTERNAL COMPILER ERROR
 //
-#if defined PLATFORM_WIN32 && _MSC_VER >= 1300
+#if defined PLATFORM_WINDOWS && _MSC_VER >= 1300
 template <class T>  bool	extractSHRT 
                                     (const Matrix44<T> &mat,
 				     Vec3<T> &s,
 				     Vec3<T> &h,
 				     Vec3<T> &r,
 				     Vec3<T> &t,
-				     bool exc = true,
-				     Eulerf::Order rOrder = Eulerf::XYZ);
+				     bool exc /*= true*/,
+				     typename Euler<T>::Order rOrder /*= Euler<T>::XYZ*/);
+
+
+template <class T>  bool	extractSHRT 
+                                    (const Matrix44<T> &mat,
+				     Vec3<T> &s,
+				     Vec3<T> &h,
+				     Vec3<T> &r,
+				     Vec3<T> &t,
+				     bool exc = true);
+
 #else
 template <class T>  bool	extractSHRT 
                                     (const Matrix44<T> &mat,
@@ -670,7 +681,7 @@ extractQuat (const Matrix44<T> &mat)
 // The following ifdef corrects an ICE with VC++7.1.
 // fatal error C1001: INTERNAL COMPILER ERROR
 //
-#if defined PLATFORM_WIN32 && _MSC_VER >= 1300
+#if defined PLATFORM_WINDOWS && _MSC_VER >= 1300
 template <class T>
 bool 
 extractSHRT (const Matrix44<T> &mat,
@@ -679,7 +690,7 @@ extractSHRT (const Matrix44<T> &mat,
 	     Vec3<T> &r,
 	     Vec3<T> &t,
 	     bool exc /* = true */ ,
-	     Eulerf::Order rOrder /* = Eulerf::XYZ */ )
+	     typename Euler<T>::Order rOrder /* = Euler<T>::XYZ */ )
 #else
 template <class T>
 bool 
@@ -714,6 +725,17 @@ extractSHRT (const Matrix44<T> &mat,
     return true;
 }
 
+template <class T>
+bool 
+extractSHRT (const Matrix44<T> &mat,
+	     Vec3<T> &s,
+	     Vec3<T> &h,
+	     Vec3<T> &r,
+	     Vec3<T> &t,
+	     bool exc)
+{
+    return extractSHRT(mat, s, h, r, t, exc, Imath::Euler<T>::XYZ);
+}
 
 template <class T>
 bool 

@@ -46,6 +46,7 @@
 #include <ImathExc.h>
 #include <ImathLimits.h>
 #include <ImathMath.h>
+#include <ImathApi.h>
 
 #include <iostream>
 
@@ -455,8 +456,8 @@ std::ostream &	operator << (std::ostream &s, const Vec3<T> &v);
 // Reverse multiplication: S * Vec2<T> and S * Vec3<T>
 //----------------------------------------------------
 
-template <class S, class T> Vec2<T>	operator * (S a, const Vec2<T> &v);
-template <class S, class T> Vec3<T>	operator * (S a, const Vec3<T> &v);
+template <class T> Vec2<T>	operator * (T a, const Vec2<T> &v);
+template <class T> Vec3<T>	operator * (T a, const Vec3<T> &v);
 
 
 //-------------------------
@@ -1397,21 +1398,56 @@ operator << (std::ostream &s, const Vec3<T> &v)
 // Implementation of reverse multiplication
 //-----------------------------------------
 
-template <class S, class T>
+template <class T>
 inline Vec2<T>
-operator * (S a, const Vec2<T> &v)
+operator * (T a, const Vec2<T> &v)
 {
     return Vec2<T> (a * v.x, a * v.y);
 }
 
-template <class S, class T>
+template <class T>
 inline Vec3<T>
-operator * (S a, const Vec3<T> &v)
+operator * (T a, const Vec3<T> &v)
 {
     return Vec3<T> (a * v.x, a * v.y, a * v.z);
 }
 
 
 } // namespace Imath
+
+#if defined PLATFORM_WINDOWS
+
+    #ifdef _MSC_VER
+    // Disable MS VC++ warnings about non-public methods of public
+    // exported classes.
+    #pragma warning(disable : 4251)
+    #endif
+
+    #include <vector>
+
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API Imath::Vec2	<int>;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API Imath::Vec2	<float>;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API Imath::Vec2	<double>;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API Imath::Vec3	<int>;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API Imath::Vec3	<float>;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API Imath::Vec3	<double>;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Imath::Vec2	<int> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Imath::Vec2	<int> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Imath::Vec2	<float> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Imath::Vec2	<float> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Imath::Vec2	<double> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Imath::Vec2	<double> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Imath::Vec3	<int> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Imath::Vec3	<int> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Imath::Vec3	<float> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Imath::Vec3	<float> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Imath::Vec3	<double> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Imath::Vec3	<double> >;
+
+    #ifdef _MSC_VER
+    #pragma warning(default : 4251)
+    #endif
+
+#endif
 
 #endif

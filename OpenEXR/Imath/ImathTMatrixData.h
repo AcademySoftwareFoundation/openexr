@@ -45,8 +45,8 @@
 //    This is a specialization of Imath::TMatrixBase that uses 
 //    storage provided by the client to hold the matrix emelents. The
 //    client is thus responsible for ensuring that the given storage is
-//    as large as needed. Also, no sotrage deletion is performed by the
-//    class destructor: it is up to the clent to ensure that no memory is
+//    as large as needed. Also, no storage deletion is performed by the
+//    class destructor: it is up to the client to ensure that no memory is
 //    leaked when the matrix data are no longer needed.
 //
 //-------------------------------------------------------------------------

@@ -53,7 +53,7 @@
 
 //
 // Here is the copyright for the *rand48() functions implemented for
-// PLATFORM_DARWIN_PPC and PLATFORM_WIN32
+// PLATFORM_DARWIN_PPC and PLATFORM_WINDOWS
 //
 
 //
@@ -191,7 +191,7 @@ class Rand48
 
     unsigned short int	_state[3];
     
-#if defined( PLATFORM_DARWIN_PPC ) || defined ( PLATFORM_WIN32 )
+#if defined( PLATFORM_DARWIN_PPC ) || defined ( PLATFORM_WINDOWS )
     void    	    	shiftState();
 #endif
 };
@@ -314,7 +314,7 @@ Rand48::Rand48 (unsigned long int seed)
 }
 
 
-#if defined( PLATFORM_DARWIN_PPC ) || defined ( PLATFORM_WIN32 )
+#if defined( PLATFORM_DARWIN_PPC ) || defined ( PLATFORM_WINDOWS )
 
 inline void
 Rand48::shiftState()
@@ -347,7 +347,7 @@ Rand48::shiftState()
 inline bool
 Rand48::nextb ()
 {
-#if defined( PLATFORM_DARWIN_PPC ) || defined ( PLATFORM_WIN32 )
+#if defined( PLATFORM_DARWIN_PPC ) || defined ( PLATFORM_WINDOWS )
     shiftState();
     return ( ( long( _state[2] ) << 15 ) + ( long( _state[1] ) >> 1 ) ) & 0x1;
 #else
@@ -359,7 +359,7 @@ Rand48::nextb ()
 inline long int
 Rand48::nexti ()
 {
-#if defined( PLATFORM_DARWIN_PPC ) || defined ( PLATFORM_WIN32 )
+#if defined( PLATFORM_DARWIN_PPC ) || defined ( PLATFORM_WINDOWS )
     shiftState();
     return ( long( _state[2] ) << 15 ) + ( long( _state[1] ) >> 1 );
 #else
@@ -371,7 +371,7 @@ Rand48::nexti ()
 inline double
 Rand48::nextf ()
 {
-#if defined( PLATFORM_DARWIN_PPC ) || defined ( PLATFORM_WIN32 )
+#if defined( PLATFORM_DARWIN_PPC ) || defined ( PLATFORM_WINDOWS )
     shiftState();
     return ldexp( double( _state[0] ), -48 ) +
     	   ldexp( double( _state[1] ), -32 ) +
@@ -453,6 +453,8 @@ gaussSphereRand (Rand &rand)
     return hollowSphereRand <Vec> (rand) * gaussRand (rand);
 }
 
+double drand48();
+long int lrand48();
 
 } // namespace Imath
 

@@ -3277,6 +3277,31 @@ operator * (const Vec3<S> &v, const Matrix44<T> &m)
     return Vec3<S> (x / w, y / w, z / w);
 }
 
+#if defined PLATFORM_WINDOWS
+
+    #ifdef _MSC_VER
+    // Disable MS VC++ warnings about non-public methods of public
+    // exported classes.
+    #pragma warning(disable : 4251)
+    #endif
+
+    #include <vector>
+
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API Matrix33	<float>;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API Matrix33	<double>;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API Matrix44	<float>;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API Matrix44	<double>;
+
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Matrix33	<float> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Matrix33	<float> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Matrix44	<float> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Matrix44	<float> >;
+
+    #ifdef _MSC_VER
+    #pragma warning(default : 4251)
+    #endif
+
+#endif
 
 } // namespace Imath
 
