@@ -59,9 +59,6 @@ http://www.openexr.com to download them.
 BUILDING OPENEXR
 ----------------
 
-See the file named "ReleaseNotes" for last-minute information on
-the OpenEXR release that you are using.
-
 To build OpenEXR on GNU/Linux or other UNIX-like systems, do:
 
 ./configure
