@@ -2332,8 +2332,7 @@ Matrix44<T>::operator *= (const Matrix44<T> &v)
 }
 
 template <class T>
-Matrix44<T>
-inline
+inline Matrix44<T>
 Matrix44<T>::operator * (const Matrix44<T> &v) const
 {
     Matrix44 tmp (T (0));
