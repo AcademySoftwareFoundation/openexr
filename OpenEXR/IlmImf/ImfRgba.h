@@ -57,6 +57,15 @@ struct Rgba
     half	g;
     half	b;
     half	a;
+    
+    Rgba& operator= (const Rgba& that)
+    {
+    	r = that.r;
+    	g = that.g;
+    	b = that.b;
+    	a = that.a;
+    	return *this;
+    }
 };
 
 
