@@ -34,4 +34,5 @@ LDADD = -L$(top_builddir)/Iex -L$(top_builddir)/Half \
 TESTS = IlmImfTest
 
 EXTRA_DIST = comp_none.exr comp_piz.exr comp_rle.exr comp_zip.exr \
-             comp_zips.exr test_native1.exr test_native2.exr invalid.exr
+             comp_zips.exr test_native1.exr test_native2.exr invalid.exr \
+	     tiled.exr
