@@ -97,14 +97,24 @@ notEnoughData ()
 void
 invalidCode ()
 {
-    throw InputExc ("Error in Huffman-encoded data (invalid code).");
+    throw InputExc ("Error in Huffman-encoded data "
+		    "(invalid code).");
 }
 
 
 void
 invalidTableSize ()
 {
-    throw InputExc ("Error in Huffman-encoded data (invalid code table size).");
+    throw InputExc ("Error in Huffman-encoded data "
+		    "(invalid code table size).");
+}
+
+
+void
+invalidTableEntry ()
+{
+    throw InputExc ("Error in Huffman-encoded data "
+		    "(invalid code table entry).");
 }
 
 
@@ -172,22 +182,41 @@ getBits (int nBits, Int64 &c, int &lc, const char *&in)
 void
 hufCanonicalCodeTable (Int64 hcode[HUF_ENCSIZE])
 {
-    Int64 n[58];
+    Int64 n[59];
 
-    for (int i = 0; i < 58; ++i)
+    //
+    // For each i from 0 through 58, count the
+    // number of different codes of length i and
+    // store the count in n[i].
+    //
+
+    for (int i = 0; i <= 58; ++i)
 	n[i] = 0;
 
     for (int i = 0; i < HUF_ENCSIZE; ++i)
 	n[hcode[i]] += 1;
 
+    //
+    // For each i from 0 through 58, compute the
+    // numerically lowest code with length i and
+    // store that code in n[i].
+    //
+
     Int64 c = 0;
 
-    for (int i = 57; i > 0; --i)
+    for (int i = 58; i > 0; --i)
     {
 	Int64 nc = ((c + n[i]) >> 1);
 	n[i] = c;
 	c = nc;
     }
+
+    //
+    // hcode[i] contains the length, l, of the
+    // code for symbol i.  Assign the next available
+    // code of length l to the symbol and store both
+    // l and the code in hcode[i].
+    //
 
     for (int i = 0; i < HUF_ENCSIZE; ++i)
     {
@@ -486,6 +515,17 @@ hufBuildDecTable
 	Int64 c = hufCode (hcode[im]);
 	int l = hufLength (hcode[im]);
 
+	if (c >> l)
+	{
+	    //
+	    // Error: c is supposed to be an l-bit code,
+	    // but c contains a value that is greater
+	    // than the largest l-bit number.
+	    //
+
+	    invalidTableEntry();
+	}
+
 	if (l > HUF_DECBITS)
 	{
 	    //
@@ -493,6 +533,17 @@ hufBuildDecTable
 	    //
 
 	    HufDec *pl = hdecod + (c >> (l - HUF_DECBITS));
+
+	    if (pl->len)
+	    {
+		//
+		// Error: a short code has already
+		// been stored in table entry *pl.
+		//
+
+		invalidTableEntry();
+	    }
+
 	    pl->lit++;
 
 	    if (pl->p)
@@ -522,6 +573,16 @@ hufBuildDecTable
 
 	    for (Int64 i = 1 << (HUF_DECBITS - l); i > 0; i--, pl++)
 	    {
+		if (pl->len || pl->p)
+		{
+		    //
+		    // Error: a short code or a long code has
+		    // already been stored in table entry *pl.
+		    //
+
+		    invalidTableEntry();
+		}
+
 		pl->len = l;
 		pl->lit = im;
 	    }
