@@ -154,6 +154,26 @@ $(TargetPath)
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
+				RelativePath="..\..\..\IlmImfTest\compareFloat.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImfTest\main.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -424,6 +444,26 @@ $(TargetPath)
 				RelativePath="..\..\..\IlmImfTest\testTiledRgba.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImfTest\testTiledYa.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImfTest\testWav.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -463,10 +503,33 @@ $(TargetPath)
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="..\..\..\IlmImfTest\testYca.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
+			<File
+				RelativePath="..\..\..\IlmImfTest\compareFloat.h">
+			</File>
 			<File
 				RelativePath="..\..\..\IlmImfTest\testAttributes.h">
 			</File>
@@ -531,10 +594,16 @@ $(TargetPath)
 				RelativePath="..\..\..\IlmImfTest\testTiledRgba.h">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImfTest\testTiledYa.h">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImfTest\testWav.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImfTest\testXdr.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImfTest\testYca.h">
 			</File>
 		</Filter>
 		<Filter
