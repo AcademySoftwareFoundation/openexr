@@ -350,21 +350,24 @@ ImageView::updateScreenPixels ()
 		       _defog * _fogR,
 		       _kneeLow,
 		       _kneeHigh),
-		-HALF_MAX, HALF_MAX);
+		-HALF_MAX, HALF_MAX,
+		0.f, 255.f, 0.f, 0.f);
 
     halfFunction<float>
 	gGamma (Gamma (_exposure,
 		       _defog * _fogG,
 		       _kneeLow,
 		       _kneeHigh),
-		-HALF_MAX, HALF_MAX);
+		-HALF_MAX, HALF_MAX,
+		0.f, 255.f, 0.f, 0.f);
 
     halfFunction<float>
 	bGamma (Gamma (_exposure,
 		       _defog * _fogB,
 		       _kneeLow,
 		       _kneeHigh),
-		-HALF_MAX, HALF_MAX);
+		-HALF_MAX, HALF_MAX,
+		0.f, 255.f, 0.f, 0.f);
 
     for (int y = 0; y < _dh; ++y)
     {
