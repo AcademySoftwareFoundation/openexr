@@ -729,7 +729,24 @@ operator * (S x, const Color4<T> &v)
     return Color4<T> (x * v.r, x * v.g, x * v.b, x * v.a);
 }
 
+#if defined PLATFORM_WINDOWS
 
+    #ifdef _MSC_VER
+    // Disable MS VC++ warnings about non-public methods of public
+    // exported classes.
+    #pragma warning(disable : 4251)
+    #endif
+
+    #include <vector>
+
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Imath::Color3	<float> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Imath::Color3	<float> >;
+
+    #ifdef _MSC_VER
+    #pragma warning(default : 4251)
+    #endif
+
+#endif
 
 } // namespace Imath
 

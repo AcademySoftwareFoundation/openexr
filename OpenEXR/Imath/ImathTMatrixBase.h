@@ -38,6 +38,7 @@
 
 #include <IexBaseExc.h>
 #include <vector>
+#include <assert.h>
 
 //-------------------------------------------------------------------------
 //
@@ -52,7 +53,7 @@
 //    via operator (), as in M(i,j). The first form is unckecked for
 //    bounds, the second throws an exception for out of bounds access..
 // 
-//    This template class does hold or manage any storage for the
+//    This template class does not hold or manage any storage for the
 //    representation of the matrix elements, and is intended to be used
 //    as a "pure virtual" base class, providing methods for matrix-like
 //    access for concrete implementations in derived classes.
@@ -270,9 +271,6 @@ class TMatrixBase
 namespace Imath
 {
 	
-#include <assert.h>
-
-
 // Protected accessors
 template<typename T>
 inline void

@@ -46,6 +46,19 @@
 #include <float.h>
 #include <limits.h>
 
+//------------------------------------------
+// In Windows, min and max are macros.  Yay.
+//------------------------------------------
+
+#ifdef PLATFORM_WINDOWS
+    #ifdef min
+        #undef min
+    #endif
+    #ifdef max
+        #undef max
+    #endif
+#endif
+
 namespace Imath {
 
 

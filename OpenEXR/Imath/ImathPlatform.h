@@ -48,10 +48,10 @@
 
 #include <math.h>
 
-#if defined(PLATFORM_WIN32)
-
-#define M_PI 3.14159265358979323846
-
+#if defined(PLATFORM_WINDOWS)
+    #ifndef M_PI
+        #define M_PI 3.14159265358979323846
+    #endif
 #endif
 
 //-----------------------------------------------------------------------------

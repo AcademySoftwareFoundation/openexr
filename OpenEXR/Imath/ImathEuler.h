@@ -134,6 +134,10 @@
 
 namespace Imath {
 
+#if defined PLATFORM_WINDOWS && _MSC_VER
+// Disable MS VC++ warnings about conversion from double to float
+#pragma warning(disable:4244)
+#endif
 
 template <class T>
 class Euler : public Vec3<T>
@@ -196,7 +200,7 @@ class Euler : public Vec3<T>
 	Default	= XYZ
     };
 
-    enum Axis { X, Y, Z };
+    enum Axis { X = 0, Y = 1, Z = 2 };
 
     enum InputLayout { XYZLayout, IJKLayout };
 
@@ -311,7 +315,11 @@ class Euler : public Vec3<T>
     bool		_frameStatic	 : 1;	// relative or static rotations
     bool		_initialRepeated : 1;	// init axis repeated as last
     bool		_parityEven	 : 1;	// "parity of axis permutation"
+#ifdef PLATFORM_WINDOWS
+    Axis		_initialAxis	 ;	// First axis of rotation
+#else
     Axis		_initialAxis	 : 2;	// First axis of rotation
+#endif
 };
 
 
@@ -774,7 +782,6 @@ void Euler<T>::set(typename Euler<T>::Axis axis,
 		   bool relative,
 		   bool parityEven,
 		   bool firstRepeats)
-
 {
     _initialAxis	= axis;
     _frameStatic	= !relative;
@@ -886,7 +893,11 @@ Euler<T>::makeNear (const Euler<T> &target)
     setXYZVector(xyzRot);
 }
 
+#if defined PLATFORM_WINDOWS && _MSC_VER
+#pragma warning(default:4244)
+#endif
 
 } // namespace Imath
+
 
 #endif
