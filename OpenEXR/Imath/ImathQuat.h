@@ -60,24 +60,22 @@
 
 #include <iostream>
 
-// #define debug_quat
-
 namespace Imath {
 
 template <class T>
 class Quat;
 
 template<class T>
-Quat<T> slerp(const Quat<T> &q1,const Quat<T> &q2, T t);
+Quat<T> slerp (const Quat<T> &q1,const Quat<T> &q2, T t);
 
 template<class T>
-Quat<T> squad(const Quat<T> &q1,const Quat<T> &q2, 
-	      const Quat<T> &qa,const Quat<T> &qb, T t);
+Quat<T> squad (const Quat<T> &q1,const Quat<T> &q2, 
+	       const Quat<T> &qa,const Quat<T> &qb, T t);
 
 template<class T>
-void intermediate(const Quat<T> &q0, const Quat<T> &q1, 
-		     const Quat<T> &q2, const Quat<T> &q3,
-		     Quat<T> &qa, Quat<T> &qb);
+void intermediate (const Quat<T> &q0, const Quat<T> &q1, 
+		   const Quat<T> &q2, const Quat<T> &q3,
+		   Quat<T> &qa, Quat<T> &qb);
 
 template <class T>
 class Quat
@@ -95,6 +93,8 @@ class Quat
     Quat( const Quat<T>& q)	    : r(q.r), v(q.v) {}
     Quat( T s, T i, T j, T k )	    : r(s), v(i,j,k) {}
     Quat( T s, Vec3<T> d ) 	    : r(s), v(d) {}
+
+    static Quat<T> identity()	{ return Quat<T>(); }
 
     //------------------------------------------------
     //	Basic Algebra - Operators and Methods
@@ -119,35 +119,14 @@ class Quat
     T&			    operator[]	(int index);	// as 4D vector
     T			    operator[]	(int index) const;
 
-//  friend Quat<T>	    operator*	(const Quat<T>&,const Quat<T>&);
-//  friend Quat<T>	    operator*	(const Quat<T>&,T);
-//  friend Quat<T>	    operator*	(T,const Quat<T>&);
-//  friend Quat<T>	    operator/	(const Quat<T>&,const Quat<T>&);
-//  friend Quat<T>	    operator/	(const Quat<T>&,T);
-//  friend Quat<T>	    operator+	(const Quat<T>&,const Quat<T>&);
-//  friend Quat<T>	    operator-	(const Quat<T>&,const Quat<T>&);
-//  friend T		    operator^	(const Quat<T>&,const Quat<T>&);
-//  friend Quat<T>	    operator-	(const Quat<T>&);
-//  friend Quat<T>	    operator~	(const Quat<T>&);   // conjugate
-
-//  friend Matrix33<T>	    operator*	(const Quat<T>&,const Matrix33<T>&);
-//  friend Matrix33<T>	    operator*	(const Matrix33<T>&,const Quat<T>&);
-
-//  friend std::ostream&    operator<<	(std::ostream &,const Quat<T>&);
-
-    static Quat<T>	    identity()	{ return Quat<T>(); }
+    template <class S> bool operator == (const Quat<S> &q) const;
+    template <class S> bool operator != (const Quat<S> &q) const;
 
     Quat<T>&		    invert();		    // this -> 1 / this
     Quat<T>		    inverse() const;
     Quat<T>&		    normalize();	    // returns this
     Quat<T>		    normalized() const;
     T			    length() const;	    // in R4
-
-    //-----------------------
-    //	Interpolation
-    //-----------------------
-
-//  friend Quat<T>	    slerp(const Quat<T>&,const Quat<T>&,T t);
 
     //-----------------------
     //	Rotation conversion
@@ -247,6 +226,22 @@ inline T Quat<T>::operator[] (int index) const
     return index ? v[index-1] : r;
 }
 
+template <class T>
+template <class S>
+inline bool
+Quat<T>::operator == (const Quat<S> &q) const
+{
+    return r == q.r && v == q.v;
+}
+
+template <class T>
+template <class S>
+inline bool
+Quat<T>::operator != (const Quat<S> &q) const
+{
+    return r != q.r || v != q.v;
+}
+
 template<class T>
 inline T operator^ (const Quat<T>& q1,const Quat<T>& q2)
 {
@@ -263,7 +258,7 @@ template <class T>
 inline Quat<T>& Quat<T>::normalize()
 {
     if ( T l = length() ) { r /= l; v /= l; }
-    else { r = 1; v = 0; }
+    else { r = 1; v = Vec3<T>(0); }
     return *this;
 }
 
@@ -295,60 +290,80 @@ inline Quat<T>& Quat<T>::invert()
 }
 
 template<class T>
-Quat<T> slerp(const Quat<T> &q1,const Quat<T> &q2, T t)
+Quat<T>
+slerp(const Quat<T> &q1,const Quat<T> &q2, T t)
 {
     //
     // Spherical linear interpolation.
-    // This routine is more advanced than the routine in
-    // SbRotation. Given two quaternions q1 and q2, there
-    // are two possible arcs along which one can move,
-    // corresponding to alternative starting directions.
-    // This routine chooses the shorter arc for the 
-    // interpolation of q1 and q2, which is more desirable.
+    //
+    // NOTE: Assumes q1 and q2 are normalized and that 0 <= t <= 1.
+    //
+    // This method does *not* interpolate along the shortest arc
+    // between q1 and q2. If you desire interpolation along the
+    // shortest arc, then consider flipping the second quaternion
+    // explicitly before calling slerp. The implementation of squad()
+    // depends on a slerp() that interpolates as is, without the
+    // automatic flipping.
     //
 
-    T qdot	    = q1 ^ q2;
-    const T epsilon = .0001;
-    Quat<T> result;
-    T s1,s2;
-
-    Quat<T> q1b = q1;
-
-    if ( qdot < 0 )
+    T cosomega = q1 ^ q2;
+    if (cosomega >= (T) 1.0)
     {
-	// If q1 and q2 are more than 90 degrees apart,
-	// flip q1 - this gives us the shorter arc.
-	// 
-	qdot = -qdot;
-	q1b.v = -q1.v;
-	q1b.r = -q1.r;
+	//
+	// Special case: q1 and q2 are the same, so just return one of them.
+	// This also catches the case where cosomega is very slightly > 1.0
+	//
+
+	return q1;
     }
+    
+    T sinomega = Math<T>::sqrt (1 - cosomega * cosomega);
 
-    if ((1 - qdot) > epsilon )
+    Quat<T> result;
+
+    if (sinomega * limits<T>::max() > 1)
     {
-	T omega = Math<T>::acos(qdot);
-	T sinom = Math<T>::sin(omega);
-	s1	    = Math<T>::sin((1.0 - t) * omega) / sinom;
-	s2	    = Math<T>::sin(t * omega) / sinom;
+	T omega = Math<T>::acos (cosomega);
+ 	T s1 = Math<T>::sin ((1.0 - t) * omega) / sinomega;
+	T s2 = Math<T>::sin (t * omega) / sinomega;
+
+	result	= s1 * q1 + s2 * q2;
+    }
+    else if (cosomega > 0)
+    {
+	//
+	// omega == 0
+	//
+
+	T s1 = 1.0 - t;
+	T s2 = t;
+
+	result = s1 * q1 + s2 * q2;
     }
     else
     {
-	// If q1 and q2 are very close together, do 
-	// simple linear interpolation:
-	// 
-	s1	= 1.0 - t;
-	s2	= t;
-    }
+	//
+	// omega == -pi
+	//
 
-    result = s1 * q1b + s2 * q2;
+	result.v.x  = - q1.v.y;
+	result.v.y  =   q1.v.x;
+	result.v.z  = - q1.r;
+	result.r    =   q1.v.z;
+
+	T s1 = Math<T>::sin ((0.5 - t) * M_PI);
+	T s2 = Math<T>::sin (t * M_PI);
+
+	result  = s1 * q1 + s2 * result;
+    }
 
     return result;
 }
 
 template<class T>
-Quat<T> squad(const Quat<T> &q0, const Quat<T> &q1,
-	      const Quat<T> &q2, const Quat<T> &q3,
-	      T t)
+Quat<T> spline(const Quat<T> &q0, const Quat<T> &q1,
+	       const Quat<T> &q2, const Quat<T> &q3,
+	       T t)
 {
     // Spherical Cubic Spline Interpolation -
     // from Advanced Animation and Rendering
@@ -362,34 +377,44 @@ Quat<T> squad(const Quat<T> &q0, const Quat<T> &q1,
     // quaternions: qa and qb. The qa and qb are 
     // computed by the intermediate function to 
     // guarantee the continuity of tangents across
-    // adjacent cubic segments. 
+    // adjacent cubic segments. The qa represents in-tangent
+    // for q1 and the qb represents the out-tangent for q2.
     // 
     // The q1 q2 is the cubic segment being interpolated. 
     // The q0 is from the previous adjacent segment and q3 is 
     // from the next adjacent segment. The q0 and q3 are used
     // in computing qa and qb.
     // 
-    Quat<T> qa, qb;
-    intermediate(q0, q1, q2, q3, qa, qb);
-    Quat<T> r1 = slerp(q1, q2, t);
-    Quat<T> r2 = slerp(qa, qb, t);
-    Quat<T> result = slerp(r1, r2, 2*t*(1-t));
 
-#ifdef debug_quat
-    printf("qa: r: %f v: %f %f %f\n", qa.r, qa.v[0], qa.v[1], qa.v[2]);
-    printf("qb: r: %f v: %f %f %f\n", qb.r, qb.v[0], qb.v[1], qb.v[2]);
-    printf("r1: r: %f v: %f %f %f\n", r1.r, r1.v[0], r1.v[1], r1.v[2]);
-    printf("r2: r: %f v: %f %f %f\n", r2.r, r2.v[0], r2.v[1], r2.v[2]);
-    std::cout << "2t(1-t): " << 2*t*(1-t) << "\n";
-#endif
+    Quat<T> qa = intermediate (q0, q1, q2);
+    Quat<T> qb = intermediate (q1, q2, q3);
+    Quat<T> result = squad(q1, qa, qb, q2, t);
 
     return result;
 }
 
 template<class T>
-void intermediate(const Quat<T> &q0, const Quat<T> &q1, 
-		  const Quat<T> &q2, const Quat<T> &q3,
-		  Quat<T> &qa, Quat<T> &qb)
+Quat<T> squad(const Quat<T> &q1, const Quat<T> &qa,
+	      const Quat<T> &qb, const Quat<T> &q2,
+	      T t)
+{
+    // Spherical Quadrangle Interpolation -
+    // from Advanced Animation and Rendering
+    // Techniques by Watt and Watt, Page 366:
+    // It constructs a spherical cubic interpolation as 
+    // a series of three spherical linear interpolations 
+    // of a quadrangle of unit quaternions. 
+    //     
+  
+    Quat<T> r1 = slerp(q1, q2, t);
+    Quat<T> r2 = slerp(qa, qb, t);
+    Quat<T> result = slerp(r1, r2, 2*t*(1-t));
+
+    return result;
+}
+
+template<class T>
+Quat<T> intermediate(const Quat<T> &q0, const Quat<T> &q1, const Quat<T> &q2)
 {
     // From advanced Animation and Rendering
     // Techniques by Watt and Watt, Page 366:
@@ -401,58 +426,55 @@ void intermediate(const Quat<T> &q0, const Quat<T> &q1,
     Quat<T> c1 = q1inv*q2;
     Quat<T> c2 = q1inv*q0;
     Quat<T> c3 = (T) (-0.25) * (c2.log() + c1.log());
-    qa = q1 * c3.exp();
-
-    Quat<T> q2inv = q2.inverse();
-    Quat<T> c4 = q2inv*q3;
-    Quat<T> c5 = q2inv*q1;
-    Quat<T> c6 = (T) (-0.25) * (c5.log() + c4.log());
-    qb = q2 * c6.exp();
+    Quat<T> qa = q1 * c3.exp();
+    qa.normalize();
+    return qa;
 }
 
 template <class T>
 inline Quat<T> Quat<T>::log() const
 {
+    //
     // For unit quaternion, from Advanced Animation and 
     // Rendering Techniques by Watt and Watt, Page 366:
     //
-    Quat<T> result;
-    result.r = 0;
-    result.v = v;
-    const T epsilon = .0001;
 
-    double theta = acos(r);
-    if( theta > epsilon )
-    {
-        T k = theta / sin(theta);
-	result.v.x = v.x*k;
-	result.v.y = v.y*k;
-	result.v.z = v.z*k;
-    }
-    return result;
+    T theta = Math<T>::acos (std::min (r, (T) 1.0));
+    if (theta == 0)
+	return Quat<T> (0, v);
+    
+    T sintheta = Math<T>::sin (theta);
+    
+    T k;
+    if (abs (sintheta) < 1 && abs (theta) >= limits<T>::max() * abs (sintheta))
+	k = 0;
+    else
+	k = theta / sintheta;
+
+    return Quat<T> ((T) 0, v.x * k, v.y * k, v.z * k);
 }
 
 template <class T>
 inline Quat<T> Quat<T>::exp() const
 {
+    //
     // For pure quaternion (zero scalar part):
     // from Advanced Animation and Rendering
     // Techniques by Watt and Watt, Page 366:
     //
-    Quat<T> result;
-    double theta = v.length();
-    const T epsilon = .0001;
 
-    result.r = cos(theta);
-    result.v = v;
-    if( sin(theta) > epsilon)
-    {
-	T k = sin(theta) / theta;
-	result.v.x = k*v.x;
-	result.v.y = k*v.y;
-	result.v.z = k*v.z;
-    }
-    return result;
+    T theta = v.length();
+    T sintheta = Math<T>::sin (theta);
+    
+    T k;
+    if (abs (theta) < 1 && abs (sintheta) >= limits<T>::max() * abs (theta))
+	k = 0;
+    else
+	k = sintheta / theta;
+
+    T costheta = Math<T>::cos (theta);
+
+    return Quat<T> (costheta, v.x * k, v.y * k, v.z * k);
 }
 
 template <class T>
@@ -494,7 +516,7 @@ Quat<T>::setRotation(const Vec3<T>& from, const Vec3<T>& to)
 	//
 
 	r = 1.0;
-	v = 0;
+	v = Vec3<T>(0);
     }
     else if (cost < -0.99999)
     {
@@ -649,7 +671,6 @@ inline Quat<T> operator- (const Quat<T>& q)
 {
     return Quat<T>( -q.r, -q.v );
 }
-
 
 } // namespace Imath
 
