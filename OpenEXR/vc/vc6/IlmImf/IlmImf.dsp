@@ -119,6 +119,10 @@ SOURCE=..\..\..\IlmImf\ImfCompressor.cpp
 # End Source File
 # Begin Source File
 
+SOURCE="\tmp\OpenEXR-1.0.6\IlmImf\ImfConvert.cpp"
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\IlmImf\ImfCRgbaFile.cpp
 # End Source File
 # Begin Source File
@@ -183,6 +187,14 @@ SOURCE=..\..\..\IlmImf\ImfPizCompressor.cpp
 # End Source File
 # Begin Source File
 
+SOURCE="\tmp\OpenEXR-1.0.6\IlmImf\ImfPreviewImage.cpp"
+# End Source File
+# Begin Source File
+
+SOURCE="\tmp\OpenEXR-1.0.6\IlmImf\ImfPreviewImageAttribute.cpp"
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\IlmImf\ImfRgbaFile.cpp
 # End Source File
 # Begin Source File
@@ -244,6 +256,10 @@ SOURCE=..\..\..\IlmImf\ImfCompressionAttribute.h
 # Begin Source File
 
 SOURCE=..\..\..\IlmImf\ImfCompressor.h
+# End Source File
+# Begin Source File
+
+SOURCE="\tmp\OpenEXR-1.0.6\IlmImf\ImfConvert.h"
 # End Source File
 # Begin Source File
 
@@ -320,6 +336,14 @@ SOURCE=..\..\..\IlmImf\ImfPixelType.h
 # Begin Source File
 
 SOURCE=..\..\..\IlmImf\ImfPizCompressor.h
+# End Source File
+# Begin Source File
+
+SOURCE="\tmp\OpenEXR-1.0.6\IlmImf\ImfPreviewImage.h"
+# End Source File
+# Begin Source File
+
+SOURCE="\tmp\OpenEXR-1.0.6\IlmImf\ImfPreviewImageAttribute.h"
 # End Source File
 # Begin Source File
 
