@@ -89,10 +89,10 @@ sp (Array2D<Rgba> &px, int w, int h,
     float xc, float yc, float rc,
     float rd, float gn, float bl, float lm)
 {
-    int x1 = int (max (floor (xc - rc),  0.0));
-    int x2 = int (min (ceil  (xc + rc), w - 1.0));
-    int y1 = int (max (floor (yc - rc),  0.0));
-    int y2 = int (min (ceil  (yc + rc), h - 1.0));
+    int x1 = int (max ((float) floor (xc - rc),  0.0f));
+    int x2 = int (min ((float) ceil  (xc + rc), w - 1.0f));
+    int y1 = int (max ((float) floor (yc - rc),  0.0f));
+    int y2 = int (min ((float) ceil  (yc + rc), h - 1.0f));
 
     for (int y = y1; y <= y2; ++y)
     {
@@ -135,10 +135,10 @@ void
 zsp (Array2D<half> &gpx, Array2D<float> &zpx, int w, int h,
      float xc, float yc, float zc, float rc, float gn)
 {
-    int x1 = int (max (floor (xc - rc),  0.0));
-    int x2 = int (min (ceil  (xc + rc), w - 1.0));
-    int y1 = int (max (floor (yc - rc),  0.0));
-    int y2 = int (min (ceil  (yc + rc), h - 1.0));
+    int x1 = int (max ((float) floor (xc - rc),  0.0f));
+    int x2 = int (min ((float) ceil  (xc + rc), w - 1.0f));
+    int y1 = int (max ((float) floor (yc - rc),  0.0f));
+    int y2 = int (min ((float) ceil  (yc + rc), h - 1.0f));
 
     for (int x = x1; x <= x2; ++x)
     {
