@@ -49,23 +49,21 @@
 
 using namespace std;
 
+#if defined (OPENEXR_DLL)
+    #define EXPORT_CONST __declspec(dllexport)
+#else
+    #define EXPORT_CONST const
+#endif
+
 //-------------------------------------------------------------
 // Lookup tables for half-to-float and float-to-half conversion
 //-------------------------------------------------------------
 
-const half::uif half::_toFloat[1 << 16] =
+EXPORT_CONST half::uif halfToFloatLut[1 << 16] =
     #include <toFloat.h>
 
-const unsigned short half::_eLut[1 << 9] =
+EXPORT_CONST unsigned short halfELut[1 << 9] =
     #include <eLut.h>
-
-
-//--------------------------------------
-// Dummy flag, initialized by selftest()
-//--------------------------------------
-
-const bool half::_itWorks =
-    selftest(); 
 
 
 //-----------------------------------------------
@@ -218,76 +216,6 @@ half::convert (int i)
 
 	return s | (e << 10) | (m >> 13);
     }
-}
-
-
-//--------------------------------------
-// Simple selftest, triggered by static
-// initialization of half::_itWorks flag
-//--------------------------------------
-
-namespace
-{
-    void
-    testNormalized (float f)
-    {
-	half  h (f);
-	float e (1 - h / f);
-
-	if (e < 0)
-	    e = -e;
-
-	if (e > HALF_EPSILON * 0.5)
-	{
-	    cerr << "Internal error: float/half conversion does not work.";
-	    assert (false);
-	}
-    }
-
-
-    void
-    testDenormalized (float f)
-    {
-	half  h (f);
-	float e (h - f);
-
-	if (e < 0)
-	    e = -e;
-
-	if (e > HALF_MIN * 0.5)
-	{
-	    cerr << "Internal error: float/half conversion does not work.";
-	    assert (false);
-	}
-    }
-}
-
-
-bool
-half::selftest ()
-{
-    testNormalized   ((float)  HALF_MAX);
-    testNormalized   ((float) -HALF_MAX);
-    testNormalized   ( 0.1f);
-    testNormalized   (-0.1f);
-    testNormalized   ( 0.5f);
-    testNormalized   (-0.5f);
-    testNormalized   ( 1.0f);
-    testNormalized   (-1.0f);
-    testNormalized   ( 2.0f);
-    testNormalized   (-2.0f);
-    testNormalized   ( 3.0f);
-    testNormalized   (-3.0f);
-    testNormalized   ( 17.0f);
-    testNormalized   (-17.0f);
-    testNormalized   ((float)  HALF_NRM_MIN);
-    testNormalized   ((float) -HALF_NRM_MIN);
-    testDenormalized ((float)  HALF_MIN);
-    testDenormalized ((float) -HALF_MIN);
-    testDenormalized ( 0.0f);
-    testDenormalized (-0.0f);
-
-    return true;
 }
 
 
