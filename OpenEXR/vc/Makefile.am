@@ -4,6 +4,7 @@ EXTRA_DIST = vc6/OpenEXR.dsw vc6/doc/README.win32 vc6/doc/COPYING \
 	     vc6/IexTest/IexTest.dsp vc6/IlmImf/IlmImf.dsp \
 	     vc6/IlmImfDll/IlmImfDll.dsp vc6/IlmImfTest/IlmImfTest.dsp \
 	     vc6/Imath/Imath.dsp vc6/ImathTest/ImathTest.dsp \
+             vc6/HalfTest/HalfTest.dsp \
 	     vc6/exrdisplay/exrdisplay.dsp \
 	     vc6/exrdisplay_fragshader/exrdisplay_fragshader.dsp \
 	     vc6/exrheader/exrheader.dsp vc6/Half/post-build.cmd \
@@ -17,6 +18,7 @@ EXTRA_DIST = vc6/OpenEXR.dsw vc6/doc/README.win32 vc6/doc/COPYING \
 	     vc7/IexTest/IexTest.vcproj vc7/IlmImf/IlmImf.vcproj \
 	     vc7/IlmImfDll/IlmImfDll.vcproj vc7/IlmImfTest/IlmImfTest.vcproj \
 	     vc7/Imath/Imath.vcproj vc7/ImathTest/ImathTest.vcproj \
+             vc7/HalfTest/HalfTest.vcproj \
 	     vc7/exrdisplay/exrdisplay.vcproj \
 	     vc7/exrdisplay_fragshader/exrdisplay_fragshader.vcproj \
 	     vc7/exrheader/exrheader.vcproj vc7/Half/post-build.cmd \
