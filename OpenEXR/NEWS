@@ -1,4 +1,6 @@
 Version 1.0.5:
+    - PIZ decoding should be 20-60% faster on Athlon and Pentium 4
+      systems.
     - exrdisplay supports hardware rendering with vp30 profile fragment
       shaders.
     - Support for Win32 with Visual Studio 6.0 and Intel C++ compiler
