@@ -1,3 +1,8 @@
+	* Added new isComplete() method to InputFile, TiledInputFile
+	  etc., that checks if a file is complete or if any pixels
+	  are missing (for example, because writing the file was
+	  aborted prematurely).
+	  (Florian Kainz)
 	* Exposed staticInitialize() function in ImfHeader.h in order
 	  to allow thread-safe library initialization in multithreaded
 	  programs.

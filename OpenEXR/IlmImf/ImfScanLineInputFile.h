@@ -110,6 +110,18 @@ class ScanLineInputFile
 
 
     //---------------------------------------------------------------
+    // Check if the file is complete:
+    //
+    // isComplete() returns true if all pixels in the data window are
+    // present in the input file, or false if any pixels are missing.
+    // (Another program may still be busy writing the file, or file
+    // writing may have been aborted prematurely.)
+    //---------------------------------------------------------------
+
+    bool		isComplete () const;
+
+
+    //---------------------------------------------------------------
     // Read pixel data:
     //
     // readPixels(s1,s2) reads all scan lines with y coordinates

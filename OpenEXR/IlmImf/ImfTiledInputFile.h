@@ -125,6 +125,19 @@ class TiledInputFile
     const FrameBuffer &	frameBuffer () const;
 
 
+    //------------------------------------------------------------
+    // Check if the file is complete:
+    //
+    // isComplete() returns true if all pixels in the data window
+    // (in all levels) are present in the input file, or false if
+    // any pixels are missing.  (Another program may still be busy
+    // writing the file, or file writing may have been aborted
+    // prematurely.)
+    //------------------------------------------------------------
+
+    bool		isComplete () const;
+
+
     //--------------------------------------------------
     // Utility functions:
     //--------------------------------------------------

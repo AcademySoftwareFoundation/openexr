@@ -1169,6 +1169,13 @@ RgbaInputFile::readPixels (int scanLine)
 }
 
 
+bool
+RgbaInputFile::isComplete () const
+{
+    return _inputFile->isComplete();
+}
+
+
 const Header &
 RgbaInputFile::header () const
 {

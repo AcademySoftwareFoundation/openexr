@@ -58,6 +58,7 @@
 #include <testExistingStreams.h>
 #include <testYca.h>
 #include <testTiledYa.h>
+#include <testIsComplete.h>
 
 #include <stdlib.h>
 #include <iostream>
@@ -100,6 +101,7 @@ main (int argc, char *argv[])
     TEST (testYca);
     TEST (testTiledYa);
     TEST (testNativeFormat);
+    TEST (testIsComplete);
 
     #ifdef PLATFORM_REDHAT_IA32
 

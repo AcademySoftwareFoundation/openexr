@@ -176,7 +176,7 @@ TileOffsets::reconstructFromFile (IStream &is)
 
 
 void
-TileOffsets::readFrom (IStream &is)
+TileOffsets::readFrom (IStream &is, bool &complete)
 {
     //
     // Read in the tile offsets from the file's tile offset table
@@ -202,7 +202,15 @@ TileOffsets::readFrom (IStream &is)
     //
 
     if (anyOffsetsAreInvalid())
+    {
+	complete = false;
 	reconstructFromFile (is);
+    }
+    else
+    {
+	complete = true;
+    }
+
 }
 
 
