@@ -37,6 +37,7 @@
 #define INCLUDED_IMATHTMATRIXALGO_H
 
 #include <IexBaseExc.h>
+#include <ImathTMatrixBase.h>
 #include <ImathTMatrix.h>
 #include <algorithm>
 #include <functional>
@@ -68,126 +69,123 @@ namespace Imath
 //-------------------------------------------------------------------------
 
 
-//--------------
-// B = A + a	
-//--------------
-
+//-------------------------------------------------------------------------
+// B = A + a. The result is returned in the same storage order as A.
+//-------------------------------------------------------------------------
 template<typename T>
-TMatrix<T> operator + (const TMatrix<T> & A, const T & a);
-
+TMatrix<T> operator + (const TMatrixBase<T> & A, const T & a);
 
 //--------------
 // A += a	
 //--------------
-
 template<typename T>
-TMatrix<T> & operator += (TMatrix<T> & A, const T & a);
+TMatrixBase<T> & operator += (TMatrixBase<T> & A, const T & a);
 
-
-//--------------
-// B = A * a	
-//--------------
-
+//-------------------------------------------------------------------------
+// B = A * a. The result is returned in the same storage order as A.	
+//-------------------------------------------------------------------------
 template<typename T>
-TMatrix<T> operator * (const TMatrix<T> & A, const T & a);
+TMatrix<T> operator * (const TMatrixBase<T> & A, const T & a);
 
 
 //--------------
 // A *= a	
 //--------------
-
 template<typename T>
-TMatrix<T> & operator *= (TMatrix<T> & A, const T & a);
-
+TMatrixBase<T> & operator *= (TMatrixBase<T> & A, const T & a);
 	
-//---------------------------------------------
+//-------------------------------------------------------------------------
 //
 //    TMatrix<T> OP TMatrix<T>.
 //
-//---------------------------------------------
+//-------------------------------------------------------------------------
 
 
-//--------------------------------------
-// B = -A. Does not change storage order.
-//--------------------------------------
-
+//-------------------------------------------------------------------------
+// B = -A. Does not change storage order.  The result is returned in
+// the same storage order as A.	 
+//-------------------------------------------------------------------------
 template<typename T>
-TMatrix<T> operator - (const TMatrix<T> & A);
+TMatrix<T> operator - (const TMatrixBase<T> & A);
 
+//-------------------------------------------------------------------------
+// B = -A. Does not change storage order. Throws Iex::ArgExc if the
+// sizes of A and MinusA do not match. The storage order of B is left unchanged.
+//-------------------------------------------------------------------------
+template<typename T>
+void opposite(const TMatrixBase<T> & A, TMatrixBase<T> & MinusA);
 
 //---------------------------------------------------------------
 // A += B. Throws Iex::ArgExc if B is not the same size as A. The
 // storage order of A is unchanged regardless of B's.
 //---------------------------------------------------------------
-
 template<typename T>
-TMatrix<T> & operator += (TMatrix<T> & A, const TMatrix<T> & B);
-
+TMatrixBase<T> & operator += (TMatrixBase<T> & A, const TMatrixBase<T> & B);
 
 //-------------------------------------------------------------------
 // C = A + B. Throws Iex::ArgExc if B is not the same size as A. C is
 // returned in the same storage order as A.
 //-------------------------------------------------------------------	
-
 template<typename T>
-TMatrix<T> operator + (const TMatrix<T> & A, const TMatrix<T> & B);
-
+TMatrix<T> operator + (const TMatrixBase<T> & A, const TMatrixBase<T> & B);
 
 //-------------------------------------------------------------------	
-// add(A, B, C). Throws Iex::Argexc if the size of A and B do not
-// match. C is resized as needed. The storage order of C is left
-// unchanged. 
+// add(A, B, C). Throws Iex::Argexc if the size of A, B and C do not
+// match. The storage order of C is left unchanged. 
 //-------------------------------------------------------------------	
-
 template<typename T>
-void add(const TMatrix<T> & A, const TMatrix<T> & B, TMatrix<T> & C);
-
+void add(const TMatrixBase<T> & A, const TMatrixBase<T> & B, TMatrixBase<T> & C);
 
 //-------------------------------------------------------------------	
 // A -= B. Throws Iex::ArgExc if B is not the same size as A. The
 // storage order of A is unchanged regardless of B's.
 //-------------------------------------------------------------------	
-
 template<typename T>
-TMatrix<T> & operator -= (TMatrix<T> & A, const TMatrix<T> & B);
-
+TMatrixBase<T> & operator -= (TMatrixBase<T> & A, const TMatrixBase<T> & B);
 
 //-------------------------------------------------------------------	
 // C = A - B. Throws Iex::ArgExc if B is not the same size as A. C is
 // returned in the same storage order as A.
 //-------------------------------------------------------------------	
-
 template<typename T>
-TMatrix<T> operator + (const TMatrix<T> & A, const TMatrix<T> & B);
-
+TMatrix<T> operator - (const TMatrixBase<T> & A, const TMatrixBase<T> & B);
 
 //-------------------------------------------------------------------	
-// subtract(A, B, C). Throws Iex::Argexc if the size of A and B do not
-// match. C is resized as needed. The storage order of C is left
-// unchanged. 
+// subtract(A, B, C). Throws Iex::Argexc if the size of A, B and C do not
+// match. The storage order of C is left unchanged. 
 //-------------------------------------------------------------------	
-
 template<typename T>
-void subtract(const TMatrix<T> & A, const TMatrix<T> & B, TMatrix<T> & C);
+void subtract(const TMatrixBase<T> &A, const TMatrixBase<T> &B, TMatrixBase<T> &C);
 
 //-------------------------------------------------------------------	
 // C = A * B. Throws Iex::ArgExc if B's number of rows is not the same
 // as A' number of columns. C is returned in the same storage order as
 // A.
-//-------------------------------------------------------------------	
-
+//-------------------------------------------------------------------
 template<typename T>
-TMatrix<T> operator * (const TMatrix<T> & A, const TMatrix<T> & B);
-
+TMatrix<T> operator * (const TMatrixBase<T> & A, const TMatrixBase<T> & B);
 
 //-------------------------------------------------------------------	
-// mult(A, B, C). Throws Iex::ArgExc if the sizes of A and B are
-// not conformant. C is resized as needed. The storage order of C is
-// left unchanged. 
+// mult(A, B, C). Throws Iex::ArgExc if the size of A, B and C are
+// not conformant. The storage order of C is left unchanged. 
 //-------------------------------------------------------------------	
-
 template<typename T>
-void mult(const TMatrix<T> & A, const TMatrix<T> & B, TMatrix<T> & C);
+void mult(const TMatrixBase<T> & A, const TMatrixBase<T> & B, TMatrixBase<T> & C);
+
+//-------------------------------------------------------------------	
+// C = A .* B (a.k.a. memberwise multiplication). Throws Iex::ArgExc
+// if the sizes of A and B do not match. C is returned in the same
+// storage order as A.
+//-------------------------------------------------------------------
+template<typename T>
+TMatrix<T> operator % (const TMatrixBase<T> & A, const TMatrixBase<T> & B);
+
+//-------------------------------------------------------------------	
+// dotmult(A, B, C). Throws Iex::ArgExc if the sizes of A, B and C do
+// not match. The storage order of C is left unchanged. 
+//-------------------------------------------------------------------	
+template<typename T>
+void dotmult(const TMatrixBase<T> & A, const TMatrixBase<T> & B, TMatrixBase<T> & C);
 
 
 //-----------------------------------------------
@@ -205,21 +203,20 @@ struct scalSum_
     T operator () (const T & b) { return _a + b; }
 };
 
-template<typename T>
-inline TMatrix<T>
-operator + (const TMatrix<T> & A, const T & a)
-{
-    TMatrix<T> B(A.numRows(), A.numColumns());
-    std::transform(A.begin(), A.end(), B.begin(), scalSum_<T>(a));
-    return B;
-}
-
 // A += a	
 template<typename T>
-TMatrix<T> & operator += (TMatrix<T> & A, const T & a)
+inline TMatrixBase<T> & operator += (TMatrixBase<T> & A, const T & a)
 {
     std::transform(A.begin(), A.end(), A.begin(), scalSum_<T>(a));
     return A;
+}
+
+template<typename T>
+inline TMatrix<T>
+operator + (const TMatrixBase<T> & A, const T & a)
+{
+    TMatrix<T> B(A);
+    return B += a;
 }
 
 // B = A * a 
@@ -231,27 +228,49 @@ struct scalProd_
     T operator () (const T & b) { return _a * b; }
 };
 
-// B = A * a 
-template<typename T>
-inline TMatrix<T>
-operator * (const TMatrix<T> & A, const T & a)
-{
-    TMatrix<T> B(A.numRows(), A.numColumns());
-    std::transform(A.begin(), A.end(), B.begin(), scalProd_<T>(a));
-    return B;
-}
-
 // A *= a
 template<typename T>
-TMatrix<T> & operator *= (TMatrix<T> & A, const T & a)
+inline TMatrixBase<T> & operator *= (TMatrixBase<T> & A, const T & a)
 {
     std::transform(A.begin(), A.end(), A.begin(), scalProd_<T>(a));
     return A;
 }
 
+// B = A * a 
+template<typename T>
+inline TMatrix<T> operator * (const TMatrixBase<T> & A, const T & a)
+{
+    TMatrix<T> B(A);
+    return B *= a;
+}
+
+template<typename T>
+void opposite(const TMatrixBase<T> & A, const TMatrixBase<T> & B)
+{
+    int ma = A.numRows(), na = A.numColumns();
+    {
+	int mb = B.numRows(), nb = B.numColumns();
+	
+	if (! (ma == mb && na == nb))
+	    throw Iex::ArgExc("TMatrixAlgo opposite() called with "
+			      "arguments having different sizes.");
+    }
+    if (A.order() == B.order())
+    {
+	std::transform(A.begin(), A.end(), B.begin(),
+		       std::negate<typename TMatrix<T>::value_type>());
+    }
+    else
+    {
+	for (int i = A.numRows() -1; i >= 0; --i)
+	    for (int j = A.numColumns() -1; j >= 0; --j)
+		B[i][j] = -A[i][j];
+    }
+}
+
 // B = -A
 template<typename T>
-TMatrix<T> operator - (const TMatrix<T> & A)
+TMatrix<T> operator - (const TMatrixBase<T> & A)
 {
     TMatrix<T> B(A.numRows(), A.numColumns(), A.order());
     std::transform(A.begin(), A.end(), B.begin(),
@@ -259,9 +278,10 @@ TMatrix<T> operator - (const TMatrix<T> & A)
     return B;
 }
 
+
 // A += B
 template<typename T>
-TMatrix<T> & operator += (TMatrix<T> & A, const TMatrix<T> & B)
+TMatrixBase<T> & operator += (TMatrixBase<T> & A, const TMatrixBase<T> & B)
 {
     if (A.numRows() != B.numRows() || A.numColumns() != B.numColumns())
 	throw Iex::ArgExc("TMatrixAlgo operator += () called with arguments "
@@ -284,19 +304,18 @@ TMatrix<T> & operator += (TMatrix<T> & A, const TMatrix<T> & B)
 
 // add(A, B, C)	
 template<typename T>
-void add(const TMatrix<T> & A, const TMatrix<T> & B, TMatrix<T> & C)
+void add(const TMatrixBase<T> & A, const TMatrixBase<T> & B, TMatrixBase<T> & C)
 {
     int ma = A.numRows(), na = A.numColumns();
     {
 	int mb = B.numRows(), nb = B.numColumns();
+	int mc = C.numRows(), nc = C.numColumns();
 	
-	if (! (ma == mb && na == nb))
+	if (! (ma == mb && na == nb && ma == mc && na == nc))
 	    throw Iex::ArgExc("TMatrixAlgo add() called with "
 			      "arguments having different sizes.");
     }
 
-    C.resize(ma, na);
-	
     if (A.order() == B.order() && A.order() == C.order())
     {
 	std::transform(A.begin(), A.end(), B.begin(), C.begin(),
@@ -312,7 +331,7 @@ void add(const TMatrix<T> & A, const TMatrix<T> & B, TMatrix<T> & C)
 
 // C = A + B
 template<typename T>
-inline TMatrix<T> operator + (const TMatrix<T> & A, const TMatrix<T> & B)
+inline TMatrix<T> operator + (const TMatrixBase<T> & A, const TMatrixBase<T> & B)
 {
     TMatrix<T> C(A.numRows(), A.numColumns(), A.order());
     add(A, B, C);
@@ -321,7 +340,7 @@ inline TMatrix<T> operator + (const TMatrix<T> & A, const TMatrix<T> & B)
 
 // A -= B
 template<typename T>
-TMatrix<T> & operator -= (TMatrix<T> & A, const TMatrix<T> & B)
+TMatrixBase<T> & operator -= (TMatrixBase<T> & A, const TMatrixBase<T> & B)
 {
     if (A.numRows() != B.numRows() || A.numColumns() != B.numColumns())
 	throw Iex::ArgExc("TMatrixAlgo operator -= () called with arguments "
@@ -344,19 +363,17 @@ TMatrix<T> & operator -= (TMatrix<T> & A, const TMatrix<T> & B)
 
 // subtract(A, B, C)	
 template<typename T>
-void subtract(const TMatrix<T> & A, const TMatrix<T> & B, TMatrix<T> & C)
+void subtract(const TMatrixBase<T> & A, const TMatrixBase<T> & B, TMatrixBase<T> & C)
 {
     int ma = A.numRows(), na = A.numColumns();
     {
 	int mb = B.numRows(), nb = B.numColumns();
+	int mc = C.numRows(), nc = C.numColumns();
 	
-	if (! (ma == mb && na == nb))
+	if (! (ma == mb && na == nb && ma == mc && na == nc))
 	    throw Iex::ArgExc("TMatrixAlgo subtract() called with "
 			      "arguments having different sizes.");
     }
-
-    C.resize(ma, na);
-    
     if (A.order() == B.order() && A.order() == C.order())
     {
 	std::transform(A.begin(), A.end(), B.begin(), C.begin(),
@@ -372,49 +389,113 @@ void subtract(const TMatrix<T> & A, const TMatrix<T> & B, TMatrix<T> & C)
 
 // C = A - B
 template<typename T>
-inline TMatrix<T> operator - (const TMatrix<T> & A, const TMatrix<T> & B)
+inline TMatrix<T> operator - (const TMatrixBase<T> & A, const TMatrixBase<T> & B)
 {
     TMatrix<T> C(A.numRows(), A.numColumns(), A.order());
     subtract(A, B, C);
     return C;
 }
 
-// mult(A, B, &C)	
+// mult(A, B, C)	
 template<typename T>
-void mult(const TMatrix<T> & A, const TMatrix<T> & B, TMatrix<T> & C)
+void mult(const TMatrixBase<T> & A, const TMatrixBase<T> & B, TMatrixBase<T> & C)
 {
     int ma = A.numRows(), na = A.numColumns();
     int mb = B.numRows(), nb = B.numColumns();
+    int mc = C.numRows(), nc = C.numColumns();
     {  
 	if (na != mb)
 	    throw Iex::ArgExc("TMatrixAlgo mult() called with arguments "
 			      "having non-conforming sizes: the number of"
-			      "columns of first operand is not equal to " 
+			      "columns of the first operand is not equal to " 
 			      "the number of rows of the second operand.");
+	if (mc != ma)
+	    throw Iex::ArgExc("TMatrixAlgo mult() called with arguments "
+			      "having non-conforming sizes: the number of"
+			      "rows of the first operand is not equal to " 
+			      "the number of rows of the result.");
+	if (nc != nb)
+	    throw Iex::ArgExc("TMatrixAlgo mult() called with arguments "
+			      "having non-conforming sizes: the number of"
+			      "columns of the second operand is not equal to " 
+			      "the number of rows of the result.");
     }
 
-    C.resize(ma, nb);
+    TMatrixBase<T> * CP = &C;
+    TMatrix<T> * CN = 0;
+    bool newc = false;
     
-    for (int i = 0; i < ma; ++i)
+    if (CP == &A || CP == &B)
+    {
+	newc = true;
+	CP = CN = new TMatrix<T>(ma, nb, T(0), C.order());
+    }
+    
+    for (int i = 0; i < ma; ++i) 
+    {
 	for (int j = 0; j < nb; ++j)
 	{
-	    typename TMatrix<T>::value_type sum =
+	    typename TMatrix<T>::value_type sum = 
 		typename TMatrix<T>::value_type(0);
 	    for (int k = 0; k < mb; ++k) {
 		sum += A[i][k] * B[k][j];
 	    }
-	    C[i][j] =sum;
+	    (*CP)[i][j] =sum;
 	}
+    }
+
+    if (newc)
+    {
+	std::copy(CN->begin(), CN->end(), C.begin());
+	delete CN;
+    }
 }
 
 // C = A * B	
 template<typename T>
-inline TMatrix<T> operator * (const TMatrix<T> & A, const TMatrix<T> & B)
+inline TMatrix<T> operator * (const TMatrixBase<T> & A, const TMatrixBase<T> & B)
 {
     TMatrix<T> C(A.numRows(), B.numColumns(), A.order());
     mult(A, B, C);
     return C;
 }
+
+// dotmult(A, B, C)	
+template<typename T>
+void dotmult(const TMatrixBase<T> & A, const TMatrixBase<T> & B, TMatrixBase<T> & C)
+{
+    int ma = A.numRows(), na = A.numColumns();
+    {
+	int mb = B.numRows(), nb = B.numColumns();
+	int mc = C.numRows(), nc = C.numColumns();
+	
+	if (! (ma == mb && na == nb && ma == mc && na == nc))
+	    throw Iex::ArgExc("TMatrixAlgo dotmult() called with "
+			      "arguments having different sizes.");
+    }
+
+    if (A.order() == B.order() && A.order() == C.order())
+    {
+	std::transform(A.begin(), A.end(), B.begin(), C.begin(),
+		       std::multiplies<typename TMatrix<T>::value_type>());
+    }
+    else
+    {
+	for (int i = 0; i < ma; ++i)
+	    for (int j = 0; j < na; ++j)
+		C[i][j] = A[i][j] * B[i][j];
+    }
+}
+
+// C = A % B
+template<typename T>
+inline TMatrix<T> operator % (const TMatrixBase<T> & A, const TMatrixBase<T> & B)
+{
+    TMatrix<T> C(A.numRows(), A.numColumns(), A.order());
+    dotmult(A, B, C);
+    return C;
+}
+
 
 } // namespace Imath
 

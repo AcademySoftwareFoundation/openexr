@@ -39,6 +39,7 @@
 #include <ImathTMatrixBase.h>
 #include <ImathMatrix.h>
 #include <vector>
+#include <valarray>
 #include <algorithm>
 #include <iterator>
 #include <Iex.h>
@@ -59,6 +60,16 @@
 
 namespace Imath
 {
+
+template<typename T>
+struct TMatrixContainer
+{
+    typedef std::vector<T>                                    storage_type;
+    typedef typename storage_type::iterator                   iterator;
+    typedef typename storage_type::const_iterator             const_iterator;
+    typedef typename storage_type::reverse_iterator           reverse_iterator;
+    typedef typename storage_type::const_reverse_iterator     const_reverse_iterator;
+};
 
 template<typename T>
 class TMatrix : public TMatrixBase<T>
@@ -100,9 +111,11 @@ class TMatrix : public TMatrixBase<T>
     //------------------------------------
 
     explicit TMatrix(const Matrix33<T> & m33,
-		     typename TMatrixBase<T>::Order ord = TMatrixBase<T>::ROW_MAJOR);
+		     typename TMatrixBase<T>::Order ord =
+		     TMatrixBase<T>::ROW_MAJOR);
     explicit TMatrix(const Matrix44<T> & m44,
-		     typename TMatrixBase<T>::Order ord = TMatrixBase<T>::ROW_MAJOR);
+		     typename TMatrixBase<T>::Order ord =
+		     TMatrixBase<T>::ROW_MAJOR);
 
 
     //--------------------------------------------------------------
@@ -119,11 +132,13 @@ class TMatrix : public TMatrixBase<T>
     // Identity and null matrices: unit is defined as T(1), null as
     // T(0): such T contructors must be defined when these method are
     // specialized.
-    //------------------------------------------------------------------	
+    //------------------------------------------------------------------
     static TMatrix<T> identity(int siz,
-			       typename TMatrixBase<T>::Order ord = TMatrixBase<T>::ROW_MAJOR);
+			       typename TMatrixBase<T>::Order ord =
+			       TMatrixBase<T>::ROW_MAJOR);
     static TMatrix<T> null(int numRows, int numColumns,
-			   typename TMatrixBase<T>::Order ord = TMatrixBase<T>::ROW_MAJOR);
+			   typename TMatrixBase<T>::Order ord =
+			   TMatrixBase<T>::ROW_MAJOR);
 
 
     //---------------------------------------------------------------
@@ -183,10 +198,11 @@ class TMatrix : public TMatrixBase<T>
     // w.r.t. those in the base class.
     //----------------------------------------------------------------
 	
-    typedef typename std::vector<T>::iterator                iterator;
-    typedef typename std::vector<T>::const_iterator          const_iterator;
-    typedef typename std::vector<T>::reverse_iterator        reverse_iterator;
-    typedef typename std::vector<T>::const_reverse_iterator  const_reverse_iterator;
+    typedef typename TMatrixContainer<T>::storage_type     storage_type;
+    typedef typename storage_type::iterator                iterator;
+    typedef typename storage_type::const_iterator          const_iterator;
+    typedef typename storage_type::reverse_iterator        reverse_iterator;
+    typedef typename storage_type::const_reverse_iterator  const_reverse_iterator;
 
 
     //----------------------------------------------------------------
@@ -210,7 +226,7 @@ class TMatrix : public TMatrixBase<T>
     using TMatrixBase<T>::setStride;
     
   private:
-    mutable std::vector<T> _data;
+    mutable storage_type _data;
 };
 
 	
@@ -219,6 +235,56 @@ class TMatrix : public TMatrixBase<T>
 // IMPLEMENTATION
 //
 //------------------------------------------------------------------------
+
+// This hack is needed because STL vector<bool> is not a real
+// container, so we use a valarray<bool> to emulate a vector.
+template<>
+struct TMatrixContainer<bool>
+{
+    struct bvec : public std::valarray<bool>
+    {
+	typedef std::valarray<bool> parent;
+	typedef bool *                                iterator;
+	typedef const bool *                          const_iterator;
+	typedef std::reverse_iterator<iterator>       reverse_iterator;
+	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+
+	bvec() : parent() {}
+	bvec(const bvec & b) : parent(b) {}
+	bvec(size_t n) : parent(n) {}
+	bvec(size_t n, bool b) : parent(n, b) {}
+	bvec(iterator start, iterator stop) : parent(stop - start)
+	{ std::copy(start, stop, begin()); }
+	
+	bvec & operator = (const bvec & b)
+	{ parent::operator =(b); return *this; }
+
+	void clear() { resize(0); }
+	bool empty() const { return 0 == size(); }
+	
+	bool & front() { return operator [] (0); }
+	const bool & front() const { return operator [] (0); }
+	bool & back() { return operator [] (size() -1); }
+	const bool & back() const { return operator [] (size() -1); }
+
+	iterator begin() { return &front(); }
+	iterator end()   { return &back() +1; }
+	const_iterator begin() const { return &front(); }
+	const_iterator end()   const { return &back() +1; }
+	reverse_iterator rbegin() { return reverse_iterator(end()); }
+	reverse_iterator rend()   { return reverse_iterator(begin()); }
+	const_reverse_iterator rbegin() const
+	{ return const_reverse_iterator(end()); }
+	const_reverse_iterator rend() const
+	{ return const_reverse_iterator(begin()); }
+    };
+
+    typedef bvec                                  storage_type;
+    typedef storage_type::iterator                iterator;
+    typedef storage_type::const_iterator          const_iterator;
+    typedef storage_type::reverse_iterator        reverse_iterator;
+    typedef storage_type::const_reverse_iterator  const_reverse_iterator;
+};
 
 // Clear
 template<typename T>
@@ -351,17 +417,17 @@ TMatrix<T>::resize(int nRows, int nColumns, T val)
     } 
 	
     // Actual resize
-    std::vector<T> odata(_data);
+    storage_type odata(_data);
     _data.resize(nRows * nColumns);
     std::fill(_data.begin(), _data.end(), val);
 	
-    typename std::vector<T>::iterator n = _data.begin();
-    typename std::vector<T>::iterator ob = odata.begin();
+    typename storage_type::iterator n = _data.begin();
+    typename storage_type::iterator ob = odata.begin();
     size_t sz = std::min(_data.size(), odata.size());
     if (order() == TMatrixBase<T>::ROW_MAJOR) 
     {
 	size_t cnt = std::min(nColumns, numColumns());
-	typename std::vector<T>::iterator oe = ob;
+	typename storage_type::iterator oe = ob;
 	std::advance(oe, cnt);
 	for (size_t s = 0; s < sz; s += cnt)
 	{
@@ -376,7 +442,7 @@ TMatrix<T>::resize(int nRows, int nColumns, T val)
     else
     {
 	size_t cnt = std::min(nRows, numRows());
-	typename std::vector<T>::iterator oe = ob;
+	typename storage_type::iterator oe = ob;
 	std::advance(oe, cnt);
 	for (size_t s = 0; s < sz; s += cnt)
 	{
@@ -408,7 +474,7 @@ TMatrix<T>::deleteColumn(int cdx)
     if (empty())
         THROW(Iex::LogicExc, "empty column");
     
-    std::vector<T> odata(_data);
+    storage_type odata(_data);
     _data.resize(numRows() * nNumCols );
     
     if (order() == TMatrixBase<T>::ROW_MAJOR) 
@@ -458,7 +524,7 @@ TMatrix<T>::deleteRow(int rdx)
     if (empty())
         THROW(Iex::LogicExc, "empty matrix.");
     
-    std::vector<T> odata(_data);
+    storage_type odata(_data);
     _data.resize(oNumRows * oNumCols );
     
     if (order() == TMatrixBase<T>::ROW_MAJOR) 
@@ -597,7 +663,7 @@ TMatrix<T>::TMatrix(const Matrix33<T> & m33,
 		    typename TMatrixBase<T>::Order ord)
     : TMatrixBase<T>(3, 3, ord), _data(9)
 {
-    typename std::vector<T>::iterator it = _data.begin();
+    typename storage_type::iterator it = _data.begin();
     if (ord == TMatrixBase<T>::ROW_MAJOR)
     {
 	for (int i = 0; i < 3; ++i)
@@ -638,7 +704,7 @@ TMatrix<T>::TMatrix(const Matrix44<T> & m44,
 		    typename TMatrixBase<T>::Order ord)
     : TMatrixBase<T>(4, 4, ord), _data(16)
 {
-    typename std::vector<T>::iterator it = _data.begin();
+    typename storage_type::iterator it = _data.begin();
     if (ord == TMatrixBase<T>::ROW_MAJOR)
     {
 	for (int i = 0; i < 4; ++i)
