@@ -54,6 +54,17 @@
 using namespace Imf;
 using namespace std;
 
+#if defined PLATFORM_WIN32
+namespace
+{
+template<class T>
+inline T min (const T &a, const T &b) { return (a <= b) ? a : b; }
+
+template<class T>
+inline T max (const T &a, const T &b) { return (a >= b) ? a : b; }
+}
+#endif
+
 
 float
 pw (float x, int y)
