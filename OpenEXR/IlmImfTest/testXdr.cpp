@@ -63,6 +63,7 @@ struct CharIO
     readChars (istream &is, char c[], int n)
     {
 	is.read (c, n);
+	checkError (is);
 	return true;
     }
 };
