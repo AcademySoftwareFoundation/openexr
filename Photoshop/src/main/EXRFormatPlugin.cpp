@@ -117,7 +117,7 @@ void EXRFormatPlugin::DoAbout (AboutRecord* inAboutRec)
 
         if (basicSuite != NULL)
         {                      
-            basicSuite->MessageAlert ("OpenEXR Format v1.1\n\n"
+            basicSuite->MessageAlert ("OpenEXR Format v1.1.1\n\n"
                                       "Format by Florian Kainz, Rod Bogart, Josh Pines, and Drew Hess\n"
                                       "Plug-in by Paul Schneider\n"
                                       "www.openexr.com");
