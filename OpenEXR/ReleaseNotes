@@ -1,9 +1,17 @@
-OpenEXR 1.1.0 Release Notes
+OpenEXR 1.1.1 Release Notes
 ---------------------------
 
-This is a brand new release of OpenEXR with significant new functionality.
-Consequently there are a few issues with it; we're working on these and
-plan to fix them (where possible) in the next release.
+This is a brand new release of OpenEXR with significant new
+functionality.  Consequently, there are a few issues with it; we're
+working on these and plan to fix them (where possible) before the next
+production release.
+
+Note that this release and all subsequent 1.1.x releases are
+development releases.  Please don't use it for production software
+yet, but test it and let us know if you find problems with it.  We
+plan to release the next production version of OpenEXR, version 1.2,
+sometime in late April, once we feel that the new functionality is
+stable.
 
 
 GCC versions
@@ -18,11 +26,15 @@ currently supported.
 
   version  notes
 
-   2.96    Imath/testTMatrix.cpp doesn't compile.  Everything else
+   2.96    ImathTest/testTMatrix.cpp doesn't compile.  Everything else
            appears to be fine.
    2.95.3  Has problems compiling new tiled code.  We are working on
-	   this.  This compiler is required for building the OpenEXR
-	   Shake plugin for GNU/Linux.
+	   this, but we may have reached a point at which this
+	   compiler will not be supported as of version 1.2 of
+	   OpenEXR.  Note that this compiler is required for building
+	   the OpenEXR Shake plugin for GNU/Linux.  If you need
+	   to use this compiler, please use version 1.0.7 of OpenEXR
+	   until we can figure something out.
 
 We have not tried other versions of gcc yet.  If you have problems with
 a particular version of gcc, please let us know by posting on the
@@ -32,10 +44,7 @@ OpenEXR developer's list <openexr-devel@nongnu.org>.
 Visual C++ versions
 -------------------
 
-Visual Studio .NET 2003 with the latest updates compiles OpenEXR and
-all of the bundled utilities.  It is unable to compile some of the files
-in ImathTest.  We are working on this.  As far as we're aware, OpenEXR
-is working with this compiler.
+There are no known issues with Visual Studio .NET 2003 and OpenEXR 1.1.1.
 
 Earlier versions of Visual Studio with the Microsoft C++ compiler are
 not supported, and most likely will not be, as these compilers are
@@ -45,22 +54,34 @@ deficient in their support for ISO C++.
 Intel C++ for Windows
 ---------------------
 
-Intel C++ 7.0 and later is known to compile earlier versions of OpenEXR.
-It should be able to compile the 1.1.0 release of OpenEXR as well.
-However, we have not tested it.  
+Intel C++ 7.0 and later is known to compile earlier versions of
+OpenEXR.  It should be able to compile the 1.1.1 release of OpenEXR as
+well.  However, we have not tested it.
 
 Also, if you are using Visual Studio 6 with the Intel C++ compiler, 
 we have not yet updated the Visual Studio 6 project files for this
 release.  We would gladly accept any community efforts to update these
 files (we simply haven't had time yet).  We do expect to support this
-environment again in the next release.
+environment again before the release of version 1.2.
+
+
+Metrowerks Codewarrior for OS X
+-------------------------------
+
+You may encounter a problem compiling parts of OpenEXR with this
+compiler.  We're working on a fix and plan to support it before the
+release of version 1.2.
 
 
 Fragment shader version of exrdisplay
 -------------------------------------
 
 The fragment shader version of exrdisplay does not yet handle offset
-display windows correctly.  We will fix this in the next release.
+display windows correctly.  We will fix this before the release of
+version 1.2.
+
+
+
 
 
 
