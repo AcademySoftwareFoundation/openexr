@@ -47,7 +47,7 @@ namespace Imf {
 
 
 OpaqueAttribute::OpaqueAttribute (const char typeName[]):
-    _typeName (strlen (typeName)),
+    _typeName (strlen (typeName) + 1),
     _dataSize (0)
 {
     strcpy (_typeName, typeName);
@@ -55,7 +55,7 @@ OpaqueAttribute::OpaqueAttribute (const char typeName[]):
 
 
 OpaqueAttribute::OpaqueAttribute (const OpaqueAttribute &other):
-    _typeName (strlen (other._typeName)),
+    _typeName (strlen (other._typeName) + 1),
     _dataSize (other._dataSize),
     _data (other._dataSize)
 {
