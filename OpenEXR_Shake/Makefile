@@ -33,3 +33,9 @@ exrFormat.so: exrFormat.C exrFormat.h
 	      $(CXX) $(CXXFLAGS) exrFormat.C -c -o exrFormat.o
 	      $(CXX) -shared -o exrFormat.so exrFormat.o $(LDFLAGS)
 
+dist:
+	tar -czvf OpenEXR_Shake-1.0.tar.gz Makefile README exrFormat.C \
+		exrFormat.h mac/English.lproj/InfoPlist.strings \
+		mac/English.lproj/locversion.plist \
+		mac/exrFormat.pbproj/project.pbxproj \
+		mac/Info.plist mac/version.plist
