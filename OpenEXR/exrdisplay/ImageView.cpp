@@ -45,6 +45,8 @@
 #include <ImathFun.h>
 #include <halfFunction.h>
 #include <algorithm>
+#include <FL/Fl.H>
+#include <stdio.h>
 
 #if defined PLATFORM_WINDOWS
 #ifdef WIN32
@@ -71,6 +73,7 @@ ImageView::ImageView (int x, int y,
 		      const Imf::Rgba pixels[],
 		      int dw, int dh,
 		      int dx, int dy,
+		      Fl_Box *rgbaBox,
 		      float exposure,
 		      float defog,
 		      float kneeLow,
@@ -89,6 +92,7 @@ ImageView::ImageView (int x, int y,
     _dh (dh),
     _dx (dx),
     _dy (dy),
+    _rgbaBox (rgbaBox),
     _screenPixels (dw * dh * 3)
 {
     computeFogColor();
@@ -189,6 +193,45 @@ ImageView::computeFogColor ()
     _fogR /= _dw * _dh;
     _fogG /= _dw * _dh;
     _fogB /= _dw * _dh;
+}
+
+
+int
+ImageView::handle (int event)
+{
+    if (event == FL_MOVE)
+    {
+	//
+	// Print the red, green and blue values of
+	// the pixel at the current cursor location.
+	//
+
+	int x = Fl::event_x();
+	int y = Fl::event_y();
+
+	if (x >= 0 && x < w() && y >= 0 && y < h())
+	{
+	    int px = x - _dx;
+	    int py = y - _dy;
+
+	    if (px >= 0 && px < _dw && py >= 0 && py < _dh)
+	    {
+		const Imf::Rgba &p = _rawPixels[py * _dw + px];
+
+		sprintf (_rgbaBoxLabel,
+			 "r = %.3g   g = %.3g   b = %.3g",
+			 float (p.r), float (p.g), float (p.b));
+	    }
+	    else
+	    {
+		sprintf (_rgbaBoxLabel, "");
+	    }
+
+	    _rgbaBox->label (_rgbaBoxLabel);
+	}
+    }
+
+    return Fl_Gl_Window::handle (event);
 }
 
 
