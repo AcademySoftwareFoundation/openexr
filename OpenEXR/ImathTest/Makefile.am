@@ -11,9 +11,9 @@ ImathTest_SOURCES = main.cpp testExtractEuler.cpp testExtractSHRT.cpp \
 		    testRoots.h testShear.h testTMatrix.cpp testTMatrix.h \
 		    testTMatrixData.cpp testTMatrixData.h
 
-INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Imath -I$(top_srcdir)/Iex
+INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Imath -I$(top_srcdir)/Iex -I$(top_srcdir)/Half
 
-LDADD = -L$(top_builddir)/Imath -L$(top_builddir)/Iex \
-	-lImath -lIex
+LDADD = -L$(top_builddir)/Imath -L$(top_builddir)/Iex -L$(top_builddir)/Half \
+	-lImath -lIex -lHalf
 
 TESTS = ImathTest
