@@ -258,7 +258,9 @@ printInfo (const char fileName[])
     InputFile in (fileName);
     const Header &h = in.header();
 
-    cout << "\n" << fileName << ":\n\n";
+    cout << "\n" << fileName <<
+	    (in.isComplete()? "": " (incomplete file)") <<
+	    ":\n\n";
 
     cout << "file format version: " <<
 	    getVersion (in.version()) << ", "
@@ -452,14 +454,16 @@ main(int argc, char **argv)
 {
     if (argc < 2)
     {
-	std::cerr << "usage: " << argv[0] << " imagefile\n";
+	std::cerr << "usage: " << argv[0] << " imagefile [imagefile ...]\n";
 	return 1;
     }
     else
     {
 	try
 	{
-	    printInfo (argv[1]);
+	    for (int i = 1; i < argc; ++i)
+		printInfo (argv[i]);
+
 	    return 0;
 	}
 	catch (const std::exception &e)

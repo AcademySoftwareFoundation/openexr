@@ -22,7 +22,8 @@ IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
 		     testTiledLineOrder.h testTiledRgba.cpp \
 		     testTiledRgba.h compareFloat.h compareFloat.cpp \
 		     testTiledYa.cpp testTiledYa.h \
-		     testYca.cpp testYca.h
+		     testYca.cpp testYca.h \
+		     testIsComplete.cpp testIsComplete.h
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Half -I$(top_srcdir)/Iex \
 	   -I$(top_srcdir)/Imath -I$(top_srcdir)/IlmImf
