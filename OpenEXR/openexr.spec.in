@@ -54,7 +54,8 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-, root, root)
-%doc AUTHORS ChangeLog COPYING NEWS README
+%doc AUTHORS ChangeLog COPYING NEWS README 
+%doc doc/*.html doc/*.css doc/*.png
 %{_libdir}/*.so.*
 %{_bindir}/exrdisplay
 %{_bindir}/exrheader
@@ -65,6 +66,6 @@ rm -rf %{buildroot}
 %{_libdir}/*.a
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*
-%{_datadir}/aclocal/openexr.m4
-%{_datadir}/doc/%{name}-%{version}/examples/*
+%{_datadir}/aclocal/openexr.m4 
+%doc -P IlmImfExamples/*.cpp IlmImfExamples/*.h
 
