@@ -43,6 +43,7 @@
 //----------------------------------------------------------------------------
 
 #include <FL/Fl_Gl_Window.H>
+#include <FL/Fl_Box.H>
 #include <ImfRgba.h>
 #include <ImfArray.h>
 
@@ -57,6 +58,7 @@ class ImageView: public Fl_Gl_Window
 	       const Imf::Rgba pixels[/* w*h */],
 	       int dw, int dh,		// data window width and height
 	       int dx, int dy,		// data window offset
+	       Fl_Box *rgbaBox,
 	       float exposure,
 	       float defog,
 	       float kneeLow,
@@ -68,6 +70,7 @@ class ImageView: public Fl_Gl_Window
     virtual void	setKneeHigh (float high);
     
     virtual void	draw();
+    virtual int		handle (int event);
 
  protected:
 
@@ -89,6 +92,8 @@ class ImageView: public Fl_Gl_Window
 
  private:
 
+    Fl_Box *			_rgbaBox;
+    char			_rgbaBoxLabel[200];
     Imf::Array<unsigned char>	_screenPixels;
 };
 
