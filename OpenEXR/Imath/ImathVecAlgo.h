@@ -109,7 +109,7 @@ template <class Vec>
 Vec
 reflect (const Vec &s, const Vec &t)
 {
-    return s - 2 * (s - project(t, s));
+    return s - typename Vec::BaseType(2) * (s - project(t, s));
 }
 
 template <class Vec>

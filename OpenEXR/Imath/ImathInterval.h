@@ -86,7 +86,7 @@ class Interval
 
     void			makeEmpty();
     void			extendBy(const T& point);
-    void			extendBy(const Interval<T>& Interval);
+    void			extendBy(const Interval<T>& interval);
 
     //---------------------------------------------------
     //	Query functions - these compute results each time
@@ -95,7 +95,7 @@ class Interval
     T				size() const;
     T				center() const;
     bool			intersects(const T &point) const;
-    bool			intersects(const Interval<T> &Interval) const;
+    bool			intersects(const Interval<T> &interval) const;
 
     //----------------
     //	Classification

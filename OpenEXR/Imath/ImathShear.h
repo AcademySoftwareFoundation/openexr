@@ -653,6 +653,26 @@ operator * (S a, const Shear6<T> &h)
 		      a * h.yx, a * h.zx, a * h.zy);
 }
 
+#if defined PLATFORM_WINDOWS
+
+    #ifdef _MSC_VER
+    // Disable MS VC++ warnings about non-public methods of public
+    // exported classes.
+    #pragma warning(disable : 4251)
+    #endif
+
+    #include <vector>
+
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API Shear6	<float>;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::allocator<Shear6	<float> >;
+    IMATH_EXPIMP_TEMPLATE template class IMATH_API std::vector   <Shear6	<float> >;
+
+    #ifdef _MSC_VER
+    #pragma warning(default : 4251)
+    #endif
+
+#endif
+
 
 } // namespace Imath
 
