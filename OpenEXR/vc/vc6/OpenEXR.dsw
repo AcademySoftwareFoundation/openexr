@@ -21,6 +21,21 @@ Package=<4>
 
 ###############################################################################
 
+Project: "HalfTest"=.\HalfTest\HalfTest.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Half
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "Half_eLut"=.\Half_eLut\Half_eLut.dsp - Package Owner=<4>
 
 Package=<5>
