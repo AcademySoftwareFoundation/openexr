@@ -13,6 +13,9 @@ LDADD = @FLTK_LDFLAGS@ \
 	-L$(top_builddir)/Imath -L$(top_builddir)/IlmImf \
 	-lIlmImf -lImath -lHalf -lIex -lz
 
+install-exec-hook:
+	@FLTK_CONFIG@ --post $(DESTDIR)$(bindir)/exrdisplay
+
 endif
 
 exrdisplay_SOURCES = main.cpp ImageView.cpp ImageView.h
