@@ -238,6 +238,35 @@ float predf (float f);
 double succd (double d);
 double predd (double d);
 
+//
+// Return true if the number is not a NaN or Infinity.
+//
+
+inline bool 
+finitef (float f)
+{
+    union {float f; int i;} u;
+    u.f = f;
+
+    return (u.i & 0x7f800000) != 0x7f800000;
+}
+
+inline bool 
+finited (double d)
+{
+#if ULONG_MAX == 18446744073709551615LU
+    typedef      long unsigned int Int64;
+#else
+    typedef long long unsigned int Int64;
+#endif
+
+    union {double d; Int64 i;} u;
+    u.d = d;
+
+    return (u.i & 0x7ff0000000000000LL) != 0x7ff0000000000000LL;
+}
+
+
 } // namespace Imath
 
 #endif
