@@ -33,8 +33,10 @@ the file named COPYING (included in this distribution) for details.
 WHAT'S INCLUDED
 ---------------
 
-The release includes exrdisplay, an image viewer for OpenEXR images; and
-exrheader, a utility for dumping header information from OpenEXR files.
+The release includes exrdisplay, an image viewer for OpenEXR images; 
+exrheader, a utility for dumping header information from OpenEXR files;
+and exrmaketiled, a utility for generated tiled OpenEXR images from
+other images with support for mipmaps and ripmaps.
 
 exrdisplay requires FLTK 1.1 or greater and OpenGL.  exrdisplay now
 supports fragment shaders if you have the Nvidia Cg SDK and a graphics

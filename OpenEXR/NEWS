@@ -1,4 +1,6 @@
 Version 1.1.0:
+    - exrdisplay: Support for tiled, mip/ripmapped images, display
+      windows, and preview images.
     - exrmaketiled: A new utility which generates tiled versions
       of OpenEXR images.
     - exrheader: Support for tiles, mipmaps, environment maps.
