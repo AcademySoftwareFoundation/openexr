@@ -58,6 +58,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ImathFun.h>
+#include <ImathMath.h>
 #include <Iex.h>
 
 
