@@ -45,7 +45,9 @@ libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 		       ImfTileOffsets.cpp ImfTileDescription.h \
 		       ImfTileDescriptionAttribute.h ImfTileOffsets.h \
 		       ImfTiledInputFile.h ImfTiledMisc.h \
-		       ImfTiledOutputFile.h ImfTiledRgbaFile.h
+		       ImfTiledOutputFile.h ImfTiledRgbaFile.h \
+		       ImfRgbaYca.cpp ImfRgbaYca.h \
+		       ImfPxr24Compressor.cpp ImfPxr24Compressor.h
 
 libIlmImf_la_LDFLAGS = -version-info @LIBTOOL_VERSION@
 
@@ -74,11 +76,12 @@ libIlmImfinclude_HEADERS = ImfAttribute.h ImfBoxAttribute.h \
 		           ImfTileDescription.h \
 		           ImfTileDescriptionAttribute.h \
 		           ImfTiledInputFile.h \
-		           ImfTiledOutputFile.h ImfTiledRgbaFile.h
+		           ImfTiledOutputFile.h ImfTiledRgbaFile.h \
+			   ImfRgbaYca.h
 
 noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
 		 ImfPizCompressor.h ImfMisc.h ImfAutoArray.h ImfTiledMisc.h \
-		 ImfTileOffsets.h ImfScanLineInputFile.h
+		 ImfTileOffsets.h ImfScanLineInputFile.h ImfPxr24Compressor.h
 
 EXTRA_DIST = $(noinst_HEADERS)
 
