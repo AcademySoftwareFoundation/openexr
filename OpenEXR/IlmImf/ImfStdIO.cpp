@@ -147,7 +147,7 @@ StdIFStream::read (char c[/*n*/], int n)
 Int64
 StdIFStream::tellg ()
 {
-    return _is->tellg();
+    return std::streamoff (_is->tellg());
 }
 
 
@@ -211,7 +211,7 @@ StdOFStream::write (const char c[/*n*/], int n)
 Int64
 StdOFStream::tellp ()
 {
-    return _os->tellp();
+    return std::streamoff (_os->tellp());
 }
 
 
@@ -241,7 +241,7 @@ StdOSStream::write (const char c[/*n*/], int n)
 Int64
 StdOSStream::tellp ()
 {
-    return _os.tellp();
+    return std::streamoff (_os.tellp());
 }
 
 
