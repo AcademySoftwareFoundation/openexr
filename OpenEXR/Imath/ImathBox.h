@@ -226,6 +226,9 @@ inline bool Box<T>::intersects(const Box<T>& box) const
 template <class T> 
 inline T Box<T>::size() const 
 { 
+    if (isEmpty())
+	return T (0);
+
     return max-min;
 }
 
