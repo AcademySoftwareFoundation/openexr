@@ -444,7 +444,7 @@ testStandardAttributes ()
 	convertRGBtoXYZ();
 
 	{
-#ifdef PLATFORM_WIN32
+#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
 	    const char * filename = "imf_test_chromaticities.exr";
 #else
 	    const char * filename = "/var/tmp/imf_test_chromaticities.exr";
@@ -453,7 +453,7 @@ testStandardAttributes ()
 	}
 
 	{
-#ifdef PLATFORM_WIN32
+#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
 	    const char * fn1 = "imf_test_latlong1.exr";
 	    const char * fn2 = "imf_test_latlong2.exr";
 #else
@@ -464,7 +464,7 @@ testStandardAttributes ()
 	}
 
 	{
-#ifdef PLATFORM_WIN32
+#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
 	    const char * fn1 = "imf_test_cube1.exr";
 	    const char * fn2 = "imf_test_cube2.exr";
 #else

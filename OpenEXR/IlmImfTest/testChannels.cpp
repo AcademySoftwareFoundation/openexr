@@ -245,7 +245,7 @@ testChannels ()
 	Array2D<half> ph2 (H, W);
 	fillPixels (ph1, ph2, W, H);
 
-#ifdef PLATFORM_WIN32
+#if defined(PLATFORM_WIN32) || defined(__MWERKS__)
 	const char * filename = "imf_test_channels.exr";
 #else
 	const char * filename = "/var/tmp/imf_test_channels.exr";
