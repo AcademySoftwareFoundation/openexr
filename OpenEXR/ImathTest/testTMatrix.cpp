@@ -38,6 +38,7 @@
 #include <string.h>
 #include <math.h>
 #include <algorithm>
+#include <functional>
 #include <ImathMatrix.h>
 #include <ImathTMatrix.h>
 #include <ImathTMatrixAlgo.h>
@@ -821,7 +822,7 @@ static void testAlgebra()
 
 	sameordie(M, P);
 	for (int i = 0; i<M.numRows(); ++i)
-	    for (int j = 0; j<M.numRows(); ++j)
+	    for (int j = 0; j<M.numColumns(); ++j)
 		assert(P(i,j) == 44L * M(i,j));
     }
     {
@@ -833,7 +834,7 @@ static void testAlgebra()
 
 	sameordie(M, P);
 	for (int i = 0; i<M.numRows(); ++i)
-	    for (int j = 0; j<M.numRows(); ++j)
+	    for (int j = 0; j<M.numColumns(); ++j)
 		assert(P(i,j) == 9L + M(i,j));
     }
     {
@@ -846,7 +847,7 @@ static void testAlgebra()
 
 	sameordie(M, N);
 	for (int i = 0; i<M.numRows(); ++i)
-	    for (int j = 0; j<M.numRows(); ++j)
+	    for (int j = 0; j<M.numColumns(); ++j)
 		assert(N(i,j) == 32L + M(i,j));
     }
     {
@@ -859,7 +860,7 @@ static void testAlgebra()
 
 	sameordie(M, N);
 	for (int i = 0; i<M.numRows(); ++i)
-	    for (int j = 0; j<M.numRows(); ++j)
+	    for (int j = 0; j<M.numColumns(); ++j)
 		assert(N(i,j) == -7L * M(i,j));
     }
     {
@@ -871,7 +872,7 @@ static void testAlgebra()
 
 	sameordie(M, N);
 	for (int i = 0; i<M.numRows(); ++i)
-	    for (int j = 0; j<M.numRows(); ++j)
+	    for (int j = 0; j<M.numColumns(); ++j)
 		assert(M(i,j) == -N(i,j));
     }
     {
@@ -895,7 +896,7 @@ static void testAlgebra()
 	P += N;
 
 	for (int i = 0; i<M.numRows(); ++i)
-	    for (int j = 0; j<M.numRows(); ++j)
+	    for (int j = 0; j<M.numColumns(); ++j)
 		assert(P(i,j) == M(i,j) + N(i,j));
 
 	P= M;
@@ -927,7 +928,7 @@ static void testAlgebra()
 	sameordie(P, N);
 
 	for (int i = 0; i<M.numRows(); ++i)
-	    for (int j = 0; j<M.numRows(); ++j)
+	    for (int j = 0; j<M.numColumns(); ++j)
 		assert(P(i,j) == M(i,j) + N(i,j));
     }
     {
@@ -945,20 +946,21 @@ static void testAlgebra()
 	{
 	    std::cout << "    (size exc caught OK)" << std::endl;
 	    N.resize(M.numRows(), M.numColumns());
+	    P.resize(M.numRows(), M.numColumns());
 	    sameordie(M, N);
 	}
 	add(M,N,P);
 	sameordie(P, N);
 
 	for (int i = 0; i<M.numRows(); ++i)
-	    for (int j = 0; j<M.numRows(); ++j)
+	    for (int j = 0; j<M.numColumns(); ++j)
 		assert(P(i,j) == M(i,j) + N(i,j));
 
 	N.setOrder(TMatrix<long>::COLUMN_MAJOR);
 	add(N,M,P);
 
 	for (int i = 0; i<M.numRows(); ++i)
-	    for (int j = 0; j<M.numRows(); ++j)
+	    for (int j = 0; j<M.numColumns(); ++j)
 		assert(P(i,j) == M(i,j) + N(i,j));
     }
     {
@@ -990,7 +992,7 @@ static void testAlgebra()
 	P -= N;
 		
 	for (int i = 0; i<M.numRows(); ++i)
-	    for (int j = 0; j<M.numRows(); ++j)
+	    for (int j = 0; j<M.numColumns(); ++j)
 		assert(P(i,j) == M(i,j) - N(i,j));
     }
     {
@@ -1014,7 +1016,7 @@ static void testAlgebra()
 	sameordie(P, N);
 
 	for (int i = 0; i<M.numRows(); ++i)
-	    for (int j = 0; j<M.numRows(); ++j)
+	    for (int j = 0; j<M.numColumns(); ++j)
 		assert(P(i,j) == M(i,j) - N(i,j));
     }
     {
@@ -1032,20 +1034,21 @@ static void testAlgebra()
 	{
 	    std::cout << "    (size exc caught OK)" << std::endl;
 	    N.resize(M.numRows(), M.numColumns());
+	    P.resize(M.numRows(), M.numColumns());
 	    sameordie(M, N);
 	}
 	subtract(M,N,P);
 	sameordie(P, N);
 
 	for (int i = 0; i<M.numRows(); ++i)
-	    for (int j = 0; j<M.numRows(); ++j)
+	    for (int j = 0; j<M.numColumns(); ++j)
 		assert(P(i,j) == M(i,j) - N(i,j));
 
 	N.setOrder(TMatrix<long>::COLUMN_MAJOR);
 	subtract(M,N,P);
 
 	for (int i = 0; i<M.numRows(); ++i)
-	    for (int j = 0; j<M.numRows(); ++j)
+	    for (int j = 0; j<M.numColumns(); ++j)
 		assert(P(i,j) == M(i,j) - N(i,j));
 		
     }
@@ -1096,6 +1099,7 @@ static void testAlgebra()
 	{
 	    std::cout << "    (size exc caught OK)" << std::endl;
 	    N.resize(7,9);
+	    P.resize(3,9);
 	}
 	mult(M,N,P);
 	assert(P.numRows() == M.numRows());
@@ -1127,6 +1131,63 @@ static void testAlgebra()
 	}
 		
     }
+    {
+	std::cout << "  C = A % B " << std::endl;
+	TMatrix<long> M(3,5);
+	randMatrix(M);
+	TMatrix<long> N(8,7);
+	randMatrix(N);
+	TMatrix<long> P;
+	try
+	{
+	    P = M % N;
+	}
+	catch (Iex::ArgExc)
+	{
+	    std::cout << "    (size exc caught OK)" << std::endl;
+	    N.resize(M.numRows(), M.numColumns());
+	    sameordie(M, N);
+	}
+	P = M % N;
+	sameordie(P, N);
+
+	for (int i = 0; i<M.numRows(); ++i)
+	    for (int j = 0; j<M.numColumns(); ++j)
+		assert(P(i,j) == M(i,j) * N(i,j));
+    }
+    {
+	std::cout << "  dotmult(A, B, C) " << std::endl;
+	TMatrix<long> M(3,5);
+	randMatrix(M);
+	TMatrix<long> N(8,7);
+	randMatrix(N);
+	TMatrix<long> P;
+	try
+	{
+	    dotmult(M,N,P);
+	}
+	catch (Iex::ArgExc)
+	{
+	    std::cout << "    (size exc caught OK)" << std::endl;
+	    N.resize(M.numRows(), M.numColumns());
+	    P.resize(M.numRows(), M.numColumns());
+	    sameordie(M, N);
+	}
+	dotmult(M,N,P);
+	sameordie(P, N);
+
+	for (int i = 0; i<M.numRows(); ++i)
+	    for (int j = 0; j<M.numColumns(); ++j)
+		assert(P(i,j) == M(i,j) * N(i,j));
+
+	N.setOrder(TMatrix<long>::COLUMN_MAJOR);
+	dotmult(N,M,P);
+
+	for (int i = 0; i<M.numRows(); ++i)
+	    for (int j = 0; j<M.numColumns(); ++j)
+		assert(P(i,j) == M(i,j) * N(i,j));
+    }
+    
 }
 
 
@@ -1235,11 +1296,73 @@ testRowColDeletion()
 
 }
 
-
+struct comb
+{
+    int operator () (bool a, int b) { return a ? b : 0; }
+};
+void testTMatrixBool()
+{
+    std::cout << "Testing bool TMatrix.." << std::endl;
+    ::srand(::time(0));
+    TMatrix<bool> A(13,17);
+    for (int i = 0; i < A.numRows(); ++i)
+	for (int j = 0; j < A.numColumns(); ++j)
+	    A(i,j) = ::rand() > RAND_MAX / 2;
+    {
+	std::cout << "   copy\n";
+	TMatrix<bool> B(A);
+	assert(std::equal(A.begin(), A.end(), B.begin()));
+    }
+    {
+	std::cout << "   negate\n";
+	TMatrix<bool> B(A.numRows(), A.numColumns());
+	std::transform(A.begin(),A.end(),B.begin(),std::logical_not<bool>());
+	std::transform(B.begin(),B.end(),B.begin(),std::logical_not<bool>());
+	assert(std::equal(A.begin(), A.end(), B.begin()));
+    }
+    {
+	std::cout << "   or\n";
+	TMatrix<bool> B(A.numRows(), A.numColumns());
+	std::transform(A.begin(),A.end(),B.begin(),std::logical_not<bool>());
+	assert(std::equal(A.begin(), A.end(), B.begin(),
+			  std::logical_or<bool>()));
+    }
+    {
+	std::cout << "   reverse iterators\n";
+	assert(std::distance(A.begin(), A.end()) == A.size());
+	assert(std::distance(A.rbegin(), A.rend()) == A.size());
+	TMatrix<bool>::reverse_iterator r = A.rbegin();
+// 	std::cerr << "&(*r) " << &(*r)
+// 		  << " &(A[A.numRows()-1][A.numColumns()-1] "
+// 		  << &(A[A.numRows()-1][A.numColumns()-1]) << std::endl;
+	assert(&(*r) == &(A[A.numRows()-1][A.numColumns()-1]));
+	std::advance(r, A.size() -1);
+	assert(&(*r) == &(A[0][0]));
+	std::advance(r, 1 - A.size());
+	assert(r == A.rbegin());
+	TMatrix<bool> B(A);
+	std::transform(A.begin(),A.end(),B.begin(),std::logical_not<bool>());
+	assert(std::equal(A.rbegin(), A.rend(), B.rbegin(),
+			  std::logical_or<bool>()));
+    }
+    {
+	std::cout << "   type combine (int)\n";
+	TMatrix<int> B(A.numRows(), A.numColumns());
+	TMatrix<int> C(A.numRows(), A.numColumns());
+	for (int i = 0; i < B.numRows(); ++i)
+	    for (int j = 0; j < B.numColumns(); ++j)
+		B(i,j) = ::rand();
+	
+	std::transform(A.begin(),A.end(),B.begin(), C.begin(), comb());
+	for (int i = 0; i < B.numRows(); ++i)
+	    for (int j = 0; j < B.numColumns(); ++j)
+		assert(A(i,j) && C(i,j) == B(i,j) || !C(i,j));
+    }
+}
 void testTMatrix()
 {
 
-    std::cout << "Test TMatrix test" << std::endl;
+    std::cout << "Testing TMatrixBase/TMatrix/TMatrixData/TMatrixAlgo\n";
     try 
     {
 	testConstructorsAndAccessors();
@@ -1247,16 +1370,19 @@ void testTMatrix()
 	testIdentity();
 	testUncheckedAccess();
 	testCheckedAccess();
+	testIterators();
 	testConversions();
 	testTranspose();
 	testSetOrder();
 	testResize();
 	testAlgebra();
         testRowColDeletion();
+	testTMatrixBool();
     }
     catch ( Iex::BaseExc & e ) 
     {
-	std::cout << "Trapped exception: " << e.what() << std::endl;
+	std::cout << "testTMatrix : Trapped exception: "
+		  << e.what() << std::endl;
 	throw;
     }
     std::cout << "ok" << std::endl << std::endl;
