@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -38,6 +38,7 @@
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
+#include <ImathRandom.h>
 #include <half.h>
 
 #include <stdio.h>
@@ -102,6 +103,39 @@ fillPixels3 (Array2D<unsigned int> &pi,
 	    pi[y][x] = x % 100 + 100 * (y % 100);
 	    ph[y][x] = sin (double (x)) + sin (y * 0.5);
 	    pf[y][x] = sin (double (y)) + sin (x * 0.5);
+	}
+}
+
+
+void
+fillPixels4 (Array2D<unsigned int> &pi,
+	     Array2D<half> &ph,
+	     Array2D<float> &pf,
+	     int width,
+	     int height)
+{
+    cout << "random bits" << endl;
+
+    //
+    // Use of a union to extract the bit pattern from a float, as is
+    // done below, works only if int and float have the same size.
+    //
+
+    assert (sizeof (int) == sizeof (float));
+
+    Rand48 rand;
+
+    for (int y = 0; y < height; ++y)
+	for (int x = 0; x < width; ++x)
+	{
+	    pi[y][x] = rand.nexti();
+
+	    ph[y][x].setBits (rand.nexti());
+
+	    union {int i; float f;} u;
+	    u.i = rand.nexti();
+
+	    pf[y][x] = u.f;
 	}
 }
 
@@ -289,8 +323,13 @@ writeRead (const Array2D<unsigned int> &pi1,
 	    for (int x = 0; x < w / xs; ++x)
 	    {
 		assert (pi1[y][x] == pi2[y][x]);
-		assert (ph1[y][x] == ph2[y][x]);
-		assert (pf1[y][x] == pf2[y][x]);
+		assert (ph1[y][x].bits() == ph2[y][x].bits());
+
+		union {float f; int i;} u1, u2;
+		u1.f = pf1[y][x];
+		u2.f = pf2[y][x];
+
+		assert (u1.i == u2.i);
 	    }
 	}
     }
@@ -368,6 +407,9 @@ testCompression ()
 	writeRead (pi, ph, pf, W, H, DX, DY);
 
 	fillPixels3 (pi, ph, pf, W, H);
+	writeRead (pi, ph, pf, W, H, DX, DY);
+
+	fillPixels4 (pi, ph, pf, W, H);
 	writeRead (pi, ph, pf, W, H, DX, DY);
 
 	cout << "ok\n" << endl;

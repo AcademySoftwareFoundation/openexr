@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,48 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+void testConversion ();
 
-#include <testXdr.h>
-#include <testHuf.h>
-#include <testWav.h>
-#include <testChannels.h>
-#include <testAttributes.h>
-#include <testCustomAttributes.h>
-#include <testLineOrder.h>
-#include <testCompression.h>
-#include <testCopyPixels.h>
-#include <testRgba.h>
-#include <testLut.h>
-#include <testSampleImages.h>
-#include <testPreviewImage.h>
-#include <testConversion.h>
-#include <testNativeFormat.h>
 
-#include <iostream>
-#include <string.h>
-
-#define TEST(x) if (argc < 2 || !strcmp (argv[1], #x)) x();
-
-int
-main (int argc, char *argv[])
-{
-    std::cout << std::endl;
-
-    TEST (testXdr);
-    TEST (testHuf);
-    TEST (testWav);
-    TEST (testChannels);
-    TEST (testAttributes);
-    TEST (testCustomAttributes);
-    TEST (testLineOrder);
-    TEST (testCompression);
-    TEST (testCopyPixels);
-    TEST (testRgba);
-    TEST (testLut);
-    TEST (testSampleImages);
-    TEST (testPreviewImage);
-    TEST (testConversion);
-    TEST (testNativeFormat);
-
-    return 0;
-}
