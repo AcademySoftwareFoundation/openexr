@@ -303,6 +303,12 @@ readPixelData (ScanLineInputFile::Data *ifd,
 	ifd->nextLineBufferMinY = minY - ifd->linesInBuffer;
 }
 
+Compressor::Format
+defaultFormat (Compressor * compressor)
+{
+    return compressor? compressor->format(): Compressor::XDR;
+}
+
 } // namespace
 
 
@@ -332,8 +338,7 @@ ScanLineInputFile::ScanLineInputFile (const Header &header, IStream *is):
 	_data->linesInBuffer = _data->compressor?
 				   _data->compressor->numScanLines(): 1;
 
-	_data->format = _data->compressor?
-			    _data->compressor->format(): Compressor::XDR;
+	_data->format = defaultFormat (_data->compressor);
 
 	_data->lineBufferSize = maxBytesPerLine * _data->linesInBuffer;
 	_data->lineBuffer.resizeErase (_data->lineBufferSize);
@@ -536,16 +541,6 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 	    dy = -1;
 	}
         
-	bool forceXdr = false;	// Used to force the lineBuffer to be
-				// interpreted as Xdr.  This is needed
-				// if the compressor outputs pixel data
-				// in the machine's native format, but
-				// lineBuffer contains uncompressed
-				// data in Xdr format. (In a compressed
-				// image file, pixel data that cannot
-				// be compressed because they are too
-				// random, are stored in uncompressed
-				// form.)
 	while (numScanLines)
 	{
 	    //
@@ -558,7 +553,7 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 	    {
 		int minY, maxY, dataSize;
 		readPixelData (_data, y, minY, maxY, dataSize);
-                forceXdr = false;
+		_data->format = defaultFormat (_data->compressor);
 
 		//
 		// Uncompress the data, if necessary
@@ -584,13 +579,11 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 		else
 		{
 		    //
-                    // If the line is uncompressed, but the compressor
-                    // says that it's in native format, don't believe it.
+                    // If the line is uncompressed, it's in XDR format,
+		    // regardless of the compressor's output format.
 		    //
 
-                    if (_data->format != Compressor::XDR)
-                        forceXdr = true;
-
+                    _data->format = Compressor::XDR;
                     _data->uncompressedData = _data->lineBuffer;
 		}
 
@@ -743,7 +736,7 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 			    throw Iex::ArgExc ("Unknown pixel data type.");
 			}
 		    }
-		    else if (_data->format == Compressor::XDR || forceXdr)
+		    else if (_data->format == Compressor::XDR)
 		    {
 			//
 			// The compressor produced data for this
@@ -1091,6 +1084,5 @@ ScanLineInputFile::rawPixelData (int firstScanLine,
 	throw;
     }
 }
-
 
 } // namespace Imf
