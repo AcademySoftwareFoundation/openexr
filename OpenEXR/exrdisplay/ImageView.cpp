@@ -267,8 +267,8 @@ Gamma::Gamma (float exposure, float defog, float kneeLow, float kneeHigh):
     m (Imath::Math<float>::pow (2, exposure + 2.47393)),
     d (defog),
     kl (Imath::Math<float>::pow (2, kneeLow)),
-    f (findKneeF (Imath::Math<float>::pow (2, kneeHigh) - kl, 
-		  Imath::Math<float>::pow (2, 3.5) - kl))
+    f (ImageView::findKneeF (Imath::Math<float>::pow (2, kneeHigh) - kl, 
+		             Imath::Math<float>::pow (2, 3.5) - kl))
 {}
 
 
