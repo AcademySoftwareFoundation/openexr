@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -44,6 +44,7 @@
 #include <ImfRleCompressor.h>
 #include <ImfZipCompressor.h>
 #include <ImfPizCompressor.h>
+#include <ImfPxr24Compressor.h>
 
 namespace Imf {
 
@@ -93,6 +94,7 @@ isValidCompression (Compression c)
       case ZIPS_COMPRESSION:
       case ZIP_COMPRESSION:
       case PIZ_COMPRESSION:
+      case PXR24_COMPRESSION:
 
 	return true;
 
@@ -124,6 +126,10 @@ newCompressor (Compression c, int maxScanLineSize, const Header &hdr)
 
 	return new PizCompressor (hdr, maxScanLineSize, 32);
 
+      case PXR24_COMPRESSION:
+
+	return new Pxr24Compressor (hdr, maxScanLineSize, 16);
+
       default:
 
 	return 0;
@@ -151,6 +157,10 @@ newTileCompressor (Compression c,
       case PIZ_COMPRESSION:
 
 	return new PizCompressor (hdr, tileLineSize, numTileLines);
+
+      case PXR24_COMPRESSION:
+
+	return new Pxr24Compressor (hdr, tileLineSize, numTileLines);
 
       default:
 
