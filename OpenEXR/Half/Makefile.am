@@ -4,6 +4,8 @@ lib_LTLIBRARIES = libHalf.la
 
 libHalf_la_SOURCES = half.cpp half.h halfFunction.h halfLimits.h
 
+libHalf_la_LDFLAGS = -version-info @LIBTOOL_VERSION@
+
 libHalfincludedir = $(includedir)/OpenEXR
 
 libHalfinclude_HEADERS = half.h halfFunction.h halfLimits.h
