@@ -168,12 +168,16 @@ half::convert (int i)
 	else
 	{
 	    //
-	    // F is a NAN; produce a half NAN that preserves
+	    // F is a NAN; we produce a half NAN that preserves
 	    // the sign bit and the 10 leftmost bits of the
-	    // significand of f.
+	    // significand of f, with one exception: If the 10
+	    // leftmost bits are all zero, the NAN would turn 
+	    // into an infinity, so we have to set at least one
+	    // bit in the significand.
 	    //
 
-	    return s | 0x7c00 | (m >> 13);
+	    m >>= 13;
+	    return s | 0x7c00 | m | (m == 0);
 	}
     }
     else
