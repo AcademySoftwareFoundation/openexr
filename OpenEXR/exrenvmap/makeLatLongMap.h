@@ -42,6 +42,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfTileDescription.h>
+#include <ImfCompression.h>
 
 
 void
@@ -51,6 +52,7 @@ makeLatLongMap (const char inFileName[],
 	        int tileHeight,
 	        Imf::LevelMode levelMode,
 	        Imf::LevelRoundingMode roundingMode,
+		Imf::Compression compresssion,
 	        int mapWidth,
 	        float padTop,
 	        float padBottom,

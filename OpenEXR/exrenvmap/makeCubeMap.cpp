@@ -62,6 +62,7 @@ makeCubeMap (const char inFileName[],
 	     int tileHeight,
 	     LevelMode levelMode,
 	     LevelRoundingMode roundingMode,
+	     Compression compression,
 	     int mapWidth,
 	     float padTop,
 	     float padBottom,
@@ -137,6 +138,7 @@ makeCubeMap (const char inFileName[],
 
     header.dataWindow() = Box2i (V2i (0, 0), V2i (mapWidth - 1, mapHeight - 1));
     header.displayWindow() = header.dataWindow();
+    header.compression() = compression;
 
     addEnvmap (header, ENVMAP_CUBE);
 
@@ -181,7 +183,6 @@ makeCubeMap (const char inFileName[],
 		cout << "    face " << f << endl;
 
 	    CubeMapFace face = CubeMapFace (f);
-	    Box2i dwf = CubeMap::dataWindowForFace (face, dw);
 
 	    for (int y = 0; y < sof; ++y)
 	    {
