@@ -257,7 +257,7 @@ makeMainWindow (const char imageFile[],
     Fl::set_color (FL_GRAY, 150, 150, 150);
 
     mainWindow->window =
-	new Fl_Window (mw + 10, h + 110, imageFile);
+	new Fl_Window (mw + 10, h + 135, imageFile);
 
     //
     // Add exposure slider
@@ -338,6 +338,13 @@ makeMainWindow (const char imageFile[],
 	(MainWindow::kneeHighSliderCallback, mainWindow);
 
     //
+    // Add RGB value display
+    //
+
+    Fl_Box *rgbaBox = new Fl_Box (80, 105, mw - 65, 20, "");
+    rgbaBox->align (FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
+
+    //
     // Add image view:
     //
     // w, h		width and height of the display window
@@ -353,12 +360,13 @@ makeMainWindow (const char imageFile[],
     if (useFragmentShader)
     {
 	mainWindow->image =
-	    new ImageViewFragShader (5 + (mw - w) / 2, 105, 
+	    new ImageViewFragShader (5 + (mw - w) / 2, 130, 
 				     w, h,
 				     "",
 				     mainWindow->pixels,
 				     dw, dh,
 				     dx, dy,
+				     rgbaBox,
 				     mainWindow->exposureSlider->value(),
 				     mainWindow->defogSlider->value(),
 				     mainWindow->kneeLowSlider->value(),
@@ -368,12 +376,13 @@ makeMainWindow (const char imageFile[],
     else
     {
 	mainWindow->image =
-	    new ImageView (5 + (mw - w) / 2, 105, 
+	    new ImageView (5 + (mw - w) / 2, 130, 
 			   w, h,
 			   "",
 			   mainWindow->pixels,
 			   dw, dh,
 			   dx, dy,
+			   rgbaBox,
 			   mainWindow->exposureSlider->value(),
 			   mainWindow->defogSlider->value(),
 			   mainWindow->kneeLowSlider->value(),
@@ -381,12 +390,13 @@ makeMainWindow (const char imageFile[],
     }
 #else
     mainWindow->image =
-	new ImageView (5 + (mw - w) / 2, 105,
+	new ImageView (5 + (mw - w) / 2, 130,
 		       w, h,
 		       "",
 		       mainWindow->pixels,
 		       dw, dh,
 		       dx, dy,
+		       rgbaBox,
 		       mainWindow->exposureSlider->value(),
 		       mainWindow->defogSlider->value(),
 		       mainWindow->kneeLowSlider->value(),
