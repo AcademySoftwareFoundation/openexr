@@ -1,4 +1,14 @@
 #! /bin/sh
+# If we're on OS X, use glibtoolize instead of toolize
+HOSTTYPE=`uname`
+if [ "$HOSTTYPE" == "Darwin" ]; then
+        LIBTOOLIZE=glibtoolize
+else
+	LIBTOOLIZE=libtoolize
+fi
+
+
+
 # Check Autoconf version
 if [ -x `which autoconf` ]; then
 	AC_VER=`autoconf --version | head -1 | sed 's/^[^0-9]*//'`
@@ -42,7 +52,7 @@ if [ -d /usr/local/share/aclocal ]; then
 fi	
 
 run_cmd aclocal $ACLOCAL_INCLUDE
-run_cmd libtoolize --automake --copy
+run_cmd $LIBTOOLIZE --automake --copy
 run_cmd automake --add-missing --copy
 run_cmd autoconf
 echo
