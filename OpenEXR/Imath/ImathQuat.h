@@ -60,6 +60,7 @@
 
 #include <iostream>
 
+// #define debug_quat
 
 namespace Imath {
 
@@ -373,6 +374,15 @@ Quat<T> squad(const Quat<T> &q0, const Quat<T> &q1,
     Quat<T> r1 = slerp(q1, q2, t);
     Quat<T> r2 = slerp(qa, qb, t);
     Quat<T> result = slerp(r1, r2, 2*t*(1-t));
+
+#ifdef debug_quat
+    printf("qa: r: %f v: %f %f %f\n", qa.r, qa.v[0], qa.v[1], qa.v[2]);
+    printf("qb: r: %f v: %f %f %f\n", qb.r, qb.v[0], qb.v[1], qb.v[2]);
+    printf("r1: r: %f v: %f %f %f\n", r1.r, r1.v[0], r1.v[1], r1.v[2]);
+    printf("r2: r: %f v: %f %f %f\n", r2.r, r2.v[0], r2.v[1], r2.v[2]);
+    std::cout << "2t(1-t): " << 2*t*(1-t) << "\n";
+#endif
+
     return result;
 }
 
@@ -390,13 +400,13 @@ void intermediate(const Quat<T> &q0, const Quat<T> &q1,
     Quat<T> q1inv = q1.inverse();
     Quat<T> c1 = q1inv*q2;
     Quat<T> c2 = q1inv*q0;
-    Quat<T> c3 = (T) 0.25 * (c2.log() - c1.log());
+    Quat<T> c3 = (T) (-0.25) * (c2.log() + c1.log());
     qa = q1 * c3.exp();
 
     Quat<T> q2inv = q2.inverse();
     Quat<T> c4 = q2inv*q3;
     Quat<T> c5 = q2inv*q1;
-    Quat<T> c6 = (T) 0.25 * (c5.log() - c4.log());
+    Quat<T> c6 = (T) (-0.25) * (c5.log() + c4.log());
     qb = q2 * c6.exp();
 }
 
@@ -414,9 +424,10 @@ inline Quat<T> Quat<T>::log() const
     double theta = acos(r);
     if( theta > epsilon )
     {
-	result.v.x = v.x*theta;
-	result.v.y = v.y*theta;
-	result.v.z = v.z*theta;
+        T k = theta / sin(theta);
+	result.v.x = v.x*k;
+	result.v.y = v.y*k;
+	result.v.z = v.z*k;
     }
     return result;
 }
@@ -436,9 +447,10 @@ inline Quat<T> Quat<T>::exp() const
     result.v = v;
     if( sin(theta) > epsilon)
     {
-	result.v.x = sin(theta)*v.x;
-	result.v.y = sin(theta)*v.y;
-	result.v.z = sin(theta)*v.z;
+	T k = sin(theta) / theta;
+	result.v.x = k*v.x;
+	result.v.y = k*v.y;
+	result.v.z = k*v.z;
     }
     return result;
 }
