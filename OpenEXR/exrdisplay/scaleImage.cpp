@@ -188,7 +188,7 @@ scaleY (float f,
 
 
 void
-normalizePixels (int dw, int dh, Imf::Array<Imf::Rgba> &pixels)
+normalizePixels (int dw, int dh, Array<Rgba> &pixels)
 {
     float pMax = -Imath::limits<float>::max ();
     float pMin =  Imath::limits<float>::max ();
@@ -231,5 +231,41 @@ normalizePixels (int dw, int dh, Imf::Array<Imf::Rgba> &pixels)
 
 	if (p.b.isFinite())
 	    p.b = (p.b - pMin) / (pMax - pMin);
+    }
+}
+
+
+void
+swapPixels (int dw, int dh, Array<Rgba> &pixels)
+{
+    Array<Rgba> tmp (max (dw, dh));
+
+    int dw2 = dw / 2;
+    int dh2 = dh / 2;
+
+    //
+    // Swap top and bottom half
+    //
+
+    for (int x = 0; x < dw; ++x)
+    {
+	for (int y = 0; y < dh; ++y)
+	    tmp[(y + dh2) % dh] = pixels[dw * y + x];
+
+	for (int y = 0; y < dh; ++y)
+	    pixels[dw * y + x] = tmp[y];
+    }
+
+    //
+    // Swap left and right half
+    //
+
+    for (int y = 0; y < dh; ++y)
+    {
+	for (int x = 0; x < dw; ++x)
+	    tmp[(x + dw2) % dw] = pixels[dw * y + x];
+
+	for (int x = 0; x < dw; ++x)
+	    pixels[dw * y + x] = tmp[x];
     }
 }

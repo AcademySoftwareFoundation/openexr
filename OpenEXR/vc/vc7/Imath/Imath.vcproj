@@ -317,6 +317,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
+				RelativePath="..\..\..\Imath\ImathApi.h">
+			</File>
+			<File
 				RelativePath="..\..\..\Imath\ImathBox.h">
 			</File>
 			<File
