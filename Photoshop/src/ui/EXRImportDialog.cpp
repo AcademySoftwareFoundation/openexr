@@ -199,8 +199,8 @@ static void ReadAllocatePreview (GPtr globals, ADMItemRef previewWidget)
 	ASSetRect (&r2, 0, 0, previewWidth, previewHeight);
 	CenterRectInRect (r1, r2, r3);
 	
-	pw = min (r3.right - r3.left, previewWidth);
-	ph = min (r3.bottom - r3.top, previewHeight);
+    pw = std::min ((int) (r3.right - r3.left), previewWidth);
+    ph = std::min ((int) (r3.bottom - r3.top), previewHeight);
 	
 	
 	// get skip amounts for downsampling resolution
