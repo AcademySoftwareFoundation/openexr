@@ -180,7 +180,7 @@ void decimateChromaVert (int n,
 
 //
 // Round the luminance and chroma channels of an array of YCA
-// pixels that has already been filtered subsampled.
+// pixels that has already been filtered and subsampled.
 // The signifcands of the pixels' luminance and chroma values
 // are rounded to roundY and roundC bits respectively.
 //
@@ -231,9 +231,9 @@ void YCAtoRGBA (const Imath::V3f &yw,
 // This can lead to negative RGB values near high-contrast edges.)
 //
 // The fixSaturation() function finds super-saturated pixels and
-// corrects them by desaturating their colors, while maintaining
+// corrects them by desaturating their colors while maintaining
 // their luminance.  fixSaturation() takes three adjacent input
-// scan lines rgbaIn[0], rgbaIn[1], rgbaIn[2], adjusts the
+// scan lines, rgbaIn[0], rgbaIn[1], rgbaIn[2], adjusts the
 // saturation of rgbaIn[1], and stores the result in rgbaOut.
 //
 
