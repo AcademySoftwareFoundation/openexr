@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -124,7 +124,7 @@ offsetInLineBufferTable (const vector<size_t> &bytesPerLine,
 {
     offsetInLineBuffer.resize (bytesPerLine.size());
 
-    size_t offset;
+    size_t offset = 0;
 
     for (int i = 0; i < bytesPerLine.size(); ++i)
     {
