@@ -1,3 +1,4 @@
+Version 1.0.5:
 	* Added exrheader project to Visual Studio 6.0 workspace.
 	* Added some example code showing how to use the IlmImf library.
 	  (Florian)
