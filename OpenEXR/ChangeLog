@@ -1,3 +1,4 @@
+	* Cleaned up compile-time Win32 support.  (Florian Kainz)
 	* Bug fix: Reading a particular broken PIZ-compressed file
 	  caused crashes by indexing off the end of an array.
 	  (Florian Kainz)
