@@ -1,3 +1,10 @@
+	* exrmaketiled: A new utility which generates tiled
+	  versions of OpenEXR images.  (Florian Kainz)
+	* IlmImf: Changed Imf::VERSION to Imf::EXR_VERSION to
+	  work around problems with autoconf VERSION macro
+	  conflict.  (Drew Hess)
+	* exrheader: Support for tiles, mipmaps, environment
+	  maps.  (Florian Kainz)
 	* IlmImf: Environment map support.  (Florian Kainz)
 	* IlmImf: Abstracted stream I/O support.  (Florian Kainz)
 	* IlmImf: Support for tiled and mip/ripmapped files;

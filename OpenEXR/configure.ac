@@ -170,6 +170,7 @@ Imath/Makefile
 ImathTest/Makefile
 exrdisplay/Makefile
 exrheader/Makefile
+exrmaketiled/Makefile
 IlmImfExamples/Makefile
 doc/Makefile
 vc/Makefile
