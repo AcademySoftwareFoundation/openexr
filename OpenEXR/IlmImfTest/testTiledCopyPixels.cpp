@@ -472,7 +472,6 @@ testTiledCopyPixels ()
         const int H = 259;
         const int DX = 17;
         const int DY = 29;
-        const int XS = 55;
         const int YS = 55;
 
         writeCopyRead (W, H, DX, YS, 0,  0);

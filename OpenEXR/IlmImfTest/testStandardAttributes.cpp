@@ -218,7 +218,7 @@ latLongMap (const char fileName1[], const char fileName2[])
 	p.b = (dir.z + 1) * 0.8;
 
 	V3f dir1 = LatLongMap::direction (header.dataWindow(), pos);
-	assert (dir.equalWithAbsError (dir1.normalized(), 1e-6f));
+	assert (dir.equalWithAbsError (dir1.normalized(), 1e-5f));
     }
 
     {

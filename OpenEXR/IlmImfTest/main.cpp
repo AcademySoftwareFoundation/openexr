@@ -56,6 +56,8 @@
 #include <testTiledLineOrder.h>
 #include <testScanLineApi.h>
 #include <testExistingStreams.h>
+#include <testYca.h>
+#include <testTiledYa.h>
 
 #include <stdlib.h>
 #include <iostream>
@@ -95,6 +97,8 @@ main (int argc, char *argv[])
     TEST (testScanLineApi);
     TEST (testExistingStreams);
     TEST (testStandardAttributes);
+    TEST (testYca);
+    TEST (testTiledYa);
     TEST (testNativeFormat);
 
     #ifdef PLATFORM_REDHAT_IA32
