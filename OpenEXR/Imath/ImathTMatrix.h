@@ -63,7 +63,7 @@ template<typename T>
 class TMatrix : public TMatrixBase<T>
 {
   public:
-
+    using TMatrixBase<T>::order;
     using TMatrixBase<T>::data;
     using TMatrixBase<T>::numColumns;
     using TMatrixBase<T>::numRows;
