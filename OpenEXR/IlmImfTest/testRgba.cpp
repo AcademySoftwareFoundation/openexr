@@ -48,6 +48,33 @@ using namespace std;
 namespace {
 
 void
+rgbaMethods ()
+{
+    //
+    // Verify that the constructors and the assignment
+    // operator for struct Rgba work.
+    //
+
+    Rgba x (2.f, 3.f, 4.f);
+    assert (x.r == 2.f && x.g == 3.f && x.b == 4.f && x.a == 1.f);
+
+    Rgba y (5.f, 6.f, 7.f, 0.f);
+    assert (y.r == 5.f && y.g == 6.f && y.b == 7.f && y.a == 0.f);
+
+    Rgba z;
+
+    z = x;
+    assert (z.r == 2.f && z.g == 3.f && z.b == 4.f && z.a == 1.f);
+
+    z = y;
+    assert (z.r == 5.f && z.g == 6.f && z.b == 7.f && z.a == 0.f);
+
+    Rgba w (z);
+    assert (w.r == 5.f && w.g == 6.f && w.b == 7.f && w.a == 0.f);
+}
+
+
+void
 fillPixels (Array2D<Rgba> &pixels, int w, int h)
 {
     for (int y = 0; y < h; ++y)
@@ -161,6 +188,8 @@ testRgba ()
     try
     {
 	cout << "Testing the RGBA image interface" << endl;
+
+	rgbaMethods ();
 
 	const int W = 237;
 	const int H = 119;
