@@ -36,9 +36,9 @@
 
 //-----------------------------------------------------------------------------
 //
-//	Code examples that show how class TiledInputFile and class TiledOutputFile
-//	can be used to read and write OpenEXR image files with an arbitrary
-//	set of channels.
+//	Code examples that show how class TiledInputFile and
+//	class TiledOutputFile can be used to read and write
+//	OpenEXR image files with an arbitrary set of channels.
 //
 //-----------------------------------------------------------------------------
 
@@ -60,25 +60,32 @@ using namespace Imath;
 
 void
 writeTiled1 (const char fileName[],
-             Array2D<half> &gPixels,
-             int width,
-             int height,
-             int xSize, int ySize)
+             Array2D<GZ> &pixels,
+             int width, int height,
+             int tileWidth, int tileHeight)
 {
     Header header (width, height);
     header.channels().insert ("G", Channel (HALF));
-    header.setTileDescription(TileDescription(xSize, ySize,
-                                              ONE_LEVEL));
+    header.channels().insert ("Z", Channel (FLOAT));
+
+    header.setTileDescription
+	(TileDescription (tileWidth, tileHeight, ONE_LEVEL));
     
     TiledOutputFile out (fileName, header);
 
     FrameBuffer frameBuffer;
 
-    frameBuffer.insert ("G",                                // name
-                        Slice (HALF,                        // type
-                        (char *) &gPixels[0][0],            // base
-                        sizeof (gPixels[0][0]) * 1,         // xStride
-                        sizeof (gPixels[0][0]) * width));   // yStride
+    frameBuffer.insert ("G",					 // name
+                        Slice (HALF,				 // type
+			       (char *) &pixels[0][0].g,	 // base
+				sizeof (pixels[0][0]) * 1,	 // xStride
+				sizeof (pixels[0][0]) * width)); // yStride
+
+    frameBuffer.insert ("Z",					 // name
+                        Slice (FLOAT,				 // type
+			       (char *) &pixels[0][0].z,	 // base
+				sizeof (pixels[0][0]) * 1,	 // xStride
+				sizeof (pixels[0][0]) * width)); // yStride
 
     out.setFrameBuffer (frameBuffer);
 
@@ -90,7 +97,7 @@ writeTiled1 (const char fileName[],
 
 void
 readTiled1 (const char fileName[],
-            Array2D<half> &gPixels,
+            Array2D<GZ> &pixels,
             int &width, int &height)
 {
     TiledInputFile in (fileName);
@@ -101,17 +108,21 @@ readTiled1 (const char fileName[],
     int dx = dw.min.x;
     int dy = dw.min.y;
 
-    gPixels.resizeErase (height, width);
+    pixels.resizeErase (height, width);
 
     FrameBuffer frameBuffer;
 
-    frameBuffer.insert ("G",                              // name
-                        Slice (HALF,                      // type
-                        (char *) &gPixels[-dy][-dx],      // base
-                        sizeof (gPixels[0][0]) * 1,       // xStride
-                        sizeof (gPixels[0][0]) * width,   // yStride
-                        1, 1,                             // x/y sampling
-                        0.0));                            // fillValue
+    frameBuffer.insert ("G",					 // name
+                        Slice (HALF,				 // type
+			       (char *) &pixels[-dy][-dx].g,	 // base
+				sizeof (pixels[0][0]) * 1,	 // xStride
+				sizeof (pixels[0][0]) * width)); // yStride
+
+    frameBuffer.insert ("Z",					 // name
+                        Slice (FLOAT,				 // type
+			       (char *) &pixels[-dy][-dx].z,	 // base
+				sizeof (pixels[0][0]) * 1,	 // xStride
+				sizeof (pixels[0][0]) * width)); // yStride
 
     in.setFrameBuffer (frameBuffer);
 
@@ -124,23 +135,20 @@ readTiled1 (const char fileName[],
 void
 generalInterfaceTiledExamples ()
 {
-    cout << "\nG (green) tiled images\n" << endl;
+    cout << "\nGZ (green, depth) tiled files\n" << endl;
     cout << "drawing image" << endl;
 
     int w = 800;
     int h = 600;
 
-    Array2D<half>  gp (h, w);
-    drawImage6 (gp, w, h);
+    Array2D<GZ>  pixels (h, w);
+    drawImage6 (pixels, w, h);
 
-    cout << "writing entire image" << endl;
+    cout << "writing file" << endl;
 
-    writeTiled1 ("gTiled1.exr", gp, w, h, 64, 64);
-
+    writeTiled1 ("tiledgz1.exr", pixels, w, h, 64, 64);
 
     cout << "reading file" << endl;
 
-    Array2D<half> gp2 (1, 1);
-    readTiled1 ("gTiled1.exr", gp2, w, h);
-
+    readTiled1 ("tiledgz1.exr", pixels, w, h);
 }

@@ -14,8 +14,9 @@ LDADD = -L$(top_builddir)/Iex -L$(top_builddir)/Half \
 
 imfexamples_SOURCES = main.cpp drawImage.cpp rgbaInterfaceExamples.cpp \
 		      rgbaInterfaceTiledExamples.cpp \
-		      generalInterfaceExamples.cpp generalInterfaceTiledExamples.cpp \
-              generalInterfaceTiledExamples.h drawImage.h \
+		      generalInterfaceExamples.cpp \
+		      generalInterfaceTiledExamples.cpp \
+	              generalInterfaceTiledExamples.h drawImage.h \
 		      rgbaInterfaceExamples.h generalInterfaceExamples.h \
 		      rgbaInterfaceTiledExamples.h
 
