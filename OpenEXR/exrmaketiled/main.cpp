@@ -77,6 +77,13 @@ usageMessage (const char argv0[], bool verbose = false)
 		"          be specified multiple times to disable low-pass\n"
 		"          filtering for mutiple channels.\n"
 		"\n"
+		"-e x y    when a MIPMAP_LEVELS or RIPMAP_LEVELS image\n"
+		"          is produced, low-pass filtering takes samples\n"
+		"          outside the image's data window.  This requires\n"
+		"          extrapolating the image.  Option -e specifies\n"
+		"          how the image is extrapolated horizontally and\n"
+		"          vertically (clamp/wrap, default is clamp).\n"
+		"\n"
 		"-t x y    sets the tile size in the output image to\n"
 		"          x by y pixels (default is 64 by 64)\n"
 		"\n"
@@ -132,6 +139,31 @@ getCompression (const string &str)
     return c;
 }
 
+
+Extrapolation
+getExtrapolation (const string &str)
+{
+    Extrapolation e;
+
+    if (str == "clamp" || str == "CLAMP")
+    {
+	e = CLAMP;
+    }
+    else if (str == "wrap" || str == "WRAP")
+    {
+	e = WRAP;
+    }
+    else
+    {
+	cerr << "Unknown extrapolation method \"" << str << "\"." << endl;
+	exit (1);
+    }
+
+    return e;
+}
+
+
+
 } // namespace
 
 
@@ -146,6 +178,8 @@ main(int argc, char **argv)
     int tileSizeX = 64;
     int tileSizeY = 64;
     set<string> doNotFilter;
+    Extrapolation extX = CLAMP;
+    Extrapolation extY = CLAMP;
     bool verbose = false;
 
     //
@@ -197,6 +231,19 @@ main(int argc, char **argv)
 
 	    doNotFilter.insert (argv[i + 1]);
 	    i += 2;
+	}
+	else if (!strcmp (argv[i], "-e"))
+	{
+	    //
+	    // Set x and y extrapolation method
+	    //
+
+	    if (i > argc - 3)
+		usageMessage (argv[0]);
+
+	    extX = getExtrapolation (argv[i + 1]);
+	    extY = getExtrapolation (argv[i + 2]);
+	    i += 3;
 	}
 	else if (!strcmp (argv[i], "-t"))
 	{
@@ -295,6 +342,7 @@ main(int argc, char **argv)
 		   mode, roundingMode, compression,
 		   tileSizeX, tileSizeY,
 		   doNotFilter,
+		   extX, extY,
 		   verbose);
     }
     catch (const exception &e)

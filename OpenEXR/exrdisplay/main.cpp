@@ -128,6 +128,7 @@ makeMainWindow (const char imageFile[],
 		bool noAspect,
 		bool zeroOneExposure,
 		bool normalize,
+		bool swap,
 		bool useFragmentShader,
 		const char * fragmentShaderName)
 {
@@ -218,6 +219,14 @@ makeMainWindow (const char imageFile[],
 
     if (normalize)
 	normalizePixels (dw, dh, mainWindow->pixels);
+
+    //
+    // If necessary, swap the top and bottom half and then the
+    // left and right half of the image.
+    // 
+
+    if (swap)
+	swapPixels (dw, dh, mainWindow->pixels);
 
     //
     // Stretch the image horizontally or vertically to make the
@@ -421,6 +430,12 @@ usageMessage (const char argv0[], bool verbose = false)
 		"\n"
 		"-Z        same as -c Z -n (displays depth)\n"
 		"\n"
+		"-s        swaps the image's top and bottom half, then\n"
+		"          swaps the left and right half, so that the\n"
+		"          four corners of the image end up in the center.\n"
+		"          (Useful for checking the seams of wrap-around\n"
+		"          texture map images.)\n"
+		"\n"
 		"-h        prints this message\n";
 
 	 cerr << endl;
@@ -440,6 +455,7 @@ main(int argc, char **argv)
     bool noAspect = false;
     bool zeroOneExposure = false;
     bool normalize = false;
+    bool swap = false;
     bool useFragmentShader = false;
     const char * fragmentShaderName = 0;
     
@@ -551,6 +567,15 @@ main(int argc, char **argv)
 	    channel = "Z";
 	    i += 1;
 	}
+	else if (!strcmp (argv[i], "-s"))
+	{
+	    //
+	    // Swap top and bottom half, then left and right half.
+	    //
+
+	    swap = true;
+	    i += 1;
+	}
 	else if (!strcmp (argv[i], "-f"))
 	{
 	    //
@@ -621,6 +646,7 @@ main(int argc, char **argv)
 						 noAspect,
 						 zeroOneExposure,
 						 normalize,
+						 swap,
 						 useFragmentShader,
 						 fragmentShaderName ?
 						 fragmentShaderName : "");

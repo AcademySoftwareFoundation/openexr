@@ -47,6 +47,7 @@
 #include <ImfChannelList.h>
 #include <ImfFrameBuffer.h>
 #include <ImfStandardAttributes.h>
+#include <ImathFun.h>
 #include <Iex.h>
 #include <map>
 #include <algorithm>
@@ -63,27 +64,36 @@ namespace {
 
 template <class T>
 inline double
-sampleX (const TypedImageChannel<T> &channel, int w, double x, int y)
+sampleX (const TypedImageChannel<T> &channel,
+	 int w,
+	 double x,
+	 int y,
+	 Extrapolation ext)
 {
     //
     // Sample an image channel at location (x, y), where
     // x is a floating point number, and y is an integer.
     //
 
-    int xs = int (x);
+    int xs = Imath::floor (x);
     int xt = xs + 1;
     double s = xt - x;
     double t = 1 - s;
 
-    if (xs < 0)
-	xs = 0;
-    else if (xs >= w)
-	xs = w - 1;
+    switch (ext)
+    {
+      case CLAMP:
 
-    if (xt < 0)
-	xt = 0;
-    else if (xt >= w)
-	xt = w - 1;
+	  xs = clamp (xs, 0, w - 1);
+	  xt = clamp (xt, 0, w - 1);
+	  break;
+
+      case WRAP:
+
+	  xs = modp (xs, w);
+	  xt = modp (xt, w);
+	  break;
+    }
 
     return s * channel (xs, y) + t * channel (xt, y);
 }
@@ -91,27 +101,36 @@ sampleX (const TypedImageChannel<T> &channel, int w, double x, int y)
 
 template <class T>
 inline double
-sampleY (const TypedImageChannel<T> &channel, int h, int x, double y)
+sampleY (const TypedImageChannel<T> &channel,
+         int h,
+	 int x,
+	 double y,
+	 Extrapolation ext)
 {
     //
     // Sample an image channel at location (x, y), where
     // x is an integer, and y is a floating point number.
     //
 
-    int ys = int (y);
+    int ys = Imath::floor (y);
     int yt = ys + 1;
     double s = yt - y;
     double t = 1 - s;
 
-    if (ys < 0)
-	ys = 0;
-    else if (ys >= h)
-	ys = h - 1;
+    switch (ext)
+    {
+      case CLAMP:
 
-    if (yt < 0)
-	yt = 0;
-    else if (yt >= h)
-	yt = h - 1;
+	  ys = clamp (ys, 0, h - 1);
+	  yt = clamp (yt, 0, h - 1);
+	  break;
+
+      case WRAP:
+
+	  ys = modp (ys, h);
+	  yt = modp (yt, h);
+	  break;
+    }
 
     return s * channel (x, ys) + t * channel (x, yt);
 }
@@ -119,31 +138,39 @@ sampleY (const TypedImageChannel<T> &channel, int h, int x, double y)
 
 template <class T>
 T
-filterX (const TypedImageChannel<T> &channel, int w, double x, int y)
+filterX (const TypedImageChannel<T> &channel,
+	 int w,
+	 double x,
+	 int y,
+	 Extrapolation ext)
 {
     //
     // Horizontal four-tap filter, centered on pixel (x + 0.5, y)
     //
 
-    return T (0.125 * sampleX (channel, w, x - 1, y) +
-	      0.375 * sampleX (channel, w, x,     y) +
-	      0.375 * sampleX (channel, w, x + 1, y) +
-	      0.125 * sampleX (channel, w, x + 2, y));
+    return T (0.125 * sampleX (channel, w, x - 1, y, ext) +
+	      0.375 * sampleX (channel, w, x,     y, ext) +
+	      0.375 * sampleX (channel, w, x + 1, y, ext) +
+	      0.125 * sampleX (channel, w, x + 2, y, ext));
 }
 
 
 template <class T>
 T
-filterY (const TypedImageChannel<T> &channel, int h, int x, double y)
+filterY (const TypedImageChannel<T> &channel,
+	 int h,
+	 int x,
+	 double y,
+	 Extrapolation ext)
 {
     //
     // Vertical four-tap filter, centered on pixel (x, y + 0.5)
     //
 
-    return T (0.125 * sampleY (channel, h, x, y - 1) +
-	      0.375 * sampleY (channel, h, x, y    ) +
-	      0.375 * sampleY (channel, h, x, y + 1) +
-	      0.125 * sampleY (channel, h, x, y + 2));
+    return T (0.125 * sampleY (channel, h, x, y - 1, ext) +
+	      0.375 * sampleY (channel, h, x, y,     ext) +
+	      0.375 * sampleY (channel, h, x, y + 1, ext) +
+	      0.125 * sampleY (channel, h, x, y + 2, ext));
 }
 
 
@@ -152,6 +179,7 @@ void
 reduceX (const TypedImageChannel<T> &channel0,
 	  TypedImageChannel<T> &channel1,
 	  bool filter,
+	  Extrapolation &ext,
 	  bool odd)
 {
     //
@@ -176,7 +204,7 @@ reduceX (const TypedImageChannel<T> &channel0,
 
 	for (int y = 0; y < h1; ++y)
 	    for (int x = 0; x < w1; ++x)
-		channel1 (x, y) = filterX (channel0, w0, x * f, y);
+		channel1 (x, y) = filterX (channel0, w0, x * f, y, ext);
     }
     else
     {
@@ -203,6 +231,7 @@ void
 reduceY (const TypedImageChannel<T> &channel0,
 	  TypedImageChannel<T> &channel1,
 	  bool filter,
+	  Extrapolation ext,
 	  bool odd)
 {
     //
@@ -227,7 +256,7 @@ reduceY (const TypedImageChannel<T> &channel0,
 
 	for (int y = 0; y < h1; ++y)
 	    for (int x = 0; x < w1; ++x)
-		channel1 (x, y) = filterY (channel0, h0, x, y * f);
+		channel1 (x, y) = filterY (channel0, h0, x, y * f, ext);
     }
     else
     {
@@ -252,6 +281,7 @@ reduceY (const TypedImageChannel<T> &channel0,
 void
 reduceX (const ChannelList &channels,
 	 const set<string> &doNotFilter,
+	 Extrapolation ext,
 	 bool odd,
 	 const Image &image0, 
 	 Image &image1)
@@ -275,21 +305,21 @@ reduceX (const ChannelList &channels,
 
 	    reduceX (image0.typedChannel<half> (name),
 		     image1.typedChannel<half> (name),
-		     filter, odd);
+		     filter, ext, odd);
 	    break;
 
 	  case FLOAT:
 
 	    reduceX (image0.typedChannel<float> (name),
 		     image1.typedChannel<float> (name),
-		     filter, odd);
+		     filter, ext, odd);
 	    break;
 
 	  case UINT:
 
 	    reduceX (image0.typedChannel<unsigned int> (name),
 		     image1.typedChannel<unsigned int> (name),
-		     filter, odd);
+		     filter, ext, odd);
 	    break;
 
 	}
@@ -300,6 +330,7 @@ reduceX (const ChannelList &channels,
 void
 reduceY (const ChannelList &channels,
 	 const set<string> &doNotFilter,
+	 Extrapolation ext,
 	 bool odd,
 	 const Image &image0, 
 	 Image &image1)
@@ -323,21 +354,21 @@ reduceY (const ChannelList &channels,
 
 	    reduceY (image0.typedChannel<half> (name),
 		     image1.typedChannel<half> (name),
-		     filter, odd);
+		     filter, ext, odd);
 	    break;
 
 	  case FLOAT:
 
 	    reduceY (image0.typedChannel<float> (name),
 		     image1.typedChannel<float> (name),
-		     filter, odd);
+		     filter, ext, odd);
 	    break;
 
 	  case UINT:
 
 	    reduceY (image0.typedChannel<unsigned int> (name),
 		     image1.typedChannel<unsigned int> (name),
-		     filter, odd);
+		     filter, ext, odd);
 	    break;
 
 	}
@@ -385,6 +416,8 @@ makeTiled (const char inFileName[],
 	   int tileSizeX,
 	   int tileSizeY,
 	   const set<string> &doNotFilter,
+	   Extrapolation extX,
+	   Extrapolation extY,
 	   bool verbose)
 {
     Image image0;
@@ -478,6 +511,7 @@ makeTiled (const char inFileName[],
 
 	    reduceX (header.channels(),
 		     doNotFilter,
+		     extX,
 		     l & 1,
 		     image0,
 		     image1);
@@ -486,6 +520,7 @@ makeTiled (const char inFileName[],
 
 	    reduceY (header.channels(),
 		     doNotFilter,
+		     extY,
 		     l & 1,
 		     image1,
 		     image0);
@@ -511,6 +546,7 @@ makeTiled (const char inFileName[],
 
 		reduceY (header.channels(),
 			 doNotFilter,
+			 extY,
 			 ly & 1,
 			 *iptr0,
 			 *iptr2);
@@ -532,6 +568,7 @@ makeTiled (const char inFileName[],
 
 		    reduceX (header.channels(),
 			     doNotFilter,
+			     extX,
 			     lx & 1,
 			     *iptr0,
 			     *iptr1);
