@@ -109,17 +109,6 @@ AC_MSG_RESULT($stl_limits)
 AC_LANG_RESTORE
 
 
-dnl Checks for "restrict" support in compiler
-AC_MSG_CHECKING(for restrict keyword support)
-has_restrict="yes"
-AC_TRY_COMPILE([],[
-
-char * restrict p;
-],
-,
-AC_DEFINE(restrict,) has_restrict="no")
-AC_MSG_RESULT($has_restrict)
-
 AC_MSG_CHECKING(for gcc optimization flags)
 old_cflags=$CFLAGS
 CFLAGS="$CFLAGS -O2 -funroll-loops -pipe"

@@ -1,4 +1,5 @@
 Version 1.1.0:
+	* Imath: Handle "restrict" keyword properly.  (Drew Hess)
 	* IlmImfExamples: Updated to latest versions of example
 	  source code, includes tiling and multi-res images.
 	  (Florian Kainz)
