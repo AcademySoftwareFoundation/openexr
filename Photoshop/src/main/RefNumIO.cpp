@@ -5,6 +5,7 @@
 #include "RefNumIO.h"
 
 #include <IexBaseExc.h>
+#include <PITypes.h>		// for Macintosh and MSWindows defines
 
 
 // ===========================================================================
@@ -47,51 +48,6 @@ static bool HaveHFSPlusAPIs ()
 	}
 
 	return sHaveHFSPlusAPIs;
-}
-
-
-//-------------------------------------------------------------------------------
-// Open (for writing)
-//-------------------------------------------------------------------------------
-
-static bool Open (const FSSpec* spec, short& refNum)
-{
-	OSErr err = noErr;
-	
-	if (HaveHFSPlusAPIs())
-	{
-		FSRef ref = { 0 };
-		
-		if (!err) err = FSpMakeFSRef (spec, &ref);
-		if (!err) err = FSOpenFork (&ref, 0, NULL, fsWrPerm, &refNum);
-	}
-	else
-	{
-		err = FSpOpenDF (spec, fsWrPerm, &refNum);
-	}
-	
-	return (err == noErr);
-}
-
-
-//-------------------------------------------------------------------------------
-// Close
-//-------------------------------------------------------------------------------
-
-static bool Close (short refNum)
-{
-	OSErr err = noErr;
-	
-	if (HaveHFSPlusAPIs())
-	{
-		err = FSCloseFork (refNum);
-	}
-	else
-	{
-		err = FSClose (refNum);
-	}
-	
-	return (err == noErr);
 }
 
 
@@ -229,36 +185,6 @@ static bool GetSize (short refNum, Imf::Int64& size)
 // ===========================================================================
 
 #if MSWindows
-
-//-------------------------------------------------------------------------------
-// Open (for writing)
-//-------------------------------------------------------------------------------
-
-static bool Open (const FSSpec* spec, short& refNum)
-{
-    std::string name;
-    for (int i = 1; i <= spec->name[0]; ++i)
-    {
-        name += spec->name[i];
-    }
-
-    HANDLE h = CreateFile (name.c_str(), GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL); 
-    refNum = (short) h;
-
-    return !(h == INVALID_HANDLE_VALUE);
-}
-
-
-//-------------------------------------------------------------------------------
-// Close
-//-------------------------------------------------------------------------------
-
-static bool Close (short refNum)
-{
-	CloseHandle ((Handle) refNum);
-    return true;
-}
-
 
 //-------------------------------------------------------------------------------
 // Read
@@ -443,26 +369,12 @@ RefNumIFStream::clear ()
 RefNumOFStream::RefNumOFStream 
 (
 	short 				refNum, 
-	const  FSSpec*		fsSpec,
 	const char 			fileName[]
 ) : 
 	OStream 			(fileName),
-	_refNum 			(refNum),
-	_closeWhenFinished 	(false)
+	_refNum 			(refNum)
 { 
-	// file isn't necessarily opened
-	
-	Imf::Int64 size = 0;
-	
-	if (!GetSize (_refNum, size))
-	{
-		if (!Open (fsSpec, _refNum))
-		{
-			throw Iex::IoExc ("Unable to open file.");
-		}
-		
-		_closeWhenFinished = true;
-	}
+
 }
 
 
@@ -472,10 +384,7 @@ RefNumOFStream::RefNumOFStream
 
 RefNumOFStream::~RefNumOFStream ()
 {
-	if (_closeWhenFinished)
-	{
-		Close (_refNum); // ignore error - don't want to throw in a destructor
-	}
+
 }
 
 
