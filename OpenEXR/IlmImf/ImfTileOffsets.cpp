@@ -49,7 +49,7 @@ namespace Imf {
 
 TileOffsets::TileOffsets (LevelMode mode,
 			  int numXLevels, int numYLevels,
-			  int *numXTiles, int *numYTiles)
+			  const int *numXTiles, const int *numYTiles)
 :
     _mode (mode),
     _numXLevels (numXLevels),

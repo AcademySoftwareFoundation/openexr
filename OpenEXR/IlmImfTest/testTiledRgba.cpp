@@ -184,7 +184,7 @@ writeReadRGBAMIP (const char fileName[],
 
         remove (fileName);
         TiledRgbaOutputFile out (fileName, header, channels,
-                                 xSize, ySize, MIPMAP_LEVELS);
+                                 xSize, ySize, MIPMAP_LEVELS, ROUND_DOWN);
         
         int numLevels = out.numLevels();
         levels = std::vector< Array2D<Rgba> >(numLevels, Array2D<Rgba> ());
@@ -296,7 +296,7 @@ writeReadRGBARIP (const char fileName[],
 
         remove (fileName);
         TiledRgbaOutputFile out (fileName, header, channels,
-                                 xSize, ySize, RIPMAP_LEVELS);
+                                 xSize, ySize, RIPMAP_LEVELS, ROUND_UP);
 
         levels = std::vector< std::vector< Array2D<Rgba> > > (out.numYLevels(),
                     std::vector< Array2D<Rgba> >(out.numXLevels(),

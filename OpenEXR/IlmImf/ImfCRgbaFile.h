@@ -102,6 +102,7 @@ typedef struct ImfRgba ImfRgba;
 
 #define IMF_INCREASING_Y	0
 #define IMF_DECREASING_Y	1
+#define IMF_RAMDOM_Y		2
 
 
 /*
@@ -125,6 +126,23 @@ typedef struct ImfRgba ImfRgba;
 #define IMF_WRITE_A		0x8
 #define IMF_WRITE_RGB		0x7
 #define IMF_WRITE_RGBA		0xf
+
+
+/*
+** Level modes; values must be the same as in Imf::LevelMode
+*/
+
+#define IMF_ONE_LEVEL		0
+#define IMF_MIPMAP_LEVELS	1
+#define IMF_RIPMAP_LEVELS	2
+
+
+/*
+** Level rounding modes; values must be the same as in Imf::LevelRoundingMode
+*/
+
+#define IMF_ROUND_DOWN		0
+#define IMF_ROUND_UP		1
 
 
 /*
@@ -289,25 +307,26 @@ IMF_EXPORT int		ImfHeaderM44fAttribute (const ImfHeader *hdr,
 IMF_EXPORT struct ImfOutputFile;
 typedef struct ImfOutputFile ImfOutputFile;
 
-IMF_EXPORT ImfOutputFile *		ImfOpenOutputFile (const char name[],
-					   const ImfHeader *hdr,
-					   int channels);
+IMF_EXPORT ImfOutputFile *	ImfOpenOutputFile (const char name[],
+						   const ImfHeader *hdr,
+						   int channels);
 
 IMF_EXPORT int			ImfCloseOutputFile (ImfOutputFile *out);
 
 IMF_EXPORT int			ImfOutputSetFrameBuffer (ImfOutputFile *out,
-						 const ImfRgba *base,
-						 size_t xStride,
-						 size_t yStride);
+							 const ImfRgba *base,
+							 size_t xStride,
+							 size_t yStride);
 
 IMF_EXPORT int			ImfOutputWritePixels (ImfOutputFile *out,
-					      int numScanLines);
+						      int numScanLines);
 
 IMF_EXPORT int			ImfOutputCurrentScanLine (const ImfOutputFile *out);
 
 IMF_EXPORT const ImfHeader *	ImfOutputHeader (const ImfOutputFile *out);
 
 IMF_EXPORT int			ImfOutputChannels (const ImfOutputFile *out);
+
 
 /*
 ** Tiled RGBA output file
@@ -320,7 +339,7 @@ IMF_EXPORT ImfTiledOutputFile *	ImfOpenTiledOutputFile (const char name[],
 					        const ImfHeader *hdr,
 						int channels,
 						int xSize, int ySize,
-						int mode);
+						int mode, int rmode);
 
 IMF_EXPORT int		ImfCloseTiledOutputFile (ImfTiledOutputFile *out);
 
@@ -342,6 +361,8 @@ IMF_EXPORT int		ImfTiledOutputTileXSize (const ImfTiledOutputFile *out);
 IMF_EXPORT int		ImfTiledOutputTileYSize (const ImfTiledOutputFile *out);
 
 IMF_EXPORT int		ImfTiledOutputLevelMode (const ImfTiledOutputFile *out);
+IMF_EXPORT int	       	ImfTiledOutputLevelRoundingMode
+						(const ImfTiledOutputFile *out);
 
 
 /*
@@ -402,6 +423,9 @@ IMF_EXPORT int		ImfTiledInputTileXSize (const ImfTiledInputFile *in);
 IMF_EXPORT int		ImfTiledInputTileYSize (const ImfTiledInputFile *in);
 
 IMF_EXPORT int		ImfTiledInputLevelMode (const ImfTiledInputFile *in);
+
+IMF_EXPORT int	       	ImfTiledInputLevelRoundingMode
+					       (const ImfTiledInputFile *in);
 
 /*
 ** Lookup tables

@@ -1375,6 +1375,13 @@ TiledInputFile::levelMode () const
 }
 
 
+LevelRoundingMode
+TiledInputFile::levelRoundingMode () const
+{
+    return _data->tileDesc.roundingMode;
+}
+
+
 int
 TiledInputFile::numLevels () const
 {
@@ -1425,7 +1432,8 @@ TiledInputFile::levelWidth (int lx) const
 {
     try
     {
-	return levelSize (_data->minX, _data->maxX, lx);
+	return levelSize (_data->minX, _data->maxX, lx,
+			  _data->tileDesc.roundingMode);
     }
     catch (Iex::BaseExc &e)
     {
@@ -1441,7 +1449,8 @@ TiledInputFile::levelHeight (int ly) const
 {
     try
     {
-	return levelSize (_data->minY, _data->maxY, ly);
+	return levelSize (_data->minY, _data->maxY, ly,
+			  _data->tileDesc.roundingMode);
     }
     catch (Iex::BaseExc &e)
     {
@@ -1493,7 +1502,8 @@ TiledInputFile::dataWindowForLevel (int lx, int ly) const
 {
     try
     {
-	return Imf::dataWindowForLevel (_data->minX, _data->maxX,
+	return Imf::dataWindowForLevel (_data->tileDesc,
+					_data->minX, _data->maxX,
 				        _data->minY, _data->maxY,
 				        lx, ly);
     }
@@ -1521,9 +1531,9 @@ TiledInputFile::dataWindowForTile (int dx, int dy, int lx, int ly) const
 	if (!isValidTile (dx, dy, lx, ly))
 	    throw Iex::ArgExc ("Arguments not in valid range.");
 
-	return Imf::dataWindowForTile (_data->minX, _data->maxX,
+	return Imf::dataWindowForTile (_data->tileDesc,
+				       _data->minX, _data->maxX,
 				       _data->minY, _data->maxY,
-				       tileXSize(), tileYSize(),
 				       dx, dy, lx, ly);
     }
     catch (Iex::BaseExc &e)
