@@ -209,7 +209,8 @@ OSErr FSSpecToFullPath (const FSSpec* inFSSpec, std::string& outPath)
     // on Windows, FSSpec contains full path as a pascal string
     // what if path is more than 256 characters?
 
-    outPath = (const char*) (&inFSSpec->name[1]);    
+	for (int i = 0; i < inFSSpec->name[0]; ++i)
+		outPath += inFSSpec->name[ i + 1 ]; 
 
 #endif	
 	

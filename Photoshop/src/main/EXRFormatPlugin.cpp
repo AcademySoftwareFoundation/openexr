@@ -199,11 +199,11 @@ void EXRFormatPlugin::DoReadStart ()
 	// if image is single channel, add all four channels
 	// so that we don't have to switch to grayscale mode
 		
-	mFormatRec->imageMode		= plugInModeRGBColor;
 	mFormatRec->imageSize.v 	= h;
 	mFormatRec->imageSize.h 	= w;
 	mFormatRec->planes 			= (Globals()->inputFile->channels() == WRITE_RGB) ? 3 : 4;
 	mFormatRec->depth 			= (Globals()->bpc == 8) ? 8 : 16;
+	mFormatRec->imageMode		= (mFormatRec->depth > 8) ? plugInModeRGB48 : plugInModeRGBColor;
 	mFormatRec->maxValue		= Globals()->MaxPixelValue();
 }
 
@@ -290,7 +290,7 @@ void EXRFormatPlugin::DoReadContinue ()
 	
 	// read one scanline at a time
 	
-	for (int scanline = dw.min.y; scanline < dw.max.y && *mResult == noErr; ++scanline)
+	for (int scanline = dw.min.y; scanline <= dw.max.y && *mResult == noErr; ++scanline)
 	{	
 		// read scanline
 		// need to offset into array so that scanline
@@ -481,7 +481,7 @@ void EXRFormatPlugin::DoWriteStart ()
 	// interleaved RGBA format is always popular
 	// note that we don't align the rowbytes in this case
 	
-	mFormatRec->imageMode			= plugInModeRGBColor;
+	mFormatRec->imageMode			= (mFormatRec->depth > 8) ? plugInModeRGB48 : plugInModeRGBColor;
 	mFormatRec->loPlane				= 0;
 	mFormatRec->hiPlane				= mFormatRec->planes - 1;
 	mFormatRec->planeBytes			= mFormatRec->depth / 8;
