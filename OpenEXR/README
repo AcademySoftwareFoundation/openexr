@@ -2,9 +2,7 @@ The OpenEXR distribution is covered by a modified BSD license; see
 the file named COPYING (included in this distribution) for details.
 
 The release includes exrdisplay, an image viewer for OpenEXR images.  
-It requires FLTK 1.1 or greater and OpenGL.  It should work on OS X
-if you have FLTK 1.1 with OpenGL support installed, but we haven't
-tested it yet.
+It requires FLTK 1.1 or greater and OpenGL.
 
 
 About the OpenEXR libraries:
@@ -41,11 +39,12 @@ Other UNIX variants haven't been tested, but should be easy to build.
 Let us know if you're having problems porting OpenEXR to a particular
 platform.  See below for platform-specific notes.
 
-To build on Windows, you'll probably need Cygwin until we have native
-project files for Visual C++.
-
 All include files needed to use the OpenEXR libraries are installed in the 
 OpenEXR subdirectory of the install prefix, e.g. /usr/local/include/OpenEXR.
+
+To build OpenEXR on Windows NT or greater, you can either use Cygwin
+and the 'configure' script, or you can use Visual C++ 6.0 with Intel's
+C++ compiler.  See README.win32 for details.
 
 
 PLATFORM-SPECIFIC NOTES
