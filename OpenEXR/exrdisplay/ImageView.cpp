@@ -44,6 +44,7 @@
 #include <ImathMath.h>
 #include <ImathFun.h>
 #include <halfFunction.h>
+#include <algorithm>
 
 #if defined PLATFORM_WIN32
 #ifndef WIN32_LEAN_AND_MEAN
