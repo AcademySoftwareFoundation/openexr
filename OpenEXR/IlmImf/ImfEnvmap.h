@@ -178,9 +178,9 @@ namespace LatLongMap
 //      |           |/       /
 //      4-----------5       Z
 // 
-// dataWindow.min
-//    \
-//     \ 
+//   dataWindow.min
+//        /
+//       / 
 //      +-----------+
 //      |3    Y    7|
 //      |     |     |
@@ -230,9 +230,9 @@ namespace LatLongMap
 //      |     |     |
 //      |0         1|
 //      +-----------+
-//                   \
-//                    \
-//               dataWindow.max
+//                 /
+//                /
+//          dataWindow.max
 //
 // The size of the data window should be N by 6*N pixels
 // (width by height), where N can be any integer greater
