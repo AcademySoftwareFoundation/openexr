@@ -8,10 +8,340 @@
 
 
 // ===========================================================================
-//	Macintosh Implementation
+//	Macintosh IO Abstraction 
+//
+//  use 64-bit HFS+ APIs if the system supports them,
+//	fall back to 32-bit classic File Manager APIs otherwise
 // ===========================================================================
 
+#pragma mark ===== Macintosh =====
+
 #if Macintosh
+
+#include <Gestalt.h>
+#include <Files.h>
+
+
+//-------------------------------------------------------------------------------
+// HaveHFSPlusAPIs
+//-------------------------------------------------------------------------------
+
+static bool HaveHFSPlusAPIs ()
+{
+	static bool sCheckedForHFSPlusAPIs 	= 	false;
+	static bool sHaveHFSPlusAPIs		=	false;
+
+	if (!sCheckedForHFSPlusAPIs)
+	{
+		long 	response 	=	0;
+		OSErr	err			=	noErr;
+	
+		err = Gestalt (gestaltFSAttr, &response);
+		
+		if (err == noErr && (response & (1 << gestaltHasHFSPlusAPIs)))
+		{
+			sHaveHFSPlusAPIs = true;	
+		}
+	
+		sCheckedForHFSPlusAPIs = true;
+	}
+
+	return sHaveHFSPlusAPIs;
+}
+
+
+//-------------------------------------------------------------------------------
+// Open (for writing)
+//-------------------------------------------------------------------------------
+
+static bool Open (const FSSpec* spec, short& refNum)
+{
+	OSErr err = noErr;
+	
+	if (HaveHFSPlusAPIs())
+	{
+		FSRef ref = { 0 };
+		
+		if (!err) err = FSpMakeFSRef (spec, &ref);
+		if (!err) err = FSOpenFork (&ref, 0, NULL, fsWrPerm, &refNum);
+	}
+	else
+	{
+		err = FSpOpenDF (spec, fsWrPerm, &refNum);
+	}
+	
+	return (err == noErr);
+}
+
+
+//-------------------------------------------------------------------------------
+// Close
+//-------------------------------------------------------------------------------
+
+static bool Close (short refNum)
+{
+	OSErr err = noErr;
+	
+	if (HaveHFSPlusAPIs())
+	{
+		err = FSCloseFork (refNum);
+	}
+	else
+	{
+		err = FSClose (refNum);
+	}
+	
+	return (err == noErr);
+}
+
+
+//-------------------------------------------------------------------------------
+// Read
+//-------------------------------------------------------------------------------
+
+static bool Read (short refNum, int n, void* c)
+{
+	OSErr err = noErr;
+	
+	if (HaveHFSPlusAPIs())
+	{
+		ByteCount 	actual;
+		
+		err = FSReadFork (refNum, fsFromMark, 0, n, c, &actual);
+	}
+	else
+	{
+		long count = n;
+		
+		err = FSRead (refNum, &count, c);
+	}
+	
+	return (err == noErr);
+}
+
+
+//-------------------------------------------------------------------------------
+// Write
+//-------------------------------------------------------------------------------
+
+static bool Write (short refNum, int n, const void* c)
+{
+	OSErr err = noErr;
+	
+	if (HaveHFSPlusAPIs())
+	{
+		ByteCount 	actual;
+		
+		err = FSWriteFork (refNum, fsFromMark, 0, n, c, &actual);
+	}
+	else
+	{
+		long count = n;
+		
+		err = FSWrite (refNum, &count, c);
+	}
+	
+	return (err == noErr);
+}
+
+
+//-------------------------------------------------------------------------------
+// Tell
+//-------------------------------------------------------------------------------
+
+static bool Tell (short refNum, Imf::Int64& pos)
+{
+	OSErr err = noErr;
+	
+	if (HaveHFSPlusAPIs())
+	{
+		SInt64 p;
+		
+		err = FSGetForkPosition (refNum, &p);
+		pos = p;
+	}
+	else
+	{
+		long p;
+		
+		err = GetFPos (refNum, &p);
+		pos = p;
+	}
+	
+	return (err == noErr);
+}
+
+
+//-------------------------------------------------------------------------------
+// Seek
+//-------------------------------------------------------------------------------
+
+static bool Seek (short refNum, const Imf::Int64& pos)
+{
+	OSErr err = noErr;
+	
+	if (HaveHFSPlusAPIs())
+	{
+		err = FSSetForkPosition (refNum, fsFromStart, pos);
+	}
+	else
+	{
+		err = SetFPos (refNum, fsFromStart, pos);
+	}
+	
+	return (err == noErr);
+}
+
+
+//-------------------------------------------------------------------------------
+// GetSize
+//-------------------------------------------------------------------------------
+
+static bool GetSize (short refNum, Imf::Int64& size)
+{
+	OSErr err = noErr;
+	
+	if (HaveHFSPlusAPIs())
+	{
+		SInt64 fileSize;
+		
+		err  = FSGetForkSize (refNum, &fileSize);
+		size = fileSize;
+	}
+	else
+	{
+		long fileSize;
+		
+		err  = GetEOF (refNum, &fileSize);
+		size = fileSize;
+	}
+	
+	return (err == noErr);
+}
+
+#endif
+
+#pragma mark-
+#pragma mark ===== Windows =====
+
+// ===========================================================================
+//	Windows IO Abstraction 
+// ===========================================================================
+
+#if MSWindows
+
+//-------------------------------------------------------------------------------
+// Open (for writing)
+//-------------------------------------------------------------------------------
+
+static bool Open (const FSSpec* spec, short& refNum)
+{
+    std::string name;
+    for (int i = 1; i <= spec->name[0]; ++i)
+    {
+        name += spec->name[i];
+    }
+
+    HANDLE h = CreateFile (name.c_str(), GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL); 
+    refNum = (short) h;
+
+    return !(h == INVALID_HANDLE_VALUE);
+}
+
+
+//-------------------------------------------------------------------------------
+// Close
+//-------------------------------------------------------------------------------
+
+static bool Close (short refNum)
+{
+	CloseHandle ((Handle) refNum);
+    return true;
+}
+
+
+//-------------------------------------------------------------------------------
+// Read
+//-------------------------------------------------------------------------------
+
+static bool Read (short refNum, int n, void* c)
+{
+	DWORD nRead;
+ 
+    return ReadFile ((HANDLE) refNum, c, n, &nRead, NULL);
+}
+
+
+//-------------------------------------------------------------------------------
+// Write
+//-------------------------------------------------------------------------------
+
+static bool Write (short refNum, int n, const void* c)
+{
+	DWORD nRead;
+ 
+    return WriteFile ((HANDLE) refNum, c, n, &nRead, NULL);
+}
+
+
+//-------------------------------------------------------------------------------
+// Tell
+//-------------------------------------------------------------------------------
+
+static bool Tell (short refNum, Imf::Int64& pos)
+{
+	LARGE_INTEGER li;
+
+    li.QuadPart = 0;
+
+    li.LowPart = SetFilePointer ((HANDLE) refNum, 0, &li.HighPart, FILE_CURRENT);
+
+    if (li.HighPart == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
+    {
+        return false;
+    }
+
+    pos = li.QuadPart;
+    return true;
+}
+
+
+//-------------------------------------------------------------------------------
+// Seek
+//-------------------------------------------------------------------------------
+
+static bool Seek (short refNum, const Imf::Int64& pos)
+{
+	LARGE_INTEGER li;
+
+    li.QuadPart = pos;
+
+    SetFilePointer ((HANDLE) refNum, li.LowPart, &li.HighPart, FILE_BEGIN);
+
+    return !(li.HighPart == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR);
+}
+
+
+//-------------------------------------------------------------------------------
+// GetSize
+//-------------------------------------------------------------------------------
+
+static bool GetSize (short refNum, Imf::Int64& size)
+{
+    LARGE_INTEGER li;
+    DWORD         hi;
+
+    li.QuadPart = 0;
+    li.LowPart  = GetFileSize ((HANDLE) refNum, &hi);
+    li.HighPart = hi;
+    size        = li.QuadPart;
+
+    return !(li.LowPart == INVALID_FILE_SIZE && GetLastError() != NO_ERROR);
+}
+
+#endif
+
+#pragma mark-
 
 //-------------------------------------------------------------------------------
 // IStream Constructor
@@ -19,29 +349,13 @@
 
 RefNumIFStream::RefNumIFStream 
 (
-	short 				refNum, 
-	const  FSSpec*		fsSpec,
+	short 				refNum,
 	const char 			fileName[]
 ) : 
 	IStream 			(fileName),
-	_refNum 			(refNum),
-	_closeWhenFinished 	(false)
+	_refNum 			(refNum)
 { 
-	// file isn't necessarily opened
-	
-	long eof = 0;
-	
-	if (GetEOF (_refNum, &eof) != noErr)
-	{
-		OSErr err = FSpOpenDF (fsSpec, fsRdPerm, &_refNum);
-		
-		if (err != noErr)
-		{
-			throw Iex::InputExc ("Unable to open file.");
-		}
-		
-		_closeWhenFinished = true;
-	}
+
 }
 
 
@@ -51,10 +365,7 @@ RefNumIFStream::RefNumIFStream
 
 RefNumIFStream::~RefNumIFStream ()
 {
-	if (_closeWhenFinished)
-	{
-		FSClose (_refNum);
-	}
+
 }
 
 
@@ -65,24 +376,19 @@ RefNumIFStream::~RefNumIFStream ()
 bool	
 RefNumIFStream::read (char c[/*n*/], int n)
 {
-	long 	count 	= n;
-	OSErr 	err		= noErr;
-	long	fpos	= 0;
-	long	eof		= 0;
-	
-	err = FSRead (_refNum, &count, c);
-	
-	if (err != noErr || count != n)
+	if (!Read (_refNum, n, c))
 	{
-		throw Iex::InputExc ("Unexpected end of file.");
+		throw Iex::InputExc ("Unable to read file.");
 	}
 	
-	if (GetFPos (_refNum, &fpos) != noErr || GetEOF  (_refNum, &eof) != noErr)
+	Imf::Int64 fileSize;
+	
+	if (!GetSize (_refNum, fileSize))
 	{
-		throw Iex::InputExc ("Error finding file positon.");
+		throw Iex::InputExc ("Couldn't get file size.");	
 	}
-		
-	return !(fpos == eof);
+	
+	return !(fileSize == tellg());
 }
 
 
@@ -93,12 +399,9 @@ RefNumIFStream::read (char c[/*n*/], int n)
 Imf::Int64	
 RefNumIFStream::tellg ()
 {
-	long 	fpos 	= 	0;
-	OSErr	err		=	noErr;
-	
-	err = GetFPos (_refNum, &fpos);
-	
-	if (err != noErr)
+	Imf::Int64 	fpos 	= 	0;
+
+	if (!Tell (_refNum, fpos))
 	{
 		throw Iex::InputExc ("Error finding file positon.");
 	}
@@ -114,11 +417,7 @@ RefNumIFStream::tellg ()
 void	
 RefNumIFStream::seekg (Imf::Int64 pos)
 {
-	OSErr	err		=	noErr;
-	
-	err = SetFPos (_refNum, fsFromStart, pos);
-	
-	if (err != noErr)
+	if (!Seek (_refNum, pos))
 	{
 		throw Iex::InputExc ("Error setting file positon.");
 	}
@@ -153,13 +452,11 @@ RefNumOFStream::RefNumOFStream
 { 
 	// file isn't necessarily opened
 	
-	long eof = 0;
+	Imf::Int64 size = 0;
 	
-	if (GetEOF (_refNum, &eof) != noErr)
+	if (!GetSize (_refNum, size))
 	{
-		OSErr err = FSpOpenDF (fsSpec, fsWrPerm, &_refNum);
-		
-		if (err != noErr)
+		if (!Open (fsSpec, _refNum))
 		{
 			throw Iex::IoExc ("Unable to open file.");
 		}
@@ -177,7 +474,7 @@ RefNumOFStream::~RefNumOFStream ()
 {
 	if (_closeWhenFinished)
 	{
-		FSClose (_refNum);
+		Close (_refNum); // ignore error - don't want to throw in a destructor
 	}
 }
 
@@ -189,12 +486,7 @@ RefNumOFStream::~RefNumOFStream ()
 void	
 RefNumOFStream::write (const char c[/*n*/], int n)
 {
-	long 	count 	= n;
-	OSErr 	err		= noErr;
-	
-	err = FSWrite (_refNum, &count, c);
-	
-	if (err != noErr || count != n)
+	if (!Write (_refNum, n, c))
 	{
 		throw Iex::IoExc ("Unable to write file.");
 	}	
@@ -208,14 +500,11 @@ RefNumOFStream::write (const char c[/*n*/], int n)
 Imf::Int64	
 RefNumOFStream::tellp ()
 {
-	long 	fpos 	= 	0;
-	OSErr	err		=	noErr;
-	
-	err = GetFPos (_refNum, &fpos);
-	
-	if (err != noErr)
+	Imf::Int64 	fpos 	= 	0;
+
+	if (!Tell (_refNum, fpos))
 	{
-		throw Iex::IoExc ("Error finding file positon.");
+		throw Iex::InputExc ("Error finding file positon.");
 	}
 	
 	return fpos;
@@ -229,275 +518,8 @@ RefNumOFStream::tellp ()
 void	
 RefNumOFStream::seekp (Imf::Int64 pos)
 {
-	OSErr	err		=	noErr;
-	
-	err = SetFPos (_refNum, fsFromStart, pos);
-	
-	if (err != noErr)
+	if (!Seek (_refNum, pos))
 	{
-		throw Iex::IoExc ("Error setting file positon.");
+		throw Iex::InputExc ("Error setting file positon.");
 	}
 }
-
-#endif
-
-
-// ===========================================================================
-//	Windows Implementation
-// ===========================================================================
-
-#if MSWindows
-
-//-------------------------------------------------------------------------------
-// IStream Constructor
-//-------------------------------------------------------------------------------
-
-RefNumIFStream::RefNumIFStream 
-(
-	short 				refNum, 
-	const  FSSpec*		fsSpec,
-	const char 			fileName[]
-) : 
-	IStream 			(fileName),
-	_refNum 			(refNum),
-	_closeWhenFinished 	(false)
-{ 
-    // file may not be open
-
-    DWORD sizeHi = 0;
-
-    if (GetFileSize ((Handle) _refNum, &sizeHi) == INVALID_FILE_SIZE && GetLastError() != NO_ERROR)
-    {
-        std::string name;
-        for (int i = 1; i <= fsSpec->name[0]; ++i)
-        {
-            name += fsSpec->name[i];
-        }
-
-        HANDLE h = CreateFile (name.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-        if (h == INVALID_HANDLE_VALUE)
-        {
-            throw Iex::IoExc ("Unable to open file.");
-        }
-
-        _refNum = (short) h;
-        _closeWhenFinished = true;
-    }
-}
-
-
-//-------------------------------------------------------------------------------
-// IStream Destructor
-//-------------------------------------------------------------------------------
-
-RefNumIFStream::~RefNumIFStream ()
-{
-    if (_closeWhenFinished)
-    {
-        CloseHandle ((Handle) _refNum);
-    }
-}
-
-
-//-------------------------------------------------------------------------------
-// read
-//-------------------------------------------------------------------------------
-
-bool	
-RefNumIFStream::read (char c[/*n*/], int n)
-{
-    DWORD nRead;
-    BOOL  result;
-
-    result = ReadFile ((HANDLE) _refNum, c, n, &nRead, NULL);
-
-    if (!result)
-    {
-        throw Iex::InputExc ("Error reading file.");
-    }
-
-    LARGE_INTEGER li;
-    DWORD         hi;
-
-    li.QuadPart = 0;
-    hi          = 0;
-
-    li.LowPart  = GetFileSize ((Handle) _refNum, &hi);
-    li.HighPart = hi;
-
-    if (li.LowPart == INVALID_FILE_SIZE && GetLastError() != NO_ERROR)
-    {
-        throw Iex::InputExc ("Error getting file size.");
-    }
-
-    return !(li.QuadPart == tellg());;
-}
-
-
-//-------------------------------------------------------------------------------
-// tellg
-//-------------------------------------------------------------------------------
-
-Imf::Int64	
-RefNumIFStream::tellg ()
-{
-	LARGE_INTEGER li;
-
-    li.QuadPart = 0;
-
-    li.LowPart = SetFilePointer ((HANDLE) _refNum, 0, &li.HighPart, FILE_CURRENT);
-
-    if (li.HighPart == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
-    {
-        throw Iex::InputExc ("Error getting file position.");
-    }
-
-    return li.QuadPart;
-}
-
-
-//-------------------------------------------------------------------------------
-// seekg
-//-------------------------------------------------------------------------------
-
-void	
-RefNumIFStream::seekg (Imf::Int64 pos)
-{
-	LARGE_INTEGER li;
-
-    li.QuadPart = pos;
-
-    SetFilePointer ((HANDLE) _refNum, li.LowPart, &li.HighPart, FILE_BEGIN);
-
-    if (li.HighPart == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
-    {
-        throw Iex::InputExc ("Error getting file position.");
-    }
-}
-
-
-//-------------------------------------------------------------------------------
-// clear
-//-------------------------------------------------------------------------------
-
-void	
-RefNumIFStream::clear ()
-{
-	// nothing to do
-}
-
-
-//-------------------------------------------------------------------------------
-// OStream Constructor
-//-------------------------------------------------------------------------------
-
-RefNumOFStream::RefNumOFStream 
-(
-	short 				refNum, 
-	const  FSSpec*		fsSpec,
-	const char 			fileName[]
-) : 
-	OStream 			(fileName),
-	_refNum 			(refNum),
-	_closeWhenFinished 	(false)
-{ 
-    // file may not be open
-
-    DWORD sizeHi = 0;
-
-    if (GetFileSize ((Handle) _refNum, &sizeHi) == INVALID_FILE_SIZE && GetLastError() != NO_ERROR)
-    {
-        std::string name;
-        for (int i = 1; i <= fsSpec->name[0]; ++i)
-        {
-            name += fsSpec->name[i];
-        }
-
-        HANDLE h = CreateFile (name.c_str(), GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-        if (h == INVALID_HANDLE_VALUE)
-        {
-            throw Iex::IoExc ("Unable to open file.");
-        }
-
-        _refNum = (short) h;
-        _closeWhenFinished = true;
-    }
-}
-
-
-//-------------------------------------------------------------------------------
-// OStream Destructor
-//-------------------------------------------------------------------------------
-
-RefNumOFStream::~RefNumOFStream ()
-{
-    if (_closeWhenFinished)
-    {
-        CloseHandle ((Handle) _refNum);
-    }
-}
-
-
-//-------------------------------------------------------------------------------
-// write
-//-------------------------------------------------------------------------------
-
-void	
-RefNumOFStream::write (const char c[/*n*/], int n)
-{
-    DWORD nRead;
-    BOOL  result;
-
-    result = WriteFile ((HANDLE) _refNum, c, n, &nRead, NULL);
-
-    if (!result)
-    {
-        throw Iex::InputExc ("Error reading file.");
-    }
-}
-
-
-//-------------------------------------------------------------------------------
-// tellp
-//-------------------------------------------------------------------------------
-
-Imf::Int64	
-RefNumOFStream::tellp ()
-{
-	LARGE_INTEGER li;
-
-    li.QuadPart = 0;
-
-    li.LowPart = SetFilePointer ((HANDLE) _refNum, 0, &li.HighPart, FILE_CURRENT);
-
-    if (li.HighPart == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
-    {
-        throw Iex::IoExc ("Error getting file position.");
-    }
-
-    return li.QuadPart;
-}
-
-
-//-------------------------------------------------------------------------------
-// seekp
-//-------------------------------------------------------------------------------
-
-void	
-RefNumOFStream::seekp (Imf::Int64 pos)
-{
-	LARGE_INTEGER li;
-
-    li.QuadPart = pos;
-
-    SetFilePointer ((HANDLE) _refNum, li.LowPart, &li.HighPart, FILE_BEGIN);
-
-    if (li.HighPart == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
-    {
-        throw Iex::IoExc ("Error getting file position.");
-    }
-}
-
-#endif

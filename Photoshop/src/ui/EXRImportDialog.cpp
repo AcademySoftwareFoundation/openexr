@@ -19,6 +19,7 @@
 
 #include <ImfArray.h>
 #include <ImfRgbaFile.h>
+#include <ImathFun.h>
 
 #include "PITypes.h"
 
@@ -322,9 +323,14 @@ static void ResamplePreview (GPtr globals)
 				
 				if (globals->premult && bigPixel.a != 0)
 				{
-				    bigPixel.r /= bigPixel.a;
-				    bigPixel.g /= bigPixel.a;
-				    bigPixel.b /= bigPixel.a;
+					// we're going to throw away any alpha data > 1, so 
+                    // clamp it to that range before using it for unmulting
+
+                    float a = Imath::clamp ((float) bigPixel.a, 0.f, 1.f);
+				
+				    bigPixel.r /= a;
+				    bigPixel.g /= a;
+				    bigPixel.b /= a;
 				}
 				
 				
