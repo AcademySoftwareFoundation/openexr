@@ -49,6 +49,7 @@
 namespace Imf {
 
 class InputFile;
+class PreviewRgba;
 
 
 class OutputFile
@@ -158,6 +159,26 @@ class OutputFile
 
     void		copyPixels (InputFile &in);
 
+
+    //--------------------------------------------------------------
+    // Updating the preview image:
+    //
+    // updatePreviewImage() supplies a new set of pixels for the
+    // preview image attribute in the file's header.  If the header
+    // does not contain a preview image, updatePreviewImage() throws
+    // an Iex::LogicExc.
+    //
+    // Note: updatePreviewImage() is necessary because images are
+    // often stored in a file incrementally, a few scan lines at a
+    // time, while the image is being generated.  Since the preview
+    // image is an attribute in the file's header, it gets stored in
+    // the file as soon as the file is opened, but we may not know
+    // what the preview image should look like until we have written
+    // the last scan line of the main image.
+    //
+    //--------------------------------------------------------------
+
+    void		updatePreviewImage (const PreviewRgba newPixels[]);
 
     class Data;
 
