@@ -251,8 +251,6 @@ Image::writePixels (int xMin, int xMaxPlusone,
 
     assert (yMin == yMaxPlusone - 1);
 
-    assert (entrySize == _rmanPixelSize);
-
     const ChannelList &channels = _file.header().channels();
     int      numPixels = xMaxPlusone - xMin;
     int      j = 0;
@@ -272,7 +270,7 @@ Image::writePixels (int xMin, int xMaxPlusone,
 	 ++i)
     {
 	const unsigned char *from = data + _rmanChannelOffsets[j];
-	const unsigned char *end  = from + numPixels * _rmanPixelSize;
+	const unsigned char *end  = from + numPixels * entrySize;
 
 	char *to = toBase + _bufferChannelOffsets[j];
 
@@ -285,7 +283,7 @@ Image::writePixels (int xMin, int xMaxPlusone,
 	    while (from < end)
 	    {
 		*(half *) to = lut( ( half )( *(float *) from ) );
-		from += _rmanPixelSize;
+		from += entrySize;
 		to += toInc;
 	    }
 
@@ -297,7 +295,7 @@ Image::writePixels (int xMin, int xMaxPlusone,
 	    while (from < end)
 	    {
 		*(float *) to = *(float *) from;
-		from += _rmanPixelSize;
+		from += entrySize;
 		to += toInc;
 	    }
 
@@ -321,6 +319,7 @@ Image::writePixels (int xMin, int xMaxPlusone,
 	// If our one-line frame buffer is full, then write it to
 	// the output file.
 	//
+
 	_file.writePixels();
 	_numPixelsReceived = 0;
     }
