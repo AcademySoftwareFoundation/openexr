@@ -79,6 +79,10 @@ usageMessage (const char argv0[], bool verbose = false)
 		"-t x y    sets the tile size in the output image to\n"
 		"          x by y pixels (default is 64 by 64)\n"
 		"\n"
+		"-d        sets level size rounding ROUND_DOWN (default)\n"
+		"\n"
+		"-u        sets level size rounding ROUND_UP\n"
+		"\n"
 		"-v        verbose mode\n"
 		"\n"
 		"-h        prints this message\n";
@@ -96,6 +100,7 @@ main(int argc, char **argv)
     const char *inFile = 0;
     const char *outFile = 0;
     LevelMode mode = ONE_LEVEL;
+    LevelRoundingMode roundingMode = ROUND_DOWN;
     int tileSizeX = 64;
     int tileSizeY = 64;
     set<string> doNotFilter;
@@ -164,6 +169,24 @@ main(int argc, char **argv)
 	    tileSizeY = strtol (argv[i + 2], 0, 0);
 	    i += 3;
 	}
+	else if (!strcmp (argv[i], "-d"))
+	{
+	    //
+	    // Round down
+	    //
+
+	    roundingMode = ROUND_DOWN;
+	    i += 1;
+	}
+	else if (!strcmp (argv[i], "-u"))
+	{
+	    //
+	    // Round down
+	    //
+
+	    roundingMode = ROUND_UP;
+	    i += 1;
+	}
 	else if (!strcmp (argv[i], "-v"))
 	{
 	    //
@@ -208,7 +231,7 @@ main(int argc, char **argv)
     try
     {
 	makeTiled (inFile, outFile,
-		   mode,
+		   mode, roundingMode,
 		   tileSizeX, tileSizeY,
 		   doNotFilter,
 		   verbose);
