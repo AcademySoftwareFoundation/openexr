@@ -1,3 +1,14 @@
+Version 1.2.1:
+    - reduced memory footprint of exrenvmap and exrmaketiled 
+      utilities.
+    - IlmImf: new helper functions to determine whether a
+      file is an OpenEXR file, and whether it's scanline- or
+      tile-based.
+    - IlmImf: bug fix for PXR24 compression with ySampling != 1.
+    - Imath: a few new enhancements
+    - Better support for gcc 3.4.
+    - Warning cleanups in Visual C++.
+
 Version 1.2:
     - Production-ready release.
     - Support for gcc 3.4.
