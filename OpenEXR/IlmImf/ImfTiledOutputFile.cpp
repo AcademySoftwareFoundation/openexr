@@ -669,7 +669,7 @@ TiledOutputFile::initialize (const Header &header)
 				      _data->numYTiles);
 
     _data->previewPosition =
-	_data->header.writeTo(*_data->os, _data->version, true);
+	_data->header.writeTo(*_data->os, true);
 
     _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_data->os);
     _data->currentPosition = _data->os->tellp();
