@@ -1,3 +1,4 @@
+Version 1.2.1:
 	* exrenvmap and exrmaketiled use slightly less memory
 	  (Florian Kainz)
 	* Added functions to IlmImf for quickly testing if a file
