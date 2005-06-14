@@ -1,3 +1,5 @@
+	* Added operator== and operator!= to Imath::Frustum.
+	  (Andre Mazzone)
 	* Bug fix: Reading a PIZ-compressed file with an invalid
 	  Huffman code table caused crashes by indexing off the
 	  end of an array.
