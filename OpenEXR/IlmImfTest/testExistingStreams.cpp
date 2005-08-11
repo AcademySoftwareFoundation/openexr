@@ -42,6 +42,8 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <Iex.h>
+#include <errno.h>
 
 using namespace Imf;
 using namespace Imath;
@@ -85,6 +87,111 @@ fillPixels2 (Array2D<Rgba> &pixels, int w, int h)
 }
 
 
+//-----------------------------------------------------------
+// class MMIFStream -- a memory-mapped implementation of
+// class IStream based on class std::ifstream
+//-----------------------------------------------------------
+
+class MMIFStream: public IStream
+{
+  public:
+
+    //-------------------------------------------------------
+    // A constructor that opens the file with the given name.
+    // It reads the whole file into an internal buffer and
+    // then immediately closes the file.
+    //-------------------------------------------------------
+
+    MMIFStream (const char fileName[]);
+
+    virtual ~MMIFStream ();
+
+    virtual bool        isMemoryMapped () const {return true;}
+
+    virtual bool	read (char c[/*n*/], int n);
+    virtual char*       readMemoryMapped (int n);
+    virtual Int64	tellg () {return _pos;}
+    virtual void	seekg (Int64 pos) {_pos = pos;}
+    virtual void	clear () {}
+
+  private:
+
+    char*               _buffer;
+    Int64               _length;
+    Int64               _pos;
+};
+
+
+
+MMIFStream::MMIFStream (const char fileName[]):
+    IStream (fileName),
+    _buffer (0),
+    _length (0),
+    _pos (0)
+{
+#ifndef HAVE_IOS_BASE
+    std::ifstream ifs (fileName, ios::binary | ios::in);
+#else
+    std::ifstream ifs (fileName, ios_base::binary);
+#endif
+
+    // get length of file:
+    ifs.seekg (0, ios::end);
+    _length = ifs.tellg();
+    ifs.seekg (0, ios::beg);
+    
+    // allocate memory:
+    _buffer = new char [_length];
+    
+    // read data as a block:
+    ifs.read (_buffer, _length);
+    
+    ifs.close();
+}
+
+
+MMIFStream::~MMIFStream ()
+{
+    delete [] _buffer;
+}
+
+
+bool
+MMIFStream::read (char c[/*n*/], int n)
+{
+    if ((_pos < 0 || _pos >= _length) && n != 0)
+	throw Iex::InputExc ("Unexpected end of file.");
+        
+    Int64 n2 = n;
+    bool retVal = true;
+    if (_length - _pos <= n2)
+    {
+        n2 = _length - _pos;
+        retVal = false;
+    }
+
+    memcpy (c, &(_buffer[_pos]), n2);
+    _pos += n2;
+
+    return retVal;
+}
+
+
+char*
+MMIFStream::readMemoryMapped (int n)
+{
+    if (_pos < 0 || _pos >= _length)
+	throw Iex::InputExc ("Unexpected end of file.");
+       
+    if (_pos + n > _length)
+        throw Iex::InputExc ("Reading past end of file.");    
+
+    char* retVal = &(_buffer[_pos]);
+    _pos += n;
+    return retVal;
+}
+
+
 void
 writeReadScanLines (const char fileName[],
 		    int width,
@@ -100,11 +207,12 @@ writeReadScanLines (const char fileName[],
     // with the original data.
     //
 
-    cout << "scan-line based file" << endl;
+    cout << "scan-line based file: ";
 
     Header header (width, height);
 
     {
+        cout << "writing";
 	remove (fileName);
 #ifndef HAVE_IOS_BASE
 	std::ofstream os (fileName, ios::binary);
@@ -118,6 +226,7 @@ writeReadScanLines (const char fileName[],
     }
 
     {
+        cout << ", reading";
 #ifndef HAVE_IOS_BASE
 	std::ifstream is (fileName, ios::binary|ios::in);
 #else
@@ -136,6 +245,7 @@ writeReadScanLines (const char fileName[],
 	in.setFrameBuffer (&p2[-dy][-dx], 1, w);
 	in.readPixels (dw.min.y, dw.max.y);
 
+        cout << ", comparing";
 	for (int y = 0; y < h; ++y)
 	{
 	    for (int x = 0; x < w; ++x)
@@ -147,6 +257,36 @@ writeReadScanLines (const char fileName[],
 	    }
 	}
     }
+    
+    {
+        cout << ", reading (memory-mapped)";
+	MMIFStream ifs (fileName);
+	RgbaInputFile in (ifs);
+
+	const Box2i &dw = in.dataWindow();
+	int w = dw.max.x - dw.min.x + 1;
+	int h = dw.max.y - dw.min.y + 1;
+	int dx = dw.min.x;
+	int dy = dw.min.y;
+
+	Array2D<Rgba> p2 (h, w);
+	in.setFrameBuffer (&p2[-dy][-dx], 1, w);
+	in.readPixels (dw.min.y, dw.max.y);
+
+        cout << ", comparing";
+	for (int y = 0; y < h; ++y)
+	{
+	    for (int x = 0; x < w; ++x)
+	    {
+		assert (p2[y][x].r == p1[y][x].r);
+		assert (p2[y][x].g == p1[y][x].g);
+		assert (p2[y][x].b == p1[y][x].b);
+		assert (p2[y][x].a == p1[y][x].a);
+	    }
+	}
+    }
+    
+    cout << endl;
 
     remove (fileName);
 }
@@ -166,12 +306,13 @@ writeReadTiles (const char fileName[],
     // with the original data.
     //
 
-    cout << "tiled file" << endl;
+    cout << "tiled file: ";
 
     Header header (width, height);
 
     {
-	remove (fileName);
+        cout << "writing";
+	//remove (fileName);
 #ifndef HAVE_IOS_BASE
 	std::ofstream os (fileName, ios::binary);
 #else
@@ -180,13 +321,11 @@ writeReadTiles (const char fileName[],
 	StdOFStream ofs (os, fileName);
 	TiledRgbaOutputFile out (ofs, header, WRITE_RGBA, 20, 20, ONE_LEVEL);
 	out.setFrameBuffer (&p1[0][0], 1, width);
-
-	for (int dy = 0; dy < out.numYTiles(); ++dy)
-	    for (int dx = 0; dx < out.numXTiles(); ++dx)
-		out.writeTile (dx, dy);
+        out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
     }
 
     {
+        cout << ", reading";
 #ifndef HAVE_IOS_BASE
 	std::ifstream is (fileName, ios::binary|ios::in);
 #else
@@ -203,11 +342,9 @@ writeReadTiles (const char fileName[],
 
 	Array2D<Rgba> p2 (h, w);
 	in.setFrameBuffer (&p2[-dy][-dx], 1, w);
+        in.readTiles (0, in.numXTiles() - 1, 0, in.numYTiles() - 1);
 
-	for (int dy = 0; dy < in.numYTiles(); ++dy)
-	    for (int dx = 0; dx < in.numXTiles(); ++dx)
-		in.readTile (dx, dy);
-
+        cout << ", comparing";
 	for (int y = 0; y < h; ++y)
 	{
 	    for (int x = 0; x < w; ++x)
@@ -219,6 +356,36 @@ writeReadTiles (const char fileName[],
 	    }
 	}
     }
+    
+    {
+        cout << ", reading (memory-mapped)";
+	MMIFStream ifs (fileName);
+	TiledRgbaInputFile in (ifs);
+
+	const Box2i &dw = in.dataWindow();
+	int w = dw.max.x - dw.min.x + 1;
+	int h = dw.max.y - dw.min.y + 1;
+	int dx = dw.min.x;
+	int dy = dw.min.y;
+
+	Array2D<Rgba> p2 (h, w);
+	in.setFrameBuffer (&p2[-dy][-dx], 1, w);
+        in.readTiles (0, in.numXTiles() - 1, 0, in.numYTiles() - 1);
+
+        cout << ", comparing";
+	for (int y = 0; y < h; ++y)
+	{
+	    for (int x = 0; x < w; ++x)
+	    {
+		assert (p2[y][x].r == p1[y][x].r);
+		assert (p2[y][x].g == p1[y][x].g);
+		assert (p2[y][x].b == p1[y][x].b);
+		assert (p2[y][x].a == p1[y][x].a);
+	    }
+	}
+    }
+    
+    cout << endl;
 
     remove (fileName);
 }
@@ -243,7 +410,7 @@ testExistingStreams ()
 	writeReadScanLines (IMF_TMP_DIR "imf_test_streams.exr", W, H, p1);
 
 	fillPixels2 (p1, W, H);
-	writeReadTiles (IMF_TMP_DIR "imf_test_streams.exr", W, H, p1);
+	writeReadTiles (IMF_TMP_DIR "imf_test_streams2.exr", W, H, p1);
 
 	cout << "ok\n" << endl;
     }

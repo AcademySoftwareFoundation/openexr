@@ -42,11 +42,15 @@
 
 #include <ImfAttribute.h>
 #include <Iex.h>
+#include <IlmThreadMutex.h>
 #include <string.h>
 #include <map>
 
 
 namespace Imf {
+
+using IlmThread::Mutex;
+using IlmThread::Lock;
 
 
 Attribute::Attribute () {}
@@ -71,13 +75,24 @@ typedef Attribute* (*Constructor)();
 typedef std::map <const char *, Constructor, NameCompare> TypeMap;
 
 
-TypeMap &
+Mutex criticalSection;
+
+class LockedTypeMap : public TypeMap
+{
+public:
+    Mutex mutex;
+};
+
+
+LockedTypeMap &
 typeMap ()
 {
-    static TypeMap *typeMap = 0;
+    Lock lock (criticalSection);
+
+    static LockedTypeMap* typeMap = 0;
 
     if (typeMap == 0)
-	typeMap = new TypeMap;
+	typeMap = new LockedTypeMap ();
 
     return *typeMap;
 }
@@ -89,7 +104,10 @@ typeMap ()
 bool		
 Attribute::knownType (const char typeName[])
 {
-    return typeMap().find (typeName) != typeMap().end();
+    LockedTypeMap& tMap = typeMap();
+    Lock lock (tMap.mutex);
+
+    return tMap.find (typeName) != tMap.end();
 }
 
 
@@ -97,28 +115,37 @@ void
 Attribute::registerAttributeType (const char typeName[],
 			          Attribute *(*newAttribute)())
 {
-    if (typeMap().find (typeName) != typeMap().end())
+    LockedTypeMap& tMap = typeMap();
+    Lock lock (tMap.mutex);
+
+    if (tMap.find (typeName) != tMap.end())
 	THROW (Iex::ArgExc, "Cannot register image file attribute "
 			    "type \"" << typeName << "\". "
 			    "The type has already been registered.");
 
-    typeMap().insert (TypeMap::value_type (typeName, newAttribute));
+    tMap.insert (TypeMap::value_type (typeName, newAttribute));
 }
 
 
 void
 Attribute::unRegisterAttributeType (const char typeName[])
 {
-    typeMap().erase (typeName);
+    LockedTypeMap& tMap = typeMap();
+    Lock lock (tMap.mutex);
+
+    tMap.erase (typeName);
 }
 
 
 Attribute *
 Attribute::newAttribute (const char typeName[])
 {
-    TypeMap::const_iterator i = typeMap().find (typeName);
+    LockedTypeMap& tMap = typeMap();
+    Lock lock (tMap.mutex);
 
-    if (i == typeMap().end())
+    TypeMap::const_iterator i = tMap.find (typeName);
+
+    if (i == tMap.end())
 	THROW (Iex::ArgExc, "Cannot create image file attribute of "
 			    "unknown type \"" << typeName << "\".");
 

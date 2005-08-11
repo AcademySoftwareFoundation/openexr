@@ -48,6 +48,7 @@
 #include <ImfTiledOutputFile.h>
 #include <string>
 #include <fstream>
+#include <ImfThreading.h>
 
 namespace Imf {
 
@@ -64,7 +65,7 @@ class InputFile
     // Destroying the InputFile object will close the file.
     //-----------------------------------------------------------
 
-    InputFile (const char fileName[]);
+    InputFile (const char fileName[], int numThreads = globalThreadCount ());
 
 
     //-------------------------------------------------------------
@@ -73,7 +74,7 @@ class InputFile
     // object will not close the file.
     //-------------------------------------------------------------
 
-    InputFile (IStream &is);
+    InputFile (IStream &is, int numThreads = globalThreadCount ());
 
 
     //-----------
@@ -145,7 +146,7 @@ class InputFile
     // and stores them in the current frame buffer.
     //
     // Both s1 and s2 must be within the interval
-    // [header().dataWindow().min.y, header.dataWindow().max.y]
+    // [header().dataWindow().min.y, header().dataWindow().max.y]
     //
     // The scan lines can be read from the file in random order, and
     // individual scan lines may be skipped or read multiple times.

@@ -305,18 +305,18 @@ struct ImfOutputFile;
 typedef struct ImfOutputFile ImfOutputFile;
 
 ImfOutputFile *	ImfOpenOutputFile (const char name[],
-						   const ImfHeader *hdr,
-						   int channels);
+				   const ImfHeader *hdr,
+				   int channels);
 
 int			ImfCloseOutputFile (ImfOutputFile *out);
 
 int			ImfOutputSetFrameBuffer (ImfOutputFile *out,
-							 const ImfRgba *base,
-							 size_t xStride,
-							 size_t yStride);
+						 const ImfRgba *base,
+						 size_t xStride,
+						 size_t yStride);
 
 int			ImfOutputWritePixels (ImfOutputFile *out,
-						      int numScanLines);
+					      int numScanLines);
 
 int			ImfOutputCurrentScanLine (const ImfOutputFile *out);
 
@@ -341,13 +341,18 @@ ImfTiledOutputFile *	ImfOpenTiledOutputFile (const char name[],
 int		ImfCloseTiledOutputFile (ImfTiledOutputFile *out);
 
 int		ImfTiledOutputSetFrameBuffer (ImfTiledOutputFile *out,
-						      const ImfRgba *base,
-						      size_t xStride,
-						      size_t yStride);
+					      const ImfRgba *base,
+					      size_t xStride,
+					      size_t yStride);
 
 int		ImfTiledOutputWriteTile (ImfTiledOutputFile *out,
-						 int dx, int dy,
-						 int lx, int ly);
+					 int dx, int dy,
+					 int lx, int ly);
+
+int             ImfTiledOutputWriteTiles (ImfTiledOutputFile *out,
+                                          int dxMin, int dxMax,
+                                          int dyMin, int dyMax,
+                                          int lx, int ly);
 
 const ImfHeader *	ImfTiledOutputHeader (const ImfTiledOutputFile *out);
 
@@ -401,13 +406,18 @@ ImfTiledInputFile *	ImfOpenTiledInputFile (const char name[]);
 int		ImfCloseTiledInputFile (ImfTiledInputFile *in);
 
 int		ImfTiledInputSetFrameBuffer (ImfTiledInputFile *in,
-						     ImfRgba *base,
-						     size_t xStride,
-						     size_t yStride);
+					     ImfRgba *base,
+					     size_t xStride,
+					     size_t yStride);
 
 int		ImfTiledInputReadTile (ImfTiledInputFile *in,
-					       int dx, int dy,
-					       int lx, int ly);
+				       int dx, int dy,
+				       int lx, int ly);
+
+int		ImfTiledInputReadTiles (ImfTiledInputFile *in,
+                                        int dxMin, int dxMax,
+                                        int dyMin, int dyMax,
+                                        int lx, int ly);
 
 const ImfHeader *	ImfTiledInputHeader (const ImfTiledInputFile *in);
 

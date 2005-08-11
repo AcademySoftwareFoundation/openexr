@@ -46,6 +46,8 @@
 #include <ImfCompressor.h>
 #include <ImfMisc.h>
 
+#include <IlmThreadMutex.h>
+
 #include <ImfBoxAttribute.h>
 #include <ImfChannelListAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
@@ -77,6 +79,8 @@ namespace Imf {
 using Imath::Box2i;
 using Imath::V2i;
 using Imath::V2f;
+using IlmThread::Mutex;
+using IlmThread::Lock;
 
 
 namespace {
@@ -101,6 +105,7 @@ initialize (Header &header,
     header.insert ("channels", ChannelListAttribute ());
 }
 
+Mutex criticalSection;
 
 } // namespace
 
@@ -896,6 +901,8 @@ Header::readFrom (IStream &is, int &version)
 void
 staticInitialize ()
 {
+    Lock lock (criticalSection);
+
     static bool initialized = false;
 
     if (!initialized)

@@ -56,6 +56,10 @@
 #include <fstream>
 #include <assert.h>
 
+#include <IlmThreadPool.h>
+#include <IlmThreadSemaphore.h>
+#include <IlmThreadMutex.h>
+
 
 namespace Imf {
 
@@ -65,7 +69,9 @@ using Imath::modp;
 using std::string;
 using std::vector;
 using std::ofstream;
-
+using std::min;
+using std::max;
+using namespace IlmThread;
 
 namespace {
 
@@ -108,51 +114,101 @@ OutSliceInfo::OutSliceInfo (PixelType t,
 }
 
 
-} // namespace
-
-
-struct OutputFile::Data
+struct LineBuffer
 {
-    Header		 header;
-    int			 version;
-    Int64		 previewPosition;
-    FrameBuffer		 frameBuffer;
-    int			 currentScanLine;
-    int			 missingScanLines;
-    LineOrder		 lineOrder;
-    int			 minX;
-    int			 maxX;
-    int			 minY;
-    int			 maxY;
-    vector<Int64>	 lineOffsets;
-    int			 linesInBuffer;
-    size_t		 lineBufferSize;
-    int			 lineBufferMinY;
-    int			 lineBufferMaxY;
-    Array<char>		 lineBuffer;
-    char *		 endOfLineBufferData;
-    vector<size_t>	 bytesPerLine;
-    vector<size_t>	 offsetInLineBuffer;
-    Compressor *	 compressor;
-    Compressor::Format	 format;
-    vector<OutSliceInfo> slices;
-    OStream *		 os;
-    bool		 deleteStream;
-    Int64		 lineOffsetsPosition;
-    Int64		 currentPosition;
+    Array<char>           buffer;
+    const char*           dataPtr;
+    int                   dataSize;
+    char*                 endOfLineBufferData;
+    int                   minY;
+    int                   maxY;
+    int                   scanLineMin;
+    int                   scanLineMax;
+    Compressor * const    compressor;
+    bool                  partiallyFull;        // has incomplete data
+    bool                  hasException;
+    string                exception;
 
-     Data (bool del);
-    ~Data ();
+    LineBuffer (Compressor * const comp);
+    ~LineBuffer ();
+
+    inline void wait () {_sem.wait();}
+    inline void post () {_sem.post();}
+
+protected:
+    Semaphore _sem;
 };
 
 
-OutputFile::Data::Data (bool del):
+LineBuffer::LineBuffer (Compressor * const comp) :
+    dataPtr (0),
+    dataSize (0),
+    compressor (comp),
+    partiallyFull (false),
+    hasException (false),
+    exception (),
+    _sem (1)
+{
+    // empty
+}
+
+
+LineBuffer::~LineBuffer ()
+{
+    delete compressor;
+}
+
+} // namespace
+
+
+struct OutputFile::Data : public Mutex
+{
+    Header		 header;		// the image header
+    int			 version;		// file format version
+    Int64		 previewPosition;       // file position for preview
+    FrameBuffer		 frameBuffer;           // framebuffer to write into
+    int			 currentScanLine;       // next scanline to be written
+    int			 missingScanLines;      // number of lines to write
+    LineOrder		 lineOrder;		// the file's lineorder
+    int			 minX;			// data window's min x coord
+    int			 maxX;			// data window's max x coord
+    int			 minY;			// data window's min y coord
+    int			 maxY;			// data window's max x coord
+    vector<Int64>	 lineOffsets;		// stores offsets in file for
+						// each scanline
+    vector<size_t>	 bytesPerLine;          // combined size of a line over
+                                                // all channels
+    vector<size_t>	 offsetInLineBuffer;    // offset for each scanline in
+                                                // its linebuffer
+    Compressor::Format	 format;                // compressor's data format
+    vector<OutSliceInfo> slices;		// info about channels in file
+    OStream *		 os;			// file stream to write to
+    bool		 deleteStream;
+    Int64		 lineOffsetsPosition;   // file position for line
+                                                // offset table
+    Int64		 currentPosition;       // current file position
+
+    vector<LineBuffer*>  lineBuffers;           // each holds one line buffer
+    int			 linesInBuffer;         // number of scanlines each
+                                                // buffer holds
+    size_t		 lineBufferSize;        // size of the line buffer
+
+     Data (bool del, int numThreads);
+    ~Data ();
+
+    // hash function from line buffer indices into our vector of line buffers
+    inline LineBuffer* getLineBuffer (int number);
+};
+
+
+OutputFile::Data::Data (bool del, int numThreads):
     os (0),
-    compressor (0),
     deleteStream (del),
     lineOffsetsPosition (0)
 {
-    // empty
+    // we need at least one lineBuffer, but if threading is used, to keep
+    // n threads busy we need 2n lineBuffers
+    lineBuffers.resize (max (1, 2*numThreads));
 }
 
 
@@ -161,7 +217,15 @@ OutputFile::Data::~Data ()
     if (deleteStream)
 	delete os;
 
-    delete compressor;
+    for (size_t i = 0; i < lineBuffers.size(); i++)
+        delete lineBuffers[i];
+}
+
+
+LineBuffer*
+OutputFile::Data::getLineBuffer (int number)
+{
+    return lineBuffers[number % lineBuffers.size()];
 }
 
 
@@ -185,6 +249,7 @@ writeLineOffsets (OStream &os, const vector<Int64> &lineOffsets)
 
 void
 writePixelData (OutputFile::Data *ofd,
+                int lineBufferMinY,
 		const char pixelData[],
 		int pixelDataSize)
 {
@@ -209,7 +274,7 @@ writePixelData (OutputFile::Data *ofd,
 
     #endif
 
-    Xdr::write <StreamIO> (*ofd->os, ofd->lineBufferMinY);
+    Xdr::write <StreamIO> (*ofd->os, lineBufferMinY);
     Xdr::write <StreamIO> (*ofd->os, pixelDataSize);
     ofd->os->write (pixelData, pixelDataSize);
 
@@ -220,15 +285,28 @@ writePixelData (OutputFile::Data *ofd,
 }
 
 
+inline void
+writePixelData (OutputFile::Data * ofd, const LineBuffer* lineBuffer)
+{
+    writePixelData(ofd, lineBuffer->minY,
+                   lineBuffer->dataPtr, lineBuffer->dataSize);
+}
+
+
 void
-convertToXdr (OutputFile::Data *ofd, int inSize)
+convertToXdr (OutputFile::Data *ofd,
+              Array<char>& lineBuffer,
+              int lineBufferMinY,
+              int lineBufferMaxY,
+              int inSize)
 {
     //
-    // Convert the contents of an OutputFile's lineBuffer from the machine's
-    // native representation to Xdr format.  This function is called by
-    // writePixels(), below, if the compressor wanted its input pixel data
-    // in the machine's native format, but then failed to compress the data
-    // (most compressors will expand rather than compress random input data).
+    // Convert the contents of a lineBuffer from the machine's native
+    // representation to Xdr format.  This function is called by
+    // CompressLineBuffer::execute(), below, if the compressor wanted its input
+    // pixel data in the machine's native format, but then failed to compress
+    // the data (most compressors will expand rather than compress random input
+    // data).
     //
     // Note that this routine assumes that the machine's native representation
     // of the pixel data has the same size as the Xdr representation.  This
@@ -238,36 +316,34 @@ convertToXdr (OutputFile::Data *ofd, int inSize)
    
     int startY, endY;		// The first and last scanlines in
     				// the file that are in the lineBuffer.
-    int dy;
+    int step;
     
     if (ofd->lineOrder == INCREASING_Y)
     {
-	startY = std::max (ofd->lineBufferMinY, ofd->minY);
-	endY = std::min (ofd->lineBufferMaxY, ofd->maxY) + 1;
-        dy = 1;
+	startY = max (lineBufferMinY, ofd->minY);
+	endY = min (lineBufferMaxY, ofd->maxY) + 1;
+        step = 1;
     }
     else
     {
-	startY = std::min (ofd->lineBufferMaxY, ofd->maxY);
-	endY = std::max (ofd->lineBufferMinY, ofd->minY) - 1;
-        dy = -1;
+	startY = min (lineBufferMaxY, ofd->maxY);
+	endY = max (lineBufferMinY, ofd->minY) - 1;
+        step = -1;
     }
 
     //
     // Iterate over all scanlines in the lineBuffer to convert.
     //
 
-    for (int y = startY; y != endY; y += dy)
+    for (int y = startY; y != endY; y += step)
     {
 	//
         // Set these to point to the start of line y.
-        // We will write to writePtr from pixelPtr.
+        // We will write to writePtr from readPtr.
 	//
 	
-        char *writePtr = ofd->lineBuffer +
-		         ofd->offsetInLineBuffer[y - ofd->minY];
-
-        char *pixelPtr = writePtr;
+        char *writePtr = lineBuffer + ofd->offsetInLineBuffer[y - ofd->minY];
+        const char *readPtr = writePtr;
         
 	//
         // Iterate over all slices in the file.
@@ -298,49 +374,8 @@ convertToXdr (OutputFile::Data *ofd, int inSize)
 	    //
             // Convert the samples in place.
 	    //
-
-            switch (slice.type)
-            {
-              case UINT:
-
-                while (dMinX <= dMaxX)
-                {
-                    Xdr::write <CharPtrIO>
-                        (writePtr, *(const unsigned int *) pixelPtr);
-                    pixelPtr += sizeof(unsigned int);
-
-                    dMinX += 1;
-                }
-                break;
-
-              case HALF:
-
-                while (dMinX <= dMaxX)
-                {                
-                    Xdr::write <CharPtrIO>
-                        (writePtr, *(const half *) pixelPtr);
-                    pixelPtr += sizeof(half);
-
-                    dMinX += 1;
-                }
-                break;
-
-              case FLOAT:
-
-                while (dMinX <= dMaxX)
-                {
-                    Xdr::write <CharPtrIO>
-                        (writePtr, *(const float *) pixelPtr);
-                    pixelPtr += sizeof(float);
-
-                    dMinX += 1;
-                }
-                break;
-
-              default:
-
-                throw Iex::ArgExc ("Unknown pixel data type.");
-            }           
+            
+            convertInPlace (writePtr, readPtr, slice.type, dMaxX - dMinX + 1);
         }
 
 	#ifdef DEBUG
@@ -351,11 +386,233 @@ convertToXdr (OutputFile::Data *ofd, int inSize)
     }
 }
 
+
+//-----------------------------------------------------------------------------
+// A LineBufferTask encapulates the task of copying a set of scanlines from the
+// user's framebuffer and writing them to the disk.
+//-----------------------------------------------------------------------------
+
+class LineBufferTask : public Task
+{
+private:
+    OutputFile::Data * const    _ofd;
+    LineBuffer*                 _lineBuffer;
+    
+public:
+
+    LineBufferTask (TaskGroup* group,
+                    OutputFile::Data * const ofd, int number,
+                    int scanLineMin, int scanLineMax);
+
+    virtual ~LineBufferTask (); 
+    virtual void execute ();
+};
+
+
+LineBufferTask::LineBufferTask (TaskGroup* group,
+                                OutputFile::Data * const ofd,
+                                int number, int scanLineMin, int scanLineMax) :
+    Task (group),
+    _ofd (ofd),
+    _lineBuffer (_ofd->getLineBuffer(number))
+{
+    // wait for the lineBuffer to become available
+    _lineBuffer->wait ();
+    
+    // initialize the lineBuffer data if necessary
+    if (!_lineBuffer->partiallyFull)
+    {
+        _lineBuffer->endOfLineBufferData = _lineBuffer->buffer;
+        _lineBuffer->minY = _ofd->minY + number * _ofd->linesInBuffer;
+        _lineBuffer->maxY = min (_lineBuffer->minY +
+                                _ofd->linesInBuffer - 1, _ofd->maxY);
+        _lineBuffer->partiallyFull = true;
+    }
+    
+    _lineBuffer->scanLineMin = max (_lineBuffer->minY, scanLineMin);
+    _lineBuffer->scanLineMax = min (_lineBuffer->maxY, scanLineMax);
+}
+
+
+LineBufferTask::~LineBufferTask ()
+{
+    // signal that the line buffer is now free
+    _lineBuffer->post ();
+}
+
+
+void
+LineBufferTask::execute ()
+{
+    try
+    {
+        //
+        // First copy the pixel data from the frameBuffer into the lineBuffer
+        //
+        
+        int y, yStart, yStop, dy;
+        if (_ofd->lineOrder == INCREASING_Y)
+        {
+            yStart = _lineBuffer->scanLineMin;
+            yStop = _lineBuffer->scanLineMax + 1;
+            dy = 1;
+        }
+        else
+        {
+            yStart = _lineBuffer->scanLineMax;
+            yStop = _lineBuffer->scanLineMin - 1;
+            dy = -1;
+        }
+    
+        for (y = yStart; y != yStop; y += dy)
+        {
+            //
+            // Convert one scan line's worth of pixel data to
+            // a machine-independent representation, and store
+            // the result in _ofd->lineBuffer.
+            //
+        
+            char *writePtr = _lineBuffer->buffer +
+                             _ofd->offsetInLineBuffer[y - _ofd->minY];
+            //
+            // Iterate over all image channels.
+            //
+        
+            for (unsigned int i = 0; i < _ofd->slices.size(); ++i)
+            {
+                //
+                // Test if scan line y of this channel is
+                // contains any data (the scan line contains
+                // data only if y % ySampling == 0).
+                //
+        
+                const OutSliceInfo &slice = _ofd->slices[i];
+        
+                if (modp (y, slice.ySampling) != 0)
+                    continue;
+        
+                //
+                // Find the x coordinates of the leftmost and rightmost
+                // sampled pixels (i.e. pixels within the data window
+                // for which x % xSampling == 0).
+                //
+        
+                int dMinX = divp (_ofd->minX, slice.xSampling);
+                int dMaxX = divp (_ofd->maxX, slice.xSampling);
+        
+                //
+                // Iterate over the sampled pixels.
+                //
+        
+                if (slice.zero)
+                {
+                    //
+                    // The frame buffer contains no data for this channel.
+                    // Store zeroes in _lineBuffer->buffer.
+                    //
+                    
+                    fillSliceWithZeros (writePtr, _ofd->format, slice.type,
+                                        dMaxX - dMinX + 1);
+                }
+                else
+                {
+                    //
+                    // If necessary, convert the pixel data to
+                    // a machine-independent representation.
+                    // Then store the pixel data in _ofd->lineBuffer.
+                    //
+        
+                    const char *linePtr = slice.base +
+                                          divp (y, slice.ySampling) *
+                                          slice.yStride;
+        
+                    const char *readPtr = linePtr + dMinX * slice.xStride;
+                    const char *endPtr  = linePtr + dMaxX * slice.xStride;
+    
+                    copyFromFrameBuffer (writePtr, readPtr, endPtr,
+                                         slice.xStride, _ofd->format,
+                                         slice.type);
+                }
+            }
+        
+            if (_lineBuffer->endOfLineBufferData < writePtr)
+                _lineBuffer->endOfLineBufferData = writePtr;
+        
+            #ifdef DEBUG
+        
+                assert (writePtr - (_lineBuffer->buffer +
+                        _ofd->offsetInLineBuffer[y - _ofd->minY]) ==
+                        (int) _ofd->bytesPerLine[y - _ofd->minY]);
+        
+            #endif
+        
+        }
+    
+        //
+        // If the next scanline isn't past the bounds of the lineBuffer
+        // then we are done, otherwise compress the linebuffer
+        //
+    
+        if (y >= _lineBuffer->minY && y <= _lineBuffer->maxY)
+            return;
+    
+        _lineBuffer->dataPtr = _lineBuffer->buffer;
+        _lineBuffer->dataSize = _lineBuffer->endOfLineBufferData -
+                                _lineBuffer->buffer;
+    
+        // compress the data
+        Compressor * const compressor = _lineBuffer->compressor;
+        if (compressor)
+        {
+            const char * compPtr;
+            int compSize = compressor->compress (_lineBuffer->dataPtr,
+                                                 _lineBuffer->dataSize,
+                                                 _lineBuffer->minY, compPtr);
+    
+            if (compSize < _lineBuffer->dataSize)
+            {
+                _lineBuffer->dataSize = compSize;
+                _lineBuffer->dataPtr = compPtr;
+            }
+            else if (_ofd->format == Compressor::NATIVE)
+            {
+                //
+                // The data did not shrink during compression, but
+                // we cannot write to the file using the machine's
+                // native format, so we need to convert the lineBuffer
+                // to Xdr.
+                //
+    
+                convertToXdr (_ofd, _lineBuffer->buffer, _lineBuffer->minY,
+                              _lineBuffer->maxY, _lineBuffer->dataSize);
+            }
+        }
+        _lineBuffer->partiallyFull = false;
+    }
+    catch (std::exception &e)
+    {
+        if (!_lineBuffer->hasException)
+        {
+            _lineBuffer->exception = e.what ();
+            _lineBuffer->hasException = true;
+        }
+    }
+    catch (...)
+    {
+        if (!_lineBuffer->hasException)
+        {
+            _lineBuffer->exception = "unrecognized custom exception";
+            _lineBuffer->hasException = true;
+        }
+    }
+}
+
 } // namespace
 
 
-OutputFile::OutputFile (const char fileName[], const Header &header):
-    _data (new Data (true))
+OutputFile::OutputFile (const char fileName[], const Header &header,
+                        int numThreads):
+    _data (new Data (true, numThreads))
 {
     try
     {
@@ -374,8 +631,8 @@ OutputFile::OutputFile (const char fileName[], const Header &header):
 }
 
 
-OutputFile::OutputFile (OStream &os, const Header &header):
-    _data (new Data (false))
+OutputFile::OutputFile (OStream &os, const Header &header, int numThreads):
+    _data (new Data (false, numThreads))
 {
     try
     {
@@ -414,27 +671,24 @@ OutputFile::initialize (const Header &header)
     size_t maxBytesPerLine = bytesPerLineTable (_data->header,
 						_data->bytesPerLine);
 
-    _data->compressor = newCompressor (_data->header.compression(),
-				       maxBytesPerLine,
-				       _data->header);
+    // create the lineBuffers
+    for (size_t i = 0; i < _data->lineBuffers.size(); i++)
+    {
+        _data->lineBuffers[i] = new LineBuffer (newCompressor
+                                                (_data->header.compression(),
+				                 maxBytesPerLine,
+				                 _data->header));
+    }
 
-    _data->linesInBuffer = _data->compressor?
-			       _data->compressor->numScanLines(): 1;
-
-    _data->format = _data->compressor?
-			_data->compressor->format(): Compressor::XDR;
-
+    // compute the size needed for a lineBuffer
+    LineBuffer* lineBuffer = _data->lineBuffers[0];
+    _data->format = defaultFormat (lineBuffer->compressor);
+    _data->linesInBuffer = numLinesInBuffer (lineBuffer->compressor);
     _data->lineBufferSize = maxBytesPerLine * _data->linesInBuffer;
-    _data->lineBuffer.resizeErase (_data->lineBufferSize);
-    _data->endOfLineBufferData = _data->lineBuffer;
 
-    _data->lineBufferMinY = lineBufferMinY (_data->currentScanLine,
-					    _data->minY,
-					    _data->linesInBuffer);
-
-    _data->lineBufferMaxY = lineBufferMaxY (_data->currentScanLine,
-					    _data->minY,
-					    _data->linesInBuffer);
+    // allocate the lineBuffer's internal buffers
+    for (size_t i = 0; i < _data->lineBuffers.size(); i++)
+        _data->lineBuffers[i]->buffer.resizeErase(_data->lineBufferSize);
 
     int lineOffsetSize = (dataWindow.max.y - dataWindow.min.y +
 			  _data->linesInBuffer) / _data->linesInBuffer;
@@ -459,23 +713,26 @@ OutputFile::~OutputFile ()
 {
     if (_data)
     {
-	if (_data->lineOffsetsPosition > 0)
-	{
-	    try
-	    {
-		_data->os->seekp (_data->lineOffsetsPosition);
-		writeLineOffsets (*_data->os, _data->lineOffsets);
-	    }
-	    catch (...)
-	    {
-		//
-		// We cannot safely throw any exceptions from here.
-		// This destructor may have been called because the
-		// stack is currently being unwound for another
-		// exception.
-		//
-	    }
-	}
+        {
+            if (_data->lineOffsetsPosition > 0)
+            {
+                try
+                {
+                    _data->os->seekp (_data->lineOffsetsPosition);
+                    writeLineOffsets (*_data->os, _data->lineOffsets);
+                }
+                catch (...)
+                {
+    
+                    //
+                    // We cannot safely throw any exceptions from here.
+                    // This destructor may have been called because the
+                    // stack is currently being unwound for another
+                    // exception.
+                    //
+                }
+            }
+        }
 
 	delete _data;
     }
@@ -499,6 +756,8 @@ OutputFile::header () const
 void	
 OutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
+    Lock lock (*_data);
+    
     //
     // Check if the new frame buffer descriptor
     // is compatible with the image file header.
@@ -589,6 +848,7 @@ OutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 OutputFile::frameBuffer () const
 {
+    Lock lock (*_data);
     return _data->frameBuffer;
 }
 
@@ -598,358 +858,171 @@ OutputFile::writePixels (int numScanLines)
 {
     try
     {
+        Lock lock (*_data);
+
 	if (_data->slices.size() == 0)
 	    throw Iex::ArgExc ("No frame buffer specified "
 			       "as pixel data source.");
-
-	while (numScanLines)
-	{
-	    if (_data->missingScanLines <= 0)
-	    {
-		throw Iex::ArgExc ("Tried to write more scan lines "
-				   "than specified by the data window.");
-	    }
-
-	    #ifdef DEBUG
-
-		assert (_data->currentScanLine >= _data->lineBufferMinY &&
-			_data->currentScanLine <= _data->lineBufferMaxY);
-
-	    #endif
-
-	    //
-	    // Convert one scan line's worth of pixel data to
-	    // a machine-independent representation, and store
-	    // the result in _data->lineBuffer.
-	    //
-
-	    int y = _data->currentScanLine;
-
-	    char *writePtr = _data->lineBuffer +
-			     _data->offsetInLineBuffer[y - _data->minY];
-
-	    //
-	    // Iterate over all image channels.
-	    //
-
-	    for (unsigned int i = 0; i < _data->slices.size(); ++i)
-	    {
-		//
-		// Test if scan line y of this channel is
-		// contains any data (the scan line contains
-		// data only if y % ySampling == 0).
-		//
-
-		const OutSliceInfo &slice = _data->slices[i];
-
-		if (modp (y, slice.ySampling) != 0)
-		    continue;
-
-		//
-		// Find the x coordinates of the leftmost and rightmost
-		// sampled pixels (i.e. pixels within the data window
-		// for which x % xSampling == 0).
-		//
-
-		int dMinX = divp (_data->minX, slice.xSampling);
-		int dMaxX = divp (_data->maxX, slice.xSampling);
-
-		//
-		// Iterate over the sampled pixels.
-		//
-
-		if (slice.zero)
-		{
-		    //
-		    // The frame buffer contains no data for this channel.
-		    // Store zeroes in _data->lineBuffer.
-		    //
-
-		    if (_data->format == Compressor::XDR)
-		    {
-			//
-			// The compressor expects data in Xdr format.
-			//
-
-			switch (slice.type)
-			{
-			  case UINT:
-
-			    while (dMinX <= dMaxX)
-			    {
-				Xdr::write <CharPtrIO>
-				    (writePtr, (unsigned int) 0);
-				dMinX += 1;
-			    }
-			    break;
-
-			  case HALF:
-
-			    while (dMinX <= dMaxX)
-			    {
-				Xdr::write <CharPtrIO>
-				    (writePtr, (half) 0);
-				dMinX += 1;
-			    }
-			    break;
-
-			  case FLOAT:
-
-			    while (dMinX <= dMaxX)
-			    {
-				Xdr::write <CharPtrIO>
-				    (writePtr, (float) 0);
-				dMinX += 1;
-			    }
-			    break;
-			    
-			  default:
-
-			    throw Iex::ArgExc ("Unknown pixel data type.");
-			}
-		    }
-		    else
-		    {
-			//
-			// The compressor expects data in
-			// the machines native format.
-			//
-
-			switch (slice.type)
-			{
-			  case UINT:
-
-			    while (dMinX <= dMaxX)
-			    {
-				static unsigned int ui = 0;
-
-				for (size_t i = 0; i < sizeof (ui); ++i)
-				    *writePtr++ = ((char *) &ui)[i];
-
-				dMinX += 1;
-			    }
-			    break;
-
-			  case HALF:
-
-			    while (dMinX <= dMaxX)
-			    {
-				*(half *) writePtr = half (0);
-				writePtr += sizeof (half);
-				dMinX += 1;
-			    }
-			    break;
-
-			  case FLOAT:
-
-			    while (dMinX <= dMaxX)
-			    {
-				static float f = 0;
-
-				for (size_t i = 0; i < sizeof (f); ++i)
-				    *writePtr++ = ((char *) &f)[i];
-
-				dMinX += 1;
-			    }
-			    break;
-			    
-			  default:
-
-			    throw Iex::ArgExc ("Unknown pixel data type.");
-			}
-		    }
-		}
-		else
-		{
-		    //
-		    // If necessary, convert the pixel data to
-		    // a machine-independent representation.
-		    // Then store the pixel data in _data->lineBuffer.
-		    //
-
-		    const char *linePtr  = slice.base +
-					   divp (y, slice.ySampling) *
-					   slice.yStride;
-
-		    const char *pixelPtr = linePtr + dMinX * slice.xStride;
-		    const char *endPtr   = linePtr + dMaxX * slice.xStride;
-
-		    if (_data->format == Compressor::XDR)
-		    {
-			//
-			// The compressor expects data in Xdr format
-			//
-
-			switch (slice.type)
-			{
-			  case UINT:
-
-			    while (pixelPtr <= endPtr)
-			    {
-				Xdr::write <CharPtrIO>
-				   (writePtr, *(const unsigned int *) pixelPtr);
-				pixelPtr += slice.xStride;
-			    }
-			    break;
-
-			  case HALF:
-
-			    while (pixelPtr <= endPtr)
-			    {
-				Xdr::write <CharPtrIO>
-				    (writePtr, *(const half *) pixelPtr);
-				pixelPtr += slice.xStride;
-			    }
-			    break;
-
-			  case FLOAT:
-
-			    while (pixelPtr <= endPtr)
-			    {
-				Xdr::write <CharPtrIO>
-				    (writePtr, *(const float *) pixelPtr);
-				pixelPtr += slice.xStride;
-			    }
-			    break;
-			    
-			  default:
-
-			    throw Iex::ArgExc ("Unknown pixel data type.");
-			}
-		    }
-		    else
-		    {
-			//
-			// The compressor expects data in the
-			// machine's native format.
-			//
-
-			switch (slice.type)
-			{
-			  case UINT:
-
-			    while (pixelPtr <= endPtr)
-			    {
-				for (size_t i = 0;
-				     i < sizeof (unsigned int);
-				     ++i)
-				{
-				    *writePtr++ = pixelPtr[i];
-				}
-
-				pixelPtr += slice.xStride;
-			    }
-			    break;
-
-			  case HALF:
-
-			    while (pixelPtr <= endPtr)
-			    {
-				*(half *) writePtr = *(const half *) pixelPtr;
-				writePtr += sizeof (half);
-				pixelPtr += slice.xStride;
-			    }
-			    break;
-
-			  case FLOAT:
-
-			    while (pixelPtr <= endPtr)
-			    {
-				for (size_t i = 0; i < sizeof (float); ++i)
-				    *writePtr++ = pixelPtr[i];
-
-				pixelPtr += slice.xStride;
-			    }
-			    break;
-			    
-			  default:
-
-			    throw Iex::ArgExc ("Unknown pixel data type.");
-			}
-		    }
-		}
-	    }
-
-	    if (_data->endOfLineBufferData < writePtr)
-		_data->endOfLineBufferData = writePtr;
-
-	    #ifdef DEBUG
-
-		assert (writePtr - (_data->lineBuffer +
-			_data->offsetInLineBuffer[y - _data->minY]) ==
-			(int) _data->bytesPerLine[y - _data->minY]);
-
-	    #endif
-
-	    //
-	    // If _data->lineBuffer is full, or if the current scan
-	    // line is the last one, then compress the contents of
-	    // _data->lineBuffer, and store the compressed data in
-	    // the output file.
-	    //
-
-	    int nextScanLine = _data->currentScanLine +
-			       ((_data->lineOrder == INCREASING_Y)? 1: -1);
-
-	    if (nextScanLine < _data->lineBufferMinY ||
-		nextScanLine > _data->lineBufferMaxY ||
-		_data->missingScanLines <= 1)
-	    {
-		int dataSize = _data->endOfLineBufferData - _data->lineBuffer;
-		const char *dataPtr = _data->lineBuffer;
-
-		if (_data->compressor)
-		{
-		    const char *compPtr;
-
-		    int compSize = _data->compressor->compress
-					(dataPtr, dataSize,
-					 _data->lineBufferMinY,
-					 compPtr);
-
-		    if (compSize < dataSize)
-		    {
-			dataSize = compSize;
-			dataPtr = compPtr;
-		    }
-		    else if (_data->format == Compressor::NATIVE)
-		    {
-                        //
-                        // The data did not shrink during compression, but
-                        // we cannot write to the file using the machine's
-			// native format, so we need to convert the lineBuffer
-			// to Xdr.
-                        //
-
-                        convertToXdr(_data, dataSize);
-		    }
-		}
-
-		writePixelData (_data, dataPtr, dataSize);
-
-		//
-		// Clear _data->lineBuffer.
-		//
-
-		_data->endOfLineBufferData = _data->lineBuffer;
-
-		_data->lineBufferMinY = lineBufferMinY (nextScanLine,
-						        _data->minY,
-							_data->linesInBuffer);
-
-		_data->lineBufferMaxY = lineBufferMaxY (nextScanLine,
-						        _data->minY,
-							_data->linesInBuffer);
-	    }
-
-	    //
-	    // Advance to the next scan line.
-	    //
-
-	    numScanLines -= 1;
-	    _data->currentScanLine = nextScanLine;
-	    _data->missingScanLines -= 1;
-	}
+        //
+        // Maintain two iterators:
+        //     nextWriteBuffer: next linebuffer to be written to the file
+        //     nextCompressBuffer: next linebuffer to compress
+        //
+
+        int first = (_data->currentScanLine - _data->minY) /
+                         _data->linesInBuffer;
+        int nextWriteBuffer = first;
+        int nextCompressBuffer;
+        int stop;
+        int step;
+        int scanLineMin;
+        int scanLineMax;
+        
+
+        {
+            //
+            // Create a task group for all line buffer tasks. When the
+            // taskgroup goes out of scope, the destructor waits until all
+            // tasks are complete.
+            //
+            
+            TaskGroup taskGroup;
+            
+            //
+            // Determine the range of lineBuffers which intersect the scan line
+            // range. Then add the initial compression tasks to the thread pool.
+            // We always add in at least one task but the individual task might
+            // not do anything if numScanLines == 0
+            //
+    
+            if (_data->lineOrder == INCREASING_Y)
+            {
+                int last = (_data->currentScanLine + (numScanLines - 1) -
+                            _data->minY) / _data->linesInBuffer;
+    
+                scanLineMin = _data->currentScanLine;
+                scanLineMax = _data->currentScanLine + numScanLines - 1;
+    
+                int numTasks = max (min ((int)_data->lineBuffers.size(),
+                                        last - first + 1), 1);
+                for (int i = 0; i < numTasks; i++)
+                    ThreadPool::addGlobalTask
+                        (new LineBufferTask (&taskGroup, _data, first + i,
+                                             scanLineMin, scanLineMax));
+    
+                nextCompressBuffer = first + numTasks;
+                stop = last + 1;
+                step = 1;
+            }
+            else
+            {
+                int last = (_data->currentScanLine - (numScanLines - 1) -
+                            _data->minY) / _data->linesInBuffer;
+    
+                scanLineMax = _data->currentScanLine;
+                scanLineMin = _data->currentScanLine - numScanLines + 1;
+    
+                int numTasks = max (min ((int)_data->lineBuffers.size(),
+                                        first - last + 1), 1);
+                for (int i = 0; i < numTasks; i++)
+                    ThreadPool::addGlobalTask
+                        (new LineBufferTask (&taskGroup, _data, first - i,
+                                             scanLineMin, scanLineMax));
+    
+                nextCompressBuffer = first - numTasks;
+                stop = last - 1;
+                step = -1;
+            }
+            
+            while (true)
+            {
+                if (_data->missingScanLines <= 0)
+                {
+                    throw Iex::ArgExc ("Tried to write more scan lines "
+                                       "than specified by the data window.");
+                }
+    
+                // wait until the nextWriteBuffer is ready to be written
+                LineBuffer* writeBuffer =
+                                        _data->getLineBuffer (nextWriteBuffer);
+                writeBuffer->wait ();
+                
+                int numLines = writeBuffer->scanLineMax - 
+                               writeBuffer->scanLineMin + 1;
+                _data->missingScanLines -= numLines;
+    
+                // if the writeBuffer is still being used, that means its not
+                // complete and we cannot write it to disk yet.
+                if (writeBuffer->partiallyFull)
+                {
+                    #ifdef DEBUG
+    
+                        assert (nextWriteBuffer + step == stop);
+    
+                    #endif
+                
+                    _data->currentScanLine = _data->currentScanLine +
+                                             step * numLines;
+                    writeBuffer->post ();
+    
+                    return;
+                }
+    
+                // write the linebuffer
+                writePixelData (_data, writeBuffer);
+                nextWriteBuffer += step;
+                _data->currentScanLine = _data->currentScanLine +
+                                         step * numLines;
+    
+                #ifdef DEBUG
+    
+                    assert (_data->currentScanLine ==
+                            (_data->lineOrder == INCREASING_Y) ?
+                            writeBuffer->scanLineMax + 1:
+                            writeBuffer->scanLineMin - 1);
+    
+                #endif
+                
+                // release the lock on nextWriteBuffer
+                writeBuffer->post ();
+                
+                // if this was the last line buffer in the scanline range
+                if (nextWriteBuffer == stop)
+                    break;
+    
+                // if there are no more lineBuffers to compress,
+                // then only continue to write out remaining lineBuffers
+                if (nextCompressBuffer == stop)
+                    continue;
+    
+                // add nextCompressBuffer as a compression Task
+                ThreadPool::addGlobalTask
+                    (new LineBufferTask (&taskGroup, _data, nextCompressBuffer,
+                                         scanLineMin, scanLineMax));
+                
+                // update the next line buffer we need to write
+                nextCompressBuffer += step;
+            }
+        
+            // finish all tasks
+        }
+        
+        // check for exceptions
+        for (int i = 0; i < _data->lineBuffers.size(); ++i)
+        {
+            LineBuffer* lineBuffer = _data->lineBuffers[i];
+
+            // wait for the lineBuffer to become available
+            lineBuffer->wait ();
+            
+            // if an exception was caught by this lineBuffer then thrown it now
+            if (lineBuffer->hasException)
+            {
+                lineBuffer->post ();
+                throw Iex::IoExc (lineBuffer->exception);
+            }
+            lineBuffer->post ();
+        }
     }
     catch (Iex::BaseExc &e)
     {
@@ -963,6 +1036,7 @@ OutputFile::writePixels (int numScanLines)
 int	
 OutputFile::currentScanLine () const
 {
+    Lock lock (*_data);
     return _data->currentScanLine;
 }
 
@@ -970,54 +1044,47 @@ OutputFile::currentScanLine () const
 void	
 OutputFile::copyPixels (InputFile &in)
 {
+    Lock lock (*_data);
+
     //
     // Check if this file's and and the InputFile's
     // headers are compatible.
     //
 
-    const Header &hdr = header();
+    const Header &hdr = _data->header;
     const Header &inHdr = in.header();
 
     if (inHdr.find("tiles") != inHdr.end())
-    {
 	THROW (Iex::ArgExc, "Cannot copy pixels from image "
 			    "file \"" << in.fileName() << "\" to image "
-			    "file \"" << fileName() << "\". The input file is "
-			    "tiled, but the output file is not. Try using "
-			    "TiledOutputFile::copyPixels instead.");
-    }
+			    "file \"" << fileName() << "\". "
+                            "The input file is tiled, but the output file is "
+                            "not. Try using TiledOutputFile::copyPixels "
+                            "instead.");
 
     if (!(hdr.dataWindow() == inHdr.dataWindow()))
-    {
 	THROW (Iex::ArgExc, "Cannot copy pixels from image "
 			    "file \"" << in.fileName() << "\" to image "
-			    "file \"" << fileName() << "\". The files "
-			    "have different data windows.");
-    }
+			    "file \"" << fileName() << "\". "
+                            "The files have different data windows.");
 
     if (!(hdr.lineOrder() == inHdr.lineOrder()))
-    {
 	THROW (Iex::ArgExc, "Quick pixel copy from image "
 			    "file \"" << in.fileName() << "\" to image "
 			    "file \"" << fileName() << "\" failed. "
 			    "The files have different line orders.");
-    }
 
     if (!(hdr.compression() == inHdr.compression()))
-    {
 	THROW (Iex::ArgExc, "Quick pixel copy from image "
 			    "file \"" << in.fileName() << "\" to image "
 			    "file \"" << fileName() << "\" failed. "
 			    "The files use different compression methods.");
-    }
 
     if (!(hdr.channels() == inHdr.channels()))
-    {
 	THROW (Iex::ArgExc, "Quick pixel copy from image "
 			    "file \"" << in.fileName() << "\" to image "
 			    "file \"" << fileName() << "\" failed.  "
 			    "The files have different channel lists.");
-    }
 
     //
     // Verify that no pixel data have been written to this file yet.
@@ -1026,32 +1093,28 @@ OutputFile::copyPixels (InputFile &in)
     const Box2i &dataWindow = hdr.dataWindow();
 
     if (_data->missingScanLines != dataWindow.max.y - dataWindow.min.y + 1)
-    {
 	THROW (Iex::LogicExc, "Quick pixel copy from image "
 			      "file \"" << in.fileName() << "\" to image "
 			      "file \"" << fileName() << "\" failed. "
 			      "\"" << fileName() << "\" already contains "
 			      "pixel data.");
-    }
 
     //
     // Copy the pixel data.
     //
-
     while (_data->missingScanLines > 0)
     {
 	const char *pixelData;
 	int pixelDataSize;
 
 	in.rawPixelData (_data->currentScanLine, pixelData, pixelDataSize);
-	writePixelData (_data, pixelData, pixelDataSize);
+	writePixelData (_data, lineBufferMinY (_data->currentScanLine,
+				               _data->minY,
+				               _data->linesInBuffer),
+                        pixelData, pixelDataSize);
 
 	_data->currentScanLine += (_data->lineOrder == INCREASING_Y)?
 				   _data->linesInBuffer: -_data->linesInBuffer;
-
-	_data->lineBufferMinY = lineBufferMinY (_data->currentScanLine,
-						_data->minY,
-						_data->linesInBuffer);
 
 	_data->missingScanLines -= _data->linesInBuffer;
     }
@@ -1061,12 +1124,12 @@ OutputFile::copyPixels (InputFile &in)
 void
 OutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
+    Lock lock (*_data);
+
     if (_data->previewPosition <= 0)
-    {
 	THROW (Iex::LogicExc, "Cannot update preview image pixels. "
 			      "File \"" << fileName() << "\" does not "
 			      "contain a preview image.");
-    }
 
     //
     // Store the new pixels in the header's preview image attribute.

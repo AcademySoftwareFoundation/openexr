@@ -10,8 +10,9 @@ INCLUDES = @GL_CXXFLAGS@ @CG_CXXFLAGS@ @FLTK_CXXFLAGS@ -I$(top_builddir) \
 
 LDADD = @CG_LDFLAGS@ @FLTK_LDFLAGS@ \
 	-L$(top_builddir)/Iex -L$(top_builddir)/Half \
-	-L$(top_builddir)/Imath -L$(top_builddir)/IlmImf \
-	-lIlmImf -lImath -lHalf -lIex -lz
+	-L$(top_builddir)/Imath -L$(top_builddir)/IlmThread \
+	-L$(top_builddir)/IlmImf \
+	-lIlmImf -lIlmThread -lImath -lHalf -lIex -lz
 
 install-exec-hook:
 	@FLTK_CONFIG@ --post $(DESTDIR)$(bindir)/exrdisplay

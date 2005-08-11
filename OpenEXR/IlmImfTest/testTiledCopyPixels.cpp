@@ -105,10 +105,7 @@ writeCopyReadONE (const char fileName1[],
         remove (fileName1);
         TiledOutputFile out (fileName1, hdr);
         out.setFrameBuffer (fb);
-
-        for (int tileY = 0; tileY < out.numYTiles(); ++tileY)
-            for (int tileX = 0; tileX < out.numXTiles(); ++tileX)         
-                out.writeTile (tileX, tileY);
+        out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
     }
 
     {
@@ -142,10 +139,7 @@ writeCopyReadONE (const char fileName1[],
                           sizeof (ph2[0][0]) * w));
 
         in.setFrameBuffer (fb);
-
-        for (int tileY = 0; tileY < in.numYTiles(); ++tileY)
-            for (int tileX = 0; tileX < in.numXTiles(); ++tileX)         
-                in.readTile (tileX, tileY);
+        in.readTiles (0, in.numXTiles() - 1, 0, in.numYTiles() - 1);
 
         cout << " comparing" << flush;
 
@@ -224,10 +218,8 @@ writeCopyReadMIP (const char fileName1[],
                               sizeof (levels[level][0][0]) * levelWidth));
         
             out.setFrameBuffer (fb);
-
-            for (int tileY = 0; tileY < out.numYTiles(level); ++tileY)
-                for (int tileX = 0; tileX < out.numXTiles(level); ++tileX)
-                    out.writeTile (tileX, tileY, level);
+            out.writeTiles (0, out.numXTiles(level) - 1,
+                            0, out.numYTiles(level) - 1, level);
         }        
     }
 
@@ -267,10 +259,8 @@ writeCopyReadMIP (const char fileName1[],
                               sizeof (levels2[level][0][0]) * levelWidth));
 
             in.setFrameBuffer (fb);
-
-            for (int tileY = 0; tileY < in.numYTiles(level); ++tileY)
-                for (int tileX = 0; tileX < in.numXTiles(level); ++tileX)         
-                    in.readTile (tileX, tileY, level);
+            in.readTiles (0, in.numXTiles(level) - 1,
+                          0, in.numYTiles(level) - 1, level);
         }
 
         cout << " comparing" << flush;
@@ -350,10 +340,8 @@ writeCopyReadRIP (const char fileName1[],
                                   sizeof (levels[ylevel][xlevel][0][0]) * levelWidth));
 
                 out.setFrameBuffer (fb);
-
-                for (int tileY = 0; tileY < out.numYTiles(ylevel); ++tileY)
-                    for (int tileX = 0; tileX < out.numXTiles(xlevel); ++tileX)
-                        out.writeTile (tileX, tileY, xlevel, ylevel);
+                out.writeTiles (0, out.numXTiles(xlevel) - 1,
+                                0, out.numYTiles(ylevel) - 1, xlevel, ylevel);
             }
         }        
     }
@@ -396,10 +384,9 @@ writeCopyReadRIP (const char fileName1[],
                                   sizeof (levels2[ylevel][xlevel][0][0]) * levelWidth));
 
                 in.setFrameBuffer (fb);
-
-                for (int tileY = 0; tileY < in.numYTiles(ylevel); ++tileY)
-                    for (int tileX = 0; tileX < in.numXTiles(xlevel); ++tileX)         
-                        in.readTile (tileX, tileY, xlevel, ylevel);
+                in.readTiles (0, in.numXTiles(xlevel) - 1,
+                              0, in.numYTiles(ylevel) - 1,
+                              xlevel, ylevel);
             }
         }
 

@@ -54,7 +54,9 @@ Slice::Slice (PixelType t,
 	      size_t yst,
 	      int xsm,
 	      int ysm,
-	      double fv)
+	      double fv,
+              bool xtc,
+              bool ytc)
 :
     type (t),
     base (b),
@@ -62,7 +64,9 @@ Slice::Slice (PixelType t,
     yStride (yst),
     xSampling (xsm),
     ySampling (ysm),
-    fillValue (fv)
+    fillValue (fv),
+    xTileCoords (xtc),
+    yTileCoords (ytc)
 {
     // empty
 }

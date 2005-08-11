@@ -136,7 +136,7 @@ bool
 StdIFStream::read (char c[/*n*/], int n)
 {
     if (!*_is)
-	throw Iex::InputExc ("Unexpected end of file.");
+        throw Iex::InputExc ("Unexpected end of file.");
 
     clearError();
     _is->read (c, n);

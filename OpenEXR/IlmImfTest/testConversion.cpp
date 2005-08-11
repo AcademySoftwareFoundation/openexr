@@ -277,10 +277,7 @@ testTiledImageChannel (const char fileName[],
 
 	TiledOutputFile out (fileName, hdr);
 	out.setFrameBuffer (fb);
-
-	for (int dy = 0; dy < out.numYTiles(); ++dy)
-	    for (int dx = 0; dx < out.numXTiles(); ++dx)
-		out.writeTile (dx, dy);
+        out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
     }
 
     Array2D<InType> inPixels (height, width);
@@ -298,10 +295,7 @@ testTiledImageChannel (const char fileName[],
 
 	TiledInputFile in (fileName);
 	in.setFrameBuffer (fb);
-
-	for (int dy = 0; dy < in.numYTiles(); ++dy)
-	    for (int dx = 0; dx < in.numXTiles(); ++dx)
-		in.readTile (dx, dy);
+        in.readTiles (0, in.numXTiles() - 1, 0, in.numYTiles() - 1);
     }
 
     cout << "comparing" << flush;
