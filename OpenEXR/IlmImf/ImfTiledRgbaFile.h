@@ -52,6 +52,7 @@
 #include <half.h>
 #include <ImfTileDescription.h>
 #include <ImfRgba.h>
+#include <ImfThreading.h>
 
 namespace Imf {
 
@@ -82,7 +83,8 @@ class TiledRgbaOutputFile
 			 int tileXSize,
 			 int tileYSize,
 			 LevelMode mode,
-			 LevelRoundingMode rmode = ROUND_DOWN);
+			 LevelRoundingMode rmode = ROUND_DOWN,
+                         int numThreads = globalThreadCount ());
 
 
     //---------------------------------------------------
@@ -100,7 +102,8 @@ class TiledRgbaOutputFile
 			 int tileXSize,
 			 int tileYSize,
 			 LevelMode mode,
-			 LevelRoundingMode rmode = ROUND_DOWN);
+			 LevelRoundingMode rmode = ROUND_DOWN,
+                         int numThreads = globalThreadCount ());
 
 
     //------------------------------------------------------
@@ -122,7 +125,8 @@ class TiledRgbaOutputFile
 						    Imath::V2f (0, 0),
 			 float screenWindowWidth = 1,
 			 LineOrder lineOrder = INCREASING_Y,
-			 Compression compression = ZIP_COMPRESSION);
+			 Compression compression = ZIP_COMPRESSION,
+                         int numThreads = globalThreadCount ());
 
 
     //-----------------------------------------------
@@ -144,7 +148,8 @@ class TiledRgbaOutputFile
 						    Imath::V2f (0, 0),
 			 float screenWindowWidth = 1,
 			 LineOrder lineOrder = INCREASING_Y,
-			 Compression compression = ZIP_COMPRESSION);
+			 Compression compression = ZIP_COMPRESSION,
+                         int numThreads = globalThreadCount ());
 
 
     virtual ~TiledRgbaOutputFile ();
@@ -224,6 +229,10 @@ class TiledRgbaOutputFile
     // used for ONE_LEVEL and MIPMAP_LEVEL files.  It calls
     // writeTile(dx, dy, level, level).
     //
+    // The two writeTiles(...) functions allow to write multiple tiles at once.
+    // If multi-threading is used this also allows to write multiple tiles
+    // concurrently.
+    //
     // Pixels that are outside the pixel coordinate range for the tile's
     // level, are never accessed by writeTile().
     //
@@ -231,8 +240,12 @@ class TiledRgbaOutputFile
     //
     //------------------------------------------------------------------
 
-    void			writeTile (int dx, int dy, int l = 0);
-    void			writeTile (int dx, int dy, int lx, int ly);
+    void		writeTile (int dx, int dy, int l = 0);
+    void		writeTile (int dx, int dy, int lx, int ly);
+    void		writeTiles (int dxMin, int dxMax, int dyMin, int dyMax,
+                                    int lx, int ly);
+    void		writeTiles (int dxMin, int dxMax, int dyMin, int dyMax,
+                                    int l = 0);
 
 
     // -------------------------------------------------------------------------
@@ -273,7 +286,8 @@ class TiledRgbaInputFile
     // files.
     //--------------------------------------------------------
 
-    TiledRgbaInputFile (const char name[]);
+    TiledRgbaInputFile (const char name[],
+                        int numThreads = globalThreadCount ());
 
 
     //-------------------------------------------------------
@@ -285,7 +299,7 @@ class TiledRgbaInputFile
     // corresponding files.
     //-------------------------------------------------------
 
-    TiledRgbaInputFile (IStream &is);
+    TiledRgbaInputFile (IStream &is, int numThreads = globalThreadCount ());
 
 
     //-----------
@@ -378,6 +392,10 @@ class TiledRgbaInputFile
     // for ONE_LEVEL and MIPMAP_LEVELS files.  It calls
     // readTile(dx, dy, level, level).
     //
+    // The two readTiles(...) functions allow to read multiple tiles at once.
+    // If multi-threading is used this also allows to read multiple tiles
+    // concurrently.
+    //
     // Pixels that are outside the pixel coordinate range for the
     // tile's level, are never accessed by readTile().
     //
@@ -386,8 +404,12 @@ class TiledRgbaInputFile
     //
     //----------------------------------------------------------------
 
-    void           	 readTile (int dx, int dy, int l = 0);
-    void           	 readTile (int dx, int dy, int lx, int ly);
+    void           	readTile (int dx, int dy, int l = 0);
+    void           	readTile (int dx, int dy, int lx, int ly);
+    void		readTiles (int dxMin, int dxMax,
+                                   int dyMin, int dyMax, int lx, int ly);
+    void		readTiles (int dxMin, int dxMax,
+                                   int dyMin, int dyMax, int l = 0);
 
   private:
 

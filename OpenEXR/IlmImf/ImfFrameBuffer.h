@@ -100,6 +100,16 @@ struct Slice
     //----------------------------------------------------------
 
     double		fillValue;
+    
+
+    //------------------------------------------------------------------------
+    // For tiled files, these flags determine whether addressing is performed
+    // using pixel coordinates relative to the data window or relative to the
+    // tile
+    //------------------------------------------------------------------------
+
+    bool                xTileCoords;
+    bool                yTileCoords;
 
 
     //------------
@@ -112,7 +122,9 @@ struct Slice
 	   size_t yStride = 0,
 	   int xSampling = 1,
 	   int ySampling = 1,
-	   double fillValue = 0.0);
+	   double fillValue = 0.0,
+           bool xTileCoords = false,
+           bool yTileCoords = false);
 };
 
 

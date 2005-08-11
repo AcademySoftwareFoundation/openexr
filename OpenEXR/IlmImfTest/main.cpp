@@ -44,6 +44,7 @@
 #include <testCompression.h>
 #include <testCopyPixels.h>
 #include <testRgba.h>
+#include <testRgbaThreading.h>
 #include <testLut.h>
 #include <testSampleImages.h>
 #include <testPreviewImage.h>
@@ -59,6 +60,7 @@
 #include <testYca.h>
 #include <testTiledYa.h>
 #include <testIsComplete.h>
+#include <testSharedFrameBuffer.h>
 
 #include <stdlib.h>
 #include <iostream>
@@ -74,27 +76,27 @@
 int
 main (int argc, char *argv[])
 {
-    std::cout << std::endl;
-
     TEST (testMagic);
     TEST (testXdr);
     TEST (testHuf);
     TEST (testWav);
+    TEST (testRgba);
+    TEST (testSharedFrameBuffer);
+    TEST (testRgbaThreading);
     TEST (testChannels);
     TEST (testAttributes);
     TEST (testCustomAttributes);
     TEST (testLineOrder);
     TEST (testCompression);
     TEST (testCopyPixels);
-    TEST (testRgba);
     TEST (testLut);
     TEST (testSampleImages);
     TEST (testPreviewImage);
     TEST (testConversion);
-    TEST (testTiledLineOrder);
     TEST (testTiledRgba);
-    TEST (testTiledCompression);
     TEST (testTiledCopyPixels);
+    TEST (testTiledCompression);
+    TEST (testTiledLineOrder);
     TEST (testScanLineApi);
     TEST (testExistingStreams);
     TEST (testStandardAttributes);
@@ -102,7 +104,8 @@ main (int argc, char *argv[])
     TEST (testTiledYa);
     TEST (testNativeFormat);
     TEST (testIsComplete);
-
+    
+    
     #ifdef PLATFORM_REDHAT_IA32
 
 	//
