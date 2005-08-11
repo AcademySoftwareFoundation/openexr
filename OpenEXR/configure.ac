@@ -61,6 +61,23 @@ else have_cg = "no"
 fi
 
 dnl Checks for libraries.
+dnl --enable-threading
+AC_ARG_ENABLE(threading,
+              AC_HELP_STRING([--enable-threading],
+                             [enable multi-threading [[default=yes]]]),
+              [multithread="${enableval}"], [multithread=yes])
+
+if test "${multithread}" != no ; then
+    ACX_PTHREAD(
+                [
+                    AC_DEFINE(HAVE_PTHREAD)
+                    LIBS="$PTHREAD_LIBS $LIBS"
+                    CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
+                    CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
+                    CC="$PTHREAD_CC"
+                ],
+                [AC_MSG_ERROR([POSIX thread support required])])
+fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -204,6 +221,7 @@ Iex/Makefile
 IexTest/Makefile
 IlmImf/Makefile
 IlmImfTest/Makefile
+IlmThread/Makefile
 Imath/Makefile
 ImathTest/Makefile
 exrdisplay/Makefile

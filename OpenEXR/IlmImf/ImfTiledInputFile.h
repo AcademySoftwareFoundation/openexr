@@ -46,6 +46,7 @@
 #include <ImfFrameBuffer.h>
 #include <ImathBox.h>
 #include <ImfTileDescription.h>
+#include <ImfThreading.h>
 
 namespace Imf {
 
@@ -58,11 +59,14 @@ class TiledInputFile
     // A constructor that opens the file with the specified name, and
     // reads the file header.  The constructor throws an Iex::ArgExc
     // exception if the file is not tiled.
+    // The numThreads parameter specifies how many worker threads this
+    // file will try to keep busy when decompressing individual tiles.
     // Destroying TiledInputFile objects constructed with this constructor
     // automatically closes the corresponding files.
     //--------------------------------------------------------------------
 
-    TiledInputFile (const char fileName[]);
+    TiledInputFile (const char fileName[],
+                    int numThreads = globalThreadCount ());
 
     
     // ----------------------------------------------------------
@@ -73,7 +77,7 @@ class TiledInputFile
     // files.
     // ----------------------------------------------------------
 
-    TiledInputFile (IStream &is);
+    TiledInputFile (IStream &is, int numThreads = globalThreadCount ());
 
 
     //-----------
@@ -315,6 +319,10 @@ class TiledInputFile
     // for ONE_LEVEL and MIPMAP_LEVELS files.  It calls
     // readTile(dx, dy, level, level).
     //
+    // The two readTiles(dx1, dx2, dy1, dy2, ...) functions allow to read
+    // multiple tiles at once. If multi-threading is used this also allows to
+    // read multiple tiles concurrently.
+    //
     // Pixels that are outside the pixel coordinate range for the
     // tile's level, are never accessed by readTile().
     //
@@ -323,8 +331,12 @@ class TiledInputFile
     //
     //----------------------------------------------------------------
 
-    void		readTile (int dx, int dy, int l = 0);
-    void		readTile (int dx, int dy, int lx, int ly);
+    void		readTile  (int dx, int dy, int l = 0);
+    void		readTile  (int dx, int dy, int lx, int ly);
+    void		readTiles (int dx1, int dx2, int dy1, int dy2,
+                                   int lx, int ly);
+    void		readTiles (int dx1, int dx2, int dy1, int dy2,
+                                   int l = 0);
 
 
     //--------------------------------------------------
@@ -347,7 +359,8 @@ class TiledInputFile
     TiledInputFile (const TiledInputFile &);		  // not implemented
     TiledInputFile & operator = (const TiledInputFile &); // not implemented
 
-    TiledInputFile (const Header &header, IStream *is, int version);
+    TiledInputFile (const Header &header, IStream *is, int version,
+                    int numThreads);
 
     void		initialize ();
 

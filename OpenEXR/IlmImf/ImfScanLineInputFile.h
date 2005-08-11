@@ -44,6 +44,7 @@
 
 #include <ImfHeader.h>
 #include <ImfFrameBuffer.h>
+#include <ImfThreading.h>
 
 namespace Imf {
 
@@ -56,7 +57,8 @@ class ScanLineInputFile
     // Constructor
     //------------
 
-    ScanLineInputFile (const Header &header, IStream *is);
+    ScanLineInputFile (const Header &header, IStream *is,
+                       int numThreads = globalThreadCount ());
 
 
     //-----------------------------------------
@@ -137,6 +139,9 @@ class ScanLineInputFile
     // order in which they were written to the file.
     //
     // readPixels(s) calls readPixels(s,s).
+    //
+    // If threading is enabled, readPixels (s1, s2) tries to perform
+    // decopmression of multiple scanlines in parallel.
     //
     //---------------------------------------------------------------
 

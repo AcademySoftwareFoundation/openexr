@@ -95,10 +95,7 @@ writeReadRGBAONE (const char fileName[],
         
         fillPixels (p1, width, height);
         out.setFrameBuffer (&p1[0][0], 1, width);
-
-        for (int tileY = 0; tileY < out.numYTiles(); ++tileY)
-            for (int tileX = 0; tileX < out.numXTiles(); ++tileX)
-                out.writeTile (tileX, tileY);
+        out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
     }
 
     {
@@ -114,10 +111,7 @@ writeReadRGBAONE (const char fileName[],
 
         Array2D<Rgba> p2 (h, w);
         in.setFrameBuffer (&p2[-dwy][-dwx], 1, w);
-    
-        for (int tileY = 0; tileY != in.numYTiles(); ++tileY)
-            for (int tileX = 0; tileX < in.numXTiles(); ++tileX)
-                in.readTile (tileX, tileY);
+        in.readTiles (0, in.numXTiles() - 1, 0, in.numYTiles() - 1);
 
         cout << " comparing" << endl << flush;               
 
@@ -198,10 +192,8 @@ writeReadRGBAMIP (const char fileName[],
             fillPixels (levels[level], levelWidth, levelHeight);
         
             out.setFrameBuffer (&(levels[level])[0][0], 1, levelWidth);
-
-            for (int tileY = 0; tileY < out.numYTiles(level); ++tileY)
-                for (int tileX = 0; tileX < out.numXTiles(level); ++tileX)
-                    out.writeTile (tileX, tileY, level);
+            out.writeTiles (0, out.numXTiles(level) - 1,
+                            0, out.numYTiles(level) - 1, level);
         }
     }
 
@@ -223,10 +215,8 @@ writeReadRGBAMIP (const char fileName[],
             levels2[level].resizeErase(levelHeight, levelWidth);
         
             in.setFrameBuffer (&(levels2[level])[-dwy][-dwx], 1, levelWidth);
-            
-            for (int tileY = 0; tileY < in.numYTiles(level); ++tileY)
-                for (int tileX = 0; tileX < in.numXTiles (level); ++tileX)
-                    in.readTile (tileX, tileY, level);
+            in.readTiles (0, in.numXTiles(level) - 1,
+                          0, in.numYTiles(level) - 1, level);
         }
         
         cout << " comparing" << endl << flush;
@@ -311,11 +301,9 @@ writeReadRGBARIP (const char fileName[],
                 fillPixels (levels[ylevel][xlevel], levelWidth, levelHeight);
 
                 out.setFrameBuffer (&(levels[ylevel][xlevel])[0][0], 1,
-                                    levelWidth);
-                
-                for (int tileY = 0; tileY < out.numYTiles(ylevel); ++tileY)
-                    for (int tileX = 0; tileX < out.numXTiles(xlevel); ++tileX)
-                        out.writeTile(tileX, tileY, xlevel, ylevel);
+                                    levelWidth); 
+                out.writeTiles (0, out.numXTiles(xlevel) - 1,
+                                0, out.numYTiles(ylevel) - 1, xlevel, ylevel);
             }
         }
     }
@@ -341,10 +329,9 @@ writeReadRGBARIP (const char fileName[],
                 levels2[ylevel][xlevel].resizeErase(levelHeight, levelWidth);
                 in.setFrameBuffer (&(levels2[ylevel][xlevel])[-dwy][-dwx], 1,
                                    levelWidth);
-                
-                for (int tileY = 0; tileY < in.numYTiles(ylevel); ++tileY)
-                    for (int tileX = 0; tileX < in.numXTiles (xlevel); ++tileX)
-                        in.readTile (tileX, tileY, xlevel, ylevel);
+                                   
+                in.readTiles (0, in.numXTiles(xlevel) - 1,
+                              0, in.numYTiles(ylevel) - 1, xlevel, ylevel);
             }
         }
 

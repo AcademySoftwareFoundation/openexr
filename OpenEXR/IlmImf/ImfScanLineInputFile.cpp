@@ -47,12 +47,16 @@
 #include <ImathBox.h>
 #include <ImathFun.h>
 #include <ImfXdr.h>
-#include <ImfArray.h>
 #include <ImfConvert.h>
 #include <Iex.h>
 #include <string>
 #include <vector>
 #include <assert.h>
+
+#include <ImfThreading.h>
+#include <IlmThreadPool.h>
+#include <IlmThreadSemaphore.h>
+#include <IlmThreadMutex.h>
 
 
 namespace Imf {
@@ -63,23 +67,24 @@ using Imath::modp;
 using std::string;
 using std::vector;
 using std::ifstream;
-
+using std::min;
+using std::max;
+using namespace IlmThread;
 
 namespace {
 
-
 struct InSliceInfo
 {
-    PixelType		typeInFrameBuffer;
-    PixelType		typeInFile;
-    char *		base;
-    size_t		xStride;
-    size_t		yStride;
-    int			xSampling;
-    int			ySampling;
-    bool		fill;
-    bool		skip;
-    double		fillValue;
+    PixelType	typeInFrameBuffer;
+    PixelType	typeInFile;
+    char *	base;
+    size_t	xStride;
+    size_t	yStride;
+    int		xSampling;
+    int		ySampling;
+    bool	fill;
+    bool	skip;
+    double	fillValue;
 
     InSliceInfo (PixelType typeInFrameBuffer = HALF,
 		 PixelType typeInFile = HALF,
@@ -117,39 +122,103 @@ InSliceInfo::InSliceInfo (PixelType tifb,
 }
 
 
+struct LineBuffer
+{
+    const char*                      uncompressedData;
+    char *                           buffer;
+    int                              dataSize;
+    int                              minY,
+                                     maxY;
+    Compressor * const               compressor;
+    Compressor::Format	             format;
+    int                              number;
+    bool                             hasException;
+    string                           exception;
+
+    LineBuffer (Compressor * const comp);
+    ~LineBuffer ();
+
+    inline void wait () {_sem.wait();}
+    inline void post () {_sem.post();}
+
+protected:
+    Semaphore _sem;
+};
+
+
+LineBuffer::LineBuffer (Compressor * const comp) :
+    uncompressedData (0), buffer (0), dataSize (0), compressor (comp),
+    format(defaultFormat(compressor)), number (-1),
+    hasException (false), exception (), _sem (1)
+{
+    // empty
+}
+
+
+LineBuffer::~LineBuffer ()
+{
+    delete compressor;
+}
+
 } // namespace
 
 
-struct ScanLineInputFile::Data
+struct ScanLineInputFile::Data : public Mutex
 {
-    Header		header;
-    int			version;
-    FrameBuffer		frameBuffer;
-    LineOrder		lineOrder;
-    int			minX;
-    int			maxX;
-    int			minY;
-    int			maxY;
-    vector<Int64>	lineOffsets;
-    bool		fileIsComplete;
-    int			linesInBuffer;
-    int			lineBufferMinY;
-    int			lineBufferMaxY;
-    int			nextLineBufferMinY;
-    size_t		lineBufferSize;
-    Array<char>		lineBuffer;
-    const char *	uncompressedData;
-    vector<size_t>	bytesPerLine;
-    vector<size_t>	offsetInLineBuffer;
-    Compressor *	compressor;
-    Compressor::Format	format;
-    vector<InSliceInfo>	slices;
+    Header		header;		    // the image header
+    int			version;            // file's version
+    FrameBuffer		frameBuffer;	    // framebuffer to write into
+    LineOrder		lineOrder;          // order of the scanlines in file
+    int			minX;		    // data window's min x coord
+    int			maxX;		    // data window's max x coord
+    int			minY;		    // data window's min y coord
+    int			maxY;		    // data window's max x coord
+    vector<Int64>	lineOffsets;	    // stores offsets in file for
+					    // each line
+    bool		fileIsComplete;	    // True if no scanlines are missing
+    					    // in the file
+    int			nextLineBufferMinY; // minimum y of the next linebuffer
+    vector<size_t>	bytesPerLine;       // combined size of a line over all
+                                            // channels
+    vector<size_t>	offsetInLineBuffer; // offset for each scanline in its
+                                            // linebuffer
+    vector<InSliceInfo>	slices;             // info about channels in file
+    IStream *		is;                 // file stream to read from
+    
+    vector<LineBuffer*> lineBuffers;        // each holds one line buffer
+    int			linesInBuffer;      // number of scanlines each buffer
+                                            // holds
+    size_t		lineBufferSize;     // size of the line buffer
 
-    IStream *		is;
-
-     Data (IStream *is): compressor (0), is (is) {}
-    ~Data () {delete compressor;}
+     Data (IStream *is, int numThreads);
+    ~Data ();
+    
+    // hash function from line buffer indices into our vector of line buffers
+    inline LineBuffer* getLineBuffer (int lineBufferNumber);
 };
+
+
+ScanLineInputFile::Data::Data (IStream *is, int numThreads) :
+    is (is)
+{
+    // we need at least one lineBuffer, but if threading is used, to keep
+    // n threads busy we need 2n lineBuffers
+    lineBuffers.resize (max (1, 2*numThreads));
+}
+
+
+ScanLineInputFile::Data::~Data ()
+{
+    for (size_t i = 0; i < lineBuffers.size(); i++)
+        delete lineBuffers[i];
+}
+
+
+inline LineBuffer*
+ScanLineInputFile::Data::getLineBuffer (int lineBufferNumber)
+{
+    return lineBuffers[lineBufferNumber % lineBuffers.size()];
+}
 
 
 namespace {
@@ -235,26 +304,28 @@ readLineOffsets (IStream &is,
 }
 
 
-
 void
-readPixelData (ScanLineInputFile::Data *ifd,
-	       int y,
-	       int &minY, int &maxY,
-	       int &dataSize)
+readPixelData (ScanLineInputFile::Data * ifd,
+	       int minY, char * & buffer, int & dataSize)
 {
-    Int64 lineOffset =
-       ifd->lineOffsets[(y - ifd->minY) / ifd->linesInBuffer];
+    //
+    // Read a single lineBuffer from the input file and into the array pointed
+    // to by buffer. If the file is memory-mapped, then we change where buffer
+    // points to, hence it needs to be a reference to a char *. If the file is
+    // not memory-mapped the the buffer pointer is not modified, the data is
+    // simply copied into it.
+    //
+
+    Int64 lineOffset = ifd->lineOffsets[(minY - ifd->minY) /
+                                            ifd->linesInBuffer];
 
     if (lineOffset == 0)
-	THROW (Iex::InputExc, "Scan line " << y << " is missing.");
+	THROW (Iex::InputExc, "Scan line " << minY << " is missing.");
 
     //
     // Seek to the start of the scan line in the file,
     // if necessary.
     //
-
-    minY = lineBufferMinY (y, ifd->minY, ifd->linesInBuffer);
-    maxY = lineBufferMaxY (y, ifd->minY, ifd->linesInBuffer);
 
     if (ifd->nextLineBufferMinY != minY)
 	ifd->is->seekg (lineOffset);
@@ -273,9 +344,9 @@ readPixelData (ScanLineInputFile::Data *ifd,
 
     Xdr::read <StreamIO> (*ifd->is, yInFile);
     Xdr::read <StreamIO> (*ifd->is, dataSize);
-
+    
     if (yInFile != minY)
-	throw Iex::InputExc ("Unexpected data block y coordinate.");
+        throw Iex::InputExc ("Unexpected data block y coordinate.");
 
     if (dataSize > (int) ifd->lineBufferSize)
 	throw Iex::InputExc ("Unexpected data block length.");
@@ -284,7 +355,10 @@ readPixelData (ScanLineInputFile::Data *ifd,
     // Read the pixel data.
     //
 
-    ifd->is->read (ifd->lineBuffer, dataSize);
+    if (ifd->is->isMemoryMapped ())
+        buffer = ifd->is->readMemoryMapped (dataSize);
+    else
+        ifd->is->read (buffer, dataSize);
 
     //
     // Keep track of which scan line is the next one in
@@ -298,17 +372,213 @@ readPixelData (ScanLineInputFile::Data *ifd,
 	ifd->nextLineBufferMinY = minY - ifd->linesInBuffer;
 }
 
-Compressor::Format
-defaultFormat (Compressor * compressor)
+
+//-----------------------------------------------------------------------------
+// A LineBufferTask encapulates the task of reading and decompressing a
+// set of scanlines (line buffer)
+//-----------------------------------------------------------------------------
+
+class LineBufferTask : public Task
 {
-    return compressor? compressor->format(): Compressor::XDR;
+private:
+    ScanLineInputFile::Data * const    _ifd;
+    LineBuffer*                        _lineBuffer;
+    int                                _scanLineMin,
+                                       _scanLineMax;
+    
+public:
+
+    LineBufferTask (TaskGroup* group,
+                    ScanLineInputFile::Data * const ifd, int number,
+                    int scanLineMin, int scanLineMax);
+
+    virtual ~LineBufferTask ();
+    virtual void execute ();
+};
+
+
+LineBufferTask::LineBufferTask (TaskGroup* group,
+                                ScanLineInputFile::Data * const ifd, int number,
+                                int scanLineMin, int scanLineMax) :
+    Task (group),
+    _ifd (ifd),
+    _lineBuffer (_ifd->getLineBuffer (number))
+{
+    // wait for the lineBuffer to become available
+    _lineBuffer->wait ();
+    
+    // read in the lineBuffer from disk if necessary
+    if (_lineBuffer->number != number)
+    {
+        _lineBuffer->minY = _ifd->minY + number * _ifd->linesInBuffer;
+        _lineBuffer->maxY = _lineBuffer->minY + _ifd->linesInBuffer - 1;
+        
+        _lineBuffer->number = number;
+        _lineBuffer->uncompressedData = 0;
+        readPixelData (_ifd, _lineBuffer->minY, _lineBuffer->buffer,
+                        _lineBuffer->dataSize);
+    }
+    
+    _scanLineMin = max (_lineBuffer->minY, scanLineMin);
+    _scanLineMax = min (_lineBuffer->maxY, scanLineMax);
+}
+
+
+LineBufferTask::~LineBufferTask ()
+{
+    // signal that the line buffer is now free
+    _lineBuffer->post ();
+}
+
+
+void
+LineBufferTask::execute ()
+{
+    try
+    {
+        //
+        // Uncompress the data, if necessary
+        //
+    
+        if (_lineBuffer->uncompressedData == 0)
+        {
+            int uncompressedSize = 0;
+            int maxY = min (_lineBuffer->maxY, _ifd->maxY);
+    
+            for (int i = _lineBuffer->minY - _ifd->minY;
+                i <= maxY - _ifd->minY; i++)
+                uncompressedSize += (int) _ifd->bytesPerLine[i];
+    
+            if (_lineBuffer->compressor &&
+                _lineBuffer->dataSize < uncompressedSize)
+            {
+                _lineBuffer->format = _lineBuffer->compressor->format();
+                _lineBuffer->dataSize = _lineBuffer->compressor->uncompress
+                    (_lineBuffer->buffer, _lineBuffer->dataSize,
+                        _lineBuffer->minY, _lineBuffer->uncompressedData);
+            }
+            else
+            {
+                //
+                // If the line is uncompressed, it's in XDR format,
+                // regardless of the compressor's output format.
+                //
+    
+                _lineBuffer->format = Compressor::XDR;
+                _lineBuffer->uncompressedData = _lineBuffer->buffer;
+            }
+        }
+        
+        int yStart, yStop, dy;
+        if (_ifd->lineOrder == INCREASING_Y)
+        {
+            yStart = _scanLineMin;
+            yStop = _scanLineMax + 1;
+            dy = 1;
+        }
+        else
+        {
+            yStart = _scanLineMax;
+            yStop = _scanLineMin - 1;
+            dy = -1;
+        }
+    
+        for (int y = yStart; y != yStop; y += dy)
+        {
+            //
+            // Convert one scan line's worth of pixel data back
+            // from the machine-independent representation, and
+            // store the result in the frame buffer.
+            //
+    
+            const char *readPtr = _lineBuffer->uncompressedData +
+                                    _ifd->offsetInLineBuffer[y - _ifd->minY];
+    
+            //
+            // Iterate over all image channels.
+            //
+    
+            for (unsigned int i = 0; i < _ifd->slices.size(); ++i)
+            {
+                //
+                // Test if scan line y of this channel is
+                // contains any data (the scan line contains
+                // data only if y % ySampling == 0).
+                //
+    
+                const InSliceInfo &slice = _ifd->slices[i];
+    
+                if (modp (y, slice.ySampling) != 0)
+                    continue;
+    
+                //
+                // Find the x coordinates of the leftmost and rightmost
+                // sampled pixels (i.e. pixels within the data window
+                // for which x % xSampling == 0).
+                //
+    
+                int dMinX = divp (_ifd->minX, slice.xSampling);
+                int dMaxX = divp (_ifd->maxX, slice.xSampling);
+    
+                //
+                // Iterate over the sampled pixels.
+                //
+    
+                if (slice.skip)
+                {
+                    //
+                    // The file contains data for this channel, but
+                    // the frame buffer contains no slice for this channel.
+                    //
+    
+                    skipChannel (readPtr, slice.typeInFile, dMaxX - dMinX + 1);
+                }
+                else
+                {
+                    //
+                    // The frame buffer contains a slice for this channel.
+                    //
+    
+                    char *linePtr  = slice.base +
+                                        divp (y, slice.ySampling) *
+                                        slice.yStride;
+    
+                    char *writePtr = linePtr + dMinX * slice.xStride;
+                    char *endPtr   = linePtr + dMaxX * slice.xStride;
+                    
+                    copyIntoFrameBuffer (readPtr, writePtr, endPtr,
+                                         slice.xStride, slice.fill,
+                                         slice.fillValue, _lineBuffer->format,
+                                         slice.typeInFrameBuffer,
+                                         slice.typeInFile);
+                }
+            }
+        }
+    }
+    catch (std::exception &e)
+    {
+        if (!_lineBuffer->hasException)
+        {
+            _lineBuffer->exception = e.what ();
+            _lineBuffer->hasException = true;
+        }
+    }
+    catch (...)
+    {
+        if (!_lineBuffer->hasException)
+        {
+            _lineBuffer->exception = "unrecognized custom exception";
+            _lineBuffer->hasException = true;
+        }
+    }
 }
 
 } // namespace
 
 
-ScanLineInputFile::ScanLineInputFile (const Header &header, IStream *is):
-    _data (new Data (is))
+ScanLineInputFile::ScanLineInputFile (const Header &header, IStream *is,
+                                      int numThreads):
+    _data (new Data (is, numThreads))
 {
     try
     {
@@ -323,24 +593,29 @@ ScanLineInputFile::ScanLineInputFile (const Header &header, IStream *is):
 	_data->minY = dataWindow.min.y;
 	_data->maxY = dataWindow.max.y;
 
-	int maxBytesPerLine = bytesPerLineTable (_data->header,
-						 _data->bytesPerLine);
+	size_t maxBytesPerLine = bytesPerLineTable (_data->header,
+                                                    _data->bytesPerLine);
 
-	_data->compressor = newCompressor (_data->header.compression(),
-					   maxBytesPerLine,
-					   _data->header);
+        // create the actual lineBuffers
+        for (size_t i = 0; i < _data->lineBuffers.size(); i++)
+        {
+            _data->lineBuffers[i] = new LineBuffer (newCompressor
+                                                (_data->header.compression(),
+                                                 maxBytesPerLine,
+                                                 _data->header));
+        }
 
-	_data->linesInBuffer = _data->compressor?
-				   _data->compressor->numScanLines(): 1;
+        // calculate size for the buffers
+        _data->linesInBuffer = numLinesInBuffer
+                                        (_data->lineBuffers[0]->compressor);
+        _data->lineBufferSize = maxBytesPerLine * _data->linesInBuffer;
 
-	_data->format = defaultFormat (_data->compressor);
+        // allocate the lineBuffer buffers
+        if (!_data->is->isMemoryMapped())
+            for (size_t i = 0; i < _data->lineBuffers.size(); i++)
+                _data->lineBuffers[i]->buffer = new char[_data->lineBufferSize];
 
-	_data->lineBufferSize = maxBytesPerLine * _data->linesInBuffer;
-	_data->lineBuffer.resizeErase (_data->lineBufferSize);
-	_data->lineBufferMinY = _data->minY - 1;
-	_data->lineBufferMaxY = _data->minY - 1;
 	_data->nextLineBufferMinY = _data->minY - 1;
-	_data->uncompressedData = 0;
 
 	offsetInLineBufferTable (_data->bytesPerLine,
 				 _data->linesInBuffer,
@@ -366,6 +641,10 @@ ScanLineInputFile::ScanLineInputFile (const Header &header, IStream *is):
 
 ScanLineInputFile::~ScanLineInputFile ()
 {
+    if (!_data->is->isMemoryMapped())
+        for (size_t i = 0; i < _data->lineBuffers.size(); i++)
+            delete [] _data->lineBuffers[i]->buffer;
+
     delete _data;
 }
 
@@ -394,6 +673,8 @@ ScanLineInputFile::version () const
 void	
 ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
+    Lock lock (*_data);
+
     //
     // Check if the new frame buffer descriptor is
     // compatible with the image file header.
@@ -412,13 +693,11 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 
 	if (i.channel().xSampling != j.slice().xSampling ||
 	    i.channel().ySampling != j.slice().ySampling)
-	{
 	    THROW (Iex::ArgExc, "X and/or y subsampling factors "
 				"of \"" << i.name() << "\" channel "
 				"of input file \"" << fileName() << "\" are "
 				"not compatible with the frame buffer's "
 				"subsampling factors.");
-	}
     }
 
     //
@@ -493,6 +772,7 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 ScanLineInputFile::frameBuffer () const
 {
+    Lock lock (*_data);
     return _data->frameBuffer;
 }
 
@@ -509,536 +789,91 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 {
     try
     {
+        Lock lock (*_data);
+
 	if (_data->slices.size() == 0)
 	    throw Iex::ArgExc ("No frame buffer specified "
 			       "as pixel data destination.");
 
-	//
-	// Try to read the scan lines in the same order as in
-	// the file to reduce the overhead of seek operations.
-	//
+	int scanLineMin = min (scanLine1, scanLine2);
+	int scanLineMax = max (scanLine1, scanLine2);
 
-	int minY = std::min (scanLine1, scanLine2);
-	int maxY = std::max (scanLine1, scanLine2);
-
-	if (minY < _data->minY || maxY > _data->maxY)
-	{
+	if (scanLineMin < _data->minY || scanLineMax > _data->maxY)
 	    throw Iex::ArgExc ("Tried to read scan line outside "
 			       "the image file's data window.");
-	}
 
-	int numScanLines = maxY - minY + 1;
-	int y;
-	int dy;
+        //
+        // We impose a numbering scheme on the lineBuffers where the first
+        // scanline is contained in lineBuffer 1.
+        //
+        // Determine the first and last lineBuffer numbers in this scanline
+        // range. We always attempt to read the scanlines in the order that
+        // they are stored in the file.
+        //
 
-	if (_data->lineOrder == INCREASING_Y)
-	{
-	    y = minY;
-	    dy = 1;
-	}
-	else
-	{
-	    y = maxY;
-	    dy = -1;
-	}
+        int start, stop, dl;
+
+        if (_data->lineOrder == INCREASING_Y)
+        {
+            start = (scanLineMin - _data->minY) / _data->linesInBuffer;
+            stop  = (scanLineMax - _data->minY) / _data->linesInBuffer + 1;
+            dl = 1;
+        }
+        else
+        {
+            start = (scanLineMax - _data->minY) / _data->linesInBuffer;
+            stop  = (scanLineMin - _data->minY) / _data->linesInBuffer - 1;
+            dl = -1;
+        }
+
+
+        //
+        // Create a task group for all line buffer tasks. When the taskgroup
+        // goes out of scope, the destructor waits until all tasks are complete.
+        //
         
-	while (numScanLines)
-	{
-	    //
-	    // If necessary, read the data block, that
-	    // contains line y, from the output file.
-	    //
-
-	    if (y < _data->lineBufferMinY ||
-		y > _data->lineBufferMaxY)
-	    {
-		int minY, maxY, dataSize;
-		readPixelData (_data, y, minY, maxY, dataSize);
-		_data->format = defaultFormat (_data->compressor);
-
-		//
-		// Uncompress the data, if necessary
-		//
-
-		int uncompressedSize = 0;
-		int max = std::min (maxY, _data->maxY);
-
-		for (int i = minY - _data->minY; i <= max - _data->minY; ++i)
-		    uncompressedSize += (int) _data->bytesPerLine[i];
-
-		if (_data->compressor && dataSize < uncompressedSize)
-		{
-		    dataSize = _data->compressor->uncompress
-				    (_data->lineBuffer, dataSize, minY,
-				     _data->uncompressedData);
-		}
-		else
-		{
-		    //
-                    // If the line is uncompressed, it's in XDR format,
-		    // regardless of the compressor's output format.
-		    //
-
-                    _data->format = Compressor::XDR;
-                    _data->uncompressedData = _data->lineBuffer;
-		}
-
-		_data->lineBufferMinY = minY;
-		_data->lineBufferMaxY = maxY;
-	    }
-
-	    //
-	    // Convert one scan line's worth of pixel data back
-	    // from the machine-independent representation, and
-	    // store the result in the frame buffer.
-	    //
-
-	    const char *readPtr = _data->uncompressedData +
-				  _data->offsetInLineBuffer[y - _data->minY];
-
-	    //
-	    // Iterate over all image channels.
-	    //
-
-	    for (unsigned int i = 0; i < _data->slices.size(); ++i)
-	    {
-		//
-		// Test if scan line y of this channel is
-		// contains any data (the scan line contains
-		// data only if y % ySampling == 0).
-		//
-
-		const InSliceInfo &slice = _data->slices[i];
-
-		if (modp (y, slice.ySampling) != 0)
-		    continue;
-
-		//
-		// Find the x coordinates of the leftmost and rightmost
-		// sampled pixels (i.e. pixels within the data window
-		// for which x % xSampling == 0).
-		//
-
-		int dMinX = divp (_data->minX, slice.xSampling);
-		int dMaxX = divp (_data->maxX, slice.xSampling);
-
-		//
-		// Iterate over the sampled pixels.
-		//
-
-		if (slice.skip)
-		{
-		    //
-		    // The file contains data for this channel, but
-		    // the frame buffer contains no slice for this channel.
-		    //
-
-		    switch (slice.typeInFile)
-		    {
-		      case UINT:
-		      
-			Xdr::skip <CharPtrIO>
-			    (readPtr,
-			     Xdr::size <unsigned int> () *
-			     (dMaxX - dMinX + 1));
-			break;
-
-		      case HALF:
-
-			Xdr::skip <CharPtrIO>
-			    (readPtr,
-			     Xdr::size <half> () *
-			     (dMaxX - dMinX + 1));
-			break;
-
-		      case FLOAT:
-
-			Xdr::skip <CharPtrIO>
-			    (readPtr,
-			     Xdr::size <float> () *
-			     (dMaxX - dMinX + 1));
-			break;
-
-		      default:
-
-			throw Iex::ArgExc ("Unknown pixel data type.");
-		    }
-		}
-		else
-		{
-		    //
-		    // The frame buffer contains a slice for this channel.
-		    //
-
-		    char *linePtr  = slice.base +
-				     divp (y, slice.ySampling) * slice.yStride;
-
-		    char *pixelPtr = linePtr + dMinX * slice.xStride;
-		    char *endPtr   = linePtr + dMaxX * slice.xStride;
-
-		    if (slice.fill)
-		    {
-			//
-			// The file contains no data for this channel.
-			// Store a default value in the frame buffer.
-			//
-
-			switch (slice.typeInFrameBuffer)
-			{
-			  case UINT:
-			  
-			    {
-				unsigned int fillValue =
-				    (unsigned int) (slice.fillValue);
-
-				while (pixelPtr <= endPtr)
-				{
-				    *(unsigned int *) pixelPtr = fillValue;
-				    pixelPtr += slice.xStride;
-				}
-			    }
-			    break;
-
-			  case HALF:
-
-			    {
-				half fillValue =
-				    half (slice.fillValue);
-
-				while (pixelPtr <= endPtr)
-				{
-				    *(half *) pixelPtr = fillValue;
-				    pixelPtr += slice.xStride;
-				}
-			    }
-			    break;
-
-			  case FLOAT:
-
-			    {
-				float fillValue =
-				    float (slice.fillValue);
-
-				while (pixelPtr <= endPtr)
-				{
-				    *(float *) pixelPtr = fillValue;
-				    pixelPtr += slice.xStride;
-				}
-			    }
-			    break;
-
-			  default:
-
-			    throw Iex::ArgExc ("Unknown pixel data type.");
-			}
-		    }
-		    else if (_data->format == Compressor::XDR)
-		    {
-			//
-			// The compressor produced data for this
-			// channel in Xdr format.
-			//
-			// Convert the pixels from the file's machine-
-			// independent representation, and store the
-			// results in the frame buffer.
-			//
-
-			switch (slice.typeInFrameBuffer)
-			{
-			  case UINT:
-		    
-			    switch (slice.typeInFile)
-			    {
-			      case UINT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    Xdr::read <CharPtrIO>
-					(readPtr, *(unsigned int *) pixelPtr);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case HALF:
-
-				while (pixelPtr <= endPtr)
-				{
-				    half h;
-				    Xdr::read <CharPtrIO> (readPtr, h);
-				    *(unsigned int *) pixelPtr = halfToUint (h);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case FLOAT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    float f;
-				    Xdr::read <CharPtrIO> (readPtr, f);
-				    *(unsigned int *)pixelPtr = floatToUint (f);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-			    }
-			    break;
-
-			  case HALF:
-
-			    switch (slice.typeInFile)
-			    {
-			      case UINT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    unsigned int ui;
-				    Xdr::read <CharPtrIO> (readPtr, ui);
-				    *(half *) pixelPtr = uintToHalf (ui);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-			      
-			      case HALF:
-
-				while (pixelPtr <= endPtr)
-				{
-				    Xdr::read <CharPtrIO>
-					(readPtr, *(half *) pixelPtr);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case FLOAT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    float f;
-				    Xdr::read <CharPtrIO> (readPtr, f);
-				    *(half *) pixelPtr = floatToHalf (f);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-			    }
-			    break;
-
-			  case FLOAT:
-
-			    switch (slice.typeInFile)
-			    {
-			      case UINT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    unsigned int ui;
-				    Xdr::read <CharPtrIO> (readPtr, ui);
-				    *(float *) pixelPtr = float (ui);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case HALF:
-
-				while (pixelPtr <= endPtr)
-				{
-				    half h;
-				    Xdr::read <CharPtrIO> (readPtr, h);
-				    *(float *) pixelPtr = float (h);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case FLOAT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    Xdr::read <CharPtrIO>
-					(readPtr, *(float *) pixelPtr);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-			    }
-			    break;
-
-			  default:
-
-			    throw Iex::ArgExc ("Unknown pixel data type.");
-			}
-		    }
-		    else
-		    {
-			//
-			// The compressor produced data for this
-			// channel in the machine's native format.
-			// Copy the results into the frame buffer.
-			//
-
-			switch (slice.typeInFrameBuffer)
-			{
-			  case UINT:
-		    
-			    switch (slice.typeInFile)
-			    {
-			      case UINT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    for (size_t i = 0;
-					 i < sizeof (unsigned int);
-					 ++i)
-				    {
-					pixelPtr[i] = readPtr[i];
-				    }
-
-				    readPtr += sizeof (unsigned int);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case HALF:
-
-				while (pixelPtr <= endPtr)
-				{
-				    half h = *(half *) readPtr;
-				    *(unsigned int *) pixelPtr = halfToUint (h);
-				    readPtr += sizeof (half);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case FLOAT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    float f;
-
-				    for (size_t i = 0; i < sizeof (float); ++i)
-				    {
-					((char *)&f)[i] = readPtr[i];
-				    }
-
-				    *(unsigned int *)pixelPtr = floatToUint (f);
-				    readPtr += sizeof (float);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-			    }
-			    break;
-
-			  case HALF:
-
-			    switch (slice.typeInFile)
-			    {
-			      case UINT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    unsigned int ui;
-
-				    for (size_t i = 0;
-					 i < sizeof (unsigned int);
-					 ++i)
-				    {
-					((char *)&ui)[i] = readPtr[i];
-				    }
-
-				    *(half *) pixelPtr = uintToHalf (ui);
-				    readPtr += sizeof (unsigned int);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case HALF:
-
-				while (pixelPtr <= endPtr)
-				{
-				    *(half *) pixelPtr = *(half *)readPtr;
-				    readPtr += sizeof (half);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case FLOAT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    float f;
-
-				    for (size_t i = 0; i < sizeof (float); ++i)
-				    {
-					((char *)&f)[i] = readPtr[i];
-				    }
-
-				    *(half *) pixelPtr = floatToHalf (f);
-				    readPtr += sizeof (float);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-			    }
-			    break;
-
-			  case FLOAT:
-
-			    switch (slice.typeInFile)
-			    {
-			      case UINT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    unsigned int ui;
-
-				    for (size_t i = 0;
-					 i < sizeof (unsigned int);
-					 ++i)
-				    {
-					((char *)&ui)[i] = readPtr[i];
-				    }
-
-				    *(float *) pixelPtr = float (ui);
-				    readPtr += sizeof (unsigned int);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case HALF:
-
-				while (pixelPtr <= endPtr)
-				{
-				    half h = *(half *) readPtr;
-				    *(float *) pixelPtr = float (h);
-				    readPtr += sizeof (half);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-
-			      case FLOAT:
-
-				while (pixelPtr <= endPtr)
-				{
-				    for (size_t i = 0; i < sizeof (float); ++i)
-					pixelPtr[i] = readPtr[i];
-
-				    readPtr += sizeof (float);
-				    pixelPtr += slice.xStride;
-				}
-				break;
-			    }
-			    break;
-
-			  default:
-
-			    throw Iex::ArgExc ("Unknown pixel data type.");
-			}
-		    }
-		}
-	    }
-
-	    //
-	    // Advance to the next scan line.
-	    //
-
-	    numScanLines -= 1;
-	    y += dy;
-	}
+        {
+            TaskGroup taskGroup;
+            
+    
+            //
+            // Add the lineBuffer tasks.
+            //
+            // The tasks will execute in the order that they are created
+            // because we lock the lineBuffers during construction and the
+            // constructors are called by the main thread. Hence, in order for
+            // a successive task to execute the previous task which used that
+            // lineBuffer must have completed already.
+            //
+            //
+    
+            for (int l = start; l != stop; l += dl)
+            {
+                ThreadPool::addGlobalTask (new LineBufferTask (&taskGroup,
+                                                               _data, l,
+                                                               scanLineMin,
+                                                               scanLineMax));
+            }
+        
+            // finish all tasks
+        }
+        
+        // check for exceptions
+        for (int i = 0; i < _data->lineBuffers.size(); ++i)
+        {
+            LineBuffer* lineBuffer = _data->lineBuffers[i];
+
+            // wait for the lineBuffer to become available
+            lineBuffer->wait ();
+            
+            // if an exception was caught by this lineBuffer then thrown it now
+            if (lineBuffer->hasException)
+            {
+                lineBuffer->post ();
+                throw Iex::IoExc (lineBuffer->exception);
+            }
+            lineBuffer->post ();
+        }
     }
     catch (Iex::BaseExc &e)
     {
@@ -1063,15 +898,19 @@ ScanLineInputFile::rawPixelData (int firstScanLine,
 {
     try
     {
+        Lock lock (*_data);
+
 	if (firstScanLine < _data->minY || firstScanLine > _data->maxY)
 	{
 	    throw Iex::ArgExc ("Tried to read scan line outside "
 			       "the image file's data window.");
 	}
 
-	int dummy1, dummy2;
-	readPixelData (_data, firstScanLine, dummy1, dummy2, pixelDataSize);
-	pixelData = _data->lineBuffer;
+        int minY = lineBufferMinY (firstScanLine, _data->minY,
+                                   _data->linesInBuffer);
+	readPixelData (_data, minY, _data->lineBuffers[0]->buffer,
+                       pixelDataSize);
+	pixelData = _data->lineBuffers[0]->buffer;
     }
     catch (Iex::BaseExc &e)
     {

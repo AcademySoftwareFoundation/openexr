@@ -60,6 +60,17 @@ class IStream
     //-----------
 
     virtual ~IStream ();
+    
+    
+    //------------------------------------------------------
+    // Does this input stream support memory-mapped IO?
+    //
+    // Memory-mapped streams can avoid an extra copy by
+    // passing a pointer to an internal memory buffer
+    // instead of copying the data.
+    //------------------------------------------------------
+
+    virtual bool        isMemoryMapped () const;
 
     //------------------------------------------------------
     // Read from the stream:
@@ -72,6 +83,19 @@ class IStream
     //------------------------------------------------------
 
     virtual bool	read (char c[/*n*/], int n) = 0;
+    
+    
+    //------------------------------------------------------
+    // Read from a memory-mapped stream:
+    //
+    // Get a pointer to the internal data buffer at the
+    // current reading position. If there is less than n
+    // bytes past the current reading position an exception
+    // is thrown. If this is not a memory-mapped file, an
+    // exception is thrown.
+    //------------------------------------------------------
+
+    virtual char* readMemoryMapped (int n);
 
 
     //--------------------------------------------------------
@@ -130,7 +154,7 @@ class OStream
     //-----------
 
     virtual ~OStream ();
-
+  
 
     //----------------------------------------------------------
     // Write to the stream:

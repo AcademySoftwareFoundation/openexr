@@ -7,8 +7,9 @@ INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex \
            -I$(top_srcdir)/IlmImf
 
 LDADD = -L$(top_builddir)/Iex -L$(top_builddir)/Half \
-	-L$(top_builddir)/Imath -L$(top_builddir)/IlmImf \
-	-lIlmImf -lImath -lHalf -lIex -lz
+	-L$(top_builddir)/Imath -L$(top_builddir)/IlmThread \
+	-L$(top_builddir)/IlmImf \
+	-lIlmImf -lIlmThread -lImath -lHalf -lIex -lz
 
 exrenvmap_SOURCES = main.cpp EnvmapImage.cpp EnvmapImage.h \
 		    makeCubeMap.cpp makeCubeMap.h \

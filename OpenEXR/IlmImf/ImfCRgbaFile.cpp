@@ -1097,6 +1097,25 @@ ImfTiledOutputWriteTile (ImfTiledOutputFile *out,
 }
 
 
+int		
+ImfTiledOutputWriteTiles (ImfTiledOutputFile *out,
+			  int dxMin, int dxMax,
+                          int dyMin, int dyMax,
+			  int lx, int ly)
+{
+    try
+    {
+	outfile(out)->writeTiles (dxMin, dxMax, dyMin, dyMax, lx, ly);
+	return 1;
+    }
+    catch (const std::exception &e)
+    {
+	setErrorMessage (e);
+	return 0;
+    }
+}
+
+
 const ImfHeader *
 ImfTiledOutputHeader (const ImfTiledOutputFile *out)
 {
@@ -1284,6 +1303,25 @@ ImfTiledInputReadTile (ImfTiledInputFile *in,
     try
     {
 	infile(in)->readTile (dx, dy, lx, ly);
+	return 1;
+    }
+    catch (const std::exception &e)
+    {
+	setErrorMessage (e);
+	return 0;
+    }
+}
+
+
+int
+ImfTiledInputReadTiles (ImfTiledInputFile *in,
+		        int dxMin, int dxMax,
+                        int dyMin, int dyMax,
+		        int lx, int ly)
+{
+    try
+    {
+	infile(in)->readTiles (dxMin, dxMax, dyMin, dyMax, lx, ly);
 	return 1;
     }
     catch (const std::exception &e)
