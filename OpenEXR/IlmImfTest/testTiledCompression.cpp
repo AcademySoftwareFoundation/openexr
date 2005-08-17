@@ -53,11 +53,6 @@ using namespace std;
 using namespace Imath;
 using namespace Imf;
 
-#ifdef WIN32
-	#define isnan _isnan	
-#elif defined (PLATFORM_DARWIN_PPC) && !defined (__MWERKS__)
-	extern "C" int isnan (double); 
-#endif
 
 namespace {
 
@@ -154,7 +149,7 @@ fillPixels4 (Array2D<unsigned int> &pi,
                 u.i = rand.nexti();
                 pf[y][x] = u.f;
             }
-            while (isnan(pf[y][x]));
+            while (pf[y][x] != pf[y][x]);
         }
 }
 
