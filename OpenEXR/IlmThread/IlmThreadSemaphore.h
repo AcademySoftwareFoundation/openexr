@@ -38,6 +38,8 @@
 #ifdef _WIN32
     #define NOMINMAX
     #include <windows.h>
+#elif defined(PLATFORM_DARWIN_PPC)
+    #include <pthread.h>
 #elif HAVE_PTHREAD
     #include <semaphore.h>
 #endif
@@ -67,12 +69,23 @@ private:
 
 #ifdef _WIN32
     mutable HANDLE _semaphore;
+#elif defined(PLATFORM_DARWIN_PPC)
+    // OS X doesn't have semaphores, so we simulate them using
+    // condition variables
+    struct sema_t
+    {
+        unsigned int count;
+        unsigned long numWaiting;
+        pthread_mutex_t mutex;
+        pthread_cond_t nonZero;
+    };
+    mutable sema_t _semaphore;
 #elif HAVE_PTHREAD
     mutable sem_t _semaphore;
 #endif
 
     void operator= (const Semaphore &S);        // not implemented
-    Semaphore (const Semaphore& S);             // not implemented
+    Semaphore (const Semaphore& S);            // not implemented
 };
 
 } // namespace IlmThread

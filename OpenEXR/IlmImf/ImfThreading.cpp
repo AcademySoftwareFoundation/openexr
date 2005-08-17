@@ -36,7 +36,7 @@
 
 namespace Imf {
 
-    
+
 int
 globalThreadCount ()
 {

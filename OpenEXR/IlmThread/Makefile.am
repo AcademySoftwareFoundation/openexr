@@ -7,6 +7,7 @@ libIlmThread_la_SOURCES = IlmThreadPool.h IlmThread.h \
 			  IlmThreadPool.cpp IlmThread.cpp \
 			  IlmThreadSemaphore.cpp IlmThreadMutex.cpp \
 			  IlmThreadPosix.cpp IlmThreadSemaphorePosix.cpp \
+			  IlmThreadSemaphorePosixCompat.cpp \
 			  IlmThreadMutexPosix.cpp
 
 libIlmThread_la_LDFLAGS = -version-info @LIBTOOL_VERSION@
