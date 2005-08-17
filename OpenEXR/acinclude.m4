@@ -7,7 +7,7 @@ AC_DEFUN([AM_PATH_GL],
 dnl Get the cflags
 dnl
 AC_ARG_WITH(gl-includes,[  --with-gl-includes=PFX  Specify which OpenGL headers to use],
-	gl_inclues="$withval", gl_includes="")
+	gl_includes="$withval", gl_includes="")
   if test x$gl_includes != x ; then
     GL_CXXFLAGS="-I$gl_includes"
   else
@@ -157,6 +157,9 @@ dnl
 
 
 dnl @synopsis ACX_PTHREAD([ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
+dnl
+dnl Modified by Wojciech Jarosz (2005) to include check for POSIX
+dnl semaphore usability. Defines HAVE_POSIX_SEMAPHORES if found.
 dnl
 dnl This macro figures out how to build C programs using POSIX threads.
 dnl It sets the PTHREAD_LIBS output variable to the threads library and
@@ -389,7 +392,56 @@ else
         acx_pthread_ok=no
         $2
 fi
+
 AC_LANG_RESTORE
 ])dnl ACX_PTHREAD
+
+
+dnl
+dnl Posix Semaphore support
+dnl
+
+AC_DEFUN([AM_POSIX_SEM],
+[
+AC_ARG_ENABLE([posix-sem], AC_HELP_STRING([--disable-posix-sem],
+    [do not attempt to use POSIX unnamed semaphores]))
+
+am_posix_sem_ok=no
+if test "${enable_posix_sem:-yes}" != "no"; then
+    AC_CHECK_HEADERS([semaphore.h], [
+	AC_SEARCH_LIBS(sem_init, [posix4 pthread], [
+	    AC_MSG_CHECKING([whether to use POSIX unnamed semaphores])
+	    AC_RUN_IFELSE([
+		AC_LANG_PROGRAM([#include <semaphore.h>], [
+		    sem_t mysem;
+		    if (sem_init (&mysem, 1, 1) == 0)
+		    {
+			if (sem_wait (&mysem) == 0)
+			{
+			    sem_post (&mysem);
+			    sem_destroy (&mysem);
+			    return 0;
+			}
+		    }
+		    return 1;
+		])
+		], [
+		AC_MSG_RESULT([yes])
+		am_posix_sem_ok = yes], [
+		AC_MSG_RESULT([no (pshared not usable)])], [
+		AC_MSG_RESULT([no (cannot check usability when cross compiling)])])
+	])
+    ])
+fi
+
+# Finally, execute ACTION-IF-FOUND/ACTION-IF-NOT-FOUND:
+if test x"$am_posix_sem_ok" = xyes; then
+        ifelse([$1],,AC_DEFINE(HAVE_POSIX_SEMAPHORES),[$1])
+        :
+else
+        am_posix_sem_ok=no
+        $2
+fi
+])
 
 

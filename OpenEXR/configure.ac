@@ -69,14 +69,16 @@ AC_ARG_ENABLE(threading,
 
 if test "${multithread}" != no ; then
     ACX_PTHREAD(
-                [
-                    AC_DEFINE(HAVE_PTHREAD)
-                    LIBS="$PTHREAD_LIBS $LIBS"
-                    CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
-                    CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
-                    CC="$PTHREAD_CC"
-                ],
-                [AC_MSG_ERROR([POSIX thread support required])])
+    [
+	AC_DEFINE(HAVE_PTHREAD)
+	LIBS="$PTHREAD_LIBS $LIBS"
+	CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
+	CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
+	CC="$PTHREAD_CC"
+	
+	AM_POSIX_SEM()
+    ],
+    [AC_MSG_ERROR([POSIX thread support required])])
 fi
 
 dnl Checks for header files.
