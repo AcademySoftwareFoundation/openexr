@@ -385,13 +385,6 @@ dither (float v, int x, int y)
 } // namespace
 
 
-float
-ImageView::findKnee (float x, float y)
-{
-    return findKneeF (x, y);
-}
-
-
 void
 ImageView::updateScreenPixels ()
 {

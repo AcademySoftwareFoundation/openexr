@@ -50,16 +50,13 @@
 #include <map>
 
 
-class Image;
-
-
 class ImageChannel
 {
   public:
 
     friend class Image;
 
-    ImageChannel (Image &image);
+    ImageChannel (Image &Image);
     virtual ~ImageChannel();
 
     virtual Imf::Slice	slice () const = 0;

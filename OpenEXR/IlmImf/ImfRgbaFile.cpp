@@ -502,14 +502,13 @@ RgbaOutputFile::ToYca::decimateChromaVertAndWriteScanLine ()
 
 RgbaOutputFile::RgbaOutputFile (const char name[],
 				const Header &header,
-				RgbaChannels rgbaChannels,
-                                int numThreads):
+				RgbaChannels rgbaChannels):
     _outputFile (0),
     _toYca (0)
 {
     Header hd (header);
     insertChannels (hd, rgbaChannels);
-    _outputFile = new OutputFile (name, hd, numThreads);
+    _outputFile = new OutputFile (name, hd);
 
     if (rgbaChannels & (WRITE_Y | WRITE_C))
 	_toYca = new ToYca (*_outputFile, rgbaChannels);
@@ -518,14 +517,13 @@ RgbaOutputFile::RgbaOutputFile (const char name[],
 
 RgbaOutputFile::RgbaOutputFile (OStream &os,
 				const Header &header,
-				RgbaChannels rgbaChannels,
-                                int numThreads):
+				RgbaChannels rgbaChannels):
     _outputFile (0),
     _toYca (0)
 {
     Header hd (header);
     insertChannels (hd, rgbaChannels);
-    _outputFile = new OutputFile (os, hd, numThreads);
+    _outputFile = new OutputFile (os, hd);
 
     if (rgbaChannels & (WRITE_Y | WRITE_C))
 	_toYca = new ToYca (*_outputFile, rgbaChannels);
@@ -540,8 +538,7 @@ RgbaOutputFile::RgbaOutputFile (const char name[],
 				const Imath::V2f screenWindowCenter,
 				float screenWindowWidth,
 				LineOrder lineOrder,
-				Compression compression,
-                                int numThreads):
+				Compression compression):
     _outputFile (0),
     _toYca (0)
 {
@@ -554,7 +551,7 @@ RgbaOutputFile::RgbaOutputFile (const char name[],
 	       compression);
 
     insertChannels (hd, rgbaChannels);
-    _outputFile = new OutputFile (name, hd, numThreads);
+    _outputFile = new OutputFile (name, hd);
 
     if (rgbaChannels & (WRITE_Y | WRITE_C))
 	_toYca = new ToYca (*_outputFile, rgbaChannels);
@@ -569,8 +566,7 @@ RgbaOutputFile::RgbaOutputFile (const char name[],
 				const Imath::V2f screenWindowCenter,
 				float screenWindowWidth,
 				LineOrder lineOrder,
-				Compression compression,
-                                int numThreads):
+				Compression compression):
     _outputFile (0),
     _toYca (0)
 {
@@ -583,7 +579,7 @@ RgbaOutputFile::RgbaOutputFile (const char name[],
 	       compression);
 
     insertChannels (hd, rgbaChannels);
-    _outputFile = new OutputFile (name, hd, numThreads);
+    _outputFile = new OutputFile (name, hd);
 
     if (rgbaChannels & (WRITE_Y | WRITE_C))
 	_toYca = new ToYca (*_outputFile, rgbaChannels);
@@ -1084,8 +1080,8 @@ RgbaInputFile::FromYca::padTmpBuf ()
 }
 
 
-RgbaInputFile::RgbaInputFile (const char name[], int numThreads):
-    _inputFile (new InputFile (name, numThreads)),
+RgbaInputFile::RgbaInputFile (const char name[]):
+    _inputFile (new InputFile (name)),
     _fromYca (0)
 {
     RgbaChannels rgbaChannels = channels();
@@ -1095,8 +1091,8 @@ RgbaInputFile::RgbaInputFile (const char name[], int numThreads):
 }
 
 
-RgbaInputFile::RgbaInputFile (IStream &is, int numThreads):
-    _inputFile (new InputFile (is, numThreads)),
+RgbaInputFile::RgbaInputFile (IStream &is):
+    _inputFile (new InputFile (is)),
     _fromYca (0)
 {
     RgbaChannels rgbaChannels = channels();

@@ -66,7 +66,6 @@ class ImageViewFragShader: public ImageView
 			const Imf::Rgba pixels[/* w*h */],
 			int dw, int dh,		// data window width and height
 			int dx, int dy,		// data window offset
-			Fl_Box *rgbaBox,
 			float exposure,
 			float defog,
 			float kneeLow,

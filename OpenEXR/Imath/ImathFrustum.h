@@ -77,13 +77,6 @@ class Frustum
 
     const Frustum &operator	= (const Frustum &);
 
-    //--------------------
-    //  Operators:  ==, !=
-    //--------------------
-    
-    bool                        operator == (const Frustum<T> &src) const;
-    bool                        operator != (const Frustum<T> &src) const;
-
     //--------------------------------------------------------
     //  Set functions change the entire state of the Frustum
     //--------------------------------------------------------
@@ -222,27 +215,6 @@ Frustum<T>::operator = (const Frustum &f)
     _orthographic = f._orthographic;
 
     return *this;
-}
-
-template <class T>
-bool
-Frustum<T>::operator == (const Frustum<T> &src) const
-{
-    return
-        _near         == src._near   &&
-        _far          == src._far    &&
-        _left         == src._left   &&
-        _right        == src._right  &&
-        _top          == src._top    &&
-        _bottom       == src._bottom &&
-        _orthographic == src._orthographic;
-}
-
-template <class T>
-inline bool
-Frustum<T>::operator != (const Frustum<T> &src) const
-{
-    return !operator== (src);
 }
 
 template<class T>

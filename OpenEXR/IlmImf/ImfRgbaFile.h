@@ -53,7 +53,6 @@
 #include <ImathVec.h>
 #include <ImathBox.h>
 #include <half.h>
-#include <ImfThreading.h>
 
 namespace Imf {
 
@@ -76,8 +75,7 @@ class RgbaOutputFile
 
     RgbaOutputFile (const char name[],
 		    const Header &header,
-		    RgbaChannels rgbaChannels = WRITE_RGBA,
-                    int numThreads = globalThreadCount ());
+		    RgbaChannels rgbaChannels = WRITE_RGBA);
 
 
     //----------------------------------------------------
@@ -88,8 +86,7 @@ class RgbaOutputFile
 
     RgbaOutputFile (OStream &os,
 		    const Header &header,
-		    RgbaChannels rgbaChannels = WRITE_RGBA,
-                    int numThreads = globalThreadCount ());
+		    RgbaChannels rgbaChannels = WRITE_RGBA);
 
 
     //----------------------------------------------------------------
@@ -105,8 +102,7 @@ class RgbaOutputFile
 		    const Imath::V2f screenWindowCenter = Imath::V2f (0, 0),
 		    float screenWindowWidth = 1,
 		    LineOrder lineOrder = INCREASING_Y,
-		    Compression compression = PIZ_COMPRESSION,
-                    int numThreads = globalThreadCount ());
+		    Compression compression = PIZ_COMPRESSION);
 
 
     //-----------------------------------------------
@@ -123,8 +119,7 @@ class RgbaOutputFile
 		    const Imath::V2f screenWindowCenter = Imath::V2f (0, 0),
 		    float screenWindowWidth = 1,
 		    LineOrder lineOrder = INCREASING_Y,
-		    Compression compression = PIZ_COMPRESSION,
-                    int numThreads = globalThreadCount ());
+		    Compression compression = PIZ_COMPRESSION);
 
 
     //-----------
@@ -220,7 +215,7 @@ class RgbaInputFile
     // destructor will automatically close the file.
     //-------------------------------------------------------
 
-    RgbaInputFile (const char name[], int numThreads = globalThreadCount ());
+    RgbaInputFile (const char name[]);
 
 
     //-----------------------------------------------------------
@@ -230,7 +225,7 @@ class RgbaInputFile
     // close the file.
     //-----------------------------------------------------------
 
-    RgbaInputFile (IStream &is, int numThreads = globalThreadCount ());
+    RgbaInputFile (IStream &is);
 
 
     //-----------

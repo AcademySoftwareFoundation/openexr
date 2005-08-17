@@ -32,9 +32,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+
+
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
-#include <IlmThread.h>
 #include <stdio.h>
 #include <assert.h>
 
@@ -94,16 +95,6 @@ testSampleImages ()
 	readImage ("comp_zips.exr", 24988);
 	readImage ("comp_zip.exr",  24988);
 	readImage ("comp_piz.exr",  24988);
-        
-        for (int i = 0; i < 5; i++)
-        {
-            if (IlmThread::supportsThreads ())
-            {
-                setGlobalThreadCount (i);
-                readImage ("lineOrder_increasing.exr", 46515);
-                readImage ("lineOrder_decreasing.exr", 46515);
-            }
-        }
 
 	cout << "ok\n" << endl;
     }

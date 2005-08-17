@@ -82,25 +82,22 @@ struct InputFile::Data
     FrameBuffer *	cachedBuffer;
     
     int			cachedTileY;
-    int                 offset;
-    
-    int                 numThreads;
+    int			offset;
 
-     Data (bool del, int numThreads);
+     Data (bool del);
     ~Data ();
 
     void		deleteCachedBuffer();
 };
 
 
-InputFile::Data::Data (bool del, int numThreads):
+InputFile::Data::Data (bool del):
     is (0),
     deleteStream (del),
     tFile (0),
     sFile (0),
     cachedBuffer (0),
-    cachedTileY (-1),
-    numThreads(numThreads)
+    cachedTileY (-1)
 {
     // empty
 }
@@ -108,12 +105,11 @@ InputFile::Data::Data (bool del, int numThreads):
 
 InputFile::Data::~Data ()
 {
-    delete tFile;
-    delete sFile;
-
     if (deleteStream)
 	delete is;
 
+    delete tFile;
+    delete sFile;
     deleteCachedBuffer();
 }
 
@@ -215,8 +211,8 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
     // the number of pixels in a row of tiles
     //
 
-    Box2i levelRange = ifd->tFile->dataWindowForLevel(0);
-    
+    int tileRowSize = ifd->tFile->levelWidth(0) * ifd->tFile->tileYSize();
+
     //
     // Read the tiles into our temporary framebuffer and copy them into
     // the user's buffer
@@ -236,14 +232,98 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
             // from the file.
             //
 
-            ifd->tFile->readTiles (0, ifd->tFile->numXTiles (0) - 1, j, j);
+            //
+            // If cachedBuffer is not 0 then that means we already have
+            // some data buffered. We must delete the memory allocated for
+            // the previous cachedBuffer before continuing.
+            //
+
+            if (ifd->cachedBuffer)
+		ifd->deleteCachedBuffer();
+
+            //
+            // Then, allocate a framebuffer big enough to store all tiles in
+            // this row of tiles and save it as cachedBuffer.
+            //
+
+            ifd->cachedBuffer = new FrameBuffer();
             ifd->cachedTileY = j;
+
+            ifd->offset = tileRange.min.y * ifd->tFile->levelWidth(0) +
+                          tileRange.min.x;
+
+            for (FrameBuffer::ConstIterator k = ifd->tFileBuffer.begin();
+                 k != ifd->tFileBuffer.end();
+		 ++k)
+            {
+                Slice s = k.slice();
+
+                switch (s.type)
+                {
+		  case UINT:
+
+		    ifd->cachedBuffer->insert
+			(k.name(),
+			 Slice (UINT,
+				(char *)(new unsigned int[tileRowSize] -	
+				     ifd->offset),
+				 sizeof (unsigned int),
+				 sizeof (unsigned int) *
+				     ifd->tFile->levelWidth(0),
+				 1, 1,
+				 s.fillValue));
+		    break;
+
+		  case HALF:
+
+		    ifd->cachedBuffer->insert
+			(k.name(),
+			 Slice (HALF,
+				(char *)(new half[tileRowSize] -
+				     ifd->offset),
+				 sizeof (half),
+				 sizeof (half) *
+				     ifd->tFile->levelWidth(0),
+				 1, 1,
+				 s.fillValue));
+		    break;
+
+		  case FLOAT:
+
+		    ifd->cachedBuffer->insert
+			(k.name(),
+			 Slice (FLOAT,
+				(char *)(new float[tileRowSize] -
+				     ifd->offset),
+				 sizeof(float),
+				 sizeof(float) *
+				     ifd->tFile->levelWidth(0),
+				 1, 1,
+				 s.fillValue));
+		    break;
+
+		  default:
+
+		    throw Iex::ArgExc ("Unknown pixel data type.");
+                }
+            }
+
+            ifd->tFile->setFrameBuffer (*ifd->cachedBuffer);
+
+            //
+            // Read in the whole row of tiles into cachedBuffer.
+            //
+
+            for (int i = 0; i < ifd->tFile->numXTiles (0); ++i)
+                ifd->tFile->readTile (i, j, 0);
         }
 
         //
         // Copy the data from our cached framebuffer into the user's
         // framebuffer.
         //
+
+        Box2i levelRange = ifd->tFile->dataWindowForLevel(0);
 
         for (FrameBuffer::ConstIterator k = ifd->cachedBuffer->begin();
              k != ifd->cachedBuffer->end();
@@ -272,9 +352,9 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
                 // Set the pointers to the start of the y scanline in
                 // this row of tiles
 		//
-                
+
                 fromPtr = fromSlice.base +
-                          (y - tileRange.min.y) * fromSlice.yStride +
+                          y * fromSlice.yStride +
                           xStart * fromSlice.xStride;
 
                 toPtr = toSlice.base +
@@ -304,8 +384,8 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
 
 
 
-InputFile::InputFile (const char fileName[], int numThreads):
-    _data (new Data (true, numThreads))
+InputFile::InputFile (const char fileName[]):
+    _data (new Data (true))
 {
     try
     {
@@ -323,8 +403,8 @@ InputFile::InputFile (const char fileName[], int numThreads):
 }
 
 
-InputFile::InputFile (IStream &is, int numThreads):
-    _data (new Data (false, numThreads))
+InputFile::InputFile (IStream &is):
+    _data (new Data (false))
 {
     try
     {
@@ -362,14 +442,12 @@ InputFile::initialize ()
     
 	_data->tFile = new TiledInputFile (_data->header,
 					   _data->is,
-					   _data->version,
-                                           _data->numThreads);
+					   _data->version);
     }
     else
     {
 	_data->sFile = new ScanLineInputFile (_data->header,
-					      _data->is,
-                                              _data->numThreads);
+					      _data->is);
     }
 }
 
@@ -427,87 +505,9 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 	}
 
 	if (i != oldFrameBuffer.end() || j != frameBuffer.end())
-        {
-            _data->deleteCachedBuffer ();
 	    _data->cachedTileY = -1;
-        }
 
 	_data->tFileBuffer = frameBuffer;
-
-
-        //
-        // Create a cached framebuffer which stores a single row of tiles
-        // The same buffer is reused for each row of tiles by setting the
-        // yTileCoords parameter of each Slice to true.
-        //
-
-        const Box2i &dataWindow = _data->header.dataWindow();
-        _data->cachedBuffer = new FrameBuffer();
-        _data->offset = dataWindow.min.x;
-        
-        int tileRowSize = (dataWindow.max.x - dataWindow.min.x + 1) *
-                          _data->tFile->tileYSize();
-
-        for (FrameBuffer::ConstIterator k = frameBuffer.begin();
-             k != frameBuffer.end();
-             ++k)
-        {
-            Slice s = k.slice();
-
-            switch (s.type)
-            {
-            case UINT:
-
-                _data->cachedBuffer->insert
-                    (k.name(),
-                    Slice (UINT,
-                            (char *)(new unsigned int[tileRowSize] - 
-                                    _data->offset),
-                            sizeof (unsigned int),
-                            sizeof (unsigned int) *
-                                _data->tFile->levelWidth(0),
-                            1, 1,
-                            s.fillValue,
-                            false, true));
-                break;
-
-            case HALF:
-
-                _data->cachedBuffer->insert
-                    (k.name(),
-                    Slice (HALF,
-                            (char *)(new half[tileRowSize] - 
-                                    _data->offset),
-                            sizeof (half),
-                            sizeof (half) *
-                                _data->tFile->levelWidth(0),
-                            1, 1,
-                            s.fillValue,
-                            false, true));
-                break;
-
-            case FLOAT:
-
-                _data->cachedBuffer->insert
-                    (k.name(),
-                    Slice (FLOAT,
-                            (char *)(new float[tileRowSize] - 
-                                    _data->offset),
-                            sizeof(float),
-                            sizeof(float) *
-                                _data->tFile->levelWidth(0),
-                            1, 1,
-                            s.fillValue,
-                            false, true));
-                break;
-
-            default:
-
-                throw Iex::ArgExc ("Unknown pixel data type.");
-            }
-        }
-
-        _data->tFile->setFrameBuffer (*_data->cachedBuffer);
     }
     else
     {

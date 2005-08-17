@@ -46,7 +46,6 @@
 #include <ImfFrameBuffer.h>
 #include <ImathBox.h>
 #include <ImfTileDescription.h>
-#include <ImfThreading.h>
 
 namespace Imf {
 
@@ -80,8 +79,7 @@ class TiledOutputFile
     // reading the tiles in random order (see writeTile, below).
     //-------------------------------------------------------------------
     
-    TiledOutputFile (const char fileName[], const Header &header,
-                     int numThreads = globalThreadCount ());
+    TiledOutputFile (const char fileName[], const Header &header);
 
 
     // ----------------------------------------------------------------
@@ -91,8 +89,7 @@ class TiledOutputFile
     // closse the corresponding files.
     // ----------------------------------------------------------------
 
-    TiledOutputFile (OStream &os, const Header &header,
-                     int numThreads = globalThreadCount ());
+    TiledOutputFile (OStream &os, const Header &header);
 
 
     //-----------------------------------------------------
@@ -319,15 +316,6 @@ class TiledOutputFile
     // used for ONE_LEVEL and MIPMAP_LEVEL files.  It calls
     // writeTile(dx, dy, level, level).
     //
-    // The two writeTiles(dx1, dx2, dy1, dy2, ...) functions allow to write
-    // multiple tiles at once. If multi-threading is used this also allows to
-    // write multiple tiles concurrently. The tile coordinates dx1, dx2 and
-    // dy1, dy2 specify inclusive ranges of tile coordinates. It is valid for
-    // dx1 < dx2 or dy1 < dy2; the tiles are always written in the order
-    // specified by the line order attribute. Hence, it is not possible to
-    // specify an "invalid" or empty tile range.
-    // 
-    //
     // Pixels that are outside the pixel coordinate range for the tile's
     // level, are never accessed by writeTile().
     //
@@ -374,12 +362,8 @@ class TiledOutputFile
     //
     //------------------------------------------------------------------
 
-    void		writeTile  (int dx, int dy, int l = 0);
-    void		writeTile  (int dx, int dy, int lx, int ly);
-    void		writeTiles (int dx1, int dx2, int dy1, int dy2,
-                                    int lx, int ly);
-    void		writeTiles (int dx1, int dx2, int dy1, int dy2,
-                                    int l = 0);
+    void		writeTile (int dx, int dy, int l = 0);
+    void		writeTile (int dx, int dy, int lx, int ly);
 
 
     //------------------------------------------------------------------

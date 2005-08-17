@@ -10,7 +10,6 @@ libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 		       ImfMatrixAttribute.cpp ImfOpaqueAttribute.cpp \
 		       ImfOutputFile.cpp ImfRgbaFile.cpp \
 		       ImfStringAttribute.cpp ImfVecAttribute.cpp ImfHuf.cpp \
-		       ImfThreading.cpp \
 		       ImfWav.cpp ImfLut.cpp ImfCompressor.cpp \
 		       ImfRleCompressor.cpp ImfZipCompressor.cpp \
 		       ImfPizCompressor.cpp ImfMisc.cpp \
@@ -53,7 +52,7 @@ libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 		       ImfTiledOutputFile.h ImfTiledRgbaFile.h \
 		       ImfRgbaYca.cpp ImfRgbaYca.h \
 		       ImfPxr24Compressor.cpp ImfPxr24Compressor.h \
-		       ImfTestFile.cpp ImfTestFile.h ImfThreading.h
+		       ImfTestFile.cpp ImfTestFile.h
 
 libIlmImf_la_LDFLAGS = -version-info @LIBTOOL_VERSION@
 
@@ -86,7 +85,7 @@ libIlmImfinclude_HEADERS = ImfAttribute.h ImfBoxAttribute.h \
 		           ImfTiledInputFile.h \
 		           ImfTiledOutputFile.h ImfTiledRgbaFile.h \
 			   ImfRgbaYca.h \
-			   ImfTestFile.h ImfThreading.h
+			   ImfTestFile.h
 
 noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
 		 ImfPizCompressor.h ImfMisc.h ImfAutoArray.h ImfTiledMisc.h \
@@ -95,4 +94,4 @@ noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
 EXTRA_DIST = $(noinst_HEADERS)
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Half -I$(top_srcdir)/Iex \
-	   -I$(top_srcdir)/Imath -I$(top_srcdir)/IlmThread
+	   -I$(top_srcdir)/Imath

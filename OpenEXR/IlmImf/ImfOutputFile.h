@@ -45,7 +45,6 @@
 
 #include <ImfHeader.h>
 #include <ImfFrameBuffer.h>
-#include <ImfThreading.h>
 
 namespace Imf {
 
@@ -65,8 +64,7 @@ class OutputFile
     // the file.
     //-----------------------------------------------------------
 
-    OutputFile (const char fileName[], const Header &header,
-                int numThreads = globalThreadCount ());
+    OutputFile (const char fileName[], const Header &header);
 
 
     //------------------------------------------------------------
@@ -78,8 +76,7 @@ class OutputFile
     // close the file.
     //------------------------------------------------------------
 
-    OutputFile (OStream &os, const Header &header,
-                int numThreads = globalThreadCount ());
+    OutputFile (OStream &os, const Header &header);
 
 
     //-------------------------------------------------

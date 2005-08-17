@@ -53,6 +53,11 @@ using namespace std;
 using namespace Imath;
 using namespace Imf;
 
+#ifdef WIN32
+	#define isnan _isnan	
+#elif defined (PLATFORM_DARWIN_PPC) && !defined (__MWERKS__)
+	extern "C" int isnan (double); 
+#endif
 
 namespace {
 
@@ -149,7 +154,7 @@ fillPixels4 (Array2D<unsigned int> &pi,
                 u.i = rand.nexti();
                 pf[y][x] = u.f;
             }
-            while (pf[y][x] != pf[y][x]);
+            while (isnan(pf[y][x]));
         }
 }
 
@@ -221,12 +226,30 @@ writeRead (const Array2D<unsigned int> &pi1,
         remove (fileName);
         TiledOutputFile out (fileName, hdr);
         out.setFrameBuffer (fb);
-        out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
+        
+        int startTileY, endTileY;
+        int dy;
+
+        if (lorder == DECREASING_Y)
+        {
+            startTileY = out.numYTiles() - 1;
+            endTileY = -1;
+            dy = -1;
+        }        
+        else
+        {
+            startTileY = 0;
+            endTileY = out.numYTiles();
+            dy = 1;
+        }
+    
+        for (int tileY = startTileY; tileY != endTileY; tileY += dy)
+            for (int tileX = 0; tileX < out.numXTiles(); ++tileX)         
+                out.writeTile (tileX, tileY);
     }
-    
-    
+
     {
-        cout << ", reading (whole file)" << flush;
+        cout << " reading" << flush;
 
         TiledInputFile in (fileName);
 
@@ -264,10 +287,29 @@ writeRead (const Array2D<unsigned int> &pi1,
                   );
 
         in.setFrameBuffer (fb);
-        in.readTiles (0, in.numXTiles() - 1, 0, in.numYTiles() - 1);
+        
+        int startTileY, endTileY;
+        int dy;
+
+        if (lorder == DECREASING_Y)
+        {
+            startTileY = in.numYTiles() - 1;
+            endTileY = -1;
+            dy = -1;
+        }        
+        else
+        {
+            startTileY = 0;
+            endTileY = in.numYTiles();
+            dy = 1;
+        }
+    
+        for (int tileY = startTileY; tileY != endTileY; tileY += dy)
+            for (int tileX = 0; tileX < in.numXTiles(); ++tileX)
+                in.readTile (tileX, tileY);
         
 
-        cout << ", comparing (whole file)" << flush;
+        cout << " comparing" << flush;
 
         assert (in.header().displayWindow() == hdr.displayWindow());
         assert (in.header().dataWindow() == hdr.dataWindow());
@@ -300,105 +342,6 @@ writeRead (const Array2D<unsigned int> &pi1,
                 assert (pi1[y][x] == pi2[y][x]);
                 assert (ph1[y][x] == ph2[y][x]);
                 assert (equivalent (pf1[y][x], pf2[y][x], comp));
-            }
-        }
-    }
-    
-    {
-        cout << ", reading and comparing (tile-by-tile)" << flush;
-
-        TiledInputFile in (fileName);
-
-        Array2D<unsigned int> pi2 (ySize, xSize);
-        Array2D<half>         ph2 (ySize, xSize);
-        Array2D<float>        pf2 (ySize, xSize);
-
-        FrameBuffer fb;
-
-        fb.insert ("I",                                 // name
-                   Slice (UINT,                         // type
-                          (char *) &pi2[0][0],          // base
-                          sizeof (pi2[0][0]),           // xStride
-                          sizeof (pi2[0][0]) * xSize,   // yStride
-                          1,                            // xSampling
-	                  1,                            // ySampling
-	                  0.0,                          // fillValue
-                          true,                         // reuse tiles 
-                          true)
-                  );
-
-        fb.insert ("H",                                 // name
-                   Slice (HALF,                         // type
-                          (char *) &ph2[0][0],          // base
-                          sizeof (ph2[0][0]),           // xStride
-                          sizeof (ph2[0][0]) * xSize,   // yStride
-                          1,                            // xSampling
-	                  1,                            // ySampling
-	                  0.0,                          // fillValue
-                          true,                         // reuse tiles 
-                          true)
-                  );
-
-        fb.insert ("F",                                 // name
-                   Slice (FLOAT,                        // type
-                          (char *) &pf2[0][0],          // base
-                          sizeof (pf2[0][0]),           // xStride
-                          sizeof (pf2[0][0]) * xSize,   // yStride
-                          1,                            // xSampling
-	                  1,                            // ySampling
-	                  0.0,                          // fillValue
-                          true,                         // reuse tiles 
-                          true)
-                  );
-
-        in.setFrameBuffer (fb);
-        
-        assert (in.header().displayWindow() == hdr.displayWindow());
-        assert (in.header().dataWindow() == hdr.dataWindow());
-        assert (in.header().pixelAspectRatio() == hdr.pixelAspectRatio());
-        assert (in.header().screenWindowCenter() == hdr.screenWindowCenter());
-        assert (in.header().screenWindowWidth() == hdr.screenWindowWidth());
-        assert (in.header().lineOrder() == hdr.lineOrder());
-        assert (in.header().compression() == hdr.compression());
-
-        ChannelList::ConstIterator hi = hdr.channels().begin();
-        ChannelList::ConstIterator ii = in.header().channels().begin();
-
-        while (hi != hdr.channels().end())
-        {
-            assert (!strcmp (hi.name(), ii.name()));
-            assert (hi.channel().type == ii.channel().type);
-            assert (hi.channel().xSampling == ii.channel().xSampling);
-            assert (hi.channel().ySampling == ii.channel().ySampling);
-
-            ++hi;
-            ++ii;
-        }
-
-        assert (ii == in.header().channels().end());
-        
-        for (int tileY = 0; tileY < in.numYTiles(); tileY++)
-        {
-            for (int tileX = 0; tileX < in.numXTiles(); ++tileX)
-            {
-                in.readTile (tileX, tileY);
-
-                Imath::Box2i win = in.dataWindowForTile (tileX, tileY);
-                int oX = win.min.x - xOffset;
-                int oY = win.min.y - yOffset;
-
-                for (int y = 0, y2 = win.min.y; y < ySize && y2 <= win.max.y;
-                     ++y, y2++)
-                {
-                    for (int x = 0, x2 = win.min.x;
-                         x < xSize && x2 <= win.max.x; ++x, x2++)
-                    {
-                        assert (pi1[oY + y][oX + x] == pi2[y][x]);
-                        assert (ph1[oY + y][oX + x] == ph2[y][x]);
-                        assert (equivalent (pf1[oY + y][oX + x],
-                                            pf2[y][x], comp));
-                    }
-                }
             }
         }
     }

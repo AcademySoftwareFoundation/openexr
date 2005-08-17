@@ -82,7 +82,10 @@ writeFiles (const char completeScanLinesName[],
 				 ONE_LEVEL);
 
 	out.setFrameBuffer (&pixels[0][0], 1, width);
-        out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
+
+	for (int  x = 0; x < out.numXTiles(); ++x)
+	    for (int  y = 0; y < out.numYTiles(); ++y)
+		out.writeTile (x, y);
     }
 
     {
@@ -92,7 +95,10 @@ writeFiles (const char completeScanLinesName[],
 				 ONE_LEVEL);
 
 	out.setFrameBuffer (&pixels[0][0], 1, width);
-        out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 2);
+
+	for (int  x = 0; x < out.numXTiles(); ++x)
+	    for (int  y = 0; y < out.numYTiles() - 1; ++y)
+		out.writeTile (x, y);
     }
 }
 

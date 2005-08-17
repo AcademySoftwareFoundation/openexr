@@ -62,11 +62,6 @@
 #include <assert.h>
 #include <map>
 
-#include <ImfThreading.h>
-#include <IlmThreadPool.h>
-#include <IlmThreadSemaphore.h>
-#include <IlmThreadMutex.h>
-
 namespace Imf {
 
 using Imath::Box2i;
@@ -75,10 +70,7 @@ using std::string;
 using std::vector;
 using std::ofstream;
 using std::map;
-using std::min;
-using std::max;
-using std::swap;
-using namespace IlmThread;
+
 
 namespace {
 
@@ -89,33 +81,25 @@ struct TOutSliceInfo
     size_t		xStride;
     size_t		yStride;
     bool		zero;
-    int                 xTileCoords;
-    int                 yTileCoords;
 
     TOutSliceInfo (PixelType type = HALF,
 	           const char *base = 0,
 	           size_t xStride = 0,
 	           size_t yStride = 0,
-	           bool zero = false,
-                   int xTileCoords = 0,
-                   int yTileCoords = 0);
+	           bool zero = false);
 };
 
 
 TOutSliceInfo::TOutSliceInfo (PixelType t,
 		              const char *b,
 			      size_t xs, size_t ys,
-			      bool z,
-                              int xtc,
-                              int ytc)
+			      bool z)
 :
     type (t),
     base (b),
     xStride (xs),
     yStride (ys),
-    zero (z),
-    xTileCoords (xtc),
-    yTileCoords (ytc)
+    zero (z)
 {
     // empty
 }
@@ -182,50 +166,10 @@ struct BufferedTile
 
 typedef map <TileCoord, BufferedTile*> TileMap;
 
-
-struct TileBuffer
-{
-    Array<char>           buffer;
-    const char*           dataPtr;
-    int                   dataSize;
-    Compressor * const    compressor;
-    TileCoord             tileCoord;
-    bool                  hasException;
-    string                exception;
-
-    TileBuffer (Compressor * const comp);
-    ~TileBuffer ();
-
-    inline void wait () {_sem.wait();}
-    inline void post () {_sem.post();}
-
-protected:
-    Semaphore _sem;
-};
-
-
-TileBuffer::TileBuffer (Compressor * const comp) :
-    dataPtr (0),
-    dataSize (0),
-    compressor (comp),
-    hasException (false),
-    exception (),
-    _sem (1)
-{
-    // empty
-}
-
-
-TileBuffer::~TileBuffer ()
-{
-    delete compressor;
-}
-
-
 } // namespace
 
 
-struct TiledOutputFile::Data : public Mutex
+struct TiledOutputFile::Data
 {
     Header		header;			// the image header
     int			version;		// file format version
@@ -250,6 +194,7 @@ struct TiledOutputFile::Data : public Mutex
     TileOffsets		tileOffsets;		// stores offsets in file for
 						// each tile
 
+    Compressor *	compressor;		// the compressor
     Compressor::Format	format;			// compressor's data format
     vector<TOutSliceInfo> slices;		// info about channels in file
     OStream *		os;			// file stream to write to
@@ -258,9 +203,8 @@ struct TiledOutputFile::Data : public Mutex
     size_t		maxBytesPerTileLine;	// combined size of a tile line
 						// over all channels
 
-    
-    vector<TileBuffer*> tileBuffers;
-    size_t		tileBufferSize;         // size of a tile buffer
+    size_t		tileBufferSize;		// size of the tile buffer
+    Array<char>		tileBuffer;		// holds a single tile
 
     Int64		tileOffsetsPosition;	// position of the tile index
     Int64		currentPosition;	// current position in the file
@@ -268,26 +212,22 @@ struct TiledOutputFile::Data : public Mutex
     TileMap		tileMap;
     TileCoord		nextTileToWrite;
 
-     Data (bool del, int numThreads);
+     Data (bool del);
     ~Data ();
-    
-    // hash function from tile buffer coords into our vector of tile buffers
-    inline TileBuffer*  getTileBuffer (int number);
     
     TileCoord		nextTileCoord (const TileCoord &a);
 };
 
 
-TiledOutputFile::Data::Data (bool del, int numThreads) :
+TiledOutputFile::Data::Data (bool del):
     numXTiles(0),
     numYTiles(0),
+    compressor(0),
     os (0),
     deleteStream (del),
     tileOffsetsPosition (0)
 {
-    // we need at least one tileBuffer, but if threading is used, to keep
-    // n threads busy we need 2n tileBuffers
-    tileBuffers.resize (max (1, 2*numThreads));
+    // empty
 }
 
 
@@ -295,6 +235,7 @@ TiledOutputFile::Data::~Data ()
 {
     delete [] numXTiles;
     delete [] numYTiles;
+    delete compressor;
 
     if (deleteStream)
 	delete os;
@@ -305,16 +246,6 @@ TiledOutputFile::Data::~Data ()
     
     for (TileMap::iterator i = tileMap.begin(); i != tileMap.end(); ++i)
 	delete i->second;
-
-    for (size_t i = 0; i < tileBuffers.size(); i++)
-        delete tileBuffers[i];
-}
-
-
-TileBuffer*
-TiledOutputFile::Data::getTileBuffer (int number)
-{
-    return tileBuffers[number % tileBuffers.size()];
 }
 
 
@@ -545,7 +476,6 @@ bufferedTileWrite (TiledOutputFile::Data *ofd,
 
 void
 convertToXdr (TiledOutputFile::Data *ofd,
-              Array<char>& tileBuffer,
 	      int numScanLines,
 	      int numPixelsPerScanLine)
 {
@@ -567,8 +497,8 @@ convertToXdr (TiledOutputFile::Data *ofd,
     // We will write to toPtr, and read from fromPtr.
     //
 
-    char *writePtr = tileBuffer;
-    const char *readPtr = writePtr;
+    char *toPtr = ofd->tileBuffer;
+    const char *fromPtr = toPtr;
 
     //
     // Iterate over all scan lines in the tile.
@@ -587,207 +517,56 @@ convertToXdr (TiledOutputFile::Data *ofd,
 	    //
 	    // Convert the samples in place.
 	    //
-            
-            convertInPlace (writePtr, readPtr, slice.type,
-                            numPixelsPerScanLine);
+		
+	    switch (slice.type)
+	    {
+	      case UINT:
+
+		for (int j = 0; j < numPixelsPerScanLine; ++j)
+		{
+		    Xdr::write <CharPtrIO>
+			(toPtr, *(const unsigned int *) fromPtr);
+		    fromPtr += sizeof(unsigned int);
+		}
+		break;
+
+	      case HALF:
+
+		for (int j = 0; j < numPixelsPerScanLine; ++j)
+		{
+		    Xdr::write <CharPtrIO>
+			(toPtr, *(const half *) fromPtr);
+		    fromPtr += sizeof(half);
+		}
+		break;
+
+	      case FLOAT:
+
+		for (int j = 0; j < numPixelsPerScanLine; ++j)
+		{
+		    Xdr::write <CharPtrIO>
+			(toPtr, *(const float *) fromPtr);
+		    fromPtr += sizeof(float);
+		}
+		break;
+
+	      default:
+
+		throw Iex::ArgExc ("Unknown pixel data type.");
+	    }
 	}
     }
 
     #ifdef DEBUG
-
-	assert (writePtr == readPtr);
-
+	assert (toPtr == fromPtr);
     #endif
 }
-
-
-//-----------------------------------------------------------------------------
-// A TileBufferTask encapulates the task of copying a tile from the user's
-// framebuffer and writing it to the disk.
-//-----------------------------------------------------------------------------
-
-class TileBufferTask : public Task
-{
-private:
-    TiledOutputFile::Data * const   _ofd;
-    TileBuffer*                     _tileBuffer;
-    
-public:
-                    
-    TileBufferTask (TaskGroup* group,
-                    TiledOutputFile::Data * const ofd,
-                    int number, int dx, int dy, int lx, int ly);
-                    
-    virtual ~TileBufferTask ();
-    virtual void execute ();
-};
-
-
-TileBufferTask::TileBufferTask (TaskGroup* group,
-                                TiledOutputFile::Data * const ofd,
-                                int number, int dx, int dy, int lx, int ly) :
-    Task (group),
-    _ofd (ofd),
-    _tileBuffer (_ofd->getTileBuffer (number))
-{
-    // wait for the tileBuffer to become available
-    _tileBuffer->wait ();
-    _tileBuffer->tileCoord = TileCoord(dx, dy, lx, ly);
-}
-
-
-TileBufferTask::~TileBufferTask ()
-{
-    // signal that the tile buffer is now free
-    _tileBuffer->post ();
-}
-
-
-void
-TileBufferTask::execute ()
-{
-    try
-    {
-        //
-        // First copy the pixel data from the frameBuffer into the tileBuffer
-        //
-        // Convert one tile's worth of pixel data to
-        // a machine-independent representation, and store
-        // the result in _tileBuffer->buffer.
-        //
-    
-        char *writePtr = _tileBuffer->buffer;
-    
-        Box2i tileRange = Imf::dataWindowForTile (_ofd->tileDesc,
-                                                  _ofd->minX, _ofd->maxX,
-                                                  _ofd->minY, _ofd->maxY,
-                                                  _tileBuffer->tileCoord.dx,
-                                                  _tileBuffer->tileCoord.dy,
-                                                  _tileBuffer->tileCoord.lx,
-                                                  _tileBuffer->tileCoord.ly);
-    
-        int numScanLines = tileRange.max.y - tileRange.min.y + 1;
-        int numPixelsPerScanLine = tileRange.max.x - tileRange.min.x + 1;
-    
-        //
-        // Iterate over the scan lines in the tile.
-        //
-        
-        for (int y = tileRange.min.y; y <= tileRange.max.y; ++y)
-        {
-            //
-            // Iterate over all image channels.
-            //
-    
-            for (unsigned int i = 0; i < _ofd->slices.size(); ++i)
-            {
-                const TOutSliceInfo &slice = _ofd->slices[i];
-    
-                //
-                // These offsets are used to facilitate both datawindow-relative
-                // and tile-relative pixel coordinates.
-                //
-            
-                int xOffset = slice.xTileCoords * tileRange.min.x;
-                int yOffset = slice.yTileCoords * tileRange.min.y;
-    
-                //
-                // Iterate over the sampled pixels.
-                //
-    
-                if (slice.zero)
-                {
-                    //
-                    // The frame buffer contains no data for this channel.
-                    // Store zeroes in _data->tileBuffer.
-                    //
-                    
-                    fillSliceWithZeros (writePtr, _ofd->format, slice.type,
-                                        numPixelsPerScanLine);
-                }
-                else
-                {
-                    //
-                    // The frame buffer contains data for this channel.
-                    // If necessary, convert the pixel data to
-                    // a machine-independent representation,
-                    // and store in _data->tileBuffer.
-                    //
-    
-                    const char * readPtr = slice.base +
-                                           (y - yOffset) * slice.yStride +
-                                           (tileRange.min.x - xOffset) *
-                                           slice.xStride;
-                    const char * endPtr  = readPtr +
-                                           (numPixelsPerScanLine - 1) *
-                                           slice.xStride;
-                                        
-                    copyFromFrameBuffer (writePtr, readPtr, endPtr,
-                                         slice.xStride, _ofd->format,
-                                         slice.type);
-                }
-            }
-        }
-        
-        //
-        // Compress the contents of the tileBuffer, 
-        // and store the compressed data in the output file.
-        //
-    
-        _tileBuffer->dataSize = writePtr - _tileBuffer->buffer;
-        _tileBuffer->dataPtr = _tileBuffer->buffer;
-    
-        if (_tileBuffer->compressor)
-        {
-            const char * compPtr;
-            int compSize = _tileBuffer->compressor->compressTile
-                                                (_tileBuffer->dataPtr,
-                                                 _tileBuffer->dataSize,
-                                                 tileRange, compPtr);
-    
-            if (compSize < _tileBuffer->dataSize)
-            {
-                _tileBuffer->dataSize = compSize;
-                _tileBuffer->dataPtr = compPtr;
-            }
-            else if (_ofd->format == Compressor::NATIVE)
-            {
-                //
-                // The data did not shrink during compression, but
-                // we cannot write to the file using native format,
-                // so we need to convert the lineBuffer to Xdr.
-                //
-    
-                convertToXdr (_ofd, _tileBuffer->buffer, numScanLines,
-                              numPixelsPerScanLine);
-            }
-        }
-    }
-    catch (std::exception &e)
-    {
-        if (!_tileBuffer->hasException)
-        {
-            _tileBuffer->exception = e.what ();
-            _tileBuffer->hasException = true;
-        }
-    }
-    catch (...)
-    {
-        if (!_tileBuffer->hasException)
-        {
-            _tileBuffer->exception = "unrecognized custom exception";
-            _tileBuffer->hasException = true;
-        }
-    }
-}
-
 
 } // namespace
 
 
-TiledOutputFile::TiledOutputFile (const char fileName[], const Header &header,
-                                  int numThreads):
-    _data (new Data (true, numThreads))
+TiledOutputFile::TiledOutputFile (const char fileName[], const Header &header):
+    _data (new Data (true))
 {
     try
     {
@@ -806,9 +585,8 @@ TiledOutputFile::TiledOutputFile (const char fileName[], const Header &header,
 }
 
 
-TiledOutputFile::TiledOutputFile (OStream &os, const Header &header,
-                                  int numThreads):
-    _data (new Data (false, numThreads))
+TiledOutputFile::TiledOutputFile (OStream &os, const Header &header):
+    _data (new Data (false))
 {
     try
     {
@@ -871,21 +649,18 @@ TiledOutputFile::initialize (const Header &header)
     _data->maxBytesPerTileLine =
 	    calculateBytesPerPixel (_data->header) * _data->tileDesc.xSize;
 
-    _data->tileBufferSize = _data->maxBytesPerTileLine * _data->tileDesc.ySize;
-    
-    // create all the TileBuffers and allocate their internal buffers
-    for (size_t i = 0; i < _data->tileBuffers.size(); i++)
-    {
-        _data->tileBuffers[i] = new TileBuffer (newTileCompressor
-                                            (_data->header.compression(),
-					     _data->maxBytesPerTileLine,
-					     _data->tileDesc.ySize,
-					     _data->header));
+    _data->compressor =
+	    newTileCompressor (_data->header.compression(),
+			       _data->maxBytesPerTileLine,
+			       tileYSize(),
+			       _data->header);
 
-        _data->tileBuffers[i]->buffer.resizeErase(_data->tileBufferSize);
-    }
+    _data->format = _data->compressor?
+			_data->compressor->format():
+			Compressor::XDR;
 
-    _data->format = defaultFormat (_data->tileBuffers[0]->compressor);
+    _data->tileBufferSize = _data->maxBytesPerTileLine * tileYSize();
+    _data->tileBuffer.resizeErase (_data->tileBufferSize);
 
     _data->tileOffsets = TileOffsets (_data->tileDesc.mode,
 				      _data->numXLevels,
@@ -893,7 +668,8 @@ TiledOutputFile::initialize (const Header &header)
 				      _data->numXTiles,
 				      _data->numYTiles);
 
-    _data->previewPosition = _data->header.writeTo (*_data->os, true);
+    _data->previewPosition =
+	_data->header.writeTo(*_data->os, true);
 
     _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_data->os);
     _data->currentPosition = _data->os->tellp();
@@ -904,26 +680,24 @@ TiledOutputFile::~TiledOutputFile ()
 {
     if (_data)
     {
+        if (_data->tileOffsetsPosition > 0)
         {
-            if (_data->tileOffsetsPosition > 0)
+            try
             {
-                try
-                {
-                    _data->os->seekp (_data->tileOffsetsPosition);
-                    _data->tileOffsets.writeTo (*_data->os);
-                }
-                catch (...)
-                {
-                    //
-                    // We cannot safely throw any exceptions from here.
-                    // This destructor may have been called because the
-                    // stack is currently being unwound for another
-                    // exception.
-                    //
-                }
+                _data->os->seekp (_data->tileOffsetsPosition);
+                _data->tileOffsets.writeTo (*_data->os);
+            }
+            catch (...)
+            {
+                //
+                // We cannot safely throw any exceptions from here.
+                // This destructor may have been called because the
+                // stack is currently being unwound for another
+                // exception.
+                //
             }
         }
-        
+
         delete _data;
     }
 }
@@ -946,8 +720,6 @@ TiledOutputFile::header () const
 void	
 TiledOutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
-    Lock lock (*_data);
-
     //
     // Check if the new frame buffer descriptor
     // is compatible with the image file header.
@@ -965,14 +737,18 @@ TiledOutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 	    continue;
 
 	if (i.channel().type != j.slice().type)
+	{
 	    THROW (Iex::ArgExc, "Pixel type of \"" << i.name() << "\" channel "
 				"of output file \"" << fileName() << "\" is "
 				"not compatible with the frame buffer's "
 				"pixel type.");
+	}
 
 	if (j.slice().xSampling != 1 || j.slice().ySampling != 1)
+	{
 	    THROW (Iex::ArgExc, "All channels in a tiled file must have"
 				"sampling (1,1).");
+	}
     }
     
     //
@@ -1010,9 +786,7 @@ TiledOutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 					     j.slice().base,
 					     j.slice().xStride,
 					     j.slice().yStride,
-					     false, // zero
-                                             (j.slice().xTileCoords) ? 1 : 0,
-                                             (j.slice().yTileCoords) ? 1 : 0));
+					     false)); // zero
 	}
     }
 
@@ -1028,151 +802,313 @@ TiledOutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 TiledOutputFile::frameBuffer () const
 {
-    Lock lock (*_data);
     return _data->frameBuffer;
 }
 
 
 void	
-TiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
-                             int lx, int ly)
+TiledOutputFile::writeTile (int dx, int dy, int lx, int ly)
 {
     try
     {
-        Lock lock (*_data);
-
-        if (_data->slices.size() == 0)
+	if (_data->slices.size() == 0)
+	{
 	    throw Iex::ArgExc ("No frame buffer specified "
 			       "as pixel data source.");
+	}
 
-        //
-        // We impose a numbering scheme on the tiles.
-        //
-        // Determine the first and last tile coordinates in both dimensions
-        // based on the file's lineOrder
-        //
-                               
-        if (dx1 > dx2)
-            swap (dx1, dx2);
+	if (!isValidTile (dx, dy, lx, ly))
+	{
+	    THROW (Iex::ArgExc, "Tried to write Tile (" << dx << ", " << dy <<
+				", " << lx << ", " << ly << "), but that is "
+				"not a valid tile coordinate.");
+	}
+ 
+	if (_data->tileOffsets (dx, dy, lx, ly) != 0)
+	{
+	    THROW (Iex::ArgExc, "Tried to write "
+				"tile (" << dx << ", " << dy <<
+				", " << lx << ", " << ly << ") "
+				"more than once.");
+	}
+
+	//
+	// Convert one tile's worth of pixel data to
+	// a machine-independent representation, and store
+	// the result in _data->tileBuffer.
+	//
+
+	char *toPtr = _data->tileBuffer;
+
+	Box2i tileRange = dataWindowForTile (dx, dy, lx, ly);
+
+	int numScanLines = tileRange.max.y - tileRange.min.y + 1;
+	int numPixelsPerScanLine = tileRange.max.x - tileRange.min.x + 1;
+
+	//
+	// Iterate over the scan lines in the tile.
+	//
+	
+	for (int y = tileRange.min.y; y <= tileRange.max.y; ++y)
+	{
+	    //
+	    // Iterate over all image channels.
+	    //
+
+	    for (unsigned int i = 0; i < _data->slices.size(); ++i)
+	    {
+		const TOutSliceInfo &slice = _data->slices[i];
+
+		//
+		// Iterate over the sampled pixels.
+		//
+
+		if (slice.zero)
+		{
+		    //
+		    // The frame buffer contains no data for this channel.
+		    // Store zeroes in _data->tileBuffer.
+		    //
+
+		    if (_data->format == Compressor::XDR)
+		    {
+			//
+			// The compressor expects data in Xdr format.
+			//
+
+			switch (slice.type)
+			{
+			  case UINT:
+
+			    for (int i = 0; i < numPixelsPerScanLine; ++i)
+				Xdr::write <CharPtrIO>
+				    (toPtr, (unsigned int) 0);
+			    break;
+
+			  case HALF:
+
+			    for (int i = 0; i < numPixelsPerScanLine; ++i)
+				Xdr::write <CharPtrIO> (toPtr, (half) 0);
+
+			    break;
+
+			  case FLOAT:
+
+			    for (int i = 0; i < numPixelsPerScanLine; ++i)
+				Xdr::write <CharPtrIO> (toPtr, (float) 0);
+
+			    break;
+
+			  default:
+
+			    throw Iex::ArgExc ("Unknown pixel data type.");
+			}
+		    }
+		    else
+		    {
+			//
+			// The compressor expects data in
+			// the machine's native format.
+			//
+
+			switch (slice.type)
+			{
+			  case UINT:
+
+			    for (int i = 0; i < numPixelsPerScanLine; ++i)
+			    {
+				static unsigned int ui = 0;
+
+				for (size_t i = 0; i < sizeof (ui); ++i)
+				    *toPtr++ = ((char *) &ui)[i];
+			    }
+			    break;
+
+			  case HALF:
+
+			    for (int i = 0; i < numPixelsPerScanLine; ++i)
+			    {
+				*(half *) toPtr = half (0);
+				toPtr += sizeof (half);
+			    }
+			    break;
+
+			  case FLOAT:
+
+			    for (int i = 0; i < numPixelsPerScanLine; ++i)
+			    {
+				static float f = 0;
+
+				for (size_t i = 0; i < sizeof (f); ++i)
+				    *toPtr++ = ((char *) &f)[i];
+			    }
+			    break;
+
+			  default:
+
+			    throw Iex::ArgExc ("Unknown pixel data type.");
+			}
+		    }
+		}
+		else
+		{
+		    //
+		    // The frame buffer contains data for this channel.
+		    // If necessary, convert the pixel data to
+		    // a machine-independent representation,
+		    // and store in _data->tileBuffer.
+		    //
+
+		    const char *fromPtr = slice.base +
+					  y * slice.yStride +
+					  tileRange.min.x * slice.xStride;
+
+		    if (_data->format == Compressor::XDR)
+		    {
+			//
+			// The compressor expects data in Xdr format
+			//
+
+			switch (slice.type)
+			{
+			  case UINT:
+
+			    for (int x = tileRange.min.x;
+				 x <= tileRange.max.x;
+				 ++x)
+			    {
+				Xdr::write <CharPtrIO>
+				    (toPtr, *(unsigned int *) fromPtr);
+
+				fromPtr += slice.xStride;
+			    }
+			    
+			    break;
+
+			  case HALF:
+
+			    for (int x = tileRange.min.x;
+				 x <= tileRange.max.x;
+				 ++x)
+			    {
+				Xdr::write <CharPtrIO>
+				    (toPtr, *(half *) fromPtr);
+
+				fromPtr += slice.xStride;
+			    }
+			    break;
+
+			  case FLOAT:
+
+			    for (int x = tileRange.min.x;
+				 x <= tileRange.max.x;
+				 ++x)
+			    {
+				Xdr::write <CharPtrIO>
+				    (toPtr, *(float *) fromPtr);
+
+				fromPtr += slice.xStride;
+			    }
+			    break;
+
+			  default:
+
+			    throw Iex::ArgExc ("Unknown pixel data type.");
+			}
+		    }
+		    else
+		    {
+			//
+			// The compressor expects data in the
+			// machine's native format.
+			//
+
+			switch (slice.type)
+			{
+			  case UINT:
+
+			    for (int x = tileRange.min.x;
+				 x <= tileRange.max.x;
+				 ++x)
+			    {
+				for (size_t i = 0;
+				     i < sizeof (unsigned int);
+				     ++i)
+				{
+				    *toPtr++ = fromPtr[i];
+				}
+
+				fromPtr += slice.xStride;
+			    }
+			    break;
+
+			  case HALF:
+
+			    for (int x = tileRange.min.x;
+				 x <= tileRange.max.x;
+				 ++x)
+			    {
+				*(half *)toPtr = *(half *)fromPtr;
+
+				toPtr += sizeof (half);
+				fromPtr += slice.xStride;
+			    }
+			    break;
+
+			  case FLOAT:
+
+			    for (int x = tileRange.min.x;
+				 x <= tileRange.max.x;
+				 ++x)
+			    {
+				for (size_t i = 0; i < sizeof (float); ++i)
+				    *toPtr++ = fromPtr[i];
+
+				fromPtr += slice.xStride;
+			    }
+			    break;
+
+			  default:
+
+			    throw Iex::ArgExc ("Unknown pixel data type.");
+			}
+		    }
+		}
+	    }
+	}
+
+	//
+	// Compress the contents of _data->tileBuffer, 
+	// and store the compressed data in the output file.
+	//
         
-        if (dy1 > dy2)
-            swap (dy1, dy2);
-        
-        int dyStart = dy1,
-            dyStop  = dy2 + 1,
-            dY      = 1;
-    
-        if (_data->lineOrder == DECREASING_Y)
-        {
-            dyStart = dy2;
-            dyStop  = dy1 - 1;
-            dY      = -1;
-        }
-        
-        int numTiles = (dx2 - dx1 + 1) * (dy2 - dy1 + 1);
-        int numTasks = min ((int)_data->tileBuffers.size(), numTiles);
+	int dataSize = toPtr - _data->tileBuffer;
+	const char *dataPtr = _data->tileBuffer;
 
+	if (_data->compressor)
+	{
+	    const char *compPtr;
+	    int compSize = _data->compressor->compressTile
+			       (dataPtr, dataSize, tileRange, compPtr);
 
-        //
-        // Create a task group for all tile buffer tasks. When the taskgroup
-        // goes out of scope, the destructor waits until all tasks are complete.
-        //
+	    if (compSize < dataSize)
+	    {
+		dataSize = compSize;
+		dataPtr = compPtr;
+	    }
+	    else if (_data->format == Compressor::NATIVE)
+	    {
+		//
+		// The data did not shrink during compression, but
+		// we cannot write to the file using native format,
+		// so we need to convert the lineBuffer to Xdr.
+		//
 
-        {
-            TaskGroup taskGroup;
-    
-            //
-            // add in the initial compression tasks to the thread pool
-            //
-    
-            int nextCompBuffer = 0,
-                dxComp         = dx1,
-                dyComp         = dyStart;
-            while (nextCompBuffer < numTasks)
-            {
-                ThreadPool::addGlobalTask (new TileBufferTask (&taskGroup,
-                                                               _data,
-                                                               nextCompBuffer++,
-                                                               dxComp, dyComp,
-                                                               lx, ly));
-                dxComp++;
-                if (dxComp > dx2)
-                {
-                    dxComp = dx1;
-                    dyComp += dY;
-                }
-            }
-    
-            
-            //
-            // write the compressed buffers and add in more compression tasks
-            // until done
-            //
-    
-            int nextWriteBuffer = 0,
-                dxWrite         = dx1,
-                dyWrite         = dyStart;
-            while (nextWriteBuffer < numTiles)
-            {
-                // wait until the nextWriteBuffer is ready to be written
-                TileBuffer* writeBuffer =
-                                    _data->getTileBuffer (nextWriteBuffer);
-                writeBuffer->wait ();
-    
-                // write the tilebuffer
-                bufferedTileWrite (_data, dxWrite, dyWrite, lx, ly,
-                                   writeBuffer->dataPtr,
-                                   writeBuffer->dataSize);
-                
-                // release the lock on nextWriteBuffer
-                writeBuffer->post ();
-                
-                // if there are no more tileBuffers to compress,
-                // then only continue to write out remaining tileBuffers
-                if (nextCompBuffer < numTiles)
-                {
-                    // add nextCompBuffer as a compression Task
-                    ThreadPool::addGlobalTask
-                        (new TileBufferTask (&taskGroup, _data, nextCompBuffer,
-                                             dxComp, dyComp, lx, ly));
-                }
-    
-                nextWriteBuffer++;
-                dxWrite++;
-                if (dxWrite > dx2)
-                {
-                    dxWrite = dx1;
-                    dyWrite += dY;
-                }
-                    
-                nextCompBuffer++;
-                dxComp++;
-                if (dxComp > dx2)
-                {
-                    dxComp = dx1;
-                    dyComp += dY;
-                }
-            }
+		convertToXdr (_data, numScanLines, numPixelsPerScanLine);
+	    }
+	}
 
-            // finish all tasks
-        }
-
-        // check for exceptions
-        for (int i = 0; i < _data->tileBuffers.size(); ++i)
-        {
-            TileBuffer* tileBuffer = _data->tileBuffers[i];
-
-            // wait for the tileBuffer to become available
-            tileBuffer->wait ();
-            
-            // if an exception was caught by this tileBuffer then thrown it now
-            if (tileBuffer->hasException)
-            {
-                tileBuffer->post ();
-                throw Iex::IoExc (tileBuffer->exception);
-            }
-            tileBuffer->post ();
-        }
+	bufferedTileWrite (_data, dx, dy, lx, ly, dataPtr, dataSize);
     }
     catch (Iex::BaseExc &e)
     {
@@ -1181,21 +1117,6 @@ TiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
         throw;
     }
 }
-
-
-void	
-TiledOutputFile::writeTiles (int dx1, int dxMax, int dyMin, int dyMax, int l)
-{
-    writeTiles (dx1, dxMax, dyMin, dyMax, l, l);
-}
-
-
-void	
-TiledOutputFile::writeTile (int dx, int dy, int lx, int ly)
-{
-    writeTiles (dx, dx, dy, dy, lx, ly);
-}
-
 
 void
 TiledOutputFile::writeTile (int dx, int dy, int l)
@@ -1207,63 +1128,74 @@ TiledOutputFile::writeTile (int dx, int dy, int l)
 void	
 TiledOutputFile::copyPixels (TiledInputFile &in)
 {
-    Lock lock (*_data);
-
     //
     // Check if this file's and and the InputFile's
     // headers are compatible.
     //
-    const Header &hdr = _data->header;
+    const Header &hdr = header();
     const Header &inHdr = in.header(); 
 
     if (!hdr.hasTileDescription() || !inHdr.hasTileDescription())
+    {
         THROW (Iex::ArgExc, "Cannot perform a quick pixel copy from image "
 			    "file \"" << in.fileName() << "\" to image "
-			    "file \"" << fileName() << "\".  The "
-                            "output file is tiled, but the input file is not.  "
-                            "Try using OutputFile::copyPixels() instead.");
+			    "file \"" << fileName() << "\".  The output file "
+			    "is tiled, but the input file is not.  Try using "
+			    "OutputFile::copyPixels() instead.");
+    }
 
     if (!(hdr.tileDescription() == inHdr.tileDescription()))
+    {
         THROW (Iex::ArgExc, "Quick pixel copy from image "
 			    "file \"" << in.fileName() << "\" to image "
 			    "file \"" << fileName() << "\" failed. "
 			    "The files have different tile descriptions.");
+    }
 
     if (!(hdr.dataWindow() == inHdr.dataWindow()))
+    {
         THROW (Iex::ArgExc, "Cannot copy pixels from image "
 			    "file \"" << in.fileName() << "\" to image "
-			    "file \"" << fileName() << "\". The "
-                            "files have different data windows.");
+			    "file \"" << fileName() << "\". The files "
+			    "have different data windows.");
+    }
 
     if (!(hdr.lineOrder() == inHdr.lineOrder()))
+    {
         THROW (Iex::ArgExc, "Quick pixel copy from image "
 			    "file \"" << in.fileName() << "\" to image "
 			    "file \"" << fileName() << "\" failed. "
 			    "The files have different line orders.");
+    }
 
     if (!(hdr.compression() == inHdr.compression()))
+    {
         THROW (Iex::ArgExc, "Quick pixel copy from image "
 			    "file \"" << in.fileName() << "\" to image "
 			    "file \"" << fileName() << "\" failed. "
 			    "The files use different compression methods.");
+    }
 
     if (!(hdr.channels() == inHdr.channels()))
+    {
         THROW (Iex::ArgExc, "Quick pixel copy from image "
 			     "file \"" << in.fileName() << "\" to image "
-			     "file \"" << fileName() << "\" "
-                             "failed.  The files have different channel "
-                             "lists.");
+			     "file \"" << fileName() << "\" failed.  "
+			     "The files have different channel lists.");
+    }
 
     //
     // Verify that no pixel data have been written to this file yet.
     //
 
     if (!_data->tileOffsets.isEmpty())
+    {
         THROW (Iex::LogicExc, "Quick pixel copy from image "
 			      "file \"" << in.fileName() << "\" to image "
-			      "file \"" << _data->os->fileName() << "\" "
-                              "failed. \"" << fileName() << "\" "
-                              "already contains pixel data.");
+			      "file \"" << fileName() << "\" failed. "
+			      "\"" << fileName() << "\" already contains "
+			      "pixel data.");
+    }
 
     //
     // Calculate the total number of tiles in the file
@@ -1271,20 +1203,20 @@ TiledOutputFile::copyPixels (TiledInputFile &in)
 
     int numAllTiles = 0;
 
-    switch (levelMode ())
+    switch (levelMode())
     {
       case ONE_LEVEL:
       case MIPMAP_LEVELS:
 
-        for (size_t i_l = 0; i_l < numLevels (); ++i_l)
+        for (size_t i_l = 0; i_l < numLevels(); ++i_l)
             numAllTiles += numXTiles (i_l) * numYTiles (i_l);
 
         break;
 
       case RIPMAP_LEVELS:
 
-        for (size_t i_ly = 0; i_ly < numYLevels (); ++i_ly)
-            for (size_t i_lx = 0; i_lx < numXLevels (); ++i_lx)
+        for (size_t i_ly = 0; i_ly < numYLevels(); ++i_ly)
+            for (size_t i_lx = 0; i_lx < numXLevels(); ++i_lx)
                 numAllTiles += numXTiles (i_lx) * numYTiles (i_ly);
 
         break;
@@ -1298,7 +1230,7 @@ TiledOutputFile::copyPixels (TiledInputFile &in)
     {
         const char *pixelData;
         int pixelDataSize;
-        
+
         int dx = _data->nextTileToWrite.dx;
         int dy = _data->nextTileToWrite.dy;
         int lx = _data->nextTileToWrite.lx;
@@ -1349,9 +1281,12 @@ int
 TiledOutputFile::numLevels () const
 {
     if (levelMode() == RIPMAP_LEVELS)
+    {
 	THROW (Iex::LogicExc, "Error calling numLevels() on image "
 			      "file \"" << fileName() << "\" "
 			      "(numLevels() is not defined for RIPMAPs).");
+    }
+
     return _data->numXLevels;
 }
 
@@ -1391,10 +1326,8 @@ TiledOutputFile::levelWidth (int lx) const
 {
     try
     {
-	int retVal = levelSize (_data->minX, _data->maxX, lx,
-			        _data->tileDesc.roundingMode);
-        
-        return retVal;
+	return levelSize (_data->minX, _data->maxX, lx,
+			  _data->tileDesc.roundingMode);
     }
     catch (Iex::BaseExc &e)
     {
@@ -1415,7 +1348,7 @@ TiledOutputFile::levelHeight (int ly) const
     }
     catch (Iex::BaseExc &e)
     {
-	REPLACE_EXC (e, "Error calling levelHeight() on image "
+	REPLACE_EXC (e, "Error calling levelWidth() on image "
 			"file \"" << fileName() << "\". " << e);
 	throw;
     }
@@ -1425,10 +1358,12 @@ TiledOutputFile::levelHeight (int ly) const
 int
 TiledOutputFile::numXTiles (int lx) const
 {
-    if (lx < 0 || lx >= _data->numXLevels)
+    if (lx < 0 || lx >= numXLevels())
+    {
 	THROW (Iex::LogicExc, "Error calling numXTiles() on image "
-			      "file \"" << _data->os->fileName() << "\" "
+			      "file \"" << fileName() << "\" "
 			      "(Argument is not in valid range).");
+    }
 
     return _data->numXTiles[lx];
 }
@@ -1437,10 +1372,12 @@ TiledOutputFile::numXTiles (int lx) const
 int
 TiledOutputFile::numYTiles (int ly) const
 {
-   if (ly < 0 || ly >= _data->numYLevels)
-	THROW (Iex::LogicExc, "Error calling numXTiles() on image "
-			      "file \"" << _data->os->fileName() << "\" "
+    if (ly < 0 || ly >= numYLevels())
+    {
+	THROW (Iex::LogicExc, "Error calling numYTiles() on image "
+			      "file \"" << fileName() << "\" "
 			      "(Argument is not in valid range).");
+    }
 
     return _data->numYTiles[ly];
 }
@@ -1459,7 +1396,7 @@ TiledOutputFile::dataWindowForLevel (int lx, int ly) const
     try
     {
 	return Imf::dataWindowForLevel (_data->tileDesc,
-			        	_data->minX, _data->maxX,
+					_data->minX, _data->maxX,
 				        _data->minY, _data->maxY,
 					lx, ly);
     }
@@ -1488,10 +1425,10 @@ TiledOutputFile::dataWindowForTile (int dx, int dy, int lx, int ly) const
 	    throw Iex::ArgExc ("Arguments not in valid range.");
 
 	return Imf::dataWindowForTile (_data->tileDesc,
-		        	       _data->minX, _data->maxX,
-			               _data->minY, _data->maxY,
-        			       dx, dy,
-	        		       lx, ly);
+				       _data->minX, _data->maxX,
+				       _data->minY, _data->maxY,
+				       dx, dy,
+				       lx, ly);
     }
     catch (Iex::BaseExc &e)
     {
@@ -1503,24 +1440,24 @@ TiledOutputFile::dataWindowForTile (int dx, int dy, int lx, int ly) const
 
 
 bool
-TiledOutputFile::isValidTile (int dx, int dy, int lx, int ly) const
+TiledOutputFile::isValidTile(int dx, int dy, int lx, int ly) const
 {
-    return ((lx < _data->numXLevels && lx >= 0) &&
-	    (ly < _data->numYLevels && ly >= 0) &&
-	    (dx < _data->numXTiles[lx] && dx >= 0) &&
-	    (dy < _data->numYTiles[ly] && dy >= 0));
+    return ((lx < numXLevels() && lx >= 0) &&
+	    (ly < numYLevels() && ly >= 0) &&
+	    (dx < numXTiles(lx) && dx >= 0) &&
+	    (dy < numYTiles(ly) && dy >= 0));
 }
 
 
 void
 TiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
-    Lock lock (*_data);
-
     if (_data->previewPosition <= 0)
+    {
 	THROW (Iex::LogicExc, "Cannot update preview image pixels. "
 			      "File \"" << fileName() << "\" does not "
 			      "contain a preview image.");
+    }
 
     //
     // Store the new pixels in the header's preview image attribute.

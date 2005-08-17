@@ -79,14 +79,6 @@ struct HufDec
 
 
 void
-invalidNBits ()
-{
-    throw InputExc ("Error in header for Huffman-encoded data "
-		    "(invalid number of bits).");
-}
-
-
-void
 tooMuchData ()
 {
     throw InputExc ("Error in Huffman-encoded data "
@@ -105,40 +97,14 @@ notEnoughData ()
 void
 invalidCode ()
 {
-    throw InputExc ("Error in Huffman-encoded data "
-		    "(invalid code).");
+    throw InputExc ("Error in Huffman-encoded data (invalid code).");
 }
 
 
 void
 invalidTableSize ()
 {
-    throw InputExc ("Error in Huffman-encoded data "
-		    "(invalid code table size).");
-}
-
-
-void
-unexpectedEndOfTable ()
-{
-    throw InputExc ("Error in Huffman-encoded data "
-		    "(unexpected end of code table data).");
-}
-
-
-void
-tableTooLong ()
-{
-    throw InputExc ("Error in Huffman-encoded data "
-		    "(code table is longer than expected).");
-}
-
-
-void
-invalidTableEntry ()
-{
-    throw InputExc ("Error in Huffman-encoded data "
-		    "(invalid code table entry).");
+    throw InputExc ("Error in Huffman-encoded data (invalid code table size).");
 }
 
 
@@ -206,41 +172,22 @@ getBits (int nBits, Int64 &c, int &lc, const char *&in)
 void
 hufCanonicalCodeTable (Int64 hcode[HUF_ENCSIZE])
 {
-    Int64 n[59];
+    Int64 n[58];
 
-    //
-    // For each i from 0 through 58, count the
-    // number of different codes of length i, and
-    // store the count in n[i].
-    //
-
-    for (int i = 0; i <= 58; ++i)
+    for (int i = 0; i < 58; ++i)
 	n[i] = 0;
 
     for (int i = 0; i < HUF_ENCSIZE; ++i)
 	n[hcode[i]] += 1;
 
-    //
-    // For each i from 58 through 1, compute the
-    // numerically lowest code with length i, and
-    // store that code in n[i].
-    //
-
     Int64 c = 0;
 
-    for (int i = 58; i > 0; --i)
+    for (int i = 57; i > 0; --i)
     {
 	Int64 nc = ((c + n[i]) >> 1);
 	n[i] = c;
 	c = nc;
     }
-
-    //
-    // hcode[i] contains the length, l, of the
-    // code for symbol i.  Assign the next available
-    // code of length l to the symbol and store both
-    // l and the code in hcode[i].
-    //
 
     for (int i = 0; i < HUF_ENCSIZE; ++i)
     {
@@ -275,30 +222,19 @@ hufBuildEncTable
      int*	iM)	//  o: max frq index
 {
     //
-    // This function assumes that when it is called, array frq
-    // indicates the frequency of all possible symbols in the data
-    // that are to be Huffman-encoded.  (frq[i] contains the number
-    // of occurrences of symbol i in the data.)
+    // Find min/max indices in frq, mark leaves
     //
-    // The loop below does three things:
-    //
-    // 1) Finds the minimum and maximum indices that point
-    //    to non-zero entries in frq:
-    //
-    //     frq[im] != 0, and frq[i] == 0 for all i < im
-    //     frq[iM] != 0, and frq[i] == 0 for all i > iM
-    //
-    // 2) Fills array fHeap with pointers to all non-zero
-    //    entries in frq.
-    //
-    // 3) Initializes array hlink such that hlink[i] == i
-    //    for all array entries.
-    //
+
+    static const int LEAF  = 0x80000;
+    static const int INDEX = 0x7ffff;
+
+    // Temporary table dependencies,
+    // and heap for quickly finding min frq value
 
     AutoArray <int, HUF_ENCSIZE> hlink;
     AutoArray <Int64 *, HUF_ENCSIZE> fHeap;
 
-    *im = 0;
+    *im= 0;
 
     while (!frq[*im])
 	(*im)++;
@@ -307,58 +243,33 @@ hufBuildEncTable
 
     for (int i = *im; i < HUF_ENCSIZE; i++)
     {
-	hlink[i] = i;
+	hlink[i]= LEAF | i;
 
 	if (frq[i])
 	{
 	    fHeap[nf] = &frq[i];
 	    nf++;
-	    *iM = i;
+	    *iM= i;
 	}
     }
 
-    //
-    // Add a pseudo-symbol, with a frequency count of 1, to frq;
-    // adjust the fHeap and hlink array accordingly.  Function
-    // hufEncode() uses the pseudo-symbol for run-length encoding.
-    //
-
-    (*iM)++;
-    frq[*iM] = 1;
+    (*iM)++;	// add entry for run-length code
+    frq[*iM]= 1;
     fHeap[nf] = &frq[*iM];
     nf++;
 
-    //
-    // Build an array, scode, such that scode[i] contains the number
-    // of bits assigned to symbol i.  Conceptually this is done by
-    // constructing a tree whose leaves are the symbols with non-zero
-    // frequency:
-    //
-    //     Make a heap that contains all symbols with a non-zero frequency,
-    //     with the least frequent symbol on top.
-    //
-    //     Repeat until only one symbol is left on the heap:
-    //
-    //         Take the two least frequent symbols off the top of the heap.
-    //         Create a new node that has first two nodes as children, and
-    //         whose frequency is the sum of the frequencies of the first
-    //         two nodes.  Put the new node back into the heap.
-    //
-    // The last node left on the heap is the root of the tree.  For each
-    // leaf node, the distance between the root and the leaf is the length
-    // of the code for the corresponding symbol.
-    //
-    // The loop below doesn't actually build the tree; instead we compute
-    // the distances of the leaves from the root on the fly.  When a new
-    // node is added to the heap, then that node's descendants are linked
-    // into a single linear list that starts at the new node, and the code
-    // lengths of the descendants (that is, their distance from the root
-    // of the tree) are incremented by one.
-    //
-
     make_heap (&fHeap[0], &fHeap[nf], FHeapCompare());
 
+    //
+    // Init scode & loop on all values
+    //
+
+    //
+    // Temporary encoding table
+    //
+
     AutoArray <Int64, HUF_ENCSIZE> scode;
+
     memset (scode, 0, sizeof (Int64) * HUF_ENCSIZE);
 
     while (nf > 1)
@@ -379,65 +290,48 @@ hufBuildEncTable
 	frq[m ] += frq[mm];
 	push_heap (&fHeap[0], &fHeap[nf], FHeapCompare());
 
+	hlink[mm] &= ~LEAF;	// unmark min value
+
 	//
-	// The entries in scode are linked into lists with the
-	// entries in hlink serving as "next" pointers and with
-	// the end of a list marked by hlink[j] == j.
-	//
-	// Traverse the lists that start at scode[m] and scode[mm].
-	// For each element visited, increment the length of the
-	// corresponding code by one bit. (If we visit scode[j]
-	// during the traversal, then the code for symbol j becomes
-	// one bit longer.)
-	//
-	// Merge the lists that start at scode[m] and scode[mm]
-	// into a single list that starts at scode[m].
-	//
-	
-	//
-	// Add a bit to all codes in the first list.
+	// Add 1 bit to all lower list codes
 	//
 
-	for (int j = m; true; j = hlink[j])
+	for (int j = m; true; j = hlink[j] & INDEX)
 	{
 	    scode[j]++;
 
 	    assert (scode[j] <= 58);
 
-	    if (hlink[j] == j)
+	    if ((hlink[j] & INDEX) == j)
 	    {
 		//
-		// Merge the two lists.
+		// Merge upper & lower lists
 		//
 
-		hlink[j] = mm;
+		hlink[j] &= ~INDEX;
+		hlink[j] |= mm;
 		break;
 	    }
 	}
 
 	//
-	// Add a bit to all codes in the second list
+	// Add 1 bit to all lower list codes
 	//
 
-	for (int j = mm; true; j = hlink[j])
+	for (int j = mm; true; j = hlink[j] & INDEX)
 	{
 	    scode[j]++;
 
 	    assert (scode[j] <= 58);
 
-	    if (hlink[j] == j)
+	    if ((hlink[j] & INDEX) == j)
 		break;
 	}
     }
 
-    //
-    // Build a canonical Huffman code table, replacing the code
-    // lengths in scode with (code, code length) pairs.  Copy the
-    // code table from scode into frq.
-    //
-
     hufCanonicalCodeTable (scode);
-    memcpy (frq, scode, sizeof (Int64) * HUF_ENCSIZE);
+
+    memcpy (frq, scode, sizeof (Int64) * HUF_ENCSIZE);	// overwrite frq
 }
 
 
@@ -521,7 +415,6 @@ hufPackEncTable
 void
 hufUnpackEncTable
     (const char**	pcode,		// io: ptr to packed table (updated)
-     int		ni,		// i : input size (in bytes)
      int		im,		// i : min hcode index
      int		iM,		// i : max hcode index
      Int64*		hcode)		//  o: encoding table [HUF_ENCSIZE]
@@ -534,20 +427,11 @@ hufUnpackEncTable
 
     for (; im <= iM; im++)
     {
-	if (p - *pcode > ni)
-	    unexpectedEndOfTable();
-
 	Int64 l = hcode[im] = getBits (6, c, lc, p); // code length
 
 	if (l == (Int64) LONG_ZEROCODE_RUN)
 	{
-	    if (p - *pcode > ni)
-		unexpectedEndOfTable();
-
 	    int zerun = getBits (8, c, lc, p) + SHORTEST_LONG_RUN;
-
-	    if (im + zerun > iM + 1)
-		tableTooLong();
 
 	    while (zerun--)
 		hcode[im++] = 0;
@@ -557,9 +441,6 @@ hufUnpackEncTable
 	else if (l >= (Int64) SHORT_ZEROCODE_RUN)
 	{
 	    int zerun = l - SHORT_ZEROCODE_RUN + 2;
-
-	    if (im + zerun > iM + 1)
-		tableTooLong();
 
 	    while (zerun--)
 		hcode[im++] = 0;
@@ -605,17 +486,6 @@ hufBuildDecTable
 	Int64 c = hufCode (hcode[im]);
 	int l = hufLength (hcode[im]);
 
-	if (c >> l)
-	{
-	    //
-	    // Error: c is supposed to be an l-bit code,
-	    // but c contains a value that is greater
-	    // than the largest l-bit number.
-	    //
-
-	    invalidTableEntry();
-	}
-
 	if (l > HUF_DECBITS)
 	{
 	    //
@@ -623,17 +493,6 @@ hufBuildDecTable
 	    //
 
 	    HufDec *pl = hdecod + (c >> (l - HUF_DECBITS));
-
-	    if (pl->len)
-	    {
-		//
-		// Error: a short code has already
-		// been stored in table entry *pl.
-		//
-
-		invalidTableEntry();
-	    }
-
 	    pl->lit++;
 
 	    if (pl->p)
@@ -663,16 +522,6 @@ hufBuildDecTable
 
 	    for (Int64 i = 1 << (HUF_DECBITS - l); i > 0; i--, pl++)
 	    {
-		if (pl->len || pl->p)
-		{
-		    //
-		    // Error: a short code or a long code has
-		    // already been stored in table entry *pl.
-		    //
-
-		    invalidTableEntry();
-		}
-
 		pl->len = l;
 		pl->lit = im;
 	    }
@@ -1044,20 +893,17 @@ hufUncompress (const char compressed[],
     if (im < 0 || im >= HUF_ENCSIZE || iM < 0 || iM >= HUF_ENCSIZE)
 	invalidTableSize();
 
-    const char *ptr = compressed + 20;
+    compressed += 20;
 
     AutoArray <Int64, HUF_ENCSIZE> freq;
     AutoArray <HufDec, HUF_DECSIZE> hdec;
 
-    hufUnpackEncTable (&ptr, nCompressed - (ptr - compressed), im, iM, freq);
+    hufUnpackEncTable (&compressed, im, iM, freq);
 
     try
     {
-	if (nBits > 8 * (nCompressed - (ptr - compressed)))
-	    invalidNBits();
-
 	hufBuildDecTable (freq, im, iM, hdec);
-	hufDecode (freq, hdec, ptr, nBits, iM, nRaw, raw);
+	hufDecode (freq, hdec, compressed, nBits, iM, nRaw, raw);
     }
     catch (...)
     {

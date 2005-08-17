@@ -40,46 +40,22 @@ fi
 export PKG_CONFIG_PATH
 
 dnl
-dnl check for alternate OpenGL headers
-dnl
-AM_PATH_GL(,)
-
-dnl
 dnl check for FLTK
 dnl
 AM_PATH_FLTK(have_fltk=yes, have_fltk=no)
 
 dnl
-dnl check for Cg
+dnl check for Nvidia SDK
 dnl
 if test $have_fltk = "yes"; then
-  AM_PATH_CG(have_cg=yes, have_cg=no)
-  if test $have_cg = "yes"; then
+  AM_PATH_NVSDK(have_nvsdk=yes, have_nvsdk=no)
+  if test $have_nvsdk = "yes"; then
     AC_DEFINE(HAVE_FRAGMENT_SHADERS)
   fi
-else have_cg = "no"
+else have_nvsdk = "no"
 fi
 
 dnl Checks for libraries.
-dnl --enable-threading
-AC_ARG_ENABLE(threading,
-              AC_HELP_STRING([--enable-threading],
-                             [enable multi-threading [[default=yes]]]),
-              [multithread="${enableval}"], [multithread=yes])
-
-if test "${multithread}" != no ; then
-    ACX_PTHREAD(
-    [
-	AC_DEFINE(HAVE_PTHREAD)
-	LIBS="$PTHREAD_LIBS $LIBS"
-	CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
-	CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
-	CC="$PTHREAD_CC"
-	
-	AM_POSIX_SEM()
-    ],
-    [AC_MSG_ERROR([POSIX thread support required])])
-fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -210,7 +186,7 @@ build_imfexamples="no"
 AC_ARG_ENABLE(imfexamples,      [  --enable-imfexamples       Build IlmImf example program], build_imfexamples="yes",)
 
 AM_CONDITIONAL(HAVE_FLTK, test "x$have_fltk" = xyes)
-AM_CONDITIONAL(HAVE_CG, test "x$have_cg" = xyes)
+AM_CONDITIONAL(HAVE_NVSDK, test "x$have_nvsdk" = xyes)
 AM_CONDITIONAL(BUILD_IMFEXAMPLES, test "x$build_imfexamples" = xyes)
 
 AC_OUTPUT([
@@ -223,7 +199,6 @@ Iex/Makefile
 IexTest/Makefile
 IlmImf/Makefile
 IlmImfTest/Makefile
-IlmThread/Makefile
 Imath/Makefile
 ImathTest/Makefile
 exrdisplay/Makefile
@@ -242,7 +217,7 @@ AC_MSG_RESULT([
 Summary for OpenEXR features:
 
 build exrdisplay FLTK application		$have_fltk
-    with fragment shader support		$have_cg
+    use Nvidia SDK				$have_nvsdk
 build IlmImf example program                    $build_imfexamples
 ---------------------------------------------
 ])

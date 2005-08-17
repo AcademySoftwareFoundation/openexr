@@ -40,7 +40,6 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfIO.h>
-#include <Iex.h>
 
 namespace Imf {
 
@@ -54,22 +53,6 @@ IStream::IStream (const char fileName[]): _fileName (fileName)
 IStream::~IStream ()
 {
     // empty
-}
-
-
-bool
-IStream::isMemoryMapped () const
-{
-    return false;
-}
-
-
-char*
-IStream::readMemoryMapped (int n)
-{
-    throw Iex::InputExc ("Cannot access internal buffer, not a memory-mapped "
-                         "file.");
-    return 0;
 }
 
 

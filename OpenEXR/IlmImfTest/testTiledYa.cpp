@@ -135,7 +135,10 @@ writeReadYa (Box2i &dw,
 				 WRITE_YA);
 
 	out.setFrameBuffer (&pixels1[-dw.min.y][-dw.min.x], 1, w);
-        out.writeTiles (0, out.numXTiles() - 1,  0, out.numYTiles() - 1);
+
+	for (int y = 0; y < out.numYTiles(); ++y)
+	    for (int x = 0; x < out.numXTiles(); ++x)
+		out.writeTile (x, y);
     }
 
     cout << "reading " << flush;
@@ -144,7 +147,10 @@ writeReadYa (Box2i &dw,
 	TiledRgbaInputFile in (fileName);
 
 	in.setFrameBuffer (&pixels2[-dw.min.y][-dw.min.x], 1, w);
-        in.readTiles (0, in.numXTiles() - 1, 0, in.numYTiles() - 1);
+
+	for (int y = 0; y < in.numYTiles(); ++y)
+	    for (int x = 0; x < in.numXTiles(); ++x)
+		in.readTile (x, y);
     }
 
     cout << "comparing" << endl;

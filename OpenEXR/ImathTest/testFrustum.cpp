@@ -140,32 +140,9 @@ testFrustum ()
 	    Imath::abs<float> (m[3][3] - 1.0)		    < 1e-6);
     cout << "1";
 
-    
-
     // TODO - There are many little functions in Imath::Frustum which
     // aren't tested here.  Those test should be added.  But this is
     // a start.
-
-    Imath::Frustum<float> f1 (n, f, l, r, t, b, false);
-    Imath::Frustum<float> f2 (n, f, l, r, t, b, true);
-    assert (f1 != f2);
-    f2.set(n + 0.1, f, l, r, t, b, false);
-    assert (f1 != f2);
-    f2.set(n, f + 0.1, l, r, t, b, false);
-    assert (f1 != f2);
-    f2.set(n, f, l + 0.1, r, t, b, false);
-    assert (f1 != f2);
-    f2.set(n, f, l, r + 0.1, t, b, false);
-    assert (f1 != f2);
-    f2.set(n, f, l, r, t + 0.1, b, false);
-    assert (f1 != f2);
-    f2.set(n, f, l, r, t, b + 0.1, false);
-    assert (f1 != f2);
-    cout << "\npassed inequality test";
-
-    f1 = f2;
-    assert (f1 == f2);
-    cout << "\npassed equality test";
 
     cout << "\nok\n\n";
 }

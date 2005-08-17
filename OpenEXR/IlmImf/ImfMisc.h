@@ -45,11 +45,11 @@
 
 #include <ImfPixelType.h>
 #include <vector>
-#include <ImfCompressor.h>
 
 namespace Imf {
 
 class Header;
+
 
 int	pixelTypeSize (PixelType type);
 
@@ -62,25 +62,6 @@ void	offsetInLineBufferTable (const std::vector<size_t> &bytesPerLine,
 
 int	lineBufferMinY (int y, int minY, int linesInLineBuffer);
 int	lineBufferMaxY (int y, int minY, int linesInLineBuffer);
-
-Compressor::Format defaultFormat (Compressor * compressor);
-int     numLinesInBuffer (Compressor * compressor);
-void    storeDefaultValue (char * pixelPtr, char * endPtr,
-                           PixelType typeInFrameBuffer, double fillValue,
-                           int xStride);
-void    copyIntoFrameBuffer (const char *& readPtr, char * pixelPtr,
-                             char * endPtr, size_t xStride, bool fill,
-                             double fillValue, Compressor::Format format,
-                             PixelType typeInFrameBuffer,
-                             PixelType typeInFile);
-void    copyFromFrameBuffer (char *& writePtr, const char *& readPtr,
-                             const char * endPtr, size_t xStride,
-                             Compressor::Format format, PixelType type);
-void    skipChannel (const char *& readPtr, PixelType typeInFile, size_t xSize);
-void    fillSliceWithZeros (char *& writePtr, Compressor::Format format,
-                            PixelType type, size_t xSize);
-void    convertInPlace (char *& toPtr, const char *& fromPtr, PixelType type,
-                        size_t numPixels);
 
 
 } // namespace Imf

@@ -245,8 +245,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
      int tileXSize,
      int tileYSize,
      LevelMode mode,
-     LevelRoundingMode rmode,
-     int numThreads)
+     LevelRoundingMode rmode)
 :
     _outputFile (0),
     _toYa (0)
@@ -254,7 +253,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
     Header hd (header);
     insertChannels (hd, rgbaChannels, name);
     hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode, rmode));
-    _outputFile = new TiledOutputFile (name, hd, numThreads);
+    _outputFile = new TiledOutputFile (name, hd);
 
     if (rgbaChannels & WRITE_Y)
 	_toYa = new ToYa (*_outputFile, rgbaChannels);
@@ -269,8 +268,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
      int tileXSize,
      int tileYSize,
      LevelMode mode,
-     LevelRoundingMode rmode,
-     int numThreads)
+     LevelRoundingMode rmode)
 :
     _outputFile (0),
     _toYa (0)
@@ -278,7 +276,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
     Header hd (header);
     insertChannels (hd, rgbaChannels, os.fileName());
     hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode, rmode));
-    _outputFile = new TiledOutputFile (os, hd, numThreads);
+    _outputFile = new TiledOutputFile (os, hd);
 
     if (rgbaChannels & WRITE_Y)
 	_toYa = new ToYa (*_outputFile, rgbaChannels);
@@ -299,8 +297,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
      const Imath::V2f screenWindowCenter,
      float screenWindowWidth,
      LineOrder lineOrder,
-     Compression compression,
-     int numThreads)
+     Compression compression)
 :
     _outputFile (0),
     _toYa (0)
@@ -315,7 +312,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
 
     insertChannels (hd, rgbaChannels, name);
     hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode, rmode));
-    _outputFile = new TiledOutputFile (name, hd, numThreads);
+    _outputFile = new TiledOutputFile (name, hd);
 
     if (rgbaChannels & WRITE_Y)
 	_toYa = new ToYa (*_outputFile, rgbaChannels);
@@ -335,8 +332,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
      const Imath::V2f screenWindowCenter,
      float screenWindowWidth,
      LineOrder lineOrder,
-     Compression compression,
-     int numThreads)
+     Compression compression)
 :
     _outputFile (0),
     _toYa (0)
@@ -351,7 +347,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
 
     insertChannels (hd, rgbaChannels, name);
     hd.setTileDescription (TileDescription (tileXSize, tileYSize, mode, rmode));
-    _outputFile = new TiledOutputFile (name, hd, numThreads);
+    _outputFile = new TiledOutputFile (name, hd);
 
     if (rgbaChannels & WRITE_Y)
 	_toYa = new ToYa (*_outputFile, rgbaChannels);
@@ -593,28 +589,6 @@ TiledRgbaOutputFile::writeTile (int dx, int dy, int lx, int ly)
 }
 
 
-void	
-TiledRgbaOutputFile::writeTiles (int dxMin, int dxMax, int dyMin, int dyMax,
-                                 int lx, int ly)
-{
-    if (_toYa)
-    {
-        for (int dy = dyMin; dy <= dyMax; dy++)
-            for (int dx = dxMin; dx <= dxMax; dx++)
-	        _toYa->writeTile (dx, dy, lx, ly);
-    }
-    else
-        _outputFile->writeTiles (dxMin, dxMax, dyMin, dyMax, lx, ly);
-}
-
-void	
-TiledRgbaOutputFile::writeTiles (int dxMin, int dxMax, int dyMin, int dyMax,
-                                 int l)
-{
-    writeTiles (dxMin, dxMax, dyMin, dyMax, l, l);
-}
-
-
 class TiledRgbaInputFile::FromYa
 {
   public:
@@ -724,8 +698,8 @@ TiledRgbaInputFile::FromYa::readTile (int dx, int dy, int lx, int ly)
 }
 
 
-TiledRgbaInputFile::TiledRgbaInputFile (const char name[], int numThreads):
-    _inputFile (new TiledInputFile (name, numThreads)),
+TiledRgbaInputFile::TiledRgbaInputFile (const char name[]):
+    _inputFile (new TiledInputFile (name)),
     _fromYa (0)
 {
     if (channels() & WRITE_Y)
@@ -733,8 +707,8 @@ TiledRgbaInputFile::TiledRgbaInputFile (const char name[], int numThreads):
 }
 
 
-TiledRgbaInputFile::TiledRgbaInputFile (IStream &is, int numThreads):
-    _inputFile (new TiledInputFile (is, numThreads)),
+TiledRgbaInputFile::TiledRgbaInputFile (IStream &is):
+    _inputFile (new TiledInputFile (is)),
     _fromYa (0)
 {
     if (channels() & WRITE_Y)
@@ -1012,28 +986,6 @@ TiledRgbaInputFile::readTile (int dx, int dy, int lx, int ly)
 	_fromYa->readTile (dx, dy, lx, ly);
     else
 	 _inputFile->readTile (dx, dy, lx, ly);
-}
-
-
-void	
-TiledRgbaInputFile::readTiles (int dxMin, int dxMax, int dyMin, int dyMax,
-                               int lx, int ly)
-{
-    if (_fromYa)
-    {
-        for (int dy = dyMin; dy <= dyMax; dy++)
-            for (int dx = dxMin; dx <= dxMax; dx++)
-	        _fromYa->readTile (dx, dy, lx, ly);
-    }
-    else
-        _inputFile->readTiles (dxMin, dxMax, dyMin, dyMax, lx, ly);
-}
-
-void	
-TiledRgbaInputFile::readTiles (int dxMin, int dxMax, int dyMin, int dyMax,
-                               int l)
-{
-    readTiles (dxMin, dxMax, dyMin, dyMax, l, l);
 }
 
 

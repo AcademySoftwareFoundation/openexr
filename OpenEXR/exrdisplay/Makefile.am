@@ -4,15 +4,14 @@ if HAVE_FLTK
 
 bin_PROGRAMS = exrdisplay
 
-INCLUDES = @GL_CXXFLAGS@ @CG_CXXFLAGS@ @FLTK_CXXFLAGS@ -I$(top_builddir) \
+INCLUDES = @NVSDK_CXXFLAGS@ @FLTK_CXXFLAGS@ -I$(top_builddir) \
 	   -I$(top_srcdir)/Iex -I$(top_srcdir)/Half -I$(top_srcdir)/Imath \
            -I$(top_srcdir)/IlmImf
 
-LDADD = @CG_LDFLAGS@ @FLTK_LDFLAGS@ \
+LDADD = @FLTK_LDFLAGS@ \
 	-L$(top_builddir)/Iex -L$(top_builddir)/Half \
-	-L$(top_builddir)/Imath -L$(top_builddir)/IlmThread \
-	-L$(top_builddir)/IlmImf \
-	-lIlmImf -lIlmThread -lImath -lHalf -lIex -lz
+	-L$(top_builddir)/Imath -L$(top_builddir)/IlmImf \
+	-lIlmImf -lImath -lHalf -lIex -lz
 
 install-exec-hook:
 	@FLTK_CONFIG@ --post $(DESTDIR)$(bindir)/exrdisplay
@@ -22,7 +21,7 @@ install-exec-hook:
 
 endif
 
-if HAVE_CG
+if HAVE_NVSDK
 fragshader_sources = ImageViewFragShader.cpp ImageViewFragShader.h
 else
 fragshader_sources =
