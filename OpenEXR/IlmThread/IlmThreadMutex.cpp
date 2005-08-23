@@ -37,10 +37,17 @@
 
 namespace IlmThread
 {
+
+//
+// If we don't have PThreads and are not on Windows, then we don't support
+// threading (yet). Implement a dummy Mutex class.
+//
+
 Mutex::Mutex () {}
 Mutex::~Mutex () {}
 void Mutex::lock () const {}
 void Mutex::unlock () const {}
+
 } // namespace IlmThread
 
 #endif

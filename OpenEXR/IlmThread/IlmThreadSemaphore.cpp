@@ -38,6 +38,11 @@
 namespace IlmThread
 {
 
+//
+// If we don't have PThreads and are not on Windows, then we don't support
+// threading (yet). Implement a dummy Semaphore class.
+//
+
 Semaphore::Semaphore (unsigned int value) {}
 Semaphore::~Semaphore () {}
 void Semaphore::wait () {}
