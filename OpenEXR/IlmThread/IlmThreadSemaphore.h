@@ -38,9 +38,9 @@
 #ifdef _WIN32
     #define NOMINMAX
     #include <windows.h>
-#elif defined(PLATFORM_DARWIN_PPC)
+#elif HAVE_PTHREAD && !HAVE_POSIX_SEMAPHORES
     #include <pthread.h>
-#elif HAVE_PTHREAD
+#elif HAVE_PTHREAD && HAVE_POSIX_SEMAPHORES
     #include <semaphore.h>
 #endif
 
@@ -69,7 +69,7 @@ private:
 
 #ifdef _WIN32
     mutable HANDLE _semaphore;
-#elif defined(PLATFORM_DARWIN_PPC)
+#elif HAVE_PTHREAD && !HAVE_POSIX_SEMAPHORES
     // OS X doesn't have semaphores, so we simulate them using
     // condition variables
     struct sema_t
@@ -80,7 +80,7 @@ private:
         pthread_cond_t nonZero;
     };
     mutable sema_t _semaphore;
-#elif HAVE_PTHREAD
+#elif HAVE_PTHREAD && HAVE_POSIX_SEMAPHORES
     mutable sem_t _semaphore;
 #endif
 

@@ -427,7 +427,7 @@ if test "${enable_posix_sem:-yes}" != "no"; then
 		])
 		], [
 		AC_MSG_RESULT([yes])
-		am_posix_sem_ok = yes], [
+		am_posix_sem_ok=yes], [
 		AC_MSG_RESULT([no (pshared not usable)])], [
 		AC_MSG_RESULT([no (cannot check usability when cross compiling)])])
 	])

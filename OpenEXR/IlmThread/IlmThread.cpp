@@ -40,6 +40,11 @@
 namespace IlmThread
 {
 
+//
+// If we don't have PThreads and are not on Windows, then we don't support
+// threading (yet). Throw exceptions if trying to use threads.
+//
+
 bool
 supportsThreads ()
 {
