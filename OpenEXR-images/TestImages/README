@@ -51,3 +51,9 @@ BrightRingsNanInf.exr
     pixels near the center, which contain NaNs and infitities.
 
 
+SquaresSwirls.exr
+
+    This image contains colored squares and swirling patterns against a
+    flat gray background.  Applying lossy compression algorithms to this
+    image tends to highlight compression artifacts.
+
