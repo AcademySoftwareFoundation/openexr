@@ -246,7 +246,7 @@ int NRxOpenEXRReader::eval(NRiPlug *p)
 
 		    // read each requested scanline and convert to float
 
-		    int scanline = y + iBuf->line - dispwin.min.y;  
+		    int scanline = y + iBuf->line + dispwin.min.y;  
 
 		    try
 		    {
