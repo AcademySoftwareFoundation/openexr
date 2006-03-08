@@ -39,6 +39,8 @@
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
+#include <ImfThreading.h>
+#include <IlmThread.h>
 #include <half.h>
 
 #include <stdio.h>
@@ -194,14 +196,25 @@ testLineOrder ()
 	Array2D<half> ph (H, W);
 	fillPixels (ph, W, H);
 
-	const char *filename = IMF_TMP_DIR "imf_test_lorder.exr";
+	int maxThreads = IlmThread::supportsThreads()? 3: 0;
 
-	for (int lorder = 0; lorder < RANDOM_Y; ++lorder)
+	for (int n = 0; n <= maxThreads; ++n)
 	{
-	    writeRead (ph,
-		       filename,
-		       W, H,
-		       LineOrder (lorder));
+	    if (IlmThread::supportsThreads())
+	    {
+		setGlobalThreadCount (n);
+		cout << "\nnumber of threads: " << globalThreadCount() << endl;
+	    }
+
+	    const char *filename = IMF_TMP_DIR "imf_test_lorder.exr";
+
+	    for (int lorder = 0; lorder < RANDOM_Y; ++lorder)
+	    {
+		writeRead (ph,
+			   filename,
+			   W, H,
+			   LineOrder (lorder));
+	    }
 	}
 
 	cout << "ok\n" << endl;

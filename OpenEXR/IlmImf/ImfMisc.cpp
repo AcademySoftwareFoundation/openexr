@@ -36,7 +36,7 @@
 
 //-----------------------------------------------------------------------------
 //
-//	Miscellaneous image file related stuff
+//	Miscellaneous helper functions for OpenEXR image file I/O
 //
 //-----------------------------------------------------------------------------
 
@@ -156,23 +156,33 @@ lineBufferMaxY (int y, int minY, int linesInLineBuffer)
 Compressor::Format
 defaultFormat (Compressor * compressor)
 {
-    return compressor ? compressor->format() : Compressor::XDR;
+    return compressor? compressor->format(): Compressor::XDR;
 }
+
 
 int
 numLinesInBuffer (Compressor * compressor)
 {
-    return compressor ? compressor->numScanLines() : 1;
+    return compressor? compressor->numScanLines(): 1;
 }
 
 
 void
-copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
-                     size_t xStride, bool fill, double fillValue,
+copyIntoFrameBuffer (const char *& readPtr,
+		     char * writePtr,
+		     char * endPtr,
+                     size_t xStride,
+		     bool fill,
+		     double fillValue,
                      Compressor::Format format,
                      PixelType typeInFrameBuffer,
                      PixelType typeInFile)
 {
+    //
+    // Copy a horizontal row of pixels from an input
+    // file's line or tile buffer to a frame buffer.
+    //
+
     if (fill)
     {
         //
@@ -182,7 +192,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
 
         switch (typeInFrameBuffer)
         {
-            case UINT:
+	  case UINT:
             
             {
                 unsigned int fillVal = (unsigned int) (fillValue);
@@ -195,7 +205,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
             }
             break;
 
-            case HALF:
+          case HALF:
 
             {
                 half fillVal = half (fillValue);
@@ -208,7 +218,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
             }
             break;
 
-            case FLOAT:
+          case FLOAT:
 
             {
                 float fillVal = float (fillValue);
@@ -221,7 +231,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
             }
             break;
 
-            default:
+          default:
 
             throw Iex::ArgExc ("Unknown pixel data type.");
         }
@@ -229,8 +239,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
     else if (format == Compressor::XDR)
     {
         //
-        // The compressor produced data for this
-        // channel in Xdr format.
+        // The the line or tile buffer is in XDR format.
         //
         // Convert the pixels from the file's machine-
         // independent representation, and store the
@@ -239,11 +248,11 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
 
         switch (typeInFrameBuffer)
         {
-            case UINT:
+          case UINT:
     
             switch (typeInFile)
             {
-                case UINT:
+              case UINT:
 
                 while (writePtr <= endPtr)
                 {
@@ -252,7 +261,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
                 }
                 break;
 
-                case HALF:
+              case HALF:
 
                 while (writePtr <= endPtr)
                 {
@@ -263,7 +272,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
                 }
                 break;
 
-                case FLOAT:
+              case FLOAT:
 
                 while (writePtr <= endPtr)
                 {
@@ -276,11 +285,11 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
             }
             break;
 
-            case HALF:
+          case HALF:
 
             switch (typeInFile)
             {
-                case UINT:
+              case UINT:
 
                 while (writePtr <= endPtr)
                 {
@@ -291,17 +300,16 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
                 }
                 break;
                 
-                case HALF:
+              case HALF:
 
                 while (writePtr <= endPtr)
                 {
-                    Xdr::read <CharPtrIO>
-                        (readPtr, *(half *) writePtr);
+                    Xdr::read <CharPtrIO> (readPtr, *(half *) writePtr);
                     writePtr += xStride;
                 }
                 break;
 
-                case FLOAT:
+              case FLOAT:
 
                 while (writePtr <= endPtr)
                 {
@@ -314,11 +322,11 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
             }
             break;
 
-            case FLOAT:
+          case FLOAT:
 
             switch (typeInFile)
             {
-                case UINT:
+              case UINT:
 
                 while (writePtr <= endPtr)
                 {
@@ -329,7 +337,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
                 }
                 break;
 
-                case HALF:
+              case HALF:
 
                 while (writePtr <= endPtr)
                 {
@@ -340,7 +348,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
                 }
                 break;
 
-                case FLOAT:
+              case FLOAT:
 
                 while (writePtr <= endPtr)
                 {
@@ -351,7 +359,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
             }
             break;
 
-            default:
+          default:
 
             throw Iex::ArgExc ("Unknown pixel data type.");
         }
@@ -359,24 +367,21 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
     else
     {
         //
-        // The compressor produced data for this
-        // channel in the machine's native format.
+        // The the line or tile buffer is in NATIVE format.
         // Copy the results into the frame buffer.
         //
 
         switch (typeInFrameBuffer)
         {
-            case UINT:
+          case UINT:
     
             switch (typeInFile)
             {
-                case UINT:
+              case UINT:
 
                 while (writePtr <= endPtr)
                 {
-                    for (size_t i = 0;
-                            i < sizeof (unsigned int);
-                            ++i)
+                    for (size_t i = 0; i < sizeof (unsigned int); ++i)
                         writePtr[i] = readPtr[i];
 
                     readPtr += sizeof (unsigned int);
@@ -384,7 +389,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
                 }
                 break;
 
-                case HALF:
+              case HALF:
 
                 while (writePtr <= endPtr)
                 {
@@ -395,7 +400,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
                 }
                 break;
 
-                case FLOAT:
+              case FLOAT:
 
                 while (writePtr <= endPtr)
                 {
@@ -412,19 +417,17 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
             }
             break;
 
-            case HALF:
+          case HALF:
 
             switch (typeInFile)
             {
-                case UINT:
+              case UINT:
 
                 while (writePtr <= endPtr)
                 {
                     unsigned int ui;
 
-                    for (size_t i = 0;
-                            i < sizeof (unsigned int);
-                            ++i)
+                    for (size_t i = 0; i < sizeof (unsigned int); ++i)
                         ((char *)&ui)[i] = readPtr[i];
 
                     *(half *) writePtr = uintToHalf (ui);
@@ -433,7 +436,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
                 }
                 break;
 
-                case HALF:
+              case HALF:
 
                 while (writePtr <= endPtr)
                 {
@@ -443,7 +446,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
                 }
                 break;
 
-                case FLOAT:
+              case FLOAT:
 
                 while (writePtr <= endPtr)
                 {
@@ -460,11 +463,11 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
             }
             break;
 
-            case FLOAT:
+          case FLOAT:
 
             switch (typeInFile)
             {
-                case UINT:
+              case UINT:
 
                 while (writePtr <= endPtr)
                 {
@@ -479,7 +482,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
                 }
                 break;
 
-                case HALF:
+              case HALF:
 
                 while (writePtr <= endPtr)
                 {
@@ -490,7 +493,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
                 }
                 break;
 
-                case FLOAT:
+              case FLOAT:
 
                 while (writePtr <= endPtr)
                 {
@@ -504,7 +507,7 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
             }
             break;
 
-            default:
+          default:
 
             throw Iex::ArgExc ("Unknown pixel data type.");
         }
@@ -513,26 +516,28 @@ copyIntoFrameBuffer (const char *& readPtr, char * writePtr, char * endPtr,
 
 
 void
-skipChannel (const char *& readPtr, PixelType typeInFile, size_t xSize)
+skipChannel (const char *& readPtr,
+             PixelType typeInFile,
+	     size_t xSize)
 {
     switch (typeInFile)
     {
-        case UINT:
+      case UINT:
         
         Xdr::skip <CharPtrIO> (readPtr, Xdr::size <unsigned int> () * xSize);
         break;
 
-        case HALF:
+      case HALF:
 
         Xdr::skip <CharPtrIO> (readPtr, Xdr::size <half> () * xSize);
         break;
 
-        case FLOAT:
+      case FLOAT:
 
         Xdr::skip <CharPtrIO> (readPtr, Xdr::size <float> () * xSize);
         break;
 
-        default:
+      default:
 
         throw Iex::ArgExc ("Unknown pixel data type.");
     }
@@ -540,22 +545,14 @@ skipChannel (const char *& readPtr, PixelType typeInFile, size_t xSize)
 
 
 void
-convertInPlace (char *& writePtr, const char *& readPtr, PixelType type,
+convertInPlace (char *& writePtr,
+                const char *& readPtr,
+		PixelType type,
                 size_t numPixels)
 {
-    //
-    // Convert the contents of a TiledOutputFile's tileBuffer from the 
-    // machine's native representation to Xdr format.
-    //
-    // This routine assumes that the machine's native representation of the
-    // pixel data has the same size as the Xdr representation.  This makes it
-    // possible to convert the pixel data in place, without an intermediate
-    // temporary buffer.
-    //
-
     switch (type)
     {
-        case UINT:
+      case UINT:
     
         for (int j = 0; j < numPixels; ++j)
         {
@@ -564,7 +561,7 @@ convertInPlace (char *& writePtr, const char *& readPtr, PixelType type,
         }
         break;
     
-        case HALF:
+      case HALF:
     
         for (int j = 0; j < numPixels; ++j)
         {               
@@ -573,7 +570,7 @@ convertInPlace (char *& writePtr, const char *& readPtr, PixelType type,
         }
         break;
     
-        case FLOAT:
+      case FLOAT:
     
         for (int j = 0; j < numPixels; ++j)
         {
@@ -582,7 +579,7 @@ convertInPlace (char *& writePtr, const char *& readPtr, PixelType type,
         }
         break;
     
-        default:
+      default:
     
         throw Iex::ArgExc ("Unknown pixel data type.");
     }
@@ -590,19 +587,27 @@ convertInPlace (char *& writePtr, const char *& readPtr, PixelType type,
 
 
 void
-copyFromFrameBuffer (char *& writePtr, const char *& readPtr,
-                     const char * endPtr, size_t xStride,
-                     Compressor::Format format, PixelType type)
+copyFromFrameBuffer (char *& writePtr,
+		     const char *& readPtr,
+                     const char * endPtr,
+		     size_t xStride,
+                     Compressor::Format format,
+		     PixelType type)
 {
+    //
+    // Copy a horizontal row of pixels from a frame
+    // buffer to an output file's line or tile buffer.
+    //
+
     if (format == Compressor::XDR)
     {
         //
-        // The compressor expects data in Xdr format
+        // The the line or tile buffer is in XDR format.
         //
 
         switch (type)
         {
-            case UINT:
+          case UINT:
 
             while (readPtr <= endPtr)
             {
@@ -612,7 +617,7 @@ copyFromFrameBuffer (char *& writePtr, const char *& readPtr,
             }
             break;
 
-            case HALF:
+          case HALF:
 
             while (readPtr <= endPtr)
             {
@@ -621,7 +626,7 @@ copyFromFrameBuffer (char *& writePtr, const char *& readPtr,
             }
             break;
 
-            case FLOAT:
+          case FLOAT:
 
             while (readPtr <= endPtr)
             {
@@ -630,7 +635,7 @@ copyFromFrameBuffer (char *& writePtr, const char *& readPtr,
             }
             break;
 
-            default:
+          default:
 
             throw Iex::ArgExc ("Unknown pixel data type.");
         }
@@ -638,13 +643,12 @@ copyFromFrameBuffer (char *& writePtr, const char *& readPtr,
     else
     {
         //
-        // The compressor expects data in the
-        // machine's native format.
+        // The the line or tile buffer is in NATIVE format.
         //
 
         switch (type)
         {
-            case UINT:
+          case UINT:
 
             while (readPtr <= endPtr)
             {
@@ -655,7 +659,7 @@ copyFromFrameBuffer (char *& writePtr, const char *& readPtr,
             }
             break;
 
-            case HALF:
+          case HALF:
 
             while (readPtr <= endPtr)
             {
@@ -665,7 +669,7 @@ copyFromFrameBuffer (char *& writePtr, const char *& readPtr,
             }
             break;
 
-            case FLOAT:
+          case FLOAT:
 
             while (readPtr <= endPtr)
             {
@@ -676,7 +680,7 @@ copyFromFrameBuffer (char *& writePtr, const char *& readPtr,
             }
             break;
             
-            default:
+          default:
 
             throw Iex::ArgExc ("Unknown pixel data type.");
         }
@@ -685,39 +689,41 @@ copyFromFrameBuffer (char *& writePtr, const char *& readPtr,
 
 
 void
-fillSliceWithZeros (char *& writePtr, Compressor::Format format,
-                    PixelType type, size_t xSize)
+fillChannelWithZeroes (char *& writePtr,
+		       Compressor::Format format,
+		       PixelType type,
+		       size_t xSize)
 {
     if (format == Compressor::XDR)
     {
         //
-        // The compressor expects data in Xdr format.
+        // Fill with data in XDR format.
         //
 
         switch (type)
         {
-            case UINT:
+          case UINT:
 
             for (int j = 0; j < xSize; ++j)
                 Xdr::write <CharPtrIO> (writePtr, (unsigned int) 0);
 
             break;
 
-            case HALF:
+          case HALF:
 
             for (int j = 0; j < xSize; ++j)
                 Xdr::write <CharPtrIO> (writePtr, (half) 0);
 
             break;
 
-            case FLOAT:
+          case FLOAT:
 
             for (int j = 0; j < xSize; ++j)
                 Xdr::write <CharPtrIO> (writePtr, (float) 0);
 
             break;
             
-            default:
+          default:
 
             throw Iex::ArgExc ("Unknown pixel data type.");
         }
@@ -725,13 +731,12 @@ fillSliceWithZeros (char *& writePtr, Compressor::Format format,
     else
     {
         //
-        // The compressor expects data in
-        // the machines native format.
+        // Fill with data in NATIVE format.
         //
 
         switch (type)
         {
-            case UINT:
+          case UINT:
 
             for (int j = 0; j < xSize; ++j)
             {
@@ -742,7 +747,7 @@ fillSliceWithZeros (char *& writePtr, Compressor::Format format,
             }
             break;
 
-            case HALF:
+          case HALF:
 
             for (int j = 0; j < xSize; ++j)
             {
@@ -751,7 +756,7 @@ fillSliceWithZeros (char *& writePtr, Compressor::Format format,
             }
             break;
 
-            case FLOAT:
+          case FLOAT:
 
             for (int j = 0; j < xSize; ++j)
             {
@@ -762,7 +767,7 @@ fillSliceWithZeros (char *& writePtr, Compressor::Format format,
             }
             break;
             
-            default:
+          default:
 
             throw Iex::ArgExc ("Unknown pixel data type.");
         }

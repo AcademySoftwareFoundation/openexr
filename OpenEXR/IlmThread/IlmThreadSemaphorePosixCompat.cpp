@@ -32,19 +32,28 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------
+//
+//	class Semaphore -- implementation for for platforms that do
+//	support Posix threads but do not support Posix semaphores,
+//	for example, OS X
+//
+//-----------------------------------------------------------------------------
+
 #if HAVE_PTHREAD && !HAVE_POSIX_SEMAPHORES
 
 #include <IlmThreadSemaphore.h>
 #include <Iex.h>
 #include <assert.h>
 
-namespace IlmThread
-{
+namespace IlmThread {
+
 
 Semaphore::Semaphore (unsigned int value)
 {
     if (int error = ::pthread_mutex_init (&_semaphore.mutex, 0))
         Iex::throwErrnoExc ("Cannot initialize mutex (%T).", error);
+
     if (int error = ::pthread_cond_init (&_semaphore.nonZero, 0))
         Iex::throwErrnoExc ("Cannot initialize condition variable (%T).",
                             error);
@@ -71,13 +80,16 @@ Semaphore::wait ()
     _semaphore.numWaiting++;
 
     while (_semaphore.count == 0)
+    {
         if (int error = ::pthread_cond_wait (&_semaphore.nonZero,
                                              &_semaphore.mutex))
 	{
             ::pthread_mutex_unlock (&_semaphore.mutex);
+
             Iex::throwErrnoExc ("Cannot wait on condition variable (%T).",
                                 error);
 	}
+    }
 
     _semaphore.numWaiting--;
     _semaphore.count--;
@@ -90,13 +102,17 @@ void
 Semaphore::post ()
 {
     ::pthread_mutex_lock (&_semaphore.mutex);
+
     if (_semaphore.numWaiting > 0)
+    {
         if (int error = ::pthread_cond_signal (&_semaphore.nonZero))
 	{
             ::pthread_mutex_unlock (&_semaphore.mutex);
+
             Iex::throwErrnoExc ("Cannot signal condition variable (%T).",
                                 error);
 	}
+    }
 
     _semaphore.count++;
     ::pthread_mutex_unlock (&_semaphore.mutex);
@@ -112,7 +128,7 @@ Semaphore::value () const
     return value;
 }
 
+
 } // namespace IlmThread
 
 #endif
-

@@ -192,6 +192,7 @@ writeRead (const Array2D<unsigned int> &pi1,
     hdr.channels().insert ("F", Channel (FLOAT));
     
     hdr.setTileDescription(TileDescription(xSize, ySize, ONE_LEVEL));
+    
     {
         FrameBuffer fb; 
 
@@ -223,7 +224,6 @@ writeRead (const Array2D<unsigned int> &pi1,
         out.setFrameBuffer (fb);
         out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
     }
-    
     
     {
         cout << ", reading (whole file)" << flush;

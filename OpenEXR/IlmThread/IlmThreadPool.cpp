@@ -32,148 +32,61 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------
+//
+//	class Task, class ThreadPool, class TaskGroup
+//
+//-----------------------------------------------------------------------------
+
 #include <IlmThread.h>
 #include <IlmThreadMutex.h>
 #include <IlmThreadSemaphore.h>
 #include <IlmThreadPool.h>
-#include <list>
 #include <Iex.h>
+#include <list>
 
-namespace IlmThread
+using namespace std;
+
+namespace IlmThread {
+namespace {
+
+class WorkerThread: public Thread
 {
+  public:
 
-// The Imf-global thread pool used for multi-threaded compression and
-// decompression of lineBuffers.
-ThreadPool g_threadPool (0);
-
-
-using std::list;
-
-namespace
-{
-
-Mutex g_mutex;
-
-class WorkerThread : public Thread
-{
-public:
     WorkerThread (ThreadPool::Data* data);
 
-    virtual void run ();
+    virtual void	run ();
     
-private:
-    ThreadPool::Data* _data;
+  private:
+
+    ThreadPool::Data *	_data;
 };
 
-}
+} //namespace
 
 
 struct TaskGroup::Data
 {
-    Data() :
-        isEmpty (1),
-        numPending (0)
-    {
-        // empty
-    }
-
-    ~Data ()
-    {
-	//
-	// A TaskGroup acts like a "inverted" semaphore. Meaning, if the count
-	// is above 0 then waiting on the taskgroup will block. This destructor
-	// waits until the taskgroup is empty before returning.
-	//
-
-	isEmpty.wait ();
-    }
+     Data ();
+    ~Data ();
     
-    void addTask () 
-    {
-        //
-        // Any access to the taskgroup is protected by a mutex held by the
-        // threadpool. Therefore it is safe to check the value of the semaphore
-        // before we wait on it.
-        //
-
-        if (numPending++ == 0)
-	    isEmpty.wait ();
-    }
+    void	addTask () ;
+    void	removeTask ();
     
-    void removeTask ()
-    {
-	if (--numPending == 0)
-            isEmpty.post ();
-    }
-    
-    Semaphore isEmpty;    // used to signal that the taskgroup is empty
-    int numPending;       // number of pending tasks to still execute
+    Semaphore	isEmpty;	// used to signal that the taskgroup is empty
+    int		numPending;	// number of pending tasks to still execute
 };
 
 
 struct ThreadPool::Data
 {
-    Data () :
-        numTasks (0), numThreads (0), stopping (false)
-    {
-        // empty
-    }
+     Data ();
+    ~Data();
     
-    Data::~Data()
-    {
-        Lock lock (threadMutex);
-
-        finish ();
-    }
-    
-    
-    void finish ()
-    {
-        stop();
-
-
-        //
-        // Signal enough times to allow all threads to stop.
-        //
-        // Wait until all threads have started their run functions.
-        // If we do not wait before we destroy the threads then it's possible
-        // that the threads have not yet called their run functions.
-        // If this happens then the run function will be called off of an
-        // invalid object and we will crash, most likely with an error like:
-        // "pure virtual method called"
-        //
-
-        for (int i = 0; i < numThreads; i++)
-        {
-            taskSemaphore.post();
-            threadSemaphore.wait();
-        }
-
-        // join all the threads
-        for (list<WorkerThread*>::iterator i = threads.begin();
-             i != threads.end(); ++i)
-            delete (*i);
-
-        Lock lock1 (taskMutex);
-        Lock lock2 (stopMutex);
-        threads.clear();
-        tasks.clear();
-        numThreads = 0;
-        numTasks = 0;
-        stopping = false;
-    }
-    
-    bool stopped () const
-    {
-        Lock lock (stopMutex);
-        return stopping;
-    }
-    
-    void stop ()
-    {
-        Lock lock (stopMutex);
-        stopping = true;
-    }
+    void	finish ();
+    bool	stopped () const;
+    void	stop ();
 
     Semaphore taskSemaphore;        // threads wait on this for ready tasks
     Mutex taskMutex;                // mutual exclusion for the tasks list
@@ -191,56 +104,197 @@ struct ThreadPool::Data
 };
 
 
-namespace
-{
+//
+// The global thread pool
+//
 
-WorkerThread::WorkerThread (ThreadPool::Data* data) :
+ThreadPool gThreadPool (0);
+
+
+//
+// class WorkerThread
+//
+
+WorkerThread::WorkerThread (ThreadPool::Data* data):
     _data (data)
 {
-    // create the actual thread
-    start ();
+    start();
 }
 
 
 void
 WorkerThread::run ()
 {
-    // signal that the thread has started executing
-    _data->threadSemaphore.post ();
+    //
+    // Signal that the thread has started executing
+    //
+
+    _data->threadSemaphore.post();
 
     while (true)
     {
-        // wait for a task to become available
-        _data->taskSemaphore.wait ();
+	//
+        // Wait for a task to become available
+	//
+
+        _data->taskSemaphore.wait();
+
         {
             Lock taskLock (_data->taskMutex);
     
-            // if there is a task pending, pop off the next task in the FIFO
+	    //
+            // If there is a task pending, pop off the next task in the FIFO
+	    //
+
             if (_data->numTasks > 0)
             {
-                Task* task = _data->tasks.front ();
-		TaskGroup* taskGroup = task->group ();
-                _data->tasks.pop_front ();
+                Task* task = _data->tasks.front();
+		TaskGroup* taskGroup = task->group();
+                _data->tasks.pop_front();
                 _data->numTasks--;
 
-                taskLock.release ();
-                task->execute ();
-                taskLock.acquire ();
+                taskLock.release();
+                task->execute();
+                taskLock.acquire();
 
                 delete task;
-                taskGroup->_data->removeTask ();
+                taskGroup->_data->removeTask();
             }
-            else if (_data->stopped ())
+            else if (_data->stopped())
+	    {
                 break;
+	    }
         }
     }
 }
 
-} // namespace
+
+//
+// struct TaskGroup::Data
+//
+
+TaskGroup::Data::Data (): isEmpty (1), numPending (0)
+{
+    // empty
+}
 
 
-Task::Task (TaskGroup* g) :
-	_group(g)
+TaskGroup::Data::~Data ()
+{
+    //
+    // A TaskGroup acts like an "inverted" semaphore: if the count
+    // is above 0 then waiting on the taskgroup will block.  This
+    // destructor waits until the taskgroup is empty before returning.
+    //
+
+    isEmpty.wait ();
+}
+
+
+void
+TaskGroup::Data::addTask () 
+{
+    //
+    // Any access to the taskgroup is protected by a mutex that is
+    // held by the threadpool.  Therefore it is safe to access
+    // numPending before we wait on the semaphore.
+    //
+
+    if (numPending++ == 0)
+	isEmpty.wait ();
+}
+
+
+void
+TaskGroup::Data::removeTask ()
+{
+    if (--numPending == 0)
+	isEmpty.post ();
+}
+    
+
+//
+// struct ThreadPool::Data
+//
+
+ThreadPool::Data::Data (): numTasks (0), numThreads (0), stopping (false)
+{
+    // empty
+}
+
+
+ThreadPool::Data::~Data()
+{
+    Lock lock (threadMutex);
+    finish ();
+}
+
+
+void
+ThreadPool::Data::finish ()
+{
+    stop();
+
+    //
+    // Signal enough times to allow all threads to stop.
+    //
+    // Wait until all threads have started their run functions.
+    // If we do not wait before we destroy the threads then it's
+    // possible that the threads have not yet called their run
+    // functions.
+    // If this happens then the run function will be called off
+    // of an invalid object and we will crash, most likely with
+    // an error like: "pure virtual method called"
+    //
+
+    for (int i = 0; i < numThreads; i++)
+    {
+	taskSemaphore.post();
+	threadSemaphore.wait();
+    }
+
+    //
+    // Join all the threads
+    //
+
+    for (list<WorkerThread*>::iterator i = threads.begin();
+	 i != threads.end();
+	 ++i)
+    {
+	delete (*i);
+    }
+
+    Lock lock1 (taskMutex);
+    Lock lock2 (stopMutex);
+    threads.clear();
+    tasks.clear();
+    numThreads = 0;
+    numTasks = 0;
+    stopping = false;
+}
+
+
+bool
+ThreadPool::Data::stopped () const
+{
+    Lock lock (stopMutex);
+    return stopping;
+}
+
+
+void
+ThreadPool::Data::stop ()
+{
+    Lock lock (stopMutex);
+    stopping = true;
+}
+
+
+//
+// class Task
+//
+
+Task::Task (TaskGroup* g): _group(g)
 {
     // empty
 }
@@ -259,8 +313,8 @@ Task::group ()
 }
 
 
-TaskGroup::TaskGroup () :
-    _data (new Data ())
+TaskGroup::TaskGroup ():
+    _data (new Data())
 {
     // empty
 }
@@ -272,8 +326,12 @@ TaskGroup::~TaskGroup ()
 }
 
 
-ThreadPool::ThreadPool (unsigned nthreads) :
-    _data (new Data ())
+//
+// class ThreadPool
+//
+
+ThreadPool::ThreadPool (unsigned nthreads):
+    _data (new Data())
 {
     setNumThreads (nthreads);
 }
@@ -297,15 +355,21 @@ void
 ThreadPool::setNumThreads (int count)
 {
     if (count < 0)
-        throw Iex::ArgExc ("Thread count must be a non-negative value in "
-                           "setGlobalThreadCount ()");
+        throw Iex::ArgExc ("Attempt to set the number of threads "
+			   "in a thread pool to a negative value.");
 
-    // lock access to thread list and size
+    //
+    // Lock access to thread list and size
+    //
+
     Lock lock (_data->threadMutex);
 
     if (count > _data->numThreads)
     {
-        // add more threads
+	//
+        // Add more threads
+	//
+
         while (_data->numThreads < count)
         {
             _data->threads.push_back (new WorkerThread (_data));
@@ -314,10 +378,17 @@ ThreadPool::setNumThreads (int count)
     }
     else if (count < _data->numThreads)
     {
-        // stop all existing threads once they are finished processing
+	//
+	// Wait until all existing threads are finished processing,
+	// then delete all threads.
+	//
+
         _data->finish ();
 
-        // add in the threads
+	//
+        // Add in new threads
+	//
+
         while (_data->numThreads < count)
         {
             _data->threads.push_back (new WorkerThread (_data));
@@ -330,7 +401,10 @@ ThreadPool::setNumThreads (int count)
 void
 ThreadPool::addTask (Task* task) 
 {
-    // lock the threads, needed to access numThreads
+    //
+    // Lock the threads, needed to access numThreads
+    //
+
     Lock lock (_data->threadMutex);
 
     if (_data->numThreads == 0)
@@ -340,17 +414,26 @@ ThreadPool::addTask (Task* task)
     }
     else
     {
-        // get exclusive access to the tasks queue
+	//
+        // Get exclusive access to the tasks queue
+	//
+
         {
             Lock taskLock (_data->taskMutex);
 
-            // push the task into the FIFO
+	    //
+            // Push the new task into the FIFO
+	    //
+
             _data->tasks.push_back (task);
             _data->numTasks++;
             task->group()->_data->addTask();
         }
         
-        // signal that we have a new task to process
+	//
+        // Signal that we have a new task to process
+	//
+
         _data->taskSemaphore.post ();
     }
 }
@@ -359,14 +442,15 @@ ThreadPool::addTask (Task* task)
 ThreadPool&
 ThreadPool::globalThreadPool ()
 {
-    return g_threadPool;
+    return gThreadPool;
 }
 
 
 void
 ThreadPool::addGlobalTask (Task* task)
 {
-    g_threadPool.addTask (task);
+    gThreadPool.addTask (task);
 }
+
 
 } // namespace IlmThread

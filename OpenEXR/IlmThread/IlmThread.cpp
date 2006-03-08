@@ -32,24 +32,27 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------
+//
+//	class Thread -- dummy implementation for
+//	platforms that do not support threading
+//
+//-----------------------------------------------------------------------------
+
 #if !defined (_WIN32) && !(HAVE_PTHREAD)
 
 #include <IlmThread.h>
 #include <Iex.h>
 
-namespace IlmThread
-{
+namespace IlmThread {
 
-//
-// If we don't have PThreads and are not on Windows, then we don't support
-// threading (yet). Throw exceptions if trying to use threads.
-//
 
 bool
 supportsThreads ()
 {
     return false;
 }
+
 
 Thread::Thread ()
 {
@@ -69,7 +72,7 @@ Thread::start ()
     throw Iex::NoImplExc ("Threads not supported on this platform.");
 }
 
+
 } // namespace IlmThread
 
 #endif
-

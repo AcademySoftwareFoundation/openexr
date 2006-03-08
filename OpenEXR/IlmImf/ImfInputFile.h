@@ -63,18 +63,24 @@ class InputFile
     //-----------------------------------------------------------
     // A constructor that opens the file with the specified name.
     // Destroying the InputFile object will close the file.
+    //
+    // numThreads determines the number of threads that will be
+    // used to read the file (see ImfThreading.h).
     //-----------------------------------------------------------
 
-    InputFile (const char fileName[], int numThreads = globalThreadCount ());
+    InputFile (const char fileName[], int numThreads = globalThreadCount());
 
 
     //-------------------------------------------------------------
     // A constructor that attaches the new InputFile object to a
     // file that has already been opened.  Destroying the InputFile
     // object will not close the file.
+    //
+    // numThreads determines the number of threads that will be
+    // used to read the file (see ImfThreading.h).
     //-------------------------------------------------------------
 
-    InputFile (IStream &is, int numThreads = globalThreadCount ());
+    InputFile (IStream &is, int numThreads = globalThreadCount());
 
 
     //-----------

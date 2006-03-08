@@ -32,6 +32,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------
+//
+//	class Thread -- implementation for
+//	platforms that support Posix threads
+//
+//-----------------------------------------------------------------------------
+
 #if HAVE_PTHREAD
 
 #include <IlmThread.h>
@@ -40,12 +47,11 @@
 
 extern "C"
 {
-typedef void * (* Start) (void *);
+    typedef void * (* Start) (void *);
 }
 
+namespace IlmThread {
 
-namespace IlmThread
-{
 
 bool
 supportsThreads ()
@@ -53,13 +59,12 @@ supportsThreads ()
     return true;
 }
 
-namespace
-{
+namespace {
 
 void
 threadLoop (void * t)
 {
-    return (reinterpret_cast <Thread*> (t))->run ();
+    return (reinterpret_cast<Thread*>(t))->run();
 }
 
 } // namespace
@@ -85,7 +90,7 @@ Thread::start ()
 	Iex::throwErrnoExc ("Cannot create new thread (%T).", error);
 }
 
+
 } // namespace IlmThread
 
 #endif
-

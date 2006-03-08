@@ -62,15 +62,17 @@ class IStream
     virtual ~IStream ();
     
     
-    //------------------------------------------------------
+    //-------------------------------------------------
     // Does this input stream support memory-mapped IO?
     //
-    // Memory-mapped streams can avoid an extra copy by
-    // passing a pointer to an internal memory buffer
-    // instead of copying the data.
-    //------------------------------------------------------
+    // Memory-mapped streams can avoid an extra copy;
+    // memory-mapped read operations return a pointer
+    // to an internal buffer instead of copying data
+    // into a buffer supplied by the caller.
+    //-------------------------------------------------
 
     virtual bool        isMemoryMapped () const;
+
 
     //------------------------------------------------------
     // Read from the stream:
@@ -85,17 +87,18 @@ class IStream
     virtual bool	read (char c[/*n*/], int n) = 0;
     
     
-    //------------------------------------------------------
+    //---------------------------------------------------
     // Read from a memory-mapped stream:
     //
-    // Get a pointer to the internal data buffer at the
-    // current reading position. If there is less than n
-    // bytes past the current reading position an exception
-    // is thrown. If this is not a memory-mapped file, an
-    // exception is thrown.
-    //------------------------------------------------------
+    // readMemoryMapped(n) reads n bytes from the stream
+    // and returns a pointer to the first byte.  The
+    // returned pointer remains valid until the stream
+    // is closed.  If there are less than n byte left to
+    // read in the stream or if the stream is not memory-
+    // mapped, readMemoryMapped(n) throws an exception.  
+    //---------------------------------------------------
 
-    virtual char* readMemoryMapped (int n);
+    virtual char *	readMemoryMapped (int n);
 
 
     //--------------------------------------------------------

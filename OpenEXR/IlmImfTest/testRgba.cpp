@@ -37,6 +37,8 @@
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
+#include <ImfThreading.h>
+#include <IlmThread.h>
 #include <string>
 #include <stdio.h>
 #include <assert.h>
@@ -197,33 +199,44 @@ testRgba ()
 	Array2D<Rgba> p1 (H, W);
 	fillPixels (p1, W, H);
 
-	for (int lorder = 0; lorder < RANDOM_Y; ++lorder)
+	int maxThreads = IlmThread::supportsThreads()? 3: 0;
+
+	for (int n = 0; n <= maxThreads; ++n)
 	{
-	    for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
+	    if (IlmThread::supportsThreads())
 	    {
-		writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
-			       W, H, p1,
-			       WRITE_RGBA,
-			       LineOrder (lorder),
-			       Compression (comp));
+		setGlobalThreadCount (n);
+		cout << "\nnumber of threads: " << globalThreadCount() << endl;
+	    }
 
-		writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
-			       W, H, p1,
-			       WRITE_RGB,
-			       LineOrder (lorder),
-			       Compression (comp));
+	    for (int lorder = 0; lorder < RANDOM_Y; ++lorder)
+	    {
+		for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
+		{
+		    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+				   W, H, p1,
+				   WRITE_RGBA,
+				   LineOrder (lorder),
+				   Compression (comp));
 
-		writeReadRGBA ("imf_test_rgba.exr",
-			       W, H, p1,
-			       WRITE_A,
-			       LineOrder (lorder),
-			       Compression (comp));
+		    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+				   W, H, p1,
+				   WRITE_RGB,
+				   LineOrder (lorder),
+				   Compression (comp));
 
-		writeReadRGBA ("imf_test_rgba.exr",
-			       W, H, p1,
-			       RgbaChannels (WRITE_R | WRITE_B),
-			       LineOrder (lorder),
-			       Compression (comp));
+		    writeReadRGBA ("imf_test_rgba.exr",
+				   W, H, p1,
+				   WRITE_A,
+				   LineOrder (lorder),
+				   Compression (comp));
+
+		    writeReadRGBA ("imf_test_rgba.exr",
+				   W, H, p1,
+				   RgbaChannels (WRITE_R | WRITE_B),
+				   LineOrder (lorder),
+				   Compression (comp));
+		}
 	    }
 	}
 

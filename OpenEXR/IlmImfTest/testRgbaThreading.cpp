@@ -105,10 +105,13 @@ writeReadRGBA (const char fileName[],
         int numLeft = height;
         int numWrite = 1;
 
-        // iterate over all scanlines, and write them out
+	//
+        // Iterate over all scanlines, and write them out in random-size chunks
+	//
+
         while (numLeft)
         {
-            numWrite = int(rand1.nextf()*numLeft + 0.5f);
+            numWrite = int (rand1.nextf() * numLeft + 0.5f);
             out.writePixels (numWrite);
             numLeft -= numWrite;
         }
@@ -175,26 +178,27 @@ testRgbaThreading ()
 {
     try
     {
-	cout << "Testing setGlobalThreadCount () and writing scanlines in "
-                "random-sized blocks" << endl;
-
-        cout << "setGlobalThreadCount () " << flush;
+        cout << "Testing setGlobalThreadCount()" << endl;
 
         if (!IlmThread::supportsThreads ())
         {
-            cout << "- threading not supported!" << endl << endl;
+            cout << "   Threading not supported!" << endl << endl;
             return;
         }
     
         for (int i = 0; i < 10000; i++)
         {
-            int numThreads = int (rand1.nextf()*32 + 0.5f);
+            int numThreads = int (rand1.nextf() * 32 + 0.5f);
             setGlobalThreadCount (numThreads);
             
             if (i % 2000 == 0)
                 cout << "." << flush;
         }
-        cout << "done" << endl << endl;
+
+        cout << "\nok\n" << endl;
+
+	cout << "Testing multi-threaded writing of scanlines\n"
+		"in random-sized blocks" << endl;
 
 	const int W = 237;
 	const int H = 119;
@@ -202,12 +206,12 @@ testRgbaThreading ()
 	Array2D<Rgba> p1 (H, W);
 	fillPixels (p1, W, H);
 
-        for (int n = 0; n < 16; n++)
+        for (int n = 0; n <= 8; n++)
         {
-            int numThreads = int (rand1.nextf()*8 + 0.5f);
+            int numThreads = (n * 3) % 8;
 
             setGlobalThreadCount (numThreads);
-            cout << "Thread count: " << globalThreadCount () << endl;
+            cout << "number of threads: " << globalThreadCount () << endl;
 
             for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
             {

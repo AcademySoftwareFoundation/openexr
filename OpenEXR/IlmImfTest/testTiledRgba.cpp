@@ -37,6 +37,8 @@
 
 #include <ImfTiledRgbaFile.h>
 #include <ImfArray.h>
+#include <ImfThreading.h>
+#include <IlmThread.h>
 #include <ImathRandom.h>
 #include <string>
 #include <stdio.h>
@@ -128,32 +130,31 @@ writeReadRGBAONE (const char fileName[],
         {
             for (int x = 0; x < w; ++x)
             {
-            if (channels & WRITE_R)
-                assert (p2[y][x].r == p1[y][x].r);
-            else
-                assert (p2[y][x].r == 0);
+		if (channels & WRITE_R)
+		    assert (p2[y][x].r == p1[y][x].r);
+		else
+		    assert (p2[y][x].r == 0);
 
-            if (channels & WRITE_G)
-                assert (p2[y][x].g == p1[y][x].g);
-            else
-                assert (p2[y][x].g == 0);
+		if (channels & WRITE_G)
+		    assert (p2[y][x].g == p1[y][x].g);
+		else
+		    assert (p2[y][x].g == 0);
 
-            if (channels & WRITE_B)
-                assert (p2[y][x].b == p1[y][x].b);
-            else
-                assert (p2[y][x].b == 0);
+		if (channels & WRITE_B)
+		    assert (p2[y][x].b == p1[y][x].b);
+		else
+		    assert (p2[y][x].b == 0);
 
-            if (channels & WRITE_A)
-                assert (p2[y][x].a == p1[y][x].a);
-            else
-                assert (p2[y][x].a == 1);
+		if (channels & WRITE_A)
+		    assert (p2[y][x].a == p1[y][x].a);
+		else
+		    assert (p2[y][x].a == 1);
             }
         }
     }
 
     remove (fileName);
 }
-
 
 
 void
@@ -406,38 +407,49 @@ testTiledRgba ()
     {
         cout << "Testing the tiled RGBA image interface" << endl;
 
-        const int W[] = { 9, 69, 75, 80 };
-        const int H[] = { 7, 50, 52, 55 };
+	int maxThreads = IlmThread::supportsThreads()? 3: 0;
 
-        for (int i = 0; i < 4; ++i)
-        {
-            cout << endl << "Image size = " << W[i] << " x " << H[i] << endl;
+	for (int n = 0; n <= maxThreads; ++n)
+	{
+	    if (IlmThread::supportsThreads())
+	    {
+		setGlobalThreadCount (n);
+		cout << "\nnumber of threads: " << globalThreadCount() << endl;
+	    }
 
-            for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
-            {
-		//
-                // for tiled files, ZIPS and ZIP are the same thing
-		//
+	    const int W[] = { 9, 69, 75, 80 };
+	    const int H[] = { 7, 50, 52, 55 };
 
-                if (comp == ZIP_COMPRESSION)
-                    comp++;
+	    for (int i = 0; i < 4; ++i)
+	    {
+		cout << "\nImage size = " << W[i] << " x " << H[i] << endl;
 
-		if (i == 0)
+		for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
 		{
 		    //
-		    // for single-pixel tiles, we don't gain anything
-		    // by testing multiple image sizes (and singe-pixel
-		    // tiles are rather slow anyway)
+		    // for tiled files, ZIPS and ZIP are the same thing
 		    //
 
-		    writeRead (W[i], H[i], Compression (comp), 1, 1);
-		}
+		    if (comp == ZIP_COMPRESSION)
+			comp++;
 
-                writeRead (W[i], H[i], Compression (comp), 35, 26);
-                writeRead (W[i], H[i], Compression (comp), 75, 52);
-                writeRead (W[i], H[i], Compression (comp), 264, 129);
-            }
-        }
+		    if (i == 0)
+		    {
+			//
+			// for single-pixel tiles, we don't gain anything
+			// by testing multiple image sizes (and singe-pixel
+			// tiles are rather slow anyway)
+			//
+
+			writeRead (W[i], H[i], Compression (comp), 1, 1);
+		    }
+
+		    writeRead (W[i], H[i], Compression (comp), 35, 26);
+		    writeRead (W[i], H[i], Compression (comp), 75, 52);
+		    writeRead (W[i], H[i], Compression (comp), 264, 129);
+		}
+	    }
+	}
 
         cout << "ok\n" << endl;
     }

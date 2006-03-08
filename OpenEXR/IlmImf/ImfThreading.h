@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2005, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -32,37 +32,40 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-
-
 #ifndef INCLUDED_IMF_THREADING_H
 #define INCLUDED_IMF_THREADING_H
 
 //-----------------------------------------------------------------------------
 //
-//    Imf-threading support stuff
+//	Threading support for the IlmImf library
 //
-// The Imf library uses threads to perform the (de)compression of files in
-// parallel. The thread calling the library always performs the actual file IO
-// (this is usually the main application thread) whereas the "worker" threads
-// perform the (de)compression. The number of worker threads can be any
-// non-negative value (a value of 0 reverts to single-threading). As long as
-// there is at least 1 worker thread, file IO and (de)compression can
-// potentially be done concurrently through pinelining. If there are more than
-// two worker threads, then pipelining, as well as concurrent (de)compression
-// of multiple blocks can be performed.
+//	The IlmImf library uses threads to perform reading and writing
+//	of OpenEXR files in parallel.  The thread that calls the library
+//	always performs the actual file IO (this is usually the main
+//	application thread) whereas a several worker threads perform
+//	data compression and decompression.  The number of worker
+//	threads can be any non-negative value (a value of zero reverts
+//	to single-threaded operation).  As long as there is at least
+//	one worker thread, file IO and compression can potentially be
+//	done concurrently through pinelining.  If there are two or more
+//	worker threads, then pipelining as well as concurrent compression
+//	of multiple blocks can be performed.
 // 
-// Threading in the Imf library is controllable at two granularities.
+//	Threading in the Imf library is controllable at two granularities:
 //
-// *    The functions in this file query and control the number of worker
-// threads which will be created globally for the whole library. Regardless of
-// how many input or output files are opened simultaneously the library will
-// use this number of threads to perform all work. The default number of global
-// worker threads is zero (i.e. a single-threaded library).
+//	* The functions in this file query and control the total number
+//	  of worker threads, which will be created globally for the whole
+//	  library.  Regardless of how many input or output files are
+//	  opened simultaneously, the library will use at most this number
+//	  of worker threads to perform all work.  The default number of
+//	  global worker threads is zero (i.e. single-threaded operation;
+//	  everything happens in the thread that calls the library).
 //
-// *    Furthermore, it is possible to set the number of threads that each
-// input or output file should keep busy. This number can be explicitly set
-// for each file. The default behavior is for each file to try to occupy all
-// threads in the global threadpool.
+//	* Furthermore, it is possible to set the number of threads that
+//	  each input or output file should keep busy.  This number can
+//	  be explicitly set for each file.  The default behavior is for
+//	  each file to try to occupy all worker threads in the library's
+//	  thread pool.
 //
 //-----------------------------------------------------------------------------
 
@@ -70,8 +73,8 @@ namespace Imf {
 
 
 //-----------------------------------------------------------------------------
-// Returns the number of Imf-global worker threads used for parallel
-// (de)compression of EXR files.
+// Return the number of Imf-global worker threads used for parallel
+// compression and decompression of OpenEXR files.
 //-----------------------------------------------------------------------------
     
 int     globalThreadCount ();
@@ -82,6 +85,7 @@ int     globalThreadCount ();
 //-----------------------------------------------------------------------------
 
 void    setGlobalThreadCount (int count);
+
 
 } // namespace Imf
 
