@@ -58,19 +58,14 @@ using namespace IlmThread;
 namespace {
 
 Rand48 rand1 (27);
-
 Mutex scanlineMutex;
 Semaphore threadSemaphore;
 int remainingScanlines = 0;
 
+
 void
 fillPixels (Array2D<Rgba> &pixels, int w, int h)
 {
-    //
-    // Use of a union to extract the bit pattern from a float, as is
-    // done below, works only if int and float have the same size.
-    //
-
     assert (sizeof (int) == sizeof (float));
     
     for (int y = 0; y < h; ++y)
@@ -79,82 +74,106 @@ fillPixels (Array2D<Rgba> &pixels, int w, int h)
 	{
 	    Rgba &p = pixels[y][x];
 
-	    p.r = x % 100 + 100 * (y % 100) + rand1.nextf (-0.01f, -0.01f);
+	    p.r = x % 100 + 100 * (y % 100) +
+		  rand1.nextf (-0.01f, -0.01f);
+
 	    p.g = 0.5 + 0.5 * sin (0.1 * x + 0.2 * y) +
                   rand1.nextf (-0.01f, -0.01f);
+
 	    p.b = 0.5 + 0.5 * sin (0.1 * x + 0.3 * y) +
                   rand1.nextf (-0.01f, -0.01f);
-            
-            union {int i; float f;} u;
-            do
-            {
-	        u.i = rand1.nexti();
-	        p.a = u.f;
-            } while (p.a != p.a);
+
+	    p.a = rand1.nextf (0.0f, 1.0f);
 	}
     }
 }
 
 
-class WriterThread : public Thread
+class WriterThread: public Thread
 {
-public:
-    WriterThread (RgbaOutputFile* outfile) :
-        _outfile (outfile)
-    {
-        start ();
-    }
+  public:
 
-    virtual void run ()
-    {
-        // signal that the thread has started
-        threadSemaphore.post ();
+    WriterThread (RgbaOutputFile *outfile);
 
-        while (true)
-        {
-            Lock lock (scanlineMutex);
-            if (remainingScanlines)
-            {
-                int n = int (rand1.nextf (0.0f, remainingScanlines) + 0.5f);
-                _outfile->writePixels (n);
-                remainingScanlines -= n;
-            }
-            else
-                break;
-        }
-    }
-    
-private:
-    RgbaOutputFile* _outfile;
+    virtual void	run ();
+
+  private:
+
+    RgbaOutputFile *	_outfile;
 };
 
+
+WriterThread::WriterThread (RgbaOutputFile *outfile): _outfile (outfile)
+{
+    start();
+}
+
+void
+WriterThread::run ()
+{
+    //
+    // Signal that the thread has started
+    //
+
+    threadSemaphore.post();
+
+    while (true)
+    {
+	Lock lock (scanlineMutex);
+
+	if (remainingScanlines)
+	{
+	    int n = int (rand1.nextf (0.0f, remainingScanlines) + 0.5f);
+	    _outfile->writePixels (n);
+	    remainingScanlines -= n;
+	}
+	else
+	{
+	    break;
+	}
+    }
+}
+    
 
 class ReaderThread : public Thread
 {
-public:
-    ReaderThread (RgbaInputFile* infile, int start, int step) :
-        _infile (infile), _start (start), _step (step)
-    {
-        Thread::start ();
-    }
+  public:
 
-    virtual void run ()
-    {
-        // signal that the thread has started
-        threadSemaphore.post ();
+    ReaderThread (RgbaInputFile *infile, int start, int step);
 
-        int num = _infile->header().dataWindow().max.y -
-                  _infile->header().dataWindow().min.y + 1;
-
-        for (int i = _start; i < num; i += _step)
-            _infile->readPixels (i);
-    }
+    virtual void	run ();
     
-private:
-    RgbaInputFile* _infile;
-    int _start, _step;
+  private:
+
+    RgbaInputFile *	_infile;
+    int			_start;
+    int			_step;
 };
 
+
+ReaderThread::ReaderThread (RgbaInputFile *infile, int start, int step):
+    _infile (infile), _start (start), _step (step)
+{
+    Thread::start();
+}
+
+
+void
+ReaderThread::run ()
+{
+    //
+    // Signal that the thread has started
+    //
+
+    threadSemaphore.post ();
+
+    int num = _infile->header().dataWindow().max.y -
+	      _infile->header().dataWindow().min.y + 1;
+
+    for (int i = _start; i < num; i += _step)
+	_infile->readPixels (i);
+}
+    
 
 void
 writeReadRGBA (const char fileName[],
@@ -189,8 +208,8 @@ writeReadRGBA (const char fileName[],
         remainingScanlines = height;
         WriterThread writer1 (&out);
         WriterThread writer2 (&out);
-        threadSemaphore.wait ();
-        threadSemaphore.wait ();
+        threadSemaphore.wait();
+        threadSemaphore.wait();
     }
 
     {
@@ -209,8 +228,8 @@ writeReadRGBA (const char fileName[],
         {
             ReaderThread reader1 (&in, 0, 2);
             ReaderThread reader2 (&in, 1, 2);
-            threadSemaphore.wait ();
-            threadSemaphore.wait ();
+            threadSemaphore.wait();
+            threadSemaphore.wait();
         }
 
 	assert (in.displayWindow() == header.displayWindow());
@@ -262,8 +281,8 @@ testSharedFrameBuffer ()
 {
     try
     {
-	cout << "Testing reading/writing to files from multiple threads using "
-                "a shared framebuffer" << endl;
+	cout << "Testing reading from and writing to files using\n"
+		"multiple threads and a shared framebuffer" << endl;
 
         if (!IlmThread::supportsThreads ())
         {
@@ -277,12 +296,12 @@ testSharedFrameBuffer ()
 	Array2D<Rgba> p1 (H, W);
 	fillPixels (p1, W, H);
         
-        for (int n = 0; n < 8; n++)
+        for (int n = 0; n <= 8; n++)
         {
-            int numThreads = int (rand1.nextf()*8 + 0.5f);
+            int numThreads = (n * 3) % 8;
 
             setGlobalThreadCount (numThreads);
-            cout << "Thread count: " << globalThreadCount () << endl;
+            cout << "number of threads: " << globalThreadCount () << endl;
 
             for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
             {
@@ -308,6 +327,7 @@ testSharedFrameBuffer ()
             }
         }
 
+	cout << "ok\n" << endl;
     }
     catch (const std::exception &e)
     {
@@ -315,4 +335,3 @@ testSharedFrameBuffer ()
 	assert (false);
     }
 }
-

@@ -41,8 +41,8 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfAttribute.h>
-#include <Iex.h>
 #include <IlmThreadMutex.h>
+#include <Iex.h>
 #include <string.h>
 #include <map>
 
@@ -75,11 +75,10 @@ typedef Attribute* (*Constructor)();
 typedef std::map <const char *, Constructor, NameCompare> TypeMap;
 
 
-Mutex criticalSection;
-
-class LockedTypeMap : public TypeMap
+class LockedTypeMap: public TypeMap
 {
-public:
+  public:
+
     Mutex mutex;
 };
 
@@ -87,6 +86,7 @@ public:
 LockedTypeMap &
 typeMap ()
 {
+    static Mutex criticalSection;
     Lock lock (criticalSection);
 
     static LockedTypeMap* typeMap = 0;

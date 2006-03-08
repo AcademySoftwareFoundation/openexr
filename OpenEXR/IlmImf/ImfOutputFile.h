@@ -63,10 +63,13 @@ class OutputFile
     // and can later be accessed via the header() method.
     // Destroying this OutputFile object automatically closes
     // the file.
+    //
+    // numThreads determines the number of threads that will be
+    // used to write the file (see ImfThreading.h).
     //-----------------------------------------------------------
 
     OutputFile (const char fileName[], const Header &header,
-                int numThreads = globalThreadCount ());
+                int numThreads = globalThreadCount());
 
 
     //------------------------------------------------------------
@@ -76,10 +79,13 @@ class OutputFile
     // and can later be accessed via the header() method.
     // Destroying this OutputFile object does not automatically
     // close the file.
+    //
+    // numThreads determines the number of threads that will be
+    // used to write the file (see ImfThreading.h).
     //------------------------------------------------------------
 
     OutputFile (OStream &os, const Header &header,
-                int numThreads = globalThreadCount ());
+                int numThreads = globalThreadCount());
 
 
     //-------------------------------------------------

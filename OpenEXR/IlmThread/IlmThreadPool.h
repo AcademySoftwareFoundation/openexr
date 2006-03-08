@@ -35,53 +35,45 @@
 #ifndef INCLUDED_ILM_THREAD_POOL_H
 #define INCLUDED_ILM_THREAD_POOL_H
 
-namespace IlmThread
-{
+//-----------------------------------------------------------------------------
+//
+//	class Task, class ThreadPool, class TaskGroup
+//
+//	Class ThreadPool manages a set of worker threads and accepts
+//	tasks for processing.  Tasks added to the thread pool are
+//	executed concurrently by the worker threads.  
+//	
+//	Class Thread provides an abstract interface for a task which
+//	a ThreadPool works on.  Derived classes need to implement the
+//	execute() function which performs the actual task.
+//
+//	Class TaskTroup allows synchronization on the completion of a set
+//	of tasks.  Every task that is added to a ThreadPool belongs to a
+//	single TaskGroup.  The destructor of the TaskGroup waits for all
+//	tasks in the group to finish.
+//
+//	Note: if you plan to use the ThreadPool interface in your own
+//	applications note that the implementation of the ThreadPool calls
+//	opertor delete on tasks as they complete.  If you define a custom
+//	operator new for your tasks, for instance to use a custom heap,
+//	then you must also write an appropriate operator delete.
+//
+//-----------------------------------------------------------------------------
+
+namespace IlmThread {
 
 class TaskGroup;
+class Task;
 
-//-----------------------------------------------------------------------------
-//
-//    class Task -- a Task to execute the ThreadPool
-//
-// This class provides the abstract interface for any task which a ThreadPool
-// works on. Derived classes need to implement the execute() function which
-// performs the actual computation.
-//
-// If you plan to use the ThreadPool interface in your own applications
-// note that the implementation of the ThreadPool calls delete on tasks as they
-// complete. Therefore, if you define a custom new operator for your tasks, to
-// for instance use a custom heap, you must also write an appropriate delete.
-// 
-//
-//-----------------------------------------------------------------------------
-
-struct Task
-{
-    Task (TaskGroup* g);
-    virtual ~Task ();
-    virtual void execute () = 0;
-    TaskGroup* group();
-
-protected:
-    TaskGroup* _group;
-};
-
-
-//-----------------------------------------------------------------------------
-//
-//    class ThreadPool -- a pool of threads used to execute Tasks
-//
-//-----------------------------------------------------------------------------
 
 class ThreadPool  
 {
-public:
+  public:
 
-    //-----------------------------------------------------------
+    //-------------------------------------------------------
     // Constructor -- creates numThreads worker threads which
     // wait until a task is available. 
-    //-----------------------------------------------------------
+    //-------------------------------------------------------
 
     ThreadPool (unsigned numThreads = 0);
     
@@ -94,61 +86,71 @@ public:
     virtual ~ThreadPool ();
     
 
-    //-----------------------------------------------------------
+    //--------------------------------------------------------
     // Query and set the number of worker threads in the pool.
     //
-    // Never call setNumThreads from within a Worker thread as
-    // this will almost certainly cause a deadlock or crash.
-    //-----------------------------------------------------------
+    // Warning: never call setNumThreads from within a worker
+    // thread as this will almost certainly cause a deadlock
+    // or crash.
+    //--------------------------------------------------------
     
-    int numThreads () const;
-    void setNumThreads (int count);
+    int		numThreads () const;
+    void	setNumThreads (int count);
     
     
-    //-----------------------------------------------------------
-    // Adds a task for processing. The ThreadPool can handle any
-    // number of tasks regardless of the number of working
-    // threads. The tasks are first added onto a queue, and are
-    // executed by threads as they become available, in FIFO
-    // order.
-    //-----------------------------------------------------------
+    //------------------------------------------------------------
+    // Add a task for processing.  The ThreadPool can handle any
+    // number of tasks regardless of the number of worker threads.
+    // The tasks are first added onto a queue, and are executed
+    // by threads as they become available, in FIFO order.
+    //------------------------------------------------------------
 
     void addTask (Task* task);
     
 
-    //-----------------------------------------------------------
+    //-------------------------------------------
     // Access functions for the global threadpool
-    //-----------------------------------------------------------
+    //-------------------------------------------
     
-    static ThreadPool& globalThreadPool ();
-    static void addGlobalTask (Task* task);
+    static ThreadPool&	globalThreadPool ();
+    static void		addGlobalTask (Task* task);
 
     class Data;
-protected:
-    Data* _data;
+
+  protected:
+
+    Data *		_data;
 };
 
 
-//-----------------------------------------------------------------------------
-//
-//    class TaskGroup -- a collection of tasks
-//
-// Every task which is added to the ThreadPool belongs to a single task group.
-// The destructor of the taskgroup waits for all tasks in the group to finish.
-// This allows syncronization on the completion of a set of tasks.
-//
-//-----------------------------------------------------------------------------
+class Task
+{
+  public:
+
+    Task (TaskGroup* g);
+    virtual ~Task ();
+
+    virtual void	execute () = 0;
+    TaskGroup *		group();
+
+  protected:
+
+    TaskGroup *		_group;
+};
+
 
 class TaskGroup
 {
-public:
-    TaskGroup();
+  public:
+
+     TaskGroup();
     ~TaskGroup();
 
     class Data;
-    Data* const _data;
+    Data* const		_data;
 };
+
 
 } // namespace IlmThread
 
-#endif // INCLUDED_IMF_THREAD_POOL_H
+#endif

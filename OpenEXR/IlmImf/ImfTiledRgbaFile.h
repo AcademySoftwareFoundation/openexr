@@ -229,9 +229,9 @@ class TiledRgbaOutputFile
     // used for ONE_LEVEL and MIPMAP_LEVEL files.  It calls
     // writeTile(dx, dy, level, level).
     //
-    // The two writeTiles(...) functions allow to write multiple tiles at once.
-    // If multi-threading is used this also allows to write multiple tiles
-    // concurrently.
+    // The two writeTiles(dx1, dx2, dy1, dy2, ...) functions allow
+    // writing multiple tiles at once.  If multi-threading is used
+    // multiple tiles are written concurrently.
     //
     // Pixels that are outside the pixel coordinate range for the tile's
     // level, are never accessed by writeTile().
@@ -242,8 +242,10 @@ class TiledRgbaOutputFile
 
     void		writeTile (int dx, int dy, int l = 0);
     void		writeTile (int dx, int dy, int lx, int ly);
+
     void		writeTiles (int dxMin, int dxMax, int dyMin, int dyMax,
                                     int lx, int ly);
+
     void		writeTiles (int dxMin, int dxMax, int dyMin, int dyMax,
                                     int l = 0);
 
@@ -392,9 +394,9 @@ class TiledRgbaInputFile
     // for ONE_LEVEL and MIPMAP_LEVELS files.  It calls
     // readTile(dx, dy, level, level).
     //
-    // The two readTiles(...) functions allow to read multiple tiles at once.
-    // If multi-threading is used this also allows to read multiple tiles
-    // concurrently.
+    // The two readTiles(dx1, dx2, dy1, dy2, ...) functions allow
+    // reading multiple tiles at once.  If multi-threading is used
+    // multiple tiles are read concurrently.
     //
     // Pixels that are outside the pixel coordinate range for the
     // tile's level, are never accessed by readTile().
@@ -406,8 +408,10 @@ class TiledRgbaInputFile
 
     void           	readTile (int dx, int dy, int l = 0);
     void           	readTile (int dx, int dy, int lx, int ly);
+
     void		readTiles (int dxMin, int dxMax,
                                    int dyMin, int dyMax, int lx, int ly);
+
     void		readTiles (int dxMin, int dxMax,
                                    int dyMin, int dyMax, int l = 0);
 

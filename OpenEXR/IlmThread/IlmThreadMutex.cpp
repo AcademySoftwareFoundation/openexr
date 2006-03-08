@@ -32,21 +32,25 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------
+//
+//	class Mutex, class Lock -- dummy implementation
+//	for platforms that do not support threading
+//
+//-----------------------------------------------------------------------------
+
 #if !defined (_WIN32) && !(HAVE_PTHREAD)
+
 #include <IlmThreadMutex.h>
 
-namespace IlmThread
-{
+namespace IlmThread {
 
-//
-// If we don't have PThreads and are not on Windows, then we don't support
-// threading (yet). Implement a dummy Mutex class.
-//
 
 Mutex::Mutex () {}
 Mutex::~Mutex () {}
 void Mutex::lock () const {}
 void Mutex::unlock () const {}
+
 
 } // namespace IlmThread
 

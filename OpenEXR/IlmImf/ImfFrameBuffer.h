@@ -70,12 +70,24 @@ struct Slice
     PixelType		type;
 
 
-    //--------------------------------------------------------------
+    //---------------------------------------------------------------------
     // Memory layout:  The address of pixel (x, y) is
     //
-    //	base + (x / xSampling) * xStride + (y / ySampling) * yStride
+    //	base + (xp / xSampling) * xStride + (yp / ySampling) * yStride
     //
-    //--------------------------------------------------------------
+    // where xp and yp are computed as follows:
+    //
+    //	* If we are reading or writing a scanline-based file:
+    //
+    //	    xp = x
+    //	    yp = y
+    //
+    //  * If we are reading a tile whose upper left coorner is at (xt, yt):
+    //
+    //	    if xTileCoords is true then xp = x - xt, else xp = x
+    //	    if yTileCoords is true then yp = y - yt, else yp = y
+    //
+    //---------------------------------------------------------------------
 
     char *		base;
     size_t		xStride;
@@ -102,11 +114,17 @@ struct Slice
     double		fillValue;
     
 
-    //------------------------------------------------------------------------
-    // For tiled files, these flags determine whether addressing is performed
-    // using pixel coordinates relative to the data window or relative to the
-    // tile
-    //------------------------------------------------------------------------
+    //-------------------------------------------------------
+    // For tiled files, the xTileCoords and yTileCoords flags
+    // determine whether pixel addressing is performed using
+    // absolute coordinates or coordinates relative to a
+    // tile's upper left corner.  (See the comment on base,
+    // xStride and yStride, above.)
+    //
+    // For scanline-based files these flags have no effect;
+    // pixel addressing is always done using absolute
+    // coordinates.
+    //-------------------------------------------------------
 
     bool                xTileCoords;
     bool                yTileCoords;

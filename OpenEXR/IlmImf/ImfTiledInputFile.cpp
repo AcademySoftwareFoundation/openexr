@@ -50,19 +50,16 @@
 #include <ImfConvert.h>
 #include <ImfVersion.h>
 #include <ImfTileOffsets.h>
-
-#include <Iex.h>
-#include <ImathVec.h>
-
-#include <string>
-#include <vector>
-#include <algorithm>
-#include <assert.h>
-
 #include <ImfThreading.h>
 #include <IlmThreadPool.h>
 #include <IlmThreadSemaphore.h>
 #include <IlmThreadMutex.h>
+#include <ImathVec.h>
+#include <Iex.h>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <assert.h>
 
 
 namespace Imf {
@@ -71,7 +68,14 @@ using Imath::Box2i;
 using Imath::V2i;
 using std::string;
 using std::vector;
-using namespace IlmThread;
+using std::min;
+using std::max;
+using IlmThread::Mutex;
+using IlmThread::Lock;
+using IlmThread::Semaphore;
+using IlmThread::Task;
+using IlmThread::TaskGroup;
+using IlmThread::ThreadPool;
 
 namespace {
 
@@ -127,31 +131,35 @@ TInSliceInfo::TInSliceInfo (PixelType tifb,
 
 struct TileBuffer
 {
-    const char*                      uncompressedData;
-    char *                           buffer;
-    int                              dataSize;
-    Compressor * const               compressor;
-    Compressor::Format	             format;
-    int                              dx, dy, lx, ly;
-    bool                             hasException;
-    string                           exception;
+    const char *	uncompressedData;
+    char *		buffer;
+    int			dataSize;
+    Compressor *	compressor;
+    Compressor::Format	format;
+    int			dx;
+    int			dy;
+    int			lx;
+    int			ly;
+    bool		hasException;
+    string		exception;
 
-    TileBuffer (Compressor * const comp);
+     TileBuffer (Compressor * const comp);
     ~TileBuffer ();
 
-    inline void wait () {_sem.wait();}
-    inline void post () {_sem.post();}
+    inline void		wait () {_sem.wait();}
+    inline void		post () {_sem.post();}
 
-protected:
+ protected:
+
     Semaphore _sem;
 };
 
 
-TileBuffer::TileBuffer (Compressor * const comp) :
+TileBuffer::TileBuffer (Compressor *comp):
     uncompressedData (0),
     dataSize (0),
     compressor (comp),
-    format(defaultFormat(compressor)),
+    format (defaultFormat (compressor)),
     dx (-1),
     dy (-1),
     lx (-1),
@@ -177,7 +185,7 @@ TileBuffer::~TileBuffer ()
 // needed between calls to readTile()
 //
 
-struct TiledInputFile::Data : public Mutex
+struct TiledInputFile::Data: public Mutex
 {
     Header	    header;		    // the image header
     TileDescription tileDesc;		    // describes the tile layout
@@ -188,10 +196,6 @@ struct TiledInputFile::Data : public Mutex
     int		    maxX;		    // data window's max x coord
     int		    minY;		    // data window's min y coord
     int		    maxY;		    // data window's max x coord
-
-    //
-    // cached tile information:
-    //
 
     int		    numXLevels;		    // number of x levels
     int		    numYLevels;		    // number of y levels
@@ -227,8 +231,9 @@ struct TiledInputFile::Data : public Mutex
      Data (bool deleteStream, int numThreads);
     ~Data ();
 
-    // hash function from tile indices into our vector of tile buffers
-    inline TileBuffer* getTileBuffer (int dx = 0, int dy = 0, int nx = 0);
+    inline TileBuffer * getTileBuffer (int dx = 0, int dy = 0, int nx = 0);
+					    // hash function from tile indices
+					    // into our vector of tile buffers
 };
 
 
@@ -238,10 +243,12 @@ TiledInputFile::Data::Data (bool del, int numThreads):
     is (0),
     deleteStream (del)
 {
-    // we need at least one tileBuffer, but if threading is used, to keep
-    // n threads busy we need 2n tileBuffers
+    //
+    // We need at least one tileBuffer, but if threading is used,
+    // to keep n threads busy we need 2*n tileBuffers
+    //
 
-    tileBuffers.resize (std::max (1, 2*numThreads));
+    tileBuffers.resize (max (1, 2 * numThreads));
 }
 
 
@@ -271,15 +278,14 @@ void
 readTileData (TiledInputFile::Data * ifd,
 	      int dx, int dy,
 	      int lx, int ly,
-              char * & buffer,
+              char *&buffer,
               int &dataSize)
 {
     //
-    // Read a single tile block from the file and into the array pointed to by
-    // buffer. If the file is memory-mapped, then we change where buffer points
-    // to, hence it needs to be a reference to a char *. If the file is not
-    // memory-mapped the the buffer pointer is not modified, the data is simply
-    // copied into it.
+    // Read a single tile block from the file and into the array pointed
+    // to by buffer.  If the file is memory-mapped, then we change where
+    // buffer points instead of writing into the array (hence buffer needs
+    // to be a reference to a char *).
     //
 
     //
@@ -295,24 +301,19 @@ readTileData (TiledInputFile::Data * ifd,
 			      lx << ", " << ly << ") is missing.");
     }
 
-    //
-    // Seek to the start of the tile in the file,
-    // if necessary.
-    //
-    
     if (ifd->currentPosition != tileOffset)
         ifd->is->seekg (tileOffset);
 
     #ifdef DEBUG
 
-	assert (ifd->is->tellg() == tileOffset);
+	ssert (ifd->is->tellg() == tileOffset);
 
     #endif
 
     //
     // Read the first few bytes of the tile (the header).
-    // Test that the tile coords and the level number are
-    // correct.
+    // Verify that the tile coordinates and the level number
+    // are correct.
     //
     
     int tileXCoord, tileYCoord, levelX, levelY;
@@ -397,39 +398,54 @@ readNextTileData (TiledInputFile::Data *ifd,
 }
 
 
-//-----------------------------------------------------------------------------
-// A TileBufferTask encapulates the task of reading and decompressing a
-// single tile
-//-----------------------------------------------------------------------------
+//
+// A TileBufferTask encapsulates the task of reading a single tile
+// into a tile buffer, uncompressing the tile and copying it into
+// a frame buffer.
+//
 
 class TileBufferTask : public Task
 {
-private:
-    TiledInputFile::Data * const    _ifd;
-    TileBuffer*                     _tileBuffer;
-    
-public:
+  public:
 
     TileBufferTask (TaskGroup* group,
-                    TiledInputFile::Data * const ifd,
-                    int number, int dx, int dy, int lx, int ly);
+                    TiledInputFile::Data * ifd,
+                    int number,
+		    int dx, int dy,
+		    int lx, int ly);
                     
     virtual ~TileBufferTask ();
-    virtual void execute ();
+
+    virtual void		execute ();
+    
+  private:
+
+    TiledInputFile::Data *	_ifd;
+    TileBuffer *		_tileBuffer;
 };
 
 
-TileBufferTask::TileBufferTask (TaskGroup* group,
-                                TiledInputFile::Data * const ifd,
-                                int number, int dx, int dy, int lx, int ly) :
+TileBufferTask::TileBufferTask
+    (TaskGroup *group,
+     TiledInputFile::Data *ifd,
+     int number,
+     int dx, int dy,
+     int lx, int ly)
+:
     Task (group),
     _ifd (ifd),
     _tileBuffer (_ifd->getTileBuffer (number))
 {
-    // wait for the tileBuffer to become available
+    //
+    // Wait for the tileBuffer to become available
+    //
+
     _tileBuffer->wait ();
     
-    // read in the tileBuffer from disk if necessary
+    //
+    // Read in the tileBuffer from disk if necessary
+    //
+
     if (_tileBuffer->dx != dx || _tileBuffer->dy != dy ||
         _tileBuffer->lx != lx || _tileBuffer->ly != ly)
     {
@@ -438,6 +454,7 @@ TileBufferTask::TileBufferTask (TaskGroup* group,
         _tileBuffer->lx = lx;
         _tileBuffer->ly = ly;
         _tileBuffer->uncompressedData = 0;
+
         readTileData (_ifd, dx, dy, lx, ly, _tileBuffer->buffer,
                       _tileBuffer->dataSize);
     }
@@ -446,7 +463,10 @@ TileBufferTask::TileBufferTask (TaskGroup* group,
 
 TileBufferTask::~TileBufferTask ()
 {
-    // signal that the tile buffer is now free
+    //
+    // Signal that the tile buffer is now free
+    //
+
     _tileBuffer->post ();
 }
 
@@ -483,11 +503,10 @@ TileBufferTask::execute ()
         if (_tileBuffer->compressor && _tileBuffer->dataSize < sizeOfTile)
         {
             _tileBuffer->format = _tileBuffer->compressor->format();
+
             _tileBuffer->dataSize = _tileBuffer->compressor->uncompressTile
-                                            (_tileBuffer->buffer,
-                                             _tileBuffer->dataSize,
-                                             tileRange,
-                                             _tileBuffer->uncompressedData);
+		(_tileBuffer->buffer, _tileBuffer->dataSize,
+		 tileRange, _tileBuffer->uncompressedData);
         }
         else
         {
@@ -500,11 +519,9 @@ TileBufferTask::execute ()
             _tileBuffer->uncompressedData = _tileBuffer->buffer;
         }
     
-    
         //
-        // Convert the tile of pixel data back
-        // from the machine-independent representation, and
-        // store the result in the frame buffer.
+        // Convert the tile of pixel data back from the machine-independent
+	// representation, and store the result in the frame buffer.
         //
     
         const char *readPtr = _tileBuffer->uncompressedData;
@@ -527,15 +544,15 @@ TileBufferTask::execute ()
                 const TInSliceInfo &slice = _ifd->slices[i];
     
                 //
-                // These offsets are used to facilitate both datawindow-
-                // relative and tile-relative pixel coordinates.
+                // These offsets are used to facilitate both
+                // absolute and tile-relative pixel coordinates.
                 //
             
                 int xOffset = slice.xTileCoords * tileRange.min.x;
                 int yOffset = slice.yTileCoords * tileRange.min.y;
     
                 //
-                // Iterate over the sampled pixels.
+                // Fill the frame buffer with pixel data.
                 //
     
                 if (slice.skip)
@@ -558,8 +575,9 @@ TileBufferTask::execute ()
                                      (y - yOffset) * slice.yStride +
                                      (tileRange.min.x - xOffset) *
                                      slice.xStride;
-                    char *endPtr   = writePtr +
-                                     (numPixelsPerScanLine - 1) * slice.xStride;
+
+                    char *endPtr = writePtr +
+                                   (numPixelsPerScanLine - 1) * slice.xStride;
                                     
                     copyIntoFrameBuffer (readPtr, writePtr, endPtr,
                                          slice.xStride,
@@ -583,7 +601,7 @@ TileBufferTask::execute ()
     {
         if (!_tileBuffer->hasException)
         {
-            _tileBuffer->exception = "unrecognized custom exception";
+            _tileBuffer->exception = "unrecognized exception";
             _tileBuffer->hasException = true;
         }
     }
@@ -642,8 +660,12 @@ TiledInputFile::TiledInputFile (IStream &is, int numThreads):
 }
 
 
-TiledInputFile::TiledInputFile (const Header &header, IStream *is, int version,
-                                int numThreads):
+TiledInputFile::TiledInputFile
+    (const Header &header,
+     IStream *is,
+     int version,
+     int numThreads)
+:
     _data (new Data (false, numThreads))
 {
     //
@@ -696,14 +718,17 @@ TiledInputFile::initialize ()
 
     _data->tileBufferSize = _data->maxBytesPerTileLine * _data->tileDesc.ySize;
 
-    // create all the TileBuffers and allocate their internal buffers
+    //
+    // Create all the TileBuffers and allocate their internal buffers
+    //
+
     for (size_t i = 0; i < _data->tileBuffers.size(); i++)
     {
         _data->tileBuffers[i] = new TileBuffer (newTileCompressor
-                                            (_data->header.compression(),
-					     _data->maxBytesPerTileLine,
-					     _data->tileDesc.ySize,
-					     _data->header));
+						  (_data->header.compression(),
+						   _data->maxBytesPerTileLine,
+						   _data->tileDesc.ySize,
+						   _data->header));
 
         if (!_data->is->isMemoryMapped ())
             _data->tileBuffers[i]->buffer = new char [_data->tileBufferSize];
@@ -836,8 +861,8 @@ TiledInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
                                         fill,
                                         false, // skip
                                         j.slice().fillValue,
-                                        (j.slice().xTileCoords) ? 1 : 0,
-                                        (j.slice().yTileCoords) ? 1 : 0));
+                                        (j.slice().xTileCoords)? 1: 0,
+                                        (j.slice().yTileCoords)? 1: 0));
 
         if (i != channels.end() && !fill)
             ++i;
@@ -887,8 +912,7 @@ TiledInputFile::isComplete () const
 
 
 void
-TiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2,
-                           int lx, int ly)
+TiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2, int lx, int ly)
 {
     //
     // Read a range of tiles from the file into the framebuffer
@@ -903,8 +927,6 @@ TiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2,
 			       "as pixel data destination.");
         
         //
-        // We impose an numbering scheme on the tiles.
-        //
         // Determine the first and last tile coordinates in both dimensions.
         // We always attempt to read the range of tiles in the order that
         // they are stored in the file.
@@ -916,9 +938,9 @@ TiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2,
         if (dy1 > dy2)
             std::swap (dy1, dy2);
         
-        int dyStart = dy1,
-            dyStop  = dy2 + 1,
-            dY      = 1;
+        int dyStart = dy1;
+	int dyStop  = dy2 + 1;
+	int dY      = 1;
 
         if (_data->lineOrder == DECREASING_Y)
         {
@@ -926,11 +948,11 @@ TiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2,
             dyStop  = dy1 - 1;
             dY      = -1;
         }
-        
 
         //
-        // Create a task group for all tile buffer tasks. When the taskgroup
-        // goes out of scope, the destructor waits until all tasks are complete.
+        // Create a task group for all tile buffer tasks.  When the
+	// task group goes out of scope, the destructor waits until
+	// all tasks are complete.
         //
         
         {
@@ -942,9 +964,9 @@ TiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2,
                 for (int dx = dx1; dx <= dx2; dx++)
                 {
                     if (!isValidTile (dx, dy, lx, ly))
-                        THROW (Iex::ArgExc, "Tile (" << dx << ", " << dy <<
-                               ", " << lx << "," << ly <<
-                               ") is not a valid tile.");
+                        THROW (Iex::ArgExc,
+			       "Tile (" << dx << ", " << dy << ", " <<
+			       lx << "," << ly << ") is not a valid tile.");
                     
                     ThreadPool::addGlobalTask (new TileBufferTask (&taskGroup,
                                                                    _data,
@@ -954,25 +976,40 @@ TiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2,
                 }
             }
 
+	    //
             // finish all tasks
+	    //
         }
 
-        // check for exceptions
+	//
+	// Exeption handling:
+	//
+	// TileBufferTask::execute() may have encountered exceptions, but
+	// those exceptions occurred in another thread, not in the thread
+	// that is executing this call to TiledInputFile::readTiles().
+	// TileBufferTask::execute() has caught all exceptions and stored
+	// the exceptions' what() strings in the tile buffers.
+	// Now we check if any tile buffer contains a stored exception; if
+	// this is the case then we re-throw the exception in this thread.
+	// (It is possible that multiple tile buffers contain stored
+	// exceptions.  We re-throw the first exception we find and
+	// ignore all others.)
+	//
+
+	const string *exception = 0;
+
         for (int i = 0; i < _data->tileBuffers.size(); ++i)
-        {
-            TileBuffer* tileBuffer = _data->tileBuffers[i];
+	{
+            TileBuffer *tileBuffer = _data->tileBuffers[i];
 
-            // wait for the tileBuffer to become available
-            tileBuffer->wait ();
-            
-            // if an exception was caught by this tileBuffer then thrown it now
-            if (tileBuffer->hasException)
-            {
-                tileBuffer->post ();
-                throw Iex::IoExc (tileBuffer->exception);
-            }
-            tileBuffer->post ();
-        }
+	    if (tileBuffer->hasException && !exception)
+		exception = &tileBuffer->exception;
+
+	    tileBuffer->hasException = false;
+	}
+
+	if (exception)
+	    throw Iex::IoExc (*exception);
     }
     catch (Iex::BaseExc &e)
     {

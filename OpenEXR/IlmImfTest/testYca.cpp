@@ -40,6 +40,8 @@
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
+#include <ImfThreading.h>
+#include <IlmThread.h>
 #include <ImathMath.h>
 #include <stdio.h>
 #include <assert.h>
@@ -218,39 +220,50 @@ testYca ()
 	dataWindow[4] = Box2i (V2i (0, 0), V2i (1, 1));
 	dataWindow[5] = Box2i (V2i (-18, -28), V2i (247, 255));
 
-	for (int i = 0; i < 6; ++i)
+	int maxThreads = IlmThread::supportsThreads()? 3: 0;
+
+	for (int n = 0; n <= maxThreads; ++n)
 	{
-	    for (int writeOrder = INCREASING_Y;
-		 writeOrder <= DECREASING_Y;
-		 ++writeOrder)
+	    if (IlmThread::supportsThreads())
 	    {
-		for (int readOrder = INCREASING_Y;
-		     readOrder <= RANDOM_Y;
-		     ++readOrder)
+		setGlobalThreadCount (n);
+		cout << "\nnumber of threads: " << globalThreadCount() << endl;
+	    }
+
+	    for (int i = 0; i < 6; ++i)
+	    {
+		for (int writeOrder = INCREASING_Y;
+		     writeOrder <= DECREASING_Y;
+		     ++writeOrder)
 		{
-		    writeReadYca (fileName, dataWindow[i],
-				  WRITE_YCA,
-				  LineOrder (writeOrder),
-				  LineOrder (readOrder),
-				  fillPixelsColor);
+		    for (int readOrder = INCREASING_Y;
+			 readOrder <= RANDOM_Y;
+			 ++readOrder)
+		    {
+			writeReadYca (fileName, dataWindow[i],
+				      WRITE_YCA,
+				      LineOrder (writeOrder),
+				      LineOrder (readOrder),
+				      fillPixelsColor);
 
-		    writeReadYca (fileName, dataWindow[i],
-				  WRITE_YC,
-				  LineOrder (writeOrder),
-				  LineOrder (readOrder),
-				  fillPixelsColor);
+			writeReadYca (fileName, dataWindow[i],
+				      WRITE_YC,
+				      LineOrder (writeOrder),
+				      LineOrder (readOrder),
+				      fillPixelsColor);
 
-		    writeReadYca (fileName, dataWindow[i],
-				  WRITE_YA,
-				  LineOrder (writeOrder),
-				  LineOrder (readOrder),
-				  fillPixelsGray);
+			writeReadYca (fileName, dataWindow[i],
+				      WRITE_YA,
+				      LineOrder (writeOrder),
+				      LineOrder (readOrder),
+				      fillPixelsGray);
 
-		    writeReadYca (fileName, dataWindow[i],
-				  WRITE_Y,
-				  LineOrder (writeOrder),
-				  LineOrder (readOrder),
-				  fillPixelsGray);
+			writeReadYca (fileName, dataWindow[i],
+				      WRITE_Y,
+				      LineOrder (writeOrder),
+				      LineOrder (readOrder),
+				      fillPixelsGray);
+		    }
 		}
 	    }
 	}

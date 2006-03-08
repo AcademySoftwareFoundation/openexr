@@ -302,7 +302,7 @@ class TiledInputFile
     Imath::Box2i	dataWindowForTile (int dx, int dy,
                                            int lx, int ly) const;
 
-    //----------------------------------------------------------------
+    //------------------------------------------------------------
     // Read pixel data:
     //
     // readTile(dx, dy, lx, ly) reads the tile with tile
@@ -319,9 +319,9 @@ class TiledInputFile
     // for ONE_LEVEL and MIPMAP_LEVELS files.  It calls
     // readTile(dx, dy, level, level).
     //
-    // The two readTiles(dx1, dx2, dy1, dy2, ...) functions allow to read
-    // multiple tiles at once. If multi-threading is used this also allows to
-    // read multiple tiles concurrently.
+    // The two readTiles(dx1, dx2, dy1, dy2, ...) functions allow
+    // reading multiple tiles at once.  If multi-threading is used
+    // the multiple tiles are read concurrently.
     //
     // Pixels that are outside the pixel coordinate range for the
     // tile's level, are never accessed by readTile().
@@ -329,12 +329,14 @@ class TiledInputFile
     // Attempting to access a tile that is not present in the file
     // throws an InputExc exception.
     //
-    //----------------------------------------------------------------
+    //------------------------------------------------------------
 
     void		readTile  (int dx, int dy, int l = 0);
     void		readTile  (int dx, int dy, int lx, int ly);
+
     void		readTiles (int dx1, int dx2, int dy1, int dy2,
                                    int lx, int ly);
+
     void		readTiles (int dx1, int dx2, int dy1, int dy2,
                                    int l = 0);
 

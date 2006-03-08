@@ -77,7 +77,7 @@ class RgbaOutputFile
     RgbaOutputFile (const char name[],
 		    const Header &header,
 		    RgbaChannels rgbaChannels = WRITE_RGBA,
-                    int numThreads = globalThreadCount ());
+                    int numThreads = globalThreadCount());
 
 
     //----------------------------------------------------
@@ -89,7 +89,7 @@ class RgbaOutputFile
     RgbaOutputFile (OStream &os,
 		    const Header &header,
 		    RgbaChannels rgbaChannels = WRITE_RGBA,
-                    int numThreads = globalThreadCount ());
+                    int numThreads = globalThreadCount());
 
 
     //----------------------------------------------------------------
@@ -106,7 +106,7 @@ class RgbaOutputFile
 		    float screenWindowWidth = 1,
 		    LineOrder lineOrder = INCREASING_Y,
 		    Compression compression = PIZ_COMPRESSION,
-                    int numThreads = globalThreadCount ());
+                    int numThreads = globalThreadCount());
 
 
     //-----------------------------------------------
@@ -124,7 +124,7 @@ class RgbaOutputFile
 		    float screenWindowWidth = 1,
 		    LineOrder lineOrder = INCREASING_Y,
 		    Compression compression = PIZ_COMPRESSION,
-                    int numThreads = globalThreadCount ());
+                    int numThreads = globalThreadCount());
 
 
     //-----------
@@ -220,7 +220,7 @@ class RgbaInputFile
     // destructor will automatically close the file.
     //-------------------------------------------------------
 
-    RgbaInputFile (const char name[], int numThreads = globalThreadCount ());
+    RgbaInputFile (const char name[], int numThreads = globalThreadCount());
 
 
     //-----------------------------------------------------------
@@ -230,7 +230,7 @@ class RgbaInputFile
     // close the file.
     //-----------------------------------------------------------
 
-    RgbaInputFile (IStream &is, int numThreads = globalThreadCount ());
+    RgbaInputFile (IStream &is, int numThreads = globalThreadCount());
 
 
     //-----------

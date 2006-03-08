@@ -41,6 +41,8 @@
 
 #include <ImfTiledRgbaFile.h>
 #include <ImfArray.h>
+#include <ImfThreading.h>
+#include <IlmThread.h>
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
@@ -178,9 +180,20 @@ testTiledYa ()
 
 	const char *fileName = IMF_TMP_DIR "imf_test_tiled_ya.exr";
 
-	Box2i dataWindow (V2i (-17, -29), V2i (348, 556));
-	writeReadYa (dataWindow, 19, 27, fileName, waves);
-	writeReadYa (dataWindow, 19, 27, fileName, wheel);
+	int maxThreads = IlmThread::supportsThreads()? 3: 0;
+
+	for (int n = 0; n <= maxThreads; ++n)
+	{
+	    if (IlmThread::supportsThreads())
+	    {
+		setGlobalThreadCount (n);
+		cout << "\nnumber of threads: " << globalThreadCount() << endl;
+	    }
+
+	    Box2i dataWindow (V2i (-17, -29), V2i (348, 556));
+	    writeReadYa (dataWindow, 19, 27, fileName, waves);
+	    writeReadYa (dataWindow, 19, 27, fileName, wheel);
+	}
 
         cout << "ok\n" << endl;
     }

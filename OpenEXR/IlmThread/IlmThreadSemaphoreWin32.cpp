@@ -32,19 +32,23 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------
+//
+//	class Semaphore -- implementation for Windows
+//
+//-----------------------------------------------------------------------------
+
 #include <IlmThreadSemaphore.h>
 #include <Iex.h>
 #include <string>
 #include <assert.h>
 #include <iostream>
 
-namespace IlmThread
-{
+namespace IlmThread {
 
 using namespace Iex;
 
-namespace
-{
+namespace {
 
 std::string
 errorString ()
@@ -52,7 +56,6 @@ errorString ()
     LPSTR messageBuffer;
     DWORD bufferLength;
     std::string message;
-
 
     //
     // Call FormatMessage() to allow for message 
@@ -83,8 +86,10 @@ errorString ()
 Semaphore::Semaphore (unsigned int value)
 {
     if ((_semaphore = ::CreateSemaphore (0, value, 0x7fffffff, 0)) == 0)
-	THROW (LogicExc, "Could not create semaphore (" << errorString ()
-                          << ").");
+    {
+	THROW (LogicExc, "Could not create semaphore "
+			 "(" << errorString() << ").");
+    }
 }
 
 
@@ -99,8 +104,10 @@ void
 Semaphore::wait()
 {
     if (::WaitForSingleObject (_semaphore, INFINITE) != WAIT_OBJECT_0)
-	THROW (LogicExc, "Could not wait on semaphore (" << errorString ()
-                          << ").");
+    {
+	THROW (LogicExc, "Could not wait on semaphore "
+			 "(" << errorString() << ").");
+    }
 }
 
 
@@ -108,8 +115,10 @@ void
 Semaphore::post()
 {
     if (!::ReleaseSemaphore (_semaphore, 1, 0))
-	THROW (LogicExc, "Could not post on semaphore (" << errorString ()
-                          << ").");
+    {
+	THROW (LogicExc, "Could not post on semaphore "
+			 "(" << errorString() << ").");
+    }
 }
 
 
@@ -117,9 +126,13 @@ int
 Semaphore::value() const
 {
     LONG v = -1;
+
     if (!::ReleaseSemaphore (_semaphore, 0, &v) || v < 0)
-	THROW (LogicExc, "Could not get value of semaphore (" << errorString ()
-                          << ").");
+    {
+	THROW (LogicExc, "Could not get value of semaphore "
+			 "(" << errorString () << ").");
+    }
+
     return v;
 }
 

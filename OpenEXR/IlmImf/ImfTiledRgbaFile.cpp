@@ -48,12 +48,15 @@
 #include <ImfStandardAttributes.h>
 #include <ImfRgbaYca.h>
 #include <ImfArray.h>
+#include <IlmThreadMutex.h>
 #include <Iex.h>
+
 
 namespace Imf {
 
 using namespace Imath;
 using namespace RgbaYca;
+using namespace IlmThread;
 
 namespace {
 
@@ -135,7 +138,7 @@ ywFromHeader (const Header &header)
 } // namespace
 
 
-class TiledRgbaOutputFile::ToYa
+class TiledRgbaOutputFile::ToYa: public Mutex
 {
   public:
 
@@ -372,6 +375,7 @@ TiledRgbaOutputFile::setFrameBuffer (const Rgba *base,
 {
     if (_toYa)
     {
+	Lock lock (*_toYa);
 	_toYa->setFrameBuffer (base, xStride, yStride);
     }
     else
@@ -577,9 +581,14 @@ void
 TiledRgbaOutputFile::writeTile (int dx, int dy, int l)
 {
     if (_toYa)
+    {
+	Lock lock (*_toYa);
 	_toYa->writeTile (dx, dy, l, l);
+    }
     else
+    {
 	 _outputFile->writeTile (dx, dy, l);
+    }
 }
 
 
@@ -587,35 +596,44 @@ void
 TiledRgbaOutputFile::writeTile (int dx, int dy, int lx, int ly)
 {
     if (_toYa)
+    {
+	Lock lock (*_toYa);
 	_toYa->writeTile (dx, dy, lx, ly);
+    }
     else
+    {
 	 _outputFile->writeTile (dx, dy, lx, ly);
+    }
 }
 
 
 void	
-TiledRgbaOutputFile::writeTiles (int dxMin, int dxMax, int dyMin, int dyMax,
-                                 int lx, int ly)
+TiledRgbaOutputFile::writeTiles
+    (int dxMin, int dxMax, int dyMin, int dyMax, int lx, int ly)
 {
     if (_toYa)
     {
+	Lock lock (*_toYa);
+
         for (int dy = dyMin; dy <= dyMax; dy++)
             for (int dx = dxMin; dx <= dxMax; dx++)
 	        _toYa->writeTile (dx, dy, lx, ly);
     }
     else
+    {
         _outputFile->writeTiles (dxMin, dxMax, dyMin, dyMax, lx, ly);
+    }
 }
 
 void	
-TiledRgbaOutputFile::writeTiles (int dxMin, int dxMax, int dyMin, int dyMax,
-                                 int l)
+TiledRgbaOutputFile::writeTiles
+    (int dxMin, int dxMax, int dyMin, int dyMax, int l)
 {
     writeTiles (dxMin, dxMax, dyMin, dyMax, l, l);
 }
 
 
-class TiledRgbaInputFile::FromYa
+class TiledRgbaInputFile::FromYa: public Mutex
 {
   public:
 
@@ -754,6 +772,7 @@ TiledRgbaInputFile::setFrameBuffer (Rgba *base, size_t xStride, size_t yStride)
 {
     if (_fromYa)
     {
+	Lock lock (*_fromYa);
 	_fromYa->setFrameBuffer (base, xStride, yStride);
     }
     else
@@ -999,9 +1018,14 @@ void
 TiledRgbaInputFile::readTile (int dx, int dy, int l)
 {
     if (_fromYa)
+    {
+	Lock lock (*_fromYa);
 	_fromYa->readTile (dx, dy, l, l);
+    }
     else
+    {
 	 _inputFile->readTile (dx, dy, l);
+    }
 }
 
 
@@ -1009,9 +1033,14 @@ void
 TiledRgbaInputFile::readTile (int dx, int dy, int lx, int ly)
 {
     if (_fromYa)
+    {
+	Lock lock (*_fromYa);
 	_fromYa->readTile (dx, dy, lx, ly);
+    }
     else
+    {
 	 _inputFile->readTile (dx, dy, lx, ly);
+    }
 }
 
 
@@ -1021,12 +1050,16 @@ TiledRgbaInputFile::readTiles (int dxMin, int dxMax, int dyMin, int dyMax,
 {
     if (_fromYa)
     {
+	Lock lock (*_fromYa);
+
         for (int dy = dyMin; dy <= dyMax; dy++)
             for (int dx = dxMin; dx <= dxMax; dx++)
 	        _fromYa->readTile (dx, dy, lx, ly);
     }
     else
+    {
         _inputFile->readTiles (dxMin, dxMax, dyMin, dyMax, lx, ly);
+    }
 }
 
 void	

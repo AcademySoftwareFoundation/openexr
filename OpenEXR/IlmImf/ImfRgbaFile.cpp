@@ -46,15 +46,18 @@
 #include <ImfRgbaYca.h>
 #include <ImfStandardAttributes.h>
 #include <ImathFun.h>
+#include <IlmThreadMutex.h>
 #include <Iex.h>
 #include <string.h>
 #include <algorithm>
+
 
 namespace Imf {
 
 using namespace std;
 using namespace Imath;
 using namespace RgbaYca;
+using namespace IlmThread;
 
 namespace {
 
@@ -136,7 +139,7 @@ ywFromHeader (const Header &header)
 } // namespace
 
 
-class RgbaOutputFile::ToYca
+class RgbaOutputFile::ToYca: public Mutex
 {
   public:
 
@@ -604,6 +607,7 @@ RgbaOutputFile::setFrameBuffer (const Rgba *base,
 {
     if (_toYca)
     {
+	Lock lock (*_toYca);
 	_toYca->setFrameBuffer (base, xStride, yStride);
     }
     else
@@ -627,9 +631,14 @@ void
 RgbaOutputFile::writePixels (int numScanLines)
 {
     if (_toYca)
+    {
+	Lock lock (*_toYca);
 	_toYca->writePixels (numScanLines);
+    }
     else
+    {
 	_outputFile->writePixels (numScanLines);
+    }
 }
 
 
@@ -637,9 +646,14 @@ int
 RgbaOutputFile::currentScanLine () const
 {
     if (_toYca)
+    {
+	Lock lock (*_toYca);
 	return _toYca->currentScanLine();
+    }
     else
+    {
 	return _outputFile->currentScanLine();
+    }
 }
 
 
@@ -724,11 +738,14 @@ void
 RgbaOutputFile::setYCRounding (unsigned int roundY, unsigned int roundC)
 {
     if (_toYca)
+    {
+	Lock lock (*_toYca);
 	_toYca->setYCRounding (roundY, roundC);
+    }
 }
 
 
-class RgbaInputFile::FromYca
+class RgbaInputFile::FromYca: public Mutex
 {
   public:
 
@@ -1118,6 +1135,7 @@ RgbaInputFile::setFrameBuffer (Rgba *base, size_t xStride, size_t yStride)
 {
     if (_fromYca)
     {
+	Lock lock (*_fromYca);
 	_fromYca->setFrameBuffer (base, xStride, yStride);
     }
     else
@@ -1160,9 +1178,14 @@ void
 RgbaInputFile::readPixels (int scanLine1, int scanLine2)
 {
     if (_fromYca)
+    {
+	Lock lock (*_fromYca);
 	_fromYca->readPixels (scanLine1, scanLine2);
+    }
     else
+    {
 	_inputFile->readPixels (scanLine1, scanLine2);
+    }
 }
 
 

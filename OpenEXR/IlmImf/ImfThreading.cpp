@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2005, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -32,6 +32,12 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------
+//
+//	Threading support for the IlmImf library
+//
+//-----------------------------------------------------------------------------
+
 #include <IlmThreadPool.h>
 
 namespace Imf {
@@ -40,7 +46,7 @@ namespace Imf {
 int
 globalThreadCount ()
 {
-    return IlmThread::ThreadPool::globalThreadPool().numThreads ();
+    return IlmThread::ThreadPool::globalThreadPool().numThreads();
 }
 
 

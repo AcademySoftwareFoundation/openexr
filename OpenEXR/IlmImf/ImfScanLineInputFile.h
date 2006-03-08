@@ -58,7 +58,7 @@ class ScanLineInputFile
     //------------
 
     ScanLineInputFile (const Header &header, IStream *is,
-                       int numThreads = globalThreadCount ());
+                       int numThreads = globalThreadCount());
 
 
     //-----------------------------------------

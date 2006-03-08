@@ -41,6 +41,8 @@
 #include <ImfTiledInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
+#include <ImfThreading.h>
+#include <IlmThread.h>
 #include <half.h>
 
 #include <vector>
@@ -635,7 +637,18 @@ testTiledLineOrder ()
         const int XS = 55;
         const int YS = 55;
 
-        writeCopyRead (W, H, XS, YS);
+	int maxThreads = IlmThread::supportsThreads()? 3: 0;
+
+	for (int n = 0; n <= maxThreads; ++n)
+	{
+	    if (IlmThread::supportsThreads())
+	    {
+		setGlobalThreadCount (n);
+		cout << "\nnumber of threads: " << globalThreadCount() << endl;
+	    }
+
+	    writeCopyRead (W, H, XS, YS);
+	}
 
         cout << "ok\n" << endl;
     }

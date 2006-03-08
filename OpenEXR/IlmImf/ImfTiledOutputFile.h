@@ -80,7 +80,8 @@ class TiledOutputFile
     // reading the tiles in random order (see writeTile, below).
     //-------------------------------------------------------------------
     
-    TiledOutputFile (const char fileName[], const Header &header,
+    TiledOutputFile (const char fileName[],
+		     const Header &header,
                      int numThreads = globalThreadCount ());
 
 
@@ -91,7 +92,8 @@ class TiledOutputFile
     // closse the corresponding files.
     // ----------------------------------------------------------------
 
-    TiledOutputFile (OStream &os, const Header &header,
+    TiledOutputFile (OStream &os,
+		     const Header &header,
                      int numThreads = globalThreadCount ());
 
 
@@ -319,14 +321,14 @@ class TiledOutputFile
     // used for ONE_LEVEL and MIPMAP_LEVEL files.  It calls
     // writeTile(dx, dy, level, level).
     //
-    // The two writeTiles(dx1, dx2, dy1, dy2, ...) functions allow to write
-    // multiple tiles at once. If multi-threading is used this also allows to
-    // write multiple tiles concurrently. The tile coordinates dx1, dx2 and
-    // dy1, dy2 specify inclusive ranges of tile coordinates. It is valid for
-    // dx1 < dx2 or dy1 < dy2; the tiles are always written in the order
-    // specified by the line order attribute. Hence, it is not possible to
-    // specify an "invalid" or empty tile range.
-    // 
+    // The two writeTiles(dx1, dx2, dy1, dy2, ...) functions allow
+    // writing multiple tiles at once.  If multi-threading is used
+    // multiple tiles are written concurrently.  The tile coordinates,
+    // dx1, dx2 and dy1, dy2, specify inclusive ranges of tile
+    // coordinates.  It is valid for dx1 < dx2 or dy1 < dy2; the
+    // tiles are always written in the order specified by the line
+    // order attribute.  Hence, it is not possible to specify an
+    // "invalid" or empty tile range.
     //
     // Pixels that are outside the pixel coordinate range for the tile's
     // level, are never accessed by writeTile().

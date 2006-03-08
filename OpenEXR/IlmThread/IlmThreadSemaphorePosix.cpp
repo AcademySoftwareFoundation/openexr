@@ -32,27 +32,26 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------
+//
+//	class Semaphore -- implementation for platforms
+//	that support Posix threads and Posix semaphores
+//
+//-----------------------------------------------------------------------------
+
 #if HAVE_PTHREAD && HAVE_POSIX_SEMAPHORES
 
 #include <IlmThreadSemaphore.h>
 #include <Iex.h>
 #include <assert.h>
 
-namespace IlmThread
-{
+namespace IlmThread {
+
 
 Semaphore::Semaphore (unsigned int value)
 {
-    try
-    {
-        if (::sem_init (&_semaphore, 1, value))
-            Iex::throwErrnoExc ("Cannot initialize shared semaphore (%T).");
-    }
-    catch (...)
-    {
-        if (::sem_init (&_semaphore, 0, value))
-            Iex::throwErrnoExc ("Cannot initialize semaphore (%T).");
-    }
+    if (::sem_init (&_semaphore, 0, value))
+	Iex::throwErrnoExc ("Cannot initialize semaphore (%T).");
 }
 
 
@@ -89,7 +88,7 @@ Semaphore::value () const
     return value;
 }
 
+
 } // namespace IlmThread
 
 #endif
-

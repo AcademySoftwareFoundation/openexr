@@ -32,11 +32,17 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------
+//
+//	class Mutex -- implementation for Windows
+//
+//-----------------------------------------------------------------------------
+
 #include <IlmThreadMutex.h>
 #include <Iex.h>
 
-namespace Imf
-{
+namespace Imf {
+
 
 Mutex::Mutex ()
 {
@@ -62,5 +68,6 @@ Mutex::unlock () const
 {
     ::LeaveCriticalSection (&_mutex);
 }
+
 
 } // namespace Imf
