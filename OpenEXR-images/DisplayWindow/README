@@ -4,6 +4,10 @@ properly places, crops and pads the images.  All files contain
 the same set of 400 by 300 pixels, but the data window, display
 window, and pixel aspect ratio differ between files.
 
+For reference, see how ILM's exrdisplay program (part of the
+OpenEXR source code distribution) displays the images in this
+directory.
+
 t01.exr:
 
     The display window and the data window are the same.
