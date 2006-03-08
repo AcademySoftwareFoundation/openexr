@@ -45,9 +45,6 @@
 #include <ImfVersion.h>
 #include <ImfCompressor.h>
 #include <ImfMisc.h>
-
-#include <IlmThreadMutex.h>
-
 #include <ImfBoxAttribute.h>
 #include <ImfChannelListAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
@@ -65,11 +62,9 @@
 #include <ImfTileDescriptionAttribute.h>
 #include <ImfTimeCodeAttribute.h>
 #include <ImfVecAttribute.h>
-
+#include <IlmThreadMutex.h>
 #include <Iex.h>
-
 #include <sstream>
-
 #include <stdlib.h>
 #include <time.h>
 
@@ -104,8 +99,6 @@ initialize (Header &header,
     header.insert ("compression", CompressionAttribute (compression));
     header.insert ("channels", ChannelListAttribute ());
 }
-
-Mutex criticalSection;
 
 } // namespace
 
@@ -901,6 +894,7 @@ Header::readFrom (IStream &is, int &version)
 void
 staticInitialize ()
 {
+    static Mutex criticalSection;
     Lock lock (criticalSection);
 
     static bool initialized = false;

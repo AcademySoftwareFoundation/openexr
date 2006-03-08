@@ -32,13 +32,20 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------
+//
+//	class Thread -- implementation for Windows
+//
+//-----------------------------------------------------------------------------
+
+
 #include <IlmThread.h>
 #include <Iex.h>
 #include <iostream>
 #include <assert.h>
 
-namespace IlmThread
-{
+namespace IlmThread {
+
 
 bool
 supportsThreads ()
@@ -46,13 +53,12 @@ supportsThreads ()
     return true;
 }
 
-namespace
-{
+namespace {
 
 unsigned __stdcall
 threadLoop (void * t)
 {
-    reinterpret_cast <Thread*> (t)->run ();
+    reinterpret_cast<Thread*>(t)->run();
     _endthreadex (0);
     return 0;
 }
@@ -78,11 +84,12 @@ Thread::~Thread ()
 void
 Thread::start ()
 {
-    unsigned threadID;
-    _thread = (ThreadHandle)::_beginthreadex (0, 0, &threadLoop,
-					      this, 0, &threadID);
+    unsigned id;
+    _thread = (ThreadHandle)::_beginthreadex (0, 0, &threadLoop, this, 0, &id);
+
     if (_thread == 0)
 	Iex::throwErrnoExc ("Cannot create new thread (%T).");
 }
+
 
 } // namespace IlmThread

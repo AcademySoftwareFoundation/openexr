@@ -334,12 +334,13 @@ writeCopyReadRIP (const char fileName1[],
                 
                 FrameBuffer fb;
                 fb.insert ("H",
-                           Slice (HALF,
-                                  (char *) &levels[ylevel][xlevel][-yOffset][-xOffset],
-                                  sizeof (levels[ylevel][xlevel][0][0]),
-                                  sizeof (levels[ylevel][xlevel][0][0]) * levelWidth));
+		   Slice (HALF,
+			  (char *) &levels[ylevel][xlevel][-yOffset][-xOffset],
+			  sizeof (levels[ylevel][xlevel][0][0]),
+			  sizeof (levels[ylevel][xlevel][0][0]) * levelWidth));
 
                 out.setFrameBuffer (fb);
+
                 out.writeTiles (0, out.numXTiles(xlevel) - 1,
                                 0, out.numYTiles(ylevel) - 1, xlevel, ylevel);
             }
@@ -378,12 +379,13 @@ writeCopyReadRIP (const char fileName1[],
 
                 FrameBuffer fb;
                 fb.insert ("H",
-                           Slice (HALF,
-                                  (char *) &levels2[ylevel][xlevel][-dy][-dx],
-                                  sizeof (levels2[ylevel][xlevel][0][0]),
-                                  sizeof (levels2[ylevel][xlevel][0][0]) * levelWidth));
+		   Slice (HALF,
+			  (char *) &levels2[ylevel][xlevel][-dy][-dx],
+			  sizeof (levels2[ylevel][xlevel][0][0]),
+			  sizeof (levels2[ylevel][xlevel][0][0]) * levelWidth));
 
                 in.setFrameBuffer (fb);
+
                 in.readTiles (0, in.numXTiles(xlevel) - 1,
                               0, in.numYTiles(ylevel) - 1,
                               xlevel, ylevel);

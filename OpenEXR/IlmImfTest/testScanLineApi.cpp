@@ -41,8 +41,10 @@
 #include <ImfTiledRgbaFile.h>
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
-#include <ImathRandom.h>
 #include <ImfChannelList.h>
+#include <ImfThreading.h>
+#include <IlmThread.h>
+#include <ImathRandom.h>
 #include <string>
 #include <stdio.h>
 #include <assert.h>
@@ -443,57 +445,68 @@ testScanLineApi ()
         Array2D<float> pf (H, W);
         fillPixels (pi, ph, pf, W, H);
 
-	for (int lorder = 0; lorder < NUM_LINEORDERS; ++lorder)
+	int maxThreads = IlmThread::supportsThreads()? 3: 0;
+
+	for (int n = 0; n <= maxThreads; ++n)
 	{
-	    for (int rmode = 0; rmode < NUM_ROUNDINGMODES; ++rmode)
+	    if (IlmThread::supportsThreads())
 	    {
-		writeRead (pi, ph, pf,  W, H, 
-			   LineOrder (lorder),
-			   ZIP_COMPRESSION,
-			   LevelRoundingMode (rmode),
-			   0, 0, 1, 1);
+		setGlobalThreadCount (n);
+		cout << "\nnumber of threads: " << globalThreadCount() << endl;
+	    }
 
-		writeRead (pi, ph, pf, W, H, 
-			   LineOrder (lorder),
-			   ZIP_COMPRESSION,
-			   LevelRoundingMode (rmode),
-			   DX, DY, 1, 1);
-		
-		writeRead (pi, ph, pf, W, H,
-			   LineOrder (lorder),
-			   ZIP_COMPRESSION,
-			   LevelRoundingMode (rmode),
-			   0, 0, 24, 26);
+	    for (int lorder = 0; lorder < NUM_LINEORDERS; ++lorder)
+	    {
+		for (int rmode = 0; rmode < NUM_ROUNDINGMODES; ++rmode)
+		{
+		    writeRead (pi, ph, pf,  W, H, 
+			       LineOrder (lorder),
+			       ZIP_COMPRESSION,
+			       LevelRoundingMode (rmode),
+			       0, 0, 1, 1);
 
-		writeRead (pi, ph, pf, W, H,
-			   LineOrder (lorder),
-			   ZIP_COMPRESSION,
-			   LevelRoundingMode (rmode),
-			   DX, DY, 24, 26);
-		
-		writeRead (pi, ph, pf, W, H,
-			   LineOrder (lorder),
-			   ZIP_COMPRESSION,
-			   LevelRoundingMode (rmode),
-			   0, 0, 48, 81);
+		    writeRead (pi, ph, pf, W, H, 
+			       LineOrder (lorder),
+			       ZIP_COMPRESSION,
+			       LevelRoundingMode (rmode),
+			       DX, DY, 1, 1);
+		    
+		    writeRead (pi, ph, pf, W, H,
+			       LineOrder (lorder),
+			       ZIP_COMPRESSION,
+			       LevelRoundingMode (rmode),
+			       0, 0, 24, 26);
 
-		writeRead (pi, ph, pf, W, H,
-			   LineOrder (lorder),
-			   ZIP_COMPRESSION,
-			   LevelRoundingMode (rmode),
-			   DX, DY, 48, 81);
-			   
-		writeRead (pi, ph, pf, W, H,
-			   LineOrder (lorder),
-			   ZIP_COMPRESSION,
-			   LevelRoundingMode (rmode),
-			   0, 0, 128, 96);
+		    writeRead (pi, ph, pf, W, H,
+			       LineOrder (lorder),
+			       ZIP_COMPRESSION,
+			       LevelRoundingMode (rmode),
+			       DX, DY, 24, 26);
+		    
+		    writeRead (pi, ph, pf, W, H,
+			       LineOrder (lorder),
+			       ZIP_COMPRESSION,
+			       LevelRoundingMode (rmode),
+			       0, 0, 48, 81);
 
-		writeRead (pi, ph, pf, W, H,
-			   LineOrder (lorder),
-			   ZIP_COMPRESSION,
-			   LevelRoundingMode (rmode),
-			   DX, DY, 128, 96);
+		    writeRead (pi, ph, pf, W, H,
+			       LineOrder (lorder),
+			       ZIP_COMPRESSION,
+			       LevelRoundingMode (rmode),
+			       DX, DY, 48, 81);
+			       
+		    writeRead (pi, ph, pf, W, H,
+			       LineOrder (lorder),
+			       ZIP_COMPRESSION,
+			       LevelRoundingMode (rmode),
+			       0, 0, 128, 96);
+
+		    writeRead (pi, ph, pf, W, H,
+			       LineOrder (lorder),
+			       ZIP_COMPRESSION,
+			       LevelRoundingMode (rmode),
+			       DX, DY, 128, 96);
+		}
 	    }
 	}
 

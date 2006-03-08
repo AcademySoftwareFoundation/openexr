@@ -32,22 +32,25 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------
+//
+//	class Semaphore -- dummy implementation for
+//	for platforms that do not support threading
+//
+//-----------------------------------------------------------------------------
+
 #if !defined (_WIN32) && !(HAVE_PTHREAD)
 #include <IlmThreadSemaphore.h>
 
-namespace IlmThread
-{
+namespace IlmThread {
 
-//
-// If we don't have PThreads and are not on Windows, then we don't support
-// threading (yet). Implement a dummy Semaphore class.
-//
 
 Semaphore::Semaphore (unsigned int value) {}
 Semaphore::~Semaphore () {}
 void Semaphore::wait () {}
 void Semaphore::post () {}
 int Semaphore::value () const {return 0;}
+
 
 } // namespace IlmThread
 

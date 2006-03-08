@@ -35,6 +35,37 @@
 #ifndef INCLUDED_ILM_THREAD_MUTEX_H
 #define INCLUDED_ILM_THREAD_MUTEX_H
 
+//-----------------------------------------------------------------------------
+//
+//	class Mutex, class Lock
+//
+//	Class Mutex is a wrapper for a system-dependent mutual exclusion
+//	mechanism.  Actual locking and unlocking of a Mutex object must
+//	be performed using an instance of a Lock (defined below).
+//
+//	Class lock provides safe locking and unlocking of mutexes even in
+//	the presence of C++ exceptions.  Constructing a Lock object locks
+//	the mutex; destroying the Lock unlocks the mutex.
+//
+//	Lock objects are not themselves thread-safe.  You should never
+//	share a Lock object among multiple threads.
+//
+//	Typical usage:
+//    
+//	    Mutex mtx;	// Create a Mutex object that is visible
+//	    		//to multiple threads
+//
+//	    ...		// create some threads
+//
+//	    // Then, within each thread, construct a critical section like so:
+//
+//	    {
+//		Lock lock (mtx);	// Lock constructor locks the mutex
+//		...			// do some computation on shared data
+//	    }				// leaving the block unlocks the mutex
+//
+//-----------------------------------------------------------------------------
+
 #ifdef _WIN32
     #define NOMINMAX
     #include <windows.h>
@@ -42,84 +73,47 @@
     #include <pthread.h>
 #endif
 
-namespace IlmThread
-{
+namespace IlmThread {
 
 class Lock;
 
-//-----------------------------------------------------------------------------
-//
-//    class Mutex -- a MUTual EXclusion lock
-//
-// A wrapper class for a system-dependent locking mechanism. Actual use of
-// this class has to be performed using an instance of a Lock defined below.
-//
-//-----------------------------------------------------------------------------
 
 class Mutex
 {
-public:
+  public:
+
     Mutex ();
     virtual ~Mutex ();
 
-private:
-    void lock () const;
-    void unlock () const;
+  private:
 
-#ifdef _WIN32
-    mutable CRITICAL_SECTION _mutex;
-#elif HAVE_PTHREAD
-    mutable pthread_mutex_t _mutex;
-#endif
+    void	lock () const;
+    void	unlock () const;
 
-    void operator= (const Mutex& M);        // not implemented
-    Mutex (const Mutex& M);                 // not implemented
+    #ifdef _WIN32
+	mutable CRITICAL_SECTION _mutex;
+    #elif HAVE_PTHREAD
+	mutable pthread_mutex_t _mutex;
+    #endif
+
+    void operator = (const Mutex& M);	// not implemented
+    Mutex (const Mutex& M);		// not implemented
     
     friend class Lock;
 };
 
 
-
-//-----------------------------------------------------------------------------
-//
-//    class Lock -- block-level locking object
-//
-// Provides safe locking and unlocking of Mutexes even in the presence of
-// C++ exceptions. All manipulation of Mutex objects has to be performed
-// using an instance of this class. This ensures that locked Mutexes
-// will be unlocked when the Lock instance gets destroyed.
-//
-// Lock objects are not themselves thread-safe, meaning, you should never
-// share a Lock object amoung multiple threads. Locks are meant to be
-// used only at block scope.
-//
-// Typical usage:
-//    
-//    // Create a Mutex object visible to multiple threads
-//    Mutex mtx;
-//
-//    ...
-//    // create some threads
-//    ...
-//
-//    // Then, within each thread, construct a critical section like so:
-//
-//    {
-//        Lock lock (mtx);        // locks the mutex
-//        // do some computation on shared data
-//        ...
-//    }   // closing the block unlocks the mutex
-//
-//-----------------------------------------------------------------------------
-
 class Lock
 {
-public:
-    Lock (const Mutex& m, bool autoLock = true) : _mutex (m), _locked (false)
+  public:
+
+    Lock (const Mutex& m, bool autoLock = true):
+	_mutex (m),
+	_locked (false)
     {
         if (autoLock)
         {
-            _mutex.lock ();
+            _mutex.lock();
             _locked = true;
         }
     }
@@ -127,18 +121,18 @@ public:
     ~Lock ()
     {
         if (_locked)
-            _mutex.unlock ();
+            _mutex.unlock();
     }
     
     void acquire ()
     {
-        _mutex.lock ();
+        _mutex.lock();
         _locked = true;
     }
     
     void release ()
     {
-        _mutex.unlock ();
+        _mutex.unlock();
         _locked = false;
     }
     
@@ -147,12 +141,13 @@ public:
         return _locked;
     }
 
-private:
-    const Mutex & _mutex;
-    bool _locked;
+  private:
+
+    const Mutex &	_mutex;
+    bool		_locked;
 };
 
-} // namespace IlmThread
 
+} // namespace IlmThread
 
 #endif

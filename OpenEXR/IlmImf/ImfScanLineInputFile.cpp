@@ -48,15 +48,14 @@
 #include <ImathFun.h>
 #include <ImfXdr.h>
 #include <ImfConvert.h>
-#include <Iex.h>
-#include <string>
-#include <vector>
-#include <assert.h>
-
 #include <ImfThreading.h>
 #include <IlmThreadPool.h>
 #include <IlmThreadSemaphore.h>
 #include <IlmThreadMutex.h>
+#include <Iex.h>
+#include <string>
+#include <vector>
+#include <assert.h>
 
 
 namespace Imf {
@@ -69,7 +68,12 @@ using std::vector;
 using std::ifstream;
 using std::min;
 using std::max;
-using namespace IlmThread;
+using IlmThread::Mutex;
+using IlmThread::Lock;
+using IlmThread::Semaphore;
+using IlmThread::Task;
+using IlmThread::TaskGroup;
+using IlmThread::ThreadPool;
 
 namespace {
 
@@ -124,32 +128,39 @@ InSliceInfo::InSliceInfo (PixelType tifb,
 
 struct LineBuffer
 {
-    const char*                      uncompressedData;
-    char *                           buffer;
-    int                              dataSize;
-    int                              minY,
-                                     maxY;
-    Compressor * const               compressor;
-    Compressor::Format	             format;
-    int                              number;
-    bool                             hasException;
-    string                           exception;
+    const char *	uncompressedData;
+    char *		buffer;
+    int			dataSize;
+    int			minY;
+    int			maxY;
+    Compressor *	compressor;
+    Compressor::Format	format;
+    int			number;
+    bool		hasException;
+    string		exception;
 
     LineBuffer (Compressor * const comp);
     ~LineBuffer ();
 
-    inline void wait () {_sem.wait();}
-    inline void post () {_sem.post();}
+    inline void		wait () {_sem.wait();}
+    inline void		post () {_sem.post();}
 
-protected:
-    Semaphore _sem;
+  private:
+
+    Semaphore		_sem;
 };
 
 
-LineBuffer::LineBuffer (Compressor * const comp) :
-    uncompressedData (0), buffer (0), dataSize (0), compressor (comp),
-    format(defaultFormat(compressor)), number (-1),
-    hasException (false), exception (), _sem (1)
+LineBuffer::LineBuffer (Compressor *comp):
+    uncompressedData (0),
+    buffer (0),
+    dataSize (0),
+    compressor (comp),
+    format (defaultFormat(compressor)),
+    number (-1),
+    hasException (false),
+    exception (),
+    _sem (1)
 {
     // empty
 }
@@ -163,7 +174,7 @@ LineBuffer::~LineBuffer ()
 } // namespace
 
 
-struct ScanLineInputFile::Data : public Mutex
+struct ScanLineInputFile::Data: public Mutex
 {
     Header		header;		    // the image header
     int			version;            // file's version
@@ -193,17 +204,21 @@ struct ScanLineInputFile::Data : public Mutex
      Data (IStream *is, int numThreads);
     ~Data ();
     
-    // hash function from line buffer indices into our vector of line buffers
-    inline LineBuffer* getLineBuffer (int lineBufferNumber);
+    inline LineBuffer * getLineBuffer (int number); // hash function from line
+    						    // buffer indices into our
+						    // vector of line buffers
 };
 
 
-ScanLineInputFile::Data::Data (IStream *is, int numThreads) :
+ScanLineInputFile::Data::Data (IStream *is, int numThreads):
     is (is)
 {
-    // we need at least one lineBuffer, but if threading is used, to keep
-    // n threads busy we need 2n lineBuffers
-    lineBuffers.resize (max (1, 2*numThreads));
+    //
+    // We need at least one lineBuffer, but if threading is used,
+    // to keep n threads busy we need 2*n lineBuffers
+    //
+
+    lineBuffers.resize (max (1, 2 * numThreads));
 }
 
 
@@ -214,7 +229,7 @@ ScanLineInputFile::Data::~Data ()
 }
 
 
-inline LineBuffer*
+inline LineBuffer *
 ScanLineInputFile::Data::getLineBuffer (int lineBufferNumber)
 {
     return lineBuffers[lineBufferNumber % lineBuffers.size()];
@@ -305,19 +320,22 @@ readLineOffsets (IStream &is,
 
 
 void
-readPixelData (ScanLineInputFile::Data * ifd,
-	       int minY, char * & buffer, int & dataSize)
+readPixelData (ScanLineInputFile::Data *ifd,
+	       int minY,
+	       char *&buffer,
+	       int &dataSize)
 {
     //
-    // Read a single lineBuffer from the input file and into the array pointed
-    // to by buffer. If the file is memory-mapped, then we change where buffer
-    // points to, hence it needs to be a reference to a char *. If the file is
-    // not memory-mapped the the buffer pointer is not modified, the data is
-    // simply copied into it.
+    // Read a single line buffer from the input file.
+    //
+    // If the input file is not memory-mapped, we copy the pixel data into
+    // into the array pointed to by buffer.  If the file is memory-mapped,
+    // then we change where buffer points to instead of writing into the
+    // array (hence buffer needs to be a reference to a char *).
     //
 
-    Int64 lineOffset = ifd->lineOffsets[(minY - ifd->minY) /
-                                            ifd->linesInBuffer];
+    Int64 lineOffset =
+	ifd->lineOffsets[(minY - ifd->minY) / ifd->linesInBuffer];
 
     if (lineOffset == 0)
 	THROW (Iex::InputExc, "Scan line " << minY << " is missing.");
@@ -373,41 +391,56 @@ readPixelData (ScanLineInputFile::Data * ifd,
 }
 
 
-//-----------------------------------------------------------------------------
-// A LineBufferTask encapulates the task of reading and decompressing a
-// set of scanlines (line buffer)
-//-----------------------------------------------------------------------------
+//
+// A LineBufferTask encapsulates the task of reading a
+// set of scanlines (line buffer) uncompressing them
+// and copying them into a frame buffer.
+//
 
 class LineBufferTask : public Task
 {
-private:
-    ScanLineInputFile::Data * const    _ifd;
-    LineBuffer*                        _lineBuffer;
-    int                                _scanLineMin,
-                                       _scanLineMax;
-    
-public:
+  public:
 
-    LineBufferTask (TaskGroup* group,
-                    ScanLineInputFile::Data * const ifd, int number,
-                    int scanLineMin, int scanLineMax);
+    LineBufferTask (TaskGroup *group,
+                    ScanLineInputFile::Data *ifd,
+		    int number,
+                    int scanLineMin,
+		    int scanLineMax);
 
     virtual ~LineBufferTask ();
-    virtual void execute ();
+
+    virtual void		execute ();
+
+  private:
+
+    ScanLineInputFile::Data *	_ifd;
+    LineBuffer *		_lineBuffer;
+    int				_scanLineMin;
+    int				_scanLineMax;
 };
 
 
-LineBufferTask::LineBufferTask (TaskGroup* group,
-                                ScanLineInputFile::Data * const ifd, int number,
-                                int scanLineMin, int scanLineMax) :
+LineBufferTask::LineBufferTask
+    (TaskGroup *group,
+     ScanLineInputFile::Data *ifd,
+     int number,
+     int scanLineMin,
+     int scanLineMax)
+:
     Task (group),
     _ifd (ifd),
     _lineBuffer (_ifd->getLineBuffer (number))
 {
-    // wait for the lineBuffer to become available
+    //
+    // Wait for the lineBuffer to become available
+    //
+
     _lineBuffer->wait ();
     
-    // read in the lineBuffer from disk if necessary
+    //
+    // Read in the lineBuffer from disk if necessary
+    //
+
     if (_lineBuffer->number != number)
     {
         _lineBuffer->minY = _ifd->minY + number * _ifd->linesInBuffer;
@@ -415,8 +448,9 @@ LineBufferTask::LineBufferTask (TaskGroup* group,
         
         _lineBuffer->number = number;
         _lineBuffer->uncompressedData = 0;
+
         readPixelData (_ifd, _lineBuffer->minY, _lineBuffer->buffer,
-                        _lineBuffer->dataSize);
+                       _lineBuffer->dataSize);
     }
     
     _scanLineMin = max (_lineBuffer->minY, scanLineMin);
@@ -426,7 +460,10 @@ LineBufferTask::LineBufferTask (TaskGroup* group,
 
 LineBufferTask::~LineBufferTask ()
 {
-    // signal that the line buffer is now free
+    //
+    // Signal that the line buffer is now free
+    //
+
     _lineBuffer->post ();
 }
 
@@ -446,16 +483,20 @@ LineBufferTask::execute ()
             int maxY = min (_lineBuffer->maxY, _ifd->maxY);
     
             for (int i = _lineBuffer->minY - _ifd->minY;
-                i <= maxY - _ifd->minY; i++)
+                 i <= maxY - _ifd->minY;
+		 ++i)
+	    {
                 uncompressedSize += (int) _ifd->bytesPerLine[i];
+	    }
     
             if (_lineBuffer->compressor &&
                 _lineBuffer->dataSize < uncompressedSize)
             {
                 _lineBuffer->format = _lineBuffer->compressor->format();
+
                 _lineBuffer->dataSize = _lineBuffer->compressor->uncompress
                     (_lineBuffer->buffer, _lineBuffer->dataSize,
-                        _lineBuffer->minY, _lineBuffer->uncompressedData);
+		     _lineBuffer->minY, _lineBuffer->uncompressedData);
             }
             else
             {
@@ -470,6 +511,7 @@ LineBufferTask::execute ()
         }
         
         int yStart, yStop, dy;
+
         if (_ifd->lineOrder == INCREASING_Y)
         {
             yStart = _scanLineMin;
@@ -492,7 +534,7 @@ LineBufferTask::execute ()
             //
     
             const char *readPtr = _lineBuffer->uncompressedData +
-                                    _ifd->offsetInLineBuffer[y - _ifd->minY];
+                                  _ifd->offsetInLineBuffer[y - _ifd->minY];
     
             //
             // Iterate over all image channels.
@@ -501,9 +543,8 @@ LineBufferTask::execute ()
             for (unsigned int i = 0; i < _ifd->slices.size(); ++i)
             {
                 //
-                // Test if scan line y of this channel is
-                // contains any data (the scan line contains
-                // data only if y % ySampling == 0).
+                // Test if scan line y of this channel contains any data
+		// (the scan line contains data only if y % ySampling == 0).
                 //
     
                 const InSliceInfo &slice = _ifd->slices[i];
@@ -521,7 +562,7 @@ LineBufferTask::execute ()
                 int dMaxX = divp (_ifd->maxX, slice.xSampling);
     
                 //
-                // Iterate over the sampled pixels.
+		// Fill the frame buffer with pixel data.
                 //
     
                 if (slice.skip)
@@ -559,7 +600,7 @@ LineBufferTask::execute ()
     {
         if (!_lineBuffer->hasException)
         {
-            _lineBuffer->exception = e.what ();
+            _lineBuffer->exception = e.what();
             _lineBuffer->hasException = true;
         }
     }
@@ -567,7 +608,7 @@ LineBufferTask::execute ()
     {
         if (!_lineBuffer->hasException)
         {
-            _lineBuffer->exception = "unrecognized custom exception";
+            _lineBuffer->exception = "unrecognized exception";
             _lineBuffer->hasException = true;
         }
     }
@@ -576,8 +617,11 @@ LineBufferTask::execute ()
 } // namespace
 
 
-ScanLineInputFile::ScanLineInputFile (const Header &header, IStream *is,
-                                      int numThreads):
+ScanLineInputFile::ScanLineInputFile
+    (const Header &header,
+     IStream *is,
+     int numThreads)
+:
     _data (new Data (is, numThreads))
 {
     try
@@ -596,7 +640,6 @@ ScanLineInputFile::ScanLineInputFile (const Header &header, IStream *is,
 	size_t maxBytesPerLine = bytesPerLineTable (_data->header,
                                                     _data->bytesPerLine);
 
-        // create the actual lineBuffers
         for (size_t i = 0; i < _data->lineBuffers.size(); i++)
         {
             _data->lineBuffers[i] = new LineBuffer (newCompressor
@@ -605,12 +648,11 @@ ScanLineInputFile::ScanLineInputFile (const Header &header, IStream *is,
                                                  _data->header));
         }
 
-        // calculate size for the buffers
-        _data->linesInBuffer = numLinesInBuffer
-                                        (_data->lineBuffers[0]->compressor);
+        _data->linesInBuffer =
+	    numLinesInBuffer (_data->lineBuffers[0]->compressor);
+
         _data->lineBufferSize = maxBytesPerLine * _data->linesInBuffer;
 
-        // allocate the lineBuffer buffers
         if (!_data->is->isMemoryMapped())
             for (size_t i = 0; i < _data->lineBuffers.size(); i++)
                 _data->lineBuffers[i]->buffer = new char[_data->lineBufferSize];
@@ -745,8 +787,8 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 	}
 
 	slices.push_back (InSliceInfo (j.slice().type,
-				       fill ? j.slice().type:
-				              i.channel().type,
+				       fill? j.slice().type:
+				             i.channel().type,
 				       j.slice().base,
 				       j.slice().xStride,
 				       j.slice().yStride,
@@ -826,25 +868,23 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
             dl = -1;
         }
 
-
         //
-        // Create a task group for all line buffer tasks. When the taskgroup
-        // goes out of scope, the destructor waits until all tasks are complete.
+        // Create a task group for all line buffer tasks.  When the
+	// task group goes out of scope, the destructor waits until
+	// all tasks are complete.
         //
         
         {
             TaskGroup taskGroup;
-            
     
             //
-            // Add the lineBuffer tasks.
+            // Add the line buffer tasks.
             //
             // The tasks will execute in the order that they are created
-            // because we lock the lineBuffers during construction and the
-            // constructors are called by the main thread. Hence, in order for
-            // a successive task to execute the previous task which used that
-            // lineBuffer must have completed already.
-            //
+            // because we lock the line buffers during construction and the
+            // constructors are called by the main thread.  Hence, in order
+	    // for a successive task to execute the previous task which
+	    // used that line buffer must have completed already.
             //
     
             for (int l = start; l != stop; l += dl)
@@ -855,25 +895,40 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
                                                                scanLineMax));
             }
         
+	    //
             // finish all tasks
+	    //
         }
         
-        // check for exceptions
-        for (int i = 0; i < _data->lineBuffers.size(); ++i)
-        {
-            LineBuffer* lineBuffer = _data->lineBuffers[i];
+	//
+	// Exeption handling:
+	//
+	// LineBufferTask::execute() may have encountered exceptions, but
+	// those exceptions occurred in another thread, not in the thread
+	// that is executing this call to ScanLineInputFile::readPixels().
+	// LineBufferTask::execute() has caught all exceptions and stored
+	// the exceptions' what() strings in the line buffers.
+	// Now we check if any line buffer contains a stored exception; if
+	// this is the case then we re-throw the exception in this thread.
+	// (It is possible that multiple line buffers contain stored
+	// exceptions.  We re-throw the first exception we find and
+	// ignore all others.)
+	//
 
-            // wait for the lineBuffer to become available
-            lineBuffer->wait ();
-            
-            // if an exception was caught by this lineBuffer then thrown it now
-            if (lineBuffer->hasException)
-            {
-                lineBuffer->post ();
-                throw Iex::IoExc (lineBuffer->exception);
-            }
-            lineBuffer->post ();
-        }
+	const string *exception = 0;
+
+        for (int i = 0; i < _data->lineBuffers.size(); ++i)
+	{
+            LineBuffer *lineBuffer = _data->lineBuffers[i];
+
+	    if (lineBuffer->hasException && !exception)
+		exception = &lineBuffer->exception;
+
+	    lineBuffer->hasException = false;
+	}
+
+	if (exception)
+	    throw Iex::IoExc (*exception);
     }
     catch (Iex::BaseExc &e)
     {

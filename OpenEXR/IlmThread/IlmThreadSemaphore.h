@@ -35,6 +35,13 @@
 #ifndef INCLUDED_ILM_THREAD_SEMAPHORE_H
 #define INCLUDED_ILM_THREAD_SEMAPHORE_H
 
+//-----------------------------------------------------------------------------
+//
+//	class Semaphore -- a wrapper class for
+//	system-dependent counting semaphores
+//
+//-----------------------------------------------------------------------------
+
 #ifdef _WIN32
     #define NOMINMAX
     #include <windows.h>
@@ -44,49 +51,53 @@
     #include <semaphore.h>
 #endif
 
-namespace IlmThread
-{
+namespace IlmThread {
 
-//-----------------------------------------------------------------------------
-//
-//    class Semaphore -- a counting semaphore
-//
-// A wrapper class for system-dependent counting semaphores.
-//
-//-----------------------------------------------------------------------------
 
 class Semaphore
 {
-public:
+  public:
+
     Semaphore (unsigned int value = 0);
     virtual ~Semaphore();
 
-    void wait();
-    void post();
-    int  value() const;
+    void	wait();
+    void	post();
+    int		value() const;
 
-private:
+  private:
 
-#ifdef _WIN32
-    mutable HANDLE _semaphore;
-#elif HAVE_PTHREAD && !HAVE_POSIX_SEMAPHORES
-    // OS X doesn't have semaphores, so we simulate them using
-    // condition variables
-    struct sema_t
-    {
-        unsigned int count;
-        unsigned long numWaiting;
-        pthread_mutex_t mutex;
-        pthread_cond_t nonZero;
-    };
-    mutable sema_t _semaphore;
-#elif HAVE_PTHREAD && HAVE_POSIX_SEMAPHORES
-    mutable sem_t _semaphore;
-#endif
+    #ifdef _WIN32
 
-    void operator= (const Semaphore &S);        // not implemented
-    Semaphore (const Semaphore& S);            // not implemented
+	mutable HANDLE _semaphore;
+
+    #elif HAVE_PTHREAD && !HAVE_POSIX_SEMAPHORES
+
+	//
+	// If the platform has Posix threads but no semapohores,
+	// then we implement them ourselves using condition variables
+	//
+
+	struct sema_t
+	{
+	    unsigned int count;
+	    unsigned long numWaiting;
+	    pthread_mutex_t mutex;
+	    pthread_cond_t nonZero;
+	};
+
+	mutable sema_t _semaphore;
+
+    #elif HAVE_PTHREAD && HAVE_POSIX_SEMAPHORES
+
+	mutable sem_t _semaphore;
+
+    #endif
+
+    void operator = (const Semaphore& s);	// not implemented
+    Semaphore (const Semaphore& s);		// not implemented
 };
+
 
 } // namespace IlmThread
 

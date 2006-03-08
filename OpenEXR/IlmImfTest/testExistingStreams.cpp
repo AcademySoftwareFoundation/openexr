@@ -87,10 +87,10 @@ fillPixels2 (Array2D<Rgba> &pixels, int w, int h)
 }
 
 
-//-----------------------------------------------------------
+//
 // class MMIFStream -- a memory-mapped implementation of
 // class IStream based on class std::ifstream
-//-----------------------------------------------------------
+//
 
 class MMIFStream: public IStream
 {
@@ -135,17 +135,25 @@ MMIFStream::MMIFStream (const char fileName[]):
     std::ifstream ifs (fileName, ios_base::binary);
 #endif
 
-    // get length of file:
+    //
+    // Get length of file
+    //
+
     ifs.seekg (0, ios::end);
     _length = ifs.tellg();
     ifs.seekg (0, ios::beg);
     
-    // allocate memory:
+    //
+    // Allocate memory
+    //
+
     _buffer = new char [_length];
     
-    // read data as a block:
+    //
+    // Read the entire file
+    //
+
     ifs.read (_buffer, _length);
-    
     ifs.close();
 }
 
@@ -164,6 +172,7 @@ MMIFStream::read (char c[/*n*/], int n)
         
     Int64 n2 = n;
     bool retVal = true;
+
     if (_length - _pos <= n2)
     {
         n2 = _length - _pos;
@@ -172,7 +181,6 @@ MMIFStream::read (char c[/*n*/], int n)
 
     memcpy (c, &(_buffer[_pos]), n2);
     _pos += n2;
-
     return retVal;
 }
 
@@ -203,8 +211,10 @@ writeReadScanLines (const char fileName[],
     // letting the RgbaOutputFile object open the file,
     // make the RgbaOutputFile object use an existing
     // StdOFStream.  Read the image back, using an
-    // existing  SgdIFStream, and compare the pixels
-    // with the original data.
+    // existing StdIFStream, and compare the pixels
+    // with the original data.  Then read the image
+    // back a second time using a memory-mapped
+    // MMIFStream (see above).
     //
 
     cout << "scan-line based file: ";
@@ -302,8 +312,9 @@ writeReadTiles (const char fileName[],
     // Save a tiled RGBA image, but instead of letting
     // the TiledRgbaOutputFile object open the file, make
     // it use an existing StdOFStream.  Read the image back,
-    // using an existing  SgdIFStream, and compare the pixels
-    // with the original data.
+    // using an existing StdIFStream, and compare the pixels
+    // with the original data.  Then read the image back a
+    // second time using a memory-mapped MMIFStream (see above).
     //
 
     cout << "tiled file: ";
@@ -312,7 +323,7 @@ writeReadTiles (const char fileName[],
 
     {
         cout << "writing";
-	//remove (fileName);
+	remove (fileName);
 #ifndef HAVE_IOS_BASE
 	std::ofstream os (fileName, ios::binary);
 #else
@@ -420,4 +431,3 @@ testExistingStreams ()
 	assert (false);
     }
 }
-

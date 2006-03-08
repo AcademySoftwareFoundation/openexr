@@ -32,14 +32,21 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------
+//
+//	class Mutex -- implementation for
+//	platforms that support Posix threads
+//
+//-----------------------------------------------------------------------------
+
 #if HAVE_PTHREAD
 
 #include <IlmThreadMutex.h>
 #include <Iex.h>
 #include <assert.h>
 
-namespace IlmThread
-{
+namespace IlmThread {
+
 
 Mutex::Mutex ()
 {
@@ -70,7 +77,7 @@ Mutex::unlock () const
         Iex::throwErrnoExc ("Cannot unlock mutex (%T).", error);
 }
 
+
 } // namespace IlmThread
 
 #endif
-

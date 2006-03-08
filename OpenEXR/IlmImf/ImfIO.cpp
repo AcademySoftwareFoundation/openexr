@@ -64,11 +64,11 @@ IStream::isMemoryMapped () const
 }
 
 
-char*
+char *
 IStream::readMemoryMapped (int n)
 {
-    throw Iex::InputExc ("Cannot access internal buffer, not a memory-mapped "
-                         "file.");
+    throw Iex::InputExc ("Attempt to perform a memory-mapped read "
+			 "on a file that is not memory mapped.");
     return 0;
 }
 

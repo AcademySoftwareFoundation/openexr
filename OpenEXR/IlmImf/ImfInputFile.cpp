@@ -44,12 +44,14 @@
 #include <ImfChannelList.h>
 #include <ImfMisc.h>
 #include <ImfStdIO.h>
-#include <Iex.h>
 #include <ImfVersion.h>
 #include <ImathFun.h>
+#include <IlmThreadMutex.h>
+#include <Iex.h>
 #include <half.h>
 #include <fstream>
 #include <algorithm>
+
 
 namespace Imf {
 
@@ -57,6 +59,8 @@ namespace Imf {
 using Imath::Box2i;
 using Imath::divp;
 using Imath::modp;
+using IlmThread::Mutex;
+using IlmThread::Lock;
 
 
 //
@@ -64,7 +68,7 @@ using Imath::modp;
 // needed between calls to readPixels
 //
 
-struct InputFile::Data
+struct InputFile::Data: public Mutex
 {
     Header              header;
     int                 version;
@@ -100,7 +104,7 @@ InputFile::Data::Data (bool del, int numThreads):
     sFile (0),
     cachedBuffer (0),
     cachedTileY (-1),
-    numThreads(numThreads)
+    numThreads (numThreads)
 {
     // empty
 }
@@ -406,6 +410,8 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
     if (isTiled (_data->version))
     {
+	Lock lock (*_data);
+
 	//
         // Invalidate the cached buffer if the new frame buffer
 	// has a different set of channels than the old frame
@@ -434,7 +440,6 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 
 	_data->tFileBuffer = frameBuffer;
 
-
         //
         // Create a cached framebuffer which stores a single row of tiles
         // The same buffer is reused for each row of tiles by setting the
@@ -456,11 +461,11 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 
             switch (s.type)
             {
-            case UINT:
+              case UINT:
 
                 _data->cachedBuffer->insert
                     (k.name(),
-                    Slice (UINT,
+                     Slice (UINT,
                             (char *)(new unsigned int[tileRowSize] - 
                                     _data->offset),
                             sizeof (unsigned int),
@@ -471,11 +476,11 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
                             false, true));
                 break;
 
-            case HALF:
+              case HALF:
 
                 _data->cachedBuffer->insert
                     (k.name(),
-                    Slice (HALF,
+                     Slice (HALF,
                             (char *)(new half[tileRowSize] - 
                                     _data->offset),
                             sizeof (half),
@@ -486,11 +491,11 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
                             false, true));
                 break;
 
-            case FLOAT:
+              case FLOAT:
 
                 _data->cachedBuffer->insert
                     (k.name(),
-                    Slice (FLOAT,
+                     Slice (FLOAT,
                             (char *)(new float[tileRowSize] - 
                                     _data->offset),
                             sizeof(float),
@@ -501,7 +506,7 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
                             false, true));
                 break;
 
-            default:
+              default:
 
                 throw Iex::ArgExc ("Unknown pixel data type.");
             }
@@ -520,9 +525,14 @@ const FrameBuffer &
 InputFile::frameBuffer () const
 {
     if (isTiled (_data->version))
+    {
+	Lock lock (*_data);
 	return _data->tFileBuffer;
+    }
     else
+    {
 	return _data->sFile->frameBuffer();
+    }
 }
 
 
@@ -540,9 +550,14 @@ void
 InputFile::readPixels (int scanLine1, int scanLine2)
 {
     if (isTiled (_data->version))
+    {
+	Lock lock (*_data);
         bufferedReadPixels (_data, scanLine1, scanLine2);
+    }
     else
+    {
         _data->sFile->readPixels (scanLine1, scanLine2);
+    }
 }
 
 
