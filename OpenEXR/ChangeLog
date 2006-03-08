@@ -1,3 +1,11 @@
+	* Multi-threading bug fixes (exceptions could be thrown
+	  multiple times, some operations were not thread safe),
+	  updated some comments, added comments, more multithreaded
+	  testing.
+	  (Florian Kainz)
+	* Added multi-threading support: multiple threads
+	  cooperate to read or write a single OpenEXR file.
+	  (Wojciech Jarosz)
 	* Added operator== and operator!= to Imath::Frustum.
 	  (Andre Mazzone)
 	* Bug fix: Reading a PIZ-compressed file with an invalid
