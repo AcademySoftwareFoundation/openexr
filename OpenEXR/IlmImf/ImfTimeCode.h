@@ -71,7 +71,7 @@
 //	listed above and a more compact representation where the fields
 //	are packed into two unsigned 32-bit integers.  In the packed
 //	integer representations, bit 0 is the least significant bit,
-//	and bit 32 is the most significant bit of the integer value.
+//	and bit 31 is the most significant bit of the integer value.
 //
 //	The time address and flags fields can be packed in three
 //	different ways:
