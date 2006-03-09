@@ -74,10 +74,11 @@ class TiledOutputFile
     // subsampling is not supported.
     //
     // Tiles can be written to the file in arbitrary order.  The line
-    // order attribute can be used to cause be sorted in the file.
-    // When the file is read later, reading the tiles in the same order
-    // as they are in the file tends to be significantly faster than
-    // reading the tiles in random order (see writeTile, below).
+    // order attribute can be used to cause the tiles to be sorted in
+    // the file.  When the file is read later, reading the tiles in the
+    // same order as they are in the file tends to be significantly
+    // faster than reading the tiles in random order (see writeTile,
+    // below).
     //-------------------------------------------------------------------
     
     TiledOutputFile (const char fileName[],
@@ -89,7 +90,7 @@ class TiledOutputFile
     // A constructor that attaches the new TiledOutputFile object to
     // a file that has already been opened.  Destroying TiledOutputFile
     // objects constructed with this constructor does not automatically
-    // closse the corresponding files.
+    // close the corresponding files.
     // ----------------------------------------------------------------
 
     TiledOutputFile (OStream &os,
@@ -378,8 +379,10 @@ class TiledOutputFile
 
     void		writeTile  (int dx, int dy, int l = 0);
     void		writeTile  (int dx, int dy, int lx, int ly);
+
     void		writeTiles (int dx1, int dx2, int dy1, int dy2,
                                     int lx, int ly);
+
     void		writeTiles (int dx1, int dx2, int dy1, int dy2,
                                     int l = 0);
 
