@@ -88,10 +88,7 @@ writeTiled1 (const char fileName[],
 				sizeof (pixels[0][0]) * width)); // yStride
 
     out.setFrameBuffer (frameBuffer);
-
-    for (int tileY = 0; tileY < out.numYTiles (); ++tileY)
-        for (int tileX = 0; tileX < out.numXTiles (); ++tileX)
-            out.writeTile (tileX, tileY);
+    out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
 }
 
 
@@ -125,10 +122,7 @@ readTiled1 (const char fileName[],
 				sizeof (pixels[0][0]) * width)); // yStride
 
     in.setFrameBuffer (frameBuffer);
-
-    for (int tileY = 0; tileY < in.numYTiles(); ++tileY)
-        for (int tileX = 0; tileX < in.numXTiles(); ++tileX)
-            in.readTile (tileX, tileY);
+    in.readTiles (0, in.numXTiles() - 1, 0, in.numYTiles() - 1);
 }
 
 
