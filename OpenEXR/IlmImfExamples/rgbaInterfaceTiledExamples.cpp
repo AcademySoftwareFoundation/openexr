@@ -75,10 +75,7 @@ writeTiledRgbaONE1 (const char fileName[],
                              WRITE_RGBA);		// channels in file
 
     out.setFrameBuffer (pixels, 1, width);
-
-    for (int tileY = 0; tileY < out.numYTiles (); ++tileY)
-        for (int tileX = 0; tileX < out.numXTiles (); ++tileX)
-            out.writeTile (tileX, tileY);
+    out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
 }
 
 
@@ -149,9 +146,8 @@ writeTiledRgbaMIP1 (const char fileName[],
 		    0, out.levelHeight (level),
                     level, level);
 
-        for (int tileY = 0; tileY < out.numYTiles (level); ++tileY)
-            for (int tileX = 0; tileX < out.numXTiles (level); ++tileX)
-                out.writeTile (tileX, tileY, level);
+	out.writeTiles (0, out.numXTiles (level) - 1,
+			0, out.numYTiles (level) - 1);
     }
 }
 
@@ -229,9 +225,8 @@ writeTiledRgbaRIP1 (const char fileName[],
 			0, out.levelHeight (yLevel),
 			xLevel, yLevel);
 
-            for (int tileY = 0; tileY < out.numYTiles (yLevel); ++tileY)
-                for (int tileX = 0; tileX < out.numXTiles (xLevel); ++tileX)
-                    out.writeTile (tileX, tileY, xLevel, yLevel);
+	    out.writeTiles (0, out.numXTiles (xLevel) - 1,
+			    0, out.numYTiles (yLevel) - 1);
         }
     }
 }
@@ -301,10 +296,7 @@ readTiledRgba1 (const char fileName[],
     pixels.resizeErase (height, width);
 
     in.setFrameBuffer (&pixels[-dy][-dx], 1, width);
-
-    for (int tileY = 0; tileY < in.numYTiles(); ++tileY)
-        for (int tileX = 0; tileX < in.numXTiles(); ++tileX)
-            in.readTile (tileX, tileY);
+    in.readTiles (0, in.numXTiles() - 1, 0, in.numYTiles() - 1);
 }
 
 
