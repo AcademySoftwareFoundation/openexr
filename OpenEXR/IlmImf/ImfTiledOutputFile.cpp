@@ -481,7 +481,19 @@ bufferedTileWrite (TiledOutputFile::Data *ofd,
                    int pixelDataSize)
 {
     //
-    // If tiles can be written randomly, then don't buffer anything.
+    // Check if a tile with coordinates (dx,dy,lx,ly) has already been written.
+    //
+
+    if (ofd->tileOffsets (dx, dy, lx, ly))
+    {
+	THROW (Iex::ArgExc,
+	       "Attempt to write tile "
+	       "(" << dx << ", " << dy << ", " << lx << "," << ly << ") "
+	       "more than once.");
+    }
+
+    //
+    // If tiles can be written in random order, then don't buffer anything.
     //
     
     if (ofd->lineOrder == RANDOM_Y)
@@ -491,14 +503,27 @@ bufferedTileWrite (TiledOutputFile::Data *ofd,
     }
     
     //
+    // If the tiles cannot be written in random order, then check if a
+    // tile with coordinates (dx,dy,lx,ly) has already been buffered.
+    //
+
+    TileCoord currentTile = TileCoord(dx, dy, lx, ly);
+
+    if (ofd->tileMap.find (currentTile) != ofd->tileMap.end())
+    {
+	THROW (Iex::ArgExc,
+	       "Attempt to write tile "
+	       "(" << dx << ", " << dy << ", " << lx << "," << ly << ") "
+	       "more than once.");
+    }
+
+    //
     // If all the tiles before this one have already been written to the file,
     // then write this tile immediately and check if we have buffered tiles
     // that can be written after this tile.
     //
     // Otherwise, buffer the tile so it can be written to file later.
     //
-    
-    TileCoord currentTile = TileCoord(dx, dy, lx, ly);
     
     if (ofd->nextTileToWrite == currentTile)
     {
@@ -1072,6 +1097,9 @@ TiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
         if (_data->slices.size() == 0)
 	    throw Iex::ArgExc ("No frame buffer specified "
 			       "as pixel data source.");
+
+	if (!isValidTile (dx1, dy1, lx, ly) || !isValidTile (dx2, dy2, lx, ly))
+	    throw Iex::ArgExc ("Tile coordinates are invalid.");
 
         //
         // Determine the first and last tile coordinates in both dimensions
