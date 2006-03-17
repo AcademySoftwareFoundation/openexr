@@ -147,7 +147,8 @@ writeTiledRgbaMIP1 (const char fileName[],
                     level, level);
 
 	out.writeTiles (0, out.numXTiles (level) - 1,
-			0, out.numYTiles (level) - 1);
+			0, out.numYTiles (level) - 1,
+			level);
     }
 }
 
@@ -226,7 +227,9 @@ writeTiledRgbaRIP1 (const char fileName[],
 			xLevel, yLevel);
 
 	    out.writeTiles (0, out.numXTiles (xLevel) - 1,
-			    0, out.numYTiles (yLevel) - 1);
+			    0, out.numYTiles (yLevel) - 1,
+			    xLevel,
+			    yLevel);
         }
     }
 }
