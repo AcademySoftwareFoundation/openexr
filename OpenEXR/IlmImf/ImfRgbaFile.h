@@ -184,7 +184,7 @@ class RgbaOutputFile
     // If the output file contains luminance and chroma channels (WRITE_YC
     // or WRITE_YCA), then the the significands of the luminance and
     // chroma values are rounded to roundY and roundC bits respectively (see
-    // function half::round()).  Rounding improves compression, with minimal
+    // function half::round()).  Rounding improves compression with minimal
     // image degradation, usually much less than the degradation caused by
     // chroma subsampling.  By default, roundY is 7, and roundC is 5.
     //
@@ -195,6 +195,16 @@ class RgbaOutputFile
     void			setYCRounding (unsigned int roundY,
 					       unsigned int roundC);
 
+
+    //----------------------------------------------------
+    // Break a scan line -- for testing and debugging only
+    // (see Imf::OutputFile::updatePreviewImage()
+    //----------------------------------------------------
+
+    void			breakScanLine  (int y,
+						int offset,
+						int length,
+						char c);
   private:
 
     RgbaOutputFile (const RgbaOutputFile &);		  // not implemented

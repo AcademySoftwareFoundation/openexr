@@ -392,9 +392,8 @@ readPixelData (ScanLineInputFile::Data *ifd,
 
 
 //
-// A LineBufferTask encapsulates the task of reading a
-// set of scanlines (line buffer) uncompressing them
-// and copying them into a frame buffer.
+// A LineBufferTask encapsulates the task uncompressing a set of
+// scanlines (line buffer) and copying them into the frame buffer.
 //
 
 class LineBufferTask : public Task
@@ -403,7 +402,7 @@ class LineBufferTask : public Task
 
     LineBufferTask (TaskGroup *group,
                     ScanLineInputFile::Data *ifd,
-		    int number,
+		    LineBuffer *lineBuffer,
                     int scanLineMin,
 		    int scanLineMax);
 
@@ -423,38 +422,17 @@ class LineBufferTask : public Task
 LineBufferTask::LineBufferTask
     (TaskGroup *group,
      ScanLineInputFile::Data *ifd,
-     int number,
+     LineBuffer *lineBuffer,
      int scanLineMin,
      int scanLineMax)
 :
     Task (group),
     _ifd (ifd),
-    _lineBuffer (_ifd->getLineBuffer (number))
+    _lineBuffer (lineBuffer),
+    _scanLineMin (scanLineMin),
+    _scanLineMax (scanLineMax)
 {
-    //
-    // Wait for the lineBuffer to become available
-    //
-
-    _lineBuffer->wait ();
-    
-    //
-    // Read in the lineBuffer from disk if necessary
-    //
-
-    if (_lineBuffer->number != number)
-    {
-        _lineBuffer->minY = _ifd->minY + number * _ifd->linesInBuffer;
-        _lineBuffer->maxY = _lineBuffer->minY + _ifd->linesInBuffer - 1;
-        
-        _lineBuffer->number = number;
-        _lineBuffer->uncompressedData = 0;
-
-        readPixelData (_ifd, _lineBuffer->minY, _lineBuffer->buffer,
-                       _lineBuffer->dataSize);
-    }
-    
-    _scanLineMin = max (_lineBuffer->minY, scanLineMin);
-    _scanLineMax = min (_lineBuffer->maxY, scanLineMax);
+    // empty
 }
 
 
@@ -612,6 +590,62 @@ LineBufferTask::execute ()
             _lineBuffer->hasException = true;
         }
     }
+}
+
+
+LineBufferTask *
+newLineBufferTask
+    (TaskGroup *group,
+     ScanLineInputFile::Data *ifd,
+     int number,
+     int scanLineMin,
+     int scanLineMax)
+{
+    //
+    // Wait for a line buffer to become available, fill the line
+    // buffer with raw data from the file if necessary, and create
+    // a new LineBufferTask whose execute() method will uncompress
+    // the contents of the buffer and copy the pixels into the
+    // frame buffer.
+    //
+
+    LineBuffer *lineBuffer = ifd->getLineBuffer (number);
+
+    try
+    {
+	lineBuffer->wait ();
+	
+	if (lineBuffer->number != number)
+	{
+	    lineBuffer->minY = ifd->minY + number * ifd->linesInBuffer;
+	    lineBuffer->maxY = lineBuffer->minY + ifd->linesInBuffer - 1;
+	    
+	    lineBuffer->number = number;
+	    lineBuffer->uncompressedData = 0;
+
+	    readPixelData (ifd, lineBuffer->minY,
+			   lineBuffer->buffer,
+			   lineBuffer->dataSize);
+	}
+    }
+    catch (...)
+    {
+	//
+	// Reading from the file caused an exception.
+	// Signal that the line buffer is free, and
+	// re-throw the exception.
+	//
+
+	lineBuffer->number = -1;
+	lineBuffer->post();
+	throw;
+    }
+    
+    scanLineMin = max (lineBuffer->minY, scanLineMin);
+    scanLineMax = min (lineBuffer->maxY, scanLineMax);
+
+    return new LineBufferTask (group, ifd, lineBuffer,
+			       scanLineMin, scanLineMax);
 }
 
 } // namespace
@@ -889,10 +923,10 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
     
             for (int l = start; l != stop; l += dl)
             {
-                ThreadPool::addGlobalTask (new LineBufferTask (&taskGroup,
-                                                               _data, l,
-                                                               scanLineMin,
-                                                               scanLineMax));
+                ThreadPool::addGlobalTask (newLineBufferTask (&taskGroup,
+                                                              _data, l,
+                                                              scanLineMin,
+                                                              scanLineMax));
             }
         
 	    //
@@ -961,10 +995,12 @@ ScanLineInputFile::rawPixelData (int firstScanLine,
 			       "the image file's data window.");
 	}
 
-        int minY = lineBufferMinY (firstScanLine, _data->minY,
-                                   _data->linesInBuffer);
-	readPixelData (_data, minY, _data->lineBuffers[0]->buffer,
-                       pixelDataSize);
+        int minY = lineBufferMinY
+	    (firstScanLine, _data->minY, _data->linesInBuffer);
+
+	readPixelData
+	    (_data, minY, _data->lineBuffers[0]->buffer, pixelDataSize);
+
 	pixelData = _data->lineBuffers[0]->buffer;
     }
     catch (Iex::BaseExc &e)

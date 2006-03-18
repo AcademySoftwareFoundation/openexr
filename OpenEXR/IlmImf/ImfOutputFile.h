@@ -205,6 +205,19 @@ class OutputFile
 
     void		updatePreviewImage (const PreviewRgba newPixels[]);
 
+
+    //---------------------------------------------------------
+    // Break a scan line -- for testing and debugging only:
+    // 
+    // breakScanLine(y,p,n,c) introduces an error into the
+    // output file by writing n copies of character c, starting
+    // p bytes from the beginning of the pixel data block that
+    // contains scan line y.
+    //---------------------------------------------------------
+
+    void		breakScanLine  (int y, int offset, int length, char c);
+
+
     struct Data;
 
   private:

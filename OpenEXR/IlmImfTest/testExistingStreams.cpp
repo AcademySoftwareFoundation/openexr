@@ -217,7 +217,7 @@ writeReadScanLines (const char fileName[],
     // MMIFStream (see above).
     //
 
-    cout << "scan-line based file: ";
+    cout << "scan-line based file:" << endl;
 
     Header header (width, height);
 
@@ -317,7 +317,7 @@ writeReadTiles (const char fileName[],
     // second time using a memory-mapped MMIFStream (see above).
     //
 
-    cout << "tiled file: ";
+    cout << "tiled file:" << endl;
 
     Header header (width, height);
 

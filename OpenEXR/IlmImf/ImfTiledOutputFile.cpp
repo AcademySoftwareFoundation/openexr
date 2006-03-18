@@ -153,7 +153,7 @@ struct TileCoord
 
 
     bool
-    operator==(const TileCoord &other) const
+    operator == (const TileCoord &other) const
     {
         return lx == other.lx &&
 	       ly == other.ly &&
@@ -633,7 +633,7 @@ convertToXdr (TiledOutputFile::Data *ofd,
 
 //
 // A TileBufferTask encapsulates the task of copying a tile from
-// the user's framebuffer into a LineBuffer, compressing the data
+// the user's framebuffer into a LineBuffer and compressing the data
 // if necessary.
 //
 
@@ -674,7 +674,7 @@ TileBufferTask::TileBufferTask
     //
 
     _tileBuffer->wait ();
-    _tileBuffer->tileCoord = TileCoord(dx, dy, lx, ly);
+    _tileBuffer->tileCoord = TileCoord (dx, dy, lx, ly);
 }
 
 
@@ -1652,5 +1652,31 @@ TiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
     }
 }
 
+
+void
+TiledOutputFile::breakTile 
+    (int dx, int dy,
+     int lx, int ly,
+     int offset,
+     int length,
+     char c)
+{
+    Lock lock (*_data);
+
+    Int64 position = _data->tileOffsets (dx, dy, lx, ly);
+
+    if (!position)
+	THROW (Iex::ArgExc,
+	       "Cannot overwrite tile "
+	       "(" << dx << ", " << dy << ", " << lx << "," << ly << "). "
+	       "The tile has not yet been stored in "
+	       "file \"" << fileName() << "\".");
+
+    _data->currentPosition = 0;
+    _data->os->seekp (position + offset);
+
+    for (int i = 0; i < length; ++i)
+	_data->os->write (&c, 1);
+}
 
 } // namespace Imf
