@@ -629,7 +629,7 @@ testTiledLineOrder ()
 {
     try
     {
-        cout << "Testing line orders for tileds files and "
+        cout << "Testing line orders for tiled files and "
 		"buffered/unbuffered tile writes" << endl;
 
         const int W = 171;

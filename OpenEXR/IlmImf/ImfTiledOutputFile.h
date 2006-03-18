@@ -432,6 +432,20 @@ class TiledOutputFile
     void		updatePreviewImage (const PreviewRgba newPixels[]);
 
 
+    //-------------------------------------------------------------
+    // Break a tile -- for testing and debugging only:
+    // 
+    // breakTile(dx,dy,lx,ly,p,n,c) introduces an error into the
+    // output file by writing n copies of character c, starting
+    // p bytes from the beginning of the tile with tile coordinates
+    // (dx, dy) and level number (lx, ly).
+    //-------------------------------------------------------------
+
+    void		breakTile  (int dx, int dy,
+				    int lx, int ly,
+				    int offset,
+				    int length,
+				    char c);
     struct Data;
 
   private:

@@ -387,6 +387,7 @@ writeReadRGBARIP (const char fileName[],
     remove (fileName);
 }
 
+
 void
 writeRead (int W, int H, Compression comp, int xSize, int ySize)
 {
@@ -395,6 +396,189 @@ writeRead (int W, int H, Compression comp, int xSize, int ySize)
     writeReadRGBAONE (filename, W, H, WRITE_RGBA, comp, xSize, ySize);
     writeReadRGBAMIP (filename, W, H, WRITE_RGBA, comp, xSize, ySize);
     writeReadRGBARIP (filename, W, H, WRITE_RGBA, comp, xSize, ySize);
+}
+
+
+void
+writeReadIncomplete ()
+{
+    cout << "\nfile with missing and broken tiles" << endl;
+
+    const char *fileName = IMF_TMP_DIR "imf_test_tiled_incomplete.exr";
+
+    //
+    // Write a file where every other tile is missing or broken.
+    // Then try read the file and verify that all existing good
+    // tiles can actually be read.
+    //
+
+    const int width = 400;
+    const int height = 300;
+    const int tileXSize = 30;
+    const int tileYSize = 40;
+
+    Array2D<Rgba> p1 (height, width);
+
+    for (int y = 0; y < height; ++y)
+	for (int x = 0; x < width; ++x)
+	    p1[y][x] = Rgba (x % 5, x % 17, y % 23, y % 29);
+
+    {
+        cout << "writing" << endl;
+ 
+        remove (fileName);
+
+	Header header (width, height);
+	header.lineOrder() = RANDOM_Y;
+
+        TiledRgbaOutputFile out (fileName, header, WRITE_RGBA,
+                                 tileXSize, tileYSize, ONE_LEVEL);
+        
+        out.setFrameBuffer (&p1[0][0], 1, width);
+
+	out.writeTile (0, 0);
+
+	for (int tileY = 0; tileY < out.numYTiles(); ++tileY)
+	    for (int tileX = 0; tileX < out.numXTiles(); ++tileX)
+		if ((tileX + tileY) & 1)
+		    out.writeTile (tileX, tileY);
+
+	out.writeTile (2, 0);
+
+	out.breakTile (0, 0, 0, 0, 25, 10, 0xff);	// destroy tiles
+	out.breakTile (2, 0, 0, 0, 25, 10, 0xff);	// (0,0) and (2,0)
+    }
+
+    {
+	Array2D<Rgba> p2 (height, width);
+
+	for (int y = 0; y < height; ++y)
+	    for (int x = 0; x < width; ++x)
+		p2[y][x] = Rgba (-1, -1, -1, -1);
+
+        cout << "reading one tile at a time," << flush;
+
+        TiledRgbaInputFile in (fileName);
+        const Box2i &dw = in.dataWindow();
+
+        assert (dw.max.x - dw.min.x + 1 == width);
+        assert (dw.max.y - dw.min.y + 1 == height);
+	assert (dw.min.x == 0);
+	assert (dw.min.y == 0);
+	
+        in.setFrameBuffer (&p2[0][0], 1, width);
+
+	for (int tileY = 0; tileY < in.numYTiles(); ++tileY)
+	{
+	    for (int tileX = 0; tileX < in.numXTiles(); ++tileX)
+	    {
+		bool tilePresent = true;
+		bool tileBroken = false;
+
+		try
+		{
+		    in.readTile (tileX, tileY);
+		}
+		catch (const Iex::InputExc &)
+		{
+		    tilePresent = false;	// tile is missing
+		}
+		catch (const Iex::IoExc &)
+		{
+		    tileBroken = true;		// tile cannot be decoded
+		}
+
+		assert (tileBroken || (tilePresent == ((tileX + tileY) & 1)));
+	    }
+	}
+
+	cout << " comparing" << endl << flush;               
+
+	for (int y = 0; y < height; ++y)
+	{
+	    int tileY = y / tileYSize;
+
+	    for (int x = 0; x < width; ++x)
+	    {
+		int tileX = x / tileXSize;
+
+		const Rgba &s = p1[y][x];
+		const Rgba &t = p2[y][x];
+
+		if ((tileX + tileY) & 1)
+		{
+		    assert (t.r == s.r &&
+		            t.g == s.g &&
+			    t.b == s.b &&
+			    t.a == s.a);
+		}
+		else
+		{
+		    assert (t.r == -1 &&
+			    t.g == -1 &&
+			    t.b == -1 &&
+			    t.a == -1);
+		}
+	    }
+	}
+    }
+
+    {
+	Array2D<Rgba> p2 (height, width);
+
+	for (int y = 0; y < height; ++y)
+	    for (int x = 0; x < width; ++x)
+		p2[y][x] = Rgba (-1, -1, -1, -1);
+
+        cout << "reading multiple tiles at a time," << flush;
+
+        TiledRgbaInputFile in (fileName);
+        const Box2i &dw = in.dataWindow();
+
+        assert (dw.max.x - dw.min.x + 1 == width);
+        assert (dw.max.y - dw.min.y + 1 == height);
+	assert (dw.min.x == 0);
+	assert (dw.min.y == 0);
+	
+        in.setFrameBuffer (&p2[0][0], 1, width);
+
+	for (int tileY = 0; tileY < in.numYTiles(); ++tileY)
+	{
+	    bool tilesMissing = false;
+	    bool tilesBroken = false;
+
+	    try
+	    {
+		in.readTiles (0, in.numXTiles() - 1, tileY, tileY);
+	    }
+	    catch (const Iex::InputExc &)
+	    {
+		tilesMissing = true;
+	    }
+	    catch (const Iex::IoExc &)
+	    {
+		tilesBroken = true;
+	    }
+
+	    assert (tilesMissing || tilesBroken);
+	}
+
+	cout << " comparing" << endl << flush;               
+
+	for (int y = 0; y < height; ++y)
+	{
+	    for (int x = 0; x < width; ++x)
+	    {
+		const Rgba &s = p1[y][x];
+		const Rgba &t = p2[y][x];
+
+		assert ((t.r == -1  && t.g == -1  && t.b == -1  && t.a == -1) ||
+			(t.r == s.r && t.g == s.g && t.b == s.b && t.a == s.a));
+	    }
+	}
+    }
+
+    remove (fileName);
 }
 
 } // namespace
@@ -449,6 +633,8 @@ testTiledRgba ()
 		    writeRead (W[i], H[i], Compression (comp), 264, 129);
 		}
 	    }
+
+	    writeReadIncomplete();
 	}
 
         cout << "ok\n" << endl;

@@ -1265,4 +1265,25 @@ OutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 }
 
 
+void	
+OutputFile::breakScanLine  (int y, int offset, int length, char c)
+{
+    Lock lock (*_data);
+
+    Int64 position = 
+	_data->lineOffsets[(y - _data->minY) / _data->linesInBuffer];
+
+    if (!position)
+	THROW (Iex::ArgExc, "Cannot overwrite scan line " << y << ". "
+			    "The scan line has not yet been stored in "
+			    "file \"" << fileName() << "\".");
+
+    _data->currentPosition = 0;
+    _data->os->seekp (position + offset);
+
+    for (int i = 0; i < length; ++i)
+	_data->os->write (&c, 1);
+}
+
+
 } // namespace Imf

@@ -226,12 +226,12 @@ struct TiledInputFile::Data: public Mutex
 
     
     vector<TileBuffer*> tileBuffers;        // each holds a single tile
-    size_t          tileBufferSize;	    // size of the tile buffer
+    size_t          tileBufferSize;	    // size of the tile buffers
 
      Data (bool deleteStream, int numThreads);
     ~Data ();
 
-    inline TileBuffer * getTileBuffer (int dx = 0, int dy = 0, int nx = 0);
+    inline TileBuffer * getTileBuffer (int number);
 					    // hash function from tile indices
 					    // into our vector of tile buffers
 };
@@ -266,16 +266,16 @@ TiledInputFile::Data::~Data ()
 
 
 TileBuffer*
-TiledInputFile::Data::getTileBuffer (int dx, int dy, int nx)
+TiledInputFile::Data::getTileBuffer (int number)
 {
-    return tileBuffers[(dy * nx + dx) % tileBuffers.size()];
+    return tileBuffers[number % tileBuffers.size()];
 }
 
 
 namespace {
 
 void
-readTileData (TiledInputFile::Data * ifd,
+readTileData (TiledInputFile::Data *ifd,
 	      int dx, int dy,
 	      int lx, int ly,
               char *&buffer,
@@ -399,20 +399,17 @@ readNextTileData (TiledInputFile::Data *ifd,
 
 
 //
-// A TileBufferTask encapsulates the task of reading a single tile
-// into a tile buffer, uncompressing the tile and copying it into
-// a frame buffer.
+// A TileBufferTask encapsulates the task of uncompressing
+// a single tile and copying it into the frame buffer.
 //
 
 class TileBufferTask : public Task
 {
   public:
 
-    TileBufferTask (TaskGroup* group,
-                    TiledInputFile::Data * ifd,
-                    int number,
-		    int dx, int dy,
-		    int lx, int ly);
+    TileBufferTask (TaskGroup *group,
+                    TiledInputFile::Data *ifd,
+		    TileBuffer *tileBuffer);
                     
     virtual ~TileBufferTask ();
 
@@ -428,36 +425,13 @@ class TileBufferTask : public Task
 TileBufferTask::TileBufferTask
     (TaskGroup *group,
      TiledInputFile::Data *ifd,
-     int number,
-     int dx, int dy,
-     int lx, int ly)
+     TileBuffer *tileBuffer)
 :
     Task (group),
     _ifd (ifd),
-    _tileBuffer (_ifd->getTileBuffer (number))
+    _tileBuffer (tileBuffer)
 {
-    //
-    // Wait for the tileBuffer to become available
-    //
-
-    _tileBuffer->wait ();
-    
-    //
-    // Read in the tileBuffer from disk if necessary
-    //
-
-    if (_tileBuffer->dx != dx || _tileBuffer->dy != dy ||
-        _tileBuffer->lx != lx || _tileBuffer->ly != ly)
-    {
-        _tileBuffer->dx = dx;
-        _tileBuffer->dy = dy;
-        _tileBuffer->lx = lx;
-        _tileBuffer->ly = ly;
-        _tileBuffer->uncompressedData = 0;
-
-        readTileData (_ifd, dx, dy, lx, ly, _tileBuffer->buffer,
-                      _tileBuffer->dataSize);
-    }
+    // empty
 }
 
 
@@ -606,6 +580,56 @@ TileBufferTask::execute ()
         }
     }
 }
+
+
+TileBufferTask *
+newTileBufferTask
+    (TaskGroup *group,
+     TiledInputFile::Data *ifd,
+     int number,
+     int dx, int dy,
+     int lx, int ly)
+{
+    //
+    // Wait for a tile buffer to become available,
+    // fill the buffer with raw data from the file,
+    // and create a new TileBufferTask whose execute()
+    // method will uncompress the tile and copy the
+    // tile's pixels into the frame buffer.
+    //
+
+    TileBuffer *tileBuffer = ifd->getTileBuffer (number);
+
+    try
+    {
+	tileBuffer->wait();
+	
+	tileBuffer->dx = dx;
+	tileBuffer->dy = dy;
+	tileBuffer->lx = lx;
+	tileBuffer->ly = ly;
+
+	tileBuffer->uncompressedData = 0;
+
+	readTileData (ifd, dx, dy, lx, ly,
+		      tileBuffer->buffer,
+		      tileBuffer->dataSize);
+    }
+    catch (...)
+    {
+	//
+	// Reading from the file caused an exception.
+	// Signal that the tile buffer is free, and
+	// re-throw the exception.
+	//
+
+	tileBuffer->post();
+	throw;
+    }
+
+    return new TileBufferTask (group, ifd, tileBuffer);
+}
+
 
 } // namespace
 
@@ -968,11 +992,11 @@ TiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2, int lx, int ly)
 			       "Tile (" << dx << ", " << dy << ", " <<
 			       lx << "," << ly << ") is not a valid tile.");
                     
-                    ThreadPool::addGlobalTask (new TileBufferTask (&taskGroup,
-                                                                   _data,
-                                                                   tileNumber++,
-                                                                   dx, dy,
-                                                                   lx, ly));
+                    ThreadPool::addGlobalTask (newTileBufferTask (&taskGroup,
+                                                                  _data,
+                                                                  tileNumber++,
+                                                                  dx, dy,
+                                                                  lx, ly));
                 }
             }
 
@@ -1055,14 +1079,13 @@ TiledInputFile::rawTileData (int &dx, int &dy,
             throw Iex::ArgExc ("Tried to read a tile outside "
 			       "the image file's data window.");
 
-        TileBuffer* tileBuffer = _data->getTileBuffer ();
-        tileBuffer->wait ();
+        TileBuffer *tileBuffer = _data->getTileBuffer (0);
         
-        readNextTileData (_data, dx, dy, lx, ly, tileBuffer->buffer,
+        readNextTileData (_data, dx, dy, lx, ly,
+			  tileBuffer->buffer,
                           pixelDataSize);
-        pixelData = tileBuffer->buffer;
 
-        tileBuffer->post ();
+        pixelData = tileBuffer->buffer;
     }
     catch (Iex::BaseExc &e)
     {

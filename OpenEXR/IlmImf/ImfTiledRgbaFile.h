@@ -254,8 +254,19 @@ class TiledRgbaOutputFile
     // Update the preview image (see Imf::TiledOutputFile::updatePreviewImage())
     // -------------------------------------------------------------------------
 
-    void			updatePreviewImage (const PreviewRgba[]);
+    void		updatePreviewImage (const PreviewRgba[]);
 
+
+    //-----------------------------------------------
+    // Break a tile -- for testing and debugging only
+    // (see Imf::TiledOutputFile::breakTile())
+    //-----------------------------------------------
+
+    void		breakTile  (int dx, int dy,
+				    int lx, int ly,
+				    int offset,
+				    int length,
+				    char c);
   private:
 
     //

@@ -181,6 +181,174 @@ writeReadRGBA (const char fileName[],
 }
 
 
+void
+writeReadIncomplete ()
+{
+    cout << "\nfile with missing and broken scan lines" << endl;
+
+    const char *fileName = IMF_TMP_DIR "imf_test_incomplete.exr";
+
+    //
+    // Write a file where some scan lines are missing or broken.
+    // Then try read the file and verify that all existing good
+    // scan lines can actually be read.
+    //
+
+    const int width = 400;
+    const int height = 300;
+    const int tileXSize = 30;
+    const int tileYSize = 40;
+
+    Array2D<Rgba> p1 (height, width);
+
+    for (int y = 0; y < height; ++y)
+	for (int x = 0; x < width; ++x)
+	    p1[y][x] = Rgba (x % 5, x % 17, y % 23, y % 29);
+
+    {
+        cout << "writing" << endl;
+ 
+        remove (fileName);
+
+	Header header (width, height);
+	header.compression() = ZIPS_COMPRESSION;
+
+        RgbaOutputFile out (fileName, header, WRITE_RGBA);
+        
+        out.setFrameBuffer (&p1[0][0], 1, width);
+	out.writePixels (height / 2);		// write only half of the
+						// scan lines in the image
+
+	out.breakScanLine (10, 10, 10, 0xff);	// destroy scan lines
+	out.breakScanLine (25, 10, 10, 0xff);	// 10 and 25
+    }
+
+    {
+	Array2D<Rgba> p2 (height, width);
+
+	for (int y = 0; y < height; ++y)
+	    for (int x = 0; x < width; ++x)
+		p2[y][x] = Rgba (-1, -1, -1, -1);
+
+        cout << "reading one scan line at a time," << flush;
+
+        RgbaInputFile in (fileName);
+        const Box2i &dw = in.dataWindow();
+
+        assert (dw.max.x - dw.min.x + 1 == width);
+        assert (dw.max.y - dw.min.y + 1 == height);
+	assert (dw.min.x == 0);
+	assert (dw.min.y == 0);
+	
+        in.setFrameBuffer (&p2[0][0], 1, width);
+
+	for (int y = 0; y < height; ++y)
+	{
+	    bool scanLinePresent = true;
+	    bool scanLineBroken = false;
+
+	    try
+	    {
+		in.readPixels (y);
+	    }
+	    catch (const Iex::InputExc &)
+	    {
+		scanLinePresent = false;	// scan line is missing
+	    }
+	    catch (const Iex::IoExc &)
+	    {
+		scanLineBroken = true;		// scan line cannot be decoded
+	    }
+
+	    if (y == 10 || y == 25)
+		assert (scanLineBroken);
+	    else
+		assert (scanLinePresent == (y < height / 2));
+	}
+
+	cout << " comparing" << endl << flush;               
+
+	for (int y = 0; y < height; ++y)
+	{
+	    for (int x = 0; x < width; ++x)
+	    {
+		const Rgba &s = p1[y][x];
+		const Rgba &t = p2[y][x];
+
+		if (y < height / 2 && y != 10 && y != 25)
+		{
+		    assert (t.r == s.r &&
+			    t.g == s.g &&
+			    t.b == s.b &&
+			    t.a == s.a);
+		}
+		else
+		{
+		    assert (t.r == -1 &&
+			    t.g == -1 &&
+			    t.b == -1 &&
+			    t.a == -1);
+		}
+	    }
+	}
+    }
+
+    {
+	Array2D<Rgba> p2 (height, width);
+
+	for (int y = 0; y < height; ++y)
+	    for (int x = 0; x < width; ++x)
+		p2[y][x] = Rgba (-1, -1, -1, -1);
+
+        cout << "reading multiple scan lines at a time," << flush;
+
+        RgbaInputFile in (fileName);
+        const Box2i &dw = in.dataWindow();
+
+        assert (dw.max.x - dw.min.x + 1 == width);
+        assert (dw.max.y - dw.min.y + 1 == height);
+	assert (dw.min.x == 0);
+	assert (dw.min.y == 0);
+	
+        in.setFrameBuffer (&p2[0][0], 1, width);
+
+	bool scanLinesMissing = false;
+	bool scanLinesBroken = false;
+
+	try
+	{
+	    in.readPixels (0, height - 1);
+	}
+	catch (const Iex::InputExc &)
+	{
+	    scanLinesMissing = true;
+	}
+	catch (const Iex::IoExc &)
+	{
+	    scanLinesBroken = true;
+	}
+
+	assert (scanLinesMissing || scanLinesBroken);
+
+	cout << " comparing" << endl << flush;               
+
+	for (int y = 0; y < height; ++y)
+	{
+	    for (int x = 0; x < width; ++x)
+	    {
+		const Rgba &s = p1[y][x];
+		const Rgba &t = p2[y][x];
+
+		assert ((t.r == -1  && t.g == -1  && t.b == -1  && t.a == -1) ||
+			(t.r == s.r && t.g == s.g && t.b == s.b && t.a == s.a));
+	    }
+	}
+    }
+
+    remove (fileName);
+}
+
+
 } // namespace
 
 
@@ -238,6 +406,8 @@ testRgba ()
 				   Compression (comp));
 		}
 	    }
+
+	    writeReadIncomplete();
 	}
 
 	cout << "ok\n" << endl;
