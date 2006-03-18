@@ -745,6 +745,13 @@ RgbaOutputFile::setYCRounding (unsigned int roundY, unsigned int roundC)
 }
 
 
+void	
+RgbaOutputFile::breakScanLine  (int y, int offset, int length, char c)
+{
+    _outputFile->breakScanLine (y, offset, length, c);
+}
+
+
 class RgbaInputFile::FromYca: public Mutex
 {
   public:

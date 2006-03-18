@@ -1077,4 +1077,12 @@ TiledRgbaOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 }
 
 
+void	
+TiledRgbaOutputFile::breakTile  (int dx, int dy, int lx, int ly,
+				 int offset, int length, char c)
+{
+    _outputFile->breakTile (dx, dy, lx, ly, offset, length, c);
+}
+
+
 } // namespace Imf
