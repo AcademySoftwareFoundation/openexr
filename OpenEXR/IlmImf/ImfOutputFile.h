@@ -213,6 +213,11 @@ class OutputFile
     // output file by writing n copies of character c, starting
     // p bytes from the beginning of the pixel data block that
     // contains scan line y.
+    //
+    // Warning: Calling this function usually results in a
+    // broken image file.  The file or parts of it may not
+    // be readable, or the file may contain bad data.
+    //
     //---------------------------------------------------------
 
     void		breakScanLine  (int y, int offset, int length, char c);
