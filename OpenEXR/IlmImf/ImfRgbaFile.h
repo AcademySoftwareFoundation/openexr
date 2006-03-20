@@ -199,6 +199,11 @@ class RgbaOutputFile
     //----------------------------------------------------
     // Break a scan line -- for testing and debugging only
     // (see Imf::OutputFile::updatePreviewImage()
+    //
+    // Warning: Calling this function usually results in a
+    // broken image file.  The file or parts of it may not
+    // be readable, or the file may contain bad data.
+    //
     //----------------------------------------------------
 
     void			breakScanLine  (int y,

@@ -257,10 +257,16 @@ class TiledRgbaOutputFile
     void		updatePreviewImage (const PreviewRgba[]);
 
 
-    //-----------------------------------------------
+    //------------------------------------------------
     // Break a tile -- for testing and debugging only
     // (see Imf::TiledOutputFile::breakTile())
-    //-----------------------------------------------
+    //
+    // Warning: Calling this function usually results
+    // in a broken image file.  The file or parts of
+    // it may not be readable, or the file may contain
+    // bad data.
+    //
+    //------------------------------------------------
 
     void		breakTile  (int dx, int dy,
 				    int lx, int ly,
