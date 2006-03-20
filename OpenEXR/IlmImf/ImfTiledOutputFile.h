@@ -439,6 +439,11 @@ class TiledOutputFile
     // output file by writing n copies of character c, starting
     // p bytes from the beginning of the tile with tile coordinates
     // (dx, dy) and level number (lx, ly).
+    //
+    // Warning: Calling this function usually results in a broken
+    // image file.  The file or parts of it may not be readable,
+    // or the file may contain bad data.
+    //
     //-------------------------------------------------------------
 
     void		breakTile  (int dx, int dy,
