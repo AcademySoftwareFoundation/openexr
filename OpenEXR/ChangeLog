@@ -1,8 +1,10 @@
+	* Added a section on memory-mapped file input to the
+	  documentation.  (Florian Kainz)
 	* Bug fix: reading an incomplete file causes a deadlock while
 	  waiting on a semaphore.  (Florian Kainz)
 	* Updated documentation (ReadingAndWritingImageFiles.sxw) and
 	  sample code (IlmImfExamples):
-	  Add a section about multi-threading, update section on
+	  Adde a section about multi-threading, update section on
 	  thread-safety, change documentation and sample code to use
 	  readTiles()/writeTiles() instead of readTile()/writeTile()
 	  where possible, mention that environment maps contain
