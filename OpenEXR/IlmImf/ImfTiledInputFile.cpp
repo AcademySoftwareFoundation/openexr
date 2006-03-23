@@ -306,7 +306,7 @@ readTileData (TiledInputFile::Data *ifd,
 
     #ifdef DEBUG
 
-	ssert (ifd->is->tellg() == tileOffset);
+	assert (ifd->is->tellg() == tileOffset);
 
     #endif
 
