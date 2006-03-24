@@ -170,7 +170,7 @@ class ChannelList
     // channelsInLayer(ln,f,l)	stores a pair of iterators in f and l
     // 				such that the loop
     //
-    // 				for (ConstIterator i = f; f != l; ++i)
+    // 				for (ConstIterator i = f; i != l; ++i)
     // 				   ...
     //
     //				iterates over all channels in layer ln.
@@ -197,7 +197,7 @@ class ChannelList
     // such that the following loop iterates over all channels whose name
     // begins with string p:
     //
-    //		for (ConstIterator i = f; f != l; ++i)
+    //		for (ConstIterator i = f; i != l; ++i)
     //		    ...
     //
     //-------------------------------------------------------------------
