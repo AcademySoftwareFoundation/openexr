@@ -1,5 +1,5 @@
-	* Added a section on memory-mapped file input to the
-	  documentation.  (Florian Kainz)
+	* Added sections on layers and on memory-mapped file input
+	  to the documentation.  (Florian Kainz)
 	* Bug fix: reading an incomplete file causes a deadlock while
 	  waiting on a semaphore.  (Florian Kainz)
 	* Updated documentation (ReadingAndWritingImageFiles.sxw) and
