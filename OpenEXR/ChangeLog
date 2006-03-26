@@ -1,3 +1,5 @@
+	* Added a document that gives an overview of the on-disk
+	  layout of OpenEXR files (Florian Kainz)
 	* Added sections on layers and on memory-mapped file input
 	  to the documentation.  (Florian Kainz)
 	* Bug fix: reading an incomplete file causes a deadlock while
