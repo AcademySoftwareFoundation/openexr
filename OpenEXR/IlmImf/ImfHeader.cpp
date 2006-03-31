@@ -909,6 +909,7 @@ staticInitialize ()
 	Box2fAttribute::registerAttributeType();
 	Box2iAttribute::registerAttributeType();
 	ChannelListAttribute::registerAttributeType();
+	CompressionAttribute::registerAttributeType();
 	ChromaticitiesAttribute::registerAttributeType();
 	DoubleAttribute::registerAttributeType();
 	EnvmapAttribute::registerAttributeType();
