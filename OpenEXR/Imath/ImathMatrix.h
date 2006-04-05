@@ -1250,7 +1250,6 @@ Matrix33<T>::operator /= (T a)
     x[2][0] /= a;
     x[2][1] /= a;
     x[2][2] /= a;
-    x[2][3] /= a;
   
     return *this;
 }
