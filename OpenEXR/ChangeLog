@@ -6,11 +6,11 @@
 	  waiting on a semaphore.  (Florian Kainz)
 	* Updated documentation (ReadingAndWritingImageFiles.sxw) and
 	  sample code (IlmImfExamples):
-	  Adde a section about multi-threading, update section on
-	  thread-safety, change documentation and sample code to use
+	  Added a section about multi-threading, updated section on
+	  thread-safety, changed documentation and sample code to use
 	  readTiles()/writeTiles() instead of readTile()/writeTile()
-	  where possible, mention that environment maps contain
-	  redundant pixels, update section on testing if a file is
+	  where possible, mentioned that environment maps contain
+	  redundant pixels, updated section on testing if a file is
 	  an OpenEXR file.
 	  (Florian Kainz)
 	* Multi-threading bug fixes (exceptions could be thrown
