@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
@@ -119,13 +119,13 @@ testMagic ()
     {
 	cout << "Testing magic number" << endl;
 
-	testFile1 ("comp_none.exr", true);
-	testFile1 ("invalid.exr", false);
+	testFile1 (ILM_IMF_TEST_IMAGEDIR "comp_none.exr", true);
+	testFile1 (ILM_IMF_TEST_IMAGEDIR "invalid.exr", false);
 
-	testFile2 ("tiled.exr", true, true, true);
-	testFile2 ("comp_none.exr", true, true, false);
-	testFile2 ("invalid.exr", true, false, false);
-	testFile2 ("does_not_exist.exr", false, false, false);
+	testFile2 (ILM_IMF_TEST_IMAGEDIR "tiled.exr", true, true, true);
+	testFile2 (ILM_IMF_TEST_IMAGEDIR "comp_none.exr", true, true, false);
+	testFile2 (ILM_IMF_TEST_IMAGEDIR "invalid.exr", true, false, false);
+	testFile2 (ILM_IMF_TEST_IMAGEDIR "does_not_exist.exr", false, false, false);
 
 	cout << "ok\n" << endl;
     }
