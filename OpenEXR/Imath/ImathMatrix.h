@@ -3198,9 +3198,9 @@ template <class S, class T>
 inline const Vec2<S> &
 operator *= (Vec2<S> &v, const Matrix33<T> &m)
 {
-    S x = v.x * m[0][0] + v.y * m[1][0] + m[2][0];
-    S y = v.x * m[0][1] + v.y * m[1][1] + m[2][1];
-    S w = v.x * m[0][2] + v.y * m[1][2] + m[2][2];
+    S x = S(v.x * m[0][0] + v.y * m[1][0] + m[2][0]);
+    S y = S(v.x * m[0][1] + v.y * m[1][1] + m[2][1]);
+    S w = S(v.x * m[0][2] + v.y * m[1][2] + m[2][2]);
 
     v.x = x / w;
     v.y = y / w;
@@ -3212,9 +3212,9 @@ template <class S, class T>
 inline Vec2<S>
 operator * (const Vec2<S> &v, const Matrix33<T> &m)
 {
-    S x = v.x * m[0][0] + v.y * m[1][0] + m[2][0];
-    S y = v.x * m[0][1] + v.y * m[1][1] + m[2][1];
-    S w = v.x * m[0][2] + v.y * m[1][2] + m[2][2];
+    S x = S(v.x * m[0][0] + v.y * m[1][0] + m[2][0]);
+    S y = S(v.x * m[0][1] + v.y * m[1][1] + m[2][1]);
+    S w = S(v.x * m[0][2] + v.y * m[1][2] + m[2][2]);
 
     return Vec2<S> (x / w, y / w);
 }
@@ -3224,9 +3224,9 @@ template <class S, class T>
 inline const Vec3<S> &
 operator *= (Vec3<S> &v, const Matrix33<T> &m)
 {
-    S x = v.x * m[0][0] + v.y * m[1][0] + v.z * m[2][0];
-    S y = v.x * m[0][1] + v.y * m[1][1] + v.z * m[2][1];
-    S z = v.x * m[0][2] + v.y * m[1][2] + v.z * m[2][2];
+    S x = S(v.x * m[0][0] + v.y * m[1][0] + v.z * m[2][0]);
+    S y = S(v.x * m[0][1] + v.y * m[1][1] + v.z * m[2][1]);
+    S z = S(v.x * m[0][2] + v.y * m[1][2] + v.z * m[2][2]);
 
     v.x = x;
     v.y = y;
@@ -3240,9 +3240,9 @@ template <class S, class T>
 inline Vec3<S>
 operator * (const Vec3<S> &v, const Matrix33<T> &m)
 {
-    S x = v.x * m[0][0] + v.y * m[1][0] + v.z * m[2][0];
-    S y = v.x * m[0][1] + v.y * m[1][1] + v.z * m[2][1];
-    S z = v.x * m[0][2] + v.y * m[1][2] + v.z * m[2][2];
+    S x = S(v.x * m[0][0] + v.y * m[1][0] + v.z * m[2][0]);
+    S y = S(v.x * m[0][1] + v.y * m[1][1] + v.z * m[2][1]);
+    S z = S(v.x * m[0][2] + v.y * m[1][2] + v.z * m[2][2]);
 
     return Vec3<S> (x, y, z);
 }
@@ -3252,10 +3252,10 @@ template <class S, class T>
 inline const Vec3<S> &
 operator *= (Vec3<S> &v, const Matrix44<T> &m)
 {
-    S x = v.x * m[0][0] + v.y * m[1][0] + v.z * m[2][0] + m[3][0];
-    S y = v.x * m[0][1] + v.y * m[1][1] + v.z * m[2][1] + m[3][1];
-    S z = v.x * m[0][2] + v.y * m[1][2] + v.z * m[2][2] + m[3][2];
-    S w = v.x * m[0][3] + v.y * m[1][3] + v.z * m[2][3] + m[3][3];
+    S x = S(v.x * m[0][0] + v.y * m[1][0] + v.z * m[2][0] + m[3][0]);
+    S y = S(v.x * m[0][1] + v.y * m[1][1] + v.z * m[2][1] + m[3][1]);
+    S z = S(v.x * m[0][2] + v.y * m[1][2] + v.z * m[2][2] + m[3][2]);
+    S w = S(v.x * m[0][3] + v.y * m[1][3] + v.z * m[2][3] + m[3][3]);
 
     v.x = x / w;
     v.y = y / w;
@@ -3268,10 +3268,10 @@ template <class S, class T>
 inline Vec3<S>
 operator * (const Vec3<S> &v, const Matrix44<T> &m)
 {
-    S x = v.x * m[0][0] + v.y * m[1][0] + v.z * m[2][0] + m[3][0];
-    S y = v.x * m[0][1] + v.y * m[1][1] + v.z * m[2][1] + m[3][1];
-    S z = v.x * m[0][2] + v.y * m[1][2] + v.z * m[2][2] + m[3][2];
-    S w = v.x * m[0][3] + v.y * m[1][3] + v.z * m[2][3] + m[3][3];
+    S x = S(v.x * m[0][0] + v.y * m[1][0] + v.z * m[2][0] + m[3][0]);
+    S y = S(v.x * m[0][1] + v.y * m[1][1] + v.z * m[2][1] + m[3][1]);
+    S z = S(v.x * m[0][2] + v.y * m[1][2] + v.z * m[2][2] + m[3][2]);
+    S w = S(v.x * m[0][3] + v.y * m[1][3] + v.z * m[2][3] + m[3][3]);
 
     return Vec3<S> (x / w, y / w, z / w);
 }
