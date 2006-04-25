@@ -41,7 +41,7 @@
 #include <IlmThreadMutex.h>
 #include <Iex.h>
 
-namespace Imf {
+namespace IlmThread {
 
 
 Mutex::Mutex ()
@@ -70,4 +70,4 @@ Mutex::unlock () const
 }
 
 
-} // namespace Imf
+} // namespace IlmThread
