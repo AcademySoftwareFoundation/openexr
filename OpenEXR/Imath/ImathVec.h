@@ -49,6 +49,11 @@
 
 #include <iostream>
 
+#ifdef _WIN32
+// suppress exception specification warnings
+#pragma warning(disable:4290)
+#endif
+
 
 namespace Imath {
 

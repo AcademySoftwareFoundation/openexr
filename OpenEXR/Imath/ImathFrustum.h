@@ -46,6 +46,15 @@
 #include <ImathFun.h>
 #include <IexMathExc.h>
 
+#ifdef _WIN32
+    #ifdef near
+        #undef near
+    #endif
+    #ifdef far
+        #undef far
+    #endif
+#endif
+
 namespace Imath {
 
 //
