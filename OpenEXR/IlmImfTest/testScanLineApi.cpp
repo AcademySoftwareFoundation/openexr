@@ -58,6 +58,10 @@ using namespace std;
 
 namespace {
 
+using Imf::UINT;
+using Imf::HALF;
+using Imf::FLOAT;
+
 void
 fillPixels (Array2D<unsigned int> &pi,
             Array2D<half> &ph,
