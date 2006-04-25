@@ -85,7 +85,7 @@ void
 Thread::start ()
 {
     unsigned id;
-    _thread = (ThreadHandle)::_beginthreadex (0, 0, &threadLoop, this, 0, &id);
+    _thread = (HANDLE)::_beginthreadex (0, 0, &threadLoop, this, 0, &id);
 
     if (_thread == 0)
 	Iex::throwErrnoExc ("Cannot create new thread (%T).");
