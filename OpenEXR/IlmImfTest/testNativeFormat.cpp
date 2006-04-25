@@ -274,10 +274,10 @@ testNativeFormat ()
 		"in Xdr, not native format" << endl;
 
         cout << "image 1:" << endl;
-        readCopyRead("test_native1.exr", 54435);
+        readCopyRead(ILM_IMF_TEST_IMAGEDIR "test_native1.exr", 54435);
         
         cout << "image 2:" << endl;
-        readCopyRead("test_native2.exr", 37639);
+        readCopyRead(ILM_IMF_TEST_IMAGEDIR "test_native2.exr", 37639);
         
 	cout << "ok\n" << endl;
     }

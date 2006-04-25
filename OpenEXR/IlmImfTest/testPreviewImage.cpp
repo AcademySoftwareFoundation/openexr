@@ -210,7 +210,7 @@ testPreviewImage ()
     {
 	cout << "Testing preview image attribute" << endl;
 
-	readWriteFiles ("comp_piz.exr",
+	readWriteFiles (ILM_IMF_TEST_IMAGEDIR "comp_piz.exr",
 			filename1,
 			filename2);
 

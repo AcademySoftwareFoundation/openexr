@@ -27,6 +27,8 @@ IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
 		     testYca.cpp testYca.h \
 		     testIsComplete.cpp testIsComplete.h
 
+IlmImfTest_CPPFLAGS = -DILM_IMF_TEST_IMAGEDIR=\"$(srcdir)/\" $(AM_CPPFLAGS)
+
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Half -I$(top_srcdir)/Iex \
 	   -I$(top_srcdir)/Imath -I$(top_srcdir)/IlmImf \
 	   -I$(top_srcdir)/IlmThread
