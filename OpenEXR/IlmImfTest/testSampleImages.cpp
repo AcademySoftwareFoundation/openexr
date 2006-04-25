@@ -89,19 +89,19 @@ testSampleImages ()
     {
 	cout << "Testing sample image files" << endl;
 
-	readImage ("comp_none.exr", 24988);
-	readImage ("comp_rle.exr",  24988);
-	readImage ("comp_zips.exr", 24988);
-	readImage ("comp_zip.exr",  24988);
-	readImage ("comp_piz.exr",  24988);
+	readImage (ILM_IMF_TEST_IMAGEDIR "comp_none.exr", 24988);
+	readImage (ILM_IMF_TEST_IMAGEDIR "comp_rle.exr",  24988);
+	readImage (ILM_IMF_TEST_IMAGEDIR "comp_zips.exr", 24988);
+	readImage (ILM_IMF_TEST_IMAGEDIR "comp_zip.exr",  24988);
+	readImage (ILM_IMF_TEST_IMAGEDIR "comp_piz.exr",  24988);
         
         for (int i = 0; i < 5; i++)
         {
             if (IlmThread::supportsThreads ())
             {
                 setGlobalThreadCount (i);
-                readImage ("lineOrder_increasing.exr", 46515);
-                readImage ("lineOrder_decreasing.exr", 46515);
+                readImage (ILM_IMF_TEST_IMAGEDIR "lineOrder_increasing.exr", 46515);
+                readImage (ILM_IMF_TEST_IMAGEDIR "lineOrder_decreasing.exr", 46515);
             }
         }
 
