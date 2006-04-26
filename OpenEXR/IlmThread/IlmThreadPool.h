@@ -115,7 +115,7 @@ class ThreadPool
     static ThreadPool&	globalThreadPool ();
     static void		addGlobalTask (Task* task);
 
-    class Data;
+    struct Data;
 
   protected:
 
@@ -146,7 +146,7 @@ class TaskGroup
      TaskGroup();
     ~TaskGroup();
 
-    class Data;
+    struct Data;
     Data* const		_data;
 };
 
