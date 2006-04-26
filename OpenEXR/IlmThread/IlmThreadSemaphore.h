@@ -43,6 +43,9 @@
 //-----------------------------------------------------------------------------
 
 #ifdef _WIN32
+    #ifdef NOMINMAX
+        #undef NOMINMAX
+    #endif
     #define NOMINMAX
     #include <windows.h>
 #elif HAVE_PTHREAD && !HAVE_POSIX_SEMAPHORES
