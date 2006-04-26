@@ -38,6 +38,11 @@
 #include <stdio.h>
 #include <assert.h>
 
+#ifndef ILM_IMF_TEST_IMAGEDIR
+    #define ILM_IMF_TEST_IMAGEDIR
+#endif
+
+
 using namespace Imf;
 using namespace Imath;
 using namespace std;
