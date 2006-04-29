@@ -1016,12 +1016,6 @@ OutputFile::writePixels (int numScanLines)
 
                 if (writeBuffer->partiallyFull)
                 {
-                    #ifdef DEBUG
-    
-                        assert (nextWriteBuffer + step == stop);
-    
-                    #endif
-                
                     _data->currentScanLine = _data->currentScanLine +
                                              step * numLines;
                     writeBuffer->post();
@@ -1042,9 +1036,9 @@ OutputFile::writePixels (int numScanLines)
                 #ifdef DEBUG
     
                     assert (_data->currentScanLine ==
-                            (_data->lineOrder == INCREASING_Y) ?
-                            writeBuffer->scanLineMax + 1:
-                            writeBuffer->scanLineMin - 1);
+                            ((_data->lineOrder == INCREASING_Y) ?
+                             writeBuffer->scanLineMax + 1:
+                             writeBuffer->scanLineMin - 1));
     
                 #endif
                 
