@@ -389,12 +389,6 @@ convertToXdr (OutputFile::Data *ofd,
             
             convertInPlace (writePtr, readPtr, slice.type, dMaxX - dMinX + 1);
         }
-
-	#ifdef DEBUG
-
-	    assert (writePtr == pixelPtr);
-
-	#endif
     }
 }
 
