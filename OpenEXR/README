@@ -67,7 +67,7 @@ make install
 
 If you have the Nvidia Cg SDK and you want to build support for
 fragment shaders into exrdisplay, specify the path to the SDK using
-the "--with-nvsdk-prefix" flag.
+the "--with-cg-prefix" flag.
 
 See README.OSX for details on building OpenEXR in MacOS X.
 
