@@ -48,7 +48,6 @@
 //
 //------------------------------------------------------------------------
 
-#ifdef HAVE_STL_LIMITS
 #include <limits>
 #include "half.h"
 
@@ -100,5 +99,4 @@ class numeric_limits <half>
 
 } // namespace std
 
-#endif
 #endif
