@@ -51,7 +51,7 @@
 
 namespace Iex {
 
-#if defined PLATFORM_WINDOWS && _MSC_VER
+#if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
 // Tell MS VC++ to suppress exception specification warnings
 #pragma warning(disable:4290)
 #endif
@@ -257,7 +257,7 @@ BaseExc::stackTrace () const
     return _stackTrace;
 }
 
-#if defined PLATFORM_WINDOWS && _MSC_VER
+#if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
 #pragma warning(default:4290)
 #endif
 

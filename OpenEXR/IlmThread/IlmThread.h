@@ -90,7 +90,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifdef _WIN32
+#if defined _WIN32 || defined _WIN64
     #ifdef NOMINMAX
         #undef NOMINMAX
     #endif
@@ -123,7 +123,7 @@ class Thread
     
   private:
 
-    #ifdef _WIN32
+    #if defined _WIN32 || defined _WIN64
 	HANDLE _thread;
     #elif HAVE_PTHREAD
 	pthread_t _thread;

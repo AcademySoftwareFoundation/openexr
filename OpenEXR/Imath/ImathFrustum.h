@@ -46,7 +46,7 @@
 #include "ImathFun.h"
 #include "IexMathExc.h"
 
-#ifdef _WIN32
+#if defined _WIN32 || defined _WIN64
     #ifdef near
         #undef near
     #endif
