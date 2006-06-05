@@ -55,11 +55,7 @@ testFile1 (const char fileName[], bool isImfFile)
 {
     cout << fileName << " " << flush;
 
-#ifdef HAVE_STL_IOS_BASE
     ifstream f (fileName, ios_base::binary);
-#else
-    ifstream f (fileName, ios::binary|ios::in);
-#endif
 
     char bytes[4];
     f.read (bytes, sizeof (bytes));
