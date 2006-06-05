@@ -39,9 +39,6 @@ mypow (int x, int y)
 void
 testLimits()
 {
-#ifndef HAVE_STL_LIMITS
-    cout << "testLimits: Not supported with this compiler\n";
-#else
     cout << "values in std::numeric_limits<half>\n";
 
     cout << "min_exponent\n";
@@ -91,7 +88,7 @@ testLimits()
 	half h (mypow (10, numeric_limits<half>::max_exponent10 + 1));
 	assert (h.isInfinity());
     }
-#endif
+
     cout << "ok\n\n" << flush;
 
 }
