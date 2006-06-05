@@ -36,7 +36,7 @@
 
 #include <ImfLut.h>
 #include <ImfArray.h>
-#include <ImathRandom.h>
+#include "ImathRandom.h"
 #include <iostream>
 
 #include <assert.h>

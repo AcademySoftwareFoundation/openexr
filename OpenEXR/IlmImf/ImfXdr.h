@@ -103,8 +103,8 @@
 //----------------------------------------------------------------------------
 
 #include <ImfInt64.h>
-#include <IexMathExc.h>
-#include <half.h>
+#include "IexMathExc.h"
+#include "half.h"
 #include <limits.h>
 
 namespace Imf {

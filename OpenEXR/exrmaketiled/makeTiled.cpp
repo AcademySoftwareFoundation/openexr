@@ -47,8 +47,8 @@
 #include <ImfChannelList.h>
 #include <ImfFrameBuffer.h>
 #include <ImfStandardAttributes.h>
-#include <ImathFun.h>
-#include <Iex.h>
+#include "ImathFun.h"
+#include "Iex.h"
 #include <map>
 #include <algorithm>
 #include <iostream>

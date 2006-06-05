@@ -41,9 +41,9 @@
 //----------------------------------------------------------------------------
 
 #include <ImageView.h>
-#include <ImathMath.h>
-#include <ImathFun.h>
-#include <halfFunction.h>
+#include "ImathMath.h"
+#include "ImathFun.h"
+#include "halfFunction.h"
 #include <algorithm>
 #include <FL/Fl.H>
 #include <stdio.h>

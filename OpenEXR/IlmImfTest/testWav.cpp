@@ -35,7 +35,7 @@
 
 
 #include <ImfWav.h>
-#include <ImathRandom.h>
+#include "ImathRandom.h"
 #include <ImfArray.h>
 #include <iostream>
 #include <exception>

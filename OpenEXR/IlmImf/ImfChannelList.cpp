@@ -42,7 +42,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfChannelList.h>
-#include <Iex.h>
+#include "Iex.h"
 
 
 using std::string;

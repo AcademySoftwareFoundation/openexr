@@ -55,8 +55,8 @@
 //
 //----------------------------------------------------------------------
 
-#include <ImathExc.h>
-#include <ImathMatrix.h>
+#include "ImathExc.h"
+#include "ImathMatrix.h"
 
 #include <iostream>
 

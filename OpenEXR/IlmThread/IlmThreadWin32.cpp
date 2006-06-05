@@ -39,8 +39,8 @@
 //-----------------------------------------------------------------------------
 
 
-#include <IlmThread.h>
-#include <Iex.h>
+#include "IlmThread.h"
+#include "Iex.h"
 #include <iostream>
 #include <assert.h>
 

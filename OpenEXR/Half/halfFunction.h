@@ -84,7 +84,7 @@
 #define _HALF_FUNCTION_H_
 
 #include <float.h>
-#include <half.h>
+#include "half.h"
 
 
 template <class T>

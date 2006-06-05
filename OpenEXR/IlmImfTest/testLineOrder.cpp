@@ -40,8 +40,8 @@
 #include <ImfChannelList.h>
 #include <ImfArray.h>
 #include <ImfThreading.h>
-#include <IlmThread.h>
-#include <half.h>
+#include "IlmThread.h"
+#include "half.h"
 
 #include <stdio.h>
 #include <assert.h>

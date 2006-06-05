@@ -41,8 +41,8 @@
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
 #include <ImfThreading.h>
-#include <IlmThread.h>
-#include <ImathMath.h>
+#include "IlmThread.h"
+#include "ImathMath.h"
 #include <stdio.h>
 #include <assert.h>
 #include <algorithm>

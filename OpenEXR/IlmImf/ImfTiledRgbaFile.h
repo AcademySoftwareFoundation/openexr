@@ -47,9 +47,9 @@
 
 #include <ImfHeader.h>
 #include <ImfFrameBuffer.h>
-#include <ImathVec.h>
-#include <ImathBox.h>
-#include <half.h>
+#include "ImathVec.h"
+#include "ImathBox.h"
+#include "half.h"
 #include <ImfTileDescription.h>
 #include <ImfRgba.h>
 #include <ImfThreading.h>

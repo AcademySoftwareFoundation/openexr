@@ -50,9 +50,9 @@
 #include <ImfHeader.h>
 #include <ImfFrameBuffer.h>
 #include <ImfRgba.h>
-#include <ImathVec.h>
-#include <ImathBox.h>
-#include <half.h>
+#include "ImathVec.h"
+#include "ImathBox.h"
+#include "half.h"
 #include <ImfThreading.h>
 
 namespace Imf {

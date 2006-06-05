@@ -48,9 +48,9 @@
 #include <ImfName.h>
 #include <ImfTileDescription.h>
 #include <ImfInt64.h>
-#include <ImathVec.h>
-#include <ImathBox.h>
-#include <IexBaseExc.h>
+#include "ImathVec.h"
+#include "ImathBox.h"
+#include "IexBaseExc.h"
 #include <map>
 #include <iosfwd>
 

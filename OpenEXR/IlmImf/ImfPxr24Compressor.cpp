@@ -66,9 +66,9 @@
 #include <ImfPxr24Compressor.h>
 #include <ImfHeader.h>
 #include <ImfChannelList.h>
-#include <ImathFun.h>
-#include <Iex.h>
-#include <half.h>
+#include "ImathFun.h"
+#include "Iex.h"
+#include "half.h"
 #include <zlib.h>
 #include <assert.h>
 #include <algorithm>

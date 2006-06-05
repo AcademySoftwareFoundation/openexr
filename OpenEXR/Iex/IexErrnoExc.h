@@ -43,7 +43,7 @@
 //
 //----------------------------------------------------------------
 
-#include <IexBaseExc.h>
+#include "IexBaseExc.h"
 
 namespace Iex {
 

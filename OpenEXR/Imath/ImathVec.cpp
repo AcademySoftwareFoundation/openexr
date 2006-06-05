@@ -40,7 +40,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include <ImathVec.h>
+#include "ImathVec.h"
 
 namespace Imath {
 

@@ -44,7 +44,7 @@
 #include <ImfArray.h>
 #include <ImfRgba.h>
 #include <ImfEnvmap.h>
-#include <ImathBox.h>
+#include "ImathBox.h"
 
 
 class EnvmapImage

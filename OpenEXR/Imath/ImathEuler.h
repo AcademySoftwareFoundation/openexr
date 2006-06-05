@@ -125,11 +125,11 @@
 //----------------------------------------------------------------------
 
 
-#include <ImathMath.h>
-#include <ImathVec.h>
-#include <ImathQuat.h>
-#include <ImathMatrix.h>
-#include <ImathLimits.h>
+#include "ImathMath.h"
+#include "ImathVec.h"
+#include "ImathQuat.h"
+#include "ImathMatrix.h"
+#include "ImathLimits.h"
 #include <iostream>
 
 namespace Imath {

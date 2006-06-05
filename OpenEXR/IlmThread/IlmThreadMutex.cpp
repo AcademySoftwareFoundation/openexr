@@ -41,7 +41,7 @@
 
 #if !defined (_WIN32) && !(HAVE_PTHREAD)
 
-#include <IlmThreadMutex.h>
+#include "IlmThreadMutex.h"
 
 namespace IlmThread {
 

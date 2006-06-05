@@ -40,7 +40,7 @@
 #include <ImfTiledInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
-#include <half.h>
+#include "half.h"
 
 #include <vector>
 #include <stdio.h>

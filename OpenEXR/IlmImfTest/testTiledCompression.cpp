@@ -41,8 +41,8 @@
 #include <ImfTiledInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
-#include <half.h>
-#include <ImathRandom.h>
+#include "half.h"
+#include "ImathRandom.h"
 #include <ImfTileDescriptionAttribute.h>
 #include <compareFloat.h>
 

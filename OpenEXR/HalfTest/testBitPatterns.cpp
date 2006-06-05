@@ -1,5 +1,5 @@
 #include <testBitPatterns.h>
-#include <half.h>
+#include "half.h"
 #include <float.h>
 #include <iostream>
 #include <string.h>

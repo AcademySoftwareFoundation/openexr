@@ -45,10 +45,10 @@
 #include <ImfMisc.h>
 #include <ImfStdIO.h>
 #include <ImfVersion.h>
-#include <ImathFun.h>
-#include <IlmThreadMutex.h>
-#include <Iex.h>
-#include <half.h>
+#include "ImathFun.h"
+#include "IlmThreadMutex.h"
+#include "Iex.h"
+#include "half.h"
 #include <fstream>
 #include <algorithm>
 

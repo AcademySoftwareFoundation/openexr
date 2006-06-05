@@ -41,7 +41,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfRleCompressor.h>
-#include <Iex.h>
+#include "Iex.h"
 
 namespace Imf {
 namespace {

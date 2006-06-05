@@ -41,7 +41,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include <ImathShear.h>
+#include "ImathShear.h"
 
 namespace Imath {
 
