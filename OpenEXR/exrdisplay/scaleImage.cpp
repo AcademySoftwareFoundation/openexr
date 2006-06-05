@@ -40,8 +40,8 @@
 //----------------------------------------------------------------------------
 
 #include <scaleImage.h>
-#include <ImathLimits.h>
-#include <ImathFun.h>
+#include "ImathLimits.h"
+#include "ImathFun.h"
 #include <algorithm>
 #include <math.h>
 

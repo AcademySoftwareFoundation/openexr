@@ -45,7 +45,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfAttribute.h>
-#include <ImathMatrix.h>
+#include "ImathMatrix.h"
 
 
 namespace Imf {

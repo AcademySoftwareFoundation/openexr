@@ -45,7 +45,7 @@
 //---------------------------------------------------------------------------
 
 #include <assert.h>
-#include <half.h>
+#include "half.h"
 
 using namespace std;
 
@@ -55,14 +55,14 @@ using namespace std;
 
 #if defined (OPENEXR_DLL)
 __declspec(dllexport) half::uif _toFloat[1 << 16] =
-    #include <toFloat.h>
+    #include "toFloat.h"
 __declspec(dllexport) unsigned short _eLut[1 << 9] =
-    #include <eLut.h>
+    #include "eLut.h"
 #else
 const half::uif half::_toFloat[1 << 16] =
-    #include <toFloat.h>
+    #include "toFloat.h"
 const unsigned short half::_eLut[1 << 9] =
-    #include <eLut.h>
+    #include "eLut.h"
 #endif
 
 //-----------------------------------------------

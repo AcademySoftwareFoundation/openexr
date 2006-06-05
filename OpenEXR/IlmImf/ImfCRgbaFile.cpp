@@ -52,7 +52,7 @@
 #include <ImfMatrixAttribute.h>
 #include <ImfChannelList.h>
 #include <ImfLut.h>
-#include <half.h>
+#include "half.h"
 #include <string.h>
 
 using Imath::Box2i;

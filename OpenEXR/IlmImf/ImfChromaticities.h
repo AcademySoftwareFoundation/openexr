@@ -43,8 +43,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImathVec.h>
-#include <ImathMatrix.h>
+#include "ImathVec.h"
+#include "ImathMatrix.h"
 
 namespace Imf {
 

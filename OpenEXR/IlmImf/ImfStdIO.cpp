@@ -41,7 +41,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfStdIO.h>
-#include <Iex.h>
+#include "Iex.h"
 #include <errno.h>
 
 using namespace std;

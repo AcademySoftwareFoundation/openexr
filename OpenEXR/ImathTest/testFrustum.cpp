@@ -35,8 +35,8 @@
 
 
 #include <testFrustum.h>
-#include <ImathFrustum.h>
-#include <ImathFun.h>
+#include "ImathFrustum.h"
+#include "ImathFun.h"
 #include <iostream>
 #include <assert.h>
 

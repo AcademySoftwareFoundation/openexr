@@ -48,11 +48,11 @@
 //
 //-------------------------------------------------------------------------
 
-#include <ImathMatrix.h>
-#include <ImathQuat.h>
-#include <ImathEuler.h>
-#include <ImathExc.h>
-#include <ImathVec.h>
+#include "ImathMatrix.h"
+#include "ImathQuat.h"
+#include "ImathEuler.h"
+#include "ImathExc.h"
+#include "ImathVec.h"
 #include <math.h>
 
 

@@ -47,7 +47,7 @@
 
 #include <ImfRgba.h>
 #include <ImfArray.h>
-#include <ImathBox.h>
+#include "ImathBox.h"
 
 
 //

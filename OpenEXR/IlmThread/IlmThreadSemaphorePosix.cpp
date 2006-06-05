@@ -41,8 +41,8 @@
 
 #if HAVE_PTHREAD && HAVE_POSIX_SEMAPHORES
 
-#include <IlmThreadSemaphore.h>
-#include <Iex.h>
+#include "IlmThreadSemaphore.h"
+#include "Iex.h"
 #include <assert.h>
 
 namespace IlmThread {

@@ -42,7 +42,7 @@
 #include <ImfTiledRgbaFile.h>
 #include <ImfArray.h>
 #include <ImfThreading.h>
-#include <IlmThread.h>
+#include "IlmThread.h"
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>

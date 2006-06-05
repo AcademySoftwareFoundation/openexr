@@ -45,7 +45,7 @@
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
 #include <ImfPreviewImage.h>
-#include <ImathFun.h>
+#include "ImathFun.h"
 #include <drawImage.h>
 
 #include <iostream>

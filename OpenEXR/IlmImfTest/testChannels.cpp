@@ -39,7 +39,7 @@
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
-#include <half.h>
+#include "half.h"
 
 #include <stdio.h>
 #include <assert.h>

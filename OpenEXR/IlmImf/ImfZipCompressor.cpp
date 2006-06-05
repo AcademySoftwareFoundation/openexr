@@ -41,7 +41,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfZipCompressor.h>
-#include <Iex.h>
+#include "Iex.h"
 #include <zlib.h>
 
 namespace Imf {

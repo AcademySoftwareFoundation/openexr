@@ -47,8 +47,8 @@
 //
 //-------------------------------------------------------------------------
 
-#include <ImathVec.h>
-#include <ImathLimits.h>
+#include "ImathVec.h"
+#include "ImathLimits.h"
 
 namespace Imath {
 

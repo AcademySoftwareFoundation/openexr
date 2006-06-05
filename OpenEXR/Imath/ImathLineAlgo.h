@@ -77,8 +77,8 @@
 //
 //------------------------------------------------------------------
 
-#include <ImathLine.h>
-#include <ImathVecAlgo.h>
+#include "ImathLine.h"
+#include "ImathVecAlgo.h"
 
 namespace Imath {
 

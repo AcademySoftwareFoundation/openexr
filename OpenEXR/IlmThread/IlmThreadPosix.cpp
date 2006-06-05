@@ -41,8 +41,8 @@
 
 #if HAVE_PTHREAD
 
-#include <IlmThread.h>
-#include <Iex.h>
+#include "IlmThread.h"
+#include "Iex.h"
 #include <assert.h>
 
 extern "C"

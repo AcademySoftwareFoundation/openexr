@@ -45,7 +45,7 @@
 #include <ImfTiledRgbaFile.h>
 #include <ImfStandardAttributes.h>
 #include <EnvmapImage.h>
-#include <Iex.h>
+#include "Iex.h"
 #include <iostream>
 #include <algorithm>
 

@@ -44,7 +44,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfCompression.h>
-#include <ImathBox.h>
+#include "ImathBox.h"
 
 namespace Imf {
 

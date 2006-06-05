@@ -42,7 +42,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include <ImathMatrixAlgo.h>
+#include "ImathMatrixAlgo.h"
 
 #if defined(OPENEXR_DLL)
     #define EXPORT_CONST __declspec(dllexport)

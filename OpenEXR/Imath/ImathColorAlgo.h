@@ -38,9 +38,9 @@
 #define INCLUDED_IMATHCOLORALGO_H
 
 
-#include <ImathColor.h>
-#include <ImathMath.h>
-#include <ImathLimits.h>
+#include "ImathColor.h"
+#include "ImathMath.h"
+#include "ImathLimits.h"
 
 namespace Imath {
 

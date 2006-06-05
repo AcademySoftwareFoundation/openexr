@@ -34,7 +34,7 @@
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
-#include <IlmThread.h>
+#include "IlmThread.h"
 #include <stdio.h>
 #include <assert.h>
 

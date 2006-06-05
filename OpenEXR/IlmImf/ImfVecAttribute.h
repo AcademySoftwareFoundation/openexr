@@ -47,7 +47,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfAttribute.h>
-#include <ImathVec.h>
+#include "ImathVec.h"
 
 
 namespace Imf {

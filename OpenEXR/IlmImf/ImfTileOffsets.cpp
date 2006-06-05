@@ -42,7 +42,7 @@
 #include <ImfTileOffsets.h>
 #include <ImfXdr.h>
 #include <ImfIO.h>
-#include <Iex.h>
+#include "Iex.h"
 
 namespace Imf {
 

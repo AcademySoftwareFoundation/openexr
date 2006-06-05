@@ -80,7 +80,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include <ImathPlatform.h>
+#include "ImathPlatform.h"
 #include <math.h>
 
 //

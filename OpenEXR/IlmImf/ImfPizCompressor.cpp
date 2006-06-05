@@ -45,9 +45,9 @@
 #include <ImfHuf.h>
 #include <ImfWav.h>
 #include <ImfMisc.h>
-#include <ImathBox.h>
-#include <ImathFun.h>
-#include <Iex.h>
+#include "ImathBox.h"
+#include "ImathFun.h"
+#include "Iex.h"
 #include <ImfIO.h>
 #include <ImfXdr.h>
 #include <ImfAutoArray.h>

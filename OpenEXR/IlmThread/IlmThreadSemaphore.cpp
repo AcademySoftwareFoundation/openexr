@@ -40,7 +40,7 @@
 //-----------------------------------------------------------------------------
 
 #if !defined (_WIN32) && !(HAVE_PTHREAD)
-#include <IlmThreadSemaphore.h>
+#include "IlmThreadSemaphore.h"
 
 namespace IlmThread {
 

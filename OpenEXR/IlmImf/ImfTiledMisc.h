@@ -42,7 +42,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImathBox.h>
+#include "ImathBox.h"
 #include <ImfHeader.h>
 #include <stdio.h>
 

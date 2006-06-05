@@ -41,8 +41,8 @@
 
 #if HAVE_PTHREAD
 
-#include <IlmThreadMutex.h>
-#include <Iex.h>
+#include "IlmThreadMutex.h"
+#include "Iex.h"
 #include <assert.h>
 
 namespace IlmThread {

@@ -35,9 +35,9 @@
 
 
 #include <testRandom.h>
-#include <ImathRandom.h>
-#include <ImathVec.h>
-#include <ImathFun.h>
+#include "ImathRandom.h"
+#include "ImathVec.h"
+#include "ImathFun.h"
 #include <iostream>
 #include <iomanip>
 #include <assert.h>

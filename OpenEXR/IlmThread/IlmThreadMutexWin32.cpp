@@ -38,8 +38,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <IlmThreadMutex.h>
-#include <Iex.h>
+#include "IlmThreadMutex.h"
+#include "Iex.h"
 
 namespace IlmThread {
 

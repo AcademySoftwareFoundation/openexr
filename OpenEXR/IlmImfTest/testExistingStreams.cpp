@@ -42,7 +42,7 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <Iex.h>
+#include "Iex.h"
 #include <errno.h>
 
 using namespace Imf;

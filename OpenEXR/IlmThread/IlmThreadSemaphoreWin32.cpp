@@ -38,8 +38,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <IlmThreadSemaphore.h>
-#include <Iex.h>
+#include "IlmThreadSemaphore.h"
+#include "Iex.h"
 #include <string>
 #include <assert.h>
 #include <iostream>

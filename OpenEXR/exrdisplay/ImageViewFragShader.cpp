@@ -58,9 +58,9 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
-#include <ImathFun.h>
-#include <ImathMath.h>
-#include <Iex.h>
+#include "ImathFun.h"
+#include "ImathMath.h"
+#include "Iex.h"
 
 //
 // XXX dhess - hack

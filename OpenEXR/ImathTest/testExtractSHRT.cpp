@@ -34,10 +34,10 @@
 
 
 #include <testExtractSHRT.h>
-#include <ImathMatrixAlgo.h>
-#include <ImathEuler.h>
-#include <ImathRandom.h>
-#include <ImathFun.h>
+#include "ImathMatrixAlgo.h"
+#include "ImathEuler.h"
+#include "ImathRandom.h"
+#include "ImathFun.h"
 #include <iostream>
 #include <exception>
 #include <stdio.h>
