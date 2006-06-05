@@ -127,18 +127,6 @@ AC_MSG_RESULT($complete_iomanip)
 AC_LANG_RESTORE
 
 
-dnl Checks for <limits>
-AC_MSG_CHECKING(for <limits> support in C++ standard library)
-stl_limits="no"
-AC_LANG_SAVE
-AC_LANG_CPLUSPLUS
-AC_TRY_COMPILE([#include <limits>],[
-],
-AC_DEFINE(HAVE_STL_LIMITS) stl_limits=yes)
-AC_MSG_RESULT($stl_limits)
-AC_LANG_RESTORE
-
-
 dnl gcc 2.95 requires increased template depth
 if test x"$GCC" = xyes; then
   AC_MSG_CHECKING(for template depth required to build OpenEXR)

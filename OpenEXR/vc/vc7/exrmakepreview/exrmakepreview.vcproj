@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../../../IlmImf,../../../Iex,../../../Imath,../../../Half,../../../exrmakepreview"
-				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;PLATFORM_WINDOWS;HAVE_IOS_BASE;HAVE_STL_LIMITS"
+				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;PLATFORM_WINDOWS;HAVE_IOS_BASE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				ForceConformanceInForLoopScope="TRUE"
@@ -76,7 +76,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="../../../IlmImf,../../../Iex,../../../Imath,../../../Half,../../../exrmakepreview"
-				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;PLATFORM_WINDOWS;HAVE_IOS_BASE;HAVE_STL_LIMITS"
+				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;PLATFORM_WINDOWS;HAVE_IOS_BASE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				ForceConformanceInForLoopScope="TRUE"

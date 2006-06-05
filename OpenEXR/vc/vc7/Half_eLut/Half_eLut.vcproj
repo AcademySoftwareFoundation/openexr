@@ -22,7 +22,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;PLATFORM_WINDOWS;HAVE_IOS_BASE;HAVE_STL_LIMITS"
+				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;PLATFORM_WINDOWS;HAVE_IOS_BASE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				ForceConformanceInForLoopScope="TRUE"
@@ -82,7 +82,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;PLATFORM_WINDOWS;HAVE_IOS_BASE;HAVE_STL_LIMITS"
+				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;PLATFORM_WINDOWS;HAVE_IOS_BASE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				ForceConformanceInForLoopScope="TRUE"
