@@ -54,7 +54,7 @@
 #endif
 #include <windows.h>
 #include <GL/gl.h>
-#elif defined PLATFORM_DARWIN_PPC
+#elif defined HAVE_DARWIN
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>

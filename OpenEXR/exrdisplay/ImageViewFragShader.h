@@ -48,7 +48,7 @@
 #if defined _WIN32 || defined _WIN64
 #include <windows.h>
 #endif
-#if defined PLATFORM_DARWIN_PPC
+#ifdef HAVE_DARWIN
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
