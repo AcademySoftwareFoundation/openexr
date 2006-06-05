@@ -48,7 +48,7 @@
 namespace Imf {
 
 
-#if defined (PLATFORM_DARWIN_PPC) || defined (_WIN32) || defined (_WIN64)
+#if defined (HAVE_DARWIN) || defined (_WIN32) || defined (_WIN64)
 
 
     template <class T, int size>
