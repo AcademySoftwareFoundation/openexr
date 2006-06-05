@@ -1,3 +1,5 @@
+	* No more PLATFORM_WINDOWS or PLATFORM_WIN32, replace with 
+	  proper standard Windows macros.  (Drew Hess)
 	* Remove support for gcc 2.95, no longer supported.  (Drew Hess)
 	* Eliminate HAVE_IOS_BASE macro, OpenEXR now requires support for
 	  ios_base.  (Drew Hess)

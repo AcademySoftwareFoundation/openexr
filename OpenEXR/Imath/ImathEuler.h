@@ -134,7 +134,7 @@
 
 namespace Imath {
 
-#if defined PLATFORM_WINDOWS && _MSC_VER
+#if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
 // Disable MS VC++ warnings about conversion from double to float
 #pragma warning(disable:4244)
 #endif
@@ -315,7 +315,7 @@ class Euler : public Vec3<T>
     bool		_frameStatic	 : 1;	// relative or static rotations
     bool		_initialRepeated : 1;	// init axis repeated as last
     bool		_parityEven	 : 1;	// "parity of axis permutation"
-#ifdef PLATFORM_WINDOWS
+#if defined _WIN32 || defined _WIN64
     Axis		_initialAxis	 ;	// First axis of rotation
 #else
     Axis		_initialAxis	 : 2;	// First axis of rotation
@@ -893,7 +893,7 @@ Euler<T>::makeNear (const Euler<T> &target)
     setXYZVector(xyzRot);
 }
 
-#if defined PLATFORM_WINDOWS && _MSC_VER
+#if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
 #pragma warning(default:4244)
 #endif
 

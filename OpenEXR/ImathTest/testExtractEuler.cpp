@@ -237,7 +237,7 @@ testRandomAngles33 ()
 void
 testExtractEuler ()
 {
-#if defined PLATFORM_WINDOWS && _MSC_VER >= 1300
+#if (defined _WIN32 || defined _WIN64) && _MSC_VER >= 1300
     cout << "testExtractEuler disabled on this compiler due to bugs" << endl;
 #else
     cout << "Testing extraction of rotation angle from 3x3 matrices" << endl;

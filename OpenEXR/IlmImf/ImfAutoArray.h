@@ -40,14 +40,15 @@
 //-----------------------------------------------------------------------------
 //
 //	class AutoArray -- a workaround for the
-//	lack of large auto arrays on Mac OS X.
+//	lack of large auto arrays on Mac OS X and
+//      Win32.
 //
 //-----------------------------------------------------------------------------
 
 namespace Imf {
 
 
-#if defined (PLATFORM_DARWIN_PPC) || defined (PLATFORM_WINDOWS)
+#if defined (PLATFORM_DARWIN_PPC) || defined (_WIN32) || defined (_WIN64)
 
 
     template <class T, int size>

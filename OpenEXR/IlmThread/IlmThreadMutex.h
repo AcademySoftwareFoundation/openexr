@@ -66,7 +66,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifdef _WIN32
+#if defined _WIN32 || defined _WIN64
     #ifdef NOMINMAX
         #undef NOMINMAX
     #endif
@@ -93,7 +93,7 @@ class Mutex
     void	lock () const;
     void	unlock () const;
 
-    #ifdef _WIN32
+    #if defined _WIN32 || defined _WIN64
 	mutable CRITICAL_SECTION _mutex;
     #elif HAVE_PTHREAD
 	mutable pthread_mutex_t _mutex;
