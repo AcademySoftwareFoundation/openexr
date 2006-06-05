@@ -135,11 +135,7 @@ int
 main ()
 {
     cout.precision (9);
-#ifndef HAVE_IOS_BASE
-    cout.setf (ios::hex, ios::basefield);
-#else
     cout.setf (ios_base::hex, ios_base::basefield);
-#endif
 
     cout << "//\n"
 	    "// This is an automatically generated file.\n"

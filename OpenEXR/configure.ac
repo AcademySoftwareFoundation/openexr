@@ -99,20 +99,6 @@ AC_CHECK_LIB(z, compress,
 			   ])]
 )
 
-dnl Checks for ios_base
-AC_MSG_CHECKING(for ios_base support in C++ standard library)
-ios_base="no"
-AC_LANG_SAVE
-AC_LANG_CPLUSPLUS
-AC_TRY_COMPILE([#include <iostream>],[
-
-    std::ios_base::fmtflags flags;
-],
-AC_DEFINE(HAVE_IOS_BASE) ios_base=yes)
-AC_MSG_RESULT($ios_base)
-AC_LANG_RESTORE
-
-
 dnl Checks for std::right etc. in iomanip
 AC_MSG_CHECKING(for complete iomanip support in C++ standard library)
 complete_iomanip="no"
