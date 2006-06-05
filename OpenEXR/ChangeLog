@@ -1,3 +1,5 @@
+	* Eliminate HAVE_IOS_BASE macro, OpenEXR now requires support for
+	  ios_base.  (Drew Hess)
 	* Eliminate HAVE_STL_LIMITS macro, OpenEXR now requires the ISO C++
 	  <limits> header.  (Drew Hess)
 	* Use double quote-style include dirctives for OpenEXR

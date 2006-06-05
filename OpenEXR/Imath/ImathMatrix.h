@@ -3081,22 +3081,6 @@ template <class T>
 std::ostream &
 operator << (std::ostream &s, const Matrix33<T> &m)
 {
-#ifndef HAVE_IOS_BASE
-    std::ios::fmtflags oldFlags = s.flags();
-    int width;
-
-    if (s.flags() & std::ios::fixed)
-    {
-	s.setf (std::ios::showpoint);
-	width = s.precision() + 5;
-    }
-    else
-    {
-	s.setf (std::ios::scientific);
-	s.setf (std::ios::showpoint);
-	width = s.precision() + 8;
-    }
-#else
     std::ios_base::fmtflags oldFlags = s.flags();
     int width;
 
@@ -3111,7 +3095,6 @@ operator << (std::ostream &s, const Matrix33<T> &m)
 	s.setf (std::ios_base::showpoint);
 	width = s.precision() + 8;
     }
-#endif
 
     s << "(" << std::setw (width) << m[0][0] <<
 	 " " << std::setw (width) << m[0][1] <<
@@ -3133,22 +3116,6 @@ template <class T>
 std::ostream &
 operator << (std::ostream &s, const Matrix44<T> &m)
 {
-#ifndef HAVE_IOS_BASE
-    std::ios::fmtflags oldFlags = s.flags();
-    int width;
-
-    if (s.flags() & std::ios::fixed)
-    {
-	s.setf (std::ios::showpoint);
-	width = s.precision() + 5;
-    }
-    else
-    {
-	s.setf (std::ios::scientific);
-	s.setf (std::ios::showpoint);
-	width = s.precision() + 8;
-    }
-#else
     std::ios_base::fmtflags oldFlags = s.flags();
     int width;
 
@@ -3163,7 +3130,6 @@ operator << (std::ostream &s, const Matrix44<T> &m)
 	s.setf (std::ios_base::showpoint);
 	width = s.precision() + 8;
     }
-#endif
 
     s << "(" << std::setw (width) << m[0][0] <<
 	 " " << std::setw (width) << m[0][1] <<
