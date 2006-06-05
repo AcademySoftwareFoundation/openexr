@@ -1,3 +1,5 @@
+	* Use double quote-style include dirctives for OpenEXR
+	  includes.  (Drew Hess)
 	* Added a document that gives an overview of the on-disk
 	  layout of OpenEXR files (Florian Kainz)
 	* Added sections on layers and on memory-mapped file input
