@@ -40,7 +40,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfIO.h>
-#include <Iex.h>
+#include "Iex.h"
 
 namespace Imf {
 

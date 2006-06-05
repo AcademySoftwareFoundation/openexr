@@ -43,8 +43,8 @@
 //
 //----------------------------------------------------
 
-#include <ImathVec.h>
-#include <half.h>
+#include "ImathVec.h"
+#include "half.h"
 
 namespace Imath {
 

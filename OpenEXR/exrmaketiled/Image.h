@@ -44,8 +44,8 @@
 #include <ImfPixelType.h>
 #include <ImfFrameBuffer.h>
 #include <ImfArray.h>
-#include <ImathBox.h>
-#include <half.h>
+#include "ImathBox.h"
+#include "half.h"
 #include <string>
 #include <map>
 

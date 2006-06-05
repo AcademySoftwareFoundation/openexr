@@ -40,7 +40,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfTiledMisc.h>
-#include <Iex.h>
+#include "Iex.h"
 #include <ImfMisc.h>
 #include <ImfChannelList.h>
 

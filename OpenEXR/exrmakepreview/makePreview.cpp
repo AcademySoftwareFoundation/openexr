@@ -48,8 +48,8 @@
 #include <ImfRgbaFile.h>
 #include <ImfPreviewImage.h>
 #include <ImfArray.h>
-#include <ImathMath.h>
-#include <ImathFun.h>
+#include "ImathMath.h"
+#include "ImathFun.h"
 #include <math.h>
 #include <iostream>
 

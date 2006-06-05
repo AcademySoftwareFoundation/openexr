@@ -38,7 +38,7 @@
 #include <ImfRgbaFile.h>
 #include <ImfStandardAttributes.h>
 #include <ImfArray.h>
-#include <ImathRandom.h>
+#include "ImathRandom.h"
 #include <fstream>
 #include <iomanip>
 #include <stdio.h>

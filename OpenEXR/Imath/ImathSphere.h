@@ -43,9 +43,9 @@
 //
 //-------------------------------------
 
-#include <ImathVec.h>
-#include <ImathBox.h>
-#include <ImathLine.h>
+#include "ImathVec.h"
+#include "ImathBox.h"
+#include "ImathLine.h"
 
 namespace Imath {
 

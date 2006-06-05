@@ -41,8 +41,8 @@
 
 #if !defined (_WIN32) && !(HAVE_PTHREAD)
 
-#include <IlmThread.h>
-#include <Iex.h>
+#include "IlmThread.h"
+#include "Iex.h"
 
 namespace IlmThread {
 

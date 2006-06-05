@@ -50,7 +50,7 @@
 
 #ifdef HAVE_STL_LIMITS
 #include <limits>
-#include <half.h>
+#include "half.h"
 
 namespace std {
 

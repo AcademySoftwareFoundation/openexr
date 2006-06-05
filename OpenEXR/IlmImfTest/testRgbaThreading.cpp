@@ -40,9 +40,9 @@
 #include <string>
 #include <stdio.h>
 #include <assert.h>
-#include <ImathRandom.h>
+#include "ImathRandom.h"
 #include <ImfThreading.h>
-#include <IlmThread.h>
+#include "IlmThread.h"
 
 using namespace Imf;
 using namespace Imath;

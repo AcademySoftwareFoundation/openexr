@@ -48,7 +48,7 @@
 #include <ImfHuf.h>
 #include <ImfInt64.h>
 #include <ImfAutoArray.h>
-#include <Iex.h>
+#include "Iex.h"
 #include <string.h>
 #include <assert.h>
 #include <algorithm>

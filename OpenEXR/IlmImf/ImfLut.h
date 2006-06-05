@@ -47,8 +47,8 @@
 
 #include <ImfRgbaFile.h>
 #include <ImfFrameBuffer.h>
-#include <ImathBox.h>
-#include <halfFunction.h>
+#include "ImathBox.h"
+#include "halfFunction.h"
 
 namespace Imf {
 

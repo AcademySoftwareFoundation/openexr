@@ -43,8 +43,8 @@
 //
 //--------------------------------------------------
 
-#include <ImathLimits.h>
-#include <half.h>
+#include "ImathLimits.h"
+#include "half.h"
 
 namespace Imath {
 

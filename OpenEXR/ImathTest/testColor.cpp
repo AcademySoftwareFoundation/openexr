@@ -35,10 +35,10 @@
 
 
 #include <testColor.h>
-#include <ImathColor.h>
-#include <ImathColorAlgo.h>
-#include <ImathLimits.h>
-#include <ImathMath.h>
+#include "ImathColor.h"
+#include "ImathColorAlgo.h"
+#include "ImathLimits.h"
+#include "ImathMath.h"
 #include <iostream>
 #include <assert.h>
 

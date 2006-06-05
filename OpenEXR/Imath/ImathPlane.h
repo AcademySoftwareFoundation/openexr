@@ -52,8 +52,8 @@
 //
 //----------------------------------------------------------------------
 
-#include <ImathVec.h>
-#include <ImathLine.h>
+#include "ImathVec.h"
+#include "ImathLine.h"
 
 namespace Imath {
 

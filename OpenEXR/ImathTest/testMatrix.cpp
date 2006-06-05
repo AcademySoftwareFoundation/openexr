@@ -35,10 +35,10 @@
 
 
 #include <testMatrix.h>
-#include <ImathMatrix.h>
-#include <ImathVec.h>
-#include <ImathLimits.h>
-#include <ImathMath.h>
+#include "ImathMatrix.h"
+#include "ImathVec.h"
+#include "ImathLimits.h"
+#include "ImathMath.h"
 #include <iostream>
 #include <assert.h>
 

@@ -43,7 +43,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImathLimits.h>
+#include "ImathLimits.h"
 
 namespace Imath {
 

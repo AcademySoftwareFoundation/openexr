@@ -49,7 +49,7 @@
 #include <ImfTiledInputFile.h>
 #include <ImfPreviewImage.h>
 #include <ImfChannelList.h>
-#include <Iex.h>
+#include "Iex.h"
 
 using namespace Imath;
 using namespace Imf;

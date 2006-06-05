@@ -38,13 +38,13 @@
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
 #include <string>
-#include <ImathRandom.h>
+#include "ImathRandom.h"
 #include <ImfThreading.h>
-#include <IlmThread.h>
-#include <IlmThreadMutex.h>
-#include <IlmThreadSemaphore.h>
+#include "IlmThread.h"
+#include "IlmThreadMutex.h"
+#include "IlmThreadSemaphore.h"
 #include <ImfThreading.h>
-#include <ImathRandom.h>
+#include "ImathRandom.h"
 
 #include <stdio.h>
 #include <assert.h>

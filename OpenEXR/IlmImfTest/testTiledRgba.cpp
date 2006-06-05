@@ -38,8 +38,8 @@
 #include <ImfTiledRgbaFile.h>
 #include <ImfArray.h>
 #include <ImfThreading.h>
-#include <IlmThread.h>
-#include <ImathRandom.h>
+#include "IlmThread.h"
+#include "ImathRandom.h"
 #include <string>
 #include <stdio.h>
 #include <assert.h>

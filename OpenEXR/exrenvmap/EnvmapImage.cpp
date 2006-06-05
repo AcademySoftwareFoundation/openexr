@@ -40,7 +40,7 @@
 //-----------------------------------------------------------------------------
 
 #include <EnvmapImage.h>
-#include <ImathFun.h>
+#include "ImathFun.h"
 
 
 using namespace Imf;

@@ -69,10 +69,10 @@
 //
 //---------------------------------------------------------------------------
 
-#include <ImathBox.h>
-#include <ImathMatrix.h>
-#include <ImathLineAlgo.h>
-#include <ImathPlane.h>
+#include "ImathBox.h"
+#include "ImathMatrix.h"
+#include "ImathLineAlgo.h"
+#include "ImathPlane.h"
 
 namespace Imath {
 

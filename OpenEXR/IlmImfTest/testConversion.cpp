@@ -46,7 +46,7 @@
 #include <ImfChannelList.h>
 #include <ImfArray.h>
 #include <ImfConvert.h>
-#include <half.h>
+#include "half.h"
 #include <compareFloat.h>
 
 #include <stdio.h>

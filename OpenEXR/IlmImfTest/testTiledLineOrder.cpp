@@ -37,13 +37,13 @@
 
 #include <ImfTiledOutputFile.h>
 #include <ImfInputFile.h>
-#include <ImathRandom.h>
+#include "ImathRandom.h"
 #include <ImfTiledInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
 #include <ImfThreading.h>
-#include <IlmThread.h>
-#include <half.h>
+#include "IlmThread.h"
+#include "half.h"
 
 #include <vector>
 #include <stdio.h>

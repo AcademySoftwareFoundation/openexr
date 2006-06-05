@@ -43,10 +43,10 @@
 //
 //----------------------------------------------------
 
-#include <ImathExc.h>
-#include <ImathLimits.h>
-#include <ImathMath.h>
-#include <ImathVec.h>
+#include "ImathExc.h"
+#include "ImathLimits.h"
+#include "ImathMath.h"
+#include "ImathVec.h"
 
 #include <iostream>
 

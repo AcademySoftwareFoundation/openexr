@@ -43,11 +43,11 @@
 //
 //----------------------------------------------------------------
 
-#include <ImathPlatform.h>
-#include <ImathFun.h>
-#include <ImathExc.h>
-#include <ImathVec.h>
-#include <ImathShear.h>
+#include "ImathPlatform.h"
+#include "ImathFun.h"
+#include "ImathExc.h"
+#include "ImathVec.h"
+#include "ImathShear.h"
 
 #include <iostream>
 #include <iomanip>

@@ -38,10 +38,10 @@
 
 #include <GL/gl.h>
 
-#include <ImathVec.h>
-#include <ImathMatrix.h>
-#include <IexMathExc.h>
-#include <ImathFun.h>
+#include "ImathVec.h"
+#include "ImathMatrix.h"
+#include "IexMathExc.h"
+#include "ImathFun.h"
 
 inline void glVertex    ( const Imath::V3f &v ) { glVertex3f(v.x,v.y,v.z);   }
 inline void glVertex    ( const Imath::V2f &v ) { glVertex2f(v.x,v.y);       }

@@ -62,8 +62,8 @@
 #include <ImfTileDescriptionAttribute.h>
 #include <ImfTimeCodeAttribute.h>
 #include <ImfVecAttribute.h>
-#include <IlmThreadMutex.h>
-#include <Iex.h>
+#include "IlmThreadMutex.h"
+#include "Iex.h"
 #include <sstream>
 #include <stdlib.h>
 #include <time.h>
