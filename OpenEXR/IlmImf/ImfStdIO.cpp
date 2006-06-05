@@ -101,11 +101,7 @@ checkError (ostream &os)
 
 StdIFStream::StdIFStream (const char fileName[]):
     IStream (fileName),
-#ifndef HAVE_IOS_BASE
-    _is (new ifstream (fileName, ios::binary|ios::in)),
-#else
     _is (new ifstream (fileName, ios_base::binary)),
-#endif
     _deleteStream (true)
 {
     if (!*_is)
@@ -168,11 +164,7 @@ StdIFStream::clear ()
 
 StdOFStream::StdOFStream (const char fileName[]):
     OStream (fileName),
-#ifndef HAVE_IOS_BASE
-    _os (new ofstream (fileName, ios::binary)),
-#else
     _os (new ofstream (fileName, ios_base::binary)),
-#endif
     _deleteStream (true)
 {
     if (!*_os)
