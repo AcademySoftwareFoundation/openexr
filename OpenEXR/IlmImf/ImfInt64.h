@@ -47,7 +47,7 @@
 namespace Imf {
 
 
-#if defined PLATFORM_WINDOWS && _MSC_VER >= 1300
+#if (defined _WIN32 || defined _WIN64) && _MSC_VER >= 1300
     typedef unsigned __int64 Int64;
 #elif ULONG_MAX == 18446744073709551615LU
     typedef long unsigned int Int64;

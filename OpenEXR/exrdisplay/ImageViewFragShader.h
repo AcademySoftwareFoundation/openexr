@@ -45,7 +45,7 @@
 
 #include <ImageView.h>
 
-#if defined PLATFORM_WINDOWS
+#if defined _WIN32 || defined _WIN64
 #include <windows.h>
 #endif
 #if defined PLATFORM_DARWIN_PPC

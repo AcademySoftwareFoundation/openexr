@@ -49,7 +49,7 @@
 
 #include <iostream>
 
-#ifdef _WIN32
+#if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
 // suppress exception specification warnings
 #pragma warning(disable:4290)
 #endif
@@ -1416,6 +1416,10 @@ operator * (T a, const Vec3<T> &v)
     return Vec3<T> (a * v.x, a * v.y, a * v.z);
 }
 
+
+#if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
+#pragma warning(default:4290)
+#endif
 
 } // namespace Imath
 

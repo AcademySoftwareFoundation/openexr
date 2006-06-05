@@ -50,7 +50,7 @@
 // In Windows, min and max are macros.  Yay.
 //------------------------------------------
 
-#ifdef PLATFORM_WINDOWS
+#if defined _WIN32 || defined _WIN64
     #ifdef min
         #undef min
     #endif
