@@ -124,17 +124,11 @@ AC_MSG_RESULT([$EXTRA_OPT_CFLAGS])
 
 dnl Platform-specific stuff
 case "$host" in
-*irix*) 
-  AC_DEFINE(PLATFORM_IRIX) 
-  ;;
-*solaris*) 
-  AC_DEFINE(PLATFORM_SUNOS5) 
-  ;;
-*osf*) 
-  AC_DEFINE(PLATFORM_OSF1) 
+*linux*)
+  AC_DEFINE(HAVE_LINUX_PROCFS)
   ;;
 *darwin*) 
-  AC_DEFINE(PLATFORM_DARWIN_PPC) 
+  AC_DEFINE(HAVE_DARWIN) 
   CXXFLAGS="$CXXFLAGS -Wno-long-double"
   ;;
 esac

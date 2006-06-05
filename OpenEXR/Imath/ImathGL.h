@@ -52,22 +52,15 @@ inline void glTranslate ( const Imath::V3f &t ) { glTranslatef(t.x,t.y,t.z); }
 inline void glTexCoord( const Imath::V2f &t )
 {
     glTexCoord2f(t.x,t.y);
-#ifndef PLATFORM_IRIX
-    glMultiTexCoord2f(GL_TEXTURE1, t.x, t.y);
-#endif
 }
 
 inline void glDisableTexture()
 {
-#ifndef PLATFORM_IRIX
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
 
     glActiveTexture(GL_TEXTURE0);
-#endif
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_TEXTURE_2D);
 }
 
 namespace {

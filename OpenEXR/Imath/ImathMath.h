@@ -83,19 +83,6 @@
 #include "ImathPlatform.h"
 #include <math.h>
 
-//
-// The following pragmas instruct Silicon Graphics' MipsPro C++
-// to generate inline code rather than function calls for sqrt()
-// and sqrtf().
-//
-
-#if defined(PLATFORM_IRIX) || defined(PLATFORM_IRIX64)
-
-#pragma intrinsic (::sqrt)
-#pragma intrinsic (::sqrtf)
-
-#endif
-
 namespace Imath {
 
 
@@ -115,9 +102,6 @@ struct Math
    static T	exp   (T x)		{return ::exp (double(x));}
    static T	log   (T x)		{return ::log (double(x));}
    static T	log10 (T x)		{return ::log10 (double(x));}
-#if defined(PLATFORM_SUNOS5) // SUN does not seem to have floating point funcs !!
-//   static T	modf  (T x, T *y)	{return ::modf (double(x), double(y));}
-#else
    static T	modf  (T x, T *iptr)
    {
         double ival;
@@ -125,52 +109,16 @@ struct Math
 	*iptr = ival;
 	return rval;
    }
-#endif
    static T	pow   (T x, T y)	{return ::pow (double(x), double(y));}
    static T	sqrt  (T x)		{return ::sqrt (double(x));}
    static T	ceil  (T x)		{return ::ceil (double(x));}
    static T	fabs  (T x)		{return ::fabs (double(x));}
    static T	floor (T x)		{return ::floor (double(x));}
-#if defined(PLATFORM_SUNOS5) // SUN does not seem to have floating point funcs !!
-//   static T	fmod  (T x, T y)	{return ::fmod (double(x), double(y));}
-#else
    static T	fmod  (T x, T y)	{return ::fmod (double(x), double(y));}
-#endif
-#if !defined(PLATFORM_OSF1)
    static T	hypot (T x, T y)	{return ::hypot (double(x), double(y));}
-#endif
 };
 
 
-// Sun, Apple, and Microsoft don't have floating point funcs
-#if defined ( PLATFORM_SUNOS5 ) || defined ( PLATFORM_DARWIN_PPC )
-
-template <>
-struct Math<float>
-{
-   static float	acos  (float x)			{return ::acos (x);}	
-   static float	asin  (float x)			{return ::asin (x);}
-   static float	atan  (float x)			{return ::atan (x);}
-   static float	atan2 (float x, float y)	{return ::atan2 (x, y);}
-   static float	cos   (float x)			{return ::cos (x);}
-   static float	sin   (float x)			{return ::sin (x);}
-   static float	tan   (float x)			{return ::tan (x);}
-   static float	cosh  (float x)			{return ::cosh (x);}
-   static float	sinh  (float x)			{return ::sinh (x);}
-   static float	tanh  (float x)			{return ::tanh (x);}
-   static float	exp   (float x)			{return ::exp (x);}
-   static float	log   (float x)			{return ::log (x);}
-   static float	log10 (float x)			{return ::log10 (x);}
-//   static float	modf  (float x, float *y)	{return ::modf (x, y);}
-   static float	pow   (float x, float y)	{return ::pow (x, y);}
-   static float	sqrt  (float x)			{return ::sqrt (x);}
-   static float	ceil  (float x)			{return ::ceil (x);}
-   static float	fabs  (float x)			{return ::fabs (x);}
-   static float	floor (float x)			{return ::floor (x);}
-//   static float	fmod  (float x, float y)	{return ::fmod (x, y);}
-   static float	hypot (float x, float y)	{return ::hypot (x, y);}
-};
-#else
 template <>
 struct Math<float>
 {
@@ -194,13 +142,12 @@ struct Math<float>
    static float	fabs  (float x)			{return ::fabsf (x);}
    static float	floor (float x)			{return ::floorf (x);}
    static float	fmod  (float x, float y)	{return ::fmodf (x, y);}
-#if !defined(PLATFORM_OSF1) && !defined(_MSC_VER)
+#if !defined(_MSC_VER)
    static float	hypot (float x, float y)	{return ::hypotf (x, y);}
 #else
    static float hypot (float x, float y)	{return ::sqrtf(x*x + y*y);}
 #endif
 };
-#endif
 
 
 //--------------------------------------------------------------------------

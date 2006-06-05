@@ -66,7 +66,7 @@
 #include <iostream>
 #include <string.h>
 
-#ifdef PLATFORM_REDHAT_IA32
+#ifdef HAVE_LINUX_PROCFS
     #include <unistd.h>
     #include <sstream>
 #endif
@@ -106,7 +106,7 @@ main (int argc, char *argv[])
     TEST (testIsComplete);
     
     
-    #ifdef PLATFORM_REDHAT_IA32
+    #ifdef HAVE_LINUX_PROCFS
 
 	//
 	// Allow the user to check for file descriptor leaks

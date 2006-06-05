@@ -46,7 +46,7 @@
 
 #include <ImageViewFragShader.h>
 
-#if defined PLATFORM_DARWIN_PPC
+#ifdef HAVE_DARWIN
 #include <OpenGL/glu.h>
 #else
 #include <GL/glu.h>
