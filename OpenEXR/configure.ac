@@ -113,20 +113,6 @@ AC_MSG_RESULT($complete_iomanip)
 AC_LANG_RESTORE
 
 
-dnl gcc 2.95 requires increased template depth
-if test x"$GCC" = xyes; then
-  AC_MSG_CHECKING(for template depth required to build OpenEXR)
-  case `$CC -dumpversion` in
-    2.95*)
-      CXXFLAGS="$CXXFLAGS -ftemplate-depth-99"
-      AC_MSG_RESULT(99)
-      ;;
-    *)
-      AC_MSG_RESULT(standard)
-      ;;
-  esac
-fi
-
 AC_MSG_CHECKING(for gcc optimization flags)
 old_cflags=$CFLAGS
 CFLAGS="$CFLAGS -pipe"
