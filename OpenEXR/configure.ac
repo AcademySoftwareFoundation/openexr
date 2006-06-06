@@ -150,7 +150,10 @@ AC_SUBST(AM_CXXFLAGS)
 
 dnl build imfexamples example program?
 build_imfexamples="no"
-AC_ARG_ENABLE(imfexamples,      [  --enable-imfexamples       Build IlmImf example program], build_imfexamples="yes",)
+AC_ARG_ENABLE(imfexamples,
+	      AC_HELP_STRING([--enable-imfexamples],
+			     [build IlmImf example program [[default=no]]]),
+	      [build_imfexamples="${enableval}"], [build_imfexamples="no"])
 
 AM_CONDITIONAL(HAVE_FLTK, test "x$have_fltk" = xyes)
 AM_CONDITIONAL(HAVE_CG, test "x$have_cg" = xyes)
