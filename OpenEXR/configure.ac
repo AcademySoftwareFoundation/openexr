@@ -134,16 +134,8 @@ case "$host" in
   ;;
 esac
 
-dnl Processor-specific optimizations
-AC_MSG_CHECKING(for processor-specific optimizations)
-case $host_cpu in
-i686) EXTRA_CPU_CFLAGS=$(if $CC -march=i686 -S -o /dev/null -xc /dev/null > /dev/null; then echo "-march=i686"; fi) ;;
-*athlon*)  EXTRA_CPU_CFLAGS=$(if $CC -march=i686 -S -o /dev/null -xc /dev/null > /dev/null; then echo "-march=i686"; fi) ;;
-esac
-AC_MSG_RESULT([$EXTRA_CPU_CFLAGS])
-
-AM_CFLAGS="$EXTRA_OPT_CFLAGS $EXTRA_CPU_CFLAGS"
-AM_CXXFLAGS="$EXTRA_OPT_CFLAGS $EXTRA_CPU_CFLAGS"
+AM_CFLAGS="$EXTRA_OPT_CFLAGS"
+AM_CXXFLAGS="$EXTRA_OPT_CFLAGS"
 
 AC_SUBST(AM_CFLAGS)
 AC_SUBST(AM_CXXFLAGS)
