@@ -1,3 +1,7 @@
+	* Support for building universal binaries on OS X 10.4.
+	  (Drew Hess, Paul Schneider)
+	* Minor configure.ac fix to accomodate OS X's automake.
+	  (Drew Hess)
 	* Removed CPU-specific optimizations from configure.ac,
 	  autoconf's guess at the CPU type isn't very useful,
 	  anyway.  Closes #13429.
