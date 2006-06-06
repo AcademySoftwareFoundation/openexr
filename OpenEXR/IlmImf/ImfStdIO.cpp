@@ -63,20 +63,6 @@ checkError (istream &is)
     {
 	if (errno)
 	    Iex::throwErrnoExc();
-
-#ifdef BROKEN_ISTREAM_HACK
-	// HACK - this is a workaround for a bug in Apple's
-	// implementation of istream::read.  It's present as of
-	// OS X 10.2.3 and the December 2002 developer's tools.
-	//
-	// When OpenEXR reaches the end of the file, Apple's
-	// istream implementation mistakenly sets the stream's
-	// failbit.  This hack clears the bits, but note that it
-	// may cause problems if there is a legitimate error
-	// condition.
-	
-	is.clear (std::ios_base::goodbit);
-#endif	
 	return false;
     }
 
