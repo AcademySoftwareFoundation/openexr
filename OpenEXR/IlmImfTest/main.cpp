@@ -33,6 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+#include "OpenEXRConfig.h"
 #include <testXdr.h>
 #include <testMagic.h>
 #include <testHuf.h>

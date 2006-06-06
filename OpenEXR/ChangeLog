@@ -1,3 +1,16 @@
+	* HAVE_* macros are now defined in the OpenEXRConfig.h header
+	  file instead of via compiler flags.  There are a handful of
+	  public headers which rely on the value of these macros,
+	  and projects including these headers have previously needed
+	  to define the same macros and values as used by OpenEXR's
+	  'configure', which is bad form.  Now 'configure' writes these
+	  values to the OpenEXRConfig.h header file, which is included
+	  by any OpenEXR source files that need these macros.  This
+	  method of specifying HAVE_* macros guarantees that projects
+	  will get the proper settings without needing to add compile-
+	  time flags to accomodate OpenEXR.  Note that this isn't
+	  implemented properly for Windows yet.
+	  (Drew Hess)
 	* Platform cleanups:
 	  - No more support for IRIX or OSF1.
 	  - No more explicit support for SunOS, because we have no way to

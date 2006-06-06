@@ -39,6 +39,8 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "OpenEXRConfig.h"
+
 #if HAVE_PTHREAD && HAVE_POSIX_SEMAPHORES
 
 #include "IlmThreadSemaphore.h"

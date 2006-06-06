@@ -6,7 +6,7 @@ bin_PROGRAMS = exrdisplay
 
 INCLUDES = @GL_CXXFLAGS@ @CG_CXXFLAGS@ @FLTK_CXXFLAGS@ -I$(top_builddir) \
 	   -I$(top_srcdir)/Iex -I$(top_srcdir)/Half -I$(top_srcdir)/Imath \
-           -I$(top_srcdir)/IlmImf
+           -I$(top_srcdir)/IlmImf -I$(top_srcdir)/config
 
 LDADD = @CG_LDFLAGS@ @FLTK_LDFLAGS@ \
 	$(top_builddir)/Iex/libIex.la \

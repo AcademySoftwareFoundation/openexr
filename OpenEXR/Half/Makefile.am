@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+INCLUDES = -I$(top_srcdir)/config
+
 lib_LTLIBRARIES = libHalf.la
 
 libHalf_la_SOURCES = half.cpp half.h halfFunction.h halfLimits.h

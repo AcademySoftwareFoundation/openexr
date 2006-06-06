@@ -40,6 +40,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include "OpenEXRConfig.h"
 #include <ImageView.h>
 #include "ImathMath.h"
 #include "ImathFun.h"
