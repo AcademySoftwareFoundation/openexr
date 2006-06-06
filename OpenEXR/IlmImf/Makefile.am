@@ -95,4 +95,4 @@ noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
 EXTRA_DIST = $(noinst_HEADERS)
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Half -I$(top_srcdir)/Iex \
-	   -I$(top_srcdir)/Imath -I$(top_srcdir)/IlmThread
+	   -I$(top_srcdir)/Imath -I$(top_srcdir)/IlmThread -I$(top_srcdir)/config

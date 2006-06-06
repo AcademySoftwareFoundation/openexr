@@ -46,6 +46,7 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Valuator.H>
 
+#include "OpenEXRConfig.h"
 #include <ImageView.h>
 #ifdef HAVE_FRAGMENT_SHADERS
 #include <ImageViewFragShader.h>

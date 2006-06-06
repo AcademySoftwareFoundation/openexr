@@ -2,6 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(OpenEXR, 1.3.0)
 AC_CANONICAL_TARGET
 AC_CONFIG_SRCDIR(ImathTest/main.cpp)
+AC_CONFIG_HEADERS(config/OpenEXRConfig.h)
 AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 
@@ -162,6 +163,7 @@ AC_OUTPUT([
 Makefile
 OpenEXR.pc
 openexr.spec
+config/Makefile
 Half/Makefile
 HalfTest/Makefile
 Iex/Makefile

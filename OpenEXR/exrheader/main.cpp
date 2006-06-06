@@ -39,6 +39,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "OpenEXRConfig.h"
 #include <ImfInputFile.h>
 #include <ImfBoxAttribute.h>
 #include <ImfChannelListAttribute.h>

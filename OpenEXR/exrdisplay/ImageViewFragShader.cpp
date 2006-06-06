@@ -44,6 +44,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include "OpenEXRConfig.h"
 #include <ImageViewFragShader.h>
 
 #ifdef HAVE_DARWIN

@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = Half HalfTest Iex IexTest Imath ImathTest IlmThread IlmImf \
+SUBDIRS = config Half HalfTest Iex IexTest Imath ImathTest IlmThread IlmImf \
 	  IlmImfTest exrdisplay exrheader exrmaketiled IlmImfExamples doc vc \
 	  exrstdattr exrmakepreview exrenvmap
 
