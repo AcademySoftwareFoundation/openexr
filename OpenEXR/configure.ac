@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(OpenEXR, 1.3.0)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(ImathTest/main.cpp)
-AC_CONFIG_HEADERS(config/OpenEXRConfig.h)
+AM_CONFIG_HEADER(config/OpenEXRConfig.h)
 AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 
@@ -130,6 +130,24 @@ case "$host" in
   ;;
 *darwin*) 
   AC_DEFINE(HAVE_DARWIN) 
+
+  dnl OS X universal binary support, requires --disable-dependency-tracking
+  AC_ARG_ENABLE(osx-universal-binaries,
+	      AC_HELP_STRING([--enable-osx-universal-binaries],
+			     [build universal binaries on OS X [[default=no]]]),
+	      [build_osxuniversal="${enableval}"], [build_osxuniversal=no])
+
+  if test "${build_osxuniversal}" != no ; then
+    if test "$enable_dependency_tracking" != no ; then
+      AC_MSG_ERROR([--enable-osx-universal-binary requires --disable-dependency-tracking.
+Please re-run configure with these options:
+  --disable-dependency-tracking --enable-osx-universal-binary
+  		  ])
+    fi
+    CXXFLAGS="$CXXFLAGS -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386"
+    dnl LDFLAGS="$LDFLAGS -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386"
+  fi
+
   CXXFLAGS="$CXXFLAGS -Wno-long-double"
   ;;
 esac
@@ -145,7 +163,7 @@ build_imfexamples="no"
 AC_ARG_ENABLE(imfexamples,
 	      AC_HELP_STRING([--enable-imfexamples],
 			     [build IlmImf example program [[default=no]]]),
-	      [build_imfexamples="${enableval}"], [build_imfexamples="no"])
+	      [build_imfexamples="${enableval}"], [build_imfexamples=no])
 
 AM_CONDITIONAL(HAVE_FLTK, test "x$have_fltk" = xyes)
 AM_CONDITIONAL(HAVE_CG, test "x$have_cg" = xyes)
@@ -176,7 +194,19 @@ exrmakepreview/Makefile
 exrenvmap/Makefile
 ])
 
-AC_MSG_RESULT([
+if test "x$build_osxuniversal" = xyes; then
+  AC_MSG_RESULT([
+---------------------------------------------
+Summary for OpenEXR features:
+
+build exrdisplay FLTK application		$have_fltk
+    with fragment shader support		$have_cg
+build IlmImf example program                    $build_imfexamples
+build OS X universal binaries                   $build_osxuniversal
+---------------------------------------------
+  ])
+else
+  AC_MSG_RESULT([
 ---------------------------------------------
 Summary for OpenEXR features:
 
@@ -184,4 +214,6 @@ build exrdisplay FLTK application		$have_fltk
     with fragment shader support		$have_cg
 build IlmImf example program                    $build_imfexamples
 ---------------------------------------------
-])
+  ])
+fi
+
