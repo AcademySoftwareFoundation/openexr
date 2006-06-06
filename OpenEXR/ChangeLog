@@ -1,3 +1,6 @@
+	* Fix use of AC_ARG_ENABLE in configure.ac.  Closes
+	  #13426.
+	  (Drew Hess)
 	* Removed workaround for OS X istream::read bug.
 	  (Drew Hess)
 	* Added pthread support to OpenEXR pkg-config file.
