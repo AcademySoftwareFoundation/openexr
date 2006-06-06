@@ -21,4 +21,4 @@ noinst_HEADERS =
 
 EXTRA_DIST = $(noinst_HEADERS)
 
-INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex
+INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/config

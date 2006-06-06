@@ -29,4 +29,5 @@ libImathinclude_HEADERS = ImathColorAlgo.h ImathMatrixAlgo.h ImathVec.h \
 			  ImathHalfLimits.h ImathInterval.h ImathGLU.h \
 			  ImathFrame.h ImathPlatform.h
 
-INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/Half
+INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/Half \
+	   -I$(top_srcdir)/config

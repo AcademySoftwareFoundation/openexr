@@ -10,7 +10,8 @@ ImathTest_SOURCES = main.cpp testExtractEuler.cpp testExtractSHRT.cpp \
 		    testFun.h testInvert.h testMatrix.h testRandom.h \
 		    testRoots.h testShear.h
 
-INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Imath -I$(top_srcdir)/Iex -I$(top_srcdir)/Half
+INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Imath -I$(top_srcdir)/Iex -I$(top_srcdir)/Half \
+	   -I$(top_srcdir)/config
 
 LDADD = -L$(top_builddir)/Imath -L$(top_builddir)/Iex -L$(top_builddir)/Half \
 	-lImath -lIex -lHalf

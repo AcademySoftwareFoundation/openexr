@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+INCLUDES = -I$(top_srcdir)/config
+
 lib_LTLIBRARIES = libIex.la
 
 libIex_la_SOURCES = IexThrowErrnoExc.cpp IexBaseExc.cpp IexBaseExc.h \

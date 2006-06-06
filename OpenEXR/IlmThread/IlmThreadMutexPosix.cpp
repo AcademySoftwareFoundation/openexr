@@ -39,6 +39,8 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "OpenEXRConfig.h"
+
 #if HAVE_PTHREAD
 
 #include "IlmThreadMutex.h"
