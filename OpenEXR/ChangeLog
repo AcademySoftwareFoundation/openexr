@@ -1,3 +1,6 @@
+	* Use host specification instead of target in configure.ac.
+	  Closes #13427.
+	  (Drew Hess)
 	* Fix use of AC_ARG_ENABLE in configure.ac.  Closes
 	  #13426.
 	  (Drew Hess)

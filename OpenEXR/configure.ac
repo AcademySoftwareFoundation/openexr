@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(OpenEXR, 1.3.0)
-AC_CANONICAL_TARGET
+AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(ImathTest/main.cpp)
 AC_CONFIG_HEADERS(config/OpenEXRConfig.h)
 AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
@@ -136,7 +136,7 @@ esac
 
 dnl Processor-specific optimizations
 AC_MSG_CHECKING(for processor-specific optimizations)
-case $target_cpu in
+case $host_cpu in
 i686) EXTRA_CPU_CFLAGS=$(if $CC -march=i686 -S -o /dev/null -xc /dev/null > /dev/null; then echo "-march=i686"; fi) ;;
 *athlon*)  EXTRA_CPU_CFLAGS=$(if $CC -march=i686 -S -o /dev/null -xc /dev/null > /dev/null; then echo "-march=i686"; fi) ;;
 esac
