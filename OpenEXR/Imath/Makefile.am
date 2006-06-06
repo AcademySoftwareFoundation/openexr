@@ -15,7 +15,8 @@ libImath_la_SOURCES = ImathShear.cpp ImathMatrixAlgo.cpp ImathVec.cpp \
 		      ImathFrame.h ImathPlatform.h \
 		      ImathBox.cpp ImathRandom.cpp
 
-libImath_la_LDFLAGS = -version-info @LIBTOOL_VERSION@
+libImath_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ -no-undefined
+libImath_la_LIBADD = ../Iex/libIex.la
 
 libImathincludedir = $(includedir)/OpenEXR
 

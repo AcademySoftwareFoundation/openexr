@@ -10,7 +10,8 @@ libIlmThread_la_SOURCES = IlmThreadPool.h IlmThread.h \
 			  IlmThreadSemaphorePosixCompat.cpp \
 			  IlmThreadMutexPosix.cpp
 
-libIlmThread_la_LDFLAGS = -version-info @LIBTOOL_VERSION@
+libIlmThread_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ -no-undefined
+libIlmThread_la_LIBADD = ../Iex/libIex.la
 
 libIlmThreadincludedir = $(includedir)/OpenEXR
 
