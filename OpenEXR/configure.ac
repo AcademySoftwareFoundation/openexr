@@ -25,7 +25,7 @@ dnl
 dnl PKGCONFIG preparations
 dnl
 
-if test -z $PKG_CONFIG_PATH; then
+if test -z "${PKG_CONFIG_PATH}"; then
 	PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
 fi
 
@@ -44,9 +44,9 @@ AM_PATH_FLTK(have_fltk=yes, have_fltk=no)
 dnl
 dnl check for Cg
 dnl
-if test $have_fltk = "yes"; then
+if test "${have_fltk}" = yes; then
   AM_PATH_CG(have_cg=yes, have_cg=no)
-  if test $have_cg = "yes"; then
+  if test "${have_cg}" = yes; then
     AC_DEFINE(HAVE_FRAGMENT_SHADERS)
   fi
 else have_cg=no

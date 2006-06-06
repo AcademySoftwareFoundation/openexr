@@ -1,3 +1,5 @@
+	* Fixed quoting for tests in configure.ac.  Closes #13428.
+	  (Drew Hess)
 	* Use host specification instead of target in configure.ac.
 	  Closes #13427.
 	  (Drew Hess)
