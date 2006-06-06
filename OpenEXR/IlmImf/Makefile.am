@@ -55,7 +55,9 @@ libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 		       ImfPxr24Compressor.cpp ImfPxr24Compressor.h \
 		       ImfTestFile.cpp ImfTestFile.h ImfThreading.h
 
-libIlmImf_la_LDFLAGS = -version-info @LIBTOOL_VERSION@
+libIlmImf_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ -no-undefined
+libIlmImf_la_LIBADD =  ../Half/libHalf.la ../Iex/libIex.la ../IlmThread/libIlmThread.la \
+		       -lz
 
 libIlmImfincludedir = $(includedir)/OpenEXR
 

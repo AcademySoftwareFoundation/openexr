@@ -1,3 +1,7 @@
+	* Added -no-undefined to LDFLAGS and required libs to LIBADD
+	  for library projects with other library dependencies, per
+	  Rex Dieter's patch.
+	  (Drew Hess)
 	* HAVE_* macros are now defined in the OpenEXRConfig.h header
 	  file instead of via compiler flags.  There are a handful of
 	  public headers which rely on the value of these macros,
