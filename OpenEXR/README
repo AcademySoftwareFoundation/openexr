@@ -62,40 +62,55 @@ have an older version of the application.
 BUILDING OPENEXR
 ----------------
 
-OpenEXR requires the following third-party libraries:
+Building OpenEXR requires the zlib library.  If you want to build the
+'exrdisplay' image viewer, you'll also need FLTK 1.1, but this program
+is not required to use OpenEXR's libraries in your application.
+exrdisplay can also accelerate the display of OpenEXR images if you
+have the NVIDIA Cg SDK.
 
-  - zlib (http://www.zlib.net)
-  - FLTK 1.1 (for the exrdisplay image viewer program only,
-    (http://www.fltk.org)
+Your OS distribution may already include these libraries, or supply
+packages for them.  That is the preferred way to obtain them for use
+with OpenEXR.  If not, you can obtain the source code for zlib and
+FLTK from:
 
-To build OpenEXR on GNU/Linux or other UNIX-like systems, do this:
+   http://www.zlib.net
+   http://www.fltk.org
+
+and you can download the NVIDIA Cg SDK from
+http://developer.nvidia.com.
+
+If you're building OpenEXR on a Windows platform, see README.win32 for
+instructions on how to build OpenEXR.  The remainder of this file
+applies only to GNU/Linux or other UNIX-like systems.
+
+After installing the required libraries, to build OpenEXR on
+GNU/Linux or other UNIX-like systems, do this:
 
 ./configure
 make
 make install
 
 unless you obtained OpenEXR directly from CVS, in which case you
-should also read README.CVS.
+should first read README.CVS.
 
 If you have the Nvidia Cg SDK and you want to build support for
 fragment shaders into exrdisplay, specify the path to the SDK using
-the "--with-cg-prefix" flag.
+the "--with-cg-prefix" flag.  There are some additional compile-time
+configuration options available; type `./configure --help` for more
+information.
 
 See README.OSX for details on building OpenEXR in MacOS X.
 
-Do 'make check' to run confidence tests.  See the INSTALL file for more
-details or try "./configure --help".
+Do `make check` to run the OpenEXR confidence tests.  They should all
+pass; if you find a test that does not pass on your system, please let
+us know.
 
 Other UNIX variants haven't been tested, but should be easy to build.
 Let us know if you're having problems porting OpenEXR to a particular
-platform.  See below for platform-specific notes.
+platform.
 
 All include files needed to use the OpenEXR libraries are installed in the 
 OpenEXR subdirectory of the install prefix, e.g. /usr/local/include/OpenEXR.
-
-On Windows, at this time we only support Visual Studio .NET 2003
-(version 7.1) with Microsoft's C++ compiler.  See README.win32 for
-details.
 
 
 USING OPENEXR IN YOUR APPLICATIONS
