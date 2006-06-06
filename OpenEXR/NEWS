@@ -1,3 +1,26 @@
+Version 1.3.0:
+    - The 1.3.x series is a developer-only release for testing 
+      OpenEXR's new multithreaded I/O support.
+    - Multithread support for reading and writing an OpenEXR
+      file.
+    - Support for Intel-based OS X systems.
+    - New documentation for multithread support, plus some
+      updates and additions.
+    - Bug fixes releated to better handling of incomplete/damaged 
+      files.
+    - Numerous bug fixes and cleanups to the autoconf-based
+      build system.
+    - Removed support for the following configurations that were
+      previously supported.  Some of these configurations may happen
+      to continue to function, but we can't help you if they don't,
+      largely because we don't have any way to test OpenEXR on these
+      configurations.
+      	   - IRIX 
+      	   - OSF1
+	   - SunOS
+	   - OS X versions prior to 10.3.
+	   - gcc on any platform prior to version 3.3
+
 Version 1.2.2:
     - New build system for Windows; support for DLLs.
     - Imath: Removed TMatrix<T> classes; these classes are still
