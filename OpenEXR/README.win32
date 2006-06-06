@@ -28,10 +28,10 @@ some releases may be available as pre-compiled libraries.  Check here:
 
 The projects for Visual Studio .NET 2003 can be found in vc\vc7.
 
-You'll need a compiled version of zlib (version 1.2.1) in order to build
-the IlmImf library.  You'll need a compiled version of FLTK 1.1.x in order
-to build the exrdisplay viewer.  You can get source code for these libraries
-here:
+You'll need a compiled version of zlib (version 1.2.2 or better) in
+order to build the IlmImf library.  You'll need a compiled version of
+FLTK 1.1.x in order to build the exrdisplay viewer.  You can get
+source code for these libraries here:
 
 http://www.zlib.net
 http://www.fltk.org
@@ -73,8 +73,8 @@ SDK to be rooted in the same directory as the OpenEXR source directory:
 
 Building OpenEXR requires the following steps:
 
-  * Obtain the zlib (version 1.2.2) source code from www.zlib.net, and
-    build the following configurations:
+  * Obtain the zlib source code from www.zlib.net, and build the
+    following configurations:
     
       LIB ASM Debug
       LIB ASM Release

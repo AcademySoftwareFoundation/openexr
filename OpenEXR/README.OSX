@@ -1,52 +1,27 @@
 OpenEXR on MacOS X
 ------------------
 
-Building OpenEXR on MacOS X is just like building it on GNU/Linux.  Follow
-the instructions in the README file under BUILDLING OPENEXR, but see
-below if you are using OS X 10.2 or want to use OpenEXR as a shared
-library.
+Building OpenEXR on MacOS X is just like building it on GNU/Linux.
+Follow the instructions in the README file under BUILDLING OPENEXR,
+but see below re: shared libraries.
 
-OpenEXR has only been tested on OS X 10.2 (Jaguar) and 10.3 (Panther).
+This release of OpenEXR has only been tested on OS X 10.4 (Tiger), but
+it should also work on 10.3 (Panther).  Versions of OS X earlier than
+10.3 are no longer supported.
 
 
 Known bugs
 ----------
 
-There's a bug in Apple's istream::read implementation in 10.2 that
-breaks OpenEXR when an end-of-file is reached.  There is a workaround
-for the bug, but it's pretty ugly, so you have to explicity enable the
-workaround when you compile OpenEXR using the
-"--enable-osx-istream-hack" configure option.
-
-There are no known bugs with OpenEXR and 10.3.  The hack described
-above is not necessary if you are building OpenEXR on 10.3.
+None.
 
 
 Shared libraries
 ----------------
 
-OpenEXR cannot currently be used as a shared library in 10.2.  Use
-the "--enable-shared=no" configure option to prevent configure from
-building shared libraries.  (Building the libraries will probably
-work, but executables linked against them don't function properly.)
-
-OpenEXR does appear to work as a shared library in 10.3, but only with
-the "flat namespace" option.  You may have problems trying to use
-OpenEXR shared libraries with applications that expect OS X's
-two-level namespace.  We have not tested the shared libs extensively,
-though they appear to work with exrdisplay and exrheader, but use them
-at your own risk.  We will support two-level namespace shared libs in
-a future release.
-
-
-Using CodeWarrior:
-------------------
-
-If you have Metrowerks CodeWarrior, you can download the separate
-CodeWarrior project files and use it to build OpenEXR.  CodeWarrior
-doesn't require the istream workaround.  See here for the project
-files:
-
-http://openexr.com/downloads
-
-
+OpenEXR requires the "flat namespace" option when built as a shared
+library.  You may have problems trying to use OpenEXR shared libraries
+with applications that expect OS X's two-level namespace.  We have not
+tested the shared libs extensively, though they appear to work with
+exrdisplay and exrheader, but use them at your own risk.  We will
+support two-level namespace shared libs in a future release.

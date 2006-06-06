@@ -12,4 +12,5 @@ aclocal: configure.ac: 142: macro `AM_CFLAGS' not found in library
 aclocal: configure.ac: 143: macro `AM_CXXFLAGS' not found in library
 failed!
 
-you should upgrade your automake to version 1.7.
+you should upgrade your automake to version 1.6 or better.
+

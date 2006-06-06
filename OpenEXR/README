@@ -3,6 +3,9 @@ ABOUT THE OPENEXR LIBRARIES
 
 Half is a class that encapsulates our 16-bit floating-point format.
 
+IlmThread is a thread abstraction library for use with IlmImf.  It
+currently supports pthreads and Windows threads.
+
 IlmImf is our "EXR" file format for storing 16-bit FP images.
 
 Imath is a math library.  IlmImf only uses a subset of it,
@@ -11,12 +14,10 @@ maintain, and we think it'll be useful to others.
 
 Iex is an exception-handling library.
 
-Documentation on all of these libraries is incomplete.  See the .h files
-for API details.  Most of the interfaces are well-documented from
-a programmer's perspective.  See the IlmImfExamples directory for
-some code that demonstrates how to use the IlmImf library to read
-and write OpenEXR files.  The doc directory contains some high-level
-documentation and history about the OpenEXR format.
+See the IlmImfExamples directory for some code that demonstrates how
+to use the IlmImf library to read and write OpenEXR files.  The doc
+directory contains some high-level documentation and history about the
+OpenEXR format.
 
 If you have questions about using the OpenEXR libraries, you may want
 to join our developer mailing list.  See http://www.openexr.com for
@@ -44,26 +45,37 @@ images.  These include:
   * exrenvmap, for creating OpenEXR environment maps.
   * exrmakepreview, for creating preview images for OpenEXR files.
 
-exrdisplay requires FLTK 1.1 or greater and OpenGL.  exrdisplay now
+exrdisplay requires FLTK 1.1 or greater and OpenGL.  exrdisplay
 supports fragment shaders if you have the Nvidia Cg SDK and a graphics
 card capable of running fp30 profile fragment shaders.  See
 exrdisplay/README for details.
 
-We have also released an OpenEXR display driver for Renderman, a file I/O
-plugin for Shake, and a file I/O plugin for Adobe Photoshop (on both 
-Windows and MacOS).  These are packaged separately.  Go to 
-http://www.openexr.com to download them.
-
+We have also released an OpenEXR display driver for Renderman, a file
+I/O plugin for Shake, and a file I/O plugin for Adobe Photoshop (on
+both Windows and MacOS).  These are packaged separately.  Go to
+http://www.openexr.com to download them.  NOTE: the most recent
+versions of these applications now have native support for OpenEXR, so
+you should only use our open-source versions of the plugins if you
+have an older version of the application.
 
 
 BUILDING OPENEXR
 ----------------
 
-To build OpenEXR on GNU/Linux or other UNIX-like systems, do:
+OpenEXR requires the following third-party libraries:
+
+  - zlib (http://www.zlib.net)
+  - FLTK 1.1 (for the exrdisplay image viewer program only,
+    (http://www.fltk.org)
+
+To build OpenEXR on GNU/Linux or other UNIX-like systems, do this:
 
 ./configure
 make
 make install
+
+unless you obtained OpenEXR directly from CVS, in which case you
+should also read README.CVS.
 
 If you have the Nvidia Cg SDK and you want to build support for
 fragment shaders into exrdisplay, specify the path to the SDK using
@@ -81,10 +93,16 @@ platform.  See below for platform-specific notes.
 All include files needed to use the OpenEXR libraries are installed in the 
 OpenEXR subdirectory of the install prefix, e.g. /usr/local/include/OpenEXR.
 
-To build OpenEXR on Windows NT or greater, you have a few choices:
+On Windows, at this time we only support Visual Studio .NET 2003
+(version 7.1) with Microsoft's C++ compiler.  See README.win32 for
+details.
 
-  * Use Cygwin and the 'configure' script, see above.
-  * Use Visual Studio .NET 2003 (version 7.1) with Microsoft's C++ compiler.
 
-See README.win32 for details.
+USING OPENEXR IN YOUR APPLICATIONS
+----------------------------------
+
+On systems with support for pkg-config, use `pkg-config --cflags
+OpenEXR` for the C++ flags required to compile against OpenEXR
+headers; and `pkg-config --libs OpenEXR` for the linker flags required
+to link against OpenEXR libraries.
 
