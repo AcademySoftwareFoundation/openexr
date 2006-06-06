@@ -148,9 +148,6 @@ AM_CXXFLAGS="$EXTRA_OPT_CFLAGS $EXTRA_CPU_CFLAGS"
 AC_SUBST(AM_CFLAGS)
 AC_SUBST(AM_CXXFLAGS)
 
-dnl OS X istream::read bug workaround
-AC_ARG_ENABLE(osx-istream-hack, [  --enable-osx-istream-hack  Workaround for OS X istream::read bug], AC_DEFINE(BROKEN_ISTREAM_HACK),)
-
 dnl build imfexamples example program?
 build_imfexamples="no"
 AC_ARG_ENABLE(imfexamples,      [  --enable-imfexamples       Build IlmImf example program], build_imfexamples="yes",)

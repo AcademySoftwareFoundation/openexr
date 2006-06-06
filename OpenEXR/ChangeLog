@@ -1,3 +1,5 @@
+	* Removed workaround for OS X istream::read bug.
+	  (Drew Hess)
 	* Added pthread support to OpenEXR pkg-config file.
 	  (Drew Hess)
 	* Added -no-undefined to LDFLAGS and required libs to LIBADD
