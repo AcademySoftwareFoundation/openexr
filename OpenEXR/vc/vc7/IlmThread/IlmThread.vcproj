@@ -157,7 +157,8 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="post-build"/>
+				CommandLine="..\bin\createDLL -n$(TargetDir)\IlmThread_dll_d.map -l$(TargetDir)\..\lib;$(TargetDir)\..\lib\IlmThreadDebugDLL -i$(TargetDir)\..\lib\IlmThread_dll_d.lib -oIex_dll_d.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
+			/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -224,7 +225,8 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="post-build"/>
+				CommandLine="..\bin\createDLL -n..\bin\IlmThread_dll.map -l..\lib\IlmThreadReleaseDLL;..\lib -i..\lib\IlmThread_dll.lib -oIex_dll.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
+			/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
