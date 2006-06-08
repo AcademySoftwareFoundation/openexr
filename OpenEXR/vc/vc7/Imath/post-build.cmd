@@ -1,6 +1,6 @@
 set srcdir=..\..\..\Imath
 cd %srcdir%
-set instdir=..\vc\vc7\include\Imath
+set instdir=..\vc\vc7\include\OpenEXR
 mkdir %instdir%
 copy ImathColorAlgo.h %instdir%
 copy ImathMatrixAlgo.h %instdir%

@@ -1,4 +1,7 @@
-EXTRA_DIST = vc7/Half/Half.vcproj \
+EXTRA_DIST = vc/createDLL/createDLL.cpp \
+	     vc/createDLL/OptionParser.cpp \
+	     vc/createDLL/OptionParser.h \
+	     vc7/Half/Half.vcproj \
 	     vc7/Half/post-build.cmd \
              vc7/OpenEXR.sln \
 	     vc7/createDLL.sln \
@@ -11,11 +14,12 @@ EXTRA_DIST = vc7/Half/Half.vcproj \
              vc7/IlmImf/IlmImf.vcproj \
              vc7/IlmImf/post-build.cmd \
              vc7/IlmImfTest/IlmImfTest.vcproj \
+             vc7/IlmThread/IlmThread.vcproj \
+             vc7/IlmThread/post-build.cmd \
              vc7/Imath/Imath.vcproj \
              vc7/Imath/post-build.cmd \
              vc7/ImathTest/ImathTest.vcproj \
              vc7/bin/dummy \
-             vc7/createDLL/createDLL.cpp \
              vc7/createDLL/createDLL.vcproj \
              vc7/exrdisplay/exrdisplay.vcproj \
              vc7/exrdisplay_fragshader/exrdisplay_fragshader.vcproj \
@@ -27,4 +31,5 @@ EXTRA_DIST = vc7/Half/Half.vcproj \
              vc7/imfexamples/imfexamples.vcproj \
              vc7/imfexamples/post-build.cmd \
              vc7/include/dummy \
-             vc7/lib/dummy
+             vc7/lib/dummy \
+	     vc7/include/OpenEXR

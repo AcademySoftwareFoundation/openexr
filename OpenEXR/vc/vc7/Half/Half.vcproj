@@ -21,8 +21,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions=""
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\OpenEXR\Half"
-				PreprocessorDefinitions="_DEBUG;DEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;WIN32;__WIN32__;MSWIN32;_USRDLL;_DLL;NOMINMAX;__STD_C=1;_BOOL;FL_DLL;ZLIB_DLL;HAVE_DEVIL;HAVE_GL;HAVE_LITTLE_ENDIAN;HAVE_NO_BSWAP;HAVE_NO_CORBA;HAVE_NO_DKIT;HAVE_NO_FFMPEG;HAVE_NO_GLX_H;HAVE_NO_LIBGEN_H;HAVE_NO_OFX;HAVE_NO_PIXARNOISE_H;HAVE_NO_REGEX_H;HAVE_NO_RIB;HAVE_NO_SOCKLEN_T;HAVE_NO_STL_EXT;HAVE_NO_STL_TRAITS_TYPE;HAVE_NO_SYS_PRCTL_H;HAVE_NO_TRUNC;HAVE_NO_X11;HAVE_X86_32;__x86__;USE_FFTW_DLL;FFTW_ENABLE_FLOAT;NO_PGM_SUPPORT"
+				AdditionalIncludeDirectories="..\..\..\Half;..\..\..\config.windows"
+				PreprocessorDefinitions="_DEBUG;DEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;WIN32;__WIN32__;MSWIN32;_USRDLL;_DLL;NOMINMAX;__STD_C=1;_BOOL;__x86__"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -72,8 +72,8 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\..\..\OpenEXR\Half"
-				PreprocessorDefinitions="NDEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;WIN32;__WIN32__;MSWIN32;_USRDLL;_DLL;NOMINMAX;__STD_C=1;_BOOL;FL_DLL;ZLIB_DLL;HAVE_DEVIL;HAVE_GL;HAVE_LITTLE_ENDIAN;HAVE_NO_BSWAP;HAVE_NO_CORBA;HAVE_NO_DKIT;HAVE_NO_FFMPEG;HAVE_NO_GLX_H;HAVE_NO_LIBGEN_H;HAVE_NO_OFX;HAVE_NO_PIXARNOISE_H;HAVE_NO_REGEX_H;HAVE_NO_RIB;HAVE_NO_SOCKLEN_T;HAVE_NO_STL_EXT;HAVE_NO_STL_TRAITS_TYPE;HAVE_NO_SYS_PRCTL_H;HAVE_NO_TRUNC;HAVE_NO_X11;HAVE_X86_32;__x86__;USE_FFTW_DLL;FFTW_ENABLE_FLOAT;NO_PGM_SUPPORT"
+				AdditionalIncludeDirectories="..\..\..\Half;..\..\..\config.windows"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;WIN32;__WIN32__;MSWIN32;_USRDLL;_DLL;NOMINMAX;__STD_C=1;_BOOL;__x86__"
 				MinimalRebuild="FALSE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
@@ -94,7 +94,8 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="post-build"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -120,8 +121,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions=""
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\OpenEXR\Half"
-				PreprocessorDefinitions="HALF_EXPORTS;_DEBUG;DEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;WIN32;__WIN32__;MSWIN32;_USRDLL;_DLL;NOMINMAX;__STD_C=1;_BOOL;FL_DLL;ZLIB_DLL;HAVE_DEVIL;HAVE_GL;HAVE_LITTLE_ENDIAN;HAVE_NO_BSWAP;HAVE_NO_CORBA;HAVE_NO_DKIT;HAVE_NO_FFMPEG;HAVE_NO_GLX_H;HAVE_NO_LIBGEN_H;HAVE_NO_OFX;HAVE_NO_PIXARNOISE_H;HAVE_NO_REGEX_H;HAVE_NO_RIB;HAVE_NO_SOCKLEN_T;HAVE_NO_STL_EXT;HAVE_NO_STL_TRAITS_TYPE;HAVE_NO_SYS_PRCTL_H;HAVE_NO_TRUNC;HAVE_NO_X11;HAVE_X86_32;__x86__;USE_FFTW_DLL;FFTW_ENABLE_FLOAT;NO_PGM_SUPPORT;OPENEXR_DLL"
+				AdditionalIncludeDirectories="..\..\..\Half;..\..\..\config.windows"
+				PreprocessorDefinitions="HALF_EXPORTS;_DEBUG;DEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;WIN32;__WIN32__;MSWIN32;_USRDLL;_DLL;NOMINMAX;__STD_C=1;_BOOL;__x86__;OPENEXR_DLL"
 				MinimalRebuild="FALSE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -153,9 +154,7 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\bin\createDLL ..\bin\Half_dll_d.map ..\lib\HalfDebugDLL ..\lib\Half_dll_d.lib
-post-build
-"/>
+				CommandLine="post-build"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -187,8 +186,8 @@ post-build
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\..\..\..\OpenEXR\Half"
-				PreprocessorDefinitions="HALF_EXPORTS;NDEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;WIN32;__WIN32__;MSWIN32;_USRDLL;_DLL;NOMINMAX;__STD_C=1;_BOOL;FL_DLL;ZLIB_DLL;HAVE_DEVIL;HAVE_GL;HAVE_LITTLE_ENDIAN;HAVE_NO_BSWAP;HAVE_NO_CORBA;HAVE_NO_DKIT;HAVE_NO_FFMPEG;HAVE_NO_GLX_H;HAVE_NO_LIBGEN_H;HAVE_NO_OFX;HAVE_NO_PIXARNOISE_H;HAVE_NO_REGEX_H;HAVE_NO_RIB;HAVE_NO_SOCKLEN_T;HAVE_NO_STL_EXT;HAVE_NO_STL_TRAITS_TYPE;HAVE_NO_SYS_PRCTL_H;HAVE_NO_TRUNC;HAVE_NO_X11;HAVE_X86_32;__x86__;USE_FFTW_DLL;FFTW_ENABLE_FLOAT;NO_PGM_SUPPORT;OPENEXR_DLL"
+				AdditionalIncludeDirectories="..\..\..\Half;..\..\..\config.windows"
+				PreprocessorDefinitions="HALF_EXPORTS;NDEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;WIN32;__WIN32__;MSWIN32;_USRDLL;_DLL;NOMINMAX;__STD_C=1;_BOOL;__x86__;OPENEXR_DLL"
 				MinimalRebuild="FALSE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
@@ -221,9 +220,7 @@ post-build
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\bin\createDLL ..\bin\Half_dll.map ..\lib\HalfReleaseDLL ..\lib\Half_dll.lib
-post-build
-"/>
+				CommandLine="post-build"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

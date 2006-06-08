@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../IlmImf,../../../Iex,../../../Imath,../../../Half,../../../exrenvmap"
+				AdditionalIncludeDirectories="../include/OpenEXR;../../../exrenvmap"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -76,7 +76,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../../IlmImf,../../../Iex,../../../Imath,../../../Half,../../../exrenvmap"
+				AdditionalIncludeDirectories="../include/OpenEXR;../../../exrenvmap"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
