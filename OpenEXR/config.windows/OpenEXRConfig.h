@@ -1,9 +1,6 @@
 //
-// This is a hard-coded config file for Windows platforms.  The only
-// thing you should change is to define HAVE_FRAGMENT_SHADERS to 1
-// if you have the NVIDIA Cg SDK installed, and you want exrdisplay
-// to use it to accelerate the display of OpenEXR images.  It is off
-// by default.
+// This is a hard-coded config file for Windows platforms.  Don't
+// change any of these settings.
 //
 
 //
@@ -36,14 +33,6 @@
 //
 
 /* #undef HAVE_LINUX_PROCFS */
-
-//
-// Define and set to 1 if the target system includes the NVIDIA Cg
-// runtime.  The exrdisplay program will use a fragment shader to
-// accelerate the display of OpenEXR images.
-//
-
-/* #define HAVE_FRAGMENT_SHADERS 1 */
 
 //
 // Define and set to 1 if the target system has a complete <iomanip>

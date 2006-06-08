@@ -106,7 +106,7 @@
 				OutputFile="..\bin\exrdisplay.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="../../../../fltk/lib,../../../../zlib;../lib"
+				AdditionalLibraryDirectories="../../../../fltk/lib;../lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				EntryPointSymbol="mainCRTStartup"
