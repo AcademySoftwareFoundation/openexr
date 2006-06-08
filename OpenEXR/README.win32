@@ -92,6 +92,7 @@ Building OpenEXR requires the following steps:
     
       LIB ASM Debug
       LIB ASM Release
+      DLL ASM Debug
       DLL ASM Release
 
   * In directory OpenEXR\vc\vc7, create the following sub-directories:
@@ -103,9 +104,12 @@ Building OpenEXR requires the following steps:
 
   * From the zlib build, copy the following files:
 
-      zlib1.dll                                       -> OpenEXR\vc\vc7\bin
-      zconf.h zlib.h                                  -> OpenEXR\vc\vc7\include
-      zlib1.exp zlib1.lib zlibd.lib zlib.lib vc70.pdb -> OpenEXR\vc\vc7\lib
+      zlib1d.dll zlib1.dll                                                  -> OpenEXR\vc\vc7\bin
+      zconf.h zlib.h                                                        -> OpenEXR\vc\vc7\include
+      zlib1.exp zlib1.lib zlib1d.exp zlib1d.lib zlibd.lib zlib.lib vc70.pdb -> OpenEXR\vc\vc7\lib
+
+    The .dll, .exp and .lib files can be found in zlib's
+    projects\visualc6\Win32_* directories.
 
   * If you want to build exrdisplay, obtain the FLTK source code and build
     the Debug and Release configurations.
