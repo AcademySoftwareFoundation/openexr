@@ -50,8 +50,8 @@ source code for these libraries here:
 http://www.zlib.net
 http://www.fltk.org
 
-FLTK comes with a workspace file for Visual Studio 6.0 (and Visual
-Studio .NET 2003 can automatically convert it to a "solution" file).
+FLTK 1.1.7 comes with a workspace file for Visual Studio .NET 2003 in
+the vcnet\ directory.
 
 Note that by default, the OpenEXR Visual Studio project expects the
 FLTK libraries in the following locations (assuming OpenEXR\ is your
@@ -67,23 +67,19 @@ OpenEXR source directory):
            fltkgl.lib
 	   fltkd.lib
 	   fltkgld.lib
+	   ...
   OpenEXR\...
+
+If you prefer, you can leave your FLTK directory where it is and
+change the exrdisplay.vcproj and/or exrdisplay_fragshader.vcproj
+Additional Include Directories setting to point to your FLTK install.
 
 In order to build the fragment shader version of exrdisplay, you'll
 need the Nvidia Cg SDK.  This is not required, it just accelerates the
 display of OpenEXR images.  The exrdisplay_fragshader project expects
-the SDK to be rooted in the same directory as the OpenEXR source
-directory:
-
-  nvidia\
-         SDK\
-	     inc\
-  OpenEXR\...
-
-Also, edit the file OpenEXR\config.windows\OpenEXRConfig.h and
-uncomment the line that reads:
-
-/* #define HAVE_FRAGMENT_SHADERS 1 */
+the SDK to be found in c:\Program Files\NVIDIA Corporation\Cg, but you
+can change this in the Additional Include Directories setting for the
+project, if you like.
 
 
 Building OpenEXR
@@ -124,7 +120,11 @@ Building OpenEXR requires the following steps:
   * Open the OpenEXR solution file (OpenEXR\vc\vc7\OpenEXR.sln).
 
   * Pick the configuration you need (Debug, DebugDLL, Release or ReleaseDLL)
-    and build it.
+    and build it.  Note that the exrdisplay project will fail if you
+    have not built FLTK, and the exrdisplay_fragshader project will
+    fail if you have not built FTLK or if you have not installed the
+    NVIDIA Cg SDK.  All other projects, including the test programs,
+    should succeed.
 
   * When your build is finished, the OpenEXR\vc\vc7\{bin,include\OpenEXR,lib} 
     directories will contain all the files you need to use OpenEXR in
