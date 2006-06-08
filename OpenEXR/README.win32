@@ -153,3 +153,6 @@ Known bugs
 
 exrdisplay_fragshader doesn't currently build on Windows.
 
+The IlmImf ReleaseDLL target does not link properly in Visual Studio
+2005.  We're working on it.
+
