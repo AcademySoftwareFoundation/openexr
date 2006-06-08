@@ -4,7 +4,8 @@ SUBDIRS = config Half HalfTest Iex IexTest Imath ImathTest IlmThread IlmImf \
 	  IlmImfTest exrdisplay exrheader exrmaketiled IlmImfExamples doc vc \
 	  exrstdattr exrmakepreview exrenvmap
 
-EXTRA_DIST = bootstrap README.win32 README.OSX README.CVS LICENSE openexr.m4
+EXTRA_DIST = bootstrap README.win32 README.OSX README.CVS LICENSE openexr.m4 \
+	     openexr.spec
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = OpenEXR.pc
