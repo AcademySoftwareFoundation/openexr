@@ -1,3 +1,5 @@
+	* Support for Visual Studio 2005.
+	  (Drew Hess, Nick Porcino)
 	* When compiling against OpenEXR headers on Windows, you
 	  no longer need to define any HAVE_* or PLATFORM_* 
 	  macros in your projects.  If you are using any OpenEXR

@@ -4,6 +4,7 @@ Version 1.3.0:
     - Multithread support for reading and writing an OpenEXR
       file.
     - Support for Intel-based OS X systems.
+    - Support for Visual Studio 2005.
     - When compiling against OpenEXR headers, there's no longer any
       need to define any PLATFORM_* or HAVE_* macros; OpenEXR now
       supplies an OpenEXRConfig.h header file which is included by
