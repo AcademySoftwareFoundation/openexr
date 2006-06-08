@@ -53,7 +53,6 @@
 #include <GL/glu.h>
 #endif
 #define GL_GLEXT_PROTOTYPES
-#include <GL/glx.h>
 #include <GL/glext.h>
 
 #include <iostream>
