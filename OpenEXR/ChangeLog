@@ -1,3 +1,11 @@
+	* When compiling against OpenEXR headers on Windows, you
+	  no longer need to define any HAVE_* or PLATFORM_* 
+	  macros in your projects.  If you are using any OpenEXR
+	  DLLs, however, you must define OPENEXR_DLL in your
+	  project's preprocessor directives.
+	  (Drew Hess)
+	* Many fixes to the Windows VC7 build system.
+	  (Drew Hess, Nick Porcino)
 	* Support for building universal binaries on OS X 10.4.
 	  (Drew Hess, Paul Schneider)
 	* Minor configure.ac fix to accomodate OS X's automake.
