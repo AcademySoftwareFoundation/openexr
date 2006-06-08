@@ -20,6 +20,7 @@ libIlmThreadinclude_HEADERS = IlmThreadPool.h IlmThread.h \
 
 noinst_HEADERS = 
 
-EXTRA_DIST = $(noinst_HEADERS)
+EXTRA_DIST = $(noinst_HEADERS) IlmThreadMutexWin32.cpp IlmThreadSemaphoreWin32.cpp \
+	     IlmThreadWin32.cpp
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/config
