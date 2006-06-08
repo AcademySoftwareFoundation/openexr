@@ -221,7 +221,7 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\bin\createDLL -n..\bin\Half_dll.map -l..\lib\HalfReleaseDLL -i..\lib\Half_dll.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
+				CommandLine="..\bin\createDLL -n$(TargetDir)\Half_dll.map -l$(TargetDir)\..\lib\HalfDebugDLL -i$(TargetDir)\..\lib\Half_dll.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
