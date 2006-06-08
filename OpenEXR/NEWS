@@ -4,6 +4,12 @@ Version 1.3.0:
     - Multithread support for reading and writing an OpenEXR
       file.
     - Support for Intel-based OS X systems.
+    - When compiling against OpenEXR headers, there's no longer any
+      need to define any PLATFORM_* or HAVE_* macros; OpenEXR now
+      supplies an OpenEXRConfig.h header file which is included by
+      the OpenEXR headers that need these special macros.  However,
+      on Windows platforms, when using OpenEXR DLLs, you must still
+      define the OPENEXR_DLL preprocessor directive in your project.
     - New documentation for multithread support, plus some
       updates and additions.
     - Bug fixes releated to better handling of incomplete/damaged 
