@@ -177,7 +177,7 @@ $(TargetPath)
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Iex_dll_d.lib Imath_dll_d.lib Half_dll_d.lib zlib1.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="Iex_dll_d.lib Imath_dll_d.lib Half_dll_d.lib IlmImf_dll_d.lib IlmThread_dll_d.lib zlib1d.lib odbc32.lib odbccp32.lib"
 				OutputFile="..\bin\$(ProjectName)_dll_d.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
@@ -250,7 +250,7 @@ $(TargetPath)
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Iex_dll.lib Imath_dll.lib Half_dll.lib zlib1.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="Iex_dll.lib Imath_dll.lib Half_dll.lib IlmImf_dll.lib IlmThread_dll.lib zlib1.lib odbc32.lib odbccp32.lib"
 				OutputFile="..\bin\$(ProjectName)_dll.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"

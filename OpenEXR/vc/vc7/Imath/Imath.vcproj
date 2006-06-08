@@ -155,7 +155,8 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="post-build"/>
+				CommandLine="$(TargetDir)\createDLL -n$(TargetDir)\Imath_dll_d.map -l$(TargetDir)\..\lib;$(TargetDir)\..\lib\ImathDebugDLL -i$(TargetDir)\..\lib\Imath_dll_d.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
+			/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -219,7 +220,8 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="post-build"/>
+				CommandLine="..\bin\createDLL -n..\bin\Imath_dll.map -l..\lib\ImathReleaseDLL;..\lib -i..\lib\Imath_dll.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
+			/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
