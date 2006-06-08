@@ -64,4 +64,4 @@ EXTRA_DIST = createDLL/createDLL.cpp \
              vc8/imfexamples/post-build.cmd \
              vc8/include/dummy \
              vc8/lib/dummy \
-	     vc8/include/OpenEXR/dummy \
+	     vc8/include/OpenEXR/dummy
