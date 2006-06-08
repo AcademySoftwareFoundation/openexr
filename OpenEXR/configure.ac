@@ -173,7 +173,6 @@ AM_CONDITIONAL(BUILD_IMFEXAMPLES, test "x$build_imfexamples" = xyes)
 AC_OUTPUT([
 Makefile
 OpenEXR.pc
-openexr.spec
 config/Makefile
 Half/Makefile
 HalfTest/Makefile

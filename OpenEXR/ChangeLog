@@ -1,4 +1,7 @@
 Version 1.3.0:
+	* Removed openexr.spec file, it's out of date and broken to
+	  boot.
+	  (Drew Hess)
 	* Support for Visual Studio 2005.
 	  (Drew Hess, Nick Porcino)
 	* When compiling against OpenEXR headers on Windows, you
