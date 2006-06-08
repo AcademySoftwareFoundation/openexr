@@ -1,6 +1,6 @@
 set srcdir=..\..\..\Iex
 cd %srcdir%
-set instdir=..\vc\vc7\include\Iex
+set instdir=..\vc\vc7\include\OpenEXR
 mkdir %instdir%
 copy IexBaseExc.h %instdir%
 copy IexMathExc.h %instdir%

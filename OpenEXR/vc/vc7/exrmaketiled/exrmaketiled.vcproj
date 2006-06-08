@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../IlmImf,../../../Iex,../../../Imath,../../../Half,../../../exrmaketiled"
+				AdditionalIncludeDirectories="../../../exrmaketiled;../include/OpenEXR;../../../IlmImf;../../../Iex;../../../Imath;../../../Half"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -73,7 +73,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../../IlmImf,../../../Iex,../../../Imath,../../../Half,../../../exrmaketiled"
+				AdditionalIncludeDirectories="../../../exrmaketiled;../include/OpenEXR;../../../IlmImf;../../../Iex;../../../Imath;../../../Half"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"

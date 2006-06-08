@@ -1,6 +1,6 @@
 set srcdir=..\..\..\IlmImf
 cd %srcdir%
-set instdir=..\vc\vc7\include\IlmImf
+set instdir=..\vc\vc7\include\OpenEXR
 mkdir %instdir%
 copy ImfAttribute.h %instdir%
 copy ImfBoxAttribute.h %instdir%
@@ -53,3 +53,5 @@ copy ImfKeyCode.h %instdir%
 copy ImfKeyCodeAttribute.h %instdir%
 copy ImfTimeCodeAttribute.h %instdir%
 copy ImfTimeCode.h %instdir%
+copy ImfTestFile.h %instdir%
+copy ImfThreading.h %instdir%
