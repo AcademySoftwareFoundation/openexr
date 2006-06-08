@@ -138,5 +138,5 @@ Building OpenEXR requires the following steps:
 Known bugs
 ----------
 
-None.
+exrdisplay_fragshader doesn't currently build on Windows.
 
