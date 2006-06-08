@@ -1,6 +1,6 @@
-EXTRA_DIST = vc/createDLL/createDLL.cpp \
-	     vc/createDLL/OptionParser.cpp \
-	     vc/createDLL/OptionParser.h \
+EXTRA_DIST = createDLL/createDLL.cpp \
+	     createDLL/OptionParser.cpp \
+	     createDLL/OptionParser.h \
 	     vc7/Half/Half.vcproj \
 	     vc7/Half/post-build.cmd \
              vc7/OpenEXR.sln \
