@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../Iex"
+				AdditionalIncludeDirectories="../../../config.windows;../../../Iex"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -73,7 +73,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../../Iex"
+				AdditionalIncludeDirectories="../../../config.windows;../../../Iex"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -125,7 +125,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../Iex"
+				AdditionalIncludeDirectories="../../../config.windows;../../../Iex"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -153,9 +153,7 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\bin\createDLL ..\bin\Iex_dll_d.map ..\lib\IexDebugDLL ..\lib\Iex_dll_d.lib
-post-build
-"/>
+				CommandLine="post-build"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -189,7 +187,7 @@ post-build
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="../../../Iex"
+				AdditionalIncludeDirectories="../../../config.windows;../../../Iex"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
@@ -217,9 +215,7 @@ post-build
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\bin\createDLL ..\bin\Iex_dll.map ..\lib\IexReleaseDLL ..\lib\Iex_dll.lib
-post-build
-"/>
+				CommandLine="post-build"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../IlmImf;../../../Iex;../../../Imath;../../../Half;../include"
+				AdditionalIncludeDirectories="../../../config.windows;../../../IlmThread;../../../IlmImf;../../../Iex;../../../Imath;../../../Half;../include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -73,7 +73,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../../IlmImf;../../../Iex;../../../Imath;../../../Half;../include"
+				AdditionalIncludeDirectories="../../../config.windows;../../../IlmThread;../../../IlmImf;../../../Iex;../../../Imath;../../../Half;../include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -125,7 +125,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../IlmImf;../../../Iex;../../../Imath;../../../Half;../include"
+				AdditionalIncludeDirectories="../../../config.windows;../../../IlmThread;../../../IlmImf;../../../Iex;../../../Imath;../../../Half;../include"
 				PreprocessorDefinitions="OPENEXR_DLL;ILMIMF_EXPORTS;_DEBUG;WIN32;_WINDOWS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -156,9 +156,7 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\bin\createDLL ..\bin\IlmImf_dll_d.map ..\lib\IlmImfDebugDLL ..\lib\IlmImf_dll_d.lib ..\lib -o half_dll_d.lib -o zlib1.lib
-post-build
-"/>
+				CommandLine="post-build"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -192,7 +190,7 @@ post-build
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="../../../IlmImf;../../../Iex;../../../Imath;../../../Half;../include"
+				AdditionalIncludeDirectories="../../../config.windows;../../../IlmThread;../../../IlmImf;../../../Iex;../../../Imath;../../../Half;../include"
 				PreprocessorDefinitions="OPENEXR_DLL;ILMIMF_EXPORTS;NDEBUG;WIN32;_WINDOWS"
 				StringPooling="TRUE"
 				BasicRuntimeChecks="0"
@@ -225,9 +223,7 @@ post-build
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\bin\createDLL ..\bin\IlmImf_dll.map ..\lib\IlmImfReleaseDLL ..\lib\IlmImf_dll.lib ..\lib -o half_dll.lib -o zlib1.lib
-post-build
-"/>
+				CommandLine="post-build"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -1425,6 +1421,9 @@ post-build
 				RelativePath="..\..\..\IlmImf\ImfTestFile.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImf\ImfThreading.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImf\ImfTileDescriptionAttribute.cpp">
 			</File>
 			<File
@@ -1741,6 +1740,9 @@ post-build
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfTestFile.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImf\ImfThreading.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImf\ImfTileDescription.h">

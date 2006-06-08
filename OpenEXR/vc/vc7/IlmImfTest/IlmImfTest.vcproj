@@ -22,7 +22,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../IlmImf,../../../Iex,../../../Imath,../../../IlmImfTest,../../../Half"
+				AdditionalIncludeDirectories="../../../IlmThread;../../../config.windows;../../../IlmImf;../../../Iex;../../../Imath;../../../IlmImfTest;../../../Half"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -91,7 +91,7 @@ $(TargetPath)
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../../IlmImf,../../../Iex,../../../Imath,../../../IlmImfTest,../../../Half"
+				AdditionalIncludeDirectories="../../../IlmThread;../../../config.windows;../../../IlmImf;../../../Iex;../../../Imath;../../../IlmImfTest;../../../Half"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -159,7 +159,7 @@ $(TargetPath)
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../IlmImf,../../../Iex,../../../Imath,../../../IlmImfTest,../../../Half"
+				AdditionalIncludeDirectories="../../../IlmThread;../../../config.windows;../../../IlmImf;../../../Iex;../../../Imath;../../../IlmImfTest;../../../Half"
 				PreprocessorDefinitions="OPENEXR_DLL;_DEBUG;WIN32;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -231,7 +231,7 @@ $(TargetPath)
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="../../../IlmImf,../../../Iex,../../../Imath,../../../IlmImfTest,../../../Half"
+				AdditionalIncludeDirectories="../../../IlmThread;../../../config.windows;../../../IlmImf;../../../Iex;../../../Imath;../../../IlmImfTest;../../../Half"
 				PreprocessorDefinitions="OPENEXR_DLL;NDEBUG;WIN32;_CONSOLE"
 				StringPooling="TRUE"
 				BasicRuntimeChecks="0"
@@ -733,6 +733,9 @@ $(TargetPath)
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImfTest\testRgbaThreading.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImfTest\testSampleImages.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -772,6 +775,9 @@ $(TargetPath)
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImfTest\testScanLineApi.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImfTest\testSharedFrameBuffer.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImfTest\testStandardAttributes.cpp">
@@ -1028,10 +1034,16 @@ $(TargetPath)
 				RelativePath="..\..\..\IlmImfTest\testRgba.h">
 			</File>
 			<File
+				RelativePath="..\..\..\IlmImfTest\testRgbaThreading.h">
+			</File>
+			<File
 				RelativePath="..\..\..\IlmImfTest\testSampleImages.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImfTest\testScanLineApi.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmImfTest\testSharedFrameBuffer.h">
 			</File>
 			<File
 				RelativePath="..\..\..\IlmImfTest\testStandardAttributes.h">

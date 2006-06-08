@@ -18,8 +18,22 @@ See the AUTHORS file for a list of people who contributed to the Win32
 port of OpenEXR.
 
 
-Compiling OpenEXR in Visual Studio 
-----------------------------------
+Using OpenEXR in your application (IMPORTANT)
+---------------------------------------------
+
+If you are linking your application aginst OpenEXR DLLs, you must
+define OPENEXR_DLL in your project's Preprocessor Definitions in order
+to get the correct signature for some of OpenEXR's symbols.
+
+If you are linking against OpenEXR static libs, you should *not* define
+the OPENEXR_DLL macro.
+
+You do not need to define any other preprocessor macros to use OpenEXR
+in your application.
+
+
+Build setup/requirements
+------------------------
 
 If you don't want or don't need to build these libraries from scratch,
 some releases may be available as pre-compiled libraries.  Check here:
@@ -28,9 +42,9 @@ some releases may be available as pre-compiled libraries.  Check here:
 
 The projects for Visual Studio .NET 2003 can be found in vc\vc7.
 
-You'll need a compiled version of zlib (version 1.2.2 or better) in
+You'll need a compiled version of zlib (version 1.2.3 or better) in
 order to build the IlmImf library.  You'll need a compiled version of
-FLTK 1.1.x in order to build the exrdisplay viewer.  You can get
+FLTK 1.1.7 in order to build the exrdisplay viewer.  You can get
 source code for these libraries here:
 
 http://www.zlib.net
@@ -43,13 +57,6 @@ Note that by default, the OpenEXR Visual Studio project expects the
 FLTK libraries in the following locations (assuming OpenEXR\ is your
 OpenEXR source directory):
 
-  zlib\
-       zconf.h
-       zlib.h
-       zlib.lib
-       zlibd.lib
-       zlib_static.lib
-       zlibd_static.lib
   fltk\
        FL\
           Enumerations.H
@@ -62,14 +69,25 @@ OpenEXR source directory):
 	   fltkgld.lib
   OpenEXR\...
 
-In order to build the fragment shader version of exrdisplay, you'll need
-the Nvidia Cg SDK.  The exrdisplay_fragshader project expects the
-SDK to be rooted in the same directory as the OpenEXR source directory:
+In order to build the fragment shader version of exrdisplay, you'll
+need the Nvidia Cg SDK.  This is not required, it just accelerates the
+display of OpenEXR images.  The exrdisplay_fragshader project expects
+the SDK to be rooted in the same directory as the OpenEXR source
+directory:
 
   nvidia\
          SDK\
 	     inc\
   OpenEXR\...
+
+Also, edit the file OpenEXR\config.windows\OpenEXRConfig.h and
+uncomment the line that reads:
+
+/* #define HAVE_FRAGMENT_SHADERS 1 */
+
+
+Building OpenEXR
+----------------
 
 Building OpenEXR requires the following steps:
 
@@ -85,6 +103,7 @@ Building OpenEXR requires the following steps:
       OpenEXR\vc\vc7\bin
       OpenEXR\vc\vc7\lib
       OpenEXR\vc\vc7\include
+      OpenEXR\vc\vc7\include\OpenEXR
 
   * From the zlib build, copy the following files:
 
@@ -99,7 +118,7 @@ Building OpenEXR requires the following steps:
     solution file (OpenEXR\vc\vc7\createDLL.sln).
 
   * Set up the MSVCLINK environment variable to point to
-      c:\Program Files\Microsoft Visual Studio.Net 2003\vc\bin\link.exe
+      C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\bin\link.exe
     or the equivalent on your installation.
 
   * Open the OpenEXR solution file (OpenEXR\vc\vc7\OpenEXR.sln).
@@ -107,10 +126,13 @@ Building OpenEXR requires the following steps:
   * Pick the configuration you need (Debug, DebugDLL, Release or ReleaseDLL)
     and build it.
 
-  * Enjoy.
+  * When your build is finished, the OpenEXR\vc\vc7\{bin,include\OpenEXR,lib} 
+    directories will contain all the files you need to use OpenEXR in
+    your application.
   
 
 Known bugs
 ----------
 
 None.
+

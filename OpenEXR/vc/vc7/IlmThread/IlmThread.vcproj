@@ -2,7 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="IexTest"
+	Name="IlmThread"
+	ProjectGUID="{4AAAC6C2-EECF-43A1-AA21-20AA5255BEE0}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -11,90 +12,24 @@
 	</Platforms>
 	<Configurations>
 		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../../Iex;../../../config.windows;../../../IexTest"
-				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE"
-				StringPooling="TRUE"
-				RuntimeLibrary="2"
-				ForceConformanceInForLoopScope="TRUE"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="0"
-				ProgramDataBaseFileName="$(IntDir)/$(ProjectName).pdb"
-				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"
-				CompileAs="0"
-				DisableSpecificWarnings="4290"/>
-			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="..\bin\IexTest.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories=";../lib"
-				GenerateDebugInformation="TRUE"
-				SubSystem="1"
-				EntryPointSymbol="mainCRTStartup"
-				TargetMachine="1"/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/IexTest.tlb"
-				HeaderFileName=""/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="Running IexTest program...."
-				CommandLine="..\bin\IexTest.exe"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-		</Configuration>
-		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			OutputDirectory="..\lib"
+			IntermediateDirectory="..\lib\IlmThreadDebug"
+			ConfigurationType="4"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../Iex;../../../config.windows;../../../IexTest"
-				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE"
+				AdditionalIncludeDirectories="../../../IlmThread;../../../Iex;../../../config.windows"
+				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
-				ProgramDataBaseFileName="$(IntDir)/IexTest_d.pdb"
-				WarningLevel="3"
+				ProgramDataBaseFileName="$(IntDir)/IlmThread_d.pdb"
+				WarningLevel="1"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"
@@ -103,23 +38,14 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLinkerTool"
-				OutputFile="..\bin\$(ProjectName)_d.exe"
-				LinkIncremental="2"
-				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="C:\Test\bin_dll_d"
-				GenerateDebugInformation="TRUE"
-				SubSystem="1"
-				EntryPointSymbol="mainCRTStartup"
-				TargetMachine="1"/>
+				Name="VCLibrarianTool"
+				OutputFile="..\lib\IlmThread_d.lib"
+				SuppressStartupBanner="TRUE"/>
 			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/IexTest.tlb"
-				HeaderFileName=""/>
+				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Running IexTest program...."
-				CommandLine="..\bin\$(ProjectName)_d.exe"/>
+				CommandLine="post-build"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -133,7 +59,58 @@
 			<Tool
 				Name="VCXMLDataGeneratorTool"/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="..\lib"
+			IntermediateDirectory="..\lib\IlmThreadRelease"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="../../../IlmThread;../../../Iex;../../../config.windows"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS"
+				StringPooling="TRUE"
+				RuntimeLibrary="2"
+				ForceConformanceInForLoopScope="TRUE"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)/$(ProjectName).pdb"
+				WarningLevel="1"
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				DebugInformationFormat="3"
+				CompileAs="0"
+				DisableSpecificWarnings="4290"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="..\lib\IlmThread.lib"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="post-build"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
 			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool
@@ -141,24 +118,23 @@
 		</Configuration>
 		<Configuration
 			Name="DebugDLL|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			OutputDirectory="..\bin"
+			IntermediateDirectory="..\lib\IlmThreadDebugDLL"
+			ConfigurationType="2"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../Iex;../../../config.windows;../../../IexTest"
-				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE"
+				AdditionalIncludeDirectories="../../../IlmThread;../../../Iex;../../../config.windows"
+				PreprocessorDefinitions="OPENEXR_DLL;_DEBUG;WIN32;_WINDOWS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
-				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_dll_d.pdb"
-				WarningLevel="3"
+				ProgramDataBaseFileName="$(IntDir)/IlmThread_dll_d.pdb"
+				WarningLevel="1"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"
@@ -168,23 +144,20 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\bin\$(ProjectName)_dll_d.exe"
-				LinkIncremental="2"
-				SuppressStartupBanner="TRUE"
+				AdditionalDependencies="Iex_dll_d.lib"
+				OutputFile="..\bin\IlmThread_dll_d.dll"
 				AdditionalLibraryDirectories="..\lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/$(ProjectName)_dll_d.pdb"
-				SubSystem="1"
-				EntryPointSymbol="mainCRTStartup"
-				TargetMachine="1"/>
+				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_dll_d.pdb"
+				GenerateMapFile="TRUE"
+				MapExports="TRUE"
+				OptimizeReferences="1"
+				ImportLibrary="..\lib\$(TargetName).lib"/>
 			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/IexTest.tlb"
-				HeaderFileName=""/>
+				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Running IexTest program...."
-				CommandLine="..\bin\$(ProjectName)_dll_d.exe"/>
+				CommandLine="post-build"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -206,12 +179,11 @@
 		</Configuration>
 		<Configuration
 			Name="ReleaseDLL|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			OutputDirectory="..\bin"
+			IntermediateDirectory="..\lib\IlmThreadReleaseDLL"
+			ConfigurationType="2"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
@@ -219,15 +191,17 @@
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="../../../Iex;../../../config.windows;../../../IexTest"
-				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE"
+				AdditionalIncludeDirectories="../../../IlmThread;../../../Iex;../../../config.windows"
+				PreprocessorDefinitions="OPENEXR_DLL;NDEBUG;WIN32;_WINDOWS"
+				StringPooling="TRUE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
+				BufferSecurityCheck="FALSE"
 				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
-				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_dll.pdb"
-				WarningLevel="3"
+				ProgramDataBaseFileName="$(IntDir)/IlmThread_dll.pdb"
+				WarningLevel="1"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="1"
@@ -237,23 +211,20 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\bin\$(ProjectName)_dll.exe"
-				LinkIncremental="2"
-				SuppressStartupBanner="TRUE"
+				AdditionalDependencies="Iex_dll.lib"
+				OutputFile="..\bin\IlmThread_dll.dll"
 				AdditionalLibraryDirectories="..\lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/$(ProjectName)_dll.pdb"
-				SubSystem="1"
-				EntryPointSymbol="mainCRTStartup"
-				TargetMachine="1"/>
+				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_dll.pdb"
+				GenerateMapFile="TRUE"
+				MapExports="TRUE"
+				OptimizeReferences="1"
+				ImportLibrary="..\lib\IlmThread_dll.lib"/>
 			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/IexTest.tlb"
-				HeaderFileName=""/>
+				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Running IexTest program...."
-				CommandLine="..\bin\$(ProjectName)_dll.exe"/>
+				CommandLine="post-build"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -281,15 +252,7 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="..\..\..\IexTest\main.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
+				RelativePath="..\..\..\IlmThread\IlmThreadMutexWin32.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -298,6 +261,14 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="DebugDLL|Win32">
@@ -319,15 +290,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\IexTest\testBaseExc.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
+				RelativePath="..\..\..\IlmThread\IlmThreadPool.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -336,6 +299,14 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="DebugDLL|Win32">
@@ -355,18 +326,29 @@
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\IlmThread\IlmThreadSemaphoreWin32.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmThread\IlmThreadWin32.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath="..\..\..\IexTest\testBaseExc.h">
+				RelativePath="..\..\..\IlmThread\IlmThread.h">
 			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+			<File
+				RelativePath="..\..\..\IlmThread\IlmThreadMutex.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmThread\IlmThreadPool.h">
+			</File>
+			<File
+				RelativePath="..\..\..\IlmThread\IlmThreadSemaphore.h">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
