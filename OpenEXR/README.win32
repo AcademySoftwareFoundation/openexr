@@ -1,8 +1,8 @@
 OpenEXR on Win32 platforms
 --------------------------
 
-OpenEXR has been tested on Windows XP with Visual Studio .NET 2003
-(version 7.1).
+OpenEXR has been tested on Windows XP with both Visual Studio .NET
+2003 (version 7.1) and Visual Studio 2005 (version 8.0).
 
 Due to limitations in Microsoft's C++ implementation in Visual Studio
 6.0, OpenEXR won't compile with the Microsoft Visual C++ 6.0 compiler.
@@ -40,7 +40,8 @@ some releases may be available as pre-compiled libraries.  Check here:
 
   http://openexr.com/downloads
 
-The projects for Visual Studio .NET 2003 can be found in vc\vc7.
+The projects for Visual Studio .NET 2003 can be found in vc\vc7, and
+for Visual Studio 2005 in vc\vc8.
 
 You'll need a compiled version of zlib (version 1.2.3 or better) in
 order to build the IlmImf library.  You'll need a compiled version of
@@ -50,8 +51,11 @@ source code for these libraries here:
 http://www.zlib.net
 http://www.fltk.org
 
-FLTK 1.1.7 comes with a workspace file for Visual Studio .NET 2003 in
-the vcnet\ directory.
+FLTK 1.1.7 comes with a solution file for Visual Studio .NET 2003 in
+the vcnet\ directory, and one for Visual Studio 2005 in the vc2005\
+directory.  You only need to build the Debug and Release versions of
+the fltk and fltkgl projects.  exrdisplay uses the static lib versions
+of FLTK.
 
 Note that by default, the OpenEXR Visual Studio project expects the
 FLTK libraries in the following locations (assuming OpenEXR\ is your
@@ -88,25 +92,31 @@ Building OpenEXR
 Building OpenEXR requires the following steps:
 
   * Obtain the zlib source code from www.zlib.net, and build the
-    following configurations:
+    following configurations of the workspace file found in zlib's
+    projects\visualc6 (Visual Studio will automatically upgrade the
+    workspace to a solution file):
     
       LIB ASM Debug
       LIB ASM Release
       DLL ASM Debug
       DLL ASM Release
 
-  * In directory OpenEXR\vc\vc7, create the following sub-directories:
+    The ASM projects for zlib 1.2.3 don't build on Visual Studio 2005;
+    you'll get assembler errors on lines 647, 649, 663 and 720 in
+    zlib's contrib\masmx86\inffas32.asm file.  You can add 'dword ptr'
+    to the 2nd argument of the 'movd' instruction on each of those
+    lines to correct the problem, or you can build the (slower)
+    non-ASM versions of the libraries.
 
-      OpenEXR\vc\vc7\bin
-      OpenEXR\vc\vc7\lib
-      OpenEXR\vc\vc7\include
-      OpenEXR\vc\vc7\include\OpenEXR
+  * In the following steps, wherever you see 'vc?', substitute 'vc7'
+    if you're compiling OpenEXR with Visual Studio .NET 2003, or 'vc8'
+    if you're compiling OpenEXR with Visual Studio 2005.
 
   * From the zlib build, copy the following files:
 
-      zlib1d.dll zlib1.dll                                                  -> OpenEXR\vc\vc7\bin
-      zconf.h zlib.h                                                        -> OpenEXR\vc\vc7\include
-      zlib1.exp zlib1.lib zlib1d.exp zlib1d.lib zlibd.lib zlib.lib vc70.pdb -> OpenEXR\vc\vc7\lib
+      zlib1d.dll zlib1.dll                                         -> OpenEXR\vc\vc?\bin
+      zconf.h zlib.h                                               -> OpenEXR\vc\vc?\include
+      zlib1.exp zlib1.lib zlib1d.exp zlib1d.lib zlibd.lib zlib.lib -> OpenEXR\vc\vc?\lib
 
     The .dll, .exp and .lib files can be found in zlib's
     projects\visualc6\Win32_* directories.
@@ -115,13 +125,16 @@ Building OpenEXR requires the following steps:
     the Debug and Release configurations.
 
   * Build the Release configuration of createDLL from the createDLL
-    solution file (OpenEXR\vc\vc7\createDLL.sln).
+    solution file (OpenEXR\vc\vc?\createDLL.sln).
 
   * Set up the MSVCLINK environment variable to point to
       C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\bin\link.exe
-    or the equivalent on your installation.
+    or
+      C:\Program Files\Microsoft Visual Studio 8\VC\bin\link.exe      
+    (or similar), depending on which version of Visual Studio you're 
+    using.
 
-  * Open the OpenEXR solution file (OpenEXR\vc\vc7\OpenEXR.sln).
+  * Open the OpenEXR solution file (OpenEXR\vc\vc?\OpenEXR.sln).
 
   * Pick the configuration you need (Debug, DebugDLL, Release or ReleaseDLL)
     and build it.  Note that the exrdisplay project will fail if you
@@ -130,7 +143,7 @@ Building OpenEXR requires the following steps:
     NVIDIA Cg SDK.  All other projects, including the test programs,
     should succeed.
 
-  * When your build is finished, the OpenEXR\vc\vc7\{bin,include\OpenEXR,lib} 
+  * When your build is finished, the OpenEXR\vc\vc?\{bin,include\OpenEXR,lib} 
     directories will contain all the files you need to use OpenEXR in
     your application.
   
