@@ -321,7 +321,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/HalfTest.tlb"
+				TypeLibraryName=".\Release/HalfTest.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -349,7 +349,6 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
 			/>
 			<Tool
@@ -361,7 +360,6 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\lib"
-				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/$(ProjectName)_dll.pdb"
 				SubSystem="1"
 				EntryPointSymbol="mainCRTStartup"

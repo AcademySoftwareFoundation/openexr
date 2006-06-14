@@ -304,7 +304,6 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
 			/>
 			<Tool
@@ -315,7 +314,6 @@
 				AdditionalDependencies="Iex_dll.lib"
 				OutputFile="..\bin\Imath_dll.dll"
 				AdditionalLibraryDirectories="..\lib"
-				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_dll.pdb"
 				GenerateMapFile="true"
 				MapExports="true"
@@ -344,7 +342,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="$(TargetDir)\createDLL -n$(TargetDir)\Imath_dll.map -l$(TargetDir)\..\lib;$(TargetDir)\..\lib\ImathDebugDLL -i$(TargetDir)\..\lib\Imath_dll.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
+				CommandLine="$(TargetDir)\createDLL -n$(TargetDir)\Imath_dll.map -l$(TargetDir)\..\lib;$(TargetDir)\..\lib\ImathReleaseDLL -i$(TargetDir)\..\lib\Imath_dll.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

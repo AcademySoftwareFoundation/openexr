@@ -307,7 +307,6 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
 			/>
 			<Tool
@@ -318,7 +317,6 @@
 				AdditionalDependencies="Iex_dll.lib Half_dll.lib Imath_dll.lib zlib1.lib"
 				OutputFile="..\bin\IlmImf_dll.dll"
 				AdditionalLibraryDirectories="..\lib"
-				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_dll.pdb"
 				GenerateMapFile="true"
 				MapExports="true"
@@ -348,7 +346,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\bin\createDLL -n$(TargetDir)\IlmImf_dll.map -l$(TargetDir)\..\lib;$(TargetDir)\..\lib\IlmImfDebugDLL -i$(TargetDir)\..\lib\IlmImf_dll.lib -oilmthread_dll.lib;half_dll.lib;zlib1.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
+				CommandLine="..\bin\createDLL -n$(TargetDir)\IlmImf_dll.map -l$(TargetDir)\..\lib;$(TargetDir)\..\lib\IlmImfReleaseDLL -i$(TargetDir)\..\lib\IlmImf_dll.lib -oilmthread_dll.lib;half_dll.lib;zlib1.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
