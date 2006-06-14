@@ -324,7 +324,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/IlmImfTest.tlb"
+				TypeLibraryName=".\Release/IlmImfTest.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -354,7 +354,6 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
 			/>
 			<Tool
@@ -367,7 +366,6 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\lib"
-				GenerateDebugInformation="true"
 				SubSystem="1"
 				EntryPointSymbol="mainCRTStartup"
 				TargetMachine="1"

@@ -302,7 +302,6 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
 			/>
 			<Tool
@@ -311,7 +310,6 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="..\bin\Iex_dll.dll"
-				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_dll.pdb"
 				GenerateMapFile="true"
 				MapExports="true"
@@ -340,7 +338,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\bin\createDLL -n$(TargetDir)\Iex_dll.map -l$(TargetDir)\..\lib\IexDebugDLL -i$(TargetDir)\..\lib\Iex_dll.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
+				CommandLine="..\bin\createDLL -n$(TargetDir)\Iex_dll.map -l$(TargetDir)\..\lib\IexReleaseDLL -i$(TargetDir)\..\lib\Iex_dll.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

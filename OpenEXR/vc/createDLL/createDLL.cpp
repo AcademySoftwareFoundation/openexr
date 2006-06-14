@@ -219,6 +219,20 @@ char* filterSymbols[] = {
     "_== ",		    // a strange symbol from fltk
     "AEPAXI@Z",		    // all vector deleting destructors have this pattern in them
     "boost@@2_NB",	    // a boost template metaprogramming side effect that generates 1000's of unneeded symbols
+    //"??0out_of_range@std@@QAE@ABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@1@@Z"
+    //"??1out_of_range@std@@UAE@XZ",
+    //"??0out_of_range@std@@QAE@ABV01@@Z",
+    "out_of_range@std@@",
+    "?_Checked_iterator_base@?$_Vector_const_iterator@",
+    "??$_Checked_base@V?$_Vector_const_iterator@",
+    "??0?$_Vector_const_iterator@",
+    "??0?$_Vector_iterator@",
+    //"??$_Uninit_copy@PBV?$vector@_KV?$allocator@_K@std@@",
+    //"??$_Uninit_copy@PB_KPA_KV?$allocator@_K@std@@",
+    "??$_Uninit_copy@PB",
+    "??0?$_Tree_ptr@V?$_Tmap_traits@",
+    "?_Myptr@?$basic_string@DU?$char_traits@D@std@@",
+    "__imp_??1_Container_base@std", // non-existent symbols in the std
     0
 };
 
@@ -639,7 +653,7 @@ static void getSymbolsFromMap(char* buf, const int length, vector<string>& strin
 }
 
 
-static void createResponseFile(string& path, string& moduleName, vector<string>& libpath, string& implib, set<string>& libs, set<string>& objs)
+static void createResponseFile(string& path, string& moduleName, vector<string>& libpath, string& implib, set<string>& libs, set<string>& objs, bool noDefaultLibs)
 {
     FILE* r = fopen("C:\\response.txt", "wb");
     if (r != 0)
@@ -662,6 +676,10 @@ static void createResponseFile(string& path, string& moduleName, vector<string>&
 
         // import lib
         fprintf(r, "/IMPLIB:\"%s\" ", implib.c_str());
+
+        // /NODEFAULTLIB:library
+        if (noDefaultLibs)
+            fprintf(r, "/NODEFAULTLIB ");
 
         // misc stuff
         fprintf(r, "/DLL /DEBUG /PDB:\"%s\\%s.pdb\" /DEF:\"%s\\%s.map.DEF\" /MACHINE:X86 ", 
@@ -699,6 +717,8 @@ int main(int argC, char* argV[])
     options.AddStringOption("-i", "--importlib", importlib, "the import lib to go with the DLL");
     string mapFileName;
     options.AddStringOption("-n", "--mapfile", mapFileName, "name of map file to generate");
+    bool noDefaultLib = false;
+    options.AddTrueOption("-d", "--nodefaultlib", noDefaultLib, "invoke /NODEFAULTLIB:library option");
 
     // make a command line less argV[0] which is the executable path
     std::string commandLine = Join(argC-1, &argV[1], " ");
@@ -715,8 +735,6 @@ int main(int argC, char* argV[])
     if (mapFileName == "" || importlib == "")
     {
         options.Usage();
-        //std::cerr << "Usage: createDLL myMapFile[.MAP] dirToOtherLibs implibName" << endl;
-        //std::cerr << "Additionally, -l dir adds dir as an include directory" << endl;
     }
     else
     {
@@ -838,7 +856,7 @@ int main(int argC, char* argV[])
             // silly placeholder code, given the comment above :\ 
             string impliblib = importlib + ".lib";
 
-            createResponseFile(path, moduleName, libpaths, impliblib, libs, objs);
+            createResponseFile(path, moduleName, libpaths, impliblib, libs, objs, noDefaultLib);
 
             // invoke linker
             cerr << "Exporting DLL" << endl;
