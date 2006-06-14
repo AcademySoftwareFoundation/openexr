@@ -321,7 +321,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/IexTest.tlb"
+				TypeLibraryName=".\Release/IexTest.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -331,7 +331,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="../../../Iex;../../../config.windows;../../../IexTest"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_DEBUG;WIN32;_CONSOLE"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;_CONSOLE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
 				ForceConformanceInForLoopScope="true"
@@ -350,7 +350,6 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
 			/>
 			<Tool
@@ -362,7 +361,6 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\lib"
-				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/$(ProjectName)_dll.pdb"
 				SubSystem="1"
 				EntryPointSymbol="mainCRTStartup"

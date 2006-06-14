@@ -314,7 +314,6 @@
 				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile=""
-				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_dll.pdb"
 				GenerateMapFile="true"
 				MapExports="true"
@@ -344,7 +343,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\bin\createDLL -n$(TargetDir)\Half_dll.map -l$(TargetDir)\..\lib\HalfDebugDLL -i$(TargetDir)\..\lib\Half_dll.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
+				CommandLine="..\bin\createDLL -n$(TargetDir)\Half_dll.map -l$(TargetDir)\..\lib\HalfReleaseDLL -i$(TargetDir)\..\lib\Half_dll.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
