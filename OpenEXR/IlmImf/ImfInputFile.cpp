@@ -413,9 +413,9 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 	Lock lock (*_data);
 
 	//
-        // Invalidate the cached buffer if the new frame buffer
-	// has a different set of channels than the old frame
-	// buffer, or if the type of a channel has changed.
+        // We must invalidate the cached buffer if the new frame
+	// buffer has a different set of channels than the old
+	// frame buffer, or if the type of a channel has changed.
 	//
 
 	const FrameBuffer &oldFrameBuffer = _data->tFileBuffer;
@@ -434,85 +434,90 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 
 	if (i != oldFrameBuffer.end() || j != frameBuffer.end())
         {
+	    //
+	    // Invalidate the cached buffer.
+	    //
+
             _data->deleteCachedBuffer ();
 	    _data->cachedTileY = -1;
+
+	    //
+	    // Create new a cached frame buffer.  It can hold a single
+	    // row of tiles.  The cached buffer can be reused for each
+	    // row of tiles because we set the yTileCoords parameter of
+	    // each Slice to true.
+	    //
+
+	    const Box2i &dataWindow = _data->header.dataWindow();
+	    _data->cachedBuffer = new FrameBuffer();
+	    _data->offset = dataWindow.min.x;
+	    
+	    int tileRowSize = (dataWindow.max.x - dataWindow.min.x + 1) *
+			      _data->tFile->tileYSize();
+
+	    for (FrameBuffer::ConstIterator k = frameBuffer.begin();
+		 k != frameBuffer.end();
+		 ++k)
+	    {
+		Slice s = k.slice();
+
+		switch (s.type)
+		{
+		  case UINT:
+
+		    _data->cachedBuffer->insert
+			(k.name(),
+			 Slice (UINT,
+				(char *)(new unsigned int[tileRowSize] - 
+					_data->offset),
+				sizeof (unsigned int),
+				sizeof (unsigned int) *
+				    _data->tFile->levelWidth(0),
+				1, 1,
+				s.fillValue,
+				false, true));
+		    break;
+
+		  case HALF:
+
+		    _data->cachedBuffer->insert
+			(k.name(),
+			 Slice (HALF,
+				(char *)(new half[tileRowSize] - 
+					_data->offset),
+				sizeof (half),
+				sizeof (half) *
+				    _data->tFile->levelWidth(0),
+				1, 1,
+				s.fillValue,
+				false, true));
+		    break;
+
+		  case FLOAT:
+
+		    _data->cachedBuffer->insert
+			(k.name(),
+			 Slice (FLOAT,
+				(char *)(new float[tileRowSize] - 
+					_data->offset),
+				sizeof(float),
+				sizeof(float) *
+				    _data->tFile->levelWidth(0),
+				1, 1,
+				s.fillValue,
+				false, true));
+		    break;
+
+		  default:
+
+		    throw Iex::ArgExc ("Unknown pixel data type.");
+		}
+	    }
+
+	    _data->tFile->setFrameBuffer (*_data->cachedBuffer);
         }
 
 	_data->tFileBuffer = frameBuffer;
-
-        //
-        // Create a cached framebuffer which stores a single row of tiles
-        // The same buffer is reused for each row of tiles by setting the
-        // yTileCoords parameter of each Slice to true.
-        //
-
-        const Box2i &dataWindow = _data->header.dataWindow();
-        _data->cachedBuffer = new FrameBuffer();
-        _data->offset = dataWindow.min.x;
-        
-        int tileRowSize = (dataWindow.max.x - dataWindow.min.x + 1) *
-                          _data->tFile->tileYSize();
-
-        for (FrameBuffer::ConstIterator k = frameBuffer.begin();
-             k != frameBuffer.end();
-             ++k)
-        {
-            Slice s = k.slice();
-
-            switch (s.type)
-            {
-              case UINT:
-
-                _data->cachedBuffer->insert
-                    (k.name(),
-                     Slice (UINT,
-                            (char *)(new unsigned int[tileRowSize] - 
-                                    _data->offset),
-                            sizeof (unsigned int),
-                            sizeof (unsigned int) *
-                                _data->tFile->levelWidth(0),
-                            1, 1,
-                            s.fillValue,
-                            false, true));
-                break;
-
-              case HALF:
-
-                _data->cachedBuffer->insert
-                    (k.name(),
-                     Slice (HALF,
-                            (char *)(new half[tileRowSize] - 
-                                    _data->offset),
-                            sizeof (half),
-                            sizeof (half) *
-                                _data->tFile->levelWidth(0),
-                            1, 1,
-                            s.fillValue,
-                            false, true));
-                break;
-
-              case FLOAT:
-
-                _data->cachedBuffer->insert
-                    (k.name(),
-                     Slice (FLOAT,
-                            (char *)(new float[tileRowSize] - 
-                                    _data->offset),
-                            sizeof(float),
-                            sizeof(float) *
-                                _data->tFile->levelWidth(0),
-                            1, 1,
-                            s.fillValue,
-                            false, true));
-                break;
-
-              default:
-
-                throw Iex::ArgExc ("Unknown pixel data type.");
-            }
-        }
-
-        _data->tFile->setFrameBuffer (*_data->cachedBuffer);
     }
     else
     {
