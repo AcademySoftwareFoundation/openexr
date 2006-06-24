@@ -191,7 +191,7 @@ class Rand48
 
     unsigned short int	_state[3];
     
-#if defined ( _WIN32 ) || defined ( _WIN64 )
+#if defined ( _WIN32 ) || defined ( _WIN64 ) || defined ( __MWERKS__ )
     void    	    	shiftState();
 #endif
 };
@@ -314,7 +314,7 @@ Rand48::Rand48 (unsigned long int seed)
 }
 
 
-#if defined ( _WIN32 ) || defined ( _WIN64 )
+#if defined ( _WIN32 ) || defined ( _WIN64 ) || defined ( __MWERKS__ )
 
 inline void
 Rand48::shiftState()
@@ -347,7 +347,7 @@ Rand48::shiftState()
 inline bool
 Rand48::nextb ()
 {
-#if defined ( _WIN32 ) || defined ( _WIN64 )
+#if defined ( _WIN32 ) || defined ( _WIN64 ) || defined ( __MWERKS__ )
     shiftState();
     return ( ( long( _state[2] ) << 15 ) + ( long( _state[1] ) >> 1 ) ) & 0x1;
 #else
@@ -359,7 +359,7 @@ Rand48::nextb ()
 inline long int
 Rand48::nexti ()
 {
-#if defined ( _WIN32 ) || defined ( _WIN64 )
+#if defined ( _WIN32 ) || defined ( _WIN64 ) || defined ( __MWERKS__ )
     shiftState();
     return ( long( _state[2] ) << 15 ) + ( long( _state[1] ) >> 1 );
 #else
@@ -371,7 +371,7 @@ Rand48::nexti ()
 inline double
 Rand48::nextf ()
 {
-#if defined ( _WIN32 ) || defined ( _WIN64 )
+#if defined ( _WIN32 ) || defined ( _WIN64 ) || defined ( __MWERKS__ )
     shiftState();
     return ldexp( double( _state[0] ), -48 ) +
     	   ldexp( double( _state[1] ), -32 ) +
