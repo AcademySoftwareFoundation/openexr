@@ -1,3 +1,7 @@
+	* Bug Fix: calling setFrameBuffer() for every scan line
+	  while reading a tiled file through the scan line API
+	  returns bad pixel data. (Paul Schneider, Florian Kainz)
+
 Version 1.3.1:
 	* Fixed the ReleaseDLL targets for Visual Studio 2005.
 	  (Nick Porcino, Drew Hess)

@@ -402,6 +402,88 @@ writeRead (const Array2D<unsigned int> &pi1,
         }
     }
 
+    {
+        cout << endl << "         reading INCREASING_Y "
+		        "(new frame buffer on every line)" << flush;
+
+        InputFile in (fileName);
+
+        const Box2i &dw = in.header().dataWindow();
+        int w = dw.max.x - dw.min.x + 1;
+        int h = dw.max.y - dw.min.y + 1;
+        int dwx = dw.min.x;
+        int dwy = dw.min.y;
+
+        Array2D<unsigned int> pi2 (h, w);
+        Array2D<half>         ph2 (h, w);
+        Array2D<float>        pf2 (h, w);
+
+        for (int y = dw.min.y; y <= dw.max.y; ++y)
+	{
+	    FrameBuffer fb;
+
+	    fb.insert ("I",					// name
+		       Slice (UINT,				// type
+			      (char *) &pi2[y - dwy][-dwx],	// base
+			      sizeof (pi2[0][0]),		// xStride
+			      0)				// yStride
+		      );
+
+	    fb.insert ("H",					// name
+		       Slice (HALF,				// type
+			      (char *) &ph2[y - dwy][-dwx],	// base
+			      sizeof (ph2[0][0]),		// xStride
+			      0)				// yStride
+		      );
+
+	    fb.insert ("F",                     	        // name
+		       Slice (FLOAT,				// type
+			      (char *) &pf2[y - dwy][-dwx],	// base
+			      sizeof (pf2[0][0]),		// xStride
+			      0)				// yStride
+		      );
+
+	    in.setFrameBuffer (fb);
+            in.readPixels (y);
+	}
+
+        cout << " comparing" << flush;
+
+        assert (in.header().displayWindow() == hdr.displayWindow());
+        assert (in.header().dataWindow() == hdr.dataWindow());
+        assert (in.header().pixelAspectRatio() == hdr.pixelAspectRatio());
+        assert (in.header().screenWindowCenter() == hdr.screenWindowCenter());
+        assert (in.header().screenWindowWidth() == hdr.screenWindowWidth());
+        assert (in.header().lineOrder() == hdr.lineOrder());
+        assert (in.header().compression() == hdr.compression());
+
+        ChannelList::ConstIterator hi = hdr.channels().begin();
+        ChannelList::ConstIterator ii = in.header().channels().begin();
+
+        while (hi != hdr.channels().end())
+        {
+            assert (!strcmp (hi.name(), ii.name()));
+            assert (hi.channel().type == ii.channel().type);
+            assert (hi.channel().xSampling == ii.channel().xSampling);
+            assert (hi.channel().ySampling == ii.channel().ySampling);
+
+            ++hi;
+            ++ii;
+        }
+
+        assert (ii == in.header().channels().end());
+
+        for (int y = 0; y < h; ++y)
+        {
+            for (int x = 0; x < w; ++x)
+            {
+                assert (pi1[y][x] == pi2[y][x]);
+                assert (ph1[y][x] == ph2[y][x]);
+                assert (pf1[y][x] == pf2[y][x]);
+            }
+        }    
+    }
+
     remove (fileName);
     cout << endl;
 }
