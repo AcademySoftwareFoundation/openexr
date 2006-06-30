@@ -277,7 +277,7 @@ makeMainWindow (const char imageFile[],
     mainWindow->exposureSlider->type (FL_HORIZONTAL);
     mainWindow->exposureSlider->range (-10.0, +10.0);
     mainWindow->exposureSlider->step (1, 8);
-    mainWindow->exposureSlider->value (zeroOneExposure? 1.0: 0.0);
+    mainWindow->exposureSlider->value (zeroOneExposure? 1.02607: 0.0);
     mainWindow->exposureSlider->when (when);
 
     mainWindow->exposureSlider->callback
