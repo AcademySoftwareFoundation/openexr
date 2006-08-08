@@ -133,7 +133,7 @@ floatToFloat24 (float f)
     else
     {
 	//
-	// F is finite, round the sifnificand to 15 bits.
+	// F is finite, round the significand to 15 bits.
 	//
 
 	i = ((e | m) + (m & 0x00000080)) >> 8;
@@ -142,7 +142,7 @@ floatToFloat24 (float f)
 	{
 	    //
 	    // F was close to FLT_MAX, and the significand was
-	    // rounded up, resulting an exponent overflow.
+	    // rounded up, resulting in an exponent overflow.
 	    // Avoid the overflow by truncating the significand
 	    // instead of rounding it.
 	    //
