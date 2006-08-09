@@ -224,16 +224,14 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\bin\createDLL -n$(TargetDir)\IlmImf_dll.map -l$(TargetDir)\..\lib;$(TargetDir)\..\lib\IlmImfDebugDLL -i$(TargetDir)\..\lib\IlmImf_dll.lib -oilmthread_dll.lib;half_dll.lib;zlib1.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
+				CommandLine="..\bin\createDLL -n$(TargetDir)\IlmImf_dll.map -l$(TargetDir)\..\lib;$(TargetDir)\..\lib\IlmImfReleaseDLL -i$(TargetDir)\..\lib\IlmImf_dll.lib -oilmthread_dll.lib;half_dll.lib;zlib1.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
+				Name="VCResourceCompilerTool"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool

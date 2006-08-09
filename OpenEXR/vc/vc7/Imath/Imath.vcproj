@@ -220,16 +220,14 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="$(TargetDir)\createDLL -n$(TargetDir)\Imath_dll.map -l$(TargetDir)\..\lib;$(TargetDir)\..\lib\ImathDebugDLL -i$(TargetDir)\..\lib\Imath_dll.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
+				CommandLine="$(TargetDir)\createDLL -n$(TargetDir)\Imath_dll.map -l$(TargetDir)\..\lib;$(TargetDir)\..\lib\ImathReleaseDLL -i$(TargetDir)\..\lib\Imath_dll.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
+				Name="VCResourceCompilerTool"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
