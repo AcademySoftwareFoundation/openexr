@@ -216,16 +216,14 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\bin\createDLL -n$(TargetDir)\Iex_dll.map -l$(TargetDir)\..\lib\IexDebugDLL -i$(TargetDir)\..\lib\Iex_dll.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
+				CommandLine="..\bin\createDLL -n$(TargetDir)\Iex_dll.map -l$(TargetDir)\..\lib\IexReleaseDLL -i$(TargetDir)\..\lib\Iex_dll.lib&#x0D;&#x0A;post-build&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
+				Name="VCResourceCompilerTool"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
