@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2006, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,95 +33,80 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+#ifndef INCLUDED_IMF_B44_COMPRESSOR_H
+#define INCLUDED_IMF_B44_COMPRESSOR_H
 
 //-----------------------------------------------------------------------------
 //
-//	class ChannelListAttribute
+//	class B44Compressor -- lossy 3:1 compression of 4x4 pixel blocks
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfChannelListAttribute.h>
-
+#include <ImfCompressor.h>
 
 namespace Imf {
 
+class ChannelList;
 
-template <>
-const char *
-ChannelListAttribute::staticTypeName ()
+
+class B44Compressor: public Compressor
 {
-    return "chlist";
-}
+  public:
 
+    B44Compressor (const Header &hdr, int maxScanLineSize, int numScanLines);
+    virtual ~B44Compressor ();
 
-template <>
-void
-ChannelListAttribute::writeValueTo (OStream &os, int version) const
-{
-    for (ChannelList::ConstIterator i = _value.begin();
-	 i != _value.end();
-	 ++i)
-    {
-	//
-	// Write name
-	//
+    virtual int		numScanLines () const;
 
-	Xdr::write <StreamIO> (os, i.name());
+    virtual Format	format () const;
 
-	//
-	// Write Channel struct
-	//
+    virtual int		compress (const char *inPtr,
+				  int inSize,
+				  int minY,
+				  const char *&outPtr);                  
+                  
+    virtual int		compressTile (const char *inPtr,
+				      int inSize,
+				      Imath::Box2i range,
+				      const char *&outPtr);
 
-	Xdr::write <StreamIO> (os, int (i.channel().type));
-	Xdr::write <StreamIO> (os, i.channel().pLinear);
-	Xdr::pad   <StreamIO> (os, 3);
-	Xdr::write <StreamIO> (os, i.channel().xSampling);
-	Xdr::write <StreamIO> (os, i.channel().ySampling);
-    }
+    virtual int		uncompress (const char *inPtr,
+				    int inSize,
+				    int minY,
+				    const char *&outPtr);
+                    
+    virtual int		uncompressTile (const char *inPtr,
+					int inSize,
+					Imath::Box2i range,
+					const char *&outPtr);
+  private:
 
-    //
-    // Write end of list marker
-    //
+    struct ChannelData;
+    
+    int			compress (const char *inPtr,
+				  int inSize,
+				  Imath::Box2i range,
+				  const char *&outPtr);
+ 
+    int			uncompress (const char *inPtr,
+				    int inSize,
+				    Imath::Box2i range,
+				    const char *&outPtr);
 
-    Xdr::write <StreamIO> (os, "");
-}
-
-
-template <>
-void
-ChannelListAttribute::readValueFrom (IStream &is, int size, int version)
-{
-    while (true)
-    {
-	//
-	// Read name; zero length name means end of channel list
-	//
-
-	char name[Name::SIZE];
-	Xdr::read <StreamIO> (is, sizeof (name), name);
-
-	if (name[0] == 0)
-	    break;
-
-	//
-	// Read Channel struct
-	//
-
-	int type;
-	bool pLinear;
-	int xSampling;
-	int ySampling;
-
-	Xdr::read <StreamIO> (is, type);
-	Xdr::read <StreamIO> (is, pLinear);
-	Xdr::skip <StreamIO> (is, 3);
-	Xdr::read <StreamIO> (is, xSampling);
-	Xdr::read <StreamIO> (is, ySampling);
-
-	_value.insert
-	    (name, Channel (PixelType (type), xSampling, ySampling, pLinear));
-    }
-}
+    int			_maxScanLineSize;
+    Format		_format;
+    int			_numScanLines;
+    unsigned short *	_tmpBuffer;
+    char *		_outBuffer;
+    int			_numChans;
+    const ChannelList &	_channels;
+    ChannelData *	_channelData;
+    int			_minX;
+    int			_maxX;
+    int			_maxY;
+};
 
 
 } // namespace Imf
+
+#endif

@@ -42,7 +42,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfChannelList.h>
-#include "Iex.h"
+#include <Iex.h>
 
 
 using std::string;
@@ -51,10 +51,11 @@ using std::set;
 namespace Imf {
 
 
-Channel::Channel (PixelType t, int xs, int ys):
+Channel::Channel (PixelType t, int xs, int ys, bool pl):
     type (t),
     xSampling (xs),
-    ySampling (ys)
+    ySampling (ys),
+    pLinear (pl)
 {
     // empty
 }
@@ -65,7 +66,8 @@ Channel::operator == (const Channel &other) const
 {
     return type == other.type &&
 	   xSampling == other.xSampling &&
-	   ySampling == other.ySampling;
+	   ySampling == other.ySampling &&
+	   pLinear == other.pLinear;
 }
 
 

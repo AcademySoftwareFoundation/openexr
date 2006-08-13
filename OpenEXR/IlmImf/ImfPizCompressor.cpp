@@ -45,9 +45,9 @@
 #include <ImfHuf.h>
 #include <ImfWav.h>
 #include <ImfMisc.h>
-#include "ImathBox.h"
-#include "ImathFun.h"
-#include "Iex.h"
+#include <ImathFun.h>
+#include <ImathBox.h>
+#include <Iex.h>
 #include <ImfIO.h>
 #include <ImfXdr.h>
 #include <ImfAutoArray.h>
@@ -148,20 +148,6 @@ applyLut (const unsigned short lut[USHORT_RANGE],
 {
     for (int i = 0; i < nData; ++i)
 	data[i] = lut[data[i]];
-}
-
-
-//
-// Return the number of samples a channel with
-// subsampling rate s has in the interval [a, b].
-//
-
-int
-numSamples (int s, int a, int b)
-{
-    int a1 = divp (a, s);
-    int b1 = divp (b, s);
-    return  b1 - a1 + ((a1 * s < a)? 0: 1);
 }
 
 
@@ -390,7 +376,7 @@ PizCompressor::compress (const char *inPtr,
     else
     {
 	//
-	// Native, machine-independent data format
+	// Native, machine-dependent data format
 	//
 
 	for (int y = minY; y <= maxY; ++y)
@@ -626,7 +612,7 @@ PizCompressor::uncompress (const char *inPtr,
     else
     {
 	//
-	// Native, machine-independent data format
+	// Native, machine-dependent data format
 	//
 
 	for (int y = minY; y <= maxY; ++y)

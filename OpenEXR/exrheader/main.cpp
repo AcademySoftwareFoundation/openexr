@@ -94,6 +94,10 @@ printCompression (Compression c)
 	  cout << "pxr24";
 	  break;
 
+      case B44_COMPRESSION:
+	  cout << "b44";
+	  break;
+
       default:
 	cout << int (c);
 	break;
@@ -256,6 +260,9 @@ printChannelList (const ChannelList &cl)
 	cout << ", sampling " <<
 		i.channel().xSampling << " " <<
 		i.channel().ySampling;
+
+	if (i.channel().pLinear)
+	    cout << ", plinear";
     }
 }
 

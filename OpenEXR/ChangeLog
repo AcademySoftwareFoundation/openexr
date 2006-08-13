@@ -1,3 +1,8 @@
+	* Added new lossy B44 compression method.  HALF channels are
+	  compressed with a fixed ratio of 2.66:1.  UINT and FLOAT
+	  channels are stored verbatim, without compression.
+	  (Florian Kainz)
+
 Version 1.4.0a:
 	* Fixed the ReleaseDLL targets for Visual Studio 2003.
 	  (Barnaby Robson)

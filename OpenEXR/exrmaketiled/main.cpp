@@ -93,7 +93,7 @@ usageMessage (const char argv0[], bool verbose = false)
 		"-u        sets level size rounding to ROUND_UP\n"
 		"\n"
 		"-z x      sets the data compression method to x\n"
-		"          (none/rle/zip/piz/pxr24, default is zip)\n"
+		"          (none/rle/zip/piz/pxr24/b44, default is zip)\n"
 		"\n"
 		"-v        verbose mode\n"
 		"\n"
@@ -130,6 +130,10 @@ getCompression (const string &str)
     else if (str == "pxr24" || str == "PXR24")
     {
 	c = PXR24_COMPRESSION;
+    }
+    else if (str == "b44" || str == "B44")
+    {
+	c = B44_COMPRESSION;
     }
     else
     {
