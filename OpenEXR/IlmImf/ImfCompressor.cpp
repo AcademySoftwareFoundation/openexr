@@ -45,6 +45,7 @@
 #include <ImfZipCompressor.h>
 #include <ImfPizCompressor.h>
 #include <ImfPxr24Compressor.h>
+#include <ImfB44Compressor.h>
 
 namespace Imf {
 
@@ -95,6 +96,7 @@ isValidCompression (Compression c)
       case ZIP_COMPRESSION:
       case PIZ_COMPRESSION:
       case PXR24_COMPRESSION:
+      case B44_COMPRESSION:
 
 	return true;
 
@@ -130,6 +132,10 @@ newCompressor (Compression c, int maxScanLineSize, const Header &hdr)
 
 	return new Pxr24Compressor (hdr, maxScanLineSize, 16);
 
+      case B44_COMPRESSION:
+
+	return new B44Compressor (hdr, maxScanLineSize, 32);
+
       default:
 
 	return 0;
@@ -161,6 +167,10 @@ newTileCompressor (Compression c,
       case PXR24_COMPRESSION:
 
 	return new Pxr24Compressor (hdr, tileLineSize, numTileLines);
+
+      case B44_COMPRESSION:
+
+	return new B44Compressor (hdr, tileLineSize, numTileLines);
 
       default:
 

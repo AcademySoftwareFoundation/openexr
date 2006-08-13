@@ -45,9 +45,9 @@
 #include <ImfChannelList.h>
 #include <ImfRgbaYca.h>
 #include <ImfStandardAttributes.h>
-#include "ImathFun.h"
-#include "IlmThreadMutex.h"
-#include "Iex.h"
+#include <ImathFun.h>
+#include <IlmThreadMutex.h>
+#include <Iex.h>
 #include <string.h>
 #include <algorithm>
 
@@ -75,8 +75,8 @@ insertChannels (Header &header, RgbaChannels rgbaChannels)
 
 	if (rgbaChannels & WRITE_C)
 	{
-	    ch.insert ("RY", Channel (HALF, 2, 2));
-	    ch.insert ("BY", Channel (HALF, 2, 2));
+	    ch.insert ("RY", Channel (HALF, 2, 2, true));
+	    ch.insert ("BY", Channel (HALF, 2, 2, true));
 	}
     }
     else

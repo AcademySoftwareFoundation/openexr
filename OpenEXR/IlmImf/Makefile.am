@@ -13,7 +13,7 @@ libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 		       ImfThreading.cpp \
 		       ImfWav.cpp ImfLut.cpp ImfCompressor.cpp \
 		       ImfRleCompressor.cpp ImfZipCompressor.cpp \
-		       ImfPizCompressor.cpp ImfMisc.cpp \
+		       ImfPizCompressor.cpp ImfB44Compressor.cpp ImfMisc.cpp \
 		       ImfCompressionAttribute.cpp ImfDoubleAttribute.cpp \
 		       ImfAttribute.h ImfBoxAttribute.h \
 		       ImfCRgbaFile.h ImfChannelList.h \
@@ -92,9 +92,23 @@ libIlmImfinclude_HEADERS = ImfAttribute.h ImfBoxAttribute.h \
 
 noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
 		 ImfPizCompressor.h ImfMisc.h ImfAutoArray.h ImfTiledMisc.h \
-		 ImfTileOffsets.h ImfScanLineInputFile.h ImfPxr24Compressor.h
+		 ImfTileOffsets.h ImfScanLineInputFile.h ImfPxr24Compressor.h \
+		 ImfB44Compressor.h
 
-EXTRA_DIST = $(noinst_HEADERS)
+EXTRA_DIST = $(noinst_HEADERS) b44ExpLogTable.cpp
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Half -I$(top_srcdir)/Iex \
-	   -I$(top_srcdir)/Imath -I$(top_srcdir)/IlmThread -I$(top_srcdir)/config
+	   -I$(top_srcdir)/Imath -I$(top_srcdir)/IlmThread \
+	   -I$(top_srcdir)/config
+
+CLEANFILES = b44ExpLogTable b44ExpLogTable.h
+
+b44ExpLogTable_SOURCES = b44ExpLogTable.cpp
+b44ExpLogTable_LDADD = -lHalf
+
+b44ExpLogTable.h: b44ExpLogTable
+	./b44ExpLogTable > b44ExpLogTable.h
+
+BUILT_SOURCES = b44ExpLogTable.h
+
+noinst_PROGRAMS = b44ExpLogTable

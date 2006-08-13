@@ -34,12 +34,13 @@
 
 
 #include <tmpDir.h>
+#include <compareB44.h>
 
 #include <ImfTiledRgbaFile.h>
 #include <ImfArray.h>
 #include <ImfThreading.h>
-#include "IlmThread.h"
-#include "ImathRandom.h"
+#include <IlmThread.h>
+#include <ImathRandom.h>
 #include <string>
 #include <stdio.h>
 #include <assert.h>
@@ -72,11 +73,11 @@ fillPixels (Array2D<Rgba> &pixels, int w, int h)
 
 void
 writeReadRGBAONE (const char fileName[],
-	       int width,
-	       int height,
-	       RgbaChannels channels,
-	       Compression comp,
-           int xSize, int ySize)
+	          int width,
+		  int height,
+		  RgbaChannels channels,
+		  Compression comp,
+		  int xSize, int ySize)
 {
     cout << "levelMode 0" <<
             ", compression " << comp <<
@@ -126,31 +127,59 @@ writeReadRGBAONE (const char fileName[],
         assert (in.compression() == header.compression());
         assert (in.channels() == channels);
 
-        for (int y = 0; y < h; ++y)
-        {
-            for (int x = 0; x < w; ++x)
-            {
-		if (channels & WRITE_R)
-		    assert (p2[y][x].r == p1[y][x].r);
-		else
-		    assert (p2[y][x].r == 0);
+	if (comp == B44_COMPRESSION)
+	{
+	    for (int y = 0; y < h; y += ySize)
+	    {
+		for (int x = 0; x < w; x += xSize)
+		{
+		    int nx = min (w - x, xSize);
+		    int ny = min (h - y, ySize);
 
-		if (channels & WRITE_G)
-		    assert (p2[y][x].g == p1[y][x].g);
-		else
-		    assert (p2[y][x].g == 0);
+		    Array2D<Rgba> p3 (ny, nx);
+		    Array2D<Rgba> p4 (ny, nx);
 
-		if (channels & WRITE_B)
-		    assert (p2[y][x].b == p1[y][x].b);
-		else
-		    assert (p2[y][x].b == 0);
+		    for (int y1 = 0; y1 < ny; ++y1)
+		    {
+			for (int x1 = 0; x1 < nx; ++x1)
+			{
+			    p3[y1][x1] = p1[y + y1][x + x1];
+			    p4[y1][x1] = p2[y + y1][x + x1];
+			}
+		    }
 
-		if (channels & WRITE_A)
-		    assert (p2[y][x].a == p1[y][x].a);
-		else
-		    assert (p2[y][x].a == 1);
-            }
-        }
+		    compareB44 (nx, ny, p3, p4, channels);
+		}
+	    }
+	}
+	else
+	{
+	    for (int y = 0; y < h; ++y)
+	    {
+		for (int x = 0; x < w; ++x)
+		{
+		    if (channels & WRITE_R)
+			assert (p2[y][x].r == p1[y][x].r);
+		    else
+			assert (p2[y][x].r == 0);
+
+		    if (channels & WRITE_G)
+			assert (p2[y][x].g == p1[y][x].g);
+		    else
+			assert (p2[y][x].g == 0);
+
+		    if (channels & WRITE_B)
+			assert (p2[y][x].b == p1[y][x].b);
+		    else
+			assert (p2[y][x].b == 0);
+
+		    if (channels & WRITE_A)
+			assert (p2[y][x].a == p1[y][x].a);
+		    else
+			assert (p2[y][x].a == 1);
+		}
+	    }
+	}
     }
 
     remove (fileName);
@@ -159,11 +188,11 @@ writeReadRGBAONE (const char fileName[],
 
 void
 writeReadRGBAMIP (const char fileName[],
-	       int width,
-	       int height,
-	       RgbaChannels channels,
-	       Compression comp,
-           int xSize, int ySize)
+	          int width,
+		  int height,
+		  RgbaChannels channels,
+		  Compression comp,
+		  int xSize, int ySize)
 {
     cout << "levelMode 1" <<
             ", compression " << comp <<
@@ -267,11 +296,11 @@ writeReadRGBAMIP (const char fileName[],
 
 void
 writeReadRGBARIP (const char fileName[],
-	       int width,
-	       int height,
-	       RgbaChannels channels,
-	       Compression comp,
-           int xSize, int ySize)
+	          int width,
+		  int height,
+		  RgbaChannels channels,
+		  Compression comp,
+		  int xSize, int ySize)
 {
     cout << "levelMode 2" <<
             ", compression " << comp <<
@@ -394,8 +423,18 @@ writeRead (int W, int H, Compression comp, int xSize, int ySize)
     const char *filename = IMF_TMP_DIR "imf_test_tiled_rgba.exr";
 
     writeReadRGBAONE (filename, W, H, WRITE_RGBA, comp, xSize, ySize);
-    writeReadRGBAMIP (filename, W, H, WRITE_RGBA, comp, xSize, ySize);
-    writeReadRGBARIP (filename, W, H, WRITE_RGBA, comp, xSize, ySize);
+
+    if (comp != B44_COMPRESSION)
+    {
+	//
+	// Skip mipmaps and ripmaps with B44 compression; writing an
+	// image with a single resolution level, above, should be enough
+	// to verify that B44 compression works with tiled files.
+	//
+
+	writeReadRGBAMIP (filename, W, H, WRITE_RGBA, comp, xSize, ySize);
+	writeReadRGBARIP (filename, W, H, WRITE_RGBA, comp, xSize, ySize);
+    }
 }
 
 

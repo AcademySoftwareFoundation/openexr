@@ -34,11 +34,12 @@
 
 
 #include <tmpDir.h>
+#include <compareB44.h>
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
 #include <ImfThreading.h>
-#include "IlmThread.h"
+#include <IlmThread.h>
 #include <string>
 #include <stdio.h>
 #include <assert.h>
@@ -150,29 +151,36 @@ writeReadRGBA (const char fileName[],
 	assert (in.compression() == header.compression());
 	assert (in.channels() == channels);
 
-	for (int y = 0; y < h; ++y)
+	if (in.compression() == B44_COMPRESSION)
 	{
-	    for (int x = 0; x < w; ++x)
+	    compareB44 (width, height, p1, p2, channels);
+	}
+	else
+	{
+	    for (int y = 0; y < h; ++y)
 	    {
-		if (channels & WRITE_R)
-		    assert (p2[y][x].r == p1[y][x].r);
-		else
-		    assert (p2[y][x].r == 0);
+		for (int x = 0; x < w; ++x)
+		{
+		    if (channels & WRITE_R)
+			assert (p2[y][x].r == p1[y][x].r);
+		    else
+			assert (p2[y][x].r == 0);
 
-		if (channels & WRITE_G)
-		    assert (p2[y][x].g == p1[y][x].g);
-		else
-		    assert (p2[y][x].g == 0);
+		    if (channels & WRITE_G)
+			assert (p2[y][x].g == p1[y][x].g);
+		    else
+			assert (p2[y][x].g == 0);
 
-		if (channels & WRITE_B)
-		    assert (p2[y][x].b == p1[y][x].b);
-		else
-		    assert (p2[y][x].b == 0);
+		    if (channels & WRITE_B)
+			assert (p2[y][x].b == p1[y][x].b);
+		    else
+			assert (p2[y][x].b == 0);
 
-		if (channels & WRITE_A)
-		    assert (p2[y][x].a == p1[y][x].a);
-		else
-		    assert (p2[y][x].a == 1);
+		    if (channels & WRITE_A)
+			assert (p2[y][x].a == p1[y][x].a);
+		    else
+			assert (p2[y][x].a == 1);
+		}
 	    }
 	}
     }
@@ -196,8 +204,6 @@ writeReadIncomplete ()
 
     const int width = 400;
     const int height = 300;
-    const int tileXSize = 30;
-    const int tileYSize = 40;
 
     Array2D<Rgba> p1 (height, width);
 

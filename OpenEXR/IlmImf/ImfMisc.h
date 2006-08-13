@@ -60,6 +60,17 @@ int	pixelTypeSize (PixelType type);
 
 
 //
+// Return the number of samples a channel with subsampling rate
+// s has in the interval [a, b].  For example, a channel with
+// subsampling rate 2 (and samples at 0, 2, 4, 6, 8, etc.) has
+// 2 samples in the interval [1, 5] and three samples in the
+// interval [2, 6].
+//
+
+int	numSamples (int s, int a, int b);
+
+
+//
 // Build a table that lists, for each scanline in a file's
 // data window, how many bytes are required to store all
 // pixels in all channels in that scanline (assuming that

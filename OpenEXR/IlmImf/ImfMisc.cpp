@@ -45,14 +45,15 @@
 #include <ImfCompressor.h>
 #include <ImfChannelList.h>
 #include <ImfXdr.h>
-#include "ImathFun.h"
-#include "Iex.h"
+#include <ImathFun.h>
+#include <Iex.h>
 #include <ImfStdIO.h>
 #include <ImfConvert.h>
 
 namespace Imf {
 
 using Imath::Box2i;
+using Imath::divp;
 using Imath::modp;
 using std::vector;
 
@@ -84,6 +85,15 @@ pixelTypeSize (PixelType type)
     }
 
     return size;
+}
+
+
+int
+numSamples (int s, int a, int b)
+{
+    int a1 = divp (a, s);
+    int b1 = divp (b, s);
+    return  b1 - a1 + ((a1 * s < a)? 0: 1);
 }
 
 

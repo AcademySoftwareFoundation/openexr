@@ -39,7 +39,7 @@
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
-#include "half.h"
+#include <half.h>
 
 #include <stdio.h>
 #include <assert.h>
@@ -119,40 +119,54 @@ writeCopyRead (const Array2D<half> &ph1,
     {
 	cout << " reading" << flush;
 
-	InputFile in (fileName2);
+	InputFile in1 (fileName1);
+	InputFile in2 (fileName2);
 	
-	const Box2i &dw = in.header().dataWindow();
+	const Box2i &dw = in2.header().dataWindow();
 	int w = dw.max.x - dw.min.x + 1;
 	int h = dw.max.y - dw.min.y + 1;
 	int dx = dw.min.x;
 	int dy = dw.min.y;
 
+	Array2D<half> ph1 (h, w);
 	Array2D<half> ph2 (h, w);
 
-	FrameBuffer fb;
+	FrameBuffer fb1;
+	FrameBuffer fb2;
 
-	fb.insert ("H",					// name
-		   Slice (HALF,				// type
-			  (char *) &ph2[-dy][-dx],	// base
-			  sizeof (ph2[0][0]), 		// xStride
-			  sizeof (ph2[0][0]) * w,	// yStride
-			  1,				// xSampling
-			  1)				// ySampling
-		  );
+	fb1.insert ("H",				// name
+		    Slice (HALF,			// type
+			   (char *) &ph1[-dy][-dx],	// base
+			   sizeof (ph1[0][0]), 		// xStride
+			   sizeof (ph1[0][0]) * w,	// yStride
+			   1,				// xSampling
+			   1)				// ySampling
+		   );
+
+	fb2.insert ("H",				// name
+		    Slice (HALF,			// type
+			   (char *) &ph2[-dy][-dx],	// base
+			   sizeof (ph2[0][0]), 		// xStride
+			   sizeof (ph2[0][0]) * w,	// yStride
+			   1,				// xSampling
+			   1)				// ySampling
+		   );
 	
-	in.setFrameBuffer (fb);
-	in.readPixels (dw.min.y, dw.max.y);
+	in1.setFrameBuffer (fb1);
+	in1.readPixels (dw.min.y, dw.max.y);
+	in2.setFrameBuffer (fb2);
+	in2.readPixels (dw.min.y, dw.max.y);
 
 	cout << " comparing" << flush;
 
-	assert (in.header().displayWindow() == hdr.displayWindow());
-	assert (in.header().dataWindow() == hdr.dataWindow());
-	assert (in.header().pixelAspectRatio() == hdr.pixelAspectRatio());
-	assert (in.header().screenWindowCenter() == hdr.screenWindowCenter());
-	assert (in.header().screenWindowWidth() == hdr.screenWindowWidth());
-	assert (in.header().lineOrder() == hdr.lineOrder());
-	assert (in.header().compression() == hdr.compression());
-	assert (in.header().channels() == hdr.channels());
+	assert (in2.header().displayWindow() == hdr.displayWindow());
+	assert (in2.header().dataWindow() == hdr.dataWindow());
+	assert (in2.header().pixelAspectRatio() == hdr.pixelAspectRatio());
+	assert (in2.header().screenWindowCenter() == hdr.screenWindowCenter());
+	assert (in2.header().screenWindowWidth() == hdr.screenWindowWidth());
+	assert (in2.header().lineOrder() == hdr.lineOrder());
+	assert (in2.header().compression() == hdr.compression());
+	assert (in2.header().channels() == hdr.channels());
 
 	for (int y = 0; y < h; ++y)
 	    for (int x = 0; x < w; ++x)
