@@ -55,7 +55,7 @@
 //	 - 16 densely packed 5-bit values, d[0] ... d[15], such
 //	   that pixel s[i] is approximately equal to
 //
-//		ѕMax - (d[i] << shift)
+//		sMax - (d[i] << shift)
 //
 //	This compressor can handle positive and negative pixel values,
 //	NaNs and infinities are replaced with zeroes before compression.
