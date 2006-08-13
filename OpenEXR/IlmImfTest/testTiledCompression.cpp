@@ -34,6 +34,7 @@
 
 
 #include <tmpDir.h>
+#include <compareB44.h>
 
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
@@ -41,8 +42,8 @@
 #include <ImfTiledInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
-#include "half.h"
-#include "ImathRandom.h"
+#include <half.h>
+#include <ImathRandom.h>
 #include <ImfTileDescriptionAttribute.h>
 #include <compareFloat.h>
 
@@ -293,15 +294,44 @@ writeRead (const Array2D<unsigned int> &pi1,
 
         assert (ii == in.header().channels().end());
 
-        for (int y = 0; y < h; ++y)
-        {
-            for (int x = 0; x < w; ++x)
-            {
-                assert (pi1[y][x] == pi2[y][x]);
-                assert (ph1[y][x] == ph2[y][x]);
-                assert (equivalent (pf1[y][x], pf2[y][x], comp));
-            }
-        }
+	if (comp == B44_COMPRESSION)
+	{
+	    for (int y = 0; y < h; y += ySize)
+	    {
+		for (int x = 0; x < w; x += xSize)
+		{
+		    int nx = min (w - x, xSize);
+		    int ny = min (h - y, ySize);
+
+		    Array2D<half> ph3 (ny, nx);
+		    Array2D<half> ph4 (ny, nx);
+
+		    for (int y1 = 0; y1 < ny; ++y1)
+		    {
+			for (int x1 = 0; x1 < nx; ++x1)
+			{
+			    ph3[y1][x1] = ph1[y + y1][x + x1];
+			    ph4[y1][x1] = ph2[y + y1][x + x1];
+			}
+		    }
+
+		    compareB44 (nx, ny, ph3, ph4);
+		}
+	    }
+	}
+
+	for (int y = 0; y < h; ++y)
+	{
+	    for (int x = 0; x < w; ++x)
+	    {
+		assert (pi1[y][x] == pi2[y][x]);
+
+		if (comp != B44_COMPRESSION)
+		    assert (ph1[y][x] == ph2[y][x]);
+
+		assert (equivalent (pf1[y][x], pf2[y][x], comp));
+	    }
+	}
     }
     
     {
@@ -394,7 +424,10 @@ writeRead (const Array2D<unsigned int> &pi1,
                          x < xSize && x2 <= win.max.x; ++x, x2++)
                     {
                         assert (pi1[oY + y][oX + x] == pi2[y][x]);
-                        assert (ph1[oY + y][oX + x] == ph2[y][x]);
+
+			if (comp != B44_COMPRESSION)
+			    assert (ph1[oY + y][oX + x] == ph2[y][x]);
+
                         assert (equivalent (pf1[oY + y][oX + x],
                                             pf2[y][x], comp));
                     }

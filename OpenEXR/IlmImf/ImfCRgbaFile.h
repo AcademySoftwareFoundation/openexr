@@ -106,6 +106,7 @@ typedef struct ImfRgba ImfRgba;
 #define IMF_ZIP_COMPRESSION	3
 #define IMF_PIZ_COMPRESSION	4
 #define IMF_PXR24_COMPRESSION	5
+#define IMF_B44_COMPRESSION	6
 
 
 /*

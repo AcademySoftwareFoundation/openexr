@@ -34,7 +34,7 @@
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
-#include "IlmThread.h"
+#include <IlmThread.h>
 #include <stdio.h>
 #include <assert.h>
 
@@ -84,6 +84,50 @@ readImage (const char fileName[], unsigned int correctChecksum)
     assert (checksum == correctChecksum);
 }
 
+
+bool
+approximatelyEqual (float x, float y)
+{
+    float z = (x + 0.01f) / (y + 0.01f);
+    return z >= 0.99f && z <= 1.01f;
+}
+
+
+void
+compareImages (const char fileName1[], const char fileName2[])
+{
+    cout << "comparing files " << fileName1 << " and " << fileName2 << endl;
+
+    Imf::RgbaInputFile in1 (fileName1);
+    Imf::RgbaInputFile in2 (fileName1);
+
+    assert (in1.dataWindow() == in2.dataWindow());
+
+    const Box2i &dw = in1.dataWindow();
+
+    int w = dw.max.x - dw.min.x + 1;
+    int h = dw.max.y - dw.min.y + 1;
+    int dx = dw.min.x;
+    int dy = dw.min.y;
+
+    Array<Imf::Rgba> pixels1 (w * h);
+    Array<Imf::Rgba> pixels2 (w * h);
+
+    in1.setFrameBuffer (pixels1 - dx - dy * w, 1, w);
+    in2.setFrameBuffer (pixels2 - dx - dy * w, 1, w);
+
+    in1.readPixels (in1.dataWindow().min.y, in1.dataWindow().max.y);
+    in2.readPixels (in2.dataWindow().min.y, in2.dataWindow().max.y);
+
+    for (int i = 0; i < w * h; ++i)
+    {
+	assert (approximatelyEqual (pixels1[i].r, pixels2[i].r));
+	assert (approximatelyEqual (pixels1[i].g, pixels2[i].g));
+	assert (approximatelyEqual (pixels1[i].b, pixels2[i].b));
+	assert (approximatelyEqual (pixels1[i].a, pixels2[i].a));
+    }
+}
+
 } // namespace
 
 
@@ -105,10 +149,17 @@ testSampleImages ()
             if (IlmThread::supportsThreads ())
             {
                 setGlobalThreadCount (i);
-                readImage (ILM_IMF_TEST_IMAGEDIR "lineOrder_increasing.exr", 46515);
-                readImage (ILM_IMF_TEST_IMAGEDIR "lineOrder_decreasing.exr", 46515);
+
+                readImage (ILM_IMF_TEST_IMAGEDIR "lineOrder_increasing.exr",
+			   46515);
+
+                readImage (ILM_IMF_TEST_IMAGEDIR "lineOrder_decreasing.exr",
+			   46515);
             }
         }
+
+	compareImages (ILM_IMF_TEST_IMAGEDIR "comp_b44.exr",
+		       ILM_IMF_TEST_IMAGEDIR "comp_b44_piz.exr");
 
 	cout << "ok\n" << endl;
     }

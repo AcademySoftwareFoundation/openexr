@@ -75,13 +75,30 @@ struct Channel
     int			ySampling;
 
 
+    //--------------------------------------------------------------
+    // Hint to lossy compression methods that indicates whether this
+    // channel is perceptually linear or logarithmic.  Compression
+    // methods may optimize image quality by adjusting pixel data
+    // quantization acording to this hint.
+    // For example, red, green, blue and luminance are approximately
+    // logarithmic; the difference between 0.1 and 0.2  is perceived
+    // to be roughly the same as the difference between 1.0 and 2.0.
+    // Chroma coordinates tend to closer to linear than logarithmic;
+    // the difference between 0.1 and 0.2 is perceived to be roughly
+    // the same as the difference between 1.0 and 1.1.
+    //--------------------------------------------------------------
+
+    bool		pLinear;
+
+
     //------------
     // Constructor
     //------------
     
     Channel (PixelType type = HALF,
 	     int xSampling = 1,
-	     int ySampling = 1);
+	     int ySampling = 1,
+	     bool pLinear = false);
 
 
     //------------

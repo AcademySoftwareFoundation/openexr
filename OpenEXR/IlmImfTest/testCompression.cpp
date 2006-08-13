@@ -34,13 +34,14 @@
 
 
 #include <tmpDir.h>
+#include <compareB44.h>
 
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
-#include "ImathRandom.h"
-#include "half.h"
+#include <ImathRandom.h>
+#include <half.h>
 #include <compareFloat.h>
 
 #include <stdio.h>
@@ -325,9 +326,22 @@ writeRead (const Array2D<unsigned int> &pi1,
 	    for (int x = 0; x < w / xs; ++x)
 	    {
 		assert (pi1[y][x] == pi2[y][x]);
-		assert (ph1[y][x].bits() == ph2[y][x].bits());
 		assert (equivalent (pf1[y][x], pf2[y][x], comp));
+
+		if (comp != B44_COMPRESSION)
+		    assert (ph1[y][x].bits() == ph2[y][x].bits());
 	    }
+	}
+
+	if (comp == B44_COMPRESSION)
+	{
+	    Array2D<half> ph3 (h / ys, w / xs);
+
+	    for (int y = 0; y < h / ys; ++y)
+		for (int x = 0; x < w / xs; ++x)
+		    ph3[y][x] = ph1[y][x];
+
+	    compareB44 (w / xs, h / ys, ph3, ph2);
 	}
     }
 

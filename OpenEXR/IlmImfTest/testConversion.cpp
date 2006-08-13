@@ -46,7 +46,7 @@
 #include <ImfChannelList.h>
 #include <ImfArray.h>
 #include <ImfConvert.h>
-#include "half.h"
+#include <half.h>
 #include <compareFloat.h>
 
 #include <stdio.h>
@@ -350,6 +350,9 @@ testConversion ()
 
 	for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
 	{
+	    if (comp == B44_COMPRESSION)
+		continue;
+
 	    testImageChannel <unsigned int, UINT, unsigned int, UINT>
 			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,

@@ -54,6 +54,7 @@ enum Compression
     ZIP_COMPRESSION = 3,	// zlib compression, in blocks of 16 scan lines
     PIZ_COMPRESSION = 4,	// piz-based wavelet compression
     PXR24_COMPRESSION = 5,	// lossy 24-bit float compression
+    B44_COMPRESSION = 6,	// lossy 4-by-4 pixel block compression
 
     NUM_COMPRESSION_METHODS	// number of different compression methods
 };

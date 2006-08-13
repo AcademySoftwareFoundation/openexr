@@ -37,13 +37,13 @@
 
 #include <ImfTiledOutputFile.h>
 #include <ImfInputFile.h>
-#include "ImathRandom.h"
+#include <ImathRandom.h>
 #include <ImfTiledInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
 #include <ImfThreading.h>
-#include "IlmThread.h"
-#include "half.h"
+#include <IlmThread.h>
+#include <half.h>
 
 #include <vector>
 #include <stdio.h>
@@ -586,6 +586,9 @@ writeCopyRead (int w, int h, int xs, int ys)
 
     for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
     {
+	if (comp == B44_COMPRESSION)
+	    continue;
+
         for (int lorder = 0; lorder < RANDOM_Y; ++lorder)
         {
 	    for (int rmode = 0; rmode < NUM_ROUNDINGMODES; ++rmode)

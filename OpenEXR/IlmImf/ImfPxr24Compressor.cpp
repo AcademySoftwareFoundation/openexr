@@ -66,9 +66,10 @@
 #include <ImfPxr24Compressor.h>
 #include <ImfHeader.h>
 #include <ImfChannelList.h>
-#include "ImathFun.h"
-#include "Iex.h"
-#include "half.h"
+#include <ImfMisc.h>
+#include <ImathFun.h>
+#include <Iex.h>
+#include <half.h>
 #include <zlib.h>
 #include <assert.h>
 #include <algorithm>
@@ -152,20 +153,6 @@ floatToFloat24 (float f)
     }
 
     return (s >> 8) | i;
-}
-
-
-//
-// Return the number of samples a channel with
-// subsampling rate s has in the interval [a, b].
-//
-
-int
-numSamples (int s, int a, int b)
-{
-    int a1 = divp (a, s);
-    int b1 = divp (b, s);
-    return  b1 - a1 + ((a1 * s < a)? 0: 1);
 }
 
 
