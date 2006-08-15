@@ -280,6 +280,22 @@ unpack (const unsigned char b[12], unsigned short s[16])
     }
 }
 
+
+void
+notEnoughData ()
+{
+    throw Iex::InputExc ("Error decompressing data "
+			 "(input data are shorter than expected).");
+}
+
+
+void
+tooMuchData ()
+{
+    throw Iex::InputExc ("Error decompressing data "
+			 "(input data are longer than expected).");
+}
+
 } // namespace
 
 
@@ -743,8 +759,13 @@ B44Compressor::uncompress (const char *inPtr,
 	    //
 
 	    int n = cd.nx * cd.ny * cd.size * sizeof (unsigned short);
+
+	    if (inSize < n)
+		notEnoughData();
+
 	    memcpy (cd.start, inPtr, n);
 	    inPtr += n;
+	    inSize -= n;
 
 	    continue;
 	}
@@ -762,10 +783,13 @@ B44Compressor::uncompress (const char *inPtr,
 
 	    for (int x = 0; x < cd.nx; x += 4)
 	    {
-		unsigned short s[16];
+		if (inSize < 12)
+		    notEnoughData();
 
+		unsigned short s[16]; 
 		unpack ((const unsigned char *)inPtr, s);
 		inPtr += 12;
+		inSize -= 12;
 
 		if (cd.pLinear)
 		    convertToLinear (s);
@@ -862,6 +886,9 @@ B44Compressor::uncompress (const char *inPtr,
 	assert (_channelData[_numChans-1].end == tmpBufferEnd);
 
     #endif
+
+    if (inSize > 0)
+	tooMuchData();
 
     outPtr = _outBuffer;
     return outEnd - _outBuffer;
