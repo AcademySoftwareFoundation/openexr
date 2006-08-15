@@ -118,18 +118,25 @@ void
 pack (const unsigned short s[16], unsigned char b[12])
 {
     //
-    // s[0] ... s[15] represent floating-point numbers in a
-    // sign-magnitude format.  Change the representation such
-    // that if s[i] is greater than s[j], the floating-point
+    // Integers s[0] ... s[15] represent floating-point numbers
+    // in what is essentially a sign-magnitude format.  Convert
+    // s[0] .. s[15] into a new set of integers, t[0] ... t[15],
+    // such that if t[i] is greater than t[j], the floating-point
     // number that corresponds to s[i] is always greater than
     // the floating-point number that corresponds to s[j].
     //
     // Also, replace any bit patterns that represent NaNs or
-    // infinities with zeroes.
+    // infinities with bit patterns that represent floating-point
+    // zeroes.
     //
     //	bit pattern	floating-point		bit pattern
     //	in s[i]		value			in t[i]
     //
+    //  0x7fff		NAN			0x8000
+    //  0x7ffe		NAN			0x8000
+    //	  ...					  ...
+    //  0x7c01		NAN			0x8000
+    //  0x7c00		+infinity		0x8000
     //  0x7bff		+HALF_MAX		0xfbff
     //  0x7bfe					0xfbfe
     //  0x7bfd					0xfbfd
@@ -144,6 +151,11 @@ pack (const unsigned short s[16], unsigned char b[12])
     //  0xfbfd					0x0f02
     //  0xfbfe					0x0401
     //  0xfbff		-HALF_MAX		0x0400
+    //  0xfc00		-infinity		0x8000
+    //  0xfc01		NAN			0x8000
+    //	  ...					  ...
+    //  0xfffe		NAN			0x8000
+    //  0xffff		NAN			0x8000
     //
 
     unsigned short t[16];
