@@ -455,6 +455,7 @@ gaussSphereRand (Rand &rand)
 
 double drand48();
 long int lrand48();
+void srand48 (unsigned long);
 
 } // namespace Imath
 
