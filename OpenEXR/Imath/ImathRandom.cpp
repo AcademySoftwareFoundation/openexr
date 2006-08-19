@@ -50,4 +50,9 @@ long int lrand48()
     return globalRand48.nexti();
 }
 
+void srand48 (unsigned long seed)
+{
+    return globalRand48.init (seed);
+}
+
 }
