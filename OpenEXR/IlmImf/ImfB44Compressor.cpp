@@ -812,20 +812,20 @@ B44Compressor::uncompress (const char *inPtr,
 
 		if (y + 3 < cd.ny)
 		{
-		    mempcpy (row0, &s[ 0], n);
-		    mempcpy (row1, &s[ 4], n);
-		    mempcpy (row2, &s[ 8], n);
-		    mempcpy (row3, &s[12], n);
+		    memcpy (row0, &s[ 0], n);
+		    memcpy (row1, &s[ 4], n);
+		    memcpy (row2, &s[ 8], n);
+		    memcpy (row3, &s[12], n);
 		}
 		else
 		{
-		    mempcpy (row0, &s[ 0], n);
+		    memcpy (row0, &s[ 0], n);
 
 		    if (y + 1 < cd.ny)
-			mempcpy (row1, &s[ 4], n);
+			memcpy (row1, &s[ 4], n);
 
 		    if (y + 2 < cd.ny)
-			mempcpy (row2, &s[ 8], n);
+			memcpy (row2, &s[ 8], n);
 		}
 
 		row0 += 4;
