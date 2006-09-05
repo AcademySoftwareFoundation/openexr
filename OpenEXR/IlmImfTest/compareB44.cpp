@@ -127,7 +127,7 @@ withinB44ErrorBounds (const half A[4][4], const half B[4][4])
 
     for (int i = 0; i < 16; ++i)
     {
-	d[i] = d[i] + (1 << (shift - 1)) >> shift;
+	d[i] = (d[i] + (1 << (shift - 1))) >> shift;
 
 	if (d[i] > 0x1f)
 	    d[i] = 0x1f;
