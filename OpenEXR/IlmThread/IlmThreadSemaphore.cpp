@@ -50,6 +50,7 @@ namespace IlmThread {
 Semaphore::Semaphore (unsigned int value) {}
 Semaphore::~Semaphore () {}
 void Semaphore::wait () {}
+bool Semaphore::tryWait () {return true;}
 void Semaphore::post () {}
 int Semaphore::value () const {return 0;}
 

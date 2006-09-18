@@ -67,6 +67,7 @@ class Semaphore
     virtual ~Semaphore();
 
     void	wait();
+    bool	tryWait();
     void	post();
     int		value() const;
 

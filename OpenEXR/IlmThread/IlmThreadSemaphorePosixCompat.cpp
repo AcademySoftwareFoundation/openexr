@@ -100,6 +100,25 @@ Semaphore::wait ()
 }
 
 
+bool
+Semaphore::tryWait ()
+{
+    ::pthread_mutex_lock (&_semaphore.mutex);
+    
+    if (_semaphore.count == 0)
+    {
+        ::pthread_mutex_unlock (&_semaphore.mutex);
+        return false;
+    }
+    else
+    {
+        _semaphore.count--;
+        ::pthread_mutex_unlock (&_semaphore.mutex);
+        return true;
+    }
+}
+
+
 void
 Semaphore::post ()
 {
