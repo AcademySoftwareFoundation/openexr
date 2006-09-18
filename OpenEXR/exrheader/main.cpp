@@ -109,7 +109,7 @@ void
 printLineOrder (LineOrder lo)
 {
     switch (lo)
-    {
+   {
       case INCREASING_Y:
 	cout << "increasing y";
 	break;
