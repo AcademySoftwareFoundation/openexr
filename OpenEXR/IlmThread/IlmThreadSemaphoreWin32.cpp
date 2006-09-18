@@ -112,6 +112,13 @@ Semaphore::wait()
 
 
 void
+Semaphore::tryWait()
+{
+    return ::WaitForSingleObject (_semaphore, 0) == WAIT_OBJECT_0;
+}
+
+
+void
 Semaphore::post()
 {
     if (!::ReleaseSemaphore (_semaphore, 1, 0))

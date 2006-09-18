@@ -71,6 +71,13 @@ Semaphore::wait ()
 }
 
 
+bool
+Semaphore::tryWait ()
+{
+    return sem_trywait (&_semaphore) == 0;
+}
+
+
 void
 Semaphore::post ()
 {
