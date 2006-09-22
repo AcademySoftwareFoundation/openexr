@@ -143,7 +143,7 @@ IMF_STD_ATTRIBUTE_DEF (capDate, CapDate, std::string)
 //    UTC == local time + utcOffset
 //
 
-IMF_STD_ATTRIBUTE_DEF (utcOffset, utcOffset, float)
+IMF_STD_ATTRIBUTE_DEF (utcOffset, UtcOffset, float)
 
 
 //
