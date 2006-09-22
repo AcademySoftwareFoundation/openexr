@@ -251,7 +251,7 @@ enum CubeMapFace
     CUBEFACE_POS_Y,	// +Y face
     CUBEFACE_NEG_Y,	// -Y face
     CUBEFACE_POS_Z,	// +Z face
-    CUBEFACE_NEG_Z,	// -Z face
+    CUBEFACE_NEG_Z 	// -Z face
 };
 
 namespace CubeMap
