@@ -770,7 +770,7 @@ generatedFunctions ()
     assert (hasOwner (header) == false);
     assert (hasComments (header) == false);
     assert (hasCapDate (header) == false);
-    assert (hasutcOffset (header) == false);
+    assert (hasUtcOffset (header) == false);
     assert (hasLongitude (header) == false);
     assert (hasLatitude (header) == false);
     assert (hasAltitude (header) == false);
