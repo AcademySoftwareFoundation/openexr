@@ -1,3 +1,7 @@
+	* exrdisplay: if the file's and the display's RGB chromaticities
+	  differ, the pixels RGB values are transformed from the file's
+	  to the display's RGB space.
+	  (Florian Kainz)
 	* Added new lossy B44 compression method.  HALF channels are
 	  compressed with a fixed ratio of 2.66:1.  UINT and FLOAT
 	  channels are stored verbatim, without compression.
