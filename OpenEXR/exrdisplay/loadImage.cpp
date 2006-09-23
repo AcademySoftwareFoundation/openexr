@@ -49,11 +49,99 @@
 #include <ImfTiledInputFile.h>
 #include <ImfPreviewImage.h>
 #include <ImfChannelList.h>
-#include "Iex.h"
+#include <ImfStandardAttributes.h>
+#include <Iex.h>
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
 
 using namespace Imath;
 using namespace Imf;
 using namespace std;
+
+namespace {
+
+Chromaticities
+fileChromaticities (const Header &header)
+{
+    Chromaticities c;  // default-initialized according to Rec. 709
+
+    if (hasChromaticities (header))
+	c = chromaticities (header);
+
+    return c;
+}
+
+
+Chromaticities
+displayChromaticities ()
+{
+    static const char chromaticitiesEnv[] = "CTL_DISPLAY_CHROMATICITIES";
+    Chromaticities c;  // default-initialized according to Rec. 709
+
+    if (const char *chromaticities = getenv (chromaticitiesEnv))
+    {
+	Chromaticities tmp;
+
+	int n = sscanf (chromaticities,
+			" red %f %f green %f %f blue %f %f white %f %f",
+			&tmp.red.x, &tmp.red.y,
+			&tmp.green.x, &tmp.green.y,
+			&tmp.blue.x, &tmp.blue.y,
+			&tmp.white.x, &tmp.white.y);
+
+	if (n == 8)
+	{
+	    c = tmp;
+	}
+	else
+	{
+	    cerr << "Warning: cannot parse environment variable " <<
+		     chromaticitiesEnv << "; using default value "
+		     "(chromaticities according to Rec. ITU-R BT.709)." <<
+		     endl;
+	}
+    }
+
+    return c;
+}
+
+
+void
+adjustChromaticities (Array<Rgba> &pixels,
+		      size_t numPixels,
+		      const Chromaticities &fileChroma,
+		      const Chromaticities &displayChroma)
+{
+    //
+    // If the chromaticities of the RGB pixel loaded from a file
+    // are not the same as the chromaticities of the display,
+    // then transform the pixels from the file's to the display's
+    // RGB coordinate system.
+    //
+
+    if (fileChroma.red   == displayChroma.red &&
+	fileChroma.green == displayChroma.green &&
+	fileChroma.blue  == displayChroma.blue &&
+	fileChroma.white == displayChroma.white)
+    {
+	return;
+    }
+
+    M44f M = RGBtoXYZ (fileChroma, 1) * XYZtoRGB (displayChroma, 1);
+
+    for (size_t i = 0; i < numPixels; ++i)
+    {
+	Rgba &p = pixels[i];
+	V3f rgb = V3f (p.r, p.g, p.b) * M;
+
+	p.r = rgb[0];
+	p.g = rgb[1];
+	p.b = rgb[2];
+    }
+}
+
+} // namespace
 
 
 void
@@ -93,6 +181,11 @@ loadImage (const char fileName[],
 
 	cerr << e.what() << endl;
     }
+
+    adjustChromaticities (pixels,
+			  dw * dh,
+		          fileChromaticities (in.header()),
+			  displayChromaticities ());
 }
 
 
@@ -160,6 +253,11 @@ loadTiledImage (const char fileName[],
 
 	cerr << e.what() << endl;
     }
+
+    adjustChromaticities (pixels,
+			  dw * dh,
+		          fileChromaticities (in.header()),
+			  displayChromaticities ());
 }
 
 
