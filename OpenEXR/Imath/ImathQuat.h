@@ -153,6 +153,12 @@ class Quat
 
     Quat<T>                 log() const;
     Quat<T>                 exp() const;
+
+  private:
+
+    void                    setRotationInternal (const Vec3<T>& f0,
+						 const Vec3<T>& t0,
+						 Quat<T> &q);
 };
 
 
@@ -512,56 +518,122 @@ Quat<T>&
 Quat<T>::setRotation(const Vec3<T>& from, const Vec3<T>& to)
 {
     //
-    // Ported from SbRotation
+    // Create a quaternion that rotates vector from into vector to,
+    // around an axis that is the cross-product of from and to.
+    // This function calls functon setRotationInternal(), which
+    // is numerically accurate only for rotation angles that are
+    // not much greater than pi/2.  In order to achieve good accuracy
+    // for angles greater than pi/2, we split large angles in half,
+    // and rotate in two steps.
     //
 
-    T cost = from.dot(to) / Math<T>::sqrt(from.dot(from) * to.dot(to));
+    //
+    // Normalize from and to, yielding f0 and t0.
+    //
 
-    // check for degeneracies
-    if (cost > 0.99999)
+    Vec3<T> f0 = from.normalized();
+    Vec3<T> t0 = to.normalized();
+
+    if ((f0 ^ t0) >= 0)
     {
 	//
-	// Vectors are parallel.
+	// The rotation angle is less than or equal to pi/2.
 	//
 
-	r = 1.0;
-	v = Vec3<T>(0);
-    }
-    else if (cost < -0.99999)
-    {
-	//
-	// Vectors are opposite. Find an axis to rotate around,
-	// which should be perpendicular to the original axis.
-	//
-
-	Vec3<T> frm = from.normalized();
-	v = frm.cross(Vec3<T>(1, 0, 0));
-	if (v.length() < 0.00001)
-	    v   = frm.cross(Vec3<T>(0, 1, 0));
-	r = 0;
-	v.normalize();
+	setRotationInternal (f0, t0, *this);
     }
     else
     {
 	//
-	// Use half-angle formulae:
-	// cos^2 t = ( 1 + cos (2t) ) / 2
-	// w part is cosine of half the rotation angle
+	// The angle is greater than pi/2.  We compute h0, which
+	// is halfway between f0 and t0.  We rotate first from f0
+	// to h0, then from h0 to t0.
 	//
 
-	r = Math<T>::sqrt(0.5 * (1.0 + cost));
+	Vec3<T> h0 = (f0 + t0).normalized();
 
-	//
-	// sin^2 t = ( 1 - cos (2t) ) / 2
-	// Do the normalization of the axis vector at the same time so
-	// we only call sqrt once.
-	//
+	if ((h0 ^ h0) != 0)
+	{
+	    setRotationInternal (f0, h0, *this);
 
-	v = from.cross(to);
-	v *= Math<T>::sqrt((0.5 * (1.0 - cost))/(v.dot(v)));
+	    Quat<T> q;
+	    setRotationInternal (h0, t0, q);
+
+	    *this *= q;
+	}
+	else
+	{
+	    //
+	    // f0 and t0 point in exactly opposite directions.
+	    // Pick an arbitrary axis that is orthogonal to
+	    // f0, and rotate by pi.
+	    //
+
+	    r = T (0);
+
+	    Vec3<T> f02 = f0 * f0;
+
+	    if (f02.x <= f02.y && f02.x <= f02.z)
+		v = (f0 % Vec3<T> (1, 0, 0)).normalized();
+	    else if (f02.y <= f02.z)
+		v = (f0 % Vec3<T> (0, 1, 0)).normalized();
+	    else
+		v = (f0 % Vec3<T> (0, 0, 1)).normalized();
+	}
     }
 
     return *this;
+}
+
+
+template <class T>
+void
+Quat<T>::setRotationInternal (const Vec3<T>& f0, const Vec3<T>& t0, Quat<T> &q)
+{
+    //
+    // The following is equivalent to setAxisAngle(n,2*phi),
+    // where the rotation axis, n, is orthogonal to the f0 and
+    // t0 vectors, and 2*phi is the angle between f0 and t0.
+    //
+    // This function is called by setRotation(), above; it assumes
+    // that f0 and t0 are normalized and that the angle between
+    // them is not much greater than pi/2.  This function becomes
+    // numerically inaccurate if f0 and t0 point into nearly
+    // opposite directions.
+    //
+
+    //
+    // Find a normalized vector, h0, that is half way between f0 and t0.
+    //
+
+    Vec3<T> h0 = (f0 + t0).normalized();
+
+    //
+    // Find the rotation axis, n.
+    //
+
+    Vec3<T> n = f0 % h0;
+
+    if ((n ^ n) != 0)
+    {
+	//
+	// The length of n is non-zero; this means that
+	// f0 and t0 do not point in the same direction.
+	//
+
+	q.r = f0 ^ h0;		// f0 ^ h0 == cos (phi)
+	q.v = n;		// n.length() == sin (phi)
+    }
+    else
+    {
+	//
+	// f0 and t0 point into the same direction;
+	// phi is zero.
+	//
+
+	q.r = T (1);		// cos (phi) == 1
+	q.v = Vec3<T> (0);	// sin (phi) == 0
+    }
 }
 
 template<class T>
