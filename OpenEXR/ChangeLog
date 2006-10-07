@@ -1,3 +1,6 @@
+	* Rewrote function Imath::Quat<T>::setRotation() to make it
+	  numerically more accurate.
+	  (Florian Kainz)
 	* exrdisplay: if the file's and the display's RGB chromaticities
 	  differ, the pixels RGB values are transformed from the file's
 	  to the display's RGB space.

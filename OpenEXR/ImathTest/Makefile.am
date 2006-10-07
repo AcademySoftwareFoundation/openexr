@@ -8,7 +8,8 @@ ImathTest_SOURCES = main.cpp testExtractEuler.cpp testExtractSHRT.cpp \
 		    testShear.cpp testColor.cpp testColor.h \
 		    testExtractEuler.h testExtractSHRT.h testFrustum.h \
 		    testFun.h testInvert.h testMatrix.h testRandom.h \
-		    testRoots.h testShear.h
+		    testRoots.h testShear.h testQuatSetRotation.cpp \
+		    testQuatSetRotation.h
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Imath -I$(top_srcdir)/Iex -I$(top_srcdir)/Half \
 	   -I$(top_srcdir)/config
