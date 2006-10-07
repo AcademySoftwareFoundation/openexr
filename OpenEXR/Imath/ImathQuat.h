@@ -519,12 +519,14 @@ Quat<T>::setRotation(const Vec3<T>& from, const Vec3<T>& to)
 {
     //
     // Create a quaternion that rotates vector from into vector to,
-    // around an axis that is the cross-product of from and to.
-    // This function calls functon setRotationInternal(), which
-    // is numerically accurate only for rotation angles that are
-    // not much greater than pi/2.  In order to achieve good accuracy
-    // for angles greater than pi/2, we split large angles in half,
-    // and rotate in two steps.
+    // such that the rotation is around an axis that is the cross
+    // product of from and to.
+    //
+    // This function calls function setRotationInternal(), which is
+    // numerically accurate only for rotation angles that are not much
+    // greater than pi/2.  In order to achieve good accuracy for angles
+    // greater than pi/2, we split large angles in half, and rotate in
+    // two steps.
     //
 
     //
@@ -545,9 +547,9 @@ Quat<T>::setRotation(const Vec3<T>& from, const Vec3<T>& to)
     else
     {
 	//
-	// The angle is greater than pi/2.  We compute h0, which
-	// is halfway between f0 and t0.  We rotate first from f0
-	// to h0, then from h0 to t0.
+	// The angle is greater than pi/2.  After computing h0,
+	// which is halfway between f0 and t0, we rotate first
+	// from f0 to h0, then from h0 to t0.
 	//
 
 	Vec3<T> h0 = (f0 + t0).normalized();
@@ -565,8 +567,8 @@ Quat<T>::setRotation(const Vec3<T>& from, const Vec3<T>& to)
 	{
 	    //
 	    // f0 and t0 point in exactly opposite directions.
-	    // Pick an arbitrary axis that is orthogonal to
-	    // f0, and rotate by pi.
+	    // Pick an arbitrary axis that is orthogonal to f0,
+	    // and rotate by pi.
 	    //
 
 	    r = T (0);
