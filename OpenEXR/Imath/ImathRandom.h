@@ -40,40 +40,26 @@
 //
 //	Generators for uniformly distributed pseudo-random numbers and
 //	functions that use those generators to generate numbers with
-//	different distributions:
+//	non-uniform distributions:
 //
-//	class Rand32
-//	class Rand48
-//	solidSphereRand()
-//	hollowSphereRand()
-//	gaussRand()
-//	gaussSphereRand()
+//		class Rand32
+//		class Rand48
+//		solidSphereRand()
+//		hollowSphereRand()
+//		gaussRand()
+//		gaussSphereRand()
+//
+//	Note: class Rand48() calls erand48() and nrand48(), which are not
+//	available on all operating systems.  For compatibility we include
+//	our own versions of erand48() and nrand48().  Our functions have
+//	been reverse-engineered from the corresponding Unix/Linux man page.
 //
 //-----------------------------------------------------------------------------
-
-//
-// Here is the copyright for the *rand48() functions implemented for
-// Windows.
-//
-
-//
-// Copyright (c) 1993 Martin Birgmeier
-// All rights reserved.
-//
-// You may redistribute unmodified or modified versions of this source
-// code provided that the above copyright notice and this and the
-// following conditions are retained.
-//
-// This software is provided ``as is'', and comes with no warranties
-// of any kind. I shall in no event be liable for anything that happens
-// to anyone/anything when using this software.
-//
 
 #include <stdlib.h>
 #include <math.h>
 
 namespace Imath {
-
 
 //-----------------------------------------------
 // Fast random-number generator that generates
@@ -137,7 +123,7 @@ class Rand32
 
 //--------------------------------------------------------
 // Random-number generator based on the C Standard Library
-// functions drand48(), lrand48() & company; generates a
+// functions erand48(), nrand48() & company; generates a
 // uniformly distributed sequence.
 //--------------------------------------------------------
 
@@ -190,10 +176,6 @@ class Rand48
   private:
 
     unsigned short int	_state[3];
-    
-#if defined ( _WIN32 ) || defined ( _WIN64 ) || defined ( __MWERKS__ )
-    void    	    	shiftState();
-#endif
 };
 
 
@@ -236,6 +218,17 @@ gaussRand (Rand &rand);
 template <class Vec, class Rand>
 Vec
 gaussSphereRand (Rand &rand);
+
+
+//---------------------------------
+// erand48(), nrand48() and friends
+//---------------------------------
+
+double		erand48 (unsigned short state[3]);
+double		drand48 ();
+long int	nrand48 (unsigned short state[3]);
+long int	lrand48 ();
+void		srand48 (long int seed);
 
 
 //---------------
@@ -314,71 +307,24 @@ Rand48::Rand48 (unsigned long int seed)
 }
 
 
-#if defined ( _WIN32 ) || defined ( _WIN64 ) || defined ( __MWERKS__ )
-
-inline void
-Rand48::shiftState()
-{
-    unsigned long   accu;
-    unsigned short  temp[2];
-
-    accu = 0xe66dUL * ( unsigned long )_state[0] + 0x000bUL;
-
-    temp[0] = ( unsigned short )accu;	/* lower 16 bits */
-    accu >>= sizeof( unsigned short ) * 8;
-
-    accu += 0xe66dUL * ( unsigned long )_state[1] +
-	    0xdeecUL * ( unsigned long )_state[0];
-
-    temp[1] = ( unsigned short )accu;	/* middle 16 bits */
-    accu >>= sizeof( unsigned short ) * 8;
-
-    accu += 0xe66dUL * _state[2] +
-    	    0xdeecUL * _state[1] +
-	    0x0005UL * _state[0];
-
-    _state[0] = temp[0];
-    _state[1] = temp[1];
-    _state[2] = ( unsigned short )accu;
-}
-
-#endif
-
 inline bool
 Rand48::nextb ()
 {
-#if defined ( _WIN32 ) || defined ( _WIN64 ) || defined ( __MWERKS__ )
-    shiftState();
-    return ( ( long( _state[2] ) << 15 ) + ( long( _state[1] ) >> 1 ) ) & 0x1;
-#else
-    return nrand48 (_state) & 1;
-#endif
+    return Imath::nrand48 (_state) & 1;
 }
 
 
 inline long int
 Rand48::nexti ()
 {
-#if defined ( _WIN32 ) || defined ( _WIN64 ) || defined ( __MWERKS__ )
-    shiftState();
-    return ( long( _state[2] ) << 15 ) + ( long( _state[1] ) >> 1 );
-#else
-    return nrand48 (_state);
-#endif
+    return Imath::nrand48 (_state);
 }
 
 
 inline double
 Rand48::nextf ()
 {
-#if defined ( _WIN32 ) || defined ( _WIN64 ) || defined ( __MWERKS__ )
-    shiftState();
-    return ldexp( double( _state[0] ), -48 ) +
-    	   ldexp( double( _state[1] ), -32 ) +
-	   ldexp( double( _state[2] ), -16 );
-#else
-    return erand48 (_state);
-#endif
+    return Imath::erand48 (_state);
 }
 
 
@@ -452,10 +398,6 @@ gaussSphereRand (Rand &rand)
 {
     return hollowSphereRand <Vec> (rand) * gaussRand (rand);
 }
-
-double drand48();
-long int lrand48();
-void srand48 (unsigned long);
 
 } // namespace Imath
 
