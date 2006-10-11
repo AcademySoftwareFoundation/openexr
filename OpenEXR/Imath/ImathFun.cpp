@@ -34,17 +34,8 @@
 
 
 #include "ImathFun.h"
-#include <limits.h>
-
 
 namespace Imath {
-
-
-#if ULONG_MAX == 18446744073709551615LU
-    typedef      long unsigned int Int64;
-#else
-    typedef long long unsigned int Int64;
-#endif
 
 
 float

@@ -7,6 +7,8 @@
 	  - Rewrote Imath::drand48(), Imath::lrand48(), etc. to make
 	    them functionally identical with the Unix/Linux versions
 	    of drand48(), lrand48() and friends.
+	  - Replaced redundant definitions of Int64 in Imath and IlmImf
+	    with a single definition in ImathInt64.h.
 	  (Florian Kainz)
 	* exrdisplay: if the file's and the display's RGB chromaticities
 	  differ, the pixels RGB values are transformed from the file's
