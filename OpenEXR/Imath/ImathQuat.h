@@ -594,7 +594,7 @@ Quat<T>::setRotationInternal (const Vec3<T>& f0, const Vec3<T>& t0, Quat<T> &q)
 {
     //
     // The following is equivalent to setAxisAngle(n,2*phi),
-    // where the rotation axis, n, is orthogonal to the f0 and
+    // where the rotation axis, is orthogonal to the f0 and
     // t0 vectors, and 2*phi is the angle between f0 and t0.
     //
     // This function is called by setRotation(), above; it assumes
@@ -606,18 +606,17 @@ Quat<T>::setRotationInternal (const Vec3<T>& f0, const Vec3<T>& t0, Quat<T> &q)
 
     //
     // Find a normalized vector, h0, that is half way between f0 and t0.
-    // Find the rotation axis, n.
+    // The angle between f0 and h0 is phi.
     //
 
     Vec3<T> h0 = (f0 + t0).normalized();
-    Vec3<T> n = f0 % h0;
 
     //
     // Store the rotation axis and rotation angle.
     //
 
-    q.r = f0 ^ h0;	// f0 ^ h0 == cos (phi)
-    q.v = n;		// n.length() == sin (phi)
+    q.r = f0 ^ h0;	//  f0 ^ h0 == cos (phi)
+    q.v = f0 % h0;	// (f0 % h0).length() == sin (phi)
 }
 
 
