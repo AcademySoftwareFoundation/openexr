@@ -90,7 +90,7 @@ closestPoints
     // Compute point1 and point2 such that point1 is on line1, point2
     // is on line2 and the distance between point1 and point2 is minimal.
     // This function returns true if point1 and point2 can be computed,
-    // or false if line1 and line2 are parallell or nearly parallel.
+    // or false if line1 and line2 are parallel or nearly parallel.
     // This function assumes that line1.dir and line2.dir are normalized.
     //
 
