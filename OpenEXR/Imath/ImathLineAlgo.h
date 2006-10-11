@@ -66,12 +66,6 @@
 //                    const Vec3<T> &v2,
 //                    const Line3<T> &l)
 //
-//      V3f
-//      nearestPointOnTriangle(const Vec3<T> &v0,
-//                             const Vec3<T> &v1,
-//                             const Vec3<T> &v2,
-//                             const Line3<T> &l)
-//
 //	V3f
 //	rotatePoint(const Vec3<T> p, Line3<T> l, float angle)
 //
@@ -79,171 +73,164 @@
 
 #include "ImathLine.h"
 #include "ImathVecAlgo.h"
+#include "ImathFun.h"
 
 namespace Imath {
 
 
 template <class T>
-bool closestPoints(const Line3<T>& line1,
-		   const Line3<T>& line2,
-		   Vec3<T>& point1,
-		   Vec3<T>& point2)
+bool
+closestPoints
+    (const Line3<T>& line1,
+     const Line3<T>& line2,
+     Vec3<T>& point1,
+     Vec3<T>& point2)
 {
     //
-    //	Compute the closest points on two lines. This was originally
-    //	lifted from inventor. This function assumes that the line
-    //	directions are normalized. The original math has been collapsed.
+    // Compute point1 and point2 such that point1 is on line1, point2
+    // is on line2 and the distance between point1 and point2 is minimal.
+    // This function returns true if point1 and point2 can be computed,
+    // or false if line1 and line2 are parallell or nearly parallel.
+    // This function assumes that line1.dir and line2.dir are normalized.
     //
 
-    T A = line1.dir ^ line2.dir;
+    Vec3<T> w = line1.pos - line2.pos;
+    T d1w = line1.dir ^ w;
+    T d2w = line2.dir ^ w;
+    T d1d2 = line1.dir ^ line2.dir;
+    T n1 = d1d2 * d2w - d1w;
+    T n2 = d2w - d1d2 * d1w;
+    T d = 1 - d1d2 * d1d2;
+    T absD = abs (d);
 
-    if ( A == 1 ) return false;
-
-    T denom = A * A - 1;
-
-    T B = (line1.dir ^ line1.pos) - (line1.dir ^ line2.pos);
-    T C = (line2.dir ^ line1.pos) - (line2.dir ^ line2.pos);
-
-    point1 = line1(( B - A * C ) / denom);
-    point2 = line2(( B * A - C ) / denom);
-
-    return true;
+    if ((absD > 1) ||
+	(abs (n1) < limits<T>::max() * absD &&
+	 abs (n2) < limits<T>::max() * absD))
+    {
+	point1 = line1 (n1 / d);
+	point2 = line2 (n2 / d);
+	return true;
+    }
+    else
+    {
+	return false;
+    }
 }
-
 
 
 template <class T>
-bool intersect( const Line3<T> &line,
-		const Vec3<T> &v0,
-		const Vec3<T> &v1,
-		const Vec3<T> &v2,
-		Vec3<T> &pt,
-		Vec3<T> &barycentric,
-		bool &front)
+bool
+intersect
+    (const Line3<T> &line,
+     const Vec3<T> &v0,
+     const Vec3<T> &v1,
+     const Vec3<T> &v2,
+     Vec3<T> &pt,
+     Vec3<T> &barycentric,
+     bool &front)
 {
-    //    Intersect the line with a triangle.
-    //    1. find plane of triangle
-    //    2. find intersection point of ray and plane
-    //    3. pick plane to project point and triangle into
-    //    4. check each edge of triangle to see if point is inside it
+    //
+    // Given a line and a triangle (v0, v1, v2), the intersect() function
+    // finds the intersection of the line and the plane that contains the
+    // triangle.
+    //
+    // If the intersection point cannot be computed, either because the
+    // line and the triangle's plane are nearly parallel or because the
+    // triangle's area is very small, intersect() returns false.
+    //
+    // If the intersection point is outside the triangle, intersect
+    // returns false.
+    //
+    // If the intersection point, pt, is inside the triangle, intersect()
+    // computes a front-facing flag and the barycentric coordinates of
+    // the intersection point, and returns true.
+    //
+    // The front-facing flag is true if the dot product of the triangle's
+    // normal, (v2-v1)%(v1-v0), and the line's direction is negative.
+    //
+    // The barycentric coordinates have the following property:
+    //
+    //     pt = v0 * barycentric.x + v1 * barycentric.y + v2 * barycentric.z
+    //
+
+    Vec3<T> edge0 = v1 - v0;
+    Vec3<T> edge1 = v2 - v1;
+    Vec3<T> edge2 = v0 - v2;
+    Vec3<T> normal = edge1 % edge0;
+
+    T l = normal.length();
+
+    if (l != 0)
+	normal /= l;
+    else
+	return false;	// zero-area triangle
 
     //
-    // XXX TODO - this routine is way too long
-    //		- the value of EPSILON is dubious
-    //		- there should be versions of this
-    //		  routine that do not calculate the
-    //            barycentric coordinates or the
-    //		  front flag
+    // d is the distance of line.pos from the plane that contains the triangle.
+    // The intersection point is at line.pos + (d/nd) * line.dir.
+    //
 
-    const float EPSILON	= 1e-6;
+    T d = normal ^ (v0 - line.pos);
+    T nd = normal ^ line.dir;
 
-    T	d, t, d01, d12, d20, vd0, vd1, vd2, ax, ay, az, sense;
-    Vec3<T>	v01, v12, v20, c;
-    int		axis0, axis1;
+    if (abs (nd) > 1 || abs (d) < limits<T>::max() * abs (nd))
+	pt = line (d / nd);
+    else
+	return false;  // line and plane are nearly parallel
 
-    // calculate plane for polygon
-    v01 = v1 - v0;
-    v12 = v2 - v1;
+    //
+    // Compute the barycentric coordinates of the intersection point.
+    // The intersection is inside the triangle if all three barycentric
+    // coordinates are between zero and one.
+    //
 
-    // c is un-normalized normal
-    c = v12.cross(v01);
-
-    d = c.length();
-    if(d < EPSILON)
-	return false;	// cant hit a triangle with no area
-    c = c * (1. / d);
-
-    // calculate distance to plane along ray
-
-    d = line.dir.dot(c);
-    if (d < EPSILON && d > -EPSILON)
-	return false;	// line is parallel to plane containing triangle
-
-    t = (v0 - line.pos).dot(c) / d;
-
-    if(t < 0)
-	return false;
-
-    // calculate intersection point
-    pt = line.pos + t * line.dir;
-
-    // is point inside triangle? Project to 2d to find out
-    // use the plane that has the largest absolute value
-    // component in the normal
-    ax = c[0] < 0 ? -c[0] : c[0];
-    ay = c[1] < 0 ? -c[1] : c[1];
-    az = c[2] < 0 ? -c[2] : c[2];
-
-    if(ax > ay && ax > az) 
-    { 
-        // project on x=0 plane
-
-	axis0 = 1;
-	axis1 = 2;
-	sense = c[0] < 0 ? -1 : 1;
-    }
-    else if(ay > az) 
     {
-	axis0 = 2;
-	axis1 = 0;
-	sense = c[1] < 0 ? -1 : 1;
+	Vec3<T> en = edge0.normalized();
+	Vec3<T> a = pt - v0;
+	Vec3<T> b = v2 - v0;
+	Vec3<T> c = (a - en * (en ^ a));
+	Vec3<T> d = (b - en * (en ^ b));
+	T e = c ^ d;
+	T f = d ^ d;
+
+	if (e >= 0 && e <= f)
+	    barycentric.z = e / f;
+	else
+	    return false; // outside
     }
-    else 
+
     {
-	axis0 = 0;
-	axis1 = 1;
-	sense = c[2] < 0 ? -1 : 1;
+	Vec3<T> en = edge1.normalized();
+	Vec3<T> a = pt - v1;
+	Vec3<T> b = v0 - v1;
+	Vec3<T> c = (a - en * (en ^ a));
+	Vec3<T> d = (b - en * (en ^ b));
+	T e = c ^ d;
+	T f = d ^ d;
+
+	if (e >= 0 && e <= f)
+	    barycentric.x = e / f;
+	else
+	    return false; // outside
     }
 
-    // distance from v0-v1 must be less than distance from v2 to v0-v1
-    d01 = sense * ((pt[axis0] - v0[axis0]) * v01[axis1]
-	         - (pt[axis1] - v0[axis1]) * v01[axis0]);
+    barycentric.y = 1 - barycentric.x - barycentric.z;
 
-    if(d01 < 0) return false;
+    if (barycentric.y < 0)
+	return false; // outside
 
-    vd2 = sense * ((v2[axis0] - v0[axis0]) * v01[axis1]
-	         - (v2[axis1] - v0[axis1]) * v01[axis0]);
-
-    if(d01 > vd2) return false;
-
-    // distance from v1-v2 must be less than distance from v1 to v2-v0
-    d12 = sense * ((pt[axis0] - v1[axis0]) * v12[axis1]
-	         - (pt[axis1] - v1[axis1]) * v12[axis0]);
-
-    if(d12 < 0) return false;
-
-    vd0 = sense * ((v0[axis0] - v1[axis0]) * v12[axis1]
-	         - (v0[axis1] - v1[axis1]) * v12[axis0]);
-
-    if(d12 > vd0) return false;
-
-    // calculate v20, and do check on final side of triangle
-    v20 = v0 - v2;
-    d20 = sense * ((pt[axis0] - v2[axis0]) * v20[axis1]
-                 - (pt[axis1] - v2[axis1]) * v20[axis0]);
-
-    if(d20 < 0) return false;
-
-    vd1 = sense * ((v1[axis0] - v2[axis0]) * v20[axis1]
-	         - (v1[axis1] - v2[axis1]) * v20[axis0]);
-
-    if(d20 > vd1) return false;
-
-    // vd0, vd1, and vd2 will always be non-zero for a triangle
-    // that has non-zero area (we return before this for
-    // zero area triangles)
-    barycentric = Vec3<T>(d12 / vd0, d20 / vd1, d01 / vd2);
-    front = line.dir.dot(c) < 0;
-
+    front = (line.dir ^ normal) < 0;
     return true;
 }
+
 
 template <class T>
 Vec3<T>
-closestVertex(const Vec3<T> &v0,
-              const Vec3<T> &v1,
-              const Vec3<T> &v2,
-              const Line3<T> &l)
+closestVertex
+    (const Vec3<T> &v0,
+     const Vec3<T> &v1,
+     const Vec3<T> &v2,
+     const Line3<T> &l)
 {
     Vec3<T> nearest = v0;
     T neardot       = (v0 - l.closestPointTo(v0)).length2();
@@ -266,42 +253,10 @@ closestVertex(const Vec3<T> &v0,
     return nearest;
 }
 
-template <class T>
-Vec3<T>
-nearestPointOnTriangle(const Vec3<T> &v0,
-                       const Vec3<T> &v1,
-                       const Vec3<T> &v2,
-                       const Line3<T> &l)
-{
-    Vec3<T> pt, barycentric;
-    bool front;
-
-    if (intersect (l, v0, v1, v2, pt, barycentric, front))
-	return pt;
-
-    //
-    // The line did not intersect the triangle, so to be picky, you should
-    // find the closest edge that it passed over/under, but chances are that
-    // 1) another triangle will be closer
-    // 2) the app does not need this much precision for a ray that does not
-    //    intersect the triangle
-    // 3) the expense of the calculation is not worth it since this is the
-    //    common case
-    //
-    // XXX TODO  This is bogus -- nearestPointOnTriangle() should do
-    //		 what its name implies; it should return a point
-    //           on an edge if some edge is closer to the line than
-    //		 any vertex.  If the application does not want the
-    //		 extra calculations, it should be possible to specify
-    //		 that; it is not up to this nearestPointOnTriangle()
-    //		 to make the decision.
-
-    return closestVertex(v0, v1, v2, l);
-}
 
 template <class T>
 Vec3<T>
-rotatePoint(const Vec3<T> p, Line3<T> l, T angle)
+rotatePoint (const Vec3<T> p, Line3<T> l, T angle)
 {
     //
     // Rotate the point p around the line l by the given angle.
