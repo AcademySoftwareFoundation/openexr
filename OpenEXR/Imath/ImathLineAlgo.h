@@ -155,7 +155,6 @@ intersect
 
     Vec3<T> edge0 = v1 - v0;
     Vec3<T> edge1 = v2 - v1;
-    Vec3<T> edge2 = v0 - v2;
     Vec3<T> normal = edge1 % edge0;
 
     T l = normal.length();
@@ -219,7 +218,7 @@ intersect
     if (barycentric.y < 0)
 	return false; // outside
 
-    front = (line.dir ^ normal) < 0;
+    front = ((line.dir ^ normal) < 0);
     return true;
 }
 
