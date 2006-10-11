@@ -606,37 +606,20 @@ Quat<T>::setRotationInternal (const Vec3<T>& f0, const Vec3<T>& t0, Quat<T> &q)
 
     //
     // Find a normalized vector, h0, that is half way between f0 and t0.
-    //
-
-    Vec3<T> h0 = (f0 + t0).normalized();
-
-    //
     // Find the rotation axis, n.
     //
 
+    Vec3<T> h0 = (f0 + t0).normalized();
     Vec3<T> n = f0 % h0;
 
-    if ((n ^ n) != 0)
-    {
-	//
-	// The length of n is non-zero; this means that
-	// f0 and t0 do not point in the same direction.
-	//
+    //
+    // Store the rotation axis and rotation angle.
+    //
 
-	q.r = f0 ^ h0;		// f0 ^ h0 == cos (phi)
-	q.v = n;		// n.length() == sin (phi)
-    }
-    else
-    {
-	//
-	// f0 and t0 point into the same direction;
-	// phi is zero.
-	//
-
-	q.r = T (1);		// cos (phi) == 1
-	q.v = Vec3<T> (0);	// sin (phi) == 0
-    }
+    q.r = f0 ^ h0;	// f0 ^ h0 == cos (phi)
+    q.v = n;		// n.length() == sin (phi)
 }
+
 
 template<class T>
 Matrix33<T> Quat<T>::toMatrix33() const
