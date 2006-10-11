@@ -44,6 +44,7 @@
 //-----------------------------------------------------------------------------
 
 #include "ImathLimits.h"
+#include "ImathInt64.h"
 
 namespace Imath {
 
@@ -254,12 +255,6 @@ finitef (float f)
 inline bool 
 finited (double d)
 {
-#if ULONG_MAX == 18446744073709551615LU
-    typedef      long unsigned int Int64;
-#else
-    typedef long long unsigned int Int64;
-#endif
-
     union {double d; Int64 i;} u;
     u.d = d;
 
