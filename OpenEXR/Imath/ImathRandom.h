@@ -388,7 +388,7 @@ gaussRand (Rand &rand)
     }
     while (length2 >= 1 || length2 == 0);
 
-    return x * sqrt (-2 * log (length2) / length2);
+    return x * sqrt (-2 * log (double (length2)) / length2);
 }
 
 
