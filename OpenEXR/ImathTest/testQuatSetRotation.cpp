@@ -87,7 +87,7 @@ testRotation (const V3f &from, const V3f &to)
 void
 specificVectors ()
 {
-    cout << "exact 90-degree rotations" << endl;
+    cout << "  exact 90-degree rotations" << endl;
 
     testRotation (V3f (1, 0, 0), V3f (0, 1, 0));
     testRotation (V3f (1, 0, 0), V3f (0, 0, 1));
@@ -96,14 +96,14 @@ specificVectors ()
     testRotation (V3f (0, 0, 1), V3f (1, 0, 0));
     testRotation (V3f (0, 0, 1), V3f (0, 1, 0));
 
-    cout << "exact zero-degree rotations" << endl;
+    cout << "  exact zero-degree rotations" << endl;
 
     testRotation (V3f (1, 0, 0), V3f (1, 0, 0));
     testRotation (V3f (0, 1, 0), V3f (0, 1, 0));
     testRotation (V3f (0, 0, 1), V3f (0, 0, 1));
     testRotation (V3f (1, 2, 3), V3f (2, 4, 6));
 
-    cout << "exact 180-degree rotations" << endl;
+    cout << "  exact 180-degree rotations" << endl;
 
     testRotation (V3f (1, 0, 0), V3f (-1, 0, 0));
     testRotation (V3f (0, 1, 0), V3f (0, -1, 0));
@@ -115,7 +115,7 @@ specificVectors ()
     testRotation (V3f (2, 3, 1), V3f (-4, -6, -2));
     testRotation (V3f (3, 2, 1), V3f (-6, -4, -2));
 
-    cout << "other angles" << endl;
+    cout << "  other angles" << endl;
 
     testRotation (V3f (1, 2, 3), V3f (4, 5, 6));
     testRotation (V3f (1, 2, 3), V3f (4, 6, 5));
@@ -135,7 +135,7 @@ specificVectors ()
 void
 randomVectors ()
 {
-    cout << "random from and to vectors" << endl;
+    cout << "  random from and to vectors" << endl;
 
     Rand48 rand (17);
 
@@ -151,7 +151,7 @@ randomVectors ()
 void
 nearlyEqualVectors ()
 {
-    cout << "nearly equal from and to vectors" << endl;
+    cout << "  nearly equal from and to vectors" << endl;
 
     Rand48 rand (19);
     float e = 100 * limits<float>::epsilon();
@@ -168,7 +168,7 @@ nearlyEqualVectors ()
 void
 nearlyOppositeVectors ()
 {
-    cout << "nearly opposite from and to vectors" << endl;
+    cout << "  nearly opposite from and to vectors" << endl;
 
     Rand48 rand (19);
     float e = 100 * limits<float>::epsilon();

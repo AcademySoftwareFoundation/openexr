@@ -48,6 +48,44 @@ using Imath::abs;
 
 namespace {
 
+void
+testErand48 ()
+{
+    //
+    // Our implementation of erand48(), nrand48(), etc.
+    // assumes that sizeof (unsigned short) == 2.
+    //
+
+    assert (sizeof (unsigned short) == 2);
+
+    //
+    // starting with a seed given seed, erand48()
+    // and nrand48() must generate the same sequence
+    // as the standard Unix/Linux functions.
+    //
+
+    unsigned short state[3];
+    state[0] = 0;
+    state[1] = 1;
+    state[2] = 2;
+
+    assert (abs (Imath::erand48 (state) - 0.671004) < 0.00001);
+    assert (abs (Imath::erand48 (state) - 0.786905) < 0.00001);
+    assert (abs (Imath::erand48 (state) - 0.316850) < 0.00001);
+    assert (abs (Imath::erand48 (state) - 0.384870) < 0.00001);
+    assert (abs (Imath::erand48 (state) - 0.854650) < 0.00001);
+
+    assert (Imath::nrand48 (state) == 0x4f4e8cb0);
+    assert (Imath::nrand48 (state) == 0x063e864b);
+    assert (Imath::nrand48 (state) == 0x2d10f1dd);
+    assert (Imath::nrand48 (state) == 0x1aadc122);
+    assert (Imath::nrand48 (state) == 0x1836a71f);
+
+    assert (state[0] == 0x2a42);
+    assert (state[1] == 0x4e3e);
+    assert (state[2] == 0x306d);
+}
+
 
 template <class Rand>
 void
@@ -167,11 +205,14 @@ testRandom ()
 {
     cout << "Testing random number generators" << endl;
 
+    cout << "erand48(), nrand48()" << endl;
+    testErand48();
+
     cout << "Rand32" << endl;
     testGenerator<Imath::Rand32>();
 
     cout << "Rand48" << endl;
-    testGenerator<Imath::Rand32>();
+    testGenerator<Imath::Rand48>();
 
     cout << "solidSphereRand()" << endl;
     testSolidSphere<Imath::Rand32>();

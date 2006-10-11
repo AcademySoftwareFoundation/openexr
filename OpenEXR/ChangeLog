@@ -1,5 +1,12 @@
-	* Rewrote function Imath::Quat<T>::setRotation() to make it
-	  numerically more accurate.
+	* Imath cleanup:
+	  - Rewrote function Imath::Quat<T>::setRotation() to make it
+	    numerically more accurate, added confidence tests
+	  - Rewrote functions Imath::closestPoints(), Imath::intersect(),
+	    added confidence tests.
+	  - Removed broken function Imath::nearestPointOnTriangle().
+	  - Rewrote Imath::drand48(), Imath::lrand48(), etc. to make
+	    them functionally identical with the Unix/Linux versions
+	    of drand48(), lrand48() and friends.
 	  (Florian Kainz)
 	* exrdisplay: if the file's and the display's RGB chromaticities
 	  differ, the pixels RGB values are transformed from the file's
