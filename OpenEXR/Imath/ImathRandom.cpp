@@ -86,7 +86,7 @@ rand48Next (unsigned short state[3])
     //
     // Disassemble the 48 least significant bits of x[n+1] into
     // three 16-bit values.  Discard the 16 most significant bits;
-    // this is takes care of the "modulo m" operation.
+    // this takes care of the "modulo m" operation.
     //
     // We assume that sizeof (unsigned short) == 2.
     //
