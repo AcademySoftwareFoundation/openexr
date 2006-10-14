@@ -304,76 +304,57 @@ inline Quat<T>& Quat<T>::invert()
     return *this;
 }
 
+
+template<class T>
+T
+angle4D (const Quat<T> &q1, const Quat<T> &q2)
+{
+    //
+    // Compute the angle between two quaternions,
+    // interpreting the quaternions as 4D vectors.
+    //
+
+    Quat<T> d = q1 - q2;
+    T lengthD = Math<T>::sqrt (d ^ d);
+
+    Quat<T> s = q1 + q2;
+    T lengthS = Math<T>::sqrt (s ^ s);
+
+    return 2 * Math<T>::atan2 (lengthD, lengthS);
+}
+
+
 template<class T>
 Quat<T>
 slerp(const Quat<T> &q1,const Quat<T> &q2, T t)
 {
     //
     // Spherical linear interpolation.
+    // Assumes q1 and q2 are normalized and that q1 != -q2.
     //
-    // NOTE: Assumes q1 and q2 are normalized and that 0 <= t <= 1.
+    // This method does *not* interpolate along the shortest
+    // arc between q1 and q2.  If you desire interpolation
+    // along the shortest arc, and q1^q2 is negative, then
+    // consider flipping the second quaternion explicitly.
     //
-    // This method does *not* interpolate along the shortest arc
-    // between q1 and q2. If you desire interpolation along the
-    // shortest arc, then consider flipping the second quaternion
-    // explicitly before calling slerp. The implementation of squad()
-    // depends on a slerp() that interpolates as is, without the
-    // automatic flipping.
+    // The implementation of squad() depends on a slerp()
+    // that interpolates as is, without the automatic
+    // flipping.
+    //
+    // Don Hatch explains the method we use here on his
+    // web page, The Right Way to Calculate Stuff, at
+    // http://www.plunk.org/~hatch/rightway.php
     //
 
-    T cosomega = q1 ^ q2;
-    if (cosomega >= (T) 1.0)
-    {
-	//
-	// Special case: q1 and q2 are the same, so just return one of them.
-	// This also catches the case where cosomega is very slightly > 1.0
-	//
+    T a = angle4D (q1, q2);
+    T s = 1 - t;
 
-	return q1;
-    }
-    
-    T sinomega = Math<T>::sqrt (1 - cosomega * cosomega);
+    Quat<T> q = sinx_over_x (s * a) / sinx_over_x (a) * s * q1 +
+	        sinx_over_x (t * a) / sinx_over_x (a) * t * q2;
 
-    Quat<T> result;
-
-    if (sinomega * limits<T>::max() > 1)
-    {
-	T omega = Math<T>::acos (cosomega);
- 	T s1 = Math<T>::sin ((1.0 - t) * omega) / sinomega;
-	T s2 = Math<T>::sin (t * omega) / sinomega;
-
-	result	= s1 * q1 + s2 * q2;
-    }
-    else if (cosomega > 0)
-    {
-	//
-	// omega == 0
-	//
-
-	T s1 = 1.0 - t;
-	T s2 = t;
-
-	result = s1 * q1 + s2 * q2;
-    }
-    else
-    {
-	//
-	// omega == -pi
-	//
-
-	result.v.x  = - q1.v.y;
-	result.v.y  =   q1.v.x;
-	result.v.z  = - q1.r;
-	result.r    =   q1.v.z;
-
-	T s1 = Math<T>::sin ((0.5 - t) * M_PI);
-	T s2 = Math<T>::sin (t * M_PI);
-
-	result  = s1 * q1 + s2 * result;
-    }
-
-    return result;
+    return q.normalized();
 }
+
 
 template<class T>
 Quat<T> spline(const Quat<T> &q0, const Quat<T> &q1,
@@ -455,6 +436,7 @@ inline Quat<T> Quat<T>::log() const
     //
 
     T theta = Math<T>::acos (std::min (r, (T) 1.0));
+
     if (theta == 0)
 	return Quat<T> (0, v);
     
@@ -462,7 +444,7 @@ inline Quat<T> Quat<T>::log() const
     
     T k;
     if (abs (sintheta) < 1 && abs (theta) >= limits<T>::max() * abs (sintheta))
-	k = 0;
+	k = 1;
     else
 	k = theta / sintheta;
 
@@ -483,7 +465,7 @@ inline Quat<T> Quat<T>::exp() const
     
     T k;
     if (abs (theta) < 1 && abs (sintheta) >= limits<T>::max() * abs (theta))
-	k = 0;
+	k = 1;
     else
 	k = sintheta / theta;
 

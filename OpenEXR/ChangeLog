@@ -1,6 +1,9 @@
 	* Imath cleanup:
 	  - Rewrote function Imath::Quat<T>::setRotation() to make it
 	    numerically more accurate, added confidence tests
+	  - Rewrote function Imath::Quat<T>::slerp() using Don Hatch's
+	    method, which is numerically more accurate, added confidence
+	    tests.
 	  - Rewrote functions Imath::closestPoints(), Imath::intersect(),
 	    added confidence tests.
 	  - Removed broken function Imath::nearestPointOnTriangle().

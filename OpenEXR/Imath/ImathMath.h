@@ -81,6 +81,7 @@
 //----------------------------------------------------------------------------
 
 #include "ImathPlatform.h"
+#include "ImathLimits.h"
 #include <math.h>
 
 namespace Imath {
@@ -148,6 +149,22 @@ struct Math<float>
    static float hypot (float x, float y)	{return ::sqrtf(x*x + y*y);}
 #endif
 };
+
+
+//--------------------------------------------------------------------------
+// Don Hatch's version of sin(x)/x, which is accurate for very small x.
+// Returns 1 for x == 0.
+//--------------------------------------------------------------------------
+
+template <class T>
+inline T
+sinx_over_x (T x)
+{
+    if (x * x < limits<T>::epsilon())
+	return T (1);
+    else
+	return Math<T>::sin (x) / x;
+}
 
 
 //--------------------------------------------------------------------------

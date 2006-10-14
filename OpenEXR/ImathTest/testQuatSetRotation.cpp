@@ -189,7 +189,7 @@ nearlyOppositeVectors ()
 void
 testQuatSetRotation ()
 {
-    cout << "Testing Quaternion rotations" << endl;
+    cout << "Testing quaternion rotations" << endl;
 
     specificVectors();
     randomVectors();
