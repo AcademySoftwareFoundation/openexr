@@ -279,7 +279,7 @@ RleCompressor::uncompress (const char *inPtr,
 				       (const signed char *) inPtr,
 				       _tmpBuffer)))
     {
-	throw Iex::BaseExc ("Data decoding (rle) failed.");
+	throw Iex::InputExc ("Data decoding (rle) failed.");
     }
 
     //

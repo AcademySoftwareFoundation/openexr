@@ -179,7 +179,7 @@ ZipCompressor::uncompress (const char *inPtr,
     if (Z_OK != ::uncompress ((Bytef *)_tmpBuffer, &outSize,
 			      (const Bytef *) inPtr, inSize))
     {
-	throw Iex::BaseExc ("Data decompression (zlib) failed.");
+	throw Iex::InputExc ("Data decompression (zlib) failed.");
     }
 
     //
