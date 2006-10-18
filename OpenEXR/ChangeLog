@@ -1,3 +1,5 @@
+	* added new framesPerSecond optional standard attribute
+	  (Florian Kainz)
 	* Imath cleanup:
 	  - Rewrote function Imath::Quat<T>::setRotation() to make it
 	    numerically more accurate, added confidence tests

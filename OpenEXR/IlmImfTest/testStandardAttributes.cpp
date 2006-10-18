@@ -747,6 +747,101 @@ writeReadTimeCode (const char fileName[])
 
 
 void
+rationalMethods ()
+{
+    cout << "rational methods" << endl;
+
+    Rational r0 (0, 1);
+    assert (r0 == 0);
+
+    Rational r1 (1, 1);
+    assert (r1 == 1);
+
+    Rational r2 (1, 4);
+    assert (r2 == 0.25);
+
+    Rational r3 (-8, 2);
+    assert (r3 == -4);
+
+    Rational r4 (0.0);
+    assert (r4 == 0);
+
+    Rational r5 (1e-50);
+    assert (r5 == 0);
+
+    Rational r6 (1.0);
+    assert (r6 == 1.0 && r6.n == 1 && r6.d == 1);
+
+    Rational r7 (-10.0);
+    assert (r7 == -10.0 && r7.n == -10 && r7.d == 1);
+
+    Rational r8 (0.03125);
+    assert (r8 == 0.03125 && r8.n == 1 && r8.d == 32);
+
+    Rational r9 (0.53125);
+    assert (r9 == 0.53125 && r9.n == 17 && r9.d == 32);
+
+    Rational r10 (10.1);
+    assert (equalWithAbsError (double (r10), 10.1, 1e-8));
+
+    Rational r11 (double ((1U << 30) - 1));
+    assert (r11 == double ((1U << 30) - 1));
+}
+
+
+void
+writeReadRational (const char fileName[])
+{
+    cout << "rational attribute" << endl;
+
+    cout << "writing, ";
+
+    Rational r1 (12, 17);
+    Rational r2 (-12, 3);
+
+    static const int W = 100;
+    static const int H = 100;
+
+    Header header (W, H);
+    header.insert ("r1", RationalAttribute (r1));
+    header.insert ("r2", RationalAttribute (r2));
+
+    {
+	RgbaOutputFile out (fileName, header);
+	Rgba pixels[W];
+
+	for (int i = 0; i < W; ++i)
+	{
+	    pixels[i].r = 1;
+	    pixels[i].g = 1;
+	    pixels[i].b = 1;
+	    pixels[i].a = 1;
+	}
+
+	out.setFrameBuffer (pixels, 1, 0);
+	out.writePixels (H);
+    }
+
+    cout << "reading, comparing" << endl;
+
+    {
+	RgbaInputFile in (fileName);
+
+	const Rational &r3 =
+	    in.header().typedAttribute<RationalAttribute>("r1").value();
+
+	const Rational &r4 =
+	    in.header().typedAttribute<RationalAttribute>("r2").value();
+
+	assert (r1 == r3);
+	assert (r2 == r4);
+    }
+
+    remove (fileName);
+}
+
+
+void
 generatedFunctions ()
 {
     //
@@ -782,6 +877,7 @@ generatedFunctions ()
     assert (hasKeyCode (header) == false);
     assert (hasTimeCode (header) == false);
     assert (hasWrapmodes (header) == false);
+    assert (hasFramesPerSecond (header) == false);
 }
 
 
@@ -823,6 +919,12 @@ testStandardAttributes ()
 	    timeCodeMethods();
 	    const char *filename = IMF_TMP_DIR "imf_test_timecode.exr";
 	    writeReadTimeCode (filename);
+	}
+
+	{
+	    rationalMethods();
+	    const char *filename = IMF_TMP_DIR "imf_test_rational.exr";
+	    writeReadRational (filename);
 	}
 
 	generatedFunctions();

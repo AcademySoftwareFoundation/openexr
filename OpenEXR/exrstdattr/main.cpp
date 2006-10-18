@@ -128,6 +128,11 @@ usageMessage (const char argv0[], bool verbose = false)
 		"        indicates that the image is an environment map\n"
 		"        (string, LATLONG or CUBE)\n"
 		"\n"
+		"  -framesPerSecond i i\n"
+		"        playback frame rate expressed as a ratio of two\n"
+		"        integers, n and d (the frame rate is n/d frames\n"
+		"        per second)\n"
+		"\n"
 		"  -keyCode i i i i i i i\n"
 		"        key code that uniquely identifies a motion\n"
 		"        picture film frame using 7 integers:\n"
@@ -358,6 +363,27 @@ getV2f (const char attrName[],
 
 
 void
+getRational (const char attrName[],
+	     int argc,
+	     char **argv,
+	     int &i,
+	     AttrMap &attrs,
+	     void (*check) (const char attrName[], const Rational &r) = 0)
+{
+    if (i > argc - 3)
+	usageMessage (argv[0]);
+
+    Rational r (strtol (argv[i + 1], 0, 0), strtol (argv[i + 2], 0, 0));
+
+    if (check)
+	check (attrName, r);
+
+    attrs[attrName] = new RationalAttribute (r);
+    i += 3;
+}
+
+
+void
 getString (const char attrName[],
 	   int argc,
 	   char **argv,
@@ -563,6 +589,10 @@ main(int argc, char **argv)
 	    else if (!strcmp (argv[i], "-envmap"))
 	    {
 		getEnvmap (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-framesPerSecond"))
+	    {
+		getRational (attrName, argc, argv, i, attrs);
 	    }
 	    else if (!strcmp (argv[i], "-keyCode"))
 	    {
