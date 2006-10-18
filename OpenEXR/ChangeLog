@@ -1,3 +1,6 @@
+	* Bug fix: Imath::Frustum<T>::planes() returns incorrect planes
+	  if the frustum is orthogonal.
+	  (Philip Hubbard)
 	* added new framesPerSecond optional standard attribute
 	  (Florian Kainz)
 	* Imath cleanup:

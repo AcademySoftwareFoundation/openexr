@@ -643,16 +643,26 @@ void Frustum<T>::planes(Plane3<T> p[6])
     //  Normals point outwards.
     //
 
-    Vec3<T> a( _left,  _bottom, -_near);
-    Vec3<T> b( _left,  _top,	-_near);
-    Vec3<T> c( _right, _top,	-_near);
-    Vec3<T> d( _right, _bottom,	-_near);
-    Vec3<T> o(0,0,0);
+    if (! _orthographic)
+    {
+        Vec3<T> a( _left,  _bottom, -_near);
+        Vec3<T> b( _left,  _top,    -_near);
+        Vec3<T> c( _right, _top,    -_near);
+        Vec3<T> d( _right, _bottom, -_near);
+        Vec3<T> o(0,0,0);
 
-    p[0].set( o, c, b );
-    p[1].set( o, d, c );
-    p[2].set( o, a, d );
-    p[3].set( o, b, a );
+        p[0].set( o, c, b );
+        p[1].set( o, d, c );
+        p[2].set( o, a, d );
+        p[3].set( o, b, a );
+    }
+    else
+    {
+        p[0].set( Vec3<T>( 0, 1, 0), _top );
+        p[1].set( Vec3<T>( 1, 0, 0), _right );
+        p[2].set( Vec3<T>( 0,-1, 0),-_bottom );
+        p[3].set( Vec3<T>(-1, 0, 0),-_left );
+    }
     p[4].set( Vec3<T>(0, 0, 1), -_near );
     p[5].set( Vec3<T>(0, 0,-1), _far );
 }
@@ -670,22 +680,37 @@ void Frustum<T>::planes(Plane3<T> p[6], const Matrix44<T> &M)
     Vec3<T> b   = Vec3<T>( _left,  _top,    -_near) * M;
     Vec3<T> c   = Vec3<T>( _right, _top,    -_near) * M;
     Vec3<T> d   = Vec3<T>( _right, _bottom, -_near) * M;
-    double s    = _far / double(_near);
-    T farLeft   = (T) (s * _left);
-    T farRight  = (T) (s * _right);
-    T farTop    = (T) (s * _top);
-    T farBottom = (T) (s * _bottom);
-    Vec3<T> e   = Vec3<T>( farLeft,  farBottom, -_far) * M;
-    Vec3<T> f   = Vec3<T>( farLeft,  farTop,    -_far) * M;
-    Vec3<T> g   = Vec3<T>( farRight, farTop,    -_far) * M;
-    Vec3<T> o   = Vec3<T>(0,0,0) * M;
-
-    p[0].set( o, c, b );
-    p[1].set( o, d, c );
-    p[2].set( o, a, d );
-    p[3].set( o, b, a );
-    p[4].set( a, d, c );
-    p[5].set( e, f, g );
+    if (! _orthographic)
+    {
+        double s    = _far / double(_near);
+        T farLeft   = (T) (s * _left);
+        T farRight  = (T) (s * _right);
+        T farTop    = (T) (s * _top);
+        T farBottom = (T) (s * _bottom);
+        Vec3<T> e   = Vec3<T>( farLeft,  farBottom, -_far) * M;
+        Vec3<T> f   = Vec3<T>( farLeft,  farTop,    -_far) * M;
+        Vec3<T> g   = Vec3<T>( farRight, farTop,    -_far) * M;
+        Vec3<T> o   = Vec3<T>(0,0,0) * M;
+        p[0].set( o, c, b );
+        p[1].set( o, d, c );
+        p[2].set( o, a, d );
+        p[3].set( o, b, a );
+        p[4].set( a, d, c );
+        p[5].set( e, f, g );
+     }
+    else
+    {
+        Vec3<T> e   = Vec3<T>( _left,  _bottom, -_far) * M;
+        Vec3<T> f   = Vec3<T>( _left,  _top,    -_far) * M;
+        Vec3<T> g   = Vec3<T>( _right, _top,    -_far) * M;
+        Vec3<T> h   = Vec3<T>( _right, _bottom, -_far) * M;
+        p[0].set( c, g, f );
+        p[1].set( d, h, g );
+        p[2].set( a, e, h );
+        p[3].set( b, f, e );
+        p[4].set( a, d, c );
+        p[5].set( e, f, g );
+    }
 }
 
 typedef Frustum<float>	Frustumf;
