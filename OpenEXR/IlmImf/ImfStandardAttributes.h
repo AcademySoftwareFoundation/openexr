@@ -61,6 +61,7 @@
 #include <ImfEnvmapAttribute.h>
 #include <ImfKeyCodeAttribute.h>
 #include <ImfTimeCodeAttribute.h>
+#include <ImfRationalAttribute.h>
 
 
 #define IMF_STD_ATTRIBUTE_DEF(name,suffix,type)				      \
@@ -244,6 +245,39 @@ IMF_STD_ATTRIBUTE_DEF (timeCode, TimeCode, TimeCode)
 //
 
 IMF_STD_ATTRIBUTE_DEF (wrapmodes, Wrapmodes, std::string)
+
+
+//
+// framesPerSecond -- defines the nominal playback frame rate for image
+// sequences, in frames per second.  Every image in a sequence should
+// have a framesPerSecond attribute, and the attribute value should be
+// the same for all images in the sequence.  If an image sequence has
+// no framesPerSecond attribute, playback software should assume that
+// the frame rate for the sequence is 24 frames per second.
+//
+// In order to allow exact representation of NTSC frame and field rates,
+// framesPerSecond is stored as a rational number.  A rational number is
+// a pair of integers, n and d, that represents the value n/d.
+//
+// Commonly used frame rates are:
+//
+//				rational		floating-point
+//
+//	35mm film		24 / 1			24.0
+//
+//	PAL video		25 / 1			25.0
+//	50Hz HDTV frames
+//
+//	NTSC frames		30000 / 1001		29.97002997...
+//
+//	60Hz HDTV frames	30 / 1			30.0
+//
+//	NTSC fields		60000 / 1001		59.94004994...
+//
+//	60Hz HDTV fields	60 / 1			60.0
+//
+
+IMF_STD_ATTRIBUTE_DEF (framesPerSecond, FramesPerSecond, Rational)
 
 
 } // namespace Imf

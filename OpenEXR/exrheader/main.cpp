@@ -53,6 +53,7 @@
 #include <ImfLineOrderAttribute.h>
 #include <ImfMatrixAttribute.h>
 #include <ImfPreviewImageAttribute.h>
+#include <ImfRationalAttribute.h>
 #include <ImfStringAttribute.h>
 #include <ImfTileDescriptionAttribute.h>
 #include <ImfTimeCodeAttribute.h>
@@ -412,6 +413,12 @@ printInfo (const char fileName[])
 		dynamic_cast <const StringAttribute *> (a))
 	{
 	    cout << ": \"" << ta->value() << "\"";
+	}
+	else if (const RationalAttribute *ta =
+		dynamic_cast <const RationalAttribute *> (a))
+	{
+	    cout << ": " << ta->value().n << "/" << ta->value().d <<
+		    " (" << double (ta->value()) << ")";
 	}
 	else if (const TileDescriptionAttribute *ta =
 		dynamic_cast <const TileDescriptionAttribute *> (a))
