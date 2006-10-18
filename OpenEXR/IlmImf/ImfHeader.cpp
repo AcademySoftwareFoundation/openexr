@@ -58,6 +58,7 @@
 #include <ImfMatrixAttribute.h>
 #include <ImfOpaqueAttribute.h>
 #include <ImfPreviewImageAttribute.h>
+#include <ImfRationalAttribute.h>
 #include <ImfStringAttribute.h>
 #include <ImfTileDescriptionAttribute.h>
 #include <ImfTimeCodeAttribute.h>
@@ -920,6 +921,7 @@ staticInitialize ()
 	M33fAttribute::registerAttributeType();
 	M44fAttribute::registerAttributeType();
 	PreviewImageAttribute::registerAttributeType();
+	RationalAttribute::registerAttributeType();
 	StringAttribute::registerAttributeType();
 	TileDescriptionAttribute::registerAttributeType();
 	TimeCodeAttribute::registerAttributeType();
