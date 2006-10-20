@@ -259,13 +259,17 @@ IMF_STD_ATTRIBUTE_DEF (wrapmodes, Wrapmodes, std::string)
 // framesPerSecond is stored as a rational number.  A rational number is
 // a pair of integers, n and d, that represents the value n/d.
 //
-// Commonly used frame rates are:
+// Commonly used frame rates include:
 //
 //				rational		floating-point
 //
-//	35mm film		24 / 1			24.0
+//	NTSC-compatible		24000 / 1001		23.97602397...
+//	"24Hz" HDTV frames
 //
-//	PAL video		25 / 1			25.0
+//	35mm film,		24 / 1			24.0
+//	true 24Hz HDTV frames
+//
+//	PAL video,		25 / 1			25.0
 //	50Hz HDTV frames
 //
 //	NTSC frames		30000 / 1001		29.97002997...
