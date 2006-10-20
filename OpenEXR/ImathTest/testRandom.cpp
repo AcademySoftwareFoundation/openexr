@@ -59,9 +59,9 @@ testErand48 ()
     assert (sizeof (unsigned short) == 2);
 
     //
-    // starting with a seed given seed, erand48()
-    // and nrand48() must generate the same sequence
-    // as the standard Unix/Linux functions.
+    // starting with a given seed, erand48() and nrand48()
+    // must generate the same sequence as the standard
+    // Unix/Linux functions.
     //
 
     unsigned short state[3];
