@@ -42,6 +42,7 @@ libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 		       ImfTimeCodeAttribute.cpp ImfTimeCodeAttribute.h \
 		       ImfRational.cpp ImfRational.h \
 		       ImfRationalAttribute.cpp ImfRationalAttribute.h \
+		       ImfFramesPerSecond.cpp ImfFramesPerSecond.h \
 		       ImfStandardAttributes.cpp ImfStandardAttributes.h \
 		       ImfStdIO.cpp ImfStdIO.h ImfEnvmap.cpp ImfEnvmap.h \
 		       ImfEnvmapAttribute.cpp ImfEnvmapAttribute.h \
@@ -82,6 +83,7 @@ libIlmImfinclude_HEADERS = ImfAttribute.h ImfBoxAttribute.h \
 			   ImfKeyCode.h ImfKeyCodeAttribute.h \
 			   ImfTimeCode.h ImfTimeCodeAttribute.h \
 			   ImfRational.h ImfRationalAttribute.h \
+			   ImfFramesPerSecond.h \
 			   ImfStandardAttributes.h \
 		       	   ImfEnvmap.h \
 		       	   ImfEnvmapAttribute.h \
