@@ -37,6 +37,7 @@
 
 #include <ImfRgbaFile.h>
 #include <ImfStandardAttributes.h>
+#include <ImfFramesPerSecond.h>
 #include <ImfArray.h>
 #include "ImathRandom.h"
 #include <fstream>
@@ -786,6 +787,18 @@ rationalMethods ()
 
     Rational r11 (double ((1U << 30) - 1));
     assert (r11 == double ((1U << 30) - 1));
+
+    assert (guessExactFps (23.976) == fps_23_976());
+    assert (guessExactFps (24.000) == fps_24());
+    assert (guessExactFps (25.000) == fps_25());
+    assert (guessExactFps (29.970) == fps_29_97());
+    assert (guessExactFps (30.000) == fps_30());
+    assert (guessExactFps (47.952) == fps_47_952());
+    assert (guessExactFps (48.000) == fps_48());
+    assert (guessExactFps (50.000) == fps_50());
+    assert (guessExactFps (59.940) == fps_59_94());
+    assert (guessExactFps (60.000) == fps_60());
+    assert (guessExactFps (70.500) == Rational (141, 2));
 }
 
 
