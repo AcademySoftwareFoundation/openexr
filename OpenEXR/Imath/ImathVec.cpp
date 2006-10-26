@@ -42,6 +42,12 @@
 
 #include "ImathVec.h"
 
+#if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
+// suppress exception specification warnings
+#pragma warning(disable:4290)
+#endif
+
+
 namespace Imath {
 
 namespace
