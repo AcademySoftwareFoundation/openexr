@@ -111,7 +111,7 @@ Semaphore::wait()
 }
 
 
-void
+bool
 Semaphore::tryWait()
 {
     return ::WaitForSingleObject (_semaphore, 0) == WAIT_OBJECT_0;
