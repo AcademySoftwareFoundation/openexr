@@ -445,14 +445,18 @@ half::half ()
 inline
 half::half (float f)
 {
+    uif x;
+
+    x.f = f;
+
     if (f == 0)
     {
 	//
 	// Common special case - zero.
-	// For speed, we don't preserve the zero's sign.
+	// Preserve the zero's sign bit.
 	//
 
-	_h = 0;
+	_h = (x.i >> 16);
     }
     else
     {
@@ -471,10 +475,6 @@ half::half (float f)
 	// lookup returns zero, and we call a longer, non-inline function
 	// to do the float-to-half conversion.
 	//
-
-	uif x;
-
-	x.f = f;
 
 	register int e = (x.i >> 23) & 0x000001ff;
 
