@@ -125,7 +125,7 @@ half::convert (int i)
 	}
 
 	//
-	// E is between -10 and 0.  F is a normalized float,
+	// E is between -10 and 0.  F is a normalized float
 	// whose magnitude is less than HALF_NRM_MIN.
 	//
 	// We convert f to a denormalized half.
