@@ -40,8 +40,8 @@
 //
 //	half -- a 16-bit floating point number class:
 //
-//	Type half can represent positive and negative numbers, whose
-//	magnitude is between roughly 6.1e-5 and 6.5e+4, with a relative
+//	Type half can represent positive and negative numbers whose
+//	magnitude is between roughly 6.1e-5 and 6.5e+4 with a relative
 //	error of 9.8e-4; numbers smaller than 6.1e-5 can be represented
 //	with an absolute error of 6.0e-8.  All integers from -2048 to
 //	+2048 can be represented exactly.
@@ -177,7 +177,7 @@ class half
     //
     //	posInf()	returns +infinity
     //
-    //	negInf()	returns +infinity
+    //	negInf()	returns -infinity
     //
     //	qNan()		returns a NAN with the bit
     //			pattern 0111111111111111
@@ -267,23 +267,23 @@ void			printBits   (char  c[35], float f);
 
 #if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
 
-#define HALF_MIN	5.96046448e-08f	// Smallest positive half
+  #define HALF_MIN	5.96046448e-08f	// Smallest positive half
 
-#define HALF_NRM_MIN	6.10351562e-05f	// Smallest positive normalized half
+  #define HALF_NRM_MIN	6.10351562e-05f	// Smallest positive normalized half
 
-#define HALF_MAX	65504.0f	// Largest positive half
+  #define HALF_MAX	65504.0f	// Largest positive half
 
-#define HALF_EPSILON	0.00097656f	// Smallest positive e for which
+  #define HALF_EPSILON	0.00097656f	// Smallest positive e for which
 					// half (1.0 + e) != half (1.0)
 #else
 
-#define HALF_MIN	5.96046448e-08	// Smallest positive half
+  #define HALF_MIN	5.96046448e-08	// Smallest positive half
 
-#define HALF_NRM_MIN	6.10351562e-05	// Smallest positive normalized half
+  #define HALF_NRM_MIN	6.10351562e-05	// Smallest positive normalized half
 
-#define HALF_MAX	65504.0		// Largest positive half
+  #define HALF_MAX	65504.0		// Largest positive half
 
-#define HALF_EPSILON	0.00097656	// Smallest positive e for which
+  #define HALF_EPSILON	0.00097656	// Smallest positive e for which
 					// half (1.0 + e) != half (1.0)
 #endif
 
@@ -463,7 +463,7 @@ half::half (float f)
 	//
 	// For the most common case, where a normalized half is produced,
 	// the table lookup returns a non-zero value; in this case, all
-	// we have to do, is round f's significand to 10 bits and combine
+	// we have to do is round f's significand to 10 bits and combine
 	// the result with e.
 	//
 	// For all other cases (overflow, zeroes, denormalized numbers
