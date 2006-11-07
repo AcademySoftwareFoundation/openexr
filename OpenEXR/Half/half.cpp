@@ -118,10 +118,10 @@ half::convert (int i)
 	    // less than HALF_MIN (f may be a small normalized
 	    // float, a denormalized float or a zero).
 	    //
-	    // We convert f to a half zero.
+	    // We convert f to a half zero with the same sign as f.
 	    //
 
-	    return 0;
+	    return s;
 	}
 
 	//
