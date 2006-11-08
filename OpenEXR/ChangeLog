@@ -1,3 +1,6 @@
+	* float-to-half conversion now preserves the sign of float zeroes
+	  and of floats that are so small that they become half zeroes.
+	  (Florian Kainz)
 	* Bug fix: Imath::Frustum<T>::planes() returns incorrect planes
 	  if the frustum is orthogonal.
 	  (Philip Hubbard)
