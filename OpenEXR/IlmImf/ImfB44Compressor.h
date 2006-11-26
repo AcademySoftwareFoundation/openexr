@@ -38,7 +38,7 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class B44Compressor -- lossy 3:1 compression of 4x4 pixel blocks
+//	class B44Compressor -- lossy compression of 4x4 pixel blocks
 //
 //-----------------------------------------------------------------------------
 
