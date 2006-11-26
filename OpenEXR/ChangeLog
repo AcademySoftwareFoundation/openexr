@@ -26,7 +26,7 @@
 	  to the display's RGB space.
 	  (Florian Kainz)
 	* Added new lossy B44 compression method.  HALF channels are
-	  compressed with a fixed ratio of 2.66:1.  UINT and FLOAT
+	  compressed with a fixed ratio of 2.28:1.  UINT and FLOAT
 	  channels are stored verbatim, without compression.
 	  (Florian Kainz)
 

@@ -38,26 +38,55 @@
 //	class B44Compressor
 //
 //	This compressor is lossy for HALF channels; the compression rate
-//	is fixed at 32/16 (approximately 2.6).  FLOAT and UINT channels
+//	is fixed at 32/14 (approximately 2.28).  FLOAT and UINT channels
 //	not compressed; their data are preserved exactly.
 //
 //	Each HALF channel is split into blocks of 4 by 4 pixels.  An
 //	uncompressed block occupies 32 bytes, which are re-interpreted
-//	as sixteen 16-bit unsigned integers, s[0] ... s[15].  Compression
-//	shrinks the block to 12 bytes.  The compressed 12-byte block
+//	as sixteen 16-bit unsigned integers, t[0] ... t[15].  Compression
+//	shrinks the block to 14 bytes.  The compressed 14-byte block
 //	contains:
 //
-//	 - the maximum original pixel value, sMax, rounded to
-//	   12-bit precision
+//	 - the maximum integer pixel value, tMax
 //
-//	 - a 4-bit shift value, shift
+//	 - a 6-bit shift value
 //
-//	 - 16 densely packed 5-bit values, d[0] ... d[15], such
-//	   that pixel s[i] is approximately equal to
+//	 - 15 densely packed 6-bit values, r[0] ... r[14], which are
+//         computed by subtracting adjacent pixel values and right-shifting
+//	   the differences according to the stored shift value.
 //
-//		sMax - (d[i] << shift)
+//	   Differences are between adjacent pixels are computed according
+//	   to the following diagram:
 //
-//	This compressor can handle positive and negative pixel values,
+//		 0 -------->  1 -------->  2 -------->  3
+//               |     3            7           11
+//               |
+//               | 0
+//               |
+//               v 
+//		 4 -------->  5 -------->  6 -------->  7
+//               |     4            8           12
+//               |
+//               | 1
+//               |
+//               v
+//		 8 -------->  9 --------> 10 --------> 11
+//               |     5            9           13
+//               |
+//               | 2
+//               |
+//               v
+//		12 --------> 13 --------> 14 --------> 15
+//                     6           10           14
+//
+//	    In this diagram,
+//
+//               5 ---------> 6
+//                     8
+//
+//	    means that r[8] is the difference between t[5] and t[6].
+//
+//	This compressor can handle positive and negative pixel values.
 //	NaNs and infinities are replaced with zeroes before compression.
 //
 //-----------------------------------------------------------------------------
@@ -115,7 +144,7 @@ convertToLinear (unsigned short s[16])
 
 
 void
-pack (const unsigned short s[16], unsigned char b[12])
+pack (const unsigned short s[16], unsigned char b[14])
 {
     //
     // Integers s[0] ... s[15] represent floating-point numbers
@@ -169,7 +198,7 @@ pack (const unsigned short s[16], unsigned char b[12])
 	else
 	    t[i] = s[i] | 0x8000;
     }
-
+    
     //
     // Find the maximum, tMax, of t[0] ... t[15].
     //
@@ -181,107 +210,133 @@ pack (const unsigned short s[16], unsigned char b[12])
 	    tMax = t[i];
 
     //
-    // Round tMax to 12 bits.
-    // If tMax is very close to HALF_MAX, then it will be
-    // rounded up, producing a bit pattern that corresponds
-    // to a NaN or an infinity.  Replace those bit patterns
-    // with the one for HALF_MAX, rounded down to 12-bit
-    // precision.
+    // Compute a set of running differences, r[0] ... r[14]:
+    // Find a shift value such that after rounding off the
+    // rightmost bits and shifting each of the differenes
+    // is between -32 and +31.  Then bias the differences
+    // so that they end up between 0 and 63.
     //
 
-    tMax = ((tMax + 0x0008) & 0xfff0);
+    int shift = -1;
+    int d[16];
+    int r[15];
+    int rMin;
+    int rMax;
 
-    if (tMax > 0xfbf0)
-	tMax = 0xfbf0;
-
-    //
-    // For each t[i], compute the difference, d[i],
-    // between t[i] and tMax.  Clamp differences that
-    // are negative.  (Negative differences can occur
-    // because tMax has been rounded.)
-    //
-    // Find the maximum, dMax, of d[0] ... d[15].
-    //
-
-    unsigned short d[16];
-    unsigned short dMax = 0;
-
-    for (int i = 0; i < 16; ++i)
+    do
     {
-	if (t[i] >= tMax)
-	{
-	    d[i] = 0;
-	}
-	else
-	{
-	    d[i] = tMax - t[i];
+	shift += 1;
 
-	    if (dMax < d[i])
-		dMax = d[i];
+	//
+	// Compute absolute differences, d[0] ... d[15],
+	// between tMax and t[0] ... t[15].
+	//
+	// Shift and round the absolute differences.
+	//
+
+	int h = (1 << shift) >> 1;
+
+	for (int i = 0; i < 16; ++i)
+	    d[i] = (tMax - t[i] + h) >> shift;
+
+	//
+	// Convert d[0] .. d[15] into running differences
+	//
+
+	int bias = 0x20;
+
+	r[ 0] = d[ 0] - d[ 4] + bias;
+	r[ 1] = d[ 4] - d[ 8] + bias;
+	r[ 2] = d[ 8] - d[12] + bias;
+
+	r[ 3] = d[ 0] - d[ 1] + bias;
+	r[ 4] = d[ 4] - d[ 5] + bias;
+	r[ 5] = d[ 8] - d[ 9] + bias;
+	r[ 6] = d[12] - d[13] + bias;
+
+	r[ 7] = d[ 1] - d[ 2] + bias;
+	r[ 8] = d[ 5] - d[ 6] + bias;
+	r[ 9] = d[ 9] - d[10] + bias;
+	r[10] = d[13] - d[14] + bias;
+
+	r[11] = d[ 2] - d[ 3] + bias;
+	r[12] = d[ 6] - d[ 7] + bias;
+	r[13] = d[10] - d[11] + bias;
+	r[14] = d[14] - d[15] + bias;
+
+	rMin = r[0];
+	rMax = r[0];
+
+	for (int i = 1; i < 15; ++i)
+	{
+	    if (rMin > r[i])
+		rMin = r[i];
+
+	    if (rMax < r[i])
+		rMax = r[i];
 	}
     }
+    while (rMin < 0 || rMax > 0x3f);
 
     //
-    // Round d[0] ... d[15] to five-bit precision.
-    // Clamp values above 0x1f.
+    // Adjust t[0] so that the pixel whose value is equal to tMax
+    // gets represented as accurately as possible.
     //
 
-    unsigned char shift = 1;
-
-    while ((dMax >> shift) > 0x1f)
-	++shift;
-
-    for (int i = 0; i < 16; ++i)
-    {
-	d[i] = (d[i] + (1 << (shift - 1))) >> shift;
-
-	if (d[i] > 0x1f)
-	    d[i] = 0x1f;
-    }
+    t[0] = tMax - (d[0] << shift);
 
     //
-    // Pack sMax and d[0] ... d[15] into 12 bytes.
+    // Pack t[0], shift and r[0] ... r[14] into 14 bytes:
     //
 
-    b[ 0] = (tMax >> 8);
-    b[ 1] = (tMax & 0xf0) | shift;
-    								// d         b
-    b[ 2] = (d[ 0] << 3) | (d[ 1] >> 2);			// 00000111  2
-    b[ 3] = (d[ 1] << 6) | (d[ 2] << 1) | (d[ 3] >> 4);		// 11222223  3
-    b[ 4] = (d[ 3] << 4) | (d[ 4] >> 1);			// 33334444  4
-    b[ 5] = (d[ 4] << 7) | (d[ 5] << 2) | (d[ 6] >> 3);		// 45555566  5
-    b[ 6] = (d[ 6] << 5) |  d[ 7];				// 66677777  6
-    b[ 7] = (d[ 8] << 3) | (d[ 9] >> 2);			// 88888999  7
-    b[ 8] = (d[ 9] << 6) | (d[10] << 1) | (d[11] >> 4);		// 99aaaaab  8
-    b[ 9] = (d[11] << 4) | (d[12] >> 1);			// bbbbcccc  9
-    b[10] = (d[12] << 7) | (d[13] << 2) | (d[14] >> 3);		// cdddddee 10
-    b[11] = (d[14] << 5) |  d[15];				// eeefffff 11
+    b[ 0] = (t[0] >> 8);
+    b[ 1] =  t[0];
+
+    b[ 2] = (unsigned char) ((shift << 2) | (r[ 0] >> 4));
+    b[ 3] = (unsigned char) ((r[ 0] << 4) | (r[ 1] >> 2));
+    b[ 4] = (unsigned char) ((r[ 1] << 6) |  r[ 2]      );
+
+    b[ 5] = (unsigned char) ((r[ 3] << 2) | (r[ 4] >> 4));
+    b[ 6] = (unsigned char) ((r[ 4] << 4) | (r[ 5] >> 2));
+    b[ 7] = (unsigned char) ((r[ 5] << 6) |  r[ 6]      );
+
+    b[ 8] = (unsigned char) ((r[ 7] << 2) | (r[ 8] >> 4));
+    b[ 9] = (unsigned char) ((r[ 8] << 4) | (r[ 9] >> 2));
+    b[10] = (unsigned char) ((r[ 9] << 6) |  r[10]      );
+
+    b[11] = (unsigned char) ((r[11] << 2) | (r[12] >> 4));
+    b[12] = (unsigned char) ((r[12] << 4) | (r[13] >> 2));
+    b[13] = (unsigned char) ((r[13] << 6) |  r[14]      );
 }
 
 
 inline
 void
-unpack (const unsigned char b[12], unsigned short s[16])
+unpack (const unsigned char b[14], unsigned short s[16])
 {
-    unsigned short sMax = (b[0] << 8) | (b[1] & 0xf0);
-    unsigned char shift = (b[1] & 0x0f);
+    s[ 0] = (b[0] << 8) | b[1];
 
-    s[ 0] = sMax -   ((b[ 2] >> 3)                         << shift);
-    s[ 1] = sMax - ((((b[ 2] << 2) | (b[ 3] >> 6)) & 0x1f) << shift);
-    s[ 2] = sMax -  (((b[ 3] >> 1)                 & 0x1f) << shift);
-    s[ 3] = sMax - ((((b[ 3] << 4) | (b[ 4] >> 4)) & 0x1f) << shift);
-    s[ 4] = sMax - ((((b[ 4] << 1) | (b[ 5] >> 7)) & 0x1f) << shift);
-    s[ 5] = sMax -  (((b[ 5] >> 2)                 & 0x1f) << shift);
-    s[ 6] = sMax - ((((b[ 5] << 3) | (b[ 6] >> 5)) & 0x1f) << shift);
-    s[ 7] = sMax -   ((b[ 6]                       & 0x1f) << shift);
-    s[ 8] = sMax -   ((b[ 7] >> 3)                         << shift);
-    s[ 9] = sMax - ((((b[ 7] << 2) | (b[ 8] >> 6)) & 0x1f) << shift);
-    s[10] = sMax -  (((b[ 8] >> 1)                 & 0x1f) << shift);
-    s[11] = sMax - ((((b[ 8] << 4) | (b[ 9] >> 4)) & 0x1f) << shift);
-    s[12] = sMax - ((((b[ 9] << 1) | (b[10] >> 7)) & 0x1f) << shift);
-    s[13] = sMax -  (((b[10] >> 2)                 & 0x1f) << shift);
-    s[14] = sMax - ((((b[10] << 3) | (b[11] >> 5)) & 0x1f) << shift);
-    s[15] = sMax -   ((b[11]                       & 0x1f) << shift);
+    unsigned short shift = (b[ 2] >> 2);
+    unsigned short bias = (0x20 << shift);
+
+    s[ 4] = s[ 0] + ((((b[ 2] << 4) | (b[ 3] >> 4)) & 0x3f) << shift) - bias;
+    s[ 8] = s[ 4] + ((((b[ 3] << 2) | (b[ 4] >> 6)) & 0x3f) << shift) - bias;
+    s[12] = s[ 8] +   ((b[ 4]                       & 0x3f) << shift) - bias;
+    
+    s[ 1] = s[ 0] +   ((b[ 5] >> 2)                         << shift) - bias;
+    s[ 5] = s[ 4] + ((((b[ 5] << 4) | (b[ 6] >> 4)) & 0x3f) << shift) - bias;
+    s[ 9] = s[ 8] + ((((b[ 6] << 2) | (b[ 7] >> 6)) & 0x3f) << shift) - bias;
+    s[13] = s[12] +   ((b[ 7]                       & 0x3f) << shift) - bias;
+    
+    s[ 2] = s[ 1] +   ((b[ 8] >> 2)                         << shift) - bias;
+    s[ 6] = s[ 5] + ((((b[ 8] << 4) | (b[ 9] >> 4)) & 0x3f) << shift) - bias;
+    s[10] = s[ 9] + ((((b[ 9] << 2) | (b[10] >> 6)) & 0x3f) << shift) - bias;
+    s[14] = s[13] +   ((b[10]                       & 0x3f) << shift) - bias;
+    
+    s[ 3] = s[ 2] +   ((b[11] >> 2)                         << shift) - bias;
+    s[ 7] = s[ 6] + ((((b[11] << 4) | (b[12] >> 4)) & 0x3f) << shift) - bias;
+    s[11] = s[10] + ((((b[12] << 2) | (b[13] >> 6)) & 0x3f) << shift) - bias;
+    s[15] = s[14] +   ((b[13]                       & 0x3f) << shift) - bias;
 
     for (int i = 0; i < 16; ++i)
     {
@@ -705,7 +760,7 @@ B44Compressor::compress (const char *inPtr,
 		    convertFromLinear (s);
 
 		pack (s, (unsigned char *) outEnd);
-		outEnd += 12;
+		outEnd += 14;
 	    }
 	}
     }
@@ -795,13 +850,13 @@ B44Compressor::uncompress (const char *inPtr,
 
 	    for (int x = 0; x < cd.nx; x += 4)
 	    {
-		if (inSize < 12)
+		if (inSize < 14)
 		    notEnoughData();
 
 		unsigned short s[16]; 
 		unpack ((const unsigned char *)inPtr, s);
-		inPtr += 12;
-		inSize -= 12;
+		inPtr += 14;
+		inSize -= 14;
 
 		if (cd.pLinear)
 		    convertToLinear (s);
