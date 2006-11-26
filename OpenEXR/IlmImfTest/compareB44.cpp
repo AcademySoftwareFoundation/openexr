@@ -97,41 +97,57 @@ withinB44ErrorBounds (const half A[4][4], const half B[4][4])
 	if (tMax < t[i])
 	    tMax = t[i];
 
-    tMax = ((tMax + 0x0008) & 0xfff0);
+    int shift = -1;
+    int d[16];
+    int r[15];
+    int rMin;
+    int rMax;
 
-    if (tMax > 0xfbf0)
-	tMax = 0xfbf0;
-
-    unsigned short d[16];
-    unsigned short dMax = 0;
-
-    for (int i = 0; i < 16; ++i)
+    do
     {
-	if (t[i] >= tMax)
-	{
-	    d[i] = 0;
-	}
-	else
-	{
-	    d[i] = tMax - t[i];
+	shift += 1;
 
-	    if (dMax < d[i])
-		dMax = d[i];
+	int h = (1 << shift) >> 1;
+
+	for (int i = 0; i < 16; ++i)
+	    d[i] = (tMax - t[i] + h) >> shift;
+
+	const int bias = 0x20;
+
+	r[ 0] = d[ 0] - d[ 4] + bias;
+	r[ 1] = d[ 4] - d[ 8] + bias;
+	r[ 2] = d[ 8] - d[12] + bias;
+
+	r[ 3] = d[ 0] - d[ 1] + bias;
+	r[ 4] = d[ 4] - d[ 5] + bias;
+	r[ 5] = d[ 8] - d[ 9] + bias;
+	r[ 6] = d[12] - d[13] + bias;
+
+	r[ 7] = d[ 1] - d[ 2] + bias;
+	r[ 8] = d[ 5] - d[ 6] + bias;
+	r[ 9] = d[ 9] - d[10] + bias;
+	r[10] = d[13] - d[14] + bias;
+
+	r[11] = d[ 2] - d[ 3] + bias;
+	r[12] = d[ 6] - d[ 7] + bias;
+	r[13] = d[10] - d[11] + bias;
+	r[14] = d[14] - d[15] + bias;
+
+	rMin = r[0];
+	rMax = r[0];
+
+	for (int i = 1; i < 15; ++i)
+	{
+	    if (rMin > r[i])
+		rMin = r[i];
+
+	    if (rMax < r[i])
+		rMax = r[i];
 	}
     }
+    while (rMin < 0 || rMax > 0x3f);
 
-    unsigned char shift = 1;
-
-    while ((dMax >> shift) > 0x1f)
-	++shift;
-
-    for (int i = 0; i < 16; ++i)
-    {
-	d[i] = (d[i] + (1 << (shift - 1))) >> shift;
-
-	if (d[i] > 0x1f)
-	    d[i] = 0x1f;
-    }
+    t[0] = tMax - (d[0] << shift);
 
     //
     // Now perform a "light" version of the decompression method.
@@ -139,9 +155,27 @@ withinB44ErrorBounds (const half A[4][4], const half B[4][4])
     //
 
     unsigned short A1[16];
+    const int bias = 0x20 << shift;
 
-    for (int i = 0; i < 16; ++i)
-	A1[i] = tMax - (d[i] << shift);
+    A1[ 0] =  t[ 0];
+    A1[ 4] = A1[ 0] + (r[ 0] << shift) - bias;
+    A1[ 8] = A1[ 4] + (r[ 1] << shift) - bias;
+    A1[12] = A1[ 8] + (r[ 2] << shift) - bias;
+
+    A1[ 1] = A1[ 0] + (r[ 3] << shift) - bias;
+    A1[ 5] = A1[ 4] + (r[ 4] << shift) - bias;
+    A1[ 9] = A1[ 8] + (r[ 5] << shift) - bias;
+    A1[13] = A1[12] + (r[ 6] << shift) - bias;
+
+    A1[ 2] = A1[ 1] + (r[ 7] << shift) - bias;
+    A1[ 6] = A1[ 5] + (r[ 8] << shift) - bias;
+    A1[10] = A1[ 9] + (r[ 9] << shift) - bias;
+    A1[14] = A1[13] + (r[10] << shift) - bias;
+
+    A1[ 3] = A1[ 2] + (r[11] << shift) - bias;
+    A1[ 7] = A1[ 6] + (r[12] << shift) - bias;
+    A1[11] = A1[10] + (r[13] << shift) - bias;
+    A1[15] = A1[14] + (r[14] << shift) - bias;
 
     //
     // Compare the result with B, allowing for an difference
