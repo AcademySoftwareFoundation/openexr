@@ -39,21 +39,21 @@
 //
 //	This compressor is lossy for HALF channels; the compression rate
 //	is fixed at 32/14 (approximately 2.28).  FLOAT and UINT channels
-//	not compressed; their data are preserved exactly.
+//	are not compressed; their data are preserved exactly.
 //
 //	Each HALF channel is split into blocks of 4 by 4 pixels.  An
 //	uncompressed block occupies 32 bytes, which are re-interpreted
 //	as sixteen 16-bit unsigned integers, t[0] ... t[15].  Compression
 //	shrinks the block to 14 bytes.  The compressed 14-byte block
-//	contains:
+//	contains
 //
-//	 - the maximum integer pixel value, tMax
+//	 - t[0]
 //
 //	 - a 6-bit shift value
 //
 //	 - 15 densely packed 6-bit values, r[0] ... r[14], which are
-//         computed by subtracting adjacent pixel values and right-shifting
-//	   the differences according to the stored shift value.
+//         computed by subtracting adjacent pixel values and right-
+//	   shifting the differences according to the stored shift value.
 //
 //	   Differences are between adjacent pixels are computed according
 //	   to the following diagram:
@@ -79,7 +79,7 @@
 //		12 --------> 13 --------> 14 --------> 15
 //                     6           10           14
 //
-//	    In this diagram,
+//	    Here
 //
 //               5 ---------> 6
 //                     8
@@ -212,9 +212,9 @@ pack (const unsigned short s[16], unsigned char b[14])
     //
     // Compute a set of running differences, r[0] ... r[14]:
     // Find a shift value such that after rounding off the
-    // rightmost bits and shifting each of the differenes
-    // is between -32 and +31.  Then bias the differences
-    // so that they end up between 0 and 63.
+    // rightmost bits and shifting all differenes are between
+    // -32 and +31.  Then bias the differences so that they
+    // end up between 0 and 63.
     //
 
     int shift = -1;
@@ -279,8 +279,8 @@ pack (const unsigned short s[16], unsigned char b[14])
     while (rMin < 0 || rMax > 0x3f);
 
     //
-    // Adjust t[0] so that the pixel whose value is equal to tMax
-    // gets represented as accurately as possible.
+    // Adjust t[0] so that the pixel whose value is equal
+    // to tMax gets represented as accurately as possible.
     //
 
     t[0] = tMax - (d[0] << shift);
