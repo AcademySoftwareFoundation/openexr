@@ -1,3 +1,14 @@
+	* OpenEXR is now split into three packages:
+	  - IlmBase contains the Half, Iex, IlmThread and Imath libraries,
+	    along with their confidence tests.
+	  - OpenEXR still contains the IlmImf library and its confidence
+	    tests, the OpenEXR programming examples, documentation and a
+	    couple of utility programs.
+	  - OpenEXR_Viewers contains the exrdisplay and playexr programs.
+	  (Andrew Kunz)
+	* added CTL support to exrdisplay, added new playexr program
+	  to play back moving image sequences directly from disk.
+	  (Florian Kainz)
 	* float-to-half conversion now preserves the sign of float zeroes
 	  and of floats that are so small that they become half zeroes.
 	  (Florian Kainz)
