@@ -10,6 +10,33 @@ using namespace std;
 
 namespace {
 
+bool
+equalBitPatterns (const char *b1, const char *b2)
+{
+    //
+    // Returns true if the characters in zero-terminated string b1
+    // are the same as the charaters in string b2, except for places
+    // where b1 or b2 contains an 'X'.  For example:
+    //
+    //	equalBitPatterns ("100", "100") returns true
+    //	equalBitPatterns ("100", "101") returns false
+    //	equalBitPatterns ("10X", "101") returns true
+    //	equalBitPatterns ("10X", "100") returns true
+    //
+
+    while (*b1 && *b2)
+    {
+	if (*b1 != *b2 && *b1 != 'X' && *b2 != 'X')
+	    return false;
+
+	++b1;
+	++b2;
+    }
+
+    return !(*b1 || *b2);
+}
+
+
 void
 testBits (float f, const char bh[19], const char bg[35])
 {
@@ -35,13 +62,13 @@ testBits (float f, const char bh[19], const char bg[35])
 	printBits (ch, h);
 	printBits (cg, g);
 
-	if (strcmp (ch, bh))
+	if (!equalBitPatterns (ch, bh))
 	{
 	    cout << "error: expected " << bh << ", got " << ch << endl;
 	    assert (false);
 	}
 
-	if (strcmp (cg, bg))
+	if (!equalBitPatterns (cg, bg))
 	{
 	    cout << "error: expected " << bg << ", got " << cg << endl;
 	    assert (false);
@@ -322,8 +349,8 @@ testBitPatterns()
 	      "1 00000 0000000010",
 	      "1 01101000 00000000000000000000000");
     testBits (-(HALF_MIN - HALF_MIN),
-	      "1 00000 0000000000",
-	      "1 00000000 00000000000000000000000");
+	      "X 00000 0000000000",
+	      "X 00000000 00000000000000000000000");
     testBits (-(HALF_MIN - HALF_MIN * 0.5),
 	      "1 00000 0000000001",
 	      "1 01100111 00000000000000000000000");
