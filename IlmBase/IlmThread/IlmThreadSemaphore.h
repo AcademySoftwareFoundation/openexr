@@ -42,7 +42,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "OpenEXRConfig.h"
+#include "IlmBaseConfig.h"
 
 #if defined _WIN32 || defined _WIN64
     #ifdef NOMINMAX
