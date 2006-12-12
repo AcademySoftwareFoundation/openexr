@@ -39,7 +39,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "OpenEXRConfig.h"
+#include "IlmBaseConfig.h"
 
 #if HAVE_PTHREAD
 
