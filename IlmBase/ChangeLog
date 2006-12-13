@@ -1,0 +1,4 @@
+Version 0.9.0:
+	* Initial release of this code as a separate library.
+	  Previously the libraries contained were part of version 1.4.0 of
+	  OpenEXR
