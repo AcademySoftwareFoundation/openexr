@@ -1,3 +1,7 @@
+Version 1.5.0:
+    - Separated some of the code into other libraries - IlmBase and
+      OpenEXR_Viewers - for easier integration with CTL.
+
 Version 1.4.0a:
     - Fix for Visual Studio .NET 2003 ReleaseDLL builds.
 

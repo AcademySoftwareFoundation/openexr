@@ -1,14 +1,15 @@
-	* OpenEXR is now split into three packages:
-	  - IlmBase contains the Half, Iex, IlmThread and Imath libraries,
-	    along with their confidence tests.
-	  - OpenEXR still contains the IlmImf library and its confidence
-	    tests, the OpenEXR programming examples, documentation and a
-	    couple of utility programs.
-	  - OpenEXR_Viewers contains the exrdisplay and playexr programs.
+Version 1.5.0:
+	* reorganized packaging of OpenEXR libraries to facilitate
+	  integration with CTL.  Now this library depends on the library
+	  IlmBase.  Some functionality has been moved into OpenEXR_Viewers,
+	  which depends on two other libraries, CTL and OpenEXR_CTL.
+
+	  Note: previously there were separate releases of
+	  OpenEXR-related plugins for Renderman, Shake and Photoshop.
+	  OpenEXR is supported natively by Rendermand and Photoshop, so
+	  these plugins will not be supported for this or future
+	  versions of OpenEXR.
 	  (Andrew Kunz)
-	* added CTL support to exrdisplay, added new playexr program
-	  to play back moving image sequences directly from disk.
-	  (Florian Kainz)
 	* float-to-half conversion now preserves the sign of float zeroes
 	  and of floats that are so small that they become half zeroes.
 	  (Florian Kainz)
@@ -37,7 +38,7 @@
 	  to the display's RGB space.
 	  (Florian Kainz)
 	* Added new lossy B44 compression method.  HALF channels are
-	  compressed with a fixed ratio of 2.28:1.  UINT and FLOAT
+	  compressed with a fixed ratio of 2.66:1.  UINT and FLOAT
 	  channels are stored verbatim, without compression.
 	  (Florian Kainz)
 
