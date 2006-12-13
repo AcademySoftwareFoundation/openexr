@@ -13,7 +13,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\..\..\..\Deploy\vc7\lib\Debug"
+			OutputDirectory="..\..\..\..\..\..\Deploy\vc7\lib\Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="2"
 			CharacterSet="2">
@@ -71,7 +71,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\..\..\..\Deploy\vc7\lib\Release"
+			OutputDirectory="..\..\..\..\..\..\Deploy\vc7\lib\Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="2"
 			CharacterSet="2">

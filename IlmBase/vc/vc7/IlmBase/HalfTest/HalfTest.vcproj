@@ -47,7 +47,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Running HalfTest unit tests..."
-				CommandLine="cd ..\..\..\..\..\Deploy\vc7\lib\$(IntDir)
+				CommandLine="cd ..\..\..\..\..\..\Deploy\vc7\lib\$(IntDir)
 $(TargetPath)"
 				ExcludedFromBuild="FALSE"/>
 			<Tool
@@ -101,7 +101,7 @@ $(TargetPath)"
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Running HalfTest unit tests..."
-				CommandLine="cd ..\..\..\..\..\Deploy\vc7\lib\$(IntDir)
+				CommandLine="cd ..\..\..\..\..\..\Deploy\vc7\lib\$(IntDir)
 $(TargetPath)"
 				ExcludedFromBuild="FALSE"/>
 			<Tool
