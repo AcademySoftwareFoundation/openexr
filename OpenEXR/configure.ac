@@ -1,8 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(OpenEXR, 1.4.0)
-AC_SUBST(OPENEXR_VERSION, 1.4.0)
+AC_INIT(OpenEXR, 1.5.0)
+AC_SUBST(OPENEXR_VERSION, 1.5.0)
 AC_CANONICAL_HOST
-AC_CONFIG_SRCDIR(ImathTest/main.cpp)
+AC_CONFIG_SRCDIR(IlmImfTest/main.cpp)
 AM_CONFIG_HEADER(config/OpenEXRConfig.h)
 AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
@@ -19,7 +19,7 @@ AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_CC
 AC_PROG_LN_S
-AM_PROG_LIBTOOL
+AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
 
 dnl
@@ -27,52 +27,34 @@ dnl PKGCONFIG preparations
 dnl
 
 if test -z "${PKG_CONFIG_PATH}"; then
-	PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
+	PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
 fi
 
 export PKG_CONFIG_PATH
 
 dnl
-dnl check for alternate OpenGL headers
-dnl
-AM_PATH_GL(,)
+dnl get ccflags and libs from openexr packages, then check 
+dnl whether test programs compile
+AM_PATH_PKGCONFIG(
+   [ILMBASE_CXXFLAGS],
+   [ILMBASE_LDFLAGS],
+   [IlmBase],
+   [OpenEXR],
+   [-lImath -lHalf -lIex -lIlmThread -L/usr/lib64/ -lpthread],
+   [ilmbase-prefix])
 
-dnl
-dnl check for FLTK
-dnl
-AM_PATH_FLTK(have_fltk=yes, have_fltk=no)
+AM_COMPILELINKRUN(
+   [IlmBase],
+   [ilmbasetest],
+   [$ILMBASE_CXXFLAGS],
+   [$ILMBASE_LDFLAGS],[[
+#include <stdlib.h>
+#include <ImathFun.h>
+]],
+   [[double d = Imath::succd(.23); d+= .2;]],
+   AC_MSG_RESULT([Compiled and ran IlmBase test program.]), 
+   AC_MSG_ERROR([Could not compile IlmBase test program.]))
 
-dnl
-dnl check for Cg
-dnl
-if test "${have_fltk}" = yes; then
-  AM_PATH_CG(have_cg=yes, have_cg=no)
-  if test "${have_cg}" = yes; then
-    AC_DEFINE(HAVE_FRAGMENT_SHADERS)
-  fi
-else have_cg=no
-fi
-
-dnl Checks for libraries.
-dnl --enable-threading
-AC_ARG_ENABLE(threading,
-              AC_HELP_STRING([--enable-threading],
-                             [enable multi-threading [[default=yes]]]),
-              [multithread="${enableval}"], [multithread=yes])
-
-if test "${multithread}" != no ; then
-    ACX_PTHREAD(
-    [
-	AC_DEFINE(HAVE_PTHREAD)
-	LIBS="$PTHREAD_LIBS $LIBS"
-	CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
-	CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
-	CC="$PTHREAD_CC"
-	
-	AM_POSIX_SEM()
-    ],
-    [AC_MSG_ERROR([POSIX thread support required])])
-fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -82,9 +64,6 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
-
-dnl Checks for library functions.
-AC_CHECK_FUNCS(strerror)
 
 dnl Checks for zlib
 AC_CHECK_LIB(z, compress,
@@ -166,29 +145,19 @@ AC_ARG_ENABLE(imfexamples,
 			     [build IlmImf example program [[default=no]]]),
 	      [build_imfexamples="${enableval}"], [build_imfexamples=no])
 
-AM_CONDITIONAL(HAVE_FLTK, test "x$have_fltk" = xyes)
-AM_CONDITIONAL(HAVE_CG, test "x$have_cg" = xyes)
 AM_CONDITIONAL(BUILD_IMFEXAMPLES, test "x$build_imfexamples" = xyes)
+
 
 AC_OUTPUT([
 Makefile
 OpenEXR.pc
 config/Makefile
-Half/Makefile
-HalfTest/Makefile
-Iex/Makefile
-IexTest/Makefile
 IlmImf/Makefile
 IlmImfTest/Makefile
-IlmThread/Makefile
-Imath/Makefile
-ImathTest/Makefile
-exrdisplay/Makefile
 exrheader/Makefile
 exrmaketiled/Makefile
 IlmImfExamples/Makefile
 doc/Makefile
-vc/Makefile
 exrstdattr/Makefile
 exrmakepreview/Makefile
 exrenvmap/Makefile
@@ -199,8 +168,6 @@ if test "x$build_osxuniversal" = xyes; then
 ---------------------------------------------
 Summary for OpenEXR features:
 
-build exrdisplay FLTK application		$have_fltk
-    with fragment shader support		$have_cg
 build IlmImf example program                    $build_imfexamples
 build OS X universal binaries                   $build_osxuniversal
 ---------------------------------------------
@@ -210,8 +177,6 @@ else
 ---------------------------------------------
 Summary for OpenEXR features:
 
-build exrdisplay FLTK application		$have_fltk
-    with fragment shader support		$have_cg
 build IlmImf example program                    $build_imfexamples
 ---------------------------------------------
   ])

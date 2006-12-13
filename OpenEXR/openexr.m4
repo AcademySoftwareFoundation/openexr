@@ -12,8 +12,9 @@
 # PARTICULAR PURPOSE.
 
 dnl
-dnl OpenEXR
-dnl
+dnl OpenEXR - used to check whether OpenEXR is properly installed
+dnl This macro is provided with the OpenEXR library for use by autoconf for 
+dnl other packages that require OpenEXR
 
 AC_DEFUN([AM_PATH_OPENEXR],
 [dnl 
