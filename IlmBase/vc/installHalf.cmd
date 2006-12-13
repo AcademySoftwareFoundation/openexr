@@ -1,9 +1,9 @@
 @echo off
 set src=..\..\..\..\Half
 cd %src%
-set deploypath=..\..\Deploy
+set deploypath=..\..\..\Deploy
 mkdir %deploypath%
-set instpath=..\..\Deploy\include
+set instpath=..\..\..\Deploy\include
 mkdir %instpath%
 
 copy half.h %instpath%
