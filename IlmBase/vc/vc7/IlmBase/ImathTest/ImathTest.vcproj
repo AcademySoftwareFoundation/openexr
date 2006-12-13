@@ -46,7 +46,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Running Imath unit tests..."
-				CommandLine="cd ..\..\..\..\..\Deploy\vc7\lib\$(IntDir)
+				CommandLine="cd ..\..\..\..\..\..\Deploy\vc7\lib\$(IntDir)
 $(TargetPath)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -99,7 +99,7 @@ $(TargetPath)"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Running Imath unit tests..."
-				CommandLine="cd ..\..\..\..\..\Deploy\vc7\lib\$(IntDir)
+				CommandLine="cd ..\..\..\..\..\..\Deploy\vc7\lib\$(IntDir)
 $(TargetPath)
 "/>
 			<Tool
