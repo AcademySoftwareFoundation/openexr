@@ -58,9 +58,10 @@ libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 		       ImfPxr24Compressor.cpp ImfPxr24Compressor.h \
 		       ImfTestFile.cpp ImfTestFile.h ImfThreading.h
 
-libIlmImf_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ -no-undefined
-libIlmImf_la_LIBADD =  ../Half/libHalf.la ../Iex/libIex.la ../IlmThread/libIlmThread.la \
-		       -lz
+libIlmImf_la_LDFLAGS = @ILMBASE_LDFLAGS@ -version-info @LIBTOOL_VERSION@ \
+			-no-undefined
+
+libIlmImf_la_LIBADD =  -lz
 
 libIlmImfincludedir = $(includedir)/OpenEXR
 
@@ -102,14 +103,14 @@ noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
 
 EXTRA_DIST = $(noinst_HEADERS) b44ExpLogTable.cpp
 
-INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Half -I$(top_srcdir)/Iex \
-	   -I$(top_srcdir)/Imath -I$(top_srcdir)/IlmThread \
+INCLUDES = @ILMBASE_CXXFLAGS@ \
+	   -I$(top_builddir)  \
 	   -I$(top_srcdir)/config
 
 CLEANFILES = b44ExpLogTable b44ExpLogTable.h
 
 b44ExpLogTable_SOURCES = b44ExpLogTable.cpp
-b44ExpLogTable_LDADD = -lHalf
+b44ExpLogTable_LDADD = @ILMBASE_LDFLAGS@
 
 b44ExpLogTable.h: b44ExpLogTable
 	./b44ExpLogTable > b44ExpLogTable.h
