@@ -1,5 +1,4 @@
 EXTRA_DIST = ReadingAndWritingImageFiles.pdf TechnicalIntroduction.pdf
 
-DOC_DIR=$(datadir)/doc/OpenEXR
-
-
+docdir=$(datadir)/doc/OpenEXR-@OPENEXR_VERSION@
+doc_DATA = $(EXTRA_DIST)

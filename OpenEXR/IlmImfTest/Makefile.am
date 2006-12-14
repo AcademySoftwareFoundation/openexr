@@ -29,18 +29,18 @@ IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
 
 IlmImfTest_CPPFLAGS = -DILM_IMF_TEST_IMAGEDIR=\"$(srcdir)/\" $(AM_CPPFLAGS)
 
-INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Half -I$(top_srcdir)/Iex \
-	   -I$(top_srcdir)/Imath -I$(top_srcdir)/IlmImf \
-	   -I$(top_srcdir)/IlmThread -I$(top_srcdir)/config
+INCLUDES = @ILMBASE_CXXFLAGS@ \
+	   -I$(top_builddir)  \
+	   -I$(top_srcdir)/IlmImf \
+	   -I$(top_srcdir)/config
 
-LDADD = -L$(top_builddir)/Iex -L$(top_builddir)/Half \
-	-L$(top_builddir)/Imath -L$(top_builddir)/IlmThread \
+LDADD = @ILMBASE_LDFLAGS@ \
 	-L$(top_builddir)/IlmImf \
-	-lIlmImf -lIlmThread -lImath -lIex -lHalf -lz
+	-lIlmImf -lz
 
 TESTS = IlmImfTest
 
 EXTRA_DIST = comp_none.exr comp_piz.exr comp_rle.exr comp_zip.exr \
 	     comp_zips.exr lineOrder_decreasing.exr lineOrder_increasing.exr \
 	     test_native1.exr test_native2.exr invalid.exr \
-	     tiled.exr
+	     tiled.exr comp_b44.exr comp_b44_piz.exr
