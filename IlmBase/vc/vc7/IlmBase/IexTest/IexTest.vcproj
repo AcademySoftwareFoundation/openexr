@@ -46,8 +46,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Running Iex unit tests..."
-				CommandLine="cd ..\..\..\..\..\..\Deploy\vc7\lib\$(IntDir)
-$(TargetPath)"/>
+				CommandLine="$(TargetPath)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -99,8 +98,7 @@ $(TargetPath)"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Running Iex unit tests..."
-				CommandLine="cd ..\..\..\..\..\..\Deploy\vc7\lib\$(IntDir)
-$(TargetPath)"/>
+				CommandLine="$(TargetPath)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
