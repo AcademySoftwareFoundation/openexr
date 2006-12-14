@@ -345,6 +345,15 @@ ctlToLut (vector<string> transformNames,
 
     SimdInterpreter interpreter;
 
+#ifdef CTL_MODULE_BASE_PATH
+    //
+    // If the configuration sends us a path, include it in the 
+    // module paths searched by the interpreter.
+    vector<string> paths = interpreter.modulePaths();
+    paths.push_back(CTL_MODULE_BASE_PATH);
+    interpreter.setModulePaths(paths);
+#endif
+
     ImfCtl::applyTransforms (interpreter,
 			     transformNames,
 			     Box2i (V2i (0, 0), V2i (lutSize / 4, 0)),

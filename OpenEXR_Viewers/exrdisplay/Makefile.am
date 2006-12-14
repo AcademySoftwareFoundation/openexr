@@ -1,0 +1,45 @@
+## Process this file with automake to produce Makefile.in
+
+if HAVE_FLTK
+
+bin_PROGRAMS = exrdisplay
+
+INCLUDES = @GL_CXXFLAGS@ @CG_CXXFLAGS@ @FLTK_CXXFLAGS@ -I$(top_builddir) \
+	@OPENEXR_CXXFLAGS@ \
+	@OPENEXR_CTL_CXXFLAGS@
+
+LDADD = @CG_LDFLAGS@ @FLTK_LDFLAGS@ \
+	@OPENEXR_LDFLAGS@ \
+	@OPENEXR_CTL_LDFLAGS@
+
+install-exec-hook:
+	@FLTK_CONFIG@ --post $(DESTDIR)$(bindir)/exrdisplay
+
+else
+install-exec-hook:
+
+endif
+
+
+exrdisplay_SOURCES = \
+	main.cpp \
+	ImageView.cpp \
+	ImageView.h \
+	loadImage.cpp \
+	loadImage.h \
+	scaleImage.cpp \
+	scaleImage.h \
+	applyCtl.cpp \
+	applyCtl.h
+
+noinst_HEADERS =  \
+	ImageView.h \
+	loadImage.h \
+	scaleImage.h \
+	applyCtl.h
+
+EXTRA_DIST = $(exrdisplay_SOURCES)
+
+
+
+
