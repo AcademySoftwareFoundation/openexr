@@ -131,7 +131,6 @@ HalfTest/Makefile
 Iex/Makefile
 IexTest/Makefile
 IlmThread/Makefile
-IlmThreadTest/Makefile
 Imath/Makefile
 ImathTest/Makefile
 ])

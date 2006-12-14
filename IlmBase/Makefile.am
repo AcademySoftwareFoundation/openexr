@@ -6,7 +6,7 @@ SUBDIRS = \
 	Half HalfTest \
 	Iex IexTest \
 	Imath ImathTest \
-	IlmThread IlmThreadTest \
+	IlmThread \
 	config
 
 EXTRA_DIST = \
