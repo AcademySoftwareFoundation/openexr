@@ -368,6 +368,17 @@ applyCtl (vector<string> transformNames,
     Box2i transformWindow (V2i (0, 0), V2i (w - 1, h - 1));
 
     SimdInterpreter interpreter;
+
+#ifdef CTL_MODULE_BASE_PATH
+
+    //
+    // If the configuration sends us a path, include it in the 
+    // module paths searched by the interpreter.
+    vector<string> paths = interpreter.modulePaths();
+    paths.push_back(CTL_MODULE_BASE_PATH);
+    interpreter.setModulePaths(paths);
+#endif
+
     Header outHeader;
 
     ImfCtl::applyTransforms (interpreter,
