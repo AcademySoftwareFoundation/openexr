@@ -13,7 +13,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\..\..\..\..\Deploy\vc7\lib\Debug"
+			OutputDirectory="..\Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="2"
 			CharacterSet="2">
@@ -49,7 +49,7 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Half.map -l$(IntDir) -i$(OutDir)\Half.lib &amp;&amp; ..\..\..\installHalf.cmd"/>
+				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Half.map -l$(IntDir) -i$(OutDir)\Half.lib &amp;&amp; ..\..\..\installHalf.cmd $(IntDir)"/>
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Building LUT files..."
@@ -71,7 +71,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\..\..\..\..\Deploy\vc7\lib\Release"
+			OutputDirectory="..\Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="2"
 			CharacterSet="2">
@@ -105,7 +105,7 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Half.map -l$(IntDir) -i$(OutDir)\Half.lib &amp;&amp; ..\..\..\installHalf.cmd"/>
+				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Half.map -l$(IntDir) -i$(OutDir)\Half.lib &amp;&amp; ..\..\..\installHalf.cmd $(IntDir)"/>
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Building LUT files..."
