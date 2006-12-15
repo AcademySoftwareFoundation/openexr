@@ -133,6 +133,7 @@ IexTest/Makefile
 IlmThread/Makefile
 Imath/Makefile
 ImathTest/Makefile
+vc/Makefile
 ])
 
 if test "x$build_osxuniversal" = xyes; then
