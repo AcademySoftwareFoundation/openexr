@@ -1,2 +1,9 @@
 Version 0.9.0:
-	* intial limited release
+	* Initial release of this code as a separate package.
+	  Previously the exrdisplay contained іn this package
+	  was part of version 1.4.0 of OpenEXR.  The playexr
+	  program is new.
+	* New build scripts for Linux/Unix
+	  (Andrew Kunz)
+	* New Windows project files and build scripts
+	  (Kimball Thurston)
