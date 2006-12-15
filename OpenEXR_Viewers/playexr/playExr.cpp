@@ -55,7 +55,11 @@
 //
 //----------------------------------------------------------------------------
 
-#define GL_GLEXT_PROTOTYPES
+#ifdef WIN32
+    #include <GL/glew.h>
+#else
+	#define GL_GLEXT_PROTOTYPES
+#endif
 
 #include <playExr.h>
 #include <ctlToLut.h>
@@ -461,7 +465,7 @@ initShaderLuminanceChroma
     cgSetParameter3f (ywParam, yWeights.x, yWeights.y, yWeights.z);
 
     CGparameter emParam = cgGetNamedParameter (cgProgram, "expMult");
-    cgSetParameter1f (emParam, pow (2, exposure));
+    cgSetParameter1f (emParam, pow (2.0f, exposure));
 
     CGparameter vgParam = cgGetNamedParameter (cgProgram, "videoGamma");
     cgSetParameter1f (vgParam, displayVideoGamma());
@@ -554,7 +558,7 @@ initShaderRgb
     cgGLEnableProfile (cgProfile);
 
     CGparameter emParam = cgGetNamedParameter (cgProgram, "expMult");
-    cgSetParameter1f (emParam, pow (2, exposure));
+    cgSetParameter1f (emParam, pow (2.0f, exposure));
 
     CGparameter vgParam = cgGetNamedParameter (cgProgram, "videoGamma");
     cgSetParameter1f (vgParam, displayVideoGamma());
@@ -1154,7 +1158,7 @@ handleKeypress (unsigned char key, int, int)
 	    exposure -= 1;
 
 	CGparameter emParam = cgGetNamedParameter (cgProgram, "expMult");
-	cgSetParameter1f (emParam, pow (2, exposure));
+	cgSetParameter1f (emParam, pow (2.0f, exposure));
 	glutPostRedisplay();
     }
 
@@ -1359,6 +1363,18 @@ playExr (const char fileNameTemplate[],
 		"fragment shaders and the Cg shading language." << endl;
 	exit (1);
     }
+
+#ifdef WIN32
+
+    GLenum err = glewInit();
+
+    if (GLEW_OK != err)
+    {
+	cerr << "Cannot initialize glew: " << glewGetErrorString (err) << endl;
+	exit (1);
+    }
+
+#endif
 
     //
     // Initialize textures and Cg shaders

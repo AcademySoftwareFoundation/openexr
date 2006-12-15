@@ -217,7 +217,7 @@ main(int argc, char **argv)
 	    if (i > argc - 2)
 		usageMessage (argv[0]);
 
-	    fps = strtof (argv[i + 1], 0);
+	    fps = strtod (argv[i + 1], 0);
 
 	    if (fps < 1 || fps > 1000)
 	    {

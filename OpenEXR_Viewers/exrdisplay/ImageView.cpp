@@ -45,21 +45,18 @@
 #include <ImathFun.h>
 #include <halfFunction.h>
 #include <algorithm>
-#include <FL/Fl.H>
 #include <stdio.h>
 
-#if defined PLATFORM_WINDOWS
-#ifdef WIN32
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#endif
-#include <windows.h>
-#include <GL/gl.h>
+#if defined PLATFORM_WINDOWS || defined _WIN32
+    #include <windows.h>
+    #include <FL/Fl.H>
+    #include <GL/gl.h>
 #elif defined PLATFORM_DARWIN_PPC
-#include <OpenGL/gl.h>
+    #include <FL/Fl.H>
+    #include <OpenGL/gl.h>
 #else
-#include <GL/gl.h>
+    #include <FL/Fl.H>
+    #include <GL/gl.h>
 #endif
 
 using std::min;

@@ -369,15 +369,19 @@ applyCtl (vector<string> transformNames,
 
     SimdInterpreter interpreter;
 
-#ifdef CTL_MODULE_BASE_PATH
+    #ifdef CTL_MODULE_BASE_PATH
 
-    //
-    // If the configuration sends us a path, include it in the 
-    // module paths searched by the interpreter.
-    vector<string> paths = interpreter.modulePaths();
-    paths.push_back(CTL_MODULE_BASE_PATH);
-    interpreter.setModulePaths(paths);
-#endif
+	//
+	// The configuration scripts has defined a default
+	// location for CTL modules.  Include this location
+	// in the CTL module search path.
+	//
+
+	vector<string> paths = interpreter.modulePaths();
+	paths.push_back (CTL_MODULE_BASE_PATH);
+	interpreter.setModulePaths (paths);
+
+    #endif
 
     Header outHeader;
 
