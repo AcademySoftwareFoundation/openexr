@@ -220,6 +220,7 @@ config/Makefile
 exrdisplay/Makefile
 playexr/Makefile
 doc/Makefile
+vc/Makefile
 ])
 
 if test "x$build_osxuniversal" = xyes; then
