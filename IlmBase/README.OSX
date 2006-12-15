@@ -5,19 +5,9 @@ Building IlmBase on MacOS X is just like building it on GNU/Linux.
 Follow the instructions in the README file under BUILDLING ILMBASE,
 but see below re: shared libraries.
 
-This release of IlmBase has only been tested on OS X 10.4 (Tiger), but
-it should also work on 10.3 (Panther).  Versions of OS X earlier than
-10.3 are no longer supported.
-
 On OS X 10.4, you can build universal binaries by passing
 '--enable-osx-universal-binaries --disable-dependency-tracking' to the
 configure script.  The default is *not* to build universal binaries.
-
-
-Known bugs
-----------
-
-None.
 
 
 Shared libraries
