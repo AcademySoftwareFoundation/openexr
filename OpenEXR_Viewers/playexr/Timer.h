@@ -41,8 +41,11 @@
 //
 //----------------------------------------------------------------------------
 
-#include <sys/time.h>
-
+#ifdef _WIN32
+    #include <windows.h>
+#else
+    #include <sys/time.h>
+#endif
 
 enum PlayState
 {
