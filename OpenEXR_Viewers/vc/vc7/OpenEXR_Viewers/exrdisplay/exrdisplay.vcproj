@@ -36,13 +36,13 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\..\..\..\..\fltk\lib\fltk.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmImf.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib opengl32.lib wsock32.lib"
+				AdditionalDependencies="..\..\..\..\..\..\fltk\lib\fltk.lib ..\..\..\..\..\..\fltk\lib\fltkgl.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmImf.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib opengl32.lib wsock32.lib"
 				OutputFile="$(OutDir)/exrdisplay.exe"
 				LinkIncremental="2"
 				IgnoreAllDefaultLibraries="FALSE"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/exrdisplay.pdb"
-				SubSystem="2"
+				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -88,11 +88,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\..\..\..\..\fltk\lib\fltk.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmImf.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib opengl32.lib wsock32.lib"
+				AdditionalDependencies="..\..\..\..\..\..\fltk\lib\fltk.lib ..\..\..\..\..\..\fltk\lib\fltkgl.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmImf.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib opengl32.lib wsock32.lib"
 				OutputFile="$(OutDir)/exrdisplay.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
-				SubSystem="2"
+				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"/>
