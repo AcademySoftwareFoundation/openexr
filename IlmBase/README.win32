@@ -1,10 +1,10 @@
-OpenEXR is one of five software packages that were designed to work
+IlmBase is one of five software packages that were designed to work
 together: IlmBase, OpenEXR, OpenEXR_Viewers, CTL and OpenEXR_CTL.
-You may only be interested in OpenEXR or you may want to build it
-together wth the other packages.
+You may want to build Imath by itself, or together with one or more
+of the other packages.
 
 What follows are instructions for building all five packages.
-If you are only interested in OpenEXR, stop after step 2.
+If you want to build only IlmBase, stop after step 1.
 
 A couple of notes before getting started:
 
@@ -184,4 +184,3 @@ At this point, the Deploy folder should be fully built out and ready
 to be used.  Both exrdisplay and playexr are meant to be launched from
 the command line, as they originated as unix commands, so open a command
 prompt, cd to the Deploy\bin\Release folder and enjoy.
-

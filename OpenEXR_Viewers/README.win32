@@ -1,10 +1,10 @@
-OpenEXR is one of five software packages that were designed to work
-together: IlmBase, OpenEXR, OpenEXR_Viewers, CTL and OpenEXR_CTL.
-You may only be interested in OpenEXR or you may want to build it
-together wth the other packages.
+OpenEXR_Viewers is one of five software packages that were designed to
+work together: IlmBase, OpenEXR, OpenEXR_Viewers, CTL and OpenEXR_CTL.
+OpenEXR_Viewers contains two OpenEXR image viewing programs that can
+be built with or without support for color rendering via CTL.
 
-What follows are instructions for building all five packages.
-If you are only interested in OpenEXR, stop after step 2.
+What follows are instructions for building OpenEXR_Viewers with CTL
+support.  To build without CTL support, skip steps 3 and 4.
 
 A couple of notes before getting started:
 
@@ -184,4 +184,3 @@ At this point, the Deploy folder should be fully built out and ready
 to be used.  Both exrdisplay and playexr are meant to be launched from
 the command line, as they originated as unix commands, so open a command
 prompt, cd to the Deploy\bin\Release folder and enjoy.
-
