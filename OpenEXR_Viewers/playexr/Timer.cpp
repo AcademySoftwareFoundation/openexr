@@ -39,9 +39,29 @@
 //----------------------------------------------------------------------------
 
 #include <Timer.h>
-
 #include <time.h>
-#include <sys/time.h>
+
+#ifdef _WIN32
+
+    #include <windows.h>
+
+    static int
+    gettimeofday (struct timeval *tv, void *tz)
+    {
+	union
+	{
+	    ULONGLONG ns100;  // time since 1 Jan 1601 in 100ns units
+	    FILETIME ft;
+	} now;
+    
+	GetSystemTimeAsFileTime (&now.ft);
+	tv->tv_usec = long ((now.ns100 / 10LL) % 1000000LL);
+	tv->tv_sec = long ((now.ns100 - 116444736000000000LL) / 10000000LL);
+
+	return 0;
+    } 
+
+#endif
 
 
 Timer::Timer ():
@@ -86,13 +106,22 @@ Timer::waitUntilNextFrameIsDue ()
 
     float timeToSleep = _spf - timeSinceLastFrame - _timingError;
 
-    if (timeToSleep > 0)
-    {
-	timespec ts;
-	ts.tv_sec = (time_t) timeToSleep;
-	ts.tv_nsec = (long) ((timeToSleep - ts.tv_sec) * 1e9f);
-	nanosleep (&ts, 0);
-    }
+    #ifdef _WIN32
+
+	if (timeToSleep > 0)
+	    Sleep (int (timeToSleep * 1000.0f));
+
+    #else
+
+	if (timeToSleep > 0)
+	{
+	    timespec ts;
+	    ts.tv_sec = (time_t) timeToSleep;
+	    ts.tv_nsec = (long) ((timeToSleep - ts.tv_sec) * 1e9f);
+	    nanosleep (&ts, 0);
+	}
+
+    #endif
 
     //
     // If we slept, it is possible that we woke up a little too early

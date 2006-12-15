@@ -723,8 +723,8 @@ main(int argc, char **argv)
 
 	mainWindow->window->show (1, argv);
 
-	Fl::set_color (FL_BACKGROUND_COLOR, 80, 80, 80);
-	Fl::set_color (FL_BACKGROUND2_COLOR, 80, 80, 80);
+	Fl::set_color (FL_GRAY,  80, 80, 80);
+	Fl::set_color (FL_GRAY0, 80, 80, 80);
 
 	exitStatus = Fl::run();
     }
