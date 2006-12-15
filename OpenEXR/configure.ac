@@ -161,6 +161,7 @@ doc/Makefile
 exrstdattr/Makefile
 exrmakepreview/Makefile
 exrenvmap/Makefile
+vc/Makefile
 ])
 
 if test "x$build_osxuniversal" = xyes; then

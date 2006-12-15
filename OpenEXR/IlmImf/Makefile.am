@@ -94,14 +94,15 @@ libIlmImfinclude_HEADERS = ImfAttribute.h ImfBoxAttribute.h \
 		           ImfTiledInputFile.h \
 		           ImfTiledOutputFile.h ImfTiledRgbaFile.h \
 			   ImfRgbaYca.h \
-			   ImfTestFile.h ImfThreading.h
+			   ImfTestFile.h ImfThreading.h \
+			   ImfB44Compressor.h
 
 noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
 		 ImfPizCompressor.h ImfMisc.h ImfAutoArray.h ImfTiledMisc.h \
-		 ImfTileOffsets.h ImfScanLineInputFile.h ImfPxr24Compressor.h \
-		 ImfB44Compressor.h
+		 ImfTileOffsets.h ImfScanLineInputFile.h ImfPxr24Compressor.h
 
-EXTRA_DIST = $(noinst_HEADERS) b44ExpLogTable.cpp
+EXTRA_DIST = $(noinst_HEADERS) b44ExpLogTable.cpp b44ExpLogTable.h
+
 
 INCLUDES = @ILMBASE_CXXFLAGS@ \
 	   -I$(top_builddir)  \

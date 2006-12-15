@@ -8,10 +8,15 @@ SUBDIRS = config IlmImf \
 	  IlmImfTest exrheader exrmaketiled IlmImfExamples doc \
 	  exrstdattr exrmakepreview exrenvmap
 
+DIST_SUBDIRS = \
+	$(SUBDIRS) \
+	vc
+
 EXTRA_DIST = \
 	AUTHORS COPYING ChangeLog INSTALL LICENSE NEWS \
-        README README.CVS README.OSX bootstrap \
-	openexr.m4
+        README README.CVS README.OSX bootstrap README.win32 \
+	openexr.m4 \
+	config.windows/OpenEXRConfig.h
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = OpenEXR.pc
