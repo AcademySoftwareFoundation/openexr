@@ -53,7 +53,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Building LUT files..."
-				CommandLine="..\..\..\buildLUTs.cmd"/>
+				CommandLine="..\..\..\buildLUTs.cmd Debug"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
