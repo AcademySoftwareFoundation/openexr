@@ -9,9 +9,16 @@ SUBDIRS = \
 	IlmThread \
 	config
 
+DIST_SUBDIRS = \
+	$(SUBDIRS) \
+	vc
+
+
 EXTRA_DIST = \
 	AUTHORS COPYING ChangeLog INSTALL LICENSE NEWS \
-        README README.CVS README.OSX bootstrap
+        README README.CVS README.OSX bootstrap \
+	config.windows/IlmBaseConfig.h
+
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = IlmBase.pc
