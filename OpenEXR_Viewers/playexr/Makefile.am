@@ -34,8 +34,7 @@ playexr_SOURCES = \
 	Timer.cpp \
 	Timer.h \
 	ctlToLut.cpp \
-	ctlToLut.h \
-	ctlConfig.h
+	ctlToLut.h
 
 else
 install-exec-hook:
@@ -48,12 +47,7 @@ noinst_HEADERS =  \
 	ImageBuffers.h \
 	Timer.h \
 	ctlToLut.cpp \
-	ctlToLut.h \
-	ctlConfig.h
-
-# at the moment ctlConfig.h hard-codes a dependency on CTL
-# in the future, this will be detected by the package and the
-# .ctl elements will be optionally included.
+	ctlToLut.h
 
 EXTRA_DIST = \
 	$(playexr_SOURCES) \
