@@ -2,28 +2,11 @@ Developers:
 -----------
 
 Florian Kainz <kainz@ilm.com>
-Rod Bogart <rgb@ilm.com>
 Drew Hess <dhess@ilm.com>
-Paul Schneider <paultschneider@mac.com>
-Bill Anderson <wja@ilm.com>
-Wojciech Jarosz <wjarosz@ucsd.edu>
 
-Contributors:
--------------
-
-Simon Green <SGreen@nvidia.com>
-Rito Trevino <etrevino@ilm.com>
-Josh Pines
-Christian Rouet
-Rodrigo Damazio <rdamazio@lsi.usp.br>
-Greg Ward <gward@lmi.net>
-Joseph Goldstone <joseph@lp.com>
-Loren Carpenter, Pixar Animation Studios
 
 Win32 build system:
 -------------------
 
-
-Win32 port contributors:
-------------------------
+Kimball Thurston
 

@@ -3,13 +3,16 @@ Version 1.5.0:
 	  integration with CTL.  Now this library depends on the library
 	  IlmBase.  Some functionality has been moved into OpenEXR_Viewers,
 	  which depends on two other libraries, CTL and OpenEXR_CTL.
-
 	  Note: previously there were separate releases of
 	  OpenEXR-related plugins for Renderman, Shake and Photoshop.
 	  OpenEXR is supported natively by Rendermand and Photoshop, so
 	  these plugins will not be supported for this or future
 	  versions of OpenEXR.
 	  (Andrew Kunz)
+	* New build scripts for Linux/Unix
+	  (Andrew Kunz)
+	* New Windows project files and build scripts
+	  (Kimball Thurston)
 	* float-to-half conversion now preserves the sign of float zeroes
 	  and of floats that are so small that they become half zeroes.
 	  (Florian Kainz)
