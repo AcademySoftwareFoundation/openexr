@@ -13,31 +13,31 @@ EXTRA_DIST = \
         vc7/IlmBase/IlmBase.sln \
         vc7/IlmBase/IlmBase.suo \
         vc7/IlmBase/Half/Half.vcproj \
-        vc7/IlmBase/Half/Debug \
-        vc7/IlmBase/Half/Release \
+        vc7/IlmBase/Half/Debug/.cvsignore \
+        vc7/IlmBase/Half/Release/.cvsignore \
         vc7/IlmBase/HalfTest/HalfTest.vcproj \
-        vc7/IlmBase/HalfTest/Debug \
-        vc7/IlmBase/HalfTest/Release \
+        vc7/IlmBase/HalfTest/Debug/.cvsignore \
+        vc7/IlmBase/HalfTest/Release/.cvsignore \
         vc7/IlmBase/Iex/Iex.vcproj \
-        vc7/IlmBase/Iex/Debug \
-        vc7/IlmBase/Iex/Release \
+        vc7/IlmBase/Iex/Debug/.cvsignore \
+        vc7/IlmBase/Iex/Release/.cvsignore \
         vc7/IlmBase/IexTest/IexTest.vcproj \
-        vc7/IlmBase/IexTest/Debug \
-        vc7/IlmBase/IexTest/Release \
+        vc7/IlmBase/IexTest/Debug/.cvsignore \
+        vc7/IlmBase/IexTest/Release/.cvsignore \
         vc7/IlmBase/IlmThread/IlmThread.vcproj \
-        vc7/IlmBase/IlmThread/Debug \
-        vc7/IlmBase/IlmThread/Release \
+        vc7/IlmBase/IlmThread/Debug/.cvsignore \
+        vc7/IlmBase/IlmThread/Release/.cvsignore \
         vc7/IlmBase/Imath/Imath.vcproj \
-        vc7/IlmBase/Imath/Debug \
-        vc7/IlmBase/Imath/Release \
+        vc7/IlmBase/Imath/Debug/.cvsignore \
+        vc7/IlmBase/Imath/Release/.cvsignore \
         vc7/IlmBase/ImathTest/ImathTest.vcproj \
-        vc7/IlmBase/ImathTest/Debug \
-        vc7/IlmBase/ImathTest/Release \
+        vc7/IlmBase/ImathTest/Debug/.cvsignore \
+        vc7/IlmBase/ImathTest/Release/.cvsignore \
         vc7/IlmBase/createDLL/createDLL.vcproj \
-        vc7/IlmBase/createDLL/Debug \
-        vc7/IlmBase/createDLL/Release \
-        vc7/IlmBase/debug \
-        vc7/IlmBase/release
+        vc7/IlmBase/createDLL/Debug/.cvsignore \
+        vc7/IlmBase/createDLL/Release/.cvsignore \
+        vc7/IlmBase/debug/.cvsignore \
+        vc7/IlmBase/release/.cvsignore
 
 
 
