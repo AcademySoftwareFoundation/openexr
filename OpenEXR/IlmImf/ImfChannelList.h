@@ -76,16 +76,18 @@ struct Channel
 
 
     //--------------------------------------------------------------
-    // Hint to lossy compression methods that indicates whether this
-    // channel is perceptually linear or logarithmic.  Compression
+    // Hint to lossy compression methods that indicates whether
+    // human perception of the quantity represented by this channel
+    // is closer to linear or closer to logarithmic.  Compression
     // methods may optimize image quality by adjusting pixel data
     // quantization acording to this hint.
-    // For example, red, green, blue and luminance are approximately
-    // logarithmic; the difference between 0.1 and 0.2  is perceived
-    // to be roughly the same as the difference between 1.0 and 2.0.
-    // Chroma coordinates tend to closer to linear than logarithmic;
-    // the difference between 0.1 and 0.2 is perceived to be roughly
-    // the same as the difference between 1.0 and 1.1.
+    // For example, perception of red, green, blue and luminance is
+    // approximately logarithmic; the difference between 0.1 and 0.2
+    // is perceived to be roughly the same as the difference between
+    // 1.0 and 2.0.  Perception of chroma coordinates tends to be
+    // closer to linear than logarithmic; the difference between 0.1
+    // and 0.2 is perceived to be roughly the same as the difference
+    // between 1.0 and 1.1.
     //--------------------------------------------------------------
 
     bool		pLinear;
