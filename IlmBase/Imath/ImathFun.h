@@ -68,7 +68,7 @@ template <class T, class Q>
 inline T
 lerp (T a, T b, Q t)
 {
-    return (T) (a + (b - a) * t);
+    return (T) (a * (1 - t) + b * t);
 }
 
 
