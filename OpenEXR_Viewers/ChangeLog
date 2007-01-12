@@ -1,6 +1,9 @@
+Version 0.9.1:
+        * corrected version number on dso's (libtool) - now 5.0
+
 Version 0.9.0:
 	* Initial release of this code as a separate package.
-	  Previously the exrdisplay contained іn this package
+	  Previously the exrdisplay contained Ñn this package
 	  was part of version 1.4.0 of OpenEXR.  The playexr
 	  program is new.
 	* New build scripts for Linux/Unix
