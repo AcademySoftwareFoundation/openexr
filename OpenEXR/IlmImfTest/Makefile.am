@@ -27,14 +27,14 @@ IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
 		     testYca.cpp testYca.h compareB44.h compareB44.cpp \
 		     testIsComplete.cpp testIsComplete.h
 
-IlmImfTest_CPPFLAGS = -DILM_IMF_TEST_IMAGEDIR=\"$(srcdir)/\" $(AM_CPPFLAGS)
+AM_CPPFLAGS = -DILM_IMF_TEST_IMAGEDIR=\"$(srcdir)/\"
 
 INCLUDES = @ILMBASE_CXXFLAGS@ \
 	   -I$(top_builddir)  \
 	   -I$(top_srcdir)/IlmImf \
 	   -I$(top_srcdir)/config
 
-LDADD = @ILMBASE_LDFLAGS@ \
+LDADD = @ILMBASE_LDFLAGS@ @ILMBASE_LIBS@ \
 	-L$(top_builddir)/IlmImf \
 	-lIlmImf -lz
 

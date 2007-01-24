@@ -61,7 +61,7 @@ libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 libIlmImf_la_LDFLAGS = @ILMBASE_LDFLAGS@ -version-info @LIBTOOL_VERSION@ \
 			-no-undefined
 
-libIlmImf_la_LIBADD =  -lz
+libIlmImf_la_LIBADD =  -lz @ILMBASE_LIBS@
 
 libIlmImfincludedir = $(includedir)/OpenEXR
 
@@ -111,7 +111,7 @@ INCLUDES = @ILMBASE_CXXFLAGS@ \
 CLEANFILES = b44ExpLogTable b44ExpLogTable.h
 
 b44ExpLogTable_SOURCES = b44ExpLogTable.cpp
-b44ExpLogTable_LDADD = @ILMBASE_LDFLAGS@
+b44ExpLogTable_LDADD = @ILMBASE_LDFLAGS@ @ILMBASE_LIBS@
 
 b44ExpLogTable.h: b44ExpLogTable
 	./b44ExpLogTable > b44ExpLogTable.h
