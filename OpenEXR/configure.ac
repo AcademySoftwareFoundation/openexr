@@ -30,6 +30,13 @@ if test -z "${PKG_CONFIG_PATH}"; then
 	PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
 fi
 
+LIB64_IF_EXISTS=""
+if [[ -e /usr/lib64 ]]; then
+   LIB64_IF_EXISTS="-L/usr/lib64"
+fi         
+
+
+
 export PKG_CONFIG_PATH
 
 dnl
@@ -38,16 +45,40 @@ dnl whether test programs compile
 AM_PATH_PKGCONFIG(
    [ILMBASE_CXXFLAGS],
    [ILMBASE_LDFLAGS],
+   [ILMBASE_LIBS],
    [IlmBase],
    [OpenEXR],
-   [-lImath -lHalf -lIex -lIlmThread -L/usr/lib64/ -lpthread],
+   [$LIB64_IF_EXISTS -L/usr/local/lib],
+   [-lImath -lHalf -lIex -lIlmThread],
    [ilmbase-prefix])
+
+dnl --enable-threading
+AC_ARG_ENABLE(threading,
+              AC_HELP_STRING([--enable-threading],
+                             [enable multi-threading [[default=yes]]]),
+              [multithread="${enableval}"], [multithread=yes])
+
+if test x$PKG_CONFIG == xno && test "x${multithread}" != xno ; then
+    ACX_PTHREAD(
+    [
+	AC_DEFINE(HAVE_PTHREAD)
+	ILMBASE_LIBS="$PTHREAD_LIBS $ILMBASE_LIBS"
+	ILMBASE_CXXFLAGS="$ILMBASE_CXXFLAGS $PTHREAD_CFLAGS"
+	CC="$PTHREAD_CC"
+	
+	AM_POSIX_SEM()
+    ],
+    [AC_MSG_ERROR([POSIX thread support required])])
+    AC_MSG_NOTICE([multithread true, LIBS = $LIBS, CC = $CC, CXXFLAGS = $CXXFLAGS])
+fi
+
 
 AM_COMPILELINKRUN(
    [IlmBase],
    [ilmbasetest],
    [$ILMBASE_CXXFLAGS],
-   [$ILMBASE_LDFLAGS],[[
+   [$ILMBASE_LDFLAGS],
+   [$ILMBASE_LIBS],[[
 #include <stdlib.h>
 #include <ImathFun.h>
 ]],

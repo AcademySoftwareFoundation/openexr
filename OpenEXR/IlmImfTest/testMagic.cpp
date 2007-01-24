@@ -56,6 +56,7 @@ testFile1 (const char fileName[], bool isImfFile)
     cout << fileName << " " << flush;
 
     ifstream f (fileName, ios_base::binary);
+    assert (!!f);
 
     char bytes[4];
     f.read (bytes, sizeof (bytes));
