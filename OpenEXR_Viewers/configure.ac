@@ -32,6 +32,12 @@ fi
 
 export PKG_CONFIG_PATH
 
+LIB64_IF_EXISTS=""
+if [[ -e /usr/lib64 ]]; then
+   LIB64_IF_EXISTS="-L/usr/lib64"
+fi         
+
+
 dnl
 dnl get ccflags and libs from openexr and ctl packages
 dnl
@@ -49,16 +55,56 @@ dnl
 AM_PATH_PKGCONFIG(
    [OPENEXR_CXXFLAGS],
    [OPENEXR_LDFLAGS],
+   [OPENEXR_LIBS],
    [OpenEXR],
    [OpenEXR],
+   [$LIB64_IF_EXISTS -L/usr/local/lib],
    [-lIlmImf -lImath -lIex -lHalf -lz],
    [openexr-prefix])
+
+dnl
+dnl check optional OpenexrCTL (see comment above)
+dnl
+AM_PATH_PKGCONFIG(
+   [OPENEXR_CTL_CXXFLAGS],
+   [OPENEXR_CTL_LDFLAGS],
+   [OPENEXR_CTL_LIBS],
+   [OpenEXR_CTL],
+   [OpenEXR CTL],
+   [$LIB64_IF_EXISTS -L/usr/local/lib],
+   [-lIlmImfCtl -lIlmImf -lz -lImath -lHalf -lIex -lIlmThread -lpthread -lIlmCtlSimd -lIlmCtlMath -lIlmCtl -lImath -lHalf -lIex -lIlmThread -lpthread ],
+   [openexrctl-prefix])
+
+
+dnl --enable-threading
+AC_ARG_ENABLE(threading,
+              AC_HELP_STRING([--enable-threading],
+                             [enable multi-threading [[default=yes]]]),
+              [multithread="${enableval}"], [multithread=yes])
+
+if test x$PKG_CONFIG == xno && test "x${multithread}" != xno ; then
+    ACX_PTHREAD(
+    [
+	AC_DEFINE(HAVE_PTHREAD)
+	OPENEXR_LIBS="$PTHREAD_LIBS $OPENEXR_LIBS"
+	OPENEXR_CXXFLAGS="$OPENEXR_CXXFLAGS $PTHREAD_CFLAGS"
+	OPENEXR_CTL_LIBS="$PTHREAD_LIBS $OPENEXR_CTL_LIBS"
+	OPENEXR_CTL_CXXFLAGS="$OPENEXR_CTL_CXXFLAGS $PTHREAD_CFLAGS"
+	CC="$PTHREAD_CC"
+	
+	AM_POSIX_SEM()
+    ],
+    [AC_MSG_ERROR([POSIX thread support required])])
+    AC_MSG_NOTICE([multithread true, LIBS = $LIBS, CC = $CC, CXXFLAGS = $CXXFLAGS])
+fi
+
 
 AM_COMPILELINKRUN(
    [OpenEXR],
    [openexrtest],
    [$OPENEXR_CXXFLAGS],
-   [$OPENEXR_LDFLAGS],[[
+   [$OPENEXR_LDFLAGS],
+   [$OPENEXR_LIBS],[[
 #include <stdlib.h>
 #include <ImfTestFile.h>
 ]],
@@ -67,22 +113,13 @@ AM_COMPILELINKRUN(
    AC_MSG_ERROR([Could not compile OpenEXR test program.]))
 
 
-dnl
-dnl check optional OpenexrCTL (see comment above)
-dnl
-AM_PATH_PKGCONFIG(
-   [OPENEXR_CTL_CXXFLAGS],
-   [OPENEXR_CTL_LDFLAGS],
-   [OpenEXR_CTL],
-   [OpenEXR CTL],
-   [-lIlmImfCtl -lIlmImf -lz -lImath -lHalf -lIex -lIlmThread -lpthread -lIlmCtlSimd -lIlmCtlMath -lIlmCtl -lImath -lHalf -lIex -lIlmThread -lpthread ],
-   [openexrctl-prefix])
 
 AM_COMPILELINKRUN(
    [OpenEXR_CTL],
    [openexrctltest],
    [$OPENEXR_CTL_CXXFLAGS],
-   [$OPENEXR_CTL_LDFLAGS],[[
+   [$OPENEXR_CTL_LDFLAGS],
+   [$OPENEXR_CTL_LIBS],[[
 #include <ImfCtlApplyTransforms.h>
 #include <CtlSimdInterpreter.h>
 #include <ImfHeader.h>
@@ -124,10 +161,9 @@ fi
 
 
 [if (test "${have_ctl}" = yes) ; then
-   OPENEXR_CTL_CXXFLAGS="$OPENEXR_CTL_CXXFLAGS -DHAVE_CTL_INTERPRETER=1 -DCTL_MODULE_BASE_PATH=\\\"$ACTUAL_PREFIX/lib/CTL\\\""
+   OPENEXR_CTL_CXXFLAGS="$OPENEXR_CTL_CXXFLAGS -DCTL_MODULE_BASE_PATH=\\\"$ACTUAL_PREFIX/lib/CTL\\\""
 else
-   OPENEXR_CTL_CXXFLAGS="-DHAVE_CTL_INTERPRETER=0"
-   OPENEXR_CTL_LDFLAGS=""
+   OPENEXR_CTL_CXXFLAGS="-DHAVE_CTL_INTERPRETER=0 $OPENEXR_CXXFLAGS"
 fi]
 
 dnl
@@ -135,6 +171,7 @@ dnl These are already shared by AM_PATH_PKGCONFIG... now we update them
 dnl with the latest changes
 AC_SUBST(OPENEXR_CTL_CXXFLAGS)
 AC_SUBST(OPENEXR_CTL_LDFLAGS)
+AC_SUBST(OPENEXR_CTL_LIBS)
 
 
 dnl
