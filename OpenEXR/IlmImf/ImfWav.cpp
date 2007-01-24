@@ -39,7 +39,8 @@
 //	16-bit Haar Wavelet encoding and decoding
 //
 //	The source code in this file is derived from the encoding
-//	and decoding routines.
+//	and decoding routines written by Christian Rouet for his
+//	PIZ image file format.
 //
 //-----------------------------------------------------------------------------
 
