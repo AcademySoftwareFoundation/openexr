@@ -536,7 +536,7 @@ B44Compressor::compress (const char *inPtr,
     //
     // Compress a block of pixel data:  First copy the input pixels
     // from the input buffer into _tmpBuffer, rearranging them such
-    // that blocks of 4x4 pixels of a singe channel can be accessed
+    // that blocks of 4x4 pixels of a single channel can be accessed
     // conveniently.  Then compress each 4x4 block of HALF pixel data
     // and append the result to the output buffer.  Copy UINT and
     // FLOAT data to the output buffer without compressing them.
