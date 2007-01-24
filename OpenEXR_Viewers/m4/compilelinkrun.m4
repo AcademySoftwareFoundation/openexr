@@ -37,10 +37,11 @@ define([arg_pkg_name],$1)
 define([arg_disable],$2)
 define([arg_cxxflags],$3)
 define([arg_ldflags],$4)
-define([arg_include_source],$5)
-define([arg_body_source],$6)
-define([arg_do_yes],$7)
-define([arg_do_no],$8)
+define([arg_libs],$5)
+define([arg_include_source],$6)
+define([arg_body_source],$7)
+define([arg_do_yes],$8)
+define([arg_do_no],$9)
 
 
 dnl check arguments
@@ -59,8 +60,10 @@ dnl
     dnl save settings and setup c++ before we start
     ac_save_CXXFLAGS="$CXXFLAGS"
     ac_save_LDFLAGS="$LDFLAGS"
+    ac_save_LIBS="$LIBS"
     CXXFLAGS="$CXXFLAGS arg_cxxflags"
     LDFLAGS="$LDFLAGS arg_ldflags"
+    LIBS="$LIBS arg_libs"
     AC_REQUIRE_CPP()
     AC_LANG_PUSH([C++])
     rm -f conf.testprogram
@@ -145,6 +148,7 @@ dnl
     AC_LANG_POP([C++])
     CXXFLAGS="$ac_save_CXXFLAGS"
     LDFLAGS="$ac_save_LDFLAGS"
+    LIBS="$ac_save_LIBS"
         
     dnl
     dnl clean up
@@ -158,6 +162,7 @@ undefine([arg_pkg_name])
 undefine([arg_disable])
 undefine([arg_cxxflags])
 undefine([arg_ldflags])
+undefine([arg_libs])
 undefine([arg_include_source])
 undefine([arg_body_source])
 undefine([arg_do_yes])
