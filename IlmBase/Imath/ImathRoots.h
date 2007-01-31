@@ -43,6 +43,7 @@
 //
 //---------------------------------------------------------------------
 
+#include <ImathMath.h>
 #include <complex>
 
 namespace Imath {
@@ -124,7 +125,7 @@ solveQuadratic (T a, T b, T c, T x[2])
 
 	if (D > 0)
 	{
-	    T s = sqrt (D);
+	    T s = Math<T>::sqrt (D);
 
 	    x[0] = (-b + s) / (2 * a);
 	    x[1] = (-b - s) / (2 * a);
