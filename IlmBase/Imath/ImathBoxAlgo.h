@@ -249,7 +249,7 @@ transform(const Box< Vec3<S> >& box, const Matrix44<T>& m)
 {
     //
     // Transform a 3D box by a matrix, and compute a new box that
-    // contains the transformed box.
+    // tightly encloses the transformed box.
     //
     // If m is an affine transform, then we use James Arvo's fast
     // method as described in "Graphics Gems", Academic Press, 1990,
