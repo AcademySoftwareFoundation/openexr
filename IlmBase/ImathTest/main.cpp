@@ -47,6 +47,7 @@
 #include <testQuatSetRotation.h>
 #include <testQuatSlerp.h>
 #include <testLineAlgo.h>
+#include <testBoxAlgo.h>
 
 #include <string.h>
 
@@ -68,5 +69,6 @@ main (int argc, char *argv[])
     TEST (testQuatSetRotation);
     TEST (testQuatSlerp);
     TEST (testLineAlgo);
+    TEST (testBoxAlgo);
     return 0;
 }

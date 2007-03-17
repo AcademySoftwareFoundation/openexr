@@ -275,17 +275,10 @@ Rand32::nexti ()
 
 
 inline float
-Rand32::nextf ()
-{
-    next ();
-    return ((int) (_state & 0xffffff)) * ((float) (1.0F / 0x1000000));
-}
-
-
-inline float
 Rand32::nextf (float rangeMin, float rangeMax)
 {
-    return rangeMin + nextf() * (rangeMax - rangeMin);
+    float f = nextf();
+    return rangeMin * (1 - f) + rangeMax * f;
 }
 
 
@@ -331,7 +324,8 @@ Rand48::nextf ()
 inline double
 Rand48::nextf (double rangeMin, double rangeMax)
 {
-    return rangeMin + nextf() * (rangeMax - rangeMin);
+    double f = nextf();
+    return rangeMin * (1 - f) + rangeMax * f;
 }
 
 
