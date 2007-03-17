@@ -62,10 +62,10 @@
 //				    Vec3<T> &exitPoint)
 //
 //	bool intersects(const Box<Vec3<T>> &box, 
-//			const Line3<T> &line, 
-//			Vec3<T> result)
+//			const Line3<T> &ray, 
+//			Vec3<T> intersectionPoint)
 //
-//	bool intersects(const Box<Vec3<T>> &box, const Line3<T> &line)
+//	bool intersects(const Box<Vec3<T>> &box, const Line3<T> &ray)
 //
 //---------------------------------------------------------------------------
 
@@ -247,34 +247,36 @@ template <class S, class T>
 Box< Vec3<S> >
 transform(const Box< Vec3<S> >& box, const Matrix44<T>& m)
 {
-    // Transforms Box3f by matrix, enlarging Box3f to contain result.
-    // Clever method courtesy of Graphics Gems, pp. 548-550
     //
-    // This works for projection matrices as well as simple affine
-    // transformations.  Coordinates of the box are rehomogenized if there
-    // is a projection matrix
+    // Transform a 3D box by a matrix, and compute a new box that
+    // contains the transformed box.
+    //
+    // If m is an affine transform, then we use James Arvo's fast
+    // method as described in "Graphics Gems", Academic Press, 1990,
+    // pp. 548-550.
+    //
 
-    // a transformed empty box is still empty
+    //
+    // A transformed empty box is still empty
+    //
+
     if (box.isEmpty())
 	return box;
 
-    // If the last column is close enuf to ( 0 0 0 1 ) then we use the
-    // fast, affine version.  The tricky affine method could maybe be
-    // extended to deal with the projection case as well, but its not
-    // worth it right now.
+    //
+    // If the last column of m is (0 0 0 1) then m is an affine
+    // transform, and we use the fast Graphics Gems trick.
+    //
 
-    if (m[0][3] * m[0][3] + m[1][3] * m[1][3] + m[2][3] * m[2][3]
-	+ (1.0 - m[3][3]) * (1.0 - m[3][3]) < 0.00001) 
+    if (m[0][3] == 0 && m[1][3] == 0 && m[2][3] == 0 && m[3][3] == 1)
     {
-	// Affine version, use the Graphics Gems hack
-	int		i, j;
-	Box< Vec3<S> >  newBox;
+	Box< Vec3<S> > newBox;
 
-	for (i = 0; i < 3; i++) 
+	for (int i = 0; i < 3; i++) 
         {
 	    newBox.min[i] = newBox.max[i] = (S) m[3][i];
 
-	    for (j = 0; j < 3; j++) 
+	    for (int j = 0; j < 3; j++) 
             {
 		float a, b;
 
@@ -297,10 +299,14 @@ transform(const Box< Vec3<S> >& box, const Matrix44<T>& m)
 	return newBox;
     }
 
-    // This is a projection matrix.  Do things the naive way.
+    //
+    // M is a projection matrix.  Do things the naive way:
+    // Transform the eight corners of the box, and find an
+    // axis-parallel box that encloses the transformed corners.
+    //
+
     Vec3<S> points[8];
 
-    /* Set up the eight points at the corners of the extent */
     points[0][0] = points[1][0] = points[2][0] = points[3][0] = box.min[0];
     points[4][0] = points[5][0] = points[6][0] = points[7][0] = box.max[0];
 
@@ -311,8 +317,9 @@ transform(const Box< Vec3<S> >& box, const Matrix44<T>& m)
     points[1][2] = points[3][2] = points[5][2] = points[7][2] = box.max[2];
 
     Box< Vec3<S> > newBox;
+
     for (int i = 0; i < 8; i++) 
-	newBox.extendBy(points[i] * m);
+	newBox.extendBy (points[i] * m);
 
     return newBox;
 }
@@ -494,115 +501,291 @@ bool findEntryAndExitPoints(const Line3<T>& line,
     return validIntersection;
 }
 
+
 template<class T>
-bool intersects(const Box< Vec3<T> > &box, 
-		const Line3<T> &line,
-		Vec3<T> &result)
+bool
+intersects (const Box< Vec3<T> > &b, const Line3<T> &r, Vec3<T> &ip)
 {
-    /* 
-       Fast Ray-Box Intersection
-       by Andrew Woo
-       from "Graphics Gems", Academic Press, 1990
-    */
+    //
+    // Intersect a ray, r, with a box, b, and compute the interesection
+    // point, ip:
+    //
+    // intersect() returns
+    //
+    //     - true if the ray starts inside the box or if the
+    //       ray starts outside and intersects the box
+    //
+    //     - false if the ray starts outside the box and intersects it,
+    //       but the intersection is behind the ray's origin.
+    //
+    //     - false if the ray starts outside and does not intersect it
+    //
+    // The intersection point is
+    //
+    //     - the ray's origin if the ray starts inside the box
+    //
+    //     - a point on one of the faces of the box if the ray
+    //       starts outside the box
+    //
+    //     - undefined when intersect() returns false
+    //
 
-    const int right	= 0;
-    const int left	= 1;
-    const int middle	= 2;
-
-    const Vec3<T> &minB = box.min;
-    const Vec3<T> &maxB = box.max;
-    const Vec3<T> &origin = line.pos;
-    const Vec3<T> &dir = line.dir;
-
-    bool inside = true;
-    char quadrant[3];
-    int whichPlane;
-    float maxT[3];
-    float candidatePlane[3];
-
-    /* Find candidate planes; this loop can be avoided if
-   	rays cast all from the eye(assume perpsective view) */
-    for (int i=0; i<3; i++)
+    if (b.isEmpty())
     {
-	if(origin[i] < minB[i]) 
-	{
-	    quadrant[i] = left;
-	    candidatePlane[i] = minB[i];
-	    inside = false;
-	}
-	else if (origin[i] > maxB[i]) 
-	{
-	    quadrant[i] = right;
-	    candidatePlane[i] = maxB[i];
-	    inside = false;
-	}
-	else	
-	{
-	    quadrant[i] = middle;
-	}
+	//
+	// No ray intersects an empty box
+	//
+
+	return false;
     }
 
-    /* Ray origin inside bounding box */
-    if ( inside )	
+    if (b.intersects (r.pos))
     {
-	result = origin;
+	//
+	// The ray starts inside the box
+	//
+
+	ip = r.pos;
 	return true;
     }
 
+    //
+    // The ray starts outside the box.  Between one and three "frontfacing"
+    // sides of the box are oriented towards the ray's, and between
+    // one and three "backfacing" sides are oriented away from the ray.
+    // We intersect the ray with the planes that contain the sides of the
+    // box, and compare the distances between the ray-plane intersections.
+    // The ray intersects the box if the most distant frontfacing intersection
+    // is nearer than the nearest backfacing intersection.
+    // In this case, the most distant frontfacing ray-plane intersection is
+    // the ray-box intersection.
+    //
 
-	/* Calculate T distances to candidate planes */
-    for (int i = 0; i < 3; i++)
+    const T TMAX = limits<T>::max();
+
+    T tFrontMax = -1;
+    T tBackMin = limits<T>::max();
+
+    //
+    // Minimum and maximum X sides.
+    //
+
+    if (r.dir.x > 0)
     {
-	if (quadrant[i] != middle && dir[i] !=0.)
+	if (r.pos.x > b.max.x)
+	    return false;
+
+	T d = b.max.x - r.pos.x;
+
+	if (r.dir.x > 1 || d < TMAX * r.dir.x)
 	{
-	    maxT[i] = (candidatePlane[i]-origin[i]) / dir[i];
+	    T t = d / r.dir.x;
+
+	    if (tBackMin > t)
+		tBackMin = t;
 	}
-	else
+
+	if (r.pos.x <= b.min.x)
 	{
-	    maxT[i] = -1.;
-	}
-    }
+	    T d = b.min.x - r.pos.x;
+	    T t = (r.dir.x > 1 || d < TMAX * r.dir.x)? d / r.dir.x: TMAX;
 
-    /* Get largest of the maxT's for final choice of intersection */
-    whichPlane = 0;
-
-    for (int i = 1; i < 3; i++)
-    {
-	if (maxT[whichPlane] < maxT[i])
-	{
-	    whichPlane = i;
-	}
-    }
-
-    /* Check final candidate actually inside box */
-    if (maxT[whichPlane] < 0.) return false;
-
-    for (int i = 0; i < 3; i++)
-    {
-	if (whichPlane != i) 
-	{
-	    result[i] = origin[i] + maxT[whichPlane] *dir[i];
-
-	    if ((quadrant[i] == right && result[i] < minB[i]) ||
-		(quadrant[i] == left && result[i] > maxB[i]))
+	    if (tFrontMax < t)
 	    {
-		return false;	/* outside box */
+		tFrontMax = t;
+
+		ip.x = b.min.x; 
+		ip.y = clamp (r.pos.y + t * r.dir.y, b.min.y, b.max.y);
+		ip.z = clamp (r.pos.z + t * r.dir.z, b.min.z, b.max.z);
 	    }
 	}
-	else 
+    }
+    else if (r.dir.x < 0)
+    {
+	if (r.pos.x < b.min.x)
+	    return false;
+
+	T d = b.min.x - r.pos.x;
+
+	if (r.dir.x < -1 || d > TMAX * r.dir.x)
 	{
-	    result[i] = candidatePlane[i];
+	    T t = d / r.dir.x;
+
+	    if (tBackMin > t)
+		tBackMin = t;
+	}
+
+	if (r.pos.x >= b.max.x)
+	{
+	    T d = b.max.x - r.pos.x;
+	    T t = (r.dir.x < -1 || d > TMAX * r.dir.x)? d / r.dir.x: TMAX;
+
+	    if (tFrontMax < t)
+	    {
+		tFrontMax = t;
+
+		ip.x = b.max.x; 
+		ip.y = clamp (r.pos.y + t * r.dir.y, b.min.y, b.max.y);
+		ip.z = clamp (r.pos.z + t * r.dir.z, b.min.z, b.max.z);
+	    }
 	}
     }
+    else // r.dir.x == 0
+    {
+	if (r.pos.x < b.min.x || r.pos.x > b.max.x)
+	    return false;
+    }
 
-    return true;
+    //
+    // Minimum and maximum Y sides.
+    //
+
+    if (r.dir.y > 0)
+    {
+	if (r.pos.y > b.max.y)
+	    return false;
+
+	T d = b.max.y - r.pos.y;
+
+	if (r.dir.y > 1 || d < TMAX * r.dir.y)
+	{
+	    T t = d / r.dir.y;
+
+	    if (tBackMin > t)
+		tBackMin = t;
+	}
+
+	if (r.pos.y <= b.min.y)
+	{
+	    T d = b.min.y - r.pos.y;
+	    T t = (r.dir.y > 1 || d < TMAX * r.dir.y)? d / r.dir.y: TMAX;
+
+	    if (tFrontMax < t)
+	    {
+		tFrontMax = t;
+
+		ip.x = clamp (r.pos.x + t * r.dir.x, b.min.x, b.max.x);
+		ip.y = b.min.y; 
+		ip.z = clamp (r.pos.z + t * r.dir.z, b.min.z, b.max.z);
+	    }
+	}
+    }
+    else if (r.dir.y < 0)
+    {
+	if (r.pos.y < b.min.y)
+	    return false;
+
+	T d = b.min.y - r.pos.y;
+
+	if (r.dir.y < -1 || d > TMAX * r.dir.y)
+	{
+	    T t = d / r.dir.y;
+
+	    if (tBackMin > t)
+		tBackMin = t;
+	}
+
+	if (r.pos.y >= b.max.y)
+	{
+	    T d = b.max.y - r.pos.y;
+	    T t = (r.dir.y < -1 || d > TMAX * r.dir.y)? d / r.dir.y: TMAX;
+	    
+	    if (tFrontMax < t)
+	    {
+		tFrontMax = t;
+
+		ip.x = clamp (r.pos.x + t * r.dir.x, b.min.x, b.max.x);
+		ip.y = b.max.y; 
+		ip.z = clamp (r.pos.z + t * r.dir.z, b.min.z, b.max.z);
+	    }
+	}
+    }
+    else // r.dir.y == 0
+    {
+	if (r.pos.y < b.min.y || r.pos.y > b.max.y)
+	    return false;
+    }
+
+    //
+    // Minimum and maximum Z sides.
+    //
+
+    if (r.dir.z > 0)
+    {
+	if (r.pos.z > b.max.z)
+	    return false;
+
+	T d = b.max.z - r.pos.z;
+
+	if (r.dir.z > 1 || d < TMAX * r.dir.z)
+	{
+	    T t = d / r.dir.z;
+
+	    if (tBackMin > t)
+		tBackMin = t;
+	}
+
+	if (r.pos.z <= b.min.z)
+	{
+	    T d = b.min.z - r.pos.z;
+	    T t = (r.dir.z > 1 || d < TMAX * r.dir.z)? d / r.dir.z: TMAX;
+	    
+	    if (tFrontMax < t)
+	    {
+		tFrontMax = t;
+
+		ip.x = clamp (r.pos.x + t * r.dir.x, b.min.x, b.max.x);
+		ip.y = clamp (r.pos.y + t * r.dir.y, b.min.y, b.max.y);
+		ip.z = b.min.z; 
+	    }
+	}
+    }
+    else if (r.dir.z < 0)
+    {
+	if (r.pos.z < b.min.z)
+	    return false;
+
+	T d = b.min.z - r.pos.z;
+
+	if (r.dir.z < -1 || d > TMAX * r.dir.z)
+	{
+	    T t = d / r.dir.z;
+
+	    if (tBackMin > t)
+		tBackMin = t;
+	}
+
+	if (r.pos.z >= b.max.z)
+	{
+	    T d = b.max.z - r.pos.z;
+	    T t = (r.dir.z < -1 || d > TMAX * r.dir.z)? d / r.dir.z: TMAX;
+	    
+	    if (tFrontMax < t)
+	    {
+		tFrontMax = t;
+
+		ip.x = clamp (r.pos.x + t * r.dir.x, b.min.x, b.max.x);
+		ip.y = clamp (r.pos.y + t * r.dir.y, b.min.y, b.max.y);
+		ip.z = b.max.z; 
+	    }
+	}
+    }
+    else // r.dir.z == 0
+    {
+	if (r.pos.z < b.min.z || r.pos.z > b.max.z)
+	    return false;
+    }
+
+    return tFrontMax <= tBackMin;
 }
 
+
 template<class T>
-bool intersects(const Box< Vec3<T> > &box, const Line3<T> &line)
+bool
+intersects (const Box< Vec3<T> > &box, const Line3<T> &ray)
 {
     Vec3<T> ignored;
-    return intersects(box,line,ignored);
+    return intersects (box, ray, ignored);
 }
 
 

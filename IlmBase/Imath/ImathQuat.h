@@ -719,6 +719,14 @@ inline Quat<T> operator- (const Quat<T>& q)
     return Quat<T>( -q.r, -q.v );
 }
 
+template<class T>
+inline Vec3<T> operator* (const Vec3<T>& v, const Quat<T>& q)
+{
+    Vec3<T> a = q.v % v;
+    Vec3<T> b = q.v % a;
+    return v + T (2) * (q.r * a + b);
+}
+
 #if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
 #pragma warning(default:4244)
 #endif

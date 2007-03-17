@@ -131,7 +131,7 @@ testGenerator ()
 	assert (abs (v[i] - M) < 0.01 * M);
 
 	// for (int j = 0; j < v[i] * 60 / M; ++j)
-	//     cout << '*';
+	//      cout << '*';
 
 	// cout << endl;
     }
@@ -149,6 +149,38 @@ testGenerator ()
 	//     cout << '*';
 
 	// cout << endl;
+    }
+
+    cout << "  range" << endl;
+
+    double rMin = 1.0;
+    double rMax = 0.0;
+
+    for (int i = 0; i <= 10000000; ++i)
+    {
+	double r = rand.nextf (0.0, 1.0);
+
+	if (rMin > r)
+	    rMin = r;
+
+	if (rMax < r)
+	    rMax = r;
+    }
+
+    assert (rMin < 0.0001 && rMax > 0.9999);
+
+    const double pow_2_60 = double (1073741824) * double (1073741824);
+
+    for (int i = 0; i <= 10000000; ++i)
+    {
+	double r0 = rand.nextf (-2.0, 3.0);
+	assert (r0 >= -2.0 && r0 <= 3.0);
+
+	double r1 = rand.nextf (-pow_2_60, 1);
+	assert (r1 >= -pow_2_60 && r1 <= 1);
+
+	double r2 = rand.nextf (-1, pow_2_60);
+	assert (r2 >= -1 && r2 <= pow_2_60);
     }
 }
 
