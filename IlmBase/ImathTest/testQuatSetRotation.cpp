@@ -63,10 +63,13 @@ testRotation (const V3f &from, const V3f &to)
     float e = 20 * limits<float>::epsilon();
 
     V3f fromM = from * M;
+    V3f fromQ = from * Q;
     V3f t0 = to.normalized();
     V3f fM0 = fromM.normalized();
+    V3f fQ0 = fromQ.normalized();
 
     assert (t0.equalWithAbsError (fM0, e));
+    assert (t0.equalWithAbsError (fQ0, e));
 
     //
     // Verify that the rotation axis is the cross product of from and to.
