@@ -507,7 +507,7 @@ bool
 intersects (const Box< Vec3<T> > &b, const Line3<T> &r, Vec3<T> &ip)
 {
     //
-    // Intersect a ray, r, with a box, b, and compute the interesection
+    // Intersect a ray, r, with a box, b, and compute the intersection
     // point, ip:
     //
     // intersect() returns
@@ -551,20 +551,20 @@ intersects (const Box< Vec3<T> > &b, const Line3<T> &r, Vec3<T> &ip)
 
     //
     // The ray starts outside the box.  Between one and three "frontfacing"
-    // sides of the box are oriented towards the ray's, and between
-    // one and three "backfacing" sides are oriented away from the ray.
+    // sides of the box are oriented towards the ray, and between one and
+    // three "backfacing" sides are oriented away from the ray.
     // We intersect the ray with the planes that contain the sides of the
     // box, and compare the distances between the ray-plane intersections.
     // The ray intersects the box if the most distant frontfacing intersection
-    // is nearer than the nearest backfacing intersection.
-    // In this case, the most distant frontfacing ray-plane intersection is
-    // the ray-box intersection.
+    // is nearer than the nearest backfacing intersection.  If the ray does
+    // intersect the box, then the most distant frontfacing ray-plane
+    // intersection is the ray-box intersection.
     //
 
     const T TMAX = limits<T>::max();
 
     T tFrontMax = -1;
-    T tBackMin = limits<T>::max();
+    T tBackMin = TMAX;
 
     //
     // Minimum and maximum X sides.
