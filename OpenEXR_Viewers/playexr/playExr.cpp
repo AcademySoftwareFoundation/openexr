@@ -228,7 +228,7 @@ initializeImageBuffers
 	//
 	// The pixel buffers for the tree image channels (RGB)
 	// are padded with a fourth dummy channel (A) and interleaved
-	// (RGBARGBARGBA...).  All three buffers have ﬆhe same width
+	// (RGBARGBARGBA...).  All three buffers have the same width
 	// and height as the frame.
 	//
 
