@@ -14,8 +14,16 @@ AC_ARG_WITH(cg-prefix,[  --with-cg-prefix=PFX  Prefix where Cg is installed (opt
     CG_CXXFLAGS="-I$cg_prefix/include"
     CG_LDFLAGS="-L$cg_prefix/lib -lGL -lCg -lCgGL -lGLU -lpthread"
   else
-    CG_CXXFLAGS=""
-    CG_LDFLAGS="-lGL -lCg -lCgGL -lGLU -lpthread"
+    case $host_os in
+      darwin*)
+        CG_CXXFLAGS=""
+        CG_LDFLAGS="-framework Cg -framework AGL -framework OpenGL -framework GLUT"
+        ;;
+      *)
+        CG_CXXFLAGS=""
+        CG_LDFLAGS="-lGL -lCg -lCgGL -lGLU -lpthread -lglut"
+        ;;
+    esac
   fi
 
   AC_MSG_CHECKING(for Cg)
@@ -26,15 +34,31 @@ AC_ARG_WITH(cg-prefix,[  --with-cg-prefix=PFX  Prefix where Cg is installed (opt
   CXXFLAGS="$CXXFLAGS $CG_CXXFLAGS"
   LDFLAGS="$CG_LDFLAGS"
 
-  AC_LANG_SAVE
-  AC_LANG_CPLUSPLUS
-  AC_TRY_LINK([
-#include <GL/gl.h>
-#include <Cg/cg.h>
-#include <Cg/cgGL.h>],
-[
-    cgCreateContext ();
-],, no_cg=yes)
+  case $host_os in
+    darwin*)
+      AC_LANG_SAVE
+      AC_LANG_CPLUSPLUS
+      AC_TRY_LINK([
+    #include <OpenGL/gl.h>
+    #include <Cg/cg.h>
+    #include <Cg/cgGL.h>],
+    [
+        cgCreateContext ();
+    ],, no_cg=yes)
+    ;;
+  *)
+      AC_LANG_SAVE
+      AC_LANG_CPLUSPLUS
+      AC_TRY_LINK([
+    #include <GL/gl.h>
+    #include <Cg/cg.h>
+    #include <Cg/cgGL.h>],
+    [
+        cgCreateContext ();
+    ],, no_cg=yes)
+    ;;
+  esac
+
   AC_LANG_RESTORE
   CXXFLAGS="$ac_save_CXXFLAGS"
   LDFLAGS="$ac_save_LDFLAGS"
