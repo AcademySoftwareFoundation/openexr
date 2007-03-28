@@ -55,16 +55,11 @@
 //
 //----------------------------------------------------------------------------
 
-#ifdef WIN32
-    #include <GL/glew.h>
-#else
-	#define GL_GLEXT_PROTOTYPES
-#endif
-
 #include <playExr.h>
 #include <ctlToLut.h>
 #include <fileNameForFrame.h>
 #include <FileReadingThread.h>
+#include <osDependent.h>
 #include <ImageBuffers.h>
 #include <Timer.h>
 #include <ImfThreading.h>
@@ -78,29 +73,6 @@
 #include <sstream>
 #include <iomanip>
 #include <cmath>
-
-#if defined __APPLE__
-    #include <GLUT/glut.h>
-    #include <OpenGL/gl.h>
-    #include <Cg/cgGL.h>
-
-    #ifndef GL_LUMINANCE16F_ARB
-	#define GL_LUMINANCE16F_ARB GL_LUMINANCE_FLOAT16_APPLE
-    #endif
-
-    #ifndef GL_RGBA16F_ARB
-	#define GL_RGBA16F_ARB GL_RGBA_FLOAT16_APPLE
-    #endif
-    
-    #ifndef GL_HALF_FLOAT_ARB
-	#define GL_HALF_FLOAT_ARB GL_HALF_APPLE
-    #endif
-
-#else
-    #include <GL/glut.h>
-    #include <GL/gl.h>
-    #include <Cg/cgGL.h>
-#endif
 
 using namespace IlmThread;
 using namespace Imf;
@@ -382,12 +354,7 @@ computeWindowSizes
 
 CGcontext cgContext;
 CGprogram cgProgram;
-
-#if defined __APPLE__
-    CGprofile cgProfile = CG_PROFILE_ARBFP1;
-#else
-    CGprofile cgProfile = CG_PROFILE_FP30;
-#endif
+CGprofile cgProfile = PLAYEXR_CG_PROFILE;
 
 
 void
@@ -1370,47 +1337,10 @@ playExr (const char fileNameTemplate[],
     glutDisplayFunc (redrawWindow);
 
     //
-    // Verify that OpenGL supports the extensions we need.
+    // Verify that OpenGL supports the extensions we need
     //
 
-#if defined __APPLE__
-    if (!glutExtensionSupported ("GL_APPLE_float_pixels"))
-    {
-	cerr << "This program requires OpenGL support for "
-		"16-bit floating-point textures." << endl;
-	exit (1);
-    }
-#else
-    if (!glutExtensionSupported ("GL_ARB_texture_float") ||
-	!glutExtensionSupported ("GL_ARB_half_float_pixel"))
-    {
-	cerr << "This program requires OpenGL support for "
-		"16-bit floating-point textures." << endl;
-	exit (1);
-    }
-#endif
-
-    //XXX if (!glutExtensionSupported ("GL_ARB_fragment_shader") ||
-    //XXX     !glutExtensionSupported ("GL_EXT_Cg_shader"))
-    //XXX why is EXT_Cg_shader not recognized?
-    if (!glutExtensionSupported ("GL_ARB_fragment_shader"))
-    {
-	cerr << "This program requires OpenGL support for "
-		"fragment shaders and the Cg shading language." << endl;
-	exit (1);
-    }
-
-#ifdef WIN32
-
-    GLenum err = glewInit();
-
-    if (GLEW_OK != err)
-    {
-	cerr << "Cannot initialize glew: " << glewGetErrorString (err) << endl;
-	exit (1);
-    }
-
-#endif
+    initAndCheckGlExtensions();
 
     //
     // Initialize textures and Cg shaders
