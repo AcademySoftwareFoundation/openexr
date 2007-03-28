@@ -7,7 +7,7 @@ AC_DEFUN([AM_PATH_FLTK],
 dnl Get the cflags and libraries
 dnl
 AC_ARG_VAR(FLTK_CONFIG, Path to fltk-config command)
-AC_PATH_PROG(FLTK_CONFIG, fltk-config, no)
+AC_PATH_PROG(FLTK_CONFIG, fltk-config, no, [$PATH:/usr/local/bin])
 AC_ARG_WITH(fltk-config,[  --with-fltk-config=PATH Specify which fltk-config to use (optional)], FLTK_CONFIG="$withval",)
 
   if test x$FLTK_CONFIG != xno ; then
