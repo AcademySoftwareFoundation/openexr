@@ -40,6 +40,7 @@
 //-----------------------------------------------------------------------------
 
 #include <playExr.h>
+#include <osDependent.h>
 #include <IlmThread.h>
 
 #include <iostream>
@@ -47,12 +48,6 @@
 #include <vector>
 #include <string>
 #include <stdlib.h>
-
-#if defined __APPLE__
-    #include <GLUT/glut.h>
-#else
-    #include <GL/glut.h>
-#endif
 
 using namespace std;
 

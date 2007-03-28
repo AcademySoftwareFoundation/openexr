@@ -32,7 +32,9 @@ playexr_SOURCES = \
 	Timer.cpp \
 	Timer.h \
 	ctlToLut.cpp \
-	ctlToLut.h
+	ctlToLut.h \
+	osDependent.cpp \
+	osDependent.h 
 
 else
 install-exec-hook:
@@ -45,7 +47,8 @@ noinst_HEADERS =  \
 	ImageBuffers.h \
 	Timer.h \
 	ctlToLut.cpp \
-	ctlToLut.h
+	ctlToLut.h \
+	osDependent.h
 
 EXTRA_DIST = \
 	$(playexr_SOURCES) \
