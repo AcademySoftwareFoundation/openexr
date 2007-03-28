@@ -11,6 +11,9 @@ LDADD = @CG_LDFLAGS@ @FLTK_LDFLAGS@ \
 	@OPENEXR_CTL_LDFLAGS@ \
 	@OPENEXR_CTL_LIBS@
 
+all-local:
+	@FLTK_CONFIG@ --post exrdisplay
+
 install-exec-hook:
 	@FLTK_CONFIG@ --post $(DESTDIR)$(bindir)/exrdisplay
 
