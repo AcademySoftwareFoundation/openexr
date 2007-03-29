@@ -361,7 +361,7 @@ ctlToLut (vector<string> transformNames,
 
     ImfCtl::applyTransforms (interpreter,
 			     transformNames,
-			     Box2i (V2i (0, 0), V2i (lutSize / 4, 0)),
+			     Box2i (V2i (0, 0), V2i (lutSize / 4 - 1, 0)),
 			     envHeader,
 			     inHeader,
 			     inFb,
