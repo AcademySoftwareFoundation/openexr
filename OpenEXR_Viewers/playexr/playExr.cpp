@@ -125,6 +125,16 @@ bool enableCtl = true;		// If enableCtl is true, CTL transforms
 				// has been applied.  If enableCtl is false,
 				// no CTL transforms are applied.
 
+const size_t lutN = 64;		// The 3D color lookup table that is used
+				// to approximate the CTL transforms has
+				// lutN by lutN by lutN entries.
+
+bool hwTexInterpolation = true;	// Flag that controls whether the Cg shader
+				// that performs 3D color table lookups
+				// relies on hardware-interpolated texture
+				// lookups or if the shader itself interpolates
+				// between texture samples
+
 bool showTextOverlay = true;	// Flag that controls whether the actual
 				// frame rate and the current exposure
 				// setting are displayed
@@ -354,7 +364,7 @@ computeWindowSizes
 
 CGcontext cgContext;
 CGprogram cgProgram;
-CGprofile cgProfile = PLAYEXR_CG_PROFILE;
+CGprofile cgProfile;
 
 
 void
@@ -392,6 +402,7 @@ const char shaderLuminanceChromaSource[] =
 "          uniform float lutMax,                                           \n"
 "          uniform float lutM,                                             \n"
 "          uniform float lutT,                                             \n"
+"          uniform float lutF,                                             \n"
 "          uniform float enableLut)                                        \n"
 "    {                                                                     \n"
 "        //                                                                \n"
@@ -417,9 +428,50 @@ const char shaderLuminanceChromaSource[] =
 "        //                                                                \n"
 "                                                                          \n"
 "        if (enableLut)                                                    \n"
-"        {                                                                 \n"
-"            color = lutT + lutM * log (clamp (color, lutMin, lutMax));    \n"
-"            color = exp (tex3D (lut, color).rgb);                         \n"
+"	 {                                                                 \n"
+"            if (lutF)                                                     \n"
+"            {                                                             \n"
+"                //                                                        \n"
+"                // Texture hardware does not support                      \n"
+"                // interpolation between texture samples.                 \n"
+"                //                                                        \n"
+"                                                                          \n"
+"                half3 i = lutF * half3                                    \n"
+"                    (lutT + lutM * log (clamp (color, lutMin, lutMax)));  \n"
+"                                                                          \n"
+"                half3 fi = floor (i);                                     \n"
+"                half3 fj = fi + 1;                                        \n"
+"                half3 s = i - fi;                                         \n"
+"                                                                          \n"
+"                fi = fi / lutF;                                           \n"
+"                fj = fj / lutF;                                           \n"
+"                                                                          \n"
+"                half3 c0 = tex3D (lut, half3 (fi.x, fi.y, fi.z)).rgb;     \n"
+"                half3 c1 = tex3D (lut, half3 (fj.x, fi.y, fi.z)).rgb;     \n"
+"                half3 c2 = tex3D (lut, half3 (fi.x, fj.y, fi.z)).rgb;     \n"
+"                half3 c3 = tex3D (lut, half3 (fj.x, fj.y, fi.z)).rgb;     \n"
+"                half3 c4 = tex3D (lut, half3 (fi.x, fi.y, fi.z)).rgb;     \n"
+"                half3 c5 = tex3D (lut, half3 (fj.x, fi.y, fj.z)).rgb;     \n"
+"                half3 c6 = tex3D (lut, half3 (fi.x, fj.y, fj.z)).rgb;     \n"
+"                half3 c7 = tex3D (lut, half3 (fj.x, fj.y, fj.z)).rgb;     \n"
+"                                                                          \n"
+"                color = ((c0 * (1-s.x) + c1 * s.x) * (1-s.y) +            \n"
+"                         (c2 * (1-s.x) + c3 * s.x) *  s.y) * (1-s.z) +    \n"
+"                        ((c4 * (1-s.x) + c5 * s.x) * (1-s.y) +            \n"
+"                         (c6 * (1-s.x) + c7 * s.x) *  s.y) * s.z;         \n"
+"                                                                          \n"
+"                color = exp (color);                                      \n"
+"            }                                                             \n"
+"            else                                                          \n"
+"            {                                                             \n"
+"                //                                                        \n"
+"                // Texture hardware supports trilinear                    \n"
+"                // interpolation between texture samples.                 \n"
+"                //                                                        \n"
+"                                                                          \n"
+"                color = lutT + lutM * log (clamp (color, lutMin, lutMax));\n"
+"                color = exp (tex3D (lut, color).rgb);                     \n"
+"            }                                                             \n"
 "        }                                                                 \n"
 "                                                                          \n"
 "        //                                                                \n"
@@ -443,6 +495,7 @@ initShaderLuminanceChroma
     cgSetErrorCallback (handleCgErrors);
 
     cgContext = cgCreateContext();
+    cgProfile = cgGLGetLatestProfile (CG_GL_FRAGMENT);
     cgGLSetOptimalOptions (cgProfile);
 
     cgProgram =
@@ -451,6 +504,7 @@ initShaderLuminanceChroma
 
     cgGLLoadProgram (cgProgram);
     cgGLBindProgram (cgProgram);
+    
     cgGLEnableProfile (cgProfile);
 
     CGparameter ywParam = cgGetNamedParameter (cgProgram, "yw");
@@ -476,6 +530,9 @@ initShaderLuminanceChroma
 
     CGparameter enableLutParam = cgGetNamedParameter (cgProgram, "enableLut");
     cgSetParameter1f (enableLutParam, enableCtl? 1.0: 0.0);
+
+    CGparameter lutFParam = cgGetNamedParameter (cgProgram, "lutF");
+    cgSetParameter1f (lutFParam, hwTexInterpolation? 0: lutN - 1);
 }
 
 
@@ -500,6 +557,7 @@ const char shaderRgbSource[] =
 "          uniform float lutMax,                                           \n"
 "          uniform float lutM,                                             \n"
 "          uniform float lutT,                                             \n"
+"          uniform float lutF,                                             \n"
 "          uniform float enableLut)                                        \n"
 "    {                                                                     \n"
 "        //                                                                \n"
@@ -513,9 +571,50 @@ const char shaderRgbSource[] =
 "        //                                                                \n"
 "                                                                          \n"
 "        if (enableLut)                                                    \n"
-"        {                                                                 \n"
-"            color = lutT + lutM * log (clamp (color, lutMin, lutMax));    \n"
-"            color = exp (tex3D (lut, color).rgb);                         \n"
+"	 {                                                                 \n"
+"            if (lutF)                                                     \n"
+"            {                                                             \n"
+"                //                                                        \n"
+"                // Texture hardware does not support                      \n"
+"                // interpolation between texture samples.                 \n"
+"                //                                                        \n"
+"                                                                          \n"
+"                half3 i = lutF * half3                                    \n"
+"                    (lutT + lutM * log (clamp (color, lutMin, lutMax)));  \n"
+"                                                                          \n"
+"                half3 fi = floor (i);                                     \n"
+"                half3 fj = fi + 1;                                        \n"
+"                half3 s = i - fi;                                         \n"
+"                                                                          \n"
+"                fi = fi / lutF;                                           \n"
+"                fj = fj / lutF;                                           \n"
+"                                                                          \n"
+"                half3 c0 = tex3D (lut, half3 (fi.x, fi.y, fi.z)).rgb;     \n"
+"                half3 c1 = tex3D (lut, half3 (fj.x, fi.y, fi.z)).rgb;     \n"
+"                half3 c2 = tex3D (lut, half3 (fi.x, fj.y, fi.z)).rgb;     \n"
+"                half3 c3 = tex3D (lut, half3 (fj.x, fj.y, fi.z)).rgb;     \n"
+"                half3 c4 = tex3D (lut, half3 (fi.x, fi.y, fi.z)).rgb;     \n"
+"                half3 c5 = tex3D (lut, half3 (fj.x, fi.y, fj.z)).rgb;     \n"
+"                half3 c6 = tex3D (lut, half3 (fi.x, fj.y, fj.z)).rgb;     \n"
+"                half3 c7 = tex3D (lut, half3 (fj.x, fj.y, fj.z)).rgb;     \n"
+"                                                                          \n"
+"                color = ((c0 * (1-s.x) + c1 * s.x) * (1-s.y) +            \n"
+"                         (c2 * (1-s.x) + c3 * s.x) *  s.y) * (1-s.z) +    \n"
+"                        ((c4 * (1-s.x) + c5 * s.x) * (1-s.y) +            \n"
+"                         (c6 * (1-s.x) + c7 * s.x) *  s.y) * s.z;         \n"
+"                                                                          \n"
+"                color = exp (color);                                      \n"
+"            }                                                             \n"
+"            else                                                          \n"
+"            {                                                             \n"
+"                //                                                        \n"
+"                // Texture hardware supports trilinear                    \n"
+"                // interpolation between texture samples.                 \n"
+"                //                                                        \n"
+"                                                                          \n"
+"                color = lutT + lutM * log (clamp (color, lutMin, lutMax));\n"
+"                color = exp (tex3D (lut, color).rgb);                     \n"
+"            }                                                             \n"
 "        }                                                                 \n"
 "                                                                          \n"
 "        //                                                                \n"
@@ -539,6 +638,7 @@ initShaderRgb
     cgSetErrorCallback (handleCgErrors);
 
     cgContext = cgCreateContext();
+    cgProfile = cgGLGetLatestProfile (CG_GL_FRAGMENT);
     cgGLSetOptimalOptions (cgProfile);
 
     cgProgram =
@@ -569,6 +669,9 @@ initShaderRgb
 
     CGparameter enableLutParam = cgGetNamedParameter (cgProgram, "enableLut");
     cgSetParameter1f (enableLutParam, enableCtl? 1.0: 0.0);
+
+    CGparameter lutFParam = cgGetNamedParameter (cgProgram, "lutF");
+    cgSetParameter1f (lutFParam, hwTexInterpolation? 0: lutN - 1);
 }
 
 
@@ -709,7 +812,7 @@ init3DLut
     //
     // The 3D lookup table covers a range from lutMin to lutMax or
     // NUM_STOPS f-stops above and below 0.18 or MIDDLE_GRAY.  The
-    // size of the table is N by N by N samples.
+    // size of the table is lutN by lutN by lutN samples.
     //
     // In order make the distribution of the samples in the table
     // approximately perceptually uniform, the Cg shaders that use
@@ -742,8 +845,7 @@ init3DLut
     lutM = 1 / (logLutMax - logLutMin);
     lutT = -lutM * logLutMin;
 
-    static const size_t N = 64;
-    size_t LUT_SIZE = N * N * N * 4;
+    size_t LUT_SIZE = lutN * lutN * lutN * 4;
 
     //
     // Build a 3D array of RGB input pixel values.
@@ -752,22 +854,22 @@ init3DLut
 
     Array<half> pixelValues (LUT_SIZE);
 
-    for (size_t ib = 0; ib < N; ++ib)
+    for (size_t ib = 0; ib < lutN; ++ib)
     {
-	float b = ib / (N - 1.0);
+	float b = ib / (lutN - 1.0);
 	half B = exp ((b - lutT) / lutM);
 
-	for (size_t ig = 0; ig < N; ++ig)
+	for (size_t ig = 0; ig < lutN; ++ig)
 	{
-	    float g = ig / (N - 1.0);
+	    float g = ig / (lutN - 1.0);
 	    half G = exp ((g - lutT) / lutM);
 
-	    for (int ir = 0; ir < N; ++ir)
+	    for (int ir = 0; ir < lutN; ++ir)
 	    {
-		float r = ir / (N - 1.0);
+		float r = ir / (lutN - 1.0);
 		half R = exp ((r - lutT) / lutM);
 
-		size_t i = (ib * N * N + ig * N + ir) * 4;
+		size_t i = (ib * lutN * lutN + ig * lutN + ir) * 4;
 		pixelValues[i + 0] = R;
 		pixelValues[i + 1] = G;
 		pixelValues[i + 2] = B;
@@ -839,7 +941,7 @@ init3DLut
     glTexImage3D (GL_TEXTURE_3D,
 		  0,			// level
 		  GL_RGBA16F_ARB,	// internalFormat
-		  N, N, N,		// width, height, depth
+		  lutN, lutN, lutN,	// width, height, depth
 		  0,			// border
 		  GL_RGBA,		// format
 		  GL_HALF_FLOAT_ARB,	// type
@@ -1284,7 +1386,8 @@ playExr (const char fileNameTemplate[],
 	 int lastFrame,
 	 int numThreads,
 	 float fps,
-	 const vector<string> &transformNames)
+	 const vector<string> &transformNames,
+	 bool useHwTexInterpolation)
 {
     //
     // Set the number of threads the IlmImf library
@@ -1352,6 +1455,8 @@ playExr (const char fileNameTemplate[],
     float t;
 
     init3DLut (transformNames, header, xMin, xMax, m, t);
+
+    hwTexInterpolation = useHwTexInterpolation;
 
     if (ib.rgbMode)
     {
