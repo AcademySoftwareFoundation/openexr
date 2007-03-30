@@ -79,12 +79,6 @@
 
 #endif
 
-#if defined __APPLE__
-    #define PLAYEXR_CG_PROFILE CG_PROFILE_ARBFP1
-#else
-    #define PLAYEXR_CG_PROFILE CG_PROFILE_FP30
-#endif
-
 
 void initAndCheckGlExtensions ();
 
