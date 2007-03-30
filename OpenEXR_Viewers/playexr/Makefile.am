@@ -36,8 +36,6 @@ playexr_SOURCES = \
 	osDependent.cpp \
 	osDependent.h 
 
-else
-install-exec-hook:
 endif
 
 noinst_HEADERS =  \
