@@ -88,6 +88,14 @@ usageMessage (const char argv0[], bool verbose = false)
 		"       The transforms are applied in the order in which\n"
 		"       they appear on the command line.\n"
 		"\n"
+		"-i     On machines where the graphics hardware does not\n"
+		"       directly support interpolation between texture map\n"
+		"       pixels, images with smooth color gradients will\n"
+		"       exhibit contouring artifacts.  Option -i selects\n"
+		"       software-based texture map pixel interpolation.\n"
+		"       This avoids contouring but may slow down image\n"
+		"       playback.\n"
+		"\n"
 	    #endif
 		"-h     prints this message\n"
 		"\n"
@@ -176,6 +184,7 @@ main(int argc, char **argv)
     int numThreads = 0;
     float fps = -1;
     vector<string> transformNames;
+    bool useHwTexInterpolation = true;
 
     //
     // Parse the command line.
@@ -239,6 +248,15 @@ main(int argc, char **argv)
 
 	    transformNames.push_back (argv[i + 1]);
 	    i += 2;
+	}
+	else if (!strcmp (argv[i], "-i"))
+	{
+	    //
+	    // Use software-based texture map interpolation
+	    //
+
+	    useHwTexInterpolation = false;
+	    i += 1;
 	}
 	else if (!strcmp (argv[i], "-h"))
 	{
@@ -310,7 +328,8 @@ main(int argc, char **argv)
 		 lastFrame,
 		 numThreads,
 		 fps,
-		 transformNames);
+		 transformNames,
+		 useHwTexInterpolation);
     }
     catch (const exception &e)
     {
