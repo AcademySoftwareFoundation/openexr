@@ -225,6 +225,7 @@ Summary for OpenEXR features:
 
 build IlmImf example program                    $build_imfexamples
 build OS X universal binaries                   $build_osxuniversal
+enable large stack optimizations                $large_stack
 ---------------------------------------------
   ])
 else
@@ -233,6 +234,7 @@ else
 Summary for OpenEXR features:
 
 build IlmImf example program                    $build_imfexamples
+enable large stack optimizations                $large_stack
 ---------------------------------------------
   ])
 fi
