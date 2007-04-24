@@ -7,7 +7,6 @@
 
 #undef HAVE_LINUX_PROCFS
 
-
 //
 // Define and set to 1 if the target system is a Darwin-based system
 // (e.g., OS X).
@@ -22,3 +21,11 @@
 //
 
 #undef HAVE_COMPLETE_IOMANIP
+
+//
+// Define and set to 1 if the target system has support for large
+// stack sizes.
+//
+
+#undef HAVE_LARGE_STACK
+

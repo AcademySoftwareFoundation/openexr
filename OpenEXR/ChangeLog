@@ -1,5 +1,8 @@
 Version 1.5.1:
-	Installation Tuning 
+	* Added flag to configure.ac to enable or disable use of large
+	  auto arrays in the IlmImf library.  Default is "enable" for
+	  Linux, "disable" for everything else.
+	  (Darby Johnston, Florian Kainz)
         * corrected version number on dso's (libtool) - now 5.0
 	* Separated ILMBASE_LDFLAGS and ILMBASE_LIBS so that test programs
 	can link with static libraries properly
