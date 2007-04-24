@@ -39,9 +39,8 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class AutoArray -- a workaround for the
-//	lack of large auto arrays on Mac OS X and
-//      Win32.
+//	class AutoArray -- a workaround for systems with
+//	insufficient stack space for large auto arrays.
 //
 //-----------------------------------------------------------------------------
 
@@ -50,7 +49,7 @@
 namespace Imf {
 
 
-#if defined (HAVE_DARWIN) || defined (_WIN32) || defined (_WIN64)
+#if !defined (HAVE_LARGE_STACK)
 
 
     template <class T, int size>

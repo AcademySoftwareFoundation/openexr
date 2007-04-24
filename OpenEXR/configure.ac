@@ -72,6 +72,29 @@ if test x$PKG_CONFIG == xno && test "x${multithread}" != xno ; then
     AC_MSG_NOTICE([multithread true, LIBS = $LIBS, CC = $CC, CXXFLAGS = $CXXFLAGS])
 fi
 
+dnl --enable-large-stack
+case "$host" in
+*linux*)
+  AC_ARG_ENABLE(large-stack,
+		AC_HELP_STRING([--enable-large-stack],
+			       [enable optimizations for systems that support
+			       large stack sizes [[default=yes]]]),
+		[large_stack="${enableval}"],
+		[large_stack=yes])
+  ;;
+*)
+  AC_ARG_ENABLE(large-stack,
+		AC_HELP_STRING([--enable-large-stack],
+			       [enable optimizations for systems that support
+			       large stack sizes [[default=no]]]),
+		[large_stack="${enableval}"],
+		[large_stack=no])
+  ;;
+esac
+
+if test "x${large_stack}" != xno ; then
+    AC_DEFINE(HAVE_LARGE_STACK)
+fi
 
 AM_COMPILELINKRUN(
    [IlmBase],
