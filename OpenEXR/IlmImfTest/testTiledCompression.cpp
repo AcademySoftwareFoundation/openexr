@@ -294,7 +294,7 @@ writeRead (const Array2D<unsigned int> &pi1,
 
         assert (ii == in.header().channels().end());
 
-	if (comp == B44_COMPRESSION)
+	if (comp == B44_COMPRESSION || comp == B44A_COMPRESSION)
 	{
 	    for (int y = 0; y < h; y += ySize)
 	    {
@@ -326,7 +326,7 @@ writeRead (const Array2D<unsigned int> &pi1,
 	    {
 		assert (pi1[y][x] == pi2[y][x]);
 
-		if (comp != B44_COMPRESSION)
+		if (comp != B44_COMPRESSION && comp != B44A_COMPRESSION)
 		    assert (ph1[y][x] == ph2[y][x]);
 
 		assert (equivalent (pf1[y][x], pf2[y][x], comp));
@@ -425,8 +425,10 @@ writeRead (const Array2D<unsigned int> &pi1,
                     {
                         assert (pi1[oY + y][oX + x] == pi2[y][x]);
 
-			if (comp != B44_COMPRESSION)
+			if (comp != B44_COMPRESSION && comp != B44A_COMPRESSION)
+			{
 			    assert (ph1[oY + y][oX + x] == ph2[y][x]);
+			}
 
                         assert (equivalent (pf1[oY + y][oX + x],
                                             pf2[y][x], comp));

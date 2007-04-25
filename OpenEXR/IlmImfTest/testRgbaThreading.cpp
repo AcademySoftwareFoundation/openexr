@@ -140,7 +140,8 @@ writeReadRGBA (const char fileName[],
 	assert (in.compression() == header.compression());
 	assert (in.channels() == channels);
 
-	if (in.compression() == B44_COMPRESSION)
+	if (in.compression() == B44_COMPRESSION ||
+	    in.compression() == B44A_COMPRESSION)
 	{
 	    compareB44 (w, h, p1, p2, channels);
 	}

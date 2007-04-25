@@ -244,7 +244,8 @@ writeReadRGBA (const char fileName[],
 
         cout << "comparing " << endl;
 
-	if (in.compression() == B44_COMPRESSION)
+	if (in.compression() == B44_COMPRESSION ||
+	    in.compression() == B44A_COMPRESSION)
 	{
 	    compareB44 (width, height, p1, p2, channels);
 	}

@@ -99,6 +99,10 @@ printCompression (Compression c)
 	  cout << "b44";
 	  break;
 
+      case B44A_COMPRESSION:
+	  cout << "b44a";
+	  break;
+
       default:
 	cout << int (c);
 	break;

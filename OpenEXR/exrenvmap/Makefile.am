@@ -2,9 +2,9 @@
 
 bin_PROGRAMS = exrenvmap
 
-INCLUDES = @ILMBASE_CXXFLAGS@ \
-	   -I$(top_builddir) \
-           -I$(top_srcdir)/IlmImf -I$(top_srcdir)/config
+INCLUDES = -I$(top_builddir) \
+           -I$(top_srcdir)/IlmImf -I$(top_srcdir)/config \
+	   @ILMBASE_CXXFLAGS@
 
 LDADD = @ILMBASE_LDFLAGS@ @ILMBASE_LIBS@\
 	$(top_builddir)/IlmImf/libIlmImf.la \

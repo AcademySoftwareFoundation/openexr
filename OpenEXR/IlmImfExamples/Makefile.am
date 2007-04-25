@@ -4,9 +4,9 @@ if BUILD_IMFEXAMPLES
 noinst_PROGRAMS = imfexamples
 endif
 
-INCLUDES = @ILMBASE_CXXFLAGS@ \
-            -I$(top_builddir)  \
-            -I$(top_srcdir)/IlmImf -I$(top_srcdir)/config
+INCLUDES = -I$(top_builddir) \
+           -I$(top_srcdir)/IlmImf -I$(top_srcdir)/config \
+	   @ILMBASE_CXXFLAGS@
 
 LDADD = @ILMBASE_LDFLAGS@ @ILMBASE_LIBS@ \
 	-L$(top_builddir)/IlmImf \
