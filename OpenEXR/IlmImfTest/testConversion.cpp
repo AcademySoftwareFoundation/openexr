@@ -350,7 +350,7 @@ testConversion ()
 
 	for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
 	{
-	    if (comp == B44_COMPRESSION)
+	    if (comp == B44_COMPRESSION || comp == B44A_COMPRESSION)
 		continue;
 
 	    testImageChannel <unsigned int, UINT, unsigned int, UINT>

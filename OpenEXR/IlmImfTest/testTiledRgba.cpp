@@ -127,7 +127,7 @@ writeReadRGBAONE (const char fileName[],
         assert (in.compression() == header.compression());
         assert (in.channels() == channels);
 
-	if (comp == B44_COMPRESSION)
+	if (comp == B44_COMPRESSION || comp == B44A_COMPRESSION)
 	{
 	    for (int y = 0; y < h; y += ySize)
 	    {
@@ -424,7 +424,7 @@ writeRead (int W, int H, Compression comp, int xSize, int ySize)
 
     writeReadRGBAONE (filename, W, H, WRITE_RGBA, comp, xSize, ySize);
 
-    if (comp != B44_COMPRESSION)
+    if (comp != B44_COMPRESSION && comp != B44A_COMPRESSION)
     {
 	//
 	// Skip mipmaps and ripmaps with B44 compression; writing an
