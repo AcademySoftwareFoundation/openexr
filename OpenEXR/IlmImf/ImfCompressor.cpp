@@ -97,6 +97,7 @@ isValidCompression (Compression c)
       case PIZ_COMPRESSION:
       case PXR24_COMPRESSION:
       case B44_COMPRESSION:
+      case B44A_COMPRESSION:
 
 	return true;
 
@@ -134,7 +135,11 @@ newCompressor (Compression c, int maxScanLineSize, const Header &hdr)
 
       case B44_COMPRESSION:
 
-	return new B44Compressor (hdr, maxScanLineSize, 32);
+	return new B44Compressor (hdr, maxScanLineSize, 32, false);
+
+      case B44A_COMPRESSION:
+
+	return new B44Compressor (hdr, maxScanLineSize, 32, true);
 
       default:
 
@@ -170,7 +175,11 @@ newTileCompressor (Compression c,
 
       case B44_COMPRESSION:
 
-	return new B44Compressor (hdr, tileLineSize, numTileLines);
+	return new B44Compressor (hdr, tileLineSize, numTileLines, false);
+
+      case B44A_COMPRESSION:
+
+	return new B44Compressor (hdr, tileLineSize, numTileLines, true);
 
       default:
 

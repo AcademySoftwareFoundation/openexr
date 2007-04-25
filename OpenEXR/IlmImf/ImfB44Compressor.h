@@ -53,7 +53,11 @@ class B44Compressor: public Compressor
 {
   public:
 
-    B44Compressor (const Header &hdr, int maxScanLineSize, int numScanLines);
+    B44Compressor (const Header &hdr,
+                   int maxScanLineSize,
+		   int numScanLines,
+		   bool optFlatFields);
+
     virtual ~B44Compressor ();
 
     virtual int		numScanLines () const;
@@ -94,6 +98,7 @@ class B44Compressor: public Compressor
 				    const char *&outPtr);
 
     int			_maxScanLineSize;
+    bool		_optFlatFields;
     Format		_format;
     int			_numScanLines;
     unsigned short *	_tmpBuffer;

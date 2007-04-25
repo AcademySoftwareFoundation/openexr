@@ -306,7 +306,7 @@ writeCopyReadMIP (const char fileName1[],
 		{
                     assert ((levels2[l])[y][x] == (levels1[l])[y][x]);
 
-		    if (comp != B44_COMPRESSION)
+		    if (comp != B44_COMPRESSION && comp != B44A_COMPRESSION)
 			assert ((levels2[l])[y][x] == (levels[l])[y][x]);
 		}
     }
@@ -458,7 +458,7 @@ writeCopyReadRIP (const char fileName1[],
                         assert ((levels2[ly][lx])[y][x] ==
                                 (levels1[ly][lx])[y][x]);
 
-			if (comp != B44_COMPRESSION)
+			if (comp != B44_COMPRESSION && comp != B44A_COMPRESSION)
 			    assert ((levels2[ly][lx])[y][x] ==
 				    (levels[ly][lx])[y][x]);
 

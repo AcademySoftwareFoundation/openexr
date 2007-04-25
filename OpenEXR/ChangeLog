@@ -1,13 +1,20 @@
-Version 1.5.1:
+	* Added B44A compression, a minor variation of B44: in most cases,
+	  the compression ratio is 2.28:1, the same as with B44, but in
+	  uniform image areas where all pixels have the same value, the
+	  compression ratio increases to 10.66:1.  Uniform areas occur, for
+	  example, in an image's alpha channel, which typically contains
+	  large patches that are solid black or white, or in computer-
+	  generated images with a black background.
+	  (Florian Kainz)
 	* Added flag to configure.ac to enable or disable use of large
 	  auto arrays in the IlmImf library.  Default is "enable" for
 	  Linux, "disable" for everything else.
 	  (Darby Johnston, Florian Kainz)
         * corrected version number on dso's (libtool) - now 5.0
 	* Separated ILMBASE_LDFLAGS and ILMBASE_LIBS so that test programs
-	can link with static libraries properly
+	  can link with static libraries properly
 	* eliminated some warning messages during install
-	(Andrew Kunz)
+	  (Andrew Kunz)
 	
 Version 1.5.0:
 	* reorganized packaging of OpenEXR libraries to facilitate
@@ -52,7 +59,7 @@ Version 1.5.0:
 	  to the display's RGB space.
 	  (Florian Kainz)
 	* Added new lossy B44 compression method.  HALF channels are
-	  compressed with a fixed ratio of 2.66:1.  UINT and FLOAT
+	  compressed with a fixed ratio of 2.28:1.  UINT and FLOAT
 	  channels are stored verbatim, without compression.
 	  (Florian Kainz)
 

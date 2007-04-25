@@ -51,7 +51,7 @@
     #include <windows.h>
     #include <FL/Fl.H>
     #include <GL/gl.h>
-#elif defined PLATFORM_DARWIN_PPC || defined __APPLE__
+#elif defined __APPLE__
     #include <FL/Fl.H>
     #include <OpenGL/gl.h>
 #else
