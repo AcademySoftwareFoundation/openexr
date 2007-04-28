@@ -1,3 +1,7 @@
+	* Bug fix: excessive desaturation of small details with certain
+	  colors after repeatedly loading and saving luminance/chroma
+	  encoded images with B44 compression.
+	  (Florian Kainz)
 	* Added B44A compression, a minor variation of B44: in most cases,
 	  the compression ratio is 2.28:1, the same as with B44, but in
 	  uniform image areas where all pixels have the same value, the
@@ -10,7 +14,7 @@
 	  auto arrays in the IlmImf library.  Default is "enable" for
 	  Linux, "disable" for everything else.
 	  (Darby Johnston, Florian Kainz)
-        * corrected version number on dso's (libtool) - now 5.0
+	* corrected version number on dso's (libtool) - now 5.0
 	* Separated ILMBASE_LDFLAGS and ILMBASE_LIBS so that test programs
 	  can link with static libraries properly
 	* eliminated some warning messages during install
