@@ -150,7 +150,10 @@ convertToLinear (unsigned short s[16])
 
 
 int
-pack (const unsigned short s[16], unsigned char b[14], bool optFlatFields)
+pack (const unsigned short s[16],
+      unsigned char b[14],
+      bool optFlatFields,
+      bool exactMax)
 {
     //
     // Pack a block of 4 by 4 16-bit pixels (32 bytes) into
@@ -305,12 +308,15 @@ pack (const unsigned short s[16], unsigned char b[14], bool optFlatFields)
 	return 3;
     }
 
-    //
-    // Adjust t[0] so that the pixel whose value is equal
-    // to tMax gets represented as accurately as possible.
-    //
+    if (exactMax)
+    {
+	//
+	// Adjust t[0] so that the pixel whose value is equal
+	// to tMax gets represented as accurately as possible.
+	//
 
-    t[0] = tMax - (d[0] << shift);
+	t[0] = tMax - (d[0] << shift);
+    }
 
     //
     // Pack t[0], shift and r[0] ... r[14] into 14 bytes:
@@ -822,7 +828,8 @@ B44Compressor::compress (const char *inPtr,
 		if (cd.pLinear)
 		    convertFromLinear (s);
 
-		outEnd += pack (s, (unsigned char *) outEnd, _optFlatFields);
+		outEnd += pack (s, (unsigned char *) outEnd,
+				_optFlatFields, !cd.pLinear);
 	    }
 	}
     }
