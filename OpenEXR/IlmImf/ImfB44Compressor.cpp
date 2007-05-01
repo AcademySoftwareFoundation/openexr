@@ -374,7 +374,7 @@ unpack14 (const unsigned char b[14], unsigned short s[16])
     //
 
     #if defined (DEBUG)
-	assert (b[2] == 0xfc);
+	assert (b[2] != 0xfc);
     #endif
 
     s[ 0] = (b[0] << 8) | b[1];
