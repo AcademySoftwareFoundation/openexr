@@ -44,6 +44,17 @@ using namespace Imf;
 using namespace std;
 
 
+int
+shiftAndRound (int x, int shift)
+{
+    x <<= 1;
+    int a = (1 << shift) - 1;
+    shift += 1;
+    int b = (x >> shift) & 1;
+    return (x + a + b) >> shift;
+}
+
+
 bool
 withinB44ErrorBounds (const half A[4][4], const half B[4][4])
 {
@@ -107,10 +118,8 @@ withinB44ErrorBounds (const half A[4][4], const half B[4][4])
     {
 	shift += 1;
 
-	int h = (1 << shift) >> 1;
-
 	for (int i = 0; i < 16; ++i)
-	    d[i] = (tMax - t[i] + h) >> shift;
+	    d[i] = shiftAndRound (tMax - t[i], shift);
 
 	const int bias = 0x20;
 

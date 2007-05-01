@@ -149,6 +149,28 @@ convertToLinear (unsigned short s[16])
 }
 
 
+inline int
+shiftAndRound (int x, int shift)
+{
+    //
+    // Compute
+    //
+    //     y = x * pow (2, -shift),
+    //
+    // then round y to the nearest integer.
+    // In case of a tie, where y is exactly
+    // halfway between two integers, round
+    // to the even one.
+    //
+
+    x <<= 1;
+    int a = (1 << shift) - 1;
+    shift += 1;
+    int b = (x >> shift) & 1;
+    return (x + a + b) >> shift;
+}
+
+
 int
 pack (const unsigned short s[16],
       unsigned char b[14],
@@ -250,10 +272,8 @@ pack (const unsigned short s[16],
 	// Shift and round the absolute differences.
 	//
 
-	int h = (1 << shift) >> 1;
-
 	for (int i = 0; i < 16; ++i)
-	    d[i] = (tMax - t[i] + h) >> shift;
+	    d[i] = shiftAndRound (tMax - t[i], shift);
 
 	//
 	// Convert d[0] .. d[15] into running differences
