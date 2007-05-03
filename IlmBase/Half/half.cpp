@@ -129,12 +129,17 @@ half::convert (int i)
 	// whose magnitude is less than HALF_NRM_MIN.
 	//
 	// We convert f to a denormalized half.
-	// 
-
-	m = (m | 0x00800000) >> (1 - e);
+	//
 
 	//
-	// Round to nearest, round "0.5" up.
+	// Add an explicit leading 1 to the significand.
+	// 
+
+	m = m | 0x00800000;
+
+	//
+	// Round to m to the nearest (10+e)-bit value (with e between
+	// -10 and 0); in case of a tie, round to the nearest even value.
 	//
 	// Rounding may cause the significand to overflow and make
 	// our number normalized.  Because of the way a half's bits
@@ -142,14 +147,17 @@ half::convert (int i)
 	// the code below will handle it correctly.
 	// 
 
-	if (m &  0x00001000)
-	    m += 0x00002000;
+	int t = 14 - e;
+	int a = (1 << (t - 1)) - 1;
+	int b = (m >> t) & 1;
+
+	m = (m + a + b) >> t;
 
 	//
 	// Assemble the half from s, e (zero) and m.
 	//
 
-	return s | (m >> 13);
+	return s | m;
     }
     else if (e == 0xff - (127 - 15))
     {
@@ -185,18 +193,16 @@ half::convert (int i)
 	//
 
 	//
-	// Round to nearest, round "0.5" up
+	// Round to m to the nearest 10-bit value.  In case of
+	// a tie, round to the nearest even value.
 	//
 
-	if (m &  0x00001000)
-	{
-	    m += 0x00002000;
+	m = m + 0x00000fff + ((m >> 13) & 1);
 
-	    if (m & 0x00800000)
-	    {
-		m =  0;		// overflow in significand,
-		e += 1;		// adjust exponent
-	    }
+	if (m & 0x00800000)
+	{
+	    m =  0;		// overflow in significand,
+	    e += 1;		// adjust exponent
 	}
 
 	//
