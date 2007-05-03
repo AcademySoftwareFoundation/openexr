@@ -483,11 +483,12 @@ half::half (float f)
 	if (e)
 	{
 	    //
-	    // Simple case - round the significand and
-	    // combine it with the sign and exponent.
+	    // Simple case - round the significand, m, to 10
+	    // bits and combine it with the sign and exponent.
 	    //
 
-	    _h = e + (((x.i & 0x007fffff) + 0x00001000) >> 13);
+	    register int m = x.i & 0x007fffff;
+	    _h = e + ((m + 0x00000fff + ((m >> 13) & 1)) >> 13);
 	}
 	else
 	{
