@@ -416,7 +416,7 @@ void
 unpack3 (const unsigned char b[3], unsigned short s[16])
 {
     //
-    // Unpack a 14-byte block into 4 by 4 identical 16-bit pixels.
+    // Unpack a 3-byte block into 4 by 4 identical 16-bit pixels.
     //
 
     #if defined (DEBUG)
