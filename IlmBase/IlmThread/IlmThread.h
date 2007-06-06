@@ -103,6 +103,16 @@
     #include <pthread.h>
 #endif
 
+#if defined(OPENEXR_DLL) && !defined(ZENO_STATIC)
+    #ifdef ILMTHREAD_EXPORTS
+	#define ILMTHREAD_EXPORT __declspec(dllexport)
+    #else
+	#define ILMTHREAD_EXPORT __declspec(dllimport)
+    #endif
+#else
+    #define ILMTHREAD_EXPORT 
+#endif
+
 namespace IlmThread {
 
 //
@@ -110,10 +120,10 @@ namespace IlmThread {
 // threads AND this library was compiled with threading enabled.
 //
 
-bool supportsThreads ();
+ILMTHREAD_EXPORT bool supportsThreads ();
 
 
-class Thread
+class ILMTHREAD_EXPORT Thread
 {
   public:
 
