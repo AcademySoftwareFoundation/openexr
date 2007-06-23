@@ -45,7 +45,6 @@
 #include <IlmThreadMutex.h>
 #include <IlmThreadSemaphore.h>
 #include <ImfThreading.h>
-#include <ImathRandom.h>
 
 #include <stdio.h>
 #include <assert.h>
