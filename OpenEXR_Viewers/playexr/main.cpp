@@ -81,6 +81,10 @@ usageMessage (const char argv0[], bool verbose = false)
 		"       an individual image file takes no more than 1/n\n"
 		"       seconds).\n"
 		"\n"
+		"-S n   images will be displayed at n times their original\n"
+		"       width and height.  n must be in the range from 0.1\n"
+		"       to 2.0.\n"
+		"\n"
 	    #if HAVE_CTL_INTERPRETER
 		"-C s   CTL transform s is applied to each image before it\n"
 		"       is displayed.  Option -C can be specified multiple\n"
@@ -182,6 +186,7 @@ main(int argc, char **argv)
     int lastFrame = 1;
     int numThreads = 0;
     float fps = -1;
+    float xyScale = 1;
     vector<string> transformNames;
     bool useHwTexInterpolation = true;
 
@@ -231,6 +236,25 @@ main(int argc, char **argv)
 	    {
 		cerr << "Playback speed must be between "
 			"1 and 1000 frames per second." << endl;
+		return 1;
+	    }
+
+	    i += 2;
+	}
+	else if (!strcmp (argv[i], "-S"))
+	{
+	    //
+	    // Set image scale factor
+	    //
+
+	    if (i > argc - 2)
+		usageMessage (argv[0]);
+
+	    xyScale = strtod (argv[i + 1], 0);
+
+	    if (xyScale < 0.1 || xyScale > 2.0)
+	    {
+		cerr << "Scale factor must be between 0.1 and 2.0." << endl;
 		return 1;
 	    }
 
@@ -327,6 +351,7 @@ main(int argc, char **argv)
 		 lastFrame,
 		 numThreads,
 		 fps,
+		 xyScale,
 		 transformNames,
 		 useHwTexInterpolation);
     }

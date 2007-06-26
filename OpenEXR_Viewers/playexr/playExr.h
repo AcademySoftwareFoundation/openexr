@@ -50,6 +50,7 @@ playExr (const char fileNameTemplate[],
 	 int lastFrame,
 	 int numThreads,
 	 float fps,
+	 float xyScale,
 	 const std::vector<std::string> &transformNames,
 	 bool useHwTexInterpolation);
 

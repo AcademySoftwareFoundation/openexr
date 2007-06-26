@@ -289,7 +289,8 @@ void
 computeWindowSizes
     (Box2i &dataWindow,
      Box2i &displayWindow,
-     float pixelAspectRatio)
+     float pixelAspectRatio,
+     float xyScale)
 {
     //
     // Beginning with the data and display window of the first frame
@@ -343,7 +344,7 @@ computeWindowSizes
     //
     // The size and location of the image within the OpenGL window
     // is determined by the (possibly stretched) data window.
-    // The data window must be transformed from OpnEXR pixel space
+    // The data window must be transformed from OpenEXR pixel space
     // to OpenGL coordinates (with y going from bottom to top).
     //
 
@@ -352,6 +353,19 @@ computeWindowSizes
 
     drawRect.max.x = dataWindow.max.x + 1;
     drawRect.max.y = displayWindow.max.y - dataWindow.min.y + 1;
+
+    //
+    // The user may have requested that the images be
+    // displayed smaller or larger than their original size.
+    //
+
+    glWindowWidth  = int (floor (glWindowWidth  * xyScale + 0.5));
+    glWindowHeight = int (floor (glWindowHeight * xyScale + 0.5));
+
+    drawRect.min.x = int (floor (drawRect.min.x * xyScale + 0.5));
+    drawRect.min.y = int (floor (drawRect.min.y * xyScale + 0.5));
+    drawRect.max.x = int (floor (drawRect.max.x * xyScale + 0.5));
+    drawRect.max.y = int (floor (drawRect.max.y * xyScale + 0.5));
 }
 
 
@@ -1386,6 +1400,7 @@ playExr (const char fileNameTemplate[],
 	 int lastFrame,
 	 int numThreads,
 	 float fps,
+	 float xyScale,
 	 const vector<string> &transformNames,
 	 bool useHwTexInterpolation)
 {
@@ -1426,7 +1441,8 @@ playExr (const char fileNameTemplate[],
 
     computeWindowSizes (header.dataWindow(),
 			header.displayWindow(),
-			header.pixelAspectRatio());
+			header.pixelAspectRatio(),
+			xyScale);
 
     //
     // Create an OpenGL window
