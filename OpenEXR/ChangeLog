@@ -1,3 +1,6 @@
+	* Bug fix: for pixels with luminance near HALF_MIN, conversion
+	  from RGB to luminance/chroma produces NaNs and infinities
+	  (Florian Kainz)
 	* Bug fix: excessive desaturation of small details with certain
 	  colors after repeatedly loading and saving luminance/chroma
 	  encoded images with B44 compression.

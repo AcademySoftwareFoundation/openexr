@@ -105,9 +105,9 @@ RGBAtoYCA (const V3f &yw,
 	}
 	else
 	{
-	    float Y = in.r * yw.x + in.g * yw.y + in.b * yw.z;
+	    out.g = in.r * yw.x + in.g * yw.y + in.b * yw.z;
 
-	    out.g = Y;
+	    float Y = out.g;
 
 	    if (abs (in.r - Y) < HALF_MAX * Y)
 		out.r = (in.r - Y) / Y;
