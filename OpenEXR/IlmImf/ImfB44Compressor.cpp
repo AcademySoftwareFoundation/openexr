@@ -55,7 +55,7 @@
 //         computed by subtracting adjacent pixel values and right-
 //	   shifting the differences according to the stored shift value.
 //
-//	   Differences are between adjacent pixels are computed according
+//	   Differences between adjacent pixels are computed according
 //	   to the following diagram:
 //
 //		 0 -------->  1 -------->  2 -------->  3
