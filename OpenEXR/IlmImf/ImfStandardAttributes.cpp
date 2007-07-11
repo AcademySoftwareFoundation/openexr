@@ -91,6 +91,8 @@ namespace Imf {
    
 IMF_STD_ATTRIBUTE_IMP (chromaticities, Chromaticities, Chromaticities)
 IMF_STD_ATTRIBUTE_IMP (whiteLuminance, WhiteLuminance, float)
+IMF_STD_ATTRIBUTE_IMP (adoptedNeutral, AdoptedNeutral, Imath::V2f)
+IMF_STD_ATTRIBUTE_IMP (renderingTransform, RenderingTransform, std::string)
 IMF_STD_ATTRIBUTE_IMP (xDensity, XDensity, float)
 IMF_STD_ATTRIBUTE_IMP (owner, Owner, std::string)
 IMF_STD_ATTRIBUTE_IMP (comments, Comments, std::string)
