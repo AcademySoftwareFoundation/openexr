@@ -1,3 +1,7 @@
+	* Added new standard attributes related to color rendering with
+	  CTL (Color Transformation Languate): renderingTransform and
+	  adoptedNeutral.
+	  (Florian Kainz)
 	* Bug fix: for pixels with luminance near HALF_MIN, conversion
 	  from RGB to luminance/chroma produces NaNs and infinities
 	  (Florian Kainz)
