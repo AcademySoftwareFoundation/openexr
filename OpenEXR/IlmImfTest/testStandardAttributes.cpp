@@ -881,6 +881,8 @@ generatedFunctions ()
 
     assert (hasChromaticities (header) == false);
     assert (hasWhiteLuminance (header) == false);
+    assert (hasAdoptedNeutral (header) == false);
+    assert (hasRenderingTransform (header) == false);
     assert (hasXDensity (header) == false);
     assert (hasOwner (header) == false);
     assert (hasComments (header) == false);
