@@ -42,6 +42,7 @@
 
 #include <ImfStandardAttributes.h>
 #include <ImfVecAttribute.h>
+#include <ImfIntAttribute.h>
 #include <ImfInputFile.h>
 #include <ImfOutputFile.h>
 #include <ImfTiledOutputFile.h>
@@ -81,6 +82,17 @@ usageMessage (const char argv0[], bool verbose = false)
 		"  -whiteLuminance f\n"
 		"        white luminance, in candelas per square meter\n"
 		"        (float, >= 0.0)\n"
+		"\n"
+		"  -adoptedNeutral f f\n"
+		"        CIE xy coordinates that should be considered\n"
+		"        \"neutral\" during color rendering.  Pixels in\n"
+		"        the image file whose xy coordinates match the\n"
+		"        adoptedNeutral value should be mapped to neutral\n"
+		"        values on the display. (2 floats)\n"
+		"\n"
+		"  -renderingTransform s\n"
+		"        name of the CTL rendering transform for this\n"
+		"        image (string)\n"
 		"\n"
 		"  -xDensity f\n"
 		"        horizontal output density, in pixels per inch\n"
@@ -169,6 +181,18 @@ usageMessage (const char argv0[], bool verbose = false)
 		"\n"
 		"  -screenWindowCenter f f\n"
 		"        center of the screen window (2 floats)\n"
+		"\n"
+		"  -string s s\n"
+		"        custom string attribute\n"
+		"        (2 strings, attribute name and value)\n"
+		"\n"
+		"  -float s f\n"
+		"        custom float attribute (string + float,\n"
+		"        attribute name and value)\n"
+		"\n"
+		"  -int s i\n"
+		"        custom integer attribute (string + integer,\n"
+		"        attribute name and value)\n"
 		"\n"
 		"Other Options:\n"
 		"\n"
@@ -405,6 +429,54 @@ getString (const char attrName[],
 
 
 void
+getNameAndString (int argc,
+		  char **argv,
+		  int &i,
+		  AttrMap &attrs)
+{
+    if (i > argc - 3)
+	usageMessage (argv[0]);
+
+    const char *attrName = argv[i + 1];
+    const char *str = argv[i + 2];
+    attrs[attrName] = new StringAttribute (str);
+    i += 3;
+}
+
+
+void
+getNameAndFloat (int argc,
+		 char **argv,
+		 int &i,
+		 AttrMap &attrs)
+{
+    if (i > argc - 3)
+	usageMessage (argv[0]);
+
+    const char *attrName = argv[i + 1];
+    float f = strtod (argv[i + 2], 0);
+    attrs[attrName] = new FloatAttribute (f);
+    i += 3;
+}
+
+
+void
+getNameAndInt (int argc,
+	       char **argv,
+	       int &i,
+	       AttrMap &attrs)
+{
+    if (i > argc - 3)
+	usageMessage (argv[0]);
+
+    const char *attrName = argv[i + 1];
+    int j = strtol (argv[i + 2], 0, 0);
+    attrs[attrName] = new IntAttribute (j);
+    i += 3;
+}
+
+
+void
 getChromaticities (const char attrName[],
 		   int argc,
 	           char **argv,
@@ -538,6 +610,14 @@ main(int argc, char **argv)
 	    {
 		getFloat (attrName, argc, argv, i, attrs);
 	    }
+	    else if (!strcmp (argv[i], "-adoptedNeutral"))
+	    {
+		getV2f (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-renderingTransform"))
+	    {
+		getString (attrName, argc, argv, i, attrs);
+	    }
 	    else if (!strcmp (argv[i], "-xDensity"))
 	    {
 		getFloat (attrName, argc, argv, i, attrs, isPositive);
@@ -617,6 +697,18 @@ main(int argc, char **argv)
 	    else if (!strcmp (argv[i], "-screenWindowCenter"))
 	    {
 		getV2f (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-string"))
+	    {
+		getNameAndString (argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-float"))
+	    {
+		getNameAndFloat (argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-int"))
+	    {
+		getNameAndInt (argc, argv, i, attrs);
 	    }
 	    else if (!strcmp (argv[i], "-h"))
 	    {
