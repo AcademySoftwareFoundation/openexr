@@ -348,6 +348,9 @@ applyCtl (vector<string> transformNames,
     if (!hasChromaticities (inHeader))
 	addChromaticities (inHeader, Chromaticities());
 
+    if (!hasAdoptedNeutral (inHeader))
+	addAdoptedNeutral (inHeader, chromaticities(inHeader).white);
+
     Header envHeader;
     initializeEnvHeader (envHeader);
 
