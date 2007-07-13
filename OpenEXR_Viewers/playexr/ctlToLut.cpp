@@ -291,6 +291,9 @@ ctlToLut (vector<string> transformNames,
     if (!hasChromaticities (inHeader))
 	addChromaticities (inHeader, Chromaticities());
 
+    if (!hasAdoptedNeutral (inHeader))
+	addAdoptedNeutral (inHeader, chromaticities(inHeader).white);
+
     initializeEnvHeader (envHeader);
 
     //
