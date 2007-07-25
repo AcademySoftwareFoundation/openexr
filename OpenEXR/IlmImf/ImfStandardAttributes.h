@@ -110,11 +110,13 @@ IMF_STD_ATTRIBUTE_DEF (adoptedNeutral, AdoptedNeutral, Imath::V2f)
 
 
 //
-// renderingTransform -- specifies the name of a CTL function that
-// implements the intended color rendering transform for this image.
+// renderingTransform, lookModTransform -- specify the names of the
+// CTL functions that implements the intended color rendering and look
+// modification transforms for this image.
 // 
 
 IMF_STD_ATTRIBUTE_DEF (renderingTransform, RenderingTransform, std::string)
+IMF_STD_ATTRIBUTE_DEF (lookModTransform, LookModTransform, std::string)
 
 
 //

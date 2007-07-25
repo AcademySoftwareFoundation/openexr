@@ -94,6 +94,10 @@ usageMessage (const char argv0[], bool verbose = false)
 		"        name of the CTL rendering transform for this\n"
 		"        image (string)\n"
 		"\n"
+		"  -lookModTransform s\n"
+		"        name of the CTL look modification transform for\n"
+		"        this image (string)\n"
+		"\n"
 		"  -xDensity f\n"
 		"        horizontal output density, in pixels per inch\n"
 		"        (float, >= 0.0)\n"
@@ -615,6 +619,10 @@ main(int argc, char **argv)
 		getV2f (attrName, argc, argv, i, attrs);
 	    }
 	    else if (!strcmp (argv[i], "-renderingTransform"))
+	    {
+		getString (attrName, argc, argv, i, attrs);
+	    }
+	    else if (!strcmp (argv[i], "-lookModTransform"))
 	    {
 		getString (attrName, argc, argv, i, attrs);
 	    }
