@@ -883,6 +883,7 @@ generatedFunctions ()
     assert (hasWhiteLuminance (header) == false);
     assert (hasAdoptedNeutral (header) == false);
     assert (hasRenderingTransform (header) == false);
+    assert (hasLookModTransform (header) == false);
     assert (hasXDensity (header) == false);
     assert (hasOwner (header) == false);
     assert (hasComments (header) == false);
