@@ -36,8 +36,8 @@
 //
 //	Rational numbers
 //
-//	The the double-to-Rational conversion code
-//	below was contributed to OpenEXR by Greg Ward.
+//	The double-to-Rational conversion code below
+//	was contributed to OpenEXR by Greg Ward.
 //
 //-----------------------------------------------------------------------------
 
