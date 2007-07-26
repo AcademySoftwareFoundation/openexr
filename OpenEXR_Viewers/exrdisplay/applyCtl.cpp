@@ -227,24 +227,6 @@ initializeEnvHeader (Header &envHeader)
 
 
 string
-renderingTransformName (const Header &inHeader)
-{
-    //
-    // Get the name of the rendering transform from an attribute
-    // in inheader.  If this fails, use a default name.
-    //
-
-    const StringAttribute *attr =
-	inHeader.findTypedAttribute<StringAttribute> ("renderingTransform");
-
-    if (attr)
-	return attr->value();
-    else
-	return "transform_RRT";
-}
-
-
-string
 displayTransformName ()
 {
     //
@@ -329,12 +311,20 @@ applyCtl (vector<string> transformNames,
 {
     //
     // If we do not have an explicit set of transform names
-    // then find suitable rendering and display transforms.
+    // then find suitable look modification, rendering and
+    // display transforms.
     //
 
     if (transformNames.empty())
     {
-	transformNames.push_back (renderingTransformName (inHeader));
+	if (hasLookModTransform (inHeader))
+	    transformNames.push_back (lookModTransform (inHeader));
+
+	if (hasRenderingTransform (inHeader))
+	    transformNames.push_back (renderingTransform (inHeader));
+	else
+	    transformNames.push_back ("transform_RRT");
+
 	transformNames.push_back (displayTransformName());
     }
 
