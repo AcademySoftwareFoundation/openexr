@@ -49,21 +49,4 @@ noinst_HEADERS =  \
 	osDependent.h
 
 EXTRA_DIST = \
-	$(playexr_SOURCES) \
-	transform_RRT.ctl \
-	transform_display_video.ctl
-
-# this produces a data directory for playexr to find default 
-# ctl files you will need to set the environment variable 
-# CTL_MODULE_PATH to point to this directory 
-# (by default /usr/local/lib/CTL) for playexr  to work properly
-# note exrdisplay also uses these .ctl files
-ctldatadir = $(libdir)/CTL
-ctldata_DATA = \
-	transform_RRT.ctl \
-	transform_display_video.ctl
-
-# since ctl files appear above, tell the makefile to do nothing
-# with them (except install them)
-%.ctl:
-	@true
+	$(playexr_SOURCES)
