@@ -314,19 +314,19 @@ ctlToLut (vector<string> transformNames,
 
     FrameBuffer outFb;
 
-    outFb.insert ("displayR",
+    outFb.insert ("R_display",
 		  Slice (HALF,				// type
 			 (char *)lut,			// base
 			 4 * sizeof (half),		// xStride
 			 0));				// yStride
 
-    outFb.insert ("displayG",
+    outFb.insert ("G_display",
 		  Slice (HALF,				// type
 			 (char *)(lut + 1),		// base
 			 4 * sizeof (half),		// xStride
 			 0));				// yStride
 
-    outFb.insert ("displayB",
+    outFb.insert ("B_display",
 		  Slice (HALF,				// type
 			 (char *)(lut + 2),		// base
 			 4 * sizeof (half),		// xStride
