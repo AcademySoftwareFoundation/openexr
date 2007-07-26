@@ -1,3 +1,7 @@
+	* Moved some .ctl files from the OpenEXR_Viewers to the
+	  OpenEXR_CTL package, changed naming conventions for
+	  image channels to match upcoming paper.
+	  (Florian Kainz)
 	* Added "look modification transform" support to playexr, exrdisplay.
 	  (Florian Kainz)
 	* Installation Tuning:

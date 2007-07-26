@@ -282,20 +282,20 @@ initializeOutFrameBuffer
      const Array<Rgba> &pixels,
      FrameBuffer &fb)
 {
-    fb.insert ("displayR", Slice (HALF,				// type
-				  (char *)(&pixels[0].r),	// base
-				  sizeof (pixels[0]),		// xStride
-				  sizeof (pixels[0]) * w));	// yStride
+    fb.insert ("R_display", Slice (HALF,			// type
+				   (char *)(&pixels[0].r),	// base
+				   sizeof (pixels[0]),		// xStride
+				   sizeof (pixels[0]) * w));	// yStride
 
-    fb.insert ("displayG", Slice (HALF,				// type
-				  (char *)(&pixels[0].g),	// base
-				  sizeof (pixels[0]),		// xStride
-				  sizeof (pixels[0]) * w));	// yStride
+    fb.insert ("G_display", Slice (HALF,			// type
+				   (char *)(&pixels[0].g),	// base
+				   sizeof (pixels[0]),		// xStride
+				   sizeof (pixels[0]) * w));	// yStride
 
-    fb.insert ("displayB", Slice (HALF,				// type
-				  (char *)(&pixels[0].b),	// base
-				  sizeof (pixels[0]),		// xStride
-				  sizeof (pixels[0]) * w));	// yStride
+    fb.insert ("B_display", Slice (HALF,			// type
+				   (char *)(&pixels[0].b),	// base
+				   sizeof (pixels[0]),		// xStride
+				   sizeof (pixels[0]) * w));	// yStride
 }
 
 } // namespace
