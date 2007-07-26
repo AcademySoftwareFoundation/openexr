@@ -48,6 +48,7 @@
 
 #include <ImageView.h>
 #include <ImfArray.h>
+#include <ImfThreading.h>
 #include <loadImage.h>
 #include <scaleImage.h>
 #include <applyCtl.h>
@@ -467,10 +468,15 @@ usageMessage (const char argv0[], bool verbose = false)
 		"          continuously updates the on-screen image\n"
 		"          (the controls are enabled only when no CTL\n"
 		"          transforms have been applied to the image)\n"
+		"\n"
+		"-t n      use n parallel threads to read the image file\n"
+		"          and to run the CTL transforms\n"
 	    #else
 		"\n"
 		"-u        changing the exposure and knee controls\n"
 		"          continuously updates the on-screen image\n"
+		"\n"
+		"-t n      use n parallel threads to read the image file\n"
 	    #endif
 		"\n"
 		"-h        prints this message\n"
@@ -486,19 +492,25 @@ usageMessage (const char argv0[], bool verbose = false)
 		"       the command line (using the -C flag), then those\n"
 		"       transforms are applied to the image.\n"
 		"       If no CTL transforms are specified on the command\n"
-		"       line then a rendering transform is applied, followed\n"
-		"       by a display transform.  The name of the rendering\n"
-		"       transform is taken from the renderingTransform\n"
-		"       attribute in the header of the first frame of the\n"
-		"       image sequence.  If the header contains no such\n"
-		"       attribute, the name of the rendering transform\n"
-		"       is \"transform_RRT.\"  The name of the display\n"
-		"       transform is taken from the environment variable\n"
-		"       CTL_DISPLAY_TRANSFORM.  If this environment\n"
-		"       variable is not set, the name of the display\n"
+		"       line then an optional look modification transform\n"
+		"       is applied, followed by a rendering transform and\n"
+		"       a display transform.\n"
+		"       The name of the look modication transform is taken\n"
+		"       from the lookModTransform attribute in the header\n"
+		"       of the image file.  If the header contains no such\n"
+		"       attribute, then no look modication transform is\n"
+		"       applied.  The name of the rendering transform is\n"
+		"       taken from the renderingTransform attribute in the\n"
+		"       header of the image file.  If the header contains\n"
+		"       no such attribute, then the name of the rendering\n"
+		"       transform is \"transform_RRT.\"  The name of the\n"
+		"       display transform is taken from the environment\n"
+		"       variable CTL_DISPLAY_TRANSFORM.  If this environment\n"
+		"       variable is not set, then the name of the display\n"
 		"       transform is \"transform_display_video.\"\n"
-		"       The files that contain the transforms are located\n"
-		"       using the CTL_MODULE_PATH environment variable.\n"
+		"       The files that contain the CTL code for the\n"
+		"       transforms are located using the CTL_MODULE_PATH\n"
+		"       environment variable.\n"
 	    #endif
 		"\n";
 
@@ -523,6 +535,7 @@ main(int argc, char **argv)
     bool continuousUpdate = false;
     vector<string> transformNames;
     bool useCtl = true;
+    int numThreads = 0;
     
     int lx = -1;
     int ly = -1;
@@ -676,6 +689,25 @@ main(int argc, char **argv)
 	    useCtl = false;
 	    i += 1;
 	}
+	else if (!strcmp (argv[i], "-t"))
+	{
+	    //
+	    // Set number of threads
+	    //
+
+	    if (i > argc - 2)
+		usageMessage (argv[0]);
+
+	    numThreads = strtol (argv[i + 1], 0, 0);
+
+	    if (numThreads < 0)
+	    {
+		cerr << "Number of threads cannot be negative." << endl;
+		return 1;
+	    }
+
+	    i += 2;
+	}
 	else if (!strcmp (argv[i], "-h"))
 	{
 	    //
@@ -708,6 +740,8 @@ main(int argc, char **argv)
 
     try
     {
+	setGlobalThreadCount (numThreads);
+
 	MainWindow *mainWindow = makeMainWindow (imageFile,
 						 channel,
 						 preview,
