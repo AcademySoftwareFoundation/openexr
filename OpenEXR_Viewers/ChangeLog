@@ -1,14 +1,15 @@
-Version 0.9.1:
-	Installation Tuning 
-        * corrected version number on dso's (libtool) - now 5.0
-	* Separated ILMBASE_LDFLAGS and ILMBASE_LIBS so that test programs
-	can link with static libraries properly
-	* eliminated some warning messages during install
-	(Andrew Kunz)
+	* Added "look modification transform" support to playexr, exrdisplay.
+	  (Florian Kainz)
+	* Installation Tuning:
+	  - corrected version number on dso's (libtool) - now 5.0
+	  - Separated ILMBASE_LDFLAGS and ILMBASE_LIBS so that test programs
+	    can link with static libraries properly
+	  - eliminated some warning messages during install
+	  (Andrew Kunz)
 
 Version 0.9.0:
 	* Initial release of this code as a separate package.
-	  Previously the exrdisplay contained Ñn this package
+	  Previously the exrdisplay contained in this package
 	  was part of version 1.4.0 of OpenEXR.  The playexr
 	  program is new.
 	* New build scripts for Linux/Unix
