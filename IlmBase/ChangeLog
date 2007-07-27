@@ -1,3 +1,6 @@
+Version 1.0.0:
+	* Bumped DSO version number to 6.0
+	  (Florian Kainz)
 	* Rounding during float-to-half conversion now implements
 	  "round to nearest even" mode: if the original float value
 	  is exactly in the middle between the two closest half values
