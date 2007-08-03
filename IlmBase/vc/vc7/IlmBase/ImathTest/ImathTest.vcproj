@@ -166,6 +166,9 @@
 			<File
 				RelativePath="..\..\..\..\ImathTest\testShear.cpp">
 			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testBoxAlgo.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -209,6 +212,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\ImathTest\testShear.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testBoxAlgo.h">
 			</File>
 		</Filter>
 		<Filter
