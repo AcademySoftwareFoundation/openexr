@@ -9,7 +9,3 @@ set instpath=%deploypath%\bin\%intdir%
 echo Installing into %instpath%
 if not exist %instpath% mkdir %instpath%
 copy ..\%intdir%\playexr.exe %instpath%
-
-set instpath=%deploypath%\share\CTL
-if not exist %instpath% mkdir %instpath%
-copy ..\..\..\..\playexr\*.ctl %instpath%
