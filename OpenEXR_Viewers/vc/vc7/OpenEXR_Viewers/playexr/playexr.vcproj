@@ -36,7 +36,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmImfCtl.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmImf.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib cgGL.lib cg.lib ..\..\..\..\..\..\nvidia\lib\$(IntDir)\glew32.lib glut32.lib opengl32.lib wsock32.lib"
+				AdditionalDependencies="..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmImfCtl.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmImf.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\cgGL.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\cg.lib ..\..\..\..\..\..\nvidia\lib\$(IntDir)\glew32.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\glut32.lib opengl32.lib wsock32.lib"
 				OutputFile="$(OutDir)/playexr.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
@@ -139,6 +139,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\playexr\main.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\playexr\osDependent.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\..\playexr\playExr.cpp">

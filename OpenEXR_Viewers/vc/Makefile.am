@@ -5,6 +5,8 @@ EXTRA_DIST = \
         installplayexr.cmd \
         vc7/OpenEXR_Viewers/OpenEXR_Viewers.sln \
         vc7/OpenEXR_Viewers/OpenEXR_Viewers.suo \
+        vc7/OpenEXR_Viewers/OpenEXR_Viewers.withctlsupport.sln \
+        vc7/OpenEXR_Viewers/OpenEXR_Viewers.withctlsupport.suo \
         vc7/OpenEXR_Viewers/debug/.cvsignore \
         vc7/OpenEXR_Viewers/exrdisplay/exrdisplay.vcproj \
         vc7/OpenEXR_Viewers/exrdisplay/Debug/.cvsignore \
@@ -12,4 +14,17 @@ EXTRA_DIST = \
         vc7/OpenEXR_Viewers/playexr/playexr.vcproj \
         vc7/OpenEXR_Viewers/playexr/Debug/.cvsignore \
         vc7/OpenEXR_Viewers/playexr/Release/.cvsignore \
-        vc7/OpenEXR_Viewers/release/.cvsignore
+        vc7/OpenEXR_Viewers/release/.cvsignore \
+        vc8/OpenEXR_Viewers/OpenEXR_Viewers.sln \
+        vc8/OpenEXR_Viewers/OpenEXR_Viewers.suo \
+        vc8/OpenEXR_Viewers/OpenEXR_Viewers.withctlsupport.sln \
+        vc8/OpenEXR_Viewers/OpenEXR_Viewers.withctlsupport.suo \
+        vc8/OpenEXR_Viewers/debug/.cvsignore \
+        vc8/OpenEXR_Viewers/exrdisplay/exrdisplay.vcproj \
+        vc8/OpenEXR_Viewers/exrdisplay/Debug/.cvsignore \
+        vc8/OpenEXR_Viewers/exrdisplay/Release/.cvsignore \
+        vc8/OpenEXR_Viewers/playexr/playexr.vcproj \
+        vc8/OpenEXR_Viewers/playexr/Debug/.cvsignore \
+        vc8/OpenEXR_Viewers/playexr/Release/.cvsignore \
+        vc8/OpenEXR_Viewers/release/.cvsignore
+
