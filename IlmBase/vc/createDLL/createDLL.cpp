@@ -653,9 +653,9 @@ static void getSymbolsFromMap(char* buf, const int length, vector<string>& strin
 }
 
 
-static void createResponseFile(string& path, string& moduleName, vector<string>& libpath, string& implib, set<string>& libs, set<string>& objs, bool noDefaultLibs)
+static void createResponseFile(string& repFile, string& path, string& moduleName, vector<string>& libpath, string& implib, set<string>& libs, set<string>& objs, bool noDefaultLibs)
 {
-    FILE* r = fopen("C:\\response.txt", "wb");
+    FILE* r = fopen(repFile.c_str(), "wb");
     if (r != 0)
     {
         fprintf(r, "/OUT:\"%s\\%s.dll\" /NOLOGO ", path.c_str(), moduleName.c_str());
@@ -728,8 +728,27 @@ int main(int argC, char* argV[])
 
     std::cout << "CreateDLL v1.1" << std::endl;
 
+    char tempDir[MAX_PATH];
+    int rt = GetTempPath(MAX_PATH, tempDir);
+
+    // 20 less because we have to have room for the filename
+    if (rt == 0 || rt > MAX_PATH - 20)
+    {
+	    std::cerr << "Failed to get temp dir\n";
+	    return 1;
+    }
+
+    std::string repFile(tempDir);
+    repFile += "response.txt";
+
+    std::string logName(tempDir);
+    logName += "createDLL_out.txt";
+
+    std::cout << "Linker response file is " << repFile << "\n";
+    std::cout << "Log file is " << logName << "\n";
+
     // banner
-    std::ofstream logfile("c:\\createDLL_out.txt", std::ios::out);
+    std::ofstream logfile(logName.c_str(), std::ios::out);
     logfile << "createDLL was built " << __DATE__ << " " << __TIME__ << endl;
 
     if (mapFileName == "" || importlib == "")
@@ -856,7 +875,7 @@ int main(int argC, char* argV[])
             // silly placeholder code, given the comment above :\ 
             string impliblib = importlib + ".lib";
 
-            createResponseFile(path, moduleName, libpaths, impliblib, libs, objs, noDefaultLib);
+            createResponseFile(repFile, path, moduleName, libpaths, impliblib, libs, objs, noDefaultLib);
 
             // invoke linker
             cerr << "Exporting DLL" << endl;
@@ -864,8 +883,11 @@ int main(int argC, char* argV[])
             // run the linker
             char**  new_argv = new char *[3];
             size_t  new_argc = 0;
+	    std::string repFileArg("@");
+	    repFileArg += repFile;
+			
             new_argv[0] = "createDLL";
-            new_argv[1] = "@C:\\response.txt";
+            new_argv[1] = (char*)repFileArg.c_str();
             new_argv[2] = 0;
 
             int status = -1;
