@@ -60,6 +60,7 @@ using Imath::divp;
 using Imath::modp;
 using Imath::Box2i;
 using Imath::V2i;
+using Iex::InputExc;
 
 namespace {
 
@@ -538,6 +539,12 @@ PizCompressor::uncompress (const char *inPtr,
 
     Xdr::read <CharPtrIO> (inPtr, minNonZero);
     Xdr::read <CharPtrIO> (inPtr, maxNonZero);
+
+    if (maxNonZero >= BITMAP_SIZE)
+    {
+	throw InputExc ("Error in header for PIZ-compressed data "
+			"(invalid bitmap size).");
+    }
 
     if (minNonZero <= maxNonZero)
     {

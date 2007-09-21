@@ -348,12 +348,6 @@ readPixelData (ScanLineInputFile::Data *ifd,
     if (ifd->nextLineBufferMinY != minY)
 	ifd->is->seekg (lineOffset);
 
-    #ifdef DEBUG
-
-	assert (ifd->is->tellg() == lineOffset);
-
-    #endif
-
     //
     // Read the data block's header.
     //
