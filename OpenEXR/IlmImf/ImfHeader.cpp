@@ -81,6 +81,12 @@ using IlmThread::Lock;
 
 namespace {
 
+int maxImageWidth = 0;
+int maxImageHeight = 0;
+int maxTileWidth = 0;
+int maxTileHeight = 0;
+
+
 void
 initialize (Header &header,
 	    const Box2i &displayWindow,
@@ -531,6 +537,20 @@ Header::sanityCheck (bool isTiled) const
 	dataWindow.min.y > dataWindow.max.y)
 	throw Iex::ArgExc ("Invalid data window in image header.");
 
+    if (maxImageWidth > 0 &&
+	maxImageWidth < dataWindow.max.x - dataWindow.min.x + 1)
+    {
+	THROW (Iex::ArgExc, "The width of the data window exceeds the "
+			    "maximum width of " << maxImageWidth << "pixels.");
+    }
+
+    if (maxImageHeight > 0 &&
+	maxImageHeight < dataWindow.max.y - dataWindow.min.y + 1)
+    {
+	THROW (Iex::ArgExc, "The width of the data window exceeds the "
+			    "maximum width of " << maxImageHeight << "pixels.");
+    }
+
     //
     // The pixel aspect ratio must be greater than 0.
     // In applications, numbers like the the display or
@@ -587,6 +607,20 @@ Header::sanityCheck (bool isTiled) const
 
 	if (tileDesc.xSize <= 0 || tileDesc.ySize <= 0)
 	    throw Iex::ArgExc ("Invalid tile size in image header.");
+
+	if (maxTileWidth > 0 &&
+	    maxTileWidth < tileDesc.xSize)
+	{
+	    THROW (Iex::ArgExc, "The width of the tiles exceeds the maximum "
+				"width of " << maxTileWidth << "pixels.");
+	}
+
+	if (maxTileHeight > 0 &&
+	    maxTileHeight < tileDesc.ySize)
+	{
+	    THROW (Iex::ArgExc, "The width of the tiles exceeds the maximum "
+				"width of " << maxTileHeight << "pixels.");
+	}
 
 	if (tileDesc.mode != ONE_LEVEL &&
 	    tileDesc.mode != MIPMAP_LEVELS &&
@@ -723,6 +757,22 @@ Header::sanityCheck (bool isTiled) const
 	    }
 	}
     }
+}
+
+
+void		
+Header::setMaxImageSize (int maxWidth, int maxHeight)
+{
+    maxImageWidth = maxWidth;
+    maxImageHeight = maxHeight;
+}
+
+
+void		
+Header::setMaxTileSize (int maxWidth, int maxHeight)
+{
+    maxTileWidth = maxWidth;
+    maxTileHeight = maxHeight;
 }
 
 

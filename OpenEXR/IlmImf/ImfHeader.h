@@ -299,6 +299,26 @@ class Header
     void			sanityCheck (bool isTiled = false) const;
 
 
+    //----------------------------------------------------------------
+    // Maximum image size and maximim tile size:
+    //
+    // sanityCheck() will throw an exception if the width or height of
+    // the data window exceeds the maximum image width or height, or
+    // if the size of a tile exceeds the maximum tile width or height.
+    // 
+    // At program startup the maximum image and tile width and height
+    // are set to zero, meaning that width and height are unlimited.
+    //
+    // Limiting image and tile width and height limits how much memory
+    // will be allocated when a file is opened.  This can help protect
+    // applications from running out of memory while trying to read
+    // a damaged image file.
+    //----------------------------------------------------------------
+
+    static void			setMaxImageSize (int maxWidth, int maxHeight);
+    static void			setMaxTileSize (int maxWidth, int maxHeight);
+
+
     //------------------------------------------------------------------
     // Input and output:
     //
