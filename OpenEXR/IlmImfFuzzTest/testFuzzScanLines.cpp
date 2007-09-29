@@ -131,6 +131,7 @@ testFuzzScanLines ()
 	cout << "Testing scanline-based files "
 		"with randomly inserted errors" << endl;
 
+	Rand48 random (1);
 	Header::setMaxImageSize (10000, 10000);
 
 	const int W = 217;
@@ -145,7 +146,7 @@ testFuzzScanLines ()
 	for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
 	{
 	    writeImage (goodFile, W, H, pixels, Compression (comp));
-	    fuzzFile (goodFile, brokenFile, readImage, 5000, 3000);
+	    fuzzFile (goodFile, brokenFile, readImage, 5000, 3000, random);
 	}
 
 	remove (goodFile);

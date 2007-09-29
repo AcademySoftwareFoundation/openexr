@@ -17,4 +17,6 @@ LDADD = -L$(top_builddir)/IlmImf \
 	@ILMBASE_LDFLAGS@ @ILMBASE_LIBS@ \
 	-lIlmImf -lz
 
+if BUILD_IMFFUZZTEST
 TESTS = IlmImfFuzzTest
+endif

@@ -279,6 +279,7 @@ testFuzzTiles ()
 	cout << "Testing tile-based files "
 		"with randomly inserted errors" << endl;
 
+	Rand48 random (5);
 	Header::setMaxImageSize (10000, 10000);
 	Header::setMaxTileSize (10000, 10000);
 
@@ -293,13 +294,13 @@ testFuzzTiles ()
 	for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
 	{
 	    writeImageONE (goodFile, W, H, TW, TH, Compression (comp));
-	    fuzzFile (goodFile, brokenFile, readImageONE, 5000, 3000);
+	    fuzzFile (goodFile, brokenFile, readImageONE, 5000, 3000, random);
 
 	    writeImageMIP (goodFile, W, H, TW, TH, Compression (comp));
-	    fuzzFile (goodFile, brokenFile, readImageMIP, 5000, 3000);
+	    fuzzFile (goodFile, brokenFile, readImageMIP, 5000, 3000, random);
 
 	    writeImageRIP (goodFile, W, H, TW, TH, Compression (comp));
-	    fuzzFile (goodFile, brokenFile, readImageRIP, 5000, 3000);
+	    fuzzFile (goodFile, brokenFile, readImageRIP, 5000, 3000, random);
 	}
 
 	remove (goodFile);
