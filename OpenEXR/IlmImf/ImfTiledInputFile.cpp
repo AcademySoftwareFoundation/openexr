@@ -304,12 +304,6 @@ readTileData (TiledInputFile::Data *ifd,
     if (ifd->currentPosition != tileOffset)
         ifd->is->seekg (tileOffset);
 
-    #ifdef DEBUG
-
-	assert (ifd->is->tellg() == tileOffset);
-
-    #endif
-
     //
     // Read the first few bytes of the tile (the header).
     // Verify that the tile coordinates and the level number
