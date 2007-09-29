@@ -201,6 +201,15 @@ AC_ARG_ENABLE(imfexamples,
 
 AM_CONDITIONAL(BUILD_IMFEXAMPLES, test "x$build_imfexamples" = xyes)
 
+dnl build imffuzztest?
+build_imffuzztest="no"
+AC_ARG_ENABLE(imffuzztest,
+	  AC_HELP_STRING([--enable-imffuzztest],
+		 [build IlmImf damaged input resilience test [[default=no]]]),
+	  [build_imffuzztest="${enableval}"], [build_imffuzztest=no])
+
+AM_CONDITIONAL(BUILD_IMFFUZZTEST, test "x$build_imffuzztest" = xyes)
+
 
 AC_OUTPUT([
 Makefile
@@ -208,6 +217,7 @@ OpenEXR.pc
 config/Makefile
 IlmImf/Makefile
 IlmImfTest/Makefile
+IlmImfFuzzTest/Makefile
 exrheader/Makefile
 exrmaketiled/Makefile
 IlmImfExamples/Makefile
@@ -224,6 +234,7 @@ if test "x$build_osxuniversal" = xyes; then
 Summary for OpenEXR features:
 
 build IlmImf example program                    $build_imfexamples
+build IlmImf damaged input resilience test      $build_imffuzztest
 build OS X universal binaries                   $build_osxuniversal
 enable large stack optimizations                $large_stack
 ---------------------------------------------
@@ -234,6 +245,7 @@ else
 Summary for OpenEXR features:
 
 build IlmImf example program                    $build_imfexamples
+build IlmImf damaged input resilience test      $build_imffuzztest
 enable large stack optimizations                $large_stack
 ---------------------------------------------
   ])
