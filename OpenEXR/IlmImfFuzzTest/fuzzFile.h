@@ -36,13 +36,16 @@
 #ifndef INCLUDED_FUZZ_FILE_H
 #define INCLUDED_FUZZ_FILE_H
 
+#include <ImathRandom.h>
+
 
 void
 fuzzFile (const char goodFile[],
           const char brokenFile[],
 	  void (*readFile) (const char[]),
 	  int nSlidingWindow,
-	  int nFixedWindow);
+	  int nFixedWindow,
+	  Imath::Rand48 &random);
 
 
 #endif

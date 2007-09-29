@@ -37,7 +37,6 @@
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
-#include <ImathRandom.h>
 #include <Iex.h>
 #include <half.h>
 
@@ -124,10 +123,9 @@ fuzzFile (const char goodFile[],
           const char brokenFile[],
 	  void (*readFile) (const char[]),
 	  int nSlidingWindow,
-	  int nFixedWindow)
+	  int nFixedWindow,
+	  Rand48 &random)
 {
-    Rand48 random (0);
-
     {
 	Int64 fileSize = lengthOfFile (goodFile);
 	Int64 windowSize = fileSize * 2 / nSlidingWindow;
