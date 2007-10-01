@@ -850,6 +850,11 @@ TiledOutputFile::TiledOutputFile
 			"\"" << fileName << "\". " << e);
 	throw;
     }
+    catch (...)
+    {
+	delete _data;
+        throw;
+    }
 }
 
 
@@ -873,6 +878,11 @@ TiledOutputFile::TiledOutputFile
 	REPLACE_EXC (e, "Cannot open image file "
 			"\"" << os.fileName() << "\". " << e);
 	throw;
+    }
+    catch (...)
+    {
+	delete _data;
+        throw;
     }
 }
 

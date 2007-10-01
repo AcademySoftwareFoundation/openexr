@@ -650,6 +650,11 @@ TiledInputFile::TiledInputFile (const char fileName[], int numThreads):
 			"\"" << fileName << "\". " << e);
 	throw;
     }
+    catch (...)
+    {
+	delete _data;
+        throw;
+    }
 }
 
 
@@ -674,6 +679,11 @@ TiledInputFile::TiledInputFile (IStream &is, int numThreads):
 	REPLACE_EXC (e, "Cannot open image file "
 			"\"" << is.fileName() << "\". " << e);
 	throw;
+    }
+    catch (...)
+    {
+	delete _data;
+        throw;
     }
 }
 

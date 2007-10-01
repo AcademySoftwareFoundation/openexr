@@ -41,6 +41,11 @@
 #include <iostream>
 #include <string.h>
 
+#ifdef HAVE_LINUX_PROCFS
+    #include <unistd.h>
+    #include <sstream>
+#endif
+
 #define TEST(x) if (argc < 2 || !strcmp (argv[1], #x)) x();
 
 int
@@ -48,6 +53,23 @@ main (int argc, char *argv[])
 {
     TEST (testFuzzScanLines);
     TEST (testFuzzTiles);
+
+    #ifdef HAVE_LINUX_PROCFS
+
+	//
+	// Allow the user to check for file descriptor leaks
+	//
+
+	std::cout << "open file descriptors:" << std::endl;
+
+	std::stringstream ss;
+	ss << "ls -lG /proc/" << getpid() << "/fd";
+	
+	system (ss.str().c_str());
+
+	std::cout << std::endl;
+
+    #endif
 
     return 0;
 }
