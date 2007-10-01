@@ -666,6 +666,11 @@ OutputFile::OutputFile
 			"\"" << fileName << "\". " << e);
 	throw;
     }
+    catch (...)
+    {
+	delete _data;
+        throw;
+    }
 }
 
 
@@ -689,6 +694,11 @@ OutputFile::OutputFile
 	REPLACE_EXC (e, "Cannot open image file "
 			"\"" << os.fileName() << "\". " << e);
 	throw;
+    }
+    catch (...)
+    {
+	delete _data;
+        throw;
     }
 }
 
