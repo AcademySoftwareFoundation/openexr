@@ -38,6 +38,8 @@
 
 #include <ImfTiledRgbaFile.h>
 #include <ImfArray.h>
+#include <ImfThreading.h>
+#include <IlmThread.h>
 #include <Iex.h>
 #include <iostream>
 #include <cassert>
@@ -268,6 +270,43 @@ readImageRIP (const char fileName[])
     }
 }
 
+
+void
+fuzzTiles (int numThreads, Rand48 &random)
+{
+    if (IlmThread::supportsThreads())
+    {
+	setGlobalThreadCount (numThreads);
+	cout << "\nnumber of threads: " << globalThreadCount() << endl;
+    }
+
+    Header::setMaxImageSize (10000, 10000);
+    Header::setMaxTileSize (10000, 10000);
+
+    const int W = 217;
+    const int H = 197;
+    const int TW = 64;
+    const int TH = 64;
+
+    const char *goodFile = IMF_TMP_DIR "imf_test_file_fuzz_good.exr";
+    const char *brokenFile = IMF_TMP_DIR "imf_test_file_fuzz_broken.exr";
+
+    for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
+    {
+	writeImageONE (goodFile, W, H, TW, TH, Compression (comp));
+	fuzzFile (goodFile, brokenFile, readImageONE, 5000, 3000, random);
+
+	writeImageMIP (goodFile, W, H, TW, TH, Compression (comp));
+	fuzzFile (goodFile, brokenFile, readImageMIP, 5000, 3000, random);
+
+	writeImageRIP (goodFile, W, H, TW, TH, Compression (comp));
+	fuzzFile (goodFile, brokenFile, readImageRIP, 5000, 3000, random);
+    }
+
+    remove (goodFile);
+    remove (brokenFile);
+}
+
 } // namespace
 
 
@@ -280,31 +319,11 @@ testFuzzTiles ()
 		"with randomly inserted errors" << endl;
 
 	Rand48 random (5);
-	Header::setMaxImageSize (10000, 10000);
-	Header::setMaxTileSize (10000, 10000);
 
-	const int W = 217;
-	const int H = 197;
-	const int TW = 64;
-	const int TH = 64;
+	fuzzTiles (0, random);
 
-	const char *goodFile = IMF_TMP_DIR "imf_test_file_fuzz_good.exr";
-	const char *brokenFile = IMF_TMP_DIR "imf_test_file_fuzz_broken.exr";
-
-	for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
-	{
-	    writeImageONE (goodFile, W, H, TW, TH, Compression (comp));
-	    fuzzFile (goodFile, brokenFile, readImageONE, 5000, 3000, random);
-
-	    writeImageMIP (goodFile, W, H, TW, TH, Compression (comp));
-	    fuzzFile (goodFile, brokenFile, readImageMIP, 5000, 3000, random);
-
-	    writeImageRIP (goodFile, W, H, TW, TH, Compression (comp));
-	    fuzzFile (goodFile, brokenFile, readImageRIP, 5000, 3000, random);
-	}
-
-	remove (goodFile);
-	remove (brokenFile);
+	if (IlmThread::supportsThreads())
+	    fuzzTiles (2, random);
 
 	cout << "ok\n" << endl;
     }

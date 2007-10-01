@@ -38,6 +38,8 @@
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
+#include <ImfThreading.h>
+#include <IlmThread.h>
 #include <Iex.h>
 #include <iostream>
 #include <cassert>
@@ -120,6 +122,37 @@ readImage (const char fileName[])
     }
 }
 
+
+void
+fuzzScanLines (int numThreads, Rand48 &random)
+{
+    if (IlmThread::supportsThreads())
+    {
+	setGlobalThreadCount (numThreads);
+	cout << "\nnumber of threads: " << globalThreadCount() << endl;
+    }
+
+    Header::setMaxImageSize (10000, 10000);
+
+    const int W = 217;
+    const int H = 197;
+
+    Array2D<Rgba> pixels (H, W);
+    fillPixels (pixels, W, H);
+
+    const char *goodFile = IMF_TMP_DIR "imf_test_file_fuzz_good.exr";
+    const char *brokenFile = IMF_TMP_DIR "imf_test_file_fuzz_broken.exr";
+
+    for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
+    {
+	writeImage (goodFile, W, H, pixels, Compression (comp));
+	fuzzFile (goodFile, brokenFile, readImage, 5000, 3000, random);
+    }
+
+    remove (goodFile);
+    remove (brokenFile);
+}
+
 } // namespace
 
 
@@ -132,25 +165,11 @@ testFuzzScanLines ()
 		"with randomly inserted errors" << endl;
 
 	Rand48 random (1);
-	Header::setMaxImageSize (10000, 10000);
 
-	const int W = 217;
-	const int H = 197;
+	fuzzScanLines (0, random);
 
-	Array2D<Rgba> pixels (H, W);
-	fillPixels (pixels, W, H);
-
-	const char *goodFile = IMF_TMP_DIR "imf_test_file_fuzz_good.exr";
-	const char *brokenFile = IMF_TMP_DIR "imf_test_file_fuzz_broken.exr";
-
-	for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
-	{
-	    writeImage (goodFile, W, H, pixels, Compression (comp));
-	    fuzzFile (goodFile, brokenFile, readImage, 5000, 3000, random);
-	}
-
-	remove (goodFile);
-	remove (brokenFile);
+	if (IlmThread::supportsThreads())
+	    fuzzScanLines (2, random);
 
 	cout << "ok\n" << endl;
     }
