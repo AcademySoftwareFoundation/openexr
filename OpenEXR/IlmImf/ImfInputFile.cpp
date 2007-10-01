@@ -324,6 +324,11 @@ InputFile::InputFile (const char fileName[], int numThreads):
 			"\"" << fileName << "\". " << e);
         throw;
     }
+    catch (...)
+    {
+	delete _data;
+        throw;
+    }
 }
 
 
@@ -341,6 +346,11 @@ InputFile::InputFile (IStream &is, int numThreads):
 
         REPLACE_EXC (e, "Cannot read image file "
 			"\"" << is.fileName() << "\". " << e);
+        throw;
+    }
+    catch (...)
+    {
+	delete _data;
         throw;
     }
 }
