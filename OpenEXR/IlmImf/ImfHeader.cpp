@@ -521,21 +521,36 @@ void
 Header::sanityCheck (bool isTiled) const
 {
     //
-    // The display window and the data window
-    // must contain at least one pixel each.
+    // The display window and the data window must each
+    // contain at least one pixel.  In addition, the
+    // coordinates of the window corners must be small
+    // enough to keep expressions like max-min+1 or
+    // max+min from overflowing.
     //
 
     const Box2i &displayWindow = this->displayWindow();
 
     if (displayWindow.min.x > displayWindow.max.x ||
-	displayWindow.min.y > displayWindow.max.y)
+	displayWindow.min.y > displayWindow.max.y ||
+	displayWindow.min.x <= -(INT_MAX / 2) ||
+	displayWindow.min.y <= -(INT_MAX / 2) ||
+	displayWindow.max.x >=  (INT_MAX / 2) ||
+	displayWindow.max.y >=  (INT_MAX / 2))
+    {
 	throw Iex::ArgExc ("Invalid display window in image header.");
+    }
 
     const Box2i &dataWindow = this->dataWindow();
 
     if (dataWindow.min.x > dataWindow.max.x ||
-	dataWindow.min.y > dataWindow.max.y)
+	dataWindow.min.y > dataWindow.max.y ||
+	dataWindow.min.x <= -(INT_MAX / 2) ||
+	dataWindow.min.y <= -(INT_MAX / 2) ||
+	dataWindow.max.x >=  (INT_MAX / 2) ||
+	dataWindow.max.y >=  (INT_MAX / 2))
+    {
 	throw Iex::ArgExc ("Invalid data window in image header.");
+    }
 
     if (maxImageWidth > 0 &&
 	maxImageWidth < dataWindow.max.x - dataWindow.min.x + 1)
