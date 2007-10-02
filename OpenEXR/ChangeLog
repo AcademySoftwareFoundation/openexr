@@ -1,12 +1,12 @@
-	* Bug fix: exceptions thrown during construction of an input file
-	  or output file object can cause file descriptors to be leaked.
+	* Bug fix: crashes, memory leaks and file descriptor leaks
+	  when reading damaged image files (some reported by Apple,
+	  others found by running IlmImfFuzzTest).
 	  (Florian Kainz)
 	* Added new IlmImfFuzzTest program to test how resilient the
 	  IlmImf library is with respect broken input files: the program
 	  first damages OpenEXR files by partially overwriting them with
 	  random data; then it tries to read the damaged files.  If all
-	  goes well, then the program doesn't crash.
-	* Bug fix: crash when reading damaged image files; found by Apple.
+	  goes well, the program doesn't crash.
 	  (Florian Kainz)
 
 Version 1.6.0:
