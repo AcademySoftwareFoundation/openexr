@@ -126,6 +126,26 @@ fuzzFile (const char goodFile[],
 	  int nFixedWindow,
 	  Rand48 &random)
 {
+    //
+    // We want to test how resilient the IlmImf library is with respect
+    // to malformed OpenEXR input files.  In order to do this we damage
+    // a good input by overwriting parts of it with random data.  We
+    // then call function readFile() to try and read the damaged file.
+    // Provided the IlmImf library works as advertised, a try/catch(...)
+    // block in readFile() should be able to handle all errors that could
+    // possibly result from reading a broken OpenEXR file.  We repeat
+    // this damage/read cycle many times, overwriting different parts
+    // of the file.
+    //
+    // First we slide a window along the file.  The size of the window
+    // is fileSize*2/nSlidingWindow bytes.  In each damage/read cycle
+    // we overwrite up to 10% of the bytes the window, try to read the
+    // file, and advance the window by fileSize/nSlidingWindow bytes.
+    //
+    // Next we overwrite up to 10% of the file's first 2048 bytes and
+    // try to read the file.  We repeat this nFixedWindow times.
+    //
+
     {
 	Int64 fileSize = lengthOfFile (goodFile);
 	Int64 windowSize = fileSize * 2 / nSlidingWindow;
