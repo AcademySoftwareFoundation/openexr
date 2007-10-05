@@ -11,7 +11,6 @@ EXTRA_DIST = \
         createDLL/OptionParser.h \
         createDLL/createDLL.cpp \
         vc7/IlmBase/IlmBase.sln \
-        vc7/IlmBase/IlmBase.suo \
         vc7/IlmBase/Half/Half.vcproj \
         vc7/IlmBase/Half/Debug/.cvsignore \
         vc7/IlmBase/Half/Release/.cvsignore \
@@ -39,7 +38,6 @@ EXTRA_DIST = \
         vc7/IlmBase/debug/.cvsignore \
         vc7/IlmBase/release/.cvsignore \
         vc8/IlmBase/IlmBase.sln \
-        vc8/IlmBase/IlmBase.suo \
         vc8/IlmBase/Half/Half.vcproj \
         vc8/IlmBase/Half/Debug/.cvsignore \
         vc8/IlmBase/Half/Release/.cvsignore \

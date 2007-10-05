@@ -4,9 +4,7 @@ EXTRA_DIST = \
 	installexrdisplay.cmd \
         installplayexr.cmd \
         vc7/OpenEXR_Viewers/OpenEXR_Viewers.sln \
-        vc7/OpenEXR_Viewers/OpenEXR_Viewers.suo \
         vc7/OpenEXR_Viewers/OpenEXR_Viewers.withctlsupport.sln \
-        vc7/OpenEXR_Viewers/OpenEXR_Viewers.withctlsupport.suo \
         vc7/OpenEXR_Viewers/debug/.cvsignore \
         vc7/OpenEXR_Viewers/exrdisplay/exrdisplay.vcproj \
         vc7/OpenEXR_Viewers/exrdisplay/exrdisplay.withctlsupport.vcproj \
@@ -18,9 +16,7 @@ EXTRA_DIST = \
         vc7/OpenEXR_Viewers/playexr/Release/.cvsignore \
         vc7/OpenEXR_Viewers/release/.cvsignore \
         vc8/OpenEXR_Viewers/OpenEXR_Viewers.sln \
-        vc8/OpenEXR_Viewers/OpenEXR_Viewers.suo \
         vc8/OpenEXR_Viewers/OpenEXR_Viewers.withctlsupport.sln \
-        vc8/OpenEXR_Viewers/OpenEXR_Viewers.withctlsupport.suo \
         vc8/OpenEXR_Viewers/debug/.cvsignore \
         vc8/OpenEXR_Viewers/exrdisplay/exrdisplay.vcproj \
         vc8/OpenEXR_Viewers/exrdisplay/exrdisplay.withctlsupport.vcproj \
