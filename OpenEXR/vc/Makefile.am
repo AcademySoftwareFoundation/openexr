@@ -9,7 +9,6 @@ EXTRA_DIST = \
         installexrmaketiled.cmd \
         installexrstdattr.cmd \
         vc7/OpenEXR/OpenEXR.sln \
-        vc7/OpenEXR/OpenEXR.suo \
         vc7/OpenEXR/IlmImf/IlmImf.vcproj \
         vc7/OpenEXR/IlmImf/Debug/.cvsignore \
         vc7/OpenEXR/IlmImf/Release/.cvsignore \
@@ -36,7 +35,6 @@ EXTRA_DIST = \
         vc7/OpenEXR/exrstdattr/Debug/.cvsignore \
         vc7/OpenEXR/release/.cvsignore \
         vc8/OpenEXR/OpenEXR.sln \
-        vc8/OpenEXR/OpenEXR.suo \
         vc8/OpenEXR/IlmImf/IlmImf.vcproj \
         vc8/OpenEXR/IlmImf/Debug/.cvsignore \
         vc8/OpenEXR/IlmImf/Release/.cvsignore \
