@@ -1,3 +1,6 @@
+Version 1.6.1:
+	* Removed Windows .suo files from distribution.
+	  (Eric Wimmer)
 	* Bug fix: crashes, memory leaks and file descriptor leaks
 	  when reading damaged image files (some reported by Apple,
 	  others found by running IlmImfFuzzTest).

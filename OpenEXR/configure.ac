@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(OpenEXR, 1.6.0)
-AC_SUBST(OPENEXR_VERSION, 1.6.0)
+AC_INIT(OpenEXR, 1.6.1)
+AC_SUBST(OPENEXR_VERSION, 1.6.1)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(IlmImfTest/main.cpp)
 AM_CONFIG_HEADER(config/OpenEXRConfig.h)

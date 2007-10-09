@@ -1,3 +1,7 @@
+Version 1.0.1:
+	* Removed Windows .suo files from distribution.
+	  (Eric Wimmer)
+
 Version 1.0.0:
 	* Moved some .ctl files from the OpenEXR_Viewers to the
 	  OpenEXR_CTL package, changed naming conventions for
