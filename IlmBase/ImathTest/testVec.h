@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2007, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,46 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+void testVec ();
 
-#include <testVec.h>
-#include <testRoots.h>
-#include <testFun.h>
-#include <testInvert.h>
-#include <testFrustum.h>
-#include <testRandom.h>
-#include <testColor.h>
-#include <testShear.h>
-#include <testMatrix.h>
-#include <testExtractEuler.h>
-#include <testExtractSHRT.h>
-#include <testQuat.h>
-#include <testQuatSetRotation.h>
-#include <testQuatSlerp.h>
-#include <testLineAlgo.h>
-#include <testBoxAlgo.h>
 
-#include <string.h>
-
-#define TEST(x) if (argc < 2 || !strcmp (argv[1], #x)) x();
-
-int
-main (int argc, char *argv[])
-{
-    TEST (testVec);
-    TEST (testColor);
-    TEST (testShear);
-    TEST (testMatrix);
-    TEST (testRoots);
-    TEST (testFun);
-    TEST (testInvert);
-    TEST (testFrustum);
-    TEST (testRandom);
-    TEST (testExtractEuler);
-    TEST (testExtractSHRT);
-    TEST (testQuat);
-    TEST (testQuatSetRotation);
-    TEST (testQuatSlerp);
-    TEST (testLineAlgo);
-    TEST (testBoxAlgo);
-    return 0;
-}

@@ -249,6 +249,10 @@ template <class T> class Vec2
     //--------------------------------------------------------------
 
     typedef T		BaseType;
+
+  private:
+
+    T			lengthTiny () const;
 };
 
 
@@ -442,6 +446,10 @@ template <class T> class Vec3
     //--------------------------------------------------------------
 
     typedef T		BaseType;
+
+  private:
+
+    T			lengthTiny () const;
 };
 
 
@@ -874,10 +882,36 @@ Vec2<T>::operator / (T a) const
 }
 
 template <class T>
+T
+Vec2<T>::lengthTiny () const
+{
+    T absX = (x >= 0)? x: -x;
+    T absY = (y >= 0)? y: -y;
+    
+    T max = absX;
+
+    if (max < absY)
+	max = absY;
+
+    if (max == 0)
+	return 0;
+
+    absX /= max;
+    absY /= max;
+
+    return max * Math<T>::sqrt (absX * absX + absY * absY);
+}
+
+template <class T>
 inline T
 Vec2<T>::length () const
 {
-    return Math<T>::sqrt (dot (*this));
+    T length2 = dot (*this);
+
+    if (length2 < 2 * limits<T>::smallest())
+	return lengthTiny();
+
+    return Math<T>::sqrt (length2);
 }
 
 template <class T>
@@ -1287,12 +1321,42 @@ Vec3<T>::operator / (T a) const
     return Vec3 (x / a, y / a, z / a);
 }
 
+template <class T>
+T
+Vec3<T>::lengthTiny () const
+{
+    T absX = (x >= 0)? x: -x;
+    T absY = (y >= 0)? y: -y;
+    T absZ = (z >= 0)? z: -z;
+    
+    T max = absX;
+
+    if (max < absY)
+	max = absY;
+
+    if (max < absZ)
+	max = absZ;
+
+    if (max == 0)
+	return 0;
+
+    absX /= max;
+    absY /= max;
+    absZ /= max;
+
+    return max * Math<T>::sqrt (absX * absX + absY * absY + absZ * absZ);
+}
 
 template <class T>
 inline T
 Vec3<T>::length () const
 {
-    return Math<T>::sqrt (dot (*this));
+    T length2 = dot (*this);
+
+    if (length2 < 2 * limits<T>::smallest())
+	return lengthTiny();
+
+    return Math<T>::sqrt (length2);
 }
 
 template <class T>
