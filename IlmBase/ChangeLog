@@ -1,3 +1,9 @@
+	* Made Vec2<T>::length() and Vec3<T>::length() more accurate for
+	  vectors whose length is less than sqrt(limits<T>::smallest());
+	  (Florian Kainz)
+	* Made Quat<T>::angle() more accurate for small angles.
+	  (Don Hatch) 
+
 Version 1.0.1:
 	* Removed Windows .suo files from distribution.
 	  (Eric Wimmer)
