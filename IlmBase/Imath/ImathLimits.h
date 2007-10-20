@@ -72,6 +72,8 @@ namespace Imath {
 //	max()		largest possible positive value of type T
 //
 //	smallest()	smallest possible positive value of type T
+//			(for float and double: smallest normalized
+//			positive value)
 //
 //	epsilon()	smallest possible e of type T, for which
 //			1 + e != 1
