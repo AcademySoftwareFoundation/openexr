@@ -135,7 +135,7 @@ template <class T>
 Vec3<T> closestPointOnBox(const Vec3<T>& pt, const Box< Vec3<T> >& box )
 {
     //
-    //	This sucker is specialized to work with a Vec3f and a box
+    //	This function is specialized to work with a Vec3f and a box
     //	made of Vec3fs. 
     //
 
@@ -439,66 +439,289 @@ affineTransform(const Box< Vec3<T> > &bbox, const Matrix44<T> &M)
 
 
 template <class T>
-bool findEntryAndExitPoints(const Line3<T>& line,
-			    const Box<Vec3<T> >& box,
-			    Vec3<T> &enterPoint,
-			    Vec3<T> &exitPoint)
+bool
+findEntryAndExitPoints (const Line3<T> &r,
+			const Box<Vec3<T> > &b,
+			Vec3<T> &entry,
+			Vec3<T> &exit)
 {
-    if ( box.isEmpty() ) return false;
-    if ( line.distanceTo(box.center()) > box.size().length()/2. ) return false;
+    //
+    // Compute the points where a ray, r, enters and exits a box, b:
+    //
+    // findEntryAndExitPoints() returns
+    //
+    //     - true if the ray starts inside the box or if the
+    //       ray starts outside and intersects the box
+    //
+    // The entry and exit points are
+    //
+    //     - points on two of the faces of the box when
+    //       findEntryAndExitPoints() returns true
+    //       (The entry end exit points may be on either
+    //       side of the ray's origin)
+    //
+    //     - undefined when findEntryAndExitPoints()
+    //       returns false
+    //
 
-    Vec3<T>	points[8], inter, bary;
-    Plane3<T>	plane;
-    int		i, v0, v1, v2;
-    bool	front = false, valid, validIntersection = false;
-
-    // set up the eight coords of the corners of the box
-    for(i = 0; i < 8; i++) 
+    if (b.isEmpty())
     {
-	points[i].setValue( i & 01 ? box.min[0] : box.max[0],
-			    i & 02 ? box.min[1] : box.max[1],
-			    i & 04 ? box.min[2] : box.max[2]);
+	//
+	// No ray intersects an empty box
+	//
+
+	return false;
     }
 
-    // intersect the 12 triangles.
-    for(i = 0; i < 12; i++) 
+    //
+    // The following description assumes that the ray's origin is outside
+    // the box, but the code below works even if the origin is inside the
+    // box:
+    //
+    // Between one and three "frontfacing" sides of the box are oriented
+    // towards the ray's origin, and between one and three "backfacing"
+    // sides are oriented away from the ray's origin.
+    // We intersect the ray with the planes that contain the sides of the
+    // box, and compare the distances between the ray's origin and the
+    // ray-plane intersections.  The ray intersects the box if the most
+    // distant frontfacing intersection is nearer than the nearest
+    // backfacing intersection.  If the ray does intersect the box, then
+    // the most distant frontfacing ray-plane intersection is the entry
+    // point and the nearest backfacing ray-plane intersection is the
+    // exit point.
+    //
+
+    const T TMAX = limits<T>::max();
+
+    T tFrontMax = -TMAX;
+    T tBackMin = TMAX;
+
+    //
+    // Minimum and maximum X sides.
+    //
+
+    if (r.dir.x >= 0)
     {
-	switch(i) 
-        {
-	case  0: v0 = 2; v1 = 1; v2 = 0; break;		// +z
-	case  1: v0 = 2; v1 = 3; v2 = 1; break;
+	T d1 = b.max.x - r.pos.x;
+	T d2 = b.min.x - r.pos.x;
 
-	case  2: v0 = 4; v1 = 5; v2 = 6; break;		// -z
-	case  3: v0 = 6; v1 = 5; v2 = 7; break;
+	if (r.dir.x > 1 ||
+	    (abs (d1) < TMAX * r.dir.x &&
+	     abs (d2) < TMAX * r.dir.x))
+	{
+	    T t1 = d1 / r.dir.x;
+	    T t2 = d2 / r.dir.x;
 
-	case  4: v0 = 0; v1 = 6; v2 = 2; break;		// -x
-	case  5: v0 = 0; v1 = 4; v2 = 6; break;
+	    if (tBackMin > t1)
+	    {
+		tBackMin = t1;
 
-	case  6: v0 = 1; v1 = 3; v2 = 7; break;		// +x
-	case  7: v0 = 1; v1 = 7; v2 = 5; break;
+		exit.x = b.max.x; 
+		exit.y = clamp (r.pos.y + t1 * r.dir.y, b.min.y, b.max.y);
+		exit.z = clamp (r.pos.z + t1 * r.dir.z, b.min.z, b.max.z);
+	    }
 
-	case  8: v0 = 1; v1 = 4; v2 = 0; break;		// -y
-	case  9: v0 = 1; v1 = 5; v2 = 4; break;
+	    if (tFrontMax < t2)
+	    {
+		tFrontMax = t2;
 
-	case 10: v0 = 2; v1 = 7; v2 = 3; break;		// +y
-	case 11: v0 = 2; v1 = 6; v2 = 7; break;
+		entry.x = b.min.x; 
+		entry.y = clamp (r.pos.y + t2 * r.dir.y, b.min.y, b.max.y);
+		entry.z = clamp (r.pos.z + t2 * r.dir.z, b.min.z, b.max.z);
+	    }
 	}
-	if((valid=intersect (line, points[v0], points[v1], points[v2],
-                             inter, bary, front)) == true) 
-        {
-	    if(front == true) 
-            {
-		enterPoint = inter;
-		validIntersection = valid;
-	    }
-	    else 
-            {
-		exitPoint = inter;
-		validIntersection = valid;
-	    }
+	else if (r.pos.x < b.min.x || r.pos.x > b.max.x)
+	{
+	    return false;
 	}
     }
-    return validIntersection;
+    else // r.dir.x < 0
+    {
+	T d1 = b.min.x - r.pos.x;
+	T d2 = b.max.x - r.pos.x;
+
+	if (r.dir.x < -1 ||
+	    (abs (d1) < -TMAX * r.dir.x &&
+	     abs (d2) < -TMAX * r.dir.x))
+	{
+	    T t1 = d1 / r.dir.x;
+	    T t2 = d2 / r.dir.x;
+
+	    if (tBackMin > t1)
+	    {
+		tBackMin = t1;
+
+		exit.x = b.min.x; 
+		exit.y = clamp (r.pos.y + t1 * r.dir.y, b.min.y, b.max.y);
+		exit.z = clamp (r.pos.z + t1 * r.dir.z, b.min.z, b.max.z);
+	    }
+
+	    if (tFrontMax < t2)
+	    {
+		tFrontMax = t2;
+
+		entry.x = b.max.x; 
+		entry.y = clamp (r.pos.y + t2 * r.dir.y, b.min.y, b.max.y);
+		entry.z = clamp (r.pos.z + t2 * r.dir.z, b.min.z, b.max.z);
+	    }
+	}
+	else if (r.pos.x < b.min.x || r.pos.x > b.max.x)
+	{
+	    return false;
+	}
+    }
+
+    //
+    // Minimum and maximum Y sides.
+    //
+
+    if (r.dir.y >= 0)
+    {
+	T d1 = b.max.y - r.pos.y;
+	T d2 = b.min.y - r.pos.y;
+
+	if (r.dir.y > 1 ||
+	    (abs (d1) < TMAX * r.dir.y &&
+	     abs (d2) < TMAX * r.dir.y))
+	{
+	    T t1 = d1 / r.dir.y;
+	    T t2 = d2 / r.dir.y;
+
+	    if (tBackMin > t1)
+	    {
+		tBackMin = t1;
+
+		exit.x = clamp (r.pos.x + t1 * r.dir.x, b.min.x, b.max.x);
+		exit.y = b.max.y; 
+		exit.z = clamp (r.pos.z + t1 * r.dir.z, b.min.z, b.max.z);
+	    }
+
+	    if (tFrontMax < t2)
+	    {
+		tFrontMax = t2;
+
+		entry.x = clamp (r.pos.x + t2 * r.dir.x, b.min.x, b.max.x);
+		entry.y = b.min.y; 
+		entry.z = clamp (r.pos.z + t2 * r.dir.z, b.min.z, b.max.z);
+	    }
+	}
+	else if (r.pos.y < b.min.y || r.pos.y > b.max.y)
+	{
+	    return false;
+	}
+    }
+    else // r.dir.y < 0
+    {
+	T d1 = b.min.y - r.pos.y;
+	T d2 = b.max.y - r.pos.y;
+
+	if (r.dir.y < -1 ||
+	    (abs (d1) < -TMAX * r.dir.y &&
+	     abs (d2) < -TMAX * r.dir.y))
+	{
+	    T t1 = d1 / r.dir.y;
+	    T t2 = d2 / r.dir.y;
+
+	    if (tBackMin > t1)
+	    {
+		tBackMin = t1;
+
+		exit.x = clamp (r.pos.x + t1 * r.dir.x, b.min.x, b.max.x);
+		exit.y = b.min.y; 
+		exit.z = clamp (r.pos.z + t1 * r.dir.z, b.min.z, b.max.z);
+	    }
+
+	    if (tFrontMax < t2)
+	    {
+		tFrontMax = t2;
+
+		entry.x = clamp (r.pos.x + t2 * r.dir.x, b.min.x, b.max.x);
+		entry.y = b.max.y; 
+		entry.z = clamp (r.pos.z + t2 * r.dir.z, b.min.z, b.max.z);
+	    }
+	}
+	else if (r.pos.y < b.min.y || r.pos.y > b.max.y)
+	{
+	    return false;
+	}
+    }
+
+    //
+    // Minimum and maximum Z sides.
+    //
+
+    if (r.dir.z >= 0)
+    {
+	T d1 = b.max.z - r.pos.z;
+	T d2 = b.min.z - r.pos.z;
+
+	if (r.dir.z > 1 ||
+	    (abs (d1) < TMAX * r.dir.z &&
+	     abs (d2) < TMAX * r.dir.z))
+	{
+	    T t1 = d1 / r.dir.z;
+	    T t2 = d2 / r.dir.z;
+
+	    if (tBackMin > t1)
+	    {
+		tBackMin = t1;
+
+		exit.x = clamp (r.pos.x + t1 * r.dir.x, b.min.x, b.max.x);
+		exit.y = clamp (r.pos.y + t1 * r.dir.y, b.min.y, b.max.y);
+		exit.z = b.max.z; 
+	    }
+
+	    if (tFrontMax < t2)
+	    {
+		tFrontMax = t2;
+
+		entry.x = clamp (r.pos.x + t2 * r.dir.x, b.min.x, b.max.x);
+		entry.y = clamp (r.pos.y + t2 * r.dir.y, b.min.y, b.max.y);
+		entry.z = b.min.z; 
+	    }
+	}
+	else if (r.pos.z < b.min.z || r.pos.z > b.max.z)
+	{
+	    return false;
+	}
+    }
+    else // r.dir.z < 0
+    {
+	T d1 = b.min.z - r.pos.z;
+	T d2 = b.max.z - r.pos.z;
+
+	if (r.dir.z < -1 ||
+	    (abs (d1) < -TMAX * r.dir.z &&
+	     abs (d2) < -TMAX * r.dir.z))
+	{
+	    T t1 = d1 / r.dir.z;
+	    T t2 = d2 / r.dir.z;
+
+	    if (tBackMin > t1)
+	    {
+		tBackMin = t1;
+
+		exit.x = clamp (r.pos.x + t1 * r.dir.x, b.min.x, b.max.x);
+		exit.y = clamp (r.pos.y + t1 * r.dir.y, b.min.y, b.max.y);
+		exit.z = b.min.z; 
+	    }
+
+	    if (tFrontMax < t2)
+	    {
+		tFrontMax = t2;
+
+		entry.x = clamp (r.pos.x + t2 * r.dir.x, b.min.x, b.max.x);
+		entry.y = clamp (r.pos.y + t2 * r.dir.y, b.min.y, b.max.y);
+		entry.z = b.max.z; 
+	    }
+	}
+	else if (r.pos.z < b.min.z || r.pos.z > b.max.z)
+	{
+	    return false;
+	}
+    }
+
+    return tFrontMax <= tBackMin;
 }
 
 
@@ -554,7 +777,8 @@ intersects (const Box< Vec3<T> > &b, const Line3<T> &r, Vec3<T> &ip)
     // sides of the box are oriented towards the ray, and between one and
     // three "backfacing" sides are oriented away from the ray.
     // We intersect the ray with the planes that contain the sides of the
-    // box, and compare the distances between the ray-plane intersections.
+    // box, and compare the distances between ray's origin and the ray-plane
+    // intersections.
     // The ray intersects the box if the most distant frontfacing intersection
     // is nearer than the nearest backfacing intersection.  If the ray does
     // intersect the box, then the most distant frontfacing ray-plane

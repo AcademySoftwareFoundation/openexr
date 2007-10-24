@@ -1,3 +1,7 @@
+	* Rewrote function findEntryAndExitPoints() in ImathBoxAlgo.h.
+	  Results are now consistent with those from intersect(), also
+	  in ImathBoxAlgo.h.
+	  (Florian Kainz)
 	* Made Vec2<T>::length() and Vec3<T>::length() more accurate for
 	  vectors whose length is less than sqrt(limits<T>::smallest());
 	  (Florian Kainz)
