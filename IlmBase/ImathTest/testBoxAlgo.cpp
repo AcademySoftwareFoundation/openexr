@@ -876,21 +876,122 @@ boxMatrixTransform ()
     M.translate (V3f (20, -15, 2));
 
     Box3f b2 = transform (b1, M);
-    Box3f b3 = transformSimple (b1, M);
+    Box3f b3 = affineTransform (b1, M);
+    Box3f b4 = transformSimple (b1, M);
 
-    assert (approximatelyEqual (b2.min, b3.min, e));
-    assert (approximatelyEqual (b2.max, b3.max, e));
+    assert (approximatelyEqual (b2.min, b4.min, e));
+    assert (approximatelyEqual (b2.max, b4.max, e));
+    assert (approximatelyEqual (b3.max, b4.max, e));
+    assert (approximatelyEqual (b3.max, b4.max, e));
 
     M[0][3] = 1;
     M[1][3] = 2;
     M[2][3] = 3;
     M[3][3] = 4;
 
-    Box3f b4 = transform (b1, M);
-    Box3f b5 = transformSimple (b1, M);
+    Box3f b5 = transform (b1, M);
+    Box3f b6 = transformSimple (b1, M);
 
-    assert (approximatelyEqual (b4.min, b5.min, e));
-    assert (approximatelyEqual (b4.max, b5.max, e));
+    assert (approximatelyEqual (b5.min, b6.min, e));
+    assert (approximatelyEqual (b5.max, b6.max, e));
+}
+
+
+void
+pointInBox ()
+{
+    cout << "  closest point in box" << endl;
+
+    Box3f box (V3f (1, 2, 3), V3f (5, 4, 6));
+
+    //
+    // Points outside the box
+    //
+
+    assert (closestPointInBox (V3f (0, 0, 0), box) == V3f (1, 2, 3));
+    assert (closestPointInBox (V3f (7, 7, 7), box) == V3f (5, 4, 6));
+
+    assert (closestPointInBox (V3f (2, 3, 0), box) == V3f (2, 3, 3));
+    assert (closestPointInBox (V3f (2, 3, 7), box) == V3f (2, 3, 6));
+
+    assert (closestPointInBox (V3f (2, 0, 4), box) == V3f (2, 2, 4));
+    assert (closestPointInBox (V3f (2, 7, 4), box) == V3f (2, 4, 4));
+
+    assert (closestPointInBox (V3f (0, 3, 4), box) == V3f (1, 3, 4));
+    assert (closestPointInBox (V3f (7, 3, 4), box) == V3f (5, 3, 4));
+
+    //
+    // Points inside the box
+    //
+
+    assert (closestPointInBox (V3f (1.5, 3, 5), box) == V3f (1.5, 3, 5));
+    assert (closestPointInBox (V3f (4.5, 3, 5), box) == V3f (4.5, 3, 5));
+
+    assert (closestPointInBox (V3f (2, 2.5, 4), box) == V3f (2, 2.5, 4));
+    assert (closestPointInBox (V3f (2, 3.5, 4), box) == V3f (2, 3.5, 4));
+
+    assert (closestPointInBox (V3f (2, 3, 3.5), box) == V3f (2, 3, 3.5));
+    assert (closestPointInBox (V3f (2, 3, 5.5), box) == V3f (2, 3, 5.5));
+}
+
+
+void
+pointInAndOnBox ()
+{
+    cout << "  closest points in and on box" << endl;
+
+    Box3f box (V3f (1, 2, 3), V3f (5, 4, 6));
+
+    //
+    // Points outside the box
+    //
+
+    assert (closestPointOnBox (V3f (0, 0, 0), box) == V3f (1, 2, 3));
+    assert (closestPointInBox (V3f (0, 0, 0), box) == V3f (1, 2, 3));
+    assert (closestPointOnBox (V3f (7, 7, 7), box) == V3f (5, 4, 6));
+    assert (closestPointInBox (V3f (7, 7, 7), box) == V3f (5, 4, 6));
+
+    assert (closestPointOnBox (V3f (2, 3, 0), box) == V3f (2, 3, 3));
+    assert (closestPointInBox (V3f (2, 3, 0), box) == V3f (2, 3, 3));
+    assert (closestPointOnBox (V3f (2, 3, 7), box) == V3f (2, 3, 6));
+    assert (closestPointInBox (V3f (2, 3, 7), box) == V3f (2, 3, 6));
+
+    assert (closestPointOnBox (V3f (2, 0, 4), box) == V3f (2, 2, 4));
+    assert (closestPointInBox (V3f (2, 0, 4), box) == V3f (2, 2, 4));
+    assert (closestPointOnBox (V3f (2, 7, 4), box) == V3f (2, 4, 4));
+    assert (closestPointInBox (V3f (2, 7, 4), box) == V3f (2, 4, 4));
+
+    assert (closestPointOnBox (V3f (0, 3, 4), box) == V3f (1, 3, 4));
+    assert (closestPointInBox (V3f (0, 3, 4), box) == V3f (1, 3, 4));
+    assert (closestPointOnBox (V3f (7, 3, 4), box) == V3f (5, 3, 4));
+    assert (closestPointInBox (V3f (7, 3, 4), box) == V3f (5, 3, 4));
+
+    //
+    // Points inside the box
+    //
+
+    assert (closestPointOnBox (V3f (1.5, 3, 5), box) == V3f (1, 3, 5));
+    assert (closestPointInBox (V3f (1.5, 3, 5), box) == V3f (1.5, 3, 5));
+    assert (closestPointOnBox (V3f (4.5, 3, 5), box) == V3f (5, 3, 5));
+    assert (closestPointInBox (V3f (4.5, 3, 5), box) == V3f (4.5, 3, 5));
+
+    assert (closestPointOnBox (V3f (2, 2.5, 4), box) == V3f (2, 2, 4));
+    assert (closestPointInBox (V3f (2, 2.5, 4), box) == V3f (2, 2.5, 4));
+    assert (closestPointOnBox (V3f (2, 3.5, 4), box) == V3f (2, 4, 4));
+    assert (closestPointInBox (V3f (2, 3.5, 4), box) == V3f (2, 3.5, 4));
+
+    assert (closestPointOnBox (V3f (2, 3, 3.5), box) == V3f (2, 3, 3));
+    assert (closestPointInBox (V3f (2, 3, 3.5), box) == V3f (2, 3, 3.5));
+    assert (closestPointOnBox (V3f (2, 3, 5.5), box) == V3f (2, 3, 6));
+    assert (closestPointInBox (V3f (2, 3, 5.5), box) == V3f (2, 3, 5.5));
+
+    //
+    // Point at the center of the box.  "Closest point on box" is
+    // in at the center of +Y side
+    //
+
+    assert (closestPointOnBox (V3f (3, 3, 4.5), box) == V3f (3, 4, 4.5));
+    assert (closestPointInBox (V3f (3, 3, 4.5), box) == V3f (3, 3, 4.5));
 }
 
 
@@ -907,6 +1008,7 @@ testBoxAlgo ()
     rayBoxIntersection1();
     rayBoxIntersection2();
     boxMatrixTransform();
+    pointInAndOnBox();
 
     cout << "ok\n" << endl;
 }
