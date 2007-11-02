@@ -78,174 +78,84 @@ namespace Imath {
 
 
 template <class T>
-inline T clip(const T& in, const Box<T>& box)
+inline T
+clip (const T &p, const Box<T> &box)
 {
     //
-    //	Clip a point so that it lies inside the given bbox
+    // Clip the coordinates of a point, p, against a box.
+    // The result, q, is the closest point to p that is inside the box.
     //
 
-    T out;
+    T q;
 
-    for (int i=0; i<(int)box.min.dimensions(); i++)
+    for (int i = 0; i < int (box.min.dimensions()); i++)
     {
-	if (in[i] < box.min[i]) out[i] = box.min[i];
-	else if (in[i] > box.max[i]) out[i] = box.max[i];
-	else out[i] = in[i];
+	if (p[i] < box.min[i])
+	    q[i] = box.min[i];
+	else if (p[i] > box.max[i])
+	    q[i] = box.max[i];
+	else
+	    q[i] = p[i];
     }
 
-    return out;
+    return q;
 }
 
 
-//
-// Return p if p is inside the box.
-//
- 
 template <class T>
-Vec3<T> 
-closestPointInBox(const Vec3<T>& p, const Box< Vec3<T> >& box )
+inline T
+closestPointInBox (const T &p, const Box<T> &box)
 {
-    Imath::V3f b;
-
-    if (p.x < box.min.x)
-	b.x = box.min.x;
-    else if (p.x > box.max.x)
-	b.x = box.max.x;
-    else
-	b.x = p.x;
-
-    if (p.y < box.min.y)
-	b.y = box.min.y;
-    else if (p.y > box.max.y)
-	b.y = box.max.y;
-    else
-	b.y = p.y;
-
-    if (p.z < box.min.z)
-	b.z = box.min.z;
-    else if (p.z > box.max.z)
-	b.z = box.max.z;
-    else
-	b.z = p.z;
-
-    return b;
+    return clip (p, box);
 }
 
+
 template <class T>
-Vec3<T> closestPointOnBox(const Vec3<T>& pt, const Box< Vec3<T> >& box )
+Vec3<T>
+closestPointOnBox (const Vec3<T> &p, const Box< Vec3<T> > &box)
 {
     //
-    //	This function is specialized to work with a Vec3f and a box
-    //	made of Vec3fs. 
+    // Find the point, q, on the surface of
+    // the box, that is closest to point p.
+    //
+    // If the box is empty, return p.
     //
 
-    Vec3<T> result;
-    
-    // trivial cases first
     if (box.isEmpty())
-	return pt;
-    else if (pt == box.center()) 
+	return p;
+
+    Vec3<T> q = closestPointInBox (p, box);
+
+    if (q == p)
     {
-	// middle of z side
-	result[0] = (box.max[0] + box.min[0])/2.0;
-	result[1] = (box.max[1] + box.min[1])/2.0;
-	result[2] = box.max[2];
+	Vec3<T> d1 = p - box.min;
+	Vec3<T> d2 = box.max - p;
+
+	Vec3<T> d ((d1.x < d2.x)? d1.x: d2.x,
+		   (d1.y < d2.y)? d1.y: d2.y,
+		   (d1.z < d2.z)? d1.z: d2.z);
+
+	if (d.x < d.y && d.x < d.z)
+	{
+	    q.x = (d1.x < d2.x)? box.min.x: box.max.x;
+	}
+	else if (d.y < d.z)
+	{
+	    q.y = (d1.y < d2.y)? box.min.y: box.max.y;
+	}
+	else
+	{
+	    q.z = (d1.z < d2.z)? box.min.z: box.max.z;
+	}
     }
-    else 
-    {
-	// Find the closest point on a unit box (from -1 to 1),
-	// then scale up.
 
-	// Find the vector from center to the point, then scale
-	// to a unit box.
-	Vec3<T> vec = pt - box.center();
-	T sizeX = box.max[0]-box.min[0];
-	T sizeY = box.max[1]-box.min[1];
-	T sizeZ = box.max[2]-box.min[2];
-
-	T halfX = sizeX/2.0;
-	T halfY = sizeY/2.0;
-	T halfZ = sizeZ/2.0;
-	if (halfX > 0.0)
-	    vec[0] /= halfX;
-	if (halfY > 0.0)
-	    vec[1] /= halfY;
-	if (halfZ > 0.0)
-	    vec[2] /= halfZ;
-
-	// Side to snap side that has greatest magnitude in the vector.
-	Vec3<T> mag;
-	mag[0] = fabs(vec[0]);
-	mag[1] = fabs(vec[1]);
-	mag[2] = fabs(vec[2]);
-
-	result = mag;
-
-	// Check if beyond corners
-	if (result[0] > 1.0)
-	    result[0] = 1.0;
-	if (result[1] > 1.0)
-	    result[1] = 1.0;
-	if (result[2] > 1.0)
-	    result[2] = 1.0;
-
-	// snap to appropriate side	    
-	if ((mag[0] > mag[1]) && (mag[0] >  mag[2])) 
-        {
-	    result[0] = 1.0;
-	}
-	else if ((mag[1] > mag[0]) && (mag[1] >  mag[2])) 
-        {
-	    result[1] = 1.0;
-	}
-	else if ((mag[2] > mag[0]) && (mag[2] >  mag[1])) 
-        {
-	    result[2] = 1.0;
-	}
-	else if ((mag[0] == mag[1]) && (mag[0] == mag[2])) 
-        {
-	    // corner
-	    result = Vec3<T>(1,1,1);
-	}
-	else if (mag[0] == mag[1]) 
-        {
-	    // edge parallel with z
-	    result[0] = 1.0;
-	    result[1] = 1.0;
-	}
-	else if (mag[0] == mag[2]) 
-        {
-	    // edge parallel with y
-	    result[0] = 1.0;
-	    result[2] = 1.0;
-	}
-	else if (mag[1] == mag[2]) 
-        {
-	    // edge parallel with x
-	    result[1] = 1.0;
-	    result[2] = 1.0;
-	}
-
-	// Now make everything point the right way
-	for (int i=0; i < 3; i++)
-        {
-	    if (vec[i] < 0.0)
-		result[i] = -result[i];
-        }
-
-	// scale back up and move to center
-	result[0] *= halfX;
-	result[1] *= halfY;
-	result[2] *= halfZ;
-
-	result += box.center();
-    }
-    return result;
+    return q;
 }
+
 
 template <class S, class T>
 Box< Vec3<S> >
-transform(const Box< Vec3<S> >& box, const Matrix44<T>& m)
+transform (const Box< Vec3<S> > &box, const Matrix44<T> &m)
 {
     //
     // Transform a 3D box by a matrix, and compute a new box that
@@ -324,117 +234,56 @@ transform(const Box< Vec3<S> >& box, const Matrix44<T>& m)
     return newBox;
 }
 
-template <class T>
-Box< Vec3<T> >
-affineTransform(const Box< Vec3<T> > &bbox, const Matrix44<T> &M)
+
+template <class S, class T>
+Box< Vec3<S> >
+affineTransform (const Box< Vec3<S> > &box, const Matrix44<T> &m)
 {
-    float       min0, max0, min1, max1, min2, max2, a, b;
-    float       min0new, max0new, min1new, max1new, min2new, max2new;
+    //
+    // Transform a 3D box by a matrix whose rightmost column
+    // is (0 0 0 1), and compute a new box that tightly encloses
+    // the transformed box.
+    //
+    // As in the transform() function, above, we use James Arvo's
+    // fast method.
+    //
 
-    min0 = bbox.min[0];
-    max0 = bbox.max[0];
-    min1 = bbox.min[1];
-    max1 = bbox.max[1];
-    min2 = bbox.min[2];
-    max2 = bbox.max[2];
+    if (box.isEmpty())
+    {
+	//
+	// A transformed empty box is still empty
+	//
 
-    min0new = max0new = M[3][0];
-    a = M[0][0] * min0;
-    b = M[0][0] * max0;
-    if (a < b) {
-        min0new += a;
-        max0new += b;
-    } else {
-        min0new += b;
-        max0new += a;
-    }
-    a = M[1][0] * min1;
-    b = M[1][0] * max1;
-    if (a < b) {
-        min0new += a;
-        max0new += b;
-    } else {
-        min0new += b;
-        max0new += a;
-    }
-    a = M[2][0] * min2;
-    b = M[2][0] * max2;
-    if (a < b) {
-        min0new += a;
-        max0new += b;
-    } else {
-        min0new += b;
-        max0new += a;
+	return box;
     }
 
-    min1new = max1new = M[3][1];
-    a = M[0][1] * min0;
-    b = M[0][1] * max0;
-    if (a < b) {
-        min1new += a;
-        max1new += b;
-    } else {
-        min1new += b;
-        max1new += a;
-    }
-    a = M[1][1] * min1;
-    b = M[1][1] * max1;
-    if (a < b) {
-        min1new += a;
-        max1new += b;
-    } else {
-        min1new += b;
-        max1new += a;
-    }
-    a = M[2][1] * min2;
-    b = M[2][1] * max2;
-    if (a < b) {
-        min1new += a;
-        max1new += b;
-    } else {
-        min1new += b;
-        max1new += a;
+    Box< Vec3<S> > newBox;
+
+    for (int i = 0; i < 3; i++) 
+    {
+	newBox.min[i] = newBox.max[i] = (S) m[3][i];
+
+	for (int j = 0; j < 3; j++) 
+	{
+	    float a, b;
+
+	    a = (S) m[j][i] * box.min[j];
+	    b = (S) m[j][i] * box.max[j];
+
+	    if (a < b) 
+	    {
+		newBox.min[i] += a;
+		newBox.max[i] += b;
+	    }
+	    else 
+	    {
+		newBox.min[i] += b;
+		newBox.max[i] += a;
+	    }
+	}
     }
 
-    min2new = max2new = M[3][2];
-    a = M[0][2] * min0;
-    b = M[0][2] * max0;
-    if (a < b) {
-        min2new += a;
-        max2new += b;
-    } else {
-        min2new += b;
-        max2new += a;
-    }
-    a = M[1][2] * min1;
-    b = M[1][2] * max1;
-    if (a < b) {
-        min2new += a;
-        max2new += b;
-    } else {
-        min2new += b;
-        max2new += a;
-    }
-    a = M[2][2] * min2;
-    b = M[2][2] * max2;
-    if (a < b) {
-        min2new += a;
-        max2new += b;
-    } else {
-        min2new += b;
-        max2new += a;
-    }
-
-    Box< Vec3<T> > xbbox;
-
-    xbbox.min[0] = min0new;
-    xbbox.max[0] = max0new;
-    xbbox.min[1] = min1new;
-    xbbox.max[1] = max1new;
-    xbbox.min[2] = min2new;
-    xbbox.max[2] = max2new;
-
-    return xbbox;
+    return newBox;
 }
 
 

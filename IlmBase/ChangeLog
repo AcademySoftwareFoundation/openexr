@@ -1,3 +1,9 @@
+	* Rewrote function closestPointOnBox(point,box).  Shortened
+	  the code, improved numerical accuracy, fixed a bug where
+	  closestPointOnBox(box.center(),box) would always return
+	  the center of the +Z side of the box, even if the +/-X or
+	  +/-Y sides were closer.
+	  (Florian Kainz)
 	* Rewrote function findEntryAndExitPoints() in ImathBoxAlgo.h.
 	  Results are now consistent with those from intersect(), also
 	  in ImathBoxAlgo.h.
