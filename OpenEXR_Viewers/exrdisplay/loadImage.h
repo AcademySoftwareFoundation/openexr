@@ -59,6 +59,10 @@
 //			image channel to be loaded; the channel is copied
 //			into the R, G and B components of the frame buffer.
 //
+//	layer		Used only if channel is 0: if layer is 0, load
+//			the R, G and B channels, otherwise load layer.R,
+//			layer.G and layer.B.
+//
 //	preview		If preview is true load the file's preview image,
 //			otherwise load the main image.
 //
@@ -77,6 +81,7 @@
 
 void	loadImage (const char fileName[],
 		   const char channel[],
+		   const char layer[],
 		   bool preview,
 		   int lx,
 		   int ly,
