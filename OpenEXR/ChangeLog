@@ -1,3 +1,20 @@
+	* Added new constructors to classes Imf::RgbaInputFile and
+	  Imf::TiledRgbaInputFile.  The new constructors have a
+	  layerName parameter, which allows the caller to specify
+	  which layer of a multi-layer or multi-view image will
+	  be read.
+	  (Florian Kainz)
+	* A number of member functions in classes Imf::Header,
+	  Imf::ChannelList and Imf::FrameBuffer have parameters
+	  of type "const char *".  Added equivalent functions that
+	  take "const std::string &" parameters.
+	  (Florian Kainz)
+	* Added library support for Weta Digital multi-view images:
+	  StringVector attribute type, multiView standard attribute
+	  of type StringVector, utility functions related to grouping
+	  channels into separate views.
+	  (Peter Hillman, Florian Kainz)
+
 Version 1.6.1:
 	* Removed Windows .suo files from distribution.
 	  (Eric Wimmer)

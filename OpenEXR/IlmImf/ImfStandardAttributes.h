@@ -63,7 +63,7 @@
 #include <ImfTimeCodeAttribute.h>
 #include <ImfRationalAttribute.h>
 #include <ImfVecAttribute.h>
-
+#include <ImfStringVectorAttribute.h>
 
 #define IMF_STD_ATTRIBUTE_DEF(name,suffix,type)				      \
 									      \
@@ -285,6 +285,20 @@ IMF_STD_ATTRIBUTE_DEF (wrapmodes, Wrapmodes, std::string)
 //
 
 IMF_STD_ATTRIBUTE_DEF (framesPerSecond, FramesPerSecond, Rational)
+
+
+//
+// multiView -- defines the view names for multi-view image files.
+// A multi-view image contains two or more views of the same scene,
+// as seen from different viewpoints, for example a left-eye and
+// a right-eye view for stereo displays.  The multiView attribute
+// lists the names of the views in an image, and a naming convention
+// identifies the channels that belong to each view.
+//
+// For details, please see header file ImfMultiView.h
+//
+
+IMF_STD_ATTRIBUTE_DEF (multiView , MultiView, StringVector)
 
 } // namespace Imf
 

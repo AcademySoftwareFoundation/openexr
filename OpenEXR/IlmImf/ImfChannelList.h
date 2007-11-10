@@ -122,6 +122,9 @@ class ChannelList
     void			insert (const char name[],
 					const Channel &channel);
 
+    void			insert (const std::string &name,
+					const Channel &channel);
+
     //------------------------------------------------------------------
     // Access to existing channels:
     //
@@ -137,8 +140,14 @@ class ChannelList
     Channel &			operator [] (const char name[]);
     const Channel &		operator [] (const char name[]) const;
 
+    Channel &			operator [] (const std::string &name);
+    const Channel &		operator [] (const std::string &name) const;
+
     Channel *			findChannel (const char name[]);
     const Channel *		findChannel (const char name[]) const;
+
+    Channel *			findChannel (const std::string &name);
+    const Channel *		findChannel (const std::string &name) const;
 
 
     //-------------------------------------------
@@ -152,10 +161,15 @@ class ChannelList
 
     Iterator			begin ();
     ConstIterator		begin () const;
+
     Iterator			end ();
     ConstIterator		end () const;
+
     Iterator			find (const char name[]);
     ConstIterator		find (const char name[]) const;
+
+    Iterator			find (const std::string &name);
+    ConstIterator		find (const std::string &name) const;
 
     
     //-----------------------------------------------------------------
@@ -226,6 +240,14 @@ class ChannelList
 						    Iterator &last);
 
     void			channelsWithPrefix (const char prefix[],
+						    ConstIterator &first,
+						    ConstIterator &last) const;
+
+    void			channelsWithPrefix (const std::string &prefix,
+						    Iterator &first,
+						    Iterator &last);
+
+    void			channelsWithPrefix (const std::string &prefix,
 						    ConstIterator &first,
 						    ConstIterator &last) const;
 
