@@ -59,10 +59,11 @@ namespace {
 
 void
 loadImage (const char fileName[],
+	   const char layer[],
 	   Header &header,
 	   Array<Rgba> &pixels)
 {
-    RgbaInputFile in (fileName);
+    RgbaInputFile in (fileName, layer? layer: "");
 
     header = in.header();
 
@@ -94,12 +95,13 @@ loadImage (const char fileName[],
 
 void
 loadTiledImage (const char fileName[],
+		const char layer[],
 		int lx,
 		int ly,
 		Header &header,
 	        Array<Rgba> &pixels)
 {
-    TiledRgbaInputFile in (fileName);
+    TiledRgbaInputFile in (fileName, layer? layer: "");
 
     if (!in.isValidLevel (lx, ly))
     {
@@ -372,6 +374,7 @@ loadTiledImageChannel (const char fileName[],
 void
 loadImage (const char fileName[],
 	   const char channel[],
+	   const char layer[],
 	   bool preview,
 	   int lx,
 	   int ly,
@@ -397,6 +400,7 @@ loadImage (const char fileName[],
 	else
 	{
 	    loadTiledImage (fileName,
+			    layer,
 			    lx, ly,
 			    header,
 			    pixels);
@@ -414,6 +418,7 @@ loadImage (const char fileName[],
 	else
 	{
 	    loadImage (fileName,
+		       layer,
 		       header,
 		       pixels);
 	}

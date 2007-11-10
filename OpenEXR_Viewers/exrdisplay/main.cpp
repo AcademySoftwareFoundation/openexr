@@ -122,6 +122,7 @@ MainWindow::kneeHighSliderCallback (Fl_Widget *widget, void *data)
 MainWindow *
 makeMainWindow (const char imageFile[],
 		const char channel[],
+		const char layer[],
 		bool preview,
 		int lx,
 		int ly,
@@ -142,7 +143,13 @@ makeMainWindow (const char imageFile[],
 
     Header header;
 
-    loadImage (imageFile, channel, preview, lx, ly, header, mainWindow->pixels);
+    loadImage (imageFile,
+               channel,
+	       layer,
+	       preview,
+	       lx, ly,
+	       header,
+	       mainWindow->pixels);
 
     const Box2i &displayWindow = header.displayWindow();
     const Box2i &dataWindow = header.dataWindow();
@@ -425,6 +432,8 @@ usageMessage (const char argv0[], bool verbose = false)
 		"-p        displays the preview (thumbnail)\n"
 		"          image instead of the main image\n"
 		"\n"
+		"-L x      displays layer x of a multilayer image\n"
+		"\n"
 		"-l lx ly  displays level (lx,ly) of a tiled\n"
 		"          multiresolution image\n"
 		"\n"
@@ -526,6 +535,7 @@ main(int argc, char **argv)
 {
     const char *imageFile = 0;
     const char *channel = 0;
+    const char *layer = 0;
     bool preview = false;
     bool noDisplayWindow = false;
     bool noAspect = false;
@@ -559,6 +569,19 @@ main(int argc, char **argv)
 
 	    preview = true;
 	    i += 1;
+	}
+	else if (!strcmp (argv[i], "-L"))
+	{
+	    //
+	    // Assume that the image file has multiple
+	    // layers, and show the specified layer.
+	    //
+
+	    if (i > argc - 2)
+		usageMessage (argv[0]);
+
+	    layer = argv[i + 1];
+	    i += 2;
 	}
 	else if (!strcmp (argv[i], "-l"))
 	{
@@ -744,6 +767,7 @@ main(int argc, char **argv)
 
 	MainWindow *mainWindow = makeMainWindow (imageFile,
 						 channel,
+						 layer,
 						 preview,
 						 lx, ly,
 						 noDisplayWindow,
