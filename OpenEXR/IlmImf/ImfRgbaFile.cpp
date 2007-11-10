@@ -99,29 +99,43 @@ insertChannels (Header &header, RgbaChannels rgbaChannels)
 
 
 RgbaChannels
-rgbaChannels (const ChannelList &ch)
+rgbaChannels (const ChannelList &ch, const string &channelNamePrefix = "")
 {
     int i = 0;
 
-    if (ch.findChannel ("R"))
+    if (ch.findChannel (channelNamePrefix + "R"))
 	i |= WRITE_R;
 
-    if (ch.findChannel ("G"))
+    if (ch.findChannel (channelNamePrefix + "G"))
 	i |= WRITE_G;
     
-    if (ch.findChannel ("B"))
+    if (ch.findChannel (channelNamePrefix + "B"))
 	i |= WRITE_B;
 
-    if (ch.findChannel ("A"))
+    if (ch.findChannel (channelNamePrefix + "A"))
 	i |= WRITE_A;
 
-    if (ch.findChannel ("Y"))
+    if (ch.findChannel (channelNamePrefix + "Y"))
 	i |= WRITE_Y;
 
-    if (ch.findChannel ("RY") || ch.findChannel ("BY"))
+    if (ch.findChannel (channelNamePrefix + "RY") ||
+	ch.findChannel (channelNamePrefix + "BY"))
 	i |= WRITE_C;
 
     return RgbaChannels (i);
+}
+
+
+string
+prefixFromLayerName (const string &layerName, const Header &header)
+{
+    if (layerName.empty())
+	return "";
+
+    if (hasMultiView (header) && multiView(header)[0] == layerName)
+	return "";
+
+    return layerName + ".";
 }
 
 
@@ -761,7 +775,8 @@ class RgbaInputFile::FromYca: public Mutex
 
     void		setFrameBuffer (Rgba *base,
 					size_t xStride,
-					size_t yStride);
+					size_t yStride,
+					const string &channelNamePrefix);
 
     void		readPixels (int scanLine1, int scanLine2);
 
@@ -839,13 +854,14 @@ RgbaInputFile::FromYca::~FromYca ()
 void
 RgbaInputFile::FromYca::setFrameBuffer (Rgba *base,
 					size_t xStride,
-					size_t yStride)
+					size_t yStride,
+					const string &channelNamePrefix)
 {
     if (_fbBase == 0)
     {
 	FrameBuffer fb;
 
-	fb.insert ("Y",
+	fb.insert (channelNamePrefix + "Y",
 		   Slice (HALF,					// type
 			  (char *) &_tmpBuf[N2 - _xMin].g,	// base
 			  sizeof (Rgba),			// xStride
@@ -856,7 +872,7 @@ RgbaInputFile::FromYca::setFrameBuffer (Rgba *base,
 
 	if (_readC)
 	{
-	    fb.insert ("RY",
+	    fb.insert (channelNamePrefix + "RY",
 		       Slice (HALF,				// type
 			      (char *) &_tmpBuf[N2 - _xMin].r,	// base
 			      sizeof (Rgba) * 2,		// xStride
@@ -865,7 +881,7 @@ RgbaInputFile::FromYca::setFrameBuffer (Rgba *base,
 			      2,				// ySampling
 			      0.0));				// fillValue
 
-	    fb.insert ("BY",
+	    fb.insert (channelNamePrefix + "BY",
 		       Slice (HALF,				// type
 			      (char *) &_tmpBuf[N2 - _xMin].b,	// base
 			      sizeof (Rgba) * 2,		// xStride
@@ -875,7 +891,7 @@ RgbaInputFile::FromYca::setFrameBuffer (Rgba *base,
 			      0.0));				// fillValue
 	}
 
-	fb.insert ("A",
+	fb.insert (channelNamePrefix + "A",
 		   Slice (HALF,					// type
 			  (char *) &_tmpBuf[N2 - _xMin].a,	// base
 			  sizeof (Rgba),			// xStride
@@ -1110,7 +1126,8 @@ RgbaInputFile::FromYca::padTmpBuf ()
 
 RgbaInputFile::RgbaInputFile (const char name[], int numThreads):
     _inputFile (new InputFile (name, numThreads)),
-    _fromYca (0)
+    _fromYca (0),
+    _channelNamePrefix ("")
 {
     RgbaChannels rgbaChannels = channels();
 
@@ -1121,7 +1138,38 @@ RgbaInputFile::RgbaInputFile (const char name[], int numThreads):
 
 RgbaInputFile::RgbaInputFile (IStream &is, int numThreads):
     _inputFile (new InputFile (is, numThreads)),
-    _fromYca (0)
+    _fromYca (0),
+    _channelNamePrefix ("")
+{
+    RgbaChannels rgbaChannels = channels();
+
+    if (rgbaChannels & (WRITE_Y | WRITE_C))
+	_fromYca = new FromYca (*_inputFile, rgbaChannels);
+}
+
+
+RgbaInputFile::RgbaInputFile (const char name[],
+			      const string &layerName,
+			      int numThreads)
+:
+    _inputFile (new InputFile (name, numThreads)),
+    _fromYca (0),
+    _channelNamePrefix (prefixFromLayerName (layerName, _inputFile->header()))
+{
+    RgbaChannels rgbaChannels = channels();
+
+    if (rgbaChannels & (WRITE_Y | WRITE_C))
+	_fromYca = new FromYca (*_inputFile, rgbaChannels);
+}
+
+
+RgbaInputFile::RgbaInputFile (IStream &is,
+			      const string &layerName,
+			      int numThreads)
+:
+    _inputFile (new InputFile (is, numThreads)),
+    _fromYca (0),
+    _channelNamePrefix (prefixFromLayerName (layerName, _inputFile->header()))
 {
     RgbaChannels rgbaChannels = channels();
 
@@ -1143,7 +1191,7 @@ RgbaInputFile::setFrameBuffer (Rgba *base, size_t xStride, size_t yStride)
     if (_fromYca)
     {
 	Lock lock (*_fromYca);
-	_fromYca->setFrameBuffer (base, xStride, yStride);
+	_fromYca->setFrameBuffer (base, xStride, yStride, _channelNamePrefix);
     }
     else
     {
@@ -1152,29 +1200,33 @@ RgbaInputFile::setFrameBuffer (Rgba *base, size_t xStride, size_t yStride)
 
 	FrameBuffer fb;
 
-	fb.insert ("R", Slice (HALF,
-			       (char *) &base[0].r,
-			       xs, ys,
-			       1, 1,	// xSampling, ySampling
-			       0.0));	// fillValue
+	fb.insert (_channelNamePrefix + "R",
+		   Slice (HALF,
+			  (char *) &base[0].r,
+			  xs, ys,
+			  1, 1,		// xSampling, ySampling
+			  0.0));	// fillValue
 
-	fb.insert ("G", Slice (HALF,
-			       (char *) &base[0].g,
-			       xs, ys,
-			       1, 1,	// xSampling, ySampling
-			       0.0));	// fillValue
+	fb.insert (_channelNamePrefix + "G",
+		   Slice (HALF,
+			  (char *) &base[0].g,
+			  xs, ys,
+			  1, 1,		// xSampling, ySampling
+			  0.0));	// fillValue
 
-	fb.insert ("B", Slice (HALF,
-			       (char *) &base[0].b,
-			       xs, ys,
-			       1, 1,	// xSampling, ySampling
-			       0.0));	// fillValue
+	fb.insert (_channelNamePrefix + "B",
+		   Slice (HALF,
+			  (char *) &base[0].b,
+			  xs, ys,
+			  1, 1,		// xSampling, ySampling
+			  0.0));	// fillValue
 
-	fb.insert ("A", Slice (HALF,
-			       (char *) &base[0].a,
-			       xs, ys,
-			       1, 1,	// xSampling, ySampling
-			       1.0));	// fillValue
+	fb.insert (_channelNamePrefix + "A",
+		   Slice (HALF,
+			  (char *) &base[0].a,
+			  xs, ys,
+			  1, 1,		// xSampling, ySampling
+			  1.0));	// fillValue
 
 	_inputFile->setFrameBuffer (fb);
     }
@@ -1283,7 +1335,7 @@ RgbaInputFile::compression () const
 RgbaChannels	
 RgbaInputFile::channels () const
 {
-    return rgbaChannels (_inputFile->header().channels());
+    return rgbaChannels (_inputFile->header().channels(), _channelNamePrefix);
 }
 
 

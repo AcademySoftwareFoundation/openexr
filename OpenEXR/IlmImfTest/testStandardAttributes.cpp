@@ -901,6 +901,7 @@ generatedFunctions ()
     assert (hasTimeCode (header) == false);
     assert (hasWrapmodes (header) == false);
     assert (hasFramesPerSecond (header) == false);
+    assert (hasMultiView (header) == false);
 }
 
 

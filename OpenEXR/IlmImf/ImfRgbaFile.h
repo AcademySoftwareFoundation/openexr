@@ -54,6 +54,7 @@
 #include "ImathBox.h"
 #include "half.h"
 #include <ImfThreading.h>
+#include <string>
 
 namespace Imf {
 
@@ -248,11 +249,27 @@ class RgbaInputFile
     RgbaInputFile (IStream &is, int numThreads = globalThreadCount());
 
 
+    //--------------------------------------------------------------
+    // Constructors -- the same as the previous two, but the names
+    // of the red, green, blue, alpha, luminance and chroma channels
+    // are expected to be layerName.R, layerName.G, etc.
+    //--------------------------------------------------------------
+
+    RgbaInputFile (const char name[],
+		   const std::string &layerName,
+		   int numThreads = globalThreadCount());
+
+    RgbaInputFile (IStream &is,
+		   const std::string &layerName,
+		   int numThreads = globalThreadCount());
+
+
     //-----------
     // Destructor
     //-----------
 
     virtual ~RgbaInputFile ();
+
 
     //-----------------------------------------------------
     // Define a frame buffer as the pixel data destination:
@@ -292,6 +309,7 @@ class RgbaInputFile
     const char *                fileName () const;
     bool			isComplete () const;
 
+
     //----------------------------------
     // Access to the file format version
     //----------------------------------
@@ -307,6 +325,7 @@ class RgbaInputFile
 
     InputFile *			_inputFile;
     FromYca *			_fromYca;
+    std::string			_channelNamePrefix;
 };
 
 

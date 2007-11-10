@@ -45,8 +45,9 @@
 #include "Iex.h"
 
 
-namespace Imf {
+using namespace std;
 
+namespace Imf {
 
 Slice::Slice (PixelType t,
 	      char *b,
@@ -85,6 +86,13 @@ FrameBuffer::insert (const char name[], const Slice &slice)
 }
 
 
+void	
+FrameBuffer::insert (const string &name, const Slice &slice)
+{
+    insert (name.c_str(), slice);
+}
+
+
 Slice &
 FrameBuffer::operator [] (const char name[])
 {
@@ -115,6 +123,20 @@ FrameBuffer::operator [] (const char name[]) const
 }
 
 
+Slice &
+FrameBuffer::operator [] (const string &name)
+{
+    return this->operator[] (name.c_str());
+}
+
+
+const Slice &
+FrameBuffer::operator [] (const string &name) const
+{
+    return this->operator[] (name.c_str());
+}
+
+
 Slice *
 FrameBuffer::findSlice (const char name[])
 {
@@ -128,6 +150,20 @@ FrameBuffer::findSlice (const char name[]) const
 {
     SliceMap::const_iterator i = _map.find (name);
     return (i == _map.end())? 0: &i->second;
+}
+
+
+Slice *
+FrameBuffer::findSlice (const string &name)
+{
+    return findSlice (name.c_str());
+}
+
+
+const Slice *
+FrameBuffer::findSlice (const string &name) const
+{
+    return findSlice (name.c_str());
 }
 
 
@@ -170,6 +206,20 @@ FrameBuffer::ConstIterator
 FrameBuffer::find (const char name[]) const
 {
     return _map.find (name);
+}
+
+
+FrameBuffer::Iterator
+FrameBuffer::find (const string &name)
+{
+    return find (name.c_str());
+}
+
+
+FrameBuffer::ConstIterator
+FrameBuffer::find (const string &name) const
+{
+    return find (name.c_str());
 }
 
 

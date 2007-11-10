@@ -47,6 +47,7 @@
 #include <ImfName.h>
 #include <ImfPixelType.h>
 #include <map>
+#include <string>
 
 
 namespace Imf {
@@ -157,6 +158,9 @@ class FrameBuffer
     void			insert (const char name[],
 					const Slice &slice);
 
+    void			insert (const std::string &name,
+					const Slice &slice);
+
     //----------------------------------------------------------------
     // Access to existing slices:
     //
@@ -172,8 +176,14 @@ class FrameBuffer
     Slice &			operator [] (const char name[]);
     const Slice &		operator [] (const char name[]) const;
 
+    Slice &			operator [] (const std::string &name);
+    const Slice &		operator [] (const std::string &name) const;
+
     Slice *			findSlice (const char name[]);
     const Slice *		findSlice (const char name[]) const;
+
+    Slice *			findSlice (const std::string &name);
+    const Slice *		findSlice (const std::string &name) const;
 
 
     //-----------------------------------------
@@ -187,10 +197,15 @@ class FrameBuffer
 
     Iterator			begin ();
     ConstIterator		begin () const;
+
     Iterator			end ();
     ConstIterator		end () const;
+
     Iterator			find (const char name[]);
     ConstIterator		find (const char name[]) const;
+
+    Iterator			find (const std::string &name);
+    ConstIterator		find (const std::string &name) const;
 
   private:
 

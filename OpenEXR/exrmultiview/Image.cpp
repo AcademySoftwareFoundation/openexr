@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2007, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,70 +33,102 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#ifndef INCLUDED_IMF_TILE_DESCRIPTION_H
-#define INCLUDED_IMF_TILE_DESCRIPTION_H
-
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 //
-//	class TileDescription and enum LevelMode
+//	Classes for storing OpenEXR images in memory.
 //
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-namespace Imf {
+#include <Image.h>
+
+using namespace Imf;
+using namespace Imath;
+using namespace std;
 
 
-enum LevelMode
+ImageChannel::ImageChannel (Image &image): _image (image)
 {
-    ONE_LEVEL = 0,
-    MIPMAP_LEVELS = 1,
-    RIPMAP_LEVELS = 2,
-    
-    NUM_LEVELMODES	// number of different level modes
-};
+    // empty
+}
 
 
-enum LevelRoundingMode
+ImageChannel::~ImageChannel ()
 {
-    ROUND_DOWN = 0,
-    ROUND_UP = 1,
-
-    NUM_ROUNDINGMODES	// number of different rounding modes
-};
+    // empty
+}
 
 
-class TileDescription
+Image::Image (): _dataWindow (Box2i (V2i (0, 0), V2i (0, 0)))
 {
-  public:
+    // empty
+}
 
-    unsigned int	xSize;		// size of a tile in the x dimension
-    unsigned int	ySize;		// size of a tile in the y dimension
-    LevelMode		mode;
-    LevelRoundingMode	roundingMode;
-    
-    TileDescription (unsigned int xs = 32,
-		     unsigned int ys = 32,
-                     LevelMode m = ONE_LEVEL,
-		     LevelRoundingMode r = ROUND_DOWN)
-    :
-        xSize (xs),
-	ySize (ys),
-	mode (m),
-	roundingMode (r)
+
+Image::Image (const Box2i &dataWindow): _dataWindow (dataWindow)
+{
+    // empty
+}
+
+
+Image::~Image ()
+{
+    for (ChannelMap::iterator i = _channels.begin(); i != _channels.end(); ++i)
+	delete i->second;
+}
+
+
+void			
+Image::resize (const Imath::Box2i &dataWindow)
+{
+    _dataWindow = dataWindow;
+
+    for (ChannelMap::iterator i = _channels.begin(); i != _channels.end(); ++i)
+	i->second->resize();
+}
+
+
+void
+Image::addChannel (const string &name, const Channel &channel)
+{
+    switch (channel.type)
     {
-	// empty
+      case HALF:
+
+	_channels[name] = new HalfChannel (*this,
+					   channel.xSampling,
+					   channel.ySampling);
+	break;
+
+      case FLOAT:
+
+	_channels[name] = new FloatChannel (*this,
+					    channel.xSampling,
+					    channel.ySampling);
+	break;
+
+      case UINT:
+
+	_channels[name] = new UIntChannel (*this,
+					   channel.xSampling,
+					   channel.ySampling);
+	break;
+
+      default:
+
+	throw Iex::ArgExc ("Unknown channel type.");
     }
-
-    bool
-    operator == (const TileDescription &other) const
-    {
-	return xSize        == other.xSize &&
-	       ySize        == other.ySize &&
-	       mode         == other.mode &&
-	       roundingMode == other.roundingMode;
-    }
-};
+}
 
 
-} // namespace Imf
+ImageChannel &
+Image::channel (const string &name)
+{
+    return *_channels.find(name)->second;
+}
 
-#endif
+
+const ImageChannel &
+Image::channel (const string &name) const
+{
+    return *_channels.find(name)->second;
+}

@@ -81,6 +81,13 @@ ChannelList::insert (const char name[], const Channel &channel)
 }
 
 
+void	
+ChannelList::insert (const string &name, const Channel &channel)
+{
+    insert (name.c_str(), channel);
+}
+
+
 Channel &
 ChannelList::operator [] (const char name[])
 {
@@ -105,6 +112,20 @@ ChannelList::operator [] (const char name[]) const
 }
 
 
+Channel &
+ChannelList::operator [] (const string &name)
+{
+    return this->operator[] (name.c_str());
+}
+
+
+const Channel &
+ChannelList::operator [] (const string &name) const
+{
+    return this->operator[] (name.c_str());
+}
+
+
 Channel *
 ChannelList::findChannel (const char name[])
 {
@@ -118,6 +139,20 @@ ChannelList::findChannel (const char name[]) const
 {
     ChannelMap::const_iterator i = _map.find (name);
     return (i == _map.end())? 0: &i->second;
+}
+
+
+Channel *
+ChannelList::findChannel (const string &name)
+{
+    return findChannel (name.c_str());
+}
+
+
+const Channel *
+ChannelList::findChannel (const string &name) const
+{
+    return findChannel (name.c_str());
 }
 
 
@@ -163,6 +198,20 @@ ChannelList::find (const char name[]) const
 }
 
 
+ChannelList::Iterator
+ChannelList::find (const string &name)
+{
+    return find (name.c_str());
+}
+
+
+ChannelList::ConstIterator
+ChannelList::find (const string &name) const
+{
+    return find (name.c_str());
+}
+
+
 void
 ChannelList::layers (set <string> &layerNames) const
 {
@@ -187,7 +236,7 @@ ChannelList::channelsInLayer (const string &layerName,
 			      Iterator &first,
 			      Iterator &last)
 {
-    channelsWithPrefix ((layerName + '.').c_str(), first, last);
+    channelsWithPrefix (layerName + '.', first, last);
 }
 
 
@@ -196,7 +245,7 @@ ChannelList::channelsInLayer (const string &layerName,
 			      ConstIterator &first,
 			      ConstIterator &last) const
 {
-    channelsWithPrefix ((layerName + '.').c_str(), first, last);
+    channelsWithPrefix (layerName + '.', first, last);
 }
 
 
@@ -229,6 +278,24 @@ ChannelList::channelsWithPrefix (const char prefix[],
     {
 	++last;
     }
+}
+
+
+void		
+ChannelList::channelsWithPrefix (const string &prefix,
+				 Iterator &first,
+				 Iterator &last)
+{
+    return channelsWithPrefix (prefix.c_str(), first, last);
+}
+
+
+void
+ChannelList::channelsWithPrefix (const string &prefix,
+				 ConstIterator &first,
+				 ConstIterator &last) const
+{
+    return channelsWithPrefix (prefix.c_str(), first, last);
 }
 
 

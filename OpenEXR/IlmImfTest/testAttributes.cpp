@@ -54,6 +54,7 @@
 #include <ImfMatrixAttribute.h>
 #include <ImfOpaqueAttribute.h>
 #include <ImfStringAttribute.h>
+#include <ImfStringVectorAttribute.h>
 #include <ImfVecAttribute.h>
 
 #include <stdio.h>
@@ -100,6 +101,12 @@ writeReadAttr (const Array2D<float> &pf1,
     Chromaticities a13 (V2f (1, 2), V2f (3, 4), V2f (5, 6), V2f (7, 8));
     Envmap a14 (ENVMAP_CUBE);
 
+    StringVector a15;
+    a15.push_back ("who can spin");
+    a15.push_back ("");
+    a15.push_back ("straw into");
+    a15.push_back ("gold");
+
     //
     // Write an image file with extra attributes in the header
     //
@@ -121,6 +128,7 @@ writeReadAttr (const Array2D<float> &pf1,
 	hdr.insert ("a12", DoubleAttribute (a12));
 	hdr.insert ("a13", ChromaticitiesAttribute (a13));
 	hdr.insert ("a14", EnvmapAttribute         (a14));
+	hdr.insert ("a15", StringVectorAttribute   (a15));
 
 	hdr.channels().insert ("F",			// name
 			       Channel (FLOAT,		// type
@@ -187,6 +195,21 @@ writeReadAttr (const Array2D<float> &pf1,
 					("a13").value().white == a13.white);
 
 	assert (hdr.typedAttribute <EnvmapAttribute> ("a14").value() == a14);
+
+	assert (hdr.typedAttribute <StringVectorAttribute>
+					("a15").value().size() == 4);
+
+	assert (hdr.typedAttribute <StringVectorAttribute>
+					("a15").value()[0] == "who can spin");
+
+	assert (hdr.typedAttribute <StringVectorAttribute>
+					("a15").value()[1] == "");
+
+	assert (hdr.typedAttribute <StringVectorAttribute>
+					("a15").value()[2] == "straw into");
+
+	assert (hdr.typedAttribute <StringVectorAttribute>
+					("a15").value()[3] == "gold");
     }
 
     remove (fileName);

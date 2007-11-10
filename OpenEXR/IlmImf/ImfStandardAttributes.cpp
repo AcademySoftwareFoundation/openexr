@@ -111,6 +111,6 @@ IMF_STD_ATTRIBUTE_IMP (keyCode, KeyCode, KeyCode)
 IMF_STD_ATTRIBUTE_IMP (timeCode, TimeCode, TimeCode)
 IMF_STD_ATTRIBUTE_IMP (wrapmodes, Wrapmodes, std::string)
 IMF_STD_ATTRIBUTE_IMP (framesPerSecond, FramesPerSecond, Rational)
-
+IMF_STD_ATTRIBUTE_IMP (multiView, MultiView, StringVector)
 
 } // namespace Imf

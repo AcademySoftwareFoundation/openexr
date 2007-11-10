@@ -53,6 +53,7 @@
 #include <ImfTileDescription.h>
 #include <ImfRgba.h>
 #include <ImfThreading.h>
+#include <string>
 
 namespace Imf {
 
@@ -321,6 +322,20 @@ class TiledRgbaInputFile
     TiledRgbaInputFile (IStream &is, int numThreads = globalThreadCount ());
 
 
+    //--------------------------------------------------------------
+    // Constructors -- the same as the previous two, but the names
+    // of the red, green, blue, alpha, luminance and chroma channels
+    // are expected to be layerName.R, layerName.G, etc.
+    //--------------------------------------------------------------
+
+    TiledRgbaInputFile (const char name[],
+		        const std::string &layerName,
+		        int numThreads = globalThreadCount());
+
+    TiledRgbaInputFile (IStream &is,
+		        const std::string &layerName,
+		        int numThreads = globalThreadCount());
+
     //-----------
     // Destructor
     //-----------
@@ -445,6 +460,7 @@ class TiledRgbaInputFile
 
     TiledInputFile *	_inputFile;
     FromYa *		_fromYa;
+    std::string		_channelNamePrefix;
 };
 
 

@@ -53,6 +53,7 @@
 #include "IexBaseExc.h"
 #include <map>
 #include <iosfwd>
+#include <string>
 
 namespace Imf {
 
@@ -153,6 +154,9 @@ class Header
     void			insert (const char name[],
 				        const Attribute &attribute);
 
+    void			insert (const std::string &name,
+				        const Attribute &attribute);
+
     //------------------------------------------------------------------
     // Access to existing attributes:
     //
@@ -176,12 +180,21 @@ class Header
     Attribute &			operator [] (const char name[]);
     const Attribute &		operator [] (const char name[]) const;
 
+    Attribute &			operator [] (const std::string &name);
+    const Attribute &		operator [] (const std::string &name) const;
+
     template <class T> T&	typedAttribute (const char name[]);
     template <class T> const T&	typedAttribute (const char name[]) const;
+
+    template <class T> T&	typedAttribute (const std::string &name);
+    template <class T> const T&	typedAttribute (const std::string &name) const;
 
     template <class T> T*	findTypedAttribute (const char name[]);
     template <class T> const T*	findTypedAttribute (const char name[]) const;
 
+    template <class T> T*	findTypedAttribute (const std::string &name);
+    template <class T> const T*	findTypedAttribute (const std::string &name)
+								       const;
 
     //---------------------------------------------
     // Iterator-style access to existing attributes
@@ -194,10 +207,15 @@ class Header
 
     Iterator			begin ();
     ConstIterator		begin () const;
+
     Iterator			end ();
     ConstIterator		end () const;
+
     Iterator			find (const char name[]);
     ConstIterator		find (const char name[]) const;
+
+    Iterator			find (const std::string &name);
+    ConstIterator		find (const std::string &name) const;
 
 
     //--------------------------------
@@ -555,6 +573,22 @@ Header::typedAttribute (const char name[]) const
 
 
 template <class T>
+T &
+Header::typedAttribute (const std::string &name)
+{
+    return typedAttribute (name.c_str());
+}
+
+
+template <class T>
+const T &
+Header::typedAttribute (const std::string &name) const
+{
+    return typedAttribute (name.c_str());
+}
+
+
+template <class T>
 T *
 Header::findTypedAttribute (const char name[])
 {
@@ -569,6 +603,22 @@ Header::findTypedAttribute (const char name[]) const
 {
     AttributeMap::const_iterator i = _map.find (name);
     return (i == _map.end())? 0: dynamic_cast <const T*> (i->second);
+}
+
+
+template <class T>
+T *
+Header::findTypedAttribute (const std::string &name)
+{
+    return findTypedAttribute (name.c_str());
+}
+
+
+template <class T>
+const T *
+Header::findTypedAttribute (const std::string &name) const
+{
+    return findTypedAttribute (name.c_str());
 }
 
 
