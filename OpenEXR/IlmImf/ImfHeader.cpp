@@ -60,6 +60,7 @@
 #include <ImfPreviewImageAttribute.h>
 #include <ImfRationalAttribute.h>
 #include <ImfStringAttribute.h>
+#include <ImfStringVectorAttribute.h>
 #include <ImfTileDescriptionAttribute.h>
 #include <ImfTimeCodeAttribute.h>
 #include <ImfVecAttribute.h>
@@ -72,6 +73,7 @@
 
 namespace Imf {
 
+using namespace std;
 using Imath::Box2i;
 using Imath::V2i;
 using Imath::V2f;
@@ -269,6 +271,13 @@ Header::insert (const char name[], const Attribute &attribute)
 }
 
 
+void
+Header::insert (const string &name, const Attribute &attribute)
+{
+    insert (name.c_str(), attribute);
+}
+
+
 Attribute &		
 Header::operator [] (const char name[])
 {
@@ -290,6 +299,20 @@ Header::operator [] (const char name[]) const
 	THROW (Iex::ArgExc, "Cannot find image attribute \"" << name << "\".");
 
     return *i->second;
+}
+
+
+Attribute &		
+Header::operator [] (const string &name)
+{
+    return this->operator[] (name.c_str());
+}
+
+
+const Attribute &	
+Header::operator [] (const string &name) const
+{
+    return this->operator[] (name.c_str());
 }
 
 
@@ -335,6 +358,20 @@ Header::find (const char name[]) const
 }
 
 
+Header::Iterator
+Header::find (const string &name)
+{
+    return find (name.c_str());
+}
+
+
+Header::ConstIterator
+Header::find (const string &name) const
+{
+    return find (name.c_str());
+}
+
+
 Imath::Box2i &	
 Header::displayWindow ()
 {
@@ -349,6 +386,7 @@ Header::displayWindow () const
     return static_cast <const Box2iAttribute &>
 	((*this)["displayWindow"]).value();
 }
+
 
 Imath::Box2i &	
 Header::dataWindow ()
@@ -988,6 +1026,7 @@ staticInitialize ()
 	PreviewImageAttribute::registerAttributeType();
 	RationalAttribute::registerAttributeType();
 	StringAttribute::registerAttributeType();
+        StringVectorAttribute::registerAttributeType();
 	TileDescriptionAttribute::registerAttributeType();
 	TimeCodeAttribute::registerAttributeType();
 	V2fAttribute::registerAttributeType();

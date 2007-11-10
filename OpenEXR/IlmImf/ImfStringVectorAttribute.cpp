@@ -1,7 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
+// Copyright (c) 2007, Weta Digital Ltd
 // 
 // All rights reserved.
 // 
@@ -14,7 +13,7 @@
 // copyright notice, this list of conditions and the following disclaimer
 // in the documentation and/or other materials provided with the
 // distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
+// *       Neither the name of Weta Digital nor the names of
 // its contributors may be used to endorse or promote products derived
 // from this software without specific prior written permission. 
 // 
@@ -33,70 +32,63 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#ifndef INCLUDED_IMF_TILE_DESCRIPTION_H
-#define INCLUDED_IMF_TILE_DESCRIPTION_H
 
 //-----------------------------------------------------------------------------
 //
-//	class TileDescription and enum LevelMode
+//	class StringAttribute
 //
 //-----------------------------------------------------------------------------
+
+#include <ImfStringVectorAttribute.h>
+
 
 namespace Imf {
 
 
-enum LevelMode
+template <>
+const char *
+StringVectorAttribute::staticTypeName ()
 {
-    ONE_LEVEL = 0,
-    MIPMAP_LEVELS = 1,
-    RIPMAP_LEVELS = 2,
-    
-    NUM_LEVELMODES	// number of different level modes
-};
+    return "stringvector";
+}
 
 
-enum LevelRoundingMode
+template <>
+void
+StringVectorAttribute::writeValueTo (OStream &os, int version) const
 {
-    ROUND_DOWN = 0,
-    ROUND_UP = 1,
+    int size = _value.size();
 
-    NUM_ROUNDINGMODES	// number of different rounding modes
-};
-
-
-class TileDescription
-{
-  public:
-
-    unsigned int	xSize;		// size of a tile in the x dimension
-    unsigned int	ySize;		// size of a tile in the y dimension
-    LevelMode		mode;
-    LevelRoundingMode	roundingMode;
-    
-    TileDescription (unsigned int xs = 32,
-		     unsigned int ys = 32,
-                     LevelMode m = ONE_LEVEL,
-		     LevelRoundingMode r = ROUND_DOWN)
-    :
-        xSize (xs),
-	ySize (ys),
-	mode (m),
-	roundingMode (r)
+    for (int i = 0; i < size; i++)
     {
-	// empty
+        int strSize = _value[i].size();
+        Xdr::write <StreamIO> (os, strSize);
+	Xdr::write <StreamIO> (os, &_value[i][0], strSize);
     }
+}
 
-    bool
-    operator == (const TileDescription &other) const
-    {
-	return xSize        == other.xSize &&
-	       ySize        == other.ySize &&
-	       mode         == other.mode &&
-	       roundingMode == other.roundingMode;
+
+template <>
+void
+StringVectorAttribute::readValueFrom (IStream &is, int size, int version)
+{
+    int read = 0;
+
+    while (read < size)
+    {   
+       int strSize;
+       Xdr::read <StreamIO> (is, strSize);
+       read += Xdr::size<int>();       
+
+       std::string str;
+       str.resize (strSize);
+  
+       Xdr::read<StreamIO> (is, &str[0], strSize);
+       read += strSize;
+
+       _value.push_back (str);
     }
-};
+}
 
 
 } // namespace Imf
-
-#endif

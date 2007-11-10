@@ -25,6 +25,7 @@ IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
 		     testTiledRgba.h compareFloat.h compareFloat.cpp \
 		     testTiledYa.cpp testTiledYa.h \
 		     testYca.cpp testYca.h compareB44.h compareB44.cpp \
+                     testMultiView.cpp testMultiView.h \
 		     testIsComplete.cpp testIsComplete.h
 
 AM_CPPFLAGS = -DILM_IMF_TEST_IMAGEDIR=\"$(srcdir)/\"

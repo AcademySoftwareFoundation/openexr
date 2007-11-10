@@ -37,6 +37,10 @@
 #include <compareB44.h>
 
 #include <ImfRgbaFile.h>
+#include <ImfOutputFile.h>
+#include <ImfChannelList.h>
+#include <ImfFrameBuffer.h>
+#include <ImfHeader.h>
 #include <ImfArray.h>
 #include <ImfThreading.h>
 #include <IlmThread.h>
@@ -356,6 +360,156 @@ writeReadIncomplete ()
 }
 
 
+void
+writeReadLayers ()
+{
+    cout << "\nreading multi-layer file" << endl;
+
+    const char *fileName = IMF_TMP_DIR "imf_test_multi_layer_rgba.exr";
+
+    const int W = 237;
+    const int H = 119;
+    
+    Array2D<half> p1 (H, W);
+    Array2D<half> p2 (H, W);
+
+    for (int y = 0; y < H; ++y)
+    {
+	for (int x = 0; x < W; ++x)
+	{
+	    p1[y][x] = half (y % 23 + x % 17);
+	    p2[y][x] = half (y % 29 + x % 19);
+	}
+    }
+
+    {
+	Header hdr (W, H);
+	hdr.channels().insert ("R", Channel (HALF));
+	hdr.channels().insert ("foo.R", Channel (HALF));
+
+	FrameBuffer fb;
+
+	fb.insert ("R",
+		   Slice (HALF,			// type
+			  (char *) &p1[0][0], 	// base
+			  sizeof (half),	// xStride
+			  sizeof (half) * W));	// yStride
+
+	fb.insert ("foo.R",
+		   Slice (HALF,			// type
+			  (char *) &p2[0][0], 	// base
+			  sizeof (half),	// xStride
+			  sizeof (half) * W));	// yStride
+
+	OutputFile out (fileName, hdr);
+	out.setFrameBuffer (fb);
+	out.writePixels (H);
+    }
+
+    {
+	RgbaInputFile in (fileName, "");
+
+	Array2D<Rgba> p3 (H, W);
+	in.setFrameBuffer (&p3[0][0], 1, W);
+	in.readPixels (0, H - 1);
+
+	for (int y = 0; y < H; ++y)
+	{
+	    for (int x = 0; x < W; ++x)
+	    {
+		assert (p3[y][x].r == p1[y][x]);
+		assert (p3[y][x].g == 0);
+		assert (p3[y][x].b == 0);
+		assert (p3[y][x].a == 1);
+	    }
+	}
+    }
+
+    {
+	RgbaInputFile in (fileName, "foo");
+
+	Array2D<Rgba> p3 (H, W);
+	in.setFrameBuffer (&p3[0][0], 1, W);
+	in.readPixels (0, H - 1);
+
+	for (int y = 0; y < H; ++y)
+	{
+	    for (int x = 0; x < W; ++x)
+	    {
+		assert (p3[y][x].r == p2[y][x]);
+		assert (p3[y][x].g == 0);
+		assert (p3[y][x].b == 0);
+		assert (p3[y][x].a == 1);
+	    }
+	}
+    }
+
+    {
+	Header hdr (W, H);
+	hdr.channels().insert ("Y", Channel (HALF));
+	hdr.channels().insert ("foo.Y", Channel (HALF));
+
+	FrameBuffer fb;
+
+	fb.insert ("Y",
+		   Slice (HALF,			// type
+			  (char *) &p1[0][0], 	// base
+			  sizeof (half),	// xStride
+			  sizeof (half) * W));	// yStride
+
+	fb.insert ("foo.Y",
+		   Slice (HALF,			// type
+			  (char *) &p2[0][0], 	// base
+			  sizeof (half),	// xStride
+			  sizeof (half) * W));	// yStride
+
+	OutputFile out (fileName, hdr);
+	out.setFrameBuffer (fb);
+	out.writePixels (H);
+    }
+
+    {
+	RgbaInputFile in (fileName, "");
+
+	Array2D<Rgba> p3 (H, W);
+	in.setFrameBuffer (&p3[0][0], 1, W);
+	in.readPixels (0, H - 1);
+
+	for (int y = 0; y < H; ++y)
+	{
+	    for (int x = 0; x < W; ++x)
+	    {
+		assert (p3[y][x].r == p1[y][x]);
+		assert (p3[y][x].g == p1[y][x]);
+		assert (p3[y][x].b == p1[y][x]);
+		assert (p3[y][x].a == 1);
+	    }
+	}
+    }
+
+    {
+	RgbaInputFile in (fileName, "foo");
+
+	Array2D<Rgba> p3 (H, W);
+	in.setFrameBuffer (&p3[0][0], 1, W);
+	in.readPixels (0, H - 1);
+
+	for (int y = 0; y < H; ++y)
+	{
+	    for (int x = 0; x < W; ++x)
+	    {
+		assert (p3[y][x].r == p2[y][x]);
+		assert (p3[y][x].g == p2[y][x]);
+		assert (p3[y][x].b == p2[y][x]);
+		assert (p3[y][x].a == 1);
+	    }
+	}
+    }
+
+    remove (fileName);
+}
+
+
 } // namespace
 
 
@@ -416,6 +570,8 @@ testRgba ()
 
 	    writeReadIncomplete();
 	}
+
+	writeReadLayers();
 
 	cout << "ok\n" << endl;
     }

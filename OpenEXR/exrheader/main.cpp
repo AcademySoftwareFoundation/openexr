@@ -55,6 +55,7 @@
 #include <ImfPreviewImageAttribute.h>
 #include <ImfRationalAttribute.h>
 #include <ImfStringAttribute.h>
+#include <ImfStringVectorAttribute.h>
 #include <ImfTileDescriptionAttribute.h>
 #include <ImfTimeCodeAttribute.h>
 #include <ImfVecAttribute.h>
@@ -418,6 +419,18 @@ printInfo (const char fileName[])
 	{
 	    cout << ": \"" << ta->value() << "\"";
 	}
+	else if (const StringVectorAttribute * ta = 
+		dynamic_cast<const StringVectorAttribute *>(a))
+        {
+	    cout << ":";
+
+	    for (StringVector::const_iterator i = ta->value().begin();
+		 i != ta->value().end();
+		 ++i)
+	    {
+		cout << "\n    \"" << *i << "\"";
+	    }
+        }
 	else if (const RationalAttribute *ta =
 		dynamic_cast <const RationalAttribute *> (a))
 	{

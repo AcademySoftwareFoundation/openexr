@@ -62,7 +62,7 @@
 #include <testTiledYa.h>
 #include <testIsComplete.h>
 #include <testSharedFrameBuffer.h>
-
+#include <testMultiView.h>
 #include <stdlib.h>
 #include <iostream>
 #include <string.h>
@@ -104,8 +104,8 @@ main (int argc, char *argv[])
     TEST (testYca);
     TEST (testTiledYa);
     TEST (testNativeFormat);
+    TEST (testMultiView);
     TEST (testIsComplete);
-    
     
     #ifdef HAVE_LINUX_PROCFS
 
