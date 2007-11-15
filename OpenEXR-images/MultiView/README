@@ -1,9 +1,9 @@
 This directory contains multi-view OpenEXR images with a number of
 formatting variations (scan lines vs. tiles, image channels, etc.).
-All images contain a left-eye and a right-eye view suitable for
-presentation on a stereo display.  The images have been prepared for
-viewing on a display with a pixel density of approximately 100 dots
-per inch; the width of the displayed images should be about 5 to 10
+All images contain at least a left-eye and a right-eye view suitable
+for presentation on a stereo display.  The images have been prepared
+for viewing with a pixel density of approximately 100 pixels per
+inch; the width of the displayed images should be about 5 to 10
 inches (12 to 25 cm).
 
 
