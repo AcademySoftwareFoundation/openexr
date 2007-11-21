@@ -59,12 +59,12 @@
 //	Conversions from half to float are lossless; all half numbers
 //	are exactly representable as floats.
 //
-//	Conversions from float to half may not preserve the float's
-//	value exactly.  If a float is not representable as a half, the
-//	float value is rounded to the nearest representable half.  If
-//	a float value is exactly in the middle between the two closest
+//	Conversions from float to half may not preserve a float's value
+//	exactly.  If a float is not representable as a half, then the
+//	float value is rounded to the nearest representable half.  If a
+//	float value is exactly in the middle between the two closest
 //	representable half values, then the float value is rounded to
-//	the half with the greater magnitude.
+//	the closest half whose least significant bit is zero.
 //
 //	Overflows during float-to-half conversions cause arithmetic
 //	exceptions.  An overflow occurs when the float value to be
