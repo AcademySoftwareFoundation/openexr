@@ -58,7 +58,8 @@ libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 		       ImfPxr24Compressor.cpp ImfPxr24Compressor.h \
  		       ImfTestFile.cpp ImfTestFile.h ImfThreading.h \
                        ImfStringVectorAttribute.cpp ImfStringVectorAttribute.h \
-                       ImfMultiView.cpp ImfMultiView.h
+                       ImfMultiView.cpp ImfMultiView.h \
+		       ImfAcesFile.cpp ImfAcesFile.h
 
 libIlmImf_la_LDFLAGS = @ILMBASE_LDFLAGS@ -version-info @LIBTOOL_VERSION@ \
 			-no-undefined
@@ -98,7 +99,8 @@ libIlmImfinclude_HEADERS = ImfAttribute.h ImfBoxAttribute.h \
 			   ImfRgbaYca.h \
 			   ImfTestFile.h ImfThreading.h \
 			   ImfB44Compressor.h ImfStringVectorAttribute.h \
-			   ImfMultiView.h
+			   ImfMultiView.h \
+			   ImfAcesFile.h
 
 noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
 		 ImfPizCompressor.h ImfMisc.h ImfAutoArray.h ImfTiledMisc.h \
