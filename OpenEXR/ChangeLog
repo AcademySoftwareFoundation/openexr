@@ -1,3 +1,7 @@
+	* Added experimental version of I/O classes for ACES file
+	  format (restricted OpenEXR format with special primaries
+	  and white point); added exr2aces file converter.
+	  (Florian Kainz)
 	* Added new constructors to classes Imf::RgbaInputFile and
 	  Imf::TiledRgbaInputFile.  The new constructors have a
 	  layerName parameter, which allows the caller to specify
