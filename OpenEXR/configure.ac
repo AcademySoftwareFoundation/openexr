@@ -226,6 +226,7 @@ exrstdattr/Makefile
 exrmakepreview/Makefile
 exrenvmap/Makefile
 exrmultiview/Makefile
+exr2aces/Makefile
 vc/Makefile
 ])
 
