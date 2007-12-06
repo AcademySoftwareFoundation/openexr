@@ -41,7 +41,10 @@
 
 #include <makeCubeMap.h>
 #include <makeLatLongMap.h>
+#include <blurImage.h>
+#include <EnvmapImage.h>
 #include <ImfEnvmap.h>
+#include <ImfHeader.h>
 #include <iostream>
 #include <exception>
 #include <stdlib.h>
@@ -89,6 +92,15 @@ usageMessage (const char argv0[], bool verbose = false)
 		"           makes the image sharper but may cause aliasing.\n"
 		"           Increasing n improves antialiasing, but\n"
 		"           generating the output image takes longer.\n"
+		"\n"
+		"-b         blurs the environment map image by applying a\n"
+		"           180-degree-wide filter kernel, such that point-\n"
+		"           sampling the blurred image at a location that\n"
+		"           corresponds to 3D direction N returns the color\n"
+		"           that a white diffuse reflector with surface\n"
+		"           normal N would have if it was illuminated using\n"
+		"           the original non-blurred image.\n"
+		"           Generating the blurred image can be fairly slow.\n"
 		"\n"
 		"-t x y     sets the output file's tile size to x by y pixels\n"
 	        "           (default is 64 by 64)\n"
@@ -179,6 +191,7 @@ main(int argc, char **argv)
     float padBottom = 0;
     float filterRadius = 1;
     int numSamples = 5;
+    bool diffuseBlur = false;
     bool verbose = false;
 
     //
@@ -272,6 +285,15 @@ main(int argc, char **argv)
 	    }
 
 	    i += 3;
+	}
+	else if (!strcmp (argv[i], "-b"))
+	{
+	    //
+	    // Diffuse blur
+	    //
+
+	    diffuseBlur = true;
+	    i += 1;
 	}
 	else if (!strcmp (argv[i], "-t"))
 	{
@@ -386,23 +408,33 @@ main(int argc, char **argv)
 
     try
     {
+	EnvmapImage image;
+	Header header;
+	RgbaChannels channels;
+
+	readInputImage (inFile, padTop, padBottom, verbose,
+			image, header, channels);
+
+	if (diffuseBlur)
+	    blurImage (image, verbose);
+
 	if (type == ENVMAP_CUBE)
 	{
-	    makeCubeMap (inFile, outFile,
+	    makeCubeMap (image, header, channels,
+			 outFile,
 			 tileWidth, tileHeight,
 			 levelMode, roundingMode,
 			 compression, mapWidth,
-			 padTop, padBottom,
 			 filterRadius, numSamples,
 			 verbose);
 	}
 	else
 	{
-	    makeLatLongMap (inFile, outFile,
+	    makeLatLongMap (image, header, channels,
+			    outFile,
 			    tileWidth, tileHeight,
 			    levelMode, roundingMode,
 			    compression, mapWidth,
-			    padTop, padBottom,
 			    filterRadius, numSamples,
 			    verbose);
 	}

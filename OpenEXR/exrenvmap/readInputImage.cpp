@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2007, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -32,34 +32,85 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef INCLUDED_MAKE_CUBE_MAP_H
-#define INCLUDED_MAKE_CUBE_MAP_H
 
 //-----------------------------------------------------------------------------
 //
-//	function makeCubeMap() -- makes cube-face environment maps
+//	function readInputImage() --
+//	reads an image file and constructs an EnvMapImage object
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfTileDescription.h>
-#include <ImfCompression.h>
-#include <readInputImage.h>
+#include <makeCubeMap.h>
+
+#include <ImfRgbaFile.h>
+#include <ImfStandardAttributes.h>
+#include <EnvmapImage.h>
+#include "Iex.h"
+#include <iostream>
+//#include <algorithm>
+
+
+using namespace std;
+using namespace Imf;
+using namespace Imath;
 
 
 void
-makeCubeMap (EnvmapImage &image,
-             Imf::Header &header,
-	     Imf::RgbaChannels channels,
-	     const char outFileName[],
-	     int tileWidth,
-	     int tileHeight,
-	     Imf::LevelMode levelMode,
-	     Imf::LevelRoundingMode roundingMode,
-	     Imf::Compression compression,
-	     int mapWidth,
-	     float filterRadius,
-	     int numSamples,
-	     bool verbose);
+readInputImage (const char inFileName[],
+		float padTop,
+		float padBottom,
+		bool verbose,
+		EnvmapImage &image,
+		Header &header,
+		RgbaChannels &channels)
+{
+    //
+    // Read the input image, and if necessary,
+    // pad the image at the top and bottom.
+    //
 
+    RgbaInputFile in (inFileName);
 
-#endif
+    if (verbose)
+	cout << "reading file " << inFileName << endl;
+
+    header = in.header();
+    channels = in.channels();
+
+    Envmap type = ENVMAP_LATLONG;
+
+    if (hasEnvmap (in.header()))
+	type = envmap (in.header());
+
+    const Box2i &dw = in.dataWindow();
+    int w = dw.max.x - dw.min.x + 1;
+    int h = dw.max.y - dw.min.y + 1;
+
+    int pt = 0;
+    int pb = 0;
+
+    if (type == ENVMAP_LATLONG)
+    {
+	pt = int (padTop * h + 0.5f);
+	pb = int (padBottom * h + 0.5f);
+    }
+
+    Box2i paddedDw (V2i (dw.min.x, dw.min.y - pt),
+		    V2i (dw.max.x, dw.max.y + pb));
+    
+    image.resize (type, paddedDw);
+    Array2D<Rgba> &pixels = image.pixels();
+
+    in.setFrameBuffer (&pixels[-paddedDw.min.y][-paddedDw.min.x], 1, w);
+    in.readPixels (dw.min.y, dw.max.y);
+
+    for (int y = 0; y < pt; ++y)
+	for (int x = 0; x < w; ++x)
+	    pixels[y][x] = pixels[pt][x];
+
+    for (int y = h + pt; y < h + pt + pb; ++y)
+    {
+	for (int x = 0; x < w; ++x)
+	    pixels[y][x] = pixels[h + pt - 1][x];
+    }
+}

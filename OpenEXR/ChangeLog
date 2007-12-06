@@ -1,3 +1,5 @@
+	* Added "hemispherical blur" option to exrenvmap.
+	  (Florian Kainz)
 	* Added experimental version of I/O classes for ACES file
 	  format (restricted OpenEXR format with special primaries
 	  and white point); added exr2aces file converter.

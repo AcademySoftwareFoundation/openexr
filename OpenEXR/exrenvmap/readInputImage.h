@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2007, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -32,34 +32,31 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef INCLUDED_MAKE_CUBE_MAP_H
-#define INCLUDED_MAKE_CUBE_MAP_H
+#ifndef INCLUDED_READ_INPUT_IMAGE_H
+#define INCLUDED_READ_INPUT_IMAGE_H
 
 //-----------------------------------------------------------------------------
 //
-//	function makeCubeMap() -- makes cube-face environment maps
+//	function readInputImage() --
+//	reads an image file and constructs an EnvMapImage object
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfTileDescription.h>
-#include <ImfCompression.h>
-#include <readInputImage.h>
+#include <ImfRgba.h>
+
+
+namespace Imf {class Header;}
+class EnvmapImage;
 
 
 void
-makeCubeMap (EnvmapImage &image,
-             Imf::Header &header,
-	     Imf::RgbaChannels channels,
-	     const char outFileName[],
-	     int tileWidth,
-	     int tileHeight,
-	     Imf::LevelMode levelMode,
-	     Imf::LevelRoundingMode roundingMode,
-	     Imf::Compression compression,
-	     int mapWidth,
-	     float filterRadius,
-	     int numSamples,
-	     bool verbose);
+readInputImage (const char inFileName[],
+		float padTop,
+		float padBottom,
+		bool verbose,
+		EnvmapImage &image,
+		Imf::Header &header,
+		Imf::RgbaChannels &channels);
 
 
 #endif
