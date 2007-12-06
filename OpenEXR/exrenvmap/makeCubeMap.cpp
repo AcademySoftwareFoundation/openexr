@@ -56,7 +56,9 @@ using namespace Imath;
 
 
 void
-makeCubeMap (const char inFileName[],
+makeCubeMap (EnvmapImage &image1,
+	     Header &header,
+	     RgbaChannels channels,
 	     const char outFileName[],
 	     int tileWidth,
 	     int tileHeight,
@@ -64,70 +66,12 @@ makeCubeMap (const char inFileName[],
 	     LevelRoundingMode roundingMode,
 	     Compression compression,
 	     int mapWidth,
-	     float padTop,
-	     float padBottom,
 	     float filterRadius,
 	     int numSamples,
 	     bool verbose)
 {
     if (levelMode == RIPMAP_LEVELS)
 	throw Iex::NoImplExc ("Cannot generate ripmap cube-face environments.");
-
-    //
-    // Read the input image, and if necessary,
-    // pad the image at the top and bottom.
-    //
-
-    EnvmapImage image1;
-    Header header;
-    RgbaChannels channels;
-
-    {
-	RgbaInputFile in (inFileName);
-
-	if (verbose)
-	    cout << "reading file " << inFileName << endl;
-
-	header = in.header();
-	channels = in.channels();
-
-	Envmap type = ENVMAP_LATLONG;
-
-	if (hasEnvmap (in.header()))
-	    type = envmap (in.header());
-
-	const Box2i &dw = in.dataWindow();
-	int w = dw.max.x - dw.min.x + 1;
-	int h = dw.max.y - dw.min.y + 1;
-
-	int pt = 0;
-	int pb = 0;
-
-	if (type == ENVMAP_LATLONG)
-	{
-	    pt = int (padTop * h + 0.5f);
-	    pb = int (padBottom * h + 0.5f);
-	}
-
-	Box2i paddedDw (V2i (dw.min.x, dw.min.y - pt),
-		        V2i (dw.max.x, dw.max.y + pb));
-	
-	image1.resize (type, paddedDw);
-	Array2D<Rgba> &pixels = image1.pixels();
-
-	in.setFrameBuffer (&pixels[-paddedDw.min.y][-paddedDw.min.x], 1, w);
-	in.readPixels (dw.min.y, dw.max.y);
-
-	for (int y = 0; y < pt; ++y)
-	    for (int x = 0; x < w; ++x)
-		pixels[y][x] = pixels[pt][x];
-
-	for (int y = h + pt; y < h + pt + pb; ++y)
-	{
-	    for (int x = 0; x < w; ++x)
-		pixels[y][x] = pixels[h + pt - 1][x];
-	}
-    }
 
     //
     // Open the file that will contain the cube-face map,
