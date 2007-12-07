@@ -123,11 +123,14 @@ AcesOutputFile::AcesOutputFile
 
     Header newHeader = header;
     addChromaticities (newHeader, acesChromaticities());
+    addAdoptedNeutral (newHeader, acesChromaticities().white);
 
     _data->rgbaFile = new RgbaOutputFile (name.c_str(),
 					  newHeader,
 					  rgbaChannels,
 					  numThreads);
+
+    _data->rgbaFile->setYCRounding (7, 6);
 }
 
 
@@ -143,11 +146,14 @@ AcesOutputFile::AcesOutputFile
 
     Header newHeader = header;
     addChromaticities (newHeader, acesChromaticities());
+    addAdoptedNeutral (newHeader, acesChromaticities().white);
 
     _data->rgbaFile = new RgbaOutputFile (os,
 					  header,
 					  rgbaChannels,
 					  numThreads);
+
+    _data->rgbaFile->setYCRounding (7, 6);
 }
 
 
@@ -176,11 +182,14 @@ AcesOutputFile::AcesOutputFile
 		      compression);
 
     addChromaticities (newHeader, acesChromaticities());
+    addAdoptedNeutral (newHeader, acesChromaticities().white);
 
     _data->rgbaFile = new RgbaOutputFile (name.c_str(),
 					  newHeader,
 					  rgbaChannels,
 					  numThreads);
+
+    _data->rgbaFile->setYCRounding (7, 6);
 }
 
 
@@ -209,11 +218,14 @@ AcesOutputFile::AcesOutputFile
 		      compression);
 
     addChromaticities (newHeader, acesChromaticities());
+    addAdoptedNeutral (newHeader, acesChromaticities().white);
 
     _data->rgbaFile = new RgbaOutputFile (name.c_str(),
 					  newHeader,
 					  rgbaChannels,
 					  numThreads);
+
+    _data->rgbaFile->setYCRounding (7, 6);
 }
 
 
@@ -368,12 +380,20 @@ AcesInputFile::Data::initColorConversion ()
     if (hasChromaticities (header))
 	fileChr = chromaticities (header);
 
+    V2f fileNeutral = fileChr.white;
+
+    if (hasAdoptedNeutral (header))
+	fileNeutral = adoptedNeutral (header);
+
     const Chromaticities acesChr = acesChromaticities();
+
+    V2f acesNeutral = acesChr.white;
 
     if (fileChr.red == acesChr.red &&
 	fileChr.green == acesChr.green &&
 	fileChr.blue == acesChr.blue &&
-	fileChr.white == acesChr.white)
+	fileChr.white == acesChr.white &&
+	fileNeutral == acesNeutral)
     {
 	//
 	// The file already contains ACES data,
@@ -413,20 +433,20 @@ AcesInputFile::Data::initColorConversion ()
     // Convert the white points of the two RGB spaces to XYZ
     //
 
-    float fx = fileChr.white.x;
-    float fy = fileChr.white.y;
-    V3f fileWhiteXYZ (fx / fy, 1, (1 - fx - fy) / fy);
+    float fx = fileNeutral.x;
+    float fy = fileNeutral.y;
+    V3f fileNeutralXYZ (fx / fy, 1, (1 - fx - fy) / fy);
 
-    float ax = acesChr.white.x;
-    float ay = acesChr.white.y;
-    V3f acesWhiteXYZ (ax / ay, 1, (1 - ax - ay) / ay);
+    float ax = acesNeutral.x;
+    float ay = acesNeutral.y;
+    V3f acesNeutralXYZ (ax / ay, 1, (1 - ax - ay) / ay);
 
     //
     // Compute the Bradford transformation matrix
     //
 
-    V3f ratio ((acesWhiteXYZ * bradfordCPM) /
-	       (fileWhiteXYZ * bradfordCPM));
+    V3f ratio ((acesNeutralXYZ * bradfordCPM) /
+	       (fileNeutralXYZ * bradfordCPM));
 
     M44f ratioMat (ratio[0], 0,        0,        0,
 		   0,        ratio[1], 0,        0,
