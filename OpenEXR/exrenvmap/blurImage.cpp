@@ -62,7 +62,14 @@ void
 blurImage (EnvmapImage &image1, bool verbose)
 {
     //
-    // We blur the image in stages:
+    // Ideally we would blur the input image directly by convolving
+    // it with a 180-degree wide blur kernel.  Unfortunately this
+    // is prohibitively expensive when the input image is large.
+    // In order to keep running times reasonable, we perform the
+    // blur on a small proxy image that will later be re-sampled
+    // to the desired output resolution.
+    //
+    // Here's how it works:
     //
     // * If the input image is in latitude-longitude format,
     //   convert it into a cube-face environment map.
@@ -270,7 +277,8 @@ blurImage (EnvmapImage &image1, bool verbose)
 		    V2f pos =
 			CubeMap::pixelPosition (face, dw, posInFace);
 
-		    double weight = double ((dir ^ faceDir) * (dir ^ faceDir));
+		    double weight = double (dir ^ faceDir);
+		    weight = weight * weight *weight;
 
 		    if (xEdge && yEdge)
 			weight /= 3;
