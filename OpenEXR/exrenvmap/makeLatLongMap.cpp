@@ -41,10 +41,10 @@
 
 #include <makeLatLongMap.h>
 
+#include <resizeImage.h>
 #include <ImfRgbaFile.h>
 #include <ImfTiledRgbaFile.h>
 #include <ImfStandardAttributes.h>
-#include <EnvmapImage.h>
 #include "Iex.h"
 #include <iostream>
 #include <algorithm>
@@ -116,25 +116,9 @@ makeLatLongMap (EnvmapImage &image1,
 	    cout << "level " << level << endl;
 
 	Box2i dw = out.dataWindowForLevel (level);
-	int w = dw.max.x - dw.min.x + 1;
-	int h = dw.max.y - dw.min.y + 1;
-	float radius = 0.5f * 2 * M_PI * filterRadius / w;
+	resizeLatLong (*iptr1, *iptr2, dw, filterRadius, numSamples);
 
-	iptr2->resize (ENVMAP_LATLONG, dw);
-	iptr2->clear ();
-
-	Array2D<Rgba> &pixels = iptr2->pixels();
-
-	for (int y = 0; y < h; ++y)
-	{
-	    for (int x = 0; x < w; ++x)
-	    {
-		V3f dir = LatLongMap::direction (dw, V2f (x, y));
-		pixels[y][x] = iptr1->filteredLookup (dir, radius, numSamples);
-	    }
-	}
-
-	out.setFrameBuffer (&pixels[0][0], 1, dw.max.x + 1);
+	out.setFrameBuffer (&(iptr2->pixels()[0][0]), 1, dw.max.x + 1);
 
 	for (int tileY = 0; tileY < out.numYTiles (level); ++tileY)
 	    for (int tileX = 0; tileX < out.numXTiles (level); ++tileX)

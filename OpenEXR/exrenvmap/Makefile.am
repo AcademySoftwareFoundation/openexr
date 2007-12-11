@@ -12,6 +12,7 @@ LDADD = @ILMBASE_LDFLAGS@ @ILMBASE_LIBS@\
 
 exrenvmap_SOURCES = main.cpp EnvmapImage.cpp EnvmapImage.h \
 		    readInputImage.cpp readInputImage.h \
+		    resizeImage.cpp resizeImage.h \
 		    blurImage.cpp blurImage.h \
 		    makeCubeMap.cpp makeCubeMap.h \
 		    makeLatLongMap.cpp makeLatLongMap.h
@@ -20,5 +21,7 @@ noinst_HEADERS = EnvmapImage.h makeCubeMap.h makeLatLongMap.h
 
 EXTRA_DIST = main.cpp EnvmapImage.cpp EnvmapImage.h \
 	     readInputImage.cpp readInputImage.h \
+	     resizeImage.cpp resizeImage.h \
+	     blurImage.cpp blurImage.h \
 	     makeCubeMap.cpp makeCubeMap.h \
 	     makeLatLongMap.cpp makeLatLongMap.h
