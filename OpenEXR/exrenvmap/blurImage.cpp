@@ -185,7 +185,7 @@ blurImage (EnvmapImage &image1, bool verbose)
 		cout << "        face " << f << endl;
 
 	    CubeMapFace face = CubeMapFace (f);
-	    V3f faceDir;
+	    V3f faceDir (0, 0, 0);
 
 	    switch (face)
 	    {
