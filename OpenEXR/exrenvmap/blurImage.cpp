@@ -41,7 +41,7 @@
 
 #include <blurImage.h>
 
-#include <EnvmapImage.h>
+#include <resizeImage.h>
 #include "Iex.h"
 #include <iostream>
 #include <algorithm>
@@ -52,9 +52,16 @@ using namespace Imath;
 
 
 inline int
-toInt (float f)
+toInt (float x)
 {
-    return int (f + 0.5f);
+    return int (x + 0.5f);
+}
+
+
+inline double
+cube (double x)
+{
+    return x * x * x;
 }
 
 
@@ -131,34 +138,7 @@ blurImage (EnvmapImage &image1, bool verbose)
 	h = w * 6;
 
 	Box2i dw (V2i (0, 0), V2i (w - 1, h - 1));
-	int sof = CubeMap::sizeOfFace (dw);
-	float radius = 1.5f / sof;
-
-	iptr2->resize (ENVMAP_CUBE, dw);
-	iptr2->clear ();
-
-	Array2D<Rgba> &pixels = iptr2->pixels();
-
-	for (int f = CUBEFACE_POS_X; f <= CUBEFACE_NEG_Z; ++f)
-	{
-	    if (verbose)
-		cout << "        face " << f << endl;
-
-	    CubeMapFace face = CubeMapFace (f);
-
-	    for (int y = 0; y < sof; ++y)
-	    {
-		for (int x = 0; x < sof; ++x)
-		{
-		    V2f posInFace (x, y);
-		    V3f dir = CubeMap::direction (face, dw, posInFace);
-		    V2f pos = CubeMap::pixelPosition (face, dw, posInFace);
-		    
-		    pixels[toInt (pos.y)][toInt (pos.x)] =
-			iptr1->filteredLookup (dir, radius, 5);
-		}
-	    }
-	}
+	resizeCube (*iptr1, *iptr2, dw, 1, 7);
 
 	swap (iptr1, iptr2);
     }
@@ -183,34 +163,7 @@ blurImage (EnvmapImage &image1, bool verbose)
 	}
 
 	Box2i dw (V2i (0, 0), V2i (w - 1, h - 1));
-	int sof = CubeMap::sizeOfFace (dw);
-	float radius = 1.5f / sof;
-
-	iptr2->resize (ENVMAP_CUBE, dw);
-	iptr2->clear ();
-
-	Array2D<Rgba> &pixels = iptr2->pixels();
-
-	for (int f = CUBEFACE_POS_X; f <= CUBEFACE_NEG_Z; ++f)
-	{
-	    if (verbose)
-		cout << "        face " << f << endl;
-
-	    CubeMapFace face = CubeMapFace (f);
-
-	    for (int y = 0; y < sof; ++y)
-	    {
-		for (int x = 0; x < sof; ++x)
-		{
-		    V2f posInFace (x, y);
-		    V3f dir = CubeMap::direction (face, dw, posInFace);
-		    V2f pos = CubeMap::pixelPosition (face, dw, posInFace);
-		    
-		    pixels[toInt (pos.y)][toInt (pos.x)] =
-			iptr1->filteredLookup (dir, radius, 5);
-		}
-	    }
-	}
+	resizeCube (*iptr1, *iptr2, dw, 1, 7);
 
 	swap (iptr1, iptr2);
     }
@@ -277,8 +230,7 @@ blurImage (EnvmapImage &image1, bool verbose)
 		    V2f pos =
 			CubeMap::pixelPosition (face, dw, posInFace);
 
-		    double weight = double (dir ^ faceDir);
-		    weight = weight * weight *weight;
+		    double weight = cube (dir ^ faceDir);
 
 		    if (xEdge && yEdge)
 			weight /= 3;
@@ -418,7 +370,7 @@ blurImage (EnvmapImage &image1, bool verbose)
     if (iptr1 != &image1)
     {
 	if (verbose)
-	    cout << "copying" << endl;
+	    cout << "    copying" << endl;
 
 	Box2i dw = iptr1->dataWindow();
 	image1.resize (ENVMAP_CUBE, dw);

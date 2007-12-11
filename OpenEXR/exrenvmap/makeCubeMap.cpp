@@ -41,10 +41,10 @@
 
 #include <makeCubeMap.h>
 
+#include <resizeImage.h>
 #include <ImfRgbaFile.h>
 #include <ImfTiledRgbaFile.h>
 #include <ImfStandardAttributes.h>
-#include <EnvmapImage.h>
 #include "Iex.h"
 #include <iostream>
 #include <algorithm>
@@ -113,36 +113,9 @@ makeCubeMap (EnvmapImage &image1,
 	    cout << "level " << level << endl;
 
 	Box2i dw = out.dataWindowForLevel (level);
-	int sof = CubeMap::sizeOfFace (dw);
-	float radius = 1.5f * filterRadius / sof;
+	resizeCube (*iptr1, *iptr2, dw, filterRadius, numSamples);
 
-	iptr2->resize (ENVMAP_CUBE, dw);
-	iptr2->clear ();
-
-	Array2D<Rgba> &pixels = iptr2->pixels();
-
-	for (int f = CUBEFACE_POS_X; f <= CUBEFACE_NEG_Z; ++f)
-	{
-	    if (verbose)
-		cout << "    face " << f << endl;
-
-	    CubeMapFace face = CubeMapFace (f);
-
-	    for (int y = 0; y < sof; ++y)
-	    {
-		for (int x = 0; x < sof; ++x)
-		{
-		    V2f posInFace (x, y);
-		    V3f dir = CubeMap::direction (face, dw, posInFace);
-		    V2f pos = CubeMap::pixelPosition (face, dw, posInFace);
-		    
-		    pixels[int (pos.y + 0.5f)][int (pos.x + 0.5f)] =
-			iptr1->filteredLookup (dir, radius, numSamples);
-		}
-	    }
-	}
-
-	out.setFrameBuffer (&pixels[0][0], 1, dw.max.x + 1);
+	out.setFrameBuffer (&iptr2->pixels()[0][0], 1, dw.max.x + 1);
 
 	for (int tileY = 0; tileY < out.numYTiles (level); ++tileY)
 	    for (int tileX = 0; tileX < out.numXTiles (level); ++tileX)
