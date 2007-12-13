@@ -576,7 +576,7 @@ template <class T>
 T &
 Header::typedAttribute (const std::string &name)
 {
-    return typedAttribute (name.c_str());
+    return typedAttribute<T> (name.c_str());
 }
 
 
@@ -584,7 +584,7 @@ template <class T>
 const T &
 Header::typedAttribute (const std::string &name) const
 {
-    return typedAttribute (name.c_str());
+    return typedAttribute<T> (name.c_str());
 }
 
 
@@ -610,7 +610,7 @@ template <class T>
 T *
 Header::findTypedAttribute (const std::string &name)
 {
-    return findTypedAttribute (name.c_str());
+    return findTypedAttribute<T> (name.c_str());
 }
 
 
@@ -618,7 +618,7 @@ template <class T>
 const T *
 Header::findTypedAttribute (const std::string &name) const
 {
-    return findTypedAttribute (name.c_str());
+    return findTypedAttribute<T> (name.c_str());
 }
 
 
