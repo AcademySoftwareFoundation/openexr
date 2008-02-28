@@ -445,6 +445,35 @@ writeReadLayers ()
     }
 
     {
+	RgbaInputFile in (fileName, "");
+
+	Array2D<Rgba> p3 (H, W);
+
+	in.setFrameBuffer (&p3[0][0], 1, W);
+	in.readPixels (0, H / 2 - 1);
+
+	in.setLayerName ("foo");
+
+	in.setFrameBuffer (&p3[0][0], 1, W);
+	in.readPixels (H / 2, H - 1);
+
+	for (int y = 0; y < H; ++y)
+	{
+	    for (int x = 0; x < W; ++x)
+	    {
+		if (y < H / 2)
+		    assert (p3[y][x].r == p1[y][x]);
+		else
+		    assert (p3[y][x].r == p2[y][x]);
+
+		assert (p3[y][x].g == 0);
+		assert (p3[y][x].b == 0);
+		assert (p3[y][x].a == 1);
+	    }
+	}
+    }
+
+    {
 	Header hdr (W, H);
 	hdr.channels().insert ("Y", Channel (HALF));
 	hdr.channels().insert ("foo.Y", Channel (HALF));
@@ -501,6 +530,41 @@ writeReadLayers ()
 		assert (p3[y][x].r == p2[y][x]);
 		assert (p3[y][x].g == p2[y][x]);
 		assert (p3[y][x].b == p2[y][x]);
+		assert (p3[y][x].a == 1);
+	    }
+	}
+    }
+
+    {
+	RgbaInputFile in (fileName, "");
+
+	Array2D<Rgba> p3 (H, W);
+
+	in.setFrameBuffer (&p3[0][0], 1, W);
+	in.readPixels (0, H / 2 - 1);
+
+	in.setLayerName ("foo");
+
+	in.setFrameBuffer (&p3[0][0], 1, W);
+	in.readPixels (H / 2, H - 1);
+
+	for (int y = 0; y < H; ++y)
+	{
+	    for (int x = 0; x < W; ++x)
+	    {
+		if (y < H / 2)
+		{
+		    assert (p3[y][x].r == p1[y][x]);
+		    assert (p3[y][x].g == p1[y][x]);
+		    assert (p3[y][x].b == p1[y][x]);
+		}
+		else
+		{
+		    assert (p3[y][x].r == p2[y][x]);
+		    assert (p3[y][x].g == p2[y][x]);
+		    assert (p3[y][x].b == p2[y][x]);
+		}
+
 		assert (p3[y][x].a == 1);
 	    }
 	}

@@ -869,6 +869,22 @@ TiledRgbaInputFile::setFrameBuffer (Rgba *base, size_t xStride, size_t yStride)
 }
 
 
+void		
+TiledRgbaInputFile::setLayerName (const std::string &layerName)
+{
+    delete _fromYa;
+    _fromYa = 0;
+    
+    _channelNamePrefix = prefixFromLayerName (layerName, _inputFile->header());
+
+    if (channels() & WRITE_Y)
+	_fromYa = new FromYa (*_inputFile);
+
+    FrameBuffer fb;
+    _inputFile->setFrameBuffer (fb);
+}
+
+
 const Header &
 TiledRgbaInputFile::header () const
 {

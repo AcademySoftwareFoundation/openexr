@@ -322,11 +322,11 @@ class TiledRgbaInputFile
     TiledRgbaInputFile (IStream &is, int numThreads = globalThreadCount ());
 
 
-    //--------------------------------------------------------------
+    //------------------------------------------------------------
     // Constructors -- the same as the previous two, but the names
-    // of the red, green, blue, alpha, luminance and chroma channels
-    // are expected to be layerName.R, layerName.G, etc.
-    //--------------------------------------------------------------
+    // of the red, green, blue, alpha, and luminance channels are
+    // expected to be layerName.R, layerName.G, etc.
+    //------------------------------------------------------------
 
     TiledRgbaInputFile (const char name[],
 		        const std::string &layerName,
@@ -354,6 +354,16 @@ class TiledRgbaInputFile
     void			setFrameBuffer (Rgba *base,
 						size_t xStride,
 						size_t yStride);
+
+    //-------------------------------------------------------------------
+    // Switch to a different layer -- subsequent calls to readTile()
+    // and readTiles() will read channels layerName.R, layerName.G, etc.
+    // After each call to setLayerName(), setFrameBuffer() must be called
+    // at least once before the next call to readTile() or readTiles().
+    //-------------------------------------------------------------------
+
+    void			setLayerName (const std::string &layerName);
+
 
     //--------------------------
     // Access to the file header
