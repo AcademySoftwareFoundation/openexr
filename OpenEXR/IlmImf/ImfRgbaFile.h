@@ -284,6 +284,16 @@ class RgbaInputFile
 						size_t yStride);
 
 
+    //----------------------------------------------------------------
+    // Switch to a different layer -- subsequent calls to readPixels()
+    // will read channels layerName.R, layerName.G, etc.
+    // After each call to setLayerName(), setFrameBuffer() must be
+    // called at least once before the next call to readPixels().
+    //----------------------------------------------------------------
+
+    void			setLayerName (const std::string &layerName);
+
+
     //-------------------------------------------
     // Read pixel data (see class Imf::InputFile)
     //-------------------------------------------

@@ -710,6 +710,39 @@ writeReadLayers()
     }
 
     {
+	TiledRgbaInputFile in (fileName, "");
+
+	Array2D<Rgba> p3 (H, W);
+
+	in.setFrameBuffer (&p3[0][0], 1, W);
+
+	in.readTiles (0, in.numXTiles() - 1,
+		      0, in.numYTiles() / 2 - 1);
+
+	in.setLayerName ("foo");
+
+	in.setFrameBuffer (&p3[0][0], 1, W);
+
+	in.readTiles (0, in.numXTiles() - 1,
+		      in.numYTiles() / 2, in.numYTiles() - 1);
+
+	for (int y = 0; y < H; ++y)
+	{
+	    for (int x = 0; x < W; ++x)
+	    {
+		if (y < in.numYTiles() / 2 * in.tileYSize())
+		    assert (p3[y][x].r == p1[y][x]);
+		else
+		    assert (p3[y][x].r == p2[y][x]);
+
+		assert (p3[y][x].g == 0);
+		assert (p3[y][x].b == 0);
+		assert (p3[y][x].a == 1);
+	    }
+	}
+    }
+
+    {
 	Header hdr (W, H);
 	hdr.setTileDescription (TileDescription());
 	hdr.channels().insert ("Y", Channel (HALF));
@@ -767,6 +800,45 @@ writeReadLayers()
 		assert (p3[y][x].r == p2[y][x]);
 		assert (p3[y][x].g == p2[y][x]);
 		assert (p3[y][x].b == p2[y][x]);
+		assert (p3[y][x].a == 1);
+	    }
+	}
+    }
+
+    {
+	TiledRgbaInputFile in (fileName, "");
+
+	Array2D<Rgba> p3 (H, W);
+
+	in.setFrameBuffer (&p3[0][0], 1, W);
+
+	in.readTiles (0, in.numXTiles() - 1,
+		      0, in.numYTiles() / 2 - 1);
+
+	in.setLayerName ("foo");
+
+	in.setFrameBuffer (&p3[0][0], 1, W);
+
+	in.readTiles (0, in.numXTiles() - 1,
+		      in.numYTiles() / 2, in.numYTiles() - 1);
+
+	for (int y = 0; y < H; ++y)
+	{
+	    for (int x = 0; x < W; ++x)
+	    {
+		if (y < in.numYTiles() / 2 * in.tileYSize())
+		{
+		    assert (p3[y][x].r == p1[y][x]);
+		    assert (p3[y][x].g == p1[y][x]);
+		    assert (p3[y][x].b == p1[y][x]);
+		}
+		else
+		{
+		    assert (p3[y][x].r == p2[y][x]);
+		    assert (p3[y][x].g == p2[y][x]);
+		    assert (p3[y][x].b == p2[y][x]);
+		}
+
 		assert (p3[y][x].a == 1);
 	    }
 	}

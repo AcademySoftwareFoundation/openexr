@@ -1233,6 +1233,24 @@ RgbaInputFile::setFrameBuffer (Rgba *base, size_t xStride, size_t yStride)
 }
 
 
+void
+RgbaInputFile::setLayerName (const string &layerName)
+{
+    delete _fromYca;
+    _fromYca = 0;
+
+    _channelNamePrefix = prefixFromLayerName (layerName, _inputFile->header());
+
+    RgbaChannels rgbaChannels = channels();
+
+    if (rgbaChannels & (WRITE_Y | WRITE_C))
+	_fromYca = new FromYca (*_inputFile, rgbaChannels);
+
+    FrameBuffer fb;
+    _inputFile->setFrameBuffer (fb);
+}
+
+
 void	
 RgbaInputFile::readPixels (int scanLine1, int scanLine2)
 {
