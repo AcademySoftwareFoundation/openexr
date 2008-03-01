@@ -45,6 +45,7 @@
 #include <iostream>
 #include <exception>
 #include <string>
+#include <string.h>
 #include <stdlib.h>
 
 using namespace Imf;
