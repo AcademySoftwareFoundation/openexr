@@ -1,3 +1,8 @@
+	* Reading luminance/chroma-encoded files via the RGBA
+	  interface is faster: buffer padding avoids cache thrashing
+	  for certain image sizes, redundant calls to saturation()
+	  have been eliminated.
+	  (Mike Wall)
 	* Added "hemispherical blur" option to exrenvmap.
 	  (Florian Kainz)
 	* Added experimental version of I/O classes for ACES file
