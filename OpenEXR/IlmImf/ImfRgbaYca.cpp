@@ -144,37 +144,37 @@ decimateChromaHoriz (int n,
     {
 	if ((j & 1) == 0)
 	{
-	    ycaOut[j].r = ycaIn[i - 13].r *  0.001064 +
-			  ycaIn[i - 11].r * -0.003771 +
-			  ycaIn[i -  9].r *  0.009801 +
-			  ycaIn[i -  7].r * -0.021586 +
-			  ycaIn[i -  5].r *  0.043978 +
-			  ycaIn[i -  3].r * -0.093067 +
-			  ycaIn[i -  1].r *  0.313659 +
-			  ycaIn[i     ].r *  0.499846 +
-			  ycaIn[i +  1].r *  0.313659 +
-			  ycaIn[i +  3].r * -0.093067 +
-			  ycaIn[i +  5].r *  0.043978 +
-			  ycaIn[i +  7].r * -0.021586 +
-			  ycaIn[i +  9].r *  0.009801 +
-			  ycaIn[i + 11].r * -0.003771 +
-			  ycaIn[i + 13].r *  0.001064;
+	    ycaOut[j].r = ycaIn[i - 13].r *  0.001064f +
+			  ycaIn[i - 11].r * -0.003771f +
+			  ycaIn[i -  9].r *  0.009801f +
+			  ycaIn[i -  7].r * -0.021586f +
+			  ycaIn[i -  5].r *  0.043978f +
+			  ycaIn[i -  3].r * -0.093067f +
+			  ycaIn[i -  1].r *  0.313659f +
+			  ycaIn[i     ].r *  0.499846f +
+			  ycaIn[i +  1].r *  0.313659f +
+			  ycaIn[i +  3].r * -0.093067f +
+			  ycaIn[i +  5].r *  0.043978f +
+			  ycaIn[i +  7].r * -0.021586f +
+			  ycaIn[i +  9].r *  0.009801f +
+			  ycaIn[i + 11].r * -0.003771f +
+			  ycaIn[i + 13].r *  0.001064f;
 
-	    ycaOut[j].b = ycaIn[i - 13].b *  0.001064 +
-			  ycaIn[i - 11].b * -0.003771 +
-			  ycaIn[i -  9].b *  0.009801 +
-			  ycaIn[i -  7].b * -0.021586 +
-			  ycaIn[i -  5].b *  0.043978 +
-			  ycaIn[i -  3].b * -0.093067 +
-			  ycaIn[i -  1].b *  0.313659 +
-			  ycaIn[i     ].b *  0.499846 +
-			  ycaIn[i +  1].b *  0.313659 +
-			  ycaIn[i +  3].b * -0.093067 +
-			  ycaIn[i +  5].b *  0.043978 +
-			  ycaIn[i +  7].b * -0.021586 +
-			  ycaIn[i +  9].b *  0.009801 +
-			  ycaIn[i + 11].b * -0.003771 +
-			  ycaIn[i + 13].b *  0.001064;
+	    ycaOut[j].b = ycaIn[i - 13].b *  0.001064f +
+			  ycaIn[i - 11].b * -0.003771f +
+			  ycaIn[i -  9].b *  0.009801f +
+			  ycaIn[i -  7].b * -0.021586f +
+			  ycaIn[i -  5].b *  0.043978f +
+			  ycaIn[i -  3].b * -0.093067f +
+			  ycaIn[i -  1].b *  0.313659f +
+			  ycaIn[i     ].b *  0.499846f +
+			  ycaIn[i +  1].b *  0.313659f +
+			  ycaIn[i +  3].b * -0.093067f +
+			  ycaIn[i +  5].b *  0.043978f +
+			  ycaIn[i +  7].b * -0.021586f +
+			  ycaIn[i +  9].b *  0.009801f +
+			  ycaIn[i + 11].b * -0.003771f +
+			  ycaIn[i + 13].b *  0.001064f;
 	}
 
 	ycaOut[j].g = ycaIn[i].g;
@@ -192,37 +192,37 @@ decimateChromaVert (int n,
     {
 	if ((i & 1) == 0)
 	{
-	    ycaOut[i].r = ycaIn[ 0][i].r *  0.001064 +
-			  ycaIn[ 2][i].r * -0.003771 +
-			  ycaIn[ 4][i].r *  0.009801 +
-			  ycaIn[ 6][i].r * -0.021586 +
-			  ycaIn[ 8][i].r *  0.043978 +
-			  ycaIn[10][i].r * -0.093067 +
-			  ycaIn[12][i].r *  0.313659 +
-			  ycaIn[13][i].r *  0.499846 +
-			  ycaIn[14][i].r *  0.313659 +
-			  ycaIn[16][i].r * -0.093067 +
-			  ycaIn[18][i].r *  0.043978 +
-			  ycaIn[20][i].r * -0.021586 +
-			  ycaIn[22][i].r *  0.009801 +
-			  ycaIn[24][i].r * -0.003771 +
-			  ycaIn[26][i].r *  0.001064;
+	    ycaOut[i].r = ycaIn[ 0][i].r *  0.001064f +
+			  ycaIn[ 2][i].r * -0.003771f +
+			  ycaIn[ 4][i].r *  0.009801f +
+			  ycaIn[ 6][i].r * -0.021586f +
+			  ycaIn[ 8][i].r *  0.043978f +
+			  ycaIn[10][i].r * -0.093067f +
+			  ycaIn[12][i].r *  0.313659f +
+			  ycaIn[13][i].r *  0.499846f +
+			  ycaIn[14][i].r *  0.313659f +
+			  ycaIn[16][i].r * -0.093067f +
+			  ycaIn[18][i].r *  0.043978f +
+			  ycaIn[20][i].r * -0.021586f +
+			  ycaIn[22][i].r *  0.009801f +
+			  ycaIn[24][i].r * -0.003771f +
+			  ycaIn[26][i].r *  0.001064f;
 
-	    ycaOut[i].b = ycaIn[ 0][i].b *  0.001064 +
-			  ycaIn[ 2][i].b * -0.003771 +
-			  ycaIn[ 4][i].b *  0.009801 +
-			  ycaIn[ 6][i].b * -0.021586 +
-			  ycaIn[ 8][i].b *  0.043978 +
-			  ycaIn[10][i].b * -0.093067 +
-			  ycaIn[12][i].b *  0.313659 +
-			  ycaIn[13][i].b *  0.499846 +
-			  ycaIn[14][i].b *  0.313659 +
-			  ycaIn[16][i].b * -0.093067 +
-			  ycaIn[18][i].b *  0.043978 +
-			  ycaIn[20][i].b * -0.021586 +
-			  ycaIn[22][i].b *  0.009801 +
-			  ycaIn[24][i].b * -0.003771 +
-			  ycaIn[26][i].b *  0.001064;
+	    ycaOut[i].b = ycaIn[ 0][i].b *  0.001064f +
+			  ycaIn[ 2][i].b * -0.003771f +
+			  ycaIn[ 4][i].b *  0.009801f +
+			  ycaIn[ 6][i].b * -0.021586f +
+			  ycaIn[ 8][i].b *  0.043978f +
+			  ycaIn[10][i].b * -0.093067f +
+			  ycaIn[12][i].b *  0.313659f +
+			  ycaIn[13][i].b *  0.499846f +
+			  ycaIn[14][i].b *  0.313659f +
+			  ycaIn[16][i].b * -0.093067f +
+			  ycaIn[18][i].b *  0.043978f +
+			  ycaIn[20][i].b * -0.021586f +
+			  ycaIn[22][i].b *  0.009801f +
+			  ycaIn[24][i].b * -0.003771f +
+			  ycaIn[26][i].b *  0.001064f;
 	}
 
 	ycaOut[i].g = ycaIn[13][i].g;
@@ -268,35 +268,35 @@ reconstructChromaHoriz (int n,
     {
 	if (j & 1)
 	{
-	    ycaOut[j].r = ycaIn[i - 13].r *  0.002128 +
-			  ycaIn[i - 11].r * -0.007540 +
-			  ycaIn[i -  9].r *  0.019597 +
-			  ycaIn[i -  7].r * -0.043159 +
-			  ycaIn[i -  5].r *  0.087929 +
-			  ycaIn[i -  3].r * -0.186077 +
-			  ycaIn[i -  1].r *  0.627123 +
-			  ycaIn[i +  1].r *  0.627123 +
-			  ycaIn[i +  3].r * -0.186077 +
-			  ycaIn[i +  5].r *  0.087929 +
-			  ycaIn[i +  7].r * -0.043159 +
-			  ycaIn[i +  9].r *  0.019597 +
-			  ycaIn[i + 11].r * -0.007540 +
-			  ycaIn[i + 13].r *  0.002128;
+	    ycaOut[j].r = ycaIn[i - 13].r *  0.002128f +
+			  ycaIn[i - 11].r * -0.007540f +
+			  ycaIn[i -  9].r *  0.019597f +
+			  ycaIn[i -  7].r * -0.043159f +
+			  ycaIn[i -  5].r *  0.087929f +
+			  ycaIn[i -  3].r * -0.186077f +
+			  ycaIn[i -  1].r *  0.627123f +
+			  ycaIn[i +  1].r *  0.627123f +
+			  ycaIn[i +  3].r * -0.186077f +
+			  ycaIn[i +  5].r *  0.087929f +
+			  ycaIn[i +  7].r * -0.043159f +
+			  ycaIn[i +  9].r *  0.019597f +
+			  ycaIn[i + 11].r * -0.007540f +
+			  ycaIn[i + 13].r *  0.002128f;
 
-	    ycaOut[j].b = ycaIn[i - 13].b *  0.002128 +
-			  ycaIn[i - 11].b * -0.007540 +
-			  ycaIn[i -  9].b *  0.019597 +
-			  ycaIn[i -  7].b * -0.043159 +
-			  ycaIn[i -  5].b *  0.087929 +
-			  ycaIn[i -  3].b * -0.186077 +
-			  ycaIn[i -  1].b *  0.627123 +
-			  ycaIn[i +  1].b *  0.627123 +
-			  ycaIn[i +  3].b * -0.186077 +
-			  ycaIn[i +  5].b *  0.087929 +
-			  ycaIn[i +  7].b * -0.043159 +
-			  ycaIn[i +  9].b *  0.019597 +
-			  ycaIn[i + 11].b * -0.007540 +
-			  ycaIn[i + 13].b *  0.002128;
+	    ycaOut[j].b = ycaIn[i - 13].b *  0.002128f +
+			  ycaIn[i - 11].b * -0.007540f +
+			  ycaIn[i -  9].b *  0.019597f +
+			  ycaIn[i -  7].b * -0.043159f +
+			  ycaIn[i -  5].b *  0.087929f +
+			  ycaIn[i -  3].b * -0.186077f +
+			  ycaIn[i -  1].b *  0.627123f +
+			  ycaIn[i +  1].b *  0.627123f +
+			  ycaIn[i +  3].b * -0.186077f +
+			  ycaIn[i +  5].b *  0.087929f +
+			  ycaIn[i +  7].b * -0.043159f +
+			  ycaIn[i +  9].b *  0.019597f +
+			  ycaIn[i + 11].b * -0.007540f +
+			  ycaIn[i + 13].b *  0.002128f;
 	}
 	else
 	{
@@ -317,35 +317,35 @@ reconstructChromaVert (int n,
 {
     for (int i = 0; i < n; ++i)
     {
-	ycaOut[i].r = ycaIn[ 0][i].r *  0.002128 +
-		      ycaIn[ 2][i].r * -0.007540 +
-		      ycaIn[ 4][i].r *  0.019597 +
-		      ycaIn[ 6][i].r * -0.043159 +
-		      ycaIn[ 8][i].r *  0.087929 +
-		      ycaIn[10][i].r * -0.186077 +
-		      ycaIn[12][i].r *  0.627123 +
-		      ycaIn[14][i].r *  0.627123 +
-		      ycaIn[16][i].r * -0.186077 +
-		      ycaIn[18][i].r *  0.087929 +
-		      ycaIn[20][i].r * -0.043159 +
-		      ycaIn[22][i].r *  0.019597 +
-		      ycaIn[24][i].r * -0.007540 +
-		      ycaIn[26][i].r *  0.002128;
+	ycaOut[i].r = ycaIn[ 0][i].r *  0.002128f +
+		      ycaIn[ 2][i].r * -0.007540f +
+		      ycaIn[ 4][i].r *  0.019597f +
+		      ycaIn[ 6][i].r * -0.043159f +
+		      ycaIn[ 8][i].r *  0.087929f +
+		      ycaIn[10][i].r * -0.186077f +
+		      ycaIn[12][i].r *  0.627123f +
+		      ycaIn[14][i].r *  0.627123f +
+		      ycaIn[16][i].r * -0.186077f +
+		      ycaIn[18][i].r *  0.087929f +
+		      ycaIn[20][i].r * -0.043159f +
+		      ycaIn[22][i].r *  0.019597f +
+		      ycaIn[24][i].r * -0.007540f +
+		      ycaIn[26][i].r *  0.002128f;
 
-	ycaOut[i].b = ycaIn[ 0][i].b *  0.002128 +
-		      ycaIn[ 2][i].b * -0.007540 +
-		      ycaIn[ 4][i].b *  0.019597 +
-		      ycaIn[ 6][i].b * -0.043159 +
-		      ycaIn[ 8][i].b *  0.087929 +
-		      ycaIn[10][i].b * -0.186077 +
-		      ycaIn[12][i].b *  0.627123 +
-		      ycaIn[14][i].b *  0.627123 +
-		      ycaIn[16][i].b * -0.186077 +
-		      ycaIn[18][i].b *  0.087929 +
-		      ycaIn[20][i].b * -0.043159 +
-		      ycaIn[22][i].b *  0.019597 +
-		      ycaIn[24][i].b * -0.007540 +
-		      ycaIn[26][i].b *  0.002128;
+	ycaOut[i].b = ycaIn[ 0][i].b *  0.002128f +
+		      ycaIn[ 2][i].b * -0.007540f +
+		      ycaIn[ 4][i].b *  0.019597f +
+		      ycaIn[ 6][i].b * -0.043159f +
+		      ycaIn[ 8][i].b *  0.087929f +
+		      ycaIn[10][i].b * -0.186077f +
+		      ycaIn[12][i].b *  0.627123f +
+		      ycaIn[14][i].b *  0.627123f +
+		      ycaIn[16][i].b * -0.186077f +
+		      ycaIn[18][i].b *  0.087929f +
+		      ycaIn[20][i].b * -0.043159f +
+		      ycaIn[22][i].b *  0.019597f +
+		      ycaIn[24][i].b * -0.007540f +
+		      ycaIn[26][i].b *  0.002128f;
 
 	ycaOut[i].g = ycaIn[13][i].g;
 	ycaOut[i].a = ycaIn[13][i].a;
