@@ -442,20 +442,34 @@ fixSaturation (const Imath::V3f &yw,
 	       const Rgba * const rgbaIn[3],
 	       Rgba rgbaOut[/*n*/])
 {
+    float neighborA2 = saturation (rgbaIn[0][0]);
+    float neighborA1 = neighborA2;
+
+    float neighborB2 = saturation (rgbaIn[2][0]);
+    float neighborB1 = neighborB2;
+
     for (int i = 0; i < n; ++i)
     {
-	const int i0 = max (i - 1, 0);
-	const int i1 = min (i + 1, n - 1);
+	float neighborA0 = neighborA1;
+	neighborA1 = neighborA2;
 
-	const Rgba &neighbor0 = rgbaIn[0][i0];
-	const Rgba &neighbor1 = rgbaIn[0][i1];
-	const Rgba &neighbor2 = rgbaIn[2][i0];
-	const Rgba &neighbor3 = rgbaIn[2][i1];
+	float neighborB0 = neighborB1;
+	neighborB1 = neighborB2;
 
-	float sMean = min (1.0f, 0.25f * (saturation (neighbor0) +
-					  saturation (neighbor1) +
-					  saturation (neighbor2) +
-					  saturation (neighbor3)));
+	if (i < n - 1)
+	{
+	    neighborA2 = saturation (rgbaIn[0][i + 1]);
+	    neighborB2 = saturation (rgbaIn[2][i + 1]);
+	}
+
+	//
+	// A0       A1       A2
+	//      rgbaOut[i]
+	// B0       B1       B2
+	//
+
+	float sMean = min (1.0f, 0.25f * (neighborA0 + neighborA2 +
+					  neighborB0 + neighborB2));
 
 	const Rgba &in  = rgbaIn[1][i];
 	Rgba &out = rgbaOut[i];
@@ -476,7 +490,6 @@ fixSaturation (const Imath::V3f &yw,
 	out = in;
     }
 }
-
 
 } // namespace RgbaYca
 } // namespace Imf
