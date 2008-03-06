@@ -150,6 +150,40 @@ ywFromHeader (const Header &header)
     return computeYw (cr);
 }
 
+
+ptrdiff_t
+cachePadding (ptrdiff_t size)
+{
+    //
+    // Some of the buffers that are allocated by classes ToYca and
+    // FromYca, below, may need to be padded to avoid cache thrashing.
+    // If the difference between the buffer size and the nearest power
+    // of two is less than CACHE_LINE_SIZE, then we add an appropriate
+    // amount of padding.
+    //
+    // CACHE_LINE_SIZE must be a power of two, and it must be at
+    // least as big as the true size of a cache line on the machine
+    // we are running on.  (It is ok if CACHE_LINE_SIZE is larger
+    // than a real cache line.)
+    //
+
+    static int LOG2_CACHE_LINE_SIZE = 8;
+    static const ptrdiff_t CACHE_LINE_SIZE = (1 << LOG2_CACHE_LINE_SIZE);
+
+    int i = LOG2_CACHE_LINE_SIZE + 2;
+
+    while ((size >> i) > 1)
+	++i;
+
+    if (size > (1 << (i + 1)) - 64)
+	return 64 + ((1 << (i + 1)) - size);
+
+    if (size < (1 << i) + 64)
+	return 64 + ((1 << i) - size);
+
+    return 0;
+}
+
 } // namespace
 
 
@@ -189,6 +223,7 @@ class RgbaOutputFile::ToYca: public Mutex
     LineOrder		_lineOrder;
     int			_currentScanLine;
     V3f			_yw;
+    Rgba *		_bufBase;
     Rgba *		_buf[N];
     Rgba *		_tmpBuf;
     const Rgba *	_fbBase;
@@ -224,8 +259,12 @@ RgbaOutputFile::ToYca::ToYca (OutputFile &outputFile,
 
     _yw = ywFromHeader (_outputFile.header());
 
+    ptrdiff_t pad = cachePadding (_width * sizeof (Rgba)) / sizeof (Rgba);
+
+    _bufBase = new Rgba[(_width + pad) * N];
+
     for (int i = 0; i < N; ++i)
-	_buf[i] = new Rgba[_width];
+	_buf[i] = _bufBase + (i * (_width + pad));
 
     _tmpBuf = new Rgba[_width + N - 1];
 
@@ -240,9 +279,7 @@ RgbaOutputFile::ToYca::ToYca (OutputFile &outputFile,
 
 RgbaOutputFile::ToYca::~ToYca ()
 {
-    for (int i = 0; i < N; ++i)
-	delete [] _buf[i];
-
+    delete [] _bufBase;
     delete [] _tmpBuf;
 }
 
@@ -798,6 +835,7 @@ class RgbaInputFile::FromYca: public Mutex
     int			_currentScanLine;
     LineOrder		_lineOrder;
     V3f			_yw;
+    Rgba *		_bufBase;
     Rgba *		_buf1[N + 2];
     Rgba *		_buf2[3];
     Rgba *		_tmpBuf;
@@ -825,11 +863,15 @@ RgbaInputFile::FromYca::FromYca (InputFile &inputFile,
     _lineOrder = _inputFile.header().lineOrder();
     _yw = ywFromHeader (_inputFile.header());
 
+    ptrdiff_t pad = cachePadding (_width * sizeof (Rgba)) / sizeof (Rgba);
+
+    _bufBase = new Rgba[(_width + pad) * (N + 2 + 3)];
+
     for (int i = 0; i < N + 2; ++i)
-	_buf1[i] = new Rgba[_width];
+	_buf1[i] = _bufBase + (i * (_width + pad));
     
     for (int i = 0; i < 3; ++i)
-	_buf2[i] = new Rgba[_width];
+	_buf2[i] = _bufBase + ((i + N + 2) * (_width + pad));
 
     _tmpBuf = new Rgba[_width + N - 1];
 
@@ -841,12 +883,7 @@ RgbaInputFile::FromYca::FromYca (InputFile &inputFile,
 
 RgbaInputFile::FromYca::~FromYca ()
 {
-    for (int i = 0; i < N + 2; ++i)
-	delete [] _buf1[i];
-
-    for (int i = 0; i < 3; ++i)
-	delete [] _buf2[i];
-
+    delete [] _bufBase;
     delete [] _tmpBuf;
 }
 
