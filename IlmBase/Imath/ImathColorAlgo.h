@@ -108,7 +108,7 @@ hsv2rgb(const Color4<T> &hsv)
     }
     else
     {
-	Color4<double> v = Color4<double>(hsv.r, hsv.g, hsv.g, hsv.a);
+	Color4<double> v = Color4<double>(hsv.r, hsv.g, hsv.b, hsv.a);
 	Color4<double> c = hsv2rgb_d(v);
 	return Color4<T>((T) c.r, (T) c.g, (T) c.b, (T) c.a);
     }
@@ -156,7 +156,7 @@ rgb2hsv(const Color4<T> &rgb)
     }
     else
     {
-	Color4<double> v = Color4<double>(rgb.r, rgb.g, rgb.g, rgb.a);
+	Color4<double> v = Color4<double>(rgb.r, rgb.g, rgb.b, rgb.a);
 	Color4<double> c = rgb2hsv_d(v);
 	return Color4<T>((T) c.r, (T) c.g, (T) c.b, (T) c.a);
     }
