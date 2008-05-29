@@ -1,3 +1,5 @@
+	* Added worldToCamera and worldToNDC matrices to
+	  ImfStandardAttributes.h (Florian Kainz)
 	* Increased the maximum length of attribute and channel names
 	  from 31 to 255 characters.  For files that do contain names
 	  longer than 31 characters, a new LONG_NAMES_FLAG in the fil
