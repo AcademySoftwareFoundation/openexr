@@ -902,6 +902,8 @@ generatedFunctions ()
     assert (hasWrapmodes (header) == false);
     assert (hasFramesPerSecond (header) == false);
     assert (hasMultiView (header) == false);
+    assert (hasWorldToCamera (header) == false);
+    assert (hasWorldToNDC (header) == false);
 }
 
 
