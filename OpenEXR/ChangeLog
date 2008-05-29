@@ -1,3 +1,11 @@
+	* Increased the maximum length of attribute and channel names
+	  from 31 to 255 characters.  For files that do contain names
+	  longer than 31 characters, a new LONG_NAMES_FLAG in the fil
+	  version number is set.  This flag causes older versions of
+	  the IlmImf library (1.6.1 and earlier) to reject files with
+	  long names.  Without the flag, older library versions would
+	  mis-interpret files with long names as broken.
+	  (Florian Kainz)
 	* Reading luminance/chroma-encoded files via the RGBA
 	  interface is faster: buffer padding avoids cache thrashing
 	  for certain image sizes, redundant calls to saturation()

@@ -109,6 +109,43 @@ initialize (Header &header,
     header.insert ("channels", ChannelListAttribute ());
 }
 
+
+bool
+usesLongNames (const Header &header)
+{
+    //
+    // If an OpenEXR file contains any attribute names, attribute type names
+    // or channel names longer than 31 characters, then the file cannot be
+    // read by older versions of the IlmImf library (up to OpenEXR 1.6.1).
+    // Before writing the file header, we check if the header contains
+    // any names longer than 31 characters; if it does, then we set the
+    // LONG_NAMES_FLAG in the file version number.  Older versions of the
+    // IlmImf library will refuse to read files that have the LONG_NAMES_FLAG
+    // set.  Without the flag, older versions of the library would mis-
+    // interpret the file as broken.
+    //
+
+    for (Header::ConstIterator i = header.begin();
+         i != header.end();
+         ++i)
+    {
+        if (strlen (i.name()) >= 32 || strlen (i.attribute().typeName()) >= 32)
+            return true;
+    }
+
+    const ChannelList &channels = header.channels();
+
+    for (ChannelList::ConstIterator i = channels.begin();
+         i != channels.end();
+         ++i)
+    {
+        if (strlen (i.name()) >= 32)
+            return true;
+    }
+
+    return false;
+}
+
 } // namespace
 
 
@@ -839,7 +876,14 @@ Header::writeTo (OStream &os, bool isTiled) const
 
     Xdr::write <StreamIO> (os, MAGIC);
 
-    int version = isTiled ? makeTiled (EXR_VERSION) : EXR_VERSION;
+    int version = EXR_VERSION;
+
+    if (isTiled)
+        version |= TILED_FLAG;
+
+    if (usesLongNames (*this))
+        version |= LONG_NAMES_FLAG;
+
     Xdr::write <StreamIO> (os, version);
 
     //
@@ -931,7 +975,7 @@ Header::readFrom (IStream &is, int &version)
 	// A zero-length attribute name indicates the end of the header.
 	//
 
-	char name[100];
+	char name[Name::SIZE];
 	Xdr::read <StreamIO> (is, sizeof (name), name);
 
 	if (name[0] == 0)
@@ -941,7 +985,7 @@ Header::readFrom (IStream &is, int &version)
 	// Read the attribute type and the size of the attribute value.
 	//
 
-	char typeName[100];
+	char typeName[Name::SIZE];
 	int size;
 
 	Xdr::read <StreamIO> (is, sizeof (typeName), typeName);
