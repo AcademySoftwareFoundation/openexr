@@ -82,14 +82,17 @@ const int EXR_VERSION		= 2;
 // Flags can only occupy the 1 bits in VERSION_FLAGS_FIELD.
 //
 
-const int TILED_FLAG		= 0x00000200;
+const int TILED_FLAG		= 0x00000200;   // File is tiled
 
+const int LONG_NAMES_FLAG       = 0x00000400;   // File contains long
+                                                // attribute or channel
+                                                // names
 
 //
 // Bitwise OR of all known flags.
 //
 
-const int ALL_FLAGS		= TILED_FLAG;
+const int ALL_FLAGS		= TILED_FLAG | LONG_NAMES_FLAG;
 
 
 //

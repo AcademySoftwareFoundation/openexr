@@ -40,6 +40,7 @@
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
+#include <ImfVersion.h>
 #include "half.h"
 
 #include <ImfBoxAttribute.h>
@@ -335,6 +336,121 @@ channelList ()
 }
 
 
+void
+longNames (const Array2D<float> &pf1,
+           const char fileName[],
+           int width,
+           int height)
+{
+    //
+    // Verify that long attibute or channel names in the header
+    // set the LONG_NAMES_FLAG in the file version number.
+    //
+
+    FrameBuffer fb; 
+
+    fb.insert ("F",					// name
+               Slice (FLOAT,				// type
+                      (char *) &pf1[0][0],		// base
+                      sizeof (pf1[0][0]), 		// xStride
+                      sizeof (pf1[0][0]) * width,	// yStride
+                      1,				// xSampling
+                      1)				// ySampling
+              );
+
+    cout << "only short names" << endl;
+
+    {
+	Header hdr (width, height);
+
+	hdr.channels().insert ("F",			// name
+			       Channel (FLOAT,		// type
+					1,		// xSampling
+					1)		// ySampling
+			      );
+
+
+	cout << "writing" << flush;
+
+	remove (fileName);
+	OutputFile out (fileName, hdr);
+	out.setFrameBuffer (fb);
+	out.writePixels (height);
+    }
+
+    {
+	cout << " reading" << endl;
+
+	InputFile in (fileName);
+        assert (!(in.version() & LONG_NAMES_FLAG));
+    }
+
+    static const char longName[] = "x2345678901234567890123456789012";
+
+    cout << "long attribute name" << endl;
+
+    {
+	Header hdr (width, height);
+	hdr.insert (longName, StringAttribute ("y"));
+
+	hdr.channels().insert ("F",			// name
+			       Channel (FLOAT,		// type
+					1,		// xSampling
+					1)		// ySampling
+			      );
+
+	cout << "writing" << flush;
+
+	remove (fileName);
+	OutputFile out (fileName, hdr);
+	out.setFrameBuffer (fb);
+	out.writePixels (height);
+    }
+
+    {
+	cout << " reading" << endl;
+
+	InputFile in (fileName);
+        assert (in.version() & LONG_NAMES_FLAG);
+
+	const Header &hdr = in.header();
+	assert (hdr.typedAttribute <StringAttribute> (longName).value() == "y");
+    }
+
+    cout << "long channel name" << endl;
+
+    {
+	Header hdr (width, height);
+
+	hdr.channels().insert (longName,		// name
+			       Channel (FLOAT,		// type
+					1,		// xSampling
+					1)		// ySampling
+			      );
+
+	cout << "writing" << flush;
+
+	remove (fileName);
+	OutputFile out (fileName, hdr);
+	out.setFrameBuffer (fb);
+	out.writePixels (height);
+    }
+
+    {
+	cout << " reading" << endl;
+
+	InputFile in (fileName);
+        assert (in.version() & LONG_NAMES_FLAG);
+
+	const Header &hdr = in.header();
+	assert (hdr.channels().findChannel (longName));
+    }
+
+    remove (fileName);
+    cout << endl;
+}
+
+
 } // namespace
 
 
@@ -355,6 +471,7 @@ testAttributes ()
 
 	writeReadAttr (pf, filename, W, H);
 	channelList();
+        longNames(pf, filename, W, H);
 
 	cout << "ok\n" << endl;
     }

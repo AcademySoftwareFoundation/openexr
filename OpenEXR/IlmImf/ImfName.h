@@ -79,7 +79,7 @@ class Name
     // Maximum length
     //---------------
 
-    static const int	SIZE = 32;
+    static const int	SIZE = 256;
     static const int	MAX_LENGTH = SIZE - 1;
 
   private:
