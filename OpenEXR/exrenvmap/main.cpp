@@ -96,7 +96,7 @@ usageMessage (const char argv0[], bool verbose = false)
 		"           generating the output image takes longer.\n"
 		"\n"
 		"-b         blurs the environment map image by applying a\n"
-		"           180-degree-wide filter kernel, such that point-\n"
+		"           180-degree-wide filter kernel such that point-\n"
 		"           sampling the blurred image at a location that\n"
 		"           corresponds to 3D direction N returns the color\n"
 		"           that a white diffuse reflector with surface\n"
