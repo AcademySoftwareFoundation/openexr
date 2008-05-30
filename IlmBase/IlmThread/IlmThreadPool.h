@@ -54,7 +54,7 @@
 //
 //	Note: if you plan to use the ThreadPool interface in your own
 //	applications note that the implementation of the ThreadPool calls
-//	opertor delete on tasks as they complete.  If you define a custom
+//	operator delete on tasks as they complete.  If you define a custom
 //	operator new for your tasks, for instance to use a custom heap,
 //	then you must also write an appropriate operator delete.
 //
