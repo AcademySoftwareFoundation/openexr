@@ -302,6 +302,9 @@ findEntryAndExitPoints (const Line3<T> &r,
     //     - true if the ray starts inside the box or if the
     //       ray starts outside and intersects the box
     //
+    //	   - false otherwise (that is, if the ray does not
+    //       intersect the box)
+    //
     // The entry and exit points are
     //
     //     - points on two of the faces of the box when
