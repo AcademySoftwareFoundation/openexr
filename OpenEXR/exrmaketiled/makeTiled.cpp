@@ -646,7 +646,7 @@ makeTiled (const char inFileName[],
 		    storeLevel (out, header.channels(), lx, ly, *iptr0);
 		}
 		
-		if (lx < out.numXLevels() - 1);
+		if (lx < out.numXLevels() - 1)
 		{
 		    iptr1->resize (out.dataWindowForLevel (lx + 1, ly));
 
