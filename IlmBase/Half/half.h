@@ -87,7 +87,19 @@
 
 #include <iostream>
 
-class half
+#if defined(OPENEXR_DLL)
+    #if defined(HALF_EXPORTS)
+	#define HALF_EXPORT __declspec(dllexport)
+    #else
+	#define HALF_EXPORT __declspec(dllimport)
+    #endif
+    #define HALF_EXPORT_CONST
+#else
+    #define HALF_EXPORT
+    #define HALF_EXPORT_CONST const
+#endif
+
+class HALF_EXPORT half
 {
   public:
 
@@ -215,46 +227,27 @@ class half
 
     unsigned short	_h;
 
-    //---------------------------------------------------
-    // Windows dynamic libraries don't like static
-    // member variables.
-    //---------------------------------------------------
-#ifndef OPENEXR_DLL
-    static const uif	        _toFloat[1 << 16];
-    static const unsigned short _eLut[1 << 9];
-#endif
+    static HALF_EXPORT_CONST uif	        _toFloat[1 << 16];
+    static HALF_EXPORT_CONST unsigned short _eLut[1 << 9];
 };
-
-#if defined(OPENEXR_DLL)
-    //--------------------------------------
-    // Lookup tables defined for Windows DLL
-    //--------------------------------------
-    #if defined(HALF_EXPORTS)
-        extern __declspec(dllexport) half::uif		_toFloat[1 << 16];
-        extern __declspec(dllexport) unsigned short	_eLut[1 << 9];
-    #else
-        extern __declspec(dllimport) half::uif		_toFloat[1 << 16];
-        extern __declspec(dllimport) unsigned short	_eLut[1 << 9];
-    #endif
-#endif
 
 
 //-----------
 // Stream I/O
 //-----------
 
-std::ostream &		operator << (std::ostream &os, half  h);
-std::istream &		operator >> (std::istream &is, half &h);
+HALF_EXPORT std::ostream &		operator << (std::ostream &os, half  h);
+HALF_EXPORT std::istream &		operator >> (std::istream &is, half &h);
 
 
 //----------
 // Debugging
 //----------
 
-void			printBits   (std::ostream &os, half  h);
-void			printBits   (std::ostream &os, float f);
-void			printBits   (char  c[19], half  h);
-void			printBits   (char  c[35], float f);
+HALF_EXPORT void			printBits   (std::ostream &os, half  h);
+HALF_EXPORT void			printBits   (std::ostream &os, float f);
+HALF_EXPORT void			printBits   (char  c[19], half  h);
+HALF_EXPORT void			printBits   (char  c[35], float f);
 
 
 //-------------------------------------------------------------------------
@@ -770,7 +763,5 @@ half::setBits (unsigned short bits)
 {
     _h = bits;
 }
-
-#undef HALF_EXPORT_CONST
 
 #endif
