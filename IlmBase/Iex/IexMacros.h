@@ -132,15 +132,15 @@
 //
 // Example:
 //
-//	ASSERT (NullExc, ptr != NULL, "Null pointer" );
+//	ASSERT (ptr != NULL, NullExc, "Null pointer" );
 //
 //-------------------------------------------------------------
 
 #define ASSERT(assertion, type, text)   \
     do                                  \
     {                                   \
-	if( (assertion) == false )      \
-	    THROW( type, text );        \
+	if ((assertion) == false)       \
+	    THROW (type, text);         \
     }                                   \
     while (0)
 
