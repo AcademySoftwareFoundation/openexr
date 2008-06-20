@@ -239,14 +239,18 @@ class TypedAttribute: public Attribute
 //------------------------------------
 
 template <class T>
-TypedAttribute<T>::TypedAttribute (): _value (T())
+TypedAttribute<T>::TypedAttribute ():
+    Attribute (),
+    _value (T())
 {
     // empty
 }
 
 
 template <class T>
-TypedAttribute<T>::TypedAttribute (const T &value): _value (value)
+TypedAttribute<T>::TypedAttribute (const T &value):
+    Attribute (),
+    _value (value)
 {
     // empty
 }
@@ -254,6 +258,7 @@ TypedAttribute<T>::TypedAttribute (const T &value): _value (value)
 
 template <class T>
 TypedAttribute<T>::TypedAttribute (const TypedAttribute<T> &other):
+    Attribute (other),
     _value ()
 {
     copyValueFrom (other);
