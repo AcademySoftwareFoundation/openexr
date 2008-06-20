@@ -48,9 +48,11 @@
 
 #if defined _WIN32 || defined _WIN64
     #ifdef near
+        #define _redef_near
         #undef near
     #endif
     #ifdef far
+        #define _redef_far
         #undef far
     #endif
 #endif
@@ -117,7 +119,9 @@ class Frustum
 
     bool		orthographic() const	{ return _orthographic; }
     T			near() const		{ return _near;		}
+    T           hither() const      { return _near;     }
     T			far() const		{ return _far;		}
+    T           yon() const     { return _far;      }
     T			left() const		{ return _left;		}
     T			right() const		{ return _right;	}
     T			bottom() const		{ return _bottom;	}
@@ -718,5 +722,15 @@ typedef Frustum<double> Frustumd;
 
 
 } // namespace Imath
+
+
+#if defined _WIN32 || defined _WIN64
+    #ifdef _redef_near
+        #define near
+    #endif
+    #ifdef _redef_far
+        #define far
+    #endif
+#endif
 
 #endif
