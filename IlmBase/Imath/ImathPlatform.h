@@ -32,8 +32,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-
-
 #ifndef INCLUDED_IMATHPLATFORM_H
 #define INCLUDED_IMATHPLATFORM_H
 
@@ -44,48 +42,69 @@
 //	This file contains functions and constants which aren't 
 //	provided by the system libraries, compilers, or includes on 
 //	certain platforms.
+//
 //----------------------------------------------------------------------------
 
 #include <math.h>
 
-#if defined _WIN32 || defined _WIN64
-    #ifndef M_PI
-        #define M_PI 3.14159265358979323846
-    #endif
+#ifndef M_PI
+    #define M_PI    3.14159265358979323846
 #endif
+
+#ifndef M_PI_2
+    #define M_PI_2  1.57079632679489661923 // pi/2
+#endif
+
 
 //-----------------------------------------------------------------------------
 //
-//    Fixes for the "restrict" keyword.  These #ifdef's for detecting 
-//    compiler versions courtesy of Boost's select_compiler_config.hpp; 
-//    here is the copyright notice for that file:
-//
-//    (C) Copyright Boost.org 2001. Permission to copy, use, modify, sell and
-//    and distribute this software is granted provided this copyright notice
-//    appears in all copies. This software is provided "as is" without express 
-//    or implied warranty, and with no claim as to its suitability for any 
-//    purpose.
-//
-//    Some compilers support "restrict", in which case we do nothing.
-//    Other compilers support some variant of it (e.g. "__restrict").
-//    If we don't know anything about the compiler, we define "restrict"
-//    to be a no-op.
+//    Some, but not all, C++ compilers support the C99 restrict
+//    keyword or some variant of it, for example, __restrict.
 //
 //-----------------------------------------------------------------------------
 
 #if defined __GNUC__
-    #if !defined(restrict)
-    	#define restrict __restrict
-    #endif
 
-#elif defined(__INTEL_COMPILER) || defined(__ICL) || defined(__ICC) || defined(__ECC)
-    // supports restrict, do nothing.
+    //
+    // supports __restrict
+    //
+
+    #define IMATH_RESTRICT __restrict
+
+#elif defined (__INTEL_COMPILER) || \
+      defined(__ICL) || \
+      defined(__ICC) || \
+      defined(__ECC)
+
+    //
+    // supports restrict
+    //
+
+    #define IMATH_RESTRICT restrict
 
 #elif defined __sgi
-    // supports restrict, do nothing.
+
+    //
+    // supports restrict
+    //
+
+    #define IMATH_RESTRICT restrict
+
+#elif defined _MSC_VER
+
+    //
+    // supports __restrict
+    //
+
+    #define IMATH_RESTRICT __restrict
 
 #else
-    #define restrict
+
+    //
+    // restrict / __restrict not supported
+    //
+
+    #define IMATH_RESTRICT
 
 #endif
 
