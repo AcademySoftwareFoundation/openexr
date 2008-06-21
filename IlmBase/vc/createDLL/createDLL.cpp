@@ -413,7 +413,8 @@ static void getLibsFromMap(char* buf, const int length, set<string>& libs)
                 ++lineend;
 
                 if (lineend != 0) {
-                    *lineend = '\0';
+                   char *le = lineend; // copy pointer as it will change before we write back the \n here!
+                    *le = '\0';
 
                     char* owner = strchr(end, ':');
 
@@ -423,41 +424,28 @@ static void getLibsFromMap(char* buf, const int length, set<string>& libs)
                         // if the symbol came from an obj, it is an export
                         if (*(lineend-3) == 'd' && *(lineend-2) == 'l' && *(lineend-1) == 'l') {
 
-                            bool accept = true;
-                            int filterNum = 0;
-
-                            while (accept && filterSymbols[filterNum] != 0) {
-                                if (0 != strstr(buf, filterSymbols[filterNum])) {
-                                    accept = false;
-                                }
-                                ++filterNum;
+                            lineend = lineend - 6;  // point one character before ".dll"
+                            while (!isWhitespace(*lineend))
+                            {
+                                --lineend;
                             }
+                            ++lineend;
 
-                            if (accept) {
-                                lineend = lineend - 6;  // point one character before ".dll"
-                                while (!isWhitespace(*lineend))
-                                {
-                                    --lineend;
-                                }
-                                ++lineend;
-
-                                // if the object isn't in the set, add it
-                                string object(lineend);
-                                string::size_type pos = object.find(':');
-                                object = object.substr(0, pos) + ".lib";
-                                if (libs.find(object) == libs.end())
-                                {
-                                    libs.insert(object);
-                                }
+                            // if the object isn't in the set, add it
+                            string object(lineend);
+                            string::size_type pos = object.find(':');
+                            object = object.substr(0, pos) + ".lib";
+                            if (libs.find(object) == libs.end())
+                            {
+                                libs.insert(object);
                             }
                         }
                     }
-                    *lineend = '\n';
+                    *le = '\n';
                 }
             }
             buf = end;
         }
-
     }
 }
 
@@ -525,7 +513,8 @@ static void getObjsFromMap(char* buf, const int length, set<string>& objs)
                 ++lineend;
 
                 if (lineend != 0) {
-                    *lineend = '\0';
+                   char *le = lineend; // copy pointer as it will change before we write back the \n here!
+                    *le = '\0';
 
                     char* owner = strchr(end, ':');
 
@@ -535,33 +524,22 @@ static void getObjsFromMap(char* buf, const int length, set<string>& objs)
                         // if the symbol came from an obj, it is an export
                         if (*(lineend-3) == 'o' && *(lineend-2) == 'b' && *(lineend-1) == 'j') {
 
-                            bool accept = true;
-                            int filterNum = 0;
-                            while (accept && filterSymbols[filterNum] != 0) {
-                                if (0 != strstr(buf, filterSymbols[filterNum])) {
-                                    accept = false;
-                                }
-                                ++filterNum;
+                            lineend = lineend - 6;  // point one character before ".obj"
+                            while (!isWhitespace(*lineend))
+                            {
+                                --lineend;
                             }
+                            ++lineend;
 
-                            if (accept) {
-                                lineend = lineend - 6;  // point one character before ".obj"
-                                while (!isWhitespace(*lineend))
-                                {
-                                    --lineend;
-                                }
-                                ++lineend;
-
-                                // if the object isn't in the set, add it
-                                string object(lineend);
-                                if (objs.find(object) == objs.end())
-                                {
-                                    objs.insert(object);
-                                }
+                            // if the object isn't in the set, add it
+                            string object(lineend);
+                            if (objs.find(object) == objs.end())
+                            {
+                                objs.insert(object);
                             }
                         }
                     }
-                    *lineend = '\n';
+                    *le = '\n';
                 }
             }
             buf = end;
