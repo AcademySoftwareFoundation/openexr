@@ -312,16 +312,16 @@ void Frustum<T>::set(T near, T far, T fovx, T fovy, T aspect)
 
     if (fovx != 0)
     {
-	_right	    = near * Math<T>::tan(fovx/2.0);
+	_right	    = near * Math<T>::tan (fovx / 2);
 	_left	    = -_right;
-	_top	    = ((_right - _left)/aspect)/2.0;
+	_top	    = ((_right - _left) / aspect) / 2;
 	_bottom	    = -_top;
     }
     else
     {
-	_top	    = near * Math<T>::tan(fovy/2.0);
+	_top	    = near * Math<T>::tan (fovy / 2);
 	_bottom	    = -_top;
-	_right	    = (_top - _bottom) * aspect / 2.0;
+	_right	    = (_top - _bottom) * aspect / 2;
 	_left	    = -_right;
     }
     _near	    = near;
