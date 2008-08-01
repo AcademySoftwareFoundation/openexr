@@ -38,6 +38,7 @@
 #include "ImathMatrixAlgo.h"
 #include "ImathFun.h"
 #include "ImathLimits.h"
+#include "ImathPlatform.h" /* [i_a] M_PI_2 */
 #include <iostream>
 #include <cassert>
 #include <cmath>
