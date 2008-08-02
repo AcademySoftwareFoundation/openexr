@@ -1,3 +1,8 @@
+	* Copy constructors and assignment operators for Matrix33<T>
+	  and Matrix44<T> are up to 25% faster.  Added matrix constructors
+	  that do not initialize the matrix (this is faster in cases where
+	  the initial value of the matrix is immediately overwritten anyway).
+	  (Nick Porcino)
 	* Rewrote function closestPointOnBox(point,box).  Shortened
 	  the code, improved numerical accuracy, fixed a bug where
 	  closestPointOnBox(box.center(),box) would always return
