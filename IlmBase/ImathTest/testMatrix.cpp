@@ -39,11 +39,13 @@
 #include "ImathVec.h"
 #include "ImathLimits.h"
 #include "ImathMath.h"
+#include "ImathInt64.h"
 #include <iostream>
 #include <assert.h>
 
 
 using namespace std;
+using Imath::Int64;
 
 
 //
@@ -56,36 +58,143 @@ using namespace std;
 // or are more convenient to test from C++.
 //
 
-
 void
 testMatrix ()
 {
     cout << "Testing functions in ImathMatrix.h" << endl;
 
-    cout << "Imath::Matrix33 shear functions" << endl;
+    union {float f; int i;} nanf;
+    nanf.i = 0x7f800001; //  NAN
 
-    Imath::M33f    m1, m2;
-    m1.setShear (2.0f);
-    assert ( m1[0][0] == 1.0f  &&  m1[0][1] == 0.0f  &&  m1[0][2] == 0.0f  &&
-	     m1[1][0] == 2.0f  &&  m1[1][1] == 1.0f  &&  m1[1][2] == 0.0f  &&
-	     m1[2][0] == 0.0f  &&  m1[2][1] == 0.0f  &&  m1[2][2] == 1.0f );
-    
-    m2.setShear (Imath::V2f (3.0f, 4.0f));
-    assert ( m2[0][0] == 1.0f  &&  m2[0][1] == 4.0f  &&  m2[0][2] == 0.0f  &&
-	     m2[1][0] == 3.0f  &&  m2[1][1] == 1.0f  &&  m2[1][2] == 0.0f  &&
-	     m2[2][0] == 0.0f  &&  m2[2][1] == 0.0f  &&  m2[2][2] == 1.0f );
-    
-    
-    m1.shear (Imath::V2f (5.0f, 6.0f));
-    assert ( m1[0][0] == 13.0f  &&  m1[0][1] == 6.0f  &&  m1[0][2] == 0.0f  &&
-	     m1[1][0] ==  7.0f  &&  m1[1][1] == 1.0f  &&  m1[1][2] == 0.0f  &&
-	     m1[2][0] ==  0.0f  &&  m1[2][1] == 0.0f  &&  m1[2][2] == 1.0f );
-    
-    m2.shear (7.0f);
-    assert ( m2[0][0] ==  1.0f  &&  m2[0][1] ==  4.0f  &&  m2[0][2] == 0.0f  &&
-	     m2[1][0] == 10.0f  &&  m2[1][1] == 29.0f  &&  m2[1][2] == 0.0f  &&
-	     m2[2][0] ==  0.0f  &&  m2[2][1] ==  0.0f  &&  m2[2][2] == 1.0f );
-    
+    union {double d; Int64 i;} nand;
+    nand.i = 0x7ff0000000000001ULL; //  NAN
+
+    {
+	cout << "Imath::M33f shear functions" << endl;
+
+	Imath::M33f m1, m2;
+	m1.setShear (2.0f);
+	assert
+	   (m1[0][0] == 1.0f  &&  m1[0][1] == 0.0f  &&  m1[0][2] == 0.0f  &&
+	    m1[1][0] == 2.0f  &&  m1[1][1] == 1.0f  &&  m1[1][2] == 0.0f  &&
+	    m1[2][0] == 0.0f  &&  m1[2][1] == 0.0f  &&  m1[2][2] == 1.0f);
+
+	m2.setShear (Imath::V2f (3.0f, 4.0f));
+	assert
+	   (m2[0][0] == 1.0f  &&  m2[0][1] == 4.0f  &&  m2[0][2] == 0.0f  &&
+	    m2[1][0] == 3.0f  &&  m2[1][1] == 1.0f  &&  m2[1][2] == 0.0f  &&
+	    m2[2][0] == 0.0f  &&  m2[2][1] == 0.0f  &&  m2[2][2] == 1.0f);
+
+
+	m1.shear (Imath::V2f (5.0f, 6.0f));
+	assert
+	   (m1[0][0] == 13.0f  &&  m1[0][1] == 6.0f  &&  m1[0][2] == 0.0f  &&
+	    m1[1][0] ==  7.0f  &&  m1[1][1] == 1.0f  &&  m1[1][2] == 0.0f  &&
+	    m1[2][0] ==  0.0f  &&  m1[2][1] == 0.0f  &&  m1[2][2] == 1.0f);
+
+	m2.shear (7.0f);
+	assert
+	   (m2[0][0] ==  1.0f  &&  m2[0][1] ==  4.0f  &&  m2[0][2] == 0.0f  &&
+	    m2[1][0] == 10.0f  &&  m2[1][1] == 29.0f  &&  m2[1][2] == 0.0f  &&
+	    m2[2][0] ==  0.0f  &&  m2[2][1] ==  0.0f  &&  m2[2][2] == 1.0f);
+
+	cout << "M33f constructors and equality operators" << endl;
+
+	Imath::M33f test(m2);
+	assert(test == m2);
+
+	Imath::M33f test2;
+	assert(test != test2);
+
+	Imath::M33f test3;
+	test3.makeIdentity();
+	assert(test2 == test3);
+    }
+
+    {
+	cout << "M33d constructors and equality operators" << endl;
+
+	Imath::M33d m2;
+	m2[0][0] = 99.0f;
+	m2[1][2] = 101.0f;
+
+	Imath::M33d test(m2);
+	assert(test == m2);
+
+	Imath::M33d test2;
+	assert(test != test2);
+
+	Imath::M33d test3;
+	test3.makeIdentity();
+	assert(test2 == test3);
+    }
+
+    {
+	Imath::M44f m2;
+	m2[0][0] = 99.0f;
+	m2[1][2] = 101.0f;
+
+	cout << "M44f constructors and equality operators" << endl;
+
+	Imath::M44f test(m2);
+	assert(test == m2);
+
+	Imath::M44f test2;
+	assert(test != test2);
+
+	Imath::M44f test3;
+	test3.makeIdentity();
+	assert(test2 == test3);
+
+	//
+	// Test non-equality when a NAN is in the same
+	// place in two identical matrices
+	//
+
+	test2[0][0] = nanf.f;
+	test3 = test2;
+	assert(test2 != test3);
+    }
+
+    {
+	Imath::M44d m2;
+	m2[0][0] = 99.0f;
+	m2[1][2] = 101.0f;
+
+	cout << "M44d constructors and equality operators" << endl;
+
+	Imath::M44d test(m2);
+	assert(test == m2);
+
+	Imath::M44d test2;
+	assert(test != test2);
+
+	Imath::M44d test3;
+	test3.makeIdentity();
+	assert(test2 == test3);
+
+	//
+	// Test non-equality when a NAN is in the same
+	// place in two identical matrices
+	//
+
+	test2[0][0] = nand.d;
+	test3 = test2;
+	assert(test2 != test3);
+    }
+
+    {
+	cout << "Converting between M33 and M44" << endl;
+
+	Imath::M44d m1;
+	m1[0][0] = 99;
+	Imath::M44f m2;
+	m2.setValue(m1);
+	assert(m2[0][0] == (float)m1[0][0]);
+	m1[0][0] = 101;
+	m1.setValue(m2);
+	assert(m2[0][0] == (float)m1[0][0]);
+    }
 
     cout << "ok\n" << endl;
 }

@@ -60,6 +60,8 @@
 
 namespace Imath {
 
+enum Uninitialized {UNINITIALIZED};
+
 
 template <class T> class Matrix33
 {
@@ -78,6 +80,8 @@ template <class T> class Matrix33
     //-------------
     // Constructors
     //-------------
+
+    Matrix33 (Uninitialized) {}
 
     Matrix33 ();
 				// 1 0 0
@@ -364,6 +368,20 @@ template <class T> class Matrix33
     static T		baseTypeMax()		{return limits<T>::max();}
     static T		baseTypeSmallest()	{return limits<T>::smallest();}
     static T		baseTypeEpsilon()	{return limits<T>::epsilon();}
+
+  private:
+
+    template <typename R, typename S>
+    struct isSameType
+    {
+	enum {value = 0};
+    };
+
+    template <typename R>
+    struct isSameType<R, R>
+    {
+	enum {value = 1};
+    };
 };
 
 
@@ -384,6 +402,8 @@ template <class T> class Matrix44
     //-------------
     // Constructors
     //-------------
+
+    Matrix44 (Uninitialized) {}
 
     Matrix44 ();
 				// 1 0 0 0
@@ -710,6 +730,20 @@ template <class T> class Matrix44
     static T		baseTypeMax()		{return limits<T>::max();}
     static T		baseTypeSmallest()	{return limits<T>::smallest();}
     static T		baseTypeEpsilon()	{return limits<T>::epsilon();}
+
+  private:
+
+    template <typename R, typename S>
+    struct isSameType
+    {
+	enum {value = 0};
+    };
+
+    template <typename R>
+    struct isSameType<R, R>
+    {
+	enum {value = 1};
+    };
 };
 
 
@@ -779,14 +813,9 @@ template <class T>
 inline
 Matrix33<T>::Matrix33 ()
 {
+    memset (x, 0, sizeof (x));
     x[0][0] = 1;
-    x[0][1] = 0;
-    x[0][2] = 0;
-    x[1][0] = 0;
     x[1][1] = 1;
-    x[1][2] = 0;
-    x[2][0] = 0;
-    x[2][1] = 0;
     x[2][2] = 1;
 }
 
@@ -809,15 +838,7 @@ template <class T>
 inline
 Matrix33<T>::Matrix33 (const T a[3][3]) 
 {
-    x[0][0] = a[0][0];
-    x[0][1] = a[0][1];
-    x[0][2] = a[0][2];
-    x[1][0] = a[1][0];
-    x[1][1] = a[1][1];
-    x[1][2] = a[1][2];
-    x[2][0] = a[2][0];
-    x[2][1] = a[2][1];
-    x[2][2] = a[2][2];
+    memcpy (x, a, sizeof (x));
 }
 
 template <class T>
@@ -839,30 +860,14 @@ template <class T>
 inline
 Matrix33<T>::Matrix33 (const Matrix33 &v)
 {
-    x[0][0] = v.x[0][0];
-    x[0][1] = v.x[0][1];
-    x[0][2] = v.x[0][2];
-    x[1][0] = v.x[1][0];
-    x[1][1] = v.x[1][1];
-    x[1][2] = v.x[1][2];
-    x[2][0] = v.x[2][0];
-    x[2][1] = v.x[2][1];
-    x[2][2] = v.x[2][2];
+    memcpy (x, v.x, sizeof (x));
 }
 
 template <class T>
 inline const Matrix33<T> &
 Matrix33<T>::operator = (const Matrix33 &v)
 {
-    x[0][0] = v.x[0][0];
-    x[0][1] = v.x[0][1];
-    x[0][2] = v.x[0][2];
-    x[1][0] = v.x[1][0];
-    x[1][1] = v.x[1][1];
-    x[1][2] = v.x[1][2];
-    x[2][0] = v.x[2][0];
-    x[2][1] = v.x[2][1];
-    x[2][2] = v.x[2][2];
+    memcpy (x, v.x, sizeof (x));
     return *this;
 }
 
@@ -901,15 +906,22 @@ template <class S>
 inline void
 Matrix33<T>::getValue (Matrix33<S> &v) const
 {
-    v.x[0][0] = x[0][0];
-    v.x[0][1] = x[0][1];
-    v.x[0][2] = x[0][2];
-    v.x[1][0] = x[1][0];
-    v.x[1][1] = x[1][1];
-    v.x[1][2] = x[1][2];
-    v.x[2][0] = x[2][0];
-    v.x[2][1] = x[2][1];
-    v.x[2][2] = x[2][2];
+    if (isSameType<S,T>::value)
+    {
+	memcpy (v.x, x, sizeof (x));
+    }
+    else
+    {
+	v.x[0][0] = x[0][0];
+	v.x[0][1] = x[0][1];
+	v.x[0][2] = x[0][2];
+	v.x[1][0] = x[1][0];
+	v.x[1][1] = x[1][1];
+	v.x[1][2] = x[1][2];
+	v.x[2][0] = x[2][0];
+	v.x[2][1] = x[2][1];
+	v.x[2][2] = x[2][2];
+    }
 }
 
 template <class T>
@@ -917,15 +929,23 @@ template <class S>
 inline Matrix33<T> &
 Matrix33<T>::setValue (const Matrix33<S> &v)
 {
-    x[0][0] = v.x[0][0];
-    x[0][1] = v.x[0][1];
-    x[0][2] = v.x[0][2];
-    x[1][0] = v.x[1][0];
-    x[1][1] = v.x[1][1];
-    x[1][2] = v.x[1][2];
-    x[2][0] = v.x[2][0];
-    x[2][1] = v.x[2][1];
-    x[2][2] = v.x[2][2];
+    if (isSameType<S,T>::value)
+    {
+	memcpy (x, v.x, sizeof (x));
+    }
+    else
+    {
+	x[0][0] = v.x[0][0];
+	x[0][1] = v.x[0][1];
+	x[0][2] = v.x[0][2];
+	x[1][0] = v.x[1][0];
+	x[1][1] = v.x[1][1];
+	x[1][2] = v.x[1][2];
+	x[2][0] = v.x[2][0];
+	x[2][1] = v.x[2][1];
+	x[2][2] = v.x[2][2];
+    }
+
     return *this;
 }
 
@@ -934,15 +954,23 @@ template <class S>
 inline Matrix33<T> &
 Matrix33<T>::setTheMatrix (const Matrix33<S> &v)
 {
-    x[0][0] = v.x[0][0];
-    x[0][1] = v.x[0][1];
-    x[0][2] = v.x[0][2];
-    x[1][0] = v.x[1][0];
-    x[1][1] = v.x[1][1];
-    x[1][2] = v.x[1][2];
-    x[2][0] = v.x[2][0];
-    x[2][1] = v.x[2][1];
-    x[2][2] = v.x[2][2];
+    if (isSameType<S,T>::value)
+    {
+	memcpy (x, v.x, sizeof (x));
+    }
+    else
+    {
+	x[0][0] = v.x[0][0];
+	x[0][1] = v.x[0][1];
+	x[0][2] = v.x[0][2];
+	x[1][0] = v.x[1][0];
+	x[1][1] = v.x[1][1];
+	x[1][2] = v.x[1][2];
+	x[2][0] = v.x[2][0];
+	x[2][1] = v.x[2][1];
+	x[2][2] = v.x[2][2];
+    }
+
     return *this;
 }
 
@@ -950,14 +978,9 @@ template <class T>
 inline void
 Matrix33<T>::makeIdentity()
 {
+    memset (x, 0, sizeof (x));
     x[0][0] = 1;
-    x[0][1] = 0;
-    x[0][2] = 0;
-    x[1][0] = 0;
     x[1][1] = 1;
-    x[1][2] = 0;
-    x[2][0] = 0;
-    x[2][1] = 0;
     x[2][2] = 1;
 }
 
@@ -1575,16 +1598,9 @@ template <class T>
 const Matrix33<T> &
 Matrix33<T>::setScale (T s)
 {
+    memset (x, 0, sizeof (x));
     x[0][0] = s;
-    x[0][1] = 0;
-    x[0][2] = 0;
-
-    x[1][0] = 0;
     x[1][1] = s;
-    x[1][2] = 0;
-
-    x[2][0] = 0;
-    x[2][1] = 0;
     x[2][2] = 1;
 
     return *this;
@@ -1595,16 +1611,9 @@ template <class S>
 const Matrix33<T> &
 Matrix33<T>::setScale (const Vec2<S> &s)
 {
+    memset (x, 0, sizeof (x));
     x[0][0] = s[0];
-    x[0][1] = 0;
-    x[0][2] = 0;
-
-    x[1][0] = 0;
     x[1][1] = s[1];
-    x[1][2] = 0;
-
-    x[2][0] = 0;
-    x[2][1] = 0;
     x[2][2] = 1;
 
     return *this;
@@ -1764,21 +1773,10 @@ template <class T>
 inline
 Matrix44<T>::Matrix44 ()
 {
+    memset (x, 0, sizeof (x));
     x[0][0] = 1;
-    x[0][1] = 0;
-    x[0][2] = 0;
-    x[0][3] = 0;
-    x[1][0] = 0;
     x[1][1] = 1;
-    x[1][2] = 0;
-    x[1][3] = 0;
-    x[2][0] = 0;
-    x[2][1] = 0;
     x[2][2] = 1;
-    x[2][3] = 0;
-    x[3][0] = 0;
-    x[3][1] = 0;
-    x[3][2] = 0;
     x[3][3] = 1;
 }
 
@@ -1808,22 +1806,7 @@ template <class T>
 inline
 Matrix44<T>::Matrix44 (const T a[4][4]) 
 {
-    x[0][0] = a[0][0];
-    x[0][1] = a[0][1];
-    x[0][2] = a[0][2];
-    x[0][3] = a[0][3];
-    x[1][0] = a[1][0];
-    x[1][1] = a[1][1];
-    x[1][2] = a[1][2];
-    x[1][3] = a[1][3];
-    x[2][0] = a[2][0];
-    x[2][1] = a[2][1];
-    x[2][2] = a[2][2];
-    x[2][3] = a[2][3];
-    x[3][0] = a[3][0];
-    x[3][1] = a[3][1];
-    x[3][2] = a[3][2];
-    x[3][3] = a[3][3];
+    memcpy (x, a, sizeof (x));
 }
 
 template <class T>
@@ -1959,22 +1942,29 @@ template <class S>
 inline void
 Matrix44<T>::getValue (Matrix44<S> &v) const
 {
-    v.x[0][0] = x[0][0];
-    v.x[0][1] = x[0][1];
-    v.x[0][2] = x[0][2];
-    v.x[0][3] = x[0][3];
-    v.x[1][0] = x[1][0];
-    v.x[1][1] = x[1][1];
-    v.x[1][2] = x[1][2];
-    v.x[1][3] = x[1][3];
-    v.x[2][0] = x[2][0];
-    v.x[2][1] = x[2][1];
-    v.x[2][2] = x[2][2];
-    v.x[2][3] = x[2][3];
-    v.x[3][0] = x[3][0];
-    v.x[3][1] = x[3][1];
-    v.x[3][2] = x[3][2];
-    v.x[3][3] = x[3][3];
+    if (isSameType<S,T>::value)
+    {
+	memcpy (v.x, x, sizeof (x));
+    }
+    else
+    {
+	v.x[0][0] = x[0][0];
+	v.x[0][1] = x[0][1];
+	v.x[0][2] = x[0][2];
+	v.x[0][3] = x[0][3];
+	v.x[1][0] = x[1][0];
+	v.x[1][1] = x[1][1];
+	v.x[1][2] = x[1][2];
+	v.x[1][3] = x[1][3];
+	v.x[2][0] = x[2][0];
+	v.x[2][1] = x[2][1];
+	v.x[2][2] = x[2][2];
+	v.x[2][3] = x[2][3];
+	v.x[3][0] = x[3][0];
+	v.x[3][1] = x[3][1];
+	v.x[3][2] = x[3][2];
+	v.x[3][3] = x[3][3];
+    }
 }
 
 template <class T>
@@ -1982,22 +1972,30 @@ template <class S>
 inline Matrix44<T> &
 Matrix44<T>::setValue (const Matrix44<S> &v)
 {
-    x[0][0] = v.x[0][0];
-    x[0][1] = v.x[0][1];
-    x[0][2] = v.x[0][2];
-    x[0][3] = v.x[0][3];
-    x[1][0] = v.x[1][0];
-    x[1][1] = v.x[1][1];
-    x[1][2] = v.x[1][2];
-    x[1][3] = v.x[1][3];
-    x[2][0] = v.x[2][0];
-    x[2][1] = v.x[2][1];
-    x[2][2] = v.x[2][2];
-    x[2][3] = v.x[2][3];
-    x[3][0] = v.x[3][0];
-    x[3][1] = v.x[3][1];
-    x[3][2] = v.x[3][2];
-    x[3][3] = v.x[3][3];
+    if (isSameType<S,T>::value)
+    {
+	memcpy (x, v.x, sizeof (x));
+    }
+    else
+    {
+	x[0][0] = v.x[0][0];
+	x[0][1] = v.x[0][1];
+	x[0][2] = v.x[0][2];
+	x[0][3] = v.x[0][3];
+	x[1][0] = v.x[1][0];
+	x[1][1] = v.x[1][1];
+	x[1][2] = v.x[1][2];
+	x[1][3] = v.x[1][3];
+	x[2][0] = v.x[2][0];
+	x[2][1] = v.x[2][1];
+	x[2][2] = v.x[2][2];
+	x[2][3] = v.x[2][3];
+	x[3][0] = v.x[3][0];
+	x[3][1] = v.x[3][1];
+	x[3][2] = v.x[3][2];
+	x[3][3] = v.x[3][3];
+    }
+
     return *this;
 }
 
@@ -2006,22 +2004,30 @@ template <class S>
 inline Matrix44<T> &
 Matrix44<T>::setTheMatrix (const Matrix44<S> &v)
 {
-    x[0][0] = v.x[0][0];
-    x[0][1] = v.x[0][1];
-    x[0][2] = v.x[0][2];
-    x[0][3] = v.x[0][3];
-    x[1][0] = v.x[1][0];
-    x[1][1] = v.x[1][1];
-    x[1][2] = v.x[1][2];
-    x[1][3] = v.x[1][3];
-    x[2][0] = v.x[2][0];
-    x[2][1] = v.x[2][1];
-    x[2][2] = v.x[2][2];
-    x[2][3] = v.x[2][3];
-    x[3][0] = v.x[3][0];
-    x[3][1] = v.x[3][1];
-    x[3][2] = v.x[3][2];
-    x[3][3] = v.x[3][3];
+    if (isSameType<S,T>::value)
+    {
+	memcpy (x, v.x, sizeof (x));
+    }
+    else
+    {
+	x[0][0] = v.x[0][0];
+	x[0][1] = v.x[0][1];
+	x[0][2] = v.x[0][2];
+	x[0][3] = v.x[0][3];
+	x[1][0] = v.x[1][0];
+	x[1][1] = v.x[1][1];
+	x[1][2] = v.x[1][2];
+	x[1][3] = v.x[1][3];
+	x[2][0] = v.x[2][0];
+	x[2][1] = v.x[2][1];
+	x[2][2] = v.x[2][2];
+	x[2][3] = v.x[2][3];
+	x[3][0] = v.x[3][0];
+	x[3][1] = v.x[3][1];
+	x[3][2] = v.x[3][2];
+	x[3][3] = v.x[3][3];
+    }
+
     return *this;
 }
 
@@ -2029,21 +2035,10 @@ template <class T>
 inline void
 Matrix44<T>::makeIdentity()
 {
+    memset (x, 0, sizeof (x));
     x[0][0] = 1;
-    x[0][1] = 0;
-    x[0][2] = 0;
-    x[0][3] = 0;
-    x[1][0] = 0;
     x[1][1] = 1;
-    x[1][2] = 0;
-    x[1][3] = 0;
-    x[2][0] = 0;
-    x[2][1] = 0;
     x[2][2] = 1;
-    x[2][3] = 0;
-    x[3][0] = 0;
-    x[3][1] = 0;
-    x[3][2] = 0;
     x[3][3] = 1;
 }
 
@@ -2862,24 +2857,10 @@ template <class T>
 const Matrix44<T> &
 Matrix44<T>::setScale (T s)
 {
+    memset (x, 0, sizeof (x));
     x[0][0] = s;
-    x[0][1] = 0;
-    x[0][2] = 0;
-    x[0][3] = 0;
-
-    x[1][0] = 0;
     x[1][1] = s;
-    x[1][2] = 0;
-    x[1][3] = 0;
-
-    x[2][0] = 0;
-    x[2][1] = 0;
     x[2][2] = s;
-    x[2][3] = 0;
-
-    x[3][0] = 0;
-    x[3][1] = 0;
-    x[3][2] = 0;
     x[3][3] = 1;
 
     return *this;
@@ -2890,24 +2871,10 @@ template <class S>
 const Matrix44<T> &
 Matrix44<T>::setScale (const Vec3<S> &s)
 {
+    memset (x, 0, sizeof (x));
     x[0][0] = s[0];
-    x[0][1] = 0;
-    x[0][2] = 0;
-    x[0][3] = 0;
-
-    x[1][0] = 0;
     x[1][1] = s[1];
-    x[1][2] = 0;
-    x[1][3] = 0;
-
-    x[2][0] = 0;
-    x[2][1] = 0;
     x[2][2] = s[2];
-    x[2][3] = 0;
-
-    x[3][0] = 0;
-    x[3][1] = 0;
-    x[3][2] = 0;
     x[3][3] = 1;
 
     return *this;
