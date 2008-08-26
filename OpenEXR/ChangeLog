@@ -1,3 +1,6 @@
+	* Updated standard chromaticities in ImfAcesFile.cpp to match
+	  final ACES (Academy Color Encoding Specification) document.
+	  (Florian Kainz)
 	* Added worldToCamera and worldToNDC matrices to
 	  ImfStandardAttributes.h (Florian Kainz)
 	* Increased the maximum length of attribute and channel names
