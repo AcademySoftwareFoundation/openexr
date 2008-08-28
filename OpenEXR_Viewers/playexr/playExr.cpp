@@ -1002,7 +1002,7 @@ drawStringWithBorder (GLfloat x, GLfloat y, const char str[])
     drawString (x + 1, y + 1, str);
     glLineWidth (2);
     glColor4f (0.8, 0.8, 0.8, 1);
-    drawString (y, y, str);
+    drawString (x, y, str);
     glDisable (GL_LINE_SMOOTH);
     glDisable (GL_BLEND);
 }
