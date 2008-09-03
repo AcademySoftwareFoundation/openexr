@@ -287,9 +287,9 @@ Rand48::init (unsigned long int seed)
 {
     seed = (seed * 0xa5a573a5L) ^ 0x5a5a5a5aL;
 
-    _state[0] = (unsigned short int) (seed);
-    _state[1] = (unsigned short int) (seed >> 16);
-    _state[2] = (unsigned short int) (seed);
+    _state[0] = (unsigned short int) (seed & 0xFFFF);
+    _state[1] = (unsigned short int) ((seed >> 16) & 0xFFFF);
+    _state[2] = (unsigned short int) (seed & 0xFFFF);   
 }
 
 
