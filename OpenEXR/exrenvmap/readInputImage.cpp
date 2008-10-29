@@ -35,8 +35,8 @@
 
 //-----------------------------------------------------------------------------
 //
-//	function readInputImage() --
-//	reads an image file and constructs an EnvMapImage object
+//      function readInputImage() --
+//      reads an image file and constructs an EnvMapImage object
 //
 //-----------------------------------------------------------------------------
 
@@ -46,8 +46,10 @@
 #include <ImfStandardAttributes.h>
 #include <EnvmapImage.h>
 #include "Iex.h"
+#include "IexMacros.h"
 #include <iostream>
-//#include <algorithm>
+#include <string>
+#include <string.h>
 
 
 using namespace std;
@@ -55,14 +57,17 @@ using namespace Imf;
 using namespace Imath;
 
 
+namespace {
+
 void
-readInputImage (const char inFileName[],
-		float padTop,
-		float padBottom,
-		bool verbose,
-		EnvmapImage &image,
-		Header &header,
-		RgbaChannels &channels)
+readSingleImage (const char inFileName[],
+                 float padTop,
+                 float padBottom,
+                 Envmap overrideType,
+                 bool verbose,
+                 EnvmapImage &image,
+                 Header &header,
+                 RgbaChannels &channels)
 {
     //
     // Read the input image, and if necessary,
@@ -72,7 +77,7 @@ readInputImage (const char inFileName[],
     RgbaInputFile in (inFileName);
 
     if (verbose)
-	cout << "reading file " << inFileName << endl;
+        cout << "reading file " << inFileName << endl;
 
     header = in.header();
     channels = in.channels();
@@ -80,7 +85,14 @@ readInputImage (const char inFileName[],
     Envmap type = ENVMAP_LATLONG;
 
     if (hasEnvmap (in.header()))
-	type = envmap (in.header());
+        type = envmap (in.header());
+
+    if (overrideType == ENVMAP_LATLONG ||
+        overrideType == ENVMAP_CUBE)
+    {
+        type = overrideType;
+        addEnvmap (header, overrideType);
+    }
 
     const Box2i &dw = in.dataWindow();
     int w = dw.max.x - dw.min.x + 1;
@@ -91,12 +103,12 @@ readInputImage (const char inFileName[],
 
     if (type == ENVMAP_LATLONG)
     {
-	pt = int (padTop * h + 0.5f);
-	pb = int (padBottom * h + 0.5f);
+        pt = int (padTop * h + 0.5f);
+        pb = int (padBottom * h + 0.5f);
     }
 
     Box2i paddedDw (V2i (dw.min.x, dw.min.y - pt),
-		    V2i (dw.max.x, dw.max.y + pb));
+                    V2i (dw.max.x, dw.max.y + pb));
     
     image.resize (type, paddedDw);
     Array2D<Rgba> &pixels = image.pixels();
@@ -105,12 +117,119 @@ readInputImage (const char inFileName[],
     in.readPixels (dw.min.y, dw.max.y);
 
     for (int y = 0; y < pt; ++y)
-	for (int x = 0; x < w; ++x)
-	    pixels[y][x] = pixels[pt][x];
+        for (int x = 0; x < w; ++x)
+            pixels[y][x] = pixels[pt][x];
 
     for (int y = h + pt; y < h + pt + pb; ++y)
     {
-	for (int x = 0; x < w; ++x)
-	    pixels[y][x] = pixels[h + pt - 1][x];
+        for (int x = 0; x < w; ++x)
+            pixels[y][x] = pixels[h + pt - 1][x];
+    }
+}
+
+
+void
+readSixImages (const char inFileName[],
+               bool verbose,
+               EnvmapImage &image,
+               Header &header,
+               RgbaChannels &channels)
+{
+    //
+    // Generate six file names by replacing the first '%' character in
+    // inFileName with +X, -X, ... -Z.  Interpreting the corresponding
+    // image files as the six sides of a cube, assembe a single cube-
+    // face map image.
+    //
+
+    static const char *faceNames[] =
+        {"+X", "-X", "+Y", "-Y", "+Z", "-Z"};
+
+    size_t pos = strchr (inFileName, '%') - inFileName;
+    string name = string(inFileName).replace (pos, 1, faceNames[0]);
+
+    Box2i dw;
+    int w, h;
+
+    {
+        RgbaInputFile in (name.c_str());
+
+        if (verbose)
+            cout << "reading cube face size from file " << name << endl;
+
+        dw = in.dataWindow();
+        w = dw.max.x - dw.min.x + 1;
+        h = dw.max.y - dw.min.y + 1;
+
+        if (w != h)
+        {
+            THROW (Iex::InputExc,
+                   "Cube face image " << name << " is not square.");
+        }
+
+        header = in.header();
+        channels = in.channels();
+        addEnvmap (header, ENVMAP_CUBE);
+    }
+
+    const Box2i imageDw (V2i (0, 0), V2i (w - 1, 6 * h - 1));
+
+    image.resize (ENVMAP_CUBE, imageDw);
+    Rgba *pixels = &(image.pixels()[0][0]);
+
+    for (int i = 0; i < 6; ++i)
+    {
+        string name = string(inFileName).replace (pos, 1, faceNames[i]);
+
+        RgbaInputFile in (name.c_str());
+
+        if (verbose)
+            cout << "reading file " << name << endl;
+
+        if (in.dataWindow() != dw)
+        {
+            THROW (Iex::InputExc,
+                   "The data window of cube face " << name << " differs "
+                   "from the data window of other cube faces.");
+        }
+
+        in.setFrameBuffer (pixels - dw.min.x - dw.min.y * w, 1, w);
+        in.readPixels (dw.min.y, dw.max.y);
+
+        pixels += w * h;
+    }
+}
+
+} // namespace
+
+
+void
+readInputImage (const char inFileName[],
+                float padTop,
+                float padBottom,
+                Envmap overrideType,
+                bool verbose,
+                EnvmapImage &image,
+                Header &header,
+                RgbaChannels &channels)
+{
+    if (strchr (inFileName, '%'))
+    {
+        readSixImages (inFileName,
+                       verbose,
+                       image,
+                       header,
+                       channels);
+    }
+    else
+    {
+        readSingleImage (inFileName,
+                         padTop,
+                         padBottom,
+                         overrideType,
+                         verbose,
+                         image,
+                         header,
+                         channels);
     }
 }
