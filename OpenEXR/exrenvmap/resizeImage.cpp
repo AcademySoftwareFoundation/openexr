@@ -44,6 +44,7 @@
 #include <resizeImage.h>
 
 #include "Iex.h"
+#include <string.h>
 
 
 using namespace std;
@@ -85,6 +86,30 @@ resizeCube (const EnvmapImage &image1,
 	    float filterRadius,
 	    int numSamples)
 {
+    if (image1.type() == ENVMAP_CUBE && image1.dataWindow() == image2DataWindow)
+    {
+        //
+        // Special case - the input image is a cube-face environment
+        // map with the same size as the output image.  We can copy
+        // the input image without resampling.
+        // 
+
+        image2.resize (ENVMAP_CUBE, image2DataWindow);
+
+        int w = image2DataWindow.max.x - image2DataWindow.min.x + 1;
+        int h = image2DataWindow.max.y - image2DataWindow.min.y + 1;
+
+        memcpy (&(image2.pixels()[0][0]),
+                &(image1.pixels()[0][0]),
+                sizeof (Rgba) * w * h);
+
+        return;
+    }
+
+    //
+    // Resampe the input image
+    //
+
     int sof = CubeMap::sizeOfFace (image2DataWindow);
     float radius = 1.5f * filterRadius / sof;
 
