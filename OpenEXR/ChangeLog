@@ -1,3 +1,14 @@
+	* exrenvmap improvements:
+	  - New command line flags set the type of the input image to
+	    latitude-longitude map or cube-face map, overriding the
+	    envmap attribute in the input file header.
+	  - Cube-face maps can now be assembled from or split into six
+	    square sub-images.
+	  - Converting a cube-face map into a new cube-face map with
+	    the same face size copies the image instead of resampling
+	    it.  This avoids blurring when a cube-face map is assembled
+	    from or split into sub-images.
+	  (Florian Kainz)
 	* Updated standard chromaticities in ImfAcesFile.cpp to match
 	  final ACES (Academy Color Encoding Specification) document.
 	  (Florian Kainz)

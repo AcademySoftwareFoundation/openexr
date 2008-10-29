@@ -37,12 +37,13 @@
 
 //-----------------------------------------------------------------------------
 //
-//	function readInputImage() --
-//	reads an image file and constructs an EnvMapImage object
+//      function readInputImage() --
+//      reads an image file and constructs an EnvMapImage object
 //
 //-----------------------------------------------------------------------------
 
 #include <ImfRgba.h>
+#include <ImfEnvmap.h>
 
 
 namespace Imf {class Header;}
@@ -51,12 +52,13 @@ class EnvmapImage;
 
 void
 readInputImage (const char inFileName[],
-		float padTop,
-		float padBottom,
-		bool verbose,
-		EnvmapImage &image,
-		Imf::Header &header,
-		Imf::RgbaChannels &channels);
+                float padTop,
+                float padBottom,
+                Imf::Envmap overrideType,
+                bool verbose,
+                EnvmapImage &image,
+                Imf::Header &header,
+                Imf::RgbaChannels &channels);
 
 
 #endif
