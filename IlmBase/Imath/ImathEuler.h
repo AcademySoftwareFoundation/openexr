@@ -204,10 +204,16 @@ class Euler : public Vec3<T>
 
     enum InputLayout { XYZLayout, IJKLayout };
 
-    //----------------------------------------------------------------
+    //--------------------------------------------------------------------
     //	Constructors -- all default to ZYX non-relative ala softimage
     //			(where there is no argument to specify it)
-    //----------------------------------------------------------------
+    //
+    // The Euler-from-matrix constructors assume that the matrix does
+    // not include shear or non-uniform scaling, but the constructors
+    // do not examine the matrix to verify this assumption.  If necessary,
+    // you can adjust the matrix by calling the removeScalingAndShear()
+    // function, defined in ImathMatrixAlgo.h.
+    //--------------------------------------------------------------------
 
     Euler();
     Euler(const Euler&);
@@ -243,12 +249,19 @@ class Euler : public Vec3<T>
 			    bool parityEven,
 			    bool firstRepeats);
 
-    //---------------------------------------------------------
+    //------------------------------------------------------------
     //	Conversions, toXYZVector() reorders the angles so that
     //  the X rotation comes first, followed by the Y and Z
     //  in cases like XYX ordering, the repeated angle will be
     //	in the "z" component
-    //---------------------------------------------------------
+    //
+    // The Euler-from-matrix extract() functions assume that the
+    // matrix does not include shear or non-uniform scaling, but
+    // the extract() functions do not examine the matrix to verify
+    // this assumption.  If necessary, you can adjust the matrix
+    // by calling the removeScalingAndShear() function, defined
+    // in ImathMatrixAlgo.h.
+    //------------------------------------------------------------
 
     void		extract(const Matrix33<T>&);
     void		extract(const Matrix44<T>&);
