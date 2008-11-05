@@ -39,7 +39,7 @@
 
 //----------------------------------------------------
 //
-//	2D and 3D point/vector class templates!
+//	2D, 3D and 4D point/vector class templates
 //
 //----------------------------------------------------
 
@@ -57,6 +57,12 @@
 
 
 namespace Imath {
+
+template <class T> class Vec2;
+template <class T> class Vec3;
+template <class T> class Vec4;
+
+enum InfException {INF_EXCEPTION};
 
 
 template <class T> class Vec2
@@ -290,6 +296,21 @@ template <class T> class Vec3
     const Vec3 &	operator = (const Vec3 &v);
 
 
+    //---------------------------------------------------------
+    // Vec4 to Vec3 conversion, divides x, y and z by w:
+    //
+    // The one-argument conversion function divides by w even
+    // if w is zero.  The result depends on how the environment
+    // handles floating-point exceptions.
+    //
+    // The two-argument version thows an InfPointExc exception
+    // if w is zero or if division by w would overflow.
+    //---------------------------------------------------------
+
+    template <class S> explicit Vec3 (const Vec4<S> &v);
+    template <class S> explicit Vec3 (const Vec4<S> &v, InfException);
+
+
     //----------------------
     // Compatibility with Sb
     //----------------------
@@ -463,8 +484,6 @@ template <class T> class Vec4
     // Access to elements
     //-------------------
 
-    // w in 4th component by convention to make a natural
-    // assignment to Vec3 when doing perspective transformations
     T               x, y, z, w; 
 
     T &             operator [] (int i);
@@ -490,24 +509,11 @@ template <class T> class Vec4
     const Vec4 &    operator = (const Vec4 &v);
 
 
-    //----------------------
-    // Compatibility with Sb
-    //----------------------
+    //-------------------------------------
+    // Vec3 to Vec4 conversion, sets w to 1
+    //-------------------------------------
 
-    template <class S>
-    void            setValue (S a, S b, S c, S d);
-
-    template <class S>
-    void            setValue (const Vec4<S> &v);
-
-    template <class S>
-    void            getValue (S& a, S& b, S& c, S& d) const;
-
-    template <class S>
-    void            getValue (Vec4<S> &v) const;
-
-    T *             getValue();
-    const T *       getValue() const;
+    template <class S> explicit Vec4 (const Vec3<S> &v);
 
 
     //---------
@@ -519,6 +525,7 @@ template <class T> class Vec4
 
     template <class S>
     bool            operator != (const Vec4<S> &v) const;
+
 
     //-----------------------------------------------------------------------
     // Compare two vectors and test if they are "approximately equal":
@@ -541,9 +548,10 @@ template <class T> class Vec4
     bool		equalWithAbsError (const Vec4<T> &v, T e) const;
     bool		equalWithRelError (const Vec4<T> &v, T e) const;
 
-    //-----------------------------
+
+    //------------
     // Dot product
-    //-----------------------------
+    //------------
 
     T			dot (const Vec4 &v) const;
     T			operator ^ (const Vec4 &v) const;
@@ -1329,6 +1337,40 @@ Vec3<T>::operator = (const Vec3 &v)
 
 template <class T>
 template <class S>
+inline
+Vec3<T>::Vec3 (const Vec4<S> &v)
+{
+    x = T (v.x / v.w);
+    y = T (v.y / v.w);
+    z = T (v.z / v.w);
+}
+
+template <class T>
+template <class S>
+Vec3<T>::Vec3 (const Vec4<S> &v, InfException)
+{
+    T vx = T (v.x);
+    T vy = T (v.y);
+    T vz = T (v.z);
+    T vw = T (v.w);
+
+    T absW = (vw >= 0)? vw: -vw;
+
+    if (absW < 1)
+    {
+        T m = baseTypeMax() * absW;
+        
+        if (vx <= -m || vx >= m || vy <= -m || vy >= m || vz <= -m || vz >= m)
+            throw InfPointExc ("Cannot normalize point at infinity.");
+    }
+
+    x = vx / vw;
+    y = vy / vw;
+    z = vz / vw;
+}
+
+template <class T>
+template <class S>
 inline void
 Vec3<T>::setValue (S a, S b, S c)
 {
@@ -1793,60 +1835,13 @@ Vec4<T>::operator = (const Vec4 &v)
 
 template <class T>
 template <class S>
-inline void
-Vec4<T>::setValue (S a, S b, S c, S d)
-{
-    x = T (a);
-    y = T (b);
-    z = T (c);
-    w = T (d);
-}
-
-template <class T>
-template <class S>
-inline void
-Vec4<T>::setValue (const Vec4<S> &v)
+inline
+Vec4<T>::Vec4 (const Vec3<S> &v)
 {
     x = T (v.x);
     y = T (v.y);
     z = T (v.z);
-    w = T (v.w);
-}
-
-template <class T>
-template <class S>
-inline void
-Vec4<T>::getValue (S& a, S& b, S& c, S& d) const
-{
-    a = S (x);
-    b = S (y);
-    c = S (z);
-    d = S (w);
-}
-
-template <class T>
-template <class S>
-inline void
-Vec4<T>::getValue (Vec4<S> &v) const
-{
-    v.x = S (x);
-    v.y = S (y);
-    v.z = S (z);
-    v.w = S (z);
-}
-
-template <class T>
-inline T *
-Vec4<T>::getValue()
-{
-    return (T *) &x;
-}
-
-template <class T>
-inline const T *
-Vec4<T>::getValue() const
-{
-    return (const T *) &x;
+    w = T (1);
 }
 
 template <class T>

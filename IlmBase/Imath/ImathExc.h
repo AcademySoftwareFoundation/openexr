@@ -52,6 +52,9 @@ namespace Imath {
 DEFINE_EXC (NullVecExc, ::Iex::MathExc)		// Attempt to normalize
 						// null vector
 
+DEFINE_EXC (InfPointExc, ::Iex::MathExc)	// Attempt to normalize
+                                                // a point at infinity
+
 DEFINE_EXC (NullQuatExc, ::Iex::MathExc) 	// Attempt to normalize
 						// null quaternion
 
