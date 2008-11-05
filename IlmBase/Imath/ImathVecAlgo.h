@@ -41,9 +41,9 @@
 //
 //      This file contains algorithms applied to or in conjunction
 //      with points (Imath::Vec2 and Imath::Vec3).
-//	The assumption made is that these functions are called much
-//	less often than the basic point functions or these functions
-//	require more support classes.
+//      The assumption made is that these functions are called much
+//      less often than the basic point functions or these functions
+//      require more support classes.
 //
 //-------------------------------------------------------------------------
 
@@ -53,38 +53,38 @@
 namespace Imath {
 
 
-//--------------------------------------------------------------
-// Find the projection of vector t onto vector s (Vec2 and Vec3)
-//--------------------------------------------------------------
+//-----------------------------------------------------------------
+// Find the projection of vector t onto vector s (Vec2, Vec3, Vec4)
+//-----------------------------------------------------------------
 
-template <class Vec> Vec	project (const Vec &s, const Vec &t);
+template <class Vec> Vec        project (const Vec &s, const Vec &t);
 
 
-//----------------------------------------------
-// Find a vector which is perpendicular to s and
-// in the same plane as s and t (Vec2 and Vec3)
-//----------------------------------------------
+//------------------------------------------------
+// Find a vector that is perpendicular to s and
+// in the same plane as s and t (Vec2, Vec3, Vec4)
+//------------------------------------------------
 
-template <class Vec> Vec	orthogonal (const Vec &s, const Vec &t);
+template <class Vec> Vec        orthogonal (const Vec &s, const Vec &t);
 
 
 //-----------------------------------------------
 // Find the direction of a ray s after reflection
-// off a plane with normal t (Vec2 and Vec3)
+// off a plane with normal t (Vec2, Vec3, Vec4)
 //-----------------------------------------------
 
-template <class Vec> Vec	reflect (const Vec &s, const Vec &t);
+template <class Vec> Vec        reflect (const Vec &s, const Vec &t);
 
 
-//----------------------------------------------------------------------
-// Find the vertex of triangle (v0, v1, v2), which is closest to point p
-// (Vec2 and Vec3).
-//----------------------------------------------------------------------
+//--------------------------------------------------------------------
+// Find the vertex of triangle (v0, v1, v2) that is closest to point p
+// (Vec2, Vec3, Vec4)
+//--------------------------------------------------------------------
 
-template <class Vec> Vec	closestVertex (const Vec &v0,
-					       const Vec &v1,
-					       const Vec &v2, 
-					       const Vec &p);
+template <class Vec> Vec        closestVertex (const Vec &v0,
+                                               const Vec &v1,
+                                               const Vec &v2, 
+                                               const Vec &p);
 
 //---------------
 // Implementation

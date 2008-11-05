@@ -1,3 +1,5 @@
+	* Added 4D vector class template Imath::Vec4<T>.
+	  (Nick Porcino)
 	* Copy constructors and assignment operators for Matrix33<T>
 	  and Matrix44<T> are up to 25% faster.  Added matrix constructors
 	  that do not initialize the matrix (this is faster in cases where
@@ -5,9 +7,9 @@
 	  (Nick Porcino)
 	* Rewrote function closestPointOnBox(point,box).  Shortened
 	  the code, improved numerical accuracy, fixed a bug where
-	  closestPointOnBox(box.center(),box) would always return
-	  the center of the +Z side of the box, even if the +/-X or
-	  +/-Y sides were closer.
+	  closestPointOnBox(box.center(),box) would return the center
+	  of the +Z side of the box, even if the +/-X or +/-Y sides
+	  were closer.
 	  (Florian Kainz)
 	* Rewrote function findEntryAndExitPoints() in ImathBoxAlgo.h.
 	  Results are now consistent with those from intersect(), also
