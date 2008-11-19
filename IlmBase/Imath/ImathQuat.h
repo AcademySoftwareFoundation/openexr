@@ -96,8 +96,11 @@ class Quat
     //	Basic Algebra - Operators and Methods
     //  The operator return values are *NOT* normalized
     //
-    //  operator^ is 4D dot product
+    //  operator^ and euclideanInnnerProduct() both
+    //            implement the 4D dot product
+    //
     //  operator/ uses the inverse() quaternion
+    //
     //	operator~ is conjugate -- if (S+V) is quat then
     //		  the conjugate (S+V)* == (S-V)
     //
@@ -123,7 +126,7 @@ class Quat
     Quat<T> &		normalize ();		// returns this
     Quat<T>		normalized () const;
     T			length () const;	// in R4
-
+    T                   euclideanInnerProduct(const Quat<T> &q) const;
 
     //-----------------------
     //	Rotation conversion
@@ -154,6 +157,11 @@ class Quat
 
 template<class T>
 Quat<T>			slerp (const Quat<T> &q1, const Quat<T> &q2, T t);
+
+template<class T>
+Quat<T>			slerpShortestArc
+                              (const Quat<T> &q1, const Quat<T> &q2, T t);
+
 
 template<class T>
 Quat<T>			squad (const Quat<T> &q1, const Quat<T> &q2, 
@@ -433,6 +441,14 @@ Quat<T>::invert ()
 
 
 template<class T>
+inline T 
+Quat<T>::euclideanInnerProduct (const Quat<T> &q) const
+{
+    return r * q.r + v.x * q.v.x + v.y * q.v.y + v.z * q.v.z;
+}
+
+
+template<class T>
 T
 angle4D (const Quat<T> &q1, const Quat<T> &q2)
 {
@@ -462,7 +478,8 @@ slerp (const Quat<T> &q1, const Quat<T> &q2, T t)
     // This method does *not* interpolate along the shortest
     // arc between q1 and q2.  If you desire interpolation
     // along the shortest arc, and q1^q2 is negative, then
-    // consider flipping the second quaternion explicitly.
+    // consider calling slerpShortestArc(), below, or flipping
+    // the second quaternion explicitly.
     //
     // The implementation of squad() depends on a slerp()
     // that interpolates as is, without the automatic
@@ -480,6 +497,23 @@ slerp (const Quat<T> &q1, const Quat<T> &q2, T t)
 	        sinx_over_x (t * a) / sinx_over_x (a) * t * q2;
 
     return q.normalized();
+}
+
+
+template<class T>
+Quat<T>
+slerpShortestArc (const Quat<T> &q1, const Quat<T> &q2, T t)
+{
+    //
+    // Spherical linear interpolation along the shortest
+    // arc from q1 to either q2 or -q2, whichever is closer.
+    // Assumes q1 and q2 are unit quaternions.
+    //
+
+    if (q1 ^ q2 >= 0)
+        return slerp (q1, q2, t);
+    else
+        return slerp (q1, -q2, t);
 }
 
 
