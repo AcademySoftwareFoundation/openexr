@@ -1,3 +1,6 @@
+	* Added slerpShortestArc() and euclideanInnerProduct() functions
+	  to Imath::Quat<T>.
+	  (Nick Porcino)
 	* Added 4D vector class template Imath::Vec4<T>.
 	  (Nick Porcino)
 	* Copy constructors and assignment operators for Matrix33<T>
