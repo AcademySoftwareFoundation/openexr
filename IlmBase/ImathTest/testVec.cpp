@@ -181,6 +181,93 @@ testLength3T ()
     assert (Imath::equal (v.normalized().length(), 1, e));
 }
 
+
+template <class T>
+void
+testLength4T ()
+{
+    const T s = Math<T>::sqrt (limits<T>::smallest());
+    const T e = 4 * limits<T>::epsilon();
+
+    Vec4<T> v;
+
+    v = Vec4<T> (0, 0, 0, 0);
+    assert (v.length() == 0);
+    assert (v.normalized().length() == 0);
+
+    v = Vec4<T> (3, 4, 0, 0);
+    assert (v.length() == 5);
+    assert (Imath::equal (v.normalized().length(), 1, e));
+
+    v = Vec4<T> (3000, 4000, 0, 0);
+    assert (v.length() == 5000);
+    assert (Imath::equal (v.normalized().length(), 1, e));
+
+    v = Vec4<T> (1, -1, 1, 1);
+    assert (Imath::equal (v.length(), 2, e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+
+    v = Vec4<T> (1000, -1000, 1000, 1000);
+    assert (Imath::equal (v.length(), 2000, 1000 * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+
+    T t = s * (1 << 4);
+
+    v = Vec4<T> (t, 0, 0, 0);
+    assert (Imath::equal (v.length(), t, t * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+    v = Vec4<T> (0, t, 0, 0);
+    assert (Imath::equal (v.length(), t, t * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+    v = Vec4<T> (0, 0, t, 0);
+    assert (Imath::equal (v.length(), t, t * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+    v = Vec4<T> (0, 0, 0, t);
+    assert (Imath::equal (v.length(), t, t * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+    v = Vec4<T> (-t, -t, -t, -t);
+    assert (Imath::equal (v.length(), t * 2, t * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+
+    t = s / (1 << 4);
+
+    v = Vec4<T> (t, 0, 0, 0);
+    assert (Imath::equal (v.length(), t, t * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+    v = Vec4<T> (0, t, 0, 0);
+    assert (Imath::equal (v.length(), t, t * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+    v = Vec4<T> (0, 0, t, 0);
+    assert (Imath::equal (v.length(), t, t * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+    v = Vec4<T> (0, 0, 0, t);
+    assert (Imath::equal (v.length(), t, t * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+    v = Vec4<T> (-t, -t, -t, -t);
+    assert (Imath::equal (v.length(), t * 2, t * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+
+    t = s / (1 << 20);
+
+    v = Vec4<T> (t, 0, 0, 0);
+    assert (Imath::equal (v.length(), t, t * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+    v = Vec4<T> (0, t, 0, 0);
+    assert (Imath::equal (v.length(), t, t * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+    v = Vec4<T> (0, 0, t, 0);
+    assert (Imath::equal (v.length(), t, t * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+    v = Vec4<T> (0, 0, 0, t);
+    assert (Imath::equal (v.length(), t, t * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+    v = Vec4<T> (-t, -t, -t, -t);
+    assert (Imath::equal (v.length(), t * 2, t * e));
+    assert (Imath::equal (v.normalized().length(), 1, e));
+}
+
+
+
 } // namespace
 
 
@@ -193,6 +280,8 @@ testVec ()
     testLength2T<double>();
     testLength3T<float>();
     testLength3T<double>();
+    testLength4T<float>();
+    testLength4T<double>();
 
     cout << "ok\n" << endl;
 }

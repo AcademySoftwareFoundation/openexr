@@ -510,7 +510,7 @@ slerpShortestArc (const Quat<T> &q1, const Quat<T> &q2, T t)
     // Assumes q1 and q2 are unit quaternions.
     //
 
-    if (q1 ^ q2 >= 0)
+    if ((q1 ^ q2) >= 0)
         return slerp (q1, q2, t);
     else
         return slerp (q1, -q2, t);
