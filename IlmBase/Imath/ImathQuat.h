@@ -126,6 +126,7 @@ class Quat
     Quat<T> &		normalize ();		// returns this
     Quat<T>		normalized () const;
     T			length () const;	// in R4
+    Vec3<T>             rotateVector(const Vec3<T> &original) const;
     T                   euclideanInnerProduct(const Quat<T> &q) const;
 
     //-----------------------
@@ -437,6 +438,27 @@ Quat<T>::invert ()
     r /= qdot;
     v = -v / qdot;
     return *this;
+}
+
+
+template<class T>
+inline Vec3<T>
+Quat<T>::rotateVector(const Vec3<T>& original) const
+{
+    //
+    // Given a vector p and a quaternion q (aka this),
+    // calculate p' = qpq*
+    //
+    // Assumes unit quaternions (because non-unit
+    // quaternions cannot be used to rotate vectors
+    // anyway).
+    //
+
+    Quat<T> vec (0, original);  // temporarily promote grade of original
+    Quat<T> inv (*this);
+    inv.v *= -1;                // unit multiplicative inverse
+    Quat<T> result = *this * vec * inv;
+    return result.v;
 }
 
 
