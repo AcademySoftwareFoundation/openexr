@@ -3259,7 +3259,7 @@ operator * (const Vec4<S> &v, const Matrix44<T> &m)
     S z = S(v.x * m[0][2] + v.y * m[1][2] + v.z * m[2][2] + v.w * m[3][2]);
     S w = S(v.x * m[0][3] + v.y * m[1][3] + v.z * m[2][3] + v.w * m[3][3]);
 
-    return Vec3<S> (x, y, z, w);
+    return Vec4<S> (x, y, z, w);
 }
 
 } // namespace Imath
