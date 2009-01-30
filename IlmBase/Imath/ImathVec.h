@@ -1849,7 +1849,7 @@ template <class S>
 inline bool
 Vec4<T>::operator == (const Vec4<S> &v) const
 {
-    return x == v.x && y == v.y && z == v.z && w = v.w;
+    return x == v.x && y == v.y && z == v.z && w == v.w;
 }
 
 template <class T>
