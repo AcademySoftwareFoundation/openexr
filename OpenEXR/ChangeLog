@@ -1,3 +1,10 @@
+	* In the "Technical Introduction" document, added
+	  Premultiplied vs. Un-Premulitiplied Color section:
+	  states explicitly that pixels with zero alpha and non-zero
+	  RGB are allowed, points out that preserving such a pixel can
+	  be a problem in application programs with un-premultiplied
+	  internal image representations.
+	  (Florian Kainz)
 	* exrenvmap improvements:
 	  - New command line flags set the type of the input image to
 	    latitude-longitude map or cube-face map, overriding the
