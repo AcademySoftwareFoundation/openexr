@@ -59,9 +59,9 @@ toInt (float x)
 
 
 inline double
-cube (double x)
+sqr (double x)
 {
-    return x * x * x;
+    return x * x;
 }
 
 
@@ -172,6 +172,11 @@ blurImage (EnvmapImage &image1, bool verbose)
 	cout << "    computing pixel weights" << endl;
 
     { 
+        //
+        // Multiply each pixel by a weight that is proportinal
+        // to the solid angle subtended by the pixel.
+        //
+
 	Box2i dw = iptr1->dataWindow();
 	int sof = CubeMap::sizeOfFace (dw);
 
@@ -186,31 +191,50 @@ blurImage (EnvmapImage &image1, bool verbose)
 
 	    CubeMapFace face = CubeMapFace (f);
 	    V3f faceDir (0, 0, 0);
+            int ix = 0, iy = 0, iz = 0;
 
 	    switch (face)
 	    {
 	      case CUBEFACE_POS_X:
 		faceDir = V3f (1, 0, 0);
+                ix = 0;
+                iy = 1;
+                iz = 2;
 		break;
 
 	      case CUBEFACE_NEG_X:
 		faceDir = V3f (-1, 0, 0);
+                ix = 0;
+                iy = 1;
+                iz = 2;
 		break;
 
 	      case CUBEFACE_POS_Y:
 		faceDir = V3f (0, 1, 0);
+                ix = 1;
+                iy = 0;
+                iz = 2;
 		break;
 
 	      case CUBEFACE_NEG_Y:
 		faceDir = V3f (0, -1, 0);
+                ix = 1;
+                iy = 0;
+                iz = 2;
 		break;
 
 	      case CUBEFACE_POS_Z:
 		faceDir = V3f (0, 0, 1);
+                ix = 2;
+                iy = 0;
+                iz = 1;
 		break;
 
 	      case CUBEFACE_NEG_Z:
 		faceDir = V3f (0, 0, -1);
+                ix = 2;
+                iy = 0;
+                iz = 1;
 		break;
 	    }
 
@@ -230,7 +254,24 @@ blurImage (EnvmapImage &image1, bool verbose)
 		    V2f pos =
 			CubeMap::pixelPosition (face, dw, posInFace);
 
-		    double weight = cube (dir ^ faceDir);
+                    //
+                    // The solid angle subtended by pixel (x,y), as seen
+                    // from the center of the cube, is proportional to the
+                    // square of the distance of the pixel from the center
+                    // of the cube and proportional to the dot product of
+                    // the viewing direction and the normal of the cube
+                    // face that contains the pixel.
+                    //
+
+                    double weight =
+                        (dir ^ faceDir) *
+                        (sqr (dir[iy] / dir[ix]) + sqr (dir[iz] / dir[ix]) + 1);
+
+                    //
+                    // Pixels at the edges and corners of the
+                    // cube are duplicated; we must adjust the
+                    // pixel weights accordingly.
+                    //
 
 		    if (xEdge && yEdge)
 			weight /= 3;
