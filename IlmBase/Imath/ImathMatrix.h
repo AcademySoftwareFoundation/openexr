@@ -110,6 +110,7 @@ template <class T> class Matrix33
     //--------------------------------
 
     Matrix33 (const Matrix33 &v);
+    template <class S> explicit Matrix33 (const Matrix33<S> &v);
 
     const Matrix33 &    operator = (const Matrix33 &v);
     const Matrix33 &    operator = (T a);
@@ -450,6 +451,7 @@ template <class T> class Matrix44
     //--------------------------------
 
     Matrix44 (const Matrix44 &v);
+    template <class S> explicit Matrix44 (const Matrix44<S> &v);
 
     const Matrix44 &    operator = (const Matrix44 &v);
     const Matrix44 &    operator = (T a);
@@ -880,6 +882,22 @@ inline
 Matrix33<T>::Matrix33 (const Matrix33 &v)
 {
     memcpy (x, v.x, sizeof (x));
+}
+
+template <class T>
+template <class S>
+inline
+Matrix33<T>::Matrix33 (const Matrix33<S> &v)
+{
+    x[0][0] = T (v.x[0][0]);
+    x[0][1] = T (v.x[0][1]);
+    x[0][2] = T (v.x[0][2]);
+    x[1][0] = T (v.x[1][0]);
+    x[1][1] = T (v.x[1][1]);
+    x[1][2] = T (v.x[1][2]);
+    x[2][0] = T (v.x[2][0]);
+    x[2][1] = T (v.x[2][1]);
+    x[2][2] = T (v.x[2][2]);
 }
 
 template <class T>
@@ -1894,6 +1912,29 @@ Matrix44<T>::Matrix44 (const Matrix44 &v)
     x[3][1] = v.x[3][1];
     x[3][2] = v.x[3][2];
     x[3][3] = v.x[3][3];
+}
+
+template <class T>
+template <class S>
+inline
+Matrix44<T>::Matrix44 (const Matrix44<S> &v)
+{
+    x[0][0] = T (v.x[0][0]);
+    x[0][1] = T (v.x[0][1]);
+    x[0][2] = T (v.x[0][2]);
+    x[0][3] = T (v.x[0][3]);
+    x[1][0] = T (v.x[1][0]);
+    x[1][1] = T (v.x[1][1]);
+    x[1][2] = T (v.x[1][2]);
+    x[1][3] = T (v.x[1][3]);
+    x[2][0] = T (v.x[2][0]);
+    x[2][1] = T (v.x[2][1]);
+    x[2][2] = T (v.x[2][2]);
+    x[2][3] = T (v.x[2][3]);
+    x[3][0] = T (v.x[3][0]);
+    x[3][1] = T (v.x[3][1]);
+    x[3][2] = T (v.x[3][2]);
+    x[3][3] = T (v.x[3][3]);
 }
 
 template <class T>

@@ -1,3 +1,7 @@
+	* Added explicit copy constructors to Imath::Matrix33<T> and
+	  ImathMatrix44<T> to make conversions between float and double
+	  matrices more convenient.
+	  (Florian Kainz)
 	* Added slerpShortestArc() and euclideanInnerProduct() functions
 	  to Imath::Quat<T>.
 	  (Nick Porcino)

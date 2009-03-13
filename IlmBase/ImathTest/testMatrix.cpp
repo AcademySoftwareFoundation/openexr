@@ -127,6 +127,24 @@ testMatrix ()
 	Imath::M33d test3;
 	test3.makeIdentity();
 	assert(test2 == test3);
+
+        Imath::M33f test4 (1.0f, 2.0f, 3.0f,
+                           4.0f, 5.0f, 6.0f,
+                           7.0f, 8.0f, 9.0f);
+
+        Imath::M33d test5 = Imath::M33d (test4);
+
+        assert (test5[0][0] == 1.0);
+        assert (test5[0][1] == 2.0);
+        assert (test5[0][2] == 3.0);
+
+        assert (test5[1][0] == 4.0);
+        assert (test5[1][1] == 5.0);
+        assert (test5[1][2] == 6.0);
+
+        assert (test5[2][0] == 7.0);
+        assert (test5[2][1] == 8.0);
+        assert (test5[2][2] == 9.0);
     }
 
     {
@@ -181,6 +199,33 @@ testMatrix ()
 	test2[0][0] = nand.d;
 	test3 = test2;
 	assert(test2 != test3);
+
+        Imath::M44f test4 ( 1.0f,  2.0f,  3.0f,  4.0f,
+                            5.0f,  6.0f,  7.0f,  8.0f,
+                            9.0f, 10.0f, 11.0f, 12.0f,
+                           13.0f, 14.0f, 15.0f, 16.0f);
+
+        Imath::M44d test5 = Imath::M44d (test4);
+
+        assert (test5[0][0] ==  1.0);
+        assert (test5[0][1] ==  2.0);
+        assert (test5[0][2] ==  3.0);
+        assert (test5[0][3] ==  4.0);
+
+        assert (test5[1][0] ==  5.0);
+        assert (test5[1][1] ==  6.0);
+        assert (test5[1][2] ==  7.0);
+        assert (test5[1][3] ==  8.0);
+
+        assert (test5[2][0] ==  9.0);
+        assert (test5[2][1] == 10.0);
+        assert (test5[2][2] == 11.0);
+        assert (test5[2][3] == 12.0);
+
+        assert (test5[3][0] == 13.0);
+        assert (test5[3][1] == 14.0);
+        assert (test5[3][2] == 15.0);
+        assert (test5[3][3] == 16.0);
     }
 
     {
