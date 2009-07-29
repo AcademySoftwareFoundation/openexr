@@ -53,7 +53,10 @@ class PizCompressor: public Compressor
 {
   public:
 
-    PizCompressor (const Header &hdr, int maxScanLineSize, int numScanLines);
+    PizCompressor (const Header &hdr,
+                   size_t maxScanLineSize,
+                   size_t numScanLines);
+
     virtual ~PizCompressor ();
 
     virtual int		numScanLines () const;

@@ -52,7 +52,7 @@ class RleCompressor: public Compressor
 {
   public:
 
-    RleCompressor (const Header &hdr, int maxScanLineSize);
+    RleCompressor (const Header &hdr, size_t maxScanLineSize);
     virtual ~RleCompressor ();
 
     virtual int numScanLines () const;

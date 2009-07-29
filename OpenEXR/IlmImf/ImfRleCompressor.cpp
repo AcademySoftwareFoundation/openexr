@@ -41,6 +41,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfRleCompressor.h>
+#include <ImfCheckedArithmetic.h>
 #include "Iex.h"
 
 namespace Imf {
@@ -158,14 +159,14 @@ rleUncompress (int inLength, int maxLength, const signed char in[], char out[])
 } // namespace
 
 
-RleCompressor::RleCompressor (const Header &hdr, int maxScanLineSize):
+RleCompressor::RleCompressor (const Header &hdr, size_t maxScanLineSize):
     Compressor (hdr),
     _maxScanLineSize (maxScanLineSize),
     _tmpBuffer (0),
     _outBuffer (0)
 {
     _tmpBuffer = new char [maxScanLineSize];
-    _outBuffer = new char [maxScanLineSize * 3 / 2];
+    _outBuffer = new char [uiMult (maxScanLineSize, size_t (3)) / 2];
 }
 
 

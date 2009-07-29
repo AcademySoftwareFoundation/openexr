@@ -1,3 +1,14 @@
+	* Bug fix: crash when reading a damaged image file (found
+	  by Apple).  An exception thrown inside the PIZ Huffman
+	  decoder bypasses initialization of an array of pointers.
+	  The uninitialized pointers are later passed to operator
+	  delete.
+	  (Florian Kainz)
+	* Bug fix: crash when reading a damaged image file (found by
+	  Apple).  Computing the size of input certain buffers may
+	  overflow and wrap around to a small number, later causing
+	  writes beyond the end of the buffer.
+	  (Florian Kainz)
 	* In the "Technical Introduction" document, added
 	  Premultiplied vs. Un-Premulitiplied Color section:
 	  states explicitly that pixels with zero alpha and non-zero

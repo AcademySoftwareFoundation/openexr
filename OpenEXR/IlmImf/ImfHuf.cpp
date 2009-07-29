@@ -579,6 +579,19 @@ hufUnpackEncTable
 //
 
 //
+// Clear a newly allocated decoding table so that it contains only zeroes.
+//
+
+void
+hufClearDecTable
+    (HufDec *		hdecod)		// io: (allocated by caller)
+     					//     decoding table [HUF_DECSIZE]
+{
+    memset (hdecod, 0, sizeof (HufDec) * HUF_DECSIZE);
+}
+
+
+//
 // Build a decoding hash table based on the encoding table hcode:
 //	- short codes (<= HUF_DECBITS) are resolved with a single table access;
 //	- long code entry allocations are not optimized, because long codes are
@@ -595,10 +608,9 @@ hufBuildDecTable
      					//     decoding table [HUF_DECSIZE]
 {
     //
-    // Init hashtable & loop on all codes
+    // Init hashtable & loop on all codes.
+    // Assumes that hufClearDecTable(hdecod) has already been called.
     //
-
-    memset (hdecod, 0, sizeof (HufDec) * HUF_DECSIZE);
 
     for (; im <= iM; im++)
     {
@@ -1048,6 +1060,8 @@ hufUncompress (const char compressed[],
 
     AutoArray <Int64, HUF_ENCSIZE> freq;
     AutoArray <HufDec, HUF_DECSIZE> hdec;
+
+    hufClearDecTable (hdec);
 
     hufUnpackEncTable (&ptr, nCompressed - (ptr - compressed), im, iM, freq);
 

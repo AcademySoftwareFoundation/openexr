@@ -45,6 +45,7 @@
 
 #include <ImfCompression.h>
 #include "ImathBox.h"
+#include <stdlib.h>
 
 namespace Imf {
 
@@ -219,7 +220,7 @@ bool		isValidCompression (Compression c);
 //-----------------------------------------------------------------
 
 Compressor *	newCompressor (Compression c,
-			       int maxScanLineSize,
+			       size_t maxScanLineSize,
 			       const Header &hdr);
 
 
@@ -241,8 +242,8 @@ Compressor *	newCompressor (Compression c,
 //-----------------------------------------------------------------
 
 Compressor *    newTileCompressor (Compression c,
-				   int tileLineSize,
-				   int numTileLines,
+				   size_t tileLineSize,
+				   size_t numTileLines,
 				   const Header &hdr);
 
 

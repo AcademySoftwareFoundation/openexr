@@ -45,6 +45,7 @@
 #include <ImfHuf.h>
 #include <ImfWav.h>
 #include <ImfMisc.h>
+#include <ImfCheckedArithmetic.h>
 #include <ImathFun.h>
 #include <ImathBox.h>
 #include <Iex.h>
@@ -168,8 +169,8 @@ struct PizCompressor::ChannelData
 
 PizCompressor::PizCompressor
     (const Header &hdr,
-     int maxScanLineSize,
-     int numScanLines)
+     size_t maxScanLineSize,
+     size_t numScanLines)
 :
     Compressor (hdr),
     _maxScanLineSize (maxScanLineSize),
@@ -181,8 +182,17 @@ PizCompressor::PizCompressor
     _channels (hdr.channels()),
     _channelData (0)
 {
-    _tmpBuffer = new unsigned short [maxScanLineSize * numScanLines / 2];
-    _outBuffer = new char [maxScanLineSize * numScanLines + 65536 + 8192];
+    size_t tmpBufferSize =
+                uiMult (maxScanLineSize, numScanLines) / 2;
+
+    size_t outBufferSize =
+                uiAdd (uiMult (maxScanLineSize, numScanLines),
+                       size_t (65536 + 8192));
+
+    _tmpBuffer = new unsigned short
+            [checkArraySize (tmpBufferSize, sizeof (unsigned short))];
+
+    _outBuffer = new char [outBufferSize];
 
     const ChannelList &channels = header().channels();
     bool onlyHalfChannels = true;
