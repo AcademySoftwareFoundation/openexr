@@ -51,7 +51,10 @@ class Pxr24Compressor: public Compressor
 {
   public:
 
-    Pxr24Compressor (const Header &hdr, int maxScanLineSize, int numScanLines);
+    Pxr24Compressor (const Header &hdr, 
+                     size_t maxScanLineSize,
+                     size_t numScanLines);
+
     virtual ~Pxr24Compressor ();
 
     virtual int		numScanLines () const;
