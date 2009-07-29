@@ -40,6 +40,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfPreviewImage.h>
+#include <ImfCheckedArithmetic.h>
 #include "Iex.h"
 
 namespace Imf {
@@ -51,7 +52,8 @@ PreviewImage::PreviewImage (unsigned int width,
 {
     _width = width;
     _height = height;
-    _pixels = new PreviewRgba [_width * _height];
+    _pixels = new PreviewRgba
+        [checkArraySize (uiMult (_width, _height), sizeof (PreviewRgba))];
 
     if (pixels)
     {

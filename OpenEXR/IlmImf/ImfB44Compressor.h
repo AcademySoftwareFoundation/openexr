@@ -54,8 +54,8 @@ class B44Compressor: public Compressor
   public:
 
     B44Compressor (const Header &hdr,
-                   int maxScanLineSize,
-		   int numScanLines,
+                   size_t maxScanLineSize,
+		   size_t numScanLines,
 		   bool optFlatFields);
 
     virtual ~B44Compressor ();

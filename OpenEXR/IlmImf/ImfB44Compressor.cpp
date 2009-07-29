@@ -101,6 +101,7 @@
 #include <ImfHeader.h>
 #include <ImfChannelList.h>
 #include <ImfMisc.h>
+#include <ImfCheckedArithmetic.h>
 #include <ImathFun.h>
 #include <ImathBox.h>
 #include <Iex.h>
@@ -465,8 +466,8 @@ struct B44Compressor::ChannelData
 
 B44Compressor::B44Compressor
     (const Header &hdr,
-     int maxScanLineSize,
-     int numScanLines,
+     size_t maxScanLineSize,
+     size_t numScanLines,
      bool optFlatFields)
 :
     Compressor (hdr),
@@ -487,7 +488,9 @@ B44Compressor::B44Compressor
     // if uncompressed pixel data should be in native or Xdr format.
     //
 
-    _tmpBuffer = new unsigned short [maxScanLineSize * numScanLines];
+    _tmpBuffer = new unsigned short
+        [checkArraySize (uiMult (maxScanLineSize, numScanLines),
+                         sizeof (unsigned short))];
 
     const ChannelList &channels = header().channels();
     int numHalfChans = 0;
@@ -507,9 +510,11 @@ B44Compressor::B44Compressor
     // Compressed data may be larger than the input data
     //
 
-    int padding = 12 * numHalfChans * (numScanLines + 3) / 4;
+    size_t padding = 12 * numHalfChans * (numScanLines + 3) / 4;
 
-    _outBuffer = new char [maxScanLineSize * numScanLines + padding];
+    _outBuffer = new char
+        [uiAdd (uiMult (maxScanLineSize, numScanLines), padding)];
+
     _channelData = new ChannelData[_numChans];
 
     int i = 0;

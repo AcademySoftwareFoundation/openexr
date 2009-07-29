@@ -52,7 +52,10 @@ class ZipCompressor: public Compressor
 {
   public:
 
-    ZipCompressor (const Header &hdr, int maxScanLineSize, int numScanLines);
+    ZipCompressor (const Header &hdr, 
+                   size_t maxScanLineSize,
+                   size_t numScanLines);
+
     virtual ~ZipCompressor ();
 
     virtual int numScanLines () const;
