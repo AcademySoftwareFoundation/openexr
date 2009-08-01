@@ -104,12 +104,6 @@ struct ThreadPool::Data
 };
 
 
-//
-// The global thread pool
-//
-
-ThreadPool gThreadPool (0);
-
 
 //
 // class WorkerThread
@@ -442,6 +436,12 @@ ThreadPool::addTask (Task* task)
 ThreadPool&
 ThreadPool::globalThreadPool ()
 {
+    //
+    // The global thread pool
+    //
+    
+    static ThreadPool gThreadPool (0);
+
     return gThreadPool;
 }
 
@@ -449,7 +449,7 @@ ThreadPool::globalThreadPool ()
 void
 ThreadPool::addGlobalTask (Task* task)
 {
-    gThreadPool.addTask (task);
+    globalThreadPool().addTask (task);
 }
 
 
