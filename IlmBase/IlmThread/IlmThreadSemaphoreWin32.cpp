@@ -95,7 +95,7 @@ Semaphore::Semaphore (unsigned int value)
 
 Semaphore::~Semaphore()
 {
-    bool ok = ::CloseHandle (_semaphore);
+    bool ok = ::CloseHandle (_semaphore) != FALSE;
     assert (ok);
 }
 
