@@ -91,9 +91,9 @@ rand48Next (unsigned short state[3])
     // We assume that sizeof (unsigned short) == 2.
     //
 
-    state[2] = x >> 32;
-    state[1] = x >> 16;
-    state[0] = x;
+    state[2] = (unsigned short)(x >> 32);
+    state[1] = (unsigned short)(x >> 16);
+    state[0] = (unsigned short)(x);
 }
 
 } // namespace
@@ -162,8 +162,8 @@ lrand48 ()
 void
 srand48 (long int seed)
 {
-    staticState[2] = seed >> 16;
-    staticState[1] = seed;
+    staticState[2] = (unsigned short)(seed >> 16);
+    staticState[1] = (unsigned short)(seed);
     staticState[0] = 0x330e;
 }
 

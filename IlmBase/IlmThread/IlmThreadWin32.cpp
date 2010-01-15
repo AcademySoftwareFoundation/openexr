@@ -76,7 +76,7 @@ Thread::~Thread ()
 {
     DWORD status = ::WaitForSingleObject (_thread, INFINITE);
     assert (status ==  WAIT_OBJECT_0);
-    bool ok = ::CloseHandle (_thread);
+    bool ok = ::CloseHandle (_thread) != FALSE;
     assert (ok);
 }
 
