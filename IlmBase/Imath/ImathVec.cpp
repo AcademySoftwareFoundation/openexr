@@ -130,7 +130,7 @@ template <>
 short
 Vec2<short>::length () const
 {
-    float lenF = Math<float>::sqrt (dot (*this));
+    float lenF = Math<float>::sqrt ((float)dot (*this));
     short lenS = (short) (lenF + 0.5f);
     return lenS;
 }
@@ -199,7 +199,7 @@ template <>
 int
 Vec2<int>::length () const
 {
-    float lenF = Math<float>::sqrt (dot (*this));
+    float lenF = Math<float>::sqrt ((float)dot (*this));
     int lenI = (int) (lenF + 0.5f);
     return lenI;
 }
@@ -268,7 +268,7 @@ template <>
 short
 Vec3<short>::length () const
 {
-    float lenF = Math<float>::sqrt (dot (*this));
+    float lenF = Math<float>::sqrt ((float)dot (*this));
     short lenS = (short) (lenF + 0.5f);
     return lenS;
 }
@@ -337,7 +337,7 @@ template <>
 int
 Vec3<int>::length () const
 {
-    float lenF = Math<float>::sqrt (dot (*this));
+    float lenF = Math<float>::sqrt ((float)dot (*this));
     int lenI = (int) (lenF + 0.5f);
     return lenI;
 }
@@ -406,7 +406,7 @@ template <>
 short
 Vec4<short>::length () const
 {
-    float lenF = Math<float>::sqrt (dot (*this));
+    float lenF = Math<float>::sqrt ((float)dot (*this));
     short lenS = (short) (lenF + 0.5f);
     return lenS;
 }
@@ -475,7 +475,7 @@ template <>
 int
 Vec4<int>::length () const
 {
-    float lenF = Math<float>::sqrt (dot (*this));
+    float lenF = Math<float>::sqrt ((float)dot (*this));
     int lenI = (int) (lenF + 0.5f);
     return lenI;
 }
