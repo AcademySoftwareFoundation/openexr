@@ -53,9 +53,9 @@ void throwErrnoExc (const std::string &text, int errnum)
 {
     const char *entext = strerror (errnum);
     std::string tmp (text);
-    int pos;
+    std::string::size_type pos;
 
-    while (-1 != (pos = tmp.find ("%T")))
+    while (std::string::npos != (pos = tmp.find ("%T")))
 	tmp.replace (pos, 2, entext, strlen (entext));
 
     switch (errnum)
