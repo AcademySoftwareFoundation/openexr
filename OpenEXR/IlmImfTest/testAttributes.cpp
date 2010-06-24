@@ -108,6 +108,11 @@ writeReadAttr (const Array2D<float> &pf1,
     a15.push_back ("straw into");
     a15.push_back ("gold");
 
+    M33d   a16 (12, 13, 14, 15, 16, 17, 18, 19, 20);
+    M44d   a17 (2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17);
+    V2d    a18 (27.51, 28.51);
+    V3d    a19 (37.51, 38.51, 39.51);
+
     //
     // Write an image file with extra attributes in the header
     //
@@ -130,6 +135,10 @@ writeReadAttr (const Array2D<float> &pf1,
 	hdr.insert ("a13", ChromaticitiesAttribute (a13));
 	hdr.insert ("a14", EnvmapAttribute         (a14));
 	hdr.insert ("a15", StringVectorAttribute   (a15));
+        hdr.insert ("a16", M33dAttribute   (a16));
+        hdr.insert ("a17", M44dAttribute   (a17));
+        hdr.insert ("a18", V2dAttribute    (a18));
+        hdr.insert ("a19", V3dAttribute    (a19));
 
 	hdr.channels().insert ("F",			// name
 			       Channel (FLOAT,		// type
@@ -211,6 +220,11 @@ writeReadAttr (const Array2D<float> &pf1,
 
 	assert (hdr.typedAttribute <StringVectorAttribute>
 					("a15").value()[3] == "gold");
+
+	assert (hdr.typedAttribute <M33dAttribute>   ("a16").value()  == a16);
+	assert (hdr.typedAttribute <M44dAttribute>   ("a17").value()  == a17);
+	assert (hdr.typedAttribute <V2dAttribute>    ("a18").value()  == a18);
+	assert (hdr.typedAttribute <V3dAttribute>    ("a19").value()  == a19);
     }
 
     remove (fileName);
