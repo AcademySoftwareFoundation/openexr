@@ -1,3 +1,9 @@
+	* Added new atttribute types:
+	  M33dAttribute   3x3 double-precision matrix
+	  M44dAttribute   4x4 double-precision matrix
+	  V2d             2D double-precision vector
+	  V3d             3D double-precision vector
+	  (Florian Kainz)
 	* Bug fix: crash when reading a damaged image file (found
 	  by Apple).  An exception thrown inside the PIZ Huffman
 	  decoder bypasses initialization of an array of pointers.
