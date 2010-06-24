@@ -1065,7 +1065,9 @@ staticInitialize ()
 	IntAttribute::registerAttributeType();
 	KeyCodeAttribute::registerAttributeType();
 	LineOrderAttribute::registerAttributeType();
+	M33dAttribute::registerAttributeType();
 	M33fAttribute::registerAttributeType();
+	M44dAttribute::registerAttributeType();
 	M44fAttribute::registerAttributeType();
 	PreviewImageAttribute::registerAttributeType();
 	RationalAttribute::registerAttributeType();
@@ -1073,8 +1075,10 @@ staticInitialize ()
         StringVectorAttribute::registerAttributeType();
 	TileDescriptionAttribute::registerAttributeType();
 	TimeCodeAttribute::registerAttributeType();
+	V2dAttribute::registerAttributeType();
 	V2fAttribute::registerAttributeType();
 	V2iAttribute::registerAttributeType();
+	V3dAttribute::registerAttributeType();
 	V3fAttribute::registerAttributeType();
 	V3iAttribute::registerAttributeType();
 
