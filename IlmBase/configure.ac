@@ -94,10 +94,50 @@ AC_MSG_RESULT([$EXTRA_OPT_CFLAGS])
 dnl Platform-specific stuff
 case "$host" in
 *darwin*) 
+  dnl Compiler flags for all OS X builds
+  CXXFLAGS="$CXXFLAGS -Wno-long-double"
+
+  dnl OSX architectures specification
+  dnl NOTE: multiple architectures requires --disable-dependency-tracking
+  dnl For more information: http://developer.apple.com/documentation/Porting/Conceptual/PortingUNIX/compiling/chapter_4_section_3.html
+  AC_ARG_ENABLE(osx-arch,
+	      AC_HELP_STRING([--enable-osx-arch],
+			     [specify the architecture(s) for OS X builds. Ex: --enable-osx-arch="ppc i386"]),
+	      [osx_arch="${enableval}"], [osx_arch=default])
+
+  if test "${osx_arch}" != default ; then
+     dnl Replace "a b c" with "-arch a -arch b -arch c". Should probably use an all-whitespace regexp rather than a single character for the search string.
+     osx_arch_flags="-arch ${osx_arch// / -arch }"
+     CXXFLAGS="$CXXFLAGS $osx_arch_flags"
+
+     dnl If multiple archs specified, make sure that --disable-dependency-tracking was also specified
+     if test "$enable_dependency_tracking" != no ; then
+        osx_arch_array=( ${osx_arch} )
+        if test ${#osx_arch_array[@]} -gt 1 ; then
+          AC_MSG_ERROR([building multiple OS X architectures requires --disable-dependency-tracking.
+Please re-run configure with these options:
+  --enable-osx-arch="${osx_arch}" --disable-dependency-tracking
+  		  ])
+        fi
+     fi
+  fi
+
+  dnl OSX SDK specification
+  AC_ARG_ENABLE(osx-sdk,
+	      AC_HELP_STRING([--enable-osx-sdk],
+			     [specify the sdk (sysroot) for use with OS X. Ex: --enable-osx-sdk=MacOSX10.5]),
+	      [osx_sdk="${enableval}"], [osx_sdk=default])
+
+  if test "${osx_sdk}" != default ; then
+    CXXFLAGS="$CXXFLAGS -isysroot /Developer/SDKs/${osx_sdk}"
+  fi
+
   dnl OS X universal binary support, requires --disable-dependency-tracking
+  dnl NOTE: this argument is obsolete, and has been replaced by --enable-osx-sdk and --enable-osx-arch
+  dnl This is equivalent to --enable-osx-sdk=MacOSX10.4u.sdk --enable-osx-arch="ppc i386"
   AC_ARG_ENABLE(osx-universal-binaries,
 	      AC_HELP_STRING([--enable-osx-universal-binaries],
-			     [build universal binaries on OS X [[default=no]]]),
+			     [build two-way universal (ppc, i386) binaries on OS X. OBSOLETE: Consider using --enable-osx-sdk and --enable-osx-arch instead. [[default=no]]]),
 	      [build_osxuniversal="${enableval}"], [build_osxuniversal=no])
 
   if test "${build_osxuniversal}" != no ; then
@@ -109,9 +149,7 @@ Please re-run configure with these options:
     fi
     CXXFLAGS="$CXXFLAGS -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386"
     dnl LDFLAGS="$LDFLAGS -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386"
-  fi
-
-  CXXFLAGS="$CXXFLAGS -Wno-long-double"
+  fi  
   ;;
 esac
 
@@ -136,12 +174,14 @@ ImathTest/Makefile
 vc/Makefile
 ])
 
-if test "x$build_osxuniversal" = xyes; then
+if test "$osx_arch"; then
   AC_MSG_RESULT([
 ---------------------------------------------
 Summary for IlmBase features:
 
-build OS X universal binaries                   $build_osxuniversal
+OS X architectures                              $osx_arch
+OS X SDK                                        $osx_sdk
+OS X two-way universal build (deprecated)       $build_osxuniversal
 ---------------------------------------------
   ])
 else
