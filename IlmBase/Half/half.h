@@ -227,9 +227,10 @@ class HALF_EXPORT half
 
     unsigned short	_h;
 
-    static HALF_EXPORT_CONST uif	        _toFloat[1 << 16];
-    static HALF_EXPORT_CONST unsigned short _eLut[1 << 9];
 };
+
+extern HALF_EXPORT_CONST half::uif      _toFloat[1 << 16];
+extern HALF_EXPORT_CONST unsigned short _eLut[1 << 9];
 
 
 //-----------

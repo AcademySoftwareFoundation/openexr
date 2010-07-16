@@ -241,5 +241,32 @@ testMatrix ()
 	assert(m2[0][0] == (float)m1[0][0]);
     }
 
+	// VC 2005 64 bits compiler has a bug with __restrict keword.
+	// Pointers with __restrict should not alias the same symbol.
+	// But, with optimization on, VC removes intermediate temp variable
+	// and ignores __restrict.
+	{
+	cout << "M44 multiplicaftion test" << endl;
+	Imath::M44f M ( 1.0f,  2.0f,  3.0f,  4.0f,
+		5.0f,  6.0f,  7.0f,  8.0f,
+		9.0f, 10.0f, 11.0f, 12.0f,
+		13.0f, 14.0f, 15.0f, 16.0f);
+
+	Imath::M44f N; N.makeIdentity();
+
+	// N should be equal to M
+	// This typical test fails
+	// when __restrict is used for pointers in "multiply" function.
+	N = N * M;
+
+	assert(N == M);
+
+	if (N != M) {
+		cout << "M44 multiplication test has failed, error." << endl
+			<< "M" << endl << M << endl
+			<< "N" << endl << N << endl;
+	}
+	}
+
     cout << "ok\n" << endl;
 }

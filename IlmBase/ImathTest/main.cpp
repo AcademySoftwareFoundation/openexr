@@ -59,7 +59,7 @@
 int
 main (int argc, char *argv[])
 {
-    TEST (testVec);
+	TEST (testVec);
     TEST (testColor);
     TEST (testShear);
     TEST (testMatrix);

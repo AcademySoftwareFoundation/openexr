@@ -96,7 +96,8 @@
     // supports __restrict
     //
 
-    #define IMATH_RESTRICT __restrict
+//    #define IMATH_RESTRICT __restrict
+    #define IMATH_RESTRICT
 
 #else
 

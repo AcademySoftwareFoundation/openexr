@@ -36,7 +36,7 @@ testNormalizedConversionError()
 	    f = -f;
 
 	half h (f);
-	float e = 1.0 - h/f;
+	float e = 1.0f - h/f;
 
 	if (e < 0)
 	    e = -e;
@@ -106,7 +106,7 @@ testNormalizedRounding (int n)
 {
     cout << "rounding normalized numbers to " << n << "-bit precision\n";
 
-    float eExpected = (n < 10)? HALF_EPSILON * 0.5 * (1 << (10 - n)): 0;
+    float eExpected = (n < 10)? HALF_EPSILON * 0.5f * (1 << (10 - n)): 0;
     float eMax = 0;
 
     for (int i = 0; i < 200000; i++)
@@ -120,7 +120,7 @@ testNormalizedRounding (int n)
 	    h = -h;
 
 	half r (h.round(n));
-	float e = 1.0 - r/h;
+	float e = 1.0f - r/h;
 
 	if (e < 0)
 	    e = -e;
@@ -155,7 +155,7 @@ testDenormalizedRounding (int n)
 {
     cout << "rounding denormalized numbers to " << n << "-bit precision\n";
 
-    float eExpected = (n < 10)? HALF_MIN * 0.5 * (1 << (10 - n)): 0;
+    float eExpected = (n < 10)? HALF_MIN * 0.5f * (1 << (10 - n)): 0;
     float eMax = 0;
 
     for (int i = 0; i < 200000; i++)
