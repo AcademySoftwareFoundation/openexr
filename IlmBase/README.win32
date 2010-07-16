@@ -189,7 +189,7 @@ Step 5. Compile OpenEXR_Viewers
   d. Build the Release configuration of the OpenEXR_Viewers.
 
   e. Build the Debug configuration if desired.
-
+
 At this point, the Deploy folder should be fully built out and ready
 to be used.  Both exrdisplay and playexr are meant to be launched from
 the command line, as they originated as unix commands, so open a command
