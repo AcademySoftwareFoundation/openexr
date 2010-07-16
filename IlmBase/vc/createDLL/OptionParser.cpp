@@ -39,8 +39,9 @@
 // Also included are simple versions of Join and Split
 
 
+#include "IlmBaseConfig.h" /* [i_a] rude MSVC2005 hack */
 #include "OptionParser.h"
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64) /* [i_a] */
 #include <windows.h>
 #endif
 #include <string>
@@ -303,13 +304,26 @@ public:
     string& val;
 };
 
+class SetOptionalStringOption : public SetStringOption
+{
+public:
+    SetOptionalStringOption(const std::string& shortNameString, 
+        const std::string& longNameString,
+        std::string& modMe,
+        const std::string& helpString) : SetStringOption(shortNameString, longNameString, modMe, helpString)
+    {
+    }
+
+    virtual bool HasArgument() const { return false; }
+};
+
 class SetStringVectorOption : public OptionParser::Option
 {
 public:
     SetStringVectorOption(const std::string& shortNameString, 
         const std::string& longNameString,
         std::vector<std::string>& modMe,
-        const std::string& helpString) : val(modMe)
+        const std::string& helpString) : val(modMe), past_first_invocation(false)
     {
         shortName = shortNameString;
         longName = longNameString;
@@ -320,27 +334,49 @@ public:
     virtual std::string ArgumentType() const { return "vector<string>"; }
     virtual bool Action(const std::string& s)
     { 
+		// clear any preset when we hit this option the first time around:
+		if (!past_first_invocation)
+		{
+			val.clear();
+			past_first_invocation = true;
+		}
+
+		vector<string> newval;
+
         if (s.find(';') != string::npos)
         {
-            val = Split(s, ';');
+            newval = Split(s, ';');
         }
         else if (s.find(',') != string::npos)
         {
-            val = Split(s, ',');
+            newval = Split(s, ',');
         }
         else
         {
-            val.clear();
-            val.push_back(s);
+            newval.clear();
+            newval.push_back(s);
         }
+		// append to existing value:
+	    for (vector<string>::const_iterator i = newval.begin(); i != newval.end(); ++i)
+		{
+			val.push_back(*i);
+		}
 
         if (OptionParser::Verbose())
-            std::cout << "Setting string vector: " << help << "=" << s << std::endl;
+		{
+            std::cout << "Setting string vector: " << help << "="; // << s << std::endl;
+			for (size_t i = 0; i < val.size(); ++i)
+			{
+				std::cout << (i ? ";" : "") << val[i].c_str();
+			}
+            std::cout << std::endl;
+		}
 
         return true;
     }
 
     vector<string>& val;
+	bool past_first_invocation;
 };
 
 class SetIntOption : public OptionParser::Option
@@ -487,6 +523,15 @@ void OptionParser::AddStringOption(
                                    const std::string& help)
 {
     options.push_back(new SetStringOption(shortOption, longOption, modMe, help));
+}
+
+void OptionParser::AddOptionalStringOption(
+                                   const std::string& shortOption, // eg "-f"
+                                   const std::string& longOption,  // eg "--file"
+                                   std::string& modMe, 
+                                   const std::string& help)
+{
+    options.push_back(new SetOptionalStringOption(shortOption, longOption, modMe, help));
 }
 
 void OptionParser::AddStringVectorOption(
