@@ -622,7 +622,18 @@ newLineBufferTask
 			   lineBuffer->dataSize);
 	}
     }
-    catch (...)
+	catch (std::exception &e)
+	{
+	if (!lineBuffer->hasException)
+	{
+		lineBuffer->exception = e.what();
+		lineBuffer->hasException = true;
+	}
+	lineBuffer->number = -1;
+	lineBuffer->post();\
+	throw;
+	}
+	catch (...)
     {
 	//
 	// Reading from the file caused an exception.
@@ -630,6 +641,8 @@ newLineBufferTask
 	// re-throw the exception.
 	//
 
+	lineBuffer->exception = "unrecognized exception";
+	lineBuffer->hasException = true;
 	lineBuffer->number = -1;
 	lineBuffer->post();
 	throw;

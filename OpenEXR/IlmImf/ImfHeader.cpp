@@ -146,6 +146,19 @@ usesLongNames (const Header &header)
     return false;
 }
 
+template <size_t N>
+void checkIsNullTerminated (const char (&str)[N], const char *what)
+{
+	for (int i = 0; i < N; ++i) {
+		if (str[i] == '\0')
+			return;
+	}
+	std::stringstream s;
+	s << "Invalid " << what << ": it is more than " << (N - 1) 
+		<< " characters long.";
+	throw Iex::InputExc(s);
+}
+
 } // namespace
 
 
@@ -654,8 +667,8 @@ Header::sanityCheck (bool isTiled) const
 
     float pixelAspectRatio = this->pixelAspectRatio();
 
-    const float MIN_PIXEL_ASPECT_RATIO = 1e-6;
-    const float MAX_PIXEL_ASPECT_RATIO = 1e+6;
+    const float MIN_PIXEL_ASPECT_RATIO = 1e-6f;
+    const float MAX_PIXEL_ASPECT_RATIO = 1e+6f;
 
     if (pixelAspectRatio < MIN_PIXEL_ASPECT_RATIO ||
 	pixelAspectRatio > MAX_PIXEL_ASPECT_RATIO)
@@ -976,10 +989,12 @@ Header::readFrom (IStream &is, int &version)
 	//
 
 	char name[Name::SIZE];
-	Xdr::read <StreamIO> (is, sizeof (name), name);
+	Xdr::read <StreamIO> (is, Name::MAX_LENGTH, name);
 
 	if (name[0] == 0)
 	    break;
+
+	checkIsNullTerminated (name, "attribute name");
 
 	//
 	// Read the attribute type and the size of the attribute value.
@@ -988,7 +1003,8 @@ Header::readFrom (IStream &is, int &version)
 	char typeName[Name::SIZE];
 	int size;
 
-	Xdr::read <StreamIO> (is, sizeof (typeName), typeName);
+	Xdr::read <StreamIO> (is, Name::MAX_LENGTH, typeName);
+	checkIsNullTerminated (typeName, "attribute type name");
 	Xdr::read <StreamIO> (is, size);
 
 	AttributeMap::iterator i = _map.find (name);
