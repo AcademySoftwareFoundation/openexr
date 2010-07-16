@@ -433,7 +433,7 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 	FrameBuffer::ConstIterator i = oldFrameBuffer.begin();
 	FrameBuffer::ConstIterator j = frameBuffer.begin();
 
-	while (i != oldFrameBuffer.end() && j != oldFrameBuffer.end())
+	while (i != oldFrameBuffer.end() && j != frameBuffer.end())
 	{
 	    if (strcmp (i.name(), j.name()) || i.slice().type != j.slice().type)
 		break;

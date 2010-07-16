@@ -57,12 +57,16 @@ clearError ()
 
 
 bool
-checkError (istream &is)
+checkError (istream &is, streamsize expected = 0)
 {
     if (!is)
     {
 	if (errno)
 	    Iex::throwErrnoExc();
+	if (is.gcount() < expected) {
+		THROW (Iex::InputExc, "Early end of file: read " << is.gcount() << 
+		" out of " << expected << " requested bytes.");
+	}
 	return false;
     }
 
@@ -122,7 +126,7 @@ StdIFStream::read (char c[/*n*/], int n)
 
     clearError();
     _is->read (c, n);
-    return checkError (*_is);
+    return checkError (*_is, n);
 }
 
 

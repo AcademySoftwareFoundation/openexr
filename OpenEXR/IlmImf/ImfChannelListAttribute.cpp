@@ -45,6 +45,22 @@
 
 namespace Imf {
 
+namespace {
+
+template <size_t N>
+void checkIsNullTerminated (const char (&str)[N], const char *what)
+{
+    for (int i = 0; i < N; ++i) {
+        if (str[i] == '\0')
+            return;
+   }
+    std::stringstream s;
+    s << "Invalid " << what << ": it is more than " << (N - 1) 
+      << " characters long.";
+    throw Iex::InputExc(s);
+}
+
+} // namespace
 
 template <>
 const char *
@@ -98,10 +114,12 @@ ChannelListAttribute::readValueFrom (IStream &is, int size, int version)
 	//
 
 	char name[Name::SIZE];
-	Xdr::read <StreamIO> (is, sizeof (name), name);
+	Xdr::read <StreamIO> (is, Name::MAX_LENGTH, name);
 
 	if (name[0] == 0)
 	    break;
+
+	checkIsNullTerminated (name, "channel name");
 
 	//
 	// Read Channel struct
