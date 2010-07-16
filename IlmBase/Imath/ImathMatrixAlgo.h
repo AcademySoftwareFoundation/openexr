@@ -543,6 +543,7 @@ extractEulerXYZ (const Matrix44<T> &mat, Vec3<T> &rot)
 		   k[0], k[1], k[2], 0, 
 		   0,    0,    0,    1);
 
+
     //
     // Extract the first angle, rot.x.
     // 
@@ -554,18 +555,18 @@ extractEulerXYZ (const Matrix44<T> &mat, Vec3<T> &rot)
     // rotation, N, is only around two axes, and gimbal lock
     // cannot occur.
     //
-
     Matrix44<T> N;
     N.rotate (Vec3<T> (-rot.x, 0, 0));
-    N = N * M;
 
-    //
+	N = N * M;
+
     // Extract the other two angles, rot.y and rot.z, from N.
     //
 
     T cy = Math<T>::sqrt (N[0][0]*N[0][0] + N[0][1]*N[0][1]);
     rot.y = Math<T>::atan2 (-N[0][2], cy);
     rot.z = Math<T>::atan2 (-N[1][0], N[1][1]);
+
 }
 
 

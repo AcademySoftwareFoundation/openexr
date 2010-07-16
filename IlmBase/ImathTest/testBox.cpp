@@ -656,8 +656,8 @@ testCenter(const char *type)
         T p1;
         for (unsigned int i = 0; i < T::dimensions(); i++)
         {
-            p0[i] = -pow(2, i + 1);
-            p1[i] =  pow(2, T::dimensions() - i);
+            p0[i] = -pow(2.0, (int)(i + 1));
+            p1[i] =  pow(2.0, (int)(T::dimensions() - i));
         }
         Imath::Box<T> b1(p0, p1);
         assert(b1.center() == (p1 + p0) / 2);
@@ -710,8 +710,8 @@ testIsEmpty(const char *type)
         T p1;
         for (unsigned int i = 0; i < T::dimensions(); i++)
         {
-            p0[i] = -pow(2, i + 1);
-            p1[i] =  pow(2, T::dimensions() - i);
+           p0[i] = -pow(2.0, (int)(i + 1));
+           p1[i] =  pow(2.0, (int)(T::dimensions() - i));
         }
         Imath::Box<T> b1(p0, p1);
         assert(!b1.isEmpty());
@@ -764,8 +764,8 @@ testHasVolume(const char *type)
         T p1;
         for (unsigned int i = 0; i < T::dimensions(); i++)
         {
-            p0[i] = -pow(2, i + 1);
-            p1[i] =  pow(2, T::dimensions() - i);
+            p0[i] = -pow(2.0, (int)(i + 1));
+            p1[i] =  pow(2.0, (int)(T::dimensions() - i));
         }
         Imath::Box<T> b1(p0, p1);
         assert(b1.hasVolume());
