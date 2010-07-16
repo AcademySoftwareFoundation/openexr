@@ -4,11 +4,15 @@
 	Version="8.00"
 	Name="IlmImf"
 	ProjectGUID="{7DF42126-D237-41D3-9ABE-A3ACC8BAC56E}"
+	RootNamespace="IlmImf"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
 		<Platform
 			Name="Win32"
+		/>
+		<Platform
+			Name="x64"
 		/>
 	</Platforms>
 	<ToolFiles>
@@ -16,8 +20,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\Debug"
-			IntermediateDirectory="Debug"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
@@ -66,7 +70,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\..\..\..\..\Deploy\lib\$(IntDir)\zdll.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib"
+				AdditionalDependencies="..\..\..\..\..\..\Deploy\lib\$(IntDir)\zlibwapi.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib"
 				OutputFile="$(OutDir)/IlmImf.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -104,9 +108,99 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Debug|x64"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Building LUT files..."
+				CommandLine="..\..\..\buildLUTs.cmd Debug"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\..\..\..\IlmImf;..\..\..\..\config.windows;..\..\..\..\..\..\Deploy\include"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN64;_DEBUG;_WINDOWS;_USRDLL;ILMIMF_EXPORTS"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				EnableEnhancedInstructionSet="2"
+				ForceConformanceInForLoopScope="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="..\..\..\..\..\..\Deploy\lib\$(IntDir)\zlibwapi.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib"
+				OutputFile="$(OutDir)/IlmImf.dll"
+				LinkIncremental="2"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)/IlmImf.pdb"
+				GenerateMapFile="true"
+				MapExports="true"
+				SubSystem="2"
+				ImportLibrary="$(OutDir)/IlmImf.lib"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="..\..\..\..\..\..\Deploy\bin\$(IntDir)\createDLL -M$(PlatformName) -n$(OutDir)\IlmImf.map -l$(IntDir);..\..\..\..\..\..\Deploy\lib\$(IntDir) -i$(OutDir)\IlmImf.lib &amp;&amp; ..\..\..\installIlmImf.cmd $(IntDir)"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\Release"
-			IntermediateDirectory="Release"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
@@ -130,6 +224,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="2"
+				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories="..\..\..\..\IlmImf;..\..\..\..\config.windows;..\..\..\..\..\..\Deploy\include"
 				PreprocessorDefinitions="OPENEXR_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;ILMIMF_EXPORTS"
 				RuntimeLibrary="2"
@@ -152,7 +248,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\..\..\..\..\Deploy\lib\$(IntDir)\zdll.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib"
+				AdditionalDependencies="..\..\..\..\..\..\Deploy\lib\$(IntDir)\zlibwapi.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib"
 				OutputFile="$(OutDir)/IlmImf.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
@@ -188,6 +284,95 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine="..\..\..\..\..\..\Deploy\bin\$(IntDir)\createDLL -n$(OutDir)\IlmImf.map -l$(IntDir);..\..\..\..\..\..\Deploy\lib\$(IntDir) -i$(OutDir)\IlmImf.lib &amp;&amp; ..\..\..\installIlmImf.cmd $(IntDir)"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|x64"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Building LUT files..."
+				CommandLine="..\..\..\buildLUTs.cmd"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				FavorSizeOrSpeed="0"
+				AdditionalIncludeDirectories="..\..\..\..\IlmImf;..\..\..\..\config.windows;..\..\..\..\..\..\Deploy\include"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN64;NDEBUG;_WINDOWS;_USRDLL;ILMIMF_EXPORTS"
+				RuntimeLibrary="2"
+				EnableEnhancedInstructionSet="2"
+				ForceConformanceInForLoopScope="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="..\..\..\..\..\..\Deploy\lib\$(IntDir)\zlibwapi.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib"
+				OutputFile="$(OutDir)/IlmImf.dll"
+				LinkIncremental="1"
+				GenerateDebugInformation="true"
+				GenerateMapFile="true"
+				MapExports="true"
+				SubSystem="2"
+				OptimizeReferences="1"
+				EnableCOMDATFolding="2"
+				ImportLibrary="$(OutDir)/IlmImf.lib"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="..\..\..\..\..\..\Deploy\bin\$(IntDir)\createDLL -M$(PlatformName) -n$(OutDir)\IlmImf.map -l$(IntDir);..\..\..\..\..\..\Deploy\lib\$(IntDir) -i$(OutDir)\IlmImf.lib &amp;&amp; ..\..\..\installIlmImf.cmd $(IntDir)"
 			/>
 		</Configuration>
 	</Configurations>
@@ -312,6 +497,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\IlmImf\ImfMultiView.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\IlmImf\ImfOpaqueAttribute.cpp"
 				>
 			</File>
@@ -369,6 +558,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\IlmImf\ImfStringAttribute.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\IlmImf\ImfStringVectorAttribute.cpp"
 				>
 			</File>
 			<File
@@ -566,6 +759,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\IlmImf\ImfMultiView.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\IlmImf\ImfName.h"
 				>
 			</File>
@@ -635,6 +832,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\IlmImf\ImfStringAttribute.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\IlmImf\ImfStringVectorAttribute.h"
 				>
 			</File>
 			<File
