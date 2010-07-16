@@ -68,6 +68,7 @@
 #ifndef OPTIONPARSER_H
 #define OPTIONPARSER_H
 
+#include "IlmBaseConfig.h" /* [i_a] rude MSVC2005 hack */
 #include <string>
 #include <vector>
 
@@ -140,6 +141,11 @@ public:
         bool& modMe, 
         const std::string& help);
     void AddStringOption(
+        const std::string& shortOption, // eg "-f"
+        const std::string& longOption,  // eg "--file"
+        std::string& modMe, 
+        const std::string& help);
+    void AddOptionalStringOption(
         const std::string& shortOption, // eg "-f"
         const std::string& longOption,  // eg "--file"
         std::string& modMe, 
