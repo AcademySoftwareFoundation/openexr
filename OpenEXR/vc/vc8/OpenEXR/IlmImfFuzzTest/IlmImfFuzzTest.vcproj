@@ -69,7 +69,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmImf.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib"
-				OutputFile="$(OutDir)/IlmImfTest.exe"
+				OutputFile="$(OutDir)/IlmImfFuzzTest.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/IlmImfTest.pdb"
@@ -155,7 +155,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmImf.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib"
-				OutputFile="$(OutDir)/IlmImfTest.exe"
+				OutputFile="$(OutDir)/IlmImfFuzzTest.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/IlmImfTest.pdb"
@@ -237,7 +237,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmImf.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib"
-				OutputFile="$(OutDir)/IlmImfTest.exe"
+				OutputFile="$(OutDir)/IlmImfFuzzTest.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -321,7 +321,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmImf.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib"
-				OutputFile="$(OutDir)/IlmImfTest.exe"
+				OutputFile="$(OutDir)/IlmImfFuzzTest.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -353,7 +353,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Running IlmImf fuzz tests..."
-				CommandLine="copy $(TargetPath) ..\..\..\..\..\..\Deploy\bin\$(IntDir)&#x0D;&#x0A;pushd ..\..\..\..\IlmImfTest&#x0D;&#x0A;..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)&#x0D;&#x0A;popd&#x0D;&#x0A;del ..\..\..\..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)&#x0D;&#x0A;"
+				CommandLine="copy $(TargetPath) ..\..\..\..\..\..\Deploy\bin\$(IntDir)&#x0D;&#x0A;pushd ..\..\..\..\IlmImfTest&#x0D;&#x0A;..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)&#x0D;&#x0A;popd&#x0D;&#x0A;del ..\..\..\..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)"
 			/>
 		</Configuration>
 	</Configurations>
