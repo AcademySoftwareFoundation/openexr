@@ -226,17 +226,10 @@ class HALF_EXPORT half
     static float	overflow ();
 
     unsigned short	_h;
-#ifndef OPENEXR_DLL
-    static const uif		_toFloat[1 << 16];
-    static const unsigned short _eLut[1 << 9];
-#endif
 
+	static HALF_EXPORT_CONST uif		_toFloat[1 << 16];
+	static HALF_EXPORT_CONST unsigned short _eLut[1 << 9];
 };
-
-#if defined(OPENEXR_DLL)
-extern HALF_EXPORT_CONST half::uif      _toFloat[1 << 16];
-extern HALF_EXPORT_CONST unsigned short _eLut[1 << 9];
-#endif
 
 //-----------
 // Stream I/O
