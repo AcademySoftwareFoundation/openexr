@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(OpenEXR, 1.6.1)
-AC_SUBST(OPENEXR_VERSION, 1.6.1)
+AC_INIT(OpenEXR, 1.7.0)
+AC_SUBST(OPENEXR_VERSION, 1.7.0)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(IlmImfTest/main.cpp)
 AM_CONFIG_HEADER(config/OpenEXRConfig.h)
@@ -49,7 +49,7 @@ AM_PATH_PKGCONFIG(
    [IlmBase],
    [OpenEXR],
    [$LIB64_IF_EXISTS -L/usr/local/lib],
-   [-lImath -lHalf -lIex -lIlmThread],
+   [-lImath -lHalf -lIex -lIlmThread -lpthread],
    [ilmbase-prefix])
 
 dnl --enable-threading
