@@ -38,6 +38,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "exrstdattr", "exrstdattr\ex
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IlmImfFuzzTest", "IlmImfFuzzTest\IlmImfFuzzTest.vcproj", "{EB72BB5A-6559-4CDA-8ADE-EA9EDF7720DE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7DF42126-D237-41D3-9ABE-A3ACC8BAC56E} = {7DF42126-D237-41D3-9ABE-A3ACC8BAC56E}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -112,13 +115,9 @@ Global
 		{7D3BC4DB-C194-43A7-B9A8-DD8C9F9E7945}.Release|x64.ActiveCfg = Release|x64
 		{7D3BC4DB-C194-43A7-B9A8-DD8C9F9E7945}.Release|x64.Build.0 = Release|x64
 		{EB72BB5A-6559-4CDA-8ADE-EA9EDF7720DE}.Debug|Win32.ActiveCfg = Debug|Win32
-		{EB72BB5A-6559-4CDA-8ADE-EA9EDF7720DE}.Debug|Win32.Build.0 = Debug|Win32
 		{EB72BB5A-6559-4CDA-8ADE-EA9EDF7720DE}.Debug|x64.ActiveCfg = Debug|x64
-		{EB72BB5A-6559-4CDA-8ADE-EA9EDF7720DE}.Debug|x64.Build.0 = Debug|x64
 		{EB72BB5A-6559-4CDA-8ADE-EA9EDF7720DE}.Release|Win32.ActiveCfg = Release|Win32
-		{EB72BB5A-6559-4CDA-8ADE-EA9EDF7720DE}.Release|Win32.Build.0 = Release|Win32
 		{EB72BB5A-6559-4CDA-8ADE-EA9EDF7720DE}.Release|x64.ActiveCfg = Release|x64
-		{EB72BB5A-6559-4CDA-8ADE-EA9EDF7720DE}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
