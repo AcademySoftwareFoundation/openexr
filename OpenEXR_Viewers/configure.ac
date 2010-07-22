@@ -59,7 +59,7 @@ AM_PATH_PKGCONFIG(
    [OpenEXR],
    [OpenEXR],
    [$LIB64_IF_EXISTS -L/usr/local/lib],
-   [-lIlmImf -lImath -lIex -lHalf -lz],
+   [-lIlmImf -lImath -lIex -lHalf -lz -lpthread],
    [openexr-prefix])
 
 dnl
@@ -72,7 +72,7 @@ AM_PATH_PKGCONFIG(
    [OpenEXR_CTL],
    [OpenEXR CTL],
    [$LIB64_IF_EXISTS -L/usr/local/lib],
-   [-lIlmImfCtl -lIlmImf -lz -lImath -lHalf -lIex -lIlmThread -lpthread -lIlmCtlSimd -lIlmCtlMath -lIlmCtl -lImath -lHalf -lIex -lIlmThread -lpthread ],
+   [-lIlmImfCtl -lIlmImf -lz -lImath -lHalf -lIex -lIlmThread -lpthread -lIlmCtlSimd -lIlmCtlMath -lIlmCtl],
    [openexrctl-prefix])
 
 
@@ -164,6 +164,8 @@ fi
    OPENEXR_CTL_CXXFLAGS="$OPENEXR_CTL_CXXFLAGS -DHAVE_CTL_INTERPRETER=1 -DCTL_MODULE_BASE_PATH=\\\"$ACTUAL_PREFIX/lib/CTL\\\""
 else
    OPENEXR_CTL_CXXFLAGS="-DHAVE_CTL_INTERPRETER=0 $OPENEXR_CXXFLAGS"
+   OPENEXR_CTL_LIBS="-DHAVE_CTL_INTERPRETER=0 $OPENEXR_LIBS"
+   OPENEXR_CTL_LDFLAGS="-DHAVE_CTL_INTERPRETER=0 $OPENEXR_LDFLAGS"
 fi]
 
 dnl
