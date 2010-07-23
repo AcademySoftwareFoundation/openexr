@@ -1,3 +1,18 @@
+Version 1.0.2
+	* Added support for targetting builds on 64bit Windows and minimising 
+	  number of compiler warnings on Windows. Thanks to Ger Hobbelt for his
+	  contributions to CreateDLL.
+	  (Ji Hun Yu)
+	* Removed a spurious restrict qualifier in the matrix manipulation code
+	  that was causing the 64-bit MS compiler to generate code in release 
+	  mode that caused incorrect results. 
+	  (Ji Hun Yu)
+	* Added patches for improving universal binaries on OS X. Thanks to
+	  Paul Schneider for the contribution
+	  (Piotr Stanczyk)
+	* Imath::Box optimization: remove loops from methods by partially 
+	  specializing the class, for boxes of two and three dimensions.
+	  (Piotr Stanczyk)
 	* Added explicit copy constructors to Imath::Matrix33<T> and
 	  ImathMatrix44<T> to make conversions between float and double
 	  matrices more convenient.
