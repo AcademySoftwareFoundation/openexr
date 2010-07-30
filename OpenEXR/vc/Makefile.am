@@ -45,6 +45,7 @@ EXTRA_DIST = \
         vc8/OpenEXR/IlmImfTest/IlmImfTest.vcproj \
         vc8/OpenEXR/IlmImfTest/Debug/.cvsignore \
         vc8/OpenEXR/IlmImfTest/Release/.cvsignore \
+        vc8/OpenEXR/IlmImfFuzzTest/IlmImfFuzzTest.vcproj \
         vc8/OpenEXR/debug/.cvsignore \
         vc8/OpenEXR/exrenvmap/exrenvmap.vcproj \
         vc8/OpenEXR/exrenvmap/Debug/.cvsignore \
