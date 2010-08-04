@@ -45,6 +45,7 @@
 #include "Iex.h"
 #include <iostream>
 #include <algorithm>
+#include <string.h>
 
 using namespace std;
 using namespace Imf;
