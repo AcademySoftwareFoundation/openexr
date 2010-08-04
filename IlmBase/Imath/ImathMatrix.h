@@ -51,6 +51,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <string.h>
 
 #if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
 // suppress exception specification warnings
