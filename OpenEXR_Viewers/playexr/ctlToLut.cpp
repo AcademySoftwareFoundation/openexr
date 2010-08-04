@@ -59,6 +59,7 @@
 
     #include <ImfStandardAttributes.h>
     #include <ImfHeader.h>
+    #include <stdlib.h>
     #include <cassert>
     #include <iostream>
 
