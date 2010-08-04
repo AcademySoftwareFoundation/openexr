@@ -46,6 +46,7 @@
     #include <CtlSimdInterpreter.h>
     #include <ImfStandardAttributes.h>
     #include <ImfHeader.h>
+    #include <stdlib.h>
     #include <ImfFrameBuffer.h>
     #include <cassert>
     #include <iostream>
