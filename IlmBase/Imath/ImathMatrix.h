@@ -369,6 +369,14 @@ template <class T> class Matrix33
     const Matrix33 &    shear (const Vec2<S> &h);
 
 
+    //--------------------------------------------------------
+    // Number of the row and column dimensions, since
+    // Matrix33 is a square matrix.
+    //--------------------------------------------------------
+
+    static unsigned int	dimensions() {return 3;}
+
+
     //-------------------------------------------------
     // Limitations of type T (see also class limits<T>)
     //-------------------------------------------------
@@ -377,6 +385,9 @@ template <class T> class Matrix33
     static T            baseTypeMax()           {return limits<T>::max();}
     static T            baseTypeSmallest()      {return limits<T>::smallest();}
     static T            baseTypeEpsilon()       {return limits<T>::epsilon();}
+
+    typedef T		BaseType;
+    typedef Vec3<T>	BaseVecType;
 
   private:
 
@@ -739,6 +750,14 @@ template <class T> class Matrix44
     const Matrix44 &    shear (const Shear6<S> &h);
 
 
+    //--------------------------------------------------------
+    // Number of the row and column dimensions, since
+    // Matrix44 is a square matrix.
+    //--------------------------------------------------------
+
+    static unsigned int	dimensions() {return 4;}
+
+
     //-------------------------------------------------
     // Limitations of type T (see also class limits<T>)
     //-------------------------------------------------
@@ -747,6 +766,9 @@ template <class T> class Matrix44
     static T            baseTypeMax()           {return limits<T>::max();}
     static T            baseTypeSmallest()      {return limits<T>::smallest();}
     static T            baseTypeEpsilon()       {return limits<T>::epsilon();}
+
+    typedef T		BaseType;
+    typedef Vec4<T>	BaseVecType;
 
   private:
 
