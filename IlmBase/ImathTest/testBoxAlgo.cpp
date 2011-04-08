@@ -878,11 +878,19 @@ boxMatrixTransform ()
     Box3f b2 = transform (b1, M);
     Box3f b3 = affineTransform (b1, M);
     Box3f b4 = transformSimple (b1, M);
+    Box3f b21;
+    Box3f b31;
+
+    transform (b1, M, b21);
+    affineTransform (b1, M, b31);
 
     assert (approximatelyEqual (b2.min, b4.min, e));
     assert (approximatelyEqual (b2.max, b4.max, e));
     assert (approximatelyEqual (b3.max, b4.max, e));
     assert (approximatelyEqual (b3.max, b4.max, e));
+
+    assert (b21 == b2);
+    assert (b31 == b3);
 
     M[0][3] = 1;
     M[1][3] = 2;
@@ -891,9 +899,14 @@ boxMatrixTransform ()
 
     Box3f b5 = transform (b1, M);
     Box3f b6 = transformSimple (b1, M);
+    Box3f b51;
+
+    transform (b1, M, b51);
 
     assert (approximatelyEqual (b5.min, b6.min, e));
     assert (approximatelyEqual (b5.max, b6.max, e));
+    assert (b51 == b5);
+    
 }
 
 

@@ -137,7 +137,7 @@ testFrustumPlanes  (Imath::Frustumf &frustum)
                             mView.multDirMatrix (front, front);
                             assert ((front ^ planes[4].normal) > 0.0);
                             
-                            pt = Imath::V3f (0.0f, 0.0f, -frustum.near());
+                            pt = Imath::V3f (0.0f, 0.0f, -frustum.nearPlane());
                             d = planes0[4].distanceTo (pt);
                             assert (Imath::iszero (d, eps));
                             pt = pt * mView;
@@ -149,7 +149,7 @@ testFrustumPlanes  (Imath::Frustumf &frustum)
                             mView.multDirMatrix (back, back);
                             assert ((back ^ planes[5].normal) > 0.0);
                             
-                            pt = Imath::V3f (0.0f, 0.0f, -frustum.far());
+                            pt = Imath::V3f (0.0f, 0.0f, -frustum.farPlane());
                             d = planes0[5].distanceTo (pt);
                             assert (Imath::iszero (d, eps));
                             pt = pt * mView;

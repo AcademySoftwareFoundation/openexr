@@ -101,6 +101,7 @@ class Box
     void		makeEmpty ();
     void		extendBy (const T &point);
     void		extendBy (const Box<T> &box);
+    void		makeInfinite ();    
 
     //---------------------------------------------------
     //	Query functions - these compute results each time
@@ -119,6 +120,7 @@ class Box
 
     bool		isEmpty () const;
     bool		hasVolume () const;
+    bool		isInfinite () const;
 };
 
 
@@ -184,6 +186,13 @@ inline void Box<T>::makeEmpty()
 {
     min = T(T::baseTypeMax());
     max = T(T::baseTypeMin());
+}
+
+template <class T>
+inline void Box<T>::makeInfinite()
+{
+    min = T(T::baseTypeMin());
+    max = T(T::baseTypeMax());
 }
 
 
@@ -277,6 +286,19 @@ Box<T>::isEmpty() const
     return false;
 }
 
+template <class T>
+inline bool
+Box<T>::isInfinite() const
+{
+    for (unsigned int i = 0; i < min.dimensions(); i++)
+    {
+        if (min[i] != T::baseTypeMin() || max[i] != T::baseTypeMax())
+	    return false;
+    }
+
+    return true;
+}
+
 
 template <class T>
 inline bool
@@ -350,6 +372,7 @@ class Box<Vec2<T> >
     void		makeEmpty();
     void		extendBy (const Vec2<T> &point);
     void		extendBy (const Box<Vec2<T> > &box);
+    void		makeInfinite();
 
     //---------------------------------------------------
     //  Query functions - these compute results each time
@@ -368,6 +391,7 @@ class Box<Vec2<T> >
 
     bool		isEmpty() const;
     bool		hasVolume() const;
+    bool		isInfinite() const;
 };
 
 
@@ -418,6 +442,13 @@ inline void Box<Vec2<T> >::makeEmpty()
 {
     min = Vec2<T>(Vec2<T>::baseTypeMax());
     max = Vec2<T>(Vec2<T>::baseTypeMin());
+}
+
+template <class T>
+inline void Box<Vec2<T> >::makeInfinite()
+{
+    min = Vec2<T>(Vec2<T>::baseTypeMin());
+    max = Vec2<T>(Vec2<T>::baseTypeMax());
 }
 
 
@@ -511,6 +542,17 @@ Box<Vec2<T> >::isEmpty() const
     return false;
 }
 
+template <class T>
+inline bool
+Box<Vec2<T> > ::isInfinite() const
+{
+    if (min[0] != limits<T>::min() || max[0] != limits<T>::max() ||
+        min[1] != limits<T>::min() || max[1] != limits<T>::max())
+        return false;
+    
+    return true;
+}
+
 
 template <class T>
 inline bool
@@ -572,6 +614,7 @@ class Box<Vec3<T> >
     void		makeEmpty();
     void		extendBy (const Vec3<T> &point);
     void		extendBy (const Box<Vec3<T> > &box);
+    void		makeInfinite ();
 
     //---------------------------------------------------
     //  Query functions - these compute results each time
@@ -590,6 +633,7 @@ class Box<Vec3<T> >
 
     bool		isEmpty() const;
     bool		hasVolume() const;
+    bool		isInfinite() const;
 };
 
 
@@ -641,6 +685,13 @@ inline void Box<Vec3<T> >::makeEmpty()
 {
     min = Vec3<T>(Vec3<T>::baseTypeMax());
     max = Vec3<T>(Vec3<T>::baseTypeMin());
+}
+
+template <class T>
+inline void Box<Vec3<T> >::makeInfinite()
+{
+    min = Vec3<T>(Vec3<T>::baseTypeMin());
+    max = Vec3<T>(Vec3<T>::baseTypeMax());
 }
 
 
@@ -747,6 +798,18 @@ Box<Vec3<T> >::isEmpty() const
         return true;
 
     return false;
+}
+
+template <class T>
+inline bool
+Box<Vec3<T> >::isInfinite() const
+{
+    if (min[0] != limits<T>::min() || max[0] != limits<T>::max() ||
+        min[1] != limits<T>::min() || max[1] != limits<T>::max() ||
+        min[2] != limits<T>::min() || max[2] != limits<T>::max())
+        return false;
+    
+    return true;
 }
 
 
