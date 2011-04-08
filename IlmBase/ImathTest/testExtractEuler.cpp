@@ -122,7 +122,7 @@ testRandomAngles (M44f (*matrixEulerMatrix)(const M44f &, Eulerf::Order),
 {
     Rand48 r(0);
 
-	for (int i = 0; i < 100000; ++i)
+    for (int i = 0; i < 100000; ++i)
     {
 	//
 	// Create a rotation matrix, M
@@ -196,11 +196,11 @@ test (M44f (*matrixEulerMatrix)(const M44f &, Eulerf::Order),
 {
     cout << "order = " << setbase (16) << int (order) << setbase (10) << endl;
 
-     cout << "random angles" << endl;
+    // cout << "random angles" << endl;
 
     testRandomAngles (matrixEulerMatrix, order);
 
-     cout << "special angles" << endl;
+    // cout << "special angles" << endl;
 
     for (int i = 0; i < 360; i += 90)
 	for (int j = 0; j < 360; j += 90)

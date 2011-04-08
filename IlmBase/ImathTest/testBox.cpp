@@ -186,6 +186,51 @@ testMakeEmpty(const char *type)
 
 template <class T>
 void
+testMakeInfinite(const char *type)
+{
+    cout << "    makeInfinite() for type " << type << endl;
+
+    //
+    // Infinite box
+    //
+    {
+        Imath::Box<T> b;
+        b.makeInfinite();
+        assert(b.min == T(T::baseTypeMin()) &&
+               b.max == T(T::baseTypeMax()));
+    }
+
+    //
+    // Non-empty, has volume
+    //
+    {
+        Imath::Box<T> b(T(-1), T(1));
+        b.makeInfinite();
+        assert(b.min == T(T::baseTypeMin()) &&
+               b.max == T(T::baseTypeMax()));
+    }
+
+    //
+    // Non-empty, no volume
+    // Boxes are:
+    //    2D: [(0, 0),       (0, 1)      ]
+    //    3D: [(0, 0, 0),    (0, 0, 1)   ]
+    //    4D: [(0, 0, 0, 0), (0, 0, 0, 1)]
+    //
+    {
+        T min(0);
+        T max(0);
+        max[T::dimensions() - 1] = 1;
+
+        Imath::Box<T> b(min, max);
+        b.makeInfinite();
+        assert(b.min == T(T::baseTypeMin()) &&
+               b.max == T(T::baseTypeMax()));
+    }
+}
+
+template <class T>
+void
 testExtendByPoint(const char *type)
 {
     cout << "    extendBy() point for type " << type << endl;
@@ -738,6 +783,61 @@ testIsEmpty(const char *type)
 
 template <class T>
 void
+testIsInfinite(const char *type)
+{
+    cout << "    isInfinite() for type " << type << endl;
+
+    //
+    // Infinite box.
+    //
+    {
+        Imath::Box<T> b;
+        b.makeInfinite();
+        assert(b.isInfinite());
+    }
+
+    //
+    // Non-empty, has-volume box.
+    //    2D: [(-2, -4),         ( 8,  2)       ]
+    //    3D: [(-2, -4, -6),     (12,  8, 2)    ]
+    //    4D: [(-2, -4, -6, -8), (16, 12, 8, 4) ]
+    //
+    {
+        Imath::Box<T> b0(T(-1), T(1));
+        assert(!b0.isInfinite());
+
+        T p0;
+        T p1;
+        for (unsigned int i = 0; i < T::dimensions(); i++)
+        {
+            p0[i] = -pow(2, i + 1);
+            p1[i] =  pow(2, T::dimensions() - i);
+        }
+        Imath::Box<T> b1(p0, p1);
+        assert(!b1.isInfinite());
+    }
+
+    //
+    // Non-empty, no-volume box.
+    // Boxes are:
+    //    2D: [(0, 0),       (0, 2)      ]
+    //    3D: [(0, 0, 0),    (0, 0, 2)   ]
+    //    4D: [(0, 0, 0, 0), (0, 0, 0, 2)]
+    //
+    {
+        T min(0);
+        T max = min;
+        max[T::dimensions() - 1] = 2;
+
+        Imath::Box<T> b(min, max);
+
+        assert(!b.isInfinite());
+    }
+}
+
+
+template <class T>
+void
 testHasVolume(const char *type)
 {
     cout << "    hasVolume() for type " << type << endl;
@@ -748,6 +848,15 @@ testHasVolume(const char *type)
     {
         Imath::Box<T> b;
         assert(!b.hasVolume());
+    }
+
+    //
+    // Infinite box.
+    //
+    {
+        Imath::Box<T> b;
+        b.makeInfinite();
+        assert(b.hasVolume());
     }
 
     //
@@ -898,6 +1007,24 @@ testBox()
     testMakeEmpty<Imath::V4d>("V4d");
 
     //
+    // makeInfinite()
+    //
+    testMakeInfinite<Imath::V2s>("V2s");
+    testMakeInfinite<Imath::V2i>("V2i");
+    testMakeInfinite<Imath::V2f>("V2f");
+    testMakeInfinite<Imath::V2d>("V2d");
+
+    testMakeInfinite<Imath::V3s>("V3s");
+    testMakeInfinite<Imath::V3i>("V3i");
+    testMakeInfinite<Imath::V3f>("V3f");
+    testMakeInfinite<Imath::V3d>("V3d");
+
+    testMakeInfinite<Imath::V4s>("V4s");
+    testMakeInfinite<Imath::V4i>("V4i");
+    testMakeInfinite<Imath::V4f>("V4f");
+    testMakeInfinite<Imath::V4d>("V4d");
+
+    //
     // extendBy() (point)
     //
     testExtendByPoint<Imath::V2s>("V2s");
@@ -1004,6 +1131,24 @@ testBox()
     testIsEmpty<Imath::V4i>("V4i");
     testIsEmpty<Imath::V4f>("V4f");
     testIsEmpty<Imath::V4d>("V4d");
+
+    //
+    // isInfinite()
+    //
+    testIsInfinite<Imath::V2s>("V2s");
+    testIsInfinite<Imath::V2i>("V2i");
+    testIsInfinite<Imath::V2f>("V2f");
+    testIsInfinite<Imath::V2d>("V2d");
+
+    testIsInfinite<Imath::V3s>("V3s");
+    testIsInfinite<Imath::V3i>("V3i");
+    testIsInfinite<Imath::V3f>("V3f");
+    testIsInfinite<Imath::V3d>("V3d");
+
+    testIsInfinite<Imath::V4s>("V4s");
+    testIsInfinite<Imath::V4i>("V4i");
+    testIsInfinite<Imath::V4f>("V4f");
+    testIsInfinite<Imath::V4d>("V4d");
 
     //
     // hasVolume()
