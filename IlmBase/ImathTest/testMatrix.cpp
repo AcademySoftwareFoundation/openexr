@@ -36,10 +36,12 @@
 
 #include <testMatrix.h>
 #include "ImathMatrix.h"
+#include "ImathMatrixAlgo.h"
 #include "ImathVec.h"
 #include "ImathLimits.h"
 #include "ImathMath.h"
 #include "ImathInt64.h"
+#include "ImathRandom.h"
 #include <iostream>
 #include <assert.h>
 
@@ -241,32 +243,215 @@ testMatrix ()
 	assert(m2[0][0] == (float)m1[0][0]);
     }
 
-	// VC 2005 64 bits compiler has a bug with __restrict keword.
-	// Pointers with __restrict should not alias the same symbol.
-	// But, with optimization on, VC removes intermediate temp variable
-	// and ignores __restrict.
-	{
-	cout << "M44 multiplicaftion test" << endl;
-	Imath::M44f M ( 1.0f,  2.0f,  3.0f,  4.0f,
-		5.0f,  6.0f,  7.0f,  8.0f,
-		9.0f, 10.0f, 11.0f, 12.0f,
-		13.0f, 14.0f, 15.0f, 16.0f);
+    // Matrix minors
+    {
+        cout << "3x3 Matrix minors" << endl;
 
-	Imath::M44f N; N.makeIdentity();
+        Imath::M33f a(1,2,3,4,5,6,7,8,9);
 
-	// N should be equal to M
-	// This typical test fails
-	// when __restrict is used for pointers in "multiply" function.
-	N = N * M;
+        assert (a.minorOf(0,0) == a.fastMinor(1,2,1,2));
+        assert (a.minorOf(0,1) == a.fastMinor(1,2,0,2));
+        assert (a.minorOf(0,2) == a.fastMinor(1,2,0,1));
+        assert (a.minorOf(1,0) == a.fastMinor(0,2,1,2));
+        assert (a.minorOf(1,1) == a.fastMinor(0,2,0,2));
+        assert (a.minorOf(1,2) == a.fastMinor(0,2,0,1));
+        assert (a.minorOf(2,0) == a.fastMinor(0,1,1,2));
+        assert (a.minorOf(2,1) == a.fastMinor(0,1,0,2));
+        assert (a.minorOf(2,2) == a.fastMinor(0,1,0,1));
+    }
+    {
+        Imath::M33d a(1,2,3,4,5,6,7,8,9);
 
-	assert(N == M);
+        assert (a.minorOf(0,0) == a.fastMinor(1,2,1,2));
+        assert (a.minorOf(0,1) == a.fastMinor(1,2,0,2));
+        assert (a.minorOf(0,2) == a.fastMinor(1,2,0,1));
+        assert (a.minorOf(1,0) == a.fastMinor(0,2,1,2));
+        assert (a.minorOf(1,1) == a.fastMinor(0,2,0,2));
+        assert (a.minorOf(1,2) == a.fastMinor(0,2,0,1));
+        assert (a.minorOf(2,0) == a.fastMinor(0,1,1,2));
+        assert (a.minorOf(2,1) == a.fastMinor(0,1,0,2));
+        assert (a.minorOf(2,2) == a.fastMinor(0,1,0,1));
+    }
 
-	if (N != M) {
-		cout << "M44 multiplication test has failed, error." << endl
-			<< "M" << endl << M << endl
-			<< "N" << endl << N << endl;
-	}
-	}
+    // Determinants (by building a random singular value decomposition)
+    {
+        cout << "3x3 determinant" << endl;
+
+        Imath::Rand32 random;
+
+        Imath::M33f u;
+        Imath::M33f v;
+        Imath::M33f s;
+
+        u.setRotation( random.nextf() );
+        v.setRotation( random.nextf() );
+        s[0][0] = random.nextf();
+        s[1][1] = random.nextf();
+        s[2][2] = random.nextf();
+
+        Imath::M33f c = u * s * v.transpose();
+        assert (fabsf(c.determinant() - s[0][0]*s[1][1]*s[2][2]) <= u.baseTypeEpsilon());
+    }
+    {
+        Imath::Rand32 random;
+
+        Imath::M33d u;
+        Imath::M33d v;
+        Imath::M33d s;
+
+        u.setRotation( (double)random.nextf() );
+        v.setRotation( (double)random.nextf() );
+        s[0][0] = (double)random.nextf();
+        s[1][1] = (double)random.nextf();
+        s[2][2] = (double)random.nextf();
+
+        Imath::M33d c = u * s * v.transpose();
+        assert (fabs(c.determinant() - s[0][0]*s[1][1]*s[2][2]) <= u.baseTypeEpsilon());
+    }
+
+    // Outer product of two 3D vectors
+    {
+        cout << "Outer product of two 3D vectors" << endl;
+
+        Imath::V3f a(1,2,3);
+        Imath::V3f b(4,5,6);
+        Imath::M33f  p = Imath::outerProduct(a,b);
+
+        for (int i=0; i<3; i++ )
+        {
+            for (int j=0; j<3; j++)
+            {
+                assert (p[i][j] == a[i]*b[j]);
+            }
+        }
+    }
+    {
+        Imath::V3d a(1,2,3);
+        Imath::V3d b(4,5,6);
+        Imath::M33d  p = Imath::outerProduct(a,b);
+
+        for (int i=0; i<3; i++ )
+        {
+            for (int j=0; j<3; j++)
+            {
+                assert (p[i][j] == a[i]*b[j]);
+            }
+        }
+    }
+
+
+    // Determinants (by building a random singular value decomposition)
+    {
+        cout << "4x4 determinants" << endl;
+
+        Imath::Rand32 random;
+
+        Imath::M44f u = Imath::rotationMatrix
+            ( Imath::V3f(random.nextf(),random.nextf(),random.nextf()).normalize(),
+              Imath::V3f(random.nextf(),random.nextf(),random.nextf()).normalize() );
+        Imath::M44f v = Imath::rotationMatrix
+            ( Imath::V3f(random.nextf(),random.nextf(),random.nextf()).normalize(),
+              Imath::V3f(random.nextf(),random.nextf(),random.nextf()).normalize() );
+        Imath::M44f s;
+
+        s[0][0] = random.nextf();
+        s[1][1] = random.nextf();
+        s[2][2] = random.nextf();
+        s[3][3] = random.nextf();
+
+        Imath::M44f c = u * s * v.transpose();
+        assert (fabsf(c.determinant() - s[0][0]*s[1][1]*s[2][2]*s[3][3]) <= u.baseTypeEpsilon());
+    }
+    {
+        Imath::Rand32 random;
+
+        Imath::M44d u = Imath::rotationMatrix
+            ( Imath::V3d(random.nextf(),random.nextf(),random.nextf()).normalize(),
+              Imath::V3d(random.nextf(),random.nextf(),random.nextf()).normalize() );
+        Imath::M44d v = Imath::rotationMatrix
+            ( Imath::V3d(random.nextf(),random.nextf(),random.nextf()).normalize(),
+              Imath::V3d(random.nextf(),random.nextf(),random.nextf()).normalize() );
+        Imath::M44d s;
+
+        s[0][0] = random.nextf();
+        s[1][1] = random.nextf();
+        s[2][2] = random.nextf();
+        s[3][3] = random.nextf();
+
+        Imath::M44d c = u * s * v.transpose();
+        assert (fabs(c.determinant() - s[0][0]*s[1][1]*s[2][2]*s[3][3]) <= u.baseTypeEpsilon());
+    }
+
+    // Matrix minors
+    {
+        cout << "4x4 matrix minors" << endl;
+
+        Imath::M44d a(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16);
+
+        assert (a.minorOf(0,0) == a.fastMinor(1,2,3,1,2,3));
+        assert (a.minorOf(0,1) == a.fastMinor(1,2,3,0,2,3));
+        assert (a.minorOf(0,2) == a.fastMinor(1,2,3,0,1,3));
+        assert (a.minorOf(0,3) == a.fastMinor(1,2,3,0,1,2));
+        assert (a.minorOf(1,0) == a.fastMinor(0,2,3,1,2,3));
+        assert (a.minorOf(1,1) == a.fastMinor(0,2,3,0,2,3));
+        assert (a.minorOf(1,2) == a.fastMinor(0,2,3,0,1,3));
+        assert (a.minorOf(1,3) == a.fastMinor(0,2,3,0,1,2));
+        assert (a.minorOf(2,0) == a.fastMinor(0,1,3,1,2,3));
+        assert (a.minorOf(2,1) == a.fastMinor(0,1,3,0,2,3));
+        assert (a.minorOf(2,2) == a.fastMinor(0,1,3,0,1,3));
+        assert (a.minorOf(2,3) == a.fastMinor(0,1,3,0,1,2));
+        assert (a.minorOf(3,0) == a.fastMinor(0,1,2,1,2,3));
+        assert (a.minorOf(3,1) == a.fastMinor(0,1,2,0,2,3));
+        assert (a.minorOf(3,2) == a.fastMinor(0,1,2,0,1,3));
+        assert (a.minorOf(3,3) == a.fastMinor(0,1,2,0,1,2));
+    }
+    {
+        Imath::M44f a(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16);
+
+        assert (a.minorOf(0,0) == a.fastMinor(1,2,3,1,2,3));
+        assert (a.minorOf(0,1) == a.fastMinor(1,2,3,0,2,3));
+        assert (a.minorOf(0,2) == a.fastMinor(1,2,3,0,1,3));
+        assert (a.minorOf(0,3) == a.fastMinor(1,2,3,0,1,2));
+        assert (a.minorOf(1,0) == a.fastMinor(0,2,3,1,2,3));
+        assert (a.minorOf(1,1) == a.fastMinor(0,2,3,0,2,3));
+        assert (a.minorOf(1,2) == a.fastMinor(0,2,3,0,1,3));
+        assert (a.minorOf(1,3) == a.fastMinor(0,2,3,0,1,2));
+        assert (a.minorOf(2,0) == a.fastMinor(0,1,3,1,2,3));
+        assert (a.minorOf(2,1) == a.fastMinor(0,1,3,0,2,3));
+        assert (a.minorOf(2,2) == a.fastMinor(0,1,3,0,1,3));
+        assert (a.minorOf(2,3) == a.fastMinor(0,1,3,0,1,2));
+        assert (a.minorOf(3,0) == a.fastMinor(0,1,2,1,2,3));
+        assert (a.minorOf(3,1) == a.fastMinor(0,1,2,0,2,3));
+        assert (a.minorOf(3,2) == a.fastMinor(0,1,2,0,1,3));
+        assert (a.minorOf(3,3) == a.fastMinor(0,1,2,0,1,2));
+    }
+
+    // VC 2005 64 bits compiler has a bug with __restrict keword.
+    // Pointers with __restrict should not alias the same symbol.
+    // But, with optimization on, VC removes intermediate temp variable
+    // and ignores __restrict.
+    {
+        cout << "M44 multiplicaftion test" << endl;
+        Imath::M44f M ( 1.0f,  2.0f,  3.0f,  4.0f,
+                        5.0f,  6.0f,  7.0f,  8.0f,
+                        9.0f, 10.0f, 11.0f, 12.0f,
+                        13.0f, 14.0f, 15.0f, 16.0f);
+
+        Imath::M44f N; N.makeIdentity();
+
+        // N should be equal to M
+        // This typical test fails
+        // when __restrict is used for pointers in "multiply" function.
+        N = N * M;
+
+        assert(N == M);
+
+        if (N != M) {
+            cout << "M44 multiplication test has failed, error." << endl
+                 << "M" << endl << M << endl
+                 << "N" << endl << N << endl;
+        }
+    }
 
     cout << "ok\n" << endl;
 }

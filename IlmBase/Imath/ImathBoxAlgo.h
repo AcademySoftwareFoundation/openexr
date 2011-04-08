@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2010, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -54,7 +54,13 @@
 //
 //	Vec3<T> closestPointInBox(const Vec3<T>&, const Box<Vec3<T>>& )
 //
-//	void transform(Box<Vec3<T>>&, const Matrix44<T>&)
+//	Box< Vec3<S> > transform(const Box<Vec3<S>>&, const Matrix44<T>&)
+//	Box< Vec3<S> > affineTransform(const Box<Vec3<S>>&, const Matrix44<T>&)
+//
+//	void transform(const Box<Vec3<S>>&, const Matrix44<T>&, Box<V3ec3<S>>&)
+//	void affineTransform(const Box<Vec3<S>>&,
+//                           const Matrix44<T>&,
+//                           Box<V3ec3<S>>&)
 //
 //	bool findEntryAndExitPoints(const Line<T> &line,
 //				    const Box< Vec3<T> > &box,
@@ -167,10 +173,11 @@ transform (const Box< Vec3<S> > &box, const Matrix44<T> &m)
     //
 
     //
-    // A transformed empty box is still empty
+    // A transformed empty box is still empty, and a transformed infinite box
+    // is still infinite
     //
 
-    if (box.isEmpty())
+    if (box.isEmpty() || box.isInfinite())
 	return box;
 
     //
@@ -234,6 +241,86 @@ transform (const Box< Vec3<S> > &box, const Matrix44<T> &m)
     return newBox;
 }
 
+template <class S, class T>
+void
+transform (const Box< Vec3<S> > &box,
+           const Matrix44<T>    &m,
+           Box< Vec3<S> >       &result)
+{
+    //
+    // Transform a 3D box by a matrix, and compute a new box that
+    // tightly encloses the transformed box.
+    //
+    // If m is an affine transform, then we use James Arvo's fast
+    // method as described in "Graphics Gems", Academic Press, 1990,
+    // pp. 548-550.
+    //
+
+    //
+    // A transformed empty box is still empty, and a transformed infinite
+    // box is still infinite
+    //
+
+    if (box.isEmpty() || box.isInfinite())
+    {
+	return;
+    }
+
+    //
+    // If the last column of m is (0 0 0 1) then m is an affine
+    // transform, and we use the fast Graphics Gems trick.
+    //
+
+    if (m[0][3] == 0 && m[1][3] == 0 && m[2][3] == 0 && m[3][3] == 1)
+    {
+	for (int i = 0; i < 3; i++) 
+        {
+	    result.min[i] = result.max[i] = (S) m[3][i];
+
+	    for (int j = 0; j < 3; j++) 
+            {
+		float a, b;
+
+		a = (S) m[j][i] * box.min[j];
+		b = (S) m[j][i] * box.max[j];
+
+		if (a < b) 
+                {
+		    result.min[i] += a;
+		    result.max[i] += b;
+		}
+		else 
+                {
+		    result.min[i] += b;
+		    result.max[i] += a;
+		}
+	    }
+	}
+
+	return;
+    }
+
+    //
+    // M is a projection matrix.  Do things the naive way:
+    // Transform the eight corners of the box, and find an
+    // axis-parallel box that encloses the transformed corners.
+    //
+
+    Vec3<S> points[8];
+
+    points[0][0] = points[1][0] = points[2][0] = points[3][0] = box.min[0];
+    points[4][0] = points[5][0] = points[6][0] = points[7][0] = box.max[0];
+
+    points[0][1] = points[1][1] = points[4][1] = points[5][1] = box.min[1];
+    points[2][1] = points[3][1] = points[6][1] = points[7][1] = box.max[1];
+
+    points[0][2] = points[2][2] = points[4][2] = points[6][2] = box.min[2];
+    points[1][2] = points[3][2] = points[5][2] = points[7][2] = box.max[2];
+
+    for (int i = 0; i < 8; i++) 
+	result.extendBy (points[i] * m);
+}
+
 
 template <class S, class T>
 Box< Vec3<S> >
@@ -248,10 +335,10 @@ affineTransform (const Box< Vec3<S> > &box, const Matrix44<T> &m)
     // fast method.
     //
 
-    if (box.isEmpty())
+    if (box.isEmpty() || box.isInfinite())
     {
 	//
-	// A transformed empty box is still empty
+	// A transformed empty or infinite box is still empty or infinite
 	//
 
 	return box;
@@ -284,6 +371,64 @@ affineTransform (const Box< Vec3<S> > &box, const Matrix44<T> &m)
     }
 
     return newBox;
+}
+
+template <class S, class T>
+void
+affineTransform (const Box< Vec3<S> > &box,
+                 const Matrix44<T>    &m,
+                 Box<Vec3<S> >        &result)
+{
+    //
+    // Transform a 3D box by a matrix whose rightmost column
+    // is (0 0 0 1), and compute a new box that tightly encloses
+    // the transformed box.
+    //
+    // As in the transform() function, above, we use James Arvo's
+    // fast method.
+    //
+
+    if (box.isEmpty())
+    {
+	//
+	// A transformed empty box is still empty
+	//
+        result.makeEmpty();
+	return;
+    }
+
+    if (box.isInfinite())
+    {
+	//
+	// A transformed infinite box is still infinite
+	//
+        result.makeInfinite();
+	return;
+    }
+
+    for (int i = 0; i < 3; i++) 
+    {
+	result.min[i] = result.max[i] = (S) m[3][i];
+
+	for (int j = 0; j < 3; j++) 
+	{
+	    float a, b;
+
+	    a = (S) m[j][i] * box.min[j];
+	    b = (S) m[j][i] * box.max[j];
+
+	    if (a < b) 
+	    {
+		result.min[i] += a;
+		result.max[i] += b;
+	    }
+	    else 
+	    {
+		result.min[i] += b;
+		result.max[i] += a;
+	    }
+	}
+    }
 }
 
 
