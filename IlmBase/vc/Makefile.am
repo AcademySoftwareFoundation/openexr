@@ -63,7 +63,34 @@ EXTRA_DIST = \
         vc8/IlmBase/createDLL/Debug/.cvsignore \
         vc8/IlmBase/createDLL/Release/.cvsignore \
         vc8/IlmBase/debug/.cvsignore \
-        vc8/IlmBase/release/.cvsignore
+        vc8/IlmBase/release/.cvsignore \
+        vc9/IlmBase/IlmBase.sln \
+        vc9/IlmBase/Half/Half.vcproj \
+        vc9/IlmBase/Half/Debug/.cvsignore \
+        vc9/IlmBase/Half/Release/.cvsignore \
+        vc9/IlmBase/HalfTest/HalfTest.vcproj \
+        vc9/IlmBase/HalfTest/Debug/.cvsignore \
+        vc9/IlmBase/HalfTest/Release/.cvsignore \
+        vc9/IlmBase/Iex/Iex.vcproj \
+        vc9/IlmBase/Iex/Debug/.cvsignore \
+        vc9/IlmBase/Iex/Release/.cvsignore \
+        vc9/IlmBase/IexTest/IexTest.vcproj \
+        vc9/IlmBase/IexTest/Debug/.cvsignore \
+        vc9/IlmBase/IexTest/Release/.cvsignore \
+        vc9/IlmBase/IlmThread/IlmThread.vcproj \
+        vc9/IlmBase/IlmThread/Debug/.cvsignore \
+        vc9/IlmBase/IlmThread/Release/.cvsignore \
+        vc9/IlmBase/Imath/Imath.vcproj \
+        vc9/IlmBase/Imath/Debug/.cvsignore \
+        vc9/IlmBase/Imath/Release/.cvsignore \
+        vc9/IlmBase/ImathTest/ImathTest.vcproj \
+        vc9/IlmBase/ImathTest/Debug/.cvsignore \
+        vc9/IlmBase/ImathTest/Release/.cvsignore \
+        vc9/IlmBase/createDLL/createDLL.vcproj \
+        vc9/IlmBase/createDLL/Debug/.cvsignore \
+        vc9/IlmBase/createDLL/Release/.cvsignore \
+        vc9/IlmBase/debug/.cvsignore \
+        vc9/IlmBase/release/.cvsignore
 
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2010, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -32,60 +32,5 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+void testTinySVD ();
 
-
-#include <testVec.h>
-#include <testRoots.h>
-#include <testFun.h>
-#include <testInvert.h>
-#include <testFrustum.h>
-#include <testRandom.h>
-#include <testColor.h>
-#include <testShear.h>
-#include <testMatrix.h>
-#include <testMiscMatrixAlgo.h>
-#include <testExtractEuler.h>
-#include <testExtractSHRT.h>
-#include <testQuat.h>
-#include <testQuatSetRotation.h>
-#include <testQuatSlerp.h>
-#include <testLineAlgo.h>
-#include <testBoxAlgo.h>
-#include <testBox.h>
-#include <testProcrustes.h>
-#include <testTinySVD.h>
-#include <testJacobiEigenSolver.h>
-#include <testFrustumTest.h>
-
-#include <string.h>
-
-#define TEST(x) if (argc < 2 || !strcmp (argv[1], #x)) x();
-
-int
-main (int argc, char *argv[])
-{
-    TEST (testVec);
-    TEST (testColor);
-    TEST (testShear);
-    TEST (testMatrix);
-    TEST (testMiscMatrixAlgo);
-    TEST (testRoots);
-    TEST (testFun);
-    TEST (testInvert);
-    TEST (testFrustum);
-    TEST (testRandom);
-    TEST (testExtractEuler);
-    TEST (testExtractSHRT);
-    TEST (testQuat);
-    TEST (testQuatSetRotation);
-    TEST (testQuatSlerp);
-    TEST (testLineAlgo);
-    TEST (testBoxAlgo);
-    TEST (testBox);
-    TEST (testProcrustes);
-    TEST (testTinySVD);
-    TEST (testJacobiEigenSolver);
-    TEST (testFrustumTest);
-
-    return 0;
-}
