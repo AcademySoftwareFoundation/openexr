@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(IlmBase, 1.0.2)
-AC_SUBST(ILMBASE_VERSION, 1.0.2)
+AC_INIT(IlmBase, 1.0.3)
+AC_SUBST(ILMBASE_VERSION, 1.0.3)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(ImathTest/main.cpp)
 AM_CONFIG_HEADER(config/IlmBaseConfig.h)

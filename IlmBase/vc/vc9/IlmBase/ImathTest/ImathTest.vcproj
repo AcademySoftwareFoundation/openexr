@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
-	Name="Imath"
-	ProjectGUID="{39E34F88-DD2E-4A1C-96B7-624EA55FC1D7}"
-	RootNamespace="Imath"
+	Version="9.00"
+	Name="ImathTest"
+	ProjectGUID="{E9CCABF4-1AD9-4E4C-8C28-A001679CDC5B}"
+	RootNamespace="ImathTest"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -22,7 +23,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="2"
+			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
 			>
@@ -44,8 +45,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\Half;..\..\..\..\Imath"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN32;_DEBUG;_WINDOWS;_USRDLL;IMATH_EXPORTS"
+				AdditionalIncludeDirectories="..\..\..\..\Imath;..\..\..\..\Half;..\..\..\..\Iex;..\..\..\..\ImathTest"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -68,14 +69,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/Imath.dll"
+				OutputFile="$(OutDir)/ImathTest.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/Imath.pdb"
-				GenerateMapFile="true"
-				MapExports="true"
-				SubSystem="2"
-				ImportLibrary="$(OutDir)/Imath.lib"
+				ProgramDatabaseFile="$(OutDir)/ImathTest.pdb"
+				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -97,18 +97,16 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Imath.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Imath.lib &amp;&amp; ..\..\..\installImath.cmd $(IntDir)"
+				Description="Running Imath unit tests..."
+				CommandLine="$(TargetPath)"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
 			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="2"
+			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
 			>
@@ -131,8 +129,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\Half;..\..\..\..\Imath"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN64;_DEBUG;_WINDOWS;_USRDLL;IMATH_EXPORTS"
+				AdditionalIncludeDirectories="..\..\..\..\Imath;..\..\..\..\Half;..\..\..\..\Iex;..\..\..\..\ImathTest"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN64;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -155,14 +153,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/Imath.dll"
+				OutputFile="$(OutDir)/ImathTest.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/Imath.pdb"
-				GenerateMapFile="true"
-				MapExports="true"
-				SubSystem="2"
-				ImportLibrary="$(OutDir)/Imath.lib"
+				ProgramDatabaseFile="$(OutDir)/ImathTest.pdb"
+				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -184,18 +181,16 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Imath.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Imath.lib &amp;&amp; ..\..\..\installImath.cmd $(IntDir)"
+				Description="Running Imath unit tests..."
+				CommandLine="$(TargetPath)"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="2"
+			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
 			>
@@ -216,8 +211,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\Half;..\..\..\..\Imath"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;IMATH_EXPORTS"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\..\..\..\Imath;..\..\..\..\Half;..\..\..\..\Iex;..\..\..\..\ImathTest"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="2"
 				ForceConformanceInForLoopScope="true"
@@ -238,15 +234,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/Imath.dll"
+				OutputFile="$(OutDir)/ImathTest.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
-				GenerateMapFile="true"
-				MapExports="true"
-				SubSystem="2"
-				OptimizeReferences="1"
+				SubSystem="1"
+				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(OutDir)/Imath.lib"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -268,18 +263,16 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Imath.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Imath.lib &amp;&amp; ..\..\..\installImath.cmd $(IntDir)"
+				Description="Running Imath unit tests..."
+				CommandLine="$(TargetPath)"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
 			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="2"
+			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
 			>
@@ -301,9 +294,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\Half;..\..\..\..\Imath"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN64;NDEBUG;_WINDOWS;_USRDLL;IMATH_EXPORTS"
+				Optimization="2"
+				AdditionalIncludeDirectories="..\..\..\..\Imath;..\..\..\..\Half;..\..\..\..\Iex;..\..\..\..\ImathTest"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN64;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="2"
 				ForceConformanceInForLoopScope="true"
@@ -324,15 +317,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/Imath.dll"
+				OutputFile="$(OutDir)/ImathTest.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
-				GenerateMapFile="true"
-				MapExports="true"
-				SubSystem="2"
-				OptimizeReferences="1"
+				SubSystem="1"
+				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(OutDir)/Imath.lib"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -354,11 +346,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Imath.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Imath.lib &amp;&amp; ..\..\..\installImath.cmd $(IntDir)"
+				Description="Running Imath unit tests..."
+				CommandLine="$(TargetPath)"
 			/>
 		</Configuration>
 	</Configurations>
@@ -371,31 +361,95 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathBox.cpp"
+				RelativePath="..\..\..\..\ImathTest\main.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathColorAlgo.cpp"
+				RelativePath="..\..\..\..\ImathTest\testBox.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathFun.cpp"
+				RelativePath="..\..\..\..\ImathTest\testBoxAlgo.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathMatrixAlgo.cpp"
+				RelativePath="..\..\..\..\ImathTest\testColor.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathRandom.cpp"
+				RelativePath="..\..\..\..\ImathTest\testExtractEuler.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathShear.cpp"
+				RelativePath="..\..\..\..\ImathTest\testExtractSHRT.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathVec.cpp"
+				RelativePath="..\..\..\..\ImathTest\testFrustum.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testFrustumTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testFun.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testInvert.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testJacobiEigenSolver.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testLineAlgo.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testMatrix.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testMiscMatrixAlgo.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testProcrustes.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testQuat.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testQuatSetRotation.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testQuatSlerp.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testRandom.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testRoots.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testShear.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testTinySVD.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testVec.cpp"
 				>
 			</File>
 		</Filter>
@@ -405,123 +459,91 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathBox.h"
+				RelativePath="..\..\..\..\ImathTest\testBox.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathBoxAlgo.h"
+				RelativePath="..\..\..\..\ImathTest\testBoxAlgo.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathColor.h"
+				RelativePath="..\..\..\..\ImathTest\testColor.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathColorAlgo.h"
+				RelativePath="..\..\..\..\ImathTest\testExtractEuler.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathEuler.h"
+				RelativePath="..\..\..\..\ImathTest\testExtractSHRT.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathExc.h"
+				RelativePath="..\..\..\..\ImathTest\testFrustum.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathFrame.h"
+				RelativePath="..\..\..\..\ImathTest\testFrustumTest.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathFrustum.h"
+				RelativePath="..\..\..\..\ImathTest\testFun.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathFrustumTest.h"
+				RelativePath="..\..\..\..\ImathTest\testInvert.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathFun.h"
+				RelativePath="..\..\..\..\ImathTest\testJacobiEigenSolver.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathGL.h"
+				RelativePath="..\..\..\..\ImathTest\testLineAlgo.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathGLU.h"
+				RelativePath="..\..\..\..\ImathTest\testMatrix.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathHalfLimits.h"
+				RelativePath="..\..\..\..\ImathTest\testMiscMatrixAlgo.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathInt64.h"
+				RelativePath="..\..\..\..\ImathTest\testProcrustes.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathInterval.h"
+				RelativePath="..\..\..\..\ImathTest\testQuat.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathLimits.h"
+				RelativePath="..\..\..\..\ImathTest\testQuatSetRotation.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathLine.h"
+				RelativePath="..\..\..\..\ImathTest\testQuatSlerp.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathLineAlgo.h"
+				RelativePath="..\..\..\..\ImathTest\testRandom.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathMath.h"
+				RelativePath="..\..\..\..\ImathTest\testRoots.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathMatrix.h"
+				RelativePath="..\..\..\..\ImathTest\testShear.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathMatrixAlgo.h"
+				RelativePath="..\..\..\..\ImathTest\testTinySVD.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathPlane.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathPlatform.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathQuat.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathRandom.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathRoots.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathShear.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathSphere.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathVec.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathVecAlgo.h"
+				RelativePath="..\..\..\..\ImathTest\testVec.h"
 				>
 			</File>
 		</Filter>

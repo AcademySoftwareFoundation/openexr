@@ -13,7 +13,11 @@ ImathTest_SOURCES = main.cpp testExtractEuler.cpp testExtractSHRT.cpp \
 		    testQuatSlerp.cpp testQuatSlerp.h testQuat.cpp \
 		    testQuat.h testBoxAlgo.cpp testBoxAlgo.h \
 		    testVec.cpp testVec.h testBox.cpp testBox.h \
-		    testMiscMatrixAlgo.cpp testMiscMatrixAlgo.h
+		    testMiscMatrixAlgo.cpp testMiscMatrixAlgo.h \
+		    testProcrustes.cpp testProcrustes.h \
+		    testTinySVD.cpp testTinySVD.h \
+		    testJacobiEigenSolver.cpp testJacobiEigenSolver.h \
+		    testFrustumTest.cpp testFrustumTest.h
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Imath -I$(top_srcdir)/Iex -I$(top_srcdir)/Half \
 	   -I$(top_srcdir)/config

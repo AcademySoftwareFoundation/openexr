@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
-	Name="Imath"
-	ProjectGUID="{39E34F88-DD2E-4A1C-96B7-624EA55FC1D7}"
-	RootNamespace="Imath"
+	Version="9.00"
+	Name="Half"
+	ProjectGUID="{9EDB5C0F-BFD0-4A59-BB93-F06A52BB0128}"
+	RootNamespace="Half"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -28,6 +29,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Building LUT files..."
+				CommandLine="..\..\..\buildLUTs.cmd"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -44,8 +47,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\Half;..\..\..\..\Imath"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN32;_DEBUG;_WINDOWS;_USRDLL;IMATH_EXPORTS"
+				AdditionalIncludeDirectories="..\..\..\..\Half;..\..\..\..\config.windows"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN32;_DEBUG;_WINDOWS;_USRDLL;HALF_EXPORTS;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -68,14 +71,16 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/Imath.dll"
+				OutputFile="$(OutDir)/Half.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/Imath.pdb"
+				ProgramDatabaseFile="$(OutDir)/Half.pdb"
 				GenerateMapFile="true"
 				MapExports="true"
 				SubSystem="2"
-				ImportLibrary="$(OutDir)/Imath.lib"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary="$(OutDir)/Half.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -97,11 +102,8 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Imath.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Imath.lib &amp;&amp; ..\..\..\installImath.cmd $(IntDir)"
+				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Half.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Half.lib &amp;&amp; ..\..\..\installHalf.cmd $(IntDir)"
 			/>
 		</Configuration>
 		<Configuration
@@ -114,6 +116,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Building LUT files..."
+				CommandLine="..\..\..\buildLUTs.cmd"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -131,8 +135,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\Half;..\..\..\..\Imath"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN64;_DEBUG;_WINDOWS;_USRDLL;IMATH_EXPORTS"
+				AdditionalIncludeDirectories="..\..\..\..\Half;..\..\..\..\config.windows"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN64;_DEBUG;_WINDOWS;_USRDLL;HALF_EXPORTS;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -155,14 +159,16 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/Imath.dll"
+				OutputFile="$(OutDir)/Half.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/Imath.pdb"
+				ProgramDatabaseFile="$(OutDir)/Half.pdb"
 				GenerateMapFile="true"
 				MapExports="true"
 				SubSystem="2"
-				ImportLibrary="$(OutDir)/Imath.lib"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary="$(OutDir)/Half.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -184,11 +190,8 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Imath.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Imath.lib &amp;&amp; ..\..\..\installImath.cmd $(IntDir)"
+				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Half.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Half.lib &amp;&amp; ..\..\..\installHalf.cmd $(IntDir)"
 			/>
 		</Configuration>
 		<Configuration
@@ -201,6 +204,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Building LUT files..."
+				CommandLine="..\..\..\buildLUTs.cmd"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -216,8 +221,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\Half;..\..\..\..\Imath"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;IMATH_EXPORTS"
+				AdditionalIncludeDirectories="..\..\..\..\Half;..\..\..\..\config.windows"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;HALF_EXPORTS;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="2"
 				ForceConformanceInForLoopScope="true"
@@ -238,7 +243,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/Imath.dll"
+				OutputFile="$(OutDir)/Half.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				GenerateMapFile="true"
@@ -246,7 +251,9 @@
 				SubSystem="2"
 				OptimizeReferences="1"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(OutDir)/Imath.lib"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary="$(OutDir)/Half.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -268,11 +275,8 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Imath.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Imath.lib &amp;&amp; ..\..\..\installImath.cmd $(IntDir)"
+				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Half.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Half.lib &amp;&amp; ..\..\..\installHalf.cmd $(IntDir)"
 			/>
 		</Configuration>
 		<Configuration
@@ -285,6 +289,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Building LUT files..."
+				CommandLine="..\..\..\buildLUTs.cmd"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -301,9 +307,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\Half;..\..\..\..\Imath"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN64;NDEBUG;_WINDOWS;_USRDLL;IMATH_EXPORTS"
+				AdditionalIncludeDirectories="..\..\..\..\Half;..\..\..\..\config.windows"
+				PreprocessorDefinitions="OPENEXR_DLL;HALF_EXPORTS;WIN64;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="2"
 				ForceConformanceInForLoopScope="true"
@@ -324,7 +329,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/Imath.dll"
+				OutputFile="$(OutDir)/Half.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				GenerateMapFile="true"
@@ -332,7 +337,9 @@
 				SubSystem="2"
 				OptimizeReferences="1"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(OutDir)/Imath.lib"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary="$(OutDir)/Half.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -354,11 +361,8 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Imath.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Imath.lib &amp;&amp; ..\..\..\installImath.cmd $(IntDir)"
+				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Half.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Half.lib &amp;&amp; ..\..\..\installHalf.cmd $(IntDir)"
 			/>
 		</Configuration>
 	</Configurations>
@@ -371,31 +375,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathBox.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathColorAlgo.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathFun.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathMatrixAlgo.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathRandom.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathShear.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathVec.cpp"
+				RelativePath="..\..\..\..\Half\half.cpp"
 				>
 			</File>
 		</Filter>
@@ -405,123 +385,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathBox.h"
+				RelativePath="..\..\..\..\Half\half.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathBoxAlgo.h"
+				RelativePath="..\..\..\..\Half\halfFunction.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\Imath\ImathColor.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathColorAlgo.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathEuler.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathExc.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathFrame.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathFrustum.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathFrustumTest.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathFun.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathGL.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathGLU.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathHalfLimits.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathInt64.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathInterval.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathLimits.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathLine.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathLineAlgo.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathMath.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathMatrix.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathMatrixAlgo.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathPlane.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathPlatform.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathQuat.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathRandom.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathRoots.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathShear.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathSphere.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathVec.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\Imath\ImathVecAlgo.h"
+				RelativePath="..\..\..\..\Half\halfLimits.h"
 				>
 			</File>
 		</Filter>

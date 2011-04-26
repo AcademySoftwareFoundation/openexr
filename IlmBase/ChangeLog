@@ -1,3 +1,22 @@
+Version 1.0.3
+	* A minor API change to Imath::Frustum has been made:  the functions
+	  'near' and 'far' have been renamed to 'nearPlane' and 'farPlane' due
+	  to conflicts with certain windows headers.  The former alternate
+	  accessor names for these values on windows ('hither' and 'yon')
+	  remain, though should be considered deprecated.
+	  (David Lenihan)
+	* Added SVD, eigenvalue solver, and procrustes fit calculations
+	  to ImathMatrixAlgo.
+	  (Chris Twigg, Ji Hun Yu)
+	* Added Imath::FrustumTest for frustum visibility testing.
+	  (Eric Johnston)
+	* Fixed a stack corruption in the matrix minorOf functions.
+	  (Nick Rasmussen)
+	* Visual studio 2008 project files have been added to the vc/vc9
+	  directory, and several minor visual studio compile fixes have
+	  been applied.
+	  (Nick Rasmussen)
+
 Version 1.0.2
 	* Added support for targetting builds on 64bit Windows and minimising 
 	  number of compiler warnings on Windows. Thanks to Ger Hobbelt for his
