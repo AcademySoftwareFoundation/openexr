@@ -53,6 +53,7 @@
 #include "ImathEuler.h"
 #include "ImathExc.h"
 #include "ImathVec.h"
+#include "ImathLimits.h"
 #include <math.h>
 
 
@@ -206,6 +207,11 @@ template <class T>  bool	checkForZeroScaleInRow
                                             (const T       &scl, 
 					     const Vec3<T> &row,
 					     bool exc = true);
+
+template <class T>  Matrix44<T> outerProduct
+                                            ( const Vec4<T> &a,
+                                              const Vec4<T> &b);
+
 
 //
 // Returns a matrix that rotates "fromDirection" vector to "toDirection"
@@ -806,6 +812,15 @@ checkForZeroScaleInRow (const T& scl,
     return true;
 }
 
+template <class T>
+Matrix44<T>
+outerProduct (const Vec4<T> &a, const Vec4<T> &b )
+{
+    return Matrix44<T> (a.x*b.x, a.x*b.y, a.x*b.z, a.x*b.w,
+                        a.y*b.x, a.y*b.y, a.y*b.z, a.x*b.w,
+                        a.z*b.x, a.z*b.y, a.z*b.z, a.x*b.w,
+                        a.w*b.x, a.w*b.y, a.w*b.z, a.w*b.w);
+}
 
 template <class T>
 Matrix44<T>
@@ -1304,6 +1319,116 @@ outerProduct (const Vec3<T> &a, const Vec3<T> &b )
                         a.z*b.x, a.z*b.y, a.z*b.z );
 }
 
+
+// Computes the translation and rotation that brings the 'from' points
+// as close as possible to the 'to' points under the Frobenius norm.  
+// To be more specific, let x be the matrix of 'from' points and y be
+// the matrix of 'to' points, we want to find the matrix A of the form
+//    [ R t ]
+//    [ 0 1 ]
+// that minimizes
+//     || (A*x - y)^T * W * (A*x - y) ||_F
+// If doScaling is true, then a uniform scale is allowed also.
+template <typename T>
+Imath::M44d
+procrustesRotationAndTranslation (const Imath::Vec3<T>* A,  // From these
+                                  const Imath::Vec3<T>* B,  // To these
+                                  const T* weights, 
+                                  const size_t numPoints,
+                                  const bool doScaling = false);
+
+// Unweighted:
+template <typename T>
+Imath::M44d
+procrustesRotationAndTranslation (const Imath::Vec3<T>* A, 
+                                  const Imath::Vec3<T>* B, 
+                                  const size_t numPoints,
+                                  const bool doScaling = false);
+
+// Compute the SVD of a 3x3 matrix using Jacobi transformations.  This method
+// should be quite accurate (competitive with LAPACK) even for poorly
+// conditioned matrices, and because it has been written specifically for the
+// 3x3/4x4 case it is much faster than calling out to LAPACK.  
+//
+// The SVD of a 3x3/4x4 matrix A is defined as follows:
+//     A = U * S * V^T
+// where S is the diagonal matrix of singular values and both U and V are
+// orthonormal.  By convention, the entries S are all positive and sorted from
+// the largest to the smallest.  However, some uses of this function may
+// require that the matrix U*V^T have positive determinant; in this case, we
+// may make the smallest singular value negative to ensure that this is
+// satisfied.  
+//
+// Currently only available for single- and double-precision matrices.
+template <typename T>
+void
+jacobiSVD (const Imath::Matrix33<T>& A,
+           Imath::Matrix33<T>& U,
+           Imath::Vec3<T>& S,
+           Imath::Matrix33<T>& V,
+           const T tol = Imath::limits<T>::epsilon(),
+           const bool forcePositiveDeterminant = false);
+
+template <typename T>
+void
+jacobiSVD (const Imath::Matrix44<T>& A,
+           Imath::Matrix44<T>& U,
+           Imath::Vec4<T>& S,
+           Imath::Matrix44<T>& V,
+           const T tol = Imath::limits<T>::epsilon(),
+           const bool forcePositiveDeterminant = false);
+
+// Compute the eigenvalues (S) and the eigenvectors (V) of
+// a real symmetric matrix using Jacobi transformation.
+//
+// Jacobi transformation of a 3x3/4x4 matrix A outputs S and V:
+// 	A = V * S * V^T
+// where V is orthonormal and S is the diagonal matrix of eigenvalues.
+// Input matrix A must be symmetric. A is also modified during
+// the computation so that upper diagonal entries of A become zero. 
+//
+template <typename T>
+void
+jacobiEigenSolver (Matrix33<T>& A,
+                   Vec3<T>& S,
+                   Matrix33<T>& V,
+                   const T tol);
+
+template <typename T>
+inline
+void
+jacobiEigenSolver (Matrix33<T>& A,
+                   Vec3<T>& S,
+                   Matrix33<T>& V)
+{
+    jacobiEigenSolver(A,S,V,limits<T>::epsilon());
+}
+
+template <typename T>
+void
+jacobiEigenSolver (Matrix44<T>& A,
+                   Vec4<T>& S,
+                   Matrix44<T>& V,
+                   const T tol);
+
+template <typename T>
+inline
+void
+jacobiEigenSolver (Matrix44<T>& A,
+                   Vec4<T>& S,
+                   Matrix44<T>& V)
+{
+    jacobiEigenSolver(A,S,V,limits<T>::epsilon());
+}
+
+// Compute a eigenvector corresponding to the abs max/min eigenvalue
+// of a real symmetric matrix using Jacobi transformation.
+template <typename TM, typename TV>
+void
+maxEigenVector (TM& A, TV& S);
+template <typename TM, typename TV>
+void
+minEigenVector (TM& A, TV& S);
 
 } // namespace Imath
 

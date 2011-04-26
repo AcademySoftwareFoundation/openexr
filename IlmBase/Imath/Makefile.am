@@ -13,7 +13,8 @@ libImath_la_SOURCES = ImathShear.cpp ImathMatrixAlgo.cpp ImathVec.cpp \
 		      ImathColor.h ImathRandom.h ImathRoots.h \
 		      ImathHalfLimits.h ImathInterval.h ImathGLU.h \
 		      ImathFrame.h ImathPlatform.h \
-		      ImathBox.cpp ImathRandom.cpp ImathInt64.h
+		      ImathBox.cpp ImathRandom.cpp ImathInt64.h \
+		      ImathFrustumTest.h
 
 libImath_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ -no-undefined
 libImath_la_LIBADD = ../Iex/libIex.la

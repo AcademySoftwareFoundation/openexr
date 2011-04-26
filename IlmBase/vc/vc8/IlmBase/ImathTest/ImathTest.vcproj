@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="ImathTest"
 	ProjectGUID="{E9CCABF4-1AD9-4E4C-8C28-A001679CDC5B}"
+	RootNamespace="ImathTest"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -391,6 +392,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\ImathTest\testFrustumTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\ImathTest\testFun.cpp"
 				>
 			</File>
@@ -399,11 +404,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\ImathTest\testJacobiEigenSolver.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\ImathTest\testLineAlgo.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\..\ImathTest\testMatrix.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testMiscMatrixAlgo.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testProcrustes.cpp"
 				>
 			</File>
 			<File
@@ -428,6 +445,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\ImathTest\testShear.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testTinySVD.cpp"
 				>
 			</File>
 			<File
@@ -465,6 +486,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\ImathTest\testFrustumTest.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\ImathTest\testFun.h"
 				>
 			</File>
@@ -473,11 +498,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\ImathTest\testJacobiEigenSolver.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\ImathTest\testLineAlgo.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\..\ImathTest\testMatrix.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testMiscMatrixAlgo.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testProcrustes.h"
 				>
 			</File>
 			<File
@@ -502,6 +539,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\ImathTest\testShear.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ImathTest\testTinySVD.h"
 				>
 			</File>
 			<File

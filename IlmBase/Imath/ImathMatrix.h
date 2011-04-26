@@ -1661,33 +1661,12 @@ template <class T>
 inline T
 Matrix33<T>::minorOf (const int r, const int c) const
 {
-   int copy[9] = {1,1,1,
-                  1,1,1,
-                  1,1,1};
+    int r0 = 0 + (r < 1 ? 1 : 0);
+    int r1 = 1 + (r < 2 ? 1 : 0);
+    int c0 = 0 + (c < 1 ? 1 : 0);
+    int c1 = 1 + (c < 2 ? 1 : 0);
 
-   copy[   c] = 0;
-   copy[ 3+c] = 0;
-   copy[ 6+c] = 0;
-
-   int rowOffset = r*3;
-   copy[rowOffset++] = 0;
-   copy[rowOffset++] = 0;
-   copy[rowOffset  ] = 0;
-
-   int offset = 0;
-   T working[4] = { (T)0,(T)0,(T)0,(T)0 };
-   T *elem = working;
-   *elem += copy[0]*x[0][0]; elem += copy[0];
-   *elem += copy[1]*x[0][1]; elem += copy[1];
-   *elem += copy[2]*x[0][2]; elem += copy[2];
-   *elem += copy[3]*x[1][0]; elem += copy[3];
-   *elem += copy[4]*x[1][1]; elem += copy[4];
-   *elem += copy[5]*x[1][2]; elem += copy[5];
-   *elem += copy[6]*x[2][0]; elem += copy[6];
-   *elem += copy[7]*x[2][1]; elem += copy[7];
-   *elem += copy[8]*x[2][2];
-
-   return working[0]*working[3] - working[1]*working[2];
+    return x[r0][c0]*x[r1][c1] - x[r1][c0]*x[r0][c1];
 }
 
 template <class T>
@@ -2910,68 +2889,41 @@ inline T
 Matrix44<T>::fastMinor( const int r0, const int r1, const int r2,
                         const int c0, const int c1, const int c2) const
 {
-   return x[r0][c0] * (x[r1][c1]*x[r2][c2] - x[r1][c2]*x[r2][c1])
-        + x[r0][c1] * (x[r1][c2]*x[r2][c0] - x[r1][c0]*x[r2][c2])
-        + x[r0][c2] * (x[r1][c0]*x[r2][c1] - x[r1][c1]*x[r2][c0]);
+    return x[r0][c0] * (x[r1][c1]*x[r2][c2] - x[r1][c2]*x[r2][c1])
+         + x[r0][c1] * (x[r1][c2]*x[r2][c0] - x[r1][c0]*x[r2][c2])
+         + x[r0][c2] * (x[r1][c0]*x[r2][c1] - x[r1][c1]*x[r2][c0]);
 }
 
 template <class T>
 inline T
 Matrix44<T>::minorOf (const int r, const int c) const
 {
-   int copy[16] = {1,1,1,1,
-                   1,1,1,1,
-                   1,1,1,1,
-                   1,1,1,1};
+    int r0 = 0 + (r < 1 ? 1 : 0);
+    int r1 = 1 + (r < 2 ? 1 : 0);
+    int r2 = 2 + (r < 3 ? 1 : 0);
+    int c0 = 0 + (c < 1 ? 1 : 0);
+    int c1 = 1 + (c < 2 ? 1 : 0);
+    int c2 = 2 + (c < 3 ? 1 : 0);
 
-   copy[   c] = 0;
-   copy[ 4+c] = 0;
-   copy[ 8+c] = 0;
-   copy[12+c] = 0;
+    Matrix33<T> working (x[r0][c0],x[r1][c0],x[r2][c0],
+                         x[r0][c1],x[r1][c1],x[r2][c1],
+                         x[r0][c2],x[r1][c2],x[r2][c2]);
 
-   int rowOffset = r*4;
-   copy[rowOffset++] = 0;
-   copy[rowOffset++] = 0;
-   copy[rowOffset++] = 0;
-   copy[rowOffset  ] = 0;
-
-   int offset = 0;
-   Matrix33<T> working ((T)0,(T)0,(T)0,
-                        (T)0,(T)0,(T)0,
-                        (T)0,(T)0,(T)0);
-   T *elem = working.getValue();
-   *elem += copy[ 0]*x[0][0]; elem += copy[ 0];
-   *elem += copy[ 1]*x[0][1]; elem += copy[ 1];
-   *elem += copy[ 2]*x[0][2]; elem += copy[ 2];
-   *elem += copy[ 3]*x[0][3]; elem += copy[ 3];
-   *elem += copy[ 4]*x[1][0]; elem += copy[ 4];
-   *elem += copy[ 5]*x[1][1]; elem += copy[ 5];
-   *elem += copy[ 6]*x[1][2]; elem += copy[ 6];
-   *elem += copy[ 7]*x[1][3]; elem += copy[ 7];
-   *elem += copy[ 8]*x[2][0]; elem += copy[ 8];
-   *elem += copy[ 9]*x[2][1]; elem += copy[ 9];
-   *elem += copy[10]*x[2][2]; elem += copy[10];
-   *elem += copy[11]*x[2][3]; elem += copy[11];
-   *elem += copy[12]*x[3][0]; elem += copy[12];
-   *elem += copy[13]*x[3][1]; elem += copy[13];
-   *elem += copy[14]*x[3][2]; elem += copy[14];
-   *elem =  copy[15]*x[3][3];
-
-   return working.determinant();
+    return working.determinant();
 }
 
 template <class T>
 inline T
 Matrix44<T>::determinant () const
 {
-   T sum = (T)0;
+    T sum = (T)0;
 
-   if (x[0][3] != 0.) sum -= x[0][3] * fastMinor(1,2,3,0,1,2);
-   if (x[1][3] != 0.) sum += x[1][3] * fastMinor(0,2,3,0,1,2);
-   if (x[2][3] != 0.) sum -= x[2][3] * fastMinor(0,1,3,0,1,2);
-   if (x[3][3] != 0.) sum += x[3][3] * fastMinor(0,1,2,0,1,2);
+    if (x[0][3] != 0.) sum -= x[0][3] * fastMinor(1,2,3,0,1,2);
+    if (x[1][3] != 0.) sum += x[1][3] * fastMinor(0,2,3,0,1,2);
+    if (x[2][3] != 0.) sum -= x[2][3] * fastMinor(0,1,3,0,1,2);
+    if (x[3][3] != 0.) sum += x[3][3] * fastMinor(0,1,2,0,1,2);
 
-   return sum;
+    return sum;
 }
 
 template <class T>
