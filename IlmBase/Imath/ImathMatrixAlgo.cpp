@@ -959,7 +959,7 @@ jacobiRotateRight (TM& A,
 {
     typedef typename TM::BaseType T;
 
-    for (int i = 0; i < TM::dimensions(); ++i)
+    for (unsigned int i = 0; i < TM::dimensions(); ++i)
     {
         const T nu1 = A[i][j];
         const T nu2 = A[i][k];
@@ -1094,8 +1094,8 @@ maxOffDiagSymm (const TM& A)
 {
     typedef typename TM::BaseType T;
     T result = 0;
-    for (int i = 0; i < TM::dimensions(); ++i)
-        for (int j = i+1; j < TM::dimensions(); ++j)
+    for (unsigned int i = 0; i < TM::dimensions(); ++i)
+        for (unsigned int j = i+1; j < TM::dimensions(); ++j)
             result = std::max (result, std::abs (A[i][j]));
 
    return result;
@@ -1189,13 +1189,13 @@ maxEigenVector (TM& A, TV& V)
     jacobiEigenSolver(A, S, MV);
 
     int maxIdx(0);
-    for(int i = 1; i < TV::dimensions(); ++i)
+    for(unsigned int i = 1; i < TV::dimensions(); ++i)
     {
         if(std::abs(S[i]) > std::abs(S[maxIdx]))
             maxIdx = i;
     }
 
-    for(int i = 0; i < TV::dimensions(); ++i)
+    for(unsigned int i = 0; i < TV::dimensions(); ++i)
         V[i] = MV[i][maxIdx];
 }
 
@@ -1208,13 +1208,13 @@ minEigenVector (TM& A, TV& V)
     jacobiEigenSolver(A, S, MV);
 
     int minIdx(0);
-    for(int i = 1; i < TV::dimensions(); ++i)
+    for(unsigned int i = 1; i < TV::dimensions(); ++i)
     {
         if(std::abs(S[i]) < std::abs(S[minIdx]))
             minIdx = i;
     }
 
-   for(int i = 0; i < TV::dimensions(); ++i)
+   for(unsigned int i = 0; i < TV::dimensions(); ++i)
         V[i] = MV[i][minIdx];
 }
 
