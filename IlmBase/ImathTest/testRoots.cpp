@@ -148,12 +148,70 @@ solve (double a, double b, double c, double d,	// coefficients
     cout << endl;
 }
 
+void
+solve (double a, double b, double c,	// coefficients
+       int nx,				// number of expected solutions
+       double x0, double x1)		// expected solutions
+{
+    cout << "coefficients: " <<
+	    setw(3) << a << ' ' <<
+	    setw(3) << b << ' ' <<
+	    setw(3) << c << ' ';
+    //
+    // Solve the equation a*x^2 + b*x^1 + c*x
+    //
+
+    double x[2];
+    int n = Imath::solveQuadratic (a, b, c, x);
+
+    //
+    // Sort the numerical solutions.
+    // Sort the expected solutions.
+    //
+    // Dummy variable for sort
+    double x2;
+    sort (nx, x0, x1, x2);
+    sort (n, x);
+
+    //
+    // Compare the numerical and the expected solutions.
+    //
+
+    assert (n == nx);
+    cout << " solutions: ";
+
+    if (n == -1)
+	cout << "[-inf, inf]";
+
+    if (n == 0)
+	cout << "none";
+
+    const double e = 0.0000001;		// maximum expected error for
+    					// the test cases listed below
+
+    if (n >= 1)
+    {
+	cout << x[0];
+	assert (Imath::equal (x[0], x0, e));
+    }
+
+    if (n >= 2)
+    {
+	cout << ' ' << x[1];
+	assert (Imath::equal (x[1], x1, e));
+    }
+
+    cout << endl;
+}
 
 void
 testRoots ()
 {
     cout << "Testing functions in ImathRoots.h" << endl;
 
+    cout << endl << "solveCubic" << endl;
+    // Solve cubiec equations
+    // 
     //    coefficients         number of expected solutions
     //            |            |
     //            |            |   expected solutions
@@ -177,5 +235,26 @@ testRoots ()
     solve (0,   0,   0,   1,   0,   0,   0,   0); // real solutions: none
     solve (0,   0,   0,   0,  -1,   0,   0,   0); // real solutions: [-inf, inf]
 
+    cout << endl << "solveQuadratic" << endl; 
+    // Solve quadratic equations
+    //
+    //    coefficients    number of expected solutions
+    //          |         |
+    //          |         |  expected solutions
+    //          |         |      |
+    //    +-----+-----+   |  +---+---+
+    //    |           |   |  |       |
+    solve (1,   3,   2,   2,  -1,  -2); // real solutions: -1, -2
+    solve (1,   0,  -9,   2,  -3,   3); // real solutions: -3, 3
+    solve (1,  -4,   0,   2,   4,   0); // real solutions: 0, 4
+    solve (2,  -4,   2,   1,   1,   0); // real solutions: 1
+    solve (0,  -4,   8,   1,   2,   0); // real solutions: 2
+    solve (0,   7,   0,   1,   0,   0); // real solutions: 0
+    solve (10,  0,   0,   1,   0,   0); // real solutions: 0
+    solve (0,   0,   0,  -1,   0,   0); // real solutions: [-inf, inf]
+    solve (0,   0,   1,   0,   0,   0); // real solutions: none
+    solve (3,  -6,  30,   0,   0,   0); // real solutions: none
     cout << "ok\n" << endl;
 }
+
+
