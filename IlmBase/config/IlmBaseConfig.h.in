@@ -13,3 +13,4 @@
 
 #undef HAVE_POSIX_SEMAPHORES
 
+#undef HAVE_UCONTEXT_H

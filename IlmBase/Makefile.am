@@ -4,7 +4,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = \
 	Half HalfTest \
-	Iex IexTest \
+	Iex IexMath IexTest \
 	Imath ImathTest \
 	IlmThread \
 	config
