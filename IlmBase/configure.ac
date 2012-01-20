@@ -57,7 +57,7 @@ fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(limits.h unistd.h)
+AC_CHECK_HEADERS(limits.h unistd.h ucontext.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -157,6 +157,7 @@ AM_CXXFLAGS="$EXTRA_OPT_CFLAGS"
 
 AC_SUBST(AM_CFLAGS)
 AC_SUBST(AM_CXXFLAGS)
+AC_SUBST(HAVE_UCONTEXT_H)
 
 
 AC_OUTPUT([
@@ -166,6 +167,7 @@ config/Makefile
 Half/Makefile
 HalfTest/Makefile
 Iex/Makefile
+IexMath/Makefile
 IexTest/Makefile
 IlmThread/Makefile
 Imath/Makefile
