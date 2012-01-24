@@ -95,7 +95,6 @@ dnl Platform-specific stuff
 case "$host" in
 *darwin*) 
   dnl Compiler flags for all OS X builds
-  CXXFLAGS="$CXXFLAGS -Wno-long-double"
 
   dnl OSX architectures specification
   dnl NOTE: multiple architectures requires --disable-dependency-tracking
