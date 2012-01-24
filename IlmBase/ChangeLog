@@ -16,6 +16,9 @@ Version 1.0.3
 	  directory, and several minor visual studio compile fixes have
 	  been applied.
 	  (Nick Rasmussen)
+        * Updated the so verison to 7
+	  (Piotr Stanczyk)
+        
 
 Version 1.0.2
 	* Added support for targetting builds on 64bit Windows and minimising 
