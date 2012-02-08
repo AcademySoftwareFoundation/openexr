@@ -1,7 +1,7 @@
-OpenEXR is one of five software packages that were designed to work
-together: IlmBase, OpenEXR, OpenEXR_Viewers, CTL and OpenEXR_CTL.
-You may only be interested in OpenEXR or you may want to build it
-together wth the other packages.
+OpenEXR is one of six software packages that were designed to work
+together: IlmBase, PyIlmBase, OpenEXR, OpenEXR_Viewers, CTL and
+OpenEXR_CTL.  You may only be interested in OpenEXR or you may want
+to build it together wth the other packages.
 
 What follows are instructions for building all five packages.
 If you are only interested in OpenEXR, stop after step 2.
@@ -38,6 +38,7 @@ Deploy
     Release
 openexr-cvs (name as desired)
   IlmBase
+  PyIlmBase
   OpenEXR
   OpenEXR_Viewers
 ctl-cvs (name as desired)
