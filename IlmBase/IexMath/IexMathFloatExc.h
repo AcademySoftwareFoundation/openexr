@@ -1,0 +1,125 @@
+///////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Digital Ltd. LLC
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+// *       Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+// *       Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+// *       Neither the name of Industrial Light & Magic nor the names of
+// its contributors may be used to endorse or promote products derived
+// from this software without specific prior written permission. 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+///////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef INCLUDED_IEXMATHFLOATEXC_H
+#define INCLUDED_IEXMATHFLOATEXC_H
+
+#include <IexMathExc.h>
+//#include <IexBaseExc.h>
+#include <IexMathIeeeExc.h>
+
+namespace Iex {
+
+
+//-------------------------------------------------------------
+// Function mathExcOn() defines which floating point exceptions
+// will be trapped and converted to C++ exceptions.
+//-------------------------------------------------------------
+
+void mathExcOn (int when = (IEEE_OVERFLOW | IEEE_DIVZERO | IEEE_INVALID));
+
+
+//----------------------------------------------------------------------
+// Function getMathExcOn() tells you for which floating point exceptions
+// trapping and conversion to C++ exceptions is currently enabled.
+//----------------------------------------------------------------------
+
+int getMathExcOn ();
+
+
+//------------------------------------------------------------------------
+// A classs that temporarily sets floating point exception trapping
+// and conversion, and later restores the previous settings.
+//
+// Example:
+//
+//	float
+//	trickyComputation (float x)
+//	{
+//	    MathExcOn meo (0);		// temporarily disable floating
+//	    				// point exception trapping
+//
+//	    float result = ...;		// computation which may cause
+//	    				// floating point exceptions
+//
+//	    return result;		// destruction of meo restores
+//	}				// the program's previous floating
+//					// point exception settings
+//------------------------------------------------------------------------
+
+class MathExcOn
+{
+  public:
+
+    MathExcOn (int when)
+	:
+	_changed (false)
+    {
+	_saved = getMathExcOn(); 
+
+	if (_saved != when)
+	{
+	    _changed = true;
+	    mathExcOn (when);
+	}
+    }
+
+    ~MathExcOn ()
+    {
+	if (_changed)
+	    mathExcOn (_saved);
+    }
+
+    // It is possible for functions to set the exception registers
+    // yet not trigger a SIGFPE.  Specifically, the implementation
+    // of pow(x, y) we're using can generates a NaN from a negative x
+    // and fractional y but a SIGFPE is not generated.
+    // This function examimes the exception registers and calls the
+    // fpHandler if those registers modulo the exception mask are set.
+    // It should be called wherever this class is commonly used where it has
+    // been found that certain floating point exceptions are not being thrown.
+
+    void handleOutstandingExceptions();
+
+  private:
+
+    bool                        _changed;
+    int				_saved;
+};
+
+} // namespace Iex
+
+#endif
