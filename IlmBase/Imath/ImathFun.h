@@ -52,7 +52,7 @@ template <class T>
 inline T
 abs (T a)
 {
-    return (a > 0) ? a : -a;
+    return (a > T(0)) ? a : -a;
 }
 
 
@@ -60,7 +60,7 @@ template <class T>
 inline int
 sign (T a)
 {
-    return (a > 0)? 1 : ((a < 0) ? -1 : 0);
+    return (a > T(0))? 1 : ((a < T(0)) ? -1 : 0);
 }
 
 

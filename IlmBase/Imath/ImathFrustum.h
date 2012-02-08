@@ -459,14 +459,14 @@ Vec2<T> Frustum<T>::screenToLocal(const Vec2<T> &s) const
 template<class T>
 Vec2<T> Frustum<T>::localToScreen(const Vec2<T> &p) const
 {
-    T leftPlusRight  = _left - 2 * p.x + _right;
+    T leftPlusRight  = _left - T (2) * p.x + _right;
     T leftMinusRight = _left-_right;
-    T bottomPlusTop  = _bottom - 2 * p.y + _top;
+    T bottomPlusTop  = _bottom - T (2) * p.y + _top;
     T bottomMinusTop = _bottom-_top;
 
-    if ((abs(leftMinusRight) < 1 &&
+    if ((abs(leftMinusRight) < T (1) &&
 	 abs(leftPlusRight) > limits<T>::max() * abs(leftMinusRight)) ||
-	(abs(bottomMinusTop) < 1 &&
+	(abs(bottomMinusTop) < T (1) &&
 	 abs(bottomPlusTop) > limits<T>::max() * abs(bottomMinusTop)))
     {
 	throw Iex::DivzeroExc
@@ -492,7 +492,7 @@ Line3<T> Frustum<T>::projectScreenToRay(const Vec2<T> &p) const
 template<class T>
 Vec2<T> Frustum<T>::projectPointToScreen(const Vec3<T> &point) const
 {
-    if (orthographic() || point.z == 0)
+    if (orthographic() || point.z == T (0))
 	return localToScreen( Vec2<T>( point.x, point.y ) );
     else
 	return localToScreen( Vec2<T>( point.x * _nearPlane / -point.z, 
