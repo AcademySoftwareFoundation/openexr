@@ -1,3 +1,7 @@
+Version 1.7.1:
+        * Updated the .so verison to 7.
+	  (Piotr Stanczyk)     
+
 Version 1.7.0:
 	* Added support for targetting builds on 64bit Windows and minimising 
 	  number of compiler warnings on Windows. Thanks to Ger Hobbelt for his
