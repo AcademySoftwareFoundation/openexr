@@ -7,7 +7,6 @@ AM_CONFIG_HEADER(config/IlmBaseConfig.h)
 AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 
-
 LIBTOOL_CURRENT=7
 LIBTOOL_REVISION=0
 LIBTOOL_AGE=0
@@ -80,6 +79,11 @@ AC_TRY_COMPILE([#include <iomanip>],[
 AC_DEFINE(HAVE_COMPLETE_IOMANIP) complete_iomanip=yes)
 AC_MSG_RESULT($complete_iomanip)
 AC_LANG_RESTORE
+
+dnl Define the version string
+AC_DEFINE_UNQUOTED(ILMBASE_VERSION_STRING, "${VERSION}")
+AC_DEFINE_UNQUOTED(ILMBASE_PACKAGE_STRING, "${PACKAGE_STRING}")
+
 
 
 AC_MSG_CHECKING(for gcc optimization flags)
