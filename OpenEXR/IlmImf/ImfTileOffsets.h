@@ -42,6 +42,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <ImfExport.h>
 #include <ImfTileDescription.h>
 #include <ImfInt64.h>
 #include <vector>
@@ -52,7 +53,7 @@ class IStream;
 class OStream;
 
 
-class TileOffsets
+class IMF_EXPORT TileOffsets
 {
   public:
 

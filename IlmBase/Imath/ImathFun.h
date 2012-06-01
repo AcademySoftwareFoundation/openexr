@@ -43,6 +43,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImathExport.h"
 #include "ImathLimits.h"
 #include "ImathInt64.h"
 
@@ -233,11 +234,11 @@ modp (int x, int y)
 // 
 //----------------------------------------------------------
 
-float succf (float f);
-float predf (float f);
+IMATH_EXPORT float succf (float f);
+IMATH_EXPORT float predf (float f);
 
-double succd (double d);
-double predd (double d);
+IMATH_EXPORT double succd (double d);
+IMATH_EXPORT double predd (double d);
 
 //
 // Return true if the number is not a NaN or Infinity.

@@ -233,7 +233,7 @@ TimeCode::setFrame (int value)
 bool
 TimeCode::dropFrame () const
 {
-    return bool (bitField (_time, 6, 6));
+    return !!bitField (_time, 6, 6);
 }
 
 
@@ -247,7 +247,7 @@ TimeCode::setDropFrame (bool value)
 bool
 TimeCode::colorFrame () const
 {
-    return bool (bitField (_time, 7, 7));
+    return !!bitField (_time, 7, 7);
 }
 
 
@@ -261,7 +261,7 @@ TimeCode::setColorFrame (bool value)
 bool
 TimeCode::fieldPhase () const
 {
-    return bool (bitField (_time, 15, 15));
+    return !!bitField (_time, 15, 15);
 }
 
 
@@ -275,7 +275,7 @@ TimeCode::setFieldPhase (bool value)
 bool
 TimeCode::bgf0 () const
 {
-    return bool (bitField (_time, 23, 23));
+    return !!bitField (_time, 23, 23);
 }
 
 
@@ -289,7 +289,7 @@ TimeCode::setBgf0 (bool value)
 bool
 TimeCode::bgf1 () const
 {
-    return bool (bitField (_time, 30, 30));
+    return!!bitField (_time, 30, 30);
 }
 
 
@@ -303,7 +303,7 @@ TimeCode::setBgf1 (bool value)
 bool
 TimeCode::bgf2 () const
 {
-    return bool (bitField (_time, 31, 31));
+    return !!bitField (_time, 31, 31);
 }
 
 

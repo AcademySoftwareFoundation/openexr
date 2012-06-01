@@ -51,9 +51,9 @@ namespace Imf {
 
 typedef std::vector<std::string> StringVector;
 typedef TypedAttribute<StringVector> StringVectorAttribute;
-template <> const char *StringVectorAttribute::staticTypeName ();
-template <> void StringVectorAttribute::writeValueTo (OStream &, int) const;
-template <> void StringVectorAttribute::readValueFrom (IStream &, int, int);
+template <> IMF_EXPORT const char *StringVectorAttribute::staticTypeName ();
+template <> IMF_EXPORT void StringVectorAttribute::writeValueTo (OStream &, int) const;
+template <> IMF_EXPORT void StringVectorAttribute::readValueFrom (IStream &, int, int);
 
 
 } // namespace Imf

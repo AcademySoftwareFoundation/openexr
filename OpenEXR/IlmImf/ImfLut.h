@@ -45,6 +45,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <ImfExport.h>
 #include <ImfRgbaFile.h>
 #include <ImfFrameBuffer.h>
 #include "ImathBox.h"
@@ -56,7 +57,7 @@ namespace Imf {
 // Lookup table for individual half channels.
 //
 
-class HalfLut
+class IMF_EXPORT HalfLut
 {
   public:
 
@@ -94,7 +95,7 @@ class HalfLut
 // Lookup table for combined RGBA data.
 //
 
-class RgbaLut
+class IMF_EXPORT RgbaLut
 {
   public:
 
@@ -139,6 +140,7 @@ class RgbaLut
 // the center [2000] and that number is near 0.18.
 //
 
+IMF_EXPORT 
 half round12log (half x);
 
 

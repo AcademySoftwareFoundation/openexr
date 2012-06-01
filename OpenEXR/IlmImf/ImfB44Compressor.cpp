@@ -261,79 +261,79 @@ pack (const unsigned short s[16],
 
     do
     {
-	shift += 1;
+        shift += 1;
 
-	//
-	// Compute absolute differences, d[0] ... d[15],
-	// between tMax and t[0] ... t[15].
-	//
-	// Shift and round the absolute differences.
-	//
+        //
+        // Compute absolute differences, d[0] ... d[15],
+        // between tMax and t[0] ... t[15].
+        //
+        // Shift and round the absolute differences.
+        //
 
-	for (int i = 0; i < 16; ++i)
-	    d[i] = shiftAndRound (tMax - t[i], shift);
+        for (int i = 0; i < 16; ++i)
+            d[i] = shiftAndRound (tMax - t[i], shift);
 
-	//
-	// Convert d[0] .. d[15] into running differences
-	//
+        //
+        // Convert d[0] .. d[15] into running differences
+        //
 
-	r[ 0] = d[ 0] - d[ 4] + bias;
-	r[ 1] = d[ 4] - d[ 8] + bias;
-	r[ 2] = d[ 8] - d[12] + bias;
+        r[ 0] = d[ 0] - d[ 4] + bias;
+        r[ 1] = d[ 4] - d[ 8] + bias;
+        r[ 2] = d[ 8] - d[12] + bias;
 
-	r[ 3] = d[ 0] - d[ 1] + bias;
-	r[ 4] = d[ 4] - d[ 5] + bias;
-	r[ 5] = d[ 8] - d[ 9] + bias;
-	r[ 6] = d[12] - d[13] + bias;
+        r[ 3] = d[ 0] - d[ 1] + bias;
+        r[ 4] = d[ 4] - d[ 5] + bias;
+        r[ 5] = d[ 8] - d[ 9] + bias;
+        r[ 6] = d[12] - d[13] + bias;
 
-	r[ 7] = d[ 1] - d[ 2] + bias;
-	r[ 8] = d[ 5] - d[ 6] + bias;
-	r[ 9] = d[ 9] - d[10] + bias;
-	r[10] = d[13] - d[14] + bias;
+        r[ 7] = d[ 1] - d[ 2] + bias;
+        r[ 8] = d[ 5] - d[ 6] + bias;
+        r[ 9] = d[ 9] - d[10] + bias;
+        r[10] = d[13] - d[14] + bias;
 
-	r[11] = d[ 2] - d[ 3] + bias;
-	r[12] = d[ 6] - d[ 7] + bias;
-	r[13] = d[10] - d[11] + bias;
-	r[14] = d[14] - d[15] + bias;
+        r[11] = d[ 2] - d[ 3] + bias;
+        r[12] = d[ 6] - d[ 7] + bias;
+        r[13] = d[10] - d[11] + bias;
+        r[14] = d[14] - d[15] + bias;
 
-	rMin = r[0];
-	rMax = r[0];
+        rMin = r[0];
+        rMax = r[0];
 
-	for (int i = 1; i < 15; ++i)
-	{
-	    if (rMin > r[i])
-		rMin = r[i];
+        for (int i = 1; i < 15; ++i)
+        {
+            if (rMin > r[i])
+                rMin = r[i];
 
-	    if (rMax < r[i])
-		rMax = r[i];
-	}
+            if (rMax < r[i])
+                rMax = r[i];
+        }
     }
     while (rMin < 0 || rMax > 0x3f);
 
     if (rMin == bias && rMax == bias && optFlatFields)
     {
-	//
-	// Special case - all pixels have the same value.
-	// We encode this in 3 instead of 14 bytes by
-	// storing the value 0xfc in the third output byte,
-	// which cannot occur in the 14-byte encoding.
-	//
+        //
+        // Special case - all pixels have the same value.
+        // We encode this in 3 instead of 14 bytes by
+        // storing the value 0xfc in the third output byte,
+        // which cannot occur in the 14-byte encoding.
+        //
 
-	b[0] = (t[0] >> 8);
-	b[1] =  t[0];
-	b[2] = 0xfc;
+        b[0] = (t[0] >> 8);
+        b[1] = (unsigned char) t[0];
+        b[2] = 0xfc;
 
-	return 3;
+        return 3;
     }
 
     if (exactMax)
     {
-	//
-	// Adjust t[0] so that the pixel whose value is equal
-	// to tMax gets represented as accurately as possible.
-	//
+        //
+        // Adjust t[0] so that the pixel whose value is equal
+        // to tMax gets represented as accurately as possible.
+        //
 
-	t[0] = tMax - (d[0] << shift);
+        t[0] = tMax - (d[0] << shift);
     }
 
     //
@@ -341,7 +341,7 @@ pack (const unsigned short s[16],
     //
 
     b[ 0] = (t[0] >> 8);
-    b[ 1] =  t[0];
+    b[ 1] = (unsigned char) t[0];
 
     b[ 2] = (unsigned char) ((shift << 2) | (r[ 0] >> 4));
     b[ 3] = (unsigned char) ((r[ 0] << 4) | (r[ 1] >> 2));

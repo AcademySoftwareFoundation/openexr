@@ -42,6 +42,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <ImfExport.h>
 #include <ImfInt64.h>
 #include <string>
 
@@ -51,7 +52,7 @@ namespace Imf {
 // class IStream -- an abstract base class for input streams.
 //-----------------------------------------------------------
 
-class IStream
+class IMF_EXPORT IStream
 {
   public:
 
@@ -148,7 +149,7 @@ class IStream
 // class OStream -- an abstract base class for output streams
 //-----------------------------------------------------------
 
-class OStream
+class IMF_EXPORT OStream
 {
   public:
 
@@ -216,13 +217,13 @@ struct StreamIO
     static void
     writeChars (OStream &os, const char c[/*n*/], int n)
     {
-	os.write (c, n);
+        os.write (c, n);
     }
 
     static bool
     readChars (IStream &is, char c[/*n*/], int n)
     {
-	return is.read (c, n);
+        return is.read (c, n);
     }
 };
 
@@ -232,17 +233,17 @@ struct CharPtrIO
     static void
     writeChars (char *&op, const char c[/*n*/], int n)
     {
-	while (n--)
-	    *op++ = *c++;
+        while (n--)
+            *op++ = *c++;
     }
 
     static bool
     readChars (const char *&ip, char c[/*n*/], int n)
     {
-	while (n--)
-	    *c++ = *ip++;
+        while (n--)
+            *c++ = *ip++;
 
-	return true;
+        return true;
     }
 };
 

@@ -43,6 +43,7 @@
 //-----------------------------------------------------------------------------
 
 #include "IlmBaseConfig.h"
+#include "IlmThreadExport.h"
 
 #if defined _WIN32 || defined _WIN64
     #ifdef NOMINMAX
@@ -59,7 +60,7 @@
 namespace IlmThread {
 
 
-class Semaphore
+class ILMTHREAD_EXPORT Semaphore
 {
   public:
 

@@ -43,6 +43,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <ImfExport.h>
 #include <ImfHeader.h>
 #include <ImfFrameBuffer.h>
 #include <ImfTiledOutputFile.h>
@@ -56,7 +57,7 @@ class TiledInputFile;
 class ScanLineInputFile;
 
 
-class InputFile
+class IMF_EXPORT InputFile
 {
   public:
 

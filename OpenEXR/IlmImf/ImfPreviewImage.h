@@ -36,6 +36,8 @@
 #ifndef INCLUDED_IMF_PREVIEW_IMAGE_H
 #define INCLUDED_IMF_PREVIEW_IMAGE_H
 
+#include <ImfExport.h>
+
 //-----------------------------------------------------------------------------
 //
 //	class PreviewImage -- a usually small, low-dynamic range image,
@@ -66,7 +68,7 @@ struct PreviewRgba
 };
 
 
-class PreviewImage
+class IMF_EXPORT PreviewImage
 {
   public:
 

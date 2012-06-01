@@ -66,6 +66,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfRational.h>
+#include <ImfExport.h>
 
 namespace Imf {
 
@@ -80,8 +81,8 @@ inline Rational	fps_50 ()	{return Rational (50, 1);}
 inline Rational	fps_59_94 ()	{return Rational (60000, 1001);}
 inline Rational	fps_60 ()	{return Rational (60, 1);}
 
-Rational	guessExactFps (double fps);
-Rational	guessExactFps (const Rational &fps);
+IMF_EXPORT Rational	guessExactFps (double fps);
+IMF_EXPORT Rational	guessExactFps (const Rational &fps);
 
 } // namespace Imf
 

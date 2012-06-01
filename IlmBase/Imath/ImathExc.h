@@ -45,26 +45,27 @@
 //-----------------------------------------------
 
 #include "IexBaseExc.h"
+#include "ImathExport.h"
 
 namespace Imath {
 
 
-DEFINE_EXC (NullVecExc, ::Iex::MathExc)		// Attempt to normalize
+DEFINE_EXC_EXP (IMATH_EXPORT, NullVecExc, ::Iex::MathExc)		// Attempt to normalize
 						// null vector
 
-DEFINE_EXC (InfPointExc, ::Iex::MathExc)	// Attempt to normalize
+DEFINE_EXC_EXP (IMATH_EXPORT, InfPointExc, ::Iex::MathExc)	// Attempt to normalize
                                                 // a point at infinity
 
-DEFINE_EXC (NullQuatExc, ::Iex::MathExc) 	// Attempt to normalize
+DEFINE_EXC_EXP (IMATH_EXPORT, NullQuatExc, ::Iex::MathExc) 	// Attempt to normalize
 						// null quaternion
 
-DEFINE_EXC (SingMatrixExc, ::Iex::MathExc)	// Attempt to invert
+DEFINE_EXC_EXP (IMATH_EXPORT, SingMatrixExc, ::Iex::MathExc)	// Attempt to invert
 						// singular matrix
 
-DEFINE_EXC (ZeroScaleExc, ::Iex::MathExc)	// Attempt to remove zero
+DEFINE_EXC_EXP (IMATH_EXPORT, ZeroScaleExc, ::Iex::MathExc)	// Attempt to remove zero
 						// scaling from matrix
 
-DEFINE_EXC (IntVecNormalizeExc, ::Iex::MathExc)	// Attempt to normalize
+DEFINE_EXC_EXP (IMATH_EXPORT, IntVecNormalizeExc, ::Iex::MathExc)	// Attempt to normalize
 						// a vector of whose elements
                                                 // are an integer type
 

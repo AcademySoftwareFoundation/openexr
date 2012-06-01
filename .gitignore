@@ -8,4 +8,22 @@ depcomp
 install-sh
 ltmain.sh
 missing
-*.o *.lo *.pc *.la
+*.o
+*.lo
+*.pc
+*.la
+*.vcxproj.user
+*.1.tlog
+*.manifest
+*.lastbuildstate
+*.log
+*.obj
+*.idb
+*.pdb
+*.sdf
+*.suo
+*.exp
+*.ilk
+*.map
+*.ipch
+*.res

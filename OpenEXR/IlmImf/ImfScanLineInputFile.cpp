@@ -874,16 +874,16 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
     {
         Lock lock (*_data);
 
-	if (_data->slices.size() == 0)
-	    throw Iex::ArgExc ("No frame buffer specified "
-			       "as pixel data destination.");
+        if (_data->slices.size() == 0)
+            throw Iex::ArgExc ("No frame buffer specified "
+                               "as pixel data destination.");
 
-	int scanLineMin = min (scanLine1, scanLine2);
-	int scanLineMax = max (scanLine1, scanLine2);
+        int scanLineMin = min (scanLine1, scanLine2);
+        int scanLineMax = max (scanLine1, scanLine2);
 
-	if (scanLineMin < _data->minY || scanLineMax > _data->maxY)
-	    throw Iex::ArgExc ("Tried to read scan line outside "
-			       "the image file's data window.");
+        if (scanLineMin < _data->minY || scanLineMax > _data->maxY)
+            throw Iex::ArgExc ("Tried to read scan line outside "
+                               "the image file's data window.");
 
         //
         // We impose a numbering scheme on the lineBuffers where the first
@@ -911,71 +911,72 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 
         //
         // Create a task group for all line buffer tasks.  When the
-	// task group goes out of scope, the destructor waits until
-	// all tasks are complete.
+        // task group goes out of scope, the destructor waits until
+        // all tasks are complete.
         //
-        
+
         {
             TaskGroup taskGroup;
-    
+
             //
             // Add the line buffer tasks.
             //
             // The tasks will execute in the order that they are created
             // because we lock the line buffers during construction and the
             // constructors are called by the main thread.  Hence, in order
-	    // for a successive task to execute the previous task which
-	    // used that line buffer must have completed already.
+            // for a successive task to execute the previous task which
+            // used that line buffer must have completed already.
             //
-    
+
             for (int l = start; l != stop; l += dl)
             {
                 ThreadPool::addGlobalTask (newLineBufferTask (&taskGroup,
-                                                              _data, l,
-                                                              scanLineMin,
-                                                              scanLineMax));
+                    _data, l,
+                    scanLineMin,
+                    scanLineMax));
             }
-        
-	    //
+
+            //
             // finish all tasks
-	    //
+            //
         }
-        
-	//
-	// Exeption handling:
-	//
-	// LineBufferTask::execute() may have encountered exceptions, but
-	// those exceptions occurred in another thread, not in the thread
-	// that is executing this call to ScanLineInputFile::readPixels().
-	// LineBufferTask::execute() has caught all exceptions and stored
-	// the exceptions' what() strings in the line buffers.
-	// Now we check if any line buffer contains a stored exception; if
-	// this is the case then we re-throw the exception in this thread.
-	// (It is possible that multiple line buffers contain stored
-	// exceptions.  We re-throw the first exception we find and
-	// ignore all others.)
-	//
 
-	const string *exception = 0;
+        //
+        // Exeption handling:
+        //
+        // LineBufferTask::execute() may have encountered exceptions, but
+        // those exceptions occurred in another thread, not in the thread
+        // that is executing this call to ScanLineInputFile::readPixels().
+        // LineBufferTask::execute() has caught all exceptions and stored
+        // the exceptions' what() strings in the line buffers.
+        // Now we check if any line buffer contains a stored exception; if
+        // this is the case then we re-throw the exception in this thread.
+        // (It is possible that multiple line buffers contain stored
+        // exceptions.  We re-throw the first exception we find and
+        // ignore all others.)
+        //
 
+        string exception;
         for (int i = 0; i < _data->lineBuffers.size(); ++i)
-	{
+        {
             LineBuffer *lineBuffer = _data->lineBuffers[i];
 
-	    if (lineBuffer->hasException && !exception)
-		exception = &lineBuffer->exception;
+            if (lineBuffer->hasException && !exception.empty())
+                exception = lineBuffer->exception;
 
-	    lineBuffer->hasException = false;
-	}
+            lineBuffer->hasException = false;
+        }
 
-	if (exception)
-	    throw Iex::IoExc (*exception);
+        if (!exception.empty())
+        {
+            throw Iex::IoExc (exception);
+        }
     }
     catch (Iex::BaseExc &e)
     {
-	REPLACE_EXC (e, "Error reading pixel data from image "
-		        "file \"" << fileName() << "\". " << e);
-	throw;
+        REPLACE_EXC (e, "Error reading pixel data from image "
+                        "file \"" << fileName() << "\". " << e);
+        throw;
     }
 }
 
@@ -996,25 +997,25 @@ ScanLineInputFile::rawPixelData (int firstScanLine,
     {
         Lock lock (*_data);
 
-	if (firstScanLine < _data->minY || firstScanLine > _data->maxY)
-	{
-	    throw Iex::ArgExc ("Tried to read scan line outside "
-			       "the image file's data window.");
-	}
+        if (firstScanLine < _data->minY || firstScanLine > _data->maxY)
+        {
+            throw Iex::ArgExc ("Tried to read scan line outside "
+                               "the image file's data window.");
+        }
 
-        int minY = lineBufferMinY
-	    (firstScanLine, _data->minY, _data->linesInBuffer);
+        int minY = lineBufferMinY (firstScanLine, _data->minY, 
+                                   _data->linesInBuffer);
 
-	readPixelData
-	    (_data, minY, _data->lineBuffers[0]->buffer, pixelDataSize);
+        readPixelData (_data, minY, _data->lineBuffers[0]->buffer, 
+                       pixelDataSize);
 
-	pixelData = _data->lineBuffers[0]->buffer;
+        pixelData = _data->lineBuffers[0]->buffer;
     }
     catch (Iex::BaseExc &e)
     {
-	REPLACE_EXC (e, "Error reading pixel data from image "
-		        "file \"" << fileName() << "\". " << e);
-	throw;
+        REPLACE_EXC (e, "Error reading pixel data from image "
+                        "file \"" << fileName() << "\". " << e);
+        throw;
     }
 }
 
