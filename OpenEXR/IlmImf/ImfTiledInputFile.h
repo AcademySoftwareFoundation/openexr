@@ -51,7 +51,7 @@
 namespace Imf {
 
 
-class TiledInputFile
+class IMF_EXPORT TiledInputFile
 {
   public:
 
@@ -66,7 +66,7 @@ class TiledInputFile
     //--------------------------------------------------------------------
 
     TiledInputFile (const char fileName[],
-                    int numThreads = globalThreadCount ());
+                    int numThreads = globalThreadCount());
 
     
     // ----------------------------------------------------------
@@ -77,7 +77,7 @@ class TiledInputFile
     // files.
     // ----------------------------------------------------------
 
-    TiledInputFile (IStream &is, int numThreads = globalThreadCount ());
+    TiledInputFile (IStream &is, int numThreads = globalThreadCount());
 
 
     //-----------

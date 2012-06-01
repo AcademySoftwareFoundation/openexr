@@ -46,6 +46,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <ImfExport.h>
 #include <ImfAttribute.h>
 #include "ImathMatrix.h"
 
@@ -54,27 +55,27 @@ namespace Imf {
 
 
 typedef TypedAttribute<Imath::M33f> M33fAttribute;
-template <> const char *M33fAttribute::staticTypeName ();
-template <> void M33fAttribute::writeValueTo (OStream &, int) const;
-template <> void M33fAttribute::readValueFrom (IStream &, int, int);
+template <> IMF_EXPORT const char *M33fAttribute::staticTypeName ();
+template <> IMF_EXPORT void M33fAttribute::writeValueTo (OStream &, int) const;
+template <> IMF_EXPORT void M33fAttribute::readValueFrom (IStream &, int, int);
 
 
 typedef TypedAttribute<Imath::M33d> M33dAttribute;
-template <> const char *M33dAttribute::staticTypeName ();
-template <> void M33dAttribute::writeValueTo (OStream &, int) const;
-template <> void M33dAttribute::readValueFrom (IStream &, int, int);
+template <> IMF_EXPORT const char *M33dAttribute::staticTypeName ();
+template <> IMF_EXPORT void M33dAttribute::writeValueTo (OStream &, int) const;
+template <> IMF_EXPORT void M33dAttribute::readValueFrom (IStream &, int, int);
 
 
 typedef TypedAttribute<Imath::M44f> M44fAttribute;
-template <> const char *M44fAttribute::staticTypeName ();
-template <> void M44fAttribute::writeValueTo (OStream &, int) const;
-template <> void M44fAttribute::readValueFrom (IStream &, int, int);
+template <> IMF_EXPORT const char *M44fAttribute::staticTypeName ();
+template <> IMF_EXPORT void M44fAttribute::writeValueTo (OStream &, int) const;
+template <> IMF_EXPORT void M44fAttribute::readValueFrom (IStream &, int, int);
 
 
 typedef TypedAttribute<Imath::M44d> M44dAttribute;
-template <> const char *M44dAttribute::staticTypeName ();
-template <> void M44dAttribute::writeValueTo (OStream &, int) const;
-template <> void M44dAttribute::readValueFrom (IStream &, int, int);
+template <> IMF_EXPORT const char *M44dAttribute::staticTypeName ();
+template <> IMF_EXPORT void M44dAttribute::writeValueTo (OStream &, int) const;
+template <> IMF_EXPORT void M44dAttribute::readValueFrom (IStream &, int, int);
 
 
 } // namespace Imf

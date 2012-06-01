@@ -77,9 +77,9 @@ TileOffsets::TileOffsets (LevelMode mode,
 
         _offsets.resize (_numXLevels * _numYLevels);
 
-        for (unsigned int ly = 0; ly < _numYLevels; ++ly)
+        for (int ly = 0; ly < _numYLevels; ++ly)
         {
-            for (unsigned int lx = 0; lx < _numXLevels; ++lx)
+            for (int lx = 0; lx < _numXLevels; ++lx)
             {
                 int l = ly * _numXLevels + lx;
                 _offsets[l].resize (numYTiles[ly]);

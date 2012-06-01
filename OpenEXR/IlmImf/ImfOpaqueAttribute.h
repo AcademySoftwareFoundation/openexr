@@ -55,7 +55,7 @@
 namespace Imf {
 
 
-class OpaqueAttribute: public Attribute
+class IMF_EXPORT OpaqueAttribute: public Attribute
 {
   public:
 

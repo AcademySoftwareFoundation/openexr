@@ -46,6 +46,12 @@
 #include <IlmThread.h>
 #include <string>
 #include <stdio.h>
+
+// Ensure assert macro is compiled in.
+#ifdef NDEBUG
+#   undef NDEBUG
+#endif
+
 #include <assert.h>
 
 using namespace Imf;
@@ -86,15 +92,15 @@ fillPixels (Array2D<Rgba> &pixels, int w, int h)
 {
     for (int y = 0; y < h; ++y)
     {
-	for (int x = 0; x < w; ++x)
-	{
-	    Rgba &p = pixels[y][x];
+        for (int x = 0; x < w; ++x)
+        {
+            Rgba &p = pixels[y][x];
 
-	    p.r = 0.5 + 0.5 * sin (0.1 * x + 0.1 * y);
-	    p.g = 0.5 + 0.5 * sin (0.1 * x + 0.2 * y);
-	    p.b = 0.5 + 0.5 * sin (0.1 * x + 0.3 * y);
-	    p.a = (p.r + p.b + p.g) / 3.0;
-	}
+            p.r = 0.5 + 0.5 * sin (0.1 * x + 0.1 * y);
+            p.g = 0.5 + 0.5 * sin (0.1 * x + 0.2 * y);
+            p.b = 0.5 + 0.5 * sin (0.1 * x + 0.3 * y);
+            p.a = (p.r + p.b + p.g) / 3.0;
+        }
     }
 }
 
@@ -127,67 +133,67 @@ writeReadRGBA (const char fileName[],
     header.compression() = comp;
 
     {
-	remove (fileName);
-	RgbaOutputFile out (fileName, header, channels);
-	out.setFrameBuffer (&p1[0][0], 1, width);
-	out.writePixels (height);
+        remove (fileName);
+        RgbaOutputFile out (fileName, header, channels);
+        out.setFrameBuffer (&p1[0][0], 1, width);
+        out.writePixels (height);
     }
 
     {
-	RgbaInputFile in (fileName);
-	const Box2i &dw = in.dataWindow();
-	
-	int w = dw.max.x - dw.min.x + 1;
-	int h = dw.max.y - dw.min.y + 1;
-	int dx = dw.min.x;
-	int dy = dw.min.y;
+        RgbaInputFile in (fileName);
+        const Box2i &dw = in.dataWindow();
 
-	Array2D<Rgba> p2 (h, w);
-	in.setFrameBuffer (&p2[-dy][-dx], 1, w);
-	in.readPixels (dw.min.y, dw.max.y);
+        int w = dw.max.x - dw.min.x + 1;
+        int h = dw.max.y - dw.min.y + 1;
+        int dx = dw.min.x;
+        int dy = dw.min.y;
 
-	assert (in.displayWindow() == header.displayWindow());
-	assert (in.dataWindow() == header.dataWindow());
-	assert (in.pixelAspectRatio() == header.pixelAspectRatio());
-	assert (in.screenWindowCenter() == header.screenWindowCenter());
-	assert (in.screenWindowWidth() == header.screenWindowWidth());
-	assert (in.lineOrder() == header.lineOrder());
-	assert (in.compression() == header.compression());
-	assert (in.channels() == channels);
+        Array2D<Rgba> p2 (h, w);
+        in.setFrameBuffer (&p2[-dy][-dx], 1, w);
+        in.readPixels (dw.min.y, dw.max.y);
 
-	if (in.compression() == B44_COMPRESSION ||
-	    in.compression() == B44A_COMPRESSION)
-	{
-	    compareB44 (width, height, p1, p2, channels);
-	}
-	else
-	{
-	    for (int y = 0; y < h; ++y)
-	    {
-		for (int x = 0; x < w; ++x)
-		{
-		    if (channels & WRITE_R)
-			assert (p2[y][x].r == p1[y][x].r);
-		    else
-			assert (p2[y][x].r == 0);
+        assert (in.displayWindow() == header.displayWindow());
+        assert (in.dataWindow() == header.dataWindow());
+        assert (in.pixelAspectRatio() == header.pixelAspectRatio());
+        assert (in.screenWindowCenter() == header.screenWindowCenter());
+        assert (in.screenWindowWidth() == header.screenWindowWidth());
+        assert (in.lineOrder() == header.lineOrder());
+        assert (in.compression() == header.compression());
+        assert (in.channels() == channels);
 
-		    if (channels & WRITE_G)
-			assert (p2[y][x].g == p1[y][x].g);
-		    else
-			assert (p2[y][x].g == 0);
+        if (in.compression() == B44_COMPRESSION ||
+            in.compression() == B44A_COMPRESSION)
+        {
+            compareB44 (width, height, p1, p2, channels);
+        }
+        else
+        {
+            for (int y = 0; y < h; ++y)
+            {
+                for (int x = 0; x < w; ++x)
+                {
+                    if (channels & WRITE_R)
+                        assert (p2[y][x].r == p1[y][x].r);
+                    else
+                        assert (p2[y][x].r == 0);
 
-		    if (channels & WRITE_B)
-			assert (p2[y][x].b == p1[y][x].b);
-		    else
-			assert (p2[y][x].b == 0);
+                    if (channels & WRITE_G)
+                        assert (p2[y][x].g == p1[y][x].g);
+                    else
+                        assert (p2[y][x].g == 0);
 
-		    if (channels & WRITE_A)
-			assert (p2[y][x].a == p1[y][x].a);
-		    else
-			assert (p2[y][x].a == 1);
-		}
-	    }
-	}
+                    if (channels & WRITE_B)
+                        assert (p2[y][x].b == p1[y][x].b);
+                    else
+                        assert (p2[y][x].b == 0);
+
+                    if (channels & WRITE_A)
+                        assert (p2[y][x].a == p1[y][x].a);
+                    else
+                        assert (p2[y][x].a == 1);
+                }
+            }
+        }
     }
 
     remove (fileName);
@@ -213,33 +219,33 @@ writeReadIncomplete ()
     Array2D<Rgba> p1 (height, width);
 
     for (int y = 0; y < height; ++y)
-	for (int x = 0; x < width; ++x)
-	    p1[y][x] = Rgba (x % 5, x % 17, y % 23, y % 29);
+        for (int x = 0; x < width; ++x)
+            p1[y][x] = Rgba (x % 5, x % 17, y % 23, y % 29);
 
     {
         cout << "writing" << endl;
- 
+
         remove (fileName);
 
-	Header header (width, height);
-	header.compression() = ZIPS_COMPRESSION;
+        Header header (width, height);
+        header.compression() = ZIPS_COMPRESSION;
 
         RgbaOutputFile out (fileName, header, WRITE_RGBA);
-        
-        out.setFrameBuffer (&p1[0][0], 1, width);
-	out.writePixels (height / 2);		// write only half of the
-						// scan lines in the image
 
-	out.breakScanLine (10, 10, 10, 0xff);	// destroy scan lines
-	out.breakScanLine (25, 10, 10, 0xff);	// 10 and 25
+        out.setFrameBuffer (&p1[0][0], 1, width);
+        out.writePixels (height / 2);		// write only half of the
+        // scan lines in the image
+
+        out.breakScanLine (10, 10, 10, 0xff);	// destroy scan lines
+        out.breakScanLine (25, 10, 10, 0xff);	// 10 and 25
     }
 
     {
-	Array2D<Rgba> p2 (height, width);
+        Array2D<Rgba> p2 (height, width);
 
-	for (int y = 0; y < height; ++y)
-	    for (int x = 0; x < width; ++x)
-		p2[y][x] = Rgba (-1, -1, -1, -1);
+        for (int y = 0; y < height; ++y)
+            for (int x = 0; x < width; ++x)
+                p2[y][x] = Rgba (-1, -1, -1, -1);
 
         cout << "reading one scan line at a time," << flush;
 
@@ -248,68 +254,68 @@ writeReadIncomplete ()
 
         assert (dw.max.x - dw.min.x + 1 == width);
         assert (dw.max.y - dw.min.y + 1 == height);
-	assert (dw.min.x == 0);
-	assert (dw.min.y == 0);
-	
+        assert (dw.min.x == 0);
+        assert (dw.min.y == 0);
+
         in.setFrameBuffer (&p2[0][0], 1, width);
 
-	for (int y = 0; y < height; ++y)
-	{
-	    bool scanLinePresent = true;
-	    bool scanLineBroken = false;
+        for (int y = 0; y < height; ++y)
+        {
+            bool scanLinePresent = true;
+            bool scanLineBroken = false;
 
-	    try
-	    {
-		in.readPixels (y);
-	    }
-	    catch (const Iex::InputExc &)
-	    {
-		scanLinePresent = false;	// scan line is missing
-	    }
-	    catch (const Iex::IoExc &)
-	    {
-		scanLineBroken = true;		// scan line cannot be decoded
-	    }
+            try
+            {
+                in.readPixels (y);
+            }
+            catch (const Iex::InputExc &)
+            {
+                scanLinePresent = false;	// scan line is missing
+            }
+            catch (const Iex::IoExc &)
+            {
+                scanLineBroken = true;		// scan line cannot be decoded
+            }
 
-	    if (y == 10 || y == 25)
-		assert (scanLineBroken);
-	    else
-		assert (scanLinePresent == (y < height / 2));
-	}
+            if (y == 10 || y == 25)
+                assert (scanLineBroken);
+            else
+                assert (scanLinePresent == (y < height / 2));
+        }
 
-	cout << " comparing" << endl << flush;               
+        cout << " comparing" << endl << flush;               
 
-	for (int y = 0; y < height; ++y)
-	{
-	    for (int x = 0; x < width; ++x)
-	    {
-		const Rgba &s = p1[y][x];
-		const Rgba &t = p2[y][x];
+        for (int y = 0; y < height; ++y)
+        {
+            for (int x = 0; x < width; ++x)
+            {
+                const Rgba &s = p1[y][x];
+                const Rgba &t = p2[y][x];
 
-		if (y < height / 2 && y != 10 && y != 25)
-		{
-		    assert (t.r == s.r &&
-			    t.g == s.g &&
-			    t.b == s.b &&
-			    t.a == s.a);
-		}
-		else
-		{
-		    assert (t.r == -1 &&
-			    t.g == -1 &&
-			    t.b == -1 &&
-			    t.a == -1);
-		}
-	    }
-	}
+                if (y < height / 2 && y != 10 && y != 25)
+                {
+                    assert (t.r == s.r &&
+                        t.g == s.g &&
+                        t.b == s.b &&
+                        t.a == s.a);
+                }
+                else
+                {
+                    assert (t.r == -1 &&
+                        t.g == -1 &&
+                        t.b == -1 &&
+                        t.a == -1);
+                }
+            }
+        }
     }
 
     {
-	Array2D<Rgba> p2 (height, width);
+        Array2D<Rgba> p2 (height, width);
 
-	for (int y = 0; y < height; ++y)
-	    for (int x = 0; x < width; ++x)
-		p2[y][x] = Rgba (-1, -1, -1, -1);
+        for (int y = 0; y < height; ++y)
+            for (int x = 0; x < width; ++x)
+                p2[y][x] = Rgba (-1, -1, -1, -1);
 
         cout << "reading multiple scan lines at a time," << flush;
 
@@ -318,42 +324,42 @@ writeReadIncomplete ()
 
         assert (dw.max.x - dw.min.x + 1 == width);
         assert (dw.max.y - dw.min.y + 1 == height);
-	assert (dw.min.x == 0);
-	assert (dw.min.y == 0);
-	
+        assert (dw.min.x == 0);
+        assert (dw.min.y == 0);
+
         in.setFrameBuffer (&p2[0][0], 1, width);
 
-	bool scanLinesMissing = false;
-	bool scanLinesBroken = false;
+        bool scanLinesMissing = false;
+        bool scanLinesBroken = false;
 
-	try
-	{
-	    in.readPixels (0, height - 1);
-	}
-	catch (const Iex::InputExc &)
-	{
-	    scanLinesMissing = true;
-	}
-	catch (const Iex::IoExc &)
-	{
-	    scanLinesBroken = true;
-	}
+        try
+        {
+            in.readPixels (0, height - 1);
+        }
+        catch (const Iex::InputExc &)
+        {
+            scanLinesMissing = true;
+        }
+        catch (const Iex::IoExc &)
+        {
+            scanLinesBroken = true;
+        }
 
-	assert (scanLinesMissing || scanLinesBroken);
+        assert (scanLinesMissing || scanLinesBroken);
 
-	cout << " comparing" << endl << flush;               
+        cout << " comparing" << endl << flush;               
 
-	for (int y = 0; y < height; ++y)
-	{
-	    for (int x = 0; x < width; ++x)
-	    {
-		const Rgba &s = p1[y][x];
-		const Rgba &t = p2[y][x];
+        for (int y = 0; y < height; ++y)
+        {
+            for (int x = 0; x < width; ++x)
+            {
+                const Rgba &s = p1[y][x];
+                const Rgba &t = p2[y][x];
 
-		assert ((t.r == -1  && t.g == -1  && t.b == -1  && t.a == -1) ||
-			(t.r == s.r && t.g == s.g && t.b == s.b && t.a == s.a));
-	    }
-	}
+                assert ((t.r == -1  && t.g == -1  && t.b == -1  && t.a == -1) ||
+                    (t.r == s.r && t.g == s.g && t.b == s.b && t.a == s.a));
+            }
+        }
     }
 
     remove (fileName);
@@ -375,199 +381,199 @@ writeReadLayers ()
 
     for (int y = 0; y < H; ++y)
     {
-	for (int x = 0; x < W; ++x)
-	{
-	    p1[y][x] = half (y % 23 + x % 17);
-	    p2[y][x] = half (y % 29 + x % 19);
-	}
+        for (int x = 0; x < W; ++x)
+        {
+            p1[y][x] = half (y % 23 + x % 17);
+            p2[y][x] = half (y % 29 + x % 19);
+        }
     }
 
     {
-	Header hdr (W, H);
-	hdr.channels().insert ("R", Channel (HALF));
-	hdr.channels().insert ("foo.R", Channel (HALF));
+        Header hdr (W, H);
+        hdr.channels().insert ("R", Channel (HALF));
+        hdr.channels().insert ("foo.R", Channel (HALF));
 
-	FrameBuffer fb;
+        FrameBuffer fb;
 
-	fb.insert ("R",
-		   Slice (HALF,			// type
-			  (char *) &p1[0][0], 	// base
-			  sizeof (half),	// xStride
-			  sizeof (half) * W));	// yStride
+        fb.insert ("R",
+                    Slice (HALF,			// type
+                    (char *) &p1[0][0], 	// base
+                    sizeof (half),	// xStride
+                    sizeof (half) * W));	// yStride
 
-	fb.insert ("foo.R",
-		   Slice (HALF,			// type
-			  (char *) &p2[0][0], 	// base
-			  sizeof (half),	// xStride
-			  sizeof (half) * W));	// yStride
+        fb.insert ("foo.R",
+                    Slice (HALF,			// type
+                    (char *) &p2[0][0], 	// base
+                    sizeof (half),	// xStride
+                    sizeof (half) * W));	// yStride
 
-	OutputFile out (fileName, hdr);
-	out.setFrameBuffer (fb);
-	out.writePixels (H);
+        OutputFile out (fileName, hdr);
+        out.setFrameBuffer (fb);
+        out.writePixels (H);
     }
 
     {
-	RgbaInputFile in (fileName, "");
+        RgbaInputFile in (fileName, "");
 
-	Array2D<Rgba> p3 (H, W);
-	in.setFrameBuffer (&p3[0][0], 1, W);
-	in.readPixels (0, H - 1);
+        Array2D<Rgba> p3 (H, W);
+        in.setFrameBuffer (&p3[0][0], 1, W);
+        in.readPixels (0, H - 1);
 
-	for (int y = 0; y < H; ++y)
-	{
-	    for (int x = 0; x < W; ++x)
-	    {
-		assert (p3[y][x].r == p1[y][x]);
-		assert (p3[y][x].g == 0);
-		assert (p3[y][x].b == 0);
-		assert (p3[y][x].a == 1);
-	    }
-	}
+        for (int y = 0; y < H; ++y)
+        {
+            for (int x = 0; x < W; ++x)
+            {
+                assert (p3[y][x].r == p1[y][x]);
+                assert (p3[y][x].g == 0);
+                assert (p3[y][x].b == 0);
+                assert (p3[y][x].a == 1);
+            }
+        }
     }
 
     {
-	RgbaInputFile in (fileName, "foo");
+        RgbaInputFile in (fileName, "foo");
 
-	Array2D<Rgba> p3 (H, W);
-	in.setFrameBuffer (&p3[0][0], 1, W);
-	in.readPixels (0, H - 1);
+        Array2D<Rgba> p3 (H, W);
+        in.setFrameBuffer (&p3[0][0], 1, W);
+        in.readPixels (0, H - 1);
 
-	for (int y = 0; y < H; ++y)
-	{
-	    for (int x = 0; x < W; ++x)
-	    {
-		assert (p3[y][x].r == p2[y][x]);
-		assert (p3[y][x].g == 0);
-		assert (p3[y][x].b == 0);
-		assert (p3[y][x].a == 1);
-	    }
-	}
+        for (int y = 0; y < H; ++y)
+        {
+            for (int x = 0; x < W; ++x)
+            {
+                assert (p3[y][x].r == p2[y][x]);
+                assert (p3[y][x].g == 0);
+                assert (p3[y][x].b == 0);
+                assert (p3[y][x].a == 1);
+            }
+        }
     }
 
     {
-	RgbaInputFile in (fileName, "");
+        RgbaInputFile in (fileName, "");
 
-	Array2D<Rgba> p3 (H, W);
+        Array2D<Rgba> p3 (H, W);
 
-	in.setFrameBuffer (&p3[0][0], 1, W);
-	in.readPixels (0, H / 2 - 1);
+        in.setFrameBuffer (&p3[0][0], 1, W);
+        in.readPixels (0, H / 2 - 1);
 
-	in.setLayerName ("foo");
+        in.setLayerName ("foo");
 
-	in.setFrameBuffer (&p3[0][0], 1, W);
-	in.readPixels (H / 2, H - 1);
+        in.setFrameBuffer (&p3[0][0], 1, W);
+        in.readPixels (H / 2, H - 1);
 
-	for (int y = 0; y < H; ++y)
-	{
-	    for (int x = 0; x < W; ++x)
-	    {
-		if (y < H / 2)
-		    assert (p3[y][x].r == p1[y][x]);
-		else
-		    assert (p3[y][x].r == p2[y][x]);
+        for (int y = 0; y < H; ++y)
+        {
+            for (int x = 0; x < W; ++x)
+            {
+                if (y < H / 2)
+                    assert (p3[y][x].r == p1[y][x]);
+                else
+                    assert (p3[y][x].r == p2[y][x]);
 
-		assert (p3[y][x].g == 0);
-		assert (p3[y][x].b == 0);
-		assert (p3[y][x].a == 1);
-	    }
-	}
+                assert (p3[y][x].g == 0);
+                assert (p3[y][x].b == 0);
+                assert (p3[y][x].a == 1);
+            }
+        }
     }
 
     {
-	Header hdr (W, H);
-	hdr.channels().insert ("Y", Channel (HALF));
-	hdr.channels().insert ("foo.Y", Channel (HALF));
+        Header hdr (W, H);
+        hdr.channels().insert ("Y", Channel (HALF));
+        hdr.channels().insert ("foo.Y", Channel (HALF));
 
-	FrameBuffer fb;
+        FrameBuffer fb;
 
-	fb.insert ("Y",
-		   Slice (HALF,			// type
-			  (char *) &p1[0][0], 	// base
-			  sizeof (half),	// xStride
-			  sizeof (half) * W));	// yStride
+        fb.insert ("Y",
+                    Slice (HALF,			// type
+                    (char *) &p1[0][0], 	// base
+                    sizeof (half),	// xStride
+                    sizeof (half) * W));	// yStride
 
-	fb.insert ("foo.Y",
-		   Slice (HALF,			// type
-			  (char *) &p2[0][0], 	// base
-			  sizeof (half),	// xStride
-			  sizeof (half) * W));	// yStride
+        fb.insert ("foo.Y",
+                    Slice (HALF,			// type
+                    (char *) &p2[0][0], 	// base
+                    sizeof (half),	// xStride
+                    sizeof (half) * W));	// yStride
 
-	OutputFile out (fileName, hdr);
-	out.setFrameBuffer (fb);
-	out.writePixels (H);
+        OutputFile out (fileName, hdr);
+        out.setFrameBuffer (fb);
+        out.writePixels (H);
     }
 
     {
-	RgbaInputFile in (fileName, "");
+        RgbaInputFile in (fileName, "");
 
-	Array2D<Rgba> p3 (H, W);
-	in.setFrameBuffer (&p3[0][0], 1, W);
-	in.readPixels (0, H - 1);
+        Array2D<Rgba> p3 (H, W);
+        in.setFrameBuffer (&p3[0][0], 1, W);
+        in.readPixels (0, H - 1);
 
-	for (int y = 0; y < H; ++y)
-	{
-	    for (int x = 0; x < W; ++x)
-	    {
-		assert (p3[y][x].r == p1[y][x]);
-		assert (p3[y][x].g == p1[y][x]);
-		assert (p3[y][x].b == p1[y][x]);
-		assert (p3[y][x].a == 1);
-	    }
-	}
+        for (int y = 0; y < H; ++y)
+        {
+            for (int x = 0; x < W; ++x)
+            {
+                assert (p3[y][x].r == p1[y][x]);
+                assert (p3[y][x].g == p1[y][x]);
+                assert (p3[y][x].b == p1[y][x]);
+                assert (p3[y][x].a == 1);
+            }
+        }
     }
 
     {
-	RgbaInputFile in (fileName, "foo");
+        RgbaInputFile in (fileName, "foo");
 
-	Array2D<Rgba> p3 (H, W);
-	in.setFrameBuffer (&p3[0][0], 1, W);
-	in.readPixels (0, H - 1);
+        Array2D<Rgba> p3 (H, W);
+        in.setFrameBuffer (&p3[0][0], 1, W);
+        in.readPixels (0, H - 1);
 
-	for (int y = 0; y < H; ++y)
-	{
-	    for (int x = 0; x < W; ++x)
-	    {
-		assert (p3[y][x].r == p2[y][x]);
-		assert (p3[y][x].g == p2[y][x]);
-		assert (p3[y][x].b == p2[y][x]);
-		assert (p3[y][x].a == 1);
-	    }
-	}
+        for (int y = 0; y < H; ++y)
+        {
+            for (int x = 0; x < W; ++x)
+            {
+                assert (p3[y][x].r == p2[y][x]);
+                assert (p3[y][x].g == p2[y][x]);
+                assert (p3[y][x].b == p2[y][x]);
+                assert (p3[y][x].a == 1);
+            }
+        }
     }
 
     {
-	RgbaInputFile in (fileName, "");
+        RgbaInputFile in (fileName, "");
 
-	Array2D<Rgba> p3 (H, W);
+        Array2D<Rgba> p3 (H, W);
 
-	in.setFrameBuffer (&p3[0][0], 1, W);
-	in.readPixels (0, H / 2 - 1);
+        in.setFrameBuffer (&p3[0][0], 1, W);
+        in.readPixels (0, H / 2 - 1);
 
-	in.setLayerName ("foo");
+        in.setLayerName ("foo");
 
-	in.setFrameBuffer (&p3[0][0], 1, W);
-	in.readPixels (H / 2, H - 1);
+        in.setFrameBuffer (&p3[0][0], 1, W);
+        in.readPixels (H / 2, H - 1);
 
-	for (int y = 0; y < H; ++y)
-	{
-	    for (int x = 0; x < W; ++x)
-	    {
-		if (y < H / 2)
-		{
-		    assert (p3[y][x].r == p1[y][x]);
-		    assert (p3[y][x].g == p1[y][x]);
-		    assert (p3[y][x].b == p1[y][x]);
-		}
-		else
-		{
-		    assert (p3[y][x].r == p2[y][x]);
-		    assert (p3[y][x].g == p2[y][x]);
-		    assert (p3[y][x].b == p2[y][x]);
-		}
+        for (int y = 0; y < H; ++y)
+        {
+            for (int x = 0; x < W; ++x)
+            {
+                if (y < H / 2)
+                {
+                    assert (p3[y][x].r == p1[y][x]);
+                    assert (p3[y][x].g == p1[y][x]);
+                    assert (p3[y][x].b == p1[y][x]);
+                }
+                else
+                {
+                    assert (p3[y][x].r == p2[y][x]);
+                    assert (p3[y][x].g == p2[y][x]);
+                    assert (p3[y][x].b == p2[y][x]);
+                }
 
-		assert (p3[y][x].a == 1);
-	    }
-	}
+                assert (p3[y][x].a == 1);
+            }
+        }
     }
 
     remove (fileName);
@@ -582,66 +588,66 @@ testRgba ()
 {
     try
     {
-	cout << "Testing the RGBA image interface" << endl;
+        cout << "Testing the RGBA image interface" << endl;
 
-	rgbaMethods ();
+        rgbaMethods ();
 
-	const int W = 237;
-	const int H = 119;
+        const int W = 237;
+        const int H = 119;
 
-	Array2D<Rgba> p1 (H, W);
-	fillPixels (p1, W, H);
+        Array2D<Rgba> p1 (H, W);
+        fillPixels (p1, W, H);
 
-	int maxThreads = IlmThread::supportsThreads()? 3: 0;
+        int maxThreads = IlmThread::supportsThreads()? 3: 0;
 
-	for (int n = 0; n <= maxThreads; ++n)
-	{
-	    if (IlmThread::supportsThreads())
-	    {
-		setGlobalThreadCount (n);
-		cout << "\nnumber of threads: " << globalThreadCount() << endl;
-	    }
+        for (int n = 0; n <= maxThreads; ++n)
+        {
+            if (IlmThread::supportsThreads())
+            {
+                setGlobalThreadCount (n);
+                cout << "\nnumber of threads: " << globalThreadCount() << endl;
+            }
 
-	    for (int lorder = 0; lorder < RANDOM_Y; ++lorder)
-	    {
-		for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
-		{
-		    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
-				   W, H, p1,
-				   WRITE_RGBA,
-				   LineOrder (lorder),
-				   Compression (comp));
+            for (int lorder = 0; lorder < RANDOM_Y; ++lorder)
+            {
+                for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
+                {
+                    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+                                    W, H, p1,
+                                    WRITE_RGBA,
+                                    LineOrder (lorder),
+                                    Compression (comp));
 
-		    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
-				   W, H, p1,
-				   WRITE_RGB,
-				   LineOrder (lorder),
-				   Compression (comp));
+                    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+                                    W, H, p1,
+                                    WRITE_RGB,
+                                    LineOrder (lorder),
+                                    Compression (comp));
 
-		    writeReadRGBA ("imf_test_rgba.exr",
-				   W, H, p1,
-				   WRITE_A,
-				   LineOrder (lorder),
-				   Compression (comp));
+                    writeReadRGBA ("imf_test_rgba.exr",
+                                    W, H, p1,
+                                    WRITE_A,
+                                    LineOrder (lorder),
+                                    Compression (comp));
 
-		    writeReadRGBA ("imf_test_rgba.exr",
-				   W, H, p1,
-				   RgbaChannels (WRITE_R | WRITE_B),
-				   LineOrder (lorder),
-				   Compression (comp));
-		}
-	    }
+                    writeReadRGBA ("imf_test_rgba.exr",
+                                    W, H, p1,
+                                    RgbaChannels (WRITE_R | WRITE_B),
+                                    LineOrder (lorder),
+                                    Compression (comp));
+                }
+            }
 
-	    writeReadIncomplete();
-	}
+            writeReadIncomplete();
+        }
 
-	writeReadLayers();
+        writeReadLayers();
 
-	cout << "ok\n" << endl;
+        cout << "ok\n" << endl;
     }
     catch (const std::exception &e)
     {
-	cerr << "ERROR -- caught exception: " << e.what() << endl;
-	assert (false);
+        cerr << "ERROR -- caught exception: " << e.what() << endl;
+        assert (false);
     }
 }

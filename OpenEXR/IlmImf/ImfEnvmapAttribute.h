@@ -50,9 +50,9 @@ namespace Imf {
 
 
 typedef TypedAttribute<Envmap> EnvmapAttribute;
-template <> const char *EnvmapAttribute::staticTypeName ();
-template <> void EnvmapAttribute::writeValueTo (OStream &, int) const;
-template <> void EnvmapAttribute::readValueFrom (IStream &, int, int);
+template <> IMF_EXPORT const char *EnvmapAttribute::staticTypeName ();
+template <> IMF_EXPORT void EnvmapAttribute::writeValueTo (OStream &, int) const;
+template <> IMF_EXPORT void EnvmapAttribute::readValueFrom (IStream &, int, int);
 
 
 } // namespace Imf

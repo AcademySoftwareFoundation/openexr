@@ -44,6 +44,7 @@
 //----------------------------------------------------------
 
 #include "IexBaseExc.h"
+#include "IexExport.h"
 
 namespace Iex {
 
@@ -87,9 +88,9 @@ namespace Iex {
 //
 //--------------------------------------------------------------------------
 
-void throwErrnoExc (const std::string &txt, int errnum);
-void throwErrnoExc (const std::string &txt = "%T." /*, int errnum = oserror() */);
-
+IEX_EXPORT void throwErrnoExc(const std::string &txt, int errnum);
+IEX_EXPORT void throwErrnoExc(const std::string &txt);
+IEX_EXPORT void throwErrnoExc();
 
 } // namespace Iex
 

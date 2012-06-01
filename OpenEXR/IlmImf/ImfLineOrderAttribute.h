@@ -45,15 +45,15 @@
 
 #include <ImfAttribute.h>
 #include <ImfLineOrder.h>
-
+#include <ImfExport.h>
 
 namespace Imf {
 
 
 typedef TypedAttribute<LineOrder> LineOrderAttribute;
-template <> const char *LineOrderAttribute::staticTypeName ();
-template <> void LineOrderAttribute::writeValueTo (OStream &, int) const;
-template <> void LineOrderAttribute::readValueFrom (IStream &, int, int);
+template <> IMF_EXPORT const char *LineOrderAttribute::staticTypeName ();
+template <> IMF_EXPORT void LineOrderAttribute::writeValueTo (OStream &, int) const;
+template <> IMF_EXPORT void LineOrderAttribute::readValueFrom (IStream &, int, int);
 
 
 } // namespace Imf

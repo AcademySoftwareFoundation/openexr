@@ -44,13 +44,13 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfAttribute.h>
-
+#include <ImfExport.h>
 
 namespace Imf {
 
 
 typedef TypedAttribute<double> DoubleAttribute;
-template <> const char *DoubleAttribute::staticTypeName ();
+template <> IMF_EXPORT const char *DoubleAttribute::staticTypeName();
 
 
 } // namespace Imf

@@ -248,10 +248,10 @@ procrustesRotationAndTranslation (const Vec3<T>* A, const Vec3<T>* B, const size
 } // procrustesRotationAndTranslation
 
 
-template M44d procrustesRotationAndTranslation (const V3d* from, const V3d* to, const size_t numPoints, const bool doScale);
-template M44d procrustesRotationAndTranslation (const V3f* from, const V3f* to, const size_t numPoints, const bool doScale);
-template M44d procrustesRotationAndTranslation (const V3d* from, const V3d* to, const double* weights, const size_t numPoints, const bool doScale);
-template M44d procrustesRotationAndTranslation (const V3f* from, const V3f* to, const float* weights, const size_t numPoints, const bool doScale);
+template IMATH_EXPORT M44d procrustesRotationAndTranslation (const V3d* from, const V3d* to, const size_t numPoints, const bool doScale);
+template IMATH_EXPORT M44d procrustesRotationAndTranslation (const V3f* from, const V3f* to, const size_t numPoints, const bool doScale);
+template IMATH_EXPORT M44d procrustesRotationAndTranslation (const V3d* from, const V3d* to, const double* weights, const size_t numPoints, const bool doScale);
+template IMATH_EXPORT M44d procrustesRotationAndTranslation (const V3f* from, const V3f* to, const float* weights, const size_t numPoints, const bool doScale);
 
 
 namespace
@@ -922,30 +922,30 @@ jacobiSVD (const Imath::Matrix44<T>& A,
     twoSidedJacobiSVD (A, U, S, V, tol, forcePositiveDeterminant);
 }
 
-template void jacobiSVD (const Imath::Matrix33<float>& A,
-                         Imath::Matrix33<float>& U,
-                         Imath::Vec3<float>& S,
-                         Imath::Matrix33<float>& V,
-                         const float tol,
-                         const bool forcePositiveDeterminant);
-template void jacobiSVD (const Imath::Matrix33<double>& A,
-                         Imath::Matrix33<double>& U,
-                         Imath::Vec3<double>& S,
-                         Imath::Matrix33<double>& V,
-                         const double tol,
-                         const bool forcePositiveDeterminant);
-template void jacobiSVD (const Imath::Matrix44<float>& A,
-                         Imath::Matrix44<float>& U,
-                         Imath::Vec4<float>& S,
-                         Imath::Matrix44<float>& V,
-                         const float tol,
-                         const bool forcePositiveDeterminant);
-template void jacobiSVD (const Imath::Matrix44<double>& A,
-                         Imath::Matrix44<double>& U,
-                         Imath::Vec4<double>& S,
-                         Imath::Matrix44<double>& V,
-                         const double tol,
-                         const bool forcePositiveDeterminant);
+template IMATH_EXPORT void jacobiSVD (const Imath::Matrix33<float>& A,
+                                      Imath::Matrix33<float>& U,
+                                      Imath::Vec3<float>& S,
+                                      Imath::Matrix33<float>& V,
+                                      const float tol,
+                                      const bool forcePositiveDeterminant);
+template IMATH_EXPORT void jacobiSVD (const Imath::Matrix33<double>& A,
+                                      Imath::Matrix33<double>& U,
+                                      Imath::Vec3<double>& S,
+                                      Imath::Matrix33<double>& V,
+                                      const double tol,
+                                      const bool forcePositiveDeterminant);
+template IMATH_EXPORT void jacobiSVD (const Imath::Matrix44<float>& A,
+                                      Imath::Matrix44<float>& U,
+                                      Imath::Vec4<float>& S,
+                                      Imath::Matrix44<float>& V,
+                                      const float tol,
+                                      const bool forcePositiveDeterminant);
+template IMATH_EXPORT void jacobiSVD (const Imath::Matrix44<double>& A,
+                                      Imath::Matrix44<double>& U,
+                                      Imath::Vec4<double>& S,
+                                      Imath::Matrix44<double>& V,
+                                      const double tol,
+                                      const bool forcePositiveDeterminant);
 
 namespace
 {
@@ -1218,39 +1218,39 @@ minEigenVector (TM& A, TV& V)
         V[i] = MV[i][minIdx];
 }
 
-template void jacobiEigenSolver (Matrix33<float>& A,
-                                 Vec3<float>& S,
-                                 Matrix33<float>& V,
-                                 const float tol);
-template void jacobiEigenSolver (Matrix33<double>& A,
-                                 Vec3<double>& S,
-                                 Matrix33<double>& V,
-                                 const double tol);
-template void jacobiEigenSolver (Matrix44<float>& A,
-                                 Vec4<float>& S,
-                                 Matrix44<float>& V,
-                                 const float tol);
-template void jacobiEigenSolver (Matrix44<double>& A,
-                                 Vec4<double>& S,
-                                 Matrix44<double>& V,
-                                 const double tol);
+template IMATH_EXPORT void jacobiEigenSolver (Matrix33<float>& A,
+                                              Vec3<float>& S,
+                                              Matrix33<float>& V,
+                                              const float tol);
+template IMATH_EXPORT void jacobiEigenSolver (Matrix33<double>& A,
+                                              Vec3<double>& S,
+                                              Matrix33<double>& V,
+                                              const double tol);
+template IMATH_EXPORT void jacobiEigenSolver (Matrix44<float>& A,
+                                              Vec4<float>& S,
+                                              Matrix44<float>& V,
+                                              const float tol);
+template IMATH_EXPORT void jacobiEigenSolver (Matrix44<double>& A,
+                                              Vec4<double>& S,
+                                              Matrix44<double>& V,
+                                              const double tol);
 
-template void maxEigenVector (Matrix33<float>& A,
-                              Vec3<float>& S);
-template void maxEigenVector (Matrix44<float>& A,
-                              Vec4<float>& S);
-template void maxEigenVector (Matrix33<double>& A,
-                              Vec3<double>& S);
-template void maxEigenVector (Matrix44<double>& A,
-                              Vec4<double>& S);
+template IMATH_EXPORT void maxEigenVector (Matrix33<float>& A,
+                                           Vec3<float>& S);
+template IMATH_EXPORT void maxEigenVector (Matrix44<float>& A,
+                                           Vec4<float>& S);
+template IMATH_EXPORT void maxEigenVector (Matrix33<double>& A,
+                                           Vec3<double>& S);
+template IMATH_EXPORT void maxEigenVector (Matrix44<double>& A,
+                                           Vec4<double>& S);
 
-template void minEigenVector (Matrix33<float>& A,
-                              Vec3<float>& S);
-template void minEigenVector (Matrix44<float>& A,
-                              Vec4<float>& S);
-template void minEigenVector (Matrix33<double>& A,
-                              Vec3<double>& S);
-template void minEigenVector (Matrix44<double>& A,
-                              Vec4<double>& S);
+template IMATH_EXPORT void minEigenVector (Matrix33<float>& A,
+                                           Vec3<float>& S);
+template IMATH_EXPORT void minEigenVector (Matrix44<float>& A,
+                                           Vec4<float>& S);
+template IMATH_EXPORT void minEigenVector (Matrix33<double>& A,
+                                           Vec3<double>& S);
+template IMATH_EXPORT void minEigenVector (Matrix44<double>& A,
+                                           Vec4<double>& S);
 
 } // namespace Imath

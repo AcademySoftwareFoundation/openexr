@@ -17,9 +17,9 @@ the future.
 you are not going to be doing any debugging, and can be optionally
 built.
 
-The source will build under both Visual Studio versions 7 and 8, and 
+The source will build under Visual Studio versions 7 through 10, and 
 there are separate directories for the corresponding build files.  The
-tag <vc7|8> is used in this document to describe the appropriate folder
+tag <vc7|8|9|10> is used in this document to describe the appropriate folder
 in the path that corresponds to your the version of Visual Studio.
 
 The Visual Studio project files assume, and help build out, a directory
@@ -56,10 +56,18 @@ nvidia
 If OpenEXR_Viewers is not being compiled, then fltk and nvidia will
 not be needed, but that will be covered later.
 
+OpenEXR is compiled as DLL libraries, and uses the STL. Due to a long
+standing issue with Microsoft's standard library implementation, exported
+classes that contain STL objects will cause a warning to be emitted
+about accessing the contained objects. As this warning is extremely
+verbose, and not helpful, it is probably a good idea to suppress
+warning 4251 in your own projects. This issue is not unique to OpenEXR.
+
+
 Step 1. Compile IlmBase
 
-  a. Point Visual Studio at the .sln file in vc\<vc7|8>\IlmBase in the
-  IlmBase subdirectory
+  a. Point Visual Studio at the .sln file in vc\<vc7|8|9|10>\IlmBase in 
+  the IlmBase subdirectory
 
   b. Select the Release configuration and hit Build Solution.  This
   will create the Deploy directory, and copy the relevant parts to it.
@@ -79,15 +87,36 @@ Step 2. Compile OpenEXR support
     2. If you don't wish to put the files into your MS visual studio
        directories and install the dll into windows\system32:
 
-        a. Put a copy of zlib1.dll into Deploy\bin\Release and
-           Deploy\bin\Debug
+        a. Put a copy of zlib1.dll into Deploy\bin\Win32\Release and
+           zlib1d.dll into Deploy\bin\Win32\Debug. If the download did
+           not come with zlib1d.dll you can use zlib1.dll instead, but
+           debugging into z won't be possible.
 
         b. Copy the header files into Deploy\include
 
-        c. Copy zdll.lib and zdll.exp into Deploy\lib\Release and
-           Deploy\lib\Debug
+        c. Copy zdll.lib and zdll.exp into Deploy\lib\Win32\Release and
+           zdlld.lib and zdlld.exp into Deploy\lib\Win32\Debug. If the
+           debug versions do not exist, the release versions can be used
+           instead. It is possible that the files will be named
+           zlib1.lib, zli1.exp, and zlib1d.lib and zlib1d.exp, or even
+           zlibwapi.lib or something else depending on how the build was 
+           done. The vcproj for IlmImf expects that the libs are named
+           zlib1.lib and zlib1d.lib because that is most common. You can
+           either rename the libraries you have, or modify the vcproj to
+           refer to those libraries, or get a different distribution. 
+           Additionally, zlib has many configuration
+           options that easily make it hard to link with. Be sure that you
+           set the preprocessor directives on IlmImf.vcproj to reflect
+           whether your zlib was built with ZLIB_WINAPI (usually it isn't),
+           and whether it was build that ZLIB_DLL set (zlib is commonly
+           built btoth ways). zlib's windows configuration is unfortuantely
+           a bit ad hoc having evolved incrementallly for many many years, 
+           and the least frustrating way to deal with it might be to build 
+           it yourself.
 
-  b. Open the Visual Studio project in OpenEXR\vc\<vc7|8>\OpenEXR.
+  b. Open the Visual Studio project in OpenEXR\vc\<vc7|8|10>\OpenEXR.
+     Note that a vc9 compatible project has not yet been contributed,
+     although automatically converting the vc8 version will work.
 
   c. Select the Release configuration and build. The IlmImfTest
      program runs a confidence test of your build to make sure

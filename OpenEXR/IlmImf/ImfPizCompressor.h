@@ -49,7 +49,7 @@ namespace Imf {
 class ChannelList;
 
 
-class PizCompressor: public Compressor
+class IMF_EXPORT PizCompressor: public Compressor
 {
   public:
 
