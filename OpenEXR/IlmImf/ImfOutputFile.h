@@ -53,7 +53,7 @@ class InputFile;
 struct PreviewRgba;
 
 
-class OutputFile
+class IMF_EXPORT OutputFile
 {
   public:
 

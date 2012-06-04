@@ -152,5 +152,4 @@ Attribute::newAttribute (const char typeName[])
     return (i->second)();
 }
 
-
 } // namespace Imf

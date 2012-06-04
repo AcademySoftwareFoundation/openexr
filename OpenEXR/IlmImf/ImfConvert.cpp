@@ -117,6 +117,7 @@ uintToHalf (unsigned int ui)
 	return half::posInf();
 
     return half (ui);
+    return half ((float) ui);
 }
 
 

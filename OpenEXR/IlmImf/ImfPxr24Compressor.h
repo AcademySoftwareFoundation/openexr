@@ -41,13 +41,14 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfCompressor.h>
+#include <ImfExport.h>
 
 namespace Imf {
 
 class ChannelList;
 
 
-class Pxr24Compressor: public Compressor
+class IMF_EXPORT Pxr24Compressor: public Compressor
 {
   public:
 

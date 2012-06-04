@@ -1,0 +1,7 @@
+This directory contains source code for an OpenEXR Shake plugin.  It
+is currently only supported on GNU/Linux and OS X.
+
+GNU/Linux users, see the Makefile for details on how to build the
+plugin.
+
+OS X users, see the Xcode project in the mac/ directory.

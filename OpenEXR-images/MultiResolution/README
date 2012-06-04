@@ -1,0 +1,77 @@
+This directory contains various multi-resolution OpenEXR images
+
+Regular images:
+
+    Bonita.exr		
+
+	Point Bonita in the Marin Headlands, California (mip-map).
+
+    Kapaa.exr
+
+	Near Kapa'a, Kaua'i, Hawai'i (rip-map).
+
+Environment maps:
+
+    KernerEnvCube.exr
+    KernerEnvLatLong.exr
+
+	Parking lot on Kerner Blvd., San Rafael, California
+	(mip-map, in cube-face and latitude-longitude format).
+
+    StageEnvCube.exr
+    StageEnvLatLong.exr
+
+	Stage with props, cameras and other equipment (mip-map,
+	in cube-face and latitude-longitude format).
+
+Test images:
+
+    ColorCodedLevels.exr
+    
+	A mip-map checkerboard image where each resolution level
+	has a different color.  If this image is used to texture
+	an object during 3D rendering, then the color of the object
+	shows which resolution levels are accessed by the renderer
+	as it projects the texture onto the object.
+
+    PeriodicPattern.exr	
+    MirrorPattern.exr	
+    
+	Mip-map images that tile seamlessly in "periodic" and
+	"mirror" wrap mode respectively.  The images can be used to
+	check if 3D renderers correctly implement those wrap modes.
+
+    OrientationCube.exr
+    OrientationLatLong.exr
+    
+	An environment map, in cube-face and in latitude-longitude
+	format, that indicates the directions of the environment's
+	x, y and z axes.
+
+    WavyLinesCube.exr
+    WavyLinesLatLong.exr
+    
+	An environment map, in cube-face and in latitude-longitude 
+	format, that can be used to test how an application program,
+	for example, a 3D renderer, handles the seams of environment
+	maps.
+
+	The environment image contains multiple sets of wavy lines.
+	Each set consists of three parallel lines of equal width.
+	Parts of the middle line run along one of the map's seams,
+	crossing back and forth over the seam.  (In a cube-face map
+	seams occur along the edges of the six faces of the cube.
+	In a latitude-longitude map, there is a seam along the
+	meridian with longitude +/-pi.)
+
+	If the environment map is correctly projected onto a sphere,
+	then the seams should be invisible, and all lines should
+	appear to have the same uniform width everywhere.  It should
+	be impossible or at least difficult to tell where the middle
+	line in each set crosses one of the map's seams.
+
+	File WavyLinesSphere.exr shows what this environment map
+	should look like when has been correctly projected onto
+	a sphere.  (In this image the environment sphere is seen
+	from the outside, not from the inside).
+

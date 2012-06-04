@@ -53,12 +53,15 @@ namespace Imf {
 typedef TypedAttribute<TimeCode> TimeCodeAttribute;
 
 template <>
+IMF_EXPORT
 const char *TimeCodeAttribute::staticTypeName ();
 
 template <>
+IMF_EXPORT
 void TimeCodeAttribute::writeValueTo (OStream &, int) const;
 
 template <>
+IMF_EXPORT
 void TimeCodeAttribute::readValueFrom (IStream &, int, int);
 
 

@@ -48,6 +48,7 @@
 //
 //-------------------------------------------------------------------------
 
+#include "ImathExport.h"
 #include "ImathMatrix.h"
 #include "ImathQuat.h"
 #include "ImathEuler.h"
@@ -55,7 +56,6 @@
 #include "ImathVec.h"
 #include "ImathLimits.h"
 #include <math.h>
-
 
 #ifdef OPENEXR_DLL
     #ifdef IMATH_EXPORTS

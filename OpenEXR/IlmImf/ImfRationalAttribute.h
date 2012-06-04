@@ -51,12 +51,15 @@ namespace Imf {
 typedef TypedAttribute<Rational> RationalAttribute;
 
 template <>
+IMF_EXPORT
 const char *RationalAttribute::staticTypeName ();
 
 template <>
+IMF_EXPORT
 void RationalAttribute::writeValueTo (OStream &, int) const;
 
 template <>
+IMF_EXPORT
 void RationalAttribute::readValueFrom (IStream &, int, int);
 
 

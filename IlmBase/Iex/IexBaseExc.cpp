@@ -67,7 +67,7 @@ stackTracer ()
 
 
 BaseExc::BaseExc (const char* s) throw () :
-    std::string (s? s: ""),
+    _str (s? s: ""),
     _stackTrace (currentStackTracer? currentStackTracer(): "")
 {
     // empty
@@ -75,7 +75,7 @@ BaseExc::BaseExc (const char* s) throw () :
 
 
 BaseExc::BaseExc (const std::string &s) throw () :
-    std::string (s),
+    _str (s),
     _stackTrace (currentStackTracer? currentStackTracer(): "")
 {
     // empty
@@ -83,7 +83,7 @@ BaseExc::BaseExc (const std::string &s) throw () :
 
 
 BaseExc::BaseExc (std::stringstream &s) throw () :
-    std::string (s.str()),
+    _str (s.str()),
     _stackTrace (currentStackTracer? currentStackTracer(): "")
 {
     // empty
@@ -91,7 +91,7 @@ BaseExc::BaseExc (std::stringstream &s) throw () :
 
 
 BaseExc::BaseExc (const BaseExc &be) throw () :
-    std::string (be),
+    _str (be._str),
     _stackTrace (be._stackTrace)
 {
     // empty
@@ -107,21 +107,21 @@ BaseExc::~BaseExc () throw ()
 const char *
 BaseExc::what () const throw ()
 {
-    return c_str();
+    return _str.c_str();
 }
 
 
 BaseExc &
 BaseExc::assign (std::stringstream &s)
 {
-    std::string::assign (s.str());
+    _str.assign (s.str());
     return *this;
 }
 
 BaseExc &
 BaseExc::append (std::stringstream &s)
 {
-    std::string::append (s.str());
+    _str.append (s.str());
     return *this;
 }
 

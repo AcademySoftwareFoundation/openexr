@@ -36,6 +36,8 @@
 #ifndef INCLUDED_IMF_KEY_CODE_H
 #define INCLUDED_IMF_KEY_CODE_H
 
+#include <ImfExport.h>
+
 //-----------------------------------------------------------------------------
 //
 //	class KeyCode
@@ -99,7 +101,7 @@
 namespace Imf {
 
    
-class KeyCode
+class IMF_EXPORT KeyCode
 {
   public:
 

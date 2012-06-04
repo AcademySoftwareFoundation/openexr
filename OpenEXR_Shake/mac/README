@@ -1,0 +1,65 @@
+
+This project will look for the OpenEXR headers and libraries
+in /usr/local, which is the default installation location.
+
+Shake plugins for OS X currently must be compiled with gcc 3.1.  
+This means that you have to build the EXR libraries with gcc 3.1
+as well.  The easiest way to do this is to start from a fresh
+install of OpenEXR, and execute these commands:
+
+% cd OpenEXR
+% sudo gcc_select 3.1
+% ./bootstrap
+% ./configure --enable-shared=no --enable-osx-istream-hack
+% make
+% sudo make install
+
+After you've done this, you can build the Xcode project which
+will build the Shake plugin.  Note that this will statically
+link the OpenEXR libraries into the plugin, so you won't
+have to install the specially built libraries on every machine.
+
+If you don't specify --enable-shared=no, the shake plugin will
+be dynamically linked to the OpenEXR libraries, and will not
+function on a machine without these libraries installed.  If
+you know of a way to force Xcode to link to the static libraries
+even if the dynamic libraries exist, please let us know.
+
+To make sure that you haven't linked to the OpenEXR libraries
+dynamically, you can use the "otool" command, which will list
+all dynamic libraries that a bundle is linked to.  For example:
+
+% cd OpenEXR_Shake/mac/build/exrFormat.bundle/Contents/MacOS
+% otool -L exrFormat
+exrFormat:
+        /System/Library/Frameworks/Carbon.framework/Versions/A/Carbon (compatibility version 2.0.0, current version 128.0.0)
+        /usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nrui_macos.framework/Versions/A/nrui_macos (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nrtl_macos.framework/Versions/A/nrtl_macos (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nrpm_macos.framework/Versions/A/nrpm_macos (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nrpa_macos.framework/Versions/A/nrpa_macos (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nrjl_macos.framework/Versions/A/nrjl_macos (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nrcc_macos.framework/Versions/A/nrcc_macos (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nrzl_macos.framework/Versions/A/nrzl_macos (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nrxml_macos.framework/Versions/A/nrxml_macos (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nrvh_macos.framework/Versions/A/nrvh_macos (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nrux_macos.framework/Versions/A/nrux_macos (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../Frameworks/AudioMixEngine.framework/Versions/A/AudioMixEngine (compatibility version 1.0.0, current version 2.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nrau_macos.framework/Versions/A/nrau_macos (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nrio_macos.framework/Versions/A/nrio_macos (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nrgl_macos.framework/Versions/A/nrgl_macos (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nrfx_macos.framework/Versions/A/nrfx_macos (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nredl_macos.framework/Versions/A/nredl_macos (compatibility version 1.0.0, current version 1.0.0)
+        @executable_path/../../../shake.app/Contents/Frameworks/nrdp_macos.framework/Versions/A/nrdp_macos (compatibility version 1.0.0, current version 1.0.0)
+        /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 71.1.1)
+
+Note that this plugin is dynamically linked to the Carbon framework, 
+libz (the compression library), libSystem, and the various Shake 
+frameworks.  If you see the OpenEXR libraries in this list, your
+plugin will not work on systems without those libraries installed.
+
+
+
+
+
+

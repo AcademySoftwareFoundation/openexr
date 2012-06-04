@@ -43,6 +43,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <ImfExport.h>
 #include <ImfLineOrder.h>
 #include <ImfCompression.h>
 #include <ImfName.h>
@@ -65,7 +66,7 @@ class OStream;
 class PreviewImage;
 
 
-class Header
+class IMF_EXPORT Header
 {
   public:
     

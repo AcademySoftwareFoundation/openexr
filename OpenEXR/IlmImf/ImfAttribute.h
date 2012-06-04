@@ -44,6 +44,7 @@
 //-----------------------------------------------------------------------------
 
 #include "IexBaseExc.h"
+#include <ImfExport.h>
 #include <ImfIO.h>
 #include <ImfXdr.h>
 
@@ -51,7 +52,7 @@
 namespace Imf {
 
 
-class Attribute
+class IMF_EXPORT Attribute
 {
   public:
 

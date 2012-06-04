@@ -35,6 +35,8 @@
 #ifndef INCLUDED_IMF_THREADING_H
 #define INCLUDED_IMF_THREADING_H
 
+#include <ImfExport.h>
+
 //-----------------------------------------------------------------------------
 //
 //	Threading support for the IlmImf library
@@ -77,14 +79,14 @@ namespace Imf {
 // compression and decompression of OpenEXR files.
 //-----------------------------------------------------------------------------
     
-int     globalThreadCount ();
+IMF_EXPORT int     globalThreadCount ();
 
 
 //-----------------------------------------------------------------------------
 // Change the number of Imf-global worker threads
 //-----------------------------------------------------------------------------
 
-void    setGlobalThreadCount (int count);
+IMF_EXPORT void    setGlobalThreadCount (int count);
 
 
 } // namespace Imf

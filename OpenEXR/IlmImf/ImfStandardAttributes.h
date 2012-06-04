@@ -66,15 +66,14 @@
 #include <ImfTimeCodeAttribute.h>
 #include <ImfVecAttribute.h>
 
-#define IMF_STD_ATTRIBUTE_DEF(name,suffix,type)				      \
-									      \
-    void			 add##suffix (Header &header, const type &v); \
-    bool			 has##suffix (const Header &header);	      \
-    const TypedAttribute<type> & name##Attribute (const Header &header);      \
-    TypedAttribute<type> &	 name##Attribute (Header &header);	      \
-    const type &		 name (const Header &header);		      \
-    type &			 name (Header &header);
-
+#define IMF_STD_ATTRIBUTE_DEF(name,suffix,type)                                     \
+                                                                                    \
+    IMF_EXPORT void         add##suffix (Header &header, const type &v);            \
+    IMF_EXPORT bool         has##suffix (const Header &header);                     \
+    IMF_EXPORT const TypedAttribute<type> & name##Attribute (const Header &header); \
+    IMF_EXPORT TypedAttribute<type> &       name##Attribute (Header &header);	    \
+    IMF_EXPORT const type & name (const Header &header);                            \
+    IMF_EXPORT type &       name (Header &header);
 
 namespace Imf {
 
