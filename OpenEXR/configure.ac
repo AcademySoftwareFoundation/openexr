@@ -35,7 +35,9 @@ if [[ -e /usr/lib64 ]]; then
    LIB64_IF_EXISTS="-L/usr/lib64"
 fi         
 
-
+dnl Define the version string
+AC_DEFINE_UNQUOTED(OPENEXR_VERSION_STRING, "${VERSION}")
+AC_DEFINE_UNQUOTED(OPENEXR_PACKAGE_STRING, "${PACKAGE_STRING}")
 
 export PKG_CONFIG_PATH
 

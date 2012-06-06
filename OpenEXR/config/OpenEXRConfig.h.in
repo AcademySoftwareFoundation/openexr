@@ -29,3 +29,8 @@
 
 #undef HAVE_LARGE_STACK
 
+//
+// Version string for runtime access
+//
+#undef OPENEXR_VERSION_STRING
+#undef OPENEXR_PACKAGE_STRING

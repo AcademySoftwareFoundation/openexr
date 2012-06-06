@@ -14,3 +14,9 @@
 #undef HAVE_POSIX_SEMAPHORES
 
 #undef HAVE_UCONTEXT_H
+
+//
+// Version string for runtime access
+//
+#undef ILMBASE_VERSION_STRING
+#undef ILMBASE_PACKAGE_STRING

@@ -82,6 +82,11 @@ AC_MSG_RESULT($complete_iomanip)
 AC_LANG_RESTORE
 
 
+dnl Define the version string
+AC_DEFINE_UNQUOTED(ILMBASE_VERSION_STRING, "${VERSION}")
+AC_DEFINE_UNQUOTED(ILMBASE_PACKAGE_STRING, "${PACKAGE_STRING}")
+
+
 AC_MSG_CHECKING(for gcc optimization flags)
 old_cflags=$CFLAGS
 CFLAGS="$CFLAGS -pipe"
