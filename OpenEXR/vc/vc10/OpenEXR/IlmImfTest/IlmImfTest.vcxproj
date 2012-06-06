@@ -103,10 +103,9 @@
     <PostBuildEvent>
       <Message>Running IlmImf unit tests...</Message>
       <Command>copy $(TargetPath) ..\..\..\..\..\..\Deploy\bin\$(IntDir)
-pushd ..\..\..\..\IlmImfTest
+cd ..\..\..\..\IlmImfTest
 ..\..\..\Deploy\bin\$(IntDir)$(TargetFileName)
-popd
-del ..\..\..\..\..\..\Deploy\bin\$(IntDir)$(TargetFileName)
+del ..\..\..\Deploy\bin\$(IntDir)$(TargetFileName)
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -161,7 +160,7 @@ del ..\..\..\..\..\..\Deploy\bin\$(IntDir)$(TargetFileName)
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>..\..\..\..\..\..\Deploy\lib\$(IntDir)IlmThread.lib;..\..\..\..\..\..\Deploy\lib\$(IntDir)Imath.lib;..\..\..\..\..\..\Deploy\lib\$(IntDir)Iex.lib;..\..\..\..\..\..\Deploy\lib\$(IntDir)Half.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\..\..\..\..\..\Deploy\lib\$(IntDir)IlmThread.lib;..\..\..\..\..\..\Deploy\lib\$(IntDir)Imath.lib;..\..\..\..\..\..\Deploy\lib\$(IntDir)Iex.lib;..\..\..\..\..\..\Deploy\lib\$(IntDir)Half.lib;..\..\..\..\..\..\Deploy\lib\$(IntDir)IlmImf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)IlmImfTest.exe</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
@@ -172,11 +171,9 @@ del ..\..\..\..\..\..\Deploy\bin\$(IntDir)$(TargetFileName)
     <PostBuildEvent>
       <Message>Running IlmImf unit tests...</Message>
       <Command>copy $(TargetPath) ..\..\..\..\..\..\Deploy\bin\$(IntDir)
-pushd ..\..\..\..\IlmImfTest
+cd ..\..\..\..\IlmImfTest
 ..\..\..\Deploy\bin\$(IntDir)$(TargetFileName)
-popd
-del ..\..\..\..\..\..\Deploy\bin\$(IntDir)$(TargetFileName)
-</Command>
+del ..\..\..\Deploy\bin\$(IntDir)$(TargetFileName)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -217,7 +214,6 @@ del ..\..\..\..\..\..\Deploy\bin\$(IntDir)$(TargetFileName)
   <ItemGroup>
     <ClCompile Include="..\..\..\..\IlmImfTest\compareB44.cpp" />
     <ClCompile Include="..\..\..\..\IlmImfTest\compareFloat.cpp" />
-    <ClCompile Include="..\..\..\..\IlmImfTest\fullPath.cpp" />
     <ClCompile Include="..\..\..\..\IlmImfTest\main.cpp" />
     <ClCompile Include="..\..\..\..\IlmImfTest\testAttributes.cpp" />
     <ClCompile Include="..\..\..\..\IlmImfTest\testChannels.cpp" />

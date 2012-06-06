@@ -91,3 +91,52 @@
 //-----------------------------------------------------------------------------
 
 #include "IlmBaseConfig.h"
+#include "IlmThreadExport.h"
+
+#if defined _WIN32 || defined _WIN64
+    #ifdef NOMINMAX
+        #undef NOMINMAX
+    #endif
+    #define NOMINMAX
+    #include <windows.h>
+    #include <process.h>
+#elif HAVE_PTHREAD
+    #include <pthread.h>
+#endif
+
+namespace IlmThread {
+
+//
+// Query function to determine if the current platform supports
+// threads AND this library was compiled with threading enabled.
+//
+
+ILMTHREAD_EXPORT bool supportsThreads ();
+
+
+class ILMTHREAD_EXPORT Thread
+{
+  public:
+
+    Thread ();
+    virtual ~Thread ();
+
+    void		start ();
+    virtual void	run () = 0;
+    
+  private:
+
+    #if defined _WIN32 || defined _WIN64
+	HANDLE _thread;
+    #elif HAVE_PTHREAD
+	pthread_t _thread;
+    #endif
+
+    void operator = (const Thread& t);	// not implemented
+    Thread (const Thread& t);		// not implemented
+};
+
+
+} // namespace IlmThread
+
+#endif

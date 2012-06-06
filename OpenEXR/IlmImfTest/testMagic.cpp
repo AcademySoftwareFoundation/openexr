@@ -35,7 +35,6 @@
 #include <ImfVersion.h>
 #include <ImfTestFile.h>
 #include <ImfStdIO.h>
-#include "fullPath.h"
 #include <iostream>
 #include <exception>
 #include <stdio.h>
@@ -117,13 +116,13 @@ testMagic ()
     {
         cout << "Testing magic number" << endl;
 
-        testFile1 (fullPath("comp_none.exr"), true);
-        testFile1 (fullPath("invalid.exr"), false);
+        testFile1 ("comp_none.exr", true);
+        testFile1 ("invalid.exr", false);
 
-        testFile2 (fullPath("tiled.exr"), true, true, true);
-        testFile2 (fullPath("comp_none.exr"), true, true, false);
-        testFile2 (fullPath("invalid.exr"), true, false, false);
-        testFile2 (fullPath("does_not_exist.exr"), false, false, false);
+        testFile2 ("tiled.exr", true, true, true);
+        testFile2 ("comp_none.exr", true, true, false);
+        testFile2 ("invalid.exr", true, false, false);
+        testFile2 ("does_not_exist.exr", false, false, false);
 
         cout << "ok\n" << endl;
     }

@@ -53,24 +53,12 @@ namespace Imf {
 
 
 typedef TypedAttribute<Imath::Box2i> Box2iAttribute;
-template <> const char *Box2iAttribute::staticTypeName ();
-template <> void Box2iAttribute::writeValueTo (std::ostream &, int) const;
-template <> void Box2iAttribute::readValueFrom (std::istream &, int, int);
-template <> const char *Box2iAttribute::staticTypeName ();
-template <> void Box2iAttribute::writeValueTo (OStream &, int) const;
-template <> void Box2iAttribute::readValueFrom (IStream &, int, int);
 template <> IMF_EXPORT const char *Box2iAttribute::staticTypeName ();
 template <> IMF_EXPORT void Box2iAttribute::writeValueTo (OStream &, int) const;
 template <> IMF_EXPORT void Box2iAttribute::readValueFrom (IStream &, int, int);
 
 
 typedef TypedAttribute<Imath::Box2f> Box2fAttribute;
-template <> const char *Box2fAttribute::staticTypeName ();
-template <> void Box2fAttribute::writeValueTo (std::ostream &, int) const;
-template <> void Box2fAttribute::readValueFrom (std::istream &, int, int);
-template <> const char *Box2fAttribute::staticTypeName ();
-template <> void Box2fAttribute::writeValueTo (OStream &, int) const;
-template <> void Box2fAttribute::readValueFrom (IStream &, int, int);
 template <> IMF_EXPORT const char *Box2fAttribute::staticTypeName ();
 template <> IMF_EXPORT void Box2fAttribute::writeValueTo (OStream &, int) const;
 template <> IMF_EXPORT void Box2fAttribute::readValueFrom (IStream &, int, int);

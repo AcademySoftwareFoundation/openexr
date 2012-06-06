@@ -111,9 +111,6 @@
     <ClCompile Include="..\..\..\..\IlmImfTest\testYca.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\IlmImfTest\fullPath.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\IlmImfTest\compareB44.h">

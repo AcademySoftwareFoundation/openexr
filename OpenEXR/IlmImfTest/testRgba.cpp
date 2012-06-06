@@ -291,9 +291,6 @@ writeReadIncomplete ()
             {
                 const Rgba &s = p1[y][x];
                 const Rgba &t = p2[y][x];
-	    for (int x = 0; x < width; ++x)
-		const Rgba &s = p1[y][x];
-		const Rgba &t = p2[y][x];
 
                 if (y < height / 2 && y != 10 && y != 25)
                 {
@@ -311,14 +308,6 @@ writeReadIncomplete ()
                 }
             }
         }
-		{
-		    assert (t.r == -1 &&
-			    t.g == -1 &&
-			    t.b == -1 &&
-			    t.a == -1);
-		}
-	    }
-	}
     }
 
     {
@@ -618,11 +607,6 @@ testRgba ()
                 setGlobalThreadCount (n);
                 cout << "\nnumber of threads: " << globalThreadCount() << endl;
             }
-	    if (IlmThread::supportsThreads())
-	    {
-		setGlobalThreadCount (n);
-		cout << "\nnumber of threads: " << globalThreadCount() << endl;
-	    }
 
             for (int lorder = 0; lorder < RANDOM_Y; ++lorder)
             {
@@ -633,13 +617,6 @@ testRgba ()
                                     WRITE_RGBA,
                                     LineOrder (lorder),
                                     Compression (comp));
-		for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
-		{
-		    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
-				   W, H, p1,
-				   WRITE_RGBA,
-				   LineOrder (lorder),
-				   Compression (comp));
 
                     writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
                                     W, H, p1,
