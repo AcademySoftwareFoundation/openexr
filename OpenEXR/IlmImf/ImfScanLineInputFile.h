@@ -49,7 +49,7 @@
 namespace Imf {
 
 
-class ScanLineInputFile
+class IMF_EXPORT ScanLineInputFile
 {
   public:
 

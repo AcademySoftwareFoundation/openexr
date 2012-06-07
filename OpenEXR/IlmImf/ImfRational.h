@@ -36,6 +36,8 @@
 #ifndef INCLUDED_IMF_RATIONAL_H
 #define INCLUDED_IMF_RATIONAL_H
 
+#include <ImfExport.h>
+
 //-----------------------------------------------------------------------------
 //
 //	Rational numbers
@@ -52,7 +54,7 @@
 
 namespace Imf {
 
-class Rational
+class IMF_EXPORT Rational
 {
   public:
 

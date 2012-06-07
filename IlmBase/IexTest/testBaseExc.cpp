@@ -184,11 +184,11 @@ test5()
 
     try
     {
-	throwNested();
+        throwNested();
     }
     catch (const Iex::ArgExc &e)
     {
-	assert (e == "ArgExc");
+        assert (e == "ArgExc");
     }
 }
 

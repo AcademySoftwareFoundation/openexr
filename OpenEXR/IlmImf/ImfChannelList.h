@@ -44,6 +44,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <ImfExport.h>
 #include <ImfName.h>
 #include <ImfPixelType.h>
 #include <map>
@@ -54,7 +55,7 @@
 namespace Imf {
 
 
-struct Channel
+struct IMF_EXPORT Channel
 {
     //------------------------------
     // Data type; see ImfPixelType.h
@@ -111,7 +112,7 @@ struct Channel
 };
 
 
-class ChannelList
+class IMF_EXPORT ChannelList
 {
   public:
 

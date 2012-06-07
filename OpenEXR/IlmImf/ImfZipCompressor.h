@@ -48,7 +48,7 @@
 namespace Imf {
 
 
-class ZipCompressor: public Compressor
+class IMF_EXPORT ZipCompressor: public Compressor
 {
   public:
 

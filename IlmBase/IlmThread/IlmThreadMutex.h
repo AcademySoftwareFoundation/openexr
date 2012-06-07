@@ -66,6 +66,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "IlmThreadExport.h"
 #include "IlmBaseConfig.h"
 
 #if defined _WIN32 || defined _WIN64
@@ -83,7 +84,7 @@ namespace IlmThread {
 class Lock;
 
 
-class Mutex
+class ILMTHREAD_EXPORT Mutex
 {
   public:
 
@@ -108,7 +109,7 @@ class Mutex
 };
 
 
-class Lock
+class ILMTHREAD_EXPORT Lock
 {
   public:
 

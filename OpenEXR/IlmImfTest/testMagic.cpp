@@ -40,22 +40,17 @@
 #include <stdio.h>
 #include <assert.h>
 
-#ifndef ILM_IMF_TEST_IMAGEDIR
-    #define ILM_IMF_TEST_IMAGEDIR
-#endif
-
-
 using namespace Imf;
 using namespace std;
 
 namespace {
 
 void
-testFile1 (const char fileName[], bool isImfFile)
+testFile1 (const std::string& fileName, bool isImfFile)
 {
     cout << fileName << " " << flush;
 
-    ifstream f (fileName, ios_base::binary);
+    ifstream f (fileName.c_str(), ios_base::binary);
     assert (!!f);
 
     char bytes[4];
@@ -68,24 +63,24 @@ testFile1 (const char fileName[], bool isImfFile)
 
 
 void
-testFile2 (const char fileName[], bool exists, bool exrFile, bool tiledFile)
+testFile2 (const std::string& fileName, bool exists, bool exrFile, bool tiledFile)
 {
     cout << fileName << " " << flush;
 
     bool exr, tiled;
 
-    exr = isOpenExrFile (fileName, tiled);
+    exr = isOpenExrFile (fileName.c_str(), tiled);
     assert (exr == exrFile && tiled == tiledFile);
 
-    exr = isOpenExrFile (fileName);
+    exr = isOpenExrFile (fileName.c_str());
     assert (exr == exrFile);
 
-    tiled = isTiledOpenExrFile (fileName);
+    tiled = isTiledOpenExrFile (fileName.c_str());
     assert (tiled == tiledFile);
 
     if (exists)
     {
-	StdIFStream is (fileName);
+	StdIFStream is (fileName.c_str());
 
 	exr = isOpenExrFile (is, tiled);
 	assert (exr == exrFile && tiled == tiledFile);
@@ -119,21 +114,21 @@ testMagic ()
 {
     try
     {
-	cout << "Testing magic number" << endl;
+        cout << "Testing magic number" << endl;
 
-	testFile1 (ILM_IMF_TEST_IMAGEDIR "comp_none.exr", true);
-	testFile1 (ILM_IMF_TEST_IMAGEDIR "invalid.exr", false);
+        testFile1 ("comp_none.exr", true);
+        testFile1 ("invalid.exr", false);
 
-	testFile2 (ILM_IMF_TEST_IMAGEDIR "tiled.exr", true, true, true);
-	testFile2 (ILM_IMF_TEST_IMAGEDIR "comp_none.exr", true, true, false);
-	testFile2 (ILM_IMF_TEST_IMAGEDIR "invalid.exr", true, false, false);
-	testFile2 (ILM_IMF_TEST_IMAGEDIR "does_not_exist.exr", false, false, false);
+        testFile2 ("tiled.exr", true, true, true);
+        testFile2 ("comp_none.exr", true, true, false);
+        testFile2 ("invalid.exr", true, false, false);
+        testFile2 ("does_not_exist.exr", false, false, false);
 
-	cout << "ok\n" << endl;
+        cout << "ok\n" << endl;
     }
     catch (const std::exception &e)
     {
-	cerr << "ERROR -- caught exception: " << e.what() << endl;
-	assert (false);
+        cerr << "ERROR -- caught exception: " << e.what() << endl;
+        assert (false);
     }
 }

@@ -44,6 +44,7 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfCompression.h>
+#include <ImfExport.h>
 #include "ImathBox.h"
 #include <stdlib.h>
 
@@ -52,7 +53,7 @@ namespace Imf {
 class Header;
 
 
-class Compressor
+class IMF_EXPORT Compressor
 {
   public:
 
@@ -201,7 +202,8 @@ class Compressor
 // Test if c is a valid compression type
 //--------------------------------------
 
-bool		isValidCompression (Compression c);
+IMF_EXPORT 
+bool isValidCompression (Compression c);
 
 
 //-----------------------------------------------------------------
@@ -219,6 +221,7 @@ bool		isValidCompression (Compression c);
 //
 //-----------------------------------------------------------------
 
+IMF_EXPORT 
 Compressor *	newCompressor (Compression c,
 			       size_t maxScanLineSize,
 			       const Header &hdr);
@@ -241,6 +244,7 @@ Compressor *	newCompressor (Compression c,
 //
 //-----------------------------------------------------------------
 
+IMF_EXPORT 
 Compressor *    newTileCompressor (Compression c,
 				   size_t tileLineSize,
 				   size_t numTileLines,

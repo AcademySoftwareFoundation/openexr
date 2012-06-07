@@ -51,14 +51,17 @@ namespace Imf {
 typedef TypedAttribute<TileDescription> TileDescriptionAttribute;
 
 template <>
+IMF_EXPORT 
 const char *
 TileDescriptionAttribute::staticTypeName ();
 
 template <>
+IMF_EXPORT 
 void
 TileDescriptionAttribute::writeValueTo (OStream &, int) const;
 
 template <>
+IMF_EXPORT 
 void
 TileDescriptionAttribute::readValueFrom (IStream &, int, int);
 

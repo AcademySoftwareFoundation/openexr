@@ -45,7 +45,7 @@
 
 #include <ImfAttribute.h>
 #include <ImfKeyCode.h>
-
+#include <ImfExport.h>
 
 namespace Imf {
 
@@ -53,12 +53,15 @@ namespace Imf {
 typedef TypedAttribute<KeyCode> KeyCodeAttribute;
 
 template <>
+IMF_EXPORT
 const char *KeyCodeAttribute::staticTypeName ();
 
 template <>
+IMF_EXPORT
 void KeyCodeAttribute::writeValueTo (OStream &, int) const;
 
 template <>
+IMF_EXPORT
 void KeyCodeAttribute::readValueFrom (IStream &, int, int);
 
 

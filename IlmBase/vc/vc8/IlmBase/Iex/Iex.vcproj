@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="Iex"
 	ProjectGUID="{C46B9A53-86D8-4B7F-AB15-B2C04518A195}"
 	RootNamespace="Iex"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -45,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\config.windows"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;IEX_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN32;_DEBUG;_WINDOWS;_USRDLL;IEX_EXPORTS;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -75,6 +76,8 @@
 				GenerateMapFile="true"
 				MapExports="true"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)/Iex.lib"
 				TargetMachine="1"
 			/>
@@ -97,98 +100,8 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Iex.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Iex.lib &amp;&amp; ..\..\..\installIex.cmd $(IntDir)"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|x64"
-			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\config.windows"
-				PreprocessorDefinitions="WIN64;_DEBUG;_WINDOWS;_USRDLL;IEX_EXPORTS;_CRT_SECURE_NO_WARNINGS"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				EnableEnhancedInstructionSet="2"
-				ForceConformanceInForLoopScope="true"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/Iex.dll"
-				LinkIncremental="2"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/Iex.pdb"
-				GenerateMapFile="true"
-				MapExports="true"
-				SubSystem="2"
-				ImportLibrary="$(OutDir)/Iex.lib"
-				TargetMachine="17"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Iex.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Iex.lib &amp;&amp; ..\..\..\installIex.cmd $(IntDir)"
+				CommandLine="..\..\..\installIex.cmd $(IntDir)"
 			/>
 		</Configuration>
 		<Configuration
@@ -217,8 +130,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\config.windows"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;IEX_EXPORTS;_CRT_SECURE_NO_WARNINGS"
-				BasicRuntimeChecks="0"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;IEX_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
 				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="2"
 				ForceConformanceInForLoopScope="true"
@@ -247,6 +161,8 @@
 				SubSystem="2"
 				OptimizeReferences="1"
 				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)/Iex.lib"
 				TargetMachine="1"
 			/>
@@ -269,20 +185,17 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Iex.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Iex.lib &amp;&amp; ..\..\..\installIex.cmd $(IntDir)"
+				CommandLine="..\..\..\installIex.cmd $(IntDir)"
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|x64"
-			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			CharacterSet="2"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			Name="Debug|x64"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -301,18 +214,20 @@
 				TargetEnvironment="3"
 			/>
 			<Tool
-				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\config.windows"
-				PreprocessorDefinitions="WIN64;NDEBUG;_WINDOWS;_USRDLL;IEX_EXPORTS;_CRT_SECURE_NO_WARNINGS"
-				BasicRuntimeChecks="0"
-				RuntimeLibrary="2"
+				BasicRuntimeChecks="3"
+				DebugInformationFormat="3"
+				Detect64BitPortabilityProblems="true"
 				EnableEnhancedInstructionSet="2"
 				ForceConformanceInForLoopScope="true"
+				MinimalRebuild="true"
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				PreprocessorDefinitions="WIN64;_DEBUG;_WINDOWS;_USRDLL;IEX_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -324,16 +239,15 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/Iex.dll"
-				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				GenerateMapFile="true"
-				MapExports="true"
-				SubSystem="2"
-				OptimizeReferences="1"
-				EnableCOMDATFolding="2"
 				ImportLibrary="$(OutDir)/Iex.lib"
+				LinkIncremental="2"
+				MapExports="true"
+				Name="VCLinkerTool"
+				OutputFile="$(OutDir)/Iex.dll"
+				ProgramDatabaseFile="$(OutDir)/Iex.pdb"
+				SubSystem="2"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -358,8 +272,94 @@
 				Name="VCWebDeploymentTool"
 			/>
 			<Tool
+				CommandLine="..\..\..\installIex.cmd $(IntDir)"
 				Name="VCPostBuildEventTool"
-				CommandLine="..\$(IntDir)\createDLL -n$(OutDir)\Iex.map -M$(PlatformName) -l$(IntDir) -i$(OutDir)\Iex.lib &amp;&amp; ..\..\..\installIex.cmd $(IntDir)"
+			/>
+		</Configuration>
+		<Configuration
+			CharacterSet="2"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			Name="Release|x64"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\config.windows"
+				BasicRuntimeChecks="0"
+				DebugInformationFormat="3"
+				Detect64BitPortabilityProblems="true"
+				EnableEnhancedInstructionSet="2"
+				ForceConformanceInForLoopScope="true"
+				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="WIN64;NDEBUG;_WINDOWS;_USRDLL;IEX_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				RuntimeLibrary="2"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				EnableCOMDATFolding="2"
+				GenerateDebugInformation="true"
+				GenerateMapFile="true"
+				ImportLibrary="$(OutDir)/Iex.lib"
+				LinkIncremental="1"
+				MapExports="true"
+				Name="VCLinkerTool"
+				OptimizeReferences="1"
+				OutputFile="$(OutDir)/Iex.dll"
+				SubSystem="2"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				CommandLine="..\..\..\installIex.cmd $(IntDir)"
+				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
 	</Configurations>
@@ -395,6 +395,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\Iex\IexErrnoExc.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\Iex\IexExport.h"
 				>
 			</File>
 			<File

@@ -56,6 +56,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <ImathExport.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -67,7 +68,7 @@ namespace Imath {
 // length of 2^32.
 //-----------------------------------------------
 
-class Rand32
+class IMATH_EXPORT Rand32
 {
   public:
 
@@ -127,7 +128,7 @@ class Rand32
 // uniformly distributed sequence.
 //--------------------------------------------------------
 
-class Rand48
+class IMATH_EXPORT Rand48
 {
   public:
 
@@ -224,11 +225,11 @@ gaussSphereRand (Rand &rand);
 // erand48(), nrand48() and friends
 //---------------------------------
 
-double		erand48 (unsigned short state[3]);
-double		drand48 ();
-long int	nrand48 (unsigned short state[3]);
-long int	lrand48 ();
-void		srand48 (long int seed);
+IMATH_EXPORT double		erand48 (unsigned short state[3]);
+IMATH_EXPORT double		drand48 ();
+IMATH_EXPORT long int	nrand48 (unsigned short state[3]);
+IMATH_EXPORT long int	lrand48 ();
+IMATH_EXPORT void		srand48 (long int seed);
 
 
 //---------------

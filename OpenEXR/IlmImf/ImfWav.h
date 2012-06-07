@@ -32,10 +32,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-
-
 #ifndef INCLUDED_IMF_WAV_H
 #define INCLUDED_IMF_WAV_H
+
+#include <ImfExport.h>
 
 //-----------------------------------------------------------------------------
 //
@@ -46,6 +46,7 @@
 namespace Imf {
 
 
+IMF_EXPORT 
 void
 wav2Encode
     (unsigned short *in, // io: values in[y][x] are transformed in place
@@ -55,6 +56,7 @@ wav2Encode
      int     oy,	 // i : y offset
      unsigned short mx); // i : maximum in[x][y] value
 
+IMF_EXPORT
 void
 wav2Decode
     (unsigned short *in, // io: values in[y][x] are transformed in place
