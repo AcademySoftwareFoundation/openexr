@@ -35,7 +35,6 @@
 #include <ImfVersion.h>
 #include <ImfTestFile.h>
 #include <ImfStdIO.h>
-#include "fullPath.h"
 #include <iostream>
 #include <exception>
 #include <stdio.h>

@@ -217,7 +217,6 @@ del ..\..\..\..\..\..\Deploy\bin\$(IntDir)$(TargetFileName)
   <ItemGroup>
     <ClCompile Include="..\..\..\..\IlmImfTest\compareB44.cpp" />
     <ClCompile Include="..\..\..\..\IlmImfTest\compareFloat.cpp" />
-    <ClCompile Include="..\..\..\..\IlmImfTest\fullPath.cpp" />
     <ClCompile Include="..\..\..\..\IlmImfTest\main.cpp" />
     <ClCompile Include="..\..\..\..\IlmImfTest\testAttributes.cpp" />
     <ClCompile Include="..\..\..\..\IlmImfTest\testChannels.cpp" />
