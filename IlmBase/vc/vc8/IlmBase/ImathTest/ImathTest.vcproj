@@ -1,560 +1,189 @@
-<?xml version="1.0" encoding="Windows-1252"?>
-<VisualStudioProject
-	ProjectType="Visual C++"
-	Version="8.00"
-	Name="ImathTest"
-	ProjectGUID="{E9CCABF4-1AD9-4E4C-8C28-A001679CDC5B}"
-	RootNamespace="ImathTest"
-	Keyword="Win32Proj"
-	>
+<?xml version="1.0" ?>
+<VisualStudioProject Keyword="Win32Proj" Name="ImathTest" ProjectGUID="{E9CCABF4-1AD9-4E4C-8C28-A001679CDC5B}" ProjectType="Visual C++" RootNamespace="ImathTest" TargetFrameworkVersion="131072" Version="9.00">
 	<Platforms>
-		<Platform
-			Name="Win32"
-		/>
-		<Platform
-			Name="x64"
-		/>
+		<Platform Name="Win32"/>
+		<Platform Name="x64"/>
 	</Platforms>
 	<ToolFiles>
 	</ToolFiles>
 	<Configurations>
-		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\Imath;..\..\..\..\Half;..\..\..\..\Iex;..\..\..\..\ImathTest"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN32;_DEBUG;_CONSOLE"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				EnableEnhancedInstructionSet="2"
-				ForceConformanceInForLoopScope="true"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="4"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/ImathTest.exe"
-				LinkIncremental="2"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/ImathTest.pdb"
-				SubSystem="1"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="Running Imath unit tests..."
-				CommandLine="$(TargetPath)"
-			/>
+		<Configuration CharacterSet="2" ConfigurationType="1" InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops" IntermediateDirectory="$(PlatformName)\$(ConfigurationName)" Name="Debug|Win32" OutputDirectory="..\$(PlatformName)\$(ConfigurationName)">
+			<Tool Name="VCPreBuildEventTool"/>
+			<Tool Name="VCCustomBuildTool"/>
+			<Tool Name="VCXMLDataGeneratorTool"/>
+			<Tool Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool Name="VCMIDLTool"/>
+			<Tool AdditionalIncludeDirectories="..\..\..\..\Imath;..\..\..\..\Half;..\..\..\..\Iex;..\..\..\..\ImathTest" BasicRuntimeChecks="3" DebugInformationFormat="4" Detect64BitPortabilityProblems="true" EnableEnhancedInstructionSet="2" ForceConformanceInForLoopScope="true" MinimalRebuild="true" Name="VCCLCompilerTool" Optimization="0" PreprocessorDefinitions="OPENEXR_DLL;WIN32;_DEBUG;_CONSOLE" RuntimeLibrary="3" RuntimeTypeInfo="true" UsePrecompiledHeader="0" WarningLevel="3"/>
+			<Tool Name="VCManagedResourceCompilerTool"/>
+			<Tool Name="VCResourceCompilerTool"/>
+			<Tool Name="VCPreLinkEventTool"/>
+			<Tool DataExecutionPrevention="0" GenerateDebugInformation="true" LinkIncremental="2" Name="VCLinkerTool" OutputFile="$(OutDir)/ImathTest.exe" ProgramDatabaseFile="$(OutDir)/ImathTest.pdb" RandomizedBaseAddress="1" SubSystem="1" TargetMachine="1"/>
+			<Tool Name="VCALinkTool"/>
+			<Tool Name="VCManifestTool"/>
+			<Tool Name="VCXDCMakeTool"/>
+			<Tool Name="VCBscMakeTool"/>
+			<Tool Name="VCFxCopTool"/>
+			<Tool Name="VCAppVerifierTool"/>
+			<Tool CommandLine="$(TargetPath)" Description="Running Imath unit tests..." Name="VCPostBuildEventTool"/>
 		</Configuration>
-		<Configuration
-			Name="Debug|x64"
-			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\Imath;..\..\..\..\Half;..\..\..\..\Iex;..\..\..\..\ImathTest"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN64;_DEBUG;_CONSOLE"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				EnableEnhancedInstructionSet="2"
-				ForceConformanceInForLoopScope="true"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/ImathTest.exe"
-				LinkIncremental="2"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/ImathTest.pdb"
-				SubSystem="1"
-				TargetMachine="17"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="Running Imath unit tests..."
-				CommandLine="$(TargetPath)"
-			/>
+		<Configuration CharacterSet="2" ConfigurationType="1" InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops" IntermediateDirectory="$(PlatformName)\$(ConfigurationName)" Name="Release|Win32" OutputDirectory="..\$(PlatformName)\$(ConfigurationName)">
+			<Tool Name="VCPreBuildEventTool"/>
+			<Tool Name="VCCustomBuildTool"/>
+			<Tool Name="VCXMLDataGeneratorTool"/>
+			<Tool Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool Name="VCMIDLTool"/>
+			<Tool AdditionalIncludeDirectories="..\..\..\..\Imath;..\..\..\..\Half;..\..\..\..\Iex;..\..\..\..\ImathTest" DebugInformationFormat="3" Detect64BitPortabilityProblems="true" EnableEnhancedInstructionSet="2" ForceConformanceInForLoopScope="true" Name="VCCLCompilerTool" Optimization="0" PreprocessorDefinitions="OPENEXR_DLL;WIN32;NDEBUG;_CONSOLE" RuntimeLibrary="2" RuntimeTypeInfo="true" UsePrecompiledHeader="0" WarningLevel="3"/>
+			<Tool Name="VCManagedResourceCompilerTool"/>
+			<Tool Name="VCResourceCompilerTool"/>
+			<Tool Name="VCPreLinkEventTool"/>
+			<Tool DataExecutionPrevention="0" EnableCOMDATFolding="2" GenerateDebugInformation="true" LinkIncremental="1" Name="VCLinkerTool" OptimizeReferences="2" OutputFile="$(OutDir)/ImathTest.exe" RandomizedBaseAddress="1" SubSystem="1" TargetMachine="1"/>
+			<Tool Name="VCALinkTool"/>
+			<Tool Name="VCManifestTool"/>
+			<Tool Name="VCXDCMakeTool"/>
+			<Tool Name="VCBscMakeTool"/>
+			<Tool Name="VCFxCopTool"/>
+			<Tool Name="VCAppVerifierTool"/>
+			<Tool CommandLine="$(TargetPath)" Description="Running Imath unit tests..." Name="VCPostBuildEventTool"/>
 		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\Imath;..\..\..\..\Half;..\..\..\..\Iex;..\..\..\..\ImathTest"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="2"
-				EnableEnhancedInstructionSet="2"
-				ForceConformanceInForLoopScope="true"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/ImathTest.exe"
-				LinkIncremental="1"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="Running Imath unit tests..."
-				CommandLine="$(TargetPath)"
-			/>
+		<Configuration CharacterSet="2" ConfigurationType="1" InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops" IntermediateDirectory="$(PlatformName)\$(ConfigurationName)" Name="Debug|x64" OutputDirectory="..\$(PlatformName)\$(ConfigurationName)">
+			<Tool Name="VCPreBuildEventTool"/>
+			<Tool Name="VCCustomBuildTool"/>
+			<Tool Name="VCXMLDataGeneratorTool"/>
+			<Tool Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool Name="VCMIDLTool" TargetEnvironment="3"/>
+			<Tool AdditionalIncludeDirectories="..\..\..\..\Imath;..\..\..\..\Half;..\..\..\..\Iex;..\..\..\..\ImathTest" BasicRuntimeChecks="3" DebugInformationFormat="3" Detect64BitPortabilityProblems="true" EnableEnhancedInstructionSet="2" ForceConformanceInForLoopScope="true" MinimalRebuild="true" Name="VCCLCompilerTool" Optimization="0" PreprocessorDefinitions="OPENEXR_DLL;WIN64;_DEBUG;_CONSOLE" RuntimeLibrary="3" RuntimeTypeInfo="true" UsePrecompiledHeader="0" WarningLevel="3"/>
+			<Tool Name="VCManagedResourceCompilerTool"/>
+			<Tool Name="VCResourceCompilerTool"/>
+			<Tool Name="VCPreLinkEventTool"/>
+			<Tool GenerateDebugInformation="true" LinkIncremental="2" Name="VCLinkerTool" OutputFile="$(OutDir)/ImathTest.exe" ProgramDatabaseFile="$(OutDir)/ImathTest.pdb" SubSystem="1" TargetMachine="17"/>
+			<Tool Name="VCALinkTool"/>
+			<Tool Name="VCManifestTool"/>
+			<Tool Name="VCXDCMakeTool"/>
+			<Tool Name="VCBscMakeTool"/>
+			<Tool Name="VCFxCopTool"/>
+			<Tool Name="VCAppVerifierTool"/>
+			<Tool Name="VCWebDeploymentTool"/>
+			<Tool CommandLine="$(TargetPath)" Description="Running Imath unit tests..." Name="VCPostBuildEventTool"/>
 		</Configuration>
-		<Configuration
-			Name="Release|x64"
-			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				AdditionalIncludeDirectories="..\..\..\..\Imath;..\..\..\..\Half;..\..\..\..\Iex;..\..\..\..\ImathTest"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN64;NDEBUG;_CONSOLE"
-				RuntimeLibrary="2"
-				EnableEnhancedInstructionSet="2"
-				ForceConformanceInForLoopScope="true"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/ImathTest.exe"
-				LinkIncremental="1"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="17"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="Running Imath unit tests..."
-				CommandLine="$(TargetPath)"
-			/>
+		<Configuration CharacterSet="2" ConfigurationType="1" InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops" IntermediateDirectory="$(PlatformName)\$(ConfigurationName)" Name="Release|x64" OutputDirectory="..\$(PlatformName)\$(ConfigurationName)">
+			<Tool Name="VCPreBuildEventTool"/>
+			<Tool Name="VCCustomBuildTool"/>
+			<Tool Name="VCXMLDataGeneratorTool"/>
+			<Tool Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool Name="VCMIDLTool" TargetEnvironment="3"/>
+			<Tool AdditionalIncludeDirectories="..\..\..\..\Imath;..\..\..\..\Half;..\..\..\..\Iex;..\..\..\..\ImathTest" DebugInformationFormat="3" Detect64BitPortabilityProblems="true" EnableEnhancedInstructionSet="2" ForceConformanceInForLoopScope="true" Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions="OPENEXR_DLL;WIN64;NDEBUG;_CONSOLE" RuntimeLibrary="2" RuntimeTypeInfo="true" UsePrecompiledHeader="0" WarningLevel="3"/>
+			<Tool Name="VCManagedResourceCompilerTool"/>
+			<Tool Name="VCResourceCompilerTool"/>
+			<Tool Name="VCPreLinkEventTool"/>
+			<Tool EnableCOMDATFolding="2" GenerateDebugInformation="true" LinkIncremental="1" Name="VCLinkerTool" OptimizeReferences="2" OutputFile="$(OutDir)/ImathTest.exe" SubSystem="1" TargetMachine="17"/>
+			<Tool Name="VCALinkTool"/>
+			<Tool Name="VCManifestTool"/>
+			<Tool Name="VCXDCMakeTool"/>
+			<Tool Name="VCBscMakeTool"/>
+			<Tool Name="VCFxCopTool"/>
+			<Tool Name="VCAppVerifierTool"/>
+			<Tool Name="VCWebDeploymentTool"/>
+			<Tool CommandLine="$(TargetPath)" Description="Running Imath unit tests..." Name="VCPostBuildEventTool"/>
 		</Configuration>
 	</Configurations>
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="Source Files"
-			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
-			>
-			<File
-				RelativePath="..\..\..\..\ImathTest\main.cpp"
-				>
+		<Filter Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx" Name="Source Files" UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			<File RelativePath="..\..\..\..\ImathTest\main.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testBox.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testBox.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testBoxAlgo.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testBoxAlgo.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testColor.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testColor.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testExtractEuler.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testExtractEuler.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testExtractSHRT.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testExtractSHRT.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testFrustum.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testFrustum.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testFrustumTest.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testFrustumTest.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testFun.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testFun.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testInvert.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testInvert.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testJacobiEigenSolver.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testJacobiEigenSolver.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testLineAlgo.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testLineAlgo.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testMatrix.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testMatrix.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testMiscMatrixAlgo.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testMiscMatrixAlgo.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testProcrustes.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testProcrustes.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testQuat.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testQuat.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testQuatSetRotation.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testQuatSetRotation.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testQuatSlerp.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testQuatSlerp.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testRandom.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testRandom.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testRoots.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testRoots.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testShear.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testShear.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testTinySVD.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testTinySVD.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testVec.cpp"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testVec.cpp">
 			</File>
 		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testBox.h"
-				>
+		<Filter Filter="h;hpp;hxx;hm;inl;inc;xsd" Name="Header Files" UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File RelativePath="..\..\..\..\ImathTest\testBox.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testBoxAlgo.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testBoxAlgo.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testColor.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testColor.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testExtractEuler.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testExtractEuler.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testExtractSHRT.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testExtractSHRT.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testFrustum.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testFrustum.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testFrustumTest.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testFrustumTest.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testFun.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testFun.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testInvert.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testInvert.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testJacobiEigenSolver.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testJacobiEigenSolver.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testLineAlgo.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testLineAlgo.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testMatrix.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testMatrix.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testMiscMatrixAlgo.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testMiscMatrixAlgo.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testProcrustes.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testProcrustes.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testQuat.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testQuat.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testQuatSetRotation.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testQuatSetRotation.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testQuatSlerp.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testQuatSlerp.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testRandom.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testRandom.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testRoots.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testRoots.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testShear.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testShear.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testTinySVD.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testTinySVD.h">
 			</File>
-			<File
-				RelativePath="..\..\..\..\ImathTest\testVec.h"
-				>
+			<File RelativePath="..\..\..\..\ImathTest\testVec.h">
 			</File>
 		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
+		<Filter Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx" Name="Resource Files" UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 		</Filter>
 	</Files>
 	<Globals>
