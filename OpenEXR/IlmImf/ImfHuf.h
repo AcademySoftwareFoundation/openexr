@@ -37,6 +37,7 @@
 #ifndef INCLUDED_IMF_HUF_H
 #define INCLUDED_IMF_HUF_H
 
+#include <ImfExport.h>
 
 //-----------------------------------------------------------------------------
 //
@@ -61,12 +62,13 @@
 namespace Imf {
 
 
+IMF_EXPORT 
 int
 hufCompress (const unsigned short raw[/*nRaw*/],
 	     int nRaw,
 	     char compressed[/*2 * nRaw + 65536*/]);
 
-
+IMF_EXPORT
 void
 hufUncompress (const char compressed[/*nCompressed*/],
 	       int nCompressed,

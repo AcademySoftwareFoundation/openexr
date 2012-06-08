@@ -33,10 +33,10 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #ifndef INCLUDED_IEXBASEEXC_H
 #define INCLUDED_IEXBASEEXC_H
 
+#include "IexExport.h"
 
 //----------------------------------------------------------
 //
@@ -52,15 +52,16 @@
 namespace Iex {
 
 #if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
-// Tell MS VC++ to suppress exception specification warnings
-#pragma warning(disable:4290)
+#pragma warning(push)
+// Tell MS VC++ to ignore std::string not having DLL export interface
+#pragma warning(disable:4251)
 #endif
 
 //-------------------------------
 // Our most basic exception class
 //-------------------------------
 
-class BaseExc: public std::string, public std::exception
+class IEX_EXPORT BaseExc: public std::exception
 {
   public:
 
@@ -86,11 +87,25 @@ class BaseExc: public std::string, public std::exception
     // Convenient methods to change the exception's text
     //--------------------------------------------------
 
-    BaseExc &		assign (std::stringstream &s);	// assign (s.str())
-    BaseExc &		operator = (std::stringstream &s);
+    BaseExc &		      assign (std::stringstream &s);	// assign (s.str())
+    BaseExc &		      operator = (std::stringstream &s);
 
-    BaseExc &		append (std::stringstream &s);	// append (s.str())
-    BaseExc &		operator += (std::stringstream &s);
+    BaseExc &		      append (std::stringstream &s);	// append (s.str())
+    BaseExc &		      operator += (std::stringstream &s);
+
+    friend std::ostream & operator << (std::ostream &s, const BaseExc &e);
+    friend std::istream & operator >> (std::istream &s, const BaseExc &e);
+
+    //---------
+    // Equality
+    //---------
+
+    bool                  operator == (const char *rhs) const;
+    bool                  operator != (const char *rhs) const;
+    bool                  operator == (const std::string &rhs) const;
+    bool                  operator != (const std::string &rhs) const;
+    bool                  operator == (const BaseExc &rhs) const;
+    bool                  operator != (const BaseExc &rhs) const;
 
 
     //--------------------------------------------------
@@ -115,7 +130,7 @@ class BaseExc: public std::string, public std::exception
     const std::string &	stackTrace () const;
 
   private:
-
+    std::string     _str;
     std::string		_stackTrace;
 };
 
@@ -125,13 +140,27 @@ class BaseExc: public std::string, public std::exception
 // class derived directly or indirectly from BaseExc:
 //-----------------------------------------------------
 
-#define DEFINE_EXC(name, base)				        \
-    class name: public base				        \
-    {							        \
+#define DEFINE_EXC(name, base)                                  \
+    class name: public base                                     \
+    {                                                           \
       public:                                                   \
-	name (const char* text=0)      throw(): base (text) {}	\
-	name (const std::string &text) throw(): base (text) {}	\
-	name (std::stringstream &text) throw(): base (text) {}	\
+        name()                         throw(): base (0)    {}  \
+        name (const char* text)        throw(): base (text) {}  \
+        name (const std::string &text) throw(): base (text) {}  \
+        name (std::stringstream &text) throw(): base (text) {}  \
+        ~name() throw() { }                                     \
+    };
+
+
+#define DEFINE_EXC_EXP(exp, name, base)                         \
+    class exp name: public base                                 \
+    {                                                           \
+      public:                                                   \
+        name()                         throw(): base (0)    {}  \
+        name (const char* text)        throw(): base (text) {}  \
+        name (const std::string &text) throw(): base (text) {}  \
+        name (std::stringstream &text) throw(): base (text) {}  \
+        ~name() throw() { }                                     \
     };
 
 
@@ -139,35 +168,35 @@ class BaseExc: public std::string, public std::exception
 // Some exceptions which should be useful in most programs
 //--------------------------------------------------------
 
-DEFINE_EXC (ArgExc,   BaseExc) 	 // Invalid arguments to a function call
+DEFINE_EXC_EXP (IEX_EXPORT, ArgExc,   BaseExc) 	 // Invalid arguments to a function call
 
-DEFINE_EXC (LogicExc, BaseExc) 	 // General error in a program's logic,
+DEFINE_EXC_EXP (IEX_EXPORT, LogicExc, BaseExc) 	 // General error in a program's logic,
 				 // for example, a function was called
 				 // in a context where the call does
 				 // not make sense.
 
-DEFINE_EXC (InputExc, BaseExc) 	 // Invalid input data, e.g. from a file
+DEFINE_EXC_EXP (IEX_EXPORT, InputExc, BaseExc) 	 // Invalid input data, e.g. from a file
 
-DEFINE_EXC (IoExc, BaseExc) 	 // Input or output operation failed
+DEFINE_EXC_EXP (IEX_EXPORT, IoExc, BaseExc) 	 // Input or output operation failed
 
-DEFINE_EXC (MathExc,  BaseExc) 	 // Arithmetic exception; more specific
+DEFINE_EXC_EXP (IEX_EXPORT,MathExc,  BaseExc) 	 // Arithmetic exception; more specific
 				 // exceptions derived from this class
 				 // are defined in ExcMath.h
 
-DEFINE_EXC (ErrnoExc, BaseExc) 	 // Base class for exceptions corresponding
+DEFINE_EXC_EXP (IEX_EXPORT, ErrnoExc, BaseExc) 	 // Base class for exceptions corresponding
 				 // to errno values (see errno.h); more
 				 // specific exceptions derived from this
 				 // class are defined in ExcErrno.h
 
-DEFINE_EXC (NoImplExc, BaseExc)  // Missing method exception e.g. from a
+DEFINE_EXC_EXP (IEX_EXPORT, NoImplExc, BaseExc)  // Missing method exception e.g. from a
 				 // call to a method that is only partially
 				 // or not at all implemented. A reminder
 				 // to lazy software people to get back
 				 // to work.
 
-DEFINE_EXC (NullExc, BaseExc) 	 // A pointer is inappropriately null.
+DEFINE_EXC_EXP (IEX_EXPORT, NullExc, BaseExc) 	 // A pointer is inappropriately null.
 
-DEFINE_EXC (TypeExc, BaseExc) 	 // An object is an inappropriate type,
+DEFINE_EXC_EXP (IEX_EXPORT, TypeExc, BaseExc) 	 // An object is an inappropriate type,
 				 // i.e. a dynamnic_cast failed.
 
 
@@ -199,8 +228,8 @@ DEFINE_EXC (TypeExc, BaseExc) 	 // An object is an inappropriate type,
 
 typedef std::string (* StackTracer) ();
 
-void		setStackTracer (StackTracer stackTracer);
-StackTracer	stackTracer ();
+IEX_EXPORT void        setStackTracer (StackTracer stackTracer);
+IEX_EXPORT StackTracer stackTracer ();
 
 
 //-----------------
@@ -224,7 +253,7 @@ BaseExc::operator += (std::stringstream &s)
 inline BaseExc &
 BaseExc::assign (const char *s)
 {
-    std::string::assign(s);
+    _str.assign(s);
     return *this;
 }
 
@@ -239,10 +268,57 @@ BaseExc::operator = (const char *s)
 inline BaseExc &
 BaseExc::append (const char *s)
 {
-    std::string::append(s);
+    _str.append(s);
     return *this;
 }
 
+inline bool
+BaseExc::operator == (const char *rhs) const
+{
+    return !strcmp(_str.c_str(), rhs);
+}
+
+inline bool
+BaseExc::operator != (const char *rhs) const
+{
+    return !operator == (rhs);
+}
+
+inline bool
+BaseExc::operator == (const std::string &rhs) const
+{
+    return operator == (rhs.c_str());
+}
+
+inline bool
+BaseExc::operator != (const std::string &rhs) const
+{
+    return !operator == (rhs);
+}
+
+inline bool
+BaseExc::operator == (const BaseExc &rhs) const
+{
+    return operator == (rhs._str);
+}
+
+inline bool
+BaseExc::operator != (const BaseExc &rhs) const
+{
+    return !operator == (rhs);
+}
+
+inline std::ostream & operator << (std::ostream &s, const BaseExc &e)
+{
+    s << e._str;
+    return s;
+}
+
+inline std::istream & operator >> (std::istream &s, const BaseExc &e)
+{
+    s >> e._str;
+    return s;
+}
 
 inline BaseExc &
 BaseExc::operator += (const char *s)
@@ -262,5 +338,9 @@ BaseExc::stackTrace () const
 #endif
 
 } // namespace Iex
+
+#if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
+#pragma warning(pop)
+#endif
 
 #endif

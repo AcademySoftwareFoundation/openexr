@@ -45,11 +45,12 @@
 
 #include "ImathVec.h"
 #include "ImathMatrix.h"
+#include <ImfExport.h>
 
 namespace Imf {
 
    
-struct Chromaticities
+struct IMF_EXPORT Chromaticities
 {
     //-----------------------------------------------
     // The CIE x and y coordinates of the RGB triples
@@ -111,8 +112,8 @@ struct Chromaticities
 // 	YYZtoRGB(c,Y) returns RGBtoXYZ(c,Y).inverse().
 // 
 
-Imath::M44f	RGBtoXYZ (const Chromaticities chroma, float Y);
-Imath::M44f	XYZtoRGB (const Chromaticities chroma, float Y);
+IMF_EXPORT Imath::M44f	RGBtoXYZ (const Chromaticities chroma, float Y);
+IMF_EXPORT Imath::M44f	XYZtoRGB (const Chromaticities chroma, float Y);
 
 
 } // namespace Imf

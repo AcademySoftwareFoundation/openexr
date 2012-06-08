@@ -55,7 +55,7 @@ class InputFile;
 struct PreviewRgba;
 
 
-class TiledOutputFile
+class IMF_EXPORT TiledOutputFile
 {
   public:
 
@@ -83,7 +83,7 @@ class TiledOutputFile
     
     TiledOutputFile (const char fileName[],
 		     const Header &header,
-                     int numThreads = globalThreadCount ());
+                     int numThreads = globalThreadCount());
 
 
     // ----------------------------------------------------------------
@@ -95,7 +95,7 @@ class TiledOutputFile
 
     TiledOutputFile (OStream &os,
 		     const Header &header,
-                     int numThreads = globalThreadCount ());
+                     int numThreads = globalThreadCount());
 
 
     //-----------------------------------------------------

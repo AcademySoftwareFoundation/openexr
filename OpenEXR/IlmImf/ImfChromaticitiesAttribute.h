@@ -45,7 +45,7 @@
 
 #include <ImfAttribute.h>
 #include <ImfChromaticities.h>
-
+#include <ImfExport.h>
 
 namespace Imf {
 
@@ -53,12 +53,15 @@ namespace Imf {
 typedef TypedAttribute<Chromaticities> ChromaticitiesAttribute;
 
 template <>
+IMF_EXPORT 
 const char *ChromaticitiesAttribute::staticTypeName ();
 
 template <>
+IMF_EXPORT 
 void ChromaticitiesAttribute::writeValueTo (OStream &, int) const;
 
 template <>
+IMF_EXPORT 
 void ChromaticitiesAttribute::readValueFrom (IStream &, int, int);
 
 

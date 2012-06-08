@@ -855,5 +855,10 @@ void throwErrnoExc (const std::string &text)
     throwErrnoExc (text, errno);
 }
 
+void throwErrnoExc()
+{
+    std::string txt = "%T.";
+    throwErrnoExc (txt);
+}
 
 } // namespace Iex

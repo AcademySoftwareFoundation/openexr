@@ -67,7 +67,7 @@ struct PreviewRgba;
 // RGBA output file.
 //
 
-class RgbaOutputFile
+class IMF_EXPORT RgbaOutputFile
 {
   public:
 
@@ -227,7 +227,7 @@ class RgbaOutputFile
 // RGBA input file
 //
 
-class RgbaInputFile
+class IMF_EXPORT RgbaInputFile
 {
   public:
 

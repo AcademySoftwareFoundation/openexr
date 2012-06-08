@@ -36,6 +36,8 @@
 #ifndef INCLUDED_IMF_VERSION_H
 #define INCLUDED_IMF_VERSION_H
 
+#include <ImfExport.h>
+
 //-----------------------------------------------------------------------------
 //
 //	Magic and version number.
@@ -112,6 +114,7 @@ inline bool  supportsFlags (int flags)	{return !(flags & ~ALL_FLAGS);}
 // file is probably an OpenEXR image file, false if not.
 //
 
+IMF_EXPORT 
 bool	     isImfMagic (const char bytes[4]);
 
 

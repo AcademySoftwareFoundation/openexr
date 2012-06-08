@@ -45,15 +45,15 @@
 
 #include <ImfAttribute.h>
 #include <ImfChannelList.h>
-
+#include <ImfExport.h>
 
 namespace Imf {
 
 
 typedef TypedAttribute<ChannelList> ChannelListAttribute;
-template <> const char *ChannelListAttribute::staticTypeName ();
-template <> void ChannelListAttribute::writeValueTo (OStream &, int) const;
-template <> void ChannelListAttribute::readValueFrom (IStream &, int, int);
+template <> IMF_EXPORT const char *ChannelListAttribute::staticTypeName ();
+template <> IMF_EXPORT void ChannelListAttribute::writeValueTo (OStream &, int) const;
+template <> IMF_EXPORT void ChannelListAttribute::readValueFrom (IStream &, int, int);
 
 
 } // namespace Imf

@@ -73,6 +73,7 @@
 //-----------------------------------------------------------------------------
 
 #include "ImathBox.h"
+#include <ImfExport.h>
 
 namespace Imf {
 
@@ -116,6 +117,7 @@ namespace LatLongMap
     // and longitude.
     //----------------------------------------------------
 
+    IMF_EXPORT 
     Imath::V2f		latLong (const Imath::V3f &direction);
 
 
@@ -125,6 +127,7 @@ namespace LatLongMap
     // and longitude.
     //--------------------------------------------------------
 
+    IMF_EXPORT 
     Imath::V2f		latLong (const Imath::Box2i &dataWindow,
 				 const Imath::V2f &pixelPosition);
 
@@ -134,6 +137,7 @@ namespace LatLongMap
     // longitude and latitude, into a corresponding pixel position.
     //-------------------------------------------------------------
 
+    IMF_EXPORT 
     Imath::V2f		pixelPosition (const Imath::Box2i &dataWindow,
 				       const Imath::V2f &latLong);
 
@@ -144,6 +148,7 @@ namespace LatLongMap
     // to pixelPosition(dw,latLong(dw,dir)).
     //-----------------------------------------------------
 
+    IMF_EXPORT 
     Imath::V2f		pixelPosition (const Imath::Box2i &dataWindow,
 				       const Imath::V3f &direction);
 
@@ -153,6 +158,7 @@ namespace LatLongMap
     // map into a corresponding 3D direction.
     //--------------------------------------------------------
 
+    IMF_EXPORT 
     Imath::V3f		direction (const Imath::Box2i &dataWindow,
 				   const Imath::V2f &pixelPosition);
 }
@@ -260,6 +266,7 @@ namespace CubeMap
     // Width and height of a cube's face, in pixels
     //---------------------------------------------
 
+    IMF_EXPORT 
     int			sizeOfFace (const Imath::Box2i &dataWindow);
 
 
@@ -268,6 +275,7 @@ namespace CubeMap
     // that is covered by the specified face.
     //------------------------------------------
 
+    IMF_EXPORT 
     Imath::Box2i	dataWindowForFace (CubeMapFace face,
 					   const Imath::Box2i &dataWindow);
 
@@ -279,6 +287,7 @@ namespace CubeMap
     // in the environment map.
     //----------------------------------------------------
 
+    IMF_EXPORT 
     Imath::V2f		pixelPosition (CubeMapFace face,
 				       const Imath::Box2i &dataWindow,
 				       Imath::V2f positionInFace);
@@ -300,6 +309,7 @@ namespace CubeMap
     //
     //--------------------------------------------------------------
 
+    IMF_EXPORT 
     void		faceAndPixelPosition (const Imath::V3f &direction,
 					      const Imath::Box2i &dataWindow,
 					      CubeMapFace &face,
@@ -311,6 +321,7 @@ namespace CubeMap
     // compute the corresponding 3D direction.
     // --------------------------------------------------------
 
+    IMF_EXPORT 
     Imath::V3f		direction (CubeMapFace face,
 				   const Imath::Box2i &dataWindow,
 				   const Imath::V2f &positionInFace);
