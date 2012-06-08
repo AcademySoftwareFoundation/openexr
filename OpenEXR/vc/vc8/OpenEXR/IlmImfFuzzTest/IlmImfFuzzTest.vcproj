@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="IlmImfFuzzTest"
 	ProjectGUID="{EB72BB5A-6559-4CDA-8ADE-EA9EDF7720DE}"
 	RootNamespace="IlmImfTest"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -74,6 +75,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/IlmImfTest.pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -95,98 +98,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Running IlmImf fuzz tests..."
 				CommandLine="copy $(TargetPath) ..\..\..\..\..\..\Deploy\bin\$(IntDir)&#x0D;&#x0A;pushd ..\..\..\..\IlmImfFuzzTest&#x0D;&#x0A;..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)&#x0D;&#x0A;popd&#x0D;&#x0A;del ..\..\..\..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)&#x0D;&#x0A;"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|x64"
-			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\IlmImfFuzzTest;..\..\..\..\config.windows;..\..\..\..\..\..\Deploy\include"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN64;_DEBUG;_CONSOLE"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				EnableEnhancedInstructionSet="2"
-				ForceConformanceInForLoopScope="true"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmImf.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib"
-				OutputFile="$(OutDir)/IlmImfFuzzTest.exe"
-				LinkIncremental="2"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/IlmImfTest.pdb"
-				SubSystem="1"
-				TargetMachine="17"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="Running IlmImf fuzz tests..."
-				CommandLine="copy $(TargetPath) ..\..\..\..\..\..\Deploy\bin\$(IntDir)&#x0D;&#x0A;pushd ..\..\..\..\IlmImfTest&#x0D;&#x0A;..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)&#x0D;&#x0A;popd&#x0D;&#x0A;del ..\..\..\..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -243,6 +157,8 @@
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -264,21 +180,18 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Running IlmImf fuzz tests..."
 				CommandLine="copy $(TargetPath) ..\..\..\..\..\..\Deploy\bin\$(IntDir)&#x0D;&#x0A;pushd ..\..\..\..\IlmImfFuzzTest&#x0D;&#x0A;..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)&#x0D;&#x0A;popd&#x0D;&#x0A;del ..\..\..\..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)&#x0D;&#x0A;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|x64"
-			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			CharacterSet="2"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			Name="Debug|x64"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -297,17 +210,20 @@
 				TargetEnvironment="3"
 			/>
 			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\IlmImf;..\..\..\..\IlmImfFuzzTest;..\..\..\..\config.windows;..\..\..\..\..\..\Deploy\include"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN64;NDEBUG;_CONSOLE"
-				RuntimeLibrary="2"
+				AdditionalIncludeDirectories="..\..\..\..\IlmImfFuzzTest;..\..\..\..\config.windows;..\..\..\..\..\..\Deploy\include"
+				BasicRuntimeChecks="3"
+				DebugInformationFormat="3"
+				Detect64BitPortabilityProblems="true"
 				EnableEnhancedInstructionSet="2"
 				ForceConformanceInForLoopScope="true"
+				MinimalRebuild="true"
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN64;_DEBUG;_CONSOLE"
+				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -319,14 +235,13 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
 				AdditionalDependencies="..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmImf.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib"
-				OutputFile="$(OutDir)/IlmImfFuzzTest.exe"
-				LinkIncremental="1"
 				GenerateDebugInformation="true"
+				LinkIncremental="2"
+				Name="VCLinkerTool"
+				OutputFile="$(OutDir)/IlmImfFuzzTest.exe"
+				ProgramDatabaseFile="$(OutDir)/IlmImfTest.pdb"
 				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -351,9 +266,93 @@
 				Name="VCWebDeploymentTool"
 			/>
 			<Tool
-				Name="VCPostBuildEventTool"
+				CommandLine="copy $(TargetPath) ..\..\..\..\..\..\Deploy\bin\$(IntDir)&#x0D;&#x0D;&#x0A;pushd ..\..\..\..\IlmImfTest&#x0D;&#x0D;&#x0A;..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)&#x0D;&#x0D;&#x0A;popd&#x0D;&#x0D;&#x0A;del ..\..\..\..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)&#x0D;&#x0D;&#x0A;"
 				Description="Running IlmImf fuzz tests..."
-				CommandLine="copy $(TargetPath) ..\..\..\..\..\..\Deploy\bin\$(IntDir)&#x0D;&#x0A;pushd ..\..\..\..\IlmImfTest&#x0D;&#x0A;..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)&#x0D;&#x0A;popd&#x0D;&#x0A;del ..\..\..\..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)"
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			CharacterSet="2"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			Name="Release|x64"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				AdditionalIncludeDirectories="..\..\..\..\IlmImf;..\..\..\..\IlmImfFuzzTest;..\..\..\..\config.windows;..\..\..\..\..\..\Deploy\include"
+				DebugInformationFormat="3"
+				Detect64BitPortabilityProblems="true"
+				EnableEnhancedInstructionSet="2"
+				ForceConformanceInForLoopScope="true"
+				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN64;NDEBUG;_CONSOLE"
+				RuntimeLibrary="2"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				AdditionalDependencies="..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmImf.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\IlmThread.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Imath.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Iex.lib ..\..\..\..\..\..\Deploy\lib\$(IntDir)\Half.lib"
+				EnableCOMDATFolding="2"
+				GenerateDebugInformation="true"
+				LinkIncremental="1"
+				Name="VCLinkerTool"
+				OptimizeReferences="2"
+				OutputFile="$(OutDir)/IlmImfFuzzTest.exe"
+				SubSystem="1"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				CommandLine="copy $(TargetPath) ..\..\..\..\..\..\Deploy\bin\$(IntDir)&#x0D;&#x0D;&#x0A;pushd ..\..\..\..\IlmImfTest&#x0D;&#x0D;&#x0A;..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)&#x0D;&#x0D;&#x0A;popd&#x0D;&#x0D;&#x0A;del ..\..\..\..\..\..\Deploy\bin\$(IntDir)\$(TargetFileName)"
+				Description="Running IlmImf fuzz tests..."
+				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
 	</Configurations>
