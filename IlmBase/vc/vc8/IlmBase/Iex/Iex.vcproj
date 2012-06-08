@@ -397,6 +397,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\Iex\IexExport.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\Iex\IexMacros.h"
 				>
 			</File>
