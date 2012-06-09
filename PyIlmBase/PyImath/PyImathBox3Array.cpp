@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2007-2011, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 1998-2011, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -32,19 +32,19 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef PYIMATH_EXPORT_H
-#define PYIMATH_EXPORT_H
+#include <PyImathBoxArrayImpl.h>
+#include <PyImathExport.h>
 
-#if defined(PLATFORM_WINDOWS) && !defined(ZENO_STATIC)
-    #ifdef PYIMATH_EXPORTS
-        #define PYIMATH_EXPORT __declspec(dllexport)
-    #else
-        #define PYIMATH_EXPORT __declspec(dllimport)
-    #endif
-#else
-    #define PYIMATH_EXPORT
-#endif
+namespace PyImath {
+using namespace boost::python;
 
+template PYIMATH_EXPORT class_<FixedArray<Imath::Box3s> > register_BoxArray<Imath::V3s>();
+template PYIMATH_EXPORT class_<FixedArray<Imath::Box3i> > register_BoxArray<Imath::V3i>();
+template PYIMATH_EXPORT class_<FixedArray<Imath::Box3f> > register_BoxArray<Imath::V3f>();
+template PYIMATH_EXPORT class_<FixedArray<Imath::Box3d> > register_BoxArray<Imath::V3d>();
 
-#endif // #ifndef PYIMATHEXPORT_H
-
+template<> PYIMATH_EXPORT Imath::Box3s PyImath::FixedArrayDefaultValue<Imath::Box3s>::value() { return Imath::Box3s(); }
+template<> PYIMATH_EXPORT Imath::Box3i PyImath::FixedArrayDefaultValue<Imath::Box3i>::value() { return Imath::Box3i(); }
+template<> PYIMATH_EXPORT Imath::Box3f PyImath::FixedArrayDefaultValue<Imath::Box3f>::value() { return Imath::Box3f(); }
+template<> PYIMATH_EXPORT Imath::Box3d PyImath::FixedArrayDefaultValue<Imath::Box3d>::value() { return Imath::Box3d(); }
+}

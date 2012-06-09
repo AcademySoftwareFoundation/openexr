@@ -134,10 +134,11 @@ class Frustum
     //  Derived Quantities
     //----------------------
 
-    T			fovx() const;
-    T			fovy() const;
-    T			aspect() const;
-    Matrix44<T>		projectionMatrix() const;
+    T                           fovx() const;
+    T                           fovy() const;
+    T                           aspect() const;
+    Matrix44<T>                 projectionMatrix() const;
+    bool                        degenerate() const;
 
     //-----------------------------------------------------------------------
     //  Takes a rectangle in the screen space (i.e., -1 <= left <= right <= 1 
@@ -435,6 +436,14 @@ Matrix44<T> Frustum<T>::projectionMatrix() const
 			    A,  B,  C, -1,
 			    0,  0,  D,  0 );
     }
+}
+
+template<class T>
+bool Frustum<T>::degenerate() const
+{
+    return (_nearPlane == _farPlane) ||
+           (_left == _right) ||
+           (_top == _bottom);
 }
 
 template<class T>

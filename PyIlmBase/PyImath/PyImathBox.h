@@ -39,11 +39,24 @@
 #include <boost/python.hpp>
 #include <ImathBox.h>
 #include <PyImathVec.h>
+#include <PyImathFixedArray.h>
 
 namespace PyImath {
 
 template <class T> boost::python::class_<Imath::Box<T> > register_Box2();
 template <class T> boost::python::class_<Imath::Box<T> > register_Box3();
+
+template <class T> boost::python::class_<FixedArray<Imath::Box<T> > > register_BoxArray();
+
+typedef FixedArray<Imath::Box2s> Box2sArray;
+typedef FixedArray<Imath::Box2i> Box2iArray;
+typedef FixedArray<Imath::Box2f> Box2fArray;
+typedef FixedArray<Imath::Box2d> Box2dArray;
+
+typedef FixedArray<Imath::Box3s> Box3sArray;
+typedef FixedArray<Imath::Box3i> Box3iArray;
+typedef FixedArray<Imath::Box3f> Box3fArray;
+typedef FixedArray<Imath::Box3d> Box3dArray;
 
 //
 

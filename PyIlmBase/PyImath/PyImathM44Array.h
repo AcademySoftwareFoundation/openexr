@@ -32,19 +32,41 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef PYIMATH_EXPORT_H
-#define PYIMATH_EXPORT_H
+#ifndef _PyImathM44Array_h_
+#define _PyImathM44Array_h_
 
-#if defined(PLATFORM_WINDOWS) && !defined(ZENO_STATIC)
-    #ifdef PYIMATH_EXPORTS
-        #define PYIMATH_EXPORT __declspec(dllexport)
-    #else
-        #define PYIMATH_EXPORT __declspec(dllimport)
-    #endif
-#else
-    #define PYIMATH_EXPORT
-#endif
+#include <boost/python.hpp>
+#include <ImathMatrix.h>
+#include <PyImathOperators.h>
+
+namespace PyImath {
+using namespace boost::python;
 
 
-#endif // #ifndef PYIMATHEXPORT_H
+template <class T> struct M44ArrayName { static const char *value(); };
 
+template <class T>
+static void
+setM44ArrayItem(FixedArray<Imath::Matrix44<T> > &ma,
+                Py_ssize_t index,
+                const Imath::Matrix44<T> &m)
+{
+    ma[ma.canonical_index(index)] = m;
+}
+
+template <class T>
+class_<FixedArray<Imath::Matrix44<T> > >
+register_M44Array()
+{
+    class_<FixedArray<Imath::Matrix44<T> > > m44Array_class = FixedArray<Imath::Matrix44<T> >::register_("Fixed length array of Imath::M44");
+    m44Array_class
+    .def("__setitem__", &setM44ArrayItem<T>)
+    ;
+
+    return m44Array_class;
+}
+
+
+}  // namespace PyImath
+
+#endif   // _PyImathM44Array_h_

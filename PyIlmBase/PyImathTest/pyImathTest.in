@@ -2,9 +2,11 @@
 
 from imath import *
 from math import sqrt, pi, sin, cos
+import math
 import string, traceback, sys
 import iex
 import random
+
 
 
 testList = []
@@ -1722,6 +1724,12 @@ def testFun ():
     assert sign(5.0)  ==  1    
     assert sign(-5)   == -1    
     assert sign(-5.0) == -1    
+
+    assert log(math.e) ==  1    
+    assert log(1)      ==  0    
+
+    assert log10(10)   ==  1    
+    assert log10(1)    ==  0    
 
     assert lerp(1, 2, 0.5)     == 1.5
     assert lerp(1.0, 2.0, 0.5) == 1.5
@@ -8443,6 +8451,137 @@ def testMatrixArray ():
     testMxArray (M33dArray, M33d)
 
 testList.append(("testMatrixArray",testMatrixArray))
+
+def testStringArray():
+
+    num = 10
+
+    s = StringArray(num)
+    s2 = StringArray(num)
+
+    assert((s != '').reduce() == 0)
+    assert((s == '').reduce() == num)
+
+    assert(('' != s).reduce() == 0)
+    assert(('' == s).reduce() == num)
+
+    assert((s != s2).reduce() == 0)
+    assert((s == s2).reduce() == num)
+  
+    id = IntArray(num)
+    id[:] = make_range(0,num)
+
+    s = StringArray('foo', num)
+    s2 = StringArray('a', num)
+    s2[:] = 'foo'
+
+    assert((s != 'foo').reduce() == 0)
+    assert((s == 'foo').reduce() == num)
+
+    assert(('foo' != s).reduce() == 0)
+    assert(('foo' == s).reduce() == num)
+    assert((s != s2).reduce() == 0)
+    assert((s == s2).reduce() == num)
+
+    s[id < num/2] = 'bar'
+    
+    assert((s != 'foo').reduce() == num/2)
+    assert((s == 'foo').reduce() == num/2)
+
+    assert(('foo' != s).reduce() == num/2)
+    assert(('foo' == s).reduce() == num/2)
+
+    assert((s != 'bar').reduce() == num/2)
+    assert((s == 'bar').reduce() == num/2)
+
+    assert(('bar' != s).reduce() == num/2)
+    assert(('bar' == s).reduce() == num/2)
+
+    assert((s != s2).reduce() == num/2)
+    assert((s == s2).reduce() == num/2)
+    
+    for i in range(0,num):
+        s2[i] = str(i)
+
+    for i in range(0,num):
+        assert(int(s2[i]) == i)
+
+    print "should see %d 'bar' and %d 'foo'" % (num/2,num/2)
+    for m in s:
+        print m
+    print "should see '0' through '%d'" % (num-1)
+    for m in s2:
+        print m
+
+    print "ok"
+
+testList.append(("testStringArray",testStringArray))
+
+
+def testWstringArray():
+
+    num = 10
+
+    s = WstringArray(num)
+    s2 = WstringArray(num)
+
+    assert((s != '').reduce() == 0)
+    assert((s == '').reduce() == num)
+
+    assert(('' != s).reduce() == 0)
+    assert(('' == s).reduce() == num)
+
+    assert((s != s2).reduce() == 0)
+    assert((s == s2).reduce() == num)
+  
+    id = IntArray(num)
+    id[:] = make_range(0,num)
+
+    s = WstringArray(u'foo', num)
+    s2 = WstringArray(u'a', num)
+    s2[:] = u'foo'
+
+    assert((s != u'foo').reduce() == 0)
+    assert((s == u'foo').reduce() == num)
+
+    assert((u'foo' != s).reduce() == 0)
+    assert((u'foo' == s).reduce() == num)
+    assert((s != s2).reduce() == 0)
+    assert((s == s2).reduce() == num)
+
+    s[id < num/2] = u'bar'
+    
+    assert((s != u'foo').reduce() == num/2)
+    assert((s == u'foo').reduce() == num/2)
+
+    assert((u'foo' != s).reduce() == num/2)
+    assert((u'foo' == s).reduce() == num/2)
+
+    assert((s != u'bar').reduce() == num/2)
+    assert((s == u'bar').reduce() == num/2)
+
+    assert((u'bar' != s).reduce() == num/2)
+    assert((u'bar' == s).reduce() == num/2)
+
+    assert((s != s2).reduce() == num/2)
+    assert((s == s2).reduce() == num/2)
+    
+    for i in range(0,num):
+        s2[i] = str(i)
+
+    for i in range(0,num):
+        assert(int(s2[i]) == i)
+
+    print "should see %d 'bar' and %d 'foo'" % (num/2,num/2)
+    for m in s:
+        print m
+    print "should see '0' through '%d'" % (num-1)
+    for m in s2:
+        print m
+
+    print "ok"
+
+testList.append(("testWstringArray",testWstringArray))
 
 
 # -------------------------------------------------------------------------

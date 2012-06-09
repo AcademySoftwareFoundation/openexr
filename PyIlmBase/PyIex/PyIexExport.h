@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2007-2011, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2001-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -32,19 +32,19 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef PYIMATH_EXPORT_H
-#define PYIMATH_EXPORT_H
+#ifndef PYIEXEXPORT_H
+#define PYIEXEXPORT_H
 
-#if defined(PLATFORM_WINDOWS) && !defined(ZENO_STATIC)
-    #ifdef PYIMATH_EXPORTS
-        #define PYIMATH_EXPORT __declspec(dllexport)
+#if defined(OPENEXR_DLL) && !defined(ZENO_STATIC)
+    #ifdef PYIEX_EXPORTS
+        #define PYIEX_EXPORT __declspec(dllexport)
     #else
-        #define PYIMATH_EXPORT __declspec(dllimport)
+        #define PYIEX_EXPORT __declspec(dllimport)
     #endif
 #else
-    #define PYIMATH_EXPORT
+    #define PYIEX_EXPORT
 #endif
 
 
-#endif // #ifndef PYIMATHEXPORT_H
+#endif // #ifndef PYIEXEXPORT_H
 

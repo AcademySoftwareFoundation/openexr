@@ -37,10 +37,10 @@
 
 namespace PyImath {
 
+template <> PYIMATH_EXPORT bool FixedArrayDefaultValue<bool>::value() { return false; }
 template <> PYIMATH_EXPORT unsigned char FixedArrayDefaultValue<unsigned char>::value() { return 0; }
 template <> PYIMATH_EXPORT short FixedArrayDefaultValue<short>::value() { return 0; }
 template <> PYIMATH_EXPORT int FixedArrayDefaultValue<int>::value() { return 0; }
-template <> PYIMATH_EXPORT bool FixedArrayDefaultValue<bool>::value() { return false; }
 template <> PYIMATH_EXPORT float FixedArrayDefaultValue<float>::value() { return 0; }
 template <> PYIMATH_EXPORT double FixedArrayDefaultValue<double>::value() { return 0; }
 

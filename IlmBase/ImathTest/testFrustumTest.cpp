@@ -121,7 +121,7 @@ testFrustumTest ()
     float tinyRadius = 0.0001f;
     float hugeRadius = 1000.0f;
 
-        // Tiny sphere inside the frust should be visible
+    // Tiny sphere inside the frust should be visible
     assert (frustumTest.isVisible(Imath::Sphere3<float>
         (insideVec, tinyRadius)));
 

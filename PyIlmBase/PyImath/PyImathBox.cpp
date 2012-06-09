@@ -42,6 +42,7 @@
 #include <ImathBoxAlgo.h>
 #include <PyImathTask.h>
 #include <vector>
+#include "PyImathBoxArrayImpl.h"
 
 namespace PyImath {
 using namespace boost::python;
@@ -57,6 +58,15 @@ template <> const char *BoxName<Imath::V3s>::value = "Box3s";
 template <> const char *BoxName<Imath::V3i>::value = "Box3i";
 template <> const char *BoxName<Imath::V3f>::value = "Box3f";
 template <> const char *BoxName<Imath::V3d>::value = "Box3d";
+
+template <> PYIMATH_EXPORT const char *PyImath::Box2sArray::name() { return "Box2sArray"; }
+template <> PYIMATH_EXPORT const char *PyImath::Box2iArray::name() { return "Box2iArray"; }
+template <> PYIMATH_EXPORT const char *PyImath::Box2fArray::name() { return "Box2fArray"; }
+template <> PYIMATH_EXPORT const char *PyImath::Box2dArray::name() { return "Box2dArray"; }
+template <> PYIMATH_EXPORT const char *PyImath::Box3sArray::name() { return "Box3sArray"; }
+template <> PYIMATH_EXPORT const char *PyImath::Box3iArray::name() { return "Box3iArray"; }
+template <> PYIMATH_EXPORT const char *PyImath::Box3fArray::name() { return "Box3fArray"; }
+template <> PYIMATH_EXPORT const char *PyImath::Box3dArray::name() { return "Box3dArray"; }
 
 template <class T>
 static Box<T> * box2TupleConstructor1(const tuple &t)

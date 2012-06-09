@@ -32,7 +32,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <PyImathM44ArrayImpl.h>
+#include <PyImathM44Array.h>
 #include <PyImathMatrix.h>
 #include <PyImathExport.h>
 

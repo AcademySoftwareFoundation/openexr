@@ -43,6 +43,7 @@
 
 namespace PyImath {
 
+typedef FixedArray<bool> BoolArray;
 typedef FixedArray<unsigned char> UnsignedCharArray;
 typedef FixedArray<short> ShortArray;
 typedef FixedArray<int> IntArray;

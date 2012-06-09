@@ -172,7 +172,7 @@ jacobiEigensolve(const Matrix& m)
     Matrix Q;
     Vec S;
     Imath::jacobiEigenSolver (tmp, S, Q);
-    return make_tuple (Q, S);
+    return boost::python::make_tuple (Q, S);
 }
 
 

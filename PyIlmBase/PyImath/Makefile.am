@@ -27,7 +27,11 @@ libPyImath_la_SOURCES = PyImath.cpp \
     PyImathVec3si.cpp \
     PyImathVec4fd.cpp \
     PyImathVec4siArray.cpp \
-    PyImathVec4si.cpp
+    PyImathVec4si.cpp \
+    PyImathBox2Array.cpp \
+    PyImathBox3Array.cpp \
+    PyImathStringArray.cpp \
+    PyImathStringTable.cpp
 
 libPyImathinclude_HEADERS = PyImath.h \
     PyImathAutovectorize.h \
@@ -58,7 +62,11 @@ libPyImathinclude_HEADERS = PyImath.h \
     PyImathVec4ArrayImpl.h \
     PyImathVec4Impl.h \
     PyImathVec.h \
-    PyImathVecOperators.h
+    PyImathVecOperators.h \
+    PyImathBoxArrayImpl.h \
+    PyImathStringArray.h \
+    PyImathStringTable.h \
+    PyImathStringArrayRegister.h
 
 libPyImath_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ \
                         -no-undefined

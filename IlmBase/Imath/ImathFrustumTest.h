@@ -85,6 +85,8 @@ namespace Imath {
 //    myFrustumTest.isVisible(myBox)
 //    myFrustumTest.isVisible(mySphere)
 //    myFrustumTest.isVisible(myVec3)
+//    myFrustumTest.completelyContains(myBox)
+//    myFrustumTest.completelyContains(mySphere)
 //
 
 
@@ -148,6 +150,12 @@ public:
     bool isVisible(const Sphere3<T> &sphere) const;
     bool isVisible(const Box<Vec3<T> > &box) const;
     bool isVisible(const Vec3<T> &vec) const;
+    
+    ////////////////////////////////////////////////////////////////////
+    // completelyContains()
+    // Check to see if shapes are entirely contained.
+    bool completelyContains(const Sphere3<T> &sphere) const;
+    bool completelyContains(const Box<Vec3<T> > &box) const;
     
     // These next items are kept primarily for debugging tools.
     // It's useful for drawing the culling environment, and also
@@ -223,7 +231,7 @@ void FrustumTest<T>::setFrustum(Frustum<T> &frustum,
 
 ////////////////////////////////////////////////////////////////////
 // isVisible(Sphere)
-// Returns true if any part of the world-space sphere is inside
+// Returns true if any part of the sphere is inside
 // the frustum.
 // The result MAY return close false-positives, but not false-negatives.
 //
@@ -234,18 +242,20 @@ bool FrustumTest<T>::isVisible(const Sphere3<T> &sphere) const
     Vec3<T> radiusVec = Vec3<T>(sphere.radius, sphere.radius, sphere.radius);
 
     // This is a vertical dot-product on three vectors at once.
-    Vec3<T> d0  = (planeNormX[0] * center.x) 
-                + (planeNormY[0] * center.y) 
-                + (planeNormZ[0] * center.z) 
-                - (planeOffsetVec[0] + radiusVec);
+    Vec3<T> d0  = planeNormX[0] * center.x 
+                + planeNormY[0] * center.y 
+                + planeNormZ[0] * center.z 
+                - radiusVec
+                - planeOffsetVec[0];
 
     if (d0.x >= 0 || d0.y >= 0 || d0.z >= 0)
         return false;
 
-    Vec3<T> d1  = (planeNormX[1] * center.x) 
-                + (planeNormY[1] * center.y) 
-                + (planeNormZ[1] * center.z) 
-                - (planeOffsetVec[1] + radiusVec);
+    Vec3<T> d1  = planeNormX[1] * center.x 
+                + planeNormY[1] * center.y 
+                + planeNormZ[1] * center.z 
+                - radiusVec
+                - planeOffsetVec[1];
 
     if (d1.x >= 0 || d1.y >= 0 || d1.z >= 0)
         return false;
@@ -253,11 +263,44 @@ bool FrustumTest<T>::isVisible(const Sphere3<T> &sphere) const
     return true;
 }
 
+////////////////////////////////////////////////////////////////////
+// completelyContains(Sphere)
+// Returns true if every part of the sphere is inside
+// the frustum.
+// The result MAY return close false-negatives, but not false-positives.
+//
+template<typename T>
+bool FrustumTest<T>::completelyContains(const Sphere3<T> &sphere) const
+{
+    Vec3<T> center = sphere.center;
+    Vec3<T> radiusVec = Vec3<T>(sphere.radius, sphere.radius, sphere.radius);
+
+    // This is a vertical dot-product on three vectors at once.
+    Vec3<T> d0  = planeNormX[0] * center.x 
+                + planeNormY[0] * center.y 
+                + planeNormZ[0] * center.z 
+                + radiusVec
+                - planeOffsetVec[0];
+
+    if (d0.x >= 0 || d0.y >= 0 || d0.z >= 0)
+        return false;
+
+    Vec3<T> d1  = planeNormX[1] * center.x 
+                + planeNormY[1] * center.y 
+                + planeNormZ[1] * center.z 
+                + radiusVec
+                - planeOffsetVec[1];
+
+    if (d1.x >= 0 || d1.y >= 0 || d1.z >= 0)
+        return false;
+
+    return true;
+}
 
 ////////////////////////////////////////////////////////////////////
-// isVisible(Sphere)
-// Returns true if any part of the world-space box is inside
-// the frustum.
+// isVisible(Box)
+// Returns true if any part of the axis-aligned box
+// is inside the frustum.
 // The result MAY return close false-positives, but not false-negatives.
 //
 template<typename T>
@@ -267,24 +310,62 @@ bool FrustumTest<T>::isVisible(const Box<Vec3<T> > &box) const
     Vec3<T> extent = (box.max - center);
 
     // This is a vertical dot-product on three vectors at once.
-    Vec3<T> d0  = (planeNormX[0] * center.x) 
-                + (planeNormY[0] * center.y) 
-                + (planeNormZ[0] * center.z)
-                - ((planeNormAbsX[0] * extent.x) 
-                 + (planeNormAbsY[0] * extent.y) 
-                 + (planeNormAbsZ[0] * extent.z) 
-                 + planeOffsetVec[0]);
+    Vec3<T> d0  = planeNormX[0] * center.x 
+                + planeNormY[0] * center.y 
+                + planeNormZ[0] * center.z
+                - planeNormAbsX[0] * extent.x 
+                - planeNormAbsY[0] * extent.y 
+                - planeNormAbsZ[0] * extent.z 
+                - planeOffsetVec[0];
 
     if (d0.x >= 0 || d0.y >= 0 || d0.z >= 0)
         return false;
 
-    Vec3<T> d1  = (planeNormX[1] * center.x) 
-                + (planeNormY[1] * center.y) 
-                + (planeNormZ[1] * center.z)
-                - ((planeNormAbsX[1] * extent.x) 
-                 + (planeNormAbsY[1] * extent.y) 
-                 + (planeNormAbsZ[1] * extent.z) 
-                 + planeOffsetVec[1]);
+    Vec3<T> d1  = planeNormX[1] * center.x 
+                + planeNormY[1] * center.y 
+                + planeNormZ[1] * center.z
+                - planeNormAbsX[1] * extent.x 
+                - planeNormAbsY[1] * extent.y 
+                - planeNormAbsZ[1] * extent.z 
+                - planeOffsetVec[1];
+
+    if (d1.x >= 0 || d1.y >= 0 || d1.z >= 0)
+        return false;
+
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////
+// completelyContains(Box)
+// Returns true if every part of the axis-aligned box
+// is inside the frustum.
+// The result MAY return close false-negatives, but not false-positives.
+//
+template<typename T>
+bool FrustumTest<T>::completelyContains(const Box<Vec3<T> > &box) const
+{
+    Vec3<T> center = (box.min + box.max) / 2;
+    Vec3<T> extent = (box.max - center);
+
+    // This is a vertical dot-product on three vectors at once.
+    Vec3<T> d0  = planeNormX[0] * center.x 
+                + planeNormY[0] * center.y 
+                + planeNormZ[0] * center.z
+                + planeNormAbsX[0] * extent.x 
+                + planeNormAbsY[0] * extent.y 
+                + planeNormAbsZ[0] * extent.z 
+                - planeOffsetVec[0];
+
+    if (d0.x >= 0 || d0.y >= 0 || d0.z >= 0)
+        return false;
+
+    Vec3<T> d1  = planeNormX[1] * center.x 
+                + planeNormY[1] * center.y 
+                + planeNormZ[1] * center.z
+                + planeNormAbsX[1] * extent.x 
+                + planeNormAbsY[1] * extent.y 
+                + planeNormAbsZ[1] * extent.z 
+                - planeOffsetVec[1];
 
     if (d1.x >= 0 || d1.y >= 0 || d1.z >= 0)
         return false;
@@ -295,7 +376,7 @@ bool FrustumTest<T>::isVisible(const Box<Vec3<T> > &box) const
 
 ////////////////////////////////////////////////////////////////////
 // isVisible(Vec3)
-// Returns true if the world-space vector is inside the frustum.
+// Returns true if the point is inside the frustum.
 //
 template<typename T>
 bool FrustumTest<T>::isVisible(const Vec3<T> &vec) const

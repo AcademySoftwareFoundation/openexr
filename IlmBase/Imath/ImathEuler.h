@@ -897,9 +897,17 @@ template <class T>
 void
 Euler<T>::makeNear (const Euler<T> &target)
 {
-    Vec3<T> xyzRot    = toXYZVector();
-    Euler<T> targetSameOrder = Euler<T>(target, order());
-    Vec3<T> targetXyz = targetSameOrder.toXYZVector();
+    Vec3<T> xyzRot = toXYZVector();
+    Vec3<T> targetXyz;
+    if (order() != target.order())
+    {
+        Euler<T> targetSameOrder = Euler<T>(target, order());
+        targetXyz = targetSameOrder.toXYZVector();
+    }
+    else
+    {
+        targetXyz = target.toXYZVector();
+    }
 
     nearestRotation(xyzRot, targetXyz, order());
 

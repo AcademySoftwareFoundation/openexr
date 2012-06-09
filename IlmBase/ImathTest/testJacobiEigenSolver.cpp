@@ -214,7 +214,7 @@ testJacobiTiming()
         }
         tSVD = clock() - t;
         cout << "TinySVD            of 3x3 matrices took " << tSVD << " clocks." << endl;
-        cout << (float)(tSVD-tJacobi)*100.0f/(float)(tSVD) << "\% speed up." << endl;
+        cout << (float)(tSVD-tJacobi)*100.0f/(float)(tSVD) << "% speed up." << endl;
     }
 
     {
@@ -240,7 +240,7 @@ testJacobiTiming()
         }
         tSVD = clock() - t;
         cout << "TinySVD            of 4x4 matrices took " << tSVD << " clocks" << endl;
-        cout << (float)(tSVD-tJacobi)*100.0f/(float)(tSVD) << "\% speed up." << endl;
+        cout << (float)(tSVD-tJacobi)*100.0f/(float)(tSVD) << "% speed up." << endl;
     }
 }
 

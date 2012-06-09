@@ -37,6 +37,7 @@
 #include <boost/format.hpp>
 #include <Iex.h>
 #include <PyIex.h>
+#include <PyIexExport.h>
 #include <IexErrnoExc.h>
 #include <iostream>
 
@@ -46,6 +47,37 @@ using namespace Iex;
 namespace PyIex {
 
 namespace {
+
+static void translateBaseExc(const Iex::BaseExc &exc)
+{
+    PyErr_SetObject(baseExcTranslator().typeObject(&exc),ExcTranslator<Iex::BaseExc>::convert(exc));
+}
+
+void
+registerBaseExc()
+{
+    using namespace boost::python;
+
+    std::string name = "BaseExc";
+    std::string module = "iex";
+    std::string baseName = "RuntimeError";
+    std::string baseModule = "__builtin__";
+
+    // if module != baseModule, the type object isn't used
+    object exc_class = createExceptionProxy(name, module, baseName, baseModule, 0);
+    scope().attr(name.c_str()) = exc_class;
+    setBaseExcTranslator(new TypeTranslator<Iex::BaseExc>(name, module, exc_class.ptr()));
+
+    // to python
+    to_python_converter<Iex::BaseExc,ExcTranslator<Iex::BaseExc> >();
+
+    // from python
+    converter::registry::push_back(&ExcTranslator<Iex::BaseExc>::convertible,
+                                   &ExcTranslator<Iex::BaseExc>::construct,type_id<Iex::BaseExc>());
+
+    // exception translation for BaseExc and subtypes
+    register_exception_translator<Iex::BaseExc>(&translateBaseExc);
+}
 
 void
 testCxxExceptions (int i)
@@ -102,13 +134,6 @@ testMakeArgExc(const std::string &s)
 
 } // namespace
 
-// not registered, but define RuntimeError so that BaseExc can have the appropriate
-// python base type
-struct RuntimeError {};
-template<> PyObject *ExcTranslator<RuntimeError>::pytype = PyExc_RuntimeError;
-template<> const char *ExcTranslator<RuntimeError>::name = "RuntimeError";
-template<> const char *ExcTranslator<RuntimeError>::module = "__builtin__";
-
 } // namespace PyIex
 
 using namespace PyIex;
@@ -123,169 +148,169 @@ BOOST_PYTHON_MODULE(iex)
     def("testMakeBaseExc", &testMakeBaseExc);
     def("testMakeArgExc", &testMakeArgExc);
 
-    registerExc<BaseExc,RuntimeError>();
-        registerExc<ArgExc,BaseExc>();
-        registerExc<LogicExc,BaseExc>();
-        registerExc<InputExc,BaseExc>();
-        registerExc<IoExc,BaseExc>();
-        registerExc<MathExc,BaseExc>();
-        registerExc<NoImplExc,BaseExc>();
-        registerExc<NullExc,BaseExc>();
-        registerExc<TypeExc,BaseExc>();
-        registerExc<ErrnoExc,BaseExc>();
-            registerExc<EpermExc,ErrnoExc>();
-            registerExc<EnoentExc,ErrnoExc>();
-            registerExc<EsrchExc,ErrnoExc>();
-            registerExc<EintrExc,ErrnoExc>();
-            registerExc<EioExc,ErrnoExc>();
-            registerExc<EnxioExc,ErrnoExc>();
-            registerExc<E2bigExc,ErrnoExc>();
-            registerExc<EnoexecExc,ErrnoExc>();
-            registerExc<EbadfExc,ErrnoExc>();
-            registerExc<EchildExc,ErrnoExc>();
-            registerExc<EagainExc,ErrnoExc>();
-            registerExc<EnomemExc,ErrnoExc>();
-            registerExc<EaccesExc,ErrnoExc>();
-            registerExc<EfaultExc,ErrnoExc>();
-            registerExc<EnotblkExc,ErrnoExc>();
-            registerExc<EbusyExc,ErrnoExc>();
-            registerExc<EexistExc,ErrnoExc>();
-            registerExc<ExdevExc,ErrnoExc>();
-            registerExc<EnodevExc,ErrnoExc>();
-            registerExc<EnotdirExc,ErrnoExc>();
-            registerExc<EisdirExc,ErrnoExc>();
-            registerExc<EinvalExc,ErrnoExc>();
-            registerExc<EnfileExc,ErrnoExc>();
-            registerExc<EmfileExc,ErrnoExc>();
-            registerExc<EnottyExc,ErrnoExc>();
-            registerExc<EtxtbsyExc,ErrnoExc>();
-            registerExc<EfbigExc,ErrnoExc>();
-            registerExc<EnospcExc,ErrnoExc>();
-            registerExc<EspipeExc,ErrnoExc>();
-            registerExc<ErofsExc,ErrnoExc>();
-            registerExc<EmlinkExc,ErrnoExc>();
-            registerExc<EpipeExc,ErrnoExc>();
-            registerExc<EdomExc,ErrnoExc>();
-            registerExc<ErangeExc,ErrnoExc>();
-            registerExc<EnomsgExc,ErrnoExc>();
-            registerExc<EidrmExc,ErrnoExc>();
-            registerExc<EchrngExc,ErrnoExc>();
-            registerExc<El2nsyncExc,ErrnoExc>();
-            registerExc<El3hltExc,ErrnoExc>();
-            registerExc<El3rstExc,ErrnoExc>();
-            registerExc<ElnrngExc,ErrnoExc>();
-            registerExc<EunatchExc,ErrnoExc>();
-            registerExc<EnocsiExc,ErrnoExc>();
-            registerExc<El2hltExc,ErrnoExc>();
-            registerExc<EdeadlkExc,ErrnoExc>();
-            registerExc<EnolckExc,ErrnoExc>();
-            registerExc<EbadeExc,ErrnoExc>();
-            registerExc<EbadrExc,ErrnoExc>();
-            registerExc<ExfullExc,ErrnoExc>();
-            registerExc<EnoanoExc,ErrnoExc>();
-            registerExc<EbadrqcExc,ErrnoExc>();
-            registerExc<EbadsltExc,ErrnoExc>();
-            registerExc<EdeadlockExc,ErrnoExc>();
-            registerExc<EbfontExc,ErrnoExc>();
-            registerExc<EnostrExc,ErrnoExc>();
-            registerExc<EnodataExc,ErrnoExc>();
-            registerExc<EtimeExc,ErrnoExc>();
-            registerExc<EnosrExc,ErrnoExc>();
-            registerExc<EnonetExc,ErrnoExc>();
-            registerExc<EnopkgExc,ErrnoExc>();
-            registerExc<EremoteExc,ErrnoExc>();
-            registerExc<EnolinkExc,ErrnoExc>();
-            registerExc<EadvExc,ErrnoExc>();
-            registerExc<EsrmntExc,ErrnoExc>();
-            registerExc<EcommExc,ErrnoExc>();
-            registerExc<EprotoExc,ErrnoExc>();
-            registerExc<EmultihopExc,ErrnoExc>();
-            registerExc<EbadmsgExc,ErrnoExc>();
-            registerExc<EnametoolongExc,ErrnoExc>();
-            registerExc<EoverflowExc,ErrnoExc>();
-            registerExc<EnotuniqExc,ErrnoExc>();
-            registerExc<EbadfdExc,ErrnoExc>();
-            registerExc<EremchgExc,ErrnoExc>();
-            registerExc<ElibaccExc,ErrnoExc>();
-            registerExc<ElibbadExc,ErrnoExc>();
-            registerExc<ElibscnExc,ErrnoExc>();
-            registerExc<ElibmaxExc,ErrnoExc>();
-            registerExc<ElibexecExc,ErrnoExc>();
-            registerExc<EilseqExc,ErrnoExc>();
-            registerExc<EnosysExc,ErrnoExc>();
-            registerExc<EloopExc,ErrnoExc>();
-            registerExc<ErestartExc,ErrnoExc>();
-            registerExc<EstrpipeExc,ErrnoExc>();
-            registerExc<EnotemptyExc,ErrnoExc>();
-            registerExc<EusersExc,ErrnoExc>();
-            registerExc<EnotsockExc,ErrnoExc>();
-            registerExc<EdestaddrreqExc,ErrnoExc>();
-            registerExc<EmsgsizeExc,ErrnoExc>();
-            registerExc<EprototypeExc,ErrnoExc>();
-            registerExc<EnoprotooptExc,ErrnoExc>();
-            registerExc<EprotonosupportExc,ErrnoExc>();
-            registerExc<EsocktnosupportExc,ErrnoExc>();
-            registerExc<EopnotsuppExc,ErrnoExc>();
-            registerExc<EpfnosupportExc,ErrnoExc>();
-            registerExc<EafnosupportExc,ErrnoExc>();
-            registerExc<EaddrinuseExc,ErrnoExc>();
-            registerExc<EaddrnotavailExc,ErrnoExc>();
-            registerExc<EnetdownExc,ErrnoExc>();
-            registerExc<EnetunreachExc,ErrnoExc>();
-            registerExc<EnetresetExc,ErrnoExc>();
-            registerExc<EconnabortedExc,ErrnoExc>();
-            registerExc<EconnresetExc,ErrnoExc>();
-            registerExc<EnobufsExc,ErrnoExc>();
-            registerExc<EisconnExc,ErrnoExc>();
-            registerExc<EnotconnExc,ErrnoExc>();
-            registerExc<EshutdownExc,ErrnoExc>();
-            registerExc<EtoomanyrefsExc,ErrnoExc>();
-            registerExc<EtimedoutExc,ErrnoExc>();
-            registerExc<EconnrefusedExc,ErrnoExc>();
-            registerExc<EhostdownExc,ErrnoExc>();
-            registerExc<EhostunreachExc,ErrnoExc>();
-            registerExc<EalreadyExc,ErrnoExc>();
-            registerExc<EinprogressExc,ErrnoExc>();
-            registerExc<EstaleExc,ErrnoExc>();
-            registerExc<EioresidExc,ErrnoExc>();
-            registerExc<EucleanExc,ErrnoExc>();
-            registerExc<EnotnamExc,ErrnoExc>();
-            registerExc<EnavailExc,ErrnoExc>();
-            registerExc<EisnamExc,ErrnoExc>();
-            registerExc<EremoteioExc,ErrnoExc>();
-            registerExc<EinitExc,ErrnoExc>();
-            registerExc<EremdevExc,ErrnoExc>();
-            registerExc<EcanceledExc,ErrnoExc>();
-            registerExc<EnolimfileExc,ErrnoExc>();
-            registerExc<EproclimExc,ErrnoExc>();
-            registerExc<EdisjointExc,ErrnoExc>();
-            registerExc<EnologinExc,ErrnoExc>();
-            registerExc<EloginlimExc,ErrnoExc>();
-            registerExc<EgrouploopExc,ErrnoExc>();
-            registerExc<EnoattachExc,ErrnoExc>();
-            registerExc<EnotsupExc,ErrnoExc>();
-            registerExc<EnoattrExc,ErrnoExc>();
-            registerExc<EdircorruptedExc,ErrnoExc>();
-            registerExc<EdquotExc,ErrnoExc>();
-            registerExc<EnfsremoteExc,ErrnoExc>();
-            registerExc<EcontrollerExc,ErrnoExc>();
-            registerExc<EnotcontrollerExc,ErrnoExc>();
-            registerExc<EenqueuedExc,ErrnoExc>();
-            registerExc<EnotenqueuedExc,ErrnoExc>();
-            registerExc<EjoinedExc,ErrnoExc>();
-            registerExc<EnotjoinedExc,ErrnoExc>();
-            registerExc<EnoprocExc,ErrnoExc>();
-            registerExc<EmustrunExc,ErrnoExc>();
-            registerExc<EnotstoppedExc,ErrnoExc>();
-            registerExc<EclockcpuExc,ErrnoExc>();
-            registerExc<EinvalstateExc,ErrnoExc>();
-            registerExc<EnoexistExc,ErrnoExc>();
-            registerExc<EendofminorExc,ErrnoExc>();
-            registerExc<EbufsizeExc,ErrnoExc>();
-            registerExc<EemptyExc,ErrnoExc>();
-            registerExc<EnointrgroupExc,ErrnoExc>();
-            registerExc<EinvalmodeExc,ErrnoExc>();
-            registerExc<EcantextentExc,ErrnoExc>();
-            registerExc<EinvaltimeExc,ErrnoExc>();
-            registerExc<EdestroyedExc,ErrnoExc>();
+    registerBaseExc();
+        registerExc<ArgExc,BaseExc>("ArgExc","iex");
+        registerExc<LogicExc,BaseExc>("LogicExc","iex");
+        registerExc<InputExc,BaseExc>("InputExc","iex");
+        registerExc<IoExc,BaseExc>("IoExc","iex");
+        registerExc<MathExc,BaseExc>("MathExc","iex");
+        registerExc<NoImplExc,BaseExc>("NoImplExc","iex");
+        registerExc<NullExc,BaseExc>("NullExc","iex");
+        registerExc<TypeExc,BaseExc>("TypeExc","iex");
+        registerExc<ErrnoExc,BaseExc>("ErrnoExc","iex");
+            registerExc<EpermExc,ErrnoExc>("EpermExc","iex");
+            registerExc<EnoentExc,ErrnoExc>("EnoentExc","iex");
+            registerExc<EsrchExc,ErrnoExc>("EsrchExc","iex");
+            registerExc<EintrExc,ErrnoExc>("EintrExc","iex");
+            registerExc<EioExc,ErrnoExc>("EioExc","iex");
+            registerExc<EnxioExc,ErrnoExc>("EnxioExc","iex");
+            registerExc<E2bigExc,ErrnoExc>("E2bigExc","iex");
+            registerExc<EnoexecExc,ErrnoExc>("EnoexecExc","iex");
+            registerExc<EbadfExc,ErrnoExc>("EbadfExc","iex");
+            registerExc<EchildExc,ErrnoExc>("EchildExc","iex");
+            registerExc<EagainExc,ErrnoExc>("EagainExc","iex");
+            registerExc<EnomemExc,ErrnoExc>("EnomemExc","iex");
+            registerExc<EaccesExc,ErrnoExc>("EaccesExc","iex");
+            registerExc<EfaultExc,ErrnoExc>("EfaultExc","iex");
+            registerExc<EnotblkExc,ErrnoExc>("EnotblkExc","iex");
+            registerExc<EbusyExc,ErrnoExc>("EbusyExc","iex");
+            registerExc<EexistExc,ErrnoExc>("EexistExc","iex");
+            registerExc<ExdevExc,ErrnoExc>("ExdevExc","iex");
+            registerExc<EnodevExc,ErrnoExc>("EnodevExc","iex");
+            registerExc<EnotdirExc,ErrnoExc>("EnotdirExc","iex");
+            registerExc<EisdirExc,ErrnoExc>("EisdirExc","iex");
+            registerExc<EinvalExc,ErrnoExc>("EinvalExc","iex");
+            registerExc<EnfileExc,ErrnoExc>("EnfileExc","iex");
+            registerExc<EmfileExc,ErrnoExc>("EmfileExc","iex");
+            registerExc<EnottyExc,ErrnoExc>("EnottyExc","iex");
+            registerExc<EtxtbsyExc,ErrnoExc>("EtxtbsyExc","iex");
+            registerExc<EfbigExc,ErrnoExc>("EfbigExc","iex");
+            registerExc<EnospcExc,ErrnoExc>("EnospcExc","iex");
+            registerExc<EspipeExc,ErrnoExc>("EspipeExc","iex");
+            registerExc<ErofsExc,ErrnoExc>("ErofsExc","iex");
+            registerExc<EmlinkExc,ErrnoExc>("EmlinkExc","iex");
+            registerExc<EpipeExc,ErrnoExc>("EpipeExc","iex");
+            registerExc<EdomExc,ErrnoExc>("EdomExc","iex");
+            registerExc<ErangeExc,ErrnoExc>("ErangeExc","iex");
+            registerExc<EnomsgExc,ErrnoExc>("EnomsgExc","iex");
+            registerExc<EidrmExc,ErrnoExc>("EidrmExc","iex");
+            registerExc<EchrngExc,ErrnoExc>("EchrngExc","iex");
+            registerExc<El2nsyncExc,ErrnoExc>("El2nsyncExc","iex");
+            registerExc<El3hltExc,ErrnoExc>("El3hltExc","iex");
+            registerExc<El3rstExc,ErrnoExc>("El3rstExc","iex");
+            registerExc<ElnrngExc,ErrnoExc>("ElnrngExc","iex");
+            registerExc<EunatchExc,ErrnoExc>("EunatchExc","iex");
+            registerExc<EnocsiExc,ErrnoExc>("EnocsiExc","iex");
+            registerExc<El2hltExc,ErrnoExc>("El2hltExc","iex");
+            registerExc<EdeadlkExc,ErrnoExc>("EdeadlkExc","iex");
+            registerExc<EnolckExc,ErrnoExc>("EnolckExc","iex");
+            registerExc<EbadeExc,ErrnoExc>("EbadeExc","iex");
+            registerExc<EbadrExc,ErrnoExc>("EbadrExc","iex");
+            registerExc<ExfullExc,ErrnoExc>("ExfullExc","iex");
+            registerExc<EnoanoExc,ErrnoExc>("EnoanoExc","iex");
+            registerExc<EbadrqcExc,ErrnoExc>("EbadrqcExc","iex");
+            registerExc<EbadsltExc,ErrnoExc>("EbadsltExc","iex");
+            registerExc<EdeadlockExc,ErrnoExc>("EdeadlockExc","iex");
+            registerExc<EbfontExc,ErrnoExc>("EbfontExc","iex");
+            registerExc<EnostrExc,ErrnoExc>("EnostrExc","iex");
+            registerExc<EnodataExc,ErrnoExc>("EnodataExc","iex");
+            registerExc<EtimeExc,ErrnoExc>("EtimeExc","iex");
+            registerExc<EnosrExc,ErrnoExc>("EnosrExc","iex");
+            registerExc<EnonetExc,ErrnoExc>("EnonetExc","iex");
+            registerExc<EnopkgExc,ErrnoExc>("EnopkgExc","iex");
+            registerExc<EremoteExc,ErrnoExc>("EremoteExc","iex");
+            registerExc<EnolinkExc,ErrnoExc>("EnolinkExc","iex");
+            registerExc<EadvExc,ErrnoExc>("EadvExc","iex");
+            registerExc<EsrmntExc,ErrnoExc>("EsrmntExc","iex");
+            registerExc<EcommExc,ErrnoExc>("EcommExc","iex");
+            registerExc<EprotoExc,ErrnoExc>("EprotoExc","iex");
+            registerExc<EmultihopExc,ErrnoExc>("EmultihopExc","iex");
+            registerExc<EbadmsgExc,ErrnoExc>("EbadmsgExc","iex");
+            registerExc<EnametoolongExc,ErrnoExc>("EnametoolongExc","iex");
+            registerExc<EoverflowExc,ErrnoExc>("EoverflowExc","iex");
+            registerExc<EnotuniqExc,ErrnoExc>("EnotuniqExc","iex");
+            registerExc<EbadfdExc,ErrnoExc>("EbadfdExc","iex");
+            registerExc<EremchgExc,ErrnoExc>("EremchgExc","iex");
+            registerExc<ElibaccExc,ErrnoExc>("ElibaccExc","iex");
+            registerExc<ElibbadExc,ErrnoExc>("ElibbadExc","iex");
+            registerExc<ElibscnExc,ErrnoExc>("ElibscnExc","iex");
+            registerExc<ElibmaxExc,ErrnoExc>("ElibmaxExc","iex");
+            registerExc<ElibexecExc,ErrnoExc>("ElibexecExc","iex");
+            registerExc<EilseqExc,ErrnoExc>("EilseqExc","iex");
+            registerExc<EnosysExc,ErrnoExc>("EnosysExc","iex");
+            registerExc<EloopExc,ErrnoExc>("EloopExc","iex");
+            registerExc<ErestartExc,ErrnoExc>("ErestartExc","iex");
+            registerExc<EstrpipeExc,ErrnoExc>("EstrpipeExc","iex");
+            registerExc<EnotemptyExc,ErrnoExc>("EnotemptyExc","iex");
+            registerExc<EusersExc,ErrnoExc>("EusersExc","iex");
+            registerExc<EnotsockExc,ErrnoExc>("EnotsockExc","iex");
+            registerExc<EdestaddrreqExc,ErrnoExc>("EdestaddrreqExc","iex");
+            registerExc<EmsgsizeExc,ErrnoExc>("EmsgsizeExc","iex");
+            registerExc<EprototypeExc,ErrnoExc>("EprototypeExc","iex");
+            registerExc<EnoprotooptExc,ErrnoExc>("EnoprotooptExc","iex");
+            registerExc<EprotonosupportExc,ErrnoExc>("EprotonosupportExc","iex");
+            registerExc<EsocktnosupportExc,ErrnoExc>("EsocktnosupportExc","iex");
+            registerExc<EopnotsuppExc,ErrnoExc>("EopnotsuppExc","iex");
+            registerExc<EpfnosupportExc,ErrnoExc>("EpfnosupportExc","iex");
+            registerExc<EafnosupportExc,ErrnoExc>("EafnosupportExc","iex");
+            registerExc<EaddrinuseExc,ErrnoExc>("EaddrinuseExc","iex");
+            registerExc<EaddrnotavailExc,ErrnoExc>("EaddrnotavailExc","iex");
+            registerExc<EnetdownExc,ErrnoExc>("EnetdownExc","iex");
+            registerExc<EnetunreachExc,ErrnoExc>("EnetunreachExc","iex");
+            registerExc<EnetresetExc,ErrnoExc>("EnetresetExc","iex");
+            registerExc<EconnabortedExc,ErrnoExc>("EconnabortedExc","iex");
+            registerExc<EconnresetExc,ErrnoExc>("EconnresetExc","iex");
+            registerExc<EnobufsExc,ErrnoExc>("EnobufsExc","iex");
+            registerExc<EisconnExc,ErrnoExc>("EisconnExc","iex");
+            registerExc<EnotconnExc,ErrnoExc>("EnotconnExc","iex");
+            registerExc<EshutdownExc,ErrnoExc>("EshutdownExc","iex");
+            registerExc<EtoomanyrefsExc,ErrnoExc>("EtoomanyrefsExc","iex");
+            registerExc<EtimedoutExc,ErrnoExc>("EtimedoutExc","iex");
+            registerExc<EconnrefusedExc,ErrnoExc>("EconnrefusedExc","iex");
+            registerExc<EhostdownExc,ErrnoExc>("EhostdownExc","iex");
+            registerExc<EhostunreachExc,ErrnoExc>("EhostunreachExc","iex");
+            registerExc<EalreadyExc,ErrnoExc>("EalreadyExc","iex");
+            registerExc<EinprogressExc,ErrnoExc>("EinprogressExc","iex");
+            registerExc<EstaleExc,ErrnoExc>("EstaleExc","iex");
+            registerExc<EioresidExc,ErrnoExc>("EioresidExc","iex");
+            registerExc<EucleanExc,ErrnoExc>("EucleanExc","iex");
+            registerExc<EnotnamExc,ErrnoExc>("EnotnamExc","iex");
+            registerExc<EnavailExc,ErrnoExc>("EnavailExc","iex");
+            registerExc<EisnamExc,ErrnoExc>("EisnamExc","iex");
+            registerExc<EremoteioExc,ErrnoExc>("EremoteioExc","iex");
+            registerExc<EinitExc,ErrnoExc>("EinitExc","iex");
+            registerExc<EremdevExc,ErrnoExc>("EremdevExc","iex");
+            registerExc<EcanceledExc,ErrnoExc>("EcanceledExc","iex");
+            registerExc<EnolimfileExc,ErrnoExc>("EnolimfileExc","iex");
+            registerExc<EproclimExc,ErrnoExc>("EproclimExc","iex");
+            registerExc<EdisjointExc,ErrnoExc>("EdisjointExc","iex");
+            registerExc<EnologinExc,ErrnoExc>("EnologinExc","iex");
+            registerExc<EloginlimExc,ErrnoExc>("EloginlimExc","iex");
+            registerExc<EgrouploopExc,ErrnoExc>("EgrouploopExc","iex");
+            registerExc<EnoattachExc,ErrnoExc>("EnoattachExc","iex");
+            registerExc<EnotsupExc,ErrnoExc>("EnotsupExc","iex");
+            registerExc<EnoattrExc,ErrnoExc>("EnoattrExc","iex");
+            registerExc<EdircorruptedExc,ErrnoExc>("EdircorruptedExc","iex");
+            registerExc<EdquotExc,ErrnoExc>("EdquotExc","iex");
+            registerExc<EnfsremoteExc,ErrnoExc>("EnfsremoteExc","iex");
+            registerExc<EcontrollerExc,ErrnoExc>("EcontrollerExc","iex");
+            registerExc<EnotcontrollerExc,ErrnoExc>("EnotcontrollerExc","iex");
+            registerExc<EenqueuedExc,ErrnoExc>("EenqueuedExc","iex");
+            registerExc<EnotenqueuedExc,ErrnoExc>("EnotenqueuedExc","iex");
+            registerExc<EjoinedExc,ErrnoExc>("EjoinedExc","iex");
+            registerExc<EnotjoinedExc,ErrnoExc>("EnotjoinedExc","iex");
+            registerExc<EnoprocExc,ErrnoExc>("EnoprocExc","iex");
+            registerExc<EmustrunExc,ErrnoExc>("EmustrunExc","iex");
+            registerExc<EnotstoppedExc,ErrnoExc>("EnotstoppedExc","iex");
+            registerExc<EclockcpuExc,ErrnoExc>("EclockcpuExc","iex");
+            registerExc<EinvalstateExc,ErrnoExc>("EinvalstateExc","iex");
+            registerExc<EnoexistExc,ErrnoExc>("EnoexistExc","iex");
+            registerExc<EendofminorExc,ErrnoExc>("EendofminorExc","iex");
+            registerExc<EbufsizeExc,ErrnoExc>("EbufsizeExc","iex");
+            registerExc<EemptyExc,ErrnoExc>("EemptyExc","iex");
+            registerExc<EnointrgroupExc,ErrnoExc>("EnointrgroupExc","iex");
+            registerExc<EinvalmodeExc,ErrnoExc>("EinvalmodeExc","iex");
+            registerExc<EcantextentExc,ErrnoExc>("EcantextentExc","iex");
+            registerExc<EinvaltimeExc,ErrnoExc>("EinvaltimeExc","iex");
+            registerExc<EdestroyedExc,ErrnoExc>("EdestroyedExc","iex");
 }

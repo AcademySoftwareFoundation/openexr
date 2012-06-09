@@ -5,7 +5,7 @@ lib_LTLIBRARIES = libPyIex.la
 
 libPyIex_la_SOURCES = PyIex.cpp 
 
-libPyIexinclude_HEADERS = PyIex.h
+libPyIexinclude_HEADERS = PyIex.h PyIexExport.h PyIexTypeTranslator.h
 
 libPyIex_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ \
                       -no-undefined

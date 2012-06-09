@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2007-2011, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2009-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -32,41 +32,15 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef _PyImathM44ArrayImpl_h_
-#define _PyImathM44ArrayImpl_h_
+#ifndef _PyImathStringArrayRegister_h_
+#define _PyImathStringArrayRegister_h_
 
-#include <boost/python.hpp>
-#include <ImathMatrix.h>
-#include <PyImathOperators.h>
+#include <PyImathExport.h>
 
 namespace PyImath {
-using namespace boost::python;
 
+PYIMATH_EXPORT void register_StringArrays();
 
-template <class T> struct M44ArrayName { static const char *value(); };
-
-template <class T>
-static void
-setM44ArrayItem(FixedArray<Imath::Matrix44<T> > &ma,
-                Py_ssize_t index,
-                const Imath::Matrix44<T> &m)
-{
-    ma[ma.canonical_index(index)] = m;
 }
 
-template <class T>
-class_<FixedArray<Imath::Matrix44<T> > >
-register_M44Array()
-{
-    class_<FixedArray<Imath::Matrix44<T> > > m44Array_class = FixedArray<Imath::Matrix44<T> >::register_("Fixed length array of Imath::M44");
-    m44Array_class
-    .def("__setitem__", &setM44ArrayItem<T>)
-    ;
-
-    return m44Array_class;
-}
-
-
-}  // namespace PyImath
-
-#endif   // _PyImathM44ArrayImpl_h_
+#endif

@@ -47,17 +47,8 @@
 #include <sstream>
 #include <boost/python/errors.hpp>
 #include <boost/format.hpp>
-
-#if defined(OPENEXR_DLL) && !defined(ZENO_STATIC)
-    #ifdef PYIEX_EXPORTS
-        #define PYIEX_EXPORT __declspec(dllexport)
-    #else
-        #define PYIEX_EXPORT __declspec(dllimport)
-    #endif
-#else
-    #define PYIEX_EXPORT
-#endif
-
+#include <PyIexTypeTranslator.h>
+#include <PyIexExport.h>
 
 namespace PyIex {
 
@@ -139,45 +130,52 @@ namespace PyIex {
 	return (CODE);					\
     }
 
+
+PYIEX_EXPORT TypeTranslator<Iex::BaseExc> &baseExcTranslator();
+
+// this should only be called from iexmodule.cpp during iex
+// module initialization.
+PYIEX_EXPORT void setBaseExcTranslator(TypeTranslator<Iex::BaseExc> *t);
+
 //
-// The following should be used for registering exceptions
-// derived from Iex::BaseExc.  To register a new exception,
-// call PY_DEFINE_EXC within the PyIex namespace passing the
-// c++ type, python module name and type name for python:
+// Since there's currently no mechanism in boost to inherit off of
+// a python type (RuntimeError in this case), we instead use a
+// parallel exception hierarchy defined in python, and create
+// and register custom converters with boost::python to go between
+// the c++ and corresponding python types.
 //
-// namespace PyIex {
-// PY_DEFINE_EXC(MyExcType,iex,MyExcType)
-// }
+// To register exceptions derived from Iex::BaseExc, call
+// registerException with the type and base type as template
+// parameters, and the name and module as arguments.  e.g.:
 //
-//
-// Then in the module definition:
-//
-//     registerExc<MyExcType,MyExcBaseType>();
+//     registerException<EpermExc,ErrnoExc>("EpermExc","iex");
 //
 
-template <class Exc>
-struct ExcTranslator
+//
+// ExcTranslator provides the methods needed for boost to convert
+// the parallel exception types between c++ and python.
+//
+template <class T>
+class ExcTranslator
 {
-    static PyObject *pytype;
-    static const char *module;
-    static const char *name;
-
+public:
     // to python
-    static PyObject *convert(const Exc &exc)
+    static PyObject *convert(const T &exc)
     {
         using namespace boost::python;
-        return incref(object(handle<>(borrowed(pytype)))(exc.what()).ptr());
-    }
-
-    static PyTypeObject *get_pytype()
-    {
-        return (PyTypeObject *)pytype;
+        object excType = object(handle<>(borrowed(baseExcTranslator().typeObject(&exc))));
+        return incref(excType(exc.what()).ptr());
     }
 
     // from python
     static void *convertible(PyObject *exc)
     {
-        if (!PyType_IsSubtype(Py_TYPE(exc),(PyTypeObject *)pytype)) return 0;
+#ifdef Py_TYPE
+        if (!PyType_IsSubtype(Py_TYPE(exc),(PyTypeObject *)baseExcTranslator().baseTypeObject())) return 0;
+#else
+        // prior to python 2.6, access an object's type via it's ob_type member
+        if (!PyType_IsSubtype(exc->ob_type,(PyTypeObject *)baseExcTranslator().baseTypeObject())) return 0;
+#endif
         return exc;
     }
 
@@ -186,43 +184,36 @@ struct ExcTranslator
         using namespace boost::python;
         object exc(handle<>(borrowed(raw_exc)));
         std::string s = extract<std::string>(exc.attr("__str__")());
-        void *storage = ((converter::rvalue_from_python_storage<Exc>*)data)->storage.bytes;
-        new (storage) Exc(s);
+        void *storage = ((converter::rvalue_from_python_storage<T>*)data)->storage.bytes;
+        new (storage) T(s);
         data->convertible = storage;
     }
 
-    // translate exception
-    static void translate(const Exc &exc)
-    {
-        PyErr_SetObject(pytype,convert(exc));
-    }
 };
 
-
-template <class Exc, class Base>
-void
-registerExc()
+//
+// This function creates the proxy python type for a given exception.
+//
+static inline boost::python::object
+createExceptionProxy(const std::string &name, const std::string &module,
+                     const std::string &baseName, const std::string &baseModule,
+                     PyObject *baseType)
 {
     using namespace boost::python;
-
-    std::string classname = ExcTranslator<Exc>::name;
-    std::string module = ExcTranslator<Exc>::module;
-    std::string basename = ExcTranslator<Base>::name;
-    std::string basemodule = ExcTranslator<Base>::module;
-
     dict tmpDict;
     tmpDict["__builtins__"] = handle<>(borrowed(PyEval_GetBuiltins()));
 
+    std::string base = baseName;
     std::string definition;
-    if (basemodule != module)
+ 
+    if (baseModule != module)
     {
-        definition += (boost::format("import %s\n") % basemodule).str();
-        basename = (boost::format("%s.%s") % basemodule % basename).str();
+        definition += (boost::format("import %s\n") % baseModule).str();
+        base = (boost::format("%s.%s") % baseModule % baseName).str();
     }
     else
     {
-        // bind in the base class type into the tmp dict
-        tmpDict[basename] = object(handle<>(borrowed(ExcTranslator<Base>::pytype)));
+        tmpDict[base] = object(handle<>(borrowed(baseType)));
     }
 
     definition += (boost::format("class %s (%s):\n"
@@ -230,28 +221,35 @@ registerExc()
                                  "    super(%s,self).__init__(v)\n"
                                  "  def __repr__ (self):\n"
                                  "    return \"%s.%s('%%s')\"%%(self.args[0])\n")
-                   % classname % basename % classname % module % classname).str();
+                   % name % base % name % module % name).str();
 
     handle<> tmp(PyRun_String(definition.c_str(),Py_file_input,tmpDict.ptr(),tmpDict.ptr()));
-    object exc_class = tmpDict[classname];
-    scope().attr(classname.c_str()) = exc_class;
-    ExcTranslator<Exc>::pytype = exc_class.ptr();
+    return tmpDict[name];
+}
 
+//
+// register an excpetion derived from Iex::BaseExc out to python using
+// the proxy mechanism described above.
+//
+template<class Exc, class ExcBase>
+void
+registerExc(const std::string &name, const std::string &module)
+{
+    using namespace boost::python;
+
+    const TypeTranslator<Iex::BaseExc>::ClassDesc *baseDesc = baseExcTranslator().template findClassDesc<ExcBase>(baseExcTranslator().firstClassDesc());
+    std::string baseName = baseDesc->typeName();
+    std::string baseModule = baseDesc->moduleName();
+
+    object exc_class = createExceptionProxy(name, module, baseName, baseModule, baseDesc->typeObject());
+    scope().attr(name.c_str()) = exc_class;
+    baseExcTranslator().registerClass<Exc,ExcBase>(name, module, exc_class.ptr());
     // to python
-    to_python_converter<Exc,ExcTranslator<Exc>,true>();
-
+    to_python_converter<Exc,ExcTranslator<Exc> >();
     // from python
     converter::registry::push_back(&ExcTranslator<Exc>::convertible,
                                    &ExcTranslator<Exc>::construct,type_id<Exc>());
-
-    // exception translation
-    register_exception_translator<Exc>(&ExcTranslator<Exc>::translate);
 }
-
-#define PY_DEFINE_EXC(ExcType,ModuleName,ExcName)                     \
-template <> PyObject *ExcTranslator<ExcType>::pytype = 0;             \
-template <> const char *ExcTranslator<ExcType>::module = #ModuleName; \
-template <> const char *ExcTranslator<ExcType>::name = #ExcName;
 
 } // namespace PyIex
 

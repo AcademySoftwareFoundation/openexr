@@ -984,16 +984,16 @@ template <class Op,class Vectorizable0,class Cls>
 void
 generate_member_bindings(Cls &cls,const std::string &name,const std::string &doc,const boost::python::detail::keywords<1> &args)
 {
-    using namespace detail;
-    generate_member_bindings_struct<Op,Cls,vector<Vectorizable0>,boost::python::detail::keywords<1> >::apply(cls,name,doc,args);
+    using boost::mpl::vector;
+    detail::generate_member_bindings_struct<Op,Cls,vector<Vectorizable0>,boost::python::detail::keywords<1> >::apply(cls,name,doc,args);
 }
 
 template <class Op,class Vectorizable0,class Vectorizable1,class Cls>
 void
 generate_member_bindings(Cls &cls,const std::string &name,const std::string &doc,const boost::python::detail::keywords<2> &args)
 {
-    using namespace detail;
-    generate_member_bindings_struct<Op,Cls,vector<Vectorizable0,Vectorizable1>,boost::python::detail::keywords<2> >::apply(cls,name,doc,args);
+    using boost::mpl::vector;
+    detail::generate_member_bindings_struct<Op,Cls,vector<Vectorizable0,Vectorizable1>,boost::python::detail::keywords<2> >::apply(cls,name,doc,args);
 }
 
 } // namespace PyImath

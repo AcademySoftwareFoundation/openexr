@@ -1143,16 +1143,16 @@ template <class T>
 T
 Vec2<T>::lengthTiny () const
 {
-    T absX = (x >= 0)? x: -x;
-    T absY = (y >= 0)? y: -y;
+    T absX = (x >= T (0))? x: -x;
+    T absY = (y >= T (0))? y: -y;
     
     T max = absX;
 
     if (max < absY)
 	max = absY;
 
-    if (max == 0)
-	return 0;
+    if (max == T (0))
+	return T (0);
 
     //
     // Do not replace the divisions by max with multiplications by 1/max.
@@ -1172,7 +1172,7 @@ Vec2<T>::length () const
 {
     T length2 = dot (*this);
 
-    if (length2 < 2 * limits<T>::smallest())
+    if (length2 < T (2) * limits<T>::smallest())
 	return lengthTiny();
 
     return Math<T>::sqrt (length2);
@@ -1191,7 +1191,7 @@ Vec2<T>::normalize ()
 {
     T l = length();
 
-    if (l != 0)
+    if (l != T (0))
     {
         //
         // Do not replace the divisions by l with multiplications by 1/l.
@@ -1212,7 +1212,7 @@ Vec2<T>::normalizeExc () throw (Iex::MathExc)
 {
     T l = length();
 
-    if (l == 0)
+    if (l == T (0))
 	throw NullVecExc ("Cannot normalize null vector.");
 
     x /= l;
@@ -1237,7 +1237,7 @@ Vec2<T>::normalized () const
 {
     T l = length();
 
-    if (l == 0)
+    if (l == T (0))
 	return Vec2 (T (0));
 
     return Vec2 (x / l, y / l);
@@ -1249,7 +1249,7 @@ Vec2<T>::normalizedExc () const throw (Iex::MathExc)
 {
     T l = length();
 
-    if (l == 0)
+    if (l == T (0))
 	throw NullVecExc ("Cannot normalize null vector.");
 
     return Vec2 (x / l, y / l);
@@ -1354,7 +1354,7 @@ Vec3<T>::Vec3 (const Vec4<S> &v, InfException)
     T vz = T (v.z);
     T vw = T (v.w);
 
-    T absW = (vw >= 0)? vw: -vw;
+    T absW = (vw >= T (0))? vw: -vw;
 
     if (absW < 1)
     {
@@ -1629,9 +1629,9 @@ template <class T>
 T
 Vec3<T>::lengthTiny () const
 {
-    T absX = (x >= 0)? x: -x;
-    T absY = (y >= 0)? y: -y;
-    T absZ = (z >= 0)? z: -z;
+    T absX = (x >= T (0))? x: -x;
+    T absY = (y >= T (0))? y: -y;
+    T absZ = (z >= T (0))? z: -z;
     
     T max = absX;
 
@@ -1641,8 +1641,8 @@ Vec3<T>::lengthTiny () const
     if (max < absZ)
 	max = absZ;
 
-    if (max == 0)
-	return 0;
+    if (max == T (0))
+	return T (0);
 
     //
     // Do not replace the divisions by max with multiplications by 1/max.
@@ -1663,7 +1663,7 @@ Vec3<T>::length () const
 {
     T length2 = dot (*this);
 
-    if (length2 < 2 * limits<T>::smallest())
+    if (length2 < T (2) * limits<T>::smallest())
 	return lengthTiny();
 
     return Math<T>::sqrt (length2);
@@ -1682,7 +1682,7 @@ Vec3<T>::normalize ()
 {
     T l = length();
 
-    if (l != 0)
+    if (l != T (0))
     {
         //
         // Do not replace the divisions by l with multiplications by 1/l.
@@ -1704,7 +1704,7 @@ Vec3<T>::normalizeExc () throw (Iex::MathExc)
 {
     T l = length();
 
-    if (l == 0)
+    if (l == T (0))
 	throw NullVecExc ("Cannot normalize null vector.");
 
     x /= l;
@@ -1731,7 +1731,7 @@ Vec3<T>::normalized () const
 {
     T l = length();
 
-    if (l == 0)
+    if (l == T (0))
 	return Vec3 (T (0));
 
     return Vec3 (x / l, y / l, z / l);
@@ -1743,7 +1743,7 @@ Vec3<T>::normalizedExc () const throw (Iex::MathExc)
 {
     T l = length();
 
-    if (l == 0)
+    if (l == T (0))
 	throw NullVecExc ("Cannot normalize null vector.");
 
     return Vec3 (x / l, y / l, z / l);
@@ -2027,10 +2027,10 @@ template <class T>
 T
 Vec4<T>::lengthTiny () const
 {
-    T absX = (x >= 0)? x: -x;
-    T absY = (y >= 0)? y: -y;
-    T absZ = (z >= 0)? z: -z;
-    T absW = (w >= 0)? w: -w;
+    T absX = (x >= T (0))? x: -x;
+    T absY = (y >= T (0))? y: -y;
+    T absZ = (z >= T (0))? z: -z;
+    T absW = (w >= T (0))? w: -w;
     
     T max = absX;
 
@@ -2043,8 +2043,8 @@ Vec4<T>::lengthTiny () const
     if (max < absW)
         max = absW;
 
-    if (max == 0)
-        return 0;
+    if (max == T (0))
+        return T (0);
 
     //
     // Do not replace the divisions by max with multiplications by 1/max.
@@ -2067,7 +2067,7 @@ Vec4<T>::length () const
 {
     T length2 = dot (*this);
 
-    if (length2 < 2 * limits<T>::smallest())
+    if (length2 < T (2) * limits<T>::smallest())
         return lengthTiny();
 
     return Math<T>::sqrt (length2);
@@ -2086,7 +2086,7 @@ Vec4<T>::normalize ()
 {
     T l = length();
 
-    if (l != 0)
+    if (l != T (0))
     {
         //
         // Do not replace the divisions by l with multiplications by 1/l.
@@ -2109,7 +2109,7 @@ Vec4<T>::normalizeExc () throw (Iex::MathExc)
 {
     T l = length();
 
-    if (l == 0)
+    if (l == T (0))
         throw NullVecExc ("Cannot normalize null vector.");
 
     x /= l;
@@ -2138,7 +2138,7 @@ Vec4<T>::normalized () const
 {
     T l = length();
 
-    if (l == 0)
+    if (l == T (0))
         return Vec4 (T (0));
 
     return Vec4 (x / l, y / l, z / l, w / l);
@@ -2150,7 +2150,7 @@ Vec4<T>::normalizedExc () const throw (Iex::MathExc)
 {
     T l = length();
 
-    if (l == 0)
+    if (l == T (0))
         throw NullVecExc ("Cannot normalize null vector.");
 
     return Vec4 (x / l, y / l, z / l, w / l);

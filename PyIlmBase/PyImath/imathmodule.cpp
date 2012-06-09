@@ -42,8 +42,10 @@
 #include <ImathEuler.h>
 #include <ImathFun.h>
 #include <ImathMatrixAlgo.h>
+#include <PyIexExport.h>
 #include <PyImathFixedArray.h>
 #include <PyImath.h>
+#include <PyImathExport.h>
 #include <PyImathBasicTypes.h>
 #include <PyImathVec.h>
 #include <PyImathMatrix.h>
@@ -59,6 +61,7 @@
 #include <PyImathShear.h>
 #include <PyImathMathExc.h>
 #include <PyImathAutovectorize.h>
+#include <PyImathStringArrayRegister.h>
 #include <PyIex.h>
 
 using namespace boost::python;
@@ -283,16 +286,28 @@ BOOST_PYTHON_MODULE(imath)
     add_explicit_construction_from_type<Imath::Eulerf>(eulerd_class);
 
     //
-    // Box
+    // Box2
     //
     register_Box2<Imath::V2s>();
     register_Box2<Imath::V2i>();
     register_Box2<Imath::V2f>();
     register_Box2<Imath::V2d>();
+    class_<FixedArray<Imath::Box2s> > b2s_class = register_BoxArray<Imath::V2s>();
+    class_<FixedArray<Imath::Box2i> > b2i_class = register_BoxArray<Imath::V2i>();
+    class_<FixedArray<Imath::Box2f> > b2f_class = register_BoxArray<Imath::V2f>();
+    class_<FixedArray<Imath::Box2d> > b2d_class = register_BoxArray<Imath::V2d>();
+
+    //
+    // Box3
+    //
     register_Box3<Imath::V3s>();
     register_Box3<Imath::V3i>();
     register_Box3<Imath::V3f>();
     register_Box3<Imath::V3d>();
+    class_<FixedArray<Imath::Box3s> > b3s_class = register_BoxArray<Imath::V3s>();
+    class_<FixedArray<Imath::Box3i> > b3i_class = register_BoxArray<Imath::V3i>();
+    class_<FixedArray<Imath::Box3f> > b3f_class = register_BoxArray<Imath::V3f>();
+    class_<FixedArray<Imath::Box3d> > b3d_class = register_BoxArray<Imath::V3d>();
 
     //
     // Matrix33/44
@@ -315,7 +330,11 @@ BOOST_PYTHON_MODULE(imath)
     add_explicit_construction_from_type< Imath::Matrix33<double> >(m33d_class);
     add_explicit_construction_from_type< Imath::Matrix33<float> > (m33f_class);
 
-    
+    //
+    // String Array
+    //
+    register_StringArrays();
+
     //
     // Color3/4
     //
@@ -396,11 +415,11 @@ BOOST_PYTHON_MODULE(imath)
     //
     // Register Exceptions
     //
-    PyIex::registerExc<Imath::NullVecExc,Iex::MathExc>();
-    PyIex::registerExc<Imath::NullQuatExc,Iex::MathExc>();
-    PyIex::registerExc<Imath::SingMatrixExc,Iex::MathExc>();
-    PyIex::registerExc<Imath::ZeroScaleExc,Iex::MathExc>();
-    PyIex::registerExc<Imath::IntVecNormalizeExc,Iex::MathExc>();
+    PyIex::registerExc<Imath::NullVecExc,Iex::MathExc>("NullVecExc","imath");
+    PyIex::registerExc<Imath::NullQuatExc,Iex::MathExc>("NullQuatExc","imath");
+    PyIex::registerExc<Imath::SingMatrixExc,Iex::MathExc>("SingMatrixExc","imath");
+    PyIex::registerExc<Imath::ZeroScaleExc,Iex::MathExc>("ZeroScaleExc","imath");
+    PyIex::registerExc<Imath::IntVecNormalizeExc,Iex::MathExc>("IntVecNormalizeExc","imath");
 
     def("computeBoundingBox", &computeBoundingBox<float>,
         "computeBoundingBox(position) -- computes the bounding box from the position array.");

@@ -85,6 +85,26 @@ struct sign_op
 };
 
 template <class T>
+struct log_op
+{
+    static T
+    apply(T value)
+    {
+        return ::log(value);
+    }
+};
+
+template <class T>
+struct log10_op
+{
+    static T
+    apply(T value)
+    {
+        return ::log10(value);
+    }
+};
+
+template <class T>
 struct lerp_op
 {
     static T
@@ -266,6 +286,24 @@ void register_functions()
     PyImath::generate_bindings<sign_op<double>,boost::mpl::true_>(
         "sign",
         "return 1 or -1 based on the sign of 'value'",
+        (arg("value")));
+    
+    PyImath::generate_bindings<log_op<float>,boost::mpl::true_>(
+        "log",
+        "return the natural log of 'value'",
+        (arg("value")));
+    PyImath::generate_bindings<log_op<double>,boost::mpl::true_>(
+        "log",
+        "return the natural log of 'value'",
+        (arg("value")));
+    
+    PyImath::generate_bindings<log10_op<float>,boost::mpl::true_>(
+        "log10",
+        "return the base 10 log of 'value'",
+        (arg("value")));
+    PyImath::generate_bindings<log10_op<double>,boost::mpl::true_>(
+        "log10",
+        "return the base 10 log of 'value'",
         (arg("value")));
     
     PyImath::generate_bindings<lerp_op<float>,boost::mpl::true_,boost::mpl::true_,boost::mpl::true_>(
