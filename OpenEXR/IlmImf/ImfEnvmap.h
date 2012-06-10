@@ -73,8 +73,10 @@
 //-----------------------------------------------------------------------------
 
 #include "ImathBox.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 //--------------------------------
 // Supported environment map types
@@ -317,6 +319,11 @@ namespace CubeMap
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

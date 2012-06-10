@@ -45,8 +45,10 @@
 
 #include "ImathVec.h"
 #include "ImathMatrix.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
    
 struct Chromaticities
@@ -70,6 +72,14 @@ struct Chromaticities
 		    const Imath::V2f &green = Imath::V2f (0.3000f, 0.6000f),
 		    const Imath::V2f &blue  = Imath::V2f (0.1500f, 0.0600f),
 		    const Imath::V2f &white = Imath::V2f (0.3127f, 0.3290f));
+    
+    
+    //---------
+    // Equality
+    //---------
+    
+    bool		operator == (const Chromaticities &v) const;    
+    bool		operator != (const Chromaticities &v) const;
 };
 
 
@@ -115,6 +125,11 @@ Imath::M44f	RGBtoXYZ (const Chromaticities chroma, float Y);
 Imath::M44f	XYZtoRGB (const Chromaticities chroma, float Y);
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

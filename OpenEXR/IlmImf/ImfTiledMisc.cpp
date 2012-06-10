@@ -43,9 +43,12 @@
 #include "Iex.h"
 #include <ImfMisc.h>
 #include <ImfChannelList.h>
+#include <ImfTileDescription.h>
 
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 using Imath::Box2i;
 using Imath::V2i;
@@ -121,6 +124,40 @@ calculateBytesPerPixel (const Header &header)
     }
 
     return bytesPerPixel;
+}
+
+
+void
+calculateBytesPerLine (const Header &header,
+                       char* sampleCountBase,
+                       int sampleCountXStride,
+                       int sampleCountYStride,
+                       int minX, int maxX,
+                       int minY, int maxY,
+                       std::vector<int>& xOffsets,
+                       std::vector<int>& yOffsets,
+                       std::vector<Int64>& bytesPerLine)
+{
+    const ChannelList &channels = header.channels();
+
+    int pos = 0;
+    for (ChannelList::ConstIterator c = channels.begin();
+         c != channels.end();
+         ++c, ++pos)
+    {
+        int xOffset = xOffsets[pos];
+        int yOffset = yOffsets[pos];
+        int i = 0;
+        for (int y = minY - yOffset; y <= maxY - yOffset; y++, i++)
+            for (int x = minX - xOffset; x <= maxX - xOffset; x++)
+            {
+                bytesPerLine[i] += sampleCount(sampleCountBase,
+                                               sampleCountXStride,
+                                               sampleCountYStride,
+                                               x, y)
+                                   * pixelTypeSize (c.channel().type);
+            }
+    }
 }
 
 
@@ -298,4 +335,56 @@ precalculateTileInfo (const TileDescription& tileDesc,
 }
 
 
-} // namespace Imf
+int
+getTiledChunkOffsetTableSize(const Header& header)
+{
+    //
+    // Save the dataWindow information
+    //
+
+    const Box2i &dataWindow = header.dataWindow();
+    
+    //
+    // Precompute level and tile information.
+    //
+
+    int* numXTiles;
+    int* numYTiles;
+    int numXLevels;
+    int numYLevels;
+    precalculateTileInfo (header.tileDescription(),
+                          dataWindow.min.x, dataWindow.max.x,
+                          dataWindow.min.y, dataWindow.max.y,
+                          numXTiles, numYTiles,
+                          numXLevels, numYLevels);
+
+    //
+    // Calculate lineOffsetSize.
+    //
+    int lineOffsetSize = 0;
+    const TileDescription &desc = header.tileDescription();
+    switch (desc.mode)
+    {
+        case ONE_LEVEL:
+        case MIPMAP_LEVELS:
+            for (int i = 0; i < numXLevels; i++)
+                lineOffsetSize += numXTiles[i] * numYTiles[i];
+            break;
+        case RIPMAP_LEVELS:
+            for (int i = 0; i < numXLevels; i++)
+                for (int j = 0; j < numYLevels; j++)
+                    lineOffsetSize += numXTiles[i] * numYTiles[j];
+            break;
+        case NUM_LEVELMODES :
+            throw Iex::LogicExc("Bad level mode getting chunk offset table size");
+    }
+
+    delete[] numXTiles;
+    delete[] numYTiles;
+
+    return lineOffsetSize;
+}
+
+
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

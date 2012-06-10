@@ -110,7 +110,11 @@
 //
 //-----------------------------------------------------------------------------
 
-namespace Imf {
+
+#include "OpenEXRConfig.h"
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
    
 class TimeCode
@@ -213,7 +217,15 @@ class TimeCode
     unsigned int	userData () const;
 
     void		setUserData (unsigned int value);
-
+    
+    
+    //---------
+    // Equality
+    //---------
+    
+    bool		operator == (const TimeCode &v) const;    
+    bool		operator != (const TimeCode &v) const;
+    
   private:
 
     unsigned int	_time;
@@ -221,6 +233,12 @@ class TimeCode
 };
 
 
-} // namespace Imf
+
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

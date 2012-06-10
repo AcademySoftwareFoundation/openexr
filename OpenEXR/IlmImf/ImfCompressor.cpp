@@ -47,8 +47,10 @@
 #include <ImfPxr24Compressor.h>
 #include <ImfB44Compressor.h>
 #include <ImfCheckedArithmetic.h>
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 using Imath::Box2i;
 
@@ -106,6 +108,19 @@ isValidCompression (Compression c)
 
 	return false;
     }
+}
+
+bool isValidDeepCompression(Compression c)
+{
+  switch(c)
+  {
+      case NO_COMPRESSION:
+      case RLE_COMPRESSION:
+      case ZIPS_COMPRESSION:
+          return true;
+      default :
+          return false;
+  }
 }
 
 
@@ -189,4 +204,6 @@ newTileCompressor (Compression c,
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+

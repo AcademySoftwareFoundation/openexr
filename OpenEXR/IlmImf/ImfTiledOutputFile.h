@@ -42,20 +42,22 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfHeader.h>
-#include <ImfFrameBuffer.h>
+#include "ImfHeader.h"
+#include "ImfFrameBuffer.h"
 #include "ImathBox.h"
-#include <ImfTileDescription.h>
-#include <ImfThreading.h>
+#include "ImfTileDescription.h"
+#include "ImfThreading.h"
+#include "ImfGenericOutputFile.h"
+#include "ImfForward.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
-class TiledInputFile;
-class InputFile;
 struct PreviewRgba;
 
 
-class TiledOutputFile
+class TiledOutputFile : public GenericOutputFile
 {
   public:
 
@@ -93,7 +95,7 @@ class TiledOutputFile
     // close the corresponding files.
     // ----------------------------------------------------------------
 
-    TiledOutputFile (OStream &os,
+    TiledOutputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
 		     const Header &header,
                      int numThreads = globalThreadCount ());
 
@@ -396,8 +398,9 @@ class TiledOutputFile
     //------------------------------------------------------------------
     
     void		copyPixels (TiledInputFile &in);
+    void                copyPixels (TiledInputPart &in);
     
-
+    
     //------------------------------------------------------------------
     // Shortcut to copy all pixels from an InputFile into this file,
     // without uncompressing and then recompressing the pixel data.
@@ -409,7 +412,9 @@ class TiledOutputFile
     //------------------------------------------------------------------
     
     void		copyPixels (InputFile &in);
+    void                copyPixels (InputPart &in);
 
+    
 
     //--------------------------------------------------------------
     // Updating the preview image:
@@ -455,6 +460,14 @@ class TiledOutputFile
 
   private:
 
+    // ----------------------------------------------------------------
+    // A constructor attaches the OutputStreamMutex to the
+    // given one from MultiPartOutputFile. Set the previewPosition
+    // and lineOffsetsPosition which have been acquired from
+    // the constructor of MultiPartOutputFile as well.
+    // ----------------------------------------------------------------
+    TiledOutputFile (const OutputPartData* part);
+
     TiledOutputFile (const TiledOutputFile &);		    // not implemented
     TiledOutputFile & operator = (const TiledOutputFile &); // not implemented
 
@@ -467,9 +480,15 @@ class TiledOutputFile
 					     int lx, int ly) const;
 
     Data *		_data;
+
+    OutputStreamMutex*  _streamData;
+    bool                _deleteStream;
+
+    friend class MultiPartOutputFile;
 };
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
 
 #endif

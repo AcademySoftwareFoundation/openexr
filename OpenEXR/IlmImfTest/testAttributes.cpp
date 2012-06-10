@@ -61,9 +61,13 @@
 #include <stdio.h>
 #include <assert.h>
 
+
+
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace Imath;
-using namespace Imf;
+
 
 namespace {
 
@@ -468,6 +472,12 @@ longNames (const Array2D<float> &pf1,
 } // namespace
 
 
+template<class T> void 
+print_type(const OPENEXR_IMF_NAMESPACE::TypedAttribute<T> & object)
+{
+    cout << object.typeName() << endl;
+}
+
 void
 testAttributes ()
 {
@@ -487,6 +497,8 @@ testAttributes ()
 	channelList();
         longNames(pf, filename, W, H);
 
+        print_type(OPENEXR_IMF_NAMESPACE::TypedAttribute<int>());
+        
 	cout << "ok\n" << endl;
     }
     catch (const std::exception &e)

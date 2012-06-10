@@ -34,7 +34,7 @@
 
 
 #include <tmpDir.h>
-#include <compareB44.h>
+#include "compareB44.h"
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
@@ -45,9 +45,12 @@
 #include <ImfThreading.h>
 #include <IlmThread.h>
 
-using namespace Imf;
-using namespace Imath;
+
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
+using namespace Imath;
+
 
 namespace {
 

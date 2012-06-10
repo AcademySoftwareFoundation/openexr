@@ -47,9 +47,11 @@
 //-----------------------------------------------------------------------------
 
 #include "half.h"
+#include "OpenEXRConfig.h"
 
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
-namespace Imf {
 
 //---------------------------------------------------------
 // Conversion from half or float to unsigned int:
@@ -99,6 +101,11 @@ half		uintToHalf (unsigned int ui);
 half		floatToHalf (float f);
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

@@ -42,25 +42,39 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfAttribute.h>
+#include "ImfAttribute.h"
 #include <string>
 #include <vector>
 
 
-namespace Imf {
+#include "OpenEXRConfig.h"
 
-typedef std::vector<std::string> StringVector;
-typedef TypedAttribute<StringVector> StringVectorAttribute;
-template <> const char *StringVectorAttribute::staticTypeName ();
-template <> void StringVectorAttribute::writeValueTo (OStream &, int) const;
-template <> void StringVectorAttribute::readValueFrom (IStream &, int, int);
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER
+{
+    typedef std::vector<std::string> StringVector;
+}
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
 
 
-} // namespace Imf
-
-// Metrowerks compiler wants the .cpp file inlined, too
-#ifdef __MWERKS__
-#include <ImfStringVectorAttribute.cpp>
+#if defined (OPENEXR_IMF_INTERNAL_NAMESPACE_AUTO_EXPOSE)
+namespace Imf{
+    using typename OPENEXR_IMF_INTERNAL_NAMESPACE::StringVector;
+}
 #endif
+
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER {
+
+typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::StringVector> StringVectorAttribute;
+template <> const char *StringVectorAttribute::staticTypeName ();
+template <> void StringVectorAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
+template <> void StringVectorAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
+
+
+}
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
 
 #endif

@@ -45,17 +45,19 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfHeader.h>
-#include <ImfFrameBuffer.h>
+#include "ImfHeader.h"
+#include "ImfFrameBuffer.h"
 #include "ImathVec.h"
 #include "ImathBox.h"
 #include "half.h"
-#include <ImfTileDescription.h>
-#include <ImfRgba.h>
-#include <ImfThreading.h>
+#include "ImfTileDescription.h"
+#include "ImfRgba.h"
+#include "ImfThreading.h"
 #include <string>
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 class TiledOutputFile;
 class TiledInputFile;
@@ -97,7 +99,7 @@ class TiledRgbaOutputFile
     // corresponding files.
     //---------------------------------------------------
 
-    TiledRgbaOutputFile (OStream &os,
+    TiledRgbaOutputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
 			 const Header &header,
 			 RgbaChannels rgbaChannels,
 			 int tileXSize,
@@ -319,7 +321,7 @@ class TiledRgbaInputFile
     // corresponding files.
     //-------------------------------------------------------
 
-    TiledRgbaInputFile (IStream &is, int numThreads = globalThreadCount ());
+    TiledRgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThreads = globalThreadCount ());
 
 
     //------------------------------------------------------------
@@ -332,7 +334,7 @@ class TiledRgbaInputFile
 		        const std::string &layerName,
 		        int numThreads = globalThreadCount());
 
-    TiledRgbaInputFile (IStream &is,
+    TiledRgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 		        const std::string &layerName,
 		        int numThreads = globalThreadCount());
 
@@ -474,6 +476,11 @@ class TiledRgbaInputFile
 };
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

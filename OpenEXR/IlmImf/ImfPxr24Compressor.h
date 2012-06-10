@@ -40,9 +40,11 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfCompressor.h>
+#include "ImfCompressor.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 class ChannelList;
 
@@ -103,6 +105,11 @@ class Pxr24Compressor: public Compressor
 };
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

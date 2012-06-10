@@ -54,8 +54,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <OpenEXRConfig.h>
+namespace CustomImf = OPENEXR_IMF_NAMESPACE;
+using namespace CustomImf;
 using namespace std;
-using namespace Imf;
 using namespace Imath;
 
 

@@ -45,13 +45,15 @@
 #include <EnvmapImage.h>
 #include <ImfEnvmap.h>
 #include <ImfHeader.h>
+
 #include <iostream>
 #include <exception>
 #include <string>
 #include <string.h>
 #include <stdlib.h>
 
-using namespace Imf;
+#include "namespaceAlias.h"
+using namespace CustomImf;
 using namespace std;
 
 

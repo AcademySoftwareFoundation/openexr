@@ -44,14 +44,16 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfName.h>
-#include <ImfPixelType.h>
+#include "ImfName.h"
+#include "ImfPixelType.h"
 #include <map>
 #include <set>
 #include <string>
 
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
 struct Channel
@@ -428,6 +430,11 @@ operator != (const ChannelList::ConstIterator &x,
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

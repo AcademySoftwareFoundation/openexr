@@ -26,9 +26,26 @@ IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
 		     testTiledYa.cpp testTiledYa.h \
 		     testYca.cpp testYca.h compareB44.h compareB44.cpp \
                      testMultiView.cpp testMultiView.h \
-		     testIsComplete.cpp testIsComplete.h
-
+		     testIsComplete.cpp testIsComplete.h \
+		     testMultiPartApi.cpp testMultiPartApi.h \
+		     testMultiPartThreading.cpp testMultiPartThreading.h \
+		     testMultiScanlinePartThreading.cpp testMultiScanlinePartThreading.h \
+		     testMultiTiledPartThreading.cpp testMultiTiledPartThreading.h \
+                     testDeepScanLineBasic.cpp testDeepScanLineBasic.h \
+                     testDeepTiledBasic.cpp testDeepTiledBasic.h \
+		     testMultiPartFileMixingBasic.cpp testMultiPartFileMixingBasic.h \
+		     testMultiPartSharedAttributes.cpp testMultiPartSharedAttributes.h \
+		     testBackwardCompatibility.cpp testBackwardCompatibility.h \
+                     testCopyDeepScanLine.cpp testCopyDeepScanLine.h testCopyDeepTiled.h \
+                     testCopyDeepTiled.cpp testCopyMultiPartFile.h testCopyMultiPartFile.cpp \
+                     testCompositeDeepScanLine.h testCompositeDeepScanLine.cpp testInputPart.cpp
 AM_CPPFLAGS = -DILM_IMF_TEST_IMAGEDIR=\"$(srcdir)/\"
+
+if BUILD_IMFHUGETEST
+IlmImfTest_SOURCES += testDeepScanLineHuge.cpp testDeepScanLineHuge.h
+AM_CPPFLAGS += -DENABLE_IMFHUGETEST
+endif
+
 
 INCLUDES = -I$(top_builddir)  \
 	   -I$(top_srcdir)/IlmImf \

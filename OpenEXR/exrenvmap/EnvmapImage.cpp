@@ -39,11 +39,12 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <EnvmapImage.h>
-#include "ImathFun.h"
+#include "EnvmapImage.h"
+#include <ImathFun.h>
 
 
-using namespace Imf;
+#include "namespaceAlias.h"
+using namespace CustomImf;
 using namespace Imath;
 
 

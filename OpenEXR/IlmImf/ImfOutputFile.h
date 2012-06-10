@@ -43,17 +43,20 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfHeader.h>
-#include <ImfFrameBuffer.h>
-#include <ImfThreading.h>
+#include "ImfHeader.h"
+#include "ImfFrameBuffer.h"
+#include "ImfThreading.h"
+#include "ImfGenericOutputFile.h"
+#include "OpenEXRConfig.h"
+#include "ImfForward.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
-class InputFile;
 struct PreviewRgba;
 
 
-class OutputFile
+class OutputFile : public GenericOutputFile
 {
   public:
 
@@ -84,7 +87,7 @@ class OutputFile
     // used to write the file (see ImfThreading.h).
     //------------------------------------------------------------
 
-    OutputFile (OStream &os, const Header &header,
+    OutputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, const Header &header,
                 int numThreads = globalThreadCount());
 
 
@@ -183,6 +186,14 @@ class OutputFile
     //--------------------------------------------------------------
 
     void		copyPixels (InputFile &in);
+    
+    //-------------------------------------------------------------
+    // Shortcut to copy all pixels from an InputPart into this file
+    // - equivalent to copyPixel(InputFile &in) but for multipart files
+    //---------------------------------------------------------------
+    
+    void                copyPixels (InputPart &in);
+        
 
 
     //--------------------------------------------------------------
@@ -227,15 +238,28 @@ class OutputFile
 
   private:
 
+    //------------------------------------------------------------
+    // Constructor -- attaches the OutputStreamMutex to the
+    // given one from MultiPartOutputFile. Set the previewPosition
+    // and lineOffsetsPosition which have been acquired from
+    // the constructor of MultiPartOutputFile as well.
+    //------------------------------------------------------------
+    OutputFile (const OutputPartData* part);
+
     OutputFile (const OutputFile &);			// not implemented
     OutputFile & operator = (const OutputFile &);	// not implemented
 
     void		initialize (const Header &header);
 
     Data *		_data;
+
+
+    friend class MultiPartOutputFile;
 };
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
 
 #endif

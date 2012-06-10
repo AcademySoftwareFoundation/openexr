@@ -110,8 +110,10 @@
 #include <string.h>
 #include <assert.h>
 #include <algorithm>
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 using Imath::divp;
 using Imath::modp;
@@ -1066,4 +1068,5 @@ B44Compressor::uncompress (const char *inPtr,
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

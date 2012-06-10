@@ -40,7 +40,9 @@
 
 #include <ImfTiledOutputFile.h>
 #include <ImfTiledInputFile.h>
+#include <ImfTiledInputPart.h>
 #include <ImfInputFile.h>
+#include <ImfInputPart.h>
 #include <ImfTileDescriptionAttribute.h>
 #include <ImfPreviewImageAttribute.h>
 #include <ImfChannelList.h>
@@ -54,9 +56,12 @@
 #include <ImfVersion.h>
 #include <ImfTileOffsets.h>
 #include <ImfThreading.h>
+#include <ImfPartType.h>
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
 #include "IlmThreadMutex.h"
+#include "ImfOutputStreamMutex.h"
+#include "ImfOutputPartData.h"
 #include "Iex.h"
 #include <string>
 #include <vector>
@@ -64,8 +69,11 @@
 #include <assert.h>
 #include <map>
 
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER
+{
 
 using Imath::Box2i;
 using Imath::V2i;
@@ -229,10 +237,11 @@ TileBuffer::~TileBuffer ()
 } // namespace
 
 
-struct TiledOutputFile::Data: public Mutex
+struct TiledOutputFile::Data
 {
     Header		header;			// the image header
     int			version;		// file format version
+    bool                multipart;              // part came from a multipart file
     TileDescription	tileDesc;		// describes the tile layout
     FrameBuffer		frameBuffer;		// framebuffer to write into
     Int64		previewPosition;
@@ -252,8 +261,6 @@ struct TiledOutputFile::Data: public Mutex
 
     Compressor::Format	format;			// compressor's data format
     vector<TOutSliceInfo> slices;		// info about channels in file
-    OStream *		os;			// file stream to write to
-    bool		deleteStream;
 
     size_t		maxBytesPerTileLine;	// combined size of a tile line
 						// over all channels
@@ -263,12 +270,13 @@ struct TiledOutputFile::Data: public Mutex
     size_t		tileBufferSize;         // size of a tile buffer
 
     Int64		tileOffsetsPosition;	// position of the tile index
-    Int64		currentPosition;	// current position in the file
     
     TileMap		tileMap;
     TileCoord		nextTileToWrite;
 
-     Data (bool del, int numThreads);
+    int                 partNumber;             // the output part number
+
+     Data (int numThreads);
     ~Data ();
     
     inline TileBuffer *	getTileBuffer (int number);
@@ -280,12 +288,12 @@ struct TiledOutputFile::Data: public Mutex
 };
 
 
-TiledOutputFile::Data::Data (bool del, int numThreads):
+TiledOutputFile::Data::Data (int numThreads):
+    multipart(false),
     numXTiles(0),
     numYTiles(0),
-    os (0),
-    deleteStream (del),
-    tileOffsetsPosition (0)
+    tileOffsetsPosition (0),
+    partNumber(-1)
 {
     //
     // We need at least one tileBuffer, but if threading is used,
@@ -301,9 +309,6 @@ TiledOutputFile::Data::~Data ()
     delete [] numXTiles;
     delete [] numYTiles;
 
-    if (deleteStream)
-	delete os;
-    
     //
     // Delete all the tile buffers, if any still happen to exist
     //
@@ -368,6 +373,9 @@ TiledOutputFile::Data::nextTileCoord (const TileCoord &a)
 			#endif
                     }
                     break;
+                  case  NUM_LEVELMODES:
+                      throw(Iex::ArgExc("Invalid tile description"));
+                      
                 }
             }
         }
@@ -410,6 +418,9 @@ TiledOutputFile::Data::nextTileCoord (const TileCoord &a)
 			#endif
                     }
                     break;
+                  case  NUM_LEVELMODES:
+                      throw(Iex::ArgExc("Invalid tile description"));
+                      
                 }
 
 		if (b.ly < numYLevels)
@@ -425,7 +436,8 @@ TiledOutputFile::Data::nextTileCoord (const TileCoord &a)
 namespace {
 
 void
-writeTileData (TiledOutputFile::Data *ofd,
+writeTileData (OutputStreamMutex *streamData,
+               TiledOutputFile::Data *ofd,
                int dx, int dy,
 	       int lx, int ly, 
                const char pixelData[],
@@ -437,11 +449,11 @@ writeTileData (TiledOutputFile::Data *ofd,
     // without calling tellp() (tellp() can be fairly expensive).
     //
 
-    Int64 currentPosition = ofd->currentPosition;
-    ofd->currentPosition = 0;
+    Int64 currentPosition = streamData->currentPosition;
+    streamData->currentPosition = 0;
 
     if (currentPosition == 0)
-        currentPosition = ofd->os->tellp();
+        currentPosition = streamData->os->tellp();
 
     ofd->tileOffsets (dx, dy, lx, ly) = currentPosition;
 
@@ -453,28 +465,38 @@ writeTileData (TiledOutputFile::Data *ofd,
     // Write the tile header.
     //
 
-    Xdr::write <StreamIO> (*ofd->os, dx);
-    Xdr::write <StreamIO> (*ofd->os, dy);
-    Xdr::write <StreamIO> (*ofd->os, lx);
-    Xdr::write <StreamIO> (*ofd->os, ly);
-    Xdr::write <StreamIO> (*ofd->os, pixelDataSize);
+    if (ofd->multipart)
+    {
+        Xdr::write <StreamIO> (*streamData->os, ofd->partNumber);
+    }
+    Xdr::write <StreamIO> (*streamData->os, dx);
+    Xdr::write <StreamIO> (*streamData->os, dy);
+    Xdr::write <StreamIO> (*streamData->os, lx);
+    Xdr::write <StreamIO> (*streamData->os, ly);
+    Xdr::write <StreamIO> (*streamData->os, pixelDataSize);
 
-    ofd->os->write (pixelData, pixelDataSize);    
+    streamData->os->write (pixelData, pixelDataSize);
 
     //
     // Keep current position in the file so that we can avoid 
     // redundant seekg() operations (seekg() can be fairly expensive).
     //
 
-    ofd->currentPosition = currentPosition +
+    streamData->currentPosition = currentPosition +
                            5 * Xdr::size<int>() +
                            pixelDataSize;
+
+    if (ofd->multipart)
+    {
+        streamData->currentPosition += Xdr::size<int>();
+    }
 }
 
 
 
 void
-bufferedTileWrite (TiledOutputFile::Data *ofd,
+bufferedTileWrite (OutputStreamMutex *streamData,
+                   TiledOutputFile::Data *ofd,
                    int dx, int dy,
 		   int lx, int ly, 
                    const char pixelData[],
@@ -488,7 +510,7 @@ bufferedTileWrite (TiledOutputFile::Data *ofd,
     {
 	THROW (Iex::ArgExc,
 	       "Attempt to write tile "
-	       "(" << dx << ", " << dy << ", " << lx << "," << ly << ") "
+	       "(" << dx << ", " << dy << ", " << lx << ", " << ly << ") "
 	       "more than once.");
     }
 
@@ -498,7 +520,7 @@ bufferedTileWrite (TiledOutputFile::Data *ofd,
     
     if (ofd->lineOrder == RANDOM_Y)
     {
-        writeTileData (ofd, dx, dy, lx, ly, pixelData, pixelDataSize);
+        writeTileData (streamData, ofd, dx, dy, lx, ly, pixelData, pixelDataSize);
         return;
     }
     
@@ -513,7 +535,7 @@ bufferedTileWrite (TiledOutputFile::Data *ofd,
     {
 	THROW (Iex::ArgExc,
 	       "Attempt to write tile "
-	       "(" << dx << ", " << dy << ", " << lx << "," << ly << ") "
+	       "(" << dx << ", " << dy << ", " << lx << ", " << ly << ") "
 	       "more than once.");
     }
 
@@ -527,7 +549,7 @@ bufferedTileWrite (TiledOutputFile::Data *ofd,
     
     if (ofd->nextTileToWrite == currentTile)
     {
-        writeTileData (ofd, dx, dy, lx, ly, pixelData, pixelDataSize);        
+        writeTileData (streamData, ofd, dx, dy, lx, ly, pixelData, pixelDataSize);
         ofd->nextTileToWrite = ofd->nextTileCoord (ofd->nextTileToWrite);
 
         TileMap::iterator i = ofd->tileMap.find (ofd->nextTileToWrite);
@@ -543,7 +565,8 @@ bufferedTileWrite (TiledOutputFile::Data *ofd,
             // Write the tile, and then delete the tile's buffered data
             //
 
-            writeTileData (ofd,
+            writeTileData (streamData,
+                           ofd,
 			   i->first.dx, i->first.dy,
 			   i->first.lx, i->first.ly,
 			   i->second->pixelData,
@@ -704,7 +727,7 @@ TileBufferTask::execute ()
     
         char *writePtr = _tileBuffer->buffer;
     
-        Box2i tileRange = Imf::dataWindowForTile (_ofd->tileDesc,
+        Box2i tileRange = dataWindowForTile (_ofd->tileDesc,
                                                   _ofd->minX, _ofd->maxX,
                                                   _ofd->minY, _ofd->maxY,
                                                   _tileBuffer->tileCoord.dx,
@@ -834,16 +857,26 @@ TiledOutputFile::TiledOutputFile
      const Header &header,
      int numThreads)
 :
-    _data (new Data (true, numThreads))
+    _data (new Data (numThreads)),
+    _streamData (new OutputStreamMutex()),
+    _deleteStream (true)
 {
     try
     {
 	header.sanityCheck (true);
-	_data->os = new StdOFStream (fileName);
+	_streamData->os = new StdOFStream (fileName);
+        _data->multipart=false; // since we opened with one header we can't be multipart        
 	initialize (header);
+	_streamData->currentPosition = _streamData->os->tellp();
+
+	// Write header and empty offset table to the file.
+        writeMagicNumberAndVersionField(*_streamData->os, header);
+	_data->previewPosition = _data->header.writeTo (*_streamData->os, true);
+        _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_streamData->os);
     }
     catch (Iex::BaseExc &e)
     {
+        delete _streamData;
 	delete _data;
 
 	REPLACE_EXC (e, "Cannot open image file "
@@ -852,6 +885,7 @@ TiledOutputFile::TiledOutputFile
     }
     catch (...)
     {
+        delete _streamData;
 	delete _data;
         throw;
     }
@@ -859,20 +893,31 @@ TiledOutputFile::TiledOutputFile
 
 
 TiledOutputFile::TiledOutputFile
-    (OStream &os,
+    (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
      const Header &header,
      int numThreads)
 :
-    _data (new Data (false, numThreads))
+    _data (new Data (numThreads)),
+    _streamData (new OutputStreamMutex()),
+    _deleteStream (false)
 {
     try
     {
 	header.sanityCheck(true);
-	_data->os = &os;
+	_streamData->os = &os;
+        _data->multipart=false; // since we opened with one header we can't be multipart
 	initialize (header);
+	_streamData->currentPosition = _streamData->os->tellp();
+
+	// Write header and empty offset table to the file.
+	writeMagicNumberAndVersionField(*_streamData->os, header);
+	_data->previewPosition = _data->header.writeTo (*_streamData->os, true);
+        _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_streamData->os);
+	
     }
     catch (Iex::BaseExc &e)
     {
+        delete _streamData;
 	delete _data;
 
 	REPLACE_EXC (e, "Cannot open image file "
@@ -881,11 +926,42 @@ TiledOutputFile::TiledOutputFile
     }
     catch (...)
     {
+        delete _streamData;
 	delete _data;
         throw;
     }
 }
 
+TiledOutputFile::TiledOutputFile(const OutputPartData* part) :
+    _deleteStream (false)
+{
+    try
+    {
+        if (part->header.type() != TILEDIMAGE)
+            throw Iex::ArgExc("Can't build a TiledOutputFile from a type-mismatched part.");
+
+        _streamData = part->mutex;
+        _data = new Data(part->numThreads);
+        _data->multipart=part->multipart;
+        initialize(part->header);
+        _data->partNumber = part->partNumber;
+        _data->tileOffsetsPosition = part->chunkOffsetTablePosition;
+        _data->previewPosition = part->previewPosition;
+    }
+    catch (Iex::BaseExc &e)
+    {
+        delete _data;
+
+        REPLACE_EXC (e, "Cannot initialize output part "
+                        "\"" << part->partNumber << "\". " << e);
+        throw;
+    }
+    catch (...)
+    {
+        delete _data;
+        throw;
+    }
+}
 
 void
 TiledOutputFile::initialize (const Header &header)
@@ -932,7 +1008,7 @@ TiledOutputFile::initialize (const Header &header)
 	    calculateBytesPerPixel (_data->header) * _data->tileDesc.xSize;
 
     _data->tileBufferSize = _data->maxBytesPerTileLine * _data->tileDesc.ySize;
-    
+     
     //
     // Create all the TileBuffers and allocate their internal buffers
     //
@@ -955,11 +1031,6 @@ TiledOutputFile::initialize (const Header &header)
 				      _data->numYLevels,
 				      _data->numXTiles,
 				      _data->numYTiles);
-
-    _data->previewPosition = _data->header.writeTo (*_data->os, true);
-
-    _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_data->os);
-    _data->currentPosition = _data->os->tellp();
 }
 
 
@@ -968,12 +1039,20 @@ TiledOutputFile::~TiledOutputFile ()
     if (_data)
     {
         {
+            Lock lock(*_streamData);
+            Int64 originalPosition = _streamData->os->tellp();
+
             if (_data->tileOffsetsPosition > 0)
             {
                 try
                 {
-                    _data->os->seekp (_data->tileOffsetsPosition);
-                    _data->tileOffsets.writeTo (*_data->os);
+                    _streamData->os->seekp (_data->tileOffsetsPosition);
+                    _data->tileOffsets.writeTo (*_streamData->os);
+
+                    //
+                    // Restore the original position.
+                    //
+                    _streamData->os->seekp (originalPosition);
                 }
                 catch (...)
                 {
@@ -987,6 +1066,12 @@ TiledOutputFile::~TiledOutputFile ()
             }
         }
         
+        if (_deleteStream && _streamData)
+            delete _streamData->os;
+
+        if (_data->partNumber == -1)
+            delete _streamData;
+
         delete _data;
     }
 }
@@ -995,7 +1080,7 @@ TiledOutputFile::~TiledOutputFile ()
 const char *
 TiledOutputFile::fileName () const
 {
-    return _data->os->fileName();
+    return _streamData->os->fileName();
 }
 
 
@@ -1009,7 +1094,7 @@ TiledOutputFile::header () const
 void	
 TiledOutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
-    Lock lock (*_data);
+    Lock lock (*_streamData);
 
     //
     // Check if the new frame buffer descriptor
@@ -1091,7 +1176,7 @@ TiledOutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 TiledOutputFile::frameBuffer () const
 {
-    Lock lock (*_data);
+    Lock lock (*_streamData);
     return _data->frameBuffer;
 }
 
@@ -1102,7 +1187,7 @@ TiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
 {
     try
     {
-        Lock lock (*_data);
+        Lock lock (*_streamData);
 
         if (_data->slices.size() == 0)
 	    throw Iex::ArgExc ("No frame buffer specified "
@@ -1111,6 +1196,11 @@ TiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
 	if (!isValidTile (dx1, dy1, lx, ly) || !isValidTile (dx2, dy2, lx, ly))
 	    throw Iex::ArgExc ("Tile coordinates are invalid.");
 
+	if (!isValidLevel (lx, ly))
+	    THROW (Iex::ArgExc,
+                   "Level coordinate "
+                   "(" << lx << ", " << ly << ") "
+                   "is invalid.");
         //
         // Determine the first and last tile coordinates in both dimensions
         // based on the file's lineOrder
@@ -1193,7 +1283,7 @@ TiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
                 // Write the tilebuffer
 		//
 
-                bufferedTileWrite (_data, dxWrite, dyWrite, lx, ly,
+                bufferedTileWrite (_streamData, _data, dxWrite, dyWrite, lx, ly,
                                    writeBuffer->dataPtr,
                                    writeBuffer->dataSize);
                 
@@ -1264,7 +1354,7 @@ TiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
 
 	const string *exception = 0;
 
-        for (int i = 0; i < _data->tileBuffers.size(); ++i)
+        for (size_t i = 0; i < _data->tileBuffers.size(); ++i)
 	{
             TileBuffer *tileBuffer = _data->tileBuffers[i];
 
@@ -1310,7 +1400,7 @@ TiledOutputFile::writeTile (int dx, int dy, int l)
 void	
 TiledOutputFile::copyPixels (TiledInputFile &in)
 {
-    Lock lock (*_data);
+    Lock lock (*_streamData);
 
     //
     // Check if this file's and and the InputFile's
@@ -1365,7 +1455,7 @@ TiledOutputFile::copyPixels (TiledInputFile &in)
     if (!_data->tileOffsets.isEmpty())
         THROW (Iex::LogicExc, "Quick pixel copy from image "
 			      "file \"" << in.fileName() << "\" to image "
-			      "file \"" << _data->os->fileName() << "\" "
+			      "file \"" << _streamData->os->fileName() << "\" "
                               "failed. \"" << fileName() << "\" "
                               "already contains pixel data.");
 
@@ -1380,15 +1470,15 @@ TiledOutputFile::copyPixels (TiledInputFile &in)
       case ONE_LEVEL:
       case MIPMAP_LEVELS:
 
-        for (size_t i_l = 0; i_l < numLevels (); ++i_l)
+        for (int i_l = 0; i_l < numLevels (); ++i_l)
             numAllTiles += numXTiles (i_l) * numYTiles (i_l);
 
         break;
 
       case RIPMAP_LEVELS:
 
-        for (size_t i_ly = 0; i_ly < numYLevels (); ++i_ly)
-            for (size_t i_lx = 0; i_lx < numXLevels (); ++i_lx)
+        for (int i_ly = 0; i_ly < numYLevels (); ++i_ly)
+            for (int i_lx = 0; i_lx < numXLevels (); ++i_lx)
                 numAllTiles += numXTiles (i_lx) * numYTiles (i_ly);
 
         break;
@@ -1396,6 +1486,22 @@ TiledOutputFile::copyPixels (TiledInputFile &in)
       default:
 
         throw Iex::ArgExc ("Unknown LevelMode format.");
+    }
+
+     bool random_y = _data->lineOrder==RANDOM_Y;
+
+    std::vector<int> dx_table(random_y ? numAllTiles : 1);
+    std::vector<int> dy_table(random_y ? numAllTiles : 1);
+    std::vector<int> lx_table(random_y ? numAllTiles : 1);
+    std::vector<int> ly_table(random_y ? numAllTiles : 1);
+    
+    if(random_y)
+    {
+        in.tileOrder(&dx_table[0],&dy_table[0],&lx_table[0],&ly_table[0]);
+        _data->nextTileToWrite.dx=dx_table[0];
+        _data->nextTileToWrite.dy=dy_table[0];
+        _data->nextTileToWrite.lx=lx_table[0];
+        _data->nextTileToWrite.ly=ly_table[0];
     }
 
     for (int i = 0; i < numAllTiles; ++i)
@@ -1408,8 +1514,22 @@ TiledOutputFile::copyPixels (TiledInputFile &in)
         int lx = _data->nextTileToWrite.lx;
         int ly = _data->nextTileToWrite.ly;
 
+        
         in.rawTileData (dx, dy, lx, ly, pixelData, pixelDataSize);
-        writeTileData (_data, dx, dy, lx, ly, pixelData, pixelDataSize);
+        writeTileData (_streamData, _data, dx, dy, lx, ly, pixelData, pixelDataSize);
+        
+        if(random_y)
+        {
+            if(i<numAllTiles-1)
+            {
+               _data->nextTileToWrite.dx=dx_table[i+1];
+               _data->nextTileToWrite.dy=dy_table[i+1];
+               _data->nextTileToWrite.lx=lx_table[i+1];
+               _data->nextTileToWrite.ly=ly_table[i+1];
+            }
+        }else{
+            _data->nextTileToWrite=_data->nextTileCoord(_data->nextTileToWrite);
+        }
     }
 }
 
@@ -1419,6 +1539,20 @@ TiledOutputFile::copyPixels (InputFile &in)
 {
     copyPixels (*in.tFile());
 }
+
+
+void    
+TiledOutputFile::copyPixels (InputPart &in)
+{
+    copyPixels (*in.file);
+}
+
+void    
+TiledOutputFile::copyPixels (TiledInputPart &in)
+{
+    copyPixels (*in.file);
+}
+
 
 
 unsigned int
@@ -1531,7 +1665,7 @@ TiledOutputFile::numXTiles (int lx) const
 {
     if (lx < 0 || lx >= _data->numXLevels)
 	THROW (Iex::LogicExc, "Error calling numXTiles() on image "
-			      "file \"" << _data->os->fileName() << "\" "
+			      "file \"" << _streamData->os->fileName() << "\" "
 			      "(Argument is not in valid range).");
 
     return _data->numXTiles[lx];
@@ -1543,7 +1677,7 @@ TiledOutputFile::numYTiles (int ly) const
 {
    if (ly < 0 || ly >= _data->numYLevels)
 	THROW (Iex::LogicExc, "Error calling numXTiles() on image "
-			      "file \"" << _data->os->fileName() << "\" "
+			      "file \"" << _streamData->os->fileName() << "\" "
 			      "(Argument is not in valid range).");
 
     return _data->numYTiles[ly];
@@ -1562,10 +1696,11 @@ TiledOutputFile::dataWindowForLevel (int lx, int ly) const
 {
     try
     {
-	return Imf::dataWindowForLevel (_data->tileDesc,
-			        	_data->minX, _data->maxX,
-				        _data->minY, _data->maxY,
-					lx, ly);
+	return OPENEXR_IMF_INTERNAL_NAMESPACE::dataWindowForLevel (
+	        _data->tileDesc,
+	        _data->minX, _data->maxX,
+	        _data->minY, _data->maxY,
+	        lx, ly);
     }
     catch (Iex::BaseExc &e)
     {
@@ -1591,11 +1726,12 @@ TiledOutputFile::dataWindowForTile (int dx, int dy, int lx, int ly) const
 	if (!isValidTile (dx, dy, lx, ly))
 	    throw Iex::ArgExc ("Arguments not in valid range.");
 
-	return Imf::dataWindowForTile (_data->tileDesc,
-		        	       _data->minX, _data->maxX,
-			               _data->minY, _data->maxY,
-        			       dx, dy,
-	        		       lx, ly);
+	return OPENEXR_IMF_INTERNAL_NAMESPACE::dataWindowForTile (
+	        _data->tileDesc,
+	        _data->minX, _data->maxX,
+	        _data->minY, _data->maxY,
+	        dx, dy,
+	        lx, ly);
     }
     catch (Iex::BaseExc &e)
     {
@@ -1619,7 +1755,7 @@ TiledOutputFile::isValidTile (int dx, int dy, int lx, int ly) const
 void
 TiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
-    Lock lock (*_data);
+    Lock lock (*_streamData);
 
     if (_data->previewPosition <= 0)
 	THROW (Iex::LogicExc, "Cannot update preview image pixels. "
@@ -1646,13 +1782,13 @@ TiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
     // preview image, and jump back to the saved file position.
     //
 
-    Int64 savedPosition = _data->os->tellp();
+    Int64 savedPosition = _streamData->os->tellp();
 
     try
     {
-	_data->os->seekp (_data->previewPosition);
-	pia.writeValueTo (*_data->os, _data->version);
-	_data->os->seekp (savedPosition);
+        _streamData->os->seekp (_data->previewPosition);
+	pia.writeValueTo (*_streamData->os, _data->version);
+	_streamData->os->seekp (savedPosition);
     }
     catch (Iex::BaseExc &e)
     {
@@ -1671,7 +1807,7 @@ TiledOutputFile::breakTile
      int length,
      char c)
 {
-    Lock lock (*_data);
+    Lock lock (*_streamData);
 
     Int64 position = _data->tileOffsets (dx, dy, lx, ly);
 
@@ -1682,11 +1818,12 @@ TiledOutputFile::breakTile
 	       "The tile has not yet been stored in "
 	       "file \"" << fileName() << "\".");
 
-    _data->currentPosition = 0;
-    _data->os->seekp (position + offset);
+    _streamData->currentPosition = 0;
+    _streamData->os->seekp (position + offset);
 
     for (int i = 0; i < length; ++i)
-	_data->os->write (&c, 1);
+        _streamData->os->write (&c, 1);
 }
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

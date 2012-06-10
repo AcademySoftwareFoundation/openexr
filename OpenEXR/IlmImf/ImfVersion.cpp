@@ -41,8 +41,10 @@
 
 
 #include <ImfVersion.h>
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
 bool
@@ -55,5 +57,6 @@ isImfMagic (const char bytes[4])
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
 

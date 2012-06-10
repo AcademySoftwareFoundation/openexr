@@ -35,8 +35,8 @@
 #ifndef INCLUDED_IMF_MULTIVIEW_H
 #define INCLUDED_IMF_MULTIVIEW_H
 
-#include <ImfChannelList.h>
-#include <ImfStringVectorAttribute.h>
+#include "ImfChannelList.h"
+#include "ImfStringVectorAttribute.h"
 
 //-----------------------------------------------------------------------------
 //
@@ -79,8 +79,10 @@
 //	belong to no view at all.
 //
 //-----------------------------------------------------------------------------
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 //
 // Return the name of the default view given a multi-view string vector,
@@ -158,7 +160,22 @@ std::string channelInOtherView (const std::string &channel,
 std::string insertViewName (const std::string &channel,
 			    const StringVector &multiView,
 			    int i);
+//
+// Given a channel name that does may include a view name, return
+// string without the view name. If the string does not contain
+// the view name, return the string unaltered.
+// (Will only remove the viewname if it is in the correct position in the string)
+//
 
-} // namespace Imf
+std::string removeViewName (const std::string &channel,
+		            const std::string &view);
+
+
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

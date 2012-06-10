@@ -8,4 +8,12 @@ depcomp
 install-sh
 ltmain.sh
 missing
-*.o *.lo *.pc *.la
+.deps
+*.o
+*.deps
+*.libs
+*.lo
+*.la
+*.in
+Makefile
+.DS_Store

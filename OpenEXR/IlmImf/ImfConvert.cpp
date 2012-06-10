@@ -42,8 +42,11 @@
 
 #include <ImfConvert.h>
 #include <limits.h>
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
+
 namespace {
 
 inline bool
@@ -136,4 +139,5 @@ floatToHalf (float f)
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

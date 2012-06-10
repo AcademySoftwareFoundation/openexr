@@ -45,17 +45,18 @@
 //
 //-----------------------------------------------------------------------------
 
-
 #include <ImfRgbaFile.h>
 #include <ImfIO.h>
 #include "Iex.h"
-#include <drawImage.h>
+
+#include "drawImage.h"
 
 #include <iostream>
 #include <stdio.h>
 
+#include "namespaceAlias.h"
+using namespace CustomImf;
 using namespace std;
-using namespace Imf;
 using namespace Imath;
 
 

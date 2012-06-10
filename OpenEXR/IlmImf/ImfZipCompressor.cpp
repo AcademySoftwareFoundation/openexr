@@ -45,8 +45,10 @@
 #include <ImfCheckedArithmetic.h>
 #include "Iex.h"
 #include <zlib.h>
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
 ZipCompressor::ZipCompressor
@@ -97,7 +99,7 @@ ZipCompressor::compress (const char *inPtr,
 			 const char *&outPtr)
 {
     //
-    // Special case ­- empty input buffer
+    // Special case ï¿½- empty input buffer
     //
 
     if (inSize == 0)
@@ -171,7 +173,7 @@ ZipCompressor::uncompress (const char *inPtr,
 			   const char *&outPtr)
 {
     //
-    // Special case ­- empty input buffer
+    // Special case ï¿½- empty input buffer
     //
 
     if (inSize == 0)
@@ -237,4 +239,6 @@ ZipCompressor::uncompress (const char *inPtr,
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+

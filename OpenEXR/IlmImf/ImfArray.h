@@ -37,6 +37,8 @@
 #ifndef INCLUDED_IMF_ARRAY_H
 #define INCLUDED_IMF_ARRAY_H
 
+#include "ImfForward.h"
+
 //-------------------------------------------------------------------------
 //
 // class Array
@@ -69,8 +71,8 @@
 //
 //-------------------------------------------------------------------------
 
-namespace Imf {
-
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 template <class T>
 class Array
@@ -81,8 +83,8 @@ class Array
     // Constructors and destructors
     //-----------------------------
 
-     Array ()				{_data = 0;}
-     Array (long size)			{_data = new T[size];}
+     Array ()				{_data = 0; _size = 0;}
+     Array (long size)			{_data = new T[size]; _size = size;}
     ~Array ()				{delete [] _data;}
 
 
@@ -110,11 +112,19 @@ class Array
     void resizeEraseUnsafe (long size);
 
 
+    //-------------------------------
+    // Return the size of this array.
+    //-------------------------------
+
+    long size()                         {return _size;}
+
+
   private:
 
     Array (const Array &);		// Copying and assignment
     Array & operator = (const Array &);	// are not implemented
 
+    long _size;
     T * _data;
 };
 
@@ -157,11 +167,20 @@ class Array2D
     void resizeEraseUnsafe (long sizeX, long sizeY);
 
 
+    //-------------------------------
+    // Return the size of this array.
+    //-------------------------------
+
+    long height()                         {return _sizeX;}
+    long width()                         {return _sizeY;}
+
+
   private:
 
     Array2D (const Array2D &);			// Copying and assignment
     Array2D & operator = (const Array2D &);	// are not implemented
 
+    long        _sizeX;
     long	_sizeY;
     T *		_data;
 };
@@ -177,6 +196,7 @@ Array<T>::resizeErase (long size)
 {
     T *tmp = new T[size];
     delete [] _data;
+    _size = size;
     _data = tmp;
 }
 
@@ -187,14 +207,16 @@ Array<T>::resizeEraseUnsafe (long size)
 {
     delete [] _data;
     _data = 0;
+    _size = 0;
     _data = new T[size];
+    _size = size;
 }
 
 
 template <class T>
 inline
 Array2D<T>::Array2D ():
-    _sizeY (0), _data (0)
+    _sizeX(0), _sizeY (0), _data (0)
 {
     // emtpy
 }
@@ -203,7 +225,7 @@ Array2D<T>::Array2D ():
 template <class T>
 inline
 Array2D<T>::Array2D (long sizeX, long sizeY):
-    _sizeY (sizeY), _data (new T[sizeX * sizeY])
+    _sizeX (sizeX), _sizeY (sizeY), _data (new T[sizeX * sizeY])
 {
     // emtpy
 }
@@ -239,6 +261,7 @@ Array2D<T>::resizeErase (long sizeX, long sizeY)
 {
     T *tmp = new T[sizeX * sizeY];
     delete [] _data;
+    _sizeX = sizeX;
     _sizeY = sizeY;
     _data = tmp;
 }
@@ -250,12 +273,18 @@ Array2D<T>::resizeEraseUnsafe (long sizeX, long sizeY)
 {
     delete [] _data;
     _data = 0;
+    _sizeX = 0;
     _sizeY = 0;
     _data = new T[sizeX * sizeY];
+    _sizeX = sizeX;
     _sizeY = sizeY;
 }
 
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
 
-} // namespace Imf
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

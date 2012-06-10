@@ -45,8 +45,10 @@
 #include <assert.h>
 
 
-using namespace Imf;
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
+
 
 namespace {
 

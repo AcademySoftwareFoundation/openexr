@@ -40,7 +40,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <makePreview.h>
+#include "makePreview.h"
 
 #include <iostream>
 #include <exception>

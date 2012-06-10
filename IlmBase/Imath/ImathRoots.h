@@ -43,7 +43,7 @@
 //
 //---------------------------------------------------------------------
 
-#include <ImathMath.h>
+#include "ImathMath.h"
 #include <complex>
 
 namespace Imath {

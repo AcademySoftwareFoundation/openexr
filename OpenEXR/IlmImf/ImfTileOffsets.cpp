@@ -43,8 +43,11 @@
 #include <ImfXdr.h>
 #include <ImfIO.h>
 #include "Iex.h"
+#include "OpenEXRConfig.h"
+#include <algorithm>
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
 TileOffsets::TileOffsets (LevelMode mode,
@@ -77,20 +80,22 @@ TileOffsets::TileOffsets (LevelMode mode,
 
         _offsets.resize (_numXLevels * _numYLevels);
 
-        for (unsigned int ly = 0; ly < _numYLevels; ++ly)
+        for ( int ly = 0; ly < _numYLevels; ++ly)
         {
-            for (unsigned int lx = 0; lx < _numXLevels; ++lx)
+            for ( int lx = 0; lx < _numXLevels; ++lx)
             {
                 int l = ly * _numXLevels + lx;
                 _offsets[l].resize (numYTiles[ly]);
 
-                for (unsigned int dy = 0; dy < _offsets[l].size(); ++dy)
+                for ( size_t dy = 0; dy < _offsets[l].size(); ++dy)
                 {
                     _offsets[l][dy].resize (numXTiles[lx]);
                 }
             }
         }
         break;
+      case NUM_LEVELMODES :
+          throw Iex::ArgExc("Bad initialisation of TileOffsets object");
     }
 }
 
@@ -109,7 +114,7 @@ TileOffsets::anyOffsetsAreInvalid () const
 
 
 void
-TileOffsets::findTiles (IStream &is)
+TileOffsets::findTiles (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, bool isMultiPartFile, bool isDeep, bool skipOnly)
 {
     for (unsigned int l = 0; l < _offsets.size(); ++l)
     {
@@ -119,22 +124,43 @@ TileOffsets::findTiles (IStream &is)
 	    {
 		Int64 tileOffset = is.tellg();
 
+		if (isMultiPartFile)
+		{
+		    int partNumber;
+		    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, partNumber);
+		}
+
 		int tileX;
-		Xdr::read <StreamIO> (is, tileX);
+		OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, tileX);
 
 		int tileY;
-		Xdr::read <StreamIO> (is, tileY);
+		OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, tileY);
 
 		int levelX;
-		Xdr::read <StreamIO> (is, levelX);
+		OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, levelX);
 
 		int levelY;
-		Xdr::read <StreamIO> (is, levelY);
+		OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, levelY);
 
-		int dataSize;
-		Xdr::read <StreamIO> (is, dataSize);
+                if(isDeep)
+                {
+                     Int64 packed_offset_table_size;
+                     Int64 packed_sample_size;
+                     
+                     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, packed_offset_table_size);
+                     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, packed_sample_size);
+                     
+                     // next Int64 is unpacked sample size - skip that too
+                     Xdr::skip <StreamIO> (is, packed_offset_table_size+packed_sample_size+8);
+                    
+                }else{
+                    
+		     int dataSize;
+		     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, dataSize);
 
-		Xdr::skip <StreamIO> (is, dataSize);
+		     Xdr::skip <StreamIO> (is, dataSize);
+                }
+		if (skipOnly) continue;
 
 		if (!isValidTile(tileX, tileY, levelX, levelY))
 		    return;
@@ -147,7 +173,7 @@ TileOffsets::findTiles (IStream &is)
 
 
 void
-TileOffsets::reconstructFromFile (IStream &is)
+TileOffsets::reconstructFromFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,bool isMultiPart,bool isDeep)
 {
     //
     // Try to reconstruct a missing tile offset table by sequentially
@@ -159,7 +185,7 @@ TileOffsets::reconstructFromFile (IStream &is)
 
     try
     {
-	findTiles (is);
+	findTiles (is,isMultiPart,isDeep,false);
     }
     catch (...)
     {
@@ -176,7 +202,7 @@ TileOffsets::reconstructFromFile (IStream &is)
 
 
 void
-TileOffsets::readFrom (IStream &is, bool &complete)
+TileOffsets::readFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, bool &complete,bool isMultiPartFile, bool isDeep)
 {
     //
     // Read in the tile offsets from the file's tile offset table
@@ -185,7 +211,7 @@ TileOffsets::readFrom (IStream &is, bool &complete)
     for (unsigned int l = 0; l < _offsets.size(); ++l)
 	for (unsigned int dy = 0; dy < _offsets[l].size(); ++dy)
 	    for (unsigned int dx = 0; dx < _offsets[l][dy].size(); ++dx)
-		Xdr::read <StreamIO> (is, _offsets[l][dy][dx]);
+		OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, _offsets[l][dy][dx]);
 
     //
     // Check if any tile offsets are invalid.
@@ -204,7 +230,7 @@ TileOffsets::readFrom (IStream &is, bool &complete)
     if (anyOffsetsAreInvalid())
     {
 	complete = false;
-	reconstructFromFile (is);
+	reconstructFromFile (is,isMultiPartFile,isDeep);
     }
     else
     {
@@ -214,8 +240,36 @@ TileOffsets::readFrom (IStream &is, bool &complete)
 }
 
 
+void
+TileOffsets::readFrom (std::vector<Int64> chunkOffsets,bool &complete)
+{
+    size_t totalSize = 0;
+ 
+    for (unsigned int l = 0; l < _offsets.size(); ++l)
+        for (unsigned int dy = 0; dy < _offsets[l].size(); ++dy)
+            totalSize += _offsets[l][dy].size();
+
+    if (chunkOffsets.size() != totalSize)
+        throw Iex::ArgExc ("Wrong offset count, not able to read from this array");
+
+
+
+    int pos = 0;
+    for (size_t l = 0; l < _offsets.size(); ++l)
+        for (size_t dy = 0; dy < _offsets[l].size(); ++dy)
+            for (size_t dx = 0; dx < _offsets[l][dy].size(); ++dx)
+            {
+                _offsets[l][dy][dx] = chunkOffsets[pos];
+                pos++;
+            }
+
+    complete = !anyOffsetsAreInvalid();
+
+}
+
+
 Int64
-TileOffsets::writeTo (OStream &os) const
+TileOffsets::writeTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os) const
 {
     //
     // Write the tile offset table to the file, and
@@ -231,9 +285,115 @@ TileOffsets::writeTo (OStream &os) const
     for (unsigned int l = 0; l < _offsets.size(); ++l)
 	for (unsigned int dy = 0; dy < _offsets[l].size(); ++dy)
 	    for (unsigned int dx = 0; dx < _offsets[l][dy].size(); ++dx)
-		Xdr::write <StreamIO> (os, _offsets[l][dy][dx]);
+		OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (os, _offsets[l][dy][dx]);
 
     return pos;
+}
+
+namespace {
+struct tilepos{
+    Int64 filePos;
+    int dx;
+    int dy;
+    int l;
+    bool operator <(const tilepos & other) const
+    {
+        return filePos < other.filePos;
+    }
+};
+}
+//-------------------------------------
+// fill array with tile coordinates in the order they appear in the file
+//
+// each input array must be of size (totalTiles)
+// 
+//
+// if the tile order is not RANDOM_Y, it is more efficient to compute the
+// tile ordering rather than using this function
+//
+//-------------------------------------
+void TileOffsets::getTileOrder(int dx_table[],int dy_table[],int lx_table[],int ly_table[]) const
+{
+    // 
+    // helper class
+    // 
+
+    // how many entries?
+    size_t entries=0;
+    for (unsigned int l = 0; l < _offsets.size(); ++l)
+        for (unsigned int dy = 0; dy < _offsets[l].size(); ++dy)
+           entries+=_offsets[l][dy].size();
+        
+    std::vector<struct tilepos> table(entries);
+    
+    size_t i = 0;
+    for (unsigned int l = 0; l < _offsets.size(); ++l)
+        for (unsigned int dy = 0; dy < _offsets[l].size(); ++dy)
+            for (unsigned int dx = 0; dx < _offsets[l][dy].size(); ++dx)
+            {
+                table[i].filePos = _offsets[l][dy][dx];
+                table[i].dx = dx;
+                table[i].dy = dy;
+                table[i].l = l;
+
+                ++i;
+                
+            }
+              
+    std::sort(table.begin(),table.end());
+    
+    //
+    // write out the values
+    //
+    
+    // pass 1: write out dx and dy, since these are independent of level mode
+    
+    for(size_t i=0;i<entries;i++)
+    {
+        dx_table[i] = table[i].dx;
+        dy_table[i] = table[i].dy;
+    }
+
+    // now write out the levels, which depend on the level mode
+    
+    switch (_mode)
+    {
+        case ONE_LEVEL:
+        {
+            for(size_t i=0;i<entries;i++)
+            {
+                lx_table[i] = 0;
+                ly_table[i] = 0;               
+            }
+            break;            
+        }
+        case MIPMAP_LEVELS:
+        {
+            for(size_t i=0;i<entries;i++)
+            {
+                lx_table[i]= table[i].l;
+                ly_table[i] =table[i].l;               
+                
+            }
+            break;
+        }
+            
+        case RIPMAP_LEVELS:
+        {
+            for(size_t i=0;i<entries;i++)
+            {
+                lx_table[i]= table[i].l % _numXLevels;
+                ly_table[i] = table[i].l / _numXLevels; 
+                
+            }
+            break;
+        }
+        case NUM_LEVELMODES :
+            throw Iex::LogicExc("Bad level mode getting tile order");
+    }
+    
+    
+    
 }
 
 
@@ -252,6 +412,7 @@ TileOffsets::isEmpty () const
 bool
 TileOffsets::isValidTile (int dx, int dy, int lx, int ly) const
 {
+    if(lx<0 || ly < 0 || dx<0 || dy < 0) return false;
     switch (_mode)
     {
       case ONE_LEVEL:
@@ -259,8 +420,8 @@ TileOffsets::isValidTile (int dx, int dy, int lx, int ly) const
         if (lx == 0 &&
 	    ly == 0 &&
 	    _offsets.size() > 0 &&
-            _offsets[0].size() > dy &&
-            _offsets[0][dy].size() > dx)
+            int(_offsets[0].size()) > dy &&
+            int(_offsets[0][dy].size()) > dx)
 	{
             return true;
 	}
@@ -271,9 +432,9 @@ TileOffsets::isValidTile (int dx, int dy, int lx, int ly) const
 
         if (lx < _numXLevels &&
 	    ly < _numYLevels &&
-            _offsets.size() > lx &&
-            _offsets[lx].size() > dy &&
-            _offsets[lx][dy].size() > dx)
+            int(_offsets.size()) > lx &&
+            int(_offsets[lx].size()) > dy &&
+            int(_offsets[lx][dy].size()) > dx)
 	{
             return true;
 	}
@@ -284,9 +445,9 @@ TileOffsets::isValidTile (int dx, int dy, int lx, int ly) const
 
         if (lx < _numXLevels &&
 	    ly < _numYLevels &&
-            _offsets.size() > lx + ly * _numXLevels &&
-            _offsets[lx + ly * _numXLevels].size() > dy &&
-            _offsets[lx + ly * _numXLevels][dy].size() > dx)
+	    (_offsets.size() > (size_t) lx+  ly *  (size_t) _numXLevels) &&
+            int(_offsets[lx + ly * _numXLevels].size()) > dy &&
+            int(_offsets[lx + ly * _numXLevels][dy].size()) > dx)
 	{
             return true;
 	}
@@ -381,5 +542,12 @@ TileOffsets::operator () (int dx, int dy, int l) const
     return operator () (dx, dy, l, l);
 }
 
+const std::vector<std::vector<std::vector <Int64> > >&
+TileOffsets::getOffsets()
+{
+    return _offsets;
+}
 
-} // namespace Imf
+
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

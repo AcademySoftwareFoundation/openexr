@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(IlmBase, 1.0.3)
-AC_SUBST(ILMBASE_VERSION, 1.0.3)
+AC_INIT(IlmBase, 1.1.0)
+AC_SUBST(ILMBASE_VERSION, 1.1.0)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(ImathTest/main.cpp)
 AM_CONFIG_HEADER(config/IlmBaseConfig.h)
@@ -8,7 +8,7 @@ AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 
 
-LIBTOOL_CURRENT=7
+LIBTOOL_CURRENT=10
 LIBTOOL_REVISION=0
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
@@ -54,6 +54,32 @@ if test "${multithread}" != no ; then
     [AC_MSG_ERROR([POSIX thread support required])])
     AC_MSG_NOTICE([multithread true, LIBS = $LIBS, CC = $CC, CXXFLAGS = $CXXFLAGS])
 fi
+
+
+dnl --enable-large-stack
+case "$host" in
+*linux*)
+  AC_ARG_ENABLE(large-stack,
+    AC_HELP_STRING([--enable-large-stack],
+             [enable optimizations for systems that support
+             large stack sizes [[default=yes]]]),
+    [large_stack="${enableval}"],
+    [large_stack=yes])
+  ;;
+*)
+  AC_ARG_ENABLE(large-stack,
+    AC_HELP_STRING([--enable-large-stack],
+             [enable optimizations for systems that support
+             large stack sizes [[default=no]]]),
+    [large_stack="${enableval}"],
+    [large_stack=no])
+  ;;
+esac
+
+if test "x${large_stack}" != xno ; then
+    AC_DEFINE(IMF_HAVE_LARGE_STACK)
+fi
+
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -188,14 +214,14 @@ Summary for IlmBase features:
 OS X architectures                              $osx_arch
 OS X SDK                                        $osx_sdk
 OS X two-way universal build (deprecated)       $build_osxuniversal
+OS X enable large stack optimizations           $large_stack
 ---------------------------------------------
   ])
 else
   AC_MSG_RESULT([
 ---------------------------------------------
 Summary for IlmBase features:
-
-No variable options in this package.  Configure completed successfully.
+enable large stack optimizations                $large_stack
 ---------------------------------------------
   ])
 fi

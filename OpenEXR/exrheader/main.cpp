@@ -40,7 +40,7 @@
 //-----------------------------------------------------------------------------
 
 #include "OpenEXRConfig.h"
-#include <ImfInputFile.h>
+#include <ImfMultiPartInputFile.h>
 #include <ImfBoxAttribute.h>
 #include <ImfChannelListAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
@@ -60,10 +60,12 @@
 #include <ImfTimeCodeAttribute.h>
 #include <ImfVecAttribute.h>
 #include <ImfVersion.h>
+#include <ImfHeader.h>
 #include <iostream>
 #include <iomanip>
 
-using namespace Imf;
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 
 
@@ -276,212 +278,236 @@ printChannelList (const ChannelList &cl)
 void
 printInfo (const char fileName[])
 {
-    InputFile in (fileName);
-    const Header &h = in.header();
+    MultiPartInputFile in (fileName);
+    int parts = in.parts();
 
+    //
+    // check to see if any parts are incomplete
+    //
+    
+    bool is_complete=true;
+    
+    for (size_t i = 0; i < parts && is_complete; ++i)
+    {
+        is_complete &= in.partComplete(i);
+    }
+    
     cout << "\n" << fileName <<
-	    (in.isComplete()? "": " (incomplete file)") <<
+	    (is_complete ? "": " (incomplete file)") <<
 	    ":\n\n";
 
-    cout << "file format version: " <<
+        cout << "file format version: " <<
 	    getVersion (in.version()) << ", "
 	    "flags 0x" <<
 	    setbase (16) << getFlags (in.version()) << setbase (10) << "\n";
 
-    for (Header::ConstIterator i = h.begin(); i != h.end(); ++i)
+    for (size_t p = 0; p < parts ; ++p)
     {
-	const Attribute *a = &i.attribute();
-	cout << i.name() << " (type " << a->typeName() << ")";
+        const Header & h = in.header(p);
+         if( parts != 1 )
+	 {
+             cout  << "\n\n part " << p <<
+             ( in.partComplete(p) ? "": " (incomplete)") <<
+             ":\n";
+	     
+	 }
+	 
+         for (Header::ConstIterator i = h.begin(); i != h.end(); ++i)
+         {
+	     const Attribute *a = &i.attribute();
+	     cout << i.name() << " (type " << a->typeName() << ")";
 
-	if (const Box2iAttribute *ta =
-		dynamic_cast <const Box2iAttribute *> (a))
-	{
-	    cout << ": " << ta->value().min << " - " << ta->value().max;
-	}
-	else if (const Box2fAttribute *ta =
-		dynamic_cast <const Box2fAttribute *> (a))
-	{
-	    cout << ": " << ta->value().min << " - " << ta->value().max;
-	}
-	else if (const ChannelListAttribute *ta =
-		dynamic_cast <const ChannelListAttribute *> (a))
-	{
-	    cout << ":";
-	    printChannelList (ta->value());
-	}
-	else if (const ChromaticitiesAttribute *ta =
-		dynamic_cast <const ChromaticitiesAttribute *> (a))
-	{
-	    cout << ":\n"
+    	     if (const Box2iAttribute *ta =
+		 dynamic_cast <const Box2iAttribute *> (a))
+	     {
+	         cout << ": " << ta->value().min << " - " << ta->value().max;
+	     }
+	     
+ 	     else if (const Box2fAttribute *ta =
+		      dynamic_cast <const Box2fAttribute *> (a))
+	     {
+   	        cout << ": " << ta->value().min << " - " << ta->value().max;
+	     }
+	     else if (const ChannelListAttribute *ta =
+	  	      dynamic_cast <const ChannelListAttribute *> (a))
+	     {
+	        cout << ":";
+	        printChannelList (ta->value());
+	     }
+	     else if (const ChromaticitiesAttribute *ta =
+		      dynamic_cast <const ChromaticitiesAttribute *> (a))
+	     {
+  	        cout << ":\n"
 		    "    red   " << ta->value().red << "\n"
 		    "    green " << ta->value().green << "\n"
 		    "    blue  " << ta->value().blue << "\n"
 		    "    white " << ta->value().white;
-	}
-	else if (const CompressionAttribute *ta =
-		dynamic_cast <const CompressionAttribute *> (a))
-	{
-	    cout << ": ";
-	    printCompression (ta->value());
-	}
-	else if (const DoubleAttribute *ta =
-		dynamic_cast <const DoubleAttribute *> (a))
-	{
-	    cout << ": " << ta->value();
-	}
-	else if (const EnvmapAttribute *ta =
-		dynamic_cast <const EnvmapAttribute *> (a))
-	{
-	    cout << ": ";
-	    printEnvmap (ta->value());
-	}
-	else if (const FloatAttribute *ta =
-		dynamic_cast <const FloatAttribute *> (a))
-	{
-	    cout << ": " << ta->value();
-	}
-	else if (const IntAttribute *ta =
-		dynamic_cast <const IntAttribute *> (a))
-	{
-	    cout << ": " << ta->value();
-	}
-	else if (const KeyCodeAttribute *ta =
-		dynamic_cast <const KeyCodeAttribute *> (a))
-	{
-	    cout << ":\n"
-		    "    film manufacturer code " <<
-			    ta->value().filmMfcCode() << "\n"
-		    "    film type code " <<
-			    ta->value().filmType() << "\n"
-		    "    prefix " <<
-			    ta->value().prefix() << "\n"
-		    "    count " <<
-			    ta->value().count() << "\n"
-		    "    perf offset " <<
-			    ta->value().perfOffset() << "\n"
-		    "    perfs per frame " <<
-			    ta->value().perfsPerFrame() << "\n"
-		    "    perfs per count " <<
-			    ta->value().perfsPerCount();
-	}
-	else if (const LineOrderAttribute *ta =
-		dynamic_cast <const LineOrderAttribute *> (a))
-	{
-	    cout << ": ";
-	    printLineOrder (ta->value());
-	}
-	else if (const M33fAttribute *ta =
-		dynamic_cast <const M33fAttribute *> (a))
-	{
-	    cout << ":\n"
-		    "   (" <<
-		    ta->value()[0][0] << " " <<
-		    ta->value()[0][1] << " " <<
-		    ta->value()[0][2] << "\n    " <<
-		    ta->value()[1][0] << " " <<
-		    ta->value()[1][1] << " " <<
-		    ta->value()[1][2] << "\n    " <<
-		    ta->value()[2][0] << " " <<
-		    ta->value()[2][1] << " " <<
-		    ta->value()[2][2] << ")";
-	}
-	else if (const M44fAttribute *ta =
-		dynamic_cast <const M44fAttribute *> (a))
-	{
-	    cout << ":\n"
-		    "   (" <<
-		    ta->value()[0][0] << " " <<
-		    ta->value()[0][1] << " " <<
-		    ta->value()[0][2] << " " <<
-		    ta->value()[0][3] << "\n    " <<
-		    ta->value()[1][0] << " " <<
-		    ta->value()[1][1] << " " <<
-		    ta->value()[1][2] << " " <<
-		    ta->value()[1][3] << "\n    " <<
-		    ta->value()[2][0] << " " <<
-		    ta->value()[2][1] << " " <<
-		    ta->value()[2][2] << " " <<
-		    ta->value()[2][3] << "\n    " <<
-		    ta->value()[3][0] << " " <<
-		    ta->value()[3][1] << " " <<
-		    ta->value()[3][2] << " " <<
-		    ta->value()[3][3] << ")";
-	}
-	else if (const PreviewImageAttribute *ta =
-		dynamic_cast <const PreviewImageAttribute *> (a))
-	{
-	    cout << ": " <<
-		    ta->value().width()  << " by " <<
-		    ta->value().height() << " pixels";
-	}
-	else if (const StringAttribute *ta =
-		dynamic_cast <const StringAttribute *> (a))
-	{
-	    cout << ": \"" << ta->value() << "\"";
-	}
-	else if (const StringVectorAttribute * ta = 
-		dynamic_cast<const StringVectorAttribute *>(a))
-        {
-	    cout << ":";
-
-	    for (StringVector::const_iterator i = ta->value().begin();
-		 i != ta->value().end();
-		 ++i)
+	     }
+	     else if (const CompressionAttribute *ta =
+		      dynamic_cast <const CompressionAttribute *> (a))
+	     {
+	        cout << ": ";
+	        printCompression (ta->value());
+	     }
+	     else if (const DoubleAttribute *ta =
+		      dynamic_cast <const DoubleAttribute *> (a))
+	     {
+	         cout << ": " << ta->value();
+	     }
+	     else if (const EnvmapAttribute *ta =
+		      dynamic_cast <const EnvmapAttribute *> (a))
+	     {
+	        cout << ": ";
+	        printEnvmap (ta->value());
+	     }
+	     else if (const FloatAttribute *ta =
+		      dynamic_cast <const FloatAttribute *> (a))
 	    {
-		cout << "\n    \"" << *i << "\"";
+	        cout << ": " << ta->value();
 	    }
-        }
-	else if (const RationalAttribute *ta =
-		dynamic_cast <const RationalAttribute *> (a))
-	{
-	    cout << ": " << ta->value().n << "/" << ta->value().d <<
-		    " (" << double (ta->value()) << ")";
-	}
-	else if (const TileDescriptionAttribute *ta =
-		dynamic_cast <const TileDescriptionAttribute *> (a))
-	{
-	    cout << ":\n    ";
-
-	    printLevelMode (ta->value().mode);
-
-	    cout << "\n    tile size " <<
-		    ta->value().xSize << " by " <<
-		    ta->value().ySize << " pixels";
-
-	    if (ta->value().mode != ONE_LEVEL)
+	    else if (const IntAttribute *ta =
+		     dynamic_cast <const IntAttribute *> (a))
 	    {
-		cout << "\n    level sizes rounded ";
-		printLevelRoundingMode (ta->value().roundingMode);
+	        cout << ": " << ta->value();
 	    }
-	}
-	else if (const TimeCodeAttribute *ta =
-		dynamic_cast <const TimeCodeAttribute *> (a))
-	{
-	    cout << ":\n";
-	    printTimeCode (ta->value());
-	}
-	else if (const V2iAttribute *ta =
-		dynamic_cast <const V2iAttribute *> (a))
-	{
-	    cout << ": " << ta->value();
-	}
-	else if (const V2fAttribute *ta =
-		dynamic_cast <const V2fAttribute *> (a))
-	{
-	    cout << ": " << ta->value();
-	}
-	else if (const V3iAttribute *ta =
-		dynamic_cast <const V3iAttribute *> (a))
-	{
-	    cout << ": " << ta->value();
-	}
-	else if (const V3fAttribute *ta =
-		dynamic_cast <const V3fAttribute *> (a))
-	{
-	    cout << ": " << ta->value();
-	}
+	    else if (const KeyCodeAttribute *ta =
+		     dynamic_cast <const KeyCodeAttribute *> (a))
+	    {
+	        cout << ":\n"
+		        "    film manufacturer code " <<
+			        ta->value().filmMfcCode() << "\n"
+		         "    film type code " <<
+			        ta->value().filmType() << "\n"
+		        "    prefix " <<
+			        ta->value().prefix() << "\n"
+		        "    count " <<
+			        ta->value().count() << "\n"
+		        "    perf offset " <<
+			        ta->value().perfOffset() << "\n"
+		        "    perfs per frame " <<
+			        ta->value().perfsPerFrame() << "\n"
+		        "    perfs per count " <<
+			        ta->value().perfsPerCount();
+	    }
+	    else if (const LineOrderAttribute *ta =
+		     dynamic_cast <const LineOrderAttribute *> (a))
+	    {
+	        cout << ": ";
+	        printLineOrder (ta->value());
+	    }
+   	    else if (const M33fAttribute *ta =
+		     dynamic_cast <const M33fAttribute *> (a))
+	    {
+	        cout << ":\n"
+		        "   (" <<
+		        ta->value()[0][0] << " " <<
+		        ta->value()[0][1] << " " <<
+		        ta->value()[0][2] << "\n    " <<
+		        ta->value()[1][0] << " " <<
+		        ta->value()[1][1] << " " <<
+		        ta->value()[1][2] << "\n    " <<
+		        ta->value()[2][0] << " " <<
+		        ta->value()[2][1] << " " <<
+		        ta->value()[2][2] << ")";
+	    }
+	    else if (const M44fAttribute *ta =
+		     dynamic_cast <const M44fAttribute *> (a))
+	    {
+	        cout << ":\n"
+		        "   (" <<
+		         ta->value()[0][0] << " " <<
+		         ta->value()[0][1] << " " <<
+		         ta->value()[0][2] << " " <<
+		         ta->value()[0][3] << "\n    " <<
+		         ta->value()[1][0] << " " <<
+		         ta->value()[1][1] << " " <<
+		         ta->value()[1][2] << " " <<
+  	   	         ta->value()[1][3] << "\n    " <<
+		         ta->value()[2][0] << " " <<
+		         ta->value()[2][1] << " " <<
+		         ta->value()[2][2] << " " <<
+		         ta->value()[2][3] << "\n    " <<
+		         ta->value()[3][0] << " " <<
+		         ta->value()[3][1] << " " <<
+		         ta->value()[3][2] << " " <<
+		         ta->value()[3][3] << ")";
+	    }
+   	    else if (const PreviewImageAttribute *ta =
+		     dynamic_cast <const PreviewImageAttribute *> (a))
+	    {
+	        cout << ": " <<
+		        ta->value().width()  << " by " <<
+		        ta->value().height() << " pixels";
+	    }
+	    else if (const StringAttribute *ta =
+		     dynamic_cast <const StringAttribute *> (a))
+	    {
+	        cout << ": \"" << ta->value() << "\"";
+	    }
+  	    else if (const StringVectorAttribute * ta = 
+		    dynamic_cast<const StringVectorAttribute *>(a))
+            {
+	        cout << ":";
 
-	cout << '\n';
+	        for (StringVector::const_iterator i = ta->value().begin();
+		     i != ta->value().end();
+		     ++i)
+	        {
+		    cout << "\n    \"" << *i << "\"";
+	        }
+            }
+	    else if (const RationalAttribute *ta =
+		    dynamic_cast <const RationalAttribute *> (a))
+	    {
+	        cout << ": " << ta->value().n << "/" << ta->value().d <<
+		        " (" << double (ta->value()) << ")";
+	    }
+	    else if (const TileDescriptionAttribute *ta =
+		    dynamic_cast <const TileDescriptionAttribute *> (a))
+	    {
+	        cout << ":\n    ";
+
+  	        printLevelMode (ta->value().mode);
+
+	        cout << "\n    tile size " <<
+		        ta->value().xSize << " by " <<
+		        ta->value().ySize << " pixels";
+
+   	        if (ta->value().mode != ONE_LEVEL)
+	        {
+		    cout << "\n    level sizes rounded ";
+		    printLevelRoundingMode (ta->value().roundingMode);
+	        }
+	    }
+	    else if (const TimeCodeAttribute *ta =
+		    dynamic_cast <const TimeCodeAttribute *> (a))
+	    {
+	        cout << ":\n";
+	        printTimeCode (ta->value());
+	    }
+	    else if (const V2iAttribute *ta =
+		    dynamic_cast <const V2iAttribute *> (a))
+	    {
+	        cout << ": " << ta->value();
+	    }
+	    else if (const V2fAttribute *ta =
+		    dynamic_cast <const V2fAttribute *> (a))
+	    {
+	        cout << ": " << ta->value();
+	    }
+	    else if (const V3iAttribute *ta =
+		    dynamic_cast <const V3iAttribute *> (a))
+	    {
+	        cout << ": " << ta->value();
+	    }
+	    else if (const V3fAttribute *ta =
+		    dynamic_cast <const V3fAttribute *> (a))
+	    {
+	        cout << ": " << ta->value();
+	    }
+
+  	    cout << '\n';
+	 }
     }
 
     cout << endl;

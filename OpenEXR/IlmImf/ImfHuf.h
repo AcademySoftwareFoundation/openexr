@@ -57,8 +57,10 @@
 //		and stores the results in array r (with length nr).
 //
 //-----------------------------------------------------------------------------
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
 int
@@ -74,6 +76,11 @@ hufUncompress (const char compressed[/*nCompressed*/],
 	       int nRaw);
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

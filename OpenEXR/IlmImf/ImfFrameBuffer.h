@@ -39,18 +39,20 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class Slice
-//	class FrameBuffer
+//      class Slice
+//      class FrameBuffer
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfName.h>
-#include <ImfPixelType.h>
+#include "ImfName.h"
+#include "ImfPixelType.h"
 #include <map>
 #include <string>
 
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
 //-------------------------------------------------------
@@ -68,31 +70,31 @@ struct Slice
     // Data type; see ImfPixelType.h
     //------------------------------
 
-    PixelType		type;
+    PixelType           type;
 
 
     //---------------------------------------------------------------------
     // Memory layout:  The address of pixel (x, y) is
     //
-    //	base + (xp / xSampling) * xStride + (yp / ySampling) * yStride
+    //  base + (xp / xSampling) * xStride + (yp / ySampling) * yStride
     //
     // where xp and yp are computed as follows:
     //
-    //	* If we are reading or writing a scanline-based file:
+    //  * If we are reading or writing a scanline-based file:
     //
-    //	    xp = x
-    //	    yp = y
+    //      xp = x
+    //      yp = y
     //
     //  * If we are reading a tile whose upper left coorner is at (xt, yt):
     //
-    //	    if xTileCoords is true then xp = x - xt, else xp = x
-    //	    if yTileCoords is true then yp = y - yt, else yp = y
+    //      if xTileCoords is true then xp = x - xt, else xp = x
+    //      if yTileCoords is true then yp = y - yt, else yp = y
     //
     //---------------------------------------------------------------------
 
-    char *		base;
-    size_t		xStride;
-    size_t		yStride;
+    char *              base;
+    size_t              xStride;
+    size_t              yStride;
 
 
     //--------------------------------------------
@@ -103,8 +105,8 @@ struct Slice
     //
     //--------------------------------------------
 
-    int			xSampling;
-    int			ySampling;
+    int                 xSampling;
+    int                 ySampling;
 
 
     //----------------------------------------------------------
@@ -112,7 +114,7 @@ struct Slice
     // a channel that corresponds to this slice is read.
     //----------------------------------------------------------
 
-    double		fillValue;
+    double              fillValue;
     
 
     //-------------------------------------------------------
@@ -136,12 +138,12 @@ struct Slice
     //------------
 
     Slice (PixelType type = HALF,
-	   char * base = 0,
-	   size_t xStride = 0,
-	   size_t yStride = 0,
-	   int xSampling = 1,
-	   int ySampling = 1,
-	   double fillValue = 0.0,
+           char * base = 0,
+           size_t xStride = 0,
+           size_t yStride = 0,
+           int xSampling = 1,
+           int ySampling = 1,
+           double fillValue = 0.0,
            bool xTileCoords = false,
            bool yTileCoords = false);
 };
@@ -155,35 +157,35 @@ class FrameBuffer
     // Add a slice
     //------------
 
-    void			insert (const char name[],
-					const Slice &slice);
+    void                        insert (const char name[],
+                                        const Slice &slice);
 
-    void			insert (const std::string &name,
-					const Slice &slice);
+    void                        insert (const std::string &name,
+                                        const Slice &slice);
 
     //----------------------------------------------------------------
     // Access to existing slices:
     //
-    // [n]		Returns a reference to the slice with name n.
-    //			If no slice with name n exists, an Iex::ArgExc
-    //			is thrown.
+    // [n]              Returns a reference to the slice with name n.
+    //                  If no slice with name n exists, an Iex::ArgExc
+    //                  is thrown.
     //
-    // findSlice(n)	Returns a pointer to the slice with name n,
-    //			or 0 if no slice with name n exists.
+    // findSlice(n)     Returns a pointer to the slice with name n,
+    //                  or 0 if no slice with name n exists.
     //
     //----------------------------------------------------------------
 
-    Slice &			operator [] (const char name[]);
-    const Slice &		operator [] (const char name[]) const;
+    Slice &                     operator [] (const char name[]);
+    const Slice &               operator [] (const char name[]) const;
 
-    Slice &			operator [] (const std::string &name);
-    const Slice &		operator [] (const std::string &name) const;
+    Slice &                     operator [] (const std::string &name);
+    const Slice &               operator [] (const std::string &name) const;
 
-    Slice *			findSlice (const char name[]);
-    const Slice *		findSlice (const char name[]) const;
+    Slice *                     findSlice (const char name[]);
+    const Slice *               findSlice (const char name[]) const;
 
-    Slice *			findSlice (const std::string &name);
-    const Slice *		findSlice (const std::string &name) const;
+    Slice *                     findSlice (const std::string &name);
+    const Slice *               findSlice (const std::string &name) const;
 
 
     //-----------------------------------------
@@ -195,21 +197,21 @@ class FrameBuffer
     class Iterator;
     class ConstIterator;
 
-    Iterator			begin ();
-    ConstIterator		begin () const;
+    Iterator                    begin ();
+    ConstIterator               begin () const;
 
-    Iterator			end ();
-    ConstIterator		end () const;
+    Iterator                    end ();
+    ConstIterator               end () const;
 
-    Iterator			find (const char name[]);
-    ConstIterator		find (const char name[]) const;
+    Iterator                    find (const char name[]);
+    ConstIterator               find (const char name[]) const;
 
-    Iterator			find (const std::string &name);
-    ConstIterator		find (const std::string &name) const;
+    Iterator                    find (const std::string &name);
+    ConstIterator               find (const std::string &name) const;
 
   private:
 
-    SliceMap			_map;
+    SliceMap                    _map;
 };
 
 
@@ -224,11 +226,11 @@ class FrameBuffer::Iterator
     Iterator ();
     Iterator (const FrameBuffer::SliceMap::iterator &i);
 
-    Iterator &			operator ++ ();
-    Iterator 			operator ++ (int);
+    Iterator &                  operator ++ ();
+    Iterator                    operator ++ (int);
 
-    const char *		name () const;
-    Slice &			slice () const;
+    const char *                name () const;
+    Slice &                     slice () const;
 
   private:
 
@@ -246,11 +248,11 @@ class FrameBuffer::ConstIterator
     ConstIterator (const FrameBuffer::SliceMap::const_iterator &i);
     ConstIterator (const FrameBuffer::Iterator &other);
 
-    ConstIterator &		operator ++ ();
-    ConstIterator 		operator ++ (int);
+    ConstIterator &             operator ++ ();
+    ConstIterator               operator ++ (int);
 
-    const char *		name () const;
-    const Slice &		slice () const;
+    const char *                name () const;
+    const Slice &               slice () const;
 
   private:
 
@@ -280,7 +282,7 @@ FrameBuffer::Iterator::Iterator (const FrameBuffer::SliceMap::iterator &i):
 }
 
 
-inline FrameBuffer::Iterator &		
+inline FrameBuffer::Iterator &
 FrameBuffer::Iterator::operator ++ ()
 {
     ++_i;
@@ -288,7 +290,7 @@ FrameBuffer::Iterator::operator ++ ()
 }
 
 
-inline FrameBuffer::Iterator 	
+inline FrameBuffer::Iterator
 FrameBuffer::Iterator::operator ++ (int)
 {
     Iterator tmp = *this;
@@ -304,7 +306,7 @@ FrameBuffer::Iterator::name () const
 }
 
 
-inline Slice &	
+inline Slice &
 FrameBuffer::Iterator::slice () const
 {
     return _i->second;
@@ -340,7 +342,7 @@ FrameBuffer::ConstIterator::operator ++ ()
 }
 
 
-inline FrameBuffer::ConstIterator 		
+inline FrameBuffer::ConstIterator
 FrameBuffer::ConstIterator::operator ++ (int)
 {
     ConstIterator tmp = *this;
@@ -355,7 +357,7 @@ FrameBuffer::ConstIterator::name () const
     return *_i->first;
 }
 
-inline const Slice &	
+inline const Slice &
 FrameBuffer::ConstIterator::slice () const
 {
     return _i->second;
@@ -364,7 +366,7 @@ FrameBuffer::ConstIterator::slice () const
 
 inline bool
 operator == (const FrameBuffer::ConstIterator &x,
-	     const FrameBuffer::ConstIterator &y)
+             const FrameBuffer::ConstIterator &y)
 {
     return x._i == y._i;
 }
@@ -372,12 +374,18 @@ operator == (const FrameBuffer::ConstIterator &x,
 
 inline bool
 operator != (const FrameBuffer::ConstIterator &x,
-	     const FrameBuffer::ConstIterator &y)
+             const FrameBuffer::ConstIterator &y)
 {
     return !(x == y);
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
+
 
 #endif

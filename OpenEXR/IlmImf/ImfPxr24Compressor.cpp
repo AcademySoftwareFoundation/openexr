@@ -78,8 +78,11 @@
 
 using namespace std;
 using namespace Imath;
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
+
 namespace {
 
 //
@@ -325,7 +328,7 @@ Pxr24Compressor::compress (const char *inPtr,
 		    unsigned int pixel;
 		    char *pPtr = (char *) &pixel;
 
-		    for (int k = 0; k < sizeof (pixel); ++k)
+		    for (size_t k = 0; k < sizeof (pixel); ++k)
 			*pPtr++ = *inPtr++;
 
 		    unsigned int diff = pixel - previousPixel;
@@ -373,7 +376,7 @@ Pxr24Compressor::compress (const char *inPtr,
 		    float pixel;
 		    char *pPtr = (char *) &pixel;
 
-		    for (int k = 0; k < sizeof (pixel); ++k)
+		    for (size_t k = 0; k < sizeof (pixel); ++k)
 			*pPtr++ = *inPtr++;
 
 		    unsigned int pixel24 = floatToFloat24 (pixel);
@@ -479,7 +482,7 @@ Pxr24Compressor::uncompress (const char *inPtr,
 
 		    char *pPtr = (char *) &pixel;
 
-		    for (int k = 0; k < sizeof (pixel); ++k)
+		    for (size_t k = 0; k < sizeof (pixel); ++k)
 			*writePtr++ = *pPtr++;
 		}
 
@@ -527,7 +530,7 @@ Pxr24Compressor::uncompress (const char *inPtr,
 
 		    char *pPtr = (char *) &pixel;
 
-		    for (int k = 0; k < sizeof (pixel); ++k)
+		    for (size_t k = 0; k < sizeof (pixel); ++k)
 			*writePtr++ = *pPtr++;
 		}
 
@@ -547,4 +550,5 @@ Pxr24Compressor::uncompress (const char *inPtr,
     return writePtr - _outBuffer;
 }
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

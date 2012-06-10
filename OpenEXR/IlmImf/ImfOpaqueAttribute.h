@@ -49,10 +49,12 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfAttribute.h>
-#include <ImfArray.h>
+#include "ImfAttribute.h"
+#include "ImfArray.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
 class OpaqueAttribute: public Attribute
@@ -86,10 +88,10 @@ class OpaqueAttribute: public Attribute
     // I/O and copying
     //----------------
 
-    virtual void		writeValueTo (OStream &os,
+    virtual void		writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
 					      int version) const;
 
-    virtual void		readValueFrom (IStream &is,
+    virtual void		readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 					       int size,
 					       int version);
 
@@ -104,11 +106,11 @@ class OpaqueAttribute: public Attribute
 };
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
 
-// Metrowerks compiler wants the .cpp file inlined, too
-#ifdef __MWERKS__
-#include <ImfOpaqueAttribute.cpp>
-#endif
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

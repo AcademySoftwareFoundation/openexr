@@ -43,26 +43,24 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfLineOrder.h>
-#include <ImfCompression.h>
-#include <ImfName.h>
-#include <ImfTileDescription.h>
-#include <ImfInt64.h>
+#include "ImfLineOrder.h"
+#include "ImfCompression.h"
+#include "ImfName.h"
+#include "ImfTileDescription.h"
+#include "ImfInt64.h"
 #include "ImathVec.h"
 #include "ImathBox.h"
 #include "IexBaseExc.h"
 #include <map>
 #include <iosfwd>
 #include <string>
+#include "ImfForward.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
-
-class Attribute;
-class ChannelList;
-class IStream;
-class OStream;
-class PreviewImage;
+using std::string;
 
 
 class Header
@@ -157,6 +155,21 @@ class Header
     void			insert (const std::string &name,
 				        const Attribute &attribute);
 
+    //---------------------------------------------------------------
+    // Remove an attribute:
+    //
+    // remove(n)       If an attribute with name n exists, then it
+    //                 is removed from the map of present attributes.
+    //
+    //                 If no attribute with name n exists, then this
+    //                 functions becomes a 'no-op'
+    //
+    //---------------------------------------------------------------
+    void                        erase (const char name[]);
+    void                        erase (const std::string &name);
+
+    
+    
     //------------------------------------------------------------------
     // Access to existing attributes:
     //
@@ -247,6 +260,52 @@ class Header
     const Compression &		compression () const;
 
 
+    //-----------------------------------------------------
+    // Access to required attributes for multipart files
+    // They are optional to non-multipart files and mandatory
+    // for multipart files.
+    //-----------------------------------------------------
+    void                        setName (const string& name);
+
+    string&                     name();
+    const string&               name() const;
+
+    bool                        hasName() const;
+
+    void                        setType (const string& Type);
+
+    string&                     type();
+    const string&               type() const;
+
+    bool                        hasType() const;
+
+    void                        setVersion (const int version);
+
+    int&                        version();
+    const int&                  version() const;
+
+    bool                        hasVersion() const;
+
+    //
+    // the chunkCount attribute is set automatically when a file is written.
+    // There is no need to set it manually
+    //
+    void                        setChunkCount(int chunks);
+    bool                        hasChunkCount() const;
+    const int &                 chunkCount() const;
+    int &                       chunkCount();
+
+    
+    //
+    // for multipart files, return whether the file has a view string attribute
+    // (for the deprecated single part multiview format EXR, see ImfMultiView.h)
+    //
+    void                       setView(const string & view);
+    bool                       hasView() const;
+    string &                   view();
+    const string &             view() const;
+    
+
     //----------------------------------------------------------------------
     // Tile Description:
     //
@@ -314,7 +373,8 @@ class Header
     // header
     //-------------------------------------------------------------
 
-    void			sanityCheck (bool isTiled = false) const;
+    void			sanityCheck (bool isTiled = false,
+        			             bool isMultipartFile = false) const;
 
 
     //----------------------------------------------------------------
@@ -336,6 +396,11 @@ class Header
     static void			setMaxImageSize (int maxWidth, int maxHeight);
     static void			setMaxTileSize (int maxWidth, int maxHeight);
 
+    //
+    // Check if the header reads nothing.
+    //
+    bool                        readsNothing();
+
 
     //------------------------------------------------------------------
     // Input and output:
@@ -348,14 +413,18 @@ class Header
     //------------------------------------------------------------------
 
 
-    Int64			writeTo (OStream &os,
+    Int64			writeTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
 					 bool isTiled = false) const;
 
-    void			readFrom (IStream &is, int &version);
+    void			readFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
+        			          int &version);
+    
 
   private:
 
     AttributeMap		_map;
+
+    bool                        _readsNothing;
 };
 
 
@@ -622,6 +691,11 @@ Header::findTypedAttribute (const std::string &name) const
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

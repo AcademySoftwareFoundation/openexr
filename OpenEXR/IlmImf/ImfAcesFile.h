@@ -77,20 +77,22 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfHeader.h>
-#include <ImfRgba.h>
+#include "ImfHeader.h"
+#include "ImfRgba.h"
 #include "ImathVec.h"
 #include "ImathBox.h"
-#include <ImfThreading.h>
+#include "ImfThreading.h"
 #include <string>
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
-
-class RgbaOutputFile;
-class RgbaInputFile;
+    
+class  RgbaOutputFile;
+class  RgbaInputFile;
 struct PreviewRgba;
-class Chromaticities;
+struct Chromaticities;
 
 //
 // ACES red, green, blue and white-point chromaticities.
@@ -123,7 +125,7 @@ class AcesOutputFile
     // automatically close the file.
     //----------------------------------------------------
 
-    AcesOutputFile (OStream &os,
+    AcesOutputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
 		    const Header &header,
 		    RgbaChannels rgbaChannels = WRITE_RGBA,
                     int numThreads = globalThreadCount());
@@ -250,7 +252,7 @@ class AcesInputFile
     // close the file.
     //-----------------------------------------------------------
 
-    AcesInputFile (IStream &is,
+    AcesInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 		   int numThreads = globalThreadCount());
 
 
@@ -317,6 +319,10 @@ class AcesInputFile
 };
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
 
 #endif

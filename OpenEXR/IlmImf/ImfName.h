@@ -45,9 +45,10 @@
 //-----------------------------------------------------------------------------
 
 #include <string.h>
+#include "OpenEXRConfig.h"
 
-namespace Imf {
-
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER
+{
 
 class Name
 {
@@ -140,7 +141,10 @@ operator < (const Name &x, const Name &y)
     return strcmp (*x, *y) < 0;
 }
 
+}
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
 
-} // namespace IMF
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
 
 #endif

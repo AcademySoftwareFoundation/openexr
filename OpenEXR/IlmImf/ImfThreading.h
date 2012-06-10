@@ -68,8 +68,10 @@
 //	  thread pool.
 //
 //-----------------------------------------------------------------------------
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
 //-----------------------------------------------------------------------------
@@ -87,6 +89,11 @@ int     globalThreadCount ();
 void    setGlobalThreadCount (int count);
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

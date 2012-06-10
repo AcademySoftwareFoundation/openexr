@@ -44,11 +44,15 @@
 //-----------------------------------------------------------------------------
 
 #include "IexBaseExc.h"
-#include <ImfIO.h>
-#include <ImfXdr.h>
+#include "ImfIO.h"
+#include "ImfXdr.h"
 
+#include "ImfForward.h"
 
-namespace Imf {
+#include "OpenEXRConfig.h"
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
 class Attribute
@@ -81,10 +85,10 @@ class Attribute
     // Type-specific attribute I/O and copying
     //----------------------------------------
 
-    virtual void		writeValueTo (OStream &os,
+    virtual void		writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
 					      int version) const = 0;
 
-    virtual void		readValueFrom (IStream &is,
+    virtual void		readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 					       int size,
 					       int version) = 0;
 
@@ -128,9 +132,8 @@ class Attribute
 //-------------------------------------------------
 // Class template for attributes of a specific type
 //-------------------------------------------------
-
-template <class T>
-class TypedAttribute: public Attribute
+    
+template <class T,class AT=OPENEXR_IMF_INTERNAL_NAMESPACE::Attribute> class TypedAttribute: public AT
 {
   public:
 
@@ -171,14 +174,14 @@ class TypedAttribute: public Attribute
     // Make a new attribute
     //---------------------
 
-    static Attribute *			makeNewAttribute ();
+    static AT *			makeNewAttribute ();
 
 
     //------------------------------
     // Make a copy of this attribute
     //------------------------------
 
-    virtual Attribute *			copy () const;
+    virtual AT *			copy () const;
 
 
     //-----------------------------------------------------------------
@@ -186,24 +189,24 @@ class TypedAttribute: public Attribute
     // Depending on type T, these functions may have to be specialized.
     //-----------------------------------------------------------------
 
-    virtual void		writeValueTo (OStream &os,
+    virtual void		writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
 					      int version) const;
 
-    virtual void		readValueFrom (IStream &is,
+    virtual void		readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 					       int size,
 					       int version);
 
-    virtual void		copyValueFrom (const Attribute &other);
+    virtual void		copyValueFrom (const AT &other);
 
 
     //------------------------------------------------------------
     // Dynamic casts that throw exceptions instead of returning 0.
     //------------------------------------------------------------
 
-    static TypedAttribute *		cast (Attribute *attribute);
-    static const TypedAttribute *	cast (const Attribute *attribute);
-    static TypedAttribute &		cast (Attribute &attribute);
-    static const TypedAttribute &	cast (const Attribute &attribute);
+    static TypedAttribute *		cast (AT *attribute);
+    static const TypedAttribute *	cast (const AT *attribute);
+    static TypedAttribute &		cast (AT &attribute);
+    static const TypedAttribute &	cast (const AT &attribute);
 
 
     //---------------------------------------------------------------
@@ -233,114 +236,116 @@ class TypedAttribute: public Attribute
     T					_value;
 };
 
-
 //------------------------------------
 // Implementation of TypedAttribute<T>
 //------------------------------------
 
-template <class T>
-TypedAttribute<T>::TypedAttribute ():
-    Attribute (),
+template <class T,class AT>
+TypedAttribute<T,AT>::TypedAttribute ():
+    AT (),
     _value (T())
 {
     // empty
 }
 
 
-template <class T>
-TypedAttribute<T>::TypedAttribute (const T &value):
-    Attribute (),
+template <class T,class AT>
+TypedAttribute<T,AT>::TypedAttribute (const T & value):
+    AT (),
     _value (value)
 {
     // empty
 }
 
 
-template <class T>
-TypedAttribute<T>::TypedAttribute (const TypedAttribute<T> &other):
-    Attribute (other),
+template <class T,class AT >
+TypedAttribute<T,AT>::TypedAttribute (const TypedAttribute<T> &other):
+    AT (other),
     _value ()
 {
     copyValueFrom (other);
 }
 
 
-template <class T>
-TypedAttribute<T>::~TypedAttribute ()
+template <class T,class AT>
+TypedAttribute<T,AT>::~TypedAttribute ()
 {
     // empty
 }
 
 
-template <class T>
+template <class T,class AT>
 inline T &
-TypedAttribute<T>::value ()
+TypedAttribute<T,AT>::value ()
 {
     return _value;
 }
 
 
-template <class T>
+template <class T,class AT>
 inline const T &
-TypedAttribute<T>::value () const
+TypedAttribute<T,AT>::value () const
 {
     return _value;
 }
 
 
-template <class T>
+template <class T,class AT>
 const char *	
-TypedAttribute<T>::typeName () const
+TypedAttribute<T,AT>::typeName () const
 {
     return staticTypeName();
 }
 
 
-template <class T>
-Attribute *
-TypedAttribute<T>::makeNewAttribute ()
+template <class T,class AT>
+AT *
+TypedAttribute<T,AT>::makeNewAttribute ()
 {
     return new TypedAttribute<T>();
 }
 
 
-template <class T>
-Attribute *
-TypedAttribute<T>::copy () const
+template <class T,class AT>
+AT *
+TypedAttribute<T,AT>::copy () const
 {
-    Attribute * attribute = new TypedAttribute<T>();
+    AT * attribute = new TypedAttribute<T>();
     attribute->copyValueFrom (*this);
     return attribute;
 }
 
 
-template <class T>
+template <class T,class AT>
 void		
-TypedAttribute<T>::writeValueTo (OStream &os, int version) const
+TypedAttribute<T,AT>::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
+                                    int version) const
 {
-    Xdr::write <StreamIO> (os, _value);
+    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (os, _value);
 }
 
 
-template <class T>
+template <class T,class AT>
 void		
-TypedAttribute<T>::readValueFrom (IStream &is, int size, int version)
+TypedAttribute<T,AT>::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
+                                     int size,
+                                     int version)
 {
-    Xdr::read <StreamIO> (is, _value);
+    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, _value);
 }
 
 
-template <class T>
+template <class T,class AT>
 void		
-TypedAttribute<T>::copyValueFrom (const Attribute &other)
+TypedAttribute<T,AT>::copyValueFrom (const AT &other)
 {
     _value = cast(other)._value;
 }
 
 
-template <class T>
-TypedAttribute<T> *
-TypedAttribute<T>::cast (Attribute *attribute)
+template <class T,class AT>
+TypedAttribute<T,AT> *
+TypedAttribute<T,AT>::cast (AT *attribute)
 {
     TypedAttribute<T> *t =
 	dynamic_cast <TypedAttribute<T> *> (attribute);
@@ -352,9 +357,9 @@ TypedAttribute<T>::cast (Attribute *attribute)
 }
 
 
-template <class T>
-const TypedAttribute<T> *
-TypedAttribute<T>::cast (const Attribute *attribute)
+template <class T,class AT>
+const TypedAttribute<T,AT> *
+TypedAttribute<T,AT>::cast (const AT *attribute)
 {
     const TypedAttribute<T> *t =
 	dynamic_cast <const TypedAttribute<T> *> (attribute);
@@ -366,39 +371,43 @@ TypedAttribute<T>::cast (const Attribute *attribute)
 }
 
 
-template <class T>
-inline TypedAttribute<T> &	
-TypedAttribute<T>::cast (Attribute &attribute)
+template <class T,class AT>
+inline TypedAttribute<T,AT> &	
+TypedAttribute<T,AT>::cast (AT &attribute)
 {
     return *cast (&attribute);
 }
 
 
-template <class T>
-inline const TypedAttribute<T> &
-TypedAttribute<T>::cast (const Attribute &attribute)
+template <class T,class AT>
+inline const TypedAttribute<T,AT> &
+TypedAttribute<T,AT>::cast (const AT &attribute)
 {
     return *cast (&attribute);
 }
 
 
-template <class T>
+template <class T,class AT>
 inline void
-TypedAttribute<T>::registerAttributeType ()
+TypedAttribute<T,AT>::registerAttributeType ()
 {
-    Attribute::registerAttributeType (staticTypeName(), makeNewAttribute);
+    AT::registerAttributeType (staticTypeName(), makeNewAttribute);
 }
 
 
-template <class T>
+template <class T,class AT>
 inline void
-TypedAttribute<T>::unRegisterAttributeType ()
+TypedAttribute<T,AT>::unRegisterAttributeType ()
 {
-    Attribute::unRegisterAttributeType (staticTypeName());
+    AT::unRegisterAttributeType (staticTypeName());
 }
 
+}
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
 
-} // namespace Imf
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #if defined(OPENEXR_DLL) && defined(_MSC_VER)
     // Tell MS VC++ to disable "non dll-interface class used as base
@@ -412,16 +421,12 @@ TypedAttribute<T>::unRegisterAttributeType ()
  	#define IMF_EXPIMP_TEMPLATE extern
     #endif
 
-    IMF_EXPIMP_TEMPLATE template class Imf::TypedAttribute<float>;
-    IMF_EXPIMP_TEMPLATE template class Imf::TypedAttribute<double>;
+    IMF_EXPIMP_TEMPLATE template class Imf::TypedAttribute<float,Attribute>;
+    IMF_EXPIMP_TEMPLATE template class Imf::TypedAttribute<double,Attribute>;
 
     #pragma warning(default : 4251)
     #undef EXTERN_TEMPLATE
 #endif
 
-// Metrowerks compiler wants the .cpp file inlined, too
-#ifdef __MWERKS__
-#include <ImfAttribute.cpp>
-#endif
 
 #endif

@@ -45,8 +45,11 @@
 #include <errno.h>
 
 using namespace std;
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
+
 namespace {
 
 void
@@ -92,7 +95,7 @@ checkError (ostream &os)
 
 
 StdIFStream::StdIFStream (const char fileName[]):
-    IStream (fileName),
+    OPENEXR_IMF_INTERNAL_NAMESPACE::IStream (fileName),
     _is (new ifstream (fileName, ios_base::binary)),
     _deleteStream (true)
 {
@@ -105,7 +108,7 @@ StdIFStream::StdIFStream (const char fileName[]):
 
     
 StdIFStream::StdIFStream (ifstream &is, const char fileName[]):
-    IStream (fileName),
+    OPENEXR_IMF_INTERNAL_NAMESPACE::IStream (fileName),
     _is (&is),
     _deleteStream (false)
 {
@@ -155,7 +158,7 @@ StdIFStream::clear ()
 
 
 StdOFStream::StdOFStream (const char fileName[]):
-    OStream (fileName),
+    OPENEXR_IMF_INTERNAL_NAMESPACE::OStream (fileName),
     _os (new ofstream (fileName, ios_base::binary)),
     _deleteStream (true)
 {
@@ -168,7 +171,7 @@ StdOFStream::StdOFStream (const char fileName[]):
 
 
 StdOFStream::StdOFStream (ofstream &os, const char fileName[]):
-    OStream (fileName),
+    OPENEXR_IMF_INTERNAL_NAMESPACE::OStream (fileName),
     _os (&os),
     _deleteStream (false)
 {
@@ -207,7 +210,7 @@ StdOFStream::seekp (Int64 pos)
 }
 
 
-StdOSStream::StdOSStream (): OStream ("(string)")
+StdOSStream::StdOSStream (): OPENEXR_IMF_INTERNAL_NAMESPACE::OStream ("(string)")
 {
     // empty
 }
@@ -237,4 +240,5 @@ StdOSStream::seekp (Int64 pos)
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

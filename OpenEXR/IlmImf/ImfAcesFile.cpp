@@ -46,8 +46,10 @@
 using namespace std;
 using namespace Imath;
 using namespace Iex;
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER
+{
 
 
 const Chromaticities &
@@ -135,7 +137,7 @@ AcesOutputFile::AcesOutputFile
 
 
 AcesOutputFile::AcesOutputFile
-    (OStream &os,
+    (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
      const Header &header,
      RgbaChannels rgbaChannels,
      int numThreads)
@@ -628,4 +630,5 @@ AcesInputFile::version () const
     return _data->rgbaFile->version();
 }
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

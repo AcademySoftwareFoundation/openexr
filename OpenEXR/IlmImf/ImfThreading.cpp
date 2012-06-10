@@ -39,8 +39,10 @@
 //-----------------------------------------------------------------------------
 
 #include "IlmThreadPool.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
 int
@@ -57,4 +59,5 @@ setGlobalThreadCount (int count)
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

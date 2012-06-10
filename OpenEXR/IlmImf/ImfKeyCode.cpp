@@ -41,8 +41,10 @@
 
 #include <ImfKeyCode.h>
 #include "Iex.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
    
 KeyCode::KeyCode (int filmMfcCode,
@@ -213,4 +215,5 @@ KeyCode::setPerfsPerCount (int perfsPerCount)
     _perfsPerCount = perfsPerCount;
 }
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

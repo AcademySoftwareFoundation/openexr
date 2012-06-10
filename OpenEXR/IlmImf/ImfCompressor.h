@@ -43,11 +43,13 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfCompression.h>
+#include "ImfCompression.h"
 #include "ImathBox.h"
 #include <stdlib.h>
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 class Header;
 
@@ -203,6 +205,13 @@ class Compressor
 
 bool		isValidCompression (Compression c);
 
+//--------------------------------------
+// Test if c is valid for deep data
+//--------------------------------------
+
+bool            isValidDeepCompression (Compression c);
+
+
 
 //-----------------------------------------------------------------
 // Construct a Compressor for compression type c:
@@ -247,6 +256,11 @@ Compressor *    newTileCompressor (Compression c,
 				   const Header &hdr);
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

@@ -42,8 +42,10 @@
 //	16-bit Haar Wavelet encoding and decoding
 //
 //-----------------------------------------------------------------------------
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
 void
@@ -65,6 +67,11 @@ wav2Decode
      unsigned short mx); // i : maximum in[x][y] value
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

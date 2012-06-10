@@ -34,7 +34,7 @@
 
 
 #include <tmpDir.h>
-#include <compareB44.h>
+#include "compareB44.h"
 
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
@@ -45,14 +45,15 @@
 #include <half.h>
 #include <ImathRandom.h>
 #include <ImfTileDescriptionAttribute.h>
-#include <compareFloat.h>
+#include "compareFloat.h"
 
 #include <stdio.h>
 #include <assert.h>
 
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace Imath;
-using namespace Imf;
 
 
 namespace {

@@ -5,14 +5,14 @@
 // used by any OpenEXR library or application code.
 //
 
-#undef HAVE_LINUX_PROCFS
+#undef OPENEXR_IMF_HAVE_LINUX_PROCFS
 
 //
 // Define and set to 1 if the target system is a Darwin-based system
 // (e.g., OS X).
 //
 
-#undef HAVE_DARWIN
+#undef OPENEXR_IMF_HAVE_DARWIN
 
 //
 // Define and set to 1 if the target system has a complete <iomanip>
@@ -20,17 +20,39 @@
 // formatter.
 //
 
-#undef HAVE_COMPLETE_IOMANIP
+#undef OPENEXR_IMF_HAVE_COMPLETE_IOMANIP
 
 //
 // Define and set to 1 if the target system has support for large
 // stack sizes.
 //
 
-#undef HAVE_LARGE_STACK
+#undef OPENEXR_IMF_HAVE_LARGE_STACK
+
+//
+// Current library namepace name
+//
+
+#undef OPENEXR_IMF_INTERNAL_NAMESPACE
+
+//
+// Current user/client namepace name
+//
+
+#undef OPENEXR_IMF_NAMESPACE
+
+//
+// Macros for helping the entrance and exit from namespaces.
+// This provides us a capacity to change the namespace logic at a later date
+// without affecting the source files. 
+//
+
+#undef OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER
+#undef OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
 
 //
 // Version string for runtime access
 //
+
 #undef OPENEXR_VERSION_STRING
 #undef OPENEXR_PACKAGE_STRING

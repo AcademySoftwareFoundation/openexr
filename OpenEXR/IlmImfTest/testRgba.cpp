@@ -34,7 +34,7 @@
 
 
 #include <tmpDir.h>
-#include <compareB44.h>
+#include "compareB44.h"
 
 #include <ImfRgbaFile.h>
 #include <ImfOutputFile.h>
@@ -48,9 +48,12 @@
 #include <stdio.h>
 #include <assert.h>
 
-using namespace Imf;
-using namespace Imath;
+
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
+using namespace Imath;
+
 
 namespace {
 
@@ -126,12 +129,18 @@ writeReadRGBA (const char fileName[],
     header.lineOrder() = lorder;
     header.compression() = comp;
 
+    cout << "writing ";
+    cout.flush();
+
     {
 	remove (fileName);
 	RgbaOutputFile out (fileName, header, channels);
 	out.setFrameBuffer (&p1[0][0], 1, width);
 	out.writePixels (height);
     }
+
+    cout << "reading ";
+    cout.flush();
 
     {
 	RgbaInputFile in (fileName);
@@ -618,13 +627,13 @@ testRgba ()
 				   LineOrder (lorder),
 				   Compression (comp));
 
-		    writeReadRGBA ("imf_test_rgba.exr",
+		    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
 				   W, H, p1,
 				   WRITE_A,
 				   LineOrder (lorder),
 				   Compression (comp));
 
-		    writeReadRGBA ("imf_test_rgba.exr",
+		    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
 				   W, H, p1,
 				   RgbaChannels (WRITE_R | WRITE_B),
 				   LineOrder (lorder),

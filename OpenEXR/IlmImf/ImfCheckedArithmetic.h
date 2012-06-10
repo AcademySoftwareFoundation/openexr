@@ -43,15 +43,17 @@
 //-----------------------------------------------------------------------------
 
 #include <limits>
-#include <IexMathExc.h>
+#include "IexMathExc.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 template <bool b> struct StaticAssertionFailed;
 template <> struct StaticAssertionFailed <true> {};
 
 #define IMF_STATIC_ASSERT(x) \
-    do {StaticAssertionFailed <x> staticAssertionFailed;} while (false)
+    do {StaticAssertionFailed <x> staticAssertionFailed; ((void) staticAssertionFailed);} while (false)
 
 
 template <class T>
@@ -156,6 +158,11 @@ checkArraySize (T n, size_t s)
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

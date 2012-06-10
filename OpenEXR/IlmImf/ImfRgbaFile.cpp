@@ -51,8 +51,10 @@
 #include <string.h>
 #include <algorithm>
 
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 using namespace std;
 using namespace Imath;
@@ -570,7 +572,7 @@ RgbaOutputFile::RgbaOutputFile (const char name[],
 }
 
 
-RgbaOutputFile::RgbaOutputFile (OStream &os,
+RgbaOutputFile::RgbaOutputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
 				const Header &header,
 				RgbaChannels rgbaChannels,
                                 int numThreads):
@@ -1173,7 +1175,7 @@ RgbaInputFile::RgbaInputFile (const char name[], int numThreads):
 }
 
 
-RgbaInputFile::RgbaInputFile (IStream &is, int numThreads):
+RgbaInputFile::RgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThreads):
     _inputFile (new InputFile (is, numThreads)),
     _fromYca (0),
     _channelNamePrefix ("")
@@ -1200,7 +1202,7 @@ RgbaInputFile::RgbaInputFile (const char name[],
 }
 
 
-RgbaInputFile::RgbaInputFile (IStream &is,
+RgbaInputFile::RgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 			      const string &layerName,
 			      int numThreads)
 :
@@ -1401,4 +1403,5 @@ RgbaInputFile::version () const
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

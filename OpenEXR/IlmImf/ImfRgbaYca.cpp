@@ -48,8 +48,11 @@
 
 using namespace Imath;
 using namespace std;
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
+
 namespace RgbaYca {
 
 
@@ -492,4 +495,5 @@ fixSaturation (const Imath::V3f &yw,
 }
 
 } // namespace RgbaYca
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

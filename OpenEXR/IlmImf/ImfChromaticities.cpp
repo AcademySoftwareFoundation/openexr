@@ -41,8 +41,11 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfChromaticities.h>
+#include "OpenEXRConfig.h"
+#include <string.h>
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
    
 Chromaticities::Chromaticities (const Imath::V2f &red,
@@ -58,7 +61,21 @@ Chromaticities::Chromaticities (const Imath::V2f &red,
     // empty
 }
 
+    
+bool
+Chromaticities::operator == (const Chromaticities & c) const
+{
+    return red == c.red && green == c.green && blue == c.blue;
+}
 
+    
+bool
+Chromaticities::operator != (const Chromaticities & c) const
+{
+    return red != c.red || green != c.green || blue != c.blue;
+}
+    
+    
 Imath::M44f
 RGBtoXYZ (const Chromaticities chroma, float Y)
 {
@@ -132,4 +149,5 @@ XYZtoRGB (const Chromaticities chroma, float Y)
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

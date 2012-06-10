@@ -50,8 +50,9 @@
 #include <algorithm>
 
 
+#include "namespaceAlias.h"
+using namespace CustomImf;
 using namespace std;
-using namespace Imf;
 using namespace Imath;
 
 

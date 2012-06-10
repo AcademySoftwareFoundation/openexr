@@ -45,13 +45,15 @@
 //-----------------------------------------------------------------------------
 
 
-#include <drawImage.h>
+#include "drawImage.h"
+
 #include <math.h>
 #include <stdlib.h>
 #include <float.h>
 #include <algorithm>
 
-using namespace Imf;
+#include "namespaceAlias.h"
+using namespace CustomImf;
 using namespace std;
 
 namespace

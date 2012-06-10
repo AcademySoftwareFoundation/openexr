@@ -45,12 +45,14 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfRgbaFile.h>
-#include <ImfFrameBuffer.h>
+#include "ImfRgbaFile.h"
+#include "ImfFrameBuffer.h"
 #include "ImathBox.h"
 #include "halfFunction.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 //
 // Lookup table for individual half channels.
@@ -180,6 +182,10 @@ RgbaLut::RgbaLut (Function f, RgbaChannels chn):
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
 
 #endif

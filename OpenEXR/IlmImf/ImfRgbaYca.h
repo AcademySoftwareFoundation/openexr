@@ -114,10 +114,13 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfRgba.h>
-#include <ImfChromaticities.h>
+#include "ImfRgba.h"
+#include "ImfChromaticities.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
+
 namespace RgbaYca {
 
 
@@ -243,6 +246,11 @@ void fixSaturation (const Imath::V3f &yw,
 		    Rgba rgbaOut[/*n*/]);
 
 } // namespace RgbaYca
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

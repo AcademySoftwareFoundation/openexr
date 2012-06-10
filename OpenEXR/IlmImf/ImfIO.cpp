@@ -41,8 +41,10 @@
 
 #include <ImfIO.h>
 #include "Iex.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
 IStream::IStream (const char fileName[]): _fileName (fileName)
@@ -106,4 +108,5 @@ OStream::fileName () const
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

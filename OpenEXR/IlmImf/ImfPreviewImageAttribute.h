@@ -42,30 +42,28 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfAttribute.h>
-#include <ImfPreviewImage.h>
+#include "ImfAttribute.h"
+#include "ImfPreviewImage.h"
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER {
 
 
-namespace Imf {
-
-
-typedef TypedAttribute<PreviewImage> PreviewImageAttribute;
+typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::PreviewImage> PreviewImageAttribute;
 
 template <>
 const char *PreviewImageAttribute::staticTypeName ();
 
 template <>
-void PreviewImageAttribute::writeValueTo (OStream &, int) const;
+void PreviewImageAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
 
 template <>
-void PreviewImageAttribute::readValueFrom (IStream &, int, int);
+void PreviewImageAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
 
-// Metrowerks compiler wants the .cpp file inlined, too
-#ifdef __MWERKS__
-#include <ImfPreviewImageAttribute.cpp>
-#endif
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
 
 #endif

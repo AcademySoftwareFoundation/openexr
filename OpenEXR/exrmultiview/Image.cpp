@@ -39,9 +39,10 @@
 //
 //----------------------------------------------------------------------------
 
-#include <Image.h>
+#include "Image.h"
 
-using namespace Imf;
+#include "namespaceAlias.h"
+using namespace CustomImf;
 using namespace Imath;
 using namespace std;
 
@@ -88,7 +89,7 @@ Image::resize (const Imath::Box2i &dataWindow)
 
 
 void
-Image::addChannel (const string &name, const Channel &channel)
+Image::addChannel (const string &name, const CustomImf::Channel &channel)
 {
     switch (channel.type)
     {

@@ -42,16 +42,20 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfHeader.h>
-#include <ImfFrameBuffer.h>
+#include "ImfHeader.h"
+#include "ImfFrameBuffer.h"
 #include "ImathBox.h"
-#include <ImfTileDescription.h>
-#include <ImfThreading.h>
+#include "ImfTileDescription.h"
+#include "ImfThreading.h"
+#include "ImfGenericInputFile.h"
+#include "ImfTiledOutputFile.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
-class TiledInputFile
+class TiledInputFile : public GenericInputFile
 {
   public:
 
@@ -77,7 +81,7 @@ class TiledInputFile
     // files.
     // ----------------------------------------------------------
 
-    TiledInputFile (IStream &is, int numThreads = globalThreadCount ());
+    TiledInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThreads = globalThreadCount ());
 
 
     //-----------
@@ -345,6 +349,10 @@ class TiledInputFile
     // Read a tile of raw pixel data from the file,
     // without uncompressing it (this function is
     // used to implement TiledOutputFile::copyPixels()).
+    //
+    // for single part files, reads the next tile in the file
+    // for multipart files, reads the tile specified by dx,dy,lx,ly
+    //
     //--------------------------------------------------
 
     void		rawTileData (int &dx, int &dy,
@@ -357,14 +365,19 @@ class TiledInputFile
   private:
 
     friend class InputFile;
+    friend class MultiPartInputFile;
+
+    TiledInputFile (InputPartData* part);
 
     TiledInputFile (const TiledInputFile &);		  // not implemented
     TiledInputFile & operator = (const TiledInputFile &); // not implemented
 
-    TiledInputFile (const Header &header, IStream *is, int version,
+    TiledInputFile (const Header &header, OPENEXR_IMF_INTERNAL_NAMESPACE::IStream *is, int version,
                     int numThreads);
 
     void		initialize ();
+    void                multiPartInitialize(InputPartData* part);
+    void                compatibilityInitialize(OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is);
 
     bool		isValidTile (int dx, int dy,
 				     int lx, int ly) const;
@@ -372,10 +385,18 @@ class TiledInputFile
     size_t		bytesPerLineForTile (int dx, int dy,
 					     int lx, int ly) const;
 
+    void                tileOrder(int dx[],int dy[],int lx[],int ly[]) const;
     Data *		_data;
+
+    friend void TiledOutputFile::copyPixels(TiledInputFile &);
 };
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

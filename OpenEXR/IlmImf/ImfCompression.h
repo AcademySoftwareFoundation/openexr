@@ -42,9 +42,10 @@
 //	enum Compression
 //
 //-----------------------------------------------------------------------------
+#include "OpenEXRConfig.h"
 
-namespace Imf {
-
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 enum Compression
 {
@@ -69,7 +70,12 @@ enum Compression
     NUM_COMPRESSION_METHODS	// number of different compression methods
 };
 
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
 
-} // namespace Imf
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
+
 
 #endif

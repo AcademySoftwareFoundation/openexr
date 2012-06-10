@@ -45,8 +45,11 @@
 #include <cmath>
 
 using namespace std;
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
+
 namespace {
 
 double
@@ -122,4 +125,5 @@ Rational::Rational (double x)
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

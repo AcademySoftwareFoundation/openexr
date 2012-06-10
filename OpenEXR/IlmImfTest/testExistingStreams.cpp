@@ -45,9 +45,10 @@
 #include "Iex.h"
 #include <errno.h>
 
-using namespace Imf;
-using namespace Imath;
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
+using namespace Imath;
 
 namespace {
 
@@ -89,10 +90,10 @@ fillPixels2 (Array2D<Rgba> &pixels, int w, int h)
 
 //
 // class MMIFStream -- a memory-mapped implementation of
-// class IStream based on class std::ifstream
+// class OPENEXR_IMF_NAMESPACE::IStream based on class std::ifstream
 //
 
-class MMIFStream: public IStream
+class MMIFStream: public OPENEXR_IMF_NAMESPACE::IStream
 {
   public:
 
@@ -124,7 +125,7 @@ class MMIFStream: public IStream
 
 
 MMIFStream::MMIFStream (const char fileName[]):
-    IStream (fileName),
+    OPENEXR_IMF_NAMESPACE::IStream (fileName),
     _buffer (0),
     _length (0),
     _pos (0)

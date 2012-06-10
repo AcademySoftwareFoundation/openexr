@@ -41,8 +41,10 @@
 
 #include <ImfTimeCode.h>
 #include "Iex.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
    
 TimeCode::TimeCode ()
@@ -118,6 +120,21 @@ TimeCode::operator = (const TimeCode &other)
     return *this;
 }
 
+    
+bool
+TimeCode::operator == (const TimeCode & c) const
+{
+    return (_time == c._time && _user == c._user);
+}
+
+
+bool
+TimeCode::operator != (const TimeCode & c) const
+{
+    return (_time != c._time || _user != c._user);
+}
+    
+    
 
 namespace {
 
@@ -412,4 +429,5 @@ TimeCode::setUserData (unsigned int value)
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

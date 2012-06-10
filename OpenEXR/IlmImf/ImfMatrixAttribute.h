@@ -46,42 +46,41 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfAttribute.h>
+#include "ImfAttribute.h"
 #include "ImathMatrix.h"
 
-
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER {
 
 
 typedef TypedAttribute<Imath::M33f> M33fAttribute;
 template <> const char *M33fAttribute::staticTypeName ();
-template <> void M33fAttribute::writeValueTo (OStream &, int) const;
-template <> void M33fAttribute::readValueFrom (IStream &, int, int);
+template <> void M33fAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
+template <> void M33fAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
 typedef TypedAttribute<Imath::M33d> M33dAttribute;
 template <> const char *M33dAttribute::staticTypeName ();
-template <> void M33dAttribute::writeValueTo (OStream &, int) const;
-template <> void M33dAttribute::readValueFrom (IStream &, int, int);
+template <> void M33dAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
+template <> void M33dAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
 typedef TypedAttribute<Imath::M44f> M44fAttribute;
 template <> const char *M44fAttribute::staticTypeName ();
-template <> void M44fAttribute::writeValueTo (OStream &, int) const;
-template <> void M44fAttribute::readValueFrom (IStream &, int, int);
+template <> void M44fAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
+template <> void M44fAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
 typedef TypedAttribute<Imath::M44d> M44dAttribute;
 template <> const char *M44dAttribute::staticTypeName ();
-template <> void M44dAttribute::writeValueTo (OStream &, int) const;
-template <> void M44dAttribute::readValueFrom (IStream &, int, int);
+template <> void M44dAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
+template <> void M44dAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-} // namespace Imf
+}
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
 
-// Metrowerks compiler wants the .cpp file inlined, too
-#ifdef __MWERKS__
-#include <ImfMatrixAttribute.cpp>
-#endif
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

@@ -42,11 +42,17 @@
 //----------------------------------------------------------------------------
 
 #include "ImathInt64.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER
+{
 
-using Imath::Int64;
+    using Imath::Int64;
 
-} // namespace Imf
+}
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
 
-#endif
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
+
+#endif // INCLUDED_IMF_INT64_H

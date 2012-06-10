@@ -49,8 +49,10 @@
 //		not a number (NaN)	for n == 0, d == 0
 //
 //-----------------------------------------------------------------------------
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 class Rational
 {
@@ -88,6 +90,11 @@ class Rational
     operator double () const {return double (n) / double (d);}
 };
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

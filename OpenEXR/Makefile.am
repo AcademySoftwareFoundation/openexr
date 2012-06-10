@@ -6,7 +6,8 @@ ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = config IlmImf \
 	  IlmImfTest IlmImfFuzzTest exrheader exrmaketiled IlmImfExamples doc \
-	  exrstdattr exrmakepreview exrenvmap exrmultiview exr2aces
+	  exrstdattr exrmakepreview exrenvmap exrmultiview exr2aces exrbuild  \
+	  exrmultipart
 
 DIST_SUBDIRS = \
 	$(SUBDIRS) \

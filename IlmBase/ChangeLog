@@ -1,3 +1,17 @@
+Version 1.1.0.beta.1
+	* Added new module PyIlmBase : python bindings for IlmBase
+	  (Nick Rasmussen)
+	* Added git specific files 
+	  (Piotr Stanczyk)
+	* Minor fixes for newer gcc versions and OS X.
+	  (misc)
+	* Preparation for OpenEXR v2 release { remove message for final release }
+	  (Piotr Stanczyk)
+        * Updated the so verison to 10
+	  (Piotr Stanczyk)
+	* Initial use of the CMake build system 
+	  (Nicholas Yue)
+
 Version 1.0.3
 	* A minor API change to Imath::Frustum has been made:  the functions
 	  'near' and 'far' have been renamed to 'nearPlane' and 'farPlane' due

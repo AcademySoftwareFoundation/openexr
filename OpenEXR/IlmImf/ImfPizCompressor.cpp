@@ -54,8 +54,10 @@
 #include <ImfAutoArray.h>
 #include <string.h>
 #include <assert.h>
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 using Imath::divp;
 using Imath::modp;
@@ -310,7 +312,7 @@ PizCompressor::compress (const char *inPtr,
     //
 
     //
-    // Special case ­- empty input buffer
+    // Special case ï¿½- empty input buffer
     //
 
     if (inSize == 0)
@@ -663,4 +665,5 @@ PizCompressor::uncompress (const char *inPtr,
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

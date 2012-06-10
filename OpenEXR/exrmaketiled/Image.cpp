@@ -39,9 +39,10 @@
 //
 //----------------------------------------------------------------------------
 
-#include <Image.h>
+#include "Image.h"
+#include "namespaceAlias.h"
 
-using namespace Imf;
+using namespace CustomImf;
 using namespace Imath;
 using namespace std;
 

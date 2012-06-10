@@ -41,17 +41,18 @@
 //
 //-----------------------------------------------------------------------------
 
-
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
 #include <ImfPreviewImage.h>
 #include "ImathFun.h"
-#include <drawImage.h>
+
+#include "drawImage.h"
 
 #include <iostream>
 
+#include "namespaceAlias.h"
+using namespace CustomImf;
 using namespace std;
-using namespace Imf;
 using namespace Imath;
 
 

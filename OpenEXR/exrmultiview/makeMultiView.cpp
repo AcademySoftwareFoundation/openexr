@@ -40,8 +40,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include <makeMultiView.h>
-#include <Image.h>
+#include "makeMultiView.h"
+#include "Image.h"
 #include <ImfInputFile.h>
 #include <ImfOutputFile.h>
 #include <ImfChannelList.h>
@@ -54,7 +54,8 @@
 #include <iostream>
 
 
-using namespace Imf;
+#include "namespaceAlias.h"
+using namespace CustomImf;
 using namespace Imath;
 using namespace std;
 
@@ -71,9 +72,12 @@ makeMultiView (const vector <string> &viewNames,
     FrameBuffer outFb;
 
     //
-    // Write the input image files
+    // Find the size of the dataWindow, check files
     //
-
+    
+    Box2i d;
+    
+    
     for (int i = 0; i < viewNames.size(); ++i)
     {
 	InputFile in (inFileNames[i]);
@@ -92,18 +96,36 @@ makeMultiView (const vector <string> &viewNames,
 		   "images.");
 	}
 
+        header = in.header();
 	if (i == 0)
-	{
-	    header = in.header();
-	    image.resize (header.dataWindow());
-	}
+        {
+             d=header.dataWindow();
+	}else{
+             d.extendBy(header.dataWindow());
+        }
+    }
+    
+    
+    image.resize (d);
+    
+    header.dataWindow()=d;
+    
+    // blow away channels; we'll rebuild them
+    header.channels()=ChannelList();
+    
+    
+    //
+    // Read the input image files
+    //
 
-	if (i > 0 && in.header().dataWindow() != header.dataWindow())
+    for (int i = 0; i < viewNames.size(); ++i)
+    {
+	InputFile in (inFileNames[i]);
+
+	if (verbose)
 	{
-	    THROW (Iex::InputExc,
-		   "Image files " << inFileNames[0] << " "
-		   "and " << inFileNames[i] << " have different "
-		   "data windows.");
+	    cout << "reading file " << inFileNames[i] << " "
+		    "for " << viewNames[i] << " view" << endl;
 	}
 
 	FrameBuffer inFb;
@@ -117,6 +139,8 @@ makeMultiView (const vector <string> &viewNames,
 	    string outChanName = insertViewName (inChanName, viewNames, i);
 
 	    image.addChannel (outChanName, inChannel);
+            image.channel(outChanName).black();
+            
 	    header.channels().insert (outChanName, inChannel);
 
 	    inFb.insert  (inChanName,  image.channel(outChanName).slice());
@@ -124,7 +148,7 @@ makeMultiView (const vector <string> &viewNames,
 	}
 
 	in.setFrameBuffer (inFb);
-	in.readPixels (header.dataWindow().min.y, header.dataWindow().max.y);
+	in.readPixels (in.header().dataWindow().min.y, in.header().dataWindow().max.y);
     }
 
     //

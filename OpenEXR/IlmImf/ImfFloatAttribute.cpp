@@ -43,7 +43,8 @@
 #include <ImfFloatAttribute.h>
 
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
 template <>
@@ -54,4 +55,4 @@ FloatAttribute::staticTypeName ()
 }
 
 
-} // namespace Imf
+}OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT 

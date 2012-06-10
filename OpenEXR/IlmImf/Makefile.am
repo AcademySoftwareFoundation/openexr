@@ -2,7 +2,7 @@
 
 lib_LTLIBRARIES = libIlmImf.la
 
-libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
+libIlmImf_la_SOURCES = ImfForward.h ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 		       ImfChannelList.cpp ImfChannelListAttribute.cpp \
 		       ImfFloatAttribute.cpp ImfFrameBuffer.cpp \
 		       ImfHeader.cpp ImfIO.cpp ImfInputFile.cpp \
@@ -19,8 +19,8 @@ libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 		       ImfCRgbaFile.h ImfChannelList.h \
 		       ImfChannelListAttribute.h \
 		       ImfCompressionAttribute.h \
-	               ImfDoubleAttribute.h ImfFloatAttribute.h \
-	               ImfFrameBuffer.h ImfHeader.h ImfIO.h \
+		       ImfDoubleAttribute.h ImfFloatAttribute.h \
+		       ImfFrameBuffer.h ImfHeader.h ImfIO.h \
 		       ImfInputFile.h ImfIntAttribute.h \
 		       ImfLineOrderAttribute.h ImfMatrixAttribute.h \
 		       ImfOpaqueAttribute.h ImfOutputFile.h \
@@ -56,25 +56,50 @@ libIlmImf_la_SOURCES = ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgbaFile.cpp \
 		       ImfTiledOutputFile.h ImfTiledRgbaFile.h \
 		       ImfRgbaYca.cpp ImfRgbaYca.h \
 		       ImfPxr24Compressor.cpp ImfPxr24Compressor.h \
- 		       ImfTestFile.cpp ImfTestFile.h ImfThreading.h \
-                       ImfStringVectorAttribute.cpp ImfStringVectorAttribute.h \
-                       ImfMultiView.cpp ImfMultiView.h \
+		       ImfTestFile.cpp ImfTestFile.h ImfThreading.h \
+		       ImfStringVectorAttribute.cpp ImfStringVectorAttribute.h \
+		       ImfMultiView.cpp ImfMultiView.h \
 		       ImfAcesFile.cpp ImfAcesFile.h \
-		       ImfCheckedArithmetic.h
+		       ImfCheckedArithmetic.h \
+		       ImfMultiPartOutputFile.cpp ImfMultiPartOutputFile.h \
+		       ImfGenericOutputFile.cpp ImfGenericOutputFile.h \
+		       ImfOutputStreamMutex.h ImfInputStreamMutex.h\
+		       ImfOutputPartData.h ImfOutputPartData.cpp \
+		       ImfMultiPartInputFile.cpp ImfMultiPartInputFile.h \
+		       ImfGenericInputFile.cpp ImfGenericInputFile.h \
+		       ImfPartType.cpp ImfPartType.h \
+		       ImfInputPartData.cpp ImfInputPartData.h \
+		       ImfOutputPart.cpp ImfOutputPart.h \
+		       ImfTiledOutputPart.cpp ImfTiledOutputPart.h \
+		       ImfInputPart.cpp ImfInputPart.h \
+		       ImfTiledInputPart.cpp ImfTiledInputPart.h ImfDeepScanLineInputPart.h \
+		       ImfDeepScanLineInputPart.cpp ImfDeepScanLineOutputPart.cpp ImfDeepScanLineOutputPart.h \
+		       ImfDeepScanLineInputFile.cpp ImfDeepScanLineInputFile.h ImfDeepScanLineOutputFile.cpp ImfDeepScanLineOutputFile.h \
+		       ImfDeepTiledInputPart.h ImfDeepTiledInputPart.cpp ImfDeepTiledOutputPart.h ImfDeepTiledOutputPart.cpp \
+		       ImfDeepTiledInputFile.h ImfDeepTiledInputFile.cpp ImfDeepTiledOutputFile.h ImfDeepTiledOutputFile.cpp \
+		       ImfDeepFrameBuffer.cpp ImfDeepFrameBuffer.h \
+		       ImfDeepCompositing.h ImfDeepCompositing.cpp \
+		       ImfCompositeDeepScanLine.h ImfCompositeDeepScanLine.cpp
 
 libIlmImf_la_LDFLAGS = @ILMBASE_LDFLAGS@ -version-info @LIBTOOL_VERSION@ \
-			-no-undefined
+			-no-undefined 
+
+
+if LIB_SUFFIX_EXISTS
+libIlmImf_la_LDFLAGS += -release @LIB_SUFFIX@
+endif
+
 
 libIlmImf_la_LIBADD =  -lz @ILMBASE_LIBS@
 
 libIlmImfincludedir = $(includedir)/OpenEXR
 
-libIlmImfinclude_HEADERS = ImfAttribute.h ImfBoxAttribute.h \
+libIlmImfinclude_HEADERS = ImfForward.h ImfAttribute.h ImfBoxAttribute.h \
 			   ImfCRgbaFile.h ImfChannelList.h \
 			   ImfChannelListAttribute.h \
 			   ImfCompressionAttribute.h \
-	                   ImfDoubleAttribute.h ImfFloatAttribute.h \
-	                   ImfFrameBuffer.h ImfHeader.h ImfIO.h \
+			   ImfDoubleAttribute.h ImfFloatAttribute.h \
+			   ImfFrameBuffer.h ImfHeader.h ImfIO.h \
 			   ImfInputFile.h ImfIntAttribute.h \
 			   ImfLineOrderAttribute.h ImfMatrixAttribute.h \
 			   ImfOpaqueAttribute.h ImfOutputFile.h \
@@ -90,23 +115,43 @@ libIlmImfinclude_HEADERS = ImfAttribute.h ImfBoxAttribute.h \
 			   ImfRational.h ImfRationalAttribute.h \
 			   ImfFramesPerSecond.h \
 			   ImfStandardAttributes.h \
-		       	   ImfEnvmap.h \
-		       	   ImfEnvmapAttribute.h \
-		           ImfInt64.h ImfRgba.h \
-		           ImfTileDescription.h \
-		           ImfTileDescriptionAttribute.h \
-		           ImfTiledInputFile.h \
-		           ImfTiledOutputFile.h ImfTiledRgbaFile.h \
+			   ImfEnvmap.h \
+			   ImfEnvmapAttribute.h \
+			   ImfInt64.h ImfRgba.h \
+			   ImfTileDescription.h \
+			   ImfTileDescriptionAttribute.h \
+			   ImfTiledInputFile.h \
+			   ImfTiledOutputFile.h ImfTiledRgbaFile.h \
 			   ImfRgbaYca.h \
 			   ImfTestFile.h ImfThreading.h \
 			   ImfB44Compressor.h ImfStringVectorAttribute.h \
 			   ImfMultiView.h \
-			   ImfAcesFile.h
+			   ImfAcesFile.h \
+			   ImfMultiPartOutputFile.h \
+			   ImfGenericOutputFile.h \
+			   ImfMultiPartInputFile.h \
+			   ImfGenericInputFile.h \
+			   ImfPartType.h \
+			   ImfOutputPart.h \
+			   ImfTiledOutputPart.h \
+			   ImfInputPart.h \
+			   ImfTiledInputPart.h \
+			   ImfDeepScanLineOutputFile.h \
+			   ImfDeepScanLineOutputPart.h \
+			   ImfDeepScanLineInputFile.h \
+			   ImfDeepScanLineInputPart.h \
+			   ImfDeepTiledInputFile.h \
+			   ImfDeepTiledInputPart.h \
+			   ImfDeepTiledOutputFile.h \
+			   ImfDeepTiledOutputPart.h \
+			   ImfDeepFrameBuffer.h \
+			   ImfDeepCompositing.h ImfCompositeDeepScanLine.h
 
 noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
 		 ImfPizCompressor.h ImfMisc.h ImfAutoArray.h ImfTiledMisc.h \
 		 ImfTileOffsets.h ImfScanLineInputFile.h ImfPxr24Compressor.h \
-		 ImfCheckedArithmetic.h
+		 ImfCheckedArithmetic.h  ImfInputStreamMutex.h ImfOutputStreamMutex.h  \
+          	 ImfInputPartData.h ImfOutputPartData.h ImfScanLineInputFile.h 
 
 EXTRA_DIST = $(noinst_HEADERS) b44ExpLogTable.cpp b44ExpLogTable.h
 

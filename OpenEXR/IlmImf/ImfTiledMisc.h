@@ -43,10 +43,13 @@
 //-----------------------------------------------------------------------------
 
 #include "ImathBox.h"
-#include <ImfHeader.h>
+#include "ImfHeader.h"
 #include <stdio.h>
+#include <vector>
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 int levelSize (int min, int max, int l, LevelRoundingMode rmode);
 
@@ -63,13 +66,38 @@ Imath::Box2i dataWindowForTile (const TileDescription &tileDesc,
 
 size_t calculateBytesPerPixel (const Header &header);
 
+//
+// Calculate the count of bytes for each lines in range [minY, maxY],
+// and pixels in range [minX, maxX].
+// Data will be saved in bytesPerLine.
+// sampleCountBase, sampleCountXStride and sampleCountYStride are
+// used to get the sample count values.
+//
+
+void calculateBytesPerLine (const Header &header,
+                            char* sampleCountBase,
+                            int sampleCountXStride,
+                            int sampleCountYStride,
+                            int minX, int maxX,
+                            int minY, int maxY,
+                            std::vector<int>& xOffsets,
+                            std::vector<int>& yOffsets,
+                            std::vector<Int64>& bytesPerLine);
+
 void precalculateTileInfo (const TileDescription& tileDesc,
 			   int minX, int maxX,
 			   int minY, int maxY,
 			   int *&numXTiles, int *&numYTiles,
 			   int &numXLevels, int &numYLevels);
 
+int getTiledChunkOffsetTableSize(const Header& header);
 
-} // namespace Imf
+
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

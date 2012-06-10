@@ -1,6 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(OpenEXR, 1.7.1)
-AC_SUBST(OPENEXR_VERSION, 1.7.1)
+
+AC_INIT(OpenEXR, 2.0.0)
+AC_SUBST(OPENEXR_VERSION, 2.0.0)
+AC_SUBST(OPENEXR_VERSION_SAFE, 2_0_0)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(IlmImfTest/main.cpp)
 AM_CONFIG_HEADER(config/OpenEXRConfig.h)
@@ -8,7 +10,7 @@ AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 
 
-LIBTOOL_CURRENT=7
+LIBTOOL_CURRENT=20
 LIBTOOL_REVISION=0
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
@@ -35,9 +37,7 @@ if [[ -e /usr/lib64 ]]; then
    LIB64_IF_EXISTS="-L/usr/lib64"
 fi         
 
-dnl Define the version string
-AC_DEFINE_UNQUOTED(OPENEXR_VERSION_STRING, "${VERSION}")
-AC_DEFINE_UNQUOTED(OPENEXR_PACKAGE_STRING, "${PACKAGE_STRING}")
+
 
 export PKG_CONFIG_PATH
 
@@ -54,6 +54,12 @@ AM_PATH_PKGCONFIG(
    [-lImath -lHalf -lIex -lIlmThread -lpthread],
    [ilmbase-prefix])
 
+
+dnl Define the version string
+AC_DEFINE_UNQUOTED(OPENEXR_VERSION_STRING, "${VERSION}")
+AC_DEFINE_UNQUOTED(OPENEXR_PACKAGE_STRING, "${PACKAGE_STRING}")
+
+
 dnl --enable-threading
 AC_ARG_ENABLE(threading,
               AC_HELP_STRING([--enable-threading],
@@ -63,7 +69,7 @@ AC_ARG_ENABLE(threading,
 if test x$PKG_CONFIG == xno && test "x${multithread}" != xno ; then
     ACX_PTHREAD(
     [
-	AC_DEFINE(HAVE_PTHREAD)
+	AC_DEFINE(OPENEXR_IMF_HAVE_PTHREAD)
 	ILMBASE_LIBS="$PTHREAD_LIBS $ILMBASE_LIBS"
 	ILMBASE_CXXFLAGS="$ILMBASE_CXXFLAGS $PTHREAD_CFLAGS"
 	CC="$PTHREAD_CC"
@@ -95,7 +101,7 @@ case "$host" in
 esac
 
 if test "x${large_stack}" != xno ; then
-    AC_DEFINE(HAVE_LARGE_STACK)
+    AC_DEFINE(OPENEXR_IMF_HAVE_LARGE_STACK)
 fi
 
 AM_COMPILELINKRUN(
@@ -145,7 +151,7 @@ AC_TRY_COMPILE([#include <iomanip>],[
 
 	std::right;
 ],
-AC_DEFINE(HAVE_COMPLETE_IOMANIP) complete_iomanip=yes)
+AC_DEFINE(OPENEXR_IMF_HAVE_COMPLETE_IOMANIP) complete_iomanip=yes)
 AC_MSG_RESULT($complete_iomanip)
 AC_LANG_RESTORE
 
@@ -162,10 +168,10 @@ AC_MSG_RESULT([$EXTRA_OPT_CFLAGS])
 dnl Platform-specific stuff
 case "$host" in
 *linux*)
-  AC_DEFINE(HAVE_LINUX_PROCFS)
+  AC_DEFINE(OPENEXR_IMF_HAVE_LINUX_PROCFS)
   ;;
 *darwin*) 
-  AC_DEFINE(HAVE_DARWIN) 
+  AC_DEFINE(OPENEXR_IMF_HAVE_DARWIN) 
 
   dnl OS X universal binary support, requires --disable-dependency-tracking
   AC_ARG_ENABLE(osx-universal-binaries,
@@ -211,6 +217,93 @@ AC_ARG_ENABLE(imffuzztest,
 
 AM_CONDITIONAL(BUILD_IMFFUZZTEST, test "x$build_imffuzztest" = xyes)
 
+dnl build imfhugetest?
+build_imfhugetest="no"
+AC_ARG_ENABLE(imfhugetest,
+	  AC_HELP_STRING([--enable-imfhugetest],
+		 [build IlmImf huge input resilience test [[default=no]]]),
+	  [build_imfhugetest="${enableval}"], [build_imfhugetest=no])
+
+AM_CONDITIONAL(BUILD_IMFHUGETEST, test "x$build_imfhugetest" = xyes)
+
+if test "x${build_imfhugetest}" != xno ; then
+    AC_DEFINE(OPENEXR_IMF_HUGETEST)
+fi
+
+
+dnl
+dnl Handle namespacing configuration : internal library namespace
+dnl                                    user-client namespace 
+dnl
+library_namespace_versioning="no"
+AC_ARG_ENABLE(namespaceversioning,
+          AC_HELP_STRING([--enable-namespaceversioning],
+                         [enable symbol versioning via versioned/custom namespace to prevent runtime conflicts <no/yes/custom> [[default=no]]] ),
+          [library_namespace_versioning="${enableval}"], 
+          [library_namespace_versioning=no])
+              
+dnl Suffix for the shared library via the '-release' option
+LIB_SUFFIX=""
+lib_suffix_valid="no"
+
+lib_namespace="Imf"
+if test "x${library_namespace_versioning}" == xyes ; then
+    AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACED)
+    AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE, Imf_${OPENEXR_VERSION_SAFE})
+    AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER, namespace Imf_${OPENEXR_VERSION_SAFE} )
+    AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT, )
+    lib_namespace="Imf_${OPENEXR_VERSION_SAFE}"
+    LIB_SUFFIX="Imf_${OPENEXR_VERSION_SAFE}"
+    lib_suffix_valid="yes"
+elif test "x${library_namespace_versioning}" == xno ; then
+    AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE, Imf)
+    AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER, namespace Imf)
+    AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT, )
+    lib_namespace="Imf"
+else
+    AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACED)
+    AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE, ${library_namespace_versioning} )
+    AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER, namespace ${library_namespace_versioning} )
+    AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT, )
+    lib_namespace="${library_namespace_versioning}"
+    LIB_SUFFIX="${library_namespace_versioning}"
+    lib_suffix_valid="yes"
+fi
+AC_SUBST(LIB_SUFFIX)
+
+if test "x${lib_suffix_valid}" == xyes ; then
+AC_SUBST(LIB_SUFFIX_DASH,"-${LIB_SUFFIX}")
+AM_CONDITIONAL(LIB_SUFFIX_EXISTS,true)
+else
+AC_SUBST(LIB_SUFFIX_DASH,"")
+AM_CONDITIONAL(LIB_SUFFIX_EXISTS,false)
+fi
+
+
+dnl
+dnl User namespace 
+dnl 
+custom_usr_namespace="no"
+usr_namespace="Imf"
+AC_ARG_ENABLE(customusernamespace,
+        AC_HELP_STRING([--enable-customusernamespace],
+                       [user namespace; this is the namespace into which the library namespace will be exported to <no/custom> [[default=Imf]]] ),
+        [custom_usr_namespace="${enableval}"], 
+        [custom_usr_namespace=no])
+
+if test "x${custom_usr_namespace}" == xyes ; then
+    AC_MSG_WARN([Enabling 'custom user namespace' requires an additional argument, reverting to 'Imf'])
+    AC_DEFINE_UNQUOTED(OPENEXR_IMF_NAMESPACE, Imf)
+    usr_namespace="Imf"
+elif test "x${custom_usr_namespace}" == xno ; then
+    AC_DEFINE_UNQUOTED(OPENEXR_IMF_NAMESPACE, Imf)
+    usr_namespace="Imf"
+else
+    AC_DEFINE_UNQUOTED(OPENEXR_IMF_NAMESPACE, ${custom_usr_namespace})
+    usr_namespace=${custom_usr_namespace}
+fi
+
+
 
 AC_OUTPUT([
 Makefile
@@ -229,28 +322,28 @@ exrenvmap/Makefile
 exrmultiview/Makefile
 exr2aces/Makefile
 vc/Makefile
+exrbuild/Makefile
+exrmultipart/Makefile
 ])
 
-if test "x$build_osxuniversal" = xyes; then
-  AC_MSG_RESULT([
+AC_MSG_RESULT([
 ---------------------------------------------
 Summary for OpenEXR features:
 
 build IlmImf example program                    $build_imfexamples
 build IlmImf damaged input resilience test      $build_imffuzztest
-build OS X universal binaries                   $build_osxuniversal
+build IlmImf huge input test                    $build_imfhugetest
 enable large stack optimizations                $large_stack
----------------------------------------------
-  ])
-else
-  AC_MSG_RESULT([
----------------------------------------------
-Summary for OpenEXR features:
+internal library namespace                      $lib_namespace
+user-client namespace                           $usr_namespace])
 
-build IlmImf example program                    $build_imfexamples
-build IlmImf damaged input resilience test      $build_imffuzztest
-enable large stack optimizations                $large_stack
----------------------------------------------
-  ])
+if test "x$build_osxuniversal" == xyes; then
+AC_MSG_RESULT([
+build OS X universal binaries                   $build_osxuniversal])
 fi
+
+AC_MSG_RESULT([
+---------------------------------------------
+])
+
 

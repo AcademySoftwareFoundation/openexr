@@ -51,8 +51,10 @@
 #include "IlmThreadMutex.h"
 #include "Iex.h"
 
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 using namespace std;
 using namespace Imath;
@@ -280,7 +282,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
 
 
 TiledRgbaOutputFile::TiledRgbaOutputFile
-    (OStream &os,
+    (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
      const Header &header,
      RgbaChannels rgbaChannels,
      int tileXSize,
@@ -778,7 +780,7 @@ TiledRgbaInputFile::TiledRgbaInputFile (const char name[], int numThreads):
 }
 
 
-TiledRgbaInputFile::TiledRgbaInputFile (IStream &is, int numThreads):
+TiledRgbaInputFile::TiledRgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThreads):
     _inputFile (new TiledInputFile (is, numThreads)),
     _fromYa (0),
     _channelNamePrefix ("")
@@ -801,7 +803,7 @@ TiledRgbaInputFile::TiledRgbaInputFile (const char name[],
 }
 
 
-TiledRgbaInputFile::TiledRgbaInputFile (IStream &is,
+TiledRgbaInputFile::TiledRgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 					const string &layerName,
 					int numThreads)
 :
@@ -1159,4 +1161,5 @@ TiledRgbaOutputFile::breakTile  (int dx, int dy, int lx, int ly,
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

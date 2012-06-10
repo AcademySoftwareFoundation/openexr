@@ -39,8 +39,9 @@
 //
 //----------------------------------------------------------------------------
 
-#include <makeTiled.h>
-#include <Image.h>
+#include "makeTiled.h"
+#include "Image.h"
+
 #include <ImfInputFile.h>
 #include <ImfTiledOutputFile.h>
 #include <ImfChannelList.h>
@@ -49,12 +50,13 @@
 #include <ImfStandardAttributes.h>
 #include "ImathFun.h"
 #include "Iex.h"
+
 #include <map>
 #include <algorithm>
 #include <iostream>
 
-
-using namespace Imf;
+#include "namespaceAlias.h"
+using namespace CustomImf;
 using namespace Imath;
 using namespace std;
 

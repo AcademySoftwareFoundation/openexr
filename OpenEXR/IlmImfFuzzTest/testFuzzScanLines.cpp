@@ -33,6 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+
 #include <tmpDir.h>
 #include <fuzzFile.h>
 
@@ -43,10 +44,14 @@
 #include <Iex.h>
 #include <iostream>
 #include <cassert>
+#include <stdio.h>
 
+// Handle the case when the custom namespace is not exposed
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 using namespace std;
 using namespace Imath;
-using namespace Imf;
+
 
 namespace {
 

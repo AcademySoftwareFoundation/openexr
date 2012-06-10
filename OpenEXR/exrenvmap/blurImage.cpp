@@ -39,7 +39,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <blurImage.h>
+#include "blurImage.h"
 
 #include <resizeImage.h>
 #include "Iex.h"
@@ -47,8 +47,9 @@
 #include <algorithm>
 #include <string.h>
 
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
-using namespace Imf;
 using namespace Imath;
 
 

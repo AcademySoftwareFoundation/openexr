@@ -47,16 +47,18 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfHeader.h>
-#include <ImfFrameBuffer.h>
-#include <ImfRgba.h>
+#include "ImfHeader.h"
+#include "ImfFrameBuffer.h"
+#include "ImfRgba.h"
 #include "ImathVec.h"
 #include "ImathBox.h"
 #include "half.h"
-#include <ImfThreading.h>
+#include "ImfThreading.h"
 #include <string>
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
 class OutputFile;
@@ -87,7 +89,7 @@ class RgbaOutputFile
     // automatically close the file.
     //----------------------------------------------------
 
-    RgbaOutputFile (OStream &os,
+    RgbaOutputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
 		    const Header &header,
 		    RgbaChannels rgbaChannels = WRITE_RGBA,
                     int numThreads = globalThreadCount());
@@ -246,7 +248,7 @@ class RgbaInputFile
     // close the file.
     //-----------------------------------------------------------
 
-    RgbaInputFile (IStream &is, int numThreads = globalThreadCount());
+    RgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThreads = globalThreadCount());
 
 
     //--------------------------------------------------------------
@@ -259,7 +261,7 @@ class RgbaInputFile
 		   const std::string &layerName,
 		   int numThreads = globalThreadCount());
 
-    RgbaInputFile (IStream &is,
+    RgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 		   const std::string &layerName,
 		   int numThreads = globalThreadCount());
 
@@ -339,6 +341,11 @@ class RgbaInputFile
 };
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

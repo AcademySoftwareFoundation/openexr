@@ -42,8 +42,10 @@
 #include <ImfPreviewImage.h>
 #include <ImfCheckedArithmetic.h>
 #include "Iex.h"
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 
 PreviewImage::PreviewImage (unsigned int width,
@@ -100,4 +102,5 @@ PreviewImage::operator = (const PreviewImage &other)
 }
 
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT

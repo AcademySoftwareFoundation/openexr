@@ -49,9 +49,12 @@
 #endif
 
 
+
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace Imath;
-using namespace Imf;
+
 
 namespace {
 
@@ -168,7 +171,7 @@ readBackImage (const char fileName[],
 
 void
 writeImage (const char fileName[],
-	    const Array2D<Imf::Rgba>& pixels,
+	    const Array2D<OPENEXR_IMF_NAMESPACE::Rgba>& pixels,
 	    const int& width,
 	    const int& height,
 	    const int& xs = 1,
@@ -244,7 +247,7 @@ readCopyRead (const char* infilename,
     const char *outfilename = IMF_TMP_DIR "imf_test_native.exr";
 
     int w, h;
-    Array2D<Imf::Rgba> pixels (1,1);
+    Array2D<OPENEXR_IMF_NAMESPACE::Rgba> pixels (1,1);
     
     cout << "   reading, " << flush;
     readImage(infilename, pixels, w, h, correctChecksum);
@@ -258,7 +261,7 @@ readCopyRead (const char* infilename,
                     ": writing image, " << flush;
             writeImage(outfilename, pixels, w, h, xs, ys);
             
-            Array2D<Imf::Rgba> pixels2 (1,1);
+            Array2D<OPENEXR_IMF_NAMESPACE::Rgba> pixels2 (1,1);
             cout << "reading back, " << flush;
             readBackImage(outfilename, pixels2, pixels, w, h, xs, ys);
 

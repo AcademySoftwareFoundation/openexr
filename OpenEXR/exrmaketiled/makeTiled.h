@@ -47,6 +47,7 @@
 #include <string>
 #include <set>
 
+#include "namespaceAlias.h"
 
 enum Extrapolation
 {
@@ -59,9 +60,9 @@ enum Extrapolation
 
 void	makeTiled (const char inFileName[],
 	           const char outFileName[],
-		   Imf::LevelMode mode,
-		   Imf::LevelRoundingMode roundingMode,
-		   Imf::Compression compression,
+		   CustomImf::LevelMode mode,
+		   CustomImf::LevelRoundingMode roundingMode,
+		   CustomImf::Compression compression,
 		   int tileSizeX,
 		   int tileSizeY,
 		   const std::set<std::string> &doNotFilter,

@@ -49,6 +49,7 @@
 #include <ImfXdr.h>
 #include <ImfConvert.h>
 #include <ImfThreading.h>
+#include <ImfPartType.h>
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
 #include "IlmThreadMutex.h"
@@ -56,9 +57,12 @@
 #include <string>
 #include <vector>
 #include <assert.h>
+#include "ImfVersion.h"
 
+#include "OpenEXRConfig.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
+{
 
 using Imath::Box2i;
 using Imath::divp;
@@ -194,14 +198,16 @@ struct ScanLineInputFile::Data: public Mutex
     vector<size_t>	offsetInLineBuffer; // offset for each scanline in its
                                             // linebuffer
     vector<InSliceInfo>	slices;             // info about channels in file
-    IStream *		is;                 // file stream to read from
     
     vector<LineBuffer*> lineBuffers;        // each holds one line buffer
     int			linesInBuffer;      // number of scanlines each buffer
                                             // holds
     size_t		lineBufferSize;     // size of the line buffer
+    int                 partNumber;         // part number
 
-     Data (IStream *is, int numThreads);
+    bool                memoryMapped;       // if the stream is memory mapped
+
+    Data (int numThreads);
     ~Data ();
     
     inline LineBuffer * getLineBuffer (int number); // hash function from line
@@ -210,8 +216,9 @@ struct ScanLineInputFile::Data: public Mutex
 };
 
 
-ScanLineInputFile::Data::Data (IStream *is, int numThreads):
-    is (is)
+ScanLineInputFile::Data::Data (int numThreads):
+        partNumber(-1),
+        memoryMapped(false)
 {
     //
     // We need at least one lineBuffer, but if threading is used,
@@ -240,7 +247,7 @@ namespace {
 
 
 void
-reconstructLineOffsets (IStream &is,
+reconstructLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 			LineOrder lineOrder,
 			vector<Int64> &lineOffsets)
 {
@@ -253,10 +260,10 @@ reconstructLineOffsets (IStream &is,
 	    Int64 lineOffset = is.tellg();
 
 	    int y;
-	    Xdr::read <StreamIO> (is, y);
+	    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, y);
 
 	    int dataSize;
-	    Xdr::read <StreamIO> (is, dataSize);
+	    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, dataSize);
 
 	    Xdr::skip <StreamIO> (is, dataSize);
 
@@ -282,14 +289,14 @@ reconstructLineOffsets (IStream &is,
 
 
 void
-readLineOffsets (IStream &is,
+readLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 		 LineOrder lineOrder,
 		 vector<Int64> &lineOffsets,
 		 bool &complete)
 {
     for (unsigned int i = 0; i < lineOffsets.size(); i++)
     {
-	Xdr::read <StreamIO> (is, lineOffsets[i]);
+	OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, lineOffsets[i]);
     }
 
     complete = true;
@@ -320,7 +327,8 @@ readLineOffsets (IStream &is,
 
 
 void
-readPixelData (ScanLineInputFile::Data *ifd,
+readPixelData (InputStreamMutex *streamData,
+               ScanLineInputFile::Data *ifd,
 	       int minY,
 	       char *&buffer,
 	       int &dataSize)
@@ -334,8 +342,9 @@ readPixelData (ScanLineInputFile::Data *ifd,
     // array (hence buffer needs to be a reference to a char *).
     //
 
-    Int64 lineOffset =
-	ifd->lineOffsets[(minY - ifd->minY) / ifd->linesInBuffer];
+    int lineBufferNumber = (minY - ifd->minY) / ifd->linesInBuffer;
+
+    Int64 lineOffset = ifd->lineOffsets[lineBufferNumber];
 
     if (lineOffset == 0)
 	THROW (Iex::InputExc, "Scan line " << minY << " is missing.");
@@ -345,8 +354,20 @@ readPixelData (ScanLineInputFile::Data *ifd,
     // if necessary.
     //
 
-    if (ifd->nextLineBufferMinY != minY)
-	ifd->is->seekg (lineOffset);
+    if ( !isMultiPart(ifd->version) )
+    {
+        if (ifd->nextLineBufferMinY != minY)
+            streamData->is->seekg (lineOffset);
+    }
+    else
+    {
+        //
+        // In a multi-part file, the file pointer may have been moved by
+        // other parts, so we have to ask tellg() where we are.
+        //
+        if (streamData->is->tellg() != ifd->lineOffsets[lineBufferNumber])
+            streamData->is->seekg (lineOffset);
+    }
 
     //
     // Read the data block's header.
@@ -354,8 +375,22 @@ readPixelData (ScanLineInputFile::Data *ifd,
 
     int yInFile;
 
-    Xdr::read <StreamIO> (*ifd->is, yInFile);
-    Xdr::read <StreamIO> (*ifd->is, dataSize);
+    //
+    // Read the part number when we are dealing with a multi-part file.
+    //
+    if (isMultiPart(ifd->version))
+    {
+        int partNumber;
+        OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, partNumber);
+        if (partNumber != ifd->partNumber)
+        {
+            THROW (Iex::ArgExc, "Unexpected part number " << partNumber
+                   << ", should be " << ifd->partNumber << ".");
+        }
+    }
+
+    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, yInFile);
+    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, dataSize);
     
     if (yInFile != minY)
         throw Iex::InputExc ("Unexpected data block y coordinate.");
@@ -367,10 +402,10 @@ readPixelData (ScanLineInputFile::Data *ifd,
     // Read the pixel data.
     //
 
-    if (ifd->is->isMemoryMapped ())
-        buffer = ifd->is->readMemoryMapped (dataSize);
+    if (streamData->is->isMemoryMapped ())
+        buffer = streamData->is->readMemoryMapped (dataSize);
     else
-        ifd->is->read (buffer, dataSize);
+        streamData->is->read (buffer, dataSize);
 
     //
     // Keep track of which scan line is the next one in
@@ -379,11 +414,10 @@ readPixelData (ScanLineInputFile::Data *ifd,
     //
 
     if (ifd->lineOrder == INCREASING_Y)
-	ifd->nextLineBufferMinY = minY + ifd->linesInBuffer;
+        ifd->nextLineBufferMinY = minY + ifd->linesInBuffer;
     else
-	ifd->nextLineBufferMinY = minY - ifd->linesInBuffer;
+        ifd->nextLineBufferMinY = minY - ifd->linesInBuffer;
 }
-
 
 //
 // A LineBufferTask encapsulates the task uncompressing a set of
@@ -590,6 +624,7 @@ LineBufferTask::execute ()
 LineBufferTask *
 newLineBufferTask
     (TaskGroup *group,
+     InputStreamMutex *streamData,
      ScanLineInputFile::Data *ifd,
      int number,
      int scanLineMin,
@@ -617,7 +652,7 @@ newLineBufferTask
 	    lineBuffer->number = number;
 	    lineBuffer->uncompressedData = 0;
 
-	    readPixelData (ifd, lineBuffer->minY,
+	    readPixelData (streamData, ifd, lineBuffer->minY,
 			   lineBuffer->buffer,
 			   lineBuffer->dataSize);
 	}
@@ -630,7 +665,7 @@ newLineBufferTask
 		lineBuffer->hasException = true;
 	}
 	lineBuffer->number = -1;
-	lineBuffer->post();\
+	lineBuffer->post();
 	throw;
 	}
 	catch (...)
@@ -658,27 +693,22 @@ newLineBufferTask
 } // namespace
 
 
-ScanLineInputFile::ScanLineInputFile
-    (const Header &header,
-     IStream *is,
-     int numThreads)
-:
-    _data (new Data (is, numThreads))
+void ScanLineInputFile::initialize(const Header& header)
 {
     try
     {
-	_data->header = header;
+        _data->header = header;
 
-	_data->lineOrder = _data->header.lineOrder();
+        _data->lineOrder = _data->header.lineOrder();
 
-	const Box2i &dataWindow = _data->header.dataWindow();
+        const Box2i &dataWindow = _data->header.dataWindow();
 
-	_data->minX = dataWindow.min.x;
-	_data->maxX = dataWindow.max.x;
-	_data->minY = dataWindow.min.y;
-	_data->maxY = dataWindow.max.y;
+        _data->minX = dataWindow.min.x;
+        _data->maxX = dataWindow.max.x;
+        _data->minY = dataWindow.min.y;
+        _data->maxY = dataWindow.max.y;
 
-	size_t maxBytesPerLine = bytesPerLineTable (_data->header,
+        size_t maxBytesPerLine = bytesPerLineTable (_data->header,
                                                     _data->bytesPerLine);
 
         for (size_t i = 0; i < _data->lineBuffers.size(); i++)
@@ -690,43 +720,97 @@ ScanLineInputFile::ScanLineInputFile
         }
 
         _data->linesInBuffer =
-	    numLinesInBuffer (_data->lineBuffers[0]->compressor);
+            numLinesInBuffer (_data->lineBuffers[0]->compressor);
 
         _data->lineBufferSize = maxBytesPerLine * _data->linesInBuffer;
 
-        if (!_data->is->isMemoryMapped())
+        if (!_streamData->is->isMemoryMapped())
             for (size_t i = 0; i < _data->lineBuffers.size(); i++)
                 _data->lineBuffers[i]->buffer = new char[_data->lineBufferSize];
 
-	_data->nextLineBufferMinY = _data->minY - 1;
+        _data->nextLineBufferMinY = _data->minY - 1;
 
-	offsetInLineBufferTable (_data->bytesPerLine,
-				 _data->linesInBuffer,
-				 _data->offsetInLineBuffer);
+        offsetInLineBufferTable (_data->bytesPerLine,
+                                 _data->linesInBuffer,
+                                 _data->offsetInLineBuffer);
 
-	int lineOffsetSize = (dataWindow.max.y - dataWindow.min.y +
-			      _data->linesInBuffer) / _data->linesInBuffer;
+        int lineOffsetSize = (dataWindow.max.y - dataWindow.min.y +
+                              _data->linesInBuffer) / _data->linesInBuffer;
 
-	_data->lineOffsets.resize (lineOffsetSize);
-
-	readLineOffsets (*_data->is,
-			 _data->lineOrder,
-			 _data->lineOffsets,
-			 _data->fileIsComplete);
+        _data->lineOffsets.resize (lineOffsetSize);
     }
     catch (...)
     {
-	delete _data;
-	throw;
+        delete _data;
+        throw;
     }
+}
+
+
+ScanLineInputFile::ScanLineInputFile(InputPartData* part)
+{
+    if (part->header.type() != SCANLINEIMAGE)
+        throw Iex::ArgExc("Can't build a ScanLineInputFile from a type-mismatched part.");
+
+    _data = new Data(part->numThreads);
+    _streamData = part->mutex;
+    _data->memoryMapped = _streamData->is->isMemoryMapped();
+
+    _data->version = part->version;
+
+    initialize(part->header);
+
+    _data->lineOffsets = part->chunkOffsets;
+
+    _data->partNumber = part->partNumber;
+    //
+    // (TODO) change this code later.
+    // The completeness of the file should be detected in MultiPartInputFile.
+    //
+    _data->fileIsComplete = true;
+}
+
+
+ScanLineInputFile::ScanLineInputFile
+    (const Header &header,
+     OPENEXR_IMF_INTERNAL_NAMESPACE::IStream *is,
+     int numThreads)
+:
+    _data (new Data (numThreads)),
+    _streamData (new InputStreamMutex())
+{
+    _streamData->is = is;
+    _data->memoryMapped = is->isMemoryMapped();
+
+    initialize(header);
+    
+    //
+    // (TODO) this is nasty - we need a better way of working out what type of file has been used.
+    // in any case I believe this constructor only gets used with single part files
+    // and 'version' currently only tracks multipart state, so setting to 0 (not multipart) works for us
+    //
+    
+    _data->version=0;
+    readLineOffsets (*_streamData->is,
+                     _data->lineOrder,
+                     _data->lineOffsets,
+                     _data->fileIsComplete);
 }
 
 
 ScanLineInputFile::~ScanLineInputFile ()
 {
-    if (!_data->is->isMemoryMapped())
+    if (!_data->memoryMapped)
         for (size_t i = 0; i < _data->lineBuffers.size(); i++)
             delete [] _data->lineBuffers[i]->buffer;
+
+    //
+    // ScanLineInputFile should never delete the stream,
+    // because it does not own the stream.
+    // We just delete the Mutex here.
+    //
+    if (_data->partNumber == -1)
+        delete _streamData;
 
     delete _data;
 }
@@ -735,7 +819,7 @@ ScanLineInputFile::~ScanLineInputFile ()
 const char *
 ScanLineInputFile::fileName () const
 {
-    return _data->is->fileName();
+    return _streamData->is->fileName();
 }
 
 
@@ -756,7 +840,7 @@ ScanLineInputFile::version () const
 void	
 ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
-    Lock lock (*_data);
+    Lock lock (*_streamData);
 
     //
     // Check if the new frame buffer descriptor is
@@ -855,7 +939,7 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 ScanLineInputFile::frameBuffer () const
 {
-    Lock lock (*_data);
+    Lock lock (*_streamData);
     return _data->frameBuffer;
 }
 
@@ -872,7 +956,7 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 {
     try
     {
-        Lock lock (*_data);
+        Lock lock (*_streamData);
 
 	if (_data->slices.size() == 0)
 	    throw Iex::ArgExc ("No frame buffer specified "
@@ -931,6 +1015,7 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
             for (int l = start; l != stop; l += dl)
             {
                 ThreadPool::addGlobalTask (newLineBufferTask (&taskGroup,
+                                                              _streamData,
                                                               _data, l,
                                                               scanLineMin,
                                                               scanLineMax));
@@ -958,7 +1043,7 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 
 	const string *exception = 0;
 
-        for (int i = 0; i < _data->lineBuffers.size(); ++i)
+        for (size_t i = 0; i < _data->lineBuffers.size(); ++i)
 	{
             LineBuffer *lineBuffer = _data->lineBuffers[i];
 
@@ -994,7 +1079,7 @@ ScanLineInputFile::rawPixelData (int firstScanLine,
 {
     try
     {
-        Lock lock (*_data);
+        Lock lock (*_streamData);
 
 	if (firstScanLine < _data->minY || firstScanLine > _data->maxY)
 	{
@@ -1006,7 +1091,7 @@ ScanLineInputFile::rawPixelData (int firstScanLine,
 	    (firstScanLine, _data->minY, _data->linesInBuffer);
 
 	readPixelData
-	    (_data, minY, _data->lineBuffers[0]->buffer, pixelDataSize);
+	    (_streamData, _data, minY, _data->lineBuffers[0]->buffer, pixelDataSize);
 
 	pixelData = _data->lineBuffers[0]->buffer;
     }
@@ -1018,4 +1103,5 @@ ScanLineInputFile::rawPixelData (int firstScanLine,
     }
 }
 
-} // namespace Imf
+} 
+OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
