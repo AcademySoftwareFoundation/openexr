@@ -18,6 +18,10 @@ It is *NOT* production ready, in particular:
 Any such changes will be communicated to the developer list with advance
 warning.
 
+The code should build on most flavours of *nix including OSX. 
+Currently windows support is limited, however, this distribution also
+includes the files necessary to build using the CMake system. 
+Feedback and contributions are most welcome. 
 
 
 //
