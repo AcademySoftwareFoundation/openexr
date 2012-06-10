@@ -1,3 +1,30 @@
+//
+// Developer Preview
+//
+
+
+The code is part of the developer preview release. 
+It is *NOT* production ready, in particular:
+
+- File format may change
+  Whilst all due care and attention has been given to ensuring the file
+  format be robust there is a chance that during testing periods
+  necessary modifications be introduced.
+
+- API may change
+  We don't anticipate any client level API changes, however, there may 
+  cases where this might be necessary. 
+
+Any such changes will be communicated to the developer list with advance
+warning.
+
+
+
+//
+// OpenEXR
+//
+
+
 OpenEXR is a high dynamic-range (HDR) image file format developed by 
 Industrial Light & Magic for use in computer imaging applications.
 
@@ -25,6 +52,7 @@ OpenEXR's features include:
       existing OpenEXR applications. 
     * Support for sterescopic image workflows and a generalisation to 
       multi-views.
+    * Support for deep data 
       
 ILM has released OpenEXR as free software licensed under the modified BSD 
 license.
@@ -32,9 +60,6 @@ license.
 The distribution is divided into the following sub-modules:
     * IlmBase
     * OpenEXR
-    * OpenEXR-image
-    * OpenEXR_MacCodeWarrior
-    * OpenEXR_Shake
     * OpenEXR_Viewers
     * Photoshop
     * d_exr
