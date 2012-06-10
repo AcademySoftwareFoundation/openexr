@@ -52,7 +52,9 @@ OpenEXR's features include:
       existing OpenEXR applications. 
     * Support for sterescopic image workflows and a generalisation to 
       multi-views.
-    * Support for deep data 
+    * Flexible support for deep data for hard surfaces and volumetric data.
+    * Multipart. Ability to encode multiple images in one file. This allows
+      for seeks to individual parts without accessing other parts of the file.
       
 ILM has released OpenEXR as free software licensed under the modified BSD 
 license.
