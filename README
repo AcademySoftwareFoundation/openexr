@@ -59,6 +59,9 @@ OpenEXR's features include:
     * Flexible support for deep data for hard surfaces and volumetric data.
     * Multipart. Ability to encode multiple images in one file. This allows
       for seeks to individual parts without accessing other parts of the file.
+    * Versioning. v2 of the OpenEXR source makes use of user configurable C++
+      namespaces to provide protection when using multiple versions of the
+      library.
       
 ILM has released OpenEXR as free software licensed under the modified BSD 
 license.
