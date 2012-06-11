@@ -612,25 +612,25 @@ testRgba ()
             {
                 for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
                 {
-                    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+                    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba1.exr",
                                     W, H, p1,
                                     WRITE_RGBA,
                                     LineOrder (lorder),
                                     Compression (comp));
 
-                    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+                    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba2.exr",
                                     W, H, p1,
                                     WRITE_RGB,
                                     LineOrder (lorder),
                                     Compression (comp));
 
-                    writeReadRGBA ("imf_test_rgba.exr",
+                    writeReadRGBA ("imf_test_rgba3.exr",
                                     W, H, p1,
                                     WRITE_A,
                                     LineOrder (lorder),
                                     Compression (comp));
 
-                    writeReadRGBA ("imf_test_rgba.exr",
+                    writeReadRGBA ("imf_test_rgba4.exr",
                                     W, H, p1,
                                     RgbaChannels (WRITE_R | WRITE_B),
                                     LineOrder (lorder),
