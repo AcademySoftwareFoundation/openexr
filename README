@@ -59,9 +59,11 @@ OpenEXR's features include:
       existing OpenEXR applications. 
     * Support for sterescopic image workflows and a generalisation to 
       multi-views.
-    * Flexible support for deep data for hard surfaces and volumetric data.
-    * Multipart. Ability to encode multiple images in one file. This allows
-      for seeks to individual parts without accessing other parts of the file.
+    * Flexible support for deep data. Pixels can store a variable-length list of 
+      samples. Support for hard surfaces and volumetric data is provided.
+    * Multipart. Ability to encode separate, but related, images in one file. 
+      This allows for access to individual parts, in particular, no decompression
+      of data need take place for unrequested parts.
     * Versioning. v2 of the OpenEXR source makes use of user configurable C++
       namespaces to provide protection when using multiple versions of the
       library.
