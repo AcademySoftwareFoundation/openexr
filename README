@@ -60,13 +60,15 @@ OpenEXR's features include:
     * Support for sterescopic image workflows and a generalisation to 
       multi-views.
     * Flexible support for deep data. Pixels can store a variable-length list of 
-      samples. Support for hard surfaces and volumetric data is provided.
+      samples and, thus, it is possible to store multiple values at different 
+      depths for each pixel. Hard surfaces and volumetric data representations
+      are accomodated.
     * Multipart. Ability to encode separate, but related, images in one file. 
-      This allows for access to individual parts, in particular, no decompression
-      of data need take place for unrequested parts.
-    * Versioning. v2 of the OpenEXR source makes use of user configurable C++
+      This allows for access to individual parts without the need to read other
+      parts in the file.
+    * Versioning. v2 of the OpenEXR source allows for user configurable C++
       namespaces to provide protection when using multiple versions of the
-      library.
+      library in the same process space.
       
 ILM has released OpenEXR as free software licensed under the modified BSD 
 license.
