@@ -961,7 +961,7 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
         {
             LineBuffer *lineBuffer = _data->lineBuffers[i];
 
-            if (lineBuffer->hasException && !exception.empty())
+            if (lineBuffer->hasException && exception.empty())
                 exception = lineBuffer->exception;
 
             lineBuffer->hasException = false;
