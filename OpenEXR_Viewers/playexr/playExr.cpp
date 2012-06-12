@@ -76,7 +76,7 @@
 #include <cmath>
 
 #include <OpenEXRConfig.h>
-using namespace OPENEXR_IMF_NAMESPACE;
+using namespace CustomImf;
 using namespace Imath;
 using namespace std;
 using namespace IlmThread;
@@ -1411,7 +1411,7 @@ playExr (const char fileNameTemplate[],
     // will use internally for OpenEXR file reading.
     //
 
-    OPENEXR_IMF_NAMESPACE::setGlobalThreadCount (numThreads);
+    CustomImf::setGlobalThreadCount (numThreads);
 
     //
     // Allocate buffers for the images, initialize semaphores

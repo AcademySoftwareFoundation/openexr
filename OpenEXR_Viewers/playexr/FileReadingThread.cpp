@@ -47,7 +47,7 @@
 
 using namespace IlmThread;
 #include <OpenEXRConfig.h>
-using namespace OPENEXR_IMF_NAMESPACE;
+using namespace CustomImf;
 using namespace Iex;
 using namespace std;
 

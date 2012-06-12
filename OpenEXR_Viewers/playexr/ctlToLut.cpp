@@ -377,7 +377,7 @@ ctlToLut (vector<string> transformNames,
 
 using namespace std;
 #include <OpenEXRConfig.h>
-using namespace OPENEXR_IMF_NAMESPACE;
+using namespace CustomImf;
 using namespace Imath;
 
 

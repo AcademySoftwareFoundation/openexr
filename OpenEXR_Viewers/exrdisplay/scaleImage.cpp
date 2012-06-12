@@ -45,8 +45,8 @@
 #include <algorithm>
 #include <math.h>
 
-#include <OpenEXRConfig.h>
-using namespace OPENEXR_IMF_NAMESPACE;
+#include "namespaceAlias.h"
+using namespace CustomImf;
 using namespace Imath;
 using std::min;
 using std::max;

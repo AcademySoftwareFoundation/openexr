@@ -90,10 +90,11 @@
 #include <half.h>
 
 #include <OpenEXRConfig.h>
+#include "namespaceAlias.h"
 
 void
 ctlToLut (std::vector<std::string> transformNames,
-	  OPENEXR_IMF_NAMESPACE::Header inHeader,
+	  CustomImf::Header inHeader,
 	  size_t lutSize,
 	  const half pixelValues[/*lutSize*/],
 	  half lut[/*lutSize*/]);

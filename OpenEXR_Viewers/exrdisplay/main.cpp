@@ -60,8 +60,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <OpenEXRConfig.h>
-using namespace OPENEXR_IMF_NAMESPACE;
+#include "namespaceAlias.h"
+using namespace CustomImf;
 using namespace Imath;
 using namespace std;
 

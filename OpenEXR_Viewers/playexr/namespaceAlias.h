@@ -1,10 +1,10 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2006, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +16,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
+// from this software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -31,60 +31,15 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 ///////////////////////////////////////////////////////////////////////////
-
-//-----------------------------------------------------------------------------
-//
-//	class ImageBuffers
-//
-//-----------------------------------------------------------------------------
-
-#include <ImageBuffers.h>
-#include <assert.h>
+#ifndef NAMESPACEALIAS_H_
+#define NAMESPACEALIAS_H_
 
 #include <OpenEXRConfig.h>
-using namespace CustomImf;
-using namespace IlmThread;
-using namespace Imath;
+#ifdef OPENEXR_IMF_NAMESPACE
+namespace CustomImf = OPENEXR_IMF_NAMESPACE;
+#else
+namespace CustomImf = Imf;
+#endif
 
 
-ImageBuffers::ImageBuffers ():
-    forward (true),
-    rgbMode (false),
-    emptyBuffersSemaphore (NUM_BUFFERS),
-    fullBuffersSemaphore (0),
-    exitSemaphore1 (0),
-    exitSemaphore2 (0)
-{
-    // empty
-}
-
-
-int			
-ImageBuffers::numBuffers ()
-{
-    return NUM_BUFFERS;
-}
-
-
-CustomImf::FrameBuffer &
-ImageBuffers::frameBuffer (int i)
-{
-    assert (i >= 0 && i < NUM_BUFFERS);
-    return _frameBuffers[i];
-}
-
-
-char * &
-ImageBuffers::pixels (int i, int channel)
-{
-    assert (i >= 0 && i < NUM_BUFFERS && channel >= 0 && channel < 3);
-    return _pixels[i][channel];
-}
-
-
-int &	
-ImageBuffers::frameNumber (int i)
-{
-    assert (i >= 0 && i < NUM_BUFFERS);
-    return _frameNumbers[i];
-}
+#endif /* NAMESPACEALIAS_H_ */

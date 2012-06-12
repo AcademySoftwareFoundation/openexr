@@ -70,8 +70,8 @@
 
 #endif
 
-#include <OpenEXRConfig.h>
-using namespace OPENEXR_IMF_NAMESPACE;
+#include "namespaceAlias.h"
+using namespace CustomImf;
 
 #define WARNING(message) (cerr << "Warning: " << message << endl)
 
