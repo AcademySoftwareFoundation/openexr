@@ -50,9 +50,10 @@
 #include <ImfPreviewImage.h>
 #include <ImfChannelList.h>
 #include <Iex.h>
+#include <OpenEXRConfig.h>
 
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace Imath;
-using namespace Imf;
 using namespace std;
 
 namespace {

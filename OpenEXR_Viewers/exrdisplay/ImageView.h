@@ -38,7 +38,7 @@
 
 //----------------------------------------------------------------------------
 //
-//	class ImageView -- draws an Imf::Rgba image in an OpenGl window
+//        class ImageView -- draws an Imf::Rgba image in an OpenGl window
 //
 //----------------------------------------------------------------------------
 
@@ -46,6 +46,7 @@
 #include <FL/Fl_Box.H>
 #include <ImfRgba.h>
 #include <ImfArray.h>
+#include <OpenEXRConfig.h>
 
 
 class ImageView: public Fl_Gl_Window
@@ -53,51 +54,51 @@ class ImageView: public Fl_Gl_Window
   public:
 
     ImageView (int x, int y,
-	       int w, int h,            // display window width and height
-	       const char label[],
-	       const Imf::Rgba pixels[/* w*h */],
-	       int dw, int dh,		// data window width and height
-	       int dx, int dy,		// data window offset
-	       Fl_Box *rgbaBox,
-	       float gamma,
-	       float exposure,
-	       float defog,
-	       float kneeLow,
-	       float kneeHigh);
+               int w, int h,            // display window width and height
+               const char label[],
+               const OPENEXR_IMF_NAMESPACE::Rgba pixels[/* w*h */],
+               int dw, int dh,          // data window width and height
+               int dx, int dy,          // data window offset
+               Fl_Box *rgbaBox,
+               float gamma,
+               float exposure,
+               float defog,
+               float kneeLow,
+               float kneeHigh);
 
     virtual void        setExposure (float exposure);
-    virtual void	setDefog (float defog);
-    virtual void	setKneeLow (float low);
-    virtual void	setKneeHigh (float high);
+    virtual void        setDefog (float defog);
+    virtual void        setKneeLow (float low);
+    virtual void        setKneeHigh (float high);
     
-    virtual void	draw();
-    virtual int		handle (int event);
+    virtual void        draw();
+    virtual int                handle (int event);
 
  protected:
 
     virtual void        updateScreenPixels ();
-    void		computeFogColor ();
+    void                computeFogColor ();
     float               findKnee (float x, float y);
 
-    float		_gamma;
-    float		_exposure;
-    float		_defog;
-    float		_kneeLow;
-    float		_kneeHigh;
-    const Imf::Rgba *	_rawPixels;
-    float		_fogR;
-    float		_fogG;
-    float		_fogB;
-    int			_dw;
-    int			_dh;
-    int			_dx;
-    int			_dy;
+    float                                _gamma;
+    float                                _exposure;
+    float                                _defog;
+    float                                _kneeLow;
+    float                                _kneeHigh;
+    const OPENEXR_IMF_NAMESPACE::Rgba *  _rawPixels;
+    float                                _fogR;
+    float                                _fogG;
+    float                                _fogB;
+    int                                  _dw;
+    int                                  _dh;
+    int                                  _dx;
+    int                                  _dy;
 
  private:
 
-    Fl_Box *			_rgbaBox;
-    char			_rgbaBoxLabel[200];
-    Imf::Array<unsigned char>	_screenPixels;
+    Fl_Box *                             _rgbaBox;
+    char                                 _rgbaBoxLabel[200];
+    OPENEXR_IMF_NAMESPACE::Array<unsigned char> _screenPixels;
 };
 
 

@@ -44,6 +44,9 @@
 #include <ImathMath.h>
 #include <ImathFun.h>
 #include <halfFunction.h>
+#include <OpenEXRConfig.h>
+
+
 #include <algorithm>
 #include <stdio.h>
 
@@ -67,7 +70,7 @@ using Imath::clamp;
 ImageView::ImageView (int x, int y,
 		      int w, int h,
 		      const char label[],
-		      const Imf::Rgba pixels[],
+		      const OPENEXR_IMF_NAMESPACE::Rgba pixels[],
 		      int dw, int dh,
 		      int dx, int dy,
 		      Fl_Box *rgbaBox,
@@ -177,7 +180,7 @@ ImageView::computeFogColor ()
 
     for (int j = 0; j < _dw * _dh; ++j)
     {
-	const Imf::Rgba &rp = _rawPixels[j];
+	const OPENEXR_IMF_NAMESPACE::Rgba &rp = _rawPixels[j];
 
 	if (rp.r.isFinite())
 	    _fogR += rp.r;
@@ -215,7 +218,7 @@ ImageView::handle (int event)
 
 	    if (px >= 0 && px < _dw && py >= 0 && py < _dh)
 	    {
-		const Imf::Rgba &p = _rawPixels[py * _dw + px];
+		const OPENEXR_IMF_NAMESPACE::Rgba &p = _rawPixels[py * _dw + px];
 
 		sprintf (_rgbaBoxLabel,
 			 "r = %.3g   g = %.3g   b = %.3g",
@@ -443,7 +446,7 @@ ImageView::updateScreenPixels ()
 	for (int x = 0; x < _dw; ++x)
 	{
 	    int j = i + x;
-	    const Imf::Rgba &rp = _rawPixels[j];
+	    const OPENEXR_IMF_NAMESPACE::Rgba &rp = _rawPixels[j];
 	    unsigned char *sp = _screenPixels + j * 3;
 
 	    sp[0] = dither (rGamma (rp.r), x, y);

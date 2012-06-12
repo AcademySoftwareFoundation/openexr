@@ -60,8 +60,9 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace Imath;
-using namespace Imf;
 using namespace std;
 
 
@@ -78,7 +79,7 @@ struct MainWindow
     Fl_Value_Slider *		kneeHighSlider;
     Fl_Box *			rgbaBox;
     ImageView *			image;
-    Imf::Array<Imf::Rgba>	pixels;
+    Array<Rgba>	                pixels;
 
     static void		exposureSliderCallback (Fl_Widget *widget, void *data);
     static void		defogSliderCallback (Fl_Widget *widget, void *data);

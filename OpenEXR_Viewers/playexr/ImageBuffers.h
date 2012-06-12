@@ -87,7 +87,7 @@
 #include <ImfFrameBuffer.h>
 #include <ImathBox.h>
 #include <IlmThreadSemaphore.h>
-
+#include <OpenEXRConfig.h>
 
 class ImageBuffers
 {
@@ -118,7 +118,7 @@ class ImageBuffers
     // i must be in the range from 0 to numBuffers()-1
     //------------------------------------------------
 
-    Imf::FrameBuffer &		frameBuffer (int i);
+    OPENEXR_IMF_NAMESPACE::FrameBuffer & frameBuffer (int i);
 
 
     //------------------------------------------------
@@ -158,7 +158,7 @@ class ImageBuffers
 
     static const int NUM_BUFFERS = 3;
 
-    Imf::FrameBuffer		_frameBuffers[NUM_BUFFERS];
+    OPENEXR_IMF_NAMESPACE::FrameBuffer	_frameBuffers[NUM_BUFFERS];
     char *			_pixels[NUM_BUFFERS][3];
     int				_frameNumbers[NUM_BUFFERS];
 };

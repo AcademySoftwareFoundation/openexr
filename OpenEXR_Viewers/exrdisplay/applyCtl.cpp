@@ -54,7 +54,6 @@
 
     using namespace std;
     using namespace Ctl;
-    using namespace Imf;
     using namespace Imath;
 
 #else
@@ -64,14 +63,15 @@
     #include <stdlib.h>
     #include <cassert>
     #include <iostream>
-    #include<stdio.h>
+    #include <stdio.h>
 
     using namespace std;
-    using namespace Imf;
     using namespace Imath;
 
 #endif
 
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 
 #define WARNING(message) (cerr << "Warning: " << message << endl)
 

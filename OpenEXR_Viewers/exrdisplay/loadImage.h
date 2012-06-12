@@ -48,6 +48,7 @@
 #include <ImfRgba.h>
 #include <ImfArray.h>
 #include <ImfHeader.h>
+#include <OpenEXRConfig.h>
 
 //
 // Load an OpenEXR image file:
@@ -85,7 +86,7 @@ void	loadImage (const char fileName[],
 		   bool preview,
 		   int lx,
 		   int ly,
-		   Imf::Header &header,
-		   Imf::Array<Imf::Rgba> &pixels);
+		   OPENEXR_IMF_NAMESPACE::Header &header,
+		   OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &pixels);
 
 #endif

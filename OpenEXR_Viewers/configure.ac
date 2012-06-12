@@ -107,8 +107,9 @@ AM_COMPILELINKRUN(
    [$OPENEXR_LIBS],[[
 #include <stdlib.h>
 #include <ImfTestFile.h>
+#include <OpenEXRConfig.h>
 ]],
-   [[Imf::isOpenExrFile("notExist");]],
+   [[OPENEXR_IMF_NAMESPACE::isOpenExrFile("notExist");]],
    AC_MSG_RESULT([Compiled and ran OpenEXR test program.]), 
    AC_MSG_ERROR([Could not compile OpenEXR test program.]))
 
@@ -125,9 +126,10 @@ AM_COMPILELINKRUN(
 #include <ImfHeader.h>
 #include <ImfFrameBuffer.h>
 #include <ImathBox.h>
+#include <OpenEXRConfig.h>
 #include <vector>
     using namespace Ctl;
-    using namespace Imf;
+    using namespace OPENEXR_IMF_NAMESPACE;
     using namespace Imath;
 ]],
    [[

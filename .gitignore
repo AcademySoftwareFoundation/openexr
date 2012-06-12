@@ -17,3 +17,5 @@ missing
 *.in
 Makefile
 .DS_Store
+*.project
+*.cproject
