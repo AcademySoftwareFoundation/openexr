@@ -16,6 +16,7 @@
 
 #include <IexMathFpu.h>
 #include <IlmBaseConfig.h>
+#include <stdio.h>
 
 #if 0
     #include <iostream>
