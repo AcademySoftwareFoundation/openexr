@@ -49,6 +49,7 @@
 #include "ImathVec.h"
 #include "ImathShear.h"
 
+#include <cstring>
 #include <iostream>
 #include <iomanip>
 #include <string.h>
