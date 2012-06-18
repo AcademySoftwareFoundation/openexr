@@ -14,6 +14,8 @@
 //
 //------------------------------------------------------------------------
 
+#include <stdint.h>
+
 #include <IexMathFpu.h>
 #include <IlmBaseConfig.h>
 
