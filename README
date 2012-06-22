@@ -1,9 +1,10 @@
+README
 //
-// Developer Preview
+// BETA 1
 //
 
 
-The code is part of the developer preview release. 
+The code is part of the BETA release. 
 It is *NOT* production ready, in particular:
 
 - File format may change:
@@ -27,18 +28,24 @@ CMake system.
 Feedback and contributions are most welcome. 
 
 
+
 //
 // OpenEXR
 //
 
 
 OpenEXR is a high dynamic-range (HDR) image file format developed by 
-Industrial Light & Magic for use in computer imaging applications.
+Industrial Light & Magic (ILM) for use in computer imaging applications.  
+ILM subsequently released the source code and adjoining material as open 
+source software. 
+The distribution has evolved to include support for stereoscopic and deep 
+images.  Weta Digital, Disney, Sony Pictures Imageworks, Pixar and other 
+visual effects studios have made contributions to the code base.  The file 
+format has since seen wide adoption in a number of industries.
 
-OpenEXR is used by ILM on all motion pictures currently in production. 
-The first movies to employ OpenEXR were Harry Potter and the Sorcerers Stone, 
-Men in Black II, Gangs of New York, and Signs. Since then, OpenEXR has become 
-ILM's main image file format.
+The library, including all contributions, is released under the modified 
+BSD license. 
+
 
 OpenEXR's features include:
 
@@ -59,6 +66,9 @@ OpenEXR's features include:
       existing OpenEXR applications. 
     * Support for sterescopic image workflows and a generalisation to 
       multi-views.
+
+Added Feature highlights for current BETA release
+
     * Flexible support for deep data. Pixels can store a variable-length list of 
       samples and, thus, it is possible to store multiple values at different 
       depths for each pixel. Hard surfaces and volumetric data representations
@@ -70,15 +80,16 @@ OpenEXR's features include:
       namespaces to provide protection when using multiple versions of the
       library in the same process space.
       
-ILM has released OpenEXR as free software licensed under the modified BSD 
-license.
+
 
 The distribution is divided into the following sub-modules:
     * IlmBase
     * OpenEXR
     * OpenEXR_Viewers
     * Photoshop
+    * PyIlmBase
     * d_exr
     
 Please see the README files of each of the individual directories for more
 information.
+

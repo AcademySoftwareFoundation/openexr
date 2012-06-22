@@ -32,6 +32,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#include <PyImathBasicTypes.h>
 #include <Python.h>
 #include <boost/python.hpp>
 #include <PyImath.h>
@@ -44,6 +45,9 @@ namespace PyImath {
 void
 register_basicTypes()
 {
+    class_<BoolArray> bclass = BoolArray::register_("Fixed length array of bool");
+    add_comparison_functions(bclass);
+
     class_<UnsignedCharArray> ucclass = UnsignedCharArray::register_("Fixed length array of unsigned char");
     add_arithmetic_math_functions(ucclass);
     add_mod_math_functions(ucclass);
