@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -40,7 +40,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include <ImageView.h>
+#include "ImageView.h"
+
 #include <ImathMath.h>
 #include <ImathFun.h>
 #include <halfFunction.h>
@@ -65,20 +66,21 @@
 using std::min;
 using std::max;
 using Imath::clamp;
-
+using std::cout;
+using std::endl;
 
 ImageView::ImageView (int x, int y,
-		      int w, int h,
-		      const char label[],
-		      const OPENEXR_IMF_NAMESPACE::Rgba pixels[],
-		      int dw, int dh,
-		      int dx, int dy,
-		      Fl_Box *rgbaBox,
-		      float gamma,
-		      float exposure,
-		      float defog,
-		      float kneeLow,
-		      float kneeHigh)
+                      int w, int h,
+                      const char label[],
+                      const OPENEXR_IMF_NAMESPACE::Rgba pixels[],
+                      int dw, int dh,
+                      int dx, int dy,
+                      Fl_Box *rgbaBox,
+                      float gamma,
+                      float exposure,
+                      float defog,
+                      float kneeLow,
+                      float kneeHigh)
 :
     Fl_Gl_Window (x, y, w, h, label),
     _gamma (gamma),
@@ -128,6 +130,20 @@ ImageView::setKneeLow (float kneeLow)
     redraw();
 }
 
+void ImageView::setPixels(const OPENEXR_IMF_NAMESPACE::Rgba pixels[/* w*h */],
+                          int dw, int dh, int dx, int dy)
+{
+    _rawPixels = pixels;
+    _dw = dw;
+    _dh = dh;
+    _dx = dx;
+    _dy = dy;
+
+    _screenPixels.resizeErase(dw*dh*3);
+
+    updateScreenPixels();
+    redraw();
+}
 
 void
 ImageView::setKneeHigh (float kneeHigh)
@@ -143,30 +159,30 @@ ImageView::draw()
 {
     if (!valid())
     {
-	glLoadIdentity();
-	glViewport (0, 0, w(), h());
-	glOrtho(0, w(), h(), 0, -1, 1);
+        glLoadIdentity();
+        glViewport (0, 0, w(), h());
+        glOrtho(0, w(), h(), 0, -1, 1);
     }
 
     glClearColor (0.3, 0.3, 0.3, 1.0);
     glClear (GL_COLOR_BUFFER_BIT);
 
     if (_dx + _dw <= 0 || _dx >= w())
-	return;
+        return;
 
     for (int y = 0; y < _dh; ++y)
     {
-	if (y + _dy < 0 || y + _dy >= h())
-	    continue;
+        if (y + _dy < 0 || y + _dy >= h())
+            continue;
 
-	glRasterPos2i (max (0, _dx), y + _dy + 1);
+        glRasterPos2i (max (0, _dx), y + _dy + 1);
 
-	glDrawPixels (_dw + min (0, _dx),			     // width
-		      1,					     // height
-		      GL_RGB,					     // format
-		      GL_UNSIGNED_BYTE,				     // type
-		      _screenPixels +				     // pixels
-			static_cast <ptrdiff_t> ((y * _dw - min (0, _dx)) * 3));
+        glDrawPixels (_dw + min (0, _dx),			     // width
+                      1,					     // height
+                      GL_RGB,					     // format
+                      GL_UNSIGNED_BYTE,				     // type
+                      _screenPixels +				     // pixels
+                      static_cast <ptrdiff_t> ((y * _dw - min (0, _dx)) * 3));
     }
 }
 
@@ -180,16 +196,16 @@ ImageView::computeFogColor ()
 
     for (int j = 0; j < _dw * _dh; ++j)
     {
-	const OPENEXR_IMF_NAMESPACE::Rgba &rp = _rawPixels[j];
+        const OPENEXR_IMF_NAMESPACE::Rgba &rp = _rawPixels[j];
 
-	if (rp.r.isFinite())
-	    _fogR += rp.r;
+        if (rp.r.isFinite())
+            _fogR += rp.r;
 
-	if (rp.g.isFinite())
-	    _fogG += rp.g;
+        if (rp.g.isFinite())
+            _fogG += rp.g;
 
-	if (rp.b.isFinite())
-	    _fogB += rp.b;
+        if (rp.b.isFinite())
+            _fogB += rp.b;
     }
 
     _fogR /= _dw * _dh;
@@ -203,34 +219,34 @@ ImageView::handle (int event)
 {
     if (event == FL_MOVE)
     {
-	//
-	// Print the red, green and blue values of
-	// the pixel at the current cursor location.
-	//
+        //
+        // Print the red, green and blue values of
+        // the pixel at the current cursor location.
+        //
 
-	int x = Fl::event_x();
-	int y = Fl::event_y();
+        int x = Fl::event_x();
+        int y = Fl::event_y();
 
-	if (x >= 0 && x < w() && y >= 0 && y < h())
-	{
-	    int px = x - _dx;
-	    int py = y - _dy;
+        if (x >= 0 && x < w() && y >= 0 && y < h())
+        {
+            int px = x - _dx;
+            int py = y - _dy;
 
-	    if (px >= 0 && px < _dw && py >= 0 && py < _dh)
-	    {
-		const OPENEXR_IMF_NAMESPACE::Rgba &p = _rawPixels[py * _dw + px];
+            if (px >= 0 && px < _dw && py >= 0 && py < _dh)
+            {
+                const OPENEXR_IMF_NAMESPACE::Rgba &p = _rawPixels[py * _dw + px];
 
-		sprintf (_rgbaBoxLabel,
-			 "r = %.3g   g = %.3g   b = %.3g",
-			 float (p.r), float (p.g), float (p.b));
-	    }
-	    else
-	    {
-		sprintf (_rgbaBoxLabel, "");
-	    }
+                sprintf (_rgbaBoxLabel,
+                         "r = %.3g   g = %.3g   b = %.3g",
+                         float (p.r), float (p.g), float (p.b));
+            }
+            else
+            {
+                sprintf (_rgbaBoxLabel, "");
+            }
 
-	    _rgbaBox->label (_rgbaBoxLabel);
-	}
+            _rgbaBox->label (_rgbaBoxLabel);
+        }
     }
 
     return Fl_Gl_Window::handle (event);
@@ -292,19 +308,19 @@ findKneeF (float x, float y)
 
     while (knee (x, f1) > y)
     {
-	f0 = f1;
-	f1 = f1 * 2;
+        f0 = f1;
+        f1 = f1 * 2;
     }
 
     for (int i = 0; i < 30; ++i)
     {
-	float f2 = (f0 + f1) / 2;
-	float y2 = knee (x, f2);
+        float f2 = (f0 + f1) / 2;
+        float y2 = knee (x, f2);
 
-	if (y2 < y)
-	    f1 = f2;
-	else
-	    f0 = f2;
+        if (y2 < y)
+            f1 = f2;
+        else
+            f0 = f2;
     }
 
     return (f0 + f1) / 2;
@@ -316,30 +332,30 @@ struct Gamma
     float g, m, d, kl, f, s;
 
     Gamma (float gamma,
-	   float exposure,
-	   float defog,
-	   float kneeLow,
-	   float kneeHigh);
+           float exposure,
+           float defog,
+           float kneeLow,
+           float kneeHigh);
 
     float operator () (half h);
 };
 
 
 Gamma::Gamma
-    (float gamma,
-     float exposure,
-     float defog,
-     float kneeLow,
-     float kneeHigh)
+(float gamma,
+ float exposure,
+ float defog,
+ float kneeLow,
+ float kneeHigh)
 :
     g (gamma),
     m (Imath::Math<float>::pow (2, exposure + 2.47393)),
     d (defog),
     kl (Imath::Math<float>::pow (2, kneeLow)),
     f (findKneeF (Imath::Math<float>::pow (2, kneeHigh) - kl, 
-		  Imath::Math<float>::pow (2, 3.5) - kl)),
-    s (255.0 * Imath::Math<float>::pow (2, -3.5 * g))
-{}
+                  Imath::Math<float>::pow (2, 3.5) - kl)),
+                  s (255.0 * Imath::Math<float>::pow (2, -3.5 * g))
+                  {}
 
 
 float
@@ -362,7 +378,7 @@ Gamma::operator () (half h)
     //
 
     if (x > kl)
-	x = kl + knee (x - kl, f);
+        x = kl + knee (x - kl, f);
 
     //
     // Gamma
@@ -390,10 +406,10 @@ dither (float v, int x, int y)
 {
     static const float d[4][4] =
     {
-	 0.f / 16,  8.f / 16,  2.f / 16, 10.f / 16,
-	12.f / 16,  4.f / 16, 14.f / 16,  6.f / 16,
-	 3.f / 16, 11.f / 16,  1.f / 16,  9.f / 16,
-	15.f / 16,  7.f / 16, 13.f / 16,  5.f / 16,
+     {0.f / 16,  8.f / 16,  2.f / 16, 10.f / 16},
+     {12.f / 16,  4.f / 16, 14.f / 16,  6.f / 16},
+     {3.f / 16, 11.f / 16,  1.f / 16,  9.f / 16},
+     {15.f / 16,  7.f / 16, 13.f / 16,  5.f / 16}
     };
 
     return (unsigned char) (v + d[y & 3][x & 3]);
@@ -413,45 +429,45 @@ void
 ImageView::updateScreenPixels ()
 {
     halfFunction<float>
-	rGamma (Gamma (_gamma,
-		       _exposure,
-		       _defog * _fogR,
-		       _kneeLow,
-		       _kneeHigh),
-		-HALF_MAX, HALF_MAX,
-		0.f, 255.f, 0.f, 0.f);
+    rGamma (Gamma (_gamma,
+                   _exposure,
+                   _defog * _fogR,
+                   _kneeLow,
+                   _kneeHigh),
+                   -HALF_MAX, HALF_MAX,
+                   0.f, 255.f, 0.f, 0.f);
 
     halfFunction<float>
-	gGamma (Gamma (_gamma,
-		       _exposure,
-		       _defog * _fogG,
-		       _kneeLow,
-		       _kneeHigh),
-		-HALF_MAX, HALF_MAX,
-		0.f, 255.f, 0.f, 0.f);
+    gGamma (Gamma (_gamma,
+                   _exposure,
+                   _defog * _fogG,
+                   _kneeLow,
+                   _kneeHigh),
+                   -HALF_MAX, HALF_MAX,
+                   0.f, 255.f, 0.f, 0.f);
 
     halfFunction<float>
-	bGamma (Gamma (_gamma,
-		       _exposure,
-		       _defog * _fogB,
-		       _kneeLow,
-		       _kneeHigh),
-		-HALF_MAX, HALF_MAX,
-		0.f, 255.f, 0.f, 0.f);
+    bGamma (Gamma (_gamma,
+                   _exposure,
+                   _defog * _fogB,
+                   _kneeLow,
+                   _kneeHigh),
+                   -HALF_MAX, HALF_MAX,
+                   0.f, 255.f, 0.f, 0.f);
+
 
     for (int y = 0; y < _dh; ++y)
     {
-	int i = y * _dw;
+        int i = y * _dw;
 
-	for (int x = 0; x < _dw; ++x)
-	{
-	    int j = i + x;
-	    const OPENEXR_IMF_NAMESPACE::Rgba &rp = _rawPixels[j];
-	    unsigned char *sp = _screenPixels + j * 3;
-
-	    sp[0] = dither (rGamma (rp.r), x, y);
-	    sp[1] = dither (gGamma (rp.g), x, y);
-	    sp[2] = dither (bGamma (rp.b), x, y);
-	}
+        for (int x = 0; x < _dw; ++x)
+        {
+            int j = i + x;
+            const OPENEXR_IMF_NAMESPACE::Rgba &rp = _rawPixels[j];
+            unsigned char *sp = _screenPixels + j * 3;
+            sp[0] = dither (rGamma (rp.r), x, y);
+            sp[1] = dither (gGamma (rp.g), x, y);
+            sp[2] = dither (bGamma (rp.b), x, y);
+        }
     }
 }

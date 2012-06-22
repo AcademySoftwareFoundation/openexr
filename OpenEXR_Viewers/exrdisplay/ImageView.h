@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -51,54 +51,56 @@
 
 class ImageView: public Fl_Gl_Window
 {
-  public:
+    public:
 
-    ImageView (int x, int y,
-               int w, int h,            // display window width and height
-               const char label[],
-               const OPENEXR_IMF_NAMESPACE::Rgba pixels[/* w*h */],
-               int dw, int dh,          // data window width and height
-               int dx, int dy,          // data window offset
-               Fl_Box *rgbaBox,
-               float gamma,
-               float exposure,
-               float defog,
-               float kneeLow,
-               float kneeHigh);
+        ImageView (int x, int y,
+                   int w, int h,            // display window width and height
+                   const char label[],
+                   const OPENEXR_IMF_NAMESPACE::Rgba pixels[/* w*h */],
+                   int dw, int dh,          // data window width and height
+                   int dx, int dy,          // data window offset
+                   Fl_Box *rgbaBox,
+                   float gamma,
+                   float exposure,
+                   float defog,
+                   float kneeLow,
+                   float kneeHigh);
 
-    virtual void        setExposure (float exposure);
-    virtual void        setDefog (float defog);
-    virtual void        setKneeLow (float low);
-    virtual void        setKneeHigh (float high);
-    
-    virtual void        draw();
-    virtual int                handle (int event);
+        virtual void        setExposure (float exposure);
+        virtual void        setDefog (float defog);
+        virtual void        setKneeLow (float low);
+        virtual void        setKneeHigh (float high);
+        virtual void        setPixels(const OPENEXR_IMF_NAMESPACE::Rgba pixels[/* w*h */],
+                                      int dw, int dh, int dx, int dy);
 
- protected:
+        virtual void        draw();
+        virtual int         handle (int event);
 
-    virtual void        updateScreenPixels ();
-    void                computeFogColor ();
-    float               findKnee (float x, float y);
+    protected:
 
-    float                                _gamma;
-    float                                _exposure;
-    float                                _defog;
-    float                                _kneeLow;
-    float                                _kneeHigh;
-    const OPENEXR_IMF_NAMESPACE::Rgba *  _rawPixels;
-    float                                _fogR;
-    float                                _fogG;
-    float                                _fogB;
-    int                                  _dw;
-    int                                  _dh;
-    int                                  _dx;
-    int                                  _dy;
+        virtual void        updateScreenPixels ();
+        void                computeFogColor ();
+        float               findKnee (float x, float y);
 
- private:
+        float                                _gamma;
+        float                                _exposure;
+        float                                _defog;
+        float                                _kneeLow;
+        float                                _kneeHigh;
+        const OPENEXR_IMF_NAMESPACE::Rgba *  _rawPixels;
+        float                                _fogR;
+        float                                _fogG;
+        float                                _fogB;
+        int                                  _dw;
+        int                                  _dh;
+        int                                  _dx;
+        int                                  _dy;
 
-    Fl_Box *                             _rgbaBox;
-    char                                 _rgbaBoxLabel[200];
-    OPENEXR_IMF_NAMESPACE::Array<unsigned char> _screenPixels;
+    private:
+
+        Fl_Box *                             _rgbaBox;
+        char                                 _rgbaBoxLabel[200];
+        OPENEXR_IMF_NAMESPACE::Array<unsigned char> _screenPixels;
 };
 
 
