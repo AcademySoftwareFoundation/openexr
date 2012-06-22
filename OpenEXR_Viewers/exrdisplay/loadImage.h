@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucasfilm
+// Copyright (c) 2012, Industrial Light & Magic, a division of Lucasfilm
 // Entertainment Company Ltd.  Portions contributed and copyright held by
 // others as indicated.  All rights reserved.
 //
@@ -80,13 +80,15 @@
 //			the dataWindow attribute of the header.
 //
 
-void	loadImage (const char fileName[],
-		   const char channel[],
-		   const char layer[],
-		   bool preview,
-		   int lx,
-		   int ly,
-		   OPENEXR_IMF_NAMESPACE::Header &header,
-		   OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &pixels);
+
+void loadImage (const char fileName[],
+                const char channel[],
+                const char layer[],
+                bool preview,
+                int lx,
+                int ly,
+                int partnum,
+                OPENEXR_IMF_NAMESPACE::Header &header,
+                OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &pixels);
 
 #endif

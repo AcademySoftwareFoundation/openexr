@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -45,13 +45,12 @@
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Valuator.H>
+#include <FL/Fl_Input_Choice.H>
+#include <FL/Fl_Output.H>
 
-#include <ImageView.h>
 #include <ImfArray.h>
 #include <ImfThreading.h>
-#include <loadImage.h>
-#include <scaleImage.h>
-#include <applyCtl.h>
+#include <ImfMultiPartInputFile.h>
 
 #include <iostream>
 #include <algorithm>
@@ -60,6 +59,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "loadImage.h"
+#include "scaleImage.h"
+#include "applyCtl.h"
+#include "ImageView.h"
 #include "namespaceAlias.h"
 using namespace CustomImf;
 using namespace Imath;
@@ -68,24 +71,103 @@ using namespace std;
 
 struct MainWindow
 {
-    Fl_Window *			window;
-    Fl_Box *			exposureLabel;
-    Fl_Value_Slider *		exposureSlider;
-    Fl_Box *			defogLabel;
-    Fl_Value_Slider *		defogSlider;
-    Fl_Box *			kneeLowLabel;
-    Fl_Value_Slider *		kneeLowSlider;
-    Fl_Box *			kneeHighLabel;
-    Fl_Value_Slider *		kneeHighSlider;
-    Fl_Box *			rgbaBox;
-    ImageView *			image;
-    Array<Rgba>	                pixels;
+    Fl_Window *         window;
+    Fl_Input_Choice *   multipartMenu;
+    Fl_Output *         typeLabel;
+    Fl_Output *         nameLabel;
+    Fl_Box *            exposureLabel;
+    Fl_Value_Slider *   exposureSlider;
+    Fl_Box *            defogLabel;
+    Fl_Value_Slider *   defogSlider;
+    Fl_Box *            kneeLowLabel;
+    Fl_Value_Slider *   kneeLowSlider;
+    Fl_Box *            kneeHighLabel;
+    Fl_Value_Slider *   kneeHighSlider;
+    Fl_Box *            rgbaBox;
+    ImageView *         image;
+    Array<Rgba>         pixels;
+    const char*         imageFile;
+    bool                preview;
+    int                 lx;
+    int                 ly;
+    const char*         channel;
+    const char*         layer;
+    bool                swap;
 
-    static void		exposureSliderCallback (Fl_Widget *widget, void *data);
-    static void		defogSliderCallback (Fl_Widget *widget, void *data);
-    static void		kneeLowSliderCallback (Fl_Widget *widget, void *data);
-    static void		kneeHighSliderCallback (Fl_Widget *widget, void *data);
+    static void         multipartComboboxCallback (Fl_Widget *widget, void *data);
+    static void         exposureSliderCallback (Fl_Widget *widget, void *data);
+    static void         defogSliderCallback (Fl_Widget *widget, void *data);
+    static void         kneeLowSliderCallback (Fl_Widget *widget, void *data);
+    static void         kneeHighSliderCallback (Fl_Widget *widget, void *data);
 };
+
+void
+MainWindow::multipartComboboxCallback (Fl_Widget *widget, void *data)
+{
+    MainWindow *mainWindow = (MainWindow *) data;
+    int partnum = atoi(mainWindow->multipartMenu->value());
+
+    //
+    // reload pixels
+    //
+    Header header;
+
+    loadImage (mainWindow->imageFile,
+               mainWindow->channel,
+	       mainWindow->layer,
+	       mainWindow->preview,
+	       mainWindow->lx,
+	       mainWindow->ly,
+	       partnum,
+	       header,
+	       mainWindow->pixels);
+
+    const Box2i &displayWindow = header.displayWindow();
+    const Box2i &dataWindow = header.dataWindow();
+
+    int dw = dataWindow.max.x - dataWindow.min.x + 1;
+    int dh = dataWindow.max.y - dataWindow.min.y + 1;
+    int dx = dataWindow.min.x - displayWindow.min.x;
+    int dy = dataWindow.min.y - displayWindow.min.y;
+
+    if (mainWindow->swap)
+	swapPixels (dw, dh, mainWindow->pixels);
+
+    if(mainWindow->preview)
+    {
+        int w = mainWindow->window->w();
+        int iw = displayWindow.max.x - displayWindow.min.x;
+        int ih = displayWindow.max.y - displayWindow.min.y;
+
+        mainWindow->window->size(w, (160+ih));
+        mainWindow->image->resize((w - iw) / 2, 155, iw, ih);
+    }
+    mainWindow->image->setPixels (mainWindow->pixels,dw,dh,dx,dy);
+
+    //
+    // renew multipart data type
+    //
+    string type = "";
+    try{
+    	type = header.type();
+    }
+    catch(Iex::BaseExc &e) {
+        type = "";
+    }
+    mainWindow->typeLabel->value(type.c_str());
+
+    //
+    // renew multipart part name
+    //
+    string name = "";
+    try{
+        name = header.name();
+    }
+    catch(Iex::BaseExc &e) {
+        name = "";
+    }
+    mainWindow->nameLabel->value(name.c_str());
+}
 
 
 void	
@@ -122,35 +204,61 @@ MainWindow::kneeHighSliderCallback (Fl_Widget *widget, void *data)
 
 MainWindow *
 makeMainWindow (const char imageFile[],
-		const char channel[],
-		const char layer[],
-		bool preview,
-		int lx,
-		int ly,
-		bool noDisplayWindow,
-		bool noAspect,
-		bool zeroOneExposure,
-		bool normalize,
-		bool swap,
-		bool continuousUpdate,
-		const vector<string> &transformNames,
-		bool useCtl)
+                const char channel[],
+                const char layer[],
+                bool preview,
+                int lx,
+                int ly,
+                bool noDisplayWindow,
+                bool noAspect,
+                bool zeroOneExposure,
+                bool normalize,
+                bool swap,
+                bool continuousUpdate,
+                const vector<string> &transformNames,
+                bool useCtl)
 {
     MainWindow *mainWindow = new MainWindow;
+    mainWindow->imageFile = imageFile;
+    mainWindow->preview = preview;
+    mainWindow->lx = lx;
+    mainWindow->ly = ly;
+    mainWindow->channel = channel;
+    mainWindow->layer = layer;
+    mainWindow->swap = swap;
 
     //
     // Read the image file.
     //
 
+    int numparts = 0;
+
+    try
+    {
+    	MultiPartInputFile *infile = new MultiPartInputFile(imageFile);
+        numparts = infile->parts();
+        delete infile;
+    }
+    catch(Iex::BaseExc &e)
+    {
+        cerr<<"\n"<<"ERROR:"<<endl;
+        cerr<<e.what()<<endl;
+        exit(1);
+    }
+
     Header header;
 
+    //
+    //pass 0 as partnum for the first load
+    //
     loadImage (imageFile,
                channel,
-	       layer,
-	       preview,
-	       lx, ly,
-	       header,
-	       mainWindow->pixels);
+               layer,
+               preview,
+               lx, ly,
+               0,
+               header,
+               mainWindow->pixels);
 
     const Box2i &displayWindow = header.displayWindow();
     const Box2i &dataWindow = header.dataWindow();
@@ -165,10 +273,10 @@ makeMainWindow (const char imageFile[],
 
     if (noDisplayWindow)
     {
-	w = dw;
-	h = dh;
-	dx = 0;
-	dy = 0;
+        w = dw;
+        h = dh;
+        dx = 0;
+        dy = 0;
     }
 
     if (noAspect)
@@ -226,17 +334,17 @@ makeMainWindow (const char imageFile[],
 
     if (!channel)
     {
-	adjustChromaticities (header,
-			      mainWindow->pixels,
-			      dw, dh,
-			      mainWindow->pixels);
+        adjustChromaticities (header,
+                              mainWindow->pixels,
+                              dw, dh,
+                              mainWindow->pixels);
     }
 
     //
     // Build main window
     //
 
-    int mw = max (200, w);	// main window width
+    int mw = max (500, w);	// main window width
     int vy = 0;			// offset of image view from top of main window
 
     float exposure = 0;
@@ -284,104 +392,162 @@ makeMainWindow (const char imageFile[],
 #endif
 
     {
-	mainWindow->window =
-	    new Fl_Window (mw + 10, h + 135, imageFile);
+        mainWindow->window =
+                        new Fl_Window (mw + 10, h + 160, imageFile);
 
-	//
-	// Add exposure slider
-	//
+        //
+        // Add multipart combobox
+        //
 
-	mainWindow->exposureLabel =
-	    new Fl_Box (5, 5, 60, 20, "exposure");
+        mainWindow->multipartMenu =
+                        new Fl_Input_Choice (70, 5, 80, 20, "multipart");
 
-	mainWindow->exposureSlider =
-	    new Fl_Value_Slider (70, 5, mw - 65, 20, "");
+        for(int i=0; i<numparts; i++){
+            string displaynum;
+            ostringstream s;
+            s << i;
+            mainWindow->multipartMenu->add(s.str().c_str());
+        }
 
-	enum Fl_When when = continuousUpdate?
-				FL_WHEN_CHANGED : FL_WHEN_RELEASE;
+        mainWindow->multipartMenu->value(0);
 
-	mainWindow->exposureSlider->type (FL_HORIZONTAL);
-	mainWindow->exposureSlider->range (-10.0, +10.0);
-	mainWindow->exposureSlider->step (1, 8);
-	exposure = zeroOneExposure? 1.02607: 0.0;
-	mainWindow->exposureSlider->value (exposure);
-	mainWindow->exposureSlider->when (when);
+        mainWindow->multipartMenu->callback
+        (MainWindow::multipartComboboxCallback, mainWindow);
 
-	mainWindow->exposureSlider->callback
-	    (MainWindow::exposureSliderCallback, mainWindow);
+        if(numparts==1)
+            mainWindow->multipartMenu->deactivate();
+        else{
 
-	//
-	// Add defog slider
-	//
+            //
+            // Add type label
+            //
 
-	mainWindow->defogLabel =
-	    new Fl_Box (5, 30, 60, 20, "defog");
+            string type = "";
 
-	mainWindow->defogSlider =
-	    new Fl_Value_Slider (70, 30, mw - 65, 20, "");
+            try{
+                type = header.type();
+            }
+            catch(Iex::BaseExc &e) {
+                type = "";
+            }
 
-	mainWindow->defogSlider->type (FL_HORIZONTAL);
-	mainWindow->defogSlider->range (0.0, 0.01);
-	mainWindow->defogSlider->step (1, 10000);
-	defog = 0.0;
-	mainWindow->defogSlider->value (defog);
-	mainWindow->defogSlider->when (when);
+            mainWindow->typeLabel =
+                            new Fl_Output (190, 5, 110, 20, "type");
+            mainWindow->typeLabel->value(type.c_str());
 
-	mainWindow->defogSlider->callback
-	    (MainWindow::defogSliderCallback, mainWindow);
+            //
+            // Add name label
+            //
 
-	//
-	// Add kneeLow slider
-	//
+            string name = "";
 
-	mainWindow->kneeLowLabel =
-	    new Fl_Box (5, 55, 60, 20, "knee low");
+            try{
+                name = header.name();
+            }
+            catch(Iex::BaseExc &e) {
+                name = "";
+            }
 
-	mainWindow->kneeLowSlider =
-	    new Fl_Value_Slider (70, 55, mw - 65, 20, "");
+            mainWindow->nameLabel =
+                            new Fl_Output (350, 5, 155, 20, "name");
+            mainWindow->nameLabel->value(name.c_str());
+        }
 
-	mainWindow->kneeLowSlider->type (FL_HORIZONTAL);
-	mainWindow->kneeLowSlider->range (-3.0, 3.0);
-	mainWindow->kneeLowSlider->step (1, 8);
-	kneeLow = 0.0;
-	mainWindow->kneeLowSlider->value (kneeLow);
-	mainWindow->kneeLowSlider->when (when);
+        //
+        // Add exposure slider
+        //
 
-	mainWindow->kneeLowSlider->callback
-	    (MainWindow::kneeLowSliderCallback, mainWindow);
+        mainWindow->exposureLabel =
+                        new Fl_Box (5, 30, 60, 20, "exposure");
 
-	//
-	// Add kneeHigh slider
-	//
+        mainWindow->exposureSlider =
+                        new Fl_Value_Slider (70, 30, mw - 65, 20, "");
 
-	mainWindow->kneeHighLabel =
-	    new Fl_Box (5, 80, 60, 20, "knee high");
+        enum Fl_When when = continuousUpdate?
+                        FL_WHEN_CHANGED : FL_WHEN_RELEASE;
 
-	mainWindow->kneeHighSlider =
-	    new Fl_Value_Slider (70, 80, mw - 65, 20, "");
+        mainWindow->exposureSlider->type (FL_HORIZONTAL);
+        mainWindow->exposureSlider->range (-10.0, +10.0);
+        mainWindow->exposureSlider->step (1, 8);
+        exposure = zeroOneExposure? 1.02607: 0.0;
+        mainWindow->exposureSlider->value (exposure);
+        mainWindow->exposureSlider->when (when);
 
-	mainWindow->kneeHighSlider->type (FL_HORIZONTAL);
-	mainWindow->kneeHighSlider->range (3.5, 7.5);
-	mainWindow->kneeHighSlider->step (1, 8);
-	kneeHigh = (preview | zeroOneExposure)? 3.5: 5.0;
-	mainWindow->kneeHighSlider->value (kneeHigh);
-	mainWindow->kneeHighSlider->when (when);
+        mainWindow->exposureSlider->callback
+        (MainWindow::exposureSliderCallback, mainWindow);
 
-	mainWindow->kneeHighSlider->callback
-	    (MainWindow::kneeHighSliderCallback, mainWindow);
+        //
+        // Add defog slider
+        //
 
-	//
-	// Add RGB value display
-	//
+        mainWindow->defogLabel =
+                        new Fl_Box (5, 55, 60, 20, "defog");
 
-	mainWindow->rgbaBox = new Fl_Box (80, 105, mw - 65, 20, "");
-	mainWindow->rgbaBox->align (FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
+        mainWindow->defogSlider =
+                        new Fl_Value_Slider (70, 55, mw - 65, 20, "");
 
-	//
-	// Image view is below RGB value display
-	//
+        mainWindow->defogSlider->type (FL_HORIZONTAL);
+        mainWindow->defogSlider->range (0.0, 0.01);
+        mainWindow->defogSlider->step (1, 10000);
+        defog = 0.0;
+        mainWindow->defogSlider->value (defog);
+        mainWindow->defogSlider->when (when);
 
-	vy = 130;
+        mainWindow->defogSlider->callback
+        (MainWindow::defogSliderCallback, mainWindow);
+
+        //
+        // Add kneeLow slider
+        //
+
+        mainWindow->kneeLowLabel =
+                        new Fl_Box (5, 80, 60, 20, "knee low");
+
+        mainWindow->kneeLowSlider =
+                        new Fl_Value_Slider (70, 80, mw - 65, 20, "");
+
+        mainWindow->kneeLowSlider->type (FL_HORIZONTAL);
+        mainWindow->kneeLowSlider->range (-3.0, 3.0);
+        mainWindow->kneeLowSlider->step (1, 8);
+        kneeLow = 0.0;
+        mainWindow->kneeLowSlider->value (kneeLow);
+        mainWindow->kneeLowSlider->when (when);
+
+        mainWindow->kneeLowSlider->callback
+        (MainWindow::kneeLowSliderCallback, mainWindow);
+
+        //
+        // Add kneeHigh slider
+        //
+
+        mainWindow->kneeHighLabel =
+                        new Fl_Box (5, 105, 60, 20, "knee high");
+
+        mainWindow->kneeHighSlider =
+                        new Fl_Value_Slider (70, 105, mw - 65, 20, "");
+
+        mainWindow->kneeHighSlider->type (FL_HORIZONTAL);
+        mainWindow->kneeHighSlider->range (3.5, 7.5);
+        mainWindow->kneeHighSlider->step (1, 8);
+        kneeHigh = (preview | zeroOneExposure)? 3.5: 5.0;
+        mainWindow->kneeHighSlider->value (kneeHigh);
+        mainWindow->kneeHighSlider->when (when);
+
+        mainWindow->kneeHighSlider->callback
+        (MainWindow::kneeHighSliderCallback, mainWindow);
+
+        //
+        // Add RGB value display
+        //
+
+        mainWindow->rgbaBox = new Fl_Box (80, 130, mw - 65, 20, "");
+        mainWindow->rgbaBox->align (FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
+
+        //
+        // Image view is below RGB value display
+        //
+
+        vy = 155;
     }
 
     //
@@ -397,18 +563,18 @@ makeMainWindow (const char imageFile[],
     //
 
     mainWindow->image =
-	new ImageView (5 + (mw - w) / 2, vy,
-		       w, h,
-		       "",
-		       mainWindow->pixels,
-		       dw, dh,
-		       dx, dy,
-		       mainWindow->rgbaBox,
-		       displayVideoGamma(),
-		       exposure,
-		       defog,
-		       kneeLow,
-		       kneeHigh);
+                    new ImageView (5 + (mw - w) / 2, vy,
+                                   w, h,
+                                   "",
+                                   mainWindow->pixels,
+                                   dw, dh,
+                                   dx, dy,
+                                   mainWindow->rgbaBox,
+                                   displayVideoGamma(),
+                                   exposure,
+                                   defog,
+                                   kneeLow,
+                                   kneeHigh);
 
     mainWindow->image->box (FL_ENGRAVED_BOX);
 
@@ -425,106 +591,106 @@ usageMessage (const char argv0[], bool verbose = false)
 
     if (verbose)
     {
-	cerr << "\n"
-	        "Displays an OpenEXR image on the screen.\n"
-		"\n"
-		"Options:\n"
-		"\n"
-		"-p        displays the preview (thumbnail)\n"
-		"          image instead of the main image\n"
-		"\n"
-		"-L x      displays layer x of a multilayer image\n"
-		"\n"
-		"-l lx ly  displays level (lx,ly) of a tiled\n"
-		"          multiresolution image\n"
-		"\n"
-		"-w        displays all pixels in the data window,\n"
-		"          ignoring the display window\n"
-		"\n"
-		"-a        ignores the image's pixel aspect ratio,\n"
-		"          and does not scale the image to make\n"
-		"          the pixels square\n"
-		"\n"
-		"-c x      loads only image channel x\n"
-		"\n"
-		"-1        sets exposure and knee sliders so that pixel\n"
-		"          value 0.0 becomes black, and 1.0 becomes white\n"
-		"\n"
-		"-n        normalizes the pixels so that the smallest\n"
-		"          value becomes 0.0 and the largest value\n"
-		"          becomes 1.0\n"
-		"\n"
-		"-A        same as -c A -1 (displays alpha)\n"
-		"\n"
-		"-Z        same as -c Z -n (displays depth)\n"
-		"\n"
-		"-s        swaps the image's top and bottom half, then\n"
-		"          swaps the left and right half, so that the\n"
-		"          four corners of the image end up in the center.\n"
-		"          (Useful for checking the seams of wrap-around\n"
-		"          texture map images.)\n"
-	    #if HAVE_CTL_INTERPRETER
-		"\n"
-		"-C s      CTL transform s is applied to the image before\n"
-		"          it is displayed.  Option -C can be specified\n"
-		"          multiple times to apply a series of transforms\n"
-		"          to the image.  The transforms are applied in the\n"
-		"          order in which they appear on the command line.\n"
-		"\n"
-		"-T        do not apply CTL transforms to the image; enable\n"
-		"          interactive exposure and knee controls instead\n"
-		"\n"
-		"-u        changing the exposure and knee controls\n"
-		"          continuously updates the on-screen image\n"
-		"          (the controls are enabled only when no CTL\n"
-		"          transforms have been applied to the image)\n"
-		"\n"
-		"-t n      use n parallel threads to read the image file\n"
-		"          and to run the CTL transforms\n"
-	    #else
-		"\n"
-		"-u        changing the exposure and knee controls\n"
-		"          continuously updates the on-screen image\n"
-		"\n"
-		"-t n      use n parallel threads to read the image file\n"
-	    #endif
-		"\n"
-		"-h        prints this message\n"
-	    #if HAVE_CTL_INTERPRETER
-		"\n"
-		"CTL transforms:\n"
-		"\n"
-		"       CTL transforms are applied to the image unless\n"
-		"       one of the following options is specified on the\n"
-		"       command line: -c, -1, -n, -A, -Z, -T\n"
-		"\n"
-		"       If one or more CTL transforms are specified on\n"
-		"       the command line (using the -C flag), then those\n"
-		"       transforms are applied to the image.\n"
-		"       If no CTL transforms are specified on the command\n"
-		"       line then an optional look modification transform\n"
-		"       is applied, followed by a rendering transform and\n"
-		"       a display transform.\n"
-		"       The name of the look modication transform is taken\n"
-		"       from the lookModTransform attribute in the header\n"
-		"       of the image file.  If the header contains no such\n"
-		"       attribute, then no look modication transform is\n"
-		"       applied.  The name of the rendering transform is\n"
-		"       taken from the renderingTransform attribute in the\n"
-		"       header of the image file.  If the header contains\n"
-		"       no such attribute, then the name of the rendering\n"
-		"       transform is \"transform_RRT.\"  The name of the\n"
-		"       display transform is taken from the environment\n"
-		"       variable CTL_DISPLAY_TRANSFORM.  If this environment\n"
-		"       variable is not set, then the name of the display\n"
-		"       transform is \"transform_display_video.\"\n"
-		"       The files that contain the CTL code for the\n"
-		"       transforms are located using the CTL_MODULE_PATH\n"
-		"       environment variable.\n"
-	    #endif
-		"\n";
+        cerr << "\n"
+        "Displays an OpenEXR image on the screen.\n"
+        "\n"
+        "Options:\n"
+        "\n"
+        "-p        displays the preview (thumbnail)\n"
+        "          image instead of the main image\n"
+        "\n"
+        "-L x      displays layer x of a multilayer image\n"
+        "\n"
+        "-l lx ly  displays level (lx,ly) of a tiled\n"
+        "          multiresolution image\n"
+        "\n"
+        "-w        displays all pixels in the data window,\n"
+        "          ignoring the display window\n"
+        "\n"
+        "-a        ignores the image's pixel aspect ratio,\n"
+        "          and does not scale the image to make\n"
+        "          the pixels square\n"
+        "\n"
+        "-c x      loads only image channel x\n"
+        "\n"
+        "-1        sets exposure and knee sliders so that pixel\n"
+        "          value 0.0 becomes black, and 1.0 becomes white\n"
+        "\n"
+        "-n        normalizes the pixels so that the smallest\n"
+        "          value becomes 0.0 and the largest value\n"
+        "          becomes 1.0\n"
+        "\n"
+        "-A        same as -c A -1 (displays alpha)\n"
+        "\n"
+        "-Z        same as -c Z -n (displays depth)\n"
+        "\n"
+        "-s        swaps the image's top and bottom half, then\n"
+        "          swaps the left and right half, so that the\n"
+        "          four corners of the image end up in the center.\n"
+        "          (Useful for checking the seams of wrap-around\n"
+        "          texture map images.)\n"
+#if HAVE_CTL_INTERPRETER
+        "\n"
+        "-C s      CTL transform s is applied to the image before\n"
+        "          it is displayed.  Option -C can be specified\n"
+        "          multiple times to apply a series of transforms\n"
+        "          to the image.  The transforms are applied in the\n"
+        "          order in which they appear on the command line.\n"
+        "\n"
+        "-T        do not apply CTL transforms to the image; enable\n"
+        "          interactive exposure and knee controls instead\n"
+        "\n"
+        "-u        changing the exposure and knee controls\n"
+        "          continuously updates the on-screen image\n"
+        "          (the controls are enabled only when no CTL\n"
+        "          transforms have been applied to the image)\n"
+        "\n"
+        "-t n      use n parallel threads to read the image file\n"
+        "          and to run the CTL transforms\n"
+#else
+        "\n"
+        "-u        changing the exposure and knee controls\n"
+        "          continuously updates the on-screen image\n"
+        "\n"
+        "-t n      use n parallel threads to read the image file\n"
+#endif
+        "\n"
+        "-h        prints this message\n"
+#if HAVE_CTL_INTERPRETER
+        "\n"
+        "CTL transforms:\n"
+        "\n"
+        "       CTL transforms are applied to the image unless\n"
+        "       one of the following options is specified on the\n"
+        "       command line: -c, -1, -n, -A, -Z, -T\n"
+        "\n"
+        "       If one or more CTL transforms are specified on\n"
+        "       the command line (using the -C flag), then those\n"
+        "       transforms are applied to the image.\n"
+        "       If no CTL transforms are specified on the command\n"
+        "       line then an optional look modification transform\n"
+        "       is applied, followed by a rendering transform and\n"
+        "       a display transform.\n"
+        "       The name of the look modication transform is taken\n"
+        "       from the lookModTransform attribute in the header\n"
+        "       of the image file.  If the header contains no such\n"
+        "       attribute, then no look modication transform is\n"
+        "       applied.  The name of the rendering transform is\n"
+        "       taken from the renderingTransform attribute in the\n"
+        "       header of the image file.  If the header contains\n"
+        "       no such attribute, then the name of the rendering\n"
+        "       transform is \"transform_RRT.\"  The name of the\n"
+        "       display transform is taken from the environment\n"
+        "       variable CTL_DISPLAY_TRANSFORM.  If this environment\n"
+        "       variable is not set, then the name of the display\n"
+        "       transform is \"transform_display_video.\"\n"
+        "       The files that contain the CTL code for the\n"
+        "       transforms are located using the CTL_MODULE_PATH\n"
+        "       environment variable.\n"
+#endif
+        "\n";
 
-	 cerr << endl;
+        cerr << endl;
     }
 
     exit (1);
@@ -556,203 +722,203 @@ main(int argc, char **argv)
     //
 
     if (argc < 2)
-	usageMessage (argv[0], true);
+        usageMessage (argv[0], true);
 
     int i = 1;
 
     while (i < argc)
     {
-	if (!strcmp (argv[i], "-p"))	
-	{
-	    //
-	    // Show the preview image
-	    //
+        if (!strcmp (argv[i], "-p"))
+        {
+            //
+            // Show the preview image
+            //
 
-	    preview = true;
-	    i += 1;
-	}
-	else if (!strcmp (argv[i], "-L"))
-	{
-	    //
-	    // Assume that the image file has multiple
-	    // layers, and show the specified layer.
-	    //
+            preview = true;
+            i += 1;
+        }
+        else if (!strcmp (argv[i], "-L"))
+        {
+            //
+            // Assume that the image file has multiple
+            // layers, and show the specified layer.
+            //
 
-	    if (i > argc - 2)
-		usageMessage (argv[0]);
+            if (i > argc - 2)
+                usageMessage (argv[0]);
 
-	    layer = argv[i + 1];
-	    i += 2;
-	}
-	else if (!strcmp (argv[i], "-l"))
-	{
-	    //
-	    // Assume that the image file is tiled,
-	    // and show level (lx,ly) of the tiled image
-	    //
+            layer = argv[i + 1];
+            i += 2;
+        }
+        else if (!strcmp (argv[i], "-l"))
+        {
+            //
+            // Assume that the image file is tiled,
+            // and show level (lx,ly) of the tiled image
+            //
 
-	    if (i > argc - 3)
-		usageMessage (argv[0]);
+            if (i > argc - 3)
+                usageMessage (argv[0]);
 
-	    lx = strtol (argv[i + 1], 0, 0);
-	    ly = strtol (argv[i + 2], 0, 0);
-	    i += 3;
-	}
-	else if (!strcmp (argv[i], "-w"))
-	{
-	    //
-	    // Ignore the file's display window
-	    //
+            lx = strtol (argv[i + 1], 0, 0);
+            ly = strtol (argv[i + 2], 0, 0);
+            i += 3;
+        }
+        else if (!strcmp (argv[i], "-w"))
+        {
+            //
+            // Ignore the file's display window
+            //
 
-	    noDisplayWindow = true;
-	    i += 1;
-	}
-	else if (!strcmp (argv[i], "-a"))
-	{
-	    //
-	    // Ignore the file's pixel aspect ratio
-	    //
+            noDisplayWindow = true;
+            i += 1;
+        }
+        else if (!strcmp (argv[i], "-a"))
+        {
+            //
+            // Ignore the file's pixel aspect ratio
+            //
 
-	    noAspect = true;
-	    i += 1;
-	}
-	else if (!strcmp (argv[i], "-c"))
-	{
-	    //
-	    // Load only one image channel.
-	    //
+            noAspect = true;
+            i += 1;
+        }
+        else if (!strcmp (argv[i], "-c"))
+        {
+            //
+            // Load only one image channel.
+            //
 
-	    if (i > argc - 2)
-		usageMessage (argv[0]);
+            if (i > argc - 2)
+                usageMessage (argv[0]);
 
-	    channel = argv[i + 1];
-	    useCtl = false;
-	    i += 2;
-	}
-	else if (!strcmp (argv[i], "-1"))
-	{
-	    //
-	    // Display 0.0 to 1.0 range.
-	    //
+            channel = argv[i + 1];
+            useCtl = false;
+            i += 2;
+        }
+        else if (!strcmp (argv[i], "-1"))
+        {
+            //
+            // Display 0.0 to 1.0 range.
+            //
 
-	    zeroOneExposure = true;
-	    useCtl = false;
-	    i += 1;
-	}
-	else if (!strcmp (argv[i], "-n"))
-	{
-	    //
-	    // Normalize pixels.
-	    //
+            zeroOneExposure = true;
+            useCtl = false;
+            i += 1;
+        }
+        else if (!strcmp (argv[i], "-n"))
+        {
+            //
+            // Normalize pixels.
+            //
 
-	    zeroOneExposure = true;
-	    normalize = true;
-	    useCtl = false;
-	    i += 1;
-	}
-	else if (!strcmp (argv[i], "-A"))
-	{
-	    //
-	    // Display alpha
-	    //
+            zeroOneExposure = true;
+            normalize = true;
+            useCtl = false;
+            i += 1;
+        }
+        else if (!strcmp (argv[i], "-A"))
+        {
+            //
+            // Display alpha
+            //
 
-	    zeroOneExposure = true;
-	    normalize = false;
-	    channel = "A";
-	    useCtl = false;
-	    i += 1;
-	}
-	else if (!strcmp (argv[i], "-Z"))
-	{
-	    //
-	    // Display depth
-	    //
+            zeroOneExposure = true;
+            normalize = false;
+            channel = "A";
+            useCtl = false;
+            i += 1;
+        }
+        else if (!strcmp (argv[i], "-Z"))
+        {
+            //
+            // Display depth
+            //
 
-	    zeroOneExposure = true;
-	    normalize = true;
-	    channel = "Z";
-	    useCtl = false;
-	    i += 1;
-	}
-	else if (!strcmp (argv[i], "-s"))
-	{
-	    //
-	    // Swap top and bottom half, then left and right half.
-	    //
+            zeroOneExposure = true;
+            normalize = true;
+            channel = "Z";
+            useCtl = false;
+            i += 1;
+        }
+        else if (!strcmp (argv[i], "-s"))
+        {
+            //
+            // Swap top and bottom half, then left and right half.
+            //
 
-	    swap = true;
-	    i += 1;
-	}
-	else if (!strcmp (argv[i], "-u"))
-	{
-	    //
-	    // Continuous update.
-	    //
+            swap = true;
+            i += 1;
+        }
+        else if (!strcmp (argv[i], "-u"))
+        {
+            //
+            // Continuous update.
+            //
 
-	    continuousUpdate = true;
-	    i += 1;
-	}
-	else if (!strcmp (argv[i], "-C"))
-	{
-	    //
-	    // Apply a CTL transform
-	    //
+            continuousUpdate = true;
+            i += 1;
+        }
+        else if (!strcmp (argv[i], "-C"))
+        {
+            //
+            // Apply a CTL transform
+            //
 
-	    if (i > argc - 2)
-		usageMessage (argv[0]);
+            if (i > argc - 2)
+                usageMessage (argv[0]);
 
-	    transformNames.push_back (argv[i + 1]);
-	    i += 2;
-	}
-	else if (!strcmp (argv[i], "-T"))
-	{
-	    //
-	    // No CTL transforms.
-	    //
+            transformNames.push_back (argv[i + 1]);
+            i += 2;
+        }
+        else if (!strcmp (argv[i], "-T"))
+        {
+            //
+            // No CTL transforms.
+            //
 
-	    useCtl = false;
-	    i += 1;
-	}
-	else if (!strcmp (argv[i], "-t"))
-	{
-	    //
-	    // Set number of threads
-	    //
+            useCtl = false;
+            i += 1;
+        }
+        else if (!strcmp (argv[i], "-t"))
+        {
+            //
+            // Set number of threads
+            //
 
-	    if (i > argc - 2)
-		usageMessage (argv[0]);
+            if (i > argc - 2)
+                usageMessage (argv[0]);
 
-	    numThreads = strtol (argv[i + 1], 0, 0);
+            numThreads = strtol (argv[i + 1], 0, 0);
 
-	    if (numThreads < 0)
-	    {
-		cerr << "Number of threads cannot be negative." << endl;
-		return 1;
-	    }
+            if (numThreads < 0)
+            {
+                cerr << "Number of threads cannot be negative." << endl;
+                return 1;
+            }
 
-	    i += 2;
-	}
-	else if (!strcmp (argv[i], "-h"))
-	{
-	    //
-	    // Print help message
-	    //
+            i += 2;
+        }
+        else if (!strcmp (argv[i], "-h"))
+        {
+            //
+            // Print help message
+            //
 
-	    usageMessage (argv[0], true);
-	}
-	else
-	{
-	    //
-	    // image file name
-	    //
+            usageMessage (argv[0], true);
+        }
+        else
+        {
+            //
+            // image file name
+            //
 
-	    imageFile = argv[i];
-	    i += 1;
-	}
+            imageFile = argv[i];
+            i += 1;
+        }
     }
 
     if (imageFile == 0)
-	usageMessage (argv[0]);
+        usageMessage (argv[0]);
 
     //
     // Load the specified image file,
@@ -764,33 +930,33 @@ main(int argc, char **argv)
 
     try
     {
-	setGlobalThreadCount (numThreads);
+        setGlobalThreadCount (numThreads);
 
-	MainWindow *mainWindow = makeMainWindow (imageFile,
-						 channel,
-						 layer,
-						 preview,
-						 lx, ly,
-						 noDisplayWindow,
-						 noAspect,
-						 zeroOneExposure,
-						 normalize,
-						 swap,
-						 continuousUpdate,
-						 transformNames,
-						 useCtl);
+        MainWindow *mainWindow = makeMainWindow (imageFile,
+                                                 channel,
+                                                 layer,
+                                                 preview,
+                                                 lx, ly,
+                                                 noDisplayWindow,
+                                                 noAspect,
+                                                 zeroOneExposure,
+                                                 normalize,
+                                                 swap,
+                                                 continuousUpdate,
+                                                 transformNames,
+                                                 useCtl);
 
-	mainWindow->window->show (1, argv);
+        mainWindow->window->show (1, argv);
 
-	Fl::set_color (FL_GRAY,  80, 80, 80);
-	Fl::set_color (FL_GRAY0, 80, 80, 80);
+        Fl::set_color (FL_GRAY,  240, 240, 240);
+        Fl::set_color (FL_GRAY0, 80, 80, 80);
 
-	exitStatus = Fl::run();
+        exitStatus = Fl::run();
     }
     catch (const exception &e)
     {
-	cerr << e.what() << endl;
-	exitStatus = 1;
+        cerr << e.what() << endl;
+        exitStatus = 1;
     }
 
     return exitStatus;
