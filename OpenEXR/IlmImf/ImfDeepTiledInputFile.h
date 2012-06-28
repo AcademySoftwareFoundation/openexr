@@ -48,8 +48,6 @@
 #include "ImfTileDescription.h"
 #include "ImfThreading.h"
 #include "ImfGenericInputFile.h"
-#include "ImfInputStreamMutex.h"
-#include "ImfInputPartData.h"
 #include "ImfDeepFrameBuffer.h"
 #include "ImfDeepTiledOutputFile.h"
 #include "ImfForward.h"
@@ -58,7 +56,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
 {
 
-
+class InputPartData;
 class DeepTiledInputFile : public GenericInputFile
 {
   public:

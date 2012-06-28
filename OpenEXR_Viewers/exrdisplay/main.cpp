@@ -86,6 +86,8 @@ struct MainWindow
     Fl_Box *            rgbaBox;
     ImageView *         image;
     Array<Rgba>         pixels;
+    Array<float*>       dataZ;
+    Array<unsigned int> sampleCount;
     const char*         imageFile;
     bool                preview;
     int                 lx;
@@ -111,6 +113,7 @@ MainWindow::multipartComboboxCallback (Fl_Widget *widget, void *data)
     // reload pixels
     //
     Header header;
+    int zsize;
 
     loadImage (mainWindow->imageFile,
                mainWindow->channel,
@@ -119,8 +122,11 @@ MainWindow::multipartComboboxCallback (Fl_Widget *widget, void *data)
 	       mainWindow->lx,
 	       mainWindow->ly,
 	       partnum,
+               zsize,
 	       header,
-	       mainWindow->pixels);
+	       mainWindow->pixels,
+	       mainWindow->dataZ,
+	       mainWindow->sampleCount);
 
     const Box2i &displayWindow = header.displayWindow();
     const Box2i &dataWindow = header.dataWindow();
@@ -139,10 +145,14 @@ MainWindow::multipartComboboxCallback (Fl_Widget *widget, void *data)
         int iw = displayWindow.max.x - displayWindow.min.x;
         int ih = displayWindow.max.y - displayWindow.min.y;
 
-        mainWindow->window->size(w, (160+ih));
-        mainWindow->image->resize((w - iw) / 2, 155, iw, ih);
+        mainWindow->window->size (w, (160 + ih));
+        mainWindow->image->resize ((w - iw) / 2, 155, iw, ih);
     }
-    mainWindow->image->setPixels (mainWindow->pixels,dw,dh,dx,dy);
+    mainWindow->image->setPixels (mainWindow->pixels,
+                                  mainWindow->dataZ,
+                                  mainWindow->sampleCount,
+                                  zsize,
+                                  dw,dh,dx,dy);
 
     //
     // renew multipart data type
@@ -247,6 +257,7 @@ makeMainWindow (const char imageFile[],
     }
 
     Header header;
+    int zsize;
 
     //
     //pass 0 as partnum for the first load
@@ -257,8 +268,11 @@ makeMainWindow (const char imageFile[],
                preview,
                lx, ly,
                0,
+               zsize,
                header,
-               mainWindow->pixels);
+               mainWindow->pixels,
+               mainWindow->dataZ,
+               mainWindow->sampleCount);
 
     const Box2i &displayWindow = header.displayWindow();
     const Box2i &dataWindow = header.dataWindow();
@@ -567,6 +581,9 @@ makeMainWindow (const char imageFile[],
                                    w, h,
                                    "",
                                    mainWindow->pixels,
+                                   mainWindow->dataZ,
+                                   mainWindow->sampleCount,
+                                   zsize,
                                    dw, dh,
                                    dx, dy,
                                    mainWindow->rgbaBox,

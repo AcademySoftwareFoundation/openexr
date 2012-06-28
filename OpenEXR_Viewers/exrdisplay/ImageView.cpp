@@ -73,6 +73,9 @@ ImageView::ImageView (int x, int y,
                       int w, int h,
                       const char label[],
                       const OPENEXR_IMF_NAMESPACE::Rgba pixels[],
+                      float* dataZ[],
+                      unsigned int sampleCount[],
+                      int zsize,
                       int dw, int dh,
                       int dx, int dy,
                       Fl_Box *rgbaBox,
@@ -89,6 +92,9 @@ ImageView::ImageView (int x, int y,
     _kneeLow (kneeLow),
     _kneeHigh (kneeHigh),
     _rawPixels (pixels),
+    _dataZ (dataZ),
+    _zsize (zsize),
+    _sampleCount (sampleCount),
     _fogR (0),
     _fogG (0),
     _fogB (0),
@@ -131,6 +137,9 @@ ImageView::setKneeLow (float kneeLow)
 }
 
 void ImageView::setPixels(const OPENEXR_IMF_NAMESPACE::Rgba pixels[/* w*h */],
+                          float* dataZ[/* w*h */],
+                          unsigned int sampleCount[/* w*h */],
+                          int zsize,
                           int dw, int dh, int dx, int dy)
 {
     _rawPixels = pixels;
@@ -138,6 +147,9 @@ void ImageView::setPixels(const OPENEXR_IMF_NAMESPACE::Rgba pixels[/* w*h */],
     _dh = dh;
     _dx = dx;
     _dy = dy;
+    _dataZ = dataZ;
+    _sampleCount = sampleCount;
+    _zsize = zsize;
 
     _screenPixels.resizeErase(dw*dh*3);
 
@@ -247,6 +259,46 @@ ImageView::handle (int event)
 
             _rgbaBox->label (_rgbaBoxLabel);
         }
+    }
+
+    if (event == FL_RELEASE)
+    {
+        //
+        // Print the z values of
+        // the pixel at the current cursor location.
+        //
+
+        if(_zsize > 0)
+        {
+            int x = Fl::event_x();
+            int y = Fl::event_y();
+
+            if (x >= 0 && x < w() && y >= 0 && y < h())
+            {
+                int px = x - _dx;
+                int py = y - _dy;
+
+                if (px >= 0 && px < _dw && py >= 0 && py < _dh)
+                {
+                    float* z = _dataZ[py * _dw + px];
+                    unsigned int count = _sampleCount[py * _dw + px];
+
+                    cout << "\nsample Count: " << count << endl;
+                    for (int i = 0; i < count; i++)
+                    {
+                        printf ("pixel Z value  %d: %f\n", i, float(z[i]));
+                    }
+
+                    const OPENEXR_IMF_NAMESPACE::Rgba &p = _rawPixels[py * _dw + px];
+
+                    cout << "R = " << p.r << ", G = " << p.g << ","
+                    " B = " << p.b <<endl;
+
+                }
+
+            }
+        }
+
     }
 
     return Fl_Gl_Window::handle (event);

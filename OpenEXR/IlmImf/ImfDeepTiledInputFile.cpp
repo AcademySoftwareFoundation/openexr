@@ -64,6 +64,9 @@
 #include <assert.h>
 #include <limits>
 
+#include "ImfInputStreamMutex.h"
+#include "ImfInputPartData.h"
+
 #include "OpenEXRConfig.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER
