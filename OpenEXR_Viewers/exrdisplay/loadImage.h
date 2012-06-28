@@ -88,7 +88,10 @@ void loadImage (const char fileName[],
                 int lx,
                 int ly,
                 int partnum,
+                int &zsize,
                 OPENEXR_IMF_NAMESPACE::Header &header,
-                OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &pixels);
+                OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &pixels,
+                OPENEXR_IMF_NAMESPACE::Array<float*> &zbuffer,
+                OPENEXR_IMF_NAMESPACE::Array<unsigned int> &sampleCount);
 
 #endif
