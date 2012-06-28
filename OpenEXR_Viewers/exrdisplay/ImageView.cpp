@@ -107,8 +107,36 @@ ImageView::ImageView (int x, int y,
 {
     computeFogColor();
     updateScreenPixels();
-}
 
+    _chartwin = new Fl_Window (600, 300);
+    _chart = new Fl_Chart (20, 20,
+                           _chartwin->w()-40,
+                           _chartwin->h()-40,
+                           "Data Z Chart");
+
+    //
+    // find max and min values of data
+    //
+    double bmax  = -1000000.0;
+    double bmin = 1000000.0;
+    for (int k = 0; k < _zsize; k++)
+    {
+        float* z = _dataZ[k];
+        unsigned int count = _sampleCount[k];
+
+        for (int i = 0; i < count; i++)
+        {
+            double val = double(z[i]);
+            if (val > bmax)
+                bmax = val;
+            if (val < bmin)
+                bmin = val;
+        }
+    }
+
+    cout << "z max: "<< bmax << ", z min: " << bmin << endl;
+    _chart->bounds (bmin, bmax);
+}
 
 void
 ImageView::setExposure (float exposure)
@@ -286,7 +314,7 @@ ImageView::handle (int event)
                     cout << "\nsample Count: " << count << endl;
                     for (int i = 0; i < count; i++)
                     {
-                        printf ("pixel Z value  %d: %f\n", i, float(z[i]));
+                        printf ("pixel Z value  %d: %.3f\n", i, float(z[i]));
                     }
 
                     const OPENEXR_IMF_NAMESPACE::Rgba &p = _rawPixels[py * _dw + px];
@@ -294,6 +322,28 @@ ImageView::handle (int event)
                     cout << "R = " << p.r << ", G = " << p.g << ","
                     " B = " << p.b <<endl;
 
+                    //
+                    // draw the chart
+                    //
+
+                    _chart->clear();
+                    _chart->type (FL_LINE_CHART);
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        double val = double(z[i]);
+                        static char val_str[20];
+                        sprintf (val_str, "%.3lf", val);
+                        _chart->add (val, val_str, FL_GREEN);
+                    }
+
+                    redraw();
+
+                    _chartwin->resizable (_chartwin);
+                    _chartwin->set_non_modal(); // make chart on top
+
+                    if (!_chartwin->shown())
+                        _chartwin->show();
                 }
 
             }

@@ -713,6 +713,10 @@ usageMessage (const char argv0[], bool verbose = false)
     exit (1);
 }
 
+void window_callback(Fl_Widget*, void*)
+{
+    exit(0);
+}
 
 int
 main(int argc, char **argv)
@@ -967,6 +971,8 @@ main(int argc, char **argv)
 
         Fl::set_color (FL_GRAY,  240, 240, 240);
         Fl::set_color (FL_GRAY0, 80, 80, 80);
+
+        mainWindow->window->callback(window_callback); // set main window exit
 
         exitStatus = Fl::run();
     }
