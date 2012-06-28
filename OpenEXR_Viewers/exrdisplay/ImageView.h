@@ -42,6 +42,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include <FL/Fl_Chart.H>
 #include <FL/Fl_Gl_Window.H>
 #include <FL/Fl_Box.H>
 #include <ImfRgba.h>
@@ -107,6 +108,8 @@ class ImageView: public Fl_Gl_Window
 
     private:
 
+        Fl_Window *                          _chartwin;
+        Fl_Chart *                           _chart;
         Fl_Box *                             _rgbaBox;
         char                                 _rgbaBoxLabel[200];
         OPENEXR_IMF_NAMESPACE::Array<unsigned char> _screenPixels;
