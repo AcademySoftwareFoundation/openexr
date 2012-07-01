@@ -195,7 +195,7 @@ transform (const Box< Vec3<S> > &box, const Matrix44<T> &m)
 
 	    for (int j = 0; j < 3; j++) 
             {
-		float a, b;
+		S a, b;
 
 		a = (S) m[j][i] * box.min[j];
 		b = (S) m[j][i] * box.max[j];
@@ -279,7 +279,7 @@ transform (const Box< Vec3<S> > &box,
 
 	    for (int j = 0; j < 3; j++) 
             {
-		float a, b;
+		S a, b;
 
 		a = (S) m[j][i] * box.min[j];
 		b = (S) m[j][i] * box.max[j];
@@ -352,7 +352,7 @@ affineTransform (const Box< Vec3<S> > &box, const Matrix44<T> &m)
 
 	for (int j = 0; j < 3; j++) 
 	{
-	    float a, b;
+	    S a, b;
 
 	    a = (S) m[j][i] * box.min[j];
 	    b = (S) m[j][i] * box.max[j];
@@ -412,7 +412,7 @@ affineTransform (const Box< Vec3<S> > &box,
 
 	for (int j = 0; j < 3; j++) 
 	{
-	    float a, b;
+	    S a, b;
 
 	    a = (S) m[j][i] * box.min[j];
 	    b = (S) m[j][i] * box.max[j];
