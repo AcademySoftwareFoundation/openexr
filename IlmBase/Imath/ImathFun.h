@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -45,8 +45,9 @@
 
 #include "ImathLimits.h"
 #include "ImathInt64.h"
+#include <ImathNamespace.h>
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 template <class T>
 inline T
@@ -116,7 +117,7 @@ template <class T>
 inline int
 cmp (T a, T b)
 {
-    return Imath::sign (a - b);
+    return IMATH_INTERNAL_NAMESPACE::sign (a - b);
 }
 
 
@@ -124,7 +125,7 @@ template <class T>
 inline int
 cmpt (T a, T b, T t)
 {
-    return (Imath::abs (a - b) <= t)? 0 : cmp (a, b);
+    return (IMATH_INTERNAL_NAMESPACE::abs (a - b) <= t)? 0 : cmp (a, b);
 }
 
 
@@ -132,7 +133,7 @@ template <class T>
 inline bool
 iszero (T a, T t)
 {
-    return (Imath::abs (a) <= t) ? 1 : 0;
+    return (IMATH_INTERNAL_NAMESPACE::abs (a) <= t) ? 1 : 0;
 }
 
 
@@ -140,7 +141,7 @@ template <class T1, class T2, class T3>
 inline bool
 equal (T1 a, T2 b, T3 t)
 {
-    return Imath::abs (a - b) <= t;
+    return IMATH_INTERNAL_NAMESPACE::abs (a - b) <= t;
 }
 
 template <class T>
@@ -262,6 +263,6 @@ finited (double d)
 }
 
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif
+#endif // INCLUDED_IMATHFUN_H

@@ -44,9 +44,10 @@
 //----------------------------------------------------
 
 #include "ImathVec.h"
+#include <ImathNamespace.h>
 #include "half.h"
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 template <class T>
@@ -729,6 +730,6 @@ operator * (S x, const Color4<T> &v)
     return Color4<T> (x * v.r, x * v.g, x * v.b, x * v.a);
 }
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif 
+#endif // INCLUDED_IMATHCOLOR_H 

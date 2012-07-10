@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -38,7 +38,7 @@
 
 //-------------------------------------------------------------------
 //
-//	class Imath::Box<class T>
+//	class IMATH_INTERNAL_NAMESPACE::Box<class T>
 //	--------------------------------
 //
 //	This class imposes the following requirements on its 
@@ -63,8 +63,9 @@
 //-------------------------------------------------------------------
 
 #include "ImathVec.h"
+#include <ImathNamespace.h>
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 template <class T>	
@@ -332,7 +333,7 @@ Box<T>::majorAxis() const
 
 //-------------------------------------------------------------------
 //
-//  Partial class specializations for Imath::Vec2<T> and Imath::Vec3<T>
+//  Partial class specializations for IMATH_INTERNAL_NAMESPACE::Vec2<T> and IMATH_INTERNAL_NAMESPACE::Vec3<T>
 //
 //-------------------------------------------------------------------
 
@@ -845,6 +846,6 @@ Box<Vec3<T> >::majorAxis() const
 
 
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif
+#endif // INCLUDED_IMATHBOX_H

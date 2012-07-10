@@ -54,10 +54,10 @@ testf (float f)
 {
     printf ("\n");
 
-    float sf = Imath::succf (f);
-    float pf = Imath::predf (f);
-    float spf = Imath::succf (Imath::predf (f));
-    float psf = Imath::predf (Imath::succf (f));
+    float sf = IMATH_INTERNAL_NAMESPACE::succf (f);
+    float pf = IMATH_INTERNAL_NAMESPACE::predf (f);
+    float spf = IMATH_INTERNAL_NAMESPACE::succf (IMATH_INTERNAL_NAMESPACE::predf (f));
+    float psf = IMATH_INTERNAL_NAMESPACE::predf (IMATH_INTERNAL_NAMESPACE::succf (f));
 
     printf ("f %.9g\n", f);
     printf ("sf %.9g\n", sf);
@@ -72,10 +72,10 @@ testd (double d)
 {
     printf ("\n");
 
-    double sd = Imath::succd (d);
-    double pd = Imath::predd (d);
-    double spd = Imath::succd (Imath::predd (d));
-    double psd = Imath::predd (Imath::succd (d));
+    double sd = IMATH_INTERNAL_NAMESPACE::succd (d);
+    double pd = IMATH_INTERNAL_NAMESPACE::predd (d);
+    double spd = IMATH_INTERNAL_NAMESPACE::succd (IMATH_INTERNAL_NAMESPACE::predd (d));
+    double psd = IMATH_INTERNAL_NAMESPACE::predd (IMATH_INTERNAL_NAMESPACE::succd (d));
 
     printf ("d %.18lg\n", d);
     printf ("sd %.18lg\n", sd);
@@ -92,86 +92,86 @@ testFun ()
 
     cout << "floor" << endl;
 
-    assert (Imath::floor ( 0.0f) ==  0);
-    assert (Imath::floor ( 0.5f) ==  0);
-    assert (Imath::floor (-0.5f) == -1);
-    assert (Imath::floor ( 1.0f) ==  1);
-    assert (Imath::floor (-1.0f) == -1);
-    assert (Imath::floor ( 1.5f) ==  1);
-    assert (Imath::floor (-1.5f) == -2);
+    assert (IMATH_INTERNAL_NAMESPACE::floor ( 0.0f) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::floor ( 0.5f) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::floor (-0.5f) == -1);
+    assert (IMATH_INTERNAL_NAMESPACE::floor ( 1.0f) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::floor (-1.0f) == -1);
+    assert (IMATH_INTERNAL_NAMESPACE::floor ( 1.5f) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::floor (-1.5f) == -2);
 
     cout << "ceil" << endl;
 
-    assert (Imath::ceil ( 0.0f) ==  0);
-    assert (Imath::ceil ( 0.5f) ==  1);
-    assert (Imath::ceil (-0.5f) ==  0);
-    assert (Imath::ceil ( 1.0f) ==  1);
-    assert (Imath::ceil (-1.0f) == -1);
-    assert (Imath::ceil ( 1.5f) ==  2);
-    assert (Imath::ceil (-1.5f) == -1);
+    assert (IMATH_INTERNAL_NAMESPACE::ceil ( 0.0f) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::ceil ( 0.5f) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::ceil (-0.5f) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::ceil ( 1.0f) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::ceil (-1.0f) == -1);
+    assert (IMATH_INTERNAL_NAMESPACE::ceil ( 1.5f) ==  2);
+    assert (IMATH_INTERNAL_NAMESPACE::ceil (-1.5f) == -1);
 
     cout << "trunc" << endl;
 
-    assert (Imath::trunc ( 0.0f) ==  0);
-    assert (Imath::trunc ( 0.5f) ==  0);
-    assert (Imath::trunc (-0.5f) ==  0);
-    assert (Imath::trunc ( 1.0f) ==  1);
-    assert (Imath::trunc (-1.0f) == -1);
-    assert (Imath::trunc ( 1.5f) ==  1);
-    assert (Imath::trunc (-1.5f) == -1);
+    assert (IMATH_INTERNAL_NAMESPACE::trunc ( 0.0f) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::trunc ( 0.5f) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::trunc (-0.5f) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::trunc ( 1.0f) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::trunc (-1.0f) == -1);
+    assert (IMATH_INTERNAL_NAMESPACE::trunc ( 1.5f) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::trunc (-1.5f) == -1);
 
 
     cout << "divs / mods" << endl;
 
-    assert (Imath::divs ( 5,  2) ==  2 && Imath::mods ( 5,  2) ==  1);
-    assert (Imath::divs ( 4,  2) ==  2 && Imath::mods ( 4,  2) ==  0);
-    assert (Imath::divs ( 3,  2) ==  1 && Imath::mods ( 3,  2) ==  1);
-    assert (Imath::divs ( 2,  2) ==  1 && Imath::mods ( 2,  2) ==  0);
-    assert (Imath::divs ( 1,  2) ==  0 && Imath::mods ( 1,  2) ==  1);
-    assert (Imath::divs ( 0,  2) ==  0 && Imath::mods ( 0,  2) ==  0);
-    assert (Imath::divs (-1,  2) ==  0 && Imath::mods (-1,  2) == -1);
-    assert (Imath::divs (-2,  2) == -1 && Imath::mods (-2,  2) ==  0);
-    assert (Imath::divs (-3,  2) == -1 && Imath::mods (-3,  2) == -1);
-    assert (Imath::divs (-4,  2) == -2 && Imath::mods (-4,  2) ==  0);
-    assert (Imath::divs (-5,  2) == -2 && Imath::mods (-5,  2) == -1);
+    assert (IMATH_INTERNAL_NAMESPACE::divs ( 5,  2) ==  2 && IMATH_INTERNAL_NAMESPACE::mods ( 5,  2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divs ( 4,  2) ==  2 && IMATH_INTERNAL_NAMESPACE::mods ( 4,  2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divs ( 3,  2) ==  1 && IMATH_INTERNAL_NAMESPACE::mods ( 3,  2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divs ( 2,  2) ==  1 && IMATH_INTERNAL_NAMESPACE::mods ( 2,  2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divs ( 1,  2) ==  0 && IMATH_INTERNAL_NAMESPACE::mods ( 1,  2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divs ( 0,  2) ==  0 && IMATH_INTERNAL_NAMESPACE::mods ( 0,  2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divs (-1,  2) ==  0 && IMATH_INTERNAL_NAMESPACE::mods (-1,  2) == -1);
+    assert (IMATH_INTERNAL_NAMESPACE::divs (-2,  2) == -1 && IMATH_INTERNAL_NAMESPACE::mods (-2,  2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divs (-3,  2) == -1 && IMATH_INTERNAL_NAMESPACE::mods (-3,  2) == -1);
+    assert (IMATH_INTERNAL_NAMESPACE::divs (-4,  2) == -2 && IMATH_INTERNAL_NAMESPACE::mods (-4,  2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divs (-5,  2) == -2 && IMATH_INTERNAL_NAMESPACE::mods (-5,  2) == -1);
 
-    assert (Imath::divs ( 5, -2) == -2 && Imath::mods ( 5, -2) ==  1);
-    assert (Imath::divs ( 4, -2) == -2 && Imath::mods ( 4, -2) ==  0);
-    assert (Imath::divs ( 3, -2) == -1 && Imath::mods ( 3, -2) ==  1);
-    assert (Imath::divs ( 2, -2) == -1 && Imath::mods ( 2, -2) ==  0);
-    assert (Imath::divs ( 1, -2) ==  0 && Imath::mods ( 1, -2) ==  1);
-    assert (Imath::divs ( 0, -2) ==  0 && Imath::mods ( 0, -2) ==  0);
-    assert (Imath::divs (-1, -2) ==  0 && Imath::mods (-1, -2) == -1);
-    assert (Imath::divs (-2, -2) ==  1 && Imath::mods (-2, -2) ==  0);
-    assert (Imath::divs (-3, -2) ==  1 && Imath::mods (-3, -2) == -1);
-    assert (Imath::divs (-4, -2) ==  2 && Imath::mods (-4, -2) ==  0);
-    assert (Imath::divs (-5, -2) ==  2 && Imath::mods (-5, -2) == -1);
+    assert (IMATH_INTERNAL_NAMESPACE::divs ( 5, -2) == -2 && IMATH_INTERNAL_NAMESPACE::mods ( 5, -2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divs ( 4, -2) == -2 && IMATH_INTERNAL_NAMESPACE::mods ( 4, -2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divs ( 3, -2) == -1 && IMATH_INTERNAL_NAMESPACE::mods ( 3, -2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divs ( 2, -2) == -1 && IMATH_INTERNAL_NAMESPACE::mods ( 2, -2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divs ( 1, -2) ==  0 && IMATH_INTERNAL_NAMESPACE::mods ( 1, -2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divs ( 0, -2) ==  0 && IMATH_INTERNAL_NAMESPACE::mods ( 0, -2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divs (-1, -2) ==  0 && IMATH_INTERNAL_NAMESPACE::mods (-1, -2) == -1);
+    assert (IMATH_INTERNAL_NAMESPACE::divs (-2, -2) ==  1 && IMATH_INTERNAL_NAMESPACE::mods (-2, -2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divs (-3, -2) ==  1 && IMATH_INTERNAL_NAMESPACE::mods (-3, -2) == -1);
+    assert (IMATH_INTERNAL_NAMESPACE::divs (-4, -2) ==  2 && IMATH_INTERNAL_NAMESPACE::mods (-4, -2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divs (-5, -2) ==  2 && IMATH_INTERNAL_NAMESPACE::mods (-5, -2) == -1);
 
     cout << "divp / modp" << endl;
 
-    assert (Imath::divp ( 5,  2) ==  2 && Imath::modp ( 5,  2) ==  1);
-    assert (Imath::divp ( 4,  2) ==  2 && Imath::modp ( 4,  2) ==  0);
-    assert (Imath::divp ( 3,  2) ==  1 && Imath::modp ( 3,  2) ==  1);
-    assert (Imath::divp ( 2,  2) ==  1 && Imath::modp ( 2,  2) ==  0);
-    assert (Imath::divp ( 1,  2) ==  0 && Imath::modp ( 1,  2) ==  1);
-    assert (Imath::divp ( 0,  2) ==  0 && Imath::modp ( 0,  2) ==  0);
-    assert (Imath::divp (-1,  2) == -1 && Imath::modp (-1,  2) ==  1);
-    assert (Imath::divp (-2,  2) == -1 && Imath::modp (-2,  2) ==  0);
-    assert (Imath::divp (-3,  2) == -2 && Imath::modp (-3,  2) ==  1);
-    assert (Imath::divp (-4,  2) == -2 && Imath::modp (-4,  2) ==  0);
-    assert (Imath::divp (-5,  2) == -3 && Imath::modp (-5,  2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divp ( 5,  2) ==  2 && IMATH_INTERNAL_NAMESPACE::modp ( 5,  2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divp ( 4,  2) ==  2 && IMATH_INTERNAL_NAMESPACE::modp ( 4,  2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divp ( 3,  2) ==  1 && IMATH_INTERNAL_NAMESPACE::modp ( 3,  2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divp ( 2,  2) ==  1 && IMATH_INTERNAL_NAMESPACE::modp ( 2,  2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divp ( 1,  2) ==  0 && IMATH_INTERNAL_NAMESPACE::modp ( 1,  2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divp ( 0,  2) ==  0 && IMATH_INTERNAL_NAMESPACE::modp ( 0,  2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divp (-1,  2) == -1 && IMATH_INTERNAL_NAMESPACE::modp (-1,  2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divp (-2,  2) == -1 && IMATH_INTERNAL_NAMESPACE::modp (-2,  2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divp (-3,  2) == -2 && IMATH_INTERNAL_NAMESPACE::modp (-3,  2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divp (-4,  2) == -2 && IMATH_INTERNAL_NAMESPACE::modp (-4,  2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divp (-5,  2) == -3 && IMATH_INTERNAL_NAMESPACE::modp (-5,  2) ==  1);
 
-    assert (Imath::divp ( 5, -2) == -2 && Imath::modp ( 5, -2) ==  1);
-    assert (Imath::divp ( 4, -2) == -2 && Imath::modp ( 4, -2) ==  0);
-    assert (Imath::divp ( 3, -2) == -1 && Imath::modp ( 3, -2) ==  1);
-    assert (Imath::divp ( 2, -2) == -1 && Imath::modp ( 2, -2) ==  0);
-    assert (Imath::divp ( 1, -2) ==  0 && Imath::modp ( 1, -2) ==  1);
-    assert (Imath::divp ( 0, -2) ==  0 && Imath::modp ( 0, -2) ==  0);
-    assert (Imath::divp (-1, -2) ==  1 && Imath::modp (-1, -2) ==  1);
-    assert (Imath::divp (-2, -2) ==  1 && Imath::modp (-2, -2) ==  0);
-    assert (Imath::divp (-3, -2) ==  2 && Imath::modp (-3, -2) ==  1);
-    assert (Imath::divp (-4, -2) ==  2 && Imath::modp (-4, -2) ==  0);
-    assert (Imath::divp (-5, -2) ==  3 && Imath::modp (-5, -2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divp ( 5, -2) == -2 && IMATH_INTERNAL_NAMESPACE::modp ( 5, -2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divp ( 4, -2) == -2 && IMATH_INTERNAL_NAMESPACE::modp ( 4, -2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divp ( 3, -2) == -1 && IMATH_INTERNAL_NAMESPACE::modp ( 3, -2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divp ( 2, -2) == -1 && IMATH_INTERNAL_NAMESPACE::modp ( 2, -2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divp ( 1, -2) ==  0 && IMATH_INTERNAL_NAMESPACE::modp ( 1, -2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divp ( 0, -2) ==  0 && IMATH_INTERNAL_NAMESPACE::modp ( 0, -2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divp (-1, -2) ==  1 && IMATH_INTERNAL_NAMESPACE::modp (-1, -2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divp (-2, -2) ==  1 && IMATH_INTERNAL_NAMESPACE::modp (-2, -2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divp (-3, -2) ==  2 && IMATH_INTERNAL_NAMESPACE::modp (-3, -2) ==  1);
+    assert (IMATH_INTERNAL_NAMESPACE::divp (-4, -2) ==  2 && IMATH_INTERNAL_NAMESPACE::modp (-4, -2) ==  0);
+    assert (IMATH_INTERNAL_NAMESPACE::divp (-5, -2) ==  3 && IMATH_INTERNAL_NAMESPACE::modp (-5, -2) ==  1);
 
     cout << "successor, predecessor" << endl;
 

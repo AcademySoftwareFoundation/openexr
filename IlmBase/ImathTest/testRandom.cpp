@@ -44,7 +44,7 @@
 
 
 using namespace std;
-using Imath::abs;
+using IMATH_INTERNAL_NAMESPACE::abs;
 
 namespace {
 
@@ -69,17 +69,17 @@ testErand48 ()
     state[1] = 1;
     state[2] = 2;
 
-    assert (abs (Imath::erand48 (state) - 0.671004) < 0.00001);
-    assert (abs (Imath::erand48 (state) - 0.786905) < 0.00001);
-    assert (abs (Imath::erand48 (state) - 0.316850) < 0.00001);
-    assert (abs (Imath::erand48 (state) - 0.384870) < 0.00001);
-    assert (abs (Imath::erand48 (state) - 0.854650) < 0.00001);
+    assert (abs (IMATH_INTERNAL_NAMESPACE::erand48 (state) - 0.671004) < 0.00001);
+    assert (abs (IMATH_INTERNAL_NAMESPACE::erand48 (state) - 0.786905) < 0.00001);
+    assert (abs (IMATH_INTERNAL_NAMESPACE::erand48 (state) - 0.316850) < 0.00001);
+    assert (abs (IMATH_INTERNAL_NAMESPACE::erand48 (state) - 0.384870) < 0.00001);
+    assert (abs (IMATH_INTERNAL_NAMESPACE::erand48 (state) - 0.854650) < 0.00001);
 
-    assert (Imath::nrand48 (state) == 0x4f4e8cb0);
-    assert (Imath::nrand48 (state) == 0x063e864b);
-    assert (Imath::nrand48 (state) == 0x2d10f1dd);
-    assert (Imath::nrand48 (state) == 0x1aadc122);
-    assert (Imath::nrand48 (state) == 0x1836a71f);
+    assert (IMATH_INTERNAL_NAMESPACE::nrand48 (state) == 0x4f4e8cb0);
+    assert (IMATH_INTERNAL_NAMESPACE::nrand48 (state) == 0x063e864b);
+    assert (IMATH_INTERNAL_NAMESPACE::nrand48 (state) == 0x2d10f1dd);
+    assert (IMATH_INTERNAL_NAMESPACE::nrand48 (state) == 0x1aadc122);
+    assert (IMATH_INTERNAL_NAMESPACE::nrand48 (state) == 0x1836a71f);
 
     assert (state[0] == 0x2a42);
     assert (state[1] == 0x4e3e);
@@ -120,7 +120,7 @@ testGenerator ()
 	previous = r;
 
 	v[int (r * N)] += 1;
-	d[Imath::floor (diff * N + 0.5)] += 1;
+	d[IMATH_INTERNAL_NAMESPACE::floor (diff * N + 0.5)] += 1;
     }
 
     cout << "  values" << endl;
@@ -200,9 +200,9 @@ testSolidSphere ()
 
     for (int i = 0; i < M * N; ++i)
     {
-	Imath::V3f p = Imath::solidSphereRand<Imath::V3f> (rand);
+	IMATH_INTERNAL_NAMESPACE::V3f p = IMATH_INTERNAL_NAMESPACE::solidSphereRand<IMATH_INTERNAL_NAMESPACE::V3f> (rand);
 	float l = p.length();
-	v[Imath::floor (l * N)] += 1;
+	v[IMATH_INTERNAL_NAMESPACE::floor (l * N)] += 1;
 
 	assert (l < 1.00001);
     }
@@ -221,7 +221,7 @@ testHollowSphere ()
 
     for (int i = 0; i < M; ++i)
     {
-	Imath::V3f p = Imath::hollowSphereRand<Imath::V3f> (rand);
+	IMATH_INTERNAL_NAMESPACE::V3f p = IMATH_INTERNAL_NAMESPACE::hollowSphereRand<IMATH_INTERNAL_NAMESPACE::V3f> (rand);
 	float l = p.length();
 
 	assert (abs (l - 1) < 0.00001);
@@ -241,16 +241,16 @@ testRandom ()
     testErand48();
 
     cout << "Rand32" << endl;
-    testGenerator<Imath::Rand32>();
+    testGenerator<IMATH_INTERNAL_NAMESPACE::Rand32>();
 
     cout << "Rand48" << endl;
-    testGenerator<Imath::Rand48>();
+    testGenerator<IMATH_INTERNAL_NAMESPACE::Rand48>();
 
     cout << "solidSphereRand()" << endl;
-    testSolidSphere<Imath::Rand32>();
+    testSolidSphere<IMATH_INTERNAL_NAMESPACE::Rand32>();
 
     cout << "hollowSphereRand()" << endl;
-    testHollowSphere<Imath::Rand32>();
+    testHollowSphere<IMATH_INTERNAL_NAMESPACE::Rand32>();
 
     cout << "ok\n" << endl;
 }

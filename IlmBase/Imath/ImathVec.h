@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -46,6 +46,7 @@
 #include "ImathExc.h"
 #include "ImathLimits.h"
 #include "ImathMath.h"
+#include <ImathNamespace.h>
 
 #include <iostream>
 
@@ -56,7 +57,7 @@
 #endif
 
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 template <class T> class Vec2;
 template <class T> class Vec3;
@@ -981,7 +982,7 @@ bool
 Vec2<T>::equalWithAbsError (const Vec2<T> &v, T e) const
 {
     for (int i = 0; i < 2; i++)
-	if (!Imath::equalWithAbsError ((*this)[i], v[i], e))
+	if (!IMATH_INTERNAL_NAMESPACE::equalWithAbsError ((*this)[i], v[i], e))
 	    return false;
 
     return true;
@@ -992,7 +993,7 @@ bool
 Vec2<T>::equalWithRelError (const Vec2<T> &v, T e) const
 {
     for (int i = 0; i < 2; i++)
-	if (!Imath::equalWithRelError ((*this)[i], v[i], e))
+	if (!IMATH_INTERNAL_NAMESPACE::equalWithRelError ((*this)[i], v[i], e))
 	    return false;
 
     return true;
@@ -1444,7 +1445,7 @@ bool
 Vec3<T>::equalWithAbsError (const Vec3<T> &v, T e) const
 {
     for (int i = 0; i < 3; i++)
-	if (!Imath::equalWithAbsError ((*this)[i], v[i], e))
+	if (!IMATH_INTERNAL_NAMESPACE::equalWithAbsError ((*this)[i], v[i], e))
 	    return false;
 
     return true;
@@ -1455,7 +1456,7 @@ bool
 Vec3<T>::equalWithRelError (const Vec3<T> &v, T e) const
 {
     for (int i = 0; i < 3; i++)
-	if (!Imath::equalWithRelError ((*this)[i], v[i], e))
+	if (!IMATH_INTERNAL_NAMESPACE::equalWithRelError ((*this)[i], v[i], e))
 	    return false;
 
     return true;
@@ -1865,7 +1866,7 @@ bool
 Vec4<T>::equalWithAbsError (const Vec4<T> &v, T e) const
 {
     for (int i = 0; i < 4; i++)
-        if (!Imath::equalWithAbsError ((*this)[i], v[i], e))
+        if (!IMATH_INTERNAL_NAMESPACE::equalWithAbsError ((*this)[i], v[i], e))
             return false;
 
     return true;
@@ -1876,7 +1877,7 @@ bool
 Vec4<T>::equalWithRelError (const Vec4<T> &v, T e) const
 {
     for (int i = 0; i < 4; i++)
-        if (!Imath::equalWithRelError ((*this)[i], v[i], e))
+        if (!IMATH_INTERNAL_NAMESPACE::equalWithRelError ((*this)[i], v[i], e))
             return false;
 
     return true;
@@ -2221,6 +2222,6 @@ operator * (T a, const Vec4<T> &v)
 #pragma warning(pop)
 #endif
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif
+#endif // INCLUDED_IMATHVEC_H

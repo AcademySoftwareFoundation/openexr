@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -40,7 +40,7 @@
 //-------------------------------------------------------------------------
 //
 //      This file contains algorithms applied to or in conjunction
-//      with points (Imath::Vec2 and Imath::Vec3).
+//      with points (IMATH_INTERNAL_NAMESPACE::Vec2 and IMATH_INTERNAL_NAMESPACE::Vec3).
 //      The assumption made is that these functions are called much
 //      less often than the basic point functions or these functions
 //      require more support classes.
@@ -49,8 +49,9 @@
 
 #include "ImathVec.h"
 #include "ImathLimits.h"
+#include <ImathNamespace.h>
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 //-----------------------------------------------------------------
@@ -141,6 +142,6 @@ closestVertex(const Vec &v0,
 }
 
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif
+#endif // INCLUDED_IMATHVECALGO_H

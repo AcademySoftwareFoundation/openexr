@@ -43,13 +43,13 @@
 #include "IexMathExc.h"
 #include "ImathFun.h"
 
-inline void glVertex    ( const Imath::V3f &v ) { glVertex3f(v.x,v.y,v.z);   }
-inline void glVertex    ( const Imath::V2f &v ) { glVertex2f(v.x,v.y);       }
-inline void glNormal    ( const Imath::V3f &n ) { glNormal3f(n.x,n.y,n.z);   }
-inline void glColor     ( const Imath::V3f &c ) { glColor3f(c.x,c.y,c.z);    }
-inline void glTranslate ( const Imath::V3f &t ) { glTranslatef(t.x,t.y,t.z); }
+inline void glVertex    ( const IMATH_INTERNAL_NAMESPACE::V3f &v ) { glVertex3f(v.x,v.y,v.z);   }
+inline void glVertex    ( const IMATH_INTERNAL_NAMESPACE::V2f &v ) { glVertex2f(v.x,v.y);       }
+inline void glNormal    ( const IMATH_INTERNAL_NAMESPACE::V3f &n ) { glNormal3f(n.x,n.y,n.z);   }
+inline void glColor     ( const IMATH_INTERNAL_NAMESPACE::V3f &c ) { glColor3f(c.x,c.y,c.z);    }
+inline void glTranslate ( const IMATH_INTERNAL_NAMESPACE::V3f &t ) { glTranslatef(t.x,t.y,t.z); }
 
-inline void glTexCoord( const Imath::V2f &t )
+inline void glTexCoord( const IMATH_INTERNAL_NAMESPACE::V2f &t )
 {
     glTexCoord2f(t.x,t.y);
 }
@@ -70,13 +70,13 @@ const float GL_FLOAT_MAX = 1.8e+19; // sqrt (FLT_MAX)
 inline bool
 badFloat (float f)
 {
-    return !Imath::finitef (f) || f < - GL_FLOAT_MAX || f > GL_FLOAT_MAX;
+    return !IMATH_INTERNAL_NAMESPACE::finitef (f) || f < - GL_FLOAT_MAX || f > GL_FLOAT_MAX;
 }
 
 } // namespace
 	
 inline void
-throwBadMatrix (const Imath::M44f& m)
+throwBadMatrix (const IMATH_INTERNAL_NAMESPACE::M44f& m)
 {
     if (badFloat (m[0][0]) ||
 	badFloat (m[0][1]) ||
@@ -98,28 +98,28 @@ throwBadMatrix (const Imath::M44f& m)
 }
 
 inline void 
-glMultMatrix( const Imath::M44f& m ) 
+glMultMatrix( const IMATH_INTERNAL_NAMESPACE::M44f& m ) 
 { 
     throwBadMatrix (m);
     glMultMatrixf( (GLfloat*)m[0] ); 
 }
 
 inline void 
-glMultMatrix( const Imath::M44f* m ) 
+glMultMatrix( const IMATH_INTERNAL_NAMESPACE::M44f* m ) 
 { 
     throwBadMatrix (*m);
     glMultMatrixf( (GLfloat*)(*m)[0] ); 
 }
 
 inline void 
-glLoadMatrix( const Imath::M44f& m ) 
+glLoadMatrix( const IMATH_INTERNAL_NAMESPACE::M44f& m ) 
 { 
     throwBadMatrix (m);
     glLoadMatrixf( (GLfloat*)m[0] ); 
 }
 
 inline void 
-glLoadMatrix( const Imath::M44f* m ) 
+glLoadMatrix( const IMATH_INTERNAL_NAMESPACE::M44f* m ) 
 { 
     throwBadMatrix (*m);
     glLoadMatrixf( (GLfloat*)(*m)[0] ); 

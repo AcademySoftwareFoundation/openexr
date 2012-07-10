@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -41,9 +41,9 @@
 //
 //	template class Plane3
 //
-//	The Imath::Plane3<> class represents a half space, so the
+//	The IMATH_INTERNAL_NAMESPACE::Plane3<> class represents a half space, so the
 //	normal may point either towards or away from origin.  The
-//	plane P can be represented by Imath::Plane3 as either p or -p
+//	plane P can be represented by IMATH_INTERNAL_NAMESPACE::Plane3 as either p or -p
 //	corresponding to the two half-spaces on either side of the
 //	plane. Any function which computes a distance will return
 //	either negative or positive values for the distance indicating
@@ -54,8 +54,9 @@
 
 #include "ImathVec.h"
 #include "ImathLine.h"
+#include <ImathNamespace.h>
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 template <class T>
@@ -251,6 +252,6 @@ Plane3<T> operator- (const Plane3<T> &plane)
 }
 
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif
+#endif // INCLUDED_IMATHPLANE_H

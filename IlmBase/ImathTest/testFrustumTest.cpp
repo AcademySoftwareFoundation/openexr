@@ -59,22 +59,22 @@ testFrustumTest ()
     float b = -1.3;
     float t = 0.9;
 
-    Imath::Frustum<float> frustum (n, f, l, r, t, b, false);
+    IMATH_INTERNAL_NAMESPACE::Frustum<float> frustum (n, f, l, r, t, b, false);
 
-    Imath::Matrix44<float> cameraMat;
-    Imath::Vec3<float> cameraPos(100.0f, 200.0f, 300.0f);
+    IMATH_INTERNAL_NAMESPACE::Matrix44<float> cameraMat;
+    IMATH_INTERNAL_NAMESPACE::Vec3<float> cameraPos(100.0f, 200.0f, 300.0f);
     cameraMat.makeIdentity();
     cameraMat.translate(cameraPos);
 
-    Imath::FrustumTest<float> frustumTest(frustum, cameraMat);
+    IMATH_INTERNAL_NAMESPACE::FrustumTest<float> frustumTest(frustum, cameraMat);
 
     /////////////////////////////////////////////////////
     // Test Vec3's
-    Imath::Vec3<float> insideVec      (100.0f, 200.0f,          300 -   2.0f);
-    Imath::Vec3<float> outsideVec_near(100.0f, 200.0f,          300 -   1.5f);
-    Imath::Vec3<float> outsideVec_far (100.0f, 200.0f,          300 - 568.0f);
-    Imath::Vec3<float> outsideVec_side(100.0f, 200.0f + 100.0f, 300 -   2.0f);
-    Imath::Vec3<float> outsideVec_up  (100.0f + 100.0f, 200.0f, 300 -   2.0f);
+    IMATH_INTERNAL_NAMESPACE::Vec3<float> insideVec      (100.0f, 200.0f,          300 -   2.0f);
+    IMATH_INTERNAL_NAMESPACE::Vec3<float> outsideVec_near(100.0f, 200.0f,          300 -   1.5f);
+    IMATH_INTERNAL_NAMESPACE::Vec3<float> outsideVec_far (100.0f, 200.0f,          300 - 568.0f);
+    IMATH_INTERNAL_NAMESPACE::Vec3<float> outsideVec_side(100.0f, 200.0f + 100.0f, 300 -   2.0f);
+    IMATH_INTERNAL_NAMESPACE::Vec3<float> outsideVec_up  (100.0f + 100.0f, 200.0f, 300 -   2.0f);
 
     assert (  frustumTest.isVisible(insideVec));
     assert (! frustumTest.isVisible(outsideVec_near));
@@ -85,33 +85,33 @@ testFrustumTest ()
 
     /////////////////////////////////////////////////////
     // Test Boxes
-    Imath::Vec3<float> tinySize(0.0001f, 0.0001f, 0.0001f);
-    Imath::Vec3<float> hugeSize(1000.0f, 1000.0f, 1000.0f);
+    IMATH_INTERNAL_NAMESPACE::Vec3<float> tinySize(0.0001f, 0.0001f, 0.0001f);
+    IMATH_INTERNAL_NAMESPACE::Vec3<float> hugeSize(1000.0f, 1000.0f, 1000.0f);
 
     // Tiny box inside the frust should be visible
-    assert (frustumTest.isVisible(Imath::Box<Imath::Vec3<float> >
+    assert (frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Box<IMATH_INTERNAL_NAMESPACE::Vec3<float> >
         (insideVec + tinySize, insideVec + tinySize)));
 
     // Huge boxes inside and outside should be visible
-    assert (frustumTest.isVisible(Imath::Box<Imath::Vec3<float> >
+    assert (frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Box<IMATH_INTERNAL_NAMESPACE::Vec3<float> >
         (insideVec - hugeSize, insideVec + hugeSize)));
-    assert (frustumTest.isVisible(Imath::Box<Imath::Vec3<float> >
+    assert (frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Box<IMATH_INTERNAL_NAMESPACE::Vec3<float> >
         (outsideVec_near - hugeSize, outsideVec_near + hugeSize)));
-    assert (frustumTest.isVisible(Imath::Box<Imath::Vec3<float> >
+    assert (frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Box<IMATH_INTERNAL_NAMESPACE::Vec3<float> >
         (outsideVec_far - hugeSize, outsideVec_far + hugeSize)));
-    assert (frustumTest.isVisible(Imath::Box<Imath::Vec3<float> >
+    assert (frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Box<IMATH_INTERNAL_NAMESPACE::Vec3<float> >
         (outsideVec_side - hugeSize, outsideVec_side + hugeSize)));
-    assert (frustumTest.isVisible(Imath::Box<Imath::Vec3<float> >
+    assert (frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Box<IMATH_INTERNAL_NAMESPACE::Vec3<float> >
         (outsideVec_up - hugeSize, outsideVec_up + hugeSize)));
 
     // Tiny boxes outside should NOT be visible
-    assert (! frustumTest.isVisible(Imath::Box<Imath::Vec3<float> >
+    assert (! frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Box<IMATH_INTERNAL_NAMESPACE::Vec3<float> >
         (outsideVec_near - tinySize, outsideVec_near + tinySize)));
-    assert (! frustumTest.isVisible(Imath::Box<Imath::Vec3<float> >
+    assert (! frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Box<IMATH_INTERNAL_NAMESPACE::Vec3<float> >
         (outsideVec_far - tinySize, outsideVec_far + tinySize)));
-    assert (! frustumTest.isVisible(Imath::Box<Imath::Vec3<float> >
+    assert (! frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Box<IMATH_INTERNAL_NAMESPACE::Vec3<float> >
         (outsideVec_side - tinySize, outsideVec_side + tinySize)));
-    assert (! frustumTest.isVisible(Imath::Box<Imath::Vec3<float> >
+    assert (! frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Box<IMATH_INTERNAL_NAMESPACE::Vec3<float> >
         (outsideVec_up - tinySize, outsideVec_up + tinySize)));
     cout << "passed Box\n";
 
@@ -122,29 +122,29 @@ testFrustumTest ()
     float hugeRadius = 1000.0f;
 
     // Tiny sphere inside the frust should be visible
-    assert (frustumTest.isVisible(Imath::Sphere3<float>
+    assert (frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Sphere3<float>
         (insideVec, tinyRadius)));
 
     // Huge spheres inside and outside should be visible
-    assert (frustumTest.isVisible(Imath::Sphere3<float>
+    assert (frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Sphere3<float>
         (insideVec, hugeRadius)));
-    assert (frustumTest.isVisible(Imath::Sphere3<float>
+    assert (frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Sphere3<float>
         (outsideVec_near, hugeRadius)));
-    assert (frustumTest.isVisible(Imath::Sphere3<float>
+    assert (frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Sphere3<float>
         (outsideVec_far, hugeRadius)));
-    assert (frustumTest.isVisible(Imath::Sphere3<float>
+    assert (frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Sphere3<float>
         (outsideVec_side, hugeRadius)));
-    assert (frustumTest.isVisible(Imath::Sphere3<float>
+    assert (frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Sphere3<float>
         (outsideVec_up, hugeRadius)));
 
     // Tiny spheres outside should NOT be visible
-    assert (! frustumTest.isVisible(Imath::Sphere3<float>
+    assert (! frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Sphere3<float>
         (outsideVec_near, tinyRadius)));
-    assert (! frustumTest.isVisible(Imath::Sphere3<float>
+    assert (! frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Sphere3<float>
         (outsideVec_far, tinyRadius)));
-    assert (! frustumTest.isVisible(Imath::Sphere3<float>
+    assert (! frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Sphere3<float>
         (outsideVec_side, tinyRadius)));
-    assert (! frustumTest.isVisible(Imath::Sphere3<float>
+    assert (! frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Sphere3<float>
         (outsideVec_up, tinyRadius)));
     cout << "passed Sphere\n";
 

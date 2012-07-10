@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -56,10 +56,11 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <ImathNamespace.h>
 #include <stdlib.h>
 #include <math.h>
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //-----------------------------------------------
 // Fast random-number generator that generates
@@ -303,21 +304,21 @@ Rand48::Rand48 (unsigned long int seed)
 inline bool
 Rand48::nextb ()
 {
-    return Imath::nrand48 (_state) & 1;
+    return nrand48 (_state) & 1;
 }
 
 
 inline long int
 Rand48::nexti ()
 {
-    return Imath::nrand48 (_state);
+    return nrand48 (_state);
 }
 
 
 inline double
 Rand48::nextf ()
 {
-    return Imath::erand48 (_state);
+    return erand48 (_state);
 }
 
 
@@ -393,6 +394,6 @@ gaussSphereRand (Rand &rand)
     return hollowSphereRand <Vec> (rand) * gaussRand (rand);
 }
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif
+#endif // INCLUDED_IMATHRANDOM_H

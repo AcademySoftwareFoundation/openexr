@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -44,9 +44,10 @@
 #include "ImathMatrix.h"
 #include "ImathLimits.h"
 #include "ImathFun.h"
+#include <ImathNamespace.h>
 #include "IexMathExc.h"
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //
 //	template class Frustum<T>
@@ -724,7 +725,7 @@ typedef Frustum<float>	Frustumf;
 typedef Frustum<double> Frustumd;
 
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
 #if defined _WIN32 || defined _WIN64
@@ -736,4 +737,4 @@ typedef Frustum<double> Frustumd;
     #endif
 #endif
 
-#endif
+#endif // INCLUDED_IMATHFRUSTUM_H

@@ -43,7 +43,7 @@
 
 
 using namespace std;
-using namespace Imath;
+using namespace IMATH_INTERNAL_NAMESPACE;
 
 namespace {
 
@@ -62,47 +62,47 @@ testLength2T ()
 
     v = Vec2<T> (3, 4);
     assert (v.length() == 5);
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     v = Vec2<T> (3000, 4000);
     assert (v.length() == 5000);
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     T t = s * (1 << 4);
 
     v = Vec2<T> (t, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec2<T> (0, t);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec2<T> (-t, -t);
-    assert (Imath::equal (v.length(), t * Math<T>::sqrt (2), t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t * Math<T>::sqrt (2), t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     t = s / (1 << 4);
 
     v = Vec2<T> (t, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec2<T> (0, t);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec2<T> (-t, -t);
-    assert (Imath::equal (v.length(), t * Math<T>::sqrt (2), t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t * Math<T>::sqrt (2), t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     t = s / (1 << 20);
 
     v = Vec2<T> (t, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec2<T> (0, t);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec2<T> (-t, -t);
-    assert (Imath::equal (v.length(), t * Math<T>::sqrt (2), t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t * Math<T>::sqrt (2), t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 }
 
 
@@ -121,64 +121,64 @@ testLength3T ()
 
     v = Vec3<T> (3, 4, 0);
     assert (v.length() == 5);
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     v = Vec3<T> (3000, 4000, 0);
     assert (v.length() == 5000);
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     v = Vec3<T> (1, -1, 1);
-    assert (Imath::equal (v.length(), 1 * Math<T>::sqrt (3), e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), 1 * Math<T>::sqrt (3), e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     v = Vec3<T> (1000, -1000, 1000);
-    assert (Imath::equal (v.length(), 1000 * Math<T>::sqrt (3), 1000 * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), 1000 * Math<T>::sqrt (3), 1000 * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     T t = s * (1 << 4);
 
     v = Vec3<T> (t, 0, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec3<T> (0, t, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec3<T> (0, 0, t);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec3<T> (-t, -t, -t);
-    assert (Imath::equal (v.length(), t * Math<T>::sqrt (3), t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t * Math<T>::sqrt (3), t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     t = s / (1 << 4);
 
     v = Vec3<T> (t, 0, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec3<T> (0, t, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec3<T> (0, 0, t);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec3<T> (-t, -t, -t);
-    assert (Imath::equal (v.length(), t * Math<T>::sqrt (3), t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t * Math<T>::sqrt (3), t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     t = s / (1 << 20);
 
     v = Vec3<T> (t, 0, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec3<T> (0, t, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec3<T> (0, 0, t);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec3<T> (-t, -t, -t);
-    assert (Imath::equal (v.length(), t * Math<T>::sqrt (3), t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t * Math<T>::sqrt (3), t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 }
 
 
@@ -197,73 +197,73 @@ testLength4T ()
 
     v = Vec4<T> (3, 4, 0, 0);
     assert (v.length() == 5);
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     v = Vec4<T> (3000, 4000, 0, 0);
     assert (v.length() == 5000);
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     v = Vec4<T> (1, -1, 1, 1);
-    assert (Imath::equal (v.length(), 2, e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), 2, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     v = Vec4<T> (1000, -1000, 1000, 1000);
-    assert (Imath::equal (v.length(), 2000, 1000 * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), 2000, 1000 * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     T t = s * (1 << 4);
 
     v = Vec4<T> (t, 0, 0, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec4<T> (0, t, 0, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec4<T> (0, 0, t, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec4<T> (0, 0, 0, t);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec4<T> (-t, -t, -t, -t);
-    assert (Imath::equal (v.length(), t * 2, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t * 2, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     t = s / (1 << 4);
 
     v = Vec4<T> (t, 0, 0, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec4<T> (0, t, 0, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec4<T> (0, 0, t, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec4<T> (0, 0, 0, t);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec4<T> (-t, -t, -t, -t);
-    assert (Imath::equal (v.length(), t * 2, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t * 2, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 
     t = s / (1 << 20);
 
     v = Vec4<T> (t, 0, 0, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec4<T> (0, t, 0, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec4<T> (0, 0, t, 0);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec4<T> (0, 0, 0, t);
-    assert (Imath::equal (v.length(), t, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
     v = Vec4<T> (-t, -t, -t, -t);
-    assert (Imath::equal (v.length(), t * 2, t * e));
-    assert (Imath::equal (v.normalized().length(), 1, e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.length(), t * 2, t * e));
+    assert (IMATH_INTERNAL_NAMESPACE::equal (v.normalized().length(), 1, e));
 }
 
 

@@ -15,6 +15,27 @@
 
 #undef HAVE_UCONTEXT_H
 
+
+//
+// Define and set to 1 if the target system has support for large
+// stack sizes.
+//
+
+#undef ILMBASE_HAVE_LARGE_STACK
+
+//
+// Current (internal) library namepace name and corresponding public
+// client namespaces.
+//
+#undef IMATH_INTERNAL_NAMESPACE
+#undef IEX_INTERNAL_NAMESPACE
+#undef ILMTHREAD_INTERNAL_NAMESPACE
+
+#undef IMATH_NAMESPACE
+#undef IEX_NAMESPACE
+#undef ILMTHREAD_NAMESPACE
+
+
 //
 // Version string for runtime access
 //

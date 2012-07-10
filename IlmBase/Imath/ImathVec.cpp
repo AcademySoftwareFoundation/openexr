@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -48,7 +48,7 @@
 #endif
 
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 namespace
 {
@@ -537,4 +537,4 @@ Vec4<int>::normalizedNonNull () const
     return v;
 }
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_SOURCE_EXIT

@@ -104,7 +104,7 @@ solve (double a, double b, double c, double d,	// coefficients
     //
 
     double x[3];
-    int n = Imath::solveCubic (a, b, c, d, x);
+    int n = IMATH_INTERNAL_NAMESPACE::solveCubic (a, b, c, d, x);
 
     //
     // Sort the numerical solutions.
@@ -132,17 +132,17 @@ solve (double a, double b, double c, double d,	// coefficients
     if (n >= 1)
     {
 	cout << x[0];
-	assert (Imath::equal (x[0], x0, e));
+	assert (IMATH_INTERNAL_NAMESPACE::equal (x[0], x0, e));
     }
     if (n >= 2)
     {
 	cout << ' ' << x[1];
-	assert (Imath::equal (x[1], x1, e));
+	assert (IMATH_INTERNAL_NAMESPACE::equal (x[1], x1, e));
     }
     if (n >= 3)
     {
 	cout << ' ' << x[2];
-	assert (Imath::equal (x[2], x2, e));
+	assert (IMATH_INTERNAL_NAMESPACE::equal (x[2], x2, e));
     }
 
     cout << endl;
@@ -162,7 +162,7 @@ solve (double a, double b, double c,	// coefficients
     //
 
     double x[2];
-    int n = Imath::solveQuadratic (a, b, c, x);
+    int n = IMATH_INTERNAL_NAMESPACE::solveQuadratic (a, b, c, x);
 
     //
     // Sort the numerical solutions.
@@ -192,13 +192,13 @@ solve (double a, double b, double c,	// coefficients
     if (n >= 1)
     {
 	cout << x[0];
-	assert (Imath::equal (x[0], x0, e));
+	assert (IMATH_INTERNAL_NAMESPACE::equal (x[0], x0, e));
     }
 
     if (n >= 2)
     {
 	cout << ' ' << x[1];
-	assert (Imath::equal (x[1], x1, e));
+	assert (IMATH_INTERNAL_NAMESPACE::equal (x[1], x1, e));
     }
 
     cout << endl;

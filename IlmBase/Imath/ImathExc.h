@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -44,9 +44,10 @@
 //
 //-----------------------------------------------
 
+#include <ImathNamespace.h>
 #include "IexBaseExc.h"
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 DEFINE_EXC (NullVecExc, ::Iex::MathExc)		// Attempt to normalize
@@ -68,6 +69,6 @@ DEFINE_EXC (IntVecNormalizeExc, ::Iex::MathExc)	// Attempt to normalize
 						// a vector of whose elements
                                                 // are an integer type
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif
+#endif // INCLUDED_IMATHEXC_H
