@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -39,7 +39,7 @@
 
 #include "IexBaseExc.h"
 
-namespace Iex {
+IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //---------------------------------------------------------
 // Exception classess which correspond to specific floating
@@ -52,7 +52,6 @@ DEFINE_EXC (DivzeroExc,     MathExc)	// Division by zero
 DEFINE_EXC (InexactExc,     MathExc)	// Inexact result
 DEFINE_EXC (InvalidFpOpExc, MathExc)	// Invalid operation
 
+IEX_INTERNAL_NAMESPACE_HEADER_EXIT
 
-} // namespace Iex
-
-#endif
+#endif // INCLUDED_IEXMATHEXC_H

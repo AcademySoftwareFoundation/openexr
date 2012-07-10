@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -45,7 +45,7 @@
 
 #include "IexBaseExc.h"
 
-namespace Iex {
+IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 //--------------------------------------------------------------------------
@@ -87,10 +87,19 @@ namespace Iex {
 //
 //--------------------------------------------------------------------------
 
-void throwErrnoExc (const std::string &txt, int errnum);
-void throwErrnoExc (const std::string &txt = "%T." /*, int errnum = oserror() */);
-
-
-} // namespace Iex
-
+#if defined(OPENEXR_DLL)
+	#ifdef IEX_EXPORTS
+		#define IEX_EXPORT_FN __declspec(dllexport)
+	#else
+		#define IEX_EXPORT_FN __declspec(dllimport)
+	#endif
+#else
+    #define IEX_EXPORT_FN
 #endif
+IEX_EXPORT_FN void throwErrnoExc (const std::string &txt, int errnum);
+IEX_EXPORT_FN void throwErrnoExc (const std::string &txt = "%T." /*, int errnum = oserror() */);
+
+
+IEX_INTERNAL_NAMESPACE_HEADER_EXIT
+
+#endif // INCLUDED_IEXTHROWERRNOEXC_H
