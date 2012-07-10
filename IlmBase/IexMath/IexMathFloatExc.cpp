@@ -27,7 +27,8 @@
     #define debug(x)
 #endif
 
-namespace Iex {
+IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
+
 namespace {
 
 void
@@ -83,4 +84,4 @@ MathExcOn::handleOutstandingExceptions()
     handleExceptionsSetInRegisters();
 }
 
-} // namespace Iex
+IEX_INTERNAL_NAMESPACE_SOURCE_EXIT

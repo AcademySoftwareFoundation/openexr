@@ -37,11 +37,12 @@
 #ifndef INCLUDED_IEXMATHFLOATEXC_H
 #define INCLUDED_IEXMATHFLOATEXC_H
 
+#include <IexNamespace.h>
 #include <IexMathExc.h>
 //#include <IexBaseExc.h>
 #include <IexMathIeeeExc.h>
 
-namespace Iex {
+IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 //-------------------------------------------------------------
@@ -120,6 +121,7 @@ class MathExcOn
     int				_saved;
 };
 
-} // namespace Iex
+
+IEX_INTERNAL_NAMESPACE_SOURCE_EXIT
 
 #endif

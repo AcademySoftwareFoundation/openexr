@@ -33,8 +33,8 @@
 #include <signal.h>
 #include <iostream>
 
-namespace Iex
-{
+IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
+
 
 namespace FpuControl
 {
@@ -492,6 +492,6 @@ handleExceptionsSetInRegisters()
     // No implementation on this platform
 }
 
-} // namespace Iex
+IEX_INTERNAL_NAMESPACE_SOURCE_EXIT
 
 #endif

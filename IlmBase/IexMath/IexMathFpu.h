@@ -18,8 +18,10 @@
 //------------------------------------------------------------------------
 
 #include <IexMathIeeeExc.h>
+#include <IexNamespace.h>
 
-namespace Iex {
+IEX_INTERNAL_NAMESPACE_HEADER_ENTER
+
 
 //-----------------------------------------
 // setFpExceptions() defines which floating
@@ -57,6 +59,6 @@ void setFpExceptionHandler (FpExceptionHandler handler);
 
 void handleExceptionsSetInRegisters();
 
-} // namespace Iex
+IEX_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif
