@@ -125,7 +125,7 @@ class ThreadPool
 };
 
 
-class ILMTHREAD_EXPORT Task
+class Task
 {
   public:
 
@@ -141,7 +141,7 @@ class ILMTHREAD_EXPORT Task
 };
 
 
-class ILMTHREAD_EXPORT TaskGroup
+class TaskGroup
 {
   public:
 
