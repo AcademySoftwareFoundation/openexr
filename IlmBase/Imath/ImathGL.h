@@ -94,7 +94,7 @@ throwBadMatrix (const IMATH_INTERNAL_NAMESPACE::M44f& m)
 	badFloat (m[3][1]) ||
 	badFloat (m[3][2]) ||
 	badFloat (m[3][3]))
-	throw Iex::OverflowExc ("GL matrix overflow");
+	throw IEX_NAMESPACE::OverflowExc ("GL matrix overflow");
 }
 
 inline void 

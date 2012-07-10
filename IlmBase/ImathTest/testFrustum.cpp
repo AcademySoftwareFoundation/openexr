@@ -222,7 +222,7 @@ testFrustum ()
 	(void)badFrustum.projectionMatrix();
 	assert (!"near == far didn't throw an exception");
     }
-    catch (Iex::DivzeroExc) {}
+    catch (IEX_NAMESPACE::DivzeroExc) {}
     cout << "1";
 
     badFrustum.set (n, f, l, l, t, b, false);
@@ -231,7 +231,7 @@ testFrustum ()
 	(void)badFrustum.projectionMatrix();
 	assert (!"left == right didn't throw an exception");
     }
-    catch (Iex::DivzeroExc) {}
+    catch (IEX_NAMESPACE::DivzeroExc) {}
     cout << "2";
 
     badFrustum.set (n, f, l, r, t, t, false);
@@ -240,7 +240,7 @@ testFrustum ()
 	(void)badFrustum.projectionMatrix();
 	assert (!"top == bottom didn't throw an exception");
     }
-    catch (Iex::DivzeroExc) {}
+    catch (IEX_NAMESPACE::DivzeroExc) {}
     cout << "3";
 
     cout << "\northographic ";

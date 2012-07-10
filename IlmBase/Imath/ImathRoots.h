@@ -73,7 +73,7 @@ IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 //	solutions (or some intermediate result) are not representable.
 //	In this case, either some of the solutions returned are invalid
 //	(nan or infinity), or, if floating-point exceptions have been
-//	enabled with Iex::mathExcOn(), an Iex::MathExc exception is
+//	enabled with IEX_NAMESPACE::mathExcOn(), an IEX_NAMESPACE::MathExc exception is
 //	thrown.
 //
 //    * Cubic equations are solved using Cardano's Formula; even though

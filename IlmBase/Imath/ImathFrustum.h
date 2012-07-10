@@ -302,7 +302,7 @@ template<class T>
 void Frustum<T>::set(T nearPlane, T farPlane, T fovx, T fovy, T aspect)
 {
     if (fovx != 0 && fovy != 0)
-	throw Iex::ArgExc ("fovx and fovy cannot both be non-zero.");
+	throw IEX_NAMESPACE::ArgExc ("fovx and fovy cannot both be non-zero.");
 
     const T two = static_cast<T>(2);
 
@@ -346,7 +346,7 @@ T Frustum<T>::aspect() const
     if (abs(topMinusBottom) < 1 &&
 	abs(rightMinusLeft) > limits<T>::max() * abs(topMinusBottom))
     {
-	throw Iex::DivzeroExc ("Bad viewing frustum: "
+	throw IEX_NAMESPACE::DivzeroExc ("Bad viewing frustum: "
 			       "aspect ratio cannot be computed.");
     }
 
@@ -372,7 +372,7 @@ Matrix44<T> Frustum<T>::projectionMatrix() const
 	(abs(farMinusNear) < 1 &&
 	 abs(farPlusNear) > limits<T>::max() * abs(farMinusNear)))
     {
-	throw Iex::DivzeroExc ("Bad viewing frustum: "
+	throw IEX_NAMESPACE::DivzeroExc ("Bad viewing frustum: "
 			       "projection matrix cannot be computed.");
     }
 
@@ -389,7 +389,7 @@ Matrix44<T> Frustum<T>::projectionMatrix() const
 	    (abs(farMinusNear) < 1 &&
 	     2 > limits<T>::max() * abs(farMinusNear)))
 	{
-	    throw Iex::DivzeroExc ("Bad viewing frustum: "
+	    throw IEX_NAMESPACE::DivzeroExc ("Bad viewing frustum: "
 				   "projection matrix cannot be computed.");
 	}
 
@@ -412,7 +412,7 @@ Matrix44<T> Frustum<T>::projectionMatrix() const
 	if (abs(farMinusNear) < 1 &&
 	    abs(farTimesNear) > limits<T>::max() * abs(farMinusNear))
 	{
-	    throw Iex::DivzeroExc ("Bad viewing frustum: "
+	    throw IEX_NAMESPACE::DivzeroExc ("Bad viewing frustum: "
 				   "projection matrix cannot be computed.");
 	}
 
@@ -425,7 +425,7 @@ Matrix44<T> Frustum<T>::projectionMatrix() const
 	    (abs(topMinusBottom) < 1 &&
 	     abs(twoTimesNear) > limits<T>::max() * abs(topMinusBottom)))
 	{
-	    throw Iex::DivzeroExc ("Bad viewing frustum: "
+	    throw IEX_NAMESPACE::DivzeroExc ("Bad viewing frustum: "
 				   "projection matrix cannot be computed.");
 	}
 
@@ -479,7 +479,7 @@ Vec2<T> Frustum<T>::localToScreen(const Vec2<T> &p) const
 	(abs(bottomMinusTop) < T (1) &&
 	 abs(bottomPlusTop) > limits<T>::max() * abs(bottomMinusTop)))
     {
-	throw Iex::DivzeroExc
+	throw IEX_NAMESPACE::DivzeroExc
 	    ("Bad viewing frustum: "
 	     "local-to-screen transformation cannot be computed");
     }
@@ -516,7 +516,7 @@ T Frustum<T>::ZToDepth(long zval,long zmin,long zmax) const
 
     if (zdiff == 0)
     {
-	throw Iex::DivzeroExc
+	throw IEX_NAMESPACE::DivzeroExc
 	    ("Bad call to Frustum::ZToDepth: zmax == zmin");
     }
 
@@ -543,7 +543,7 @@ T Frustum<T>::normalizedZToDepth(T zval) const
 	if (abs(farMinusNear) < 1 &&
 	    abs(farTimesNear) > limits<T>::max() * abs(farMinusNear))
 	{
-	    throw Iex::DivzeroExc
+	    throw IEX_NAMESPACE::DivzeroExc
 		("Frustum::normalizedZToDepth cannot be computed.  The "
 		 "near and far clipping planes of the viewing frustum "
 		 "may be too close to each other");
@@ -566,7 +566,7 @@ long Frustum<T>::DepthToZ(T depth,long zmin,long zmax) const
 	if (abs(farMinusNear) < 1 &&
 	    abs(farPlusNear) > limits<T>::max() * abs(farMinusNear))
 	{
-	    throw Iex::DivzeroExc
+	    throw IEX_NAMESPACE::DivzeroExc
 		("Bad viewing frustum: near and far clipping planes "
 		 "are too close to each other");
 	}
@@ -582,7 +582,7 @@ long Frustum<T>::DepthToZ(T depth,long zmin,long zmax) const
 	if (abs(depth) < 1 &&
 	    abs(farTimesNear) > limits<T>::max() * abs(depth))
 	{
-	    throw Iex::DivzeroExc
+	    throw IEX_NAMESPACE::DivzeroExc
 		("Bad call to DepthToZ function: value of `depth' "
 		 "is too small");
 	}
@@ -591,7 +591,7 @@ long Frustum<T>::DepthToZ(T depth,long zmin,long zmax) const
 	if (abs(farMinusNear) < 1 &&
 	    abs(farPlusNear) > limits<T>::max() * abs(farMinusNear))
 	{
-	    throw Iex::DivzeroExc
+	    throw IEX_NAMESPACE::DivzeroExc
 		("Bad viewing frustum: near and far clipping planes "
 		 "are too close to each other");
 	}
@@ -620,7 +620,7 @@ T Frustum<T>::screenRadius(const Vec3<T> &p, T radius) const
     }
     else
     {
-	throw Iex::DivzeroExc
+	throw IEX_NAMESPACE::DivzeroExc
 	    ("Bad call to Frustum::screenRadius: the magnitude of `p' "
 	     "is too small");
     }
@@ -637,7 +637,7 @@ T Frustum<T>::worldRadius(const Vec3<T> &p, T radius) const
     }
     else
     {
-	throw Iex::DivzeroExc
+	throw IEX_NAMESPACE::DivzeroExc
 	    ("Bad viewing frustum: the near clipping plane is too "
 	     "close to zero");
     }
