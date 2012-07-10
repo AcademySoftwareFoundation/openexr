@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -32,49 +32,21 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-//-----------------------------------------------------------------------------
-//
-//	class Thread -- dummy implementation for
-//	platforms that do not support threading
-//
-//-----------------------------------------------------------------------------
+#ifndef INCLUDED_ILMTHREADFORWARD_H
+#define INCLUDED_ILMTHREADFORWARD_H
 
-#include "IlmBaseConfig.h"
+#include <IlmThreadNamespace.h>
 
-#if !defined (_WIN32) &&!(_WIN64) && !(HAVE_PTHREAD)
+ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 
-#include "IlmThread.h"
-#include "Iex.h"
+class Thread;
+class Mutex;
+class Lock;
+class ThreadPool;
+class Task;
+class TaskGroup;
+class Semaphore;
 
-ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
+ILMTHREAD_INTERNAL_NAMESPACE_HEADER_EXIT
 
-
-bool
-supportsThreads ()
-{
-    return false;
-}
-
-
-Thread::Thread ()
-{
-    throw Iex::NoImplExc ("Threads not supported on this platform.");
-}
-
-
-Thread::~Thread ()
-{
-    throw Iex::NoImplExc ("Threads not supported on this platform.");
-}
-
-
-void
-Thread::start ()
-{
-    throw Iex::NoImplExc ("Threads not supported on this platform.");
-}
-
-
-ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
-
-#endif
+#endif // INCLUDED_ILMTHREADFORWARD_H

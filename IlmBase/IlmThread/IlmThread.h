@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2005, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -91,6 +91,7 @@
 //-----------------------------------------------------------------------------
 
 #include "IlmBaseConfig.h"
+#include <IlmThreadNamespace.h>
 
 #if defined _WIN32 || defined _WIN64
     #ifdef NOMINMAX
@@ -113,7 +114,7 @@
     #define ILMTHREAD_EXPORT 
 #endif
 
-namespace IlmThread {
+ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //
 // Query function to determine if the current platform supports
@@ -146,6 +147,6 @@ class ILMTHREAD_EXPORT Thread
 };
 
 
-} // namespace IlmThread
+ILMTHREAD_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif
+#endif // INCLUDED_ILM_THREAD_H

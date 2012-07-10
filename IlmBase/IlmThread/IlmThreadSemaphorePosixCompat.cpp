@@ -48,7 +48,7 @@
 #include "Iex.h"
 #include <assert.h>
 
-namespace IlmThread {
+ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 Semaphore::Semaphore (unsigned int value)
@@ -150,6 +150,6 @@ Semaphore::value () const
 }
 
 
-} // namespace IlmThread
+ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
 #endif

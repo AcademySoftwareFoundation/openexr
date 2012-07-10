@@ -11,12 +11,16 @@ libIlmThread_la_SOURCES = IlmThreadPool.h IlmThread.h \
 			  IlmThreadMutexPosix.cpp
 
 libIlmThread_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ -no-undefined
+if LIB_SUFFIX_EXISTS
+libIlmThread_la_LDFLAGS += -release @LIB_SUFFIX@
+endif
 libIlmThread_la_LIBADD = ../Iex/libIex.la
 
 libIlmThreadincludedir = $(includedir)/OpenEXR
 
 libIlmThreadinclude_HEADERS = IlmThreadPool.h IlmThread.h \
-			      IlmThreadSemaphore.h IlmThreadMutex.h
+			      IlmThreadSemaphore.h IlmThreadMutex.h \
+			      IlmThreadNamespace.h IlmThreadForward.h
 
 noinst_HEADERS = 
 

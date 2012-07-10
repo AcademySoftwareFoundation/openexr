@@ -43,6 +43,7 @@
 //-----------------------------------------------------------------------------
 
 #include "IlmBaseConfig.h"
+#include <IlmThreadNamespace.h>
 
 #if defined _WIN32 || defined _WIN64
     #ifdef NOMINMAX
@@ -56,8 +57,7 @@
     #include <semaphore.h>
 #endif
 
-namespace IlmThread {
-
+ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class Semaphore
 {
@@ -105,6 +105,6 @@ class Semaphore
 };
 
 
-} // namespace IlmThread
+ILMTHREAD_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif
+#endif // INCLUDED_ILM_THREAD_SEMAPHORE_H
