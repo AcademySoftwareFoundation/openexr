@@ -40,19 +40,19 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfMultiPartInputFile.h"
-#include "ImfMultiPartOutputFile.h"
-#include "ImfStandardAttributes.h"
-#include "ImfVecAttribute.h"
-#include "ImfIntAttribute.h"
-#include "ImfTiledInputPart.h"
-#include "ImfTiledOutputPart.h"
-#include "ImfInputPart.h"
-#include "ImfOutputPart.h"
-#include "ImfDeepScanLineInputPart.h"
-#include "ImfDeepScanLineOutputPart.h"
-#include "ImfDeepTiledInputPart.h"
-#include "ImfDeepTiledOutputPart.h"
+#include <ImfMultiPartInputFile.h>
+#include <ImfMultiPartOutputFile.h>
+#include <ImfStandardAttributes.h>
+#include <ImfVecAttribute.h>
+#include <ImfIntAttribute.h>
+#include <ImfTiledInputPart.h>
+#include <ImfTiledOutputPart.h>
+#include <ImfInputPart.h>
+#include <ImfOutputPart.h>
+#include <ImfDeepScanLineInputPart.h>
+#include <ImfDeepScanLineOutputPart.h>
+#include <ImfDeepTiledInputPart.h>
+#include <ImfDeepTiledOutputPart.h>
 
 #include <map>
 #include <string>
@@ -62,7 +62,7 @@
 #include <stdlib.h>
 #include <vector>
 
-#include "OpenEXRConfig.h"
+#include <OpenEXRConfig.h>
 namespace CustomImf = OPENEXR_IMF_NAMESPACE;
 using namespace CustomImf;
 using namespace std;
