@@ -32,15 +32,15 @@
 //
 // Current internal library namepace name
 //
-
+#undef OPENEXR_IMF_INTERNAL_NAMESPACE_CUSTOM
 #undef OPENEXR_IMF_INTERNAL_NAMESPACE
 
 //
 // Current public user namepace name
 //
 
+#undef OPENEXR_IMF_NAMESPACE_CUSTOM
 #undef OPENEXR_IMF_NAMESPACE
-
 
 //
 // Version string for runtime access

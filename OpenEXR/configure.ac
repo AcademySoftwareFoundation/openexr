@@ -113,7 +113,7 @@ AM_COMPILELINKRUN(
 #include <stdlib.h>
 #include <ImathFun.h>
 ]],
-   [[double d = Imath::succd(.23); d+= .2;]],
+   [[double d = IMATH_NAMESPACE::succd(.23); d+= .2;]],
    AC_MSG_RESULT([Compiled and ran IlmBase test program.]), 
    AC_MSG_ERROR([Could not compile IlmBase test program.]))
 
@@ -248,16 +248,20 @@ lib_suffix_valid="no"
 
 lib_namespace="Imf"
 if test "x${library_namespace_versioning}" == xyes ; then
-    AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACED)
     AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE, Imf_${OPENEXR_VERSION_SAFE})
+    AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACE_CUSTOM)
+
     lib_namespace="Imf_${OPENEXR_VERSION_SAFE}"
     LIB_SUFFIX="Imf_${OPENEXR_VERSION_SAFE}"
     lib_suffix_valid="yes"
 elif test "x${library_namespace_versioning}" == xno ; then
     AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE, Imf)
+
     lib_namespace="Imf"
 else
     AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE, ${library_namespace_versioning} )
+    AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACE_CUSTOM)
+
     lib_namespace="${library_namespace_versioning}"
     LIB_SUFFIX="${library_namespace_versioning}"
     lib_suffix_valid="yes"
@@ -293,6 +297,8 @@ elif test "x${custom_usr_namespace}" == xno ; then
     usr_namespace="Imf"
 else
     AC_DEFINE_UNQUOTED(OPENEXR_IMF_NAMESPACE, ${custom_usr_namespace})
+    AC_DEFINE(OPENEXR_IMF_NAMESPACE_CUSTOM)
+    
     usr_namespace=${custom_usr_namespace}
 fi
 
