@@ -42,7 +42,7 @@
 //#include <IexBaseExc.h>
 #include <IexMathIeeeExc.h>
 
-IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
+IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 //-------------------------------------------------------------
@@ -122,6 +122,6 @@ class MathExcOn
 };
 
 
-IEX_INTERNAL_NAMESPACE_SOURCE_EXIT
+IEX_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

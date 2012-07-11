@@ -42,6 +42,7 @@
 #include "ImathMatrix.h"
 #include "IexMathExc.h"
 #include "ImathFun.h"
+#include "ImathNamespace.h"
 
 inline void glVertex    ( const IMATH_INTERNAL_NAMESPACE::V3f &v ) { glVertex3f(v.x,v.y,v.z);   }
 inline void glVertex    ( const IMATH_INTERNAL_NAMESPACE::V2f &v ) { glVertex2f(v.x,v.y);       }
@@ -126,7 +127,10 @@ glLoadMatrix( const IMATH_INTERNAL_NAMESPACE::M44f* m )
 }
 
 
-namespace Imath {
+
+
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
+
 
 //
 // Class objects that push/pop the GL state. These objects assist with
@@ -154,6 +158,9 @@ class GLBegin {
     ~GLBegin()				{ glEnd(); }
 };
 
-} // namespace Imath
+
+
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
+
 
 #endif
