@@ -56,6 +56,10 @@
 #include <ImfMultiPartInputFile.h>
 #include <ImfInputPart.h>
 #include <ImfTiledInputPart.h>
+#include <ImfDeepScanLineInputPart.h>
+#include <ImfDeepFrameBuffer.h>
+#include <ImfCompositeDeepScanLine.h>
+#include <ImfDeepTiledInputPart.h>
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace Imath;
@@ -293,7 +297,7 @@ loadPreviewImage (const char fileName[],
         header.displayWindow() = Box2i (V2i (0, 0), V2i (99, 99));
         pixels.resizeErase (1);
 
-        cout<<"Part " << partnum << " contains no preview image."<<endl;
+        cout << "Part " << partnum << " contains no preview image."<< endl;
     }
     else{
         const PreviewImage &preview = in.header().previewImage();
@@ -503,6 +507,383 @@ loadTiledImageChannel (const char fileName[],
     }
 }
 
+void
+loadDeepScanlineImage (MultiPartInputFile &inmaster,
+                       int partnum,
+                       int &zsize,
+                       Header &header,
+                       Array<Rgba> &pixels,
+                       Array<float*> &zbuffer,
+                       Array<unsigned int> &sampleCount)
+{
+    DeepScanLineInputPart in (inmaster, partnum);
+    header = in.header();
+
+    Box2i &dataWindow = header.dataWindow();
+    int dw = dataWindow.max.x - dataWindow.min.x + 1;
+    int dh = dataWindow.max.y - dataWindow.min.y + 1;
+    int dx = dataWindow.min.x;
+    int dy = dataWindow.min.y;
+
+    // display black right now
+    pixels.resizeErase (dw * dh);
+    memset (pixels, 0, (dw * dh) * (sizeof(Rgba)));
+
+    Array< half* > dataR;
+    Array< half* > dataG;
+    Array< half* > dataB;
+
+    Array< float* > zback;
+    Array< half* > alpha;
+
+    zsize = dw * dh;
+    zbuffer.resizeErase (zsize);
+    zback.resizeErase (zsize);
+    alpha.resizeErase (dw * dh);
+
+    dataR.resizeErase (dw * dh);
+    dataG.resizeErase (dw * dh);
+    dataB.resizeErase (dw * dh);
+    sampleCount.resizeErase (dw * dh);
+
+    int rgbflag = 0;
+    int deepCompflag = 0;
+
+    if (header.channels().findChannel ("R"))
+    {
+        rgbflag = 1;
+    }
+    else if (header.channels().findChannel ("B"))
+    {
+        rgbflag = 1;
+    }
+    else if (header.channels().findChannel ("G"))
+    {
+        rgbflag = 1;
+    }
+
+    if (header.channels().findChannel ("Z") &&
+        header.channels().findChannel ("A"))
+    {
+        deepCompflag = 1;
+    }
+
+    DeepFrameBuffer fb;
+
+    fb.insertSampleCountSlice (Slice (UINT,
+                                      (char *) (&sampleCount[0]
+                                                - dx- dy * dw),
+                                      sizeof (unsigned int) * 1,
+                                      sizeof (unsigned int) * dw));
+
+    fb.insert ("Z",
+               DeepSlice (FLOAT,
+                          (char *) (&zbuffer[0] - dx- dy * dw),
+                          sizeof (float *) * 1,    // xStride for pointer array
+                          sizeof (float *) * dw,   // yStride for pointer array
+                          sizeof (float) * 1));    // stride for z data sample
+    fb.insert ("ZBack",
+               DeepSlice (FLOAT,
+                          (char *) (&zback[0] - dx- dy * dw),
+                          sizeof (float *) * 1,    // xStride for pointer array
+                          sizeof (float *) * dw,   // yStride for pointer array
+                          sizeof (float) * 1));    // stride for z data sample
+
+    if (rgbflag)
+    {
+        fb.insert ("R",
+                   DeepSlice (HALF,
+                              (char *) (&dataR[0] - dx- dy * dw),
+                              sizeof (half *) * 1,
+                              sizeof (half *) * dw,
+                              sizeof (half) * 1));
+
+        fb.insert ("G",
+                   DeepSlice (HALF,
+                              (char *) (&dataG[0] - dx- dy * dw),
+                              sizeof (half *) * 1,
+                              sizeof (half *) * dw,
+                              sizeof (half) * 1));
+
+        fb.insert ("B",
+                   DeepSlice (HALF,
+                              (char *) (&dataB[0] - dx- dy * dw),
+                              sizeof (half *) * 1,
+                              sizeof (half *) * dw,
+                              sizeof (half) * 1));
+    }
+
+    fb.insert ("A",
+               DeepSlice (HALF,
+                          (char *) (&alpha[0] - dx- dy * dw),
+                          sizeof (half *) * 1,    // xStride for pointer array
+                          sizeof (half *) * dw,   // yStride for pointer array
+                          sizeof (half) * 1,      // stride for z data sample
+                          1, 1,                   // xSampling, ySampling
+                          1.0));                  // fillValue
+
+    in.setFrameBuffer (fb);
+
+    in.readPixelSampleCounts (dataWindow.min.y, dataWindow.max.y);
+
+    for (int i = 0; i < dh * dw; i++)
+    {
+        zbuffer[i] = new float[sampleCount[i]];
+        zback[i] = new float[sampleCount[i]];
+        alpha[i] = new half[sampleCount[i]];
+        if(rgbflag)
+        {
+            dataR[i] = new half[sampleCount[i]];
+            dataG[i] = new half[sampleCount[i]];
+            dataB[i] = new half[sampleCount[i]];
+        }
+    }
+
+    in.readPixels (dataWindow.min.y, dataWindow.max.y);
+
+
+    if (deepCompflag)
+    {
+        //
+        //try deep compositing
+        //
+        CompositeDeepScanLine comp;
+        comp.addSource (&in);
+
+        FrameBuffer fbuffer;
+        Rgba *base = pixels - dx - dy * dw;
+        size_t xs = 1 * sizeof (Rgba);
+        size_t ys = dw * sizeof (Rgba);
+
+        fbuffer.insert ("R",
+                   Slice (HALF,
+                          (char *) &base[0].r,
+                          xs, ys,
+                          1, 1,     // xSampling, ySampling
+                          0.0));    // fillValue
+
+        fbuffer.insert ("G",
+                   Slice (HALF,
+                          (char *) &base[0].g,
+                          xs, ys,
+                          1, 1,     // xSampling, ySampling
+                          0.0));    // fillValue
+
+        fbuffer.insert ("B",
+                   Slice (HALF,
+                          (char *) &base[0].b,
+                          xs, ys,
+                          1, 1,     // xSampling, ySampling
+                          0.0));    // fillValue
+
+        fbuffer.insert ("A",
+                   Slice (HALF,
+                          (char *) &base[0].a,
+                          xs, ys,
+                          1, 1,             // xSampling, ySampling
+                          1.0));    // fillValue
+        comp.setFrameBuffer (fbuffer);
+        comp.readPixels (dataWindow.min.y, dataWindow.max.y);
+    }
+    else
+    {
+        for (int i = 0; i < dh * dw; i++)
+        {
+            if (sampleCount[i] > 0){
+                if (rgbflag)
+                {
+                    pixels[i].r = dataR[i][0] * zbuffer[i][0];
+                    pixels[i].g = dataG[i][0] * zbuffer[i][0];
+                    pixels[i].b = dataB[i][0] * zbuffer[i][0];
+                }
+                else
+                {
+                    pixels[i].r = zbuffer[i][0];
+                    pixels[i].g = pixels[i].r;
+                    pixels[i].b = pixels[i].r;
+                }
+            }
+        }
+    }
+
+}
+
+
+void
+loadDeepTileImage (MultiPartInputFile &inmaster,
+                   int partnum,
+                   int &zsize,
+                   Header &header,
+                   Array<Rgba> &pixels,
+                   Array<float*> &zbuffer,
+                   Array<unsigned int> &sampleCount)
+{
+    DeepTiledInputPart in (inmaster, partnum);
+    header = in.header();
+
+    Box2i &dataWindow = header.dataWindow();
+    int dw = dataWindow.max.x - dataWindow.min.x + 1;
+    int dh = dataWindow.max.y - dataWindow.min.y + 1;
+    int dx = dataWindow.min.x;
+    int dy = dataWindow.min.y;
+
+    // display black right now
+    pixels.resizeErase (dw * dh);
+    memset(pixels, 0, (dw * dh) * (sizeof(Rgba)));
+
+    Array< half* > dataR;
+    Array< half* > dataG;
+    Array< half* > dataB;
+
+    Array< float* > zback;
+    Array< half* > alpha;
+
+    zsize = dw * dh;
+    zbuffer.resizeErase (zsize);
+    zback.resizeErase (zsize);
+    alpha.resizeErase (dw * dh);
+
+    dataR.resizeErase (dw * dh);
+    dataG.resizeErase (dw * dh);
+    dataB.resizeErase (dw * dh);
+    sampleCount.resizeErase (dw * dh);
+
+    int rgbflag = 0;
+    int deepCompflag = 0;
+
+    if (header.channels().findChannel ("R"))
+    {
+        rgbflag = 1;
+    }
+    else if (header.channels().findChannel ("B"))
+    {
+        rgbflag = 1;
+    }
+    else if (header.channels().findChannel ("G"))
+    {
+        rgbflag = 1;
+    }
+
+    if (header.channels().findChannel ("Z") &&
+        header.channels().findChannel ("A"))
+    {
+        deepCompflag = 1;
+    }
+
+    DeepFrameBuffer fb;
+
+    fb.insertSampleCountSlice (Slice (UINT,
+                                      (char *) (&sampleCount[0]
+                                                - dx- dy * dw),
+                                      sizeof (unsigned int) * 1,
+                                      sizeof (unsigned int) * dw));
+
+    fb.insert ("Z",
+               DeepSlice (FLOAT,
+                          (char *) (&zbuffer[0] - dx- dy * dw),
+                          sizeof (float *) * 1,    // xStride for pointer array
+                          sizeof (float *) * dw,   // yStride for pointer array
+                          sizeof (float) * 1));    // stride for z data sample
+    fb.insert ("ZBack",
+               DeepSlice (FLOAT,
+                          (char *) (&zback[0] - dx- dy * dw),
+                          sizeof (float *) * 1,    // xStride for pointer array
+                          sizeof (float *) * dw,   // yStride for pointer array
+                          sizeof (float) * 1));    // stride for z data sample
+
+    if (rgbflag)
+    {
+        fb.insert ("R",
+                   DeepSlice (HALF,
+                              (char *) (&dataR[0] - dx- dy * dw),
+                              sizeof (half *) * 1,
+                              sizeof (half *) * dw,
+                              sizeof (half) * 1));
+
+        fb.insert ("G",
+                   DeepSlice (HALF,
+                              (char *) (&dataG[0] - dx- dy * dw),
+                              sizeof (half *) * 1,
+                              sizeof (half *) * dw,
+                              sizeof (half) * 1));
+
+        fb.insert ("B",
+                   DeepSlice (HALF,
+                              (char *) (&dataB[0] - dx- dy * dw),
+                              sizeof (half *) * 1,
+                              sizeof (half *) * dw,
+                              sizeof (half) * 1));
+
+
+    }
+
+    fb.insert ("A",
+               DeepSlice (HALF,
+                          (char *) (&alpha[0] - dx- dy * dw),
+                          sizeof (half *) * 1,    // xStride for pointer array
+                          sizeof (half *) * dw,   // yStride for pointer array
+                          sizeof (half) * 1,      // stride for z data sample
+                          1, 1,                   // xSampling, ySampling
+                          1.0));                  // fillValue
+
+    in.setFrameBuffer (fb);
+
+    int numXTiles = in.numXTiles(0);
+    int numYTiles = in.numYTiles(0);
+
+    in.readPixelSampleCounts (0, numXTiles - 1, 0, numYTiles - 1);
+
+    for (int i = 0; i < dh * dw; i++)
+    {
+        zbuffer[i] = new float[sampleCount[i]];
+        zback[i] = new float[sampleCount[i]];
+        alpha[i] = new half[sampleCount[i]];
+        if (rgbflag)
+        {
+            dataR[i] = new half[sampleCount[i]];
+            dataG[i] = new half[sampleCount[i]];
+            dataB[i] = new half[sampleCount[i]];
+        }
+    }
+
+    in.readTiles (0, numXTiles - 1, 0, numYTiles - 1);
+
+    //
+    // ToDo deep compositing Tile
+    //
+    deepCompflag = 0; //temporary
+
+    if (deepCompflag)
+    {
+        //
+        // try deep compositing
+        //
+        ;
+
+    }
+    else
+    {
+        for (int i = 0; i < dh * dw; i++)
+        {
+            if (sampleCount[i] > 0){
+                if (rgbflag)
+                {
+                    pixels[i].r = dataR[i][0] * zbuffer[i][0];
+                    pixels[i].g = dataG[i][0] * zbuffer[i][0];
+                    pixels[i].b = dataB[i][0] * zbuffer[i][0];
+                }
+                else
+                {
+                    pixels[i].r = zbuffer[i][0];
+                    pixels[i].g = pixels[i].r;
+                    pixels[i].b = pixels[i].r;
+                }
+            }
+        }
+    }
+
+}
+
 } // namespace
 
 
@@ -514,27 +895,41 @@ loadImage (const char fileName[],
            int lx,
            int ly,
            int partnum,
+           int &zsize,
            Header &header,
-           Array<Rgba> &pixels)
+           Array<Rgba> &pixels,
+           Array<float*>  &zbuffer,
+           Array<unsigned int> &sampleCount)
 {
-    //
-    // Not handling Deep Data right now
-    //
+    zsize = 0;
+
     MultiPartInputFile inmaster (fileName);
     Header h = inmaster.header(partnum);
     std::string  type = h.type();
 
-    if(type == "deepscanline" || type == "deeptile")
+    if (type == "deeptile")
     {
-        pixels.resizeErase (1);
-        header = h;
-        header.dataWindow() = Box2i (V2i (0, 0), V2i (0, 0));
-        cout << "Cannot handle deep image now!"<<endl;
-        return;
+        loadDeepTileImage(inmaster,
+                          partnum,
+                          zsize,
+                          header,
+                          pixels,
+                          zbuffer,
+                          sampleCount);
+    }
+    else if(type == "deepscanline")
+    {
+        loadDeepScanlineImage(inmaster,
+                              partnum,
+                              zsize,
+                              header,
+                              pixels,
+                              zbuffer,
+                              sampleCount);
     }
 
 
-    if (preview)
+    else if (preview)
     {
         loadPreviewImage (fileName, partnum, header, pixels);
     }
