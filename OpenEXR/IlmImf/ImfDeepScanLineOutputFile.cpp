@@ -65,10 +65,9 @@
 #include <fstream>
 #include <assert.h>
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using Imath::Box2i;
 using Imath::divp;
@@ -1558,5 +1557,4 @@ DeepScanLineOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 }
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

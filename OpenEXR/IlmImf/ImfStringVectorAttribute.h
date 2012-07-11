@@ -47,23 +47,12 @@
 #include <vector>
 
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER
-{
-    typedef std::vector<std::string> StringVector;
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
+typedef std::vector<std::string> StringVector;
 
-#if defined (OPENEXR_IMF_INTERNAL_NAMESPACE_AUTO_EXPOSE)
-namespace Imf{
-    using typename OPENEXR_IMF_INTERNAL_NAMESPACE::StringVector;
-}
-#endif
-
-
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER {
 
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::StringVector> StringVectorAttribute;
 template <> const char *StringVectorAttribute::staticTypeName ();
@@ -71,10 +60,9 @@ template <> void StringVectorAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMES
 template <> void StringVectorAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

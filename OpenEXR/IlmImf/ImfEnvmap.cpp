@@ -46,10 +46,9 @@
 
 using namespace std;
 using namespace Imath;
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 namespace LatLongMap {
 
 V2f	
@@ -327,5 +326,4 @@ direction (CubeMapFace face, const Box2i &dataWindow, const V2f &positionInFace)
 }
 
 } // namespace CubeMap
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

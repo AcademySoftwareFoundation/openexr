@@ -49,15 +49,14 @@
 #include <ImfDeepTiledOutputFile.h>
 #include <ImfOutputStreamMutex.h>
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 #include <Iex.h>
 
 
 #include <set>
 
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using Imath::Box2i;
 using IlmThread::Lock;
@@ -484,5 +483,4 @@ MultiPartOutputFile::Data::writeChunkTableOffsets (vector<OutputPartData*> &part
 }
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

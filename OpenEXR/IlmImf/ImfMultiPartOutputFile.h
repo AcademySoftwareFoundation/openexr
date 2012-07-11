@@ -41,10 +41,9 @@
 #include "ImfGenericOutputFile.h"
 #include "ImfForward.h"
 #include "ImfThreading.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 //
@@ -112,7 +111,6 @@ class MultiPartOutputFile : public GenericOutputFile
 };
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif /* MULTIPARTOUTPUTFILE_H_ */

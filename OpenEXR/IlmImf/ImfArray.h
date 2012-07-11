@@ -71,8 +71,7 @@
 //
 //-------------------------------------------------------------------------
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 template <class T>
 class Array
@@ -280,11 +279,10 @@ Array2D<T>::resizeEraseUnsafe (long sizeX, long sizeY)
     _sizeY = sizeY;
 }
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif

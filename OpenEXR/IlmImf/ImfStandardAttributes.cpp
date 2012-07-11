@@ -85,10 +85,9 @@
 	return name##Attribute(header).value();				 \
     }
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
    
 IMF_STD_ATTRIBUTE_IMP (chromaticities, Chromaticities, Chromaticities)
@@ -117,5 +116,4 @@ IMF_STD_ATTRIBUTE_IMP (multiView, MultiView, StringVector)
 IMF_STD_ATTRIBUTE_IMP (worldToCamera, WorldToCamera, Imath::M44f)
 IMF_STD_ATTRIBUTE_IMP (worldToNDC, WorldToNDC, Imath::M44f)
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

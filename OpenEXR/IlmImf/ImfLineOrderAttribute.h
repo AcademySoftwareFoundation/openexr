@@ -46,7 +46,7 @@
 #include "ImfAttribute.h"
 #include "ImfLineOrder.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::LineOrder> LineOrderAttribute;
@@ -55,10 +55,9 @@ template <> void LineOrderAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPAC
 template <> void LineOrderAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

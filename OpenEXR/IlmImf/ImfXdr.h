@@ -108,10 +108,9 @@
 #include "half.h"
 #include <limits.h>
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 namespace Xdr {
 
@@ -917,8 +916,7 @@ template <> inline int size <half> ()			{return 2;}
 
 
 } // namespace Xdr
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
 #if defined (OPENEXR_IMF_INTERNAL_NAMESPACE_AUTO_EXPOSE)

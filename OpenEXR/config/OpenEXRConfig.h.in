@@ -30,25 +30,17 @@
 #undef OPENEXR_IMF_HAVE_LARGE_STACK
 
 //
-// Current library namepace name
+// Current internal library namepace name
 //
 
 #undef OPENEXR_IMF_INTERNAL_NAMESPACE
 
 //
-// Current user/client namepace name
+// Current public user namepace name
 //
 
 #undef OPENEXR_IMF_NAMESPACE
 
-//
-// Macros for helping the entrance and exit from namespaces.
-// This provides us a capacity to change the namespace logic at a later date
-// without affecting the source files. 
-//
-
-#undef OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER
-#undef OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
 
 //
 // Version string for runtime access

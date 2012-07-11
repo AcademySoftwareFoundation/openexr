@@ -37,11 +37,10 @@
 
 #include "ImfForward.h"
 #include "ImfDeepTiledInputFile.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 class DeepTiledOutputPart
@@ -389,7 +388,6 @@ class DeepTiledOutputPart
     
 };
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif /* IMFDEEPTILEDOUTPUTPART_H_ */

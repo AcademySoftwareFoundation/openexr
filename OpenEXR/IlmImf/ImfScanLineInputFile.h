@@ -48,10 +48,9 @@
 #include "ImfInputStreamMutex.h"
 #include "ImfInputPartData.h"
 #include "ImfGenericInputFile.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 class ScanLineInputFile : public GenericInputFile
@@ -181,11 +180,10 @@ class ScanLineInputFile : public GenericInputFile
 };
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif

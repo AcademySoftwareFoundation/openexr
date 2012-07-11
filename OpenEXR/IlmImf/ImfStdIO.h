@@ -46,10 +46,9 @@
 #include "ImfIO.h"
 #include <fstream>
 #include <sstream>
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //-------------------------------------------
 // class StdIFStream -- an implementation of
@@ -153,11 +152,10 @@ class StdOSStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
 };
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif

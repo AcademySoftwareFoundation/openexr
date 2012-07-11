@@ -33,7 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 #include <testFuzzScanLines.h>
 #include <testFuzzTiles.h>
 

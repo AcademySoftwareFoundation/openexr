@@ -44,12 +44,11 @@
 
 #include "ImfThreading.h"
 #include "ImfGenericInputFile.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 #include "ImfForward.h"
 #include "ImfDeepScanLineOutputFile.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 class DeepScanLineInputFile : public GenericInputFile
@@ -271,7 +270,6 @@ class DeepScanLineInputFile : public GenericInputFile
 };
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

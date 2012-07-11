@@ -34,10 +34,9 @@
 
 #include "ImfDeepTiledOutputPart.h"
 #include "ImfMultiPartOutputFile.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 DeepTiledOutputPart::DeepTiledOutputPart(MultiPartOutputFile& multiPartFile, int partNumber)
 {
@@ -248,5 +247,4 @@ DeepTiledOutputPart::breakTile  (int dx, int dy,
     file->breakTile(dx, dy, lx, ly, offset, length, c);
 }
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

@@ -39,10 +39,9 @@
 #include "ImfIO.h"
 #include "ImfXdr.h"
 #include "ImfHeader.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 class GenericOutputFile
@@ -57,11 +56,10 @@ class GenericOutputFile
   
 };
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif /* GENERICOUTPUTFILE_H_ */

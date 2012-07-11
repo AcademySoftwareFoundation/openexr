@@ -46,7 +46,7 @@
 #include "ImfAttribute.h"
 #include <string>
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 typedef TypedAttribute<std::string> StringAttribute;
@@ -55,10 +55,9 @@ template <> void StringAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::
 template <> void StringAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

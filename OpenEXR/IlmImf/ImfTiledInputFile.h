@@ -49,10 +49,9 @@
 #include "ImfThreading.h"
 #include "ImfGenericInputFile.h"
 #include "ImfTiledOutputFile.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 class TiledInputFile : public GenericInputFile
@@ -392,11 +391,10 @@ class TiledInputFile : public GenericInputFile
 };
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif

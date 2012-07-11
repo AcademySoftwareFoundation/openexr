@@ -36,12 +36,11 @@
 #define IMFMULTIPARTINPUTFILE_H_
 
 #include "ImfGenericInputFile.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 #include "ImfForward.h"
 #include "ImfThreading.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 class MultiPartInputFile : public GenericInputFile
@@ -127,7 +126,6 @@ class MultiPartInputFile : public GenericInputFile
 };
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif /* IMFMULTIPARTINPUTFILE_H_ */

@@ -47,10 +47,9 @@
 #include <ImfPxr24Compressor.h>
 #include <ImfB44Compressor.h>
 #include <ImfCheckedArithmetic.h>
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using Imath::Box2i;
 
@@ -204,6 +203,5 @@ newTileCompressor (Compression c,
 }
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
 

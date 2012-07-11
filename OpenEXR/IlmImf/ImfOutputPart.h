@@ -38,10 +38,9 @@
 #include "ImfMultiPartOutputFile.h"
 #include "ImfOutputFile.h"
 #include "ImfForward.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 //---------------------------------------------------------------------
@@ -72,7 +71,6 @@ class OutputPart
 };
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif /* IMFOUTPUTPART_H_ */

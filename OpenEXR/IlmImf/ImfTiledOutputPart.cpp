@@ -33,10 +33,9 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include "ImfTiledOutputPart.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 TiledOutputPart::TiledOutputPart(MultiPartOutputFile& multiPartFile, int partNumber)
 {
@@ -226,5 +225,4 @@ TiledOutputPart::breakTile  (int dx, int dy, int lx, int ly, int offset, int len
 }
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

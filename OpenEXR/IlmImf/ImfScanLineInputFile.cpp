@@ -59,10 +59,9 @@
 #include <assert.h>
 #include "ImfVersion.h"
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using Imath::Box2i;
 using Imath::divp;
@@ -1103,5 +1102,4 @@ ScanLineInputFile::rawPixelData (int firstScanLine,
     }
 }
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

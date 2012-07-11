@@ -66,10 +66,9 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfRational.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 inline Rational	fps_23_976 ()	{return Rational (24000, 1001);}
 inline Rational	fps_24 ()	{return Rational (24, 1);}
@@ -85,11 +84,10 @@ inline Rational	fps_60 ()	{return Rational (60, 1);}
 Rational	guessExactFps (double fps);
 Rational	guessExactFps (const Rational &fps);
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif

@@ -53,7 +53,7 @@
 #include "ImfDeepTiledInputPart.h"
 #include "ImfDeepTiledOutputPart.h"
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 #include "Iex.h"
 
 #include <iostream>

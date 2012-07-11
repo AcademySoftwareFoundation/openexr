@@ -64,10 +64,9 @@
 #include <algorithm>
 #include <assert.h>
 #include "ImfInputPartData.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using Imath::Box2i;
 using Imath::V2i;
@@ -1510,5 +1509,4 @@ void TiledInputFile::tileOrder(int dx[], int dy[], int lx[], int ly[]) const
 }
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

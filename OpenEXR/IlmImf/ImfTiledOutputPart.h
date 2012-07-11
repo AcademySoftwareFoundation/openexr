@@ -39,11 +39,10 @@
 #include "ImfTiledOutputFile.h"
 #include "ImfForward.h"
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //-------------------------------------------------------------------------------
 // class TiledOutputPart:
@@ -101,7 +100,6 @@ class TiledOutputPart
         TiledOutputFile* file;
 };
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif /* IMFTILEDOUTPUTPART_H_ */

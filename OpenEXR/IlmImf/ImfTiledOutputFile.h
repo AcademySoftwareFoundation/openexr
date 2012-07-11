@@ -49,10 +49,9 @@
 #include "ImfThreading.h"
 #include "ImfGenericOutputFile.h"
 #include "ImfForward.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 struct PreviewRgba;
 
@@ -488,7 +487,6 @@ class TiledOutputFile : public GenericOutputFile
 };
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

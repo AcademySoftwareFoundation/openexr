@@ -46,10 +46,10 @@
 #include <string.h>
 #include <map>
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER 
+
 
 using IlmThread::Mutex;
 using IlmThread::Lock;
@@ -155,5 +155,4 @@ Attribute::newAttribute (const char typeName[])
 }
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

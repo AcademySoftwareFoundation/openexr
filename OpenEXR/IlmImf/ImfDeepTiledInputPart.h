@@ -37,11 +37,10 @@
 #define IMFDEEPTILEDINPUTPART_H_
 
 #include "ImfDeepTiledInputFile.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 #include "ImfForward.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class DeepTiledInputPart
 {
@@ -356,8 +355,7 @@ class DeepTiledInputPart
     friend void DeepTiledOutputFile::copyPixels(DeepTiledInputPart &);
 };
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
 #endif /* IMFDEEPTILEDINPUTPART_H_ */

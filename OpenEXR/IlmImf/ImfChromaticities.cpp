@@ -41,11 +41,10 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfChromaticities.h>
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 #include <string.h>
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
    
 Chromaticities::Chromaticities (const Imath::V2f &red,
@@ -149,5 +148,4 @@ XYZtoRGB (const Chromaticities chroma, float Y)
 }
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

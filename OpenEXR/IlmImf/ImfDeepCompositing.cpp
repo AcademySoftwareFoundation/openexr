@@ -33,12 +33,11 @@
 
 #include "ImfDeepCompositing.h"
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 #include <algorithm>
 #include <vector>
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using std::sort;
 using std::vector;
@@ -103,5 +102,4 @@ DeepCompositing::sort(int order[], const float* inputs[], const char* channel_na
 }
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

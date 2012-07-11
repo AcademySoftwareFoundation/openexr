@@ -45,10 +45,9 @@
 #include <ImfLut.h>
 #include <math.h>
 #include <assert.h>
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 void
@@ -175,6 +174,5 @@ round12log (half x)
     return middleval * pow (2.0, (int12log - 2000.0) / 200.0);
 }
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
 

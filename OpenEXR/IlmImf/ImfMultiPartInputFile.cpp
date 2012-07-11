@@ -58,8 +58,7 @@
 #include <map>
 #include <set>
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using IlmThread::Mutex;
 using IlmThread::Lock;
@@ -779,5 +778,4 @@ MultiPartInputFile::parts() const
 }
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

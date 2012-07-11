@@ -79,10 +79,9 @@
 //	belong to no view at all.
 //
 //-----------------------------------------------------------------------------
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //
 // Return the name of the default view given a multi-view string vector,
@@ -171,11 +170,10 @@ std::string removeViewName (const std::string &channel,
 		            const std::string &view);
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif

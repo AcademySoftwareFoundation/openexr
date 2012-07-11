@@ -61,10 +61,9 @@
 
 #include "ImfForward.h"
 #include <ImathBox.h>
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class CompositeDeepScanLine{
     public:
@@ -137,7 +136,6 @@ class CompositeDeepScanLine{
       const CompositeDeepScanLine & operator=(const CompositeDeepScanLine &);  // not implemented
 };
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

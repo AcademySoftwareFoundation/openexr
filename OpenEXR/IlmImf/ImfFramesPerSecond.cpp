@@ -42,10 +42,9 @@
 #include "ImathFun.h"
 
 using namespace Imath;
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 Rational
 guessExactFps (double fps)
@@ -74,5 +73,4 @@ guessExactFps (const Rational &fps)
     return fps;
 }
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

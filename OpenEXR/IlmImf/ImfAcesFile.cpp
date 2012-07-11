@@ -46,10 +46,9 @@
 using namespace std;
 using namespace Imath;
 using namespace Iex;
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 const Chromaticities &
@@ -630,5 +629,4 @@ AcesInputFile::version () const
     return _data->rgbaFile->version();
 }
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

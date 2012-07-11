@@ -71,9 +71,8 @@
 #include <limits>
 
 
-#include "OpenEXRConfig.h"
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+#include "ImfNamespace.h"
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using Imath::Box2i;
 using Imath::divp;
@@ -1942,5 +1941,4 @@ DeepScanLineInputFile::lastScanLineInChunk(int y) const
 }
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

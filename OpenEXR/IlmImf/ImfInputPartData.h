@@ -39,10 +39,9 @@
 
 #include "ImfInputStreamMutex.h"
 #include "ImfHeader.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class InputPartData
 {
@@ -66,11 +65,10 @@ class InputPartData
     friend class MultiPartInputFile;
 };
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif /* IMFINPUTPARTDATA_H_ */

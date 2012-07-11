@@ -45,10 +45,9 @@
 #include <ImfChannelList.h>
 #include <ImfTileDescription.h>
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using Imath::Box2i;
 using Imath::V2i;
@@ -386,5 +385,4 @@ getTiledChunkOffsetTableSize(const Header& header)
 }
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

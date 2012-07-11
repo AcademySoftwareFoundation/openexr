@@ -46,7 +46,7 @@
 #include "ImfAttribute.h"
 #include "ImfChannelList.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::ChannelList> ChannelListAttribute;
@@ -55,11 +55,10 @@ template <> void ChannelListAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESP
 template <> void ChannelListAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif
 

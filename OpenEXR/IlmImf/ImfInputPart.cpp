@@ -33,12 +33,11 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include "ImfInputPart.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
 #include "ImfMultiPartInputFile.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 InputPart::InputPart(MultiPartInputFile& multiPartFile, int partNumber)
 {
@@ -106,5 +105,4 @@ InputPart::rawTileData (int &dx, int &dy, int &lx, int &ly,
     file->rawTileData(dx, dy, lx, ly, pixelData, pixelDataSize);
 }
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

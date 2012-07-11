@@ -45,10 +45,9 @@
 
 #include "ImathVec.h"
 #include "ImathMatrix.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
    
 struct Chromaticities
@@ -125,11 +124,10 @@ Imath::M44f	RGBtoXYZ (const Chromaticities chroma, float Y);
 Imath::M44f	XYZtoRGB (const Chromaticities chroma, float Y);
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif

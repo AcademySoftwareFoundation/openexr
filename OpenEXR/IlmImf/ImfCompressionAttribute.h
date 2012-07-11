@@ -46,7 +46,7 @@
 #include "ImfAttribute.h"
 #include "ImfCompression.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Compression> CompressionAttribute;
@@ -58,10 +58,9 @@ template <> void CompressionAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMES
                                                       int);
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 #endif

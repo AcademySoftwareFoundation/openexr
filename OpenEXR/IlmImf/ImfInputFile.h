@@ -49,11 +49,10 @@
 #include <fstream>
 #include "ImfThreading.h"
 #include "ImfGenericInputFile.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 #include "ImfForward.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class TiledInputFile;
 class ScanLineInputFile;
@@ -214,7 +213,6 @@ class InputFile : public GenericInputFile
 };
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

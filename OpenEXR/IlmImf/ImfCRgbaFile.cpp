@@ -53,7 +53,7 @@
 #include <ImfChannelList.h>
 #include <ImfLut.h>
 #include "half.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
 #include <string.h>
 

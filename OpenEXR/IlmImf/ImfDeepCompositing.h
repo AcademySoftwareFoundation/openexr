@@ -45,10 +45,9 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfForward.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class DeepCompositing{
     public:
@@ -126,7 +125,6 @@ class DeepCompositing{
                          int sources);
 };
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

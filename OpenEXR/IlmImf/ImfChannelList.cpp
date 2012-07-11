@@ -47,10 +47,9 @@
 
 using std::string;
 using std::set;
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 Channel::Channel (PixelType t, int xs, int ys, bool pl):
@@ -320,5 +319,4 @@ ChannelList::operator == (const ChannelList &other) const
 }
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

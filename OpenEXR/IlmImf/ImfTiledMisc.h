@@ -46,10 +46,9 @@
 #include "ImfHeader.h"
 #include <stdio.h>
 #include <vector>
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 int levelSize (int min, int max, int l, LevelRoundingMode rmode);
 
@@ -93,11 +92,10 @@ void precalculateTileInfo (const TileDescription& tileDesc,
 int getTiledChunkOffsetTableSize(const Header& header);
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif

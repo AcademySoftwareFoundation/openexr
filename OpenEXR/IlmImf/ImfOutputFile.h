@@ -47,11 +47,10 @@
 #include "ImfFrameBuffer.h"
 #include "ImfThreading.h"
 #include "ImfGenericOutputFile.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 #include "ImfForward.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 struct PreviewRgba;
 
@@ -258,8 +257,7 @@ class OutputFile : public GenericOutputFile
 };
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
 #endif

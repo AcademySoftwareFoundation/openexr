@@ -78,10 +78,9 @@
 
 using namespace std;
 using namespace Imath;
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 namespace {
 
@@ -550,5 +549,4 @@ Pxr24Compressor::uncompress (const char *inPtr,
     return writePtr - _outBuffer;
 }
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

@@ -33,10 +33,9 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include "ImfOutputPart.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 OutputPart::OutputPart(MultiPartOutputFile& multiPartFile, int partNumber)
 {
@@ -103,5 +102,4 @@ OutputPart::breakScanLine  (int y, int offset, int length, char c)
     file->breakScanLine(y, offset, length, c);
 }
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

@@ -42,10 +42,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //
 // The MAGIC number is stored in the first four bytes of every
@@ -126,11 +125,10 @@ inline bool  supportsFlags (int flags)	{return !(flags & ~ALL_FLAGS);}
 bool	     isImfMagic (const char bytes[4]);
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif

@@ -34,10 +34,9 @@
 
 
 #include "ImfDeepScanLineInputPart.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 DeepScanLineInputPart::DeepScanLineInputPart(MultiPartInputFile& multiPartFile, int partNumber)
 {
@@ -147,5 +146,4 @@ DeepScanLineInputPart::readPixelSampleCounts(const char* rawdata, const DeepFram
    return file->readPixelSampleCounts(rawdata,frameBuffer,scanLine1,scanLine2);
 }
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

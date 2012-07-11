@@ -45,19 +45,15 @@
 
 #include "ImfAttribute.h"
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 typedef TypedAttribute<int> IntAttribute;
 template <> const char *IntAttribute::staticTypeName ();
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
-
-
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

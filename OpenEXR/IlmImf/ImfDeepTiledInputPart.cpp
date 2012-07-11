@@ -35,10 +35,9 @@
 
 #include "ImfDeepTiledInputPart.h"
 #include "ImfMultiPartInputFile.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 DeepTiledInputPart::DeepTiledInputPart(MultiPartInputFile& multiPartFile, int partNumber)
 {
@@ -269,5 +268,6 @@ DeepTiledInputPart::readPixelSampleCounts (int dx1, int dx2,
 {
     file->readPixelSampleCounts(dx1, dx2, dy1, dy2, l);
 }
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

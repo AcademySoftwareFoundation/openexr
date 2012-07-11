@@ -39,8 +39,7 @@
 #include <Iex.h>
 #include <OpenEXRConfig.h>
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 void GenericInputFile::readMagicNumberAndVersionField(OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int& version)
 {
@@ -74,5 +73,4 @@ void GenericInputFile::readMagicNumberAndVersionField(OPENEXR_IMF_INTERNAL_NAMES
     }
 }
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

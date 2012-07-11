@@ -40,10 +40,9 @@
 #include "ImfIO.h"
 #include "IlmThreadMutex.h"
 #include "ImfGenericOutputFile.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 using IlmThread::Mutex;
 
@@ -62,11 +61,10 @@ struct OutputStreamMutex : public Mutex
         }
 };
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif /* IMFOUTPUTSTREAMMUTEX_H_ */

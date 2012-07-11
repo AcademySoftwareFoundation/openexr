@@ -250,21 +250,14 @@ lib_namespace="Imf"
 if test "x${library_namespace_versioning}" == xyes ; then
     AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACED)
     AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE, Imf_${OPENEXR_VERSION_SAFE})
-    AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER, namespace Imf_${OPENEXR_VERSION_SAFE} )
-    AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT, )
     lib_namespace="Imf_${OPENEXR_VERSION_SAFE}"
     LIB_SUFFIX="Imf_${OPENEXR_VERSION_SAFE}"
     lib_suffix_valid="yes"
 elif test "x${library_namespace_versioning}" == xno ; then
     AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE, Imf)
-    AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER, namespace Imf)
-    AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT, )
     lib_namespace="Imf"
 else
-    AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACED)
     AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE, ${library_namespace_versioning} )
-    AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER, namespace ${library_namespace_versioning} )
-    AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT, )
     lib_namespace="${library_namespace_versioning}"
     LIB_SUFFIX="${library_namespace_versioning}"
     lib_suffix_valid="yes"

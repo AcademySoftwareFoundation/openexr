@@ -72,10 +72,9 @@
 #include <assert.h>
 #include <map>
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using Imath::Box2i;
 using Imath::V2i;
@@ -2049,5 +2048,4 @@ DeepTiledOutputFile::breakTile
         _data->_streamData->os->write (&c, 1);
 }
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

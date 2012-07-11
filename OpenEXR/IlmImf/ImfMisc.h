@@ -48,10 +48,9 @@
 #include "ImfCompressor.h"
 #include "ImfArray.h"
 #include <cstddef>
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class Header;
 
@@ -435,11 +434,10 @@ bool usesLongNames (const Header &header);
 //
 int getChunkOffsetTableSize(const Header& header,bool ignore_attribute=false);
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif

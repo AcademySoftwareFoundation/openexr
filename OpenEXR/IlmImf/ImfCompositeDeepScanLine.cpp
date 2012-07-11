@@ -44,8 +44,7 @@
 #include <Iex.h>
 
 #include <vector>
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using std::vector;
 using std::string;
@@ -525,6 +524,5 @@ CompositeDeepScanLine::frameBuffer() const
 }
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
 

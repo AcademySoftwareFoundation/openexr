@@ -33,10 +33,9 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include "ImfDeepScanLineOutputPart.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 DeepScanLineOutputPart::DeepScanLineOutputPart(MultiPartOutputFile& multiPartFile, int partNumber)
 {
@@ -104,6 +103,5 @@ DeepScanLineOutputPart::updatePreviewImage (const PreviewRgba newPixels[])
     file->updatePreviewImage(newPixels);
 }
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
 

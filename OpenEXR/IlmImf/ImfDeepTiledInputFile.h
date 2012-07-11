@@ -53,10 +53,9 @@
 #include "ImfDeepFrameBuffer.h"
 #include "ImfDeepTiledOutputFile.h"
 #include "ImfForward.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 class DeepTiledInputFile : public GenericInputFile
@@ -435,7 +434,6 @@ class DeepTiledInputFile : public GenericInputFile
     friend void DeepTiledOutputFile::copyPixels(DeepTiledInputFile &);
 };
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

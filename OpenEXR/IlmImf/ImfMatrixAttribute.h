@@ -49,7 +49,7 @@
 #include "ImfAttribute.h"
 #include "ImathMatrix.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 typedef TypedAttribute<Imath::M33f> M33fAttribute;
@@ -76,11 +76,10 @@ template <> void M44dAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OS
 template <> void M44dAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif

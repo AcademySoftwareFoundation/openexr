@@ -33,10 +33,10 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include "ImfOutputPartData.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
+
 
 OutputPartData::OutputPartData(OutputStreamMutex* mutex, const Header &header,
                                int partNumber, int numThreads, bool multipart):
@@ -48,5 +48,5 @@ OutputPartData::OutputPartData(OutputStreamMutex* mutex, const Header &header,
 {
 }
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

@@ -37,10 +37,9 @@
 
 
 using namespace std;
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 DeepSlice::DeepSlice (PixelType t,
                       char *b,
@@ -228,5 +227,4 @@ DeepFrameBuffer::getSampleCountSlice() const
     return _sampleCounts;
 }
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

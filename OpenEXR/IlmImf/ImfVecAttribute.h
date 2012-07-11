@@ -51,7 +51,7 @@
 #include "ImfAttribute.h"
 #include "ImathVec.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 typedef TypedAttribute<Imath::V2i> V2iAttribute;
 template <> const char *V2iAttribute::staticTypeName ();
@@ -89,8 +89,7 @@ template <> void V3dAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OSt
 template <> void V3dAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
 #if defined (OPENEXR_IMF_INTERNAL_NAMESPACE_AUTO_EXPOSE)

@@ -37,11 +37,10 @@
 
 #include "ImfMultiPartInputFile.h"
 #include "ImfTiledInputFile.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 #include "ImfForward.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //-----------------------------------------------------------------------------
 // class TiledInputPart:
@@ -95,7 +94,6 @@ class TiledInputPart
       
 };
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif /* IMFTILEDINPUTPART_H_ */

@@ -65,18 +65,17 @@
 #include "ImfStringVectorAttribute.h"
 #include "ImfTimeCodeAttribute.h"
 #include "ImfVecAttribute.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-#define IMF_STD_ATTRIBUTE_DEF(name,suffix,object)				\
-    OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER {\
+#define IMF_STD_ATTRIBUTE_DEF(name,suffix,object)                              \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER                                \
     void			 add##suffix (Header &header, const object &v);\
-    bool			 has##suffix (const Header &header);	       \
+    bool			 has##suffix (const Header &header);           \
     const TypedAttribute<object> & name##Attribute (const Header &header);     \
-    TypedAttribute<object> &	 name##Attribute (Header &header);	       \
-    const object &		 name (const Header &header);		       \
+    TypedAttribute<object> &	 name##Attribute (Header &header);             \
+    const object &		 name (const Header &header);                  \
     object &			 name (Header &header);                        \
-    }\
-    OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT                                 \
 
 
 //
@@ -340,7 +339,7 @@ IMF_STD_ATTRIBUTE_DEF (worldToCamera, WorldToCamera, Imath::M44f)
 IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, Imath::M44f)
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif

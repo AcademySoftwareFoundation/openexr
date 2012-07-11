@@ -59,8 +59,7 @@ using namespace Imath;
 // Note that this must be in the same namespace as the definition
 //
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 struct Glorp
 {
@@ -99,8 +98,7 @@ GlorpAttribute::readValueFrom (IStream &is, int size, int version)
     Xdr::read <StreamIO> (is, _value.b);
 }
 
-}
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
 
 
 namespace {

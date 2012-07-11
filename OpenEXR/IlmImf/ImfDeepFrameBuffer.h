@@ -36,10 +36,9 @@
 #define IMFDEEPFRAMEBUFFER_H_
 
 #include "ImfFrameBuffer.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //--------------------------------------------------------
 // Description of a single deep slice of the frame buffer:
@@ -329,11 +328,10 @@ operator != (const DeepFrameBuffer::ConstIterator &x,
 }
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 

@@ -39,10 +39,9 @@
 #include "ImfMultiPartInputFile.h"
 #include "ImfDeepScanLineInputFile.h"
 #include "ImfDeepScanLineOutputFile.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class DeepScanLineInputPart
 {
@@ -172,11 +171,10 @@ class DeepScanLineInputPart
     friend void DeepScanLineOutputFile::copyPixels(DeepScanLineInputPart &);
 };
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-namespace OPENEXR_IMF_NAMESPACE {using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+
 
 
 #endif /* IMFDEEPSCANLINEINPUTPART_H_ */

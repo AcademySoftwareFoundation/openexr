@@ -51,10 +51,9 @@
 #include "IlmThreadMutex.h"
 #include "Iex.h"
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using namespace std;
 using namespace Imath;
@@ -1161,5 +1160,4 @@ TiledRgbaOutputFile::breakTile  (int dx, int dy, int lx, int ly,
 }
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

@@ -43,11 +43,10 @@
 #include <ImfXdr.h>
 #include <ImfIO.h>
 #include "Iex.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 #include <algorithm>
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 TileOffsets::TileOffsets (LevelMode mode,
@@ -549,5 +548,4 @@ TileOffsets::getOffsets()
 }
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

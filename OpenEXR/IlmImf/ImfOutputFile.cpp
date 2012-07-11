@@ -61,7 +61,7 @@
 #include "IlmThreadMutex.h"
 #include "Iex.h"
 #include "ImfInputPart.h"
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 #include "ImfOutputPartData.h"
 
 #include <string>
@@ -69,8 +69,7 @@
 #include <fstream>
 #include <assert.h>
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using Imath::Box2i;
 using Imath::divp;
@@ -1368,5 +1367,4 @@ OutputFile::breakScanLine  (int y, int offset, int length, char c)
 }
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

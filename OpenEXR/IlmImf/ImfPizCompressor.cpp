@@ -54,10 +54,9 @@
 #include <ImfAutoArray.h>
 #include <string.h>
 #include <assert.h>
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER 
-{
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using Imath::divp;
 using Imath::modp;
@@ -665,5 +664,4 @@ PizCompressor::uncompress (const char *inPtr,
 }
 
 
-} 
-OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
