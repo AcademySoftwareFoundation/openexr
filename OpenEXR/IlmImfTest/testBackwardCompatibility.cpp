@@ -77,8 +77,8 @@
 #include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
-using namespace Imath;
-using namespace IlmThread;
+using namespace IMATH_NAMESPACE;
+using namespace ILMTHREAD_NAMESPACE;
 
 namespace {
 
@@ -99,8 +99,8 @@ diffImageFiles (const char * fn1, const char * fn2)
     ifstream i1 (fn1, ios::binary);
     ifstream i2 (fn2, ios::binary);
 
-    if(!i1.good()){THROW (Iex::BaseExc, string("cannot open ") + string(fn1));}
-    if(!i2.good()){THROW (Iex::BaseExc, string("cannot open ") + string(fn2));}
+    if(!i1.good()){THROW (IEX_NAMESPACE::BaseExc, string("cannot open ") + string(fn1));}
+    if(!i2.good()){THROW (IEX_NAMESPACE::BaseExc, string("cannot open ") + string(fn2));}
 
     while (!i1.eof() && !i2.eof())
     {
@@ -109,7 +109,7 @@ diffImageFiles (const char * fn1, const char * fn2)
             string e = string ("v1.7 and current differences between '") +
                        string (fn1) + string ("' & '") +  string (fn2) +
                        string ("'");
-            THROW (Iex::BaseExc, e);
+            THROW (IEX_NAMESPACE::BaseExc, e);
         }
     }
 }
@@ -197,7 +197,7 @@ generateScanlinePlanarImage (const char * fn)
         }
     }
 
-    Imath::Box2i dod (Imath::V2f(20), Imath::V2f(W-20, H-23));
+    IMATH_NAMESPACE::Box2i dod (IMATH_NAMESPACE::V2f(20), IMATH_NAMESPACE::V2f(W-20, H-23));
     OPENEXR_IMF_NAMESPACE::Header header = Header (W, H, dod);
     header.channels().insert("Z", Channel(FLOAT));
     header.channels().insert("R", Channel(HALF));
@@ -255,7 +255,7 @@ generateScanlineInterleavedImage (const char * fn)
         }
     }
 
-    Imath::Box2i dod (Imath::V2f(20), Imath::V2f(W-20, H-23));
+    IMATH_NAMESPACE::Box2i dod (IMATH_NAMESPACE::V2f(20), IMATH_NAMESPACE::V2f(W-20, H-23));
     OPENEXR_IMF_NAMESPACE::Header header = Header (W, H, dod);
     header.channels().insert("Z", Channel(FLOAT));
     header.channels().insert("R", Channel(HALF));

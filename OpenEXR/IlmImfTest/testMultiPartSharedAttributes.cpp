@@ -63,7 +63,7 @@
 #include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 namespace
 {
@@ -150,7 +150,7 @@ testMultiPartOutputFileForExpectedFailure (const vector<Header> & headers,
         cerr << "ERROR -- " << failMessage << endl;
         assert (false);
     }
-    catch (const Iex::ArgExc & e)
+    catch (const IEX_NAMESPACE::ArgExc & e)
     {
         // expected behaviour
     }
@@ -163,7 +163,7 @@ void
 testDisplayWindow (const vector<Header> & hs)
 {
     vector<Header> headers(hs);
-    Imath::Box2i newDisplayWindow = headers[0].displayWindow();
+    IMATH_NAMESPACE::Box2i newDisplayWindow = headers[0].displayWindow();
     Header newHeader (newDisplayWindow.size().x+10, newDisplayWindow.size().y+10);
     newHeader.setType (headers[0].type());
     newHeader.setName (headers[0].name() + string("_newHeader"));
@@ -179,7 +179,7 @@ testPixelAspectRatio (const vector<Header> & hs)
 {
     vector<Header> headers(hs);
 
-    Imath::Box2i newDisplayWindow = headers[0].displayWindow();
+    IMATH_NAMESPACE::Box2i newDisplayWindow = headers[0].displayWindow();
     Header newHeader (headers[0].displayWindow().size().x+1,
                       headers[0].displayWindow().size().y+1,
                       headers[0].pixelAspectRatio() + 1.f);
@@ -257,7 +257,7 @@ testChromaticities (const vector<Header> & hs)
     for (int i=0; i<headers.size(); i++)
         headers[i].insert (ChromaticitiesAttribute::staticTypeName(), ca);
 
-    c.red += Imath::V2f (1.0f, 1.0f);
+    c.red += IMATH_NAMESPACE::V2f (1.0f, 1.0f);
     ChromaticitiesAttribute cca(c);
     newHeader.insert (ChromaticitiesAttribute::staticTypeName(), cca);
     headers.push_back (newHeader);
@@ -311,7 +311,7 @@ testDiskAttrValue (const Header & diskHeader, const T & testAttribute)
     const T & diskAttr = dynamic_cast <const T &> (diskHeader[attrName]);
     if (diskAttr.value() != testAttribute.value())
     {
-        throw Iex::InputExc ("incorrect value from disk");
+        throw IEX_NAMESPACE::InputExc ("incorrect value from disk");
     }
 
     return;
@@ -366,7 +366,7 @@ testHeaders ()
         cerr << "Header : unsupported image type passed" << endl;
         assert (false);
     }
-    catch (const Iex::ArgExc & e)
+    catch (const IEX_NAMESPACE::ArgExc & e)
     {
         // expected behaviour
     }
@@ -413,8 +413,8 @@ testHeaders ()
         //
         // Test Display Window
         //
-        const Imath::Box2i & diskDispWin =     diskHeader.displayWindow();
-        const Imath::Box2i & testDispWin =     headers[i].displayWindow();
+        const IMATH_NAMESPACE::Box2i & diskDispWin =     diskHeader.displayWindow();
+        const IMATH_NAMESPACE::Box2i & testDispWin =     headers[i].displayWindow();
         assert (diskDispWin == testDispWin);
 
         //
@@ -431,7 +431,7 @@ testHeaders ()
         {
             testDiskAttrValue<TimeCodeAttribute> (diskHeader, ta);
         }
-        catch (const Iex::InputExc &e)
+        catch (const IEX_NAMESPACE::InputExc &e)
         {
             cerr << "Shared Attributes : TimeCode : " << e.what() << endl;
             assert (false);
@@ -444,7 +444,7 @@ testHeaders ()
         {
             testDiskAttrValue<ChromaticitiesAttribute> (diskHeader, ca);
         }
-        catch (const Iex::InputExc &e)
+        catch (const IEX_NAMESPACE::InputExc &e)
         {
             cerr << "Shared Attributes : Chromaticities : " << e.what() << endl;
             assert (false);
@@ -458,7 +458,7 @@ testHeaders ()
         {
             testDiskAttrValue<IntAttribute> (diskHeader, ia[i]);
         }
-        catch (const Iex::InputExc &e)
+        catch (const IEX_NAMESPACE::InputExc &e)
         {
             cerr <<  "Shared Attributes : IntAttribute : " << e.what() << endl;
             assert (false);
@@ -475,7 +475,7 @@ testHeaders ()
         cerr << "Shared Attributes : InputFile : incorrect input file passed\n";
         assert (false);
     }
-    catch (const Iex::InputExc &e)
+    catch (const IEX_NAMESPACE::InputExc &e)
     {
         // expectected behaviour
     }
@@ -498,9 +498,9 @@ testMultiPartSharedAttributes ()
 
         cout << " ... ok\n" << endl;
     }
-    catch (const Iex::BaseExc & e)
+    catch (const IEX_NAMESPACE::BaseExc & e)
     {
-        cerr << "ERROR -- caught Iex::BaseExc exception: " << e.what() << endl;
+        cerr << "ERROR -- caught IEX_NAMESPACE::BaseExc exception: " << e.what() << endl;
         assert (false);
     }
     catch (const std::exception & e)

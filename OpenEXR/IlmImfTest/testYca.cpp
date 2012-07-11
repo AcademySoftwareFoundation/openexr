@@ -51,7 +51,7 @@
 #include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 namespace {
 
@@ -222,11 +222,11 @@ testYca ()
 	dataWindow[4] = Box2i (V2i (0, 0), V2i (1, 1));
 	dataWindow[5] = Box2i (V2i (-18, -28), V2i (247, 255));
 
-	int maxThreads = IlmThread::supportsThreads()? 3: 0;
+	int maxThreads = ILMTHREAD_NAMESPACE::supportsThreads()? 3: 0;
 
 	for (int n = 0; n <= maxThreads; ++n)
 	{
-	    if (IlmThread::supportsThreads())
+	    if (ILMTHREAD_NAMESPACE::supportsThreads())
 	    {
 		setGlobalThreadCount (n);
 		cout << "\nnumber of threads: " << globalThreadCount() << endl;

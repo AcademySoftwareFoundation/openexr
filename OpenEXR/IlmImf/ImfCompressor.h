@@ -163,7 +163,7 @@ class Compressor
 
     virtual int		compressTile (const char *inPtr,
 				      int inSize,
-				      Imath::Box2i range,
+				      IMATH_NAMESPACE::Box2i range,
 				      const char *&outPtr);
 
     //-------------------------------------------------------------------------
@@ -189,7 +189,7 @@ class Compressor
 
     virtual int		uncompressTile (const char *inPtr,
 					int inSize,
-					Imath::Box2i range,
+					IMATH_NAMESPACE::Box2i range,
 					const char *&outPtr);
 
   private:

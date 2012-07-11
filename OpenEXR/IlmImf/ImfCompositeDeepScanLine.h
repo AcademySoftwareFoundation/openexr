@@ -117,7 +117,7 @@ class CompositeDeepScanLine{
         //
         ////////////////////////////////////////////////
         
-        const Imath::Box2i & dataWindow() const;
+        const IMATH_NAMESPACE::Box2i & dataWindow() const;
         
  
         //

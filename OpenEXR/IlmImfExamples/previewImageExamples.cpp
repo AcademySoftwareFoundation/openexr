@@ -53,7 +53,7 @@
 #include "namespaceAlias.h"
 using namespace CustomImf;
 using namespace std;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 
 unsigned char

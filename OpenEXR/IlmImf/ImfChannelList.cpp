@@ -76,7 +76,7 @@ void
 ChannelList::insert (const char name[], const Channel &channel)
 {
     if (name[0] == 0)
-	THROW (Iex::ArgExc, "Image channel name cannot be an empty string.");
+	THROW (IEX_NAMESPACE::ArgExc, "Image channel name cannot be an empty string.");
 
     _map[name] = channel;
 }
@@ -95,7 +95,7 @@ ChannelList::operator [] (const char name[])
     ChannelMap::iterator i = _map.find (name);
 
     if (i == _map.end())
-	THROW (Iex::ArgExc, "Cannot find image channel \"" << name << "\".");
+	THROW (IEX_NAMESPACE::ArgExc, "Cannot find image channel \"" << name << "\".");
 
     return i->second;
 }
@@ -107,7 +107,7 @@ ChannelList::operator [] (const char name[]) const
     ChannelMap::const_iterator i = _map.find (name);
 
     if (i == _map.end())
-	THROW (Iex::ArgExc, "Cannot find image channel \"" << name << "\".");
+	THROW (IEX_NAMESPACE::ArgExc, "Cannot find image channel \"" << name << "\".");
 
     return i->second;
 }

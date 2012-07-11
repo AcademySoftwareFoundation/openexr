@@ -53,14 +53,14 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-typedef TypedAttribute<Imath::Box2i> Box2iAttribute;
+typedef TypedAttribute<IMATH_NAMESPACE::Box2i> Box2iAttribute;
 
 template <> const char *Box2iAttribute::staticTypeName ();
 template <> void Box2iAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
 template <> void Box2iAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-typedef TypedAttribute<Imath::Box2f> Box2fAttribute;
+typedef TypedAttribute<IMATH_NAMESPACE::Box2f> Box2fAttribute;
 template <> const char *Box2fAttribute::staticTypeName ();
 template <> void Box2fAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
 template <> void Box2fAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);

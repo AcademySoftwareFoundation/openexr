@@ -83,7 +83,7 @@ class HalfLut
     //---------------------------------------------------------------
 
     void apply (const Slice &data,
-		const Imath::Box2i &dataWindow) const;
+		const IMATH_NAMESPACE::Box2i &dataWindow) const;
 
   private:
 
@@ -123,7 +123,7 @@ class RgbaLut
     void apply (Rgba *base,
 		int xStride,
 		int yStride,
-		const Imath::Box2i &dataWindow) const;
+		const IMATH_NAMESPACE::Box2i &dataWindow) const;
 
   private:
 

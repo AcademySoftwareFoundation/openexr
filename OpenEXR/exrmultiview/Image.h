@@ -112,11 +112,11 @@ class Image
   public:
 
     Image ();
-    Image (const Imath::Box2i &dataWindow);
+    Image (const IMATH_NAMESPACE::Box2i &dataWindow);
    ~Image ();
 
-   const Imath::Box2i &		dataWindow () const;
-   void				resize (const Imath::Box2i &dataWindow);
+   const IMATH_NAMESPACE::Box2i &		dataWindow () const;
+   void				resize (const IMATH_NAMESPACE::Box2i &dataWindow);
    
    int				width () const;
    int				height () const;
@@ -139,7 +139,7 @@ class Image
 
    typedef std::map <std::string, ImageChannel *> ChannelMap;
 
-   Imath::Box2i			_dataWindow;
+   IMATH_NAMESPACE::Box2i			_dataWindow;
    ChannelMap			_channels;
 };
 
@@ -198,7 +198,7 @@ template <class T>
 CustomImf::Slice
 TypedImageChannel<T>::slice () const
 {
-    const Imath::Box2i &dw = image().dataWindow();
+    const IMATH_NAMESPACE::Box2i &dw = image().dataWindow();
     int w = dw.max.x - dw.min.x + 1;
 
     return CustomImf::Slice (pixelType(),
@@ -231,7 +231,7 @@ TypedImageChannel<T>::black ()
 }
 
 
-inline const Imath::Box2i &
+inline const IMATH_NAMESPACE::Box2i &
 Image::dataWindow () const
 {
     return _dataWindow;

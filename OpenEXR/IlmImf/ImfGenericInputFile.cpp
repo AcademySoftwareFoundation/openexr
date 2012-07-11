@@ -55,12 +55,12 @@ void GenericInputFile::readMagicNumberAndVersionField(OPENEXR_IMF_INTERNAL_NAMES
 
     if (magic != MAGIC)
     {
-        throw Iex::InputExc ("File is not an image file.");
+        throw IEX_NAMESPACE::InputExc ("File is not an image file.");
     }
 
     if (getVersion (version) != EXR_VERSION)
     {
-        THROW (Iex::InputExc, "Cannot read "
+        THROW (IEX_NAMESPACE::InputExc, "Cannot read "
                               "version " << getVersion (version) << " "
                               "image files.  Current file format version "
                               "is " << EXR_VERSION << ".");
@@ -68,7 +68,7 @@ void GenericInputFile::readMagicNumberAndVersionField(OPENEXR_IMF_INTERNAL_NAMES
 
     if (!supportsFlags (getFlags (version)))
     {
-        THROW (Iex::InputExc, "The file format version number's flag field "
+        THROW (IEX_NAMESPACE::InputExc, "The file format version number's flag field "
                               "contains unrecognized flags.");
     }
 }

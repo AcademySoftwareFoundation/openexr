@@ -54,10 +54,10 @@ ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 Semaphore::Semaphore (unsigned int value)
 {
     if (int error = ::pthread_mutex_init (&_semaphore.mutex, 0))
-        Iex::throwErrnoExc ("Cannot initialize mutex (%T).", error);
+        IEX_NAMESPACE::throwErrnoExc ("Cannot initialize mutex (%T).", error);
 
     if (int error = ::pthread_cond_init (&_semaphore.nonZero, 0))
-        Iex::throwErrnoExc ("Cannot initialize condition variable (%T).",
+        IEX_NAMESPACE::throwErrnoExc ("Cannot initialize condition variable (%T).",
                             error);
 
     _semaphore.count = value;
@@ -88,7 +88,7 @@ Semaphore::wait ()
 	{
             ::pthread_mutex_unlock (&_semaphore.mutex);
 
-            Iex::throwErrnoExc ("Cannot wait on condition variable (%T).",
+            IEX_NAMESPACE::throwErrnoExc ("Cannot wait on condition variable (%T).",
                                 error);
 	}
     }
@@ -130,7 +130,7 @@ Semaphore::post ()
 	{
             ::pthread_mutex_unlock (&_semaphore.mutex);
 
-            Iex::throwErrnoExc ("Cannot signal condition variable (%T).",
+            IEX_NAMESPACE::throwErrnoExc ("Cannot signal condition variable (%T).",
                                 error);
 	}
     }

@@ -48,7 +48,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using std::vector;
 using std::string;
-using Imath::Box2i;
+using IMATH_NAMESPACE::Box2i;
 
 
 struct CompositeDeepScanLine::Data{
@@ -137,12 +137,12 @@ CompositeDeepScanLine::Data::check_valid(const Header & header)
     
     if(!has_z)
     {
-        throw Iex::ArgExc("Deep data provided to CompositeDeepScanLine is missing a Z channel");
+        throw IEX_NAMESPACE::ArgExc("Deep data provided to CompositeDeepScanLine is missing a Z channel");
     }
     
     if(!has_alpha)
     {
-        throw Iex::ArgExc("Deep data provided to CompositeDeepScanLine is missing an alpha channel");
+        throw IEX_NAMESPACE::ArgExc("Deep data provided to CompositeDeepScanLine is missing an alpha channel");
     }
     
     
@@ -161,7 +161,7 @@ CompositeDeepScanLine::Data::check_valid(const Header & header)
     // check the sizes match
     if(match_header->displayWindow() != header.displayWindow())
     {
-        throw Iex::ArgExc("Deep data provided to CompositeDeepScanLine has a different displayWindow to previously provided data");
+        throw IEX_NAMESPACE::ArgExc("Deep data provided to CompositeDeepScanLine has a different displayWindow to previously provided data");
     }
     
     _dataWindow.extendBy(header.dataWindow());
@@ -237,7 +237,7 @@ CompositeDeepScanLine::setCompositing(DeepCompositing* c)
   _Data->_comp=c;
 }
 
-const Imath::Box2i& CompositeDeepScanLine::dataWindow() const
+const IMATH_NAMESPACE::Box2i& CompositeDeepScanLine::dataWindow() const
 {
   return  _Data->_dataWindow;
 }

@@ -69,20 +69,20 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using Imath::Box2i;
-using Imath::divp;
-using Imath::modp;
+using IMATH_NAMESPACE::Box2i;
+using IMATH_NAMESPACE::divp;
+using IMATH_NAMESPACE::modp;
 using std::string;
 using std::vector;
 using std::ofstream;
 using std::min;
 using std::max;
-using IlmThread::Mutex;
-using IlmThread::Lock;
-using IlmThread::Semaphore;
-using IlmThread::Task;
-using IlmThread::TaskGroup;
-using IlmThread::ThreadPool;
+using ILMTHREAD_NAMESPACE::Mutex;
+using ILMTHREAD_NAMESPACE::Lock;
+using ILMTHREAD_NAMESPACE::Semaphore;
+using ILMTHREAD_NAMESPACE::Task;
+using ILMTHREAD_NAMESPACE::TaskGroup;
+using ILMTHREAD_NAMESPACE::ThreadPool;
 
 namespace {
 
@@ -297,7 +297,7 @@ writeLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, const vector<Int6
     Int64 pos = os.tellp();
 
     if (pos == -1)
-        Iex::throwErrnoExc ("Cannot determine current file position (%T).");
+        IEX_NAMESPACE::throwErrnoExc ("Cannot determine current file position (%T).");
 
     for (unsigned int i = 0; i < lineOffsets.size(); i++)
         OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (os, lineOffsets[i]);
@@ -842,7 +842,7 @@ DeepScanLineOutputFile::DeepScanLineOutputFile
                 writeLineOffsets (*_data->_streamData->os, _data->lineOffsets);
 	_data->multipart=false;// not multipart; only one header
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         delete _data->_streamData;
         delete _data;
@@ -885,7 +885,7 @@ DeepScanLineOutputFile::DeepScanLineOutputFile
                 writeLineOffsets (*_data->_streamData->os, _data->lineOffsets);
 	_data->multipart=false;
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         delete _data->_streamData;
         delete _data;
@@ -907,7 +907,7 @@ DeepScanLineOutputFile::DeepScanLineOutputFile(const OutputPartData* part)
     try
     {
         if (part->header.type() != DEEPSCANLINE)
-            throw Iex::ArgExc("Can't build a DeepScanLineOutputFile from a type-mismatched part.");
+            throw IEX_NAMESPACE::ArgExc("Can't build a DeepScanLineOutputFile from a type-mismatched part.");
 
         _data = new Data (part->numThreads);
         _data->_streamData = part->mutex;
@@ -918,7 +918,7 @@ DeepScanLineOutputFile::DeepScanLineOutputFile(const OutputPartData* part)
         _data->previewPosition = part->previewPosition;
 	_data->multipart=part->multipart;
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         delete _data;
 
@@ -1071,7 +1071,7 @@ DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 
         if (i.channel().type != j.slice().type)
         {
-            THROW (Iex::ArgExc, "Pixel type of \"" << i.name() << "\" channel "
+            THROW (IEX_NAMESPACE::ArgExc, "Pixel type of \"" << i.name() << "\" channel "
                                 "of output file \"" << fileName() << "\" is "
                                 "not compatible with the frame buffer's "
                                 "pixel type.");
@@ -1080,7 +1080,7 @@ DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
         if (i.channel().xSampling != j.slice().xSampling ||
             i.channel().ySampling != j.slice().ySampling)
         {
-            THROW (Iex::ArgExc, "X and/or y subsampling factors "
+            THROW (IEX_NAMESPACE::ArgExc, "X and/or y subsampling factors "
                                 "of \"" << i.name() << "\" channel "
                                 "of output file \"" << fileName() << "\" are "
                                 "not compatible with the frame buffer's "
@@ -1096,7 +1096,7 @@ DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
     const Slice& sampleCountSlice = frameBuffer.getSampleCountSlice();
     if (sampleCountSlice.base == 0)
     {
-        throw Iex::ArgExc ("Invalid base pointer, please set a proper sample count slice.");
+        throw IEX_NAMESPACE::ArgExc ("Invalid base pointer, please set a proper sample count slice.");
     }
     else
     {
@@ -1183,7 +1183,7 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
         Lock lock (*_data->_streamData);
 
         if (_data->slices.size() == 0)
-            throw Iex::ArgExc ("No frame buffer specified "
+            throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
                                "as pixel data source.");
 
         //
@@ -1269,7 +1269,7 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
             {
                 if (_data->missingScanLines <= 0)
                 {
-                    throw Iex::ArgExc ("Tried to write more scan lines "
+                    throw IEX_NAMESPACE::ArgExc ("Tried to write more scan lines "
                                        "than specified by the data window.");
                 }
 
@@ -1389,9 +1389,9 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
         }
 
         if (exception)
-            throw Iex::IoExc (*exception);
+            throw IEX_NAMESPACE::IoExc (*exception);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Failed to write pixel data to image "
                         "file \"" << fileName() << "\". " << e);
@@ -1430,30 +1430,30 @@ DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile &in)
 
     if(!inHdr.hasType() || inHdr.type()!=DEEPSCANLINE)
     {
-        THROW (Iex::ArgExc, "Cannot copy pixels from image "
+        THROW (IEX_NAMESPACE::ArgExc, "Cannot copy pixels from image "
                             "file \"" << in.fileName() << "\" to image "
                             "file \"" << fileName() << "\": the input needs to be a deep scanline image");
     }
     if (!(hdr.dataWindow() == inHdr.dataWindow()))
-        THROW (Iex::ArgExc, "Cannot copy pixels from image "
+        THROW (IEX_NAMESPACE::ArgExc, "Cannot copy pixels from image "
                             "file \"" << in.fileName() << "\" to image "
                             "file \"" << fileName() << "\". "
                             "The files have different data windows.");
 
     if (!(hdr.lineOrder() == inHdr.lineOrder()))
-        THROW (Iex::ArgExc, "Quick pixel copy from image "
+        THROW (IEX_NAMESPACE::ArgExc, "Quick pixel copy from image "
                             "file \"" << in.fileName() << "\" to image "
                             "file \"" << fileName() << "\" failed. "
                             "The files have different line orders.");
 
     if (!(hdr.compression() == inHdr.compression()))
-        THROW (Iex::ArgExc, "Quick pixel copy from image "
+        THROW (IEX_NAMESPACE::ArgExc, "Quick pixel copy from image "
                             "file \"" << in.fileName() << "\" to image "
                             "file \"" << fileName() << "\" failed. "
                             "The files use different compression methods.");
 
     if (!(hdr.channels() == inHdr.channels()))
-        THROW (Iex::ArgExc, "Quick pixel copy from image "
+        THROW (IEX_NAMESPACE::ArgExc, "Quick pixel copy from image "
                             "file \"" << in.fileName() << "\" to image "
                             "file \"" << fileName() << "\" failed.  "
                             "The files have different channel lists.");
@@ -1465,7 +1465,7 @@ DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile &in)
     const Box2i &dataWindow = hdr.dataWindow();
 
     if (_data->missingScanLines != dataWindow.max.y - dataWindow.min.y + 1)
-        THROW (Iex::LogicExc, "Quick pixel copy from image "
+        THROW (IEX_NAMESPACE::LogicExc, "Quick pixel copy from image "
                               "file \"" << in.fileName() << "\" to image "
                               "file \"" << fileName() << "\" failed. "
                               "\"" << fileName() << "\" already contains "
@@ -1516,7 +1516,7 @@ DeepScanLineOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
     Lock lock (*_data->_streamData);
 
     if (_data->previewPosition <= 0)
-        THROW (Iex::LogicExc, "Cannot update preview image pixels. "
+        THROW (IEX_NAMESPACE::LogicExc, "Cannot update preview image pixels. "
                               "File \"" << fileName() << "\" does not "
                               "contain a preview image.");
 
@@ -1548,7 +1548,7 @@ DeepScanLineOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
         pia.writeValueTo (*_data->_streamData->os, _data->version);
         _data->_streamData->os->seekp (savedPosition);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Cannot update preview image pixels for "
                         "file \"" << fileName() << "\". " << e);

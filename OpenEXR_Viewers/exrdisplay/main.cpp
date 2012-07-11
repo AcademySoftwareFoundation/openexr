@@ -86,6 +86,8 @@ struct MainWindow
     Fl_Box *            rgbaBox;
     ImageView *         image;
     Array<Rgba>         pixels;
+    Array<float*>       dataZ;
+    Array<unsigned int> sampleCount;
     const char*         imageFile;
     bool                preview;
     int                 lx;
@@ -111,6 +113,7 @@ MainWindow::multipartComboboxCallback (Fl_Widget *widget, void *data)
     // reload pixels
     //
     Header header;
+    int zsize;
 
     loadImage (mainWindow->imageFile,
                mainWindow->channel,
@@ -119,8 +122,11 @@ MainWindow::multipartComboboxCallback (Fl_Widget *widget, void *data)
 	       mainWindow->lx,
 	       mainWindow->ly,
 	       partnum,
+               zsize,
 	       header,
-	       mainWindow->pixels);
+	       mainWindow->pixels,
+	       mainWindow->dataZ,
+	       mainWindow->sampleCount);
 
     const Box2i &displayWindow = header.displayWindow();
     const Box2i &dataWindow = header.dataWindow();
@@ -139,10 +145,14 @@ MainWindow::multipartComboboxCallback (Fl_Widget *widget, void *data)
         int iw = displayWindow.max.x - displayWindow.min.x;
         int ih = displayWindow.max.y - displayWindow.min.y;
 
-        mainWindow->window->size(w, (160+ih));
-        mainWindow->image->resize((w - iw) / 2, 155, iw, ih);
+        mainWindow->window->size (w, (160 + ih));
+        mainWindow->image->resize ((w - iw) / 2, 155, iw, ih);
     }
-    mainWindow->image->setPixels (mainWindow->pixels,dw,dh,dx,dy);
+    mainWindow->image->setPixels (mainWindow->pixels,
+                                  mainWindow->dataZ,
+                                  mainWindow->sampleCount,
+                                  zsize,
+                                  dw,dh,dx,dy);
 
     //
     // renew multipart data type
@@ -151,7 +161,7 @@ MainWindow::multipartComboboxCallback (Fl_Widget *widget, void *data)
     try{
     	type = header.type();
     }
-    catch(Iex::BaseExc &e) {
+    catch(IEX_NAMESPACE::BaseExc &e) {
         type = "";
     }
     mainWindow->typeLabel->value(type.c_str());
@@ -163,7 +173,7 @@ MainWindow::multipartComboboxCallback (Fl_Widget *widget, void *data)
     try{
         name = header.name();
     }
-    catch(Iex::BaseExc &e) {
+    catch(IEX_NAMESPACE::BaseExc &e) {
         name = "";
     }
     mainWindow->nameLabel->value(name.c_str());
@@ -239,7 +249,7 @@ makeMainWindow (const char imageFile[],
         numparts = infile->parts();
         delete infile;
     }
-    catch(Iex::BaseExc &e)
+    catch(IEX_NAMESPACE::BaseExc &e)
     {
         cerr<<"\n"<<"ERROR:"<<endl;
         cerr<<e.what()<<endl;
@@ -247,6 +257,7 @@ makeMainWindow (const char imageFile[],
     }
 
     Header header;
+    int zsize;
 
     //
     //pass 0 as partnum for the first load
@@ -257,8 +268,11 @@ makeMainWindow (const char imageFile[],
                preview,
                lx, ly,
                0,
+               zsize,
                header,
-               mainWindow->pixels);
+               mainWindow->pixels,
+               mainWindow->dataZ,
+               mainWindow->sampleCount);
 
     const Box2i &displayWindow = header.displayWindow();
     const Box2i &dataWindow = header.dataWindow();
@@ -427,7 +441,7 @@ makeMainWindow (const char imageFile[],
             try{
                 type = header.type();
             }
-            catch(Iex::BaseExc &e) {
+            catch(IEX_NAMESPACE::BaseExc &e) {
                 type = "";
             }
 
@@ -444,7 +458,7 @@ makeMainWindow (const char imageFile[],
             try{
                 name = header.name();
             }
-            catch(Iex::BaseExc &e) {
+            catch(IEX_NAMESPACE::BaseExc &e) {
                 name = "";
             }
 
@@ -567,6 +581,9 @@ makeMainWindow (const char imageFile[],
                                    w, h,
                                    "",
                                    mainWindow->pixels,
+                                   mainWindow->dataZ,
+                                   mainWindow->sampleCount,
+                                   zsize,
                                    dw, dh,
                                    dx, dy,
                                    mainWindow->rgbaBox,
@@ -696,6 +713,10 @@ usageMessage (const char argv0[], bool verbose = false)
     exit (1);
 }
 
+void window_callback(Fl_Widget*, void*)
+{
+    exit(0);
+}
 
 int
 main(int argc, char **argv)
@@ -950,6 +971,8 @@ main(int argc, char **argv)
 
         Fl::set_color (FL_GRAY,  240, 240, 240);
         Fl::set_color (FL_GRAY0, 80, 80, 80);
+
+        mainWindow->window->callback(window_callback); // set main window exit
 
         exitStatus = Fl::run();
     }

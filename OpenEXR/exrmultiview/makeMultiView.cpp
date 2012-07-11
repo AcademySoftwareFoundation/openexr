@@ -56,7 +56,7 @@
 
 #include "namespaceAlias.h"
 using namespace CustomImf;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 using namespace std;
 
 
@@ -90,7 +90,7 @@ makeMultiView (const vector <string> &viewNames,
 
 	if (hasMultiView (in.header()))
 	{
-	    THROW (Iex::NoImplExc,
+	    THROW (IEX_NAMESPACE::NoImplExc,
 		   "The image in file " << inFileNames[i] << " is already a "
 		   "multi-view image.  Cannot combine multiple multi-view "
 		   "images.");

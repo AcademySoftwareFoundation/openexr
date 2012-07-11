@@ -51,7 +51,7 @@
 
 #include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 using namespace std;
 
 namespace {

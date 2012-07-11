@@ -67,7 +67,7 @@
 // }
 //
 // namespace Imath {
-//     using namespace Imath_v2;
+//     using namespace IMATH_NAMESPACE_v2;
 // }
 //
 
@@ -110,23 +110,6 @@ namespace OPENEXR_IMF_NAMESPACE {
 
 #define OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER namespace OPENEXR_IMF_INTERNAL_NAMESPACE {
 #define OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT }
-
-//
-// Namespace aliases to handle different namespacing configurations in IlmBase
-// in the case of a custom public namespace
-//
-
-#include <IlmBaseConfig.h>
-#ifdef ILMBASE_NAMESPACE_CUSTOM
-
-#include <ImathNamespace.h>
-namespace Imath     = IMATH_NAMESPACE;
-#include <IexNamespace.h>
-namespace Iex       = IEX_NAMESPACE;
-#include <IlmThreadNamespace.h>
-namespace IlmThread = ILMTHREAD_NAMESPACE;
-
-#endif
 
 
 #endif /* INCLUDED_IMFNAMESPACE_H */

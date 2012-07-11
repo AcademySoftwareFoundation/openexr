@@ -46,7 +46,7 @@
 #include <assert.h>
 #include <algorithm>
 
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 using namespace std;
 #include "ImfNamespace.h"
 
@@ -356,7 +356,7 @@ reconstructChromaVert (int n,
 
 			 
 void
-YCAtoRGBA (const Imath::V3f &yw,
+YCAtoRGBA (const IMATH_NAMESPACE::V3f &yw,
 	   int n,
 	   const Rgba ycaIn[/*n*/],
 	   Rgba rgbaOut[/*n*/])
@@ -439,7 +439,7 @@ desaturate (const Rgba &in, float f, const V3f &yw, Rgba &out)
 
 			 
 void
-fixSaturation (const Imath::V3f &yw,
+fixSaturation (const IMATH_NAMESPACE::V3f &yw,
 	       int n,
 	       const Rgba * const rgbaIn[3],
 	       Rgba rgbaOut[/*n*/])

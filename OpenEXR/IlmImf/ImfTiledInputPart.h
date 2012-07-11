@@ -71,10 +71,10 @@ class TiledInputPart
         int                 levelHeight (int ly) const;
         int                 numXTiles (int lx = 0) const;
         int                 numYTiles (int ly = 0) const;
-        Imath::Box2i        dataWindowForLevel (int l = 0) const;
-        Imath::Box2i        dataWindowForLevel (int lx, int ly) const;
-        Imath::Box2i        dataWindowForTile (int dx, int dy, int l = 0) const;
-        Imath::Box2i        dataWindowForTile (int dx, int dy,
+        IMATH_NAMESPACE::Box2i        dataWindowForLevel (int l = 0) const;
+        IMATH_NAMESPACE::Box2i        dataWindowForLevel (int lx, int ly) const;
+        IMATH_NAMESPACE::Box2i        dataWindowForTile (int dx, int dy, int l = 0) const;
+        IMATH_NAMESPACE::Box2i        dataWindowForTile (int dx, int dy,
                                                int lx, int ly) const;
         void                readTile  (int dx, int dy, int l = 0);
         void                readTile  (int dx, int dy, int lx, int ly);

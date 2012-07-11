@@ -65,11 +65,11 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
-using Imath::Box2i;
-using Imath::divp;
-using Imath::modp;
-using IlmThread::Mutex;
-using IlmThread::Lock;
+using IMATH_NAMESPACE::Box2i;
+using IMATH_NAMESPACE::divp;
+using IMATH_NAMESPACE::modp;
+using ILMTHREAD_NAMESPACE::Mutex;
+using ILMTHREAD_NAMESPACE::Lock;
 
 
 //
@@ -187,7 +187,7 @@ InputFile::Data::deleteCachedBuffer()
 		delete [] (((float *)s.base) + offset);
 		break;
               case NUM_PIXELTYPES :
-                  throw(Iex::ArgExc("Invalid pixel type"));
+                  throw(IEX_NAMESPACE::ArgExc("Invalid pixel type"));
 	    }                
 	}
 
@@ -218,7 +218,7 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
 
     if (minY < ifd->minY || maxY >  ifd->maxY)
     {
-        throw Iex::ArgExc ("Tried to read scan line outside "
+        throw IEX_NAMESPACE::ArgExc ("Tried to read scan line outside "
 			   "the image file's data window.");
     }
 
@@ -371,7 +371,7 @@ InputFile::InputFile (const char fileName[], int numThreads):
             initialize();
         }
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         if (is)          delete is;
         if (_data && _data->_streamData) delete _data->_streamData;
@@ -418,7 +418,7 @@ InputFile::InputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThread
             initialize();
         }
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         if (_data && _data->_streamData) delete _data->_streamData;
         if (_data)       delete _data;
@@ -697,7 +697,7 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 
 		  default:
 
-		    throw Iex::ArgExc ("Unknown pixel data type.");
+		    throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
 		}
 	    }
 
@@ -782,19 +782,19 @@ InputFile::rawPixelData (int firstScanLine,
     {
         if (_data->dsFile)
         {
-            throw Iex::ArgExc ("Tried to read a raw scanline "
+            throw IEX_NAMESPACE::ArgExc ("Tried to read a raw scanline "
             "from a deep image.");
         }
         
 	else if (_data->isTiled)
 	{
-	    throw Iex::ArgExc ("Tried to read a raw scanline "
+	    throw IEX_NAMESPACE::ArgExc ("Tried to read a raw scanline "
 			       "from a tiled image.");
 	}
         
         _data->sFile->rawPixelData (firstScanLine, pixelData, pixelDataSize);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
 	REPLACE_EXC (e, "Error reading pixel data from image "
 		        "file \"" << fileName() << "\". " << e);
@@ -813,13 +813,13 @@ InputFile::rawTileData (int &dx, int &dy,
     {
 	if (!_data->isTiled)
 	{
-	    throw Iex::ArgExc ("Tried to read a raw tile "
+	    throw IEX_NAMESPACE::ArgExc ("Tried to read a raw tile "
 			       "from a scanline-based image.");
 	}
         
         _data->tFile->rawTileData (dx, dy, lx, ly, pixelData, pixelDataSize);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
 	REPLACE_EXC (e, "Error reading tile data from image "
 		        "file \"" << fileName() << "\". " << e);
@@ -833,7 +833,7 @@ InputFile::tFile()
 {
     if (!_data->isTiled)
     {
-	throw Iex::ArgExc ("Cannot get a TiledInputFile pointer "
+	throw IEX_NAMESPACE::ArgExc ("Cannot get a TiledInputFile pointer "
 			   "from an InputFile that is not tiled.");
     }
 

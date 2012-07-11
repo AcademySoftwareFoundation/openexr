@@ -194,8 +194,8 @@ scaleY (float f,
 void
 normalizePixels (int dw, int dh, Array<Rgba> &pixels)
 {
-    float pMax = -Imath::limits<float>::max ();
-    float pMin =  Imath::limits<float>::max ();
+    float pMax = -IMATH_NAMESPACE::limits<float>::max ();
+    float pMin =  IMATH_NAMESPACE::limits<float>::max ();
 
     for (int i = 0; i < dw * dh; ++i)
     {

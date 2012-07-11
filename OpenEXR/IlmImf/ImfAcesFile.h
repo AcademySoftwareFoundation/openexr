@@ -136,11 +136,11 @@ class AcesOutputFile
     //----------------------------------------------------------------
 
     AcesOutputFile (const std::string &name,
-		    const Imath::Box2i &displayWindow,
-		    const Imath::Box2i &dataWindow = Imath::Box2i(),
+		    const IMATH_NAMESPACE::Box2i &displayWindow,
+		    const IMATH_NAMESPACE::Box2i &dataWindow = IMATH_NAMESPACE::Box2i(),
 		    RgbaChannels rgbaChannels = WRITE_RGBA,
 		    float pixelAspectRatio = 1,
-		    const Imath::V2f screenWindowCenter = Imath::V2f (0, 0),
+		    const IMATH_NAMESPACE::V2f screenWindowCenter = IMATH_NAMESPACE::V2f (0, 0),
 		    float screenWindowWidth = 1,
 		    LineOrder lineOrder = INCREASING_Y,
 		    Compression compression = PIZ_COMPRESSION,
@@ -158,7 +158,7 @@ class AcesOutputFile
 		    int height,
 		    RgbaChannels rgbaChannels = WRITE_RGBA,
 		    float pixelAspectRatio = 1,
-		    const Imath::V2f screenWindowCenter = Imath::V2f (0, 0),
+		    const IMATH_NAMESPACE::V2f screenWindowCenter = IMATH_NAMESPACE::V2f (0, 0),
 		    float screenWindowWidth = 1,
 		    LineOrder lineOrder = INCREASING_Y,
 		    Compression compression = PIZ_COMPRESSION,
@@ -199,10 +199,10 @@ class AcesOutputFile
     //--------------------------
 
     const Header &		header () const;
-    const Imath::Box2i &	displayWindow () const;
-    const Imath::Box2i &	dataWindow () const;
+    const IMATH_NAMESPACE::Box2i &	displayWindow () const;
+    const IMATH_NAMESPACE::Box2i &	dataWindow () const;
     float			pixelAspectRatio () const;
-    const Imath::V2f		screenWindowCenter () const;
+    const IMATH_NAMESPACE::V2f		screenWindowCenter () const;
     float			screenWindowWidth () const;
     LineOrder			lineOrder () const;
     Compression			compression () const;
@@ -289,10 +289,10 @@ class AcesInputFile
     //--------------------------
 
     const Header &		header () const;
-    const Imath::Box2i &	displayWindow () const;
-    const Imath::Box2i &	dataWindow () const;
+    const IMATH_NAMESPACE::Box2i &	displayWindow () const;
+    const IMATH_NAMESPACE::Box2i &	dataWindow () const;
     float			pixelAspectRatio () const;
-    const Imath::V2f		screenWindowCenter () const;
+    const IMATH_NAMESPACE::V2f		screenWindowCenter () const;
     float			screenWindowWidth () const;
     LineOrder			lineOrder () const;
     Compression			compression () const;

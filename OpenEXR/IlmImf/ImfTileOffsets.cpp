@@ -94,7 +94,7 @@ TileOffsets::TileOffsets (LevelMode mode,
         }
         break;
       case NUM_LEVELMODES :
-          throw Iex::ArgExc("Bad initialisation of TileOffsets object");
+          throw IEX_NAMESPACE::ArgExc("Bad initialisation of TileOffsets object");
     }
 }
 
@@ -249,7 +249,7 @@ TileOffsets::readFrom (std::vector<Int64> chunkOffsets,bool &complete)
             totalSize += _offsets[l][dy].size();
 
     if (chunkOffsets.size() != totalSize)
-        throw Iex::ArgExc ("Wrong offset count, not able to read from this array");
+        throw IEX_NAMESPACE::ArgExc ("Wrong offset count, not able to read from this array");
 
 
 
@@ -279,7 +279,7 @@ TileOffsets::writeTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os) const
     Int64 pos = os.tellp();
 
     if (pos == -1)
-	Iex::throwErrnoExc ("Cannot determine current file position (%T).");
+	IEX_NAMESPACE::throwErrnoExc ("Cannot determine current file position (%T).");
 
     for (unsigned int l = 0; l < _offsets.size(); ++l)
 	for (unsigned int dy = 0; dy < _offsets[l].size(); ++dy)
@@ -388,7 +388,7 @@ void TileOffsets::getTileOrder(int dx_table[],int dy_table[],int lx_table[],int 
             break;
         }
         case NUM_LEVELMODES :
-            throw Iex::LogicExc("Bad level mode getting tile order");
+            throw IEX_NAMESPACE::LogicExc("Bad level mode getting tile order");
     }
     
     
@@ -490,7 +490,7 @@ TileOffsets::operator () (int dx, int dy, int lx, int ly)
 
       default:
 
-        throw Iex::ArgExc ("Unknown LevelMode format.");
+        throw IEX_NAMESPACE::ArgExc ("Unknown LevelMode format.");
     }
 }
 
@@ -530,7 +530,7 @@ TileOffsets::operator () (int dx, int dy, int lx, int ly) const
 
       default:
 
-        throw Iex::ArgExc ("Unknown LevelMode format.");
+        throw IEX_NAMESPACE::ArgExc ("Unknown LevelMode format.");
     }
 }
 

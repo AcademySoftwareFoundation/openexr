@@ -74,7 +74,7 @@ class Header
     Header (int width = 64,
 	    int height = 64,
 	    float pixelAspectRatio = 1,
-	    const Imath::V2f &screenWindowCenter = Imath::V2f (0, 0),
+	    const IMATH_NAMESPACE::V2f &screenWindowCenter = IMATH_NAMESPACE::V2f (0, 0),
 	    float screenWindowWidth = 1,
 	    LineOrder lineOrder = INCREASING_Y,
 	    Compression = ZIP_COMPRESSION);
@@ -87,9 +87,9 @@ class Header
 
     Header (int width,
 	    int height,
-	    const Imath::Box2i &dataWindow,
+	    const IMATH_NAMESPACE::Box2i &dataWindow,
 	    float pixelAspectRatio = 1,
-	    const Imath::V2f &screenWindowCenter = Imath::V2f (0, 0),
+	    const IMATH_NAMESPACE::V2f &screenWindowCenter = IMATH_NAMESPACE::V2f (0, 0),
 	    float screenWindowWidth = 1,
 	    LineOrder lineOrder = INCREASING_Y,
 	    Compression = ZIP_COMPRESSION);
@@ -100,10 +100,10 @@ class Header
     // both specified explicitly.
     //----------------------------------------------------------
 
-    Header (const Imath::Box2i &displayWindow,
-	    const Imath::Box2i &dataWindow,
+    Header (const IMATH_NAMESPACE::Box2i &displayWindow,
+	    const IMATH_NAMESPACE::Box2i &dataWindow,
 	    float pixelAspectRatio = 1,
-	    const Imath::V2f &screenWindowCenter = Imath::V2f (0, 0),
+	    const IMATH_NAMESPACE::V2f &screenWindowCenter = IMATH_NAMESPACE::V2f (0, 0),
 	    float screenWindowWidth = 1,
 	    LineOrder lineOrder = INCREASING_Y,
 	    Compression = ZIP_COMPRESSION);
@@ -143,7 +143,7 @@ class Header
     //			is copied into this attribute.
     //
     //			If an attribute with name n exists, and its
-    //			type is different from attr, an Iex::TypeExc
+    //			type is different from attr, an IEX_NAMESPACE::TypeExc
     //			is thrown.
     //
     //---------------------------------------------------------------
@@ -174,14 +174,14 @@ class Header
     //
     // [n]			Returns a reference to the attribute
     //				with name n.  If no attribute with
-    //				name n exists, an Iex::ArgExc is thrown.
+    //				name n exists, an IEX_NAMESPACE::ArgExc is thrown.
     //
     // typedAttribute<T>(n)	Returns a reference to the attribute
     //				with name n and type T.  If no attribute
-    //				with name n exists, an Iex::ArgExc is
+    //				with name n exists, an IEX_NAMESPACE::ArgExc is
     //				thrown.  If an attribute with name n
     //				exists, but its type is not T, an
-    //				Iex::TypeExc is thrown.
+    //				IEX_NAMESPACE::TypeExc is thrown.
     //
     // findTypedAttribute<T>(n)	Returns a pointer to the attribute with
     //				name n and type T, or 0 if no attribute
@@ -234,17 +234,17 @@ class Header
     // Access to predefined attributes
     //--------------------------------
 
-    Imath::Box2i &		displayWindow ();
-    const Imath::Box2i &	displayWindow () const;
+    IMATH_NAMESPACE::Box2i &		displayWindow ();
+    const IMATH_NAMESPACE::Box2i &	displayWindow () const;
 
-    Imath::Box2i &		dataWindow ();
-    const Imath::Box2i &	dataWindow () const;
+    IMATH_NAMESPACE::Box2i &		dataWindow ();
+    const IMATH_NAMESPACE::Box2i &	dataWindow () const;
 
     float &			pixelAspectRatio ();
     const float &		pixelAspectRatio () const;
 
-    Imath::V2f &		screenWindowCenter ();
-    const Imath::V2f &		screenWindowCenter () const;
+    IMATH_NAMESPACE::V2f &		screenWindowCenter ();
+    const IMATH_NAMESPACE::V2f &		screenWindowCenter () const;
 
     float &			screenWindowWidth ();
     const float &		screenWindowWidth () const;
@@ -620,7 +620,7 @@ Header::typedAttribute (const char name[])
     T *tattr = dynamic_cast <T*> (attr);
 
     if (tattr == 0)
-	throw Iex::TypeExc ("Unexpected attribute type.");
+	throw IEX_NAMESPACE::TypeExc ("Unexpected attribute type.");
 
     return *tattr;
 }
@@ -634,7 +634,7 @@ Header::typedAttribute (const char name[]) const
     const T *tattr = dynamic_cast <const T*> (attr);
 
     if (tattr == 0)
-	throw Iex::TypeExc ("Unexpected attribute type.");
+	throw IEX_NAMESPACE::TypeExc ("Unexpected attribute type.");
 
     return *tattr;
 }

@@ -44,8 +44,8 @@
 #include <Iex.h>
 
 using namespace std;
-using namespace Imath;
-using namespace Iex;
+using namespace IMATH_NAMESPACE;
+using namespace IEX_NAMESPACE;
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -160,11 +160,11 @@ AcesOutputFile::AcesOutputFile
 
 AcesOutputFile::AcesOutputFile
     (const std::string &name,
-     const Imath::Box2i &displayWindow,
-     const Imath::Box2i &dataWindow,
+     const IMATH_NAMESPACE::Box2i &displayWindow,
+     const IMATH_NAMESPACE::Box2i &dataWindow,
      RgbaChannels rgbaChannels,
      float pixelAspectRatio,
-     const Imath::V2f screenWindowCenter,
+     const IMATH_NAMESPACE::V2f screenWindowCenter,
      float screenWindowWidth,
      LineOrder lineOrder,
      Compression compression,
@@ -200,7 +200,7 @@ AcesOutputFile::AcesOutputFile
      int height,
      RgbaChannels rgbaChannels,
      float pixelAspectRatio,
-     const Imath::V2f screenWindowCenter,
+     const IMATH_NAMESPACE::V2f screenWindowCenter,
      float screenWindowWidth,
      LineOrder lineOrder,
      Compression compression,
@@ -267,14 +267,14 @@ AcesOutputFile::header () const
 }
 
 
-const Imath::Box2i &
+const IMATH_NAMESPACE::Box2i &
 AcesOutputFile::displayWindow () const
 {
     return _data->rgbaFile->displayWindow();
 }
 
 
-const Imath::Box2i &
+const IMATH_NAMESPACE::Box2i &
 AcesOutputFile::dataWindow () const
 {
     return _data->rgbaFile->dataWindow();
@@ -288,7 +288,7 @@ AcesOutputFile::pixelAspectRatio () const
 }
 
 
-const Imath::V2f
+const IMATH_NAMESPACE::V2f
 AcesOutputFile::screenWindowCenter () const
 {
     return _data->rgbaFile->screenWindowCenter();
@@ -553,14 +553,14 @@ AcesInputFile::header () const
 }
 
 
-const Imath::Box2i &
+const IMATH_NAMESPACE::Box2i &
 AcesInputFile::displayWindow () const
 {
     return _data->rgbaFile->displayWindow();
 }
 
 
-const Imath::Box2i &
+const IMATH_NAMESPACE::Box2i &
 AcesInputFile::dataWindow () const
 {
     return _data->rgbaFile->dataWindow();
@@ -574,7 +574,7 @@ AcesInputFile::pixelAspectRatio () const
 }
 
 
-const Imath::V2f
+const IMATH_NAMESPACE::V2f
 AcesInputFile::screenWindowCenter () const
 {
     return _data->rgbaFile->screenWindowCenter();

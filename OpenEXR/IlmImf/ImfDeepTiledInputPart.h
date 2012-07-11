@@ -155,7 +155,7 @@ class DeepTiledInputPart
     //      return value is the same as for numXLevels()
     //
     //  if levelMode() == RIPMAP_LEVELS:
-    //      an Iex::LogicExc exception is thrown
+    //      an IEX_NAMESPACE::LogicExc exception is thrown
     //
     // isValidLevel(lx, ly) returns true if the file contains
     // a level with level number (lx, ly), false if not.
@@ -233,8 +233,8 @@ class DeepTiledInputPart
     //
     //---------------------------------------------------------------
 
-    Imath::Box2i        dataWindowForLevel (int l = 0) const;
-    Imath::Box2i        dataWindowForLevel (int lx, int ly) const;
+    IMATH_NAMESPACE::Box2i        dataWindowForLevel (int l = 0) const;
+    IMATH_NAMESPACE::Box2i        dataWindowForLevel (int lx, int ly) const;
 
 
     //-------------------------------------------------------------------
@@ -258,9 +258,9 @@ class DeepTiledInputPart
     //
     //-------------------------------------------------------------------
 
-    Imath::Box2i        dataWindowForTile (int dx, int dy, int l = 0) const;
+    IMATH_NAMESPACE::Box2i        dataWindowForTile (int dx, int dy, int l = 0) const;
 
-    Imath::Box2i        dataWindowForTile (int dx, int dy,
+    IMATH_NAMESPACE::Box2i        dataWindowForTile (int dx, int dy,
                                          int lx, int ly) const;
 
     //------------------------------------------------------------

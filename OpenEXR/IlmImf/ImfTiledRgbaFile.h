@@ -119,12 +119,12 @@ class TiledRgbaOutputFile
 			 int tileYSize,
 			 LevelMode mode,
 			 LevelRoundingMode rmode,
-			 const Imath::Box2i &displayWindow,
-			 const Imath::Box2i &dataWindow = Imath::Box2i(),
+			 const IMATH_NAMESPACE::Box2i &displayWindow,
+			 const IMATH_NAMESPACE::Box2i &dataWindow = IMATH_NAMESPACE::Box2i(),
 			 RgbaChannels rgbaChannels = WRITE_RGBA,
 			 float pixelAspectRatio = 1,
-			 const Imath::V2f screenWindowCenter =
-						    Imath::V2f (0, 0),
+			 const IMATH_NAMESPACE::V2f screenWindowCenter =
+						    IMATH_NAMESPACE::V2f (0, 0),
 			 float screenWindowWidth = 1,
 			 LineOrder lineOrder = INCREASING_Y,
 			 Compression compression = ZIP_COMPRESSION,
@@ -146,8 +146,8 @@ class TiledRgbaOutputFile
 			 LevelRoundingMode rmode = ROUND_DOWN,
 			 RgbaChannels rgbaChannels = WRITE_RGBA,
 			 float pixelAspectRatio = 1,
-			 const Imath::V2f screenWindowCenter =
-						    Imath::V2f (0, 0),
+			 const IMATH_NAMESPACE::V2f screenWindowCenter =
+						    IMATH_NAMESPACE::V2f (0, 0),
 			 float screenWindowWidth = 1,
 			 LineOrder lineOrder = INCREASING_Y,
 			 Compression compression = ZIP_COMPRESSION,
@@ -175,10 +175,10 @@ class TiledRgbaOutputFile
 
     const Header &		header () const;
     const FrameBuffer &		frameBuffer () const;
-    const Imath::Box2i &	displayWindow () const;
-    const Imath::Box2i &	dataWindow () const;
+    const IMATH_NAMESPACE::Box2i &	displayWindow () const;
+    const IMATH_NAMESPACE::Box2i &	dataWindow () const;
     float			pixelAspectRatio () const;
-    const Imath::V2f		screenWindowCenter () const;
+    const IMATH_NAMESPACE::V2f		screenWindowCenter () const;
     float			screenWindowWidth () const;
     LineOrder			lineOrder () const;
     Compression			compression () const;
@@ -205,13 +205,13 @@ class TiledRgbaOutputFile
     int			numXTiles (int lx = 0) const;
     int			numYTiles (int ly = 0) const;
 
-    Imath::Box2i	dataWindowForLevel (int l = 0) const;
-    Imath::Box2i	dataWindowForLevel (int lx, int ly) const;
+    IMATH_NAMESPACE::Box2i	dataWindowForLevel (int l = 0) const;
+    IMATH_NAMESPACE::Box2i	dataWindowForLevel (int lx, int ly) const;
 
-    Imath::Box2i	dataWindowForTile (int dx, int dy,
+    IMATH_NAMESPACE::Box2i	dataWindowForTile (int dx, int dy,
 					   int l = 0) const;
 
-    Imath::Box2i	dataWindowForTile (int dx, int dy,
+    IMATH_NAMESPACE::Box2i	dataWindowForTile (int dx, int dy,
 					   int lx, int ly) const;
 
     //------------------------------------------------------------------
@@ -372,10 +372,10 @@ class TiledRgbaInputFile
 
     const Header &		header () const;
     const FrameBuffer &		frameBuffer () const;
-    const Imath::Box2i &	displayWindow () const;
-    const Imath::Box2i &	dataWindow () const;
+    const IMATH_NAMESPACE::Box2i &	displayWindow () const;
+    const IMATH_NAMESPACE::Box2i &	dataWindow () const;
     float			pixelAspectRatio () const;
-    const Imath::V2f		screenWindowCenter () const;
+    const IMATH_NAMESPACE::V2f		screenWindowCenter () const;
     float			screenWindowWidth () const;
     LineOrder			lineOrder () const;
     Compression			compression () const;
@@ -410,13 +410,13 @@ class TiledRgbaInputFile
     int			numXTiles (int lx = 0) const;
     int			numYTiles (int ly = 0) const;
 
-    Imath::Box2i	dataWindowForLevel (int l = 0) const;
-    Imath::Box2i	dataWindowForLevel (int lx, int ly) const;
+    IMATH_NAMESPACE::Box2i	dataWindowForLevel (int l = 0) const;
+    IMATH_NAMESPACE::Box2i	dataWindowForLevel (int lx, int ly) const;
 
-    Imath::Box2i	dataWindowForTile (int dx, int dy,
+    IMATH_NAMESPACE::Box2i	dataWindowForTile (int dx, int dy,
 					   int l = 0) const;
 
-    Imath::Box2i	dataWindowForTile (int dx, int dy,
+    IMATH_NAMESPACE::Box2i	dataWindowForTile (int dx, int dy,
 					   int lx, int ly) const;
 					   
 

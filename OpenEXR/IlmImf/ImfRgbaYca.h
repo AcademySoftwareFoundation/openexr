@@ -136,7 +136,7 @@ static const int N2 = N / 2;
 // factors for computing a pixels's luminance, Y, from R, G and B
 // 
 
-Imath::V3f computeYw (const Chromaticities &cr);
+IMATH_NAMESPACE::V3f computeYw (const Chromaticities &cr);
 
 
 //
@@ -150,7 +150,7 @@ Imath::V3f computeYw (const Chromaticities &cr);
 // yw is a set of RGB-to-Y weighting factors, as computed by computeYw().
 //
 
-void RGBAtoYCA (const Imath::V3f &yw,
+void RGBAtoYCA (const IMATH_NAMESPACE::V3f &yw,
 		int n,
 	        bool aIsValid,
 		const Rgba rgbaIn[/*n*/],
@@ -217,7 +217,7 @@ void reconstructChromaVert (int n,
 // yw is a set of RGB-to-Y weighting factors, as computed by computeYw().
 //
 
-void YCAtoRGBA (const Imath::V3f &yw,
+void YCAtoRGBA (const IMATH_NAMESPACE::V3f &yw,
 		int n,
 		const Rgba ycaIn[/*n*/],
 		Rgba rgbaOut[/*n*/]);
@@ -239,7 +239,7 @@ void YCAtoRGBA (const Imath::V3f &yw,
 // saturation of rgbaIn[1], and stores the result in rgbaOut.
 //
 
-void fixSaturation (const Imath::V3f &yw,
+void fixSaturation (const IMATH_NAMESPACE::V3f &yw,
 		    int n,
 		    const Rgba * const rgbaIn[3],
 		    Rgba rgbaOut[/*n*/]);

@@ -123,7 +123,7 @@ void copy_tiledimage(MultiPartInputFile & input,MultiPartOutputFile & output,int
     {
       int actual_y_level = t.mode==RIPMAP_LEVELS ? y_level : x_level;
       
-      Imath::Box2i dw=  in.dataWindowForLevel(x_level,actual_y_level);
+      IMATH_NAMESPACE::Box2i dw=  in.dataWindowForLevel(x_level,actual_y_level);
       int width = dw.max.x-dw.min.x+1;
       int height = dw.max.y-dw.min.y+1;
    

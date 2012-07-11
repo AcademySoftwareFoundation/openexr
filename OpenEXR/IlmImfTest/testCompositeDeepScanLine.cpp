@@ -88,7 +88,7 @@ using OPENEXR_IMF_NAMESPACE::UINT;
 using OPENEXR_IMF_NAMESPACE::Slice;
 using OPENEXR_IMF_NAMESPACE::DeepSlice;
 using OPENEXR_IMF_NAMESPACE::MultiPartOutputFile;
-using Imath::Box2i;
+using IMATH_NAMESPACE::Box2i;
 using OPENEXR_IMF_NAMESPACE::DEEPSCANLINE;
 using OPENEXR_IMF_NAMESPACE::ZIPS_COMPRESSION;
 using OPENEXR_IMF_NAMESPACE::InputFile;
@@ -151,11 +151,11 @@ template<class T> class data{
     {
         if(_current_sample.size()!=0)
         {
-            throw Iex::ArgExc("bug in test code: can't switch to inserting result: values written without 'end' statement");
+            throw IEX_NAMESPACE::ArgExc("bug in test code: can't switch to inserting result: values written without 'end' statement");
         }
         if(_current_result.size()!=0)
         {
-            throw Iex::ArgExc("bug in test suite: already inserting result");
+            throw IEX_NAMESPACE::ArgExc("bug in test suite: already inserting result");
         }
         _inserting_result=true;
         return *this;
@@ -169,7 +169,7 @@ template<class T> class data{
         {
             if(_current_result.size()!=_channels.size())
             {
-                throw Iex::ArgExc("bug in test suite: cannot end result: wrong number of values written");
+                throw IEX_NAMESPACE::ArgExc("bug in test suite: cannot end result: wrong number of values written");
             }
             _results.push_back(_current_result);
             _current_result.resize(0);
@@ -185,7 +185,7 @@ template<class T> class data{
         {
             if(_current_sample.size()!=_channels.size())
             {
-                throw Iex::ArgExc("bug in test suite: cannot end sample: wrong number of values written");
+                throw IEX_NAMESPACE::ArgExc("bug in test suite: cannot end sample: wrong number of values written");
             }
             _current_pixel.push_back(_current_sample);
             _current_sample.resize(0);
@@ -199,7 +199,7 @@ template<class T> class data{
     {
         if(_started)
         {
-            throw Iex::ArgExc("bug in test suite: cannot insert new channels here");
+            throw IEX_NAMESPACE::ArgExc("bug in test suite: cannot insert new channels here");
         }
         _channels.push_back(s);
         return *this;

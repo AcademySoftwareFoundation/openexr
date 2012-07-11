@@ -47,10 +47,10 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
    
-Chromaticities::Chromaticities (const Imath::V2f &red,
-				const Imath::V2f &green,
-				const Imath::V2f &blue,
-				const Imath::V2f &white)
+Chromaticities::Chromaticities (const IMATH_NAMESPACE::V2f &red,
+				const IMATH_NAMESPACE::V2f &green,
+				const IMATH_NAMESPACE::V2f &blue,
+				const IMATH_NAMESPACE::V2f &white)
 :
     red (red),
     green (green),
@@ -75,7 +75,7 @@ Chromaticities::operator != (const Chromaticities & c) const
 }
     
     
-Imath::M44f
+IMATH_NAMESPACE::M44f
 RGBtoXYZ (const Chromaticities chroma, float Y)
 {
     //
@@ -123,7 +123,7 @@ RGBtoXYZ (const Chromaticities chroma, float Y)
     // Assemble the matrix
     //
 
-    Imath::M44f M;
+    IMATH_NAMESPACE::M44f M;
 
     M[0][0] = Sr * chroma.red.x;
     M[0][1] = Sr * chroma.red.y;
@@ -141,7 +141,7 @@ RGBtoXYZ (const Chromaticities chroma, float Y)
 }
 
 
-Imath::M44f
+IMATH_NAMESPACE::M44f
 XYZtoRGB (const Chromaticities chroma, float Y)
 {
     return RGBtoXYZ (chroma, Y).inverse();

@@ -59,14 +59,14 @@
 
 
 
-using Imath::Box2i;
-using Imath::Box2f;
-using Imath::V2i;
-using Imath::V2f;
-using Imath::V3i;
-using Imath::V3f;
-using Imath::M33f;
-using Imath::M44f;
+using IMATH_NAMESPACE::Box2i;
+using IMATH_NAMESPACE::Box2f;
+using IMATH_NAMESPACE::V2i;
+using IMATH_NAMESPACE::V2f;
+using IMATH_NAMESPACE::V3i;
+using IMATH_NAMESPACE::V3f;
+using IMATH_NAMESPACE::M33f;
+using IMATH_NAMESPACE::M44f;
 
 
 namespace {

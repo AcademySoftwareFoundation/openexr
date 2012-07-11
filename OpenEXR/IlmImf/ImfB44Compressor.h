@@ -72,7 +72,7 @@ class B44Compressor: public Compressor
                   
     virtual int		compressTile (const char *inPtr,
 				      int inSize,
-				      Imath::Box2i range,
+				      IMATH_NAMESPACE::Box2i range,
 				      const char *&outPtr);
 
     virtual int		uncompress (const char *inPtr,
@@ -82,7 +82,7 @@ class B44Compressor: public Compressor
                     
     virtual int		uncompressTile (const char *inPtr,
 					int inSize,
-					Imath::Box2i range,
+					IMATH_NAMESPACE::Box2i range,
 					const char *&outPtr);
   private:
 
@@ -90,12 +90,12 @@ class B44Compressor: public Compressor
     
     int			compress (const char *inPtr,
 				  int inSize,
-				  Imath::Box2i range,
+				  IMATH_NAMESPACE::Box2i range,
 				  const char *&outPtr);
  
     int			uncompress (const char *inPtr,
 				    int inSize,
-				    Imath::Box2i range,
+				    IMATH_NAMESPACE::Box2i range,
 				    const char *&outPtr);
 
     int			_maxScanLineSize;

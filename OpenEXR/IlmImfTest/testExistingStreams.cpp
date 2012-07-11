@@ -48,7 +48,7 @@
 #include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 namespace {
 
@@ -165,7 +165,7 @@ bool
 MMIFStream::read (char c[/*n*/], int n)
 {
     if ((_pos < 0 || _pos >= _length) && n != 0)
-	throw Iex::InputExc ("Unexpected end of file.");
+	throw IEX_NAMESPACE::InputExc ("Unexpected end of file.");
         
     Int64 n2 = n;
     bool retVal = true;
@@ -186,10 +186,10 @@ char*
 MMIFStream::readMemoryMapped (int n)
 {
     if (_pos < 0 || _pos >= _length)
-	throw Iex::InputExc ("Unexpected end of file.");
+	throw IEX_NAMESPACE::InputExc ("Unexpected end of file.");
        
     if (_pos + n > _length)
-        throw Iex::InputExc ("Reading past end of file.");    
+        throw IEX_NAMESPACE::InputExc ("Reading past end of file.");    
 
     char* retVal = &(_buffer[_pos]);
     _pos += n;

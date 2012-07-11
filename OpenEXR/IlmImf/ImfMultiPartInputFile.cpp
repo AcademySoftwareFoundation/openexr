@@ -60,9 +60,9 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using IlmThread::Mutex;
-using IlmThread::Lock;
-using Imath::Box2i;
+using ILMTHREAD_NAMESPACE::Mutex;
+using ILMTHREAD_NAMESPACE::Lock;
+using IMATH_NAMESPACE::Box2i;
 
 using std::vector;
 using std::map;
@@ -139,7 +139,7 @@ MultiPartInputFile::MultiPartInputFile(const char fileName[],
         _data->is = new StdIFStream (fileName);
         initialize();
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         delete _data;
 
@@ -164,7 +164,7 @@ MultiPartInputFile::MultiPartInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream&
         _data->is = &is;
         initialize();
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         delete _data;
 
@@ -320,7 +320,7 @@ MultiPartInputFile::initialize()
     //
 
     if (tiled && multipart)
-        throw Iex::InputExc ("Multipart files cannot have the tiled bit set");
+        throw IEX_NAMESPACE::InputExc ("Multipart files cannot have the tiled bit set");
 
     
     int pos = 0;
@@ -359,7 +359,7 @@ MultiPartInputFile::initialize()
         {
             if(multipart)
 
-                throw Iex::ArgExc ("Every header in a multipart file should have a type");
+                throw IEX_NAMESPACE::ArgExc ("Every header in a multipart file should have a type");
           
             _data->_headers[i].setType(tiled ? TILEDIMAGE : SCANLINEIMAGE);
         }
@@ -367,7 +367,7 @@ MultiPartInputFile::initialize()
         if( _data->_headers[i].hasName() == false )
         {
             if(multipart)
-                throw Iex::ArgExc ("Every header in a multipart file should have a name");
+                throw IEX_NAMESPACE::ArgExc ("Every header in a multipart file should have a name");
         }
         
         if (isTiled(_data->_headers[i].type()))
@@ -388,7 +388,7 @@ MultiPartInputFile::initialize()
         
             if (names.find(_data->_headers[i].name()) != names.end())
             {
-                throw Iex::InputExc ("Header name " + _data->_headers[i].name() +
+                throw IEX_NAMESPACE::InputExc ("Header name " + _data->_headers[i].name() +
                                    " is not a unique name.");
             }
             names.insert(_data->_headers[i].name());
@@ -409,7 +409,7 @@ MultiPartInputFile::initialize()
                 string attrNames;
                 for (size_t j=0; j<attrs.size(); j++)
                     attrNames += " " + attrs[j];
-                throw Iex::InputExc ("Header name " + _data->_headers[i].name() +
+                throw IEX_NAMESPACE::InputExc ("Header name " + _data->_headers[i].name() +
                                      " has non-conforming shared attributes: "+
                                      attrNames);
             }
@@ -491,11 +491,11 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
         //
         if(!header.hasType() && (isMultiPart(version) || isNonImage(version)))
         {
-            throw Iex::ArgExc("cannot reconstruct incomplete file: part with missing type");
+            throw IEX_NAMESPACE::ArgExc("cannot reconstruct incomplete file: part with missing type");
         }
         if(!isSupportedType(header.type()))
         {
-            throw Iex::ArgExc("cannot reconstruct incomplete file: part with unknown type "+header.type());
+            throw IEX_NAMESPACE::ArgExc("cannot reconstruct incomplete file: part with unknown type "+header.type());
         }
     }
     
@@ -536,7 +536,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                     rowsizes[i]=1;
                     break;
                 default :
-                    throw(Iex::ArgExc("Unknown compression method in chunk offset reconstruction"));
+                    throw(IEX_NAMESPACE::ArgExc("Unknown compression method in chunk offset reconstruction"));
             }
         }
      }
@@ -714,7 +714,7 @@ InputPartData*
 MultiPartInputFile::Data::getPart(int partNumber)
 {
     if (partNumber < 0 || partNumber >= (int) parts.size())
-        throw Iex::ArgExc ("Part number is not in valid range.");
+        throw IEX_NAMESPACE::ArgExc ("Part number is not in valid range.");
     return parts[partNumber];
 }
 

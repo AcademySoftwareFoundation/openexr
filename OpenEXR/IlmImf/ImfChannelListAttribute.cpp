@@ -56,7 +56,7 @@ void checkIsNullTerminated (const char (&str)[N], const char *what)
     std::stringstream s;
     s << "Invalid " << what << ": it is more than " << (N - 1) 
       << " characters long.";
-    throw Iex::InputExc(s);
+    throw IEX_NAMESPACE::InputExc(s);
 }
 
 } // namespace

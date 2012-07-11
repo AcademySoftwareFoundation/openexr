@@ -76,8 +76,8 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using Imath::Box2i;
-using Imath::V2i;
+using IMATH_NAMESPACE::Box2i;
+using IMATH_NAMESPACE::V2i;
 using std::string;
 using std::vector;
 using std::ofstream;
@@ -85,12 +85,12 @@ using std::map;
 using std::min;
 using std::max;
 using std::swap;
-using IlmThread::Mutex;
-using IlmThread::Lock;
-using IlmThread::Semaphore;
-using IlmThread::Task;
-using IlmThread::TaskGroup;
-using IlmThread::ThreadPool;
+using ILMTHREAD_NAMESPACE::Mutex;
+using ILMTHREAD_NAMESPACE::Lock;
+using ILMTHREAD_NAMESPACE::Semaphore;
+using ILMTHREAD_NAMESPACE::Task;
+using ILMTHREAD_NAMESPACE::TaskGroup;
+using ILMTHREAD_NAMESPACE::ThreadPool;
 
 namespace {
 
@@ -427,7 +427,7 @@ DeepTiledOutputFile::Data::nextTileCoord (const TileCoord &a)
                     }
                     break;
                   case NUM_LEVELMODES :
-                      throw Iex::LogicExc("unknown level mode computing nextTileCoord");
+                      throw IEX_NAMESPACE::LogicExc("unknown level mode computing nextTileCoord");
                 }
             }
         }
@@ -471,7 +471,7 @@ DeepTiledOutputFile::Data::nextTileCoord (const TileCoord &a)
                     }
                     break;
                   case NUM_LEVELMODES :
-                      throw Iex::LogicExc("unknown level mode computing nextTileCoord");
+                      throw IEX_NAMESPACE::LogicExc("unknown level mode computing nextTileCoord");
                 }
 
                 if (b.ly < numYLevels)
@@ -480,7 +480,7 @@ DeepTiledOutputFile::Data::nextTileCoord (const TileCoord &a)
         }
     }else if(lineOrder==RANDOM_Y)
     {                 
-        THROW (Iex::ArgExc,
+        THROW (IEX_NAMESPACE::ArgExc,
               "can't compute next tile from randomly ordered image: use getTilesInOrder instead");
         
     }
@@ -596,7 +596,7 @@ bufferedTileWrite (
 
     if (ofd->tileOffsets (dx, dy, lx, ly))
     {
-        THROW (Iex::ArgExc,
+        THROW (IEX_NAMESPACE::ArgExc,
                "Attempt to write tile "
                "(" << dx << ", " << dy << ", " << lx << ", " << ly << ") "
                "more than once.");
@@ -623,7 +623,7 @@ bufferedTileWrite (
 
     if (ofd->tileMap.find (currentTile) != ofd->tileMap.end())
     {
-        THROW (Iex::ArgExc,
+        THROW (IEX_NAMESPACE::ArgExc,
                "Attempt to write tile "
                "(" << dx << ", " << dy << ", " << lx << ", " << ly << ") "
                "more than once.");
@@ -1071,7 +1071,7 @@ DeepTiledOutputFile::DeepTiledOutputFile
         _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_data->_streamData->os);
 	_data->multipart = false;
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         if (_data && _data->_streamData && _data->_streamData->os) delete _data->_streamData->os;
         if (_data && _data->_streamData)     delete _data->_streamData;
@@ -1115,7 +1115,7 @@ DeepTiledOutputFile::DeepTiledOutputFile
         _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_data->_streamData->os);
 	_data->multipart = false;
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         if (_data && _data->_streamData) delete _data->_streamData;
         if (_data)       delete _data;
@@ -1139,7 +1139,7 @@ DeepTiledOutputFile::DeepTiledOutputFile(const OutputPartData* part)
     try
     {
         if (part->header.type() != DEEPTILE)
-            throw Iex::ArgExc("Can't build a DeepTiledOutputFile from "
+            throw IEX_NAMESPACE::ArgExc("Can't build a DeepTiledOutputFile from "
                               "a type-mismatched part.");
 
         _data = new Data (part->numThreads);
@@ -1151,7 +1151,7 @@ DeepTiledOutputFile::DeepTiledOutputFile(const OutputPartData* part)
         _data->previewPosition = part->previewPosition;
 	_data->multipart = part->multipart;
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         if (_data) delete _data;
 
@@ -1172,7 +1172,7 @@ DeepTiledOutputFile::initialize (const Header &header)
 {
     _data->header = header;
     if (_data->header.hasType() && _data->header.type() != DEEPTILE)
-        throw Iex::ArgExc("The type data in the header for DeepTiledOutputFile "
+        throw IEX_NAMESPACE::ArgExc("The type data in the header for DeepTiledOutputFile "
                           "can only be " + DEEPTILE + ".");
     _data->header.setType(DEEPTILE);
     _data->lineOrder = _data->header.lineOrder();
@@ -1333,13 +1333,13 @@ DeepTiledOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
             continue;
 
         if (i.channel().type != j.slice().type)
-            THROW (Iex::ArgExc, "Pixel type of \"" << i.name() << "\" channel "
+            THROW (IEX_NAMESPACE::ArgExc, "Pixel type of \"" << i.name() << "\" channel "
                                 "of output file \"" << fileName() << "\" is "
                                 "not compatible with the frame buffer's "
                                 "pixel type.");
 
         if (j.slice().xSampling != 1 || j.slice().ySampling != 1)
-            THROW (Iex::ArgExc, "All channels in a tiled file must have"
+            THROW (IEX_NAMESPACE::ArgExc, "All channels in a tiled file must have"
                                 "sampling (1,1).");
     }
 
@@ -1350,7 +1350,7 @@ DeepTiledOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
     const Slice& sampleCountSlice = frameBuffer.getSampleCountSlice();
     if (sampleCountSlice.base == 0)
     {
-        throw Iex::ArgExc ("Invalid base pointer, please set a proper sample count slice.");
+        throw IEX_NAMESPACE::ArgExc ("Invalid base pointer, please set a proper sample count slice.");
     }
     else
     {
@@ -1438,14 +1438,14 @@ DeepTiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
         Lock lock (*_data->_streamData);
 
         if (_data->slices.size() == 0)
-            throw Iex::ArgExc ("No frame buffer specified "
+            throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
                                "as pixel data source.");
 
         if (!isValidTile (dx1, dy1, lx, ly) || !isValidTile (dx2, dy2, lx, ly))
-            throw Iex::ArgExc ("Tile coordinates are invalid.");
+            throw IEX_NAMESPACE::ArgExc ("Tile coordinates are invalid.");
 
         if (!isValidLevel (lx, ly))
-            THROW (Iex::ArgExc,
+            THROW (IEX_NAMESPACE::ArgExc,
                    "Level coordinate "
                    "(" << lx << ", " << ly << ") "
                    "is invalid.");
@@ -1616,9 +1616,9 @@ DeepTiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
         }
 
         if (exception)
-            throw Iex::IoExc (*exception);
+            throw IEX_NAMESPACE::IoExc (*exception);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Failed to write pixel data to image "
                         "file \"" << fileName() << "\". " << e);
@@ -1663,31 +1663,31 @@ DeepTiledOutputFile::copyPixels (DeepTiledInputFile &in)
    
    
    if (!(hdr.tileDescription() == inHdr.tileDescription()))
-        THROW (Iex::ArgExc, "Quick pixel copy from image "
+        THROW (IEX_NAMESPACE::ArgExc, "Quick pixel copy from image "
                             "file \"" << in.fileName() << "\" to image "
                             "file \"" << fileName() << "\" failed. "
                             "The files have different tile descriptions.");
 
    if (!(hdr.dataWindow() == inHdr.dataWindow()))
-        THROW (Iex::ArgExc, "Cannot copy pixels from image "
+        THROW (IEX_NAMESPACE::ArgExc, "Cannot copy pixels from image "
                             "file \"" << in.fileName() << "\" to image "
                             "file \"" << fileName() << "\". The "
                             "files have different data windows.");
 
     if (!(hdr.lineOrder() == inHdr.lineOrder()))
-        THROW (Iex::ArgExc, "Quick pixel copy from image "
+        THROW (IEX_NAMESPACE::ArgExc, "Quick pixel copy from image "
                             "file \"" << in.fileName() << "\" to image "
                             "file \"" << fileName() << "\" failed. "
                             "The files have different line orders.");
 
     if (!(hdr.compression() == inHdr.compression()))
-        THROW (Iex::ArgExc, "Quick pixel copy from image "
+        THROW (IEX_NAMESPACE::ArgExc, "Quick pixel copy from image "
                             "file \"" << in.fileName() << "\" to image "
                             "file \"" << fileName() << "\" failed. "
                             "The files use different compression methods.");
 
     if (!(hdr.channels() == inHdr.channels()))
-        THROW (Iex::ArgExc, "Quick pixel copy from image "
+        THROW (IEX_NAMESPACE::ArgExc, "Quick pixel copy from image "
                              "file \"" << in.fileName() << "\" to image "
                              "file \"" << fileName() << "\" "
                              "failed.  The files have different channel "
@@ -1698,7 +1698,7 @@ DeepTiledOutputFile::copyPixels (DeepTiledInputFile &in)
     //
 
     if (!_data->tileOffsets.isEmpty())
-        THROW (Iex::LogicExc, "Quick pixel copy from image "
+        THROW (IEX_NAMESPACE::LogicExc, "Quick pixel copy from image "
                               "file \"" << in.fileName() << "\" to image "
                               "file \"" << _data->_streamData->os->fileName() << "\" "
                               "failed. \"" << fileName() << "\" "
@@ -1810,7 +1810,7 @@ int
 DeepTiledOutputFile::numLevels () const
 {
     if (levelMode() == RIPMAP_LEVELS)
-        THROW (Iex::LogicExc, "Error calling numLevels() on image "
+        THROW (IEX_NAMESPACE::LogicExc, "Error calling numLevels() on image "
                               "file \"" << fileName() << "\" "
                               "(numLevels() is not defined for RIPMAPs).");
     return _data->numXLevels;
@@ -1857,7 +1857,7 @@ DeepTiledOutputFile::levelWidth (int lx) const
 
         return retVal;
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Error calling levelWidth() on image "
                         "file \"" << fileName() << "\". " << e);
@@ -1874,7 +1874,7 @@ DeepTiledOutputFile::levelHeight (int ly) const
         return levelSize (_data->minY, _data->maxY, ly,
                           _data->tileDesc.roundingMode);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Error calling levelHeight() on image "
                         "file \"" << fileName() << "\". " << e);
@@ -1887,7 +1887,7 @@ int
 DeepTiledOutputFile::numXTiles (int lx) const
 {
     if (lx < 0 || lx >= _data->numXLevels)
-        THROW (Iex::LogicExc, "Error calling numXTiles() on image "
+        THROW (IEX_NAMESPACE::LogicExc, "Error calling numXTiles() on image "
                               "file \"" << _data->_streamData->os->fileName() << "\" "
                               "(Argument is not in valid range).");
 
@@ -1899,7 +1899,7 @@ int
 DeepTiledOutputFile::numYTiles (int ly) const
 {
    if (ly < 0 || ly >= _data->numYLevels)
-        THROW (Iex::LogicExc, "Error calling numXTiles() on image "
+        THROW (IEX_NAMESPACE::LogicExc, "Error calling numXTiles() on image "
                               "file \"" << _data->_streamData->os->fileName() << "\" "
                               "(Argument is not in valid range).");
 
@@ -1925,7 +1925,7 @@ DeepTiledOutputFile::dataWindowForLevel (int lx, int ly) const
                 _data->minY, _data->maxY,
                 lx, ly);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Error calling dataWindowForLevel() on image "
                         "file \"" << fileName() << "\". " << e);
@@ -1947,7 +1947,7 @@ DeepTiledOutputFile::dataWindowForTile (int dx, int dy, int lx, int ly) const
     try
     {
         if (!isValidTile (dx, dy, lx, ly))
-            throw Iex::ArgExc ("Arguments not in valid range.");
+            throw IEX_NAMESPACE::ArgExc ("Arguments not in valid range.");
 
         return OPENEXR_IMF_INTERNAL_NAMESPACE::dataWindowForTile (
                 _data->tileDesc,
@@ -1956,7 +1956,7 @@ DeepTiledOutputFile::dataWindowForTile (int dx, int dy, int lx, int ly) const
                 dx, dy,
                 lx, ly);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Error calling dataWindowForTile() on image "
                         "file \"" << fileName() << "\". " << e);
@@ -1981,7 +1981,7 @@ DeepTiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
     Lock lock (*_data->_streamData);
 
     if (_data->previewPosition <= 0)
-        THROW (Iex::LogicExc, "Cannot update preview image pixels. "
+        THROW (IEX_NAMESPACE::LogicExc, "Cannot update preview image pixels. "
                               "File \"" << fileName() << "\" does not "
                               "contain a preview image.");
 
@@ -2013,7 +2013,7 @@ DeepTiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
         pia.writeValueTo (*_data->_streamData->os, _data->version);
         _data->_streamData->os->seekp (savedPosition);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Cannot update preview image pixels for "
                         "file \"" << fileName() << "\". " << e);
@@ -2035,7 +2035,7 @@ DeepTiledOutputFile::breakTile
     Int64 position = _data->tileOffsets (dx, dy, lx, ly);
 
     if (!position)
-        THROW (Iex::ArgExc,
+        THROW (IEX_NAMESPACE::ArgExc,
                "Cannot overwrite tile "
                "(" << dx << ", " << dy << ", " << lx << "," << ly << "). "
                "The tile has not yet been stored in "

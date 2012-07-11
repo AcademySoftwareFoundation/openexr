@@ -63,20 +63,20 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using Imath::Box2i;
-using Imath::divp;
-using Imath::modp;
+using IMATH_NAMESPACE::Box2i;
+using IMATH_NAMESPACE::divp;
+using IMATH_NAMESPACE::modp;
 using std::string;
 using std::vector;
 using std::ifstream;
 using std::min;
 using std::max;
-using IlmThread::Mutex;
-using IlmThread::Lock;
-using IlmThread::Semaphore;
-using IlmThread::Task;
-using IlmThread::TaskGroup;
-using IlmThread::ThreadPool;
+using ILMTHREAD_NAMESPACE::Mutex;
+using ILMTHREAD_NAMESPACE::Lock;
+using ILMTHREAD_NAMESPACE::Semaphore;
+using ILMTHREAD_NAMESPACE::Task;
+using ILMTHREAD_NAMESPACE::TaskGroup;
+using ILMTHREAD_NAMESPACE::ThreadPool;
 
 namespace {
 
@@ -346,7 +346,7 @@ readPixelData (InputStreamMutex *streamData,
     Int64 lineOffset = ifd->lineOffsets[lineBufferNumber];
 
     if (lineOffset == 0)
-	THROW (Iex::InputExc, "Scan line " << minY << " is missing.");
+	THROW (IEX_NAMESPACE::InputExc, "Scan line " << minY << " is missing.");
 
     //
     // Seek to the start of the scan line in the file,
@@ -383,7 +383,7 @@ readPixelData (InputStreamMutex *streamData,
         OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, partNumber);
         if (partNumber != ifd->partNumber)
         {
-            THROW (Iex::ArgExc, "Unexpected part number " << partNumber
+            THROW (IEX_NAMESPACE::ArgExc, "Unexpected part number " << partNumber
                    << ", should be " << ifd->partNumber << ".");
         }
     }
@@ -392,10 +392,10 @@ readPixelData (InputStreamMutex *streamData,
     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, dataSize);
     
     if (yInFile != minY)
-        throw Iex::InputExc ("Unexpected data block y coordinate.");
+        throw IEX_NAMESPACE::InputExc ("Unexpected data block y coordinate.");
 
     if (dataSize > (int) ifd->lineBufferSize)
-	throw Iex::InputExc ("Unexpected data block length.");
+	throw IEX_NAMESPACE::InputExc ("Unexpected data block length.");
 
     //
     // Read the pixel data.
@@ -749,7 +749,7 @@ void ScanLineInputFile::initialize(const Header& header)
 ScanLineInputFile::ScanLineInputFile(InputPartData* part)
 {
     if (part->header.type() != SCANLINEIMAGE)
-        throw Iex::ArgExc("Can't build a ScanLineInputFile from a type-mismatched part.");
+        throw IEX_NAMESPACE::ArgExc("Can't build a ScanLineInputFile from a type-mismatched part.");
 
     _data = new Data(part->numThreads);
     _streamData = part->mutex;
@@ -859,7 +859,7 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 
 	if (i.channel().xSampling != j.slice().xSampling ||
 	    i.channel().ySampling != j.slice().ySampling)
-	    THROW (Iex::ArgExc, "X and/or y subsampling factors "
+	    THROW (IEX_NAMESPACE::ArgExc, "X and/or y subsampling factors "
 				"of \"" << i.name() << "\" channel "
 				"of input file \"" << fileName() << "\" are "
 				"not compatible with the frame buffer's "
@@ -958,14 +958,14 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
         Lock lock (*_streamData);
 
 	if (_data->slices.size() == 0)
-	    throw Iex::ArgExc ("No frame buffer specified "
+	    throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
 			       "as pixel data destination.");
 
 	int scanLineMin = min (scanLine1, scanLine2);
 	int scanLineMax = max (scanLine1, scanLine2);
 
 	if (scanLineMin < _data->minY || scanLineMax > _data->maxY)
-	    throw Iex::ArgExc ("Tried to read scan line outside "
+	    throw IEX_NAMESPACE::ArgExc ("Tried to read scan line outside "
 			       "the image file's data window.");
 
         //
@@ -1053,9 +1053,9 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 	}
 
 	if (exception)
-	    throw Iex::IoExc (*exception);
+	    throw IEX_NAMESPACE::IoExc (*exception);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
 	REPLACE_EXC (e, "Error reading pixel data from image "
 		        "file \"" << fileName() << "\". " << e);
@@ -1082,7 +1082,7 @@ ScanLineInputFile::rawPixelData (int firstScanLine,
 
 	if (firstScanLine < _data->minY || firstScanLine > _data->maxY)
 	{
-	    throw Iex::ArgExc ("Tried to read scan line outside "
+	    throw IEX_NAMESPACE::ArgExc ("Tried to read scan line outside "
 			       "the image file's data window.");
 	}
 
@@ -1094,7 +1094,7 @@ ScanLineInputFile::rawPixelData (int firstScanLine,
 
 	pixelData = _data->lineBuffers[0]->buffer;
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
 	REPLACE_EXC (e, "Error reading pixel data from image "
 		        "file \"" << fileName() << "\". " << e);

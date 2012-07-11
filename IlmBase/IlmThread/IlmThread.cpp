@@ -58,20 +58,20 @@ supportsThreads ()
 
 Thread::Thread ()
 {
-    throw Iex::NoImplExc ("Threads not supported on this platform.");
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
 }
 
 
 Thread::~Thread ()
 {
-    throw Iex::NoImplExc ("Threads not supported on this platform.");
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
 }
 
 
 void
 Thread::start ()
 {
-    throw Iex::NoImplExc ("Threads not supported on this platform.");
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
 }
 
 

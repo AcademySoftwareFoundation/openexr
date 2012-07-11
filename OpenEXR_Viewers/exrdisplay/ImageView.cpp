@@ -65,7 +65,7 @@
 
 using std::min;
 using std::max;
-using Imath::clamp;
+using IMATH_NAMESPACE::clamp;
 using std::cout;
 using std::endl;
 
@@ -73,6 +73,9 @@ ImageView::ImageView (int x, int y,
                       int w, int h,
                       const char label[],
                       const OPENEXR_IMF_NAMESPACE::Rgba pixels[],
+                      float* dataZ[],
+                      unsigned int sampleCount[],
+                      int zsize,
                       int dw, int dh,
                       int dx, int dy,
                       Fl_Box *rgbaBox,
@@ -89,6 +92,9 @@ ImageView::ImageView (int x, int y,
     _kneeLow (kneeLow),
     _kneeHigh (kneeHigh),
     _rawPixels (pixels),
+    _dataZ (dataZ),
+    _zsize (zsize),
+    _sampleCount (sampleCount),
     _fogR (0),
     _fogG (0),
     _fogB (0),
@@ -101,8 +107,36 @@ ImageView::ImageView (int x, int y,
 {
     computeFogColor();
     updateScreenPixels();
-}
 
+    _chartwin = new Fl_Window (600, 300);
+    _chart = new Fl_Chart (20, 20,
+                           _chartwin->w()-40,
+                           _chartwin->h()-40,
+                           "Data Z Chart");
+
+    //
+    // find max and min values of data
+    //
+    double bmax  = -1000000.0;
+    double bmin = 1000000.0;
+    for (int k = 0; k < _zsize; k++)
+    {
+        float* z = _dataZ[k];
+        unsigned int count = _sampleCount[k];
+
+        for (int i = 0; i < count; i++)
+        {
+            double val = double(z[i]);
+            if (val > bmax)
+                bmax = val;
+            if (val < bmin)
+                bmin = val;
+        }
+    }
+
+    cout << "z max: "<< bmax << ", z min: " << bmin << endl;
+    _chart->bounds (bmin, bmax);
+}
 
 void
 ImageView::setExposure (float exposure)
@@ -131,6 +165,9 @@ ImageView::setKneeLow (float kneeLow)
 }
 
 void ImageView::setPixels(const OPENEXR_IMF_NAMESPACE::Rgba pixels[/* w*h */],
+                          float* dataZ[/* w*h */],
+                          unsigned int sampleCount[/* w*h */],
+                          int zsize,
                           int dw, int dh, int dx, int dy)
 {
     _rawPixels = pixels;
@@ -138,6 +175,9 @@ void ImageView::setPixels(const OPENEXR_IMF_NAMESPACE::Rgba pixels[/* w*h */],
     _dh = dh;
     _dx = dx;
     _dy = dy;
+    _dataZ = dataZ;
+    _sampleCount = sampleCount;
+    _zsize = zsize;
 
     _screenPixels.resizeErase(dw*dh*3);
 
@@ -249,6 +289,68 @@ ImageView::handle (int event)
         }
     }
 
+    if (event == FL_RELEASE)
+    {
+        //
+        // Print the z values of
+        // the pixel at the current cursor location.
+        //
+
+        if(_zsize > 0)
+        {
+            int x = Fl::event_x();
+            int y = Fl::event_y();
+
+            if (x >= 0 && x < w() && y >= 0 && y < h())
+            {
+                int px = x - _dx;
+                int py = y - _dy;
+
+                if (px >= 0 && px < _dw && py >= 0 && py < _dh)
+                {
+                    float* z = _dataZ[py * _dw + px];
+                    unsigned int count = _sampleCount[py * _dw + px];
+
+                    cout << "\nsample Count: " << count << endl;
+                    for (int i = 0; i < count; i++)
+                    {
+                        printf ("pixel Z value  %d: %.3f\n", i, float(z[i]));
+                    }
+
+                    const OPENEXR_IMF_NAMESPACE::Rgba &p = _rawPixels[py * _dw + px];
+
+                    cout << "R = " << p.r << ", G = " << p.g << ","
+                    " B = " << p.b <<endl;
+
+                    //
+                    // draw the chart
+                    //
+
+                    _chart->clear();
+                    _chart->type (FL_LINE_CHART);
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        double val = double(z[i]);
+                        static char val_str[20];
+                        sprintf (val_str, "%.3lf", val);
+                        _chart->add (val, val_str, FL_GREEN);
+                    }
+
+                    redraw();
+
+                    _chartwin->resizable (_chartwin);
+                    _chartwin->set_non_modal(); // make chart on top
+
+                    if (!_chartwin->shown())
+                        _chartwin->show();
+                }
+
+            }
+        }
+
+    }
+
     return Fl_Gl_Window::handle (event);
 }
 
@@ -296,7 +398,7 @@ namespace {
 float
 knee (double x, double f)
 {
-    return float (Imath::Math<double>::log (x * f + 1) / f);
+    return float (IMATH_NAMESPACE::Math<double>::log (x * f + 1) / f);
 }
 
 
@@ -349,12 +451,12 @@ Gamma::Gamma
  float kneeHigh)
 :
     g (gamma),
-    m (Imath::Math<float>::pow (2, exposure + 2.47393)),
+    m (IMATH_NAMESPACE::Math<float>::pow (2, exposure + 2.47393)),
     d (defog),
-    kl (Imath::Math<float>::pow (2, kneeLow)),
-    f (findKneeF (Imath::Math<float>::pow (2, kneeHigh) - kl, 
-                  Imath::Math<float>::pow (2, 3.5) - kl)),
-                  s (255.0 * Imath::Math<float>::pow (2, -3.5 * g))
+    kl (IMATH_NAMESPACE::Math<float>::pow (2, kneeLow)),
+    f (findKneeF (IMATH_NAMESPACE::Math<float>::pow (2, kneeHigh) - kl, 
+                  IMATH_NAMESPACE::Math<float>::pow (2, 3.5) - kl)),
+                  s (255.0 * IMATH_NAMESPACE::Math<float>::pow (2, -3.5 * g))
                   {}
 
 
@@ -384,7 +486,7 @@ Gamma::operator () (half h)
     // Gamma
     //
 
-    x = Imath::Math<float>::pow (x, g);
+    x = IMATH_NAMESPACE::Math<float>::pow (x, g);
 
     //
     // Scale and clamp

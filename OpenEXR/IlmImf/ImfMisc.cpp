@@ -56,9 +56,9 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using Imath::Box2i;
-using Imath::divp;
-using Imath::modp;
+using IMATH_NAMESPACE::Box2i;
+using IMATH_NAMESPACE::divp;
+using IMATH_NAMESPACE::modp;
 using std::vector;
 
 int
@@ -85,7 +85,7 @@ pixelTypeSize (PixelType type)
 
       default:
 
-	throw Iex::ArgExc ("Unknown pixel type.");
+	throw IEX_NAMESPACE::ArgExc ("Unknown pixel type.");
     }
 
     return size;
@@ -335,7 +335,7 @@ copyIntoFrameBuffer (const char *& readPtr,
 
           default:
 
-            throw Iex::ArgExc ("Unknown pixel data type.");
+            throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
         }
     }
     else if (format == Compressor::XDR)
@@ -386,7 +386,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 break;
                 
               default:                  
-                  throw Iex::ArgExc ("Unknown pixel data type.");
+                  throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
             }
             break;
 
@@ -426,7 +426,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 break;
               default:
                   
-                  throw Iex::ArgExc ("Unknown pixel data type.");
+                  throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
             }
             break;
 
@@ -466,13 +466,13 @@ copyIntoFrameBuffer (const char *& readPtr,
                 break;
               default:
                   
-                  throw Iex::ArgExc ("Unknown pixel data type.");
+                  throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
             }
             break;
 
           default:
 
-            throw Iex::ArgExc ("Unknown pixel data type.");
+            throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
         }
     }
     else
@@ -528,7 +528,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 
               default:
                   
-                  throw Iex::ArgExc ("Unknown pixel data type.");
+                  throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
             }
             break;
 
@@ -577,7 +577,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 break;
               default:
                   
-                  throw Iex::ArgExc ("Unknown pixel data type.");
+                  throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
             }
             break;
 
@@ -624,13 +624,13 @@ copyIntoFrameBuffer (const char *& readPtr,
                 break;
               default:
                   
-                  throw Iex::ArgExc ("Unknown pixel data type.");
+                  throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
             }
             break;
 
           default:
 
-            throw Iex::ArgExc ("Unknown pixel data type.");
+            throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
         }
     }
 }
@@ -748,7 +748,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
 
           default:
 
-            throw Iex::ArgExc ("Unknown pixel data type.");
+            throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
         }
     }
     else if (format == Compressor::XDR)
@@ -847,7 +847,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 }
                 break;
               default:
-                  throw Iex::ArgExc ("Unknown pixel data type.");
+                  throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
             }
             break;
 
@@ -934,7 +934,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 break;
               default:
                   
-                  throw Iex::ArgExc ("Unknown pixel data type.");
+                  throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
             }
             break;
 
@@ -1023,13 +1023,13 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 break;
               default:
                   
-                  throw Iex::ArgExc ("Unknown pixel data type.");
+                  throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
             }
             break;
 
           default:
 
-            throw Iex::ArgExc ("Unknown pixel data type.");
+            throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
         }
     }
     else
@@ -1133,7 +1133,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 break;
               default:
                   
-                  throw Iex::ArgExc ("Unknown pixel data type.");
+                  throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
             }
             break;
 
@@ -1230,7 +1230,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 break;
               default:
                   
-                  throw Iex::ArgExc ("Unknown pixel data type.");
+                  throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
             }
             break;
 
@@ -1325,13 +1325,13 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 break;
               default:
                   
-                  throw Iex::ArgExc ("Unknown pixel data type.");
+                  throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
             }
             break;
 
           default:
 
-            throw Iex::ArgExc ("Unknown pixel data type.");
+            throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
         }
     }
 }
@@ -1361,7 +1361,7 @@ skipChannel (const char *& readPtr,
 
       default:
 
-        throw Iex::ArgExc ("Unknown pixel data type.");
+        throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
     }
 }
 
@@ -1403,7 +1403,7 @@ convertInPlace (char *& writePtr,
     
       default:
     
-        throw Iex::ArgExc ("Unknown pixel data type.");
+        throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
     }
 }
 
@@ -1459,7 +1459,7 @@ copyFromFrameBuffer (char *& writePtr,
 
           default:
 
-            throw Iex::ArgExc ("Unknown pixel data type.");
+            throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
         }
     }
     else
@@ -1504,7 +1504,7 @@ copyFromFrameBuffer (char *& writePtr,
             
           default:
 
-            throw Iex::ArgExc ("Unknown pixel data type.");
+            throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
         }
     }
 }
@@ -1603,7 +1603,7 @@ copyFromDeepFrameBuffer (char *& writePtr,
 
           default:
 
-            throw Iex::ArgExc ("Unknown pixel data type.");
+            throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
         }
     }
     else
@@ -1683,7 +1683,7 @@ copyFromDeepFrameBuffer (char *& writePtr,
 
           default:
 
-            throw Iex::ArgExc ("Unknown pixel data type.");
+            throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
         }
     }
 }
@@ -1726,7 +1726,7 @@ fillChannelWithZeroes (char *& writePtr,
             
           default:
 
-            throw Iex::ArgExc ("Unknown pixel data type.");
+            throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
         }
     }
     else
@@ -1770,7 +1770,7 @@ fillChannelWithZeroes (char *& writePtr,
             
           default:
 
-            throw Iex::ArgExc ("Unknown pixel data type.");
+            throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
         }
     }
 }
@@ -1853,7 +1853,7 @@ getChunkOffsetTableSize(const Header& header,bool ignore_attribute)
     else if (isTiled(header.type()) == true)
         return getTiledChunkOffsetTableSize(header);
     
-    else throw Iex::ArgExc ("unsupported header type to "
+    else throw IEX_NAMESPACE::ArgExc ("unsupported header type to "
                             "get chunk offset table size");
 }
 

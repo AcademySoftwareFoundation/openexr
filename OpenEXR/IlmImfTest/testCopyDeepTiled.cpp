@@ -48,12 +48,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
-#include <OpenEXRConfig.h>
+#include <ImfNamespace.h>
 using namespace OPENEXR_IMF_NAMESPACE;
+using namespace IMATH_NAMESPACE;
+using namespace ILMTHREAD_NAMESPACE;
 using namespace std;
-using namespace Imath;
-using namespace IlmThread;
 
 namespace
 {
@@ -77,7 +78,7 @@ void generateRandomFile(int channelCount, Compression compression)
     cout << "generating " << flush;
     header = Header(displayWindow, dataWindow,
                     1,
-                    Imath::V2f (0, 0),
+                    IMATH_NAMESPACE::V2f (0, 0),
                     1,
                     INCREASING_Y,
                     compression);

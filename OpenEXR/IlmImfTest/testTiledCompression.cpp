@@ -53,7 +53,7 @@
 #include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 
 namespace {
@@ -414,7 +414,7 @@ writeRead (const Array2D<unsigned int> &pi1,
             {
                 in.readTile (tileX, tileY);
 
-                Imath::Box2i win = in.dataWindowForTile (tileX, tileY);
+                IMATH_NAMESPACE::Box2i win = in.dataWindowForTile (tileX, tileY);
                 int oX = win.min.x - xOffset;
                 int oY = win.min.y - yOffset;
 

@@ -43,7 +43,7 @@
 #include "namespaceAlias.h"
 
 using namespace CustomImf;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 using namespace std;
 
 
@@ -79,7 +79,7 @@ Image::~Image ()
 
 
 void			
-Image::resize (const Imath::Box2i &dataWindow)
+Image::resize (const IMATH_NAMESPACE::Box2i &dataWindow)
 {
     _dataWindow = dataWindow;
 
@@ -106,7 +106,7 @@ Image::addChannel (const string &name, PixelType type)
 	break;
 
       default:
-	throw Iex::ArgExc ("Unknown channel type.");
+	throw IEX_NAMESPACE::ArgExc ("Unknown channel type.");
     }
 }
 

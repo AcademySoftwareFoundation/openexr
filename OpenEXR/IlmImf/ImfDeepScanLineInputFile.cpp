@@ -74,20 +74,20 @@
 #include "ImfNamespace.h"
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using Imath::Box2i;
-using Imath::divp;
-using Imath::modp;
+using IMATH_NAMESPACE::Box2i;
+using IMATH_NAMESPACE::divp;
+using IMATH_NAMESPACE::modp;
 using std::string;
 using std::vector;
 using std::ifstream;
 using std::min;
 using std::max;
-using IlmThread::Mutex;
-using IlmThread::Lock;
-using IlmThread::Semaphore;
-using IlmThread::Task;
-using IlmThread::TaskGroup;
-using IlmThread::ThreadPool;
+using ILMTHREAD_NAMESPACE::Mutex;
+using ILMTHREAD_NAMESPACE::Lock;
+using ILMTHREAD_NAMESPACE::Semaphore;
+using ILMTHREAD_NAMESPACE::Task;
+using ILMTHREAD_NAMESPACE::TaskGroup;
+using ILMTHREAD_NAMESPACE::ThreadPool;
 
 namespace {
 
@@ -420,7 +420,7 @@ readPixelData (InputStreamMutex *streamData,
     Int64 lineOffset = ifd->lineOffsets[lineBufferNumber];
 
     if (lineOffset == 0)
-        THROW (Iex::InputExc, "Scan line " << minY << " is missing.");
+        THROW (IEX_NAMESPACE::InputExc, "Scan line " << minY << " is missing.");
 
     //
     // Seek to the start of the scan line in the file,
@@ -458,7 +458,7 @@ readPixelData (InputStreamMutex *streamData,
         OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, partNumber);
         if (partNumber != ifd->partNumber)
         {
-            THROW (Iex::ArgExc, "Unexpected part number " << partNumber
+            THROW (IEX_NAMESPACE::ArgExc, "Unexpected part number " << partNumber
                    << ", should be " << ifd->partNumber << ".");
         }
     }
@@ -466,7 +466,7 @@ readPixelData (InputStreamMutex *streamData,
     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, yInFile);
 
     if (yInFile != minY)
-        throw Iex::InputExc ("Unexpected data block y coordinate.");
+        throw IEX_NAMESPACE::InputExc ("Unexpected data block y coordinate.");
 
     Int64 sampleCountTableSize;
     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, sampleCountTableSize);
@@ -488,7 +488,7 @@ readPixelData (InputStreamMutex *streamData,
     if (packedDataSize   > Int64(compressorMaxDataSize) ||
         unpackedDataSize > Int64(compressorMaxDataSize))
     {
-        THROW (Iex::ArgExc, "This version of the library does not support "
+        THROW (IEX_NAMESPACE::ArgExc, "This version of the library does not support "
               << "the allocation of data with size  > " << compressorMaxDataSize
               << " file unpacked size :" << unpackedDataSize
               << " file packed size   :" << packedDataSize << ".\n");
@@ -890,7 +890,7 @@ DeepScanLineInputFile::DeepScanLineInputFile(InputPartData* part)
     
 {
     if (part->header.type() != DEEPSCANLINE)
-        throw Iex::ArgExc("Can't build a DeepScanLineInputFile from "
+        throw IEX_NAMESPACE::ArgExc("Can't build a DeepScanLineInputFile from "
                           "a type-mismatched part.");
 
     _data = new Data(part->numThreads);
@@ -940,7 +940,7 @@ DeepScanLineInputFile::DeepScanLineInputFile
                          _data->lineOffsets,
                          _data->fileIsComplete);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         if (is)          delete is;
         if (_data && _data->_streamData) delete _data->_streamData;
@@ -1092,7 +1092,7 @@ DeepScanLineInputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 
         if (i.channel().xSampling != j.slice().xSampling ||
             i.channel().ySampling != j.slice().ySampling)
-            THROW (Iex::ArgExc, "X and/or y subsampling factors "
+            THROW (IEX_NAMESPACE::ArgExc, "X and/or y subsampling factors "
                                 "of \"" << i.name() << "\" channel "
                                 "of input file \"" << fileName() << "\" are "
                                 "not compatible with the frame buffer's "
@@ -1107,7 +1107,7 @@ DeepScanLineInputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
     const Slice& sampleCountSlice = frameBuffer.getSampleCountSlice();
     if (sampleCountSlice.base == 0)
     {
-        throw Iex::ArgExc ("Invalid base pointer, please set a proper sample count slice.");
+        throw IEX_NAMESPACE::ArgExc ("Invalid base pointer, please set a proper sample count slice.");
     }
     else
     {
@@ -1225,20 +1225,20 @@ DeepScanLineInputFile::readPixels (int scanLine1, int scanLine2)
         Lock lock (*_data->_streamData);
 
         if (_data->slices.size() == 0)
-            throw Iex::ArgExc ("No frame buffer specified "
+            throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
                                "as pixel data destination.");
 
         int scanLineMin = min (scanLine1, scanLine2);
         int scanLineMax = max (scanLine1, scanLine2);
 
         if (scanLineMin < _data->minY || scanLineMax > _data->maxY)
-            throw Iex::ArgExc ("Tried to read scan line outside "
+            throw IEX_NAMESPACE::ArgExc ("Tried to read scan line outside "
                                "the image file's data window.");
 
         for (int i = scanLineMin; i <= scanLineMax; i++)
         {
             if (_data->gotSampleCount[i - _data->minY] == false)
-                throw Iex::ArgExc ("Tried to read scan line without "
+                throw IEX_NAMESPACE::ArgExc ("Tried to read scan line without "
                                    "knowing the sample counts, please"
                                    "read the sample counts first.");
         }
@@ -1328,9 +1328,9 @@ DeepScanLineInputFile::readPixels (int scanLine1, int scanLine2)
         }
 
         if (exception)
-            throw Iex::IoExc (*exception);
+            throw IEX_NAMESPACE::IoExc (*exception);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Error reading pixel data from image "
                         "file \"" << fileName() << "\". " << e);
@@ -1360,7 +1360,7 @@ DeepScanLineInputFile::rawPixelData (int firstScanLine,
     Int64 lineOffset = _data->lineOffsets[lineBufferNumber];
     
     if (lineOffset == 0)
-        THROW (Iex::InputExc, "Scan line " << minY << " is missing.");
+        THROW (IEX_NAMESPACE::InputExc, "Scan line " << minY << " is missing.");
     
     
     // enter the lock here - prevent another thread reseeking the file during read
@@ -1389,7 +1389,7 @@ DeepScanLineInputFile::rawPixelData (int firstScanLine,
         OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*_data->_streamData->is, partNumber);
         if (partNumber != _data->partNumber)
         {
-            THROW (Iex::ArgExc, "Unexpected part number " << partNumber
+            THROW (IEX_NAMESPACE::ArgExc, "Unexpected part number " << partNumber
             << ", should be " << _data->partNumber << ".");
         }
     }
@@ -1397,7 +1397,7 @@ DeepScanLineInputFile::rawPixelData (int firstScanLine,
     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*_data->_streamData->is, yInFile);
     
     if (yInFile != minY)
-        throw Iex::InputExc ("Unexpected data block y coordinate.");
+        throw IEX_NAMESPACE::InputExc ("Unexpected data block y coordinate.");
     
     Int64 sampleCountTableSize;
     Int64 packedDataSize;
@@ -1658,12 +1658,12 @@ void DeepScanLineInputFile::readPixelSampleCounts (const char* rawPixelData,
     
     if(scanLine1 != data_scanline)
     {
-        THROW(Iex::ArgExc,"readPixelSampleCounts(rawPixelData,frameBuffer,"<< scanLine1 << ',' << scanLine2 << ") called with incorrect start scanline - should be " << data_scanline );
+        THROW(IEX_NAMESPACE::ArgExc,"readPixelSampleCounts(rawPixelData,frameBuffer,"<< scanLine1 << ',' << scanLine2 << ") called with incorrect start scanline - should be " << data_scanline );
     }
     
     if(scanLine2 != maxY)
     {
-        THROW(Iex::ArgExc,"readPixelSampleCounts(rawPixelData,frameBuffer,"<< scanLine1 << ',' << scanLine2 << ") called with incorrect end scanline - should be " << maxY );
+        THROW(IEX_NAMESPACE::ArgExc,"readPixelSampleCounts(rawPixelData,frameBuffer,"<< scanLine1 << ',' << scanLine2 << ") called with incorrect end scanline - should be " << maxY );
     }
     
     
@@ -1746,7 +1746,7 @@ readSampleCountForLineBlock(InputStreamMutex* streamData,
         OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, partNumber);
 
         if (partNumber != data->partNumber)
-            throw Iex::ArgExc("Unexpected part number.");
+            throw IEX_NAMESPACE::ArgExc("Unexpected part number.");
     }
 
     int minY;
@@ -1757,7 +1757,7 @@ readSampleCountForLineBlock(InputStreamMutex* streamData,
     //
 
     if (minY != data->minY + lineBlockId * data->linesInBuffer)
-        throw Iex::ArgExc("Unexpected data block y coordinate.");
+        throw IEX_NAMESPACE::ArgExc("Unexpected data block y coordinate.");
 
     int maxY;
     maxY = min(minY + data->linesInBuffer - 1, data->maxY);
@@ -1784,7 +1784,7 @@ readSampleCountForLineBlock(InputStreamMutex* streamData,
     int compressorMaxDataSize = std::numeric_limits<int>::max();
     if (sampleCountTableDataSize > Int64(compressorMaxDataSize))
     {
-        THROW (Iex::ArgExc, "This version of the library does not"
+        THROW (IEX_NAMESPACE::ArgExc, "This version of the library does not"
               << "support the allocation of data with size  > "
               << compressorMaxDataSize
               << " file table size    :" << sampleCountTableDataSize << ".\n");
@@ -1803,7 +1803,7 @@ readSampleCountForLineBlock(InputStreamMutex* streamData,
     {
         if(!data->sampleCountTableComp)
         {
-            THROW(Iex::ArgExc,"Deep scanline data corrupt at chunk " << lineBlockId << " (sampleCountTableDataSize error)");
+            THROW(IEX_NAMESPACE::ArgExc,"Deep scanline data corrupt at chunk " << lineBlockId << " (sampleCountTableDataSize error)");
         }
         data->sampleCountTableComp->uncompress(data->sampleCountTableBuffer,
                                                sampleCountTableDataSize,
@@ -1858,7 +1858,7 @@ DeepScanLineInputFile::readPixelSampleCounts (int scanline1, int scanline2)
 
     if(!_data->frameBufferValid)
     {
-        throw Iex::ArgExc("readPixelSampleCounts called with no valid frame buffer");
+        throw IEX_NAMESPACE::ArgExc("readPixelSampleCounts called with no valid frame buffer");
     }
     
     try
@@ -1871,7 +1871,7 @@ DeepScanLineInputFile::readPixelSampleCounts (int scanline1, int scanline2)
         int scanLineMax = max (scanline1, scanline2);
 
         if (scanLineMin < _data->minY || scanLineMax > _data->maxY)
-            throw Iex::ArgExc ("Tried to read scan line sample counts outside "
+            throw IEX_NAMESPACE::ArgExc ("Tried to read scan line sample counts outside "
                                "the image file's data window.");
 
         for (int i = scanLineMin; i <= scanLineMax; i++)
@@ -1910,7 +1910,7 @@ DeepScanLineInputFile::readPixelSampleCounts (int scanline1, int scanline2)
 
         _data->_streamData->is->seekg(savedFilePos);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Error reading sample count data from image "
                         "file \"" << fileName() << "\". " << e);

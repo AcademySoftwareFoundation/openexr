@@ -58,11 +58,11 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using Imath::divp;
-using Imath::modp;
-using Imath::Box2i;
-using Imath::V2i;
-using Iex::InputExc;
+using IMATH_NAMESPACE::divp;
+using IMATH_NAMESPACE::modp;
+using IMATH_NAMESPACE::Box2i;
+using IMATH_NAMESPACE::V2i;
+using IEX_NAMESPACE::InputExc;
 
 namespace {
 
@@ -268,7 +268,7 @@ PizCompressor::compress (const char *inPtr,
 int
 PizCompressor::compressTile (const char *inPtr,
 			     int inSize,
-			     Imath::Box2i range,
+			     IMATH_NAMESPACE::Box2i range,
 			     const char *&outPtr)
 {
     return compress (inPtr, inSize, range, outPtr);
@@ -292,7 +292,7 @@ PizCompressor::uncompress (const char *inPtr,
 int
 PizCompressor::uncompressTile (const char *inPtr,
 			       int inSize,
-			       Imath::Box2i range,
+			       IMATH_NAMESPACE::Box2i range,
 			       const char *&outPtr)
 {
     return uncompress (inPtr, inSize, range, outPtr);
@@ -302,7 +302,7 @@ PizCompressor::uncompressTile (const char *inPtr,
 int
 PizCompressor::compress (const char *inPtr,
 			 int inSize,
-			 Imath::Box2i range,
+			 IMATH_NAMESPACE::Box2i range,
 			 const char *&outPtr)
 {
     //
@@ -484,7 +484,7 @@ PizCompressor::compress (const char *inPtr,
 int
 PizCompressor::uncompress (const char *inPtr,
 			   int inSize,
-			   Imath::Box2i range,
+			   IMATH_NAMESPACE::Box2i range,
 			   const char *&outPtr)
 {
     //

@@ -142,17 +142,17 @@ class ImageBuffers
     // Data window for all frames
     //---------------------------
 
-    Imath::Box2i		dataWindow;
+    IMATH_NAMESPACE::Box2i		dataWindow;
 
 
     //-----------
     // Semaphores
     //-----------
 
-    IlmThread::Semaphore	emptyBuffersSemaphore;
-    IlmThread::Semaphore	fullBuffersSemaphore;
-    IlmThread::Semaphore	exitSemaphore1;
-    IlmThread::Semaphore	exitSemaphore2;
+    ILMTHREAD_NAMESPACE::Semaphore	emptyBuffersSemaphore;
+    ILMTHREAD_NAMESPACE::Semaphore	fullBuffersSemaphore;
+    ILMTHREAD_NAMESPACE::Semaphore	exitSemaphore1;
+    ILMTHREAD_NAMESPACE::Semaphore	exitSemaphore2;
 	 
   private:
 

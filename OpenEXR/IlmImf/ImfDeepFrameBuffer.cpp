@@ -64,7 +64,7 @@ DeepFrameBuffer::insert (const char name[], const DeepSlice &slice)
 {
     if (name[0] == 0)
     {
-        THROW (Iex::ArgExc,
+        THROW (IEX_NAMESPACE::ArgExc,
                "Frame buffer slice name cannot be an empty string.");
     }
 
@@ -86,7 +86,7 @@ DeepFrameBuffer::operator [] (const char name[])
 
     if (i == _map.end())
     {
-        THROW (Iex::ArgExc,
+        THROW (IEX_NAMESPACE::ArgExc,
                "Cannot find frame buffer slice \"" << name << "\".");
     }
 
@@ -101,7 +101,7 @@ DeepFrameBuffer::operator [] (const char name[]) const
 
     if (i == _map.end())
     {
-        THROW (Iex::ArgExc,
+        THROW (IEX_NAMESPACE::ArgExc,
                "Cannot find frame buffer slice \"" << name << "\".");
     }
 
@@ -214,7 +214,7 @@ DeepFrameBuffer::insertSampleCountSlice(const Slice & slice)
 {
     if (slice.type != UINT)
     {
-        throw Iex::ArgExc("The type of sample count slice should be UINT.");
+        throw IEX_NAMESPACE::ArgExc("The type of sample count slice should be UINT.");
     }
 
     _sampleCounts = slice;

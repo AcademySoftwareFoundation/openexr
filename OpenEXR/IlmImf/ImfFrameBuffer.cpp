@@ -80,7 +80,7 @@ FrameBuffer::insert (const char name[], const Slice &slice)
 {
     if (name[0] == 0)
     {
-        THROW (Iex::ArgExc,
+        THROW (IEX_NAMESPACE::ArgExc,
                "Frame buffer slice name cannot be an empty string.");
     }
 
@@ -102,7 +102,7 @@ FrameBuffer::operator [] (const char name[])
 
     if (i == _map.end())
     {
-        THROW (Iex::ArgExc,
+        THROW (IEX_NAMESPACE::ArgExc,
                "Cannot find frame buffer slice \"" << name << "\".");
     }
 
@@ -117,7 +117,7 @@ FrameBuffer::operator [] (const char name[]) const
 
     if (i == _map.end())
     {
-        THROW (Iex::ArgExc,
+        THROW (IEX_NAMESPACE::ArgExc,
                "Cannot find frame buffer slice \"" << name << "\".");
     }
 

@@ -52,7 +52,7 @@
 #include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 
 namespace {
@@ -271,11 +271,11 @@ writeReadIncomplete ()
 	    {
 		in.readPixels (y);
 	    }
-	    catch (const Iex::InputExc &)
+	    catch (const IEX_NAMESPACE::InputExc &)
 	    {
 		scanLinePresent = false;	// scan line is missing
 	    }
-	    catch (const Iex::IoExc &)
+	    catch (const IEX_NAMESPACE::IoExc &)
 	    {
 		scanLineBroken = true;		// scan line cannot be decoded
 	    }
@@ -339,11 +339,11 @@ writeReadIncomplete ()
 	{
 	    in.readPixels (0, height - 1);
 	}
-	catch (const Iex::InputExc &)
+	catch (const IEX_NAMESPACE::InputExc &)
 	{
 	    scanLinesMissing = true;
 	}
-	catch (const Iex::IoExc &)
+	catch (const IEX_NAMESPACE::IoExc &)
 	{
 	    scanLinesBroken = true;
 	}
@@ -601,11 +601,11 @@ testRgba ()
 	Array2D<Rgba> p1 (H, W);
 	fillPixels (p1, W, H);
 
-	int maxThreads = IlmThread::supportsThreads()? 3: 0;
+	int maxThreads = ILMTHREAD_NAMESPACE::supportsThreads()? 3: 0;
 
 	for (int n = 0; n <= maxThreads; ++n)
 	{
-	    if (IlmThread::supportsThreads())
+	    if (ILMTHREAD_NAMESPACE::supportsThreads())
 	    {
 		setGlobalThreadCount (n);
 		cout << "\nnumber of threads: " << globalThreadCount() << endl;

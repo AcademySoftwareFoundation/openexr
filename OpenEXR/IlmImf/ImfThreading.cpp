@@ -47,14 +47,14 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 int
 globalThreadCount ()
 {
-    return IlmThread::ThreadPool::globalThreadPool().numThreads();
+    return ILMTHREAD_NAMESPACE::ThreadPool::globalThreadPool().numThreads();
 }
 
 
 void
 setGlobalThreadCount (int count)
 {
-    IlmThread::ThreadPool::globalThreadPool().setNumThreads (count);
+    ILMTHREAD_NAMESPACE::ThreadPool::globalThreadPool().setNumThreads (count);
 }
 
 

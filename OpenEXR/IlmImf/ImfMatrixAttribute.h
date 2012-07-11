@@ -52,25 +52,25 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-typedef TypedAttribute<Imath::M33f> M33fAttribute;
+typedef TypedAttribute<IMATH_NAMESPACE::M33f> M33fAttribute;
 template <> const char *M33fAttribute::staticTypeName ();
 template <> void M33fAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
 template <> void M33fAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-typedef TypedAttribute<Imath::M33d> M33dAttribute;
+typedef TypedAttribute<IMATH_NAMESPACE::M33d> M33dAttribute;
 template <> const char *M33dAttribute::staticTypeName ();
 template <> void M33dAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
 template <> void M33dAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-typedef TypedAttribute<Imath::M44f> M44fAttribute;
+typedef TypedAttribute<IMATH_NAMESPACE::M44f> M44fAttribute;
 template <> const char *M44fAttribute::staticTypeName ();
 template <> void M44fAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
 template <> void M44fAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-typedef TypedAttribute<Imath::M44d> M44dAttribute;
+typedef TypedAttribute<IMATH_NAMESPACE::M44d> M44dAttribute;
 template <> const char *M44dAttribute::staticTypeName ();
 template <> void M44dAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
 template <> void M44dAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);

@@ -51,7 +51,7 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using Imath::Box2i;
+using IMATH_NAMESPACE::Box2i;
 
 
 Compressor::Compressor (const Header &hdr): _header (hdr) {}

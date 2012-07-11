@@ -715,7 +715,7 @@ read (T &in, signed long &v)
 	if (( b[4] ||  b[5] ||  b[6] ||  b[7]) &&
 	    (~b[4] || ~b[5] || ~b[6] || ~b[7]))
 	{
-	    throw Iex::OverflowExc ("Long int overflow - read a large "
+	    throw IEX_NAMESPACE::OverflowExc ("Long int overflow - read a large "
 				    "64-bit integer in a 32-bit process.");
 	}
 
@@ -755,7 +755,7 @@ read (T &in, unsigned long &v)
 
 	if (b[4] || b[5] || b[6] || b[7])
 	{
-	    throw Iex::OverflowExc ("Long int overflow - read a large "
+	    throw IEX_NAMESPACE::OverflowExc ("Long int overflow - read a large "
 				    "64-bit integer in a 32-bit process.");
 	}
 

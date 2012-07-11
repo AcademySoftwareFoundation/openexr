@@ -63,7 +63,7 @@ HalfLut::apply (half *data, int nData, int stride) const
 
 
 void
-HalfLut::apply (const Slice &data, const Imath::Box2i &dataWindow) const
+HalfLut::apply (const Slice &data, const IMATH_NAMESPACE::Box2i &dataWindow) const
 {
     assert (data.type == HALF);
     assert (dataWindow.min.x % data.xSampling == 0);
@@ -120,7 +120,7 @@ RgbaLut::apply (Rgba *data, int nData, int stride) const
 void
 RgbaLut::apply (Rgba *base,
 		int xStride, int yStride,
-		const Imath::Box2i &dataWindow) const
+		const IMATH_NAMESPACE::Box2i &dataWindow) const
 {
     base += dataWindow.min.y * yStride;
 

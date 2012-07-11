@@ -110,7 +110,7 @@ OpaqueAttribute::copyValueFrom (const Attribute &other)
 
     if (oa == 0 || strcmp (_typeName, oa->_typeName))
     {
-	THROW (Iex::TypeExc, "Cannot copy the value of an "
+	THROW (IEX_NAMESPACE::TypeExc, "Cannot copy the value of an "
 			     "image file attribute of type "
 			     "\"" << other.typeName() << "\" "
 			     "to an attribute of type "

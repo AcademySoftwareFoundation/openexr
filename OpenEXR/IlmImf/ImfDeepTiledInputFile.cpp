@@ -56,6 +56,8 @@
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
 #include "IlmThreadMutex.h"
+#include "ImfInputStreamMutex.h"
+#include "ImfInputPartData.h"
 #include "ImathVec.h"
 #include "Iex.h"
 #include <string>
@@ -68,18 +70,18 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using Imath::Box2i;
-using Imath::V2i;
+using IMATH_NAMESPACE::Box2i;
+using IMATH_NAMESPACE::V2i;
 using std::string;
 using std::vector;
 using std::min;
 using std::max;
-using IlmThread::Mutex;
-using IlmThread::Lock;
-using IlmThread::Semaphore;
-using IlmThread::Task;
-using IlmThread::TaskGroup;
-using IlmThread::ThreadPool;
+using ILMTHREAD_NAMESPACE::Mutex;
+using ILMTHREAD_NAMESPACE::Lock;
+using ILMTHREAD_NAMESPACE::Semaphore;
+using ILMTHREAD_NAMESPACE::Task;
+using ILMTHREAD_NAMESPACE::TaskGroup;
+using ILMTHREAD_NAMESPACE::ThreadPool;
 
 namespace {
 
@@ -352,7 +354,7 @@ readTileData (InputStreamMutex *streamData,
 
     if (tileOffset == 0)
     {
-        THROW (Iex::InputExc, "Tile (" << dx << ", " << dy << ", " <<
+        THROW (IEX_NAMESPACE::InputExc, "Tile (" << dx << ", " << dy << ", " <<
                               lx << ", " << ly << ") is missing.");
     }
 
@@ -391,7 +393,7 @@ readTileData (InputStreamMutex *streamData,
         Xdr::read <StreamIO> (*streamData->is, partNumber);
         if (partNumber != ifd->partNumber)
         {
-            THROW (Iex::ArgExc, "Unexpected part number " << partNumber
+            THROW (IEX_NAMESPACE::ArgExc, "Unexpected part number " << partNumber
                    << ", should be " << ifd->partNumber << ".");
         }
     }
@@ -416,16 +418,16 @@ readTileData (InputStreamMutex *streamData,
 
 
     if (tileXCoord != dx)
-        throw Iex::InputExc ("Unexpected tile x coordinate.");
+        throw IEX_NAMESPACE::InputExc ("Unexpected tile x coordinate.");
 
     if (tileYCoord != dy)
-        throw Iex::InputExc ("Unexpected tile y coordinate.");
+        throw IEX_NAMESPACE::InputExc ("Unexpected tile y coordinate.");
 
     if (levelX != lx)
-        throw Iex::InputExc ("Unexpected tile x level number coordinate.");
+        throw IEX_NAMESPACE::InputExc ("Unexpected tile x level number coordinate.");
 
     if (levelY != ly)
-        throw Iex::InputExc ("Unexpected tile y level number coordinate.");
+        throw IEX_NAMESPACE::InputExc ("Unexpected tile y level number coordinate.");
 
     //
     // Read the pixel data.
@@ -819,7 +821,7 @@ DeepTiledInputFile::DeepTiledInputFile (const char fileName[], int numThreads):
             _data->_streamData->currentPosition = _data->_streamData->is->tellg();
         }
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         if (is)          delete is;
         if (_data->_streamData) delete _data->_streamData;
@@ -874,7 +876,7 @@ DeepTiledInputFile::DeepTiledInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream 
             _data->_streamData->currentPosition = _data->_streamData->is->tellg();
         }
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         if (_data && _data->_streamData) delete _data->_streamData;
         if (_data)       delete _data;
@@ -949,7 +951,7 @@ void
 DeepTiledInputFile::multiPartInitialize(InputPartData* part)
 {
     if (isTiled(part->header.type()) == false)
-        throw Iex::ArgExc("Can't build a DeepTiledInputFile from a scanline part.");
+        throw IEX_NAMESPACE::ArgExc("Can't build a DeepTiledInputFile from a scanline part.");
 
     _data->_streamData = part->mutex;
     _data->header = part->header;
@@ -967,7 +969,7 @@ DeepTiledInputFile::initialize ()
 {
     if (_data->partNumber == -1)
         if (_data->header.type() != DEEPTILE)
-            throw Iex::ArgExc ("Expected a deep tiled file but the file is not deep tiled.");
+            throw IEX_NAMESPACE::ArgExc ("Expected a deep tiled file but the file is not deep tiled.");
 
     _data->header.sanityCheck (true);
 
@@ -1089,7 +1091,7 @@ DeepTiledInputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 
         if (i.channel().xSampling != j.slice().xSampling ||
             i.channel().ySampling != j.slice().ySampling)
-            THROW (Iex::ArgExc, "X and/or y subsampling factors "
+            THROW (IEX_NAMESPACE::ArgExc, "X and/or y subsampling factors "
                                 "of \"" << i.name() << "\" channel "
                                 "of input file \"" << fileName() << "\" are "
                                 "not compatible with the frame buffer's "
@@ -1104,7 +1106,7 @@ DeepTiledInputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
     const Slice& sampleCountSlice = frameBuffer.getSampleCountSlice();
     if (sampleCountSlice.base == 0)
     {
-        throw Iex::ArgExc ("Invalid base pointer, please set a proper sample count slice.");
+        throw IEX_NAMESPACE::ArgExc ("Invalid base pointer, please set a proper sample count slice.");
     }
     else
     {
@@ -1237,11 +1239,11 @@ DeepTiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2, int lx, int l
         Lock lock (*_data->_streamData);
 
         if (_data->slices.size() == 0)
-            throw Iex::ArgExc ("No frame buffer specified "
+            throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
                                "as pixel data destination.");
 
         if (!isValidLevel (lx, ly))
-            THROW (Iex::ArgExc,
+            THROW (IEX_NAMESPACE::ArgExc,
                    "Level coordinate "
                    "(" << lx << ", " << ly << ") "
                    "is invalid.");
@@ -1284,7 +1286,7 @@ DeepTiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2, int lx, int l
                 for (int dx = dx1; dx <= dx2; dx++)
                 {
                     if (!isValidTile (dx, dy, lx, ly))
-                        THROW (Iex::ArgExc,
+                        THROW (IEX_NAMESPACE::ArgExc,
                                "Tile (" << dx << ", " << dy << ", " <<
                                lx << "," << ly << ") is not a valid tile.");
 
@@ -1329,9 +1331,9 @@ DeepTiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2, int lx, int l
         }
 
         if (exception)
-            throw Iex::IoExc (*exception);
+            throw IEX_NAMESPACE::IoExc (*exception);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Error reading pixel data from image "
                         "file \"" << fileName() << "\". " << e);
@@ -1368,14 +1370,14 @@ DeepTiledInputFile::rawTileData (int &dx, int &dy,
                              Int64 &pixelDataSize) const
 {
      if (!isValidTile (dx, dy, lx, ly))
-               throw Iex::ArgExc ("Tried to read a tile outside "
+               throw IEX_NAMESPACE::ArgExc ("Tried to read a tile outside "
                                    "the image file's data window.");
     
      Int64 tileOffset = _data->tileOffsets (dx, dy, lx, ly);
                                    
      if(tileOffset == 0)
      {
-        THROW (Iex::InputExc, "Tile (" << dx << ", " << dy << ", " <<
+        THROW (IEX_NAMESPACE::InputExc, "Tile (" << dx << ", " << dy << ", " <<
         lx << ", " << ly << ") is missing.");
      }
      
@@ -1399,7 +1401,7 @@ DeepTiledInputFile::rawTileData (int &dx, int &dy,
          Xdr::read <StreamIO> (*_data->_streamData->is, partNumber);
          if (partNumber != _data->partNumber)
          {
-             THROW (Iex::ArgExc, "Unexpected part number " << partNumber
+             THROW (IEX_NAMESPACE::ArgExc, "Unexpected part number " << partNumber
              << ", should be " << _data->partNumber << ".");
          }
      }
@@ -1418,16 +1420,16 @@ DeepTiledInputFile::rawTileData (int &dx, int &dy,
           
      
      if (tileXCoord != dx)
-         throw Iex::InputExc ("Unexpected tile x coordinate.");
+         throw IEX_NAMESPACE::InputExc ("Unexpected tile x coordinate.");
      
      if (tileYCoord != dy)
-         throw Iex::InputExc ("Unexpected tile y coordinate.");
+         throw IEX_NAMESPACE::InputExc ("Unexpected tile y coordinate.");
      
      if (levelX != lx)
-         throw Iex::InputExc ("Unexpected tile x level number coordinate.");
+         throw IEX_NAMESPACE::InputExc ("Unexpected tile x level number coordinate.");
      
      if (levelY != ly)
-         throw Iex::InputExc ("Unexpected tile y level number coordinate.");
+         throw IEX_NAMESPACE::InputExc ("Unexpected tile y level number coordinate.");
      
      
      // total requirement for reading all the data
@@ -1509,7 +1511,7 @@ int
 DeepTiledInputFile::numLevels () const
 {
     if (levelMode() == RIPMAP_LEVELS)
-        THROW (Iex::LogicExc, "Error calling numLevels() on image "
+        THROW (IEX_NAMESPACE::LogicExc, "Error calling numLevels() on image "
                               "file \"" << fileName() << "\" "
                               "(numLevels() is not defined for files "
                               "with RIPMAP level mode).");
@@ -1556,7 +1558,7 @@ DeepTiledInputFile::levelWidth (int lx) const
         return levelSize (_data->minX, _data->maxX, lx,
                           _data->tileDesc.roundingMode);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Error calling levelWidth() on image "
                         "file \"" << fileName() << "\". " << e);
@@ -1573,7 +1575,7 @@ DeepTiledInputFile::levelHeight (int ly) const
         return levelSize (_data->minY, _data->maxY, ly,
                           _data->tileDesc.roundingMode);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Error calling levelHeight() on image "
                         "file \"" << fileName() << "\". " << e);
@@ -1587,7 +1589,7 @@ DeepTiledInputFile::numXTiles (int lx) const
 {
     if (lx < 0 || lx >= _data->numXLevels)
     {
-        THROW (Iex::ArgExc, "Error calling numXTiles() on image "
+        THROW (IEX_NAMESPACE::ArgExc, "Error calling numXTiles() on image "
                             "file \"" << _data->_streamData->is->fileName() << "\" "
                             "(Argument is not in valid range).");
 
@@ -1602,7 +1604,7 @@ DeepTiledInputFile::numYTiles (int ly) const
 {
     if (ly < 0 || ly >= _data->numYLevels)
     {
-        THROW (Iex::ArgExc, "Error calling numYTiles() on image "
+        THROW (IEX_NAMESPACE::ArgExc, "Error calling numYTiles() on image "
                             "file \"" << _data->_streamData->is->fileName() << "\" "
                             "(Argument is not in valid range).");
     }
@@ -1629,7 +1631,7 @@ DeepTiledInputFile::dataWindowForLevel (int lx, int ly) const
                 _data->minY, _data->maxY,
                 lx, ly);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Error calling dataWindowForLevel() on image "
                         "file \"" << fileName() << "\". " << e);
@@ -1651,7 +1653,7 @@ DeepTiledInputFile::dataWindowForTile (int dx, int dy, int lx, int ly) const
     try
     {
         if (!isValidTile (dx, dy, lx, ly))
-            throw Iex::ArgExc ("Arguments not in valid range.");
+            throw IEX_NAMESPACE::ArgExc ("Arguments not in valid range.");
 
         return OPENEXR_IMF_INTERNAL_NAMESPACE::dataWindowForTile (
                 _data->tileDesc,
@@ -1659,7 +1661,7 @@ DeepTiledInputFile::dataWindowForTile (int dx, int dy, int lx, int ly) const
                 _data->minY, _data->maxY,
                 dx, dy, lx, ly);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Error calling dataWindowForTile() on image "
                         "file \"" << fileName() << "\". " << e);
@@ -1692,7 +1694,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
         savedFilePos = _data->_streamData->is->tellg();
 
         if (!isValidLevel (lx, ly))
-            THROW (Iex::ArgExc,
+            THROW (IEX_NAMESPACE::ArgExc,
                    "Level coordinate "
                    "(" << lx << ", " << ly << ") "
                    "is invalid.");
@@ -1741,7 +1743,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                     Xdr::read <StreamIO> (*_data->_streamData->is, partNumber);
 
                     if (partNumber != _data->partNumber)
-                        throw Iex::InputExc ("Unexpected part number.");
+                        throw IEX_NAMESPACE::InputExc ("Unexpected part number.");
                 }
 
                 int xInFile, yInFile, lxInFile, lyInFile;
@@ -1751,16 +1753,16 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                 Xdr::read <StreamIO> (*_data->_streamData->is, lyInFile);
 
                 if (xInFile != dx)
-                    throw Iex::InputExc ("Unexpected tile x coordinate.");
+                    throw IEX_NAMESPACE::InputExc ("Unexpected tile x coordinate.");
 
                 if (yInFile != dy)
-                    throw Iex::InputExc ("Unexpected tile y coordinate.");
+                    throw IEX_NAMESPACE::InputExc ("Unexpected tile y coordinate.");
 
                 if (lxInFile != lx)
-                    throw Iex::InputExc ("Unexpected tile x level number coordinate.");
+                    throw IEX_NAMESPACE::InputExc ("Unexpected tile x level number coordinate.");
 
                 if (lyInFile != ly)
-                    throw Iex::InputExc ("Unexpected tile y level number coordinate.");
+                    throw IEX_NAMESPACE::InputExc ("Unexpected tile y level number coordinate.");
 
                 Int64 tableSize, dataSize, unpackedDataSize;
                 Xdr::read <StreamIO> (*_data->_streamData->is, tableSize);
@@ -1782,7 +1784,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                     unpackedDataSize > compressorMaxDataSize ||
                     tableSize        > compressorMaxDataSize)
                 {
-                    THROW (Iex::ArgExc, "This version of the library does not"
+                    THROW (IEX_NAMESPACE::ArgExc, "This version of the library does not"
                           << "support the allocation of data with size  > "
                           << compressorMaxDataSize
                           << " file table size    :" << tableSize
@@ -1802,7 +1804,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                 {
                     if(!_data->sampleCountTableComp)
                     {
-                        THROW(Iex::ArgExc,"Deep scanline data corrupt at tile " << dx << ',' << dy << ',' << lx << ',' <<  ly << " (sampleCountTableDataSize error)");
+                        THROW(IEX_NAMESPACE::ArgExc,"Deep scanline data corrupt at tile " << dx << ',' << dy << ',' << lx << ',' <<  ly << " (sampleCountTableDataSize error)");
                     }
                     _data->sampleCountTableComp->uncompress(_data->sampleCountTableBuffer,
                                                             tableSize,
@@ -1830,7 +1832,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
 
         _data->_streamData->is->seekg(savedFilePos);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Error reading sample count data from image "
                         "file \"" << fileName() << "\". " << e);
@@ -1894,7 +1896,7 @@ DeepTiledInputFile::totalTiles() const
             
         default:
             
-            throw Iex::ArgExc ("Unknown LevelMode format.");
+            throw IEX_NAMESPACE::ArgExc ("Unknown LevelMode format.");
     }
     return numAllTiles;
 }

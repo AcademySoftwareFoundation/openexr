@@ -150,25 +150,25 @@ TiledInputPart::numYTiles (int ly) const
     return file->numYTiles(ly);
 }
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 TiledInputPart::dataWindowForLevel (int l) const
 {
     return file->dataWindowForLevel(l);
 }
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 TiledInputPart::dataWindowForLevel (int lx, int ly) const
 {
     return file->dataWindowForLevel(lx, ly);
 }
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 TiledInputPart::dataWindowForTile (int dx, int dy, int l) const
 {
     return file->dataWindowForTile(dx, dy, l);
 }
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 TiledInputPart::dataWindowForTile (int dx, int dy, int lx, int ly) const
 {
     return file->dataWindowForTile(dx, dy, lx, ly);

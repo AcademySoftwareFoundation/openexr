@@ -49,15 +49,15 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using Imath::Box2i;
-using Imath::V2i;
+using IMATH_NAMESPACE::Box2i;
+using IMATH_NAMESPACE::V2i;
 
 
 int
 levelSize (int min, int max, int l, LevelRoundingMode rmode)
 {
     if (l < 0)
-	throw Iex::ArgExc ("Argument not in valid range.");
+	throw IEX_NAMESPACE::ArgExc ("Argument not in valid range.");
 
     int a = max - min + 1;
     int b = (1 << l);
@@ -244,7 +244,7 @@ calculateNumXLevels (const TileDescription& tileDesc,
 
       default:
 
-	throw Iex::ArgExc ("Unknown LevelMode format.");
+	throw IEX_NAMESPACE::ArgExc ("Unknown LevelMode format.");
     }
 
     return num;
@@ -284,7 +284,7 @@ calculateNumYLevels (const TileDescription& tileDesc,
 
       default:
 
-	throw Iex::ArgExc ("Unknown LevelMode format.");
+	throw IEX_NAMESPACE::ArgExc ("Unknown LevelMode format.");
     }
 
     return num;
@@ -375,7 +375,7 @@ getTiledChunkOffsetTableSize(const Header& header)
                     lineOffsetSize += numXTiles[i] * numYTiles[j];
             break;
         case NUM_LEVELMODES :
-            throw Iex::LogicExc("Bad level mode getting chunk offset table size");
+            throw IEX_NAMESPACE::LogicExc("Bad level mode getting chunk offset table size");
     }
 
     delete[] numXTiles;

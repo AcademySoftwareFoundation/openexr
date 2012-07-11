@@ -130,7 +130,7 @@ class ChannelList
     // Access to existing channels:
     //
     // [n]		Returns a reference to the channel with name n.
-    //			If no channel with name n exists, an Iex::ArgExc
+    //			If no channel with name n exists, an IEX_NAMESPACE::ArgExc
     //			is thrown.
     //
     // findChannel(n)	Returns a pointer to the channel with name n,

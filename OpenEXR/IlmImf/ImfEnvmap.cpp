@@ -45,7 +45,7 @@
 #include <math.h>
 
 using namespace std;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER

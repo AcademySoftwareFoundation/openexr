@@ -350,7 +350,7 @@ TypedAttribute<T>::cast (Attribute *attribute)
 	dynamic_cast <TypedAttribute<T> *> (attribute);
 
     if (t == 0)
-	throw Iex::TypeExc ("Unexpected attribute type.");
+	throw IEX_NAMESPACE::TypeExc ("Unexpected attribute type.");
 
     return t;
 }
@@ -364,7 +364,7 @@ TypedAttribute<T>::cast (const Attribute *attribute)
 	dynamic_cast <const TypedAttribute<T> *> (attribute);
 
     if (t == 0)
-	throw Iex::TypeExc ("Unexpected attribute type.");
+	throw IEX_NAMESPACE::TypeExc ("Unexpected attribute type.");
 
     return t;
 }

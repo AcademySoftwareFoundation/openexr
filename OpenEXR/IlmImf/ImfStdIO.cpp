@@ -64,11 +64,11 @@ checkError (istream &is, streamsize expected = 0)
     if (!is)
     {
 	if (errno)
-	    Iex::throwErrnoExc();
+	    IEX_NAMESPACE::throwErrnoExc();
 
 	if (is.gcount() < expected) 
 	{
-		THROW (Iex::InputExc, "Early end of file: read " << is.gcount() 
+		THROW (IEX_NAMESPACE::InputExc, "Early end of file: read " << is.gcount() 
 			<< " out of " << expected << " requested bytes.");
 	}
 	return false;
@@ -84,9 +84,9 @@ checkError (ostream &os)
     if (!os)
     {
 	if (errno)
-	    Iex::throwErrnoExc();
+	    IEX_NAMESPACE::throwErrnoExc();
 
-	throw Iex::ErrnoExc ("File output failed.");
+	throw IEX_NAMESPACE::ErrnoExc ("File output failed.");
     }
 }
 
@@ -101,7 +101,7 @@ StdIFStream::StdIFStream (const char fileName[]):
     if (!*_is)
     {
 	delete _is;
-	Iex::throwErrnoExc();
+	IEX_NAMESPACE::throwErrnoExc();
     }
 }
 
@@ -126,7 +126,7 @@ bool
 StdIFStream::read (char c[/*n*/], int n)
 {
     if (!*_is)
-        throw Iex::InputExc ("Unexpected end of file.");
+        throw IEX_NAMESPACE::InputExc ("Unexpected end of file.");
 
     clearError();
     _is->read (c, n);
@@ -164,7 +164,7 @@ StdOFStream::StdOFStream (const char fileName[]):
     if (!*_os)
     {
 	delete _os;
-	Iex::throwErrnoExc();
+	IEX_NAMESPACE::throwErrnoExc();
     }
 }
 

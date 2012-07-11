@@ -123,13 +123,13 @@ IEX_EXPORT void iex_debugTrap();
 //
 //-------------------------------------------------------------
 
-#define THROW_ERRNO(text)               \
-    do                                  \
-    {                                   \
-        std::stringstream s;            \
-        s << text;                      \
-        ::Iex::throwErrnoExc (s.str()); \
-    }                                   \
+#define THROW_ERRNO(text)                         \
+    do                                            \
+    {                                             \
+        std::stringstream s;                      \
+        s << text;                                \
+        ::IEX_NAMESPACE::throwErrnoExc (s.str()); \
+    }                                             \
     while (0)
 
 
@@ -153,7 +153,7 @@ IEX_EXPORT void iex_debugTrap();
     while (0)
 
 //-------------------------------------------------------------
-// A macro to throw an Iex::LogicExc if an assertion is false,
+// A macro to throw an IEX_NAMESPACE::LogicExc if an assertion is false,
 // with the text composed from the source code file, line number,
 // and assertion argument text.
 //
@@ -162,9 +162,9 @@ IEX_EXPORT void iex_debugTrap();
 //      LOGIC_ASSERT (i < n);
 //
 //-------------------------------------------------------------
-#define LOGIC_ASSERT(assertion) \
-    ASSERT(assertion,           \
-           Iex::LogicExc,       \
+#define LOGIC_ASSERT(assertion)           \
+    ASSERT(assertion,                     \
+           IEX_NAMESPACE::LogicExc,       \
            __FILE__ << "(" << __LINE__ << "): logical assertion failed: " << #assertion )
 
 #endif

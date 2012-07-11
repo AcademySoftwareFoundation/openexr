@@ -60,7 +60,7 @@ class TiledInputFile : public GenericInputFile
 
     //--------------------------------------------------------------------
     // A constructor that opens the file with the specified name, and
-    // reads the file header.  The constructor throws an Iex::ArgExc
+    // reads the file header.  The constructor throws an IEX_NAMESPACE::ArgExc
     // exception if the file is not tiled.
     // The numThreads parameter specifies how many worker threads this
     // file will try to keep busy when decompressing individual tiles.
@@ -197,7 +197,7 @@ class TiledInputFile : public GenericInputFile
     //      return value is the same as for numXLevels()
     //
     //	if levelMode() == RIPMAP_LEVELS:
-    //      an Iex::LogicExc exception is thrown
+    //      an IEX_NAMESPACE::LogicExc exception is thrown
     //
     // isValidLevel(lx, ly) returns true if the file contains 
     // a level with level number (lx, ly), false if not.
@@ -275,8 +275,8 @@ class TiledInputFile : public GenericInputFile
     //
     //---------------------------------------------------------------
 
-    Imath::Box2i	dataWindowForLevel (int l = 0) const;
-    Imath::Box2i	dataWindowForLevel (int lx, int ly) const;
+    IMATH_NAMESPACE::Box2i	dataWindowForLevel (int l = 0) const;
+    IMATH_NAMESPACE::Box2i	dataWindowForLevel (int lx, int ly) const;
 
 
     //-------------------------------------------------------------------
@@ -300,9 +300,9 @@ class TiledInputFile : public GenericInputFile
     //
     //-------------------------------------------------------------------
 
-    Imath::Box2i	dataWindowForTile (int dx, int dy, int l = 0) const;
+    IMATH_NAMESPACE::Box2i	dataWindowForTile (int dx, int dy, int l = 0) const;
 
-    Imath::Box2i	dataWindowForTile (int dx, int dy,
+    IMATH_NAMESPACE::Box2i	dataWindowForTile (int dx, int dy,
                                            int lx, int ly) const;
 
     //------------------------------------------------------------

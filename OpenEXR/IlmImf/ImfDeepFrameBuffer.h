@@ -108,7 +108,7 @@ class DeepFrameBuffer
     // Access to existing slices:
     //
     // [n]              Returns a reference to the slice with name n.
-    //                  If no slice with name n exists, an Iex::ArgExc
+    //                  If no slice with name n exists, an IEX_NAMESPACE::ArgExc
     //                  is thrown.
     //
     // findSlice(n)     Returns a pointer to the slice with name n,

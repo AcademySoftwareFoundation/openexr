@@ -185,7 +185,7 @@ void
 TimeCode::setHours (int value)
 {
     if (value < 0 || value > 23)
-	throw Iex::ArgExc ("Cannot set hours field in time code. "
+	throw IEX_NAMESPACE::ArgExc ("Cannot set hours field in time code. "
 			   "New value is out of range.");
 
     setBitField (_time, 24, 29, binaryToBcd (value));
@@ -203,7 +203,7 @@ void
 TimeCode::setMinutes (int value)
 {
     if (value < 0 || value > 59)
-	throw Iex::ArgExc ("Cannot set minutes field in time code. "
+	throw IEX_NAMESPACE::ArgExc ("Cannot set minutes field in time code. "
 			   "New value is out of range.");
 
     setBitField (_time, 16, 22, binaryToBcd (value));
@@ -221,7 +221,7 @@ void
 TimeCode::setSeconds (int value)
 {
     if (value < 0 || value > 59)
-	throw Iex::ArgExc ("Cannot set seconds field in time code. "
+	throw IEX_NAMESPACE::ArgExc ("Cannot set seconds field in time code. "
 			   "New value is out of range.");
 
     setBitField (_time, 8, 14, binaryToBcd (value));
@@ -239,7 +239,7 @@ void
 TimeCode::setFrame (int value)
 {
     if (value < 0 || value > 59)
-	throw Iex::ArgExc ("Cannot set frame field in time code. "
+	throw IEX_NAMESPACE::ArgExc ("Cannot set frame field in time code. "
 			   "New value is out of range.");
 
     setBitField (_time, 0, 5, binaryToBcd (value));
@@ -334,7 +334,7 @@ int
 TimeCode::binaryGroup (int group) const
 {
     if (group < 1 || group > 8)
-	throw Iex::ArgExc ("Cannot extract binary group from time code "
+	throw IEX_NAMESPACE::ArgExc ("Cannot extract binary group from time code "
 		           "user data.  Group number is out of range.");
 
     int minBit = 4 * (group - 1);
@@ -347,7 +347,7 @@ void
 TimeCode::setBinaryGroup (int group, int value)
 {
     if (group < 1 || group > 8)
-	throw Iex::ArgExc ("Cannot extract binary group from time code "
+	throw IEX_NAMESPACE::ArgExc ("Cannot extract binary group from time code "
 		           "user data.  Group number is out of range.");
 
     int minBit = 4 * (group - 1);

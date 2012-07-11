@@ -56,9 +56,9 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using namespace std;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 using namespace RgbaYca;
-using namespace IlmThread;
+using namespace ILMTHREAD_NAMESPACE;
 
 namespace {
 
@@ -78,7 +78,7 @@ insertChannels (Header &header,
 
 	if (rgbaChannels & WRITE_C)
 	{
-	    THROW (Iex::ArgExc, "Cannot open file \"" << fileName << "\" "
+	    THROW (IEX_NAMESPACE::ArgExc, "Cannot open file \"" << fileName << "\" "
 				"for writing.  Tiled image files do not "
 				"support subsampled chroma channels.");
 	}
@@ -214,7 +214,7 @@ TiledRgbaOutputFile::ToYa::writeTile (int dx, int dy, int lx, int ly)
 {
     if (_fbBase == 0)
     {
-	THROW (Iex::ArgExc, "No frame buffer was specified as the "
+	THROW (IEX_NAMESPACE::ArgExc, "No frame buffer was specified as the "
 			    "pixel data source for image file "
 			    "\"" << _outputFile.fileName() << "\".");
     }
@@ -310,11 +310,11 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
      int tileYSize,
      LevelMode mode,
      LevelRoundingMode rmode,
-     const Imath::Box2i &displayWindow,
-     const Imath::Box2i &dataWindow,
+     const IMATH_NAMESPACE::Box2i &displayWindow,
+     const IMATH_NAMESPACE::Box2i &dataWindow,
      RgbaChannels rgbaChannels,
      float pixelAspectRatio,
-     const Imath::V2f screenWindowCenter,
+     const IMATH_NAMESPACE::V2f screenWindowCenter,
      float screenWindowWidth,
      LineOrder lineOrder,
      Compression compression,
@@ -350,7 +350,7 @@ TiledRgbaOutputFile::TiledRgbaOutputFile
      LevelRoundingMode rmode,
      RgbaChannels rgbaChannels,
      float pixelAspectRatio,
-     const Imath::V2f screenWindowCenter,
+     const IMATH_NAMESPACE::V2f screenWindowCenter,
      float screenWindowWidth,
      LineOrder lineOrder,
      Compression compression,
@@ -424,14 +424,14 @@ TiledRgbaOutputFile::frameBuffer () const
 }
 
 
-const Imath::Box2i &
+const IMATH_NAMESPACE::Box2i &
 TiledRgbaOutputFile::displayWindow () const
 {
     return _outputFile->header().displayWindow();
 }
 
 
-const Imath::Box2i &
+const IMATH_NAMESPACE::Box2i &
 TiledRgbaOutputFile::dataWindow () const
 {
     return _outputFile->header().dataWindow();
@@ -445,7 +445,7 @@ TiledRgbaOutputFile::pixelAspectRatio () const
 }
 
 
-const Imath::V2f
+const IMATH_NAMESPACE::V2f
 TiledRgbaOutputFile::screenWindowCenter () const
 {
     return _outputFile->header().screenWindowCenter();
@@ -564,28 +564,28 @@ TiledRgbaOutputFile::numYTiles (int ly) const
 }
 
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 TiledRgbaOutputFile::dataWindowForLevel (int l) const
 {
      return _outputFile->dataWindowForLevel (l);
 }
 
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 TiledRgbaOutputFile::dataWindowForLevel (int lx, int ly) const
 {
      return _outputFile->dataWindowForLevel (lx, ly);
 }
 
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 TiledRgbaOutputFile::dataWindowForTile (int dx, int dy, int l) const
 {
      return _outputFile->dataWindowForTile (dx, dy, l);
 }
 
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 TiledRgbaOutputFile::dataWindowForTile (int dx, int dy, int lx, int ly) const
 {
      return _outputFile->dataWindowForTile (dx, dy, lx, ly);
@@ -732,7 +732,7 @@ TiledRgbaInputFile::FromYa::readTile (int dx, int dy, int lx, int ly)
 {
     if (_fbBase == 0)
     {
-	THROW (Iex::ArgExc, "No frame buffer was specified as the "
+	THROW (IEX_NAMESPACE::ArgExc, "No frame buffer was specified as the "
 			    "pixel data destination for image file "
 			    "\"" << _inputFile.fileName() << "\".");
     }
@@ -907,14 +907,14 @@ TiledRgbaInputFile::frameBuffer () const
 }
 
 
-const Imath::Box2i &
+const IMATH_NAMESPACE::Box2i &
 TiledRgbaInputFile::displayWindow () const
 {
     return _inputFile->header().displayWindow();
 }
 
 
-const Imath::Box2i &
+const IMATH_NAMESPACE::Box2i &
 TiledRgbaInputFile::dataWindow () const
 {
     return _inputFile->header().dataWindow();
@@ -928,7 +928,7 @@ TiledRgbaInputFile::pixelAspectRatio () const
 }
 
 
-const Imath::V2f	
+const IMATH_NAMESPACE::V2f	
 TiledRgbaInputFile::screenWindowCenter () const
 {
     return _inputFile->header().screenWindowCenter();
@@ -1061,28 +1061,28 @@ TiledRgbaInputFile::numYTiles (int ly) const
 }
 
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 TiledRgbaInputFile::dataWindowForLevel (int l) const
 {
      return _inputFile->dataWindowForLevel (l);
 }
 
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 TiledRgbaInputFile::dataWindowForLevel (int lx, int ly) const
 {
      return _inputFile->dataWindowForLevel (lx, ly);
 }
 
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 TiledRgbaInputFile::dataWindowForTile (int dx, int dy, int l) const
 {
      return _inputFile->dataWindowForTile (dx, dy, l);
 }
 
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 TiledRgbaInputFile::dataWindowForTile (int dx, int dy, int lx, int ly) const
 {
      return _inputFile->dataWindowForTile (dx, dy, lx, ly);

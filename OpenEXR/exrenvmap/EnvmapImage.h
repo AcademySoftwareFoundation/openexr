@@ -54,31 +54,31 @@ class EnvmapImage
 
       EnvmapImage ();
       EnvmapImage (CustomImf::Envmap type,
-                   const Imath::Box2i &dataWindow);
+                   const IMATH_NAMESPACE::Box2i &dataWindow);
       
       void				resize (CustomImf::Envmap type,
-	      					const Imath::Box2i &dataWindow);
+	      					const IMATH_NAMESPACE::Box2i &dataWindow);
 
       void				clear ();
 
       CustomImf::Envmap	type () const;
-      const Imath::Box2i &		dataWindow () const;
+      const IMATH_NAMESPACE::Box2i &		dataWindow () const;
 
       CustomImf::Array2D<CustomImf::Rgba> &
                                         pixels ();
       const CustomImf::Array2D<CustomImf::Rgba> &
                                         pixels () const;
       
-      CustomImf::Rgba 	filteredLookup (Imath::V3f direction,
+      CustomImf::Rgba 	filteredLookup (IMATH_NAMESPACE::V3f direction,
 					float radius,
 					int numSamples) const;
 
   private:
       
-      CustomImf::Rgba 	sample (const Imath::V2f &pos) const;
+      CustomImf::Rgba 	sample (const IMATH_NAMESPACE::V2f &pos) const;
 
       CustomImf::Envmap	_type;
-      Imath::Box2i                              _dataWindow;
+      IMATH_NAMESPACE::Box2i                              _dataWindow;
       CustomImf::Array2D<CustomImf::Rgba>	_pixels;
 };
 

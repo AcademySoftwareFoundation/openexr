@@ -49,7 +49,7 @@
 #include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 
 namespace {
@@ -192,7 +192,7 @@ testRgbaThreading ()
     {
         cout << "Testing setGlobalThreadCount()" << endl;
 
-        if (!IlmThread::supportsThreads ())
+        if (!ILMTHREAD_NAMESPACE::supportsThreads ())
         {
             cout << "   Threading not supported!" << endl << endl;
             return;

@@ -156,21 +156,21 @@ DeepTiledOutputPart::numYTiles (int ly) const
 
 
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 DeepTiledOutputPart::dataWindowForLevel (int l) const
 {
     return file->dataWindowForLevel(l);
 }
 
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 DeepTiledOutputPart::dataWindowForLevel (int lx, int ly) const
 {
     return file->dataWindowForLevel(lx, ly);
 }
 
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 DeepTiledOutputPart::dataWindowForTile (int dx, int dy,
                                         int l) const
 {
@@ -178,7 +178,7 @@ DeepTiledOutputPart::dataWindowForTile (int dx, int dy,
 }
 
 
-Imath::Box2i
+IMATH_NAMESPACE::Box2i
 DeepTiledOutputPart::dataWindowForTile (int dx, int dy,
                                         int lx, int ly) const
 {

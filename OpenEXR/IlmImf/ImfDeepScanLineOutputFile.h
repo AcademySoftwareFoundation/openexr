@@ -198,7 +198,7 @@ class DeepScanLineOutputFile : public GenericOutputFile
     // updatePreviewImage() supplies a new set of pixels for the
     // preview image attribute in the file's header.  If the header
     // does not contain a preview image, updatePreviewImage() throws
-    // an Iex::LogicExc.
+    // an IEX_NAMESPACE::LogicExc.
     //
     // Note: updatePreviewImage() is necessary because images are
     // often stored in a file incrementally, a few scan lines at a

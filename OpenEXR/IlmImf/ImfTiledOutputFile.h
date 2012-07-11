@@ -196,7 +196,7 @@ class TiledOutputFile : public GenericOutputFile
     //      return value is the same as for numXLevels()
     //
     //	if levelMode() == RIPMAP_LEVELS:
-    //      an Iex::LogicExc exception is thrown
+    //      an IEX_NAMESPACE::LogicExc exception is thrown
     //
     // isValidLevel(lx, ly) returns true if the file contains 
     // a level with level number (lx, ly), false if not.
@@ -275,8 +275,8 @@ class TiledOutputFile : public GenericOutputFile
     //
     //---------------------------------------------------------
 
-    Imath::Box2i	dataWindowForLevel (int l = 0) const;
-    Imath::Box2i	dataWindowForLevel (int lx, int ly) const;
+    IMATH_NAMESPACE::Box2i	dataWindowForLevel (int l = 0) const;
+    IMATH_NAMESPACE::Box2i	dataWindowForLevel (int lx, int ly) const;
 
 
     //-------------------------------------------------------------------
@@ -300,10 +300,10 @@ class TiledOutputFile : public GenericOutputFile
     //
     //-------------------------------------------------------------------
 
-    Imath::Box2i	dataWindowForTile (int dx, int dy,
+    IMATH_NAMESPACE::Box2i	dataWindowForTile (int dx, int dy,
 					   int l = 0) const;
 
-    Imath::Box2i	dataWindowForTile (int dx, int dy,
+    IMATH_NAMESPACE::Box2i	dataWindowForTile (int dx, int dy,
 					   int lx, int ly) const;
 
     //------------------------------------------------------------------
@@ -421,7 +421,7 @@ class TiledOutputFile : public GenericOutputFile
     // updatePreviewImage() supplies a new set of pixels for the
     // preview image attribute in the file's header.  If the header
     // does not contain a preview image, updatePreviewImage() throws
-    // an Iex::LogicExc.
+    // an IEX_NAMESPACE::LogicExc.
     //
     // Note: updatePreviewImage() is necessary because images are
     // often stored in a file incrementally, a few tiles at a time,

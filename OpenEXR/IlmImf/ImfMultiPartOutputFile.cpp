@@ -58,8 +58,8 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using Imath::Box2i;
-using IlmThread::Lock;
+using IMATH_NAMESPACE::Box2i;
+using ILMTHREAD_NAMESPACE::Lock;
     
 
 using std::vector;
@@ -152,7 +152,7 @@ MultiPartOutputFile::MultiPartOutputFile (const char fileName[],
     try
     {
         if (parts == 0) 
-            throw Iex::ArgExc ("Empty header list.");
+            throw IEX_NAMESPACE::ArgExc ("Empty header list.");
       
         bool isMultiPart = (parts > 1); 
 
@@ -171,7 +171,7 @@ MultiPartOutputFile::MultiPartOutputFile (const char fileName[],
             for (int i = 1; i < parts; i++)
             {
                 if (headers[i].hasType() == false)
-                    throw Iex::ArgExc ("Every header in a multipart file should have a type");
+                    throw IEX_NAMESPACE::ArgExc ("Every header in a multipart file should have a type");
 
                 
                 _data->_headers[i].setChunkCount(getChunkOffsetTableSize(_data->_headers[i],true));
@@ -193,7 +193,7 @@ MultiPartOutputFile::MultiPartOutputFile (const char fileName[],
                         for (size_t i=0; i<conflictingAttributes.size(); i++)
                             excMsg += " '" + conflictingAttributes[i] + "' ";
 
-                        THROW (Iex::ArgExc, excMsg);
+                        THROW (IEX_NAMESPACE::ArgExc, excMsg);
                     }
                 }
             }
@@ -222,7 +222,7 @@ MultiPartOutputFile::MultiPartOutputFile (const char fileName[],
         _data->writeHeadersToFile(_data->_headers);
         _data->writeChunkTableOffsets(_data->parts);
     }
-    catch (Iex::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
         delete _data;
 
@@ -242,7 +242,7 @@ MultiPartOutputFile::header(int n) const
 {
     if(n<0 || n>int(_data->_headers.size()))
     {
-        throw Iex::ArgExc("MultiPartOutputFile::header called with invalid part number");
+        throw IEX_NAMESPACE::ArgExc("MultiPartOutputFile::header called with invalid part number");
     }
     return _data->_headers[n];
 }
@@ -297,7 +297,7 @@ OutputPartData*
 MultiPartOutputFile::getPart(int partNumber)
 {
     if (partNumber < 0 || partNumber >= (int)_data->parts.size())
-        throw Iex::ArgExc ("Part number is not in valid range.");
+        throw IEX_NAMESPACE::ArgExc ("Part number is not in valid range.");
     return _data->parts[partNumber];
 }
 
@@ -429,7 +429,7 @@ MultiPartOutputFile::Data::headerNameUniquenessCheck (const vector<Header> &head
     for (size_t i = 0; i < headers.size(); i++)
     {
         if (names.find(headers[i].name()) != names.end())
-            throw Iex::ArgExc ("Each part should have a unique name.");
+            throw IEX_NAMESPACE::ArgExc ("Each part should have a unique name.");
         names.insert(headers[i].name());
     }
 }
@@ -466,7 +466,7 @@ MultiPartOutputFile::Data::writeChunkTableOffsets (vector<OutputPartData*> &part
         Int64 pos = os->tellp();
 
         if (pos == -1)
-            Iex::throwErrnoExc ("Cannot determine current file position (%T).");
+            IEX_NAMESPACE::throwErrnoExc ("Cannot determine current file position (%T).");
 
         parts[i]->chunkOffsetTablePosition = os->tellp();
 

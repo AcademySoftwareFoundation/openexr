@@ -47,7 +47,7 @@
 #include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 
 namespace {
@@ -149,7 +149,7 @@ testSampleImages ()
         
         for (int i = 0; i < 5; i++)
         {
-            if (IlmThread::supportsThreads ())
+            if (ILMTHREAD_NAMESPACE::supportsThreads ())
             {
                 setGlobalThreadCount (i);
 

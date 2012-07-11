@@ -193,7 +193,7 @@ void combine(vector <const char*> in, const char* outname, bool override)
                     partnums.push_back(j);
                 }
             }
-            catch(Iex::BaseExc &e)
+            catch(IEX_NAMESPACE::BaseExc &e)
             {
                 cerr<<"\n"<<"ERROR:"<<endl;
                 cerr<<e.what()<<endl;
@@ -224,7 +224,7 @@ void combine(vector <const char*> in, const char* outname, bool override)
                 headers.push_back(infile->header(numparts));
                 partnums.push_back(numparts);
             }
-            catch(Iex::BaseExc &e)
+            catch(IEX_NAMESPACE::BaseExc &e)
             {
                 cerr<<"\n"<<"ERROR:"<<endl;
                 cerr<<e.what()<<endl;
@@ -249,7 +249,7 @@ void combine(vector <const char*> in, const char* outname, bool override)
     {
         MultiPartOutputFile temp(outname,&headers[0],headers.size(),override,4);
     }
-    catch(Iex::BaseExc &e)
+    catch(IEX_NAMESPACE::BaseExc &e)
     {
         cerr<<"\n"<<"ERROR: "<<e.what()<<endl;
         exit(1);
@@ -316,7 +316,7 @@ void separate(vector <const char*> in, const char* out, bool override)
     {
         MultiPartInputFile temp(filename.c_str());
     }
-    catch(Iex::BaseExc &e)
+    catch(IEX_NAMESPACE::BaseExc &e)
     {
         cerr<<"\n"<<"ERROR: "<<e.what()<<endl;
         exit(1);

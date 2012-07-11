@@ -77,7 +77,7 @@
 #include <algorithm>
 
 using namespace std;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -163,7 +163,7 @@ floatToFloat24 (float f)
 void
 notEnoughData ()
 {
-    throw Iex::InputExc ("Error decompressing data "
+    throw IEX_NAMESPACE::InputExc ("Error decompressing data "
 			 "(input data are shorter than expected).");
 }
 
@@ -171,7 +171,7 @@ notEnoughData ()
 void
 tooMuchData ()
 {
-    throw Iex::InputExc ("Error decompressing data "
+    throw IEX_NAMESPACE::InputExc ("Error decompressing data "
 			 "(input data are longer than expected).");
 }
 
@@ -403,7 +403,7 @@ Pxr24Compressor::compress (const char *inPtr,
 			    (const Bytef *) _tmpBuffer,
 			    tmpBufferEnd - _tmpBuffer))
     {
-	throw Iex::BaseExc ("Data compression (zlib) failed.");
+	throw IEX_NAMESPACE::BaseExc ("Data compression (zlib) failed.");
     }
 
     outPtr = _outBuffer;
@@ -430,7 +430,7 @@ Pxr24Compressor::uncompress (const char *inPtr,
 			      (const Bytef *) inPtr,
 			      inSize))
     {
-	throw Iex::InputExc ("Data decompression (zlib) failed.");
+	throw IEX_NAMESPACE::InputExc ("Data decompression (zlib) failed.");
     }
 
     int minX = range.min.x;

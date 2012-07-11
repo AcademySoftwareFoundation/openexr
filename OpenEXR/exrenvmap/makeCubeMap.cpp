@@ -55,7 +55,7 @@
 #include "namespaceAlias.h"
 using namespace CustomImf;
 using namespace std;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 namespace {
 
@@ -75,7 +75,7 @@ makeCubeMapSingleFile (EnvmapImage &image1,
                        bool verbose)
 {
     if (levelMode == RIPMAP_LEVELS)
-        throw Iex::NoImplExc ("Cannot generate ripmap cube-face environments.");
+        throw IEX_NAMESPACE::NoImplExc ("Cannot generate ripmap cube-face environments.");
 
     //
     // Open the file that will contain the cube-face map,

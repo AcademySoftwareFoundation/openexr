@@ -53,8 +53,8 @@
 #include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
-using namespace Imath;
-using namespace IlmThread;
+using namespace IMATH_NAMESPACE;
+using namespace ILMTHREAD_NAMESPACE;
 
 
 namespace {
@@ -295,7 +295,7 @@ testSharedFrameBuffer ()
 	cout << "Testing reading from and writing to files using\n"
 		"multiple threads and a shared framebuffer" << endl;
 
-        if (!IlmThread::supportsThreads ())
+        if (!ILMTHREAD_NAMESPACE::supportsThreads ())
         {
             cout << "   Threading not supported!" << endl << endl;
             return;

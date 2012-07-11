@@ -52,12 +52,12 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 int levelSize (int min, int max, int l, LevelRoundingMode rmode);
 
-Imath::Box2i dataWindowForLevel (const TileDescription &tileDesc,
+IMATH_NAMESPACE::Box2i dataWindowForLevel (const TileDescription &tileDesc,
 				 int minX, int maxX,
 				 int minY, int maxY,
 				 int lx, int ly);
 
-Imath::Box2i dataWindowForTile (const TileDescription &tileDesc,
+IMATH_NAMESPACE::Box2i dataWindowForTile (const TileDescription &tileDesc,
 				int minX, int maxX,
 				int minY, int maxY,
 				int dx, int dy,

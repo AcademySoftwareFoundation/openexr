@@ -114,10 +114,10 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using Imath::divp;
-using Imath::modp;
-using Imath::Box2i;
-using Imath::V2i;
+using IMATH_NAMESPACE::divp;
+using IMATH_NAMESPACE::modp;
+using IMATH_NAMESPACE::Box2i;
+using IMATH_NAMESPACE::V2i;
 using std::min;
 
 namespace {
@@ -437,7 +437,7 @@ unpack3 (const unsigned char b[3], unsigned short s[16])
 void
 notEnoughData ()
 {
-    throw Iex::InputExc ("Error decompressing data "
+    throw IEX_NAMESPACE::InputExc ("Error decompressing data "
 			 "(input data are shorter than expected).");
 }
 
@@ -445,7 +445,7 @@ notEnoughData ()
 void
 tooMuchData ()
 {
-    throw Iex::InputExc ("Error decompressing data "
+    throw IEX_NAMESPACE::InputExc ("Error decompressing data "
 			 "(input data are longer than expected).");
 }
 
@@ -588,7 +588,7 @@ B44Compressor::compress (const char *inPtr,
 int
 B44Compressor::compressTile (const char *inPtr,
 			     int inSize,
-			     Imath::Box2i range,
+			     IMATH_NAMESPACE::Box2i range,
 			     const char *&outPtr)
 {
     return compress (inPtr, inSize, range, outPtr);
@@ -612,7 +612,7 @@ B44Compressor::uncompress (const char *inPtr,
 int
 B44Compressor::uncompressTile (const char *inPtr,
 			       int inSize,
-			       Imath::Box2i range,
+			       IMATH_NAMESPACE::Box2i range,
 			       const char *&outPtr)
 {
     return uncompress (inPtr, inSize, range, outPtr);
@@ -622,7 +622,7 @@ B44Compressor::uncompressTile (const char *inPtr,
 int
 B44Compressor::compress (const char *inPtr,
 			 int inSize,
-			 Imath::Box2i range,
+			 IMATH_NAMESPACE::Box2i range,
 			 const char *&outPtr)
 {
     //
@@ -864,7 +864,7 @@ B44Compressor::compress (const char *inPtr,
 int
 B44Compressor::uncompress (const char *inPtr,
 			   int inSize,
-			   Imath::Box2i range,
+			   IMATH_NAMESPACE::Box2i range,
 			   const char *&outPtr)
 {
     //

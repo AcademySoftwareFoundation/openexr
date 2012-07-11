@@ -34,7 +34,7 @@
 #ifndef NAMESPACEALIAS_H_
 #define NAMESPACEALIAS_H_
 
-#include <OpenEXRConfig.h>
+#include <ImfNamespace.h>
 
 namespace CustomImf = OPENEXR_IMF_NAMESPACE;
 

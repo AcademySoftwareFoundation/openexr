@@ -68,7 +68,7 @@ IStream::isMemoryMapped () const
 char *
 IStream::readMemoryMapped (int n)
 {
-    throw Iex::InputExc ("Attempt to perform a memory-mapped read "
+    throw IEX_NAMESPACE::InputExc ("Attempt to perform a memory-mapped read "
 			 "on a file that is not memory mapped.");
     return 0;
 }

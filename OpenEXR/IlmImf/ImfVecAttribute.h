@@ -53,37 +53,37 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-typedef TypedAttribute<Imath::V2i> V2iAttribute;
+typedef TypedAttribute<IMATH_NAMESPACE::V2i> V2iAttribute;
 template <> const char *V2iAttribute::staticTypeName ();
 template <> void V2iAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
 template <> void V2iAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-typedef TypedAttribute<Imath::V2f> V2fAttribute;
+typedef TypedAttribute<IMATH_NAMESPACE::V2f> V2fAttribute;
 template <> const char *V2fAttribute::staticTypeName ();
 template <> void V2fAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
 template <> void V2fAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-typedef TypedAttribute<Imath::V2d> V2dAttribute;
+typedef TypedAttribute<IMATH_NAMESPACE::V2d> V2dAttribute;
 template <> const char *V2dAttribute::staticTypeName ();
 template <> void V2dAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
 template <> void V2dAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-typedef TypedAttribute<Imath::V3i> V3iAttribute;
+typedef TypedAttribute<IMATH_NAMESPACE::V3i> V3iAttribute;
 template <> const char *V3iAttribute::staticTypeName ();
 template <> void V3iAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
 template <> void V3iAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-typedef TypedAttribute<Imath::V3f> V3fAttribute;
+typedef TypedAttribute<IMATH_NAMESPACE::V3f> V3fAttribute;
 template <> const char *V3fAttribute::staticTypeName ();
 template <> void V3fAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
 template <> void V3fAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-typedef TypedAttribute<Imath::V3d> V3dAttribute;
+typedef TypedAttribute<IMATH_NAMESPACE::V3d> V3dAttribute;
 template <> const char *V3dAttribute::staticTypeName ();
 template <> void V3dAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
 template <> void V3dAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);

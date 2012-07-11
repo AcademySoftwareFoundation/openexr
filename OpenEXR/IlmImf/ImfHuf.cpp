@@ -55,7 +55,7 @@
 
 
 using namespace std;
-using namespace Iex;
+using namespace IEX_NAMESPACE;
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER

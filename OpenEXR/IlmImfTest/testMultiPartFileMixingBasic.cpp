@@ -63,8 +63,8 @@
 #include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
-using namespace Imath;
-using namespace IlmThread;
+using namespace IMATH_NAMESPACE;
+using namespace ILMTHREAD_NAMESPACE;
 
 namespace
 {
@@ -230,7 +230,7 @@ void generateRandomHeaders(int partCount, vector<Header>& headers)
         Header header (width, 
                        height,
                        1.f, 
-                       Imath::V2f (0, 0), 
+                       IMATH_NAMESPACE::V2f (0, 0), 
                        1.f, 
                        INCREASING_Y, 
                        ZIPS_COMPRESSION);

@@ -107,7 +107,7 @@ IMF_STD_ATTRIBUTE_DEF (whiteLuminance, WhiteLuminance, float)
 // be mapped to neutral values on the display.
 //
 
-IMF_STD_ATTRIBUTE_DEF (adoptedNeutral, AdoptedNeutral, Imath::V2f)
+IMF_STD_ATTRIBUTE_DEF (adoptedNeutral, AdoptedNeutral, IMATH_NAMESPACE::V2f)
 
 
 //
@@ -316,7 +316,7 @@ IMF_STD_ATTRIBUTE_DEF (multiView , MultiView, StringVector)
 // Camera coordinate space in OpenEXR is the same as in Pixar's Renderman.
 // 
 
-IMF_STD_ATTRIBUTE_DEF (worldToCamera, WorldToCamera, Imath::M44f)
+IMF_STD_ATTRIBUTE_DEF (worldToCamera, WorldToCamera, IMATH_NAMESPACE::M44f)
 
 
 // 
@@ -336,7 +336,7 @@ IMF_STD_ATTRIBUTE_DEF (worldToCamera, WorldToCamera, Imath::M44f)
 // NDC space in OpenEXR is the same as in Pixar's Renderman.
 // 
 
-IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, Imath::M44f)
+IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
 
 
 

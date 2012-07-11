@@ -44,7 +44,7 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-using IlmThread::Mutex;
+using ILMTHREAD_NAMESPACE::Mutex;
 
 //
 // Used to wrap OPENEXR_IMF_INTERNAL_NAMESPACE::OStream as a Mutex.
