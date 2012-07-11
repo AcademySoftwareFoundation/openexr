@@ -31,6 +31,7 @@
 #include <ucontext.h>
 #include <signal.h>
 #include <iostream>
+#include <stdint.h>
 
 namespace Iex
 {
