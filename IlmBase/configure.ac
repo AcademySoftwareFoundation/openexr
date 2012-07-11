@@ -147,6 +147,8 @@ if test "x${library_namespace_versioning}" == xyes ; then
     AC_DEFINE_UNQUOTED(IMATH_INTERNAL_NAMESPACE,     Imath_${ILMBASE_VERSION_SAFE})
     AC_DEFINE_UNQUOTED(IEX_INTERNAL_NAMESPACE,       Iex_${ILMBASE_VERSION_SAFE})
     AC_DEFINE_UNQUOTED(ILMTHREAD_INTERNAL_NAMESPACE, IlmThread_${ILMBASE_VERSION_SAFE})
+    AC_DEFINE(ILMBASE_INTERNAL_NAMESPACE_CUSTOM)
+    
     lib_namespace="${ILMBASE_VERSION_SAFE}"
     LIB_SUFFIX="${ILMBASE_VERSION_SAFE}"
     lib_suffix_valid="yes"
@@ -159,6 +161,8 @@ else
     AC_DEFINE_UNQUOTED(IMATH_INTERNAL_NAMESPACE,     Imath_${library_namespace_versioning})
     AC_DEFINE_UNQUOTED(IEX_INTERNAL_NAMESPACE,       Iex_${library_namespace_versioning})
     AC_DEFINE_UNQUOTED(ILMTHREAD_INTERNAL_NAMESPACE, IlmThread_${library_namespace_versioning})
+    AC_DEFINE(ILMBASE_INTERNAL_NAMESPACE_CUSTOM)
+    
     lib_namespace="${library_namespace_versioning}"
     LIB_SUFFIX="${library_namespace_versioning}"
     lib_suffix_valid="yes"
@@ -186,18 +190,23 @@ AC_ARG_ENABLE(customusernamespace,
 
 if test "x${custom_public_namespace}" == xyes ; then
     AC_MSG_WARN([Enabling 'custom user namespace' requires an additional argument, reverting to default])
-    AC_DEFINE(ILMBASE_NAMESPACE, )
+    AC_DEFINE(IMATH_NAMESPACE,     Imath)
+    AC_DEFINE(IEX_NAMESPACE,       Iex)
+    AC_DEFINE(ILMTHREAD_NAMESPACE, IlmThread)
+
     public_namespace=""
     custom_public_namespace=no
 elif test "x${custom_public_namespace}" == xno ; then
     AC_DEFINE(IMATH_NAMESPACE,     Imath)
     AC_DEFINE(IEX_NAMESPACE,       Iex)
     AC_DEFINE(ILMTHREAD_NAMESPACE, IlmThread)
+    
     public_namespace=""
 else
     AC_DEFINE_UNQUOTED(IMATH_NAMESPACE,     Imath_${custom_public_namespace})
     AC_DEFINE_UNQUOTED(IEX_NAMESPACE,       Iex_${custom_public_namespace})
     AC_DEFINE_UNQUOTED(ILMTHREAD_NAMESPACE, IlmThread_${custom_public_namespace})
+    AC_DEFINE(ILMBASE_NAMESPACE_CUSTOM)
     
     public_namespace=${custom_public_namespace}
 fi

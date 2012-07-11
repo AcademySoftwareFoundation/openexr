@@ -27,10 +27,12 @@
 // Current (internal) library namepace name and corresponding public
 // client namespaces.
 //
+#undef ILMBASE_INTERNAL_NAMESPACE_CUSTOM
 #undef IMATH_INTERNAL_NAMESPACE
 #undef IEX_INTERNAL_NAMESPACE
 #undef ILMTHREAD_INTERNAL_NAMESPACE
 
+#undef ILMBASE_NAMESPACE_CUSTOM
 #undef IMATH_NAMESPACE
 #undef IEX_NAMESPACE
 #undef ILMTHREAD_NAMESPACE
