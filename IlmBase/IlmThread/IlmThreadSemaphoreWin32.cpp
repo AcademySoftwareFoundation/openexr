@@ -46,7 +46,7 @@
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using namespace Iex;
+using namespace IEX_NAMESPACE;
 
 namespace {
 
@@ -142,5 +142,6 @@ Semaphore::value() const
 
     return v;
 }
+
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT

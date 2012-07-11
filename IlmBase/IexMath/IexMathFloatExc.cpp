@@ -29,6 +29,7 @@
 
 IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
 
+
 namespace {
 
 void
@@ -83,5 +84,6 @@ MathExcOn::handleOutstandingExceptions()
 {
     handleExceptionsSetInRegisters();
 }
+
 
 IEX_INTERNAL_NAMESPACE_SOURCE_EXIT
