@@ -49,7 +49,7 @@
 
 namespace PyImath{
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 template <class T> struct LineName {static const char *value;};
 template <> const char *LineName<float>::value = "Line3f";
@@ -83,7 +83,7 @@ Line3_tuple_construct(const tuple &t0, const tuple &t1)
         return new Line3<T>(v0, v1);
     }
     else
-        THROW(Iex::LogicExc, "Line3 expects tuple of length 3");    
+        THROW(IEX_NAMESPACE::LogicExc, "Line3 expects tuple of length 3");    
 }
 
 template <class T, class S>
@@ -124,7 +124,7 @@ setTuple(Line3<T> &line, const tuple &t0, const tuple &t1)
         line.set(v0, v1);
     }
     else
-        THROW(Iex::LogicExc, "Line3 expects tuple of length 3");    
+        THROW(IEX_NAMESPACE::LogicExc, "Line3 expects tuple of length 3");    
 }
 
 template <class T>
@@ -165,7 +165,7 @@ distanceToTuple(Line3<T> line, const tuple &t)
         return line.distanceTo(v);
     }
     else
-        THROW(Iex::LogicExc, "Line3 expects tuple of length 3");      
+        THROW(IEX_NAMESPACE::LogicExc, "Line3 expects tuple of length 3");      
 }
 
 template <class T>
@@ -199,7 +199,7 @@ closestPointToTuple(Line3<T> line, const tuple &t)
         return line.closestPointTo(v);
     }
     else
-        THROW(Iex::LogicExc, "Line3 expects tuple of length 3");      
+        THROW(IEX_NAMESPACE::LogicExc, "Line3 expects tuple of length 3");      
 }
 
 template <class T>
@@ -230,7 +230,7 @@ setPositionTuple(Line3<T> &line, const tuple &t)
         line.pos = pos;
     }
     else
-        THROW(Iex::LogicExc, "Line3 expects tuple of length 3");    
+        THROW(IEX_NAMESPACE::LogicExc, "Line3 expects tuple of length 3");    
 }
 
 template <class T>
@@ -263,7 +263,7 @@ setDirectionTuple(Line3<T> &line, const tuple &t)
         line.dir = dir.normalized();
     }
     else
-        THROW(Iex::LogicExc, "Line3 expects tuple of length 3");    
+        THROW(IEX_NAMESPACE::LogicExc, "Line3 expects tuple of length 3");    
 }
 
 template <class T>
@@ -271,7 +271,7 @@ static void
 closestPoints1(Line3<T> &line1, const Line3<T> &line2, Vec3<T> &p0, Vec3<T> &p1)
 {
     MATH_EXC_ON;
-    Imath::closestPoints(line1, line2, p0, p1);
+    IMATH_NAMESPACE::closestPoints(line1, line2, p0, p1);
 }
 
 template <class T>
@@ -280,7 +280,7 @@ closestPoints2(Line3<T> &line1, const Line3<T> &line2)
 {
     MATH_EXC_ON;
     Vec3<T> p0, p1;
-    Imath::closestPoints(line1, line2, p0, p1);
+    IMATH_NAMESPACE::closestPoints(line1, line2, p0, p1);
     tuple p0Tuple = make_tuple(p0.x,p0.y,p0.z);
     tuple p1Tuple = make_tuple(p1.x,p1.y,p1.z);
 
@@ -300,7 +300,7 @@ static Vec3<T>
 closestVertex(Line3<T> &line, const Vec3<T> &v0, const Vec3<T> &v1, const Vec3<T> &v2)
 {
     MATH_EXC_ON;
-    return Imath::closestVertex(v0, v1, v2, line);
+    return IMATH_NAMESPACE::closestVertex(v0, v1, v2, line);
 }
 
 template <class T>
@@ -323,10 +323,10 @@ closestVertexTuple(Line3<T> &line, const tuple &t0, const tuple &t1, const tuple
         v2.y = extract<T>(t2[1]);
         v2.z = extract<T>(t2[2]);
         
-        return Imath::closestVertex(v0, v1, v2, line);
+        return IMATH_NAMESPACE::closestVertex(v0, v1, v2, line);
     }        
     else
-        THROW(Iex::LogicExc, "Line3 expects tuple of length 3");      
+        THROW(IEX_NAMESPACE::LogicExc, "Line3 expects tuple of length 3");      
 }
 
 template <class T>
@@ -335,7 +335,7 @@ intersect1(Line3<T> &line, const Vec3<T> &v0, const Vec3<T> &v1, const Vec3<T> &
           Vec3<T> &pt, Vec3<T> &barycentric, bool &front)
 {
     MATH_EXC_ON;
-    return Imath::intersect(line, v0, v1, v2, pt, barycentric, front);
+    return IMATH_NAMESPACE::intersect(line, v0, v1, v2, pt, barycentric, front);
 }
 
 template <class T>
@@ -346,7 +346,7 @@ intersect2(Line3<T> &line, const Vec3<T> &v0, const Vec3<T> &v1, const Vec3<T> &
     Vec3<T> pt, bar;
     bool front;
     
-    if(Imath::intersect(line, v0, v1, v2, pt, bar, front))
+    if(IMATH_NAMESPACE::intersect(line, v0, v1, v2, pt, bar, front))
     {
         tuple t = make_tuple(pt, bar, front);
         return t;
@@ -378,7 +378,7 @@ intersectTuple(Line3<T> &line, const tuple &t0, const tuple &t1, const tuple &t2
         v2.y = extract<T>(t2[1]);
         v2.z = extract<T>(t2[2]);
         
-        if(Imath::intersect(line, v0, v1, v2, pt, bar, front))
+        if(IMATH_NAMESPACE::intersect(line, v0, v1, v2, pt, bar, front))
         {
             tuple t = make_tuple(pt, bar, front);
             return t;
@@ -390,7 +390,7 @@ intersectTuple(Line3<T> &line, const tuple &t0, const tuple &t1, const tuple &t2
         }
     }
     else
-        THROW(Iex::LogicExc, "Line3 expects tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "Line3 expects tuple of length 3");
 }
 
 template <class T>
@@ -398,7 +398,7 @@ static Vec3<T>
 rotatePoint(Line3<T> &line, const Vec3<T> &p, const T &r)
 {
     MATH_EXC_ON;
-    return Imath::rotatePoint(p, line, r);
+    return IMATH_NAMESPACE::rotatePoint(p, line, r);
 }
 
 template <class T>
@@ -413,10 +413,10 @@ rotatePointTuple(Line3<T> &line, const tuple &t, const T &r)
         p.y = extract<T>(t[1]);
         p.z = extract<T>(t[2]);
         
-        return Imath::rotatePoint(p, line, r);
+        return IMATH_NAMESPACE::rotatePoint(p, line, r);
     }        
     else
-        THROW(Iex::LogicExc, "Line3 expects tuple of length 3");      
+        THROW(IEX_NAMESPACE::LogicExc, "Line3 expects tuple of length 3");      
 }
 
 template <class T>

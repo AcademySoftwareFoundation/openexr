@@ -43,154 +43,154 @@
 
 namespace PyImath {
 
-template <class T> boost::python::class_<Imath::Vec2<T> > register_Vec2();
-template <class T> boost::python::class_<FixedArray<Imath::Vec2<T> > > register_Vec2Array();
-typedef FixedArray<Imath::V2s>  V2sArray;
-typedef FixedArray<Imath::V2i>  V2iArray;
-typedef FixedArray<Imath::V2f>  V2fArray;
-typedef FixedArray<Imath::V2d>  V2dArray;
+template <class T> boost::python::class_<IMATH_NAMESPACE::Vec2<T> > register_Vec2();
+template <class T> boost::python::class_<FixedArray<IMATH_NAMESPACE::Vec2<T> > > register_Vec2Array();
+typedef FixedArray<IMATH_NAMESPACE::V2s>  V2sArray;
+typedef FixedArray<IMATH_NAMESPACE::V2i>  V2iArray;
+typedef FixedArray<IMATH_NAMESPACE::V2f>  V2fArray;
+typedef FixedArray<IMATH_NAMESPACE::V2d>  V2dArray;
 
-// TODO: template <class T> class Vec2Array : public FixedArray<Imath::Vec2<T> >
+// TODO: template <class T> class Vec2Array : public FixedArray<IMATH_NAMESPACE::Vec2<T> >
 
 }
 
 // define vector*float array multiplication
 template <class T>
-static PyImath::FixedArray<Imath::Vec2<T> > operator * (const PyImath::FixedArray<Imath::Vec2<T> > &a0, T v1) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > operator * (const PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > &a0, T v1) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = a0.len(); PyImath::FixedArray<Imath::Vec2<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]*v1; return f;
+    size_t len = a0.len(); PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]*v1; return f;
 }
 template <class T>
-static PyImath::FixedArray<Imath::Vec2<T> > operator * (T v0, const PyImath::FixedArray<Imath::Vec2<T> > &a1) { return a1*v0; }
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > operator * (T v0, const PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > &a1) { return a1*v0; }
 template <class T>
-static PyImath::FixedArray<Imath::Vec2<T> > operator * (const PyImath::FixedArray<Imath::Vec2<T> > &a0, const PyImath::FixedArray<T> &a1) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > operator * (const PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > &a0, const PyImath::FixedArray<T> &a1) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = a0.match_dimension(a1); PyImath::FixedArray<Imath::Vec2<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]*a1[i]; return f;
+    size_t len = a0.match_dimension(a1); PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]*a1[i]; return f;
 }
 template <class T>
-static PyImath::FixedArray<Imath::Vec2<T> > operator * (const PyImath::FixedArray<T> &a0, const PyImath::FixedArray<Imath::Vec2<T> > &a1) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > operator * (const PyImath::FixedArray<T> &a0, const PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > &a1) {
     return a1*a0;
 }
 
 // define vector/float array division
 template <class T>
-static PyImath::FixedArray<Imath::Vec2<T> > operator / (const PyImath::FixedArray<Imath::Vec2<T> > &a0, T v1) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > operator / (const PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > &a0, T v1) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = a0.len(); PyImath::FixedArray<Imath::Vec2<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]/v1; return f;
+    size_t len = a0.len(); PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]/v1; return f;
 }
 template <class T>
-static PyImath::FixedArray<Imath::Vec2<T> > operator / (const PyImath::FixedArray<Imath::Vec2<T> > &a0, const PyImath::FixedArray<T> &a1) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > operator / (const PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > &a0, const PyImath::FixedArray<T> &a1) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = a0.match_dimension(a1); PyImath::FixedArray<Imath::Vec2<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]/a1[i]; return f;
+    size_t len = a0.match_dimension(a1); PyImath::FixedArray<IMATH_NAMESPACE::Vec2<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]/a1[i]; return f;
 }
 
 
 namespace PyImath {
 
-template <class T> boost::python::class_<Imath::Vec3<T> > register_Vec3();
-template <class T> boost::python::class_<FixedArray<Imath::Vec3<T> > > register_Vec3Array();
-typedef FixedArray<Imath::Vec3<unsigned char> >  V3cArray;
-typedef FixedArray<Imath::V3s>  V3sArray;
-typedef FixedArray<Imath::V3i>  V3iArray;
-typedef FixedArray<Imath::V3f>  V3fArray;
-typedef FixedArray<Imath::V3d>  V3dArray;
+template <class T> boost::python::class_<IMATH_NAMESPACE::Vec3<T> > register_Vec3();
+template <class T> boost::python::class_<FixedArray<IMATH_NAMESPACE::Vec3<T> > > register_Vec3Array();
+typedef FixedArray<IMATH_NAMESPACE::Vec3<unsigned char> >  V3cArray;
+typedef FixedArray<IMATH_NAMESPACE::V3s>  V3sArray;
+typedef FixedArray<IMATH_NAMESPACE::V3i>  V3iArray;
+typedef FixedArray<IMATH_NAMESPACE::V3f>  V3fArray;
+typedef FixedArray<IMATH_NAMESPACE::V3d>  V3dArray;
 
-// TODO: template <class T> class Vec3Array : public FixedArray<Imath::Vec3<T> >
+// TODO: template <class T> class Vec3Array : public FixedArray<IMATH_NAMESPACE::Vec3<T> >
 }
 
 // define vector*float array multiplication
 template <class T>
-static PyImath::FixedArray<Imath::Vec3<T> > operator * (const PyImath::FixedArray<Imath::Vec3<T> > &a0, T v1) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > operator * (const PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > &a0, T v1) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = a0.len(); PyImath::FixedArray<Imath::Vec3<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]*v1; return f;
+    size_t len = a0.len(); PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]*v1; return f;
 }
 template <class T>
-static PyImath::FixedArray<Imath::Vec3<T> > operator * (T v0, const PyImath::FixedArray<Imath::Vec3<T> > &a1) { return a1*v0; }
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > operator * (T v0, const PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > &a1) { return a1*v0; }
 template <class T>
-static PyImath::FixedArray<Imath::Vec3<T> > operator * (const PyImath::FixedArray<Imath::Vec3<T> > &a0, const PyImath::FixedArray<T> &a1) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > operator * (const PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > &a0, const PyImath::FixedArray<T> &a1) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = a0.match_dimension(a1); PyImath::FixedArray<Imath::Vec3<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]*a1[i]; return f;
+    size_t len = a0.match_dimension(a1); PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]*a1[i]; return f;
 }
 template <class T>
-static PyImath::FixedArray<Imath::Vec3<T> > operator * (const PyImath::FixedArray<T> &a0, const PyImath::FixedArray<Imath::Vec3<T> > &a1) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > operator * (const PyImath::FixedArray<T> &a0, const PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > &a1) {
     return a1*a0;
 }
 template <class T>
-static PyImath::FixedArray<Imath::Vec3<T> > operator * (const PyImath::FixedArray<Imath::Vec3<T> > &va, const Imath::M44f &m) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > operator * (const PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > &va, const IMATH_NAMESPACE::M44f &m) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = va.len(); PyImath::FixedArray<Imath::Vec3<T> > f(len); for (size_t i = 0; i < len; ++i) f[i] = va[i] * m; return f;
+    size_t len = va.len(); PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > f(len); for (size_t i = 0; i < len; ++i) f[i] = va[i] * m; return f;
 }
 
 template <class T>
-static PyImath::FixedArray<Imath::Vec3<T> > operator * (const PyImath::FixedArray<Imath::Vec3<T> > &va, const Imath::M44d &m) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > operator * (const PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > &va, const IMATH_NAMESPACE::M44d &m) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = va.len(); PyImath::FixedArray<Imath::Vec3<T> > f(len); for (size_t i = 0; i < len; ++i) f[i] = va[i] * m; return f;
+    size_t len = va.len(); PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > f(len); for (size_t i = 0; i < len; ++i) f[i] = va[i] * m; return f;
 }
 
 // define vector/float array division
 template <class T>
-static PyImath::FixedArray<Imath::Vec3<T> > operator / (const PyImath::FixedArray<Imath::Vec3<T> > &a0, T v1) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > operator / (const PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > &a0, T v1) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = a0.len(); PyImath::FixedArray<Imath::Vec3<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]/v1; return f;
+    size_t len = a0.len(); PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]/v1; return f;
 }
 template <class T>
-static PyImath::FixedArray<Imath::Vec3<T> > operator / (const PyImath::FixedArray<Imath::Vec3<T> > &a0, const PyImath::FixedArray<T> &a1) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > operator / (const PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > &a0, const PyImath::FixedArray<T> &a1) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = a0.match_dimension(a1); PyImath::FixedArray<Imath::Vec3<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]/a1[i]; return f;
+    size_t len = a0.match_dimension(a1); PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]/a1[i]; return f;
 }
 
 namespace PyImath {
 
-template <class T> boost::python::class_<Imath::Vec4<T> > register_Vec4();
-template <class T> boost::python::class_<PyImath::FixedArray<Imath::Vec4<T> > > register_Vec4Array();
-typedef FixedArray<Imath::Vec4<unsigned char> >  V4cArray;
-typedef FixedArray<Imath::V4s>  V4sArray;
-typedef FixedArray<Imath::V4i>  V4iArray;
-typedef FixedArray<Imath::V4f>  V4fArray;
-typedef FixedArray<Imath::V4d>  V4dArray;
+template <class T> boost::python::class_<IMATH_NAMESPACE::Vec4<T> > register_Vec4();
+template <class T> boost::python::class_<PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > > register_Vec4Array();
+typedef FixedArray<IMATH_NAMESPACE::Vec4<unsigned char> >  V4cArray;
+typedef FixedArray<IMATH_NAMESPACE::V4s>  V4sArray;
+typedef FixedArray<IMATH_NAMESPACE::V4i>  V4iArray;
+typedef FixedArray<IMATH_NAMESPACE::V4f>  V4fArray;
+typedef FixedArray<IMATH_NAMESPACE::V4d>  V4dArray;
 
-// TODO: template <class T> class Vec3Array : public FixedArray<Imath::Vec3<T> >
+// TODO: template <class T> class Vec3Array : public FixedArray<IMATH_NAMESPACE::Vec3<T> >
 }
 
 // define vector*float array multiplication
 template <class T>
-static PyImath::FixedArray<Imath::Vec4<T> > operator * (const PyImath::FixedArray<Imath::Vec4<T> > &a0, T v1) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > operator * (const PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > &a0, T v1) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = a0.len(); PyImath::FixedArray<Imath::Vec4<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]*v1; return f;
+    size_t len = a0.len(); PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]*v1; return f;
 }
 template <class T>
-static PyImath::FixedArray<Imath::Vec4<T> > operator * (T v0, const PyImath::FixedArray<Imath::Vec4<T> > &a1) { return a1*v0; }
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > operator * (T v0, const PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > &a1) { return a1*v0; }
 template <class T>
-static PyImath::FixedArray<Imath::Vec4<T> > operator * (const PyImath::FixedArray<Imath::Vec4<T> > &a0, const PyImath::FixedArray<T> &a1) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > operator * (const PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > &a0, const PyImath::FixedArray<T> &a1) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = a0.match_dimension(a1); PyImath::FixedArray<Imath::Vec4<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]*a1[i]; return f;
+    size_t len = a0.match_dimension(a1); PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]*a1[i]; return f;
 }
 template <class T>
-static PyImath::FixedArray<Imath::Vec4<T> > operator * (const PyImath::FixedArray<T> &a0, const PyImath::FixedArray<Imath::Vec4<T> > &a1) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > operator * (const PyImath::FixedArray<T> &a0, const PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > &a1) {
     return a1*a0;
 }
 template <class T>
-static PyImath::FixedArray<Imath::Vec4<T> > operator * (const PyImath::FixedArray<Imath::Vec4<T> > &va, const Imath::M44f &m) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > operator * (const PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > &va, const IMATH_NAMESPACE::M44f &m) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = va.len(); PyImath::FixedArray<Imath::Vec4<T> > f(len); for (size_t i = 0; i < len; ++i) f[i] = va[i] * m; return f;
+    size_t len = va.len(); PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > f(len); for (size_t i = 0; i < len; ++i) f[i] = va[i] * m; return f;
 }
 
 template <class T>
-static PyImath::FixedArray<Imath::Vec4<T> > operator * (const PyImath::FixedArray<Imath::Vec4<T> > &va, const Imath::M44d &m) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > operator * (const PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > &va, const IMATH_NAMESPACE::M44d &m) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = va.len(); PyImath::FixedArray<Imath::Vec4<T> > f(len); for (size_t i = 0; i < len; ++i) f[i] = va[i] * m; return f;
+    size_t len = va.len(); PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > f(len); for (size_t i = 0; i < len; ++i) f[i] = va[i] * m; return f;
 }
 
 // define vector/float array division
 template <class T>
-static PyImath::FixedArray<Imath::Vec4<T> > operator / (const PyImath::FixedArray<Imath::Vec4<T> > &a0, T v1) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > operator / (const PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > &a0, T v1) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = a0.len(); PyImath::FixedArray<Imath::Vec4<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]/v1; return f;
+    size_t len = a0.len(); PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]/v1; return f;
 }
 template <class T>
-static PyImath::FixedArray<Imath::Vec4<T> > operator / (const PyImath::FixedArray<Imath::Vec4<T> > &a0, const PyImath::FixedArray<T> &a1) {
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > operator / (const PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > &a0, const PyImath::FixedArray<T> &a1) {
     PY_IMATH_LEAVE_PYTHON;
-    size_t len = a0.match_dimension(a1); PyImath::FixedArray<Imath::Vec4<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]/a1[i]; return f;
+    size_t len = a0.match_dimension(a1); PyImath::FixedArray<IMATH_NAMESPACE::Vec4<T> > f(len); for (size_t i=0;i<len;++i) f[i]=a0[i]/a1[i]; return f;
 }
 
 
@@ -209,75 +209,75 @@ namespace PyImath {
 template <class T>
 class V2 {
   public:
-    static PyObject *	wrap (const Imath::Vec2<T> &v);
-    static int		convert (PyObject *p, Imath::Vec2<T> *v);
+    static PyObject *	wrap (const IMATH_NAMESPACE::Vec2<T> &v);
+    static int		convert (PyObject *p, IMATH_NAMESPACE::Vec2<T> *v);
 };
 
 template <class T>
 class V3 {
   public:
-    static PyObject *	wrap (const Imath::Vec3<T> &v);
-    static int		convert (PyObject *p, Imath::Vec3<T> *v);
+    static PyObject *	wrap (const IMATH_NAMESPACE::Vec3<T> &v);
+    static int		convert (PyObject *p, IMATH_NAMESPACE::Vec3<T> *v);
 };
 
 template <class T>
 class V4 {
   public:
-    static PyObject *	wrap (const Imath::Vec4<T> &v);
-    static int		convert (PyObject *p, Imath::Vec4<T> *v);
+    static PyObject *	wrap (const IMATH_NAMESPACE::Vec4<T> &v);
+    static int		convert (PyObject *p, IMATH_NAMESPACE::Vec4<T> *v);
 };
 
 template <class T>
 PyObject *
-V2<T>::wrap (const Imath::Vec2<T> &v)
+V2<T>::wrap (const IMATH_NAMESPACE::Vec2<T> &v)
 {
-    typename boost::python::return_by_value::apply < Imath::Vec2<T> >::type converter;
+    typename boost::python::return_by_value::apply < IMATH_NAMESPACE::Vec2<T> >::type converter;
     PyObject *p = converter (v);
     return p;
 }
 
 template <class T>
 PyObject *
-V3<T>::wrap (const Imath::Vec3<T> &v)
+V3<T>::wrap (const IMATH_NAMESPACE::Vec3<T> &v)
 {
-    typename boost::python::return_by_value::apply < Imath::Vec3<T> >::type converter;
+    typename boost::python::return_by_value::apply < IMATH_NAMESPACE::Vec3<T> >::type converter;
     PyObject *p = converter (v);
     return p;
 }
 
 template <class T>
 PyObject *
-V4<T>::wrap (const Imath::Vec4<T> &v)
+V4<T>::wrap (const IMATH_NAMESPACE::Vec4<T> &v)
 {
-    typename boost::python::return_by_value::apply < Imath::Vec4<T> >::type converter;
+    typename boost::python::return_by_value::apply < IMATH_NAMESPACE::Vec4<T> >::type converter;
     PyObject *p = converter (v);
     return p;
 }
 
 template <class T>
 int
-V2<T>::convert (PyObject *p, Imath::Vec2<T> *v)
+V2<T>::convert (PyObject *p, IMATH_NAMESPACE::Vec2<T> *v)
 {
-    boost::python::extract <Imath::V2i> extractorV2i (p);
+    boost::python::extract <IMATH_NAMESPACE::V2i> extractorV2i (p);
     if (extractorV2i.check())
     {
-        Imath::V2i v2i = extractorV2i();
+        IMATH_NAMESPACE::V2i v2i = extractorV2i();
         v->setValue (T(v2i[0]), T(v2i[1]));
         return 1;
     }
 
-    boost::python::extract <Imath::V2f> extractorV2f (p);
+    boost::python::extract <IMATH_NAMESPACE::V2f> extractorV2f (p);
     if (extractorV2f.check())
     {
-        Imath::V2f v2f = extractorV2f();
+        IMATH_NAMESPACE::V2f v2f = extractorV2f();
         v->setValue (T(v2f[0]), T(v2f[1]));
         return 1;
     }
 
-    boost::python::extract <Imath::V2d> extractorV2d (p);
+    boost::python::extract <IMATH_NAMESPACE::V2d> extractorV2d (p);
     if (extractorV2d.check())
     {
-        Imath::V2d v2d = extractorV2d();
+        IMATH_NAMESPACE::V2d v2d = extractorV2d();
         v->setValue (T(v2d[0]), T(v2d[1]));
         return 1;
     }
@@ -324,28 +324,28 @@ V2<T>::convert (PyObject *p, Imath::Vec2<T> *v)
 
 template <class T>
 int
-V3<T>::convert (PyObject *p, Imath::Vec3<T> *v)
+V3<T>::convert (PyObject *p, IMATH_NAMESPACE::Vec3<T> *v)
 {
-    boost::python::extract <Imath::V3i> extractorV3i (p);
+    boost::python::extract <IMATH_NAMESPACE::V3i> extractorV3i (p);
     if (extractorV3i.check())
     {
-        Imath::V3i v3i = extractorV3i();
+        IMATH_NAMESPACE::V3i v3i = extractorV3i();
         v->setValue (T(v3i[0]), T(v3i[1]), T(v3i[2]));
         return 1;
     }
 
-    boost::python::extract <Imath::V3f> extractorV3f (p);
+    boost::python::extract <IMATH_NAMESPACE::V3f> extractorV3f (p);
     if (extractorV3f.check())
     {
-        Imath::V3f v3f = extractorV3f();
+        IMATH_NAMESPACE::V3f v3f = extractorV3f();
         v->setValue (T(v3f[0]), T(v3f[1]), T(v3f[2]));
         return 1;
     }
 
-    boost::python::extract <Imath::V3d> extractorV3d (p);
+    boost::python::extract <IMATH_NAMESPACE::V3d> extractorV3d (p);
     if (extractorV3d.check())
     {
-        Imath::V3d v3d = extractorV3d();
+        IMATH_NAMESPACE::V3d v3d = extractorV3d();
         v->setValue (T(v3d[0]), T(v3d[1]), T(v3d[2]));
         return 1;
     }
@@ -390,29 +390,29 @@ V3<T>::convert (PyObject *p, Imath::Vec3<T> *v)
 
 template <class T>
 int
-V4<T>::convert (PyObject *p, Imath::Vec4<T> *v)
+V4<T>::convert (PyObject *p, IMATH_NAMESPACE::Vec4<T> *v)
 {
-    boost::python::extract <Imath::V4i> extractorV4i (p);
+    boost::python::extract <IMATH_NAMESPACE::V4i> extractorV4i (p);
     if (extractorV4i.check())
     {
-        Imath::V4i v4i = extractorV4i();
-        *v = Imath::Vec4<T>(v4i);
+        IMATH_NAMESPACE::V4i v4i = extractorV4i();
+        *v = IMATH_NAMESPACE::Vec4<T>(v4i);
         return 1;
     }
 
-    boost::python::extract <Imath::V4f> extractorV4f (p);
+    boost::python::extract <IMATH_NAMESPACE::V4f> extractorV4f (p);
     if (extractorV4f.check())
     {
-        Imath::V4f v4f = extractorV4f();
-        *v = Imath::Vec4<T>(v4f);
+        IMATH_NAMESPACE::V4f v4f = extractorV4f();
+        *v = IMATH_NAMESPACE::Vec4<T>(v4f);
         return 1;
     }
 
-    boost::python::extract <Imath::V4d> extractorV4d (p);
+    boost::python::extract <IMATH_NAMESPACE::V4d> extractorV4d (p);
     if (extractorV4d.check())
     {
-        Imath::V4d v4d = extractorV4d();
-        *v = Imath::Vec4<T>(v4d);
+        IMATH_NAMESPACE::V4d v4d = extractorV4d();
+        *v = IMATH_NAMESPACE::Vec4<T>(v4d);
         return 1;
     }
 
@@ -428,7 +428,7 @@ V4<T>::convert (PyObject *p, Imath::Vec4<T> *v)
             double b = boost::python::extract <double> (t[1]);
             double c = boost::python::extract <double> (t[2]);
             double d = boost::python::extract <double> (t[3]);
-            *v = Imath::Vec4<T>(T(a), T(b), T(c), T(d));
+            *v = IMATH_NAMESPACE::Vec4<T>(T(a), T(b), T(c), T(d));
             return 1;
         }
     }
@@ -446,7 +446,7 @@ V4<T>::convert (PyObject *p, Imath::Vec4<T> *v)
             if (extractor0.check() && extractor1.check() &&
                 extractor2.check() && extractor3.check())
             {
-                *v = Imath::Vec4<T>(T(extractor0()), T(extractor1()),
+                *v = IMATH_NAMESPACE::Vec4<T>(T(extractor0()), T(extractor1()),
                              T(extractor2()), T(extractor3()));
                 return 1;
             }

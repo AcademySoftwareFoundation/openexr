@@ -57,21 +57,21 @@
 
 namespace PyImath {
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 // XXX fixme - template this
 // really this should get generated automatically...
 
 template <class T,int index>
 static FixedArray<T>
-Vec4Array_get(FixedArray<Imath::Vec4<T> > &va)
+Vec4Array_get(FixedArray<IMATH_NAMESPACE::Vec4<T> > &va)
 {
     return FixedArray<T>(&va[0][index],va.len(),4*va.stride(),va.handle());
 }
 
 template <class T>
 static void
-setItemTuple(FixedArray<Imath::Vec4<T> > &va, Py_ssize_t index, const tuple &t)
+setItemTuple(FixedArray<IMATH_NAMESPACE::Vec4<T> > &va, Py_ssize_t index, const tuple &t)
 {
     if(t.attr("__len__")() == 4)
     {
@@ -84,16 +84,16 @@ setItemTuple(FixedArray<Imath::Vec4<T> > &va, Py_ssize_t index, const tuple &t)
         va[va.canonical_index(index)] = v;
     }
     else
-        THROW(Iex::LogicExc, "tuple of length 4 expected");
+        THROW(IEX_NAMESPACE::LogicExc, "tuple of length 4 expected");
 }
 
 template <class T>
-class_<FixedArray<Imath::Vec4<T> > >
+class_<FixedArray<IMATH_NAMESPACE::Vec4<T> > >
 register_Vec4Array()
 {
     using boost::mpl::true_;
 
-    class_<FixedArray<Imath::Vec4<T> > > vec4Array_class = FixedArray<Imath::Vec4<T> >::register_("Fixed length array of Imath::Vec4");
+    class_<FixedArray<IMATH_NAMESPACE::Vec4<T> > > vec4Array_class = FixedArray<IMATH_NAMESPACE::Vec4<T> >::register_("Fixed length array of IMATH_NAMESPACE::Vec4");
     vec4Array_class
         .add_property("x",&Vec4Array_get<T,0>)
         .add_property("y",&Vec4Array_get<T,1>)
@@ -105,17 +105,17 @@ register_Vec4Array()
     add_arithmetic_math_functions(vec4Array_class);
     add_comparison_functions(vec4Array_class);
 
-    generate_member_bindings<op_vecLength<Imath::Vec4<T> >     >(vec4Array_class,"length","");
-    generate_member_bindings<op_vecLength2<Imath::Vec4<T> >    >(vec4Array_class,"length2","");
-    generate_member_bindings<op_vecNormalize<Imath::Vec4<T> >  >(vec4Array_class,"normalize","");
-    generate_member_bindings<op_vecNormalized<Imath::Vec4<T> > >(vec4Array_class,"normalized","");
+    generate_member_bindings<op_vecLength<IMATH_NAMESPACE::Vec4<T> >     >(vec4Array_class,"length","");
+    generate_member_bindings<op_vecLength2<IMATH_NAMESPACE::Vec4<T> >    >(vec4Array_class,"length2","");
+    generate_member_bindings<op_vecNormalize<IMATH_NAMESPACE::Vec4<T> >  >(vec4Array_class,"normalize","");
+    generate_member_bindings<op_vecNormalized<IMATH_NAMESPACE::Vec4<T> > >(vec4Array_class,"normalized","");
 
-    generate_member_bindings<op_vecDot<Imath::Vec4<T> >,true_>(vec4Array_class,"dot","return the inner product of (self,x)",boost::python::args("x"));
-    generate_member_bindings<op_mul<Imath::Vec4<T>,T>,  true_>(vec4Array_class,"__mul__" ,"self*x", boost::python::args("x"));
-    generate_member_bindings<op_mul<Imath::Vec4<T>,T>,  true_>(vec4Array_class,"__rmul__","x*self", boost::python::args("x"));
-    generate_member_bindings<op_imul<Imath::Vec4<T>,T>, true_>(vec4Array_class,"__imul__","self*=x",boost::python::args("x"));
-    generate_member_bindings<op_div<Imath::Vec4<T>,T>,  true_>(vec4Array_class,"__div__" ,"self/x", boost::python::args("x"));
-    generate_member_bindings<op_idiv<Imath::Vec4<T>,T>, true_>(vec4Array_class,"__idiv__","self/=x",boost::python::args("x"));
+    generate_member_bindings<op_vecDot<IMATH_NAMESPACE::Vec4<T> >,true_>(vec4Array_class,"dot","return the inner product of (self,x)",boost::python::args("x"));
+    generate_member_bindings<op_mul<IMATH_NAMESPACE::Vec4<T>,T>,  true_>(vec4Array_class,"__mul__" ,"self*x", boost::python::args("x"));
+    generate_member_bindings<op_mul<IMATH_NAMESPACE::Vec4<T>,T>,  true_>(vec4Array_class,"__rmul__","x*self", boost::python::args("x"));
+    generate_member_bindings<op_imul<IMATH_NAMESPACE::Vec4<T>,T>, true_>(vec4Array_class,"__imul__","self*=x",boost::python::args("x"));
+    generate_member_bindings<op_div<IMATH_NAMESPACE::Vec4<T>,T>,  true_>(vec4Array_class,"__div__" ,"self/x", boost::python::args("x"));
+    generate_member_bindings<op_idiv<IMATH_NAMESPACE::Vec4<T>,T>, true_>(vec4Array_class,"__idiv__","self/=x",boost::python::args("x"));
 
     decoratecopy(vec4Array_class);
 

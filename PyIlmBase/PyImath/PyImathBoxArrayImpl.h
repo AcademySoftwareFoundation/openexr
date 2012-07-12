@@ -58,11 +58,11 @@
 
 namespace PyImath {
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 template <class T,int index>
 static FixedArray<T>
-BoxArray_get(FixedArray<Imath::Box<T> > &va)
+BoxArray_get(FixedArray<IMATH_NAMESPACE::Box<T> > &va)
 {
     return index == 0 ? 
            FixedArray<T>(&va[0].min,va.len(),2*va.stride(),va.handle()) :
@@ -71,7 +71,7 @@ BoxArray_get(FixedArray<Imath::Box<T> > &va)
 
 template <class T>
 static void
-setItemTuple(FixedArray<Imath::Box<T> > &va, Py_ssize_t index, const tuple &t)
+setItemTuple(FixedArray<IMATH_NAMESPACE::Box<T> > &va, Py_ssize_t index, const tuple &t)
 {
     if(t.attr("__len__")() == 2)
     {
@@ -81,17 +81,17 @@ setItemTuple(FixedArray<Imath::Box<T> > &va, Py_ssize_t index, const tuple &t)
         va[va.canonical_index(index)] = v;
     }
     else
-        THROW(Iex::LogicExc, "tuple of length 2 expected");
+        THROW(IEX_NAMESPACE::LogicExc, "tuple of length 2 expected");
 }
 
 template <class T>
-class_<FixedArray<Imath::Box<T> > >
+class_<FixedArray<IMATH_NAMESPACE::Box<T> > >
 register_BoxArray()
 {
     using boost::mpl::true_;
     using boost::mpl::false_;
 
-    class_<FixedArray<Imath::Box<T> > > boxArray_class = FixedArray<Imath::Box<T> >::register_("Fixed length array of Imath::Box");
+    class_<FixedArray<IMATH_NAMESPACE::Box<T> > > boxArray_class = FixedArray<IMATH_NAMESPACE::Box<T> >::register_("Fixed length array of IMATH_NAMESPACE::Box");
     boxArray_class
         .add_property("min",&BoxArray_get<T,0>)
         .add_property("max",&BoxArray_get<T,1>)

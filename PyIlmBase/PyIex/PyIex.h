@@ -84,9 +84,9 @@ namespace PyIex {
 #define PY_TRY						\
     try							\
     {							\
-	Iex::MathExcOn mathexcon (Iex::IEEE_OVERFLOW |	\
-			          Iex::IEEE_DIVZERO |	\
-				  Iex::IEEE_INVALID);
+	IEX_NAMESPACE::MathExcOn mathexcon (IEX_NAMESPACE::IEEE_OVERFLOW |	\
+			          IEX_NAMESPACE::IEEE_DIVZERO |	\
+				  IEX_NAMESPACE::IEEE_INVALID);
 
 
 #define PY_CATCH					\
@@ -131,11 +131,11 @@ namespace PyIex {
     }
 
 
-PYIEX_EXPORT TypeTranslator<Iex::BaseExc> &baseExcTranslator();
+PYIEX_EXPORT TypeTranslator<IEX_NAMESPACE::BaseExc> &baseExcTranslator();
 
 // this should only be called from iexmodule.cpp during iex
 // module initialization.
-PYIEX_EXPORT void setBaseExcTranslator(TypeTranslator<Iex::BaseExc> *t);
+PYIEX_EXPORT void setBaseExcTranslator(TypeTranslator<IEX_NAMESPACE::BaseExc> *t);
 
 //
 // Since there's currently no mechanism in boost to inherit off of
@@ -144,7 +144,7 @@ PYIEX_EXPORT void setBaseExcTranslator(TypeTranslator<Iex::BaseExc> *t);
 // and register custom converters with boost::python to go between
 // the c++ and corresponding python types.
 //
-// To register exceptions derived from Iex::BaseExc, call
+// To register exceptions derived from IEX_NAMESPACE::BaseExc, call
 // registerException with the type and base type as template
 // parameters, and the name and module as arguments.  e.g.:
 //
@@ -228,7 +228,7 @@ createExceptionProxy(const std::string &name, const std::string &module,
 }
 
 //
-// register an excpetion derived from Iex::BaseExc out to python using
+// register an excpetion derived from IEX_NAMESPACE::BaseExc out to python using
 // the proxy mechanism described above.
 //
 template<class Exc, class ExcBase>
@@ -237,7 +237,7 @@ registerExc(const std::string &name, const std::string &module)
 {
     using namespace boost::python;
 
-    const TypeTranslator<Iex::BaseExc>::ClassDesc *baseDesc = baseExcTranslator().template findClassDesc<ExcBase>(baseExcTranslator().firstClassDesc());
+    const TypeTranslator<IEX_NAMESPACE::BaseExc>::ClassDesc *baseDesc = baseExcTranslator().template findClassDesc<ExcBase>(baseExcTranslator().firstClassDesc());
     std::string baseName = baseDesc->typeName();
     std::string baseModule = baseDesc->moduleName();
 

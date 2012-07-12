@@ -44,13 +44,13 @@ M44dArray::name()
     return "M44dArray";
 }
 
-template<> PYIMATH_EXPORT Imath::Matrix44<double>
-FixedArrayDefaultValue<Imath::Matrix44<double> >::value()
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Matrix44<double>
+FixedArrayDefaultValue<IMATH_NAMESPACE::Matrix44<double> >::value()
 {
-    return Imath::Matrix44<double>();
+    return IMATH_NAMESPACE::Matrix44<double>();
 }
 template<> PYIMATH_EXPORT  const char*
-M44ArrayName<Imath::M44d>::value()
+M44ArrayName<IMATH_NAMESPACE::M44d>::value()
 {
     return "M44dArray";
 }

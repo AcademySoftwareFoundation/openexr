@@ -45,7 +45,7 @@
 
 namespace PyImath{
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 template <class T> struct FrustumName {static const char *value;};
 template <> const char *FrustumName<float>::value = "Frustumf";
@@ -131,7 +131,7 @@ projectScreenToRayTuple(Frustum<T> &f, const tuple &t)
         return f.projectScreenToRay(point);
     }
     else
-        THROW(Iex::LogicExc, "projectScreenToRay expects tuple of length 2");
+        THROW(IEX_NAMESPACE::LogicExc, "projectScreenToRay expects tuple of length 2");
     
 }
 
@@ -157,7 +157,7 @@ projectPointToScreenTuple(Frustum<T> &f, const tuple &t)
         return f.projectPointToScreen(point);
     }
     else
-        THROW(Iex::LogicExc, "projectPointToScreen expects tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "projectPointToScreen expects tuple of length 3");
     
 }
 
@@ -170,7 +170,7 @@ projectPointToScreenObj(Frustum<T> &f, const object &o)
     if (PyImath::V3<T>::convert (o.ptr(), &v))
         return f.projectPointToScreen(v);
     else
-        THROW(Iex::LogicExc, "projectPointToScreen expects tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "projectPointToScreen expects tuple of length 3");
 }
 
 template <class T>
@@ -219,7 +219,7 @@ worldRadiusTuple(Frustum<T> &f, const tuple &t, T radius)
         return f.worldRadius(point, radius);
     }
     else
-        THROW(Iex::LogicExc, "worldRadius expects tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "worldRadius expects tuple of length 3");
 }
 
 template <class T>
@@ -244,7 +244,7 @@ screenRadiusTuple(Frustum<T> &f, const tuple &t, T radius)
         return f.screenRadius(point, radius);
     }
     else
-        THROW(Iex::LogicExc, "screenRadius expects tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "screenRadius expects tuple of length 3");
 }
 
 template <class T>
@@ -268,7 +268,7 @@ static tuple
 planes3(Frustum<T> &f, const Matrix44<T> &mat)
 {
     MATH_EXC_ON;
-    Imath::Plane3<T> p[6];
+    IMATH_NAMESPACE::Plane3<T> p[6];
     f.planes(p,mat);
     
     tuple t = make_tuple(p[0],p[1],p[2],p[3],p[4],p[5]);
@@ -281,7 +281,7 @@ static tuple
 planes4(Frustum<T> &f)
 {
     MATH_EXC_ON;
-    Imath::Plane3<T> p[6];
+    IMATH_NAMESPACE::Plane3<T> p[6];
     f.planes(p);
     
     tuple t = make_tuple(p[0],p[1],p[2],p[3],p[4],p[5]);
@@ -293,8 +293,8 @@ template <class T>
 class_<Frustum<T> >
 register_Frustum()
 {
-    void (Imath::Frustum<T>::*set1)(T,T,T,T,T,T,bool) = &Imath::Frustum<T>::set;
-    void (Imath::Frustum<T>::*set2)(T,T,T,T,T)        = &Imath::Frustum<T>::set;
+    void (IMATH_NAMESPACE::Frustum<T>::*set1)(T,T,T,T,T,T,bool) = &IMATH_NAMESPACE::Frustum<T>::set;
+    void (IMATH_NAMESPACE::Frustum<T>::*set2)(T,T,T,T,T)        = &IMATH_NAMESPACE::Frustum<T>::set;
     const char *name = FrustumName<T>::value;
     
     class_< Frustum<T> > frustum_class(name,name,init<Frustum<T> >("copy construction"));

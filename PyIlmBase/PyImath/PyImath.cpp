@@ -38,7 +38,7 @@
 
 namespace PyImath {
 
-template <> PYIMATH_EXPORT const char * BoolArray::name() { return "BoolArray"; }
+template <> PYIMATH_EXPORT const char * BoolArray::name()         { return "BoolArray"; }
 template <> PYIMATH_EXPORT const char * UnsignedCharArray::name() { return "UnsignedCharArray"; }
 template <> PYIMATH_EXPORT const char * ShortArray::name()        { return "ShortArray"; }
 template <> PYIMATH_EXPORT const char * IntArray::name()          { return "IntArray"; }

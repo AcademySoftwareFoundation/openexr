@@ -55,7 +55,7 @@
 
 namespace PyImath {
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 template <class T> struct Color4Array2DName { static const char *value(); };
 
@@ -65,31 +65,31 @@ template <class T> struct Color4Array2DName { static const char *value(); };
 
 template <class T,int index>
 static FixedArray2D<T>
-Color4Array2D_get(FixedArray2D<Imath::Color4<T> > &va)
+Color4Array2D_get(FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va)
 {
     return FixedArray2D<T>(&va(0,0)[index], va.len().x,va.len().y, 4*va.stride().x, va.stride().y, va.handle());
 }
 
 
 // template <class T> 
-// static FixedArray2D<Imath::Color4<T> >
-// Color4Array_cross0(const FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Imath::Color4<T> > &vb) 
+// static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+// Color4Array_cross0(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &vb) 
 // { 
 //     PY_IMATH_LEAVE_PYTHON;
-//     Imath::Vec2<size_t> len = va.match_dimension(vb); 
-//     FixedArray2D<Imath::Color4<T> > f(len); 
+//     IMATH_NAMESPACE::Vec2<size_t> len = va.match_dimension(vb); 
+//     FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
 //     for (size_t i = 0; i < len; ++i) 
 //         f(i,j) = va(i,j).cross(vb(i,j)); 
 //     return f; 
 // }
 // 
 // template <class T> 
-// static FixedArray2D<Imath::Color4<T> >
-// Color4Array_cross1(const FixedArray2D<Imath::Color4<T> > &va, const Imath::Color4<T> &vb) 
+// static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+// Color4Array_cross1(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const IMATH_NAMESPACE::Color4<T> &vb) 
 // { 
 //     PY_IMATH_LEAVE_PYTHON;
-//     Imath::Vec2<size_t> len = va.len(); 
-//     FixedArray2D<Imath::Color4<T> > f(len); 
+//     IMATH_NAMESPACE::Vec2<size_t> len = va.len(); 
+//     FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
 //     for (size_t i = 0; i < len; ++i) 
 //         f(i,j) = va(i,j).cross(vb); 
 //     return f; 
@@ -97,10 +97,10 @@ Color4Array2D_get(FixedArray2D<Imath::Color4<T> > &va)
 // 
 // template <class T> 
 // static FixedArray2D<T>
-// Color4Array_dot0(const FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Imath::Color4<T> > &vb) 
+// Color4Array_dot0(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &vb) 
 // { 
 //     PY_IMATH_LEAVE_PYTHON;
-//     Imath::Vec2<size_t> len = va.match_dimension(vb);
+//     IMATH_NAMESPACE::Vec2<size_t> len = va.match_dimension(vb);
 //     FixedArray2D<T> f(len); 
 //     for (size_t i = 0; i < len; ++i) 
 //         f(i,j) = va(i,j).dot(vb(i,j)); 
@@ -109,10 +109,10 @@ Color4Array2D_get(FixedArray2D<Imath::Color4<T> > &va)
 // 
 // template <class T> 
 // static FixedArray2D<T>
-// Color4Array_dot1(const FixedArray2D<Imath::Color4<T> > &va, const Imath::Color4<T> &vb) 
+// Color4Array_dot1(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const IMATH_NAMESPACE::Color4<T> &vb) 
 // { 
 //     PY_IMATH_LEAVE_PYTHON;
-//     Imath::Vec2<size_t> len = va.len(); 
+//     IMATH_NAMESPACE::Vec2<size_t> len = va.len(); 
 //     FixedArray2D<T> f(len); 
 //     for (size_t i = 0; i < len; ++i) 
 //         f(i,j) = va(i,j).dot(vb); 
@@ -121,10 +121,10 @@ Color4Array2D_get(FixedArray2D<Imath::Color4<T> > &va)
 
 // template <class T> 
 // static FixedArray2D<T>
-// Color4Array_length(const FixedArray2D<Imath::Color4<T> > &va) 
+// Color4Array_length(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va) 
 // { 
 //     PY_IMATH_LEAVE_PYTHON;
-//     Imath::Vec2<size_t> len = va.len(); 
+//     IMATH_NAMESPACE::Vec2<size_t> len = va.len(); 
 //     FixedArray2D<T> f(len); 
 //     for (size_t i = 0; i < len; ++i) 
 //         f(i,j) = va(i,j).length(); 
@@ -133,10 +133,10 @@ Color4Array2D_get(FixedArray2D<Imath::Color4<T> > &va)
 // 
 // template <class T> 
 // static FixedArray2D<T>
-// Color4Array_length2(const FixedArray2D<Imath::Color4<T> > &va) 
+// Color4Array_length2(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va) 
 // { 
 //     PY_IMATH_LEAVE_PYTHON;
-//     Imath::Vec2<size_t> len = va.len(); 
+//     IMATH_NAMESPACE::Vec2<size_t> len = va.len(); 
 //     FixedArray2D<T> f(len); 
 //     for (size_t i = 0; i < len; ++i) 
 //         f(i,j) = va(i,j).length2(); 
@@ -144,34 +144,34 @@ Color4Array2D_get(FixedArray2D<Imath::Color4<T> > &va)
 // }
 // 
 // template <class T> 
-// static FixedArray2D<Imath::Color4<T> > &
-// Color4Array_normalize(FixedArray2D<Imath::Color4<T> > &va) 
+// static FixedArray2D<IMATH_NAMESPACE::Color4<T> > &
+// Color4Array_normalize(FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va) 
 // { 
 //     PY_IMATH_LEAVE_PYTHON;
-//     Imath::Vec2<size_t> len = va.len(); 
+//     IMATH_NAMESPACE::Vec2<size_t> len = va.len(); 
 //     for (size_t i = 0; i < len; ++i) 
 //         va(i,j).normalize(); 
 //     return va; 
 // }
 // 
-// template <class T> static FixedArray2D<Imath::Color4<T> >
-// Color4Array_normalized(const FixedArray2D<Imath::Color4<T> > &va) 
+// template <class T> static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+// Color4Array_normalized(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va) 
 // { 
 //     PY_IMATH_LEAVE_PYTHON;
-//     Imath::Vec2<size_t> len = va.len(); 
-//     FixedArray2D<Imath::Color4<T> > f(len); 
+//     IMATH_NAMESPACE::Vec2<size_t> len = va.len(); 
+//     FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
 //     for (size_t i = 0; i < len; ++i) 
 //         f(i,j) = va(i,j).normalized(); 
 //     return f; 
 // }
 // 
 template <class T> 
-static FixedArray2D<Imath::Color4<T> >
-Color4Array_mulT(const FixedArray2D<Imath::Color4<T> > &va, T t) 
+static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+Color4Array_mulT(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, T t) 
 {
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.len();
-    FixedArray2D<Imath::Color4<T> > f(len);
+    IMATH_NAMESPACE::Vec2<size_t> len = va.len();
+    FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len);
     for (size_t j = 0; j < len.y; ++j)
         for (size_t i = 0; i < len.x; ++i)
             f(i,j) = va(i,j) * t; 
@@ -179,24 +179,24 @@ Color4Array_mulT(const FixedArray2D<Imath::Color4<T> > &va, T t)
 }
 // 
 // template <class T, class U> 
-// static FixedArray2D<Imath::Color4<T> >
-// Color4Array_mulM44(const FixedArray2D<Imath::Color4<T> > &va, const Imath::Matrix44<U> &m) 
+// static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+// Color4Array_mulM44(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const IMATH_NAMESPACE::Matrix44<U> &m) 
 // { 
 //     PY_IMATH_LEAVE_PYTHON;
-//     Imath::Vec2<size_t> len = va.len(); 
-//     FixedArray2D<Imath::Color4<T> > f(len); 
+//     IMATH_NAMESPACE::Vec2<size_t> len = va.len(); 
+//     FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
 //     for (size_t i = 0; i < len; ++i) 
 //         f(i,j) = va(i,j) * m; 
 //     return f; 
 // }
 // 
 template <class T> 
-static FixedArray2D<Imath::Color4<T> >
-Color4Array_mulArrayT(const FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<T> &vb)
+static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+Color4Array_mulArrayT(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const FixedArray2D<T> &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.match_dimension(vb);
-    FixedArray2D<Imath::Color4<T> > f(len); 
+    IMATH_NAMESPACE::Vec2<size_t> len = va.match_dimension(vb);
+    FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
     for (size_t j = 0; j < len.y; ++j)
         for (size_t i = 0; i < len.x; ++i)
             f(i,j) = va(i,j) * vb(i,j);
@@ -204,11 +204,11 @@ Color4Array_mulArrayT(const FixedArray2D<Imath::Color4<T> > &va, const FixedArra
 }
 
 template <class T> 
-static const FixedArray2D<Imath::Color4<T> > &
-Color4Array_imulT(FixedArray2D<Imath::Color4<T> > &va, T t) 
+static const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &
+Color4Array_imulT(FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, T t) 
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.len(); 
+    IMATH_NAMESPACE::Vec2<size_t> len = va.len(); 
     for (size_t j = 0; j < len.y; ++j)
         for (size_t i = 0; i < len.x; ++i) 
             va(i,j) *= t; 
@@ -216,11 +216,11 @@ Color4Array_imulT(FixedArray2D<Imath::Color4<T> > &va, T t)
 }
 
 template <class T> 
-static const FixedArray2D<Imath::Color4<T> > &
-Color4Array_imulArrayT(FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<T> &vb)
+static const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &
+Color4Array_imulArrayT(FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const FixedArray2D<T> &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.match_dimension(vb);
+    IMATH_NAMESPACE::Vec2<size_t> len = va.match_dimension(vb);
     for (size_t j = 0; j < len.y; ++j)
         for (size_t i = 0; i < len.x; ++i) 
             va(i,j) *= vb(i,j); 
@@ -228,12 +228,12 @@ Color4Array_imulArrayT(FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<T
 }
 
 template <class T> 
-static FixedArray2D<Imath::Color4<T> >
-Color4Array_divT(const FixedArray2D<Imath::Color4<T> > &va, T t) 
+static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+Color4Array_divT(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, T t) 
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.len(); 
-    FixedArray2D<Imath::Color4<T> > f(len); 
+    IMATH_NAMESPACE::Vec2<size_t> len = va.len(); 
+    FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             f(i,j) = va(i,j) / t; 
@@ -241,12 +241,12 @@ Color4Array_divT(const FixedArray2D<Imath::Color4<T> > &va, T t)
 }
 
 template <class T> 
-static FixedArray2D<Imath::Color4<T> >
-Color4Array_divArrayT(const FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<T> &vb)
+static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+Color4Array_divArrayT(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const FixedArray2D<T> &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.match_dimension(vb);
-    FixedArray2D<Imath::Color4<T> > f(len); 
+    IMATH_NAMESPACE::Vec2<size_t> len = va.match_dimension(vb);
+    FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             f(i,j) = va(i,j) / vb(i,j); 
@@ -254,11 +254,11 @@ Color4Array_divArrayT(const FixedArray2D<Imath::Color4<T> > &va, const FixedArra
 }
 
 template <class T> 
-static const FixedArray2D<Imath::Color4<T> > &
-Color4Array_idivT(FixedArray2D<Imath::Color4<T> > &va, T t) 
+static const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &
+Color4Array_idivT(FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, T t) 
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.len(); 
+    IMATH_NAMESPACE::Vec2<size_t> len = va.len(); 
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             va(i,j) /= t; 
@@ -266,11 +266,11 @@ Color4Array_idivT(FixedArray2D<Imath::Color4<T> > &va, T t)
 }
 
 template <class T> 
-static const FixedArray2D<Imath::Color4<T> > &
-Color4Array_idivArrayT(FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<T> &vb)
+static const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &
+Color4Array_idivArrayT(FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const FixedArray2D<T> &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.match_dimension(vb);
+    IMATH_NAMESPACE::Vec2<size_t> len = va.match_dimension(vb);
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             va(i,j) /= vb(i,j); 
@@ -278,12 +278,12 @@ Color4Array_idivArrayT(FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<T
 }
 
 template <class T> 
-static FixedArray2D<Imath::Color4<T> >
-Color4Array_add(const FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Imath::Color4<T> > &vb)
+static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+Color4Array_add(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.match_dimension(vb);
-    FixedArray2D<Imath::Color4<T> > f(len); 
+    IMATH_NAMESPACE::Vec2<size_t> len = va.match_dimension(vb);
+    FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             f(i,j) = va(i,j) + vb(i,j); 
@@ -291,12 +291,12 @@ Color4Array_add(const FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Im
 }
 
 template <class T> 
-static FixedArray2D<Imath::Color4<T> >
-Color4Array_addColor(const FixedArray2D<Imath::Color4<T> > &va, const Imath::Color4<T> &vb)
+static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+Color4Array_addColor(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const IMATH_NAMESPACE::Color4<T> &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.len();
-    FixedArray2D<Imath::Color4<T> > f(len); 
+    IMATH_NAMESPACE::Vec2<size_t> len = va.len();
+    FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             f(i,j) = va(i,j) + vb; 
@@ -304,12 +304,12 @@ Color4Array_addColor(const FixedArray2D<Imath::Color4<T> > &va, const Imath::Col
 }
 
 template <class T> 
-static FixedArray2D<Imath::Color4<T> >
-Color4Array_sub(const FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Imath::Color4<T> > &vb)
+static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+Color4Array_sub(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.match_dimension(vb);
-    FixedArray2D<Imath::Color4<T> > f(len); 
+    IMATH_NAMESPACE::Vec2<size_t> len = va.match_dimension(vb);
+    FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             f(i,j) = va(i,j) - vb(i,j); 
@@ -317,12 +317,12 @@ Color4Array_sub(const FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Im
 }
 
 template <class T> 
-static FixedArray2D<Imath::Color4<T> >
-Color4Array_subColor(const FixedArray2D<Imath::Color4<T> > &va, const Imath::Color4<T> &vb)
+static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+Color4Array_subColor(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const IMATH_NAMESPACE::Color4<T> &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.len();
-    FixedArray2D<Imath::Color4<T> > f(len); 
+    IMATH_NAMESPACE::Vec2<size_t> len = va.len();
+    FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             f(i,j) = va(i,j) - vb; 
@@ -330,12 +330,12 @@ Color4Array_subColor(const FixedArray2D<Imath::Color4<T> > &va, const Imath::Col
 }
 
 template <class T> 
-static FixedArray2D<Imath::Color4<T> >
-Color4Array_rsubColor(const FixedArray2D<Imath::Color4<T> > &va, const Imath::Color4<T> &vb)
+static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+Color4Array_rsubColor(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const IMATH_NAMESPACE::Color4<T> &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.len();
-    FixedArray2D<Imath::Color4<T> > f(len); 
+    IMATH_NAMESPACE::Vec2<size_t> len = va.len();
+    FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             f(i,j) = vb - va(i,j); 
@@ -343,12 +343,12 @@ Color4Array_rsubColor(const FixedArray2D<Imath::Color4<T> > &va, const Imath::Co
 }
 
 template <class T> 
-static FixedArray2D<Imath::Color4<T> >
-Color4Array_mul(const FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Imath::Color4<T> > &vb)
+static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+Color4Array_mul(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.match_dimension(vb);
-    FixedArray2D<Imath::Color4<T> > f(len); 
+    IMATH_NAMESPACE::Vec2<size_t> len = va.match_dimension(vb);
+    FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             f(i,j) = va(i,j) * vb(i,j); 
@@ -356,12 +356,12 @@ Color4Array_mul(const FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Im
 }
 
 template <class T> 
-static FixedArray2D<Imath::Color4<T> >
-Color4Array_mulColor(const FixedArray2D<Imath::Color4<T> > &va, const Imath::Color4<T> &vb)
+static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+Color4Array_mulColor(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const IMATH_NAMESPACE::Color4<T> &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.len();
-    FixedArray2D<Imath::Color4<T> > f(len); 
+    IMATH_NAMESPACE::Vec2<size_t> len = va.len();
+    FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             f(i,j) = va(i,j) * vb; 
@@ -369,12 +369,12 @@ Color4Array_mulColor(const FixedArray2D<Imath::Color4<T> > &va, const Imath::Col
 }
 
 template <class T> 
-static FixedArray2D<Imath::Color4<T> >
-Color4Array_div(const FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Imath::Color4<T> > &vb)
+static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+Color4Array_div(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.match_dimension(vb);
-    FixedArray2D<Imath::Color4<T> > f(len); 
+    IMATH_NAMESPACE::Vec2<size_t> len = va.match_dimension(vb);
+    FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             f(i,j) = va(i,j) / vb(i,j); 
@@ -382,12 +382,12 @@ Color4Array_div(const FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Im
 }
 
 template <class T> 
-static FixedArray2D<Imath::Color4<T> >
-Color4Array_divColor(const FixedArray2D<Imath::Color4<T> > &va, const Imath::Color4<T> &vb)
+static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+Color4Array_divColor(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const IMATH_NAMESPACE::Color4<T> &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.len();
-    FixedArray2D<Imath::Color4<T> > f(len); 
+    IMATH_NAMESPACE::Vec2<size_t> len = va.len();
+    FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             f(i,j) = va(i,j) / vb; 
@@ -395,12 +395,12 @@ Color4Array_divColor(const FixedArray2D<Imath::Color4<T> > &va, const Imath::Col
 }
 
 template <class T> 
-static FixedArray2D<Imath::Color4<T> >
-Color4Array_neg(const FixedArray2D<Imath::Color4<T> > &va)
+static FixedArray2D<IMATH_NAMESPACE::Color4<T> >
+Color4Array_neg(const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.len();
-    FixedArray2D<Imath::Color4<T> > f(len); 
+    IMATH_NAMESPACE::Vec2<size_t> len = va.len();
+    FixedArray2D<IMATH_NAMESPACE::Color4<T> > f(len); 
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             f(i,j) = -va(i,j);
@@ -408,11 +408,11 @@ Color4Array_neg(const FixedArray2D<Imath::Color4<T> > &va)
 }
 
 template <class T> 
-static const FixedArray2D<Imath::Color4<T> > &
-Color4Array_iadd(FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Imath::Color4<T> > &vb)
+static const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &
+Color4Array_iadd(FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.match_dimension(vb);
+    IMATH_NAMESPACE::Vec2<size_t> len = va.match_dimension(vb);
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             va(i,j) += vb(i,j); 
@@ -420,11 +420,11 @@ Color4Array_iadd(FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Imath::
 }
 
 template <class T> 
-static const FixedArray2D<Imath::Color4<T> > &
-Color4Array_iaddColor(FixedArray2D<Imath::Color4<T> > &va, const Imath::Color4<T> &vb)
+static const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &
+Color4Array_iaddColor(FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const IMATH_NAMESPACE::Color4<T> &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.len();
+    IMATH_NAMESPACE::Vec2<size_t> len = va.len();
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             va(i,j) += vb; 
@@ -432,11 +432,11 @@ Color4Array_iaddColor(FixedArray2D<Imath::Color4<T> > &va, const Imath::Color4<T
 }
 
 template <class T> 
-static const FixedArray2D<Imath::Color4<T> > &
-Color4Array_isub(FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Imath::Color4<T> > &vb)
+static const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &
+Color4Array_isub(FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.match_dimension(vb);
+    IMATH_NAMESPACE::Vec2<size_t> len = va.match_dimension(vb);
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             va(i,j) -= vb(i,j); 
@@ -444,11 +444,11 @@ Color4Array_isub(FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Imath::
 }
 
 template <class T> 
-static const FixedArray2D<Imath::Color4<T> > &
-Color4Array_isubColor(FixedArray2D<Imath::Color4<T> > &va, const Imath::Color4<T> &vb)
+static const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &
+Color4Array_isubColor(FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const IMATH_NAMESPACE::Color4<T> &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.len();
+    IMATH_NAMESPACE::Vec2<size_t> len = va.len();
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             va(i,j) -= vb; 
@@ -456,11 +456,11 @@ Color4Array_isubColor(FixedArray2D<Imath::Color4<T> > &va, const Imath::Color4<T
 }
 
 template <class T> 
-static const FixedArray2D<Imath::Color4<T> > &
-Color4Array_imul(FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Imath::Color4<T> > &vb)
+static const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &
+Color4Array_imul(FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.match_dimension(vb);
+    IMATH_NAMESPACE::Vec2<size_t> len = va.match_dimension(vb);
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             va(i,j) *= vb(i,j); 
@@ -468,11 +468,11 @@ Color4Array_imul(FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Imath::
 }
 
 template <class T> 
-static const FixedArray2D<Imath::Color4<T> > &
-Color4Array_imulColor(FixedArray2D<Imath::Color4<T> > &va, const Imath::Color4<T> &vb)
+static const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &
+Color4Array_imulColor(FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const IMATH_NAMESPACE::Color4<T> &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.len();
+    IMATH_NAMESPACE::Vec2<size_t> len = va.len();
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             va(i,j) *= vb; 
@@ -480,11 +480,11 @@ Color4Array_imulColor(FixedArray2D<Imath::Color4<T> > &va, const Imath::Color4<T
 }
 
 template <class T> 
-static const FixedArray2D<Imath::Color4<T> > &
-Color4Array_idiv(FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Imath::Color4<T> > &vb)
+static const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &
+Color4Array_idiv(FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.match_dimension(vb);
+    IMATH_NAMESPACE::Vec2<size_t> len = va.match_dimension(vb);
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             va(i,j) /= vb(i,j); 
@@ -492,11 +492,11 @@ Color4Array_idiv(FixedArray2D<Imath::Color4<T> > &va, const FixedArray2D<Imath::
 }
 
 template <class T> 
-static const FixedArray2D<Imath::Color4<T> > &
-Color4Array_idivColor(FixedArray2D<Imath::Color4<T> > &va, const Imath::Color4<T> &vb)
+static const FixedArray2D<IMATH_NAMESPACE::Color4<T> > &
+Color4Array_idivColor(FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const IMATH_NAMESPACE::Color4<T> &vb)
 { 
     PY_IMATH_LEAVE_PYTHON;
-    Imath::Vec2<size_t> len = va.len();
+    IMATH_NAMESPACE::Vec2<size_t> len = va.len();
     for (size_t j = 0; j < len.y; ++j) 
         for (size_t i = 0; i < len.x; ++i) 
             va(i,j) /= vb; 
@@ -505,7 +505,7 @@ Color4Array_idivColor(FixedArray2D<Imath::Color4<T> > &va, const Imath::Color4<T
 
 template <class T>
 static void
-setItemTuple(FixedArray2D<Imath::Color4<T> > &va, const tuple &index, const tuple &t)
+setItemTuple(FixedArray2D<IMATH_NAMESPACE::Color4<T> > &va, const tuple &index, const tuple &t)
 {
     if(t.attr("__len__")() == 4 && index.attr("__len__")() == 2)
     {
@@ -518,15 +518,15 @@ setItemTuple(FixedArray2D<Imath::Color4<T> > &va, const tuple &index, const tupl
            va.canonical_index(extract<Py_ssize_t>(index[1]),va.len()[1])) = v;
     }
     else
-        THROW(Iex::LogicExc, "tuple of length 4 expected");
+        THROW(IEX_NAMESPACE::LogicExc, "tuple of length 4 expected");
 }
 
 template <class T>
-class_<FixedArray2D<Imath::Color4<T> > >
+class_<FixedArray2D<IMATH_NAMESPACE::Color4<T> > >
 register_Color4Array2D()
 {
-    class_<FixedArray2D<Imath::Color4<T> > > color4Array2D_class =
-        FixedArray2D<Imath::Color4<T> >::register_(Color4Array2DName<T>::value(),"Fixed length 2d array of Imath::Color4");
+    class_<FixedArray2D<IMATH_NAMESPACE::Color4<T> > > color4Array2D_class =
+        FixedArray2D<IMATH_NAMESPACE::Color4<T> >::register_(Color4Array2DName<T>::value(),"Fixed length 2d array of IMATH_NAMESPACE::Color4");
     color4Array2D_class
         .add_property("r",&Color4Array2D_get<T,0>)
         .add_property("g",&Color4Array2D_get<T,1>)

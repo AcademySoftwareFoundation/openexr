@@ -43,7 +43,7 @@
 
 namespace PyImath {
 
-template <class T> boost::python::class_<Imath::Plane3<T> > register_Plane();
+template <class T> boost::python::class_<IMATH_NAMESPACE::Plane3<T> > register_Plane();
 
 //
 
@@ -57,36 +57,36 @@ template <class T> boost::python::class_<Imath::Plane3<T> > register_Plane();
 template <class T>
 class P3 {
   public:
-    static PyObject *	wrap (const Imath::Plane3<T> &pl);
-    static int		convert (PyObject *p, Imath::Plane3<T> *pl);
+    static PyObject *	wrap (const IMATH_NAMESPACE::Plane3<T> &pl);
+    static int		convert (PyObject *p, IMATH_NAMESPACE::Plane3<T> *pl);
 };
 
 template <class T>
 PyObject *
-P3<T>::wrap (const Imath::Plane3<T> &pl)
+P3<T>::wrap (const IMATH_NAMESPACE::Plane3<T> &pl)
 {
-    typename boost::python::return_by_value::apply < Imath::Plane3<T> >::type converter;
+    typename boost::python::return_by_value::apply < IMATH_NAMESPACE::Plane3<T> >::type converter;
     PyObject *p = converter (pl);
     return p;
 }
 
 template <class T>
 int
-P3<T>::convert (PyObject *p, Imath::Plane3<T> *pl)
+P3<T>::convert (PyObject *p, IMATH_NAMESPACE::Plane3<T> *pl)
 {
-    boost::python::extract <Imath::Plane3f> extractorPf (p);
+    boost::python::extract <IMATH_NAMESPACE::Plane3f> extractorPf (p);
     if (extractorPf.check())
     {
-        Imath::Plane3f e = extractorPf();
+        IMATH_NAMESPACE::Plane3f e = extractorPf();
         pl->normal.setValue (e.normal);
         pl->distance = T(e.distance);
         return 1;
     }
 
-    boost::python::extract <Imath::Plane3d> extractorPd (p);
+    boost::python::extract <IMATH_NAMESPACE::Plane3d> extractorPd (p);
     if (extractorPd.check())
     {
-        Imath::Plane3d e = extractorPd();
+        IMATH_NAMESPACE::Plane3d e = extractorPd();
         pl->normal.setValue (e.normal);
         pl->distance = T(e.distance);
         return 1;

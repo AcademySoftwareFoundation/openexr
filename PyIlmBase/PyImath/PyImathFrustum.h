@@ -44,7 +44,7 @@
 
 namespace PyImath {
 
-template <class T> boost::python::class_<Imath::Frustum<T> > register_Frustum();
+template <class T> boost::python::class_<IMATH_NAMESPACE::Frustum<T> > register_Frustum();
 
 //
 
@@ -58,36 +58,36 @@ template <class T> boost::python::class_<Imath::Frustum<T> > register_Frustum();
 template <class T>
 class F {
   public:
-    static PyObject *	wrap (const Imath::Frustum<T> &f);
-    static int		convert (PyObject *p, Imath::Frustum<T> *f);
+    static PyObject *	wrap (const IMATH_NAMESPACE::Frustum<T> &f);
+    static int		convert (PyObject *p, IMATH_NAMESPACE::Frustum<T> *f);
 };
 
 template <class T>
 PyObject *
-F<T>::wrap (const Imath::Frustum<T> &f)
+F<T>::wrap (const IMATH_NAMESPACE::Frustum<T> &f)
 {
-    typename boost::python::return_by_value::apply < Imath::Frustum<T> >::type converter;
+    typename boost::python::return_by_value::apply < IMATH_NAMESPACE::Frustum<T> >::type converter;
     PyObject *p = converter (f);
     return p;
 }
 
 template <class T>
 int
-F<T>::convert (PyObject *p, Imath::Frustum<T> *f)
+F<T>::convert (PyObject *p, IMATH_NAMESPACE::Frustum<T> *f)
 {
-    boost::python::extract <Imath::Frustumf> extractorEf (p);
+    boost::python::extract <IMATH_NAMESPACE::Frustumf> extractorEf (p);
     if (extractorEf.check())
     {
-        Imath::Frustumf e = extractorEf();
+        IMATH_NAMESPACE::Frustumf e = extractorEf();
         f->set (T(e.nearPlane()), T(e.farPlane()), T(e.left()), T(e.right()),
                 T(e.top()), T(e.bottom()), e.orthographic());
         return 1;
     }
 
-    boost::python::extract <Imath::Frustumd> extractorEd (p);
+    boost::python::extract <IMATH_NAMESPACE::Frustumd> extractorEd (p);
     if (extractorEd.check())
     {
-        Imath::Frustumd e = extractorEd();
+        IMATH_NAMESPACE::Frustumd e = extractorEd();
         f->set (T(e.nearPlane()), T(e.farPlane()), T(e.left()), T(e.right()),
                 T(e.top()), T(e.bottom()), e.orthographic());
         return 1;

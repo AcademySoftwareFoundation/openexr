@@ -44,27 +44,27 @@
 
 namespace PyImath {
 
-template <class T> boost::python::class_<Imath::Quat<T> > register_Quat();
-template <class T> boost::python::class_<PyImath::FixedArray<Imath::Quat<T> > > register_QuatArray();
-typedef FixedArray<Imath::Quatf>  QuatfArray;
-typedef FixedArray<Imath::Quatd>  QuatdArray;
+template <class T> boost::python::class_<IMATH_NAMESPACE::Quat<T> > register_Quat();
+template <class T> boost::python::class_<PyImath::FixedArray<IMATH_NAMESPACE::Quat<T> > > register_QuatArray();
+typedef FixedArray<IMATH_NAMESPACE::Quatf>  QuatfArray;
+typedef FixedArray<IMATH_NAMESPACE::Quatd>  QuatdArray;
 
 }
 
-template <class T> inline Imath::Vec3<T> operator * (const Imath::Vec3<T> &v, const Imath::Quat<T> &q) { return v * q.toMatrix33(); }
+template <class T> inline IMATH_NAMESPACE::Vec3<T> operator * (const IMATH_NAMESPACE::Vec3<T> &v, const IMATH_NAMESPACE::Quat<T> &q) { return v * q.toMatrix33(); }
 
-template <class T> static PyImath::FixedArray<Imath::Vec3<T> >
-operator *(const Imath::Vec3<T> &va, const PyImath::FixedArray<Imath::Quat<T> > &vb)
-{ size_t len = vb.len(); PyImath::FixedArray<Imath::Vec3<T> > f(len); for (size_t i = 0; i < len; ++i) f[i] = va * vb[i]; return f; }
+template <class T> static PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> >
+operator *(const IMATH_NAMESPACE::Vec3<T> &va, const PyImath::FixedArray<IMATH_NAMESPACE::Quat<T> > &vb)
+{ size_t len = vb.len(); PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > f(len); for (size_t i = 0; i < len; ++i) f[i] = va * vb[i]; return f; }
 
-template <class T> static PyImath::FixedArray<Imath::Vec3<T> >
-operator *(const PyImath::FixedArray<Imath::Vec3<T> > &va, const Imath::Quat<T> &vb)
-{ size_t len = va.len(); PyImath::FixedArray<Imath::Vec3<T> > f(len); for (size_t i = 0; i < len; ++i) f[i] = va[i] * vb; return f; }
+template <class T> static PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> >
+operator *(const PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > &va, const IMATH_NAMESPACE::Quat<T> &vb)
+{ size_t len = va.len(); PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > f(len); for (size_t i = 0; i < len; ++i) f[i] = va[i] * vb; return f; }
 
 template <class T>
-static PyImath::FixedArray<Imath::Vec3<T> >
-operator * (const PyImath::FixedArray<Imath::Vec3<T> > &va, const PyImath::FixedArray<Imath::Quat<T> > &vb)
-{ size_t len = va.match_dimension(vb); PyImath::FixedArray<Imath::Vec3<T> > f(len); for (size_t i = 0; i < len; ++i) f[i] = va[i] * vb[i]; return f; }
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> >
+operator * (const PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > &va, const PyImath::FixedArray<IMATH_NAMESPACE::Quat<T> > &vb)
+{ size_t len = va.match_dimension(vb); PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> > f(len); for (size_t i = 0; i < len; ++i) f[i] = va[i] * vb[i]; return f; }
 
 //
 
@@ -80,36 +80,36 @@ namespace PyImath {
 template <class T>
 class Q {
   public:
-    static PyObject *	wrap (const Imath::Quat<T> &q);
-    static int		convert (PyObject *p, Imath::Quat<T> *q);
+    static PyObject *	wrap (const IMATH_NAMESPACE::Quat<T> &q);
+    static int		convert (PyObject *p, IMATH_NAMESPACE::Quat<T> *q);
 };
 
 template <class T>
 PyObject *
-Q<T>::wrap (const Imath::Quat<T> &q)
+Q<T>::wrap (const IMATH_NAMESPACE::Quat<T> &q)
 {
-    typename boost::python::return_by_value::apply < Imath::Quat<T> >::type converter;
+    typename boost::python::return_by_value::apply < IMATH_NAMESPACE::Quat<T> >::type converter;
     PyObject *p = converter (q);
     return p;
 }
 
 template <class T>
 int
-Q<T>::convert (PyObject *p, Imath::Quat<T> *q)
+Q<T>::convert (PyObject *p, IMATH_NAMESPACE::Quat<T> *q)
 {
-    boost::python::extract <Imath::Quatf> extractorQf (p);
+    boost::python::extract <IMATH_NAMESPACE::Quatf> extractorQf (p);
     if (extractorQf.check())
     {
-        Imath::Quatf qf = extractorQf();
+        IMATH_NAMESPACE::Quatf qf = extractorQf();
         q->r = T(qf.r);
         q->v.setValue (qf.v);
         return 1;
     }
 
-    boost::python::extract <Imath::Quatd> extractorQd (p);
+    boost::python::extract <IMATH_NAMESPACE::Quatd> extractorQd (p);
     if (extractorQd.check())
     {
-        Imath::Quatd qd = extractorQd();
+        IMATH_NAMESPACE::Quatd qd = extractorQd();
         q->r = T(qd.r);
         q->v.setValue (qd.v);
         return 1;

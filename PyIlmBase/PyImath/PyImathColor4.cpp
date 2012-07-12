@@ -52,7 +52,7 @@ template <> const char *PyImath::C4cArray::name() { return "C4cArray"; }
 template <> const char *PyImath::C4fArray::name() { return "C4fArray"; }
 
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 template <class T> struct Color4Name { static const char *value; };
 template<> const char *Color4Name<unsigned char>::value  = "Color4c";
@@ -132,7 +132,7 @@ static Color4<T> * Color4_construct_tuple(const tuple &t)
                              extract<T>(t[3]));
     }
     else
-        THROW(Iex::LogicExc, "Color4 expects tuple of length 4");
+        THROW(IEX_NAMESPACE::LogicExc, "Color4 expects tuple of length 4");
 }
 
 template <class T>
@@ -147,7 +147,7 @@ static Color4<T> * Color4_construct_list(const list &l)
                              extract<T>(l[3]));
     }
     else
-        THROW(Iex::LogicExc, "Color4 expects list of length 4");
+        THROW(IEX_NAMESPACE::LogicExc, "Color4 expects list of length 4");
 }
 
 template <class T>
@@ -197,7 +197,7 @@ static Color4<T>
 hsv2rgb(Color4<T> &color)
 {    
     MATH_EXC_ON;
-    return Imath::hsv2rgb(color);
+    return IMATH_NAMESPACE::hsv2rgb(color);
 }
 
 template <class T>
@@ -213,10 +213,10 @@ hsv2rgbTuple(const tuple &t)
         color.b = extract<T>(t[2]);
         color.a = extract<T>(t[3]);
         
-        return Imath::hsv2rgb(color);
+        return IMATH_NAMESPACE::hsv2rgb(color);
     }
     else
-        THROW(Iex::LogicExc, "Color4 expects tuple of length 4");    
+        THROW(IEX_NAMESPACE::LogicExc, "Color4 expects tuple of length 4");    
 }
 
 template <class T>
@@ -224,7 +224,7 @@ static Color4<T>
 rgb2hsv(Color4<T> &color)
 {    
     MATH_EXC_ON;
-    return Imath::rgb2hsv(color);
+    return IMATH_NAMESPACE::rgb2hsv(color);
 }
 
 template <class T>
@@ -240,10 +240,10 @@ rgb2hsvTuple(const tuple &t)
         color.b = extract<T>(t[2]);
         color.a = extract<T>(t[3]);
         
-        return Imath::rgb2hsv(color);
+        return IMATH_NAMESPACE::rgb2hsv(color);
     }
     else
-        THROW(Iex::LogicExc, "Color4 expects tuple of length 4");    
+        THROW(IEX_NAMESPACE::LogicExc, "Color4 expects tuple of length 4");    
 }
 
 
@@ -279,7 +279,7 @@ setValueTuple(Color4<T> &color, const tuple &t)
         color.setValue(v);
     }
     else
-        THROW(Iex::LogicExc, "Color4 expects tuple of length 4");
+        THROW(IEX_NAMESPACE::LogicExc, "Color4 expects tuple of length 4");
 }
 
 template <class T>
@@ -309,7 +309,7 @@ addTuple(Color4<T> &color, const tuple &t)
                          color.b + extract<T>(t[2]),
                          color.a + extract<T>(t[3]));
     else
-        THROW(Iex::LogicExc, "Color4 expects tuple of length 4");
+        THROW(IEX_NAMESPACE::LogicExc, "Color4 expects tuple of length 4");
 }
 
 template <class T>
@@ -348,7 +348,7 @@ subtractL(Color4<T> &color, const tuple &t)
                          color.b - extract<T>(t[2]),
                          color.a - extract<T>(t[3]));
     else
-        THROW(Iex::LogicExc, "Color4 expects tuple of length 4");
+        THROW(IEX_NAMESPACE::LogicExc, "Color4 expects tuple of length 4");
 }
 
 template <class T>
@@ -362,7 +362,7 @@ subtractR(Color4<T> &color, const tuple &t)
                          extract<T>(t[2]) - color.b,
                          extract<T>(t[3]) - color.a);
     else
-        THROW(Iex::LogicExc, "Color4 expects tuple of length 4");
+        THROW(IEX_NAMESPACE::LogicExc, "Color4 expects tuple of length 4");
 }
 
 template <class T>
@@ -454,7 +454,7 @@ mulTuple(Color4<T> &color, const tuple &t)
                          color.b * extract<T>(t[2]),
                          color.a * extract<T>(t[3]));
     else
-        THROW(Iex::LogicExc, "Color4 expects tuple of length 4");
+        THROW(IEX_NAMESPACE::LogicExc, "Color4 expects tuple of length 4");
 }
 
 template <class T>
@@ -500,7 +500,7 @@ divTupleL(Color4<T> &color, const tuple &t)
                          color.b / extract<T>(t[2]),
                          color.a / extract<T>(t[3]));
     else
-        THROW(Iex::LogicExc, "Color4 expects tuple of length 4");    
+        THROW(IEX_NAMESPACE::LogicExc, "Color4 expects tuple of length 4");    
 }
 
 template <class T>
@@ -514,7 +514,7 @@ divTupleR(Color4<T> &color, const tuple &t)
                          extract<T>(t[2]) / color.b,
                          extract<T>(t[3]) / color.a);
     else
-        THROW(Iex::LogicExc, "Color4 expects tuple of length 4");    
+        THROW(IEX_NAMESPACE::LogicExc, "Color4 expects tuple of length 4");    
 }
 
 template <class T>
@@ -571,8 +571,8 @@ class_<Color4<T> >
 register_Color4()
 {
     typedef PyImath::StaticFixedArray<Color4<T>,T,4> Color4_helper;
-    void (Imath::Color4<T>::*getValue1)(Color4<T> &) const = &Imath::Color4<T>::getValue;
-    void (Imath::Color4<T>::*getValue2)(T &, T &, T &, T &) const = &Imath::Color4<T>::getValue;
+    void (IMATH_NAMESPACE::Color4<T>::*getValue1)(Color4<T> &) const = &IMATH_NAMESPACE::Color4<T>::getValue;
+    void (IMATH_NAMESPACE::Color4<T>::*getValue2)(T &, T &, T &, T &) const = &IMATH_NAMESPACE::Color4<T>::getValue;
 
     class_<Color4<T> > color4_class(Color4Name<T>::value, Color4Name<T>::value,init<Color4<T> >("copy construction"));
     color4_class
@@ -673,8 +673,8 @@ template PYIMATH_EXPORT class_<FixedArray<Color4<unsigned char> > > register_Col
 template PYIMATH_EXPORT class_<FixedArray2D<Color4<float> > > register_Color4Array2D<float>();
 template PYIMATH_EXPORT class_<FixedArray2D<Color4<unsigned char> > > register_Color4Array2D<unsigned char>();
 
-template<> PYIMATH_EXPORT Imath::Color4<float> PyImath::FixedArrayDefaultValue<Imath::Color4<float> >::value()
-{ return Imath::Color4<float>(0,0,0, 0); }
-template<> PYIMATH_EXPORT Imath::Color4<unsigned char> PyImath::FixedArrayDefaultValue<Imath::Color4<unsigned char> >::value()
-{ return Imath::Color4<unsigned char>(0,0,0,0); }
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Color4<float> PyImath::FixedArrayDefaultValue<IMATH_NAMESPACE::Color4<float> >::value()
+{ return IMATH_NAMESPACE::Color4<float>(0,0,0, 0); }
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Color4<unsigned char> PyImath::FixedArrayDefaultValue<IMATH_NAMESPACE::Color4<unsigned char> >::value()
+{ return IMATH_NAMESPACE::Color4<unsigned char>(0,0,0,0); }
 }

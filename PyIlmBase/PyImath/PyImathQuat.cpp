@@ -56,7 +56,7 @@ template <> const char *PyImath::QuatdArray::name() { return "QuatdArray"; }
 
 namespace PyImath {
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 template <class T> struct QuatName { static const char *value; };
 template<> const char *QuatName<float>::value  = "Quatf";
@@ -220,7 +220,7 @@ static void
 extract(Quat<T> &quat, const Matrix44<T> &mat)
 {
     MATH_EXC_ON;
-    Quat<T> q = Imath::extractQuat(mat);
+    Quat<T> q = IMATH_NAMESPACE::extractQuat(mat);
     quat.r = q.r;
     quat.v = q.v;
 }
@@ -242,7 +242,7 @@ static Quat<T>
 slerp(const Quat<T> &quat, const Quat<T> &other, T t)
 {
     MATH_EXC_ON;
-    return Imath::slerp (quat, other, t);
+    return IMATH_NAMESPACE::slerp (quat, other, t);
 }
 
 template <class T>
@@ -550,13 +550,13 @@ register_Quat()
 
 template <class T,int index>
 static FixedArray<T>
-QuatArray_get(FixedArray<Imath::Quat<T> > &qa)
+QuatArray_get(FixedArray<IMATH_NAMESPACE::Quat<T> > &qa)
 {
     return FixedArray<T>( &(qa[0].r)+index, qa.len(), 4*qa.stride(), qa.handle());
 }
 
 template <class T> static void
-QuatArray_setRotation(FixedArray<Imath::Quat<T> > &va,const FixedArray<Imath::Vec3<T> > &from, const FixedArray<Imath::Vec3<T> > &to)
+QuatArray_setRotation(FixedArray<IMATH_NAMESPACE::Quat<T> > &va,const FixedArray<IMATH_NAMESPACE::Vec3<T> > &from, const FixedArray<IMATH_NAMESPACE::Vec3<T> > &to)
 {
     MATH_EXC_ON;
     size_t len = va.match_dimension(from); 
@@ -565,19 +565,19 @@ QuatArray_setRotation(FixedArray<Imath::Quat<T> > &va,const FixedArray<Imath::Ve
         va[i].setRotation( from[i], to[i] );
 }
 
-template <class T> static FixedArray<Imath::Vec3<T> >
-QuatArray_axis(const FixedArray<Imath::Quat<T> > &va)
+template <class T> static FixedArray<IMATH_NAMESPACE::Vec3<T> >
+QuatArray_axis(const FixedArray<IMATH_NAMESPACE::Quat<T> > &va)
 {
     MATH_EXC_ON;
     size_t len = va.len(); 
-    FixedArray<Imath::Vec3<T> > retval(len); 
+    FixedArray<IMATH_NAMESPACE::Vec3<T> > retval(len); 
     for (size_t i=0; i<len; ++i) 
         retval[i] = va[i].axis(); 
     return retval;
 }
 
 template <class T> static FixedArray<T>
-QuatArray_angle(const FixedArray<Imath::Quat<T> > &va)
+QuatArray_angle(const FixedArray<IMATH_NAMESPACE::Quat<T> > &va)
 {
     MATH_EXC_ON;
     size_t len = va.len(); 
@@ -589,7 +589,7 @@ QuatArray_angle(const FixedArray<Imath::Quat<T> > &va)
 
 template <class T>
 static FixedArray< Vec3<T> >
-QuatArray_rmulVec3 (const FixedArray< Imath::Quat<T> > &a, const Vec3<T> &v)
+QuatArray_rmulVec3 (const FixedArray< IMATH_NAMESPACE::Quat<T> > &a, const Vec3<T> &v)
 {
     MATH_EXC_ON;
     size_t len = a.len();
@@ -604,7 +604,7 @@ QuatArray_rmulVec3 (const FixedArray< Imath::Quat<T> > &a, const Vec3<T> &v)
 
 template <class T>
 static FixedArray< Vec3<T> >
-QuatArray_rmulVec3Array (const FixedArray< Imath::Quat<T> > &a, const FixedArray< Vec3<T> > &b)
+QuatArray_rmulVec3Array (const FixedArray< IMATH_NAMESPACE::Quat<T> > &a, const FixedArray< Vec3<T> > &b)
 {
     MATH_EXC_ON;
     size_t len = a.match_dimension(b);
@@ -619,7 +619,7 @@ QuatArray_rmulVec3Array (const FixedArray< Imath::Quat<T> > &a, const FixedArray
 
 template <class T>
 static void
-QuatArray_setAxisAngle(FixedArray< Imath::Quat<T> > &quats, const FixedArray< Imath::Vec3<T> > &axis, const FixedArray<T> &angles)
+QuatArray_setAxisAngle(FixedArray< IMATH_NAMESPACE::Quat<T> > &quats, const FixedArray< IMATH_NAMESPACE::Vec3<T> > &axis, const FixedArray<T> &angles)
 {
     MATH_EXC_ON;
     size_t len = quats.match_dimension(axis);
@@ -631,12 +631,12 @@ QuatArray_setAxisAngle(FixedArray< Imath::Quat<T> > &quats, const FixedArray< Im
 }
 
 template <class T>
-static FixedArray< Imath::Quat<T> >
-QuatArray_mul(const FixedArray< Imath::Quat<T> > &q1, const FixedArray< Imath::Quat<T> > &q2)
+static FixedArray< IMATH_NAMESPACE::Quat<T> >
+QuatArray_mul(const FixedArray< IMATH_NAMESPACE::Quat<T> > &q1, const FixedArray< IMATH_NAMESPACE::Quat<T> > &q2)
 {
     MATH_EXC_ON;
     size_t len = q1.match_dimension(q2);
-    FixedArray< Imath::Quat<T> > result(len);
+    FixedArray< IMATH_NAMESPACE::Quat<T> > result(len);
     for (size_t i = 0; i < len; ++i) {
         result[i] = q1[i] * q2[i];
     }
@@ -644,12 +644,12 @@ QuatArray_mul(const FixedArray< Imath::Quat<T> > &q1, const FixedArray< Imath::Q
 }
 
 template <class T>
-static FixedArray<Imath::Quat<T> > *
-QuatArray_quatConstructor1(const FixedArray<Imath::Euler<T> > &e)
+static FixedArray<IMATH_NAMESPACE::Quat<T> > *
+QuatArray_quatConstructor1(const FixedArray<IMATH_NAMESPACE::Euler<T> > &e)
 {
     MATH_EXC_ON;
     size_t len = e.len();
-    FixedArray<Imath::Quat<T> >* result = new FixedArray<Imath::Quat<T> >(len);
+    FixedArray<IMATH_NAMESPACE::Quat<T> >* result = new FixedArray<IMATH_NAMESPACE::Quat<T> >(len);
     for (size_t i = 0; i < len; ++i) {
         (*result)[i] = e[i].toQuat();
     }
@@ -657,10 +657,10 @@ QuatArray_quatConstructor1(const FixedArray<Imath::Euler<T> > &e)
 }
 
 template <class T>
-class_<FixedArray<Imath::Quat<T> > >
+class_<FixedArray<IMATH_NAMESPACE::Quat<T> > >
 register_QuatArray()
 {
-    class_<FixedArray<Imath::Quat<T> > > quatArray_class = FixedArray<Imath::Quat<T> >::register_("Fixed length array of Imath::Quat");
+    class_<FixedArray<IMATH_NAMESPACE::Quat<T> > > quatArray_class = FixedArray<IMATH_NAMESPACE::Quat<T> >::register_("Fixed length array of IMATH_NAMESPACE::Quat");
     quatArray_class
         .add_property("r",&QuatArray_get<T,0>)
         .add_property("x",&QuatArray_get<T,1>)
@@ -682,11 +682,11 @@ register_QuatArray()
     return quatArray_class;
 }
 
-template PYIMATH_EXPORT class_<Imath::Quat<float> > register_Quat<float>();
-template PYIMATH_EXPORT class_<Imath::Quat<double> > register_Quat<double>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Quat<float> > register_Quat<float>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Quat<double> > register_Quat<double>();
 		 
-template PYIMATH_EXPORT class_<FixedArray<Imath::Quat<float> > > register_QuatArray<float>();
-template PYIMATH_EXPORT class_<FixedArray<Imath::Quat<double> > > register_QuatArray<double>();
-template<> PYIMATH_EXPORT Imath::Quat<float> FixedArrayDefaultValue<Imath::Quat<float> >::value() { return Imath::Quat<float>(); }
-template<> PYIMATH_EXPORT Imath::Quat<double> FixedArrayDefaultValue<Imath::Quat<double> >::value() { return Imath::Quat<double>(); }
+template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Quat<float> > > register_QuatArray<float>();
+template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Quat<double> > > register_QuatArray<double>();
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Quat<float> FixedArrayDefaultValue<IMATH_NAMESPACE::Quat<float> >::value() { return IMATH_NAMESPACE::Quat<float>(); }
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Quat<double> FixedArrayDefaultValue<IMATH_NAMESPACE::Quat<double> >::value() { return IMATH_NAMESPACE::Quat<double>(); }
 }

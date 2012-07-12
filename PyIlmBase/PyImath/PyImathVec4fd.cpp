@@ -42,7 +42,7 @@ template <> const char *PyImath::V4fArray::name() { return "V4fArray"; }
 template <> const char *PyImath::V4dArray::name() { return "V4dArray"; }
 
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 template<> const char *Vec4Name<float>::value() { return "V4f"; }
 template<> const char *Vec4Name<double>::value() { return "V4d"; }
@@ -63,12 +63,12 @@ std::string Vec4_repr(const Vec4<double> &v)
                         % Vec4Name<double>::value() % v.x % v.y % v.z % v.w).str();
 }
 
-template PYIMATH_EXPORT class_<Imath::Vec4<float> > register_Vec4<float>();
-template PYIMATH_EXPORT class_<Imath::Vec4<double> > register_Vec4<double>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Vec4<float> > register_Vec4<float>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Vec4<double> > register_Vec4<double>();
 		 
-template PYIMATH_EXPORT class_<FixedArray<Imath::Vec4<float> > > register_Vec4Array<float>();
-template PYIMATH_EXPORT class_<FixedArray<Imath::Vec4<double> > > register_Vec4Array<double>();
+template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Vec4<float> > > register_Vec4Array<float>();
+template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Vec4<double> > > register_Vec4Array<double>();
 
-template<> PYIMATH_EXPORT Imath::Vec4<float> PyImath::FixedArrayDefaultValue<Imath::Vec4<float> >::value() { return Imath::Vec4<float>(0,0,0,0); }
-template<> PYIMATH_EXPORT Imath::Vec4<double> PyImath::FixedArrayDefaultValue<Imath::Vec4<double> >::value() { return Imath::Vec4<double>(0,0,0,0); }
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Vec4<float> PyImath::FixedArrayDefaultValue<IMATH_NAMESPACE::Vec4<float> >::value() { return IMATH_NAMESPACE::Vec4<float>(0,0,0,0); }
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Vec4<double> PyImath::FixedArrayDefaultValue<IMATH_NAMESPACE::Vec4<double> >::value() { return IMATH_NAMESPACE::Vec4<double>(0,0,0,0); }
 }

@@ -46,15 +46,15 @@
 namespace PyIex {
 
 namespace {
-static TypeTranslator<Iex::BaseExc> *_baseExcTranslator = 0;
+static TypeTranslator<IEX_NAMESPACE::BaseExc> *_baseExcTranslator = 0;
 }
 
-PYIEX_EXPORT TypeTranslator<Iex::BaseExc> &baseExcTranslator()
+PYIEX_EXPORT TypeTranslator<IEX_NAMESPACE::BaseExc> &baseExcTranslator()
 {
     return *_baseExcTranslator;
 }
 
-PYIEX_EXPORT void setBaseExcTranslator(TypeTranslator<Iex::BaseExc> *t)
+PYIEX_EXPORT void setBaseExcTranslator(TypeTranslator<IEX_NAMESPACE::BaseExc> *t)
 {
     _baseExcTranslator = t;
 }
