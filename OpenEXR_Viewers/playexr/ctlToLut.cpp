@@ -53,9 +53,9 @@
 
     using namespace std;
     using namespace Ctl;
-    #include <OpenEXRConfig.h>
+    
     using namespace OPENEXR_IMF_NAMESPACE;
-    using namespace Imath;
+    using namespace IMATH_NAMESPACE;
 
 #else
 
@@ -66,9 +66,9 @@
     #include <iostream>
 
     using namespace std;
-    #include <OpenEXRConfig.h>
+    
     using namespace OPENEXR_IMF_NAMESPACE;
-    using namespace Imath;
+    using namespace IMATH_NAMESPACE;
 
 #endif
 
@@ -376,9 +376,9 @@ ctlToLut (vector<string> transformNames,
 
 
 using namespace std;
-#include <OpenEXRConfig.h>
-using namespace CustomImf;
-using namespace Imath;
+
+using namespace OPENEXR_IMF_NAMESPACE;
+using namespace IMATH_NAMESPACE;
 
 
 #define WARNING(message) (cerr << "Warning: " << message << endl)

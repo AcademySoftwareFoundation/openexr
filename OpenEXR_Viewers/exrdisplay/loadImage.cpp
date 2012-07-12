@@ -51,7 +51,7 @@
 #include <ImfPreviewImage.h>
 #include <ImfChannelList.h>
 #include <Iex.h>
-#include <OpenEXRConfig.h>
+
 
 #include <ImfMultiPartInputFile.h>
 #include <ImfInputPart.h>
@@ -62,7 +62,7 @@
 #include <ImfDeepTiledInputPart.h>
 
 using namespace OPENEXR_IMF_NAMESPACE;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 using namespace std;
 
 namespace {

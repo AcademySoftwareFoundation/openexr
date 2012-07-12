@@ -47,7 +47,7 @@
 #include <FL/Fl_Box.H>
 #include <ImfRgba.h>
 #include <ImfArray.h>
-#include <OpenEXRConfig.h>
+
 
 
 class ImageView: public Fl_Gl_Window
@@ -96,6 +96,7 @@ class ImageView: public Fl_Gl_Window
         float                                _kneeHigh;
         const OPENEXR_IMF_NAMESPACE::Rgba *  _rawPixels;
         float**                              _dataZ;
+        unsigned int *                       _sampleCount;
         float                                _fogR;
         float                                _fogG;
         float                                _fogB;
@@ -104,7 +105,6 @@ class ImageView: public Fl_Gl_Window
         int                                  _dx;
         int                                  _dy;
         int                                  _zsize;
-        unsigned int *                       _sampleCount;
 
     private:
 

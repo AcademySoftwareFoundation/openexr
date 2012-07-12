@@ -45,7 +45,7 @@
 #include <ImathMath.h>
 #include <ImathFun.h>
 #include <halfFunction.h>
-#include <OpenEXRConfig.h>
+
 
 
 #include <algorithm>
@@ -93,7 +93,6 @@ ImageView::ImageView (int x, int y,
     _kneeHigh (kneeHigh),
     _rawPixels (pixels),
     _dataZ (dataZ),
-    _zsize (zsize),
     _sampleCount (sampleCount),
     _fogR (0),
     _fogG (0),
@@ -102,6 +101,7 @@ ImageView::ImageView (int x, int y,
     _dh (dh),
     _dx (dx),
     _dy (dy),
+    _zsize (zsize),
     _rgbaBox (rgbaBox),
     _screenPixels (dw * dh * 3)
 {
@@ -124,7 +124,7 @@ ImageView::ImageView (int x, int y,
         float* z = _dataZ[k];
         unsigned int count = _sampleCount[k];
 
-        for (int i = 0; i < count; i++)
+        for (unsigned int i = 0; i < count; i++)
         {
             double val = double(z[i]);
             if (val > bmax)
@@ -312,7 +312,7 @@ ImageView::handle (int event)
                     unsigned int count = _sampleCount[py * _dw + px];
 
                     cout << "\nsample Count: " << count << endl;
-                    for (int i = 0; i < count; i++)
+                    for (unsigned int i = 0; i < count; i++)
                     {
                         printf ("pixel Z value  %d: %.3f\n", i, float(z[i]));
                     }
@@ -329,7 +329,7 @@ ImageView::handle (int event)
                     _chart->clear();
                     _chart->type (FL_LINE_CHART);
 
-                    for (int i = 0; i < count; i++)
+                    for (unsigned int i = 0; i < count; i++)
                     {
                         double val = double(z[i]);
                         static char val_str[20];

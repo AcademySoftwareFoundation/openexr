@@ -44,7 +44,7 @@
 
 #include <ImfRgba.h>
 #include <ImfArray.h>
-#include <OpenEXRConfig.h>
+
 
 
 //

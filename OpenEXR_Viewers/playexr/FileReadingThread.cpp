@@ -45,10 +45,10 @@
 #include <Iex.h>
 #include <iostream>
 
-using namespace IlmThread;
-#include <OpenEXRConfig.h>
-using namespace CustomImf;
-using namespace Iex;
+
+using namespace OPENEXR_IMF_NAMESPACE;
+using namespace ILMTHREAD_NAMESPACE;
+using namespace IEX_NAMESPACE;
 using namespace std;
 
 

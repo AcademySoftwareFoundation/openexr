@@ -48,7 +48,7 @@
 #include <ImfRgba.h>
 #include <ImfArray.h>
 #include <ImfHeader.h>
-#include <OpenEXRConfig.h>
+
 
 //
 // Load an OpenEXR image file:

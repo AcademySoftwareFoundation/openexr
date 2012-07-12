@@ -45,9 +45,9 @@
 #include <algorithm>
 #include <math.h>
 
-#include "namespaceAlias.h"
-using namespace CustomImf;
-using namespace Imath;
+
+using namespace OPENEXR_IMF_NAMESPACE;
+using namespace IMATH_NAMESPACE;
 using std::min;
 using std::max;
 

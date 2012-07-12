@@ -54,7 +54,7 @@
 
     using namespace std;
     using namespace Ctl;
-    using namespace Imath;
+    using namespace IMATH_NAMESPACE;
 
 #else
 
@@ -66,12 +66,12 @@
     #include <stdio.h>
 
     using namespace std;
-    using namespace Imath;
+    using namespace IMATH_NAMESPACE;
 
 #endif
 
-#include "namespaceAlias.h"
-using namespace CustomImf;
+
+using namespace OPENEXR_IMF_NAMESPACE;
 
 #define WARNING(message) (cerr << "Warning: " << message << endl)
 
