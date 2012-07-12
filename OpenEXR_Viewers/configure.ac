@@ -241,7 +241,7 @@ Please re-run configure with these options:
     dnl LDFLAGS="$LDFLAGS -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386"
   fi
 
-  CXXFLAGS="$CXXFLAGS -Wno-long-double"
+  CXXFLAGS="$CXXFLAGS"
   ;;
 esac
 
