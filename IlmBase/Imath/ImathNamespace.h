@@ -44,7 +44,7 @@
 // To ensure source code compatibility, the IMATH_NAMESPACE defaults to Imath
 // and then "using namespace IMATH_INTERNAL_NAMESPACE;" brings all of the
 // declarations from the IMATH_INTERNAL_NAMESPACE into the IMATH_NAMESPACE.
-// This means that client code can continue to use syntax like IMATH_INTERNAL_NAMESPACE::V3f,
+// This means that client code can continue to use syntax like Imath::V3f,
 // but at link time it will resolve to a mangled symbol based on the
 // IMATH_INTERNAL_NAMESPACE.
 //

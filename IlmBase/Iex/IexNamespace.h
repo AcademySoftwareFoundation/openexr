@@ -45,7 +45,7 @@
 // To ensure source code compatibility, the IEX_NAMESPACE defaults to Iex
 // and then "using namespace IEX_INTERNAL_NAMESPACE;" brings all of the
 // declarations from the IEX_INTERNAL_NAMESPACE into the IEX_NAMESPACE.  This
-// means that client code can continue to use syntax like IEX_NAMESPACE::BaseExc, but
+// means that client code can continue to use syntax like Iex::BaseExc, but
 // at link time it will resolve to a mangled symbol based on the
 // IEX_INTERNAL_NAMESPACE.
 //

@@ -58,7 +58,4 @@ bool isSupportedType(const std::string& name);
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-
-
-
 #endif /* IMFPARTTYPE_H_ */

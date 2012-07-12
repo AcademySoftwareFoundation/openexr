@@ -46,7 +46,7 @@
 // of the declarations from the OPENEXR_IMF_INTERNAL_NAMESPACE into the
 // OPENEXR_IMF_NAMESPACE.
 // This means that client code can continue to use syntax like
-// OPENEXR_IMF_INTERNAL_NAMESPACE::V3f, but at link time it will resolve to a
+// Imf::Header, but at link time it will resolve to a
 // mangled symbol based on the OPENEXR_IMF_INTERNAL_NAMESPACE.
 //
 // As an example, if one needed to build against a newer version of Imath and
