@@ -49,6 +49,7 @@
 #include <ImfArray.h>
 
 
+#include "GlWindow3d.h"
 
 class ImageView: public Fl_Gl_Window
 {
@@ -64,6 +65,7 @@ class ImageView: public Fl_Gl_Window
                    int dw, int dh,          // data window width and height
                    int dx, int dy,          // data window offset
                    Fl_Box *rgbaBox,
+                   float farPlane,          // zfar plane in Deep 3D window
                    float gamma,
                    float exposure,
                    float defog,
@@ -82,11 +84,13 @@ class ImageView: public Fl_Gl_Window
 
         virtual void        draw();
         virtual int         handle (int event);
+        void                clearDataDisplay();
 
     protected:
 
         virtual void        updateScreenPixels ();
         void                computeFogColor ();
+        void                findZbound ();
         float               findKnee (float x, float y);
 
         float                                _gamma;
@@ -100,6 +104,9 @@ class ImageView: public Fl_Gl_Window
         float                                _fogR;
         float                                _fogG;
         float                                _fogB;
+        float                                _zmax;
+        float                                _zmin;
+        float                                _farPlane;
         int                                  _dw;
         int                                  _dh;
         int                                  _dx;
@@ -108,8 +115,11 @@ class ImageView: public Fl_Gl_Window
 
     private:
 
+        GlWindow*                            _gl3d;
         Fl_Window *                          _chartwin;
         Fl_Chart *                           _chart;
+        Fl_Chart *                           _chartMax;
+        Fl_Chart *                           _chartMin;
         Fl_Box *                             _rgbaBox;
         char                                 _rgbaBoxLabel[200];
         OPENEXR_IMF_NAMESPACE::Array<unsigned char> _screenPixels;

@@ -44,8 +44,8 @@
 
 #include <ImathMath.h>
 #include <ImathFun.h>
+#include <ImathLimits.h>
 #include <halfFunction.h>
-
 
 
 #include <algorithm>
@@ -65,9 +65,10 @@
 
 using std::min;
 using std::max;
-using IMATH_NAMESPACE::clamp;
 using std::cout;
 using std::endl;
+using std::cerr;
+using namespace IMATH_NAMESPACE;
 
 ImageView::ImageView (int x, int y,
                       int w, int h,
@@ -79,6 +80,7 @@ ImageView::ImageView (int x, int y,
                       int dw, int dh,
                       int dx, int dy,
                       Fl_Box *rgbaBox,
+                      float farPlane,
                       float gamma,
                       float exposure,
                       float defog,
@@ -101,6 +103,7 @@ ImageView::ImageView (int x, int y,
     _dh (dh),
     _dx (dx),
     _dy (dy),
+    _farPlane (farPlane),
     _zsize (zsize),
     _rgbaBox (rgbaBox),
     _screenPixels (dw * dh * 3)
@@ -108,34 +111,29 @@ ImageView::ImageView (int x, int y,
     computeFogColor();
     updateScreenPixels();
 
+    //
+    // initialize z value chart
+    //
     _chartwin = new Fl_Window (600, 300);
     _chart = new Fl_Chart (20, 20,
                            _chartwin->w()-40,
                            _chartwin->h()-40,
                            "Data Z Chart");
+    _chartMax = new Fl_Chart (20, 20,
+                           _chartwin->w()-40,
+                           _chartwin->h()-40,
+                           "");
+    _chartMin = new Fl_Chart (20, 20,
+                           _chartwin->w()-40,
+                           _chartwin->h()-40,
+                           "");
+
+    findZbound();
 
     //
-    // find max and min values of data
+    // initialize Deep 3d window
     //
-    double bmax  = -1000000.0;
-    double bmin = 1000000.0;
-    for (int k = 0; k < _zsize; k++)
-    {
-        float* z = _dataZ[k];
-        unsigned int count = _sampleCount[k];
-
-        for (unsigned int i = 0; i < count; i++)
-        {
-            double val = double(z[i]);
-            if (val > bmax)
-                bmax = val;
-            if (val < bmin)
-                bmin = val;
-        }
-    }
-
-    cout << "z max: "<< bmax << ", z min: " << bmin << endl;
-    _chart->bounds (bmin, bmax);
+    _gl3d = NULL;
 }
 
 void
@@ -164,12 +162,50 @@ ImageView::setKneeLow (float kneeLow)
     redraw();
 }
 
-void ImageView::setPixels(const OPENEXR_IMF_NAMESPACE::Rgba pixels[/* w*h */],
-                          float* dataZ[/* w*h */],
-                          unsigned int sampleCount[/* w*h */],
-                          int zsize,
-                          int dw, int dh, int dx, int dy)
+void
+ImageView::findZbound()
 {
+    //
+    // find zmax and zmin values of deep data to set bound
+    //
+    float zmax  = limits<float>::min();
+    float zmin = limits<float>::max();
+
+    for (int k = 0; k < _zsize; k++)
+    {
+        float* z = _dataZ[k];
+        unsigned int count = _sampleCount[k];
+
+        for (unsigned int i = 0; i < count; i++)
+        {
+            double val = double(z[i]);
+            if (val > zmax && val < _farPlane)
+                zmax = val;
+            if (val < zmin)
+                zmin = val;
+        }
+    }
+
+    if ( zmax > zmin)
+    {
+        cout << "z max: "<< zmax << ", z min: " << zmin << endl;
+        _chart->bounds (zmin, zmax);
+    }
+
+    _zmax = zmax;
+    _zmin = zmin;
+}
+
+void
+ImageView::setPixels(const OPENEXR_IMF_NAMESPACE::Rgba pixels[/* w*h */],
+                     float* dataZ[/* w*h */],
+                     unsigned int sampleCount[/* w*h */],
+                     int zsize,
+                     int dw, int dh, int dx, int dy)
+{
+    //
+    // update data of imageview
+    //
     _rawPixels = pixels;
     _dw = dw;
     _dh = dh;
@@ -181,8 +217,30 @@ void ImageView::setPixels(const OPENEXR_IMF_NAMESPACE::Rgba pixels[/* w*h */],
 
     _screenPixels.resizeErase(dw*dh*3);
 
+    findZbound();
+
+    //
+    // update Deep 3d window
+    //
+    GlWindow* temp;
+    temp = _gl3d;
+    _gl3d = NULL;
+
+    if (_gl3d != NULL){
+        delete temp;
+    }
+
     updateScreenPixels();
     redraw();
+}
+
+void
+ImageView::clearDataDisplay()
+{
+    _chart->clear();
+
+    if (_gl3d != NULL)
+        _gl3d->hide();
 }
 
 void
@@ -289,11 +347,36 @@ ImageView::handle (int event)
         }
     }
 
-    if (event == FL_RELEASE)
+    if ( event == FL_RELEASE && Fl::event_button() == FL_RIGHT_MOUSE )
+    {
+        if(_zsize > 0)
+        {
+            if (_gl3d == NULL)
+            {
+                //
+                // initialize Deep 3d display
+                //
+
+                _gl3d = new GlWindow(10, 10, 500, 500,
+                                     "3D View", _rawPixels,
+                                     _dataZ, _sampleCount,
+                                     _dw, _dh, _zmax, _zmin,
+                                     _farPlane);
+
+                _gl3d->show();
+            }
+            else
+            {
+                _gl3d->show();
+            }
+        }
+    }
+
+    if (event == FL_RELEASE && Fl::event_button() == FL_LEFT_MOUSE)
     {
         //
-        // Print the z values of
-        // the pixel at the current cursor location.
+        // Open a sample chart and print the z values of
+        // the pixel at the current cursor location
         //
 
         if(_zsize > 0)
@@ -325,16 +408,32 @@ ImageView::handle (int event)
                     //
                     // draw the chart
                     //
-
                     _chart->clear();
                     _chart->type (FL_LINE_CHART);
+
+                    _chartMax->clear();
+                    _chartMax->type (FL_SPIKE_CHART);
+                    static char val_str[20];
+                    sprintf (val_str, "%.3lf", _zmax);
+                    _chartMax->add (_zmax-_zmin, val_str, FL_RED);
+                    _chartMax->box(FL_NO_BOX);
+
+                    _chartMin->clear();
+                    _chartMin->type (FL_SPIKE_CHART);
+                    sprintf (val_str, "%.3lf", _zmin);
+                    _chartMin->add (_zmin-_zmin, val_str, FL_RED);
+                    _chartMin->box(FL_NO_BOX);
 
                     for (unsigned int i = 0; i < count; i++)
                     {
                         double val = double(z[i]);
-                        static char val_str[20];
-                        sprintf (val_str, "%.3lf", val);
-                        _chart->add (val, val_str, FL_GREEN);
+                        if (val < _farPlane)
+                        {
+                            sprintf (val_str, "%.3lf", val);
+                            _chart->add (val, val_str, FL_BLUE);
+                            _chartMax->add (0.0, "", FL_RED);
+                            _chartMin->add (0.0, "", FL_RED);
+                        }
                     }
 
                     redraw();
