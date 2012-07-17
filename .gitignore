@@ -8,8 +8,9 @@ depcomp
 install-sh
 ltmain.sh
 missing
-*.o 
-*.lo 
+*.o
+*.lo
+*.Plo
 *.so
 *.Po
 *.la
