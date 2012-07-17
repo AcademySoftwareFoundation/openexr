@@ -1,4 +1,10 @@
 Version 1.0.3
+	* Fixed a number of missing includes to comply with stricter 
+	  enforcement by gnu compilers.
+	  (Piotr Stanczyk)
+	* Depracated compiler flag: -Wno-long-double since it is no longer
+	  supported under OS X.
+	  (Piotr Stanczyk)
 	* A minor API change to Imath::Frustum has been made:  the functions
 	  'near' and 'far' have been renamed to 'nearPlane' and 'farPlane' due
 	  to conflicts with certain windows headers.  The former alternate
