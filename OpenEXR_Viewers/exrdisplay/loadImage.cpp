@@ -99,6 +99,7 @@ loadImage (const char fileName[],
         int dy = dataWindow.min.y;
 
         pixels.resizeErase (dw * dh);
+        memset (pixels, 0, (dw * dh) * (sizeof(Rgba)));
 
         size_t xs = 1 * sizeof (Rgba);
         size_t ys = dw * sizeof (Rgba);
@@ -204,6 +205,7 @@ loadTiledImage (const char fileName[],
             int dy = dataWindow.min.y;
 
             pixels.resizeErase (dw * dh);
+            memset (pixels, 0, (dw * dh) * (sizeof(Rgba)));
 
             size_t xs = 1 * sizeof (Rgba);
             size_t ys = dw * sizeof (Rgba);

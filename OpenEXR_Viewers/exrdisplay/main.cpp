@@ -35,7 +35,19 @@
 
 //-----------------------------------------------------------------------------
 //
-//	exrdisplay -- a simple program to display Imf::Rgba images
+//	exrdisplay -- a simple program to display Imf::Rgba multipart
+//                    and deep images
+//                 -- exrdisplay Window Mouse Control:
+//                      LMB = Display a sample chart and print out values
+//                      RMB = If it's a deep image, open a Deep 3D Window
+//                 -- Deep 3D Window Mouse Control:
+//                      LMB = Rotate
+//                      RMB = Zoom
+//                      MMB = Move
+//                 -- Deep 3D Window Control Keys:
+//                      a = scale z value up
+//                      s = scale z value down
+//                      f = reset to fit
 //
 //-----------------------------------------------------------------------------
 
@@ -45,12 +57,13 @@
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Valuator.H>
-#include <FL/Fl_Input_Choice.H>
+#include <FL/Fl_Choice.H>
 #include <FL/Fl_Output.H>
 
 #include <ImfArray.h>
 #include <ImfThreading.h>
 #include <ImfMultiPartInputFile.h>
+#include <ImathLimits.h>
 
 #include <iostream>
 #include <algorithm>
@@ -72,7 +85,7 @@ using namespace std;
 struct MainWindow
 {
     Fl_Window *         window;
-    Fl_Input_Choice *   multipartMenu;
+    Fl_Choice *         multipartMenu;
     Fl_Output *         typeLabel;
     Fl_Output *         nameLabel;
     Fl_Box *            exposureLabel;
@@ -95,6 +108,7 @@ struct MainWindow
     const char*         channel;
     const char*         layer;
     bool                swap;
+    float               farPlane;
 
     static void         multipartComboboxCallback (Fl_Widget *widget, void *data);
     static void         exposureSliderCallback (Fl_Widget *widget, void *data);
@@ -107,7 +121,9 @@ void
 MainWindow::multipartComboboxCallback (Fl_Widget *widget, void *data)
 {
     MainWindow *mainWindow = (MainWindow *) data;
-    int partnum = atoi(mainWindow->multipartMenu->value());
+    int partnum = mainWindow->multipartMenu->value();
+
+    mainWindow->image->clearDataDisplay();
 
     //
     // reload pixels
@@ -219,6 +235,7 @@ makeMainWindow (const char imageFile[],
                 bool preview,
                 int lx,
                 int ly,
+                float farPlane,
                 bool noDisplayWindow,
                 bool noAspect,
                 bool zeroOneExposure,
@@ -233,6 +250,7 @@ makeMainWindow (const char imageFile[],
     mainWindow->preview = preview;
     mainWindow->lx = lx;
     mainWindow->ly = ly;
+    mainWindow->farPlane = farPlane;
     mainWindow->channel = channel;
     mainWindow->layer = layer;
     mainWindow->swap = swap;
@@ -414,7 +432,7 @@ makeMainWindow (const char imageFile[],
         //
 
         mainWindow->multipartMenu =
-                        new Fl_Input_Choice (70, 5, 80, 20, "multipart");
+                        new Fl_Choice (70, 5, 80, 20, "multipart");
 
         for(int i=0; i<numparts; i++){
             string displaynum;
@@ -587,6 +605,7 @@ makeMainWindow (const char imageFile[],
                                    dw, dh,
                                    dx, dy,
                                    mainWindow->rgbaBox,
+                                   mainWindow->farPlane,
                                    displayVideoGamma(),
                                    exposure,
                                    defog,
@@ -705,6 +724,22 @@ usageMessage (const char argv0[], bool verbose = false)
         "       transforms are located using the CTL_MODULE_PATH\n"
         "       environment variable.\n"
 #endif
+        "\n"
+        "Deep Data Options:\n"
+        "\n"
+        "-farPlane(f) f    OpenGL zFar clipping plane\n"
+        "\n"
+        "Exrdisplay Window Mouse Control:\n"
+        "                  LMB = Display a sample chart and print out values\n"
+        "                  RMB = If it's a deep image, open a Deep 3D Window\n"
+        "Deep 3D Window Mouse Control:\n"
+        "                  LMB = Rotate\n"
+        "                  RMB = Zoom\n"
+        "                  MMB = Move\n"
+        "Deep 3D Window Control Keys:\n"
+        "                  a = scale z value up\n"
+        "                  s = scale z value down\n"
+        "                  f = reset to fit\n"
         "\n";
 
         cerr << endl;
@@ -737,6 +772,7 @@ main(int argc, char **argv)
     
     int lx = -1;
     int ly = -1;
+    float farPlane = limits<float>::max(); //default value of zfar plane
 
     //
     // Parse the command line.
@@ -927,6 +963,25 @@ main(int argc, char **argv)
 
             usageMessage (argv[0], true);
         }
+        else if (!strcmp (argv[i], "-farPlane") || !strcmp (argv[i], "-f"))
+        {
+            //
+            // zFar plane for display deep data
+            //
+
+            if (i > argc - 2)
+                usageMessage (argv[0]);
+
+            farPlane = strtod (argv[i + 1], 0);
+            i += 2;
+
+            if (farPlane <= 0)
+            {
+                cerr << "Value of far Plane cannot be negative." << endl;
+                exit (1);
+            }
+
+        }
         else
         {
             //
@@ -958,6 +1013,7 @@ main(int argc, char **argv)
                                                  layer,
                                                  preview,
                                                  lx, ly,
+                                                 farPlane,
                                                  noDisplayWindow,
                                                  noAspect,
                                                  zeroOneExposure,
