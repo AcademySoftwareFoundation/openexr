@@ -40,21 +40,21 @@
 //-----------------------------------------------------------------------------
 
 
-#include "ImfMultiPartOutputFile.h"
-#include "ImfMultiPartInputFile.h"
-#include "ImfStringAttribute.h"
-#include "ImfChannelList.h"
-#include "ImfTiledInputPart.h"
-#include "ImfTiledOutputPart.h"
-#include "ImfInputPart.h"
-#include "ImfOutputPart.h"
-#include "ImfDeepScanLineInputPart.h"
-#include "ImfDeepScanLineOutputPart.h"
-#include "ImfDeepTiledInputPart.h"
-#include "ImfDeepTiledOutputPart.h"
+#include <ImfMultiPartOutputFile.h>
+#include <ImfMultiPartInputFile.h>
+#include <ImfStringAttribute.h>
+#include <ImfChannelList.h>
+#include <ImfTiledInputPart.h>
+#include <ImfTiledOutputPart.h>
+#include <ImfInputPart.h>
+#include <ImfOutputPart.h>
+#include <ImfDeepScanLineInputPart.h>
+#include <ImfDeepScanLineOutputPart.h>
+#include <ImfDeepTiledInputPart.h>
+#include <ImfDeepTiledOutputPart.h>
 
-#include "ImfNamespace.h"
-#include "Iex.h"
+#include <OpenEXRConfig.h>
+#include <Iex.h>
 
 #include <iostream>
 #include <vector>
@@ -74,58 +74,71 @@ using std::string;
 
 using namespace OPENEXR_IMF_NAMESPACE;
 
-void copy_tile(MultiPartInputFile & input,MultiPartOutputFile & output,int inPart,int outPart)
+void
+copy_tile (MultiPartInputFile & input,
+           MultiPartOutputFile & output,
+           int inPart, int outPart)
 {
-    TiledInputPart in(input,inPart);
-    TiledOutputPart out(output,outPart);
+    TiledInputPart in (input, inPart);
+    TiledOutputPart out (output, outPart);
 
-    out.copyPixels(in);
+    out.copyPixels (in);
 }
 
-void copy_tiledeep(MultiPartInputFile & input,MultiPartOutputFile & output,int inPart,int outPart)
+void
+copy_tiledeep (MultiPartInputFile & input,
+               MultiPartOutputFile & output,
+               int inPart, int outPart)
 {
-    DeepTiledInputPart in(input,inPart);
-    DeepTiledOutputPart out(output,outPart);
+    DeepTiledInputPart in (input, inPart);
+    DeepTiledOutputPart out (output, outPart);
 
-    out.copyPixels(in);
+    out.copyPixels (in);
 }
 
-void copy_scanline(MultiPartInputFile & input, MultiPartOutputFile & output,int inPart,int outPart)
+void
+copy_scanline (MultiPartInputFile & input,
+               MultiPartOutputFile & output,
+               int inPart, int outPart)
 {
-    InputPart in(input,inPart);
-    OutputPart out(output,outPart);
+    InputPart in (input, inPart);
+    OutputPart out (output, outPart);
 
-    out.copyPixels(in);
+    out.copyPixels (in);
 }
 
-void copy_scanlinedeep(MultiPartInputFile & input, MultiPartOutputFile & output,int inPart,int outPart)
+void
+copy_scanlinedeep (MultiPartInputFile & input,
+                   MultiPartOutputFile & output,
+                   int inPart, int outPart)
 {
-    DeepScanLineInputPart in(input,inPart);
-    DeepScanLineOutputPart out(output,outPart);
+    DeepScanLineInputPart in (input, inPart);
+    DeepScanLineOutputPart out (output, outPart);
 
-    out.copyPixels(in);
+    out.copyPixels (in);
 }
 
-void make_unique_names(vector<Header> & headers)
+void
+make_unique_names (vector<Header> & headers)
 {
     set<string> names;
-    for( size_t i = 0 ; i < headers.size() ; i++ )
+    for ( size_t i = 0 ; i < headers.size() ; i++ )
     {
         std::string base_name;
         // if no name at all, set it to <type><partnum> (first part is part 1)
-        if(!headers[i].hasName())
+        if (!headers[i].hasName())
         {
             ostringstream s;
-            s << headers[i].type() << (i+1);
+            s << headers[i].type() << (i + 1);
             base_name = s.str();
-            headers[i].setName(base_name);
+            headers[i].setName (base_name);
         }
         else
         {
             base_name = headers[i].name();
         }
         // check name has already been used, if so add a _<number> to it
-        if(names.find(base_name)==names.end())
+        if (names.find (base_name) == names.end())
         {
             ostringstream s;
             size_t backup=1;
@@ -135,27 +148,30 @@ void make_unique_names(vector<Header> & headers)
                 s << headers[i].type() << i << "_" << backup;
                 backup++;
             }
-            while(names.find(s.str())!=names.end());
-            headers[i].setName(s.str());
+            while (names.find(s.str()) != names.end());
+            headers[i].setName (s.str());
         }
     }
 }
 
-void filename_check(vector <string> names, const char* aname)
+void
+filename_check (vector <string> names, const char* aname)
 {
-	string bname(aname);
-    for(int i=0; i<names.size(); i++)
+    string bname(aname);
+    for (int i = 0; i < names.size(); i++)
     {
-        if(bname.compare(names[i]) == 0)
+        if (bname.compare (names[i]) == 0)
         {
-            cerr << "\n" << "ERROR: input and output file names cannot be the same." << endl;
-            exit(1);
+            cerr << "\n" << "ERROR: "
+            "input and output file names cannot be the same." << endl;
+            exit (1);
         }
     }
 }
 
 
-void combine(vector <const char*> in, const char* outname, bool override)
+void
+combine (vector <const char*> in, const char* outname, bool override)
 {
     int numInputs = in.size();
     int numparts;
@@ -169,77 +185,78 @@ void combine(vector <const char*> in, const char* outname, bool override)
     //
     // parse all inputs
     //
-    for(size_t i = 0 ; i < numInputs; i++)
+    for (size_t i = 0 ; i < numInputs; i++)
     {
-        // if input is <file>:<partnum> then extract part number, else get all parts
-        string filename(in[i]);
-        size_t colon = filename.rfind(':');
+        // if input is <file>:<partnum> then extract part number,
+        // else get all parts
+        string filename (in[i]);
+        size_t colon = filename.rfind (':');
 
-        if(colon==string::npos)
+        if (colon == string::npos)
         {
-            fornamecheck.push_back(filename);
+            fornamecheck.push_back (filename);
 
             try
             {
-                infile = new MultiPartInputFile(filename.c_str());
-                fordelete.push_back(infile);
+                infile = new MultiPartInputFile (filename.c_str());
+                fordelete.push_back (infile);
                 numparts = infile->parts();
 
                 //copy header from all parts of input to our header array
-                for(size_t j=0; j<numparts; j++)
+                for (size_t j = 0; j < numparts; j++)
                 {
-                	inputs.push_back(infile);
-                    headers.push_back(infile->header(j));
-                    partnums.push_back(j);
+                    inputs.push_back (infile);
+                    headers.push_back (infile->header(j));
+                    partnums.push_back (j);
                 }
             }
-            catch(IEX_NAMESPACE::BaseExc &e)
+            catch (IEX_NAMESPACE::BaseExc &e)
             {
-                cerr<<"\n"<<"ERROR:"<<endl;
-                cerr<<e.what()<<endl;
-                exit(1);
+                cerr << "\n" << "ERROR:" << endl;
+                cerr << e.what() << endl;
+                exit (1);
             }
         }
         else
         {
-            string num=filename.substr(colon+1);
-            numparts=atoi(num.c_str());
-            filename=filename.substr(0,colon);
+            string num = filename.substr (colon + 1);
+            numparts = atoi (num.c_str());
+            filename = filename.substr (0, colon);
 
-            fornamecheck.push_back(filename);
+            fornamecheck.push_back (filename);
 
             try
             {
-                infile = new MultiPartInputFile(filename.c_str());
-                fordelete.push_back(infile);
+                infile = new MultiPartInputFile (filename.c_str());
+                fordelete.push_back (infile);
 
-                if(numparts >= infile->parts())
+                if (numparts >= infile->parts())
                 {
-                cerr << "ERROR: you asked for part " << numparts << " in " << in[i];
-                cerr << ", which only has " << infile->parts() << " parts\n";
-                exit(1);
+                    cerr << "ERROR: you asked for part " << numparts << " in " << in[i];
+                    cerr << ", which only has " << infile->parts() << " parts\n";
+                    exit (1);
                 }
                 //copy header from required part of input to our header array
-                inputs.push_back(infile);
-                headers.push_back(infile->header(numparts));
-                partnums.push_back(numparts);
+                inputs.push_back (infile);
+                headers.push_back (infile->header(numparts));
+                partnums.push_back (numparts);
             }
-            catch(IEX_NAMESPACE::BaseExc &e)
+            catch (IEX_NAMESPACE::BaseExc &e)
             {
-                cerr<<"\n"<<"ERROR:"<<endl;
-                cerr<<e.what()<<endl;
-                exit(1);
+                cerr << "\n" << "ERROR:" << endl;
+                cerr << e.what()<< endl;
+                exit (1);
             }
         }
     }
 
-    filename_check(fornamecheck, outname);
+    filename_check (fornamecheck, outname);
     //
     // sort out names - make unique
     //
-    if(numInputs>1)
+    if (numInputs>1)
     {
-        make_unique_names(headers);
+        make_unique_names (headers);
     }
 
     //
@@ -247,44 +264,45 @@ void combine(vector <const char*> in, const char* outname, bool override)
     //
     try
     {
-        MultiPartOutputFile temp(outname,&headers[0],headers.size(),override,4);
+        MultiPartOutputFile temp (outname, &headers[0],
+                                  headers.size(), override);
     }
-    catch(IEX_NAMESPACE::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
-        cerr<<"\n"<<"ERROR: "<<e.what()<<endl;
-        exit(1);
+        cerr << "\n" << "ERROR: " << e.what() << endl;
+        exit (1);
     }
 
-    MultiPartOutputFile out(outname,&headers[0],headers.size(),override,4);
+    MultiPartOutputFile out (outname, &headers[0], headers.size(), override);
 
-    for(size_t p = 0 ; p < partnums.size();p++)
+    for (size_t p = 0 ; p < partnums.size();p++)
     {
         Header header = headers[p];
         std::string type = header.type();
-        if(type=="scanlineimage")
+        if (type == "scanlineimage")
         {
-            cout<<"part " << p << ": "<< "scanlineimage"<<endl;
-            copy_scanline(*inputs[p],out,partnums[p],p);
+            cout << "part " << p << ": "<< "scanlineimage" << endl;
+            copy_scanline (*inputs[p], out, partnums[p], p);
         }
-        else if(type=="tiledimage")
+        else if (type == "tiledimage")
         {
-            cout<<"part " << p << ": "<< "tiledimage"<<endl;
-            copy_tile(*inputs[p],out,partnums[p],p);
+            cout << "part " << p << ": "<< "tiledimage" << endl;
+            copy_tile (*inputs[p], out, partnums[p], p);
         }
-        else if(type=="deepscanline")
+        else if (type == "deepscanline")
         {
-            cout<<"part " << p << ": "<< "deepscanlineimage"<<endl;
-            copy_scanlinedeep(*inputs[p],out,partnums[p],p);
+            cout << "part " << p << ": "<< "deepscanlineimage" << endl;
+            copy_scanlinedeep (*inputs[p], out, partnums[p], p);
         }
-        else if(type=="deeptile")
+        else if (type == "deeptile")
         {
-            cout<<"part " << p << ": "<< "deeptile"<<endl;
-            copy_tiledeep(*inputs[p],out,partnums[p],p);
+            cout << "part " << p << ": "<< "deeptile" << endl;
+            copy_tiledeep (*inputs[p], out, partnums[p], p);
         }
     }
 
 
-    for (int k=0; k<fordelete.size(); k++) {
+    for (int k = 0; k < fordelete.size(); k++) {
         delete fordelete[k];
     }
 
@@ -294,19 +312,20 @@ void combine(vector <const char*> in, const char* outname, bool override)
     cout << "\n" << "Combine Success" << endl;
 }
 
-void separate(vector <const char*> in, const char* out, bool override)
+void
+separate (vector <const char*> in, const char* out, bool override)
 {
-    if(in.size() > 1)
+    if (in.size() > 1)
     {
         cerr << "ERROR: -separate only take one input file\n"
         "syntax: exrmultipart -separate -i infile.exr -o outfileBaseName\n";
-        exit(1);
+        exit (1);
     }
 
     //
     // parse the multipart input
     //
-    string filename(in[0]);
+    string filename (in[0]);
     MultiPartInputFile *inputimage;
     int numOutputs;
     vector<string> fornamecheck;
@@ -314,89 +333,95 @@ void separate(vector <const char*> in, const char* out, bool override)
     // add check for existance of the file
     try
     {
-        MultiPartInputFile temp(filename.c_str());
+        MultiPartInputFile temp (filename.c_str());
     }
-    catch(IEX_NAMESPACE::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc &e)
     {
-        cerr<<"\n"<<"ERROR: "<<e.what()<<endl;
-        exit(1);
+        cerr << "\n" << "ERROR: " << e.what() << endl;
+        exit (1);
     }
 
-    inputimage = new MultiPartInputFile(filename.c_str());
+    inputimage = new MultiPartInputFile (filename.c_str());
     numOutputs = inputimage->parts();
     cout << "numOutputs: " << numOutputs << endl;
 
     //
     // set outputs names
     //
-    for(int p = 0 ; p <numOutputs;p++)
+    for (int p = 0 ; p <numOutputs;p++)
     {
-        string outfilename(out);
+        string outfilename (out);
 
         //add number to outfilename
         std::ostringstream oss;
-        oss << '.' << p+1;
+        oss << '.' << p + 1;
         outfilename += oss.str();
         outfilename += ".exr";
         cout << "outputfilename: " << outfilename << endl;
-        fornamecheck.push_back(outfilename);
+        fornamecheck.push_back (outfilename);
     }
 
-    filename_check(fornamecheck, in[0]);
+    filename_check (fornamecheck, in[0]);
 
     //
     // separate outputs
     //
-    for(int p = 0 ; p <numOutputs;p++)
+    for (int p = 0 ; p < numOutputs; p++)
     {
-        Header header = inputimage->header(p);
+        Header header = inputimage->header (p);
 
-        MultiPartOutputFile out(fornamecheck[p].c_str(),&header,1,override,4);
+        MultiPartOutputFile out (fornamecheck[p].c_str(), &header, 1, override);
 
         std::string type = header.type();
-        if(type=="scanlineimage")
+        if (type == "scanlineimage")
         {
-            cout<<"scanlineimage"<<endl;
-            copy_scanline(*inputimage,out,p,0);
+            cout << "scanlineimage" << endl;
+            copy_scanline (*inputimage, out, p, 0);
         }
-        else if(type=="tiledimage")
+        else if (type == "tiledimage")
         {
-            cout<<"tiledimage"<<endl;
-            copy_tile(*inputimage,out,p,0);
+            cout << "tiledimage" << endl;
+            copy_tile (*inputimage, out, p, 0);
         }
-        else if(type=="deepscanline")
+        else if (type == "deepscanline")
         {
-            cout<<"deepscanline"<<endl;
-            copy_scanlinedeep(*inputimage,out,p,0);
+            cout << "deepscanline" << endl;
+            copy_scanlinedeep (*inputimage, out, p, 0);
         }
-        else if(type=="deeptile")
+        else if (type == "deeptile")
         {
-            cout<<"deeptile"<<endl;
-            copy_tiledeep(*inputimage,out,p,0);
+            cout << "deeptile" << endl;
+            copy_tiledeep (*inputimage, out, p, 0);
         }
     }
 
     delete inputimage;
-    cout << "\n"<<"Seperate Success" << endl;
+    cout << "\n" << "Seperate Success" << endl;
 }
 
-void usageMessage(const char argv[]){
-    cout << argv << " handles the combining and splitting of multipart data\n";
-    cout << "\n" << "Usage: ";
-    cout << "exrmultipart -combine -i input.exr[:partnum] [input2.exr[:partnum]] [...] -o outfile.exr [options]\n";
-    cout << "   or: exrmultipart -separate -i infile.exr -o outfileBaseName [options]\n";
-    cout << "\n" << "Options:" << endl;
-    cout << "-override [0/1]      0-do not override conflicting shared attributes [default]"<< endl;
-    cout << "                     1-override conflicting shared attributes" <<endl;
-
-    exit(1);
-}
-
-int main(int argc,char * argv[])
+void
+usageMessage (const char argv[])
 {
-    if(argc < 6 )
+    cerr << argv << " handles the combining and splitting of multipart data\n";
+    cerr << "\n" << "Usage: "
+            "exrmultipart -combine -i input.exr[:partnum] "
+            "[input2.exr[:partnum]] [...] -o outfile.exr [options]\n";
+    cerr << "   or: exrmultipart -separate -i infile.exr -o outfileBaseName "
+            "[options]\n";
+    cerr << "\n" << "Options:\n";
+    cerr << "-override [0/1]      0-do not override conflicting shared "
+            "attributes [default]\n"
+            "                     1-override conflicting shared attributes\n";
+
+    exit (1);
+}
+
+int
+main (int argc, char * argv[])
+{
+    if (argc < 6)
     {
-        usageMessage(argv[0]);
+        usageMessage (argv[0]);
     }
 
     vector <const char*> inFiles;
@@ -408,32 +433,32 @@ int main(int argc,char * argv[])
 
     while (i < argc)
     {
-        if(!strcmp(argv[i], "-h"))
+        if (!strcmp (argv[i], "-h"))
         {
-            usageMessage(argv[0]);
+            usageMessage (argv[0]);
         }
 
-        if(!strcmp(argv[i], "-i"))
+        if (!strcmp (argv[i], "-i"))
         {
             mode = 1;
         }
-        else if(!strcmp(argv[i], "-o"))
+        else if (!strcmp (argv[i], "-o"))
         {
             mode = 2;
         }
-        else if(!strcmp(argv[i], "-override"))
+        else if (!strcmp (argv[i], "-override"))
         {
             mode = 3;
         }
         else
         {
-            switch(mode)
+            switch (mode)
             {
-            case 1: inFiles.push_back(argv[i]);
+            case 1: inFiles.push_back (argv[i]);
                 break;
             case 2: outFile = argv[i];
                 break;
-            case 3: override = atoi(argv[i]);
+            case 3: override = atoi (argv[i]);
                 break;
             }
         }
@@ -441,39 +466,39 @@ int main(int argc,char * argv[])
     }
 
     // check input and output files found or not
-    if(inFiles.size()==0)
+    if (inFiles.size() == 0)
     {
-        cerr << "\n"<<"ERROR: found no input files" << endl;
-        exit(1);
+        cerr << "\n" << "ERROR: found no input files" << endl;
+        exit (1);
     }
 
-    cout<<"input:"<<endl;
-    for (size_t i=0;i<inFiles.size();i++)
-        cout<<"      "<<inFiles[i]<<endl;
+    cout << "input:" << endl;
+    for (size_t i = 0; i < inFiles.size(); i++)
+        cout << "      " << inFiles[i] << endl;
 
-    if(!outFile)
+    if (!outFile)
     {
         cerr << "\n"<<"ERROR: found no output file" << endl;
-        exit(1);
+        exit (1);
     }
 
-    cout<<"output:\n      "<<outFile<<endl;
-    cout<<"override:"<<override<<"\n"<<endl;
+    cout << "output:\n      " << outFile << endl;
+    cout << "override:" << override << "\n" << endl;
 
 
-    if(!strcmp(argv[1], "-combine"))
+    if (!strcmp (argv[1], "-combine"))
     {
         cout << "-combine multipart input " << endl;
-        combine(inFiles, outFile, override);
+        combine (inFiles, outFile, override);
     }
-    else if(!strcmp(argv[1], "-separate"))
+    else if (!strcmp(argv[1], "-separate"))
     {
         cout << "-separate multipart input " << endl;
-        separate(inFiles, outFile, override);
+        separate (inFiles, outFile, override);
     }
     else
     {
-        usageMessage(argv[0]);
+        usageMessage (argv[0]);
     }
 
     return 0;
