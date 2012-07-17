@@ -42,11 +42,11 @@
 //
 //----------------------------------------------------------------------------
 
-#include "ImfMultiPartOutputFile.h"
-#include "ImfMultiPartInputFile.h"
-#include "ImfTileDescription.h"
-#include "ImfCompression.h"
-#include "OpenEXRConfig.h"
+#include <ImfMultiPartOutputFile.h>
+#include <ImfMultiPartInputFile.h>
+#include <ImfTileDescription.h>
+#include <ImfCompression.h>
+#include <OpenEXRConfig.h>
 
 #include <string>
 #include <set>
