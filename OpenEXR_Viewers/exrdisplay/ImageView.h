@@ -92,6 +92,7 @@ class ImageView: public Fl_Gl_Window
         void                computeFogColor ();
         void                findZbound ();
         float               findKnee (float x, float y);
+        void                drawChartRef ();
 
         float                                _gamma;
         float                                _exposure;
@@ -112,6 +113,7 @@ class ImageView: public Fl_Gl_Window
         int                                  _dx;
         int                                  _dy;
         int                                  _zsize;
+        int                                  _maxCount;
 
     private:
 

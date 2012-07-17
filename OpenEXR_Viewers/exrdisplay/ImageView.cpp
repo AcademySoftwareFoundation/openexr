@@ -170,11 +170,15 @@ ImageView::findZbound()
     //
     float zmax  = limits<float>::min();
     float zmin = limits<float>::max();
+    _maxCount = 0;
 
     for (int k = 0; k < _zsize; k++)
     {
         float* z = _dataZ[k];
         unsigned int count = _sampleCount[k];
+
+        if (_maxCount < count)
+            _maxCount = count;
 
         for (unsigned int i = 0; i < count; i++)
         {
@@ -312,6 +316,33 @@ ImageView::computeFogColor ()
 }
 
 
+void
+ImageView::drawChartRef ()
+{
+    _chart->clear();
+    _chart->type (FL_LINE_CHART);
+
+    _chartMax->clear();
+    _chartMax->type (FL_SPIKE_CHART);
+    static char val_str[20];
+    sprintf (val_str, "%.3lf", _zmax);
+    _chartMax->add (_zmax-_zmin, val_str, FL_RED);
+    _chartMax->box(FL_NO_BOX);
+
+    _chartMin->clear();
+    _chartMin->type (FL_SPIKE_CHART);
+    sprintf (val_str, "%.3lf", _zmin);
+    _chartMin->add (_zmin-_zmin, val_str, FL_RED);
+    _chartMin->box(FL_NO_BOX);
+
+    for (int i = 0; i < _maxCount; i++)
+    {
+        _chartMax->add (0.0, "", FL_RED);
+        _chartMin->add (0.0, "", FL_RED);
+    }
+}
+
+
 int
 ImageView::handle (int event)
 {
@@ -408,31 +439,16 @@ ImageView::handle (int event)
                     //
                     // draw the chart
                     //
-                    _chart->clear();
-                    _chart->type (FL_LINE_CHART);
-
-                    _chartMax->clear();
-                    _chartMax->type (FL_SPIKE_CHART);
-                    static char val_str[20];
-                    sprintf (val_str, "%.3lf", _zmax);
-                    _chartMax->add (_zmax-_zmin, val_str, FL_RED);
-                    _chartMax->box(FL_NO_BOX);
-
-                    _chartMin->clear();
-                    _chartMin->type (FL_SPIKE_CHART);
-                    sprintf (val_str, "%.3lf", _zmin);
-                    _chartMin->add (_zmin-_zmin, val_str, FL_RED);
-                    _chartMin->box(FL_NO_BOX);
+                    drawChartRef();
 
                     for (unsigned int i = 0; i < count; i++)
                     {
                         double val = double(z[i]);
                         if (val < _farPlane)
                         {
+                            static char val_str[20];
                             sprintf (val_str, "%.3lf", val);
                             _chart->add (val, val_str, FL_BLUE);
-                            _chartMax->add (0.0, "", FL_RED);
-                            _chartMin->add (0.0, "", FL_RED);
                         }
                     }
 
