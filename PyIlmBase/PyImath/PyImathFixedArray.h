@@ -78,6 +78,7 @@ class FixedArray
 
 
   public:
+    typedef T   BaseType;
 
     FixedArray(T *ptr, size_t length, size_t stride = 1)
         : _ptr(ptr), _length(length), _stride(stride), _handle(), _unmaskedLength(0)

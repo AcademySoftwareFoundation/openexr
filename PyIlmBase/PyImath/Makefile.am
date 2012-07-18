@@ -5,19 +5,24 @@ lib_LTLIBRARIES = libPyImath.la
 
 libPyImath_la_SOURCES = PyImath.cpp \
     PyImathAutovectorize.cpp \
+	PyImathBox2Array.cpp \
+	PyImathBox3Array.cpp \
     PyImathBox.cpp \
     PyImathColor3.cpp \
-    PyImathColor4.cpp \
+	PyImathColor4.cpp \
     PyImathEuler.cpp \
     PyImathFixedArray.cpp \
     PyImathFrustum.cpp \
     PyImathLine.cpp \
     PyImathMatrix33.cpp \
     PyImathMatrix44.cpp \
+    PyImathNoise.cpp \
     PyImathPlane.cpp \
     PyImathQuat.cpp \
     PyImathRandom.cpp \
     PyImathShear.cpp \
+	PyImathStringArray.cpp \
+	PyImathStringTable.cpp \
     PyImathTask.cpp \
     PyImathUtil.cpp \
     PyImathVec2fd.cpp \
@@ -27,15 +32,13 @@ libPyImath_la_SOURCES = PyImath.cpp \
     PyImathVec3si.cpp \
     PyImathVec4fd.cpp \
     PyImathVec4siArray.cpp \
-    PyImathVec4si.cpp \
-    PyImathBox2Array.cpp \
-    PyImathBox3Array.cpp \
-    PyImathStringArray.cpp \
-    PyImathStringTable.cpp
+    PyImathVec4si.cpp
 
 libPyImathinclude_HEADERS = PyImath.h \
     PyImathAutovectorize.h \
+	PyImathBoxArrayImpl.h \
     PyImathBox.h \
+	PyImathColor3ArrayImpl.h \
     PyImathColor4Array2DImpl.h \
     PyImathColor4ArrayImpl.h \
     PyImathColor.h \
@@ -49,11 +52,15 @@ libPyImathinclude_HEADERS = PyImath.h \
     PyImathLine.h \
     PyImathMathExc.h \
     PyImathMatrix.h \
+    PyImathNoise.h \
     PyImathOperators.h \
     PyImathPlane.h \
     PyImathQuat.h \
     PyImathRandom.h \
     PyImathShear.h \
+    PyImathStringArray.h \
+    PyImathStringArrayRegister.h \
+    PyImathStringTable.h \
     PyImathTask.h \
     PyImathUtil.h \
     PyImathVec2Impl.h \
@@ -62,11 +69,7 @@ libPyImathinclude_HEADERS = PyImath.h \
     PyImathVec4ArrayImpl.h \
     PyImathVec4Impl.h \
     PyImathVec.h \
-    PyImathVecOperators.h \
-    PyImathBoxArrayImpl.h \
-    PyImathStringArray.h \
-    PyImathStringTable.h \
-    PyImathStringArrayRegister.h
+    PyImathVecOperators.h
 
 libPyImath_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ \
                         -no-undefined
@@ -82,7 +85,7 @@ imathmodule_la_LDFLAGS = -avoid-version -module
 imathmodule_la_LIBADD  = -lPyImath @BOOST_PYTHON_LIBS@
 
 noinst_HEADERS = PyImathFun.h \
-    PyImathBasicTypes.cpp 
+    PyImathBasicTypes.h 
 
 INCLUDES = @ILMBASE_CXXFLAGS@ \
 	   -I$(top_builddir)  \

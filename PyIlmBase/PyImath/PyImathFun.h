@@ -35,9 +35,11 @@
 #ifndef _PyImathFun_h_
 #define _PyImathFun_h_
 
+#include <PyImathExport.h>
+
 namespace PyImath {
 
-void register_functions();
+PYIMATH_EXPORT void register_functions();
 
 }
 

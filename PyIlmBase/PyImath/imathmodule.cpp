@@ -41,6 +41,7 @@
 #include <ImathQuat.h>
 #include <ImathEuler.h>
 #include <ImathFun.h>
+#include <ImathNoise.h>
 #include <ImathMatrixAlgo.h>
 #include <PyIexExport.h>
 #include <PyImathFixedArray.h>
@@ -59,6 +60,7 @@
 #include <PyImathLine.h>
 #include <PyImathRandom.h>
 #include <PyImathShear.h>
+#include <PyImathNoise.h>
 #include <PyImathMathExc.h>
 #include <PyImathAutovectorize.h>
 #include <PyImathStringArrayRegister.h>
@@ -318,7 +320,7 @@ BOOST_PYTHON_MODULE(imath)
     register_Matrix44<double>();
 
     //
-    // M44Array
+    // M33/44Array
     //
     class_<FixedArray<Imath::M44d> > m44d_class = register_M44Array<double>();
     class_<FixedArray<Imath::M44f> > m44f_class = register_M44Array<float>();
@@ -343,11 +345,22 @@ BOOST_PYTHON_MODULE(imath)
     register_Color4<unsigned char>();
     register_Color4<float>();
 
+    //
+    // C3/4Array
+    //
+    class_<FixedArray<Imath::Color3f> > c3f_class = register_Color3Array<float>();
+    class_<FixedArray<Imath::Color3c> > c3c_class = register_Color3Array<unsigned char>();
+    add_explicit_construction_from_type<Imath::V3f>(c3f_class);
+    add_explicit_construction_from_type<Imath::V3d>(c3f_class);
+
+    class_<FixedArray<Imath::Color4f> > c4f_class = register_Color4Array<float>();
+    class_<FixedArray<Imath::Color4c> > c4c_class = register_Color4Array<unsigned char>();
+
+    //
+    // Color4Array
+    //
     register_Color4Array2D<float>();
     register_Color4Array2D<unsigned char>();
-
-    register_Color4Array<float>();
-    register_Color4Array<unsigned char>();
 
     //
     // Frustum
@@ -377,6 +390,56 @@ BOOST_PYTHON_MODULE(imath)
     // Utility Functions
     //
     register_functions();
+   
+    //
+    // Noise Functions
+    //
+    def("noise", noise1);
+    def("noise", noise2);
+    def("noise", noise3);
+    def("noise", noise4);
+    def("noise", noise5);
+    def("noise", noise6);
+    def("noise", noise7);
+    def("noise", noise8);
+    
+    def("noiseCen", noiseCen1);
+    def("noiseCen", noiseCen2);
+    def("noiseCen", noiseCen3);
+    def("noiseCen", noiseCen4);
+    def("noiseCen", noiseCen5);
+    def("noiseCen", noiseCen6);
+    def("noiseCen", noiseCen7);
+    def("noiseCen", noiseCen8);
+    
+    def("noiseCen3d", noiseCen3d1);
+    def("noiseCen3d", noiseCen3d2);
+    def("noiseCen3d", noiseCen3d3);
+    def("noiseCen3d", noiseCen3d4);
+    
+    def("noiseCenGrad", noiseCenGrad1);
+    def("noiseCenGrad", noiseCenGrad2);
+    def("noiseCenGrad", noiseCenGrad3);
+    def("noiseCenGrad", noiseCenGrad4);
+    def("noiseCenGrad", noiseCenGrad5);
+    def("noiseCenGrad", noiseCenGrad6);
+    def("noiseCenGrad", noiseCenGrad7);
+    def("noiseCenGrad", noiseCenGrad8);
+    def("noiseCenGrad", noiseCenGrad9);
+    def("noiseCenGrad", noiseCenGrad10);
+    def("noiseCenGrad", noiseCenGrad11);
+    def("noiseCenGrad", noiseCenGrad12);
+    
+    def("noiseGrad", noiseGrad1);
+    def("noiseGrad", noiseGrad2);
+    def("noiseGrad", noiseGrad3);
+    def("noiseGrad", noiseGrad4);
+    def("noiseGrad", noiseGrad5);
+    def("noiseGrad", noiseGrad6);
+    def("noiseGrad", noiseGrad7);
+    def("noiseGrad", noiseGrad8);
+    def("noiseGrad", noiseGrad9);
+    def("noiseGrad", noiseGrad10);
 
     def("procrustesRotationAndTranslation", procrustes1, 
         args("fromPts", "toPts", "weights", "doScale"),  // Can't use 'from' and 'to' because 'from' is a reserved keywork in Python
@@ -397,6 +460,34 @@ BOOST_PYTHON_MODULE(imath)
     // Initialize constants
     //
 
+    scope().attr("EULER_XYZ") = Imath::Eulerf::XYZ;
+    scope().attr("EULER_XZY") = Imath::Eulerf::XZY;
+    scope().attr("EULER_YZX") = Imath::Eulerf::YZX;
+    scope().attr("EULER_YXZ") = Imath::Eulerf::YXZ;
+    scope().attr("EULER_ZXY") = Imath::Eulerf::ZXY;
+    scope().attr("EULER_ZYX") = Imath::Eulerf::ZYX;
+    scope().attr("EULER_XZX") = Imath::Eulerf::XZX;
+    scope().attr("EULER_XYX") = Imath::Eulerf::XYX;
+    scope().attr("EULER_YXY") = Imath::Eulerf::YXY;
+    scope().attr("EULER_YZY") = Imath::Eulerf::YZY;
+    scope().attr("EULER_ZYZ") = Imath::Eulerf::ZYZ;
+    scope().attr("EULER_ZXZ") = Imath::Eulerf::ZXZ;
+    scope().attr("EULER_XYZr") = Imath::Eulerf::XYZr;
+    scope().attr("EULER_XZYr") = Imath::Eulerf::XZYr;
+    scope().attr("EULER_YZXr") = Imath::Eulerf::YZXr;
+    scope().attr("EULER_YXZr") = Imath::Eulerf::YXZr;
+    scope().attr("EULER_ZXYr") = Imath::Eulerf::ZXYr;
+    scope().attr("EULER_ZYXr") = Imath::Eulerf::ZYXr;
+    scope().attr("EULER_XZXr") = Imath::Eulerf::XZXr;
+    scope().attr("EULER_XYXr") = Imath::Eulerf::XYXr;
+    scope().attr("EULER_YXYr") = Imath::Eulerf::YXYr;
+    scope().attr("EULER_YZYr") = Imath::Eulerf::YZYr;
+    scope().attr("EULER_ZYZr") = Imath::Eulerf::ZYZr;
+    scope().attr("EULER_ZXZr") = Imath::Eulerf::ZXZr;
+    scope().attr("EULER_X_AXIS") = Imath::Eulerf::X;
+    scope().attr("EULER_Y_AXIS") = Imath::Eulerf::Y;
+    scope().attr("EULER_Z_AXIS") = Imath::Eulerf::Z;
+    
     scope().attr("INT_MIN") = Imath::limits<int>::min();
     scope().attr("INT_MAX") = Imath::limits<int>::max();
     scope().attr("INT_SMALLEST") = Imath::limits<int>::smallest();

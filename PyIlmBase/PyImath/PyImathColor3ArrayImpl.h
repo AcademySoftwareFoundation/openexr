@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2007-2011, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -32,21 +32,53 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include "PyImathFixedArray.h"
-#include <PyImathExport.h>
+#ifndef _PyImathColor3ArrayImpl_h_
+#define _PyImathColor3ArrayImpl_h_
+
+//
+// This .C file was turned into a header file so that instantiations
+// of the various V3* types can be spread across multiple files in
+// order to work around MSVC limitations.
+//
+
+#include "PyImathDecorators.h"
+#include <Python.h>
+#include <boost/python.hpp>
+#include <boost/python/make_constructor.hpp>
+#include <boost/format.hpp>
+#include <PyImath.h>
+#include <Iex.h>
+#include <PyImathMathExc.h>
 
 namespace PyImath {
+using namespace boost::python;
+using namespace Imath;
 
-template <> PYIMATH_EXPORT bool FixedArrayDefaultValue<bool>::value() { return false; }
-template <> PYIMATH_EXPORT signed char FixedArrayDefaultValue<signed char>::value() { return 0; }
-template <> PYIMATH_EXPORT unsigned char FixedArrayDefaultValue<unsigned char>::value() { return 0; }
-template <> PYIMATH_EXPORT short FixedArrayDefaultValue<short>::value() { return 0; }
-template <> PYIMATH_EXPORT unsigned short FixedArrayDefaultValue<unsigned short>::value() { return 0; }
-template <> PYIMATH_EXPORT int FixedArrayDefaultValue<int>::value() { return 0; }
-template <> PYIMATH_EXPORT unsigned int FixedArrayDefaultValue<unsigned int>::value() { return 0; }
-template <> PYIMATH_EXPORT float FixedArrayDefaultValue<float>::value() { return 0; }
-template <> PYIMATH_EXPORT double FixedArrayDefaultValue<double>::value() { return 0; }
+// XXX fixme - template this
+// really this should get generated automatically...
 
-//int alloc_count = 0;
-
+template <class T,int index>
+static FixedArray<T>
+Color3Array_get(FixedArray<Imath::Color3<T> > &ca)
+{    
+    return FixedArray<T>(&ca[0][index],ca.len(),3*ca.stride(),ca.handle());
 }
+
+// Currently we are only exposing the RGBA components.
+template <class T>
+class_<FixedArray<Imath::Color3<T> > >
+register_Color3Array()
+{
+    class_<FixedArray<Imath::Color3<T> > > color3Array_class = FixedArray<Imath::Color3<T> >::register_("Fixed length array of Imath::Color3");
+    color3Array_class
+        .add_property("r",&Color3Array_get<T,0>)
+        .add_property("g",&Color3Array_get<T,1>)
+        .add_property("b",&Color3Array_get<T,2>)
+        ;
+
+    return color3Array_class;
+}
+
+} // namespace PyImath
+
+#endif // _PyImathColor3ArrayImpl_h_

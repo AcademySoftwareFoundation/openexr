@@ -50,6 +50,7 @@ template <class T>
 class StringArrayT : public FixedArray<StringTableIndex>
 {
   public:
+    typedef T   BaseType;
     typedef FixedArray<StringTableIndex> super;
 
     static StringArrayT<T>* createDefaultArray(size_t length);

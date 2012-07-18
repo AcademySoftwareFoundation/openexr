@@ -38,10 +38,13 @@
 
 namespace PyImath {
 
-template <> PYIMATH_EXPORT const char * BoolArray::name() { return "BoolArray"; }
+template <> PYIMATH_EXPORT const char * BoolArray::name()         { return "BoolArray"; }
+template <> PYIMATH_EXPORT const char * SignedCharArray::name()   { return "SignedCharArray"; }
 template <> PYIMATH_EXPORT const char * UnsignedCharArray::name() { return "UnsignedCharArray"; }
 template <> PYIMATH_EXPORT const char * ShortArray::name()        { return "ShortArray"; }
+template <> PYIMATH_EXPORT const char * UnsignedShortArray::name(){ return "UnsignedShortArray"; }
 template <> PYIMATH_EXPORT const char * IntArray::name()          { return "IntArray"; }
+template <> PYIMATH_EXPORT const char * UnsignedIntArray::name()  { return "UnsignedIntArray"; }
 template <> PYIMATH_EXPORT const char * FloatArray::name()        { return "FloatArray"; }
 template <> PYIMATH_EXPORT const char * DoubleArray::name()       { return "DoubleArray"; }
 
