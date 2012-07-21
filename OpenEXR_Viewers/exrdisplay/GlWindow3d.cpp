@@ -135,12 +135,14 @@ GlWindow::GlInit()
 {
     glShadeModel (GL_FLAT);
 
-    _pan = 0;
-    _tilt = 0;
     _zoom = 0;
     _translateX = 0;
     _translateY = 0;
     _scaleZ = 1.0;
+    _elevation = 0;
+    _azimuth = 0;
+    _inverted = 0;
+    _displayFactor = 1;
 }
 
 void
@@ -227,8 +229,8 @@ GlWindow::draw()
     glTranslatef (_translateX, 0.0, 0.0);
     glTranslatef (0.0, -_translateY, 0.0);
 
-    glRotatef (_pan, 0.0, 1.0, 0.0);
-    glRotatef (_tilt, 1.0, 0.0, 0.0);
+    glRotatef (_elevation, 1.0, 0.0, 0.0);
+    glRotatef (_azimuth, 0.0, 1.0, 0.0);
 
     // draw the reference plane
     drawRefPlan();
@@ -245,7 +247,7 @@ GlWindow::draw()
     glTranslatef (-_dx / 2.0, -_dy / 2.0, 0.0);
 
     glScalef (1.0, 1.0, _fitScale);
-    glTranslatef (0.0, 0.0, _fitTran);
+    glTranslatef (0.0, 0.0, -_fitTran);
 
     // loop dataZ to draw points
     glPointSize (2);
@@ -257,7 +259,7 @@ GlWindow::draw()
     {
         for (int x = 0; x < _dx; x++)
         {
-            if( x % 10 == 0 && y % 10 == 0)
+            if( x % (10 * _displayFactor) == 0 && y % (10 * _displayFactor) == 0)
             {
                 float* z = _dataZ[y * _dx + x];
                 unsigned int count = _sampleCount[y * _dx + x];
@@ -265,7 +267,7 @@ GlWindow::draw()
                 for (unsigned int i = 0; i < count; i++)
                 {
                     float val = z[i];
-                    glVertex3f (float(x), float(y), val);
+                    glVertex3f (float(x), _dy - float(y) -1, -val);
                 }
             }
 
@@ -275,7 +277,7 @@ GlWindow::draw()
     glEnd();
 
     // draw the display window OutLine
-    drawOutLine (_dx, _dy, (_zmax + _zmin) / 2.0);
+    drawOutLine (_dx, _dy, -(_zmax + _zmin) / 2.0);
 
     // Check gl errors
     GLenum err = glGetError();
@@ -288,14 +290,51 @@ GlWindow::draw()
 int
 GlWindow::handle (int event)
 {
-
-
-    if ( event == FL_DRAG && Fl::event_button() == FL_LEFT_MOUSE )
+    if (Fl::event_button() == FL_LEFT_MOUSE)
     {
-       int x = Fl::event_x();
-       int y = Fl::event_y();
-       _pan += (x - _mouseX) * 0.2;
-       _tilt += (y - _mouseY) * 0.2;
+        switch (event)
+        {
+            case FL_PUSH:
+                _mouseStartX = Fl::event_x();
+                _mouseStartY = Fl::event_y();
+
+                if (fabs(_elevation) > 90.0)
+                {
+                    _inverted = 1;
+                }
+                else
+                {
+                    _inverted = 0;
+                }
+                break;
+            case FL_DRAG:
+            case FL_RELEASE:
+            {
+                int x = Fl::event_x();
+                int y = Fl::event_y();
+
+                if (_inverted)
+                {
+                    _azimuth -= (double)(x - _mouseStartX) * 0.2;
+                }
+                else
+                {
+                    _azimuth += (double)(x - _mouseStartX) * 0.2;
+                }
+                _elevation += (double)(y - _mouseStartY) * 0.2;
+
+                while (_elevation < -180.0)
+                    _elevation += 360.0;
+                while (_elevation > 180.0)
+                    _elevation -= 360.0;
+
+                _mouseStartX = x;
+                _mouseStartY = y;
+                break;
+            }
+            default:
+                break;
+        }
     }
 
     if ( Fl::event_button() == FL_MIDDLE_MOUSE )
@@ -303,30 +342,25 @@ GlWindow::handle (int event)
         switch (event)
         {
             case FL_PUSH:
-                fl_cursor(FL_CURSOR_MOVE);
+                fl_cursor (FL_CURSOR_MOVE);
                 break;
             case FL_RELEASE:
-                fl_cursor(FL_CURSOR_DEFAULT);
+                fl_cursor (FL_CURSOR_DEFAULT);
+                break;
+            case FL_DRAG:
+                int x = Fl::event_x();
+                int y = Fl::event_y();
+                _translateX += (x - _mouseX) * 0.01;
+                _translateY += (y - _mouseY) * 0.01;
                 break;
         }
     }
 
-    if ( event == FL_DRAG && Fl::event_button() == FL_MIDDLE_MOUSE )
-    {
-        int x = Fl::event_x();
-        int y = Fl::event_y();
-        _translateX += (x - _mouseX) * 0.01;
-        _translateY += (y - _mouseY) * 0.01;
-    }
-
-
     if ( event == FL_DRAG && Fl::event_button() == FL_RIGHT_MOUSE )
     {
        int x = Fl::event_x();
-       int y = Fl::event_y();
        int dx = x - _mouseX;
-       int dy = y - _mouseY;
-       int delta = abs (dx) > abs (dy)? dx : dy;
+       int delta = -dx;
        _zoom += delta * 0.2;
     }
 
@@ -347,6 +381,18 @@ GlWindow::handle (int event)
         if (!strcmp (text, "F")) //fit
         {
             GlInit();
+        }
+        if (!strcmp (text, "D")) //decrease pixel samples
+        {
+            _displayFactor *= 2;
+            if (_displayFactor > (_dx/10) || _displayFactor > (_dy/10) )
+                _displayFactor /= 2;
+        }
+        if (!strcmp (text, "C")) //increase pixel samples
+        {
+            _displayFactor /= 2;
+            if (_displayFactor < 1)
+                _displayFactor = 1;
         }
     }
 

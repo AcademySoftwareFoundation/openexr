@@ -113,7 +113,7 @@ class ImageView: public Fl_Gl_Window
         int                                  _dx;
         int                                  _dy;
         int                                  _zsize;
-        int                                  _maxCount;
+        unsigned int                         _maxCount;
 
     private:
 

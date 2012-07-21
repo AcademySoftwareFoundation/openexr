@@ -99,11 +99,11 @@ ImageView::ImageView (int x, int y,
     _fogR (0),
     _fogG (0),
     _fogB (0),
+    _farPlane (farPlane),
     _dw (dw),
     _dh (dh),
     _dx (dx),
     _dy (dy),
-    _farPlane (farPlane),
     _zsize (zsize),
     _rgbaBox (rgbaBox),
     _screenPixels (dw * dh * 3)
@@ -115,10 +115,12 @@ ImageView::ImageView (int x, int y,
     // initialize z value chart
     //
     _chartwin = new Fl_Window (600, 300);
+    _chartwin->label("Deep Pixel Display");
+
     _chart = new Fl_Chart (20, 20,
                            _chartwin->w()-40,
                            _chartwin->h()-40,
-                           "Data Z Chart");
+                           "");
     _chartMax = new Fl_Chart (20, 20,
                            _chartwin->w()-40,
                            _chartwin->h()-40,
@@ -371,7 +373,7 @@ ImageView::handle (int event)
             }
             else
             {
-                sprintf (_rgbaBoxLabel, "");
+                sprintf (_rgbaBoxLabel, " ");
             }
 
             _rgbaBox->label (_rgbaBoxLabel);
@@ -426,6 +428,8 @@ ImageView::handle (int event)
                     unsigned int count = _sampleCount[py * _dw + px];
 
                     cout << "\nsample Count: " << count << endl;
+                    cout << "x: " << px << ", y: " << py << endl;
+
                     for (unsigned int i = 0; i < count; i++)
                     {
                         printf ("pixel Z value  %d: %.3f\n", i, float(z[i]));

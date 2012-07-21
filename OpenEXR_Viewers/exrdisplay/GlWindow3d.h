@@ -65,9 +65,9 @@ public:
               const OPENEXR_IMF_NAMESPACE::Rgba pixels[],
               float* dataZ[],
               unsigned int sampleCount[],
-              int dx, int dy,
+              int dx, int dy, // data window
               float zmax, float zmin,
-              float farPlane // zfar plane in Deep 3D window
+              float farPlane  // zfar plane in Deep 3D window
               );
     ~GlWindow ();
 
@@ -89,16 +89,20 @@ protected:
     float                                _farPlane;
 
 private:
-    double _pan;
-    double _tilt;
-    double _zoom;
-    double _translateX;
-    double _translateY;
-    double _scaleZ;
-    double _fitTran;
-    double _fitScale;
-    int _mouseX;
-    int _mouseY;
+    double      _zoom;
+    double      _translateX;
+    double      _translateY;
+    double      _scaleZ;
+    double      _fitTran;
+    double      _fitScale;
+    double      _elevation;     // for rotation
+    double      _azimuth;       // for rotation
+    int         _mouseX;
+    int         _mouseY;
+    int         _mouseStartX;
+    int         _mouseStartY;
+    int         _inverted;      // for rotation
+    int         _displayFactor; // for display pixel samples
 
     // TIMER CALLBACK
     // Handles rotation of the object
