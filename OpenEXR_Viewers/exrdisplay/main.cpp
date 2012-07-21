@@ -48,15 +48,15 @@
 //                      a = scale z value up
 //                      s = scale z value down
 //                      f = reset to fit
+//                      d = decrease pixel samples
+//                      c = increase pixel samples
 //
 //-----------------------------------------------------------------------------
 
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Value_Slider.H>
-#include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Box.H>
-#include <FL/Fl_Valuator.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Output.H>
 
@@ -740,6 +740,8 @@ usageMessage (const char argv0[], bool verbose = false)
         "                  a = scale z value up\n"
         "                  s = scale z value down\n"
         "                  f = reset to fit\n"
+        "                  d = decrease pixel samples\n"
+        "                  c = increase pixel samples\n"
         "\n";
 
         cerr << endl;
