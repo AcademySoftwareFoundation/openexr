@@ -32,12 +32,12 @@ license.
 The distribution is divided into the following sub-modules:
     * IlmBase
     * OpenEXR
-    * OpenEXR-image
-    * OpenEXR_MacCodeWarrior
-    * OpenEXR_Shake
     * OpenEXR_Viewers
     * Photoshop
     * d_exr
     
 Please see the README files of each of the individual directories for more
 information.
+
+A collection of OpenEXR images are available from the adjecent repository:
+ openexr-images
