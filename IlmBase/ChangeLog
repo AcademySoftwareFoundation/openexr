@@ -1,4 +1,7 @@
 Version 1.0.3
+	* Added ImathNoise.(h/cpp) files. Initializes Perlin noise to match the
+	  Renderman implmenetation.
+	  (Pixar Contribution)
 	* Fixed a number of missing includes to comply with stricter 
 	  enforcement by gnu compilers.
 	  (Piotr Stanczyk)
@@ -22,9 +25,10 @@ Version 1.0.3
 	  directory, and several minor visual studio compile fixes have
 	  been applied.
 	  (Nick Rasmussen)
-        * Updated the so verison to 7
+	* Updated the so verison to 7.
 	  (Piotr Stanczyk)
-        
+	* Depracated the MacCode_Warrior and Shake submodules.
+	  (Piotr Stanczyk)
 
 Version 1.0.2
 	* Added support for targetting builds on 64bit Windows and minimising 
