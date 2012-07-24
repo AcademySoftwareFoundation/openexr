@@ -327,14 +327,19 @@ ImageView::drawChartRef ()
     _chartMax->clear();
     _chartMax->type (FL_SPIKE_CHART);
     static char val_str[20];
-    sprintf (val_str, "%.3lf", _zmax);
-    _chartMax->add (_zmax-_zmin, val_str, FL_RED);
+    sprintf (val_str, "Max : %.3lf", _zmax);
+    _chartMax->add (0.0, "", FL_RED);
+    _chartMax->label(val_str);
+    _chartMax->align(FL_ALIGN_TOP_LEFT);
     _chartMax->box(FL_NO_BOX);
 
     _chartMin->clear();
     _chartMin->type (FL_SPIKE_CHART);
-    sprintf (val_str, "%.3lf", _zmin);
-    _chartMin->add (_zmin-_zmin, val_str, FL_RED);
+    static char val_str1[20];
+    sprintf (val_str1, "Min : %.3lf", _zmin);
+    _chartMin->add (0.0, "", FL_RED);
+    _chartMin->label(val_str1);
+    _chartMin->align(FL_ALIGN_BOTTOM_LEFT);
     _chartMin->box(FL_NO_BOX);
 
     for (int i = 0; i < _maxCount; i++)
