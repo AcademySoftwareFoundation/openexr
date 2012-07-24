@@ -328,7 +328,6 @@ ImageView::drawChartRef ()
     _chartMax->type (FL_SPIKE_CHART);
     static char val_str[20];
     sprintf (val_str, "Max : %.3lf", _zmax);
-    _chartMax->add (0.0, "", FL_RED);
     _chartMax->label(val_str);
     _chartMax->align(FL_ALIGN_TOP_LEFT);
     _chartMax->box(FL_NO_BOX);
@@ -337,16 +336,9 @@ ImageView::drawChartRef ()
     _chartMin->type (FL_SPIKE_CHART);
     static char val_str1[20];
     sprintf (val_str1, "Min : %.3lf", _zmin);
-    _chartMin->add (0.0, "", FL_RED);
     _chartMin->label(val_str1);
     _chartMin->align(FL_ALIGN_BOTTOM_LEFT);
     _chartMin->box(FL_NO_BOX);
-
-    for (int i = 0; i < _maxCount; i++)
-    {
-        _chartMax->add (0.0, "", FL_RED);
-        _chartMin->add (0.0, "", FL_RED);
-    }
 }
 
 
