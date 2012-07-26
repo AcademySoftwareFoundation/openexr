@@ -32,6 +32,7 @@
 #include <ucontext.h>
 #include <signal.h>
 #include <iostream>
+#include <stdint.h>
 
 IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
 
