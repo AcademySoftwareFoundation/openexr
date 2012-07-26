@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-check_PROGRAMS = pyImathNumpyTest
+# check_PROGRAMS = pyImathNumpyTest
 
-TESTS = $(check_PROGRAMS)
+# TESTS = $(check_PROGRAMS)
