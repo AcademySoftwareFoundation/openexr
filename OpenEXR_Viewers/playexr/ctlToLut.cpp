@@ -38,6 +38,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <stdio.h>
 #include <ctlToLut.h>
 
 #if HAVE_CTL_INTERPRETER
