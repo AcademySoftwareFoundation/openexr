@@ -42,6 +42,7 @@
 #include <blurImage.h>
 
 #include <resizeImage.h>
+#include <cstring>
 #include "Iex.h"
 #include <iostream>
 #include <algorithm>
