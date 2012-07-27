@@ -126,6 +126,7 @@ AM_COMPILELINKRUN(
 #include <ImfFrameBuffer.h>
 #include <ImathBox.h>
 #include <vector>
+#include <cstdlib>
     using namespace Ctl;
     using namespace Imf;
     using namespace Imath;
