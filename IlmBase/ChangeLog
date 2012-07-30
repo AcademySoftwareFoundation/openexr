@@ -1,4 +1,7 @@
 Version 1.0.3
+        * Added support for enabling/disabling large stack optimisations, used in
+          halfFunction.h.
+          (Piotr Stanczyk)
 	* Added ImathNoise.(h/cpp) files. Initializes Perlin noise to match the
 	  Renderman implmenetation.
 	  (Pixar Contribution)
