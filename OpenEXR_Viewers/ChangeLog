@@ -1,3 +1,4 @@
+Version 1.0.2:
 	* Added a new -L command-line flag to exrdisplay.  The flag
 	  specifies which layer in a multi-layer or multi-view image
 	  should be displayed on the screen.
