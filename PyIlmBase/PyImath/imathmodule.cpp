@@ -318,7 +318,7 @@ BOOST_PYTHON_MODULE(imath)
     register_Matrix44<double>();
 
     //
-    // M44Array
+    // M33/44Array
     //
     class_<FixedArray<IMATH_NAMESPACE::M44d> > m44d_class = register_M44Array<double>();
     class_<FixedArray<IMATH_NAMESPACE::M44f> > m44f_class = register_M44Array<float>();
@@ -343,11 +343,22 @@ BOOST_PYTHON_MODULE(imath)
     register_Color4<unsigned char>();
     register_Color4<float>();
 
+    //
+    // C3/4Array
+    //
+    class_<FixedArray<IMATH_NAMESPACE::Color3f> > c3f_class = register_Color3Array<float>();
+    class_<FixedArray<IMATH_NAMESPACE::Color3c> > c3c_class = register_Color3Array<unsigned char>();
+    add_explicit_construction_from_type<IMATH_NAMESPACE::V3f>(c3f_class);
+    add_explicit_construction_from_type<IMATH_NAMESPACE::V3d>(c3f_class);
+
+    class_<FixedArray<IMATH_NAMESPACE::Color4f> > c4f_class = register_Color4Array<float>();
+    class_<FixedArray<IMATH_NAMESPACE::Color4c> > c4c_class = register_Color4Array<unsigned char>();
+
+    //
+    // Color4Array
+    //
     register_Color4Array2D<float>();
     register_Color4Array2D<unsigned char>();
-
-    register_Color4Array<float>();
-    register_Color4Array<unsigned char>();
 
     //
     // Frustum
@@ -377,6 +388,7 @@ BOOST_PYTHON_MODULE(imath)
     // Utility Functions
     //
     register_functions();
+   
 
     def("procrustesRotationAndTranslation", procrustes1, 
         args("fromPts", "toPts", "weights", "doScale"),  // Can't use 'from' and 'to' because 'from' is a reserved keywork in Python
@@ -397,20 +409,48 @@ BOOST_PYTHON_MODULE(imath)
     // Initialize constants
     //
 
-    scope().attr("INT_MIN") = IMATH_NAMESPACE::limits<int>::min();
-    scope().attr("INT_MAX") = IMATH_NAMESPACE::limits<int>::max();
+    scope().attr("EULER_XYZ")    = IMATH_NAMESPACE::Eulerf::XYZ;
+    scope().attr("EULER_XZY")    = IMATH_NAMESPACE::Eulerf::XZY;
+    scope().attr("EULER_YZX")    = IMATH_NAMESPACE::Eulerf::YZX;
+    scope().attr("EULER_YXZ")    = IMATH_NAMESPACE::Eulerf::YXZ;
+    scope().attr("EULER_ZXY")    = IMATH_NAMESPACE::Eulerf::ZXY;
+    scope().attr("EULER_ZYX")    = IMATH_NAMESPACE::Eulerf::ZYX;
+    scope().attr("EULER_XZX")    = IMATH_NAMESPACE::Eulerf::XZX;
+    scope().attr("EULER_XYX")    = IMATH_NAMESPACE::Eulerf::XYX;
+    scope().attr("EULER_YXY")    = IMATH_NAMESPACE::Eulerf::YXY;
+    scope().attr("EULER_YZY")    = IMATH_NAMESPACE::Eulerf::YZY;
+    scope().attr("EULER_ZYZ")    = IMATH_NAMESPACE::Eulerf::ZYZ;
+    scope().attr("EULER_ZXZ")    = IMATH_NAMESPACE::Eulerf::ZXZ;
+    scope().attr("EULER_XYZr")   = IMATH_NAMESPACE::Eulerf::XYZr;
+    scope().attr("EULER_XZYr")   = IMATH_NAMESPACE::Eulerf::XZYr;
+    scope().attr("EULER_YZXr")   = IMATH_NAMESPACE::Eulerf::YZXr;
+    scope().attr("EULER_YXZr")   = IMATH_NAMESPACE::Eulerf::YXZr;
+    scope().attr("EULER_ZXYr")   = IMATH_NAMESPACE::Eulerf::ZXYr;
+    scope().attr("EULER_ZYXr")   = IMATH_NAMESPACE::Eulerf::ZYXr;
+    scope().attr("EULER_XZXr")   = IMATH_NAMESPACE::Eulerf::XZXr;
+    scope().attr("EULER_XYXr")   = IMATH_NAMESPACE::Eulerf::XYXr;
+    scope().attr("EULER_YXYr")   = IMATH_NAMESPACE::Eulerf::YXYr;
+    scope().attr("EULER_YZYr")   = IMATH_NAMESPACE::Eulerf::YZYr;
+    scope().attr("EULER_ZYZr")   = IMATH_NAMESPACE::Eulerf::ZYZr;
+    scope().attr("EULER_ZXZr")   = IMATH_NAMESPACE::Eulerf::ZXZr;
+    scope().attr("EULER_X_AXIS") = IMATH_NAMESPACE::Eulerf::X;
+    scope().attr("EULER_Y_AXIS") = IMATH_NAMESPACE::Eulerf::Y;
+    scope().attr("EULER_Z_AXIS") = IMATH_NAMESPACE::Eulerf::Z;
+    
+    scope().attr("INT_MIN")      = IMATH_NAMESPACE::limits<int>::min();
+    scope().attr("INT_MAX")      = IMATH_NAMESPACE::limits<int>::max();
     scope().attr("INT_SMALLEST") = IMATH_NAMESPACE::limits<int>::smallest();
-    scope().attr("INT_EPS") = IMATH_NAMESPACE::limits<int>::epsilon();
+    scope().attr("INT_EPS")      = IMATH_NAMESPACE::limits<int>::epsilon();
 
-    scope().attr("FLT_MIN") = IMATH_NAMESPACE::limits<float>::min();
-    scope().attr("FLT_MAX") = IMATH_NAMESPACE::limits<float>::max();
+    scope().attr("FLT_MIN")      = IMATH_NAMESPACE::limits<float>::min();
+    scope().attr("FLT_MAX")      = IMATH_NAMESPACE::limits<float>::max();
     scope().attr("FLT_SMALLEST") = IMATH_NAMESPACE::limits<float>::smallest();
-    scope().attr("FLT_EPS") = IMATH_NAMESPACE::limits<float>::epsilon();
+    scope().attr("FLT_EPS")      = IMATH_NAMESPACE::limits<float>::epsilon();
 
-    scope().attr("DBL_MIN") = IMATH_NAMESPACE::limits<double>::min();
-    scope().attr("DBL_MAX") = IMATH_NAMESPACE::limits<double>::max();
+    scope().attr("DBL_MIN")      = IMATH_NAMESPACE::limits<double>::min();
+    scope().attr("DBL_MAX")      = IMATH_NAMESPACE::limits<double>::max();
     scope().attr("DBL_SMALLEST") = IMATH_NAMESPACE::limits<double>::smallest();
-    scope().attr("DBL_EPS") = IMATH_NAMESPACE::limits<double>::epsilon();
+    scope().attr("DBL_EPS")      = IMATH_NAMESPACE::limits<double>::epsilon();
     
     //
     // Register Exceptions

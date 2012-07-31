@@ -35,16 +35,29 @@
 #ifndef PYIMATH_EXPORT_H
 #define PYIMATH_EXPORT_H
 
-#if defined(PLATFORM_WINDOWS) && !defined(ZENO_STATIC)
-    #ifdef PYIMATH_EXPORTS
-        #define PYIMATH_EXPORT __declspec(dllexport)
-    #else
-        #define PYIMATH_EXPORT __declspec(dllimport)
-    #endif
-#else
-    #define PYIMATH_EXPORT
+#if defined(PLATFORM_WINDOWS)
+#  if defined(PLATFORM_BUILD_STATIC)
+#    define PYIMATH_EXPORT_DEFINITION 
+#    define PYIMATH_IMPORT_DEFINITION
+#  else
+#    define PYIMATH_EXPORT_DEFINITION __declspec(dllexport) 
+#    define PYIMATH_IMPORT_DEFINITION __declspec(dllimport)
+#  endif
+#else   // linux/macos
+#  if defined(PLATFORM_VISIBILITY_AVAILABLE)
+#    define PYIMATH_EXPORT_DEFINITION __attribute__((visibility("default")))
+#    define PYIMATH_IMPORT_DEFINITION
+#  else
+#    define PYIMATH_EXPORT_DEFINITION 
+#    define PYIMATH_IMPORT_DEFINITION
+#  endif
 #endif
 
+#if defined(PYIMATH_EXPORTS)                         // create library
+#  define PYIMATH_EXPORT PYIMATH_EXPORT_DEFINITION
+#else                                                // use library
+#  define PYIMATH_EXPORT PYIMATH_IMPORT_DEFINITION
+#endif
 
 #endif // #ifndef PYIMATHEXPORT_H
 

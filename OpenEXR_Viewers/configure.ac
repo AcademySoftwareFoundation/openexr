@@ -128,6 +128,7 @@ AM_COMPILELINKRUN(
 #include <ImathBox.h>
 #include <OpenEXRConfig.h>
 #include <vector>
+#include <cstdlib>
     using namespace Ctl;
     using namespace OPENEXR_IMF_NAMESPACE;
     using namespace Imath;

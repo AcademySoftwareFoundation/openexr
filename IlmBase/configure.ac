@@ -56,33 +56,9 @@ if test "${multithread}" != no ; then
     AC_MSG_NOTICE([multithread true, LIBS = $LIBS, CC = $CC, CXXFLAGS = $CXXFLAGS])
 fi
 
-
-dnl --enable-large-stack
-case "$host" in
-*linux*)
-  AC_ARG_ENABLE(large-stack,
-    AC_HELP_STRING([--enable-large-stack],
-             [enable optimizations for systems that support
-             large stack sizes [[default=yes]]]),
-    [large_stack="${enableval}"],
-    [large_stack=yes])
-  ;;
-*)
-  AC_ARG_ENABLE(large-stack,
-    AC_HELP_STRING([--enable-large-stack],
-             [enable optimizations for systems that support
-             large stack sizes [[default=no]]]),
-    [large_stack="${enableval}"],
-    [large_stack=no])
-  ;;
-esac
-
-if test "x${large_stack}" != xno ; then
-    AC_DEFINE(ILMBASE_HAVE_LARGE_STACK)
-fi
-
-
+dnl
 dnl Checks for header files.
+dnl
 AC_HEADER_STDC
 AC_CHECK_HEADERS(limits.h unistd.h ucontext.h)
 
@@ -108,6 +84,29 @@ AC_DEFINE(HAVE_COMPLETE_IOMANIP) complete_iomanip=yes)
 AC_MSG_RESULT($complete_iomanip)
 AC_LANG_RESTORE
 
+dnl --enable-large-stack
+case "$host" in
+*linux*)
+  AC_ARG_ENABLE(large-stack,
+		AC_HELP_STRING([--enable-large-stack],
+			       [enable optimizations for systems that support
+			       large stack sizes [[default=yes]]]),
+		[large_stack="${enableval}"],
+		[large_stack=yes])
+  ;;
+*)
+  AC_ARG_ENABLE(large-stack,
+		AC_HELP_STRING([--enable-large-stack],
+			       [enable optimizations for systems that support
+			       large stack sizes [[default=no]]]),
+		[large_stack="${enableval}"],
+		[large_stack=no])
+  ;;
+esac
+
+if test "x${large_stack}" != xno ; then
+    AC_DEFINE(ILMBASE_HAVE_LARGE_STACK)
+fi
 
 dnl Define the version string
 AC_DEFINE_UNQUOTED(ILMBASE_VERSION_STRING, "${VERSION}")
@@ -331,8 +330,7 @@ if test "$osx_arch"; then
   AC_MSG_RESULT([
 OS X architectures                           $osx_arch
 OS X SDK                                     $osx_sdk
-OS X two-way universal build (deprecated)    $build_osxuniversal
-OS X enable large stack optimizations        $large_stack])
+OS X two-way universal build (deprecated)    $build_osxuniversal])
 fi
 
 AC_MSG_RESULT([

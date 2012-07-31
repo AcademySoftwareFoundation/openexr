@@ -242,6 +242,20 @@ static void boxSetMax(IMATH_NAMESPACE::Box<T> &box, const T &m)
 }
 
 template <class T>
+static T
+boxMin(Imath::Box<T> &box)
+{
+    return box.min;
+}
+
+template <class T>
+static T
+boxMax(Imath::Box<T> &box)
+{
+    return box.max;
+}
+
+template <class T>
 struct IntersectsTask : public Task
 {
     const IMATH_NAMESPACE::Box<T>& box;
@@ -324,6 +338,8 @@ register_Box2()
         .def("__init__", make_constructor(boxConstructor<T, IMATH_NAMESPACE::V2i>))
         .def_readwrite("min",&Box<T>::min)
         .def_readwrite("max",&Box<T>::max)
+        .def("min", &boxMin<T>)
+        .def("max", &boxMax<T>)
         .def(self == self)
         .def(self != self)
         .def("__repr__", &Box2_repr<T>)
@@ -390,6 +406,8 @@ register_Box3()
         .def("__mul__", &mulM44<T, double>)
         .def("__imul__", &imulM44<T, float>,return_internal_reference<>())
         .def("__imul__", &imulM44<T, double>,return_internal_reference<>())
+        .def("min", &boxMin<T>)
+        .def("max", &boxMax<T>)
         .def("__repr__", &Box3_repr<T>)
         .def("makeEmpty",&Box<T>::makeEmpty,"makeEmpty() make the box empty")
         .def("makeInfinite",&Box<T>::makeInfinite,"makeInfinite() make the box cover all space")

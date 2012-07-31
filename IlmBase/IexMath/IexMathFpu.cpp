@@ -14,7 +14,9 @@
 //
 //------------------------------------------------------------------------
 
-#include <IexMathFpu.h>
+#include "IexMathFpu.h"
+
+#include <stdint.h>
 #include <IlmBaseConfig.h>
 #include <stdio.h>
 
@@ -34,7 +36,9 @@
 #include <iostream>
 #include <stdint.h>
 
+
 IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
+
 
 
 namespace FpuControl

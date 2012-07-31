@@ -1,33 +1,4 @@
 README
-//
-// BETA 1
-//
-
-
-The code is part of the BETA release. 
-It is *NOT* production ready, in particular:
-
-- File format may change:
-  Whilst all due care and attention has been given to ensuring the file
-  format be robust, there is a chance that during testing periods
-  necessary modifications will be introduced.
-
-- API may change:
-  We don't anticipate any client level API changes, however, there may 
-  cases where said modifications may be necessary. 
-
-Any such changes will be communicated to the developer list with advance
-warning.
-
-The code should build on most flavours of *nix, including OSX and Linux. 
-
-Currently support for the Windows platform is limited. However, this
-distribution includes files necessary to build static libraries using the
-CMake system. 
-
-Feedback and contributions are most welcome. 
-
-
 
 //
 // OpenEXR
@@ -67,7 +38,7 @@ OpenEXR's features include:
     * Support for sterescopic image workflows and a generalisation to 
       multi-views.
 
-Added Feature highlights for current BETA release
+Added Feature highlights for v2 release
 
     * Flexible support for deep data. Pixels can store a variable-length list of 
       samples and, thus, it is possible to store multiple values at different 
@@ -76,7 +47,7 @@ Added Feature highlights for current BETA release
     * Multipart. Ability to encode separate, but related, images in one file. 
       This allows for access to individual parts without the need to read other
       parts in the file.
-    * Versioning. v2 of the OpenEXR source allows for user configurable C++
+    * Versioning. OpenEXR source allows for user configurable C++
       namespaces to provide protection when using multiple versions of the
       library in the same process space.
       
@@ -93,3 +64,5 @@ The distribution is divided into the following sub-modules:
 Please see the README files of each of the individual directories for more
 information.
 
+A collection of OpenEXR images are available from the adjecent repository:
+ openexr-images

@@ -17,7 +17,7 @@ imfexamples_SOURCES = main.cpp drawImage.cpp rgbaInterfaceExamples.cpp \
 		      generalInterfaceExamples.cpp \
 		      lowLevelIoExamples.cpp previewImageExamples.cpp \
 		      generalInterfaceTiledExamples.cpp \
-	              generalInterfaceTiledExamples.h drawImage.h \
+              generalInterfaceTiledExamples.h drawImage.h \
 		      rgbaInterfaceExamples.h generalInterfaceExamples.h \
 		      rgbaInterfaceTiledExamples.h \
 		      lowLevelIoExamples.h previewImageExamples.h \
@@ -27,4 +27,3 @@ examplesdir = $(datadir)/doc/OpenEXR-@OPENEXR_VERSION@/examples
 examples_DATA = $(imfexamples_SOURCES)
 
 imfexamplesdir = $(examplesdir)
-

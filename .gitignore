@@ -10,12 +10,14 @@ ltmain.sh
 missing
 .deps
 *.o
+*.lo
 *.deps
 *.libs
-*.lo
+*.Plo
+*.Po
 *.la
-*.in
-Makefile
+*.so
+*.dylib
 .DS_Store
 *.project
 *.cproject

@@ -50,6 +50,7 @@
 #include "ImathShear.h"
 #include <ImathNamespace.h>
 
+#include <cstring>
 #include <iostream>
 #include <iomanip>
 #include <string.h>

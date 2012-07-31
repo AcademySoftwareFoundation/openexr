@@ -13,6 +13,18 @@ Version 1.1.0.beta.1
 	  (Nicholas Yue)
 
 Version 1.0.3
+        * Added support for enabling/disabling large stack optimisations, used in
+          halfFunction.h.
+          (Piotr Stanczyk)
+	* Added ImathNoise.(h/cpp) files. Initializes Perlin noise to match the
+	  Renderman implmenetation.
+	  (Pixar Contribution)
+	* Fixed a number of missing includes to comply with stricter 
+	  enforcement by gnu compilers.
+	  (Piotr Stanczyk)
+	* Depracated compiler flag: -Wno-long-double since it is no longer
+	  supported under OS X.
+	  (Piotr Stanczyk)
 	* A minor API change to Imath::Frustum has been made:  the functions
 	  'near' and 'far' have been renamed to 'nearPlane' and 'farPlane' due
 	  to conflicts with certain windows headers.  The former alternate
@@ -30,9 +42,10 @@ Version 1.0.3
 	  directory, and several minor visual studio compile fixes have
 	  been applied.
 	  (Nick Rasmussen)
-        * Updated the so verison to 7
+	* Updated the so verison to 7.
 	  (Piotr Stanczyk)
-        
+	* Depracated the MacCode_Warrior and Shake submodules.
+	  (Piotr Stanczyk)
 
 Version 1.0.2
 	* Added support for targetting builds on 64bit Windows and minimising 

@@ -49,6 +49,7 @@
     #include <ImfFrameBuffer.h>
     #include <stdlib.h>
     #include <cassert>
+    #include <cstdio>
     #include <iostream>
     #include<stdio.h>
 
@@ -62,6 +63,7 @@
     #include <ImfHeader.h>
     #include <stdlib.h>
     #include <cassert>
+    #include <cstdio>
     #include <iostream>
     #include <stdio.h>
 
