@@ -41,7 +41,6 @@
 #include <ImathQuat.h>
 #include <ImathEuler.h>
 #include <ImathFun.h>
-#include <ImathNoise.h>
 #include <ImathMatrixAlgo.h>
 #include <PyIexExport.h>
 #include <PyImathFixedArray.h>
@@ -60,7 +59,6 @@
 #include <PyImathLine.h>
 #include <PyImathRandom.h>
 #include <PyImathShear.h>
-#include <PyImathNoise.h>
 #include <PyImathMathExc.h>
 #include <PyImathAutovectorize.h>
 #include <PyImathStringArrayRegister.h>
@@ -391,55 +389,6 @@ BOOST_PYTHON_MODULE(imath)
     //
     register_functions();
    
-    //
-    // Noise Functions
-    //
-    def("noise", noise1);
-    def("noise", noise2);
-    def("noise", noise3);
-    def("noise", noise4);
-    def("noise", noise5);
-    def("noise", noise6);
-    def("noise", noise7);
-    def("noise", noise8);
-    
-    def("noiseCen", noiseCen1);
-    def("noiseCen", noiseCen2);
-    def("noiseCen", noiseCen3);
-    def("noiseCen", noiseCen4);
-    def("noiseCen", noiseCen5);
-    def("noiseCen", noiseCen6);
-    def("noiseCen", noiseCen7);
-    def("noiseCen", noiseCen8);
-    
-    def("noiseCen3d", noiseCen3d1);
-    def("noiseCen3d", noiseCen3d2);
-    def("noiseCen3d", noiseCen3d3);
-    def("noiseCen3d", noiseCen3d4);
-    
-    def("noiseCenGrad", noiseCenGrad1);
-    def("noiseCenGrad", noiseCenGrad2);
-    def("noiseCenGrad", noiseCenGrad3);
-    def("noiseCenGrad", noiseCenGrad4);
-    def("noiseCenGrad", noiseCenGrad5);
-    def("noiseCenGrad", noiseCenGrad6);
-    def("noiseCenGrad", noiseCenGrad7);
-    def("noiseCenGrad", noiseCenGrad8);
-    def("noiseCenGrad", noiseCenGrad9);
-    def("noiseCenGrad", noiseCenGrad10);
-    def("noiseCenGrad", noiseCenGrad11);
-    def("noiseCenGrad", noiseCenGrad12);
-    
-    def("noiseGrad", noiseGrad1);
-    def("noiseGrad", noiseGrad2);
-    def("noiseGrad", noiseGrad3);
-    def("noiseGrad", noiseGrad4);
-    def("noiseGrad", noiseGrad5);
-    def("noiseGrad", noiseGrad6);
-    def("noiseGrad", noiseGrad7);
-    def("noiseGrad", noiseGrad8);
-    def("noiseGrad", noiseGrad9);
-    def("noiseGrad", noiseGrad10);
 
     def("procrustesRotationAndTranslation", procrustes1, 
         args("fromPts", "toPts", "weights", "doScale"),  // Can't use 'from' and 'to' because 'from' is a reserved keywork in Python

@@ -14,7 +14,7 @@ libImath_la_SOURCES = ImathShear.cpp ImathMatrixAlgo.cpp ImathVec.cpp \
 		      ImathHalfLimits.h ImathInterval.h ImathGLU.h \
 		      ImathFrame.h ImathPlatform.h \
 		      ImathBox.cpp ImathRandom.cpp ImathInt64.h \
-		      ImathFrustumTest.h ImathNoise.cpp
+		      ImathFrustumTest.h
 
 libImath_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ -no-undefined
 libImath_la_LIBADD = ../Iex/libIex.la
@@ -29,8 +29,7 @@ libImathinclude_HEADERS = ImathColorAlgo.h ImathMatrixAlgo.h ImathVec.h \
 			  ImathFrustum.h ImathMath.h ImathGL.h \
 			  ImathColor.h ImathRandom.h ImathRoots.h \
 			  ImathHalfLimits.h ImathInterval.h ImathGLU.h \
-			  ImathFrame.h ImathPlatform.h ImathInt64.h \
-			  ImathNoise.h
+			  ImathFrame.h ImathPlatform.h ImathInt64.h
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/Half \
 	   -I$(top_srcdir)/config
