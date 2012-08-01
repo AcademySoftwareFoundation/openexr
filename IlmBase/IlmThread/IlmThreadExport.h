@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2005, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -32,81 +32,15 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef INCLUDED_ILM_THREAD_SEMAPHORE_H
-#define INCLUDED_ILM_THREAD_SEMAPHORE_H
-
-//-----------------------------------------------------------------------------
-//
-//	class Semaphore -- a wrapper class for
-//	system-dependent counting semaphores
-//
-//-----------------------------------------------------------------------------
-
-#include "IlmBaseConfig.h"
-#include "IlmThreadExport.h"
-#include "IlmThreadNamespace.h"
-
-#if defined _WIN32 || defined _WIN64
-    #ifdef NOMINMAX
-        #undef NOMINMAX
+#if defined(OPENEXR_DLL)
+    #if defined(ILMTHREAD_EXPORTS)
+	    #define ILMTHREAD_EXPORT __declspec(dllexport)
+        #define ILMTHREAD_EXPORT_CONST extern __declspec(dllexport)
+    #else
+	    #define ILMTHREAD_EXPORT __declspec(dllimport)
+	    #define ILMTHREAD_EXPORT_CONST extern __declspec(dllimport)
     #endif
-    #define NOMINMAX
-    #include <windows.h>
-#elif HAVE_PTHREAD && !HAVE_POSIX_SEMAPHORES
-    #include <pthread.h>
-#elif HAVE_PTHREAD && HAVE_POSIX_SEMAPHORES
-    #include <semaphore.h>
+#else
+    #define ILMTHREAD_EXPORT
+    #define ILMTHREAD_EXPORT_CONST extern const
 #endif
-
-ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
-
-
-class ILMTHREAD_EXPORT Semaphore
-{
-  public:
-
-    Semaphore (unsigned int value = 0);
-    virtual ~Semaphore();
-
-    void	wait();
-    bool	tryWait();
-    void	post();
-    int		value() const;
-
-  private:
-
-    #if defined _WIN32 || defined _WIN64
-
-	mutable HANDLE _semaphore;
-
-    #elif HAVE_PTHREAD && !HAVE_POSIX_SEMAPHORES
-
-	//
-	// If the platform has Posix threads but no semapohores,
-	// then we implement them ourselves using condition variables
-	//
-
-	struct sema_t
-	{
-	    unsigned int count;
-	    unsigned long numWaiting;
-	    pthread_mutex_t mutex;
-	    pthread_cond_t nonZero;
-	};
-
-	mutable sema_t _semaphore;
-
-    #elif HAVE_PTHREAD && HAVE_POSIX_SEMAPHORES
-
-	mutable sem_t _semaphore;
-
-    #endif
-
-    void operator = (const Semaphore& s);	// not implemented
-    Semaphore (const Semaphore& s);		// not implemented
-};
-
-
-ILMTHREAD_INTERNAL_NAMESPACE_HEADER_EXIT
-
-#endif // INCLUDED_ILM_THREAD_SEMAPHORE_H

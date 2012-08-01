@@ -35,6 +35,8 @@
 #ifndef INCLUDED_ILM_THREAD_POOL_H
 #define INCLUDED_ILM_THREAD_POOL_H
 
+#include "IlmThread.h"
+
 //-----------------------------------------------------------------------------
 //
 //	class Task, class ThreadPool, class TaskGroup
@@ -68,7 +70,7 @@ class TaskGroup;
 class Task;
 
 
-class ThreadPool  
+class ILMTHREAD_EXPORT ThreadPool  
 {
   public:
 
@@ -125,7 +127,7 @@ class ThreadPool
 };
 
 
-class Task
+class ILMTHREAD_EXPORT Task
 {
   public:
 
@@ -141,7 +143,7 @@ class Task
 };
 
 
-class TaskGroup
+class ILMTHREAD_EXPORT TaskGroup
 {
   public:
 

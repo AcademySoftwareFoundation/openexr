@@ -66,8 +66,9 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "IlmThreadExport.h"
 #include "IlmBaseConfig.h"
-#include <IlmThreadNamespace.h>
+#include "IlmThreadNamespace.h"
 
 #if defined _WIN32 || defined _WIN64
     #ifdef NOMINMAX
@@ -84,7 +85,7 @@ ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 class Lock;
 
 
-class Mutex
+class ILMTHREAD_EXPORT Mutex
 {
   public:
 
@@ -109,7 +110,7 @@ class Mutex
 };
 
 
-class Lock
+class ILMTHREAD_EXPORT Lock
 {
   public:
 
