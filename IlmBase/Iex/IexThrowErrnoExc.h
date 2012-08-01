@@ -44,6 +44,7 @@
 //----------------------------------------------------------
 
 #include "IexBaseExc.h"
+#include "IexExport.h"
 
 IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -87,18 +88,9 @@ IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 //
 //--------------------------------------------------------------------------
 
-#if defined(OPENEXR_DLL)
-	#ifdef IEX_EXPORTS
-		#define IEX_EXPORT_FN __declspec(dllexport)
-	#else
-		#define IEX_EXPORT_FN __declspec(dllimport)
-	#endif
-#else
-    #define IEX_EXPORT_FN
-#endif
-IEX_EXPORT_FN void throwErrnoExc (const std::string &txt, int errnum);
-IEX_EXPORT_FN void throwErrnoExc (const std::string &txt = "%T." /*, int errnum = oserror() */);
-
+IEX_EXPORT void throwErrnoExc(const std::string &txt, int errnum);
+IEX_EXPORT void throwErrnoExc(const std::string &txt);
+IEX_EXPORT void throwErrnoExc();
 
 IEX_INTERNAL_NAMESPACE_HEADER_EXIT
 

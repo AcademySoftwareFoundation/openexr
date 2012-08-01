@@ -864,5 +864,10 @@ void throwErrnoExc (const std::string &text)
     throwErrnoExc (text, errno);
 }
 
+void throwErrnoExc()
+{
+    std::string txt = "%T.";
+    throwErrnoExc (txt);
+}
 
 IEX_INTERNAL_NAMESPACE_SOURCE_EXIT
