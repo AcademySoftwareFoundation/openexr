@@ -2,9 +2,9 @@
 //
 // Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
-//
+// 
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +16,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission.
-//
+// from this software without specific prior written permission. 
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -36,10 +36,11 @@
 #define INCLUDED_IMATHNAMESPACE_H
 
 //
-// The purpose of this file is to have all of the Imath symbols defined within 
-// the IMATH_INTERNAL_NAMESPACE namespace rather than the standard Imath 
-// namespace. Those symbols are made available to client code through the 
-// IMATH_NAMESPACE in addition to the IMATH_INTERNAL_NAMESPACE.
+// The purpose of this file is to make it possible to specify an
+// IMATH_INTERNAL_NAMESPACE as a preprocessor definition and have all of the
+// Imath symbols defined within that namespace rather than the standard
+// Imath namespace.  Those symbols are made available to client code through
+// the IMATH_NAMESPACE in addition to the IMATH_INTERNAL_NAMESPACE.
 //
 // To ensure source code compatibility, the IMATH_NAMESPACE defaults to Imath
 // and then "using namespace IMATH_INTERNAL_NAMESPACE;" brings all of the

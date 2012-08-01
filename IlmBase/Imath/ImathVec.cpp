@@ -41,6 +41,7 @@
 //----------------------------------------------------------------------------
 
 #include "ImathVec.h"
+#include "ImathExport.h"
 
 #if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
 // suppress exception specification warnings
@@ -127,6 +128,7 @@ normalizeOrThrow(Vec4<T> &v)
 // Vec2<short>
 
 template <> 
+IMATH_EXPORT
 short
 Vec2<short>::length () const
 {
@@ -136,6 +138,7 @@ Vec2<short>::length () const
 }
 
 template <>
+IMATH_EXPORT
 const Vec2<short> &
 Vec2<short>::normalize ()
 {
@@ -144,6 +147,7 @@ Vec2<short>::normalize ()
 }
 
 template <>
+IMATH_EXPORT
 const Vec2<short> &
 Vec2<short>::normalizeExc () throw (IEX_NAMESPACE::MathExc)
 {
@@ -155,6 +159,7 @@ Vec2<short>::normalizeExc () throw (IEX_NAMESPACE::MathExc)
 }
 
 template <>
+IMATH_EXPORT
 const Vec2<short> &
 Vec2<short>::normalizeNonNull ()
 {
@@ -163,6 +168,7 @@ Vec2<short>::normalizeNonNull ()
 }
 
 template <>
+IMATH_EXPORT
 Vec2<short>
 Vec2<short>::normalized () const
 {
@@ -172,6 +178,7 @@ Vec2<short>::normalized () const
 }
 
 template <>
+IMATH_EXPORT
 Vec2<short>
 Vec2<short>::normalizedExc () const throw (IEX_NAMESPACE::MathExc)
 {
@@ -184,6 +191,7 @@ Vec2<short>::normalizedExc () const throw (IEX_NAMESPACE::MathExc)
 }
 
 template <>
+IMATH_EXPORT
 Vec2<short>
 Vec2<short>::normalizedNonNull () const
 {
@@ -205,6 +213,7 @@ Vec2<int>::length () const
 }
 
 template <>
+IMATH_EXPORT
 const Vec2<int> &
 Vec2<int>::normalize ()
 {
@@ -213,6 +222,7 @@ Vec2<int>::normalize ()
 }
 
 template <>
+IMATH_EXPORT
 const Vec2<int> &
 Vec2<int>::normalizeExc () throw (IEX_NAMESPACE::MathExc)
 {
@@ -224,6 +234,7 @@ Vec2<int>::normalizeExc () throw (IEX_NAMESPACE::MathExc)
 }
 
 template <>
+IMATH_EXPORT
 const Vec2<int> &
 Vec2<int>::normalizeNonNull ()
 {
@@ -232,6 +243,7 @@ Vec2<int>::normalizeNonNull ()
 }
 
 template <>
+IMATH_EXPORT
 Vec2<int>
 Vec2<int>::normalized () const
 {
@@ -241,6 +253,7 @@ Vec2<int>::normalized () const
 }
 
 template <>
+IMATH_EXPORT
 Vec2<int>
 Vec2<int>::normalizedExc () const throw (IEX_NAMESPACE::MathExc)
 {
@@ -253,6 +266,7 @@ Vec2<int>::normalizedExc () const throw (IEX_NAMESPACE::MathExc)
 }
 
 template <>
+IMATH_EXPORT
 Vec2<int>
 Vec2<int>::normalizedNonNull () const
 {
@@ -265,6 +279,7 @@ Vec2<int>::normalizedNonNull () const
 // Vec3<short>
 
 template <> 
+IMATH_EXPORT
 short
 Vec3<short>::length () const
 {
@@ -274,6 +289,7 @@ Vec3<short>::length () const
 }
 
 template <>
+IMATH_EXPORT
 const Vec3<short> &
 Vec3<short>::normalize ()
 {
@@ -282,6 +298,7 @@ Vec3<short>::normalize ()
 }
 
 template <>
+IMATH_EXPORT
 const Vec3<short> &
 Vec3<short>::normalizeExc () throw (IEX_NAMESPACE::MathExc)
 {
@@ -293,6 +310,7 @@ Vec3<short>::normalizeExc () throw (IEX_NAMESPACE::MathExc)
 }
 
 template <>
+IMATH_EXPORT
 const Vec3<short> &
 Vec3<short>::normalizeNonNull ()
 {
@@ -301,6 +319,7 @@ Vec3<short>::normalizeNonNull ()
 }
 
 template <>
+IMATH_EXPORT
 Vec3<short>
 Vec3<short>::normalized () const
 {
@@ -310,6 +329,7 @@ Vec3<short>::normalized () const
 }
 
 template <>
+IMATH_EXPORT
 Vec3<short>
 Vec3<short>::normalizedExc () const throw (IEX_NAMESPACE::MathExc)
 {
@@ -322,6 +342,7 @@ Vec3<short>::normalizedExc () const throw (IEX_NAMESPACE::MathExc)
 }
 
 template <>
+IMATH_EXPORT
 Vec3<short>
 Vec3<short>::normalizedNonNull () const
 {
@@ -334,6 +355,7 @@ Vec3<short>::normalizedNonNull () const
 // Vec3<int>
 
 template <> 
+IMATH_EXPORT
 int
 Vec3<int>::length () const
 {
@@ -343,6 +365,7 @@ Vec3<int>::length () const
 }
 
 template <>
+IMATH_EXPORT
 const Vec3<int> &
 Vec3<int>::normalize ()
 {
@@ -351,6 +374,7 @@ Vec3<int>::normalize ()
 }
 
 template <>
+IMATH_EXPORT
 const Vec3<int> &
 Vec3<int>::normalizeExc () throw (IEX_NAMESPACE::MathExc)
 {
@@ -362,6 +386,7 @@ Vec3<int>::normalizeExc () throw (IEX_NAMESPACE::MathExc)
 }
 
 template <>
+IMATH_EXPORT
 const Vec3<int> &
 Vec3<int>::normalizeNonNull ()
 {
@@ -370,6 +395,7 @@ Vec3<int>::normalizeNonNull ()
 }
 
 template <>
+IMATH_EXPORT
 Vec3<int>
 Vec3<int>::normalized () const
 {
@@ -379,6 +405,7 @@ Vec3<int>::normalized () const
 }
 
 template <>
+IMATH_EXPORT
 Vec3<int>
 Vec3<int>::normalizedExc () const throw (IEX_NAMESPACE::MathExc)
 {
@@ -391,6 +418,7 @@ Vec3<int>::normalizedExc () const throw (IEX_NAMESPACE::MathExc)
 }
 
 template <>
+IMATH_EXPORT
 Vec3<int>
 Vec3<int>::normalizedNonNull () const
 {
@@ -403,6 +431,7 @@ Vec3<int>::normalizedNonNull () const
 // Vec4<short>
 
 template <> 
+IMATH_EXPORT
 short
 Vec4<short>::length () const
 {
@@ -412,6 +441,7 @@ Vec4<short>::length () const
 }
 
 template <>
+IMATH_EXPORT
 const Vec4<short> &
 Vec4<short>::normalize ()
 {
@@ -420,6 +450,7 @@ Vec4<short>::normalize ()
 }
 
 template <>
+IMATH_EXPORT
 const Vec4<short> &
 Vec4<short>::normalizeExc () throw (IEX_NAMESPACE::MathExc)
 {
@@ -431,6 +462,7 @@ Vec4<short>::normalizeExc () throw (IEX_NAMESPACE::MathExc)
 }
 
 template <>
+IMATH_EXPORT
 const Vec4<short> &
 Vec4<short>::normalizeNonNull ()
 {
@@ -439,6 +471,7 @@ Vec4<short>::normalizeNonNull ()
 }
 
 template <>
+IMATH_EXPORT
 Vec4<short>
 Vec4<short>::normalized () const
 {
@@ -448,6 +481,7 @@ Vec4<short>::normalized () const
 }
 
 template <>
+IMATH_EXPORT
 Vec4<short>
 Vec4<short>::normalizedExc () const throw (IEX_NAMESPACE::MathExc)
 {
@@ -460,6 +494,7 @@ Vec4<short>::normalizedExc () const throw (IEX_NAMESPACE::MathExc)
 }
 
 template <>
+IMATH_EXPORT
 Vec4<short>
 Vec4<short>::normalizedNonNull () const
 {
@@ -472,6 +507,7 @@ Vec4<short>::normalizedNonNull () const
 // Vec4<int>
 
 template <> 
+IMATH_EXPORT
 int
 Vec4<int>::length () const
 {
@@ -481,6 +517,7 @@ Vec4<int>::length () const
 }
 
 template <>
+IMATH_EXPORT
 const Vec4<int> &
 Vec4<int>::normalize ()
 {
@@ -489,6 +526,7 @@ Vec4<int>::normalize ()
 }
 
 template <>
+IMATH_EXPORT
 const Vec4<int> &
 Vec4<int>::normalizeExc () throw (IEX_NAMESPACE::MathExc)
 {
@@ -500,6 +538,7 @@ Vec4<int>::normalizeExc () throw (IEX_NAMESPACE::MathExc)
 }
 
 template <>
+IMATH_EXPORT
 const Vec4<int> &
 Vec4<int>::normalizeNonNull ()
 {
@@ -517,6 +556,7 @@ Vec4<int>::normalized () const
 }
 
 template <>
+IMATH_EXPORT
 Vec4<int>
 Vec4<int>::normalizedExc () const throw (IEX_NAMESPACE::MathExc)
 {
@@ -529,6 +569,7 @@ Vec4<int>::normalizedExc () const throw (IEX_NAMESPACE::MathExc)
 }
 
 template <>
+IMATH_EXPORT
 Vec4<int>
 Vec4<int>::normalizedNonNull () const
 {

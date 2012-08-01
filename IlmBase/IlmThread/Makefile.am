@@ -20,7 +20,8 @@ libIlmThreadincludedir = $(includedir)/OpenEXR
 
 libIlmThreadinclude_HEADERS = IlmThreadPool.h IlmThread.h \
 			      IlmThreadSemaphore.h IlmThreadMutex.h \
-			      IlmThreadNamespace.h IlmThreadForward.h
+			      IlmThreadNamespace.h IlmThreadForward.h \
+			      IlmThreadExport.h
 
 noinst_HEADERS = 
 

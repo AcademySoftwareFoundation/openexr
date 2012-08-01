@@ -38,36 +38,26 @@
 
 //-------------------------------------------------------------------------
 //
-//      This file contains algorithms applied to or in conjunction with
-//	transformation matrices (IMATH_INTERNAL_NAMESPACE::Matrix33 and IMATH_INTERNAL_NAMESPACE::Matrix44).
-//	The assumption made is that these functions are called much less
-//	often than the basic point functions or these functions require
-//	more support classes.
+//  This file contains algorithms applied to or in conjunction with
+//  transformation matrices (IMATH_INTERNAL_NAMESPACE::Matrix33 and 
+//  IMATH_INTERNAL_NAMESPACE::Matrix44).
+//  The assumption made is that these functions are called much less
+//  often than the basic point functions or these functions require
+//  more support classes.
 //
-//	This file also defines a few predefined constant matrices.
+//  This file also defines a few predefined constant matrices.
 //
 //-------------------------------------------------------------------------
 
+#include "ImathExport.h"
 #include "ImathMatrix.h"
 #include "ImathQuat.h"
 #include "ImathEuler.h"
 #include "ImathExc.h"
 #include "ImathVec.h"
 #include "ImathLimits.h"
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
 #include <math.h>
-
-
-#ifdef OPENEXR_DLL
-    #ifdef IMATH_EXPORTS
-        #define IMATH_EXPORT_CONST extern __declspec(dllexport)
-    #else
-	#define IMATH_EXPORT_CONST extern __declspec(dllimport)
-    #endif
-#else
-    #define IMATH_EXPORT_CONST extern const
-#endif
-
 
 IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 

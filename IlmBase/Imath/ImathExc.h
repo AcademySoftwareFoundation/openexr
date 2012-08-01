@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #ifndef INCLUDED_IMATHEXC_H
 #define INCLUDED_IMATHEXC_H
 
@@ -44,30 +43,32 @@
 //
 //-----------------------------------------------
 
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
 #include "IexBaseExc.h"
+#include "ImathExport.h"
 
 IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-DEFINE_EXC (NullVecExc, ::IEX_NAMESPACE::MathExc)		// Attempt to normalize
-						// null vector
+DEFINE_EXC_EXP (IMATH_EXPORT, NullVecExc, ::IEX_NAMESPACE::MathExc)	    // Attempt to normalize
+									    // null vector
 
-DEFINE_EXC (InfPointExc, ::IEX_NAMESPACE::MathExc)	// Attempt to normalize
-                                                // a point at infinity
+DEFINE_EXC_EXP (IMATH_EXPORT, InfPointExc, ::IEX_NAMESPACE::MathExc)	    // Attempt to normalize
+									    // a point at infinity
 
-DEFINE_EXC (NullQuatExc, ::IEX_NAMESPACE::MathExc) 	// Attempt to normalize
-						// null quaternion
+DEFINE_EXC_EXP (IMATH_EXPORT, NullQuatExc, ::IEX_NAMESPACE::MathExc)	    // Attempt to normalize
+									    // null quaternion
 
-DEFINE_EXC (SingMatrixExc, ::IEX_NAMESPACE::MathExc)	// Attempt to invert
-						// singular matrix
+DEFINE_EXC_EXP (IMATH_EXPORT, SingMatrixExc, ::IEX_NAMESPACE::MathExc)	    // Attempt to invert
+									    // singular matrix
 
-DEFINE_EXC (ZeroScaleExc, ::IEX_NAMESPACE::MathExc)	// Attempt to remove zero
-						// scaling from matrix
+DEFINE_EXC_EXP (IMATH_EXPORT, ZeroScaleExc, ::IEX_NAMESPACE::MathExc)	    // Attempt to remove zero
+									    // scaling from matrix
 
-DEFINE_EXC (IntVecNormalizeExc, ::IEX_NAMESPACE::MathExc)	// Attempt to normalize
-						// a vector of whose elements
-                                                // are an integer type
+DEFINE_EXC_EXP (IMATH_EXPORT, IntVecNormalizeExc, ::IEX_NAMESPACE::MathExc) // Attempt to normalize
+									    // a vector of whose elements
+									    // are an integer type
+
 
 IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
