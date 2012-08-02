@@ -7,7 +7,7 @@ IF ( NOT WIN32)
   ADD_DEFINITIONS ( -pthread )
 ENDIF ()
 
-INCLUDE_DIRECTORIES ( Iex Imath Half config IexTest ImathTest HalfTest )
+INCLUDE_DIRECTORIES ( Iex IexMath Imath Half config IlmThread IexTest ImathTest HalfTest )
 
 MACRO(GET_TARGET_PROPERTY_WITH_DEFAULT _variable _target _property _default_value)
    GET_TARGET_PROPERTY (${_variable} ${_target} ${_property})
@@ -61,6 +61,7 @@ MACRO(GET_TARGET_PROPERTY_WITH_DEFAULT _variable _target _property _default_valu
 
 ADD_SUBDIRECTORY ( Half )
 ADD_SUBDIRECTORY ( Iex )
+ADD_SUBDIRECTORY ( IexMath )
 ADD_SUBDIRECTORY ( Imath )
 ADD_SUBDIRECTORY ( IlmThread )
 
@@ -95,10 +96,16 @@ SET_TARGET_PROPERTIES ( IlmThread
   VERSION 10.0.0
   SOVERSION 10
   )
+SET_TARGET_PROPERTIES ( IexMath
+  PROPERTIES
+  VERSION 10.0.0
+  SOVERSION 10
+  )
 
 IF ( NOT WIN32 )
   CREATE_LIBTOOL_FILE ( Half /lib )
   CREATE_LIBTOOL_FILE ( Iex /lib )
+  CREATE_LIBTOOL_FILE ( IexMath /lib )
   CREATE_LIBTOOL_FILE ( Imath /lib )
   CREATE_LIBTOOL_FILE ( IlmThread /lib )
 ENDIF ()
@@ -127,7 +134,7 @@ OpenEXR_includedir=\${prefix}/include/OpenEXR
 Name: IlmBase
 Description: Base math and exception libraries
 Version: 1.1.0
-Libs: -L\${libdir} -lImath -lHalf -lIex -lIlmThread -pthread
+Libs: -L\${libdir} -lImath -lIexMath -lHalf -lIex -lIlmThread -pthread
 Cflags: -pthread -I\${OpenEXR_includedir}
 ")
 
