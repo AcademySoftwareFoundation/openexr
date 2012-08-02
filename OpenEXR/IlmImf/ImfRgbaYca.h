@@ -225,7 +225,7 @@ void reconstructChromaVert (int n,
 //
 
 IMF_EXPORT
-void YCAtoRGBA (const Imath::V3f &yw,
+void YCAtoRGBA (const IMATH_NAMESPACE::V3f &yw,
 		int n,
 		const Rgba ycaIn[/*n*/],
 		Rgba rgbaOut[/*n*/]);
