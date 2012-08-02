@@ -44,6 +44,7 @@ INSTALL ( FILES
   IlmThread.h
   IlmThreadSemaphore.h
   IlmThreadMutex.h
+  IlmThreadNamespace.h
   DESTINATION
   include/OpenEXR
 )

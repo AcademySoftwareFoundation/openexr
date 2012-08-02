@@ -46,6 +46,7 @@ INSTALL ( FILES
   ImathFrame.h
   ImathPlatform.h
   ImathInt64.h
+  ImathNamespace.h
   DESTINATION
   include/OpenEXR
 )

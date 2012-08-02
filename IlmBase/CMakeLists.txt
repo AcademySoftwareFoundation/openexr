@@ -7,7 +7,7 @@ IF ( NOT WIN32)
   ADD_DEFINITIONS ( -pthread )
 ENDIF ()
 
-INCLUDE_DIRECTORIES ( Iex Imath Half config IexTest ImathTest HalfTest )
+INCLUDE_DIRECTORIES ( Iex Imath Half config IexTest ImathTest IlmThread HalfTest )
 
 MACRO(GET_TARGET_PROPERTY_WITH_DEFAULT _variable _target _property _default_value)
    GET_TARGET_PROPERTY (${_variable} ${_target} ${_property})
