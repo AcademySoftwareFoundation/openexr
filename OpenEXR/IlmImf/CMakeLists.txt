@@ -168,6 +168,7 @@ INSTALL ( TARGETS
 INSTALL ( FILES
   ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h
   ImfForward.h
+  ImfExport.h
   ImfAttribute.h
   ImfBoxAttribute.h
   ImfCRgbaFile.h
