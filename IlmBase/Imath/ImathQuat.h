@@ -57,7 +57,7 @@
 
 #include "ImathExc.h"
 #include "ImathMatrix.h"
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
 
 #include <iostream>
 

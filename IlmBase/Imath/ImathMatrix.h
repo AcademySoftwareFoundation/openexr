@@ -48,7 +48,7 @@
 #include "ImathExc.h"
 #include "ImathVec.h"
 #include "ImathShear.h"
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
 
 #include <cstring>
 #include <iostream>

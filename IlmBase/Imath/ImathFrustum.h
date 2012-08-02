@@ -44,7 +44,8 @@
 #include "ImathMatrix.h"
 #include "ImathLimits.h"
 #include "ImathFun.h"
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
+
 #include "IexMathExc.h"
 
 IMATH_INTERNAL_NAMESPACE_HEADER_ENTER

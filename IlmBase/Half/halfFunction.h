@@ -85,7 +85,7 @@
 
 #include "half.h"
 
-#include <IlmBaseConfig.h>
+#include "IlmBaseConfig.h"
 #ifndef ILMBASE_HAVE_LARGE_STACK  
 #include <string.h>     // need this for memset
 #else 

@@ -37,10 +37,10 @@
 #ifndef INCLUDED_IEXMATHFLOATEXC_H
 #define INCLUDED_IEXMATHFLOATEXC_H
 
-#include <IexNamespace.h>
-#include <IexMathExc.h>
+#include "IexNamespace.h"
+#include "IexMathExc.h"
 //#include <IexBaseExc.h>
-#include <IexMathIeeeExc.h>
+#include "IexMathIeeeExc.h"
 
 IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 

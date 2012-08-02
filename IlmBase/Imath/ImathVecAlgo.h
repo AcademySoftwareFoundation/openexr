@@ -49,7 +49,7 @@
 
 #include "ImathVec.h"
 #include "ImathLimits.h"
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
 
 IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 

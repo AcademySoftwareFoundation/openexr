@@ -55,8 +55,8 @@
 //	
 //----------------------------------------------------------------------------
 
-#include <IexExport.h>
-#include <IexForward.h>
+#include "IexExport.h"
+#include "IexForward.h"
 
 IEX_EXPORT void iex_debugTrap();
 

@@ -62,7 +62,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <IlmThreadNamespace.h>
+#include "IlmThreadNamespace.h"
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 

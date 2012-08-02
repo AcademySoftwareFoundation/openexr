@@ -43,7 +43,7 @@
 //
 //----------------------------------------------------------------
 
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
 #include <float.h>
 #include <limits.h>
 

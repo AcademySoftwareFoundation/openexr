@@ -44,7 +44,7 @@
 //---------------------------------------------------------------------
 
 #include "ImathMath.h"
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
 #include <complex>
 
 IMATH_INTERNAL_NAMESPACE_HEADER_ENTER

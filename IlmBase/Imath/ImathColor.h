@@ -44,7 +44,7 @@
 //----------------------------------------------------
 
 #include "ImathVec.h"
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
 #include "half.h"
 
 IMATH_INTERNAL_NAMESPACE_HEADER_ENTER

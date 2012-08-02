@@ -17,7 +17,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include <IexNamespace.h>
+#include "IexNamespace.h"
 
 IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 

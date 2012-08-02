@@ -130,7 +130,8 @@
 #include "ImathQuat.h"
 #include "ImathMatrix.h"
 #include "ImathLimits.h"
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
+
 #include <iostream>
 
 IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
