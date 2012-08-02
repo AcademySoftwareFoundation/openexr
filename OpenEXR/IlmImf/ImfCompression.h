@@ -42,9 +42,9 @@
 //	enum Compression
 //
 //-----------------------------------------------------------------------------
+#include "ImfNamespace.h"
 
-namespace Imf {
-
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 enum Compression
 {
@@ -69,7 +69,11 @@ enum Compression
     NUM_COMPRESSION_METHODS	// number of different compression methods
 };
 
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
-} // namespace Imf
+
+
+
+
 
 #endif

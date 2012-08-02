@@ -36,11 +36,14 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include <compareB44.h>
+#include "compareB44.h"
+
 #include <algorithm>
 #include <cassert>
 
-using namespace Imf;
+
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 
 

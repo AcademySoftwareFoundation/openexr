@@ -46,12 +46,13 @@
 #include <ImfCompression.h>
 #include <string>
 #include <vector>
+#include "namespaceAlias.h"
 
 
 void	makeMultiView (const std::vector <std::string> &viewNames,
 		       const std::vector <const char *> &inFileNames,
 		       const char *outFileName,
-		       Imf::Compression compression,
+		       CustomImf::Compression compression,
 		       bool verbose);
 
 #endif

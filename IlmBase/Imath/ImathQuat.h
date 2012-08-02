@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -51,16 +51,17 @@
 //	This class implements the quaternion numerical type -- you
 //      will probably want to use this class to represent orientations
 //	in R3 and to convert between various euler angle reps. You
-//	should probably use Imath::Euler<> for that.
+//	should probably use IMATH_INTERNAL_NAMESPACE::Euler<> for that.
 //
 //----------------------------------------------------------------------
 
 #include "ImathExc.h"
 #include "ImathMatrix.h"
+#include <ImathNamespace.h>
 
 #include <iostream>
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 #if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
 // Disable MS VC++ warnings about conversion from double to float
@@ -958,6 +959,6 @@ operator * (const Vec3<T> &v, const Quat<T> &q)
 #pragma warning(default:4244)
 #endif
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif
+#endif // INCLUDED_IMATHQUAT_H

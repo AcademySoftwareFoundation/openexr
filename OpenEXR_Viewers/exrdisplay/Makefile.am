@@ -12,7 +12,6 @@ LDADD = @OPENEXR_LDFLAGS@ @OPENEXR_LIBS@ \
         @OPENEXR_CTL_LDFLAGS@ @OPENEXR_CTL_LIBS@ \
         @CG_LDFLAGS@ @FLTK_LDFLAGS@
         
-
 all-local:
 	@FLTK_CONFIG@ --post exrdisplay
 
@@ -34,13 +33,17 @@ exrdisplay_SOURCES = \
 	scaleImage.cpp \
 	scaleImage.h \
 	applyCtl.cpp \
-	applyCtl.h
+	applyCtl.h \
+	GlWindow3d.h \
+	GlWindow3d.cpp
 
 noinst_HEADERS =  \
-	ImageView.h \
-	loadImage.h \
-	scaleImage.h \
-	applyCtl.h
+        ImageView.h \
+        loadImage.h \
+        scaleImage.h \
+        applyCtl.h \
+        GlWindow3d.h \
+        GlWindow3d.cpp
 
 EXTRA_DIST = $(exrdisplay_SOURCES)
 

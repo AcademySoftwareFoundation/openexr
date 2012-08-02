@@ -53,8 +53,8 @@ typedef FixedArray<unsigned int> UnsignedIntArray;
 typedef FixedArray<float> FloatArray;
 typedef FixedArray<double> DoubleArray;
 
-typedef FixedArray<Imath::Quatf> QuatfArray;
-typedef FixedArray<Imath::Quatd> QuatdArray;
+typedef FixedArray<IMATH_NAMESPACE::Quatf> QuatfArray;
+typedef FixedArray<IMATH_NAMESPACE::Quatd> QuatdArray;
 
 typedef FixedMatrix<int> IntMatrix;
 typedef FixedMatrix<float> FloatMatrix;

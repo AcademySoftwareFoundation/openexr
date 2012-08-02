@@ -14,10 +14,11 @@
 //
 //------------------------------------------------------------------------
 
-#include <stdint.h>
+#include "IexMathFpu.h"
 
-#include <IexMathFpu.h>
+#include <stdint.h>
 #include <IlmBaseConfig.h>
+#include <stdio.h>
 
 #if 0
     #include <iostream>
@@ -35,8 +36,10 @@
 #include <iostream>
 #include <stdint.h>
 
-namespace Iex
-{
+
+IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
+
+
 
 namespace FpuControl
 {
@@ -442,17 +445,20 @@ setFpExceptionHandler (FpExceptionHandler handler)
     fpeHandler = handler;
 }
 
-} // namespace Iex
+
+IEX_INTERNAL_NAMESPACE_SOURCE_EXIT
+
 
 #else
 
 #include <signal.h>
 #include <assert.h>
 
-namespace Iex
-{
+IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-    namespace {
+
+namespace 
+{
 	volatile FpExceptionHandler fpeHandler = 0;
 	void fpExc_(int x)
 	{
@@ -465,13 +471,12 @@ namespace Iex
 		assert(0 != "Floating point exception");
 	    }
 	}
-    }
+}
 
 void
 setFpExceptions( int )
 {
 }
-
 
 
 void
@@ -494,6 +499,6 @@ handleExceptionsSetInRegisters()
     // No implementation on this platform
 }
 
-} // namespace Iex
+IEX_INTERNAL_NAMESPACE_SOURCE_EXIT
 
 #endif

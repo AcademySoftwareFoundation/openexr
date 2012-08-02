@@ -42,14 +42,18 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfHeader.h>
-#include <ImfFrameBuffer.h>
-#include <ImfThreading.h>
+#include "ImfHeader.h"
+#include "ImfFrameBuffer.h"
+#include "ImfThreading.h"
+#include "ImfInputStreamMutex.h"
+#include "ImfInputPartData.h"
+#include "ImfGenericInputFile.h"
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class ScanLineInputFile
+class ScanLineInputFile : public GenericInputFile
 {
   public:
 
@@ -57,7 +61,7 @@ class ScanLineInputFile
     // Constructor
     //------------
 
-    ScanLineInputFile (const Header &header, IStream *is,
+    ScanLineInputFile (const Header &header, OPENEXR_IMF_INTERNAL_NAMESPACE::IStream *is,
                        int numThreads = globalThreadCount());
 
 
@@ -164,9 +168,22 @@ class ScanLineInputFile
   private:
 
     Data *		_data;
+
+    InputStreamMutex*   _streamData;
+
+    ScanLineInputFile   (InputPartData* part);
+
+    void                initialize(const Header& header);
+
+    friend class MultiPartInputFile;
+    friend class InputFile;
 };
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif

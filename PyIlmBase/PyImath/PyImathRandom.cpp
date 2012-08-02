@@ -64,44 +64,44 @@ nextGauss (Rand &rand)
 }
 
 template <class T, class Rand>
-static Imath::Vec3<T> nextGaussSphere(Rand &rand, const Imath::Vec3<T> &v)
+static IMATH_NAMESPACE::Vec3<T> nextGaussSphere(Rand &rand, const IMATH_NAMESPACE::Vec3<T> &v)
 {
     MATH_EXC_ON;
-    return Imath::gaussSphereRand<Imath::Vec3<T>,Rand>(rand);
+    return IMATH_NAMESPACE::gaussSphereRand<IMATH_NAMESPACE::Vec3<T>,Rand>(rand);
 }
 template <class T, class Rand>
-static Imath::Vec2<T> nextGaussSphere(Rand &rand, const Imath::Vec2<T> &v)
+static IMATH_NAMESPACE::Vec2<T> nextGaussSphere(Rand &rand, const IMATH_NAMESPACE::Vec2<T> &v)
 {
     MATH_EXC_ON;
-    return Imath::gaussSphereRand<Imath::Vec2<T>,Rand>(rand);
-}
-
-template <class T, class Rand>
-static Imath::Vec3<T> nextHollowSphere(Rand &rand, const Imath::Vec3<T> &v)
-{
-    MATH_EXC_ON;
-    return Imath::hollowSphereRand<Imath::Vec3<T>,Rand>(rand);
+    return IMATH_NAMESPACE::gaussSphereRand<IMATH_NAMESPACE::Vec2<T>,Rand>(rand);
 }
 
 template <class T, class Rand>
-static Imath::Vec2<T> nextHollowSphere(Rand &rand, const Imath::Vec2<T> &v)
+static IMATH_NAMESPACE::Vec3<T> nextHollowSphere(Rand &rand, const IMATH_NAMESPACE::Vec3<T> &v)
 {
     MATH_EXC_ON;
-    return Imath::hollowSphereRand<Imath::Vec2<T>,Rand>(rand);
+    return IMATH_NAMESPACE::hollowSphereRand<IMATH_NAMESPACE::Vec3<T>,Rand>(rand);
 }
 
 template <class T, class Rand>
-static Imath::Vec3<T> nextSolidSphere(Rand &rand, const Imath::Vec3<T> &v)
+static IMATH_NAMESPACE::Vec2<T> nextHollowSphere(Rand &rand, const IMATH_NAMESPACE::Vec2<T> &v)
 {
     MATH_EXC_ON;
-    return Imath::solidSphereRand<Imath::Vec3<T>,Rand>(rand);
+    return IMATH_NAMESPACE::hollowSphereRand<IMATH_NAMESPACE::Vec2<T>,Rand>(rand);
 }
 
 template <class T, class Rand>
-static Imath::Vec2<T> nextSolidSphere(Rand &rand, const Imath::Vec2<T> &v)
+static IMATH_NAMESPACE::Vec3<T> nextSolidSphere(Rand &rand, const IMATH_NAMESPACE::Vec3<T> &v)
 {
     MATH_EXC_ON;
-    return Imath::solidSphereRand<Imath::Vec2<T>,Rand>(rand);
+    return IMATH_NAMESPACE::solidSphereRand<IMATH_NAMESPACE::Vec3<T>,Rand>(rand);
+}
+
+template <class T, class Rand>
+static IMATH_NAMESPACE::Vec2<T> nextSolidSphere(Rand &rand, const IMATH_NAMESPACE::Vec2<T> &v)
+{
+    MATH_EXC_ON;
+    return IMATH_NAMESPACE::solidSphereRand<IMATH_NAMESPACE::Vec2<T>,Rand>(rand);
 }
 
 template <class Rand>
@@ -120,59 +120,59 @@ static Rand *Rand_constructor2(Rand rand)
 }
 
 template <class T, class Rand>
-static PyImath::FixedArray<Imath::Vec3<T> >
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> >
 hollowSphereRand(Rand &rand, int num)
 {
     MATH_EXC_ON;
-    PyImath::FixedArray<Imath::Vec3<T> >  retval(num);
+    PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> >  retval(num);
     for (int i=0; i<num; ++i) {
-        retval[i] = Imath::hollowSphereRand<Imath::Vec3<T>,Rand>(rand);
+        retval[i] = IMATH_NAMESPACE::hollowSphereRand<IMATH_NAMESPACE::Vec3<T>,Rand>(rand);
     }
     return retval;
 }
 
 template <class T, class Rand>
-static PyImath::FixedArray<Imath::Vec3<T> >
+static PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> >
 solidSphereRand(Rand &rand, int num)
 {
     MATH_EXC_ON;
-    PyImath::FixedArray<Imath::Vec3<T> >  retval(num);
+    PyImath::FixedArray<IMATH_NAMESPACE::Vec3<T> >  retval(num);
     for (int i=0; i<num; ++i) {
-        retval[i] = Imath::solidSphereRand<Imath::Vec3<T>,Rand>(rand);
+        retval[i] = IMATH_NAMESPACE::solidSphereRand<IMATH_NAMESPACE::Vec3<T>,Rand>(rand);
     }
     return retval;
 }
 
-class_<Imath::Rand32>
+class_<IMATH_NAMESPACE::Rand32>
 register_Rand32()
 {
-    float (Imath::Rand32::*nextf1)(void) = &Imath::Rand32::nextf;
+    float (IMATH_NAMESPACE::Rand32::*nextf1)(void) = &IMATH_NAMESPACE::Rand32::nextf;
     
-    Imath::Vec3<float> (*nextGaussSphere1)(Imath::Rand32 &, const Imath::Vec3<float> &v) = &nextGaussSphere<float,Imath::Rand32>;
-    Imath::Vec3<double> (*nextGaussSphere2)(Imath::Rand32 &, const Imath::Vec3<double> &v) = &nextGaussSphere<double,Imath::Rand32>;
-    Imath::Vec2<float> (*nextGaussSphere3)(Imath::Rand32 &, const Imath::Vec2<float> &v) = &nextGaussSphere<float,Imath::Rand32>;
-    Imath::Vec2<double> (*nextGaussSphere4)(Imath::Rand32 &, const Imath::Vec2<double> &v) = &nextGaussSphere<double,Imath::Rand32>;
+    IMATH_NAMESPACE::Vec3<float> (*nextGaussSphere1)(IMATH_NAMESPACE::Rand32 &, const IMATH_NAMESPACE::Vec3<float> &v) = &nextGaussSphere<float,IMATH_NAMESPACE::Rand32>;
+    IMATH_NAMESPACE::Vec3<double> (*nextGaussSphere2)(IMATH_NAMESPACE::Rand32 &, const IMATH_NAMESPACE::Vec3<double> &v) = &nextGaussSphere<double,IMATH_NAMESPACE::Rand32>;
+    IMATH_NAMESPACE::Vec2<float> (*nextGaussSphere3)(IMATH_NAMESPACE::Rand32 &, const IMATH_NAMESPACE::Vec2<float> &v) = &nextGaussSphere<float,IMATH_NAMESPACE::Rand32>;
+    IMATH_NAMESPACE::Vec2<double> (*nextGaussSphere4)(IMATH_NAMESPACE::Rand32 &, const IMATH_NAMESPACE::Vec2<double> &v) = &nextGaussSphere<double,IMATH_NAMESPACE::Rand32>;
     
-    Imath::Vec3<float> (*nextHollowSphere1)(Imath::Rand32 &, const Imath::Vec3<float> &v) = &nextHollowSphere<float,Imath::Rand32>;
-    Imath::Vec3<double> (*nextHollowSphere2)(Imath::Rand32 &, const Imath::Vec3<double> &v) = &nextHollowSphere<double,Imath::Rand32>;
-    Imath::Vec2<float> (*nextHollowSphere3)(Imath::Rand32 &, const Imath::Vec2<float> &v) = &nextHollowSphere<float,Imath::Rand32>;
-    Imath::Vec2<double> (*nextHollowSphere4)(Imath::Rand32 &, const Imath::Vec2<double> &v) = &nextHollowSphere<double,Imath::Rand32>;
+    IMATH_NAMESPACE::Vec3<float> (*nextHollowSphere1)(IMATH_NAMESPACE::Rand32 &, const IMATH_NAMESPACE::Vec3<float> &v) = &nextHollowSphere<float,IMATH_NAMESPACE::Rand32>;
+    IMATH_NAMESPACE::Vec3<double> (*nextHollowSphere2)(IMATH_NAMESPACE::Rand32 &, const IMATH_NAMESPACE::Vec3<double> &v) = &nextHollowSphere<double,IMATH_NAMESPACE::Rand32>;
+    IMATH_NAMESPACE::Vec2<float> (*nextHollowSphere3)(IMATH_NAMESPACE::Rand32 &, const IMATH_NAMESPACE::Vec2<float> &v) = &nextHollowSphere<float,IMATH_NAMESPACE::Rand32>;
+    IMATH_NAMESPACE::Vec2<double> (*nextHollowSphere4)(IMATH_NAMESPACE::Rand32 &, const IMATH_NAMESPACE::Vec2<double> &v) = &nextHollowSphere<double,IMATH_NAMESPACE::Rand32>;
 
-    Imath::Vec3<float> (*nextSolidSphere1)(Imath::Rand32 &, const Imath::Vec3<float> &v) = &nextSolidSphere<float,Imath::Rand32>;
-    Imath::Vec3<double> (*nextSolidSphere2)(Imath::Rand32 &, const Imath::Vec3<double> &v) = &nextSolidSphere<double,Imath::Rand32>;
-    Imath::Vec2<float> (*nextSolidSphere3)(Imath::Rand32 &, const Imath::Vec2<float> &v) = &nextSolidSphere<float,Imath::Rand32>;
-    Imath::Vec2<double> (*nextSolidSphere4)(Imath::Rand32 &, const Imath::Vec2<double> &v) = &nextSolidSphere<double,Imath::Rand32>;
+    IMATH_NAMESPACE::Vec3<float> (*nextSolidSphere1)(IMATH_NAMESPACE::Rand32 &, const IMATH_NAMESPACE::Vec3<float> &v) = &nextSolidSphere<float,IMATH_NAMESPACE::Rand32>;
+    IMATH_NAMESPACE::Vec3<double> (*nextSolidSphere2)(IMATH_NAMESPACE::Rand32 &, const IMATH_NAMESPACE::Vec3<double> &v) = &nextSolidSphere<double,IMATH_NAMESPACE::Rand32>;
+    IMATH_NAMESPACE::Vec2<float> (*nextSolidSphere3)(IMATH_NAMESPACE::Rand32 &, const IMATH_NAMESPACE::Vec2<float> &v) = &nextSolidSphere<float,IMATH_NAMESPACE::Rand32>;
+    IMATH_NAMESPACE::Vec2<double> (*nextSolidSphere4)(IMATH_NAMESPACE::Rand32 &, const IMATH_NAMESPACE::Vec2<double> &v) = &nextSolidSphere<double,IMATH_NAMESPACE::Rand32>;
     
-    class_< Imath::Rand32 > rand32_class("Rand32");
+    class_< IMATH_NAMESPACE::Rand32 > rand32_class("Rand32");
     rand32_class
         .def(init<>("default construction"))
-        .def("__init__", make_constructor(Rand_constructor1<Imath::Rand32>))
-        .def("__init__", make_constructor(Rand_constructor2<Imath::Rand32>))
-        .def("init", &Imath::Rand32::init,
+        .def("__init__", make_constructor(Rand_constructor1<IMATH_NAMESPACE::Rand32>))
+        .def("__init__", make_constructor(Rand_constructor2<IMATH_NAMESPACE::Rand32>))
+        .def("init", &IMATH_NAMESPACE::Rand32::init,
              "r.init(i) -- initialize with integer "
 			 "seed i")
              
-        .def("nexti", &Imath::Rand32::nexti,
+        .def("nexti", &IMATH_NAMESPACE::Rand32::nexti,
         	 "r.nexti() -- return the next integer "
 			 "value in the uniformly-distributed "
 			 "sequence")
@@ -184,14 +184,14 @@ register_Rand32()
         	 "r.nextf(float, float) -- return the next floating-point "
 			 "value in the uniformly-distributed "
 			 "sequence")             
-        .def("nextf", &nextf2 <Imath::Rand32, float>)
+        .def("nextf", &nextf2 <IMATH_NAMESPACE::Rand32, float>)
              
-        .def("nextb", &Imath::Rand32::nextb,
+        .def("nextb", &IMATH_NAMESPACE::Rand32::nextb,
 	 	     "r.nextb() -- return the next boolean "
 			 "value in the uniformly-distributed "
 			 "sequence")
 
-        .def("nextGauss", &nextGauss<Imath::Rand32>,
+        .def("nextGauss", &nextGauss<IMATH_NAMESPACE::Rand32>,
         	 "r.nextGauss() -- returns the next "
 			 "floating-point value in the normally "
 			 "(Gaussian) distributed sequence")
@@ -228,11 +228,11 @@ register_Rand32()
         .def("nextSolidSphere", nextSolidSphere4)    
         ;
 
-    def("hollowSphereRand",&hollowSphereRand<float,Imath::Rand32>,"hollowSphereRand(randObj,num) return XYZ vectors uniformly "
+    def("hollowSphereRand",&hollowSphereRand<float,IMATH_NAMESPACE::Rand32>,"hollowSphereRand(randObj,num) return XYZ vectors uniformly "
         "distributed across the surface of a sphere generated from the given Rand32 object",
         args("randObj","num"));
         
-    def("solidSphereRand",&solidSphereRand<float,Imath::Rand32>,"solidSphereRand(randObj,num) return XYZ vectors uniformly "
+    def("solidSphereRand",&solidSphereRand<float,IMATH_NAMESPACE::Rand32>,"solidSphereRand(randObj,num) return XYZ vectors uniformly "
         "distributed through the volume of a sphere generated from the given Rand32 object",
         args("randObj","num"));
 
@@ -241,36 +241,36 @@ register_Rand32()
     return rand32_class;
 }
 
-class_<Imath::Rand48>
+class_<IMATH_NAMESPACE::Rand48>
 register_Rand48()
 {
-    double (Imath::Rand48::*nextf1)(void) = &Imath::Rand48::nextf;
+    double (IMATH_NAMESPACE::Rand48::*nextf1)(void) = &IMATH_NAMESPACE::Rand48::nextf;
     
-    Imath::Vec3<float> (*nextGaussSphere1)(Imath::Rand48 &, const Imath::Vec3<float> &v) = &nextGaussSphere<float,Imath::Rand48>;
-    Imath::Vec3<double> (*nextGaussSphere2)(Imath::Rand48 &, const Imath::Vec3<double> &v) = &nextGaussSphere<double,Imath::Rand48>;
-    Imath::Vec2<float> (*nextGaussSphere3)(Imath::Rand48&, const Imath::Vec2<float> &v) = &nextGaussSphere<float,Imath::Rand48>;
-    Imath::Vec2<double> (*nextGaussSphere4)(Imath::Rand48 &, const Imath::Vec2<double> &v) = &nextGaussSphere<double,Imath::Rand48>;
+    IMATH_NAMESPACE::Vec3<float> (*nextGaussSphere1)(IMATH_NAMESPACE::Rand48 &, const IMATH_NAMESPACE::Vec3<float> &v) = &nextGaussSphere<float,IMATH_NAMESPACE::Rand48>;
+    IMATH_NAMESPACE::Vec3<double> (*nextGaussSphere2)(IMATH_NAMESPACE::Rand48 &, const IMATH_NAMESPACE::Vec3<double> &v) = &nextGaussSphere<double,IMATH_NAMESPACE::Rand48>;
+    IMATH_NAMESPACE::Vec2<float> (*nextGaussSphere3)(IMATH_NAMESPACE::Rand48&, const IMATH_NAMESPACE::Vec2<float> &v) = &nextGaussSphere<float,IMATH_NAMESPACE::Rand48>;
+    IMATH_NAMESPACE::Vec2<double> (*nextGaussSphere4)(IMATH_NAMESPACE::Rand48 &, const IMATH_NAMESPACE::Vec2<double> &v) = &nextGaussSphere<double,IMATH_NAMESPACE::Rand48>;
     
-    Imath::Vec3<float> (*nextHollowSphere1)(Imath::Rand48 &, const Imath::Vec3<float> &v) = &nextHollowSphere<float,Imath::Rand48>;
-    Imath::Vec3<double> (*nextHollowSphere2)(Imath::Rand48 &, const Imath::Vec3<double> &v) = &nextHollowSphere<double,Imath::Rand48>;
-    Imath::Vec2<float> (*nextHollowSphere3)(Imath::Rand48 &, const Imath::Vec2<float> &v) = &nextHollowSphere<float,Imath::Rand48>;
-    Imath::Vec2<double> (*nextHollowSphere4)(Imath::Rand48 &, const Imath::Vec2<double> &v) = &nextHollowSphere<double,Imath::Rand48>;
+    IMATH_NAMESPACE::Vec3<float> (*nextHollowSphere1)(IMATH_NAMESPACE::Rand48 &, const IMATH_NAMESPACE::Vec3<float> &v) = &nextHollowSphere<float,IMATH_NAMESPACE::Rand48>;
+    IMATH_NAMESPACE::Vec3<double> (*nextHollowSphere2)(IMATH_NAMESPACE::Rand48 &, const IMATH_NAMESPACE::Vec3<double> &v) = &nextHollowSphere<double,IMATH_NAMESPACE::Rand48>;
+    IMATH_NAMESPACE::Vec2<float> (*nextHollowSphere3)(IMATH_NAMESPACE::Rand48 &, const IMATH_NAMESPACE::Vec2<float> &v) = &nextHollowSphere<float,IMATH_NAMESPACE::Rand48>;
+    IMATH_NAMESPACE::Vec2<double> (*nextHollowSphere4)(IMATH_NAMESPACE::Rand48 &, const IMATH_NAMESPACE::Vec2<double> &v) = &nextHollowSphere<double,IMATH_NAMESPACE::Rand48>;
 
-    Imath::Vec3<float> (*nextSolidSphere1)(Imath::Rand48 &, const Imath::Vec3<float> &v) = &nextSolidSphere<float,Imath::Rand48>;
-    Imath::Vec3<double> (*nextSolidSphere2)(Imath::Rand48 &, const Imath::Vec3<double> &v) = &nextSolidSphere<double,Imath::Rand48>;
-    Imath::Vec2<float> (*nextSolidSphere3)(Imath::Rand48&, const Imath::Vec2<float> &v) = &nextSolidSphere<float,Imath::Rand48>;
-    Imath::Vec2<double> (*nextSolidSphere4)(Imath::Rand48 &, const Imath::Vec2<double> &v) = &nextSolidSphere<double,Imath::Rand48>;
+    IMATH_NAMESPACE::Vec3<float> (*nextSolidSphere1)(IMATH_NAMESPACE::Rand48 &, const IMATH_NAMESPACE::Vec3<float> &v) = &nextSolidSphere<float,IMATH_NAMESPACE::Rand48>;
+    IMATH_NAMESPACE::Vec3<double> (*nextSolidSphere2)(IMATH_NAMESPACE::Rand48 &, const IMATH_NAMESPACE::Vec3<double> &v) = &nextSolidSphere<double,IMATH_NAMESPACE::Rand48>;
+    IMATH_NAMESPACE::Vec2<float> (*nextSolidSphere3)(IMATH_NAMESPACE::Rand48&, const IMATH_NAMESPACE::Vec2<float> &v) = &nextSolidSphere<float,IMATH_NAMESPACE::Rand48>;
+    IMATH_NAMESPACE::Vec2<double> (*nextSolidSphere4)(IMATH_NAMESPACE::Rand48 &, const IMATH_NAMESPACE::Vec2<double> &v) = &nextSolidSphere<double,IMATH_NAMESPACE::Rand48>;
    
-    class_< Imath::Rand48 > rand48_class("Rand48");
+    class_< IMATH_NAMESPACE::Rand48 > rand48_class("Rand48");
     rand48_class
         .def(init<>("default construction"))
-        .def("__init__", make_constructor(Rand_constructor1<Imath::Rand48>))
-        .def("__init__", make_constructor(Rand_constructor2<Imath::Rand48>))
-        .def("init", &Imath::Rand48::init,
+        .def("__init__", make_constructor(Rand_constructor1<IMATH_NAMESPACE::Rand48>))
+        .def("__init__", make_constructor(Rand_constructor2<IMATH_NAMESPACE::Rand48>))
+        .def("init", &IMATH_NAMESPACE::Rand48::init,
              "r.init(i) -- initialize with integer "
 			 "seed i")
              
-        .def("nexti", &Imath::Rand48::nexti,
+        .def("nexti", &IMATH_NAMESPACE::Rand48::nexti,
         	 "r.nexti() -- return the next integer "
 			 "value in the uniformly-distributed "
 			 "sequence")
@@ -283,14 +283,14 @@ register_Rand48()
         	 "r.nextf(double,double) -- return the next double "
 			 "value in the uniformly-distributed "
 			 "sequence")             
-        .def("nextf", &nextf2 <Imath::Rand48, double>)
+        .def("nextf", &nextf2 <IMATH_NAMESPACE::Rand48, double>)
              
-        .def("nextb", &Imath::Rand48::nextb,
+        .def("nextb", &IMATH_NAMESPACE::Rand48::nextb,
 	 	     "r.nextb() -- return the next boolean "
 			 "value in the uniformly-distributed "
 			 "sequence")
  
-        .def("nextGauss", &nextGauss<Imath::Rand48>,
+        .def("nextGauss", &nextGauss<IMATH_NAMESPACE::Rand48>,
         	 "r.nextGauss() -- returns the next "
 			 "floating-point value in the normally "
 			 "(Gaussian) distributed sequence")
@@ -335,17 +335,17 @@ register_Rand48()
 //
 
 PyObject *
-Rand32::wrap (const Imath::Rand32 &r)
+Rand32::wrap (const IMATH_NAMESPACE::Rand32 &r)
 {
-    boost::python::return_by_value::apply <Imath::Rand32>::type converter;
+    boost::python::return_by_value::apply <IMATH_NAMESPACE::Rand32>::type converter;
     PyObject *p = converter (r);
     return p;
 }
 
 PyObject *
-Rand48::wrap (const Imath::Rand48 &r)
+Rand48::wrap (const IMATH_NAMESPACE::Rand48 &r)
 {
-    boost::python::return_by_value::apply <Imath::Rand48>::type converter;
+    boost::python::return_by_value::apply <IMATH_NAMESPACE::Rand48>::type converter;
     PyObject *p = converter (r);
     return p;
 }

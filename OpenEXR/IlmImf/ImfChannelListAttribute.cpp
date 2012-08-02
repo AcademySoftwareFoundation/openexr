@@ -42,25 +42,25 @@
 
 #include <ImfChannelListAttribute.h>
 
-
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 namespace {
 
 template <size_t N>
 void checkIsNullTerminated (const char (&str)[N], const char *what)
 {
-    for (int i = 0; i < N; ++i) {
+    for (size_t i = 0; i < N; ++i) {
         if (str[i] == '\0')
             return;
    }
     std::stringstream s;
     s << "Invalid " << what << ": it is more than " << (N - 1) 
       << " characters long.";
-    throw Iex::InputExc(s);
+    throw IEX_NAMESPACE::InputExc(s);
 }
 
 } // namespace
+
 
 template <>
 const char *
@@ -69,6 +69,7 @@ ChannelListAttribute::staticTypeName ()
     return "chlist";
 }
 
+using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 
 template <>
 void
@@ -82,7 +83,8 @@ ChannelListAttribute::writeValueTo (OStream &os, int version) const
 	// Write name
 	//
 
-	Xdr::write <StreamIO> (os, i.name());
+	Xdr::write <
+	StreamIO> (os, i.name());
 
 	//
 	// Write Channel struct
@@ -105,7 +107,9 @@ ChannelListAttribute::writeValueTo (OStream &os, int version) const
 
 template <>
 void
-ChannelListAttribute::readValueFrom (IStream &is, int size, int version)
+ChannelListAttribute::readValueFrom (IStream &is,
+                                     int size,
+                                     int version)
 {
     while (true)
     {
@@ -114,7 +118,7 @@ ChannelListAttribute::readValueFrom (IStream &is, int size, int version)
 	//
 
 	char name[Name::SIZE];
-	Xdr::read <StreamIO> (is, Name::MAX_LENGTH, name);
+	Xdr::read <StreamIO> (is,Name::MAX_LENGTH,name);
 
 	if (name[0] == 0)
 	    break;
@@ -136,10 +140,12 @@ ChannelListAttribute::readValueFrom (IStream &is, int size, int version)
 	Xdr::read <StreamIO> (is, xSampling);
 	Xdr::read <StreamIO> (is, ySampling);
 
-	_value.insert
-	    (name, Channel (PixelType (type), xSampling, ySampling, pLinear));
+	_value.insert (name, Channel (PixelType (type),
+	                              xSampling,
+	                              ySampling,
+	                              pLinear));
     }
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 

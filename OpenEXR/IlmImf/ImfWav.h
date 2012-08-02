@@ -42,8 +42,9 @@
 //	16-bit Haar Wavelet encoding and decoding
 //
 //-----------------------------------------------------------------------------
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 void
@@ -65,6 +66,10 @@ wav2Decode
      unsigned short mx); // i : maximum in[x][y] value
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif

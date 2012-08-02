@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2011, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2011-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -39,7 +39,7 @@
 //-------------------------------------------------------------------------
 //
 //      This file contains algorithms applied to or in conjunction with
-//	Frustum visibility testing (Imath::Frustum).
+//	Frustum visibility testing (IMATH_INTERNAL_NAMESPACE::Frustum).
 //
 //	Methods for frustum-based rejection of primitives are contained here.
 //
@@ -50,8 +50,9 @@
 #include "ImathSphere.h"
 #include "ImathMatrix.h"
 #include "ImathVec.h"
+#include <ImathNamespace.h>
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 /////////////////////////////////////////////////////////////////
 // FrustumTest
@@ -72,8 +73,8 @@ namespace Imath {
 // How to use this
 //
 // Given that you already have:
-//    Imath::Frustum   myFrustum
-//    IMath::Matrix44  myCameraWorldMatrix
+//    IMATH_INTERNAL_NAMESPACE::Frustum   myFrustum
+//    IMATH_INTERNAL_NAMESPACE::Matrix44  myCameraWorldMatrix
 //
 // First, make a frustum test object:
 //    FrustumTest myFrustumTest(myFrustum, myCameraWorldMatrix)
@@ -160,8 +161,8 @@ public:
     // These next items are kept primarily for debugging tools.
     // It's useful for drawing the culling environment, and also
     // for getting an "outside view" of the culling frustum.
-    Imath::Matrix44<T> cameraMat() const {return cameraMatrix;}
-    Imath::Frustum<T> currentFrustum() const {return currFrustum;}
+    IMATH_INTERNAL_NAMESPACE::Matrix44<T> cameraMat() const {return cameraMatrix;}
+    IMATH_INTERNAL_NAMESPACE::Frustum<T> currentFrustum() const {return currFrustum;}
 
 protected:
     // To understand why the planes are stored this way, see
@@ -210,15 +211,15 @@ void FrustumTest<T>::setFrustum(Frustum<T> &frustum,
                                     frustumPlanes[index + 1].normal.z,
                                     frustumPlanes[index + 2].normal.z);
 
-        planeNormAbsX[i]  = Vec3<T>(Imath::abs(planeNormX[i].x),
-                                    Imath::abs(planeNormX[i].y), 
-                                    Imath::abs(planeNormX[i].z));
-        planeNormAbsY[i]  = Vec3<T>(Imath::abs(planeNormY[i].x), 
-                                    Imath::abs(planeNormY[i].y),
-                                    Imath::abs(planeNormY[i].z));
-        planeNormAbsZ[i]  = Vec3<T>(Imath::abs(planeNormZ[i].x), 
-                                    Imath::abs(planeNormZ[i].y),
-                                    Imath::abs(planeNormZ[i].z));
+        planeNormAbsX[i]  = Vec3<T>(IMATH_INTERNAL_NAMESPACE::abs(planeNormX[i].x),
+                                    IMATH_INTERNAL_NAMESPACE::abs(planeNormX[i].y), 
+                                    IMATH_INTERNAL_NAMESPACE::abs(planeNormX[i].z));
+        planeNormAbsY[i]  = Vec3<T>(IMATH_INTERNAL_NAMESPACE::abs(planeNormY[i].x), 
+                                    IMATH_INTERNAL_NAMESPACE::abs(planeNormY[i].y),
+                                    IMATH_INTERNAL_NAMESPACE::abs(planeNormY[i].z));
+        planeNormAbsZ[i]  = Vec3<T>(IMATH_INTERNAL_NAMESPACE::abs(planeNormZ[i].x), 
+                                    IMATH_INTERNAL_NAMESPACE::abs(planeNormZ[i].y),
+                                    IMATH_INTERNAL_NAMESPACE::abs(planeNormZ[i].z));
 
         planeOffsetVec[i] = Vec3<T>(frustumPlanes[index + 0].distance,
                                     frustumPlanes[index + 1].distance,
@@ -405,6 +406,6 @@ bool FrustumTest<T>::isVisible(const Vec3<T> &vec) const
 typedef FrustumTest<float>	FrustumTestf;
 typedef FrustumTest<double> FrustumTestd;
 
-} //namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif
+#endif // INCLUDED_IMATHFRUSTUMTEST_H

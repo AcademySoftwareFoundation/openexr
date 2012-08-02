@@ -49,8 +49,9 @@
 //		not a number (NaN)	for n == 0, d == 0
 //
 //-----------------------------------------------------------------------------
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class Rational
 {
@@ -88,6 +89,10 @@ class Rational
     operator double () const {return double (n) / double (d);}
 };
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif

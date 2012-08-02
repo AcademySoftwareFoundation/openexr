@@ -17,7 +17,9 @@
 //
 //---------------------------------------------------------------------------
 
-namespace Iex {
+#include <IexNamespace.h>
+
+IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 enum IeeeExcType
@@ -30,6 +32,6 @@ enum IeeeExcType
 };
 
 
-} // namespace Iex
+IEX_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

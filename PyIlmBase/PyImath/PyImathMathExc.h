@@ -37,8 +37,8 @@
 
 #include <IexMathFloatExc.h>
 
-#define MATH_EXC_ON Iex::MathExcOn mathexcon (Iex::IEEE_OVERFLOW | \
-                                              Iex::IEEE_DIVZERO |  \
-                                              Iex::IEEE_INVALID)
+#define MATH_EXC_ON IEX_NAMESPACE::MathExcOn mathexcon (IEX_NAMESPACE::IEEE_OVERFLOW | \
+                                              IEX_NAMESPACE::IEEE_DIVZERO |  \
+                                              IEX_NAMESPACE::IEEE_INVALID)
 
 #endif

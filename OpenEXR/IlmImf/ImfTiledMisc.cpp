@@ -43,19 +43,21 @@
 #include "Iex.h"
 #include <ImfMisc.h>
 #include <ImfChannelList.h>
+#include <ImfTileDescription.h>
 
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using Imath::Box2i;
-using Imath::V2i;
+using IMATH_NAMESPACE::Box2i;
+using IMATH_NAMESPACE::V2i;
 
 
 int
 levelSize (int min, int max, int l, LevelRoundingMode rmode)
 {
     if (l < 0)
-	throw Iex::ArgExc ("Argument not in valid range.");
+	throw IEX_NAMESPACE::ArgExc ("Argument not in valid range.");
 
     int a = max - min + 1;
     int b = (1 << l);
@@ -121,6 +123,40 @@ calculateBytesPerPixel (const Header &header)
     }
 
     return bytesPerPixel;
+}
+
+
+void
+calculateBytesPerLine (const Header &header,
+                       char* sampleCountBase,
+                       int sampleCountXStride,
+                       int sampleCountYStride,
+                       int minX, int maxX,
+                       int minY, int maxY,
+                       std::vector<int>& xOffsets,
+                       std::vector<int>& yOffsets,
+                       std::vector<Int64>& bytesPerLine)
+{
+    const ChannelList &channels = header.channels();
+
+    int pos = 0;
+    for (ChannelList::ConstIterator c = channels.begin();
+         c != channels.end();
+         ++c, ++pos)
+    {
+        int xOffset = xOffsets[pos];
+        int yOffset = yOffsets[pos];
+        int i = 0;
+        for (int y = minY - yOffset; y <= maxY - yOffset; y++, i++)
+            for (int x = minX - xOffset; x <= maxX - xOffset; x++)
+            {
+                bytesPerLine[i] += sampleCount(sampleCountBase,
+                                               sampleCountXStride,
+                                               sampleCountYStride,
+                                               x, y)
+                                   * pixelTypeSize (c.channel().type);
+            }
+    }
 }
 
 
@@ -208,7 +244,7 @@ calculateNumXLevels (const TileDescription& tileDesc,
 
       default:
 
-	throw Iex::ArgExc ("Unknown LevelMode format.");
+	throw IEX_NAMESPACE::ArgExc ("Unknown LevelMode format.");
     }
 
     return num;
@@ -248,7 +284,7 @@ calculateNumYLevels (const TileDescription& tileDesc,
 
       default:
 
-	throw Iex::ArgExc ("Unknown LevelMode format.");
+	throw IEX_NAMESPACE::ArgExc ("Unknown LevelMode format.");
     }
 
     return num;
@@ -298,4 +334,55 @@ precalculateTileInfo (const TileDescription& tileDesc,
 }
 
 
-} // namespace Imf
+int
+getTiledChunkOffsetTableSize(const Header& header)
+{
+    //
+    // Save the dataWindow information
+    //
+
+    const Box2i &dataWindow = header.dataWindow();
+    
+    //
+    // Precompute level and tile information.
+    //
+
+    int* numXTiles;
+    int* numYTiles;
+    int numXLevels;
+    int numYLevels;
+    precalculateTileInfo (header.tileDescription(),
+                          dataWindow.min.x, dataWindow.max.x,
+                          dataWindow.min.y, dataWindow.max.y,
+                          numXTiles, numYTiles,
+                          numXLevels, numYLevels);
+
+    //
+    // Calculate lineOffsetSize.
+    //
+    int lineOffsetSize = 0;
+    const TileDescription &desc = header.tileDescription();
+    switch (desc.mode)
+    {
+        case ONE_LEVEL:
+        case MIPMAP_LEVELS:
+            for (int i = 0; i < numXLevels; i++)
+                lineOffsetSize += numXTiles[i] * numYTiles[i];
+            break;
+        case RIPMAP_LEVELS:
+            for (int i = 0; i < numXLevels; i++)
+                for (int j = 0; j < numYLevels; j++)
+                    lineOffsetSize += numXTiles[i] * numYTiles[j];
+            break;
+        case NUM_LEVELMODES :
+            throw IEX_NAMESPACE::LogicExc("Bad level mode getting chunk offset table size");
+    }
+
+    delete[] numXTiles;
+    delete[] numYTiles;
+
+    return lineOffsetSize;
+}
+
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

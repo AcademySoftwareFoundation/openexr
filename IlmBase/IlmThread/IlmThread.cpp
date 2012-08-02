@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2005, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -46,7 +46,7 @@
 #include "IlmThread.h"
 #include "Iex.h"
 
-namespace IlmThread {
+ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 bool
@@ -58,23 +58,23 @@ supportsThreads ()
 
 Thread::Thread ()
 {
-    throw Iex::NoImplExc ("Threads not supported on this platform.");
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
 }
 
 
 Thread::~Thread ()
 {
-    throw Iex::NoImplExc ("Threads not supported on this platform.");
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
 }
 
 
 void
 Thread::start ()
 {
-    throw Iex::NoImplExc ("Threads not supported on this platform.");
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
 }
 
 
-} // namespace IlmThread
+ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
 #endif

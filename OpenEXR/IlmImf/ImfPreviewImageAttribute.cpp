@@ -42,8 +42,9 @@
 #include <ImfPreviewImageAttribute.h>
 
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
+using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 
 template <>
 const char *
@@ -55,7 +56,7 @@ PreviewImageAttribute::staticTypeName ()
 
 template <>
 void
-PreviewImageAttribute::writeValueTo (OStream &os, int version) const
+PreviewImageAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value.width());
     Xdr::write <StreamIO> (os, _value.height());
@@ -75,7 +76,7 @@ PreviewImageAttribute::writeValueTo (OStream &os, int version) const
 
 template <>
 void
-PreviewImageAttribute::readValueFrom (IStream &is, int size, int version)
+PreviewImageAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
     int width, height;
 
@@ -99,4 +100,4 @@ PreviewImageAttribute::readValueFrom (IStream &is, int size, int version)
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 

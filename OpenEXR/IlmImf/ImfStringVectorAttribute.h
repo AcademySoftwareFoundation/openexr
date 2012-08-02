@@ -42,25 +42,27 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfAttribute.h>
+#include "ImfAttribute.h"
 #include <string>
 #include <vector>
 
 
-namespace Imf {
+#include "ImfNamespace.h"
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 typedef std::vector<std::string> StringVector;
-typedef TypedAttribute<StringVector> StringVectorAttribute;
+
+
+typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::StringVector> StringVectorAttribute;
 template <> const char *StringVectorAttribute::staticTypeName ();
-template <> void StringVectorAttribute::writeValueTo (OStream &, int) const;
-template <> void StringVectorAttribute::readValueFrom (IStream &, int, int);
+template <> void StringVectorAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
+template <> void StringVectorAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
-// Metrowerks compiler wants the .cpp file inlined, too
-#ifdef __MWERKS__
-#include <ImfStringVectorAttribute.cpp>
-#endif
+
+
 
 #endif

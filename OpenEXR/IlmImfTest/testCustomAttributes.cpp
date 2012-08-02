@@ -42,20 +42,24 @@
 #include <ImfIntAttribute.h>
 #include <ImfOpaqueAttribute.h>
 #include <ImfArray.h>
-#include "half.h"
+#include <half.h>
 
 #include <stdio.h>
 #include <assert.h>
 
-using namespace std;
-using namespace Imath;
-using namespace Imf;
 
-namespace Imf {
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
+using namespace std;
+using namespace IMATH_NAMESPACE;
+
 
 //
 // Definition of the custom GlorpAttribute type.
+// Note that this must be in the same namespace as the definition
 //
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 struct Glorp
 {
@@ -94,10 +98,11 @@ GlorpAttribute::readValueFrom (IStream &is, int size, int version)
     Xdr::read <StreamIO> (is, _value.b);
 }
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
 
 
 namespace {
+
 
 void
 fillPixels (Array2D<float> &pf, int width, int height)

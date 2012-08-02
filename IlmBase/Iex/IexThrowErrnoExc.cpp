@@ -46,11 +46,20 @@
 #include <string.h>
 #include <errno.h>
 
-namespace Iex {
+#ifdef PLATFORM_WINDOWS
+#include <windows.h>
+#endif
+
+IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 void throwErrnoExc (const std::string &text, int errnum)
 {
+#ifdef PLATFORM_WINDOWS
+    if (0 != getenv("IEXDEBUGTHROW"))
+        DebugBreak();
+#endif
+
     const char *entext = strerror (errnum);
     std::string tmp (text);
     std::string::size_type pos;
@@ -856,4 +865,4 @@ void throwErrnoExc (const std::string &text)
 }
 
 
-} // namespace Iex
+IEX_INTERNAL_NAMESPACE_SOURCE_EXIT

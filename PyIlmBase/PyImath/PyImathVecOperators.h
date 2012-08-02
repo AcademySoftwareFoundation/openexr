@@ -64,12 +64,12 @@ struct op_vecNormalized {
 
 template <class T>
 struct op_vec3Cross {
-    static inline Imath::Vec3<T> apply(const Imath::Vec3<T> &a, const Imath::Vec3<T> &b) { return a.cross(b); }
+    static inline IMATH_NAMESPACE::Vec3<T> apply(const IMATH_NAMESPACE::Vec3<T> &a, const IMATH_NAMESPACE::Vec3<T> &b) { return a.cross(b); }
 };
 
 template <class T>
 struct op_vec2Cross {
-    static inline T apply(const Imath::Vec2<T> &a, const Imath::Vec2<T> &b) { return a.cross(b); }
+    static inline T apply(const IMATH_NAMESPACE::Vec2<T> &a, const IMATH_NAMESPACE::Vec2<T> &b) { return a.cross(b); }
 };
 
 }  // namespace PyImath

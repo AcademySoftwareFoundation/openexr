@@ -44,14 +44,15 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfName.h>
-#include <ImfPixelType.h>
+#include "ImfName.h"
+#include "ImfPixelType.h"
 #include <map>
 #include <set>
 #include <string>
 
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 struct Channel
@@ -129,7 +130,7 @@ class ChannelList
     // Access to existing channels:
     //
     // [n]		Returns a reference to the channel with name n.
-    //			If no channel with name n exists, an Iex::ArgExc
+    //			If no channel with name n exists, an IEX_NAMESPACE::ArgExc
     //			is thrown.
     //
     // findChannel(n)	Returns a pointer to the channel with name n,
@@ -428,6 +429,10 @@ operator != (const ChannelList::ConstIterator &x,
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif

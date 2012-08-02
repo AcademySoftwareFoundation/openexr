@@ -34,12 +34,13 @@
 
 
 
-#include <rgbaInterfaceExamples.h>
-#include <rgbaInterfaceTiledExamples.h>
-#include <generalInterfaceExamples.h>
-#include <generalInterfaceTiledExamples.h>
-#include <lowLevelIoExamples.h>
-#include <previewImageExamples.h>
+#include "rgbaInterfaceExamples.h"
+#include "rgbaInterfaceTiledExamples.h"
+#include "generalInterfaceExamples.h"
+#include "generalInterfaceTiledExamples.h"
+#include "lowLevelIoExamples.h"
+#include "previewImageExamples.h"
+
 #include <iostream>
 #include <stdexcept>
 

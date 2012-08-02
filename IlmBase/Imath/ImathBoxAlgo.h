@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002-2010, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -41,7 +41,7 @@
 //---------------------------------------------------------------------------
 //
 //	This file contains algorithms applied to or in conjunction
-//	with bounding boxes (Imath::Box). These algorithms require
+//	with bounding boxes (IMATH_INTERNAL_NAMESPACE::Box). These algorithms require
 //	more headers to compile. The assumption made is that these
 //	functions are called much less often than the basic box
 //	functions or these functions require more support classes.
@@ -79,8 +79,9 @@
 #include "ImathMatrix.h"
 #include "ImathLineAlgo.h"
 #include "ImathPlane.h"
+#include <ImathNamespace.h>
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 template <class T>
@@ -1010,6 +1011,6 @@ intersects (const Box< Vec3<T> > &box, const Line3<T> &ray)
 }
 
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif
+#endif // INCLUDED_IMATHBOXALGO_H

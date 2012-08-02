@@ -42,15 +42,15 @@ template <> const char *PyImath::V4sArray::name() { return "V4sArray"; }
 template <> const char *PyImath::V4iArray::name() { return "V4iArray"; }
 
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 template<> const char *Vec4Name<unsigned char>::value() { return "V4c"; }
 template<> const char *Vec4Name<short>::value() { return "V4s"; }
 template<> const char *Vec4Name<int>::value() { return "V4i"; }
 
-template PYIMATH_EXPORT class_<Imath::Vec4<unsigned char> > register_Vec4<unsigned char>();
-template PYIMATH_EXPORT class_<Imath::Vec4<short> > register_Vec4<short>();
-template PYIMATH_EXPORT class_<Imath::Vec4<int> > register_Vec4<int>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Vec4<unsigned char> > register_Vec4<unsigned char>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Vec4<short> > register_Vec4<short>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Vec4<int> > register_Vec4<int>();
 
 }
 

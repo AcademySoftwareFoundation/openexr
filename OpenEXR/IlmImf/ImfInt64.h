@@ -42,11 +42,15 @@
 //----------------------------------------------------------------------------
 
 #include "ImathInt64.h"
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-using Imath::Int64;
+using IMATH_NAMESPACE::Int64;
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif
+
+
+
+#endif // INCLUDED_IMF_INT64_H

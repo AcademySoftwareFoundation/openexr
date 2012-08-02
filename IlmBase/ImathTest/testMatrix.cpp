@@ -47,7 +47,7 @@
 
 
 using namespace std;
-using Imath::Int64;
+using IMATH_INTERNAL_NAMESPACE::Int64;
 
 
 //
@@ -72,23 +72,23 @@ testMatrix ()
     nand.i = 0x7ff0000000000001ULL; //  NAN
 
     {
-	cout << "Imath::M33f shear functions" << endl;
+	cout << "IMATH_INTERNAL_NAMESPACE::M33f shear functions" << endl;
 
-	Imath::M33f m1, m2;
+	IMATH_INTERNAL_NAMESPACE::M33f m1, m2;
 	m1.setShear (2.0f);
 	assert
 	   (m1[0][0] == 1.0f  &&  m1[0][1] == 0.0f  &&  m1[0][2] == 0.0f  &&
 	    m1[1][0] == 2.0f  &&  m1[1][1] == 1.0f  &&  m1[1][2] == 0.0f  &&
 	    m1[2][0] == 0.0f  &&  m1[2][1] == 0.0f  &&  m1[2][2] == 1.0f);
 
-	m2.setShear (Imath::V2f (3.0f, 4.0f));
+	m2.setShear (IMATH_INTERNAL_NAMESPACE::V2f (3.0f, 4.0f));
 	assert
 	   (m2[0][0] == 1.0f  &&  m2[0][1] == 4.0f  &&  m2[0][2] == 0.0f  &&
 	    m2[1][0] == 3.0f  &&  m2[1][1] == 1.0f  &&  m2[1][2] == 0.0f  &&
 	    m2[2][0] == 0.0f  &&  m2[2][1] == 0.0f  &&  m2[2][2] == 1.0f);
 
 
-	m1.shear (Imath::V2f (5.0f, 6.0f));
+	m1.shear (IMATH_INTERNAL_NAMESPACE::V2f (5.0f, 6.0f));
 	assert
 	   (m1[0][0] == 13.0f  &&  m1[0][1] == 6.0f  &&  m1[0][2] == 0.0f  &&
 	    m1[1][0] ==  7.0f  &&  m1[1][1] == 1.0f  &&  m1[1][2] == 0.0f  &&
@@ -102,13 +102,13 @@ testMatrix ()
 
 	cout << "M33f constructors and equality operators" << endl;
 
-	Imath::M33f test(m2);
+	IMATH_INTERNAL_NAMESPACE::M33f test(m2);
 	assert(test == m2);
 
-	Imath::M33f test2;
+	IMATH_INTERNAL_NAMESPACE::M33f test2;
 	assert(test != test2);
 
-	Imath::M33f test3;
+	IMATH_INTERNAL_NAMESPACE::M33f test3;
 	test3.makeIdentity();
 	assert(test2 == test3);
     }
@@ -116,25 +116,25 @@ testMatrix ()
     {
 	cout << "M33d constructors and equality operators" << endl;
 
-	Imath::M33d m2;
+	IMATH_INTERNAL_NAMESPACE::M33d m2;
 	m2[0][0] = 99.0f;
 	m2[1][2] = 101.0f;
 
-	Imath::M33d test(m2);
+	IMATH_INTERNAL_NAMESPACE::M33d test(m2);
 	assert(test == m2);
 
-	Imath::M33d test2;
+	IMATH_INTERNAL_NAMESPACE::M33d test2;
 	assert(test != test2);
 
-	Imath::M33d test3;
+	IMATH_INTERNAL_NAMESPACE::M33d test3;
 	test3.makeIdentity();
 	assert(test2 == test3);
 
-        Imath::M33f test4 (1.0f, 2.0f, 3.0f,
+        IMATH_INTERNAL_NAMESPACE::M33f test4 (1.0f, 2.0f, 3.0f,
                            4.0f, 5.0f, 6.0f,
                            7.0f, 8.0f, 9.0f);
 
-        Imath::M33d test5 = Imath::M33d (test4);
+        IMATH_INTERNAL_NAMESPACE::M33d test5 = IMATH_INTERNAL_NAMESPACE::M33d (test4);
 
         assert (test5[0][0] == 1.0);
         assert (test5[0][1] == 2.0);
@@ -150,19 +150,19 @@ testMatrix ()
     }
 
     {
-	Imath::M44f m2;
+	IMATH_INTERNAL_NAMESPACE::M44f m2;
 	m2[0][0] = 99.0f;
 	m2[1][2] = 101.0f;
 
 	cout << "M44f constructors and equality operators" << endl;
 
-	Imath::M44f test(m2);
+	IMATH_INTERNAL_NAMESPACE::M44f test(m2);
 	assert(test == m2);
 
-	Imath::M44f test2;
+	IMATH_INTERNAL_NAMESPACE::M44f test2;
 	assert(test != test2);
 
-	Imath::M44f test3;
+	IMATH_INTERNAL_NAMESPACE::M44f test3;
 	test3.makeIdentity();
 	assert(test2 == test3);
 
@@ -177,19 +177,19 @@ testMatrix ()
     }
 
     {
-	Imath::M44d m2;
+	IMATH_INTERNAL_NAMESPACE::M44d m2;
 	m2[0][0] = 99.0f;
 	m2[1][2] = 101.0f;
 
 	cout << "M44d constructors and equality operators" << endl;
 
-	Imath::M44d test(m2);
+	IMATH_INTERNAL_NAMESPACE::M44d test(m2);
 	assert(test == m2);
 
-	Imath::M44d test2;
+	IMATH_INTERNAL_NAMESPACE::M44d test2;
 	assert(test != test2);
 
-	Imath::M44d test3;
+	IMATH_INTERNAL_NAMESPACE::M44d test3;
 	test3.makeIdentity();
 	assert(test2 == test3);
 
@@ -202,12 +202,12 @@ testMatrix ()
 	test3 = test2;
 	assert(test2 != test3);
 
-        Imath::M44f test4 ( 1.0f,  2.0f,  3.0f,  4.0f,
+        IMATH_INTERNAL_NAMESPACE::M44f test4 ( 1.0f,  2.0f,  3.0f,  4.0f,
                             5.0f,  6.0f,  7.0f,  8.0f,
                             9.0f, 10.0f, 11.0f, 12.0f,
                            13.0f, 14.0f, 15.0f, 16.0f);
 
-        Imath::M44d test5 = Imath::M44d (test4);
+        IMATH_INTERNAL_NAMESPACE::M44d test5 = IMATH_INTERNAL_NAMESPACE::M44d (test4);
 
         assert (test5[0][0] ==  1.0);
         assert (test5[0][1] ==  2.0);
@@ -233,9 +233,9 @@ testMatrix ()
     {
 	cout << "Converting between M33 and M44" << endl;
 
-	Imath::M44d m1;
+	IMATH_INTERNAL_NAMESPACE::M44d m1;
 	m1[0][0] = 99;
-	Imath::M44f m2;
+	IMATH_INTERNAL_NAMESPACE::M44f m2;
 	m2.setValue(m1);
 	assert(m2[0][0] == (float)m1[0][0]);
 	m1[0][0] = 101;
@@ -247,7 +247,7 @@ testMatrix ()
     {
         cout << "3x3 Matrix minors" << endl;
 
-        Imath::M33f a(1,2,3,4,5,6,7,8,9);
+        IMATH_INTERNAL_NAMESPACE::M33f a(1,2,3,4,5,6,7,8,9);
 
         assert (a.minorOf(0,0) == a.fastMinor(1,2,1,2));
         assert (a.minorOf(0,1) == a.fastMinor(1,2,0,2));
@@ -260,7 +260,7 @@ testMatrix ()
         assert (a.minorOf(2,2) == a.fastMinor(0,1,0,1));
     }
     {
-        Imath::M33d a(1,2,3,4,5,6,7,8,9);
+        IMATH_INTERNAL_NAMESPACE::M33d a(1,2,3,4,5,6,7,8,9);
 
         assert (a.minorOf(0,0) == a.fastMinor(1,2,1,2));
         assert (a.minorOf(0,1) == a.fastMinor(1,2,0,2));
@@ -277,11 +277,11 @@ testMatrix ()
     {
         cout << "3x3 determinant" << endl;
 
-        Imath::Rand32 random;
+        IMATH_INTERNAL_NAMESPACE::Rand32 random;
 
-        Imath::M33f u;
-        Imath::M33f v;
-        Imath::M33f s;
+        IMATH_INTERNAL_NAMESPACE::M33f u;
+        IMATH_INTERNAL_NAMESPACE::M33f v;
+        IMATH_INTERNAL_NAMESPACE::M33f s;
 
         u.setRotation( random.nextf() );
         v.setRotation( random.nextf() );
@@ -289,15 +289,15 @@ testMatrix ()
         s[1][1] = random.nextf();
         s[2][2] = random.nextf();
 
-        Imath::M33f c = u * s * v.transpose();
+        IMATH_INTERNAL_NAMESPACE::M33f c = u * s * v.transpose();
         assert (fabsf(c.determinant() - s[0][0]*s[1][1]*s[2][2]) <= u.baseTypeEpsilon());
     }
     {
-        Imath::Rand32 random;
+        IMATH_INTERNAL_NAMESPACE::Rand32 random;
 
-        Imath::M33d u;
-        Imath::M33d v;
-        Imath::M33d s;
+        IMATH_INTERNAL_NAMESPACE::M33d u;
+        IMATH_INTERNAL_NAMESPACE::M33d v;
+        IMATH_INTERNAL_NAMESPACE::M33d s;
 
         u.setRotation( (double)random.nextf() );
         v.setRotation( (double)random.nextf() );
@@ -305,7 +305,7 @@ testMatrix ()
         s[1][1] = (double)random.nextf();
         s[2][2] = (double)random.nextf();
 
-        Imath::M33d c = u * s * v.transpose();
+        IMATH_INTERNAL_NAMESPACE::M33d c = u * s * v.transpose();
         assert (fabs(c.determinant() - s[0][0]*s[1][1]*s[2][2]) <= u.baseTypeEpsilon());
     }
 
@@ -313,9 +313,9 @@ testMatrix ()
     {
         cout << "Outer product of two 3D vectors" << endl;
 
-        Imath::V3f a(1,2,3);
-        Imath::V3f b(4,5,6);
-        Imath::M33f  p = Imath::outerProduct(a,b);
+        IMATH_INTERNAL_NAMESPACE::V3f a(1,2,3);
+        IMATH_INTERNAL_NAMESPACE::V3f b(4,5,6);
+        IMATH_INTERNAL_NAMESPACE::M33f  p = IMATH_INTERNAL_NAMESPACE::outerProduct(a,b);
 
         for (int i=0; i<3; i++ )
         {
@@ -326,9 +326,9 @@ testMatrix ()
         }
     }
     {
-        Imath::V3d a(1,2,3);
-        Imath::V3d b(4,5,6);
-        Imath::M33d  p = Imath::outerProduct(a,b);
+        IMATH_INTERNAL_NAMESPACE::V3d a(1,2,3);
+        IMATH_INTERNAL_NAMESPACE::V3d b(4,5,6);
+        IMATH_INTERNAL_NAMESPACE::M33d  p = IMATH_INTERNAL_NAMESPACE::outerProduct(a,b);
 
         for (int i=0; i<3; i++ )
         {
@@ -344,41 +344,41 @@ testMatrix ()
     {
         cout << "4x4 determinants" << endl;
 
-        Imath::Rand32 random;
+        IMATH_INTERNAL_NAMESPACE::Rand32 random;
 
-        Imath::M44f u = Imath::rotationMatrix
-            ( Imath::V3f(random.nextf(),random.nextf(),random.nextf()).normalize(),
-              Imath::V3f(random.nextf(),random.nextf(),random.nextf()).normalize() );
-        Imath::M44f v = Imath::rotationMatrix
-            ( Imath::V3f(random.nextf(),random.nextf(),random.nextf()).normalize(),
-              Imath::V3f(random.nextf(),random.nextf(),random.nextf()).normalize() );
-        Imath::M44f s;
+        IMATH_INTERNAL_NAMESPACE::M44f u = IMATH_INTERNAL_NAMESPACE::rotationMatrix
+            ( IMATH_INTERNAL_NAMESPACE::V3f(random.nextf(),random.nextf(),random.nextf()).normalize(),
+              IMATH_INTERNAL_NAMESPACE::V3f(random.nextf(),random.nextf(),random.nextf()).normalize() );
+        IMATH_INTERNAL_NAMESPACE::M44f v = IMATH_INTERNAL_NAMESPACE::rotationMatrix
+            ( IMATH_INTERNAL_NAMESPACE::V3f(random.nextf(),random.nextf(),random.nextf()).normalize(),
+              IMATH_INTERNAL_NAMESPACE::V3f(random.nextf(),random.nextf(),random.nextf()).normalize() );
+        IMATH_INTERNAL_NAMESPACE::M44f s;
 
         s[0][0] = random.nextf();
         s[1][1] = random.nextf();
         s[2][2] = random.nextf();
         s[3][3] = random.nextf();
 
-        Imath::M44f c = u * s * v.transpose();
+        IMATH_INTERNAL_NAMESPACE::M44f c = u * s * v.transpose();
         assert (fabsf(c.determinant() - s[0][0]*s[1][1]*s[2][2]*s[3][3]) <= u.baseTypeEpsilon());
     }
     {
-        Imath::Rand32 random;
+        IMATH_INTERNAL_NAMESPACE::Rand32 random;
 
-        Imath::M44d u = Imath::rotationMatrix
-            ( Imath::V3d(random.nextf(),random.nextf(),random.nextf()).normalize(),
-              Imath::V3d(random.nextf(),random.nextf(),random.nextf()).normalize() );
-        Imath::M44d v = Imath::rotationMatrix
-            ( Imath::V3d(random.nextf(),random.nextf(),random.nextf()).normalize(),
-              Imath::V3d(random.nextf(),random.nextf(),random.nextf()).normalize() );
-        Imath::M44d s;
+        IMATH_INTERNAL_NAMESPACE::M44d u = IMATH_INTERNAL_NAMESPACE::rotationMatrix
+            ( IMATH_INTERNAL_NAMESPACE::V3d(random.nextf(),random.nextf(),random.nextf()).normalize(),
+              IMATH_INTERNAL_NAMESPACE::V3d(random.nextf(),random.nextf(),random.nextf()).normalize() );
+        IMATH_INTERNAL_NAMESPACE::M44d v = IMATH_INTERNAL_NAMESPACE::rotationMatrix
+            ( IMATH_INTERNAL_NAMESPACE::V3d(random.nextf(),random.nextf(),random.nextf()).normalize(),
+              IMATH_INTERNAL_NAMESPACE::V3d(random.nextf(),random.nextf(),random.nextf()).normalize() );
+        IMATH_INTERNAL_NAMESPACE::M44d s;
 
         s[0][0] = random.nextf();
         s[1][1] = random.nextf();
         s[2][2] = random.nextf();
         s[3][3] = random.nextf();
 
-        Imath::M44d c = u * s * v.transpose();
+        IMATH_INTERNAL_NAMESPACE::M44d c = u * s * v.transpose();
         assert (fabs(c.determinant() - s[0][0]*s[1][1]*s[2][2]*s[3][3]) <= u.baseTypeEpsilon());
     }
 
@@ -386,7 +386,7 @@ testMatrix ()
     {
         cout << "4x4 matrix minors" << endl;
 
-        Imath::M44d a(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16);
+        IMATH_INTERNAL_NAMESPACE::M44d a(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16);
 
         assert (a.minorOf(0,0) == a.fastMinor(1,2,3,1,2,3));
         assert (a.minorOf(0,1) == a.fastMinor(1,2,3,0,2,3));
@@ -406,7 +406,7 @@ testMatrix ()
         assert (a.minorOf(3,3) == a.fastMinor(0,1,2,0,1,2));
     }
     {
-        Imath::M44f a(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16);
+        IMATH_INTERNAL_NAMESPACE::M44f a(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16);
 
         assert (a.minorOf(0,0) == a.fastMinor(1,2,3,1,2,3));
         assert (a.minorOf(0,1) == a.fastMinor(1,2,3,0,2,3));
@@ -432,12 +432,12 @@ testMatrix ()
     // and ignores __restrict.
     {
         cout << "M44 multiplicaftion test" << endl;
-        Imath::M44f M ( 1.0f,  2.0f,  3.0f,  4.0f,
+        IMATH_INTERNAL_NAMESPACE::M44f M ( 1.0f,  2.0f,  3.0f,  4.0f,
                         5.0f,  6.0f,  7.0f,  8.0f,
                         9.0f, 10.0f, 11.0f, 12.0f,
                         13.0f, 14.0f, 15.0f, 16.0f);
 
-        Imath::M44f N; N.makeIdentity();
+        IMATH_INTERNAL_NAMESPACE::M44f N; N.makeIdentity();
 
         // N should be equal to M
         // This typical test fails

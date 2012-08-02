@@ -44,30 +44,32 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfAttribute.h>
+#include "ImfForward.h"
+
+#include "ImfAttribute.h"
 #include "ImathBox.h"
+#include "ImfNamespace.h"
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-namespace Imf {
+typedef TypedAttribute<IMATH_NAMESPACE::Box2i> Box2iAttribute;
 
-
-typedef TypedAttribute<Imath::Box2i> Box2iAttribute;
 template <> const char *Box2iAttribute::staticTypeName ();
-template <> void Box2iAttribute::writeValueTo (OStream &, int) const;
-template <> void Box2iAttribute::readValueFrom (IStream &, int, int);
+template <> void Box2iAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
+template <> void Box2iAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-typedef TypedAttribute<Imath::Box2f> Box2fAttribute;
+typedef TypedAttribute<IMATH_NAMESPACE::Box2f> Box2fAttribute;
 template <> const char *Box2fAttribute::staticTypeName ();
-template <> void Box2fAttribute::writeValueTo (OStream &, int) const;
-template <> void Box2fAttribute::readValueFrom (IStream &, int, int);
+template <> void Box2fAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
+template <> void Box2fAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
-// Metrowerks compiler wants the .cpp file inlined, too
-#ifdef __MWERKS__
-#include <ImfBoxAttribute.cpp>
-#endif
+
+
+
 
 #endif

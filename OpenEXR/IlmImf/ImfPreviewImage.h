@@ -44,8 +44,9 @@
 //	struct PreviewRgba -- holds the value of a PreviewImage pixel.
 //
 //-----------------------------------------------------------------------------
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 struct PreviewRgba
@@ -126,6 +127,10 @@ class PreviewImage
 };
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif

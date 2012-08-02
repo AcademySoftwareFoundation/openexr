@@ -46,8 +46,9 @@
 
 
 #include <ImfWav.h>
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 namespace {
 
 
@@ -387,4 +388,4 @@ wav2Decode
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

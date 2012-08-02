@@ -1,3 +1,12 @@
+Version 2.0.0.beta.1:
+* Please read the separate file for v2 additions and changes.
+	* Added git specific files 
+	  (Piotr Stanczyk)
+        * Updated the so verison to 20
+	  (Piotr Stanczyk)
+	* Initial use of the CMake build system 
+	  (Nicholas Yue)
+
 Version 1.7.1:
         * Updated the .so verison to 7.
 	  (Piotr Stanczyk)     

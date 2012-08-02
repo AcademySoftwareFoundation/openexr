@@ -47,10 +47,11 @@
 #include <ImfPxr24Compressor.h>
 #include <ImfB44Compressor.h>
 #include <ImfCheckedArithmetic.h>
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using Imath::Box2i;
+using IMATH_NAMESPACE::Box2i;
 
 
 Compressor::Compressor (const Header &hdr): _header (hdr) {}
@@ -106,6 +107,19 @@ isValidCompression (Compression c)
 
 	return false;
     }
+}
+
+bool isValidDeepCompression(Compression c)
+{
+  switch(c)
+  {
+      case NO_COMPRESSION:
+      case RLE_COMPRESSION:
+      case ZIPS_COMPRESSION:
+          return true;
+      default :
+          return false;
+  }
 }
 
 
@@ -189,4 +203,5 @@ newTileCompressor (Compression c,
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
+

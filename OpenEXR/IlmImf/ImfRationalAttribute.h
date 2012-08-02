@@ -41,30 +41,26 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfAttribute.h>
-#include <ImfRational.h>
+#include "ImfAttribute.h"
+#include "ImfRational.h"
 
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-namespace Imf {
-
-
-typedef TypedAttribute<Rational> RationalAttribute;
+typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Rational> RationalAttribute;
 
 template <>
 const char *RationalAttribute::staticTypeName ();
 
 template <>
-void RationalAttribute::writeValueTo (OStream &, int) const;
+void RationalAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
 
 template <>
-void RationalAttribute::readValueFrom (IStream &, int, int);
+void RationalAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
-// Metrowerks compiler wants the .cpp file inlined, too
-#ifdef __MWERKS__
-#include <ImfRationalAttribute.cpp>
-#endif
+
+
 
 #endif

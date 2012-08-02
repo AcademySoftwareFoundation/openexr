@@ -68,8 +68,9 @@
 //	  thread pool.
 //
 //-----------------------------------------------------------------------------
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 //-----------------------------------------------------------------------------
@@ -87,6 +88,10 @@ int     globalThreadCount ();
 void    setGlobalThreadCount (int count);
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif

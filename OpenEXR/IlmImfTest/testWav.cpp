@@ -42,8 +42,11 @@
 #include <stdlib.h>
 #include <assert.h>
 
-using namespace Imf;
+
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
+
 
 namespace {
 
@@ -53,7 +56,7 @@ fill1_14bit (Array2D <unsigned short> &a,
              Array2D <unsigned short> &b,
              int nx,
              int ny,
-	     Imath::Rand48 & rand48)
+	     IMATH_NAMESPACE::Rand48 & rand48)
 {
     for (int y = 0; y < ny; ++y)
 	for (int x = 0; x < nx; ++x)
@@ -66,7 +69,7 @@ fill1_16bit (Array2D <unsigned short> &a,
              Array2D <unsigned short> &b,
              int nx,
              int ny,
-	     Imath::Rand48 & rand48)
+	     IMATH_NAMESPACE::Rand48 & rand48)
 {
     for (int y = 0; y < ny; ++y)
 	for (int x = 0; x < nx; ++x)
@@ -212,7 +215,7 @@ test (int nx, int ny)
     Array2D<unsigned short> a (ny, nx);
     Array2D<unsigned short> b (ny, nx);
 
-    Imath::Rand48 rand48 (0);
+    IMATH_NAMESPACE::Rand48 rand48 (0);
 
     fill1_14bit (a, b, nx, ny, rand48);
     wavEncodeDecode (a, b, nx, ny);

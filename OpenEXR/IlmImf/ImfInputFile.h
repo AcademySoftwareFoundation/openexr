@@ -43,20 +43,23 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfHeader.h>
-#include <ImfFrameBuffer.h>
-#include <ImfTiledOutputFile.h>
-#include <string>
+#include "ImfHeader.h"
+#include "ImfFrameBuffer.h"
+#include "ImfTiledOutputFile.h"
 #include <fstream>
-#include <ImfThreading.h>
+#include "ImfThreading.h"
+#include "ImfGenericInputFile.h"
+#include "ImfNamespace.h"
+#include "ImfForward.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class TiledInputFile;
 class ScanLineInputFile;
 
+class TileOffsets;
 
-class InputFile
+class InputFile : public GenericInputFile
 {
   public:
 
@@ -80,7 +83,7 @@ class InputFile
     // used to read the file (see ImfThreading.h).
     //-------------------------------------------------------------
 
-    InputFile (IStream &is, int numThreads = globalThreadCount());
+    InputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThreads = globalThreadCount());
 
 
     //-----------
@@ -192,18 +195,24 @@ class InputFile
     
   private:
 
+    InputFile (InputPartData* part);
     InputFile (const InputFile &);			// not implemented
     InputFile & operator = (const InputFile &);		// not implemented
 
     void		initialize ();
+    void                multiPartInitialize(InputPartData* part);
+    void                compatibilityInitialize(OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is);
     TiledInputFile *	tFile ();
     
     friend void TiledOutputFile::copyPixels (InputFile &);
     
     Data *		_data;
+
+
+    friend class MultiPartInputFile;
 };
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

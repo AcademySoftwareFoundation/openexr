@@ -8,10 +8,16 @@ depcomp
 install-sh
 ltmain.sh
 missing
+.deps
 *.o
 *.lo
+*.deps
+*.libs
 *.Plo
-*.so
 *.Po
 *.la
+*.so
 *.dylib
+.DS_Store
+*.project
+*.cproject

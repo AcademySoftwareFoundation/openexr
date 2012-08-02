@@ -47,9 +47,12 @@
 #endif
 
 
-using namespace Imf;
-using namespace Imath;
+
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
+using namespace IMATH_NAMESPACE;
+
 
 namespace {
 
@@ -91,7 +94,7 @@ readWriteFiles (const char fileName1[],
     int dx = dw.min.x;
     int dy = dw.min.y;
 
-    Array<Imf::Rgba> pixels1 (w * h);
+    Array<OPENEXR_IMF_NAMESPACE::Rgba> pixels1 (w * h);
     file1.setFrameBuffer (pixels1 - dx - dy * w, 1, w);
     file1.readPixels (dw.min.y, dw.max.y);
 
@@ -143,7 +146,7 @@ readWriteFiles (const char fileName1[],
 	int dx = dw.min.x;
 	int dy = dw.min.y;
 
-	Array<Imf::Rgba> pixels2 (w * h);
+	Array<OPENEXR_IMF_NAMESPACE::Rgba> pixels2 (w * h);
 	file2.setFrameBuffer (pixels2 - dx - dy * w, 1, w);
 	file2.readPixels (dw.min.y, dw.max.y);
 

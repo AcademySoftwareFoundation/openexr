@@ -39,13 +39,13 @@
 namespace PyImath {
 using namespace boost::python;
 
-template PYIMATH_EXPORT class_<FixedArray<Imath::Box2s> > register_BoxArray<Imath::V2s>();
-template PYIMATH_EXPORT class_<FixedArray<Imath::Box2i> > register_BoxArray<Imath::V2i>();
-template PYIMATH_EXPORT class_<FixedArray<Imath::Box2f> > register_BoxArray<Imath::V2f>();
-template PYIMATH_EXPORT class_<FixedArray<Imath::Box2d> > register_BoxArray<Imath::V2d>();
+template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Box2s> > register_BoxArray<IMATH_NAMESPACE::V2s>();
+template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Box2i> > register_BoxArray<IMATH_NAMESPACE::V2i>();
+template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Box2f> > register_BoxArray<IMATH_NAMESPACE::V2f>();
+template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Box2d> > register_BoxArray<IMATH_NAMESPACE::V2d>();
 
-template<> PYIMATH_EXPORT Imath::Box2s PyImath::FixedArrayDefaultValue<Imath::Box2s>::value() { return Imath::Box2s(); }
-template<> PYIMATH_EXPORT Imath::Box2i PyImath::FixedArrayDefaultValue<Imath::Box2i>::value() { return Imath::Box2i(); }
-template<> PYIMATH_EXPORT Imath::Box2f PyImath::FixedArrayDefaultValue<Imath::Box2f>::value() { return Imath::Box2f(); }
-template<> PYIMATH_EXPORT Imath::Box2d PyImath::FixedArrayDefaultValue<Imath::Box2d>::value() { return Imath::Box2d(); }
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Box2s PyImath::FixedArrayDefaultValue<IMATH_NAMESPACE::Box2s>::value() { return IMATH_NAMESPACE::Box2s(); }
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Box2i PyImath::FixedArrayDefaultValue<IMATH_NAMESPACE::Box2i>::value() { return IMATH_NAMESPACE::Box2i(); }
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Box2f PyImath::FixedArrayDefaultValue<IMATH_NAMESPACE::Box2f>::value() { return IMATH_NAMESPACE::Box2f(); }
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Box2d PyImath::FixedArrayDefaultValue<IMATH_NAMESPACE::Box2d>::value() { return IMATH_NAMESPACE::Box2d(); }
 }

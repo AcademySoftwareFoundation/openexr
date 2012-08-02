@@ -91,9 +91,11 @@
 #include <cstdlib>
 
 
+
+
 void
 ctlToLut (std::vector<std::string> transformNames,
-	  Imf::Header inHeader,
+	  OPENEXR_IMF_NAMESPACE::Header inHeader,
 	  size_t lutSize,
 	  const half pixelValues[/*lutSize*/],
 	  half lut[/*lutSize*/]);

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2005, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -44,7 +44,7 @@
 #if !defined (_WIN32) && !(_WIN64) && !(HAVE_PTHREAD)
 #include "IlmThreadSemaphore.h"
 
-namespace IlmThread {
+ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 Semaphore::Semaphore (unsigned int value) {}
@@ -55,6 +55,6 @@ void Semaphore::post () {}
 int Semaphore::value () const {return 0;}
 
 
-} // namespace IlmThread
+ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
 #endif

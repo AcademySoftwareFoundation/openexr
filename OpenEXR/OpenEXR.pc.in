@@ -7,7 +7,8 @@ OpenEXR_includedir=@includedir@/OpenEXR
 Name: OpenEXR
 Description: OpenEXR image library
 Version: @OPENEXR_VERSION@
-Requires: IlmBase
-Libs: -L${libdir} -lIlmImf
-Libs.private: -lz
+
+Libs: -L${libdir} -lIlmImf@LIB_SUFFIX_DASH@
 Cflags: -I${OpenEXR_includedir}
+Requires: IlmBase
+Libs.private: -lz

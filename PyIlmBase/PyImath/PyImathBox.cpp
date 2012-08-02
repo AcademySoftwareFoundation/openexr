@@ -46,18 +46,18 @@
 
 namespace PyImath {
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 using namespace PyImath;
 
 template <class T> struct BoxName { static const char *value; };
-template <> const char *BoxName<Imath::V2s>::value = "Box2s";
-template <> const char *BoxName<Imath::V2i>::value = "Box2i";
-template <> const char *BoxName<Imath::V2f>::value = "Box2f";
-template <> const char *BoxName<Imath::V2d>::value = "Box2d";
-template <> const char *BoxName<Imath::V3s>::value = "Box3s";
-template <> const char *BoxName<Imath::V3i>::value = "Box3i";
-template <> const char *BoxName<Imath::V3f>::value = "Box3f";
-template <> const char *BoxName<Imath::V3d>::value = "Box3d";
+template <> const char *BoxName<IMATH_NAMESPACE::V2s>::value = "Box2s";
+template <> const char *BoxName<IMATH_NAMESPACE::V2i>::value = "Box2i";
+template <> const char *BoxName<IMATH_NAMESPACE::V2f>::value = "Box2f";
+template <> const char *BoxName<IMATH_NAMESPACE::V2d>::value = "Box2d";
+template <> const char *BoxName<IMATH_NAMESPACE::V3s>::value = "Box3s";
+template <> const char *BoxName<IMATH_NAMESPACE::V3i>::value = "Box3i";
+template <> const char *BoxName<IMATH_NAMESPACE::V3f>::value = "Box3f";
+template <> const char *BoxName<IMATH_NAMESPACE::V3d>::value = "Box3d";
 
 template <> PYIMATH_EXPORT const char *PyImath::Box2sArray::name() { return "Box2sArray"; }
 template <> PYIMATH_EXPORT const char *PyImath::Box2iArray::name() { return "Box2iArray"; }
@@ -98,7 +98,7 @@ static Box<T> * box2TupleConstructor1(const tuple &t)
         }
     }
     else
-        THROW(Iex::LogicExc, "Invalid input to Box tuple constructor");
+        THROW(IEX_NAMESPACE::LogicExc, "Invalid input to Box tuple constructor");
 }
 
 template <class T>
@@ -113,7 +113,7 @@ static Box<T> * box2TupleConstructor2(const tuple &t0, const tuple &t1)
         return new Box<T>(point0, point1);
     }
     else
-        THROW(Iex::LogicExc, "Invalid input to Box tuple constructor");
+        THROW(IEX_NAMESPACE::LogicExc, "Invalid input to Box tuple constructor");
 }
 
 template <class T, class S>
@@ -156,11 +156,11 @@ static Box<T> * box3TupleConstructor1(const tuple &t)
             return new Box<T> (t0, t1);
         }
         else
-            THROW(Iex::LogicExc, "Invalid input to Box tuple constructor");
+            THROW(IEX_NAMESPACE::LogicExc, "Invalid input to Box tuple constructor");
     }
 
     else
-        THROW(Iex::LogicExc, "Invalid input to Box tuple constructor");
+        THROW(IEX_NAMESPACE::LogicExc, "Invalid input to Box tuple constructor");
 }
 
 template <class T>
@@ -180,7 +180,7 @@ static Box<T> * box3TupleConstructor2(const tuple &t0, const tuple &t1)
         return new Box<T>(point0, point1);
     }
     else
-        THROW(Iex::LogicExc, "Invalid input to Box tuple constructor");
+        THROW(IEX_NAMESPACE::LogicExc, "Invalid input to Box tuple constructor");
 }
 
 template <class T>
@@ -230,13 +230,13 @@ static std::string Box3_repr(const Box<T> &box)
 }
 
 template <class T>
-static void boxSetMin(Imath::Box<T> &box, const T &m)
+static void boxSetMin(IMATH_NAMESPACE::Box<T> &box, const T &m)
 {
     box.min = m;
 }
 
 template <class T>
-static void boxSetMax(Imath::Box<T> &box, const T &m)
+static void boxSetMax(IMATH_NAMESPACE::Box<T> &box, const T &m)
 {
     box.max = m;
 }
@@ -258,11 +258,11 @@ boxMax(Imath::Box<T> &box)
 template <class T>
 struct IntersectsTask : public Task
 {
-    const Imath::Box<T>& box;
+    const IMATH_NAMESPACE::Box<T>& box;
     const PyImath::FixedArray<T>& points;
     PyImath::FixedArray<int>& results;
 
-    IntersectsTask(Imath::Box<T>& b, const PyImath::FixedArray<T> &p, PyImath::FixedArray<int> &r)
+    IntersectsTask(IMATH_NAMESPACE::Box<T>& b, const PyImath::FixedArray<T> &p, PyImath::FixedArray<int> &r)
         : box(b), points(p), results(r) {}
 
     void execute(size_t start, size_t end)
@@ -275,10 +275,10 @@ struct IntersectsTask : public Task
 template <class T>
 struct ExtendByTask : public Task
 {
-    std::vector<Imath::Box<T> >& boxes;
+    std::vector<IMATH_NAMESPACE::Box<T> >& boxes;
     const PyImath::FixedArray<T>& points;
 
-    ExtendByTask(std::vector<Imath::Box<T> >& b, const PyImath::FixedArray<T> &p)
+    ExtendByTask(std::vector<IMATH_NAMESPACE::Box<T> >& b, const PyImath::FixedArray<T> &p)
         : boxes(b), points(p) {}
 
     void execute(size_t start, size_t end, int tid)
@@ -288,16 +288,16 @@ struct ExtendByTask : public Task
     }
     void execute(size_t start, size_t end)
     {
-        ASSERT(false, Iex::NoImplExc, "Box::ExtendBy execute requires a thread id");
+        ASSERT(false, IEX_NAMESPACE::NoImplExc, "Box::ExtendBy execute requires a thread id");
     }
 };
 
 template <class T>
 static void
-box_extendBy(Imath::Box<T> &box, const PyImath::FixedArray<T> &points)
+box_extendBy(IMATH_NAMESPACE::Box<T> &box, const PyImath::FixedArray<T> &points)
 {
     size_t numBoxes = workers();
-    std::vector<Imath::Box<T> > boxes(numBoxes);
+    std::vector<IMATH_NAMESPACE::Box<T> > boxes(numBoxes);
     ExtendByTask<T> task(boxes,points);
     dispatchTask(task,points.len());
     for (int i=0; i<numBoxes; ++i) {
@@ -307,7 +307,7 @@ box_extendBy(Imath::Box<T> &box, const PyImath::FixedArray<T> &points)
 
 template <class T>
 PyImath::FixedArray<int>
-box_intersects(Imath::Box<T>& box, const PyImath::FixedArray<T>& points)
+box_intersects(IMATH_NAMESPACE::Box<T>& box, const PyImath::FixedArray<T>& points)
 {
     size_t numPoints = points.len();
     PyImath::FixedArray<int> mask(numPoints);
@@ -318,13 +318,13 @@ box_intersects(Imath::Box<T>& box, const PyImath::FixedArray<T>& points)
 }
 
 template <class T>
-class_<Imath::Box<T> >
+class_<IMATH_NAMESPACE::Box<T> >
 register_Box2()
 {
-    void (Imath::Box<T>::*extendBy1)(const T&)              = &Imath::Box<T>::extendBy;
-    void (Imath::Box<T>::*extendBy2)(const Imath::Box<T>&)  = &Imath::Box<T>::extendBy;
-    bool (Imath::Box<T>::*intersects1)(const T&) const              = &Imath::Box<T>::intersects;
-    bool (Imath::Box<T>::*intersects2)(const Imath::Box<T>&) const  = &Imath::Box<T>::intersects;
+    void (IMATH_NAMESPACE::Box<T>::*extendBy1)(const T&)              = &IMATH_NAMESPACE::Box<T>::extendBy;
+    void (IMATH_NAMESPACE::Box<T>::*extendBy2)(const IMATH_NAMESPACE::Box<T>&)  = &IMATH_NAMESPACE::Box<T>::extendBy;
+    bool (IMATH_NAMESPACE::Box<T>::*intersects1)(const T&) const              = &IMATH_NAMESPACE::Box<T>::intersects;
+    bool (IMATH_NAMESPACE::Box<T>::*intersects2)(const IMATH_NAMESPACE::Box<T>&) const  = &IMATH_NAMESPACE::Box<T>::intersects;
     const char *name = BoxName<T>::value;
     class_<Box<T> > box_class(name);
     box_class
@@ -333,9 +333,9 @@ register_Box2()
         .def(init<T,T>("Box(point,point) create box continaing min and max") )
         .def("__init__", make_constructor(box2TupleConstructor1<T>), "Box(point) where point is a python tuple")
         .def("__init__", make_constructor(box2TupleConstructor2<T>), "Box(point,point) where point is a python tuple")
-        .def("__init__", make_constructor(boxConstructor<T, Imath::V2f>))
-        .def("__init__", make_constructor(boxConstructor<T, Imath::V2d>))
-        .def("__init__", make_constructor(boxConstructor<T, Imath::V2i>))
+        .def("__init__", make_constructor(boxConstructor<T, IMATH_NAMESPACE::V2f>))
+        .def("__init__", make_constructor(boxConstructor<T, IMATH_NAMESPACE::V2d>))
+        .def("__init__", make_constructor(boxConstructor<T, IMATH_NAMESPACE::V2i>))
         .def_readwrite("min",&Box<T>::min)
         .def_readwrite("max",&Box<T>::max)
         .def("min", &boxMin<T>)
@@ -363,30 +363,30 @@ register_Box2()
 }
 
 template <class T, class U>
-static Imath::Box<T>
-mulM44 (const Imath::Box<T> &b, const Matrix44<U> &m)
+static IMATH_NAMESPACE::Box<T>
+mulM44 (const IMATH_NAMESPACE::Box<T> &b, const Matrix44<U> &m)
 {
     MATH_EXC_ON;
-    return Imath::transform (b, m);
+    return IMATH_NAMESPACE::transform (b, m);
 }
 
 template <class T, class U>
-static const Imath::Box<T> &
-imulM44 (Imath::Box<T> &b, const Matrix44<U> &m)
+static const IMATH_NAMESPACE::Box<T> &
+imulM44 (IMATH_NAMESPACE::Box<T> &b, const Matrix44<U> &m)
 {
     MATH_EXC_ON;
-    b = Imath::transform (b, m);
+    b = IMATH_NAMESPACE::transform (b, m);
     return b;
 }
 
 template <class T>
-class_<Imath::Box<T> >
+class_<IMATH_NAMESPACE::Box<T> >
 register_Box3()
 {
-    void (Imath::Box<T>::*extendBy1)(const T&)              = &Imath::Box<T>::extendBy;
-    void (Imath::Box<T>::*extendBy2)(const Imath::Box<T>&)  = &Imath::Box<T>::extendBy;
-    bool (Imath::Box<T>::*intersects1)(const T&) const              = &Imath::Box<T>::intersects;
-    bool (Imath::Box<T>::*intersects2)(const Imath::Box<T>&) const  = &Imath::Box<T>::intersects;
+    void (IMATH_NAMESPACE::Box<T>::*extendBy1)(const T&)              = &IMATH_NAMESPACE::Box<T>::extendBy;
+    void (IMATH_NAMESPACE::Box<T>::*extendBy2)(const IMATH_NAMESPACE::Box<T>&)  = &IMATH_NAMESPACE::Box<T>::extendBy;
+    bool (IMATH_NAMESPACE::Box<T>::*intersects1)(const T&) const              = &IMATH_NAMESPACE::Box<T>::intersects;
+    bool (IMATH_NAMESPACE::Box<T>::*intersects2)(const IMATH_NAMESPACE::Box<T>&) const  = &IMATH_NAMESPACE::Box<T>::intersects;
     const char *name = BoxName<T>::value;
     class_<Box<T> > box_class(name);
     box_class
@@ -395,9 +395,9 @@ register_Box3()
         .def(init<T,T>("Box(point,point) create box continaing min and max") )
         .def("__init__", make_constructor(box3TupleConstructor1<T>), "Box(point) where point is a python tuple")
         .def("__init__", make_constructor(box3TupleConstructor2<T>), "Box(point,point) where point is a python tuple")
-        .def("__init__", make_constructor(boxConstructor<T, Imath::V3f>))
-        .def("__init__", make_constructor(boxConstructor<T, Imath::V3d>))
-        .def("__init__", make_constructor(boxConstructor<T, Imath::V3i>))
+        .def("__init__", make_constructor(boxConstructor<T, IMATH_NAMESPACE::V3f>))
+        .def("__init__", make_constructor(boxConstructor<T, IMATH_NAMESPACE::V3d>))
+        .def("__init__", make_constructor(boxConstructor<T, IMATH_NAMESPACE::V3i>))
         .def_readwrite("min",&Box<T>::min)
         .def_readwrite("max",&Box<T>::max)
         .def(self == self)
@@ -433,13 +433,13 @@ register_Box3()
 }
 
 
-template PYIMATH_EXPORT class_<Imath::Box<Imath::V2s> > register_Box2<Imath::V2s>();
-template PYIMATH_EXPORT class_<Imath::Box<Imath::V2i> > register_Box2<Imath::V2i>();
-template PYIMATH_EXPORT class_<Imath::Box<Imath::V2f> > register_Box2<Imath::V2f>();
-template PYIMATH_EXPORT class_<Imath::Box<Imath::V2d> > register_Box2<Imath::V2d>();
-template PYIMATH_EXPORT class_<Imath::Box<Imath::V3s> > register_Box3<Imath::V3s>();
-template PYIMATH_EXPORT class_<Imath::Box<Imath::V3i> > register_Box3<Imath::V3i>();
-template PYIMATH_EXPORT class_<Imath::Box<Imath::V3f> > register_Box3<Imath::V3f>();
-template PYIMATH_EXPORT class_<Imath::Box<Imath::V3d> > register_Box3<Imath::V3d>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Box<IMATH_NAMESPACE::V2s> > register_Box2<IMATH_NAMESPACE::V2s>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Box<IMATH_NAMESPACE::V2i> > register_Box2<IMATH_NAMESPACE::V2i>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Box<IMATH_NAMESPACE::V2f> > register_Box2<IMATH_NAMESPACE::V2f>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Box<IMATH_NAMESPACE::V2d> > register_Box2<IMATH_NAMESPACE::V2d>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Box<IMATH_NAMESPACE::V3s> > register_Box3<IMATH_NAMESPACE::V3s>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Box<IMATH_NAMESPACE::V3i> > register_Box3<IMATH_NAMESPACE::V3i>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Box<IMATH_NAMESPACE::V3f> > register_Box3<IMATH_NAMESPACE::V3f>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Box<IMATH_NAMESPACE::V3d> > register_Box3<IMATH_NAMESPACE::V3d>();
 
 }

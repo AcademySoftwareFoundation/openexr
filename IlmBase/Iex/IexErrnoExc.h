@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -45,8 +45,7 @@
 
 #include "IexBaseExc.h"
 
-namespace Iex {
-
+IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 
 DEFINE_EXC (EpermExc, ErrnoExc)
 DEFINE_EXC (EnoentExc, ErrnoExc)
@@ -205,6 +204,6 @@ DEFINE_EXC (EinvaltimeExc, ErrnoExc)
 DEFINE_EXC (EdestroyedExc, ErrnoExc)
 
 
-} // namespace Iex
+IEX_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

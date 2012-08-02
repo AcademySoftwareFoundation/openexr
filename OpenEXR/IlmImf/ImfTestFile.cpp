@@ -45,8 +45,9 @@
 #include <ImfStdIO.h>
 #include <ImfXdr.h>
 #include <ImfVersion.h>
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 bool
@@ -57,8 +58,8 @@ isOpenExrFile (const char fileName[], bool &tiled)
 	StdIFStream is (fileName);
 
 	int magic, version;
-	Xdr::read <StreamIO> (is, magic);
-	Xdr::read <StreamIO> (is, version);
+	OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, magic);
+	OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, version);
 
 	tiled = isTiled (version);
 	return magic == MAGIC;
@@ -89,7 +90,7 @@ isTiledOpenExrFile (const char fileName[])
 
 
 bool
-isOpenExrFile (IStream &is, bool &tiled)
+isOpenExrFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, bool &tiled)
 {
     try
     {
@@ -99,8 +100,8 @@ isOpenExrFile (IStream &is, bool &tiled)
 	    is.seekg (0);
 
 	int magic, version;
-	Xdr::read <StreamIO> (is, magic);
-	Xdr::read <StreamIO> (is, version);
+	OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, magic);
+	OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, version);
 
 	is.seekg (pos);
 
@@ -117,7 +118,7 @@ isOpenExrFile (IStream &is, bool &tiled)
 
 
 bool
-isOpenExrFile (IStream &is)
+isOpenExrFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is)
 {
     bool tiled;
     return isOpenExrFile (is, tiled);
@@ -125,11 +126,11 @@ isOpenExrFile (IStream &is)
 
 
 bool
-isTiledOpenExrFile (IStream &is)
+isTiledOpenExrFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is)
 {
     bool exr, tiled;
     exr = isOpenExrFile (is, tiled);
     return exr && tiled;
 }
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

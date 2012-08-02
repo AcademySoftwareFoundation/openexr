@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2005, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -47,7 +47,7 @@
 
 using namespace std;
 
-namespace IlmThread {
+ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 namespace {
 
 class WorkerThread: public Thread
@@ -349,7 +349,7 @@ void
 ThreadPool::setNumThreads (int count)
 {
     if (count < 0)
-        throw Iex::ArgExc ("Attempt to set the number of threads "
+        throw IEX_INTERNAL_NAMESPACE::ArgExc ("Attempt to set the number of threads "
 			   "in a thread pool to a negative value.");
 
     //
@@ -453,4 +453,4 @@ ThreadPool::addGlobalTask (Task* task)
 }
 
 
-} // namespace IlmThread
+ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT

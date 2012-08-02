@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -37,6 +37,8 @@
 #ifndef INCLUDED_IEXBASEEXC_H
 #define INCLUDED_IEXBASEEXC_H
 
+#include <IexNamespace.h>
+#include <IexExport.h>
 
 //----------------------------------------------------------
 //
@@ -44,12 +46,21 @@
 //	useful exceptions derived from the base class.
 //
 //----------------------------------------------------------
+//
+//  The EXPORT of this class different than for
+//  other classes in this library, because string and
+//  exception are base classes. On Windows, the dllexport
+//  declspec has the effect of also exporting base class
+//  symbols, which is undesirable since those symbols
+//  should be coming from the std runtime libraries.
+//
+//----------------------------------------------------------
 
 #include <string>
 #include <exception>
 #include <sstream>
 
-namespace Iex {
+IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 
 #if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
 // Tell MS VC++ to suppress exception specification warnings
@@ -68,29 +79,29 @@ class BaseExc: public std::string, public std::exception
     // Constructors and destructor
     //----------------------------
 
-    BaseExc (const char *s = 0) throw();	// std::string (s)
-    BaseExc (const std::string &s) throw();	// std::string (s)
-    BaseExc (std::stringstream &s) throw();	// std::string (s.str())
+    IEX_EXPORT BaseExc (const char *s = 0) throw();	// std::string (s)
+    IEX_EXPORT BaseExc (const std::string &s) throw();	// std::string (s)
+    IEX_EXPORT BaseExc (std::stringstream &s) throw();	// std::string (s.str())
 
-    BaseExc (const BaseExc &be) throw();
-    virtual ~BaseExc () throw ();
+    IEX_EXPORT BaseExc (const BaseExc &be) throw();
+    IEX_EXPORT virtual ~BaseExc () throw ();
 
     //--------------------------------------------
     // what() method -- e.what() returns e.c_str()
     //--------------------------------------------
 
-    virtual const char * what () const throw ();
+    IEX_EXPORT virtual const char * what () const throw ();
 
 
     //--------------------------------------------------
     // Convenient methods to change the exception's text
     //--------------------------------------------------
 
-    BaseExc &		assign (std::stringstream &s);	// assign (s.str())
-    BaseExc &		operator = (std::stringstream &s);
+    IEX_EXPORT BaseExc &		assign (std::stringstream &s);	// assign (s.str())
+    IEX_EXPORT BaseExc &		operator = (std::stringstream &s);
 
-    BaseExc &		append (std::stringstream &s);	// append (s.str())
-    BaseExc &		operator += (std::stringstream &s);
+    IEX_EXPORT BaseExc &		append (std::stringstream &s);	// append (s.str())
+    IEX_EXPORT BaseExc &		operator += (std::stringstream &s);
 
 
     //--------------------------------------------------
@@ -98,11 +109,11 @@ class BaseExc: public std::string, public std::exception
     // the definitions above.
     //--------------------------------------------------
 
-    BaseExc &		assign (const char *s);
-    BaseExc &		operator = (const char *s);
+    IEX_EXPORT BaseExc &		assign (const char *s);
+    IEX_EXPORT BaseExc &		operator = (const char *s);
 
-    BaseExc &		append (const char *s);
-    BaseExc &		operator += (const char *s);
+    IEX_EXPORT BaseExc &		append (const char *s);
+    IEX_EXPORT BaseExc &		operator += (const char *s);
 
 
     //--------------------------------------------------
@@ -112,7 +123,7 @@ class BaseExc: public std::string, public std::exception
     // has been installed (see below, setStackTracer()).
     //--------------------------------------------------
 
-    const std::string &	stackTrace () const;
+    IEX_EXPORT const std::string &	stackTrace () const;
 
   private:
 
@@ -257,10 +268,6 @@ BaseExc::stackTrace () const
     return _stackTrace;
 }
 
-#if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
-#pragma warning(default:4290)
-#endif
+IEX_INTERNAL_NAMESPACE_HEADER_EXIT
 
-} // namespace Iex
-
-#endif
+#endif // INCLUDED_IEXBASEEXC_H

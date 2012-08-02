@@ -43,8 +43,9 @@
 #include <ImfOpaqueAttribute.h>
 #include "Iex.h"
 #include <string.h>
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 OpaqueAttribute::OpaqueAttribute (const char typeName[]):
@@ -87,14 +88,14 @@ OpaqueAttribute::copy () const
 
 
 void	
-OpaqueAttribute::writeValueTo (OStream &os, int version) const
+OpaqueAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _data, _dataSize);
 }
 
 
 void	
-OpaqueAttribute::readValueFrom (IStream &is, int size, int version)
+OpaqueAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
     _data.resizeErase (size);
     _dataSize = size;
@@ -109,7 +110,7 @@ OpaqueAttribute::copyValueFrom (const Attribute &other)
 
     if (oa == 0 || strcmp (_typeName, oa->_typeName))
     {
-	THROW (Iex::TypeExc, "Cannot copy the value of an "
+	THROW (IEX_NAMESPACE::TypeExc, "Cannot copy the value of an "
 			     "image file attribute of type "
 			     "\"" << other.typeName() << "\" "
 			     "to an attribute of type "
@@ -122,4 +123,4 @@ OpaqueAttribute::copyValueFrom (const Attribute &other)
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

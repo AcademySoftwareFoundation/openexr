@@ -41,7 +41,7 @@
 #include <assert.h>
 
 using namespace std;
-using namespace Imath;
+using namespace IMATH_INTERNAL_NAMESPACE;
 
 namespace {
 

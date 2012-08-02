@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -40,7 +40,7 @@
 
 //-------------------------------------------------------------------
 //
-//	class Imath::Interval<class T>
+//	class IMATH_INTERNAL_NAMESPACE::Interval<class T>
 //	--------------------------------
 //
 //	An Interval has a min and a max and some miscellaneous
@@ -50,8 +50,9 @@
 //-------------------------------------------------------------------
 
 #include "ImathVec.h"
+#include <ImathNamespace.h>
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 template <class T>	
@@ -219,6 +220,7 @@ inline bool Interval<T>::hasVolume() const
     return max > min;
 }
 
-} // namespace Imath
 
-#endif
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
+
+#endif // INCLUDED_IMATHINTERVAL_H

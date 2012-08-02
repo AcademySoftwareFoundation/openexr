@@ -57,8 +57,9 @@
 //		and stores the results in array r (with length nr).
 //
 //-----------------------------------------------------------------------------
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 int
@@ -74,6 +75,10 @@ hufUncompress (const char compressed[/*nCompressed*/],
 	       int nRaw);
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif

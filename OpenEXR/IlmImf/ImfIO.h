@@ -42,10 +42,11 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfInt64.h>
+#include "ImfInt64.h"
 #include <string>
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //-----------------------------------------------------------
 // class IStream -- an abstract base class for input streams.
@@ -246,7 +247,9 @@ struct CharPtrIO
     }
 };
 
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
-} // namespace Imf
+
+
 
 #endif

@@ -123,6 +123,7 @@ class halfFunction
     T		operator () (half x) const;
 
   private:
+
 #ifdef ILMBASE_HAVE_LARGE_STACK
     T		_lut[1 << 16];
 #else

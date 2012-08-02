@@ -43,11 +43,12 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfCompression.h>
+#include "ImfCompression.h"
 #include "ImathBox.h"
 #include <stdlib.h>
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class Header;
 
@@ -162,7 +163,7 @@ class Compressor
 
     virtual int		compressTile (const char *inPtr,
 				      int inSize,
-				      Imath::Box2i range,
+				      IMATH_NAMESPACE::Box2i range,
 				      const char *&outPtr);
 
     //-------------------------------------------------------------------------
@@ -188,7 +189,7 @@ class Compressor
 
     virtual int		uncompressTile (const char *inPtr,
 					int inSize,
-					Imath::Box2i range,
+					IMATH_NAMESPACE::Box2i range,
 					const char *&outPtr);
 
   private:
@@ -202,6 +203,13 @@ class Compressor
 //--------------------------------------
 
 bool		isValidCompression (Compression c);
+
+//--------------------------------------
+// Test if c is valid for deep data
+//--------------------------------------
+
+bool            isValidDeepCompression (Compression c);
+
 
 
 //-----------------------------------------------------------------
@@ -247,6 +255,10 @@ Compressor *    newTileCompressor (Compression c,
 				   const Header &hdr);
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif

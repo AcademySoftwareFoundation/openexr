@@ -39,12 +39,13 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <EnvmapImage.h>
-#include "ImathFun.h"
+#include "EnvmapImage.h"
+#include <ImathFun.h>
 
 
-using namespace Imf;
-using namespace Imath;
+#include "namespaceAlias.h"
+using namespace CustomImf;
+using namespace IMATH_NAMESPACE;
 
 
 EnvmapImage::EnvmapImage ():
@@ -243,7 +244,7 @@ EnvmapImage::sample (const V2f &pos) const
     // Interpolate bilinearly between the four nearest pixels.
     //
 
-    int x1 = Imath::floor (pos.x);
+    int x1 = IMATH_NAMESPACE::floor (pos.x);
     int x2 = x1 + 1;
     float sx = x2 - pos.x;
     float tx = 1 - sx;
@@ -251,7 +252,7 @@ EnvmapImage::sample (const V2f &pos) const
     x1 = clamp (x1, _dataWindow.min.x, _dataWindow.max.x) - _dataWindow.min.x;
     x2 = clamp (x2, _dataWindow.min.x, _dataWindow.max.x) - _dataWindow.min.x;
 
-    int y1 = Imath::floor (pos.y);
+    int y1 = IMATH_NAMESPACE::floor (pos.y);
     int y2 = y1 + 1;
     float sy = y2 - pos.y;
     float ty = 1 - sy;

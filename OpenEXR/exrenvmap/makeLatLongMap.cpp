@@ -50,9 +50,10 @@
 #include <algorithm>
 
 
+#include "namespaceAlias.h"
+using namespace CustomImf;
 using namespace std;
-using namespace Imf;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 
 void
@@ -72,7 +73,7 @@ makeLatLongMap (EnvmapImage &image1,
 {
     if (levelMode == RIPMAP_LEVELS)
     {
-	throw Iex::NoImplExc ("Cannot generate ripmap "
+	throw IEX_NAMESPACE::NoImplExc ("Cannot generate ripmap "
 			      "latitude-longitude environments.");
     }
 

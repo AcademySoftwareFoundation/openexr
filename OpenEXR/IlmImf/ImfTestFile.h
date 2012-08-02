@@ -44,8 +44,9 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class IStream;
 
@@ -58,6 +59,10 @@ bool isOpenExrFile (IStream &is);
 bool isTiledOpenExrFile (IStream &is);
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif

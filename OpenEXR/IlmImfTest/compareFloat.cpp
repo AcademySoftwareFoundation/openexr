@@ -36,10 +36,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include <compareFloat.h>
+#include "compareFloat.h"
 
-using namespace Imf;
-
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 
 bool
 equivalent (float f1, float f2, Compression comp)
