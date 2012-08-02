@@ -18,6 +18,9 @@ INSTALL ( FILES
   IexErrnoExc.h
   IexMacros.h
   Iex.h
+  IexNamespace.h
+  IexExport.h
+  IexForward.h
   DESTINATION
   include/OpenEXR
 )
