@@ -370,12 +370,12 @@ void ConvertDtexFile( const std::string& i_fileName,
 // Print Usage.
 void PrintUsage( const std::string& i_cmd, std::ostream& ostr )
 {
-    ostr << "DtexToODZ: USAGE: "
+    ostr << "DtexToExr: USAGE: "
          << i_cmd
          << std::endl << std::endl
          << "\t <inFileName.dtex>"
          << std::endl << std::endl
-         << "\t <outFileName.odz>"
+         << "\t <outFileName.exr>"
          << std::endl << std::endl
          << "\t --deepOpacity (DEFAULT) "
          << "\n\t\t (corresponds to output channels \'deepopacity\')"
@@ -403,7 +403,7 @@ void PrintUsage( const std::string& i_cmd, std::ostream& ostr )
          << "\n\t\t (transpose width & height of image)"
          << std::endl << std::endl
          << "\t --compressionError <float> (DEFAULT: 0.0f) "
-         << "\n\t\t (compress dtex data before converting to odz)"
+         << "\n\t\t (compress dtex data before converting to deep exr)"
          << std::endl << std::endl
          << "\t --keepZeroAlpha "
          << "\n\t\t (don\'t discard samples with zero alpha)"
@@ -431,7 +431,7 @@ inline bool GoodFileName( const std::string& i_fileName )
 void ParseArguments( int argc, char* argv[],
                      bool& o_full,
                      std::string& o_dtexFileName,
-                     std::string& o_odzFileName,
+                     std::string& o_exrFileName,
                      PxDeep::Parameters& o_params )
 {
     if ( argc < 3 )
@@ -443,7 +443,7 @@ void ParseArguments( int argc, char* argv[],
     // Make our params match what the usage string says by default.
     o_full = false;
     o_dtexFileName = "";
-    o_odzFileName = "";
+    o_exrFileName = "";
     o_params.deepOpacity = true;
     o_params.discrete = true;
     o_params.multiplyColorByAlpha = false;
@@ -479,7 +479,7 @@ void ParseArguments( int argc, char* argv[],
                 PrintUsage( argv[0], std::cerr );
                 PXDU_THROW( "Bad file name: " << arg );
             }
-            o_odzFileName = arg;
+            o_exrFileName = arg;
         }
         else if ( arg == "--deepOpacity" )
         {
@@ -549,23 +549,23 @@ int main( int argc, char *argv[] )
     {
         PxDeep::Parameters params;
         std::string dtexFileName;
-        std::string odzFileName;
+        std::string exrFileName;
         bool full;
 
         ParseArguments( argc, argv, full,
-                        dtexFileName, odzFileName,
+                        dtexFileName, exrFileName,
                         params );
 
         if ( full )
         {
             PxDeep::ConvertDtexFile<float>( dtexFileName,
-                                            odzFileName,
+                                            exrFileName,
                                             params );
         }
         else
         {
             PxDeep::ConvertDtexFile<half>( dtexFileName,
-                                           odzFileName,
+                                           exrFileName,
                                            params );
         }
     }

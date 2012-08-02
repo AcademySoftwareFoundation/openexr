@@ -1,10 +1,10 @@
 //-*****************************************************************************
 
-Pixar's Dtex to ODZ conversion utility
+Pixar's Dtex to Exr conversion utility
 Aug 1, 2012 - first checkin to OpenEXR 2.0 branch of OpenEXR git repository.
 
 This utility converts a DTEX deep shadow file to an OpenEXR 2.0 deep exr file,
-or "odz" (or .dexr, or whatever the final agreed-upon extension is). As of
+formerly, ".odz" (or .dexr, or whatever extension your facility may use). As of
 the first checkin, the utility only supports 1, 3, or 4-channel dtex files,
 corresponding to deep alpha or deep RGBA only.  The Nuke DTEX reader, which
 uses basically the same code, will support a more complete arbitrary channel
@@ -77,7 +77,7 @@ represents the FAR SIDE of a depth span. Our code paths take this into
 account as well.
 
 Please see the files for additional comments, and the command
-"dtexToOdz" may be run with -h, --h, --help, or no arguments to 
+"dtexToExr" may be run with -h, --h, --help, or no arguments to 
 print its usage.
 
 -Christopher Horvath, Aug 2012, Pixar

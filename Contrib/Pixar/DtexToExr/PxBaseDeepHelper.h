@@ -241,8 +241,8 @@ struct SpanOpac : public Span
 
 //-*****************************************************************************
 // The box processing simply loops over the rows, compresses each pixel, then
-// converts from dtex representation to odz representation, and finally writes
-// the rows to the file.
+// converts from dtex representation to deep exr representation, and finally
+// writes the rows to the file.
 template <typename RGBA_T, typename DERIVED, typename SPAN>
 void BaseDeepHelper<RGBA_T,DERIVED,SPAN>::processDeepBox
 (

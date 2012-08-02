@@ -61,16 +61,16 @@
 
 BUILDTMP = obj
 
-IPATH = -I${DTEXTOODZ_PREFIX}/include/OpenEXR \
-	-I${DTEXTOODZ_RMANROOT}/include/prmansdk-160 \
-	-I${DTEXTOODZ_RMANROOT}/include
+IPATH = -I${DTEXTOEXR_PREFIX}/include/OpenEXR \
+	-I${DTEXTOEXR_RMANROOT}/include/prmansdk-160 \
+	-I${DTEXTOEXR_RMANROOT}/include
 
-LPATH = -L${DTEXTOODZ_PREFIX}/lib \
-	-L${DTEXTOODZ_RMANROOT}/lib/prmansdk-160 \
-	-L${DTEXTOODZ_RMANROOT}/lib \
-	-Wl,-rpath ${DTEXTOODZ_PREFIX}/lib \
-	-Wl,-rpath ${DTEXTOODZ_RMANROOT}/lib/prmansdk-160 \
-	-Wl,-rpath ${DTEXTOODZ_RMANROOT}/lib
+LPATH = -L${DTEXTOEXR_PREFIX}/lib \
+	-L${DTEXTOEXR_RMANROOT}/lib/prmansdk-160 \
+	-L${DTEXTOEXR_RMANROOT}/lib \
+	-Wl,-rpath ${DTEXTOEXR_PREFIX}/lib \
+	-Wl,-rpath ${DTEXTOEXR_RMANROOT}/lib/prmansdk-160 \
+	-Wl,-rpath ${DTEXTOEXR_RMANROOT}/lib
 
 LIBS = -lIlmImf -lImath -lIlmThread -lIex -lHalf \
 	-lprman \
@@ -90,26 +90,26 @@ HFILES = PxBaseDeepHelper.h \
 	PxOneChanDeepOpacity.h
 
 OFILES = ${BUILDTMP}/PxDeepUtils.o \
-	${BUILDTMP}/dtexToOdz.o
+	${BUILDTMP}/dtexToExr.o
 
-all: ${BUILDTMP}/dtexToOdz
+all: ${BUILDTMP}/dtexToExr
 
 ${BUILDTMP}/PxDeepUtils.o: PxDeepUtils.h PxDeepUtils.cpp
 	mkdir -p ${BUILDTMP}
 	${CXX} PxDeepUtils.cpp -c -o ${BUILDTMP}/PxDeepUtils.o ${CFLAGS} ${IPATH}
 
 
-${BUILDTMP}/dtexToOdz.o: DtexToODZ.cpp ${HFILES}
+${BUILDTMP}/dtexToExr.o: DtexToExr.cpp ${HFILES}
 	mkdir -p ${BUILDTMP}
-	${CXX} DtexToODZ.cpp -c -o ${BUILDTMP}/dtexToOdz.o ${CFLAGS} ${IPATH}
+	${CXX} DtexToExr.cpp -c -o ${BUILDTMP}/dtexToExr.o ${CFLAGS} ${IPATH}
 
-${BUILDTMP}/dtexToOdz: ${OFILES}
+${BUILDTMP}/dtexToExr: ${OFILES}
 	mkdir -p ${BUILDTMP}
-	${LN} ${OFILES} -o ${BUILDTMP}/dtexToOdz ${CFLAGS} ${IPATH} ${LPATH} ${LIBS}
+	${LN} ${OFILES} -o ${BUILDTMP}/dtexToExr ${CFLAGS} ${IPATH} ${LPATH} ${LIBS}
 
-install: ${BUILDTMP}/dtexToOdz
-	/bin/cp -f ${BUILDTMP}/dtexToOdz ${DTEXTOODZ_PREFIX}/bin/dtexToOdz
+install: ${BUILDTMP}/dtexToExr
+	/bin/cp -f ${BUILDTMP}/dtexToExr ${DTEXTOEXR_PREFIX}/bin/dtexToExr
 
 clean:
 	/bin/rm ${OFILES}
-	/bin/rm ${BUILDTMP}/dtexToOdz
+	/bin/rm ${BUILDTMP}/dtexToExr
