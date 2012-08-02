@@ -1,5 +1,5 @@
 //-*****************************************************************************
-// Copyright (C) Pixar. All rights reserved.                                   *
+// Copyright (c) 2012, Pixar. All rights reserved.                             *
 //                                                                             *
 // This license governs use of the accompanying software. If you               *
 // use the software, you accept this license. If you do not accept             *
@@ -282,7 +282,7 @@ void ConvertDtexFile( const std::string& i_fileName,
     // Deep Back
     if ( params.doDeepBack )
     {
-        header.channels().insert( "ZBACK",
+        header.channels().insert( "ZBack",
                                   Imf::Channel( Imf::FLOAT ) );
     }
 

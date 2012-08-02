@@ -1,5 +1,5 @@
 ##-*****************************************************************************
-## Copyright (C) Pixar. All rights reserved.                                   *
+## Copyright (c) 2012, Pixar. All rights reserved.                             *
 ##                                                                             *
 ## This license governs use of the accompanying software. If you               *
 ## use the software, you accept this license. If you do not accept             *
@@ -90,26 +90,26 @@ HFILES = PxBaseDeepHelper.h \
 	PxOneChanDeepOpacity.h
 
 OFILES = ${BUILDTMP}/PxDeepUtils.o \
-	${BUILDTMP}/dtexToExr.o
+	${BUILDTMP}/DtexToExr.o
 
-all: ${BUILDTMP}/dtexToExr
+all: ${BUILDTMP}/DtexToExr
 
 ${BUILDTMP}/PxDeepUtils.o: PxDeepUtils.h PxDeepUtils.cpp
 	mkdir -p ${BUILDTMP}
 	${CXX} PxDeepUtils.cpp -c -o ${BUILDTMP}/PxDeepUtils.o ${CFLAGS} ${IPATH}
 
 
-${BUILDTMP}/dtexToExr.o: DtexToExr.cpp ${HFILES}
+${BUILDTMP}/DtexToExr.o: DtexToExr.cpp ${HFILES}
 	mkdir -p ${BUILDTMP}
-	${CXX} DtexToExr.cpp -c -o ${BUILDTMP}/dtexToExr.o ${CFLAGS} ${IPATH}
+	${CXX} DtexToExr.cpp -c -o ${BUILDTMP}/DtexToExr.o ${CFLAGS} ${IPATH}
 
-${BUILDTMP}/dtexToExr: ${OFILES}
+${BUILDTMP}/DtexToExr: ${OFILES}
 	mkdir -p ${BUILDTMP}
-	${LN} ${OFILES} -o ${BUILDTMP}/dtexToExr ${CFLAGS} ${IPATH} ${LPATH} ${LIBS}
+	${LN} ${OFILES} -o ${BUILDTMP}/DtexToExr ${CFLAGS} ${IPATH} ${LPATH} ${LIBS}
 
-install: ${BUILDTMP}/dtexToExr
-	/bin/cp -f ${BUILDTMP}/dtexToExr ${DTEXTOEXR_PREFIX}/bin/dtexToExr
+install: ${BUILDTMP}/DtexToExr
+	/bin/cp -f ${BUILDTMP}/DtexToExr ${DTEXTOEXR_PREFIX}/bin/DtexToExr
 
 clean:
 	/bin/rm ${OFILES}
-	/bin/rm ${BUILDTMP}/dtexToExr
+	/bin/rm ${BUILDTMP}/DtexToExr

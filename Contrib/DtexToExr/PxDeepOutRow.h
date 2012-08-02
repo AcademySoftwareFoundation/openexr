@@ -1,5 +1,5 @@
 //-*****************************************************************************
-// Copyright (C) Pixar. All rights reserved.                                   *
+// Copyright (c) 2012, Pixar. All rights reserved.                             *
 //                                                                             *
 // This license governs use of the accompanying software. If you               *
 // use the software, you accept this license. If you do not accept             *
@@ -285,7 +285,7 @@ void DeepOutRow<RGBA_T>::setFrameBuffer( Imf::DeepFrameBuffer& o_frameBuffer )
     if ( m_doDeepBack )
     {
         o_frameBuffer.insert(
-            "ZBACK",
+            "ZBack",
             Imf::DeepSlice( Imf::FLOAT,
                             ( char * )m_deepBackPtrs.data(),
                             sizeof( float* ),      // xstride
