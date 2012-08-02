@@ -38,10 +38,11 @@
 #include "ImfIO.h"
 #include "ImfHeader.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class GenericInputFile
+class IMF_EXPORT GenericInputFile
 {
     public:
         virtual ~GenericInputFile() {}
@@ -52,9 +53,6 @@ class GenericInputFile
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
 
 
 #endif /* IMFGENERICINPUTFILE_H_ */

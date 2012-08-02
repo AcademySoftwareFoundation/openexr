@@ -42,6 +42,7 @@
 #include "ImfForward.h"
 #include "ImfThreading.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -66,7 +67,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //  numThreads - number of threads that should be used in encoding the data.
 //
     
-class MultiPartOutputFile : public GenericOutputFile
+class IMF_EXPORT MultiPartOutputFile : public GenericOutputFile
 {
     public:
         MultiPartOutputFile(const char fileName[],

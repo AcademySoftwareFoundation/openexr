@@ -49,13 +49,12 @@
 #include "ImfGenericOutputFile.h"
 #include "ImfNamespace.h"
 #include "ImfForward.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-struct PreviewRgba;
 
-
-class OutputFile : public GenericOutputFile
+class IMF_EXPORT OutputFile : public GenericOutputFile
 {
   public:
 

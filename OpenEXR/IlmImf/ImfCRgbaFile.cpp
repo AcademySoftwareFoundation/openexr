@@ -293,8 +293,8 @@ void
 ImfHeaderScreenWindowCenter (const ImfHeader *hdr, float *x, float *y)
 {
     const V2i &swc = header(hdr)->screenWindowCenter();
-    *x = swc.x;
-    *y = swc.y;
+    *x = (float) swc.x;
+    *y = (float) swc.y;
 }
 
 

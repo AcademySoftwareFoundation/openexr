@@ -44,22 +44,25 @@
 
 #include "ImfAttribute.h"
 #include "ImfEnvmap.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Envmap> EnvmapAttribute;
-template <> const char *EnvmapAttribute::staticTypeName ();
-template <> void EnvmapAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
-                                                int) const;
-template <> void EnvmapAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
-                                                 int,
-                                                 int);
+
+template <> IMF_EXPORT const char *EnvmapAttribute::staticTypeName ();
+
+template <> IMF_EXPORT
+void EnvmapAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
+                                    int) const;
+
+template <> IMF_EXPORT
+void EnvmapAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
+                                     int,
+                                     int);
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
 
 #endif

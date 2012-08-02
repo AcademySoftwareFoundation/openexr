@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef INCLUDED_IMF_C_RGBA_FILE_H
 #define INCLUDED_IMF_C_RGBA_FILE_H
 
+#include "ImfExport.h"
 
 #include <stdlib.h>
 
@@ -48,15 +49,19 @@ extern "C" {
 
 typedef unsigned short ImfHalf;
 
+IMF_EXPORT 
 void	ImfFloatToHalf (float f,
 			ImfHalf *h);
 
+IMF_EXPORT 
 void	ImfFloatToHalfArray (int n,
 			    const float f[/*n*/],
 			    ImfHalf h[/*n*/]);
 
+IMF_EXPORT 
 float	ImfHalfToFloat (ImfHalf h);
 
+IMF_EXPORT 
 void	ImfHalfToFloatArray (int n,
 			    const ImfHalf h[/*n*/],
 			    float f[/*n*/]);
@@ -151,150 +156,191 @@ typedef struct ImfRgba ImfRgba;
 struct ImfHeader;
 typedef struct ImfHeader ImfHeader;
 
+IMF_EXPORT 
 ImfHeader *	ImfNewHeader (void);
 
+IMF_EXPORT 
 void		ImfDeleteHeader (ImfHeader *hdr);
 
+IMF_EXPORT 
 ImfHeader *	ImfCopyHeader (const ImfHeader *hdr);
 
+IMF_EXPORT 
 void		ImfHeaderSetDisplayWindow (ImfHeader *hdr,
 					   int xMin, int yMin,
 					   int xMax, int yMax);
 
+IMF_EXPORT 
 void		ImfHeaderDisplayWindow (const ImfHeader *hdr,
 					int *xMin, int *yMin,
 					int *xMax, int *yMax);
 
+IMF_EXPORT 
 void		ImfHeaderSetDataWindow (ImfHeader *hdr,
 					int xMin, int yMin,
 					int xMax, int yMax);
 
+IMF_EXPORT 
 void		ImfHeaderDataWindow (const ImfHeader *hdr,
 				     int *xMin, int *yMin,
 				     int *xMax, int *yMax);
 
+IMF_EXPORT 
 void		ImfHeaderSetPixelAspectRatio (ImfHeader *hdr,
 					      float pixelAspectRatio);
 
+IMF_EXPORT 
 float		ImfHeaderPixelAspectRatio (const ImfHeader *hdr);
 
+IMF_EXPORT 
 void		ImfHeaderSetScreenWindowCenter (ImfHeader *hdr,
 						float x, float y);
 
+IMF_EXPORT 
 void		ImfHeaderScreenWindowCenter (const ImfHeader *hdr,
 					     float *x, float *y);
 
+IMF_EXPORT 
 void		ImfHeaderSetScreenWindowWidth (ImfHeader *hdr,
 					       float width);
 
+IMF_EXPORT 
 float		ImfHeaderScreenWindowWidth (const ImfHeader *hdr);
 
+IMF_EXPORT 
 void		ImfHeaderSetLineOrder (ImfHeader *hdr,
 				       int lineOrder);
 
+IMF_EXPORT 
 int		ImfHeaderLineOrder (const ImfHeader *hdr);
 			    
+IMF_EXPORT 
 void		ImfHeaderSetCompression (ImfHeader *hdr,
 					 int compression);
 
+IMF_EXPORT 
 int		ImfHeaderCompression (const ImfHeader *hdr);
 
+IMF_EXPORT 
 int		ImfHeaderSetIntAttribute (ImfHeader *hdr,
 					  const char name[],
 					  int value);
 
+IMF_EXPORT 
 int		ImfHeaderIntAttribute (const ImfHeader *hdr,
 				       const char name[],
 				       int *value);
 
+IMF_EXPORT 
 int		ImfHeaderSetFloatAttribute (ImfHeader *hdr,
 					    const char name[],
 					    float value);
 
+IMF_EXPORT 
 int		ImfHeaderSetDoubleAttribute (ImfHeader *hdr,
 					     const char name[],
 					     double value);
 
+IMF_EXPORT 
 int		ImfHeaderFloatAttribute (const ImfHeader *hdr,
 				         const char name[],
 				         float *value);
 
+IMF_EXPORT 
 int		ImfHeaderDoubleAttribute (const ImfHeader *hdr,
 				          const char name[],
 				          double *value);
 
+IMF_EXPORT 
 int		ImfHeaderSetStringAttribute (ImfHeader *hdr,
 					     const char name[],
 					     const char value[]);
 
+IMF_EXPORT 
 int		ImfHeaderStringAttribute (const ImfHeader *hdr,
 				         const char name[],
 					  const char **value);
 
+IMF_EXPORT 
 int		ImfHeaderSetBox2iAttribute (ImfHeader *hdr,
 					    const char name[],
 					    int xMin, int yMin,
 					    int xMax, int yMax);
 
+IMF_EXPORT 
 int		ImfHeaderBox2iAttribute (const ImfHeader *hdr,
 					 const char name[],
 					 int *xMin, int *yMin,
 					 int *xMax, int *yMax);
 
+IMF_EXPORT 
 int		ImfHeaderSetBox2fAttribute (ImfHeader *hdr,
 					    const char name[],
 					    float xMin, float yMin,
 					    float xMax, float yMax);
 
+IMF_EXPORT 
 int		ImfHeaderBox2fAttribute (const ImfHeader *hdr,
 					 const char name[],
 					 float *xMin, float *yMin,
 					 float *xMax, float *yMax);
 
+IMF_EXPORT 
 int		ImfHeaderSetV2iAttribute (ImfHeader *hdr,
 				         const char name[],
 				         int x, int y);
 
+IMF_EXPORT 
 int		ImfHeaderV2iAttribute (const ImfHeader *hdr,
 				       const char name[],
 				       int *x, int *y);
 
+IMF_EXPORT 
 int		ImfHeaderSetV2fAttribute (ImfHeader *hdr,
 				          const char name[],
 				          float x, float y);
 
+IMF_EXPORT 
 int		ImfHeaderV2fAttribute (const ImfHeader *hdr,
 				       const char name[],
 				       float *x, float *y);
 
+IMF_EXPORT 
 int		ImfHeaderSetV3iAttribute (ImfHeader *hdr,
 				          const char name[],
 				          int x, int y, int z);
 
+IMF_EXPORT 
 int		ImfHeaderV3iAttribute (const ImfHeader *hdr,
 				       const char name[],
 				       int *x, int *y, int *z);
 
+IMF_EXPORT 
 int		ImfHeaderSetV3fAttribute (ImfHeader *hdr,
 				          const char name[],
 				          float x, float y, float z);
 
+IMF_EXPORT 
 int		ImfHeaderV3fAttribute (const ImfHeader *hdr,
 				       const char name[],
 				       float *x, float *y, float *z);
 
+IMF_EXPORT 
 int		ImfHeaderSetM33fAttribute (ImfHeader *hdr,
 					   const char name[],
 					   const float m[3][3]);
 
+IMF_EXPORT 
 int		ImfHeaderM33fAttribute (const ImfHeader *hdr,
 					const char name[],
 					float m[3][3]);
 
+IMF_EXPORT 
 int		ImfHeaderSetM44fAttribute (ImfHeader *hdr,
 					   const char name[],
 					   const float m[4][4]);
 
+IMF_EXPORT 
 int		ImfHeaderM44fAttribute (const ImfHeader *hdr,
 					const char name[],
 					float m[4][4]);
@@ -306,24 +352,31 @@ int		ImfHeaderM44fAttribute (const ImfHeader *hdr,
 struct ImfOutputFile;
 typedef struct ImfOutputFile ImfOutputFile;
 
+IMF_EXPORT 
 ImfOutputFile *	ImfOpenOutputFile (const char name[],
 				   const ImfHeader *hdr,
 				   int channels);
 
+IMF_EXPORT 
 int			ImfCloseOutputFile (ImfOutputFile *out);
 
+IMF_EXPORT 
 int			ImfOutputSetFrameBuffer (ImfOutputFile *out,
 						 const ImfRgba *base,
 						 size_t xStride,
 						 size_t yStride);
 
+IMF_EXPORT 
 int			ImfOutputWritePixels (ImfOutputFile *out,
 					      int numScanLines);
 
+IMF_EXPORT 
 int			ImfOutputCurrentScanLine (const ImfOutputFile *out);
 
+IMF_EXPORT 
 const ImfHeader *	ImfOutputHeader (const ImfOutputFile *out);
 
+IMF_EXPORT 
 int			ImfOutputChannels (const ImfOutputFile *out);
 
 
@@ -334,37 +387,49 @@ int			ImfOutputChannels (const ImfOutputFile *out);
 struct ImfTiledOutputFile;
 typedef struct ImfTiledOutputFile ImfTiledOutputFile;
 
+IMF_EXPORT 
 ImfTiledOutputFile *	ImfOpenTiledOutputFile (const char name[],
 					        const ImfHeader *hdr,
 						int channels,
 						int xSize, int ySize,
 						int mode, int rmode);
 
+IMF_EXPORT 
 int		ImfCloseTiledOutputFile (ImfTiledOutputFile *out);
 
+IMF_EXPORT 
 int		ImfTiledOutputSetFrameBuffer (ImfTiledOutputFile *out,
 					      const ImfRgba *base,
 					      size_t xStride,
 					      size_t yStride);
 
+IMF_EXPORT 
 int		ImfTiledOutputWriteTile (ImfTiledOutputFile *out,
 					 int dx, int dy,
 					 int lx, int ly);
 
+IMF_EXPORT 
 int             ImfTiledOutputWriteTiles (ImfTiledOutputFile *out,
                                           int dxMin, int dxMax,
                                           int dyMin, int dyMax,
                                           int lx, int ly);
 
+IMF_EXPORT 
 const ImfHeader *	ImfTiledOutputHeader (const ImfTiledOutputFile *out);
 
+IMF_EXPORT 
 int		ImfTiledOutputChannels (const ImfTiledOutputFile *out);
 
+IMF_EXPORT 
 int		ImfTiledOutputTileXSize (const ImfTiledOutputFile *out);
 
+IMF_EXPORT 
 int		ImfTiledOutputTileYSize (const ImfTiledOutputFile *out);
 
+IMF_EXPORT 
 int		ImfTiledOutputLevelMode (const ImfTiledOutputFile *out);
+
+IMF_EXPORT 
 int	       	ImfTiledOutputLevelRoundingMode
 						(const ImfTiledOutputFile *out);
 
@@ -378,21 +443,27 @@ typedef struct ImfInputFile ImfInputFile;
 
 ImfInputFile *		ImfOpenInputFile (const char name[]);
 
+IMF_EXPORT 
 int			ImfCloseInputFile (ImfInputFile *in);
 
+IMF_EXPORT 
 int			ImfInputSetFrameBuffer (ImfInputFile *in,
 						ImfRgba *base,
 						size_t xStride,
 						size_t yStride);
 
+IMF_EXPORT 
 int			ImfInputReadPixels (ImfInputFile *in,
 					    int scanLine1,
 					    int scanLine2);
 
+IMF_EXPORT 
 const ImfHeader *	ImfInputHeader (const ImfInputFile *in);
 
+IMF_EXPORT 
 int			ImfInputChannels (const ImfInputFile *in);
 
+IMF_EXPORT 
 const char *            ImfInputFileName (const ImfInputFile *in);
 
 
@@ -403,36 +474,48 @@ const char *            ImfInputFileName (const ImfInputFile *in);
 struct ImfTiledInputFile;
 typedef struct ImfTiledInputFile ImfTiledInputFile;
 
+IMF_EXPORT 
 ImfTiledInputFile *	ImfOpenTiledInputFile (const char name[]);
 
+IMF_EXPORT 
 int		ImfCloseTiledInputFile (ImfTiledInputFile *in);
 
+IMF_EXPORT 
 int		ImfTiledInputSetFrameBuffer (ImfTiledInputFile *in,
 					     ImfRgba *base,
 					     size_t xStride,
 					     size_t yStride);
 
+IMF_EXPORT 
 int		ImfTiledInputReadTile (ImfTiledInputFile *in,
 				       int dx, int dy,
 				       int lx, int ly);
 
+IMF_EXPORT 
 int		ImfTiledInputReadTiles (ImfTiledInputFile *in,
                                         int dxMin, int dxMax,
                                         int dyMin, int dyMax,
                                         int lx, int ly);
 
+IMF_EXPORT 
 const ImfHeader *	ImfTiledInputHeader (const ImfTiledInputFile *in);
 
+IMF_EXPORT 
 int		ImfTiledInputChannels (const ImfTiledInputFile *in);
 
+IMF_EXPORT 
 const char *		ImfTiledInputFileName (const ImfTiledInputFile *in);
 
+IMF_EXPORT 
 int		ImfTiledInputTileXSize (const ImfTiledInputFile *in);
 
+IMF_EXPORT 
 int		ImfTiledInputTileYSize (const ImfTiledInputFile *in);
 
+IMF_EXPORT 
 int		ImfTiledInputLevelMode (const ImfTiledInputFile *in);
 
+IMF_EXPORT 
 int	       	ImfTiledInputLevelRoundingMode
 					       (const ImfTiledInputFile *in);
 
@@ -443,12 +526,16 @@ int	       	ImfTiledInputLevelRoundingMode
 struct ImfLut;
 typedef struct ImfLut ImfLut;
 
+IMF_EXPORT 
 ImfLut *		ImfNewRound12logLut (int channels);
 
+IMF_EXPORT 
 ImfLut *		ImfNewRoundNBitLut (unsigned int n, int channels);
 
+IMF_EXPORT 
 void			ImfDeleteLut (ImfLut *lut);
 
+IMF_EXPORT 
 void			ImfApplyLut (ImfLut *lut,
 				     ImfRgba *data,
 				     int nData,
@@ -457,6 +544,7 @@ void			ImfApplyLut (ImfLut *lut,
 ** Most recent error message
 */
 
+IMF_EXPORT 
 const char *		ImfErrorMessage (void);
 
 

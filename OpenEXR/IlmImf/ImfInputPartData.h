@@ -43,6 +43,7 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
+
 class InputPartData
 {
     protected:
@@ -64,6 +65,7 @@ class InputPartData
     friend class DeepTiledInputFile;
     friend class MultiPartInputFile;
 };
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

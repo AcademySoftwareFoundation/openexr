@@ -49,73 +49,76 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-    // classes for basic types;
-    template<class T> class Array;
-    template<class T> class Array2D;
-    struct Channel;
-    class  ChannelList;
-    struct Chromaticities;
 
-    // attributes used in headers are TypedAttributes
-    class Attribute;
+// classes for basic types;
+template<class T> class Array;
+template<class T> class Array2D;
+struct Channel;
+class  ChannelList;
+struct Chromaticities;
 
-    class Header;
+// attributes used in headers are TypedAttributes
+class Attribute;
 
-    // file handling classes
-    class OutputFile;
-    class TiledInputFile;
-    class ScanLineInputFile;
-    class InputFile;
-    class TiledOutputFile;
-    class DeepScanLineInputFile;
-    class DeepScanLineOutputFile;
-    class DeepTiledInputFile;
-    class DeepTiledOutputFile;
-    class AcesInputFile;
-    class AcesOutputFile;
-    class TiledInputPart;
-    class TiledInputFile;
+class Header;
 
-    // multipart file handling
-    class GenericInputFile;
-    class GenericOutputFile;
-    class MultiPartInputFile;
-    class MultiPartOutputFile;
+// file handling classes
+class OutputFile;
+class TiledInputFile;
+class ScanLineInputFile;
+class InputFile;
+class TiledOutputFile;
+class DeepScanLineInputFile;
+class DeepScanLineOutputFile;
+class DeepTiledInputFile;
+class DeepTiledOutputFile;
+class AcesInputFile;
+class AcesOutputFile;
+class TiledInputPart;
+class TiledInputFile;
+class TileOffsets;
 
-    class InputPart;
-    class TiledInputPart;
-    class DeepScanLineInputPart;
-    class DeepTiledInputPart;
+// multipart file handling
+class GenericInputFile;
+class GenericOutputFile;
+class MultiPartInputFile;
+class MultiPartOutputFile;
 
-    class OutputPart;
-    class ScanLineOutputPart;
-    class TiledOutputPart;
-    class DeepScanLineOutputPart;
-    class DeepTiledOutputPart;
+class InputPart;
+class TiledInputPart;
+class DeepScanLineInputPart;
+class DeepTiledInputPart;
+
+class OutputPart;
+class ScanLineOutputPart;
+class TiledOutputPart;
+class DeepScanLineOutputPart;
+class DeepTiledOutputPart;
 
 
-    // internal use only
-    class  InputPartData;
-    struct OutputStreamMutex;
-    class  OutputPartData;
-    struct InputStreamMutex;
+// internal use only
+class  InputPartData;
+struct OutputStreamMutex;
+class  OutputPartData;
+struct InputStreamMutex;
 
-    // frame buffers
+// frame buffers
 
-    class  FrameBuffer;
-    class  DeepFrameBuffer;
-    struct DeepSlice;
+class  FrameBuffer;
+class  DeepFrameBuffer;
+struct DeepSlice;
 
-    // compositing
-    class DeepCompositing;
-    class CompositeDeepScanLine;
+// compositing
+class DeepCompositing;
+class CompositeDeepScanLine;
 
-    // preview image
-    class PreviewImage;
+// preview image
+class PreviewImage;
+struct PreviewRgba;
 
-    // streams
-    class OStream;
-    class IStream;
+// streams
+class OStream;
+class IStream;
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

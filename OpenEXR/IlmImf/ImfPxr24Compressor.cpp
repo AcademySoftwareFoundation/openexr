@@ -69,8 +69,11 @@
 #include <ImfChannelList.h>
 #include <ImfMisc.h>
 #include <ImfCheckedArithmetic.h>
+#include "ImfNamespace.h"
+
 #include <ImathFun.h>
 #include <Iex.h>
+
 #include <half.h>
 #include <zlib.h>
 #include <assert.h>
@@ -78,7 +81,6 @@
 
 using namespace std;
 using namespace IMATH_NAMESPACE;
-#include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

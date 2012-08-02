@@ -82,16 +82,14 @@
 #include "ImathVec.h"
 #include "ImathBox.h"
 #include "ImfThreading.h"
-#include <string>
 #include "ImfNamespace.h"
+#include "ImfExport.h"
+#include "ImfForward.h"
+
+#include <string>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-    
-class  RgbaOutputFile;
-class  RgbaInputFile;
-struct PreviewRgba;
-struct Chromaticities;
 
 //
 // ACES red, green, blue and white-point chromaticities.
@@ -104,7 +102,7 @@ const Chromaticities &	acesChromaticities ();
 // ACES output file.
 //
 
-class AcesOutputFile
+class IMF_EXPORT AcesOutputFile
 {
   public:
 
@@ -231,7 +229,7 @@ class AcesOutputFile
 // ACES input file
 //
 
-class AcesInputFile
+class IMF_EXPORT AcesInputFile
 {
   public:
 

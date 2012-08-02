@@ -35,6 +35,9 @@
 #ifndef INCLUDED_IMF_THREADING_H
 #define INCLUDED_IMF_THREADING_H
 
+#include "ImfExport.h"
+#include "ImfNamespace.h"
+
 //-----------------------------------------------------------------------------
 //
 //	Threading support for the IlmImf library
@@ -68,7 +71,6 @@
 //	  thread pool.
 //
 //-----------------------------------------------------------------------------
-#include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -78,20 +80,16 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // compression and decompression of OpenEXR files.
 //-----------------------------------------------------------------------------
     
-int     globalThreadCount ();
+IMF_EXPORT int     globalThreadCount ();
 
 
 //-----------------------------------------------------------------------------
 // Change the number of Imf-global worker threads
 //-----------------------------------------------------------------------------
 
-void    setGlobalThreadCount (int count);
+IMF_EXPORT void    setGlobalThreadCount (int count);
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif

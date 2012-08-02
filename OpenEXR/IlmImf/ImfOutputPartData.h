@@ -38,10 +38,11 @@
 #include "ImfHeader.h"
 #include "ImfForward.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class OutputPartData
+class IMF_EXPORT OutputPartData
 {
     protected:
         Header                  header;

@@ -44,21 +44,25 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfPixelType.h"
-#include <vector>
 #include "ImfCompressor.h"
 #include "ImfArray.h"
-#include <cstddef>
 #include "ImfNamespace.h"
+#include "ImfExport.h"
+#include "ImfForward.h"
+
+#include <cstddef>
+#include <vector>
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class Header;
 
 //
 // Return the size of a single value of the indicated type,
 // in the machine's native format.
 //
 
+IMF_EXPORT
 int	pixelTypeSize (PixelType type);
 
 
@@ -70,6 +74,7 @@ int	pixelTypeSize (PixelType type);
 // interval [2, 6].
 //
 
+IMF_EXPORT
 int	numSamples (int s, int a, int b);
 
 
@@ -80,6 +85,7 @@ int	numSamples (int s, int a, int b);
 // the pixel data are tightly packed).
 //
 
+IMF_EXPORT
 size_t	bytesPerLineTable (const Header &header,
 		           std::vector<size_t> &bytesPerLine);
 
@@ -89,10 +95,12 @@ size_t	bytesPerLineTable (const Header &header,
 // pointer, xStride and yStride.
 //
 
+IMF_EXPORT
 int&
 sampleCount(char* base, int xStride, int yStride, int x, int y);
 
 
+IMF_EXPORT
 const int&
 sampleCount(const char* base, int xStride, int yStride, int x, int y);
 
@@ -103,6 +111,7 @@ sampleCount(const char* base, int xStride, int yStride, int x, int y);
 // (assuming that the pixel data are tightly packed).
 //
 
+IMF_EXPORT
 size_t bytesPerDeepLineTable (const Header &header,
                               int minY, int maxY,
                               const char* base,
@@ -118,6 +127,7 @@ size_t bytesPerDeepLineTable (const Header &header,
 // the pixel data are tightly packed).
 //
 
+IMF_EXPORT
 size_t bytesPerDeepLineTable (const Header &header,
                               char* base,
                               int xStride,
@@ -138,10 +148,13 @@ size_t bytesPerDeepLineTable (const Header &header,
 // and scanline2 = bytesPerLine.size().
 //
 
+IMF_EXPORT
 void    offsetInLineBufferTable (const std::vector<size_t> &bytesPerLine,
                                  int scanline1, int scanline2,
                                  int linesInLineBuffer,
                                  std::vector<size_t> &offsetInLineBuffer);
+
+IMF_EXPORT
 void	offsetInLineBufferTable (const std::vector<size_t> &bytesPerLine,
 				 int linesInLineBuffer,
 				 std::vector<size_t> &offsetInLineBuffer);
@@ -152,8 +165,8 @@ void	offsetInLineBufferTable (const std::vector<size_t> &bytesPerLine,
 // (minY is the minimum y coordinate of the file's data window.)
 //
 
-int	lineBufferMinY (int y, int minY, int linesInLineBuffer);
-int	lineBufferMaxY (int y, int minY, int linesInLineBuffer);
+IMF_EXPORT int	lineBufferMinY (int y, int minY, int linesInLineBuffer);
+IMF_EXPORT int	lineBufferMaxY (int y, int minY, int linesInLineBuffer);
 
 
 //
@@ -161,6 +174,7 @@ int	lineBufferMaxY (int y, int minY, int linesInLineBuffer);
 // If compressor is 0, return Compressor::XDR.
 //
 
+IMF_EXPORT
 Compressor::Format defaultFormat (Compressor *compressor);
 
 
@@ -169,6 +183,7 @@ Compressor::Format defaultFormat (Compressor *compressor);
 // or uncompress at once.  If compressor is 0, return 1.
 //
 
+IMF_EXPORT
 int     numLinesInBuffer (Compressor *compressor);
 
 
@@ -198,6 +213,7 @@ int     numLinesInBuffer (Compressor *compressor);
 //    typeInFile        the pixel data type in the input file's channel
 //
 
+IMF_EXPORT
 void    copyIntoFrameBuffer (const char *&readPtr,
 			     char *writePtr,
                              char *endPtr,
@@ -249,6 +265,7 @@ void    copyIntoFrameBuffer (const char *&readPtr,
 //    typeInFile          the pixel data type in the input file's channel
 //
 
+IMF_EXPORT
 void    copyIntoDeepFrameBuffer (const char *& readPtr,
                                  char * base,
                                  const char* sampleCountBase,
@@ -277,6 +294,7 @@ void    copyIntoDeepFrameBuffer (const char *& readPtr,
 // skipped data.
 //
 
+IMF_EXPORT
 void    skipChannel (const char *&readPtr,
 		     PixelType typeInFile,
 		     size_t xSize);
@@ -300,6 +318,7 @@ void    skipChannel (const char *&readPtr,
 //    numPixels		number of pixels in the input and output arrays
 // 
 
+IMF_EXPORT
 void    convertInPlace (char *&toPtr,
 			const char *&fromPtr,
 			PixelType type,
@@ -331,6 +350,7 @@ void    convertInPlace (char *&toPtr,
 //			data type conversion)
 //
 
+IMF_EXPORT
 void    copyFromFrameBuffer (char *&writePtr,
 			     const char *&readPtr,
                              const char *endPtr,
@@ -384,6 +404,7 @@ void    copyFromFrameBuffer (char *&writePtr,
 //                              data type conversion)
 //
 
+IMF_EXPORT
 void    copyFromDeepFrameBuffer (char *& writePtr,
                                  const char * base,
                                  char* sampleCountBase,
@@ -420,18 +441,23 @@ void    copyFromDeepFrameBuffer (char *& writePtr,
 //    xSize             number of pixels to be filled with zeroes.
 //
 
+IMF_EXPORT
 void    fillChannelWithZeroes (char *&writePtr,
 			       Compressor::Format format,
 			       PixelType type,
 			       size_t xSize);
 
+IMF_EXPORT
 bool usesLongNames (const Header &header);
+
 
 //
 // compute size of chunk offset table - if ignore_attribute set to true
 // will compute from the image size and layout, rather than the attribute
 // The default behaviour is to read the attribute
 //
+
+IMF_EXPORT
 int getChunkOffsetTableSize(const Header& header,bool ignore_attribute=false);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

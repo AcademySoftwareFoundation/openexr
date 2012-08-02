@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -32,42 +32,15 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-
-#ifndef INCLUDED_IMF_KEY_CODE_ATTRIBUTE_H
-#define INCLUDED_IMF_KEY_CODE_ATTRIBUTE_H
-
-
-//-----------------------------------------------------------------------------
-//
-//	class KeyCodeAttribute
-//
-//-----------------------------------------------------------------------------
-
-#include "ImfAttribute.h"
-#include "ImfKeyCode.h"
-#include "ImfExport.h"
-
-
-OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
-
-
-typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::KeyCode> KeyCodeAttribute;
-
-template <>
-IMF_EXPORT
-const char *KeyCodeAttribute::staticTypeName ();
-
-template <>
-IMF_EXPORT
-void KeyCodeAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
-                                     int) const;
-
-template <>
-IMF_EXPORT
-void KeyCodeAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
-                                      int, int);
-
-
-OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
+#if defined(OPENEXR_DLL)
+    #if defined(ILMIMF_EXPORTS)
+	    #define IMF_EXPORT __declspec(dllexport)
+        #define IMF_EXPORT_CONST extern __declspec(dllexport)
+    #else
+	    #define IMF_EXPORT __declspec(dllimport)
+	    #define IMF_EXPORT_CONST extern __declspec(dllimport)
+    #endif
+#else
+    #define IMF_EXPORT
+    #define IMF_EXPORT_CONST extern const
 #endif

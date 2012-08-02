@@ -46,11 +46,13 @@
 #include "ImathVec.h"
 #include "ImathMatrix.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
    
-struct Chromaticities
+struct IMF_EXPORT Chromaticities
 {
     //-----------------------------------------------
     // The CIE x and y coordinates of the RGB triples
@@ -120,14 +122,10 @@ struct Chromaticities
 // 	YYZtoRGB(c,Y) returns RGBtoXYZ(c,Y).inverse().
 // 
 
-IMATH_NAMESPACE::M44f	RGBtoXYZ (const Chromaticities chroma, float Y);
-IMATH_NAMESPACE::M44f	XYZtoRGB (const Chromaticities chroma, float Y);
+IMF_EXPORT Imath::M44f	RGBtoXYZ (const Chromaticities chroma, float Y);
+IMF_EXPORT Imath::M44f	XYZtoRGB (const Chromaticities chroma, float Y);
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif

@@ -55,19 +55,17 @@
 #include "ImfThreading.h"
 #include <string>
 #include "ImfNamespace.h"
+#include "ImfForward.h"
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
-
-class TiledOutputFile;
-class TiledInputFile;
-struct PreviewRgba;
 
 
 //
 // Tiled RGBA output file.
 //
 
-class TiledRgbaOutputFile
+class IMF_EXPORT TiledRgbaOutputFile
 {
   public:
 
@@ -296,7 +294,7 @@ class TiledRgbaOutputFile
 // Tiled RGBA input file
 //
 
-class TiledRgbaInputFile
+class IMF_EXPORT TiledRgbaInputFile
 {
   public:
 

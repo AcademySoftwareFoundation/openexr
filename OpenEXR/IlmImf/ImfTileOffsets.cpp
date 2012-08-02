@@ -79,20 +79,21 @@ TileOffsets::TileOffsets (LevelMode mode,
 
         _offsets.resize (_numXLevels * _numYLevels);
 
-        for ( int ly = 0; ly < _numYLevels; ++ly)
+        for (int ly = 0; ly < _numYLevels; ++ly)
         {
-            for ( int lx = 0; lx < _numXLevels; ++lx)
+            for (int lx = 0; lx < _numXLevels; ++lx)
             {
                 int l = ly * _numXLevels + lx;
                 _offsets[l].resize (numYTiles[ly]);
 
-                for ( size_t dy = 0; dy < _offsets[l].size(); ++dy)
+                for (size_t dy = 0; dy < _offsets[l].size(); ++dy)
                 {
                     _offsets[l][dy].resize (numXTiles[lx]);
                 }
             }
         }
         break;
+
       case NUM_LEVELMODES :
           throw IEX_NAMESPACE::ArgExc("Bad initialisation of TileOffsets object");
     }

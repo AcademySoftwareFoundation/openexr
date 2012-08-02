@@ -50,11 +50,12 @@
 #include "ImfGenericInputFile.h"
 #include "ImfTiledOutputFile.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class TiledInputFile : public GenericInputFile
+class IMF_EXPORT TiledInputFile : public GenericInputFile
 {
   public:
 

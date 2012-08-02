@@ -50,13 +50,16 @@
 #include "ImfGenericOutputFile.h"
 #include "ImfForward.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
+
 
 struct PreviewRgba;
 
 
-class TiledOutputFile : public GenericOutputFile
+class IMF_EXPORT TiledOutputFile : public GenericOutputFile
 {
   public:
 

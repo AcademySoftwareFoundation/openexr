@@ -96,11 +96,12 @@
 //
 //-----------------------------------------------------------------------------
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
    
-class KeyCode
+class IMF_EXPORT KeyCode
 {
   public:
 

@@ -74,6 +74,8 @@
 
 #include "ImathBox.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -117,6 +119,7 @@ namespace LatLongMap
     // and longitude.
     //----------------------------------------------------
 
+    IMF_EXPORT 
     IMATH_NAMESPACE::V2f		latLong (const IMATH_NAMESPACE::V3f &direction);
 
 
@@ -126,6 +129,7 @@ namespace LatLongMap
     // and longitude.
     //--------------------------------------------------------
 
+    IMF_EXPORT 
     IMATH_NAMESPACE::V2f		latLong (const IMATH_NAMESPACE::Box2i &dataWindow,
 				 const IMATH_NAMESPACE::V2f &pixelPosition);
 
@@ -135,6 +139,7 @@ namespace LatLongMap
     // longitude and latitude, into a corresponding pixel position.
     //-------------------------------------------------------------
 
+    IMF_EXPORT 
     IMATH_NAMESPACE::V2f		pixelPosition (const IMATH_NAMESPACE::Box2i &dataWindow,
 				       const IMATH_NAMESPACE::V2f &latLong);
 
@@ -145,6 +150,7 @@ namespace LatLongMap
     // to pixelPosition(dw,latLong(dw,dir)).
     //-----------------------------------------------------
 
+    IMF_EXPORT 
     IMATH_NAMESPACE::V2f		pixelPosition (const IMATH_NAMESPACE::Box2i &dataWindow,
 				       const IMATH_NAMESPACE::V3f &direction);
 
@@ -154,6 +160,7 @@ namespace LatLongMap
     // map into a corresponding 3D direction.
     //--------------------------------------------------------
 
+    IMF_EXPORT 
     IMATH_NAMESPACE::V3f		direction (const IMATH_NAMESPACE::Box2i &dataWindow,
 				   const IMATH_NAMESPACE::V2f &pixelPosition);
 }
@@ -261,6 +268,7 @@ namespace CubeMap
     // Width and height of a cube's face, in pixels
     //---------------------------------------------
 
+    IMF_EXPORT 
     int			sizeOfFace (const IMATH_NAMESPACE::Box2i &dataWindow);
 
 
@@ -269,6 +277,7 @@ namespace CubeMap
     // that is covered by the specified face.
     //------------------------------------------
 
+    IMF_EXPORT 
     IMATH_NAMESPACE::Box2i	dataWindowForFace (CubeMapFace face,
 					   const IMATH_NAMESPACE::Box2i &dataWindow);
 
@@ -280,6 +289,7 @@ namespace CubeMap
     // in the environment map.
     //----------------------------------------------------
 
+    IMF_EXPORT 
     IMATH_NAMESPACE::V2f		pixelPosition (CubeMapFace face,
 				       const IMATH_NAMESPACE::Box2i &dataWindow,
 				       IMATH_NAMESPACE::V2f positionInFace);
@@ -301,6 +311,7 @@ namespace CubeMap
     //
     //--------------------------------------------------------------
 
+    IMF_EXPORT 
     void		faceAndPixelPosition (const IMATH_NAMESPACE::V3f &direction,
 					      const IMATH_NAMESPACE::Box2i &dataWindow,
 					      CubeMapFace &face,
@@ -312,6 +323,7 @@ namespace CubeMap
     // compute the corresponding 3D direction.
     // --------------------------------------------------------
 
+    IMF_EXPORT 
     IMATH_NAMESPACE::V3f		direction (CubeMapFace face,
 				   const IMATH_NAMESPACE::Box2i &dataWindow,
 				   const IMATH_NAMESPACE::V2f &positionInFace);
@@ -319,9 +331,5 @@ namespace CubeMap
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif

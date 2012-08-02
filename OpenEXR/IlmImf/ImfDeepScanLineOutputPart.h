@@ -38,10 +38,11 @@
 #include "ImfDeepScanLineOutputFile.h"
 #include "ImfMultiPartOutputFile.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class DeepScanLineOutputPart
+class IMF_EXPORT DeepScanLineOutputPart
 {
   public:
 

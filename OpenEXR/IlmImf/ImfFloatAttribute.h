@@ -49,12 +49,9 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 typedef TypedAttribute<float> FloatAttribute;
-template <> const char *FloatAttribute::staticTypeName ();
+template <> IMF_EXPORT const char *FloatAttribute::staticTypeName ();
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
 
 #endif

@@ -56,7 +56,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class OpaqueAttribute: public Attribute
+class IMF_EXPORT OpaqueAttribute: public Attribute
 {
   public:
 
@@ -106,9 +106,5 @@ class OpaqueAttribute: public Attribute
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif

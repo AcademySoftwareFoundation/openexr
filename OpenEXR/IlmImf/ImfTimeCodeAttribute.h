@@ -52,13 +52,18 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::TimeCode> TimeCodeAttribute;
 
 template <>
+IMF_EXPORT
 const char *TimeCodeAttribute::staticTypeName ();
 
 template <>
-void TimeCodeAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
+IMF_EXPORT
+void TimeCodeAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
+                                      int) const;
 
 template <>
-void TimeCodeAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
+IMF_EXPORT
+void TimeCodeAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
+                                       int, int);
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

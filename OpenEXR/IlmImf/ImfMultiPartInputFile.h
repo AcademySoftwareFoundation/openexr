@@ -39,11 +39,12 @@
 #include "ImfNamespace.h"
 #include "ImfForward.h"
 #include "ImfThreading.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class MultiPartInputFile : public GenericInputFile
+class IMF_EXPORT MultiPartInputFile : public GenericInputFile
 {
   public:
     MultiPartInputFile(const char fileName[],

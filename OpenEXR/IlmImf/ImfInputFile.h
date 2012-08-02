@@ -46,20 +46,19 @@
 #include "ImfHeader.h"
 #include "ImfFrameBuffer.h"
 #include "ImfTiledOutputFile.h"
-#include <fstream>
 #include "ImfThreading.h"
 #include "ImfGenericInputFile.h"
 #include "ImfNamespace.h"
 #include "ImfForward.h"
+#include "ImfExport.h"
+
+#include <fstream>
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class TiledInputFile;
-class ScanLineInputFile;
 
-class TileOffsets;
-
-class InputFile : public GenericInputFile
+class IMF_EXPORT InputFile : public GenericInputFile
 {
   public:
 

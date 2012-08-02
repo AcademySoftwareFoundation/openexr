@@ -46,14 +46,13 @@
 #include "ImfInt64.h"
 #include <vector>
 #include "ImfNamespace.h"
+#include "ImfForward.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class IStream;
-class OStream;
 
-
-class TileOffsets
+class IMF_EXPORT TileOffsets
 {
   public:
 

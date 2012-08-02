@@ -42,6 +42,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfExport.h"
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -122,6 +123,7 @@ inline bool  supportsFlags (int flags)	{return !(flags & ~ALL_FLAGS);}
 // file is probably an OpenEXR image file, false if not.
 //
 
+IMF_EXPORT 
 bool	     isImfMagic (const char bytes[4]);
 
 

@@ -49,7 +49,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class RleCompressor: public Compressor
+class IMF_EXPORT RleCompressor: public Compressor
 {
   public:
 
@@ -76,9 +76,5 @@ class RleCompressor: public Compressor
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif

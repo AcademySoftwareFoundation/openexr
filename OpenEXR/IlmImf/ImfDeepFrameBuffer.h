@@ -37,6 +37,7 @@
 
 #include "ImfFrameBuffer.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -89,7 +90,7 @@ struct DeepSlice : public Slice
 // DeepFrameBuffer.
 //-----------------
 
-class DeepFrameBuffer
+class IMF_EXPORT DeepFrameBuffer
 {
   public:
 

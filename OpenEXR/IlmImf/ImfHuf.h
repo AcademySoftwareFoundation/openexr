@@ -37,6 +37,8 @@
 #ifndef INCLUDED_IMF_HUF_H
 #define INCLUDED_IMF_HUF_H
 
+#include "ImfExport.h"
+#include "ImfNamespace.h"
 
 //-----------------------------------------------------------------------------
 //
@@ -57,17 +59,17 @@
 //		and stores the results in array r (with length nr).
 //
 //-----------------------------------------------------------------------------
-#include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
+IMF_EXPORT 
 int
 hufCompress (const unsigned short raw[/*nRaw*/],
 	     int nRaw,
 	     char compressed[/*2 * nRaw + 65536*/]);
 
-
+IMF_EXPORT
 void
 hufUncompress (const char compressed[/*nCompressed*/],
 	       int nCompressed,
@@ -76,9 +78,5 @@ hufUncompress (const char compressed[/*nCompressed*/],
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif

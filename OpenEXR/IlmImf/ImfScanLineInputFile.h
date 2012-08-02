@@ -48,12 +48,13 @@
 #include "ImfInputStreamMutex.h"
 #include "ImfInputPartData.h"
 #include "ImfGenericInputFile.h"
+#include "ImfExport.h"
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class ScanLineInputFile : public GenericInputFile
+class IMF_EXPORT ScanLineInputFile : public GenericInputFile
 {
   public:
 

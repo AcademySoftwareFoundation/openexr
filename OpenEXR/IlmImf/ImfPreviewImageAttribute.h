@@ -51,18 +51,20 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::PreviewImage> PreviewImageAttribute;
 
 template <>
+IMF_EXPORT
 const char *PreviewImageAttribute::staticTypeName ();
 
 template <>
-void PreviewImageAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
+IMF_EXPORT
+void PreviewImageAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
+                                          int) const;
 
 template <>
-void PreviewImageAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
+IMF_EXPORT
+void PreviewImageAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
+                                           int, int);
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
 
 #endif

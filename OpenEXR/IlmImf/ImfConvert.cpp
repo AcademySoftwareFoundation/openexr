@@ -40,9 +40,11 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfConvert.h>
-#include <limits.h>
+#include "ImfConvert.h"
 #include "ImfNamespace.h"
+
+#include <limits.h>
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -118,7 +120,7 @@ uintToHalf (unsigned int ui)
     if (ui >  HALF_MAX)
 	return half::posInf();
 
-    return half (ui);
+    return half ((float) ui);
 }
 
 

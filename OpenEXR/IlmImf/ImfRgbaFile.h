@@ -56,13 +56,10 @@
 #include "ImfThreading.h"
 #include <string>
 #include "ImfNamespace.h"
+#include "ImfForward.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
-class OutputFile;
-class InputFile;
-struct PreviewRgba;
 
 //
 // RGBA output file.

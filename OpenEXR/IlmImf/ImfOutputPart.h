@@ -39,6 +39,7 @@
 #include "ImfOutputFile.h"
 #include "ImfForward.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -49,7 +50,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // Same interface as OutputFile. Please refer to OutputFile.
 //---------------------------------------------------------------------
 
-class OutputPart
+class IMF_EXPORT OutputPart
 {
     public:
         OutputPart(MultiPartOutputFile& multiPartFile, int partNumber);

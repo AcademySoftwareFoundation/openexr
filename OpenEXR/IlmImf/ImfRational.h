@@ -36,6 +36,9 @@
 #ifndef INCLUDED_IMF_RATIONAL_H
 #define INCLUDED_IMF_RATIONAL_H
 
+#include "ImfExport.h"
+#include "ImfNamespace.h"
+
 //-----------------------------------------------------------------------------
 //
 //	Rational numbers
@@ -49,11 +52,11 @@
 //		not a number (NaN)	for n == 0, d == 0
 //
 //-----------------------------------------------------------------------------
-#include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class Rational
+
+class IMF_EXPORT Rational
 {
   public:
 
@@ -89,10 +92,7 @@ class Rational
     operator double () const {return double (n) / double (d);}
 };
 
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif
