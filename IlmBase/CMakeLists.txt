@@ -72,8 +72,8 @@ IF (WIN32)
 ELSE ()
   FILE ( WRITE ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_PTHREAD 1\n" )
   FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_POSIX_SEMAPHORES 1\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_STRING \"1.1.0\"\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_PACKAGE_STRING \"IlmBase 1.1.0\"\n" )
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_STRING \"2.0.0\"\n" )
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_PACKAGE_STRING \"IlmBase 2.0.0\"\n" )
 ENDIF ()
 
 SET_TARGET_PROPERTIES ( Half
