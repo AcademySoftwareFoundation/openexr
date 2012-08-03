@@ -20,3 +20,5 @@ LDADD = -L$(top_builddir)/IlmImf \
 if BUILD_IMFFUZZTEST
 TESTS = IlmImfFuzzTest
 endif
+
+EXTRA_DIST = CMakeLists.txt

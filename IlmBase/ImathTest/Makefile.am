@@ -26,3 +26,6 @@ LDADD = -L$(top_builddir)/Imath -L$(top_builddir)/Iex -L$(top_builddir)/Half \
 	-lImath -lIex -lHalf
 
 TESTS = ImathTest
+
+EXTRA_DIST = CMakeLists.txt
+

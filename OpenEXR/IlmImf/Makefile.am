@@ -154,7 +154,7 @@ noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
 		 ImfCheckedArithmetic.h  ImfInputStreamMutex.h ImfOutputStreamMutex.h  \
           	 ImfInputPartData.h ImfOutputPartData.h ImfScanLineInputFile.h 
 
-EXTRA_DIST = $(noinst_HEADERS) b44ExpLogTable.cpp b44ExpLogTable.h
+EXTRA_DIST = $(noinst_HEADERS) b44ExpLogTable.cpp b44ExpLogTable.h CMakeLists.txt
 
 
 INCLUDES = @ILMBASE_CXXFLAGS@ \

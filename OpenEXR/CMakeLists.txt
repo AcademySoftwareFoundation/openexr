@@ -43,7 +43,6 @@ ADD_SUBDIRECTORY ( exrmakepreview )
 ADD_SUBDIRECTORY ( exrenvmap )
 ADD_SUBDIRECTORY ( exrmultiview )
 ADD_SUBDIRECTORY ( exr2aces )
-ADD_SUBDIRECTORY ( exrbuild )
 ADD_SUBDIRECTORY ( exrmultipart )
 
 ##########################

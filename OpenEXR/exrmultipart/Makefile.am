@@ -11,3 +11,6 @@ $(top_builddir)/IlmImf/libIlmImf.la \
 -lz
 
 exrmultipart_SOURCES = exrmultipart.cpp
+
+EXTRA_DIST = CMakeLists.txt
+
