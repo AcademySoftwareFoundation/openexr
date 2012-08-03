@@ -62,4 +62,6 @@ TESTS = IlmImfTest
 EXTRA_DIST = comp_none.exr comp_piz.exr comp_rle.exr comp_zip.exr \
 	     comp_zips.exr lineOrder_decreasing.exr lineOrder_increasing.exr \
 	     test_native1.exr test_native2.exr invalid.exr \
-	     tiled.exr comp_b44.exr comp_b44_piz.exr
+	     tiled.exr comp_b44.exr comp_b44_piz.exr \
+             v1.7.test.planar.exr  v1.7.test.tiled.exr v1.7.test.1.exr v1.7.test.interleaved.exr \
+             invalid_shared_attrs_multipart.exr
