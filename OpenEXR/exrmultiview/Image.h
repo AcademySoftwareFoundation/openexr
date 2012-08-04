@@ -44,11 +44,13 @@
 #include <ImfChannelList.h>
 #include <ImfFrameBuffer.h>
 #include <ImfArray.h>
-#include "ImathBox.h"
-#include "half.h"
+#include <ImathBox.h>
+#include <half.h>
+
 #include <string>
 #include <map>
 
+#include "namespaceAlias.h"
 
 class Image;
 
@@ -62,11 +64,11 @@ class ImageChannel
     ImageChannel (Image &image);
     virtual ~ImageChannel();
 
-    virtual Imf::Slice	slice () const = 0;
+    virtual CustomImf::Slice	slice () const = 0;
 
     Image &		image ()		{return _image;}
     const Image &	image () const		{return _image;}
-
+    virtual void                         black() =0;
   private:
 
     virtual void	resize () = 0;
@@ -84,17 +86,19 @@ class TypedImageChannel: public ImageChannel
 
     virtual ~TypedImageChannel ();
     
-    Imf::PixelType	pixelType () const;
+    CustomImf::PixelType	pixelType () const;
 
-    virtual Imf::Slice	slice () const;
-
+    virtual CustomImf::Slice	slice () const;
+    
+    
   private:
 
     virtual void	resize ();
-
+    virtual void black();
+    
     int			_xSampling;
     int			_ySampling;
-    Imf::Array2D<T>	_pixels;
+    CustomImf::Array2D<T>	_pixels;
 };
 
 
@@ -108,17 +112,17 @@ class Image
   public:
 
     Image ();
-    Image (const Imath::Box2i &dataWindow);
+    Image (const IMATH_NAMESPACE::Box2i &dataWindow);
    ~Image ();
 
-   const Imath::Box2i &		dataWindow () const;
-   void				resize (const Imath::Box2i &dataWindow);
-
+   const IMATH_NAMESPACE::Box2i &		dataWindow () const;
+   void				resize (const IMATH_NAMESPACE::Box2i &dataWindow);
+   
    int				width () const;
    int				height () const;
 
    void				addChannel (const std::string &name,
-					    const Imf::Channel &channel);
+					    const CustomImf::Channel &channel);
 
    ImageChannel &		channel (const std::string &name);
    const ImageChannel &		channel (const std::string &name) const;
@@ -129,11 +133,13 @@ class Image
    template <class T>
    const TypedImageChannel<T> &	typedChannel (const std::string &name) const;
 
+   
+   
   private:
 
    typedef std::map <std::string, ImageChannel *> ChannelMap;
 
-   Imath::Box2i			_dataWindow;
+   IMATH_NAMESPACE::Box2i			_dataWindow;
    ChannelMap			_channels;
 };
 
@@ -165,37 +171,37 @@ TypedImageChannel<T>::~TypedImageChannel ()
 
 
 template <>
-inline Imf::PixelType
+inline CustomImf::PixelType
 HalfChannel::pixelType () const
 {
-    return Imf::HALF;
+    return CustomImf::HALF;
 }
 
 
 template <>
-inline Imf::PixelType
+inline CustomImf::PixelType
 FloatChannel::pixelType () const
 {
-    return Imf::FLOAT;
+    return CustomImf::FLOAT;
 }
 
 
 template <>
-inline Imf::PixelType
+inline CustomImf::PixelType
 UIntChannel::pixelType () const
 {
-    return Imf::UINT;
+    return CustomImf::UINT;
 }
 
 
 template <class T>
-Imf::Slice
+CustomImf::Slice
 TypedImageChannel<T>::slice () const
 {
-    const Imath::Box2i &dw = image().dataWindow();
+    const IMATH_NAMESPACE::Box2i &dw = image().dataWindow();
     int w = dw.max.x - dw.min.x + 1;
 
-    return Imf::Slice (pixelType(),
+    return CustomImf::Slice (pixelType(),
 		       (char *) (&_pixels[0][0] -
 				 dw.min.y / _ySampling * (w / _xSampling) -
 				 dw.min.x / _xSampling),
@@ -217,7 +223,15 @@ TypedImageChannel<T>::resize ()
 }
 
 
-inline const Imath::Box2i &
+template <class T>
+void
+TypedImageChannel<T>::black ()
+{
+    memset(&_pixels[0][0],0,image().width()/_xSampling*image().height()/_ySampling*sizeof(T));
+}
+
+
+inline const IMATH_NAMESPACE::Box2i &
 Image::dataWindow () const
 {
     return _dataWindow;

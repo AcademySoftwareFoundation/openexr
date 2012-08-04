@@ -50,7 +50,7 @@
 
 
 using namespace std;
-using namespace Imath;
+using namespace IMATH_INTERNAL_NAMESPACE;
 
 namespace {
 
@@ -309,7 +309,7 @@ testMiscMatrixAlgo ()
 
         cout << "Testing the building of an orthonormal direct frame from : a position, " 
         << "an x axis direction and a normal to the y axis" << endl;	
-        cout << "Imath::computeLocalFrame()" << endl;
+        cout << "IMATH_INTERNAL_NAMESPACE::computeLocalFrame()" << endl;
         
         testComputeLocalFrame ();
         
@@ -317,7 +317,7 @@ testMiscMatrixAlgo ()
 
         cout << "Add a translate/rotate/scale offset to an input frame "
         << "and put it in another frame of reference" << endl;
-        cout << "Imath::addOffset()" << endl;
+        cout << "IMATH_INTERNAL_NAMESPACE::addOffset()" << endl;
 
         testAddOffset ();
 
@@ -325,7 +325,7 @@ testMiscMatrixAlgo ()
 
         cout << "Compute Translate/Rotate/Scale matrix from matrix A "<<endl;
         cout << "with the Rotate/Scale of Matrix B"<< endl;
-        cout << "Imath::computeRSMatrix()" << endl;
+        cout << "IMATH_INTERNAL_NAMESPACE::computeRSMatrix()" << endl;
 
         testComputeRSMatrix ();
 

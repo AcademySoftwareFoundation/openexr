@@ -45,8 +45,9 @@
 #include <ImfCheckedArithmetic.h>
 #include "Iex.h"
 #include <zlib.h>
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 ZipCompressor::ZipCompressor
@@ -97,7 +98,7 @@ ZipCompressor::compress (const char *inPtr,
 			 const char *&outPtr)
 {
     //
-    // Special case ­- empty input buffer
+    // Special case ï¿½- empty input buffer
     //
 
     if (inSize == 0)
@@ -156,7 +157,7 @@ ZipCompressor::compress (const char *inPtr,
     if (Z_OK != ::compress ((Bytef *)_outBuffer, &outSize,
 			    (const Bytef *) _tmpBuffer, inSize))
     {
-	throw Iex::BaseExc ("Data compression (zlib) failed.");
+	throw IEX_NAMESPACE::BaseExc ("Data compression (zlib) failed.");
     }
 
     outPtr = _outBuffer;
@@ -171,7 +172,7 @@ ZipCompressor::uncompress (const char *inPtr,
 			   const char *&outPtr)
 {
     //
-    // Special case ­- empty input buffer
+    // Special case ï¿½- empty input buffer
     //
 
     if (inSize == 0)
@@ -189,7 +190,7 @@ ZipCompressor::uncompress (const char *inPtr,
     if (Z_OK != ::uncompress ((Bytef *)_tmpBuffer, &outSize,
 			      (const Bytef *) inPtr, inSize))
     {
-	throw Iex::InputExc ("Data decompression (zlib) failed.");
+	throw IEX_NAMESPACE::InputExc ("Data decompression (zlib) failed.");
     }
 
     //
@@ -237,4 +238,5 @@ ZipCompressor::uncompress (const char *inPtr,
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
+

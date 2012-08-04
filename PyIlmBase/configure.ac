@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(PyIlmBase, 1.0.0)
-AC_SUBST(PYILMBASE_VERSION, 1.0.0)
+AC_INIT(PyIlmBase, 2.0.0)
+AC_SUBST(PYILMBASE_VERSION, 2.0.0)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(PyIex/iexmodule.cpp)
 AM_CONFIG_HEADER(config/PyIlmBaseConfig.h)
@@ -10,7 +10,7 @@ dnl static python modules make no sense - disable static
 AC_DISABLE_STATIC
 
 
-LIBTOOL_CURRENT=1
+LIBTOOL_CURRENT=2
 LIBTOOL_REVISION=0
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE

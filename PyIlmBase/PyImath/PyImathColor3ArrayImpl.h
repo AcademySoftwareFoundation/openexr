@@ -59,17 +59,17 @@ using namespace Imath;
 
 template <class T,int index>
 static FixedArray<T>
-Color3Array_get(FixedArray<Imath::Color3<T> > &ca)
+Color3Array_get(FixedArray<IMATH_NAMESPACE::Color3<T> > &ca)
 {    
     return FixedArray<T>(&ca[0][index],ca.len(),3*ca.stride(),ca.handle());
 }
 
 // Currently we are only exposing the RGBA components.
 template <class T>
-class_<FixedArray<Imath::Color3<T> > >
+class_<FixedArray<IMATH_NAMESPACE::Color3<T> > >
 register_Color3Array()
 {
-    class_<FixedArray<Imath::Color3<T> > > color3Array_class = FixedArray<Imath::Color3<T> >::register_("Fixed length array of Imath::Color3");
+    class_<FixedArray<IMATH_NAMESPACE::Color3<T> > > color3Array_class = FixedArray<IMATH_NAMESPACE::Color3<T> >::register_("Fixed length array of Imath::Color3");
     color3Array_class
         .add_property("r",&Color3Array_get<T,0>)
         .add_property("g",&Color3Array_get<T,1>)

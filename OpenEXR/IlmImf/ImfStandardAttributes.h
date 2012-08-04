@@ -54,29 +54,31 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfHeader.h>
-#include <ImfChromaticitiesAttribute.h>
-#include <ImfEnvmapAttribute.h>
-#include <ImfFloatAttribute.h>
-#include <ImfKeyCodeAttribute.h>
-#include <ImfMatrixAttribute.h>
-#include <ImfRationalAttribute.h>
-#include <ImfStringAttribute.h>
-#include <ImfStringVectorAttribute.h>
-#include <ImfTimeCodeAttribute.h>
-#include <ImfVecAttribute.h>
+#include "ImfHeader.h"
+#include "ImfChromaticitiesAttribute.h"
+#include "ImfEnvmapAttribute.h"
+#include "ImfFloatAttribute.h"
+#include "ImfKeyCodeAttribute.h"
+#include "ImfMatrixAttribute.h"
+#include "ImfRationalAttribute.h"
+#include "ImfStringAttribute.h"
+#include "ImfStringVectorAttribute.h"
+#include "ImfTimeCodeAttribute.h"
+#include "ImfVecAttribute.h"
+#include "ImfNamespace.h"
+#include "ImfExport.h"
 
-#define IMF_STD_ATTRIBUTE_DEF(name,suffix,type)				      \
-									      \
-    void			 add##suffix (Header &header, const type &v); \
-    bool			 has##suffix (const Header &header);	      \
-    const TypedAttribute<type> & name##Attribute (const Header &header);      \
-    TypedAttribute<type> &	 name##Attribute (Header &header);	      \
-    const type &		 name (const Header &header);		      \
-    type &			 name (Header &header);
+#define IMF_STD_ATTRIBUTE_DEF(name,suffix,object)                                      \
+                                                                                       \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER                                        \
+    IMF_EXPORT void				add##suffix (Header &header, const object &v);         \
+    IMF_EXPORT bool				has##suffix (const Header &header);                    \
+    IMF_EXPORT const TypedAttribute<object> & name##Attribute (const Header &header);  \
+    IMF_EXPORT TypedAttribute<object> &	 name##Attribute (Header &header);             \
+    IMF_EXPORT const object &	name (const Header &header);                           \
+    IMF_EXPORT object &			name (Header &header);                                 \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT                                         \
 
-
-namespace Imf {
 
 //
 // chromaticities -- for RGB images, specifies the CIE (x,y)
@@ -107,7 +109,7 @@ IMF_STD_ATTRIBUTE_DEF (whiteLuminance, WhiteLuminance, float)
 // be mapped to neutral values on the display.
 //
 
-IMF_STD_ATTRIBUTE_DEF (adoptedNeutral, AdoptedNeutral, Imath::V2f)
+IMF_STD_ATTRIBUTE_DEF (adoptedNeutral, AdoptedNeutral, IMATH_NAMESPACE::V2f)
 
 
 //
@@ -316,7 +318,7 @@ IMF_STD_ATTRIBUTE_DEF (multiView , MultiView, StringVector)
 // Camera coordinate space in OpenEXR is the same as in Pixar's Renderman.
 // 
 
-IMF_STD_ATTRIBUTE_DEF (worldToCamera, WorldToCamera, Imath::M44f)
+IMF_STD_ATTRIBUTE_DEF (worldToCamera, WorldToCamera, IMATH_NAMESPACE::M44f)
 
 
 // 
@@ -336,8 +338,7 @@ IMF_STD_ATTRIBUTE_DEF (worldToCamera, WorldToCamera, Imath::M44f)
 // NDC space in OpenEXR is the same as in Pixar's Renderman.
 // 
 
-IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, Imath::M44f)
+IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
 
-} // namespace Imf
 
 #endif

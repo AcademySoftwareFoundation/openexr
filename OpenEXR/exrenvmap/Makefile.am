@@ -15,7 +15,8 @@ exrenvmap_SOURCES = main.cpp EnvmapImage.cpp EnvmapImage.h \
 		    resizeImage.cpp resizeImage.h \
 		    blurImage.cpp blurImage.h \
 		    makeCubeMap.cpp makeCubeMap.h \
-		    makeLatLongMap.cpp makeLatLongMap.h
+		    makeLatLongMap.cpp makeLatLongMap.h \
+		    namespaceAlias.h
 
 noinst_HEADERS = EnvmapImage.h makeCubeMap.h makeLatLongMap.h
 
@@ -24,4 +25,7 @@ EXTRA_DIST = main.cpp EnvmapImage.cpp EnvmapImage.h \
 	     resizeImage.cpp resizeImage.h \
 	     blurImage.cpp blurImage.h \
 	     makeCubeMap.cpp makeCubeMap.h \
-	     makeLatLongMap.cpp makeLatLongMap.h
+	     makeLatLongMap.cpp makeLatLongMap.h \
+	     namespaceAlias.h \
+             CMakeLists.txt
+        

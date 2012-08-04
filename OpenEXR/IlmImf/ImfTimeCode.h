@@ -36,6 +36,9 @@
 #ifndef INCLUDED_IMF_TIME_CODE_H
 #define INCLUDED_IMF_TIME_CODE_H
 
+#include "ImfExport.h"
+#include "ImfNamespace.h"
+
 //-----------------------------------------------------------------------------
 //
 //	class TimeCode
@@ -110,10 +113,10 @@
 //
 //-----------------------------------------------------------------------------
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
    
-class TimeCode
+class IMF_EXPORT TimeCode
 {
   public:
 
@@ -213,7 +216,15 @@ class TimeCode
     unsigned int	userData () const;
 
     void		setUserData (unsigned int value);
-
+    
+    
+    //---------
+    // Equality
+    //---------
+    
+    bool		operator == (const TimeCode &v) const;    
+    bool		operator != (const TimeCode &v) const;
+    
   private:
 
     unsigned int	_time;
@@ -221,6 +232,11 @@ class TimeCode
 };
 
 
-} // namespace Imf
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif

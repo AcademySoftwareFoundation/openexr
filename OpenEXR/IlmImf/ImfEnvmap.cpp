@@ -39,15 +39,18 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfEnvmap.h>
+#include "ImfEnvmap.h"
 #include "ImathFun.h"
+#include "ImfNamespace.h"
+
 #include <algorithm>
 #include <math.h>
 
 using namespace std;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
-namespace Imf {
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 namespace LatLongMap {
 
 V2f	
@@ -72,9 +75,9 @@ latLong (const Box2i &dataWindow, const V2f &pixelPosition)
 
     if (dataWindow.max.y > dataWindow.min.y)
     {
-	latitude = -M_PI *
-		  ((pixelPosition.y  - dataWindow.min.y) /
-		   (dataWindow.max.y - dataWindow.min.y) - 0.5f);
+        latitude = -1 * float(M_PI) *
+            ((pixelPosition.y  - dataWindow.min.y) /
+            (dataWindow.max.y - dataWindow.min.y) - 0.5f);
     }
     else
     {
@@ -83,7 +86,7 @@ latLong (const Box2i &dataWindow, const V2f &pixelPosition)
 
     if (dataWindow.max.x > dataWindow.min.x)
     {
-	longitude = -2 * M_PI *
+	longitude = -2 * float(M_PI) *
 		   ((pixelPosition.x  - dataWindow.min.x) /
 		    (dataWindow.max.x - dataWindow.min.x) - 0.5f);
     }
@@ -99,8 +102,8 @@ latLong (const Box2i &dataWindow, const V2f &pixelPosition)
 V2f
 pixelPosition (const Box2i &dataWindow, const V2f &latLong)
 {
-    float x = latLong.y / (-2 * M_PI) + 0.5f;
-    float y = latLong.x / -M_PI + 0.5f;
+    float x = latLong.y / (-2 * float(M_PI)) + 0.5f;
+    float y = latLong.x / (-1 * float(M_PI)) + 0.5f;
 
     return V2f (x * (dataWindow.max.x - dataWindow.min.x) + dataWindow.min.x,
 		y * (dataWindow.max.y - dataWindow.min.y) + dataWindow.min.y);
@@ -325,4 +328,6 @@ direction (CubeMapFace face, const Box2i &dataWindow, const V2f &positionInFace)
 }
 
 } // namespace CubeMap
-} // namespace Imf
+
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

@@ -47,18 +47,18 @@ template <class T> struct M44ArrayName { static const char *value(); };
 
 template <class T>
 static void
-setM44ArrayItem(FixedArray<Imath::Matrix44<T> > &ma,
+setM44ArrayItem(FixedArray<IMATH_NAMESPACE::Matrix44<T> > &ma,
                 Py_ssize_t index,
-                const Imath::Matrix44<T> &m)
+                const IMATH_NAMESPACE::Matrix44<T> &m)
 {
     ma[ma.canonical_index(index)] = m;
 }
 
 template <class T>
-class_<FixedArray<Imath::Matrix44<T> > >
+class_<FixedArray<IMATH_NAMESPACE::Matrix44<T> > >
 register_M44Array()
 {
-    class_<FixedArray<Imath::Matrix44<T> > > m44Array_class = FixedArray<Imath::Matrix44<T> >::register_("Fixed length array of Imath::M44");
+    class_<FixedArray<IMATH_NAMESPACE::Matrix44<T> > > m44Array_class = FixedArray<IMATH_NAMESPACE::Matrix44<T> >::register_("Fixed length array of IMATH_NAMESPACE::M44");
     m44Array_class
     .def("__setitem__", &setM44ArrayItem<T>)
     ;

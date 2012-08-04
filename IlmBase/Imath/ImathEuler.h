@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -130,9 +130,11 @@
 #include "ImathQuat.h"
 #include "ImathMatrix.h"
 #include "ImathLimits.h"
+#include "ImathNamespace.h"
+
 #include <iostream>
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 #if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
 // Disable MS VC++ warnings about conversion from double to float
@@ -918,7 +920,7 @@ Euler<T>::makeNear (const Euler<T> &target)
 #pragma warning(default:4244)
 #endif
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-#endif
+#endif // INCLUDED_IMATHEULER_H

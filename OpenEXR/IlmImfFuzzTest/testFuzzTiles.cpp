@@ -43,10 +43,15 @@
 #include <Iex.h>
 #include <iostream>
 #include <cassert>
+#include <stdio.h>
 
+
+// Handle the case when the custom namespace is not exposed
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 using namespace std;
-using namespace Imath;
-using namespace Imf;
+using namespace IMATH_NAMESPACE;
+
 
 namespace {
 
@@ -274,7 +279,7 @@ readImageRIP (const char fileName[])
 void
 fuzzTiles (int numThreads, Rand48 &random)
 {
-    if (IlmThread::supportsThreads())
+    if (ILMTHREAD_NAMESPACE::supportsThreads())
     {
 	setGlobalThreadCount (numThreads);
 	cout << "\nnumber of threads: " << globalThreadCount() << endl;
@@ -322,7 +327,7 @@ testFuzzTiles ()
 
 	fuzzTiles (0, random);
 
-	if (IlmThread::supportsThreads())
+	if (ILMTHREAD_NAMESPACE::supportsThreads())
 	    fuzzTiles (2, random);
 
 	cout << "ok\n" << endl;

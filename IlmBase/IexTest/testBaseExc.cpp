@@ -45,7 +45,7 @@ namespace {
 void
 throwArgExc ()
 {
-    throw Iex::ArgExc ("ArgExc");
+    throw IEX_INTERNAL_NAMESPACE::ArgExc ("ArgExc");
 }
 
 void
@@ -67,7 +67,7 @@ throwNested()
     {
 	throwArgExc();
     }
-    catch (const Iex::ArgExc &)
+    catch (const IEX_INTERNAL_NAMESPACE::ArgExc &)
     {
 	try
 	{
@@ -90,7 +90,7 @@ test1 ()
     {
 	throwArgExc();
     }
-    catch (const Iex::ArgExc &)
+    catch (const IEX_INTERNAL_NAMESPACE::ArgExc &)
     {
 	return;
     }
@@ -115,7 +115,7 @@ test2 ()
     {
 	throwLogicError();
     }
-    catch (const Iex::ArgExc &)
+    catch (const IEX_INTERNAL_NAMESPACE::ArgExc &)
     {
 	assert (false);
     }
@@ -161,7 +161,7 @@ test4 ()
     {
 	throwInt();
     }
-    catch (const Iex::ArgExc &)
+    catch (const IEX_INTERNAL_NAMESPACE::ArgExc &)
     {
 	assert (false);
     }
@@ -186,7 +186,7 @@ test5()
     {
 	throwNested();
     }
-    catch (const Iex::ArgExc &e)
+    catch (const IEX_INTERNAL_NAMESPACE::ArgExc &e)
     {
 	assert (e == "ArgExc");
     }

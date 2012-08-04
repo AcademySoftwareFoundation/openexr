@@ -39,10 +39,12 @@
 
 
 #include "ImathColor.h"
+#include "ImathExport.h"
 #include "ImathMath.h"
 #include "ImathLimits.h"
+#include "ImathNamespace.h"
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 //
@@ -50,14 +52,14 @@ namespace Imath {
 //	These routines eliminate type warnings under g++.
 //
 
-Vec3<double>	hsv2rgb_d(const Vec3<double> &hsv);
+IMATH_EXPORT Vec3<double>	hsv2rgb_d(const Vec3<double> &hsv);
 
-Color4<double>	hsv2rgb_d(const Color4<double> &hsv);
+IMATH_EXPORT Color4<double>	hsv2rgb_d(const Color4<double> &hsv);
 
 
-Vec3<double>	rgb2hsv_d(const Vec3<double> &rgb);
+IMATH_EXPORT Vec3<double>	rgb2hsv_d(const Vec3<double> &rgb);
 
-Color4<double>	rgb2hsv_d(const Color4<double> &rgb);
+IMATH_EXPORT Color4<double>	rgb2hsv_d(const Color4<double> &rgb);
 
 
 //
@@ -251,6 +253,6 @@ packed2rgb(PackedColor packed, Color4<T> &out)
 }
 
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif  
+#endif // INCLUDED_IMATHCOLORALGO_H

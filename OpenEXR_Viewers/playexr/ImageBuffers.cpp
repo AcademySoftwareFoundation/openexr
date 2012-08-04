@@ -41,9 +41,10 @@
 #include <ImageBuffers.h>
 #include <assert.h>
 
-using namespace Imath;
-using namespace Imf;
-using namespace IlmThread;
+
+using namespace OPENEXR_IMF_NAMESPACE;
+using namespace ILMTHREAD_NAMESPACE;
+using namespace IMATH_NAMESPACE;
 
 
 ImageBuffers::ImageBuffers ():
@@ -65,7 +66,7 @@ ImageBuffers::numBuffers ()
 }
 
 
-Imf::FrameBuffer &	
+OPENEXR_IMF_NAMESPACE::FrameBuffer &
 ImageBuffers::frameBuffer (int i)
 {
     assert (i >= 0 && i < NUM_BUFFERS);

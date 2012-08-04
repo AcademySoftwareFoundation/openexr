@@ -55,7 +55,7 @@
 
 namespace PyImath {
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 template <class T> struct Vec3Name      { static const char *value(); };
 
@@ -90,7 +90,7 @@ static Vec3<T> * Vec3_object_constructor1(const object &obj)
             w.z = extract<T>(t[2]);
         }
         else
-            THROW(Iex::LogicExc, "tuple must have length of 3");
+            THROW(IEX_NAMESPACE::LogicExc, "tuple must have length of 3");
         
     }
     else if(e5.check()) { T a = e5(); w.setValue(a, a, a); }
@@ -104,10 +104,10 @@ static Vec3<T> * Vec3_object_constructor1(const object &obj)
             w.z = extract<T>(l[2]);
         }
         else
-            THROW(Iex::LogicExc, "list must have length of 3");
+            THROW(IEX_NAMESPACE::LogicExc, "list must have length of 3");
     }
     else
-        THROW(Iex::LogicExc, "invalid parameters passed to Vec3 constructor");
+        THROW(IEX_NAMESPACE::LogicExc, "invalid parameters passed to Vec3 constructor");
     
     Vec3<T> *v = new Vec3<T>;
     *v = w;
@@ -125,13 +125,13 @@ static Vec3<T> * Vec3_object_constructor2(const object &obj1, const object &obj2
     Vec3<T> *v = new Vec3<T>;
     
     if(e1.check()) { v->x = e1();}
-    else { THROW(Iex::LogicExc, "invalid parameters passed to Vec3 constructor"); }
+    else { THROW(IEX_NAMESPACE::LogicExc, "invalid parameters passed to Vec3 constructor"); }
     
     if(e2.check()) { v->y = e2();}
-    else { THROW(Iex::LogicExc, "invalid parameters passed to Vec3 constructor"); }    
+    else { THROW(IEX_NAMESPACE::LogicExc, "invalid parameters passed to Vec3 constructor"); }    
 
     if(e3.check()) { v->z = e3();}
-    else { THROW(Iex::LogicExc, "invalid parameters passed to Vec3 constructor"); } 
+    else { THROW(IEX_NAMESPACE::LogicExc, "invalid parameters passed to Vec3 constructor"); } 
     
     return v;
 }
@@ -156,20 +156,20 @@ static std::string Vec3_repr(const Vec3<T> &v)
 }
 
 template <class T>
-static Imath::Vec3<T>
-Vec3_cross(const Imath::Vec3<T> &v, const Imath::Vec3<T> &other) 
+static IMATH_NAMESPACE::Vec3<T>
+Vec3_cross(const IMATH_NAMESPACE::Vec3<T> &v, const IMATH_NAMESPACE::Vec3<T> &other) 
 { 
     MATH_EXC_ON;
     return v.cross(other);
 }
 
 template <class T>
-static FixedArray<Imath::Vec3<T> >
-Vec3_cross_Vec3Array(const Imath::Vec3<T> &va, const FixedArray<Imath::Vec3<T> > &vb) 
+static FixedArray<IMATH_NAMESPACE::Vec3<T> >
+Vec3_cross_Vec3Array(const IMATH_NAMESPACE::Vec3<T> &va, const FixedArray<IMATH_NAMESPACE::Vec3<T> > &vb) 
 { 
     MATH_EXC_ON;
     size_t len = vb.len(); 
-    FixedArray<Imath::Vec3<T> > f(len); 
+    FixedArray<IMATH_NAMESPACE::Vec3<T> > f(len); 
     for (size_t i = 0; i < len; ++i) 
         f[i] = va.cross(vb[i]); 
     return f; 
@@ -177,7 +177,7 @@ Vec3_cross_Vec3Array(const Imath::Vec3<T> &va, const FixedArray<Imath::Vec3<T> >
 
 template <class T>
 static T
-Vec3_dot(const Imath::Vec3<T> &v, const Imath::Vec3<T> &other) 
+Vec3_dot(const IMATH_NAMESPACE::Vec3<T> &v, const IMATH_NAMESPACE::Vec3<T> &other) 
 { 
     MATH_EXC_ON;
     return v.dot(other);
@@ -185,7 +185,7 @@ Vec3_dot(const Imath::Vec3<T> &v, const Imath::Vec3<T> &other)
 
 template <class T>
 static FixedArray<T>
-Vec3_dot_Vec3Array(const Imath::Vec3<T> &va, const FixedArray<Imath::Vec3<T> > &vb) 
+Vec3_dot_Vec3Array(const IMATH_NAMESPACE::Vec3<T> &va, const FixedArray<IMATH_NAMESPACE::Vec3<T> > &vb) 
 { 
     MATH_EXC_ON;
     size_t len = vb.len(); 
@@ -197,7 +197,7 @@ Vec3_dot_Vec3Array(const Imath::Vec3<T> &va, const FixedArray<Imath::Vec3<T> > &
 
 template <class T>
 static T
-Vec3_length(const Imath::Vec3<T> &v) 
+Vec3_length(const IMATH_NAMESPACE::Vec3<T> &v) 
 { 
     MATH_EXC_ON;
     return v.length();
@@ -205,7 +205,7 @@ Vec3_length(const Imath::Vec3<T> &v)
 
 template <class T>
 static T
-Vec3_length2(const Imath::Vec3<T> &v) 
+Vec3_length2(const IMATH_NAMESPACE::Vec3<T> &v) 
 { 
     MATH_EXC_ON;
     return v.length2();
@@ -213,7 +213,7 @@ Vec3_length2(const Imath::Vec3<T> &v)
 
 template <class T>
 static const Vec3<T> &
-Vec3_normalize(Imath::Vec3<T> &v) 
+Vec3_normalize(IMATH_NAMESPACE::Vec3<T> &v) 
 { 
     MATH_EXC_ON;
     return v.normalize();
@@ -221,7 +221,7 @@ Vec3_normalize(Imath::Vec3<T> &v)
 
 template <class T>
 static const Vec3<T> &
-Vec3_normalizeExc(Imath::Vec3<T> &v) 
+Vec3_normalizeExc(IMATH_NAMESPACE::Vec3<T> &v) 
 { 
     MATH_EXC_ON;
     return v.normalizeExc();
@@ -229,7 +229,7 @@ Vec3_normalizeExc(Imath::Vec3<T> &v)
 
 template <class T>
 static const Vec3<T> &
-Vec3_normalizeNonNull(Imath::Vec3<T> &v) 
+Vec3_normalizeNonNull(IMATH_NAMESPACE::Vec3<T> &v) 
 { 
     MATH_EXC_ON;
     return v.normalizeNonNull();
@@ -237,7 +237,7 @@ Vec3_normalizeNonNull(Imath::Vec3<T> &v)
 
 template <class T>
 static Vec3<T>
-Vec3_normalized(const Imath::Vec3<T> &v) 
+Vec3_normalized(const IMATH_NAMESPACE::Vec3<T> &v) 
 { 
     MATH_EXC_ON;
     return v.normalized();
@@ -245,7 +245,7 @@ Vec3_normalized(const Imath::Vec3<T> &v)
 
 template <class T>
 static Vec3<T>
-Vec3_normalizedExc(const Imath::Vec3<T> &v) 
+Vec3_normalizedExc(const IMATH_NAMESPACE::Vec3<T> &v) 
 { 
     MATH_EXC_ON;
     return v.normalizedExc();
@@ -253,7 +253,7 @@ Vec3_normalizedExc(const Imath::Vec3<T> &v)
 
 template <class T>
 static Vec3<T>
-Vec3_normalizedNonNull(const Imath::Vec3<T> &v) 
+Vec3_normalizedNonNull(const IMATH_NAMESPACE::Vec3<T> &v) 
 { 
     MATH_EXC_ON;
     return v.normalizedNonNull();
@@ -264,12 +264,12 @@ static Vec3<T>
 closestVertex(Vec3<T> &p, const Vec3<T> &v0, const Vec3<T> &v1, const Vec3<T> &v2)
 {
     MATH_EXC_ON;
-    return Imath::closestVertex(v0, v1, v2, p);
+    return IMATH_NAMESPACE::closestVertex(v0, v1, v2, p);
 }
 
 template <class T>
 static const Vec3<T> &
-Vec3_negate(Imath::Vec3<T> &v) 
+Vec3_negate(IMATH_NAMESPACE::Vec3<T> &v) 
 { 
     MATH_EXC_ON;
     return v.negate();
@@ -280,7 +280,7 @@ static Vec3<T>
 orthogonal(const Vec3<T> &v, const Vec3<T> &v0)
 {
     MATH_EXC_ON;
-    return Imath::orthogonal(v, v0);
+    return IMATH_NAMESPACE::orthogonal(v, v0);
 }
 
 template <class T>
@@ -288,7 +288,7 @@ static Vec3<T>
 project(const Vec3<T> &v, const Vec3<T> &v0)
 {
     MATH_EXC_ON;
-    return Imath::project(v0, v);
+    return IMATH_NAMESPACE::project(v0, v);
 }
 
 template <class T>
@@ -296,7 +296,7 @@ static Vec3<T>
 reflect(const Vec3<T> &v, const Vec3<T> &v0)
 {
     MATH_EXC_ON;
-    return Imath::reflect(v, v0);
+    return IMATH_NAMESPACE::reflect(v, v0);
 }
 
 template <class T>
@@ -350,18 +350,18 @@ Vec3_mulT (const Vec3<T> &v, T t)
 }
 
 template <class T>
-static FixedArray<Imath::Vec3<T> >
+static FixedArray<IMATH_NAMESPACE::Vec3<T> >
 Vec3_mulTArray (const Vec3<T> &v, const FixedArray<T> &t)
 {
     MATH_EXC_ON;
     size_t len = t.len();
-    FixedArray<Imath::Vec3<T> > retval(len);
+    FixedArray<IMATH_NAMESPACE::Vec3<T> > retval(len);
     for (size_t i=0; i<len; ++i) retval[i] = v*t[i];
     return retval;
 }
 
 template <class T>
-static FixedArray<Imath::Vec3<T> >
+static FixedArray<IMATH_NAMESPACE::Vec3<T> >
 Vec3_rmulTArray (const Vec3<T> &v, const FixedArray<T> &t)
 {
     return Vec3_mulTArray(v,t);
@@ -393,7 +393,7 @@ Vec3_imulV(Vec3<T> &v, const Vec3<U> &w)
 
 template <class T>
 static const Vec3<T> &
-Vec3_imulT(Imath::Vec3<T> &v, T t) 
+Vec3_imulT(IMATH_NAMESPACE::Vec3<T> &v, T t) 
 { 
     MATH_EXC_ON;
     return v *= t;
@@ -417,7 +417,7 @@ Vec3_mulM44 (Vec3<T> &v, const Matrix44<U> &m)
 
 template <class T>
 static const Vec3<T> &
-Vec3_idivObj(Imath::Vec3<T> &v, const object &o) 
+Vec3_idivObj(IMATH_NAMESPACE::Vec3<T> &v, const object &o) 
 { 
     MATH_EXC_ON;
     Vec3<T> v2;
@@ -431,7 +431,7 @@ Vec3_idivObj(Imath::Vec3<T> &v, const object &o)
         if (e.check())
             return v /= e();
         else
-            THROW (Iex::ArgExc, "V3 division expects an argument"
+            THROW (IEX_NAMESPACE::ArgExc, "V3 division expects an argument"
                    "convertible to a V3");
     }
 }
@@ -460,7 +460,7 @@ Vec3_subTuple(const Vec3<T> &v, const BoostPyType &t)
         w.z = v.z - extract<T>(t[2]);
     }
     else
-        THROW(Iex::LogicExc, "tuple must have length of 3");
+        THROW(IEX_NAMESPACE::LogicExc, "tuple must have length of 3");
     
     return w;
 }
@@ -489,7 +489,7 @@ Vec3_rsubTuple(const Vec3<T> &v, const BoostPyType &t)
         w.z = extract<T>(t[2]) - v.z;
     }
     else
-        THROW(Iex::LogicExc, "tuple must have length of 3");
+        THROW(IEX_NAMESPACE::LogicExc, "tuple must have length of 3");
     
     return w;
 }
@@ -508,7 +508,7 @@ Vec3_addTuple(const Vec3<T> &v, const BoostPyType &t)
         w.z = v.z + extract<T>(t[2]);
     }
     else
-        THROW(Iex::LogicExc, "tuple must have length of 3");
+        THROW(IEX_NAMESPACE::LogicExc, "tuple must have length of 3");
     
     return w;
 }
@@ -573,7 +573,7 @@ mult(const Vec3<T> &v, tuple t)
         w.z = v.z*extract<T>(t[2]);
     }
     else
-        THROW(Iex::LogicExc, "tuple must have length of 1 or 3");
+        THROW(IEX_NAMESPACE::LogicExc, "tuple must have length of 1 or 3");
     
     return w;
 }
@@ -598,10 +598,10 @@ Vec3_divTuple(const Vec3<T> &v, const BoostPyType &t)
         if(x != T(0) && y != T(0) && z != T(0))
             return Vec3<T>(v.x / x, v.y / y, v.z / z);
         else
-            THROW(Iex::MathExc, "Division by zero");
+            THROW(IEX_NAMESPACE::MathExc, "Division by zero");
     }
     else
-        THROW(Iex::LogicExc, "Vec3 expects tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "Vec3 expects tuple of length 3");
 }
 
 template <class T, class BoostPyType>
@@ -620,10 +620,10 @@ Vec3_rdivTuple(const Vec3<T> &v, const BoostPyType &t)
             w.setValue(x / v.x, y / v.y, z / v.z);
         }
         else
-            THROW(Iex::MathExc, "Division by zero");
+            THROW(IEX_NAMESPACE::MathExc, "Division by zero");
     }
     else
-        THROW(Iex::LogicExc, "tuple must have length of 3");
+        THROW(IEX_NAMESPACE::LogicExc, "tuple must have length of 3");
     
     return w;
 }
@@ -638,7 +638,7 @@ Vec3_divT(const Vec3<T> &v, T a)
         w.setValue(v.x / a, v.y / a, v.z / a);
     }
     else
-        THROW(Iex::MathExc, "Division by zero");
+        THROW(IEX_NAMESPACE::MathExc, "Division by zero");
 
     return w;
 }
@@ -653,7 +653,7 @@ Vec3_rdivT(const Vec3<T> &v, T a)
         w.setValue(a / v.x, a / v.y, a / v.z);
     }
     else
-        THROW(Iex::MathExc, "Division by zero");
+        THROW(IEX_NAMESPACE::MathExc, "Division by zero");
 
     return w;
 }
@@ -695,7 +695,7 @@ lessThan(const Vec3<T> &v, const object &obj)
         w.setValue(x,y,z);
     }
     else
-        THROW(Iex::LogicExc, "invalid parameters passed to operator <");
+        THROW(IEX_NAMESPACE::LogicExc, "invalid parameters passed to operator <");
     
     bool isLessThan = (v.x <= w.x && v.y <= w.y && v.z <= w.z)
                     && v != w;
@@ -724,7 +724,7 @@ greaterThan(const Vec3<T> &v, const object &obj)
         w.setValue(x,y,z);
     }
     else
-        THROW(Iex::LogicExc, "invalid parameters passed to operator >");
+        THROW(IEX_NAMESPACE::LogicExc, "invalid parameters passed to operator >");
     
     bool isGreaterThan = (v.x >= w.x && v.y >= w.y && v.z >= w.z)
                        & v != w;
@@ -753,7 +753,7 @@ lessThanEqual(const Vec3<T> &v, const object &obj)
         w.setValue(x,y,z);
     }
     else
-        THROW(Iex::LogicExc, "invalid parameters passed to operator <=");
+        THROW(IEX_NAMESPACE::LogicExc, "invalid parameters passed to operator <=");
     
     bool isLessThanEqual = (v.x <= w.x && v.y <= w.y && v.z <= w.z);
                    
@@ -781,7 +781,7 @@ greaterThanEqual(const Vec3<T> &v, const object &obj)
         w.setValue(x,y,z);
     }
     else
-        THROW(Iex::LogicExc, "invalid parameters passed to operator >=");
+        THROW(IEX_NAMESPACE::LogicExc, "invalid parameters passed to operator >=");
     
     bool isGreaterThanEqual = (v.x >= w.x && v.y >= w.y && v.z >= w.z);
 
@@ -814,14 +814,14 @@ equalWithAbsErrorObj(const Vec3<T> &v, const object &obj1, const object &obj2)
             w.z = extract<T>(t[2]);
         }
         else
-            THROW(Iex::LogicExc, "tuple of length 3 expected");
+            THROW(IEX_NAMESPACE::LogicExc, "tuple of length 3 expected");
     }
     else
-        THROW(Iex::LogicExc, "invalid parameters passed to equalWithAbsError");
+        THROW(IEX_NAMESPACE::LogicExc, "invalid parameters passed to equalWithAbsError");
     
     if(e5.check())      { return v.equalWithAbsError(w, e5()); }
     else
-        THROW(Iex::LogicExc, "invalid parameters passed to equalWithAbsError");
+        THROW(IEX_NAMESPACE::LogicExc, "invalid parameters passed to equalWithAbsError");
 }
 
 template <class T>
@@ -849,14 +849,14 @@ equalWithRelErrorObj(const Vec3<T> &v, const object &obj1, const object &obj2)
             w.z = extract<T>(t[2]);
         }
         else
-            THROW(Iex::LogicExc, "tuple of length 3 expected");
+            THROW(IEX_NAMESPACE::LogicExc, "tuple of length 3 expected");
     }
     else
-        THROW(Iex::LogicExc, "invalid parameters passed to equalWithRelError");
+        THROW(IEX_NAMESPACE::LogicExc, "invalid parameters passed to equalWithRelError");
     
     if(e5.check())      { return v.equalWithRelError(w, e5()); }
     else
-        THROW(Iex::LogicExc, "invalid parameters passed to equalWithRelError");    
+        THROW(IEX_NAMESPACE::LogicExc, "invalid parameters passed to equalWithRelError");    
     
 }
 
@@ -875,7 +875,7 @@ equal(const Vec3<T> &v, const tuple &t)
         return (v == w);
     }
     else
-        THROW(Iex::LogicExc, "tuple of length 3 expected");    
+        THROW(IEX_NAMESPACE::LogicExc, "tuple of length 3 expected");    
 }
 
 template <class T>
@@ -892,7 +892,7 @@ notequal(const Vec3<T> &v, const tuple &t)
         return (v != w);
     }
     else
-        THROW(Iex::LogicExc, "tuple of length 3 expected");    
+        THROW(IEX_NAMESPACE::LogicExc, "tuple of length 3 expected");    
 }
 
 template <class T>

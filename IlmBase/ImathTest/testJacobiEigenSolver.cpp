@@ -42,7 +42,7 @@
 #include <limits>
 
 using namespace std;
-using namespace Imath;
+using namespace IMATH_INTERNAL_NAMESPACE;
 
 const Matrix33<double> A33_1 ( 1, 0, 0, 0, 1, 0, 0, 0, 1 );
 const Matrix33<double> A33_2 ( 1, 0, 0, 0,-1, 0, 0, 0, 1 );
@@ -282,7 +282,7 @@ void
 testJacobiEigenSolver()
 {
     cout << endl;
-    cout <<  "************ Testing Imath::ImathJacobiEigenSolver ************" << endl;
+    cout <<  "************ Testing IMATH_INTERNAL_NAMESPACE::ImathJacobiEigenSolver ************" << endl;
     
     cout << "Jacobi EigenSolver in single precision...";
     testJacobiEigenSolverImp<float>();

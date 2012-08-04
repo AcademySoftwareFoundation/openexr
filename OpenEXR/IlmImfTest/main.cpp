@@ -33,96 +33,133 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include "OpenEXRConfig.h"
-#include <testXdr.h>
-#include <testMagic.h>
-#include <testHuf.h>
-#include <testWav.h>
-#include <testChannels.h>
-#include <testAttributes.h>
-#include <testCustomAttributes.h>
-#include <testLineOrder.h>
-#include <testCompression.h>
-#include <testCopyPixels.h>
-#include <testRgba.h>
-#include <testRgbaThreading.h>
-#include <testLut.h>
-#include <testSampleImages.h>
-#include <testPreviewImage.h>
-#include <testConversion.h>
-#include <testStandardAttributes.h>
-#include <testNativeFormat.h>
-#include <testTiledRgba.h>
-#include <testTiledCompression.h>
-#include <testTiledCopyPixels.h>
-#include <testTiledLineOrder.h>
-#include <testScanLineApi.h>
-#include <testExistingStreams.h>
-#include <testYca.h>
-#include <testTiledYa.h>
-#include <testIsComplete.h>
-#include <testSharedFrameBuffer.h>
-#include <testMultiView.h>
+#include <OpenEXRConfig.h>
+
+#include "testXdr.h"
+#include "testMagic.h"
+#include "testHuf.h"
+#include "testWav.h"
+#include "testChannels.h"
+#include "testAttributes.h"
+#include "testCustomAttributes.h"
+#include "testLineOrder.h"
+#include "testCompression.h"
+#include "testCopyPixels.h"
+#include "testRgba.h"
+#include "testRgbaThreading.h"
+#include "testLut.h"
+#include "testSampleImages.h"
+#include "testPreviewImage.h"
+#include "testConversion.h"
+#include "testStandardAttributes.h"
+#include "testNativeFormat.h"
+#include "testTiledRgba.h"
+#include "testTiledCompression.h"
+#include "testTiledCopyPixels.h"
+#include "testTiledLineOrder.h"
+#include "testScanLineApi.h"
+#include "testExistingStreams.h"
+#include "testYca.h"
+#include "testTiledYa.h"
+#include "testIsComplete.h"
+#include "testSharedFrameBuffer.h"
+#include "testMultiView.h"
+#include "testMultiPartApi.h"
+#include "testMultiPartSharedAttributes.h"
+#include "testMultiPartThreading.h"
+#include "testMultiScanlinePartThreading.h"
+#include "testMultiTiledPartThreading.h"
+#include "testDeepScanLineBasic.h"
+#include "testCopyDeepScanLine.h"
+#include "testDeepScanLineHuge.h"
+#include "testDeepTiledBasic.h"
+#include "testCopyDeepTiled.h"
+#include "testCompositeDeepScanLine.h"
+#include "testMultiPartFileMixingBasic.h"
+#include "testInputPart.h"
+#include "testBackwardCompatibility.h"
+#include "testCopyMultiPartFile.h"
 #include <stdlib.h>
 #include <iostream>
 #include <string.h>
 
-#ifdef HAVE_LINUX_PROCFS
+#ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
     #include <unistd.h>
     #include <sstream>
 #endif
 
-#define TEST(x) if (argc < 2 || !strcmp (argv[1], #x)) x();
+using namespace std;
+#define TEST(x,y) if (argc < 2 || (!strcmp (argv[1], #x) || !strcmp(argv[1],y))) \
+                         { cout << "\n=======\nTesting " << #x <<endl; x();}
 
 int
 main (int argc, char *argv[])
 {
-    TEST (testMagic);
-    TEST (testXdr);
-    TEST (testHuf);
-    TEST (testWav);
-    TEST (testRgba);
-    TEST (testSharedFrameBuffer);
-    TEST (testRgbaThreading);
-    TEST (testChannels);
-    TEST (testAttributes);
-    TEST (testCustomAttributes);
-    TEST (testLineOrder);
-    TEST (testCompression);
-    TEST (testCopyPixels);
-    TEST (testLut);
-    TEST (testSampleImages);
-    TEST (testPreviewImage);
-    TEST (testConversion);
-    TEST (testTiledRgba);
-    TEST (testTiledCopyPixels);
-    TEST (testTiledCompression);
-    TEST (testTiledLineOrder);
-    TEST (testScanLineApi);
-    TEST (testExistingStreams);
-    TEST (testStandardAttributes);
-    TEST (testYca);
-    TEST (testTiledYa);
-    TEST (testNativeFormat);
-    TEST (testMultiView);
-    TEST (testIsComplete);
+    TEST (testMagic,"core");
+    TEST (testXdr,"core");
+    TEST (testHuf,"core");
+    TEST (testWav,"core");
+    TEST (testRgba,"basic");
+    TEST (testSharedFrameBuffer,"basic");
+    TEST (testRgbaThreading,"basic");
+    TEST (testChannels,"basic");
+    TEST (testAttributes,"core");
+    TEST (testCustomAttributes,"core");
+    TEST (testLineOrder,"basic");
+    TEST (testCompression,"basic");
+    TEST (testCopyPixels,"basic");
+    TEST (testLut,"basic");
+    TEST (testSampleImages,"basic");
+    TEST (testPreviewImage,"basic");
+    TEST (testConversion,"basic");
+    TEST (testTiledRgba,"basic");
+    TEST (testTiledCopyPixels,"basic");
+    TEST (testTiledCompression,"basic");
+    TEST (testTiledLineOrder,"basic");
+    TEST (testScanLineApi,"basic");
+    TEST (testExistingStreams,"core");
+    TEST (testStandardAttributes,"core");
+    TEST (testYca,"basic");
+    TEST (testTiledYa,"basic");
+    TEST (testNativeFormat,"basic");
+    TEST (testMultiView,"basic");
+    TEST (testIsComplete,"basic");
+    TEST (testDeepScanLineBasic,"deep");
+    TEST (testCopyDeepScanLine,"deep");
+    TEST (testDeepTiledBasic,"deep");
+    TEST (testCopyDeepTiled,"deep");
+    TEST (testCompositeDeepScanLine,"deep");
+    TEST (testMultiPartFileMixingBasic,"multi");
+    TEST (testInputPart,"multi");
+    TEST (testMultiScanlinePartThreading,"multi");
+    TEST (testMultiTiledPartThreading,"multi");
+    TEST (testMultiPartThreading,"multi");
+    TEST (testMultiPartApi,"multi");
+    TEST (testMultiPartSharedAttributes,"multi");
+    TEST (testCopyMultiPartFile,"multi");
+    TEST (testBackwardCompatibility, "core");
+       
+#ifdef ENABLE_IMFHUGETEST // defined via configure with --enable-imfhugetest=yes
+    TEST (testDeepScanLineHuge,"deep");
+#endif    
+
     
-    #ifdef HAVE_LINUX_PROCFS
+#ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
 
-	//
-	// Allow the user to check for file descriptor leaks
-	//
+    //
+    // Allow the user to check for file descriptor leaks
+    //
 
-	std::cout << "open file descriptors:" << std::endl;
+    std::cout << "open file descriptors:" << std::endl;
 
-	std::stringstream ss;
-	ss << "ls -lG /proc/" << getpid() << "/fd";
-	
-	system (ss.str().c_str());
+    std::stringstream ss;
+    ss << "ls -lG /proc/" << getpid() << "/fd";
 
-	std::cout << std::endl;
+    system (ss.str().c_str());
 
-    #endif
+    std::cout << std::endl;
+
+#endif
 
     return 0;
 }

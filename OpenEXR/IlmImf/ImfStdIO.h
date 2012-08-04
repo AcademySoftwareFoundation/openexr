@@ -43,18 +43,22 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfIO.h>
+#include "ImfIO.h"
+#include "ImfNamespace.h"
+#include "ImfExport.h"
+
 #include <fstream>
 #include <sstream>
 
-namespace Imf {
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //-------------------------------------------
 // class StdIFStream -- an implementation of
-// class IStream based on class std::ifstream
+// class OPENEXR_IMF_INTERNAL_NAMESPACE::IStream based on class std::ifstream
 //-------------------------------------------
 
-class StdIFStream: public IStream
+class IMF_EXPORT StdIFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
 {
   public:
 
@@ -91,10 +95,10 @@ class StdIFStream: public IStream
 
 //-------------------------------------------
 // class StdOFStream -- an implementation of
-// class OStream based on class std::ofstream
+// class OPENEXR_IMF_INTERNAL_NAMESPACE::OStream based on class std::ofstream
 //-------------------------------------------
 
-class StdOFStream: public OStream
+class IMF_EXPORT StdOFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
 {
   public:
 
@@ -130,10 +134,10 @@ class StdOFStream: public OStream
 
 //------------------------------------------------
 // class StdOSStream -- an implementation of class
-// OStream, based on class std::ostringstream
+// OPENEXR_IMF_INTERNAL_NAMESPACE::OStream, based on class std::ostringstream
 //------------------------------------------------
 
-class StdOSStream: public OStream
+class IMF_EXPORT StdOSStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
 {
   public:
 
@@ -151,6 +155,6 @@ class StdOSStream: public OStream
 };
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

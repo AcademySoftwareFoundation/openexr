@@ -48,7 +48,7 @@ object
 arrayToNumpy_float(FloatArray &fa)
 {
     if (fa.stride() != 1) {
-        throw Iex::LogicExc("Unable to make numpy wrapping of strided arrays");
+        throw IEX_NAMESPACE::LogicExc("Unable to make numpy wrapping of strided arrays");
     }
 
     npy_intp length = fa.len();
@@ -68,7 +68,7 @@ object
 arrayToNumpy_V3f(V3fArray &va)
 {
     if (va.stride() != 1) {
-        throw Iex::LogicExc("Unable to make numpy wrapping of strided arrays");
+        throw IEX_NAMESPACE::LogicExc("Unable to make numpy wrapping of strided arrays");
     }
 
     npy_intp length[2];
@@ -90,7 +90,7 @@ object
 arrayToNumpy_int(IntArray &va)
 {
     if (va.stride() != 1) {
-        throw Iex::LogicExc("Unable to make numpy wrapping of strided arrays");
+        throw IEX_NAMESPACE::LogicExc("Unable to make numpy wrapping of strided arrays");
     }
 
     npy_intp length = va.len();

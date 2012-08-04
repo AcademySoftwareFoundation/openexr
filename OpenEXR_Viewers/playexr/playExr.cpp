@@ -68,16 +68,18 @@
 #include <ImfStandardAttributes.h>
 #include <ImfRgbaYca.h>
 #include <ImfArray.h>
+
 #include <half.h>
 #include <stdlib.h>
 #include <sstream>
 #include <iomanip>
 #include <cmath>
 
-using namespace IlmThread;
-using namespace Imf;
-using namespace Imath;
+
+using namespace OPENEXR_IMF_NAMESPACE;
+using namespace IMATH_NAMESPACE;
 using namespace std;
+using namespace ILMTHREAD_NAMESPACE;
 
 namespace {
 
@@ -1409,7 +1411,7 @@ playExr (const char fileNameTemplate[],
     // will use internally for OpenEXR file reading.
     //
 
-    Imf::setGlobalThreadCount (numThreads);
+    OPENEXR_IMF_NAMESPACE::setGlobalThreadCount (numThreads);
 
     //
     // Allocate buffers for the images, initialize semaphores

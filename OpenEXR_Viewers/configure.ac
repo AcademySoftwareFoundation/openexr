@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(OpenEXR_Viewers, 1.0.2)
-AC_SUBST(OPENEXR_VIEWERS_VERSION, 1.0.2)
+AC_INIT(OpenEXR_Viewers, 2.0.0)
+AC_SUBST(OPENEXR_VIEWERS_VERSION, 2.0.0)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(playexr/main.cpp)
 AM_CONFIG_HEADER(config/OpenEXR_ViewersConfig.h)
@@ -107,8 +107,9 @@ AM_COMPILELINKRUN(
    [$OPENEXR_LIBS],[[
 #include <stdlib.h>
 #include <ImfTestFile.h>
+#include <OpenEXRConfig.h>
 ]],
-   [[Imf::isOpenExrFile("notExist");]],
+   [[OPENEXR_IMF_NAMESPACE::isOpenExrFile("notExist");]],
    AC_MSG_RESULT([Compiled and ran OpenEXR test program.]), 
    AC_MSG_ERROR([Could not compile OpenEXR test program.]))
 
@@ -125,10 +126,11 @@ AM_COMPILELINKRUN(
 #include <ImfHeader.h>
 #include <ImfFrameBuffer.h>
 #include <ImathBox.h>
+#include <OpenEXRConfig.h>
 #include <vector>
 #include <cstdlib>
     using namespace Ctl;
-    using namespace Imf;
+    using namespace OPENEXR_IMF_NAMESPACE;
     using namespace Imath;
 ]],
    [[

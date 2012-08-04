@@ -15,3 +15,5 @@ LDADD = -L$(top_builddir)/Half -lHalf
 
 TESTS = HalfTest
 
+EXTRA_DIST = CMakeLists.txt
+

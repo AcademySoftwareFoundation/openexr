@@ -26,9 +26,27 @@ IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
 		     testTiledYa.cpp testTiledYa.h \
 		     testYca.cpp testYca.h compareB44.h compareB44.cpp \
                      testMultiView.cpp testMultiView.h \
-		     testIsComplete.cpp testIsComplete.h
-
+		     testIsComplete.cpp testIsComplete.h \
+		     testMultiPartApi.cpp testMultiPartApi.h \
+		     testMultiPartThreading.cpp testMultiPartThreading.h \
+		     testMultiScanlinePartThreading.cpp testMultiScanlinePartThreading.h \
+		     testMultiTiledPartThreading.cpp testMultiTiledPartThreading.h \
+                     testDeepScanLineBasic.cpp testDeepScanLineBasic.h \
+                     testDeepTiledBasic.cpp testDeepTiledBasic.h \
+		     testMultiPartFileMixingBasic.cpp testMultiPartFileMixingBasic.h \
+		     testMultiPartSharedAttributes.cpp testMultiPartSharedAttributes.h \
+		     testBackwardCompatibility.cpp testBackwardCompatibility.h \
+                     testCopyDeepScanLine.cpp testCopyDeepScanLine.h testCopyDeepTiled.h \
+                     testCopyDeepTiled.cpp testCopyMultiPartFile.h testCopyMultiPartFile.cpp \
+                     testCompositeDeepScanLine.h testCompositeDeepScanLine.cpp \
+                     testInputPart.cpp testInputPart.h
 AM_CPPFLAGS = -DILM_IMF_TEST_IMAGEDIR=\"$(srcdir)/\"
+
+if BUILD_IMFHUGETEST
+IlmImfTest_SOURCES += testDeepScanLineHuge.cpp testDeepScanLineHuge.h
+AM_CPPFLAGS += -DENABLE_IMFHUGETEST
+endif
+
 
 INCLUDES = -I$(top_builddir)  \
 	   -I$(top_srcdir)/IlmImf \
@@ -44,4 +62,7 @@ TESTS = IlmImfTest
 EXTRA_DIST = comp_none.exr comp_piz.exr comp_rle.exr comp_zip.exr \
 	     comp_zips.exr lineOrder_decreasing.exr lineOrder_increasing.exr \
 	     test_native1.exr test_native2.exr invalid.exr \
-	     tiled.exr comp_b44.exr comp_b44_piz.exr
+	     tiled.exr comp_b44.exr comp_b44_piz.exr \
+             v1.7.test.planar.exr  v1.7.test.tiled.exr v1.7.test.1.exr v1.7.test.interleaved.exr \
+             invalid_shared_attrs_multipart.exr \
+             CMakeLists.txt

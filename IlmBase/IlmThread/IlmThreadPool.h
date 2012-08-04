@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2005, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -35,6 +35,8 @@
 #ifndef INCLUDED_ILM_THREAD_POOL_H
 #define INCLUDED_ILM_THREAD_POOL_H
 
+#include "IlmThread.h"
+
 //-----------------------------------------------------------------------------
 //
 //	class Task, class ThreadPool, class TaskGroup
@@ -60,13 +62,15 @@
 //
 //-----------------------------------------------------------------------------
 
-namespace IlmThread {
+#include "IlmThreadNamespace.h"
+
+ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class TaskGroup;
 class Task;
 
 
-class ThreadPool  
+class ILMTHREAD_EXPORT ThreadPool  
 {
   public:
 
@@ -123,7 +127,7 @@ class ThreadPool
 };
 
 
-class Task
+class ILMTHREAD_EXPORT Task
 {
   public:
 
@@ -139,7 +143,7 @@ class Task
 };
 
 
-class TaskGroup
+class ILMTHREAD_EXPORT TaskGroup
 {
   public:
 
@@ -151,6 +155,6 @@ class TaskGroup
 };
 
 
-} // namespace IlmThread
+ILMTHREAD_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif
+#endif // INCLUDED_ILM_THREAD_POOL_H

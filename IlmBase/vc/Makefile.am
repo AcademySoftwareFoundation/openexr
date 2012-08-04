@@ -27,16 +27,4 @@ EXTRA_DIST = \
         vc8/IlmBase/IlmThread/IlmThread.vcproj \
         vc8/IlmBase/Imath/Imath.vcproj \
         vc8/IlmBase/ImathTest/ImathTest.vcproj \
-        vc8/IlmBase/createDLL/createDLL.vcproj \
-        vc9/IlmBase/IlmBase.sln \
-        vc9/IlmBase/Half/Half.vcproj \
-        vc9/IlmBase/HalfTest/HalfTest.vcproj \
-        vc9/IlmBase/Iex/Iex.vcproj \
-        vc9/IlmBase/IexTest/IexTest.vcproj \
-        vc9/IlmBase/IlmThread/IlmThread.vcproj \
-        vc9/IlmBase/Imath/Imath.vcproj \
-        vc9/IlmBase/ImathTest/ImathTest.vcproj \
-        vc9/IlmBase/createDLL/createDLL.vcproj
-
-
-
+        vc8/IlmBase/createDLL/createDLL.vcproj

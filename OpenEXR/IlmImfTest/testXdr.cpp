@@ -46,8 +46,11 @@
 #include <sstream>
 #endif
 
+
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
-using namespace Imf;
+
 
 namespace {
 

@@ -47,21 +47,19 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfHeader.h>
-#include <ImfFrameBuffer.h>
-#include <ImfRgba.h>
+#include "ImfHeader.h"
+#include "ImfFrameBuffer.h"
+#include "ImfRgba.h"
 #include "ImathVec.h"
 #include "ImathBox.h"
 #include "half.h"
-#include <ImfThreading.h>
+#include "ImfThreading.h"
 #include <string>
+#include "ImfNamespace.h"
+#include "ImfForward.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
-class OutputFile;
-class InputFile;
-struct PreviewRgba;
 
 //
 // RGBA output file.
@@ -87,7 +85,7 @@ class RgbaOutputFile
     // automatically close the file.
     //----------------------------------------------------
 
-    RgbaOutputFile (OStream &os,
+    RgbaOutputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
 		    const Header &header,
 		    RgbaChannels rgbaChannels = WRITE_RGBA,
                     int numThreads = globalThreadCount());
@@ -99,11 +97,11 @@ class RgbaOutputFile
     //----------------------------------------------------------------
 
     RgbaOutputFile (const char name[],
-		    const Imath::Box2i &displayWindow,
-		    const Imath::Box2i &dataWindow = Imath::Box2i(),
+		    const IMATH_NAMESPACE::Box2i &displayWindow,
+		    const IMATH_NAMESPACE::Box2i &dataWindow = IMATH_NAMESPACE::Box2i(),
 		    RgbaChannels rgbaChannels = WRITE_RGBA,
 		    float pixelAspectRatio = 1,
-		    const Imath::V2f screenWindowCenter = Imath::V2f (0, 0),
+		    const IMATH_NAMESPACE::V2f screenWindowCenter = IMATH_NAMESPACE::V2f (0, 0),
 		    float screenWindowWidth = 1,
 		    LineOrder lineOrder = INCREASING_Y,
 		    Compression compression = PIZ_COMPRESSION,
@@ -121,7 +119,7 @@ class RgbaOutputFile
 		    int height,
 		    RgbaChannels rgbaChannels = WRITE_RGBA,
 		    float pixelAspectRatio = 1,
-		    const Imath::V2f screenWindowCenter = Imath::V2f (0, 0),
+		    const IMATH_NAMESPACE::V2f screenWindowCenter = IMATH_NAMESPACE::V2f (0, 0),
 		    float screenWindowWidth = 1,
 		    LineOrder lineOrder = INCREASING_Y,
 		    Compression compression = PIZ_COMPRESSION,
@@ -162,10 +160,10 @@ class RgbaOutputFile
 
     const Header &		header () const;
     const FrameBuffer &		frameBuffer () const;
-    const Imath::Box2i &	displayWindow () const;
-    const Imath::Box2i &	dataWindow () const;
+    const IMATH_NAMESPACE::Box2i &	displayWindow () const;
+    const IMATH_NAMESPACE::Box2i &	dataWindow () const;
     float			pixelAspectRatio () const;
-    const Imath::V2f		screenWindowCenter () const;
+    const IMATH_NAMESPACE::V2f		screenWindowCenter () const;
     float			screenWindowWidth () const;
     LineOrder			lineOrder () const;
     Compression			compression () const;
@@ -246,7 +244,7 @@ class RgbaInputFile
     // close the file.
     //-----------------------------------------------------------
 
-    RgbaInputFile (IStream &is, int numThreads = globalThreadCount());
+    RgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThreads = globalThreadCount());
 
 
     //--------------------------------------------------------------
@@ -259,7 +257,7 @@ class RgbaInputFile
 		   const std::string &layerName,
 		   int numThreads = globalThreadCount());
 
-    RgbaInputFile (IStream &is,
+    RgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 		   const std::string &layerName,
 		   int numThreads = globalThreadCount());
 
@@ -308,10 +306,10 @@ class RgbaInputFile
 
     const Header &		header () const;
     const FrameBuffer &		frameBuffer () const;
-    const Imath::Box2i &	displayWindow () const;
-    const Imath::Box2i &	dataWindow () const;
+    const IMATH_NAMESPACE::Box2i &	displayWindow () const;
+    const IMATH_NAMESPACE::Box2i &	dataWindow () const;
     float			pixelAspectRatio () const;
-    const Imath::V2f		screenWindowCenter () const;
+    const IMATH_NAMESPACE::V2f		screenWindowCenter () const;
     float			screenWindowWidth () const;
     LineOrder			lineOrder () const;
     Compression			compression () const;
@@ -339,6 +337,10 @@ class RgbaInputFile
 };
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif

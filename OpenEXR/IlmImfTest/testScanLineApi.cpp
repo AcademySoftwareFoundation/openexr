@@ -52,15 +52,16 @@
 #include <math.h>
 #include <ImfTileDescriptionAttribute.h>
 
-using namespace Imf;
-using namespace Imath;
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
+using namespace IMATH_NAMESPACE;
 
 namespace {
 
-using Imf::UINT;
-using Imf::HALF;
-using Imf::FLOAT;
+using OPENEXR_IMF_NAMESPACE::UINT;
+using OPENEXR_IMF_NAMESPACE::HALF;
+using OPENEXR_IMF_NAMESPACE::FLOAT;
 
 void
 fillPixels (Array2D<unsigned int> &pi,
@@ -531,11 +532,11 @@ testScanLineApi ()
         Array2D<float> pf (H, W);
         fillPixels (pi, ph, pf, W, H);
 
-	int maxThreads = IlmThread::supportsThreads()? 3: 0;
+	int maxThreads = ILMTHREAD_NAMESPACE::supportsThreads()? 3: 0;
 
 	for (int n = 0; n <= maxThreads; ++n)
 	{
-	    if (IlmThread::supportsThreads())
+	    if (ILMTHREAD_NAMESPACE::supportsThreads())
 	    {
 		setGlobalThreadCount (n);
 		cout << "\nnumber of threads: " << globalThreadCount() << endl;

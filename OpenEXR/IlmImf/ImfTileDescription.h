@@ -41,8 +41,9 @@
 //	class TileDescription and enum LevelMode
 //
 //-----------------------------------------------------------------------------
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 enum LevelMode
@@ -97,6 +98,10 @@ class TileDescription
 };
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif

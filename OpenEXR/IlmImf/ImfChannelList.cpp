@@ -47,8 +47,9 @@
 
 using std::string;
 using std::set;
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 Channel::Channel (PixelType t, int xs, int ys, bool pl):
@@ -75,7 +76,7 @@ void
 ChannelList::insert (const char name[], const Channel &channel)
 {
     if (name[0] == 0)
-	THROW (Iex::ArgExc, "Image channel name cannot be an empty string.");
+	THROW (IEX_NAMESPACE::ArgExc, "Image channel name cannot be an empty string.");
 
     _map[name] = channel;
 }
@@ -94,7 +95,7 @@ ChannelList::operator [] (const char name[])
     ChannelMap::iterator i = _map.find (name);
 
     if (i == _map.end())
-	THROW (Iex::ArgExc, "Cannot find image channel \"" << name << "\".");
+	THROW (IEX_NAMESPACE::ArgExc, "Cannot find image channel \"" << name << "\".");
 
     return i->second;
 }
@@ -106,7 +107,7 @@ ChannelList::operator [] (const char name[]) const
     ChannelMap::const_iterator i = _map.find (name);
 
     if (i == _map.end())
-	THROW (Iex::ArgExc, "Cannot find image channel \"" << name << "\".");
+	THROW (IEX_NAMESPACE::ArgExc, "Cannot find image channel \"" << name << "\".");
 
     return i->second;
 }
@@ -255,7 +256,7 @@ ChannelList::channelsWithPrefix (const char prefix[],
 				 Iterator &last)
 {
     first = last = _map.lower_bound (prefix);
-    int n = strlen (prefix);
+    size_t n = int(strlen (prefix));
 
     while (last != Iterator (_map.end()) &&
 	   strncmp (last.name(), prefix, n) <= 0)
@@ -271,7 +272,7 @@ ChannelList::channelsWithPrefix (const char prefix[],
 				 ConstIterator &last) const
 {
     first = last = _map.lower_bound (prefix);
-    int n = strlen (prefix);
+    size_t n = strlen (prefix);
 
     while (last != ConstIterator (_map.end()) &&
 	   strncmp (last.name(), prefix, n) <= 0)
@@ -318,4 +319,4 @@ ChannelList::operator == (const ChannelList &other) const
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

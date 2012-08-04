@@ -12,10 +12,13 @@ LDADD = @ILMBASE_LDFLAGS@ @ILMBASE_LIBS@ \
 
 exrmultiview_SOURCES = main.cpp  \
 		       Image.h Image.cpp \
-		       makeMultiView.cpp makeMultiView.h
+		       makeMultiView.cpp makeMultiView.h \
+		       namespaceAlias.h
 
 noinst_HEADERS = Image.h makeMultiView.h
 
-EXTRA_DIST = main.cpp Image.h Image.cpp makeMultiView.cpp makeMultiView.h
-
-
+EXTRA_DIST = main.cpp \
+	     Image.h Image.cpp \
+	     makeMultiView.h makeMultiView.cpp \
+	     namespaceAlias.h \
+             CMakeLists.txt

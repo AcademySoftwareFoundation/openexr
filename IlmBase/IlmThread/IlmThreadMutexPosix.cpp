@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2005, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -47,13 +47,13 @@
 #include "Iex.h"
 #include <assert.h>
 
-namespace IlmThread {
+ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 Mutex::Mutex ()
 {
     if (int error = ::pthread_mutex_init (&_mutex, 0))
-        Iex::throwErrnoExc ("Cannot initialize mutex (%T).", error);
+        IEX_INTERNAL_NAMESPACE::throwErrnoExc ("Cannot initialize mutex (%T).", error);
 }
 
 
@@ -68,7 +68,7 @@ void
 Mutex::lock () const
 {
     if (int error = ::pthread_mutex_lock (&_mutex))
-        Iex::throwErrnoExc ("Cannot lock mutex (%T).", error);
+        IEX_INTERNAL_NAMESPACE::throwErrnoExc ("Cannot lock mutex (%T).", error);
 }
 
 
@@ -76,10 +76,10 @@ void
 Mutex::unlock () const
 {
     if (int error = ::pthread_mutex_unlock (&_mutex))
-        Iex::throwErrnoExc ("Cannot unlock mutex (%T).", error);
+        IEX_INTERNAL_NAMESPACE::throwErrnoExc ("Cannot unlock mutex (%T).", error);
 }
 
 
-} // namespace IlmThread
+ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
 #endif

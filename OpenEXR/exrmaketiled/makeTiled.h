@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -42,11 +42,16 @@
 //
 //----------------------------------------------------------------------------
 
+#include <ImfMultiPartOutputFile.h>
+#include <ImfMultiPartInputFile.h>
 #include <ImfTileDescription.h>
 #include <ImfCompression.h>
+#include <OpenEXRConfig.h>
+
 #include <string>
 #include <set>
 
+#include "namespaceAlias.h"
 
 enum Extrapolation
 {
@@ -57,17 +62,18 @@ enum Extrapolation
 };
 
 
-void	makeTiled (const char inFileName[],
-	           const char outFileName[],
-		   Imf::LevelMode mode,
-		   Imf::LevelRoundingMode roundingMode,
-		   Imf::Compression compression,
-		   int tileSizeX,
-		   int tileSizeY,
-		   const std::set<std::string> &doNotFilter,
-		   Extrapolation extX,
-		   Extrapolation extY,
-		   bool verbose);
+void    makeTiled (const char inFileName[],
+                   const char outFileName[],
+                   int partnum,
+                   CustomImf::LevelMode mode,
+                   CustomImf::LevelRoundingMode roundingMode,
+                   CustomImf::Compression compression,
+                   int tileSizeX,
+                   int tileSizeY,
+                   const std::set<std::string> &doNotFilter,
+                   Extrapolation extX,
+                   Extrapolation extY,
+                   bool verbose);
 
 
 #endif

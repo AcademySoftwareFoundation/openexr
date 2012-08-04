@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucasfilm
+// Copyright (c) 2012, Industrial Light & Magic, a division of Lucasfilm
 // Entertainment Company Ltd.  Portions contributed and copyright held by
 // others as indicated.  All rights reserved.
 //
@@ -49,6 +49,7 @@
 #include <ImfArray.h>
 #include <ImfHeader.h>
 
+
 //
 // Load an OpenEXR image file:
 //
@@ -79,13 +80,18 @@
 //			the dataWindow attribute of the header.
 //
 
-void	loadImage (const char fileName[],
-		   const char channel[],
-		   const char layer[],
-		   bool preview,
-		   int lx,
-		   int ly,
-		   Imf::Header &header,
-		   Imf::Array<Imf::Rgba> &pixels);
+
+void loadImage (const char fileName[],
+                const char channel[],
+                const char layer[],
+                bool preview,
+                int lx,
+                int ly,
+                int partnum,
+                int &zsize,
+                OPENEXR_IMF_NAMESPACE::Header &header,
+                OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &pixels,
+                OPENEXR_IMF_NAMESPACE::Array<float*> &zbuffer,
+                OPENEXR_IMF_NAMESPACE::Array<unsigned int> &sampleCount);
 
 #endif

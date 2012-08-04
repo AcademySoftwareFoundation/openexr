@@ -48,6 +48,8 @@
 #include <ImfRgba.h>
 #include <ImfArray.h>
 #include <ImfHeader.h>
+
+
 #include <vector>
 #include <cstdlib>
 
@@ -88,11 +90,11 @@
 //			
 
 void	applyCtl (std::vector<std::string> transformNames,
-		  Imf::Header inHeader,
-		  const Imf::Array<Imf::Rgba> &inPixels,
+		  OPENEXR_IMF_NAMESPACE::Header inHeader,
+		  const OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &inPixels,
 		  int w,
 		  int h,
-		  Imf::Array<Imf::Rgba> &outPixels);
+		  OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &outPixels);
 
 
 //
@@ -102,11 +104,11 @@ void	applyCtl (std::vector<std::string> transformNames,
 // of the file to the RGB coordinate system of the display.
 //
 
-void	adjustChromaticities (const Imf::Header &header,
-			      const Imf::Array<Imf::Rgba> &inPixels,
+void	adjustChromaticities (const OPENEXR_IMF_NAMESPACE::Header &header,
+			      const OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &inPixels,
 			      int w,
 			      int h,
-			      Imf::Array<Imf::Rgba> &outPixels);
+			      OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &outPixels);
 
 
 //

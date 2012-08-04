@@ -43,19 +43,19 @@
 
 namespace PyImath {
 
-PYIMATH_EXPORT boost::python::class_<Imath::Rand32> register_Rand32();
-PYIMATH_EXPORT boost::python::class_<Imath::Rand48> register_Rand48();
+PYIMATH_EXPORT boost::python::class_<IMATH_NAMESPACE::Rand32> register_Rand32();
+PYIMATH_EXPORT boost::python::class_<IMATH_NAMESPACE::Rand48> register_Rand48();
 
 class PYIMATH_EXPORT Rand32
 {
   public:
-    static PyObject *	wrap (const Imath::Rand32 &r);
+    static PyObject *	wrap (const IMATH_NAMESPACE::Rand32 &r);
 };
 
 class PYIMATH_EXPORT Rand48
 {
   public:
-    static PyObject *	wrap (const Imath::Rand48 &r);
+    static PyObject *	wrap (const IMATH_NAMESPACE::Rand48 &r);
 };
 
 }

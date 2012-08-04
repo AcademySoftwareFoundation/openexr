@@ -52,7 +52,7 @@
 
 
 using namespace std;
-using namespace Imath;
+using namespace IMATH_INTERNAL_NAMESPACE;
 
 namespace {
 
@@ -434,7 +434,7 @@ testExtractSHRT ()
 	cout << "Testing extraction of scale, shear, rotation, translation " 
 	     << "from matrices" << endl;
 	
-	cout << "Imath::extractSHRT()" << endl;
+	cout << "IMATH_INTERNAL_NAMESPACE::extractSHRT()" << endl;
 	test ();
 	
 	cout << "ok\n" << endl;

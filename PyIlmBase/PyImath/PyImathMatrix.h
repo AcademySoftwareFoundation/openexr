@@ -44,14 +44,14 @@
 
 namespace PyImath {
 
-template <class T> boost::python::class_<Imath::Matrix33<T> > register_Matrix33();
-template <class T> boost::python::class_<Imath::Matrix44<T> > register_Matrix44();
-template <class T> boost::python::class_<FixedArray<Imath::Matrix44<T> > > register_M44Array();
-template <class T> boost::python::class_<FixedArray<Imath::Matrix33<T> > > register_M33Array();
-typedef FixedArray<Imath::Matrix33<float> >  M33fArray;
-typedef FixedArray<Imath::Matrix33<double> >  M33dArray;
-typedef FixedArray<Imath::Matrix44<float> >  M44fArray;
-typedef FixedArray<Imath::Matrix44<double> >  M44dArray;
+template <class T> boost::python::class_<IMATH_NAMESPACE::Matrix33<T> > register_Matrix33();
+template <class T> boost::python::class_<IMATH_NAMESPACE::Matrix44<T> > register_Matrix44();
+template <class T> boost::python::class_<FixedArray<IMATH_NAMESPACE::Matrix44<T> > > register_M44Array();
+template <class T> boost::python::class_<FixedArray<IMATH_NAMESPACE::Matrix33<T> > > register_M33Array();
+typedef FixedArray<IMATH_NAMESPACE::Matrix33<float> >  M33fArray;
+typedef FixedArray<IMATH_NAMESPACE::Matrix33<double> >  M33dArray;
+typedef FixedArray<IMATH_NAMESPACE::Matrix44<float> >  M44fArray;
+typedef FixedArray<IMATH_NAMESPACE::Matrix44<double> >  M44dArray;
 
 //
 
@@ -65,51 +65,51 @@ typedef FixedArray<Imath::Matrix44<double> >  M44dArray;
 template <class T>
 class M33 {
   public:
-    static PyObject *	wrap (const Imath::Matrix33<T> &m);
-    static int		convert (PyObject *p, Imath::Matrix33<T> *m);
+    static PyObject *	wrap (const IMATH_NAMESPACE::Matrix33<T> &m);
+    static int		convert (PyObject *p, IMATH_NAMESPACE::Matrix33<T> *m);
 };
 
 template <class T>
 class M44 {
   public:
-    static PyObject *	wrap (const Imath::Matrix44<T> &m);
-    static int		convert (PyObject *p, Imath::Matrix44<T> *m);
+    static PyObject *	wrap (const IMATH_NAMESPACE::Matrix44<T> &m);
+    static int		convert (PyObject *p, IMATH_NAMESPACE::Matrix44<T> *m);
 };
 
 template <class T>
 PyObject *
-M33<T>::wrap (const Imath::Matrix33<T> &m)
+M33<T>::wrap (const IMATH_NAMESPACE::Matrix33<T> &m)
 {
-    typename boost::python::return_by_value::apply < Imath::Matrix33<T> >::type converter;
+    typename boost::python::return_by_value::apply < IMATH_NAMESPACE::Matrix33<T> >::type converter;
     PyObject *p = converter (m);
     return p;
 }
 
 template <class T>
 PyObject *
-M44<T>::wrap (const Imath::Matrix44<T> &m)
+M44<T>::wrap (const IMATH_NAMESPACE::Matrix44<T> &m)
 {
-    typename boost::python::return_by_value::apply < Imath::Matrix44<T> >::type converter;
+    typename boost::python::return_by_value::apply < IMATH_NAMESPACE::Matrix44<T> >::type converter;
     PyObject *p = converter (m);
     return p;
 }
 
 template <class T>
 int
-M33<T>::convert (PyObject *p, Imath::Matrix33<T> *m)
+M33<T>::convert (PyObject *p, IMATH_NAMESPACE::Matrix33<T> *m)
 {
-    boost::python::extract <Imath::M33f> extractorMf (p);
+    boost::python::extract <IMATH_NAMESPACE::M33f> extractorMf (p);
     if (extractorMf.check())
     {
-        Imath::M33f e = extractorMf();
+        IMATH_NAMESPACE::M33f e = extractorMf();
         m->setValue (e);
         return 1;
     }
 
-    boost::python::extract <Imath::M33d> extractorMd (p);
+    boost::python::extract <IMATH_NAMESPACE::M33d> extractorMd (p);
     if (extractorMd.check())
     {
-        Imath::M33d e = extractorMd();
+        IMATH_NAMESPACE::M33d e = extractorMd();
         m->setValue (e);
         return 1;
     }
@@ -119,20 +119,20 @@ M33<T>::convert (PyObject *p, Imath::Matrix33<T> *m)
 
 template <class T>
 int
-M44<T>::convert (PyObject *p, Imath::Matrix44<T> *m)
+M44<T>::convert (PyObject *p, IMATH_NAMESPACE::Matrix44<T> *m)
 {
-    boost::python::extract <Imath::M44f> extractorMf (p);
+    boost::python::extract <IMATH_NAMESPACE::M44f> extractorMf (p);
     if (extractorMf.check())
     {
-        Imath::M44f e = extractorMf();
+        IMATH_NAMESPACE::M44f e = extractorMf();
         m->setValue (e);
         return 1;
     }
 
-    boost::python::extract <Imath::M44d> extractorMd (p);
+    boost::python::extract <IMATH_NAMESPACE::M44d> extractorMd (p);
     if (extractorMd.check())
     {
-        Imath::M44d e = extractorMd();
+        IMATH_NAMESPACE::M44d e = extractorMd();
         m->setValue (e);
         return 1;
     }
@@ -155,7 +155,7 @@ jacobiEigensolve(const Matrix& m)
 
     // Give a fairly generous tolerance to account for possible epsilon drift:
     const int d = Matrix::dimensions();
-    const T tol = std::sqrt(Imath::limits<T>::epsilon());
+    const T tol = std::sqrt(IMATH_NAMESPACE::limits<T>::epsilon());
     for (int i = 0; i < d; ++i)
     {
         for (int j = i+1; j < d; ++j)
@@ -163,7 +163,7 @@ jacobiEigensolve(const Matrix& m)
             const T Aij = m[i][j],
                     Aji = m[j][i];
             ASSERT (std::abs(Aij - Aji) < tol,
-                    Iex::ArgExc,
+                    IEX_NAMESPACE::ArgExc,
                     "Symmetric eigensolve requires a symmetric matrix (matrix[i][j] == matrix[j][i]).");
         }
     }
@@ -171,7 +171,7 @@ jacobiEigensolve(const Matrix& m)
     Matrix tmp = m;
     Matrix Q;
     Vec S;
-    Imath::jacobiEigenSolver (tmp, S, Q);
+    IMATH_NAMESPACE::jacobiEigenSolver (tmp, S, Q);
     return boost::python::make_tuple (Q, S);
 }
 

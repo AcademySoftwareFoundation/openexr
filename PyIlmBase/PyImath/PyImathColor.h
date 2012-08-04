@@ -43,18 +43,18 @@
 
 namespace PyImath {
 
-template <class T> boost::python::class_<Imath::Color4<T> > register_Color4();
-template <class T> boost::python::class_<PyImath::FixedArray2D<Imath::Color4<T> > > register_Color4Array2D();
-template <class T> boost::python::class_<PyImath::FixedArray<Imath::Color4<T> > > register_Color4Array();
-template <class T> boost::python::class_<Imath::Color3<T>, boost::python::bases<Imath::Vec3<T> > > register_Color3();
-template <class T> boost::python::class_<PyImath::FixedArray<Imath::Color3<T> > > register_Color3Array();
+template <class T> boost::python::class_<IMATH_NAMESPACE::Color4<T> > register_Color4();
+template <class T> boost::python::class_<PyImath::FixedArray2D<IMATH_NAMESPACE::Color4<T> > > register_Color4Array2D();
+template <class T> boost::python::class_<PyImath::FixedArray<IMATH_NAMESPACE::Color4<T> > > register_Color4Array();
+template <class T> boost::python::class_<IMATH_NAMESPACE::Color3<T>, boost::python::bases<IMATH_NAMESPACE::Vec3<T> > > register_Color3();
+template <class T> boost::python::class_<PyImath::FixedArray<IMATH_NAMESPACE::Color3<T> > > register_Color3Array();
 
-typedef FixedArray2D<Imath::Color4f> Color4fArray;
-typedef FixedArray2D<Imath::Color4c> Color4cArray;
-typedef FixedArray<Imath::Color4f> C4fArray;
-typedef FixedArray<Imath::Color4c> C4cArray;
-typedef FixedArray<Imath::Color3f> C3fArray;
-typedef FixedArray<Imath::Color3c> C3cArray;
+typedef FixedArray2D<IMATH_NAMESPACE::Color4f> Color4fArray;
+typedef FixedArray2D<IMATH_NAMESPACE::Color4c> Color4cArray;
+typedef FixedArray<IMATH_NAMESPACE::Color4f> C4fArray;
+typedef FixedArray<IMATH_NAMESPACE::Color4c> C4cArray;
+typedef FixedArray<IMATH_NAMESPACE::Color3f> C3fArray;
+typedef FixedArray<IMATH_NAMESPACE::Color3c> C3cArray;
 
 //
 // Other code in the Zeno code base assumes the existance of a class with the
@@ -69,51 +69,51 @@ typedef FixedArray<Imath::Color3c> C3cArray;
 template <class T, class U>
 class C3 {
   public:
-    static PyObject *	wrap (const Imath::Color3<T> &c);
-    static int		convert (PyObject *p, Imath::Color3<T> *v);
+    static PyObject *	wrap (const IMATH_NAMESPACE::Color3<T> &c);
+    static int		convert (PyObject *p, IMATH_NAMESPACE::Color3<T> *v);
 };
 
 template <class T, class U>
 class C4 {
   public:
-    static PyObject *	wrap (const Imath::Color4<T> &c);
-    static int		convert (PyObject *p, Imath::Color4<T> *v);
+    static PyObject *	wrap (const IMATH_NAMESPACE::Color4<T> &c);
+    static int		convert (PyObject *p, IMATH_NAMESPACE::Color4<T> *v);
 };
 
 template <class T, class U>
 PyObject *
-C3<T, U>::wrap (const Imath::Color3<T> &c)
+C3<T, U>::wrap (const IMATH_NAMESPACE::Color3<T> &c)
 {
-    typename boost::python::return_by_value::apply < Imath::Color3<T> >::type converter;
+    typename boost::python::return_by_value::apply < IMATH_NAMESPACE::Color3<T> >::type converter;
     PyObject *p = converter (c);
     return p;
 }
 
 template <class T, class U>
 PyObject *
-C4<T, U>::wrap (const Imath::Color4<T> &c)
+C4<T, U>::wrap (const IMATH_NAMESPACE::Color4<T> &c)
 {
-    typename boost::python::return_by_value::apply < Imath::Color4<T> >::type converter;
+    typename boost::python::return_by_value::apply < IMATH_NAMESPACE::Color4<T> >::type converter;
     PyObject *p = converter (c);
     return p;
 }
 
 template <class T, class U>
 int
-C3<T, U>::convert (PyObject *p, Imath::Color3<T> *v)
+C3<T, U>::convert (PyObject *p, IMATH_NAMESPACE::Color3<T> *v)
 {
-    boost::python::extract <Imath::C3c> extractorC3c (p);
+    boost::python::extract <IMATH_NAMESPACE::C3c> extractorC3c (p);
     if (extractorC3c.check())
     {
-        Imath::C3c c3c = extractorC3c();
+        IMATH_NAMESPACE::C3c c3c = extractorC3c();
         v->setValue (U(c3c[0]), U(c3c[1]), U(c3c[2]));
         return 1;
     }
 
-    boost::python::extract <Imath::C3f> extractorC3f (p);
+    boost::python::extract <IMATH_NAMESPACE::C3f> extractorC3f (p);
     if (extractorC3f.check())
     {
-        Imath::C3f c3f = extractorC3f();
+        IMATH_NAMESPACE::C3f c3f = extractorC3f();
         v->setValue (U(c3f[0]), U(c3f[1]), U(c3f[2]));
         return 1;
     }
@@ -151,26 +151,26 @@ C3<T, U>::convert (PyObject *p, Imath::Color3<T> *v)
         }
     }
 
-    boost::python::extract <Imath::V3i> extractorV3i (p);
+    boost::python::extract <IMATH_NAMESPACE::V3i> extractorV3i (p);
     if (extractorV3i.check())
     {
-        Imath::V3i v3i = extractorV3i();
+        IMATH_NAMESPACE::V3i v3i = extractorV3i();
         v->setValue (U(v3i[0]), U(v3i[1]), U(v3i[2]));
         return 1;
     }
 
-    boost::python::extract <Imath::V3f> extractorV3f (p);
+    boost::python::extract <IMATH_NAMESPACE::V3f> extractorV3f (p);
     if (extractorV3f.check())
     {
-        Imath::V3f v3f = extractorV3f();
+        IMATH_NAMESPACE::V3f v3f = extractorV3f();
         v->setValue (U(v3f[0]), U(v3f[1]), U(v3f[2]));
         return 1;
     }
 
-    boost::python::extract <Imath::V3d> extractorV3d (p);
+    boost::python::extract <IMATH_NAMESPACE::V3d> extractorV3d (p);
     if (extractorV3d.check())
     {
-        Imath::V3d v3d = extractorV3d();
+        IMATH_NAMESPACE::V3d v3d = extractorV3d();
         v->setValue (U(v3d[0]), U(v3d[1]), U(v3d[2]));
         return 1;
     }
@@ -180,20 +180,20 @@ C3<T, U>::convert (PyObject *p, Imath::Color3<T> *v)
 
 template <class T, class U>
 int
-C4<T, U>::convert (PyObject *p, Imath::Color4<T> *v)
+C4<T, U>::convert (PyObject *p, IMATH_NAMESPACE::Color4<T> *v)
 {
-    boost::python::extract <Imath::C4c> extractorC4c (p);
+    boost::python::extract <IMATH_NAMESPACE::C4c> extractorC4c (p);
     if (extractorC4c.check())
     {
-        Imath::C4c c4c = extractorC4c();
+        IMATH_NAMESPACE::C4c c4c = extractorC4c();
         v->setValue (U(c4c[0]), U(c4c[1]), U(c4c[2]), U(c4c[3]));
         return 1;
     }
 
-    boost::python::extract <Imath::C4f> extractorC4f (p);
+    boost::python::extract <IMATH_NAMESPACE::C4f> extractorC4f (p);
     if (extractorC4f.check())
     {
-        Imath::C4f c4f = extractorC4f();
+        IMATH_NAMESPACE::C4f c4f = extractorC4f();
         v->setValue (U(c4f[0]), U(c4f[1]), U(c4f[2]), U(c4f[3]));
         return 1;
     }

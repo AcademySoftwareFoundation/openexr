@@ -34,7 +34,7 @@
 
 
 #include <tmpDir.h>
-#include <compareB44.h>
+#include "compareB44.h"
 
 #include <ImfTiledRgbaFile.h>
 #include <ImfTiledOutputFile.h>
@@ -50,9 +50,12 @@
 #include <vector>
 #include <math.h>
 
-using namespace Imf;
-using namespace Imath;
+
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
+using namespace IMATH_NAMESPACE;
+
 
 namespace {
 
@@ -521,11 +524,11 @@ writeReadIncomplete ()
 		{
 		    in.readTile (tileX, tileY);
 		}
-		catch (const Iex::InputExc &)
+		catch (const IEX_NAMESPACE::InputExc &)
 		{
 		    tilePresent = false;	// tile is missing
 		}
-		catch (const Iex::IoExc &)
+		catch (const IEX_NAMESPACE::IoExc &)
 		{
 		    tileBroken = true;		// tile cannot be decoded
 		}
@@ -593,11 +596,11 @@ writeReadIncomplete ()
 	    {
 		in.readTiles (0, in.numXTiles() - 1, tileY, tileY);
 	    }
-	    catch (const Iex::InputExc &)
+	    catch (const IEX_NAMESPACE::InputExc &)
 	    {
 		tilesMissing = true;
 	    }
-	    catch (const Iex::IoExc &)
+	    catch (const IEX_NAMESPACE::IoExc &)
 	    {
 		tilesBroken = true;
 	    }
@@ -857,11 +860,11 @@ testTiledRgba ()
     {
         cout << "Testing the tiled RGBA image interface" << endl;
 
-	int maxThreads = IlmThread::supportsThreads()? 3: 0;
+	int maxThreads = ILMTHREAD_NAMESPACE::supportsThreads()? 3: 0;
 
 	for (int n = 0; n <= maxThreads; ++n)
 	{
-	    if (IlmThread::supportsThreads())
+	    if (ILMTHREAD_NAMESPACE::supportsThreads())
 	    {
 		setGlobalThreadCount (n);
 		cout << "\nnumber of threads: " << globalThreadCount() << endl;

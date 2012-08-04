@@ -49,8 +49,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-using namespace Imf;
-using namespace Imath;
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
+using namespace IMATH_NAMESPACE;
 using namespace std;
 
 namespace {

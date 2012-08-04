@@ -45,18 +45,19 @@
 //
 //-----------------------------------------------------------------------------
 
-
 #include <ImfRgbaFile.h>
 #include <ImfIO.h>
 #include "Iex.h"
-#include <drawImage.h>
+
+#include "drawImage.h"
 
 #include <iostream>
 #include <stdio.h>
 
+#include "namespaceAlias.h"
+using namespace CustomImf;
 using namespace std;
-using namespace Imf;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 
 class C_IStream: public IStream
@@ -106,9 +107,9 @@ C_IStream::read (char c[/*n*/], int n)
 	//
 
 	if (ferror (_file))
-	    Iex::throwErrnoExc();
+	    IEX_NAMESPACE::throwErrnoExc();
 	else
-	    throw Iex::InputExc ("Unexpected end of file.");
+	    throw IEX_NAMESPACE::InputExc ("Unexpected end of file.");
     }
 
     return feof (_file);
@@ -143,7 +144,7 @@ C_OStream::write (const char c[/*n*/], int n)
     clearerr (_file);
 
     if (n != fwrite (c, 1, n, _file))
-	Iex::throwErrnoExc();
+	IEX_NAMESPACE::throwErrnoExc();
 }
 
 

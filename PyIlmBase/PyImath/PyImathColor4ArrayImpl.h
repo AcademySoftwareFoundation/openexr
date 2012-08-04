@@ -52,24 +52,24 @@
 
 namespace PyImath {
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 // XXX fixme - template this
 // really this should get generated automatically...
 
 template <class T,int index>
 static FixedArray<T>
-Color4Array_get(FixedArray<Imath::Color4<T> > &ca)
+Color4Array_get(FixedArray<IMATH_NAMESPACE::Color4<T> > &ca)
 {    
     return FixedArray<T>(&ca[0][index],ca.len(),4*ca.stride(),ca.handle());
 }
 
 // Currently we are only exposing the RGBA components.
 template <class T>
-class_<FixedArray<Imath::Color4<T> > >
+class_<FixedArray<IMATH_NAMESPACE::Color4<T> > >
 register_Color4Array()
 {
-    class_<FixedArray<Imath::Color4<T> > > color4Array_class = FixedArray<Imath::Color4<T> >::register_("Fixed length array of Imath::Color4");
+    class_<FixedArray<IMATH_NAMESPACE::Color4<T> > > color4Array_class = FixedArray<IMATH_NAMESPACE::Color4<T> >::register_("Fixed length array of IMATH_NAMESPACE::Color4");
     color4Array_class
         .add_property("r",&Color4Array_get<T,0>)
         .add_property("g",&Color4Array_get<T,1>)

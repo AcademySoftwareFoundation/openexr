@@ -44,9 +44,10 @@
 
 #include <ImfRgba.h>
 #include <ImfEnvmap.h>
+#include <ImfForward.h>
 
+#include "namespaceAlias.h"
 
-namespace Imf {class Header;}
 class EnvmapImage;
 
 
@@ -54,11 +55,11 @@ void
 readInputImage (const char inFileName[],
                 float padTop,
                 float padBottom,
-                Imf::Envmap overrideType,
+                CustomImf::Envmap overrideType,
                 bool verbose,
                 EnvmapImage &image,
-                Imf::Header &header,
-                Imf::RgbaChannels &channels);
+                CustomImf::Header &header,
+                CustomImf::RgbaChannels &channels);
 
 
 #endif

@@ -45,7 +45,7 @@ fuzzFile (const char goodFile[],
 	  void (*readFile) (const char[]),
 	  int nSlidingWindow,
 	  int nFixedWindow,
-	  Imath::Rand48 &random);
+	  IMATH_NAMESPACE::Rand48 &random);
 
 
 #endif

@@ -57,7 +57,7 @@ template<> const char *PyImath::M33fArray::name() { return "M33fArray"; }
 template<> const char *PyImath::M33dArray::name() { return "M33dArray"; }
 
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 template <class T, int len>
 struct MatrixRow {
@@ -282,11 +282,11 @@ div33T(Matrix33<T> &m, const T &t)
 
 template <class T>
 static void 
-extractAndRemoveScalingAndShear33(Matrix33<T> &mat, Imath::Vec2<T> &dstScl, Imath::Vec2<T> &dstShr, int exc = 1)
+extractAndRemoveScalingAndShear33(Matrix33<T> &mat, IMATH_NAMESPACE::Vec2<T> &dstScl, IMATH_NAMESPACE::Vec2<T> &dstShr, int exc = 1)
 {
     MATH_EXC_ON;
     T dstShrTmp;
-    Imath::extractAndRemoveScalingAndShear(mat, dstScl, dstShrTmp, exc);
+    IMATH_NAMESPACE::extractAndRemoveScalingAndShear(mat, dstScl, dstShrTmp, exc);
 
     dstShr.setValue(dstShrTmp, T (0));
 }
@@ -297,7 +297,7 @@ extractEuler(Matrix33<T> &mat, Vec2<T> &dstObj)
 {
     MATH_EXC_ON;
     T dst;
-    Imath::extractEuler(mat, dst);
+    IMATH_NAMESPACE::extractEuler(mat, dst);
     dstObj.setValue(dst, T (0));
 }
 
@@ -308,7 +308,7 @@ extractSHRT33(Matrix33<T> &mat, Vec2<T> &s, Vec2<T> &h, Vec2<T> &r, Vec2<T> &t, 
     MATH_EXC_ON;
     T hTmp, rTmp;
     
-    int b = Imath::extractSHRT(mat, s, hTmp, rTmp, t, exc);
+    int b = IMATH_NAMESPACE::extractSHRT(mat, s, hTmp, rTmp, t, exc);
     
     h.setValue(hTmp, T (0));
     r.setValue(rTmp, T (0));
@@ -321,7 +321,7 @@ static void
 extractScaling33(Matrix33<T> &mat, Vec2<T> &dst, int exc = 1)
 {
     MATH_EXC_ON;
-    Imath::extractScaling(mat, dst, exc);
+    IMATH_NAMESPACE::extractScaling(mat, dst, exc);
 }
 
 template <class T>
@@ -329,7 +329,7 @@ void
 outerProduct33(Matrix33<T> &mat, const Vec3<T> &a, const Vec3<T> &b)
 {
     MATH_EXC_ON;
-    mat = Imath::outerProduct(a,b);
+    mat = IMATH_NAMESPACE::outerProduct(a,b);
 }
 
 template <class T>
@@ -338,7 +338,7 @@ extractScalingAndShear33(Matrix33<T> &mat, Vec2<T> &dstScl, Vec2<T> &dstShr, int
 {
     MATH_EXC_ON;
     T dstShrTmp;
-    Imath::extractScalingAndShear(mat, dstScl, dstShrTmp, exc);
+    IMATH_NAMESPACE::extractScalingAndShear(mat, dstScl, dstShrTmp, exc);
     
     dstShr.setValue(dstShrTmp, T (0));
 }
@@ -406,7 +406,7 @@ static int
 removeScaling33(Matrix33<T> &mat, int exc = 1)
 {
     MATH_EXC_ON;
-    return Imath::removeScaling(mat, exc);
+    return IMATH_NAMESPACE::removeScaling(mat, exc);
 }
 
 
@@ -415,7 +415,7 @@ static int
 removeScalingAndShear33(Matrix33<T> &mat, int exc = 1)
 {
     MATH_EXC_ON;
-    return Imath::removeScalingAndShear(mat, exc);
+    return IMATH_NAMESPACE::removeScalingAndShear(mat, exc);
 }
 
 template <class T>
@@ -432,7 +432,7 @@ static Matrix33<T>
 sansScaling33(const Matrix33<T> &mat, bool exc = true)
 {
     MATH_EXC_ON;
-    return Imath::sansScaling(mat, exc);
+    return IMATH_NAMESPACE::sansScaling(mat, exc);
 }
 
 template <class T>
@@ -440,7 +440,7 @@ static Matrix33<T>
 sansScalingAndShear33(const Matrix33<T> &mat, bool exc = true)
 {
     MATH_EXC_ON;
-    return Imath::sansScalingAndShear(mat, exc);
+    return IMATH_NAMESPACE::sansScalingAndShear(mat, exc);
 }
 
 template <class T>
@@ -474,7 +474,7 @@ scale33Tuple(Matrix33<T> &mat, const tuple &t)
         return mat.scale(s);
     }
     else
-        THROW(Iex::LogicExc, "m.scale needs tuple of length 2");
+        THROW(IEX_NAMESPACE::LogicExc, "m.scale needs tuple of length 2");
 }
 
 template <class T>
@@ -516,7 +516,7 @@ setScale33Tuple(Matrix33<T> &mat, const tuple &t)
         return mat.setScale(s);
     }
     else
-        THROW(Iex::LogicExc, "m.setScale needs tuple of length 2");
+        THROW(IEX_NAMESPACE::LogicExc, "m.setScale needs tuple of length 2");
 }
 
 template <class T>
@@ -550,7 +550,7 @@ setShear33Tuple(Matrix33<T> &mat, const tuple &t)
         return mat.setShear(h);
     }
     else
-        THROW(Iex::LogicExc, "m.shear needs tuple of length 2");
+        THROW(IEX_NAMESPACE::LogicExc, "m.shear needs tuple of length 2");
 }
 
 template <class T>
@@ -575,7 +575,7 @@ setTranslation33Tuple(Matrix33<T> &mat, const tuple &t)
         return mat.setTranslation(trans);
     }
     else
-        THROW(Iex::LogicExc, "m.translate needs tuple of length 2");
+        THROW(IEX_NAMESPACE::LogicExc, "m.translate needs tuple of length 2");
 }
 
 template <class T>
@@ -590,7 +590,7 @@ setTranslation33Obj(Matrix33<T> &mat, const object &o)
     }
     else
     {
-        THROW(Iex::ArgExc, "m.setTranslation expected V2 argument");
+        THROW(IEX_NAMESPACE::ArgExc, "m.setTranslation expected V2 argument");
         return mat;
     }   
 }
@@ -635,7 +635,7 @@ shear33Tuple(Matrix33<T> &mat, const tuple &t)
         return mat.shear(h);
     }
     else
-        THROW(Iex::LogicExc, "m.shear needs tuple of length 2");
+        THROW(IEX_NAMESPACE::LogicExc, "m.shear needs tuple of length 2");
 }
 
 template <class T>
@@ -650,7 +650,7 @@ translate33(Matrix33<T> &mat, const object &t)
     }
     else
     {
-        THROW(Iex::ArgExc, "m.translate expected V2 argument");
+        THROW(IEX_NAMESPACE::ArgExc, "m.translate expected V2 argument");
         return mat;
     }   
 }
@@ -669,7 +669,7 @@ translate33Tuple(Matrix33<T> &mat, const tuple &t)
         return mat.translate(trans);
     }
     else
-        THROW(Iex::LogicExc, "m.translate needs tuple of length 2");
+        THROW(IEX_NAMESPACE::LogicExc, "m.translate needs tuple of length 2");
 }
 
 template <class T>
@@ -807,9 +807,9 @@ template <class T>
 static tuple
 singularValueDecomposition33(const Matrix33<T>& m, bool forcePositiveDeterminant = false)
 {
-    Imath::Matrix33<T> U, V;
-    Imath::Vec3<T> S;
-    Imath::jacobiSVD (m, U, S, V, Imath::limits<T>::epsilon(), forcePositiveDeterminant);
+    IMATH_NAMESPACE::Matrix33<T> U, V;
+    IMATH_NAMESPACE::Vec3<T> S;
+    IMATH_NAMESPACE::jacobiSVD (m, U, S, V, IMATH_NAMESPACE::limits<T>::epsilon(), forcePositiveDeterminant);
     return make_tuple (U, S, V);
 }
 
@@ -837,7 +837,7 @@ static Matrix33<T> * Matrix3_tuple_constructor(const tuple &t0, const tuple &t1,
                              extract<T>(t2[0]),  extract<T>(t2[1]),  extract<T>(t2[2]));
   }
   else
-      THROW(Iex::LogicExc, "Matrix33 takes 3 tuples of length 3");
+      THROW(IEX_NAMESPACE::LogicExc, "Matrix33 takes 3 tuples of length 3");
 }
 
 template <class T, class S>
@@ -996,7 +996,7 @@ register_Matrix33()
              "diagonalize the matrix, which should be quite robust and significantly faster\n"
              "than the more general SVD solver in LAPACK.  \n",
              args("matrix", "forcePositiveDeterminant"))
-        .def("symmetricEigensolve", &PyImath::jacobiEigensolve<Imath::Matrix33<T> >, 
+        .def("symmetricEigensolve", &PyImath::jacobiEigensolve<IMATH_NAMESPACE::Matrix33<T> >, 
              "Decomposes the matrix A using a symmetric eigensolver into matrices Q and S \n"
              "which have the following properties: \n"
              "  1. Q is the orthonormal matrix of eigenvectors, \n"
@@ -1087,31 +1087,31 @@ register_Matrix33()
 
 template <class T>
 static void
-setM33ArrayItem(FixedArray<Imath::Matrix33<T> > &ma,
+setM33ArrayItem(FixedArray<IMATH_NAMESPACE::Matrix33<T> > &ma,
                 Py_ssize_t index,
-                const Imath::Matrix33<T> &m)
+                const IMATH_NAMESPACE::Matrix33<T> &m)
 {
     ma[ma.canonical_index(index)] = m;
 }
 
 template <class T>
-class_<FixedArray<Imath::Matrix33<T> > >
+class_<FixedArray<IMATH_NAMESPACE::Matrix33<T> > >
 register_M33Array()
 {
-    class_<FixedArray<Imath::Matrix33<T> > > matrixArray_class = FixedArray<Imath::Matrix33<T> >::register_("Fixed length array of Imath::Matrix33");
+    class_<FixedArray<IMATH_NAMESPACE::Matrix33<T> > > matrixArray_class = FixedArray<IMATH_NAMESPACE::Matrix33<T> >::register_("Fixed length array of IMATH_NAMESPACE::Matrix33");
     matrixArray_class
          .def("__setitem__", &setM33ArrayItem<T>)
         ;
     return matrixArray_class;
 }
 
-template PYIMATH_EXPORT class_<Imath::Matrix33<float> > register_Matrix33<float>();
-template PYIMATH_EXPORT class_<Imath::Matrix33<double> > register_Matrix33<double>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Matrix33<float> > register_Matrix33<float>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Matrix33<double> > register_Matrix33<double>();
 
-template PYIMATH_EXPORT class_<FixedArray<Imath::Matrix33<float> > > register_M33Array<float>();
-template PYIMATH_EXPORT class_<FixedArray<Imath::Matrix33<double> > > register_M33Array<double>();
+template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Matrix33<float> > > register_M33Array<float>();
+template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Matrix33<double> > > register_M33Array<double>();
 
 
-template<> PYIMATH_EXPORT Imath::Matrix33<float> FixedArrayDefaultValue<Imath::Matrix33<float> >::value() { return Imath::Matrix33<float>(); }
-template<> PYIMATH_EXPORT Imath::Matrix33<double> FixedArrayDefaultValue<Imath::Matrix33<double> >::value() { return Imath::Matrix33<double>(); }
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Matrix33<float> FixedArrayDefaultValue<IMATH_NAMESPACE::Matrix33<float> >::value() { return IMATH_NAMESPACE::Matrix33<float>(); }
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Matrix33<double> FixedArrayDefaultValue<IMATH_NAMESPACE::Matrix33<double> >::value() { return IMATH_NAMESPACE::Matrix33<double>(); }
 }

@@ -54,64 +54,64 @@ template<> const char *PyImath::EulerdArray::name() { return "EulerdArray"; }
 
 namespace PyImath {
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 template <class T> struct EulerName { static const char *value; };
 template<> const char *EulerName<float>::value  = "Eulerf";
 template<> const char *EulerName<double>::value = "Eulerd";
 
 template <class T>
-static std::string nameOfOrder(typename Imath::Euler<T>::Order order)
+static std::string nameOfOrder(typename IMATH_NAMESPACE::Euler<T>::Order order)
 {
     switch(order)
     {
-        case Imath::Euler<T>::XYZ:
+        case IMATH_NAMESPACE::Euler<T>::XYZ:
             return "EULER_XYZ";
-        case Imath::Euler<T>::XZY:
+        case IMATH_NAMESPACE::Euler<T>::XZY:
             return "EULER_XZY";
-        case Imath::Euler<T>::YZX:
+        case IMATH_NAMESPACE::Euler<T>::YZX:
             return "EULER_YZX";
-        case Imath::Euler<T>::YXZ:
+        case IMATH_NAMESPACE::Euler<T>::YXZ:
             return "EULER_YXZ";
-        case Imath::Euler<T>::ZXY:
+        case IMATH_NAMESPACE::Euler<T>::ZXY:
             return "EULER_ZXY";
-        case Imath::Euler<T>::ZYX:
+        case IMATH_NAMESPACE::Euler<T>::ZYX:
             return "EULER_ZYX";
-        case Imath::Euler<T>::XZX:
+        case IMATH_NAMESPACE::Euler<T>::XZX:
             return "EULER_XZX";
-        case Imath::Euler<T>::XYX:
+        case IMATH_NAMESPACE::Euler<T>::XYX:
             return "EULER_XYX";
-        case Imath::Euler<T>::YXY:
+        case IMATH_NAMESPACE::Euler<T>::YXY:
             return "EULER_YXY";
-        case Imath::Euler<T>::YZY:
+        case IMATH_NAMESPACE::Euler<T>::YZY:
             return "EULER_YZY";
-        case Imath::Euler<T>::ZYZ:
+        case IMATH_NAMESPACE::Euler<T>::ZYZ:
             return "EULER_ZYZ";
-        case Imath::Euler<T>::ZXZ:
+        case IMATH_NAMESPACE::Euler<T>::ZXZ:
             return "EULER_ZXZ";
-        case Imath::Euler<T>::XYZr:
+        case IMATH_NAMESPACE::Euler<T>::XYZr:
             return "EULER_XYZr";
-        case Imath::Euler<T>::XZYr:
+        case IMATH_NAMESPACE::Euler<T>::XZYr:
             return "EULER_XZYr";
-        case Imath::Euler<T>::YZXr:
+        case IMATH_NAMESPACE::Euler<T>::YZXr:
             return "EULER_YZXr";
-        case Imath::Euler<T>::YXZr:
+        case IMATH_NAMESPACE::Euler<T>::YXZr:
             return "EULER_YXZr";
-        case Imath::Euler<T>::ZXYr:
+        case IMATH_NAMESPACE::Euler<T>::ZXYr:
             return "EULER_ZXYr";
-        case Imath::Euler<T>::ZYXr:
+        case IMATH_NAMESPACE::Euler<T>::ZYXr:
             return "EULER_ZYXr";
-        case Imath::Euler<T>::XZXr:
+        case IMATH_NAMESPACE::Euler<T>::XZXr:
             return "EULER_XZXr";
-        case Imath::Euler<T>::XYXr:
+        case IMATH_NAMESPACE::Euler<T>::XYXr:
             return "EULER_XYXr";
-        case Imath::Euler<T>::YXYr:
+        case IMATH_NAMESPACE::Euler<T>::YXYr:
             return "EULER_YXYr";
-        case Imath::Euler<T>::YZYr:
+        case IMATH_NAMESPACE::Euler<T>::YZYr:
             return "EULER_YZYr";
-        case Imath::Euler<T>::ZYZr:
+        case IMATH_NAMESPACE::Euler<T>::ZYZr:
             return "EULER_ZYZr";
-        case Imath::Euler<T>::ZXZr:
+        case IMATH_NAMESPACE::Euler<T>::ZXZr:
             return "EULER_ZXZr";
     }
     
@@ -178,11 +178,11 @@ notequal(const Euler<T> &e0, const Euler<T> &e1)
 }
 
 template <class T>
-static Imath::Vec3 <int> getAngleOrder(Euler <T> &euler)
+static IMATH_NAMESPACE::Vec3 <int> getAngleOrder(Euler <T> &euler)
 {
     int i, j, k;
     euler.angleOrder(i, j, k);
-    return Imath::Vec3 <int> (i, j, k);
+    return IMATH_NAMESPACE::Vec3 <int> (i, j, k);
 }
 
 template <class T>
@@ -200,109 +200,109 @@ setXYZTuple(Euler<T> &euler, const tuple &t)
         euler.setXYZVector(v);
     }
     else
-        THROW(Iex::LogicExc, "Color3 expects tuple of length 3");    
+        THROW(IEX_NAMESPACE::LogicExc, "Color3 expects tuple of length 3");    
 }
 
 // needed to convert Eulerf::Order to Euler<T>::Order
 template <class T>
-static typename Euler<T>::Order interpretOrder(typename Imath::Eulerf::Order order)
+static typename Euler<T>::Order interpretOrder(typename IMATH_NAMESPACE::Eulerf::Order order)
 {
     typename Euler<T>::Order o = Euler<T>::XYZ;
     switch(order)
     {
-        case Imath::Eulerf::XYZ:
+        case IMATH_NAMESPACE::Eulerf::XYZ:
         {
             o = Euler<T>::XYZ;
         }break;
-        case Imath::Eulerf::XZY:
+        case IMATH_NAMESPACE::Eulerf::XZY:
         {
             o = Euler<T>::XZY;
         }break;
-        case Imath::Eulerf::YZX:
+        case IMATH_NAMESPACE::Eulerf::YZX:
         {
             o = Euler<T>::YZX;
         }break;
-        case Imath::Eulerf::YXZ:
+        case IMATH_NAMESPACE::Eulerf::YXZ:
         {
             o = Euler<T>::YXZ;
         }break;
-        case Imath::Eulerf::ZXY:
+        case IMATH_NAMESPACE::Eulerf::ZXY:
         {
             o = Euler<T>::ZXY;
         }break;
-        case Imath::Eulerf::ZYX:
+        case IMATH_NAMESPACE::Eulerf::ZYX:
         {
             o = Euler<T>::ZYX;
         }break;
-        case Imath::Eulerf::XZX:
+        case IMATH_NAMESPACE::Eulerf::XZX:
         {
             o = Euler<T>::XZX;
         }break;
-        case Imath::Eulerf::XYX:
+        case IMATH_NAMESPACE::Eulerf::XYX:
         {
             o = Euler<T>::XYX;
         }break;
-        case Imath::Eulerf::YXY:
+        case IMATH_NAMESPACE::Eulerf::YXY:
         {
             o = Euler<T>::YXY;
         }break;
-        case Imath::Eulerf::YZY:
+        case IMATH_NAMESPACE::Eulerf::YZY:
         {
             o = Euler<T>::YZY;
         }break;
-        case Imath::Eulerf::ZYZ:
+        case IMATH_NAMESPACE::Eulerf::ZYZ:
         {
             o = Euler<T>::ZYZ;
         }break;
-        case Imath::Eulerf::ZXZ:
+        case IMATH_NAMESPACE::Eulerf::ZXZ:
         {
             o = Euler<T>::ZXZ;
         }break;
-        case Imath::Eulerf::XYZr:
+        case IMATH_NAMESPACE::Eulerf::XYZr:
         {
             o = Euler<T>::XYZr;
         }break;
-        case Imath::Eulerf::XZYr:
+        case IMATH_NAMESPACE::Eulerf::XZYr:
         {
             o = Euler<T>::XZYr;
         }break;
-        case Imath::Eulerf::YZXr:
+        case IMATH_NAMESPACE::Eulerf::YZXr:
         {
             o = Euler<T>::YZXr;
         }break;
-        case Imath::Eulerf::YXZr:
+        case IMATH_NAMESPACE::Eulerf::YXZr:
         {
             o = Euler<T>::YXZr;
         }break;
-        case Imath::Eulerf::ZXYr:
+        case IMATH_NAMESPACE::Eulerf::ZXYr:
         {
             o = Euler<T>::ZXYr;
         }break;
-        case Imath::Eulerf::ZYXr:
+        case IMATH_NAMESPACE::Eulerf::ZYXr:
         {
             o = Euler<T>::ZYXr;
         }break;
-        case Imath::Eulerf::XZXr:
+        case IMATH_NAMESPACE::Eulerf::XZXr:
         {
             o = Euler<T>::XZXr;
         }break;
-        case Imath::Eulerf::XYXr:
+        case IMATH_NAMESPACE::Eulerf::XYXr:
         {
             o = Euler<T>::XYXr;
         }break;
-        case Imath::Eulerf::YXYr:
+        case IMATH_NAMESPACE::Eulerf::YXYr:
         {
             o = Euler<T>::YXYr;
         }break;
-        case Imath::Eulerf::YZYr:
+        case IMATH_NAMESPACE::Eulerf::YZYr:
         {
             o = Euler<T>::YZYr;
         }break;
-        case Imath::Eulerf::ZYZr:
+        case IMATH_NAMESPACE::Eulerf::ZYZr:
         {
             o = Euler<T>::ZYZr;
         }break;
-        case Imath::Eulerf::ZXZr:
+        case IMATH_NAMESPACE::Eulerf::ZXZr:
         {
             o = Euler<T>::ZXZr;
         }break;            
@@ -313,11 +313,11 @@ static typename Euler<T>::Order interpretOrder(typename Imath::Eulerf::Order ord
 
 // needed to convert Eulerf::Axis to Euler<T>::Axis
 template <class T>
-static typename Euler<T>::Axis interpretAxis(typename Imath::Eulerf::Axis axis)
+static typename Euler<T>::Axis interpretAxis(typename IMATH_NAMESPACE::Eulerf::Axis axis)
 {
-    if (axis == Imath::Eulerf::X)
+    if (axis == IMATH_NAMESPACE::Eulerf::X)
         return Euler<T>::X;
-    else if (axis == Imath::Eulerf::Y)
+    else if (axis == IMATH_NAMESPACE::Eulerf::Y)
         return Euler<T>::Y;
     else
         return Euler<T>::Z;
@@ -325,7 +325,7 @@ static typename Euler<T>::Axis interpretAxis(typename Imath::Eulerf::Axis axis)
 
 template <class T>
 static Euler<T> *
-eulerConstructor1(const Vec3<T> &v, typename Imath::Eulerf::Order order)
+eulerConstructor1(const Vec3<T> &v, typename IMATH_NAMESPACE::Eulerf::Order order)
 {
     typename Euler<T>::Order o = interpretOrder<T>(order);
     return new Euler<T>(v, o);
@@ -335,7 +335,7 @@ template <class T>
 static Euler<T> *
 eulerConstructor1a(const Vec3<T> &v)
 {
-    return eulerConstructor1 (v, Imath::Eulerf::Default);
+    return eulerConstructor1 (v, IMATH_NAMESPACE::Eulerf::Default);
 }
 
 template <class T>
@@ -348,7 +348,7 @@ eulerConstructor1b(const Vec3<T> &v, int iorder)
 
 template <class T>
 static Euler<T> *
-eulerConstructor2(T i, T j, T k, typename Imath::Eulerf::Order order)
+eulerConstructor2(T i, T j, T k, typename IMATH_NAMESPACE::Eulerf::Order order)
 {
     typename Euler<T>::Order o = interpretOrder<T>(order);
     return new Euler<T>(i, j, k, o);
@@ -358,7 +358,7 @@ template <class T>
 static Euler<T> *
 eulerConstructor2a(T i, T j, T k)
 {
-    return eulerConstructor2 (i, j, k, Imath::Eulerf::Default);
+    return eulerConstructor2 (i, j, k, IMATH_NAMESPACE::Eulerf::Default);
 }
 
 template <class T>
@@ -371,7 +371,7 @@ eulerConstructor2b(T i, T j, T k, int iorder)
 
 template <class T>
 static Euler<T> *
-eulerConstructor3(const Matrix33<T> &mat, typename Imath::Eulerf::Order order)
+eulerConstructor3(const Matrix33<T> &mat, typename IMATH_NAMESPACE::Eulerf::Order order)
 {
     typename Euler<T>::Order o = interpretOrder<T>(order);
     return new Euler<T>(mat, o);
@@ -381,7 +381,7 @@ template <class T>
 static Euler<T> *
 eulerConstructor3a(const Matrix33<T> &mat)
 {
-    return eulerConstructor3 (mat, Imath::Eulerf::Default);
+    return eulerConstructor3 (mat, IMATH_NAMESPACE::Eulerf::Default);
 }
 
 template <class T>
@@ -394,7 +394,7 @@ eulerConstructor3b(const Matrix33<T> &mat, int iorder)
 
 template <class T>
 static Euler<T> *
-eulerConstructor4(const Matrix44<T> &mat, typename Imath::Eulerf::Order order)
+eulerConstructor4(const Matrix44<T> &mat, typename IMATH_NAMESPACE::Eulerf::Order order)
 {
     typename Euler<T>::Order o = interpretOrder<T>(order);
     return new Euler<T>(mat, o);
@@ -404,7 +404,7 @@ template <class T>
 static Euler<T> *
 eulerConstructor4a(const Matrix44<T> &mat)
 {
-    return eulerConstructor4 (mat, Imath::Eulerf::Default);
+    return eulerConstructor4 (mat, IMATH_NAMESPACE::Eulerf::Default);
 }
 
 template <class T>
@@ -417,7 +417,7 @@ eulerConstructor4b(const Matrix44<T> &mat, int iorder)
 
 template <class T>
 static Euler<T> *
-eulerConstructor5(typename Imath::Eulerf::Order order)
+eulerConstructor5(typename IMATH_NAMESPACE::Eulerf::Order order)
 {
     typename Euler<T>::Order o = interpretOrder<T>(order);
     return new Euler<T>(o);
@@ -427,7 +427,7 @@ template <class T>
 static Euler<T> *
 eulerConstructor5a()
 {
-    typename Euler<T>::Order o = interpretOrder<T>(Imath::Eulerf::Default);
+    typename Euler<T>::Order o = interpretOrder<T>(IMATH_NAMESPACE::Eulerf::Default);
     return new Euler<T>(o);
 }
 
@@ -448,7 +448,7 @@ eulerConstructor6(T x, T y, T z)
 
 template <class T>
 static Euler<T> *
-eulerConstructor7(const Quat<T> &quat, typename Imath::Eulerf::Order order)
+eulerConstructor7(const Quat<T> &quat, typename IMATH_NAMESPACE::Eulerf::Order order)
 {
     Euler<T> *e = eulerConstructor5<T>(order);
     e->extract(quat);
@@ -459,7 +459,7 @@ template <class T>
 static Euler<T> *
 eulerConstructor7a(const Quat<T> &quat)
 {
-    return eulerConstructor7(quat, Imath::Eulerf::Default);
+    return eulerConstructor7(quat, IMATH_NAMESPACE::Eulerf::Default);
 }
 
 template <class T>
@@ -491,7 +491,7 @@ eulerMakeNear(Euler<T> &euler, Euler<T> &target)
 
 template <class T>
 static void
-eulerSetOrder(Euler<T> &euler, typename Imath::Eulerf::Order order)
+eulerSetOrder(Euler<T> &euler, typename IMATH_NAMESPACE::Eulerf::Order order)
 {
     typename Euler<T>::Order o = interpretOrder<T>(order);
     euler.setOrder (o);
@@ -499,7 +499,7 @@ eulerSetOrder(Euler<T> &euler, typename Imath::Eulerf::Order order)
  
 template <class T>
 static void
-eulerSet(Euler<T> &euler, Imath::Eulerf::Axis axis, int relative, int parityEven, int firstRepeats)
+eulerSet(Euler<T> &euler, IMATH_NAMESPACE::Eulerf::Axis axis, int relative, int parityEven, int firstRepeats)
 {
     MATH_EXC_ON;
     typename Euler<T>::Axis a = interpretAxis<T>(axis);
@@ -563,7 +563,7 @@ toXYZVector(Euler<T> &euler)
 }
 
 template <class T>
-class_<Euler<T>,bases<Imath::Vec3<T> > >
+class_<Euler<T>,bases<IMATH_NAMESPACE::Vec3<T> > >
 register_Euler()
 {
     class_<Euler<T>,bases<Vec3<T> > > euler_class(EulerName<T>::value,EulerName<T>::value,init<Euler<T> >("copy construction"));
@@ -757,19 +757,19 @@ register_Euler()
 /*
 template <class T,int index>
 static FixedArray<T>
-EulerArray_get(FixedArray<Imath::Euler<T> > &qa)
+EulerArray_get(FixedArray<IMATH_NAMESPACE::Euler<T> > &qa)
 {
     return FixedArray<T>( &(qa[0].r)+index, qa.len(), 4*qa.stride());
 }
 */
 
 template <class T>
-static FixedArray<Imath::Euler<T> > *
-EulerArray_eulerConstructor7a(const FixedArray<Imath::Quat<T> > &q)
+static FixedArray<IMATH_NAMESPACE::Euler<T> > *
+EulerArray_eulerConstructor7a(const FixedArray<IMATH_NAMESPACE::Quat<T> > &q)
 {
     MATH_EXC_ON;
     size_t len = q.len();
-    FixedArray<Imath::Euler<T> >* result = new FixedArray<Imath::Euler<T> >(len);
+    FixedArray<IMATH_NAMESPACE::Euler<T> >* result = new FixedArray<IMATH_NAMESPACE::Euler<T> >(len);
     for (size_t i = 0; i < len; ++i) {
         (*result)[i].extract(q[i]);
     }
@@ -777,10 +777,10 @@ EulerArray_eulerConstructor7a(const FixedArray<Imath::Quat<T> > &q)
 }
 
 template <class T>
-class_<FixedArray<Imath::Euler<T> > >
+class_<FixedArray<IMATH_NAMESPACE::Euler<T> > >
 register_EulerArray()
 {
-    class_<FixedArray<Imath::Euler<T> > > eulerArray_class = FixedArray<Imath::Euler<T> >::register_("Fixed length array of Imath::Euler");
+    class_<FixedArray<IMATH_NAMESPACE::Euler<T> > > eulerArray_class = FixedArray<IMATH_NAMESPACE::Euler<T> >::register_("Fixed length array of IMATH_NAMESPACE::Euler");
     eulerArray_class
         //.add_property("x",&EulerArray_get<T,1>)
         //.add_property("y",&EulerArray_get<T,2>)
@@ -789,18 +789,18 @@ register_EulerArray()
         ;
 
     add_comparison_functions(eulerArray_class);
-    PyImath::add_explicit_construction_from_type<Imath::Matrix33<T> >(eulerArray_class);
-    PyImath::add_explicit_construction_from_type<Imath::Matrix44<T> >(eulerArray_class);
+    PyImath::add_explicit_construction_from_type<IMATH_NAMESPACE::Matrix33<T> >(eulerArray_class);
+    PyImath::add_explicit_construction_from_type<IMATH_NAMESPACE::Matrix44<T> >(eulerArray_class);
     return eulerArray_class;
 }
 
-template PYIMATH_EXPORT class_<Imath::Euler<float>,bases<Imath::Vec3<float> > > register_Euler<float>();
-template PYIMATH_EXPORT class_<Imath::Euler<double>,bases<Imath::Vec3<double> > > register_Euler<double>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Euler<float>,bases<IMATH_NAMESPACE::Vec3<float> > > register_Euler<float>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Euler<double>,bases<IMATH_NAMESPACE::Vec3<double> > > register_Euler<double>();
 
-template PYIMATH_EXPORT class_<FixedArray<Imath::Euler<float> > > register_EulerArray<float>();
-template PYIMATH_EXPORT class_<FixedArray<Imath::Euler<double> > > register_EulerArray<double>();
+template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Euler<float> > > register_EulerArray<float>();
+template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Euler<double> > > register_EulerArray<double>();
 }
 namespace PyImath {
-	template<> PYIMATH_EXPORT Imath::Euler<float> FixedArrayDefaultValue<Imath::Euler<float> >::value() { return Imath::Euler<float>(); }
-	template<> PYIMATH_EXPORT Imath::Euler<double> FixedArrayDefaultValue<Imath::Euler<double> >::value() { return Imath::Euler<double>(); }
+	template<> PYIMATH_EXPORT IMATH_NAMESPACE::Euler<float> FixedArrayDefaultValue<IMATH_NAMESPACE::Euler<float> >::value() { return IMATH_NAMESPACE::Euler<float>(); }
+	template<> PYIMATH_EXPORT IMATH_NAMESPACE::Euler<double> FixedArrayDefaultValue<IMATH_NAMESPACE::Euler<double> >::value() { return IMATH_NAMESPACE::Euler<double>(); }
 }

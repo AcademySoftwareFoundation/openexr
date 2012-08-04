@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -46,8 +46,9 @@
 #include "ImathVec.h"
 #include "ImathBox.h"
 #include "ImathLine.h"
+#include "ImathNamespace.h"
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 template <class T>
 class Sphere3
@@ -171,7 +172,6 @@ bool Sphere3<T>::intersect(const Line3<T> &line, Vec3<T> &intersection) const
     }
 }
 
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-} //namespace Imath
-
-#endif
+#endif // INCLUDED_IMATHSPHERE_H

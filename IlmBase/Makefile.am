@@ -16,8 +16,9 @@ DIST_SUBDIRS = \
 
 EXTRA_DIST = \
 	AUTHORS COPYING ChangeLog INSTALL LICENSE NEWS \
-        README README.CVS README.OSX README.win32 bootstrap \
-	config.windows/IlmBaseConfig.h
+	README README.CVS README.OSX README.win32 bootstrap \
+	config.windows/IlmBaseConfig.h \
+        CMakeLists.txt
 
 
 pkgconfigdir = $(libdir)/pkgconfig

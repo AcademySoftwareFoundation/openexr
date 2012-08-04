@@ -33,6 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+
 #include <tmpDir.h>
 #include <fuzzFile.h>
 
@@ -43,10 +44,14 @@
 #include <Iex.h>
 #include <iostream>
 #include <cassert>
+#include <stdio.h>
 
+// Handle the case when the custom namespace is not exposed
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 using namespace std;
-using namespace Imath;
-using namespace Imf;
+using namespace IMATH_NAMESPACE;
+
 
 namespace {
 
@@ -126,7 +131,7 @@ readImage (const char fileName[])
 void
 fuzzScanLines (int numThreads, Rand48 &random)
 {
-    if (IlmThread::supportsThreads())
+    if (ILMTHREAD_NAMESPACE::supportsThreads())
     {
 	setGlobalThreadCount (numThreads);
 	cout << "\nnumber of threads: " << globalThreadCount() << endl;
@@ -168,7 +173,7 @@ testFuzzScanLines ()
 
 	fuzzScanLines (0, random);
 
-	if (IlmThread::supportsThreads())
+	if (ILMTHREAD_NAMESPACE::supportsThreads())
 	    fuzzScanLines (2, random);
 
 	cout << "ok\n" << endl;

@@ -50,7 +50,7 @@
 class ImageBuffers;
 
 
-class FileReadingThread: IlmThread::Thread
+class FileReadingThread: ILMTHREAD_NAMESPACE::Thread
 {
   public:
 

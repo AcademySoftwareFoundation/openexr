@@ -44,9 +44,9 @@
 #include <IexMathFloatExc.h>
 #include <PyImathUtil.h>
 
-#define PY_IMATH_LEAVE_PYTHON Iex::MathExcOn mathexcon (Iex::IEEE_OVERFLOW | \
-                                                        Iex::IEEE_DIVZERO |  \
-                                                        Iex::IEEE_INVALID);  \
+#define PY_IMATH_LEAVE_PYTHON IEX_NAMESPACE::MathExcOn mathexcon (IEX_NAMESPACE::IEEE_OVERFLOW | \
+                                                        IEX_NAMESPACE::IEEE_DIVZERO |  \
+                                                        IEX_NAMESPACE::IEEE_INVALID);  \
                               PyImath::PyReleaseLock pyunlock;
 
 namespace PyImath {
@@ -90,7 +90,7 @@ class FixedArray
         : _ptr(ptr), _length(length), _stride(stride), _handle(handle), _unmaskedLength(0)
     {
         if (_length < 0) {
-            throw Iex::LogicExc("Fixed array length must be non-negative");
+            throw IEX_NAMESPACE::LogicExc("Fixed array length must be non-negative");
         }
         // nothing
     }
@@ -99,7 +99,7 @@ class FixedArray
         : _ptr(0), _length(length), _stride(1), _handle(), _unmaskedLength(0)
     {
         if (_length < 0) {
-            throw Iex::LogicExc("Fixed array length must be non-negative");
+            throw IEX_NAMESPACE::LogicExc("Fixed array length must be non-negative");
         }
         boost::shared_array<T> a(new T[length]);
         T tmp = FixedArrayDefaultValue<T>::value();
@@ -112,7 +112,7 @@ class FixedArray
         : _ptr(0), _length(length), _stride(1), _handle(), _unmaskedLength(0)
     {
         if (_length < 0) {
-            throw Iex::LogicExc("Fixed array length must be non-negative");
+            throw IEX_NAMESPACE::LogicExc("Fixed array length must be non-negative");
         }
         boost::shared_array<T> a(new T[length]);
         _handle = a;
@@ -123,7 +123,7 @@ class FixedArray
         : _ptr(0), _length(length), _stride(1), _handle(), _unmaskedLength(0)
     {
         if (_length < 0) {
-            throw Iex::LogicExc("Fixed array length must be non-negative");
+            throw IEX_NAMESPACE::LogicExc("Fixed array length must be non-negative");
         }
         boost::shared_array<T> a(new T[length]);
         for (size_t i=0; i<length; ++i) a[i] = initialValue;
@@ -136,7 +136,7 @@ class FixedArray
     {
         if (f.isMaskedReference())
         {
-            throw Iex::NoImplExc("Masking an already-masked FixedArray not supported yet (SQ27000)");
+            throw IEX_NAMESPACE::NoImplExc("Masking an already-masked FixedArray not supported yet (SQ27000)");
         }
 
         size_t len = f.match_dimension(mask);
@@ -233,7 +233,7 @@ class FixedArray
                 boost::python::throw_error_already_set();
             }
             if (s < 0 || e < 0 || sl < 0) {
-                throw Iex::LogicExc("Slice extraction produced invalid start, end, or length indices");
+                throw IEX_NAMESPACE::LogicExc("Slice extraction produced invalid start, end, or length indices");
             }
             start = s;
             end = e;
@@ -347,7 +347,7 @@ class FixedArray
 
         if (_indices)
         {
-            throw Iex::ArgExc("We don't support setting item masks for masked reference arrays.");
+            throw IEX_NAMESPACE::ArgExc("We don't support setting item masks for masked reference arrays.");
         }
 
         size_t len = match_dimension(mask);
@@ -363,7 +363,7 @@ class FixedArray
                 if (mask[i]) count++;
 
             if (data.len() != count) {
-                throw Iex::ArgExc("Dimensions of source data do not match destination either masked or unmasked");
+                throw IEX_NAMESPACE::ArgExc("Dimensions of source data do not match destination either masked or unmasked");
             }
 
             Py_ssize_t dataIndex = 0;
@@ -478,7 +478,7 @@ class FixedArray
 
         if (throwExc)
         {
-            throw Iex::ArgExc("Dimensions of source do not match destination");
+            throw IEX_NAMESPACE::ArgExc("Dimensions of source do not match destination");
         }
 
         return len();

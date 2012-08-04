@@ -41,9 +41,10 @@
 #include <ImfFramesPerSecond.h>
 #include "ImathFun.h"
 
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 Rational
 guessExactFps (double fps)
@@ -72,4 +73,4 @@ guessExactFps (const Rational &fps)
     return fps;
 }
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

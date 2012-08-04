@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2005, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -47,13 +47,13 @@
 #include "Iex.h"
 #include <assert.h>
 
-namespace IlmThread {
+ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 Semaphore::Semaphore (unsigned int value)
 {
     if (::sem_init (&_semaphore, 0, value))
-	Iex::throwErrnoExc ("Cannot initialize semaphore (%T).");
+	IEX_INTERNAL_NAMESPACE::throwErrnoExc ("Cannot initialize semaphore (%T).");
 }
 
 
@@ -82,7 +82,7 @@ void
 Semaphore::post ()
 {
     if (::sem_post (&_semaphore))
-        Iex::throwErrnoExc ("Post operation on semaphore failed (%T).");
+        IEX_INTERNAL_NAMESPACE::throwErrnoExc ("Post operation on semaphore failed (%T).");
 }
 
 
@@ -92,12 +92,12 @@ Semaphore::value () const
     int value;
 
     if (::sem_getvalue (&_semaphore, &value))
-        Iex::throwErrnoExc ("Cannot read semaphore value (%T).");
+        IEX_INTERNAL_NAMESPACE::throwErrnoExc ("Cannot read semaphore value (%T).");
 
     return value;
 }
 
 
-} // namespace IlmThread
+ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
 #endif

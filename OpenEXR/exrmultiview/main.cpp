@@ -49,8 +49,11 @@
 #include <string.h>
 #include <stdlib.h>
 
-using namespace Imf;
+#include "namespaceAlias.h"
+using namespace CustomImf;
 using namespace std;
+
+
 
 namespace {
 

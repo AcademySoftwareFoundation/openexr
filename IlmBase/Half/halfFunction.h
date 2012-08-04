@@ -85,7 +85,7 @@
 
 #include "half.h"
 
-#include <IlmBaseConfig.h>
+#include "IlmBaseConfig.h"
 #ifndef ILMBASE_HAVE_LARGE_STACK  
 #include <string.h>     // need this for memset
 #else 
@@ -123,6 +123,7 @@ class halfFunction
     T		operator () (half x) const;
 
   private:
+
 #ifdef ILMBASE_HAVE_LARGE_STACK
     T		_lut[1 << 16];
 #else

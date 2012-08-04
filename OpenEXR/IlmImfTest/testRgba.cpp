@@ -34,7 +34,7 @@
 
 
 #include <tmpDir.h>
-#include <compareB44.h>
+#include "compareB44.h"
 
 #include <ImfRgbaFile.h>
 #include <ImfOutputFile.h>
@@ -48,9 +48,12 @@
 #include <stdio.h>
 #include <assert.h>
 
-using namespace Imf;
-using namespace Imath;
+
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
+using namespace IMATH_NAMESPACE;
+
 
 namespace {
 
@@ -126,12 +129,18 @@ writeReadRGBA (const char fileName[],
     header.lineOrder() = lorder;
     header.compression() = comp;
 
+    cout << "writing ";
+    cout.flush();
+
     {
 	remove (fileName);
 	RgbaOutputFile out (fileName, header, channels);
 	out.setFrameBuffer (&p1[0][0], 1, width);
 	out.writePixels (height);
     }
+
+    cout << "reading ";
+    cout.flush();
 
     {
 	RgbaInputFile in (fileName);
@@ -262,11 +271,11 @@ writeReadIncomplete ()
 	    {
 		in.readPixels (y);
 	    }
-	    catch (const Iex::InputExc &)
+	    catch (const IEX_NAMESPACE::InputExc &)
 	    {
 		scanLinePresent = false;	// scan line is missing
 	    }
-	    catch (const Iex::IoExc &)
+	    catch (const IEX_NAMESPACE::IoExc &)
 	    {
 		scanLineBroken = true;		// scan line cannot be decoded
 	    }
@@ -330,11 +339,11 @@ writeReadIncomplete ()
 	{
 	    in.readPixels (0, height - 1);
 	}
-	catch (const Iex::InputExc &)
+	catch (const IEX_NAMESPACE::InputExc &)
 	{
 	    scanLinesMissing = true;
 	}
-	catch (const Iex::IoExc &)
+	catch (const IEX_NAMESPACE::IoExc &)
 	{
 	    scanLinesBroken = true;
 	}
@@ -592,11 +601,11 @@ testRgba ()
 	Array2D<Rgba> p1 (H, W);
 	fillPixels (p1, W, H);
 
-	int maxThreads = IlmThread::supportsThreads()? 3: 0;
+	int maxThreads = ILMTHREAD_NAMESPACE::supportsThreads()? 3: 0;
 
 	for (int n = 0; n <= maxThreads; ++n)
 	{
-	    if (IlmThread::supportsThreads())
+	    if (ILMTHREAD_NAMESPACE::supportsThreads())
 	    {
 		setGlobalThreadCount (n);
 		cout << "\nnumber of threads: " << globalThreadCount() << endl;
@@ -618,13 +627,13 @@ testRgba ()
 				   LineOrder (lorder),
 				   Compression (comp));
 
-		    writeReadRGBA ("imf_test_rgba.exr",
+		    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
 				   W, H, p1,
 				   WRITE_A,
 				   LineOrder (lorder),
 				   Compression (comp));
 
-		    writeReadRGBA ("imf_test_rgba.exr",
+		    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
 				   W, H, p1,
 				   RgbaChannels (WRITE_R | WRITE_B),
 				   LineOrder (lorder),

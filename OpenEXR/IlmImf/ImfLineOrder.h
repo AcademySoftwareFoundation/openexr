@@ -42,8 +42,9 @@
 //	enum LineOrder
 //
 //-----------------------------------------------------------------------------
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 enum LineOrder
@@ -59,6 +60,10 @@ enum LineOrder
 };
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif
