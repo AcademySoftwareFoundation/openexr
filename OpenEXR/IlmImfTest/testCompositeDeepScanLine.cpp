@@ -57,8 +57,6 @@
 #include <ImfInputFile.h>
 #include <ImfCompositeDeepScanLine.h>
 
-#include <OpenEXRConfig.h>
-
 
 namespace{
 

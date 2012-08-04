@@ -42,7 +42,6 @@
 #include <cassert>
 
 
-#include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 

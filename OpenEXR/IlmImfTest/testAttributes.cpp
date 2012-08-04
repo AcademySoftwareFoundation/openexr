@@ -62,8 +62,6 @@
 #include <assert.h>
 
 
-
-#include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;

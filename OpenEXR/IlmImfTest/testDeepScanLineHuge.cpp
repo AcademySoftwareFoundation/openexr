@@ -34,7 +34,6 @@
 
 #include "testDeepScanLineBasic.h"
 
-
 #include "ImfDeepScanLineInputFile.h"
 #include "ImfDeepScanLineOutputFile.h"
 #include "ImfDeepFrameBuffer.h"
@@ -52,7 +51,6 @@
 
 #include <vector>
 
-#include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;

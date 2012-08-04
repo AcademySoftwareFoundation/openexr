@@ -50,7 +50,6 @@
 #include <stdlib.h>
 #include <vector>
 
-#include <ImfNamespace.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;

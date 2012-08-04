@@ -38,7 +38,6 @@
 
 #include "compareFloat.h"
 
-#include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 
 bool
