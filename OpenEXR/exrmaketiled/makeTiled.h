@@ -42,6 +42,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include <ImfPartType.h>
 #include <ImfMultiPartOutputFile.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfTileDescription.h>

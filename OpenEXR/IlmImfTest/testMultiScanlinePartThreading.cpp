@@ -43,6 +43,7 @@
 
 #include "testMultiScanlinePartThreading.h"
 
+#include <ImfPartType.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfMultiPartOutputFile.h>
 #include <ImfOutputFile.h>
@@ -245,7 +246,7 @@ void generateFiles(int pixelTypes[])
                 break;
         }
 
-        header.setType("scanlineimage");
+        header.setType(SCANLINEIMAGE);
 
         headers.push_back(header);
     }
