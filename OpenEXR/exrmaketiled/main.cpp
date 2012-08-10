@@ -398,7 +398,7 @@ main(int argc, char **argv)
         }
 
         Header h = input.header (partnum);
-        if (h.type() == "deeptile" || h.type() == "deepscanline")
+        if (h.type() == DEEPTILE || h.type() == DEEPSCANLINE)
         {
             cerr << "Cannot make tile for deep data" << endl;
             exit(1);

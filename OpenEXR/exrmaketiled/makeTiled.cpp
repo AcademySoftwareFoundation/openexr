@@ -585,7 +585,7 @@ makeTiled (const char inFileName[],
             //
             // set tileDescription, type, and chunckcount for multipart
             //
-            header.setType("tiledimage");
+            header.setType(TILEDIMAGE);
             int chunkcount = getChunkOffsetTableSize(header, true);
             header.setChunkCount(chunkcount);
 
@@ -717,25 +717,25 @@ makeTiled (const char inFileName[],
         {
             Header header = headers[p];
             std::string type = header.type();
-            if (type == "tiledimage")
+            if (type == TILEDIMAGE)
             {
                 TiledInputPart in (input, p);
                 TiledOutputPart out (output, p);
                 out.copyPixels (in);
             }
-            else if (type == "scanlineimage")
+            else if (type == SCANLINEIMAGE)
             {
                 using std::max;  InputPart in (input, p);
                 OutputPart out (output, p);
                 out.copyPixels (in);
             }
-            else if (type == "deepscanline")
+            else if (type == DEEPSCANLINE)
             {
                 DeepScanLineInputPart in (input,p);
                 DeepScanLineOutputPart out (output,p);
                 out.copyPixels (in);
             }
-            else if (type == "deeptile")
+            else if (type == DEEPTILE)
             {
                 DeepTiledInputPart in (input,p);
                 DeepTiledOutputPart out (output,p);

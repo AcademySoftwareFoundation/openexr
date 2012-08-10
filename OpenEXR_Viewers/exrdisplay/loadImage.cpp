@@ -52,7 +52,7 @@
 #include <ImfChannelList.h>
 #include <Iex.h>
 
-
+#include <ImfPartType.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfInputPart.h>
 #include <ImfTiledInputPart.h>
@@ -909,7 +909,7 @@ loadImage (const char fileName[],
     Header h = inmaster.header(partnum);
     std::string  type = h.type();
 
-    if (type == "deeptile")
+    if (type == DEEPTILE)
     {
         loadDeepTileImage(inmaster,
                           partnum,
@@ -919,7 +919,7 @@ loadImage (const char fileName[],
                           zbuffer,
                           sampleCount);
     }
-    else if(type == "deepscanline")
+    else if(type == DEEPSCANLINE)
     {
         loadDeepScanlineImage(inmaster,
                               partnum,
