@@ -57,9 +57,8 @@ The distribution is divided into the following sub-modules:
     * IlmBase
     * OpenEXR
     * OpenEXR_Viewers
-    * Photoshop
     * PyIlmBase
-    * d_exr
+    * Contrib
     
 Please see the README files of each of the individual directories for more
 information.
