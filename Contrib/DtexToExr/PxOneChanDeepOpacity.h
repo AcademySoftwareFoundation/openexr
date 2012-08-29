@@ -138,13 +138,16 @@ void OneChanDeepOpacityContinuous<RGBA_T>::processDeepPixel( int i_numPts )
 
         z = ClampDepth( z );
 
-        double deepOpac = ClampAlpha( pts[0] );
-
         span_type& spanJ = (this->m_spans)[j];
         spanJ.clear();
         spanJ.in = z;
         spanJ.out = z;
-        spanJ.deepViz = ClampViz( 1.0 - deepOpac );
+        
+        // Data stored in dtex files for "deepopacity" is actually
+        // "deeptransmission", monotonically decreasing from an initial
+        // value of 1.0. We just convert it to viz directly.
+        // (viz == transmissivity)
+        spanJ.deepViz = ClampViz( pts[0] );
         spanJ.index = j;
     }
 
@@ -191,9 +194,10 @@ void OneChanDeepOpacityContinuous<RGBA_T>::processDeepPixel( int i_numPts )
                 {
                     // This span has an identical depth to
                     // the previous one, so we use whichever one has the
-                    // largest deep opacity.
+                    // largest deep opacity, which equates to the
+                    // smallest deep viz.
                     spanActiveBegin.deepViz =
-                        std::max( spanActiveBegin.deepViz,
+                        std::min( spanActiveBegin.deepViz,
                                   spanNext.deepViz );
                     spanNext.in = FLT_MAX;
                     spanNext.out = FLT_MAX;
@@ -349,13 +353,16 @@ void OneChanDeepOpacityDiscrete<RGBA_T>::processDeepPixel( int i_numPts )
 
         z = ClampDepth( z );
 
-        double deepOpac = ClampAlpha( pts[0] );
-
         span_type& spanJ = (this->m_spans)[j];
         spanJ.clear();
         spanJ.in = z;
         spanJ.out = z;
-        spanJ.deepViz = ClampViz( 1.0 - deepOpac );
+
+        // Data stored in dtex files for "deepopacity" is actually
+        // "deeptransmission", monotonically decreasing from an initial
+        // value of 1.0. We just convert it to viz directly.
+        // (viz == transmissivity)
+        spanJ.deepViz = ClampViz( pts[0] );
         spanJ.index = j;
     }
 
@@ -400,9 +407,10 @@ void OneChanDeepOpacityDiscrete<RGBA_T>::processDeepPixel( int i_numPts )
                 {
                     // This span has an identical depth to
                     // the previous one, so we use whichever one has the
-                    // largest deep opacity.
+                    // largest deep opacity, which equates to the
+                    // smallest deep viz.
                     spanActiveBegin.deepViz =
-                        std::max( spanActiveBegin.deepViz,
+                        std::min( spanActiveBegin.deepViz,
                                   spanNext.deepViz );
                     spanNext.in = FLT_MAX;
                     spanNext.out = FLT_MAX;
