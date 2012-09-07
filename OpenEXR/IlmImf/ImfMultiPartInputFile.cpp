@@ -526,6 +526,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                 case B44_COMPRESSION :
                 case B44A_COMPRESSION :
                     rowsizes[i]=32;
+                    break;
                 case ZIP_COMPRESSION :
                 case PXR24_COMPRESSION :
                     rowsizes[i]=16;
