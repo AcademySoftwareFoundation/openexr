@@ -39,7 +39,9 @@ IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
                      testCopyDeepScanLine.cpp testCopyDeepScanLine.h testCopyDeepTiled.h \
                      testCopyDeepTiled.cpp testCopyMultiPartFile.h testCopyMultiPartFile.cpp \
                      testCompositeDeepScanLine.h testCompositeDeepScanLine.cpp \
-                     testInputPart.cpp testInputPart.h
+                     testInputPart.cpp testInputPart.h \
+                     testDeepScanLineMultipleRead.h testDeepScanLineMultipleRead.cpp 
+
 AM_CPPFLAGS = -DILM_IMF_TEST_IMAGEDIR=\"$(srcdir)/\"
 
 if BUILD_IMFHUGETEST

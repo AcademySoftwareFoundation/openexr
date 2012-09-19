@@ -71,6 +71,7 @@
 #include "testMultiTiledPartThreading.h"
 #include "testDeepScanLineBasic.h"
 #include "testCopyDeepScanLine.h"
+#include "testDeepScanLineMultipleRead.h"
 #include "testDeepScanLineHuge.h"
 #include "testDeepTiledBasic.h"
 #include "testCopyDeepTiled.h"
@@ -126,6 +127,7 @@ main (int argc, char *argv[])
     TEST (testIsComplete,"basic");
     TEST (testDeepScanLineBasic,"deep");
     TEST (testCopyDeepScanLine,"deep");
+    TEST (testDeepScanLineMultipleRead,"deep");
     TEST (testDeepTiledBasic,"deep");
     TEST (testCopyDeepTiled,"deep");
     TEST (testCompositeDeepScanLine,"deep");

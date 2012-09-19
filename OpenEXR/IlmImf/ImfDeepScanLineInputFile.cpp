@@ -1849,6 +1849,22 @@ readSampleCountForLineBlock(InputStreamMutex* streamData,
     }
 }
 
+
+void
+fillSampleCountFromCache(int y, DeepScanLineInputFile::Data* data)
+{
+    int yInDataWindow = y - data->minY;
+    char* base = data->sampleCountSliceBase;
+    int xStride = data->sampleCountXStride;
+    int yStride = data->sampleCountYStride;
+    
+    for (int x = data->minX; x <= data->maxX; x++)
+    {
+        unsigned int count = data->sampleCount[yInDataWindow][x - data->minX];    
+        sampleCount(base, xStride, yStride, x, y) = count;
+    }
+}
+
 } // namespace
 
 void
@@ -1876,36 +1892,45 @@ DeepScanLineInputFile::readPixelSampleCounts (int scanline1, int scanline2)
 
         for (int i = scanLineMin; i <= scanLineMax; i++)
         {
-            if (_data->gotSampleCount[i - _data->minY]) continue;
-
-            int lineBlockId = (i - _data->minY) / _data->linesInBuffer;
-
-            readSampleCountForLineBlock(_data->_streamData, _data, lineBlockId);
-
-            int minYInLineBuffer = lineBlockId * _data->linesInBuffer + _data->minY;
-            int maxYInLineBuffer = min(minYInLineBuffer + _data->linesInBuffer - 1, _data->maxY);
-
             //
-            // For each line within the block, get the count of bytes.
+            // if scanline is already read, it'll be in the cache
+            // otherwise, read from file, store in cache and in caller's framebuffer
             //
+            if (_data->gotSampleCount[i - _data->minY])
+            {
+                fillSampleCountFromCache(i,_data);
+                                         
+            }else{
 
-            bytesPerDeepLineTable (_data->header,
-                                   minYInLineBuffer,
-                                   maxYInLineBuffer,
-                                   _data->sampleCountSliceBase,
-                                   _data->sampleCountXStride,
-                                   _data->sampleCountYStride,
-                                   _data->bytesPerLine);
+                int lineBlockId = ( i - _data->minY ) / _data->linesInBuffer;
 
-            //
-            // For each scanline within the block, get the offset.
-            //
+                readSampleCountForLineBlock ( _data->_streamData, _data, lineBlockId );
 
-            offsetInLineBufferTable (_data->bytesPerLine,
-                                     minYInLineBuffer - _data->minY,
-                                     maxYInLineBuffer - _data->minY,
-                                     _data->linesInBuffer,
-                                     _data->offsetInLineBuffer);
+                int minYInLineBuffer = lineBlockId * _data->linesInBuffer + _data->minY;
+                int maxYInLineBuffer = min ( minYInLineBuffer + _data->linesInBuffer - 1, _data->maxY );
+
+                //
+                // For each line within the block, get the count of bytes.
+                //
+
+                bytesPerDeepLineTable ( _data->header,
+                                        minYInLineBuffer,
+                                        maxYInLineBuffer,
+                                        _data->sampleCountSliceBase,
+                                        _data->sampleCountXStride,
+                                        _data->sampleCountYStride,
+                                        _data->bytesPerLine );
+
+                //
+                // For each scanline within the block, get the offset.
+                //
+
+                offsetInLineBufferTable ( _data->bytesPerLine,
+                                          minYInLineBuffer - _data->minY,
+                                          maxYInLineBuffer - _data->minY,
+                                          _data->linesInBuffer,
+                                          _data->offsetInLineBuffer );
+            }
         }
 
         _data->_streamData->is->seekg(savedFilePos);
