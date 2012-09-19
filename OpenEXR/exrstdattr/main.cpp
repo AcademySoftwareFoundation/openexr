@@ -40,6 +40,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <ImfPartType.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfMultiPartOutputFile.h>
 #include <ImfStandardAttributes.h>
@@ -824,25 +825,25 @@ main(int argc, char **argv)
         {
             Header header = input.header (p);
             std::string type = header.type();
-            if (type == "tiledimage")
+            if (type == TILEDIMAGE)
             {
                 TiledInputPart in (input, p);
                 TiledOutputPart out (output, p);
                 out.copyPixels (in);
             }
-            else if (type == "scanlineimage")
+            else if (type == SCANLINEIMAGE)
             {
                 InputPart in (input, p);
                 OutputPart out (output, p);
                 out.copyPixels (in);
             }
-            else if (type == "deepscanline")
+            else if (type == DEEPSCANLINE)
             {
                 DeepScanLineInputPart in (input,p);
                 DeepScanLineOutputPart out (output,p);
                 out.copyPixels (in);
             }
-            else if (type == "deeptile")
+            else if (type == DEEPTILE)
             {
                 DeepTiledInputPart in (input,p);
                 DeepTiledOutputPart out (output,p);
