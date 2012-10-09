@@ -32,12 +32,22 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#if defined(OPENEXR_DLL)
-#   if defined(IEX_EXPORTS)
-#       define IEX_EXPORT __declspec(dllexport)
-#   else
-#       define IEX_EXPORT __declspec(dllimport)
-#   endif
-#else
-#   define IEX_EXPORT
+#ifndef IEX_EXPORT
+#    if defined(OPENEXR_DLL) || defined(IEX_SYMBOL_VISIBILITY)
+#        if defined(IEX_EXPORTS)
+#            if defined(IEX_SYMBOL_VISIBILITY)
+#               define IEX_EXPORT __attribute__((visibility("default")))
+#            else
+#               define IEX_EXPORT __declspec(dllexport)
+#            endif
+#       else
+#           if defined(IEX_SYMBOL_VISIBILITY)
+#               define IEX_EXPORT
+#           else
+#               define IEX_EXPORT __declspec(dllimport)
+#           endif
+#       endif
+#    else
+#       define IEX_EXPORT
+#    endif
 #endif
