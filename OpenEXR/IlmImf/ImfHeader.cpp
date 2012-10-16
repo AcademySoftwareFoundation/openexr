@@ -712,14 +712,14 @@ Header::sanityCheck (bool isTiled) const
 	    throw Iex::ArgExc ("Invalid tile size in image header.");
 
 	if (maxTileWidth > 0 &&
-	    maxTileWidth < tileDesc.xSize)
+	    maxTileWidth < (int) tileDesc.xSize)
 	{
 	    THROW (Iex::ArgExc, "The width of the tiles exceeds the maximum "
 				"width of " << maxTileWidth << "pixels.");
 	}
 
 	if (maxTileHeight > 0 &&
-	    maxTileHeight < tileDesc.ySize)
+	    maxTileHeight < (int) tileDesc.ySize)
 	{
 	    THROW (Iex::ArgExc, "The width of the tiles exceeds the maximum "
 				"width of " << maxTileHeight << "pixels.");

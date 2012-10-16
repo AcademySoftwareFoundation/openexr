@@ -61,7 +61,7 @@ resizeLatLong (const EnvmapImage &image1,
 {
     int w = image2DataWindow.max.x - image2DataWindow.min.x + 1;
     int h = image2DataWindow.max.y - image2DataWindow.min.y + 1;
-    float radius = 0.5f * 2 * M_PI * filterRadius / w;
+    float radius = 0.5f * float(2 * M_PI) * filterRadius / w;
 
     image2.resize (ENVMAP_LATLONG, image2DataWindow);
     image2.clear ();
@@ -72,7 +72,7 @@ resizeLatLong (const EnvmapImage &image1,
     {
 	for (int x = 0; x < w; ++x)
 	{
-	    V3f dir = LatLongMap::direction (image2DataWindow, V2f (x, y));
+	        V3f dir = LatLongMap::direction (image2DataWindow, V2f ((float) x, (float) y));
 	    pixels[y][x] = image1.filteredLookup (dir, radius, numSamples);
 	}
     }
@@ -126,7 +126,7 @@ resizeCube (const EnvmapImage &image1,
 	{
 	    for (int x = 0; x < sof; ++x)
 	    {
-		V2f posInFace (x, y);
+                V2f posInFace ((float) x, (float) y);
 
 		V3f dir =
 		    CubeMap::direction (face, image2DataWindow, posInFace);

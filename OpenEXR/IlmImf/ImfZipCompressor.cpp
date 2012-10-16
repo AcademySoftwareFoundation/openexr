@@ -43,6 +43,7 @@
 #include <ImfZipCompressor.h>
 #include <ImfCheckedArithmetic.h>
 #include "Iex.h"
+
 #include <zlib.h>
 
 namespace Imf {
