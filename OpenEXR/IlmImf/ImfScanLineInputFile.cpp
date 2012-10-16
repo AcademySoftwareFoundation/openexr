@@ -218,7 +218,7 @@ ScanLineInputFile::Data::Data (IStream *is, int numThreads):
     // to keep n threads busy we need 2*n lineBuffers
     //
 
-    lineBuffers.resize (max (1, 2 * numThreads));
+    lineBuffers.resize (max (1, 2 * (numThreads > 0? numThreads : globalThreadCount())));
 }
 
 

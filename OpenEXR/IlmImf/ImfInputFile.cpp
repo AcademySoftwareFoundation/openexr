@@ -104,7 +104,7 @@ InputFile::Data::Data (bool del, int numThreads):
     sFile (0),
     cachedBuffer (0),
     cachedTileY (-1),
-    numThreads (numThreads)
+    numThreads (numThreads > 0? numThreads : globalThreadCount())
 {
     // empty
 }

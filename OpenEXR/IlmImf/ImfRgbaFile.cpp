@@ -563,7 +563,7 @@ RgbaOutputFile::RgbaOutputFile (const char name[],
 {
     Header hd (header);
     insertChannels (hd, rgbaChannels);
-    _outputFile = new OutputFile (name, hd, numThreads);
+    _outputFile = new OutputFile (name, hd, (numThreads > 0? numThreads : globalThreadCount()));
 
     if (rgbaChannels & (WRITE_Y | WRITE_C))
 	_toYca = new ToYca (*_outputFile, rgbaChannels);
@@ -579,7 +579,7 @@ RgbaOutputFile::RgbaOutputFile (OStream &os,
 {
     Header hd (header);
     insertChannels (hd, rgbaChannels);
-    _outputFile = new OutputFile (os, hd, numThreads);
+    _outputFile = new OutputFile (os, hd, (numThreads > 0? numThreads : globalThreadCount()));
 
     if (rgbaChannels & (WRITE_Y | WRITE_C))
 	_toYca = new ToYca (*_outputFile, rgbaChannels);

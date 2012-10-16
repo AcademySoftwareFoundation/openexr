@@ -292,7 +292,7 @@ TiledOutputFile::Data::Data (bool del, int numThreads):
     // to keep n threads busy we need 2*n tileBuffers
     //
 
-    tileBuffers.resize (max (1, 2 * numThreads));
+    tileBuffers.resize (max (1, 2 * (numThreads > 0? numThreads : globalThreadCount())));
 }
 
 
