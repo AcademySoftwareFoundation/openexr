@@ -45,13 +45,14 @@
 #include <assert.h>
 
 
-using namespace Imf;
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
+
 
 namespace {
 
 void
-fill1 (unsigned short data[/*n*/], int n, float bias, Imath::Rand48 & rand48)
+fill1 (unsigned short data[/*n*/], int n, float bias, IMATH_NAMESPACE::Rand48 & rand48)
 {
     for (int i = 0; i < n; ++i)
 	data[i] = (unsigned short)
@@ -60,7 +61,7 @@ fill1 (unsigned short data[/*n*/], int n, float bias, Imath::Rand48 & rand48)
 
 
 void
-fill2 (unsigned short data[/*n*/], int n, int m, Imath::Rand48 & rand48)
+fill2 (unsigned short data[/*n*/], int n, int m, IMATH_NAMESPACE::Rand48 & rand48)
 {
     for (int i = 0; i < n; ++i)
 	data[i] = 0;
@@ -140,7 +141,7 @@ testHuf ()
     {
 	cout << "Testing Huffman encoder" << endl;
 
-	Imath::Rand48 rand48 (0);
+	IMATH_NAMESPACE::Rand48 rand48 (0);
 
 	const int N = 1000000;
 	Array <unsigned short> raw (N);

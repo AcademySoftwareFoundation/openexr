@@ -10,10 +10,15 @@ LDADD = @ILMBASE_LDFLAGS@ @ILMBASE_LIBS@ \
 	$(top_builddir)/IlmImf/libIlmImf.la \
 	-lz
 
-exrmaketiled_SOURCES = main.cpp Image.h Image.cpp makeTiled.cpp makeTiled.h
+exrmaketiled_SOURCES = main.cpp \
+		       Image.h Image.cpp \
+		       makeTiled.cpp makeTiled.h \
+		       namespaceAlias.h
 
 noinst_HEADERS = Image.h makeTiled.h
 
-EXTRA_DIST = main.cpp Image.h Image.cpp makeTiled.cpp makeTiled.h
-
-
+EXTRA_DIST = main.cpp \
+	     Image.h Image.cpp \
+	     makeTiled.cpp makeTiled.h \
+	     namespaceAlias.h \
+             CMakeLists.txt

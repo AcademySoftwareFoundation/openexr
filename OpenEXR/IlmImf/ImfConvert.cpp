@@ -40,10 +40,14 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfConvert.h>
+#include "ImfConvert.h"
+#include "ImfNamespace.h"
+
 #include <limits.h>
 
-namespace Imf {
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
+
 namespace {
 
 inline bool
@@ -136,4 +140,4 @@ floatToHalf (float f)
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

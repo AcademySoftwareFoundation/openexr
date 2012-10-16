@@ -54,12 +54,12 @@ namespace {
 template <class T>
 struct rotationXYZWithUpDir_op
 {
-    static Imath::Vec3<T>
-    apply(const Imath::Vec3<T> &from, const Imath::Vec3<T> &to, 
-          const Imath::Vec3<T> &up)
+    static IMATH_NAMESPACE::Vec3<T>
+    apply(const IMATH_NAMESPACE::Vec3<T> &from, const IMATH_NAMESPACE::Vec3<T> &to, 
+          const IMATH_NAMESPACE::Vec3<T> &up)
     {
-        Imath::Vec3<T> retval;
-        Imath::extractEulerXYZ(Imath::rotationMatrixWithUpDir(from,to,up),retval);
+        IMATH_NAMESPACE::Vec3<T> retval;
+        IMATH_NAMESPACE::extractEulerXYZ(IMATH_NAMESPACE::rotationMatrixWithUpDir(from,to,up),retval);
         return retval;
     }
 };
@@ -70,7 +70,7 @@ struct abs_op
     static T
     apply(T value)
     {
-        return Imath::abs<T>(value);
+        return IMATH_NAMESPACE::abs<T>(value);
     }
 };
 
@@ -80,7 +80,27 @@ struct sign_op
     static T
     apply(T value)
     {
-        return Imath::sign<T>(value);
+        return IMATH_NAMESPACE::sign<T>(value);
+    }
+};
+
+template <class T>
+struct log_op
+{
+    static T
+    apply(T value)
+    {
+        return ::log(value);
+    }
+};
+
+template <class T>
+struct log10_op
+{
+    static T
+    apply(T value)
+    {
+        return ::log10(value);
     }
 };
 
@@ -90,7 +110,7 @@ struct lerp_op
     static T
     apply(T a, T b, T t)
     {
-        return Imath::lerp<T>(a,b,t);
+        return IMATH_NAMESPACE::lerp<T>(a,b,t);
     }
 };
 
@@ -100,7 +120,7 @@ struct ulerp_op
     static T
     apply(T a, T b, T t)
     {
-        return Imath::ulerp<T>(a,b,t);
+        return IMATH_NAMESPACE::ulerp<T>(a,b,t);
     }
 };
 
@@ -110,7 +130,7 @@ struct lerpfactor_op
     static T
     apply(T a, T b, T t)
     {
-        return Imath::lerpfactor<T>(a,b,t);
+        return IMATH_NAMESPACE::lerpfactor<T>(a,b,t);
     }
 };
 
@@ -120,7 +140,7 @@ struct clamp_op
     static T
     apply(T value, T low, T high)
     {
-        return Imath::clamp<T>(value,low,high);
+        return IMATH_NAMESPACE::clamp<T>(value,low,high);
     }
 };
 
@@ -130,7 +150,7 @@ struct cmp_op
     static T
     apply(T value)
     {
-        return Imath::cmp<T>(value);
+        return IMATH_NAMESPACE::cmp<T>(value);
     }
 };
 
@@ -140,7 +160,7 @@ struct cmpt_op
     static T
     apply(T value)
     {
-        return Imath::cmpt<T>(value);
+        return IMATH_NAMESPACE::cmpt<T>(value);
     }
 };
 
@@ -150,7 +170,7 @@ struct iszero_op
     static T
     apply(T value)
     {
-        return Imath::iszero<T>(value);
+        return IMATH_NAMESPACE::iszero<T>(value);
     }
 };
 
@@ -160,7 +180,7 @@ struct equal_op
     static T
     apply(T value)
     {
-        return Imath::equal<T>(value);
+        return IMATH_NAMESPACE::equal<T>(value);
     }
 };
 
@@ -170,7 +190,7 @@ struct floor_op
     static int
     apply(T value)
     {
-        return Imath::floor<T>(value);
+        return IMATH_NAMESPACE::floor<T>(value);
     }
 };
 
@@ -180,7 +200,7 @@ struct ceil_op
     static int
     apply(T value)
     {
-        return Imath::ceil<T>(value);
+        return IMATH_NAMESPACE::ceil<T>(value);
     }
 };
 
@@ -190,7 +210,7 @@ struct trunc_op
     static int
     apply(T value)
     {
-        return Imath::trunc<T>(value);
+        return IMATH_NAMESPACE::trunc<T>(value);
     }
 };
 
@@ -199,7 +219,7 @@ struct divs_op
     static int
     apply(int x, int y)
     {
-        return Imath::divs(x,y);
+        return IMATH_NAMESPACE::divs(x,y);
     }
 };
 
@@ -208,7 +228,7 @@ struct mods_op
     static int
     apply(int x, int y)
     {
-        return Imath::mods(x,y);
+        return IMATH_NAMESPACE::mods(x,y);
     }
 };
 
@@ -217,7 +237,7 @@ struct divp_op
     static int
     apply(int x, int y)
     {
-        return Imath::divp(x,y);
+        return IMATH_NAMESPACE::divp(x,y);
     }
 };
 
@@ -226,7 +246,7 @@ struct modp_op
     static int
     apply(int x, int y)
     {
-        return Imath::modp(x,y);
+        return IMATH_NAMESPACE::modp(x,y);
     }
 };
 
@@ -266,6 +286,24 @@ void register_functions()
     PyImath::generate_bindings<sign_op<double>,boost::mpl::true_>(
         "sign",
         "return 1 or -1 based on the sign of 'value'",
+        (arg("value")));
+    
+    PyImath::generate_bindings<log_op<float>,boost::mpl::true_>(
+        "log",
+        "return the natural log of 'value'",
+        (arg("value")));
+    PyImath::generate_bindings<log_op<double>,boost::mpl::true_>(
+        "log",
+        "return the natural log of 'value'",
+        (arg("value")));
+    
+    PyImath::generate_bindings<log10_op<float>,boost::mpl::true_>(
+        "log10",
+        "return the base 10 log of 'value'",
+        (arg("value")));
+    PyImath::generate_bindings<log10_op<double>,boost::mpl::true_>(
+        "log10",
+        "return the base 10 log of 'value'",
         (arg("value")));
     
     PyImath::generate_bindings<lerp_op<float>,boost::mpl::true_,boost::mpl::true_,boost::mpl::true_>(
@@ -310,17 +348,17 @@ void register_functions()
         "return the value clamped to the range [low,high]",
         (arg("value"),arg("low"),arg("high")));
 
-    def("cmp", Imath::cmp<float>);
-    def("cmp", Imath::cmp<double>);   
+    def("cmp", IMATH_NAMESPACE::cmp<float>);
+    def("cmp", IMATH_NAMESPACE::cmp<double>);   
 
-    def("cmpt", Imath::cmpt<float>);
-    def("cmpt", Imath::cmpt<double>);
+    def("cmpt", IMATH_NAMESPACE::cmpt<float>);
+    def("cmpt", IMATH_NAMESPACE::cmpt<double>);
 
-    def("iszero", Imath::iszero<float>);
-    def("iszero", Imath::iszero<double>);
+    def("iszero", IMATH_NAMESPACE::iszero<float>);
+    def("iszero", IMATH_NAMESPACE::iszero<double>);
 
-    def("equal", Imath::equal<float, float, float>);
-    def("equal", Imath::equal<double, double, double>);    
+    def("equal", IMATH_NAMESPACE::equal<float, float, float>);
+    def("equal", IMATH_NAMESPACE::equal<double, double, double>);    
 
     PyImath::generate_bindings<floor_op<float>,boost::mpl::true_>(
         "floor",

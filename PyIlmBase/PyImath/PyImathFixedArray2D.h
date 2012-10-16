@@ -50,8 +50,8 @@ template <class T>
 class FixedArray2D
 {
     T *                 _ptr;
-    Imath::Vec2<size_t> _length;
-    Imath::Vec2<size_t> _stride;
+    IMATH_NAMESPACE::Vec2<size_t> _length;
+    IMATH_NAMESPACE::Vec2<size_t> _stride;
     size_t              _size; //flattened size of the array
 
     // this handle optionally stores a shared_array to allocated array data
@@ -95,7 +95,7 @@ class FixedArray2D
         _ptr = a.get();
     }
 
-    explicit FixedArray2D(const Imath::V2i& length)
+    explicit FixedArray2D(const IMATH_NAMESPACE::V2i& length)
         : _ptr(0), _length(length), _stride(1, length.x), _handle()
     {
         initializeSize();
@@ -118,7 +118,7 @@ class FixedArray2D
     void initializeSize()
     {
         if (_length.x < 0 || _length.y < 0)
-            throw Iex::LogicExc("Fixed array 2d lengths must be non-negative");
+            throw IEX_NAMESPACE::LogicExc("Fixed array 2d lengths must be non-negative");
         _size = _length.x*_length.y;
     }
 
@@ -186,7 +186,7 @@ class FixedArray2D
                 boost::python::throw_error_already_set();
             }
             if (s < 0 || e < 0 || sl < 0) {
-                throw Iex::LogicExc("Slice extraction produced invalid start, end, or length indices");
+                throw IEX_NAMESPACE::LogicExc("Slice extraction produced invalid start, end, or length indices");
             }
             start = s;
             end = e;
@@ -204,7 +204,7 @@ class FixedArray2D
     // return_internal_reference doesn't seem to work with non-class types
     typedef typename boost::mpl::if_<boost::is_class<T>,T&,T>::type get_type;
 //    get_type    getitem(Py_ssize_t index) const { return _ptr[canonical_index(index)*_stride]; }
-    //FIXME: const does not work here with at least Imath::Color4, why it works for V3fArray?
+    //FIXME: const does not work here with at least IMATH_NAMESPACE::Color4, why it works for V3fArray?
     get_type getitem(Py_ssize_t i, Py_ssize_t j) //const
     {
         return (*this)(canonical_index(i, _length.x), canonical_index(j, _length.y));
@@ -249,7 +249,7 @@ class FixedArray2D
 //             }
 //         }
 //         return f;
-        Imath::Vec2<size_t> len = match_dimension(mask);
+        IMATH_NAMESPACE::Vec2<size_t> len = match_dimension(mask);
         FixedArray2D f(len);
         for (size_t j=0; j<len.y; j++)
             for (size_t i=0; i<len.x; i++)
@@ -287,7 +287,7 @@ class FixedArray2D
     void
     setitem_scalar_mask(const FixedArray2D<int> &mask, const T &data)
     {
-        Imath::Vec2<size_t> len = match_dimension(mask);
+        IMATH_NAMESPACE::Vec2<size_t> len = match_dimension(mask);
         for (size_t j = 0; j < len.y; j++)
             for (size_t i=0; i<len.x; ++i)
                 if (mask(i,j))
@@ -305,7 +305,7 @@ class FixedArray2D
         extract_slice_indices(PyTuple_GetItem(index, 0),_length.x,startx,endx,stepx,slicelengthx);
         extract_slice_indices(PyTuple_GetItem(index, 1),_length.y,starty,endy,stepy,slicelengthy);
         // we have a valid range of indices
-        if (data.len() != Imath::Vec2<size_t>(slicelengthx, slicelengthy)) {
+        if (data.len() != IMATH_NAMESPACE::Vec2<size_t>(slicelengthx, slicelengthy)) {
             PyErr_SetString(PyExc_IndexError, "Dimensions of source do not match destination");
             boost::python::throw_error_already_set();
         }
@@ -317,7 +317,7 @@ class FixedArray2D
     void
     setitem_vector_mask(const FixedArray2D<int> &mask, const FixedArray2D &data)
     {
-        Imath::Vec2<size_t> len = match_dimension(mask);
+        IMATH_NAMESPACE::Vec2<size_t> len = match_dimension(mask);
         if (data.len() == len) {
             for (size_t j = 0; j < len.y; j++)
                 for (size_t i=0; i<len.x; ++i)
@@ -332,7 +332,7 @@ class FixedArray2D
     void
     setitem_array1d_mask(const FixedArray2D<int> &mask, const FixedArray<T> &data)
     {
-        Imath::Vec2<size_t> len = match_dimension(mask);
+        IMATH_NAMESPACE::Vec2<size_t> len = match_dimension(mask);
         if (data.len() == len.x*len.y) {
             for (size_t j = 0, z = 0; j < len.y; j++)
                 for (size_t i=0; i<len.x; ++i, ++z)
@@ -376,8 +376,8 @@ class FixedArray2D
                 (*this)(startx+i*stepx, starty+j*stepy) = data[z];
     }
 
-    Imath::Vec2<size_t> len() const { return _length; }
-    Imath::Vec2<size_t> stride() const { return _stride; }
+    IMATH_NAMESPACE::Vec2<size_t> len() const { return _length; }
+    IMATH_NAMESPACE::Vec2<size_t> stride() const { return _stride; }
     T       & operator () (size_t i, size_t j)       { return _ptr[_stride.x*(j*_stride.y + i)]; }
     const T & operator () (size_t i, size_t j) const { return _ptr[_stride.x*(j*_stride.y + i)]; }
     size_t totalLen() const { return _size; }
@@ -431,7 +431,7 @@ class FixedArray2D
 //     }
 
     template <class T2>
-    Imath::Vec2<size_t> match_dimension(const FixedArray2D<T2> &a1) const
+    IMATH_NAMESPACE::Vec2<size_t> match_dimension(const FixedArray2D<T2> &a1) const
     {
         if (len() != a1.len()) {
             PyErr_SetString(PyExc_IndexError, "Dimensions of source do not match destination");
@@ -441,7 +441,7 @@ class FixedArray2D
     }
 
     FixedArray2D<T> ifelse_vector(const FixedArray2D<int> &choice, const FixedArray2D<T> &other) {
-        Imath::Vec2<size_t> len = match_dimension(choice);
+        IMATH_NAMESPACE::Vec2<size_t> len = match_dimension(choice);
         match_dimension(other);
         FixedArray2D<T> tmp(len); // should use default construction but V3f doens't initialize
         for (size_t j = 0; j < len.y; ++j)
@@ -451,7 +451,7 @@ class FixedArray2D
     }
 
     FixedArray2D<T> ifelse_scalar(const FixedArray2D<int> &choice, const T &other) {
-        Imath::Vec2<size_t> len = match_dimension(choice);
+        IMATH_NAMESPACE::Vec2<size_t> len = match_dimension(choice);
         FixedArray2D<T> tmp(len); // should use default construction but V3f doens't initialize
         for (size_t j = 0; j < len.y; ++j)
             for (size_t i = 0; i < len.x; ++i)
@@ -469,24 +469,24 @@ class FixedArray2D
 
 #define SOp(op) \
 template <class T> static PyImath::FixedArray2D<T> operator op (const PyImath::FixedArray2D<T> &a0) { \
-    Imath::Vec2<size_t> len = a0.len(); PyImath::FixedArray2D<T> f(len); \
+    IMATH_NAMESPACE::Vec2<size_t> len = a0.len(); PyImath::FixedArray2D<T> f(len); \
     for (size_t i=0;i<len.x;++i) for (size_t j=0;j<len.y;++j) f(i,j)= op a0(i,j); return f; \
 }
 
 #define Op0(op) \
 template <class T> static PyImath::FixedArray2D<T> operator op (const PyImath::FixedArray2D<T> &a0, const PyImath::FixedArray2D<T> &a1) { \
-    Imath::Vec2<size_t> len = a0.match_dimension(a1); PyImath::FixedArray2D<T> f(len); \
+    IMATH_NAMESPACE::Vec2<size_t> len = a0.match_dimension(a1); PyImath::FixedArray2D<T> f(len); \
     for (size_t i=0;i<len.x;++i) for (size_t j=0;j<len.y;++j) f(i,j)=a0(i,j) op a1(i,j); return f; \
 } \
 template <class T> static PyImath::FixedArray2D<T> operator op (const PyImath::FixedArray2D<T> &a0, const T &v1) { \
-    Imath::Vec2<size_t> len = a0.len(); PyImath::FixedArray2D<T> f(len); \
+    IMATH_NAMESPACE::Vec2<size_t> len = a0.len(); PyImath::FixedArray2D<T> f(len); \
     for (size_t i=0;i<len.x;++i) for (size_t j=0;j<len.y;++j) f(i,j)=a0(i,j) op v1; return f; \
 }
 
 #define Op(op) \
 Op0(op) \
 template <class T> static PyImath::FixedArray2D<T> operator op (const T &v1, const PyImath::FixedArray2D<T> &a0) { \
-    Imath::Vec2<size_t> len = a0.len(); PyImath::FixedArray2D<T> f(len); \
+    IMATH_NAMESPACE::Vec2<size_t> len = a0.len(); PyImath::FixedArray2D<T> f(len); \
     for (size_t i=0;i<len.x;++i) for (size_t j=0;j<len.y;++j) f(i,j)=v1 op a0(i,j); return f; \
 }
 
@@ -514,15 +514,15 @@ Op0(%)
 
 // PyObject* PyNumber_Power(	PyObject *o1, PyObject *o2, PyObject *o3)
 template <class T1, class T2> static PyImath::FixedArray2D<T1> pow_vector_vector2D (const PyImath::FixedArray2D<T1> &a0, const PyImath::FixedArray2D<T2> &a1) {
-    Imath::Vec2<size_t> len = a0.match_dimension(a1); PyImath::FixedArray2D<T1> f(len);
+    IMATH_NAMESPACE::Vec2<size_t> len = a0.match_dimension(a1); PyImath::FixedArray2D<T1> f(len);
     for (size_t j=0;j<len.y;++j) for (size_t i=0;i<len.x;++i) f(i,j)=std::pow(a0(i,j),a1(i,j)); return f;
 }
 template <class T1, class T2> static PyImath::FixedArray2D<T1> pow_vector_scalar2D (const PyImath::FixedArray2D<T1> &a0, const T2 &v1) {
-    Imath::Vec2<size_t> len = a0.len(); PyImath::FixedArray2D<T1> f(len);
+    IMATH_NAMESPACE::Vec2<size_t> len = a0.len(); PyImath::FixedArray2D<T1> f(len);
     for (size_t j=0;j<len.y;++j) for (size_t i=0;i<len.x;++i) f(i,j)=std::pow(a0(i,j),v1); return f;
 }
 template <class T1, class T2> static PyImath::FixedArray2D<T2> rpow_vector_scalar2D (const PyImath::FixedArray2D<T1> &a1, const T2 &v0) {
-    Imath::Vec2<size_t> len = a1.len(); PyImath::FixedArray2D<T2> f(len);
+    IMATH_NAMESPACE::Vec2<size_t> len = a1.len(); PyImath::FixedArray2D<T2> f(len);
     for (size_t j=0;j<len.y;++j) for (size_t i=0;i<len.x;++i) f(i,j)=std::pow(v0,a1(i,j)); return f;
 }
 
@@ -555,11 +555,11 @@ Op(|)
 
 #define InplaceOp(op) \
 template <class T1, class T2> static PyImath::FixedArray2D<T1> & operator op (PyImath::FixedArray2D<T1> &a0, const PyImath::FixedArray2D<T2> &a1) { \
-    Imath::Vec2<size_t> len = a0.match_dimension(a1); \
+    IMATH_NAMESPACE::Vec2<size_t> len = a0.match_dimension(a1); \
     for (size_t j=0;j<len.y;++j) for (size_t i=0;i<len.x;++i) a0(i,j) op a1(i,j); return a0; \
 } \
 template <class T1, class T2> static PyImath::FixedArray2D<T1> & operator op (PyImath::FixedArray2D<T1> &a0, const T2 &v1) { \
-    Imath::Vec2<size_t> len = a0.len(); \
+    IMATH_NAMESPACE::Vec2<size_t> len = a0.len(); \
     for (size_t j=0;j<len.y;++j) for (size_t i=0;i<len.x;++i) a0(i,j) op v1; return a0; \
 }
 
@@ -586,11 +586,11 @@ InplaceOp(%=)
 
 // PyObject* PyNumber_InPlacePower(	PyObject *o1, PyObject *o2, PyObject *o3)
 template <class T1, class T2> static PyImath::FixedArray2D<T1> & ipow_vector_vector2D (PyImath::FixedArray2D<T1> &a0, const PyImath::FixedArray2D<T2> &a1) {
-    Imath::Vec2<size_t> len = a0.match_dimension(a1);
+    IMATH_NAMESPACE::Vec2<size_t> len = a0.match_dimension(a1);
     for (size_t j=0;j<len.y;++j) for (size_t i=0;i<len.x;++i) a0(i,j)=std::pow(a0(i,j),a1(i,j)); return a0;
 }
 template <class T1, class T2> static PyImath::FixedArray2D<T1> & ipow_vector_scalar2D (PyImath::FixedArray2D<T1> &a0, const T2 &v1) {
-    Imath::Vec2<size_t> len = a0.len();
+    IMATH_NAMESPACE::Vec2<size_t> len = a0.len();
     for (size_t j=0;j<len.y;++j) for (size_t i=0;i<len.x;++i) a0(i,j)=std::pow(a0(i,j),v1); return a0;
 }
 
@@ -610,15 +610,15 @@ InplaceOp(!=)
 // where opid is Py_LT, Py_LE, Py_EQ, Py_NE, Py_GT, Py_GE
 #define Compare(op) \
 template <class T> static PyImath::FixedArray2D<int> operator op (const PyImath::FixedArray2D<T> &a0, const PyImath::FixedArray2D<T> &a1) { \
-    Imath::Vec2<size_t> len = a0.match_dimension(a1); PyImath::FixedArray2D<int> f(len); \
+    IMATH_NAMESPACE::Vec2<size_t> len = a0.match_dimension(a1); PyImath::FixedArray2D<int> f(len); \
     for (size_t j=0;j<len.y;++j) for (size_t i=0;i<len.x;++i) f(i,j)=a0(i,j) op a1(i,j); return f; \
 } \
 template <class T> static PyImath::FixedArray2D<int> operator op (const PyImath::FixedArray2D<T> &a0, const T &v1) { \
-    Imath::Vec2<size_t> len = a0.len(); PyImath::FixedArray2D<int> f(len); \
+    IMATH_NAMESPACE::Vec2<size_t> len = a0.len(); PyImath::FixedArray2D<int> f(len); \
     for (size_t j=0;j<len.y;++j) for (size_t i=0;i<len.x;++i) f(i,j)=a0(i,j) op v1; return f; \
 } \
 template <class T> static PyImath::FixedArray2D<int> operator op (const T &v1, const PyImath::FixedArray2D<T> &a0) { \
-    Imath::Vec2<size_t> len = a0.len(); PyImath::FixedArray2D<int> f(len); \
+    IMATH_NAMESPACE::Vec2<size_t> len = a0.len(); PyImath::FixedArray2D<int> f(len); \
     for (size_t j=0;j<len.y;++j) for (size_t i=0;i<len.x;++i) f(i,j)=v1 op a0(i,j); return f; \
 }
 Compare(<)
@@ -639,7 +639,7 @@ namespace PyImath {
 template <class T>
 static T fa_reduce2D(const FixedArray2D<T> &a) {
     T tmp(T(0)); // should use default construction but V3f doens't initialize
-    Imath::Vec2<size_t> len = a.len();
+    IMATH_NAMESPACE::Vec2<size_t> len = a.len();
     for (size_t j=0; j < len.y; ++j) for (size_t i=0; i < len.x; ++i)
         tmp += a(i,j);
     return tmp;

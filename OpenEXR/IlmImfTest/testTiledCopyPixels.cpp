@@ -46,9 +46,11 @@
 #include <stdio.h>
 #include <assert.h>
 
+
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
-using namespace Imath;
-using namespace Imf;
+using namespace IMATH_NAMESPACE;
+
 
 namespace {
 

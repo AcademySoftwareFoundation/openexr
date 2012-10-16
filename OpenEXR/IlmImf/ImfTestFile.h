@@ -44,11 +44,11 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfExport.h>
+#include "ImfForward.h"
+#include "ImfExport.h"
+#include "ImfNamespace.h"
 
-namespace Imf {
-
-class IStream;
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 IMF_EXPORT bool isOpenExrFile (const char fileName[], bool &isTiled);
@@ -59,6 +59,6 @@ IMF_EXPORT bool isOpenExrFile (IStream &is);
 IMF_EXPORT bool isTiledOpenExrFile (IStream &is);
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

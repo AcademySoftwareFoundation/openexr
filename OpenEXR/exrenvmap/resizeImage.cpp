@@ -70,11 +70,11 @@ resizeLatLong (const EnvmapImage &image1,
 
     for (int y = 0; y < h; ++y)
     {
-	for (int x = 0; x < w; ++x)
-	{
+        for (int x = 0; x < w; ++x)
+        {
 	        V3f dir = LatLongMap::direction (image2DataWindow, V2f ((float) x, (float) y));
-	    pixels[y][x] = image1.filteredLookup (dir, radius, numSamples);
-	}
+	        pixels[y][x] = image1.filteredLookup (dir, radius, numSamples);
+        }
     }
 }
 
@@ -120,23 +120,23 @@ resizeCube (const EnvmapImage &image1,
 
     for (int f = CUBEFACE_POS_X; f <= CUBEFACE_NEG_Z; ++f)
     {
-	CubeMapFace face = CubeMapFace (f);
+        CubeMapFace face = CubeMapFace (f);
 
-	for (int y = 0; y < sof; ++y)
-	{
-	    for (int x = 0; x < sof; ++x)
-	    {
+        for (int y = 0; y < sof; ++y)
+        {
+            for (int x = 0; x < sof; ++x)
+            {
                 V2f posInFace ((float) x, (float) y);
 
-		V3f dir =
-		    CubeMap::direction (face, image2DataWindow, posInFace);
+                V3f dir =
+                    CubeMap::direction (face, image2DataWindow, posInFace);
 
-		V2f pos =
-		    CubeMap::pixelPosition (face, image2DataWindow, posInFace);
-		
-		pixels[int (pos.y + 0.5f)][int (pos.x + 0.5f)] =
-		    image1.filteredLookup (dir, radius, numSamples);
-	    }
-	}
+                V2f pos =
+                    CubeMap::pixelPosition (face, image2DataWindow, posInFace);
+
+                pixels[int (pos.y + 0.5f)][int (pos.x + 0.5f)] =
+                    image1.filteredLookup (dir, radius, numSamples);
+            }
+        }
     }
 }

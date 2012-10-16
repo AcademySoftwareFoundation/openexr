@@ -275,7 +275,7 @@ match_lengths(const std::pair<size_t,bool> &len1, const std::pair<size_t,bool> &
     if (len2.second == false) return len1;
 
     // now both arguments are vectorized, check for dimension match
-    if (len1.first != len2.first) throw Iex::ArgExc("Array dimensions passed into function do not match");
+    if (len1.first != len2.first) throw IEX_NAMESPACE::ArgExc("Array dimensions passed into function do not match");
 
     return len1;
 }
@@ -984,16 +984,16 @@ template <class Op,class Vectorizable0,class Cls>
 void
 generate_member_bindings(Cls &cls,const std::string &name,const std::string &doc,const boost::python::detail::keywords<1> &args)
 {
-    using namespace detail;
-    generate_member_bindings_struct<Op,Cls,vector<Vectorizable0>,boost::python::detail::keywords<1> >::apply(cls,name,doc,args);
+    using boost::mpl::vector;
+    detail::generate_member_bindings_struct<Op,Cls,vector<Vectorizable0>,boost::python::detail::keywords<1> >::apply(cls,name,doc,args);
 }
 
 template <class Op,class Vectorizable0,class Vectorizable1,class Cls>
 void
 generate_member_bindings(Cls &cls,const std::string &name,const std::string &doc,const boost::python::detail::keywords<2> &args)
 {
-    using namespace detail;
-    generate_member_bindings_struct<Op,Cls,vector<Vectorizable0,Vectorizable1>,boost::python::detail::keywords<2> >::apply(cls,name,doc,args);
+    using boost::mpl::vector;
+    detail::generate_member_bindings_struct<Op,Cls,vector<Vectorizable0,Vectorizable1>,boost::python::detail::keywords<2> >::apply(cls,name,doc,args);
 }
 
 } // namespace PyImath

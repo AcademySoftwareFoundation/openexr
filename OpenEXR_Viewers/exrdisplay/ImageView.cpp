@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -40,10 +40,14 @@
 //
 //----------------------------------------------------------------------------
 
-#include <ImageView.h>
+#include "ImageView.h"
+
 #include <ImathMath.h>
 #include <ImathFun.h>
+#include <ImathLimits.h>
 #include <halfFunction.h>
+
+
 #include <algorithm>
 #include <stdio.h>
 
@@ -61,21 +65,27 @@
 
 using std::min;
 using std::max;
-using Imath::clamp;
-
+using std::cout;
+using std::endl;
+using std::cerr;
+using namespace IMATH_NAMESPACE;
 
 ImageView::ImageView (int x, int y,
-		      int w, int h,
-		      const char label[],
-		      const Imf::Rgba pixels[],
-		      int dw, int dh,
-		      int dx, int dy,
-		      Fl_Box *rgbaBox,
-		      float gamma,
-		      float exposure,
-		      float defog,
-		      float kneeLow,
-		      float kneeHigh)
+                      int w, int h,
+                      const char label[],
+                      const OPENEXR_IMF_NAMESPACE::Rgba pixels[],
+                      float* dataZ[],
+                      unsigned int sampleCount[],
+                      int zsize,
+                      int dw, int dh,
+                      int dx, int dy,
+                      Fl_Box *rgbaBox,
+                      float farPlane,
+                      float gamma,
+                      float exposure,
+                      float defog,
+                      float kneeLow,
+                      float kneeHigh)
 :
     Fl_Gl_Window (x, y, w, h, label),
     _gamma (gamma),
@@ -84,20 +94,49 @@ ImageView::ImageView (int x, int y,
     _kneeLow (kneeLow),
     _kneeHigh (kneeHigh),
     _rawPixels (pixels),
+    _dataZ (dataZ),
+    _sampleCount (sampleCount),
     _fogR (0),
     _fogG (0),
     _fogB (0),
+    _farPlane (farPlane),
     _dw (dw),
     _dh (dh),
     _dx (dx),
     _dy (dy),
+    _zsize (zsize),
     _rgbaBox (rgbaBox),
     _screenPixels (dw * dh * 3)
 {
     computeFogColor();
     updateScreenPixels();
-}
 
+    //
+    // initialize z value chart
+    //
+    _chartwin = new Fl_Window (600, 300);
+    _chartwin->label("Deep Pixel Display");
+
+    _chart = new Fl_Chart (20, 20,
+                           _chartwin->w()-40,
+                           _chartwin->h()-40,
+                           "Sample #");
+    _chartMax = new Fl_Chart (20, 20,
+                           _chartwin->w()-40,
+                           _chartwin->h()-40,
+                           "");
+    _chartMin = new Fl_Chart (20, 20,
+                           _chartwin->w()-40,
+                           _chartwin->h()-40,
+                           "");
+
+    findZbound();
+
+    //
+    // initialize Deep 3d window
+    //
+    _gl3d = NULL;
+}
 
 void
 ImageView::setExposure (float exposure)
@@ -125,6 +164,90 @@ ImageView::setKneeLow (float kneeLow)
     redraw();
 }
 
+void
+ImageView::findZbound()
+{
+    //
+    // find zmax and zmin values of deep data to set bound
+    //
+    float zmax  = limits<float>::min();
+    float zmin = limits<float>::max();
+    _maxCount = 0;
+
+    for (int k = 0; k < _zsize; k++)
+    {
+        float* z = _dataZ[k];
+        unsigned int count = _sampleCount[k];
+
+        if (_maxCount < count)
+            _maxCount = count;
+
+        for (unsigned int i = 0; i < count; i++)
+        {
+            double val = double(z[i]);
+            if (val > zmax && val < _farPlane)
+                zmax = val;
+            if (val < zmin)
+                zmin = val;
+        }
+    }
+
+    if ( zmax > zmin)
+    {
+        cout << "z max: "<< zmax << ", z min: " << zmin << endl;
+        _chart->bounds (zmin, zmax);
+    }
+
+    _zmax = zmax;
+    _zmin = zmin;
+}
+
+void
+ImageView::setPixels(const OPENEXR_IMF_NAMESPACE::Rgba pixels[/* w*h */],
+                     float* dataZ[/* w*h */],
+                     unsigned int sampleCount[/* w*h */],
+                     int zsize,
+                     int dw, int dh, int dx, int dy)
+{
+    //
+    // update data of imageview
+    //
+    _rawPixels = pixels;
+    _dw = dw;
+    _dh = dh;
+    _dx = dx;
+    _dy = dy;
+    _dataZ = dataZ;
+    _sampleCount = sampleCount;
+    _zsize = zsize;
+
+    _screenPixels.resizeErase(dw*dh*3);
+
+    findZbound();
+
+    //
+    // update Deep 3d window
+    //
+    GlWindow* temp;
+    temp = _gl3d;
+    _gl3d = NULL;
+
+    if (_gl3d != NULL){
+        delete temp;
+    }
+
+    updateScreenPixels();
+    redraw();
+}
+
+void
+ImageView::clearDataDisplay()
+{
+    _chart->clear();
+
+    if (_gl3d != NULL)
+        _gl3d->hide();
+}
 
 void
 ImageView::setKneeHigh (float kneeHigh)
@@ -140,30 +263,30 @@ ImageView::draw()
 {
     if (!valid())
     {
-	glLoadIdentity();
-	glViewport (0, 0, w(), h());
-	glOrtho(0, w(), h(), 0, -1, 1);
+        glLoadIdentity();
+        glViewport (0, 0, w(), h());
+        glOrtho(0, w(), h(), 0, -1, 1);
     }
 
     glClearColor (0.3, 0.3, 0.3, 1.0);
     glClear (GL_COLOR_BUFFER_BIT);
 
     if (_dx + _dw <= 0 || _dx >= w())
-	return;
+        return;
 
     for (int y = 0; y < _dh; ++y)
     {
-	if (y + _dy < 0 || y + _dy >= h())
-	    continue;
+        if (y + _dy < 0 || y + _dy >= h())
+            continue;
 
-	glRasterPos2i (max (0, _dx), y + _dy + 1);
+        glRasterPos2i (max (0, _dx), y + _dy + 1);
 
-	glDrawPixels (_dw + min (0, _dx),			     // width
-		      1,					     // height
-		      GL_RGB,					     // format
-		      GL_UNSIGNED_BYTE,				     // type
-		      _screenPixels +				     // pixels
-			static_cast <ptrdiff_t> ((y * _dw - min (0, _dx)) * 3));
+        glDrawPixels (_dw + min (0, _dx),			     // width
+                      1,					     // height
+                      GL_RGB,					     // format
+                      GL_UNSIGNED_BYTE,				     // type
+                      _screenPixels +				     // pixels
+                      static_cast <ptrdiff_t> ((y * _dw - min (0, _dx)) * 3));
     }
 }
 
@@ -177,16 +300,16 @@ ImageView::computeFogColor ()
 
     for (int j = 0; j < _dw * _dh; ++j)
     {
-	const Imf::Rgba &rp = _rawPixels[j];
+        const OPENEXR_IMF_NAMESPACE::Rgba &rp = _rawPixels[j];
 
-	if (rp.r.isFinite())
-	    _fogR += rp.r;
+        if (rp.r.isFinite())
+            _fogR += rp.r;
 
-	if (rp.g.isFinite())
-	    _fogG += rp.g;
+        if (rp.g.isFinite())
+            _fogG += rp.g;
 
-	if (rp.b.isFinite())
-	    _fogB += rp.b;
+        if (rp.b.isFinite())
+            _fogB += rp.b;
     }
 
     _fogR /= _dw * _dh;
@@ -195,39 +318,157 @@ ImageView::computeFogColor ()
 }
 
 
+void
+ImageView::drawChartRef ()
+{
+    _chart->clear();
+    _chart->bounds(_zmin, _zmax);
+
+    _chart->type (FL_LINE_CHART);
+    _chart->label("Sample #");
+
+    _chartMax->clear();
+    _chartMax->type (FL_SPIKE_CHART);
+    static char val_str[20];
+    sprintf (val_str, "Zmax : %.3lf", _zmax);
+    _chartMax->label(val_str);
+    _chartMax->align(FL_ALIGN_TOP_LEFT);
+    _chartMax->box(FL_NO_BOX);
+
+    _chartMin->clear();
+    _chartMin->type (FL_SPIKE_CHART);
+    static char val_str1[20];
+    sprintf (val_str1, "Zmin : %.3lf", _zmin);
+    _chartMin->label(val_str1);
+    _chartMin->align(FL_ALIGN_BOTTOM_LEFT);
+    _chartMin->box(FL_NO_BOX);
+    
+}
+
+
 int
 ImageView::handle (int event)
 {
     if (event == FL_MOVE)
     {
-	//
-	// Print the red, green and blue values of
-	// the pixel at the current cursor location.
-	//
+        //
+        // Print the red, green and blue values of
+        // the pixel at the current cursor location.
+        //
 
-	int x = Fl::event_x();
-	int y = Fl::event_y();
+        int x = Fl::event_x();
+        int y = Fl::event_y();
 
-	if (x >= 0 && x < w() && y >= 0 && y < h())
-	{
-	    int px = x - _dx;
-	    int py = y - _dy;
+        if (x >= 0 && x < w() && y >= 0 && y < h())
+        {
+            int px = x - _dx;
+            int py = y - _dy;
 
-	    if (px >= 0 && px < _dw && py >= 0 && py < _dh)
-	    {
-		const Imf::Rgba &p = _rawPixels[py * _dw + px];
+            if (px >= 0 && px < _dw && py >= 0 && py < _dh)
+            {
+                const OPENEXR_IMF_NAMESPACE::Rgba &p = _rawPixels[py * _dw + px];
 
-		sprintf (_rgbaBoxLabel,
-			 "r = %.3g   g = %.3g   b = %.3g",
-			 float (p.r), float (p.g), float (p.b));
-	    }
-	    else
-	    {
-		sprintf (_rgbaBoxLabel, "");
-	    }
+                sprintf (_rgbaBoxLabel,
+                         "r = %.3g   g = %.3g   b = %.3g",
+                         float (p.r), float (p.g), float (p.b));
+            }
+            else
+            {
+                sprintf (_rgbaBoxLabel, " ");
+            }
 
-	    _rgbaBox->label (_rgbaBoxLabel);
-	}
+            _rgbaBox->label (_rgbaBoxLabel);
+        }
+    }
+
+    if ( event == FL_RELEASE && Fl::event_button() == FL_RIGHT_MOUSE )
+    {
+        if(_zsize > 0)
+        {
+            if (_gl3d == NULL)
+            {
+                //
+                // initialize Deep 3d display
+                //
+
+                _gl3d = new GlWindow(10, 10, 500, 500,
+                                     "3D View", _rawPixels,
+                                     _dataZ, _sampleCount,
+                                     _dw, _dh, _zmax, _zmin,
+                                     _farPlane);
+
+                _gl3d->show();
+            }
+            else
+            {
+                _gl3d->show();
+            }
+        }
+    }
+
+    if (event == FL_RELEASE && Fl::event_button() == FL_LEFT_MOUSE)
+    {
+        //
+        // Open a sample chart and print the z values of
+        // the pixel at the current cursor location
+        //
+
+        if(_zsize > 0)
+        {
+            int x = Fl::event_x();
+            int y = Fl::event_y();
+
+            if (x >= 0 && x < w() && y >= 0 && y < h())
+            {
+                int px = x - _dx;
+                int py = y - _dy;
+
+                if (px >= 0 && px < _dw && py >= 0 && py < _dh)
+                {
+                    float* z = _dataZ[py * _dw + px];
+                    unsigned int count = _sampleCount[py * _dw + px];
+
+                    cout << "\nsample Count: " << count << endl;
+                    cout << "x: " << px << ", y: " << py << endl;
+
+                    for (unsigned int i = 0; i < count; i++)
+                    {
+                        printf ("pixel Z value  %d: %.3f\n", i, float(z[i]));
+                    }
+
+                    const OPENEXR_IMF_NAMESPACE::Rgba &p = _rawPixels[py * _dw + px];
+
+                    cout << "R = " << p.r << ", G = " << p.g << ","
+                    " B = " << p.b <<endl;
+
+                    //
+                    // draw the chart
+                    //
+                    drawChartRef();
+
+                    for (unsigned int i = 0; i < count; i++)
+                    {
+                        double val = double(z[i]);
+                        if (val < _farPlane)
+                        {
+                            static char val_str[20];
+                            sprintf (val_str, "%.3lf", val);
+                            _chart->add (val, val_str, FL_BLUE);
+                        }
+                    }
+
+                    redraw();
+
+                    _chartwin->resizable (_chartwin);
+                    _chartwin->set_non_modal(); // make chart on top
+
+                    if (!_chartwin->shown())
+                        _chartwin->show();
+                }
+
+            }
+        }
+
     }
 
     return Fl_Gl_Window::handle (event);
@@ -277,7 +518,7 @@ namespace {
 float
 knee (double x, double f)
 {
-    return float (Imath::Math<double>::log (x * f + 1) / f);
+    return float (IMATH_NAMESPACE::Math<double>::log (x * f + 1) / f);
 }
 
 
@@ -289,19 +530,19 @@ findKneeF (float x, float y)
 
     while (knee (x, f1) > y)
     {
-	f0 = f1;
-	f1 = f1 * 2;
+        f0 = f1;
+        f1 = f1 * 2;
     }
 
     for (int i = 0; i < 30; ++i)
     {
-	float f2 = (f0 + f1) / 2;
-	float y2 = knee (x, f2);
+        float f2 = (f0 + f1) / 2;
+        float y2 = knee (x, f2);
 
-	if (y2 < y)
-	    f1 = f2;
-	else
-	    f0 = f2;
+        if (y2 < y)
+            f1 = f2;
+        else
+            f0 = f2;
     }
 
     return (f0 + f1) / 2;
@@ -313,30 +554,30 @@ struct Gamma
     float g, m, d, kl, f, s;
 
     Gamma (float gamma,
-	   float exposure,
-	   float defog,
-	   float kneeLow,
-	   float kneeHigh);
+           float exposure,
+           float defog,
+           float kneeLow,
+           float kneeHigh);
 
     float operator () (half h);
 };
 
 
 Gamma::Gamma
-    (float gamma,
-     float exposure,
-     float defog,
-     float kneeLow,
-     float kneeHigh)
+(float gamma,
+ float exposure,
+ float defog,
+ float kneeLow,
+ float kneeHigh)
 :
     g (gamma),
-    m (Imath::Math<float>::pow (2, exposure + 2.47393)),
+    m (IMATH_NAMESPACE::Math<float>::pow (2, exposure + 2.47393)),
     d (defog),
-    kl (Imath::Math<float>::pow (2, kneeLow)),
-    f (findKneeF (Imath::Math<float>::pow (2, kneeHigh) - kl, 
-		  Imath::Math<float>::pow (2, 3.5) - kl)),
-    s (255.0 * Imath::Math<float>::pow (2, -3.5 * g))
-{}
+    kl (IMATH_NAMESPACE::Math<float>::pow (2, kneeLow)),
+    f (findKneeF (IMATH_NAMESPACE::Math<float>::pow (2, kneeHigh) - kl, 
+                  IMATH_NAMESPACE::Math<float>::pow (2, 3.5) - kl)),
+                  s (255.0 * IMATH_NAMESPACE::Math<float>::pow (2, -3.5 * g))
+                  {}
 
 
 float
@@ -359,13 +600,13 @@ Gamma::operator () (half h)
     //
 
     if (x > kl)
-	x = kl + knee (x - kl, f);
+        x = kl + knee (x - kl, f);
 
     //
     // Gamma
     //
 
-    x = Imath::Math<float>::pow (x, g);
+    x = IMATH_NAMESPACE::Math<float>::pow (x, g);
 
     //
     // Scale and clamp
@@ -387,10 +628,10 @@ dither (float v, int x, int y)
 {
     static const float d[4][4] =
     {
-	 0.f / 16,  8.f / 16,  2.f / 16, 10.f / 16,
-	12.f / 16,  4.f / 16, 14.f / 16,  6.f / 16,
-	 3.f / 16, 11.f / 16,  1.f / 16,  9.f / 16,
-	15.f / 16,  7.f / 16, 13.f / 16,  5.f / 16,
+     {0.f / 16,  8.f / 16,  2.f / 16, 10.f / 16},
+     {12.f / 16,  4.f / 16, 14.f / 16,  6.f / 16},
+     {3.f / 16, 11.f / 16,  1.f / 16,  9.f / 16},
+     {15.f / 16,  7.f / 16, 13.f / 16,  5.f / 16}
     };
 
     return (unsigned char) (v + d[y & 3][x & 3]);
@@ -410,45 +651,45 @@ void
 ImageView::updateScreenPixels ()
 {
     halfFunction<float>
-	rGamma (Gamma (_gamma,
-		       _exposure,
-		       _defog * _fogR,
-		       _kneeLow,
-		       _kneeHigh),
-		-HALF_MAX, HALF_MAX,
-		0.f, 255.f, 0.f, 0.f);
+    rGamma (Gamma (_gamma,
+                   _exposure,
+                   _defog * _fogR,
+                   _kneeLow,
+                   _kneeHigh),
+                   -HALF_MAX, HALF_MAX,
+                   0.f, 255.f, 0.f, 0.f);
 
     halfFunction<float>
-	gGamma (Gamma (_gamma,
-		       _exposure,
-		       _defog * _fogG,
-		       _kneeLow,
-		       _kneeHigh),
-		-HALF_MAX, HALF_MAX,
-		0.f, 255.f, 0.f, 0.f);
+    gGamma (Gamma (_gamma,
+                   _exposure,
+                   _defog * _fogG,
+                   _kneeLow,
+                   _kneeHigh),
+                   -HALF_MAX, HALF_MAX,
+                   0.f, 255.f, 0.f, 0.f);
 
     halfFunction<float>
-	bGamma (Gamma (_gamma,
-		       _exposure,
-		       _defog * _fogB,
-		       _kneeLow,
-		       _kneeHigh),
-		-HALF_MAX, HALF_MAX,
-		0.f, 255.f, 0.f, 0.f);
+    bGamma (Gamma (_gamma,
+                   _exposure,
+                   _defog * _fogB,
+                   _kneeLow,
+                   _kneeHigh),
+                   -HALF_MAX, HALF_MAX,
+                   0.f, 255.f, 0.f, 0.f);
+
 
     for (int y = 0; y < _dh; ++y)
     {
-	int i = y * _dw;
+        int i = y * _dw;
 
-	for (int x = 0; x < _dw; ++x)
-	{
-	    int j = i + x;
-	    const Imf::Rgba &rp = _rawPixels[j];
-	    unsigned char *sp = _screenPixels + j * 3;
-
-	    sp[0] = dither (rGamma (rp.r), x, y);
-	    sp[1] = dither (gGamma (rp.g), x, y);
-	    sp[2] = dither (bGamma (rp.b), x, y);
-	}
+        for (int x = 0; x < _dw; ++x)
+        {
+            int j = i + x;
+            const OPENEXR_IMF_NAMESPACE::Rgba &rp = _rawPixels[j];
+            unsigned char *sp = _screenPixels + j * 3;
+            sp[0] = dither (rGamma (rp.r), x, y);
+            sp[1] = dither (gGamma (rp.g), x, y);
+            sp[2] = dither (bGamma (rp.b), x, y);
+        }
     }
 }

@@ -40,10 +40,12 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfCompressionAttribute.h>
+#include "ImfCompressionAttribute.h"
 
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
+
+using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 
 
 template <>
@@ -56,7 +58,7 @@ CompressionAttribute::staticTypeName ()
 
 template <>
 void
-CompressionAttribute::writeValueTo (OStream &os, int version) const
+CompressionAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
     unsigned char tmp = _value;
     Xdr::write <StreamIO> (os, tmp);
@@ -65,7 +67,7 @@ CompressionAttribute::writeValueTo (OStream &os, int version) const
 
 template <>
 void
-CompressionAttribute::readValueFrom (IStream &is, int size, int version)
+CompressionAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
     unsigned char tmp;
     Xdr::read <StreamIO> (is, tmp);
@@ -73,4 +75,4 @@ CompressionAttribute::readValueFrom (IStream &is, int size, int version)
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 

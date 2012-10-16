@@ -43,8 +43,10 @@
 #include <ImfRleCompressor.h>
 #include <ImfCheckedArithmetic.h>
 #include "Iex.h"
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
+
 namespace {
 
 const int MIN_RUN_LENGTH = 3;
@@ -195,7 +197,7 @@ RleCompressor::compress (const char *inPtr,
 			 const char *&outPtr)
 {
     //
-    // Special case ­- empty input buffer
+    // Special case ï¿½- empty input buffer
     //
 
     if (inSize == 0)
@@ -261,7 +263,7 @@ RleCompressor::uncompress (const char *inPtr,
 			   const char *&outPtr)
 {
     //
-    // Special case ­- empty input buffer
+    // Special case ï¿½- empty input buffer
     //
 
     if (inSize == 0)
@@ -280,7 +282,7 @@ RleCompressor::uncompress (const char *inPtr,
 				       (const signed char *) inPtr,
 				       _tmpBuffer)))
     {
-	throw Iex::InputExc ("Data decoding (rle) failed.");
+	throw IEX_NAMESPACE::InputExc ("Data decoding (rle) failed.");
     }
 
     //
@@ -328,4 +330,4 @@ RleCompressor::uncompress (const char *inPtr,
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

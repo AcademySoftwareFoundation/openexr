@@ -52,10 +52,14 @@
 #include <ImathColor.h>
 #include <ImathColorAlgo.h>
 #include <Iex.h>
+#include "PyImathColor3ArrayImpl.h"
 
 namespace PyImath {
+template <> const char *PyImath::C3cArray::name() { return "C3cArray"; }
+template <> const char *PyImath::C3fArray::name() { return "C3fArray"; }
+
 using namespace boost::python; 
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 template <class T> struct Color3Name { static const char *value; };
 template<> const char *Color3Name<unsigned char>::value  = "Color3c";
@@ -188,7 +192,7 @@ static Color3<T> * Color3_construct_tuple(const tuple &t)
         return new Color3<T>(extract<T>(t[0]), extract<T>(t[1]), extract<T>(t[2]));
     }
     else
-        THROW(Iex::LogicExc, "Color3 expects tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "Color3 expects tuple of length 3");
 }
 
 template <class T>
@@ -200,7 +204,7 @@ static Color3<T> * Color3_construct_list(const list &l)
         return new Color3<T>(extract<T>(l[0]), extract<T>(l[1]), extract<T>(l[2]));
     }
     else
-        THROW(Iex::LogicExc, "Color3 expects list of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "Color3 expects list of length 3");
 }
 
 template <class T>
@@ -229,7 +233,7 @@ addTuple(Color3<T> &color, const tuple &t)
                          color.y + extract<T>(t[1]), 
                          color.z + extract<T>(t[2]));
     else
-        THROW(Iex::LogicExc, "Color3 expects tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "Color3 expects tuple of length 3");
 }
 
 template <class T>
@@ -267,7 +271,7 @@ subtractL(Color3<T> &color, const tuple &t)
                          color.y - extract<T>(t[1]), 
                          color.z - extract<T>(t[2]));
     else
-        THROW(Iex::LogicExc, "Color3 expects tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "Color3 expects tuple of length 3");
 }
 
 template <class T>
@@ -300,7 +304,7 @@ subtractR(Color3<T> &color, const tuple &t)
                          extract<T>(t[1]) - color.y, 
                          extract<T>(t[2]) - color.z);
     else
-        THROW(Iex::LogicExc, "Color3 expects tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "Color3 expects tuple of length 3");
 }
 
 template <class T>
@@ -369,7 +373,7 @@ mulTuple(Color3<T> &color, const tuple &t)
                          color.y * extract<T>(t[1]), 
                          color.z * extract<T>(t[2]));
     else
-        THROW(Iex::LogicExc, "Color3 expects tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "Color3 expects tuple of length 3");
 }
 
 template <class T>
@@ -414,7 +418,7 @@ divTupleL(Color3<T> &color, const tuple &t)
                          color.y / extract<T>(t[1]), 
                          color.z / extract<T>(t[2]));
     else
-        THROW(Iex::LogicExc, "Color3 expects tuple of length 3");    
+        THROW(IEX_NAMESPACE::LogicExc, "Color3 expects tuple of length 3");    
 }
 
 template <class T>
@@ -427,7 +431,7 @@ divTupleR(Color3<T> &color, const tuple &t)
                          extract<T>(t[1]) / color.y, 
                          extract<T>(t[2]) / color.z);
     else
-        THROW(Iex::LogicExc, "Color3 expects tuple of length 3");    
+        THROW(IEX_NAMESPACE::LogicExc, "Color3 expects tuple of length 3");    
 }
 
 template <class T>
@@ -445,7 +449,7 @@ static Color3<T>
 hsv2rgb(Color3<T> &color)
 {    
     MATH_EXC_ON;
-    return Imath::hsv2rgb(color);
+    return IMATH_NAMESPACE::hsv2rgb(color);
 }
 
 template <class T>
@@ -460,10 +464,10 @@ hsv2rgbTuple(const tuple &t)
         color.y = extract<T>(t[1]);
         color.z = extract<T>(t[2]); 
         
-        return Imath::hsv2rgb(color);
+        return IMATH_NAMESPACE::hsv2rgb(color);
     }
     else
-        THROW(Iex::LogicExc, "Color3 expects tuple of length 3");    
+        THROW(IEX_NAMESPACE::LogicExc, "Color3 expects tuple of length 3");    
 }
 
 template <class T>
@@ -471,7 +475,7 @@ static Color3<T>
 rgb2hsv(Color3<T> &color)
 {    
     MATH_EXC_ON;
-    return Imath::rgb2hsv(color);
+    return IMATH_NAMESPACE::rgb2hsv(color);
 }
 
 template <class T>
@@ -486,10 +490,10 @@ rgb2hsvTuple(const tuple &t)
         color.y = extract<T>(t[1]);
         color.z = extract<T>(t[2]); 
         
-        return Imath::rgb2hsv(color);
+        return IMATH_NAMESPACE::rgb2hsv(color);
     }
     else
-        THROW(Iex::LogicExc, "Color3 expects tuple of length 3");    
+        THROW(IEX_NAMESPACE::LogicExc, "Color3 expects tuple of length 3");    
 }
 
 template <class T>
@@ -523,7 +527,7 @@ setValueTuple(Color3<T> &color, const tuple &t)
         color.setValue(v);
     }
     else
-        THROW(Iex::LogicExc, "Color3 expects tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "Color3 expects tuple of length 3");
 }
 
 template <class T>
@@ -657,5 +661,12 @@ register_Color3()
 
 template PYIMATH_EXPORT class_<Color3<float>, bases<Vec3<float> > > register_Color3<float>();
 template PYIMATH_EXPORT class_<Color3<unsigned char>, bases<Vec3<unsigned char> > > register_Color3<unsigned char>();
+template PYIMATH_EXPORT class_<FixedArray<Color3<float> > > register_Color3Array<float>();
+template PYIMATH_EXPORT class_<FixedArray<Color3<unsigned char> > > register_Color3Array<unsigned char>();
+
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Color3<float> PyImath::FixedArrayDefaultValue<IMATH_NAMESPACE::Color3<float> >::value()
+{ return IMATH_NAMESPACE::Color3<float>(0,0,0); }
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Color3<unsigned char> PyImath::FixedArrayDefaultValue<IMATH_NAMESPACE::Color3<unsigned char> >::value()
+{ return IMATH_NAMESPACE::Color3<unsigned char>(0,0,0); }
 
 }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -39,23 +39,33 @@
 //
 //----------------------------------------------------------------------------
 
-#include <makeTiled.h>
-#include <Image.h>
-#include <ImfInputFile.h>
-#include <ImfTiledOutputFile.h>
-#include <ImfChannelList.h>
-#include <ImfChannelList.h>
-#include <ImfFrameBuffer.h>
-#include <ImfStandardAttributes.h>
+#include "makeTiled.h"
+#include "Image.h"
+
+#include "ImfTiledInputPart.h"
+#include "ImfTiledOutputPart.h"
+#include "ImfInputPart.h"
+#include "ImfOutputPart.h"
+#include "ImfDeepScanLineInputPart.h"
+#include "ImfDeepScanLineOutputPart.h"
+#include "ImfDeepTiledInputPart.h"
+#include "ImfDeepTiledOutputPart.h"
+#include "ImfChannelList.h"
+#include "ImfChannelList.h"
+#include "ImfFrameBuffer.h"
+#include "ImfStandardAttributes.h"
 #include "ImathFun.h"
 #include "Iex.h"
+#include "ImfMisc.h"
+
 #include <map>
 #include <algorithm>
 #include <iostream>
+#include <vector>
 
-
-using namespace Imf;
-using namespace Imath;
+#include "namespaceAlias.h"
+using namespace CustomImf;
+using namespace IMATH_NAMESPACE;
 using namespace std;
 
 
@@ -68,21 +78,21 @@ extToString (Extrapolation ext)
 
     switch (ext)
     {
-      case BLACK:
-	str = "black";
-	break;
+        case BLACK:
+            str = "black";
+            break;
 
-      case CLAMP:
-	str = "clamp";
-	break;
+        case CLAMP:
+            str = "clamp";
+            break;
 
-      case PERIODIC:
-	str = "periodic";
-	break;
+        case PERIODIC:
+            str = "periodic";
+            break;
 
-      case MIRROR:
-	str = "mirror";
-	break;
+        case MIRROR:
+            str = "mirror";
+            break;
     }
 
     return str;
@@ -101,17 +111,17 @@ mirror (int x, int w)
 template <class T>
 double
 sampleX (const TypedImageChannel<T> &channel,
-	 int w,
-	 double x,
-	 int y,
-	 Extrapolation ext)
+         int w,
+         double x,
+         int y,
+         Extrapolation ext)
 {
     //
     // Sample an image channel at location (x, y), where
     // x is a floating point number, and y is an integer.
     //
 
-    int xs = Imath::floor (x);
+    int xs = IMATH_NAMESPACE::floor (x);
     int xt = xs + 1;
     double s = xt - x;
     double t = 1 - s;
@@ -120,35 +130,35 @@ sampleX (const TypedImageChannel<T> &channel,
 
     switch (ext)
     {
-      case BLACK:
+        case BLACK:
 
-	  vs = (xs >= 0 && xs < w)? double (channel (xs, y)): 0.0;
-	  vt = (xt >= 0 && xt < w)? double (channel (xt, y)): 0.0;
-	  break;
+            vs = (xs >= 0 && xs < w)? double (channel (xs, y)): 0.0;
+            vt = (xt >= 0 && xt < w)? double (channel (xt, y)): 0.0;
+            break;
 
-      case CLAMP:
+        case CLAMP:
 
-	  xs = clamp (xs, 0, w - 1);
-	  xt = clamp (xt, 0, w - 1);
-	  vs = channel (xs, y);
-	  vt = channel (xt, y);
-	  break;
+            xs = clamp (xs, 0, w - 1);
+            xt = clamp (xt, 0, w - 1);
+            vs = channel (xs, y);
+            vt = channel (xt, y);
+            break;
 
-      case PERIODIC:
+        case PERIODIC:
 
-	  xs = modp (xs, w);
-	  xt = modp (xt, w);
-	  vs = channel (xs, y);
-	  vt = channel (xt, y);
-	  break;
+            xs = modp (xs, w);
+            xt = modp (xt, w);
+            vs = channel (xs, y);
+            vt = channel (xt, y);
+            break;
 
-      case MIRROR:
+        case MIRROR:
 
-	  xs = mirror (xs, w);
-	  xt = mirror (xt, w);
-	  vs = channel (xs, y);
-	  vt = channel (xt, y);
-	  break;
+            xs = mirror (xs, w);
+            xt = mirror (xt, w);
+            vs = channel (xs, y);
+            vt = channel (xt, y);
+            break;
     }
 
     return s * vs + t * vt;
@@ -159,16 +169,16 @@ template <class T>
 double
 sampleY (const TypedImageChannel<T> &channel,
          int h,
-	 int x,
-	 double y,
-	 Extrapolation ext)
+         int x,
+         double y,
+         Extrapolation ext)
 {
     //
     // Sample an image channel at location (x, y), where
     // x is an integer, and y is a floating point number.
     //
 
-    int ys = Imath::floor (y);
+    int ys = IMATH_NAMESPACE::floor (y);
     int yt = ys + 1;
     double s = yt - y;
     double t = 1 - s;
@@ -177,35 +187,35 @@ sampleY (const TypedImageChannel<T> &channel,
 
     switch (ext)
     {
-      case BLACK:
+        case BLACK:
 
-	  vs = (ys >= 0 && ys < h)? double (channel (x, ys)): 0.0;
-	  vt = (yt >= 0 && yt < h)? double (channel (x, yt)): 0.0;
-	  break;
+            vs = (ys >= 0 && ys < h)? double (channel (x, ys)): 0.0;
+            vt = (yt >= 0 && yt < h)? double (channel (x, yt)): 0.0;
+            break;
 
-      case CLAMP:
+        case CLAMP:
 
-	  ys = clamp (ys, 0, h - 1);
-	  yt = clamp (yt, 0, h - 1);
-	  vs = channel (x, ys);
-	  vt = channel (x, yt);
-	  break;
+            ys = clamp (ys, 0, h - 1);
+            yt = clamp (yt, 0, h - 1);
+            vs = channel (x, ys);
+            vt = channel (x, yt);
+            break;
 
-      case PERIODIC:
+        case PERIODIC:
 
-	  ys = modp (ys, h);
-	  yt = modp (yt, h);
-	  vs = channel (x, ys);
-	  vt = channel (x, yt);
-	  break;
+            ys = modp (ys, h);
+            yt = modp (yt, h);
+            vs = channel (x, ys);
+            vt = channel (x, yt);
+            break;
 
-      case MIRROR:
+        case MIRROR:
 
-	  ys = mirror (ys, h);
-	  yt = mirror (yt, h);
-	  vs = channel (x, ys);
-	  vt = channel (x, yt);
-	  break;
+            ys = mirror (ys, h);
+            yt = mirror (yt, h);
+            vs = channel (x, ys);
+            vt = channel (x, yt);
+            break;
     }
 
     return s * vs + t * vt;
@@ -215,48 +225,48 @@ sampleY (const TypedImageChannel<T> &channel,
 template <class T>
 T
 filterX (const TypedImageChannel<T> &channel,
-	 int w,
-	 double x,
-	 int y,
-	 Extrapolation ext)
+         int w,
+         double x,
+         int y,
+         Extrapolation ext)
 {
     //
     // Horizontal four-tap filter, centered on pixel (x + 0.5, y)
     //
 
     return T (0.125 * sampleX (channel, w, x - 1, y, ext) +
-	      0.375 * sampleX (channel, w, x,     y, ext) +
-	      0.375 * sampleX (channel, w, x + 1, y, ext) +
-	      0.125 * sampleX (channel, w, x + 2, y, ext));
+              0.375 * sampleX (channel, w, x,     y, ext) +
+              0.375 * sampleX (channel, w, x + 1, y, ext) +
+              0.125 * sampleX (channel, w, x + 2, y, ext));
 }
 
 
 template <class T>
 T
 filterY (const TypedImageChannel<T> &channel,
-	 int h,
-	 int x,
-	 double y,
-	 Extrapolation ext)
+         int h,
+         int x,
+         double y,
+         Extrapolation ext)
 {
     //
     // Vertical four-tap filter, centered on pixel (x, y + 0.5)
     //
 
     return T (0.125 * sampleY (channel, h, x, y - 1, ext) +
-	      0.375 * sampleY (channel, h, x, y,     ext) +
-	      0.375 * sampleY (channel, h, x, y + 1, ext) +
-	      0.125 * sampleY (channel, h, x, y + 2, ext));
+              0.375 * sampleY (channel, h, x, y,     ext) +
+              0.375 * sampleY (channel, h, x, y + 1, ext) +
+              0.125 * sampleY (channel, h, x, y + 2, ext));
 }
 
 
 template <class T>
 void
 reduceX (const TypedImageChannel<T> &channel0,
-	  TypedImageChannel<T> &channel1,
-	  bool filter,
-	  Extrapolation &ext,
-	  bool odd)
+         TypedImageChannel<T> &channel1,
+         bool filter,
+         Extrapolation &ext,
+         bool odd)
 {
     //
     // Shrink an image channel, channel0, horizontally
@@ -269,35 +279,35 @@ reduceX (const TypedImageChannel<T> &channel0,
 
     if (filter)
     {
-	//
-	// Low-pass filter and resample.
-	// For pixels (0, y) and (w1 - 1, y) in channel 1,
-	// the low-pass filter in channel0 is centered on
-	// pixels (0.5, y) and (w0 - 1.5, y) respectively.
-	//
+        //
+        // Low-pass filter and resample.
+        // For pixels (0, y) and (w1 - 1, y) in channel 1,
+        // the low-pass filter in channel0 is centered on
+        // pixels (0.5, y) and (w0 - 1.5, y) respectively.
+        //
 
-	double f = (w1 > 1)? double (w0 - 2) / (w1 - 1): 1;
+        double f = (w1 > 1)? double (w0 - 2) / (w1 - 1): 1;
 
-	for (int y = 0; y < h1; ++y)
-	    for (int x = 0; x < w1; ++x)
-		channel1 (x, y) = filterX (channel0, w0, x * f, y, ext);
+        for (int y = 0; y < h1; ++y)
+            for (int x = 0; x < w1; ++x)
+                channel1 (x, y) = filterX (channel0, w0, x * f, y, ext);
     }
     else
     {
-	//
-	// Resample, skipping every other pixel, without
-	// low-pass filtering.  In order to keep the image
-	// from sliding to the right if the channel is
-	// resampled repeatedly, we skip the rightmost
-	// pixel of every row on even passes, and the
-	// leftmost pixel on odd passes.
-	//
+        //
+        // Resample, skipping every other pixel, without
+        // low-pass filtering.  In order to keep the image
+        // from sliding to the right if the channel is
+        // resampled repeatedly, we skip the rightmost
+        // pixel of every row on even passes, and the
+        // leftmost pixel on odd passes.
+        //
 
-	int offset = odd? ((w0 - 1) - 2 * (w1 - 1)): 0;
+        int offset = odd? ((w0 - 1) - 2 * (w1 - 1)): 0;
 
-	for (int y = 0; y < h1; ++y)
-	    for (int x = 0; x < w1; ++x)
-		channel1 (x, y) = channel0 (2 * x + offset, y);
+        for (int y = 0; y < h1; ++y)
+            for (int x = 0; x < w1; ++x)
+                channel1 (x, y) = channel0 (2 * x + offset, y);
     }
 }
 
@@ -305,10 +315,10 @@ reduceX (const TypedImageChannel<T> &channel0,
 template <class T>
 void
 reduceY (const TypedImageChannel<T> &channel0,
-	  TypedImageChannel<T> &channel1,
-	  bool filter,
-	  Extrapolation ext,
-	  bool odd)
+         TypedImageChannel<T> &channel1,
+         bool filter,
+         Extrapolation ext,
+         bool odd)
 {
     //
     // Shrink an image channel, channel0, vertically
@@ -321,46 +331,46 @@ reduceY (const TypedImageChannel<T> &channel0,
 
     if (filter)
     {
-	//
-	// Low-pass filter and resample.
-	// For pixels (x, 0) and (x, h1 - 1) in channel 1,
-	// the low-pass filter in channel0 is centered on
-	// pixels (x, 0.5) and (x, h0 - 1.5) respectively.
-	//
+        //
+        // Low-pass filter and resample.
+        // For pixels (x, 0) and (x, h1 - 1) in channel 1,
+        // the low-pass filter in channel0 is centered on
+        // pixels (x, 0.5) and (x, h0 - 1.5) respectively.
+        //
 
-	double f = (h1 > 1)? double (h0 - 2) / (h1 - 1): 1;
+        double f = (h1 > 1)? double (h0 - 2) / (h1 - 1): 1;
 
-	for (int y = 0; y < h1; ++y)
-	    for (int x = 0; x < w1; ++x)
-		channel1 (x, y) = filterY (channel0, h0, x, y * f, ext);
+        for (int y = 0; y < h1; ++y)
+            for (int x = 0; x < w1; ++x)
+                channel1 (x, y) = filterY (channel0, h0, x, y * f, ext);
     }
     else
     {
-	//
-	// Resample, skipping every other pixel, without
-	// low-pass filtering.  In order to keep the image
-	// from sliding towards the top if the channel is
-	// resampled repeatedly, we skip the top pixel of
-	// every column on even passes, and the bottom pixel
-	// on odd passes.
-	//
+        //
+        // Resample, skipping every other pixel, without
+        // low-pass filtering.  In order to keep the image
+        // from sliding towards the top if the channel is
+        // resampled repeatedly, we skip the top pixel of
+        // every column on even passes, and the bottom pixel
+        // on odd passes.
+        //
 
-	int offset = odd? ((h0 - 1) - 2 * (h1 - 1)): 0;
+        int offset = odd? ((h0 - 1) - 2 * (h1 - 1)): 0;
 
-	for (int y = 0; y < h1; ++y)
-	    for (int x = 0; x < w1; ++x)
-		channel1 (x, y) = channel0 (x, 2 * y + offset);
+        for (int y = 0; y < h1; ++y)
+            for (int x = 0; x < w1; ++x)
+                channel1 (x, y) = channel0 (x, 2 * y + offset);
     }
 }
 
 
 void
 reduceX (const ChannelList &channels,
-	 const set<string> &doNotFilter,
-	 Extrapolation ext,
-	 bool odd,
-	 const Image &image0, 
-	 Image &image1)
+         const set<string> &doNotFilter,
+         Extrapolation ext,
+         bool odd,
+         const Image &image0,
+         Image &image1)
 {
     //
     // Shrink image image0 horizontally by a factor of 2,
@@ -368,48 +378,48 @@ reduceX (const ChannelList &channels,
     //
 
     for (ChannelList::ConstIterator i = channels.begin();
-	 i != channels.end();
-	 ++i)
+         i != channels.end();
+         ++i)
     {
-	const char *name = i.name();
-	const Channel &channel = i.channel();
-	bool filter = (doNotFilter.find (name) == doNotFilter.end());
+        const char *name = i.name();
+        const Channel &channel = i.channel();
+        bool filter = (doNotFilter.find (name) == doNotFilter.end());
 
-	switch (channel.type)
-	{
-	  case HALF:
+        switch (channel.type)
+        {
+            case HALF:
 
-	    reduceX (image0.typedChannel<half> (name),
-		     image1.typedChannel<half> (name),
-		     filter, ext, odd);
-	    break;
+                reduceX (image0.typedChannel<half> (name),
+                         image1.typedChannel<half> (name),
+                         filter, ext, odd);
+                break;
 
-	  case FLOAT:
+            case FLOAT:
 
-	    reduceX (image0.typedChannel<float> (name),
-		     image1.typedChannel<float> (name),
-		     filter, ext, odd);
-	    break;
+                reduceX (image0.typedChannel<float> (name),
+                         image1.typedChannel<float> (name),
+                         filter, ext, odd);
+                break;
 
-	  case UINT:
+            case UINT:
 
-	    reduceX (image0.typedChannel<unsigned int> (name),
-		     image1.typedChannel<unsigned int> (name),
-		     filter, ext, odd);
-	    break;
+                reduceX (image0.typedChannel<unsigned int> (name),
+                         image1.typedChannel<unsigned int> (name),
+                         filter, ext, odd);
+                break;
 
-	}
+        }
     }
 }
 
 
 void
 reduceY (const ChannelList &channels,
-	 const set<string> &doNotFilter,
-	 Extrapolation ext,
-	 bool odd,
-	 const Image &image0, 
-	 Image &image1)
+         const set<string> &doNotFilter,
+         Extrapolation ext,
+         bool odd,
+         const Image &image0,
+         Image &image1)
 {
     //
     // Shrink image image0 vertically by a factor of 2,
@@ -417,47 +427,47 @@ reduceY (const ChannelList &channels,
     //
 
     for (ChannelList::ConstIterator i = channels.begin();
-	 i != channels.end();
-	 ++i)
+         i != channels.end();
+         ++i)
     {
-	const char *name = i.name();
-	const Channel &channel = i.channel();
-	bool filter = (doNotFilter.find (name) == doNotFilter.end());
+        const char *name = i.name();
+        const Channel &channel = i.channel();
+        bool filter = (doNotFilter.find (name) == doNotFilter.end());
 
-	switch (channel.type)
-	{
-	  case HALF:
+        switch (channel.type)
+        {
+            case HALF:
 
-	    reduceY (image0.typedChannel<half> (name),
-		     image1.typedChannel<half> (name),
-		     filter, ext, odd);
-	    break;
+                reduceY (image0.typedChannel<half> (name),
+                         image1.typedChannel<half> (name),
+                         filter, ext, odd);
+                break;
 
-	  case FLOAT:
+            case FLOAT:
 
-	    reduceY (image0.typedChannel<float> (name),
-		     image1.typedChannel<float> (name),
-		     filter, ext, odd);
-	    break;
+                reduceY (image0.typedChannel<float> (name),
+                         image1.typedChannel<float> (name),
+                         filter, ext, odd);
+                break;
 
-	  case UINT:
+            case UINT:
 
-	    reduceY (image0.typedChannel<unsigned int> (name),
-		     image1.typedChannel<unsigned int> (name),
-		     filter, ext, odd);
-	    break;
+                reduceY (image0.typedChannel<unsigned int> (name),
+                         image1.typedChannel<unsigned int> (name),
+                         filter, ext, odd);
+                break;
 
-	}
+        }
     }
 }
 
 
 void
-storeLevel (TiledOutputFile &out,
-	    const ChannelList &channels,
-	    int lx,
-	    int ly,
-	    const Image &image)
+storeLevel (TiledOutputPart &out,
+            const ChannelList &channels,
+            int lx,
+            int ly,
+            const Image &image)
 {
     //
     // Store the pixels for level (lx, ly) in output file out.
@@ -466,18 +476,18 @@ storeLevel (TiledOutputFile &out,
     FrameBuffer fb;
 
     for (ChannelList::ConstIterator i = channels.begin();
-	 i != channels.end();
-	 ++i)
+         i != channels.end();
+         ++i)
     {
-	const char *name = i.name();
-	fb.insert (name, image.channel(name).slice());
+        const char *name = i.name();
+        fb.insert (name, image.channel(name).slice());
     }
 
     out.setFrameBuffer (fb);
 
     for (int y = 0; y < out.numYTiles (ly); ++y)
-	for (int x = 0; x < out.numXTiles (lx); ++x)
-	    out.writeTile (x, y, lx, ly);
+        for (int x = 0; x < out.numXTiles (lx); ++x)
+            out.writeTile (x, y, lx, ly);
 }
 
 } // namespace
@@ -485,186 +495,256 @@ storeLevel (TiledOutputFile &out,
 
 void
 makeTiled (const char inFileName[],
-	   const char outFileName[],
-	   LevelMode mode,
-	   LevelRoundingMode roundingMode,
-	   Compression compression,
-	   int tileSizeX,
-	   int tileSizeY,
-	   const set<string> &doNotFilter,
-	   Extrapolation extX,
-	   Extrapolation extY,
-	   bool verbose)
+           const char outFileName[],
+           int partnum,
+           LevelMode mode,
+           LevelRoundingMode roundingMode,
+           Compression compression,
+           int tileSizeX,
+           int tileSizeY,
+           const set<string> &doNotFilter,
+           Extrapolation extX,
+           Extrapolation extY,
+           bool verbose)
 {
     Image image0;
     Image image1;
     Image image2;
     Header header;
     FrameBuffer fb;
+    vector<Header> headers;
 
     //
     // Load the input image
     //
 
+    MultiPartInputFile input (inFileName);
+    int parts = input.parts();
+
+    for (size_t p = 0 ; p < parts; p++)
     {
-	InputFile in (inFileName);
+        if (verbose)
+            cout << "reading file " << inFileName << endl;
 
-	if (verbose)
-	    cout << "reading file " << inFileName << endl;
+        if(p == partnum)
+        {
+            InputPart in (input, p);
+            header = in.header();
+            if (hasEnvmap (header) && mode != ONE_LEVEL)
+            {
+                //
+                // Proper low-pass filtering and subsampling
+                // of environment maps is not implemented in
+                // this program.
+                //
 
-	header = in.header();
+                throw IEX_NAMESPACE::NoImplExc ("This program cannot generate "
+                                      "multiresolution environment maps.  "
+                                      "Use exrenvmap instead.");
+            }
 
-	if (hasEnvmap (header) && mode != ONE_LEVEL)
-	{
-	    //
-	    // Proper low-pass filtering and subsampling
-	    // of environment maps is not implemented in
-	    // this program.
-	    //
+            image0.resize (header.dataWindow());
 
-	    throw Iex::NoImplExc ("This program cannot generate "
-				  "multiresolution environment maps.  "
-				  "Use exrenvmap instead.");
-	}
+            for (ChannelList::ConstIterator i = header.channels().begin();
+                            i != header.channels().end();
+                            ++i)
+            {
+                const char *name = i.name();
+                const Channel &channel = i.channel();
 
-	image0.resize (header.dataWindow());
+                if (channel.xSampling != 1 || channel.ySampling != 1)
+                {
+                    throw IEX_NAMESPACE::InputExc ("Sub-sampled image channels are "
+                                         "not supported in tiled files.");
+                }
 
-	for (ChannelList::ConstIterator i = header.channels().begin();
-	     i != header.channels().end();
-	     ++i)
-	{
-	    const char *name = i.name();
-	    const Channel &channel = i.channel();
+                image0.addChannel (name, channel.type);
+                image1.addChannel (name, channel.type);
+                image2.addChannel (name, channel.type);
+                fb.insert (name, image0.channel(name).slice());
+            }
 
-	    if (channel.xSampling != 1 || channel.ySampling != 1)
-	    {
-		throw Iex::InputExc ("Sub-sampled image channels are "
-				     "not supported in tiled files.");
-	    }
+            in.setFrameBuffer (fb);
+            in.readPixels (header.dataWindow().min.y, header.dataWindow().max.y);
 
-	    image0.addChannel (name, channel.type);
-	    image1.addChannel (name, channel.type);
-	    image2.addChannel (name, channel.type);
-	    fb.insert (name, image0.channel(name).slice());
-	}
 
-	in.setFrameBuffer (fb);
-	in.readPixels (header.dataWindow().min.y, header.dataWindow().max.y);
+            //
+            // Generate the header for the output file by modifying
+            // the input file's header
+            //
+
+            header.setTileDescription (TileDescription (tileSizeX, tileSizeY,
+                                                        mode, roundingMode));
+
+            header.compression() = compression;
+            header.lineOrder() = INCREASING_Y;
+
+            if (mode != ONE_LEVEL)
+                addWrapmodes (header, extToString (extX) + "," + extToString (extY));
+
+            //
+            // set tileDescription, type, and chunckcount for multipart
+            //
+            header.setType("tiledimage");
+            int chunkcount = getChunkOffsetTableSize(header, true);
+            header.setChunkCount(chunkcount);
+
+            headers.push_back(header);
+        }
+        else
+        {
+            Header h = input.header(p);
+            headers.push_back(h);
+        }
+
     }
-
-    //
-    // Generate the header for the output file by modifying
-    // the input file's header
-    //
-
-    header.setTileDescription (TileDescription (tileSizeX, tileSizeY,
-						mode, roundingMode));
-
-    header.compression() = compression;
-    header.lineOrder() = INCREASING_Y;
-
-    if (mode != ONE_LEVEL)
-	addWrapmodes (header, extToString (extX) + "," + extToString (extY));
 
     //
     // Store the highest-resolution level of the image in the output file
     //
 
-    TiledOutputFile out (outFileName, header);
+    MultiPartOutputFile output (outFileName, &headers[0], headers.size());
 
-    out.setFrameBuffer (fb);
-
-    if (verbose)
-	cout << "writing file " << outFileName << "\n"
-		"level (0, 0)" << endl;
-
-    for (int y = 0; y < out.numYTiles (0); ++y)
-	for (int x = 0; x < out.numXTiles (0); ++x)
-	    out.writeTile (x, y, 0);
-
-    //
-    // If necessary, generate the lower-resolution mipmap
-    // or ripmap levels, and store them in the output file.
-    //
-
-    if (mode == MIPMAP_LEVELS)
+    for(size_t p = 0 ; p < parts; p++)
     {
-	for (int l = 1; l < out.numLevels(); ++l)
-	{
-	    image1.resize (out.dataWindowForLevel (l, l - 1));
+        if (p == partnum)
+        {
+            try
+            {
+                TiledOutputPart out (output, partnum);
+            //    TiledOutputFile out (outFileName, header);
 
-	    reduceX (header.channels(),
-		     doNotFilter,
-		     extX,
-		     l & 1,
-		     image0,
-		     image1);
 
-	    image0.resize (out.dataWindowForLevel (l, l));
+                out.setFrameBuffer (fb);
 
-	    reduceY (header.channels(),
-		     doNotFilter,
-		     extY,
-		     l & 1,
-		     image1,
-		     image0);
+                if (verbose)
+                    cout << "writing file " << outFileName << "\n"
+                            "level (0, 0)" << endl;
 
-	    if (verbose)
-		cout << "level (" << l << ", " << l << ")" << endl;
+                for (int y = 0; y < out.numYTiles (0); ++y)
+                    for (int x = 0; x < out.numXTiles (0); ++x)
+                        out.writeTile (x, y, 0);
 
-	    storeLevel (out, header.channels(), l, l, image0);
-	}
-    }
+                //
+                // If necessary, generate the lower-resolution mipmap
+                // or ripmap levels, and store them in the output file.
+                //
 
-    if (mode == RIPMAP_LEVELS)
-    {
-	Image *iptr0 = &image0;
-	Image *iptr1 = &image1;
-	Image *iptr2 = &image2;
+                if (mode == MIPMAP_LEVELS)
+                {
+                    for (int l = 1; l < out.numLevels(); ++l)
+                    {
+                        image1.resize (out.dataWindowForLevel (l, l - 1));
 
-	for (int ly = 0; ly < out.numYLevels(); ++ly)
-	{
-	    if (ly < out.numYLevels() - 1)
-	    {
-		iptr2->resize (out.dataWindowForLevel (0, ly + 1));
+                        reduceX (header.channels(),
+                                 doNotFilter,
+                                 extX,
+                                 l & 1,
+                                 image0,
+                                 image1);
 
-		reduceY (header.channels(),
-			 doNotFilter,
-			 extY,
-			 ly & 1,
-			 *iptr0,
-			 *iptr2);
-	    }
+                        image0.resize (out.dataWindowForLevel (l, l));
 
-	    for (int lx = 0; lx < out.numXLevels(); ++lx)
-	    {
-		if (lx != 0 || ly != 0)
-		{
-		    if (verbose)
-			cout << "level (" << lx << ", " << ly << ")" << endl;
+                        reduceY (header.channels(),
+                                 doNotFilter,
+                                 extY,
+                                 l & 1,
+                                 image1,
+                                 image0);
 
-		    storeLevel (out, header.channels(), lx, ly, *iptr0);
-		}
-		
-		if (lx < out.numXLevels() - 1)
-		{
-		    iptr1->resize (out.dataWindowForLevel (lx + 1, ly));
+                        if (verbose)
+                            cout << "level (" << l << ", " << l << ")" << endl;
 
-		    reduceX (header.channels(),
-			     doNotFilter,
-			     extX,
-			     lx & 1,
-			     *iptr0,
-			     *iptr1);
+                        storeLevel (out, header.channels(), l, l, image0);
+                    }
+                }
 
-		    swap (iptr0, iptr1);
-		}
-	    }
+                if (mode == RIPMAP_LEVELS)
+                {
+                    Image *iptr0 = &image0;
+                    Image *iptr1 = &image1;
+                    Image *iptr2 = &image2;
 
-	    swap (iptr2, iptr0);
-	}
+                    for (int ly = 0; ly < out.numYLevels(); ++ly)
+                    {
+                        if (ly < out.numYLevels() - 1)
+                        {
+                            iptr2->resize (out.dataWindowForLevel (0, ly + 1));
+
+                            reduceY (header.channels(),
+                                     doNotFilter,
+                                     extY,
+                                     ly & 1,
+                                     *iptr0,
+                                     *iptr2);
+                        }
+
+                        for (int lx = 0; lx < out.numXLevels(); ++lx)
+                        {
+                            if (lx != 0 || ly != 0)
+                            {
+                                if (verbose)
+                                    cout << "level (" << lx << ", " << ly << ")" << endl;
+
+                                storeLevel (out, header.channels(), lx, ly, *iptr0);
+                            }
+
+                            if (lx < out.numXLevels() - 1)
+                            {
+                                iptr1->resize (out.dataWindowForLevel (lx + 1, ly));
+
+                                reduceX (header.channels(),
+                                         doNotFilter,
+                                         extX,
+                                         lx & 1,
+                                         *iptr0,
+                                         *iptr1);
+
+                                swap (iptr0, iptr1);
+                            }
+                        }
+
+                        swap (iptr2, iptr0);
+                    }
+                }
+            }
+            catch (const exception &e)
+            {
+                cerr << e.what() << endl;
+            }
+        }
+        else
+        {
+            Header header = headers[p];
+            std::string type = header.type();
+            if (type == "tiledimage")
+            {
+                TiledInputPart in (input, p);
+                TiledOutputPart out (output, p);
+                out.copyPixels (in);
+            }
+            else if (type == "scanlineimage")
+            {
+                using std::max;  InputPart in (input, p);
+                OutputPart out (output, p);
+                out.copyPixels (in);
+            }
+            else if (type == "deepscanline")
+            {
+                DeepScanLineInputPart in (input,p);
+                DeepScanLineOutputPart out (output,p);
+                out.copyPixels (in);
+            }
+            else if (type == "deeptile")
+            {
+                DeepTiledInputPart in (input,p);
+                DeepTiledOutputPart out (output,p);
+                out.copyPixels (in);
+            }
+        }
     }
 
     if (verbose)
 	cout << "done." << endl;
 }
+

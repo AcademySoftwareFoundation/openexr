@@ -43,10 +43,11 @@
 //
 //---------------------------------------------------------------------
 
-#include <ImathMath.h>
+#include "ImathMath.h"
+#include "ImathNamespace.h"
 #include <complex>
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //--------------------------------------------------------------------------
 // Find the real solutions of a linear, quadratic or cubic equation:
@@ -72,7 +73,7 @@ namespace Imath {
 //	solutions (or some intermediate result) are not representable.
 //	In this case, either some of the solutions returned are invalid
 //	(nan or infinity), or, if floating-point exceptions have been
-//	enabled with Iex::mathExcOn(), an Iex::MathExc exception is
+//	enabled with IEX_NAMESPACE::mathExcOn(), an IEX_NAMESPACE::MathExc exception is
 //	thrown.
 //
 //    * Cubic equations are solved using Cardano's Formula; even though
@@ -213,7 +214,6 @@ solveCubic (T a, T b, T c, T d, T x[3])
     }
 }
 
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-} // namespace Imath
-
-#endif
+#endif // INCLUDED_IMATHROOTS_H

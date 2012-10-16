@@ -57,21 +57,21 @@
 
 namespace PyImath {
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 // XXX fixme - template this
 // really this should get generated automatically...
 
 template <class T,int index>
 static FixedArray<T>
-Vec3Array_get(FixedArray<Imath::Vec3<T> > &va)
+Vec3Array_get(FixedArray<IMATH_NAMESPACE::Vec3<T> > &va)
 {
     return FixedArray<T>(&va[0][index],va.len(),3*va.stride(),va.handle());
 }
 
 template <class T>
 static void
-setItemTuple(FixedArray<Imath::Vec3<T> > &va, Py_ssize_t index, const tuple &t)
+setItemTuple(FixedArray<IMATH_NAMESPACE::Vec3<T> > &va, Py_ssize_t index, const tuple &t)
 {
     if(t.attr("__len__")() == 3)
     {
@@ -82,17 +82,17 @@ setItemTuple(FixedArray<Imath::Vec3<T> > &va, Py_ssize_t index, const tuple &t)
         va[va.canonical_index(index)] = v;
     }
     else
-        THROW(Iex::LogicExc, "tuple of length 3 expected");
+        THROW(IEX_NAMESPACE::LogicExc, "tuple of length 3 expected");
 }
 
 template <class T>
-class_<FixedArray<Imath::Vec3<T> > >
+class_<FixedArray<IMATH_NAMESPACE::Vec3<T> > >
 register_Vec3Array()
 {
     using boost::mpl::true_;
     using boost::mpl::false_;
 
-    class_<FixedArray<Imath::Vec3<T> > > vec3Array_class = FixedArray<Imath::Vec3<T> >::register_("Fixed length array of Imath::Vec3");
+    class_<FixedArray<IMATH_NAMESPACE::Vec3<T> > > vec3Array_class = FixedArray<IMATH_NAMESPACE::Vec3<T> >::register_("Fixed length array of IMATH_NAMESPACE::Vec3");
     vec3Array_class
         .add_property("x",&Vec3Array_get<T,0>)
         .add_property("y",&Vec3Array_get<T,1>)
@@ -103,22 +103,22 @@ register_Vec3Array()
     add_arithmetic_math_functions(vec3Array_class);
     add_comparison_functions(vec3Array_class);
 
-    generate_member_bindings<op_vecLength<Imath::Vec3<T> >     >(vec3Array_class,"length","");
-    generate_member_bindings<op_vecLength2<Imath::Vec3<T> >    >(vec3Array_class,"length2","");
-    generate_member_bindings<op_vecNormalize<Imath::Vec3<T> >  >(vec3Array_class,"normalize","");
-    generate_member_bindings<op_vecNormalized<Imath::Vec3<T> > >(vec3Array_class,"normalized","");
+    generate_member_bindings<op_vecLength<IMATH_NAMESPACE::Vec3<T> >     >(vec3Array_class,"length","");
+    generate_member_bindings<op_vecLength2<IMATH_NAMESPACE::Vec3<T> >    >(vec3Array_class,"length2","");
+    generate_member_bindings<op_vecNormalize<IMATH_NAMESPACE::Vec3<T> >  >(vec3Array_class,"normalize","");
+    generate_member_bindings<op_vecNormalized<IMATH_NAMESPACE::Vec3<T> > >(vec3Array_class,"normalized","");
 
     generate_member_bindings<op_vec3Cross<T>,           true_>(vec3Array_class,"cross","return the cross product of (self,x)",boost::python::args("x"));
-    generate_member_bindings<op_vecDot<Imath::Vec3<T> >,true_>(vec3Array_class,"dot","return the inner product of (self,x)",boost::python::args("x"));
+    generate_member_bindings<op_vecDot<IMATH_NAMESPACE::Vec3<T> >,true_>(vec3Array_class,"dot","return the inner product of (self,x)",boost::python::args("x"));
 
-    generate_member_bindings<op_mul<Imath::Vec3<T>,T>,  true_>(vec3Array_class,"__mul__" ,"self*x", boost::python::args("x"));
-    generate_member_bindings<op_mul<Imath::Vec3<T>,Imath::M44f>,false_>(vec3Array_class,"__mul__" ,"self*x", boost::python::args("x"));
-    generate_member_bindings<op_mul<Imath::Vec3<T>,Imath::M44d>,false_>(vec3Array_class,"__mul__" ,"self*x", boost::python::args("x"));
+    generate_member_bindings<op_mul<IMATH_NAMESPACE::Vec3<T>,T>,  true_>(vec3Array_class,"__mul__" ,"self*x", boost::python::args("x"));
+    generate_member_bindings<op_mul<IMATH_NAMESPACE::Vec3<T>,IMATH_NAMESPACE::M44f>,false_>(vec3Array_class,"__mul__" ,"self*x", boost::python::args("x"));
+    generate_member_bindings<op_mul<IMATH_NAMESPACE::Vec3<T>,IMATH_NAMESPACE::M44d>,false_>(vec3Array_class,"__mul__" ,"self*x", boost::python::args("x"));
 
-    generate_member_bindings<op_mul<Imath::Vec3<T>,T>,  true_>(vec3Array_class,"__rmul__","x*self", boost::python::args("x"));
-    generate_member_bindings<op_imul<Imath::Vec3<T>,T>, true_>(vec3Array_class,"__imul__","self*=x",boost::python::args("x"));
-    generate_member_bindings<op_div<Imath::Vec3<T>,T>,  true_>(vec3Array_class,"__div__" ,"self/x", boost::python::args("x"));
-    generate_member_bindings<op_idiv<Imath::Vec3<T>,T>, true_>(vec3Array_class,"__idiv__","self/=x",boost::python::args("x"));
+    generate_member_bindings<op_mul<IMATH_NAMESPACE::Vec3<T>,T>,  true_>(vec3Array_class,"__rmul__","x*self", boost::python::args("x"));
+    generate_member_bindings<op_imul<IMATH_NAMESPACE::Vec3<T>,T>, true_>(vec3Array_class,"__imul__","self*=x",boost::python::args("x"));
+    generate_member_bindings<op_div<IMATH_NAMESPACE::Vec3<T>,T>,  true_>(vec3Array_class,"__div__" ,"self/x", boost::python::args("x"));
+    generate_member_bindings<op_idiv<IMATH_NAMESPACE::Vec3<T>,T>, true_>(vec3Array_class,"__idiv__","self/=x",boost::python::args("x"));
 
     decoratecopy(vec3Array_class);
 

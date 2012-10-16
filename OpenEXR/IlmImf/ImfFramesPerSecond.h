@@ -65,10 +65,13 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfRational.h>
-#include <ImfExport.h>
+#include "ImfRational.h"
+#include "ImfNamespace.h"
+#include "ImfExport.h"
 
-namespace Imf {
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
+
 
 inline Rational	fps_23_976 ()	{return Rational (24000, 1001);}
 inline Rational	fps_24 ()	{return Rational (24, 1);}
@@ -84,6 +87,11 @@ inline Rational	fps_60 ()	{return Rational (60, 1);}
 IMF_EXPORT Rational	guessExactFps (double fps);
 IMF_EXPORT Rational	guessExactFps (const Rational &fps);
 
-} // namespace Imf
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif

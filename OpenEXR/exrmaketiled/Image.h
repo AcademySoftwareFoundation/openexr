@@ -44,10 +44,13 @@
 #include <ImfPixelType.h>
 #include <ImfFrameBuffer.h>
 #include <ImfArray.h>
-#include "ImathBox.h"
-#include "half.h"
+#include <ImathBox.h>
+#include <half.h>
+
 #include <string>
 #include <map>
+
+#include "namespaceAlias.h"
 
 
 class Image;
@@ -62,7 +65,7 @@ class ImageChannel
     ImageChannel (Image &image);
     virtual ~ImageChannel();
 
-    virtual Imf::Slice	slice () const = 0;
+    virtual CustomImf::Slice	slice () const = 0;
 
     Image &		image ()		{return _image;}
     const Image &	image () const		{return _image;}
@@ -83,18 +86,18 @@ class TypedImageChannel: public ImageChannel
     TypedImageChannel (Image &image, int width, int height);
     virtual ~TypedImageChannel ();
     
-    Imf::PixelType	pixelType () const;
+    CustomImf::PixelType	pixelType () const;
 
-    virtual Imf::Slice	slice () const;
+    virtual CustomImf::Slice	slice () const;
 
-    T &			operator () (int x, int y);
-    const T &		operator () (int x, int y) const;
+    T &				operator () (int x, int y);
+    const T &			operator () (int x, int y) const;
 
   private:
 
-    virtual void	resize (int width, int height);
+    virtual void		resize (int width, int height);
 
-    Imf::Array2D<T>	_pixels;
+    CustomImf::Array2D<T>	_pixels;
 };
 
 
@@ -108,33 +111,33 @@ class Image
   public:
 
     Image ();
-    Image (const Imath::Box2i &dataWindow);
+    Image (const IMATH_NAMESPACE::Box2i &dataWindow);
    ~Image ();
 
-   const Imath::Box2i &		dataWindow () const;
-   void				resize (const Imath::Box2i &dataWindow);
+    const IMATH_NAMESPACE::Box2i &	dataWindow () const;
+    void			resize (const IMATH_NAMESPACE::Box2i &dataWindow);
 
-   int				width () const;
-   int				height () const;
+    int				width () const;
+    int				height () const;
 
-   void				addChannel (const std::string &name,
-					    Imf::PixelType type);
+    void			addChannel (const std::string &name,
+        			            CustomImf::PixelType type);
 
-   ImageChannel &		channel (const std::string &name);
-   const ImageChannel &		channel (const std::string &name) const;
+    ImageChannel &		channel (const std::string &name);
+    const ImageChannel &		channel (const std::string &name) const;
 
-   template <class T>
-   TypedImageChannel<T> &	typedChannel (const std::string &name);
+    template <class T>
+    TypedImageChannel<T> &	typedChannel (const std::string &name);
 
-   template <class T>
-   const TypedImageChannel<T> &	typedChannel (const std::string &name) const;
+    template <class T>
+    const TypedImageChannel<T> &	typedChannel (const std::string &name) const;
 
   private:
 
-   typedef std::map <std::string, ImageChannel *> ChannelMap;
+    typedef std::map <std::string, ImageChannel *> ChannelMap;
 
-   Imath::Box2i			_dataWindow;
-   ChannelMap			_channels;
+    IMATH_NAMESPACE::Box2i		_dataWindow;
+    ChannelMap			_channels;
 };
 
 
@@ -159,37 +162,37 @@ TypedImageChannel<T>::~TypedImageChannel ()
 
 
 template <>
-inline Imf::PixelType
+inline OPENEXR_IMF_INTERNAL_NAMESPACE::PixelType
 HalfChannel::pixelType () const
 {
-    return Imf::HALF;
+    return OPENEXR_IMF_INTERNAL_NAMESPACE::HALF;
 }
 
 
 template <>
-inline Imf::PixelType
+inline OPENEXR_IMF_INTERNAL_NAMESPACE::PixelType
 FloatChannel::pixelType () const
 {
-    return Imf::FLOAT;
+    return OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT;
 }
 
 
 template <>
-inline Imf::PixelType
+inline OPENEXR_IMF_INTERNAL_NAMESPACE::PixelType
 UIntChannel::pixelType () const
 {
-    return Imf::UINT;
+    return OPENEXR_IMF_INTERNAL_NAMESPACE::UINT;
 }
 
 
 template <class T>
-Imf::Slice
+OPENEXR_IMF_INTERNAL_NAMESPACE::Slice
 TypedImageChannel<T>::slice () const
 {
-    const Imath::Box2i &dw = image().dataWindow();
+    const IMATH_NAMESPACE::Box2i &dw = image().dataWindow();
     int w = dw.max.x - dw.min.x + 1;
 
-    return Imf::Slice (pixelType(),
+    return OPENEXR_IMF_INTERNAL_NAMESPACE::Slice (pixelType(),
 		       (char *) (&_pixels[0][0] - dw.min.y * w - dw.min.x),
 		       sizeof (T),
 		       w * sizeof (T));
@@ -220,7 +223,7 @@ TypedImageChannel<T>::resize (int width, int height)
 }
 
 
-inline const Imath::Box2i &
+inline const IMATH_NAMESPACE::Box2i &
 Image::dataWindow () const
 {
     return _dataWindow;

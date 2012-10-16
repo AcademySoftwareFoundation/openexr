@@ -10,5 +10,5 @@ LDADD = @ILMBASE_LDFLAGS@ @ILMBASE_LIBS@ \
 	$(top_builddir)/IlmImf/libIlmImf.la \
 	-lz
 
-exrstdattr_SOURCES = main.cpp
+exrstdattr_SOURCES = main.cpp CMakeLists.txt
 

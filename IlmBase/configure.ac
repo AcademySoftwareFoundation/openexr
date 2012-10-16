@@ -1,6 +1,12 @@
 dnl Process this file with autoconf to produce a configure script.
+<<<<<<< HEAD
 AC_INIT(IlmBase, 1.0.3)
 AC_SUBST(ILMBASE_VERSION, 1.0.3)
+=======
+AC_INIT(IlmBase, 2.0.0)
+AC_SUBST(ILMBASE_VERSION, 2.0.0)
+AC_SUBST(ILMBASE_VERSION_SAFE, 2_0_0)
+>>>>>>> upstream/master
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(ImathTest/main.cpp)
 AM_CONFIG_HEADER(config/IlmBaseConfig.h)
@@ -8,7 +14,11 @@ AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 
 
+<<<<<<< HEAD
 LIBTOOL_CURRENT=7
+=======
+LIBTOOL_CURRENT=10
+>>>>>>> upstream/master
 LIBTOOL_REVISION=0
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
@@ -55,7 +65,13 @@ if test "${multithread}" != no ; then
     AC_MSG_NOTICE([multithread true, LIBS = $LIBS, CC = $CC, CXXFLAGS = $CXXFLAGS])
 fi
 
+<<<<<<< HEAD
 dnl Checks for header files.
+=======
+dnl
+dnl Checks for header files.
+dnl
+>>>>>>> upstream/master
 AC_HEADER_STDC
 AC_CHECK_HEADERS(limits.h unistd.h ucontext.h)
 
@@ -81,6 +97,37 @@ AC_DEFINE(HAVE_COMPLETE_IOMANIP) complete_iomanip=yes)
 AC_MSG_RESULT($complete_iomanip)
 AC_LANG_RESTORE
 
+<<<<<<< HEAD
+=======
+dnl --enable-large-stack
+case "$host" in
+*linux*)
+  AC_ARG_ENABLE(large-stack,
+		AC_HELP_STRING([--enable-large-stack],
+			       [enable optimizations for systems that support
+			       large stack sizes [[default=yes]]]),
+		[large_stack="${enableval}"],
+		[large_stack=yes])
+  ;;
+*)
+  AC_ARG_ENABLE(large-stack,
+		AC_HELP_STRING([--enable-large-stack],
+			       [enable optimizations for systems that support
+			       large stack sizes [[default=no]]]),
+		[large_stack="${enableval}"],
+		[large_stack=no])
+  ;;
+esac
+
+if test "x${large_stack}" != xno ; then
+    AC_DEFINE(ILMBASE_HAVE_LARGE_STACK)
+fi
+
+dnl Define the version string
+AC_DEFINE_UNQUOTED(ILMBASE_VERSION_STRING, "${VERSION}")
+AC_DEFINE_UNQUOTED(ILMBASE_PACKAGE_STRING, "${PACKAGE_STRING}")
+
+>>>>>>> upstream/master
 
 AC_MSG_CHECKING(for gcc optimization flags)
 old_cflags=$CFLAGS
@@ -91,6 +138,99 @@ AC_TRY_COMPILE([#include <stdio.h>],
 CFLAGS=$old_cflags
 AC_MSG_RESULT([$EXTRA_OPT_CFLAGS])
 
+<<<<<<< HEAD
+=======
+
+
+dnl
+dnl Handle namespacing configuration : internal library namespace
+dnl                                    public namespace 
+dnl
+library_namespace_versioning="no"
+AC_ARG_ENABLE(namespaceversioning,
+          AC_HELP_STRING([--enable-namespaceversioning],
+                         [enable symbol versioning via versioned/custom namespace to prevent runtime conflicts <no/yes/custom> [[default=no]]] ),
+          [library_namespace_versioning="${enableval}"], 
+          [library_namespace_versioning=no])
+              
+dnl Suffix for the shared library via the '-release' option
+LIB_SUFFIX=""
+lib_suffix_valid="no"
+
+dnl Internal library namespace
+dnl 
+lib_namespace=""
+if test "x${library_namespace_versioning}" == xyes ; then
+    AC_DEFINE_UNQUOTED(IMATH_INTERNAL_NAMESPACE,     Imath_${ILMBASE_VERSION_SAFE})
+    AC_DEFINE_UNQUOTED(IEX_INTERNAL_NAMESPACE,       Iex_${ILMBASE_VERSION_SAFE})
+    AC_DEFINE_UNQUOTED(ILMTHREAD_INTERNAL_NAMESPACE, IlmThread_${ILMBASE_VERSION_SAFE})
+    AC_DEFINE(ILMBASE_INTERNAL_NAMESPACE_CUSTOM)
+    
+    lib_namespace="${ILMBASE_VERSION_SAFE}"
+    LIB_SUFFIX="${ILMBASE_VERSION_SAFE}"
+    lib_suffix_valid="yes"
+elif test "x${library_namespace_versioning}" == xno ; then
+    AC_DEFINE_UNQUOTED(IMATH_INTERNAL_NAMESPACE,     Imath)
+    AC_DEFINE_UNQUOTED(IEX_INTERNAL_NAMESPACE,       Iex)
+    AC_DEFINE_UNQUOTED(ILMTHREAD_INTERNAL_NAMESPACE, IlmThread)
+    lib_namespace=""
+else
+    AC_DEFINE_UNQUOTED(IMATH_INTERNAL_NAMESPACE,     Imath_${library_namespace_versioning})
+    AC_DEFINE_UNQUOTED(IEX_INTERNAL_NAMESPACE,       Iex_${library_namespace_versioning})
+    AC_DEFINE_UNQUOTED(ILMTHREAD_INTERNAL_NAMESPACE, IlmThread_${library_namespace_versioning})
+    AC_DEFINE(ILMBASE_INTERNAL_NAMESPACE_CUSTOM)
+    
+    lib_namespace="${library_namespace_versioning}"
+    LIB_SUFFIX="${library_namespace_versioning}"
+    lib_suffix_valid="yes"
+fi
+AC_SUBST(LIB_SUFFIX)
+
+if test "x${lib_suffix_valid}" == xyes ; then
+AC_SUBST(LIB_SUFFIX_DASH,"-${LIB_SUFFIX}")
+AM_CONDITIONAL(LIB_SUFFIX_EXISTS,true)
+else
+AC_SUBST(LIB_SUFFIX_DASH,"")
+AM_CONDITIONAL(LIB_SUFFIX_EXISTS,false)
+fi
+
+
+dnl Public User namespace 
+dnl 
+custom_public_namespace="no"
+public_namespace=""
+AC_ARG_ENABLE(customusernamespace,
+        AC_HELP_STRING([--enable-customusernamespace],
+                       [user namespace; this is the namespace into which the library namespace will be exported to <no/custom> [[default=Imf]]] ),
+        [custom_public_namespace="${enableval}"], 
+        [custom_public_namespace=no])
+
+if test "x${custom_public_namespace}" == xyes ; then
+    AC_MSG_WARN([Enabling 'custom user namespace' requires an additional argument, reverting to default])
+    AC_DEFINE(IMATH_NAMESPACE,     Imath)
+    AC_DEFINE(IEX_NAMESPACE,       Iex)
+    AC_DEFINE(ILMTHREAD_NAMESPACE, IlmThread)
+
+    public_namespace=""
+    custom_public_namespace=no
+elif test "x${custom_public_namespace}" == xno ; then
+    AC_DEFINE(IMATH_NAMESPACE,     Imath)
+    AC_DEFINE(IEX_NAMESPACE,       Iex)
+    AC_DEFINE(ILMTHREAD_NAMESPACE, IlmThread)
+    
+    public_namespace=""
+else
+    AC_DEFINE_UNQUOTED(IMATH_NAMESPACE,     Imath_${custom_public_namespace})
+    AC_DEFINE_UNQUOTED(IEX_NAMESPACE,       Iex_${custom_public_namespace})
+    AC_DEFINE_UNQUOTED(ILMTHREAD_NAMESPACE, IlmThread_${custom_public_namespace})
+    AC_DEFINE(ILMBASE_NAMESPACE_CUSTOM)
+    
+    public_namespace=${custom_public_namespace}
+fi
+
+
+
+>>>>>>> upstream/master
 dnl Platform-specific stuff
 case "$host" in
 *darwin*) 
@@ -175,6 +315,7 @@ ImathTest/Makefile
 vc/Makefile
 ])
 
+<<<<<<< HEAD
 if test "$osx_arch"; then
   AC_MSG_RESULT([
 ---------------------------------------------
@@ -195,3 +336,45 @@ No variable options in this package.  Configure completed successfully.
   ])
 fi
 
+=======
+
+dnl
+dnl Summary Configuration Messages
+dnl
+AC_MSG_RESULT([
+---------------------------------------------
+Summary for IlmBase features:
+enable large stack optimizations             $large_stack])
+  
+if test "x${library_namespace_versioning}" != xno ; then
+  AC_MSG_RESULT([
+internal library namespaces                  Imath_$lib_namespace 
+                                             Iex_$lib_namespace 
+                                             IlmThread_$lib_namespace])
+else
+  AC_MSG_RESULT([
+internal library namespaces                  Imath Iex IlmThread])
+fi
+
+if test "x${custom_public_namespace}" != xno ; then
+  AC_MSG_RESULT([
+public namespaces                            Imath_$public_namespace 
+                                             Iex_$public_namespace 
+                                             IlmThread_$public_namespace])
+else
+  AC_MSG_RESULT([
+public namespaces                            Imath Iex IlmThread])
+fi
+
+
+if test "$osx_arch"; then
+  AC_MSG_RESULT([
+OS X architectures                           $osx_arch
+OS X SDK                                     $osx_sdk
+OS X two-way universal build (deprecated)    $build_osxuniversal])
+fi
+
+AC_MSG_RESULT([
+---------------------------------------------
+])
+>>>>>>> upstream/master

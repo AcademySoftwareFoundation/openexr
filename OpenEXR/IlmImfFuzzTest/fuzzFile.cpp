@@ -43,9 +43,12 @@
 #include <iostream>
 #include <fstream>
 
+// Handle the case when the custom namespace is not exposed
+#include <OpenEXRConfig.h>
+using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 using namespace std;
-using namespace Imath;
-using namespace Imf;
+using namespace IMATH_NAMESPACE;
+
 
 namespace {
 

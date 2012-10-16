@@ -43,6 +43,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include <PyImathExport.h>
 #include <Python.h>
 
 namespace PyImath {
@@ -59,7 +60,7 @@ namespace PyImath {
  * Note: this is not compatible with additional interpreters (calls to
  * Py_NewInterpreter()); 
  */
-class PyAcquireLock
+class PYIMATH_EXPORT PyAcquireLock
 {
   public:
     PyAcquireLock();
@@ -78,7 +79,7 @@ class PyAcquireLock
  * instantiated while an AcquireLock is in effect (nested).
  *
  */
-class PyReleaseLock
+class PYIMATH_EXPORT PyReleaseLock
 {
   public:
     PyReleaseLock();

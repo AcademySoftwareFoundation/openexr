@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucasfilm
+// Copyright (c) 2012, Industrial Light & Magic, a division of Lucasfilm
 // Entertainment Company Ltd.  Portions contributed and copyright held by
 // others as indicated.  All rights reserved.
 //
@@ -42,7 +42,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include <loadImage.h>
+#include "loadImage.h"
+
 #include <ImfRgbaFile.h>
 #include <ImfTiledRgbaFile.h>
 #include <ImfInputFile.h>
@@ -51,164 +52,473 @@
 #include <ImfChannelList.h>
 #include <Iex.h>
 
-using namespace Imath;
-using namespace Imf;
+
+#include <ImfMultiPartInputFile.h>
+#include <ImfInputPart.h>
+#include <ImfTiledInputPart.h>
+#include <ImfDeepScanLineInputPart.h>
+#include <ImfDeepFrameBuffer.h>
+#include <ImfCompositeDeepScanLine.h>
+#include <ImfDeepTiledInputPart.h>
+
+using namespace OPENEXR_IMF_NAMESPACE;
+using namespace IMATH_NAMESPACE;
 using namespace std;
 
 namespace {
 
 void
 loadImage (const char fileName[],
-	   const char layer[],
-	   Header &header,
-	   Array<Rgba> &pixels)
+           const char layer[],
+           int partnum,
+           Header &header,
+           Array<Rgba> &pixels)
 {
-    RgbaInputFile in (fileName, layer? layer: "");
-
+    MultiPartInputFile inmaster (fileName);
+    InputPart in (inmaster, partnum);
     header = in.header();
 
-    Box2i &dataWindow = header.dataWindow();
-    int dw = dataWindow.max.x - dataWindow.min.x + 1;
-    int dh = dataWindow.max.y - dataWindow.min.y + 1;
-    int dx = dataWindow.min.x;
-    int dy = dataWindow.min.y;
-
-    pixels.resizeErase (dw * dh);
-    in.setFrameBuffer (pixels - dx - dy * dw, 1, dw);
-
-    try
+    ChannelList ch = header.channels();
+    if(ch.findChannel("Y"))
     {
-	in.readPixels (dataWindow.min.y, dataWindow.max.y);
+        //
+        // Not handling YCA image right now
+        //
+        cout << "Cannot handle YCA image now!" << endl;
+
+        //no data for YCA image
+        pixels.resizeErase (1);
+        header.dataWindow() = Box2i (V2i (0, 0), V2i (0, 0));
     }
-    catch (const exception &e)
+    else
     {
-	//
-	// If some of the pixels in the file cannot be read,
-	// print an error message, and return a partial image
-	// to the caller.
-	//
+        Box2i &dataWindow = header.dataWindow();
+        int dw = dataWindow.max.x - dataWindow.min.x + 1;
+        int dh = dataWindow.max.y - dataWindow.min.y + 1;
+        int dx = dataWindow.min.x;
+        int dy = dataWindow.min.y;
 
-	cerr << e.what() << endl;
+        pixels.resizeErase (dw * dh);
+        memset (pixels, 0, (dw * dh) * (sizeof(Rgba)));
+
+        size_t xs = 1 * sizeof (Rgba);
+        size_t ys = dw * sizeof (Rgba);
+
+        FrameBuffer fb;
+        Rgba *base = pixels - dx - dy * dw;
+
+        fb.insert ("R",
+                   Slice (HALF,
+                          (char *) &base[0].r,
+                          xs, ys,
+                          1, 1,     // xSampling, ySampling
+                          0.0));    // fillValue
+
+        fb.insert ("G",
+                   Slice (HALF,
+                          (char *) &base[0].g,
+                          xs, ys,
+                          1, 1,     // xSampling, ySampling
+                          0.0));    // fillValue
+
+        fb.insert ("B",
+                   Slice (HALF,
+                          (char *) &base[0].b,
+                          xs, ys,
+                          1, 1,     // xSampling, ySampling
+                          0.0));    // fillValue
+
+        fb.insert ("A",
+                   Slice (HALF,
+                          (char *) &base[0].a,
+                          xs, ys,
+                          1, 1,             // xSampling, ySampling
+                          1.0));    // fillValue
+        in.setFrameBuffer (fb);
+
+
+        try
+        {
+            in.readPixels (dataWindow.min.y, dataWindow.max.y);
+        }
+        catch (const exception &e)
+        {
+            //
+            // If some of the pixels in the file cannot be read,
+            // print an error message, and return a partial image
+            // to the caller.
+            //
+
+            cerr << e.what() << endl;
+        }
     }
 }
 
-
 void
 loadTiledImage (const char fileName[],
-		const char layer[],
-		int lx,
-		int ly,
-		Header &header,
-	        Array<Rgba> &pixels)
+                const char layer[],
+                int lx,
+                int ly,
+                int partnum,
+                Header &header,
+                Array<Rgba> &pixels)
 {
-    TiledRgbaInputFile in (fileName, layer? layer: "");
+    MultiPartInputFile inmaster (fileName);
+    TiledInputPart in (inmaster, partnum);
+    header = in.header();
 
     if (!in.isValidLevel (lx, ly))
     {
-	THROW (Iex::InputExc, "Level (" << lx << ", " << ly << ") does "
-			      "not exist in file " << fileName << ".");
+        //
+        //for part doesn't have valid level
+        //
+        pixels.resizeErase (1);
+        header.dataWindow() = Box2i (V2i (0, 0), V2i (0, 0));
+
+        cout<<"Level (" << lx << ", " << ly << ") does "
+	      "not exist in part "<< partnum << " of file "
+	      << fileName << "."<<endl;
     }
-
-    header = in.header();
-    header.dataWindow() = in.dataWindowForLevel (lx, ly);
-    header.displayWindow() = header.dataWindow();
-
-    Box2i &dataWindow = header.dataWindow();
-    int dw = dataWindow.max.x - dataWindow.min.x + 1;
-    int dh = dataWindow.max.y - dataWindow.min.y + 1;
-    int dx = dataWindow.min.x;
-    int dy = dataWindow.min.y;
-
-    pixels.resizeErase (dw * dh);
-    in.setFrameBuffer (pixels - dx - dy * dw, 1, dw);
-
-    try
+    else
     {
-	int tx = in.numXTiles (lx);
-	int ty = in.numYTiles (ly);
+        header.dataWindow() = in.dataWindowForLevel (lx, ly);
+        header.displayWindow() = header.dataWindow();
 
-	//
-	// For maximum speed, try to read the tiles in
-	// the same order as they are stored in the file.
-	//
+        ChannelList ch = header.channels();
+        if(ch.findChannel("Y"))
+        {
+            //
+            // Not handling YCA image right now
+            //
+            cout << "Cannot handle YCA image now!" << endl;
 
-	if (in.lineOrder() == INCREASING_Y)
-	{
-	    for (int y = 0; y < ty; ++y)
-		for (int x = 0; x < tx; ++x)
-		    in.readTile (x, y, lx, ly);
-	}
-	else
-	{
-	    for (int y = ty - 1; y >= 0; --y)
-		for (int x = 0; x < tx; ++x)
-		    in.readTile (x, y, lx, ly);
-	}
-    }
-    catch (const exception &e)
-    {
-	//
-	// If some of the tiles in the file cannot be read,
-	// print an error message, and return a partial image
-	// to the caller.
-	//
+            //no data for YCA image
+            pixels.resizeErase (1);
+            header.dataWindow() = Box2i (V2i (0, 0), V2i (0, 0));
+        }
+        else
+        {
+            Box2i &dataWindow = header.dataWindow();
+            int dw = dataWindow.max.x - dataWindow.min.x + 1;
+            int dh = dataWindow.max.y - dataWindow.min.y + 1;
+            int dx = dataWindow.min.x;
+            int dy = dataWindow.min.y;
 
-	cerr << e.what() << endl;
+            pixels.resizeErase (dw * dh);
+            memset (pixels, 0, (dw * dh) * (sizeof(Rgba)));
+
+            size_t xs = 1 * sizeof (Rgba);
+            size_t ys = dw * sizeof (Rgba);
+            FrameBuffer fb;
+            Rgba *base = pixels - dx - dy * dw;
+
+            fb.insert ("R",
+                       Slice (HALF,
+                              (char *) &base[0].r,
+                              xs, ys,
+                              1, 1,         // xSampling, ySampling
+                              0.0));        // fillValue
+
+            fb.insert ("G",
+                       Slice (HALF,
+                              (char *) &base[0].g,
+                              xs, ys,
+                              1, 1,         // xSampling, ySampling
+                              0.0));        // fillValue
+
+            fb.insert ("B",
+                       Slice (HALF,
+                              (char *) &base[0].b,
+                              xs, ys,
+                              1, 1,         // xSampling, ySampling
+                              0.0));        // fillValue
+
+            fb.insert ("A",
+                       Slice (HALF,
+                              (char *) &base[0].a,
+                              xs, ys,
+                              1, 1,         // xSampling, ySampling
+                              1.0));        // fillValue
+            in.setFrameBuffer (fb);
+
+            try
+            {
+            int tx = in.numXTiles (lx);
+            int ty = in.numYTiles (ly);
+
+            //
+            // For maximum speed, try to read the tiles in
+            // the same order as they are stored in the file.
+            //
+
+            if (in.header().lineOrder() == INCREASING_Y)
+            {
+                for (int y = 0; y < ty; ++y)
+                    for (int x = 0; x < tx; ++x)
+                        in.readTile (x, y, lx, ly);
+            }
+            else
+            {
+                for (int y = ty - 1; y >= 0; --y)
+                    for (int x = 0; x < tx; ++x)
+                        in.readTile (x, y, lx, ly);
+            }
+            }
+            catch (const exception &e)
+            {
+                //
+                // If some of the tiles in the file cannot be read,
+                // print an error message, and return a partial image
+                // to the caller.
+                //
+
+                cerr << e.what() << endl;
+            }
+        }
+
     }
 }
 
 
 void
 loadPreviewImage (const char fileName[],
-		  Header &header,
-		  Array<Rgba> &pixels)
+                  int partnum,
+                  Header &header,
+                  Array<Rgba> &pixels)
 {
-    RgbaInputFile in (fileName);
+    MultiPartInputFile inmaster (fileName);
+    InputPart in (inmaster, partnum);
+    header = in.header();
 
     if (!in.header().hasPreviewImage())
     {
-	THROW (Iex::InputExc, "File " << fileName << " "
-			      "contains no preview image.");
+        //
+        // If no preview, make a 100*100 display window
+        //
+        header.dataWindow() = Box2i (V2i (0, 0), V2i (0, 0));
+        header.displayWindow() = Box2i (V2i (0, 0), V2i (99, 99));
+        pixels.resizeErase (1);
+
+        cout << "Part " << partnum << " contains no preview image."<< endl;
     }
+    else{
+        const PreviewImage &preview = in.header().previewImage();
+        int w = preview.width();
+        int h = preview.height();
 
-    const PreviewImage &preview = in.header().previewImage();
-    int w = preview.width();
-    int h = preview.height();
+        header.displayWindow() = Box2i (V2i (0, 0), V2i (w-1, h-1));
+        header.dataWindow() = header.displayWindow();
+        header.pixelAspectRatio() = 1;
 
-    header = in.header();
+        pixels.resizeErase (w * h);
 
-    header.displayWindow() = Box2i (V2i (0, 0), V2i (w-1, h-1));
-    header.dataWindow() = header.displayWindow();
-    header.pixelAspectRatio() = 1;
+        //
+        // Convert the 8-bit gamma-2.2 preview pixels
+        // into linear 16-bit floating-point pixels.
+        //
 
-    pixels.resizeErase (w * h);
+        for (int i = 0; i < w * h; ++i)
+        {
+            Rgba &p = pixels[i];
+            const PreviewRgba &q = preview.pixels()[i];
 
-    //
-    // Convert the 8-bit gamma-2.2 preview pixels
-    // into linear 16-bit floating-point pixels.
-    //
-
-    for (int i = 0; i < w * h; ++i)
-    {
-	Rgba &p = pixels[i];
-	const PreviewRgba &q = preview.pixels()[i];
-
-	p.r = 2.f * pow (q.r / 255.f, 2.2f);
-	p.g = 2.f * pow (q.g / 255.f, 2.2f);
-	p.b = 2.f * pow (q.b / 255.f, 2.2f);
-	p.a = q.a / 255.f;
+            p.r = 2.f * pow (q.r / 255.f, 2.2f);
+            p.g = 2.f * pow (q.g / 255.f, 2.2f);
+            p.b = 2.f * pow (q.b / 255.f, 2.2f);
+            p.a = q.a / 255.f;
+        }
     }
 }
-
 
 void
 loadImageChannel (const char fileName[],
-		  const char channelName[],
-		  Header &header,
-		  Array<Rgba> &pixels)
+                  const char channelName[],
+                  int partnum,
+                  Header &header,
+                  Array<Rgba> &pixels)
 {
-    InputFile in (fileName);
+    MultiPartInputFile inmaster (fileName);
+    InputPart in (inmaster, partnum);
 
+    header = in.header();
+
+    if (const Channel *ch = in.header().channels().findChannel (channelName))
+    {
+        Box2i &dataWindow = header.dataWindow();
+        int dw = dataWindow.max.x - dataWindow.min.x + 1;
+        int dh = dataWindow.max.y - dataWindow.min.y + 1;
+        int dx = dataWindow.min.x;
+        int dy = dataWindow.min.y;
+
+        pixels.resizeErase (dw * dh);
+
+        for (int i = 0; i < dw * dh; ++i)
+        {
+            pixels[i].r = half::qNan();
+            pixels[i].g = half::qNan();
+            pixels[i].b = half::qNan();
+        }
+        FrameBuffer fb;
+
+        fb.insert (channelName,
+                   Slice (HALF,
+                          (char *) &pixels[-dx - dy * dw].g,
+                          sizeof (Rgba) * ch->xSampling,
+                          sizeof (Rgba) * ch->ySampling * dw,
+                          ch->xSampling,
+                          ch->ySampling));
+
+        in.setFrameBuffer (fb);
+
+        try
+        {
+            in.readPixels (dataWindow.min.y, dataWindow.max.y);
+        }
+        catch (const exception &e)
+        {
+            //
+            // If some of the pixels in the file cannot be read,
+            // print an error message, and return a partial image
+            // to the caller.
+            //
+
+            cerr << e.what() << endl;
+        }
+
+        for (int i = 0; i < dw * dh; ++i)
+        {
+            pixels[i].r = pixels[i].g;
+            pixels[i].b = pixels[i].g;
+        }
+    }
+    else
+    {
+        cerr << "Image file \"" << fileName << "\" has no "
+        "channel named \"" << channelName << "\"." << endl;
+
+        //
+        //no data for this channel
+        //
+        pixels.resizeErase (1);
+        header.dataWindow() = Box2i (V2i (0, 0), V2i (0, 0));
+    }
+}
+
+void
+loadTiledImageChannel (const char fileName[],
+                       const char channelName[],
+                       int lx,
+                       int ly,
+                       int partnum,
+                       Header &header,
+                       Array<Rgba> &pixels)
+{
+    MultiPartInputFile inmaster (fileName);
+    TiledInputPart in (inmaster, partnum);
+
+    if (!in.isValidLevel (lx, ly))
+    {
+        THROW (IEX_NAMESPACE::InputExc, "Level (" << lx << ", " << ly << ") does "
+               "not exist in file " << fileName << ".");
+    }
+
+    header = in.header();
+
+    if (const Channel *ch = in.header().channels().findChannel (channelName))
+    {
+        header.dataWindow() = in.dataWindowForLevel (lx, ly);
+        header.displayWindow() = header.dataWindow();
+
+        Box2i &dataWindow = header.dataWindow();
+        int dw = dataWindow.max.x - dataWindow.min.x + 1;
+        int dh = dataWindow.max.y - dataWindow.min.y + 1;
+        int dx = dataWindow.min.x;
+        int dy = dataWindow.min.y;
+
+        pixels.resizeErase (dw * dh);
+
+        for (int i = 0; i < dw * dh; ++i)
+        {
+            pixels[i].r = half::qNan();
+            pixels[i].g = half::qNan();
+            pixels[i].b = half::qNan();
+        }
+
+        FrameBuffer fb;
+
+        fb.insert (channelName,
+                   Slice (HALF,
+                          (char *) &pixels[-dx - dy * dw].g,
+                          sizeof (Rgba) * ch->xSampling,
+                          sizeof (Rgba) * ch->ySampling * dw,
+                          ch->xSampling,
+                          ch->ySampling));
+
+        in.setFrameBuffer (fb);
+
+        try
+        {
+            int tx = in.numXTiles (lx);
+            int ty = in.numYTiles (ly);
+
+            //
+            // For maximum speed, try to read the tiles in
+            // the same order as they are stored in the file.
+            //
+
+            if (in.header().lineOrder() == INCREASING_Y)
+            {
+                for (int y = 0; y < ty; ++y)
+                    for (int x = 0; x < tx; ++x)
+                        in.readTile (x, y, lx, ly);
+            }
+            else
+            {
+                for (int y = ty - 1; y >= 0; --y)
+                    for (int x = 0; x < tx; ++x)
+                        in.readTile (x, y, lx, ly);
+            }
+        }
+        catch (const exception &e)
+        {
+            //
+            // If some of the tiles in the file cannot be read,
+            // print an error message, and return a partial image
+            // to the caller.
+            //
+
+            cerr << e.what() << endl;
+        }
+
+        for (int i = 0; i < dw * dh; ++i)
+        {
+            pixels[i].r = pixels[i].g;
+            pixels[i].b = pixels[i].g;
+        }
+    }
+    else
+    {
+        cerr << "Image file \"" << fileName << "\" part " << partnum << " "
+        "has no channel named \"" << channelName << "\"." << endl;
+
+        //
+        //no data for this channel
+        //
+        pixels.resizeErase (1);
+        header.dataWindow() = Box2i (V2i (0, 0), V2i (0, 0));
+    }
+}
+
+void
+loadDeepScanlineImage (MultiPartInputFile &inmaster,
+                       int partnum,
+                       int &zsize,
+                       Header &header,
+                       Array<Rgba> &pixels,
+                       Array<float*> &zbuffer,
+                       Array<unsigned int> &sampleCount)
+{
+    DeepScanLineInputPart in (inmaster, partnum);
     header = in.header();
 
     Box2i &dataWindow = header.dataWindow();
@@ -217,78 +527,201 @@ loadImageChannel (const char fileName[],
     int dx = dataWindow.min.x;
     int dy = dataWindow.min.y;
 
+    // display black right now
     pixels.resizeErase (dw * dh);
+    memset (pixels, 0, (dw * dh) * (sizeof(Rgba)));
 
-    for (int i = 0; i < dw * dh; ++i)
+    Array< half* > dataR;
+    Array< half* > dataG;
+    Array< half* > dataB;
+
+    Array< float* > zback;
+    Array< half* > alpha;
+
+    zsize = dw * dh;
+    zbuffer.resizeErase (zsize);
+    zback.resizeErase (zsize);
+    alpha.resizeErase (dw * dh);
+
+    dataR.resizeErase (dw * dh);
+    dataG.resizeErase (dw * dh);
+    dataB.resizeErase (dw * dh);
+    sampleCount.resizeErase (dw * dh);
+
+    int rgbflag = 0;
+    int deepCompflag = 0;
+
+    if (header.channels().findChannel ("R"))
     {
-	pixels[i].r = half::qNan();
-	pixels[i].g = half::qNan();
-	pixels[i].b = half::qNan();
+        rgbflag = 1;
+    }
+    else if (header.channels().findChannel ("B"))
+    {
+        rgbflag = 1;
+    }
+    else if (header.channels().findChannel ("G"))
+    {
+        rgbflag = 1;
     }
 
-    if (const Channel *ch = in.header().channels().findChannel (channelName))
+    if (header.channels().findChannel ("Z") &&
+        header.channels().findChannel ("A"))
     {
-	FrameBuffer fb;
+        deepCompflag = 1;
+    }
 
-	fb.insert (channelName,
-		   Slice (HALF,
-			  (char *) &pixels[-dx - dy * dw].g,
-			  sizeof (Rgba) * ch->xSampling,
-			  sizeof (Rgba) * ch->ySampling * dw,
-			  ch->xSampling,
-			  ch->ySampling));
+    DeepFrameBuffer fb;
 
-	in.setFrameBuffer (fb);
+    fb.insertSampleCountSlice (Slice (UINT,
+                                      (char *) (&sampleCount[0]
+                                                - dx- dy * dw),
+                                      sizeof (unsigned int) * 1,
+                                      sizeof (unsigned int) * dw));
+
+    fb.insert ("Z",
+               DeepSlice (FLOAT,
+                          (char *) (&zbuffer[0] - dx- dy * dw),
+                          sizeof (float *) * 1,    // xStride for pointer array
+                          sizeof (float *) * dw,   // yStride for pointer array
+                          sizeof (float) * 1));    // stride for z data sample
+    fb.insert ("ZBack",
+               DeepSlice (FLOAT,
+                          (char *) (&zback[0] - dx- dy * dw),
+                          sizeof (float *) * 1,    // xStride for pointer array
+                          sizeof (float *) * dw,   // yStride for pointer array
+                          sizeof (float) * 1));    // stride for z data sample
+
+    if (rgbflag)
+    {
+        fb.insert ("R",
+                   DeepSlice (HALF,
+                              (char *) (&dataR[0] - dx- dy * dw),
+                              sizeof (half *) * 1,
+                              sizeof (half *) * dw,
+                              sizeof (half) * 1));
+
+        fb.insert ("G",
+                   DeepSlice (HALF,
+                              (char *) (&dataG[0] - dx- dy * dw),
+                              sizeof (half *) * 1,
+                              sizeof (half *) * dw,
+                              sizeof (half) * 1));
+
+        fb.insert ("B",
+                   DeepSlice (HALF,
+                              (char *) (&dataB[0] - dx- dy * dw),
+                              sizeof (half *) * 1,
+                              sizeof (half *) * dw,
+                              sizeof (half) * 1));
+    }
+
+    fb.insert ("A",
+               DeepSlice (HALF,
+                          (char *) (&alpha[0] - dx- dy * dw),
+                          sizeof (half *) * 1,    // xStride for pointer array
+                          sizeof (half *) * dw,   // yStride for pointer array
+                          sizeof (half) * 1,      // stride for z data sample
+                          1, 1,                   // xSampling, ySampling
+                          1.0));                  // fillValue
+
+    in.setFrameBuffer (fb);
+
+    in.readPixelSampleCounts (dataWindow.min.y, dataWindow.max.y);
+
+    for (int i = 0; i < dh * dw; i++)
+    {
+        zbuffer[i] = new float[sampleCount[i]];
+        zback[i] = new float[sampleCount[i]];
+        alpha[i] = new half[sampleCount[i]];
+        if(rgbflag)
+        {
+            dataR[i] = new half[sampleCount[i]];
+            dataG[i] = new half[sampleCount[i]];
+            dataB[i] = new half[sampleCount[i]];
+        }
+    }
+
+    in.readPixels (dataWindow.min.y, dataWindow.max.y);
+
+
+    if (deepCompflag)
+    {
+        //
+        //try deep compositing
+        //
+        CompositeDeepScanLine comp;
+        comp.addSource (&in);
+
+        FrameBuffer fbuffer;
+        Rgba *base = pixels - dx - dy * dw;
+        size_t xs = 1 * sizeof (Rgba);
+        size_t ys = dw * sizeof (Rgba);
+
+        fbuffer.insert ("R",
+                   Slice (HALF,
+                          (char *) &base[0].r,
+                          xs, ys,
+                          1, 1,     // xSampling, ySampling
+                          0.0));    // fillValue
+
+        fbuffer.insert ("G",
+                   Slice (HALF,
+                          (char *) &base[0].g,
+                          xs, ys,
+                          1, 1,     // xSampling, ySampling
+                          0.0));    // fillValue
+
+        fbuffer.insert ("B",
+                   Slice (HALF,
+                          (char *) &base[0].b,
+                          xs, ys,
+                          1, 1,     // xSampling, ySampling
+                          0.0));    // fillValue
+
+        fbuffer.insert ("A",
+                   Slice (HALF,
+                          (char *) &base[0].a,
+                          xs, ys,
+                          1, 1,             // xSampling, ySampling
+                          1.0));    // fillValue
+        comp.setFrameBuffer (fbuffer);
+        comp.readPixels (dataWindow.min.y, dataWindow.max.y);
     }
     else
     {
-	cerr << "Image file \"" << fileName << "\" has no "
-		"channel named \"" << channelName << "\"." << endl;
-	return;
+        for (int i = 0; i < dh * dw; i++)
+        {
+            if (sampleCount[i] > 0){
+                if (rgbflag)
+                {
+                    pixels[i].r = dataR[i][0] * zbuffer[i][0];
+                    pixels[i].g = dataG[i][0] * zbuffer[i][0];
+                    pixels[i].b = dataB[i][0] * zbuffer[i][0];
+                }
+                else
+                {
+                    pixels[i].r = zbuffer[i][0];
+                    pixels[i].g = pixels[i].r;
+                    pixels[i].b = pixels[i].r;
+                }
+            }
+        }
     }
 
-    try
-    {
-	in.readPixels (dataWindow.min.y, dataWindow.max.y);
-    }
-    catch (const exception &e)
-    {
-	//
-	// If some of the pixels in the file cannot be read,
-	// print an error message, and return a partial image
-	// to the caller.
-	//
-
-	cerr << e.what() << endl;
-    }
-
-    for (int i = 0; i < dw * dh; ++i)
-    {
-	pixels[i].r = pixels[i].g;
-	pixels[i].b = pixels[i].g;
-    }
 }
 
 
 void
-loadTiledImageChannel (const char fileName[],
-		       const char channelName[],
-		       int lx,
-		       int ly,
-		       Header &header,
-		       Array<Rgba> &pixels)
+loadDeepTileImage (MultiPartInputFile &inmaster,
+                   int partnum,
+                   int &zsize,
+                   Header &header,
+                   Array<Rgba> &pixels,
+                   Array<float*> &zbuffer,
+                   Array<unsigned int> &sampleCount)
 {
-    TiledInputFile in (fileName);
-
-    if (!in.isValidLevel (lx, ly))
-    {
-	THROW (Iex::InputExc, "Level (" << lx << ", " << ly << ") does "
-			      "not exist in file " << fileName << ".");
-    }
-
+    DeepTiledInputPart in (inmaster, partnum);
     header = in.header();
-    header.dataWindow() = in.dataWindowForLevel (lx, ly);
-    header.displayWindow() = header.dataWindow();
 
     Box2i &dataWindow = header.dataWindow();
     int dw = dataWindow.max.x - dataWindow.min.x + 1;
@@ -296,131 +729,251 @@ loadTiledImageChannel (const char fileName[],
     int dx = dataWindow.min.x;
     int dy = dataWindow.min.y;
 
+    // display black right now
     pixels.resizeErase (dw * dh);
+    memset(pixels, 0, (dw * dh) * (sizeof(Rgba)));
 
-    for (int i = 0; i < dw * dh; ++i)
+    Array< half* > dataR;
+    Array< half* > dataG;
+    Array< half* > dataB;
+
+    Array< float* > zback;
+    Array< half* > alpha;
+
+    zsize = dw * dh;
+    zbuffer.resizeErase (zsize);
+    zback.resizeErase (zsize);
+    alpha.resizeErase (dw * dh);
+
+    dataR.resizeErase (dw * dh);
+    dataG.resizeErase (dw * dh);
+    dataB.resizeErase (dw * dh);
+    sampleCount.resizeErase (dw * dh);
+
+    int rgbflag = 0;
+    int deepCompflag = 0;
+
+    if (header.channels().findChannel ("R"))
     {
-	pixels[i].r = half::qNan();
-	pixels[i].g = half::qNan();
-	pixels[i].b = half::qNan();
+        rgbflag = 1;
+    }
+    else if (header.channels().findChannel ("B"))
+    {
+        rgbflag = 1;
+    }
+    else if (header.channels().findChannel ("G"))
+    {
+        rgbflag = 1;
     }
 
-    if (const Channel *ch = in.header().channels().findChannel (channelName))
+    if (header.channels().findChannel ("Z") &&
+        header.channels().findChannel ("A"))
     {
-	FrameBuffer fb;
+        deepCompflag = 1;
+    }
 
-	fb.insert (channelName,
-		   Slice (HALF,
-			  (char *) &pixels[-dx - dy * dw].g,
-			  sizeof (Rgba) * ch->xSampling,
-			  sizeof (Rgba) * ch->ySampling * dw,
-			  ch->xSampling,
-			  ch->ySampling));
+    DeepFrameBuffer fb;
 
-	in.setFrameBuffer (fb);
+    fb.insertSampleCountSlice (Slice (UINT,
+                                      (char *) (&sampleCount[0]
+                                                - dx- dy * dw),
+                                      sizeof (unsigned int) * 1,
+                                      sizeof (unsigned int) * dw));
+
+    fb.insert ("Z",
+               DeepSlice (FLOAT,
+                          (char *) (&zbuffer[0] - dx- dy * dw),
+                          sizeof (float *) * 1,    // xStride for pointer array
+                          sizeof (float *) * dw,   // yStride for pointer array
+                          sizeof (float) * 1));    // stride for z data sample
+    fb.insert ("ZBack",
+               DeepSlice (FLOAT,
+                          (char *) (&zback[0] - dx- dy * dw),
+                          sizeof (float *) * 1,    // xStride for pointer array
+                          sizeof (float *) * dw,   // yStride for pointer array
+                          sizeof (float) * 1));    // stride for z data sample
+
+    if (rgbflag)
+    {
+        fb.insert ("R",
+                   DeepSlice (HALF,
+                              (char *) (&dataR[0] - dx- dy * dw),
+                              sizeof (half *) * 1,
+                              sizeof (half *) * dw,
+                              sizeof (half) * 1));
+
+        fb.insert ("G",
+                   DeepSlice (HALF,
+                              (char *) (&dataG[0] - dx- dy * dw),
+                              sizeof (half *) * 1,
+                              sizeof (half *) * dw,
+                              sizeof (half) * 1));
+
+        fb.insert ("B",
+                   DeepSlice (HALF,
+                              (char *) (&dataB[0] - dx- dy * dw),
+                              sizeof (half *) * 1,
+                              sizeof (half *) * dw,
+                              sizeof (half) * 1));
+
+
+    }
+
+    fb.insert ("A",
+               DeepSlice (HALF,
+                          (char *) (&alpha[0] - dx- dy * dw),
+                          sizeof (half *) * 1,    // xStride for pointer array
+                          sizeof (half *) * dw,   // yStride for pointer array
+                          sizeof (half) * 1,      // stride for z data sample
+                          1, 1,                   // xSampling, ySampling
+                          1.0));                  // fillValue
+
+    in.setFrameBuffer (fb);
+
+    int numXTiles = in.numXTiles(0);
+    int numYTiles = in.numYTiles(0);
+
+    in.readPixelSampleCounts (0, numXTiles - 1, 0, numYTiles - 1);
+
+    for (int i = 0; i < dh * dw; i++)
+    {
+        zbuffer[i] = new float[sampleCount[i]];
+        zback[i] = new float[sampleCount[i]];
+        alpha[i] = new half[sampleCount[i]];
+        if (rgbflag)
+        {
+            dataR[i] = new half[sampleCount[i]];
+            dataG[i] = new half[sampleCount[i]];
+            dataB[i] = new half[sampleCount[i]];
+        }
+    }
+
+    in.readTiles (0, numXTiles - 1, 0, numYTiles - 1);
+
+    //
+    // ToDo deep compositing Tile
+    //
+    deepCompflag = 0; //temporary
+
+    if (deepCompflag)
+    {
+        //
+        // try deep compositing
+        //
+        ;
+
     }
     else
     {
-	cerr << "Image file \"" << fileName << "\" has no "
-		"channel named \"" << channelName << "\"." << endl;
-	return;
+        for (int i = 0; i < dh * dw; i++)
+        {
+            if (sampleCount[i] > 0){
+                if (rgbflag)
+                {
+                    pixels[i].r = dataR[i][0] * zbuffer[i][0];
+                    pixels[i].g = dataG[i][0] * zbuffer[i][0];
+                    pixels[i].b = dataB[i][0] * zbuffer[i][0];
+                }
+                else
+                {
+                    pixels[i].r = zbuffer[i][0];
+                    pixels[i].g = pixels[i].r;
+                    pixels[i].b = pixels[i].r;
+                }
+            }
+        }
     }
 
-    try
-    {
-	int tx = in.numXTiles (lx);
-	int ty = in.numYTiles (ly);
-
-	//
-	// For maximum speed, try to read the tiles in
-	// the same order as they are stored in the file.
-	//
-
-	if (in.header().lineOrder() == INCREASING_Y)
-	{
-	    for (int y = 0; y < ty; ++y)
-		for (int x = 0; x < tx; ++x)
-		    in.readTile (x, y, lx, ly);
-	}
-	else
-	{
-	    for (int y = ty - 1; y >= 0; --y)
-		for (int x = 0; x < tx; ++x)
-		    in.readTile (x, y, lx, ly);
-	}
-    }
-    catch (const exception &e)
-    {
-	//
-	// If some of the tiles in the file cannot be read,
-	// print an error message, and return a partial image
-	// to the caller.
-	//
-
-	cerr << e.what() << endl;
-    }
-
-    for (int i = 0; i < dw * dh; ++i)
-    {
-	pixels[i].r = pixels[i].g;
-	pixels[i].b = pixels[i].g;
-    }
 }
-
 
 } // namespace
 
 
 void
 loadImage (const char fileName[],
-	   const char channel[],
-	   const char layer[],
-	   bool preview,
-	   int lx,
-	   int ly,
-	   Header &header,
-	   Array<Rgba> &pixels)
+           const char channel[],
+           const char layer[],
+           bool preview,
+           int lx,
+           int ly,
+           int partnum,
+           int &zsize,
+           Header &header,
+           Array<Rgba> &pixels,
+           Array<float*>  &zbuffer,
+           Array<unsigned int> &sampleCount)
 {
-    if (preview)
+    zsize = 0;
+
+    MultiPartInputFile inmaster (fileName);
+    Header h = inmaster.header(partnum);
+    std::string  type = h.type();
+
+    if (type == "deeptile")
     {
-	loadPreviewImage (fileName,
-			  header,
-			  pixels);
+        loadDeepTileImage(inmaster,
+                          partnum,
+                          zsize,
+                          header,
+                          pixels,
+                          zbuffer,
+                          sampleCount);
+    }
+    else if(type == "deepscanline")
+    {
+        loadDeepScanlineImage(inmaster,
+                              partnum,
+                              zsize,
+                              header,
+                              pixels,
+                              zbuffer,
+                              sampleCount);
+    }
+
+
+    else if (preview)
+    {
+        loadPreviewImage (fileName, partnum, header, pixels);
     }
     else if (lx >= 0 || ly >= 0)
     {
-	if (channel)
-	{
-	    loadTiledImageChannel (fileName,
-				   channel,
-				   lx, ly,
-				   header,
-				   pixels);
-	}
-	else
-	{
-	    loadTiledImage (fileName,
-			    layer,
-			    lx, ly,
-			    header,
-			    pixels);
-	}
+        if (channel)
+        {
+            loadTiledImageChannel (fileName,
+                                   channel,
+                                   lx, ly,
+                                   partnum,
+                                   header,
+                                   pixels);
+        }
+        else
+        {
+            loadTiledImage (fileName,
+                            layer,
+                            lx, ly,
+                            partnum,
+                            header,
+                            pixels);
+        }
     }
     else
     {
-	if (channel)
-	{
-	    loadImageChannel (fileName,
-			      channel,
-			      header,
-			      pixels);
-	}
-	else
-	{
-	    loadImage (fileName,
-		       layer,
-		       header,
-		       pixels);
-	}
+        if (channel)
+        {
+
+            loadImageChannel (fileName,
+                              channel,
+                              partnum,
+                              header,
+                              pixels);
+        }
+        else
+        {
+            loadImage (fileName,
+                       layer,
+                       partnum,
+                       header,
+                       pixels);
+        }
     }
 }

@@ -43,7 +43,7 @@
 
 namespace PyImath {
 
-template <class T> boost::python::class_<Imath::Line3<T> > register_Line();
+template <class T> boost::python::class_<IMATH_NAMESPACE::Line3<T> > register_Line();
 
 //
 
@@ -57,36 +57,36 @@ template <class T> boost::python::class_<Imath::Line3<T> > register_Line();
 template <class T>
 class L3 {
   public:
-    static PyObject *	wrap (const Imath::Line3<T> &l);
-    static int		convert (PyObject *p, Imath::Line3<T> *l);
+    static PyObject *	wrap (const IMATH_NAMESPACE::Line3<T> &l);
+    static int		convert (PyObject *p, IMATH_NAMESPACE::Line3<T> *l);
 };
 
 template <class T>
 PyObject *
-L3<T>::wrap (const Imath::Line3<T> &l)
+L3<T>::wrap (const IMATH_NAMESPACE::Line3<T> &l)
 {
-    typename boost::python::return_by_value::apply < Imath::Line3<T> >::type converter;
+    typename boost::python::return_by_value::apply < IMATH_NAMESPACE::Line3<T> >::type converter;
     PyObject *p = converter (l);
     return p;
 }
 
 template <class T>
 int
-L3<T>::convert (PyObject *p, Imath::Line3<T> *l)
+L3<T>::convert (PyObject *p, IMATH_NAMESPACE::Line3<T> *l)
 {
-    boost::python::extract <Imath::Line3f> extractorLf (p);
+    boost::python::extract <IMATH_NAMESPACE::Line3f> extractorLf (p);
     if (extractorLf.check())
     {
-        Imath::Line3f e = extractorLf();
+        IMATH_NAMESPACE::Line3f e = extractorLf();
         l->pos.setValue (e.pos);
         l->dir.setValue (e.dir);
         return 1;
     }
 
-    boost::python::extract <Imath::Line3d> extractorLd (p);
+    boost::python::extract <IMATH_NAMESPACE::Line3d> extractorLd (p);
     if (extractorLd.check())
     {
-        Imath::Line3d e = extractorLd();
+        IMATH_NAMESPACE::Line3d e = extractorLd();
         l->pos.setValue (e.pos);
         l->dir.setValue (e.dir);
         return 1;

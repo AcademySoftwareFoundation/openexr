@@ -42,8 +42,9 @@
 #include "ImathExport.h"
 #include "ImathMath.h"
 #include "ImathLimits.h"
+#include "ImathNamespace.h"
 
-namespace Imath {
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 //
@@ -252,6 +253,6 @@ packed2rgb(PackedColor packed, Color4<T> &out)
 }
 
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif  
+#endif // INCLUDED_IMATHCOLORALGO_H

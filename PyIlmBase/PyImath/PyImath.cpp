@@ -36,21 +36,15 @@
 #include <PyIex.h>
 #include <PyImathExport.h>
 
-namespace PyIex {
-
-PY_DEFINE_EXC(Imath::NullVecExc,imath,NullVecExc);
-PY_DEFINE_EXC(Imath::NullQuatExc,imath,NullQuatExc);
-PY_DEFINE_EXC(Imath::SingMatrixExc,imath,SingMatrixExc);
-PY_DEFINE_EXC(Imath::ZeroScaleExc,imath,ZeroScaleExc);
-PY_DEFINE_EXC(Imath::IntVecNormalizeExc,imath,IntVecNormalizeExc);
-
-}
-
 namespace PyImath {
 
+template <> PYIMATH_EXPORT const char * BoolArray::name()         { return "BoolArray"; }
+template <> PYIMATH_EXPORT const char * SignedCharArray::name()   { return "SignedCharArray"; }
 template <> PYIMATH_EXPORT const char * UnsignedCharArray::name() { return "UnsignedCharArray"; }
 template <> PYIMATH_EXPORT const char * ShortArray::name()        { return "ShortArray"; }
+template <> PYIMATH_EXPORT const char * UnsignedShortArray::name(){ return "UnsignedShortArray"; }
 template <> PYIMATH_EXPORT const char * IntArray::name()          { return "IntArray"; }
+template <> PYIMATH_EXPORT const char * UnsignedIntArray::name()  { return "UnsignedIntArray"; }
 template <> PYIMATH_EXPORT const char * FloatArray::name()        { return "FloatArray"; }
 template <> PYIMATH_EXPORT const char * DoubleArray::name()       { return "DoubleArray"; }
 

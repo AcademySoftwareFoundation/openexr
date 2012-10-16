@@ -41,21 +41,21 @@
 //	OpenEXR image files with an arbitrary set of channels.
 //
 //-----------------------------------------------------------------------------
-
-
 #include <ImfTiledOutputFile.h>
 #include <ImfTiledInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfStringAttribute.h>
 #include <ImfMatrixAttribute.h>
 #include <ImfArray.h>
-#include <drawImage.h>
+
+#include "drawImage.h"
 
 #include <iostream>
 
+#include "namespaceAlias.h"
+using namespace CustomImf;
 using namespace std;
-using namespace Imf;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 
 void

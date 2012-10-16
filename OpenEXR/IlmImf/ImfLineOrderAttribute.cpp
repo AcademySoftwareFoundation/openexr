@@ -41,11 +41,12 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfLineOrderAttribute.h>
+#include "ImfLineOrderAttribute.h"
 
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
+using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 
 template <>
 const char *
@@ -57,7 +58,7 @@ LineOrderAttribute::staticTypeName ()
 
 template <>
 void
-LineOrderAttribute::writeValueTo (OStream &os, int version) const
+LineOrderAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
     unsigned char tmp = _value;
     Xdr::write <StreamIO> (os, tmp);
@@ -66,7 +67,7 @@ LineOrderAttribute::writeValueTo (OStream &os, int version) const
 
 template <>
 void
-LineOrderAttribute::readValueFrom (IStream &is, int size, int version)
+LineOrderAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
     unsigned char tmp;
     Xdr::read <StreamIO> (is, tmp);
@@ -74,4 +75,4 @@ LineOrderAttribute::readValueFrom (IStream &is, int size, int version)
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 

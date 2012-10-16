@@ -33,7 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include "OpenEXRConfig.h"
+#include "ImfNamespace.h"
 #include <testFuzzScanLines.h>
 #include <testFuzzTiles.h>
 
@@ -41,7 +41,7 @@
 #include <iostream>
 #include <string.h>
 
-#ifdef HAVE_LINUX_PROCFS
+#ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
     #include <unistd.h>
     #include <sstream>
 #endif
@@ -54,22 +54,19 @@ main (int argc, char *argv[])
     TEST (testFuzzScanLines);
     TEST (testFuzzTiles);
 
-    #ifdef HAVE_LINUX_PROCFS
+#ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
 
-	//
-	// Allow the user to check for file descriptor leaks
-	//
+    //
+    // Allow the user to check for file descriptor leaks
+    //
 
-	std::cout << "open file descriptors:" << std::endl;
+    std::cout << "open file descriptors:" << std::endl;
 
-	std::stringstream ss;
-	ss << "ls -lG /proc/" << getpid() << "/fd";
-	
-	system (ss.str().c_str());
+    std::stringstream ss;
+    ss << "ls -lG /proc/" << getpid() << "/fd";
 
-	std::cout << std::endl;
-
-    #endif
+    system (ss.str().c_str());
+#endif
 
     return 0;
 }

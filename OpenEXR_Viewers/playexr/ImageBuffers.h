@@ -118,7 +118,7 @@ class ImageBuffers
     // i must be in the range from 0 to numBuffers()-1
     //------------------------------------------------
 
-    Imf::FrameBuffer &		frameBuffer (int i);
+    OPENEXR_IMF_NAMESPACE::FrameBuffer & frameBuffer (int i);
 
 
     //------------------------------------------------
@@ -142,23 +142,23 @@ class ImageBuffers
     // Data window for all frames
     //---------------------------
 
-    Imath::Box2i		dataWindow;
+    IMATH_NAMESPACE::Box2i		dataWindow;
 
 
     //-----------
     // Semaphores
     //-----------
 
-    IlmThread::Semaphore	emptyBuffersSemaphore;
-    IlmThread::Semaphore	fullBuffersSemaphore;
-    IlmThread::Semaphore	exitSemaphore1;
-    IlmThread::Semaphore	exitSemaphore2;
+    ILMTHREAD_NAMESPACE::Semaphore	emptyBuffersSemaphore;
+    ILMTHREAD_NAMESPACE::Semaphore	fullBuffersSemaphore;
+    ILMTHREAD_NAMESPACE::Semaphore	exitSemaphore1;
+    ILMTHREAD_NAMESPACE::Semaphore	exitSemaphore2;
 	 
   private:
 
     static const int NUM_BUFFERS = 3;
 
-    Imf::FrameBuffer		_frameBuffers[NUM_BUFFERS];
+    OPENEXR_IMF_NAMESPACE::FrameBuffer	_frameBuffers[NUM_BUFFERS];
     char *			_pixels[NUM_BUFFERS][3];
     int				_frameNumbers[NUM_BUFFERS];
 };

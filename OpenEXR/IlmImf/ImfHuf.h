@@ -37,7 +37,8 @@
 #ifndef INCLUDED_IMF_HUF_H
 #define INCLUDED_IMF_HUF_H
 
-#include <ImfExport.h>
+#include "ImfExport.h"
+#include "ImfNamespace.h"
 
 //-----------------------------------------------------------------------------
 //
@@ -59,7 +60,7 @@
 //
 //-----------------------------------------------------------------------------
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 IMF_EXPORT 
@@ -76,6 +77,6 @@ hufUncompress (const char compressed[/*nCompressed*/],
 	       int nRaw);
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

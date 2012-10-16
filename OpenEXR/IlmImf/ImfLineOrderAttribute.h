@@ -43,24 +43,30 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfAttribute.h>
-#include <ImfLineOrder.h>
-#include <ImfExport.h>
+#include "ImfAttribute.h"
+#include "ImfLineOrder.h"
+#include "ImfExport.h"
 
-namespace Imf {
-
-
-typedef TypedAttribute<LineOrder> LineOrderAttribute;
-template <> IMF_EXPORT const char *LineOrderAttribute::staticTypeName ();
-template <> IMF_EXPORT void LineOrderAttribute::writeValueTo (OStream &, int) const;
-template <> IMF_EXPORT void LineOrderAttribute::readValueFrom (IStream &, int, int);
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-} // namespace Imf
+typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::LineOrder> LineOrderAttribute;
 
-// Metrowerks compiler wants the .cpp file inlined, too
-#ifdef __MWERKS__
-#include <ImfLineOrderAttribute.cpp>
-#endif
+template <> 
+IMF_EXPORT 
+const char *LineOrderAttribute::staticTypeName ();
+
+template <> 
+IMF_EXPORT 
+void LineOrderAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
+                                       int) const;
+
+template <> 
+IMF_EXPORT 
+void LineOrderAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
+                                        int, int);
+
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

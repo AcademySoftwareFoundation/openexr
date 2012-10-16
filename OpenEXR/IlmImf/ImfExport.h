@@ -32,27 +32,15 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef IMF_EXPORT
-#    if defined(OPENEXR_DLL) || defined(IMF_SYMBOL_VISIBILITY)
-#        if defined(IMF_EXPORTS) || defined(ILMIMF_EXPORTS)
-#            if defined(IMF_SYMBOL_VISIBILITY)
-#               define IMF_EXPORT __attribute__((visibility("default")))
-#               define IMF_EXPORT_CONST extern __attribute__((visibility("default"))) const
-#            else
-#               define IMF_EXPORT __declspec(dllexport)
-#               define IMF_EXPORT_CONST extern __declspec(dllexport)
-#            endif
-#       else
-#           if defined(IMF_SYMBOL_VISIBILITY)
-#               define IMF_EXPORT
-#           else
-#               define IMF_EXPORT __declspec(dllimport)
-#               define IMF_EXPORT_CONST extern __declspec(dllimport)
-#           endif
-#       endif
-#    else
-#       define IMF_EXPORT
-#       define IMF_EXPORT_CONST extern const
-#    endif
+#if defined(OPENEXR_DLL)
+    #if defined(ILMIMF_EXPORTS)
+	    #define IMF_EXPORT __declspec(dllexport)
+        #define IMF_EXPORT_CONST extern __declspec(dllexport)
+    #else
+	    #define IMF_EXPORT __declspec(dllimport)
+	    #define IMF_EXPORT_CONST extern __declspec(dllimport)
+    #endif
+#else
+    #define IMF_EXPORT
+    #define IMF_EXPORT_CONST extern const
 #endif
-

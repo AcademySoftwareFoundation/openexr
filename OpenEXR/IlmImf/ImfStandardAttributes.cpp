@@ -85,13 +85,14 @@
 	return name##Attribute(header).value();				 \
     }
 
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
    
 IMF_STD_ATTRIBUTE_IMP (chromaticities, Chromaticities, Chromaticities)
 IMF_STD_ATTRIBUTE_IMP (whiteLuminance, WhiteLuminance, float)
-IMF_STD_ATTRIBUTE_IMP (adoptedNeutral, AdoptedNeutral, Imath::V2f)
+IMF_STD_ATTRIBUTE_IMP (adoptedNeutral, AdoptedNeutral, IMATH_NAMESPACE::V2f)
 IMF_STD_ATTRIBUTE_IMP (renderingTransform, RenderingTransform, std::string)
 IMF_STD_ATTRIBUTE_IMP (lookModTransform, LookModTransform, std::string)
 IMF_STD_ATTRIBUTE_IMP (xDensity, XDensity, float)
@@ -112,7 +113,7 @@ IMF_STD_ATTRIBUTE_IMP (timeCode, TimeCode, TimeCode)
 IMF_STD_ATTRIBUTE_IMP (wrapmodes, Wrapmodes, std::string)
 IMF_STD_ATTRIBUTE_IMP (framesPerSecond, FramesPerSecond, Rational)
 IMF_STD_ATTRIBUTE_IMP (multiView, MultiView, StringVector)
-IMF_STD_ATTRIBUTE_IMP (worldToCamera, WorldToCamera, Imath::M44f)
-IMF_STD_ATTRIBUTE_IMP (worldToNDC, WorldToNDC, Imath::M44f)
+IMF_STD_ATTRIBUTE_IMP (worldToCamera, WorldToCamera, IMATH_NAMESPACE::M44f)
+IMF_STD_ATTRIBUTE_IMP (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

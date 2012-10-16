@@ -38,6 +38,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <stdio.h>
 #include <ctlToLut.h>
 
 #if HAVE_CTL_INTERPRETER
@@ -53,8 +54,9 @@
 
     using namespace std;
     using namespace Ctl;
-    using namespace Imf;
-    using namespace Imath;
+    
+    using namespace OPENEXR_IMF_NAMESPACE;
+    using namespace IMATH_NAMESPACE;
 
 #else
 
@@ -65,8 +67,9 @@
     #include <iostream>
 
     using namespace std;
-    using namespace Imf;
-    using namespace Imath;
+    
+    using namespace OPENEXR_IMF_NAMESPACE;
+    using namespace IMATH_NAMESPACE;
 
 #endif
 
@@ -374,8 +377,9 @@ ctlToLut (vector<string> transformNames,
 
 
 using namespace std;
-using namespace Imf;
-using namespace Imath;
+
+using namespace OPENEXR_IMF_NAMESPACE;
+using namespace IMATH_NAMESPACE;
 
 
 #define WARNING(message) (cerr << "Warning: " << message << endl)

@@ -1,3 +1,6 @@
+#ifndef IEXEXPORT_H
+#define IEXEXPORT_H
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
@@ -32,22 +35,30 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef IEX_EXPORT
-#    if defined(OPENEXR_DLL) || defined(IEX_SYMBOL_VISIBILITY)
-#        if defined(IEX_EXPORTS)
-#            if defined(IEX_SYMBOL_VISIBILITY)
-#               define IEX_EXPORT __attribute__((visibility("default")))
-#            else
-#               define IEX_EXPORT __declspec(dllexport)
-#            endif
-#       else
-#           if defined(IEX_SYMBOL_VISIBILITY)
-#               define IEX_EXPORT
-#           else
-#               define IEX_EXPORT __declspec(dllimport)
-#           endif
-#       endif
-#    else
-#       define IEX_EXPORT
-#    endif
+
+#if defined(PLATFORM_WINDOWS)
+#  if defined(PLATFORM_BUILD_STATIC)
+#    define IEX_EXPORT_DEFINITION 
+#    define IEX_IMPORT_DEFINITION
+#  else
+#    define IEX_EXPORT_DEFINITION __declspec(dllexport) 
+#    define IEX_IMPORT_DEFINITION __declspec(dllimport)
+#  endif
+#else   // linux/macos
+#  if defined(PLATFORM_VISIBILITY_AVAILABLE)
+#    define IEX_EXPORT_DEFINITION __attribute__((visibility("default")))
+#    define IEX_IMPORT_DEFINITION
+#  else
+#    define IEX_EXPORT_DEFINITION 
+#    define IEX_IMPORT_DEFINITION
+#  endif
 #endif
+
+#if defined(IEX_EXPORTS)                          // create library
+#  define IEX_EXPORT IEX_EXPORT_DEFINITION
+#else                                              // use library
+#  define IEX_EXPORT IEX_IMPORT_DEFINITION
+#endif
+
+#endif // #ifndef IEXEXPORT_H
+

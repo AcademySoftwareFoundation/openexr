@@ -41,8 +41,9 @@
 
 #include <ImfKeyCodeAttribute.h>
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
+using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 
 template <>
 const char *
@@ -54,7 +55,7 @@ KeyCodeAttribute::staticTypeName ()
 
 template <>
 void
-KeyCodeAttribute::writeValueTo (OStream &os, int version) const
+KeyCodeAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value.filmMfcCode());
     Xdr::write <StreamIO> (os, _value.filmType());
@@ -68,7 +69,7 @@ KeyCodeAttribute::writeValueTo (OStream &os, int version) const
 
 template <>
 void
-KeyCodeAttribute::readValueFrom (IStream &is, int size, int version)
+KeyCodeAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
     int tmp;
 
@@ -95,4 +96,4 @@ KeyCodeAttribute::readValueFrom (IStream &is, int size, int version)
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 

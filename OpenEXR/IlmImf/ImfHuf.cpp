@@ -55,9 +55,11 @@
 
 
 using namespace std;
-using namespace Iex;
+using namespace IEX_NAMESPACE;
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
+
 namespace {
 
 
@@ -568,7 +570,7 @@ hufUnpackEncTable
 	}
     }
 
-    *pcode = (char *) p;
+    *pcode = const_cast<char *>(p);
 
     hufCanonicalCodeTable (hcode);
 }
@@ -1083,4 +1085,4 @@ hufUncompress (const char compressed[],
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

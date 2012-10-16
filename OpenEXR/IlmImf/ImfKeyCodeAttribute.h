@@ -43,14 +43,15 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfAttribute.h>
-#include <ImfKeyCode.h>
-#include <ImfExport.h>
-
-namespace Imf {
+#include "ImfAttribute.h"
+#include "ImfKeyCode.h"
+#include "ImfExport.h"
 
 
-typedef TypedAttribute<KeyCode> KeyCodeAttribute;
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
+
+
+typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::KeyCode> KeyCodeAttribute;
 
 template <>
 IMF_EXPORT
@@ -58,18 +59,15 @@ const char *KeyCodeAttribute::staticTypeName ();
 
 template <>
 IMF_EXPORT
-void KeyCodeAttribute::writeValueTo (OStream &, int) const;
+void KeyCodeAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
+                                     int) const;
 
 template <>
 IMF_EXPORT
-void KeyCodeAttribute::readValueFrom (IStream &, int, int);
+void KeyCodeAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
+                                      int, int);
 
 
-} // namespace Imf
-
-// Metrowerks compiler wants the .cpp file inlined, too
-#ifdef __MWERKS__
-#include <ImfKeyCodeAttribute.cpp>
-#endif
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

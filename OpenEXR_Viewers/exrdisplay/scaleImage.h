@@ -46,6 +46,7 @@
 #include <ImfArray.h>
 
 
+
 //
 // Scale an image horizontally or vertically, by a factor of
 // approximately f (f is adjusted slightly so that the corners
@@ -69,20 +70,21 @@ void	scaleX (float f,
 		int &w, int &h,
 		int &dw, int &dh,
 		int &dx, int &dy,
-		Imf::Array<Imf::Rgba> &pixels);
+		OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &pixels);
 
 void	scaleY (float f, 
 		int &w, int &h, 
 		int &dw, int &dh,
 		int &dx, int &dy,
-		Imf::Array<Imf::Rgba> &pixels);
+		OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &pixels);
 
 //
 // Normalize the pixel values in an image so that the smallest
 // value becomes 0.0 and the largest value becomes 1.0.
 //
 
-void	normalizePixels (int dw, int dh, Imf::Array<Imf::Rgba> &pixels);
+void	normalizePixels (int dw, int dh,
+    	                 OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &pixels);
 
 
 //
@@ -91,7 +93,8 @@ void	normalizePixels (int dw, int dh, Imf::Array<Imf::Rgba> &pixels);
 // end up in the center.
 //
 
-void	swapPixels (int dw, int dh, Imf::Array<Imf::Rgba> &pixels);
+void	swapPixels (int dw, int dh,
+    	            OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &pixels);
 
 
 #endif

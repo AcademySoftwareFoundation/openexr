@@ -40,14 +40,20 @@
 //
 //---------------------------------------------------------------------
 
+#include "IexExport.h"
 #include "IexBaseExc.h"
+#include "IexMacros.h"
 
-namespace Iex {
+#ifdef PLATFORM_WINDOWS
+#include <windows.h>
+#endif
+
+IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
+
+
 namespace {
 
-
 StackTracer currentStackTracer = 0;
-
 
 } // namespace
 
@@ -67,7 +73,7 @@ stackTracer ()
 
 
 BaseExc::BaseExc (const char* s) throw () :
-    _str (s? s: ""),
+    std::string (s? s: ""),
     _stackTrace (currentStackTracer? currentStackTracer(): "")
 {
     // empty
@@ -75,7 +81,7 @@ BaseExc::BaseExc (const char* s) throw () :
 
 
 BaseExc::BaseExc (const std::string &s) throw () :
-    _str (s),
+    std::string (s),
     _stackTrace (currentStackTracer? currentStackTracer(): "")
 {
     // empty
@@ -83,7 +89,7 @@ BaseExc::BaseExc (const std::string &s) throw () :
 
 
 BaseExc::BaseExc (std::stringstream &s) throw () :
-    _str (s.str()),
+    std::string (s.str()),
     _stackTrace (currentStackTracer? currentStackTracer(): "")
 {
     // empty
@@ -91,7 +97,7 @@ BaseExc::BaseExc (std::stringstream &s) throw () :
 
 
 BaseExc::BaseExc (const BaseExc &be) throw () :
-    _str (be._str),
+    std::string (be),
     _stackTrace (be._stackTrace)
 {
     // empty
@@ -107,23 +113,40 @@ BaseExc::~BaseExc () throw ()
 const char *
 BaseExc::what () const throw ()
 {
-    return _str.c_str();
+    return c_str();
 }
 
 
 BaseExc &
 BaseExc::assign (std::stringstream &s)
 {
-    _str.assign (s.str());
+    std::string::assign (s.str());
     return *this;
 }
 
 BaseExc &
 BaseExc::append (std::stringstream &s)
 {
-    _str.append (s.str());
+    std::string::append (s.str());
     return *this;
 }
 
+IEX_INTERNAL_NAMESPACE_SOURCE_EXIT
 
-} // namespace Iex
+
+#ifdef PLATFORM_WINDOWS
+
+#pragma optimize("", off)
+void
+iex_debugTrap()
+{
+    if (0 != getenv("IEXDEBUGTHROW"))
+        DebugBreak();
+}
+#else
+void
+iex_debugTrap()
+{
+    // how to in Linux?
+}
+#endif

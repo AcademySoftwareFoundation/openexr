@@ -43,14 +43,13 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfAttribute.h>
-#include <ImfTimeCode.h>
+#include "ImfAttribute.h"
+#include "ImfTimeCode.h"
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-namespace Imf {
-
-
-typedef TypedAttribute<TimeCode> TimeCodeAttribute;
+typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::TimeCode> TimeCodeAttribute;
 
 template <>
 IMF_EXPORT
@@ -58,18 +57,18 @@ const char *TimeCodeAttribute::staticTypeName ();
 
 template <>
 IMF_EXPORT
-void TimeCodeAttribute::writeValueTo (OStream &, int) const;
+void TimeCodeAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
+                                      int) const;
 
 template <>
 IMF_EXPORT
-void TimeCodeAttribute::readValueFrom (IStream &, int, int);
+void TimeCodeAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
+                                       int, int);
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
-// Metrowerks compiler wants the .cpp file inlined, too
-#ifdef __MWERKS__
-#include <ImfTimeCodeAttribute.cpp>
-#endif
+
+
 
 #endif

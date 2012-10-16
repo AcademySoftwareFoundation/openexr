@@ -32,27 +32,15 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-
-#ifndef IMATH_EXPORT
-#    if defined(OPENEXR_DLL) || defined(IMATH_SYMBOL_VISIBILITY)
-#        if defined(IMATH_EXPORTS)
-#            if defined(IMATH_SYMBOL_VISIBILITY)
-#               define IMATH_EXPORT __attribute__((visibility("default")))
-#               define IMATH_EXPORT_CONST extern __attribute__((visibility("default"))) const
-#            else
-#               define IMATH_EXPORT __declspec(dllexport)
-#               define IMATH_EXPORT_CONST extern __declspec(dllexport)
-#            endif
-#       else
-#           if defined(IMATH_SYMBOL_VISIBILITY)
-#               define IMATH_EXPORT
-#           else
-#               define IMATH_EXPORT __declspec(dllimport)
-#               define IMATH_EXPORT_CONST extern __declspec(dllimport)
-#           endif
-#       endif
-#    else
-#       define IMATH_EXPORT
-#       define IMATH_EXPORT_CONST extern const
-#    endif
+#if defined(OPENEXR_DLL)
+    #if defined(IMATH_EXPORTS)
+	    #define IMATH_EXPORT __declspec(dllexport)
+        #define IMATH_EXPORT_CONST extern __declspec(dllexport)
+    #else
+	    #define IMATH_EXPORT __declspec(dllimport)
+	    #define IMATH_EXPORT_CONST extern __declspec(dllimport)
+    #endif
+#else
+    #define IMATH_EXPORT
+    #define IMATH_EXPORT_CONST extern const
 #endif

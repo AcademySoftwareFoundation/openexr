@@ -8,7 +8,13 @@ libIexMath_la_SOURCES = IexMathFloatExc.cpp IexMathFpu.cpp
 libIexMathinclude_HEADERS = IexMathFloatExc.h IexMathFpu.h IexMathIeeeExc.h
 
 libIexMath_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ -no-undefined
+if LIB_SUFFIX_EXISTS
+libIexMath_la_LDFLAGS += -release @LIB_SUFFIX@
+endif
+
 libIexMath_la_LIBADD = ../Iex/libIex.la
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex \
            -I$(top_srcdir)/config
+
+EXTRA_DIST = CMakeLists.txt

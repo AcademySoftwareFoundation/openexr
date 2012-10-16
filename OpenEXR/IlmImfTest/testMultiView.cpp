@@ -41,20 +41,22 @@
 #include <assert.h>
 #include <stdarg.h>
 
+
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
-using namespace Imf;
+
 
 namespace {
 
 ChannelList
-buildList (char *name, ...)
+buildList (const char *name, ...)
 {
     //
     // nice function to build channel lists
     //
 
     ChannelList list;
-    char *channelName = name;
+    const char *channelName = name;
 
     va_list ap;
     va_start (ap, name);

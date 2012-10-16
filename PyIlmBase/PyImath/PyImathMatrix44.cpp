@@ -57,7 +57,7 @@ template<> const char *PyImath::M44fArray::name() { return "M44fArray"; }
 template<> const char *PyImath::M44dArray::name() { return "M44dArray"; }
 
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 using namespace PyImath;
 
 template <class T, int len>
@@ -288,23 +288,23 @@ static void
 extractAndRemoveScalingAndShear44(Matrix44<T> &mat, Vec3<T> &dstScl, Vec3<T> &dstShr, int exc = 1)
 {
     MATH_EXC_ON;
-    Imath::extractAndRemoveScalingAndShear(mat, dstScl, dstShr, exc);
+    IMATH_NAMESPACE::extractAndRemoveScalingAndShear(mat, dstScl, dstShr, exc);
 }
 
 template <class T>
 static void
-extractEulerXYZ(Matrix44<T> &mat, Imath::Vec3<T> &dst)
+extractEulerXYZ(Matrix44<T> &mat, IMATH_NAMESPACE::Vec3<T> &dst)
 {
     MATH_EXC_ON;
-    Imath::extractEulerXYZ(mat, dst);
+    IMATH_NAMESPACE::extractEulerXYZ(mat, dst);
 }
 
 template <class T>
 static void
-extractEulerZYX(Matrix44<T> &mat, Imath::Vec3<T> &dst)
+extractEulerZYX(Matrix44<T> &mat, IMATH_NAMESPACE::Vec3<T> &dst)
 {
     MATH_EXC_ON;
-    Imath::extractEulerZYX(mat, dst);
+    IMATH_NAMESPACE::extractEulerZYX(mat, dst);
 }
 
 template <class T>
@@ -312,7 +312,7 @@ static int
 extractSHRT44(Matrix44<T> &mat, Vec3<T> &s, Vec3<T> &h, Vec3<T> &r, Vec3<T> &t, int exc = 1)
 {
     MATH_EXC_ON;
-    return Imath::extractSHRT(mat, s, h, r, t, exc);
+    return IMATH_NAMESPACE::extractSHRT(mat, s, h, r, t, exc);
 }
 
 template <class T>
@@ -320,7 +320,7 @@ static void
 extractScaling44(Matrix44<T> &mat, Vec3<T> &dst, int exc = 1)
 {
     MATH_EXC_ON;
-    Imath::extractScaling(mat, dst, exc);
+    IMATH_NAMESPACE::extractScaling(mat, dst, exc);
 }
 
 template <class T>
@@ -328,7 +328,7 @@ static void
 extractScalingAndShear44(Matrix44<T> &mat, Vec3<T> &dstScl, Vec3<T> &dstShr, int exc = 1)
 {
     MATH_EXC_ON;
-    Imath::extractScalingAndShear(mat, dstScl, dstShr, exc);
+    IMATH_NAMESPACE::extractScalingAndShear(mat, dstScl, dstShr, exc);
 }
 
 template <class TV,class TM>
@@ -436,7 +436,7 @@ static int
 removeScaling44(Matrix44<T> &mat, int exc = 1)
 {
     MATH_EXC_ON;
-    return Imath::removeScaling(mat, exc);
+    return IMATH_NAMESPACE::removeScaling(mat, exc);
 }
 
 template <class T>
@@ -444,7 +444,7 @@ static int
 removeScalingAndShear44(Matrix44<T> &mat, int exc = 1)
 {
     MATH_EXC_ON;
-    return Imath::removeScalingAndShear(mat, exc);
+    return IMATH_NAMESPACE::removeScalingAndShear(mat, exc);
 }
 
 template <class T>
@@ -452,7 +452,7 @@ static Matrix44<T>
 sansScaling44(const Matrix44<T> &mat, bool exc = true)
 {
     MATH_EXC_ON;
-    return Imath::sansScaling(mat, exc);
+    return IMATH_NAMESPACE::sansScaling(mat, exc);
 }
 
 template <class T>
@@ -460,7 +460,7 @@ static Matrix44<T>
 sansScalingAndShear44(const Matrix44<T> &mat, bool exc = true)
 {
     MATH_EXC_ON;
-    return Imath::sansScalingAndShear(mat, exc);
+    return IMATH_NAMESPACE::sansScalingAndShear(mat, exc);
 }
 
 
@@ -496,7 +496,7 @@ scale44Tuple(Matrix44<T> &mat, const tuple &t)
         return mat.scale(s);
     }
     else
-        THROW(Iex::LogicExc, "m.scale needs tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "m.scale needs tuple of length 3");
 }
 
 template <class T>
@@ -508,12 +508,12 @@ rotationMatrix44(Matrix44<T> &mat, const object &fromObj, const object &toObj)
     if (PyImath::V3<T>::convert (fromObj.ptr(), &from) &&
         PyImath::V3<T>::convert (toObj.ptr(), &to))
     {
-        Matrix44<T> rot = Imath::rotationMatrix(from, to);
+        Matrix44<T> rot = IMATH_NAMESPACE::rotationMatrix(from, to);
         return mat.setValue(rot);
     }
     else
     {
-        THROW(Iex::ArgExc, "m.rotationMatrix expected V3 arguments");
+        THROW(IEX_NAMESPACE::ArgExc, "m.rotationMatrix expected V3 arguments");
     }   
 }
 
@@ -528,12 +528,12 @@ rotationMatrixWithUp44(Matrix44<T> &mat, const object &fromObj, const object &to
         PyImath::V3<T>::convert (toObj.ptr(), &to) &
         PyImath::V3<T>::convert (upObj.ptr(), &up))
     {
-        Matrix44<T> rot = Imath::rotationMatrixWithUpDir(from, to, up);
+        Matrix44<T> rot = IMATH_NAMESPACE::rotationMatrixWithUpDir(from, to, up);
         return mat.setValue(rot);
     }
     else
     {
-        THROW(Iex::ArgExc, "m.rotationMatrix expected V3 arguments");
+        THROW(IEX_NAMESPACE::ArgExc, "m.rotationMatrix expected V3 arguments");
     }   
 }
 
@@ -569,7 +569,7 @@ setScale44Tuple(Matrix44<T> &mat, const tuple &t)
         return mat.setScale(s);
     }
     else
-        THROW(Iex::LogicExc, "m.translate needs tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "m.translate needs tuple of length 3");
 }
 
 
@@ -578,7 +578,7 @@ static const Matrix44<T> &
 setShearV44(Matrix44<T> &mat, const Vec3<T> &sVec)
 {
     MATH_EXC_ON;
-    Imath::Shear6<T> shear(sVec[0], sVec[1], sVec[2], T (0), T (0), T (0));
+    IMATH_NAMESPACE::Shear6<T> shear(sVec[0], sVec[1], sVec[2], T (0), T (0), T (0));
     return mat.setShear(shear);
 }
 
@@ -616,7 +616,7 @@ setShear44Tuple(Matrix44<T> &mat, const tuple &t)
         return mat.setShear(shear);
     }
     else
-        THROW(Iex::LogicExc, "m.setShear needs tuple of length 3 or 6");
+        THROW(IEX_NAMESPACE::LogicExc, "m.setShear needs tuple of length 3 or 6");
 }
 
 template <class T>
@@ -642,7 +642,7 @@ setTranslation44Tuple(Matrix44<T> &mat, const tuple &t)
         return mat.setTranslation(trans);
     }
     else
-        THROW(Iex::LogicExc, "m.translate needs tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "m.translate needs tuple of length 3");
 }
 
 template <class T>
@@ -657,7 +657,7 @@ setTranslation44Obj(Matrix44<T> &mat, const object &o)
     }
     else
     {
-        THROW(Iex::ArgExc, "m.setTranslation expected V3 argument");
+        THROW(IEX_NAMESPACE::ArgExc, "m.setTranslation expected V3 argument");
         return mat;
     }   
 }
@@ -675,7 +675,7 @@ static const Matrix44<T> &
 shearV44(Matrix44<T> &mat, const Vec3<T> &s)
 {
     MATH_EXC_ON;
-    Imath::Shear6<T> shear(s[0], s[1], s[2], T (0), T (0), T (0));
+    IMATH_NAMESPACE::Shear6<T> shear(s[0], s[1], s[2], T (0), T (0), T (0));
     return mat.shear(shear);
 }
 
@@ -713,7 +713,7 @@ shear44Tuple(Matrix44<T> &mat, const tuple &t)
         return mat.shear(shear);
     }
     else
-        THROW(Iex::LogicExc, "m.shear needs tuple of length 3 or 6");
+        THROW(IEX_NAMESPACE::LogicExc, "m.shear needs tuple of length 3 or 6");
 }
 
 
@@ -729,7 +729,7 @@ translate44(Matrix44<T> &mat, const object &t)
     }
     else
     {
-        THROW(Iex::ArgExc, "m.translate expected V3 argument");
+        THROW(IEX_NAMESPACE::ArgExc, "m.translate expected V3 argument");
         return mat;
     }   
 }
@@ -748,7 +748,7 @@ translate44Tuple(Matrix44<T> &mat, const tuple &t)
         return mat.translate(trans);
     }
     else
-        THROW(Iex::LogicExc, "m.translate needs tuple of length 3");
+        THROW(IEX_NAMESPACE::LogicExc, "m.translate needs tuple of length 3");
 }
 
 template <class T>
@@ -885,9 +885,9 @@ template <class T>
 static tuple
 singularValueDecomposition44(const Matrix44<T>& m, bool forcePositiveDeterminant = false)
 {
-    Imath::Matrix44<T> U, V;
-    Imath::Vec4<T> S;
-    Imath::jacobiSVD (m, U, S, V, Imath::limits<T>::epsilon(), forcePositiveDeterminant);
+    IMATH_NAMESPACE::Matrix44<T> U, V;
+    IMATH_NAMESPACE::Vec4<T> S;
+    IMATH_NAMESPACE::jacobiSVD (m, U, S, V, IMATH_NAMESPACE::limits<T>::epsilon(), forcePositiveDeterminant);
     return make_tuple (U, S, V);
 }
 
@@ -915,7 +915,7 @@ static Matrix44<T> * Matrix4_tuple_constructor(const tuple &t0, const tuple &t1,
                              extract<T>(t3[0]),  extract<T>(t3[1]),  extract<T>(t3[2]),  extract<T>(t3[3]));
   }
   else
-      THROW(Iex::LogicExc, "Matrix44 takes 4 tuples of length 4");
+      THROW(IEX_NAMESPACE::LogicExc, "Matrix44 takes 4 tuples of length 4");
 }
 
 template <class T, class S>
@@ -1079,7 +1079,7 @@ register_Matrix44()
              "diagonalize the matrix, which should be quite robust and significantly faster\n"
              "than the more general SVD solver in LAPACK.  \n",
              args("matrix", "forcePositiveDeterminant"))
-        .def("symmetricEigensolve", &PyImath::jacobiEigensolve<Imath::Matrix44<T> >, 
+        .def("symmetricEigensolve", &PyImath::jacobiEigensolve<IMATH_NAMESPACE::Matrix44<T> >, 
              "Decomposes the matrix A using a symmetric eigensolver into matrices Q and S \n"
              "which have the following properties: \n"
              "  1. Q is the orthonormal matrix of eigenvectors, \n"
@@ -1168,18 +1168,18 @@ register_Matrix44()
 
 template <class T>
 static void
-setM44ArrayItem(FixedArray<Imath::Matrix44<T> > &ma,
+setM44ArrayItem(FixedArray<IMATH_NAMESPACE::Matrix44<T> > &ma,
                 Py_ssize_t index,
-                const Imath::Matrix44<T> &m)
+                const IMATH_NAMESPACE::Matrix44<T> &m)
 {
     ma[ma.canonical_index(index)] = m;
 }
 
 template <class T>
-class_<FixedArray<Imath::Matrix44<T> > >
+class_<FixedArray<IMATH_NAMESPACE::Matrix44<T> > >
 register_M44Array()
 {
-    class_<FixedArray<Imath::Matrix44<T> > > matrixArray_class = FixedArray<Imath::Matrix44<T> >::register_("Fixed length array of Imath::Matrix44");
+    class_<FixedArray<IMATH_NAMESPACE::Matrix44<T> > > matrixArray_class = FixedArray<IMATH_NAMESPACE::Matrix44<T> >::register_("Fixed length array of IMATH_NAMESPACE::Matrix44");
     matrixArray_class
          .def("__setitem__", &setM44ArrayItem<T>)
         ;
@@ -1187,12 +1187,12 @@ register_M44Array()
 }
 
 
-template PYIMATH_EXPORT class_<Imath::Matrix44<float> > register_Matrix44<float>();
-template PYIMATH_EXPORT class_<Imath::Matrix44<double> > register_Matrix44<double>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Matrix44<float> > register_Matrix44<float>();
+template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Matrix44<double> > register_Matrix44<double>();
 
-template PYIMATH_EXPORT class_<FixedArray<Imath::Matrix44<float> > > register_M44Array<float>();
-template PYIMATH_EXPORT class_<FixedArray<Imath::Matrix44<double> > > register_M44Array<double>();
+template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Matrix44<float> > > register_M44Array<float>();
+template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Matrix44<double> > > register_M44Array<double>();
 
-template<> PYIMATH_EXPORT Imath::Matrix44<float> FixedArrayDefaultValue<Imath::Matrix44<float> >::value() { return Imath::Matrix44<float>(); }
-template<> PYIMATH_EXPORT Imath::Matrix44<double> FixedArrayDefaultValue<Imath::Matrix44<double> >::value() { return Imath::Matrix44<double>(); }
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Matrix44<float> FixedArrayDefaultValue<IMATH_NAMESPACE::Matrix44<float> >::value() { return IMATH_NAMESPACE::Matrix44<float>(); }
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Matrix44<double> FixedArrayDefaultValue<IMATH_NAMESPACE::Matrix44<double> >::value() { return IMATH_NAMESPACE::Matrix44<double>(); }
 }

@@ -35,9 +35,10 @@
 #ifndef INCLUDED_IMF_MULTIVIEW_H
 #define INCLUDED_IMF_MULTIVIEW_H
 
-#include <ImfChannelList.h>
-#include <ImfExport.h>
-#include <ImfStringVectorAttribute.h>
+#include "ImfChannelList.h"
+#include "ImfStringVectorAttribute.h"
+#include "ImfExport.h"
+#include "ImfNamespace.h"
 
 //-----------------------------------------------------------------------------
 //
@@ -81,7 +82,7 @@
 //
 //-----------------------------------------------------------------------------
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //
 // Return the name of the default view given a multi-view string vector,
@@ -119,7 +120,6 @@ bool areCounterparts (const std::string &channel1,
 // Return a list of all channels belonging to view viewName.
 //
 
-IMF_EXPORT
 ChannelList channelsInView (const std::string &viewName,
                             const ChannelList &channelList,
                             const StringVector &multiView);
@@ -168,6 +168,19 @@ std::string insertViewName (const std::string &channel,
 			    const StringVector &multiView,
 			    int i);
 
-} // namespace Imf
+//
+// Given a channel name that does may include a view name, return
+// string without the view name. If the string does not contain
+// the view name, return the string unaltered.
+// (Will only remove the viewname if it is in the correct position 
+//  in the string)
+//
+
+IMF_EXPORT
+std::string removeViewName (const std::string &channel,
+		            const std::string &view);
+
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

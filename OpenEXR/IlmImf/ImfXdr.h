@@ -36,6 +36,7 @@
 #ifndef INCLUDED_IMF_XDR_H
 #define INCLUDED_IMF_XDR_H
 
+
 //----------------------------------------------------------------------------
 //
 //	Xdr -- routines to convert data between the machine's native
@@ -102,12 +103,15 @@
 //
 //----------------------------------------------------------------------------
 
-#include <ImfInt64.h>
+#include "ImfInt64.h"
 #include "IexMathExc.h"
 #include "half.h"
 #include <limits.h>
 
-namespace Imf {
+#include "ImfNamespace.h"
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
+
 namespace Xdr {
 
 
@@ -711,7 +715,7 @@ read (T &in, signed long &v)
 	if (( b[4] ||  b[5] ||  b[6] ||  b[7]) &&
 	    (~b[4] || ~b[5] || ~b[6] || ~b[7]))
 	{
-	    throw Iex::OverflowExc ("Long int overflow - read a large "
+	    throw IEX_NAMESPACE::OverflowExc ("Long int overflow - read a large "
 				    "64-bit integer in a 32-bit process.");
 	}
 
@@ -751,7 +755,7 @@ read (T &in, unsigned long &v)
 
 	if (b[4] || b[5] || b[6] || b[7])
 	{
-	    throw Iex::OverflowExc ("Long int overflow - read a large "
+	    throw IEX_NAMESPACE::OverflowExc ("Long int overflow - read a large "
 				    "64-bit integer in a 32-bit process.");
 	}
 
@@ -905,12 +909,19 @@ template <> inline int size <signed int> ()		{return 4;}
 template <> inline int size <unsigned int> ()		{return 4;}
 template <> inline int size <signed long> ()		{return 8;}
 template <> inline int size <unsigned long> ()		{return 8;}
+template <> inline int size <unsigned long long> ()     {return 8;}
 template <> inline int size <float> ()			{return 4;}
 template <> inline int size <double> ()			{return 8;}
 template <> inline int size <half> ()			{return 2;}
 
 
 } // namespace Xdr
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+#if defined (OPENEXR_IMF_INTERNAL_NAMESPACE_AUTO_EXPOSE)
+namespace Imf{using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;}
+#endif
+
 
 #endif

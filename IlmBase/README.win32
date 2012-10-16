@@ -17,9 +17,15 @@ the future.
 you are not going to be doing any debugging, and can be optionally
 built.
 
+<<<<<<< HEAD
 The source will build under Visual Studio versions 7 through 10, and 
 there are separate directories for the corresponding build files.  The
 tag <vc7|8|9|10> is used in this document to describe the appropriate folder
+=======
+The source will build under both Visual Studio versions 7 and 8, and 
+there are separate directories for the corresponding build files.  The
+tag <vc7|8> is used in this document to describe the appropriate folder
+>>>>>>> upstream/master
 in the path that corresponds to your the version of Visual Studio.
 
 The Visual Studio project files assume, and help build out, a directory
@@ -56,6 +62,7 @@ nvidia
 If OpenEXR_Viewers is not being compiled, then fltk and nvidia will
 not be needed, but that will be covered later.
 
+<<<<<<< HEAD
 OpenEXR is compiled as DLL libraries, and uses the STL. Due to a long
 standing issue with Microsoft's standard library implementation, exported
 classes that contain STL objects will cause a warning to be emitted
@@ -68,6 +75,12 @@ Step 1. Compile IlmBase
 
   a. Point Visual Studio at the .sln file in vc\<vc7|8|9|10>\IlmBase in 
   the IlmBase subdirectory
+=======
+Step 1. Compile IlmBase
+
+  a. Point Visual Studio at the .sln file in vc\<vc7|8>\IlmBase in the
+  IlmBase subdirectory
+>>>>>>> upstream/master
 
   b. Select the Release configuration and hit Build Solution.  This
   will create the Deploy directory, and copy the relevant parts to it.
@@ -87,6 +100,7 @@ Step 2. Compile OpenEXR support
     2. If you don't wish to put the files into your MS visual studio
        directories and install the dll into windows\system32:
 
+<<<<<<< HEAD
         a. Put a copy of zlib1.dll into Deploy\bin\Win32\Release and
            zlib1d.dll into Deploy\bin\Win32\Debug. If the download did
            not come with zlib1d.dll you can use zlib1.dll instead, but
@@ -117,6 +131,17 @@ Step 2. Compile OpenEXR support
   b. Open the Visual Studio project in OpenEXR\vc\<vc7|8|10>\OpenEXR.
      Note that a vc9 compatible project has not yet been contributed,
      although automatically converting the vc8 version will work.
+=======
+        a. Put a copy of zlib1.dll into Deploy\bin\Release and
+           Deploy\bin\Debug
+
+        b. Copy the header files into Deploy\include
+
+        c. Copy zdll.lib and zdll.exp into Deploy\lib\Release and
+           Deploy\lib\Debug
+
+  b. Open the Visual Studio project in OpenEXR\vc\<vc7|8>\OpenEXR.
+>>>>>>> upstream/master
 
   c. Select the Release configuration and build. The IlmImfTest
      program runs a confidence test of your build to make sure

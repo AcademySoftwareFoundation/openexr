@@ -49,6 +49,8 @@
 #include <string>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <cstring>
 
 using namespace std;
 
@@ -340,7 +342,7 @@ main(int argc, char **argv)
     // Make sure that we have threading support.
     //
 
-    if (!IlmThread::supportsThreads())
+    if (!ILMTHREAD_NAMESPACE::supportsThreads())
     {
 	cerr << "This program requires multi-threading support.\n" << endl;
 	return 1;

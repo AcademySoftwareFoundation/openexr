@@ -36,8 +36,6 @@
 #ifndef INCLUDED_IMF_KEY_CODE_H
 #define INCLUDED_IMF_KEY_CODE_H
 
-#include <ImfExport.h>
-
 //-----------------------------------------------------------------------------
 //
 //	class KeyCode
@@ -97,8 +95,10 @@
 // 			Latent Image Identification Information
 //
 //-----------------------------------------------------------------------------
+#include "ImfNamespace.h"
+#include "ImfExport.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
    
 class IMF_EXPORT KeyCode
@@ -158,6 +158,10 @@ class IMF_EXPORT KeyCode
 };
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif

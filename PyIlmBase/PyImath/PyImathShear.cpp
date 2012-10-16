@@ -49,7 +49,7 @@
 
 namespace PyImath{
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 template <class T> struct ShearName {static const char *value;};
 template <> const char *ShearName<float>::value = "Shear6f";
@@ -104,7 +104,7 @@ static Shear6<T> * shearTupleConstructor(tuple t)
                              extract<T>(t[3]), extract<T>(t[4]), extract<T>(t[5]));        
     }
     else
-        THROW(Iex::LogicExc, "Shear6 expects tuple of length 3 or 6");
+        THROW(IEX_NAMESPACE::LogicExc, "Shear6 expects tuple of length 3 or 6");
 }
 
 template <class T>
@@ -241,7 +241,7 @@ subtract1(Shear6<T> &v, tuple t)
         w[5] = v[5] - extract<T>(t[5]);
     }        
     else
-        THROW(Iex::LogicExc, "tuple must have length of 6");
+        THROW(IEX_NAMESPACE::LogicExc, "tuple must have length of 6");
     
     return w;
 }
@@ -262,7 +262,7 @@ subtract2(Shear6<T> &v, tuple t)
         w[5] = extract<T>(t[5]) - v[5];
     }        
     else
-        THROW(Iex::LogicExc, "tuple must have length of 6");
+        THROW(IEX_NAMESPACE::LogicExc, "tuple must have length of 6");
     
     return w;
 }
@@ -318,7 +318,7 @@ addTuple(Shear6<T> &v, tuple t)
         w[5] = v[5] + extract<T>(t[5]);
     }        
     else
-        THROW(Iex::LogicExc, "tuple must have length of 6");
+        THROW(IEX_NAMESPACE::LogicExc, "tuple must have length of 6");
     
     return w;
 }
@@ -356,7 +356,7 @@ multTuple(Shear6<T> &v, tuple t)
         w[5] = v[5] * extract<T>(t[5]);
     }        
     else
-        THROW(Iex::LogicExc, "tuple must have length of 6");
+        THROW(IEX_NAMESPACE::LogicExc, "tuple must have length of 6");
     
     return w;
 }
@@ -377,7 +377,7 @@ rdiv(Shear6<T> &v, T a)
         w[5] = a/v[5];
     }
     else
-        THROW(Iex::LogicExc, "Division by Zero");
+        THROW(IEX_NAMESPACE::LogicExc, "Division by Zero");
     
     return w;
 }
@@ -388,7 +388,7 @@ divTuple(Shear6<T> &v, const tuple &t)
 {
     MATH_EXC_ON;
     if(t.attr("__len__")() != 6)
-        THROW(Iex::LogicExc, "Shear6 expects tuple of length 6");
+        THROW(IEX_NAMESPACE::LogicExc, "Shear6 expects tuple of length 6");
     
     Shear6<T> w;
     for(int i = 0; i < 6; ++i)
@@ -397,7 +397,7 @@ divTuple(Shear6<T> &v, const tuple &t)
         if(a != T (0))
             w[i] = v[i] / a;
         else
-            THROW(Iex::LogicExc, "Division by Zero"); 
+            THROW(IEX_NAMESPACE::LogicExc, "Division by Zero"); 
     }
     
     return w;
@@ -409,7 +409,7 @@ rdivTuple(Shear6<T> &v, const tuple &t)
 {
     MATH_EXC_ON;
     if(t.attr("__len__")() != 6)
-        THROW(Iex::LogicExc, "Shear6 expects tuple of length 6");
+        THROW(IEX_NAMESPACE::LogicExc, "Shear6 expects tuple of length 6");
     
     Shear6<T> w;
     for(int i = 0; i < 6; ++i)
@@ -418,7 +418,7 @@ rdivTuple(Shear6<T> &v, const tuple &t)
         if(v[i] != T (0))
             w[i] = a / v[i];
         else
-            THROW(Iex::LogicExc, "Division by Zero"); 
+            THROW(IEX_NAMESPACE::LogicExc, "Division by Zero"); 
     }
     
     return w;
@@ -478,7 +478,7 @@ static void
 setitem(Shear6<T> &shear, int i, T a)
 {
     if(i < 0 || i > 5)
-        THROW(Iex::LogicExc, "Index out of range");
+        THROW(IEX_NAMESPACE::LogicExc, "Index out of range");
     
     shear[i] = a;
 }
@@ -498,9 +498,9 @@ register_Shear()
 {
     const char *name = ShearName<T>::value;
     
-    void (Imath::Shear6<T>::*setValue1)(T,T,T,T,T,T) = &Imath::Shear6<T>::setValue;
-    void (Imath::Shear6<T>::*setValue2)(const Shear6<T> &) = &Imath::Shear6<T>::setValue;
-    void (Imath::Shear6<T>::*getValue1)(Shear6<T> &) const = &Imath::Shear6<T>::getValue;
+    void (IMATH_NAMESPACE::Shear6<T>::*setValue1)(T,T,T,T,T,T) = &IMATH_NAMESPACE::Shear6<T>::setValue;
+    void (IMATH_NAMESPACE::Shear6<T>::*setValue2)(const Shear6<T> &) = &IMATH_NAMESPACE::Shear6<T>::setValue;
+    void (IMATH_NAMESPACE::Shear6<T>::*getValue1)(Shear6<T> &) const = &IMATH_NAMESPACE::Shear6<T>::getValue;
     
     class_<Shear6<T> > shear_class(name, name, init<Shear6<T> >("copy construction"));
     shear_class

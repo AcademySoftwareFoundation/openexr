@@ -9,8 +9,14 @@ libIex_la_SOURCES = IexThrowErrnoExc.cpp IexBaseExc.cpp IexBaseExc.h \
 		    IexThrowErrnoExc.h
 
 libIex_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ -no-undefined
+if LIB_SUFFIX_EXISTS
+libIex_la_LDFLAGS += -release @LIB_SUFFIX@
+endif
 
 libIexincludedir = $(includedir)/OpenEXR
 
 libIexinclude_HEADERS = IexBaseExc.h IexMathExc.h IexThrowErrnoExc.h \
-			IexErrnoExc.h IexMacros.h Iex.h
+			IexErrnoExc.h IexMacros.h Iex.h \
+                        IexForward.h IexNamespace.h IexExport.h
+
+EXTRA_DIST = CMakeLists.txt

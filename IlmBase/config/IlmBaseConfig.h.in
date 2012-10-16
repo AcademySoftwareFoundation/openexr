@@ -14,3 +14,43 @@
 #undef HAVE_POSIX_SEMAPHORES
 
 #undef HAVE_UCONTEXT_H
+<<<<<<< HEAD
+=======
+
+
+//
+// Define and set to 1 if the target system has support for large
+// stack sizes.
+//
+
+#undef ILMBASE_HAVE_LARGE_STACK
+
+//
+// Current (internal) library namepace name and corresponding public
+// client namespaces.
+//
+#undef ILMBASE_INTERNAL_NAMESPACE_CUSTOM
+#undef IMATH_INTERNAL_NAMESPACE
+#undef IEX_INTERNAL_NAMESPACE
+#undef ILMTHREAD_INTERNAL_NAMESPACE
+
+#undef ILMBASE_NAMESPACE_CUSTOM
+#undef IMATH_NAMESPACE
+#undef IEX_NAMESPACE
+#undef ILMTHREAD_NAMESPACE
+
+
+//
+// Define and set to 1 if the target system has support for large
+// stack sizes.
+//
+
+#undef ILMBASE_HAVE_LARGE_STACK
+
+
+//
+// Version string for runtime access
+//
+#undef ILMBASE_VERSION_STRING
+#undef ILMBASE_PACKAGE_STRING
+>>>>>>> upstream/master

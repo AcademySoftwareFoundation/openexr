@@ -46,8 +46,10 @@
 #include <sstream>
 #endif
 
+
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
-using namespace Imf;
+
 
 namespace {
 

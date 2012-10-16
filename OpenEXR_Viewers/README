@@ -93,4 +93,3 @@ platform.
 
 All include files needed to use the OpenEXR libraries are installed in the 
 OpenEXR subdirectory of the install prefix, e.g. /usr/local/include/OpenEXR.
-

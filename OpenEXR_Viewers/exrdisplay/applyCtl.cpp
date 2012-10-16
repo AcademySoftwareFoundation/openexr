@@ -49,12 +49,13 @@
     #include <ImfFrameBuffer.h>
     #include <stdlib.h>
     #include <cassert>
+    #include <cstdio>
     #include <iostream>
+    #include<stdio.h>
 
     using namespace std;
     using namespace Ctl;
-    using namespace Imf;
-    using namespace Imath;
+    using namespace IMATH_NAMESPACE;
 
 #else
 
@@ -62,14 +63,17 @@
     #include <ImfHeader.h>
     #include <stdlib.h>
     #include <cassert>
+    #include <cstdio>
     #include <iostream>
+    #include <stdio.h>
 
     using namespace std;
-    using namespace Imf;
-    using namespace Imath;
+    using namespace IMATH_NAMESPACE;
 
 #endif
 
+
+using namespace OPENEXR_IMF_NAMESPACE;
 
 #define WARNING(message) (cerr << "Warning: " << message << endl)
 

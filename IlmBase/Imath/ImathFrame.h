@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -37,7 +37,9 @@
 #ifndef INCLUDED_IMATHFRAME_H
 #define INCLUDED_IMATHFRAME_H
 
-namespace Imath {
+#include "ImathNamespace.h"
+
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
 template<class T> class Vec3;
 template<class T> class Matrix44;
@@ -50,12 +52,12 @@ template<class T> class Matrix44;
 //  
 //  A typical usage would be :
 //
-//      m[0] = Imath::firstFrame( p[0], p[1], p[2] );
+//      m[0] = IMATH_INTERNAL_NAMESPACE::firstFrame( p[0], p[1], p[2] );
 //      for( int i = 1; i < n - 1; i++ )
 //      {
-//          m[i] = Imath::nextFrame( m[i-1], p[i-1], p[i], t[i-1], t[i] );
+//          m[i] = IMATH_INTERNAL_NAMESPACE::nextFrame( m[i-1], p[i-1], p[i], t[i-1], t[i] );
 //      }
-//      m[n-1] = Imath::lastFrame( m[n-2], p[n-2], p[n-1] );
+//      m[n-1] = IMATH_INTERNAL_NAMESPACE::lastFrame( m[n-2], p[n-2], p[n-1] );
 //
 //  See Graphics Gems I for the underlying algorithm.
 // 
@@ -185,6 +187,6 @@ template<class T> Matrix44<T> lastFrame
     return Mi * Tr;
 }
 
-} // namespace Imath
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif
+#endif // INCLUDED_IMATHFRAME_H

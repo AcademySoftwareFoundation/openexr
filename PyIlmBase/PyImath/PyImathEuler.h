@@ -44,10 +44,10 @@
 
 namespace PyImath {
 
-template <class T> boost::python::class_<Imath::Euler<T>,boost::python::bases<Imath::Vec3<T> > > register_Euler();
-template <class T> boost::python::class_<PyImath::FixedArray<Imath::Euler<T> > > register_EulerArray();
-typedef FixedArray<Imath::Eulerf>  EulerfArray;
-typedef FixedArray<Imath::Eulerd>  EulerdArray;
+template <class T> boost::python::class_<IMATH_NAMESPACE::Euler<T>,boost::python::bases<IMATH_NAMESPACE::Vec3<T> > > register_Euler();
+template <class T> boost::python::class_<PyImath::FixedArray<IMATH_NAMESPACE::Euler<T> > > register_EulerArray();
+typedef FixedArray<IMATH_NAMESPACE::Eulerf>  EulerfArray;
+typedef FixedArray<IMATH_NAMESPACE::Eulerd>  EulerdArray;
 
 //
 
@@ -62,42 +62,42 @@ typedef FixedArray<Imath::Eulerd>  EulerdArray;
 template <class T>
 class E {
   public:
-    static PyObject *	wrap (const Imath::Euler<T> &e);
-    static int		convert (PyObject *p, Imath::Euler<T> *v);
+    static PyObject *	wrap (const IMATH_NAMESPACE::Euler<T> &e);
+    static int		convert (PyObject *p, IMATH_NAMESPACE::Euler<T> *v);
 };
 
 template <class T>
 PyObject *
-E<T>::wrap (const Imath::Euler<T> &e)
+E<T>::wrap (const IMATH_NAMESPACE::Euler<T> &e)
 {
-    typename boost::python::return_by_value::apply < Imath::Euler<T> >::type converter;
+    typename boost::python::return_by_value::apply < IMATH_NAMESPACE::Euler<T> >::type converter;
     PyObject *p = converter (e);
     return p;
 }
 
 template <class T>
 int
-E<T>::convert (PyObject *p, Imath::Euler<T> *v)
+E<T>::convert (PyObject *p, IMATH_NAMESPACE::Euler<T> *v)
 {
-    boost::python::extract <Imath::Eulerf> extractorEf (p);
+    boost::python::extract <IMATH_NAMESPACE::Eulerf> extractorEf (p);
     if (extractorEf.check())
     {
-        Imath::Eulerf e = extractorEf();
+        IMATH_NAMESPACE::Eulerf e = extractorEf();
         v->x = T(e.x);
         v->y = T(e.y);
         v->z = T(e.z);
-        v->setOrder (typename Imath::Euler<T>::Order (e.order()));
+        v->setOrder (typename IMATH_NAMESPACE::Euler<T>::Order (e.order()));
         return 1;
     }
 
-    boost::python::extract <Imath::Eulerd> extractorEd (p);
+    boost::python::extract <IMATH_NAMESPACE::Eulerd> extractorEd (p);
     if (extractorEd.check())
     {
-        Imath::Eulerd e = extractorEd();
+        IMATH_NAMESPACE::Eulerd e = extractorEd();
         v->x = T(e.x);
         v->y = T(e.y);
         v->z = T(e.z);
-        v->setOrder (typename Imath::Euler<T>::Order (e.order()));
+        v->setOrder (typename IMATH_NAMESPACE::Euler<T>::Order (e.order()));
         return 1;
     }
 

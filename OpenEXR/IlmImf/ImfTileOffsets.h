@@ -42,15 +42,14 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfExport.h>
-#include <ImfTileDescription.h>
-#include <ImfInt64.h>
+#include "ImfTileDescription.h"
+#include "ImfInt64.h"
 #include <vector>
+#include "ImfNamespace.h"
+#include "ImfForward.h"
+#include "ImfExport.h"
 
-namespace Imf {
-
-class IStream;
-class OStream;
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 class IMF_EXPORT TileOffsets
@@ -67,8 +66,9 @@ class IMF_EXPORT TileOffsets
     // File I/O
     // --------
 
-    void		readFrom (IStream &is, bool &complete);
-    Int64		writeTo (OStream &os) const;
+    void		readFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,  bool &complete,bool isMultiPart,bool isDeep);
+    void                readFrom (std::vector<Int64> chunkOffsets,bool &complete);
+    Int64		writeTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os) const;
 
 
     //-----------------------------------------------------------
@@ -77,7 +77,16 @@ class IMF_EXPORT TileOffsets
 
     bool		isEmpty () const;
     
-
+    
+    
+    //-----------------------------------------------------------
+    // populate 'list' with tiles coordinates in the order they appear
+    // in the offset table (assumes full table!
+    // each array myst be at leat totalTiles long
+    //-----------------------------------------------------------
+    void getTileOrder(int dx_table[], int dy_table[], int lx_table[], int ly_table[]) const;
+    
+    
     //-----------------------
     // Access to the elements
     //-----------------------
@@ -88,10 +97,12 @@ class IMF_EXPORT TileOffsets
     const Int64 &	operator () (int dx, int dy, int l) const;
 
   private:
-  
-    void		findTiles (IStream &is);
-    void		reconstructFromFile (IStream &is);
-    bool		readTile (IStream &is);
+
+    void		findTiles (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, bool isMultiPartFile,
+                                   bool isDeep,
+        		           bool skipOnly);
+    void		reconstructFromFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,bool isMultiPartFile,bool isDeep);
+    bool		readTile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is);
     bool		anyOffsetsAreInvalid () const;
     bool		isValidTile (int dx, int dy, int lx, int ly) const;
 
@@ -100,9 +111,16 @@ class IMF_EXPORT TileOffsets
     int			_numYLevels;
 
     std::vector<std::vector<std::vector <Int64> > > _offsets;
+    const std::vector<std::vector<std::vector <Int64> > >& getOffsets();
+
+    friend class MultiPartInputFile;
 };
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
+
 
 #endif

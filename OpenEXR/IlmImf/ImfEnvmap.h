@@ -73,9 +73,11 @@
 //-----------------------------------------------------------------------------
 
 #include "ImathBox.h"
-#include <ImfExport.h>
+#include "ImfNamespace.h"
+#include "ImfExport.h"
 
-namespace Imf {
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //--------------------------------
 // Supported environment map types
@@ -118,7 +120,7 @@ namespace LatLongMap
     //----------------------------------------------------
 
     IMF_EXPORT 
-    Imath::V2f		latLong (const Imath::V3f &direction);
+    IMATH_NAMESPACE::V2f		latLong (const IMATH_NAMESPACE::V3f &direction);
 
 
     //--------------------------------------------------------
@@ -128,8 +130,8 @@ namespace LatLongMap
     //--------------------------------------------------------
 
     IMF_EXPORT 
-    Imath::V2f		latLong (const Imath::Box2i &dataWindow,
-				 const Imath::V2f &pixelPosition);
+    IMATH_NAMESPACE::V2f		latLong (const IMATH_NAMESPACE::Box2i &dataWindow,
+				 const IMATH_NAMESPACE::V2f &pixelPosition);
 
 
     //-------------------------------------------------------------
@@ -138,8 +140,8 @@ namespace LatLongMap
     //-------------------------------------------------------------
 
     IMF_EXPORT 
-    Imath::V2f		pixelPosition (const Imath::Box2i &dataWindow,
-				       const Imath::V2f &latLong);
+    IMATH_NAMESPACE::V2f		pixelPosition (const IMATH_NAMESPACE::Box2i &dataWindow,
+				       const IMATH_NAMESPACE::V2f &latLong);
 
 
     //-----------------------------------------------------
@@ -149,8 +151,8 @@ namespace LatLongMap
     //-----------------------------------------------------
 
     IMF_EXPORT 
-    Imath::V2f		pixelPosition (const Imath::Box2i &dataWindow,
-				       const Imath::V3f &direction);
+    IMATH_NAMESPACE::V2f		pixelPosition (const IMATH_NAMESPACE::Box2i &dataWindow,
+				       const IMATH_NAMESPACE::V3f &direction);
 
 
     //--------------------------------------------------------
@@ -159,8 +161,8 @@ namespace LatLongMap
     //--------------------------------------------------------
 
     IMF_EXPORT 
-    Imath::V3f		direction (const Imath::Box2i &dataWindow,
-				   const Imath::V2f &pixelPosition);
+    IMATH_NAMESPACE::V3f		direction (const IMATH_NAMESPACE::Box2i &dataWindow,
+				   const IMATH_NAMESPACE::V2f &pixelPosition);
 }
 
 
@@ -267,7 +269,7 @@ namespace CubeMap
     //---------------------------------------------
 
     IMF_EXPORT 
-    int			sizeOfFace (const Imath::Box2i &dataWindow);
+    int			sizeOfFace (const IMATH_NAMESPACE::Box2i &dataWindow);
 
 
     //------------------------------------------
@@ -276,8 +278,8 @@ namespace CubeMap
     //------------------------------------------
 
     IMF_EXPORT 
-    Imath::Box2i	dataWindowForFace (CubeMapFace face,
-					   const Imath::Box2i &dataWindow);
+    IMATH_NAMESPACE::Box2i	dataWindowForFace (CubeMapFace face,
+					   const IMATH_NAMESPACE::Box2i &dataWindow);
 
 
     //----------------------------------------------------
@@ -288,9 +290,9 @@ namespace CubeMap
     //----------------------------------------------------
 
     IMF_EXPORT 
-    Imath::V2f		pixelPosition (CubeMapFace face,
-				       const Imath::Box2i &dataWindow,
-				       Imath::V2f positionInFace);
+    IMATH_NAMESPACE::V2f		pixelPosition (CubeMapFace face,
+				       const IMATH_NAMESPACE::Box2i &dataWindow,
+				       IMATH_NAMESPACE::V2f positionInFace);
 
 
     //--------------------------------------------------------------
@@ -310,10 +312,10 @@ namespace CubeMap
     //--------------------------------------------------------------
 
     IMF_EXPORT 
-    void		faceAndPixelPosition (const Imath::V3f &direction,
-					      const Imath::Box2i &dataWindow,
+    void		faceAndPixelPosition (const IMATH_NAMESPACE::V3f &direction,
+					      const IMATH_NAMESPACE::Box2i &dataWindow,
 					      CubeMapFace &face,
-					      Imath::V2f &positionInFace);
+					      IMATH_NAMESPACE::V2f &positionInFace);
 
    
     // --------------------------------------------------------
@@ -322,12 +324,12 @@ namespace CubeMap
     // --------------------------------------------------------
 
     IMF_EXPORT 
-    Imath::V3f		direction (CubeMapFace face,
-				   const Imath::Box2i &dataWindow,
-				   const Imath::V2f &positionInFace);
+    IMATH_NAMESPACE::V3f		direction (CubeMapFace face,
+				   const IMATH_NAMESPACE::Box2i &dataWindow,
+				   const IMATH_NAMESPACE::V2f &positionInFace);
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

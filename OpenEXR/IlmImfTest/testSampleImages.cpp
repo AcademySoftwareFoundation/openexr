@@ -43,9 +43,10 @@
 #endif
 
 
-using namespace Imf;
-using namespace Imath;
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
+using namespace IMATH_NAMESPACE;
+
 
 namespace {
 
@@ -54,7 +55,7 @@ readImage (const char fileName[], unsigned int correctChecksum)
 {
     cout << "file " << fileName << " " << flush;
 
-    Imf::RgbaInputFile in (fileName);
+    OPENEXR_IMF_NAMESPACE::RgbaInputFile in (fileName);
 
     cout << "version " << in.version() << " " << flush;
 
@@ -65,7 +66,7 @@ readImage (const char fileName[], unsigned int correctChecksum)
     int dx = dw.min.x;
     int dy = dw.min.y;
 
-    Array<Imf::Rgba> pixels (w * h);
+    Array<OPENEXR_IMF_NAMESPACE::Rgba> pixels (w * h);
     in.setFrameBuffer (pixels - dx - dy * w, 1, w);
     in.readPixels (in.dataWindow().min.y, in.dataWindow().max.y);
 
@@ -98,8 +99,8 @@ compareImages (const char fileName1[], const char fileName2[])
 {
     cout << "comparing files " << fileName1 << " and " << fileName2 << endl;
 
-    Imf::RgbaInputFile in1 (fileName1);
-    Imf::RgbaInputFile in2 (fileName1);
+    OPENEXR_IMF_NAMESPACE::RgbaInputFile in1 (fileName1);
+    OPENEXR_IMF_NAMESPACE::RgbaInputFile in2 (fileName1);
 
     assert (in1.dataWindow() == in2.dataWindow());
 
@@ -110,8 +111,8 @@ compareImages (const char fileName1[], const char fileName2[])
     int dx = dw.min.x;
     int dy = dw.min.y;
 
-    Array<Imf::Rgba> pixels1 (w * h);
-    Array<Imf::Rgba> pixels2 (w * h);
+    Array<OPENEXR_IMF_NAMESPACE::Rgba> pixels1 (w * h);
+    Array<OPENEXR_IMF_NAMESPACE::Rgba> pixels2 (w * h);
 
     in1.setFrameBuffer (pixels1 - dx - dy * w, 1, w);
     in2.setFrameBuffer (pixels2 - dx - dy * w, 1, w);
@@ -146,7 +147,7 @@ testSampleImages ()
         
         for (int i = 0; i < 5; i++)
         {
-            if (IlmThread::supportsThreads ())
+            if (ILMTHREAD_NAMESPACE::supportsThreads ())
             {
                 setGlobalThreadCount (i);
 

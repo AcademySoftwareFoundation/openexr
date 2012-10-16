@@ -35,7 +35,8 @@
 #ifndef INCLUDED_IMF_THREADING_H
 #define INCLUDED_IMF_THREADING_H
 
-#include <ImfExport.h>
+#include "ImfExport.h"
+#include "ImfNamespace.h"
 
 //-----------------------------------------------------------------------------
 //
@@ -71,7 +72,7 @@
 //
 //-----------------------------------------------------------------------------
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 //-----------------------------------------------------------------------------
@@ -89,6 +90,6 @@ IMF_EXPORT int     globalThreadCount ();
 IMF_EXPORT void    setGlobalThreadCount (int count);
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

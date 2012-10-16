@@ -45,8 +45,10 @@
 #include <cmath>
 
 using namespace std;
+#include "ImfNamespace.h"
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
+
 namespace {
 
 double
@@ -122,4 +124,4 @@ Rational::Rational (double x)
 }
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

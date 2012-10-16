@@ -77,20 +77,19 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfHeader.h>
-#include <ImfRgba.h>
+#include "ImfHeader.h"
+#include "ImfRgba.h"
 #include "ImathVec.h"
 #include "ImathBox.h"
-#include <ImfThreading.h>
+#include "ImfThreading.h"
+#include "ImfNamespace.h"
+#include "ImfExport.h"
+#include "ImfForward.h"
+
 #include <string>
 
-namespace Imf {
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
-class RgbaOutputFile;
-class RgbaInputFile;
-struct PreviewRgba;
-class Chromaticities;
 
 //
 // ACES red, green, blue and white-point chromaticities.
@@ -103,7 +102,7 @@ const Chromaticities &	acesChromaticities ();
 // ACES output file.
 //
 
-class AcesOutputFile
+class IMF_EXPORT AcesOutputFile
 {
   public:
 
@@ -123,7 +122,7 @@ class AcesOutputFile
     // automatically close the file.
     //----------------------------------------------------
 
-    AcesOutputFile (OStream &os,
+    AcesOutputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
 		    const Header &header,
 		    RgbaChannels rgbaChannels = WRITE_RGBA,
                     int numThreads = globalThreadCount());
@@ -135,11 +134,11 @@ class AcesOutputFile
     //----------------------------------------------------------------
 
     AcesOutputFile (const std::string &name,
-		    const Imath::Box2i &displayWindow,
-		    const Imath::Box2i &dataWindow = Imath::Box2i(),
+		    const IMATH_NAMESPACE::Box2i &displayWindow,
+		    const IMATH_NAMESPACE::Box2i &dataWindow = IMATH_NAMESPACE::Box2i(),
 		    RgbaChannels rgbaChannels = WRITE_RGBA,
 		    float pixelAspectRatio = 1,
-		    const Imath::V2f screenWindowCenter = Imath::V2f (0, 0),
+		    const IMATH_NAMESPACE::V2f screenWindowCenter = IMATH_NAMESPACE::V2f (0, 0),
 		    float screenWindowWidth = 1,
 		    LineOrder lineOrder = INCREASING_Y,
 		    Compression compression = PIZ_COMPRESSION,
@@ -157,7 +156,7 @@ class AcesOutputFile
 		    int height,
 		    RgbaChannels rgbaChannels = WRITE_RGBA,
 		    float pixelAspectRatio = 1,
-		    const Imath::V2f screenWindowCenter = Imath::V2f (0, 0),
+		    const IMATH_NAMESPACE::V2f screenWindowCenter = IMATH_NAMESPACE::V2f (0, 0),
 		    float screenWindowWidth = 1,
 		    LineOrder lineOrder = INCREASING_Y,
 		    Compression compression = PIZ_COMPRESSION,
@@ -198,10 +197,10 @@ class AcesOutputFile
     //--------------------------
 
     const Header &		header () const;
-    const Imath::Box2i &	displayWindow () const;
-    const Imath::Box2i &	dataWindow () const;
+    const IMATH_NAMESPACE::Box2i &	displayWindow () const;
+    const IMATH_NAMESPACE::Box2i &	dataWindow () const;
     float			pixelAspectRatio () const;
-    const Imath::V2f		screenWindowCenter () const;
+    const IMATH_NAMESPACE::V2f		screenWindowCenter () const;
     float			screenWindowWidth () const;
     LineOrder			lineOrder () const;
     Compression			compression () const;
@@ -230,7 +229,7 @@ class AcesOutputFile
 // ACES input file
 //
 
-class AcesInputFile
+class IMF_EXPORT AcesInputFile
 {
   public:
 
@@ -250,7 +249,7 @@ class AcesInputFile
     // close the file.
     //-----------------------------------------------------------
 
-    AcesInputFile (IStream &is,
+    AcesInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 		   int numThreads = globalThreadCount());
 
 
@@ -288,10 +287,10 @@ class AcesInputFile
     //--------------------------
 
     const Header &		header () const;
-    const Imath::Box2i &	displayWindow () const;
-    const Imath::Box2i &	dataWindow () const;
+    const IMATH_NAMESPACE::Box2i &	displayWindow () const;
+    const IMATH_NAMESPACE::Box2i &	dataWindow () const;
     float			pixelAspectRatio () const;
-    const Imath::V2f		screenWindowCenter () const;
+    const IMATH_NAMESPACE::V2f		screenWindowCenter () const;
     float			screenWindowWidth () const;
     LineOrder			lineOrder () const;
     Compression			compression () const;
@@ -317,6 +316,9 @@ class AcesInputFile
 };
 
 
-} // namespace Imf
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+
 
 #endif
