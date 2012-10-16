@@ -158,7 +158,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\..\..\..\IlmImf;..\..\..\..\config.windows;..\..\..\..\..\..\Deploy\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\IlmImf;..\..\..\..\config.windows;..\..\..\..\..\..\Deploy\include;..\..\..\..\..\zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>OPENEXR_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;ILMIMF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -171,7 +171,7 @@
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>..\..\..\..\..\..\Deploy\lib\$(IntDir)zlib1.lib;..\..\..\..\..\..\Deploy\lib\$(IntDir)IlmThread.lib;..\..\..\..\..\..\Deploy\lib\$(IntDir)Imath.lib;..\..\..\..\..\..\Deploy\lib\$(IntDir)Iex.lib;..\..\..\..\..\..\Deploy\lib\$(IntDir)Half.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\..\..\..\..\zlib\lib\zlib1.lib;..\..\..\..\..\..\Deploy\lib\$(IntDir)IlmThread.lib;..\..\..\..\..\..\Deploy\lib\$(IntDir)Imath.lib;..\..\..\..\..\..\Deploy\lib\$(IntDir)Iex.lib;..\..\..\..\..\..\Deploy\lib\$(IntDir)Half.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)IlmImf.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -181,6 +181,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <ImportLibrary>$(OutDir)IlmImf.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>..\..\..\installIlmImf.cmd $(IntDir)</Command>
