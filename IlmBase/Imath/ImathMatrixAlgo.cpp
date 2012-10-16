@@ -266,11 +266,9 @@ namespace
 // for the Jacobi rotation J and the matrix A.  This is efficient because we
 // only need to touch exactly the 2 columns that are affected, so we never
 // need to explicitly construct the J matrix.  
-template <typename T>
+template <typename T, int j, int k>
 void
 jacobiRotateRight (Imath::Matrix33<T>& A,
-                   const int j,
-                   const int k,
                    const T c,
                    const T s)
 {
@@ -315,12 +313,9 @@ jacobiRotateRight (Imath::Matrix44<T>& A,
 //    by Richard P. Brent, Franklin T. Luk, and Charles Van Loan
 // It breaks the computation into two steps: the first symmetrizes the matrix,
 // and the second diagonalizes the symmetric matrix.  
-template <typename T>
+template <typename T, int j, int k, int l>
 bool
 twoSidedJacobiRotation (Imath::Matrix33<T>& A,
-                        int j,
-                        int k,
-                        int l,   // The 'other' entry
                         Imath::Matrix33<T>& U,
                         Imath::Matrix33<T>& V,
                         const T tol)
@@ -451,8 +446,8 @@ twoSidedJacobiRotation (Imath::Matrix33<T>& A,
     // So,
     //   U = R1a * R1b * ...
     //   V = R2a * R2b * ...
-    jacobiRotateRight (U, j, k, c_1, s_1);
-    jacobiRotateRight (V, j, k, c_2, s_2);
+    jacobiRotateRight<T, j, k> (U, c_1, s_1);
+    jacobiRotateRight<T, j, k> (V, c_2, s_2);
 
     return true;
 }
@@ -707,9 +702,9 @@ twoSidedJacobiSVD (Imath::Matrix33<T> A,
         do
         {
             ++numIter;
-            bool changed = twoSidedJacobiRotation (A, 0, 1, 2, U, V, tol);
-            changed = twoSidedJacobiRotation (A, 0, 2, 1, U, V, tol) || changed;
-            changed = twoSidedJacobiRotation (A, 1, 2, 0, U, V, tol) || changed;
+            bool changed = twoSidedJacobiRotation<T, 0, 1, 2> (A, U, V, tol);
+            changed = twoSidedJacobiRotation<T, 0, 2, 1> (A, U, V, tol) || changed;
+            changed = twoSidedJacobiRotation<T, 1, 2, 0> (A, U, V, tol) || changed;
             if (!changed)
                 break;
         } while (maxOffDiag(A) > absTol && numIter < maxIter);
