@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\config.windows"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;IEX_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;IEX_EXPORTS;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;OPENEXR_DLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -216,7 +216,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\config.windows"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;IEX_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;IEX_EXPORTS;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;OPENEXR_DLL"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="2"
@@ -392,6 +392,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\Iex\IexErrnoExc.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\Iex\IexExport.h"
 				>
 			</File>
 			<File

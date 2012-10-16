@@ -48,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\..\Half;..\..\..\..\config.windows"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN32;_DEBUG;_WINDOWS;_USRDLL;HALF_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="PLATFORM_WINDOWS;OPENEXR_DLL;WIN32;_DEBUG;_WINDOWS;_USRDLL;HALF_EXPORTS;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -222,7 +222,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\..\Half;..\..\..\..\config.windows"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;HALF_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;HALF_EXPORTS;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS"
 				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="2"
 				ForceConformanceInForLoopScope="true"

@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\Half;..\..\..\..\Imath"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN32;_DEBUG;_WINDOWS;_USRDLL;IMATH_EXPORTS"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN32;_DEBUG;_WINDOWS;_USRDLL;IMATH_EXPORTS;PLATFORM_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -216,7 +216,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\..\Iex;..\..\..\..\Half;..\..\..\..\Imath"
-				PreprocessorDefinitions="OPENEXR_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;IMATH_EXPORTS"
+				PreprocessorDefinitions="OPENEXR_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;IMATH_EXPORTS;PLATFORM_WINDOWS"
 				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="2"
 				ForceConformanceInForLoopScope="true"
@@ -423,6 +423,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\Imath\ImathExc.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\Imath\ImathExport.h"
 				>
 			</File>
 			<File
