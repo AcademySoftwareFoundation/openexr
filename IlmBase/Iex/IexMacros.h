@@ -132,7 +132,7 @@
 //
 // Example:
 //
-//	ASSERT (ptr != NULL, NullExc, "Null pointer" );
+//	ASSERT (ptr != 0, NullExc, "Null pointer" );
 //
 //-------------------------------------------------------------
 
@@ -144,5 +144,19 @@
     }                                   \
     while (0)
 
+//-------------------------------------------------------------
+// A macro to throw an IEX_NAMESPACE::LogicExc if an assertion is false,
+// with the text composed from the source code file, line number,
+// and assertion argument text.
+//
+// Example:
+//
+//      LOGIC_ASSERT (i < n);
+//
+//-------------------------------------------------------------
+#define LOGIC_ASSERT(assertion)           \
+    ASSERT(assertion,                     \
+           IEX_NAMESPACE::LogicExc,       \
+           __FILE__ << "(" << __LINE__ << "): logical assertion failed: " << #assertion )
 
 #endif
