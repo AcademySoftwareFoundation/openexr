@@ -44,8 +44,7 @@
 #include <ImfArray.h>
 #include <ImfRgba.h>
 #include <ImfEnvmap.h>
-#include <ImathBox.h>
-#include "namespaceAlias.h"
+#include "ImathBox.h"
 
 
 class EnvmapImage
@@ -53,33 +52,30 @@ class EnvmapImage
   public:
 
       EnvmapImage ();
-      EnvmapImage (CustomImf::Envmap type,
-                   const IMATH_NAMESPACE::Box2i &dataWindow);
+      EnvmapImage (Imf::Envmap type, const Imath::Box2i &dataWindow);
       
-      void				resize (CustomImf::Envmap type,
-	      					const IMATH_NAMESPACE::Box2i &dataWindow);
+      void				resize (Imf::Envmap type,
+	      					const Imath::Box2i &dataWindow);
 
       void				clear ();
 
-      CustomImf::Envmap	type () const;
-      const IMATH_NAMESPACE::Box2i &		dataWindow () const;
+      Imf::Envmap			type () const;
+      const Imath::Box2i &		dataWindow () const;
 
-      CustomImf::Array2D<CustomImf::Rgba> &
-                                        pixels ();
-      const CustomImf::Array2D<CustomImf::Rgba> &
-                                        pixels () const;
+      Imf::Array2D<Imf::Rgba> &		pixels ();
+      const Imf::Array2D<Imf::Rgba> &	pixels () const;
       
-      CustomImf::Rgba 	filteredLookup (IMATH_NAMESPACE::V3f direction,
-					float radius,
-					int numSamples) const;
+      Imf::Rgba 			filteredLookup (Imath::V3f direction,
+							float radius,
+							int numSamples) const;
 
   private:
       
-      CustomImf::Rgba 	sample (const IMATH_NAMESPACE::V2f &pos) const;
+      Imf::Rgba 			sample (const Imath::V2f &pos) const;
 
-      CustomImf::Envmap	_type;
-      IMATH_NAMESPACE::Box2i                              _dataWindow;
-      CustomImf::Array2D<CustomImf::Rgba>	_pixels;
+      Imf::Envmap		_type;
+      Imath::Box2i		_dataWindow;
+      Imf::Array2D<Imf::Rgba>	_pixels;
 };
 
 

@@ -1,5 +1,10 @@
+<<<<<<< HEAD
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+=======
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
+>>>>>>> upstream/master
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IlmImf", "IlmImf\IlmImf.vcproj", "{7DF42126-D237-41D3-9ABE-A3ACC8BAC56E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IlmImfTest", "IlmImfTest\IlmImfTest.vcproj", "{5FF57359-FC61-472E-ABDD-30D3BC4A5E9E}"

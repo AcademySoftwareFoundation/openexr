@@ -1,8 +1,13 @@
 dnl Process this file with autoconf to produce a configure script.
+<<<<<<< HEAD
+AC_INIT(OpenEXR, 1.7.1)
+AC_SUBST(OPENEXR_VERSION, 1.7.1)
+=======
 
 AC_INIT(OpenEXR, 2.0.0)
 AC_SUBST(OPENEXR_VERSION, 2.0.0)
 AC_SUBST(OPENEXR_VERSION_SAFE, 2_0_0)
+>>>>>>> upstream/master
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(IlmImfTest/main.cpp)
 AM_CONFIG_HEADER(config/OpenEXRConfig.h)
@@ -10,7 +15,11 @@ AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 
 
+<<<<<<< HEAD
+LIBTOOL_CURRENT=7
+=======
 LIBTOOL_CURRENT=20
+>>>>>>> upstream/master
 LIBTOOL_REVISION=0
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
@@ -54,12 +63,15 @@ AM_PATH_PKGCONFIG(
    [-lImath -lHalf -lIex -lIlmThread -lpthread],
    [ilmbase-prefix])
 
+<<<<<<< HEAD
+=======
 
 dnl Define the version string
 AC_DEFINE_UNQUOTED(OPENEXR_VERSION_STRING, "${VERSION}")
 AC_DEFINE_UNQUOTED(OPENEXR_PACKAGE_STRING, "${PACKAGE_STRING}")
 
 
+>>>>>>> upstream/master
 dnl --enable-threading
 AC_ARG_ENABLE(threading,
               AC_HELP_STRING([--enable-threading],
@@ -69,7 +81,11 @@ AC_ARG_ENABLE(threading,
 if test x$PKG_CONFIG == xno && test "x${multithread}" != xno ; then
     ACX_PTHREAD(
     [
+<<<<<<< HEAD
+	AC_DEFINE(HAVE_PTHREAD)
+=======
 	AC_DEFINE(OPENEXR_IMF_HAVE_PTHREAD)
+>>>>>>> upstream/master
 	ILMBASE_LIBS="$PTHREAD_LIBS $ILMBASE_LIBS"
 	ILMBASE_CXXFLAGS="$ILMBASE_CXXFLAGS $PTHREAD_CFLAGS"
 	CC="$PTHREAD_CC"
@@ -101,7 +117,11 @@ case "$host" in
 esac
 
 if test "x${large_stack}" != xno ; then
+<<<<<<< HEAD
+    AC_DEFINE(HAVE_LARGE_STACK)
+=======
     AC_DEFINE(OPENEXR_IMF_HAVE_LARGE_STACK)
+>>>>>>> upstream/master
 fi
 
 AM_COMPILELINKRUN(
@@ -113,7 +133,11 @@ AM_COMPILELINKRUN(
 #include <stdlib.h>
 #include <ImathFun.h>
 ]],
+<<<<<<< HEAD
+   [[double d = Imath::succd(.23); d+= .2;]],
+=======
    [[double d = IMATH_NAMESPACE::succd(.23); d+= .2;]],
+>>>>>>> upstream/master
    AC_MSG_RESULT([Compiled and ran IlmBase test program.]), 
    AC_MSG_ERROR([Could not compile IlmBase test program.]))
 
@@ -151,7 +175,11 @@ AC_TRY_COMPILE([#include <iomanip>],[
 
 	std::right;
 ],
+<<<<<<< HEAD
+AC_DEFINE(HAVE_COMPLETE_IOMANIP) complete_iomanip=yes)
+=======
 AC_DEFINE(OPENEXR_IMF_HAVE_COMPLETE_IOMANIP) complete_iomanip=yes)
+>>>>>>> upstream/master
 AC_MSG_RESULT($complete_iomanip)
 AC_LANG_RESTORE
 
@@ -168,10 +196,17 @@ AC_MSG_RESULT([$EXTRA_OPT_CFLAGS])
 dnl Platform-specific stuff
 case "$host" in
 *linux*)
+<<<<<<< HEAD
+  AC_DEFINE(HAVE_LINUX_PROCFS)
+  ;;
+*darwin*) 
+  AC_DEFINE(HAVE_DARWIN) 
+=======
   AC_DEFINE(OPENEXR_IMF_HAVE_LINUX_PROCFS)
   ;;
 *darwin*) 
   AC_DEFINE(OPENEXR_IMF_HAVE_DARWIN) 
+>>>>>>> upstream/master
 
   dnl OS X universal binary support, requires --disable-dependency-tracking
   AC_ARG_ENABLE(osx-universal-binaries,
@@ -217,6 +252,8 @@ AC_ARG_ENABLE(imffuzztest,
 
 AM_CONDITIONAL(BUILD_IMFFUZZTEST, test "x$build_imffuzztest" = xyes)
 
+<<<<<<< HEAD
+=======
 dnl build imfhugetest?
 build_imfhugetest="no"
 AC_ARG_ENABLE(imfhugetest,
@@ -303,6 +340,7 @@ else
 fi
 
 
+>>>>>>> upstream/master
 
 AC_OUTPUT([
 Makefile
@@ -321,16 +359,37 @@ exrenvmap/Makefile
 exrmultiview/Makefile
 exr2aces/Makefile
 vc/Makefile
+<<<<<<< HEAD
+=======
 exrbuild/Makefile
 exrmultipart/Makefile
+>>>>>>> upstream/master
 ])
 
-AC_MSG_RESULT([
+if test "x$build_osxuniversal" = xyes; then
+  AC_MSG_RESULT([
 ---------------------------------------------
 Summary for OpenEXR features:
 
 build IlmImf example program                    $build_imfexamples
 build IlmImf damaged input resilience test      $build_imffuzztest
+<<<<<<< HEAD
+build OS X universal binaries                   $build_osxuniversal
+enable large stack optimizations                $large_stack
+---------------------------------------------
+  ])
+else
+  AC_MSG_RESULT([
+---------------------------------------------
+Summary for OpenEXR features:
+
+build IlmImf example program                    $build_imfexamples
+build IlmImf damaged input resilience test      $build_imffuzztest
+enable large stack optimizations                $large_stack
+---------------------------------------------
+  ])
+fi
+=======
 build IlmImf huge input test                    $build_imfhugetest
 enable large stack optimizations                $large_stack
 internal library namespace                      $lib_namespace
@@ -345,4 +404,5 @@ AC_MSG_RESULT([
 ---------------------------------------------
 ])
 
+>>>>>>> upstream/master
 

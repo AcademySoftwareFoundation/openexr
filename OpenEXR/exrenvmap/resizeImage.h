@@ -43,20 +43,20 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "EnvmapImage.h"
+#include <EnvmapImage.h>
 
 
 void
 resizeLatLong (const EnvmapImage &image1,
 	       EnvmapImage &image2,
-	       const IMATH_NAMESPACE::Box2i &image2DataWindow,
+	       const Imath::Box2i &image2DataWindow,
 	       float filterRadius,
 	       int numSamples);
 
 void
 resizeCube (const EnvmapImage &image1,
 	    EnvmapImage &image2,
-	    const IMATH_NAMESPACE::Box2i &image2DataWindow,
+	    const Imath::Box2i &image2DataWindow,
 	    float filterRadius,
 	    int numSamples);
 

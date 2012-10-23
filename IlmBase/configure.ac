@@ -1,7 +1,12 @@
 dnl Process this file with autoconf to produce a configure script.
+<<<<<<< HEAD
+AC_INIT(IlmBase, 1.0.3)
+AC_SUBST(ILMBASE_VERSION, 1.0.3)
+=======
 AC_INIT(IlmBase, 2.0.0)
 AC_SUBST(ILMBASE_VERSION, 2.0.0)
 AC_SUBST(ILMBASE_VERSION_SAFE, 2_0_0)
+>>>>>>> upstream/master
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(ImathTest/main.cpp)
 AM_CONFIG_HEADER(config/IlmBaseConfig.h)
@@ -9,7 +14,11 @@ AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 
 
+<<<<<<< HEAD
+LIBTOOL_CURRENT=7
+=======
 LIBTOOL_CURRENT=10
+>>>>>>> upstream/master
 LIBTOOL_REVISION=0
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
@@ -56,9 +65,13 @@ if test "${multithread}" != no ; then
     AC_MSG_NOTICE([multithread true, LIBS = $LIBS, CC = $CC, CXXFLAGS = $CXXFLAGS])
 fi
 
+<<<<<<< HEAD
+dnl Checks for header files.
+=======
 dnl
 dnl Checks for header files.
 dnl
+>>>>>>> upstream/master
 AC_HEADER_STDC
 AC_CHECK_HEADERS(limits.h unistd.h ucontext.h)
 
@@ -84,6 +97,8 @@ AC_DEFINE(HAVE_COMPLETE_IOMANIP) complete_iomanip=yes)
 AC_MSG_RESULT($complete_iomanip)
 AC_LANG_RESTORE
 
+<<<<<<< HEAD
+=======
 dnl --enable-large-stack
 case "$host" in
 *linux*)
@@ -112,6 +127,7 @@ dnl Define the version string
 AC_DEFINE_UNQUOTED(ILMBASE_VERSION_STRING, "${VERSION}")
 AC_DEFINE_UNQUOTED(ILMBASE_PACKAGE_STRING, "${PACKAGE_STRING}")
 
+>>>>>>> upstream/master
 
 AC_MSG_CHECKING(for gcc optimization flags)
 old_cflags=$CFLAGS
@@ -122,6 +138,8 @@ AC_TRY_COMPILE([#include <stdio.h>],
 CFLAGS=$old_cflags
 AC_MSG_RESULT([$EXTRA_OPT_CFLAGS])
 
+<<<<<<< HEAD
+=======
 
 
 dnl
@@ -212,6 +230,7 @@ fi
 
 
 
+>>>>>>> upstream/master
 dnl Platform-specific stuff
 case "$host" in
 *darwin*) 
@@ -296,6 +315,28 @@ ImathTest/Makefile
 vc/Makefile
 ])
 
+<<<<<<< HEAD
+if test "$osx_arch"; then
+  AC_MSG_RESULT([
+---------------------------------------------
+Summary for IlmBase features:
+
+OS X architectures                              $osx_arch
+OS X SDK                                        $osx_sdk
+OS X two-way universal build (deprecated)       $build_osxuniversal
+---------------------------------------------
+  ])
+else
+  AC_MSG_RESULT([
+---------------------------------------------
+Summary for IlmBase features:
+
+No variable options in this package.  Configure completed successfully.
+---------------------------------------------
+  ])
+fi
+
+=======
 
 dnl
 dnl Summary Configuration Messages
@@ -336,3 +377,4 @@ fi
 AC_MSG_RESULT([
 ---------------------------------------------
 ])
+>>>>>>> upstream/master

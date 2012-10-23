@@ -5,14 +5,22 @@
 // used by any OpenEXR library or application code.
 //
 
+<<<<<<< HEAD
+#undef HAVE_LINUX_PROCFS
+=======
 #undef OPENEXR_IMF_HAVE_LINUX_PROCFS
+>>>>>>> upstream/master
 
 //
 // Define and set to 1 if the target system is a Darwin-based system
 // (e.g., OS X).
 //
 
+<<<<<<< HEAD
+#undef HAVE_DARWIN
+=======
 #undef OPENEXR_IMF_HAVE_DARWIN
+>>>>>>> upstream/master
 
 //
 // Define and set to 1 if the target system has a complete <iomanip>
@@ -20,13 +28,21 @@
 // formatter.
 //
 
+<<<<<<< HEAD
+#undef HAVE_COMPLETE_IOMANIP
+=======
 #undef OPENEXR_IMF_HAVE_COMPLETE_IOMANIP
+>>>>>>> upstream/master
 
 //
 // Define and set to 1 if the target system has support for large
 // stack sizes.
 //
 
+<<<<<<< HEAD
+#undef HAVE_LARGE_STACK
+
+=======
 #undef OPENEXR_IMF_HAVE_LARGE_STACK
 
 //
@@ -48,3 +64,4 @@
 
 #undef OPENEXR_VERSION_STRING
 #undef OPENEXR_PACKAGE_STRING
+>>>>>>> upstream/master

@@ -1,0 +1,23 @@
+This directory contains multi-view OpenEXR images with a number of
+formatting variations (scan lines vs. tiles, image channels, etc.).
+All images contain at least a left-eye and a right-eye view suitable
+for presentation on a stereo display.  The images have been prepared
+for viewing with a pixel density of approximately 100 pixels per
+inch; the width of the displayed images should be about 5 to 10
+inches (12 to 25 cm).
+
+
+file name       format          channels            number     default
+                                                    of views   view
+----------------------------------------------------------------------
+
+Balls.exr       scan lines      R, G, B             2          left
+
+LosPadres.exr   scan lines      R, G, B             2          right
+
+Adjuster.exr    scan lines      R, G, B             3          center
+
+Fog.exr         scan lines      Y (luminance only)  2          left
+
+Impact.exr      tiled mip-map   R, G, B             2          left
+

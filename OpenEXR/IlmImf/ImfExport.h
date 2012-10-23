@@ -32,15 +32,36 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#if defined(OPENEXR_DLL)
-    #if defined(ILMIMF_EXPORTS)
-	    #define IMF_EXPORT __declspec(dllexport)
-        #define IMF_EXPORT_CONST extern __declspec(dllexport)
-    #else
-	    #define IMF_EXPORT __declspec(dllimport)
-	    #define IMF_EXPORT_CONST extern __declspec(dllimport)
-    #endif
-#else
-    #define IMF_EXPORT
-    #define IMF_EXPORT_CONST extern const
+#ifndef IMFEXPORT_H
+#define IMFEXPORT_H
+
+#if defined (_MSC_VER) && !defined(PLATFORM_WINDOWS)
+#    define PLATFORM_WINDOWS
 #endif
+
+#if defined(PLATFORM_WINDOWS)
+#  if defined(PLATFORM_BUILD_STATIC)
+#    define IMF_EXPORT_DEFINITION 
+#    define IMF_IMPORT_DEFINITION
+#  else
+#    define IMF_EXPORT_DEFINITION __declspec(dllexport) 
+#    define IMF_IMPORT_DEFINITION __declspec(dllimport)
+#  endif
+#else   // linux/macos
+#  if defined(PLATFORM_VISIBILITY_AVAILABLE)
+#    define IMF_EXPORT_DEFINITION __attribute__((visibility("default")))
+#    define IMF_IMPORT_DEFINITION
+#  else
+#    define IMF_EXPORT_DEFINITION 
+#    define IMF_IMPORT_DEFINITION
+#  endif
+#endif
+
+#if defined(ILMIMF_EXPORTS)                        // create library
+#  define IMF_EXPORT IMF_EXPORT_DEFINITION
+#else                                              // use library
+#  define IMF_EXPORT IMF_IMPORT_DEFINITION
+#endif
+
+#endif // #ifndef IMFEXPORT_H
+

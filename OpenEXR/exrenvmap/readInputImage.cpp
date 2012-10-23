@@ -52,10 +52,9 @@
 #include <string.h>
 
 
-#include "namespaceAlias.h"
-using namespace CustomImf;
 using namespace std;
-using namespace IMATH_NAMESPACE;
+using namespace Imf;
+using namespace Imath;
 
 
 namespace {
@@ -164,7 +163,7 @@ readSixImages (const char inFileName[],
 
         if (w != h)
         {
-            THROW (IEX_NAMESPACE::InputExc,
+            THROW (Iex::InputExc,
                    "Cube face image " << name << " is not square.");
         }
 
@@ -189,7 +188,7 @@ readSixImages (const char inFileName[],
 
         if (in.dataWindow() != dw)
         {
-            THROW (IEX_NAMESPACE::InputExc,
+            THROW (Iex::InputExc,
                    "The data window of cube face " << name << " differs "
                    "from the data window of other cube faces.");
         }

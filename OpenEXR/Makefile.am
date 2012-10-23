@@ -6,8 +6,12 @@ ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = config IlmImf \
 	  IlmImfTest IlmImfFuzzTest exrheader exrmaketiled IlmImfExamples doc \
+<<<<<<< HEAD
+	  exrstdattr exrmakepreview exrenvmap exrmultiview exr2aces
+=======
 	  exrstdattr exrmakepreview exrenvmap exrmultiview exr2aces exrbuild  \
 	  exrmultipart
+>>>>>>> upstream/master
 
 DIST_SUBDIRS = \
 	$(SUBDIRS) \
@@ -17,8 +21,12 @@ EXTRA_DIST = \
 	AUTHORS COPYING ChangeLog INSTALL LICENSE NEWS \
         README README.CVS README.OSX bootstrap README.win32 \
 	openexr.m4 \
+<<<<<<< HEAD
+	config.windows/OpenEXRConfig.h
+=======
 	config.windows/OpenEXRConfig.h \
         CMakeLists.txt
+>>>>>>> upstream/master
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = OpenEXR.pc

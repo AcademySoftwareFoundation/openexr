@@ -48,6 +48,7 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfHeader.h"
+#include "ImfExport.h"
 #include "ImfFrameBuffer.h"
 #include "ImfRgba.h"
 #include "ImathVec.h"
@@ -65,7 +66,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // RGBA output file.
 //
 
-class RgbaOutputFile
+class IMF_EXPORT RgbaOutputFile
 {
   public:
 
@@ -225,7 +226,7 @@ class RgbaOutputFile
 // RGBA input file
 //
 
-class RgbaInputFile
+class IMF_EXPORT RgbaInputFile
 {
   public:
 

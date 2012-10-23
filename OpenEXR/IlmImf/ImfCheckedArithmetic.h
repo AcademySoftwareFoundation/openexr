@@ -48,12 +48,15 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1600)
+#   define IMF_STATIC_ASSERT(x) static_assert(x, "IMF assertion")
+#else
 template <bool b> struct StaticAssertionFailed;
 template <> struct StaticAssertionFailed <true> {};
 
 #define IMF_STATIC_ASSERT(x) \
     do {StaticAssertionFailed <x> staticAssertionFailed; ((void) staticAssertionFailed);} while (false)
-
+#endif
 
 template <class T>
 T
