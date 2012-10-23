@@ -35,6 +35,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#if defined (_MSC_VER) && !defined(PLATFORM_WINDOWS)
+#    define PLATFORM_WINDOWS
+#endif
 
 #if defined(PLATFORM_WINDOWS)
 #  if defined(PLATFORM_BUILD_STATIC)

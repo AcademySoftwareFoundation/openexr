@@ -29,5 +29,8 @@
     <ClInclude Include="..\..\..\..\Half\halfLimits.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\config.windows\IlmBaseConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

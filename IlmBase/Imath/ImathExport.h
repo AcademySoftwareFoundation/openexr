@@ -32,15 +32,42 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#if defined(OPENEXR_DLL)
-    #if defined(IMATH_EXPORTS)
-	    #define IMATH_EXPORT __declspec(dllexport)
-        #define IMATH_EXPORT_CONST extern __declspec(dllexport)
-    #else
-	    #define IMATH_EXPORT __declspec(dllimport)
-	    #define IMATH_EXPORT_CONST extern __declspec(dllimport)
-    #endif
-#else
-    #define IMATH_EXPORT
-    #define IMATH_EXPORT_CONST extern const
+#ifndef IMATHEXPORT_H
+#define IMATHEXPORT_H
+
+#if defined (_MSC_VER) && !defined(PLATFORM_WINDOWS)
+#    define PLATFORM_WINDOWS
 #endif
+
+#if defined(PLATFORM_WINDOWS)
+#  if defined(PLATFORM_BUILD_STATIC)
+#    define IMATH_EXPORT_DEFINITION 
+#    define IMATH_EXPORT_CONST_DEFINITION extern const
+#    define IMATH_IMPORT_DEFINITION
+#  else
+#    define IMATH_EXPORT_DEFINITION __declspec(dllexport) 
+#    define IMATH_EXPORT_CONST_DEFINITION extern __declspec(dllexport) 
+#    define IMATH_IMPORT_DEFINITION __declspec(dllimport)
+#  endif
+#else   // linux/macos
+#  if defined(PLATFORM_VISIBILITY_AVAILABLE)
+#    define IMATH_EXPORT_DEFINITION __attribute__((visibility("default")))
+#    define IMATH_EXPORT_CONST_DEFINITION __attribute__((visibility("default"))) extern const
+#    define IMATH_IMPORT_DEFINITION
+#  else
+#    define IMATH_EXPORT_DEFINITION 
+#    define IMATH_IMPORT_DEFINITION
+#    define IMATH_EXPORT_CONST_DEFINITION extern const
+#  endif
+#endif
+
+#if defined(IMATH_EXPORTS)                          // create library
+#  define IMATH_EXPORT IMATH_EXPORT_DEFINITION
+#  define IMATH_EXPORT_CONST IMATH_EXPORT_CONST_DEFINITION
+#else                                              // use library
+#  define IMATH_EXPORT IMATH_IMPORT_DEFINITION
+#  define IMATH_EXPORT_CONST IMATH_EXPORT_CONST_DEFINITION
+#endif
+
+#endif // #ifndef IMATHEXPORT_H
+

@@ -62,7 +62,13 @@
 //	string of bytes is compressed with zlib.
 //
 //-----------------------------------------------------------------------------
-#define ZLIB_WINAPI 
+
+// TODO: This should be a compile configuration
+// Use this one for static linking libraries on Windows
+//#define ZLIB_WINAPI
+// Use this one for dynamic linking libraries on Windows
+#define ZLIB_DLL
+
 
 #include <ImfPxr24Compressor.h>
 #include <ImfHeader.h>

@@ -153,7 +153,7 @@ RgbaLut::apply (Rgba *base,
 half
 round12log (half x)
 {
-    const float middleval = pow (2.0, -2.5);
+    const float middleval = powf (2.0f, -2.5f);
     int int12log;
 
     if (x <= 0)
@@ -171,7 +171,7 @@ round12log (half x)
 	    int12log = 1;
     }
 
-    return middleval * pow (2.0, (int12log - 2000.0) / 200.0);
+    return middleval * powf (2.0f, ((float) int12log - 2000.0f) / 200.0f);
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

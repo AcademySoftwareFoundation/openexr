@@ -159,7 +159,7 @@
     </PreBuildEvent>
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\..\..\Half;..\..\..\..\config.windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DLL;OPENEXR_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;HALF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PLATFORM_WINDOWS;_DLL;OPENEXR_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;HALF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
@@ -230,6 +230,7 @@
     <ClCompile Include="..\..\..\..\Half\half.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\config.windows\IlmBaseConfig.h" />
     <ClInclude Include="..\..\..\..\Half\half.h" />
     <ClInclude Include="..\..\..\..\Half\halfFunction.h" />
     <ClInclude Include="..\..\..\..\Half\halfLimits.h" />

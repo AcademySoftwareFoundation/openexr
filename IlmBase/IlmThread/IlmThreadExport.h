@@ -32,15 +32,36 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#if defined(OPENEXR_DLL)
-    #if defined(ILMTHREAD_EXPORTS)
-	    #define ILMTHREAD_EXPORT __declspec(dllexport)
-        #define ILMTHREAD_EXPORT_CONST extern __declspec(dllexport)
-    #else
-	    #define ILMTHREAD_EXPORT __declspec(dllimport)
-	    #define ILMTHREAD_EXPORT_CONST extern __declspec(dllimport)
-    #endif
-#else
-    #define ILMTHREAD_EXPORT
-    #define ILMTHREAD_EXPORT_CONST extern const
+#ifndef ILMTHREADEXPORT_H
+#define ILMTHREADEXPORT_H
+
+#if defined (_MSC_VER) && !defined(PLATFORM_WINDOWS)
+#    define PLATFORM_WINDOWS
 #endif
+
+#if defined(PLATFORM_WINDOWS)
+#  if defined(PLATFORM_BUILD_STATIC)
+#    define ILMTHREAD_EXPORT_DEFINITION 
+#    define ILMTHREAD_IMPORT_DEFINITION
+#  else
+#    define ILMTHREAD_EXPORT_DEFINITION __declspec(dllexport) 
+#    define ILMTHREAD_IMPORT_DEFINITION __declspec(dllimport)
+#  endif
+#else   // linux/macos
+#  if defined(PLATFORM_VISIBILITY_AVAILABLE)
+#    define ILMTHREAD_EXPORT_DEFINITION __attribute__((visibility("default")))
+#    define ILMTHREAD_IMPORT_DEFINITION
+#  else
+#    define ILMTHREAD_EXPORT_DEFINITION 
+#    define ILMTHREAD_IMPORT_DEFINITION
+#  endif
+#endif
+
+#if defined(ILMTHREAD_EXPORTS)                          // create library
+#  define ILMTHREAD_EXPORT ILMTHREAD_EXPORT_DEFINITION
+#else                                              // use library
+#  define ILMTHREAD_EXPORT ILMTHREAD_IMPORT_DEFINITION
+#endif
+
+#endif // #ifndef ILMTHREADEXPORT_H
+
