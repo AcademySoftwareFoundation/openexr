@@ -46,10 +46,10 @@
 #include "Iex.h"
 #include <string.h>
 
-#include "namespaceAlias.h"
-using namespace CustomImf;
+
 using namespace std;
-using namespace IMATH_NAMESPACE;
+using namespace Imf;
+using namespace Imath;
 
 
 void
@@ -61,7 +61,7 @@ resizeLatLong (const EnvmapImage &image1,
 {
     int w = image2DataWindow.max.x - image2DataWindow.min.x + 1;
     int h = image2DataWindow.max.y - image2DataWindow.min.y + 1;
-    float radius = 0.5f * 2 * M_PI * filterRadius / w;
+    float radius = 0.5f * float(2 * M_PI) * filterRadius / w;
 
     image2.resize (ENVMAP_LATLONG, image2DataWindow);
     image2.clear ();
@@ -70,11 +70,11 @@ resizeLatLong (const EnvmapImage &image1,
 
     for (int y = 0; y < h; ++y)
     {
-	for (int x = 0; x < w; ++x)
-	{
-	    V3f dir = LatLongMap::direction (image2DataWindow, V2f (x, y));
-	    pixels[y][x] = image1.filteredLookup (dir, radius, numSamples);
-	}
+        for (int x = 0; x < w; ++x)
+        {
+	        V3f dir = LatLongMap::direction (image2DataWindow, V2f ((float) x, (float) y));
+	        pixels[y][x] = image1.filteredLookup (dir, radius, numSamples);
+        }
     }
 }
 
@@ -120,23 +120,23 @@ resizeCube (const EnvmapImage &image1,
 
     for (int f = CUBEFACE_POS_X; f <= CUBEFACE_NEG_Z; ++f)
     {
-	CubeMapFace face = CubeMapFace (f);
+        CubeMapFace face = CubeMapFace (f);
 
-	for (int y = 0; y < sof; ++y)
-	{
-	    for (int x = 0; x < sof; ++x)
-	    {
-		V2f posInFace (x, y);
+        for (int y = 0; y < sof; ++y)
+        {
+            for (int x = 0; x < sof; ++x)
+            {
+                V2f posInFace ((float) x, (float) y);
 
-		V3f dir =
-		    CubeMap::direction (face, image2DataWindow, posInFace);
+                V3f dir =
+                    CubeMap::direction (face, image2DataWindow, posInFace);
 
-		V2f pos =
-		    CubeMap::pixelPosition (face, image2DataWindow, posInFace);
-		
-		pixels[int (pos.y + 0.5f)][int (pos.x + 0.5f)] =
-		    image1.filteredLookup (dir, radius, numSamples);
-	    }
-	}
+                V2f pos =
+                    CubeMap::pixelPosition (face, image2DataWindow, posInFace);
+
+                pixels[int (pos.y + 0.5f)][int (pos.x + 0.5f)] =
+                    image1.filteredLookup (dir, radius, numSamples);
+            }
+        }
     }
 }
