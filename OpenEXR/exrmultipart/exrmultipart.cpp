@@ -171,7 +171,7 @@ filename_check (vector <string> names, const char* aname)
 
 
 void
-combine (vector <const char*> in, const char* outname, bool override)
+combine (vector <const char*> in, vector<const char *> views,const char* outname, bool override)
 {
     int numInputs = in.size();
     int numparts;
@@ -207,6 +207,10 @@ combine (vector <const char*> in, const char* outname, bool override)
                 {
                     inputs.push_back (infile);
                     headers.push_back (infile->header(j));
+                    if( views[i] != NULL )
+                    {
+                        headers[headers.size()-1].setView( views[i] );
+                    }
                     partnums.push_back (j);
                 }
             }
@@ -239,6 +243,10 @@ combine (vector <const char*> in, const char* outname, bool override)
                 //copy header from required part of input to our header array
                 inputs.push_back (infile);
                 headers.push_back (infile->header(numparts));
+                if( views[i] != NULL )
+                {
+                     headers[headers.size()-1].setView( views[i] );
+                }                
                 partnums.push_back (numparts);
             }
             catch (IEX_NAMESPACE::BaseExc &e)
@@ -413,6 +421,8 @@ usageMessage (const char argv[])
             "attributes [default]\n"
             "                     1-override conflicting shared attributes\n";
 
+    cerr << "-view name           (after specifying -i) "
+            "assign following inputs to view 'name'\n";
     exit (1);
 }
 
@@ -425,11 +435,13 @@ main (int argc, char * argv[])
     }
 
     vector <const char*> inFiles;
+    vector <const char*> views;
+    const char* view = 0;
     const char *outFile = 0;
     bool override = false;
 
     int i = 1;
-    int mode = 0; // 0-do not read input, 1-infiles, 2-outfile, 3-override
+    int mode = 0; // 0-do not read input, 1-infiles, 2-outfile, 3-override, 4-view
 
     while (i < argc)
     {
@@ -450,15 +462,29 @@ main (int argc, char * argv[])
         {
             mode = 3;
         }
+        else if (!strcmp (argv[i], "-view"))
+        {
+            if(mode !=1 )
+            {
+                usageMessage (argv[0]);
+                return 1;
+            }
+            mode = 4;
+        }
         else
         {
             switch (mode)
             {
-            case 1: inFiles.push_back (argv[i]);
+            case 1:
+                inFiles.push_back (argv[i]);
+                views.push_back (view);
                 break;
             case 2: outFile = argv[i];
                 break;
             case 3: override = atoi (argv[i]);
+                break;
+            case 4: view = argv[i];
+                 mode=1;
                 break;
             }
         }
@@ -474,7 +500,11 @@ main (int argc, char * argv[])
 
     cout << "input:" << endl;
     for (size_t i = 0; i < inFiles.size(); i++)
-        cout << "      " << inFiles[i] << endl;
+    {
+        cout << "      " << inFiles[i];
+        if(views[i]) cout << " in view " << views[i];
+        cout << endl;
+    }
 
     if (!outFile)
     {
@@ -489,7 +519,7 @@ main (int argc, char * argv[])
     if (!strcmp (argv[1], "-combine"))
     {
         cout << "-combine multipart input " << endl;
-        combine (inFiles, outFile, override);
+        combine (inFiles, views, outFile, override);
     }
     else if (!strcmp(argv[1], "-separate"))
     {
