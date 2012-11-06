@@ -1,7 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
+// Copyright (c) 2012, Weta Digital Ltd
 // 
 // All rights reserved.
 // 
@@ -14,7 +13,7 @@
 // copyright notice, this list of conditions and the following disclaimer
 // in the documentation and/or other materials provided with the
 // distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
+// *       Neither the name of Weta Digital nor the names of
 // its contributors may be used to endorse or promote products derived
 // from this software without specific prior written permission. 
 // 
@@ -32,67 +31,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifndef TESTPARTHELPER_H_
+#define TESTPARTHELPER_H_
 
+void testPartHelper();
 
-#ifndef INCLUDED_IMF_AUTO_ARRAY_H
-#define INCLUDED_IMF_AUTO_ARRAY_H
-
-//-----------------------------------------------------------------------------
-//
-//	class AutoArray -- a workaround for systems with
-//	insufficient stack space for large auto arrays.
-//
-//-----------------------------------------------------------------------------
-
-#include "ImfNamespace.h"
-#include <string.h>
-
-OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
-
-
-#if !defined (HAVE_LARGE_STACK)
-
-
-    template <class T, int size>
-    class AutoArray
-    {
-      public:
-
-	 AutoArray (): _data (new T [size]) { memset(_data, 0, size*sizeof(T)); }
-	~AutoArray () {delete [] _data;}
-
-	operator T * ()			{return _data;}
-	operator const T * () const	{return _data;}
-      
-      private:
-
-	T *_data;
-    };
-
-
-#else
-
-
-    template <class T, int size>
-    class AutoArray
-    {
-      public:
-
-	operator T * ()			{return _data;}
-	operator const T * () const	{return _data;}
-      
-      private:
-
-	T _data[size];
-    };
-
-
-#endif
-
-OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
-
-#endif
+#endif /* TESTPARTHELPER_H_ */

@@ -146,7 +146,8 @@ libIlmImfinclude_HEADERS = ImfForward.h ImfAttribute.h ImfBoxAttribute.h \
 			   ImfDeepTiledOutputPart.h \
 			   ImfDeepFrameBuffer.h \
 			   ImfDeepCompositing.h ImfCompositeDeepScanLine.h \
-			   ImfNamespace.h ImfForward.h ImfExport.h
+			   ImfNamespace.h ImfForward.h ImfExport.h \
+			   ImfPartHelper.h
 
 noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
 		 ImfPizCompressor.h ImfMisc.h ImfAutoArray.h ImfTiledMisc.h \
