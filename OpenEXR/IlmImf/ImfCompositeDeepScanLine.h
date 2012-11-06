@@ -129,9 +129,8 @@ class IMF_EXPORT CompositeDeepScanLine
         
         void setCompositing(DeepCompositing *);
         
- 
+      struct Data; 
     private :  
-      struct Data;
       struct Data *_Data;
       
       CompositeDeepScanLine(const CompositeDeepScanLine &); // not implemented

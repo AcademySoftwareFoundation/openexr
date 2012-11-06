@@ -56,7 +56,8 @@
 #include <ImfCompression.h>
 #include <ImfInputFile.h>
 #include <ImfCompositeDeepScanLine.h>
-
+#include <ImfThreading.h>
+#include <IlmThread.h>
 
 namespace{
 
@@ -90,7 +91,7 @@ using IMATH_NAMESPACE::Box2i;
 using OPENEXR_IMF_NAMESPACE::DEEPSCANLINE;
 using OPENEXR_IMF_NAMESPACE::ZIPS_COMPRESSION;
 using OPENEXR_IMF_NAMESPACE::InputFile;
-
+using OPENEXR_IMF_NAMESPACE::setGlobalThreadCount;
 using OPENEXR_IMF_NAMESPACE::CompositeDeepScanLine;
 
 // a marker to say we've done inserting values into a sample: do mydata << end()
@@ -646,42 +647,58 @@ void testCompositeDeepScanLine()
 {
     
     cout << "\n\nTesting deep compositing interface basic functionality:\n" << endl;
+
+    int passes=2;
+    if (!ILMTHREAD_NAMESPACE::supportsThreads ())
+    {
+            passes=1;
+    }
+  
+
+        srand(1);
     
+    for(int pass=0;pass<2;pass++)
+    {
     
-    srand(1);
+        test_parts<float>(0,1,true,true);
+        test_parts<float>(0,1,false,false);
+        test_parts<half>(0,1,true,false);
+        test_parts<half>(0,1,false,true);
     
-    test_parts<float>(0,1,true,true);
-    test_parts<float>(0,1,false,false);
-    test_parts<half>(0,1,true,false);
-    test_parts<half>(0,1,false,true);
+        //
+        // test pattern 1: tested by confirming data is written correctly and 
+        // then reading correct results in Nuke
+        //
+        test_parts<float>(1,1,true,false);
+        test_parts<float>(1,1,false,true);
+        test_parts<half>(1,1,true,true);
+        test_parts<half>(1,1,false,false);
+        
     
-    //
-    // test pattern 1: tested by confirming data is written correctly and 
-    // then reading correct results in Nuke
-    //
-    test_parts<float>(1,1,true,false);
-    test_parts<float>(1,1,false,true);
-    test_parts<half>(1,1,true,true);
-    test_parts<half>(1,1,false,false);
+        cout << "Testing deep compositing across multiple parts:\n" << endl;
     
-    
-    cout << "Testing deep compositing across multiple parts:\n" << endl;
-    
-    test_parts<float>(0,5,true,false);
-    test_parts<float>(0,5,false,true);
-    test_parts<half>(0,5,true,false);
-    test_parts<half>(0,5,false,true);
-    
-    test_parts<float>(1,3,true,true);
-    test_parts<float>(1,3,false,false);
-    test_parts<half>(1,3,true,true);
-    test_parts<half>(1,3,false,false);
-    
-    test_parts<float>(1,4,true,true);
-    test_parts<float>(1,4,false,false);
-    test_parts<half>(1,4,true,false);
-    test_parts<half>(1,4,false,true);
-    
+        test_parts<float>(0,5,true,false);
+        test_parts<float>(0,5,false,true);
+        test_parts<half>(0,5,true,false);
+        test_parts<half>(0,5,false,true);
+        
+        test_parts<float>(1,3,true,true);
+        test_parts<float>(1,3,false,false);
+        test_parts<half>(1,3,true,true);
+        test_parts<half>(1,3,false,false);
+        
+        test_parts<float>(1,4,true,true);
+        test_parts<float>(1,4,false,false);
+        test_parts<half>(1,4,true,false);
+        test_parts<half>(1,4,false,true);
+        
+
+        if(passes==2 && pass==0)
+        {
+            cout << " testing with multithreading...\n";
+            setGlobalThreadCount(64);
+        }
+    }
     cout << " ok\n" << endl;
     
 }
