@@ -317,5 +317,58 @@ ChannelList::operator == (const ChannelList &other) const
     return i == end() && j == other.end();
 }
 
+OptimizationMode::ChannelsInfo
+ChannelList::getOptimizationInfo() const
+{
+    OptimizationMode::ChannelsInfo optimizationInfo;
+    optimizationInfo._format = OptimizationMode::PIXELFORMAT_OTHER;
+
+    int fullMask = 0;
+
+    for (ChannelList::ConstIterator j = _map.begin();
+	 j != _map.end();
+	 ++j)
+    {
+        // convert the channel name into a string for easy manipulation
+        // find out the last element after the last dot
+        std::string channelName = j.name();
+        fullMask |= getMaskFromChannelName(channelName);
+    }
+
+    switch (fullMask)
+    {
+        case IIFOptimizable::CHANNELMASK_RGB:
+
+            optimizationInfo._format = OptimizationMode::PIXELFORMAT_RGB;
+            optimizationInfo._multiview = OptimizationMode::MULTIVIEW_MONO;
+            break;
+        
+        case IIFOptimizable::CHANNELMASK_RGBA:
+
+            optimizationInfo._format = OptimizationMode::PIXELFORMAT_RGBA;
+            optimizationInfo._multiview = OptimizationMode::MULTIVIEW_MONO;
+            break;
+
+        case IIFOptimizable::CHANNELMASK_RGB_STEREO:
+
+            optimizationInfo._format = OptimizationMode::PIXELFORMAT_RGB;
+            optimizationInfo._multiview = OptimizationMode::MULTIVIEW_STEREO;
+            break;
+
+        case IIFOptimizable::CHANNELMASK_RGBA_STEREO:
+
+            optimizationInfo._format = OptimizationMode::PIXELFORMAT_RGBA;
+            optimizationInfo._multiview = OptimizationMode::MULTIVIEW_STEREO;
+            break;
+
+        default:
+
+            optimizationInfo._format = OptimizationMode::PIXELFORMAT_OTHER;   
+            break;
+    }
+
+    return optimizationInfo;
+}
+
 
 } // namespace Imf

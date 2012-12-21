@@ -49,6 +49,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <ImfOptimizedPixelReading.h>
 
 
 namespace Imf {
@@ -111,7 +112,7 @@ struct Channel
 };
 
 
-class ChannelList
+class ChannelList : public IIFOptimizable
 {
   public:
 
@@ -257,6 +258,12 @@ class ChannelList
 
     bool			operator == (const ChannelList &other) const;
 
+    //-------------------------------------------------------------
+    // Special cases of framebuffer for optimizations (IIF files)
+    //-------------------------------------------------------------
+    virtual OptimizationMode::ChannelsInfo getOptimizationInfo() const;
+    using IIFOptimizable::getMaskFromChannelName;
+	
   private:
 
     ChannelMap			_map;

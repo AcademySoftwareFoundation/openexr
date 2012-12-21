@@ -53,7 +53,7 @@ namespace Imf {
 //
 
 const int MAGIC = 20000630;
-
+const char MAGIC_CHAR[4] = {0x01, 0x31, 0x2F, 0x76};
 
 //
 // The second item in each OpenEXR image file, right after the

@@ -75,6 +75,7 @@ struct HufDec
     int		len:8;		// code length		0	 
     int		lit:24;		// lit			p size	 
     int	*	p;		// 0			lits	 
+    int		_a[16];		// initial buffer p points to	 
 };
 
 
@@ -648,19 +649,21 @@ hufBuildDecTable
 
 	    pl->lit++;
 
-	    if (pl->p)
+	    if (pl->lit > sizeof(pl->_a) / sizeof(*pl->_a))
 	    {
-		int *p = pl->p;
-		pl->p = new int [pl->lit];
+	        int *p = pl->p;
+	        pl->p = new int [pl->lit];
 
-		for (int i = 0; i < pl->lit - 1; ++i)
-		    pl->p[i] = p[i];
+	        memcpy(pl->p, p, (pl->lit - 1) * sizeof(*p));
 
-		delete [] p;
+	        if (p != pl->_a)
+	        {
+	            delete [] p;
+	        }
 	    }
 	    else
 	    {
-		pl->p = new int [1];
+	        pl->p = pl->_a;
 	    }
 
 	    pl->p[pl->lit - 1]= im;
@@ -702,11 +705,11 @@ hufFreeDecTable (HufDec *hdecod)	// io: Decoding table
 {
     for (int i = 0; i < HUF_DECSIZE; i++)
     {
-	if (hdecod[i].p)
-	{
-	    delete [] hdecod[i].p;
-	    hdecod[i].p = 0;
-	}
+	    if (hdecod[i].p != hdecod[i]._a && hdecod[i].p)
+        {
+            delete [] hdecod[i].p;
+            hdecod[i].p = 0;
+        }
     }
 }
 

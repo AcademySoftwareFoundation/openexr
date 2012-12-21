@@ -48,6 +48,7 @@
 #include <ImfPixelType.h>
 #include <map>
 #include <string>
+#include <ImfOptimizedPixelReading.h>
 
 
 namespace Imf {
@@ -147,7 +148,7 @@ struct Slice
 };
 
 
-class FrameBuffer
+class FrameBuffer : public IIFOptimizable
 {
   public:
 
@@ -184,8 +185,13 @@ class FrameBuffer
 
     Slice *			findSlice (const std::string &name);
     const Slice *		findSlice (const std::string &name) const;
-
-
+   
+    //-------------------------------------------------------------
+    // Special cases of framebuffer for optimizations (IIF files)
+    //-------------------------------------------------------------
+    virtual OptimizationMode::ChannelsInfo getOptimizationInfo() const;
+    using IIFOptimizable::getMaskFromChannelName;
+	
     //-----------------------------------------
     // Iterator-style access to existing slices
     //-----------------------------------------

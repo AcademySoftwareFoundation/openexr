@@ -101,7 +101,9 @@ libIlmImfinclude_HEADERS = ImfAttribute.h ImfBoxAttribute.h \
 			   ImfTestFile.h ImfThreading.h \
 			   ImfB44Compressor.h ImfStringVectorAttribute.h \
 			   ImfMultiView.h \
-			   ImfAcesFile.h
+			   ImfAcesFile.h \
+                           ImfOptimizedPixelReading.h \
+                           ImfSystemSpecific.h
 
 noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
 		 ImfPizCompressor.h ImfMisc.h ImfAutoArray.h ImfTiledMisc.h \

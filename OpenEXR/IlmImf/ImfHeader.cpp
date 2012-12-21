@@ -244,6 +244,8 @@ Header::Header (const Header &other): _map()
     {
 	insert (*i->first, *i->second);
     }
+
+    _endian = other._endian;
 }
 
 
@@ -278,6 +280,8 @@ Header::operator = (const Header &other)
 	{
 	    insert (*i->first, *i->second);
 	}
+
+        _endian = other._endian;
     }
 
     return *this;
@@ -952,16 +956,33 @@ Header::readFrom (IStream &is, int &version)
     // Read the magic number and the file format version number.
     // Then check if we can read the rest of this file.
     //
-
     int magic;
+    char magicNumber[4];
+    is.read(magicNumber, 4);
 
-    Xdr::read <StreamIO> (is, magic);
-    Xdr::read <StreamIO> (is, version);
-
-    if (magic != MAGIC)
+    // Do not use XDR here, we right the magic number into bytes to
+    // determine the endianness of the file
+    if(magicNumber[0] == MAGIC_CHAR[0] &&
+       magicNumber[1] == MAGIC_CHAR[1] &&
+       magicNumber[2] == MAGIC_CHAR[2] &&
+       magicNumber[3] == MAGIC_CHAR[3])
     {
-	throw Iex::InputExc ("File is not an image file.");
+        _endian = IMF_BIG_ENDIAN;
     }
+    else if (magicNumber[3] == MAGIC_CHAR[0] &&
+             magicNumber[2] == MAGIC_CHAR[1] &&
+             magicNumber[1] == MAGIC_CHAR[2] &&
+             magicNumber[0] == MAGIC_CHAR[3])
+    {
+        _endian = IMF_LITTLE_ENDIAN;
+    }
+    else
+    {
+    	throw Iex::InputExc ("File is not an image file.");
+    }
+
+
+    Xdr::read <StreamIO> (is, version);
 
     if (getVersion (version) != EXR_VERSION)
     {
@@ -1052,6 +1073,12 @@ Header::readFrom (IStream &is, int &version)
 	    }
 	}
     }
+}
+
+
+const Header::Endian& Header::getEndian() const
+{
+    return _endian;
 }
 
 

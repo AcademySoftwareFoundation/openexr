@@ -356,6 +356,22 @@ class Header
   private:
 
     AttributeMap		_map;
+
+
+    //------------------------------------------------------------------
+    // Optimisation additions for dealing with differing endian archs
+    //------------------------------------------------------------------
+  public:
+
+    enum Endian
+    {
+        IMF_LITTLE_ENDIAN = 0,
+        IMF_BIG_ENDIAN    = 1
+    };
+    const Endian&               getEndian() const;
+
+  private:
+    Endian              _endian;
 };
 
 

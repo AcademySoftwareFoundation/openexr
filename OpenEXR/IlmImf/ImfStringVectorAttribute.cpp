@@ -83,7 +83,14 @@ StringVectorAttribute::readValueFrom (IStream &is, int size, int version)
        std::string str;
        str.resize (strSize);
   
-       Xdr::read<StreamIO> (is, &str[0], strSize);
+       // Some implementations of std::string throw exceptions when 
+       // tyring to access any element of a string resized to 0.  
+       // The following check is necessary on some compilers.
+       if(strSize > 0)
+       {
+           Xdr::read<StreamIO> (is, &str[0], strSize);
+       }
+       
        read += strSize;
 
        _value.push_back (str);

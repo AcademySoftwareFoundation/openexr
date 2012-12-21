@@ -63,6 +63,7 @@
 #include <testIsComplete.h>
 #include <testSharedFrameBuffer.h>
 #include <testMultiView.h>
+#include <testOptimized.h>
 #include <stdlib.h>
 #include <iostream>
 #include <string.h>
@@ -77,6 +78,7 @@
 int
 main (int argc, char *argv[])
 {
+    TEST (testOptimized);
     TEST (testMagic);
     TEST (testXdr);
     TEST (testHuf);

@@ -45,6 +45,7 @@
 #include <ImfHeader.h>
 #include <ImfFrameBuffer.h>
 #include <ImfThreading.h>
+#include <ImfOptimizedPixelReading.h>
 
 namespace Imf {
 
@@ -161,8 +162,20 @@ class ScanLineInputFile
 
     struct Data;
 
-  private:
+    OptimizationMode detectOptimizationMode (const FrameBuffer&frameBuffer, 
+                                             const ChannelList& channels);
 
+  private:
+   
+
+    // We support SSE optimizations for RGB and RGBA with the following transitions.  Left is format in file and right is format in framebuffer
+    // RGB -> RGB
+    // RGBA -> RGB
+    // RGB -> RGBA
+    // RGBA -> RGBA
+
+
+    OptimizationMode _optimizationMode;
     Data *		_data;
 };
 
