@@ -62,7 +62,7 @@
 
 extern "C"
 {
-#if defined __SSE2__
+#if IMF_HAVE_SSE2
 	// include the intrinsics headers for the _m128 type
 	#include <emmintrin.h>
 	#include <mmintrin.h>
@@ -608,7 +608,7 @@ LineBufferTask::execute ()
 }
 
 
-#if defined __SSE2__
+#if IMF_HAVE_SSE2
 
 //
 // IIF format is more restricted than a perfectly generic one,
@@ -1011,7 +1011,7 @@ void LineBufferTaskIIF::execute()
 }
 
 
-#endif // defined __SSE2__
+#endif // IMF_HAVE_SSE2
 
 
 Task* newLineBufferTask (TaskGroup *group,
@@ -1066,7 +1066,7 @@ Task* newLineBufferTask (TaskGroup *group,
 
     Task* retTask = 0;
 
-#if defined __SSE2__
+#if IMF_HAVE_SSE2
     if (optimizationMode._destination._format != OptimizationMode::PIXELFORMAT_OTHER && optimizationMode._source._format != OptimizationMode::PIXELFORMAT_OTHER)
     {
         retTask = new LineBufferTaskIIF (group, ifd, lineBuffer, scanLineMin, scanLineMax, optimizationMode);
