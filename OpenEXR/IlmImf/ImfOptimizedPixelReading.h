@@ -41,8 +41,10 @@
 
 extern "C"
 {
-#include <emmintrin.h>
-#include <mmintrin.h>
+#if defined __SSE2__
+	#include <emmintrin.h>
+	#include <mmintrin.h>
+#endif
 }
 
 #include "ImfSystemSpecific.h"
@@ -217,6 +219,9 @@ protected:
         return channelMask;
     }
 };
+
+
+#if defined __SSE2__
 
 
 //------------------------------------------------------------------------
@@ -788,6 +793,9 @@ void optimizedWriteToRGB (unsigned short*& readPtrRed,
     writeToRGBNormal (readPtrRed, readPtrGreen, readPtrBlue,
                       writePtr, pixelsToCopyNormal);
 }
+
+
+#endif // defined __SSE2__
 
 
 } // namespace Imf
