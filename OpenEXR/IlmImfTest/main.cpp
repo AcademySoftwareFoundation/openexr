@@ -80,6 +80,7 @@
 #include "testInputPart.h"
 #include "testBackwardCompatibility.h"
 #include "testCopyMultiPartFile.h"
+#include "testPartHelper.h"
 #include <stdlib.h>
 #include <iostream>
 #include <string.h>
@@ -133,6 +134,7 @@ main (int argc, char *argv[])
     TEST (testCompositeDeepScanLine,"deep");
     TEST (testMultiPartFileMixingBasic,"multi");
     TEST (testInputPart,"multi");
+    TEST (testPartHelper,"multi");
     TEST (testMultiScanlinePartThreading,"multi");
     TEST (testMultiTiledPartThreading,"multi");
     TEST (testMultiPartThreading,"multi");
