@@ -60,11 +60,13 @@
 #include <vector>
 #include <assert.h>
 
-// include the intrinsics headers for the _m128 type
 extern "C"
 {
-#include <emmintrin.h>
-#include <mmintrin.h>
+#if IMF_HAVE_SSE2
+	// include the intrinsics headers for the _m128 type
+	#include <emmintrin.h>
+	#include <mmintrin.h>
+#endif
 }
 
 namespace Imf {
@@ -605,6 +607,9 @@ LineBufferTask::execute ()
     }
 }
 
+
+#if IMF_HAVE_SSE2
+
 //
 // IIF format is more restricted than a perfectly generic one,
 // so it is possible to perform some optimizations.
@@ -1006,6 +1011,9 @@ void LineBufferTaskIIF::execute()
 }
 
 
+#endif // IMF_HAVE_SSE2
+
+
 Task* newLineBufferTask (TaskGroup *group,
                          ScanLineInputFile::Data *ifd,
                          int number,
@@ -1058,11 +1066,13 @@ Task* newLineBufferTask (TaskGroup *group,
 
     Task* retTask = 0;
 
+#if IMF_HAVE_SSE2
     if (optimizationMode._destination._format != OptimizationMode::PIXELFORMAT_OTHER && optimizationMode._source._format != OptimizationMode::PIXELFORMAT_OTHER)
     {
         retTask = new LineBufferTaskIIF (group, ifd, lineBuffer, scanLineMin, scanLineMax, optimizationMode);
     }
     else
+#endif
     {
         retTask = new LineBufferTask (group, ifd, lineBuffer, scanLineMin, scanLineMax, optimizationMode);
     }
