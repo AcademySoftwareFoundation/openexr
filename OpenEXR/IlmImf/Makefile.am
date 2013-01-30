@@ -79,7 +79,8 @@ libIlmImf_la_SOURCES = ImfForward.h ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgb
 		       ImfDeepTiledInputFile.h ImfDeepTiledInputFile.cpp ImfDeepTiledOutputFile.h ImfDeepTiledOutputFile.cpp \
 		       ImfDeepFrameBuffer.cpp ImfDeepFrameBuffer.h \
 		       ImfDeepCompositing.h ImfDeepCompositing.cpp \
-		       ImfCompositeDeepScanLine.h ImfCompositeDeepScanLine.cpp
+		       ImfCompositeDeepScanLine.h ImfCompositeDeepScanLine.cpp ImfSystemSpecific.h \
+                       ImfOptimizedPixelReading.h
 
 libIlmImf_la_LDFLAGS = @ILMBASE_LDFLAGS@ -version-info @LIBTOOL_VERSION@ \
 			-no-undefined 
@@ -152,7 +153,8 @@ noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
 		 ImfPizCompressor.h ImfMisc.h ImfAutoArray.h ImfTiledMisc.h \
 		 ImfTileOffsets.h ImfScanLineInputFile.h ImfPxr24Compressor.h \
 		 ImfCheckedArithmetic.h  ImfInputStreamMutex.h ImfOutputStreamMutex.h  \
-          	 ImfInputPartData.h ImfOutputPartData.h ImfScanLineInputFile.h 
+          	 ImfInputPartData.h ImfOutputPartData.h ImfScanLineInputFile.h ImfSystemSpecific.h \
+                 ImfOptimizedPixelReading.h
 
 EXTRA_DIST = $(noinst_HEADERS) b44ExpLogTable.cpp b44ExpLogTable.h CMakeLists.txt
 
