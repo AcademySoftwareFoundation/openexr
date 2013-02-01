@@ -62,8 +62,8 @@
 #include <assert.h>
 
 using namespace std;
-using namespace Imath;
-using namespace Imf;
+using namespace IMATH_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
 
 
 namespace
