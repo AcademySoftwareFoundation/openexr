@@ -53,17 +53,18 @@ out-of-order samples, precision issues, compression artifacts, and the
 differences between the "deepopacity" vs "deepalpha" interpretations.
 
 With "deepopacity" (the pre-prman 16 usage), opacity values stored in
-dtex files were accumulated, so they were bounded between 0 and 1, and
-monotonically increased from fully transparent to fully opaque. This
-representation is ideal for meaningful error minimization during 
-compression, and also for usage as a shadow map by a renderer, because
-the extinction at a particular depth, at a particular pixel, can be 
-evaluated with a single look-up. However, this representation is 
-poor for deep compositing, because each of the samples includes 
-data from smaller depth samples, and recombination is difficult. With
-these types of files, when using volumetric (continuous) interpretation,
-the samples represent the accumulated alpha at the NEAR SIDE of a
-depth span, and our code paths take this into account.
+dtex files were accumulated, so they were bounded between 0 and 1. The
+values stored are actually not opacities, but rather transmissivities
+(1-opacity), and monotonically decreased from fully transparent (1)
+to fully opaque (0). This representation is ideal for meaningful error 
+minimization during  compression, and also for usage as a shadow map 
+by a renderer, because the extinction at a particular depth, at a 
+particular pixel, can be evaluated with a single look-up. However, 
+this representation is poor for deep compositing, because each of the 
+samples includes data from smaller depth samples, and recombination is 
+difficult. With these types of files, when using volumetric (continuous) 
+interpretation, the samples represent the accumulated transmissivity at 
+the NEAR SIDE of a depth span, and our code paths take this into account.
 
 With all other usages - "a" and "rgba", the values represent filtered
 samples of the given field at that point in space. The alpha values

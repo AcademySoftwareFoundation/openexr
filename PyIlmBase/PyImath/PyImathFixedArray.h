@@ -80,22 +80,31 @@ class FixedArray
   public:
     typedef T   BaseType;
 
-    FixedArray(T *ptr, size_t length, size_t stride = 1)
+    FixedArray(T *ptr, Py_ssize_t length, Py_ssize_t stride = 1)
         : _ptr(ptr), _length(length), _stride(stride), _handle(), _unmaskedLength(0)
     {
+        if (length < 0) {
+            throw Iex::LogicExc("Fixed array length must be non-negative");
+        }
+        if (stride <= 0) {
+            throw Iex::LogicExc("Fixed array stride must be positive");
+        }
         // nothing
     }
 
-    FixedArray(T *ptr, size_t length, size_t stride, boost::any handle) 
+    FixedArray(T *ptr, Py_ssize_t length, Py_ssize_t stride, boost::any handle) 
         : _ptr(ptr), _length(length), _stride(stride), _handle(handle), _unmaskedLength(0)
     {
         if (_length < 0) {
             throw IEX_NAMESPACE::LogicExc("Fixed array length must be non-negative");
         }
+        if (stride <= 0) {
+            throw Iex::LogicExc("Fixed array stride must be positive");
+        }
         // nothing
     }
 
-    explicit FixedArray(size_t length)
+    explicit FixedArray(Py_ssize_t length)
         : _ptr(0), _length(length), _stride(1), _handle(), _unmaskedLength(0)
     {
         if (_length < 0) {
@@ -108,7 +117,7 @@ class FixedArray
         _ptr = a.get();
     }
 
-    FixedArray(size_t length,Uninitialized)
+    FixedArray(Py_ssize_t length,Uninitialized)
         : _ptr(0), _length(length), _stride(1), _handle(), _unmaskedLength(0)
     {
         if (_length < 0) {
@@ -119,7 +128,7 @@ class FixedArray
         _ptr = a.get();
     }
 
-    FixedArray(const T &initialValue, size_t length)
+    FixedArray(const T &initialValue, Py_ssize_t length)
         : _ptr(0), _length(length), _stride(1), _handle(), _unmaskedLength(0)
     {
         if (_length < 0) {
@@ -232,7 +241,8 @@ class FixedArray
             if (PySlice_GetIndicesEx(slice,_length,&s,&e,&step,&sl) == -1) {
                 boost::python::throw_error_already_set();
             }
-            if (s < 0 || e < 0 || sl < 0) {
+            // e can be -1 if the iteration is backwards with a negative slice operator [::-n] (n > 0).
+            if (s < 0 || e < -1 || sl < 0) {
                 throw IEX_NAMESPACE::LogicExc("Slice extraction produced invalid start, end, or length indices");
             }
             start = s;

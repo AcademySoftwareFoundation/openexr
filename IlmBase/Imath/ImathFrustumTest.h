@@ -38,10 +38,10 @@
 
 //-------------------------------------------------------------------------
 //
-//      This file contains algorithms applied to or in conjunction with
-//	Frustum visibility testing (IMATH_INTERNAL_NAMESPACE::Frustum).
+//  This file contains algorithms applied to or in conjunction with
+//  Frustum visibility testing (Imath::Frustum).
 //
-//	Methods for frustum-based rejection of primitives are contained here.
+//  Methods for frustum-based rejection of primitives are contained here.
 //
 //-------------------------------------------------------------------------
 
@@ -73,8 +73,8 @@ IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 // How to use this
 //
 // Given that you already have:
-//    IMATH_INTERNAL_NAMESPACE::Frustum   myFrustum
-//    IMATH_INTERNAL_NAMESPACE::Matrix44  myCameraWorldMatrix
+//    Imath::Frustum   myFrustum
+//    Imath::Matrix44  myCameraWorldMatrix
 //
 // First, make a frustum test object:
 //    FrustumTest myFrustumTest(myFrustum, myCameraWorldMatrix)
@@ -307,6 +307,9 @@ bool FrustumTest<T>::completelyContains(const Sphere3<T> &sphere) const
 template<typename T>
 bool FrustumTest<T>::isVisible(const Box<Vec3<T> > &box) const
 {
+    if (box.isEmpty())
+        return false;
+    
     Vec3<T> center = (box.min + box.max) / 2;
     Vec3<T> extent = (box.max - center);
 
@@ -345,6 +348,9 @@ bool FrustumTest<T>::isVisible(const Box<Vec3<T> > &box) const
 template<typename T>
 bool FrustumTest<T>::completelyContains(const Box<Vec3<T> > &box) const
 {
+    if (box.isEmpty())
+        return false;
+    
     Vec3<T> center = (box.min + box.max) / 2;
     Vec3<T> extent = (box.max - center);
 

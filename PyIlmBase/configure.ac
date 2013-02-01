@@ -54,8 +54,13 @@ AM_COMPILELINKRUN(
    [$ILMBASE_LIBS],[[
 #include <stdlib.h>
 #include <ImathFun.h>
+#ifndef IMATH_NAMESPACE 
+#define IMATH_NAMESPACE Imath 
+#endif
 ]],
-   [[double d = Imath::succd(.23); d+= .2;]],
+   [[
+   double d = IMATH_NAMESPACE::succd(.23); d+= .2;
+   ]],
    AC_MSG_RESULT([Compiled and ran IlmBase test program.]), 
    AC_MSG_ERROR([Could not compile IlmBase test program.]))
 
