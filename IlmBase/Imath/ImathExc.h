@@ -49,25 +49,23 @@
 
 IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
+// Attempt to normalize null vector
+DEFINE_EXC_EXP (IMATH_EXPORT, NullVecExc, ::IEX_NAMESPACE::MathExc)
 
-DEFINE_EXC_EXP (IMATH_EXPORT, NullVecExc, ::IEX_NAMESPACE::MathExc)	    // Attempt to normalize
-									    // null vector
+// Attempt to normalize a point at infinity
+DEFINE_EXC_EXP (IMATH_EXPORT, InfPointExc, ::IEX_NAMESPACE::MathExc)
 
-DEFINE_EXC_EXP (IMATH_EXPORT, InfPointExc, ::IEX_NAMESPACE::MathExc)	    // Attempt to normalize
-									    // a point at infinity
+// Attempt to normalize null quaternion
+DEFINE_EXC_EXP (IMATH_EXPORT, NullQuatExc, ::IEX_NAMESPACE::MathExc)
 
-DEFINE_EXC_EXP (IMATH_EXPORT, NullQuatExc, ::IEX_NAMESPACE::MathExc)	    // Attempt to normalize
-									    // null quaternion
+// Attempt to invert singular matrix
+DEFINE_EXC_EXP (IMATH_EXPORT, SingMatrixExc, ::IEX_NAMESPACE::MathExc)
 
-DEFINE_EXC_EXP (IMATH_EXPORT, SingMatrixExc, ::IEX_NAMESPACE::MathExc)	    // Attempt to invert
-									    // singular matrix
+// Attempt to remove zero scaling from matrix
+DEFINE_EXC_EXP (IMATH_EXPORT, ZeroScaleExc, ::IEX_NAMESPACE::MathExc)
 
-DEFINE_EXC_EXP (IMATH_EXPORT, ZeroScaleExc, ::IEX_NAMESPACE::MathExc)	    // Attempt to remove zero
-									    // scaling from matrix
-
-DEFINE_EXC_EXP (IMATH_EXPORT, IntVecNormalizeExc, ::IEX_NAMESPACE::MathExc) // Attempt to normalize
-									    // a vector of whose elements
-									    // are an integer type
+// Attempt to normalize a vector of whose elementsare an integer type
+DEFINE_EXC_EXP (IMATH_EXPORT, IntVecNormalizeExc, ::IEX_NAMESPACE::MathExc)
 
 
 IMATH_INTERNAL_NAMESPACE_HEADER_EXIT

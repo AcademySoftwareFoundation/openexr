@@ -88,7 +88,49 @@ setItemTuple(FixedArray<IMATH_NAMESPACE::Vec4<T> > &va, Py_ssize_t index, const 
 }
 
 template <class T>
-class_<FixedArray<IMATH_NAMESPACE::Vec4<T> > >
+static IMATH_NAMESPACE::Vec4<T>
+Vec4Array_min(const FixedArray<IMATH_NAMESPACE::Vec4<T> > &a) {
+    Vec4<T> tmp(Vec4<T>(0));
+    size_t len = a.len();
+    if (len > 0)
+        tmp = a[0];
+    for (size_t i=1; i < len; ++i)
+    {
+        if (a[i].x < tmp.x)
+            tmp.x = a[i].x;
+        if (a[i].y < tmp.y)
+            tmp.y = a[i].y;
+        if (a[i].z < tmp.z)
+            tmp.z = a[i].z;
+        if (a[i].w < tmp.w)
+            tmp.w = a[i].w;
+    }
+    return tmp;
+}
+
+template <class T>
+static IMATH_NAMESPACE::Vec4<T>
+Vec4Array_max(const FixedArray<Imath::Vec4<T> > &a) {
+    Vec4<T> tmp(Vec4<T>(0));
+    size_t len = a.len();
+    if (len > 0)
+        tmp = a[0];
+    for (size_t i=1; i < len; ++i)
+    {
+        if (a[i].x > tmp.x)
+            tmp.x = a[i].x;
+        if (a[i].y > tmp.y)
+            tmp.y = a[i].y;
+        if (a[i].z > tmp.z)
+            tmp.z = a[i].z;
+        if (a[i].w > tmp.w)
+            tmp.w = a[i].w;
+    }
+    return tmp;
+}
+
+template <class T>
+class_<FixedArray<Imath::Vec4<T> > >
 register_Vec4Array()
 {
     using boost::mpl::true_;
@@ -100,6 +142,8 @@ register_Vec4Array()
         .add_property("z",&Vec4Array_get<T,2>)
         .add_property("w",&Vec4Array_get<T,3>)
         .def("__setitem__", &setItemTuple<T>)
+        .def("min", &Vec4Array_min<T>)
+        .def("max", &Vec4Array_max<T>)
         ;
 
     add_arithmetic_math_functions(vec4Array_class);

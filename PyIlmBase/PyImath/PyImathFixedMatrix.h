@@ -285,6 +285,18 @@ FixedMatrix<Ret> apply_matrix_scalar_binary_op(const FixedMatrix<T1> &a1, const 
     return retval;
 }
 
+template <template <class,class,class> class Op, class T1, class T2, class Ret>
+FixedMatrix<Ret> apply_matrix_scalar_binary_rop(const FixedMatrix<T1> &a1, const T2 &a2)
+{
+    int rows = a1.rows();
+    int cols = a1.cols();
+    FixedMatrix<Ret> retval(rows,cols);
+    for (int i=0;i<rows;++i) for (int j=0; j<cols; ++j) {
+        retval.element(i,j) = Op<T2,T1,Ret>::apply(a2,a1.element(i,j));
+    }
+    return retval;
+}
+
 // in-place binary operation application
 template <template <class,class> class Op, class T1, class T2>
 FixedMatrix<T1> & apply_matrix_matrix_ibinary_op(FixedMatrix<T1> &a1, const FixedMatrix<T2> &a2)
@@ -434,26 +446,26 @@ template <class T>
 static void add_arithmetic_math_functions(boost::python::class_<FixedMatrix<T> > &c) {
     using namespace boost::python;
     c
-        .def(self + self)
-        .def(self + other<T>())
-        .def(other<T>() + self)
-        .def(self - self)
-        .def(self - other<T>())
-        .def(other<T>() - self)
-        .def(self * self)
-        .def(self * other<T>())
-        .def(other<T>() * self)
-        .def(self / self)
-        .def(self / other<T>())
-        .def(-self)
-        .def(self += self)
-        .def(self += other<T>())
-        .def(self -= self)
-        .def(self -= other<T>())
-        .def(self *= self)
-        .def(self *= other<T>())
-        .def(self /= self)
-        .def(self /= other<T>())
+        .def("__add__",&apply_matrix_matrix_binary_op<op_add,T,T,T>)
+        .def("__add__",&apply_matrix_scalar_binary_op<op_add,T,T,T>)
+        .def("__radd__",&apply_matrix_scalar_binary_rop<op_add,T,T,T>)
+        .def("__sub__",&apply_matrix_matrix_binary_op<op_sub,T,T,T>)
+        .def("__sub__",&apply_matrix_scalar_binary_op<op_sub,T,T,T>)
+        .def("__rsub__",&apply_matrix_scalar_binary_op<op_rsub,T,T,T>)
+        .def("__mul__",&apply_matrix_matrix_binary_op<op_mul,T,T,T>)
+        .def("__mul__",&apply_matrix_scalar_binary_op<op_mul,T,T,T>)
+        .def("__rmul__",&apply_matrix_scalar_binary_rop<op_mul,T,T,T>)
+        .def("__div__",&apply_matrix_matrix_binary_op<op_div,T,T,T>)
+        .def("__div__",&apply_matrix_scalar_binary_op<op_div,T,T,T>)
+        .def("__neg__",&apply_matrix_unary_op<op_neg,T,T>)
+        .def("__iadd__",&apply_matrix_matrix_ibinary_op<op_iadd,T,T>,return_internal_reference<>())
+        .def("__iadd__",&apply_matrix_scalar_ibinary_op<op_iadd,T,T>,return_internal_reference<>())
+        .def("__isub__",&apply_matrix_matrix_ibinary_op<op_isub,T,T>,return_internal_reference<>())
+        .def("__isub__",&apply_matrix_scalar_ibinary_op<op_isub,T,T>,return_internal_reference<>())
+        .def("__imul__",&apply_matrix_matrix_ibinary_op<op_imul,T,T>,return_internal_reference<>())
+        .def("__imul__",&apply_matrix_scalar_ibinary_op<op_imul,T,T>,return_internal_reference<>())
+        .def("__idiv__",&apply_matrix_matrix_ibinary_op<op_idiv,T,T>,return_internal_reference<>())
+        .def("__idiv__",&apply_matrix_scalar_ibinary_op<op_idiv,T,T>,return_internal_reference<>())
         ;
 }
 

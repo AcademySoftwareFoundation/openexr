@@ -246,7 +246,7 @@ testExtendByPoint(const char *type)
     {
         T p;
         for (unsigned int j = 0; j < T::dimensions(); j++)
-            p[j] = rand.nextf(-12345, 12345);
+            p[j] = typename T::BaseType (rand.nextf(-12345, 12345));
                               
         IMATH_INTERNAL_NAMESPACE::Box<T> b;
         b.extendBy(p);
@@ -268,7 +268,7 @@ testExtendByPoint(const char *type)
         {
             T p;
             for (unsigned int k = 0; k < T::dimensions(); k++)
-                p[k] = rand.nextf(-12345, 12345);
+                p[k] =  typename T::BaseType (rand.nextf(-12345, 12345));
 
             if (j == 0)
             {
@@ -345,8 +345,8 @@ testExtendByBox(const char *type)
             T p1;
             for (unsigned int k = 0; k < T::dimensions(); k++)
             {
-                p0[k] = rand.nextf(   0,  999);
-                p1[k] = rand.nextf(1000, 1999);
+                p0[k] = typename T::BaseType (rand.nextf(   0,  999));
+                p1[k] = typename T::BaseType (rand.nextf(1000, 1999));
             }
 
             min = b.min;
@@ -701,8 +701,8 @@ testCenter(const char *type)
         T p1;
         for (unsigned int i = 0; i < T::dimensions(); i++)
         {
-            p0[i] = -pow(2.0, (int)(i + 1));
-            p1[i] =  pow(2.0, (int)(T::dimensions() - i));
+            p0[i] = -typename T::BaseType(1 << (i + 1));
+            p1[i] =  typename T::BaseType(1 << (T::dimensions() - i));
         }
         IMATH_INTERNAL_NAMESPACE::Box<T> b1(p0, p1);
         assert(b1.center() == (p1 + p0) / 2);
@@ -755,8 +755,8 @@ testIsEmpty(const char *type)
         T p1;
         for (unsigned int i = 0; i < T::dimensions(); i++)
         {
-           p0[i] = -pow(2.0, (int)(i + 1));
-           p1[i] =  pow(2.0, (int)(T::dimensions() - i));
+           p0[i] = -typename T::BaseType(1 << (i + 1));
+           p1[i] =  typename T::BaseType(1 << (T::dimensions() - i));
         }
         IMATH_INTERNAL_NAMESPACE::Box<T> b1(p0, p1);
         assert(!b1.isEmpty());
@@ -873,8 +873,8 @@ testHasVolume(const char *type)
         T p1;
         for (unsigned int i = 0; i < T::dimensions(); i++)
         {
-            p0[i] = -pow(2.0, (int)(i + 1));
-            p1[i] =  pow(2.0, (int)(T::dimensions() - i));
+            p0[i] = -typename T::BaseType(1 << (i + 1));
+            p1[i] =  typename T::BaseType(1 << (T::dimensions() - i));
         }
         IMATH_INTERNAL_NAMESPACE::Box<T> b1(p0, p1);
         assert(b1.hasVolume());

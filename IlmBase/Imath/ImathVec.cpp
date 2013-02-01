@@ -204,6 +204,7 @@ Vec2<short>::normalizedNonNull () const
 // Vec2<int>
 
 template <> 
+IMATH_EXPORT
 int
 Vec2<int>::length () const
 {
@@ -547,6 +548,7 @@ Vec4<int>::normalizeNonNull ()
 }
 
 template <>
+IMATH_EXPORT
 Vec4<int>
 Vec4<int>::normalized () const
 {

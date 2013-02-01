@@ -79,7 +79,7 @@ testColor ()
 
     assert ( A == B );
 
-    cout << "IMATH_INTERNAL_NAMESPACE::Color4 * f" << endl;
+    cout << "Imath::Color4 * f" << endl;
 
     assert ( ( IMATH_INTERNAL_NAMESPACE::C4f( 0.330f, 0.710f, 0.010f, 0.999f ) * 0.999f ) ==
     	     IMATH_INTERNAL_NAMESPACE::C4f( 0.330f * 0.999f,
@@ -87,7 +87,7 @@ testColor ()
 			 0.010f * 0.999f,
 			 0.999f * 0.999f ) );
 
-    cout << "IMATH_INTERNAL_NAMESPACE::Color4 / f" << endl;
+    cout << "Imath::Color4 / f" << endl;
 
     assert ( ( IMATH_INTERNAL_NAMESPACE::C4f( 0.330f, 0.710f, 0.010f, 0.999f ) / 0.999f ) ==
     	     IMATH_INTERNAL_NAMESPACE::C4f( 0.330f / 0.999f,
