@@ -81,6 +81,8 @@
 #include "testBackwardCompatibility.h"
 #include "testCopyMultiPartFile.h"
 #include "testPartHelper.h"
+#include "testOptimized.h"
+
 #include <stdlib.h>
 #include <iostream>
 #include <string.h>
@@ -121,6 +123,7 @@ main (int argc, char *argv[])
     TEST (testScanLineApi,"basic");
     TEST (testExistingStreams,"core");
     TEST (testStandardAttributes,"core");
+    TEST (testOptimized,"basic");
     TEST (testYca,"basic");
     TEST (testTiledYa,"basic");
     TEST (testNativeFormat,"basic");

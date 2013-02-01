@@ -41,7 +41,8 @@ IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
                      testCompositeDeepScanLine.h testCompositeDeepScanLine.cpp \
                      testInputPart.cpp testInputPart.h \
                      testDeepScanLineMultipleRead.h testDeepScanLineMultipleRead.cpp  \
-		     testPartHelper.h testPartHelper.cpp
+		     testPartHelper.h testPartHelper.cpp \
+		     testOptimized.cpp testOptimized.h
 
 AM_CPPFLAGS = -DILM_IMF_TEST_IMAGEDIR=\"$(srcdir)/\"
 

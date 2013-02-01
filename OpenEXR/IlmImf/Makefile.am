@@ -80,7 +80,7 @@ libIlmImf_la_SOURCES = ImfForward.h ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgb
 		       ImfDeepFrameBuffer.cpp ImfDeepFrameBuffer.h \
 		       ImfDeepCompositing.h ImfDeepCompositing.cpp \
 		       ImfCompositeDeepScanLine.h ImfCompositeDeepScanLine.cpp ImfSystemSpecific.h \
-                       ImfOptimizedPixelReading.h
+                       ImfOptimizedPixelReading.h 
 
 libIlmImf_la_LDFLAGS = @ILMBASE_LDFLAGS@ -version-info @LIBTOOL_VERSION@ \
 			-no-undefined 
