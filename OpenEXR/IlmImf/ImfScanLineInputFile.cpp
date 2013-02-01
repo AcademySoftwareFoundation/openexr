@@ -1352,7 +1352,7 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
     }
     
     // TODO-pk this disables optimization
-    //_data->_optimizationMode._destination._format = Imf::OptimizationMode::PIXELFORMAT_OTHER;
+    // _data->optimizationMode._destination._format = Imf::OptimizationMode::PIXELFORMAT_OTHER;
     
 
     //

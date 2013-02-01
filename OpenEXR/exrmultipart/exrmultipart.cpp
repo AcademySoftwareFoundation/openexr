@@ -52,6 +52,7 @@
 #include <ImfDeepScanLineOutputPart.h>
 #include <ImfDeepTiledInputPart.h>
 #include <ImfDeepTiledOutputPart.h>
+#include <ImfPartHelper.h>
 
 #include <OpenEXRConfig.h>
 #include <Iex.h>
@@ -71,6 +72,7 @@ using std::ostringstream;
 using std::min;
 using std::max;
 using std::string;
+using Imath::Box2i;
 
 using namespace OPENEXR_IMF_NAMESPACE;
 
@@ -169,6 +171,148 @@ filename_check (vector <string> names, const char* aname)
     }
 }
 
+void
+convert(vector <const char*> in, vector<const char *> views,const char* outname, bool override)
+{
+    if(in.size()!=1)
+    {
+        cerr <<"\n" << "ERROR: " 
+        "can only convert one file at once - use 'combine' mode for multiple files" << endl;
+        exit(1);
+    }
+    try
+    {
+        MultiPartInputFile infile(in[0]);
+        
+        if(infile.parts()!=1)
+        {
+            cerr <<"\n" << "ERROR: " 
+            "can only convert single part EXRs to multipart EXR-2.0 files: use 'split' mode instead" << endl;
+            exit(1);
+        }
+        
+        vector<MultiViewChannelName> input_channels;
+        
+        string hero;
+        if(hasMultiView(infile.header(0)))
+        {
+            StringVector h = multiView(infile.header(0));
+            if(h.size()>0)
+            {
+                hero=h[0];
+            }
+        }
+        
+        // retrieve channel names from input file in view-friendly format
+        GetChannelsInMultiPartFile(infile,input_channels);
+        
+        
+        vector< MultiViewChannelName > output_channels = input_channels;
+        // remap channels to multiple output parts
+        int parts = SplitChannels(output_channels.begin(),output_channels.end(),true,hero);
+        
+        vector<Header> output_headers(parts);
+        vector<FrameBuffer> output_framebuffers(parts);
+        FrameBuffer input_framebuffer;
+        
+        //
+        // make all output headers the same as the input header but 
+        // with no channels
+        //
+        for(int i=0;i<parts;i++)
+        {
+          output_headers[i]=infile.header(0);     
+          if(hasMultiView(output_headers[i]))
+          {
+              output_headers[i].erase("multiView");
+          }
+          output_headers[i].channels()=ChannelList();
+        }   
+        
+        make_unique_names(output_headers);
+        
+        const ChannelList & in_chanlist = infile.header(0).channels();
+
+        int channel_count = 0;
+        for(ChannelList::ConstIterator i=in_chanlist.begin();i!=in_chanlist.end();++i)
+        {
+            ++channel_count;
+        }
+        
+        Box2i dataWindow = infile.header(0).dataWindow();
+        int pixel_count = (dataWindow.size().y+1)*(dataWindow.size().x+1);
+        int pixel_width = dataWindow.size().x+1;
+        // offset in pixels between base of array and 0,0
+        int pixel_base = dataWindow.min.y*pixel_width+dataWindow.min.x;
+
+        vector< vector<char> > channelstore(channel_count);
+        //
+        // insert channels into correct header and framebuffers
+        //
+        for(size_t i=0;i<input_channels.size();i++)
+        {
+            // read the part we should be writing channel into, insert into header
+            int part = output_channels[i].part_number;
+            ChannelList::ConstIterator chan = in_chanlist.find(input_channels[i].internal_name);
+            output_headers[part].channels().insert(output_channels[i].name,chan.channel());
+            
+            if(output_channels[i].view!="")
+            {
+                output_headers[part].setView(output_channels[i].view);
+            }
+            
+            // compute size of channel
+            size_t samplesize=sizeof(float);
+            if(chan.channel().type==HALF)
+            {
+                samplesize=sizeof(half);
+            }
+            channelstore[i].resize(samplesize*pixel_count);
+            
+            output_framebuffers[part].insert(output_channels[i].name,
+                                             Slice(chan.channel().type,&channelstore[i][0]-pixel_base*samplesize,
+                                                   samplesize,pixel_width*samplesize));
+            input_framebuffer.insert(input_channels[i].internal_name,
+                                              Slice(chan.channel().type,&channelstore[i][0]-pixel_base*samplesize,
+                                                    samplesize,pixel_width*samplesize));
+                                                    
+        }
+        
+        //
+        // create output file
+        //
+        
+        MultiPartOutputFile outfile(outname,&output_headers[0],output_headers.size());
+        InputPart inpart(infile,0);
+        
+        
+        //
+        // read file
+        //
+        inpart.setFrameBuffer(input_framebuffer);
+        inpart.readPixels(dataWindow.min.y,dataWindow.max.y);
+        
+        //
+        // write each part
+        //
+        
+        for(size_t i=0;i<output_framebuffers.size();i++)
+        {
+            OutputPart outpart(outfile,i);
+            outpart.setFrameBuffer(output_framebuffers[i]);
+            outpart.writePixels(dataWindow.max.y+1-dataWindow.min.y);
+        }
+        
+        
+    }
+    catch (IEX_NAMESPACE::BaseExc &e)
+    {
+        cerr << "\n" << "ERROR:" << endl;
+        cerr << e.what() << endl;
+        exit (1);
+    }
+    
+}
 
 void
 combine (vector <const char*> in, vector<const char *> views,const char* outname, bool override)
@@ -416,7 +560,9 @@ usageMessage (const char argv[])
             "[input2.exr[:partnum]] [...] -o outfile.exr [options]\n";
     cerr << "   or: exrmultipart -separate -i infile.exr -o outfileBaseName "
             "[options]\n";
-    cerr << "\n" << "Options:\n";
+    cerr << "   or: exrmultipart -convert -i infile.exr -o outfile.exr "
+            "[options]\n";
+            cerr << "\n" << "Options:\n";
     cerr << "-override [0/1]      0-do not override conflicting shared "
             "attributes [default]\n"
             "                     1-override conflicting shared attributes\n";
@@ -525,6 +671,11 @@ main (int argc, char * argv[])
     {
         cout << "-separate multipart input " << endl;
         separate (inFiles, outFile, override);
+    }
+    else if(!strcmp(argv[1],"-convert"))
+    {
+        cout << "-convert input to EXR2 multipart" << endl;
+        convert (inFiles, views, outFile, override);
     }
     else
     {
