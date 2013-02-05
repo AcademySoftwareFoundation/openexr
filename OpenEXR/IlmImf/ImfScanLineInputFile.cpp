@@ -65,6 +65,7 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
+
 using IMATH_NAMESPACE::Box2i;
 using IMATH_NAMESPACE::divp;
 using IMATH_NAMESPACE::modp;
@@ -431,8 +432,9 @@ detectOptimizationMode (const FrameBuffer&frameBuffer,
     optimizationMode._source = getOptimizationInfo(channels,views);
     optimizationMode._destination = getOptimizationInfo(frameBuffer,views);
     
-    // Special case where only channels RGB are specified in the framebuffer but 
-    // the stride is 4 * sizeof(half), meaning we want to have RGBA but a dummy value for A
+    // Special case where only channels RGB are specified in the framebuffer
+    // but the stride is 4 * sizeof(half), meaning we want to have RGBA but
+    // a dummy value for A
     if (optimizationMode._destination._format  == OptimizationMode::PIXELFORMAT_RGB &&
         optimizationMode._destination._xStride == 8)
     {
@@ -653,6 +655,7 @@ LineBufferTask::execute ()
 }
 
 
+#ifdef IMF_HAVE_SSE2
 //
 // IIF format is more restricted than a perfectly generic one,
 // so it is possible to perform some optimizations.
@@ -678,36 +681,36 @@ class LineBufferTaskIIF : public Task
                               size_t& outPixelsToCopySSE,
                               size_t& outPixelsToCopyNormal) const;
                               
-                              template<typename TYPE>
-                              void getWritePointerStereo (int y,
-                                                          unsigned short*& outWritePointerRight,
-                                                          unsigned short*& outWritePointerLeft,
-                                                          size_t& outPixelsToCopySSE,
-                                                          size_t& outPixelsToCopyNormal) const;
-                                                          
+        template<typename TYPE>
+        void getWritePointerStereo (int y,
+                                    unsigned short*& outWritePointerRight,
+                                    unsigned short*& outWritePointerLeft,
+                                    size_t& outPixelsToCopySSE,
+                                    size_t& outPixelsToCopyNormal) const;
+
     private:
         
         ScanLineInputFile::Data *   _ifd;
         LineBuffer *                _lineBuffer;
         int                         _scanLineMin;
         int                         _scanLineMax;
-        OptimizationMode _optimizationMode;
+        OptimizationMode            _optimizationMode;
 };
 
 LineBufferTaskIIF::LineBufferTaskIIF
-(TaskGroup *group,
- ScanLineInputFile::Data *ifd,
- LineBuffer *lineBuffer,
- int scanLineMin,
- int scanLineMax,
- OptimizationMode optimizationMode)
- :
- Task (group),
- _ifd (ifd),
- _lineBuffer (lineBuffer),
- _scanLineMin (scanLineMin),
- _scanLineMax (scanLineMax),
- _optimizationMode (optimizationMode)
+    (TaskGroup *group,
+     ScanLineInputFile::Data *ifd,
+     LineBuffer *lineBuffer,
+     int scanLineMin,
+     int scanLineMax,
+     OptimizationMode optimizationMode)
+    :
+     Task (group),
+     _ifd (ifd),
+     _lineBuffer (lineBuffer),
+     _scanLineMin (scanLineMin),
+     _scanLineMax (scanLineMax),
+     _optimizationMode (optimizationMode)
 {
      /*
      //
@@ -1062,7 +1065,7 @@ LineBufferTaskIIF::execute()
         }
     }
 }
-
+#endif
 
 
 Task *
@@ -1133,13 +1136,20 @@ newLineBufferTask (TaskGroup *group,
      
      Task* retTask = 0;
      
-     if (optimizationMode._destination._format != OptimizationMode::PIXELFORMAT_OTHER && optimizationMode._source._format != OptimizationMode::PIXELFORMAT_OTHER)
+     if (optimizationMode._destination._format != OptimizationMode::PIXELFORMAT_OTHER &&
+         optimizationMode._source._format != OptimizationMode::PIXELFORMAT_OTHER)
      {
-         retTask = new LineBufferTaskIIF (group, ifd, lineBuffer, scanLineMin, scanLineMax, optimizationMode);
+#ifdef IMF_HAVE_SSE2
+         retTask = new LineBufferTaskIIF (group, ifd, lineBuffer,
+                                          scanLineMin, scanLineMax,
+                                          optimizationMode);
+#endif
      }
      else
      {
-         retTask = new LineBufferTask (group, ifd, lineBuffer, scanLineMin, scanLineMax, optimizationMode);
+         retTask = new LineBufferTask (group, ifd, lineBuffer,
+                                       scanLineMin, scanLineMax,
+                                       optimizationMode);
      }
      
      return retTask;

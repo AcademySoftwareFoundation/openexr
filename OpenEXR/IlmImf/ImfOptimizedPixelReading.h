@@ -39,10 +39,19 @@
 #ifndef INCLUDED_IMF_OPTIMIZED_PIXEL_READING_H
 #define INCLUDED_IMF_OPTIMIZED_PIXEL_READING_H
 
+
+// GCC and Visual Studio SSE2 compiler flags
+#if defined __SSE2__ || (_MSC_VER >= 1300 && !_M_CEE_PURE)
+    #define IMF_HAVE_SSE2 1
+#endif
+
+
 extern "C"
 {
-#include <emmintrin.h>
-#include <mmintrin.h>
+#if IMF_HAVE_SSE2
+    #include <emmintrin.h>
+    #include <mmintrin.h>
+#endif
 }
 
 #include "ImfSystemSpecific.h"
@@ -240,6 +249,9 @@ class IIFOptimizable
         return channelMask;
     }
 };
+
+
+#if IMF_HAVE_SSE2
 
 
 //------------------------------------------------------------------------
@@ -819,7 +831,7 @@ getOptimizationInfo(const ChannelList & list,const StringVector * views)
 {
     OptimizationMode::ChannelsInfo optimizationInfo;
     optimizationInfo._format = OptimizationMode::PIXELFORMAT_OTHER;
-    
+
     int fullMask = 0;
     
     for (ChannelList::ConstIterator j = list.begin();
@@ -871,7 +883,7 @@ getOptimizationInfo(const FrameBuffer & framebuffer,const StringVector * views)
 {
     OptimizationMode::ChannelsInfo optimizationInfo;    
     optimizationInfo._format = OptimizationMode::PIXELFORMAT_OTHER;
-    
+
     int fullMask = 0;
     FrameBuffer::ConstIterator channelIterator = framebuffer.begin();
     
@@ -965,9 +977,34 @@ getOptimizationInfo(const FrameBuffer & framebuffer,const StringVector * views)
             optimizationInfo._format = OptimizationMode::PIXELFORMAT_OTHER;
             break;
     }
-    
+
     return optimizationInfo;
 }
+
+
+#else // ! defined IMF_HAVE_SSE2
+
+
+EXR_FORCEINLINE
+OptimizationMode::ChannelsInfo
+getOptimizationInfo(const ChannelList & list,const StringVector * views)
+{
+    OptimizationMode::ChannelsInfo optimizationInfo;
+    optimizationInfo._format = OptimizationMode::PIXELFORMAT_OTHER;
+
+    return optimizationInfo;
+}
+
+OptimizationMode::ChannelsInfo
+getOptimizationInfo(const FrameBuffer & framebuffer,const StringVector * views)
+{
+    OptimizationMode::ChannelsInfo optimizationInfo;
+    optimizationInfo._format = OptimizationMode::PIXELFORMAT_OTHER;
+
+    return optimizationInfo;
+}
+
+#endif // defined IMF_HAVE_SSE2
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

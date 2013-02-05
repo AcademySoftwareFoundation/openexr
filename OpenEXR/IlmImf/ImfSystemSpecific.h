@@ -35,94 +35,118 @@
 #ifndef INCLUDED_IMF_COMPILER_SPECIFIC_H
 #define INCLUDED_IMF_COMPILER_SPECIFIC_H
 
-#include "ImfXdr.h"
 #include <stdlib.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-    static unsigned long systemEndianCheckValue = 0x12345678;
-    static unsigned long* systemEndianCheckPointer = &systemEndianCheckValue;
-    
-    // EXR files are little endian - check processor architecture is too
-    // (optimisation currently not supported for big endian machines)
-    static bool GLOBAL_SYSTEM_LITTLE_ENDIAN =
-            (*(unsigned char*)systemEndianCheckPointer == 0x78 ?
-                    true : false);
+static unsigned long  systemEndianCheckValue   = 0x12345678;
+static unsigned long* systemEndianCheckPointer = &systemEndianCheckValue;
 
-    #ifdef __GNUC__
-        // Causes issues on certain gcc versions
-        //#define EXR_FORCEINLINE inline __attribute__((always_inline))
-        #define EXR_FORCEINLINE inline
-        #define EXR_RESTRICT __restrict
-
-        static void* EXRAllocAligned(size_t size, size_t alignment)
-        {
-            void* ptr = 0;
-            posix_memalign(&ptr, alignment, size);
-            return ptr;
-        }
+// EXR files are little endian - check processor architecture is too
+// (optimisation currently not supported for big endian machines)
+static bool GLOBAL_SYSTEM_LITTLE_ENDIAN =
+        (*(unsigned char*)systemEndianCheckPointer == 0x78 ? true : false);
 
 
-        static void EXRFreeAligned(void* ptr)
-        {
-            free(ptr);
-        }
+#ifdef IMF_HAVE_SSE2
 
-    #elif defined _MSC_VER
+#ifdef __GNUC__
+// Causes issues on certain gcc versions
+//#define EXR_FORCEINLINE inline __attribute__((always_inline))
+#define EXR_FORCEINLINE inline
+#define EXR_RESTRICT __restrict
 
-        #define EXR_FORCEINLINE __forceinline
-        //#define EXR_FORCEINLINE 
-        #define EXR_RESTRICT __restrict
-
-        static void* EXRAllocAligned(size_t size, size_t alignment)
-        {
-            return _aligned_malloc(size, alignment);
-        }
-
-
-        static void EXRFreeAligned(void* ptr)
-        {
-            _aligned_free(ptr);
-        }
-
-    #elif defined (__INTEL_COMPILER) || \
-          defined(__ICL) || \
-          defined(__ICC) || \
-          defined(__ECC)
-
-        #define EXR_FORCEINLINE inline
-        #define EXR_RESTRICT restrict
-
-        static void* EXRAllocAligned(size_t size, size_t alignment)
-        {
-            return _mm_malloc(size, alignment);
-        }
+static void* EXRAllocAligned(size_t size, size_t alignment)
+{
+    void* ptr = 0;
+    posix_memalign(&ptr, alignment, size);
+    return ptr;
+}
 
 
-        static void EXRFreeAligned(void* ptr)
-        {
-            _mm_free(ptr);
-        }
+static void EXRFreeAligned(void* ptr)
+{
+    free(ptr);
+}
 
-    #else
+#elif defined _MSC_VER
 
-        #define EXR_FORCEINLINE inline
-        #define EXR_RESTRICT 
+#define EXR_FORCEINLINE __forceinline
+#define EXR_RESTRICT __restrict
 
-        static void* EXRAllocAligned(size_t size, size_t alignment)
-        {
-            return malloc(size);
-        }
+static void* EXRAllocAligned(size_t size, size_t alignment)
+{
+    return _aligned_malloc(size, alignment);
+}
 
 
-        static void EXRFreeAligned(void* ptr)
-        {
-            free(ptr);
-        }
+static void EXRFreeAligned(void* ptr)
+{
+    _aligned_free(ptr);
+}
 
-    #endif
-    
+#elif defined (__INTEL_COMPILER) || \
+        defined(__ICL) || \
+        defined(__ICC) || \
+        defined(__ECC)
+
+#define EXR_FORCEINLINE inline
+#define EXR_RESTRICT restrict
+
+static void* EXRAllocAligned(size_t size, size_t alignment)
+{
+    return _mm_malloc(size, alignment);
+}
+
+
+static void EXRFreeAligned(void* ptr)
+{
+    _mm_free(ptr);
+}
+
+#else
+
+// generic compiler
+#define EXR_FORCEINLINE inline
+#define EXR_RESTRICT
+
+static void* EXRAllocAligned(size_t size, size_t alignment)
+{
+    return malloc(size);
+}
+
+
+static void EXRFreeAligned(void* ptr)
+{
+    free(ptr);
+}
+
+#endif // compiler switch
+
+
+#else // IMF_HAVE_SSE2
+
+
+#define EXR_FORCEINLINE inline
+#define EXR_RESTRICT
+
+static void* EXRAllocAligned(size_t size, size_t alignment)
+{
+    return malloc(size);
+}
+
+
+static void EXRFreeAligned(void* ptr)
+{
+    free(ptr);
+}
+
+
+#endif  // IMF_HAVE_SSE2
+
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
 
 #endif //include guard

@@ -72,15 +72,20 @@ libIlmImf_la_SOURCES = ImfForward.h ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgb
 		       ImfOutputPart.cpp ImfOutputPart.h \
 		       ImfTiledOutputPart.cpp ImfTiledOutputPart.h \
 		       ImfInputPart.cpp ImfInputPart.h \
-		       ImfTiledInputPart.cpp ImfTiledInputPart.h ImfDeepScanLineInputPart.h \
-		       ImfDeepScanLineInputPart.cpp ImfDeepScanLineOutputPart.cpp ImfDeepScanLineOutputPart.h \
-		       ImfDeepScanLineInputFile.cpp ImfDeepScanLineInputFile.h ImfDeepScanLineOutputFile.cpp ImfDeepScanLineOutputFile.h \
-		       ImfDeepTiledInputPart.h ImfDeepTiledInputPart.cpp ImfDeepTiledOutputPart.h ImfDeepTiledOutputPart.cpp \
-		       ImfDeepTiledInputFile.h ImfDeepTiledInputFile.cpp ImfDeepTiledOutputFile.h ImfDeepTiledOutputFile.cpp \
+		       ImfTiledInputPart.cpp ImfTiledInputPart.h \
+		       ImfDeepScanLineInputPart.h ImfDeepScanLineInputPart.cpp \
+		       ImfDeepScanLineOutputPart.cpp ImfDeepScanLineOutputPart.h \
+		       ImfDeepScanLineInputFile.cpp ImfDeepScanLineInputFile.h \
+		       ImfDeepScanLineOutputFile.cpp ImfDeepScanLineOutputFile.h \
+		       ImfDeepTiledInputPart.h ImfDeepTiledInputPart.cpp \
+		       ImfDeepTiledOutputPart.h ImfDeepTiledOutputPart.cpp \
+		       ImfDeepTiledInputFile.h ImfDeepTiledInputFile.cpp \
+		       ImfDeepTiledOutputFile.h ImfDeepTiledOutputFile.cpp \
 		       ImfDeepFrameBuffer.cpp ImfDeepFrameBuffer.h \
 		       ImfDeepCompositing.h ImfDeepCompositing.cpp \
-		       ImfCompositeDeepScanLine.h ImfCompositeDeepScanLine.cpp ImfSystemSpecific.h \
-                       ImfOptimizedPixelReading.h 
+		       ImfCompositeDeepScanLine.h ImfCompositeDeepScanLine.cpp 
+#		       ImfSystemSpecific.h
+#                      ImfOptimizedPixelReading.h 
 
 libIlmImf_la_LDFLAGS = @ILMBASE_LDFLAGS@ -version-info @LIBTOOL_VERSION@ \
 			-no-undefined 

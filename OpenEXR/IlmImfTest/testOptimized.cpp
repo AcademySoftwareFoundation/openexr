@@ -60,6 +60,8 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
+
 
 using namespace std;
 using namespace IMATH_NAMESPACE;
@@ -120,10 +122,11 @@ generatePixel (int i, int j, half* rgbaValue, bool pIsLeft)
     float blueValue = 0.0f;
     float alphaValue = 0.0f;
 
-    // These formulas are arbitrary but generate results that vary depending on
-    // pixel position.  They are used to validate that pixels are read/written correctly
-    // because if we had only one value for the whole image, the tests would still pass
-    // if we read only one pixel and copied it all across the buffer.
+    // These formulas are arbitrary but generate results that vary
+    // depending on pixel position.  They are used to validate that
+    // pixels are read/written correctly, because if we had only one
+    // value for the whole image, the tests would still pass if we read
+    // only one pixel and copied it all across the buffer.
     if(pIsLeft)
     {
         redValue = ((i + j) % 10 + 0.004f * j) / 10.0f;
