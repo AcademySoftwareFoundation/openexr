@@ -127,6 +127,26 @@ class IMF_EXPORT ScanLineInputFile : public GenericInputFile
 
     bool		isComplete () const;
 
+    
+    
+    //---------------------------------------------------------------
+    // Check if SSE optimisation is enabled
+    //
+    // Call after setFrameBuffer() to query whether optimised file decoding
+    // is available - decode times will be faster if returns true
+    //
+    // Optimisation depends on the framebuffer channels and channel types
+    // as well as the file/part channels and channel types, as well as
+    // whether SSE2 instruction support was detected at compile time
+    //
+    // Calling before setFrameBuffer will throw an exception
+    //
+    //---------------------------------------------------------------
+    
+    bool                isOptimizationEnabled () const;
+    
+    
+    
 
     //---------------------------------------------------------------
     // Read pixel data:

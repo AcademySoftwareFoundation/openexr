@@ -58,6 +58,10 @@
 #include <ImfStringVectorAttribute.h>
 #include <ImfVecAttribute.h>
 
+
+//for IMF_HAVE_SSE2
+#include <ImfOptimizedPixelReading.h>
+
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
@@ -87,7 +91,8 @@ static const half ALPHA_DEFAULT_VALUE(1.0f);
 typedef enum EImageType
 {
     IMAGE_TYPE_RGB         = 1,
-    IMAGE_TYPE_RGBA        = 2
+    IMAGE_TYPE_RGBA        = 2,
+    IMAGE_TYPE_OTHER        =3
 } EImageType;
 
 int
@@ -102,6 +107,9 @@ getNbChannels(EImageType pImageType)
             break;
         case IMAGE_TYPE_RGBA:
             retVal = 4;
+            break;
+        case IMAGE_TYPE_OTHER:
+            retVal = 2;
             break;
         default:
             retVal = 0;
@@ -333,6 +341,32 @@ readPixels (const char pFilename[], int pNbChannels, Array2D<half>& pPixels)
     }
 
     lFile.setFrameBuffer (lInputFrameBuffer);
+    
+    bool is_optimized = lFile.isOptimizationEnabled();
+    if(is_optimized)
+    {
+        cout << " optimization enabled\n";
+        
+        if(pNbChannels==2)
+        {
+            cerr << " error: isOptimizationEnabled returned TRUE, but "
+            "optimization not known to work for two channel images\n";
+            assert(pNbChannels!=2);
+        }
+            
+    }else{
+        cout << " optimization disabled\n";
+#ifdef IMF_HAVE_SSE2
+        if(pNbChannels!=2)
+        {
+            cerr << " error: isOptimizationEnabled returned FALSE, but "
+            "should work for " << pNbChannels << "channel images\n";
+            assert(pNbChannels==2);
+        }
+        
+#endif
+    }
+    
     lFile.readPixels (lDataWindow.min.y, lDataWindow.max.y);
 }
 
@@ -460,6 +494,19 @@ readValidateFile (const char pFilename[],
 }
 
 //
+// confirm the optimization flag returns false for non-RGB files
+//
+void
+testNonOptimized()
+{
+    const int pHeight = IMAGE_2K_HEIGHT - 1;
+    const int pWidth  =  IMAGE_2K_WIDTH - 1;
+    const char* filename  = IMF_TMP_DIR RGB_FILENAME;
+    writeFile (filename,  pHeight, pWidth, IMAGE_TYPE_OTHER,  false, NO_COMPRESSION);
+    readValidateFile(filename,pHeight,pWidth,IMAGE_TYPE_OTHER,false);
+}
+
+//
 // Test all combinations of file/framebuffer
 //  RGB  file to RGB  framebuffer
 //  RGB  file to RGBA framebuffer
@@ -483,6 +530,10 @@ testAllCombinations (bool isAligned, bool isStereo, Compression pCompression)
     writeFile (pRgbFilename,  pHeight, pWidth, IMAGE_TYPE_RGB,  isStereo, pCompression);
     writeFile (pRgbaFilename, pHeight, pWidth, IMAGE_TYPE_RGBA, isStereo, pCompression);
 
+    cout << "\t\tRGB file to RGB framebuffer" << endl;
+    readValidateFile (pRgbFilename,  pHeight, pWidth, IMAGE_TYPE_RGB,  isStereo);
+    
+    
     cout << "\t\tRGB file to RGB framebuffer" << endl;
     readValidateFile (pRgbFilename,  pHeight, pWidth, IMAGE_TYPE_RGB,  isStereo);
 
@@ -517,6 +568,10 @@ testOptimized ()
         cout << "\nTesting optimized code path for rgb(a) images-- "
                 "2048x1152 (alignment respected) UNCOMPRESSED" << endl;
 
+                         
+        cout << "\tNON-OPTIMIZABLE file" << endl;
+        testNonOptimized();
+                
         cout << "\tALIGNED -- MONO -- NO COMPRESSION" << endl;
         testAllCombinations (true, false, NO_COMPRESSION);
 

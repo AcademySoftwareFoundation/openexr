@@ -80,6 +80,12 @@ InputPart::isComplete () const
     return file->isComplete();
 }
 
+bool
+InputPart::isOptimizationEnabled() const
+{
+   return file->isOptimizationEnabled();
+}
+
 void
 InputPart::readPixels (int scanLine1, int scanLine2)
 {

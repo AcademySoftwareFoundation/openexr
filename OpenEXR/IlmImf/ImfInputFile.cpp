@@ -746,6 +746,17 @@ InputFile::isComplete () const
 	return _data->sFile->isComplete();
 }
 
+bool
+InputFile::isOptimizationEnabled() const
+{
+   if(_data->sFile)
+   {
+       return _data->sFile->isOptimizationEnabled();
+   }else{
+       return false;
+   }
+}
+
 
 void
 InputFile::readPixels (int scanLine1, int scanLine2)

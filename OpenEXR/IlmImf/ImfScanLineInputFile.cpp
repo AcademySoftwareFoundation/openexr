@@ -1136,14 +1136,17 @@ newLineBufferTask (TaskGroup *group,
      
      Task* retTask = 0;
      
+     
      if (optimizationMode._destination._format != OptimizationMode::PIXELFORMAT_OTHER &&
          optimizationMode._source._format != OptimizationMode::PIXELFORMAT_OTHER)
      {
 #ifdef IMF_HAVE_SSE2
+         
          retTask = new LineBufferTaskIIF (group, ifd, lineBuffer,
                                           scanLineMin, scanLineMax,
                                           optimizationMode);
 #endif
+      //if SSE2 not defined, both source and destination formats will be PIXELFORMAT_OTHER (
      }
      else
      {
@@ -1446,6 +1449,16 @@ bool
 ScanLineInputFile::isComplete () const
 {
     return _data->fileIsComplete;
+}
+
+bool ScanLineInputFile::isOptimizationEnabled() const
+{
+    if (_data->slices.size() == 0)
+        throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
+        "as pixel data destination.");
+    
+    return _data->optimizationMode._source._format!=OptimizationMode::PIXELFORMAT_OTHER && 
+           _data->optimizationMode._destination._format!=OptimizationMode::PIXELFORMAT_OTHER;
 }
 
 
