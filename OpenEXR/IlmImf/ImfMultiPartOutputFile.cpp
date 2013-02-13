@@ -230,7 +230,7 @@ MultiPartOutputFile::MultiPartOutputFile (const char fileName[],
 
         _data->os = new StdOFStream (fileName);
         for (size_t i = 0; i < _data->_headers.size(); i++)
-            _data->parts.push_back( new OutputPartData(_data, _data->_headers[i], i, numThreads, isMultiPart) );
+            _data->parts.push_back( new OutputPartData(_data, _data->_headers[i], i, numThreads, parts>1 ) );
 
         writeMagicNumberAndVersionField(*_data->os, &_data->_headers[0],_data->_headers.size());
         _data->writeHeadersToFile(_data->_headers);
@@ -276,7 +276,7 @@ MultiPartOutputFile::MultiPartOutputFile(OStream& os,
         //
         
         for (size_t i = 0; i < _data->_headers.size(); i++)
-            _data->parts.push_back( new OutputPartData(_data, _data->_headers[i], i, numThreads, isMultiPart) );
+            _data->parts.push_back( new OutputPartData(_data, _data->_headers[i], i, numThreads, parts>1 ) );
         
         writeMagicNumberAndVersionField(*_data->os, &_data->_headers[0],_data->_headers.size());
         _data->writeHeadersToFile(_data->_headers);
