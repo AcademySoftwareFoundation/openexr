@@ -1784,7 +1784,7 @@ readSampleCountForLineBlock(InputStreamMutex* streamData,
     int compressorMaxDataSize = std::numeric_limits<int>::max();
     if (sampleCountTableDataSize > Int64(compressorMaxDataSize))
     {
-        THROW (IEX_NAMESPACE::ArgExc, "This version of the library does not"
+        THROW (IEX_NAMESPACE::ArgExc, "This version of the library does not "
               << "support the allocation of data with size  > "
               << compressorMaxDataSize
               << " file table size    :" << sampleCountTableDataSize << ".\n");
