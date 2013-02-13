@@ -75,6 +75,12 @@ class IMF_EXPORT MultiPartOutputFile : public GenericOutputFile
                             int parts,
                             bool overrideSharedAttributes = false,
                             int numThreads = globalThreadCount());
+                            
+        MultiPartOutputFile(OStream & os,
+                            const Header * headers,
+                            int parts,
+                            bool overrideSharedAttributes = false,
+                            int numThreads = globalThreadCount());                            
 
         //
         // return number of parts in file

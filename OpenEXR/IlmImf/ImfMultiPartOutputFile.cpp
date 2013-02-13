@@ -83,6 +83,11 @@ struct MultiPartOutputFile::Data: public OutputStreamMutex
         void                    writeChunkTableOffsets (std::vector<OutputPartData*> &parts);
         
         
+        //-------------------------------------
+        // ensure that _headers is valid: called by constructors
+        //-------------------------------------
+        void                    do_header_sanity_checks(bool overrideSharedAttributes);
+        
         // ------------------------------------------------
         // Given a source header, we copy over all the 'shared attributes' to
         // the destination header and remove any conflicting ones.
@@ -133,6 +138,71 @@ struct MultiPartOutputFile::Data: public OutputStreamMutex
         }
 };
 
+void
+MultiPartOutputFile::Data::do_header_sanity_checks(bool overrideSharedAttributes)
+{
+    size_t parts = _headers.size();
+    if (parts == 0) 
+        throw IEX_NAMESPACE::ArgExc ("Empty header list.");
+    
+    bool isMultiPart = (parts > 1); 
+    
+    //
+    // Do part 0 checks first.
+    //
+    
+    _headers[0].sanityCheck (_headers[0].hasTileDescription(), isMultiPart);
+        
+    
+    if (isMultiPart)
+    {
+        // multipart files must contain a chunkCount attribute
+        _headers[0].setChunkCount(getChunkOffsetTableSize(_headers[0],true));
+        
+        for (int i = 1; i < parts; i++)
+        {
+            if (_headers[i].hasType() == false)
+                throw IEX_NAMESPACE::ArgExc ("Every header in a multipart file should have a type");
+            
+            
+            _headers[i].setChunkCount(getChunkOffsetTableSize(_headers[i],true));
+            _headers[i].sanityCheck (_headers[i].hasTileDescription(), isMultiPart);
+            
+            
+            if (overrideSharedAttributes)
+                overrideSharedAttributesValues(_headers[0],_headers[i]);
+            else
+            {
+                std::vector<std::string> conflictingAttributes;
+                bool valid =checkSharedAttributesValues (_headers[0],
+                                                         _headers[i], 
+                                                         conflictingAttributes);
+                if (valid)
+                {
+                    string excMsg("Conflicting attributes found for header :: ");
+                    excMsg += _headers[i].name();
+                    for (size_t i=0; i<conflictingAttributes.size(); i++)
+                        excMsg += " '" + conflictingAttributes[i] + "' ";
+                                                             
+                    THROW (IEX_NAMESPACE::ArgExc, excMsg);
+                }
+            }
+        }
+        
+        headerNameUniquenessCheck(_headers);
+        
+    }else{
+        
+        // add chunk count offset to single part data (if not an image)
+        
+        if (_headers[0].hasType() && isImage(_headers[0].type()) == false)
+        {
+            _headers[0].setChunkCount(getChunkOffsetTableSize(_headers[0],true));
+        }
+        
+    }
+}
+
     
 MultiPartOutputFile::MultiPartOutputFile (const char fileName[],
                                           const Header * headers,
@@ -151,64 +221,8 @@ MultiPartOutputFile::MultiPartOutputFile (const char fileName[],
     }
     try
     {
-        if (parts == 0) 
-            throw IEX_NAMESPACE::ArgExc ("Empty header list.");
-      
-        bool isMultiPart = (parts > 1); 
-
-        //
-        // Do sanity checks first.
-        //
-
-        headers[0].sanityCheck (headers[0].hasTileDescription(), isMultiPart);
-
-        
-        if (isMultiPart)
-        {
-            // multipart files must contain a chunkCount attribute
-            _data->_headers[0].setChunkCount(getChunkOffsetTableSize(_data->_headers[0],true));
-            
-            for (int i = 1; i < parts; i++)
-            {
-                if (headers[i].hasType() == false)
-                    throw IEX_NAMESPACE::ArgExc ("Every header in a multipart file should have a type");
-
-                
-                _data->_headers[i].setChunkCount(getChunkOffsetTableSize(_data->_headers[i],true));
-                _data->_headers[i].sanityCheck (headers[i].hasTileDescription(), isMultiPart);
-                
-                
-                if (overrideSharedAttributes)
-                    _data->overrideSharedAttributesValues(_data->_headers[0], _data->_headers[i]);
-                else
-                {
-                    std::vector<std::string> conflictingAttributes;
-                    bool valid = _data->checkSharedAttributesValues (_data->_headers[0],
-                                                              _data->_headers[i], 
-                                                              conflictingAttributes);
-                    if (valid)
-                    {
-                        string excMsg("Conflicting attributes found for header :: ");
-                        excMsg += _data->_headers[i].name();
-                        for (size_t i=0; i<conflictingAttributes.size(); i++)
-                            excMsg += " '" + conflictingAttributes[i] + "' ";
-
-                        THROW (IEX_NAMESPACE::ArgExc, excMsg);
-                    }
-                }
-            }
-
-            _data->headerNameUniquenessCheck(_data->_headers);
-        }else{
-            
-            // add chunk count offset to single part data (if not an image)
-            
-            if (_data->_headers[0].hasType() && isImage(_data->_headers[0].type()) == false)
-            {
-                _data->_headers[0].setChunkCount(getChunkOffsetTableSize(_data->_headers[0],true));
-            }
-            
-        }
+  
+         _data->do_header_sanity_checks(overrideSharedAttributes);
 
         //
         // Build parts and write headers and offset tables to file.
@@ -236,6 +250,53 @@ MultiPartOutputFile::MultiPartOutputFile (const char fileName[],
         throw;
     }
 }
+
+MultiPartOutputFile::MultiPartOutputFile(OStream& os, 
+                                         const Header* headers, 
+                                         int parts, 
+                                         bool overrideSharedAttributes, 
+                                         int numThreads): 
+                                         _data(new Data(false,numThreads))
+{
+    // grab headers
+    _data->_headers.resize(parts);
+    _data->os=&os;
+    
+    for(int i=0;i<parts;i++)
+    {
+        _data->_headers[i]=headers[i];
+    }
+    try
+    {
+        
+        _data->do_header_sanity_checks(overrideSharedAttributes);
+        
+        //
+        // Build parts and write headers and offset tables to file.
+        //
+        
+        for (size_t i = 0; i < _data->_headers.size(); i++)
+            _data->parts.push_back( new OutputPartData(_data, _data->_headers[i], i, numThreads, isMultiPart) );
+        
+        writeMagicNumberAndVersionField(*_data->os, &_data->_headers[0],_data->_headers.size());
+        _data->writeHeadersToFile(_data->_headers);
+        _data->writeChunkTableOffsets(_data->parts);
+    }
+    catch (IEX_NAMESPACE::BaseExc &e)
+    {
+        delete _data;
+        
+        REPLACE_EXC (e, "Cannot open image stream "
+        "\"" << os.fileName() << "\". " << e);
+        throw;
+    }
+    catch (...)
+    {
+        delete _data;
+        throw;
+    }
+}
+
 
 const Header &
 MultiPartOutputFile::header(int n) const
