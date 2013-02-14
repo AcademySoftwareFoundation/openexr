@@ -82,6 +82,8 @@
 #include "testCopyMultiPartFile.h"
 #include "testPartHelper.h"
 #include "testOptimized.h"
+#include "testFutureProofing.h"
+
 
 #include <stdlib.h>
 #include <iostream>
@@ -145,6 +147,7 @@ main (int argc, char *argv[])
     TEST (testMultiPartSharedAttributes,"multi");
     TEST (testCopyMultiPartFile,"multi");
     TEST (testBackwardCompatibility, "core");
+    TEST (testFutureProofing,"core");
        
 #ifdef ENABLE_IMFHUGETEST // defined via configure with --enable-imfhugetest=yes
     TEST (testDeepScanLineHuge,"deep");

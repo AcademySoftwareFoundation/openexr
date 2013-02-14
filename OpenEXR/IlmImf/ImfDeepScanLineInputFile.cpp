@@ -829,6 +829,10 @@ void DeepScanLineInputFile::initialize(const Header& header)
 {
     try
     {
+        if (header.type() != DEEPSCANLINE)
+            throw IEX_NAMESPACE::ArgExc("Can't build a DeepScanLineInputFile from "
+            "a type-mismatched part.");
+        
         _data->header = header;
 
         _data->lineOrder = _data->header.lineOrder();
@@ -881,6 +885,7 @@ void DeepScanLineInputFile::initialize(const Header& header)
     catch (...)
     {
         delete _data;
+        _data=NULL;
         throw;
     }
 }
@@ -889,9 +894,6 @@ void DeepScanLineInputFile::initialize(const Header& header)
 DeepScanLineInputFile::DeepScanLineInputFile(InputPartData* part)
     
 {
-    if (part->header.type() != DEEPSCANLINE)
-        throw IEX_NAMESPACE::ArgExc("Can't build a DeepScanLineInputFile from "
-                          "a type-mismatched part.");
 
     _data = new Data(part->numThreads);
     _data->_deleteStream=false;

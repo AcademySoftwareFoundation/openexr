@@ -888,9 +888,16 @@ void
 TiledInputFile::initialize ()
 {
     if (_data->partNumber == -1)
+    {
         if (!isTiled (_data->version))
             throw IEX_NAMESPACE::ArgExc ("Expected a tiled file but the file is not tiled.");
-
+    }else{
+        if(_data->header.hasType() && _data->header.type()!=TILEDIMAGE)
+        {
+            throw IEX_NAMESPACE::ArgExc ("TiledInputFile used for non-tiledimage part.");
+        }
+    }
+    
     _data->header.sanityCheck (true);
 
     _data->tileDesc = _data->header.tileDescription();

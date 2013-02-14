@@ -1848,13 +1848,16 @@ getChunkOffsetTableSize(const Header& header,bool ignore_attribute)
         return header.chunkCount();
     }
     
+    if(header.hasType()  && !isSupportedType(header.type()))
+    {
+        throw IEX_NAMESPACE::ArgExc ("unsupported header type to "
+        "get chunk offset table size");
+    }
     if (isTiled(header.type()) == false)
         return getScanlineChunkOffsetTableSize(header);
-    else if (isTiled(header.type()) == true)
+    else
         return getTiledChunkOffsetTableSize(header);
     
-    else throw IEX_NAMESPACE::ArgExc ("unsupported header type to "
-                            "get chunk offset table size");
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

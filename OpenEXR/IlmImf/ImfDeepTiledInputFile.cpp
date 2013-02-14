@@ -951,7 +951,7 @@ void
 DeepTiledInputFile::multiPartInitialize(InputPartData* part)
 {
     if (isTiled(part->header.type()) == false)
-        throw IEX_NAMESPACE::ArgExc("Can't build a DeepTiledInputFile from a scanline part.");
+        THROW (IEX_NAMESPACE::ArgExc, "Can't build a DeepTiledInputFile from a part of type " << part->header.type());
 
     _data->_streamData = part->mutex;
     _data->header = part->header;
