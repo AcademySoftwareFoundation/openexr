@@ -38,27 +38,27 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfTiledInputFile.h>
-#include <ImfTileDescriptionAttribute.h>
-#include <ImfChannelList.h>
-#include <ImfMisc.h>
-#include <ImfTiledMisc.h>
-#include <ImfStdIO.h>
-#include <ImfCompressor.h>
-#include "ImathBox.h"
-#include <ImfXdr.h>
-#include <ImfConvert.h>
-#include <ImfVersion.h>
-#include <ImfTileOffsets.h>
-#include <ImfThreading.h>
-#include <ImfPartType.h>
-#include <ImfMultiPartInputFile.h>
+#include "ImfTiledInputFile.h"
+#include "ImfTileDescriptionAttribute.h"
+#include "ImfChannelList.h"
+#include "ImfMisc.h"
+#include "ImfTiledMisc.h"
+#include "ImfStdIO.h"
+#include "ImfCompressor.h"
+#include "ImfXdr.h"
+#include "ImfConvert.h"
+#include "ImfVersion.h"
+#include "ImfTileOffsets.h"
+#include "ImfThreading.h"
+#include "ImfPartType.h"
+#include "ImfMultiPartInputFile.h"
 #include "ImfInputStreamMutex.h"
-#include "IlmThreadPool.h"
-#include "IlmThreadSemaphore.h"
-#include "IlmThreadMutex.h"
-#include "ImathVec.h"
-#include "Iex.h"
+#include <IlmThreadPool.h>
+#include <IlmThreadSemaphore.h>
+#include <IlmThreadMutex.h>
+#include <ImathBox.h>
+#include <ImathVec.h>
+#include <Iex.h>
 #include <string>
 #include <vector>
 #include <algorithm>

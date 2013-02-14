@@ -64,11 +64,11 @@
 //-----------------------------------------------------------------------------
 #define ZLIB_WINAPI 
 
-#include <ImfPxr24Compressor.h>
-#include <ImfHeader.h>
-#include <ImfChannelList.h>
-#include <ImfMisc.h>
-#include <ImfCheckedArithmetic.h>
+#include "ImfPxr24Compressor.h"
+#include "ImfHeader.h"
+#include "ImfChannelList.h"
+#include "ImfMisc.h"
+#include "ImfCheckedArithmetic.h"
 #include "ImfNamespace.h"
 
 #include <ImathFun.h>

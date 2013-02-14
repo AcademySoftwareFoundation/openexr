@@ -242,23 +242,27 @@ convert(vector <const char*> in, vector<const char *> views,const char* outname,
         Box2i dataWindow = infile.header(0).dataWindow();
         int pixel_count = (dataWindow.size().y+1)*(dataWindow.size().x+1);
         int pixel_width = dataWindow.size().x+1;
+        
+        
         // offset in pixels between base of array and 0,0
         int pixel_base = dataWindow.min.y*pixel_width+dataWindow.min.x;
 
         vector< vector<char> > channelstore(channel_count);
+        
+        
         //
         // insert channels into correct header and framebuffers
         //
-        for(size_t i=0;i<input_channels.size();i++)
+        for( size_t i=0 ; i<input_channels.size() ; i++ )
         {
             // read the part we should be writing channel into, insert into header
             int part = output_channels[i].part_number;
             ChannelList::ConstIterator chan = in_chanlist.find(input_channels[i].internal_name);
             output_headers[part].channels().insert(output_channels[i].name,chan.channel());
             
-            if(output_channels[i].view!="")
+            if( output_channels[i].view!="" )
             {
-                output_headers[part].setView(output_channels[i].view);
+                output_headers[part].setView( output_channels[i].view );
             }
             
             // compute size of channel
@@ -317,7 +321,7 @@ convert(vector <const char*> in, vector<const char *> views,const char* outname,
 void
 combine (vector <const char*> in, vector<const char *> views,const char* outname, bool override)
 {
-    int numInputs = in.size();
+    size_t numInputs = in.size();
     int numparts;
     vector<int> partnums;
     vector<MultiPartInputFile *> inputs;

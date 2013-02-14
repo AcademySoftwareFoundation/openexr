@@ -253,6 +253,7 @@ class IMF_EXPORT OutputFile : public GenericOutputFile
 
 
     friend class MultiPartOutputFile;
+    
 };
 
 

@@ -39,11 +39,11 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfScanLineInputFile.h>
-#include <ImfChannelList.h>
-#include <ImfMisc.h>
-#include <ImfStdIO.h>
-#include <ImfCompressor.h>
+#include "ImfScanLineInputFile.h"
+#include "ImfChannelList.h"
+#include "ImfMisc.h"
+#include "ImfStdIO.h"
+#include "ImfCompressor.h"
 #include "ImathBox.h"
 #include "ImathFun.h"
 #include <ImfXdr.h>

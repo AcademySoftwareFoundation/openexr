@@ -41,8 +41,8 @@
 //-----------------------------------------------------------------------------
 #define ZLIB_WINAPI
 
-#include <ImfZipCompressor.h>
-#include <ImfCheckedArithmetic.h>
+#include "ImfZipCompressor.h"
+#include "ImfCheckedArithmetic.h"
 #include "Iex.h"
 #include <zlib.h>
 #include "ImfNamespace.h"

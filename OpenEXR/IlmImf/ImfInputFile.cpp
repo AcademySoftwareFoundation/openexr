@@ -38,16 +38,16 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfInputFile.h>
-#include <ImfScanLineInputFile.h>
-#include <ImfTiledInputFile.h>
-#include <ImfChannelList.h>
-#include <ImfMisc.h>
-#include <ImfStdIO.h>
-#include <ImfVersion.h>
-#include <ImfPartType.h>
-#include <ImfInputPartData.h>
-#include <ImfMultiPartInputFile.h>
+#include "ImfInputFile.h"
+#include "ImfScanLineInputFile.h"
+#include "ImfTiledInputFile.h"
+#include "ImfChannelList.h"
+#include "ImfMisc.h"
+#include "ImfStdIO.h"
+#include "ImfVersion.h"
+#include "ImfPartType.h"
+#include "ImfInputPartData.h"
+#include "ImfMultiPartInputFile.h"
 
 #include <ImfCompositeDeepScanLine.h>
 #include <ImfDeepScanLineInputFile.h>

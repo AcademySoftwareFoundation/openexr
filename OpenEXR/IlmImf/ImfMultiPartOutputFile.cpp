@@ -32,22 +32,22 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <ImfMultiPartOutputFile.h>
-#include <ImfBoxAttribute.h>
-#include <ImfFloatAttribute.h>
-#include <ImfTimeCodeAttribute.h>
-#include <ImfChromaticitiesAttribute.h>
-#include <ImfOutputPartData.h>
-#include <ImfPartType.h>
-#include <ImfOutputFile.h>
-#include <ImfTiledOutputFile.h>
-#include <ImfThreading.h>
-#include <IlmThreadMutex.h>
-#include <ImfMisc.h>
-#include <ImfStdIO.h>
-#include <ImfDeepScanLineOutputFile.h>
-#include <ImfDeepTiledOutputFile.h>
-#include <ImfOutputStreamMutex.h>
+#include "ImfMultiPartOutputFile.h"
+#include "ImfBoxAttribute.h"
+#include "ImfFloatAttribute.h"
+#include "ImfTimeCodeAttribute.h"
+#include "ImfChromaticitiesAttribute.h"
+#include "ImfOutputPartData.h"
+#include "ImfPartType.h"
+#include "ImfOutputFile.h"
+#include "ImfTiledOutputFile.h"
+#include "ImfThreading.h"
+#include "IlmThreadMutex.h"
+#include "ImfMisc.h"
+#include "ImfStdIO.h"
+#include "ImfDeepScanLineOutputFile.h"
+#include "ImfDeepTiledOutputFile.h"
+#include "ImfOutputStreamMutex.h"
 
 #include "ImfNamespace.h"
 #include <Iex.h>
@@ -116,19 +116,7 @@ struct MultiPartOutputFile::Data: public OutputStreamMutex
         {
         }
         
-        template <class T>
-        T*
-        createOutputPartT(int partNumber)
-        {
-            if (_outputFiles.find(partNumber) == _outputFiles.end())
-            {
-                T* file = new T(parts[partNumber]);
-                _outputFiles.insert(std::make_pair(partNumber, (GenericOutputFile*) file));
-                return file;
-            }
-            else return (T*) _outputFiles[partNumber];
-        }
-        
+
         ~Data()
         {
             if (deleteStream) delete os;
@@ -326,41 +314,26 @@ MultiPartOutputFile::~MultiPartOutputFile ()
     delete _data;
 }
 
-OutputFile*
-MultiPartOutputFile::createOutputPart (int partNumber)
+template <class T>
+T*
+MultiPartOutputFile::getOutputPart(int partNumber)
 {
     Lock lock(*_data);
-    return _data->createOutputPartT <OutputFile> (partNumber);
+    if (_data->_outputFiles.find(partNumber) == _data->_outputFiles.end())
+    {
+        T* file = new T(_data->parts[partNumber]);
+        _data->_outputFiles.insert(std::make_pair(partNumber, (GenericOutputFile*) file));
+        return file;
+    }
+    else return (T*) _data->_outputFiles[partNumber];
 }
 
-TiledOutputFile*
-MultiPartOutputFile::createTiledOutputPart (int partNumber)
-{
-    Lock lock(*_data);
-    return _data->createOutputPartT <TiledOutputFile> (partNumber);
-}
+// instance above function for all four types
+template OutputFile* MultiPartOutputFile::getOutputPart<OutputFile>(int);
+template TiledOutputFile * MultiPartOutputFile::getOutputPart<TiledOutputFile>(int);
+template DeepScanLineOutputFile * MultiPartOutputFile::getOutputPart<DeepScanLineOutputFile> (int);
+template DeepTiledOutputFile * MultiPartOutputFile::getOutputPart<DeepTiledOutputFile> (int);
 
-DeepScanLineOutputFile*
-MultiPartOutputFile::createDeepScanLineOutputPart (int partNumber)
-{
-    Lock lock(*_data);
-    return _data->createOutputPartT <DeepScanLineOutputFile> (partNumber);
-}
-
-DeepTiledOutputFile*
-MultiPartOutputFile::createDeepTiledOutputPart (int partNumber)
-{
-    Lock lock(*_data);
-    return _data->createOutputPartT <DeepTiledOutputFile> (partNumber);
-}
-
-OutputPartData*
-MultiPartOutputFile::getPart(int partNumber)
-{
-    if (partNumber < 0 || partNumber >= (int)_data->parts.size())
-        throw IEX_NAMESPACE::ArgExc ("Part number is not in valid range.");
-    return _data->parts[partNumber];
-}
 
 
 void 
@@ -500,7 +473,6 @@ MultiPartOutputFile::Data::writeHeadersToFile (const vector<Header> &headers)
 {
     for (size_t i = 0; i < headers.size(); i++)
     {
-        Box2i box = parts[i]->header.displayWindow();
 
         // (TODO) consider deep files' preview images here.
         if (headers[i].type() == TILEDIMAGE)

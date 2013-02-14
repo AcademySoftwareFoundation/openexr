@@ -543,7 +543,7 @@ TileOffsets::operator () (int dx, int dy, int l) const
 }
 
 const std::vector<std::vector<std::vector <Int64> > >&
-TileOffsets::getOffsets()
+TileOffsets::getOffsets() const
 {
     return _offsets;
 }
