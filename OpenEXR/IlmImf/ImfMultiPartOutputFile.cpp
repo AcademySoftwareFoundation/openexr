@@ -147,7 +147,7 @@ MultiPartOutputFile::Data::do_header_sanity_checks(bool overrideSharedAttributes
         // multipart files must contain a chunkCount attribute
         _headers[0].setChunkCount(getChunkOffsetTableSize(_headers[0],true));
         
-        for (int i = 1; i < parts; i++)
+        for (size_t i = 1; i < parts; i++)
         {
             if (_headers[i].hasType() == false)
                 throw IEX_NAMESPACE::ArgExc ("Every header in a multipart file should have a type");

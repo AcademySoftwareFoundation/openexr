@@ -796,7 +796,7 @@ main(int argc, char **argv)
 	// update headers
 	//
         vector<Header> headers;
-        for(size_t p = 0 ; p < parts; p++)
+        for(int p = 0 ; p < parts; p++)
         {
             Header h = input.header (p);
             if (allparts)
@@ -821,7 +821,7 @@ main(int argc, char **argv)
         //
         MultiPartOutputFile output (outFileName, &headers[0], parts);
 
-        for (size_t p = 0 ; p < parts; p++)
+        for (int p = 0 ; p < parts; p++)
         {
             Header header = input.header (p);
             std::string type = header.type();

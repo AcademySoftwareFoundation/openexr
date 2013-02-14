@@ -53,6 +53,7 @@
 #include <ImfDeepTiledInputPart.h>
 #include <ImfDeepTiledOutputPart.h>
 #include <ImfPartHelper.h>
+#include <ImfPartType.h>
 
 #include <OpenEXRConfig.h>
 #include <Iex.h>
@@ -160,7 +161,7 @@ void
 filename_check (vector <string> names, const char* aname)
 {
     string bname(aname);
-    for (int i = 0; i < names.size(); i++)
+    for (size_t i = 0; i < names.size(); i++)
     {
         if (bname.compare (names[i]) == 0)
         {
@@ -351,7 +352,7 @@ combine (vector <const char*> in, vector<const char *> views,const char* outname
                 numparts = infile->parts();
 
                 //copy header from all parts of input to our header array
-                for (size_t j = 0; j < numparts; j++)
+                for (int j = 0; j < numparts; j++)
                 {
                     inputs.push_back (infile);
                     headers.push_back (infile->header(j));
@@ -435,22 +436,22 @@ combine (vector <const char*> in, vector<const char *> views,const char* outname
     {
         Header header = headers[p];
         std::string type = header.type();
-        if (type == "scanlineimage")
+        if (type == SCANLINEIMAGE)
         {
             cout << "part " << p << ": "<< "scanlineimage" << endl;
             copy_scanline (*inputs[p], out, partnums[p], p);
         }
-        else if (type == "tiledimage")
+        else if (type == TILEDIMAGE)
         {
             cout << "part " << p << ": "<< "tiledimage" << endl;
             copy_tile (*inputs[p], out, partnums[p], p);
         }
-        else if (type == "deepscanline")
+        else if (type == DEEPSCANLINE)
         {
             cout << "part " << p << ": "<< "deepscanlineimage" << endl;
             copy_scanlinedeep (*inputs[p], out, partnums[p], p);
         }
-        else if (type == "deeptile")
+        else if (type == DEEPTILE)
         {
             cout << "part " << p << ": "<< "deeptile" << endl;
             copy_tiledeep (*inputs[p], out, partnums[p], p);
@@ -458,7 +459,7 @@ combine (vector <const char*> in, vector<const char *> views,const char* outname
     }
 
 
-    for (int k = 0; k < fordelete.size(); k++) {
+    for (size_t k = 0; k < fordelete.size(); k++) {
         delete fordelete[k];
     }
 

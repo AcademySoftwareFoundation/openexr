@@ -177,7 +177,6 @@ makeCubeMapSixFiles (EnvmapImage &image1,
                                  1,             // screenWindowWidth
                                  INCREASING_Y,  // lineOrder
                                  compression);
-                                 channels,
 
         out.setFrameBuffer (pixels, 1, dw.max.x + 1);
 

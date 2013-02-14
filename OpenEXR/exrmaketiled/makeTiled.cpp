@@ -125,8 +125,8 @@ sampleX (const TypedImageChannel<T> &channel,
     int xt = xs + 1;
     double s = xt - x;
     double t = 1 - s;
-    double vs;
-    double vt;
+    double vs=0.0;
+    double vt=0.0;
 
     switch (ext)
     {
@@ -182,8 +182,8 @@ sampleY (const TypedImageChannel<T> &channel,
     int yt = ys + 1;
     double s = yt - y;
     double t = 1 - s;
-    double vs;
-    double vt;
+    double vs=0.0;
+    double vt=0.0;
 
     switch (ext)
     {
@@ -407,7 +407,9 @@ reduceX (const ChannelList &channels,
                          image1.typedChannel<unsigned int> (name),
                          filter, ext, odd);
                 break;
-
+            default : 
+                break;
+           
         }
     }
 }
@@ -456,7 +458,9 @@ reduceY (const ChannelList &channels,
                          image1.typedChannel<unsigned int> (name),
                          filter, ext, odd);
                 break;
-
+            default : 
+                break;
+                
         }
     }
 }
@@ -521,7 +525,7 @@ makeTiled (const char inFileName[],
     MultiPartInputFile input (inFileName);
     int parts = input.parts();
 
-    for (size_t p = 0 ; p < parts; p++)
+    for (int p = 0 ; p < parts; p++)
     {
         if (verbose)
             cout << "reading file " << inFileName << endl;
@@ -605,7 +609,7 @@ makeTiled (const char inFileName[],
 
     MultiPartOutputFile output (outFileName, &headers[0], headers.size());
 
-    for(size_t p = 0 ; p < parts; p++)
+    for(int p = 0 ; p < parts; p++)
     {
         if (p == partnum)
         {

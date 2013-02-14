@@ -337,7 +337,7 @@ void writeToRGBASSETemplate
      __m128i*& writePtrSSE,
      const size_t& lPixelsToCopySSE)
 {
-    for (int i = 0; i < lPixelsToCopySSE; ++i)
+    for (size_t i = 0; i < lPixelsToCopySSE; ++i)
     {
         __m128i redRegister   = loadSSE<READ_PTR_ALIGNED> (readPtrSSERed);
         __m128i greenRegister = loadSSE<READ_PTR_ALIGNED> (readPtrSSEGreen);
@@ -394,7 +394,7 @@ void writeToRGBANormal (unsigned short*& readPtrRed,
                         unsigned short*& writePtr,
                         const size_t& lPixelsToCopy)
 {
-    for (int i = 0; i < lPixelsToCopy; ++i)
+    for (size_t i = 0; i < lPixelsToCopy; ++i)
     {
         *(writePtr++) = *(readPtrRed++);
         *(writePtr++) = *(readPtrGreen++);
@@ -496,7 +496,7 @@ writeToRGBAFillASSETemplate (__m128i*& readPtrSSERed,
                                                       alphaFillValue,
                                                       alphaFillValue);
 
-    for (int pixelCounter = 0; pixelCounter < pixelsToCopySSE; ++pixelCounter)
+    for (size_t pixelCounter = 0; pixelCounter < pixelsToCopySSE; ++pixelCounter)
     {
         __m128i redRegister   = loadSSE<READ_PTR_ALIGNED> (readPtrSSERed);
         __m128i greenRegister = loadSSE<READ_PTR_ALIGNED> (readPtrSSEGreen);
@@ -554,7 +554,7 @@ writeToRGBAFillANormal (unsigned short*& readPtrRed,
                         unsigned short*& writePtr,
                         const size_t& pixelsToCopy)
 {
-    for (int i = 0; i < pixelsToCopy; ++i)
+    for (size_t i = 0; i < pixelsToCopy; ++i)
     {
         *(writePtr++) = *(readPtrRed++);
         *(writePtr++) = *(readPtrGreen++);
@@ -648,7 +648,7 @@ writeToRGBSSETemplate (__m128i*& readPtrSSERed,
                        const size_t& pixelsToCopySSE)
 {
 
-    for (int pixelCounter = 0; pixelCounter < pixelsToCopySSE; ++pixelCounter)
+    for (size_t pixelCounter = 0; pixelCounter < pixelsToCopySSE; ++pixelCounter)
     {
         //
         // Need to shuffle and unpack pointers to obtain my first register
@@ -758,7 +758,7 @@ writeToRGBNormal (unsigned short*& readPtrRed,
                   unsigned short*& writePtr,
                   const size_t& pixelsToCopy)
 {
-    for (int i = 0; i < pixelsToCopy; ++i)
+    for (size_t i = 0; i < pixelsToCopy; ++i)
     {
         *(writePtr++) = *(readPtrRed++);
         *(writePtr++) = *(readPtrGreen++);
@@ -922,7 +922,7 @@ getOptimizationInfo(const FrameBuffer & framebuffer,const StringVector * views)
         // We also support only an xSampling of 1 and the same ySampling
         // across the channels
         if (currentSlice.type != HALF || 
-            currentSlice.xStride != globalXStride ||
+            currentSlice.xStride != size_t(globalXStride) ||
             currentSlice.ySampling != globalYSampling ||
             currentSlice.xSampling != 1)
         {
