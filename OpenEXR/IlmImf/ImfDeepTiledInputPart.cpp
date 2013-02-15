@@ -41,7 +41,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 DeepTiledInputPart::DeepTiledInputPart(MultiPartInputFile& multiPartFile, int partNumber)
 {
-    file = multiPartFile.createDeepTiledInputPart(partNumber);
+    file = multiPartFile.getInputPart<DeepTiledInputFile>(partNumber);
 }
 
 

@@ -44,9 +44,8 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class InputPartData
+struct InputPartData
 {
-    protected:
         Header                  header;
         int                     numThreads;
         int                     partNumber;
@@ -58,12 +57,6 @@ class InputPartData
         InputPartData(InputStreamMutex* mutex, const Header &header,
                       int partNumber, int numThreads, int version);
 
-    friend class InputFile;
-    friend class ScanLineInputFile;
-    friend class TiledInputFile;
-    friend class DeepScanLineInputFile;
-    friend class DeepTiledInputFile;
-    friend class MultiPartInputFile;
 };
 
 

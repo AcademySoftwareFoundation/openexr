@@ -97,9 +97,9 @@ class DeepTiledOutputPart;
 
 
 // internal use only
-class  InputPartData;
+struct InputPartData;
 struct OutputStreamMutex;
-class  OutputPartData;
+struct OutputPartData;
 struct InputStreamMutex;
 
 // frame buffers

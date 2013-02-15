@@ -39,8 +39,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfPreviewImage.h>
-#include <ImfCheckedArithmetic.h>
+#include "ImfPreviewImage.h"
+#include "ImfCheckedArithmetic.h"
 #include "Iex.h"
 #include "ImfNamespace.h"
 

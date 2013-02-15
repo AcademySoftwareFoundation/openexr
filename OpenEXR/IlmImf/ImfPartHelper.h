@@ -119,6 +119,7 @@ public:
 ///
 /// @param begin pointer to first MultiViewChannelName item
 /// @param end   pointer to end of MultiViewChannelName item array
+/// @return      total number of parts required
 //
 
 template<typename T> int 
@@ -240,7 +241,7 @@ GetChannelsInMultiPartFile(const MultiPartInputFile & file,T & chans)
 	{
 	    MultiViewChannelName m;
             m.name=std::string(i.name());
-	    m.internal_name=m.name();
+	    m.internal_name=m.name;
 
 	    if(has_multiview)
 	    {

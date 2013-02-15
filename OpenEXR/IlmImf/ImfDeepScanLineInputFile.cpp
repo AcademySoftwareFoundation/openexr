@@ -829,6 +829,15 @@ void DeepScanLineInputFile::initialize(const Header& header)
 {
     try
     {
+        if (header.type() != DEEPSCANLINE)
+            throw IEX_NAMESPACE::ArgExc("Can't build a DeepScanLineInputFile from "
+            "a type-mismatched part.");
+        
+        if(header.version()!=1)
+        {
+            THROW(IEX_NAMESPACE::ArgExc, "Version " << header.version() << " not supported for deepscanline images in this version of the library");
+        }
+        
         _data->header = header;
 
         _data->lineOrder = _data->header.lineOrder();
@@ -881,6 +890,7 @@ void DeepScanLineInputFile::initialize(const Header& header)
     catch (...)
     {
         delete _data;
+        _data=NULL;
         throw;
     }
 }
@@ -889,9 +899,6 @@ void DeepScanLineInputFile::initialize(const Header& header)
 DeepScanLineInputFile::DeepScanLineInputFile(InputPartData* part)
     
 {
-    if (part->header.type() != DEEPSCANLINE)
-        throw IEX_NAMESPACE::ArgExc("Can't build a DeepScanLineInputFile from "
-                          "a type-mismatched part.");
 
     _data = new Data(part->numThreads);
     _data->_deleteStream=false;
@@ -1784,7 +1791,7 @@ readSampleCountForLineBlock(InputStreamMutex* streamData,
     int compressorMaxDataSize = std::numeric_limits<int>::max();
     if (sampleCountTableDataSize > Int64(compressorMaxDataSize))
     {
-        THROW (IEX_NAMESPACE::ArgExc, "This version of the library does not"
+        THROW (IEX_NAMESPACE::ArgExc, "This version of the library does not "
               << "support the allocation of data with size  > "
               << compressorMaxDataSize
               << " file table size    :" << sampleCountTableDataSize << ".\n");

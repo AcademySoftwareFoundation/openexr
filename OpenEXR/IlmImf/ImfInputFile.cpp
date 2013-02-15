@@ -38,16 +38,16 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfInputFile.h>
-#include <ImfScanLineInputFile.h>
-#include <ImfTiledInputFile.h>
-#include <ImfChannelList.h>
-#include <ImfMisc.h>
-#include <ImfStdIO.h>
-#include <ImfVersion.h>
-#include <ImfPartType.h>
-#include <ImfInputPartData.h>
-#include <ImfMultiPartInputFile.h>
+#include "ImfInputFile.h"
+#include "ImfScanLineInputFile.h"
+#include "ImfTiledInputFile.h"
+#include "ImfChannelList.h"
+#include "ImfMisc.h"
+#include "ImfStdIO.h"
+#include "ImfVersion.h"
+#include "ImfPartType.h"
+#include "ImfInputPartData.h"
+#include "ImfMultiPartInputFile.h"
 
 #include <ImfCompositeDeepScanLine.h>
 #include <ImfDeepScanLineInputFile.h>
@@ -374,8 +374,15 @@ InputFile::InputFile (const char fileName[], int numThreads):
     catch (IEX_NAMESPACE::BaseExc &e)
     {
         if (is)          delete is;
-        if (_data && _data->_streamData) delete _data->_streamData;
+         
+        if ( _data && !_data->multiPartBackwardSupport  && _data->_streamData)
+        {
+            delete _data->_streamData;
+            _data->_streamData=NULL;
+        }
+        
         if (_data)       delete _data;
+        _data=NULL;
 
         REPLACE_EXC (e, "Cannot read image file "
 			"\"" << fileName << "\". " << e);
@@ -384,7 +391,10 @@ InputFile::InputFile (const char fileName[], int numThreads):
     catch (...)
     {
         if (is)          delete is;
-        if (_data && _data->_streamData) delete _data->_streamData;
+        if (_data && !_data->multiPartBackwardSupport && _data->_streamData)
+        {
+            delete _data->_streamData;
+        }
         if (_data)       delete _data;
 
         throw;
@@ -420,8 +430,9 @@ InputFile::InputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThread
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {
-        if (_data && _data->_streamData) delete _data->_streamData;
+        if (_data && !_data->multiPartBackwardSupport && _data->_streamData) delete _data->_streamData;
         if (_data)       delete _data;
+        _data=NULL; 
 
         REPLACE_EXC (e, "Cannot read image file "
 			"\"" << is.fileName() << "\". " << e);
@@ -429,10 +440,9 @@ InputFile::InputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThread
     }
     catch (...)
     {
-        if (_data && _data->_streamData) delete _data->_streamData;
+        if (_data &&  !_data->multiPartBackwardSupport  && _data->_streamData) delete _data->_streamData;
         if (_data)       delete _data;
-
-        if (_data) delete _data;
+        _data=NULL;
         throw;
     }
 }
@@ -482,6 +492,7 @@ InputFile::initialize ()
 {
     if (!_data->part)
     {
+        
         if(_data->header.hasType() && _data->header.type()==DEEPSCANLINE)
         {
             _data->isTiled=false;
@@ -515,11 +526,16 @@ InputFile::initialize ()
                                                _data->version,
                                                _data->numThreads);
         }
-        else
+        
+        else if(!_data->header.hasType() || _data->header.type()==SCANLINEIMAGE)
         {
             _data->sFile = new ScanLineInputFile (_data->header,
                                                   _data->_streamData->is,
                                                   _data->numThreads);
+        }else{
+            // type set but not recognised
+            
+            THROW(IEX_NAMESPACE::ArgExc, "InputFile cannot handle parts of type " << _data->header.type());
         }
     }
     else
@@ -550,9 +566,12 @@ InputFile::initialize ()
 
             _data->tFile = new TiledInputFile (_data->part);
         }
-        else
+        else if(!_data->header.hasType() || _data->header.type()==SCANLINEIMAGE)
         {
             _data->sFile = new ScanLineInputFile (_data->part);
+        }else{
+            THROW(IEX_NAMESPACE::ArgExc, "InputFile cannot handle parts of type " << _data->header.type());
+            
         }
     }
 }
@@ -744,6 +763,17 @@ InputFile::isComplete () const
 	return _data->tFile->isComplete();
     else
 	return _data->sFile->isComplete();
+}
+
+bool
+InputFile::isOptimizationEnabled() const
+{
+   if(_data->sFile)
+   {
+       return _data->sFile->isOptimizationEnabled();
+   }else{
+       return false;
+   }
 }
 
 

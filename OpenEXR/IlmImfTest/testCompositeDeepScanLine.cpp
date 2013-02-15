@@ -345,7 +345,7 @@ template<class T> class data{
     //
     // check values are within a suitable tolerance of the expected value (expect some errors due to half float storage etc)
     //
-    bool 
+    void 
     checkValues(const vector<T> & data,const Box2i & dw,bool dontbothercheckingdepth)
     {
         size_t size = _channels.size()+(dw.size().x+1)*(dw.size().y+1);

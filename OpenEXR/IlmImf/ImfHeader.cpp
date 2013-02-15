@@ -750,6 +750,17 @@ Header::hasPreviewImage () const
 void		
 Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 {
+    
+    const std::string & part_type=hasType() ? type() : "";
+    
+    if(part_type!="" && !isSupportedType(part_type))
+    {
+        //
+        // skip sanity checks with unsupported types
+        //
+        return;
+    }
+    
     //
     // The display window and the data window must each
     // contain at least one pixel.  In addition, the
@@ -845,16 +856,12 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
                                " have name attribute.");
         }
 
-        if (!hasType() && isSupportedType(type()))
+        if (!hasType())
         {
             throw IEX_NAMESPACE::ArgExc ("Headers in a multipart file should"
                                " have type attribute.");
         }
 
-        if (hasVersion() && version() != 1)
-        {
-            throw IEX_NAMESPACE::ArgExc ("We can only process version 1.");
-        }
     }
 
     //
@@ -909,9 +916,11 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
     }
     else
     {
-	if (lineOrder != INCREASING_Y &&
-	    lineOrder != DECREASING_Y)
-	    throw IEX_NAMESPACE::ArgExc ("Invalid line order in image header.");
+        if (lineOrder != INCREASING_Y &&
+            lineOrder != DECREASING_Y)
+            throw IEX_NAMESPACE::ArgExc ("Invalid line order in image header.");
+        
+        
     }
 
     //
@@ -921,7 +930,7 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
     if (!isValidCompression (this->compression()))
   	throw IEX_NAMESPACE::ArgExc ("Unknown compression type in image header.");
     
-    if(hasType() && isDeepData(type()))
+    if(isDeepData(part_type))
     {
         if (!isValidDeepCompression (this->compression()))
             throw IEX_NAMESPACE::ArgExc ("Compression type in header not valid for deep data");

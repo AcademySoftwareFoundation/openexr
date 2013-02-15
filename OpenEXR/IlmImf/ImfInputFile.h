@@ -145,6 +145,29 @@ class IMF_EXPORT InputFile : public GenericInputFile
 
     bool		isComplete () const;
 
+    
+    //---------------------------------------------------------------
+    // Check if SSE optimization is enabled
+    //
+    // Call after setFrameBuffer() to query whether optimized file decoding
+    // is available - decode times will be faster if returns true
+    //
+    // Optimization depends on:
+    //   the file type (only scanline data is supported),
+    //   the framebuffer channels (RGB/RGBA mono or stereo)
+    //   the framebuffer channel types (all channels half-float format only)
+    //   the file channels (RGB/RGBA mono or stereo)
+    //   the file channel types (all channel half-float format only)
+    //   whether SSE2 instruction support was detected at compile time
+    //
+    // Calling isOptimizationEnabled before setFrameBuffer will throw an exception
+    //
+    //---------------------------------------------------------------
+    
+    bool                isOptimizationEnabled () const;
+    
+    
+    
 
     //---------------------------------------------------------------
     // Read pixel data:

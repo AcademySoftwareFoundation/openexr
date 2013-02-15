@@ -38,25 +38,25 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfDeepTiledOutputFile.h>
-#include <ImfDeepTiledInputFile.h>
-#include <ImfDeepTiledInputPart.h>
-#include <ImfInputFile.h>
-#include <ImfTileDescriptionAttribute.h>
-#include <ImfPreviewImageAttribute.h>
-#include <ImfChannelList.h>
-#include <ImfMisc.h>
-#include <ImfTiledMisc.h>
-#include <ImfStdIO.h>
-#include <ImfCompressor.h>
-#include <ImfOutputStreamMutex.h>
-#include <ImfOutputPartData.h>
-#include <ImfArray.h>
-#include <ImfXdr.h>
-#include <ImfVersion.h>
-#include <ImfTileOffsets.h>
-#include <ImfThreading.h>
-#include <ImfPartType.h>
+#include "ImfDeepTiledOutputFile.h"
+#include "ImfDeepTiledInputFile.h"
+#include "ImfDeepTiledInputPart.h"
+#include "ImfInputFile.h"
+#include "ImfTileDescriptionAttribute.h"
+#include "ImfPreviewImageAttribute.h"
+#include "ImfChannelList.h"
+#include "ImfMisc.h"
+#include "ImfTiledMisc.h"
+#include "ImfStdIO.h"
+#include "ImfCompressor.h"
+#include "ImfOutputStreamMutex.h"
+#include "ImfOutputPartData.h"
+#include "ImfArray.h"
+#include "ImfXdr.h"
+#include "ImfVersion.h"
+#include "ImfTileOffsets.h"
+#include "ImfThreading.h"
+#include "ImfPartType.h"
 
 #include "ImathBox.h"
 

@@ -32,28 +32,30 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <ImfMultiPartInputFile.h>
+#include "ImfMultiPartInputFile.h"
 
-#include <ImfTimeCodeAttribute.h>
-#include <ImfChromaticitiesAttribute.h>
-#include <ImfBoxAttribute.h>
-#include <ImfFloatAttribute.h>
-#include <ImfStdIO.h>
-#include <ImfTileOffsets.h>
-#include <ImfMisc.h>
-#include <ImfTiledMisc.h>
+#include "ImfTimeCodeAttribute.h"
+#include "ImfChromaticitiesAttribute.h"
+#include "ImfBoxAttribute.h"
+#include "ImfFloatAttribute.h"
+#include "ImfStdIO.h"
+#include "ImfTileOffsets.h"
+#include "ImfMisc.h"
+#include "ImfTiledMisc.h"
+#include "ImfInputStreamMutex.h"
+#include "ImfInputPartData.h"
+#include "ImfPartType.h"
+#include "ImfInputFile.h"
+#include "ImfScanLineInputFile.h"
+#include "ImfTiledInputFile.h"
+#include "ImfDeepScanLineInputFile.h"
+#include "ImfDeepTiledInputFile.h"
+#include "ImfVersion.h"
+
 #include <OpenEXRConfig.h>
 #include <IlmThread.h>
 #include <IlmThreadMutex.h>
-#include <ImfInputStreamMutex.h>
-#include <ImfInputPartData.h>
-#include <ImfPartType.h>
-#include <ImfInputFile.h>
-#include <ImfScanLineInputFile.h>
-#include <ImfTiledInputFile.h>
-#include <ImfDeepScanLineInputFile.h>
-#include <ImfDeepTiledInputFile.h>
-#include <ImfVersion.h>
+
 #include <Iex.h>
 #include <map>
 #include <set>
@@ -119,13 +121,7 @@ struct MultiPartInputFile::Data: public InputStreamMutex
     template <class T>
     T*    createInputPartT(int partNumber)
     {
-        if (_inputFiles.find(partNumber) == _inputFiles.end())
-        {
-            T* file = new T(getPart(partNumber));
-            _inputFiles.insert(std::make_pair(partNumber, (GenericInputFile*) file));
-            return file;
-        }
-        else return (T*) _inputFiles[partNumber];
+
     }
 };
 
@@ -179,43 +175,33 @@ MultiPartInputFile::MultiPartInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream&
     }
 }
 
-
-
-
-ScanLineInputFile*
-MultiPartInputFile::createScanLineInputPart(int partNumber)
+template<class T>
+T*
+MultiPartInputFile::getInputPart(int partNumber)
 {
     Lock lock(*_data);
-    return _data->createInputPartT <ScanLineInputFile> (partNumber);
+            if (_data->_inputFiles.find(partNumber) == _data->_inputFiles.end())
+        {
+            T* file = new T(_data->getPart(partNumber));
+            _data->_inputFiles.insert(std::make_pair(partNumber, (GenericInputFile*) file));
+            return file;
+        }
+        else return (T*) _data->_inputFiles[partNumber];
 }
 
-TiledInputFile*
-MultiPartInputFile::createTiledInputPart(int partNumber)
+
+template InputFile* MultiPartInputFile::getInputPart<InputFile>(int);
+template TiledInputFile* MultiPartInputFile::getInputPart<TiledInputFile>(int);
+template DeepScanLineInputFile* MultiPartInputFile::getInputPart<DeepScanLineInputFile>(int);
+template DeepTiledInputFile* MultiPartInputFile::getInputPart<DeepTiledInputFile>(int);
+
+InputPartData*
+MultiPartInputFile::getPart(int partNumber)
 {
-    Lock lock(*_data);
-    return _data->createInputPartT <TiledInputFile> (partNumber);
+    return _data->getPart(partNumber);
 }
 
-InputFile*
-MultiPartInputFile::createInputPart(int partNumber)
-{
-    Lock lock(*_data);
-    return _data->createInputPartT <InputFile> (partNumber);
-}
 
-DeepScanLineInputFile*
-MultiPartInputFile::createDeepScanLineInputPart(int partNumber)
-{
-    Lock lock(*_data);
-    return _data->createInputPartT <DeepScanLineInputFile> (partNumber);
-}
-
-DeepTiledInputFile*
-MultiPartInputFile::createDeepTiledInputPart(int partNumber)
-{
-    Lock lock(*_data);
-    return _data->createInputPartT <DeepTiledInputFile> (partNumber);
-}
 
 const Header &
  MultiPartInputFile::header(int n) const
@@ -719,12 +705,6 @@ MultiPartInputFile::Data::getPart(int partNumber)
     return parts[partNumber];
 }
 
-
-InputPartData*
-MultiPartInputFile::getPart(int partNumber)
-{
-    return _data->getPart(partNumber);
-}
 
 
 void

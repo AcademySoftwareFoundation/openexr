@@ -97,13 +97,9 @@ class IMF_EXPORT MultiPartInputFile : public GenericInputFile
     //
     // used internally by 'Part' types to access individual parts of the multipart file
     //
-    InputPartData*          getPart(int partNumber);
-    ScanLineInputFile*      createScanLineInputPart(int partNumber);
-    TiledInputFile*         createTiledInputPart(int partNumber);
-    InputFile*              createInputPart(int partNumber);
-    DeepScanLineInputFile*  createDeepScanLineInputPart(int partNumber);
-    DeepTiledInputFile*     createDeepTiledInputPart(int partNumber);
-
+    template<class T> T*    getInputPart(int partNumber);
+    InputPartData*          getPart(int);
+    
     void                    initialize();
 
 

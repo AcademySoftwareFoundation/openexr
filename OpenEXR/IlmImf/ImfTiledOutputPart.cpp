@@ -39,7 +39,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 TiledOutputPart::TiledOutputPart(MultiPartOutputFile& multiPartFile, int partNumber)
 {
-    file = multiPartFile.createTiledOutputPart(partNumber);
+    file = multiPartFile.getOutputPart<TiledOutputFile>(partNumber);
 }
 
 const char *

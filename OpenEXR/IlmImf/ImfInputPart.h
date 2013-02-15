@@ -60,6 +60,7 @@ class IMF_EXPORT InputPart
         void                setFrameBuffer (const FrameBuffer &frameBuffer);
         const FrameBuffer & frameBuffer () const;
         bool                isComplete () const;
+        bool                isOptimizationEnabled () const;
         void                readPixels (int scanLine1, int scanLine2);
         void                readPixels (int scanLine);
         void                rawPixelData (int firstScanLine,

@@ -75,6 +75,12 @@ class IMF_EXPORT MultiPartOutputFile : public GenericOutputFile
                             int parts,
                             bool overrideSharedAttributes = false,
                             int numThreads = globalThreadCount());
+                            
+        MultiPartOutputFile(OStream & os,
+                            const Header * headers,
+                            int parts,
+                            bool overrideSharedAttributes = false,
+                            int numThreads = globalThreadCount());                            
 
         //
         // return number of parts in file
@@ -96,14 +102,9 @@ class IMF_EXPORT MultiPartOutputFile : public GenericOutputFile
         Data*                           _data;
 
         MultiPartOutputFile(const MultiPartOutputFile &); // not implemented
+        
+        template<class T>         T*  getOutputPart(int partNumber);
 
-        OutputFile*                     createOutputPart (int partNumber);
-        TiledOutputFile*                createTiledOutputPart (int partNumber);
-        DeepScanLineOutputFile* createDeepScanLineOutputPart (int partNumber);
-        DeepTiledOutputFile*    createDeepTiledOutputPart (int partNumber);
-
-
-        OutputPartData*         getPart (int partNumber);
     
     friend class OutputPart;
     friend class TiledOutputPart;
