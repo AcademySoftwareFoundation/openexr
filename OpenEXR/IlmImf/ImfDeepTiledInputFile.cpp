@@ -824,7 +824,7 @@ DeepTiledInputFile::DeepTiledInputFile (const char fileName[], int numThreads):
     catch (IEX_NAMESPACE::BaseExc &e)
     {
         if (is)          delete is;
-        if (_data->_streamData) delete _data->_streamData;
+        if (_data && !_data->multiPartBackwardSupport && _data->_streamData) delete _data->_streamData;
         if (_data)       delete _data;
 
         REPLACE_EXC (e, "Cannot open image file "
@@ -834,7 +834,7 @@ DeepTiledInputFile::DeepTiledInputFile (const char fileName[], int numThreads):
     catch (...)
     {
         if (is)          delete is;
-        if (_data && _data->_streamData) delete _data->_streamData;
+        if (_data && !_data->multiPartBackwardSupport && _data->_streamData) delete _data->_streamData;
         if (_data)       delete _data;
 
         throw;
@@ -878,7 +878,7 @@ DeepTiledInputFile::DeepTiledInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream 
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {
-        if (_data && _data->_streamData) delete _data->_streamData;
+        if (_data && !_data->multiPartBackwardSupport && _data->_streamData) delete _data->_streamData;
         if (_data)       delete _data;
 
         REPLACE_EXC (e, "Cannot open image file "
@@ -887,7 +887,7 @@ DeepTiledInputFile::DeepTiledInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream 
     }
     catch (...)
     {
-        if (_data && _data->_streamData) delete _data->_streamData;
+        if (_data && !_data->multiPartBackwardSupport && _data->_streamData) delete _data->_streamData;
         if (_data)       delete _data;
 
         throw;
@@ -970,7 +970,11 @@ DeepTiledInputFile::initialize ()
     if (_data->partNumber == -1)
         if (_data->header.type() != DEEPTILE)
             throw IEX_NAMESPACE::ArgExc ("Expected a deep tiled file but the file is not deep tiled.");
-
+   if(_data->header.version()!=1)
+   {
+       THROW(IEX_NAMESPACE::ArgExc, "Version " << _data->header.version() << " not supported for deeptiled images in this version of the library");
+   }
+        
     _data->header.sanityCheck (true);
 
     _data->tileDesc = _data->header.tileDescription();

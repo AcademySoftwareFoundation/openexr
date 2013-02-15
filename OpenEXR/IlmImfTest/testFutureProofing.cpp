@@ -658,7 +658,7 @@ void generateRandomFile(int partCount)
     }
 }
 
-void readWholeFiles(bool modified)
+void readWholeFiles(int modification)
 {
     Array2D<unsigned int> uData;
     Array2D<float> fData;
@@ -683,7 +683,7 @@ void readWholeFiles(bool modified)
         assert (header.compression() == headers[i].compression());
         assert (header.channels() == headers[i].channels());
         assert (header.name() == headers[i].name());
-        if(modified && i==0)
+        if(modification==1 && i==0)
         {
             assert (header.type() != headers[i].type());
         }else{
@@ -699,7 +699,7 @@ void readWholeFiles(bool modified)
     // Shuffle part numbers.
     //
     vector<int> shuffledPartNumber;
-    for (int i = modified ? 1 : 0; i < headers.size(); i++)
+    for (int i = modification>0 ? 1 : 0; i < headers.size(); i++)
         shuffledPartNumber.push_back(i);
     for (int i = 0; i < shuffledPartNumber.size(); i++)
     {
@@ -1117,7 +1117,7 @@ void readFirstPart()
 
 
 
-void modifyType()
+void modifyType(bool modify_version)
 {
     FILE * f = fopen(filename,"r+b");
     
@@ -1166,7 +1166,7 @@ void modifyType()
             
             //length of attribute
             fread(&length,4,1,f);
-            if(attrib_name=="type")
+            if(!modify_version && attrib_name=="type")
             {
                 // modify the type of part 1 to be 'X<whatevever>'
                 fpos_t position;
@@ -1191,6 +1191,19 @@ void modifyType()
                 
                 cerr << " modified ";
                 return;
+            }
+            
+            if(modify_version && attrib_name=="version")
+            {
+                fpos_t position;
+                fgetpos (f, &position);
+                fsetpos (f, &position);
+                char x='X';
+                fwrite(&x,1,1,f);
+                fclose(f);
+                cerr << " modified ";
+                return;
+                
             }
             
             //value of attribute
@@ -1223,9 +1236,27 @@ void testWriteRead(int partNumber)
         }
         
         
-        readWholeFiles(false);
+        readWholeFiles(0);
         
-        modifyType();
+        
+        // for deep images, check that "version 2" files don't load
+        if(headers[0].type()==DEEPSCANLINE || headers[0].type()==DEEPTILE)
+        {
+            modifyType(true);
+            try{
+                readFirstPart();
+                cerr << " part reading succeeded but should have failed\n";
+                assert(false);
+            }catch(std::exception & e)
+            {
+                cout << "recieved exception (" << e.what() << ") as expected\n";
+                // that's what we thought would happen
+            }
+            readWholeFiles(2);
+            
+        }
+        
+        modifyType(false);
         
         
         try{
@@ -1239,7 +1270,7 @@ void testWriteRead(int partNumber)
         }
         
         // this should always succeed: it doesn't try to read the strange new type in part 0
-        readWholeFiles(true);
+        readWholeFiles(1);
         
         remove (filename);
         cout << endl << flush;

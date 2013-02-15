@@ -862,10 +862,6 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
                                " have type attribute.");
         }
 
-        if (hasVersion() && version() != 1)
-        {
-            throw IEX_NAMESPACE::ArgExc ("We can only process version 1.");
-        }
     }
 
     //

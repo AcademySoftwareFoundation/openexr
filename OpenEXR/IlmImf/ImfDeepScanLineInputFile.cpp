@@ -833,6 +833,11 @@ void DeepScanLineInputFile::initialize(const Header& header)
             throw IEX_NAMESPACE::ArgExc("Can't build a DeepScanLineInputFile from "
             "a type-mismatched part.");
         
+        if(header.version()!=1)
+        {
+            THROW(IEX_NAMESPACE::ArgExc, "Version " << header.version() << " not supported for deepscanline images in this version of the library");
+        }
+        
         _data->header = header;
 
         _data->lineOrder = _data->header.lineOrder();
