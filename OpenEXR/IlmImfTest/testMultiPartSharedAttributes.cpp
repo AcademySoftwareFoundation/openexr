@@ -32,7 +32,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include "tmpDir.h"
 #include "testMultiPartSharedAttributes.h"
 
 #include <ImfMultiPartInputFile.h>
@@ -59,6 +58,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+
+#include "tmpDir.h"
 
 #ifndef ILM_IMF_TEST_IMAGEDIR
     #define ILM_IMF_TEST_IMAGEDIR
@@ -500,6 +501,7 @@ testMultiPartSharedAttributes ()
         testSharedAttributes ();
         testHeaders ();
 
+        remove(filename);
         cout << " ... ok\n" << endl;
     }
     catch (const IEX_NAMESPACE::BaseExc & e)

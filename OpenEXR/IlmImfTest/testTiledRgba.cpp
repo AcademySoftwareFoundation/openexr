@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <tmpDir.h>
 #include "compareB44.h"
 
 #include <ImfTiledRgbaFile.h>
@@ -50,6 +49,7 @@
 #include <vector>
 #include <math.h>
 
+#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;

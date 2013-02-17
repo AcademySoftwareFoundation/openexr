@@ -36,7 +36,6 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include <tmpDir.h>
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
@@ -47,6 +46,7 @@
 #include <assert.h>
 #include <algorithm>
 
+#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;

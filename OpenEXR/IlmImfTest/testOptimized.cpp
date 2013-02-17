@@ -34,7 +34,6 @@
 
 
 
-#include <tmpDir.h>
 
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
@@ -66,6 +65,7 @@
 #include <assert.h>
 #include <string.h>
 
+#include "tmpDir.h"
 
 using namespace std;
 using namespace IMATH_NAMESPACE;
@@ -478,6 +478,7 @@ readValidateFile (const char pFilename[],
     //readPixels(pFilename, lNbChannels, lPixels);
     //writePixels("pkTest.exr", pHeight, pWidth, lPixels, lNbChannels, NO_COMPRESSION);
 
+
     if(pIsStereo)
     {
         Array2D<half> lPixelsLeft;
@@ -502,8 +503,10 @@ testNonOptimized()
     const int pHeight = IMAGE_2K_HEIGHT - 1;
     const int pWidth  =  IMAGE_2K_WIDTH - 1;
     const char* filename  = IMF_TMP_DIR RGB_FILENAME;
+    remove(filename);
     writeFile (filename,  pHeight, pWidth, IMAGE_TYPE_OTHER,  false, NO_COMPRESSION);
     readValidateFile(filename,pHeight,pWidth,IMAGE_TYPE_OTHER,false);
+    remove(filename);
 }
 
 //
@@ -527,6 +530,9 @@ testAllCombinations (bool isAligned, bool isStereo, Compression pCompression)
     const int pHeight = isAligned ? IMAGE_2K_HEIGHT : IMAGE_2K_HEIGHT - 1;
     const int pWidth  = isAligned ? IMAGE_2K_WIDTH  : IMAGE_2K_WIDTH  - 1;
 
+    remove(pRgbFilename);
+    remove(pRgbaFilename);
+
     writeFile (pRgbFilename,  pHeight, pWidth, IMAGE_TYPE_RGB,  isStereo, pCompression);
     writeFile (pRgbaFilename, pHeight, pWidth, IMAGE_TYPE_RGBA, isStereo, pCompression);
 
@@ -545,6 +551,10 @@ testAllCombinations (bool isAligned, bool isStereo, Compression pCompression)
 
     cout << "\t\tRGBA file to RGBA framebuffer" << endl;
     readValidateFile (pRgbaFilename, pHeight, pWidth, IMAGE_TYPE_RGBA, isStereo);
+
+    remove(pRgbFilename);
+    remove(pRgbaFilename);
+
 }
 
 } // anonymous namespace

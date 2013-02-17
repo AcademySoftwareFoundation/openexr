@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <tmpDir.h>
 
 #include <ImfRgbaFile.h>
 #include <ImfTiledRgbaFile.h>
@@ -52,6 +51,8 @@
 
 #include <vector>
 #include <ImfChannelList.h>
+
+#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;

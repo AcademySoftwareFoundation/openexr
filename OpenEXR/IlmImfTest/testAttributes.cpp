@@ -34,7 +34,6 @@
 
 
 
-#include <tmpDir.h>
 
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
@@ -61,6 +60,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
