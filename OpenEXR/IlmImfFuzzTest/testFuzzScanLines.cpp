@@ -34,7 +34,6 @@
 
 
 
-#include <tmpDir.h>
 #include <fuzzFile.h>
 
 #include <ImfRgbaFile.h>
@@ -45,6 +44,9 @@
 #include <iostream>
 #include <cassert>
 #include <stdio.h>
+
+#include "tmpDir.h"
+
 
 // Handle the case when the custom namespace is not exposed
 #include <OpenEXRConfig.h>
@@ -166,7 +168,7 @@ testFuzzScanLines ()
 {
     try
     {
-	cout << "Testing scanline-based files "
+	cout << "Testing deep-scanline-based files "
 		"with randomly inserted errors" << endl;
 
 	Rand48 random (1);
