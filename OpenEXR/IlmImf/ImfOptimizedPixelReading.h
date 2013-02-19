@@ -878,6 +878,7 @@ getOptimizationInfo(const ChannelList & list,const StringVector * views)
     return optimizationInfo;
 }
 
+EXR_FORCEINLINE 
 OptimizationMode::ChannelsInfo
 getOptimizationInfo(const FrameBuffer & framebuffer,const StringVector * views)
 {
@@ -995,6 +996,7 @@ getOptimizationInfo(const ChannelList & list,const StringVector * views)
     return optimizationInfo;
 }
 
+EXR_FORCEINLINE 
 OptimizationMode::ChannelsInfo
 getOptimizationInfo(const FrameBuffer & framebuffer,const StringVector * views)
 {

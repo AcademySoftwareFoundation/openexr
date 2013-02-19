@@ -33,7 +33,9 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#if defined(_WIN32) || defined(_WIN64) || defined(__MWERKS__)
+#if defined(ANDROID) || defined(__ANDROID_API__)
+    #define IMF_TMP_DIR "/sdcard/"
+#elif defined(_WIN32) || defined(_WIN64) || defined(__MWERKS__) 
     #define IMF_TMP_DIR ""
 #else
     #define IMF_TMP_DIR "/var/tmp/"

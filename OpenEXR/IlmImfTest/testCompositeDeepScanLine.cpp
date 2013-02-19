@@ -32,7 +32,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include "testCompositeDeepScanLine.h"
-#include "tmpDir.h"
 
 #include <vector>
 #include <string>
@@ -58,6 +57,8 @@
 #include <ImfCompositeDeepScanLine.h>
 #include <ImfThreading.h>
 #include <IlmThread.h>
+
+#include "tmpDir.h"
 
 namespace{
 

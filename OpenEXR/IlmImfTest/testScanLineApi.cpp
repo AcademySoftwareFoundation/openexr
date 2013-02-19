@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <tmpDir.h>
 
 #include <ImfTiledOutputFile.h>
 #include <ImfTiledInputFile.h>
@@ -51,6 +50,8 @@
 #include <vector>
 #include <math.h>
 #include <ImfTileDescriptionAttribute.h>
+
+#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;

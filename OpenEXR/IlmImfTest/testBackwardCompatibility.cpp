@@ -290,10 +290,12 @@ diffScanlineImages ()
     // Planar Images
     generateScanlinePlanarImage (planarScanlineName);
     diffImageFiles (planarScanlineName, ILM_IMF_TEST_IMAGEDIR "v1.7.test.planar.exr");
+    remove(planarScanlineName);
 
     // Interleaved Images
     generateScanlineInterleavedImage (interleavedScanlineName);
     diffImageFiles (interleavedScanlineName, ILM_IMF_TEST_IMAGEDIR "v1.7.test.interleaved.exr");
+    remove(interleavedScanlineName);
 }
 
 
@@ -344,6 +346,7 @@ diffTiledImages ()
     // Planar Images
     generateTiledImage (tiledName);
     diffImageFiles (tiledName, ILM_IMF_TEST_IMAGEDIR "v1.7.test.tiled.exr");
+    remove(tiledName);
 }
 
 

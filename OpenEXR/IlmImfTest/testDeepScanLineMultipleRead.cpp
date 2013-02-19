@@ -32,7 +32,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include "testCompositeDeepScanLine.h"
-#include "tmpDir.h"
 
 #include <ImfDeepScanLineOutputFile.h>
 #include <ImfDeepScanLineInputFile.h>
@@ -46,6 +45,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+
+#include "tmpDir.h"
 
 namespace{
 
