@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2007, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
+// Copyright (c) 2013, Industrial Light & Magic, a division of Lucas
+// Digital Ltd. LLC and Weta Digital Ltd
 // 
 // All rights reserved.
 // 
@@ -33,44 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include "ImfNamespace.h"
-#include "testFuzzDeepScanLines.h"
-#include "testFuzzDeepTiles.h"
-#include "testFuzzScanLines.h"
-#include "testFuzzTiles.h"
 
-#include <stdlib.h>
-#include <iostream>
-#include <string.h>
 
-#ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
-    #include <unistd.h>
-    #include <sstream>
-#endif
+void testFuzzDeepTiles ();
 
-#define TEST(x) if (argc < 2 || !strcmp (argv[1], #x)) x();
-
-int
-main (int argc, char *argv[])
-{
-    TEST (testFuzzScanLines);
-    TEST (testFuzzTiles);
-    TEST (testFuzzDeepScanLines);
-    TEST (testFuzzDeepTiles);
-    
-#ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
-
-    //
-    // Allow the user to check for file descriptor leaks
-    //
-
-    std::cout << "open file descriptors:" << std::endl;
-
-    std::stringstream ss;
-    ss << "ls -lG /proc/" << getpid() << "/fd";
-
-    system (ss.str().c_str());
-#endif
-
-    return 0;
-}

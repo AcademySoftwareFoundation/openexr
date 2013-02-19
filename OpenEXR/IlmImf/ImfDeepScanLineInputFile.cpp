@@ -1852,7 +1852,7 @@ readSampleCountForLineBlock(InputStreamMutex* streamData,
     // total number of samples in block: used to check samplecount table doesn't
     // reference more data than exists
     
-    int cumulative_total_samples=0;
+    size_t cumulative_total_samples=0;
     
     for (int y = minY; y <= maxY; y++)
     {
@@ -1894,7 +1894,7 @@ readSampleCountForLineBlock(InputStreamMutex* streamData,
         cumulative_total_samples+=data->lineSampleCount[yInDataWindow];
         if(cumulative_total_samples*data->combinedSampleSize > unpackedDataSize)
         {
-            THROW(IEX_NAMESPACE::ArgExc,"Deep scanlinea sampleCount data corrupt at chunk " << lineBlockId << ": pixel data only contains " << unpackedDataSize 
+            THROW(IEX_NAMESPACE::ArgExc,"Deep scanline sampleCount data corrupt at chunk " << lineBlockId << ": pixel data only contains " << unpackedDataSize 
             << " bytes of data but table references at least " << cumulative_total_samples*data->combinedSampleSize << " bytes of sample data" );            
         }
         data->gotSampleCount[y - data->minY] = true;

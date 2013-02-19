@@ -259,6 +259,7 @@ struct DeepTiledInputFile::Data: public Mutex
 
     Int64           maxSampleCountTableSize;        // the max size in bytes for a pixel
                                                     // sample count table
+    int             combinedSampleSize;             // total size of all channels combined to check sampletable size
                                                     
     InputStreamMutex *  _streamData;
     bool                _deleteStream; // should we delete the stream
@@ -939,8 +940,8 @@ DeepTiledInputFile::compatibilityInitialize(OPENEXR_IMF_INTERNAL_NAMESPACE::IStr
     // with the part 0 data.
     // (TODO) maybe change the third parameter of the constructor of MultiPartInputFile later.
     //
-    _data->multiPartBackwardSupport = true;
     _data->multiPartFile = new MultiPartInputFile(is, _data->numThreads);
+    _data->multiPartBackwardSupport = true;
     InputPartData* part = _data->multiPartFile->getPart(0);
 
     multiPartInitialize(part);
@@ -1019,9 +1020,25 @@ DeepTiledInputFile::initialize ()
 
     _data->sampleCountTableBuffer.resizeErase(_data->maxSampleCountTableSize);
 
-   _data->sampleCountTableComp = newCompressor(_data->header.compression(),
+    _data->sampleCountTableComp = newCompressor(_data->header.compression(),
                                                 _data->maxSampleCountTableSize,
                                                 _data->header);
+                                                
+                                                
+    const ChannelList & c=_data->header.channels();
+    _data->combinedSampleSize=0;
+    for(ChannelList::ConstIterator i=c.begin();i!=c.end();i++)
+    {
+        switch( i.channel().type )
+        {
+            case HALF  : _data->combinedSampleSize+=Xdr::size<half>();break;
+            case FLOAT : _data->combinedSampleSize+=Xdr::size<float>();break;
+            case UINT  : _data->combinedSampleSize+=Xdr::size<unsigned int>();break;
+            default :
+                THROW(IEX_NAMESPACE::ArgExc, "Bad type for channel " << i.name() << " initializing deepscanline reader");
+        }
+    }
+                                                  
 }
 
 
@@ -1773,6 +1790,13 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                 Xdr::read <StreamIO> (*_data->_streamData->is, dataSize);
                 Xdr::read <StreamIO> (*_data->_streamData->is, unpackedDataSize);
 
+                
+                if(tableSize>_data->maxSampleCountTableSize)
+                {
+                    THROW (IEX_NAMESPACE::ArgExc, "Bad sampleCountTableDataSize read from tile "<< dx << ',' << dy << ',' << lx << ',' << ly << ": expected " << _data->maxSampleCountTableSize << " or less, got "<< tableSize);
+                }
+                    
+                
                 //
                 // We make a check on the data size requirements here.
                 // Whilst we wish to store 64bit sizes on disk, not all the compressors
@@ -1818,6 +1842,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                 else
                     readPtr = _data->sampleCountTableBuffer;
 
+                size_t cumulative_total_samples =0;
                 int lastAccumulatedCount;
                 for (int j = tileRange.min.y; j <= tileRange.max.y; j++)
                 {
@@ -1826,11 +1851,30 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                     {
                         int accumulatedCount;
                         Xdr::read <CharPtrIO> (readPtr, accumulatedCount);
-                        _data->getSampleCount(i - xOffset, j - yOffset) =
-                                accumulatedCount - lastAccumulatedCount;
+                        
+                        int count = accumulatedCount - lastAccumulatedCount;
+                        
+                        if(count<0)
+                        {
+                            THROW(IEX_NAMESPACE::ArgExc,"Deep tile sampleCount data corrupt at tile " 
+                                  << dx << ',' << dy << ',' << lx << ',' <<  ly << " (negative sample count detected)");
+                        }
+                        
+                        _data->getSampleCount(i - xOffset, j - yOffset) =count;
                         lastAccumulatedCount = accumulatedCount;
                     }
+                    cumulative_total_samples += lastAccumulatedCount;
                 }
+                
+                if(cumulative_total_samples * _data->combinedSampleSize > unpackedDataSize)
+                {
+                    THROW(IEX_NAMESPACE::ArgExc,"Deep scanline sampleCount data corrupt at tile " 
+                                                << dx << ',' << dy << ',' << lx << ',' <<  ly 
+                                                << ": pixel data only contains " << unpackedDataSize 
+                                                << " bytes of data but table references at least " 
+                                                << cumulative_total_samples*_data->combinedSampleSize << " bytes of sample data" );            
+                }
+                    
             }
         }
 

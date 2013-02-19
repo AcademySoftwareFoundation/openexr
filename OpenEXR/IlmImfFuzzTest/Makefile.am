@@ -7,7 +7,9 @@ endif
 IlmImfFuzzTest_SOURCES = fuzzFile.cpp fuzzFile.h main.cpp tmpDir.h \
 			 testFuzzScanLines.cpp testFuzzScanLines.h \
 			 testFuzzDeepScanLines.cpp testFuzzDeepScanLines.h \
-			 testFuzzTiles.cpp testFuzzTiles.h
+			 testFuzzDeepTiles.cpp testFuzzDeepTiles.h \
+			 testFuzzTiles.cpp testFuzzTiles.h 
+
 
 INCLUDES = -I$(top_builddir)  \
 	   -I$(top_srcdir)/IlmImf \
