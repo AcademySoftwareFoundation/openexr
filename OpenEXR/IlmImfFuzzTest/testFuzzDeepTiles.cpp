@@ -291,7 +291,7 @@ void readFile(const char filename[])
          
     }catch(std::exception & e)
     {
-        cerr << "caught " << e.what() << std::endl;
+        /* expect to get exceptions*/
     }
 }
 

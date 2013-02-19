@@ -246,7 +246,7 @@ void readFile(const char filename[])
                 
     }catch(std::exception & e)
     {
-        std::cerr << e.what() << std::endl;
+        /* ... yeah, that's likely to happen a lot ... */
     }
 }    
 

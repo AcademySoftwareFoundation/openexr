@@ -168,7 +168,7 @@ testFuzzScanLines ()
 {
     try
     {
-	cout << "Testing deep-scanline-based files "
+	cout << "Testing scanline-based files "
 		"with randomly inserted errors" << endl;
 
 	Rand48 random (1);
