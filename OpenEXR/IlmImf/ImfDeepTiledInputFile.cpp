@@ -1714,12 +1714,15 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
 
         savedFilePos = _data->_streamData->is->tellg();
 
+        
         if (!isValidLevel (lx, ly))
+        {
             THROW (IEX_NAMESPACE::ArgExc,
                    "Level coordinate "
                    "(" << lx << ", " << ly << ") "
                    "is invalid.");
-
+        }
+        
         if (dx1 > dx2)
             std::swap (dx1, dx2);
 
@@ -1743,6 +1746,14 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
         {
             for (int dx = dx1; dx <= dx2; dx++)
             {
+                
+                if (!isValidTile (dx, dy, lx, ly))
+                {
+                    THROW (IEX_NAMESPACE::ArgExc,
+                           "Tile (" << dx << ", " << dy << ", " <<
+                           lx << "," << ly << ") is not a valid tile.");
+                }
+                
                 Box2i tileRange = OPENEXR_IMF_INTERNAL_NAMESPACE::dataWindowForTile (
                         _data->tileDesc,
                         _data->minX, _data->maxX,
