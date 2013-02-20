@@ -751,15 +751,6 @@ void
 Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 {
     
-    const std::string & part_type=hasType() ? type() : "";
-    
-    if(part_type!="" && !isSupportedType(part_type))
-    {
-        //
-        // skip sanity checks with unsupported types
-        //
-        return;
-    }
     
     //
     // The display window and the data window must each
@@ -875,7 +866,18 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
         }
 
     }
-
+    
+    const std::string & part_type=hasType() ? type() : "";
+    
+    if(part_type!="" && !isSupportedType(part_type))
+    {
+        //
+        // skip remaining sanity checks with unsupported types - they may not hold
+        //
+        return;
+    }
+    
+   
     //
     // If the file is tiled, verify that the tile description has reasonable
     // values and check to see if the lineOrder is one of the predefined 3.

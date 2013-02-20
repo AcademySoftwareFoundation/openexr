@@ -152,63 +152,59 @@ readImage (const char fileName[])
     // but it should not crash for any reason.
     //
 
-    for(int pass=0;pass<2;pass++)
+    try
     {
-        try
+        // first , test Rgba interface
+        RgbaInputFile in (fileName);
+        const Box2i &dw = in.dataWindow();
+        
+        int w = dw.max.x - dw.min.x + 1;
+        int dx = dw.min.x;
+        
+        if (w > (1 << 24))
+            return;
+        
+        Array<Rgba> pixels (w);
+        in.setFrameBuffer (&pixels[-dx], 1, 0);
+        
+        for (int y = dw.min.y; y <= dw.max.y; ++y)
+            in.readPixels (y);
+    }catch(...)
+    {
+        // expect exceptions
+    }
+    try{
+        // now test Multipart interface (even for single part files)
+        
+        MultiPartInputFile file(fileName);
+        
+        for(int p=0;p<file.parts();p++)
         {
-                
-            if(pass==0)
-            {
-                // first time round, test Rgba interface
-                RgbaInputFile in (fileName);
-                const Box2i &dw = in.dataWindow();
-                
-                int w = dw.max.x - dw.min.x + 1;
-                int dx = dw.min.x;
+            InputPart in(file,p);
+            const Box2i &dw = in.header().dataWindow();
             
-                if (w > (1 << 24))
-                    return;
-                
-                Array<Rgba> pixels (w);
-                in.setFrameBuffer (&pixels[-dx], 1, 0);
-                
-                for (int y = dw.min.y; y <= dw.max.y; ++y)
-                    in.readPixels (y);
-            }else{
-                
-                // now test Multipart interface (even for single part files)
-                
-                MultiPartInputFile file(fileName);
-                
-                for(int p=0;p<file.parts();p++)
-                {
-                    InputPart in(file,p);
-                    const Box2i &dw = in.header().dataWindow();
-                    
-                    int w = dw.max.x - dw.min.x + 1;
-                    int dx = dw.min.x;
-                    
-                    if (w > (1 << 24))
-                        return;
-                    
-                    Array<Rgba> pixels (w);
-                    FrameBuffer i;
-                    i.insert("R",Slice(HALF,(char *)&(pixels[-dx].r),sizeof(Rgba),0));
-                    i.insert("G",Slice(HALF,(char *)&(pixels[-dx].g),sizeof(Rgba),0));
-                    i.insert("B",Slice(HALF,(char *)&(pixels[-dx].b),sizeof(Rgba),0));
-                    i.insert("A",Slice(HALF,(char *)&(pixels[-dx].a),sizeof(Rgba),0));
-                    
-                    in.setFrameBuffer (i);
-                    for (int y = dw.min.y; y <= dw.max.y; ++y)
-                        in.readPixels (y);
-                    
-                }
-            }
+            int w = dw.max.x - dw.min.x + 1;
+            int dx = dw.min.x;
+            
+            if (w > (1 << 24))
+                return;
+            
+            Array<Rgba> pixels (w);
+            FrameBuffer i;
+            i.insert("R",Slice(HALF,(char *)&(pixels[-dx].r),sizeof(Rgba),0));
+            i.insert("G",Slice(HALF,(char *)&(pixels[-dx].g),sizeof(Rgba),0));
+            i.insert("B",Slice(HALF,(char *)&(pixels[-dx].b),sizeof(Rgba),0));
+            i.insert("A",Slice(HALF,(char *)&(pixels[-dx].a),sizeof(Rgba),0));
+            
+            in.setFrameBuffer (i);
+            for (int y = dw.min.y; y <= dw.max.y; ++y)
+                in.readPixels (y);
+            
         }
-        catch (...)
-        {
-            // empty
-        }
+    }
+    catch (...)
+    {
+        // empty
     }
 }
 
@@ -230,8 +226,8 @@ fuzzScanLines (int numThreads, Rand48 &random)
     Array2D<Rgba> pixels (H, W);
     fillPixels (pixels, W, H);
 
-    const char *goodFile = IMF_TMP_DIR "imf_test_file_fuzz_good.exr";
-    const char *brokenFile = IMF_TMP_DIR "imf_test_file_fuzz_broken.exr";
+    const char *goodFile = IMF_TMP_DIR "imf_test_scanline_file_fuzz_good.exr";
+    const char *brokenFile = IMF_TMP_DIR "imf_test_scanline_file_fuzz_broken.exr";
 
     // re-attempt to read broken file if it still remains on disk from previous aborted run
     readImage(brokenFile);

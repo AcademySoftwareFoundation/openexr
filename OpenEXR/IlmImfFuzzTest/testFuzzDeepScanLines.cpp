@@ -55,6 +55,10 @@
 // Handle the case when the custom namespace is not exposed
 #include <OpenEXRConfig.h>
 #include <ImfChannelList.h>
+#include <ImfMultiPartOutputFile.h>
+#include <ImfDeepScanLineOutputPart.h>
+#include <ImfMultiPartInputFile.h>
+#include <ImfDeepScanLineInputPart.h>
 
 using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 using namespace std;
@@ -73,12 +77,13 @@ const Box2i dataWindow(V2i(minX, minY), V2i(minX + width - 1, minY + height - 1)
 const Box2i displayWindow(V2i(0, 0), V2i(minX + width * 2, minY + height * 2));
 
 Array2D<unsigned int> sampleCount;
-Header header;
 
-void generateRandomFile(const char filename[], int channelCount,Compression compression)
+void generateRandomFile(const char filename[], int channelCount,int parts , Compression compression)
 {
-    cout << "generating " << flush;
-    header = Header(displayWindow, dataWindow,
+    cout << "generating file with " << parts << " parts and compression " << compression << flush;
+    vector<Header> headers(parts);
+    
+    headers[0] = Header(displayWindow, dataWindow,
                     1,
                     IMATH_NAMESPACE::V2f (0, 0),
                     1,
@@ -92,11 +97,22 @@ void generateRandomFile(const char filename[], int channelCount,Compression comp
         stringstream ss;
         ss << i;
         string str = ss.str();
-        header.channels().insert(str, Channel(FLOAT));
+        headers[0].channels().insert(str, Channel(FLOAT));
     }
                         
-     header.setType(DEEPSCANLINE);
-                        
+     headers[0].setType(DEEPSCANLINE);
+            
+     headers[0].setName("bob");
+     
+     for(int p=1;p<parts;p++)
+     {
+         headers[p]=headers[0];
+         ostringstream s;
+         s << p;
+         headers[p].setName(s.str());
+     }
+     
+     
      Array<Array2D< void* > > data(channelCount);
      for (int i = 0; i < channelCount; i++)
          data[i].resizeErase(height, width);
@@ -104,10 +120,12 @@ void generateRandomFile(const char filename[], int channelCount,Compression comp
      sampleCount.resizeErase(height, width);
                         
      remove (filename);
-     DeepScanLineOutputFile file(filename, header, 8);
-                        
+     
+
+     MultiPartOutputFile file(filename,&headers[0],parts);
+
      DeepFrameBuffer frameBuffer;
-                        
+         
      frameBuffer.insertSampleCountSlice (Slice (UINT,                    // type // 7
                                                 (char *) (&sampleCount[0][0]
                                                 - dataWindow.min.x
@@ -135,41 +153,46 @@ void generateRandomFile(const char filename[], int channelCount,Compression comp
                                         pointerSize * width,      // yStride// 10
                                         sampleSize));             // sampleStride
      }
+
+    for(int p=0;p<parts;p++)
+    {
+
+        DeepScanLineOutputPart pt(file,p);
+        pt.setFrameBuffer(frameBuffer);
                         
-     file.setFrameBuffer(frameBuffer);
-                        
-     cout << "writing " << flush;
-     for (int i = 0; i < height; i++)
-     {
-         //
-         // Fill in data at the last minute.
-         //
-         
-         for (int j = 0; j < width; j++)
-         {
-             sampleCount[i][j] = rand() % 4 + 1;
-             for (int k = 0; k < channelCount; k++)
-             {
-                 data[k][i][j] = new float[sampleCount[i][j]];
-                 for (int l = 0; l < sampleCount[i][j]; l++)
-                 {
-                     ((float*)data[k][i][j])[l] = (i * width + j) % 2049;
-                 }
-             }
-         }
-     }
-                            
-     file.writePixels(height);
+        cout << "writing " << p << flush;
+        for (int i = 0; i < height; i++)
+        {
+            //
+            // Fill in data at the last minute.
+            //
+            
+            for (int j = 0; j < width; j++)
+            {
+                sampleCount[i][j] = rand() % 4 + 1;
+                for (int k = 0; k < channelCount; k++)
+                {
+                    data[k][i][j] = new float[sampleCount[i][j]];
+                    for (int l = 0; l < sampleCount[i][j]; l++)
+                    {
+                        ((float*)data[k][i][j])[l] = (i * width + j) % 2049;
+                    }
+                }
+            }
+        }
+        
+        pt.writePixels(height);
+    }
 }
     
 void readFile(const char filename[])
 {
-    // expect this to throw an exception, but not crash
+    //single part interface to read file
     try{
         
         DeepScanLineInputFile file(filename, 8);
-    
-    
+        
+        
         const Header& fileHeader = file.header();
         
         int channelCount=0;
@@ -202,7 +225,7 @@ void readFile(const char filename[])
             stringstream ss;
             ss << i;
             string str = ss.str();
-        
+            
             int sampleSize = sizeof (float);
             
             int pointerSize = sizeof (char *);
@@ -216,9 +239,9 @@ void readFile(const char filename[])
                                            pointerSize * width,      // yStride// 10
                                            sampleSize));             // sampleStride
         }
-                            
-                            
-                            
+        
+        
+        
         file.setFrameBuffer(frameBuffer);
         file.readPixelSampleCounts(dataWindow.min.y, dataWindow.max.y);
         for (int i = 0; i < dataWindow.max.y - dataWindow.min.y + 1; i++)
@@ -235,7 +258,12 @@ void readFile(const char filename[])
             
         }
         
-        file.readPixels(dataWindow.min.y, dataWindow.max.y);
+        try{
+            file.readPixels(dataWindow.min.y, dataWindow.max.y);
+        }catch(...)
+        {
+            // if readPixels excepts we must clean up
+        }
         
         for (int i = 0; i < height; i++)
             for (int j = 0; j < width; j++)
@@ -248,7 +276,101 @@ void readFile(const char filename[])
     {
         /* ... yeah, that's likely to happen a lot ... */
     }
-}    
+    
+    
+    try{
+        
+        MultiPartInputFile file(filename, 8);
+    
+    
+        for(int p=0;p<file.parts();p++)
+        {
+            DeepScanLineInputPart inpart(file,p);
+            const Header& fileHeader = inpart.header();
+            
+            int channelCount=0;
+            for(ChannelList::ConstIterator i=fileHeader.channels().begin();i!=fileHeader.channels().end();++i,++channelCount);
+            
+            Array2D<unsigned int> localSampleCount;
+            localSampleCount.resizeErase(height, width);
+            Array<Array2D< void* > > data(channelCount);
+            
+            
+            for (int i = 0; i < channelCount; i++)
+                data[i].resizeErase(height, width);
+            
+            DeepFrameBuffer frameBuffer;
+            
+            frameBuffer.insertSampleCountSlice (Slice (UINT,                    // type // 7
+                                                       (char *) (&localSampleCount[0][0]
+                                                       - dataWindow.min.x
+                                                       - dataWindow.min.y * width),               // base // 8)
+                                                       sizeof (unsigned int) * 1,          // xStride// 9
+                                                       sizeof (unsigned int) * width));    // yStride// 10
+            
+            vector<int> read_channel(channelCount);
+            
+        
+            for (int i = 0; i < channelCount; i++)
+            {
+                PixelType type = FLOAT;
+                
+                stringstream ss;
+                ss << i;
+                string str = ss.str();
+                
+                int sampleSize = sizeof (float);
+                
+                int pointerSize = sizeof (char *);
+                
+                frameBuffer.insert (str,                    
+                                    DeepSlice (type,        
+                                               (char *) (&data[i][0][0]
+                                               - dataWindow.min.x
+                                               - dataWindow.min.y * width),               // base // 8)
+                                               pointerSize * 1,          // xStride// 9
+                                               pointerSize * width,      // yStride// 10
+                                               sampleSize));             // sampleStride
+            }
+            
+            inpart.setFrameBuffer(frameBuffer);
+            inpart.readPixelSampleCounts(dataWindow.min.y, dataWindow.max.y);
+            for (int i = 0; i < dataWindow.max.y - dataWindow.min.y + 1; i++)
+            {
+                int y = i + dataWindow.min.y;
+                
+                for (int j = 0; j < width; j++)
+                {
+                    for (int k = 0; k < channelCount; k++)
+                    {
+                        data[k][i][j] = new float[localSampleCount[i][j]];
+                    }
+                }
+            }
+            try{
+                inpart.readPixels(dataWindow.min.y, dataWindow.max.y);
+            }catch(...)
+            {
+                
+            }
+    
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    for (int k = 0; k < channelCount; k++)
+                    {
+                        delete[] (float*) data[k][i][j];
+                    }
+                }
+            }
+        }
+    }catch(...)
+    {
+        // nothing
+    }
+}
+
 
 void
 fuzzDeepScanLines (int numThreads, Rand48 &random)
@@ -261,13 +383,17 @@ fuzzDeepScanLines (int numThreads, Rand48 &random)
 
     Header::setMaxImageSize (10000, 10000);
 
-    const char *goodFile = IMF_TMP_DIR "imf_test_file_fuzz_good.exr";
-    const char *brokenFile = IMF_TMP_DIR "imf_test_file_fuzz_broken.exr";
+    const char *goodFile = IMF_TMP_DIR "imf_test_deep_scanline_file_fuzz_good.exr";
+    const char *brokenFile = IMF_TMP_DIR "imf_test_deep_scanline_file_fuzz_broken.exr";
 
-    for(int comp_method=0;comp_method<2;comp_method++)
+    
+    for(int parts=1 ; parts < 3 ; parts++)
     {
-        generateRandomFile(goodFile,8,comp_method==0 ? NO_COMPRESSION : ZIPS_COMPRESSION);
-	fuzzFile (goodFile, brokenFile, readFile, 5000, 3000, random);
+        for(int comp_method=0;comp_method<2;comp_method++)
+        {
+            generateRandomFile(goodFile,8,parts,comp_method==0 ? NO_COMPRESSION : ZIPS_COMPRESSION);
+            fuzzFile (goodFile, brokenFile, readFile, 5000, 3000, random);
+        }
     }
 
     remove (goodFile);

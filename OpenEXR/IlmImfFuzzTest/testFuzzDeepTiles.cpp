@@ -56,6 +56,10 @@
 // Handle the case when the custom namespace is not exposed
 #include <OpenEXRConfig.h>
 #include <ImfChannelList.h>
+#include <ImfMultiPartInputFile.h>
+#include <ImfMultiPartOutputFile.h>
+#include <ImfDeepTiledOutputPart.h>
+#include <ImfDeepTiledInputPart.h>
 
 using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 using namespace std;
@@ -74,11 +78,13 @@ const Box2i displayWindow(V2i(0, 0), V2i(minX + width * 2, minY + height * 2));
 Array2D< Array2D<unsigned int> > sampleCountWhole;
 Header header;
     
-void generateRandomFile(const char filename[], int channelCount, Compression compression)                            
+void generateRandomFile(const char filename[], int channelCount, int parts , Compression compression)                            
 {
-                                
+
+    vector<Header> headers(parts);
+    
     cout << "generating " << flush;
-    header = Header(displayWindow, dataWindow,
+    headers[0] = Header(displayWindow, dataWindow,
                     1,
                     IMATH_NAMESPACE::V2f (0, 0),
                     1,
@@ -92,12 +98,24 @@ void generateRandomFile(const char filename[], int channelCount, Compression com
         ostringstream ss;
         ss << i;
         string str = ss.str();
-        header.channels().insert(str, Channel(OPENEXR_IMF_NAMESPACE::FLOAT));
+        headers[0].channels().insert(str, Channel(OPENEXR_IMF_NAMESPACE::FLOAT));
     }
        
-    header.setType(DEEPTILE);
-    header.setTileDescription( TileDescription(rand() % width + 1, rand() % height + 1, RIPMAP_LEVELS));
+    headers[0].setType(DEEPTILE);
+    headers[0].setTileDescription( TileDescription(rand() % width + 1, rand() % height + 1, RIPMAP_LEVELS));
        
+    headers[0].setName("bob");
+    
+    for(int p=1;p<parts;p++)
+    {
+        headers[p]=headers[0];
+        ostringstream s;
+        s << p;
+        headers[p].setName(s.str());
+    }
+    
+    
+    
     Array<Array2D< void* > > data(channelCount);
     for (int i = 0; i < channelCount; i++)
     {
@@ -108,11 +126,14 @@ void generateRandomFile(const char filename[], int channelCount, Compression com
     sampleCount.resizeErase(height, width);
        
     remove (filename);
-    DeepTiledOutputFile file(filename, header, 8);
     
-    cout << "tileSizeX " << file.tileXSize() << " tileSizeY " << file.tileYSize() << " ";
+    MultiPartOutputFile file(filename, &headers[0], parts);
     
-    sampleCountWhole.resizeErase(file.numYLevels(), file.numXLevels());
+    DeepTiledOutputPart part(file,0);
+    
+    cout << "tileSizeX " << part.tileXSize() << " tileSizeY " << part.tileYSize() << " ";
+    
+    sampleCountWhole.resizeErase(part.numYLevels(), part.numXLevels());
     for (int i = 0; i < sampleCountWhole.height(); i++)
     {
         for (int j = 0; j < sampleCountWhole.width(); j++)
@@ -147,45 +168,65 @@ void generateRandomFile(const char filename[], int channelCount, Compression com
                                        sampleSize));
     }
        
-    file.setFrameBuffer(frameBuffer);
-                                                                                           
-    cout << "writing " << flush;
-                                                                                           
-    for (int ly = 0; ly < file.numYLevels(); ly++)
+    for(int part=0;part<parts;part++)
     {
-        for (int lx = 0; lx < file.numXLevels(); lx++)
+        DeepTiledOutputPart p(file,part);
+        p.setFrameBuffer(frameBuffer);
+                                                                                           
+        cout << "writing " << flush;
+                                                                                           
+        for (int ly = 0; ly < p.numYLevels(); ly++)
         {
-            Box2i dataWindowL = file.dataWindowForLevel(lx, ly);
-            
-            for (int j = 0; j < file.numYTiles(ly); j++)
+            for (int lx = 0; lx < p.numXLevels(); lx++)
             {
-                for (int i = 0; i < file.numXTiles(lx); i++)
+                Box2i dataWindowL = p.dataWindowForLevel(lx, ly);
+                
+                for (int j = 0; j < p.numYTiles(ly); j++)
                 {
-                    Box2i box = file.dataWindowForTile(i, j, lx, ly);
-                    for (int y = box.min.y; y <= box.max.y; y++)
+                    for (int i = 0; i < p.numXTiles(lx); i++)
                     {
-                        for (int x = box.min.x; x <= box.max.x; x++)
+                        Box2i box = p.dataWindowForTile(i, j, lx, ly);
+                        for (int y = box.min.y; y <= box.max.y; y++)
                         {
-                            int dwy = y - dataWindowL.min.y;
-                            int dwx = x - dataWindowL.min.x;
-                            sampleCount[dwy][dwx] = rand() % 5 + 1;
-                            sampleCountWhole[ly][lx][dwy][dwx] = sampleCount[dwy][dwx];
-                            for (int k = 0; k < channelCount; k++)
+                            for (int x = box.min.x; x <= box.max.x; x++)
                             {
-                                data[k][dwy][dwx] = new float[sampleCount[dwy][dwx]];
-                                for (int l = 0; l < sampleCount[dwy][dwx]; l++)
+                                int dwy = y - dataWindowL.min.y;
+                                int dwx = x - dataWindowL.min.x;
+                                sampleCount[dwy][dwx] = rand() % 5 + 1;
+                                sampleCountWhole[ly][lx][dwy][dwx] = sampleCount[dwy][dwx];
+                                for (int k = 0; k < channelCount; k++)
                                 {
-                                    ((float*)data[k][dwy][dwx])[l] = (dwy * width + dwx) % 2049;
+                                    data[k][dwy][dwx] = new float[sampleCount[dwy][dwx]];
+                                    for (int l = 0; l < sampleCount[dwy][dwx]; l++)
+                                    {
+                                        ((float*)data[k][dwy][dwx])[l] = (dwy * width + dwx) % 2049;
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-            
-            file.writeTiles(0, file.numXTiles(lx) - 1, 0, file.numYTiles(ly) - 1, lx, ly);
-        }
-    }          
+                
+                p.writeTiles(0, p.numXTiles(lx) - 1, 0, p.numYTiles(ly) - 1, lx, ly);
+                    
+                
+                for(int k=0;k<data.size();k++)
+                {
+                    for(int y=0;y<data[k].height();y++)
+                    {
+                        for(int x=0;x<data[k].width();x++)
+                        {
+                            delete data[k][y][x];
+                            data[k][y][x]=0;
+                        }
+                    }
+                }
+                
+                
+                
+            }// next level
+        }//next level
+    }//next part
 }
                             
 void readFile(const char filename[])
@@ -273,9 +314,13 @@ void readFile(const char filename[])
                      }
                  }
                  
-                 file.readTiles(0, file.numXTiles(lx) - 1, 0, file.numYTiles(ly) - 1, lx, ly);
-                 
-                 
+                 try{
+                     
+                     file.readTiles(0, file.numXTiles(lx) - 1, 0, file.numYTiles(ly) - 1, lx, ly);
+                 }catch(...)
+                 {
+                     // catch exceptions thrown by readTiles, clean up anyway
+                 }
                  for (int i = 0; i < file.levelHeight(ly); i++)
                  {
                      for (int j = 0; j < file.levelWidth(lx); j++)
@@ -293,6 +338,121 @@ void readFile(const char filename[])
     {
         /* expect to get exceptions*/
     }
+    
+    
+    // test multipart inputfile interface
+    
+    try
+    {
+        MultiPartInputFile file(filename, 8);
+        
+        for(int p=0;p<file.parts();p++)
+        {
+            DeepTiledInputPart part(file,p);
+            const Header& fileHeader = part.header();
+        
+            Array2D<unsigned int> localSampleCount;
+        
+            Box2i dataWindow = fileHeader.dataWindow();
+            
+            int height = dataWindow.size().y+1;
+            int width = dataWindow.size().x+1;
+        
+        
+            localSampleCount.resizeErase(height, width);
+            
+            int channelCount=0;
+            for(ChannelList::ConstIterator i=fileHeader.channels().begin();i!=fileHeader.channels().end();++i, channelCount++);
+            
+            Array<Array2D< void* > > data(channelCount);
+            
+            for (int i = 0; i < channelCount; i++)
+            {
+                data[i].resizeErase(height, width);
+            }
+            
+            DeepFrameBuffer frameBuffer;
+        
+            int memOffset = dataWindow.min.x + dataWindow.min.y * width;
+            frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                                                       (char *) (&localSampleCount[0][0] - memOffset),
+                                                       sizeof (unsigned int) * 1,
+                                                       sizeof (unsigned int) * width)
+                                                       );
+                                                       
+            for (int i = 0; i < channelCount; i++)
+            {                              
+                stringstream ss;
+                ss << i;
+                string str = ss.str();
+                
+                int sampleSize  = sizeof (float);
+                
+                int pointerSize = sizeof (char *);
+                
+                frameBuffer.insert (str,
+                                    DeepSlice (FLOAT,
+                                               (char *) (&data[i][0][0] - memOffset),
+                                               pointerSize * 1,
+                                               pointerSize * width,
+                                               sampleSize) );
+            }
+            
+            part.setFrameBuffer(frameBuffer);
+             
+            for (int ly = 0; ly < part.numYLevels(); ly++)
+            {
+                for (int lx = 0; lx < part.numXLevels(); lx++)
+                {
+                    Box2i dataWindowL = part.dataWindowForLevel(lx, ly);
+                    
+                    
+                    part.readPixelSampleCounts(0, part.numXTiles(lx) - 1, 0, part.numYTiles(ly) - 1, lx, ly);
+                    
+                    for (int i = 0; i <  part.numYTiles(ly); i++)
+                    {
+                        for (int j = 0; j < part.numXTiles(lx); j++)
+                        {
+                            Box2i box = part.dataWindowForTile(j, i, lx, ly);
+                            for (int y = box.min.y; y <= box.max.y; y++)
+                                for (int x = box.min.x; x <= box.max.x; x++)
+                                {
+                                    int dwy = y - dataWindowL.min.y;
+                                    int dwx = x - dataWindowL.min.x;
+                                    
+                                    for (int k = 0; k < channelCount; k++)
+                                    {
+                                        data[k][dwy][dwx] = new float[localSampleCount[dwy][dwx]];
+                                    }
+                                }
+                        }
+                    }
+                    
+                    try{
+                        part.readTiles(0, part.numXTiles(lx) - 1, 0, part.numYTiles(ly) - 1, lx, ly);
+                    }catch(...)
+                    {
+                        
+                    }
+                    
+                    for (int i = 0; i < part.levelHeight(ly); i++)
+                    {
+                        for (int j = 0; j < part.levelWidth(lx); j++)
+                        {
+                            for (int k = 0; k < channelCount; k++)
+                            {
+                                delete[] (float*) data[k][i][j];
+                            }
+                        }
+                    }
+                }
+            }
+        }        
+    }catch(std::exception & e)
+    {
+        /* expect to get exceptions*/
+    }
+        
 }
 
 
@@ -311,19 +471,22 @@ fuzzDeepTiles (int numThreads, Rand48 &random)
 
     Header::setMaxImageSize (10000, 10000);
 
-    const char *goodFile = IMF_TMP_DIR "imf_test_file_fuzz_good.exr";
-    const char *brokenFile = IMF_TMP_DIR "imf_test_file_fuzz_broken.exr";
+    const char *goodFile = IMF_TMP_DIR "imf_test_deep_tile_file_fuzz_good.exr";
+    const char *brokenFile = IMF_TMP_DIR "imf_test_deel_tile_file_fuzz_broken.exr";
 
     
     // read file if it already exists: allows re-testing reading of broken file
     readFile(brokenFile);
     
     
-    
-    for(int comp_method=0;comp_method<2;comp_method++)
+    for(int parts=1;parts<3;parts++)
     {
-        generateRandomFile(goodFile,8,comp_method==0 ? NO_COMPRESSION : ZIPS_COMPRESSION);
-	fuzzFile (goodFile, brokenFile, readFile, 5000, 3000, random);
+    
+        for(int comp_method=0;comp_method<2;comp_method++)
+        {
+            generateRandomFile(goodFile,8,parts , comp_method==0 ? NO_COMPRESSION : ZIPS_COMPRESSION);
+            fuzzFile (goodFile, brokenFile, readFile, 5000, 3000, random);
+        }
     }
 
     remove (goodFile);
