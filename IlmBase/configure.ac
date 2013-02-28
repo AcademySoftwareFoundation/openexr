@@ -77,7 +77,9 @@ dnl Checks for library functions.
 AC_CHECK_FUNCS(strerror)
 
 
+dnl
 dnl Checks for std::right etc. in iomanip
+dnl
 AC_MSG_CHECKING(for complete iomanip support in C++ standard library)
 complete_iomanip="no"
 AC_LANG_SAVE
@@ -88,6 +90,25 @@ AC_TRY_COMPILE([#include <iomanip>],[
 ],
 AC_DEFINE(HAVE_COMPLETE_IOMANIP) complete_iomanip=yes)
 AC_MSG_RESULT($complete_iomanip)
+
+
+dnl
+dnl Checks for dealing with fpe handling
+dnl
+AC_MSG_CHECKING(for fpe support handling)
+control_register_support="no"
+AC_TRY_COMPILE([
+#include <iomanip>
+#include <ucontext.h>
+],[
+    ucontext_t ucon;
+    uint32_t mxcsr = ucon.uc_mcontext.fpregs->mxcsr;
+    uint16_t cw    = ucon.uc_mcontext.fpregs->cwd;
+
+],
+AC_DEFINE(ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT) control_register_support=yes)
+AC_MSG_RESULT($control_register_support)
+
 AC_LANG_RESTORE
 
 dnl --enable-large-stack

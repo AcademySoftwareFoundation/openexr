@@ -13,7 +13,14 @@
 
 #undef HAVE_POSIX_SEMAPHORES
 
+
 #undef HAVE_UCONTEXT_H
+
+
+//
+// Dealing with FPEs
+//
+#undef ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT
 
 
 //
