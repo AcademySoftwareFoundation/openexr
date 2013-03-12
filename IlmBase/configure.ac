@@ -98,7 +98,7 @@ dnl
 AC_MSG_CHECKING(for fpe support handling)
 control_register_support="no"
 AC_TRY_COMPILE([
-#include <iomanip>
+#include <stdint.h>
 #include <ucontext.h>
 ],[
     ucontext_t ucon;
