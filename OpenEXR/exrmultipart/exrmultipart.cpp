@@ -73,7 +73,7 @@ using std::ostringstream;
 using std::min;
 using std::max;
 using std::string;
-using Imath::Box2i;
+using IMATH_NAMESPACE::Box2i;
 
 using namespace OPENEXR_IMF_NAMESPACE;
 
