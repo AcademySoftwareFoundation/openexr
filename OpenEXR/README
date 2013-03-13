@@ -41,8 +41,17 @@ GNU/Linux or other UNIX-like systems, do this:
 make
 make install
 
-unless you obtained OpenEXR directly from CVS, in which case you
-should first read README.CVS.
+unless you obtained IlmBase directly from git, in which case you
+should first read README.git
+
+
+Please type :
+
+./configure --help
+
+for a list of options in relation to building IlmBase libraries. In 
+particular, peruse README.namespaces for information regarding the 
+use of namespaces in IlmBase and OpenEXR.
 
 See README.OSX for details on building OpenEXR in MacOS X.
 
