@@ -159,12 +159,12 @@ dnl
 dnl Handle namespacing configuration : internal library namespace
 dnl                                    public namespace 
 dnl
-library_namespace_versioning="no"
+library_namespace_versioning="yes"
 AC_ARG_ENABLE(namespaceversioning,
           AC_HELP_STRING([--enable-namespaceversioning],
-                         [enable symbol versioning via versioned/custom namespace to prevent runtime conflicts <no/yes/custom> [[default=no]]] ),
+                         [enable symbol versioning via versioned/custom namespace to prevent runtime conflicts <no/yes/custom> [[default=yes]]] ),
           [library_namespace_versioning="${enableval}"], 
-          [library_namespace_versioning=no])
+          [library_namespace_versioning=yes])
               
 dnl Suffix for the shared library via the '-release' option
 LIB_SUFFIX=""

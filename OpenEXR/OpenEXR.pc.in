@@ -8,7 +8,7 @@ Name: OpenEXR
 Description: OpenEXR image library
 Version: @OPENEXR_VERSION@
 
-Libs: -L${libdir} -lIlmImf@LIB_SUFFIX_DASH@
+Libs: -L${libdir} -lIlmImf
 Cflags: -I${OpenEXR_includedir}
 Requires: IlmBase
 Libs.private: -lz
