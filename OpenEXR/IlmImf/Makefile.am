@@ -153,14 +153,27 @@ libIlmImfinclude_HEADERS = ImfForward.h ImfAttribute.h ImfBoxAttribute.h \
 			   ImfDeepFrameBuffer.h \
 			   ImfDeepCompositing.h ImfCompositeDeepScanLine.h \
 			   ImfNamespace.h ImfForward.h ImfExport.h \
+			   ImfMisc.h          \
 			   ImfPartHelper.h
 
-noinst_HEADERS = ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
-		 ImfPizCompressor.h ImfMisc.h ImfAutoArray.h ImfTiledMisc.h \
-		 ImfTileOffsets.h ImfScanLineInputFile.h ImfPxr24Compressor.h \
-		 ImfCheckedArithmetic.h  ImfInputStreamMutex.h ImfOutputStreamMutex.h  \
-          	 ImfInputPartData.h ImfOutputPartData.h ImfScanLineInputFile.h ImfSystemSpecific.h \
-                 ImfOptimizedPixelReading.h
+noinst_HEADERS = ImfCompressor.h    \
+		 ImfRleCompressor.h \
+		 ImfZipCompressor.h \
+		 ImfPizCompressor.h \
+		 ImfAutoArray.h     \
+		 ImfTiledMisc.h     \
+		 ImfTileOffsets.h   \
+		 ImfScanLineInputFile.h \
+		 ImfPxr24Compressor.h   \
+		 ImfCheckedArithmetic.h \
+		 ImfInputStreamMutex.h  \
+		 ImfOutputStreamMutex.h \
+		 ImfInputPartData.h     \
+		 ImfOutputPartData.h    \
+		 ImfScanLineInputFile.h \
+		 ImfSystemSpecific.h    \
+		 ImfOptimizedPixelReading.h
+
 
 EXTRA_DIST = $(noinst_HEADERS) b44ExpLogTable.cpp b44ExpLogTable.h CMakeLists.txt
 

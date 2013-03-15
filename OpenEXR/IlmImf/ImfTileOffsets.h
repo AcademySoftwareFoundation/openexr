@@ -95,7 +95,7 @@ class IMF_EXPORT TileOffsets
     Int64 &		operator () (int dx, int dy, int l);
     const Int64 &	operator () (int dx, int dy, int lx, int ly) const;
     const Int64 &	operator () (int dx, int dy, int l) const;
-    bool                isValidTile (int dx, int dy, int lx, int ly) const;
+    bool        isValidTile (int dx, int dy, int lx, int ly) const;
     const std::vector<std::vector<std::vector <Int64> > >& getOffsets() const;
     
   private:

@@ -53,12 +53,11 @@
 #include "ImfPartType.h"
 #include "ImfMultiPartInputFile.h"
 #include "ImfInputStreamMutex.h"
-#include <IlmThreadPool.h>
-#include <IlmThreadSemaphore.h>
-#include <IlmThreadMutex.h>
-#include <ImathBox.h>
-#include <ImathVec.h>
-#include <Iex.h>
+#include "IlmThreadPool.h"
+#include "IlmThreadSemaphore.h"
+#include "IlmThreadMutex.h"
+#include "ImathVec.h"
+#include "Iex.h"
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -891,7 +890,9 @@ TiledInputFile::initialize ()
     {
         if (!isTiled (_data->version))
             throw IEX_NAMESPACE::ArgExc ("Expected a tiled file but the file is not tiled.");
-    }else{
+    }
+    else
+    {
         if(_data->header.hasType() && _data->header.type()!=TILEDIMAGE)
         {
             throw IEX_NAMESPACE::ArgExc ("TiledInputFile used for non-tiledimage part.");

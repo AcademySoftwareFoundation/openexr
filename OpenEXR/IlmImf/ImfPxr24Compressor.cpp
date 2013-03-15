@@ -495,7 +495,7 @@ Pxr24Compressor::uncompress (const char *inPtr,
 		ptr[1] = ptr[0] + n;
 		tmpBufferEnd = ptr[1] + n;
 
-                if ( (uLongf)(tmpBufferEnd - _tmpBuffer) > tmpSize)
+        if ( (uLongf)(tmpBufferEnd - _tmpBuffer) > tmpSize)
 		    notEnoughData();
 
 		for (int j = 0; j < n; ++j)
@@ -519,7 +519,7 @@ Pxr24Compressor::uncompress (const char *inPtr,
 		ptr[2] = ptr[1] + n;
 		tmpBufferEnd = ptr[2] + n;
 
-                if ( (uLongf) (tmpBufferEnd - _tmpBuffer) > tmpSize)
+        if ( (uLongf) (tmpBufferEnd - _tmpBuffer) > tmpSize)
 		    notEnoughData();
 
 		for (int j = 0; j < n; ++j)

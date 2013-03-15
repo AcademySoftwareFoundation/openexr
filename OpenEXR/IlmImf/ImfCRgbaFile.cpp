@@ -54,9 +54,9 @@
 #include <ImfLut.h>
 #include "half.h"
 #include "ImfNamespace.h"
+#include "ImathForward.h"
 
 #include <string.h>
-
 
 
 using IMATH_NAMESPACE::Box2i;

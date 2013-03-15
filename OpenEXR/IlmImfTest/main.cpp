@@ -33,7 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <OpenEXRConfig.h>
+#include "ImfNamespace.h"
 
 #include "testXdr.h"
 #include "testMagic.h"

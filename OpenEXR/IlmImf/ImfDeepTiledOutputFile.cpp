@@ -517,7 +517,7 @@ writeTileData (DeepTiledOutputFile::Data *ofd,
     ofd->tileOffsets (dx, dy, lx, ly) = currentPosition;
 
     #ifdef DEBUG
-        assert (ofd->os->tellp() == currentPosition);
+        assert (ofd->_streamData->os->tellp() == currentPosition);
     #endif
 
     //

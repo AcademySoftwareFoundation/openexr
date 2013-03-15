@@ -750,8 +750,6 @@ Header::hasPreviewImage () const
 void		
 Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 {
-    
-    
     //
     // The display window and the data window must each
     // contain at least one pixel.  In addition, the

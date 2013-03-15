@@ -35,7 +35,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////
-#include <OpenEXRConfig.h>
+#include "ImfNamespace.h"
 
 #include <ImfRgba.h>
 #include <ImfArray.h>

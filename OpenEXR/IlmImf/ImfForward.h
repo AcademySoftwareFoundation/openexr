@@ -124,7 +124,4 @@ class IStream;
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-
-
-
 #endif // include guard

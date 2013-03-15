@@ -257,7 +257,7 @@ TypedAttribute<T>::TypedAttribute (const T & value):
 }
 
 
-template <class T >
+template <class T>
 TypedAttribute<T>::TypedAttribute (const TypedAttribute<T> &other):
     Attribute (other),
     _value ()

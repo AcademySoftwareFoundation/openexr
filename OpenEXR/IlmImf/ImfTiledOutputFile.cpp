@@ -457,7 +457,7 @@ writeTileData (OutputStreamMutex *streamData,
     ofd->tileOffsets (dx, dy, lx, ly) = currentPosition;
 
     #ifdef DEBUG
-	assert (ofd->os->tellp() == currentPosition);
+	assert (streamData->os->tellp() == currentPosition);
     #endif
 
     //
