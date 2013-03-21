@@ -608,7 +608,7 @@ testOptimized ()
         cout << "\tUNALIGNED -- STEREO -- ZIP COMPRESSION" << endl;
         testAllCombinations (false, true, ZIP_COMPRESSION);
 
-        cout << "ACES files validation complete \n" << endl;
+        cout << "RGB(A) files validation complete \n" << endl;
     }
     catch (const std::exception &e)
     {

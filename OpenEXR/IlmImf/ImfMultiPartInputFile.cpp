@@ -445,8 +445,8 @@ MultiPartInputFile::Data::createTileOffsets(const Header& header)
                                                 numYLevels,
                                                 numXTiles,
                                                 numYTiles);
-    delete numXTiles;
-    delete numYTiles;
+    delete [] numXTiles;
+    delete [] numYTiles;
 
     return tileOffsets;
 }

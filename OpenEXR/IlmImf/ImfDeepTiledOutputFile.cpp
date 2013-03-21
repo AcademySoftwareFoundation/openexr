@@ -1240,9 +1240,15 @@ DeepTiledOutputFile::initialize (const Header &header)
     for (size_t i = 0; i < _data->tileBuffers.size(); i++)
     {
         _data->tileBuffers[i] = new TileBuffer ();
-        _data->tileBuffers[i]->sampleCountTableBuffer.resizeErase(_data->maxSampleCountTableSize);
+
+        _data->tileBuffers[i]->sampleCountTableBuffer.
+                resizeErase(_data->maxSampleCountTableSize);
+
+        char * p = &(_data->tileBuffers[i]->sampleCountTableBuffer[0]);
+        memset (p, 0, _data->maxSampleCountTableSize);
+
         _data->tileBuffers[i]->sampleCountTableCompressor =
-        newCompressor (_data->header.compression(),
+                newCompressor (_data->header.compression(),
                                _data->maxSampleCountTableSize,
                                _data->header);
     }
