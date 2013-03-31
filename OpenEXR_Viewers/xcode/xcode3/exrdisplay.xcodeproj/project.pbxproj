@@ -682,14 +682,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 2A4D234A15CEFD4F007CAFAC /* zlib.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D /* libzlib.a */;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = zlib;
 		};
 		2A6A51D51707DE41001DC5E6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2A4D234A15CEFD4F007CAFAC /* zlib.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* zlib */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = zlib;
 		};
 /* End PBXContainerItemProxy section */
@@ -1707,7 +1707,6 @@
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.6;
 			};
 			name = Debug;
 		};
@@ -1731,7 +1730,6 @@
 					"../../../fltk-1.3.0/jpeg",
 				);
 				PREBINDING = NO;
-				SDKROOT = macosx10.6;
 			};
 			name = Release;
 		};
