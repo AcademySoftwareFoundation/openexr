@@ -28,6 +28,8 @@
 		2A4D275215CF10F7007CAFAC /* testMultiPartThreading.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A4D274015CF10F7007CAFAC /* testMultiPartThreading.cpp */; };
 		2A4D275315CF10F7007CAFAC /* testMultiScanlinePartThreading.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A4D274215CF10F7007CAFAC /* testMultiScanlinePartThreading.cpp */; };
 		2A4D275415CF10F7007CAFAC /* testMultiTiledPartThreading.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A4D274415CF10F7007CAFAC /* testMultiTiledPartThreading.cpp */; };
+		2A6A51361707DCDA001DC5E6 /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6A512F1707DCBC001DC5E6 /* libzlib.a */; };
+		2A6A51371707DCE2001DC5E6 /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6A512F1707DCBC001DC5E6 /* libzlib.a */; };
 		2A6D519315CED364006BADE7 /* compareFloat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D514915CED364006BADE7 /* compareFloat.cpp */; };
 		2A6D519415CED364006BADE7 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D514E15CED364006BADE7 /* main.cpp */; };
 		2A6D519515CED364006BADE7 /* testAttributes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D515215CED364006BADE7 /* testAttributes.cpp */; };
@@ -61,10 +63,8 @@
 		2A6D51B115CED364006BADE7 /* testYca.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D518A15CED364006BADE7 /* testYca.cpp */; };
 		2A6D51D415CED457006BADE7 /* libIlmBase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6D51CC15CED452006BADE7 /* libIlmBase.a */; };
 		2A6D51D515CED458006BADE7 /* libOpenEXR.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6D51C715CED452006BADE7 /* libOpenEXR.a */; };
-		2A6D51D615CED459006BADE7 /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6D51D315CED452006BADE7 /* libzlib.a */; };
 		2A6D522B15CED68F006BADE7 /* libIlmBase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6D51CC15CED452006BADE7 /* libIlmBase.a */; };
 		2A6D522C15CED68F006BADE7 /* libOpenEXR.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6D51C715CED452006BADE7 /* libOpenEXR.a */; };
-		2A6D522D15CED68F006BADE7 /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6D51D315CED452006BADE7 /* libzlib.a */; };
 		2A6D523815CED6B2006BADE7 /* compareB44.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D514715CED364006BADE7 /* compareB44.cpp */; };
 		2A6D523915CED6BD006BADE7 /* testFuzzTiles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D513B15CED363006BADE7 /* testFuzzTiles.cpp */; };
 		2A6D523A15CED6BE006BADE7 /* testFuzzScanLines.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D513915CED363006BADE7 /* testFuzzScanLines.cpp */; };
@@ -73,6 +73,27 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		2A6A512E1707DCBC001DC5E6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A6D51C215CED452006BADE7 /* zlib.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D /* libzlib.a */;
+			remoteInfo = zlib;
+		};
+		2A6A51321707DCCB001DC5E6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A6D51C215CED452006BADE7 /* zlib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D /* zlib */;
+			remoteInfo = zlib;
+		};
+		2A6A51341707DCD5001DC5E6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A6D51C215CED452006BADE7 /* zlib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D /* zlib */;
+			remoteInfo = zlib;
+		};
 		2A6D51C615CED452006BADE7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2A6D51BC15CED452006BADE7 /* OpenEXR.xcodeproj */;
@@ -101,26 +122,12 @@
 			remoteGlobalIDString = 2A6D4D3715CDF275006BADE7;
 			remoteInfo = toFloat;
 		};
-		2A6D51D215CED452006BADE7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 2A6D51C215CED452006BADE7 /* zlib.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D;
-			remoteInfo = zlib;
-		};
 		2A6D51D715CED464006BADE7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2A6D51BF15CED452006BADE7 /* IlmBase.xcodeproj */;
 			proxyType = 1;
 			remoteGlobalIDString = 2A6D4C4C15CDEB0A006BADE7;
 			remoteInfo = IlmBase;
-		};
-		2A6D51D915CED464006BADE7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 2A6D51C215CED452006BADE7 /* zlib.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
-			remoteInfo = zlib;
 		};
 		2A6D51DB15CED464006BADE7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -135,13 +142,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 2A6D4C4C15CDEB0A006BADE7;
 			remoteInfo = IlmBase;
-		};
-		2A6D520615CED68F006BADE7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 2A6D51C215CED452006BADE7 /* zlib.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
-			remoteInfo = zlib;
 		};
 		2A6D520815CED68F006BADE7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -269,7 +269,7 @@
 		2A6D518D15CED364006BADE7 /* tmpDir.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tmpDir.h; sourceTree = "<group>"; };
 		2A6D51BC15CED452006BADE7 /* OpenEXR.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = OpenEXR.xcodeproj; sourceTree = "<group>"; };
 		2A6D51BF15CED452006BADE7 /* IlmBase.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = IlmBase.xcodeproj; path = ../../../IlmBase/xcode/xcode3/IlmBase.xcodeproj; sourceTree = SOURCE_ROOT; };
-		2A6D51C215CED452006BADE7 /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = "../../../zlib-1.2.7/xcode/xcode3/zlib.xcodeproj"; sourceTree = SOURCE_ROOT; };
+		2A6D51C215CED452006BADE7 /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = zlib.xcodeproj; sourceTree = "<group>"; };
 		2A6D51EC15CED4D9006BADE7 /* OpenEXRConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenEXRConfig.h; sourceTree = "<group>"; };
 		2A6D51ED15CED4F5006BADE7 /* IlmBaseConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IlmBaseConfig.h; path = ../../../IlmBase/xcode/xcode3/IlmBaseConfig.h; sourceTree = SOURCE_ROOT; };
 		2A6D523215CED68F006BADE7 /* IlmImfFuzzTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = IlmImfFuzzTest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -283,7 +283,7 @@
 			files = (
 				2A6D522B15CED68F006BADE7 /* libIlmBase.a in Frameworks */,
 				2A6D522C15CED68F006BADE7 /* libOpenEXR.a in Frameworks */,
-				2A6D522D15CED68F006BADE7 /* libzlib.a in Frameworks */,
+				2A6A51371707DCE2001DC5E6 /* libzlib.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -293,7 +293,7 @@
 			files = (
 				2A6D51D415CED457006BADE7 /* libIlmBase.a in Frameworks */,
 				2A6D51D515CED458006BADE7 /* libOpenEXR.a in Frameworks */,
-				2A6D51D615CED459006BADE7 /* libzlib.a in Frameworks */,
+				2A6A51361707DCDA001DC5E6 /* libzlib.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -320,6 +320,14 @@
 			children = (
 				8DD76F6C0486A84900D96B5E /* IlmImfTest */,
 				2A6D523215CED68F006BADE7 /* IlmImfFuzzTest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2A6A512B1707DCBC001DC5E6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2A6A512F1707DCBC001DC5E6 /* libzlib.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -472,14 +480,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		2A6D51C315CED452006BADE7 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				2A6D51D315CED452006BADE7 /* libzlib.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -494,8 +494,8 @@
 			);
 			dependencies = (
 				2A6D520315CED68F006BADE7 /* PBXTargetDependency */,
-				2A6D520515CED68F006BADE7 /* PBXTargetDependency */,
 				2A6D520715CED68F006BADE7 /* PBXTargetDependency */,
+				2A6A51351707DCD5001DC5E6 /* PBXTargetDependency */,
 			);
 			name = IlmImfFuzzTest;
 			productInstallPath = "$(HOME)/bin";
@@ -514,8 +514,8 @@
 			);
 			dependencies = (
 				2A6D51D815CED464006BADE7 /* PBXTargetDependency */,
-				2A6D51DA15CED464006BADE7 /* PBXTargetDependency */,
 				2A6D51DC15CED464006BADE7 /* PBXTargetDependency */,
+				2A6A51331707DCCB001DC5E6 /* PBXTargetDependency */,
 			);
 			name = IlmImfTest;
 			productInstallPath = "$(HOME)/bin";
@@ -550,7 +550,7 @@
 					ProjectRef = 2A6D51BC15CED452006BADE7 /* OpenEXR.xcodeproj */;
 				},
 				{
-					ProductGroup = 2A6D51C315CED452006BADE7 /* Products */;
+					ProductGroup = 2A6A512B1707DCBC001DC5E6 /* Products */;
 					ProjectRef = 2A6D51C215CED452006BADE7 /* zlib.xcodeproj */;
 				},
 			);
@@ -563,6 +563,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		2A6A512F1707DCBC001DC5E6 /* libzlib.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libzlib.a;
+			remoteRef = 2A6A512E1707DCBC001DC5E6 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		2A6D51C715CED452006BADE7 /* libOpenEXR.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -589,13 +596,6 @@
 			fileType = "compiled.mach-o.executable";
 			path = toFloat;
 			remoteRef = 2A6D51CF15CED452006BADE7 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		2A6D51D315CED452006BADE7 /* libzlib.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libzlib.a;
-			remoteRef = 2A6D51D215CED452006BADE7 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -675,15 +675,20 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2A6A51331707DCCB001DC5E6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = zlib;
+			targetProxy = 2A6A51321707DCCB001DC5E6 /* PBXContainerItemProxy */;
+		};
+		2A6A51351707DCD5001DC5E6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = zlib;
+			targetProxy = 2A6A51341707DCD5001DC5E6 /* PBXContainerItemProxy */;
+		};
 		2A6D51D815CED464006BADE7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = IlmBase;
 			targetProxy = 2A6D51D715CED464006BADE7 /* PBXContainerItemProxy */;
-		};
-		2A6D51DA15CED464006BADE7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = zlib;
-			targetProxy = 2A6D51D915CED464006BADE7 /* PBXContainerItemProxy */;
 		};
 		2A6D51DC15CED464006BADE7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -694,11 +699,6 @@
 			isa = PBXTargetDependency;
 			name = IlmBase;
 			targetProxy = 2A6D520415CED68F006BADE7 /* PBXContainerItemProxy */;
-		};
-		2A6D520515CED68F006BADE7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = zlib;
-			targetProxy = 2A6D520615CED68F006BADE7 /* PBXContainerItemProxy */;
 		};
 		2A6D520715CED68F006BADE7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

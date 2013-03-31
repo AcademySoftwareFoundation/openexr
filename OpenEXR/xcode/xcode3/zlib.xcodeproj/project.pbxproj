@@ -80,7 +80,6 @@
 			isa = PBXGroup;
 			children = (
 				2A6D4E7A15CEC7F6006BADE7 /* zlib-1.2.7 */,
-				C6A0FF2B0290797F04C91782 /* Documentation */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
 			);
 			name = zlib;
@@ -125,14 +124,7 @@
 				2A6D4E9415CEC839006BADE7 /* zutil.h */,
 			);
 			name = "zlib-1.2.7";
-			path = ../..;
-			sourceTree = "<group>";
-		};
-		C6A0FF2B0290797F04C91782 /* Documentation */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Documentation;
+			path = "../../../zlib-1.2.7";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

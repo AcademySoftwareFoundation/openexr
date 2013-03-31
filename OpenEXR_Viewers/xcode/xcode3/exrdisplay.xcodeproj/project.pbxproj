@@ -18,12 +18,12 @@
 		2A4D235515CEFD4F007CAFAC /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A4D235115CEFD4F007CAFAC /* OpenGL.framework */; };
 		2A4D256515CEFED6007CAFAC /* libOpenEXR.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A4D235815CEFD4F007CAFAC /* libOpenEXR.a */; };
 		2A4D256615CEFED9007CAFAC /* libIlmBase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A4D235D15CEFD4F007CAFAC /* libIlmBase.a */; };
-		2A4D256715CEFEDD007CAFAC /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A4D236415CEFD4F007CAFAC /* libzlib.a */; };
 		2A4D262415CF0030007CAFAC /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A4D262315CF0030007CAFAC /* Carbon.framework */; };
 		2A4D262B15CF003D007CAFAC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A4D262A15CF003D007CAFAC /* Cocoa.framework */; };
 		2A4D263615CF0063007CAFAC /* libfltk_gl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A4D240B15CEFDBC007CAFAC /* libfltk_gl.a */; };
 		2A4D263B15CF006F007CAFAC /* libfltk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A4D240915CEFDBC007CAFAC /* libfltk.a */; };
 		2A4D279715CF144F007CAFAC /* GlWindow3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A4D279515CF144F007CAFAC /* GlWindow3d.cpp */; };
+		2A6A51D71707DE45001DC5E6 /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6A51C51707DE36001DC5E6 /* libzlib.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,26 +69,12 @@
 			remoteGlobalIDString = 2A6D4D3715CDF275006BADE7;
 			remoteInfo = toFloat;
 		};
-		2A4D236315CEFD4F007CAFAC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 2A4D234A15CEFD4F007CAFAC /* zlib.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D;
-			remoteInfo = zlib;
-		};
 		2A4D239515CEFD64007CAFAC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2A4D234715CEFD4F007CAFAC /* IlmBase.xcodeproj */;
 			proxyType = 1;
 			remoteGlobalIDString = 2A6D4C4C15CDEB0A006BADE7;
 			remoteInfo = IlmBase;
-		};
-		2A4D239715CEFD64007CAFAC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 2A4D234A15CEFD4F007CAFAC /* zlib.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
-			remoteInfo = zlib;
 		};
 		2A4D239915CEFD64007CAFAC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -692,6 +678,20 @@
 			remoteGlobalIDString = 5191489A6263E11B65A57B4D;
 			remoteInfo = valuators;
 		};
+		2A6A51C41707DE36001DC5E6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A4D234A15CEFD4F007CAFAC /* zlib.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D /* libzlib.a */;
+			remoteInfo = zlib;
+		};
+		2A6A51D51707DE41001DC5E6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A4D234A15CEFD4F007CAFAC /* zlib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D /* zlib */;
+			remoteInfo = zlib;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -708,7 +708,7 @@
 		2A4D234315CEFD4F007CAFAC /* OpenEXR.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OpenEXR.xcodeproj; path = ../../../OpenEXR/xcode/xcode3/OpenEXR.xcodeproj; sourceTree = SOURCE_ROOT; };
 		2A4D234615CEFD4F007CAFAC /* IlmBaseConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IlmBaseConfig.h; path = ../../../IlmBase/xcode/xcode3/IlmBaseConfig.h; sourceTree = SOURCE_ROOT; };
 		2A4D234715CEFD4F007CAFAC /* IlmBase.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = IlmBase.xcodeproj; path = ../../../IlmBase/xcode/xcode3/IlmBase.xcodeproj; sourceTree = SOURCE_ROOT; };
-		2A4D234A15CEFD4F007CAFAC /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = "../../../zlib-1.2.7/xcode/xcode3/zlib.xcodeproj"; sourceTree = SOURCE_ROOT; };
+		2A4D234A15CEFD4F007CAFAC /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = ../../../OpenEXR/xcode/xcode3/zlib.xcodeproj; sourceTree = SOURCE_ROOT; };
 		2A4D234E15CEFD4F007CAFAC /* Cg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cg.framework; path = /Library/Frameworks/Cg.framework; sourceTree = "<absolute>"; };
 		2A4D234F15CEFD4F007CAFAC /* AGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AGL.framework; path = System/Library/Frameworks/AGL.framework; sourceTree = SDKROOT; };
 		2A4D235015CEFD4F007CAFAC /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
@@ -732,11 +732,11 @@
 				2A4D235515CEFD4F007CAFAC /* OpenGL.framework in Frameworks */,
 				2A4D256515CEFED6007CAFAC /* libOpenEXR.a in Frameworks */,
 				2A4D256615CEFED9007CAFAC /* libIlmBase.a in Frameworks */,
-				2A4D256715CEFEDD007CAFAC /* libzlib.a in Frameworks */,
 				2A4D262415CF0030007CAFAC /* Carbon.framework in Frameworks */,
 				2A4D262B15CF003D007CAFAC /* Cocoa.framework in Frameworks */,
 				2A4D263615CF0063007CAFAC /* libfltk_gl.a in Frameworks */,
 				2A4D263B15CF006F007CAFAC /* libfltk.a in Frameworks */,
+				2A6A51D71707DE45001DC5E6 /* libzlib.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -801,14 +801,6 @@
 				2A4D235D15CEFD4F007CAFAC /* libIlmBase.a */,
 				2A4D235F15CEFD4F007CAFAC /* eLut */,
 				2A4D236115CEFD4F007CAFAC /* toFloat */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		2A4D234B15CEFD4F007CAFAC /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				2A4D236415CEFD4F007CAFAC /* libzlib.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -917,6 +909,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		2A6A51C11707DE36001DC5E6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2A6A51C51707DE36001DC5E6 /* libzlib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -931,10 +931,10 @@
 			);
 			dependencies = (
 				2A4D239615CEFD64007CAFAC /* PBXTargetDependency */,
-				2A4D239815CEFD64007CAFAC /* PBXTargetDependency */,
 				2A4D239A15CEFD64007CAFAC /* PBXTargetDependency */,
 				2A39B0DF15CF3C480076B3AD /* PBXTargetDependency */,
 				2A39B0E115CF3C480076B3AD /* PBXTargetDependency */,
+				2A6A51D61707DE41001DC5E6 /* PBXTargetDependency */,
 			);
 			name = exrdisplay;
 			productInstallPath = "$(HOME)/bin";
@@ -973,7 +973,7 @@
 					ProjectRef = 2A4D234315CEFD4F007CAFAC /* OpenEXR.xcodeproj */;
 				},
 				{
-					ProductGroup = 2A4D234B15CEFD4F007CAFAC /* Products */;
+					ProductGroup = 2A6A51C11707DE36001DC5E6 /* Products */;
 					ProjectRef = 2A4D234A15CEFD4F007CAFAC /* zlib.xcodeproj */;
 				},
 			);
@@ -1011,13 +1011,6 @@
 			fileType = "compiled.mach-o.executable";
 			path = toFloat;
 			remoteRef = 2A4D236015CEFD4F007CAFAC /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		2A4D236415CEFD4F007CAFAC /* libzlib.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libzlib.a;
-			remoteRef = 2A4D236315CEFD4F007CAFAC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		2A4D23F915CEFDBC007CAFAC /* Fluid.app */ = {
@@ -1615,6 +1608,13 @@
 			remoteRef = 2A4D24A015CEFDBC007CAFAC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		2A6A51C51707DE36001DC5E6 /* libzlib.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libzlib.a;
+			remoteRef = 2A6A51C41707DE36001DC5E6 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1649,15 +1649,15 @@
 			name = IlmBase;
 			targetProxy = 2A4D239515CEFD64007CAFAC /* PBXContainerItemProxy */;
 		};
-		2A4D239815CEFD64007CAFAC /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = zlib;
-			targetProxy = 2A4D239715CEFD64007CAFAC /* PBXContainerItemProxy */;
-		};
 		2A4D239A15CEFD64007CAFAC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = OpenEXR;
 			targetProxy = 2A4D239915CEFD64007CAFAC /* PBXContainerItemProxy */;
+		};
+		2A6A51D61707DE41001DC5E6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = zlib;
+			targetProxy = 2A6A51D51707DE41001DC5E6 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
