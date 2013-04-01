@@ -44,10 +44,6 @@
 #include "IexBaseExc.h"
 #include "IexMacros.h"
 
-#ifdef PLATFORM_WINDOWS
-#include <windows.h>
-#endif
-
 IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
@@ -134,19 +130,24 @@ BaseExc::append (std::stringstream &s)
 IEX_INTERNAL_NAMESPACE_SOURCE_EXIT
 
 
-#ifdef PLATFORM_WINDOWS
+#ifdef WIN32
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #pragma optimize("", off)
 void
 iex_debugTrap()
 {
-    if (0 != getenv("IEXDEBUGTHROW"))
-        DebugBreak();
+    if (0 != ::getenv("IEXDEBUGTHROW"))
+	::DebugBreak();
 }
 #else
+#include <stdlib.h>
+
 void
 iex_debugTrap()
 {
-    // how to in Linux?
+    if (0 != ::getenv("IEXDEBUGTHROW"))
+        __builtin_trap();
 }
 #endif
