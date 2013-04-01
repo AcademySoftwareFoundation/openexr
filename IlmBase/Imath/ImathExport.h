@@ -1,3 +1,6 @@
+#ifndef IMATHEXPORT_H
+#define IMATHEXPORT_H
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
@@ -32,15 +35,30 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#if defined(OPENEXR_DLL)
-    #if defined(IMATH_EXPORTS)
-	    #define IMATH_EXPORT __declspec(dllexport)
-        #define IMATH_EXPORT_CONST extern __declspec(dllexport)
-    #else
-	    #define IMATH_EXPORT __declspec(dllimport)
-	    #define IMATH_EXPORT_CONST extern __declspec(dllimport)
-    #endif
-#else
-    #define IMATH_EXPORT
-    #define IMATH_EXPORT_CONST extern const
+#if defined(WIN32)
+#  if defined(OPENEXR_DLL)
+#    define IMATH_EXPORT_DEFINITION __declspec(dllexport) 
+#    define IMATH_IMPORT_DEFINITION __declspec(dllimport)
+#  else
+#    define IMATH_EXPORT_DEFINITION 
+#    define IMATH_IMPORT_DEFINITION
+#  endif
+#else   // linux/macos
+#  if defined(PLATFORM_VISIBILITY_AVAILABLE)
+#    define IMATH_EXPORT_DEFINITION __attribute__((visibility("default")))
+#    define IMATH_IMPORT_DEFINITION
+#  else
+#    define IMATH_EXPORT_DEFINITION 
+#    define IMATH_IMPORT_DEFINITION
+#  endif
 #endif
+
+#if defined(IMATH_EXPORTS)                          // create library
+#  define IMATH_EXPORT IMATH_EXPORT_DEFINITION
+#  define IMATH_EXPORT_VAR IMATH_EXPORT_DEFINITION extern
+#else                                              // use library
+#  define IMATH_EXPORT IMATH_IMPORT_DEFINITION
+#  define IMATH_EXPORT_VAR IMATH_IMPORT_DEFINITION extern
+#endif
+
+#endif // IMATHEXPORT_H

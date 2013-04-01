@@ -50,6 +50,8 @@
 #include <exception>
 #include <sstream>
 
+#include "IexExport.h"
+
 IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
@@ -57,7 +59,7 @@ IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 // Our most basic exception class
 //-------------------------------
 
-class BaseExc: public std::string, public std::exception
+class IEX_EXPORT BaseExc: public std::string, public std::exception
 {
   public:
 
@@ -65,29 +67,29 @@ class BaseExc: public std::string, public std::exception
     // Constructors and destructor
     //----------------------------
 
-    IEX_EXPORT BaseExc (const char *s = 0) throw();     // std::string (s)
-    IEX_EXPORT BaseExc (const std::string &s) throw();  // std::string (s)
-    IEX_EXPORT BaseExc (std::stringstream &s) throw();  // std::string (s.str())
+    BaseExc (const char *s = 0) throw();     // std::string (s)
+    BaseExc (const std::string &s) throw();  // std::string (s)
+    BaseExc (std::stringstream &s) throw();  // std::string (s.str())
 
-    IEX_EXPORT BaseExc (const BaseExc &be) throw();
-    IEX_EXPORT virtual ~BaseExc () throw ();
+    BaseExc (const BaseExc &be) throw();
+    virtual ~BaseExc () throw ();
 
     //--------------------------------------------
     // what() method -- e.what() returns e.c_str()
     //--------------------------------------------
 
-    IEX_EXPORT virtual const char * what () const throw ();
+    virtual const char * what () const throw ();
 
 
     //--------------------------------------------------
     // Convenient methods to change the exception's text
     //--------------------------------------------------
 
-    IEX_EXPORT BaseExc &            assign (std::stringstream &s);	// assign (s.str())
-    IEX_EXPORT BaseExc &            operator = (std::stringstream &s);
+    BaseExc &            assign (std::stringstream &s);	// assign (s.str())
+    BaseExc &            operator = (std::stringstream &s);
 
-    IEX_EXPORT BaseExc &            append (std::stringstream &s);	// append (s.str())
-    IEX_EXPORT BaseExc &            operator += (std::stringstream &s);
+    BaseExc &            append (std::stringstream &s);	// append (s.str())
+    BaseExc &            operator += (std::stringstream &s);
 
 
     //--------------------------------------------------
@@ -95,11 +97,11 @@ class BaseExc: public std::string, public std::exception
     // the definitions above.
     //--------------------------------------------------
 
-    IEX_EXPORT BaseExc &            assign (const char *s);
-    IEX_EXPORT BaseExc &            operator = (const char *s);
+    BaseExc &            assign (const char *s);
+    BaseExc &            operator = (const char *s);
 
-    IEX_EXPORT BaseExc &            append (const char *s);
-    IEX_EXPORT BaseExc &            operator += (const char *s);
+    BaseExc &            append (const char *s);
+    BaseExc &            operator += (const char *s);
 
 
     //--------------------------------------------------
@@ -109,7 +111,7 @@ class BaseExc: public std::string, public std::exception
     // has been installed (see below, setStackTracer()).
     //--------------------------------------------------
 
-    IEX_EXPORT const std::string &  stackTrace () const;
+    const std::string &  stackTrace () const;
 
   private:
 

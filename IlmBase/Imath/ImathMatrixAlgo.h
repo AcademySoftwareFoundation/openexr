@@ -64,10 +64,10 @@ IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 // Identity matrices
 //------------------
 
-IMATH_EXPORT_CONST M33f identity33f;
-IMATH_EXPORT_CONST M44f identity44f;
-IMATH_EXPORT_CONST M33d identity33d;
-IMATH_EXPORT_CONST M44d identity44d;
+IMATH_EXPORT_VAR const M33f identity33f;
+IMATH_EXPORT_VAR const M44f identity44f;
+IMATH_EXPORT_VAR const M33d identity33d;
+IMATH_EXPORT_VAR const M44d identity44d;
 
 //----------------------------------------------------------------------
 // Extract scale, shear, rotation, and translation values from a matrix:

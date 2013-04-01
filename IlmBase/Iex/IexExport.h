@@ -36,13 +36,13 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#if defined(PLATFORM_WINDOWS)
-#  if defined(PLATFORM_BUILD_STATIC)
-#    define IEX_EXPORT_DEFINITION 
-#    define IEX_IMPORT_DEFINITION
-#  else
+#if defined(WIN32)
+#  if defined(OPENEXR_DLL)
 #    define IEX_EXPORT_DEFINITION __declspec(dllexport) 
 #    define IEX_IMPORT_DEFINITION __declspec(dllimport)
+#  else
+#    define IEX_EXPORT_DEFINITION 
+#    define IEX_IMPORT_DEFINITION
 #  endif
 #else   // linux/macos
 #  if defined(PLATFORM_VISIBILITY_AVAILABLE)

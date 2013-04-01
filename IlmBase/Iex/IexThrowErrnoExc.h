@@ -88,9 +88,9 @@ IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 //
 //--------------------------------------------------------------------------
 
-IEX_EXPORT void throwErrnoExc(const std::string &txt, int errnum);
-IEX_EXPORT void throwErrnoExc(const std::string &txt);
-IEX_EXPORT void throwErrnoExc();
+void IEX_EXPORT throwErrnoExc(const std::string &txt, int errnum);
+void IEX_EXPORT throwErrnoExc(const std::string &txt);
+void IEX_EXPORT throwErrnoExc();
 
 IEX_INTERNAL_NAMESPACE_HEADER_EXIT
 
