@@ -34,11 +34,11 @@
 
 #if defined(OPENEXR_DLL)
     #if defined(ILMIMF_EXPORTS)
-	    #define IMF_EXPORT __declspec(dllexport)
+	#define IMF_EXPORT __declspec(dllexport)
         #define IMF_EXPORT_CONST extern __declspec(dllexport)
     #else
-	    #define IMF_EXPORT __declspec(dllimport)
-	    #define IMF_EXPORT_CONST extern __declspec(dllimport)
+	#define IMF_EXPORT __declspec(dllimport)
+	#define IMF_EXPORT_CONST extern __declspec(dllimport)
     #endif
 #else
     #define IMF_EXPORT
