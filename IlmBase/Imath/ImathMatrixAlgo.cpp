@@ -45,31 +45,25 @@
 #include "ImathMatrixAlgo.h"
 #include <cmath>
 
-#if defined(OPENEXR_DLL)
-    #define EXPORT_CONST __declspec(dllexport)
-#else
-    #define EXPORT_CONST const
-#endif
-
 IMATH_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-EXPORT_CONST M33f identity33f ( 1, 0, 0,
-				0, 1, 0,
-				0, 0, 1);
+const M33f identity33f ( 1, 0, 0,
+			 0, 1, 0,
+			 0, 0, 1);
 
-EXPORT_CONST M33d identity33d ( 1, 0, 0,
-				0, 1, 0,
-				0, 0, 1);
+const M33d identity33d ( 1, 0, 0,
+			 0, 1, 0,
+			 0, 0, 1);
 
-EXPORT_CONST M44f identity44f ( 1, 0, 0, 0,
-				0, 1, 0, 0,
-				0, 0, 1, 0,
-				0, 0, 0, 1);
+const M44f identity44f ( 1, 0, 0, 0,
+			 0, 1, 0, 0,
+			 0, 0, 1, 0,
+			 0, 0, 0, 1);
 
-EXPORT_CONST M44d identity44d ( 1, 0, 0, 0,
-				0, 1, 0, 0,
-				0, 0, 1, 0,
-				0, 0, 0, 1);
+const M44d identity44d ( 1, 0, 0, 0,
+			 0, 1, 0, 0,
+			 0, 0, 1, 0,
+			 0, 0, 0, 1);
 
 namespace
 {

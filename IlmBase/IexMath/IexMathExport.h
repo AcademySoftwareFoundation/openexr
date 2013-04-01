@@ -1,5 +1,5 @@
-#ifndef IEXEXPORT_H
-#define IEXEXPORT_H
+#ifndef IEXMATHEXPORT_H
+#define IEXMATHEXPORT_H
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -38,27 +38,27 @@
 
 #if defined(WIN32)
 #  if defined(OPENEXR_DLL)
-#    define IEX_EXPORT_DEFINITION __declspec(dllexport) 
-#    define IEX_IMPORT_DEFINITION __declspec(dllimport)
+#    define IEXMATH_EXPORT_DEFINITION __declspec(dllexport) 
+#    define IEXMATH_IMPORT_DEFINITION __declspec(dllimport)
 #  else
-#    define IEX_EXPORT_DEFINITION 
-#    define IEX_IMPORT_DEFINITION
+#    define IEXMATH_EXPORT_DEFINITION 
+#    define IEXMATH_IMPORT_DEFINITION
 #  endif
 #else   // linux/macos
 #  if defined(PLATFORM_VISIBILITY_AVAILABLE)
-#    define IEX_EXPORT_DEFINITION __attribute__((visibility("default")))
-#    define IEX_IMPORT_DEFINITION
+#    define IEXMATH_EXPORT_DEFINITION __attribute__((visibility("default")))
+#    define IEXMATH_IMPORT_DEFINITION
 #  else
-#    define IEX_EXPORT_DEFINITION 
-#    define IEX_IMPORT_DEFINITION
+#    define IEXMATH_EXPORT_DEFINITION 
+#    define IEXMATH_IMPORT_DEFINITION
 #  endif
 #endif
 
-#if defined(IEX_EXPORTS)                          // create library
-#  define IEX_EXPORT IEX_EXPORT_DEFINITION
+#if defined(IEXMATH_EXPORTS)                          // create library
+#  define IEXMATH_EXPORT IEXMATH_EXPORT_DEFINITION
 #else                                              // use library
-#  define IEX_EXPORT IEX_IMPORT_DEFINITION
+#  define IEXMATH_EXPORT IEXMATH_IMPORT_DEFINITION
 #endif
 
-#endif // #ifndef IEXEXPORT_H
+#endif // #ifndef IEXMATHEXPORT_H
 
