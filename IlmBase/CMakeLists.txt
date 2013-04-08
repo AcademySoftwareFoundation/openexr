@@ -3,6 +3,9 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT ( ILMBase )
 
+# Allow the developer to select if Dynamic or Static libraries are built
+OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+
 IF ( NOT WIN32)
   ADD_DEFINITIONS ( -pthread )
 ENDIF ()
@@ -58,6 +61,14 @@ MACRO(GET_TARGET_PROPERTY_WITH_DEFAULT _variable _target _property _default_valu
    FILE(APPEND ${_laname} "libdir='${CMAKE_INSTALL_PREFIX}${_install_DIR}'\n")
    INSTALL( FILES ${_laname} DESTINATION ${CMAKE_INSTALL_PREFIX}${_install_DIR})
  ENDMACRO(CREATE_LIBTOOL_FILE)
+
+SET (LIB_TYPE STATIC)
+IF (BUILD_SHARED_LIBS)
+  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
+  SET (LIB_TYPE SHARED)
+  ADD_DEFINITIONS(-DOPENEXR_DLL)
+ENDIF (BUILD_SHARED_LIBS)
+
 
 ADD_SUBDIRECTORY ( Half )
 ADD_SUBDIRECTORY ( Iex )
