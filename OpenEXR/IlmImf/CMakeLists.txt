@@ -148,7 +148,7 @@ SET ( ILMIMF_SRCS
   ImfCompositeDeepScanLine.cpp
 )
 
-ADD_LIBRARY ( IlmImf STATIC
+ADD_LIBRARY ( IlmImf ${LIB_TYPE}
   ${ILMIMF_SRCS}
 )
 

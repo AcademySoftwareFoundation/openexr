@@ -1,6 +1,10 @@
 # yue.nicholas@gmail.com
 
-ADD_LIBRARY ( Imath STATIC
+IF(BUILD_SHARED_LIBS)
+    ADD_DEFINITIONS(-DIMATH_EXPORTS)
+ENDIF()
+
+ADD_LIBRARY ( Imath ${LIB_TYPE}
   ImathBox.cpp
   ImathRandom.cpp
   ImathColorAlgo.cpp
@@ -9,6 +13,8 @@ ADD_LIBRARY ( Imath STATIC
   ImathVec.cpp
   ImathMatrixAlgo.cpp
 )
+TARGET_LINK_LIBRARIES(Imath Iex)
+
 
 INSTALL ( TARGETS
   Imath
