@@ -13,7 +13,7 @@ TARGET_LINK_LIBRARIES ( exrmultiview
   Iex
   IlmThread
   ${PTHREAD_LIB}
-  ${Z_LIB}
+  ${ZLIB_LIBRARIES}
 )
 
 INSTALL ( TARGETS

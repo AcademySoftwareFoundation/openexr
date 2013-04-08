@@ -39,8 +39,6 @@
 //	class ZipCompressor
 //
 //-----------------------------------------------------------------------------
-#define ZLIB_WINAPI
-
 #include "ImfZipCompressor.h"
 #include "ImfCheckedArithmetic.h"
 #include "Iex.h"
