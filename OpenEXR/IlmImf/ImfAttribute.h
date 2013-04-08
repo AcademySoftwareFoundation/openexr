@@ -53,7 +53,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class Attribute
+class IMF_EXPORT Attribute
 {
   public:
 
@@ -238,7 +238,6 @@ class TypedAttribute: public Attribute
 //------------------------------------
 // Implementation of TypedAttribute<T>
 //------------------------------------
-
 template <class T>
 TypedAttribute<T>::TypedAttribute ():
     Attribute (),
