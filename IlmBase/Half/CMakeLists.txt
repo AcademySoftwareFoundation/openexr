@@ -52,6 +52,7 @@ INSTALL ( TARGETS
 INSTALL ( FILES 
   half.h
   halfFunction.h
+  halfExport.h
   halfLimits.h
   DESTINATION
   include/OpenEXR

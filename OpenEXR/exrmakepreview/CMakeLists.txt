@@ -11,7 +11,7 @@ TARGET_LINK_LIBRARIES ( exrmakepreview
   Iex
   Half
   ${PTHREAD_LIB}
-  ${Z_LIB}
+  ${ZLIB_LIBRARIES}
 )
 
 INSTALL ( TARGETS
