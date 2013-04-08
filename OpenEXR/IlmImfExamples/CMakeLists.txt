@@ -17,5 +17,5 @@ TARGET_LINK_LIBRARIES ( IlmImfExamples
   IlmThread
   Half
   ${PTHREAD_LIB}
-  ${Z_LIB}
+  ${ZLIB_LIBRARIES}
   )

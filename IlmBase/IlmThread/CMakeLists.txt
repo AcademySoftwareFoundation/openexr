@@ -1,37 +1,32 @@
 # yue.nicholas@gmail.com
 
+SET( ILMTHREAD_LIBRARY_SOURCES
+  IlmThread.cpp
+  IlmThreadMutex.cpp
+  IlmThreadMutexPosix.cpp
+  IlmThreadPool.cpp
+  IlmThreadPosix.cpp
+  IlmThreadSemaphore.cpp
+  IlmThreadSemaphorePosixCompat.cpp
+  IlmThreadSemaphorePosix.cpp
+)
 IF (WIN32)
-  SET( ILMTHREAD_LIBRARY_SOURCES
-    IlmThread.cpp
-    IlmThreadMutex.cpp
-    IlmThreadMutexPosix.cpp
+  SET( ILMTHREAD_LIBRARY_SOURCES ${ILMTHREAD_LIBRARY_SOURCES}
     IlmThreadMutexWin32.cpp
-    IlmThreadPool.cpp
-    IlmThreadPosix.cpp
-    IlmThreadSemaphore.cpp
-    IlmThreadSemaphorePosix.cpp
-    IlmThreadSemaphorePosixCompat.cpp
     IlmThreadSemaphoreWin32.cpp
     IlmThreadWin32.cpp
 	)
-ELSE ()
-
-  SET( ILMTHREAD_LIBRARY_SOURCES
-    IlmThread.cpp
-    IlmThreadMutex.cpp
-    IlmThreadMutexPosix.cpp
-    IlmThreadPool.cpp
-    IlmThreadPosix.cpp
-    IlmThreadSemaphore.cpp
-    IlmThreadSemaphorePosixCompat.cpp
-    IlmThreadSemaphorePosix.cpp
- )
-
 ENDIF()
 
-ADD_LIBRARY ( IlmThread STATIC
+
+IF(BUILD_SHARED_LIBS)
+  ADD_DEFINITIONS(-DILMTHREAD_EXPORTS)
+ENDIF()
+
+ADD_LIBRARY ( IlmThread ${LIB_TYPE}
   ${ILMTHREAD_LIBRARY_SOURCES}
   )
+TARGET_LINK_LIBRARIES(IlmThread Iex)
 
 INSTALL ( TARGETS
   IlmThread

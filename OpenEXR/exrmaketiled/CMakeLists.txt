@@ -12,7 +12,7 @@ TARGET_LINK_LIBRARIES ( exrmaketiled
   Iex
   Half
   ${PTHREAD_LIB}
-  ${Z_LIB}
+  ${ZLIB_LIBRARIES}
 )
 
 INSTALL ( TARGETS

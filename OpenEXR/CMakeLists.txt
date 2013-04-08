@@ -2,6 +2,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT (OpenEXR)
 
+# Allow the developer to select if Dynamic or Static libraries are built
+OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+OPTION (USE_ZLIB_WINAPI   "Use ZLib Win API"       OFF)
+
 ADD_DEFINITIONS ( -DHAVE_CONFIG_H -DILM_IMF_TEST_IMAGEDIR="${CMAKE_SOURCE_DIR}/openexr/IlmImfTest/" )
 
 INCLUDE_DIRECTORIES (
@@ -14,22 +18,27 @@ INCLUDE_DIRECTORIES (
   IlmImfFuzzTest
 )
 
-IF (WIN32)
-  INCLUDE_DIRECTORIES (
-    ${ZLIB_ROOT}/include
-    )
-  LINK_DIRECTORIES (
-    ${ZLIB_ROOT}/lib
-    )
-  SET ( Z_LIB zlib )
-ELSE()
+FIND_PACKAGE(ZLIB REQUIRED)
+INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
+
+IF (NOT WIN32)
   SET ( PTHREAD_LIB pthread )
-  SET ( Z_LIB z )
 ENDIF()
 
 INCLUDE_DIRECTORIES ( ${ILMBASE_PACKAGE_PREFIX}/include/OpenEXR )
 LINK_DIRECTORIES ( ${ILMBASE_PACKAGE_PREFIX}/lib )
 MESSAGE ( "ILMBASE_PACKAGE_PREFIX = " ${ILMBASE_PACKAGE_PREFIX})
+
+SET (LIB_TYPE STATIC)
+IF (BUILD_SHARED_LIBS)
+  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
+  SET (LIB_TYPE SHARED)
+  ADD_DEFINITIONS(-DOPENEXR_DLL)
+ENDIF ()
+
+IF (USE_ZLIB_WINAPI)
+  ADD_DEFINITIONS(-DZLIB_WINAPI)
+ENDIF ()
 
 ADD_SUBDIRECTORY ( IlmImf )
 ADD_SUBDIRECTORY ( IlmImfTest )
@@ -55,8 +64,8 @@ INSTALL ( FILES
   doc/TechnicalIntroduction_2.0.pdf
   doc/ReadingAndWritingImageFiles.pdf
   doc/OpenEXRFileLayout.pdf
-  doc/OpenEXRFileLayout_2.0.pdf
-  doc/ReadingAndWritingImageFiles_2.0.pdf
+#  doc/OpenEXRFileLayout_2.0.pdf
+#  doc/ReadingAndWritingImageFiles_2.0.pdf
   doc/MultiViewOpenEXR.pdf
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-2.0.0
