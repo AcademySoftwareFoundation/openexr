@@ -38,21 +38,20 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfTiledInputFile.h>
-#include <ImfTileDescriptionAttribute.h>
-#include <ImfChannelList.h>
-#include <ImfMisc.h>
-#include <ImfTiledMisc.h>
-#include <ImfStdIO.h>
-#include <ImfCompressor.h>
-#include "ImathBox.h"
-#include <ImfXdr.h>
-#include <ImfConvert.h>
-#include <ImfVersion.h>
-#include <ImfTileOffsets.h>
-#include <ImfThreading.h>
-#include <ImfPartType.h>
-#include <ImfMultiPartInputFile.h>
+#include "ImfTiledInputFile.h"
+#include "ImfTileDescriptionAttribute.h"
+#include "ImfChannelList.h"
+#include "ImfMisc.h"
+#include "ImfTiledMisc.h"
+#include "ImfStdIO.h"
+#include "ImfCompressor.h"
+#include "ImfXdr.h"
+#include "ImfConvert.h"
+#include "ImfVersion.h"
+#include "ImfTileOffsets.h"
+#include "ImfThreading.h"
+#include "ImfPartType.h"
+#include "ImfMultiPartInputFile.h"
 #include "ImfInputStreamMutex.h"
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
@@ -888,9 +887,18 @@ void
 TiledInputFile::initialize ()
 {
     if (_data->partNumber == -1)
+    {
         if (!isTiled (_data->version))
             throw IEX_NAMESPACE::ArgExc ("Expected a tiled file but the file is not tiled.");
-
+    }
+    else
+    {
+        if(_data->header.hasType() && _data->header.type()!=TILEDIMAGE)
+        {
+            throw IEX_NAMESPACE::ArgExc ("TiledInputFile used for non-tiledimage part.");
+        }
+    }
+    
     _data->header.sanityCheck (true);
 
     _data->tileDesc = _data->header.tileDescription();

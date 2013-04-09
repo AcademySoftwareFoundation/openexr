@@ -95,7 +95,9 @@ class IMF_EXPORT TileOffsets
     Int64 &		operator () (int dx, int dy, int l);
     const Int64 &	operator () (int dx, int dy, int lx, int ly) const;
     const Int64 &	operator () (int dx, int dy, int l) const;
-
+    bool        isValidTile (int dx, int dy, int lx, int ly) const;
+    const std::vector<std::vector<std::vector <Int64> > >& getOffsets() const;
+    
   private:
 
     void		findTiles (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, bool isMultiPartFile,
@@ -104,16 +106,13 @@ class IMF_EXPORT TileOffsets
     void		reconstructFromFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,bool isMultiPartFile,bool isDeep);
     bool		readTile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is);
     bool		anyOffsetsAreInvalid () const;
-    bool		isValidTile (int dx, int dy, int lx, int ly) const;
 
     LevelMode		_mode;
     int			_numXLevels;
     int			_numYLevels;
 
     std::vector<std::vector<std::vector <Int64> > > _offsets;
-    const std::vector<std::vector<std::vector <Int64> > >& getOffsets();
-
-    friend class MultiPartInputFile;
+    
 };
 
 

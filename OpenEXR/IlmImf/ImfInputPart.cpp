@@ -41,7 +41,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 InputPart::InputPart(MultiPartInputFile& multiPartFile, int partNumber)
 {
-    file = multiPartFile.createInputPart(partNumber);
+    file = multiPartFile.getInputPart<InputFile>(partNumber);
 }
 
 const char *
@@ -78,6 +78,12 @@ bool
 InputPart::isComplete () const
 {
     return file->isComplete();
+}
+
+bool
+InputPart::isOptimizationEnabled() const
+{
+   return file->isOptimizationEnabled();
 }
 
 void

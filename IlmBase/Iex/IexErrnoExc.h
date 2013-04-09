@@ -203,7 +203,6 @@ DEFINE_EXC (EcantextentExc, ErrnoExc)
 DEFINE_EXC (EinvaltimeExc, ErrnoExc)
 DEFINE_EXC (EdestroyedExc, ErrnoExc)
 
-
 IEX_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

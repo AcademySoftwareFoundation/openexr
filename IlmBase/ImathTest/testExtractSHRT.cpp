@@ -434,7 +434,7 @@ testExtractSHRT ()
 	cout << "Testing extraction of scale, shear, rotation, translation " 
 	     << "from matrices" << endl;
 	
-	cout << "IMATH_INTERNAL_NAMESPACE::extractSHRT()" << endl;
+	cout << "Imath::extractSHRT()" << endl;
 	test ();
 	
 	cout << "ok\n" << endl;

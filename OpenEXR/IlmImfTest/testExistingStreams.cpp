@@ -33,10 +33,14 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <tmpDir.h>
 
 #include <ImfRgbaFile.h>
 #include <ImfTiledRgbaFile.h>
+#include <ImfMultiPartInputFile.h>
+#include <ImfMultiPartOutputFile.h>
+#include <ImfPartType.h>
+#include <ImfInputPart.h>
+#include <ImfOutputPart.h>
 #include <ImfStdIO.h>
 #include <ImfArray.h>
 
@@ -44,6 +48,11 @@
 #include <assert.h>
 #include "Iex.h"
 #include <errno.h>
+
+#include <vector>
+#include <ImfChannelList.h>
+
+#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -288,6 +297,149 @@ writeReadScanLines (const char fileName[],
 
     remove (fileName);
 }
+void
+writeReadMultiPart (const char fileName[],
+                    int width,
+                    int height,
+                    const Array2D<Rgba> &p1)
+{
+    //
+    // Save a two scanline parts in an image, but instead of
+    // letting the MultiPartOutputFile object open the file,
+    // make the MultiPartOutputFile object use an existing
+    // StdOFStream.  Read the image back, using an
+    // existing StdIFStream, and compare the pixels
+    // with the original data.  Then read the image
+    // back a second time using a memory-mapped
+    // MMIFStream (see above).
+    //
+                        
+    cout << "scan-line based mulitpart file:" << endl;
+                        
+    vector<Header> headers(2);
+    headers[0] = Header(width, height);
+    headers[0].setName("part1");
+    headers[0].channels().insert("R",Channel());
+    headers[0].channels().insert("G",Channel());
+    headers[0].channels().insert("B",Channel());
+    headers[0].channels().insert("A",Channel());
+    headers[0].setType(SCANLINEIMAGE);
+    
+    headers[1]=headers[0];
+    headers[1].setName("part2");
+    
+    
+    {
+        cout << "writing";
+        remove (fileName);
+        std::ofstream os (fileName, ios_base::binary);
+        StdOFStream ofs (os, fileName);
+        MultiPartOutputFile out (ofs, &headers[0],2);
+        FrameBuffer f;
+        f.insert("R",Slice(HALF,(char *) &p1[0][0].r,sizeof(Rgba),width*sizeof(Rgba)));
+        f.insert("G",Slice(HALF,(char *) &p1[0][0].g,sizeof(Rgba),width*sizeof(Rgba)));
+        f.insert("B",Slice(HALF,(char *) &p1[0][0].b,sizeof(Rgba),width*sizeof(Rgba)));
+        f.insert("A",Slice(HALF,(char *) &p1[0][0].a,sizeof(Rgba),width*sizeof(Rgba)));
+        
+        for(int i=0;i<2;i++)
+        {
+            OutputPart p(out,i);
+            p.setFrameBuffer (f);
+            p.writePixels (height);
+        }
+    }
+                        
+    {
+        cout << ", reading";
+        std::ifstream is (fileName, ios_base::binary);
+        StdIFStream ifs (is, fileName);
+        MultiPartInputFile in (ifs);
+        
+        assert(in.parts() == 2);
+        
+        assert(in.header(0).dataWindow()==in.header(1).dataWindow());
+        
+        const Box2i &dw = in.header(0).dataWindow();
+        int w = dw.max.x - dw.min.x + 1;
+        int h = dw.max.y - dw.min.y + 1;
+        int dx = dw.min.x;
+        int dy = dw.min.y;
+        
+        Array2D<Rgba> p2 (h, w);
+        FrameBuffer f;
+        f.insert("R",Slice(HALF,(char *) &p2[-dy][-dx].r,sizeof(Rgba),w*sizeof(Rgba)));
+        f.insert("G",Slice(HALF,(char *) &p2[-dy][-dx].g,sizeof(Rgba),w*sizeof(Rgba)));
+        f.insert("B",Slice(HALF,(char *) &p2[-dy][-dx].b,sizeof(Rgba),w*sizeof(Rgba)));
+        f.insert("A",Slice(HALF,(char *) &p2[-dy][-dx].a,sizeof(Rgba),w*sizeof(Rgba)));
+        
+        for(int part=0;part<2;part++)
+        {
+            InputPart p(in,part);
+            p.setFrameBuffer(f);
+            p.readPixels (dw.min.y, dw.max.y);
+                            
+            cout << ", comparing pt " << part;
+            for (int y = 0; y < h; ++y)
+            {
+                for (int x = 0; x < w; ++x)
+                {
+                    assert (p2[y][x].r == p1[y][x].r);
+                    assert (p2[y][x].g == p1[y][x].g);
+                    assert (p2[y][x].b == p1[y][x].b);
+                    assert (p2[y][x].a == p1[y][x].a);
+                }
+            }
+        }
+    }
+    
+    {
+        cout << ", reading (memory-mapped)";
+        MMIFStream ifs (fileName);
+        MultiPartInputFile in (ifs);
+        
+        assert(in.parts() == 2);
+        
+        assert(in.header(0).dataWindow()==in.header(1).dataWindow());
+        
+        
+        const Box2i &dw = in.header(0).dataWindow();
+        int w = dw.max.x - dw.min.x + 1;
+        int h = dw.max.y - dw.min.y + 1;
+        int dx = dw.min.x;
+        int dy = dw.min.y;
+        
+        Array2D<Rgba> p2 (h, w);
+        FrameBuffer f;
+        f.insert("R",Slice(HALF,(char *) &p2[-dy][-dx].r,sizeof(Rgba),w*sizeof(Rgba)));
+        f.insert("G",Slice(HALF,(char *) &p2[-dy][-dx].g,sizeof(Rgba),w*sizeof(Rgba)));
+        f.insert("B",Slice(HALF,(char *) &p2[-dy][-dx].b,sizeof(Rgba),w*sizeof(Rgba)));
+        f.insert("A",Slice(HALF,(char *) &p2[-dy][-dx].a,sizeof(Rgba),w*sizeof(Rgba)));
+        
+        for(int part=0;part<2;part++)
+        {
+            InputPart p(in,part);
+            p.setFrameBuffer(f);
+            p.readPixels (dw.min.y, dw.max.y);
+            
+            cout << ", comparing pt " << part;
+            for (int y = 0; y < h; ++y)
+            {
+                for (int x = 0; x < w; ++x)
+                {
+                    assert (p2[y][x].r == p1[y][x].r);
+                    assert (p2[y][x].g == p1[y][x].g);
+                    assert (p2[y][x].b == p1[y][x].b);
+                    assert (p2[y][x].a == p1[y][x].a);
+                }
+            }
+        }
+    }
+    
+    cout << endl;
+                        
+    remove (fileName);
+}
+                    
 
 
 void
@@ -402,6 +554,10 @@ testExistingStreams ()
 
 	fillPixels2 (p1, W, H);
 	writeReadTiles (IMF_TMP_DIR "imf_test_streams2.exr", W, H, p1);
+        
+        fillPixels1 (p1, W, H);
+        writeReadMultiPart (IMF_TMP_DIR "imf_test_streams3.exr", W, H, p1);
+        
 
 	cout << "ok\n" << endl;
     }

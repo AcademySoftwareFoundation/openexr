@@ -36,7 +36,6 @@
 
 #include "testCopyDeepScanLine.h"
 
-#include "tmpDir.h"
 
 #include <assert.h>
 #include <string.h>
@@ -52,6 +51,7 @@
 #include <stdio.h>
 #include <vector>
 
+#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;

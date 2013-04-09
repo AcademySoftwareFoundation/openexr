@@ -40,7 +40,7 @@
 
 //-------------------------------------------------------------------
 //
-//	class IMATH_INTERNAL_NAMESPACE::Interval<class T>
+//	class Imath::Interval<class T>
 //	--------------------------------
 //
 //	An Interval has a min and a max and some miscellaneous

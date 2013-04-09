@@ -40,8 +40,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfRleCompressor.h>
-#include <ImfCheckedArithmetic.h>
+#include "ImfRleCompressor.h"
+#include "ImfCheckedArithmetic.h"
 #include "Iex.h"
 #include "ImfNamespace.h"
 

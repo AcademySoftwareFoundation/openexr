@@ -125,8 +125,8 @@ sampleX (const TypedImageChannel<T> &channel,
     int xt = xs + 1;
     double s = xt - x;
     double t = 1 - s;
-    double vs;
-    double vt;
+    double vs=0.0;
+    double vt=0.0;
 
     switch (ext)
     {
@@ -182,8 +182,8 @@ sampleY (const TypedImageChannel<T> &channel,
     int yt = ys + 1;
     double s = yt - y;
     double t = 1 - s;
-    double vs;
-    double vt;
+    double vs=0.0;
+    double vt=0.0;
 
     switch (ext)
     {
@@ -407,7 +407,9 @@ reduceX (const ChannelList &channels,
                          image1.typedChannel<unsigned int> (name),
                          filter, ext, odd);
                 break;
-
+            default : 
+                break;
+           
         }
     }
 }
@@ -456,7 +458,9 @@ reduceY (const ChannelList &channels,
                          image1.typedChannel<unsigned int> (name),
                          filter, ext, odd);
                 break;
-
+            default : 
+                break;
+                
         }
     }
 }
@@ -521,7 +525,7 @@ makeTiled (const char inFileName[],
     MultiPartInputFile input (inFileName);
     int parts = input.parts();
 
-    for (size_t p = 0 ; p < parts; p++)
+    for (int p = 0 ; p < parts; p++)
     {
         if (verbose)
             cout << "reading file " << inFileName << endl;
@@ -585,7 +589,7 @@ makeTiled (const char inFileName[],
             //
             // set tileDescription, type, and chunckcount for multipart
             //
-            header.setType("tiledimage");
+            header.setType(TILEDIMAGE);
             int chunkcount = getChunkOffsetTableSize(header, true);
             header.setChunkCount(chunkcount);
 
@@ -605,7 +609,7 @@ makeTiled (const char inFileName[],
 
     MultiPartOutputFile output (outFileName, &headers[0], headers.size());
 
-    for(size_t p = 0 ; p < parts; p++)
+    for(int p = 0 ; p < parts; p++)
     {
         if (p == partnum)
         {
@@ -717,25 +721,25 @@ makeTiled (const char inFileName[],
         {
             Header header = headers[p];
             std::string type = header.type();
-            if (type == "tiledimage")
+            if (type == TILEDIMAGE)
             {
                 TiledInputPart in (input, p);
                 TiledOutputPart out (output, p);
                 out.copyPixels (in);
             }
-            else if (type == "scanlineimage")
+            else if (type == SCANLINEIMAGE)
             {
                 using std::max;  InputPart in (input, p);
                 OutputPart out (output, p);
                 out.copyPixels (in);
             }
-            else if (type == "deepscanline")
+            else if (type == DEEPSCANLINE)
             {
                 DeepScanLineInputPart in (input,p);
                 DeepScanLineOutputPart out (output,p);
                 out.copyPixels (in);
             }
-            else if (type == "deeptile")
+            else if (type == DEEPTILE)
             {
                 DeepTiledInputPart in (input,p);
                 DeepTiledOutputPart out (output,p);

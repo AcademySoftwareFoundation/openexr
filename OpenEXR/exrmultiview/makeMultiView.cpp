@@ -78,7 +78,7 @@ makeMultiView (const vector <string> &viewNames,
     Box2i d;
     
     
-    for (int i = 0; i < viewNames.size(); ++i)
+    for (size_t i = 0; i < viewNames.size(); ++i)
     {
 	InputFile in (inFileNames[i]);
 
@@ -118,7 +118,7 @@ makeMultiView (const vector <string> &viewNames,
     // Read the input image files
     //
 
-    for (int i = 0; i < viewNames.size(); ++i)
+    for (size_t i = 0; i < viewNames.size(); ++i)
     {
 	InputFile in (inFileNames[i]);
 

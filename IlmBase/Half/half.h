@@ -85,21 +85,10 @@
 #ifndef _HALF_H_
 #define _HALF_H_
 
+#include "halfExport.h"    // for definition of HALF_EXPORT
 #include <iostream>
 
-#if defined(OPENEXR_DLL)
-    #if defined(HALF_EXPORTS)
-	#define HALF_EXPORT __declspec(dllexport)
-    #else
-	#define HALF_EXPORT __declspec(dllimport)
-    #endif
-    #define HALF_EXPORT_CONST
-#else
-    #define HALF_EXPORT
-    #define HALF_EXPORT_CONST const
-#endif
-
-class HALF_EXPORT half
+class half
 {
   public:
 
@@ -208,8 +197,8 @@ class HALF_EXPORT half
     // Access to the internal representation
     //--------------------------------------
 
-    unsigned short	bits () const;
-    void		setBits (unsigned short bits);
+    HALF_EXPORT unsigned short	bits () const;
+    HALF_EXPORT void		setBits (unsigned short bits);
 
 
   public:
@@ -222,31 +211,33 @@ class HALF_EXPORT half
 
   private:
 
-    static short	convert (int i);
-    static float	overflow ();
+    HALF_EXPORT static short                  convert (int i);
+    HALF_EXPORT static float                  overflow ();
 
-    unsigned short	_h;
+    unsigned short                            _h;
 
-    static HALF_EXPORT_CONST uif		_toFloat[1 << 16];
-    static HALF_EXPORT_CONST unsigned short _eLut[1 << 9];
+    HALF_EXPORT static const uif              _toFloat[1 << 16];
+    HALF_EXPORT static const unsigned short   _eLut[1 << 9];
 };
+
+
 
 //-----------
 // Stream I/O
 //-----------
 
-HALF_EXPORT std::ostream &		operator << (std::ostream &os, half  h);
-HALF_EXPORT std::istream &		operator >> (std::istream &is, half &h);
+HALF_EXPORT std::ostream &      operator << (std::ostream &os, half  h);
+HALF_EXPORT std::istream &      operator >> (std::istream &is, half &h);
 
 
 //----------
 // Debugging
 //----------
 
-HALF_EXPORT void			printBits   (std::ostream &os, half  h);
-HALF_EXPORT void			printBits   (std::ostream &os, float f);
-HALF_EXPORT void			printBits   (char  c[19], half  h);
-HALF_EXPORT void			printBits   (char  c[35], float f);
+HALF_EXPORT void        printBits   (std::ostream &os, half  h);
+HALF_EXPORT void        printBits   (std::ostream &os, float f);
+HALF_EXPORT void        printBits   (char  c[19], half  h);
+HALF_EXPORT void        printBits   (char  c[35], float f);
 
 
 //-------------------------------------------------------------------------

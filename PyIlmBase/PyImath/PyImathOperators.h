@@ -216,6 +216,30 @@ static T fa_reduce(const FixedArray<T> &a) {
 }
 
 template <class T>
+static T fa_min(const FixedArray<T> &a) {
+    T tmp(T(0));
+    size_t len = a.len();
+    if (len > 0)
+        tmp = a[0];
+    for (size_t i=1; i < len; ++i)
+        if (a[i] < tmp)
+            tmp = a[i];
+    return tmp;
+}
+
+template <class T>
+static T fa_max(const FixedArray<T> &a) {
+    T tmp(T(0));
+    size_t len = a.len();
+    if (len > 0)
+        tmp = a[0];
+    for (size_t i=1; i < len; ++i)
+        if (a[i] > tmp)
+            tmp = a[i];
+    return tmp;
+}
+
+template <class T>
 static void add_arithmetic_math_functions(boost::python::class_<FixedArray<T> > &c) {
     using boost::mpl::true_;
     using boost::mpl::false_;
@@ -233,6 +257,12 @@ static void add_arithmetic_math_functions(boost::python::class_<FixedArray<T> > 
     generate_member_bindings<op_idiv<T>,true_ >(c,"__idiv__","self/=x",boost::python::args("x"));
 
     c.def("reduce",&fa_reduce<T>);
+}
+
+template <class T>
+static void add_reduction_functions(boost::python::class_<FixedArray<T> > &c) {
+    c.def("min",&fa_min<T>);
+    c.def("max",&fa_max<T>);
 }
 
 template <class T>

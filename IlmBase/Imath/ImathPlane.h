@@ -41,9 +41,9 @@
 //
 //	template class Plane3
 //
-//	The IMATH_INTERNAL_NAMESPACE::Plane3<> class represents a half space, so the
+//	The Imath::Plane3<> class represents a half space, so the
 //	normal may point either towards or away from origin.  The
-//	plane P can be represented by IMATH_INTERNAL_NAMESPACE::Plane3 as either p or -p
+//	plane P can be represented by Imath::Plane3 as either p or -p
 //	corresponding to the two half-spaces on either side of the
 //	plane. Any function which computes a distance will return
 //	either negative or positive values for the distance indicating

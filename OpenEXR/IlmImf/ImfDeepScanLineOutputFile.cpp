@@ -110,7 +110,7 @@ struct OutSliceInfo
 
 
 OutSliceInfo::OutSliceInfo (PixelType t,
-                            const char *                 base,
+                            const char * base,
                             ptrdiff_t spstride,
                             ptrdiff_t xst,
                             ptrdiff_t yst,
@@ -668,15 +668,6 @@ LineBufferTask::execute ()
                                              slice.type);
                 }
             }
-
-            #ifdef DEBUG
-
-                assert (writePtr - (_lineBuffer->buffer +
-                        _ofd->offsetInLineBuffer[y - _ofd->minY]) ==
-                        (int) _ofd->bytesPerLine[y - _ofd->minY]);
-
-            #endif
-
         }
 
         //

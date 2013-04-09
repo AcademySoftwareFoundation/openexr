@@ -40,7 +40,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 DeepScanLineInputPart::DeepScanLineInputPart(MultiPartInputFile& multiPartFile, int partNumber)
 {
-    file = multiPartFile.createDeepScanLineInputPart(partNumber);
+    file = multiPartFile.getInputPart<DeepScanLineInputFile>(partNumber);
 }
 
 

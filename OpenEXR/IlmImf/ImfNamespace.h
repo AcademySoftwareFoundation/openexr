@@ -55,19 +55,19 @@
 // older versions of Imath symbols and the newer ones.  To do this, the
 // following could be defined at build time:
 //
-// OPENEXR_IMF_INTERNAL_NAMESPACE = Imath_v2
+// OPENEXR_IMF_INTERNAL_NAMESPACE = Imf_v2
 //
 // This means that declarations inside Imath headers look like this (after
 // the preprocessor has done its work):
 //
-// namespace Imath_v2 {
+// namespace Imf_v2 {
 //     ...
 //     class declarations
 //     ...
 // }
 //
-// namespace Imath {
-//     using namespace IMATH_NAMESPACE_v2;
+// namespace Imf {
+//     using namespace IMF_NAMESPACE_v2;
 // }
 //
 

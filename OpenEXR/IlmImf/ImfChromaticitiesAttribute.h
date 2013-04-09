@@ -70,6 +70,4 @@ void ChromaticitiesAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::ISt
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-
-
 #endif

@@ -1,4 +1,3 @@
-
 ///////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
@@ -47,7 +46,7 @@ IMATH_INTERNAL_NAMESPACE_SOURCE_ENTER
 namespace {
 
 //
-// Static state used by IMATH_INTERNAL_NAMESPACE::drand48(), IMATH_INTERNAL_NAMESPACE::lrand48() and IMATH_INTERNAL_NAMESPACE::srand48()
+// Static state used by Imath::drand48(), Imath::lrand48() and Imath::srand48()
 //
 
 unsigned short staticState[3] = {0, 0, 0};

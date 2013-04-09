@@ -34,7 +34,6 @@
 
 
 
-#include <tmpDir.h>
 
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
@@ -61,6 +60,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -137,10 +137,10 @@ writeReadAttr (const Array2D<float> &pf1,
 	hdr.insert ("a13", ChromaticitiesAttribute (a13));
 	hdr.insert ("a14", EnvmapAttribute         (a14));
 	hdr.insert ("a15", StringVectorAttribute   (a15));
-        hdr.insert ("a16", M33dAttribute   (a16));
-        hdr.insert ("a17", M44dAttribute   (a17));
-        hdr.insert ("a18", V2dAttribute    (a18));
-        hdr.insert ("a19", V3dAttribute    (a19));
+	hdr.insert ("a16", M33dAttribute   (a16));
+	hdr.insert ("a17", M44dAttribute   (a17));
+	hdr.insert ("a18", V2dAttribute    (a18));
+	hdr.insert ("a19", V3dAttribute    (a19));
 
 	hdr.channels().insert ("F",			// name
 			       Channel (FLOAT,		// type

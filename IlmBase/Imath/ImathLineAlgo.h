@@ -40,7 +40,7 @@
 //------------------------------------------------------------------
 //
 //	This file contains algorithms applied to or in conjunction
-//	with lines (IMATH_INTERNAL_NAMESPACE::Line). These algorithms may require
+//	with lines (Imath::Line). These algorithms may require
 //	more headers to compile. The assumption made is that these
 //	functions are called much less often than the basic line
 //	functions or these functions require more support classes

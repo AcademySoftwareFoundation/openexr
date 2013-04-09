@@ -39,7 +39,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 OutputPart::OutputPart(MultiPartOutputFile& multiPartFile, int partNumber)
 {
-    file = multiPartFile.createOutputPart(partNumber);
+    file = multiPartFile.getOutputPart<OutputFile>(partNumber);
 }
 
 const char *

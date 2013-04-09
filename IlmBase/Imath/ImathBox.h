@@ -38,7 +38,7 @@
 
 //-------------------------------------------------------------------
 //
-//	class IMATH_INTERNAL_NAMESPACE::Box<class T>
+//	class Imath::Box<class T>
 //	--------------------------------
 //
 //	This class imposes the following requirements on its 
@@ -333,7 +333,7 @@ Box<T>::majorAxis() const
 
 //-------------------------------------------------------------------
 //
-//  Partial class specializations for IMATH_INTERNAL_NAMESPACE::Vec2<T> and IMATH_INTERNAL_NAMESPACE::Vec3<T>
+//  Partial class specializations for Imath::Vec2<T> and Imath::Vec3<T>
 //
 //-------------------------------------------------------------------
 
@@ -842,8 +842,6 @@ Box<Vec3<T> >::majorAxis() const
 
     return major;
 }
-
-
 
 
 IMATH_INTERNAL_NAMESPACE_HEADER_EXIT

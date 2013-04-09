@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -729,6 +729,7 @@ operator * (S x, const Color4<T> &v)
 {
     return Color4<T> (x * v.r, x * v.g, x * v.b, x * v.a);
 }
+
 
 IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 

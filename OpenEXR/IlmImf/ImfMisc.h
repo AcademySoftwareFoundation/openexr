@@ -463,7 +463,4 @@ int getChunkOffsetTableSize(const Header& header,bool ignore_attribute=false);
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-
-
-
 #endif

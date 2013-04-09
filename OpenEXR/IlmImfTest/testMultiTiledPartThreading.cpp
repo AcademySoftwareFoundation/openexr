@@ -43,6 +43,7 @@
 
 #include "testMultiTiledPartThreading.h"
 
+#include <ImfPartType.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfMultiPartOutputFile.h>
 #include <ImfOutputFile.h>
@@ -258,7 +259,7 @@ void generateFiles()
                 break;
         }
 
-        header.setType("tiledimage");
+        header.setType(TILEDIMAGE);
 
         int tileX = tileSize;
         int tileY = tileSize;

@@ -168,13 +168,15 @@ namespace PxDeep {
 // DEEP OPACITY
 //-*****************************************************************************
 // "Deep Opacity" refers to a depth function in which the sample at each point
-// represents the total accumulated alpha at that depth. This represents the
-// way that deep shadows would have been produced by renderman with the
-// Display Driver Line: "deepshad" "deepopacity". It is important to note
+// represents the total accumulated opacity at that depth. This represents
+// the way that deep shadows would have been produced by renderman with the
+// Display Driver Line: "deepshad" "deepopacity", except that the files actually
+// store the inverse (1.0-opacity) at each point. It is important to note
 // that for any given Dtex deepopacity sample, the value represents the
-// accumulation of alpha on the NEAR side of the sample - up to and including
-// the sample's depth, but no further in depth. Deep Opacity functions are
-// monotonically increasing in depth, and are always between 0 and 1.
+// accumulation of visibility on the NEAR side of the sample - up to and
+// including the sample's depth, but no further in depth. Deep Opacity
+// functions are monotonically decreasing in depth, and are always
+// between 0 and 1.
 //
 // A complication arises when the 0'th continuous deep opacity sample has a
 // non-zero deep opacity, because we don't have enough information to infer

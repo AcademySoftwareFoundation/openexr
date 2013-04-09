@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <tmpDir.h>
 #include "compareB44.h"
 
 #include <ImfRgbaFile.h>
@@ -45,6 +44,7 @@
 #include <ImfThreading.h>
 #include <IlmThread.h>
 
+#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -240,13 +240,13 @@ testRgbaThreading ()
                                    LineOrder (lorder),
                                    Compression (comp));
     
-                    writeReadRGBA ("imf_test_rgba.exr",
+                    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
                                    W, H, p1,
                                    WRITE_A,
                                    LineOrder (lorder),
                                    Compression (comp));
     
-                    writeReadRGBA ("imf_test_rgba.exr",
+                    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
                                    W, H, p1,
                                    RgbaChannels (WRITE_R | WRITE_B),
                                    LineOrder (lorder),

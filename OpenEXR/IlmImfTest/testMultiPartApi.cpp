@@ -42,6 +42,7 @@
 #include "tmpDir.h"
 #include "testMultiPartApi.h"
 
+#include <ImfPartType.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfMultiPartOutputFile.h>
 #include <ImfOutputFile.h>
@@ -154,10 +155,10 @@ void generateRandomHeaders(int partCount, vector<Header>& headers, vector<Task>&
         switch (partType)
         {
             case 0:
-                header.setType("scanlineimage");
+                header.setType(SCANLINEIMAGE);
                 break;
             case 1:
-                header.setType("tiledimage");
+                header.setType(TILEDIMAGE);
                 break;
         }
 

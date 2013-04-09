@@ -1,3 +1,6 @@
-Version 1.0:
+Version 2.0.0
+	* Bumped version to track OpenEXR
+	  (Piotr Stanczyk)
 
-        * first official release.
+Version 1.0:
+	* first official release.

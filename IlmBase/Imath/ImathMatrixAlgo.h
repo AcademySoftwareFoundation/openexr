@@ -39,8 +39,7 @@
 //-------------------------------------------------------------------------
 //
 //  This file contains algorithms applied to or in conjunction with
-//  transformation matrices (IMATH_INTERNAL_NAMESPACE::Matrix33 and 
-//  IMATH_INTERNAL_NAMESPACE::Matrix44).
+//  transformation matrices (Imath::Matrix33 and Imath::Matrix44).
 //  The assumption made is that these functions are called much less
 //  often than the basic point functions or these functions require
 //  more support classes.
@@ -83,7 +82,7 @@ IMATH_EXPORT_CONST M44d identity44d;
 //   that determines the functions' behavior when the matrix'
 //   scaling is very close to zero:
 //
-//   If exc is true, the functions throw an IMATH_INTERNAL_NAMESPACE::ZeroScale exception.
+//   If exc is true, the functions throw an Imath::ZeroScale exception.
 //
 //   If exc is false:
 //
@@ -1282,19 +1281,19 @@ extractSHRT (const Matrix33<T> &mat,
 template <class T> 
 bool		
 checkForZeroScaleInRow (const T& scl, 
-			const Vec2<T> &row,
-			bool exc /* = true */ )
+                        const Vec2<T> &row,
+                        bool exc /* = true */ )
 {
     for (int i = 0; i < 2; i++)
     {
-	if ((abs (scl) < 1 && abs (row[i]) >= limits<T>::max() * abs (scl)))
-	{
-	    if (exc)
-		throw IMATH_INTERNAL_NAMESPACE::ZeroScaleExc ("Cannot remove zero scaling "
-					   "from matrix.");
-	    else
-		return false;
-	}
+        if ((abs (scl) < 1 && abs (row[i]) >= limits<T>::max() * abs (scl)))
+        {
+            if (exc)
+                throw IMATH_INTERNAL_NAMESPACE::ZeroScaleExc (
+                        "Cannot remove zero scaling from matrix.");
+            else
+                return false;
+        }
     }
 
     return true;

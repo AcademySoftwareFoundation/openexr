@@ -282,7 +282,4 @@ Array2D<T>::resizeEraseUnsafe (long sizeX, long sizeY)
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-
-
-
 #endif

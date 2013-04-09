@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <tmpDir.h>
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
@@ -41,6 +40,8 @@
 #include <fstream>
 #include <stdio.h>
 #include <assert.h>
+
+#include "tmpDir.h"
 
 #ifndef ILM_IMF_TEST_IMAGEDIR
     #define ILM_IMF_TEST_IMAGEDIR

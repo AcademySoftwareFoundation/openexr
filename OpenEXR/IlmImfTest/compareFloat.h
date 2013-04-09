@@ -35,9 +35,8 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////
-#include <OpenEXRConfig.h>
-
-#include <ImfCompression.h>
+#include "ImfNamespace.h"
+#include "ImfCompression.h"
 
 bool equivalent (float f1, float f2, OPENEXR_IMF_NAMESPACE::Compression comp);
 

@@ -74,6 +74,11 @@
 #include <sys/times.h>
 #endif // WIN32
 
+#ifndef ILM_IMF_TEST_IMAGEDIR
+    #define ILM_IMF_TEST_IMAGEDIR
+#endif
+
+
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;
@@ -285,10 +290,12 @@ diffScanlineImages ()
     // Planar Images
     generateScanlinePlanarImage (planarScanlineName);
     diffImageFiles (planarScanlineName, ILM_IMF_TEST_IMAGEDIR "v1.7.test.planar.exr");
+    remove(planarScanlineName);
 
     // Interleaved Images
     generateScanlineInterleavedImage (interleavedScanlineName);
     diffImageFiles (interleavedScanlineName, ILM_IMF_TEST_IMAGEDIR "v1.7.test.interleaved.exr");
+    remove(interleavedScanlineName);
 }
 
 
@@ -339,6 +346,7 @@ diffTiledImages ()
     // Planar Images
     generateTiledImage (tiledName);
     diffImageFiles (tiledName, ILM_IMF_TEST_IMAGEDIR "v1.7.test.tiled.exr");
+    remove(tiledName);
 }
 
 

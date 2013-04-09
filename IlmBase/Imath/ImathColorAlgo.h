@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -55,7 +55,6 @@ IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 IMATH_EXPORT Vec3<double>	hsv2rgb_d(const Vec3<double> &hsv);
 
 IMATH_EXPORT Color4<double>	hsv2rgb_d(const Color4<double> &hsv);
-
 
 IMATH_EXPORT Vec3<double>	rgb2hsv_d(const Vec3<double> &rgb);
 

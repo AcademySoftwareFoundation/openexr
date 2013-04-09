@@ -48,3 +48,13 @@
 
 #undef OPENEXR_VERSION_STRING
 #undef OPENEXR_PACKAGE_STRING
+
+#undef OPENEXR_VERSION_MAJOR
+#undef OPENEXR_VERSION_MINOR
+#undef OPENEXR_VERSION_PATCH
+
+// Version as a single hex number, e.g. 0x01000300 == 1.0.3
+#define OPENEXR_VERSION_HEX ((OPENEXR_VERSION_MAJOR << 24) | \
+                             (OPENEXR_VERSION_MINOR << 16) | \
+                             (OPENEXR_VERSION_PATCH <<  8))
+

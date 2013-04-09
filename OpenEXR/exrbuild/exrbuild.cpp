@@ -34,6 +34,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+#include <ImfPartType.h>
 #include <ImfMultiPartOutputFile.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfStringAttribute.h>
@@ -493,13 +494,13 @@ int main(int argc,char * argv[])
 	  //for every type of data 
     Header header = headers[p];
     std::string type = header.type();
-    if(type=="scanlineimage")
+    if(type==SCANLINEIMAGE)
     {
       copy_scanlineimage(*inputs[p],out,partnums[p],p,views[p]);
-    }else if(type=="tiledimage")
+    }else if(type==TILEDIMAGE)
     {
       copy_tiledimage(*inputs[p],out,partnums[p],p,views[p]);
-    }else if(type=="deepscanline")
+    }else if(type==DEEPSCANLINE)
     {
       copy_scanlinedeep(*inputs[p],out,partnums[p],p);
     }

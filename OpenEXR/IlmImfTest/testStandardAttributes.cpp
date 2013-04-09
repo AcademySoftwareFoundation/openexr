@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <tmpDir.h>
 
 #include <ImfRgbaFile.h>
 #include <ImfStandardAttributes.h>
@@ -44,6 +43,8 @@
 #include <iomanip>
 #include <stdio.h>
 #include <assert.h>
+
+#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;

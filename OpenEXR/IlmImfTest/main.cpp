@@ -33,7 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <OpenEXRConfig.h>
+#include "ImfNamespace.h"
 
 #include "testXdr.h"
 #include "testMagic.h"
@@ -71,6 +71,7 @@
 #include "testMultiTiledPartThreading.h"
 #include "testDeepScanLineBasic.h"
 #include "testCopyDeepScanLine.h"
+#include "testDeepScanLineMultipleRead.h"
 #include "testDeepScanLineHuge.h"
 #include "testDeepTiledBasic.h"
 #include "testCopyDeepTiled.h"
@@ -79,6 +80,11 @@
 #include "testInputPart.h"
 #include "testBackwardCompatibility.h"
 #include "testCopyMultiPartFile.h"
+#include "testPartHelper.h"
+#include "testOptimized.h"
+#include "testFutureProofing.h"
+
+
 #include <stdlib.h>
 #include <iostream>
 #include <string.h>
@@ -119,6 +125,7 @@ main (int argc, char *argv[])
     TEST (testScanLineApi,"basic");
     TEST (testExistingStreams,"core");
     TEST (testStandardAttributes,"core");
+    TEST (testOptimized,"basic");
     TEST (testYca,"basic");
     TEST (testTiledYa,"basic");
     TEST (testNativeFormat,"basic");
@@ -126,11 +133,13 @@ main (int argc, char *argv[])
     TEST (testIsComplete,"basic");
     TEST (testDeepScanLineBasic,"deep");
     TEST (testCopyDeepScanLine,"deep");
+    TEST (testDeepScanLineMultipleRead,"deep");
     TEST (testDeepTiledBasic,"deep");
     TEST (testCopyDeepTiled,"deep");
     TEST (testCompositeDeepScanLine,"deep");
     TEST (testMultiPartFileMixingBasic,"multi");
     TEST (testInputPart,"multi");
+    TEST (testPartHelper,"multi");
     TEST (testMultiScanlinePartThreading,"multi");
     TEST (testMultiTiledPartThreading,"multi");
     TEST (testMultiPartThreading,"multi");
@@ -138,6 +147,7 @@ main (int argc, char *argv[])
     TEST (testMultiPartSharedAttributes,"multi");
     TEST (testCopyMultiPartFile,"multi");
     TEST (testBackwardCompatibility, "core");
+    TEST (testFutureProofing,"core");
        
 #ifdef ENABLE_IMFHUGETEST // defined via configure with --enable-imfhugetest=yes
     TEST (testDeepScanLineHuge,"deep");
