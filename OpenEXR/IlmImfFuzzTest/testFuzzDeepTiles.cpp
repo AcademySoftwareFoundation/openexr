@@ -54,14 +54,14 @@
 
 
 // Handle the case when the custom namespace is not exposed
-#include <OpenEXRConfig.h>
+#include <ImfNamespace.h>
 #include <ImfChannelList.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfMultiPartOutputFile.h>
 #include <ImfDeepTiledOutputPart.h>
 #include <ImfDeepTiledInputPart.h>
 
-using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
@@ -161,7 +161,7 @@ void generateRandomFile(const char filename[], int channelCount, int parts , Com
         int pointerSize = sizeof (char *);
         
         frameBuffer.insert (str,
-                            DeepSlice (Imf::FLOAT,
+                            DeepSlice (OPENEXR_IMF_NAMESPACE::FLOAT,
                                        (char *) (&data[i][0][0] - memOffset),
                                        pointerSize * 1,
                                        pointerSize * width,
@@ -278,7 +278,7 @@ void readFile(const char filename[])
              int pointerSize = sizeof (char *);
              
              frameBuffer.insert (str,
-                                 DeepSlice (Imf::FLOAT,
+                                 DeepSlice (OPENEXR_IMF_NAMESPACE::FLOAT,
                                             (char *) (&data[i][0][0] - memOffset),
                                             pointerSize * 1,
                                             pointerSize * width,
@@ -391,7 +391,7 @@ void readFile(const char filename[])
                 int pointerSize = sizeof (char *);
                 
                 frameBuffer.insert (str,
-                                    DeepSlice (Imf::FLOAT,
+                                    DeepSlice (OPENEXR_IMF_NAMESPACE::FLOAT,
                                                (char *) (&data[i][0][0] - memOffset),
                                                pointerSize * 1,
                                                pointerSize * width,
