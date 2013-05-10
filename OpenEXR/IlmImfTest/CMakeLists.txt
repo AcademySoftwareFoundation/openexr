@@ -19,6 +19,7 @@ ADD_EXECUTABLE ( IlmImfTest
   testCustomAttributes.cpp
   testDeepScanLineBasic.cpp
   testDeepScanLineHuge.cpp
+  testDeepScanLineMultipleRead.cpp
   testDeepTiledBasic.cpp
   testExistingStreams.cpp
   testHuf.cpp
@@ -35,6 +36,8 @@ ADD_EXECUTABLE ( IlmImfTest
   testMultiTiledPartThreading.cpp
   testMultiView.cpp
   testNativeFormat.cpp
+  testOptimized.cpp
+  testPartHelper.cpp
   testPreviewImage.cpp
   testRgba.cpp
   testRgbaThreading.cpp

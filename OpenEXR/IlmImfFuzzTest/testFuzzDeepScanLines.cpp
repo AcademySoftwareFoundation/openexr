@@ -97,7 +97,7 @@ void generateRandomFile(const char filename[], int channelCount,int parts , Comp
         stringstream ss;
         ss << i;
         string str = ss.str();
-        headers[0].channels().insert(str, Channel(FLOAT));
+        headers[0].channels().insert(str, Channel(OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT));
     }
                         
      headers[0].setType(DEEPSCANLINE);
@@ -126,7 +126,7 @@ void generateRandomFile(const char filename[], int channelCount,int parts , Comp
 
      DeepFrameBuffer frameBuffer;
          
-     frameBuffer.insertSampleCountSlice (Slice (UINT,                    // type // 7
+     frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_INTERNAL_NAMESPACE::UINT,                    // type // 7
                                                 (char *) (&sampleCount[0][0]
                                                 - dataWindow.min.x
                                                 - dataWindow.min.y * width),               // base // 8
@@ -135,7 +135,7 @@ void generateRandomFile(const char filename[], int channelCount,int parts , Comp
      
      for (int i = 0; i < channelCount; i++)
      {
-         PixelType type=FLOAT;
+         PixelType type=OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT;
          stringstream ss;
          ss << i;
          string str = ss.str();
@@ -208,7 +208,7 @@ void readFile(const char filename[])
         
         DeepFrameBuffer frameBuffer;
         
-        frameBuffer.insertSampleCountSlice (Slice (UINT,                    // type // 7
+        frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_INTERNAL_NAMESPACE::UINT,                    // type // 7
                                                    (char *) (&localSampleCount[0][0]
                                                    - dataWindow.min.x
                                                    - dataWindow.min.y * width),               // base // 8)
@@ -220,7 +220,7 @@ void readFile(const char filename[])
         
         for (int i = 0; i < channelCount; i++)
         {
-            PixelType type = FLOAT;
+            PixelType type = OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT;
             
             stringstream ss;
             ss << i;
@@ -301,7 +301,7 @@ void readFile(const char filename[])
             
             DeepFrameBuffer frameBuffer;
             
-            frameBuffer.insertSampleCountSlice (Slice (UINT,                    // type // 7
+            frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_INTERNAL_NAMESPACE::UINT,                    // type // 7
                                                        (char *) (&localSampleCount[0][0]
                                                        - dataWindow.min.x
                                                        - dataWindow.min.y * width),               // base // 8)
@@ -313,7 +313,7 @@ void readFile(const char filename[])
         
             for (int i = 0; i < channelCount; i++)
             {
-                PixelType type = FLOAT;
+                PixelType type = OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT;
                 
                 stringstream ss;
                 ss << i;
