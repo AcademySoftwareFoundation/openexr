@@ -22,6 +22,7 @@ ADD_EXECUTABLE ( IlmImfTest
   testDeepScanLineMultipleRead.cpp
   testDeepTiledBasic.cpp
   testExistingStreams.cpp
+  testFutureProofing.cpp
   testHuf.cpp
   testInputPart.cpp
   testIsComplete.cpp
