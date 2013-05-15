@@ -255,6 +255,7 @@ INSTALL ( FILES
   ImfDeepFrameBuffer.h
   ImfDeepCompositing.h
   ImfCompositeDeepScanLine.h
+  ImfNamespace.h
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
   )
