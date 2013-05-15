@@ -952,7 +952,7 @@ LineBufferTaskIIF::execute()
                 
                 if(_ifd->optimizationData[3].fill)
                 {
-                    optimizedWriteToRGBAFillA(readPointers[0], readPointers[1], readPointers[2], _ifd->optimizationData[3].fillValue , writePtrRight, pixelsToCopySSE, pixelsToCopyNormal);
+                    optimizedWriteToRGBAFillA(readPointers[0], readPointers[1], readPointers[2], _ifd->optimizationData[3].fillValue.bits() , writePtrRight, pixelsToCopySSE, pixelsToCopyNormal);
                 }else{
                     optimizedWriteToRGBA(readPointers[0], readPointers[1], readPointers[2], readPointers[3] , writePtrRight, pixelsToCopySSE, pixelsToCopyNormal);
                 }
@@ -962,7 +962,7 @@ LineBufferTaskIIF::execute()
                 {
                     if(_ifd->optimizationData[7].fill)
                     {
-                        optimizedWriteToRGBAFillA(readPointers[4], readPointers[5], readPointers[6], _ifd->optimizationData[7].fillValue , writePtrLeft, pixelsToCopySSE, pixelsToCopyNormal);
+                        optimizedWriteToRGBAFillA(readPointers[4], readPointers[5], readPointers[6], _ifd->optimizationData[7].fillValue.bits() , writePtrLeft, pixelsToCopySSE, pixelsToCopyNormal);
                     }else{
                         optimizedWriteToRGBA(readPointers[4], readPointers[5], readPointers[6], readPointers[7] , writePtrLeft, pixelsToCopySSE, pixelsToCopyNormal);
                     }
