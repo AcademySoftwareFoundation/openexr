@@ -1285,7 +1285,7 @@ Imf::OptimizationMode detectOptimizationMode(const vector<sliceOptimizationData>
             }
         }
         
-        // cannot have gaps in the channel layout, so the stride must be (number of channels written)*2
+        // cannot have gaps in the channel layout, so the stride must be (number of channels written in the bank)*2
         if(data.xStride !=bankSize*2)
         {
 //            std::cerr << " noopt: don't support non-interleaved channel access\n";
@@ -1304,16 +1304,7 @@ Imf::OptimizationMode detectOptimizationMode(const vector<sliceOptimizationData>
         }
         if(i!=0)
         {
-            if(data.xSampling!=optData[i-1].xSampling)
-            {
-//                std::cerr << " noopt: don't support inconsistent xSampling\n";                
-                return w;
-            }
-            if(data.ySampling!=optData[i-1].ySampling)
-            {
-//                std::cerr << " noopt: don't support inconsistent ySampling\n";                
-                return w;
-            }
+            
             if(data.yStride!=optData[i-1].yStride)
             {
 //                std::cerr << " noopt: don't support inconsistent yStride\n";                
@@ -1457,6 +1448,11 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
           {
               optimizationPossible = false;
           }
+          if(j.slice().xSampling!=1 || j.slice().ySampling!=1)
+          {
+              optimizationPossible = false;
+          }
+
           
           if(optimizationPossible)
           {
@@ -1503,8 +1499,10 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
        //
        sort(optData.begin(),optData.end());
        _data->optimizationMode = detectOptimizationMode(optData);
-
-   }else{
+   }
+   
+   if(!optimizationPossible || _data->optimizationMode._optimizable==false)
+   {   
        optData = vector<sliceOptimizationData>();
        _data->optimizationMode._optimizable=false;
    }

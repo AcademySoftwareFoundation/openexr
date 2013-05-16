@@ -82,6 +82,7 @@
 #include "testCopyMultiPartFile.h"
 #include "testPartHelper.h"
 #include "testOptimized.h"
+#include "testOptimizedInterleavePatterns.h"
 #include "testFutureProofing.h"
 
 
@@ -126,6 +127,7 @@ main (int argc, char *argv[])
     TEST (testExistingStreams,"core");
     TEST (testStandardAttributes,"core");
     TEST (testOptimized,"basic");
+    TEST (testOptimizedInterleavePatterns,"basic");
     TEST (testYca,"basic");
     TEST (testTiledYa,"basic");
     TEST (testNativeFormat,"basic");
@@ -165,7 +167,10 @@ main (int argc, char *argv[])
     std::stringstream ss;
     ss << "ls -lG /proc/" << getpid() << "/fd";
 
-    system (ss.str().c_str());
+    if(system (ss.str().c_str())==-1)
+    {
+        std::cout << "failed to run ls\n";
+    }
 
     std::cout << std::endl;
 
