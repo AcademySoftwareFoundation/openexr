@@ -55,8 +55,6 @@ using namespace ILMTHREAD_NAMESPACE;
 namespace
 {
  
-const int height = 128;
-const int width = 128;
 const char filename[] = IMF_TMP_DIR "imf_test_interleave_patterns.exr";
 
 
@@ -65,7 +63,6 @@ vector<char> readingBuffer; // buffer containing new image (and filled channels?
 vector<char> preReadBuffer; // buffer as it was before reading - unread, unfilled channels should be unchanged
 
 int gOptimisedReads = 0;
-int gNonOptimisedReads = 0;
 int gSuccesses = 0;
 int gFailures = 0;
 
@@ -357,6 +354,8 @@ ChannelList setupBuffer(const Header& hdr,       // header to grab datawindow fr
     int bytes_per_row = bytes_per_pixel*(dw.max.x+1-dw.min.x);
     int bytes_per_bank_row = bytes_per_row/banks;
     
+    int first_pixel_index = bytes_per_row*dw.min.y+bytes_per_bank*dw.min.x;
+    
     for (int i=0;i<chans;i++)
     {
         PixelType type = pt==NULL ? HALF : pt[i];
@@ -373,7 +372,7 @@ ChannelList setupBuffer(const Header& hdr,       // header to grab datawindow fr
             //
 
             int bank = i / (chans/banks);
-            offset = (writing ? &writingBuffer[0] : &readingBuffer[0]) + bank*bytes_per_bank_row;
+            offset = (writing ? &writingBuffer[0] : &readingBuffer[0]) + bank*bytes_per_bank_row - first_pixel_index;
         }
         
         if(i<activechans)
@@ -417,9 +416,31 @@ ChannelList setupBuffer(const Header& hdr,       // header to grab datawindow fr
 
 
 
-Box2i writefile(Schema & scheme,FrameBuffer& buf)
+Box2i writefile(Schema & scheme,FrameBuffer& buf,bool tiny)
 {
+    const int height = 128;
+    const int width = 128;
+
     Header hdr(width,height,1);
+    
+    
+    //min values in range (-100,100)
+    hdr.dataWindow().min.x = int(200.0*double(rand())/double(RAND_MAX)-100.0);
+    hdr.dataWindow().min.y = int(200.0*double(rand())/double(RAND_MAX)-100.0);
+    
+    
+    // in tiny mode, make image up to 14*14 pixels (less than two SSE instructions)
+    if(tiny)
+    {
+        hdr.dataWindow().max.x = hdr.dataWindow().min.x + 1+int(13*double(rand())/double(RAND_MAX));
+        hdr.dataWindow().max.y = hdr.dataWindow().min.y + 1+int(13*double(rand())/double(RAND_MAX));
+    }else{
+        // in normal mode, make chunky images
+        hdr.dataWindow().max.x = hdr.dataWindow().min.x + 64+int(400*double(rand())/double(RAND_MAX));
+        hdr.dataWindow().max.y = hdr.dataWindow().min.y + 64+int(400*double(rand())/double(RAND_MAX));
+        
+    }
+    
     hdr.compression()=ZIPS_COMPRESSION;
     
     FrameBuffer dummy1,dummy2;
@@ -434,12 +455,15 @@ Box2i writefile(Schema & scheme,FrameBuffer& buf)
     remove(filename);
     OutputFile f(filename,hdr);
     f.setFrameBuffer(buf);
-    f.writePixels(height);
+    f.writePixels(hdr.dataWindow().max.y-hdr.dataWindow().min.y+1);
 
     return hdr.dataWindow();
 }
 
-bool readfile(Schema scheme,FrameBuffer & buf,FrameBuffer & preread,FrameBuffer & postread)
+bool readfile(Schema scheme,
+              FrameBuffer & buf, ///< list of channels to read: index to readingBuffer
+              FrameBuffer & preread,///< list of channels to skip: index to preReadBuffer
+              FrameBuffer & postread)///< list of channels to skip: index to readingBuffer)
 {
     InputFile infile(filename);
     setupBuffer(infile.header(),scheme._active,scheme._passive,  scheme._types,buf,preread,postread,scheme._banks,false);
@@ -450,14 +474,14 @@ bool readfile(Schema scheme,FrameBuffer & buf,FrameBuffer & preread,FrameBuffer 
     return infile.isOptimizationEnabled();
 }
 
-void test(Schema writeScheme,Schema readScheme,bool nonfatal)
+void test(Schema writeScheme,Schema readScheme,bool nonfatal,bool tiny)
 {
     ostringstream q;
     q << writeScheme._name << " read as " << readScheme._name << "...";
     cout << left << setw(53) << q.str();
 
     FrameBuffer writeFrameBuf;
-    Box2i dw = writefile(writeScheme,writeFrameBuf);
+    Box2i dw = writefile(writeScheme,writeFrameBuf,tiny);
     FrameBuffer readFrameBuf;
     FrameBuffer preReadFrameBuf;
     FrameBuffer postReadFrameBuf;
@@ -472,8 +496,6 @@ void test(Schema writeScheme,Schema readScheme,bool nonfatal)
         {
             cout << "OPTIMISED ";
             gOptimisedReads++;
-        }else{
-            gNonOptimisedReads++;
         }
         cout << "\n";
         gSuccesses++;
@@ -552,11 +574,17 @@ bool crashes(int i,int j)
 }
 
 
-void runtests(bool nonfatal)
+void runtests(bool nonfatal,bool tiny)
 {
-    
+    srand(1);
     int i=0;
     int skipped=0;
+    
+    gFailures=0;
+    gSuccesses=0;
+    gOptimisedReads=0;
+    
+    
     while(Schemes[i]._name!=NULL)
     {
         int j=0;
@@ -569,7 +597,7 @@ void runtests(bool nonfatal)
                cout << " skipping " << Schemes[i]._name << ',' << Schemes[j]._name << ": known to crash\n";
                skipped++;
            }else{
-               test(Schemes[i],Schemes[j],nonfatal);
+               test(Schemes[i],Schemes[j],nonfatal,tiny);
            }
             j++;
         }
@@ -593,8 +621,10 @@ void runtests(bool nonfatal)
 
 void testOptimizedInterleavePatterns()
 {
-      cout << "Testing SSE optimisation with different interleave patterns ... " << endl;
-      runtests(false);
+      cout << "Testing SSE optimisation with different interleave patterns (large images) ... " << endl;
+      runtests(false,false);      
+      cout << "Testing SSE optimisation with different interleave patterns (tiny images) ... " << endl;
+      runtests(false,true);
       cout << "ok\n" << endl;
 }
 
