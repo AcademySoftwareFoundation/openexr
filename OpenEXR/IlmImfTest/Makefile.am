@@ -43,6 +43,7 @@ IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
                      testDeepScanLineMultipleRead.h testDeepScanLineMultipleRead.cpp  \
 		     testPartHelper.h testPartHelper.cpp \
 		     testOptimized.cpp testOptimized.h \
+		     testBadTypeAttributes.cpp testBadTypeAttributes.h \
 		     testFutureProofing.cpp testFutureProofing.h
 
 AM_CPPFLAGS = -DILM_IMF_TEST_IMAGEDIR=\"$(srcdir)/\"
@@ -70,4 +71,7 @@ EXTRA_DIST = comp_none.exr comp_piz.exr comp_rle.exr comp_zip.exr \
 	     tiled.exr comp_b44.exr comp_b44_piz.exr \
              v1.7.test.planar.exr  v1.7.test.tiled.exr v1.7.test.1.exr v1.7.test.interleaved.exr \
              invalid_shared_attrs_multipart.exr \
+	     tiled_with_scanlineimage_type.exr scanline_with_tiledimage_type.exr \
+	     tiled_with_deepscanline_type.exr tiled_with_deeptiled_type.exr \
+	     scanline_with_deepscanline_type.exr scanline_with_deeptiled_type.exr \
              CMakeLists.txt
