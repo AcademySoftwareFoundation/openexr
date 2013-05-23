@@ -180,6 +180,7 @@ LineBuffer::~LineBuffer ()
 }
 
 /// helper struct used to detect the order that the channels are stored
+
 struct sliceOptimizationData
 {
     const char * base;   ///< pointer to pixel data 
@@ -188,7 +189,7 @@ struct sliceOptimizationData
     size_t offset;       ///< position this channel will be in the read buffer, accounting for previous channels, as well as their type
     PixelType type;      ///< type of channel
     size_t xStride;      ///< x-stride of channel in buffer (must be set to cause channels to interleave)
-    size_t yStride;      ///< y-stride of channel in buffer (must be same in all chanenls, else order will change, which is bad)
+    size_t yStride;      ///< y-stride of channel in buffer (must be same in all channels, else order will change, which is bad)
     int xSampling;       ///< channel x sampling
     int ySampling;       ///< channel y sampling
             
@@ -1247,6 +1248,15 @@ ScanLineInputFile::version () const
 
 namespace
 {
+    
+    
+// returns the optimization state for the given arrangement of frame bufers
+// this assumes:
+//   both the file and framebuffer are half float data
+//   both the file and framebuffer have xSampling and ySampling=1
+//   entries in optData are sorted into their interleave order (i.e. by base address)
+//   These tests are done by SetFrameBuffer as it is building optData
+//  
 Imf::OptimizationMode detectOptimizationMode(const vector<sliceOptimizationData>& optData)
 {
     OptimizationMode w;
@@ -1361,7 +1371,7 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
     }
     
     // TODO-pk this disables optimization
-    //optimizationPossible =  false;
+    // optimizationPossible =  false;
 
     vector<sliceOptimizationData> optData;
     
