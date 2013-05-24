@@ -1066,7 +1066,7 @@ DeepTiledOutputFile::DeepTiledOutputFile
         _data->_streamData->currentPosition = _data->_streamData->os->tellp();
 
         // Write header and empty offset table to the file.
-        writeMagicNumberAndVersionField(*_data->_streamData->os, header);
+        writeMagicNumberAndVersionField(*_data->_streamData->os, _data->header);
         _data->previewPosition = _data->header.writeTo (*_data->_streamData->os, true);
         _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_data->_streamData->os);
 	_data->multipart = false;
@@ -1171,9 +1171,6 @@ void
 DeepTiledOutputFile::initialize (const Header &header)
 {
     _data->header = header;
-    if (_data->header.hasType() && _data->header.type() != DEEPTILE)
-        throw IEX_NAMESPACE::ArgExc("The type data in the header for DeepTiledOutputFile "
-                          "can only be " + DEEPTILE + ".");
     _data->header.setType(DEEPTILE);
     _data->lineOrder = _data->header.lineOrder();
 
