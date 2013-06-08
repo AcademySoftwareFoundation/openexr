@@ -533,7 +533,7 @@ CompositeDeepScanLine::readPixels(int start, int end)
           {
               for(size_t part=0;part<parts;part++)
               {
-                      pointers[part][channel][pixel]=(offset < overall_sample_count ? &samples[channel][offset] : NULL);
+                      pointers[part][channel][pixel]=(offset < samples[channel].size() ? &samples[channel][offset] : NULL);
                       offset+=counts[part][pixel];
               }
           }
