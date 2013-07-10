@@ -25,25 +25,28 @@ IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
 		     testTiledRgba.h compareFloat.h compareFloat.cpp \
 		     testTiledYa.cpp testTiledYa.h \
 		     testYca.cpp testYca.h compareB44.h compareB44.cpp \
-                     testMultiView.cpp testMultiView.h \
+		     testMultiView.cpp testMultiView.h \
 		     testIsComplete.cpp testIsComplete.h \
 		     testMultiPartApi.cpp testMultiPartApi.h \
 		     testMultiPartThreading.cpp testMultiPartThreading.h \
 		     testMultiScanlinePartThreading.cpp testMultiScanlinePartThreading.h \
 		     testMultiTiledPartThreading.cpp testMultiTiledPartThreading.h \
-                     testDeepScanLineBasic.cpp testDeepScanLineBasic.h \
-                     testDeepTiledBasic.cpp testDeepTiledBasic.h \
+		     testDeepScanLineBasic.cpp testDeepScanLineBasic.h \
+		     testDeepTiledBasic.cpp testDeepTiledBasic.h \
 		     testMultiPartFileMixingBasic.cpp testMultiPartFileMixingBasic.h \
 		     testMultiPartSharedAttributes.cpp testMultiPartSharedAttributes.h \
 		     testBackwardCompatibility.cpp testBackwardCompatibility.h \
-                     testCopyDeepScanLine.cpp testCopyDeepScanLine.h testCopyDeepTiled.h \
-                     testCopyDeepTiled.cpp testCopyMultiPartFile.h testCopyMultiPartFile.cpp \
-                     testCompositeDeepScanLine.h testCompositeDeepScanLine.cpp \
-                     testInputPart.cpp testInputPart.h \
-                     testDeepScanLineMultipleRead.h testDeepScanLineMultipleRead.cpp  \
+		     testCopyDeepScanLine.cpp testCopyDeepScanLine.h \
+		     testCopyDeepTiled.cpp testCopyDeepTiled.h \
+		     testCopyMultiPartFile.h testCopyMultiPartFile.cpp \
+		     testCompositeDeepScanLine.h testCompositeDeepScanLine.cpp \
+		     testInputPart.cpp testInputPart.h \
+		     testDeepScanLineMultipleRead.h testDeepScanLineMultipleRead.cpp  \
 		     testPartHelper.h testPartHelper.cpp \
 		     testOptimized.cpp testOptimized.h \
-		     testFutureProofing.cpp testFutureProofing.h
+		     testFutureProofing.cpp testFutureProofing.h \
+		     testOptimizedInterleavePatterns.cpp testOptimizedInterleavePatterns.h
+		     
 
 AM_CPPFLAGS = -DILM_IMF_TEST_IMAGEDIR=\"$(srcdir)/\"
 
