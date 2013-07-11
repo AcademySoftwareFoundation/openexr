@@ -151,7 +151,7 @@ testMultiPartOutputFileForExpectedFailure (const vector<Header> & headers,
     try
     {
         remove(filename);
-        MultiPartOutputFile file(filename, &headers[0],headers.size());
+        MultiPartOutputFile file( filename, headers.size()>0 ? &headers[0] : NULL , headers.size()) ;
         cerr << "ERROR -- " << failMessage << endl;
         assert (false);
     }

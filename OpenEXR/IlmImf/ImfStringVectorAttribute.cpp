@@ -86,7 +86,11 @@ StringVectorAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &i
        std::string str;
        str.resize (strSize);
   
-       Xdr::read<StreamIO> (is, &str[0], strSize);
+       if( strSize>0 )
+       {
+           Xdr::read<StreamIO> (is, &str[0], strSize);
+       }
+       
        read += strSize;
 
        _value.push_back (str);
