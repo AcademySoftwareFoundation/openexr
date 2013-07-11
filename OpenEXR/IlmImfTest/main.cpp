@@ -83,6 +83,7 @@
 #include "testPartHelper.h"
 #include "testOptimized.h"
 #include "testOptimizedInterleavePatterns.h"
+#include "testBadTypeAttributes.h"
 #include "testFutureProofing.h"
 
 
@@ -147,6 +148,7 @@ main (int argc, char *argv[])
     TEST (testMultiPartFileMixingBasic,"multi");
     TEST (testInputPart,"multi");
     TEST (testPartHelper,"multi");
+    TEST (testBadTypeAttributes,"multi");
     TEST (testMultiScanlinePartThreading,"multi");
     TEST (testMultiTiledPartThreading,"multi");
     TEST (testMultiPartThreading,"multi");
