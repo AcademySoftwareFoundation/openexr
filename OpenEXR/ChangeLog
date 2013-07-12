@@ -1,3 +1,15 @@
+Version 2.0.1
+	* Temporarily turning off optimisation code path
+	  (Piotr Stanczyk)
+	* Added additional tests for future optimisation refactoring
+	  (Piotr Stanczyk / Peter Hillman)
+	* Fixes for StringVectors
+	  (Peter Hillman)
+	* Additional checks for type mismatches
+	  (Peter Hillman)
+	* Fix for Composite Deep Scanline
+	  (Brendan Bolles)
+
 Version 2.0.0
 	* Updated Documentation
 	   (Peter Hillman)

@@ -349,6 +349,21 @@ MultiPartInputFile::initialize()
           
             _data->_headers[i].setType(tiled ? TILEDIMAGE : SCANLINEIMAGE);
         }
+        else{
+            
+            //
+            // Silently fix the header type if it's wrong
+            // (happens when a regular Image file written by EXR_2.0 is rewritten by an older library,
+            //  so doesn't effect deep image types)
+            //
+
+            if(!multipart && !isNonImage(_data->version))
+            {
+                _data->_headers[i].setType(tiled ? TILEDIMAGE : SCANLINEIMAGE);
+            }
+        }
+         
+
         
         if( _data->_headers[i].hasName() == false )
         {
