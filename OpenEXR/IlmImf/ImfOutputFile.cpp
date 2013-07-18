@@ -669,7 +669,7 @@ OutputFile::OutputFile
 	_data->_streamData->currentPosition = _data->_streamData->os->tellp();
         
 	// Write header and empty offset table to the file.
-	writeMagicNumberAndVersionField(*_data->_streamData->os, header);
+	writeMagicNumberAndVersionField(*_data->_streamData->os, _data->header);
 	_data->previewPosition =
 	        _data->header.writeTo (*_data->_streamData->os);
         _data->lineOffsetsPosition =
@@ -713,7 +713,7 @@ OutputFile::OutputFile
 	_data->_streamData->currentPosition = _data->_streamData->os->tellp();
 
 	// Write header and empty offset table to the file.
-	writeMagicNumberAndVersionField(*_data->_streamData->os, header);
+	writeMagicNumberAndVersionField(*_data->_streamData->os, _data->header);
 	_data->previewPosition =
 	        _data->header.writeTo (*_data->_streamData->os);
         _data->lineOffsetsPosition =
@@ -775,6 +775,13 @@ OutputFile::initialize (const Header &header)
 {
     _data->header = header;
 
+    // "fix" the type if it happens to be set incorrectly
+    // (attribute is optional, but ensure it is correct if it exists)
+    if(_data->header.hasType())
+    {
+        _data->header.setType(SCANLINEIMAGE);
+    }
+    
     const Box2i &dataWindow = header.dataWindow();
 
     _data->currentScanLine = (header.lineOrder() == INCREASING_Y)?

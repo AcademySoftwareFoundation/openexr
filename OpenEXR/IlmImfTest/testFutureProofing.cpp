@@ -42,6 +42,7 @@
 #include <assert.h>
 
 #include "tmpDir.h"
+#include "testFutureProofing.h"
 #include "testMultiPartFileMixingBasic.h"
 
 #include <IlmThreadPool.h>
@@ -59,6 +60,10 @@
 #include <ImfDeepScanLineInputPart.h>
 #include <ImfPartType.h>
 #include <ImfMisc.h>
+
+#include <ImfNamespace.h>
+#include <ImathNamespace.h>
+#include <IlmThreadNamespace.h>
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
