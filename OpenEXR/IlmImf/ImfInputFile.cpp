@@ -366,6 +366,15 @@ InputFile::InputFile (const char fileName[], int numThreads):
             _data->_streamData = new InputStreamMutex();
             _data->_streamData->is = is;
             _data->header.readFrom (*_data->_streamData->is, _data->version);
+            
+            // fix type attribute in single part regular image types
+            // (may be wrong if an old version of OpenEXR converts
+            // a tiled image to scanline or vice versa)
+            if(!isNonImage(_data->version) && !isMultiPart(_data->version) && _data->header.hasType())
+            {
+                _data->header.setType(isTiled(_data->version) ? TILEDIMAGE : SCANLINEIMAGE);
+            }
+            
             _data->header.sanityCheck (isTiled (_data->version));
 
             initialize();
@@ -423,6 +432,15 @@ InputFile::InputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThread
             _data->_streamData = new InputStreamMutex();
             _data->_streamData->is = &is;
             _data->header.readFrom (*_data->_streamData->is, _data->version);
+            
+            // fix type attribute in single part regular image types
+            // (may be wrong if an old version of OpenEXR converts
+            // a tiled image to scanline or vice versa)
+            if(!isNonImage(_data->version) && !isMultiPart(_data->version) && _data->header.hasType())
+            {
+                _data->header.setType(isTiled(_data->version) ? TILEDIMAGE : SCANLINEIMAGE);
+            }
+            
             _data->header.sanityCheck (isTiled (_data->version));
 
             initialize();
@@ -492,7 +510,6 @@ InputFile::initialize ()
 {
     if (!_data->part)
     {
-        
         if(_data->header.hasType() && _data->header.type()==DEEPSCANLINE)
         {
             _data->isTiled=false;

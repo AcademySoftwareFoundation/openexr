@@ -75,7 +75,7 @@
 // Open Source version of this file pulls in the IlmBaseConfig.h file
 // for the configure time options.
 //
-#include <OpenEXRConfig.h>
+#include "OpenEXRConfig.h"
 
 
 #ifndef OPENEXR_IMF_NAMESPACE

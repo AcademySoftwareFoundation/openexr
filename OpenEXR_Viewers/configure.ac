@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(OpenEXR_Viewers, 2.0.0)
-AC_SUBST(OPENEXR_VIEWERS_VERSION, 2.0.0)
+AC_INIT(OpenEXR_Viewers, 2.0.1)
+AC_SUBST(OPENEXR_VIEWERS_VERSION, 2.0.1)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(playexr/main.cpp)
 AM_CONFIG_HEADER(config/OpenEXR_ViewersConfig.h)
@@ -9,7 +9,7 @@ AM_MAINTAINER_MODE
 
 
 LIBTOOL_CURRENT=6
-LIBTOOL_REVISION=0
+LIBTOOL_REVISION=1
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
 AC_SUBST(LIBTOOL_VERSION)
@@ -107,7 +107,7 @@ AM_COMPILELINKRUN(
    [$OPENEXR_LIBS],[[
 #include <stdlib.h>
 #include <ImfTestFile.h>
-#include <OpenEXRConfig.h>
+#include <ImfNamespace.h>
 ]],
    [[OPENEXR_IMF_NAMESPACE::isOpenExrFile("notExist");]],
    AC_MSG_RESULT([Compiled and ran OpenEXR test program.]), 
@@ -126,7 +126,7 @@ AM_COMPILELINKRUN(
 #include <ImfHeader.h>
 #include <ImfFrameBuffer.h>
 #include <ImathBox.h>
-#include <OpenEXRConfig.h>
+#include <ImfNamespace.h>
 #include <vector>
 #include <cstdlib>
     using namespace Ctl;

@@ -54,15 +54,16 @@
 #include "IlmThreadSemaphore.h"
 #include "IlmThreadMutex.h"
 #include "Iex.h"
-#include <string>
-#include <vector>
-#include <assert.h>
 #include "ImfVersion.h"
 #include "ImfOptimizedPixelReading.h"
 #include "ImfNamespace.h"
 #include "ImfStandardAttributes.h"
 
 #include <algorithm>
+#include <string>
+#include <vector>
+#include <assert.h>
+#include <cstring>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -1370,9 +1371,6 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
         optimizationPossible =false;
     }
     
-    // TODO-pk this disables optimization
-    // optimizationPossible =  false;
-
     vector<sliceOptimizationData> optData;
     
 
