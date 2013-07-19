@@ -49,18 +49,18 @@
 
 void
 makeCubeMap (EnvmapImage &image,
-             CustomImf::Header &header,
-             CustomImf::RgbaChannels channels,
-	     const char outFileName[],
-	     int tileWidth,
-	     int tileHeight,
-	     CustomImf::LevelMode levelMode,
-	     CustomImf::LevelRoundingMode roundingMode,
-	     CustomImf::Compression compression,
-	     int mapWidth,
-	     float filterRadius,
-	     int numSamples,
-	     bool verbose);
+             IMF::Header &header,
+             IMF::RgbaChannels channels,
+             const char outFileName[],
+             int tileWidth,
+             int tileHeight,
+             IMF::LevelMode levelMode,
+             IMF::LevelRoundingMode roundingMode,
+             IMF::Compression compression,
+             int mapWidth,
+             float filterRadius,
+             int numSamples,
+             bool verbose);
 
 
 #endif
