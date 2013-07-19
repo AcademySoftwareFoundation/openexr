@@ -285,17 +285,20 @@ template<class T> class data{
         
         for(size_t p=0;p<output_pixels;p++)
         {
-            counts[p]=_samples[pixel].size();
-            for(size_t c=0 ; c<_channels.size() ; c++)
+            size_t count = _samples[pixel].size();
+            counts[p]=count;
+            if( count>0 )
             {
-                for(size_t s=0 ; s < _samples[pixel].size();s++)
+                for(size_t c=0 ; c<_channels.size() ; c++)
                 {
-                    sample_buffers[c][sample+s]=_samples[pixel][s][c];
+                    for(size_t s=0 ; s < count ; s++ )
+                    {
+                        sample_buffers[c][sample+s]=_samples[pixel][s][c];
+                    }
+                    sample_pointers[c][p]=&sample_buffers[c][sample];
                 }
-                sample_pointers[c][p]=&sample_buffers[c][sample];
+                sample+=count;
             }
-            sample+=_samples[pixel].size();
-            
             pixel++;
             if(pixel==_samples.size()) pixel=0;
         }

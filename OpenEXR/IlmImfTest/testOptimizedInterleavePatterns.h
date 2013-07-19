@@ -1,10 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
+// Copyright (c) 2013, Weta Digital Ltd
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +15,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
+// from this software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -32,55 +31,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef INCLUDED_ENVMAP_IMAGE_H
-#define INCLUDED_ENVMAP_IMAGE_H
-
-//-----------------------------------------------------------------------------
-//
-//        class EnvmapImage
-//
-//-----------------------------------------------------------------------------
-
-#include "namespaceAlias.h"
-
-#include <ImfArray.h>
-#include <ImfRgba.h>
-#include <ImfEnvmap.h>
-#include <ImathBox.h>
-
-
-
-class EnvmapImage
-{
-  public:
-
-      EnvmapImage ();
-      EnvmapImage (IMF::Envmap type, const IMATH::Box2i &dataWindow);
-      
-      void                      resize (IMF::Envmap type,
-                                        const IMATH::Box2i &dataWindow);
-
-      void                      clear ();
-
-      IMF::Envmap               type () const;
-      const IMATH::Box2i &      dataWindow () const;
-
-      IMF::Array2D<IMF::Rgba> & pixels ();
-      const IMF::Array2D<IMF::Rgba> &
-                                pixels () const;
-      
-      IMF::Rgba                 filteredLookup (IMATH::V3f direction,
-                                                float radius,
-                                                int numSamples) const;
-
-  private:
-      
-      IMF::Rgba                 sample (const IMATH::V2f &pos) const;
-
-      IMF::Envmap               _type;
-      IMATH::Box2i              _dataWindow;
-      IMF::Array2D<IMF::Rgba>   _pixels;
-};
-
-
+#ifndef _TEST_OPTIMIZED_INTERLEAVE_PATTERNS_
+#define _TEST_OPTIMIZED_INTERLEAVE_PATTERNS_
+void testOptimizedInterleavePatterns ();
 #endif

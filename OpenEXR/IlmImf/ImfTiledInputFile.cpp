@@ -886,10 +886,23 @@ TiledInputFile::multiPartInitialize(InputPartData* part)
 void
 TiledInputFile::initialize ()
 {
+    // fix bad types in header (arises when a tool built against an older version of
+    // OpenEXR converts a scanline image to tiled)
+    // only applies when file is a single part, regular image, tiled file
+    //
+    if(!isMultiPart(_data->version) &&
+       !isNonImage(_data->version) && 
+       isTiled(_data->version) && 
+       _data->header.hasType() )
+    {
+        _data->header.setType(TILEDIMAGE);
+    }
+    
     if (_data->partNumber == -1)
     {
         if (!isTiled (_data->version))
             throw IEX_NAMESPACE::ArgExc ("Expected a tiled file but the file is not tiled.");
+        
     }
     else
     {

@@ -175,7 +175,7 @@ static void read_file(const char * filename)
         // set pointers to point to the correct place
         //
         int total=0;
-        for(int i=0;i<width;i++)
+        for(int i=0 ; i<width && total < total_samples ; i++)
         {
             sample_pointers[i] = &samples[total];
             total+=samplecounts[i];

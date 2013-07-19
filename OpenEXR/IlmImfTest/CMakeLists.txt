@@ -54,6 +54,7 @@ ADD_EXECUTABLE ( IlmImfTest
   testWav.cpp
   testXdr.cpp
   testYca.cpp
+  testOptimizedInterleavePatterns.cpp
  )
 
 TARGET_LINK_LIBRARIES ( IlmImfTest IlmImf Iex Imath Half IlmThread ${ZLIB_LIBRARIES} ${PTHREAD_LIB})

@@ -41,6 +41,8 @@
 
 #include "blurImage.h"
 
+#include "namespaceAlias.h"
+
 #include <resizeImage.h>
 #include <cstring>
 #include "Iex.h"
@@ -48,10 +50,10 @@
 #include <algorithm>
 #include <string.h>
 
-#include <OpenEXRConfig.h>
-using namespace OPENEXR_IMF_NAMESPACE;
+
+using namespace IMF;
 using namespace std;
-using namespace IMATH_NAMESPACE;
+using namespace IMATH;
 
 
 inline int
