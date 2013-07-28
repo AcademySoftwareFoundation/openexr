@@ -5,6 +5,8 @@ ADD_EXECUTABLE ( IlmImfFuzzTest
   main.cpp
   testFuzzScanLines.cpp
   testFuzzTiles.cpp
+  testFuzzDeepTiles.cpp
+  testFuzzDeepScanLines.cpp
   )
 
 TARGET_LINK_LIBRARIES ( IlmImfFuzzTest IlmImf Iex Imath Half IlmThread ${PTHREAD_LIB} ${Z_LIB})

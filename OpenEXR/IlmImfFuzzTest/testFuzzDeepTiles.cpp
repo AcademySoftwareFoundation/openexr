@@ -161,7 +161,7 @@ void generateRandomFile(const char filename[], int channelCount, int parts , Com
         int pointerSize = sizeof (char *);
         
         frameBuffer.insert (str,
-                            DeepSlice (FLOAT,
+                            DeepSlice (OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT,
                                        (char *) (&data[i][0][0] - memOffset),
                                        pointerSize * 1,
                                        pointerSize * width,
@@ -278,7 +278,7 @@ void readFile(const char filename[])
              int pointerSize = sizeof (char *);
              
              frameBuffer.insert (str,
-                                 DeepSlice (FLOAT,
+                                 DeepSlice (OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT,
                                             (char *) (&data[i][0][0] - memOffset),
                                             pointerSize * 1,
                                             pointerSize * width,
@@ -391,7 +391,7 @@ void readFile(const char filename[])
                 int pointerSize = sizeof (char *);
                 
                 frameBuffer.insert (str,
-                                    DeepSlice (FLOAT,
+                                    DeepSlice (OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT,
                                                (char *) (&data[i][0][0] - memOffset),
                                                pointerSize * 1,
                                                pointerSize * width,
