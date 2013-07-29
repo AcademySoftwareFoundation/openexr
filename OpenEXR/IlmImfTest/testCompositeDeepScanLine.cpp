@@ -124,15 +124,15 @@ template<class T> class data{
     {  
         if(typeid(T)==typeid(half))
         {
-            _type=HALF;
-        }else{
-            _type=FLOAT;
+            _type = OPENEXR_IMF_NAMESPACE::HALF;
+        }
+        else
+        {
+            _type = OPENEXR_IMF_NAMESPACE::FLOAT;
         }
     }
-    
-    
-    
-    
+
+
     // add a value to the current sample
     data & operator << (float value)
     {
