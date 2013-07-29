@@ -94,29 +94,25 @@ Image::addChannel (const string &name, const IMF::Channel &channel)
 {
     switch (channel.type)
     {
-      case HALF:
-
+      case IMF::HALF:
 	_channels[name] = new HalfChannel (*this,
 					   channel.xSampling,
 					   channel.ySampling);
 	break;
 
-      case FLOAT:
-
+      case IMF::FLOAT:
 	_channels[name] = new FloatChannel (*this,
 					    channel.xSampling,
 					    channel.ySampling);
 	break;
 
-      case UINT:
-
+      case IMF::UINT:
 	_channels[name] = new UIntChannel (*this,
 					   channel.xSampling,
 					   channel.ySampling);
 	break;
 
       default:
-
 	throw IEX::ArgExc ("Unknown channel type.");
     }
 }

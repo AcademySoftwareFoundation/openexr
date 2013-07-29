@@ -51,7 +51,8 @@
 
 #include "tmpDir.h"
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
@@ -96,11 +97,11 @@ void generateRandomFile(int channelCount, Compression compression, bool bulkWrit
         ss << i;
         string str = ss.str();
         if (type == 0)
-            header.channels().insert(str, Channel(UINT));
+            header.channels().insert(str, Channel(IMF::UINT));
         if (type == 1)
-            header.channels().insert(str, Channel(HALF));
+            header.channels().insert(str, Channel(IMF::HALF));
         if (type == 2)
-            header.channels().insert(str, Channel(FLOAT));
+            header.channels().insert(str, Channel(IMF::FLOAT));
         channelTypes.push_back(type);
     }
 
@@ -117,7 +118,7 @@ void generateRandomFile(int channelCount, Compression compression, bool bulkWrit
 
     DeepFrameBuffer frameBuffer;
 
-    frameBuffer.insertSampleCountSlice (Slice (UINT,                    // type // 7
+    frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,                    // type // 7
                                         (char *) (&sampleCount[0][0]
                                                   - dataWindow.min.x
                                                   - dataWindow.min.y * width),               // base // 8
@@ -128,11 +129,11 @@ void generateRandomFile(int channelCount, Compression compression, bool bulkWrit
     {
         PixelType type;
         if (channelTypes[i] == 0)
-            type = UINT;
+            type = IMF::UINT;
         if (channelTypes[i] == 1)
-            type = HALF;
+            type = IMF::HALF;
         if (channelTypes[i] == 2)
-            type = FLOAT;
+            type = IMF::FLOAT;
 
         stringstream ss;
         ss << i;
@@ -271,7 +272,7 @@ void readFile(int channelCount, bool bulkRead,bool randomChannels)
 
     DeepFrameBuffer frameBuffer;
 
-    frameBuffer.insertSampleCountSlice (Slice (UINT,                    // type // 7
+    frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,                    // type // 7
                                         (char *) (&localSampleCount[0][0]
                                                   - dataWindow.min.x
                                                   - dataWindow.min.y * width),               // base // 8)
@@ -294,11 +295,11 @@ void readFile(int channelCount, bool bulkRead,bool randomChannels)
 	{
             PixelType type;
             if (channelTypes[i] == 0)
-                type = UINT;
+                type = IMF::UINT;
             if (channelTypes[i] == 1)
-                type = HALF;
+                type = IMF::HALF;
             if (channelTypes[i] == 2)
-                type = FLOAT;
+                type = IMF::FLOAT;
 
             stringstream ss;
             ss << i;

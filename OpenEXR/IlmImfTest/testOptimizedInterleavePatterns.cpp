@@ -46,7 +46,8 @@
 
 #include "tmpDir.h"
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
@@ -115,9 +116,9 @@ const char * lefthero[] = {"left","right",NULL};
 const char * righthero[] = {"right","left",NULL};
 const char * centrehero[] = {"centre","left","right",NULL};
 
-const PixelType four_floats[] = {FLOAT,FLOAT,FLOAT,FLOAT};
-const PixelType hhhfff[] = {HALF,HALF,HALF,FLOAT,FLOAT,FLOAT};
-const PixelType hhhhffff[] = {HALF,HALF,HALF,HALF,FLOAT,FLOAT,FLOAT,FLOAT};
+const PixelType four_floats[] = {IMF::FLOAT,IMF::FLOAT,IMF::FLOAT,IMF::FLOAT};
+const PixelType hhhfff[] = {IMF::HALF,IMF::HALF,IMF::HALF,IMF::FLOAT,IMF::FLOAT,IMF::FLOAT};
+const PixelType hhhhffff[] = {IMF::HALF,IMF::HALF,IMF::HALF,IMF::HALF,IMF::FLOAT,IMF::FLOAT,IMF::FLOAT,IMF::FLOAT};
 
 Schema Schemes[] = {
                      {"RGBHalf"             ,rgb           ,NULL,1,NULL       ,NULL},
@@ -178,13 +179,13 @@ bool compare(const FrameBuffer& asRead,
                 half readHalf;
                 switch (i.slice().type)
                 {
-                    case FLOAT :
+                    case IMF::FLOAT :
                         readHalf =  half(*(float*) ptr);
                         break;
-                    case HALF :
+                    case IMF::HALF :
                         readHalf = half(*(half*) ptr);
                         break;
-                    case UINT :
+                    case IMF::UINT :
                         continue; // can't very well check this
                     default :
                         cout << "don't know about that\n";
@@ -199,13 +200,13 @@ bool compare(const FrameBuffer& asRead,
                                  p.slice().xStride*x;
                     switch (p.slice().type)
                     {
-                    case FLOAT :
+                    case IMF::FLOAT :
                         writtenHalf = half(*(float*) ptr);
                         break;
-                    case HALF :
+                    case IMF::HALF :
                         writtenHalf = half(*(half*) ptr);
                         break;
-                    case UINT :
+                    case IMF::UINT :
                         continue;
                     default :
                         cout << "don't know about that\n";
@@ -270,8 +271,8 @@ ChannelList setupBuffer (const Header& hdr,                   // header to grab 
         {
             switch (pt[activechans])
             {
-                case HALF : bytes_per_pixel+=2;break;
-                case FLOAT : case UINT : bytes_per_pixel+=4;break;
+                case IMF::HALF : bytes_per_pixel+=2;break;
+                case IMF::FLOAT : case IMF::UINT : bytes_per_pixel+=4;break;
                 default :
                     cout << "Unexpected PixelType?\n";
                     exit(1);
@@ -292,8 +293,8 @@ ChannelList setupBuffer (const Header& hdr,                   // header to grab 
         {
             switch (pt[passivechans+activechans])
             {
-                case HALF : bytes_per_pixel+=2;break;
-                case FLOAT : case UINT : bytes_per_pixel+=4;break;
+                case IMF::HALF : bytes_per_pixel+=2;break;
+                case IMF::FLOAT : case IMF::UINT : bytes_per_pixel+=4;break;
                 default :
                     cout << "Unexpected PixelType?\n";
                     exit(1);
@@ -330,7 +331,7 @@ ChannelList setupBuffer (const Header& hdr,                   // header to grab 
          unsigned short int values = (unsigned short int) floor((double(rand())/double(RAND_MAX))*65535.0);
          half v;
          v.setBits(values);
-         if (pt==NULL || pt[chan]==HALF)
+         if (pt==NULL || pt[chan]==IMF::HALF)
          {
              *(half*)write_ptr = half(v);
              write_ptr+=2;
@@ -365,7 +366,7 @@ ChannelList setupBuffer (const Header& hdr,                   // header to grab 
     
     for (int i=0;i<chans;i++)
     {
-        PixelType type = pt==NULL ? HALF : pt[i];
+        PixelType type = pt==NULL ? IMF::HALF : pt[i];
         if (i<activechans && writing)
         {
             chanlist.insert(channels[i],type);
@@ -415,10 +416,10 @@ ChannelList setupBuffer (const Header& hdr,                   // header to grab 
         }
         switch (type)
         {
-            case HALF :
+            case IMF::HALF :
                 offset+=2;
                 break;
-            case FLOAT :
+            case IMF::FLOAT :
                 offset+=4;
                 break;
             default :

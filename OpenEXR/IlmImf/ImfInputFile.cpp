@@ -172,17 +172,17 @@ InputFile::Data::deleteCachedBuffer()
 
 	    switch (s.type)
 	    {
-	      case UINT:
+	      case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
 		delete [] (((unsigned int *)s.base) + offset);
 		break;
 
-	      case HALF:
+	      case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
 		delete [] ((half *)s.base + offset);
 		break;
 
-	      case FLOAT:
+	      case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
 		delete [] (((float *)s.base) + offset);
 		break;
@@ -686,7 +686,7 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 
 		switch (s.type)
 		{
-		  case UINT:
+		  case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
 		    _data->cachedBuffer->insert
 			(k.name(),
@@ -701,7 +701,7 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 				false, true));
 		    break;
 
-		  case HALF:
+		  case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
 		    _data->cachedBuffer->insert
 			(k.name(),
@@ -716,11 +716,11 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 				false, true));
 		    break;
 
-		  case FLOAT:
+		  case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
 		    _data->cachedBuffer->insert
 			(k.name(),
-			 Slice (FLOAT,
+			 Slice (OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT,
 				(char *)(new float[tileRowSize] - 
 					_data->offset),
 				sizeof(float),

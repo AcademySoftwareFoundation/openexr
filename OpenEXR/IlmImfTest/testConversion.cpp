@@ -54,7 +54,8 @@
 
 #include "tmpDir.h"
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
@@ -356,47 +357,47 @@ testConversion ()
 	    if (comp == B44_COMPRESSION || comp == B44A_COMPRESSION)
 		continue;
 
-	    testImageChannel <unsigned int, UINT, unsigned int, UINT>
+	    testImageChannel <unsigned int, IMF::UINT, unsigned int, IMF::UINT>
 			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <unsigned int, UINT, half, HALF>
+	    testImageChannel <unsigned int, IMF::UINT, half, IMF::HALF>
 			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <unsigned int, UINT, float, FLOAT>
+	    testImageChannel <unsigned int, IMF::UINT, float, IMF::FLOAT>
 			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <half, HALF, unsigned int, UINT>
+	    testImageChannel <half, IMF::HALF, unsigned int, IMF::UINT>
 			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <half, HALF, half, HALF>
+	    testImageChannel <half, IMF::HALF, half, IMF::HALF>
 			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <half, HALF, float, FLOAT>
+	    testImageChannel <half, IMF::HALF, float, IMF::FLOAT>
 			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <float, FLOAT, unsigned int, UINT>
+	    testImageChannel <float, IMF::FLOAT, unsigned int, IMF::UINT>
 			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <float, FLOAT, half, HALF>
+	    testImageChannel <float, IMF::FLOAT, half, IMF::HALF>
 			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <float, FLOAT, float, FLOAT>
+	    testImageChannel <float, IMF::FLOAT, float, IMF::FLOAT>
 			     (IMF_TMP_DIR "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));

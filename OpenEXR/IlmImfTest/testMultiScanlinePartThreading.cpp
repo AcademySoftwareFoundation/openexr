@@ -58,7 +58,8 @@
 #include <IlmThreadPool.h>
 #include <IlmThreadMutex.h>
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
@@ -155,21 +156,21 @@ void setOutputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
     {
         case 0:
             frameBuffer.insert ("UINT",
-                                Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                                Slice (IMF::UINT,
                                 (char *) (&uData[0][0]),
                                 sizeof (uData[0][0]) * 1,
                                 sizeof (uData[0][0]) * width));
             break;
         case 1:
             frameBuffer.insert ("FLOAT",
-                                Slice (OPENEXR_IMF_NAMESPACE::FLOAT,
+                                Slice (IMF::FLOAT,
                                 (char *) (&fData[0][0]),
                                 sizeof (fData[0][0]) * 1,
                                 sizeof (fData[0][0]) * width));
             break;
         case 2:
             frameBuffer.insert ("HALF",
-                                Slice (OPENEXR_IMF_NAMESPACE::HALF,
+                                Slice (IMF::HALF,
                                 (char *) (&hData[0][0]),
                                 sizeof (hData[0][0]) * 1,
                                 sizeof (hData[0][0]) * width));
@@ -186,7 +187,7 @@ void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
         case 0:
             uData.resizeErase(height, width);
             frameBuffer.insert ("UINT",
-                                Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                                Slice (IMF::UINT,
                                 (char *) (&uData[0][0]),
                                 sizeof (uData[0][0]) * 1,
                                 sizeof (uData[0][0]) * width,
@@ -196,7 +197,7 @@ void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
         case 1:
             fData.resizeErase(height, width);
             frameBuffer.insert ("FLOAT",
-                                Slice (OPENEXR_IMF_NAMESPACE::FLOAT,
+                                Slice (IMF::FLOAT,
                                 (char *) (&fData[0][0]),
                                 sizeof (fData[0][0]) * 1,
                                 sizeof (fData[0][0]) * width,
@@ -206,7 +207,7 @@ void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
         case 2:
             hData.resizeErase(height, width);
             frameBuffer.insert ("HALF",
-                                Slice (OPENEXR_IMF_NAMESPACE::HALF,
+                                Slice (IMF::HALF,
                                 (char *) (&hData[0][0]),
                                 sizeof (hData[0][0]) * 1,
                                 sizeof (hData[0][0]) * width,
@@ -236,13 +237,13 @@ void generateFiles(int pixelTypes[])
         switch (pixelType)
         {
             case 0:
-                header.channels().insert("UINT", Channel(OPENEXR_IMF_NAMESPACE::UINT));
+                header.channels().insert("UINT", Channel(IMF::UINT));
                 break;
             case 1:
-                header.channels().insert("FLOAT", Channel(OPENEXR_IMF_NAMESPACE::FLOAT));
+                header.channels().insert("FLOAT", Channel(IMF::FLOAT));
                 break;
             case 2:
-                header.channels().insert("HALF", Channel(OPENEXR_IMF_NAMESPACE::HALF));
+                header.channels().insert("HALF", Channel(IMF::HALF));
                 break;
         }
 

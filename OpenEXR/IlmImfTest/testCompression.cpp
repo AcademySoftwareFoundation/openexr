@@ -48,7 +48,8 @@
 
 #include "tmpDir.h"
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
@@ -180,19 +181,19 @@ writeRead (const Array2D<unsigned int> &pi1,
     hdr.compression() = comp;
 
     hdr.channels().insert ("I",			// name
-			   Channel (UINT,	// type
+			   Channel (IMF::UINT,	// type
 				    xs,		// xSampling
 				    ys)		// ySampling
 			  );
 
     hdr.channels().insert ("H",			// name
-			   Channel (HALF,	// type
+			   Channel (IMF::HALF,	// type
 				    xs,		// xSampling
 				    ys)		// ySampling
 			  );
 
     hdr.channels().insert ("F",			// name
-			   Channel (FLOAT,	// type
+			   Channel (IMF::FLOAT,	// type
 				    xs,		// xSampling
 				    ys)		// ySampling
 			  );
@@ -201,7 +202,7 @@ writeRead (const Array2D<unsigned int> &pi1,
 	FrameBuffer fb; 
 
 	fb.insert ("I",						// name
-		   Slice (UINT,					// type
+		   Slice (IMF::UINT,				// type
 			  (char *) &pi1[-yOffset / ys][-xOffset / xs], // base
 			  sizeof (pi1[0][0]), 			// xStride
 			  sizeof (pi1[0][0]) * (width / xs),	// yStride
@@ -210,7 +211,7 @@ writeRead (const Array2D<unsigned int> &pi1,
 		  );
 	
 	fb.insert ("H",						// name
-		   Slice (HALF,					// type
+		   Slice (IMF::HALF,				// type
 			  (char *) &ph1[-yOffset / ys][-xOffset / xs], // base
 			  sizeof (ph1[0][0]), 			// xStride
 			  sizeof (ph1[0][0]) * (width / xs),	// yStride
@@ -219,7 +220,7 @@ writeRead (const Array2D<unsigned int> &pi1,
 		  );
 	
 	fb.insert ("F",						// name
-		   Slice (FLOAT,				// type
+		   Slice (IMF::FLOAT,				// type
 			  (char *) &pf1[-yOffset / ys][-xOffset / xs], // base
 			  sizeof (pf1[0][0]), 			// xStride
 			  sizeof (pf1[0][0]) * (width / xs),	// yStride
@@ -257,7 +258,7 @@ writeRead (const Array2D<unsigned int> &pi1,
 	    int ys = in.header().channels()["I"].ySampling;
 
 	    fb.insert ("I",					// name
-		       Slice (UINT,				// type
+		       Slice (IMF::UINT,			// type
 			      (char *) &pi2[-dy / ys][-dx / xs], // base
 			      sizeof (pi2[0][0]), 		// xStride
 			      sizeof (pi2[0][0]) * (w / xs),	// yStride
@@ -271,7 +272,7 @@ writeRead (const Array2D<unsigned int> &pi1,
 	    int ys = in.header().channels()["H"].ySampling;
 
 	    fb.insert ("H",					// name
-		       Slice (HALF,				// type
+		       Slice (IMF::HALF,			// type
 			      (char *) &ph2[-dy / ys][-dx / xs], // base
 			      sizeof (ph2[0][0]), 		// xStride
 			      sizeof (ph2[0][0]) * (w / xs),	// yStride
@@ -285,7 +286,7 @@ writeRead (const Array2D<unsigned int> &pi1,
 	    int ys = in.header().channels()["F"].ySampling;
 
 	    fb.insert ("F",					// name
-		       Slice (FLOAT,				// type
+		       Slice (IMF::FLOAT,			// type
 			      (char *) &pf2[-dy / ys][-dx / xs], // base
 			      sizeof (pf2[0][0]), 		// xStride
 			      sizeof (pf2[0][0]) * (w / xs),	// yStride

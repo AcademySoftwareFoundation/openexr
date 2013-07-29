@@ -896,9 +896,15 @@ void DeepScanLineInputFile::initialize(const Header& header)
         {
             switch(i.channel().type)
             {
-                case HALF  : _data->combinedSampleSize+=Xdr::size<half>();break;
-                case FLOAT : _data->combinedSampleSize+=Xdr::size<float>();break;
-                case UINT  : _data->combinedSampleSize+=Xdr::size<unsigned int>();break;
+                case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF  :
+                    _data->combinedSampleSize+=Xdr::size<half>();
+                    break;
+                case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT :
+                    _data->combinedSampleSize+=Xdr::size<float>();
+                    break;
+                case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT  :
+                    _data->combinedSampleSize+=Xdr::size<unsigned int>();
+                    break;
                 default :
                     THROW(IEX_NAMESPACE::ArgExc, "Bad type for channel " << i.name() << " initializing deepscanline reader");
                     

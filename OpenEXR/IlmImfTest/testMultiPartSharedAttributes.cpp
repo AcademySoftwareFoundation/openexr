@@ -66,7 +66,8 @@
 #endif
 
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
@@ -96,23 +97,23 @@ generateRandomHeaders (int partCount, vector<Header> & headers)
         switch (pixelType)
         {
             case 0:
-                header.channels().insert("UINT", Channel(UINT));
+                header.channels().insert("UINT", Channel(IMF::UINT));
                 break;
             case 1:
-                header.channels().insert("FLOAT", Channel(FLOAT));
+                header.channels().insert("FLOAT", Channel(IMF::FLOAT));
                 break;
             case 2:
-                header.channels().insert("HALF", Channel(HALF));
+                header.channels().insert("HALF", Channel(IMF::HALF));
                 break;
         }
 
         switch (partType)
         {
             case 0:
-                header.setType(OPENEXR_IMF_NAMESPACE::SCANLINEIMAGE);
+                header.setType(IMF::SCANLINEIMAGE);
                 break;
             case 1:
-                header.setType(OPENEXR_IMF_NAMESPACE::TILEDIMAGE);
+                header.setType(IMF::TILEDIMAGE);
                 break;
         }
 
@@ -355,7 +356,7 @@ testHeaders ()
     //
     // expect this to fail - header name duplication
     //
-    headers[0].setType (OPENEXR_IMF_NAMESPACE::SCANLINEIMAGE);
+    headers[0].setType (IMF::SCANLINEIMAGE);
     Header hh(headers[0]);
     headers.push_back(hh);
     testMultiPartOutputFileForExpectedFailure (headers,
@@ -390,7 +391,7 @@ testHeaders ()
         stringstream ss;
         ss << i;
         headers[i].setName (ss.str());
-        headers[i].setType (OPENEXR_IMF_NAMESPACE::SCANLINEIMAGE);
+        headers[i].setType (IMF::SCANLINEIMAGE);
         headers[i].insert(TimeCodeAttribute::staticTypeName(), ta);
         headers[i].insert(ChromaticitiesAttribute::staticTypeName(), ca);
 

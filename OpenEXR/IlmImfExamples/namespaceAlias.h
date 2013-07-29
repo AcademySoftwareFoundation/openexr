@@ -36,6 +36,6 @@
 
 #include <ImfNamespace.h>
 
-namespace CustomImf = OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
 
 #endif /* NAMESPACEALIAS_H_ */

@@ -93,15 +93,15 @@ Image::addChannel (const string &name, PixelType type)
 {
     switch (type)
     {
-      case HALF:
+      case IMF::HALF:
 	_channels[name] = new HalfChannel (*this, width(), height());
 	break;
 
-      case FLOAT:
+      case IMF::FLOAT:
 	_channels[name] = new FloatChannel (*this, width(), height());
 	break;
 
-      case UINT:
+      case IMF::UINT:
 	_channels[name] = new UIntChannel (*this, width(), height());
 	break;
 

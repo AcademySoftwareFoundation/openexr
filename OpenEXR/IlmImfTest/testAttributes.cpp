@@ -62,7 +62,9 @@
 
 #include "tmpDir.h"
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
+
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
@@ -148,7 +150,7 @@ writeReadAttr (const Array2D<float> &pf1,
 	hdr.insert ("a20", StringVectorAttribute  (a20));
 
 	hdr.channels().insert ("F",			// name
-			       Channel (FLOAT,		// type
+			       Channel (IMF::FLOAT,	// type
 					1,		// xSampling
 					1)		// ySampling
 			      );
@@ -156,7 +158,7 @@ writeReadAttr (const Array2D<float> &pf1,
 	FrameBuffer fb; 
 
 	fb.insert ("F",					// name
-		   Slice (FLOAT,			// type
+		   Slice (IMF::FLOAT,			// type
 			  (char *) &pf1[0][0],		// base
 			  sizeof (pf1[0][0]), 		// xStride
 			  sizeof (pf1[0][0]) * width,	// yStride
@@ -252,11 +254,11 @@ channelList ()
 
 	ChannelList channels;
 
-	channels.insert ("b0", Channel (HALF, 1, 1));
-	channels.insert ("b1", Channel (HALF, 1, 1));
-	channels.insert ("b2", Channel (HALF, 1, 1));
-	channels.insert ("d3", Channel (HALF, 1, 1));
-	channels.insert ("e4", Channel (HALF, 1, 1));
+	channels.insert ("b0", Channel (IMF::HALF, 1, 1));
+	channels.insert ("b1", Channel (IMF::HALF, 1, 1));
+	channels.insert ("b2", Channel (IMF::HALF, 1, 1));
+	channels.insert ("d3", Channel (IMF::HALF, 1, 1));
+	channels.insert ("e4", Channel (IMF::HALF, 1, 1));
 
 	ChannelList::Iterator first;
 	ChannelList::Iterator last;
@@ -309,24 +311,24 @@ channelList ()
 	
 	ChannelList channels;
 
-	channels.insert ("a",   Channel (HALF, 1, 1));
-	channels.insert (".a",  Channel (HALF, 1, 1));
-	channels.insert ("a.",  Channel (HALF, 1, 1));
+	channels.insert ("a",   Channel (IMF::HALF, 1, 1));
+	channels.insert (".a",  Channel (IMF::HALF, 1, 1));
+	channels.insert ("a.",  Channel (IMF::HALF, 1, 1));
 
-	channels.insert ("layer1.R", Channel (HALF, 1, 1));
-	channels.insert ("layer1.G", Channel (HALF, 1, 1));
-	channels.insert ("layer1.B", Channel (HALF, 1, 1));
+	channels.insert ("layer1.R", Channel (IMF::HALF, 1, 1));
+	channels.insert ("layer1.G", Channel (IMF::HALF, 1, 1));
+	channels.insert ("layer1.B", Channel (IMF::HALF, 1, 1));
 
-	channels.insert ("layer1.sublayer1.AA", Channel (HALF, 1, 1));
-	channels.insert ("layer1.sublayer1.R", Channel (HALF, 1, 1));
-	channels.insert ("layer1.sublayer1.G", Channel (HALF, 1, 1));
-	channels.insert ("layer1.sublayer1.B", Channel (HALF, 1, 1));
+	channels.insert ("layer1.sublayer1.AA", Channel (IMF::HALF, 1, 1));
+	channels.insert ("layer1.sublayer1.R", Channel  (IMF::HALF, 1, 1));
+	channels.insert ("layer1.sublayer1.G", Channel  (IMF::HALF, 1, 1));
+	channels.insert ("layer1.sublayer1.B", Channel  (IMF::HALF, 1, 1));
 
-	channels.insert ("layer1.sublayer2.R", Channel (HALF, 1, 1));
+	channels.insert ("layer1.sublayer2.R", Channel (IMF::HALF, 1, 1));
 
-	channels.insert ("layer2.R", Channel (HALF, 1, 1));
-	channels.insert ("layer2.G", Channel (HALF, 1, 1));
-	channels.insert ("layer2.B", Channel (HALF, 1, 1));
+	channels.insert ("layer2.R", Channel (IMF::HALF, 1, 1));
+	channels.insert ("layer2.G", Channel (IMF::HALF, 1, 1));
+	channels.insert ("layer2.B", Channel (IMF::HALF, 1, 1));
 
 	set <string> layerNames;
 	channels.layers (layerNames);
@@ -374,7 +376,7 @@ longNames (const Array2D<float> &pf1,
     FrameBuffer fb; 
 
     fb.insert ("F",					// name
-               Slice (FLOAT,				// type
+               Slice (IMF::FLOAT,			// type
                       (char *) &pf1[0][0],		// base
                       sizeof (pf1[0][0]), 		// xStride
                       sizeof (pf1[0][0]) * width,	// yStride
@@ -388,7 +390,7 @@ longNames (const Array2D<float> &pf1,
 	Header hdr (width, height);
 
 	hdr.channels().insert ("F",			// name
-			       Channel (FLOAT,		// type
+			       Channel (IMF::FLOAT,	// type
 					1,		// xSampling
 					1)		// ySampling
 			      );
@@ -418,7 +420,7 @@ longNames (const Array2D<float> &pf1,
 	hdr.insert (longName, StringAttribute ("y"));
 
 	hdr.channels().insert ("F",			// name
-			       Channel (FLOAT,		// type
+			       Channel (IMF::FLOAT,	// type
 					1,		// xSampling
 					1)		// ySampling
 			      );
@@ -447,7 +449,7 @@ longNames (const Array2D<float> &pf1,
 	Header hdr (width, height);
 
 	hdr.channels().insert (longName,		// name
-			       Channel (FLOAT,		// type
+			       Channel (IMF::FLOAT,	// type
 					1,		// xSampling
 					1)		// ySampling
 			      );
