@@ -63,11 +63,18 @@
 #include <stdlib.h>
 #include <vector>
 
-#include <OpenEXRConfig.h>
-namespace CustomImf = OPENEXR_IMF_NAMESPACE;
-using namespace CustomImf;
+#include <ImfNamespace.h>
+#include <ImathNamespace.h>
+#include <IexNamespace.h>
+
+namespace IMF   = OPENEXR_IMF_NAMESPACE;
+namespace IMATH = IMATH_NAMESPACE;
+namespace IEX   = IEX_NAMESPACE;
+
+using namespace IMF;
+using namespace IMATH;
+using namespace IEX;
 using namespace std;
-using namespace IMATH_NAMESPACE;
 
 
 void

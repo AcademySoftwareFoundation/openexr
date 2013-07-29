@@ -55,7 +55,7 @@
 #include <stdio.h>
 
 #include "namespaceAlias.h"
-using namespace CustomImf;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 

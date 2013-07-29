@@ -42,7 +42,7 @@
 #include "Image.h"
 #include "namespaceAlias.h"
 
-using namespace CustomImf;
+using namespace IMF;
 using namespace IMATH_NAMESPACE;
 using namespace std;
 

@@ -1258,7 +1258,8 @@ namespace
 //   entries in optData are sorted into their interleave order (i.e. by base address)
 //   These tests are done by SetFrameBuffer as it is building optData
 //  
-Imf::OptimizationMode detectOptimizationMode(const vector<sliceOptimizationData>& optData)
+OptimizationMode
+detectOptimizationMode (const vector<sliceOptimizationData>& optData)
 {
     OptimizationMode w;
     
@@ -1274,7 +1275,6 @@ Imf::OptimizationMode detectOptimizationMode(const vector<sliceOptimizationData>
         case 6 : break;
         case 8 : break;
         default :
-//             std::cerr << " noopt: don't support " << optData.size() << "chans\n";
             return w;
     }
     
@@ -1291,7 +1291,6 @@ Imf::OptimizationMode detectOptimizationMode(const vector<sliceOptimizationData>
         {
             if(i!=3 && i!=7)
             {
-//                std::cerr << " noopt: don't support filling channel " << i << std::endl;
                 return w;
             }
         }
@@ -1299,7 +1298,6 @@ Imf::OptimizationMode detectOptimizationMode(const vector<sliceOptimizationData>
         // cannot have gaps in the channel layout, so the stride must be (number of channels written in the bank)*2
         if(data.xStride !=bankSize*2)
         {
-//            std::cerr << " noopt: don't support non-interleaved channel access\n";
             return w;
         }
         
@@ -1309,7 +1307,6 @@ Imf::OptimizationMode detectOptimizationMode(const vector<sliceOptimizationData>
         {
             if(data.base!=optData[i-1].base+2)
             {
-//                std::cerr << " noopt: don't support non-sequential channel access within each bank of channels\n";                
                 return w;
             }
         }
@@ -1318,13 +1315,11 @@ Imf::OptimizationMode detectOptimizationMode(const vector<sliceOptimizationData>
             
             if(data.yStride!=optData[i-1].yStride)
             {
-//                std::cerr << " noopt: don't support inconsistent yStride\n";                
                 return w;
             }
         }
     }
     
-//    std::cerr << "opt suceeded!\n";
 
     w._ySampling=optData[0].ySampling;
     w._optimizable=true;
@@ -1333,7 +1328,9 @@ Imf::OptimizationMode detectOptimizationMode(const vector<sliceOptimizationData>
 
     return w;
 }
-}
+
+
+} // Anonymous namespace
 
 void	
 ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
@@ -1410,13 +1407,13 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 	    
               switch(i.channel().type)
               {
-                  case Imf::HALF :
+                  case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF :
                       offset++;
                       break;
-                  case Imf::FLOAT : 
+                  case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT :
                       offset+=2;
                       break;
-                  case Imf::UINT :
+                  case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT :
                       offset+=2;
                       break;
               }
@@ -1447,12 +1444,12 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 				       false, // skip
 				       j.slice().fillValue));
 
-          if(!fill && i.channel().type!=Imf::HALF)
+          if(!fill && i.channel().type!=OPENEXR_IMF_INTERNAL_NAMESPACE::HALF)
           {
               optimizationPossible = false;
           }
           
-          if(j.slice().type != Imf::HALF)
+          if(j.slice().type != OPENEXR_IMF_INTERNAL_NAMESPACE::HALF)
           {
               optimizationPossible = false;
           }
@@ -1480,13 +1477,13 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
           {
               switch(i.channel().type)
               {
-                  case Imf::HALF :
+                  case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF :
                       offset++;
                       break;
-                  case Imf::FLOAT : 
+                  case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT :
                       offset+=2;
                       break;
-                  case Imf::UINT :
+                  case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT :
                       offset+=2;
                       break;
               }

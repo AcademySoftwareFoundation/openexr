@@ -50,7 +50,7 @@
 #include <stdlib.h>
 
 #include "namespaceAlias.h"
-using namespace CustomImf;
+using namespace IMF;
 using namespace std;
 
 

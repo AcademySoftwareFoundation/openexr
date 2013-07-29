@@ -40,11 +40,12 @@
 //----------------------------------------------------------------------------
 
 #include "Image.h"
-
 #include "namespaceAlias.h"
-using namespace CustomImf;
-using namespace IMATH_NAMESPACE;
+
 using namespace std;
+using namespace IMATH;
+using namespace IEX;
+using namespace IMF;
 
 
 ImageChannel::ImageChannel (Image &image): _image (image)
@@ -79,7 +80,7 @@ Image::~Image ()
 
 
 void			
-Image::resize (const IMATH_NAMESPACE::Box2i &dataWindow)
+Image::resize (const IMATH::Box2i &dataWindow)
 {
     _dataWindow = dataWindow;
 
@@ -89,7 +90,7 @@ Image::resize (const IMATH_NAMESPACE::Box2i &dataWindow)
 
 
 void
-Image::addChannel (const string &name, const CustomImf::Channel &channel)
+Image::addChannel (const string &name, const IMF::Channel &channel)
 {
     switch (channel.type)
     {
@@ -116,7 +117,7 @@ Image::addChannel (const string &name, const CustomImf::Channel &channel)
 
       default:
 
-	throw IEX_NAMESPACE::ArgExc ("Unknown channel type.");
+	throw IEX::ArgExc ("Unknown channel type.");
     }
 }
 

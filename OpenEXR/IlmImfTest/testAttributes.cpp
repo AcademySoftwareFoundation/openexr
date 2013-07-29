@@ -145,7 +145,7 @@ writeReadAttr (const Array2D<float> &pf1,
 	hdr.insert ("a17", M44dAttribute   (a17));
 	hdr.insert ("a18", V2dAttribute    (a18));
 	hdr.insert ("a19", V3dAttribute    (a19));
-          hdr.insert ("a20", StringVectorAttribute  (a20));
+	hdr.insert ("a20", StringVectorAttribute  (a20));
 
 	hdr.channels().insert ("F",			// name
 			       Channel (FLOAT,		// type
