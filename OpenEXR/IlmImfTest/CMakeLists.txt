@@ -55,6 +55,7 @@ ADD_EXECUTABLE ( IlmImfTest
   testXdr.cpp
   testYca.cpp
   testOptimizedInterleavePatterns.cpp
+  testDeepScanlineMultipleRead.cpp
  )
 
 TARGET_LINK_LIBRARIES ( IlmImfTest IlmImf Iex Imath Half IlmThread ${ZLIB_LIBRARIES} ${PTHREAD_LIB})
