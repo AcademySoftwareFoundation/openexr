@@ -141,12 +141,14 @@ void
 iex_debugTrap()
 {
     if (0 != getenv("IEXDEBUGTHROW"))
-        DebugBreak();
+        ::DebugBreak();
 }
 #else
 void
 iex_debugTrap()
 {
     // how to in Linux?
+    if (0 != ::getenv("IEXDEBUGTHROW"))
+        __builtin_trap();
 }
 #endif
