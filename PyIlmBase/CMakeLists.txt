@@ -5,6 +5,11 @@ PROJECT ( PyIlmBase )
 SET (Python_ADDITIONAL_VERSIONS "2.7")
 FIND_PACKAGE( PythonLibs )
 
+set(Boost_USE_STATIC_LIBS       OFF)
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
+FIND_PACKAGE ( Boost COMPONENTS python )
+
 INCLUDE (FindPkgConfig)
 PKG_CHECK_MODULES ( ILMBASE IlmBase )
 
