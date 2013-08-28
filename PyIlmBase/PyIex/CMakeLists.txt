@@ -15,6 +15,20 @@ TARGET_LINK_LIBRARIES ( PyIex
   ${PYTHON_LIBRARIES}
   )
 
+INSTALL ( TARGETS
+  PyIex
+  DESTINATION
+  lib
+)
+
+INSTALL ( FILES 
+  PyIex.h
+  PyIexExport.h
+  PyIexTypeTranslator.h
+  DESTINATION
+  include/OpenEXR
+)
+
 ADD_LIBRARY ( iexmodule ${LIB_TYPE}
   iexmodule.cpp
   )
@@ -29,15 +43,7 @@ TARGET_LINK_LIBRARIES ( iexmodule
   )
 
 INSTALL ( TARGETS
-  PyIex
+  iexmodule
   DESTINATION
-  lib
-)
-
-INSTALL ( FILES 
-  PyIex.h
-  PyIexExport.h
-  PyIexTypeTranslator.h
-  DESTINATION
-  include/OpenEXR
+  lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-package
 )
