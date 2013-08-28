@@ -19,6 +19,8 @@ ADD_LIBRARY ( iexmodule ${LIB_TYPE}
   iexmodule.cpp
   )
 
+SET_TARGET_PROPERTIES (iexmodule PROPERTIES PREFIX "")
+
 TARGET_LINK_LIBRARIES ( iexmodule
   PyIex
   Iex
