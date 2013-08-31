@@ -85,8 +85,8 @@ IF (WIN32)
 ELSE ()
   FILE ( WRITE ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_PTHREAD 1\n" )
   FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_POSIX_SEMAPHORES 1\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_STRING \"2.0.0\"\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_PACKAGE_STRING \"IlmBase 2.0.0\"\n" )
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_STRING \"2.0.1\"\n" )
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_PACKAGE_STRING \"IlmBase 2.0.1\"\n" )
 ENDIF ()
 
 SET_TARGET_PROPERTIES ( Half
@@ -146,7 +146,7 @@ OpenEXR_includedir=\${prefix}/include/OpenEXR
 
 Name: IlmBase
 Description: Base math and exception libraries
-Version: 1.1.0
+Version: 2.0.1
 Libs: -L\${libdir} -lImath -lIexMath -lHalf -lIex -lIlmThread -pthread
 Cflags: -pthread -I\${OpenEXR_includedir}
 ")
