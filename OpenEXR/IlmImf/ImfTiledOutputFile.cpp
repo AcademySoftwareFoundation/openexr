@@ -909,7 +909,7 @@ TiledOutputFile::TiledOutputFile
 	_streamData->currentPosition = _streamData->os->tellp();
 
 	// Write header and empty offset table to the file.
-	writeMagicNumberAndVersionField(*_streamData->os, header);
+	writeMagicNumberAndVersionField(*_streamData->os, _data->header);
 	_data->previewPosition = _data->header.writeTo (*_streamData->os, true);
         _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_streamData->os);
 	
