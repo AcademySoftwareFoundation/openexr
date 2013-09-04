@@ -233,7 +233,7 @@ void ConvertDtexFile( const std::string& i_fileName,
 
     // Create the windows.
     Imath::Box2i dataWindow( Imath::V2i( 0, 0 ),
-                             Imath::V2i( outWidth, outHeight ) );
+                             Imath::V2i( outWidth-1, outHeight-1 ) );
     Imath::Box2i displayWindow = dataWindow;
 
     // Create the header.
@@ -250,13 +250,13 @@ void ConvertDtexFile( const std::string& i_fileName,
                      NP[4], NP[5], NP[6], NP[7],
                      NP[8], NP[9], NP[10], NP[11],
                      NP[12], NP[13], NP[14], NP[15] );
-    header.insert( "NP", Imf::M44fAttribute( NPm ) );
+    addWorldToNDC( header, NPm );
     
     Imath::M44f Nlm( Nl[0], Nl[1], Nl[2], Nl[3],
                      Nl[4], Nl[5], Nl[6], Nl[7],
                      Nl[8], Nl[9], Nl[10], Nl[11],
                      Nl[12], Nl[13], Nl[14], Nl[15] );
-    header.insert( "Nl", Imf::M44fAttribute( Nlm ) );
+    addWorldToCamera( header, Nlm );
 
     // Add channels to the header.
 
@@ -399,8 +399,8 @@ void PrintUsage( const std::string& i_cmd, std::ostream& ostr )
          << "\n\t\t (multiply RGB data by Alpha, "
          << "implying that source data is unpremultiplied)"
          << std::endl << std::endl
-         << "\t --sideways "
-         << "\n\t\t (transpose width & height of image)"
+         << "\t --sideways [true|false]"
+         << "\n\t\t (rotate image 90 deg clockwise)"
          << std::endl << std::endl
          << "\t --compressionError <float> (DEFAULT: 0.0f) "
          << "\n\t\t (compress dtex data before converting to deep exr)"
@@ -450,7 +450,7 @@ void ParseArguments( int argc, char* argv[],
     o_params.sideways = false;
     o_params.discardZeroAlphaSamples = true;
     o_params.doDeepBack = true;
-    o_params.doRGB = true;
+    o_params.doRGB = false;
     o_params.compressionError = 0.0f;
 
     // Eat up the args!
@@ -511,7 +511,34 @@ void ParseArguments( int argc, char* argv[],
         }
         else if ( arg == "--sideways" )
         {
-            o_params.sideways = true;
+            if ( argi <= argc-1 )
+            {
+                std::cout << argv[argi+1] << std::endl;
+                if ( strcmp(argv[argi+1], "true") == 0 )
+                {
+                    o_params.sideways = true;
+                    ++argi;
+                }
+                else if ( strcmp(argv[argi+1], "false") == 0 )
+                {
+                    o_params.sideways = false;
+                    ++argi;
+                }
+                else if ( argv[argi+1][0] == '-' )
+                {
+                    // found another arg. sideways has no parameter, which means sideways is on.
+                    o_params.sideways = true;
+                }
+                else
+                {
+                    // sideways must be followed by "true", "false", another arg, or nothing.
+                    PXDU_THROW( "Invalid parameter for --sideways: " << argv[argi+1] );
+                }
+            }
+            else
+            {
+                o_params.sideways = true;
+            }
         }
         else if ( arg == "--compressionError" )
         {
