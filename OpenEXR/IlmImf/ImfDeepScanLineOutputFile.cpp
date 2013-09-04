@@ -110,7 +110,7 @@ struct OutSliceInfo
 
 
 OutSliceInfo::OutSliceInfo (PixelType t,
-                            const char *                 base,
+                            const char * base,
                             ptrdiff_t spstride,
                             ptrdiff_t xst,
                             ptrdiff_t yst,
@@ -668,15 +668,6 @@ LineBufferTask::execute ()
                                              slice.type);
                 }
             }
-
-            #ifdef DEBUG
-
-                assert (writePtr - (_lineBuffer->buffer +
-                        _ofd->offsetInLineBuffer[y - _ofd->minY]) ==
-                        (int) _ofd->bytesPerLine[y - _ofd->minY]);
-
-            #endif
-
         }
 
         //
@@ -835,7 +826,7 @@ DeepScanLineOutputFile::DeepScanLineOutputFile
         _data->_streamData->currentPosition = _data->_streamData->os->tellp();
 
         // Write header and empty offset table to the file.
-        writeMagicNumberAndVersionField(*_data->_streamData->os, header);
+        writeMagicNumberAndVersionField(*_data->_streamData->os, _data->header);
         _data->previewPosition =
                 _data->header.writeTo (*_data->_streamData->os);
         _data->lineOffsetsPosition =

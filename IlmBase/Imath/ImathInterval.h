@@ -40,7 +40,7 @@
 
 //-------------------------------------------------------------------
 //
-//	class IMATH_INTERNAL_NAMESPACE::Interval<class T>
+//	class Imath::Interval<class T>
 //	--------------------------------
 //
 //	An Interval has a min and a max and some miscellaneous
@@ -50,7 +50,7 @@
 //-------------------------------------------------------------------
 
 #include "ImathVec.h"
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
 
 IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 

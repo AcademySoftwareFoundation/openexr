@@ -41,7 +41,7 @@
 //---------------------------------------------------------------------------
 //
 //	This file contains algorithms applied to or in conjunction
-//	with bounding boxes (IMATH_INTERNAL_NAMESPACE::Box). These algorithms require
+//	with bounding boxes (Imath::Box). These algorithms require
 //	more headers to compile. The assumption made is that these
 //	functions are called much less often than the basic box
 //	functions or these functions require more support classes.
@@ -79,7 +79,7 @@
 #include "ImathMatrix.h"
 #include "ImathLineAlgo.h"
 #include "ImathPlane.h"
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
 
 IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 

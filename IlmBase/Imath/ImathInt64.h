@@ -42,7 +42,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
 #include <limits.h>
 
 IMATH_INTERNAL_NAMESPACE_HEADER_ENTER

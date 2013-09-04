@@ -20,6 +20,5 @@ noinst_HEADERS = Image.h makeTiled.h
 EXTRA_DIST = main.cpp \
 	     Image.h Image.cpp \
 	     makeTiled.cpp makeTiled.h \
-	     namespaceAlias.h
-
-
+	     namespaceAlias.h \
+             CMakeLists.txt

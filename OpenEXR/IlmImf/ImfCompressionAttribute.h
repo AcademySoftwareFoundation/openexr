@@ -61,6 +61,4 @@ template <> void CompressionAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMES
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-
-
 #endif

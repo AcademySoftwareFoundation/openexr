@@ -44,13 +44,13 @@
 
 #include "ImfCompressor.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
+#include "ImfForward.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class ChannelList;
 
-
-class B44Compressor: public Compressor
+class IMF_EXPORT B44Compressor: public Compressor
 {
   public:
 
@@ -114,9 +114,5 @@ class B44Compressor: public Compressor
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif

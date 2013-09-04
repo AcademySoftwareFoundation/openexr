@@ -46,21 +46,24 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
+
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Rational> RationalAttribute;
 
 template <>
+IMF_EXPORT
 const char *RationalAttribute::staticTypeName ();
 
 template <>
-void RationalAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
+IMF_EXPORT
+void RationalAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
+                                      int) const;
 
 template <>
-void RationalAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
+IMF_EXPORT
+void RationalAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
+                                       int, int);
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
 
 #endif

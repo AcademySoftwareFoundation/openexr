@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <tmpDir.h>
 #include "compareB44.h"
 
 #include <ImfRgbaFile.h>
@@ -49,8 +48,8 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "tmpDir.h"
 
-#include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;
@@ -326,12 +325,12 @@ testSharedFrameBuffer ()
                                 WRITE_RGB,
                                 Compression (comp));
 
-                writeReadRGBA ("imf_test_rgba.exr",
+                writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
                                 W, H, p1,
                                 WRITE_A,
                                 Compression (comp));
 
-                writeReadRGBA ("imf_test_rgba.exr",
+                writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
                                 W, H, p1,
                                 RgbaChannels (WRITE_R | WRITE_B),
                                 Compression (comp));

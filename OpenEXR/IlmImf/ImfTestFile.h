@@ -44,25 +44,21 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfForward.h"
+#include "ImfExport.h"
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class IStream;
 
-
-bool isOpenExrFile (const char fileName[], bool &isTiled);
-bool isOpenExrFile (const char fileName[]);
-bool isTiledOpenExrFile (const char fileName[]);
-bool isOpenExrFile (IStream &is, bool &isTiled);
-bool isOpenExrFile (IStream &is);
-bool isTiledOpenExrFile (IStream &is);
+IMF_EXPORT bool isOpenExrFile (const char fileName[], bool &isTiled);
+IMF_EXPORT bool isOpenExrFile (const char fileName[]);
+IMF_EXPORT bool isTiledOpenExrFile (const char fileName[]);
+IMF_EXPORT bool isOpenExrFile (IStream &is, bool &isTiled);
+IMF_EXPORT bool isOpenExrFile (IStream &is);
+IMF_EXPORT bool isTiledOpenExrFile (IStream &is);
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif

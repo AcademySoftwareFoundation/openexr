@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -864,5 +864,10 @@ void throwErrnoExc (const std::string &text)
     throwErrnoExc (text, errno);
 }
 
+void throwErrnoExc()
+{
+    std::string txt = "%T.";
+    throwErrnoExc (txt);
+}
 
 IEX_INTERNAL_NAMESPACE_SOURCE_EXIT

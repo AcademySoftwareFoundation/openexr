@@ -45,15 +45,17 @@
 
 #include "ImfCompression.h"
 #include "ImathBox.h"
-#include <stdlib.h>
 #include "ImfNamespace.h"
+#include "ImfExport.h"
+#include "ImfForward.h"
+
+#include <stdlib.h>
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class Header;
 
-
-class Compressor
+class IMF_EXPORT Compressor
 {
   public:
 
@@ -202,14 +204,15 @@ class Compressor
 // Test if c is a valid compression type
 //--------------------------------------
 
-bool		isValidCompression (Compression c);
+IMF_EXPORT 
+bool isValidCompression (Compression c);
 
 //--------------------------------------
 // Test if c is valid for deep data
 //--------------------------------------
 
+IMF_EXPORT
 bool            isValidDeepCompression (Compression c);
-
 
 
 //-----------------------------------------------------------------
@@ -227,6 +230,7 @@ bool            isValidDeepCompression (Compression c);
 //
 //-----------------------------------------------------------------
 
+IMF_EXPORT 
 Compressor *	newCompressor (Compression c,
 			       size_t maxScanLineSize,
 			       const Header &hdr);
@@ -249,6 +253,7 @@ Compressor *	newCompressor (Compression c,
 //
 //-----------------------------------------------------------------
 
+IMF_EXPORT 
 Compressor *    newTileCompressor (Compression c,
 				   size_t tileLineSize,
 				   size_t numTileLines,
@@ -256,9 +261,5 @@ Compressor *    newTileCompressor (Compression c,
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif

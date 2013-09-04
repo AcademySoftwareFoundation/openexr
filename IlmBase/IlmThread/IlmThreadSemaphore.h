@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2005, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -43,7 +43,8 @@
 //-----------------------------------------------------------------------------
 
 #include "IlmBaseConfig.h"
-#include <IlmThreadNamespace.h>
+#include "IlmThreadExport.h"
+#include "IlmThreadNamespace.h"
 
 #if defined _WIN32 || defined _WIN64
     #ifdef NOMINMAX
@@ -59,7 +60,8 @@
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class Semaphore
+
+class ILMTHREAD_EXPORT Semaphore
 {
   public:
 

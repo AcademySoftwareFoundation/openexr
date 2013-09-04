@@ -37,6 +37,7 @@
 
 #include "ImfFrameBuffer.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -44,7 +45,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // Description of a single deep slice of the frame buffer:
 //--------------------------------------------------------
 
-struct DeepSlice : public Slice
+struct IMF_EXPORT DeepSlice : public Slice
 {
     //---------------------------------------------------------------------
     // The stride for each sample in this slice.
@@ -89,7 +90,7 @@ struct DeepSlice : public Slice
 // DeepFrameBuffer.
 //-----------------
 
-class DeepFrameBuffer
+class IMF_EXPORT DeepFrameBuffer
 {
   public:
 

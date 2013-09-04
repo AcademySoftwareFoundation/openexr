@@ -46,13 +46,15 @@
 
 #include "ImfForward.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class DeepCompositing{
+class IMF_EXPORT DeepCompositing
+{
     public:
-        DeepCompositing(); // constructor
-       virtual ~DeepCompositing();
+        DeepCompositing();
+        virtual ~DeepCompositing();
         
         
         //////////////////////////////////////////////

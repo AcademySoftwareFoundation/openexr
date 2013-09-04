@@ -51,6 +51,7 @@
 
 
 #include <vector>
+#include <cstdlib>
 
 //
 // Apply a series of CTL transforms to the raw pixel data from an image file

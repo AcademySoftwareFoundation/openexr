@@ -50,6 +50,7 @@ template <class T>
 class StringArrayT : public FixedArray<StringTableIndex>
 {
   public:
+    typedef T   BaseType;
     typedef FixedArray<StringTableIndex> super;
 
     static StringArrayT<T>* createDefaultArray(size_t length);
@@ -63,6 +64,7 @@ class StringArrayT : public FixedArray<StringTableIndex>
     const StringTableT<T> & stringTable() const { return _table; }
 
     T  getitem_string(Py_ssize_t index) const {return _table.lookup(getitem(index)); }
+    StringArrayT* getslice_string(PyObject *index) const;
 
     void setitem_string_scalar(PyObject *index, const T &data);
 

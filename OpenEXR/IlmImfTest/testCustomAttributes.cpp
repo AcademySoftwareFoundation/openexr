@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <tmpDir.h>
 
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
@@ -47,9 +46,10 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "tmpDir.h"
 
-#include <OpenEXRConfig.h>
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
@@ -138,7 +138,7 @@ writeReadCustomAttr (const Array2D<float> &pf1,
 	hdr.insert ("custom2", GlorpAttribute (Glorp (4, 9)));
 
 	hdr.channels().insert ("F",			// name
-			       Channel (FLOAT,		// type
+			       Channel (IMF::FLOAT,	// type
 					1,		// xSampling
 					1)		// ySampling
 			      );
@@ -146,7 +146,7 @@ writeReadCustomAttr (const Array2D<float> &pf1,
 	FrameBuffer fb; 
 
 	fb.insert ("F",					// name
-		   Slice (FLOAT,			// type
+		   Slice (IMF::FLOAT,			// type
 			  (char *) &pf1[0][0],		// base
 			  sizeof (pf1[0][0]), 		// xStride
 			  sizeof (pf1[0][0]) * width,	// yStride
@@ -209,7 +209,7 @@ writeReadCustomAttr (const Array2D<float> &pf1,
 	FrameBuffer fb; 
 
 	fb.insert ("F",					// name
-		   Slice (FLOAT,			// type
+		   Slice (IMF::FLOAT,			// type
 			  (char *) &pf1[0][0],		// base
 			  sizeof (pf1[0][0]), 		// xStride
 			  sizeof (pf1[0][0]) * width,	// yStride

@@ -14,4 +14,4 @@ exrmakepreview_SOURCES = main.cpp makePreview.cpp makePreview.h
 
 noinst_HEADERS = makePreview.h
 
-EXTRA_DIST = main.cpp makePreview.cpp makePreview.h
+EXTRA_DIST = main.cpp makePreview.cpp makePreview.h CMakeLists.txt

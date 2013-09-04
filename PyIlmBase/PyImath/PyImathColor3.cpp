@@ -52,8 +52,12 @@
 #include <ImathColor.h>
 #include <ImathColorAlgo.h>
 #include <Iex.h>
+#include "PyImathColor3ArrayImpl.h"
 
 namespace PyImath {
+template <> const char *PyImath::C3cArray::name() { return "C3cArray"; }
+template <> const char *PyImath::C3fArray::name() { return "C3fArray"; }
+
 using namespace boost::python; 
 using namespace IMATH_NAMESPACE;
 
@@ -657,5 +661,12 @@ register_Color3()
 
 template PYIMATH_EXPORT class_<Color3<float>, bases<Vec3<float> > > register_Color3<float>();
 template PYIMATH_EXPORT class_<Color3<unsigned char>, bases<Vec3<unsigned char> > > register_Color3<unsigned char>();
+template PYIMATH_EXPORT class_<FixedArray<Color3<float> > > register_Color3Array<float>();
+template PYIMATH_EXPORT class_<FixedArray<Color3<unsigned char> > > register_Color3Array<unsigned char>();
+
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Color3<float> PyImath::FixedArrayDefaultValue<IMATH_NAMESPACE::Color3<float> >::value()
+{ return IMATH_NAMESPACE::Color3<float>(0,0,0); }
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Color3<unsigned char> PyImath::FixedArrayDefaultValue<IMATH_NAMESPACE::Color3<unsigned char> >::value()
+{ return IMATH_NAMESPACE::Color3<unsigned char>(0,0,0); }
 
 }

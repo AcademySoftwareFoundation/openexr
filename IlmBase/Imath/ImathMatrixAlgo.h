@@ -38,36 +38,25 @@
 
 //-------------------------------------------------------------------------
 //
-//      This file contains algorithms applied to or in conjunction with
-//	transformation matrices (IMATH_INTERNAL_NAMESPACE::Matrix33 and IMATH_INTERNAL_NAMESPACE::Matrix44).
-//	The assumption made is that these functions are called much less
-//	often than the basic point functions or these functions require
-//	more support classes.
+//  This file contains algorithms applied to or in conjunction with
+//  transformation matrices (Imath::Matrix33 and Imath::Matrix44).
+//  The assumption made is that these functions are called much less
+//  often than the basic point functions or these functions require
+//  more support classes.
 //
-//	This file also defines a few predefined constant matrices.
+//  This file also defines a few predefined constant matrices.
 //
 //-------------------------------------------------------------------------
 
+#include "ImathExport.h"
 #include "ImathMatrix.h"
 #include "ImathQuat.h"
 #include "ImathEuler.h"
 #include "ImathExc.h"
 #include "ImathVec.h"
 #include "ImathLimits.h"
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
 #include <math.h>
-
-
-#ifdef OPENEXR_DLL
-    #ifdef IMATH_EXPORTS
-        #define IMATH_EXPORT_CONST extern __declspec(dllexport)
-    #else
-	#define IMATH_EXPORT_CONST extern __declspec(dllimport)
-    #endif
-#else
-    #define IMATH_EXPORT_CONST extern const
-#endif
-
 
 IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -93,7 +82,7 @@ IMATH_EXPORT_CONST M44d identity44d;
 //   that determines the functions' behavior when the matrix'
 //   scaling is very close to zero:
 //
-//   If exc is true, the functions throw an IMATH_INTERNAL_NAMESPACE::ZeroScale exception.
+//   If exc is true, the functions throw an Imath::ZeroScale exception.
 //
 //   If exc is false:
 //
@@ -1292,19 +1281,19 @@ extractSHRT (const Matrix33<T> &mat,
 template <class T> 
 bool		
 checkForZeroScaleInRow (const T& scl, 
-			const Vec2<T> &row,
-			bool exc /* = true */ )
+                        const Vec2<T> &row,
+                        bool exc /* = true */ )
 {
     for (int i = 0; i < 2; i++)
     {
-	if ((abs (scl) < 1 && abs (row[i]) >= limits<T>::max() * abs (scl)))
-	{
-	    if (exc)
-		throw IMATH_INTERNAL_NAMESPACE::ZeroScaleExc ("Cannot remove zero scaling "
-					   "from matrix.");
-	    else
-		return false;
-	}
+        if ((abs (scl) < 1 && abs (row[i]) >= limits<T>::max() * abs (scl)))
+        {
+            if (exc)
+                throw IMATH_INTERNAL_NAMESPACE::ZeroScaleExc (
+                        "Cannot remove zero scaling from matrix.");
+            else
+                return false;
+        }
     }
 
     return true;

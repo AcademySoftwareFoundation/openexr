@@ -12,6 +12,6 @@ LDADD = @ILMBASE_LDFLAGS@ @ILMBASE_LIBS@ \
 
 exr2aces_SOURCES = main.cpp
 
-EXTRA_DIST = main.cpp
+EXTRA_DIST = main.cpp CMakeLists.txt
 
 

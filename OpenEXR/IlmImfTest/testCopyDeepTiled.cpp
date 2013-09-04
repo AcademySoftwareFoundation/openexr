@@ -34,7 +34,6 @@
 
 #include "testCopyDeepTiled.h"
 
-#include <tmpDir.h>
 
 #include <assert.h>
 #include <string.h>
@@ -50,7 +49,8 @@
 #include <stdlib.h>
 #include <vector>
 
-#include <ImfNamespace.h>
+#include "tmpDir.h"
+
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;

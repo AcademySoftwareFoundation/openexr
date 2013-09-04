@@ -41,10 +41,10 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <sstream>
 #include <Python.h>
 #include <boost/python.hpp>
 #include <IexMathFloatExc.h>
-#include <sstream>
 #include <boost/python/errors.hpp>
 #include <boost/format.hpp>
 #include <PyIexTypeTranslator.h>

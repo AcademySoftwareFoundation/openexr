@@ -160,7 +160,4 @@ checkArraySize (T n, size_t s)
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-
-
-
 #endif

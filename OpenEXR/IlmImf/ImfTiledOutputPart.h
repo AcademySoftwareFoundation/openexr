@@ -38,7 +38,7 @@
 #include "ImfMultiPartOutputFile.h"
 #include "ImfTiledOutputFile.h"
 #include "ImfForward.h"
-
+#include "ImfExport.h"
 #include "ImfNamespace.h"
 
 
@@ -50,7 +50,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // Same interface as TiledOutputFile. Please have a reference to TiledOutputFile.
 //-------------------------------------------------------------------------------
 
-class TiledOutputPart
+class IMF_EXPORT TiledOutputPart
 {
     public:
         TiledOutputPart(MultiPartOutputFile& multiPartFile, int partNumber);

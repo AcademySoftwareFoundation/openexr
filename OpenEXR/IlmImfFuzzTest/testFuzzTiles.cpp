@@ -45,9 +45,16 @@
 #include <cassert>
 #include <stdio.h>
 
+#include <vector>
 
 // Handle the case when the custom namespace is not exposed
 #include <OpenEXRConfig.h>
+#include <ImfPartType.h>
+#include <ImfMultiPartOutputFile.h>
+#include <ImfTiledOutputPart.h>
+#include <ImfMultiPartInputFile.h>
+#include <ImfTiledInputPart.h>
+#include <ImfChannelList.h>
 using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;
@@ -77,9 +84,10 @@ void
 writeImageONE (const char fileName[],
 	       int width, int height,
 	       int xSize, int ySize,
+               int parts,
 	       Compression comp)
 {
-    cout << "levelMode 0" << ", compression " << comp << endl;
+    cout << "levelMode 0" << ", compression " << comp << " parts " << parts << endl;
 
     Header header (width, height);
     header.lineOrder() = INCREASING_Y;
@@ -88,11 +96,49 @@ writeImageONE (const char fileName[],
     Array2D<Rgba> pixels (height, width);
     fillPixels (pixels, width, height);
 
-    TiledRgbaOutputFile out (fileName, header, WRITE_RGBA,
-			     xSize, ySize, ONE_LEVEL);
+    if(parts==1)
+    {
+        TiledRgbaOutputFile out (fileName, header, WRITE_RGBA,
+                                 xSize, ySize, ONE_LEVEL);
+                                 
+        out.setFrameBuffer (&pixels[0][0], 1, width);
+        out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
+    }else{
         
-    out.setFrameBuffer (&pixels[0][0], 1, width);
-    out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
+        header.setTileDescription(TileDescription(xSize,ySize,ONE_LEVEL));
+        
+        header.setType(TILEDIMAGE);
+        
+        header.channels().insert("R",Channel(HALF));
+        header.channels().insert("G",Channel(HALF));
+        header.channels().insert("B",Channel(HALF));
+        header.channels().insert("A",Channel(HALF));
+        
+        
+        FrameBuffer f;
+        f.insert("R",Slice(HALF,(char *) &(pixels[0][0].r),sizeof(Rgba),width*sizeof(Rgba)));
+        f.insert("G",Slice(HALF,(char *) &(pixels[0][0].g),sizeof(Rgba),width*sizeof(Rgba)));
+        f.insert("B",Slice(HALF,(char *) &(pixels[0][0].b),sizeof(Rgba),width*sizeof(Rgba)));
+        f.insert("A",Slice(HALF,(char *) &(pixels[0][0].a),sizeof(Rgba),width*sizeof(Rgba)));
+        
+        
+        vector<Header> headers(parts);
+        for(int p=0;p<parts;p++)
+        {
+            headers[p]=header;
+            ostringstream o;
+            o << p;
+            headers[p].setName(o.str());
+        }
+        MultiPartOutputFile file(fileName,&headers[0],headers.size());
+        for(int p=0;p<parts;p++)
+        {
+            TiledOutputPart out(file,p);
+            
+            out.setFrameBuffer(f);
+            out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
+        }
+    }
 }
 
 
@@ -104,24 +150,54 @@ readImageONE (const char fileName[])
     // Reading should either succeed or throw an exception, but it
     // should not cause a crash.
     //
-
+    // attempt TiledRgbaInputFile interface
     try
     {
         TiledRgbaInputFile in (fileName);
         const Box2i &dw = in.dataWindow();
-
+        
         int w = dw.max.x - dw.min.x + 1;
         int h = dw.max.y - dw.min.y + 1;
         int dwx = dw.min.x;
         int dwy = dw.min.y;
-
+        
         Array2D<Rgba> pixels (h, w);
         in.setFrameBuffer (&pixels[-dwy][-dwx], 1, w);
         in.readTiles (0, in.numXTiles() - 1, 0, in.numYTiles() - 1);
     }
     catch (...)
     {
-	// empty
+        // empty
+    }
+    try
+    {
+        
+        // attempt MultiPart interface
+        MultiPartInputFile in(fileName);
+        for(int p=0;p<in.parts();p++)
+        {
+            TiledInputPart inpart(in,p);
+            const Box2i &dw = inpart.header().dataWindow();
+            
+            int w = dw.max.x - dw.min.x + 1;
+            int h = dw.max.y - dw.min.y + 1;
+            int dwx = dw.min.x;
+            int dwy = dw.min.y;
+            
+            Array2D<Rgba> pixels (h, w);
+            FrameBuffer i;
+            i.insert("R",Slice(HALF,(char *)&(pixels[-dwy][-dwx].r),sizeof(Rgba),w*sizeof(Rgba)));
+            i.insert("G",Slice(HALF,(char *)&(pixels[-dwy][-dwx].g),sizeof(Rgba),w*sizeof(Rgba)));
+            i.insert("B",Slice(HALF,(char *)&(pixels[-dwy][-dwx].b),sizeof(Rgba),w*sizeof(Rgba)));
+            i.insert("A",Slice(HALF,(char *)&(pixels[-dwy][-dwx].a),sizeof(Rgba),w*sizeof(Rgba)));
+            
+            inpart.setFrameBuffer (i);
+            inpart.readTiles (0, inpart.numXTiles() - 1, 0, inpart.numYTiles() - 1);
+        }
+    }
+    catch (...)
+    {
+                // empty
     }
 }
 
@@ -130,6 +206,7 @@ void
 writeImageMIP (const char fileName[],
 	       int width, int height,
 	       int xSize, int ySize,
+               int parts, ///\todo support multipart MIP files
 	       Compression comp)
 {
     cout << "levelMode 1" << ", compression " << comp << endl;
@@ -201,6 +278,7 @@ void
 writeImageRIP (const char fileName[],
 	       int width, int height,
 	       int xSize, int ySize,
+               int parts, ///\todo support multipart RIP files
 	       Compression comp)
 {
     cout << "levelMode 2" << ", compression " << comp << endl;
@@ -293,21 +371,26 @@ fuzzTiles (int numThreads, Rand48 &random)
     const int TW = 64;
     const int TH = 64;
 
-    const char *goodFile = IMF_TMP_DIR "imf_test_file_fuzz_good.exr";
-    const char *brokenFile = IMF_TMP_DIR "imf_test_file_fuzz_broken.exr";
+    const char *goodFile = IMF_TMP_DIR "imf_test_tile_file_fuzz_good.exr";
+    const char *brokenFile = IMF_TMP_DIR "imf_test_tile_file_fuzz_broken.exr";
 
-    for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
+    for (int parts = 1 ; parts < 3 ; parts++)
     {
-	writeImageONE (goodFile, W, H, TW, TH, Compression (comp));
-	fuzzFile (goodFile, brokenFile, readImageONE, 5000, 3000, random);
-
-	writeImageMIP (goodFile, W, H, TW, TH, Compression (comp));
-	fuzzFile (goodFile, brokenFile, readImageMIP, 5000, 3000, random);
-
-	writeImageRIP (goodFile, W, H, TW, TH, Compression (comp));
-	fuzzFile (goodFile, brokenFile, readImageRIP, 5000, 3000, random);
+        for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
+        {
+            writeImageONE (goodFile, W, H, TW, TH, parts , Compression (comp));
+            fuzzFile (goodFile, brokenFile, readImageONE, 5000, 3000, random);
+            
+            if(parts==1)
+            {
+                writeImageMIP (goodFile, W, H, TW, TH, parts , Compression (comp));
+                fuzzFile (goodFile, brokenFile, readImageMIP, 5000, 3000, random);
+                
+                writeImageRIP (goodFile, W, H, TW, TH, parts , Compression (comp));
+                fuzzFile (goodFile, brokenFile, readImageRIP, 5000, 3000, random);
+            }
+        }
     }
-
     remove (goodFile);
     remove (brokenFile);
 }

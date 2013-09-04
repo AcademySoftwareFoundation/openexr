@@ -46,20 +46,19 @@
 #include "ImfHeader.h"
 #include "ImfFrameBuffer.h"
 #include "ImfTiledOutputFile.h"
-#include <fstream>
 #include "ImfThreading.h"
 #include "ImfGenericInputFile.h"
 #include "ImfNamespace.h"
 #include "ImfForward.h"
+#include "ImfExport.h"
+
+#include <fstream>
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class TiledInputFile;
-class ScanLineInputFile;
 
-class TileOffsets;
-
-class InputFile : public GenericInputFile
+class IMF_EXPORT InputFile : public GenericInputFile
 {
   public:
 
@@ -146,6 +145,29 @@ class InputFile : public GenericInputFile
 
     bool		isComplete () const;
 
+    
+    //---------------------------------------------------------------
+    // Check if SSE optimization is enabled
+    //
+    // Call after setFrameBuffer() to query whether optimized file decoding
+    // is available - decode times will be faster if returns true
+    //
+    // Optimization depends on:
+    //   the file type (only scanline data is supported),
+    //   the framebuffer channels (RGB/RGBA mono or stereo)
+    //   the framebuffer channel types (all channels half-float format only)
+    //   the file channels (RGB/RGBA mono or stereo)
+    //   the file channel types (all channel half-float format only)
+    //   whether SSE2 instruction support was detected at compile time
+    //
+    // Calling isOptimizationEnabled before setFrameBuffer will throw an exception
+    //
+    //---------------------------------------------------------------
+    
+    bool                isOptimizationEnabled () const;
+    
+    
+    
 
     //---------------------------------------------------------------
     // Read pixel data:

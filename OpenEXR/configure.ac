@@ -1,8 +1,14 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(OpenEXR, 2.0.0)
-AC_SUBST(OPENEXR_VERSION, 2.0.0)
-AC_SUBST(OPENEXR_VERSION_SAFE, 2_0_0)
+AC_INIT(OpenEXR, 2.0.1)
+
+AC_SUBST(OPENEXR_VERSION_MAJOR, 2)
+AC_SUBST(OPENEXR_VERSION_MINOR, 0)
+AC_SUBST(OPENEXR_VERSION_PATCH, 1)
+
+AC_SUBST(OPENEXR_VERSION, ${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH})
+AC_SUBST(OPENEXR_VERSION_API, ${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR})
+
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(IlmImfTest/main.cpp)
 AM_CONFIG_HEADER(config/OpenEXRConfig.h)
@@ -11,7 +17,7 @@ AM_MAINTAINER_MODE
 
 
 LIBTOOL_CURRENT=20
-LIBTOOL_REVISION=0
+LIBTOOL_REVISION=1
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
 AC_SUBST(LIBTOOL_VERSION)
@@ -58,6 +64,9 @@ AM_PATH_PKGCONFIG(
 dnl Define the version string
 AC_DEFINE_UNQUOTED(OPENEXR_VERSION_STRING, "${VERSION}")
 AC_DEFINE_UNQUOTED(OPENEXR_PACKAGE_STRING, "${PACKAGE_STRING}")
+AC_DEFINE_UNQUOTED(OPENEXR_VERSION_MAJOR, ${OPENEXR_VERSION_MAJOR})
+AC_DEFINE_UNQUOTED(OPENEXR_VERSION_MINOR, ${OPENEXR_VERSION_MINOR})
+AC_DEFINE_UNQUOTED(OPENEXR_VERSION_PATCH, ${OPENEXR_VERSION_PATCH})
 
 
 dnl --enable-threading
@@ -235,12 +244,12 @@ dnl
 dnl Handle namespacing configuration : internal library namespace
 dnl                                    user-client namespace 
 dnl
-library_namespace_versioning="no"
+library_namespace_versioning="yes"
 AC_ARG_ENABLE(namespaceversioning,
           AC_HELP_STRING([--enable-namespaceversioning],
-                         [enable symbol versioning via versioned/custom namespace to prevent runtime conflicts <no/yes/custom> [[default=no]]] ),
+                         [enable symbol versioning via versioned/custom namespace to prevent runtime conflicts <no/yes/custom> [[default=yes]]] ),
           [library_namespace_versioning="${enableval}"], 
-          [library_namespace_versioning=no])
+          [library_namespace_versioning=yes])
               
 dnl Suffix for the shared library via the '-release' option
 LIB_SUFFIX=""
@@ -248,11 +257,11 @@ lib_suffix_valid="no"
 
 lib_namespace="Imf"
 if test "x${library_namespace_versioning}" == xyes ; then
-    AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE, Imf_${OPENEXR_VERSION_SAFE})
+    AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE, Imf_${OPENEXR_VERSION_API})
     AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACE_CUSTOM)
 
-    lib_namespace="Imf_${OPENEXR_VERSION_SAFE}"
-    LIB_SUFFIX="Imf_${OPENEXR_VERSION_SAFE}"
+    lib_namespace="Imf_${OPENEXR_VERSION_API}"
+    LIB_SUFFIX="Imf_${OPENEXR_VERSION_API}"
     lib_suffix_valid="yes"
 elif test "x${library_namespace_versioning}" == xno ; then
     AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE, Imf)
@@ -319,9 +328,7 @@ exrstdattr/Makefile
 exrmakepreview/Makefile
 exrenvmap/Makefile
 exrmultiview/Makefile
-exr2aces/Makefile
 vc/Makefile
-exrbuild/Makefile
 exrmultipart/Makefile
 ])
 

@@ -39,6 +39,7 @@
 #include "ImfTiledInputFile.h"
 #include "ImfNamespace.h"
 #include "ImfForward.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -48,7 +49,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // Same interface as TiledInputFile. Please have a reference to TiledInputFile.
 //-----------------------------------------------------------------------------
 
-class TiledInputPart
+class IMF_EXPORT TiledInputPart
 {
     public:
         TiledInputPart(MultiPartInputFile& multiPartFile, int partNumber);

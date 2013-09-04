@@ -35,7 +35,7 @@
 #ifndef INCLUDED_IEXFORWARD_H
 #define INCLUDED_IEXFORWARD_H
 
-#include <IexNamespace.h>
+#include "IexNamespace.h"
 
 IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 

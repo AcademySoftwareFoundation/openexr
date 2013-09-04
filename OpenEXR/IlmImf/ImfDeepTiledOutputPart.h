@@ -38,12 +38,13 @@
 #include "ImfForward.h"
 #include "ImfDeepTiledInputFile.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class DeepTiledOutputPart
+class IMF_EXPORT DeepTiledOutputPart
 {
   public:
 

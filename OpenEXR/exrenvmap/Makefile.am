@@ -26,4 +26,6 @@ EXTRA_DIST = main.cpp EnvmapImage.cpp EnvmapImage.h \
 	     blurImage.cpp blurImage.h \
 	     makeCubeMap.cpp makeCubeMap.h \
 	     makeLatLongMap.cpp makeLatLongMap.h \
-	     namespaceAlias.h
+	     namespaceAlias.h \
+             CMakeLists.txt
+        

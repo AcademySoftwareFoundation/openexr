@@ -82,7 +82,7 @@
 
 #include "ImathPlatform.h"
 #include "ImathLimits.h"
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
 #include <math.h>
 
 IMATH_INTERNAL_NAMESPACE_HEADER_ENTER

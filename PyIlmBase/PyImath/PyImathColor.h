@@ -43,16 +43,18 @@
 
 namespace PyImath {
 
-template <class T> boost::python::class_<IMATH_NAMESPACE::Color3<T>, boost::python::bases<IMATH_NAMESPACE::Vec3<T> > > register_Color3();
-
 template <class T> boost::python::class_<IMATH_NAMESPACE::Color4<T> > register_Color4();
 template <class T> boost::python::class_<PyImath::FixedArray2D<IMATH_NAMESPACE::Color4<T> > > register_Color4Array2D();
 template <class T> boost::python::class_<PyImath::FixedArray<IMATH_NAMESPACE::Color4<T> > > register_Color4Array();
+template <class T> boost::python::class_<IMATH_NAMESPACE::Color3<T>, boost::python::bases<IMATH_NAMESPACE::Vec3<T> > > register_Color3();
+template <class T> boost::python::class_<PyImath::FixedArray<IMATH_NAMESPACE::Color3<T> > > register_Color3Array();
 
 typedef FixedArray2D<IMATH_NAMESPACE::Color4f> Color4fArray;
 typedef FixedArray2D<IMATH_NAMESPACE::Color4c> Color4cArray;
 typedef FixedArray<IMATH_NAMESPACE::Color4f> C4fArray;
 typedef FixedArray<IMATH_NAMESPACE::Color4c> C4cArray;
+typedef FixedArray<IMATH_NAMESPACE::Color3f> C3fArray;
+typedef FixedArray<IMATH_NAMESPACE::Color3c> C3cArray;
 
 //
 // Other code in the Zeno code base assumes the existance of a class with the

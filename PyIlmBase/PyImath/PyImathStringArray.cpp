@@ -50,16 +50,17 @@ template<class T>
 StringArrayT<T>* StringArrayT<T>::createUniformArray(const T& initialValue, size_t length)
 {
     typedef boost::shared_array<StringTableIndex> StringTableIndexArrayPtr;
-    typedef StringTableT<T> StringTable;
-    typedef boost::shared_ptr<StringTable> StringTablePtr;
+    typedef boost::shared_ptr<StringTableT<T> > StringTablePtr;
 
     BOOST_STATIC_ASSERT(boost::is_pod<StringTableIndex>::value);
 
     StringTableIndexArrayPtr indexArray(reinterpret_cast<StringTableIndex*>(new char[sizeof(StringTableIndex)*length]));
-    StringTablePtr table(new StringTable);
+    StringTablePtr table(new StringTableT<T>);
+
+    const StringTableIndex index = table->intern(initialValue);
 
     for(size_t i=0; i<length; ++i)
-        indexArray[i] = table->intern(initialValue);
+        indexArray[i] = index;
 
     return new StringArrayT<T>(*table, indexArray.get(), length, 1, indexArray, table);
 }
@@ -68,13 +69,12 @@ template<class T>
 StringArrayT<T>* StringArrayT<T>::createFromRawArray(const T* rawArray, size_t length)
 {
     typedef boost::shared_array<StringTableIndex> StringTableIndexArrayPtr;
-    typedef StringTableT<T> StringTable;
-    typedef boost::shared_ptr<StringTable> StringTablePtr;
+    typedef boost::shared_ptr<StringTableT<T> > StringTablePtr;
 
     BOOST_STATIC_ASSERT(boost::is_pod<StringTableIndex>::value);
 
     StringTableIndexArrayPtr indexArray(reinterpret_cast<StringTableIndex*>(new char[sizeof(StringTableIndex)*length]));
-    StringTablePtr table(new StringTable);
+    StringTablePtr table(new StringTableT<T>);
 
     for(size_t i=0; i<length; ++i)
         indexArray[i] = table->intern(rawArray[i]);
@@ -98,8 +98,27 @@ StringArrayT<T>::StringArrayT(StringTableT<T> &table, StringTableIndex *ptr, siz
 
 
 
+template<class T>
+StringArrayT<T>*
+StringArrayT<T>::getslice_string(PyObject *index) const
+{
+    typedef boost::shared_array<StringTableIndex> StringTableIndexArrayPtr;
+    typedef boost::shared_ptr<StringTableT<T> > StringTablePtr;
 
+    BOOST_STATIC_ASSERT(boost::is_pod<StringTableIndex>::value);
 
+    size_t start=0, end=0, slicelength=0;
+    Py_ssize_t step;
+    extract_slice_indices(index,start,end,step,slicelength);
+
+    StringTableIndexArrayPtr indexArray(reinterpret_cast<StringTableIndex*>(new char[sizeof(StringTableIndex)*slicelength]));
+    StringTablePtr table(new StringTableT<T>);
+
+    for(size_t i=0; i<slicelength; ++i)
+        indexArray[i] = table->intern(getitem_string(start+i*step));
+
+    return new StringArrayT<T>(*table, indexArray.get(), slicelength, 1, indexArray, table);
+}
 
 template<class T>
 void
@@ -278,6 +297,7 @@ void register_StringArrays()
     string_array_class
         .def("__init__", make_constructor(StringArray::createDefaultArray))
         .def("__init__", make_constructor(StringArray::createUniformArray))
+        .def("__getitem__", &StringArray::getslice_string, return_value_policy<manage_new_object>()) 
         .def("__getitem__", &StringArray::getitem_string) 
         .def("__setitem__", &StringArray::setitem_string_scalar)
         .def("__setitem__", &StringArray::setitem_string_scalar_mask)
@@ -297,6 +317,7 @@ void register_StringArrays()
     wstring_array_class
         .def("__init__", make_constructor(WstringArray::createDefaultArray))
         .def("__init__", make_constructor(WstringArray::createUniformArray))
+        .def("__getitem__", &WstringArray::getslice_string, return_value_policy<manage_new_object>()) 
         .def("__getitem__", &WstringArray::getitem_string) 
         .def("__setitem__", &WstringArray::setitem_string_scalar)
         .def("__setitem__", &WstringArray::setitem_string_scalar_mask)

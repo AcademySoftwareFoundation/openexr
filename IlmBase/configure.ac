@@ -1,7 +1,13 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(IlmBase, 1.1.0)
-AC_SUBST(ILMBASE_VERSION, 1.1.0)
-AC_SUBST(ILMBASE_VERSION_SAFE, 1_1_0)
+AC_INIT(IlmBase, 2.0.1)
+
+AC_SUBST(ILMBASE_VERSION_MAJOR, 2)
+AC_SUBST(ILMBASE_VERSION_MINOR, 0)
+AC_SUBST(ILMBASE_VERSION_PATCH, 1)
+
+AC_SUBST(ILMBASE_VERSION, ${ILMBASE_VERSION_MAJOR}.${ILMBASE_VERSION_MINOR}.${ILMBASE_VERSION_PATCH})
+AC_SUBST(ILMBASE_VERSION_API, ${ILMBASE_VERSION_MAJOR}_${ILMBASE_VERSION_MINOR})
+
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(ImathTest/main.cpp)
 AM_CONFIG_HEADER(config/IlmBaseConfig.h)
@@ -10,7 +16,7 @@ AM_MAINTAINER_MODE
 
 
 LIBTOOL_CURRENT=10
-LIBTOOL_REVISION=0
+LIBTOOL_REVISION=1
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
 AC_SUBST(LIBTOOL_VERSION)
@@ -56,33 +62,9 @@ if test "${multithread}" != no ; then
     AC_MSG_NOTICE([multithread true, LIBS = $LIBS, CC = $CC, CXXFLAGS = $CXXFLAGS])
 fi
 
-
-dnl --enable-large-stack
-case "$host" in
-*linux*)
-  AC_ARG_ENABLE(large-stack,
-    AC_HELP_STRING([--enable-large-stack],
-             [enable optimizations for systems that support
-             large stack sizes [[default=yes]]]),
-    [large_stack="${enableval}"],
-    [large_stack=yes])
-  ;;
-*)
-  AC_ARG_ENABLE(large-stack,
-    AC_HELP_STRING([--enable-large-stack],
-             [enable optimizations for systems that support
-             large stack sizes [[default=no]]]),
-    [large_stack="${enableval}"],
-    [large_stack=no])
-  ;;
-esac
-
-if test "x${large_stack}" != xno ; then
-    AC_DEFINE(ILMBASE_HAVE_LARGE_STACK)
-fi
-
-
+dnl
 dnl Checks for header files.
+dnl
 AC_HEADER_STDC
 AC_CHECK_HEADERS(limits.h unistd.h ucontext.h)
 
@@ -95,7 +77,9 @@ dnl Checks for library functions.
 AC_CHECK_FUNCS(strerror)
 
 
+dnl
 dnl Checks for std::right etc. in iomanip
+dnl
 AC_MSG_CHECKING(for complete iomanip support in C++ standard library)
 complete_iomanip="no"
 AC_LANG_SAVE
@@ -106,12 +90,58 @@ AC_TRY_COMPILE([#include <iomanip>],[
 ],
 AC_DEFINE(HAVE_COMPLETE_IOMANIP) complete_iomanip=yes)
 AC_MSG_RESULT($complete_iomanip)
+
+
+dnl
+dnl Checks for dealing with fpe handling
+dnl
+AC_MSG_CHECKING(for fpe support handling)
+control_register_support="no"
+AC_TRY_COMPILE([
+#include <stdint.h>
+#include <ucontext.h>
+],[
+    ucontext_t ucon;
+    uint32_t mxcsr = ucon.uc_mcontext.fpregs->mxcsr;
+    uint16_t cw    = ucon.uc_mcontext.fpregs->cwd;
+
+],
+AC_DEFINE(ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT) control_register_support=yes)
+AC_MSG_RESULT($control_register_support)
+
 AC_LANG_RESTORE
 
+dnl --enable-large-stack
+case "$host" in
+*linux*)
+  AC_ARG_ENABLE(large-stack,
+		AC_HELP_STRING([--enable-large-stack],
+			       [enable optimizations for systems that support
+			       large stack sizes [[default=yes]]]),
+		[large_stack="${enableval}"],
+		[large_stack=yes])
+  ;;
+*)
+  AC_ARG_ENABLE(large-stack,
+		AC_HELP_STRING([--enable-large-stack],
+			       [enable optimizations for systems that support
+			       large stack sizes [[default=no]]]),
+		[large_stack="${enableval}"],
+		[large_stack=no])
+  ;;
+esac
+
+if test "x${large_stack}" != xno ; then
+    AC_DEFINE(ILMBASE_HAVE_LARGE_STACK)
+fi
 
 dnl Define the version string
 AC_DEFINE_UNQUOTED(ILMBASE_VERSION_STRING, "${VERSION}")
 AC_DEFINE_UNQUOTED(ILMBASE_PACKAGE_STRING, "${PACKAGE_STRING}")
+AC_DEFINE_UNQUOTED(ILMBASE_VERSION_MAJOR, ${ILMBASE_VERSION_MAJOR})
+AC_DEFINE_UNQUOTED(ILMBASE_VERSION_MINOR, ${ILMBASE_VERSION_MINOR})
+AC_DEFINE_UNQUOTED(ILMBASE_VERSION_PATCH, ${ILMBASE_VERSION_PATCH})
+
 
 
 AC_MSG_CHECKING(for gcc optimization flags)
@@ -129,12 +159,12 @@ dnl
 dnl Handle namespacing configuration : internal library namespace
 dnl                                    public namespace 
 dnl
-library_namespace_versioning="no"
+library_namespace_versioning="yes"
 AC_ARG_ENABLE(namespaceversioning,
           AC_HELP_STRING([--enable-namespaceversioning],
-                         [enable symbol versioning via versioned/custom namespace to prevent runtime conflicts <no/yes/custom> [[default=no]]] ),
+                         [enable symbol versioning via versioned/custom namespace to prevent runtime conflicts <no/yes/custom> [[default=yes]]] ),
           [library_namespace_versioning="${enableval}"], 
-          [library_namespace_versioning=no])
+          [library_namespace_versioning=yes])
               
 dnl Suffix for the shared library via the '-release' option
 LIB_SUFFIX=""
@@ -144,13 +174,13 @@ dnl Internal library namespace
 dnl 
 lib_namespace=""
 if test "x${library_namespace_versioning}" == xyes ; then
-    AC_DEFINE_UNQUOTED(IMATH_INTERNAL_NAMESPACE,     Imath_${ILMBASE_VERSION_SAFE})
-    AC_DEFINE_UNQUOTED(IEX_INTERNAL_NAMESPACE,       Iex_${ILMBASE_VERSION_SAFE})
-    AC_DEFINE_UNQUOTED(ILMTHREAD_INTERNAL_NAMESPACE, IlmThread_${ILMBASE_VERSION_SAFE})
+    AC_DEFINE_UNQUOTED(IMATH_INTERNAL_NAMESPACE,     Imath_${ILMBASE_VERSION_API})
+    AC_DEFINE_UNQUOTED(IEX_INTERNAL_NAMESPACE,       Iex_${ILMBASE_VERSION_API})
+    AC_DEFINE_UNQUOTED(ILMTHREAD_INTERNAL_NAMESPACE, IlmThread_${ILMBASE_VERSION_API})
     AC_DEFINE(ILMBASE_INTERNAL_NAMESPACE_CUSTOM)
     
-    lib_namespace="${ILMBASE_VERSION_SAFE}"
-    LIB_SUFFIX="${ILMBASE_VERSION_SAFE}"
+    lib_namespace="${ILMBASE_VERSION_API}"
+    LIB_SUFFIX="${ILMBASE_VERSION_API}"
     lib_suffix_valid="yes"
 elif test "x${library_namespace_versioning}" == xno ; then
     AC_DEFINE_UNQUOTED(IMATH_INTERNAL_NAMESPACE,     Imath)
@@ -331,8 +361,7 @@ if test "$osx_arch"; then
   AC_MSG_RESULT([
 OS X architectures                           $osx_arch
 OS X SDK                                     $osx_sdk
-OS X two-way universal build (deprecated)    $build_osxuniversal
-OS X enable large stack optimizations        $large_stack])
+OS X two-way universal build (deprecated)    $build_osxuniversal])
 fi
 
 AC_MSG_RESULT([

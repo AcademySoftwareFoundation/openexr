@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <tmpDir.h>
 #include "compareB44.h"
 
 #include <ImfOutputFile.h>
@@ -50,7 +49,8 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include <OpenEXRConfig.h>
+#include "tmpDir.h"
+
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;

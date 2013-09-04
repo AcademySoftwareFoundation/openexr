@@ -52,10 +52,11 @@
 #include "ImfDeepTiledOutputFile.h"
 #include "ImfForward.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class DeepTiledInputFile : public GenericInputFile
+class IMF_EXPORT DeepTiledInputFile : public GenericInputFile
 {
   public:
 

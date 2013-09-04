@@ -51,18 +51,22 @@
 #include "ImathVec.h"
 #include "ImathBox.h"
 #include "IexBaseExc.h"
+
+#include "ImfForward.h"
+#include "ImfNamespace.h"
+#include "ImfExport.h"
+
 #include <map>
 #include <iosfwd>
 #include <string>
-#include "ImfForward.h"
-#include "ImfNamespace.h"
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 using std::string;
 
 
-class Header
+class IMF_EXPORT Header
 {
   public:
     
@@ -691,9 +695,5 @@ Header::findTypedAttribute (const std::string &name) const
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif

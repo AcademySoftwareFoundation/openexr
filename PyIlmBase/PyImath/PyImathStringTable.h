@@ -120,15 +120,15 @@ using namespace boost::multi_index;
 // It exposes two index types : StringTableIndex and string
 //
 template<class T>
-struct StringTableDetailT {
-
-typedef boost::multi_index_container<
-    StringTableEntry<T>,
-    indexed_by<
-        ordered_unique<member<StringTableEntry<T>,StringTableIndex,&StringTableEntry<T>::i> >,
-        ordered_unique<member<StringTableEntry<T>,T,&StringTableEntry<T>::s> >
-    > 
-> StringTableContainer;
+class StringTableDetailT {
+    public:
+    typedef boost::multi_index_container<
+        StringTableEntry<T>,
+        indexed_by<
+            ordered_unique<member<StringTableEntry<T>,StringTableIndex,&StringTableEntry<T>::i> >,
+            ordered_unique<member<StringTableEntry<T>,T,&StringTableEntry<T>::s> >
+        > 
+    > StringTableContainer;
 };
 
 } // namespace

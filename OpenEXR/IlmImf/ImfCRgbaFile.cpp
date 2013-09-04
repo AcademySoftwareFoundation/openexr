@@ -54,9 +54,9 @@
 #include <ImfLut.h>
 #include "half.h"
 #include "ImfNamespace.h"
+#include "ImathForward.h"
 
 #include <string.h>
-
 
 
 using IMATH_NAMESPACE::Box2i;
@@ -293,8 +293,8 @@ void
 ImfHeaderScreenWindowCenter (const ImfHeader *hdr, float *x, float *y)
 {
     const V2i &swc = header(hdr)->screenWindowCenter();
-    *x = swc.x;
-    *y = swc.y;
+    *x = (float) swc.x;
+    *y = (float) swc.y;
 }
 
 

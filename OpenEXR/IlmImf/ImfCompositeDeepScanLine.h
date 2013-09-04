@@ -60,12 +60,14 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfForward.h"
-#include <ImathBox.h>
 #include "ImfNamespace.h"
+#include "ImfExport.h"
+#include <ImathBox.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class CompositeDeepScanLine{
+class IMF_EXPORT CompositeDeepScanLine
+{
     public:
         CompositeDeepScanLine();
        virtual ~CompositeDeepScanLine();
@@ -127,9 +129,8 @@ class CompositeDeepScanLine{
         
         void setCompositing(DeepCompositing *);
         
- 
+      struct Data; 
     private :  
-      struct Data;
       struct Data *_Data;
       
       CompositeDeepScanLine(const CompositeDeepScanLine &); // not implemented

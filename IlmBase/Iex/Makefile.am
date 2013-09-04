@@ -18,3 +18,5 @@ libIexincludedir = $(includedir)/OpenEXR
 libIexinclude_HEADERS = IexBaseExc.h IexMathExc.h IexThrowErrnoExc.h \
 			IexErrnoExc.h IexMacros.h Iex.h \
                         IexForward.h IexNamespace.h IexExport.h
+
+EXTRA_DIST = CMakeLists.txt

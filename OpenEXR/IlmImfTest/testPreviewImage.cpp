@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <tmpDir.h>
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
@@ -42,13 +41,13 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "tmpDir.h"
+
 #ifndef ILM_IMF_TEST_IMAGEDIR
     #define ILM_IMF_TEST_IMAGEDIR
 #endif
 
 
-
-#include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;

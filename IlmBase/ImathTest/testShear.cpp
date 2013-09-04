@@ -50,7 +50,7 @@ testShear ()
 {
     cout << "Testing functions in ImathShear.h" << endl;
 
-    cout << "IMATH_INTERNAL_NAMESPACE::Shear6 constructors" << endl;
+    cout << "Imath::Shear6 constructors" << endl;
 
     const float         epsilon = IMATH_INTERNAL_NAMESPACE::limits< float >::epsilon();
 
@@ -67,7 +67,7 @@ testShear ()
 
     assert ( A == B );
 
-    cout << "IMATH_INTERNAL_NAMESPACE::Shear6 * f" << endl;
+    cout << "Imath::Shear6 * f" << endl;
 
     assert ( ( IMATH_INTERNAL_NAMESPACE::Shear6f( 0.330f, 0.710f, 0.010f, 
 			       0.999f, -0.531f, -0.012f ) * 0.999f ) ==
@@ -78,7 +78,7 @@ testShear ()
 			    -0.531f * 0.999f,
 			    -0.012f * 0.999f ) );
 
-    cout << "IMATH_INTERNAL_NAMESPACE::Shear6 / f" << endl;
+    cout << "Imath::Shear6 / f" << endl;
 
     assert ( ( IMATH_INTERNAL_NAMESPACE::Shear6f( 0.330f, 0.710f, 0.010f, 
 			       0.999f, -0.531f, -0.012f ) / 0.999f ) ==

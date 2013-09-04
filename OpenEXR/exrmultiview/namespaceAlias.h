@@ -34,8 +34,12 @@
 #ifndef NAMESPACEALIAS_H_
 #define NAMESPACEALIAS_H_
 
-#include <OpenEXRConfig.h>
+#include <ImfNamespace.h>
+#include <ImathNamespace.h>
+#include <IexNamespace.h>
 
-namespace CustomImf = OPENEXR_IMF_NAMESPACE;
+namespace IMF   = OPENEXR_IMF_NAMESPACE;
+namespace IMATH = IMATH_NAMESPACE;
+namespace IEX   = IEX_NAMESPACE;
 
 #endif /* NAMESPACEALIAS_H_ */

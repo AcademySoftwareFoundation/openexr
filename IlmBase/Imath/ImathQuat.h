@@ -51,13 +51,13 @@
 //	This class implements the quaternion numerical type -- you
 //      will probably want to use this class to represent orientations
 //	in R3 and to convert between various euler angle reps. You
-//	should probably use IMATH_INTERNAL_NAMESPACE::Euler<> for that.
+//	should probably use Imath::Euler<> for that.
 //
 //----------------------------------------------------------------------
 
 #include "ImathExc.h"
 #include "ImathMatrix.h"
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
 
 #include <iostream>
 

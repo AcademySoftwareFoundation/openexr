@@ -1,9 +1,14 @@
 # yue.nicholas@gmail.com
 
-ADD_LIBRARY ( Iex STATIC
+IF(BUILD_SHARED_LIBS)
+    ADD_DEFINITIONS(-DIEX_EXPORTS)
+ENDIF()
+
+ADD_LIBRARY ( Iex ${LIB_TYPE}
   IexBaseExc.cpp
   IexThrowErrnoExc.cpp
   )
+
 
 INSTALL ( TARGETS
   Iex
@@ -18,6 +23,9 @@ INSTALL ( FILES
   IexErrnoExc.h
   IexMacros.h
   Iex.h
+  IexNamespace.h
+  IexExport.h
+  IexForward.h
   DESTINATION
   include/OpenEXR
 )

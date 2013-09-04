@@ -44,13 +44,14 @@
 
 #include "ImfCompressor.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
+#include "ImfForward.h"
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class ChannelList;
 
-
-class PizCompressor: public Compressor
+class IMF_EXPORT PizCompressor: public Compressor
 {
   public:
 
@@ -112,8 +113,5 @@ class PizCompressor: public Compressor
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
 
 #endif

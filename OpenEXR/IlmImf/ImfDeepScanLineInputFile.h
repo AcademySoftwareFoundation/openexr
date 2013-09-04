@@ -46,12 +46,13 @@
 #include "ImfGenericInputFile.h"
 #include "ImfNamespace.h"
 #include "ImfForward.h"
+#include "ImfExport.h"
 #include "ImfDeepScanLineOutputFile.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class DeepScanLineInputFile : public GenericInputFile
+class IMF_EXPORT DeepScanLineInputFile : public GenericInputFile
 {
   public:
 
@@ -203,7 +204,7 @@ class DeepScanLineInputFile : public GenericInputFile
 
                                       
     //-------------------------------------------------
-    // firscScanLineInChunk() returns the row number of the first row that's stored in the
+    // firstScanLineInChunk() returns the row number of the first row that's stored in the
     // same chunk as scanline y. Depending on the compression mode, this may not be the same as y
     //
     // lastScanLineInChunk() returns the row number of the last row that's stored in the same

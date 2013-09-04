@@ -62,15 +62,16 @@
 //	string of bytes is compressed with zlib.
 //
 //-----------------------------------------------------------------------------
-#define ZLIB_WINAPI 
+#include "ImfPxr24Compressor.h"
+#include "ImfHeader.h"
+#include "ImfChannelList.h"
+#include "ImfMisc.h"
+#include "ImfCheckedArithmetic.h"
+#include "ImfNamespace.h"
 
-#include <ImfPxr24Compressor.h>
-#include <ImfHeader.h>
-#include <ImfChannelList.h>
-#include <ImfMisc.h>
-#include <ImfCheckedArithmetic.h>
 #include <ImathFun.h>
 #include <Iex.h>
+
 #include <half.h>
 #include <zlib.h>
 #include <assert.h>
@@ -78,7 +79,6 @@
 
 using namespace std;
 using namespace IMATH_NAMESPACE;
-#include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -314,7 +314,7 @@ Pxr24Compressor::compress (const char *inPtr,
 
 	    switch (c.type)
 	    {
-	      case UINT:
+	      case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
 		ptr[0] = tmpBufferEnd;
 		ptr[1] = ptr[0] + n;
@@ -341,7 +341,7 @@ Pxr24Compressor::compress (const char *inPtr,
 
 		break;
 
-	      case HALF:
+	      case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
 		ptr[0] = tmpBufferEnd;
 		ptr[1] = ptr[0] + n;
@@ -363,7 +363,7 @@ Pxr24Compressor::compress (const char *inPtr,
 
 		break;
 
-	      case FLOAT:
+	      case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
 		ptr[0] = tmpBufferEnd;
 		ptr[1] = ptr[0] + n;
@@ -459,7 +459,7 @@ Pxr24Compressor::uncompress (const char *inPtr,
 
 	    switch (c.type)
 	    {
-	      case UINT:
+	      case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
 		ptr[0] = tmpBufferEnd;
 		ptr[1] = ptr[0] + n;
@@ -467,7 +467,7 @@ Pxr24Compressor::uncompress (const char *inPtr,
 		ptr[3] = ptr[2] + n;
 		tmpBufferEnd = ptr[3] + n;
 
-		if (tmpBufferEnd - _tmpBuffer > tmpSize)
+		if ( (uLongf)(tmpBufferEnd - _tmpBuffer) > tmpSize)
 		    notEnoughData();
 
 		for (int j = 0; j < n; ++j)
@@ -487,13 +487,13 @@ Pxr24Compressor::uncompress (const char *inPtr,
 
 		break;
 
-	      case HALF:
+	      case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
 		ptr[0] = tmpBufferEnd;
 		ptr[1] = ptr[0] + n;
 		tmpBufferEnd = ptr[1] + n;
 
-		if (tmpBufferEnd - _tmpBuffer > tmpSize)
+        if ( (uLongf)(tmpBufferEnd - _tmpBuffer) > tmpSize)
 		    notEnoughData();
 
 		for (int j = 0; j < n; ++j)
@@ -510,14 +510,14 @@ Pxr24Compressor::uncompress (const char *inPtr,
 
 		break;
 
-	      case FLOAT:
+	      case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
 		ptr[0] = tmpBufferEnd;
 		ptr[1] = ptr[0] + n;
 		ptr[2] = ptr[1] + n;
 		tmpBufferEnd = ptr[2] + n;
 
-		if (tmpBufferEnd - _tmpBuffer > tmpSize)
+        if ( (uLongf) (tmpBufferEnd - _tmpBuffer) > tmpSize)
 		    notEnoughData();
 
 		for (int j = 0; j < n; ++j)
@@ -542,7 +542,7 @@ Pxr24Compressor::uncompress (const char *inPtr,
 	}
     }
 
-    if (tmpBufferEnd - _tmpBuffer < tmpSize)
+    if ((uLongf) (tmpBufferEnd - _tmpBuffer) < tmpSize)
 	tooMuchData();
 
     outPtr = _outBuffer;

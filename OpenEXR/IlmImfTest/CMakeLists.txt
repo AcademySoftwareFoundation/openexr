@@ -18,9 +18,11 @@ ADD_EXECUTABLE ( IlmImfTest
   testCopyPixels.cpp
   testCustomAttributes.cpp
   testDeepScanLineBasic.cpp
+  testDeepScanLineMultipleRead.cpp
   testDeepScanLineHuge.cpp
   testDeepTiledBasic.cpp
   testExistingStreams.cpp
+  testFutureProofing.cpp
   testHuf.cpp
   testInputPart.cpp
   testIsComplete.cpp
@@ -35,6 +37,8 @@ ADD_EXECUTABLE ( IlmImfTest
   testMultiTiledPartThreading.cpp
   testMultiView.cpp
   testNativeFormat.cpp
+  testOptimized.cpp
+  testPartHelper.cpp
   testPreviewImage.cpp
   testRgba.cpp
   testRgbaThreading.cpp
@@ -50,8 +54,10 @@ ADD_EXECUTABLE ( IlmImfTest
   testWav.cpp
   testXdr.cpp
   testYca.cpp
+  testOptimizedInterleavePatterns.cpp
+  testDeepScanlineMultipleRead.cpp
  )
 
-TARGET_LINK_LIBRARIES ( IlmImfTest IlmImf Iex Imath Half IlmThread ${Z_LIB} ${PTHREAD_LIB})
+TARGET_LINK_LIBRARIES ( IlmImfTest IlmImf Iex Imath Half IlmThread ${ZLIB_LIBRARIES} ${PTHREAD_LIB})
 
 ADD_TEST ( TestIlmImf IlmImfTest )

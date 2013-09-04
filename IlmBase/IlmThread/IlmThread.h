@@ -91,7 +91,8 @@
 //-----------------------------------------------------------------------------
 
 #include "IlmBaseConfig.h"
-#include <IlmThreadNamespace.h>
+#include "IlmThreadExport.h"
+#include "IlmThreadNamespace.h"
 
 #if defined _WIN32 || defined _WIN64
     #ifdef NOMINMAX
@@ -102,16 +103,6 @@
     #include <process.h>
 #elif HAVE_PTHREAD
     #include <pthread.h>
-#endif
-
-#if defined(OPENEXR_DLL) && !defined(ZENO_STATIC)
-    #ifdef ILMTHREAD_EXPORTS
-	#define ILMTHREAD_EXPORT __declspec(dllexport)
-    #else
-	#define ILMTHREAD_EXPORT __declspec(dllimport)
-    #endif
-#else
-    #define ILMTHREAD_EXPORT 
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER

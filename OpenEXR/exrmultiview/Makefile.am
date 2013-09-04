@@ -20,4 +20,5 @@ noinst_HEADERS = Image.h makeMultiView.h
 EXTRA_DIST = main.cpp \
 	     Image.h Image.cpp \
 	     makeMultiView.h makeMultiView.cpp \
-	     namespaceAlias.h
+	     namespaceAlias.h \
+             CMakeLists.txt

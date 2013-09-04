@@ -38,12 +38,12 @@
 #include "ImfHeader.h"
 #include "ImfForward.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class OutputPartData
+struct IMF_EXPORT OutputPartData
 {
-    protected:
         Header                  header;
         Int64                   chunkOffsetTablePosition;
         Int64                   previewPosition;
@@ -55,11 +55,6 @@ class OutputPartData
         OutputPartData(OutputStreamMutex* mutex, const Header &header,
                        int partNumber, int numThreads, bool multipart);
 
-    friend class OutputFile;
-    friend class TiledOutputFile;
-    friend class DeepScanLineOutputFile;
-    friend class DeepTiledOutputFile;
-    friend class MultiPartOutputFile;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

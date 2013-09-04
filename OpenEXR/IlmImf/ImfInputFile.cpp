@@ -38,16 +38,16 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfInputFile.h>
-#include <ImfScanLineInputFile.h>
-#include <ImfTiledInputFile.h>
-#include <ImfChannelList.h>
-#include <ImfMisc.h>
-#include <ImfStdIO.h>
-#include <ImfVersion.h>
-#include <ImfPartType.h>
-#include <ImfInputPartData.h>
-#include <ImfMultiPartInputFile.h>
+#include "ImfInputFile.h"
+#include "ImfScanLineInputFile.h"
+#include "ImfTiledInputFile.h"
+#include "ImfChannelList.h"
+#include "ImfMisc.h"
+#include "ImfStdIO.h"
+#include "ImfVersion.h"
+#include "ImfPartType.h"
+#include "ImfInputPartData.h"
+#include "ImfMultiPartInputFile.h"
 
 #include <ImfCompositeDeepScanLine.h>
 #include <ImfDeepScanLineInputFile.h>
@@ -172,17 +172,17 @@ InputFile::Data::deleteCachedBuffer()
 
 	    switch (s.type)
 	    {
-	      case UINT:
+	      case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
 		delete [] (((unsigned int *)s.base) + offset);
 		break;
 
-	      case HALF:
+	      case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
 		delete [] ((half *)s.base + offset);
 		break;
 
-	      case FLOAT:
+	      case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
 		delete [] (((float *)s.base) + offset);
 		break;
@@ -366,6 +366,15 @@ InputFile::InputFile (const char fileName[], int numThreads):
             _data->_streamData = new InputStreamMutex();
             _data->_streamData->is = is;
             _data->header.readFrom (*_data->_streamData->is, _data->version);
+            
+            // fix type attribute in single part regular image types
+            // (may be wrong if an old version of OpenEXR converts
+            // a tiled image to scanline or vice versa)
+            if(!isNonImage(_data->version) && !isMultiPart(_data->version) && _data->header.hasType())
+            {
+                _data->header.setType(isTiled(_data->version) ? TILEDIMAGE : SCANLINEIMAGE);
+            }
+            
             _data->header.sanityCheck (isTiled (_data->version));
 
             initialize();
@@ -374,8 +383,15 @@ InputFile::InputFile (const char fileName[], int numThreads):
     catch (IEX_NAMESPACE::BaseExc &e)
     {
         if (is)          delete is;
-        if (_data && _data->_streamData) delete _data->_streamData;
+         
+        if ( _data && !_data->multiPartBackwardSupport  && _data->_streamData)
+        {
+            delete _data->_streamData;
+            _data->_streamData=NULL;
+        }
+        
         if (_data)       delete _data;
+        _data=NULL;
 
         REPLACE_EXC (e, "Cannot read image file "
 			"\"" << fileName << "\". " << e);
@@ -384,7 +400,10 @@ InputFile::InputFile (const char fileName[], int numThreads):
     catch (...)
     {
         if (is)          delete is;
-        if (_data && _data->_streamData) delete _data->_streamData;
+        if (_data && !_data->multiPartBackwardSupport && _data->_streamData)
+        {
+            delete _data->_streamData;
+        }
         if (_data)       delete _data;
 
         throw;
@@ -413,6 +432,15 @@ InputFile::InputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThread
             _data->_streamData = new InputStreamMutex();
             _data->_streamData->is = &is;
             _data->header.readFrom (*_data->_streamData->is, _data->version);
+            
+            // fix type attribute in single part regular image types
+            // (may be wrong if an old version of OpenEXR converts
+            // a tiled image to scanline or vice versa)
+            if(!isNonImage(_data->version) && !isMultiPart(_data->version) && _data->header.hasType())
+            {
+                _data->header.setType(isTiled(_data->version) ? TILEDIMAGE : SCANLINEIMAGE);
+            }
+            
             _data->header.sanityCheck (isTiled (_data->version));
 
             initialize();
@@ -420,8 +448,9 @@ InputFile::InputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThread
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {
-        if (_data && _data->_streamData) delete _data->_streamData;
+        if (_data && !_data->multiPartBackwardSupport && _data->_streamData) delete _data->_streamData;
         if (_data)       delete _data;
+        _data=NULL; 
 
         REPLACE_EXC (e, "Cannot read image file "
 			"\"" << is.fileName() << "\". " << e);
@@ -429,10 +458,9 @@ InputFile::InputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThread
     }
     catch (...)
     {
-        if (_data && _data->_streamData) delete _data->_streamData;
+        if (_data &&  !_data->multiPartBackwardSupport  && _data->_streamData) delete _data->_streamData;
         if (_data)       delete _data;
-
-        if (_data) delete _data;
+        _data=NULL;
         throw;
     }
 }
@@ -515,11 +543,16 @@ InputFile::initialize ()
                                                _data->version,
                                                _data->numThreads);
         }
-        else
+        
+        else if(!_data->header.hasType() || _data->header.type()==SCANLINEIMAGE)
         {
             _data->sFile = new ScanLineInputFile (_data->header,
                                                   _data->_streamData->is,
                                                   _data->numThreads);
+        }else{
+            // type set but not recognised
+            
+            THROW(IEX_NAMESPACE::ArgExc, "InputFile cannot handle parts of type " << _data->header.type());
         }
     }
     else
@@ -550,9 +583,12 @@ InputFile::initialize ()
 
             _data->tFile = new TiledInputFile (_data->part);
         }
-        else
+        else if(!_data->header.hasType() || _data->header.type()==SCANLINEIMAGE)
         {
             _data->sFile = new ScanLineInputFile (_data->part);
+        }else{
+            THROW(IEX_NAMESPACE::ArgExc, "InputFile cannot handle parts of type " << _data->header.type());
+            
         }
     }
 }
@@ -650,7 +686,7 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 
 		switch (s.type)
 		{
-		  case UINT:
+		  case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
 		    _data->cachedBuffer->insert
 			(k.name(),
@@ -665,7 +701,7 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 				false, true));
 		    break;
 
-		  case HALF:
+		  case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
 		    _data->cachedBuffer->insert
 			(k.name(),
@@ -680,11 +716,11 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 				false, true));
 		    break;
 
-		  case FLOAT:
+		  case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
 		    _data->cachedBuffer->insert
 			(k.name(),
-			 Slice (FLOAT,
+			 Slice (OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT,
 				(char *)(new float[tileRowSize] - 
 					_data->offset),
 				sizeof(float),
@@ -744,6 +780,17 @@ InputFile::isComplete () const
 	return _data->tFile->isComplete();
     else
 	return _data->sFile->isComplete();
+}
+
+bool
+InputFile::isOptimizationEnabled() const
+{
+   if(_data->sFile)
+   {
+       return _data->sFile->isOptimizationEnabled();
+   }else{
+       return false;
+   }
 }
 
 

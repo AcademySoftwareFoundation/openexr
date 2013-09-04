@@ -66,16 +66,18 @@
 #include "ImfTimeCodeAttribute.h"
 #include "ImfVecAttribute.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
-#define IMF_STD_ATTRIBUTE_DEF(name,suffix,object)                              \
-    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER                                \
-    void			 add##suffix (Header &header, const object &v);\
-    bool			 has##suffix (const Header &header);           \
-    const TypedAttribute<object> & name##Attribute (const Header &header);     \
-    TypedAttribute<object> &	 name##Attribute (Header &header);             \
-    const object &		 name (const Header &header);                  \
-    object &			 name (Header &header);                        \
-    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT                                 \
+#define IMF_STD_ATTRIBUTE_DEF(name,suffix,object)                                      \
+                                                                                       \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER                                        \
+    IMF_EXPORT void				add##suffix (Header &header, const object &v);         \
+    IMF_EXPORT bool				has##suffix (const Header &header);                    \
+    IMF_EXPORT const TypedAttribute<object> & name##Attribute (const Header &header);  \
+    IMF_EXPORT TypedAttribute<object> &	 name##Attribute (Header &header);             \
+    IMF_EXPORT const object &	name (const Header &header);                           \
+    IMF_EXPORT object &			name (Header &header);                                 \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT                                         \
 
 
 //
@@ -337,9 +339,6 @@ IMF_STD_ATTRIBUTE_DEF (worldToCamera, WorldToCamera, IMATH_NAMESPACE::M44f)
 // 
 
 IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
-
-
-
 
 
 #endif

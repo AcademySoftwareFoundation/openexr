@@ -10,10 +10,10 @@ libHalf_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ -no-undefined
 
 libHalfincludedir = $(includedir)/OpenEXR
 
-libHalfinclude_HEADERS = half.h halfFunction.h halfLimits.h
+libHalfinclude_HEADERS = half.h halfFunction.h halfLimits.h halfExport.h
 
 # these are used to build eLut.h and toFloat.h dynamically
-EXTRA_DIST = eLut.cpp toFloat.cpp
+EXTRA_DIST = eLut.cpp toFloat.cpp CMakeLists.txt
 
 CLEANFILES = eLut eLut.h toFloat toFloat.h
 

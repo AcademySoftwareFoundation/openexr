@@ -47,8 +47,7 @@
 #include "ImathLimits.h"
 #include "ImathMath.h"
 #include "ImathVec.h"
-
-#include <ImathNamespace.h>
+#include "ImathNamespace.h"
 #include <iostream>
 
 

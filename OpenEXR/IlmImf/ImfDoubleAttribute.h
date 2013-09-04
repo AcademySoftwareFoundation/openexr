@@ -44,17 +44,16 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfAttribute.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 typedef TypedAttribute<double> DoubleAttribute;
-template <> const char *DoubleAttribute::staticTypeName ();
+template <> IMF_EXPORT const char *DoubleAttribute::staticTypeName ();
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
 
 
 #endif

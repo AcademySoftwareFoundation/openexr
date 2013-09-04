@@ -42,6 +42,7 @@
 #include "ImfForward.h"
 #include "ImfThreading.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -66,7 +67,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //  numThreads - number of threads that should be used in encoding the data.
 //
     
-class MultiPartOutputFile : public GenericOutputFile
+class IMF_EXPORT MultiPartOutputFile : public GenericOutputFile
 {
     public:
         MultiPartOutputFile(const char fileName[],
@@ -74,6 +75,12 @@ class MultiPartOutputFile : public GenericOutputFile
                             int parts,
                             bool overrideSharedAttributes = false,
                             int numThreads = globalThreadCount());
+                            
+        MultiPartOutputFile(OStream & os,
+                            const Header * headers,
+                            int parts,
+                            bool overrideSharedAttributes = false,
+                            int numThreads = globalThreadCount());                            
 
         //
         // return number of parts in file
@@ -95,14 +102,9 @@ class MultiPartOutputFile : public GenericOutputFile
         Data*                           _data;
 
         MultiPartOutputFile(const MultiPartOutputFile &); // not implemented
+        
+        template<class T>         T*  getOutputPart(int partNumber);
 
-        OutputFile*                     createOutputPart (int partNumber);
-        TiledOutputFile*                createTiledOutputPart (int partNumber);
-        DeepScanLineOutputFile* createDeepScanLineOutputPart (int partNumber);
-        DeepTiledOutputFile*    createDeepTiledOutputPart (int partNumber);
-
-
-        OutputPartData*         getPart (int partNumber);
     
     friend class OutputPart;
     friend class TiledOutputPart;

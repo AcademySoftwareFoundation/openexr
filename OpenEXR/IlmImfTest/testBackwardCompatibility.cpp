@@ -74,11 +74,17 @@
 #include <sys/times.h>
 #endif // WIN32
 
-#include <OpenEXRConfig.h>
-using namespace OPENEXR_IMF_NAMESPACE;
-using namespace std;
+#ifndef ILM_IMF_TEST_IMAGEDIR
+    #define ILM_IMF_TEST_IMAGEDIR
+#endif
+
+
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
+using namespace std;
+
 
 namespace {
 
@@ -199,32 +205,32 @@ generateScanlinePlanarImage (const char * fn)
 
     IMATH_NAMESPACE::Box2i dod (IMATH_NAMESPACE::V2f(20), IMATH_NAMESPACE::V2f(W-20, H-23));
     OPENEXR_IMF_NAMESPACE::Header header = Header (W, H, dod);
-    header.channels().insert("Z", Channel(FLOAT));
-    header.channels().insert("R", Channel(HALF));
-    header.channels().insert("G", Channel(HALF));
-    header.channels().insert("B", Channel(HALF));
+    header.channels().insert("Z", Channel(IMF::FLOAT));
+    header.channels().insert("R", Channel(IMF::HALF));
+    header.channels().insert("G", Channel(IMF::HALF));
+    header.channels().insert("B", Channel(IMF::HALF));
     addUserAttributesToHeader (header);
 
     FrameBuffer fb;
 
     fb.insert ("Z",
-               Slice (FLOAT,
+               Slice (IMF::FLOAT,
                       (char *) &pf[0][0],
                       sizeof (pf[0][0]),
                       sizeof (pf[0][0]) * W));
 
     fb.insert ("R",
-               Slice (HALF,
+               Slice (IMF::HALF,
                       (char *) &ph[0][0],
                       sizeof (ph[0][0]),
                       sizeof (ph[0][0]) * W));
     fb.insert ("G",
-               Slice (HALF,
+               Slice (IMF::HALF,
                       (char *) &ph[0][0],
                       sizeof (ph[0][0]),
                       sizeof (ph[0][0]) * W));
     fb.insert ("B",
-               Slice (HALF,
+               Slice (IMF::HALF,
                       (char *) &ph[0][0],
                       sizeof (ph[0][0]),
                       sizeof (ph[0][0]) * W));
@@ -257,20 +263,20 @@ generateScanlineInterleavedImage (const char * fn)
 
     IMATH_NAMESPACE::Box2i dod (IMATH_NAMESPACE::V2f(20), IMATH_NAMESPACE::V2f(W-20, H-23));
     OPENEXR_IMF_NAMESPACE::Header header = Header (W, H, dod);
-    header.channels().insert("Z", Channel(FLOAT));
-    header.channels().insert("R", Channel(HALF));
+    header.channels().insert("Z", Channel(IMF::FLOAT));
+    header.channels().insert("R", Channel(IMF::HALF));
     addUserAttributesToHeader (header);
 
     FrameBuffer fb;
 
     fb.insert ("Z",
-               Slice (FLOAT,
+               Slice (IMF::FLOAT,
                       (char *) &(rz[0][0].z),
                       sizeof (rz[0][0]),
                       sizeof (rz[0][0]) * W));
 
     fb.insert ("G",
-               Slice (HALF,
+               Slice (IMF::HALF,
                       (char *) &(rz[0][0].g),
                       sizeof (rz[0][0]),
                       sizeof (rz[0][0]) * W));
@@ -286,10 +292,12 @@ diffScanlineImages ()
     // Planar Images
     generateScanlinePlanarImage (planarScanlineName);
     diffImageFiles (planarScanlineName, ILM_IMF_TEST_IMAGEDIR "v1.7.test.planar.exr");
+    remove(planarScanlineName);
 
     // Interleaved Images
     generateScanlineInterleavedImage (interleavedScanlineName);
     diffImageFiles (interleavedScanlineName, ILM_IMF_TEST_IMAGEDIR "v1.7.test.interleaved.exr");
+    remove(interleavedScanlineName);
 }
 
 
@@ -308,8 +316,8 @@ generateTiledImage (const char * fn)
     }
 
     Header header (W, H);
-    header.channels().insert ("G", Channel (HALF));
-    header.channels().insert ("Z", Channel (FLOAT));
+    header.channels().insert ("G", Channel (IMF::HALF));
+    header.channels().insert ("Z", Channel (IMF::FLOAT));
 
     int tileW = 12;
     int tileH = 24;
@@ -318,13 +326,13 @@ generateTiledImage (const char * fn)
     OPENEXR_IMF_NAMESPACE::TiledOutputFile out (fn, header);
     OPENEXR_IMF_NAMESPACE::FrameBuffer frameBuffer; // 6
     frameBuffer.insert ("G",
-                        Slice (HALF,
+                        Slice (IMF::HALF,
                                (char *) &rz[0][0].g,
                                sizeof (rz[0][0]) * 1,
                                sizeof (rz[0][0]) * W));
 
     frameBuffer.insert ("Z",
-                        Slice (FLOAT,
+                        Slice (IMF::FLOAT,
                                (char *) &rz[0][0].z,
                                sizeof (rz[0][0]) * 1,
                                sizeof (rz[0][0]) * W));
@@ -340,6 +348,7 @@ diffTiledImages ()
     // Planar Images
     generateTiledImage (tiledName);
     diffImageFiles (tiledName, ILM_IMF_TEST_IMAGEDIR "v1.7.test.tiled.exr");
+    remove(tiledName);
 }
 
 

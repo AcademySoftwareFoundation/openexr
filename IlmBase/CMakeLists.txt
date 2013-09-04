@@ -3,11 +3,14 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT ( ILMBase )
 
+# Allow the developer to select if Dynamic or Static libraries are built
+OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+
 IF ( NOT WIN32)
   ADD_DEFINITIONS ( -pthread )
 ENDIF ()
 
-INCLUDE_DIRECTORIES ( Iex Imath Half config IexTest ImathTest HalfTest )
+INCLUDE_DIRECTORIES ( Iex IexMath Imath Half config IlmThread IexTest ImathTest HalfTest )
 
 MACRO(GET_TARGET_PROPERTY_WITH_DEFAULT _variable _target _property _default_value)
    GET_TARGET_PROPERTY (${_variable} ${_target} ${_property})
@@ -59,8 +62,19 @@ MACRO(GET_TARGET_PROPERTY_WITH_DEFAULT _variable _target _property _default_valu
    INSTALL( FILES ${_laname} DESTINATION ${CMAKE_INSTALL_PREFIX}${_install_DIR})
  ENDMACRO(CREATE_LIBTOOL_FILE)
 
+SET (LIB_TYPE STATIC)
+IF (BUILD_SHARED_LIBS)
+  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
+  SET (LIB_TYPE SHARED)
+  IF (WIN32)
+    ADD_DEFINITIONS(-DOPENEXR_DLL)
+  ENDIF ()
+ENDIF (BUILD_SHARED_LIBS)
+
+
 ADD_SUBDIRECTORY ( Half )
 ADD_SUBDIRECTORY ( Iex )
+ADD_SUBDIRECTORY ( IexMath )
 ADD_SUBDIRECTORY ( Imath )
 ADD_SUBDIRECTORY ( IlmThread )
 
@@ -71,8 +85,8 @@ IF (WIN32)
 ELSE ()
   FILE ( WRITE ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_PTHREAD 1\n" )
   FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_POSIX_SEMAPHORES 1\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_STRING \"1.1.0\"\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_PACKAGE_STRING \"IlmBase 1.1.0\"\n" )
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_STRING \"2.0.0\"\n" )
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_PACKAGE_STRING \"IlmBase 2.0.0\"\n" )
 ENDIF ()
 
 SET_TARGET_PROPERTIES ( Half
@@ -95,10 +109,16 @@ SET_TARGET_PROPERTIES ( IlmThread
   VERSION 10.0.0
   SOVERSION 10
   )
+SET_TARGET_PROPERTIES ( IexMath
+  PROPERTIES
+  VERSION 10.0.0
+  SOVERSION 10
+  )
 
 IF ( NOT WIN32 )
   CREATE_LIBTOOL_FILE ( Half /lib )
   CREATE_LIBTOOL_FILE ( Iex /lib )
+  CREATE_LIBTOOL_FILE ( IexMath /lib )
   CREATE_LIBTOOL_FILE ( Imath /lib )
   CREATE_LIBTOOL_FILE ( IlmThread /lib )
 ENDIF ()
@@ -127,7 +147,7 @@ OpenEXR_includedir=\${prefix}/include/OpenEXR
 Name: IlmBase
 Description: Base math and exception libraries
 Version: 1.1.0
-Libs: -L\${libdir} -lImath -lHalf -lIex -lIlmThread -pthread
+Libs: -L\${libdir} -lImath -lIexMath -lHalf -lIex -lIlmThread -pthread
 Cflags: -pthread -I\${OpenEXR_includedir}
 ")
 

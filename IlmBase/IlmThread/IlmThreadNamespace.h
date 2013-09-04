@@ -76,7 +76,7 @@
 // Open Source version of this file pulls in the IlmBaseConfig.h file
 // for the configure time options.
 //
-#include <IlmBaseConfig.h>
+#include "IlmBaseConfig.h"
 
 #ifndef ILMTHREAD_NAMESPACE
 #define ILMTHREAD_NAMESPACE IlmThread

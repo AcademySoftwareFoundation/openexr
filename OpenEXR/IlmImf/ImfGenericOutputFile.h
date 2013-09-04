@@ -40,11 +40,12 @@
 #include "ImfXdr.h"
 #include "ImfHeader.h"
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class GenericOutputFile
+class IMF_EXPORT GenericOutputFile
 {
     public:
         virtual ~GenericOutputFile() {}
@@ -57,9 +58,5 @@ class GenericOutputFile
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif /* GENERICOUTPUTFILE_H_ */

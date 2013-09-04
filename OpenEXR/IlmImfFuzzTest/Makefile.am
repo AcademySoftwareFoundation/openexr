@@ -6,7 +6,10 @@ endif
 
 IlmImfFuzzTest_SOURCES = fuzzFile.cpp fuzzFile.h main.cpp tmpDir.h \
 			 testFuzzScanLines.cpp testFuzzScanLines.h \
-			 testFuzzTiles.cpp testFuzzTiles.h
+			 testFuzzDeepScanLines.cpp testFuzzDeepScanLines.h \
+			 testFuzzDeepTiles.cpp testFuzzDeepTiles.h \
+			 testFuzzTiles.cpp testFuzzTiles.h 
+
 
 INCLUDES = -I$(top_builddir)  \
 	   -I$(top_srcdir)/IlmImf \
@@ -20,3 +23,5 @@ LDADD = -L$(top_builddir)/IlmImf \
 if BUILD_IMFFUZZTEST
 TESTS = IlmImfFuzzTest
 endif
+
+EXTRA_DIST = CMakeLists.txt
