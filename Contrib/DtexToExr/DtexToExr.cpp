@@ -59,13 +59,13 @@
 // Written by Pixar, 2011-2012.
 //-*****************************************************************************
 
-#include "code/pxDeepUtil/PxDeepUtils.h"
-#include "code/pxDeepUtil/PxDeepOutPixel.h"
-#include "code/pxDeepUtil/PxDeepOutRow.h"
-#include "code/pxDeepUtil/PxBaseDeepHelper.h"
-#include "code/pxDeepUtil/PxOneChanDeepOpacity.h"
-#include "code/pxDeepUtil/PxOneChanDeepAlpha.h"
-#include "code/pxDeepUtil/PxFourChanDeepRgba.h"
+#include "PxDeepUtils.h"
+#include "PxDeepOutPixel.h"
+#include "PxDeepOutRow.h"
+#include "PxBaseDeepHelper.h"
+#include "PxOneChanDeepOpacity.h"
+#include "PxOneChanDeepAlpha.h"
+#include "PxFourChanDeepRgba.h"
 
 #include <dtex.h>
 
