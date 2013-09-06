@@ -76,9 +76,10 @@
 #include "scaleImage.h"
 #include "applyCtl.h"
 #include "ImageView.h"
+#include "namespaceAlias.h"
 
-using namespace OPENEXR_IMF_NAMESPACE;
-using namespace IMATH_NAMESPACE;
+using namespace IMF;
+using namespace IMATH;
 using namespace std;
 
 

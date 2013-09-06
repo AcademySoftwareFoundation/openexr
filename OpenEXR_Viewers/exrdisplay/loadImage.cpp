@@ -64,8 +64,8 @@
 
 #include <vector>
 
-using namespace OPENEXR_IMF_NAMESPACE;
-using namespace IMATH_NAMESPACE;
+using namespace IMF;
+using namespace IMATH;
 using namespace std;
 
 namespace {
@@ -897,7 +897,6 @@ loadDeepTileImage (MultiPartInputFile &inmaster,
                     pixels[i].r = zbuff[i][0];
                     pixels[i].g = alpha[i][0];
                     pixels[i].b = zback[i][0];
-
                 }
             }
         }

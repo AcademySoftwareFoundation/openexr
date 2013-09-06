@@ -39,15 +39,16 @@
 //
 //----------------------------------------------------------------------------
 
-#include <scaleImage.h>
+#include "scaleImage.h"
+
 #include <ImathLimits.h>
 #include <ImathFun.h>
 #include <algorithm>
 #include <math.h>
 
 
-using namespace OPENEXR_IMF_NAMESPACE;
-using namespace IMATH_NAMESPACE;
+using namespace IMF;
+using namespace IMATH;
 using std::min;
 using std::max;
 
@@ -194,8 +195,8 @@ scaleY (float f,
 void
 normalizePixels (int dw, int dh, Array<Rgba> &pixels)
 {
-    float pMax = -IMATH_NAMESPACE::limits<float>::max ();
-    float pMin =  IMATH_NAMESPACE::limits<float>::max ();
+    float pMax = -IMATH::limits<float>::max ();
+    float pMin =  IMATH::limits<float>::max ();
 
     for (int i = 0; i < dw * dh; ++i)
     {
