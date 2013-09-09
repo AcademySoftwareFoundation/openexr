@@ -77,7 +77,6 @@ INSTALL ( FILES
   config/IlmBaseConfig.h
   DESTINATION
   include/OpenEXR
-
 )
 
 FILE ( WRITE ${CMAKE_BINARY_DIR}/IlmBase.pc "prefix=${CMAKE_INSTALL_PREFIX}\n" )
