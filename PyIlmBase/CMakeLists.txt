@@ -36,3 +36,4 @@ ADD_SUBDIRECTORY ( PyImathNumpy )
 
 ADD_SUBDIRECTORY ( PyIexTest )
 ADD_SUBDIRECTORY ( PyImathTest )
+ADD_SUBDIRECTORY ( PyImathNumpyTest )
