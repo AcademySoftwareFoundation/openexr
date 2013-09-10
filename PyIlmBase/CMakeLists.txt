@@ -21,8 +21,6 @@ IF ( NOT WIN32)
   ADD_DEFINITIONS ( -pthread )
 ENDIF ()
 
-INCLUDE_DIRECTORIES ( PyIex )
-
 SET (LIB_TYPE STATIC)
 IF (BUILD_SHARED_LIBS)
   # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
@@ -33,5 +31,6 @@ IF (BUILD_SHARED_LIBS)
 ENDIF (BUILD_SHARED_LIBS)
 
 ADD_SUBDIRECTORY ( PyIex )
+ADD_SUBDIRECTORY ( PyImath )
 
 ADD_SUBDIRECTORY ( PyIexTest )
