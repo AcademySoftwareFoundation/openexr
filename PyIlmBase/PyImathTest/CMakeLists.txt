@@ -1,0 +1,1 @@
+ADD_TEST ( PyImathTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/pyImathTest.in )
