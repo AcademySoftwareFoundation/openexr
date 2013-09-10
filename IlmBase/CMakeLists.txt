@@ -88,7 +88,7 @@ OpenEXR_includedir=\${prefix}/include/OpenEXR
 Name: IlmBase
 Description: Base math and exception libraries
 Version: 2.0.1
-Libs: -L\${libdir} -lImath -lIexMath -lHalf -lIex -lIlmThread -pthread
+Libs: -L\${libdir} -lImath-2_0 -lIexMath-2_0 -lHalf -lIex-2_0 -lIlmThread-2_0 -pthread
 Cflags: -pthread -I\${OpenEXR_includedir}
 ")
 
