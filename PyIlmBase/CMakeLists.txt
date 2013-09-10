@@ -49,3 +49,23 @@ SET_TARGET_PROPERTIES ( PyImath
 ADD_SUBDIRECTORY ( PyIexTest )
 ADD_SUBDIRECTORY ( PyImathTest )
 ADD_SUBDIRECTORY ( PyImathNumpyTest )
+
+
+FILE ( WRITE ${CMAKE_BINARY_DIR}/PyIlmBase.pc "prefix=${CMAKE_INSTALL_PREFIX}\n" )
+FILE ( APPEND ${CMAKE_BINARY_DIR}/PyIlmBase.pc "exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib
+includedir=\${prefix}/include
+PyIlmBase_includedir=\${prefix}/include/OpenEXR
+
+Name: PyIlmBase
+Description: Python bindings for the IlmBase libraries
+Version: 2.0.1
+Libs: -L\${libdir} -lImath-2_0 -lIexMath-2_0 -lHalf -lIex-2_0 -lIlmThread-2_0 -pthread
+Cflags: -pthread -I\${PyIlmBase_includedir}
+")
+
+INSTALL ( FILES
+  ${CMAKE_BINARY_DIR}/PyIlmBase.pc
+  DESTINATION
+  lib/pkgconfig
+)
