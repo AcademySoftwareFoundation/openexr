@@ -1,0 +1,26 @@
+# yue.nicholas@gmail.com
+
+IF(BUILD_SHARED_LIBS)
+  ADD_DEFINITIONS(-DIEX_EXPORTS)
+ENDIF()
+
+INCLUDE_DIRECTORIES( . ${PYTHON_INCLUDE_DIRS} ${ILMBASE_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+LINK_DIRECTORIES( ${ILMBASE_LIBRARY_DIRS})
+
+ADD_LIBRARY ( imathnumpymodule ${LIB_TYPE}
+  imathnumpymodule.cpp
+  )
+
+SET_TARGET_PROPERTIES (imathnumpymodule PROPERTIES PREFIX "")
+
+TARGET_LINK_LIBRARIES ( imathnumpymodule
+  Iex-2_0
+  ${Boost_LIBRARIES}
+  ${PYTHON_LIBRARIES}
+  )
+
+INSTALL ( TARGETS
+  imathnumpymodule
+  DESTINATION
+  lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-package
+)
