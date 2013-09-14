@@ -30,6 +30,16 @@ IF (BUILD_SHARED_LIBS)
   ENDIF ()
 ENDIF (BUILD_SHARED_LIBS)
 
+INCLUDE_DIRECTORIES( PyIex
+                     PyIexTest
+                     PyImath
+                     PyImathTest
+                     PyImathNumpy
+                     PyImathNumpyTest
+                     ${PYTHON_INCLUDE_DIRS}
+                     ${ILMBASE_INCLUDE_DIRS}
+                     ${Boost_INCLUDE_DIRS})
+
 ADD_SUBDIRECTORY ( PyIex )
 ADD_SUBDIRECTORY ( PyImath )
 ADD_SUBDIRECTORY ( PyImathNumpy )
