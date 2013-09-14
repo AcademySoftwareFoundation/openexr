@@ -55,6 +55,12 @@ ADD_SUBDIRECTORY ( IlmImf )
 #ADD_SUBDIRECTORY ( exr2aces )
 #ADD_SUBDIRECTORY ( exrmultipart )
 
+SET_TARGET_PROPERTIES ( IlmImf
+  PROPERTIES
+  VERSION 20.0.1
+  SOVERSION 20
+  )
+
 ##########################
 # Installation
 ##########################
