@@ -11,7 +11,7 @@ ADD_LIBRARY ( imathnumpymodule
 SET_TARGET_PROPERTIES (imathnumpymodule PROPERTIES PREFIX "")
 
 TARGET_LINK_LIBRARIES ( imathnumpymodule
-  Iex-2_0
+  ${ILMBASE_LIBRARIES}
   ${Boost_LIBRARIES}
   ${PYTHON_LIBRARIES}
   )

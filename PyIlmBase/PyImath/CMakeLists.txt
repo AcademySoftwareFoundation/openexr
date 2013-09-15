@@ -37,9 +37,7 @@ ADD_LIBRARY ( PyImath
   )
 
 TARGET_LINK_LIBRARIES ( PyImath
-  Imath-2_0
-  IexMath-2_0
-  Iex-2_0
+  ${ILMBASE_LIBRARIES}
   ${Boost_LIBRARIES}
   ${PYTHON_LIBRARIES}
   )
@@ -101,9 +99,7 @@ SET_TARGET_PROPERTIES (imathmodule PROPERTIES PREFIX "")
 TARGET_LINK_LIBRARIES ( imathmodule
   PyImath
   PyIex
-  Imath-2_0
-  IexMath-2_0
-  Iex-2_0
+  ${ILMBASE_LIBRARIES}
   ${Boost_LIBRARIES}
   ${PYTHON_LIBRARIES}
   )
