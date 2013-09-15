@@ -34,7 +34,7 @@ SET_TARGET_PROPERTIES (iexmodule PROPERTIES PREFIX "")
 
 TARGET_LINK_LIBRARIES ( iexmodule
   PyIex
-  Iex-2_0
+  ${ILMBASE_LIBRARIES}
   ${Boost_LIBRARIES}
   )
 
