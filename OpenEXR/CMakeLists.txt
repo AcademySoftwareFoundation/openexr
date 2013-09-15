@@ -1,12 +1,34 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-PROJECT (OpenEXR)
+PROJECT (openexr)
+
+ENABLE_TESTING()
+
+SET(CPACK_PACKAGE_VERSION_MAJOR "2")
+SET(CPACK_PACKAGE_VERSION_MINOR "0")
+SET(CPACK_PACKAGE_VERSION_PATCH "1")
+SET(CPACK_SOURCE_GENERATOR "TGZ")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME
+    "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}"
+  )
+set(CPACK_SOURCE_IGNORE_FILES
+  "/.git*;/.cvs*;${CPACK_SOURCE_IGNORE_FILES}")
+INCLUDE ( CPack )
 
 # Allow the developer to select if Dynamic or Static libraries are built
 OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 OPTION (USE_ZLIB_WINAPI   "Use ZLib Win API"       OFF)
 
-ADD_DEFINITIONS ( -DHAVE_CONFIG_H -DILM_IMF_TEST_IMAGEDIR="${CMAKE_SOURCE_DIR}/openexr/IlmImfTest/" )
+ADD_DEFINITIONS ( -DHAVE_CONFIG_H -DILM_IMF_TEST_IMAGEDIR="${CMAKE_SOURCE_DIR}/IlmImfTest/" )
+
+INCLUDE (FindPkgConfig)
+PKG_CHECK_MODULES ( ILMBASE IlmBase )
+
+FIND_PACKAGE(ZLIB REQUIRED)
+
+IF (NOT WIN32)
+  SET ( PTHREAD_LIB pthread )
+ENDIF()
 
 INCLUDE_DIRECTORIES (
   config
@@ -16,25 +38,16 @@ INCLUDE_DIRECTORIES (
   exrmakepreview
   exrmultiview
   IlmImfFuzzTest
+  ${ILMBASE_INCLUDE_DIRS}
+  ${ZLIB_INCLUDE_DIR}
 )
+LINK_DIRECTORIES( ${ILMBASE_LIBRARY_DIRS})
 
-FIND_PACKAGE(ZLIB REQUIRED)
-INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
-
-IF (NOT WIN32)
-  SET ( PTHREAD_LIB pthread )
-ENDIF()
-
-INCLUDE_DIRECTORIES ( ${ILMBASE_PACKAGE_PREFIX}/include/OpenEXR )
-LINK_DIRECTORIES ( ${ILMBASE_PACKAGE_PREFIX}/lib )
-MESSAGE ( "ILMBASE_PACKAGE_PREFIX = " ${ILMBASE_PACKAGE_PREFIX})
-
-SET (LIB_TYPE STATIC)
 IF (BUILD_SHARED_LIBS)
-  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
-  SET (LIB_TYPE SHARED)
-  ADD_DEFINITIONS(-DOPENEXR_DLL)
-ENDIF ()
+  IF (WIN32)
+    ADD_DEFINITIONS(-DOPENEXR_DLL)
+  ENDIF ()
+ENDIF (BUILD_SHARED_LIBS)
 
 IF (USE_ZLIB_WINAPI)
   ADD_DEFINITIONS(-DZLIB_WINAPI)
@@ -43,6 +56,7 @@ ENDIF ()
 ADD_SUBDIRECTORY ( IlmImf )
 ADD_SUBDIRECTORY ( IlmImfTest )
 ADD_SUBDIRECTORY ( IlmImfFuzzTest )
+
 ADD_SUBDIRECTORY ( IlmImfExamples )
 
 ADD_SUBDIRECTORY ( exrheader )
@@ -53,6 +67,12 @@ ADD_SUBDIRECTORY ( exrenvmap )
 ADD_SUBDIRECTORY ( exrmultiview )
 ADD_SUBDIRECTORY ( exr2aces )
 ADD_SUBDIRECTORY ( exrmultipart )
+
+SET_TARGET_PROPERTIES ( IlmImf
+  PROPERTIES
+  VERSION 20.0.1
+  SOVERSION 20
+  )
 
 ##########################
 # Installation
@@ -89,3 +109,25 @@ INSTALL ( FILES
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-2.0.0/examples
   )
+
+FILE ( WRITE ${CMAKE_BINARY_DIR}/OpenEXR.pc "prefix=${CMAKE_INSTALL_PREFIX}\n" )
+FILE ( APPEND ${CMAKE_BINARY_DIR}/OpenEXR.pc "exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib
+includedir=\${prefix}/include
+OpenEXR_includedir=\${prefix}/include/OpenEXR
+
+Name: OpenEXR
+Description: OpenEXR image library
+Version: 2.0.1
+
+Libs: -L\${libdir} -lIlmImf-2_0
+Cflags: -I\${OpenEXR_includedir}
+Requires: IlmBase
+Libs.private: -lz
+")
+
+INSTALL ( FILES
+  ${CMAKE_BINARY_DIR}/OpenEXR.pc
+  DESTINATION
+  lib/pkgconfig
+)

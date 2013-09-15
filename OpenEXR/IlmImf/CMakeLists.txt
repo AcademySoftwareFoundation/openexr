@@ -41,7 +41,6 @@ ADD_EXECUTABLE ( b44ExpLogTable
   b44ExpLogTable.cpp
   )
 TARGET_LINK_LIBRARIES ( b44ExpLogTable
-#  Imath
   Half
   Iex
   IlmThread
@@ -149,19 +148,18 @@ SET ( ILMIMF_SRCS
   ImfCompositeDeepScanLine.cpp
 )
 
-IF(BUILD_SHARED_LIBS)
-    ADD_DEFINITIONS(-DILMIMF_EXPORTS)
-ENDIF()
-
-ADD_LIBRARY ( IlmImf ${LIB_TYPE}
+ADD_LIBRARY ( IlmImf
   ${ILMIMF_SRCS}
 )
 
-TARGET_LINK_LIBRARIES ( IlmImf Half Iex IMath IlmThread ${PTHREAD_LIB} ${ZLIB_LIBRARIES})
-
-IF(NOT BUILD_SHARED_LIBS)
-  ADD_DEPENDENCIES ( IlmImf b44ExpLogTable )
+IF(BUILD_SHARED_LIBS)
+    ADD_DEFINITIONS(-DILMIMF_EXPORTS)
+    SET_TARGET_PROPERTIES(IlmImf PROPERTIES OUTPUT_NAME "IlmImf-2_0")
 ENDIF()
+
+TARGET_LINK_LIBRARIES ( IlmImf ${ILMBASE_LIBRARIES} ${PTHREAD_LIB} ${ZLIB_LIBRARIES})
+
+ADD_DEPENDENCIES ( IlmImf b44ExpLogTable )
 
 # Libraries
 
@@ -232,6 +230,7 @@ INSTALL ( FILES
   ImfTestFile.h
   ImfThreading.h
   ImfB44Compressor.h
+  ImfMisc.h
   ImfStringVectorAttribute.h
   ImfMultiView.h
   ImfAcesFile.h
@@ -240,6 +239,7 @@ INSTALL ( FILES
   ImfMultiPartInputFile.h
   ImfGenericInputFile.h
   ImfPartType.h
+  ImfPartHelper.h
   ImfOutputPart.h
   ImfTiledOutputPart.h
   ImfInputPart.h
@@ -259,4 +259,3 @@ INSTALL ( FILES
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
   )
-

@@ -6,9 +6,7 @@ ADD_EXECUTABLE ( exrheader
 
 TARGET_LINK_LIBRARIES ( exrheader
   IlmImf
-  Iex
-  IlmThread
-  Half
+  ${ILMBASE_LIBS}
   ${PTHREAD_LIB}
   ${ZLIB_LIBRARIES}
 )

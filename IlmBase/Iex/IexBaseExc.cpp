@@ -48,6 +48,8 @@
 #include <windows.h>
 #endif
 
+#include <cstdlib>
+
 IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
