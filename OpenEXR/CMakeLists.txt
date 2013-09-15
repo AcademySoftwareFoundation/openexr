@@ -49,14 +49,14 @@ ADD_SUBDIRECTORY ( IlmImfFuzzTest )
 
 ADD_SUBDIRECTORY ( IlmImfExamples )
 
-#ADD_SUBDIRECTORY ( exrheader )
-#ADD_SUBDIRECTORY ( exrmaketiled )
-#ADD_SUBDIRECTORY ( exrstdattr )
-#ADD_SUBDIRECTORY ( exrmakepreview )
-#ADD_SUBDIRECTORY ( exrenvmap )
-#ADD_SUBDIRECTORY ( exrmultiview )
-#ADD_SUBDIRECTORY ( exr2aces )
-#ADD_SUBDIRECTORY ( exrmultipart )
+ADD_SUBDIRECTORY ( exrheader )
+ADD_SUBDIRECTORY ( exrmaketiled )
+ADD_SUBDIRECTORY ( exrstdattr )
+ADD_SUBDIRECTORY ( exrmakepreview )
+ADD_SUBDIRECTORY ( exrenvmap )
+ADD_SUBDIRECTORY ( exrmultiview )
+ADD_SUBDIRECTORY ( exr2aces )
+ADD_SUBDIRECTORY ( exrmultipart )
 
 SET_TARGET_PROPERTIES ( IlmImf
   PROPERTIES
