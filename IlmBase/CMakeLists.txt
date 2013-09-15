@@ -5,6 +5,8 @@ PROJECT ( ILMBase )
 
 ENABLE_TESTING()
 
+OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+
 IF ( NOT WIN32)
   ADD_DEFINITIONS ( -pthread )
 ENDIF ()
