@@ -46,7 +46,8 @@ ENDIF ()
 ADD_SUBDIRECTORY ( IlmImf )
 ADD_SUBDIRECTORY ( IlmImfTest )
 ADD_SUBDIRECTORY ( IlmImfFuzzTest )
-#ADD_SUBDIRECTORY ( IlmImfExamples )
+
+ADD_SUBDIRECTORY ( IlmImfExamples )
 
 #ADD_SUBDIRECTORY ( exrheader )
 #ADD_SUBDIRECTORY ( exrmaketiled )
