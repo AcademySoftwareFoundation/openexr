@@ -36,9 +36,10 @@ INCLUDE_DIRECTORIES( PyIex
                      PyImathTest
                      PyImathNumpy
                      PyImathNumpyTest
-                     ${PYTHON_INCLUDE_DIRS}
                      ${ILMBASE_INCLUDE_DIRS}
+                     ${PYTHON_INCLUDE_DIRS}
                      ${Boost_INCLUDE_DIRS})
+LINK_DIRECTORIES( ${ILMBASE_LIBRARY_DIRS})
 
 ADD_SUBDIRECTORY ( PyIex )
 ADD_SUBDIRECTORY ( PyImath )
