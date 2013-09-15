@@ -1,6 +1,6 @@
 # yue.nicholas@gmail.com
 
-ADD_LIBRARY ( Imath ${LIB_TYPE}
+ADD_LIBRARY ( Imath
   ImathBox.cpp
   ImathRandom.cpp
   ImathColorAlgo.cpp

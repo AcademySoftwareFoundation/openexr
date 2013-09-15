@@ -4,7 +4,7 @@ IF(BUILD_SHARED_LIBS)
   ADD_DEFINITIONS(-DIEX_EXPORTS)
 ENDIF()
 
-ADD_LIBRARY ( PyImath ${LIB_TYPE}
+ADD_LIBRARY ( PyImath
   PyImath.cpp
   PyImathAutovectorize.cpp
   PyImathBox2Array.cpp
@@ -90,7 +90,7 @@ INSTALL ( FILES
   include/OpenEXR
 )
 
-ADD_LIBRARY ( imathmodule ${LIB_TYPE}
+ADD_LIBRARY ( imathmodule
   imathmodule.cpp
   PyImathFun.cpp
   PyImathBasicTypes.cpp

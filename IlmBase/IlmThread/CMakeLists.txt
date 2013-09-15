@@ -18,7 +18,7 @@ IF (WIN32)
 	)
 ENDIF()
 
-ADD_LIBRARY ( IlmThread ${LIB_TYPE}
+ADD_LIBRARY ( IlmThread
   ${ILMTHREAD_LIBRARY_SOURCES}
   )
 

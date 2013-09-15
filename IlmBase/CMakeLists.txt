@@ -25,10 +25,7 @@ ENDIF ()
 
 INCLUDE_DIRECTORIES ( Iex IexMath Imath Half config IlmThread IexTest ImathTest HalfTest )
 
-SET (LIB_TYPE STATIC)
 IF (BUILD_SHARED_LIBS)
-  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
-  SET (LIB_TYPE SHARED)
   IF (WIN32)
     ADD_DEFINITIONS(-DOPENEXR_DLL)
   ENDIF ()

@@ -4,7 +4,7 @@ IF(BUILD_SHARED_LIBS)
   ADD_DEFINITIONS(-DIEX_EXPORTS)
 ENDIF()
 
-ADD_LIBRARY ( imathnumpymodule ${LIB_TYPE}
+ADD_LIBRARY ( imathnumpymodule
   imathnumpymodule.cpp
   )
 

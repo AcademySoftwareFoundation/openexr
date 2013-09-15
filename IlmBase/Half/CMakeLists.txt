@@ -32,7 +32,7 @@ SET_SOURCE_FILES_PROPERTIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/toFloat.h
   )
 
-ADD_LIBRARY ( Half ${LIB_TYPE}
+ADD_LIBRARY ( Half
   half.cpp
   )
 

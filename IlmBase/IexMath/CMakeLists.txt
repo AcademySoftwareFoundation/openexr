@@ -1,6 +1,6 @@
 # pstanczyk@ilm.com
 
-ADD_LIBRARY ( IexMath ${LIB_TYPE}
+ADD_LIBRARY ( IexMath
   IexMathFloatExc.cpp  
   IexMathFpu.cpp
   )
