@@ -1,6 +1,6 @@
 # yue.nicholas@gmail.com
 
-ADD_LIBRARY ( Iex ${LIB_TYPE}
+ADD_LIBRARY ( Iex
   IexBaseExc.cpp
   IexThrowErrnoExc.cpp
   )

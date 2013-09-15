@@ -4,7 +4,7 @@ IF(BUILD_SHARED_LIBS)
   ADD_DEFINITIONS(-DIEX_EXPORTS)
 ENDIF()
 
-ADD_LIBRARY ( PyIex ${LIB_TYPE}
+ADD_LIBRARY ( PyIex
   PyIex.cpp
   )
 
@@ -26,7 +26,7 @@ INSTALL ( FILES
   include/OpenEXR
 )
 
-ADD_LIBRARY ( iexmodule ${LIB_TYPE}
+ADD_LIBRARY ( iexmodule
   iexmodule.cpp
   )
 
