@@ -50,7 +50,12 @@ DeepCompositing::~DeepCompositing()
 }
 
 void 
-DeepCompositing::composite_pixel(float outputs[], const float* inputs[], const char*channel_names[], int num_channels, int num_samples,int sources)
+DeepCompositing::composite_pixel (float outputs[],
+                                  const float* inputs[],
+                                  const char*channel_names[],
+                                  int num_channels,
+                                  int num_samples,
+                                  int sources)
 {
     for(int i=0;i<num_channels;i++) outputs[i]=0.0;
     // no samples? do nothing
