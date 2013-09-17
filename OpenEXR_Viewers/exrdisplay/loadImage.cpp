@@ -59,10 +59,13 @@
 #include <ImfDeepScanLineInputPart.h>
 #include <ImfDeepFrameBuffer.h>
 #include <ImfCompositeDeepScanLine.h>
+#include <ImfDeepCompositing.h>
 #include <ImfDeepTiledInputPart.h>
 
-using namespace OPENEXR_IMF_NAMESPACE;
-using namespace IMATH_NAMESPACE;
+#include <vector>
+
+using namespace IMF;
+using namespace IMATH;
 using namespace std;
 
 namespace {
@@ -515,8 +518,9 @@ loadDeepScanlineImage (MultiPartInputFile &inmaster,
                        int &zsize,
                        Header &header,
                        Array<Rgba> &pixels,
-                       Array<float*> &zbuffer,
-                       Array<unsigned int> &sampleCount)
+                       Array<float*> &zbuff,
+                       Array<unsigned int> &sampleCount,
+                       bool deepComp)
 {
     DeepScanLineInputPart in (inmaster, partnum);
     header = in.header();
@@ -539,7 +543,7 @@ loadDeepScanlineImage (MultiPartInputFile &inmaster,
     Array< half* > alpha;
 
     zsize = dw * dh;
-    zbuffer.resizeErase (zsize);
+    zbuff.resizeErase (zsize);
     zback.resizeErase (zsize);
     alpha.resizeErase (dw * dh);
 
@@ -565,7 +569,8 @@ loadDeepScanlineImage (MultiPartInputFile &inmaster,
     }
 
     if (header.channels().findChannel ("Z") &&
-        header.channels().findChannel ("A"))
+        header.channels().findChannel ("A") &&
+        deepComp)
     {
         deepCompflag = 1;
     }
@@ -580,7 +585,7 @@ loadDeepScanlineImage (MultiPartInputFile &inmaster,
 
     fb.insert ("Z",
                DeepSlice (FLOAT,
-                          (char *) (&zbuffer[0] - dx- dy * dw),
+                          (char *) (&zbuff[0] - dx- dy * dw),
                           sizeof (float *) * 1,    // xStride for pointer array
                           sizeof (float *) * dw,   // yStride for pointer array
                           sizeof (float) * 1));    // stride for z data sample
@@ -630,7 +635,7 @@ loadDeepScanlineImage (MultiPartInputFile &inmaster,
 
     for (int i = 0; i < dh * dw; i++)
     {
-        zbuffer[i] = new float[sampleCount[i]];
+        zbuff[i] = new float[sampleCount[i]];
         zback[i] = new float[sampleCount[i]];
         alpha[i] = new half[sampleCount[i]];
         if(rgbflag)
@@ -642,7 +647,6 @@ loadDeepScanlineImage (MultiPartInputFile &inmaster,
     }
 
     in.readPixels (dataWindow.min.y, dataWindow.max.y);
-
 
     if (deepCompflag)
     {
@@ -691,18 +695,19 @@ loadDeepScanlineImage (MultiPartInputFile &inmaster,
     {
         for (int i = 0; i < dh * dw; i++)
         {
-            if (sampleCount[i] > 0){
+            if (sampleCount[i] > 0)
+            {
                 if (rgbflag)
                 {
-                    pixels[i].r = dataR[i][0] * zbuffer[i][0];
-                    pixels[i].g = dataG[i][0] * zbuffer[i][0];
-                    pixels[i].b = dataB[i][0] * zbuffer[i][0];
+                    pixels[i].r = dataR[i][0];
+                    pixels[i].g = dataG[i][0];
+                    pixels[i].b = dataB[i][0];
                 }
                 else
                 {
-                    pixels[i].r = zbuffer[i][0];
-                    pixels[i].g = pixels[i].r;
-                    pixels[i].b = pixels[i].r;
+                    pixels[i].r = zbuff[i][0];
+                    pixels[i].g = alpha[i][0];
+                    pixels[i].b = zback[i][0];
                 }
             }
         }
@@ -717,8 +722,9 @@ loadDeepTileImage (MultiPartInputFile &inmaster,
                    int &zsize,
                    Header &header,
                    Array<Rgba> &pixels,
-                   Array<float*> &zbuffer,
-                   Array<unsigned int> &sampleCount)
+                   Array<float*> &zbuff,
+                   Array<unsigned int> &sampleCount,
+                   bool deepComp)
 {
     DeepTiledInputPart in (inmaster, partnum);
     header = in.header();
@@ -741,7 +747,7 @@ loadDeepTileImage (MultiPartInputFile &inmaster,
     Array< half* > alpha;
 
     zsize = dw * dh;
-    zbuffer.resizeErase (zsize);
+    zbuff.resizeErase (zsize);
     zback.resizeErase (zsize);
     alpha.resizeErase (dw * dh);
 
@@ -767,7 +773,8 @@ loadDeepTileImage (MultiPartInputFile &inmaster,
     }
 
     if (header.channels().findChannel ("Z") &&
-        header.channels().findChannel ("A"))
+        header.channels().findChannel ("A") &&
+        deepComp)
     {
         deepCompflag = 1;
     }
@@ -782,7 +789,7 @@ loadDeepTileImage (MultiPartInputFile &inmaster,
 
     fb.insert ("Z",
                DeepSlice (FLOAT,
-                          (char *) (&zbuffer[0] - dx- dy * dw),
+                          (char *) (&zbuff[0] - dx- dy * dw),
                           sizeof (float *) * 1,    // xStride for pointer array
                           sizeof (float *) * dw,   // yStride for pointer array
                           sizeof (float) * 1));    // stride for z data sample
@@ -837,7 +844,7 @@ loadDeepTileImage (MultiPartInputFile &inmaster,
 
     for (int i = 0; i < dh * dw; i++)
     {
-        zbuffer[i] = new float[sampleCount[i]];
+        zbuff[i] = new float[sampleCount[i]];
         zback[i] = new float[sampleCount[i]];
         alpha[i] = new half[sampleCount[i]];
         if (rgbflag)
@@ -850,35 +857,46 @@ loadDeepTileImage (MultiPartInputFile &inmaster,
 
     in.readTiles (0, numXTiles - 1, 0, numYTiles - 1);
 
-    //
-    // ToDo deep compositing Tile
-    //
-    deepCompflag = 0; //temporary
-
     if (deepCompflag)
     {
-        //
-        // try deep compositing
-        //
-        ;
+        // Loop over all the pixels and comp manually
+        // @ToDo implent deep compositing for the DeepTile case
+        for (int i=0; i<zsize; ++i)
+        {
+            float a     = alpha[i][0];
+            pixels[i].r = dataR[i][0];
+            pixels[i].g = dataG[i][0];
+            pixels[i].b = dataB[i][0];
 
+            for(int s=1; s<sampleCount[i]; s++)
+            {
+                if(a>=1.f)
+                    break;
+
+                pixels[i].r += (1.f - a) * dataR[i][s];
+                pixels[i].g += (1.f - a) * dataG[i][s];
+                pixels[i].b += (1.f - a) * dataB[i][s];
+                a           += (1.f - a) * alpha[i][s];
+            }
+        }
     }
     else
     {
         for (int i = 0; i < dh * dw; i++)
         {
-            if (sampleCount[i] > 0){
+            if (sampleCount[i] > 0)
+            {
                 if (rgbflag)
                 {
-                    pixels[i].r = dataR[i][0] * zbuffer[i][0];
-                    pixels[i].g = dataG[i][0] * zbuffer[i][0];
-                    pixels[i].b = dataB[i][0] * zbuffer[i][0];
+                    pixels[i].r = dataR[i][0];
+                    pixels[i].g = dataG[i][0];
+                    pixels[i].b = dataB[i][0];
                 }
                 else
                 {
-                    pixels[i].r = zbuffer[i][0];
-                    pixels[i].g = pixels[i].r;
-                    pixels[i].b = pixels[i].r;
+                    pixels[i].r = zbuff[i][0];
+                    pixels[i].g = alpha[i][0];
+                    pixels[i].b = zback[i][0];
                 }
             }
         }
@@ -900,8 +918,9 @@ loadImage (const char fileName[],
            int &zsize,
            Header &header,
            Array<Rgba> &pixels,
-           Array<float*>  &zbuffer,
-           Array<unsigned int> &sampleCount)
+           Array<float*>  &zbuff,
+           Array<unsigned int> &sampleCount,
+           bool deepComp)
 {
     zsize = 0;
 
@@ -916,8 +935,9 @@ loadImage (const char fileName[],
                           zsize,
                           header,
                           pixels,
-                          zbuffer,
-                          sampleCount);
+                          zbuff,
+                          sampleCount,
+                          deepComp);
     }
     else if(type == DEEPSCANLINE)
     {
@@ -926,8 +946,9 @@ loadImage (const char fileName[],
                               zsize,
                               header,
                               pixels,
-                              zbuffer,
-                              sampleCount);
+                              zbuff,
+                              sampleCount,
+                              deepComp);
     }
 
 

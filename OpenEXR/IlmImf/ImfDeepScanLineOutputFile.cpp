@@ -869,7 +869,7 @@ DeepScanLineOutputFile::DeepScanLineOutputFile
         _data->_streamData->currentPosition = _data->_streamData->os->tellp();
 
         // Write header and empty offset table to the file.
-        writeMagicNumberAndVersionField(*_data->_streamData->os, header);
+        writeMagicNumberAndVersionField(*_data->_streamData->os, _data->header);
         _data->previewPosition =
                 _data->header.writeTo (*_data->_streamData->os);
         _data->lineOffsetsPosition =
