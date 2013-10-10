@@ -69,8 +69,6 @@ namespace
 
 const int height = 247;
 const int width = 233;
-const char source_filename[] = IMF_TMP_DIR "imf_test_copy_multipart_source.exr";
-const char copy_filename[] = IMF_TMP_DIR "imf_test_copy_multipart_copy.exr";
 
 vector<Header> headers;
 vector<int> pixelTypes;
@@ -476,7 +474,8 @@ void setInputDeepFrameBuffer(DeepFrameBuffer& frameBuffer, int pixelType,
     }
 }
 
-void generateRandomFile(int partCount)
+void
+generateRandomFile (int partCount, const std::string & srcFn)
 {
     //
     // Init data.
@@ -501,8 +500,8 @@ void generateRandomFile(int partCount)
     //
     generateRandomHeaders(partCount, headers);
 
-    remove(source_filename);
-    MultiPartOutputFile file(source_filename, &headers[0],headers.size());
+    remove(srcFn.c_str());
+    MultiPartOutputFile file(srcFn.c_str(), &headers[0],headers.size());
 
     //
     // Writing files.
@@ -655,7 +654,8 @@ void generateRandomFile(int partCount)
     }
 }
 
-void readWholeFiles()
+void
+readWholeFiles (const std::string & cpyFn)
 {
     Array2D<unsigned int> uData;
     Array2D<float> fData;
@@ -667,7 +667,7 @@ void readWholeFiles()
 
     Array2D<unsigned int> sampleCount;
 
-    MultiPartInputFile file(copy_filename);
+    MultiPartInputFile file(cpyFn.c_str());
     for (size_t i = 0; i < file.parts(); i++)
     {
         const Header& header = file.header(i);
@@ -878,12 +878,13 @@ void readWholeFiles()
 }
 
 
-void copyFile()
+void
+copyFile (const std::string & srcFn, const std::string & cpyFn)
 {
-    cerr << "copying ";
-    cerr.flush();
+    cout << "copying ";
+    cout.flush();
     
-    MultiPartInputFile in(source_filename);
+    MultiPartInputFile in(srcFn.c_str());
     
     
     vector<Header> in_hdr(in.parts());
@@ -892,7 +893,7 @@ void copyFile()
         in_hdr[i]=in.header(i);
     }
     
-    MultiPartOutputFile out(copy_filename,&in_hdr[0],in.parts());
+    MultiPartOutputFile out(cpyFn.c_str(),&in_hdr[0],in.parts());
     for(size_t i=0;i<in.parts();i++)
     {
         std::string part_type = in.header(i).type();
@@ -923,17 +924,24 @@ void copyFile()
     
 }
 
-void testWriteCopyRead(int partNumber, int runCount, int randomReadCount)
+void
+testWriteCopyRead (int partNumber,
+                   int runCount,
+                   int randomReadCount,
+                   const std::string & tempDir)
 {
     cout << "Testing file with " << partNumber << " part(s)." << endl << flush;
 
+    std::string srcFn = tempDir +  "imf_test_copy_multipart_source.exr";
+    std::string cpyFn = tempDir +  "imf_test_copy_multipart_copy.exr";
+
     for (int i = 0; i < runCount; i++)
     {
-        generateRandomFile(partNumber);
-        copyFile();
-        remove(source_filename);
-        readWholeFiles();
-        remove (copy_filename);
+        generateRandomFile (partNumber, srcFn);
+        copyFile (srcFn, cpyFn);
+        remove (srcFn.c_str());
+        readWholeFiles (cpyFn);
+        remove (cpyFn.c_str());
 
         cout << endl << flush;
     }
@@ -941,7 +949,7 @@ void testWriteCopyRead(int partNumber, int runCount, int randomReadCount)
 
 } // namespace
 
-void testCopyMultiPartFile()
+void testCopyMultiPartFile (const std::string & tempDir)
 {
     try
     {
@@ -952,10 +960,10 @@ void testCopyMultiPartFile()
         int numThreads = ThreadPool::globalThreadPool().numThreads();
         ThreadPool::globalThreadPool().setNumThreads(4);
 
-        testWriteCopyRead( 2, 200,  100);
-        testWriteCopyRead( 1, 100,   50);
-        testWriteCopyRead( 5,  40,  250);
-        testWriteCopyRead(50,  10, 2500);
+        testWriteCopyRead ( 2, 20,  10, tempDir);
+        testWriteCopyRead ( 1, 10,   5, tempDir);
+        testWriteCopyRead ( 5,  4,  25, tempDir);
+        testWriteCopyRead (50,  1, 250, tempDir);
 
         ThreadPool::globalThreadPool().setNumThreads(numThreads);
 

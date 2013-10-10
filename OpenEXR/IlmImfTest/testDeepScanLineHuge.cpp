@@ -67,7 +67,6 @@ const int minY = 0;
 const long numGib = 1; // number of GiB to allocate for huge test
 const Box2i dataWindow(V2i(minX, minY), V2i(minX + width - 1, minY + height - 1));
 const Box2i displayWindow(V2i(0, 0), V2i(minX + width * 2, minY + height * 2));
-const char filename[] = IMF_TMP_DIR "imf_test_deep_scanline_huge.exr";
 
 vector<int> channelTypes;
 Array2D<unsigned int> sampleCount;
@@ -75,7 +74,11 @@ vector<unsigned char> storage; // actual pixel storage for entire image (effecti
 
 Header header;
 
-void generateRandomFile(int channelCount, Compression compression, bool random_channel_data)
+void
+generateRandomFile (int channelCount,
+                    Compression compression,
+                    bool random_channel_data,
+                    const std::string & fn)
 {
     cout << "generating ... " << flush;
     header = Header(displayWindow, dataWindow,
@@ -116,8 +119,8 @@ void generateRandomFile(int channelCount, Compression compression, bool random_c
 
     sampleCount.resizeErase(height, width);
 
-    remove (filename);
-    DeepScanLineOutputFile file(filename, header, 8);
+    remove (fn.c_str());
+    DeepScanLineOutputFile file (fn.c_str(), header, 8);
 
     DeepFrameBuffer frameBuffer;
 
@@ -259,11 +262,12 @@ void generateRandomFile(int channelCount, Compression compression, bool random_c
     
 }
 
-void readFile(int channelCount, bool bulkRead)
+void
+readFile (int channelCount, bool bulkRead, const std::string & fn)
 {
     cout << "reading \n" << flush;
 
-    DeepScanLineInputFile file(filename, 8);
+    DeepScanLineInputFile file (fn.c_str(), 8);
 
     const Header& fileHeader = file.header();
     assert (fileHeader.displayWindow() == header.displayWindow());
@@ -378,7 +382,11 @@ void readFile(int channelCount, bool bulkRead)
     
 }
 
-void readWriteTest(int channelCount, int testTimes,bool random_channel_data)
+void
+readWriteTest (int channelCount,
+               int testTimes,
+               bool random_channel_data,
+               const std::string & fn)
 {
     cout << "Testing files with " << channelCount << " channels " << testTimes << " times."
          << endl << flush;
@@ -399,26 +407,26 @@ void readWriteTest(int channelCount, int testTimes,bool random_channel_data)
                 break;
         }
 
-        generateRandomFile(channelCount, compression, random_channel_data);
-        readFile(channelCount, false);
-        remove (filename);
+        generateRandomFile (channelCount, compression, random_channel_data, fn);
+        readFile (channelCount, false, fn);
+        remove (fn.c_str());
      
     }
 }
 
 }; // namespace
 
-void testDeepScanLineHuge()
+void testDeepScanLineHuge (const std::string & tempDir)
 {
     try
     {
         cout << "\n\nTesting the DeepScanLineInput/OutputFile for huge scanlines:\n" << endl;
 
         srand(1);
+        std::string fn = tempDir + "imf_test_deep_scanline_huge.exr";
 
-
-        readWriteTest(10, 10 , false);
-        readWriteTest(10, 10 , true);
+        readWriteTest (10, 5 , false, fn);
+        readWriteTest (10, 5 , true,  fn);
         cout << "ok\n" << endl;
     }
     catch (const std::exception &e)

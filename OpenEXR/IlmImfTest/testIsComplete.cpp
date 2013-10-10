@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2005, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,14 +33,11 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #include <ImfRgbaFile.h>
 #include <ImfTiledRgbaFile.h>
 #include <ImfArray.h>
 #include <stdio.h>
 #include <assert.h>
-
-#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -140,24 +137,24 @@ checkFiles (const char completeScanLinesName[],
 
 
 void
-testIsComplete ()
+testIsComplete (const std::string &tempDir)
 {
     try
     {
 	cout << "Testing isComplete() function" << endl;
 
-	static const char *csl = IMF_TMP_DIR "imf_test_complete_sl.exr";
-	static const char *icsl = IMF_TMP_DIR "imf_test_incomplete_sl.exr";
-	static const char *ct = IMF_TMP_DIR "imf_test_complete_t.exr";
-	static const char *ict = IMF_TMP_DIR "imf_test_incomplete_t.exr";
+	std::string csl = tempDir + "imf_test_complete_sl.exr";
+	std::string icsl = tempDir + "imf_test_incomplete_sl.exr";
+	std::string ct = tempDir + "imf_test_complete_t.exr";
+	std::string ict = tempDir + "imf_test_incomplete_t.exr";
 
-	writeFiles (csl, icsl, ct, ict, 327, 289, 17, 17);
-	checkFiles (csl, icsl, ct, ict);
+	writeFiles (csl.c_str(), icsl.c_str(), ct.c_str(), ict.c_str(), 327, 289, 17, 17);
+	checkFiles (csl.c_str(), icsl.c_str(), ct.c_str(), ict.c_str());
 
-	remove (csl);
-	remove (icsl);
-	remove (ct);
-	remove (ict);
+	remove (csl.c_str());
+	remove (icsl.c_str());
+	remove (ct.c_str());
+	remove (ict.c_str());
 
 	cout << "ok\n" << endl;
     }

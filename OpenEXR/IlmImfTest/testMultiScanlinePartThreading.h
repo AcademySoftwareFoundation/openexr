@@ -35,6 +35,8 @@
 #ifndef TESTMULTISCANLINEPARTTHREADING_H_
 #define TESTMULTISCANLINEPARTTHREADING_H_
 
-void testMultiScanlinePartThreading();
+#include <string>
+
+void testMultiScanlinePartThreading (const std::string & tempDir);
 
 #endif /* TESTMULTISCANLINEPARTTHREADING_H_ */

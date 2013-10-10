@@ -348,17 +348,17 @@ void testWriteBadTypes()
 
 }
 
-void testBadTypeAttributes()
+void testBadTypeAttributes(const std::string & tempDir)
 {
       cout << "Testing whether bad type attributes are fixed on read... " << endl;
 
-      testTiledWithBadAttribute( ILM_IMF_TEST_IMAGEDIR "tiled_with_scanlineimage_type.exr");
-      testTiledWithBadAttribute( ILM_IMF_TEST_IMAGEDIR "tiled_with_deepscanline_type.exr");
-      testTiledWithBadAttribute( ILM_IMF_TEST_IMAGEDIR "tiled_with_deeptile_type.exr");
+      testTiledWithBadAttribute ("tiled_with_scanlineimage_type.exr");
+      testTiledWithBadAttribute ("tiled_with_deepscanline_type.exr");
+      testTiledWithBadAttribute ("tiled_with_deeptile_type.exr");
       
-      testScanLineWithBadAttribute(  ILM_IMF_TEST_IMAGEDIR "scanline_with_tiledimage_type.exr");
-      testScanLineWithBadAttribute(  ILM_IMF_TEST_IMAGEDIR "scanline_with_deeptiled_type.exr");
-      testScanLineWithBadAttribute(  ILM_IMF_TEST_IMAGEDIR "scanline_with_deepscanline_type.exr");
+      testScanLineWithBadAttribute ("scanline_with_tiledimage_type.exr");
+      testScanLineWithBadAttribute ("scanline_with_deeptiled_type.exr");
+      testScanLineWithBadAttribute ("scanline_with_deepscanline_type.exr");
       
       cout << "Testing whether bad type attributes are fixed on write... " << endl;
 

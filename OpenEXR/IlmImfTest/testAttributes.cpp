@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -34,6 +34,7 @@
 
 
 
+#include <tmpDir.h>
 
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
@@ -60,7 +61,6 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "tmpDir.h"
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
@@ -111,9 +111,6 @@ writeReadAttr (const Array2D<float> &pf1,
     a15.push_back ("");
     a15.push_back ("straw into");
     a15.push_back ("gold");
-
-    
-    
     M33d   a16 (12, 13, 14, 15, 16, 17, 18, 19, 20);
     M44d   a17 (2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17);
     V2d    a18 (27.51, 28.51);
@@ -487,7 +484,7 @@ print_type(const OPENEXR_IMF_NAMESPACE::TypedAttribute<T> & object)
 }
 
 void
-testAttributes ()
+testAttributes (const std::string &tempDir)
 {
     try
     {
@@ -499,14 +496,14 @@ testAttributes ()
 	Array2D<float> pf (H, W);
 	fillPixels (pf, W, H);
 
-	const char *filename = IMF_TMP_DIR "imf_test_attr.exr";
+	std::string filename = tempDir + "imf_test_attr.exr";
 
-	writeReadAttr (pf, filename, W, H);
+	writeReadAttr (pf, filename.c_str(), W, H);
 	channelList();
-        longNames(pf, filename, W, H);
+        longNames(pf, filename.c_str(), W, H);
 
-        print_type(OPENEXR_IMF_NAMESPACE::TypedAttribute<int>());
-        
+    print_type(OPENEXR_IMF_NAMESPACE::TypedAttribute<int>());
+
 	cout << "ok\n" << endl;
     }
     catch (const std::exception &e)

@@ -35,6 +35,8 @@
 #ifndef TESTCOPYDEEPTILED_H_
 #define TESTCOPYDEEPTILED_H_
 
-void testCopyDeepTiled();
+#include <string>
+
+void testCopyDeepTiled (const std::string & tempDir);
 
 #endif /* TESTCOPYDEEPTILED_H_ */

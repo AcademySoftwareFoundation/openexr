@@ -35,6 +35,8 @@
 #ifndef TESTMULTIPARTFILEMIXINGBASIC_H_
 #define TESTMULTIPARTFILEMIXINGBASIC_H_
 
-void testMultiPartFileMixingBasic();
+#include <string>
+
+void testMultiPartFileMixingBasic (const std::string & tempDir);
 
 #endif /* TESTMULTIPARTFILEMIXINGBASIC_H_ */

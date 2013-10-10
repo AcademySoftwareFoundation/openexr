@@ -72,7 +72,7 @@
 //
 
 //
-// Open Source version of this file pulls in the IlmBaseConfig.h file
+// Open Source version of this file pulls in the OpenEXRConfig.h file
 // for the configure time options.
 //
 #include "OpenEXRConfig.h"

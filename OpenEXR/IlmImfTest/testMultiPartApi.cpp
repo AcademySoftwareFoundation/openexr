@@ -66,7 +66,6 @@ namespace
 
 const int height = 263;
 const int width = 197;
-const char filename[] = IMF_TMP_DIR "imf_test_multipart_api.exr";
 
 struct Task
 {
@@ -308,7 +307,8 @@ void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
     }
 }
 
-void generateRandomFile(int partCount)
+void
+generateRandomFile (int partCount, const std::string & fn)
 {
     //
     // Init data.
@@ -350,8 +350,8 @@ void generateRandomFile(int partCount)
         swap(taskList[a], taskList[b]);
     }
 
-    remove(filename);
-    MultiPartOutputFile file(filename, &headers[0],headers.size());
+    remove(fn.c_str());
+    MultiPartOutputFile file(fn.c_str(), &headers[0],headers.size());
 
     //
     // Writing tasks.
@@ -464,13 +464,14 @@ void generateRandomFile(int partCount)
     delete[] tiledFloatData;
 }
 
-void readWholeFiles()
+void
+readWholeFiles (const std::string & fn)
 {
     Array2D<unsigned int> uData;
     Array2D<float> fData;
     Array2D<half> hData;
 
-    MultiPartInputFile file(filename);
+    MultiPartInputFile file(fn.c_str());
     for (size_t i = 0; i < file.parts(); i++)
     {
         const Header& header = file.header(i);
@@ -594,14 +595,15 @@ void readWholeFiles()
     }
 }
 
-void readPartialFiles(int randomReadCount)
+void
+readPartialFiles (int randomReadCount, const std::string & fn)
 {
     Array2D<unsigned int> uData;
     Array2D<float> fData;
     Array2D<half> hData;
 
     cout << "Reading partial files " << flush;
-    MultiPartInputFile file(filename);
+    MultiPartInputFile file(fn.c_str());
     //const vector<Header>& headers = file.parts();
     for (int i = 0; i < randomReadCount; i++)
     {
@@ -694,17 +696,23 @@ void readPartialFiles(int randomReadCount)
     }
 }
 
-void testWriteRead(int partNumber, int runCount, int randomReadCount)
+void
+testWriteRead (int partNumber,
+               int runCount,
+               int randomReadCount,
+               const std::string & tempDir)
 {
     cout << "Testing file with " << partNumber << " part(s)." << endl << flush;
 
+    std::string fn = tempDir +  "imf_test_multipart_api.exr";
+
     for (int i = 0; i < runCount; i++)
     {
-        generateRandomFile(partNumber);
-        readWholeFiles();
-        readPartialFiles(randomReadCount);
+        generateRandomFile (partNumber, fn);
+        readWholeFiles (fn);
+        readPartialFiles (randomReadCount, fn);
 
-        remove (filename);
+        remove (fn.c_str());
 
         cout << endl << flush;
     }
@@ -712,7 +720,8 @@ void testWriteRead(int partNumber, int runCount, int randomReadCount)
 
 } // namespace
 
-void testMultiPartApi()
+
+void testMultiPartApi (const std::string & tempDir)
 {
     try
     {
@@ -720,10 +729,10 @@ void testMultiPartApi()
 
         srand(1);
 
-        testWriteRead(1, 200, 50);
-        testWriteRead(2, 500, 100);
-        testWriteRead(5, 100, 250);
-        testWriteRead(50, 20, 1000);
+        testWriteRead ( 1, 2,   5, tempDir);
+        testWriteRead ( 2, 5,  10, tempDir);
+        testWriteRead ( 5, 1,  25, tempDir);
+        testWriteRead (50, 2, 100, tempDir);
 
         cout << "ok\n" << endl;
     }

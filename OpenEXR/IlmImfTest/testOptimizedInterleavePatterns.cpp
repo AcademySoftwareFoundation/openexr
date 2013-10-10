@@ -55,9 +55,11 @@ using namespace ILMTHREAD_NAMESPACE;
 
 namespace
 {
- 
-const char filename[] = IMF_TMP_DIR "imf_test_interleave_patterns.exr";
 
+using OPENEXR_IMF_NAMESPACE::UINT;
+using OPENEXR_IMF_NAMESPACE::FLOAT;
+
+std::string filename;
 
 vector<char> writingBuffer; // buffer as file was written
 vector<char> readingBuffer; // buffer containing new image (and filled channels?)
@@ -67,14 +69,19 @@ int gOptimisedReads = 0;
 int gSuccesses = 0;
 int gFailures = 0;
 
+
+//
+// @todo Needs a description of what this is used for.
+//
+//
 struct Schema
 {
-    const char* _name;            // name of this scheme
-    const char* const* _active;   // channels to be read
-    const char* const * _passive; // channels to be ignored (keep in buffer passed to inputfile, should not be overwritten)
-    int _banks;
-    const char* const *_views;    // list of views to write, or NULL
-    const PixelType* _types;      // NULL for all HALF, otherwise per-channel type
+    const char*         _name;     // name of this scheme
+    const char* const*  _active;   // channels to be read
+    const char* const * _passive;  // channels to be ignored (keep in buffer passed to inputfile, should not be overwritten)
+    int                 _banks;
+    const char* const * _views;    // list of views to write, or NULL
+    const PixelType*    _types;    // NULL for all HALF, otherwise per-channel type
     
     vector<string> views() const
     {
@@ -82,7 +89,7 @@ struct Schema
         vector<string> svec;
         while(*v!=NULL)
         {
-            svec.push_back(*v);
+            svec.push_back (*v);
             v++;
         }
         return svec;
@@ -120,44 +127,45 @@ const PixelType four_floats[] = {IMF::FLOAT,IMF::FLOAT,IMF::FLOAT,IMF::FLOAT};
 const PixelType hhhfff[] = {IMF::HALF,IMF::HALF,IMF::HALF,IMF::FLOAT,IMF::FLOAT,IMF::FLOAT};
 const PixelType hhhhffff[] = {IMF::HALF,IMF::HALF,IMF::HALF,IMF::HALF,IMF::FLOAT,IMF::FLOAT,IMF::FLOAT,IMF::FLOAT};
 
-Schema Schemes[] = {
-                     {"RGBHalf"             ,rgb           ,NULL,1,NULL       ,NULL},
-                     {"RGBAHalf"            ,rgba          ,NULL,1,NULL       ,NULL},
-                     {"ABGRHalf"            ,abgr          ,NULL,1,NULL       ,NULL},
-                     {"RGBFloat"            ,rgb           ,NULL,1,NULL       ,four_floats},
-                     {"BGRHalf"             ,bgr           ,NULL,1,NULL       ,NULL},
-                     {"RGBLeftRGB"          ,rgbleftrgb    ,NULL,1,righthero  ,NULL},
-                     {"RGBRightRGB"         ,rgbrightrgb   ,NULL,1,lefthero   ,NULL},
-                     {"RGBALeftRGBA"        ,rgbaleftrgba  ,NULL,1,righthero  ,NULL},
-                     {"RGBARightRGBA"       ,rgbarightrgba ,NULL,1,lefthero   ,NULL},
-                     {"LeftRGB"             ,leftrgb       ,NULL,1,NULL       ,NULL},
-                     {"RightRGB"            ,rightrgb      ,NULL,1,NULL       ,NULL},
-                     {"LeftRGBA"            ,leftrgba      ,NULL,1,NULL       ,NULL},
-                     {"RightRGBA"           ,rightrgba     ,NULL,1,NULL       ,NULL},
-                     {"TripleView"          ,threeview     ,NULL,1,centrehero ,NULL},
-                     {"Trees"               ,trees         ,NULL,1,NULL       ,NULL},
-                     {"TreesAndBirds"       ,treesandbirds ,NULL,1,NULL       ,NULL},
-                     {"RGBLeftRGBA"         ,rgbleftrgba   ,NULL,1,righthero  ,NULL},
-                     {"RGBRightRGBA"        ,rgbrightrgba  ,NULL,1,lefthero   ,NULL},
-                     {"RGBALeftRGB"         ,rgbaleftrgb   ,NULL,1,righthero  ,NULL},
-                     {"RGBARightRGB"        ,rgbarightrgb  ,NULL,1,lefthero   ,NULL},
-                     {"TwinRGBLeftRGB"      ,rgbleftrgb    ,NULL,2,righthero  ,NULL},
-                     {"TwinRGBRightRGB"     ,rgbrightrgb   ,NULL,2,lefthero   ,NULL},
-                     {"TwinRGBALeftRGBA"    ,rgbaleftrgba  ,NULL,2,righthero  ,NULL},
-                     {"TwinRGBARightRGBA"   ,rgbarightrgba ,NULL,2,lefthero   ,NULL},
-                     {"TripleTripleView"    ,threeview     ,NULL,3,centrehero ,NULL},
-                     {"Alpha"               ,alpha         ,NULL,1,NULL       ,NULL},
-                     {"RedAlpha"            ,redalpha      ,NULL,1,NULL       ,NULL},
-                     {"RG+BA"               ,rgba          ,NULL,2,NULL       ,NULL},//interleave only RG, then BA
-                     {"RGBpassiveA"         ,rgb           ,alpha,1,NULL      ,NULL},//interleave only RG, then BA
-                     {"RGBpassiveleftRGB"   ,rgb           ,leftrgb,1,NULL    ,NULL},
-                     {"RGBFloatA"           ,rgba          ,NULL,1,NULL       ,hhhfff},
-                     {"RGBFloatLeftRGB"     ,rgbleftrgb    ,NULL,1,righthero  ,hhhfff},
-                     {"RGBAFloatLeftRGBA"   ,rgbaleftrgba  ,NULL,1,righthero  ,hhhhffff},
-                     {"RGBApassiverightRGBA",rgba          ,rightrgba,1,NULL  ,NULL},
-                     {"BanksOfTreesAndBirds",treesandbirds ,NULL,2,NULL       ,NULL},
-                     {NULL,NULL,NULL,0,NULL,NULL}
-                   };
+Schema Schemes[] =
+{
+        {"RGBHalf"              ,rgb           ,NULL      ,1 ,NULL       ,NULL       },
+        {"RGBAHalf"             ,rgba          ,NULL      ,1 ,NULL       ,NULL       },
+        {"ABGRHalf"             ,abgr          ,NULL      ,1 ,NULL       ,NULL       },
+        {"RGBFloat"             ,rgb           ,NULL      ,1 ,NULL       ,four_floats},
+        {"BGRHalf"              ,bgr           ,NULL      ,1 ,NULL       ,NULL       },
+        {"RGBLeftRGB"           ,rgbleftrgb    ,NULL      ,1 ,righthero  ,NULL       },
+        {"RGBRightRGB"          ,rgbrightrgb   ,NULL      ,1 ,lefthero   ,NULL       },
+        {"RGBALeftRGBA"         ,rgbaleftrgba  ,NULL      ,1 ,righthero  ,NULL       },
+        {"RGBARightRGBA"        ,rgbarightrgba ,NULL      ,1 ,lefthero   ,NULL       },
+        {"LeftRGB"              ,leftrgb       ,NULL      ,1 ,NULL       ,NULL       },
+        {"RightRGB"             ,rightrgb      ,NULL      ,1 ,NULL       ,NULL       },
+        {"LeftRGBA"             ,leftrgba      ,NULL      ,1 ,NULL       ,NULL       },
+        {"RightRGBA"            ,rightrgba     ,NULL      ,1 ,NULL       ,NULL       },
+        {"TripleView"           ,threeview     ,NULL      ,1 ,centrehero ,NULL       },
+        {"Trees"                ,trees         ,NULL      ,1 ,NULL       ,NULL       },
+        {"TreesAndBirds"        ,treesandbirds ,NULL      ,1 ,NULL       ,NULL       },
+        {"RGBLeftRGBA"          ,rgbleftrgba   ,NULL      ,1 ,righthero  ,NULL       },
+        {"RGBRightRGBA"         ,rgbrightrgba  ,NULL      ,1 ,lefthero   ,NULL       },
+        {"RGBALeftRGB"          ,rgbaleftrgb   ,NULL      ,1 ,righthero  ,NULL       },
+        {"RGBARightRGB"         ,rgbarightrgb  ,NULL      ,1 ,lefthero   ,NULL       },
+        {"TwinRGBLeftRGB"       ,rgbleftrgb    ,NULL      ,2 ,righthero  ,NULL       },
+        {"TwinRGBRightRGB"      ,rgbrightrgb   ,NULL      ,2 ,lefthero   ,NULL       },
+        {"TwinRGBALeftRGBA"     ,rgbaleftrgba  ,NULL      ,2 ,righthero  ,NULL       },
+        {"TwinRGBARightRGBA"    ,rgbarightrgba ,NULL     , 2 ,lefthero   ,NULL       },
+        {"TripleTripleView"     ,threeview     ,NULL      ,3 ,centrehero ,NULL       },
+        {"Alpha"                ,alpha         ,NULL      ,1 ,NULL       ,NULL       },
+        {"RedAlpha"             ,redalpha      ,NULL      ,1 ,NULL       ,NULL       },
+        {"RG+BA"                ,rgba          ,NULL      ,2 ,NULL       ,NULL       },//interleave only RG, then BA
+        {"RGBpassiveA"          ,rgb           ,alpha     ,1 ,NULL       ,NULL       },//interleave only RG, then BA
+        {"RGBpassiveleftRGB"    ,rgb           ,leftrgb   ,1 ,NULL       ,NULL       },
+        {"RGBFloatA"            ,rgba          ,NULL      ,1 ,NULL       ,hhhfff     },
+        {"RGBFloatLeftRGB"      ,rgbleftrgb    ,NULL      ,1 ,righthero  ,hhhfff     },
+        {"RGBAFloatLeftRGBA"    ,rgbaleftrgba  ,NULL      ,1 ,righthero  ,hhhhffff   },
+        {"RGBApassiverightRGBA" ,rgba          ,rightrgba ,1 ,NULL       ,NULL       },
+        {"BanksOfTreesAndBirds" ,treesandbirds ,NULL      ,2 ,NULL       ,NULL       },
+        {NULL,NULL,NULL,0,NULL,NULL}
+};
 
 
 
@@ -241,18 +249,18 @@ bool compare(const FrameBuffer& asRead,
 //
 // allocate readingBuffer or writingBuffer, setting up a framebuffer to point to the right thing
 //
-ChannelList setupBuffer (const Header& hdr,                   // header to grab datawindow from
-                         const char * const *channels,        // NULL terminated list of channels to write
-                         const char * const *passivechannels, // NULL terminated list of channels to write
-                         const PixelType* pt,                 // type of each channel, or NULL for all HALF
-                         FrameBuffer& buf,                    // buffer to fill with pointers to channel
-                         FrameBuffer& prereadbuf,             // channels which aren't being read - indexes into the preread buffer
-                         FrameBuffer& postreadbuf,            // channels which aren't being read - indexes into the postread buffer
-                         int banks,                           // number of banks - channels within each bank are interleaved, banks are scanline interleaved
-                         bool writing                         // true if should allocate
-)
+ChannelList
+setupBuffer (const Header& hdr,       // header to grab datawindow from
+             const char * const *channels, // NULL terminated list of channels to write
+             const char * const *passivechannels, // NULL terminated list of channels to write
+             const PixelType* pt,     // type of each channel, or NULL for all HALF
+             FrameBuffer& buf,        // buffer to fill with pointers to channel
+             FrameBuffer& prereadbuf, // channels which aren't being read - indexes into the preread buffer
+             FrameBuffer& postreadbuf, // channels which aren't being read - indexes into the postread buffer
+             int banks,                    // number of banks - channels within each bank are interleaved, banks are scanline interleaved
+             bool writing                  // true if should allocate
+            )
 {
-
     Box2i dw = hdr.dataWindow();
 
     //
@@ -380,7 +388,8 @@ ChannelList setupBuffer (const Header& hdr,                   // header to grab 
             //
 
             int bank = i / (chans/banks);
-            offset = (writing ? &writingBuffer[0] : &readingBuffer[0]) + bank*bytes_per_bank_row - first_pixel_index;
+            offset = (writing ? &writingBuffer[0] :
+                                &readingBuffer[0]) + bank*bytes_per_bank_row - first_pixel_index;
         }
         
         if (i<activechans)
@@ -479,28 +488,29 @@ Box2i writefile(Schema & scheme,FrameBuffer& buf,bool tiny)
         addMultiView(hdr,scheme.views());
     }
     
-    remove(filename);
-    OutputFile f(filename,hdr);
+    remove (filename.c_str());
+    OutputFile f(filename.c_str(), hdr);
     f.setFrameBuffer(buf);
     f.writePixels(hdr.dataWindow().max.y-hdr.dataWindow().min.y+1);
 
     return hdr.dataWindow();
 }
 
-bool readfile (Schema scheme,
-               FrameBuffer & buf,     ///< list of channels to read: index to readingBuffer
-               FrameBuffer & preread, ///< list of channels to skip: index to preReadBuffer
-               FrameBuffer & postread)///< list of channels to skip: index to readingBuffer)
+bool
+readfile (Schema scheme,
+          FrameBuffer & buf,      ///< list of channels to read: index to readingBuffer
+          FrameBuffer & preread,  ///< list of channels to skip: index to preReadBuffer
+          FrameBuffer & postread) ///< list of channels to skip: index to readingBuffer)
 {
-    InputFile infile (filename);
-    setupBuffer (infile.header(),
-                 scheme._active,
-                 scheme._passive,
-                 scheme._types,
-                 buf,
-                 preread,postread,
-                 scheme._banks,
-                 false);
+    InputFile infile (filename.c_str());
+    setupBuffer(infile.header(),
+                scheme._active,
+                scheme._passive,
+                scheme._types,
+                buf,
+                preread,
+                postread,
+                scheme._banks,false);
     infile.setFrameBuffer(buf);
     
     cout.flush();
@@ -510,7 +520,8 @@ bool readfile (Schema scheme,
     return infile.isOptimizationEnabled();
 }
 
-void test(Schema writeScheme,Schema readScheme,bool nonfatal,bool tiny)
+void
+test (Schema writeScheme, Schema readScheme, bool nonfatal, bool tiny)
 {
     ostringstream q;
     q << writeScheme._name << " read as " << readScheme._name << "...";
@@ -539,12 +550,12 @@ void test(Schema writeScheme,Schema readScheme,bool nonfatal,bool tiny)
         cout << "\n";
         gSuccesses++;
     }
-        else
-        {
-        cout << "FAIL " << endl;
+    else
+    {
+        cout <<  " FAIL" << endl;
         gFailures++;
     }
-    remove(filename);
+    remove (filename.c_str());
 }
 
 
@@ -593,14 +604,21 @@ void runtests(bool nonfatal,bool tiny)
 }
 
 
-}
+} // namespace anon
 
-void testOptimizedInterleavePatterns()
+
+void 
+testOptimizedInterleavePatterns (const std::string & tempDir)
 {
-      cout << "Testing SSE optimisation with different interleave patterns (large images) ... " << endl;
-      runtests(false,false);      
-      cout << "Testing SSE optimisation with different interleave patterns (tiny images) ... " << endl;
-      runtests(false,true);
-      cout << "ok\n" << endl;
+    filename = tempDir + "imf_test_interleave_patterns.exr";
+
+
+    cout << "Testing SSE optimisation with different interleave patterns (large images) ... " << endl;
+    runtests (false,false);
+    
+    cout << "Testing SSE optimisation with different interleave patterns (tiny images) ... " << endl;
+    runtests (false,true);
+    
+    cout << "ok\n" << endl;
 }
 

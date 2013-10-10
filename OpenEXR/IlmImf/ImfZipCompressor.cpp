@@ -39,6 +39,7 @@
 //	class ZipCompressor
 //
 //-----------------------------------------------------------------------------
+
 #include "ImfZipCompressor.h"
 #include "ImfCheckedArithmetic.h"
 #include "Iex.h"

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
@@ -46,7 +45,6 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "tmpDir.h"
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
@@ -255,7 +253,7 @@ writeReadCustomAttr (const Array2D<float> &pf1,
 
 
 void
-testCustomAttributes ()
+testCustomAttributes (const std::string &tempDir)
 {
     try
     {
@@ -267,9 +265,9 @@ testCustomAttributes ()
 	Array2D<float> pf (H, W);
 	fillPixels (pf, W, H);
 
-	const char *filename = IMF_TMP_DIR "imf_test_custom_attr.exr";
+	std::string filename = tempDir + "imf_test_custom_attr.exr";
 
-	writeReadCustomAttr (pf, filename, W, H);
+	writeReadCustomAttr (pf, filename.c_str(), W, H);
 
 	cout << "ok\n" << endl;
     }

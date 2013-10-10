@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -49,7 +49,6 @@
 #include <vector>
 #include <math.h>
 
-#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -423,11 +422,11 @@ writeReadRGBARIP (const char fileName[],
 
 
 void
-writeRead (int W, int H, Compression comp, int xSize, int ySize)
+writeRead (const std::string &tempDir, int W, int H, Compression comp, int xSize, int ySize)
 {
-    const char *filename = IMF_TMP_DIR "imf_test_tiled_rgba.exr";
+    std::string filename = tempDir + "imf_test_tiled_rgba.exr";
 
-    writeReadRGBAONE (filename, W, H, WRITE_RGBA, comp, xSize, ySize);
+    writeReadRGBAONE (filename.c_str(), W, H, WRITE_RGBA, comp, xSize, ySize);
 
     if (comp != B44_COMPRESSION && comp != B44A_COMPRESSION)
     {
@@ -437,18 +436,18 @@ writeRead (int W, int H, Compression comp, int xSize, int ySize)
 	// to verify that B44 compression works with tiled files.
 	//
 
-	writeReadRGBAMIP (filename, W, H, WRITE_RGBA, comp, xSize, ySize);
-	writeReadRGBARIP (filename, W, H, WRITE_RGBA, comp, xSize, ySize);
+	writeReadRGBAMIP (filename.c_str(), W, H, WRITE_RGBA, comp, xSize, ySize);
+	writeReadRGBARIP (filename.c_str(), W, H, WRITE_RGBA, comp, xSize, ySize);
     }
 }
 
 
 void
-writeReadIncomplete ()
+writeReadIncomplete (const std::string &tempDir)
 {
     cout << "\nfile with missing and broken tiles" << endl;
 
-    const char *fileName = IMF_TMP_DIR "imf_test_tiled_incomplete.exr";
+    std::string fileName = tempDir + "imf_test_tiled_incomplete.exr";
 
     //
     // Write a file where every other tile is missing or broken.
@@ -470,12 +469,12 @@ writeReadIncomplete ()
     {
         cout << "writing" << endl;
  
-        remove (fileName);
+        remove (fileName.c_str());
 
 	Header header (width, height);
 	header.lineOrder() = RANDOM_Y;
 
-        TiledRgbaOutputFile out (fileName, header, WRITE_RGBA,
+        TiledRgbaOutputFile out (fileName.c_str(), header, WRITE_RGBA,
                                  tileXSize, tileYSize, ONE_LEVEL);
         
         out.setFrameBuffer (&p1[0][0], 1, width);
@@ -502,7 +501,7 @@ writeReadIncomplete ()
 
         cout << "reading one tile at a time," << flush;
 
-        TiledRgbaInputFile in (fileName);
+        TiledRgbaInputFile in (fileName.c_str());
         const Box2i &dw = in.dataWindow();
 
         assert (dw.max.x - dw.min.x + 1 == width);
@@ -576,7 +575,7 @@ writeReadIncomplete ()
 
         cout << "reading multiple tiles at a time," << flush;
 
-        TiledRgbaInputFile in (fileName);
+        TiledRgbaInputFile in (fileName.c_str());
         const Box2i &dw = in.dataWindow();
 
         assert (dw.max.x - dw.min.x + 1 == width);
@@ -622,16 +621,16 @@ writeReadIncomplete ()
 	}
     }
 
-    remove (fileName);
+    remove (fileName.c_str());
 }
 
 
 void
-writeReadLayers()
+writeReadLayers(const std::string &tempDir)
 {
     cout << "\nreading multi-layer file" << endl;
 
-    const char *fileName = IMF_TMP_DIR "imf_test_tiled_multi_layer_rgba.exr";
+    std::string fileName = tempDir + "imf_test_tiled_multi_layer_rgba.exr";
 
     const int W = 237;
     const int H = 119;
@@ -668,13 +667,13 @@ writeReadLayers()
 			  sizeof (half),	// xStride
 			  sizeof (half) * W));	// yStride
 
-	TiledOutputFile out (fileName, hdr);
+	TiledOutputFile out (fileName.c_str(), hdr);
 	out.setFrameBuffer (fb);
 	out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
     }
 
     {
-	TiledRgbaInputFile in (fileName, "");
+	TiledRgbaInputFile in (fileName.c_str(), "");
 
 	Array2D<Rgba> p3 (H, W);
 	in.setFrameBuffer (&p3[0][0], 1, W);
@@ -693,7 +692,7 @@ writeReadLayers()
     }
 
     {
-	TiledRgbaInputFile in (fileName, "foo");
+	TiledRgbaInputFile in (fileName.c_str(), "foo");
 
 	Array2D<Rgba> p3 (H, W);
 	in.setFrameBuffer (&p3[0][0], 1, W);
@@ -712,7 +711,7 @@ writeReadLayers()
     }
 
     {
-	TiledRgbaInputFile in (fileName, "");
+	TiledRgbaInputFile in (fileName.c_str(), "");
 
 	Array2D<Rgba> p3 (H, W);
 
@@ -764,13 +763,13 @@ writeReadLayers()
 			  sizeof (half),	// xStride
 			  sizeof (half) * W));	// yStride
 
-	TiledOutputFile out (fileName, hdr);
+	TiledOutputFile out (fileName.c_str(), hdr);
 	out.setFrameBuffer (fb);
 	out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
     }
 
     {
-	TiledRgbaInputFile in (fileName, "");
+	TiledRgbaInputFile in (fileName.c_str(), "");
 
 	Array2D<Rgba> p3 (H, W);
 	in.setFrameBuffer (&p3[0][0], 1, W);
@@ -789,7 +788,7 @@ writeReadLayers()
     }
 
     {
-	TiledRgbaInputFile in (fileName, "foo");
+	TiledRgbaInputFile in (fileName.c_str(), "foo");
 
 	Array2D<Rgba> p3 (H, W);
 	in.setFrameBuffer (&p3[0][0], 1, W);
@@ -808,7 +807,7 @@ writeReadLayers()
     }
 
     {
-	TiledRgbaInputFile in (fileName, "");
+	TiledRgbaInputFile in (fileName.c_str(), "");
 
 	Array2D<Rgba> p3 (H, W);
 
@@ -846,14 +845,14 @@ writeReadLayers()
 	}
     }
 
-    remove (fileName);
+    remove (fileName.c_str());
 }
 
 } // namespace
 
 
 void
-testTiledRgba ()
+testTiledRgba (const std::string &tempDir)
 {
     try
     {
@@ -893,19 +892,19 @@ testTiledRgba ()
 			// tiles are rather slow anyway)
 			//
 
-			writeRead (W[i], H[i], Compression (comp), 1, 1);
+			writeRead (tempDir, W[i], H[i], Compression (comp), 1, 1);
 		    }
 
-		    writeRead (W[i], H[i], Compression (comp), 35, 26);
-		    writeRead (W[i], H[i], Compression (comp), 75, 52);
-		    writeRead (W[i], H[i], Compression (comp), 264, 129);
+		    writeRead (tempDir, W[i], H[i], Compression (comp), 35, 26);
+		    writeRead (tempDir, W[i], H[i], Compression (comp), 75, 52);
+		    writeRead (tempDir, W[i], H[i], Compression (comp), 264, 129);
 		}
 	    }
 
-	    writeReadIncomplete();
+	    writeReadIncomplete (tempDir);
 	}
 
-	writeReadLayers();
+	writeReadLayers (tempDir);
 
         cout << "ok\n" << endl;
     }

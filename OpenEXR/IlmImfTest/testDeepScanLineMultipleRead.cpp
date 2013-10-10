@@ -209,17 +209,17 @@ static void read_file(const char * filename)
 }
 
 void
-testDeepScanLineMultipleRead()
+testDeepScanLineMultipleRead(const std::string & tempDir)
 {
     
     cout << "\n\nTesting random re-reads from deep scanline file:\n" << endl;
     
-    
+    std::string source_filename = tempDir + "imf_test_multiple_read";
     srand(1);
     
-    make_file(source_filename);
-    read_file(source_filename);
-    remove(source_filename);
+    make_file(source_filename.c_str());
+    read_file(source_filename.c_str());
+    remove(source_filename.c_str());
     
     cout << " ok\n" << endl;
     

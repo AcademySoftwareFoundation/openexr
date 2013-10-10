@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2003-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,15 +33,12 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
 #include <ImfPreviewImage.h>
 #include <fstream>
 #include <stdio.h>
 #include <assert.h>
-
-#include "tmpDir.h"
 
 #ifndef ILM_IMF_TEST_IMAGEDIR
     #define ILM_IMF_TEST_IMAGEDIR
@@ -203,18 +200,18 @@ readWriteFiles (const char fileName1[],
 
 
 void
-testPreviewImage ()
+testPreviewImage (const std::string &tempDir)
 {
-    const char *filename1 = IMF_TMP_DIR "imf_preview1.exr";
-    const char *filename2 = IMF_TMP_DIR "imf_preview2.exr";
+    std::string filename1 = tempDir + "imf_preview1.exr";
+    std::string filename2 = tempDir + "imf_preview2.exr";
 
     try
     {
 	cout << "Testing preview image attribute" << endl;
 
 	readWriteFiles (ILM_IMF_TEST_IMAGEDIR "comp_piz.exr",
-			filename1,
-			filename2);
+			filename1.c_str(),
+			filename2.c_str());
 
 	cout << "ok\n" << endl;
     }
