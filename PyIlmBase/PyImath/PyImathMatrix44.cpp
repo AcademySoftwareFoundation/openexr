@@ -501,6 +501,14 @@ scale44Tuple(Matrix44<T> &mat, const tuple &t)
 
 template <class T>
 static const Matrix44<T> &
+rotateV44(Matrix44<T> &mat, const Vec3<T> &r)
+{
+    MATH_EXC_ON;
+    return mat.rotate(r);
+}
+
+template <class T>
+static const Matrix44<T> &
 rotationMatrix44(Matrix44<T> &mat, const object &fromObj, const object &toObj)
 {
     MATH_EXC_ON;
@@ -1012,7 +1020,9 @@ register_Matrix44()
         .def("__mul__", &mul44T<T>)
         .def("__rmul__", &rmul44T<T>)
         .def("__idiv__", &idiv44T<T>,return_internal_reference<>())
+        .def("__itruediv__", &idiv44T<T>,return_internal_reference<>())
         .def("__div__", &div44T<T>)
+        .def("__truediv__", &div44T<T>)
         .def("__add__", &add44T<T>)
         .def("__radd__", &add44T<T>)
         .def("__sub__", &subtractTL44<T>)
@@ -1115,6 +1125,7 @@ register_Matrix44()
         .def("scale", &scaleSc44<T>, return_internal_reference<>(), "scale matrix")
         .def("scale", &scaleV44<T>, return_internal_reference<>(), "scale matrix")
         .def("scale", &scale44Tuple<T>, return_internal_reference<>(), "scale matrix")
+        .def("rotate", &rotateV44<T>, return_internal_reference<>(), "rotate matrix")
         .def("rotationMatrix", &rotationMatrix44<T>, return_internal_reference<>(), "rotationMatrix()")
         .def("rotationMatrixWithUpDir", &rotationMatrixWithUp44<T>, return_internal_reference<>(), "roationMatrixWithUp()")
         .def("setScale", &setScaleSc44<T>, return_internal_reference<>(),"setScale()")

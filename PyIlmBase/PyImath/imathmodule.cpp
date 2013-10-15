@@ -365,6 +365,8 @@ BOOST_PYTHON_MODULE(imath)
     //
     register_Frustum<float>();
     register_Frustum<double>();
+    register_FrustumTest<float>();
+    register_FrustumTest<double>();
 
     //
     // Plane

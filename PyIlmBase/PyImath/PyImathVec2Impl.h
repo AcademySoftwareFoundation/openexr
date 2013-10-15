@@ -1014,10 +1014,17 @@ register_Vec2()
         .def("__div__", &Vec2_divTuple<T,tuple>)
         .def("__div__", &Vec2_divTuple<T,list>)
         .def("__div__", &Vec2_divT<T>)
+        .def("__truediv__", &Vec2_div<T,int>)
+        .def("__truediv__", &Vec2_div<T,float>)
+        .def("__truediv__", &Vec2_div<T,double>)
+        .def("__truediv__", &Vec2_divTuple<T,tuple>)
+        .def("__truediv__", &Vec2_divTuple<T,list>)
+        .def("__truediv__", &Vec2_divT<T>)
         .def("__rdiv__", &Vec2_rdivTuple<T,tuple>)
         .def("__rdiv__", &Vec2_rdivTuple<T,list>)
         .def("__rdiv__", &Vec2_rdivT<T>)
         .def("__idiv__", &Vec2_idivObj<T>,return_internal_reference<>())
+        .def("__itruediv__", &Vec2_idivObj<T>,return_internal_reference<>())
         .def("__xor__", &Vec2_dot<T>)
         .def("__mod__", &Vec2_cross<T>)
         .def(self == self)
@@ -1150,7 +1157,9 @@ register_Vec2Array()
     generate_member_bindings<op_mul<IMATH_NAMESPACE::Vec2<T>,T>,  true_>(vec2Array_class,"__rmul__","x*self", boost::python::args("x"));
     generate_member_bindings<op_imul<IMATH_NAMESPACE::Vec2<T>,T>, true_>(vec2Array_class,"__imul__","self*=x",boost::python::args("x"));
     generate_member_bindings<op_div<IMATH_NAMESPACE::Vec2<T>,T>,  true_>(vec2Array_class,"__div__" ,"self/x", boost::python::args("x"));
+    generate_member_bindings<op_div<IMATH_NAMESPACE::Vec2<T>,T>,  true_>(vec2Array_class,"__truediv__" ,"self/x", boost::python::args("x"));
     generate_member_bindings<op_idiv<IMATH_NAMESPACE::Vec2<T>,T>, true_>(vec2Array_class,"__idiv__","self/=x",boost::python::args("x"));
+    generate_member_bindings<op_idiv<IMATH_NAMESPACE::Vec2<T>,T>, true_>(vec2Array_class,"__itruediv__","self/=x",boost::python::args("x"));
 
     decoratecopy(vec2Array_class);
 
