@@ -42,6 +42,10 @@
 #include <stdio.h>
 #include <assert.h>
 
+#ifndef ILM_IMF_TEST_IMAGEDIR
+    #define ILM_IMF_TEST_IMAGEDIR
+#endif
+
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -275,10 +279,10 @@ testNativeFormat (const std::string &tempDir)
 		"in Xdr, not native format" << endl;
 
         cout << "image 1:" << endl;
-        readCopyRead(tempDir, "test_native1.exr", 54435);
+        readCopyRead(tempDir, ILM_IMF_TEST_IMAGEDIR "test_native1.exr", 54435);
         
         cout << "image 2:" << endl;
-        readCopyRead(tempDir, "test_native2.exr", 37639);
+        readCopyRead(tempDir, ILM_IMF_TEST_IMAGEDIR "test_native2.exr", 37639);
         
 	cout << "ok\n" << endl;
     }

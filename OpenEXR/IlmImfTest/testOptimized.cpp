@@ -56,9 +56,6 @@
 #include <ImfVecAttribute.h>
 
 
-//for IMF_HAVE_SSE2
-#include <ImfOptimizedPixelReading.h>
-
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
@@ -533,7 +530,6 @@ testAllCombinations (bool isAligned,
 
     const char * pRgbFilename  = pRgb.c_str();
     const char * pRgbaFilename = pRgba.c_str();
-
 
     const int pHeight = isAligned ? IMAGE_2K_HEIGHT : IMAGE_2K_HEIGHT - 1;
     const int pWidth  = isAligned ? IMAGE_2K_WIDTH  : IMAGE_2K_WIDTH  - 1;

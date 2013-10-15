@@ -134,7 +134,7 @@ public:
         cameraMat.makeIdentity();
         setFrustum(frust, cameraMat);
     }
-    FrustumTest(Frustum<T> &frustum, const Matrix44<T> &cameraMat)
+    FrustumTest(const Frustum<T> &frustum, const Matrix44<T> &cameraMat)
     {
         setFrustum(frustum, cameraMat);
     }
@@ -143,7 +143,7 @@ public:
     // setFrustum()
     // This updates the frustum test with a new frustum and matrix.
     // This should usually be called just once per frame.
-    void setFrustum(Frustum<T> &frustum, const Matrix44<T> &cameraMat);
+    void setFrustum(const Frustum<T> &frustum, const Matrix44<T> &cameraMat);
 
     ////////////////////////////////////////////////////////////////////
     // isVisible()
@@ -189,7 +189,7 @@ protected:
 // This should usually only be called once per frame, or however
 // often the camera moves.
 template<class T>
-void FrustumTest<T>::setFrustum(Frustum<T> &frustum,
+void FrustumTest<T>::setFrustum(const Frustum<T> &frustum,
                                 const Matrix44<T> &cameraMat)
 {
     Plane3<T> frustumPlanes[6];

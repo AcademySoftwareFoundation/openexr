@@ -56,6 +56,9 @@ using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
+#ifndef ILM_IMF_TEST_IMAGEDIR
+    #define ILM_IMF_TEST_IMAGEDIR
+#endif
 
 namespace
 {
