@@ -2,6 +2,21 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT ( ILMBase )
+PROJECT ( ilmbase )
+
+ENABLE_TESTING()
+
+SET(CPACK_PACKAGE_VERSION_MAJOR "2")
+SET(CPACK_PACKAGE_VERSION_MINOR "0")
+SET(CPACK_PACKAGE_VERSION_PATCH "1")
+SET(CPACK_SOURCE_GENERATOR "TGZ")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME
+    "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}"
+  )
+set(CPACK_SOURCE_IGNORE_FILES
+  "/.git*;/.cvs*;${CPACK_SOURCE_IGNORE_FILES}")
+INCLUDE ( CPack )
+
 
 # Allow the developer to select if Dynamic or Static libraries are built
 OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
@@ -112,21 +127,25 @@ SET_TARGET_PROPERTIES ( Iex
   PROPERTIES
   VERSION 10.0.1
   SOVERSION 10
+  OUTPUT_NAME "Iex-2_0"
   )
 SET_TARGET_PROPERTIES ( Imath
   PROPERTIES
   VERSION 10.0.1
   SOVERSION 10
+  OUTPUT_NAME "Imath-2_0"
   )
 SET_TARGET_PROPERTIES ( IlmThread
   PROPERTIES
   VERSION 10.0.1
   SOVERSION 10
+  OUTPUT_NAME "IlmThread-2_0"
   )
 SET_TARGET_PROPERTIES ( IexMath
   PROPERTIES
   VERSION 10.0.1
   SOVERSION 10
+  OUTPUT_NAME "IexMath-2_0"
   )
 
 IF ( NOT WIN32 )
@@ -161,8 +180,7 @@ OpenEXR_includedir=\${prefix}/include/OpenEXR
 Name: IlmBase
 Description: Base math and exception libraries
 Version: 2.0.1
-Libs: -L\${libdir} -lImath -lIexMath -lHalf -lIex -lIlmThread -pthread
-Cflags: -pthread -I\${OpenEXR_includedir}
+Libs: -L\${libdir} -lImath-2_0 -lIexMath-2_0 -lHalf -lIex-2_0 -lIlmThread-2_0 -pthreadCflags: -pthread -I\${OpenEXR_includedir}
 ")
 
 INSTALL ( FILES

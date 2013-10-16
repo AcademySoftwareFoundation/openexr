@@ -46,10 +46,20 @@ LINUX
 mkdir  /tmp/openexrbuild
 cd  /tmp/openexrbuild
 
+-------------
 -- IlmBase --
-cmake -DCMAKE_INSTALL_PREFIX=<install location> <source location of IlmBase>
-make -j 4
-make install
+-------------
+initial bootstraping:
+    cmake -DCMAKE_INSTALL_PREFIX=<install location> <source location of IlmBase>
+
+build the actual code base:
+    make -j 4
+
+for testing do:
+    make test
+
+then to install to your chosen location:
+    make install
 
 
 
