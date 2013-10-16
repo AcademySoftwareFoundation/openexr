@@ -23,38 +23,39 @@ INSTALL ( TARGETS
 )
 
 INSTALL ( FILES 
-  ImathColorAlgo.h
-  ImathMatrixAlgo.h
-  ImathVec.h
-  ImathShear.h
-  ImathFun.h
-  ImathBox.h
   ImathBoxAlgo.h
+  ImathBox.h
+  ImathColorAlgo.h
+  ImathColor.h
   ImathEuler.h
   ImathExc.h
-  ImathLimits.h
-  ImathLine.h
-  ImathLineAlgo.h
-  ImathMatrix.h
-  ImathPlane.h
-  ImathSphere.h
-  ImathVecAlgo.h
-  ImathQuat.h
+  ImathExport.h
+  ImathForward.h
+  ImathFrame.h
   ImathFrustum.h
-  ImathMath.h
+  ImathFrustumTest.h
+  ImathFun.h
   ImathGL.h
-  ImathColor.h
+  ImathGLU.h
+  ImathHalfLimits.h
+  ImathInt64.h
+  ImathInterval.h
+  ImathLimits.h
+  ImathLineAlgo.h
+  ImathLine.h
+  ImathMath.h
+  ImathMatrixAlgo.h
+  ImathMatrix.h
+  ImathNamespace.h
+  ImathPlane.h
+  ImathPlatform.h
+  ImathQuat.h
   ImathRandom.h
   ImathRoots.h
-  ImathHalfLimits.h
-  ImathInterval.h
-  ImathGLU.h
-  ImathFrame.h
-  ImathPlatform.h
-  ImathInt64.h
-  ImathForward.h
-  ImathNamespace.h
-  ImathExport.h
+  ImathShear.h
+  ImathSphere.h
+  ImathVecAlgo.h
+  ImathVec.h
   DESTINATION
   include/OpenEXR
 )

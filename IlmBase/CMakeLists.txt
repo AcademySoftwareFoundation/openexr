@@ -83,35 +83,49 @@ IF (WIN32)
     DESTINATION ${CMAKE_SOURCE_DIR}/config
     )
 ELSE ()
-  FILE ( WRITE ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_PTHREAD 1\n" )
+  FILE ( WRITE  ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_PTHREAD 1\n" )
   FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_POSIX_SEMAPHORES 1\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_STRING \"2.0.0\"\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_PACKAGE_STRING \"IlmBase 2.0.0\"\n" )
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_INTERNAL_NAMESPACE_CUSTOM 1\n")
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define IMATH_INTERNAL_NAMESPACE Imath_2_0\n")
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define IEX_INTERNAL_NAMESPACE Iex_2_0\n")
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMTHREAD_INTERNAL_NAMESPACE IlmThread_2_0\n")
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define IMATH_NAMESPACE Imath\n")
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define IEX_NAMESPACE Iex\n")
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMTHREAD_NAMESPACE IlmThread\n")
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_STRING \"2.0.1\"\n" )
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_PACKAGE_STRING \"IlmBase 2.0.1\"\n" )
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_MAJOR 2\n" )
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_MINOR 0\n" )
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_PATCH 1\n" )
+  
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_HEX (\\\n\t(ILMBASE_VERSION_MAJOR << 24) | \\\n\t(ILMBASE_VERSION_MINOR << 16) | \\\n\t(ILMBASE_VERSION_PATCH <<  8)) \n")
+
+  
 ENDIF ()
 
 SET_TARGET_PROPERTIES ( Half
   PROPERTIES
-  VERSION 10.0.0
+  VERSION 10.0.1
   SOVERSION 10
   )
 SET_TARGET_PROPERTIES ( Iex
   PROPERTIES
-  VERSION 10.0.0
+  VERSION 10.0.1
   SOVERSION 10
   )
 SET_TARGET_PROPERTIES ( Imath
   PROPERTIES
-  VERSION 10.0.0
+  VERSION 10.0.1
   SOVERSION 10
   )
 SET_TARGET_PROPERTIES ( IlmThread
   PROPERTIES
-  VERSION 10.0.0
+  VERSION 10.0.1
   SOVERSION 10
   )
 SET_TARGET_PROPERTIES ( IexMath
   PROPERTIES
-  VERSION 10.0.0
+  VERSION 10.0.1
   SOVERSION 10
   )
 
@@ -146,7 +160,7 @@ OpenEXR_includedir=\${prefix}/include/OpenEXR
 
 Name: IlmBase
 Description: Base math and exception libraries
-Version: 1.1.0
+Version: 2.0.1
 Libs: -L\${libdir} -lImath -lIexMath -lHalf -lIex -lIlmThread -pthread
 Cflags: -pthread -I\${OpenEXR_includedir}
 ")

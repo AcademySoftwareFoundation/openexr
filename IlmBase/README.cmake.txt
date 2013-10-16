@@ -1,3 +1,6 @@
+WINDOWS
+-------
+
 Build IlmBase and OpenEXR on Windows using cmake
 ------------------
 
@@ -35,3 +38,18 @@ CMakeLists.txt, and type command:
 and build the solution. When it build successfully, right click 
 INSTALL project and build. It will install the output to the path
 you set up at the previous step. 
+
+
+
+LINUX
+-----
+mkdir  /tmp/openexrbuild
+cd  /tmp/openexrbuild
+
+-- IlmBase --
+cmake -DCMAKE_INSTALL_PREFIX=<install location> <source location of IlmBase>
+make -j 4
+make install
+
+
+
