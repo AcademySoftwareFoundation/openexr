@@ -97,13 +97,12 @@ IF (WIN32)
     DESTINATION ${CMAKE_SOURCE_DIR}/config
     )
 ELSE ()
-  FILE ( WRITE  ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_PTHREAD 1\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_POSIX_SEMAPHORES 1\n" )
-
   IF (APPLE)
-    FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_HAVE_LARGE_STACK  0\n" )
+    FILE ( WRITE  ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_PTHREAD 1\n" )
   ELSE ()
+    FILE ( WRITE  ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_PTHREAD 1\n" )
     FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_HAVE_LARGE_STACK  1\n" )
+    FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_POSIX_SEMAPHORES 1\n" )
   ENDIF ()
 
   FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_INTERNAL_NAMESPACE_CUSTOM 1\n")
