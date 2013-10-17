@@ -35,3 +35,20 @@ CMakeLists.txt, and type command:
 and build the solution. When it build successfully, right click 
 INSTALL project and build. It will install the output to the path
 you set up at the previous step. 
+
+
+
+-------------
+-- OpenEXR --
+-------------
+initial bootstraping:
+    cmake -DILMBASE_PACKAGE_PREFIX=<location of installed IlmBase files> -DCMAKE_INSTALL_PREFIX=<install location> <source location of IlmBase>
+
+build the actual code base:
+    make -j 4
+
+for testing do:
+    make test
+
+then to install to your chosen location:
+    make install

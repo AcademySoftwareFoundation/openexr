@@ -1,41 +1,5 @@
 # yue.nicholas@gmail.com
 
-# OpenEXRConfig.h generation
-IF (WIN32)
-  FILE ( WRITE ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_HAVE_COMPLETE_IOMANIP 1\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_NAMESPACE Imf\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_NAMESPACE_ENTER namespace Imf\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_NAMESPACE_EXIT\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_INTERNAL_NAMESPACE Imf\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER namespace Imf\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_VERSION_STRING \"2.0.0\"\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_PACKAGE_STRING \"OpenEXR 2.0.0\"\n" )
-ELSEIF (APPLE)
-  FILE ( WRITE ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_HAVE_DARWIN 1\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_HAVE_COMPLETE_IOMANIP 1\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_NAMESPACE Imf\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_NAMESPACE_ENTER namespace Imf\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_NAMESPACE_EXIT\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_INTERNAL_NAMESPACE Imf\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER namespace Imf\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_VERSION_STRING \"2.0.0\"\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_PACKAGE_STRING \"OpenEXR 2.0.0\"\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#include <string.h>\n" )
-ELSE ()
-  # Linux
-  FILE ( WRITE ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_HAVE_LINUX_PROCFS 1\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_HAVE_COMPLETE_IOMANIP 1\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_NAMESPACE Imf\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_NAMESPACE_ENTER namespace Imf\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_NAMESPACE_EXIT\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_INTERNAL_NAMESPACE Imf\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_INTERNAL_NAMESPACE_ENTER namespace Imf\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_INTERNAL_NAMESPACE_EXIT\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_VERSION_STRING \"2.0.0\"\n" )
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "#define OPENEXR_PACKAGE_STRING \"OpenEXR 2.0.0\"\n" )
-ENDIF()
 
 ADD_EXECUTABLE ( b44ExpLogTable
   b44ExpLogTable.cpp
@@ -157,11 +121,12 @@ ADD_LIBRARY ( IlmImf ${LIB_TYPE}
   ${ILMIMF_SRCS}
 )
 
-TARGET_LINK_LIBRARIES ( IlmImf Half Iex IMath IlmThread ${PTHREAD_LIB} ${ZLIB_LIBRARIES})
+TARGET_LINK_LIBRARIES ( IlmImf Half Iex-2_0 Imath-2_0 IlmThread-2_0 ${PTHREAD_LIB} ${ZLIB_LIBRARIES})
 
 IF(NOT BUILD_SHARED_LIBS)
   ADD_DEPENDENCIES ( IlmImf b44ExpLogTable )
 ENDIF()
+ADD_DEPENDENCIES ( IlmImf b44ExpLogTable )
 
 # Libraries
 
@@ -240,6 +205,7 @@ INSTALL ( FILES
   ImfMultiPartInputFile.h
   ImfGenericInputFile.h
   ImfPartType.h
+  ImfPartHelper.h
   ImfOutputPart.h
   ImfTiledOutputPart.h
   ImfInputPart.h
@@ -256,6 +222,7 @@ INSTALL ( FILES
   ImfDeepCompositing.h
   ImfCompositeDeepScanLine.h
   ImfNamespace.h
+  ImfMisc.h
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
   )
