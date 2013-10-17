@@ -1,10 +1,12 @@
 #! /bin/sh
 # If we're on OS X, use glibtoolize instead of toolize
 HOSTTYPE=`uname`
+LIBTOOLIZE=libtoolize
 if [ "$HOSTTYPE" == "Darwin" ]; then
-        LIBTOOLIZE=glibtoolize
-else
-	LIBTOOLIZE=libtoolize
+	GLIBTOOLIZE=`which glibtoolize`
+	if [ "x$GLIBTOOLIZE" != "x" ]; then
+		LIBTOOLIZE=glibtoolize
+	fi
 fi
 
 
