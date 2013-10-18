@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -47,7 +47,6 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -203,11 +202,11 @@ writeReadRGBA (const char fileName[],
 
 
 void
-writeReadIncomplete ()
+writeReadIncomplete (const std::string &tempDir)
 {
     cout << "\nfile with missing and broken scan lines" << endl;
 
-    const char *fileName = IMF_TMP_DIR "imf_test_incomplete.exr";
+    std::string fileName = tempDir + "imf_test_incomplete.exr";
 
     //
     // Write a file where some scan lines are missing or broken.
@@ -227,12 +226,12 @@ writeReadIncomplete ()
     {
         cout << "writing" << endl;
  
-        remove (fileName);
+        remove (fileName.c_str());
 
 	Header header (width, height);
 	header.compression() = ZIPS_COMPRESSION;
 
-        RgbaOutputFile out (fileName, header, WRITE_RGBA);
+        RgbaOutputFile out (fileName.c_str(), header, WRITE_RGBA);
         
         out.setFrameBuffer (&p1[0][0], 1, width);
 	out.writePixels (height / 2);		// write only half of the
@@ -251,7 +250,7 @@ writeReadIncomplete ()
 
         cout << "reading one scan line at a time," << flush;
 
-        RgbaInputFile in (fileName);
+        RgbaInputFile in (fileName.c_str());
         const Box2i &dw = in.dataWindow();
 
         assert (dw.max.x - dw.min.x + 1 == width);
@@ -321,7 +320,7 @@ writeReadIncomplete ()
 
         cout << "reading multiple scan lines at a time," << flush;
 
-        RgbaInputFile in (fileName);
+        RgbaInputFile in (fileName.c_str());
         const Box2i &dw = in.dataWindow();
 
         assert (dw.max.x - dw.min.x + 1 == width);
@@ -364,16 +363,16 @@ writeReadIncomplete ()
 	}
     }
 
-    remove (fileName);
+    remove (fileName.c_str());
 }
 
 
 void
-writeReadLayers ()
+writeReadLayers (const std::string &tempDir)
 {
     cout << "\nreading multi-layer file" << endl;
 
-    const char *fileName = IMF_TMP_DIR "imf_test_multi_layer_rgba.exr";
+    std::string fileName = tempDir + "imf_test_multi_layer_rgba.exr";
 
     const int W = 237;
     const int H = 119;
@@ -409,13 +408,13 @@ writeReadLayers ()
 			  sizeof (half),	// xStride
 			  sizeof (half) * W));	// yStride
 
-	OutputFile out (fileName, hdr);
+	OutputFile out (fileName.c_str(), hdr);
 	out.setFrameBuffer (fb);
 	out.writePixels (H);
     }
 
     {
-	RgbaInputFile in (fileName, "");
+	RgbaInputFile in (fileName.c_str(), "");
 
 	Array2D<Rgba> p3 (H, W);
 	in.setFrameBuffer (&p3[0][0], 1, W);
@@ -434,7 +433,7 @@ writeReadLayers ()
     }
 
     {
-	RgbaInputFile in (fileName, "foo");
+	RgbaInputFile in (fileName.c_str(), "foo");
 
 	Array2D<Rgba> p3 (H, W);
 	in.setFrameBuffer (&p3[0][0], 1, W);
@@ -453,7 +452,7 @@ writeReadLayers ()
     }
 
     {
-	RgbaInputFile in (fileName, "");
+	RgbaInputFile in (fileName.c_str(), "");
 
 	Array2D<Rgba> p3 (H, W);
 
@@ -500,13 +499,13 @@ writeReadLayers ()
 			  sizeof (half),	// xStride
 			  sizeof (half) * W));	// yStride
 
-	OutputFile out (fileName, hdr);
+	OutputFile out (fileName.c_str(), hdr);
 	out.setFrameBuffer (fb);
 	out.writePixels (H);
     }
 
     {
-	RgbaInputFile in (fileName, "");
+	RgbaInputFile in (fileName.c_str(), "");
 
 	Array2D<Rgba> p3 (H, W);
 	in.setFrameBuffer (&p3[0][0], 1, W);
@@ -525,7 +524,7 @@ writeReadLayers ()
     }
 
     {
-	RgbaInputFile in (fileName, "foo");
+	RgbaInputFile in (fileName.c_str(), "foo");
 
 	Array2D<Rgba> p3 (H, W);
 	in.setFrameBuffer (&p3[0][0], 1, W);
@@ -544,7 +543,7 @@ writeReadLayers ()
     }
 
     {
-	RgbaInputFile in (fileName, "");
+	RgbaInputFile in (fileName.c_str(), "");
 
 	Array2D<Rgba> p3 (H, W);
 
@@ -578,7 +577,7 @@ writeReadLayers ()
 	}
     }
 
-    remove (fileName);
+    remove (fileName.c_str());
 }
 
 
@@ -586,7 +585,7 @@ writeReadLayers ()
 
 
 void
-testRgba ()
+testRgba (const std::string &tempDir)
 {
     try
     {
@@ -614,25 +613,25 @@ testRgba ()
 	    {
 		for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
 		{
-		    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+		    writeReadRGBA ((tempDir + "imf_test_rgba.exr").c_str(),
 				   W, H, p1,
 				   WRITE_RGBA,
 				   LineOrder (lorder),
 				   Compression (comp));
 
-		    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+		    writeReadRGBA ((tempDir + "imf_test_rgba.exr").c_str(),
 				   W, H, p1,
 				   WRITE_RGB,
 				   LineOrder (lorder),
 				   Compression (comp));
 
-		    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+		    writeReadRGBA ((tempDir + "imf_test_rgba.exr").c_str(),
 				   W, H, p1,
 				   WRITE_A,
 				   LineOrder (lorder),
 				   Compression (comp));
 
-		    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+		    writeReadRGBA ((tempDir + "imf_test_rgba.exr").c_str(),
 				   W, H, p1,
 				   RgbaChannels (WRITE_R | WRITE_B),
 				   LineOrder (lorder),
@@ -640,10 +639,10 @@ testRgba ()
 		}
 	    }
 
-	    writeReadIncomplete();
+	    writeReadIncomplete (tempDir);
 	}
 
-	writeReadLayers();
+	writeReadLayers (tempDir);
 
 	cout << "ok\n" << endl;
     }

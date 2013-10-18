@@ -38,6 +38,8 @@
 #ifndef TESTCOPYDEEPSCANLINE_H_
 #define TESTCOPYDEEPSCANLINE_H_
 
-void testCopyDeepScanLine();
+#include <string>
+
+void testCopyDeepScanLine (const std::string &tempDir);
 
 #endif /* TESTCOPYDEEPSCANLINE_H_ */

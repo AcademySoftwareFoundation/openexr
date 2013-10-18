@@ -66,7 +66,6 @@ namespace
  
 const int height = 267;
 const int width = 193;
-const char filename[] = IMF_TMP_DIR "imf_test_input_part.exr";
 
 vector<Header> headers;
 vector<int> pixelTypes;
@@ -397,7 +396,8 @@ void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
     }
 }
 
-void generateRandomFile(int partCount)
+void
+generateRandomFile (int partCount, const std::string & fn)
 {
     //
     // Init data.
@@ -422,8 +422,8 @@ void generateRandomFile(int partCount)
     //
     generateRandomHeaders(partCount, headers);
 
-    remove(filename);
-    MultiPartOutputFile file(filename, &headers[0],headers.size());
+    remove(fn.c_str());
+    MultiPartOutputFile file(fn.c_str(), &headers[0],headers.size());
 
     //
     // Writing files.
@@ -493,7 +493,8 @@ void generateRandomFile(int partCount)
     }
 }
 
-void readWholeFiles()
+void
+readWholeFiles (const std::string & fn)
 {
     Array2D<unsigned int> uData;
     Array2D<float> fData;
@@ -505,7 +506,7 @@ void readWholeFiles()
 
     Array2D<unsigned int> sampleCount;
 
-    MultiPartInputFile file(filename);
+    MultiPartInputFile file(fn.c_str());
     for (size_t i = 0; i < file.parts(); i++)
     {
         const Header& header = file.header(i);
@@ -574,7 +575,8 @@ void readWholeFiles()
     }
 }
 
-void readFirstPart()
+void
+readFirstPart (const std::string & fn)
 {
     Array2D<unsigned int> uData;
     Array2D<float> fData;
@@ -595,7 +597,7 @@ void readFirstPart()
     l2 = rand() % height;
     if (l1 > l2) swap(l1, l2);
 
-    InputFile part(filename);
+    InputFile part(fn.c_str());
 
     FrameBuffer frameBuffer;
     setInputFrameBuffer(frameBuffer, pixelType,
@@ -618,7 +620,8 @@ void readFirstPart()
     }
 }
 
-void readPartialFiles(int randomReadCount)
+void
+readPartialFiles (int randomReadCount, const std::string & fn)
 {
     Array2D<unsigned int> uData;
     Array2D<float> fData;
@@ -631,7 +634,7 @@ void readPartialFiles(int randomReadCount)
     Array2D<unsigned int> sampleCount;
 
     cout << "Reading partial files " << flush;
-    MultiPartInputFile file(filename);
+    MultiPartInputFile file(fn.c_str());
 
     for (int i = 0; i < randomReadCount; i++)
     {
@@ -672,17 +675,24 @@ void readPartialFiles(int randomReadCount)
 
 
 
-void testWriteRead(int partNumber, int runCount, int randomReadCount)
+void
+testWriteRead (int partNumber,
+               int runCount,
+               int randomReadCount,
+               const std::string & tempDir)
 {
     cout << "Testing file with " << partNumber << " part(s)." << endl << flush;
 
+    const std::string fn = tempDir + "imf_test_input_part.exr";
+
     for (int i = 0; i < runCount; i++)
     {
-        generateRandomFile(partNumber);
-        readWholeFiles();
-        readFirstPart();
-        readPartialFiles(randomReadCount);
-        remove (filename);
+        generateRandomFile (partNumber, fn);
+        readWholeFiles (fn);
+        readFirstPart (fn);
+        readPartialFiles (randomReadCount, fn);
+
+        remove (fn.c_str());
 
         cout << endl << flush;
     }
@@ -690,7 +700,8 @@ void testWriteRead(int partNumber, int runCount, int randomReadCount)
 
 } // namespace
 
-void testInputPart()
+
+void testInputPart (const std::string & tempDir)
 {
     try
     {
@@ -701,10 +712,10 @@ void testInputPart()
         int numThreads = ThreadPool::globalThreadPool().numThreads();
         ThreadPool::globalThreadPool().setNumThreads(4);
 
-        testWriteRead( 1, 10,   5);
-        testWriteRead( 2, 20,  10);
-        testWriteRead( 8, 40,  25);
-        testWriteRead(50, 10, 250);
+        testWriteRead ( 1, 1,  5, tempDir);
+        testWriteRead ( 2, 2,  1, tempDir);
+        testWriteRead ( 8, 4,  2, tempDir);
+        testWriteRead (50, 3, 11, tempDir);
 
         ThreadPool::globalThreadPool().setNumThreads(numThreads);
 

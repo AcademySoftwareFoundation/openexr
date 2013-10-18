@@ -35,6 +35,8 @@
 #ifndef TESTMULTIPARTTHREADING_H_
 #define TESTMULTIPARTTHREADING_H_
 
-void testMultiPartThreading();
+#include <string>
+
+void testMultiPartThreading (const std::string & tempDir);
 
 #endif /* TESTMULTIPARTTHREADING_H_ */

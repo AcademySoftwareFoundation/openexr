@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,5 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-void testTiledCompression ();
+#include <string>
+
+void testTiledCompression (const std::string &tempDir);
 

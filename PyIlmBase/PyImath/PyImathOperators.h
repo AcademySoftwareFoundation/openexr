@@ -250,11 +250,13 @@ static void add_arithmetic_math_functions(boost::python::class_<FixedArray<T> > 
     generate_member_bindings<op_mul<T>, true_ >(c,"__mul__", "self*x", boost::python::args("x"));
     generate_member_bindings<op_mul<T>, false_>(c,"__rmul__","x*self", boost::python::args("x"));
     generate_member_bindings<op_div<T>, true_ >(c,"__div__", "self/x", boost::python::args("x"));
+    generate_member_bindings<op_div<T>, true_ >(c,"__truediv__", "self/x", boost::python::args("x"));
     generate_member_bindings<op_neg<T> >(c,"__neg__", "-x");
     generate_member_bindings<op_iadd<T>,true_ >(c,"__iadd__","self+=x",boost::python::args("x"));
     generate_member_bindings<op_isub<T>,true_ >(c,"__isub__","self-=x",boost::python::args("x"));
     generate_member_bindings<op_imul<T>,true_ >(c,"__imul__","self*=x",boost::python::args("x"));
     generate_member_bindings<op_idiv<T>,true_ >(c,"__idiv__","self/=x",boost::python::args("x"));
+    generate_member_bindings<op_idiv<T>,true_ >(c,"__itruediv__","self/=x",boost::python::args("x"));
 
     c.def("reduce",&fa_reduce<T>);
 }

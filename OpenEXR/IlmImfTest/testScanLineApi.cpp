@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #include <ImfTiledOutputFile.h>
 #include <ImfTiledInputFile.h>
 #include <ImfInputFile.h>
@@ -51,7 +50,6 @@
 #include <math.h>
 #include <ImfTileDescriptionAttribute.h>
 
-#include "tmpDir.h"
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
@@ -59,6 +57,7 @@ using namespace std;
 using namespace IMATH_NAMESPACE;
 
 namespace {
+
 
 void
 fillPixels (Array2D<unsigned int> &pi,
@@ -488,7 +487,8 @@ writeRead (const Array2D<unsigned int> &pi1,
 
 
 void
-writeRead (const Array2D<unsigned int> &pi,
+writeRead (const std::string &tempDir,
+           const Array2D<unsigned int> &pi,
            const Array2D<half> &ph,
            const Array2D<float> &pf,
            int W,
@@ -499,13 +499,13 @@ writeRead (const Array2D<unsigned int> &pi,
            int dx, int dy,
            int xSize, int ySize)
 {
-    const char *filename = IMF_TMP_DIR "imf_test_scanline_api.exr";
+    std::string filename = tempDir + "imf_test_scanline_api.exr";
 
-    writeRead (pi, ph, pf, filename, lorder, W, H,
+    writeRead (pi, ph, pf, filename.c_str(), lorder, W, H,
                xSize, ySize, dx, dy, comp, ONE_LEVEL, rmode);
-    writeRead (pi, ph, pf, filename, lorder, W, H,
+    writeRead (pi, ph, pf, filename.c_str(), lorder, W, H,
                xSize, ySize, dx, dy, comp, MIPMAP_LEVELS, rmode);
-    writeRead (pi, ph, pf, filename, lorder, W, H,
+    writeRead (pi, ph, pf, filename.c_str(), lorder, W, H,
                xSize, ySize, dx, dy, comp, RIPMAP_LEVELS, rmode);
 }
 
@@ -513,7 +513,7 @@ writeRead (const Array2D<unsigned int> &pi,
 
 
 void
-testScanLineApi ()
+testScanLineApi (const std::string &tempDir)
 {
     try
     {
@@ -543,49 +543,49 @@ testScanLineApi ()
 	    {
 		for (int rmode = 0; rmode < NUM_ROUNDINGMODES; ++rmode)
 		{
-		    writeRead (pi, ph, pf,  W, H, 
+		    writeRead (tempDir, pi, ph, pf,  W, H, 
 			       LineOrder (lorder),
 			       ZIP_COMPRESSION,
 			       LevelRoundingMode (rmode),
 			       0, 0, 1, 1);
 
-		    writeRead (pi, ph, pf, W, H, 
+		    writeRead (tempDir, pi, ph, pf, W, H, 
 			       LineOrder (lorder),
 			       ZIP_COMPRESSION,
 			       LevelRoundingMode (rmode),
 			       DX, DY, 1, 1);
 		    
-		    writeRead (pi, ph, pf, W, H,
+		    writeRead (tempDir, pi, ph, pf, W, H,
 			       LineOrder (lorder),
 			       ZIP_COMPRESSION,
 			       LevelRoundingMode (rmode),
 			       0, 0, 24, 26);
 
-		    writeRead (pi, ph, pf, W, H,
+		    writeRead (tempDir, pi, ph, pf, W, H,
 			       LineOrder (lorder),
 			       ZIP_COMPRESSION,
 			       LevelRoundingMode (rmode),
 			       DX, DY, 24, 26);
 		    
-		    writeRead (pi, ph, pf, W, H,
+		    writeRead (tempDir, pi, ph, pf, W, H,
 			       LineOrder (lorder),
 			       ZIP_COMPRESSION,
 			       LevelRoundingMode (rmode),
 			       0, 0, 48, 81);
 
-		    writeRead (pi, ph, pf, W, H,
+		    writeRead (tempDir, pi, ph, pf, W, H,
 			       LineOrder (lorder),
 			       ZIP_COMPRESSION,
 			       LevelRoundingMode (rmode),
 			       DX, DY, 48, 81);
 			       
-		    writeRead (pi, ph, pf, W, H,
+		    writeRead (tempDir, pi, ph, pf, W, H,
 			       LineOrder (lorder),
 			       ZIP_COMPRESSION,
 			       LevelRoundingMode (rmode),
 			       0, 0, 128, 96);
 
-		    writeRead (pi, ph, pf, W, H,
+		    writeRead (tempDir, pi, ph, pf, W, H,
 			       LineOrder (lorder),
 			       ZIP_COMPRESSION,
 			       LevelRoundingMode (rmode),

@@ -60,6 +60,7 @@
 
 #include <iostream>
 #include <vector>
+#include <utility> // pair
 #include <stdlib.h>
 #include <sstream>
 #include <assert.h>
@@ -68,14 +69,26 @@ using std::cerr;
 using std::cout;
 using std::endl;
 using std::vector;
+using std::pair;
 using std::set;
 using std::ostringstream;
 using std::min;
 using std::max;
 using std::string;
+using std::make_pair;
 using IMATH_NAMESPACE::Box2i;
 
 using namespace OPENEXR_IMF_NAMESPACE;
+
+
+#if defined(ANDROID) || defined(__ANDROID_API__)
+    #define IMF_PATH_SEPARATOR "/"
+#elif defined(_WIN32) || defined(_WIN64) || defined(__MWERKS__) || defined(PLATFORM_WINDOWS)
+    #define IMF_PATH_SEPARATOR "\\"
+#else
+    #define IMF_PATH_SEPARATOR "/"
+#endif
+
 
 void
 copy_tile (MultiPartInputFile & input,
@@ -121,39 +134,128 @@ copy_scanlinedeep (MultiPartInputFile & input,
     out.copyPixels (in);
 }
 
+bool
+is_number(const std::string& s)
+{
+    std::string::const_iterator it = s.begin();
+    while (it != s.end() && std::isdigit(*it)) ++it;
+    return !s.empty() && it == s.end();
+}
+
+void
+parse_partname (string & part_name)
+{
+    // strip off a path delimitation
+    size_t posSlash = part_name.rfind(IMF_PATH_SEPARATOR);
+    if (posSlash != string::npos)
+        part_name = part_name.substr(posSlash+1);
+
+
+    // strip the exr ext
+    size_t pos = part_name.rfind(".exr");
+    if (pos != string::npos)
+    {
+        part_name = part_name.substr(0, pos);
+
+        // strip off the frame number
+        size_t pos2 = part_name.rfind(".");
+        if (pos2 != string::npos)
+        {
+            string frame = part_name.substr(pos2+1, pos);
+            if (is_number(frame))
+                part_name = part_name.substr(0, pos2);
+        }
+    }
+}
+
+
+///
+/// If input is <...>::<partname] then extract part name
+/// Else, use the stripped version of the filename for partname
+/// If input is <file>:<partnum> then extract part number,
+/// Else, use all parts
+///
+void
+parse_filename (string & file_name,
+                string & part_name,
+                bool   & force_part_name,
+                int    & part_num)
+{
+    force_part_name = false;
+    part_name = file_name; // default is the file_name
+    size_t doublecolon = file_name.rfind ("::");
+    if (doublecolon != string::npos)
+    {
+        part_name = file_name.substr (doublecolon+2);
+        file_name = file_name.substr (0, doublecolon);
+        force_part_name = true;
+    }
+    else
+    {
+        parse_partname(part_name);
+    }
+
+    size_t colon = file_name.rfind (':');
+    if (colon == string::npos)
+    {
+        part_num = -1; // use all parts
+    }
+    else
+    {
+        string num = file_name.substr (colon + 1);
+        if (is_number(num))
+        {
+            part_num  = atoi (num.c_str());
+            file_name = file_name.substr (0, colon);
+        }
+        else
+        {
+            cerr <<"\n" << "ERROR: part number must be a number" << endl;
+            exit(1);
+        }
+    }
+}
+
+
 void
 make_unique_names (vector<Header> & headers)
 {
     set<string> names;
     for ( size_t i = 0 ; i < headers.size() ; i++ )
     {
+        Header & h = headers[i];
         std::string base_name;
+
         // if no name at all, set it to <type><partnum> (first part is part 1)
-        if (!headers[i].hasName())
+        if (!h.hasName())
         {
-            ostringstream s;
-            s << headers[i].type() << (i + 1);
-            base_name = s.str();
-            headers[i].setName (base_name);
+            // We should not be here, we have populated all headers with names.
+            cerr << "\n" << "Software Error: header does not have a valid name"
+                 << ":" << __LINE__ << endl;
+            exit (1);
         }
         else
         {
-            base_name = headers[i].name();
+            base_name = h.name();
         }
+
+
         // check name has already been used, if so add a _<number> to it
-        if (names.find (base_name) == names.end())
+        if (names.find (base_name) != names.end())
         {
             ostringstream s;
             size_t backup=1;
             do
             {
                 s.clear();
-                s << headers[i].type() << i << "_" << backup;
+                s << h.name() << "_" << i << "_" << backup;
                 backup++;
             }
             while (names.find(s.str()) != names.end());
-            headers[i].setName (s.str());
+            h.setName (s.str());
         }
+
+        names.insert (h.name());
     }
 }
 
@@ -173,7 +275,10 @@ filename_check (vector <string> names, const char* aname)
 }
 
 void
-convert(vector <const char*> in, vector<const char *> views,const char* outname, bool override)
+convert(vector <const char*> in,
+        vector<const char *> views,
+        const char* outname,
+        bool override)
 {
     if(in.size()!=1)
     {
@@ -185,7 +290,7 @@ convert(vector <const char*> in, vector<const char *> views,const char* outname,
     {
         MultiPartInputFile infile(in[0]);
         
-        if(infile.parts()!=1)
+        if(infile.parts() != 1)
         {
             cerr <<"\n" << "ERROR: " 
             "can only convert single part EXRs to multipart EXR-2.0 files: use 'split' mode instead" << endl;
@@ -197,7 +302,7 @@ convert(vector <const char*> in, vector<const char *> views,const char* outname,
         string hero;
         if(hasMultiView(infile.header(0)))
         {
-            StringVector h = multiView(infile.header(0));
+            StringVector h = multiView (infile.header(0));
             if(h.size()>0)
             {
                 hero=h[0];
@@ -222,16 +327,23 @@ convert(vector <const char*> in, vector<const char *> views,const char* outname,
         //
         for(int i=0;i<parts;i++)
         {
-          output_headers[i]=infile.header(0);     
-          if(hasMultiView(output_headers[i]))
-          {
-              output_headers[i].erase("multiView");
-          }
-          output_headers[i].channels()=ChannelList();
+            Header & h = output_headers[i];
+            h = infile.header(0);
+            if (hasMultiView(h))
+                h.erase("multiView");
+
+            string fn, pname;
+            int  pnum;
+            bool pforce;
+            parse_filename(fn, pname, pforce, pnum);
+            if (!h.hasName() || pforce)
+                h.setName (pname);
+
+            h.channels()=ChannelList();
         }   
-        
+
         make_unique_names(output_headers);
-        
+
         const ChannelList & in_chanlist = infile.header(0).channels();
 
         int channel_count = 0;
@@ -259,11 +371,12 @@ convert(vector <const char*> in, vector<const char *> views,const char* outname,
             // read the part we should be writing channel into, insert into header
             int part = output_channels[i].part_number;
             ChannelList::ConstIterator chan = in_chanlist.find(input_channels[i].internal_name);
-            output_headers[part].channels().insert(output_channels[i].name,chan.channel());
+            Header & h = output_headers[part];
+            h.channels().insert(output_channels[i].name,chan.channel());
             
             if( output_channels[i].view!="" )
             {
-                output_headers[part].setView( output_channels[i].view );
+                h.setView( output_channels[i].view );
             }
             
             // compute size of channel
@@ -275,19 +388,24 @@ convert(vector <const char*> in, vector<const char *> views,const char* outname,
             channelstore[i].resize(samplesize*pixel_count);
             
             output_framebuffers[part].insert(output_channels[i].name,
-                                             Slice(chan.channel().type,&channelstore[i][0]-pixel_base*samplesize,
-                                                   samplesize,pixel_width*samplesize));
+                                             Slice(chan.channel().type,
+                                                   &channelstore[i][0]-pixel_base*samplesize,
+                                                   samplesize,
+                                                   pixel_width*samplesize));
+
             input_framebuffer.insert(input_channels[i].internal_name,
-                                              Slice(chan.channel().type,&channelstore[i][0]-pixel_base*samplesize,
-                                                    samplesize,pixel_width*samplesize));
+                                     Slice(chan.channel().type,
+                                           &channelstore[i][0] - pixel_base*samplesize,
+                                           samplesize,
+                                           pixel_width*samplesize));
                                                     
         }
         
         //
         // create output file
         //
-        
-        MultiPartOutputFile outfile(outname,&output_headers[0],output_headers.size());
+        MultiPartOutputFile outfile(outname,&output_headers[0],
+                                    output_headers.size());
         InputPart inpart(infile,0);
         
         
@@ -319,8 +437,13 @@ convert(vector <const char*> in, vector<const char *> views,const char* outname,
     
 }
 
+
+
 void
-combine (vector <const char*> in, vector<const char *> views,const char* outname, bool override)
+combine (vector <const char*> in,
+         vector<const char *> views,
+         const char* outname,
+         bool override)
 {
     size_t numInputs = in.size();
     int numparts;
@@ -334,14 +457,20 @@ combine (vector <const char*> in, vector<const char *> views,const char* outname
     //
     // parse all inputs
     //
+
+    // Input format :
+    // We support the following syntax for each input
+    // <file>[:<partnum>][::<newpartname>]
+
     for (size_t i = 0 ; i < numInputs; i++)
     {
-        // if input is <file>:<partnum> then extract part number,
-        // else get all parts
         string filename (in[i]);
-        size_t colon = filename.rfind (':');
+        string partname;
+        bool   forcepartname;
+        int    partnum;
+        parse_filename (filename, partname, forcepartname, partnum);
 
-        if (colon == string::npos)
+        if (partnum == -1)
         {
             fornamecheck.push_back (filename);
 
@@ -355,11 +484,16 @@ combine (vector <const char*> in, vector<const char *> views,const char* outname
                 for (int j = 0; j < numparts; j++)
                 {
                     inputs.push_back (infile);
-                    headers.push_back (infile->header(j));
+
+                    Header h = infile->header(j);
+                    if (!h.hasName() || forcepartname)
+                        h.setName (partname);
+
+                    headers.push_back (h);
+
                     if( views[i] != NULL )
-                    {
                         headers[headers.size()-1].setView( views[i] );
-                    }
+
                     partnums.push_back (j);
                 }
             }
@@ -369,13 +503,9 @@ combine (vector <const char*> in, vector<const char *> views,const char* outname
                 cerr << e.what() << endl;
                 exit (1);
             }
-        }
+        } // no user parts specified
         else
         {
-            string num = filename.substr (colon + 1);
-            numparts = atoi (num.c_str());
-            filename = filename.substr (0, colon);
-
             fornamecheck.push_back (filename);
 
             try
@@ -383,20 +513,26 @@ combine (vector <const char*> in, vector<const char *> views,const char* outname
                 infile = new MultiPartInputFile (filename.c_str());
                 fordelete.push_back (infile);
 
-                if (numparts >= infile->parts())
+                if (partnum >= infile->parts())
                 {
-                    cerr << "ERROR: you asked for part " << numparts << " in " << in[i];
+                    cerr << "ERROR: you asked for part " << partnum << " in " << in[i];
                     cerr << ", which only has " << infile->parts() << " parts\n";
                     exit (1);
                 }
                 //copy header from required part of input to our header array
                 inputs.push_back (infile);
-                headers.push_back (infile->header(numparts));
+
+                Header h = infile->header(partnum);
+                if (!h.hasName() || forcepartname)
+                    h.setName (partname);
+
+                headers.push_back (h);
+
+
                 if( views[i] != NULL )
-                {
                      headers[headers.size()-1].setView( views[i] );
-                }                
-                partnums.push_back (numparts);
+
+                partnums.push_back (partnum);
             }
             catch (IEX_NAMESPACE::BaseExc &e)
             {
@@ -404,7 +540,7 @@ combine (vector <const char*> in, vector<const char *> views,const char* outname
                 cerr << e.what()<< endl;
                 exit (1);
             }
-        }
+        } // user parts specified
     }
 
     filename_check (fornamecheck, outname);
@@ -419,23 +555,22 @@ combine (vector <const char*> in, vector<const char *> views,const char* outname
     //
     // do combine
     //
+
+    // early bail if need be
     try
     {
-        MultiPartOutputFile temp (outname, &headers[0],
-                                  headers.size(), override);
+        MultiPartOutputFile temp (outname, &headers[0], headers.size(), override);
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {
         cerr << "\n" << "ERROR: " << e.what() << endl;
         exit (1);
     }
-
     MultiPartOutputFile out (outname, &headers[0], headers.size(), override);
 
     for (size_t p = 0 ; p < partnums.size();p++)
     {
-        Header header = headers[p];
-        std::string type = header.type();
+        std::string type = headers[p].type();
         if (type == SCANLINEIMAGE)
         {
             cout << "part " << p << ": "<< "scanlineimage" << endl;
@@ -459,7 +594,8 @@ combine (vector <const char*> in, vector<const char *> views,const char* outname
     }
 
 
-    for (size_t k = 0; k < fordelete.size(); k++) {
+    for (size_t k = 0; k < fordelete.size(); k++)
+    {
         delete fordelete[k];
     }
 
@@ -559,20 +695,20 @@ separate (vector <const char*> in, const char* out, bool override)
 void
 usageMessage (const char argv[])
 {
-    cerr << argv << " handles the combining and splitting of multipart data\n";
-    cerr << "\n" << "Usage: "
-            "exrmultipart -combine -i input.exr[:partnum] "
-            "[input2.exr[:partnum]] [...] -o outfile.exr [options]\n";
-    cerr << "   or: exrmultipart -separate -i infile.exr -o outfileBaseName "
+    cout << argv << " handles the combining and splitting of multipart data\n";
+    cout << "\n" << "Usage: "
+            "exrmultipart -combine -i input.exr[:partnum][::partname] "
+            "[input2.exr[:partnum]][::partname] [...] -o outfile.exr [options]\n";
+    cout << "   or: exrmultipart -separate -i infile.exr -o outfileBaseName "
             "[options]\n";
-    cerr << "   or: exrmultipart -convert -i infile.exr -o outfile.exr "
+    cout << "   or: exrmultipart -convert -i infile.exr -o outfile.exr "
             "[options]\n";
-            cerr << "\n" << "Options:\n";
-    cerr << "-override [0/1]      0-do not override conflicting shared "
+            cout << "\n" << "Options:\n";
+    cout << "-override [0/1]      0-do not override conflicting shared "
             "attributes [default]\n"
             "                     1-override conflicting shared attributes\n";
 
-    cerr << "-view name           (after specifying -i) "
+    cout << "-view name           (after specifying -i) "
             "assign following inputs to view 'name'\n";
     exit (1);
 }
@@ -626,17 +762,17 @@ main (int argc, char * argv[])
         {
             switch (mode)
             {
-            case 1:
-                inFiles.push_back (argv[i]);
-                views.push_back (view);
-                break;
-            case 2: outFile = argv[i];
-                break;
-            case 3: override = atoi (argv[i]);
-                break;
-            case 4: view = argv[i];
-                 mode=1;
-                break;
+                case 1:
+                    inFiles.push_back (argv[i]);
+                    views.push_back (view);
+                    break;
+                case 2: outFile = argv[i];
+                    break;
+                case 3: override = atoi (argv[i]);
+                    break;
+                case 4: view = argv[i];
+                    mode=1;
+                    break;
             }
         }
         i++;

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -45,8 +45,6 @@
 
 #include <stdio.h>
 #include <assert.h>
-
-#include "tmpDir.h"
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
@@ -354,7 +352,8 @@ writeRead (const Array2D<unsigned int> &pi1,
 
 
 void
-writeRead (const Array2D<unsigned int> &pi,
+writeRead (const std::string &tempDir,
+           const Array2D<unsigned int> &pi,
 	   const Array2D<half> &ph,
 	   const Array2D<float> &pf,
 	   int w,
@@ -362,7 +361,7 @@ writeRead (const Array2D<unsigned int> &pi,
 	   int dx,
 	   int dy)
 {
-    const char *filename = IMF_TMP_DIR "imf_test_comp.exr";
+    std::string filename = tempDir + "imf_test_comp.exr";
 
     for (int xs = 1; xs <= 2; ++xs)
     {
@@ -371,7 +370,7 @@ writeRead (const Array2D<unsigned int> &pi,
 	    for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
 	    {
 		writeRead (pi, ph, pf,
-			   filename,
+			   filename.c_str(),
 			   w  * xs, h  * ys,
 			   dx * xs, dy * ys,
 			   Compression (comp),
@@ -385,7 +384,7 @@ writeRead (const Array2D<unsigned int> &pi,
 
 
 void
-testCompression ()
+testCompression (const std::string &tempDir)
 {
     try
     {
@@ -411,16 +410,16 @@ testCompression ()
 	assert (NUM_PIXELTYPES == 3);
 
 	fillPixels1 (pi, ph, pf, W, H);
-	writeRead (pi, ph, pf, W, H, DX, DY);
+	writeRead (tempDir, pi, ph, pf, W, H, DX, DY);
 
 	fillPixels2 (pi, ph, pf, W, H);
-	writeRead (pi, ph, pf, W, H, DX, DY);
+	writeRead (tempDir, pi, ph, pf, W, H, DX, DY);
 
 	fillPixels3 (pi, ph, pf, W, H);
-	writeRead (pi, ph, pf, W, H, DX, DY);
+	writeRead (tempDir, pi, ph, pf, W, H, DX, DY);
 
 	fillPixels4 (pi, ph, pf, W, H);
-	writeRead (pi, ph, pf, W, H, DX, DY);
+	writeRead (tempDir, pi, ph, pf, W, H, DX, DY);
 
 	cout << "ok\n" << endl;
     }

@@ -34,6 +34,7 @@
 #ifndef TESTFUTUREPROOFING_H_
 #define TESTFUTUREPROOFING_H_
 
-void testFutureProofing();
+#include <string>
+void testFutureProofing  (const std::string & tempDir);
 
 #endif

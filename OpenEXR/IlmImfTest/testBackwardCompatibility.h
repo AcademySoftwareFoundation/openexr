@@ -36,6 +36,8 @@
 #ifndef TESTBACKWARDCOMPATIBILITY_H_
 #define TESTBACKWARDCOMPATIBILITY_H_
 
-void testBackwardCompatibility ();
+#include <string>
+
+void testBackwardCompatibility (const std::string & tempDir);
 
 #endif /* TESTBACKWARDCOMPATIBILITY_H_ */

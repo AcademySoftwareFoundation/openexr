@@ -37,6 +37,8 @@
 #ifndef TESTMULTIPARTSHAREDATTRIBUTES_H_
 #define TESTMULTIPARTSHAREDATTRIBUTES_H_
 
-void testMultiPartSharedAttributes ();
+#include <string>
+
+void testMultiPartSharedAttributes (const std::string & tempDir);
 
 #endif /* TESTMULTIPARTSHAREDATTRIBUTES_H_ */

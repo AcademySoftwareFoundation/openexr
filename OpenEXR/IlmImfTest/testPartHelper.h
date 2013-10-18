@@ -34,6 +34,7 @@
 #ifndef TESTPARTHELPER_H_
 #define TESTPARTHELPER_H_
 
-void testPartHelper();
+#include <string>
+void testPartHelper (const std::string & tempDir);
 
 #endif /* TESTPARTHELPER_H_ */

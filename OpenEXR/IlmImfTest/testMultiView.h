@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2007, Weta Digital Ltd
+// Copyright (c) 2007 Weta Digital Ltd
+// Copyright (c) 2012 Industrial Light & Magic, a division of Lucasfilm
 // 
 // All rights reserved.
 // 
@@ -34,5 +35,7 @@
 
 
 
-void testMultiView ();
+#include <string>
+
+void testMultiView (const std::string &tempDir);
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
@@ -45,7 +44,6 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -186,7 +184,7 @@ writeRead (const Array2D<half> &ph1,
 
 
 void
-testLineOrder ()
+testLineOrder (const std::string &tempDir)
 {
     try
     {
@@ -208,12 +206,12 @@ testLineOrder ()
 		cout << "\nnumber of threads: " << globalThreadCount() << endl;
 	    }
 
-	    const char *filename = IMF_TMP_DIR "imf_test_lorder.exr";
+	    std::string filename = tempDir + "imf_test_lorder.exr";
 
 	    for (int lorder = 0; lorder < RANDOM_Y; ++lorder)
 	    {
 		writeRead (ph,
-			   filename,
+			   filename.c_str(),
 			   W, H,
 			   LineOrder (lorder));
 	    }

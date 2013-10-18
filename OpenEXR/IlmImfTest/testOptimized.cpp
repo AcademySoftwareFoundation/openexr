@@ -33,8 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
-
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
@@ -58,14 +56,10 @@
 #include <ImfVecAttribute.h>
 
 
-//for IMF_HAVE_SSE2
-#include <ImfOptimizedPixelReading.h>
-
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
 
-#include "tmpDir.h"
 
 using namespace std;
 using namespace IMATH_NAMESPACE;
@@ -498,11 +492,13 @@ readValidateFile (const char pFilename[],
 // confirm the optimization flag returns false for non-RGB files
 //
 void
-testNonOptimized()
+testNonOptimized (const std::string & tempDir)
 {
     const int pHeight = IMAGE_2K_HEIGHT - 1;
     const int pWidth  =  IMAGE_2K_WIDTH - 1;
-    const char* filename  = IMF_TMP_DIR RGB_FILENAME;
+    std::string fn = tempDir +  RGB_FILENAME;
+    const char* filename  = fn.c_str();
+
     remove(filename);
     writeFile (filename,  pHeight, pWidth, IMAGE_TYPE_OTHER,  false, NO_COMPRESSION);
     readValidateFile(filename,pHeight,pWidth,IMAGE_TYPE_OTHER,false);
@@ -520,12 +516,20 @@ testNonOptimized()
 // to write the file.
 //
 void
-testAllCombinations (bool isAligned, bool isStereo, Compression pCompression)
+testAllCombinations (bool isAligned,
+                     bool isStereo,
+                     Compression pCompression,
+                     const std::string & tempDir)
 {
-    const char* pRgbFilename  = isStereo ? IMF_TMP_DIR RGB_STEREO_FILENAME :
-                                           IMF_TMP_DIR RGB_FILENAME;
-    const char* pRgbaFilename = isStereo ? IMF_TMP_DIR RGBA_STEREO_FILENAME :
-                                           IMF_TMP_DIR RGBA_FILENAME;
+    std::string pRgb  = isStereo ?  RGB_STEREO_FILENAME :
+                                    RGB_FILENAME;
+    pRgb = tempDir + pRgb;
+    std::string pRgba = isStereo ?  RGBA_STEREO_FILENAME :
+                                    RGBA_FILENAME;
+    pRgba = tempDir + pRgba;
+
+    const char * pRgbFilename  = pRgb.c_str();
+    const char * pRgbaFilename = pRgba.c_str();
 
     const int pHeight = isAligned ? IMAGE_2K_HEIGHT : IMAGE_2K_HEIGHT - 1;
     const int pWidth  = isAligned ? IMAGE_2K_WIDTH  : IMAGE_2K_WIDTH  - 1;
@@ -561,7 +565,7 @@ testAllCombinations (bool isAligned, bool isStereo, Compression pCompression)
 
 
 void
-testOptimized ()
+testOptimized (const std::string & tempDir)
 {    
     try
     {
@@ -580,33 +584,33 @@ testOptimized ()
 
                          
         cout << "\tNON-OPTIMIZABLE file" << endl;
-        testNonOptimized();
+        testNonOptimized(tempDir);
                 
         cout << "\tALIGNED -- MONO -- NO COMPRESSION" << endl;
-        testAllCombinations (true, false, NO_COMPRESSION);
+        testAllCombinations (true, false, NO_COMPRESSION, tempDir);
 
         cout << "\tUNALIGNED -- MONO -- NO COMPRESSION" << endl;
-        testAllCombinations (false, false, NO_COMPRESSION);
+        testAllCombinations (false, false, NO_COMPRESSION, tempDir);
 
         cout << "\tALIGNED -- MONO -- ZIP COMPRESSION" << endl;
-        testAllCombinations (true, false, ZIP_COMPRESSION);
+        testAllCombinations (true, false, ZIP_COMPRESSION, tempDir);
 
         cout << "\tUNALIGNED -- MONO -- ZIP COMPRESSION" << endl;
-        testAllCombinations (false, false, ZIP_COMPRESSION);
+        testAllCombinations (false, false, ZIP_COMPRESSION, tempDir);
 
 
         //// STEREO
         cout << "\tALIGNED -- STEREO -- NO COMPRESSION" << endl;
-        testAllCombinations (true, true, NO_COMPRESSION);
+        testAllCombinations (true, true, NO_COMPRESSION, tempDir);
 
         cout << "\tUNALIGNED -- STEREO -- NO COMPRESSION" << endl;
-        testAllCombinations (false, true, NO_COMPRESSION);
+        testAllCombinations (false, true, NO_COMPRESSION, tempDir);
 
         cout << "\tALIGNED -- STEREO -- ZIP COMPRESSION" << endl;
-        testAllCombinations (true, true, ZIP_COMPRESSION);
+        testAllCombinations (true, true, ZIP_COMPRESSION, tempDir);
 
         cout << "\tUNALIGNED -- STEREO -- ZIP COMPRESSION" << endl;
-        testAllCombinations (false, true, ZIP_COMPRESSION);
+        testAllCombinations (false, true, ZIP_COMPRESSION, tempDir);
 
         cout << "RGB(A) files validation complete \n" << endl;
     }

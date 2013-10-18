@@ -34,6 +34,8 @@
 #ifndef TESTDEEPSCANLINEMULTIPLEREAD_H_
 #define TESTDEEPSCANLINEMULTIPLEREAD_H_
 
-void testDeepScanLineMultipleRead();
+#include <string>
+
+void testDeepScanLineMultipleRead(const std::string & tempDir);
 
 #endif /* DEEPSCANLINEMULTIPLEREAD_H_ */

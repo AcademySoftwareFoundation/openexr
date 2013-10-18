@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2003-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -116,7 +116,7 @@ testFile2 (const char fileName[], bool exists, bool exrFile, bool tiledFile)
 
 
 void
-testMagic ()
+testMagic (const std::string &)
 {
     try
     {

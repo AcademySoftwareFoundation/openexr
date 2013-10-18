@@ -416,7 +416,7 @@ class FixedArray
         return _ptr[i*_stride];
     }
 
-    bool isMaskedReference() const {return _indices;}
+    bool isMaskedReference() const {return _indices.get() != 0;}
     size_t unmaskedLength() const {return _unmaskedLength;}
 
     // Conversion of indices to raw pointer indices.

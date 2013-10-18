@@ -70,7 +70,6 @@ using namespace ILMTHREAD_NAMESPACE;
 
 const int height = 263;
 const int width = 197;
-const char filename[] = IMF_TMP_DIR "imf_test_multi_tiled_part_threading.exr";
 
 vector<Header> headers;
 int pixelTypes[2];
@@ -230,7 +229,8 @@ class ReadingTask: public Task
         int numXTiles;
 };
 
-void generateFiles()
+void
+generateFiles (const std::string & fn)
 {
     //
     // Generating headers.
@@ -285,8 +285,8 @@ void generateFiles()
     //
     // Preparing.
     //
-    remove (filename);
-    MultiPartOutputFile file(filename, &headers[0],headers.size());
+    remove (fn.c_str());
+    MultiPartOutputFile file(fn.c_str(), &headers[0],headers.size());
     vector<TiledOutputPart> parts;
     Array2D<half> halfData[2];
     Array2D<float> floatData[2];
@@ -362,10 +362,12 @@ void generateFiles()
         }
 }
 
-void readFiles()
+void
+readFiles (const std::string & fn)
 {
+
     cout << "Checking headers " << flush;
-    MultiPartInputFile file(filename);
+    MultiPartInputFile file(fn.c_str());
     assert (file.parts() == 2);
     for (size_t i = 0; i < 2; i++)
     {
@@ -462,8 +464,10 @@ void readFiles()
         }
 }
 
-void testWriteRead()
+void
+testWriteRead (const std::string & tempDir)
 {
+    std::string fn = tempDir + "imf_test_multi_tiled_part_threading.exr";
     string typeNames[2];
     string levelModeName;
     for (int i = 0; i < 2; i++)
@@ -502,17 +506,17 @@ void testWriteRead()
          << " tile size " << tileSize << "x" << tileSize
          << endl << flush;
 
-    generateFiles();
-    readFiles();
+    generateFiles (fn);
+    readFiles (fn);
 
-    remove (filename);
+    remove (fn.c_str());
 
     cout << endl << flush;
 }
 
 } // namespace
 
-void testMultiTiledPartThreading()
+void testMultiTiledPartThreading (const std::string & tempDir)
 {
     try
     {
@@ -530,7 +534,7 @@ void testMultiTiledPartThreading()
                         pixelTypes[1] = pt2;
                         levelMode = lm;
                         tileSize = size;
-                        testWriteRead();
+                        testWriteRead (tempDir);
                     }
 
         ThreadPool::globalThreadPool().setNumThreads(numThreads);

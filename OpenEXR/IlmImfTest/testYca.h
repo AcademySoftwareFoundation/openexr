@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucasfilm
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucasfilm
 // Entertainment Company Ltd.  Portions contributed and copyright held by
 // others as indicated.  All rights reserved.
 //
@@ -36,5 +36,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-void testYca ();
+#include <string>
+
+void testYca (const std::string &tempDir);
 

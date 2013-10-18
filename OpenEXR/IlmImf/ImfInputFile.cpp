@@ -370,7 +370,9 @@ InputFile::InputFile (const char fileName[], int numThreads):
             // fix type attribute in single part regular image types
             // (may be wrong if an old version of OpenEXR converts
             // a tiled image to scanline or vice versa)
-            if(!isNonImage(_data->version) && !isMultiPart(_data->version) && _data->header.hasType())
+            if(!isNonImage(_data->version)  && 
+               !isMultiPart(_data->version) && 
+               _data->header.hasType())
             {
                 _data->header.setType(isTiled(_data->version) ? TILEDIMAGE : SCANLINEIMAGE);
             }
@@ -436,7 +438,9 @@ InputFile::InputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThread
             // fix type attribute in single part regular image types
             // (may be wrong if an old version of OpenEXR converts
             // a tiled image to scanline or vice versa)
-            if(!isNonImage(_data->version) && !isMultiPart(_data->version) && _data->header.hasType())
+            if(!isNonImage(_data->version)  && 
+               !isMultiPart(_data->version) &&  
+               _data->header.hasType())
             {
                 _data->header.setType(isTiled(_data->version) ? TILEDIMAGE : SCANLINEIMAGE);
             }

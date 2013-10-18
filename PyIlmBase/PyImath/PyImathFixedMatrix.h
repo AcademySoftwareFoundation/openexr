@@ -457,6 +457,8 @@ static void add_arithmetic_math_functions(boost::python::class_<FixedMatrix<T> >
         .def("__rmul__",&apply_matrix_scalar_binary_rop<op_mul,T,T,T>)
         .def("__div__",&apply_matrix_matrix_binary_op<op_div,T,T,T>)
         .def("__div__",&apply_matrix_scalar_binary_op<op_div,T,T,T>)
+        .def("__truediv__",&apply_matrix_matrix_binary_op<op_div,T,T,T>)
+        .def("__truediv__",&apply_matrix_scalar_binary_op<op_div,T,T,T>)
         .def("__neg__",&apply_matrix_unary_op<op_neg,T,T>)
         .def("__iadd__",&apply_matrix_matrix_ibinary_op<op_iadd,T,T>,return_internal_reference<>())
         .def("__iadd__",&apply_matrix_scalar_ibinary_op<op_iadd,T,T>,return_internal_reference<>())
@@ -466,6 +468,8 @@ static void add_arithmetic_math_functions(boost::python::class_<FixedMatrix<T> >
         .def("__imul__",&apply_matrix_scalar_ibinary_op<op_imul,T,T>,return_internal_reference<>())
         .def("__idiv__",&apply_matrix_matrix_ibinary_op<op_idiv,T,T>,return_internal_reference<>())
         .def("__idiv__",&apply_matrix_scalar_ibinary_op<op_idiv,T,T>,return_internal_reference<>())
+        .def("__itruediv__",&apply_matrix_matrix_ibinary_op<op_idiv,T,T>,return_internal_reference<>())
+        .def("__itruediv__",&apply_matrix_scalar_ibinary_op<op_idiv,T,T>,return_internal_reference<>())
         ;
 }
 

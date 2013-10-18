@@ -35,6 +35,8 @@
 #ifndef TESTMULTIPARTAPI_H_
 #define TESTMULTIPARTAPI_H_
 
-void testMultiPartApi();
+#include <string>
+
+void testMultiPartApi (const std::string & tempDir);
 
 #endif /* TESTMULTIPARTAPI_H_ */

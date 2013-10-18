@@ -88,15 +88,17 @@ using namespace std;
 
 namespace {
 
+//
+// Make this true if you wish to generate images when building
+// the v1.7 code base.
+//
 const int generateImagesOnly = false;
 
 
 const int W = 217;
 const int H = 197;
 
-const char * planarScanlineName      = IMF_TMP_DIR "v1.7.test.planar.exr";
-const char * interleavedScanlineName = IMF_TMP_DIR "v1.7.test.interleaved.exr";
-const char * tiledName               = IMF_TMP_DIR "v1.7.test.tiled.exr";
+
 
 
 void
@@ -287,17 +289,18 @@ generateScanlineInterleavedImage (const char * fn)
 }
 
 void
-diffScanlineImages ()
+diffScanlineImages (const std::string & planarScanlineName,
+                    const std::string & interleavedScanlineName)
 {
     // Planar Images
-    generateScanlinePlanarImage (planarScanlineName);
-    diffImageFiles (planarScanlineName, ILM_IMF_TEST_IMAGEDIR "v1.7.test.planar.exr");
-    remove(planarScanlineName);
+    generateScanlinePlanarImage (planarScanlineName.c_str());
+    diffImageFiles (planarScanlineName.c_str(),
+                    ILM_IMF_TEST_IMAGEDIR "v1.7.test.planar.exr");
 
     // Interleaved Images
-    generateScanlineInterleavedImage (interleavedScanlineName);
-    diffImageFiles (interleavedScanlineName, ILM_IMF_TEST_IMAGEDIR "v1.7.test.interleaved.exr");
-    remove(interleavedScanlineName);
+    generateScanlineInterleavedImage (interleavedScanlineName.c_str());
+    diffImageFiles (interleavedScanlineName.c_str(),
+                    ILM_IMF_TEST_IMAGEDIR "v1.7.test.interleaved.exr");
 }
 
 
@@ -343,12 +346,11 @@ generateTiledImage (const char * fn)
 
 
 void
-diffTiledImages ()
+diffTiledImages (const std::string & fn)
 {
     // Planar Images
-    generateTiledImage (tiledName);
-    diffImageFiles (tiledName, ILM_IMF_TEST_IMAGEDIR "v1.7.test.tiled.exr");
-    remove(tiledName);
+    generateTiledImage (fn.c_str());
+    diffImageFiles (fn.c_str(), ILM_IMF_TEST_IMAGEDIR "v1.7.test.tiled.exr");
 }
 
 
@@ -356,12 +358,15 @@ diffTiledImages ()
 
 
 void
-testBackwardCompatibility ()
+testBackwardCompatibility (const std::string & tempDir)
 {
     try
     {
         cout << "Testing backward compatibility" << endl;
 
+
+        // Run this code with the 1.7 code base to generate the
+        // images used in the test.
         if (generateImagesOnly)
         {
             generateScanlinePlanarImage ("v1.7.test.planar.exr");
@@ -370,8 +375,12 @@ testBackwardCompatibility ()
         }
         else
         {
-            diffScanlineImages ();
-            diffTiledImages ();
+            std::string planarFn      = tempDir + "v1.7.test.planar.exr";
+            std::string interleavedFn = tempDir + "v1.7.test.interleaved.exr";
+            diffScanlineImages (planarFn, interleavedFn);
+
+            std::string fn = tempDir + "v1.7.test.tiled.exr";
+            diffTiledImages (fn);
         }
 
         cout << "ok\n" << endl;

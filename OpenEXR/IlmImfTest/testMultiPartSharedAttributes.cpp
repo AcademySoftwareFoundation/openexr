@@ -59,12 +59,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "tmpDir.h"
-
-#ifndef ILM_IMF_TEST_IMAGEDIR
-    #define ILM_IMF_TEST_IMAGEDIR
-#endif
-
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
@@ -76,7 +70,6 @@ namespace
 
 const int height = 263;
 const int width = 197;
-const char filename[] = IMF_TMP_DIR "imf_test_multipart_shared_attrs.exr";
 
 
 void
@@ -147,12 +140,13 @@ generateRandomHeaders (int partCount, vector<Header> & headers)
 
 void
 testMultiPartOutputFileForExpectedFailure (const vector<Header> & headers,
+                                           const std::string & fn,
                                            const string & failMessage="")
 {
     try
     {
-        remove(filename);
-        MultiPartOutputFile file( filename, headers.size()>0 ? &headers[0] : NULL , headers.size()) ;
+        remove(fn.c_str());
+        MultiPartOutputFile file(fn.c_str(), &headers[0],headers.size());
         cerr << "ERROR -- " << failMessage << endl;
         assert (false);
     }
@@ -166,7 +160,7 @@ testMultiPartOutputFileForExpectedFailure (const vector<Header> & headers,
 
 
 void
-testDisplayWindow (const vector<Header> & hs)
+testDisplayWindow (const vector<Header> & hs, const std::string & fn)
 {
     vector<Header> headers(hs);
     IMATH_NAMESPACE::Box2i newDisplayWindow = headers[0].displayWindow();
@@ -175,13 +169,14 @@ testDisplayWindow (const vector<Header> & hs)
     newHeader.setName (headers[0].name() + string("_newHeader"));
     headers.push_back (newHeader);
     testMultiPartOutputFileForExpectedFailure (headers,
+                                               fn,
                                                "Shared Attributes : displayWindow : should fail for !=values");
 
     return;
 }
 
 void
-testPixelAspectRatio (const vector<Header> & hs)
+testPixelAspectRatio (const vector<Header> & hs, const std::string & fn)
 {
     vector<Header> headers(hs);
 
@@ -193,13 +188,14 @@ testPixelAspectRatio (const vector<Header> & hs)
     newHeader.setName (headers[0].name() + string("_newHeader"));
     headers.push_back (newHeader);
     testMultiPartOutputFileForExpectedFailure (headers,
+                                               fn,
                                                "Shared Attributes : pixelAspecRatio : should fail for !=values");
 
     return;
 }
 
 void
-testTimeCode (const vector<Header> & hs)
+testTimeCode (const vector<Header> & hs, const std::string & fn)
 {
     vector<Header> headers(hs);
 
@@ -215,6 +211,7 @@ testTimeCode (const vector<Header> & hs)
     newHeader.insert(TimeCodeAttribute::staticTypeName(), ta);
     headers.push_back (newHeader);
     testMultiPartOutputFileForExpectedFailure (headers,
+                                               fn,
                                                "Shared Attributes : timecode : should fail for !presence");
 
 
@@ -231,13 +228,14 @@ testTimeCode (const vector<Header> & hs)
     newHeader.setName (newHeader.name() + string("_+1"));
     headers.push_back (newHeader);
     testMultiPartOutputFileForExpectedFailure (headers,
+                                               fn,
                                                "Shared Attributes : timecode : should fail for != values");
 
     return;
 }
 
 void
-testChromaticities (const vector<Header> & hs)
+testChromaticities (const vector<Header> & hs, const std::string & fn)
 {
     vector<Header> headers(hs);
 
@@ -253,6 +251,7 @@ testChromaticities (const vector<Header> & hs)
     //
     headers.push_back (newHeader);
     testMultiPartOutputFileForExpectedFailure (headers,
+                                               fn,
                                                "Shared Attributes : chromaticities : should fail for !present");
 
 
@@ -268,6 +267,7 @@ testChromaticities (const vector<Header> & hs)
     newHeader.insert (ChromaticitiesAttribute::staticTypeName(), cca);
     headers.push_back (newHeader);
     testMultiPartOutputFileForExpectedFailure (headers,
+                                               fn,
                                                "Shared Attributes : chromaticities : should fail for != values");
 
     return;
@@ -275,7 +275,7 @@ testChromaticities (const vector<Header> & hs)
 
 
 void
-testSharedAttributes ()
+testSharedAttributes (const std::string & fn)
 {
     //
     // The Shared Attributes are currently:
@@ -294,18 +294,18 @@ testSharedAttributes ()
 
     // expect this to be successful
     {
-        remove(filename);
-        MultiPartOutputFile file(filename, &headers[0],headers.size());
+        remove(fn.c_str());
+        MultiPartOutputFile file(fn.c_str(), &headers[0],headers.size());
     }
 
     // Adding a header a that has non-complient standard attributes will throw
     // an exception.
 
     // Run the tests
-    testDisplayWindow    (headers);
-    testPixelAspectRatio (headers);
-    testTimeCode         (headers);
-    testChromaticities   (headers);
+    testDisplayWindow    (headers, fn);
+    testPixelAspectRatio (headers, fn);
+    testTimeCode         (headers, fn);
+    testChromaticities   (headers, fn);
 }
 
 
@@ -325,7 +325,7 @@ testDiskAttrValue (const Header & diskHeader, const T & testAttribute)
 
 
 void
-testHeaders ()
+testHeaders (const std::string & fn)
 {
     //
     // In a multipart context the headers must be subject to the following
@@ -341,6 +341,7 @@ testHeaders ()
     // expect this to fail - empty header list
     //
     testMultiPartOutputFileForExpectedFailure (headers,
+                                               fn,
                                                "Header : empty header list passed");
 
 
@@ -350,6 +351,7 @@ testHeaders ()
     Header h;
     headers.push_back (h);
     testMultiPartOutputFileForExpectedFailure (headers,
+                                               fn,
                                                "Header : empty image type passed");
 
 
@@ -360,6 +362,7 @@ testHeaders ()
     Header hh(headers[0]);
     headers.push_back(hh);
     testMultiPartOutputFileForExpectedFailure (headers,
+                                               fn,
                                                "Header: duplicate header names passed");
 
 
@@ -402,14 +405,14 @@ testHeaders ()
 
 
     // write out the file
-    remove(filename);
+    remove(fn.c_str());
     {
-        MultiPartOutputFile file(filename, &headers[0],headers.size());
+        MultiPartOutputFile file(fn.c_str(), &headers[0],headers.size());
     }
 
 
     // read in the file and look at the attribute data
-    MultiPartInputFile file (filename);
+    MultiPartInputFile file (fn.c_str());
 
     assert (file.parts() == 2);
 
@@ -477,7 +480,7 @@ testHeaders ()
     //
     try
     {
-        MultiPartInputFile file ( ILM_IMF_TEST_IMAGEDIR "invalid_shared_attrs_multipart.exr");
+        MultiPartInputFile file ("invalid_shared_attrs_multipart.exr");
         cerr << "Shared Attributes : InputFile : incorrect input file passed\n";
         assert (false);
     }
@@ -493,16 +496,17 @@ testHeaders ()
 } // namespace
 
 void
-testMultiPartSharedAttributes ()
+testMultiPartSharedAttributes (const std::string & tempDir)
 {
     try
     {
         cout << "Testing multi part APIs : shared attributes, header... " << endl;
 
-        testSharedAttributes ();
-        testHeaders ();
+        std::string fn = tempDir +  "imf_test_multipart_shared_attrs.exr";
 
-        remove(filename);
+        testSharedAttributes (fn);
+        testHeaders (fn);
+
         cout << " ... ok\n" << endl;
     }
     catch (const IEX_NAMESPACE::BaseExc & e)

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #include <ImfTiledOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImathRandom.h>
@@ -48,7 +47,6 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -582,9 +580,9 @@ writeCopyReadRIP (const char fileName[],
 
 
 void
-writeCopyRead (int w, int h, int xs, int ys)
+writeCopyRead (const std::string &tempDir, int w, int h, int xs, int ys)
 {
-    const char *filename = IMF_TMP_DIR "imf_test_copy.exr";
+    std::string filename = tempDir + "imf_test_copy.exr";
 
     for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
     {
@@ -599,21 +597,21 @@ writeCopyRead (int w, int h, int xs, int ys)
 		{
 		    for (int ts = 0; ts <= 1; ++ts)
 		    {
-			writeCopyReadONE (filename, w, h,
+			writeCopyReadONE (filename.c_str(), w, h,
 					  (LineOrder)lorder,
 					  (LevelRoundingMode) rmode,
 					  xs, ys,
 					  Compression (comp),
 					  (bool)tb, (bool)ts);
 
-			writeCopyReadMIP (filename, w, h,
+			writeCopyReadMIP (filename.c_str(), w, h,
 					  (LineOrder)lorder,
 					  (LevelRoundingMode) rmode,
 					  xs, ys,
 					  Compression (comp),
 					  (bool)tb, (bool)ts);
 
-			writeCopyReadRIP (filename, w, h,
+			writeCopyReadRIP (filename.c_str(), w, h,
 					  (LineOrder)lorder,
 					  (LevelRoundingMode) rmode,
 					  xs, ys,
@@ -630,7 +628,7 @@ writeCopyRead (int w, int h, int xs, int ys)
 
 
 void
-testTiledLineOrder ()
+testTiledLineOrder (const std::string &tempDir)
 {
     try
     {
@@ -652,7 +650,7 @@ testTiledLineOrder ()
 		cout << "\nnumber of threads: " << globalThreadCount() << endl;
 	    }
 
-	    writeCopyRead (W, H, XS, YS);
+	    writeCopyRead (tempDir, W, H, XS, YS);
 	}
 
         cout << "ok\n" << endl;

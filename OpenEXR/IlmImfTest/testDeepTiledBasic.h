@@ -35,6 +35,8 @@
 #ifndef TESTDEEPTILEDBASIC_H_
 #define TESTDEEPTILEDBASIC_H_
 
-void testDeepTiledBasic();
+#include <string>
+
+void testDeepTiledBasic (const std::string & tempDir);
 
 #endif /* TESTDEEPTILEDBASIC_H_ */
