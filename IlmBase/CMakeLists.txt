@@ -103,6 +103,7 @@ ELSE ()
     FILE ( WRITE  ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_PTHREAD 1\n" )
     FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_HAVE_LARGE_STACK  1\n" )
     FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define HAVE_POSIX_SEMAPHORES 1\n" )
+    FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT 1\n")
   ENDIF ()
 
   FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_INTERNAL_NAMESPACE_CUSTOM 1\n")
@@ -118,7 +119,10 @@ ELSE ()
   FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_MINOR ${CPACK_PACKAGE_VERSION_MINOR}\n" )
   FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_PATCH ${CPACK_PACKAGE_VERSION_PATCH}\n" )
   
-  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_HEX (\\\n\t(ILMBASE_VERSION_MAJOR << 24) | \\\n\t(ILMBASE_VERSION_MINOR << 16) | \\\n\t(ILMBASE_VERSION_PATCH <<  8)) \n")
+  FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_HEX ( (ILMBASE_VERSION_MAJOR << 24) | \\
+                                                                                          (ILMBASE_VERSION_MINOR << 16) | \\
+                                                                                          (ILMBASE_VERSION_PATCH <<  8))
+                                                                                          \n")
 
   
 ENDIF ()
