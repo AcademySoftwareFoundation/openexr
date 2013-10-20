@@ -17,9 +17,6 @@ set(CPACK_SOURCE_IGNORE_FILES
 INCLUDE ( CPack )
 
 
-# Allow the developer to select if Dynamic or Static libraries are built
-OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
-
 IF ( NOT WIN32)
   ADD_DEFINITIONS ( -pthread )
 ENDIF ()
