@@ -1,6 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-PROJECT (OpenEXR)
 PROJECT (openexr)
 
 # enable the tests
