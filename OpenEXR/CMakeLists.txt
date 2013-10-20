@@ -27,6 +27,9 @@ OPTION (USE_ZLIB_WINAPI   "Use ZLib Win API"       OFF)
 
 ADD_DEFINITIONS ( -DHAVE_CONFIG_H -DILM_IMF_TEST_IMAGEDIR="${CMAKE_SOURCE_DIR}/IlmImfTest/" )
 
+INCLUDE (FindPkgConfig)
+PKG_CHECK_MODULES ( ILMBASE IlmBase )
+
 INCLUDE_DIRECTORIES (
   config
   IlmImf
@@ -35,27 +38,23 @@ INCLUDE_DIRECTORIES (
   exrmakepreview
   exrmultiview
   IlmImfFuzzTest
+  ${ILMBASE_INCLUDE_DIRS}
 )
 
 FIND_PACKAGE(ZLIB REQUIRED)
-INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
 
 IF (NOT WIN32)
   SET ( PTHREAD_LIB pthread )
 ENDIF()
 
-INCLUDE_DIRECTORIES ( ${ILMBASE_PACKAGE_PREFIX}/include/OpenEXR )
-LINK_DIRECTORIES ( ${ILMBASE_PACKAGE_PREFIX}/lib )
-MESSAGE ( "ILMBASE_PACKAGE_PREFIX = " ${ILMBASE_PACKAGE_PREFIX})
+INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
+LINK_DIRECTORIES( ${ILMBASE_LIBRARY_DIRS})
 
-SET (LIB_TYPE STATIC)
 IF (BUILD_SHARED_LIBS)
-  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
-  SET (LIB_TYPE SHARED)
-    IF (WIN32)
+  IF (WIN32)
     ADD_DEFINITIONS(-DOPENEXR_DLL)
   ENDIF ()
-ENDIF ()
+ENDIF (BUILD_SHARED_LIBS)
 
 IF (USE_ZLIB_WINAPI)
   ADD_DEFINITIONS(-DZLIB_WINAPI)
@@ -175,3 +174,25 @@ INSTALL ( FILES
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}/examples
   )
+
+FILE ( WRITE ${CMAKE_BINARY_DIR}/OpenEXR.pc "prefix=${CMAKE_INSTALL_PREFIX}\n" )
+FILE ( APPEND ${CMAKE_BINARY_DIR}/OpenEXR.pc "exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib
+includedir=\${prefix}/include
+OpenEXR_includedir=\${prefix}/include/OpenEXR
+
+Name: OpenEXR
+Description: OpenEXR image library
+Version: 2.0.1
+
+Libs: -L\${libdir} -lIlmImf-2_0
+Cflags: -I\${OpenEXR_includedir}
+Requires: IlmBase
+Libs.private: -lz
+")
+
+INSTALL ( FILES
+  ${CMAKE_BINARY_DIR}/OpenEXR.pc
+  DESTINATION
+  lib/pkgconfig
+)
