@@ -388,7 +388,7 @@ composite_line(int y,
 
 
                 // cast to half float if necessary
-               if(it.slice().type==FLOAT)
+               if(it.slice().type==OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT)
                {
                    * (float *)(it.slice().base + y*it.slice().yStride + x*it.slice().xStride) = value;
                }

@@ -48,7 +48,8 @@
 #include <stdlib.h>
 #include <vector>
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
 using namespace std;
@@ -98,11 +99,11 @@ void generateRandomFile (int channelCount,
         ss << i;
         string str = ss.str();
         if (type == 0)
-            header.channels().insert(str, Channel(OPENEXR_IMF_NAMESPACE::UINT));
+            header.channels().insert(str, Channel(IMF::UINT));
         if (type == 1)
-            header.channels().insert(str, Channel(OPENEXR_IMF_NAMESPACE::HALF));
+            header.channels().insert(str, Channel(IMF::HALF));
         if (type == 2)
-            header.channels().insert(str, Channel(OPENEXR_IMF_NAMESPACE::FLOAT));
+            header.channels().insert(str, Channel(IMF::FLOAT));
         channelTypes.push_back(type);
     }
 
@@ -140,7 +141,7 @@ void generateRandomFile (int channelCount,
     else
         memOffset = dataWindow.min.x + dataWindow.min.y * width;
 
-    frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
+    frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,
                                         (char *) (&sampleCount[0][0] - memOffset),
                                         sizeof (unsigned int) * 1,
                                         sizeof (unsigned int) * width,
@@ -153,11 +154,11 @@ void generateRandomFile (int channelCount,
     {
         PixelType type;
         if (channelTypes[i] == 0)
-            type = OPENEXR_IMF_NAMESPACE::UINT;
+            type = IMF::UINT;
         if (channelTypes[i] == 1)
-            type = OPENEXR_IMF_NAMESPACE::HALF;
+            type = IMF::HALF;
         if (channelTypes[i] == 2)
-            type = OPENEXR_IMF_NAMESPACE::FLOAT;
+            type = IMF::FLOAT;
 
         stringstream ss;
         ss << i;
@@ -440,7 +441,7 @@ void readFile (int channelCount,
         memOffset = 0;
     else
         memOffset = dataWindow.min.x + dataWindow.min.y * width;
-    frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
+    frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,
                                         (char *) (&localSampleCount[0][0] - memOffset),
                                         sizeof (unsigned int) * 1,
                                         sizeof (unsigned int) * width,
@@ -453,11 +454,11 @@ void readFile (int channelCount,
     {
         PixelType type;
         if (channelTypes[i] == 0)
-            type = OPENEXR_IMF_NAMESPACE::UINT;
+            type = IMF::UINT;
         if (channelTypes[i] == 1)
-            type = OPENEXR_IMF_NAMESPACE::HALF;
+            type = IMF::HALF;
         if (channelTypes[i] == 2)
-            type = OPENEXR_IMF_NAMESPACE::FLOAT;
+            type = IMF::FLOAT;
 
         stringstream ss;
         ss << i;
