@@ -96,9 +96,9 @@ FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "
 
   FILE ( APPEND ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h "
 // Version as a single hex number, e.g. 0x01000300 == 1.0.3
-#define OPENEXR_VERSION_HEX ( (OPENEXR_VERSION_MAJOR << 24) | \\
-                              (OPENEXR_VERSION_MINOR << 16) | \\
-                              (OPENEXR_VERSION_PATCH <<  8))
+#define OPENEXR_VERSION_HEX ((OPENEXR_VERSION_MAJOR << 24) | \\
+                             (OPENEXR_VERSION_MINOR << 16) | \\
+                             (OPENEXR_VERSION_PATCH <<  8))
 ")
   
   
@@ -136,7 +136,6 @@ ADD_SUBDIRECTORY ( exrstdattr )
 ADD_SUBDIRECTORY ( exrmakepreview )
 ADD_SUBDIRECTORY ( exrenvmap )
 ADD_SUBDIRECTORY ( exrmultiview )
-ADD_SUBDIRECTORY ( exr2aces )
 ADD_SUBDIRECTORY ( exrmultipart )
 
 
@@ -172,6 +171,7 @@ INSTALL ( FILES
   IlmImfExamples/rgbaInterfaceTiledExamples.h
   IlmImfExamples/lowLevelIoExamples.h
   IlmImfExamples/previewImageExamples.h
+  IlmImfExamples/namespaceAlias.h
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}/examples
   )
