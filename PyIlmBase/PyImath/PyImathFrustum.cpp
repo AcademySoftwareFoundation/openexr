@@ -499,7 +499,7 @@ register_FrustumTest()
     bool (FrustumTest<T>::*completelyContainsS)(const Sphere3<T> &) const = &FrustumTest<T>::completelyContains;
     bool (FrustumTest<T>::*completelyContainsB)(const Box<Vec3<T> > &) const = &FrustumTest<T>::completelyContains;
 
-    class_< FrustumTest<T> > frustumtest_class(name,name,init<const Imath::Frustum<T>&,const Imath::Matrix44<T>&>("create a frustum test object from a frustum and transform"));
+    class_< FrustumTest<T> > frustumtest_class(name,name,init<const IMATH_NAMESPACE::Frustum<T>&,const IMATH_NAMESPACE::Matrix44<T>&>("create a frustum test object from a frustum and transform"));
     frustumtest_class
         .def("isVisible",isVisibleS)
         .def("isVisible",isVisibleB)

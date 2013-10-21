@@ -50,11 +50,11 @@ FixedVArray<T>::FixedVArray (std::vector<T>* ptr, Py_ssize_t length,
 {
     if (length < 0)
     {
-        throw Iex::ArgExc("Fixed array length must be non-negative");
+        throw IEX_NAMESPACE::ArgExc("Fixed array length must be non-negative");
     }
     if (stride <= 0)
     {
-        throw Iex::ArgExc("Fixed array stride must be positive");
+        throw IEX_NAMESPACE::ArgExc("Fixed array stride must be positive");
     }
 
     // Nothing else to do (pointer given, so we have the data)
@@ -68,11 +68,11 @@ FixedVArray<T>::FixedVArray (std::vector<T>* ptr, Py_ssize_t length,
 {
     if (length < 0)
     {
-        throw Iex::ArgExc("Fixed array length must be non-negative");
+        throw IEX_NAMESPACE::ArgExc("Fixed array length must be non-negative");
     }
     if (stride <= 0)
     {
-        throw Iex::ArgExc("Fixed array stride must be positive");
+        throw IEX_NAMESPACE::ArgExc("Fixed array stride must be positive");
     }
 
     // Nothing else to do (pointer given, so we have the data)
@@ -84,7 +84,7 @@ FixedVArray<T>::FixedVArray(Py_ssize_t length)
 {
     if (length < 0)
     {
-        throw Iex::ArgExc("Fixed array length must be non-negative");
+        throw IEX_NAMESPACE::ArgExc("Fixed array length must be non-negative");
     }
 
     boost::shared_array<std::vector<T> > a(new std::vector<T>[length]);
@@ -99,7 +99,7 @@ FixedVArray<T>::FixedVArray(Py_ssize_t length)
 // {
 //     if (length < 0)
 //     {
-//         throw Iex::ArgExc("Fixed array length must be non-negative");
+//         throw IEX_NAMESPACE::ArgExc("Fixed array length must be non-negative");
 //     }
 // 
 //     boost::shared_array<std::vector<T> > a(new std::vector<T>[length]);
@@ -113,7 +113,7 @@ FixedVArray<T>::FixedVArray(const T& initialValue, Py_ssize_t length)
 {
     if (length < 0)
     {
-        throw Iex::ArgExc("Fixed array length must be non-negative");
+        throw IEX_NAMESPACE::ArgExc("Fixed array length must be non-negative");
     }
 
     boost::shared_array<std::vector<T> > a(new std::vector<T>[length]);

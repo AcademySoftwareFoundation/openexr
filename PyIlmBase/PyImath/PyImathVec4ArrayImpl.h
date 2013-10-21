@@ -110,7 +110,8 @@ Vec4Array_min(const FixedArray<IMATH_NAMESPACE::Vec4<T> > &a) {
 
 template <class T>
 static IMATH_NAMESPACE::Vec4<T>
-Vec4Array_max(const FixedArray<Imath::Vec4<T> > &a) {
+Vec4Array_max(const FixedArray<IMATH_NAMESPACE::Vec4<T> > &a)
+{
     Vec4<T> tmp(Vec4<T>(0));
     size_t len = a.len();
     if (len > 0)
@@ -130,7 +131,7 @@ Vec4Array_max(const FixedArray<Imath::Vec4<T> > &a) {
 }
 
 template <class T>
-class_<FixedArray<Imath::Vec4<T> > >
+class_<FixedArray<IMATH_NAMESPACE::Vec4<T> > >
 register_Vec4Array()
 {
     using boost::mpl::true_;

@@ -1084,7 +1084,9 @@ Vec2Array_get(FixedArray<IMATH_NAMESPACE::Vec2<T> > &va)
 }
 
 template <class T>
-static IMATH_NAMESPACE::Vec2<T> Vec2Array_min(const FixedArray<Imath::Vec2<T> > &a) {
+static IMATH_NAMESPACE::Vec2<T>
+Vec2Array_min(const FixedArray<IMATH_NAMESPACE::Vec2<T> > &a)
+{
     Vec2<T> tmp(Vec2<T>(0));
     size_t len = a.len();
     if (len > 0)
@@ -1100,7 +1102,9 @@ static IMATH_NAMESPACE::Vec2<T> Vec2Array_min(const FixedArray<Imath::Vec2<T> > 
 }
 
 template <class T>
-static IMATH_NAMESPACE::Vec2<T> Vec2Array_max(const FixedArray<Imath::Vec2<T> > &a) {
+static IMATH_NAMESPACE::Vec2<T>
+Vec2Array_max(const FixedArray<IMATH_NAMESPACE::Vec2<T> > &a)
+{
     Vec2<T> tmp(Vec2<T>(0));
     size_t len = a.len();
     if (len > 0)
@@ -1116,7 +1120,9 @@ static IMATH_NAMESPACE::Vec2<T> Vec2Array_max(const FixedArray<Imath::Vec2<T> > 
 }
 
 template <class T>
-static IMATH_NAMESPACE::Box<Imath::Vec2<T> > Vec2Array_bounds(const FixedArray<Imath::Vec2<T> > &a) {
+static IMATH_NAMESPACE::Box<IMATH_NAMESPACE::Vec2<T> >
+Vec2Array_bounds(const FixedArray<IMATH_NAMESPACE::Vec2<T> > &a)
+{
     Box<Vec2<T> > tmp;
     size_t len = a.len();
     for (size_t i=0; i < len; ++i)
@@ -1125,7 +1131,7 @@ static IMATH_NAMESPACE::Box<Imath::Vec2<T> > Vec2Array_bounds(const FixedArray<I
 }
 
 template <class T>
-class_<FixedArray<Imath::Vec2<T> > >
+class_<FixedArray<IMATH_NAMESPACE::Vec2<T> > >
 register_Vec2Array()
 {
     using boost::mpl::true_;

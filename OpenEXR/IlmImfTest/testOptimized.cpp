@@ -62,8 +62,11 @@
 
 
 using namespace std;
-using namespace IMATH_NAMESPACE;
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
+
+namespace IMATH = IMATH_NAMESPACE;
+using namespace IMATH;
 
 
 namespace
@@ -284,7 +287,7 @@ writePixels (const char pFilename[],
     StringVector multiView;
     multiView.push_back ("right");
     multiView.push_back ("left");
-    header.insert("multiView", Imf::TypedAttribute<Imf::StringVector>(multiView));
+    header.insert("multiView", IMF::TypedAttribute<IMF::StringVector>(multiView));
 
     OutputFile lFile(pFilename, header);
     FrameBuffer lOutputFrameBuffer;
@@ -315,7 +318,7 @@ void
 readPixels (const char pFilename[], int pNbChannels, Array2D<half>& pPixels)
 {
     InputFile lFile(pFilename);
-    Imath::Box2i lDataWindow = lFile.header().dataWindow();
+    IMATH::Box2i lDataWindow = lFile.header().dataWindow();
 
     int lWidth = lDataWindow.max.x - lDataWindow.min.x + 1;
     int lHeight = lDataWindow.max.y - lDataWindow.min.y + 1;
@@ -374,7 +377,7 @@ readPixels (const char pFilename[],
             Array2D<half>& pPixelsLeft)
 {
     InputFile lFile(pFilename);
-    Imath::Box2i lDataWindow = lFile.header().dataWindow();
+    IMATH::Box2i lDataWindow = lFile.header().dataWindow();
 
     int lWidth = lDataWindow.max.x - lDataWindow.min.x + 1;
     int lHeight = lDataWindow.max.y - lDataWindow.min.y + 1;
