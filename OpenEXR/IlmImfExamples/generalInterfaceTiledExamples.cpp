@@ -65,8 +65,8 @@ writeTiled1 (const char fileName[],
              int tileWidth, int tileHeight)
 {
     Header header (width, height);
-    header.channels().insert ("G", Channel (HALF));
-    header.channels().insert ("Z", Channel (FLOAT));
+    header.channels().insert ("G", Channel (IMF::HALF));
+    header.channels().insert ("Z", Channel (IMF::FLOAT));
 
     header.setTileDescription
 	(TileDescription (tileWidth, tileHeight, ONE_LEVEL));
@@ -76,13 +76,13 @@ writeTiled1 (const char fileName[],
     FrameBuffer frameBuffer;
 
     frameBuffer.insert ("G",					 // name
-                        Slice (HALF,				 // type
+                        Slice (IMF::HALF,			 // type
 			       (char *) &pixels[0][0].g,	 // base
 				sizeof (pixels[0][0]) * 1,	 // xStride
 				sizeof (pixels[0][0]) * width)); // yStride
 
     frameBuffer.insert ("Z",					 // name
-                        Slice (FLOAT,				 // type
+                        Slice (IMF::FLOAT,			 // type
 			       (char *) &pixels[0][0].z,	 // base
 				sizeof (pixels[0][0]) * 1,	 // xStride
 				sizeof (pixels[0][0]) * width)); // yStride
@@ -110,13 +110,13 @@ readTiled1 (const char fileName[],
     FrameBuffer frameBuffer;
 
     frameBuffer.insert ("G",					 // name
-                        Slice (HALF,				 // type
+                        Slice (IMF::HALF,			 // type
 			       (char *) &pixels[-dy][-dx].g,	 // base
 				sizeof (pixels[0][0]) * 1,	 // xStride
 				sizeof (pixels[0][0]) * width)); // yStride
 
     frameBuffer.insert ("Z",					 // name
-                        Slice (FLOAT,				 // type
+                        Slice (IMF::FLOAT,			 // type
 			       (char *) &pixels[-dy][-dx].z,	 // base
 				sizeof (pixels[0][0]) * 1,	 // xStride
 				sizeof (pixels[0][0]) * width)); // yStride

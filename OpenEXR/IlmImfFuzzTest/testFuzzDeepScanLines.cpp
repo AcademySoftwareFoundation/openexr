@@ -53,7 +53,7 @@
 
 
 // Handle the case when the custom namespace is not exposed
-#include <OpenEXRConfig.h>
+#include <ImfNamespace.h>
 #include <ImfChannelList.h>
 #include <ImfMultiPartOutputFile.h>
 #include <ImfDeepScanLineOutputPart.h>

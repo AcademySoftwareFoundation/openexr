@@ -57,6 +57,7 @@
 #include <ImfCompositeDeepScanLine.h>
 #include <ImfThreading.h>
 #include <IlmThread.h>
+#include <ImfNamespace.h>
 
 namespace
 {
