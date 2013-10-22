@@ -107,5 +107,5 @@ TARGET_LINK_LIBRARIES ( imathmodule
 INSTALL ( TARGETS
   imathmodule
   DESTINATION
-  lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-package
+  lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages
 )

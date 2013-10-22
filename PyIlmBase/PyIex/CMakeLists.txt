@@ -41,5 +41,5 @@ TARGET_LINK_LIBRARIES ( iexmodule
 INSTALL ( TARGETS
   iexmodule
   DESTINATION
-  lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-package
+  lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages
 )
