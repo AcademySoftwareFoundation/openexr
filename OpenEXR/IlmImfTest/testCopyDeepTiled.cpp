@@ -43,6 +43,8 @@
 #include <ImfChannelList.h>
 #include <ImfArray.h>
 #include <ImfPartType.h>
+#include <ImfNamespace.h>
+
 #include <IlmThreadPool.h>
 
 #include <stdio.h>
@@ -51,7 +53,8 @@
 
 #include "tmpDir.h"
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
 using namespace std;
@@ -99,11 +102,11 @@ generateRandomFile (int channelCount,
         ss << i;
         string str = ss.str();
         if (type == 0)
-            header.channels().insert(str, Channel(OPENEXR_IMF_NAMESPACE::UINT));
+            header.channels().insert(str, Channel(IMF::UINT));
         if (type == 1)
-            header.channels().insert(str, Channel(OPENEXR_IMF_NAMESPACE::HALF));
+            header.channels().insert(str, Channel(IMF::HALF));
         if (type == 2)
-            header.channels().insert(str, Channel(OPENEXR_IMF_NAMESPACE::FLOAT));
+            header.channels().insert(str, Channel(IMF::FLOAT));
         channelTypes.push_back(type);
     }
 
@@ -132,7 +135,7 @@ generateRandomFile (int channelCount,
 
     int memOffset = dataWindow.min.x + dataWindow.min.y * width;
 
-    frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
+    frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,
                                         (char *) (&sampleCount[0][0] - memOffset),
                                         sizeof (unsigned int) * 1,
                                         sizeof (unsigned int) * width,
@@ -145,11 +148,11 @@ generateRandomFile (int channelCount,
     {
         PixelType type;
         if (channelTypes[i] == 0)
-            type = OPENEXR_IMF_NAMESPACE::UINT;
+            type = IMF::UINT;
         if (channelTypes[i] == 1)
-            type = OPENEXR_IMF_NAMESPACE::HALF;
+            type = IMF::HALF;
         if (channelTypes[i] == 2)
-            type = OPENEXR_IMF_NAMESPACE::FLOAT;
+            type = IMF::FLOAT;
 
         stringstream ss;
         ss << i;
@@ -302,7 +305,7 @@ readFile (int channelCount, const std::string & cpyFn)
     DeepFrameBuffer frameBuffer;
 
     int memOffset = dataWindow.min.x + dataWindow.min.y * width;
-    frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
+    frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,
                                         (char *) (&localSampleCount[0][0] - memOffset),
                                         sizeof (unsigned int) * 1,
                                         sizeof (unsigned int) * width,
@@ -315,11 +318,11 @@ readFile (int channelCount, const std::string & cpyFn)
     {
         PixelType type;
         if (channelTypes[i] == 0)
-            type = OPENEXR_IMF_NAMESPACE::UINT;
+            type = IMF::UINT;
         if (channelTypes[i] == 1)
-            type = OPENEXR_IMF_NAMESPACE::HALF;
+            type = IMF::HALF;
         if (channelTypes[i] == 2)
-            type = OPENEXR_IMF_NAMESPACE::FLOAT;
+            type = IMF::FLOAT;
 
         stringstream ss;
         ss << i;

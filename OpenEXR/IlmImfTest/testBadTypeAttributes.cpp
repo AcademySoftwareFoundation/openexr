@@ -52,7 +52,8 @@
 
 #include "tmpDir.h"
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
@@ -278,7 +279,7 @@ template<class IN,class OUT> void check(const char* filename,const string& input
     }
     
     {
-        Imf::MultiPartInputFile file(filename);
+        IMF::MultiPartInputFile file(filename);
     
         if(outputtype!=NOTYPEATTR && file.header(0).type()!=outputtype)
         {
