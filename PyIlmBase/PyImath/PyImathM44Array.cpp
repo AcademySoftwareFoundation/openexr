@@ -37,13 +37,12 @@
 #include <PyImathExport.h>
 
 namespace PyImath {
-    
-template<> PYIMATH_EXPORT const char*
-M44dArray::name()
-{
-    return "M44dArray";
-}
 
+template<> PYIMATH_EXPORT IMATH_NAMESPACE::Matrix44<float>
+FixedArrayDefaultValue<IMATH_NAMESPACE::Matrix44<float> >::value()
+{
+    return IMATH_NAMESPACE::Matrix44<float>();
+}
 template<> PYIMATH_EXPORT IMATH_NAMESPACE::Matrix44<double>
 FixedArrayDefaultValue<IMATH_NAMESPACE::Matrix44<double> >::value()
 {
