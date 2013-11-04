@@ -53,8 +53,11 @@
 #include <PyImathTask.h>
 
 namespace PyImath {
-template<> const char *PyImath::M44fArray::name() { return "M44fArray"; }
-template<> const char *PyImath::M44dArray::name() { return "M44dArray"; }
+template<> PYIMATH_EXPORT
+const char *PyImath::M44fArray::name() { return "M44fArray"; }
+    
+template<> PYIMATH_EXPORT
+const char *PyImath::M44dArray::name() { return "M44dArray"; }
 
 using namespace boost::python;
 using namespace IMATH_NAMESPACE;
@@ -1193,6 +1196,5 @@ template PYIMATH_EXPORT class_<IMATH_NAMESPACE::Matrix44<double> > register_Matr
 template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Matrix44<float> > > register_M44Array<float>();
 template PYIMATH_EXPORT class_<FixedArray<IMATH_NAMESPACE::Matrix44<double> > > register_M44Array<double>();
 
-template<> PYIMATH_EXPORT IMATH_NAMESPACE::Matrix44<float> FixedArrayDefaultValue<IMATH_NAMESPACE::Matrix44<float> >::value() { return IMATH_NAMESPACE::Matrix44<float>(); }
-template<> PYIMATH_EXPORT IMATH_NAMESPACE::Matrix44<double> FixedArrayDefaultValue<IMATH_NAMESPACE::Matrix44<double> >::value() { return IMATH_NAMESPACE::Matrix44<double>(); }
-}
+} // namespace PyImath
+

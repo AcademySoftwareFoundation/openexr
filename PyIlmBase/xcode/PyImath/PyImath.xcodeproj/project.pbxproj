@@ -1,0 +1,536 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E29341C81825CCFF005352A4 /* libboost_python.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E29341C61825CCFF005352A4 /* libboost_python.a */; };
+		E29341C91825CCFF005352A4 /* libIlmBase-2.0.1.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E29341C71825CCFF005352A4 /* libIlmBase-2.0.1.a */; };
+		E29341CD1825CD4B005352A4 /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = E29341CC1825CD4B005352A4 /* Python */; };
+		E29342151825CDAF005352A4 /* imathmodule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341CE1825CDAF005352A4 /* imathmodule.cpp */; };
+		E29342161825CDAF005352A4 /* PyImath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341CF1825CDAF005352A4 /* PyImath.cpp */; };
+		E29342171825CDAF005352A4 /* PyImath.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341D01825CDAF005352A4 /* PyImath.h */; };
+		E29342181825CDAF005352A4 /* PyImathAutovectorize.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341D11825CDAF005352A4 /* PyImathAutovectorize.cpp */; };
+		E29342191825CDAF005352A4 /* PyImathAutovectorize.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341D21825CDAF005352A4 /* PyImathAutovectorize.h */; };
+		E293421A1825CDAF005352A4 /* PyImathBasicTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341D31825CDAF005352A4 /* PyImathBasicTypes.cpp */; };
+		E293421B1825CDAF005352A4 /* PyImathBasicTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341D41825CDAF005352A4 /* PyImathBasicTypes.h */; };
+		E293421C1825CDAF005352A4 /* PyImathBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341D51825CDAF005352A4 /* PyImathBox.cpp */; };
+		E293421D1825CDAF005352A4 /* PyImathBox.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341D61825CDAF005352A4 /* PyImathBox.h */; };
+		E293421E1825CDAF005352A4 /* PyImathBox2Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341D71825CDAF005352A4 /* PyImathBox2Array.cpp */; };
+		E293421F1825CDAF005352A4 /* PyImathBox3Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341D81825CDAF005352A4 /* PyImathBox3Array.cpp */; };
+		E29342201825CDAF005352A4 /* PyImathBoxArrayImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341D91825CDAF005352A4 /* PyImathBoxArrayImpl.h */; };
+		E29342211825CDAF005352A4 /* PyImathColor.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341DA1825CDAF005352A4 /* PyImathColor.h */; };
+		E29342221825CDAF005352A4 /* PyImathColor3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341DB1825CDAF005352A4 /* PyImathColor3.cpp */; };
+		E29342231825CDAF005352A4 /* PyImathColor3ArrayImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341DC1825CDAF005352A4 /* PyImathColor3ArrayImpl.h */; };
+		E29342241825CDAF005352A4 /* PyImathColor4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341DD1825CDAF005352A4 /* PyImathColor4.cpp */; };
+		E29342251825CDAF005352A4 /* PyImathColor4Array2DImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341DE1825CDAF005352A4 /* PyImathColor4Array2DImpl.h */; };
+		E29342261825CDAF005352A4 /* PyImathColor4ArrayImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341DF1825CDAF005352A4 /* PyImathColor4ArrayImpl.h */; };
+		E29342271825CDAF005352A4 /* PyImathDecorators.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341E01825CDAF005352A4 /* PyImathDecorators.h */; };
+		E29342281825CDAF005352A4 /* PyImathEuler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341E11825CDAF005352A4 /* PyImathEuler.cpp */; };
+		E29342291825CDAF005352A4 /* PyImathEuler.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341E21825CDAF005352A4 /* PyImathEuler.h */; };
+		E293422A1825CDAF005352A4 /* PyImathExport.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341E31825CDAF005352A4 /* PyImathExport.h */; };
+		E293422B1825CDAF005352A4 /* PyImathFixedArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341E41825CDAF005352A4 /* PyImathFixedArray.cpp */; };
+		E293422C1825CDAF005352A4 /* PyImathFixedArray.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341E51825CDAF005352A4 /* PyImathFixedArray.h */; };
+		E293422D1825CDAF005352A4 /* PyImathFixedArray2D.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341E61825CDAF005352A4 /* PyImathFixedArray2D.h */; };
+		E293422E1825CDAF005352A4 /* PyImathFixedMatrix.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341E71825CDAF005352A4 /* PyImathFixedMatrix.h */; };
+		E293422F1825CDAF005352A4 /* PyImathFrustum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341E81825CDAF005352A4 /* PyImathFrustum.cpp */; };
+		E29342301825CDAF005352A4 /* PyImathFrustum.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341E91825CDAF005352A4 /* PyImathFrustum.h */; };
+		E29342311825CDAF005352A4 /* PyImathFun.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341EA1825CDAF005352A4 /* PyImathFun.cpp */; };
+		E29342321825CDAF005352A4 /* PyImathFun.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341EB1825CDAF005352A4 /* PyImathFun.h */; };
+		E29342331825CDAF005352A4 /* PyImathLine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341EC1825CDAF005352A4 /* PyImathLine.cpp */; };
+		E29342341825CDAF005352A4 /* PyImathLine.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341ED1825CDAF005352A4 /* PyImathLine.h */; };
+		E29342351825CDAF005352A4 /* PyImathM44Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341EE1825CDAF005352A4 /* PyImathM44Array.cpp */; };
+		E29342361825CDAF005352A4 /* PyImathM44Array.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341EF1825CDAF005352A4 /* PyImathM44Array.h */; };
+		E29342371825CDAF005352A4 /* PyImathMathExc.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341F01825CDAF005352A4 /* PyImathMathExc.h */; };
+		E29342381825CDAF005352A4 /* PyImathMatrix.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341F11825CDAF005352A4 /* PyImathMatrix.h */; };
+		E29342391825CDAF005352A4 /* PyImathMatrix33.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341F21825CDAF005352A4 /* PyImathMatrix33.cpp */; };
+		E293423A1825CDAF005352A4 /* PyImathMatrix44.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341F31825CDAF005352A4 /* PyImathMatrix44.cpp */; };
+		E293423B1825CDAF005352A4 /* PyImathOperators.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341F41825CDAF005352A4 /* PyImathOperators.h */; };
+		E293423C1825CDAF005352A4 /* PyImathPlane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341F51825CDAF005352A4 /* PyImathPlane.cpp */; };
+		E293423D1825CDAF005352A4 /* PyImathPlane.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341F61825CDAF005352A4 /* PyImathPlane.h */; };
+		E293423E1825CDAF005352A4 /* PyImathQuat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341F71825CDAF005352A4 /* PyImathQuat.cpp */; };
+		E293423F1825CDAF005352A4 /* PyImathQuat.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341F81825CDAF005352A4 /* PyImathQuat.h */; };
+		E29342401825CDAF005352A4 /* PyImathRandom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341F91825CDAF005352A4 /* PyImathRandom.cpp */; };
+		E29342411825CDAF005352A4 /* PyImathRandom.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341FA1825CDAF005352A4 /* PyImathRandom.h */; };
+		E29342421825CDAF005352A4 /* PyImathShear.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341FB1825CDAF005352A4 /* PyImathShear.cpp */; };
+		E29342431825CDAF005352A4 /* PyImathShear.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341FC1825CDAF005352A4 /* PyImathShear.h */; };
+		E29342441825CDAF005352A4 /* PyImathStringArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29341FD1825CDAF005352A4 /* PyImathStringArray.cpp */; };
+		E29342451825CDAF005352A4 /* PyImathStringArray.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341FE1825CDAF005352A4 /* PyImathStringArray.h */; };
+		E29342461825CDAF005352A4 /* PyImathStringArrayRegister.h in Headers */ = {isa = PBXBuildFile; fileRef = E29341FF1825CDAF005352A4 /* PyImathStringArrayRegister.h */; };
+		E29342471825CDAF005352A4 /* PyImathStringTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29342001825CDAF005352A4 /* PyImathStringTable.cpp */; };
+		E29342481825CDAF005352A4 /* PyImathStringTable.h in Headers */ = {isa = PBXBuildFile; fileRef = E29342011825CDAF005352A4 /* PyImathStringTable.h */; };
+		E29342491825CDAF005352A4 /* PyImathTask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29342021825CDAF005352A4 /* PyImathTask.cpp */; };
+		E293424A1825CDAF005352A4 /* PyImathTask.h in Headers */ = {isa = PBXBuildFile; fileRef = E29342031825CDAF005352A4 /* PyImathTask.h */; };
+		E293424B1825CDAF005352A4 /* PyImathUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29342041825CDAF005352A4 /* PyImathUtil.cpp */; };
+		E293424C1825CDAF005352A4 /* PyImathUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = E29342051825CDAF005352A4 /* PyImathUtil.h */; };
+		E293424D1825CDAF005352A4 /* PyImathVec.h in Headers */ = {isa = PBXBuildFile; fileRef = E29342061825CDAF005352A4 /* PyImathVec.h */; };
+		E293424E1825CDAF005352A4 /* PyImathVec2fd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29342071825CDAF005352A4 /* PyImathVec2fd.cpp */; };
+		E293424F1825CDAF005352A4 /* PyImathVec2Impl.h in Headers */ = {isa = PBXBuildFile; fileRef = E29342081825CDAF005352A4 /* PyImathVec2Impl.h */; };
+		E29342501825CDAF005352A4 /* PyImathVec2si.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29342091825CDAF005352A4 /* PyImathVec2si.cpp */; };
+		E29342511825CDAF005352A4 /* PyImathVec3ArrayImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = E293420A1825CDAF005352A4 /* PyImathVec3ArrayImpl.h */; };
+		E29342521825CDAF005352A4 /* PyImathVec3fd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E293420B1825CDAF005352A4 /* PyImathVec3fd.cpp */; };
+		E29342531825CDAF005352A4 /* PyImathVec3Impl.h in Headers */ = {isa = PBXBuildFile; fileRef = E293420C1825CDAF005352A4 /* PyImathVec3Impl.h */; };
+		E29342541825CDAF005352A4 /* PyImathVec3si.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E293420D1825CDAF005352A4 /* PyImathVec3si.cpp */; };
+		E29342551825CDAF005352A4 /* PyImathVec3siArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E293420E1825CDAF005352A4 /* PyImathVec3siArray.cpp */; };
+		E29342561825CDAF005352A4 /* PyImathVec4ArrayImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = E293420F1825CDAF005352A4 /* PyImathVec4ArrayImpl.h */; };
+		E29342571825CDAF005352A4 /* PyImathVec4fd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29342101825CDAF005352A4 /* PyImathVec4fd.cpp */; };
+		E29342581825CDAF005352A4 /* PyImathVec4Impl.h in Headers */ = {isa = PBXBuildFile; fileRef = E29342111825CDAF005352A4 /* PyImathVec4Impl.h */; };
+		E29342591825CDAF005352A4 /* PyImathVec4si.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29342121825CDAF005352A4 /* PyImathVec4si.cpp */; };
+		E293425A1825CDAF005352A4 /* PyImathVec4siArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29342131825CDAF005352A4 /* PyImathVec4siArray.cpp */; };
+		E293425B1825CDAF005352A4 /* PyImathVecOperators.h in Headers */ = {isa = PBXBuildFile; fileRef = E29342141825CDAF005352A4 /* PyImathVecOperators.h */; };
+		E293425D1825CF7D005352A4 /* libPyIex.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E293425C1825CF7D005352A4 /* libPyIex.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E29341BF1825CCB4005352A4 /* libPyImath.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libPyImath.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		E29341C61825CCFF005352A4 /* libboost_python.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_python.a; path = ../../../../../../../usr/local/lib/libboost_python.a; sourceTree = "<group>"; };
+		E29341C71825CCFF005352A4 /* libIlmBase-2.0.1.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libIlmBase-2.0.1.a"; path = "../../../../../../../usr/local/lib/libIlmBase-2.0.1.a"; sourceTree = "<group>"; };
+		E29341CA1825CD2C005352A4 /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = ../../../../../../../System/Library/Frameworks/Python.framework; sourceTree = "<group>"; };
+		E29341CC1825CD4B005352A4 /* Python */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python; path = ../../../../../../../System/Library/Frameworks/Python.framework/Versions/2.7/Python; sourceTree = "<group>"; };
+		E29341CE1825CDAF005352A4 /* imathmodule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imathmodule.cpp; path = ../../PyImath/imathmodule.cpp; sourceTree = "<group>"; };
+		E29341CF1825CDAF005352A4 /* PyImath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImath.cpp; path = ../../PyImath/PyImath.cpp; sourceTree = "<group>"; };
+		E29341D01825CDAF005352A4 /* PyImath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImath.h; path = ../../PyImath/PyImath.h; sourceTree = "<group>"; };
+		E29341D11825CDAF005352A4 /* PyImathAutovectorize.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathAutovectorize.cpp; path = ../../PyImath/PyImathAutovectorize.cpp; sourceTree = "<group>"; };
+		E29341D21825CDAF005352A4 /* PyImathAutovectorize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathAutovectorize.h; path = ../../PyImath/PyImathAutovectorize.h; sourceTree = "<group>"; };
+		E29341D31825CDAF005352A4 /* PyImathBasicTypes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathBasicTypes.cpp; path = ../../PyImath/PyImathBasicTypes.cpp; sourceTree = "<group>"; };
+		E29341D41825CDAF005352A4 /* PyImathBasicTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathBasicTypes.h; path = ../../PyImath/PyImathBasicTypes.h; sourceTree = "<group>"; };
+		E29341D51825CDAF005352A4 /* PyImathBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathBox.cpp; path = ../../PyImath/PyImathBox.cpp; sourceTree = "<group>"; };
+		E29341D61825CDAF005352A4 /* PyImathBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathBox.h; path = ../../PyImath/PyImathBox.h; sourceTree = "<group>"; };
+		E29341D71825CDAF005352A4 /* PyImathBox2Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathBox2Array.cpp; path = ../../PyImath/PyImathBox2Array.cpp; sourceTree = "<group>"; };
+		E29341D81825CDAF005352A4 /* PyImathBox3Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathBox3Array.cpp; path = ../../PyImath/PyImathBox3Array.cpp; sourceTree = "<group>"; };
+		E29341D91825CDAF005352A4 /* PyImathBoxArrayImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathBoxArrayImpl.h; path = ../../PyImath/PyImathBoxArrayImpl.h; sourceTree = "<group>"; };
+		E29341DA1825CDAF005352A4 /* PyImathColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathColor.h; path = ../../PyImath/PyImathColor.h; sourceTree = "<group>"; };
+		E29341DB1825CDAF005352A4 /* PyImathColor3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathColor3.cpp; path = ../../PyImath/PyImathColor3.cpp; sourceTree = "<group>"; };
+		E29341DC1825CDAF005352A4 /* PyImathColor3ArrayImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathColor3ArrayImpl.h; path = ../../PyImath/PyImathColor3ArrayImpl.h; sourceTree = "<group>"; };
+		E29341DD1825CDAF005352A4 /* PyImathColor4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathColor4.cpp; path = ../../PyImath/PyImathColor4.cpp; sourceTree = "<group>"; };
+		E29341DE1825CDAF005352A4 /* PyImathColor4Array2DImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathColor4Array2DImpl.h; path = ../../PyImath/PyImathColor4Array2DImpl.h; sourceTree = "<group>"; };
+		E29341DF1825CDAF005352A4 /* PyImathColor4ArrayImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathColor4ArrayImpl.h; path = ../../PyImath/PyImathColor4ArrayImpl.h; sourceTree = "<group>"; };
+		E29341E01825CDAF005352A4 /* PyImathDecorators.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathDecorators.h; path = ../../PyImath/PyImathDecorators.h; sourceTree = "<group>"; };
+		E29341E11825CDAF005352A4 /* PyImathEuler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathEuler.cpp; path = ../../PyImath/PyImathEuler.cpp; sourceTree = "<group>"; };
+		E29341E21825CDAF005352A4 /* PyImathEuler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathEuler.h; path = ../../PyImath/PyImathEuler.h; sourceTree = "<group>"; };
+		E29341E31825CDAF005352A4 /* PyImathExport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathExport.h; path = ../../PyImath/PyImathExport.h; sourceTree = "<group>"; };
+		E29341E41825CDAF005352A4 /* PyImathFixedArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathFixedArray.cpp; path = ../../PyImath/PyImathFixedArray.cpp; sourceTree = "<group>"; };
+		E29341E51825CDAF005352A4 /* PyImathFixedArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathFixedArray.h; path = ../../PyImath/PyImathFixedArray.h; sourceTree = "<group>"; };
+		E29341E61825CDAF005352A4 /* PyImathFixedArray2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathFixedArray2D.h; path = ../../PyImath/PyImathFixedArray2D.h; sourceTree = "<group>"; };
+		E29341E71825CDAF005352A4 /* PyImathFixedMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathFixedMatrix.h; path = ../../PyImath/PyImathFixedMatrix.h; sourceTree = "<group>"; };
+		E29341E81825CDAF005352A4 /* PyImathFrustum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathFrustum.cpp; path = ../../PyImath/PyImathFrustum.cpp; sourceTree = "<group>"; };
+		E29341E91825CDAF005352A4 /* PyImathFrustum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathFrustum.h; path = ../../PyImath/PyImathFrustum.h; sourceTree = "<group>"; };
+		E29341EA1825CDAF005352A4 /* PyImathFun.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathFun.cpp; path = ../../PyImath/PyImathFun.cpp; sourceTree = "<group>"; };
+		E29341EB1825CDAF005352A4 /* PyImathFun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathFun.h; path = ../../PyImath/PyImathFun.h; sourceTree = "<group>"; };
+		E29341EC1825CDAF005352A4 /* PyImathLine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathLine.cpp; path = ../../PyImath/PyImathLine.cpp; sourceTree = "<group>"; };
+		E29341ED1825CDAF005352A4 /* PyImathLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathLine.h; path = ../../PyImath/PyImathLine.h; sourceTree = "<group>"; };
+		E29341EE1825CDAF005352A4 /* PyImathM44Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathM44Array.cpp; path = ../../PyImath/PyImathM44Array.cpp; sourceTree = "<group>"; };
+		E29341EF1825CDAF005352A4 /* PyImathM44Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathM44Array.h; path = ../../PyImath/PyImathM44Array.h; sourceTree = "<group>"; };
+		E29341F01825CDAF005352A4 /* PyImathMathExc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathMathExc.h; path = ../../PyImath/PyImathMathExc.h; sourceTree = "<group>"; };
+		E29341F11825CDAF005352A4 /* PyImathMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathMatrix.h; path = ../../PyImath/PyImathMatrix.h; sourceTree = "<group>"; };
+		E29341F21825CDAF005352A4 /* PyImathMatrix33.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathMatrix33.cpp; path = ../../PyImath/PyImathMatrix33.cpp; sourceTree = "<group>"; };
+		E29341F31825CDAF005352A4 /* PyImathMatrix44.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathMatrix44.cpp; path = ../../PyImath/PyImathMatrix44.cpp; sourceTree = "<group>"; };
+		E29341F41825CDAF005352A4 /* PyImathOperators.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathOperators.h; path = ../../PyImath/PyImathOperators.h; sourceTree = "<group>"; };
+		E29341F51825CDAF005352A4 /* PyImathPlane.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathPlane.cpp; path = ../../PyImath/PyImathPlane.cpp; sourceTree = "<group>"; };
+		E29341F61825CDAF005352A4 /* PyImathPlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathPlane.h; path = ../../PyImath/PyImathPlane.h; sourceTree = "<group>"; };
+		E29341F71825CDAF005352A4 /* PyImathQuat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathQuat.cpp; path = ../../PyImath/PyImathQuat.cpp; sourceTree = "<group>"; };
+		E29341F81825CDAF005352A4 /* PyImathQuat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathQuat.h; path = ../../PyImath/PyImathQuat.h; sourceTree = "<group>"; };
+		E29341F91825CDAF005352A4 /* PyImathRandom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathRandom.cpp; path = ../../PyImath/PyImathRandom.cpp; sourceTree = "<group>"; };
+		E29341FA1825CDAF005352A4 /* PyImathRandom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathRandom.h; path = ../../PyImath/PyImathRandom.h; sourceTree = "<group>"; };
+		E29341FB1825CDAF005352A4 /* PyImathShear.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathShear.cpp; path = ../../PyImath/PyImathShear.cpp; sourceTree = "<group>"; };
+		E29341FC1825CDAF005352A4 /* PyImathShear.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathShear.h; path = ../../PyImath/PyImathShear.h; sourceTree = "<group>"; };
+		E29341FD1825CDAF005352A4 /* PyImathStringArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathStringArray.cpp; path = ../../PyImath/PyImathStringArray.cpp; sourceTree = "<group>"; };
+		E29341FE1825CDAF005352A4 /* PyImathStringArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathStringArray.h; path = ../../PyImath/PyImathStringArray.h; sourceTree = "<group>"; };
+		E29341FF1825CDAF005352A4 /* PyImathStringArrayRegister.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathStringArrayRegister.h; path = ../../PyImath/PyImathStringArrayRegister.h; sourceTree = "<group>"; };
+		E29342001825CDAF005352A4 /* PyImathStringTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathStringTable.cpp; path = ../../PyImath/PyImathStringTable.cpp; sourceTree = "<group>"; };
+		E29342011825CDAF005352A4 /* PyImathStringTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathStringTable.h; path = ../../PyImath/PyImathStringTable.h; sourceTree = "<group>"; };
+		E29342021825CDAF005352A4 /* PyImathTask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathTask.cpp; path = ../../PyImath/PyImathTask.cpp; sourceTree = "<group>"; };
+		E29342031825CDAF005352A4 /* PyImathTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathTask.h; path = ../../PyImath/PyImathTask.h; sourceTree = "<group>"; };
+		E29342041825CDAF005352A4 /* PyImathUtil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathUtil.cpp; path = ../../PyImath/PyImathUtil.cpp; sourceTree = "<group>"; };
+		E29342051825CDAF005352A4 /* PyImathUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathUtil.h; path = ../../PyImath/PyImathUtil.h; sourceTree = "<group>"; };
+		E29342061825CDAF005352A4 /* PyImathVec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathVec.h; path = ../../PyImath/PyImathVec.h; sourceTree = "<group>"; };
+		E29342071825CDAF005352A4 /* PyImathVec2fd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathVec2fd.cpp; path = ../../PyImath/PyImathVec2fd.cpp; sourceTree = "<group>"; };
+		E29342081825CDAF005352A4 /* PyImathVec2Impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathVec2Impl.h; path = ../../PyImath/PyImathVec2Impl.h; sourceTree = "<group>"; };
+		E29342091825CDAF005352A4 /* PyImathVec2si.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathVec2si.cpp; path = ../../PyImath/PyImathVec2si.cpp; sourceTree = "<group>"; };
+		E293420A1825CDAF005352A4 /* PyImathVec3ArrayImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathVec3ArrayImpl.h; path = ../../PyImath/PyImathVec3ArrayImpl.h; sourceTree = "<group>"; };
+		E293420B1825CDAF005352A4 /* PyImathVec3fd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathVec3fd.cpp; path = ../../PyImath/PyImathVec3fd.cpp; sourceTree = "<group>"; };
+		E293420C1825CDAF005352A4 /* PyImathVec3Impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathVec3Impl.h; path = ../../PyImath/PyImathVec3Impl.h; sourceTree = "<group>"; };
+		E293420D1825CDAF005352A4 /* PyImathVec3si.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathVec3si.cpp; path = ../../PyImath/PyImathVec3si.cpp; sourceTree = "<group>"; };
+		E293420E1825CDAF005352A4 /* PyImathVec3siArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathVec3siArray.cpp; path = ../../PyImath/PyImathVec3siArray.cpp; sourceTree = "<group>"; };
+		E293420F1825CDAF005352A4 /* PyImathVec4ArrayImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathVec4ArrayImpl.h; path = ../../PyImath/PyImathVec4ArrayImpl.h; sourceTree = "<group>"; };
+		E29342101825CDAF005352A4 /* PyImathVec4fd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathVec4fd.cpp; path = ../../PyImath/PyImathVec4fd.cpp; sourceTree = "<group>"; };
+		E29342111825CDAF005352A4 /* PyImathVec4Impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathVec4Impl.h; path = ../../PyImath/PyImathVec4Impl.h; sourceTree = "<group>"; };
+		E29342121825CDAF005352A4 /* PyImathVec4si.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathVec4si.cpp; path = ../../PyImath/PyImathVec4si.cpp; sourceTree = "<group>"; };
+		E29342131825CDAF005352A4 /* PyImathVec4siArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PyImathVec4siArray.cpp; path = ../../PyImath/PyImathVec4siArray.cpp; sourceTree = "<group>"; };
+		E29342141825CDAF005352A4 /* PyImathVecOperators.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyImathVecOperators.h; path = ../../PyImath/PyImathVecOperators.h; sourceTree = "<group>"; };
+		E293425C1825CF7D005352A4 /* libPyIex.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libPyIex.dylib; path = ../../../../../../../usr/local/lib/libPyIex.dylib; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E29341BC1825CCB4005352A4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E293425D1825CF7D005352A4 /* libPyIex.dylib in Frameworks */,
+				E29341CD1825CD4B005352A4 /* Python in Frameworks */,
+				E29341C81825CCFF005352A4 /* libboost_python.a in Frameworks */,
+				E29341C91825CCFF005352A4 /* libIlmBase-2.0.1.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E29341B61825CCB4005352A4 = {
+			isa = PBXGroup;
+			children = (
+				E293425C1825CF7D005352A4 /* libPyIex.dylib */,
+				E29341CE1825CDAF005352A4 /* imathmodule.cpp */,
+				E29341CF1825CDAF005352A4 /* PyImath.cpp */,
+				E29341D01825CDAF005352A4 /* PyImath.h */,
+				E29341D11825CDAF005352A4 /* PyImathAutovectorize.cpp */,
+				E29341D21825CDAF005352A4 /* PyImathAutovectorize.h */,
+				E29341D31825CDAF005352A4 /* PyImathBasicTypes.cpp */,
+				E29341D41825CDAF005352A4 /* PyImathBasicTypes.h */,
+				E29341D51825CDAF005352A4 /* PyImathBox.cpp */,
+				E29341D61825CDAF005352A4 /* PyImathBox.h */,
+				E29341D71825CDAF005352A4 /* PyImathBox2Array.cpp */,
+				E29341D81825CDAF005352A4 /* PyImathBox3Array.cpp */,
+				E29341D91825CDAF005352A4 /* PyImathBoxArrayImpl.h */,
+				E29341DA1825CDAF005352A4 /* PyImathColor.h */,
+				E29341DB1825CDAF005352A4 /* PyImathColor3.cpp */,
+				E29341DC1825CDAF005352A4 /* PyImathColor3ArrayImpl.h */,
+				E29341DD1825CDAF005352A4 /* PyImathColor4.cpp */,
+				E29341DE1825CDAF005352A4 /* PyImathColor4Array2DImpl.h */,
+				E29341DF1825CDAF005352A4 /* PyImathColor4ArrayImpl.h */,
+				E29341E01825CDAF005352A4 /* PyImathDecorators.h */,
+				E29341E11825CDAF005352A4 /* PyImathEuler.cpp */,
+				E29341E21825CDAF005352A4 /* PyImathEuler.h */,
+				E29341E31825CDAF005352A4 /* PyImathExport.h */,
+				E29341E41825CDAF005352A4 /* PyImathFixedArray.cpp */,
+				E29341E51825CDAF005352A4 /* PyImathFixedArray.h */,
+				E29341E61825CDAF005352A4 /* PyImathFixedArray2D.h */,
+				E29341E71825CDAF005352A4 /* PyImathFixedMatrix.h */,
+				E29341E81825CDAF005352A4 /* PyImathFrustum.cpp */,
+				E29341E91825CDAF005352A4 /* PyImathFrustum.h */,
+				E29341EA1825CDAF005352A4 /* PyImathFun.cpp */,
+				E29341EB1825CDAF005352A4 /* PyImathFun.h */,
+				E29341EC1825CDAF005352A4 /* PyImathLine.cpp */,
+				E29341ED1825CDAF005352A4 /* PyImathLine.h */,
+				E29341EE1825CDAF005352A4 /* PyImathM44Array.cpp */,
+				E29341EF1825CDAF005352A4 /* PyImathM44Array.h */,
+				E29341F01825CDAF005352A4 /* PyImathMathExc.h */,
+				E29341F11825CDAF005352A4 /* PyImathMatrix.h */,
+				E29341F21825CDAF005352A4 /* PyImathMatrix33.cpp */,
+				E29341F31825CDAF005352A4 /* PyImathMatrix44.cpp */,
+				E29341F41825CDAF005352A4 /* PyImathOperators.h */,
+				E29341F51825CDAF005352A4 /* PyImathPlane.cpp */,
+				E29341F61825CDAF005352A4 /* PyImathPlane.h */,
+				E29341F71825CDAF005352A4 /* PyImathQuat.cpp */,
+				E29341F81825CDAF005352A4 /* PyImathQuat.h */,
+				E29341F91825CDAF005352A4 /* PyImathRandom.cpp */,
+				E29341FA1825CDAF005352A4 /* PyImathRandom.h */,
+				E29341FB1825CDAF005352A4 /* PyImathShear.cpp */,
+				E29341FC1825CDAF005352A4 /* PyImathShear.h */,
+				E29341FD1825CDAF005352A4 /* PyImathStringArray.cpp */,
+				E29341FE1825CDAF005352A4 /* PyImathStringArray.h */,
+				E29341FF1825CDAF005352A4 /* PyImathStringArrayRegister.h */,
+				E29342001825CDAF005352A4 /* PyImathStringTable.cpp */,
+				E29342011825CDAF005352A4 /* PyImathStringTable.h */,
+				E29342021825CDAF005352A4 /* PyImathTask.cpp */,
+				E29342031825CDAF005352A4 /* PyImathTask.h */,
+				E29342041825CDAF005352A4 /* PyImathUtil.cpp */,
+				E29342051825CDAF005352A4 /* PyImathUtil.h */,
+				E29342061825CDAF005352A4 /* PyImathVec.h */,
+				E29342071825CDAF005352A4 /* PyImathVec2fd.cpp */,
+				E29342081825CDAF005352A4 /* PyImathVec2Impl.h */,
+				E29342091825CDAF005352A4 /* PyImathVec2si.cpp */,
+				E293420A1825CDAF005352A4 /* PyImathVec3ArrayImpl.h */,
+				E293420B1825CDAF005352A4 /* PyImathVec3fd.cpp */,
+				E293420C1825CDAF005352A4 /* PyImathVec3Impl.h */,
+				E293420D1825CDAF005352A4 /* PyImathVec3si.cpp */,
+				E293420E1825CDAF005352A4 /* PyImathVec3siArray.cpp */,
+				E293420F1825CDAF005352A4 /* PyImathVec4ArrayImpl.h */,
+				E29342101825CDAF005352A4 /* PyImathVec4fd.cpp */,
+				E29342111825CDAF005352A4 /* PyImathVec4Impl.h */,
+				E29342121825CDAF005352A4 /* PyImathVec4si.cpp */,
+				E29342131825CDAF005352A4 /* PyImathVec4siArray.cpp */,
+				E29342141825CDAF005352A4 /* PyImathVecOperators.h */,
+				E29341CC1825CD4B005352A4 /* Python */,
+				E29341CA1825CD2C005352A4 /* Python.framework */,
+				E29341C61825CCFF005352A4 /* libboost_python.a */,
+				E29341C71825CCFF005352A4 /* libIlmBase-2.0.1.a */,
+				E29341C01825CCB4005352A4 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E29341C01825CCB4005352A4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E29341BF1825CCB4005352A4 /* libPyImath.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		E29341BD1825CCB4005352A4 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E29342191825CDAF005352A4 /* PyImathAutovectorize.h in Headers */,
+				E29342261825CDAF005352A4 /* PyImathColor4ArrayImpl.h in Headers */,
+				E293424A1825CDAF005352A4 /* PyImathTask.h in Headers */,
+				E29342481825CDAF005352A4 /* PyImathStringTable.h in Headers */,
+				E29342451825CDAF005352A4 /* PyImathStringArray.h in Headers */,
+				E293423F1825CDAF005352A4 /* PyImathQuat.h in Headers */,
+				E29342321825CDAF005352A4 /* PyImathFun.h in Headers */,
+				E293424F1825CDAF005352A4 /* PyImathVec2Impl.h in Headers */,
+				E29342461825CDAF005352A4 /* PyImathStringArrayRegister.h in Headers */,
+				E29342201825CDAF005352A4 /* PyImathBoxArrayImpl.h in Headers */,
+				E293422A1825CDAF005352A4 /* PyImathExport.h in Headers */,
+				E293422D1825CDAF005352A4 /* PyImathFixedArray2D.h in Headers */,
+				E29342361825CDAF005352A4 /* PyImathM44Array.h in Headers */,
+				E293421B1825CDAF005352A4 /* PyImathBasicTypes.h in Headers */,
+				E29342581825CDAF005352A4 /* PyImathVec4Impl.h in Headers */,
+				E29342381825CDAF005352A4 /* PyImathMatrix.h in Headers */,
+				E29342171825CDAF005352A4 /* PyImath.h in Headers */,
+				E29342411825CDAF005352A4 /* PyImathRandom.h in Headers */,
+				E29342271825CDAF005352A4 /* PyImathDecorators.h in Headers */,
+				E29342301825CDAF005352A4 /* PyImathFrustum.h in Headers */,
+				E293425B1825CDAF005352A4 /* PyImathVecOperators.h in Headers */,
+				E29342561825CDAF005352A4 /* PyImathVec4ArrayImpl.h in Headers */,
+				E29342291825CDAF005352A4 /* PyImathEuler.h in Headers */,
+				E293421D1825CDAF005352A4 /* PyImathBox.h in Headers */,
+				E293422C1825CDAF005352A4 /* PyImathFixedArray.h in Headers */,
+				E29342211825CDAF005352A4 /* PyImathColor.h in Headers */,
+				E29342251825CDAF005352A4 /* PyImathColor4Array2DImpl.h in Headers */,
+				E29342531825CDAF005352A4 /* PyImathVec3Impl.h in Headers */,
+				E29342371825CDAF005352A4 /* PyImathMathExc.h in Headers */,
+				E29342231825CDAF005352A4 /* PyImathColor3ArrayImpl.h in Headers */,
+				E29342431825CDAF005352A4 /* PyImathShear.h in Headers */,
+				E293424C1825CDAF005352A4 /* PyImathUtil.h in Headers */,
+				E293422E1825CDAF005352A4 /* PyImathFixedMatrix.h in Headers */,
+				E293424D1825CDAF005352A4 /* PyImathVec.h in Headers */,
+				E29342341825CDAF005352A4 /* PyImathLine.h in Headers */,
+				E293423D1825CDAF005352A4 /* PyImathPlane.h in Headers */,
+				E29342511825CDAF005352A4 /* PyImathVec3ArrayImpl.h in Headers */,
+				E293423B1825CDAF005352A4 /* PyImathOperators.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		E29341BE1825CCB4005352A4 /* PyImath */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E29341C31825CCB4005352A4 /* Build configuration list for PBXNativeTarget "PyImath" */;
+			buildPhases = (
+				E29341BB1825CCB4005352A4 /* Sources */,
+				E29341BC1825CCB4005352A4 /* Frameworks */,
+				E29341BD1825CCB4005352A4 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PyImath;
+			productName = PyImath;
+			productReference = E29341BF1825CCB4005352A4 /* libPyImath.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E29341B71825CCB4005352A4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = OpenEXR;
+			};
+			buildConfigurationList = E29341BA1825CCB4005352A4 /* Build configuration list for PBXProject "PyImath" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E29341B61825CCB4005352A4;
+			productRefGroup = E29341C01825CCB4005352A4 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E29341BE1825CCB4005352A4 /* PyImath */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E29341BB1825CCB4005352A4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E29342221825CDAF005352A4 /* PyImathColor3.cpp in Sources */,
+				E293424B1825CDAF005352A4 /* PyImathUtil.cpp in Sources */,
+				E29342161825CDAF005352A4 /* PyImath.cpp in Sources */,
+				E293422B1825CDAF005352A4 /* PyImathFixedArray.cpp in Sources */,
+				E293423A1825CDAF005352A4 /* PyImathMatrix44.cpp in Sources */,
+				E29342421825CDAF005352A4 /* PyImathShear.cpp in Sources */,
+				E293423E1825CDAF005352A4 /* PyImathQuat.cpp in Sources */,
+				E29342351825CDAF005352A4 /* PyImathM44Array.cpp in Sources */,
+				E29342571825CDAF005352A4 /* PyImathVec4fd.cpp in Sources */,
+				E293425A1825CDAF005352A4 /* PyImathVec4siArray.cpp in Sources */,
+				E293421E1825CDAF005352A4 /* PyImathBox2Array.cpp in Sources */,
+				E29342521825CDAF005352A4 /* PyImathVec3fd.cpp in Sources */,
+				E293421A1825CDAF005352A4 /* PyImathBasicTypes.cpp in Sources */,
+				E29342591825CDAF005352A4 /* PyImathVec4si.cpp in Sources */,
+				E29342181825CDAF005352A4 /* PyImathAutovectorize.cpp in Sources */,
+				E293421F1825CDAF005352A4 /* PyImathBox3Array.cpp in Sources */,
+				E293423C1825CDAF005352A4 /* PyImathPlane.cpp in Sources */,
+				E29342501825CDAF005352A4 /* PyImathVec2si.cpp in Sources */,
+				E29342281825CDAF005352A4 /* PyImathEuler.cpp in Sources */,
+				E29342331825CDAF005352A4 /* PyImathLine.cpp in Sources */,
+				E29342311825CDAF005352A4 /* PyImathFun.cpp in Sources */,
+				E29342491825CDAF005352A4 /* PyImathTask.cpp in Sources */,
+				E29342551825CDAF005352A4 /* PyImathVec3siArray.cpp in Sources */,
+				E29342541825CDAF005352A4 /* PyImathVec3si.cpp in Sources */,
+				E29342441825CDAF005352A4 /* PyImathStringArray.cpp in Sources */,
+				E29342391825CDAF005352A4 /* PyImathMatrix33.cpp in Sources */,
+				E29342241825CDAF005352A4 /* PyImathColor4.cpp in Sources */,
+				E293424E1825CDAF005352A4 /* PyImathVec2fd.cpp in Sources */,
+				E29342471825CDAF005352A4 /* PyImathStringTable.cpp in Sources */,
+				E293422F1825CDAF005352A4 /* PyImathFrustum.cpp in Sources */,
+				E29342151825CDAF005352A4 /* imathmodule.cpp in Sources */,
+				E293421C1825CDAF005352A4 /* PyImathBox.cpp in Sources */,
+				E29342401825CDAF005352A4 /* PyImathRandom.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E29341C11825CCB4005352A4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E29341C21825CCB4005352A4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		E29341C41825CCB4005352A4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				EXECUTABLE_PREFIX = lib;
+				INSTALL_PATH = /lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
+					/usr/lib,
+					/usr/local/lib,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "/usr/local/include/OpenEXR /System/Library/Frameworks/Python.framework/Headers /usr/local/include";
+			};
+			name = Debug;
+		};
+		E29341C51825CCB4005352A4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				EXECUTABLE_PREFIX = lib;
+				INSTALL_PATH = /lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
+					/usr/lib,
+					/usr/local/lib,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "/usr/local/include/OpenEXR /System/Library/Frameworks/Python.framework/Headers /usr/local/include";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E29341BA1825CCB4005352A4 /* Build configuration list for PBXProject "PyImath" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E29341C11825CCB4005352A4 /* Debug */,
+				E29341C21825CCB4005352A4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E29341C31825CCB4005352A4 /* Build configuration list for PBXNativeTarget "PyImath" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E29341C41825CCB4005352A4 /* Debug */,
+				E29341C51825CCB4005352A4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E29341B71825CCB4005352A4 /* Project object */;
+}
