@@ -67,4 +67,15 @@ dnl
   fi
   AC_SUBST(FLTK_CXXFLAGS)
   AC_SUBST(FLTK_LDFLAGS)
+  
+AC_MSG_RESULT([
+---------------------------------------------
+Fltk setup:
+
+FLTK_CXXFLAGS		$FLTK_CXXFLAGS
+FLTK_LDFLAGS            $FLTK_LDFLAGS
+---------------------------------------------
+])
+  
+  
 ])
