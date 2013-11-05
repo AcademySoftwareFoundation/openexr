@@ -64,6 +64,9 @@ AM_COMPILELINKRUN(
    AC_MSG_RESULT([Compiled and ran IlmBase test program.]), 
    AC_MSG_ERROR([Could not compile IlmBase test program.]))
 
+LDFLAGS="$LDFLAGS $ILMBASE_LDFLAGS"
+
+
 dnl Checks for python and boost python
 AM_PATH_PYTHON
 PYTHON_INC_DIR=`$PYTHON -c 'from distutils.sysconfig import *; print get_python_inc()'`
