@@ -53,8 +53,8 @@
 #include <PyImathTask.h>
 
 namespace PyImath {
-template<> const char *PyImath::M44fArray::name() { return "M44fArray"; }
-template<> const char *PyImath::M44dArray::name() { return "M44dArray"; }
+template<> const char PYIMATH_EXPORT *PyImath::M44fArray::name() { return "M44fArray"; }
+template<> const char PYIMATH_EXPORT *PyImath::M44dArray::name() { return "M44dArray"; }
 
 using namespace boost::python;
 using namespace IMATH_NAMESPACE;
