@@ -150,6 +150,7 @@ INSTALL ( FILES
   doc/ReadingAndWritingImageFiles.pdf
   doc/OpenEXRFileLayout.pdf
   doc/MultiViewOpenEXR.pdf
+  doc/InterpretingDeepPixels.pdf
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}
   )
