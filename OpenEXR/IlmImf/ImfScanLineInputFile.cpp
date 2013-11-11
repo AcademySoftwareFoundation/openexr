@@ -815,7 +815,7 @@ void LineBufferTaskIIF::getWritePointerStereo
                            size_t& outPixelsToCopySSE,
                            size_t& outPixelsToCopyNormal) const
 {
-   getWritePointer<TYPE>(y,outWritePointerRight,outPixelsToCopySSE,outPixelsToCopyNormal),0;
+   getWritePointer<TYPE>(y,outWritePointerRight,outPixelsToCopySSE,outPixelsToCopyNormal,0);
    
    
    if(outWritePointerRight)
