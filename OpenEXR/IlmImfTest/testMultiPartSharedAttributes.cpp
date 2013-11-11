@@ -65,6 +65,10 @@ using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
+#ifndef ILM_IMF_TEST_IMAGEDIR
+    #define ILM_IMF_TEST_IMAGEDIR
+#endif
+
 namespace
 {
 
@@ -480,7 +484,7 @@ testHeaders (const std::string & fn)
     //
     try
     {
-        MultiPartInputFile file ("invalid_shared_attrs_multipart.exr");
+        MultiPartInputFile file (ILM_IMF_TEST_IMAGEDIR "invalid_shared_attrs_multipart.exr");
         cerr << "Shared Attributes : InputFile : incorrect input file passed\n";
         assert (false);
     }

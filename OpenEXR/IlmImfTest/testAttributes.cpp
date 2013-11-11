@@ -49,6 +49,7 @@
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfFloatAttribute.h>
 #include <ImfEnvmapAttribute.h>
+#include <ImfDeepImageStateAttribute.h>
 #include <ImfDoubleAttribute.h>
 #include <ImfIntAttribute.h>
 #include <ImfLineOrderAttribute.h>
@@ -118,6 +119,8 @@ writeReadAttr (const Array2D<float> &pf1,
     
     StringVector a20;
 
+    DeepImageState a21 (DIS_TIDY);
+
     //
     // Write an image file with extra attributes in the header
     //
@@ -145,6 +148,7 @@ writeReadAttr (const Array2D<float> &pf1,
 	hdr.insert ("a18", V2dAttribute    (a18));
 	hdr.insert ("a19", V3dAttribute    (a19));
 	hdr.insert ("a20", StringVectorAttribute  (a20));
+	hdr.insert ("a21", DeepImageStateAttribute  (a21));
 
 	hdr.channels().insert ("F",			// name
 			       Channel (IMF::FLOAT,	// type
@@ -231,9 +235,10 @@ writeReadAttr (const Array2D<float> &pf1,
 	assert (hdr.typedAttribute <M44dAttribute>   ("a17").value()  == a17);
 	assert (hdr.typedAttribute <V2dAttribute>    ("a18").value()  == a18);
 	assert (hdr.typedAttribute <V3dAttribute>    ("a19").value()  == a19);
-          assert (hdr.typedAttribute <StringVectorAttribute>    ("a20").value()  == a20);
-          
-          
+	assert (hdr.typedAttribute <StringVectorAttribute>
+                                                  ("a20").value() == a20);
+	assert (hdr.typedAttribute <DeepImageStateAttribute>
+				                                  ("a21").value() == a21);
     }
 
     remove (fileName);

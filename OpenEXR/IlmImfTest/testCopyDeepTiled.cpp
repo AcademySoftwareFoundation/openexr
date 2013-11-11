@@ -44,7 +44,6 @@
 #include <ImfArray.h>
 #include <ImfPartType.h>
 #include <ImfNamespace.h>
-
 #include <IlmThreadPool.h>
 
 #include <stdio.h>

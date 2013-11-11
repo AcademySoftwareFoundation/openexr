@@ -111,6 +111,7 @@ SET ( ILMIMF_SRCS
   ImfDeepFrameBuffer.cpp
   ImfDeepCompositing.cpp
   ImfCompositeDeepScanLine.cpp
+  ImfDeepImageStateAttribute.cpp
 )
 
 IF(BUILD_SHARED_LIBS)
@@ -121,7 +122,7 @@ ADD_LIBRARY ( IlmImf ${LIB_TYPE}
   ${ILMIMF_SRCS}
 )
 
-TARGET_LINK_LIBRARIES ( IlmImf Half Iex-2_0 Imath-2_0 IlmThread-2_0 ${PTHREAD_LIB} ${ZLIB_LIBRARIES})
+TARGET_LINK_LIBRARIES ( IlmImf Half Iex-2_1 Imath-2_1 IlmThread-2_1 ${PTHREAD_LIB} ${ZLIB_LIBRARIES})
 
 IF(NOT BUILD_SHARED_LIBS)
   ADD_DEPENDENCIES ( IlmImf b44ExpLogTable )
@@ -223,6 +224,8 @@ INSTALL ( FILES
   ImfCompositeDeepScanLine.h
   ImfNamespace.h
   ImfMisc.h
+  ImfDeepImageState.h
+  ImfDeepImageStateAttribute.h
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
   )

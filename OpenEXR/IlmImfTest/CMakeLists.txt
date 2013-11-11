@@ -60,5 +60,12 @@ ADD_EXECUTABLE ( IlmImfTest
 
 
 ADD_TEST ( TestIlmImf IlmImfTest )
-TARGET_LINK_LIBRARIES ( IlmImfTest IlmImf Half Iex Imath IlmThread ${PTHREAD_LIB} ${ZLIB_LIBRARIES})
+TARGET_LINK_LIBRARIES ( IlmImfTest 
+        IlmImf  
+        Half 
+        Iex-2_1
+        Imath-2_1 
+        IlmThread-2_1 
+        ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
+        )
 

@@ -903,6 +903,7 @@ generatedFunctions ()
     assert (hasMultiView (header) == false);
     assert (hasWorldToCamera (header) == false);
     assert (hasWorldToNDC (header) == false);
+    assert (hasDeepImageState (header) == false);
 }
 
 
