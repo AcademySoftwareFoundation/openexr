@@ -115,5 +115,6 @@ IMF_STD_ATTRIBUTE_IMP (framesPerSecond, FramesPerSecond, Rational)
 IMF_STD_ATTRIBUTE_IMP (multiView, MultiView, StringVector)
 IMF_STD_ATTRIBUTE_IMP (worldToCamera, WorldToCamera, IMATH_NAMESPACE::M44f)
 IMF_STD_ATTRIBUTE_IMP (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
+IMF_STD_ATTRIBUTE_IMP (deepImageState, DeepImageState, DeepImageState)
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

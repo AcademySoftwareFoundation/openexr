@@ -57,6 +57,7 @@
 #include "ImfHeader.h"
 #include "ImfChromaticitiesAttribute.h"
 #include "ImfEnvmapAttribute.h"
+#include "ImfDeepImageStateAttribute.h"
 #include "ImfFloatAttribute.h"
 #include "ImfKeyCodeAttribute.h"
 #include "ImfMatrixAttribute.h"
@@ -340,5 +341,20 @@ IMF_STD_ATTRIBUTE_DEF (worldToCamera, WorldToCamera, IMATH_NAMESPACE::M44f)
 
 IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
 
+
+//
+// deepImageState -- specifies whether the pixels in a deep image are
+// sorted and non-overlapping.
+//
+// Note: this attribute can be set by application code that writes a file
+// in order to tell applications that read the file whether the pixel data
+// must be cleaned up prior to image processing operations such as flattening. 
+// The IlmImf library does not verify that the attribute is consistent with
+// the actual state of the pixels.  Application software may assume that the
+// attribute is valid, as long as the software will not crash or lock up if
+// any pixels are inconsistent with the deepImageState attribute.
+//
+
+IMF_STD_ATTRIBUTE_DEF (deepImageState, DeepImageState, DeepImageState)
 
 #endif

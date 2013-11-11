@@ -49,6 +49,7 @@
 #include <ImfChannelListAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfCompressionAttribute.h>
+#include <ImfDeepImageStateAttribute.h>
 #include <ImfDoubleAttribute.h>
 #include <ImfEnvmapAttribute.h>
 #include <ImfFloatAttribute.h>
@@ -1246,6 +1247,7 @@ staticInitialize ()
 	ChannelListAttribute::registerAttributeType();
 	CompressionAttribute::registerAttributeType();
 	ChromaticitiesAttribute::registerAttributeType();
+	DeepImageStateAttribute::registerAttributeType();
 	DoubleAttribute::registerAttributeType();
 	EnvmapAttribute::registerAttributeType();
 	FloatAttribute::registerAttributeType();
