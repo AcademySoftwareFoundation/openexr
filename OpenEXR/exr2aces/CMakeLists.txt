@@ -6,8 +6,8 @@ ADD_EXECUTABLE ( exr2aces
 
 TARGET_LINK_LIBRARIES ( exr2aces
   IlmImf
-  IlmThread
-  Iex
+  IlmThread-2_1
+  Iex-2_1
   Half
   ${PTHREAD_LIB}
   ${ZLIB_LIBRARIES}

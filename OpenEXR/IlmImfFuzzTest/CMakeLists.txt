@@ -9,6 +9,12 @@ ADD_EXECUTABLE ( IlmImfFuzzTest
   testFuzzTiles.cpp
   )
 
-TARGET_LINK_LIBRARIES ( IlmImfFuzzTest IlmImf Iex Imath Half IlmThread ${PTHREAD_LIB} ${ZLIB_LIBRARIES})
+TARGET_LINK_LIBRARIES ( IlmImfFuzzTest 
+        IlmImf
+        Half
+        Iex-2_1
+        Imath-2_1
+        IlmThread-2_1
+        ${PTHREAD_LIB} ${ZLIB_LIBRARIES})
 
 ADD_TEST ( TestIlmImfFuzz IlmImfFuzzTest )

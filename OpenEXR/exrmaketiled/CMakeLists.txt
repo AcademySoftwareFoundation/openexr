@@ -8,8 +8,8 @@ ADD_EXECUTABLE ( exrmaketiled
 
 TARGET_LINK_LIBRARIES ( exrmaketiled
   IlmImf
-  IlmThread
-  Iex
+  IlmThread-2_1
+  Iex-2_1
   Half
   ${PTHREAD_LIB}
   ${ZLIB_LIBRARIES}
