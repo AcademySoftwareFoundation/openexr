@@ -3,7 +3,8 @@ EXTRA_DIST =  \
 	TechnicalIntroduction.pdf \
 	OpenEXRFileLayout.pdf \
 	MultiViewOpenEXR.pdf \
-	InterpretingDeepPixels.pdf
+	InterpretingDeepPixels.pdf \
+	TheoryDeepPixels.pdf
 
 docdir=$(datadir)/doc/OpenEXR-@OPENEXR_VERSION@
 doc_DATA = $(EXTRA_DIST)
