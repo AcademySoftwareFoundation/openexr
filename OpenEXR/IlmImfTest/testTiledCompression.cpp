@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -44,14 +44,15 @@
 #include <half.h>
 #include <ImathRandom.h>
 #include <ImfTileDescriptionAttribute.h>
+#include <ImfNamespace.h>
+
 #include "compareFloat.h"
 
 #include <stdio.h>
 #include <assert.h>
 
-#include "tmpDir.h"
-
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
@@ -189,9 +190,9 @@ writeRead (const Array2D<unsigned int> &pi1,
     hdr.compression() = comp;
     hdr.lineOrder() = lorder;
 
-    hdr.channels().insert ("I", Channel (UINT));
-    hdr.channels().insert ("H", Channel (HALF));
-    hdr.channels().insert ("F", Channel (FLOAT));
+    hdr.channels().insert ("I", Channel (IMF::UINT));
+    hdr.channels().insert ("H", Channel (IMF::HALF));
+    hdr.channels().insert ("F", Channel (IMF::FLOAT));
     
     hdr.setTileDescription(TileDescription(xSize, ySize, ONE_LEVEL));
     
@@ -199,21 +200,21 @@ writeRead (const Array2D<unsigned int> &pi1,
         FrameBuffer fb; 
 
         fb.insert ("I",                                       // name
-                   Slice (UINT,                               // type
+                   Slice (IMF::UINT,                               // type
                           (char *) &pi1[-yOffset][-xOffset],  // base
                           sizeof (pi1[0][0]),                 // xStride
                           sizeof (pi1[0][0]) * width)         // yStride
                   );
                   
         fb.insert ("H",                                       // name
-                   Slice (HALF,                               // type
+                   Slice (IMF::HALF,                               // type
                           (char *) &ph1[-yOffset][-xOffset],  // base
                           sizeof (ph1[0][0]),                 // xStride
                           sizeof (ph1[0][0]) * width)         // yStride
                   );
                   
         fb.insert ("F",                                       // name
-                   Slice (FLOAT,                              // type
+                   Slice (IMF::FLOAT,                              // type
                           (char *) &pf1[-yOffset][-xOffset],  // base
                           sizeof (pf1[0][0]),                 // xStride
                           sizeof (pf1[0][0]) * width)         // yStride
@@ -245,21 +246,21 @@ writeRead (const Array2D<unsigned int> &pi1,
         FrameBuffer fb;
 
         fb.insert ("I",                             // name
-                   Slice (UINT,                     // type
+                   Slice (IMF::UINT,                     // type
                           (char *) &pi2[-dwy][-dwx],// base
                           sizeof (pi2[0][0]),       // xStride
                           sizeof (pi2[0][0]) * w)   // yStride
                   );
 
         fb.insert ("H",                             // name
-                   Slice (HALF,                     // type
+                   Slice (IMF::HALF,                     // type
                           (char *) &ph2[-dwy][-dwx],// base
                           sizeof (ph2[0][0]),       // xStride
                           sizeof (ph2[0][0]) * w)   // yStride
                   );
 
         fb.insert ("F",                             // name
-                   Slice (FLOAT,                    // type
+                   Slice (IMF::FLOAT,                    // type
                           (char *) &pf2[-dwy][-dwx],// base
                           sizeof (pf2[0][0]),       // xStride
                           sizeof (pf2[0][0]) * w)   // yStride
@@ -347,7 +348,7 @@ writeRead (const Array2D<unsigned int> &pi1,
         FrameBuffer fb;
 
         fb.insert ("I",                                 // name
-                   Slice (UINT,                         // type
+                   Slice (IMF::UINT,                         // type
                           (char *) &pi2[0][0],          // base
                           sizeof (pi2[0][0]),           // xStride
                           sizeof (pi2[0][0]) * xSize,   // yStride
@@ -359,7 +360,7 @@ writeRead (const Array2D<unsigned int> &pi1,
                   );
 
         fb.insert ("H",                                 // name
-                   Slice (HALF,                         // type
+                   Slice (IMF::HALF,                         // type
                           (char *) &ph2[0][0],          // base
                           sizeof (ph2[0][0]),           // xStride
                           sizeof (ph2[0][0]) * xSize,   // yStride
@@ -371,7 +372,7 @@ writeRead (const Array2D<unsigned int> &pi1,
                   );
 
         fb.insert ("F",                                 // name
-                   Slice (FLOAT,                        // type
+                   Slice (IMF::FLOAT,                        // type
                           (char *) &pf2[0][0],          // base
                           sizeof (pf2[0][0]),           // xStride
                           sizeof (pf2[0][0]) * xSize,   // yStride
@@ -445,7 +446,8 @@ writeRead (const Array2D<unsigned int> &pi1,
 
 
 void
-writeRead (const Array2D<unsigned int> &pi,
+writeRead (const std::string &tempDir,
+           const Array2D<unsigned int> &pi,
            const Array2D<half> &ph,
            const Array2D<float> &pf,
            int w,
@@ -455,12 +457,12 @@ writeRead (const Array2D<unsigned int> &pi,
            int dx,
            int dy)
 {
-    const char *filename = IMF_TMP_DIR "imf_test_comp.exr";
+    std::string filename = tempDir + "imf_test_comp.exr";
 
     for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
     {
         writeRead (pi, ph, pf,
-                   filename,
+                   filename.c_str(),
                    LineOrder (0),
                    w, h,
                    xs, ys,
@@ -473,7 +475,7 @@ writeRead (const Array2D<unsigned int> &pi,
 
 
 void
-testTiledCompression ()
+testTiledCompression (const std::string &tempDir)
 {
     try
     {
@@ -506,16 +508,16 @@ testTiledCompression ()
 		    "yOffset = " << DY[i] << endl;
 
             fillPixels1 (pi, ph, pf, W, H);
-            writeRead (pi, ph, pf, W, H, XS, YS, DX[i], DY[i]);
+            writeRead (tempDir, pi, ph, pf, W, H, XS, YS, DX[i], DY[i]);
 
             fillPixels2 (pi, ph, pf, W, H);
-            writeRead (pi, ph, pf, W, H, XS, YS, DX[i], DY[i]);
+            writeRead (tempDir, pi, ph, pf, W, H, XS, YS, DX[i], DY[i]);
 
             fillPixels3 (pi, ph, pf, W, H);
-            writeRead (pi, ph, pf, W, H, XS, YS, DX[i], DY[i]);
+            writeRead (tempDir, pi, ph, pf, W, H, XS, YS, DX[i], DY[i]);
 
             fillPixels4 (pi, ph, pf, W, H);
-            writeRead (pi, ph, pf, W, H, XS, YS, DX[i], DY[i]);
+            writeRead (tempDir, pi, ph, pf, W, H, XS, YS, DX[i], DY[i]);
         }
 
         cout << "ok\n" << endl;

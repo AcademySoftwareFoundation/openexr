@@ -349,7 +349,8 @@ MultiPartInputFile::initialize()
           
             _data->_headers[i].setType(tiled ? TILEDIMAGE : SCANLINEIMAGE);
         }
-        else{
+        else
+        {
             
             //
             // Silently fix the header type if it's wrong

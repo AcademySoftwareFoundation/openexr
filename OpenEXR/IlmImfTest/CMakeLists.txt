@@ -8,6 +8,7 @@ ADD_EXECUTABLE ( IlmImfTest
   main.cpp
   testAttributes.cpp
   testBackwardCompatibility.cpp
+  testBadTypeAttributes.cpp
   testChannels.cpp
   testCompositeDeepScanLine.cpp
   testCompression.cpp
@@ -19,8 +20,10 @@ ADD_EXECUTABLE ( IlmImfTest
   testCustomAttributes.cpp
   testDeepScanLineBasic.cpp
   testDeepScanLineHuge.cpp
+  testDeepScanLineMultipleRead.cpp
   testDeepTiledBasic.cpp
   testExistingStreams.cpp
+  testFutureProofing.cpp
   testHuf.cpp
   testInputPart.cpp
   testIsComplete.cpp
@@ -35,6 +38,9 @@ ADD_EXECUTABLE ( IlmImfTest
   testMultiTiledPartThreading.cpp
   testMultiView.cpp
   testNativeFormat.cpp
+  testOptimized.cpp
+  testOptimizedInterleavePatterns.cpp
+  testPartHelper.cpp
   testPreviewImage.cpp
   testRgba.cpp
   testRgbaThreading.cpp
@@ -52,6 +58,14 @@ ADD_EXECUTABLE ( IlmImfTest
   testYca.cpp
  )
 
-TARGET_LINK_LIBRARIES ( IlmImfTest IlmImf Iex Imath Half IlmThread ${Z_LIB} ${PTHREAD_LIB})
 
 ADD_TEST ( TestIlmImf IlmImfTest )
+TARGET_LINK_LIBRARIES ( IlmImfTest 
+        IlmImf  
+        Half 
+        Iex-2_1
+        Imath-2_1 
+        IlmThread-2_1 
+        ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
+        )
+

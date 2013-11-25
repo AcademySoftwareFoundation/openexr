@@ -243,14 +243,14 @@ static void boxSetMax(IMATH_NAMESPACE::Box<T> &box, const T &m)
 
 template <class T>
 static T
-boxMin(Imath::Box<T> &box)
+boxMin(IMATH_NAMESPACE::Box<T> &box)
 {
     return box.min;
 }
 
 template <class T>
 static T
-boxMax(Imath::Box<T> &box)
+boxMax(IMATH_NAMESPACE::Box<T> &box)
 {
     return box.max;
 }

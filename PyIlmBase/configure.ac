@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(PyIlmBase, 2.0.1)
-AC_SUBST(PYILMBASE_VERSION, 2.0.1)
+AC_INIT(PyIlmBase, 2.1.0)
+AC_SUBST(PYILMBASE_VERSION, 2.1.0)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(PyIex/iexmodule.cpp)
 AC_CONFIG_HEADER(config/PyIlmBaseConfig.h)
@@ -63,6 +63,9 @@ AM_COMPILELINKRUN(
    ]],
    AC_MSG_RESULT([Compiled and ran IlmBase test program.]), 
    AC_MSG_ERROR([Could not compile IlmBase test program.]))
+
+LDFLAGS="$LDFLAGS $ILMBASE_LDFLAGS"
+
 
 dnl Checks for python and boost python
 AM_PATH_PYTHON

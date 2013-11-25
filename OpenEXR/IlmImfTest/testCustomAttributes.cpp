@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
@@ -46,9 +45,9 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "tmpDir.h"
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
@@ -137,7 +136,7 @@ writeReadCustomAttr (const Array2D<float> &pf1,
 	hdr.insert ("custom2", GlorpAttribute (Glorp (4, 9)));
 
 	hdr.channels().insert ("F",			// name
-			       Channel (FLOAT,		// type
+			       Channel (IMF::FLOAT,	// type
 					1,		// xSampling
 					1)		// ySampling
 			      );
@@ -145,7 +144,7 @@ writeReadCustomAttr (const Array2D<float> &pf1,
 	FrameBuffer fb; 
 
 	fb.insert ("F",					// name
-		   Slice (FLOAT,			// type
+		   Slice (IMF::FLOAT,			// type
 			  (char *) &pf1[0][0],		// base
 			  sizeof (pf1[0][0]), 		// xStride
 			  sizeof (pf1[0][0]) * width,	// yStride
@@ -208,7 +207,7 @@ writeReadCustomAttr (const Array2D<float> &pf1,
 	FrameBuffer fb; 
 
 	fb.insert ("F",					// name
-		   Slice (FLOAT,			// type
+		   Slice (IMF::FLOAT,			// type
 			  (char *) &pf1[0][0],		// base
 			  sizeof (pf1[0][0]), 		// xStride
 			  sizeof (pf1[0][0]) * width,	// yStride
@@ -254,7 +253,7 @@ writeReadCustomAttr (const Array2D<float> &pf1,
 
 
 void
-testCustomAttributes ()
+testCustomAttributes (const std::string &tempDir)
 {
     try
     {
@@ -266,9 +265,9 @@ testCustomAttributes ()
 	Array2D<float> pf (H, W);
 	fillPixels (pf, W, H);
 
-	const char *filename = IMF_TMP_DIR "imf_test_custom_attr.exr";
+	std::string filename = tempDir + "imf_test_custom_attr.exr";
 
-	writeReadCustomAttr (pf, filename, W, H);
+	writeReadCustomAttr (pf, filename.c_str(), W, H);
 
 	cout << "ok\n" << endl;
     }

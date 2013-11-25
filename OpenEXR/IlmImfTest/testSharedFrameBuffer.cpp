@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -48,7 +48,6 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -287,7 +286,7 @@ writeReadRGBA (const char fileName[],
 
 
 void
-testSharedFrameBuffer ()
+testSharedFrameBuffer (const std::string &tempDir)
 {
     try
     {
@@ -315,22 +314,22 @@ testSharedFrameBuffer ()
 
             for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
             {
-                writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+                writeReadRGBA ((tempDir + "imf_test_rgba.exr").c_str(),
                                 W, H, p1,
                                 WRITE_RGBA,
                                 Compression (comp));
 
-                writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+                writeReadRGBA ((tempDir + "imf_test_rgba.exr").c_str(),
                                 W, H, p1,
                                 WRITE_RGB,
                                 Compression (comp));
 
-                writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+                writeReadRGBA ((tempDir + "imf_test_rgba.exr").c_str(),
                                 W, H, p1,
                                 WRITE_A,
                                 Compression (comp));
 
-                writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+                writeReadRGBA ((tempDir + "imf_test_rgba.exr").c_str(),
                                 W, H, p1,
                                 RgbaChannels (WRITE_R | WRITE_B),
                                 Compression (comp));

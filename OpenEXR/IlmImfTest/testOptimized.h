@@ -33,5 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-void testOptimized ();
+#include <string>
+
+void testOptimized (const std::string &tempDir);
 

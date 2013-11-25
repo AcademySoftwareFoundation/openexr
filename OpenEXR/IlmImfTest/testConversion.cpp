@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2003, Industrial Light & Magic, a division of Lucasfilm
+// Copyright (c) 2003-2012, Industrial Light & Magic, a division of Lucasfilm
 // Entertainment Company Ltd.  Portions contributed and copyright held by
 // others as indicated.  All rights reserved.
 //
@@ -37,7 +37,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 
-
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImfTiledOutputFile.h>
@@ -52,9 +51,8 @@
 #include <assert.h>
 
 
-#include "tmpDir.h"
-
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
@@ -322,15 +320,15 @@ testTiledImageChannel (const char fileName[],
 template <class OutType, PixelType OutTypeTag,
           class InType,  PixelType InTypeTag>
 void
-testImageChannel (const char fileName[],
+testImageChannel (const std::string &fileName,
 		  int width, int height,
 		  Compression compression)
 {
     testScanLineImageChannel <OutType, OutTypeTag, InType, InTypeTag>
-	(fileName, width, height, compression);
+	(fileName.c_str(), width, height, compression);
 
     testTiledImageChannel <OutType, OutTypeTag, InType, InTypeTag>
-	(fileName, width, height, compression);
+	(fileName.c_str(), width, height, compression);
 }
 
 
@@ -339,7 +337,7 @@ testImageChannel (const char fileName[],
 
 
 void
-testConversion ()
+testConversion (const std::string &tempDir)
 {
     try
     {
@@ -356,48 +354,48 @@ testConversion ()
 	    if (comp == B44_COMPRESSION || comp == B44A_COMPRESSION)
 		continue;
 
-	    testImageChannel <unsigned int, UINT, unsigned int, UINT>
-			     (IMF_TMP_DIR "imf_test_conv.exr",
+	    testImageChannel <unsigned int, IMF::UINT, unsigned int, IMF::UINT>
+			     (tempDir + "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <unsigned int, UINT, half, HALF>
-			     (IMF_TMP_DIR "imf_test_conv.exr",
+	    testImageChannel <unsigned int, IMF::UINT, half, IMF::HALF>
+			     (tempDir + "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <unsigned int, UINT, float, FLOAT>
-			     (IMF_TMP_DIR "imf_test_conv.exr",
+	    testImageChannel <unsigned int, IMF::UINT, float, IMF::FLOAT>
+			     (tempDir + "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <half, HALF, unsigned int, UINT>
-			     (IMF_TMP_DIR "imf_test_conv.exr",
+	    testImageChannel <half, IMF::HALF, unsigned int, IMF::UINT>
+			     (tempDir + "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <half, HALF, half, HALF>
-			     (IMF_TMP_DIR "imf_test_conv.exr",
+	    testImageChannel <half, IMF::HALF, half, IMF::HALF>
+			     (tempDir + "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <half, HALF, float, FLOAT>
-			     (IMF_TMP_DIR "imf_test_conv.exr",
+	    testImageChannel <half, IMF::HALF, float, IMF::FLOAT>
+			     (tempDir + "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <float, FLOAT, unsigned int, UINT>
-			     (IMF_TMP_DIR "imf_test_conv.exr",
+	    testImageChannel <float, IMF::FLOAT, unsigned int, IMF::UINT>
+			     (tempDir + "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <float, FLOAT, half, HALF>
-			     (IMF_TMP_DIR "imf_test_conv.exr",
+	    testImageChannel <float, IMF::FLOAT, half, IMF::HALF>
+			     (tempDir + "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 
-	    testImageChannel <float, FLOAT, float, FLOAT>
-			     (IMF_TMP_DIR "imf_test_conv.exr",
+	    testImageChannel <float, IMF::FLOAT, float, IMF::FLOAT>
+			     (tempDir + "imf_test_conv.exr",
 			      317, 539,
 			      Compression (comp));
 

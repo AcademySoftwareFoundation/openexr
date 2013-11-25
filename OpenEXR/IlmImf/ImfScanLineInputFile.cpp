@@ -54,14 +54,16 @@
 #include "IlmThreadSemaphore.h"
 #include "IlmThreadMutex.h"
 #include "Iex.h"
-#include <string>
-#include <vector>
-#include <assert.h>
 #include "ImfVersion.h"
 #include "ImfOptimizedPixelReading.h"
 #include "ImfNamespace.h"
 #include "ImfStandardAttributes.h"
 
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <assert.h>
+#include <cstring>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -74,6 +76,7 @@ using std::vector;
 using std::ifstream;
 using std::min;
 using std::max;
+using std::sort;
 using ILMTHREAD_NAMESPACE::Mutex;
 using ILMTHREAD_NAMESPACE::Lock;
 using ILMTHREAD_NAMESPACE::Semaphore;
@@ -177,6 +180,29 @@ LineBuffer::~LineBuffer ()
     delete compressor;
 }
 
+/// helper struct used to detect the order that the channels are stored
+
+struct sliceOptimizationData
+{
+    const char * base;   ///< pointer to pixel data 
+    bool fill;           ///< is this channel being filled with constant, instead of read?
+    half fillValue;      ///< if filling, the value to use
+    size_t offset;       ///< position this channel will be in the read buffer, accounting for previous channels, as well as their type
+    PixelType type;      ///< type of channel
+    size_t xStride;      ///< x-stride of channel in buffer (must be set to cause channels to interleave)
+    size_t yStride;      ///< y-stride of channel in buffer (must be same in all channels, else order will change, which is bad)
+    int xSampling;       ///< channel x sampling
+    int ySampling;       ///< channel y sampling
+            
+            
+    /// we need to keep the list sorted in the order they'll be written to memory
+    bool operator<(const sliceOptimizationData& other ) const
+    {
+        return base < other.base;
+    }
+};
+    
+
 } // namespace
 
 
@@ -209,13 +235,16 @@ struct ScanLineInputFile::Data: public Mutex
 
     bool                memoryMapped;       // if the stream is memory mapped
     OptimizationMode    optimizationMode;   // optimizibility of the input file
-
+    vector<sliceOptimizationData>  optimizationData; ///< channel ordering for optimized reading
+    
     Data (int numThreads);
     ~Data ();
     
     inline LineBuffer * getLineBuffer (int number); // hash function from line
     						    // buffer indices into our
 						    // vector of line buffers
+    
+    
 };
 
 
@@ -420,30 +449,6 @@ readPixelData (InputStreamMutex *streamData,
         ifd->nextLineBufferMinY = minY + ifd->linesInBuffer;
     else
         ifd->nextLineBufferMinY = minY - ifd->linesInBuffer;
-}
-
-OptimizationMode
-detectOptimizationMode (const FrameBuffer&frameBuffer,
-                        const ChannelList& channels,
-                        const std::vector<std::string> * views)
-{
-    OptimizationMode optimizationMode;
-    
-    optimizationMode._source = getOptimizationInfo(channels,views);
-    optimizationMode._destination = getOptimizationInfo(frameBuffer,views);
-    
-    // Special case where only channels RGB are specified in the framebuffer
-    // but the stride is 4 * sizeof(half), meaning we want to have RGBA but
-    // a dummy value for A
-    if (optimizationMode._destination._format  == OptimizationMode::PIXELFORMAT_RGB &&
-        optimizationMode._destination._xStride == 8)
-    {
-        optimizationMode._destination._format = OptimizationMode::PIXELFORMAT_RGBA;
-        optimizationMode._destination._alphaFillValueRight = 1.0f;
-        optimizationMode._destination._alphaFillValueLeft  = 1.0f;
-    }
-    
-    return optimizationMode;
 }
 
                         
@@ -679,7 +684,7 @@ class LineBufferTaskIIF : public Task
         void getWritePointer (int y,
                               unsigned short*& pOutWritePointerRight,
                               size_t& outPixelsToCopySSE,
-                              size_t& outPixelsToCopyNormal) const;
+                              size_t& outPixelsToCopyNormal,int bank=0) const;
                               
         template<typename TYPE>
         void getWritePointerStereo (int y,
@@ -695,6 +700,7 @@ class LineBufferTaskIIF : public Task
         int                         _scanLineMin;
         int                         _scanLineMax;
         OptimizationMode            _optimizationMode;
+  
 };
 
 LineBufferTaskIIF::LineBufferTaskIIF
@@ -703,7 +709,8 @@ LineBufferTaskIIF::LineBufferTaskIIF
      LineBuffer *lineBuffer,
      int scanLineMin,
      int scanLineMax,
-     OptimizationMode optimizationMode)
+     OptimizationMode optimizationMode
+    )
     :
      Task (group),
      _ifd (ifd),
@@ -735,59 +742,63 @@ LineBufferTaskIIF::~LineBufferTaskIIF ()
 }
  
 // Return 0 if we are to skip because of sampling
+// channelBank is 0 for the first group of channels, 1 for the second
 template<typename TYPE>
 void LineBufferTaskIIF::getWritePointer 
                             (int y,
                              unsigned short*& outWritePointerRight,
                              size_t& outPixelsToCopySSE,
-                             size_t& outPixelsToCopyNormal) const
+                             size_t& outPixelsToCopyNormal,
+                             int channelBank
+                            ) const
 {
       // Channels are saved alphabetically, so the order is B G R.
       // The last slice (R) will give us the location of our write pointer.
       // The only slice that we support skipping is alpha, i.e. the first one.  
       // This does not impact the write pointer or the pixels to copy at all.
-      size_t nbSlicesInFile = _ifd->slices.size();
-      size_t nbSlicesInFrameBuffer = 0;
       
-      if (_optimizationMode._destination._format ==
-          OptimizationMode::PIXELFORMAT_RGB)
-      {
-          nbSlicesInFrameBuffer = 3;
-      }
-      else if (_optimizationMode._destination._format ==
-          OptimizationMode::PIXELFORMAT_RGBA)
-      {
-          nbSlicesInFrameBuffer = 4;
-      }
+      size_t nbSlicesInBank = _ifd->optimizationData.size();
       
       int sizeOfSingleValue = sizeof(TYPE);
       
+      if(_ifd->optimizationData.size()>4)
+      {
+          // there are two banks - we only copy one at once
+          nbSlicesInBank/=2;
+      }
+
       
-      const InSliceInfo& redSlice = _ifd->slices[nbSlicesInFile - 1];
+      size_t firstChannel = 0;
+      if(channelBank==1)
+      {
+          firstChannel = _ifd->optimizationData.size()/2;
+      }
       
-      if (modp (y, redSlice.ySampling) != 0)
+       sliceOptimizationData& firstSlice = _ifd->optimizationData[firstChannel];
+      
+      if (modp (y, firstSlice.ySampling) != 0)
       {
           outPixelsToCopySSE    = 0;
           outPixelsToCopyNormal = 0;
           outWritePointerRight  = 0;
       }
       
-      char* linePtr1  = redSlice.base +
-      divp (y, redSlice.ySampling) *
-      redSlice.yStride;
+      const char* linePtr1  = firstSlice.base +
+      divp (y, firstSlice.ySampling) *
+      firstSlice.yStride;
       
-      int dMinX1 = divp (_ifd->minX, redSlice.xSampling);
-      int dMaxX1 = divp (_ifd->maxX, redSlice.xSampling);
+      int dMinX1 = divp (_ifd->minX, firstSlice.xSampling);
+      int dMaxX1 = divp (_ifd->maxX, firstSlice.xSampling);
       
       // Construct the writePtr so that we start writing at
       // linePtr + Min offset in the line.
       outWritePointerRight =  (unsigned short*)(linePtr1 +
-      dMinX1 * redSlice.xStride);
+      dMinX1 * firstSlice.xStride );
       
-      size_t bytesToCopy  = ((linePtr1 + dMaxX1 * redSlice.xStride) -
-      (linePtr1 + dMinX1 * redSlice.xStride)) + 2;
+      size_t bytesToCopy  = ((linePtr1 + dMaxX1 * firstSlice.xStride ) -
+      (linePtr1 + dMinX1 * firstSlice.xStride )) + 2;
       size_t shortsToCopy = bytesToCopy / sizeOfSingleValue;
-      size_t pixelsToCopy = (shortsToCopy / nbSlicesInFrameBuffer) + 1;
+      size_t pixelsToCopy = (shortsToCopy / nbSlicesInBank ) + 1;
       
       // We only support writing to SSE if we have no pixels to copy normally
       outPixelsToCopySSE    = pixelsToCopy / 8;
@@ -804,79 +815,14 @@ void LineBufferTaskIIF::getWritePointerStereo
                            size_t& outPixelsToCopySSE,
                            size_t& outPixelsToCopyNormal) const
 {
-     // We can either have 6 slices or 8, depending on whether we are
-     // working with mono or stereo
-     size_t nbSlices = _ifd->slices.size();
-     size_t nbSlicesInFrameBuffer = 0;
-     
-     if (_optimizationMode._destination._format ==
-         OptimizationMode::PIXELFORMAT_RGB)
-     {
-         nbSlicesInFrameBuffer = 6;
-     }
-     else if (_optimizationMode._destination._format ==
-         OptimizationMode::PIXELFORMAT_RGBA)
-     {
-         nbSlicesInFrameBuffer = 8;
-     }
-     
-     int sizeOfSingleValue = sizeof(TYPE);
-     
-     const InSliceInfo& redSliceRight = _ifd->slices[(nbSlices / 2) - 1];
-     
-     if (modp (y, redSliceRight.ySampling) != 0)
-     {
-         outPixelsToCopySSE    = 0;
-         outPixelsToCopyNormal = 0;
-         outWritePointerRight  = 0;
-         outWritePointerLeft   = 0;
-     }
-     
-     char * linePtr1  = redSliceRight.base +
-     divp (y, redSliceRight.ySampling) *
-     redSliceRight.yStride;
-     
-     int dMinX1 = divp (_ifd->minX, redSliceRight.xSampling);
-     int dMaxX1 = divp (_ifd->maxX, redSliceRight.xSampling);
-     
-     // Construct the writePtr so that we start writing at
-     // linePtr + Min offset in the line.
-     outWritePointerRight =  (unsigned short*)(linePtr1 +
-     dMinX1 * redSliceRight.xStride);
-     
-     const InSliceInfo& redSliceLeft = _ifd->slices[(nbSlices) - 1];
-     
-     if (modp (y, redSliceLeft.ySampling) != 0)
-     {
-         outPixelsToCopySSE    = 0;
-         outPixelsToCopyNormal = 0;
-         outWritePointerRight  = 0;
-         outWritePointerLeft   = 0;
-     }
-     
-     char* linePtr2  = redSliceLeft.base +
-     divp (y, redSliceLeft.ySampling) *
-     redSliceLeft.yStride;
-     
-     dMinX1 = divp (_ifd->minX, redSliceLeft.xSampling);
-     dMaxX1 = divp (_ifd->maxX, redSliceLeft.xSampling);
-     
-     // Construct the writePtr so that we start writing at
-     // linePtr + Min offset in the line.
-     outWritePointerLeft =  (unsigned short*)(linePtr2 +
-     dMinX1 * redSliceLeft.xStride);
-     
-     size_t bytesToCopy  = ((linePtr1 + dMaxX1 * redSliceRight.xStride) -
-     (linePtr1 + dMinX1 * redSliceRight.xStride)) + 2;
-     size_t shortsToCopy = bytesToCopy / sizeOfSingleValue;
-     
-     // Divide nb slices by 2 since we are in stereo and we will have
-     // the same number of pixels as a mono image but double the slices.
-     size_t pixelsToCopy = (shortsToCopy / (nbSlicesInFrameBuffer / 2)) + 1;
-     
-     // We only support writing to SSE if we have no pixels to copy normally
-     outPixelsToCopySSE    = pixelsToCopy / 8;
-     outPixelsToCopyNormal = pixelsToCopy % 8;
+   getWritePointer<TYPE>(y,outWritePointerRight,outPixelsToCopySSE,outPixelsToCopyNormal,0);
+   
+   
+   if(outWritePointerRight)
+   {
+       getWritePointer<TYPE>(y,outWritePointerLeft,outPixelsToCopySSE,outPixelsToCopyNormal,1);
+   }
+   
 }
 
 void
@@ -940,7 +886,7 @@ LineBufferTaskIIF::execute()
         
         for (int y = yStart; y != yStop; y += dy)
         {
-            if (modp (y, _optimizationMode._destination._ySampling) != 0)
+            if (modp (y, _optimizationMode._ySampling) != 0)
                 continue;
             
             //
@@ -954,6 +900,8 @@ LineBufferTaskIIF::execute()
             // _ifd->offsetInLineBuffer contains offsets based on which
             // line we are currently processing.
             // Stride will be taken into consideration later.
+                
+                
             const char* readPtr = _lineBuffer->uncompressedData +
             _ifd->offsetInLineBuffer[y - _ifd->minY];
             
@@ -963,25 +911,15 @@ LineBufferTaskIIF::execute()
             unsigned short* writePtrLeft = 0;
             unsigned short* writePtrRight = 0;
             
-            int nbReadChannels = _optimizationMode._source.getNbChannels();
-            
-            // read pointers are now (if fully populated)
-            // A (right)
-            // B (right)
-            // G (right)
-            // R (right)
-            // A (left)
-            // B (left)
-            // G (left)
-            // R (left)
-            
-            if (_optimizationMode._destination._multiview == OptimizationMode::MULTIVIEW_MONO)
-            {
-                getWritePointer<half>(y, writePtrRight, pixelsToCopySSE, pixelsToCopyNormal);
-            }
-            else if (_optimizationMode._destination._multiview == OptimizationMode::MULTIVIEW_STEREO)
+            size_t channels = _ifd->optimizationData.size();
+       
+            if(channels>4)
             {
                 getWritePointerStereo<half>(y, writePtrRight, writePtrLeft, pixelsToCopySSE, pixelsToCopyNormal);
+            }
+            else 
+            {
+                getWritePointer<half>(y, writePtrRight, pixelsToCopySSE, pixelsToCopyNormal);
             }
             
             if (writePtrRight == 0 && pixelsToCopySSE == 0 && pixelsToCopyNormal == 0)
@@ -989,58 +927,51 @@ LineBufferTaskIIF::execute()
                 continue;
             }
             
+            
+            //
+            // support reading up to eight channels
+            //
             unsigned short* readPointers[8];
             
-            for (int i = 0; i < nbReadChannels; ++i)
+            for (size_t i = 0; i < channels ; ++i)
             {
-                readPointers[i] = (unsigned short*)readPtr + (i * (pixelsToCopySSE * 8 + pixelsToCopyNormal));
+                readPointers[i] = (unsigned short*)readPtr + (_ifd->optimizationData[i].offset * (pixelsToCopySSE * 8 + pixelsToCopyNormal));
             }
             
-            if (_optimizationMode._destination._format == OptimizationMode::PIXELFORMAT_RGB)
+            //RGB only
+            if(channels==3 || channels == 6 )
             {
-                // RGB to RGB
-                if (_optimizationMode._source._format == OptimizationMode::PIXELFORMAT_RGB)
-                {
-                    optimizedWriteToRGB(readPointers[2], readPointers[1], readPointers[0], writePtrRight, pixelsToCopySSE, pixelsToCopyNormal);
-                    
-                    if (_optimizationMode._destination._multiview == OptimizationMode::MULTIVIEW_STEREO)
+                    optimizedWriteToRGB(readPointers[0], readPointers[1], readPointers[2], writePtrRight, pixelsToCopySSE, pixelsToCopyNormal);
+                  
+                    //stereo RGB
+                    if( channels == 6)
                     {
-                        optimizedWriteToRGB(readPointers[5], readPointers[4], readPointers[3], writePtrLeft, pixelsToCopySSE, pixelsToCopyNormal);
+                        optimizedWriteToRGB(readPointers[3], readPointers[4], readPointers[5], writePtrLeft, pixelsToCopySSE, pixelsToCopyNormal);
                     }                
-                }
-                // RGBA to RGB (skip A)
-                else if (_optimizationMode._source._format == OptimizationMode::PIXELFORMAT_RGBA)
+            //RGBA
+            }else if(channels==4 || channels==8)
+            {
+                
+                if(_ifd->optimizationData[3].fill)
                 {
-                    optimizedWriteToRGB(readPointers[3], readPointers[2], readPointers[1], writePtrRight, pixelsToCopySSE, pixelsToCopyNormal);
-                    
-                    if (_optimizationMode._destination._multiview == OptimizationMode::MULTIVIEW_STEREO)
+                    optimizedWriteToRGBAFillA(readPointers[0], readPointers[1], readPointers[2], _ifd->optimizationData[3].fillValue.bits() , writePtrRight, pixelsToCopySSE, pixelsToCopyNormal);
+                }else{
+                    optimizedWriteToRGBA(readPointers[0], readPointers[1], readPointers[2], readPointers[3] , writePtrRight, pixelsToCopySSE, pixelsToCopyNormal);
+                }
+                
+                //stereo RGBA
+                if( channels == 8)
+                {
+                    if(_ifd->optimizationData[7].fill)
                     {
-                        optimizedWriteToRGB(readPointers[7], readPointers[6], readPointers[5], writePtrLeft, pixelsToCopySSE, pixelsToCopyNormal);
-                    }   
+                        optimizedWriteToRGBAFillA(readPointers[4], readPointers[5], readPointers[6], _ifd->optimizationData[7].fillValue.bits() , writePtrLeft, pixelsToCopySSE, pixelsToCopyNormal);
+                    }else{
+                        optimizedWriteToRGBA(readPointers[4], readPointers[5], readPointers[6], readPointers[7] , writePtrLeft, pixelsToCopySSE, pixelsToCopyNormal);
+                    }
                 }
             }
-            else if (_optimizationMode._destination._format == OptimizationMode::PIXELFORMAT_RGBA)
-            {
-                // RGB to RGBA (fill A)
-                if (_optimizationMode._source._format == OptimizationMode::PIXELFORMAT_RGB)
-                {
-                    optimizedWriteToRGBAFillA(readPointers[2], readPointers[1], readPointers[0], half(_optimizationMode._destination._alphaFillValueRight).bits(), writePtrRight, pixelsToCopySSE, pixelsToCopyNormal);
-                    
-                    if (_optimizationMode._destination._multiview == OptimizationMode::MULTIVIEW_STEREO)
-                    {
-                        optimizedWriteToRGBAFillA(readPointers[5], readPointers[4], readPointers[3], half(_optimizationMode._destination._alphaFillValueLeft).bits(), writePtrLeft, pixelsToCopySSE, pixelsToCopyNormal);
-                    }                
-                }
-                // RGBA to RGBA 
-                else if (_optimizationMode._source._format == OptimizationMode::PIXELFORMAT_RGBA)
-                {
-                    optimizedWriteToRGBA(readPointers[3], readPointers[2], readPointers[1], readPointers[0], writePtrRight, pixelsToCopySSE, pixelsToCopyNormal);
-                    
-                    if (_optimizationMode._destination._multiview == OptimizationMode::MULTIVIEW_STEREO)
-                    {
-                        optimizedWriteToRGBA(readPointers[7], readPointers[6], readPointers[5], readPointers[4], writePtrLeft, pixelsToCopySSE, pixelsToCopyNormal);
-                    }  
-                }
+            else {
+                throw(IEX_NAMESPACE::LogicExc("IIF mode called with incorrect channel pattern"));
             }
             
             // If we are in NO_OPTIMIZATION mode, this class will never
@@ -1136,19 +1067,17 @@ newLineBufferTask (TaskGroup *group,
      
      Task* retTask = 0;
      
-     
-     if (optimizationMode._destination._format != OptimizationMode::PIXELFORMAT_OTHER &&
-         optimizationMode._source._format != OptimizationMode::PIXELFORMAT_OTHER)
+#ifdef IMF_HAVE_SSE2     
+     if (optimizationMode._optimizable)
      {
-#ifdef IMF_HAVE_SSE2
          
          retTask = new LineBufferTaskIIF (group, ifd, lineBuffer,
                                           scanLineMin, scanLineMax,
                                           optimizationMode);
-#endif
-      //if SSE2 not defined, both source and destination formats will be PIXELFORMAT_OTHER (
+      
      }
      else
+#endif         
      {
          retTask = new LineBufferTask (group, ifd, lineBuffer,
                                        scanLineMin, scanLineMax,
@@ -1318,6 +1247,91 @@ ScanLineInputFile::version () const
 }
 
 
+namespace
+{
+    
+    
+// returns the optimization state for the given arrangement of frame bufers
+// this assumes:
+//   both the file and framebuffer are half float data
+//   both the file and framebuffer have xSampling and ySampling=1
+//   entries in optData are sorted into their interleave order (i.e. by base address)
+//   These tests are done by SetFrameBuffer as it is building optData
+//  
+OptimizationMode
+detectOptimizationMode (const vector<sliceOptimizationData>& optData)
+{
+    OptimizationMode w;
+    
+    // need to be compiled with SSE optimisations: if not, just returns false
+#if IMF_HAVE_SSE2
+    
+    
+    // only handle reading 3,4,6 or 8 channels
+    switch(optData.size())
+    {
+        case 3 : break;
+        case 4 : break;
+        case 6 : break;
+        case 8 : break;
+        default :
+            return w;
+    }
+    
+    //
+    // the point at which data switches between the primary and secondary bank
+    //
+    size_t bankSize = optData.size()>4 ? optData.size()/2 : optData.size();
+    
+    for(size_t i=0;i<optData.size();i++)
+    {
+        const sliceOptimizationData& data = optData[i];
+        // can't fill anything other than channel 3 or channel 7
+        if(data.fill)
+        {
+            if(i!=3 && i!=7)
+            {
+                return w;
+            }
+        }
+        
+        // cannot have gaps in the channel layout, so the stride must be (number of channels written in the bank)*2
+        if(data.xStride !=bankSize*2)
+        {
+            return w;
+        }
+        
+        // each bank of channels must be channel interleaved: each channel base pointer must be (previous channel+2)
+        // this also means channel sampling pattern must be consistent, as must yStride
+        if(i!=0 && i!=bankSize)
+        {
+            if(data.base!=optData[i-1].base+2)
+            {
+                return w;
+            }
+        }
+        if(i!=0)
+        {
+            
+            if(data.yStride!=optData[i-1].yStride)
+            {
+                return w;
+            }
+        }
+    }
+    
+
+    w._ySampling=optData[0].ySampling;
+    w._optimizable=true;
+    
+#endif
+
+    return w;
+}
+
+
+} // Anonymous namespace
+
 void	
 ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
@@ -1344,29 +1358,17 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 				"subsampling factors.");
     }
 
-    //
-    // Check if the new frame buffer descriptor is
-    // compatible with the image file header.
-    //
-    
+    // optimization is possible if this is a little endian system
+    // and both inputs and outputs are half floats
+    // 
+    bool optimizationPossible = true;
     
     if (!GLOBAL_SYSTEM_LITTLE_ENDIAN)
     {
-        _data->optimizationMode._destination._format = OptimizationMode::PIXELFORMAT_OTHER;
-        _data->optimizationMode._source._format      = OptimizationMode::PIXELFORMAT_OTHER;
-    }
-    else
-    {
-        StringVector * v=NULL;
-        if(hasMultiView(_data->header))
-        {
-            v = &multiView(_data->header);
-        }
-        _data->optimizationMode = detectOptimizationMode(frameBuffer, channels,v);
+        optimizationPossible =false;
     }
     
-    // Uncomment the  line below to disable optimization code path
-    _data->optimizationMode._destination._format = Imf::OptimizationMode::PIXELFORMAT_OTHER;
+    vector<sliceOptimizationData> optData;
     
 
     //
@@ -1375,7 +1377,11 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 
     vector<InSliceInfo> slices;
     ChannelList::ConstIterator i = channels.begin();
-
+    
+    // current offset of channel: pixel data starts at offset*width into the
+    // decompressed scanline buffer
+    size_t offset = 0;
+    
     for (FrameBuffer::ConstIterator j = frameBuffer.begin();
 	 j != frameBuffer.end();
 	 ++j)
@@ -1398,7 +1404,20 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 					   false,  // fill
 					   true, // skip
 					   0.0)); // fillValue
-	    ++i;
+	    
+              switch(i.channel().type)
+              {
+                  case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF :
+                      offset++;
+                      break;
+                  case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT :
+                      offset+=2;
+                      break;
+                  case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT :
+                      offset+=2;
+                      break;
+              }
+              ++i;
 	}
 
 	bool fill = false;
@@ -1425,16 +1444,81 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 				       false, // skip
 				       j.slice().fillValue));
 
+          if(!fill && i.channel().type!=OPENEXR_IMF_INTERNAL_NAMESPACE::HALF)
+          {
+              optimizationPossible = false;
+          }
+          
+          if(j.slice().type != OPENEXR_IMF_INTERNAL_NAMESPACE::HALF)
+          {
+              optimizationPossible = false;
+          }
+          if(j.slice().xSampling!=1 || j.slice().ySampling!=1)
+          {
+              optimizationPossible = false;
+          }
+
+          
+          if(optimizationPossible)
+          {
+              sliceOptimizationData dat;
+              dat.base = j.slice().base;
+              dat.fill = fill;
+              dat.fillValue = j.slice().fillValue;
+              dat.offset = offset;
+              dat.xStride = j.slice().xStride;
+              dat.yStride = j.slice().yStride;
+              dat.xSampling = j.slice().xSampling;
+              dat.ySampling = j.slice().ySampling;
+              optData.push_back(dat);
+          }
+          
+          if(!fill)
+          {
+              switch(i.channel().type)
+              {
+                  case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF :
+                      offset++;
+                      break;
+                  case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT :
+                      offset+=2;
+                      break;
+                  case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT :
+                      offset+=2;
+                      break;
+              }
+          }
+          
+
+          
 	if (i != channels.end() && !fill)
 	    ++i;
     }
 
+   
+   if(optimizationPossible)
+   {
+       //
+       // check optimisibility
+       // based on channel ordering and fill channel positions
+       //
+       sort(optData.begin(),optData.end());
+       _data->optimizationMode = detectOptimizationMode(optData);
+   }
+   
+   if(!optimizationPossible || _data->optimizationMode._optimizable==false)
+   {   
+       optData = vector<sliceOptimizationData>();
+       _data->optimizationMode._optimizable=false;
+   }
+    
     //
     // Store the new frame buffer.
     //
 
     _data->frameBuffer = frameBuffer;
     _data->slices = slices;
+    _data->optimizationData = optData;
 }
 
 
@@ -1458,8 +1542,7 @@ bool ScanLineInputFile::isOptimizationEnabled() const
         throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
         "as pixel data destination.");
     
-    return _data->optimizationMode._source._format!=OptimizationMode::PIXELFORMAT_OTHER && 
-           _data->optimizationMode._destination._format!=OptimizationMode::PIXELFORMAT_OTHER;
+    return _data->optimizationMode._optimizable;
 }
 
 

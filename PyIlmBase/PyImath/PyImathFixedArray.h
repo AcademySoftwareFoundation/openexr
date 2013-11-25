@@ -83,11 +83,13 @@ class FixedArray
     FixedArray(T *ptr, Py_ssize_t length, Py_ssize_t stride = 1)
         : _ptr(ptr), _length(length), _stride(stride), _handle(), _unmaskedLength(0)
     {
-        if (length < 0) {
-            throw Iex::LogicExc("Fixed array length must be non-negative");
+        if (length < 0)
+        {
+            throw IEX_NAMESPACE::LogicExc("Fixed array length must be non-negative");
         }
-        if (stride <= 0) {
-            throw Iex::LogicExc("Fixed array stride must be positive");
+        if (stride <= 0)
+        {
+            throw IEX_NAMESPACE::LogicExc("Fixed array stride must be positive");
         }
         // nothing
     }
@@ -95,11 +97,13 @@ class FixedArray
     FixedArray(T *ptr, Py_ssize_t length, Py_ssize_t stride, boost::any handle) 
         : _ptr(ptr), _length(length), _stride(stride), _handle(handle), _unmaskedLength(0)
     {
-        if (_length < 0) {
+        if (_length < 0)
+        {
             throw IEX_NAMESPACE::LogicExc("Fixed array length must be non-negative");
         }
-        if (stride <= 0) {
-            throw Iex::LogicExc("Fixed array stride must be positive");
+        if (stride <= 0)
+        {
+            throw IEX_NAMESPACE::LogicExc("Fixed array stride must be positive");
         }
         // nothing
     }
@@ -416,7 +420,7 @@ class FixedArray
         return _ptr[i*_stride];
     }
 
-    bool isMaskedReference() const {return _indices;}
+    bool isMaskedReference() const {return _indices.get() != 0;}
     size_t unmaskedLength() const {return _unmaskedLength;}
 
     // Conversion of indices to raw pointer indices.

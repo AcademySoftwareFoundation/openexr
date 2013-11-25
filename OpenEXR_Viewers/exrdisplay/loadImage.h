@@ -44,6 +44,7 @@
 //	Load an OpenEXR image into a pixel array.
 //
 //----------------------------------------------------------------------------
+#include "namespaceAlias.h"
 
 #include <ImfRgba.h>
 #include <ImfArray.h>
@@ -89,9 +90,10 @@ void loadImage (const char fileName[],
                 int ly,
                 int partnum,
                 int &zsize,
-                OPENEXR_IMF_NAMESPACE::Header &header,
-                OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &pixels,
-                OPENEXR_IMF_NAMESPACE::Array<float*> &zbuffer,
-                OPENEXR_IMF_NAMESPACE::Array<unsigned int> &sampleCount);
+                IMF::Header &header,
+                IMF::Array<IMF::Rgba> &pixels,
+                IMF::Array<float*> &zbuffer,
+                IMF::Array<unsigned int> &sampleCount,
+                bool deepComp);
 
 #endif

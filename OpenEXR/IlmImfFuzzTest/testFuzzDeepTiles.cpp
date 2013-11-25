@@ -54,14 +54,15 @@
 
 
 // Handle the case when the custom namespace is not exposed
-#include <OpenEXRConfig.h>
+#include <ImfNamespace.h>
 #include <ImfChannelList.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfMultiPartOutputFile.h>
 #include <ImfDeepTiledOutputPart.h>
 #include <ImfDeepTiledInputPart.h>
 
-using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
@@ -98,7 +99,7 @@ void generateRandomFile(const char filename[], int channelCount, int parts , Com
         ostringstream ss;
         ss << i;
         string str = ss.str();
-        headers[0].channels().insert(str, Channel(OPENEXR_IMF_NAMESPACE::FLOAT));
+        headers[0].channels().insert(str, Channel(IMF::FLOAT));
     }
        
     headers[0].setType(DEEPTILE);
@@ -146,7 +147,7 @@ void generateRandomFile(const char filename[], int channelCount, int parts , Com
     
     int memOffset = dataWindow.min.x + dataWindow.min.y * width;
                                                 
-    frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
+    frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,
                                                (char *) (&sampleCount[0][0] - memOffset),
                                                sizeof (unsigned int) * 1,
                                                sizeof (unsigned int) * width) );
@@ -161,7 +162,7 @@ void generateRandomFile(const char filename[], int channelCount, int parts , Com
         int pointerSize = sizeof (char *);
         
         frameBuffer.insert (str,
-                            DeepSlice (FLOAT,
+                            DeepSlice (IMF::FLOAT,
                                        (char *) (&data[i][0][0] - memOffset),
                                        pointerSize * 1,
                                        pointerSize * width,
@@ -261,7 +262,7 @@ void readFile(const char filename[])
         DeepFrameBuffer frameBuffer;
         
         int memOffset = dataWindow.min.x + dataWindow.min.y * width;
-        frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
+        frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,
                                                    (char *) (&localSampleCount[0][0] - memOffset),
                                                    sizeof (unsigned int) * 1,
                                                    sizeof (unsigned int) * width)
@@ -278,7 +279,7 @@ void readFile(const char filename[])
              int pointerSize = sizeof (char *);
              
              frameBuffer.insert (str,
-                                 DeepSlice (FLOAT,
+                                 DeepSlice (IMF::FLOAT,
                                             (char *) (&data[i][0][0] - memOffset),
                                             pointerSize * 1,
                                             pointerSize * width,
@@ -374,7 +375,7 @@ void readFile(const char filename[])
             DeepFrameBuffer frameBuffer;
         
             int memOffset = dataWindow.min.x + dataWindow.min.y * width;
-            frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
+            frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,
                                                        (char *) (&localSampleCount[0][0] - memOffset),
                                                        sizeof (unsigned int) * 1,
                                                        sizeof (unsigned int) * width)
@@ -391,7 +392,7 @@ void readFile(const char filename[])
                 int pointerSize = sizeof (char *);
                 
                 frameBuffer.insert (str,
-                                    DeepSlice (FLOAT,
+                                    DeepSlice (IMF::FLOAT,
                                                (char *) (&data[i][0][0] - memOffset),
                                                pointerSize * 1,
                                                pointerSize * width,

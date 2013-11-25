@@ -32,7 +32,11 @@ SET_SOURCE_FILES_PROPERTIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/toFloat.h
   )
 
-ADD_LIBRARY ( Half STATIC
+IF(BUILD_SHARED_LIBS)
+    ADD_DEFINITIONS(-DHALF_EXPORTS)
+ENDIF()
+
+ADD_LIBRARY ( Half ${LIB_TYPE}
   half.cpp
   )
 
@@ -48,6 +52,7 @@ INSTALL ( TARGETS
 INSTALL ( FILES 
   half.h
   halfFunction.h
+  halfExport.h
   halfLimits.h
   DESTINATION
   include/OpenEXR

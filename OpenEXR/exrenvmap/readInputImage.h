@@ -55,11 +55,11 @@ void
 readInputImage (const char inFileName[],
                 float padTop,
                 float padBottom,
-                CustomImf::Envmap overrideType,
+                IMF::Envmap overrideType,
                 bool verbose,
                 EnvmapImage &image,
-                CustomImf::Header &header,
-                CustomImf::RgbaChannels &channels);
+                IMF::Header &header,
+                IMF::RgbaChannels &channels);
 
 
 #endif

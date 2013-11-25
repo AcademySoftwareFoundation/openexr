@@ -29,7 +29,7 @@ __global__ void multiply_them_int(int *dest, int *a, int *b)
 
 import numpy
 import imathnumpy
-from boostutil import FloatArray, IntArray
+from imath import FloatArray, IntArray
 import particle
 
 length = 10

@@ -275,7 +275,8 @@ match_lengths(const std::pair<size_t,bool> &len1, const std::pair<size_t,bool> &
     if (len2.second == false) return len1;
 
     // now both arguments are vectorized, check for dimension match
-    if (len1.first != len2.first) throw Iex::ArgExc("Array dimensions passed into function do not match");
+    if (len1.first != len2.first)
+        throw IEX_NAMESPACE::ArgExc("Array dimensions passed into function do not match");
 
     return len1;
 }

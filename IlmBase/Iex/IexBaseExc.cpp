@@ -48,6 +48,8 @@
 #include <windows.h>
 #endif
 
+#include <stdlib.h>
+
 IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
@@ -141,12 +143,14 @@ void
 iex_debugTrap()
 {
     if (0 != getenv("IEXDEBUGTHROW"))
-        DebugBreak();
+        ::DebugBreak();
 }
 #else
 void
 iex_debugTrap()
 {
     // how to in Linux?
+    if (0 != ::getenv("IEXDEBUGTHROW"))
+        __builtin_trap();
 }
 #endif

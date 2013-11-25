@@ -43,7 +43,6 @@
 #include "GlWindow3d.h"
 #include <FL/fl_draw.H>
 
-#include <OpenEXRConfig.h>
 #include <algorithm>
 using std::max;
 using std::min;
@@ -54,7 +53,7 @@ using std::cerr;
 GlWindow::GlWindow (int x,int y,
                     int w,int h,
                     const char *l,
-                    const OPENEXR_IMF_NAMESPACE::Rgba pixels[],
+                    const IMF::Rgba pixels[],
                     float* dataZ[],
                     unsigned int sampleCount[],
                     int dx, int dy,

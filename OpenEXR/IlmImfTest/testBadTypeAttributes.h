@@ -33,6 +33,9 @@
 
 #ifndef TEST_BAD_TYPE_ATTRIBUTES
 #define TEST_BAD_TYPE_ATTRIBUTES
-void testBadTypeAttributes();
+
+#include <string>
+
+void testBadTypeAttributes (const std::string & tempDir);
 
 #endif

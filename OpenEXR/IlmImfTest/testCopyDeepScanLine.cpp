@@ -53,7 +53,8 @@
 
 #include "tmpDir.h"
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
@@ -74,7 +75,9 @@ vector<int> channelTypes;
 Array2D<unsigned int> sampleCount;
 Header header;
 
-void generateRandomFile(int channelCount, Compression compression)
+void generateRandomFile (const std::string & source_filename,
+                         int channelCount,
+                         Compression compression)
 {
     cout << "generating " << flush;
     header = Header(displayWindow, dataWindow,
@@ -99,11 +102,11 @@ void generateRandomFile(int channelCount, Compression compression)
         ss << i;
         string str = ss.str();
         if (type == 0)
-            header.channels().insert(str, Channel(UINT));
+            header.channels().insert(str, Channel(IMF::UINT));
         if (type == 1)
-            header.channels().insert(str, Channel(HALF));
+            header.channels().insert(str, Channel(IMF::HALF));
         if (type == 2)
-            header.channels().insert(str, Channel(FLOAT));
+            header.channels().insert(str, Channel(IMF::FLOAT));
         channelTypes.push_back(type);
     }
 
@@ -115,12 +118,12 @@ void generateRandomFile(int channelCount, Compression compression)
 
     sampleCount.resizeErase(height, width);
 
-    remove (source_filename);
-    DeepScanLineOutputFile file(source_filename, header, 8);
+    remove (source_filename.c_str());
+    DeepScanLineOutputFile file(source_filename.c_str(), header, 8);
 
     DeepFrameBuffer frameBuffer;
 
-    frameBuffer.insertSampleCountSlice (Slice (UINT,                    // type // 7
+    frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,                    // type // 7
                                         (char *) (&sampleCount[0][0]
                                                   - dataWindow.min.x
                                                   - dataWindow.min.y * width),               // base // 8
@@ -131,11 +134,11 @@ void generateRandomFile(int channelCount, Compression compression)
     {
         PixelType type;
         if (channelTypes[i] == 0)
-            type = UINT;
+            type = IMF::UINT;
         if (channelTypes[i] == 1)
-            type = HALF;
+            type = IMF::HALF;
         if (channelTypes[i] == 2)
-            type = FLOAT;
+            type = IMF::FLOAT;
 
         stringstream ss;
         ss << i;
@@ -207,14 +210,17 @@ void generateRandomFile(int channelCount, Compression compression)
             }
 }
 
-void copyFile()
+void copyFile (const std::string & source_filename,
+               const std::string & copy_filename)
 {
     cout << "copying " ;
     cout.flush();
     {
-       DeepScanLineInputFile in_file(source_filename,8);
-       remove (copy_filename);
-       DeepScanLineOutputFile out_file(copy_filename,in_file.header(),8);
+       DeepScanLineInputFile in_file(source_filename.c_str(), 8);
+       remove (copy_filename.c_str());
+       DeepScanLineOutputFile out_file (copy_filename.c_str(),
+                                        in_file.header(),
+                                        8);
        out_file.copyPixels(in_file);
     }
     // remove the source file here to prevent accidentally reading it
@@ -222,11 +228,11 @@ void copyFile()
     
 }
 
-void readFile(int channelCount)
+void readFile (const std::string & copy_filename, int channelCount)
 {
     cout << "reading " ;
     cout.flush();
-    DeepScanLineInputFile file(copy_filename, 8);
+    DeepScanLineInputFile file(copy_filename.c_str(), 8);
 
     const Header& fileHeader = file.header();
     assert (fileHeader.displayWindow() == header.displayWindow());
@@ -247,7 +253,7 @@ void readFile(int channelCount)
 
     DeepFrameBuffer frameBuffer;
 
-    frameBuffer.insertSampleCountSlice (Slice (UINT,                    // type // 7
+    frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,                    // type // 7
                                         (char *) (&localSampleCount[0][0]
                                                   - dataWindow.min.x
                                                   - dataWindow.min.y * width),               // base // 8)
@@ -261,11 +267,11 @@ void readFile(int channelCount)
     {
             PixelType type;
             if (channelTypes[i] == 0)
-                type = UINT;
+                type = IMF::UINT;
             if (channelTypes[i] == 1)
-                type = HALF;
+                type = IMF::HALF;
             if (channelTypes[i] == 2)
-                type = FLOAT;
+                type = IMF::FLOAT;
 
             stringstream ss;
             ss << i;
@@ -279,10 +285,10 @@ void readFile(int channelCount)
             int pointerSize = sizeof (char *);
 
             frameBuffer.insert (str,                            // name // 6
-                                DeepSlice (type,                    // type // 7
+                                DeepSlice (type,                // type // 7
                                 (char *) (&data[i][0][0]
                                           - dataWindow.min.x
-                                          - dataWindow.min.y * width),               // base // 8)
+                                          - dataWindow.min.y * width),  // base // 8)
                                 pointerSize * 1,          // xStride// 9
                                 pointerSize * width,      // yStride// 10
                                 sampleSize));             // sampleStride
@@ -367,10 +373,16 @@ void readFile(int channelCount)
             }
 }
 
-void readCopyWriteTest(int channelCount, int testTimes)
+void readCopyWriteTest (const std::string & tempDir,
+                        int channelCount,
+                        int testTimes)
 {
     cout << "Testing files with " << channelCount << " channels " << testTimes << " times."
          << endl << flush;
+
+    std::string source_filename = tempDir + "imf_test_copy_deep_scanline_source.exr";
+    std::string copy_filename   = tempDir + "imf_test_copy_deep_scanline_copy.exr";
+
     for (int i = 0; i < testTimes; i++)
     {
         int compressionIndex = i % 3;
@@ -388,11 +400,11 @@ void readCopyWriteTest(int channelCount, int testTimes)
                 break;
         }
 
-        generateRandomFile(channelCount, compression);
-        copyFile();
-        readFile( channelCount );
-        remove (source_filename);
-        remove (copy_filename);
+        generateRandomFile (source_filename, channelCount, compression);
+        copyFile (source_filename, copy_filename);
+        readFile (copy_filename, channelCount );
+        remove (source_filename.c_str());
+        remove (copy_filename.c_str());
         cout << endl << flush;
 
     }
@@ -401,7 +413,7 @@ void readCopyWriteTest(int channelCount, int testTimes)
 
 }; // namespace
 
-void testCopyDeepScanLine()
+void testCopyDeepScanLine (const std::string &tempDir)
 {
     try
     {
@@ -413,9 +425,9 @@ void testCopyDeepScanLine()
         ThreadPool::globalThreadPool().setNumThreads(4);
 
         
-        readCopyWriteTest(1, 100);
-	readCopyWriteTest(3, 50);        
-        readCopyWriteTest(10, 10);
+        readCopyWriteTest (tempDir,  1, 100);
+        readCopyWriteTest (tempDir,  3,  50);
+        readCopyWriteTest (tempDir, 10,  10);
 
         ThreadPool::globalThreadPool().setNumThreads(numThreads);
 

@@ -57,14 +57,12 @@
 #include <ImfCompositeDeepScanLine.h>
 #include <ImfThreading.h>
 #include <IlmThread.h>
+#include <ImfNamespace.h>
 
-#include "tmpDir.h"
+namespace
+{
 
-namespace{
 
-const char source_filename[] = IMF_TMP_DIR "imf_test_composite_deep_scanline_source.exr";
-    
-    
 using std::vector;
 using std::string;
 using std::ostream;
@@ -106,17 +104,19 @@ struct result{};
 // support class that generates deep data, along with the 'ground truth' 
 // result 
 //
-template<class T> class data{
+template<class T>
+class data
+{
     public:
     vector<string> _channels;               // channel names - same size and order as in all other arrays,
-    vector<T> _current_result;          // one value per channel: the ground truth value for the given pixel   
-    vector<vector <T> >_results;        // a list of result pixels
+    vector<T> _current_result;              // one value per channel: the ground truth value for the given pixel
+    vector<vector <T> >_results;            // a list of result pixels
     
     
     bool _inserting_result;
     bool _started;                          // we've started to assemble the values - no more channels permitted
     vector<T> _current_sample;              // one value per channel for the sample currently being inserted
-    vector< vector <T> > _current_pixel;  // a list of results for the current pixwel
+    vector< vector <T> > _current_pixel;    // a list of results for the current pixwel
     vector< vector< vector<T> > > _samples; // a list of pixels
     PixelType _type;
     
@@ -124,15 +124,15 @@ template<class T> class data{
     {  
         if(typeid(T)==typeid(half))
         {
-            _type=HALF;
-        }else{
-            _type=FLOAT;
+            _type = OPENEXR_IMF_NAMESPACE::HALF;
+        }
+        else
+        {
+            _type = OPENEXR_IMF_NAMESPACE::FLOAT;
         }
     }
-    
-    
-    
-    
+
+
     // add a value to the current sample
     data & operator << (float value)
     {
@@ -408,7 +408,8 @@ template<class T> class data{
     
 };
 
-template<class T> ostream & operator << (ostream & o,data<T> & d)
+template<class T>
+ostream & operator << (ostream & o,data<T> & d)
 {
     o << "channels: [ ";
     for(size_t i=0;i<d._channels.size();i++)
@@ -441,10 +442,12 @@ template<class T> ostream & operator << (ostream & o,data<T> & d)
     return o;
 }
 
-template<class DATA> void make_pattern(data<DATA> & bob,int pattern_number)
+template<class DATA>
+void
+make_pattern(data<DATA> & bob,int pattern_number)
 {
     
-    if(pattern_number==0)
+    if (pattern_number==0)
     {
         // set channels
         
@@ -464,7 +467,8 @@ template<class DATA> void make_pattern(data<DATA> & bob,int pattern_number)
         
         bob << result();
         bob << 0.0 << 0.0 << 0.0 << 0.0 << end();
-    }else if(pattern_number==1)
+    }
+    else if (pattern_number==1)
     {
         //
         // out of order channels, no zback - should-re-order them for us
@@ -506,7 +510,9 @@ template<class DATA> void make_pattern(data<DATA> & bob,int pattern_number)
     }
 }
 
-template<class T> void write_file(const char * filename,const data<T> & master,int number_of_parts)
+template<class T>
+void
+write_file(const char * filename, const data<T> & master, int number_of_parts)
 {
     vector<Header> headers(number_of_parts);
     
@@ -562,19 +568,26 @@ template<class T> void write_file(const char * filename,const data<T> & master,i
     }
 }
 
-template<class T> void  test_parts(int pattern_number,int number_of_parts,bool load_depths,bool entire_buffer)
+template<class T>
+void
+test_parts (int pattern_number,
+            int number_of_parts,
+            bool load_depths,
+            bool entire_buffer,
+            const std::string &tempDir)
 {
+     std::string fn = tempDir + "imf_test_composite_deep_scanline_source.exr";
+
      data<T> master;
-     make_pattern(master,pattern_number);
-  
-     write_file(source_filename,master,number_of_parts);
+     make_pattern (master, pattern_number);
+     write_file (fn.c_str(), master,number_of_parts);
      
 
      {
         vector<T> data;         
         CompositeDeepScanLine comp;
         FrameBuffer testbuf;
-        MultiPartInputFile input(source_filename);
+        MultiPartInputFile input(fn.c_str());
         vector<DeepScanLineInputPart *> parts(number_of_parts);
      
      
@@ -618,7 +631,7 @@ template<class T> void  test_parts(int pattern_number,int number_of_parts,bool l
      if(number_of_parts==1)
      {
          // also test InputFile interface
-         InputFile file(source_filename);
+         InputFile file(fn.c_str());
          vector<T> data;
          FrameBuffer testbuf;
          const Box2i & dataWindow = file.header().dataWindow();
@@ -639,15 +652,15 @@ template<class T> void  test_parts(int pattern_number,int number_of_parts,bool l
              }
          }
          
-         master.checkValues(data,dataWindow,load_depths);
+         master.checkValues (data, dataWindow, load_depths);
          
      }
-     remove(source_filename);
+     remove (fn.c_str());
 }
 
 }
 
-void testCompositeDeepScanLine()
+void testCompositeDeepScanLine (const std::string & tempDir)
 {
     
     cout << "\n\nTesting deep compositing interface basic functionality:\n" << endl;
@@ -659,43 +672,42 @@ void testCompositeDeepScanLine()
     }
   
 
-        srand(1);
+    srand(1);
     
     for(int pass=0;pass<2;pass++)
     {
-    
-        test_parts<float>(0,1,true,true);
-        test_parts<float>(0,1,false,false);
-        test_parts<half>(0,1,true,false);
-        test_parts<half>(0,1,false,true);
-    
+
+        test_parts<float>(0, 1, true,  true,  tempDir);
+        test_parts<float>(0, 1, false, false, tempDir);
+        test_parts<half> (0, 1, true,  false, tempDir);
+        test_parts<half> (0, 1, false, true,  tempDir);
+
         //
-        // test pattern 1: tested by confirming data is written correctly and 
+        // test pattern 1: tested by confirming data is written correctly and
         // then reading correct results in Nuke
         //
-        test_parts<float>(1,1,true,false);
-        test_parts<float>(1,1,false,true);
-        test_parts<half>(1,1,true,true);
-        test_parts<half>(1,1,false,false);
-        
-    
+        test_parts<float>(1, 1, true,  false, tempDir);
+        test_parts<float>(1, 1, false, true,  tempDir);
+        test_parts<half> (1, 1, true,  true,  tempDir);
+        test_parts<half> (1, 1, false, false, tempDir);
+
+
         cout << "Testing deep compositing across multiple parts:\n" << endl;
-    
-        test_parts<float>(0,5,true,false);
-        test_parts<float>(0,5,false,true);
-        test_parts<half>(0,5,true,false);
-        test_parts<half>(0,5,false,true);
-        
-        test_parts<float>(1,3,true,true);
-        test_parts<float>(1,3,false,false);
-        test_parts<half>(1,3,true,true);
-        test_parts<half>(1,3,false,false);
-        
-        test_parts<float>(1,4,true,true);
-        test_parts<float>(1,4,false,false);
-        test_parts<half>(1,4,true,false);
-        test_parts<half>(1,4,false,true);
-        
+
+        test_parts<float>(0, 5, true,  false, tempDir);
+        test_parts<float>(0, 5, false, true,  tempDir);
+        test_parts<half> (0, 5, true,  false, tempDir);
+        test_parts<half> (0, 5, false, true,  tempDir);
+
+        test_parts<float>(1, 3, true,  true,  tempDir);
+        test_parts<float>(1, 3, false, false, tempDir);
+        test_parts<half> (1, 3, true,  true,  tempDir);
+        test_parts<half> (1, 3, false, false, tempDir);
+
+        test_parts<float>(1, 4, true,  true,  tempDir);
+        test_parts<float>(1, 4, false, false, tempDir);
+        test_parts<half> (1, 4, true,  false, tempDir);
+        test_parts<half> (1, 4, false, true,  tempDir);
 
         if(passes==2 && pass==0)
         {
@@ -704,5 +716,4 @@ void testCompositeDeepScanLine()
         }
     }
     cout << " ok\n" << endl;
-    
 }

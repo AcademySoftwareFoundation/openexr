@@ -52,7 +52,7 @@
 
 namespace PyImath {
 using namespace boost::python;
-using namespace Imath;
+using namespace IMATH_NAMESPACE;
 
 // XXX fixme - template this
 // really this should get generated automatically...

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #include <ImfTiledOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImfTiledInputFile.h>
@@ -45,7 +44,6 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -474,22 +472,22 @@ writeCopyReadRIP (const char fileName1[],
 
 
 void
-writeCopyRead (int w, int h, int xs, int ys, int dx, int dy)
+writeCopyRead (const std::string &tempDir, int w, int h, int xs, int ys, int dx, int dy)
 {
-    const char *filename1 = IMF_TMP_DIR "imf_test_copy1.exr";
-    const char *filename2 = IMF_TMP_DIR "imf_test_copy2.exr";
+    std::string filename1 = tempDir + "imf_test_copy1.exr";
+    std::string filename2 = tempDir + "imf_test_copy2.exr";
 
     for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
     {
 	for (int rmode = 0; rmode < NUM_ROUNDINGMODES; ++rmode)
 	{
-	    writeCopyReadONE (filename1, filename2, w, h, xs, ys, dx, dy,
+	    writeCopyReadONE (filename1.c_str(), filename2.c_str(), w, h, xs, ys, dx, dy,
 			      Compression (comp), LevelRoundingMode (rmode));
 
-	    writeCopyReadMIP (filename1, filename2, w, h, xs, ys, dx, dy,
+	    writeCopyReadMIP (filename1.c_str(), filename2.c_str(), w, h, xs, ys, dx, dy,
 			      Compression (comp), LevelRoundingMode (rmode));
 			      
-	    writeCopyReadRIP (filename1, filename2, w, h, xs, ys, dx, dy,
+	    writeCopyReadRIP (filename1.c_str(), filename2.c_str(), w, h, xs, ys, dx, dy,
 			      Compression (comp), LevelRoundingMode (rmode));
 	}
     }
@@ -499,7 +497,7 @@ writeCopyRead (int w, int h, int xs, int ys, int dx, int dy)
 
 
 void
-testTiledCopyPixels ()
+testTiledCopyPixels (const std::string &tempDir)
 {
     try
     {
@@ -511,10 +509,10 @@ testTiledCopyPixels ()
         const int DY = 29;
         const int YS = 55;
 
-        writeCopyRead (W, H, DX, YS, 0,  0);
-        writeCopyRead (W, H, DX, YS, 0,  DY);
-        writeCopyRead (W, H, DX, YS, DX, 0);
-        writeCopyRead (W, H, DX, YS, DX, DY);
+        writeCopyRead (tempDir, W, H, DX, YS, 0,  0);
+        writeCopyRead (tempDir, W, H, DX, YS, 0,  DY);
+        writeCopyRead (tempDir, W, H, DX, YS, DX, 0);
+        writeCopyRead (tempDir, W, H, DX, YS, DX, DY);
 
         cout << "ok\n" << endl;
     }

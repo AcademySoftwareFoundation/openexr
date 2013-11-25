@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -44,7 +44,6 @@
 #include <ImfThreading.h>
 #include <IlmThread.h>
 
-#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -185,7 +184,7 @@ writeReadRGBA (const char fileName[],
 
 
 void
-testRgbaThreading ()
+testRgbaThreading (const std::string &tempDir)
 {
     try
     {
@@ -228,25 +227,25 @@ testRgbaThreading ()
             {
                 for (int lorder = 0; lorder < RANDOM_Y; ++lorder)
                 {
-                    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+                    writeReadRGBA ((tempDir + "imf_test_rgba.exr").c_str(),
                                    W, H, p1,
                                    WRITE_RGBA,
                                    LineOrder (lorder),
                                    Compression (comp));
     
-                    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+                    writeReadRGBA ((tempDir + "imf_test_rgba.exr").c_str(),
                                    W, H, p1,
                                    WRITE_RGB,
                                    LineOrder (lorder),
                                    Compression (comp));
     
-                    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+                    writeReadRGBA ((tempDir + "imf_test_rgba.exr").c_str(),
                                    W, H, p1,
                                    WRITE_A,
                                    LineOrder (lorder),
                                    Compression (comp));
     
-                    writeReadRGBA (IMF_TMP_DIR "imf_test_rgba.exr",
+                    writeReadRGBA ((tempDir + "imf_test_rgba.exr").c_str(),
                                    W, H, p1,
                                    RgbaChannels (WRITE_R | WRITE_B),
                                    LineOrder (lorder),

@@ -76,9 +76,10 @@
 #include "scaleImage.h"
 #include "applyCtl.h"
 #include "ImageView.h"
+#include "namespaceAlias.h"
 
-using namespace OPENEXR_IMF_NAMESPACE;
-using namespace IMATH_NAMESPACE;
+using namespace IMF;
+using namespace IMATH;
 using namespace std;
 
 
@@ -109,6 +110,7 @@ struct MainWindow
     const char*         layer;
     bool                swap;
     float               farPlane;
+    bool                deepComp;
 
     static void         multipartComboboxCallback (Fl_Widget *widget, void *data);
     static void         exposureSliderCallback (Fl_Widget *widget, void *data);
@@ -142,7 +144,8 @@ MainWindow::multipartComboboxCallback (Fl_Widget *widget, void *data)
 	       header,
 	       mainWindow->pixels,
 	       mainWindow->dataZ,
-	       mainWindow->sampleCount);
+	       mainWindow->sampleCount,
+	       mainWindow->deepComp);
 
     const Box2i &displayWindow = header.displayWindow();
     const Box2i &dataWindow = header.dataWindow();
@@ -243,7 +246,8 @@ makeMainWindow (const char imageFile[],
                 bool swap,
                 bool continuousUpdate,
                 const vector<string> &transformNames,
-                bool useCtl)
+                bool useCtl,
+                bool deepComp)
 {
     MainWindow *mainWindow = new MainWindow;
     mainWindow->imageFile = imageFile;
@@ -254,6 +258,7 @@ makeMainWindow (const char imageFile[],
     mainWindow->channel = channel;
     mainWindow->layer = layer;
     mainWindow->swap = swap;
+    mainWindow->deepComp = deepComp;
 
     //
     // Read the image file.
@@ -290,7 +295,8 @@ makeMainWindow (const char imageFile[],
                header,
                mainWindow->pixels,
                mainWindow->dataZ,
-               mainWindow->sampleCount);
+               mainWindow->sampleCount,
+               mainWindow->deepComp);
 
     const Box2i &displayWindow = header.displayWindow();
     const Box2i &dataWindow = header.dataWindow();
@@ -728,6 +734,7 @@ usageMessage (const char argv0[], bool verbose = false)
         "Deep Data Options:\n"
         "\n"
         "-farPlane(f) f    OpenGL zFar clipping plane\n"
+        "-noDeepComp(d)    Disable the compositing of deep images (def=ON)\n"
         "\n"
         "Exrdisplay Window Mouse Control:\n"
         "                  LMB = Display a sample chart and print out values\n"
@@ -775,6 +782,7 @@ main(int argc, char **argv)
     int lx = -1;
     int ly = -1;
     float farPlane = limits<float>::max(); //default value of zfar plane
+    bool deepComp = true;  // attempt to composite deep images together
 
     //
     // Parse the command line.
@@ -984,6 +992,16 @@ main(int argc, char **argv)
             }
 
         }
+        else if (!strcmp (argv[i], "-noDeepComp") || !strcmp (argv[i], "-d"))
+        {
+            //
+            // Toogle the option to composite deep images, else just use
+            // the first sample of each pixel
+            //
+            deepComp = false;
+            i += 1;
+
+        }
         else
         {
             //
@@ -1023,7 +1041,8 @@ main(int argc, char **argv)
                                                  swap,
                                                  continuousUpdate,
                                                  transformNames,
-                                                 useCtl);
+                                                 useCtl,
+                                                 deepComp);
 
         mainWindow->window->show (1, argv);
 

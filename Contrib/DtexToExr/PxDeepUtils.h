@@ -88,7 +88,10 @@
 #include <half.h>
 #include <math.h>
 #include <float.h>
+#include <cmath>
 #include <sys/types.h>
+
+using std::isfinite;
 
 namespace PxDeep {
 

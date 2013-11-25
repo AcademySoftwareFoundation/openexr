@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2003-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
@@ -42,8 +41,6 @@
 
 #include <stdio.h>
 #include <assert.h>
-
-#include "tmpDir.h"
 
 #ifndef ILM_IMF_TEST_IMAGEDIR
     #define ILM_IMF_TEST_IMAGEDIR
@@ -240,10 +237,11 @@ writeImage (const char fileName[],
 
 
 void
-readCopyRead (const char* infilename,
+readCopyRead (const std::string &tempDir,
+              const char* infilename,
               unsigned int correctChecksum)
 {
-    const char *outfilename = IMF_TMP_DIR "imf_test_native.exr";
+    std::string outfilename = tempDir + "imf_test_native.exr";
 
     int w, h;
     Array2D<OPENEXR_IMF_NAMESPACE::Rgba> pixels (1,1);
@@ -258,13 +256,13 @@ readCopyRead (const char* infilename,
         {
             cout << "   x sampling " << xs << ", y sampling " << ys <<
                     ": writing image, " << flush;
-            writeImage(outfilename, pixels, w, h, xs, ys);
+            writeImage(outfilename.c_str(), pixels, w, h, xs, ys);
             
             Array2D<OPENEXR_IMF_NAMESPACE::Rgba> pixels2 (1,1);
             cout << "reading back, " << flush;
-            readBackImage(outfilename, pixels2, pixels, w, h, xs, ys);
+            readBackImage(outfilename.c_str(), pixels2, pixels, w, h, xs, ys);
 
-            remove(outfilename);
+            remove(outfilename.c_str());
         }
     }            
 }
@@ -273,7 +271,7 @@ readCopyRead (const char* infilename,
 
 
 void
-testNativeFormat ()
+testNativeFormat (const std::string &tempDir)
 {
     try
     {
@@ -281,10 +279,10 @@ testNativeFormat ()
 		"in Xdr, not native format" << endl;
 
         cout << "image 1:" << endl;
-        readCopyRead(ILM_IMF_TEST_IMAGEDIR "test_native1.exr", 54435);
+        readCopyRead(tempDir, ILM_IMF_TEST_IMAGEDIR "test_native1.exr", 54435);
         
         cout << "image 2:" << endl;
-        readCopyRead(ILM_IMF_TEST_IMAGEDIR "test_native2.exr", 37639);
+        readCopyRead(tempDir, ILM_IMF_TEST_IMAGEDIR "test_native2.exr", 37639);
         
 	cout << "ok\n" << endl;
     }

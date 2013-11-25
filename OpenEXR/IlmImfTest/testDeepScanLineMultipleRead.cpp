@@ -39,6 +39,7 @@
 #include <ImfPartType.h>
 #include <ImfDeepFrameBuffer.h>
 #include <ImfHeader.h>
+#include <ImfNamespace.h>
 
 #include <vector>
 
@@ -70,6 +71,8 @@ using OPENEXR_IMF_NAMESPACE::Slice;
 using OPENEXR_IMF_NAMESPACE::DeepSlice;
 using IMATH_NAMESPACE::Box2i;
 
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+
 static void 
 make_file(const char * filename)
 {
@@ -83,7 +86,7 @@ make_file(const char * filename)
     //
     
     Header header( width,height);
-    header.channels().insert("Z", Channel(FLOAT));      
+    header.channels().insert("Z", Channel(IMF::FLOAT));
     header.compression()=ZIPS_COMPRESSION;
     header.setType(DEEPSCANLINE);
         
@@ -96,8 +99,8 @@ make_file(const char * filename)
     
     DeepFrameBuffer fb;
     
-    fb.insertSampleCountSlice(Slice(UINT,(char *)&sample_count));
-    fb.insert("Z",DeepSlice(FLOAT,(char *) &sample_ptr));
+    fb.insertSampleCountSlice(Slice(IMF::UINT,(char *)&sample_count));
+    fb.insert("Z",DeepSlice(IMF::FLOAT,(char *) &sample_ptr));
     
     
     file.setFrameBuffer(fb);
@@ -135,9 +138,9 @@ static void read_file(const char * filename)
     
     DeepFrameBuffer fb;
     
-    fb.insertSampleCountSlice(Slice(UINT,(char *) (&samplecounts[0]-x_offset) , sizeof(unsigned int)));
+    fb.insertSampleCountSlice(Slice(IMF::UINT,(char *) (&samplecounts[0]-x_offset) , sizeof(unsigned int)));
     
-    fb.insert( channel,  DeepSlice(FLOAT,(char *) (&sample_pointers[0]-x_offset) , sizeof(float *),0,sizeof(float)) );
+    fb.insert( channel,  DeepSlice(IMF::FLOAT,(char *) (&sample_pointers[0]-x_offset) , sizeof(float *),0,sizeof(float)) );
     
     file.setFrameBuffer(fb);
     
@@ -209,17 +212,17 @@ static void read_file(const char * filename)
 }
 
 void
-testDeepScanLineMultipleRead()
+testDeepScanLineMultipleRead(const std::string & tempDir)
 {
     
     cout << "\n\nTesting random re-reads from deep scanline file:\n" << endl;
     
-    
+    std::string source_filename = tempDir + "imf_test_multiple_read";
     srand(1);
     
-    make_file(source_filename);
-    read_file(source_filename);
-    remove(source_filename);
+    make_file(source_filename.c_str());
+    read_file(source_filename.c_str());
+    remove(source_filename.c_str());
     
     cout << " ok\n" << endl;
     

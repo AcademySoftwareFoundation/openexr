@@ -68,17 +68,17 @@ pixelTypeSize (PixelType type)
 
     switch (type)
     {
-      case UINT:
+      case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 	
 	size = Xdr::size <unsigned int> ();
 	break;
 
-      case HALF:
+      case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
 	size = Xdr::size <half> ();
 	break;
 
-      case FLOAT:
+      case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
 	size = Xdr::size <float> ();
 	break;
@@ -294,7 +294,7 @@ copyIntoFrameBuffer (const char *& readPtr,
 
         switch (typeInFrameBuffer)
         {
-	  case UINT:
+	  case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
             
             {
                 unsigned int fillVal = (unsigned int) (fillValue);
@@ -307,7 +307,7 @@ copyIntoFrameBuffer (const char *& readPtr,
             }
             break;
 
-          case HALF:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
             {
                 half fillVal = half (fillValue);
@@ -320,7 +320,7 @@ copyIntoFrameBuffer (const char *& readPtr,
             }
             break;
 
-          case FLOAT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
             {
                 float fillVal = float (fillValue);
@@ -350,11 +350,11 @@ copyIntoFrameBuffer (const char *& readPtr,
 
         switch (typeInFrameBuffer)
         {
-          case UINT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
     
             switch (typeInFile)
             {
-              case UINT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
                 while (writePtr <= endPtr)
                 {
@@ -363,7 +363,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case HALF:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
                 while (writePtr <= endPtr)
                 {
@@ -374,7 +374,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case FLOAT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
                 while (writePtr <= endPtr)
                 {
@@ -390,11 +390,11 @@ copyIntoFrameBuffer (const char *& readPtr,
             }
             break;
 
-          case HALF:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
             switch (typeInFile)
             {
-              case UINT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
                 while (writePtr <= endPtr)
                 {
@@ -405,7 +405,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 }
                 break;
                 
-              case HALF:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
                 while (writePtr <= endPtr)
                 {
@@ -414,7 +414,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case FLOAT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
                 while (writePtr <= endPtr)
                 {
@@ -430,11 +430,11 @@ copyIntoFrameBuffer (const char *& readPtr,
             }
             break;
 
-          case FLOAT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
             switch (typeInFile)
             {
-              case UINT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
                 while (writePtr <= endPtr)
                 {
@@ -445,7 +445,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case HALF:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
                 while (writePtr <= endPtr)
                 {
@@ -456,7 +456,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case FLOAT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
                 while (writePtr <= endPtr)
                 {
@@ -484,11 +484,11 @@ copyIntoFrameBuffer (const char *& readPtr,
 
         switch (typeInFrameBuffer)
         {
-          case UINT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
     
             switch (typeInFile)
             {
-              case UINT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
                 while (writePtr <= endPtr)
                 {
@@ -500,7 +500,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case HALF:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
                 while (writePtr <= endPtr)
                 {
@@ -511,7 +511,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case FLOAT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
                 while (writePtr <= endPtr)
                 {
@@ -532,11 +532,11 @@ copyIntoFrameBuffer (const char *& readPtr,
             }
             break;
 
-          case HALF:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
             switch (typeInFile)
             {
-              case UINT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
                 while (writePtr <= endPtr)
                 {
@@ -551,7 +551,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case HALF:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
                 while (writePtr <= endPtr)
                 {
@@ -561,7 +561,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case FLOAT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
                 while (writePtr <= endPtr)
                 {
@@ -581,11 +581,11 @@ copyIntoFrameBuffer (const char *& readPtr,
             }
             break;
 
-          case FLOAT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
             switch (typeInFile)
             {
-              case UINT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
                 while (writePtr <= endPtr)
                 {
@@ -600,7 +600,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case HALF:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
                 while (writePtr <= endPtr)
                 {
@@ -611,7 +611,7 @@ copyIntoFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case FLOAT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
                 while (writePtr <= endPtr)
                 {
@@ -669,7 +669,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
 
         switch (typeInFrameBuffer)
         {
-          case UINT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
             {
                 unsigned int fillVal = (unsigned int) (fillValue);
@@ -694,7 +694,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
             }
             break;
 
-          case HALF:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
             {
                 half fillVal = half (fillValue);
@@ -720,7 +720,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
             }
             break;
 
-          case FLOAT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
             {
                 float fillVal = float (fillValue);
@@ -763,11 +763,11 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
 
         switch (typeInFrameBuffer)
         {
-          case UINT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
             switch (typeInFile)
             {
-              case UINT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -792,7 +792,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case HALF:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -819,7 +819,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case FLOAT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -851,11 +851,11 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
             }
             break;
 
-          case HALF:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
             switch (typeInFile)
             {
-              case UINT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -882,7 +882,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case HALF:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -907,7 +907,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case FLOAT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -938,11 +938,11 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
             }
             break;
 
-          case FLOAT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
             switch (typeInFile)
             {
-              case UINT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -968,7 +968,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case HALF:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -996,7 +996,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case FLOAT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -1041,11 +1041,11 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
 
         switch (typeInFrameBuffer)
         {
-          case UINT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
             switch (typeInFile)
             {
-              case UINT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -1073,7 +1073,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case HALF:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -1100,7 +1100,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case FLOAT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -1137,11 +1137,11 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
             }
             break;
 
-          case HALF:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
             switch (typeInFile)
             {
-              case UINT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -1172,7 +1172,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case HALF:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -1198,7 +1198,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case FLOAT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -1234,11 +1234,11 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
             }
             break;
 
-          case FLOAT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
             switch (typeInFile)
             {
-              case UINT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -1269,7 +1269,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case HALF:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -1296,7 +1296,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case FLOAT:
+              case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -1344,17 +1344,17 @@ skipChannel (const char *& readPtr,
 {
     switch (typeInFile)
     {
-      case UINT:
+      case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
         
         Xdr::skip <CharPtrIO> (readPtr, Xdr::size <unsigned int> () * xSize);
         break;
 
-      case HALF:
+      case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
         Xdr::skip <CharPtrIO> (readPtr, Xdr::size <half> () * xSize);
         break;
 
-      case FLOAT:
+      case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
         Xdr::skip <CharPtrIO> (readPtr, Xdr::size <float> () * xSize);
         break;
@@ -1374,7 +1374,7 @@ convertInPlace (char *& writePtr,
 {
     switch (type)
     {
-      case UINT:
+      case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
     
         for (size_t j = 0; j < numPixels; ++j)
         {
@@ -1383,7 +1383,7 @@ convertInPlace (char *& writePtr,
         }
         break;
     
-      case HALF:
+      case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
     
         for (size_t j = 0; j < numPixels; ++j)
         {               
@@ -1392,7 +1392,7 @@ convertInPlace (char *& writePtr,
         }
         break;
     
-      case FLOAT:
+      case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
     
         for (size_t j = 0; j < numPixels; ++j)
         {
@@ -1429,7 +1429,7 @@ copyFromFrameBuffer (char *& writePtr,
 
         switch (type)
         {
-          case UINT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
             while (readPtr <= endPtr)
             {
@@ -1439,7 +1439,7 @@ copyFromFrameBuffer (char *& writePtr,
             }
             break;
 
-          case HALF:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
             while (readPtr <= endPtr)
             {
@@ -1448,7 +1448,7 @@ copyFromFrameBuffer (char *& writePtr,
             }
             break;
 
-          case FLOAT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
             while (readPtr <= endPtr)
             {
@@ -1470,7 +1470,7 @@ copyFromFrameBuffer (char *& writePtr,
 
         switch (type)
         {
-          case UINT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
             while (readPtr <= endPtr)
             {
@@ -1481,7 +1481,7 @@ copyFromFrameBuffer (char *& writePtr,
             }
             break;
 
-          case HALF:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
             while (readPtr <= endPtr)
             {
@@ -1491,7 +1491,7 @@ copyFromFrameBuffer (char *& writePtr,
             }
             break;
 
-          case FLOAT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
             while (readPtr <= endPtr)
             {
@@ -1539,7 +1539,7 @@ copyFromDeepFrameBuffer (char *& writePtr,
 
         switch (type)
         {
-          case UINT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
             for (int x = xMin; x <= xMax; x++)
             {
@@ -1560,7 +1560,7 @@ copyFromDeepFrameBuffer (char *& writePtr,
             }
             break;
 
-          case HALF:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
             for (int x = xMin; x <= xMax; x++)
             {
@@ -1580,7 +1580,7 @@ copyFromDeepFrameBuffer (char *& writePtr,
             }
             break;
 
-          case FLOAT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
             for (int x = xMin; x <= xMax; x++)
             {
@@ -1614,7 +1614,7 @@ copyFromDeepFrameBuffer (char *& writePtr,
 
         switch (type)
         {
-          case UINT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
             for (int x = xMin; x <= xMax; x++)
             {
@@ -1637,7 +1637,7 @@ copyFromDeepFrameBuffer (char *& writePtr,
             }
             break;
 
-          case HALF:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
             for (int x = xMin; x <= xMax; x++)
             {
@@ -1658,7 +1658,7 @@ copyFromDeepFrameBuffer (char *& writePtr,
             }
             break;
 
-          case FLOAT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
             for (int x = xMin; x <= xMax; x++)
             {
@@ -1703,21 +1703,21 @@ fillChannelWithZeroes (char *& writePtr,
 
         switch (type)
         {
-          case UINT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
             for (size_t j = 0; j < xSize; ++j)
                 Xdr::write <CharPtrIO> (writePtr, (unsigned int) 0);
 
             break;
 
-          case HALF:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
             for (size_t j = 0; j < xSize; ++j)
                 Xdr::write <CharPtrIO> (writePtr, (half) 0);
 
             break;
 
-          case FLOAT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
             for (size_t j = 0; j < xSize; ++j)
                 Xdr::write <CharPtrIO> (writePtr, (float) 0);
@@ -1737,7 +1737,7 @@ fillChannelWithZeroes (char *& writePtr,
 
         switch (type)
         {
-          case UINT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
             for (size_t j = 0; j < xSize; ++j)
             {
@@ -1748,7 +1748,7 @@ fillChannelWithZeroes (char *& writePtr,
             }
             break;
 
-          case HALF:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
             for (size_t j = 0; j < xSize; ++j)
             {
@@ -1757,7 +1757,7 @@ fillChannelWithZeroes (char *& writePtr,
             }
             break;
 
-          case FLOAT:
+          case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
             for (size_t j = 0; j < xSize; ++j)
             {

@@ -64,7 +64,7 @@
 #include <vector>
 
 #include "namespaceAlias.h"
-using namespace CustomImf;
+using namespace IMF;
 using namespace IMATH_NAMESPACE;
 using namespace std;
 
@@ -387,21 +387,21 @@ reduceX (const ChannelList &channels,
 
         switch (channel.type)
         {
-            case HALF:
+            case IMF::HALF:
 
                 reduceX (image0.typedChannel<half> (name),
                          image1.typedChannel<half> (name),
                          filter, ext, odd);
                 break;
 
-            case FLOAT:
+            case IMF::FLOAT:
 
                 reduceX (image0.typedChannel<float> (name),
                          image1.typedChannel<float> (name),
                          filter, ext, odd);
                 break;
 
-            case UINT:
+            case IMF::UINT:
 
                 reduceX (image0.typedChannel<unsigned int> (name),
                          image1.typedChannel<unsigned int> (name),
@@ -438,21 +438,21 @@ reduceY (const ChannelList &channels,
 
         switch (channel.type)
         {
-            case HALF:
+            case IMF::HALF:
 
                 reduceY (image0.typedChannel<half> (name),
                          image1.typedChannel<half> (name),
                          filter, ext, odd);
                 break;
 
-            case FLOAT:
+            case IMF::FLOAT:
 
                 reduceY (image0.typedChannel<float> (name),
                          image1.typedChannel<float> (name),
                          filter, ext, odd);
                 break;
 
-            case UINT:
+            case IMF::UINT:
 
                 reduceY (image0.typedChannel<unsigned int> (name),
                          image1.typedChannel<unsigned int> (name),

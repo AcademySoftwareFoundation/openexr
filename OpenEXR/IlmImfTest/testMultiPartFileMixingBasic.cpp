@@ -60,7 +60,8 @@
 #include <ImfPartType.h>
 #include <ImfMisc.h>
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
@@ -70,7 +71,6 @@ namespace
  
 const int height = 267;
 const int width = 193;
-const char filename[] = IMF_TMP_DIR "imf_test_multipart_mixing_basic.exr";
 
 vector<Header> headers;
 vector<int> pixelTypes;
@@ -247,13 +247,13 @@ void generateRandomHeaders(int partCount, vector<Header>& headers)
         switch (pixelType)
         {
             case 0:
-                header.channels().insert("UINT", Channel(OPENEXR_IMF_NAMESPACE::UINT));
+                header.channels().insert("UINT", Channel(IMF::UINT));
                 break;
             case 1:
-                header.channels().insert("FLOAT", Channel(OPENEXR_IMF_NAMESPACE::FLOAT));
+                header.channels().insert("FLOAT", Channel(IMF::FLOAT));
                 break;
             case 2:
-                header.channels().insert("HALF", Channel(OPENEXR_IMF_NAMESPACE::HALF));
+                header.channels().insert("HALF", Channel(IMF::HALF));
                 break;
         }
 
@@ -346,21 +346,21 @@ void setOutputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
     {
         case 0:
             frameBuffer.insert ("UINT",
-                                Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                                Slice (IMF::UINT,
                                 (char *) (&uData[0][0]),
                                 sizeof (uData[0][0]) * 1,
                                 sizeof (uData[0][0]) * width));
             break;
         case 1:
             frameBuffer.insert ("FLOAT",
-                                Slice (OPENEXR_IMF_NAMESPACE::FLOAT,
+                                Slice (IMF::FLOAT,
                                 (char *) (&fData[0][0]),
                                 sizeof (fData[0][0]) * 1,
                                 sizeof (fData[0][0]) * width));
             break;
         case 2:
             frameBuffer.insert ("HALF",
-                                Slice (OPENEXR_IMF_NAMESPACE::HALF,
+                                Slice (IMF::HALF,
                                 (char *) (&hData[0][0]),
                                 sizeof (hData[0][0]) * 1,
                                 sizeof (hData[0][0]) * width));
@@ -376,7 +376,7 @@ void setOutputDeepFrameBuffer(DeepFrameBuffer& frameBuffer, int pixelType,
     {
         case 0:
             frameBuffer.insert ("UINT",
-                                DeepSlice (OPENEXR_IMF_NAMESPACE::UINT,
+                                DeepSlice (IMF::UINT,
                                 (char *) (&uData[0][0]),
                                 sizeof (uData[0][0]) * 1,
                                 sizeof (uData[0][0]) * width,
@@ -384,7 +384,7 @@ void setOutputDeepFrameBuffer(DeepFrameBuffer& frameBuffer, int pixelType,
             break;
         case 1:
             frameBuffer.insert ("FLOAT",
-                                DeepSlice (OPENEXR_IMF_NAMESPACE::FLOAT,
+                                DeepSlice (IMF::FLOAT,
                                 (char *) (&fData[0][0]),
                                 sizeof (fData[0][0]) * 1,
                                 sizeof (fData[0][0]) * width,
@@ -392,7 +392,7 @@ void setOutputDeepFrameBuffer(DeepFrameBuffer& frameBuffer, int pixelType,
             break;
         case 2:
             frameBuffer.insert ("HALF",
-                                DeepSlice (OPENEXR_IMF_NAMESPACE::HALF,
+                                DeepSlice (IMF::HALF,
                                 (char *) (&hData[0][0]),
                                 sizeof (hData[0][0]) * 1,
                                 sizeof (hData[0][0]) * width,
@@ -410,7 +410,7 @@ void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
         case 0:
             uData.resizeErase(height, width);
             frameBuffer.insert ("UINT",
-                                Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                                Slice (IMF::UINT,
                                 (char *) (&uData[0][0]),
                                 sizeof (uData[0][0]) * 1,
                                 sizeof (uData[0][0]) * width,
@@ -420,7 +420,7 @@ void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
         case 1:
             fData.resizeErase(height, width);
             frameBuffer.insert ("FLOAT",
-                                Slice (OPENEXR_IMF_NAMESPACE::FLOAT,
+                                Slice (IMF::FLOAT,
                                 (char *) (&fData[0][0]),
                                 sizeof (fData[0][0]) * 1,
                                 sizeof (fData[0][0]) * width,
@@ -430,7 +430,7 @@ void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
         case 2:
             hData.resizeErase(height, width);
             frameBuffer.insert ("HALF",
-                                Slice (OPENEXR_IMF_NAMESPACE::HALF,
+                                Slice (IMF::HALF,
                                 (char *) (&hData[0][0]),
                                 sizeof (hData[0][0]) * 1,
                                 sizeof (hData[0][0]) * width,
@@ -449,7 +449,7 @@ void setInputDeepFrameBuffer(DeepFrameBuffer& frameBuffer, int pixelType,
         case 0:
             uData.resizeErase(height, width);
             frameBuffer.insert ("UINT",
-                                DeepSlice (OPENEXR_IMF_NAMESPACE::UINT,
+                                DeepSlice (IMF::UINT,
                                 (char *) (&uData[0][0]),
                                 sizeof (uData[0][0]) * 1,
                                 sizeof (uData[0][0]) * width,
@@ -458,7 +458,7 @@ void setInputDeepFrameBuffer(DeepFrameBuffer& frameBuffer, int pixelType,
         case 1:
             fData.resizeErase(height, width);
             frameBuffer.insert ("FLOAT",
-                                DeepSlice (OPENEXR_IMF_NAMESPACE::FLOAT,
+                                DeepSlice (IMF::FLOAT,
                                 (char *) (&fData[0][0]),
                                 sizeof (fData[0][0]) * 1,
                                 sizeof (fData[0][0]) * width,
@@ -467,7 +467,7 @@ void setInputDeepFrameBuffer(DeepFrameBuffer& frameBuffer, int pixelType,
         case 2:
             hData.resizeErase(height, width);
             frameBuffer.insert ("HALF",
-                                DeepSlice (OPENEXR_IMF_NAMESPACE::HALF,
+                                DeepSlice (IMF::HALF,
                                 (char *) (&hData[0][0]),
                                 sizeof (hData[0][0]) * 1,
                                 sizeof (hData[0][0]) * width,
@@ -476,7 +476,8 @@ void setInputDeepFrameBuffer(DeepFrameBuffer& frameBuffer, int pixelType,
     }
 }
 
-void generateRandomFile(int partCount)
+void
+generateRandomFile (int partCount, const std::string & fn)
 {
     //
     // Init data.
@@ -501,8 +502,8 @@ void generateRandomFile(int partCount)
     //
     generateRandomHeaders(partCount, headers);
 
-    remove(filename);
-    MultiPartOutputFile file(filename, &headers[0],headers.size());
+    remove (fn.c_str());
+    MultiPartOutputFile file (fn.c_str(), &headers[0],headers.size());
 
     //
     // Writing files.
@@ -579,7 +580,7 @@ void generateRandomFile(int partCount)
                     for (int k = 0; k < width; k++)
                         sampleCount[j][k] = (j * width + k) % 10 + 1;
 
-                frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,
                                                     (char *) (&sampleCount[0][0]),
                                                     sizeof (unsigned int) * 1,
                                                     sizeof (unsigned int) * width));
@@ -625,7 +626,7 @@ void generateRandomFile(int partCount)
                             for (int k = 0; k < w; k++)
                                 sampleCount[j][k] = (j * w + k) % 10 + 1;
 
-                        frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                        frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,
                                                             (char *) (&sampleCount[0][0]),
                                                             sizeof (unsigned int) * 1,
                                                             sizeof (unsigned int) * w));
@@ -655,7 +656,8 @@ void generateRandomFile(int partCount)
     }
 }
 
-void readWholeFiles()
+void
+readWholeFiles (const std::string & fn)
 {
     Array2D<unsigned int> uData;
     Array2D<float> fData;
@@ -667,7 +669,7 @@ void readWholeFiles()
 
     Array2D<unsigned int> sampleCount;
 
-    MultiPartInputFile file(filename);
+    MultiPartInputFile file (fn.c_str());
     for (size_t i = 0; i < file.parts(); i++)
     {
         const Header& header = file.header(i);
@@ -777,7 +779,7 @@ void readWholeFiles()
                     DeepFrameBuffer frameBuffer;
 
                     sampleCount.resizeErase(height, width);
-                    frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                    frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,
                                                         (char *) (&sampleCount[0][0]),
                                                         sizeof (unsigned int) * 1,
                                                         sizeof (unsigned int) * width));
@@ -828,7 +830,7 @@ void readWholeFiles()
                             DeepFrameBuffer frameBuffer;
 
                             sampleCount.resizeErase(h, w);
-                            frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                            frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,
                                                                 (char *) (&sampleCount[0][0]),
                                                                 sizeof (unsigned int) * 1,
                                                                 sizeof (unsigned int) * w));
@@ -877,7 +879,8 @@ void readWholeFiles()
     }
 }
 
-void readFirstPart()
+void
+readFirstPart (const std::string & fn)
 {
     Array2D<unsigned int> uData;
     Array2D<float> fData;
@@ -897,210 +900,212 @@ void readFirstPart()
     {
         case 0:
         {
-        int l1, l2;
-        l1 = rand() % height;
-        l2 = rand() % height;
-        if (l1 > l2) swap(l1, l2);
+            InputFile part (fn.c_str());
 
-        InputFile part(filename);
+            int l1, l2;
+            l1 = rand() % height;
+            l2 = rand() % height;
+            if (l1 > l2) swap(l1, l2);
 
-        FrameBuffer frameBuffer;
-        setInputFrameBuffer(frameBuffer, pixelType,
-                            uData, fData, hData, width, height);
+            FrameBuffer frameBuffer;
+            setInputFrameBuffer(frameBuffer, pixelType,
+                                uData, fData, hData, width, height);
 
-        part.setFrameBuffer(frameBuffer);
-        part.readPixels(l1, l2);
+            part.setFrameBuffer(frameBuffer);
+            part.readPixels(l1, l2);
 
-        switch (pixelType)
-        {
-        case 0:
-            assert(checkPixels<unsigned int>(uData, 0, width - 1, l1, l2, width));
-            break;
-        case 1:
-            assert(checkPixels<float>(fData, 0, width - 1, l1, l2, width));
-            break;
-        case 2:
-            assert(checkPixels<half>(hData, 0, width - 1, l1, l2, width));
-            break;
-        }
+            switch (pixelType)
+            {
+                case 0:
+                    assert(checkPixels<unsigned int>(uData, 0, width - 1, l1, l2, width));
+                    break;
+                case 1:
+                    assert(checkPixels<float>(fData, 0, width - 1, l1, l2, width));
+                    break;
+                case 2:
+                    assert(checkPixels<half>(hData, 0, width - 1, l1, l2, width));
+                    break;
+            }
 
-        break;
-    }
-    case 1:
-    {
-        int tx1, tx2, ty1, ty2;
-        int lx, ly;
-
-        TiledInputFile part(filename);
-
-        int numXLevels = part.numXLevels();
-        int numYLevels = part.numYLevels();
-
-        lx = rand() % numXLevels;
-        ly = rand() % numYLevels;
-        if (levelMode == 1) ly = lx;
-
-        int w = part.levelWidth(lx);
-        int h = part.levelHeight(ly);
-
-        int numXTiles = part.numXTiles(lx);
-        int numYTiles = part.numYTiles(ly);
-        tx1 = rand() % numXTiles;
-        tx2 = rand() % numXTiles;
-        ty1 = rand() % numYTiles;
-        ty2 = rand() % numYTiles;
-        if (tx1 > tx2) swap(tx1, tx2);
-        if (ty1 > ty2) swap(ty1, ty2);
-
-        FrameBuffer frameBuffer;
-        setInputFrameBuffer(frameBuffer, pixelType,
-                            uData, fData, hData, w, h);
-
-        part.setFrameBuffer(frameBuffer);
-        part.readTiles(tx1, tx2, ty1, ty2, lx, ly);
-
-        Box2i b1 = part.dataWindowForTile(tx1, ty1, lx, ly);
-        Box2i b2 = part.dataWindowForTile(tx2, ty2, lx, ly);
-
-        switch (pixelType)
-        {
-        case 0:
-            assert(checkPixels<unsigned int>(uData, b1.min.x, b2.max.x, b1.min.y, b2.max.y,
-                                             w));
-            break;
-        case 1:
-            assert(checkPixels<float>(fData, b1.min.x, b2.max.x, b1.min.y, b2.max.y,
-                                      w));
-            break;
-        case 2:
-            assert(checkPixels<half>(hData, b1.min.x, b2.max.x, b1.min.y, b2.max.y,
-                                     w));
             break;
         }
-
-        break;
-    }
-    case 2:
-    {
-        DeepScanLineInputFile part(filename);
-
-        DeepFrameBuffer frameBuffer;
-
-        sampleCount.resizeErase(height, width);
-        frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
-                                            (char *) (&sampleCount[0][0]),
-                                            sizeof (unsigned int) * 1,
-                                            sizeof (unsigned int) * width));
-
-        setInputDeepFrameBuffer(frameBuffer, pixelType,
-                                deepUData, deepFData, deepHData, width, height);
-
-        part.setFrameBuffer(frameBuffer);
-
-        int l1, l2;
-        l1 = rand() % height;
-        l2 = rand() % height;
-        if (l1 > l2) swap(l1, l2);
-
-        part.readPixelSampleCounts(l1, l2);
-        assert(checkSampleCount(sampleCount, 0, width - 1, l1, l2, width));
-
-        allocatePixels(pixelType, sampleCount,
-                       deepUData, deepFData, deepHData, 0, width - 1, l1, l2);
-
-        part.readPixels(l1, l2);
-
-        switch (pixelType)
-        {
-        case 0:
-            assert(checkPixels<unsigned int>(sampleCount, deepUData, 0, width - 1, l1, l2, width));
-            break;
         case 1:
-            assert(checkPixels<float>(sampleCount, deepFData, 0, width - 1, l1, l2, width));
-            break;
-        case 2:
-            assert(checkPixels<half>(sampleCount, deepHData, 0, width - 1, l1, l2, width));
+        {
+            TiledInputFile part(fn.c_str());
+
+            int tx1, tx2, ty1, ty2;
+            int lx, ly;
+
+
+            int numXLevels = part.numXLevels();
+            int numYLevels = part.numYLevels();
+
+            lx = rand() % numXLevels;
+            ly = rand() % numYLevels;
+            if (levelMode == 1) ly = lx;
+
+            int w = part.levelWidth(lx);
+            int h = part.levelHeight(ly);
+
+            int numXTiles = part.numXTiles(lx);
+            int numYTiles = part.numYTiles(ly);
+            tx1 = rand() % numXTiles;
+            tx2 = rand() % numXTiles;
+            ty1 = rand() % numYTiles;
+            ty2 = rand() % numYTiles;
+            if (tx1 > tx2) swap(tx1, tx2);
+            if (ty1 > ty2) swap(ty1, ty2);
+
+            FrameBuffer frameBuffer;
+            setInputFrameBuffer(frameBuffer, pixelType,
+                                uData, fData, hData, w, h);
+
+            part.setFrameBuffer(frameBuffer);
+            part.readTiles(tx1, tx2, ty1, ty2, lx, ly);
+
+            Box2i b1 = part.dataWindowForTile(tx1, ty1, lx, ly);
+            Box2i b2 = part.dataWindowForTile(tx2, ty2, lx, ly);
+
+            switch (pixelType)
+            {
+                case 0:
+                    assert(checkPixels<unsigned int>(uData, b1.min.x, b2.max.x, b1.min.y, b2.max.y,
+                            w));
+                    break;
+                case 1:
+                    assert(checkPixels<float>(fData, b1.min.x, b2.max.x, b1.min.y, b2.max.y,
+                            w));
+                    break;
+                case 2:
+                    assert(checkPixels<half>(hData, b1.min.x, b2.max.x, b1.min.y, b2.max.y,
+                            w));
+                    break;
+            }
+
             break;
         }
-
-        releasePixels(pixelType, deepUData, deepFData, deepHData, 0, width - 1, l1, l2);
-
-        break;
-    }
-    case 3:
-    {
-        DeepTiledInputFile part(filename);
-        int numXLevels = part.numXLevels();
-        int numYLevels = part.numYLevels();
-
-        int tx1, tx2, ty1, ty2;
-        int lx, ly;
-        lx = rand() % numXLevels;
-        ly = rand() % numYLevels;
-        if (levelMode == 1) ly = lx;
-
-        int w = part.levelWidth(lx);
-        int h = part.levelHeight(ly);
-
-        int numXTiles = part.numXTiles(lx);
-        int numYTiles = part.numYTiles(ly);
-        tx1 = rand() % numXTiles;
-        tx2 = rand() % numXTiles;
-        ty1 = rand() % numYTiles;
-        ty2 = rand() % numYTiles;
-        if (tx1 > tx2) swap(tx1, tx2);
-        if (ty1 > ty2) swap(ty1, ty2);
-
-        DeepFrameBuffer frameBuffer;
-
-        sampleCount.resizeErase(h, w);
-        frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
-                                            (char *) (&sampleCount[0][0]),
-                                            sizeof (unsigned int) * 1,
-                                            sizeof (unsigned int) * w));
-
-        setInputDeepFrameBuffer(frameBuffer, pixelType,
-                                deepUData, deepFData, deepHData, w, h);
-
-        part.setFrameBuffer(frameBuffer);
-
-        part.readPixelSampleCounts(tx1, tx2, ty1, ty2, lx, ly);
-
-        Box2i b1 = part.dataWindowForTile(tx1, ty1, lx, ly);
-        Box2i b2 = part.dataWindowForTile(tx2, ty2, lx, ly);
-        assert(checkSampleCount(sampleCount, b1.min.x, b2.max.x, b1.min.y, b2.max.y, w));
-
-        allocatePixels(pixelType, sampleCount,
-                       deepUData, deepFData, deepHData,
-                       b1.min.x, b2.max.x, b1.min.y, b2.max.y);
-
-        part.readTiles(tx1, tx2, ty1, ty2, lx, ly);
-
-        switch (pixelType)
-        {
-        case 0:
-            assert(checkPixels<unsigned int>(sampleCount, deepUData,
-                                             b1.min.x, b2.max.x, b1.min.y, b2.max.y, w));
-            break;
-        case 1:
-            assert(checkPixels<float>(sampleCount, deepFData,
-                                      b1.min.x, b2.max.x, b1.min.y, b2.max.y, w));
-            break;
         case 2:
-            assert(checkPixels<half>(sampleCount, deepHData,
-                                     b1.min.x, b2.max.x, b1.min.y, b2.max.y, w));
+        {
+            DeepScanLineInputFile part (fn.c_str());
+
+            DeepFrameBuffer frameBuffer;
+
+            sampleCount.resizeErase(height, width);
+            frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                    (char *) (&sampleCount[0][0]),
+                    sizeof (unsigned int) * 1,
+                    sizeof (unsigned int) * width));
+
+            setInputDeepFrameBuffer(frameBuffer, pixelType,
+                                    deepUData, deepFData, deepHData, width, height);
+
+            part.setFrameBuffer(frameBuffer);
+
+            int l1, l2;
+            l1 = rand() % height;
+            l2 = rand() % height;
+            if (l1 > l2) swap(l1, l2);
+
+            part.readPixelSampleCounts(l1, l2);
+            assert(checkSampleCount(sampleCount, 0, width - 1, l1, l2, width));
+
+            allocatePixels(pixelType, sampleCount,
+                           deepUData, deepFData, deepHData, 0, width - 1, l1, l2);
+
+            part.readPixels(l1, l2);
+
+            switch (pixelType)
+            {
+                case 0:
+                    assert(checkPixels<unsigned int>(sampleCount, deepUData, 0, width - 1, l1, l2, width));
+                    break;
+                case 1:
+                    assert(checkPixels<float>(sampleCount, deepFData, 0, width - 1, l1, l2, width));
+                    break;
+                case 2:
+                    assert(checkPixels<half>(sampleCount, deepHData, 0, width - 1, l1, l2, width));
+                    break;
+            }
+
+            releasePixels(pixelType, deepUData, deepFData, deepHData, 0, width - 1, l1, l2);
+
             break;
         }
+        case 3:
+        {
+            DeepTiledInputFile part (fn.c_str());
+            int numXLevels = part.numXLevels();
+            int numYLevels = part.numYLevels();
 
-        releasePixels(pixelType, deepUData, deepFData, deepHData,
-                      b1.min.x, b2.max.x, b1.min.y, b2.max.y);
+            int tx1, tx2, ty1, ty2;
+            int lx, ly;
+            lx = rand() % numXLevels;
+            ly = rand() % numYLevels;
+            if (levelMode == 1) ly = lx;
 
-        break;
-    }
+            int w = part.levelWidth(lx);
+            int h = part.levelHeight(ly);
+
+            int numXTiles = part.numXTiles(lx);
+            int numYTiles = part.numYTiles(ly);
+            tx1 = rand() % numXTiles;
+            tx2 = rand() % numXTiles;
+            ty1 = rand() % numYTiles;
+            ty2 = rand() % numYTiles;
+            if (tx1 > tx2) swap(tx1, tx2);
+            if (ty1 > ty2) swap(ty1, ty2);
+
+            DeepFrameBuffer frameBuffer;
+
+            sampleCount.resizeErase(h, w);
+            frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,
+                    (char *) (&sampleCount[0][0]),
+                    sizeof (unsigned int) * 1,
+                    sizeof (unsigned int) * w));
+
+            setInputDeepFrameBuffer(frameBuffer, pixelType,
+                                    deepUData, deepFData, deepHData, w, h);
+
+            part.setFrameBuffer(frameBuffer);
+
+            part.readPixelSampleCounts(tx1, tx2, ty1, ty2, lx, ly);
+
+            Box2i b1 = part.dataWindowForTile(tx1, ty1, lx, ly);
+            Box2i b2 = part.dataWindowForTile(tx2, ty2, lx, ly);
+            assert(checkSampleCount(sampleCount, b1.min.x, b2.max.x, b1.min.y, b2.max.y, w));
+
+            allocatePixels(pixelType, sampleCount,
+                           deepUData, deepFData, deepHData,
+                           b1.min.x, b2.max.x, b1.min.y, b2.max.y);
+
+            part.readTiles(tx1, tx2, ty1, ty2, lx, ly);
+
+            switch (pixelType)
+            {
+                case 0:
+                    assert(checkPixels<unsigned int>(sampleCount, deepUData,
+                            b1.min.x, b2.max.x, b1.min.y, b2.max.y, w));
+                    break;
+                case 1:
+                    assert(checkPixels<float>(sampleCount, deepFData,
+                            b1.min.x, b2.max.x, b1.min.y, b2.max.y, w));
+                    break;
+                case 2:
+                    assert(checkPixels<half>(sampleCount, deepHData,
+                            b1.min.x, b2.max.x, b1.min.y, b2.max.y, w));
+                    break;
+            }
+
+            releasePixels(pixelType, deepUData, deepFData, deepHData,
+                          b1.min.x, b2.max.x, b1.min.y, b2.max.y);
+
+            break;
+        }
     }
 }
 
-void readPartialFiles(int randomReadCount)
+void
+readPartialFiles (int randomReadCount, const std::string & fn)
 {
     Array2D<unsigned int> uData;
     Array2D<float> fData;
@@ -1113,7 +1118,7 @@ void readPartialFiles(int randomReadCount)
     Array2D<unsigned int> sampleCount;
 
     cout << "Reading partial files " << flush;
-    MultiPartInputFile file(filename);
+    MultiPartInputFile file (fn.c_str());
 
     for (int i = 0; i < randomReadCount; i++)
     {
@@ -1216,7 +1221,7 @@ void readPartialFiles(int randomReadCount)
                 DeepFrameBuffer frameBuffer;
 
                 sampleCount.resizeErase(height, width);
-                frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,
                                                     (char *) (&sampleCount[0][0]),
                                                     sizeof (unsigned int) * 1,
                                                     sizeof (unsigned int) * width));
@@ -1283,7 +1288,7 @@ void readPartialFiles(int randomReadCount)
                 DeepFrameBuffer frameBuffer;
 
                 sampleCount.resizeErase(h, w);
-                frameBuffer.insertSampleCountSlice (Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,
                                                     (char *) (&sampleCount[0][0]),
                                                     sizeof (unsigned int) * 1,
                                                     sizeof (unsigned int) * w));
@@ -1331,9 +1336,10 @@ void readPartialFiles(int randomReadCount)
 }
 
 
-void killOffsetTables()
+void
+killOffsetTables (const std::string & fn)
 {
-    FILE * f = fopen(filename,"r+b");
+    FILE * f = fopen (fn.c_str(),"r+b");
     
     cout << " simulating incomplete file ";
     cout.flush();
@@ -1416,44 +1422,51 @@ void killOffsetTables()
     
 }
 
-void testWriteRead(int partNumber, int runCount, int randomReadCount)
+void
+testWriteRead (int partNumber,
+               int runCount,
+               int randomReadCount,
+               const std::string & tempDir)
 {
     cout << "Testing file with " << partNumber << " part(s)." << endl << flush;
 
+    std::string fn = tempDir +  "imf_test_multipart_mixing_basic.exr";
+
     for (int i = 0; i < runCount; i++)
     {
-        generateRandomFile(partNumber);
-        readWholeFiles();
-        readFirstPart();
-        readPartialFiles(randomReadCount);
-        killOffsetTables();
-        readFirstPart();
-        readWholeFiles();
-        remove (filename);
+        generateRandomFile (partNumber, fn);
+        readWholeFiles (fn);
+        readFirstPart (fn);
+        readPartialFiles (randomReadCount, fn);
+        killOffsetTables (fn);
+        readFirstPart (fn);
+        readWholeFiles (fn);
+
+        remove (fn.c_str());
         cout << endl << flush;
     }
 }
 
 } // namespace
 
-void testMultiPartFileMixingBasic()
+
+
+void testMultiPartFileMixingBasic (const std::string & tempDir)
 {
     try
     {
         cout << "Testing the mixed (ScanLine, Tiled, DeepScanLine and DeepTiled)"
                 " multi-part file" << endl;
- 
-         
 
         srand(1);
 
         int numThreads = ThreadPool::globalThreadPool().numThreads();
         ThreadPool::globalThreadPool().setNumThreads(4);
 
-        testWriteRead( 1, 100,   50);
-        testWriteRead( 2, 200,  100);
-        testWriteRead( 5,  40,  250);
-        testWriteRead(50,  10, 2500);
+        testWriteRead ( 1, 1,   50, tempDir);
+        testWriteRead ( 2, 2,  100, tempDir);
+        testWriteRead ( 5, 3,  250, tempDir);
+        testWriteRead (50, 4, 2500, tempDir);
 
         ThreadPool::globalThreadPool().setNumThreads(numThreads);
 

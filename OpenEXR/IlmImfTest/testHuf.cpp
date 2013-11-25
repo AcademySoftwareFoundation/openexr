@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -135,7 +135,7 @@ compressUncompress (const unsigned short raw[], int n)
 
 
 void
-testHuf ()
+testHuf (const std::string&)
 {
     try
     {

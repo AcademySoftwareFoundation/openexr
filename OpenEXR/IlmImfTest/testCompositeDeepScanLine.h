@@ -34,6 +34,8 @@
 #ifndef TESTCOMPOSITEDEEPSCANLINE_H_
 #define TESTCOMPOSITEDEEPSCANLINE_H_
 
-void testCompositeDeepScanLine();
+#include <string>
+
+void testCompositeDeepScanLine (const std::string & tempDir);
 
 #endif /* TESTCOMPOSITEDEEPSCANLINE_H_ */

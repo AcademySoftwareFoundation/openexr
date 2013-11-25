@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -227,7 +227,7 @@ readData (istream &is)
 
 
 void
-testXdr ()
+testXdr (const std::string&)
 {
     cout << "Testing Xdr" << endl;
 

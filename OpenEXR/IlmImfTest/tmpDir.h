@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -35,8 +35,15 @@
 
 #if defined(ANDROID) || defined(__ANDROID_API__)
     #define IMF_TMP_DIR "/sdcard/"
-#elif defined(_WIN32) || defined(_WIN64) || defined(__MWERKS__) 
-    #define IMF_TMP_DIR ""
+    #define IMF_PATH_SEPARATOR "/"
+#elif defined(_WIN32) || defined(_WIN64) || defined(__MWERKS__)
+    #define IMF_TMP_DIR ""  // TODO: get this from GetTempPath() or env var $TEMP or $TMP
+    #define IMF_PATH_SEPARATOR "\\"
+    #include <direct.h> // for _mkdir, _rmdir
+    #define mkdir(name,mode) _mkdir(name)
+    #define rmdir _rmdir
 #else
+    #include <sys/stat.h> // for mkdir
     #define IMF_TMP_DIR "/var/tmp/"
+    #define IMF_PATH_SEPARATOR "/"
 #endif

@@ -49,18 +49,18 @@
 
 void
 makeLatLongMap (EnvmapImage &image,
-                CustomImf::Header &header,
-                CustomImf::RgbaChannels channels,
-	        const char outFileName[],
-	        int tileWidth,
-	        int tileHeight,
-	        CustomImf::LevelMode levelMode,
-	        CustomImf::LevelRoundingMode roundingMode,
-	        CustomImf::Compression compresssion,
-	        int mapWidth,
-	        float filterRadius,
-	        int numSamples,
-	        bool verbose);
+                IMF::Header &header,
+                IMF::RgbaChannels channels,
+                const char outFileName[],
+                int tileWidth,
+                int tileHeight,
+                IMF::LevelMode levelMode,
+                IMF::LevelRoundingMode roundingMode,
+                IMF::Compression compresssion,
+                int mapWidth,
+                float filterRadius,
+                int numSamples,
+                bool verbose);
 
 
 #endif  // INCLUDED_MAKE_LATLONG_MAP_H

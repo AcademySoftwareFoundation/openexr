@@ -35,6 +35,6 @@
 #ifndef TESTDEEPSCANLINEHUGE_H_
 #define TESTDEEPSCANLINEHUGE_H_
 
-void testDeepScanLineHuge();
+void testDeepScanLineHuge (const std::string & tempDir);
 
 #endif /* TESTDEEPSCANLINEHUGE_H_ */

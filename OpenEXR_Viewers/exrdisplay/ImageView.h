@@ -41,6 +41,8 @@
 //        class ImageView -- draws an Imf::Rgba image in an OpenGl window
 //
 //----------------------------------------------------------------------------
+#include "namespaceAlias.h"
+#include "GlWindow3d.h"
 
 #include <FL/Fl_Chart.H>
 #include <FL/Fl_Gl_Window.H>
@@ -49,7 +51,6 @@
 #include <ImfArray.h>
 
 
-#include "GlWindow3d.h"
 
 class ImageView: public Fl_Gl_Window
 {
@@ -58,7 +59,7 @@ class ImageView: public Fl_Gl_Window
         ImageView (int x, int y,
                    int w, int h,            // display window width and height
                    const char label[],
-                   const OPENEXR_IMF_NAMESPACE::Rgba pixels[/* w*h */],
+                   const IMF::Rgba pixels[/* w*h */],
                    float* dataZ[/* w*h */],
                    unsigned int sampleCount[/* w*h */],
                    int zsize,
@@ -76,7 +77,7 @@ class ImageView: public Fl_Gl_Window
         virtual void        setDefog (float defog);
         virtual void        setKneeLow (float low);
         virtual void        setKneeHigh (float high);
-        virtual void        setPixels(const OPENEXR_IMF_NAMESPACE::Rgba pixels[],
+        virtual void        setPixels(const IMF::Rgba pixels[],
                                       float* dataZ[/* w*h */],
                                       unsigned int sampleCount[/* w*h */],
                                       int zsize,
@@ -92,6 +93,7 @@ class ImageView: public Fl_Gl_Window
         void                computeFogColor ();
         void                findZbound ();
         float               findKnee (float x, float y);
+        void                drawChart (int x, int y, bool initChart);
         void                drawChartRef ();
 
         float                                _gamma;
@@ -99,7 +101,7 @@ class ImageView: public Fl_Gl_Window
         float                                _defog;
         float                                _kneeLow;
         float                                _kneeHigh;
-        const OPENEXR_IMF_NAMESPACE::Rgba *  _rawPixels;
+        const IMF::Rgba *                    _rawPixels;
         float**                              _dataZ;
         unsigned int *                       _sampleCount;
         float                                _fogR;
@@ -124,7 +126,7 @@ class ImageView: public Fl_Gl_Window
         Fl_Chart *                           _chartMin;
         Fl_Box *                             _rgbaBox;
         char                                 _rgbaBoxLabel[200];
-        OPENEXR_IMF_NAMESPACE::Array<unsigned char> _screenPixels;
+        IMF::Array<unsigned char>            _screenPixels;
 };
 
 

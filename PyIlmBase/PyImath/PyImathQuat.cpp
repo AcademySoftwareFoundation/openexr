@@ -520,6 +520,8 @@ register_Quat()
         .def ("__imul__", &imulT<T>, return_internal_reference<>())
         .def ("__idiv__", idiv<T>, return_internal_reference<>())
         .def ("__idiv__", &idivT<T>, return_internal_reference<>())
+        .def ("__itruediv__", idiv<T>, return_internal_reference<>())
+        .def ("__itruediv__", &idivT<T>, return_internal_reference<>())
         .def ("__iadd__", &iadd<T>, return_internal_reference<>())
         .def ("__isub__", &isub<T>, return_internal_reference<>())
         .def(self == self)
@@ -529,6 +531,8 @@ register_Quat()
         .def ("__mul__", &mul<T>)
         .def ("__div__", &div<T>)
         .def ("__div__", &divT<T>)
+        .def ("__truediv__", &div<T>)
+        .def ("__truediv__", &divT<T>)
         .def ("__mul__", &mulT<T>)
         .def ("__rmul__", &mulT<T>)
         .def ("__add__", &add<T>)
@@ -555,37 +559,173 @@ QuatArray_get(FixedArray<IMATH_NAMESPACE::Quat<T> > &qa)
     return FixedArray<T>( &(qa[0].r)+index, qa.len(), 4*qa.stride(), qa.handle());
 }
 
+template <class T>
+struct QuatArray_SetRotationTask : public Task
+{
+    const FixedArray<IMATH_NAMESPACE::Vec3<T> > &from;
+    const FixedArray<IMATH_NAMESPACE::Vec3<T> > &to;
+    FixedArray<IMATH_NAMESPACE::Quat<T> >       &result;
+
+    QuatArray_SetRotationTask (const FixedArray<IMATH_NAMESPACE::Vec3<T> > &fromIn,
+                               const FixedArray<IMATH_NAMESPACE::Vec3<T> > &toIn,
+                               FixedArray<IMATH_NAMESPACE::Quat<T> >       &resultIn)
+        : from (fromIn), to (toIn), result (resultIn) {}
+
+    void execute (size_t start, size_t end)
+    {
+        for (size_t i = start; i < end; ++i)
+            result[i].setRotation (from[i], to[i]);
+    }
+};
+
 template <class T> static void
-QuatArray_setRotation(FixedArray<IMATH_NAMESPACE::Quat<T> > &va,const FixedArray<IMATH_NAMESPACE::Vec3<T> > &from, const FixedArray<IMATH_NAMESPACE::Vec3<T> > &to)
+QuatArray_setRotation (FixedArray<IMATH_NAMESPACE::Quat<T> > &va,
+                       const FixedArray<IMATH_NAMESPACE::Vec3<T> > &from,
+                       const FixedArray<IMATH_NAMESPACE::Vec3<T> > &to)
 {
     MATH_EXC_ON;
     size_t len = va.match_dimension(from); 
     va.match_dimension(to); 
-    for (size_t i=0; i<len; ++i) 
-        va[i].setRotation( from[i], to[i] );
+
+    QuatArray_SetRotationTask<T> task (from, to, va);
+    dispatchTask (task, len);
 }
+
+template <class T>
+struct QuatArray_OrientToVectors : public Task
+{
+    const FixedArray<IMATH_NAMESPACE::Vec3<T> > &forward;
+    const FixedArray<IMATH_NAMESPACE::Vec3<T> > &up;
+    FixedArray<IMATH_NAMESPACE::Quat<T> >       &result;
+    bool alignForward;
+
+    QuatArray_OrientToVectors (const FixedArray<IMATH_NAMESPACE::Vec3<T> > &forwardIn,
+                               const FixedArray<IMATH_NAMESPACE::Vec3<T> > &upIn,
+                               FixedArray<IMATH_NAMESPACE::Quat<T> >       &resultIn,
+                               bool alignForwardIn)
+        : forward (forwardIn), up (upIn), result (resultIn),
+          alignForward (alignForwardIn) {}
+
+    void execute (size_t start, size_t end)
+    {
+        Vec3<T> f(0), u(0);
+        Euler<T> eu(0,0,0);
+        const Vec3<T> fRef(1,0,0);
+
+        for (size_t i = start; i < end; ++i)
+        {
+            if (alignForward)
+            {
+                f = forward[i].normalized();
+                u = up[i] - f.dot(up[i])*f;
+                u.normalize();
+            }
+            else
+            {
+                u = up[i].normalized();
+                f = forward[i] - u.dot(forward[i])*u;
+                f.normalize();
+            }
+
+            extractEulerXYZ (rotationMatrixWithUpDir (fRef, f, u), eu);
+            result[i] = eu.toQuat();
+        }
+    }
+};
+
+template <class T> static void
+QuatArray_orientToVectors (FixedArray<IMATH_NAMESPACE::Quat<T> >       &va,
+                           const FixedArray<IMATH_NAMESPACE::Vec3<T> > &forward,
+                           const FixedArray<IMATH_NAMESPACE::Vec3<T> > &up,
+                           bool alignForward)
+{
+    MATH_EXC_ON;
+    size_t len = va.match_dimension(forward);
+    va.match_dimension(up);
+
+    QuatArray_OrientToVectors<T> task (forward, up, va, alignForward);
+    dispatchTask (task, len);
+}
+
+template <class T>
+struct QuatArray_Axis : public Task
+{
+    const FixedArray<IMATH_NAMESPACE::Quat<T> > &va;
+    FixedArray<IMATH_NAMESPACE::Vec3<T> >       &result;
+
+    QuatArray_Axis (const FixedArray<IMATH_NAMESPACE::Quat<T> > &vaIn,
+                    FixedArray<IMATH_NAMESPACE::Vec3<T> >       &resultIn)
+        : va (vaIn), result (resultIn) {}
+
+    void execute (size_t start, size_t end)
+    {
+        for (size_t i = start; i < end; ++i)
+            result[i] = va[i].axis(); 
+    } 
+};
 
 template <class T> static FixedArray<IMATH_NAMESPACE::Vec3<T> >
 QuatArray_axis(const FixedArray<IMATH_NAMESPACE::Quat<T> > &va)
 {
     MATH_EXC_ON;
     size_t len = va.len(); 
-    FixedArray<IMATH_NAMESPACE::Vec3<T> > retval(len); 
-    for (size_t i=0; i<len; ++i) 
-        retval[i] = va[i].axis(); 
+    FixedArray<IMATH_NAMESPACE::Vec3<T> > retval (Py_ssize_t(len), UNINITIALIZED);
+
+    QuatArray_Axis<T> task (va, retval);
+    dispatchTask (task, len);
     return retval;
 }
+
+template <class T>
+struct QuatArray_Angle : public Task
+{
+    const FixedArray<IMATH_NAMESPACE::Quat<T> > &va;
+    FixedArray<T>                               &result;
+
+    QuatArray_Angle (const FixedArray<IMATH_NAMESPACE::Quat<T> > &vaIn,
+                     FixedArray<T>                               &resultIn)
+        : va (vaIn), result (resultIn) {}
+
+    void execute (size_t start, size_t end)
+    {
+        for (size_t i = start; i < end; ++i)
+            result[i] = va[i].angle(); 
+    } 
+};
+
 
 template <class T> static FixedArray<T>
 QuatArray_angle(const FixedArray<IMATH_NAMESPACE::Quat<T> > &va)
 {
     MATH_EXC_ON;
     size_t len = va.len(); 
-    FixedArray<T> retval(len); 
-    for (size_t i=0; i<len; ++i) 
-        retval[i] = va[i].angle(); 
+    FixedArray<T> retval (Py_ssize_t(len), UNINITIALIZED);
+
+    QuatArray_Angle<T> task (va, retval);
+    dispatchTask (task, len);
     return retval;
 }
+
+template <class T>
+struct QuatArray_RmulVec3 : public Task
+{
+    const FixedArray<IMATH_NAMESPACE::Quat<T> > &a;
+    const Vec3<T>                               &v;
+    FixedArray<Vec3<T> >                        &r;
+
+    QuatArray_RmulVec3 (const FixedArray<IMATH_NAMESPACE::Quat<T> > &aIn,
+                        const Vec3<T> &vIn, FixedArray<Vec3<T> > &rIn)
+        : a (aIn), v (vIn), r (rIn) {}
+
+    void execute(size_t start, size_t end)
+    {
+        for (size_t i = start; i < end; ++i)
+        {
+            Matrix44<T> m = a[i].toMatrix44();
+            r[i] = v * m;
+        }
+    }
+};
 
 template <class T>
 static FixedArray< Vec3<T> >
@@ -593,55 +733,169 @@ QuatArray_rmulVec3 (const FixedArray< IMATH_NAMESPACE::Quat<T> > &a, const Vec3<
 {
     MATH_EXC_ON;
     size_t len = a.len();
-    FixedArray< Vec3<T> > r(len);
-    for (size_t i = 0; i < len; i++)
-    {
-        Matrix44<T> m = a[i].toMatrix44();
-        r[i] = v * m;
-    }
+    FixedArray< Vec3<T> > r (Py_ssize_t(len), UNINITIALIZED);
+
+    QuatArray_RmulVec3<T> task (a, v, r);
+    dispatchTask (task, len);
     return r;
 }
+
+template <class T>
+struct QuatArray_RmulVec3Array : public Task
+{
+    const FixedArray<IMATH_NAMESPACE::Quat<T> > &a;
+    const FixedArray<Vec3<T> >                  &b;
+    FixedArray<Vec3<T> >                        &r;
+
+    QuatArray_RmulVec3Array (const FixedArray<IMATH_NAMESPACE::Quat<T> > &aIn,
+                             const FixedArray<Vec3<T> > &bIn,
+                             FixedArray<Vec3<T> > &rIn)
+        : a (aIn), b (bIn), r (rIn) {}
+
+    void execute(size_t start, size_t end)
+    {
+        for (size_t i = start; i < end; ++i)
+        {
+            Matrix44<T> m = a[i].toMatrix44();
+            r[i] = b[i] * m;
+        }
+    }
+};
 
 template <class T>
 static FixedArray< Vec3<T> >
-QuatArray_rmulVec3Array (const FixedArray< IMATH_NAMESPACE::Quat<T> > &a, const FixedArray< Vec3<T> > &b)
+QuatArray_rmulVec3Array (const FixedArray< IMATH_NAMESPACE::Quat<T> > &a,
+                         const FixedArray< Vec3<T> > &b)
 {
     MATH_EXC_ON;
     size_t len = a.match_dimension(b);
-    FixedArray< Vec3<T> > r(len);
-    for (size_t i = 0; i < len; i++)
-    {
-        Matrix44<T> m = a[i].toMatrix44();
-        r[i] = b[i] * m;
-    }
+    FixedArray< Vec3<T> > r (Py_ssize_t(len), UNINITIALIZED);
+
+    QuatArray_RmulVec3Array<T> task (a, b, r);
+    dispatchTask (task, len);
     return r;
 }
 
 template <class T>
+struct QuatArray_SetAxisAngle : public Task
+{
+    const FixedArray<IMATH_NAMESPACE::Vec3<T> > &axis;
+    const FixedArray<T>                         &angles;
+    FixedArray<IMATH_NAMESPACE::Quat<T> >       &quats;
+
+    QuatArray_SetAxisAngle (const FixedArray<IMATH_NAMESPACE::Vec3<T> > &axisIn,
+                            const FixedArray<T>                         &anglesIn,
+                            FixedArray<IMATH_NAMESPACE::Quat<T> >       &quatsIn)
+        : axis (axisIn), angles (anglesIn), quats (quatsIn) {}
+
+    void execute(size_t start, size_t end)
+    {
+        for (size_t i = start; i < end; ++i)
+        {
+            quats[i].setAxisAngle (axis[i], angles[i]);
+        }
+    }
+};
+
+template <class T>
 static void
-QuatArray_setAxisAngle(FixedArray< IMATH_NAMESPACE::Quat<T> > &quats, const FixedArray< IMATH_NAMESPACE::Vec3<T> > &axis, const FixedArray<T> &angles)
+QuatArray_setAxisAngle (FixedArray< IMATH_NAMESPACE::Quat<T> > &quats,
+                        const FixedArray< IMATH_NAMESPACE::Vec3<T> > &axis,
+                        const FixedArray<T> &angles)
 {
     MATH_EXC_ON;
     size_t len = quats.match_dimension(axis);
     quats.match_dimension(angles);
-    QuatfArray result(len);
-    for (size_t i = 0; i < len; ++i) {
-        result[i] = quats[i].setAxisAngle( axis[i], angles[i] );
-    }
+
+    QuatArray_SetAxisAngle<T> task (axis, angles, quats);
+    dispatchTask (task, len);
 }
 
 template <class T>
+struct QuatArray_SetEulerXYZ : public Task
+{
+    const FixedArray<IMATH_NAMESPACE::Vec3<T> > &rot;
+    FixedArray<IMATH_NAMESPACE::Quat<T> >       &quats;
+
+    QuatArray_SetEulerXYZ (const FixedArray<IMATH_NAMESPACE::Vec3<T> > &rotIn,
+                           FixedArray<IMATH_NAMESPACE::Quat<T> >       &quatsIn)
+        : rot (rotIn), quats (quatsIn) {}
+
+    void execute (size_t start, size_t end)
+    {
+        for (size_t i = start; i < end; ++i)
+        {
+            Eulerf e(rot[i]);
+            quats[i] = e.toQuat();
+        }
+    }
+};
+
+template <class T>
+static void
+QuatArray_setEulerXYZ (FixedArray< IMATH_NAMESPACE::Quat<T> > &quats,
+                       const FixedArray< IMATH_NAMESPACE::Vec3<T> > &rot)
+{
+    MATH_EXC_ON;
+    size_t len = quats.match_dimension(rot);
+
+    QuatArray_SetEulerXYZ<T> task (rot, quats);
+    dispatchTask (task, len);
+}
+
+template <class T>
+struct QuatArray_Mul : public Task
+{
+    const FixedArray<IMATH_NAMESPACE::Quat<T> > &q1;
+    const FixedArray<IMATH_NAMESPACE::Quat<T> > &q2;
+    FixedArray<IMATH_NAMESPACE::Quat<T> >       &result;
+
+    QuatArray_Mul (const FixedArray<IMATH_NAMESPACE::Quat<T> > &q1In,
+                   const FixedArray<IMATH_NAMESPACE::Quat<T> > &q2In,
+                   FixedArray<IMATH_NAMESPACE::Quat<T> >       &resultIn)
+        : q1 (q1In), q2 (q2In), result (resultIn) {}
+
+    void execute (size_t start, size_t end)
+    {
+        for (size_t i = start; i < end; ++i)
+        {
+            result[i] = q1[i] * q2[i];
+        }
+    }
+};
+
+template <class T>
 static FixedArray< IMATH_NAMESPACE::Quat<T> >
-QuatArray_mul(const FixedArray< IMATH_NAMESPACE::Quat<T> > &q1, const FixedArray< IMATH_NAMESPACE::Quat<T> > &q2)
+QuatArray_mul(const FixedArray< IMATH_NAMESPACE::Quat<T> > &q1,
+              const FixedArray< IMATH_NAMESPACE::Quat<T> > &q2)
 {
     MATH_EXC_ON;
     size_t len = q1.match_dimension(q2);
-    FixedArray< IMATH_NAMESPACE::Quat<T> > result(len);
-    for (size_t i = 0; i < len; ++i) {
-        result[i] = q1[i] * q2[i];
-    }
+    FixedArray< IMATH_NAMESPACE::Quat<T> > result (Py_ssize_t(len), UNINITIALIZED);
+
+    QuatArray_Mul<T> task (q1, q2, result);
+    dispatchTask (task, len);
     return result;
 }
+
+template <class T>
+struct QuatArray_QuatConstructor1 : public Task
+{
+    const FixedArray<IMATH_NAMESPACE::Euler<T> > &euler;
+    FixedArray<IMATH_NAMESPACE::Quat<T> >        &result;
+
+    QuatArray_QuatConstructor1 (const FixedArray<IMATH_NAMESPACE::Euler<T> > &eulerIn,
+                                FixedArray<IMATH_NAMESPACE::Quat<T> >        &resultIn)
+        : euler (eulerIn), result (resultIn) {}
+
+    void execute (size_t start, size_t end)
+    {
+        for (size_t i = start; i < end; ++i)
+        {
+            result[i] = euler[i].toQuat();
+        }
+    }
+};
 
 template <class T>
 static FixedArray<IMATH_NAMESPACE::Quat<T> > *
@@ -649,10 +903,11 @@ QuatArray_quatConstructor1(const FixedArray<IMATH_NAMESPACE::Euler<T> > &e)
 {
     MATH_EXC_ON;
     size_t len = e.len();
-    FixedArray<IMATH_NAMESPACE::Quat<T> >* result = new FixedArray<IMATH_NAMESPACE::Quat<T> >(len);
-    for (size_t i = 0; i < len; ++i) {
-        (*result)[i] = e[i].toQuat();
-    }
+    FixedArray<IMATH_NAMESPACE::Quat<T> >* result =
+        new FixedArray<IMATH_NAMESPACE::Quat<T> > (Py_ssize_t(len), UNINITIALIZED);
+
+    QuatArray_QuatConstructor1<T> task (e, *result);
+    dispatchTask (task, len);
     return result;
 }
 
@@ -666,10 +921,25 @@ register_QuatArray()
         .add_property("x",&QuatArray_get<T,1>)
         .add_property("y",&QuatArray_get<T,2>)
         .add_property("z",&QuatArray_get<T,3>)
-        .def("setRotation",&QuatArray_setRotation<T>, "set rotation angles for each quat")
-        .def("axis",&QuatArray_axis<T>, "get rotation axis for each quat")
-        .def("angle",&QuatArray_angle<T>, "get rotation angle about the axis returned by axis() for each quat")
-        .def("setAxisAngle",&QuatArray_setAxisAngle<T>, "set the quaternion arrays from a given axis and angle")
+        .def("setRotation", &QuatArray_setRotation<T>,
+             "set rotation angles for each quat",
+             (args("from", "to")))
+        .def("orientToVectors", &QuatArray_orientToVectors<T>,
+             "Sets the orientations to match the given forward and up vectors, "
+             "matching the forward vector exactly if 'alignForward' is True, matching "
+             "the up vector exactly if 'alignForward' is False.  If the vectors are "
+             "already orthogonal, both vectors will be matched exactly.",
+             (args("forward", "up", "alignForward")))
+        .def("axis", &QuatArray_axis<T>,
+             "get rotation axis for each quat")
+        .def("angle", &QuatArray_angle<T>,
+             "get rotation angle about the axis returned by axis() for each quat")
+        .def("setAxisAngle", &QuatArray_setAxisAngle<T>,
+             "set the quaternion arrays from a given axis and angle",
+             (args("axis", "angle")))
+        .def("setEulerXYZ", &QuatArray_setEulerXYZ<T>,
+             "set the quaternion arrays from a given euler XYZ angle vector",
+             (args("euler")))
         .def("__mul__", &QuatArray_mul<T>)
         .def("__rmul__", &QuatArray_rmulVec3<T>)
         .def("__rmul__", &QuatArray_rmulVec3Array<T>)

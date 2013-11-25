@@ -62,14 +62,14 @@
 namespace
 {
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
 
 const int height = 263;
 const int width = 197;
-const char filename[] = IMF_TMP_DIR "imf_test_multi_tiled_part_threading.exr";
 
 vector<Header> headers;
 int pixelTypes[2];
@@ -118,21 +118,21 @@ void setOutputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
     {
         case 0:
             frameBuffer.insert ("UINT",
-                                Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                                Slice (IMF::UINT,
                                 (char *) (&uData[0][0]),
                                 sizeof (uData[0][0]) * 1,
                                 sizeof (uData[0][0]) * width));
             break;
         case 1:
             frameBuffer.insert ("FLOAT",
-                                Slice (OPENEXR_IMF_NAMESPACE::FLOAT,
+                                Slice (IMF::FLOAT,
                                 (char *) (&fData[0][0]),
                                 sizeof (fData[0][0]) * 1,
                                 sizeof (fData[0][0]) * width));
             break;
         case 2:
             frameBuffer.insert ("HALF",
-                                Slice (OPENEXR_IMF_NAMESPACE::HALF,
+                                Slice (IMF::HALF,
                                 (char *) (&hData[0][0]),
                                 sizeof (hData[0][0]) * 1,
                                 sizeof (hData[0][0]) * width));
@@ -149,7 +149,7 @@ void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
         case 0:
             uData.resizeErase(height, width);
             frameBuffer.insert ("UINT",
-                                Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                                Slice (IMF::UINT,
                                 (char *) (&uData[0][0]),
                                 sizeof (uData[0][0]) * 1,
                                 sizeof (uData[0][0]) * width,
@@ -159,7 +159,7 @@ void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
         case 1:
             fData.resizeErase(height, width);
             frameBuffer.insert ("FLOAT",
-                                Slice (OPENEXR_IMF_NAMESPACE::FLOAT,
+                                Slice (IMF::FLOAT,
                                 (char *) (&fData[0][0]),
                                 sizeof (fData[0][0]) * 1,
                                 sizeof (fData[0][0]) * width,
@@ -169,7 +169,7 @@ void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
         case 2:
             hData.resizeErase(height, width);
             frameBuffer.insert ("HALF",
-                                Slice (OPENEXR_IMF_NAMESPACE::HALF,
+                                Slice (IMF::HALF,
                                 (char *) (&hData[0][0]),
                                 sizeof (hData[0][0]) * 1,
                                 sizeof (hData[0][0]) * width,
@@ -229,7 +229,8 @@ class ReadingTask: public Task
         int numXTiles;
 };
 
-void generateFiles()
+void
+generateFiles (const std::string & fn)
 {
     //
     // Generating headers.
@@ -249,13 +250,13 @@ void generateFiles()
         switch (pixelType)
         {
             case 0:
-                header.channels().insert("UINT", Channel(OPENEXR_IMF_NAMESPACE::UINT));
+                header.channels().insert("UINT", Channel(IMF::UINT));
                 break;
             case 1:
-                header.channels().insert("FLOAT", Channel(OPENEXR_IMF_NAMESPACE::FLOAT));
+                header.channels().insert("FLOAT", Channel(IMF::FLOAT));
                 break;
             case 2:
-                header.channels().insert("HALF", Channel(OPENEXR_IMF_NAMESPACE::HALF));
+                header.channels().insert("HALF", Channel(IMF::HALF));
                 break;
         }
 
@@ -284,8 +285,8 @@ void generateFiles()
     //
     // Preparing.
     //
-    remove (filename);
-    MultiPartOutputFile file(filename, &headers[0],headers.size());
+    remove (fn.c_str());
+    MultiPartOutputFile file(fn.c_str(), &headers[0],headers.size());
     vector<TiledOutputPart> parts;
     Array2D<half> halfData[2];
     Array2D<float> floatData[2];
@@ -361,10 +362,12 @@ void generateFiles()
         }
 }
 
-void readFiles()
+void
+readFiles (const std::string & fn)
 {
+
     cout << "Checking headers " << flush;
-    MultiPartInputFile file(filename);
+    MultiPartInputFile file(fn.c_str());
     assert (file.parts() == 2);
     for (size_t i = 0; i < 2; i++)
     {
@@ -461,8 +464,10 @@ void readFiles()
         }
 }
 
-void testWriteRead()
+void
+testWriteRead (const std::string & tempDir)
 {
+    std::string fn = tempDir + "imf_test_multi_tiled_part_threading.exr";
     string typeNames[2];
     string levelModeName;
     for (int i = 0; i < 2; i++)
@@ -501,17 +506,17 @@ void testWriteRead()
          << " tile size " << tileSize << "x" << tileSize
          << endl << flush;
 
-    generateFiles();
-    readFiles();
+    generateFiles (fn);
+    readFiles (fn);
 
-    remove (filename);
+    remove (fn.c_str());
 
     cout << endl << flush;
 }
 
 } // namespace
 
-void testMultiTiledPartThreading()
+void testMultiTiledPartThreading (const std::string & tempDir)
 {
     try
     {
@@ -529,7 +534,7 @@ void testMultiTiledPartThreading()
                         pixelTypes[1] = pt2;
                         levelMode = lm;
                         tileSize = size;
-                        testWriteRead();
+                        testWriteRead (tempDir);
                     }
 
         ThreadPool::globalThreadPool().setNumThreads(numThreads);

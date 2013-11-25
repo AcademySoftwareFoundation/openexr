@@ -35,6 +35,8 @@
 #ifndef TESTDEEPSCANLINEBASIC_H_
 #define TESTDEEPSCANLINEBASIC_H_
 
-void testDeepScanLineBasic();
+#include <string>
+
+void testDeepScanLineBasic (const std::string &tempDir);
 
 #endif /* TESTDEEPSCANLINEBASIC_H_ */

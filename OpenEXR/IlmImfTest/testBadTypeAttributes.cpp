@@ -52,10 +52,14 @@
 
 #include "tmpDir.h"
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
+#ifndef ILM_IMF_TEST_IMAGEDIR
+    #define ILM_IMF_TEST_IMAGEDIR
+#endif
 
 namespace
 {
@@ -275,7 +279,7 @@ template<class IN,class OUT> void check(const char* filename,const string& input
     }
     
     {
-        Imf::MultiPartInputFile file(filename);
+        IMF::MultiPartInputFile file(filename);
     
         if(outputtype!=NOTYPEATTR && file.header(0).type()!=outputtype)
         {
@@ -348,17 +352,17 @@ void testWriteBadTypes()
 
 }
 
-void testBadTypeAttributes()
+void testBadTypeAttributes(const std::string & tempDir)
 {
       cout << "Testing whether bad type attributes are fixed on read... " << endl;
 
-      testTiledWithBadAttribute( ILM_IMF_TEST_IMAGEDIR "tiled_with_scanlineimage_type.exr");
-      testTiledWithBadAttribute( ILM_IMF_TEST_IMAGEDIR "tiled_with_deepscanline_type.exr");
-      testTiledWithBadAttribute( ILM_IMF_TEST_IMAGEDIR "tiled_with_deeptile_type.exr");
+      testTiledWithBadAttribute (ILM_IMF_TEST_IMAGEDIR "tiled_with_scanlineimage_type.exr");
+      testTiledWithBadAttribute (ILM_IMF_TEST_IMAGEDIR "tiled_with_deepscanline_type.exr");
+      testTiledWithBadAttribute (ILM_IMF_TEST_IMAGEDIR "tiled_with_deeptile_type.exr");
       
-      testScanLineWithBadAttribute(  ILM_IMF_TEST_IMAGEDIR "scanline_with_tiledimage_type.exr");
-      testScanLineWithBadAttribute(  ILM_IMF_TEST_IMAGEDIR "scanline_with_deeptiled_type.exr");
-      testScanLineWithBadAttribute(  ILM_IMF_TEST_IMAGEDIR "scanline_with_deepscanline_type.exr");
+      testScanLineWithBadAttribute (ILM_IMF_TEST_IMAGEDIR "scanline_with_tiledimage_type.exr");
+      testScanLineWithBadAttribute (ILM_IMF_TEST_IMAGEDIR "scanline_with_deeptiled_type.exr");
+      testScanLineWithBadAttribute (ILM_IMF_TEST_IMAGEDIR "scanline_with_deepscanline_type.exr");
       
       cout << "Testing whether bad type attributes are fixed on write... " << endl;
 

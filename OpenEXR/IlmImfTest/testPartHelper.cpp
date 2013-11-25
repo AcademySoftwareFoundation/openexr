@@ -44,26 +44,31 @@ using std::max;
 using OPENEXR_IMF_NAMESPACE::MultiViewChannelName;
 using OPENEXR_IMF_NAMESPACE::SplitChannels;
 
-namespace {
-    template<class T> void print(const T & begin,const T & end)
+namespace
+{
+
+template<class T>
+void
+print(const T & begin,const T & end)
+{
+    int parts=1;
+    for(T i=begin;i!=end;i++)
     {
-        int parts=1;
+        parts=max(i->part_number,parts);
+    }
+
+    for(int p=0;p<parts;p++)
+    {
         for(T i=begin;i!=end;i++)
         {
-            parts=max(i->part_number,parts);
-        }
-        
-        for(int p=0;p<parts;p++)
-        {
-            for(T i=begin;i!=end;i++)
+            if(i->part_number==p)
             {
-                if(i->part_number==p)
-                {
-                    cout << i->part_number << ' ' << i->name << " in " << i->view << ' ' << ' ' << i->internal_name << "\n";
-                }
+                cout << i->part_number << ' ' << i->name << " in " << i->view
+                     << ' ' << ' ' << i->internal_name << "\n";
             }
         }
     }
+}
 
 void
 testSingleView()
@@ -173,7 +178,8 @@ testMultiView()
 }
 }
 
-void testPartHelper()
+void
+testPartHelper (const std::string & tempDir)
 {
     
     cout << "\n\nTesting part helper\n" << endl;

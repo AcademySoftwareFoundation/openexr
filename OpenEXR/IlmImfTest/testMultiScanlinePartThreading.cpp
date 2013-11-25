@@ -58,7 +58,8 @@
 #include <IlmThreadPool.h>
 #include <IlmThreadMutex.h>
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
@@ -68,7 +69,6 @@ namespace
 
 const int height = 263;
 const int width = 197;
-const char filename[] = IMF_TMP_DIR "imf_test_multi_scanline_part_threading.exr";
 
 vector<Header> headers;
 
@@ -155,21 +155,21 @@ void setOutputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
     {
         case 0:
             frameBuffer.insert ("UINT",
-                                Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                                Slice (IMF::UINT,
                                 (char *) (&uData[0][0]),
                                 sizeof (uData[0][0]) * 1,
                                 sizeof (uData[0][0]) * width));
             break;
         case 1:
             frameBuffer.insert ("FLOAT",
-                                Slice (OPENEXR_IMF_NAMESPACE::FLOAT,
+                                Slice (IMF::FLOAT,
                                 (char *) (&fData[0][0]),
                                 sizeof (fData[0][0]) * 1,
                                 sizeof (fData[0][0]) * width));
             break;
         case 2:
             frameBuffer.insert ("HALF",
-                                Slice (OPENEXR_IMF_NAMESPACE::HALF,
+                                Slice (IMF::HALF,
                                 (char *) (&hData[0][0]),
                                 sizeof (hData[0][0]) * 1,
                                 sizeof (hData[0][0]) * width));
@@ -186,7 +186,7 @@ void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
         case 0:
             uData.resizeErase(height, width);
             frameBuffer.insert ("UINT",
-                                Slice (OPENEXR_IMF_NAMESPACE::UINT,
+                                Slice (IMF::UINT,
                                 (char *) (&uData[0][0]),
                                 sizeof (uData[0][0]) * 1,
                                 sizeof (uData[0][0]) * width,
@@ -196,7 +196,7 @@ void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
         case 1:
             fData.resizeErase(height, width);
             frameBuffer.insert ("FLOAT",
-                                Slice (OPENEXR_IMF_NAMESPACE::FLOAT,
+                                Slice (IMF::FLOAT,
                                 (char *) (&fData[0][0]),
                                 sizeof (fData[0][0]) * 1,
                                 sizeof (fData[0][0]) * width,
@@ -206,7 +206,7 @@ void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
         case 2:
             hData.resizeErase(height, width);
             frameBuffer.insert ("HALF",
-                                Slice (OPENEXR_IMF_NAMESPACE::HALF,
+                                Slice (IMF::HALF,
                                 (char *) (&hData[0][0]),
                                 sizeof (hData[0][0]) * 1,
                                 sizeof (hData[0][0]) * width,
@@ -216,7 +216,8 @@ void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
     }
 }
 
-void generateFiles(int pixelTypes[])
+void
+generateFiles (int pixelTypes[], const std::string & fn)
 {
     //
     // Generate headers.
@@ -236,13 +237,13 @@ void generateFiles(int pixelTypes[])
         switch (pixelType)
         {
             case 0:
-                header.channels().insert("UINT", Channel(OPENEXR_IMF_NAMESPACE::UINT));
+                header.channels().insert("UINT", Channel(IMF::UINT));
                 break;
             case 1:
-                header.channels().insert("FLOAT", Channel(OPENEXR_IMF_NAMESPACE::FLOAT));
+                header.channels().insert("FLOAT", Channel(IMF::FLOAT));
                 break;
             case 2:
-                header.channels().insert("HALF", Channel(OPENEXR_IMF_NAMESPACE::HALF));
+                header.channels().insert("HALF", Channel(IMF::HALF));
                 break;
         }
 
@@ -263,8 +264,8 @@ void generateFiles(int pixelTypes[])
     fillPixels<half>(halfData, width, height);
     fillPixels<float>(floatData, width, height);
 
-    remove(filename);
-    MultiPartOutputFile file(filename, &headers[0],headers.size() );
+    remove(fn.c_str());
+    MultiPartOutputFile file(fn.c_str(), &headers[0],headers.size() );
 
     vector<OutputPart> parts;
     FrameBuffer frameBuffers[2];
@@ -295,10 +296,11 @@ void generateFiles(int pixelTypes[])
     delete threadPool;
 }
 
-void readFiles(int pixelTypes[])
+void
+readFiles (int pixelTypes[], const std::string & fn)
 {
     cout << "Checking headers " << flush;
-    MultiPartInputFile file(filename);
+    MultiPartInputFile file(fn.c_str());
     assert (file.parts() == 2);
     for (size_t i = 0; i < 2; i++)
     {
@@ -371,8 +373,11 @@ void readFiles(int pixelTypes[])
     }
 }
 
-void testWriteRead(int pixelTypes[])
+void
+testWriteRead (int pixelTypes[], const std::string & tempDir)
 {
+    std::string fn = tempDir +  "imf_test_multi_scanline_part_threading.exr";
+
     string typeNames[2];
     for (int i = 0; i < 2; i++)
     {
@@ -391,17 +396,18 @@ void testWriteRead(int pixelTypes[])
     }
     cout << "part 1: " << typeNames[0] << " scanline part, "
          << "part 2: " << typeNames[1] << " scanline part. " << endl << flush;
-    generateFiles(pixelTypes);
-    readFiles(pixelTypes);
 
-    remove (filename);
+    generateFiles (pixelTypes, fn);
+    readFiles (pixelTypes, fn);
+
+    remove (fn.c_str());
 
     cout << endl << flush;
 }
 
 } // namespace
 
-void testMultiScanlinePartThreading()
+void testMultiScanlinePartThreading (const std::string & tempDir)
 {
     try
     {
@@ -417,7 +423,7 @@ void testMultiScanlinePartThreading()
             {
                 pixelTypes[0] = i;
                 pixelTypes[1] = j;
-                testWriteRead(pixelTypes);
+                testWriteRead (pixelTypes, tempDir);
             }
 
         ThreadPool::globalThreadPool().setNumThreads(numThreads);

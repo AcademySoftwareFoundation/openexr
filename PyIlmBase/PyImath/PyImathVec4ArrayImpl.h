@@ -110,7 +110,8 @@ Vec4Array_min(const FixedArray<IMATH_NAMESPACE::Vec4<T> > &a) {
 
 template <class T>
 static IMATH_NAMESPACE::Vec4<T>
-Vec4Array_max(const FixedArray<Imath::Vec4<T> > &a) {
+Vec4Array_max(const FixedArray<IMATH_NAMESPACE::Vec4<T> > &a)
+{
     Vec4<T> tmp(Vec4<T>(0));
     size_t len = a.len();
     if (len > 0)
@@ -130,7 +131,7 @@ Vec4Array_max(const FixedArray<Imath::Vec4<T> > &a) {
 }
 
 template <class T>
-class_<FixedArray<Imath::Vec4<T> > >
+class_<FixedArray<IMATH_NAMESPACE::Vec4<T> > >
 register_Vec4Array()
 {
     using boost::mpl::true_;
@@ -159,7 +160,9 @@ register_Vec4Array()
     generate_member_bindings<op_mul<IMATH_NAMESPACE::Vec4<T>,T>,  true_>(vec4Array_class,"__rmul__","x*self", boost::python::args("x"));
     generate_member_bindings<op_imul<IMATH_NAMESPACE::Vec4<T>,T>, true_>(vec4Array_class,"__imul__","self*=x",boost::python::args("x"));
     generate_member_bindings<op_div<IMATH_NAMESPACE::Vec4<T>,T>,  true_>(vec4Array_class,"__div__" ,"self/x", boost::python::args("x"));
+    generate_member_bindings<op_div<IMATH_NAMESPACE::Vec4<T>,T>,  true_>(vec4Array_class,"__truediv__" ,"self/x", boost::python::args("x"));
     generate_member_bindings<op_idiv<IMATH_NAMESPACE::Vec4<T>,T>, true_>(vec4Array_class,"__idiv__","self/=x",boost::python::args("x"));
+    generate_member_bindings<op_idiv<IMATH_NAMESPACE::Vec4<T>,T>, true_>(vec4Array_class,"__itruediv__","self/=x",boost::python::args("x"));
 
     decoratecopy(vec4Array_class);
 

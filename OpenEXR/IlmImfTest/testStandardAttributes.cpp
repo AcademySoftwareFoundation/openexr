@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #include <ImfRgbaFile.h>
 #include <ImfStandardAttributes.h>
 #include <ImfFramesPerSecond.h>
@@ -43,8 +42,6 @@
 #include <iomanip>
 #include <stdio.h>
 #include <assert.h>
-
-#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -906,6 +903,7 @@ generatedFunctions ()
     assert (hasMultiView (header) == false);
     assert (hasWorldToCamera (header) == false);
     assert (hasWorldToNDC (header) == false);
+    assert (hasDeepImageState (header) == false);
 }
 
 
@@ -913,7 +911,7 @@ generatedFunctions ()
 
 
 void
-testStandardAttributes ()
+testStandardAttributes (const std::string &tempDir)
 {
     try
     {
@@ -922,37 +920,37 @@ testStandardAttributes ()
 	convertRGBtoXYZ();
 
 	{
-	    const char *filename = IMF_TMP_DIR "imf_test_chromaticities.exr";
-	    writeReadChromaticities (filename);
+	    std::string filename = tempDir + "imf_test_chromaticities.exr";
+	    writeReadChromaticities (filename.c_str());
 	}
 
 	{
-	    const char *fn1 = IMF_TMP_DIR "imf_test_latlong1.exr";
-	    const char *fn2 = IMF_TMP_DIR "imf_test_latlong2.exr";
-	    latLongMap (fn1, fn2);
+	    std::string fn1 = tempDir + "imf_test_latlong1.exr";
+	    std::string fn2 = tempDir + "imf_test_latlong2.exr";
+	    latLongMap (fn1.c_str(), fn2.c_str());
 	}
 
 	{
-	    const char *fn1 = IMF_TMP_DIR "imf_test_cube1.exr";
-	    const char *fn2 = IMF_TMP_DIR "imf_test_cube2.exr";
-	    cubeMap (fn1, fn2);
+	    std::string fn1 = tempDir + "imf_test_cube1.exr";
+	    std::string fn2 = tempDir + "imf_test_cube2.exr";
+	    cubeMap (fn1.c_str(), fn2.c_str());
 	}
 
 	{
-	    const char *filename = IMF_TMP_DIR "imf_test_keycode.exr";
-	    writeReadKeyCode (filename);
+	    std::string filename = tempDir + "imf_test_keycode.exr";
+	    writeReadKeyCode (filename.c_str());
 	}
 
 	{
 	    timeCodeMethods();
-	    const char *filename = IMF_TMP_DIR "imf_test_timecode.exr";
-	    writeReadTimeCode (filename);
+	    std::string filename = tempDir + "imf_test_timecode.exr";
+	    writeReadTimeCode (filename.c_str());
 	}
 
 	{
 	    rationalMethods();
-	    const char *filename = IMF_TMP_DIR "imf_test_rational.exr";
-	    writeReadRational (filename);
+	    std::string filename = tempDir + "imf_test_rational.exr";
+	    writeReadRational (filename.c_str());
 	}
 
 	generatedFunctions();

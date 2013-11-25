@@ -46,7 +46,8 @@
 
 #include "tmpDir.h"
 
-using namespace OPENEXR_IMF_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
@@ -54,9 +55,11 @@ using namespace ILMTHREAD_NAMESPACE;
 
 namespace
 {
- 
-const char filename[] = IMF_TMP_DIR "imf_test_interleave_patterns.exr";
 
+using OPENEXR_IMF_NAMESPACE::UINT;
+using OPENEXR_IMF_NAMESPACE::FLOAT;
+
+std::string filename;
 
 vector<char> writingBuffer; // buffer as file was written
 vector<char> readingBuffer; // buffer containing new image (and filled channels?)
@@ -66,14 +69,19 @@ int gOptimisedReads = 0;
 int gSuccesses = 0;
 int gFailures = 0;
 
+
+//
+// @todo Needs a description of what this is used for.
+//
+//
 struct Schema
 {
-    const char* _name;       // name of this scheme
-    const char* const* _active;   // channels to be read
+    const char*         _name;     // name of this scheme
+    const char* const*  _active;   // channels to be read
     const char* const * _passive;  // channels to be ignored (keep in buffer passed to inputfile, should not be overwritten)
-    int _banks;
-    const char* const *_views;    // list of views to write, or NULL
-    const PixelType* _types;  // NULL for all HALF, otherwise per-channel type
+    int                 _banks;
+    const char* const * _views;    // list of views to write, or NULL
+    const PixelType*    _types;    // NULL for all HALF, otherwise per-channel type
     
     vector<string> views() const
     {
@@ -81,7 +89,7 @@ struct Schema
         vector<string> svec;
         while(*v!=NULL)
         {
-            svec.push_back(*v);
+            svec.push_back (*v);
             v++;
         }
         return svec;
@@ -115,48 +123,49 @@ const char * lefthero[] = {"left","right",NULL};
 const char * righthero[] = {"right","left",NULL};
 const char * centrehero[] = {"centre","left","right",NULL};
 
-const PixelType four_floats[] = {FLOAT,FLOAT,FLOAT,FLOAT};
-const PixelType hhhfff[] = {HALF,HALF,HALF,FLOAT,FLOAT,FLOAT};
-const PixelType hhhhffff[] = {HALF,HALF,HALF,HALF,FLOAT,FLOAT,FLOAT,FLOAT};
+const PixelType four_floats[] = {IMF::FLOAT,IMF::FLOAT,IMF::FLOAT,IMF::FLOAT};
+const PixelType hhhfff[] = {IMF::HALF,IMF::HALF,IMF::HALF,IMF::FLOAT,IMF::FLOAT,IMF::FLOAT};
+const PixelType hhhhffff[] = {IMF::HALF,IMF::HALF,IMF::HALF,IMF::HALF,IMF::FLOAT,IMF::FLOAT,IMF::FLOAT,IMF::FLOAT};
 
-Schema Schemes[] = {
-                     {"RGBHalf"      ,rgb           ,NULL,1,NULL       ,NULL},
-                     {"RGBAHalf"     ,rgba          ,NULL,1,NULL       ,NULL},
-                     {"ABGRHalf"     ,abgr          ,NULL,1,NULL       ,NULL},
-                     {"RGBFloat"     ,rgb           ,NULL,1,NULL       ,four_floats},
-                     {"BGRHalf"      ,bgr           ,NULL,1,NULL       ,NULL},
-                     {"RGBLeftRGB"   ,rgbleftrgb    ,NULL,1,righthero  ,NULL},
-                     {"RGBRightRGB"  ,rgbrightrgb   ,NULL,1,lefthero   ,NULL},
-                     {"RGBALeftRGBA" ,rgbaleftrgba  ,NULL,1,righthero  ,NULL},
-                     {"RGBARightRGBA",rgbarightrgba ,NULL,1,lefthero   ,NULL},
-                     {"LeftRGB"      ,leftrgb       ,NULL,1,NULL       ,NULL},
-                     {"RightRGB"     ,rightrgb      ,NULL,1,NULL       ,NULL},
-                     {"LeftRGBA"     ,leftrgba      ,NULL,1,NULL       ,NULL},
-                     {"RightRGBA"    ,rightrgba     ,NULL,1,NULL       ,NULL},
-                     {"TripleView"   ,threeview     ,NULL,1,centrehero ,NULL},
-                     {"Trees"        ,trees         ,NULL,1,NULL       ,NULL},
-                     {"TreesAndBirds",treesandbirds ,NULL,1,NULL           ,NULL},
-                     {"RGBLeftRGBA"  ,rgbleftrgba   ,NULL,1,righthero      ,NULL},
-                     {"RGBRightRGBA" ,rgbrightrgba  ,NULL,1,lefthero       ,NULL},
-                     {"RGBALeftRGB"  ,rgbaleftrgb   ,NULL,1,righthero      ,NULL},
-                     {"RGBARightRGB" ,rgbarightrgb  ,NULL,1,lefthero       ,NULL},
-                     {"TwinRGBLeftRGB"   ,rgbleftrgb    ,NULL,2,righthero  ,NULL},
-                     {"TwinRGBRightRGB"  ,rgbrightrgb   ,NULL,2,lefthero   ,NULL},
-                     {"TwinRGBALeftRGBA" ,rgbaleftrgba  ,NULL,2,righthero  ,NULL},
-                     {"TwinRGBARightRGBA",rgbarightrgba ,NULL,2,lefthero   ,NULL},
-                     {"TripleTripleView" ,threeview     ,NULL,3,centrehero ,NULL},
-                     {"Alpha"            ,alpha         ,NULL,1,NULL       ,NULL},
-                     {"RedAlpha"         ,redalpha      ,NULL,1,NULL       ,NULL},
-                     {"RG+BA"            ,rgba          ,NULL,2,NULL       ,NULL},//interleave only RG, then BA
-                     {"RGBpassiveA"         ,rgb           ,alpha,1,NULL       ,NULL},//interleave only RG, then BA
-                     {"RGBpassiveleftRGB"   ,rgb           ,leftrgb,1,NULL     ,NULL},
-                     {"RGBFloatA"           ,rgba          ,NULL,1,NULL        ,hhhfff},
-                     {"RGBFloatLeftRGB"     ,rgbleftrgb    ,NULL,1,righthero   ,hhhfff},
-                     {"RGBAFloatLeftRGBA"   ,rgbaleftrgba,NULL,1,righthero,hhhhffff},
-                     {"RGBApassiverightRGBA",rgba       ,rightrgba,1,NULL     ,NULL},
-                     {"BanksOfTreesAndBirds",treesandbirds ,NULL,2,NULL           ,NULL},
-                     {NULL,NULL,NULL,0,NULL,NULL}
-                    };
+Schema Schemes[] =
+{
+        {"RGBHalf"              ,rgb           ,NULL      ,1 ,NULL       ,NULL       },
+        {"RGBAHalf"             ,rgba          ,NULL      ,1 ,NULL       ,NULL       },
+        {"ABGRHalf"             ,abgr          ,NULL      ,1 ,NULL       ,NULL       },
+        {"RGBFloat"             ,rgb           ,NULL      ,1 ,NULL       ,four_floats},
+        {"BGRHalf"              ,bgr           ,NULL      ,1 ,NULL       ,NULL       },
+        {"RGBLeftRGB"           ,rgbleftrgb    ,NULL      ,1 ,righthero  ,NULL       },
+        {"RGBRightRGB"          ,rgbrightrgb   ,NULL      ,1 ,lefthero   ,NULL       },
+        {"RGBALeftRGBA"         ,rgbaleftrgba  ,NULL      ,1 ,righthero  ,NULL       },
+        {"RGBARightRGBA"        ,rgbarightrgba ,NULL      ,1 ,lefthero   ,NULL       },
+        {"LeftRGB"              ,leftrgb       ,NULL      ,1 ,NULL       ,NULL       },
+        {"RightRGB"             ,rightrgb      ,NULL      ,1 ,NULL       ,NULL       },
+        {"LeftRGBA"             ,leftrgba      ,NULL      ,1 ,NULL       ,NULL       },
+        {"RightRGBA"            ,rightrgba     ,NULL      ,1 ,NULL       ,NULL       },
+        {"TripleView"           ,threeview     ,NULL      ,1 ,centrehero ,NULL       },
+        {"Trees"                ,trees         ,NULL      ,1 ,NULL       ,NULL       },
+        {"TreesAndBirds"        ,treesandbirds ,NULL      ,1 ,NULL       ,NULL       },
+        {"RGBLeftRGBA"          ,rgbleftrgba   ,NULL      ,1 ,righthero  ,NULL       },
+        {"RGBRightRGBA"         ,rgbrightrgba  ,NULL      ,1 ,lefthero   ,NULL       },
+        {"RGBALeftRGB"          ,rgbaleftrgb   ,NULL      ,1 ,righthero  ,NULL       },
+        {"RGBARightRGB"         ,rgbarightrgb  ,NULL      ,1 ,lefthero   ,NULL       },
+        {"TwinRGBLeftRGB"       ,rgbleftrgb    ,NULL      ,2 ,righthero  ,NULL       },
+        {"TwinRGBRightRGB"      ,rgbrightrgb   ,NULL      ,2 ,lefthero   ,NULL       },
+        {"TwinRGBALeftRGBA"     ,rgbaleftrgba  ,NULL      ,2 ,righthero  ,NULL       },
+        {"TwinRGBARightRGBA"    ,rgbarightrgba ,NULL     , 2 ,lefthero   ,NULL       },
+        {"TripleTripleView"     ,threeview     ,NULL      ,3 ,centrehero ,NULL       },
+        {"Alpha"                ,alpha         ,NULL      ,1 ,NULL       ,NULL       },
+        {"RedAlpha"             ,redalpha      ,NULL      ,1 ,NULL       ,NULL       },
+        {"RG+BA"                ,rgba          ,NULL      ,2 ,NULL       ,NULL       },//interleave only RG, then BA
+        {"RGBpassiveA"          ,rgb           ,alpha     ,1 ,NULL       ,NULL       },//interleave only RG, then BA
+        {"RGBpassiveleftRGB"    ,rgb           ,leftrgb   ,1 ,NULL       ,NULL       },
+        {"RGBFloatA"            ,rgba          ,NULL      ,1 ,NULL       ,hhhfff     },
+        {"RGBFloatLeftRGB"      ,rgbleftrgb    ,NULL      ,1 ,righthero  ,hhhfff     },
+        {"RGBAFloatLeftRGBA"    ,rgbaleftrgba  ,NULL      ,1 ,righthero  ,hhhhffff   },
+        {"RGBApassiverightRGBA" ,rgba          ,rightrgba ,1 ,NULL       ,NULL       },
+        {"BanksOfTreesAndBirds" ,treesandbirds ,NULL      ,2 ,NULL       ,NULL       },
+        {NULL,NULL,NULL,0,NULL,NULL}
+};
 
 
 
@@ -169,27 +178,22 @@ bool compare(const FrameBuffer& asRead,
     for (FrameBuffer::ConstIterator i =asRead.begin();i!=asRead.end();i++)
     {
         FrameBuffer::ConstIterator p = asWritten.find(i.name());
-        for (int y=dataWindow.min.y;
-                y<= dataWindow.max.y;
-                y++)
+        for (int y=dataWindow.min.y; y<= dataWindow.max.y; y++)
         {
-            for (int x = dataWindow.min.x;
-                    x <= dataWindow.max.x;
-                    x++)
+            for (int x = dataWindow.min.x; x <= dataWindow.max.x; x++)
                  
             {
-                char * ptr = 
-                                (i.slice().base+i.slice().yStride*y +i.slice().xStride*x);
+                char * ptr = (i.slice().base+i.slice().yStride*y +i.slice().xStride*x);
                 half readHalf;
-                switch(i.slice().type)
+                switch (i.slice().type)
                 {
-                    case FLOAT :
+                    case IMF::FLOAT :
                         readHalf =  half(*(float*) ptr);
                         break;
-                    case HALF :
+                    case IMF::HALF :
                         readHalf = half(*(half*) ptr);
                         break;
-                    case UINT :
+                    case IMF::UINT :
                         continue; // can't very well check this
                     default :
                         cout << "don't know about that\n";
@@ -204,28 +208,32 @@ bool compare(const FrameBuffer& asRead,
                                  p.slice().xStride*x;
                     switch (p.slice().type)
                     {
-                    case FLOAT :
+                    case IMF::FLOAT :
                         writtenHalf = half(*(float*) ptr);
                         break;
-                    case HALF :
+                    case IMF::HALF :
                         writtenHalf = half(*(half*) ptr);
                         break;
-                    case UINT :
+                    case IMF::UINT :
                         continue;
                     default :
                         cout << "don't know about that\n";
                         exit(1);
                     }
-                } else {
+                }
+                else
+                {
                     writtenHalf=half(i.slice().fillValue);
                 }
 
-                if(writtenHalf.bits()!=readHalf.bits())
+                if (writtenHalf.bits()!=readHalf.bits())
                 {
-                    if(nonfatal)
+                    if (nonfatal)
                     {
                         return false;
-                    }else{
+                    }
+                    else
+                    {
                         cout << "\n\nerror reading back channel " << i.name() << " pixel " << x << ',' << y << " got " << readHalf << " expected " << writtenHalf << endl;
                         assert(writtenHalf.bits()==readHalf.bits());
                         exit(1);
@@ -241,18 +249,18 @@ bool compare(const FrameBuffer& asRead,
 //
 // allocate readingBuffer or writingBuffer, setting up a framebuffer to point to the right thing
 //
-ChannelList setupBuffer(const Header& hdr,       // header to grab datawindow from
-                             const char * const *channels, // NULL terminated list of channels to write
-                             const char * const *passivechannels, // NULL terminated list of channels to write
-                             const PixelType* pt,     // type of each channel, or NULL for all HALF
-                             FrameBuffer& buf,        // buffer to fill with pointers to channel
-                             FrameBuffer& prereadbuf, // channels which aren't being read - indexes into the preread buffer
-                             FrameBuffer& postreadbuf, // channels which aren't being read - indexes into the postread buffer
-                             int banks,                    // number of banks - channels within each bank are interleaved, banks are scanline interleaved
-                             bool writing                  // true if should allocate 
-                            )
+ChannelList
+setupBuffer (const Header& hdr,       // header to grab datawindow from
+             const char * const *channels, // NULL terminated list of channels to write
+             const char * const *passivechannels, // NULL terminated list of channels to write
+             const PixelType* pt,     // type of each channel, or NULL for all HALF
+             FrameBuffer& buf,        // buffer to fill with pointers to channel
+             FrameBuffer& prereadbuf, // channels which aren't being read - indexes into the preread buffer
+             FrameBuffer& postreadbuf, // channels which aren't being read - indexes into the postread buffer
+             int banks,                    // number of banks - channels within each bank are interleaved, banks are scanline interleaved
+             bool writing                  // true if should allocate
+            )
 {
-
     Box2i dw = hdr.dataWindow();
 
     //
@@ -263,16 +271,18 @@ ChannelList setupBuffer(const Header& hdr,       // header to grab datawindow fr
     
     while (channels[activechans]!=NULL)
     {
-        if(pt==NULL)
+        if (pt==NULL)
         {
             bytes_per_pixel+=2;
-        }else{
-            switch(pt[activechans])
+        }
+        else
+        {
+            switch (pt[activechans])
             {
-                case HALF : bytes_per_pixel+=2;break;
-                case FLOAT : case UINT : bytes_per_pixel+=4;break;
+                case IMF::HALF : bytes_per_pixel+=2;break;
+                case IMF::FLOAT : case IMF::UINT : bytes_per_pixel+=4;break;
                 default :
-                    cout << "wot?\n";
+                    cout << "Unexpected PixelType?\n";
                     exit(1);
             }
         }
@@ -283,16 +293,18 @@ ChannelList setupBuffer(const Header& hdr,       // header to grab datawindow fr
     int passivechans=0;
     while (passivechannels!=NULL && passivechannels[passivechans]!=NULL)
     {
-        if(pt==NULL)
+        if (pt==NULL)
         {
             bytes_per_pixel+=2;
-        }else{
-            switch(pt[passivechans+activechans])
+        }
+        else
+        {
+            switch (pt[passivechans+activechans])
             {
-                case HALF : bytes_per_pixel+=2;break;
-                case FLOAT : case UINT : bytes_per_pixel+=4;break;
+                case IMF::HALF : bytes_per_pixel+=2;break;
+                case IMF::FLOAT : case IMF::UINT : bytes_per_pixel+=4;break;
                 default :
-                    cout << "wot?\n";
+                    cout << "Unexpected PixelType?\n";
                     exit(1);
             }
         }
@@ -310,10 +322,12 @@ ChannelList setupBuffer(const Header& hdr,       // header to grab datawindow fr
     int size = samples*bytes_per_pixel;
 
     
-    if(writing)
+    if (writing)
     {
         writingBuffer.resize(size);
-    }else{
+    }
+    else
+    {
         readingBuffer.resize(size);
     }
    
@@ -325,23 +339,25 @@ ChannelList setupBuffer(const Header& hdr,       // header to grab datawindow fr
          unsigned short int values = (unsigned short int) floor((double(rand())/double(RAND_MAX))*65535.0);
          half v;
          v.setBits(values);
-         if (pt==NULL || pt[chan]==HALF)
+         if (pt==NULL || pt[chan]==IMF::HALF)
          {
              *(half*)write_ptr = half(v);
              write_ptr+=2;
-         } else {
+         }
+         else
+         {
              *(float*)write_ptr = float(v);
              write_ptr+=4;
          }
          chan++;
-         if(chan==chans)
+         if (chan==chans)
          {
              chan=0;
          }
      
      }
 
-     if(!writing)
+     if (!writing)
      {
          //take a copy of the buffer as it was before being read
          preReadBuffer = readingBuffer;
@@ -358,54 +374,65 @@ ChannelList setupBuffer(const Header& hdr,       // header to grab datawindow fr
     
     for (int i=0;i<chans;i++)
     {
-        PixelType type = pt==NULL ? HALF : pt[i];
+        PixelType type = pt==NULL ? IMF::HALF : pt[i];
         if (i<activechans && writing)
         {
-                chanlist.insert(channels[i],type);
+            chanlist.insert(channels[i],type);
         }
-        
-        
-        if(i % (chans/banks) ==0)
+
+
+        if (i % (chans/banks) ==0)
         {
             //
             // set offset pointer to beginning of bank
             //
 
             int bank = i / (chans/banks);
-            offset = (writing ? &writingBuffer[0] : &readingBuffer[0]) + bank*bytes_per_bank_row - first_pixel_index;
+            offset = (writing ? &writingBuffer[0] :
+                                &readingBuffer[0]) + bank*bytes_per_bank_row - first_pixel_index;
         }
         
-        if(i<activechans)
+        if (i<activechans)
         {
             
-            buf.insert(channels[i],
-                       Slice(type,offset,bytes_per_bank,
-                                  bytes_per_row,1,1,100+i));
-        }else{
-            
-            if(!writing)
+            buf.insert (channels[i],
+                        Slice (type,
+                               offset,
+                               bytes_per_bank,
+                               bytes_per_row,
+                               1,1,100+i));
+        }
+        else
+        {
+            if (!writing)
             {
                 
-                postreadbuf.insert(passivechannels[i-activechans],
-                                   Slice(type,offset,bytes_per_bank,
-                                              bytes_per_row,1,1,0.4));
-                
+                postreadbuf.insert (passivechannels[i-activechans],
+                                    Slice (type,
+                                           offset,
+                                           bytes_per_bank,
+                                           bytes_per_row,
+                                           1,1,0.4));
+
                 char * pre_offset = offset-&readingBuffer[0]+&preReadBuffer[0];
-                prereadbuf.insert(passivechannels[i-activechans],
-                                  Slice(type, pre_offset,bytes_per_bank,
-                                             bytes_per_row,1,1,0.4));
+                prereadbuf.insert (passivechannels[i-activechans],
+                                   Slice (type,
+                                          pre_offset,
+                                          bytes_per_bank,
+                                          bytes_per_row,
+                                          1,1,0.4));
             }
         }
         switch (type)
         {
-            case HALF :
+            case IMF::HALF :
                 offset+=2;
                 break;
-            case FLOAT :
+            case IMF::FLOAT :
                 offset+=4;
                 break;
             default :
-                cout << "don't know about that\n";
+                cout << "Unexpected Pixel Type\n";
                 exit(1);
         
         }
@@ -419,7 +446,7 @@ ChannelList setupBuffer(const Header& hdr,       // header to grab datawindow fr
 Box2i writefile(Schema & scheme,FrameBuffer& buf,bool tiny)
 {
     const int height = 128;
-    const int width = 128;
+    const int width  = 128;
 
     Header hdr(width,height,1);
     
@@ -430,51 +457,71 @@ Box2i writefile(Schema & scheme,FrameBuffer& buf,bool tiny)
     
     
     // in tiny mode, make image up to 14*14 pixels (less than two SSE instructions)
-    if(tiny)
+    if (tiny)
     {
         hdr.dataWindow().max.x = hdr.dataWindow().min.x + 1+int(13*double(rand())/double(RAND_MAX));
         hdr.dataWindow().max.y = hdr.dataWindow().min.y + 1+int(13*double(rand())/double(RAND_MAX));
-    }else{
+    }
+    else
+    {
         // in normal mode, make chunky images
         hdr.dataWindow().max.x = hdr.dataWindow().min.x + 64+int(400*double(rand())/double(RAND_MAX));
         hdr.dataWindow().max.y = hdr.dataWindow().min.y + 64+int(400*double(rand())/double(RAND_MAX));
-        
     }
     
     hdr.compression()=ZIPS_COMPRESSION;
     
     FrameBuffer dummy1,dummy2;
     
-    hdr.channels() = setupBuffer(hdr,scheme._active,scheme._passive,scheme._types,buf,dummy1,dummy2,scheme._banks,true);
+    hdr.channels() = setupBuffer (hdr,
+                                  scheme._active,
+                                  scheme._passive,
+                                  scheme._types,
+                                  buf,
+                                  dummy1,
+                                  dummy2,
+                                  scheme._banks,
+                                  true);
     
-    if(scheme._views)
+    if (scheme._views)
     {
         addMultiView(hdr,scheme.views());
     }
     
-    remove(filename);
-    OutputFile f(filename,hdr);
+    remove (filename.c_str());
+    OutputFile f(filename.c_str(), hdr);
     f.setFrameBuffer(buf);
     f.writePixels(hdr.dataWindow().max.y-hdr.dataWindow().min.y+1);
 
     return hdr.dataWindow();
 }
 
-bool readfile(Schema scheme,
-              FrameBuffer & buf, ///< list of channels to read: index to readingBuffer
-              FrameBuffer & preread,///< list of channels to skip: index to preReadBuffer
-              FrameBuffer & postread)///< list of channels to skip: index to readingBuffer)
+bool
+readfile (Schema scheme,
+          FrameBuffer & buf,      ///< list of channels to read: index to readingBuffer
+          FrameBuffer & preread,  ///< list of channels to skip: index to preReadBuffer
+          FrameBuffer & postread) ///< list of channels to skip: index to readingBuffer)
 {
-    InputFile infile(filename);
-    setupBuffer(infile.header(),scheme._active,scheme._passive,  scheme._types,buf,preread,postread,scheme._banks,false);
+    InputFile infile (filename.c_str());
+    setupBuffer(infile.header(),
+                scheme._active,
+                scheme._passive,
+                scheme._types,
+                buf,
+                preread,
+                postread,
+                scheme._banks,false);
     infile.setFrameBuffer(buf);
     
     cout.flush();
-    infile.readPixels(infile.header().dataWindow().min.y,infile.header().dataWindow().max.y);
+    infile.readPixels (infile.header().dataWindow().min.y,
+                       infile.header().dataWindow().max.y);
+
     return infile.isOptimizationEnabled();
 }
 
-void test(Schema writeScheme,Schema readScheme,bool nonfatal,bool tiny)
+void
+test (Schema writeScheme, Schema readScheme, bool nonfatal, bool tiny)
 {
     ostringstream q;
     q << writeScheme._name << " read as " << readScheme._name << "...";
@@ -486,24 +533,29 @@ void test(Schema writeScheme,Schema readScheme,bool nonfatal,bool tiny)
     FrameBuffer preReadFrameBuf;
     FrameBuffer postReadFrameBuf;
     cout.flush();
-    bool opt = readfile(readScheme,readFrameBuf,preReadFrameBuf,postReadFrameBuf);
-    if(compare(readFrameBuf,writeFrameBuf,dw,nonfatal) &&
-       compare(preReadFrameBuf,postReadFrameBuf,dw,nonfatal)
+    bool opt = readfile (readScheme,
+                         readFrameBuf,
+                         preReadFrameBuf,
+                         postReadFrameBuf);
+    if (compare(readFrameBuf, writeFrameBuf, dw, nonfatal) &&
+        compare(preReadFrameBuf, postReadFrameBuf, dw, nonfatal)
     )
     {
         cout <<  " OK ";
-        if(opt) 
+        if (opt)
         {
             cout << "OPTIMISED ";
             gOptimisedReads++;
         }
         cout << "\n";
         gSuccesses++;
-    }else{
+    }
+    else
+    {
         cout <<  " FAIL" << endl;
         gFailures++;
     }
-    remove(filename);
+    remove (filename.c_str());
 }
 
 
@@ -525,7 +577,8 @@ void runtests(bool nonfatal,bool tiny)
         {
            cout << right << setw(2) << i << ',' << right << setw(2) << j << ": ";
            cout.flush();
-           if(nonfatal)
+
+           if (nonfatal)
            {
                cout << " skipping " << Schemes[i]._name << ',' << Schemes[j]._name << ": known to crash\n";
                skipped++;
@@ -543,23 +596,29 @@ void runtests(bool nonfatal,bool tiny)
     cout << skipped << " tests skipped (assumed to be bad)\n";
     cout << gOptimisedReads << '/' << gSuccesses << " optimised\n";
         
-    if(gFailures>0 )
+    if (gFailures>0 )
     {
         cout << " TESTS FAILED\n";
         assert(false);
     }
-    
 }
 
 
-}
+} // namespace anon
 
-void testOptimizedInterleavePatterns()
+
+void 
+testOptimizedInterleavePatterns (const std::string & tempDir)
 {
-      cout << "Testing SSE optimisation with different interleave patterns (large images) ... " << endl;
-      runtests(false,false);      
-      cout << "Testing SSE optimisation with different interleave patterns (tiny images) ... " << endl;
-      runtests(false,true);
-      cout << "ok\n" << endl;
+    filename = tempDir + "imf_test_interleave_patterns.exr";
+
+
+    cout << "Testing SSE optimisation with different interleave patterns (large images) ... " << endl;
+    runtests (false,false);
+    
+    cout << "Testing SSE optimisation with different interleave patterns (tiny images) ... " << endl;
+    runtests (false,true);
+    
+    cout << "ok\n" << endl;
 }
 

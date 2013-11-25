@@ -40,6 +40,7 @@
 #include <PyImathFixedArray.h>
 #include <PyImathFixedMatrix.h>
 #include <PyImathFixedArray2D.h>
+#include <PyImathFixedVArray.h>
 
 namespace PyImath {
 
@@ -63,6 +64,8 @@ typedef FixedMatrix<double> DoubleMatrix;
 typedef FixedArray2D<float> FloatArray2D;
 typedef FixedArray2D<int> IntArray2D;
 typedef FixedArray2D<double> DoubleArray2D;
+
+typedef FixedVArray<int> VIntArray;
 
 }
 

@@ -53,14 +53,15 @@
 
 
 // Handle the case when the custom namespace is not exposed
-#include <OpenEXRConfig.h>
+#include <ImfNamespace.h>
 #include <ImfChannelList.h>
 #include <ImfMultiPartOutputFile.h>
 #include <ImfDeepScanLineOutputPart.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfDeepScanLineInputPart.h>
 
-using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
@@ -97,7 +98,7 @@ void generateRandomFile(const char filename[], int channelCount,int parts , Comp
         stringstream ss;
         ss << i;
         string str = ss.str();
-        headers[0].channels().insert(str, Channel(FLOAT));
+        headers[0].channels().insert(str, Channel(IMF::FLOAT));
     }
                         
      headers[0].setType(DEEPSCANLINE);
@@ -126,16 +127,16 @@ void generateRandomFile(const char filename[], int channelCount,int parts , Comp
 
      DeepFrameBuffer frameBuffer;
          
-     frameBuffer.insertSampleCountSlice (Slice (UINT,                    // type // 7
+     frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,        // type // 7
                                                 (char *) (&sampleCount[0][0]
                                                 - dataWindow.min.x
-                                                - dataWindow.min.y * width),               // base // 8
+                                                - dataWindow.min.y * width),        // base // 8
                                                 sizeof (unsigned int) * 1,          // xStride// 9
                                                 sizeof (unsigned int) * width));    // yStride// 10
      
      for (int i = 0; i < channelCount; i++)
      {
-         PixelType type=FLOAT;
+         PixelType type = IMF::FLOAT;
          stringstream ss;
          ss << i;
          string str = ss.str();
@@ -144,14 +145,14 @@ void generateRandomFile(const char filename[], int channelCount,int parts , Comp
                             
          int pointerSize = sizeof(char *);
          
-         frameBuffer.insert (str,                            // name // 6
-                             DeepSlice (type,                    // type // 7
+         frameBuffer.insert (str,                                    // name // 6
+                             DeepSlice (type,                        // type // 7
                                         (char *) (&data[i][0][0]
                                         - dataWindow.min.x
-                                        - dataWindow.min.y * width),               // base // 8
-                                        pointerSize * 1,          // xStride// 9
-                                        pointerSize * width,      // yStride// 10
-                                        sampleSize));             // sampleStride
+                                        - dataWindow.min.y * width), // base // 8
+                                        pointerSize * 1,             // xStride// 9
+                                        pointerSize * width,         // yStride// 10
+                                        sampleSize));                // sampleStride
      }
 
     for(int p=0;p<parts;p++)
@@ -208,10 +209,10 @@ void readFile(const char filename[])
         
         DeepFrameBuffer frameBuffer;
         
-        frameBuffer.insertSampleCountSlice (Slice (UINT,                    // type // 7
+        frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,        // type // 7
                                                    (char *) (&localSampleCount[0][0]
                                                    - dataWindow.min.x
-                                                   - dataWindow.min.y * width),               // base // 8)
+                                                   - dataWindow.min.y * width),        // base // 8)
                                                    sizeof (unsigned int) * 1,          // xStride// 9
                                                    sizeof (unsigned int) * width));    // yStride// 10
         
@@ -220,7 +221,7 @@ void readFile(const char filename[])
         
         for (int i = 0; i < channelCount; i++)
         {
-            PixelType type = FLOAT;
+            PixelType type = IMF::FLOAT;
             
             stringstream ss;
             ss << i;
@@ -234,10 +235,10 @@ void readFile(const char filename[])
                                 DeepSlice (type,        
                                            (char *) (&data[i][0][0]
                                            - dataWindow.min.x
-                                           - dataWindow.min.y * width),               // base // 8)
-                                           pointerSize * 1,          // xStride// 9
-                                           pointerSize * width,      // yStride// 10
-                                           sampleSize));             // sampleStride
+                                           - dataWindow.min.y * width), // base // 8)
+                                           pointerSize * 1,             // xStride// 9
+                                           pointerSize * width,         // yStride// 10
+                                           sampleSize));                // sampleStride
         }
         
         
@@ -301,10 +302,10 @@ void readFile(const char filename[])
             
             DeepFrameBuffer frameBuffer;
             
-            frameBuffer.insertSampleCountSlice (Slice (UINT,                    // type // 7
+            frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,        // type // 7
                                                        (char *) (&localSampleCount[0][0]
                                                        - dataWindow.min.x
-                                                       - dataWindow.min.y * width),               // base // 8)
+                                                       - dataWindow.min.y * width),        // base // 8)
                                                        sizeof (unsigned int) * 1,          // xStride// 9
                                                        sizeof (unsigned int) * width));    // yStride// 10
             
@@ -313,7 +314,7 @@ void readFile(const char filename[])
         
             for (int i = 0; i < channelCount; i++)
             {
-                PixelType type = FLOAT;
+                PixelType type = IMF::FLOAT;
                 
                 stringstream ss;
                 ss << i;
@@ -327,10 +328,10 @@ void readFile(const char filename[])
                                     DeepSlice (type,        
                                                (char *) (&data[i][0][0]
                                                - dataWindow.min.x
-                                               - dataWindow.min.y * width),               // base // 8)
-                                               pointerSize * 1,          // xStride// 9
-                                               pointerSize * width,      // yStride// 10
-                                               sampleSize));             // sampleStride
+                                               - dataWindow.min.y * width), // base // 8)
+                                               pointerSize * 1,             // xStride// 9
+                                               pointerSize * width,         // yStride// 10
+                                               sampleSize));                // sampleStride
             }
             
             inpart.setFrameBuffer(frameBuffer);

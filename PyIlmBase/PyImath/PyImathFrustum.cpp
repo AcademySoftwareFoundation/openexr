@@ -51,6 +51,10 @@ template <class T> struct FrustumName {static const char *value;};
 template <> const char *FrustumName<float>::value = "Frustumf";
 template <> const char *FrustumName<double>::value = "Frustumd";
 
+template <class T> struct FrustumTestName {static const char *value;};
+template <> const char *FrustumTestName<float>::value = "FrustumTestf";
+template <> const char *FrustumTestName<double>::value = "FrustumTestd";
+
 
 template <class T>
 static std::string Frustum_repr(const Frustum<T> &f)
@@ -454,6 +458,64 @@ register_Frustum()
     return frustum_class;
 }
 
+template <class T,class T2>
+struct IsVisibleTask : public Task
+{
+    const IMATH_NAMESPACE::FrustumTest<T>& frustumTest;
+    const PyImath::FixedArray<T2>& points;
+    PyImath::FixedArray<int>& results;
+
+    IsVisibleTask(const IMATH_NAMESPACE::FrustumTest<T>& ft, const PyImath::FixedArray<T2> &p, PyImath::FixedArray<int> &r)
+        : frustumTest(ft), points(p), results(r) {}
+
+    void execute(size_t start, size_t end)
+    {
+        for(size_t p = start; p < end; ++p)
+            results[p] = frustumTest.isVisible(IMATH_NAMESPACE::Vec3<T>(points[p]));
+    }
+};
+
+template <class T,class T2>
+PyImath::FixedArray<int>
+frustumTest_isVisible(IMATH_NAMESPACE::FrustumTest<T>& ft, const PyImath::FixedArray<T2>& points)
+{
+    size_t numPoints = points.len();
+    PyImath::FixedArray<int> mask(numPoints);
+
+    IsVisibleTask<T,T2> task(ft,points,mask);
+    dispatchTask(task,numPoints);
+    return mask;
+}
+
+template <class T>
+class_<FrustumTest<T> >
+register_FrustumTest()
+{
+    const char *name = FrustumTestName<T>::value;
+    
+    bool (FrustumTest<T>::*isVisibleS)(const Sphere3<T> &) const = &FrustumTest<T>::isVisible;
+    bool (FrustumTest<T>::*isVisibleB)(const Box<Vec3<T> > &) const = &FrustumTest<T>::isVisible;
+    bool (FrustumTest<T>::*isVisibleV)(const Vec3<T> &) const = &FrustumTest<T>::isVisible;
+    bool (FrustumTest<T>::*completelyContainsS)(const Sphere3<T> &) const = &FrustumTest<T>::completelyContains;
+    bool (FrustumTest<T>::*completelyContainsB)(const Box<Vec3<T> > &) const = &FrustumTest<T>::completelyContains;
+
+    class_< FrustumTest<T> > frustumtest_class(name,name,init<const IMATH_NAMESPACE::Frustum<T>&,const IMATH_NAMESPACE::Matrix44<T>&>("create a frustum test object from a frustum and transform"));
+    frustumtest_class
+        .def("isVisible",isVisibleS)
+        .def("isVisible",isVisibleB)
+        .def("isVisible",isVisibleV)
+        .def("isVisible",&frustumTest_isVisible<T,IMATH_NAMESPACE::V3f>)
+        .def("completelyContains",completelyContainsS)
+        .def("completelyContains",completelyContainsB)
+        ;
+
+    decoratecopy(frustumtest_class);
+
+    return frustumtest_class;
+}
+
 template PYIMATH_EXPORT class_<Frustum<float> > register_Frustum<float>();
 template PYIMATH_EXPORT class_<Frustum<double> > register_Frustum<double>();
+template PYIMATH_EXPORT class_<FrustumTest<float> > register_FrustumTest<float>();
+template PYIMATH_EXPORT class_<FrustumTest<double> > register_FrustumTest<double>();
 }

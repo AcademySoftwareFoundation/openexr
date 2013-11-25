@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2004-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
 #include <ImfRgbaFile.h>
 #include <ImfTiledRgbaFile.h>
 #include <ImfMultiPartInputFile.h>
@@ -52,7 +51,6 @@
 #include <vector>
 #include <ImfChannelList.h>
 
-#include "tmpDir.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -98,7 +96,7 @@ fillPixels2 (Array2D<Rgba> &pixels, int w, int h)
 
 //
 // class MMIFStream -- a memory-mapped implementation of
-// class OPENEXR_IMF_NAMESPACE::IStream based on class std::ifstream
+// class IStream based on class std::ifstream
 //
 
 class MMIFStream: public OPENEXR_IMF_NAMESPACE::IStream
@@ -538,7 +536,7 @@ writeReadTiles (const char fileName[],
 
 
 void
-testExistingStreams ()
+testExistingStreams (const std::string &tempDir)
 {
     try
     {
@@ -550,14 +548,13 @@ testExistingStreams ()
 	Array2D<Rgba> p1 (H, W);
 
 	fillPixels1 (p1, W, H);
-	writeReadScanLines (IMF_TMP_DIR "imf_test_streams.exr", W, H, p1);
+	writeReadScanLines ((tempDir + "imf_test_streams.exr").c_str(), W, H, p1);
 
 	fillPixels2 (p1, W, H);
-	writeReadTiles (IMF_TMP_DIR "imf_test_streams2.exr", W, H, p1);
-        
-        fillPixels1 (p1, W, H);
-        writeReadMultiPart (IMF_TMP_DIR "imf_test_streams3.exr", W, H, p1);
-        
+	writeReadTiles ((tempDir + "imf_test_streams2.exr").c_str(), W, H, p1);
+
+    fillPixels1 (p1, W, H);
+    writeReadMultiPart ((tempDir +  "imf_test_streams3.exr").c_str(), W, H, p1);
 
 	cout << "ok\n" << endl;
     }

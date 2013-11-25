@@ -48,17 +48,17 @@
 
 void
 resizeLatLong (const EnvmapImage &image1,
-	       EnvmapImage &image2,
-	       const IMATH_NAMESPACE::Box2i &image2DataWindow,
-	       float filterRadius,
-	       int numSamples);
+               EnvmapImage &image2,
+               const IMATH::Box2i &image2DataWindow,
+               float filterRadius,
+               int numSamples);
 
 void
 resizeCube (const EnvmapImage &image1,
-	    EnvmapImage &image2,
-	    const IMATH_NAMESPACE::Box2i &image2DataWindow,
-	    float filterRadius,
-	    int numSamples);
+            EnvmapImage &image2,
+            const IMATH::Box2i &image2DataWindow,
+            float filterRadius,
+            int numSamples);
 
 
 #endif

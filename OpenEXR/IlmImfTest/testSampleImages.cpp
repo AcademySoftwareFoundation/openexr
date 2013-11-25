@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -133,7 +133,7 @@ compareImages (const char fileName1[], const char fileName2[])
 
 
 void
-testSampleImages ()
+testSampleImages (const std::string&)
 {
     try
     {
