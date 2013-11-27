@@ -43,7 +43,7 @@ noinst_HEADERS =  \
         scaleImage.h \
         applyCtl.h \
         GlWindow3d.h \
-        GlWindow3d.cpp
+        namespaceAlias.h
 
 EXTRA_DIST = $(exrdisplay_SOURCES)
 
