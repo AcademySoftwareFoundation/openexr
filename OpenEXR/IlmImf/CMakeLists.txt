@@ -136,7 +136,7 @@ ADD_DEPENDENCIES ( IlmImf b44ExpLogTable )
 SET_SOURCE_FILES_PROPERTIES (
   ImfB44Compressor.cpp
   PROPERTIES
-  OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/b44ExpLogTable.h
+  OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/IlmImf/b44ExpLogTable.h
 )
 
 # Libraries
@@ -151,6 +151,8 @@ INSTALL ( TARGETS
 INSTALL ( FILES
   ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h
   ImfForward.h
+  ImfNamespace.h
+  ImfPartHelper.h
   ImfExport.h
   ImfAttribute.h
   ImfBoxAttribute.h
