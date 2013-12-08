@@ -97,6 +97,7 @@
 #include <iostream>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
     #include <unistd.h>
