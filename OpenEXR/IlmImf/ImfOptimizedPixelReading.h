@@ -41,8 +41,10 @@
 
 
 // GCC and Visual Studio SSE2 compiler flags
-#if defined __SSE2__ || (_MSC_VER >= 1300 && !_M_CEE_PURE)
-    #define IMF_HAVE_SSE2 1
+#ifndef __MINGW64__
+	#if defined __SSE2__ || (_MSC_VER >= 1300 && !_M_CEE_PURE)
+		#define IMF_HAVE_SSE2 1
+	#endif
 #endif
 
 
