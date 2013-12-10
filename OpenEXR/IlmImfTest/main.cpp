@@ -97,7 +97,10 @@
 #include <iostream>
 #include <string.h>
 #include <time.h>
-#include <unistd.h>
+
+#ifdef __APPLE__
+    #include <unistd.h>
+#endif
 
 #ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
     #include <unistd.h>
