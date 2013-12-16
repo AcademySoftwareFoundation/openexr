@@ -63,6 +63,7 @@
 #include <utility> // pair
 #include <stdlib.h>
 #include <sstream>
+#include <cctype>
 #include <assert.h>
 
 using std::cerr;
