@@ -24,6 +24,10 @@ IF ( NOT WIN32)
   ADD_DEFINITIONS ( -pthread )
 ENDIF ()
 
+IF ( WIN32)
+  ADD_DEFINITIONS ( -DPLATFORM_WINDOWS )
+ENDIF ()
+
 INCLUDE_DIRECTORIES ( Iex IexMath Imath Half config IlmThread IexTest ImathTest HalfTest )
 
 MACRO(GET_TARGET_PROPERTY_WITH_DEFAULT _variable _target _property _default_value)
