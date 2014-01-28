@@ -20,7 +20,9 @@ INCLUDE ( CPack )
 # Allow the developer to select if Dynamic or Static libraries are built
 OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 
-IF ( NOT WIN32)
+IF (WIN32)
+  ADD_DEFINITIONS ( -DPLATFORM_WINDOWS )
+ELSE (WIN32)
   ADD_DEFINITIONS ( -pthread )
 ENDIF ()
 
