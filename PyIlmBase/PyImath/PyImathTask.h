@@ -36,8 +36,9 @@
 #define _PyImathTask_h_
 
 #include <PyImathExport.h>
+#ifndef WIN32
 #include <unistd.h>
-
+#endif // WIN32
 namespace PyImath {
 
 struct PYIMATH_EXPORT Task
