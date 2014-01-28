@@ -64,6 +64,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include <assert.h>
+#include <cctype> // isdigit
 
 using std::cerr;
 using std::cout;
