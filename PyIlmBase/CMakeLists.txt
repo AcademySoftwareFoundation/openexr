@@ -9,9 +9,12 @@ INCLUDE_DIRECTORIES ( ${Boost_INCLUDE_DIR} )
 INCLUDE_DIRECTORIES ( ${PYTHON_INCLUDE_DIR} )
 INCLUDE_DIRECTORIES ( PyIex )
 INCLUDE_DIRECTORIES ( PyImath )
-INCLUDE_DIRECTORIES ( ${ILMBASE_PREFIX}/include/OpenEXR )
+INCLUDE_DIRECTORIES ( ${ILMBASE_PACKAGE_PREFIX}/include/OpenEXR )
 INCLUDE_DIRECTORIES ( ${NUMPY_INCLUDE_DIR} )
 
+IF (WIN32)
+  LINK_DIRECTORIES ( ${Boost_LIBRARY_DIRS} )
+ENDIF (WIN32)
 ADD_LIBRARY ( PyIex SHARED 
   ./PyIex/PyIex.cpp
   )
@@ -59,17 +62,39 @@ ADD_LIBRARY ( imathmodule SHARED
   ./PyImath/imathmodule.cpp
   )
 
-ADD_LIBRARY ( imathnumpymodule SHARED
-  ./PyImathNumpy/imathnumpymodule.cpp
-  )
+IF (ENABLE_NUMPY)
+  ADD_LIBRARY ( imathnumpymodule SHARED
+	./PyImathNumpy/imathnumpymodule.cpp
+	)
+ENDIF (ENABLE_NUMPY)
+
+IF (WIN32)
+  TARGET_LINK_LIBRARIES ( iexmodule
+	${Boost_PYTHON_LIBRARY}
+	${PYTHON_LIBRARY})
+  TARGET_LINK_LIBRARIES ( imathmodule
+	${Boost_PYTHON_LIBRARY}
+	${PYTHON_LIBRARY})
+  IF (ENABLE_NUMPY)
+	TARGET_LINK_LIBRARIES ( imathnumpymodule
+	  ${Boost_PYTHON_LIBRARY}
+	  ${PYTHON_LIBRARY})
+  ENDIF (ENABLE_NUMPY)
+ENDIF (WIN32)
 
 SET_TARGET_PROPERTIES (
   iexmodule
   imathmodule
-  imathnumpymodule
   PROPERTIES
   PREFIX ""
   )
+IF (ENABLE_NUMPY)
+  SET_TARGET_PROPERTIES (
+	imathnumpymodule
+	PROPERTIES
+	PREFIX ""
+	)
+ENDIF (ENABLE_NUMPY)
 
 # Installation
 INSTALL ( TARGETS
@@ -86,10 +111,17 @@ STRING(SUBSTRING ${PYTHONLIBS_VERSION_STRING} 0 3 PYTHON_MAJOR_MINOR_VERSION)
 INSTALL ( TARGETS
   iexmodule
   imathmodule
-  imathnumpymodule
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/lib/python$${PYTHON_MAJOR_MINOR_VERSION}/site-packages/
   )
+
+IF (ENABLE_NUMPY)
+  INSTALL ( TARGETS
+	imathnumpymodule
+	DESTINATION
+	${CMAKE_INSTALL_PREFIX}/lib/python$${PYTHON_MAJOR_MINOR_VERSION}/site-packages/
+  )
+ENDIF (ENABLE_NUMPY)
 
 INSTALL ( FILES
   pyilmbase.m4
