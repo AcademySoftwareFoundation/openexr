@@ -79,35 +79,35 @@ TARGET_LINK_LIBRARIES ( PyIex
 TARGET_LINK_LIBRARIES ( PyImath
   ${Boost_PYTHON_LIBRARY}
   ${PYTHON_LIBRARY}
-  Imath-2_1
-  IexMath-2_1
-  Iex-2_1
+  ${Ilmbase2_IMATH_LIBRARY}
+  ${Ilmbase2_IEXMATH_LIBRARY}
+  ${Ilmbase2_IEX_LIBRARY}
   )
 
 TARGET_LINK_LIBRARIES ( iexmodule
   ${Boost_PYTHON_LIBRARY}
   ${PYTHON_LIBRARY}
   PyIex
-  Imath-2_1
-  IexMath-2_1
-  Iex-2_1
+  ${Ilmbase2_IMATH_LIBRARY}
+  ${Ilmbase2_IEXMATH_LIBRARY}
+  ${Ilmbase2_IEX_LIBRARY}
   )
 TARGET_LINK_LIBRARIES ( imathmodule
   ${Boost_PYTHON_LIBRARY}
   ${PYTHON_LIBRARY}
   PyImath
   PyIex
-  Imath-2_1
-  IexMath-2_1
-  Iex-2_1
+  ${Ilmbase2_IMATH_LIBRARY}
+  ${Ilmbase2_IEXMATH_LIBRARY}
+  ${Ilmbase2_IEX_LIBRARY}
   )
 IF (ENABLE_NUMPY)
   TARGET_LINK_LIBRARIES ( imathnumpymodule
     ${Boost_PYTHON_LIBRARY}
     ${PYTHON_LIBRARY}
-    Imath-2_1
-    IexMath-2_1
-    Iex-2_1
+    ${Ilmbase2_IMATH_LIBRARY}
+    ${Ilmbase2_IEXMATH_LIBRARY}
+    ${Ilmbase2_IEX_LIBRARY}
     )
 ENDIF (ENABLE_NUMPY)
 
@@ -117,12 +117,28 @@ SET_TARGET_PROPERTIES (
   PROPERTIES
   PREFIX ""
   )
+IF (APPLE)
+  SET_TARGET_PROPERTIES (
+    iexmodule
+    imathmodule
+    PROPERTIES
+    SUFFIX ".so"
+    )
+ENDIF ()
+
 IF (ENABLE_NUMPY)
   SET_TARGET_PROPERTIES (
-	imathnumpymodule
-	PROPERTIES
-	PREFIX ""
-	)
+    imathnumpymodule
+    PROPERTIES
+    PREFIX ""
+    )
+  IF (APPLE)
+    SET_TARGET_PROPERTIES (
+      imathnumpymodule
+      PROPERTIES
+      SUFFIX ".so"
+      )
+  ENDIF ()
 ENDIF (ENABLE_NUMPY)
 
 # Installation
@@ -141,7 +157,7 @@ INSTALL ( TARGETS
   iexmodule
   imathmodule
   DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/lib/python$${PYTHON_MAJOR_MINOR_VERSION}/site-packages/
+  ${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_MAJOR_MINOR_VERSION}/site-packages/
   )
 
 IF (ENABLE_NUMPY)
