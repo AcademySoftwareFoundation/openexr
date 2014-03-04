@@ -188,7 +188,7 @@ test5()
     }
     catch (const IEX_INTERNAL_NAMESPACE::ArgExc &e)
     {
-	assert (e == "ArgExc");
+	assert (std::string(e.what()) == "ArgExc");
     }
 }
 
