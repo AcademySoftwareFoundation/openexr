@@ -35,7 +35,8 @@ libImathinclude_HEADERS = ImathColorAlgo.h ImathMatrixAlgo.h ImathVec.h \
 			  ImathColor.h ImathRandom.h ImathRoots.h \
 			  ImathHalfLimits.h ImathInterval.h ImathGLU.h \
 			  ImathFrame.h ImathPlatform.h ImathInt64.h \
-                          ImathNamespace.h ImathForward.h ImathExport.h
+                          ImathNamespace.h ImathForward.h ImathExport.h \
+                          ImathFrustumTest.h
 
 INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/Half \
 	   -I$(top_srcdir)/config

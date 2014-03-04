@@ -44,6 +44,7 @@
 //	Apply CTL transforms
 //
 //----------------------------------------------------------------------------
+#include "namespaceAlias.h"
 
 #include <ImfRgba.h>
 #include <ImfArray.h>
@@ -90,11 +91,11 @@
 //			
 
 void	applyCtl (std::vector<std::string> transformNames,
-		  OPENEXR_IMF_NAMESPACE::Header inHeader,
-		  const OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &inPixels,
+		  IMF::Header inHeader,
+		  const IMF::Array<IMF::Rgba> &inPixels,
 		  int w,
 		  int h,
-		  OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &outPixels);
+		  IMF::Array<IMF::Rgba> &outPixels);
 
 
 //
@@ -104,11 +105,11 @@ void	applyCtl (std::vector<std::string> transformNames,
 // of the file to the RGB coordinate system of the display.
 //
 
-void	adjustChromaticities (const OPENEXR_IMF_NAMESPACE::Header &header,
-			      const OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &inPixels,
+void	adjustChromaticities (const IMF::Header &header,
+			      const IMF::Array<IMF::Rgba> &inPixels,
 			      int w,
 			      int h,
-			      OPENEXR_IMF_NAMESPACE::Array<OPENEXR_IMF_NAMESPACE::Rgba> &outPixels);
+			      IMF::Array<IMF::Rgba> &outPixels);
 
 
 //

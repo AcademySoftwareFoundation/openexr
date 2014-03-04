@@ -32,28 +32,30 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <ImfMultiPartInputFile.h>
+#include "ImfMultiPartInputFile.h"
 
-#include <ImfTimeCodeAttribute.h>
-#include <ImfChromaticitiesAttribute.h>
-#include <ImfBoxAttribute.h>
-#include <ImfFloatAttribute.h>
-#include <ImfStdIO.h>
-#include <ImfTileOffsets.h>
-#include <ImfMisc.h>
-#include <ImfTiledMisc.h>
+#include "ImfTimeCodeAttribute.h"
+#include "ImfChromaticitiesAttribute.h"
+#include "ImfBoxAttribute.h"
+#include "ImfFloatAttribute.h"
+#include "ImfStdIO.h"
+#include "ImfTileOffsets.h"
+#include "ImfMisc.h"
+#include "ImfTiledMisc.h"
+#include "ImfInputStreamMutex.h"
+#include "ImfInputPartData.h"
+#include "ImfPartType.h"
+#include "ImfInputFile.h"
+#include "ImfScanLineInputFile.h"
+#include "ImfTiledInputFile.h"
+#include "ImfDeepScanLineInputFile.h"
+#include "ImfDeepTiledInputFile.h"
+#include "ImfVersion.h"
+
 #include <OpenEXRConfig.h>
 #include <IlmThread.h>
 #include <IlmThreadMutex.h>
-#include <ImfInputStreamMutex.h>
-#include <ImfInputPartData.h>
-#include <ImfPartType.h>
-#include <ImfInputFile.h>
-#include <ImfScanLineInputFile.h>
-#include <ImfTiledInputFile.h>
-#include <ImfDeepScanLineInputFile.h>
-#include <ImfDeepTiledInputFile.h>
-#include <ImfVersion.h>
+
 #include <Iex.h>
 #include <map>
 #include <set>
@@ -119,13 +121,7 @@ struct MultiPartInputFile::Data: public InputStreamMutex
     template <class T>
     T*    createInputPartT(int partNumber)
     {
-        if (_inputFiles.find(partNumber) == _inputFiles.end())
-        {
-            T* file = new T(getPart(partNumber));
-            _inputFiles.insert(std::make_pair(partNumber, (GenericInputFile*) file));
-            return file;
-        }
-        else return (T*) _inputFiles[partNumber];
+
     }
 };
 
@@ -179,43 +175,33 @@ MultiPartInputFile::MultiPartInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream&
     }
 }
 
-
-
-
-ScanLineInputFile*
-MultiPartInputFile::createScanLineInputPart(int partNumber)
+template<class T>
+T*
+MultiPartInputFile::getInputPart(int partNumber)
 {
     Lock lock(*_data);
-    return _data->createInputPartT <ScanLineInputFile> (partNumber);
+            if (_data->_inputFiles.find(partNumber) == _data->_inputFiles.end())
+        {
+            T* file = new T(_data->getPart(partNumber));
+            _data->_inputFiles.insert(std::make_pair(partNumber, (GenericInputFile*) file));
+            return file;
+        }
+        else return (T*) _data->_inputFiles[partNumber];
 }
 
-TiledInputFile*
-MultiPartInputFile::createTiledInputPart(int partNumber)
+
+template InputFile* MultiPartInputFile::getInputPart<InputFile>(int);
+template TiledInputFile* MultiPartInputFile::getInputPart<TiledInputFile>(int);
+template DeepScanLineInputFile* MultiPartInputFile::getInputPart<DeepScanLineInputFile>(int);
+template DeepTiledInputFile* MultiPartInputFile::getInputPart<DeepTiledInputFile>(int);
+
+InputPartData*
+MultiPartInputFile::getPart(int partNumber)
 {
-    Lock lock(*_data);
-    return _data->createInputPartT <TiledInputFile> (partNumber);
+    return _data->getPart(partNumber);
 }
 
-InputFile*
-MultiPartInputFile::createInputPart(int partNumber)
-{
-    Lock lock(*_data);
-    return _data->createInputPartT <InputFile> (partNumber);
-}
 
-DeepScanLineInputFile*
-MultiPartInputFile::createDeepScanLineInputPart(int partNumber)
-{
-    Lock lock(*_data);
-    return _data->createInputPartT <DeepScanLineInputFile> (partNumber);
-}
-
-DeepTiledInputFile*
-MultiPartInputFile::createDeepTiledInputPart(int partNumber)
-{
-    Lock lock(*_data);
-    return _data->createInputPartT <DeepTiledInputFile> (partNumber);
-}
 
 const Header &
  MultiPartInputFile::header(int n) const
@@ -363,6 +349,22 @@ MultiPartInputFile::initialize()
           
             _data->_headers[i].setType(tiled ? TILEDIMAGE : SCANLINEIMAGE);
         }
+        else
+        {
+            
+            //
+            // Silently fix the header type if it's wrong
+            // (happens when a regular Image file written by EXR_2.0 is rewritten by an older library,
+            //  so doesn't effect deep image types)
+            //
+
+            if(!multipart && !isNonImage(_data->version))
+            {
+                _data->_headers[i].setType(tiled ? TILEDIMAGE : SCANLINEIMAGE);
+            }
+        }
+         
+
         
         if( _data->_headers[i].hasName() == false )
         {
@@ -459,8 +461,8 @@ MultiPartInputFile::Data::createTileOffsets(const Header& header)
                                                 numYLevels,
                                                 numXTiles,
                                                 numYTiles);
-    delete numXTiles;
-    delete numYTiles;
+    delete [] numXTiles;
+    delete [] numYTiles;
 
     return tileOffsets;
 }
@@ -526,6 +528,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                 case B44_COMPRESSION :
                 case B44A_COMPRESSION :
                     rowsizes[i]=32;
+                    break;
                 case ZIP_COMPRESSION :
                 case PXR24_COMPRESSION :
                     rowsizes[i]=16;
@@ -718,12 +721,6 @@ MultiPartInputFile::Data::getPart(int partNumber)
     return parts[partNumber];
 }
 
-
-InputPartData*
-MultiPartInputFile::getPart(int partNumber)
-{
-    return _data->getPart(partNumber);
-}
 
 
 void

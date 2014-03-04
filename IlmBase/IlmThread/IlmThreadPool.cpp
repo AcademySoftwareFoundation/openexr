@@ -74,8 +74,10 @@ struct TaskGroup::Data
     void	addTask () ;
     void	removeTask ();
     
-    Semaphore	isEmpty;	// used to signal that the taskgroup is empty
-    int		numPending;	// number of pending tasks to still execute
+    Semaphore	isEmpty;        // used to signal that the taskgroup is empty
+    int         numPending;     // number of pending tasks to still execute
+    Mutex       dtorMutex;      // used to work around the glibc bug:
+                                // http://sources.redhat.com/bugzilla/show_bug.cgi?id=12674
 };
 
 
@@ -182,6 +184,18 @@ TaskGroup::Data::~Data ()
     //
 
     isEmpty.wait ();
+
+    // Alas, given the current bug in glibc we need a secondary
+    // syncronisation primitive here to account for the fact that
+    // destructing the isEmpty Semaphore in this thread can cause
+    // an error for a separate thread that is issuing the post() call.
+    // We are entitled to destruct the semaphore at this point, however,
+    // that post() call attempts to access data out of the associated
+    // memory *after* it has woken the waiting threads, including this one,
+    // potentially leading to invalid memory reads.
+    // http://sources.redhat.com/bugzilla/show_bug.cgi?id=12674
+
+    Lock lock (dtorMutex);
 }
 
 
@@ -202,8 +216,21 @@ TaskGroup::Data::addTask ()
 void
 TaskGroup::Data::removeTask ()
 {
+    // Alas, given the current bug in glibc we need a secondary
+    // syncronisation primitive here to account for the fact that
+    // destructing the isEmpty Semaphore in a separate thread can
+    // cause an error. Issuing the post call here the current libc
+    // implementation attempts to access memory *after* it has woken
+    // waiting threads.
+    // Since other threads are entitled to delete the semaphore the
+    // access to the memory location can be invalid.
+    // http://sources.redhat.com/bugzilla/show_bug.cgi?id=12674
+
     if (--numPending == 0)
-	isEmpty.post ();
+    {
+        Lock lock (dtorMutex);
+        isEmpty.post ();
+    }
 }
     
 

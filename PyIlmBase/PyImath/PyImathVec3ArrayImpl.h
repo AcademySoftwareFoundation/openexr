@@ -48,6 +48,7 @@
 #include <boost/python/make_constructor.hpp>
 #include <boost/format.hpp>
 #include <PyImath.h>
+#include <PyImathBox.h>
 #include <ImathVec.h>
 #include <ImathVecAlgo.h>
 #include <Iex.h>
@@ -86,6 +87,57 @@ setItemTuple(FixedArray<IMATH_NAMESPACE::Vec3<T> > &va, Py_ssize_t index, const 
 }
 
 template <class T>
+static IMATH_NAMESPACE::Vec3<T>
+Vec3Array_min(const FixedArray<IMATH_NAMESPACE::Vec3<T> > &a)
+{
+    Vec3<T> tmp(Vec3<T>(0));
+    size_t len = a.len();
+    if (len > 0)
+        tmp = a[0];
+    for (size_t i=1; i < len; ++i)
+    {
+        if (a[i].x < tmp.x)
+            tmp.x = a[i].x;
+        if (a[i].y < tmp.y)
+            tmp.y = a[i].y;
+        if (a[i].z < tmp.z)
+            tmp.z = a[i].z;
+    }
+    return tmp;
+}
+
+template <class T>
+static IMATH_NAMESPACE::Vec3<T>
+Vec3Array_max(const FixedArray<IMATH_NAMESPACE::Vec3<T> > &a)
+{
+    Vec3<T> tmp(Vec3<T>(0));
+    size_t len = a.len();
+    if (len > 0)
+        tmp = a[0];
+    for (size_t i=1; i < len; ++i)
+    {
+        if (a[i].x > tmp.x)
+            tmp.x = a[i].x;
+        if (a[i].y > tmp.y)
+            tmp.y = a[i].y;
+        if (a[i].z > tmp.z)
+            tmp.z = a[i].z;
+    }
+    return tmp;
+}
+
+template <class T>
+static IMATH_NAMESPACE::Box<IMATH_NAMESPACE::Vec3<T> >
+Vec3Array_bounds(const FixedArray<IMATH_NAMESPACE::Vec3<T> > &a)
+{
+    Box<Vec3<T> > tmp;
+    size_t len = a.len();
+    for (size_t i=0; i < len; ++i)
+        tmp.extendBy(a[i]);
+    return tmp;
+}
+
+template <class T>
 class_<FixedArray<IMATH_NAMESPACE::Vec3<T> > >
 register_Vec3Array()
 {
@@ -98,6 +150,9 @@ register_Vec3Array()
         .add_property("y",&Vec3Array_get<T,1>)
         .add_property("z",&Vec3Array_get<T,2>)
         .def("__setitem__", &setItemTuple<T>)
+        .def("min", &Vec3Array_min<T>)
+        .def("max", &Vec3Array_max<T>)
+        .def("bounds", &Vec3Array_bounds<T>)
         ;
 
     add_arithmetic_math_functions(vec3Array_class);
@@ -118,7 +173,9 @@ register_Vec3Array()
     generate_member_bindings<op_mul<IMATH_NAMESPACE::Vec3<T>,T>,  true_>(vec3Array_class,"__rmul__","x*self", boost::python::args("x"));
     generate_member_bindings<op_imul<IMATH_NAMESPACE::Vec3<T>,T>, true_>(vec3Array_class,"__imul__","self*=x",boost::python::args("x"));
     generate_member_bindings<op_div<IMATH_NAMESPACE::Vec3<T>,T>,  true_>(vec3Array_class,"__div__" ,"self/x", boost::python::args("x"));
+    generate_member_bindings<op_div<IMATH_NAMESPACE::Vec3<T>,T>,  true_>(vec3Array_class,"__truediv__" ,"self/x", boost::python::args("x"));
     generate_member_bindings<op_idiv<IMATH_NAMESPACE::Vec3<T>,T>, true_>(vec3Array_class,"__idiv__","self/=x",boost::python::args("x"));
+    generate_member_bindings<op_idiv<IMATH_NAMESPACE::Vec3<T>,T>, true_>(vec3Array_class,"__itruediv__","self/=x",boost::python::args("x"));
 
     decoratecopy(vec3Array_class);
 

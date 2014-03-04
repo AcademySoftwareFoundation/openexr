@@ -34,8 +34,10 @@
 
 
 #include "ImfNamespace.h"
-#include <testFuzzScanLines.h>
-#include <testFuzzTiles.h>
+#include "testFuzzDeepScanLines.h"
+#include "testFuzzDeepTiles.h"
+#include "testFuzzScanLines.h"
+#include "testFuzzTiles.h"
 
 #include <stdlib.h>
 #include <iostream>
@@ -53,7 +55,9 @@ main (int argc, char *argv[])
 {
     TEST (testFuzzScanLines);
     TEST (testFuzzTiles);
-
+    TEST (testFuzzDeepScanLines);
+    TEST (testFuzzDeepTiles);
+    
 #ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
 
     //

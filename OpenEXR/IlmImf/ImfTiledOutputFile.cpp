@@ -457,7 +457,7 @@ writeTileData (OutputStreamMutex *streamData,
     ofd->tileOffsets (dx, dy, lx, ly) = currentPosition;
 
     #ifdef DEBUG
-	assert (ofd->os->tellp() == currentPosition);
+	assert (streamData->os->tellp() == currentPosition);
     #endif
 
     //
@@ -869,7 +869,7 @@ TiledOutputFile::TiledOutputFile
 	_streamData->currentPosition = _streamData->os->tellp();
 
 	// Write header and empty offset table to the file.
-        writeMagicNumberAndVersionField(*_streamData->os, header);
+        writeMagicNumberAndVersionField(*_streamData->os, _data->header);
 	_data->previewPosition = _data->header.writeTo (*_streamData->os, true);
         _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_streamData->os);
     }
@@ -909,7 +909,7 @@ TiledOutputFile::TiledOutputFile
 	_streamData->currentPosition = _streamData->os->tellp();
 
 	// Write header and empty offset table to the file.
-	writeMagicNumberAndVersionField(*_streamData->os, header);
+	writeMagicNumberAndVersionField(*_streamData->os, _data->header);
 	_data->previewPosition = _data->header.writeTo (*_streamData->os, true);
         _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_streamData->os);
 	
@@ -968,12 +968,25 @@ TiledOutputFile::initialize (const Header &header)
     _data->header = header;
     _data->lineOrder = _data->header.lineOrder();
 
+    
+    
     //
     // Check that the file is indeed tiled
     //
 
     _data->tileDesc = _data->header.tileDescription();
 
+    
+    //
+    // 'Fix' the type attribute if it exists but is incorrectly set
+    // (attribute is optional, but ensure it is correct if it exists)
+    //
+    if(_data->header.hasType())
+    {
+        _data->header.setType(TILEDIMAGE);
+    }
+
+    
     //
     // Save the dataWindow information
     //

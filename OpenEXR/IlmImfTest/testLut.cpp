@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -236,7 +236,7 @@ testRounding ()
 
 
 void
-testLut ()
+testLut (const std::string&)
 {
     try
     {

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2003-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,6 +33,8 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-void testConversion ();
+#include <string>
+
+void testConversion (const std::string &tempDir);
 
 

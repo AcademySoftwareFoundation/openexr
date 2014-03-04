@@ -38,25 +38,25 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfDeepTiledOutputFile.h>
-#include <ImfDeepTiledInputFile.h>
-#include <ImfDeepTiledInputPart.h>
-#include <ImfInputFile.h>
-#include <ImfTileDescriptionAttribute.h>
-#include <ImfPreviewImageAttribute.h>
-#include <ImfChannelList.h>
-#include <ImfMisc.h>
-#include <ImfTiledMisc.h>
-#include <ImfStdIO.h>
-#include <ImfCompressor.h>
-#include <ImfOutputStreamMutex.h>
-#include <ImfOutputPartData.h>
-#include <ImfArray.h>
-#include <ImfXdr.h>
-#include <ImfVersion.h>
-#include <ImfTileOffsets.h>
-#include <ImfThreading.h>
-#include <ImfPartType.h>
+#include "ImfDeepTiledOutputFile.h"
+#include "ImfDeepTiledInputFile.h"
+#include "ImfDeepTiledInputPart.h"
+#include "ImfInputFile.h"
+#include "ImfTileDescriptionAttribute.h"
+#include "ImfPreviewImageAttribute.h"
+#include "ImfChannelList.h"
+#include "ImfMisc.h"
+#include "ImfTiledMisc.h"
+#include "ImfStdIO.h"
+#include "ImfCompressor.h"
+#include "ImfOutputStreamMutex.h"
+#include "ImfOutputPartData.h"
+#include "ImfArray.h"
+#include "ImfXdr.h"
+#include "ImfVersion.h"
+#include "ImfTileOffsets.h"
+#include "ImfThreading.h"
+#include "ImfPartType.h"
 
 #include "ImathBox.h"
 
@@ -517,7 +517,7 @@ writeTileData (DeepTiledOutputFile::Data *ofd,
     ofd->tileOffsets (dx, dy, lx, ly) = currentPosition;
 
     #ifdef DEBUG
-        assert (ofd->os->tellp() == currentPosition);
+        assert (ofd->_streamData->os->tellp() == currentPosition);
     #endif
 
     //
@@ -1066,7 +1066,7 @@ DeepTiledOutputFile::DeepTiledOutputFile
         _data->_streamData->currentPosition = _data->_streamData->os->tellp();
 
         // Write header and empty offset table to the file.
-        writeMagicNumberAndVersionField(*_data->_streamData->os, header);
+        writeMagicNumberAndVersionField(*_data->_streamData->os, _data->header);
         _data->previewPosition = _data->header.writeTo (*_data->_streamData->os, true);
         _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_data->_streamData->os);
 	_data->multipart = false;
@@ -1110,7 +1110,7 @@ DeepTiledOutputFile::DeepTiledOutputFile
         _data->_streamData->currentPosition = _data->_streamData->os->tellp();
 
         // Write header and empty offset table to the file.
-        writeMagicNumberAndVersionField(*_data->_streamData->os, header);
+        writeMagicNumberAndVersionField(*_data->_streamData->os, _data->header);
         _data->previewPosition = _data->header.writeTo (*_data->_streamData->os, true);
         _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_data->_streamData->os);
 	_data->multipart = false;
@@ -1171,9 +1171,6 @@ void
 DeepTiledOutputFile::initialize (const Header &header)
 {
     _data->header = header;
-    if (_data->header.hasType() && _data->header.type() != DEEPTILE)
-        throw IEX_NAMESPACE::ArgExc("The type data in the header for DeepTiledOutputFile "
-                          "can only be " + DEEPTILE + ".");
     _data->header.setType(DEEPTILE);
     _data->lineOrder = _data->header.lineOrder();
 
@@ -1240,9 +1237,15 @@ DeepTiledOutputFile::initialize (const Header &header)
     for (size_t i = 0; i < _data->tileBuffers.size(); i++)
     {
         _data->tileBuffers[i] = new TileBuffer ();
-        _data->tileBuffers[i]->sampleCountTableBuffer.resizeErase(_data->maxSampleCountTableSize);
+
+        _data->tileBuffers[i]->sampleCountTableBuffer.
+                resizeErase(_data->maxSampleCountTableSize);
+
+        char * p = &(_data->tileBuffers[i]->sampleCountTableBuffer[0]);
+        memset (p, 0, _data->maxSampleCountTableSize);
+
         _data->tileBuffers[i]->sampleCountTableCompressor =
-        newCompressor (_data->header.compression(),
+                newCompressor (_data->header.compression(),
                                _data->maxSampleCountTableSize,
                                _data->header);
     }

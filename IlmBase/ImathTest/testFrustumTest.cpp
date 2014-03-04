@@ -88,6 +88,9 @@ testFrustumTest ()
     IMATH_INTERNAL_NAMESPACE::Vec3<float> tinySize(0.0001f, 0.0001f, 0.0001f);
     IMATH_INTERNAL_NAMESPACE::Vec3<float> hugeSize(1000.0f, 1000.0f, 1000.0f);
 
+    // Empty box should NOT be visible
+    assert (!frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Box<IMATH_INTERNAL_NAMESPACE::Vec3<float> >()));
+         
     // Tiny box inside the frust should be visible
     assert (frustumTest.isVisible(IMATH_INTERNAL_NAMESPACE::Box<IMATH_INTERNAL_NAMESPACE::Vec3<float> >
         (insideVec + tinySize, insideVec + tinySize)));

@@ -256,7 +256,9 @@ clearExceptions ()
 const uint16_t cwRestoreMask = ~((3 << 10) | (3 << 8));
 const uint16_t cwRestoreVal = (0 << 10) | (3 << 8);
 
-#if __WORDSIZE == 64
+
+#ifdef ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT
+
 inline void
 restoreControlRegs (const ucontext_t & ucon, bool clearExceptions)
 {
@@ -264,7 +266,7 @@ restoreControlRegs (const ucontext_t & ucon, bool clearExceptions)
     setMxcsr (ucon.uc_mcontext.fpregs->mxcsr, clearExceptions);
 }
 
-#else // __WORDSIZE == 32
+#else
 
 //
 // Ugly, the mxcsr isn't defined in GNU libc ucontext_t, but

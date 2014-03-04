@@ -35,7 +35,6 @@
 #ifndef INCLUDED_ILM_THREAD_POOL_H
 #define INCLUDED_ILM_THREAD_POOL_H
 
-#include "IlmThread.h"
 
 //-----------------------------------------------------------------------------
 //
@@ -45,11 +44,11 @@
 //	tasks for processing.  Tasks added to the thread pool are
 //	executed concurrently by the worker threads.  
 //	
-//	Class Thread provides an abstract interface for a task which
+//	Class Task provides an abstract interface for a task which
 //	a ThreadPool works on.  Derived classes need to implement the
 //	execute() function which performs the actual task.
 //
-//	Class TaskTroup allows synchronization on the completion of a set
+//	Class TaskGroup allows synchronization on the completion of a set
 //	of tasks.  Every task that is added to a ThreadPool belongs to a
 //	single TaskGroup.  The destructor of the TaskGroup waits for all
 //	tasks in the group to finish.
@@ -63,6 +62,7 @@
 //-----------------------------------------------------------------------------
 
 #include "IlmThreadNamespace.h"
+#include "IlmThreadExport.h"
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -147,7 +147,7 @@ class ILMTHREAD_EXPORT TaskGroup
 {
   public:
 
-     TaskGroup();
+    TaskGroup();
     ~TaskGroup();
 
     struct Data;

@@ -91,7 +91,4 @@ IMF_EXPORT Rational	guessExactFps (const Rational &fps);
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
-
-
-
 #endif

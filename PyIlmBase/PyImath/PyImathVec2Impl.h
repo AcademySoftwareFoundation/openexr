@@ -48,6 +48,7 @@
 #include <boost/python/make_constructor.hpp>
 #include <boost/format.hpp>
 #include <PyImath.h>
+#include <PyImathBox.h>
 #include <ImathVec.h>
 #include <ImathVecAlgo.h>
 #include <Iex.h>
@@ -1013,10 +1014,17 @@ register_Vec2()
         .def("__div__", &Vec2_divTuple<T,tuple>)
         .def("__div__", &Vec2_divTuple<T,list>)
         .def("__div__", &Vec2_divT<T>)
+        .def("__truediv__", &Vec2_div<T,int>)
+        .def("__truediv__", &Vec2_div<T,float>)
+        .def("__truediv__", &Vec2_div<T,double>)
+        .def("__truediv__", &Vec2_divTuple<T,tuple>)
+        .def("__truediv__", &Vec2_divTuple<T,list>)
+        .def("__truediv__", &Vec2_divT<T>)
         .def("__rdiv__", &Vec2_rdivTuple<T,tuple>)
         .def("__rdiv__", &Vec2_rdivTuple<T,list>)
         .def("__rdiv__", &Vec2_rdivT<T>)
         .def("__idiv__", &Vec2_idivObj<T>,return_internal_reference<>())
+        .def("__itruediv__", &Vec2_idivObj<T>,return_internal_reference<>())
         .def("__xor__", &Vec2_dot<T>)
         .def("__mod__", &Vec2_cross<T>)
         .def(self == self)
@@ -1076,6 +1084,53 @@ Vec2Array_get(FixedArray<IMATH_NAMESPACE::Vec2<T> > &va)
 }
 
 template <class T>
+static IMATH_NAMESPACE::Vec2<T>
+Vec2Array_min(const FixedArray<IMATH_NAMESPACE::Vec2<T> > &a)
+{
+    Vec2<T> tmp(Vec2<T>(0));
+    size_t len = a.len();
+    if (len > 0)
+        tmp = a[0];
+    for (size_t i=1; i < len; ++i)
+    {
+        if (a[i].x < tmp.x)
+            tmp.x = a[i].x;
+        if (a[i].y < tmp.y)
+            tmp.y = a[i].y;
+    }
+    return tmp;
+}
+
+template <class T>
+static IMATH_NAMESPACE::Vec2<T>
+Vec2Array_max(const FixedArray<IMATH_NAMESPACE::Vec2<T> > &a)
+{
+    Vec2<T> tmp(Vec2<T>(0));
+    size_t len = a.len();
+    if (len > 0)
+        tmp = a[0];
+    for (size_t i=1; i < len; ++i)
+    {
+        if (a[i].x > tmp.x)
+            tmp.x = a[i].x;
+        if (a[i].y > tmp.y)
+            tmp.y = a[i].y;
+    }
+    return tmp;
+}
+
+template <class T>
+static IMATH_NAMESPACE::Box<IMATH_NAMESPACE::Vec2<T> >
+Vec2Array_bounds(const FixedArray<IMATH_NAMESPACE::Vec2<T> > &a)
+{
+    Box<Vec2<T> > tmp;
+    size_t len = a.len();
+    for (size_t i=0; i < len; ++i)
+        tmp.extendBy(a[i]);
+    return tmp;
+}
+
+template <class T>
 class_<FixedArray<IMATH_NAMESPACE::Vec2<T> > >
 register_Vec2Array()
 {
@@ -1088,6 +1143,9 @@ register_Vec2Array()
         .add_property("y",&Vec2Array_get<T,1>)
         .def("__setitem__", &setItemTuple<T,tuple>)
         .def("__setitem__", &setItemTuple<T,list>)
+        .def("min", &Vec2Array_min<T>)
+        .def("max", &Vec2Array_max<T>)
+        .def("bounds", &Vec2Array_bounds<T>)
         ;
 
     add_arithmetic_math_functions(vec2Array_class);
@@ -1105,7 +1163,9 @@ register_Vec2Array()
     generate_member_bindings<op_mul<IMATH_NAMESPACE::Vec2<T>,T>,  true_>(vec2Array_class,"__rmul__","x*self", boost::python::args("x"));
     generate_member_bindings<op_imul<IMATH_NAMESPACE::Vec2<T>,T>, true_>(vec2Array_class,"__imul__","self*=x",boost::python::args("x"));
     generate_member_bindings<op_div<IMATH_NAMESPACE::Vec2<T>,T>,  true_>(vec2Array_class,"__div__" ,"self/x", boost::python::args("x"));
+    generate_member_bindings<op_div<IMATH_NAMESPACE::Vec2<T>,T>,  true_>(vec2Array_class,"__truediv__" ,"self/x", boost::python::args("x"));
     generate_member_bindings<op_idiv<IMATH_NAMESPACE::Vec2<T>,T>, true_>(vec2Array_class,"__idiv__","self/=x",boost::python::args("x"));
+    generate_member_bindings<op_idiv<IMATH_NAMESPACE::Vec2<T>,T>, true_>(vec2Array_class,"__itruediv__","self/=x",boost::python::args("x"));
 
     decoratecopy(vec2Array_class);
 

@@ -37,6 +37,7 @@
 #include <boost/python.hpp>
 #include <PyImath.h>
 #include <PyImathFixedArray.h>
+#include <PyImathFixedVArray.h>
 
 using namespace boost::python;
 
@@ -103,6 +104,9 @@ register_basicTypes()
     add_ordered_comparison_functions(dclass);
     add_explicit_construction_from_type<int>(dclass);
     add_explicit_construction_from_type<float>(dclass);
+
+    class_<VIntArray> ivclass = VIntArray::register_("Variable fixed length array of ints");
+    // Don't add other functionality until its defined better.
 }
 
 } // namespace PyImath

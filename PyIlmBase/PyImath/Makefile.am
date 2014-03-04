@@ -5,11 +5,11 @@ lib_LTLIBRARIES = libPyImath.la
 
 libPyImath_la_SOURCES = PyImath.cpp \
     PyImathAutovectorize.cpp \
-	PyImathBox2Array.cpp \
-	PyImathBox3Array.cpp \
+    PyImathBox2Array.cpp \
+    PyImathBox3Array.cpp \
     PyImathBox.cpp \
     PyImathColor3.cpp \
-	PyImathColor4.cpp \
+    PyImathColor4.cpp \
     PyImathEuler.cpp \
     PyImathFixedArray.cpp \
     PyImathFrustum.cpp \
@@ -20,10 +20,11 @@ libPyImath_la_SOURCES = PyImath.cpp \
     PyImathQuat.cpp \
     PyImathRandom.cpp \
     PyImathShear.cpp \
-	PyImathStringArray.cpp \
-	PyImathStringTable.cpp \
+    PyImathStringArray.cpp \
+    PyImathStringTable.cpp \
     PyImathTask.cpp \
     PyImathUtil.cpp \
+    PyImathFixedVArray.cpp \
     PyImathVec2fd.cpp \
     PyImathVec2si.cpp \
     PyImathVec3fd.cpp \
@@ -35,9 +36,9 @@ libPyImath_la_SOURCES = PyImath.cpp \
 
 libPyImathinclude_HEADERS = PyImath.h \
     PyImathAutovectorize.h \
-	PyImathBoxArrayImpl.h \
+    PyImathBoxArrayImpl.h \
     PyImathBox.h \
-	PyImathColor3ArrayImpl.h \
+    PyImathColor3ArrayImpl.h \
     PyImathColor4Array2DImpl.h \
     PyImathColor4ArrayImpl.h \
     PyImathColor.h \
@@ -61,6 +62,7 @@ libPyImathinclude_HEADERS = PyImath.h \
     PyImathStringTable.h \
     PyImathTask.h \
     PyImathUtil.h \
+    PyImathFixedVArray.h \
     PyImathVec2Impl.h \
     PyImathVec3ArrayImpl.h \
     PyImathVec3Impl.h \

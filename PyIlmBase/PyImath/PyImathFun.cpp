@@ -250,6 +250,33 @@ struct modp_op
     }
 };
 
+struct bias_op
+{
+    static inline float
+    apply(float x, float b)
+    {
+        if (b != 0.5f)
+        {
+            static const float inverse_log_half = 1.0f / std::log(0.5f);
+            const float biasPow = std::log(b)*inverse_log_half;
+            return std::pow(x, biasPow);
+        }
+        return x;
+    }
+};
+
+struct gain_op
+{
+    static inline float
+    apply(float x, float g)
+    {
+        if (x < 0.5f)
+            return 0.5f*bias_op::apply(2.0f*x, 1.0f - g);
+        else
+            return 1.0f - 0.5f*bias_op::apply(2.0f - 2.0f*x, 1.0f - g);
+    }
+};
+
 } // namespace
 
 void register_functions()
@@ -408,6 +435,17 @@ void register_functions()
         "return x%y where the remainder is always positive:\n"
         "    modp(x,y) == x - y * divp(x,y)\n",
         (arg("x"),arg("y")));
+
+    PyImath::generate_bindings<bias_op,boost::mpl::true_,boost::mpl::true_>(
+         "bias",
+         "bias(x,b) is a gamma correction that remaps the unit interval such that bias(0.5, b) = b.",
+         (arg("x"),arg("b")));
+
+    PyImath::generate_bindings<gain_op,boost::mpl::true_,boost::mpl::true_>(
+         "gain",
+         "gain(x,g) is a gamma correction that remaps the unit interval with the property that gain(0.5, g) = 0.5.\n"
+         "The gain function can be thought of as two scaled bias curves forming an 'S' shape in the unit interval.",
+         (arg("x"),arg("g")));
 
     //
     // Vectorized utility functions

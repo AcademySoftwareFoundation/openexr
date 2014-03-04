@@ -44,7 +44,7 @@ StringTableIndex
 StringTableT<T>::lookup(const T &s) const
 {
     typedef typename Table::template nth_index<1>::type StringSet;
-    const StringSet &strings = _table.get<1>();
+    const StringSet &strings = _table.template get<1>();
 
     typename StringSet::const_iterator it = strings.find(s);
     if (it == strings.end()) {
@@ -59,7 +59,7 @@ const T &
 StringTableT<T>::lookup(StringTableIndex index) const
 {
     typedef typename Table::template nth_index<0>::type IndexSet;
-    const IndexSet &indices = _table.get<0>();
+    const IndexSet &indices = _table.template get<0>();
 
     typename IndexSet::const_iterator it = indices.find(index);
     if (it == indices.end()) {
@@ -74,7 +74,7 @@ StringTableIndex
 StringTableT<T>::intern(const T &s)
 {
     typedef typename Table::template nth_index<1>::type StringSet;
-    const StringSet &strings = _table.get<1>();
+    const StringSet &strings = _table.template get<1>();
 
     typename StringSet::const_iterator it = strings.find(s);
     if (it == strings.end()) {
@@ -102,7 +102,7 @@ bool
 StringTableT<T>::hasString(const T &s) const
 {
     typedef typename Table::template nth_index<1>::type StringSet;
-    const StringSet &strings = _table.get<1>();
+    const StringSet &strings = _table.template get<1>();
     return strings.find(s) != strings.end();
 }
 
@@ -111,12 +111,14 @@ bool
 StringTableT<T>::hasStringIndex(const StringTableIndex &s) const
 {
     typedef typename Table::template nth_index<0>::type IndexSet;
-    const IndexSet &indices = _table.get<0>();
+    const IndexSet &indices = _table.template get<0>();
     return indices.find(s) != indices.end();
 }
 
+namespace {
 template class PYIMATH_EXPORT StringTableDetailT<std::string>;
 template class PYIMATH_EXPORT StringTableDetailT<std::wstring>;
+}
 
 template class PYIMATH_EXPORT StringTableT<std::string>;
 template class PYIMATH_EXPORT StringTableT<std::wstring>;

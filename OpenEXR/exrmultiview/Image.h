@@ -64,7 +64,7 @@ class ImageChannel
     ImageChannel (Image &image);
     virtual ~ImageChannel();
 
-    virtual CustomImf::Slice	slice () const = 0;
+    virtual IMF::Slice	slice () const = 0;
 
     Image &		image ()		{return _image;}
     const Image &	image () const		{return _image;}
@@ -86,9 +86,9 @@ class TypedImageChannel: public ImageChannel
 
     virtual ~TypedImageChannel ();
     
-    CustomImf::PixelType	pixelType () const;
+    IMF::PixelType	pixelType () const;
 
-    virtual CustomImf::Slice	slice () const;
+    virtual IMF::Slice	slice () const;
     
     
   private:
@@ -98,7 +98,7 @@ class TypedImageChannel: public ImageChannel
     
     int			_xSampling;
     int			_ySampling;
-    CustomImf::Array2D<T>	_pixels;
+    IMF::Array2D<T>	_pixels;
 };
 
 
@@ -122,7 +122,7 @@ class Image
    int				height () const;
 
    void				addChannel (const std::string &name,
-					    const CustomImf::Channel &channel);
+					    const IMF::Channel &channel);
 
    ImageChannel &		channel (const std::string &name);
    const ImageChannel &		channel (const std::string &name) const;
@@ -171,37 +171,37 @@ TypedImageChannel<T>::~TypedImageChannel ()
 
 
 template <>
-inline CustomImf::PixelType
+inline IMF::PixelType
 HalfChannel::pixelType () const
 {
-    return CustomImf::HALF;
+    return IMF::HALF;
 }
 
 
 template <>
-inline CustomImf::PixelType
+inline IMF::PixelType
 FloatChannel::pixelType () const
 {
-    return CustomImf::FLOAT;
+    return IMF::FLOAT;
 }
 
 
 template <>
-inline CustomImf::PixelType
+inline IMF::PixelType
 UIntChannel::pixelType () const
 {
-    return CustomImf::UINT;
+    return IMF::UINT;
 }
 
 
 template <class T>
-CustomImf::Slice
+IMF::Slice
 TypedImageChannel<T>::slice () const
 {
     const IMATH_NAMESPACE::Box2i &dw = image().dataWindow();
     int w = dw.max.x - dw.min.x + 1;
 
-    return CustomImf::Slice (pixelType(),
+    return IMF::Slice (pixelType(),
 		       (char *) (&_pixels[0][0] -
 				 dw.min.y / _ySampling * (w / _xSampling) -
 				 dw.min.x / _xSampling),

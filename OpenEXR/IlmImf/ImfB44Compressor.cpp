@@ -97,11 +97,11 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfB44Compressor.h>
-#include <ImfHeader.h>
-#include <ImfChannelList.h>
-#include <ImfMisc.h>
-#include <ImfCheckedArithmetic.h>
+#include "ImfB44Compressor.h"
+#include "ImfHeader.h"
+#include "ImfChannelList.h"
+#include "ImfMisc.h"
+#include "ImfCheckedArithmetic.h"
 #include <ImathFun.h>
 #include <ImathBox.h>
 #include <Iex.h>
@@ -112,7 +112,9 @@
 #include <algorithm>
 #include "ImfNamespace.h"
 
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
+
 
 using IMATH_NAMESPACE::divp;
 using IMATH_NAMESPACE::modp;

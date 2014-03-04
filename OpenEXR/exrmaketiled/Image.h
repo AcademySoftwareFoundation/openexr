@@ -65,7 +65,7 @@ class ImageChannel
     ImageChannel (Image &image);
     virtual ~ImageChannel();
 
-    virtual CustomImf::Slice	slice () const = 0;
+    virtual IMF::Slice	slice () const = 0;
 
     Image &		image ()		{return _image;}
     const Image &	image () const		{return _image;}
@@ -86,9 +86,9 @@ class TypedImageChannel: public ImageChannel
     TypedImageChannel (Image &image, int width, int height);
     virtual ~TypedImageChannel ();
     
-    CustomImf::PixelType	pixelType () const;
+    IMF::PixelType	pixelType () const;
 
-    virtual CustomImf::Slice	slice () const;
+    virtual IMF::Slice	slice () const;
 
     T &				operator () (int x, int y);
     const T &			operator () (int x, int y) const;
@@ -97,7 +97,7 @@ class TypedImageChannel: public ImageChannel
 
     virtual void		resize (int width, int height);
 
-    CustomImf::Array2D<T>	_pixels;
+    IMF::Array2D<T>	_pixels;
 };
 
 
@@ -121,7 +121,7 @@ class Image
     int				height () const;
 
     void			addChannel (const std::string &name,
-        			            CustomImf::PixelType type);
+        			            IMF::PixelType type);
 
     ImageChannel &		channel (const std::string &name);
     const ImageChannel &		channel (const std::string &name) const;

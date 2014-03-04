@@ -216,6 +216,30 @@ static T fa_reduce(const FixedArray<T> &a) {
 }
 
 template <class T>
+static T fa_min(const FixedArray<T> &a) {
+    T tmp(T(0));
+    size_t len = a.len();
+    if (len > 0)
+        tmp = a[0];
+    for (size_t i=1; i < len; ++i)
+        if (a[i] < tmp)
+            tmp = a[i];
+    return tmp;
+}
+
+template <class T>
+static T fa_max(const FixedArray<T> &a) {
+    T tmp(T(0));
+    size_t len = a.len();
+    if (len > 0)
+        tmp = a[0];
+    for (size_t i=1; i < len; ++i)
+        if (a[i] > tmp)
+            tmp = a[i];
+    return tmp;
+}
+
+template <class T>
 static void add_arithmetic_math_functions(boost::python::class_<FixedArray<T> > &c) {
     using boost::mpl::true_;
     using boost::mpl::false_;
@@ -226,13 +250,21 @@ static void add_arithmetic_math_functions(boost::python::class_<FixedArray<T> > 
     generate_member_bindings<op_mul<T>, true_ >(c,"__mul__", "self*x", boost::python::args("x"));
     generate_member_bindings<op_mul<T>, false_>(c,"__rmul__","x*self", boost::python::args("x"));
     generate_member_bindings<op_div<T>, true_ >(c,"__div__", "self/x", boost::python::args("x"));
+    generate_member_bindings<op_div<T>, true_ >(c,"__truediv__", "self/x", boost::python::args("x"));
     generate_member_bindings<op_neg<T> >(c,"__neg__", "-x");
     generate_member_bindings<op_iadd<T>,true_ >(c,"__iadd__","self+=x",boost::python::args("x"));
     generate_member_bindings<op_isub<T>,true_ >(c,"__isub__","self-=x",boost::python::args("x"));
     generate_member_bindings<op_imul<T>,true_ >(c,"__imul__","self*=x",boost::python::args("x"));
     generate_member_bindings<op_idiv<T>,true_ >(c,"__idiv__","self/=x",boost::python::args("x"));
+    generate_member_bindings<op_idiv<T>,true_ >(c,"__itruediv__","self/=x",boost::python::args("x"));
 
     c.def("reduce",&fa_reduce<T>);
+}
+
+template <class T>
+static void add_reduction_functions(boost::python::class_<FixedArray<T> > &c) {
+    c.def("min",&fa_min<T>);
+    c.def("max",&fa_max<T>);
 }
 
 template <class T>

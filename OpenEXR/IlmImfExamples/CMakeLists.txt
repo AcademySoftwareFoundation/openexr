@@ -11,11 +11,13 @@ ADD_EXECUTABLE ( IlmImfExamples
   rgbaInterfaceTiledExamples.cpp
  )
 
-TARGET_LINK_LIBRARIES ( IlmImfExamples
-  IlmImf
-  Iex
-  IlmThread
-  Half
-  ${PTHREAD_LIB}
-  ${Z_LIB}
-  )
+
+TARGET_LINK_LIBRARIES ( IlmImfExamples 
+        IlmImf
+        Half 
+        Iex-2_1
+        Imath-2_1 
+        IlmThread-2_1 
+        ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
+        )
+  

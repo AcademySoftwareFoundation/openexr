@@ -83,8 +83,7 @@ ChannelListAttribute::writeValueTo (OStream &os, int version) const
 	// Write name
 	//
 
-	Xdr::write <
-	StreamIO> (os, i.name());
+	Xdr::write <StreamIO> (os, i.name());
 
 	//
 	// Write Channel struct

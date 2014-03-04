@@ -40,6 +40,7 @@
 //        class GlWindow3d -- reconstructs deep image in a 3D OpenGl window
 //
 //----------------------------------------------------------------------------
+#include "namespaceAlias.h"
 
 
 #include <stdio.h>
@@ -51,7 +52,7 @@
 
 #include <ImfRgba.h>
 #include <ImfArray.h>
-#include <OpenEXRConfig.h>
+#include <ImfNamespace.h>
 
 #define FPS (1.0/24.0)  // frames per second
 
@@ -62,7 +63,7 @@ public:
     GlWindow (int x,int y,
               int w,int h,
               const char *l,
-              const OPENEXR_IMF_NAMESPACE::Rgba pixels[],
+              const IMF::Rgba pixels[],
               float* dataZ[],
               unsigned int sampleCount[],
               int dx, int dy, // data window
@@ -79,7 +80,7 @@ public:
     int handle (int event);
 
 protected:
-    const OPENEXR_IMF_NAMESPACE::Rgba *  _rawPixels;
+    const IMF::Rgba *                    _rawPixels;
     float**                              _dataZ;
     unsigned int *                       _sampleCount;
     int                                  _dx;

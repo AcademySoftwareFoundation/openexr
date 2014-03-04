@@ -51,6 +51,8 @@ using namespace IMATH_NAMESPACE;
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
+
+
 namespace LatLongMap {
 
 V2f	

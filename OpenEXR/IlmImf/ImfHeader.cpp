@@ -49,6 +49,7 @@
 #include <ImfChannelListAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfCompressionAttribute.h>
+#include <ImfDeepImageStateAttribute.h>
 #include <ImfDoubleAttribute.h>
 #include <ImfEnvmapAttribute.h>
 #include <ImfFloatAttribute.h>
@@ -796,6 +797,18 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 			    "maximum width of " << maxImageHeight << "pixels.");
     }
 
+   // chunk table must be smaller than the maximum image area
+   // (only reachable for unknown types or damaged files: will have thrown earlier
+   //  for regular image types)
+   if( maxImageHeight>0 && maxImageWidth>0 && 
+       hasChunkCount() && chunkCount()>Int64(maxImageWidth)*Int64(maxImageHeight))
+   {
+       THROW (IEX_NAMESPACE::ArgExc, "chunkCount exceeds maximum area of "
+       << Int64(maxImageWidth)*Int64(maxImageHeight) << " pixels." );
+       
+   }
+
+
     //
     // The pixel aspect ratio must be greater than 0.
     // In applications, numbers like the the display or
@@ -845,18 +858,25 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
                                " have name attribute.");
         }
 
-        if (!hasType() && isSupportedType(type()))
+        if (!hasType())
         {
             throw IEX_NAMESPACE::ArgExc ("Headers in a multipart file should"
                                " have type attribute.");
         }
 
-        if (hasVersion() && version() != 1)
-        {
-            throw IEX_NAMESPACE::ArgExc ("We can only process version 1.");
-        }
     }
-
+    
+    const std::string & part_type=hasType() ? type() : "";
+    
+    if(part_type!="" && !isSupportedType(part_type))
+    {
+        //
+        // skip remaining sanity checks with unsupported types - they may not hold
+        //
+        return;
+    }
+    
+   
     //
     // If the file is tiled, verify that the tile description has reasonable
     // values and check to see if the lineOrder is one of the predefined 3.
@@ -909,9 +929,11 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
     }
     else
     {
-	if (lineOrder != INCREASING_Y &&
-	    lineOrder != DECREASING_Y)
-	    throw IEX_NAMESPACE::ArgExc ("Invalid line order in image header.");
+        if (lineOrder != INCREASING_Y &&
+            lineOrder != DECREASING_Y)
+            throw IEX_NAMESPACE::ArgExc ("Invalid line order in image header.");
+        
+        
     }
 
     //
@@ -921,7 +943,7 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
     if (!isValidCompression (this->compression()))
   	throw IEX_NAMESPACE::ArgExc ("Unknown compression type in image header.");
     
-    if(hasType() && isDeepData(type()))
+    if(isDeepData(part_type))
     {
         if (!isValidDeepCompression (this->compression()))
             throw IEX_NAMESPACE::ArgExc ("Compression type in header not valid for deep data");
@@ -948,9 +970,9 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 	     i != channels.end();
 	     ++i)
 	{
-	    if (i.channel().type != UINT &&
-		i.channel().type != HALF &&
-		i.channel().type != FLOAT)
+	    if (i.channel().type != OPENEXR_IMF_INTERNAL_NAMESPACE::UINT &&
+		    i.channel().type != OPENEXR_IMF_INTERNAL_NAMESPACE::HALF &&
+		    i.channel().type != OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT)
 	    {
 		THROW (IEX_NAMESPACE::ArgExc, "Pixel type of \"" << i.name() << "\" "
 			            "image channel is invalid.");
@@ -977,9 +999,9 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 	     i != channels.end();
 	     ++i)
 	{
-	    if (i.channel().type != UINT &&
-		i.channel().type != HALF &&
-		i.channel().type != FLOAT)
+	    if (i.channel().type != OPENEXR_IMF_INTERNAL_NAMESPACE::UINT &&
+		    i.channel().type != OPENEXR_IMF_INTERNAL_NAMESPACE::HALF &&
+		    i.channel().type != OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT)
 	    {
 		THROW (IEX_NAMESPACE::ArgExc, "Pixel type of \"" << i.name() << "\" "
 			            "image channel is invalid.");
@@ -1225,6 +1247,7 @@ staticInitialize ()
 	ChannelListAttribute::registerAttributeType();
 	CompressionAttribute::registerAttributeType();
 	ChromaticitiesAttribute::registerAttributeType();
+	DeepImageStateAttribute::registerAttributeType();
 	DoubleAttribute::registerAttributeType();
 	EnvmapAttribute::registerAttributeType();
 	FloatAttribute::registerAttributeType();

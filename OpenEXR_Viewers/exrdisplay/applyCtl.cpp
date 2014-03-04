@@ -38,7 +38,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <applyCtl.h>
+#include "applyCtl.h"
 
 #if HAVE_CTL_INTERPRETER
 
@@ -55,7 +55,7 @@
 
     using namespace std;
     using namespace Ctl;
-    using namespace IMATH_NAMESPACE;
+    using namespace IMATH;
 
 #else
 
@@ -68,12 +68,12 @@
     #include <stdio.h>
 
     using namespace std;
-    using namespace IMATH_NAMESPACE;
+    using namespace IMATH;
 
 #endif
 
 
-using namespace OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
 
 #define WARNING(message) (cerr << "Warning: " << message << endl)
 

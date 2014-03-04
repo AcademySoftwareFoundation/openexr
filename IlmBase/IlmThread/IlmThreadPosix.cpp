@@ -89,7 +89,7 @@ void
 Thread::start ()
 {
     if (int error = ::pthread_create (&_thread, 0, Start (threadLoop), this))
-	IEX_INTERNAL_NAMESPACE::throwErrnoExc ("Cannot create new thread (%T).", error);
+	IEX_NAMESPACE::throwErrnoExc ("Cannot create new thread (%T).", error);
 }
 
 

@@ -35,6 +35,8 @@
 #ifndef TESTINPUTPART_H_
 #define TESTINPUTPART_H_
 
-void testInputPart();
+#include <string>
+
+void testInputPart (const std::string & tempDir);
 
 #endif /* TESTINPUTPART_H_ */

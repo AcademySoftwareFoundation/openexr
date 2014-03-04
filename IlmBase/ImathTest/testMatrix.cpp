@@ -72,7 +72,7 @@ testMatrix ()
     nand.i = 0x7ff0000000000001ULL; //  NAN
 
     {
-	cout << "IMATH_INTERNAL_NAMESPACE::M33f shear functions" << endl;
+	cout << "Imath::M33f shear functions" << endl;
 
 	IMATH_INTERNAL_NAMESPACE::M33f m1, m2;
 	m1.setShear (2.0f);

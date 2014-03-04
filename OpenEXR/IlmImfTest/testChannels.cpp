@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,7 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <tmpDir.h>
 
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
@@ -234,7 +233,7 @@ writeRead (const Array2D<half> &h1out,
 
 
 void
-testChannels ()
+testChannels (const std::string &tempDir)
 {
     try
     {
@@ -247,9 +246,9 @@ testChannels ()
 	Array2D<half> ph2 (H, W);
 	fillPixels (ph1, ph2, W, H);
 
-	const char *filename = IMF_TMP_DIR "imf_test_channels.exr";
+	std::string filename = tempDir + "imf_test_channels.exr";
 
-	writeRead (ph1, ph2, filename, W, H);
+	writeRead (ph1, ph2, filename.c_str(), W, H);
 
 	cout << "ok\n" << endl;
     }

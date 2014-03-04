@@ -65,8 +65,10 @@
 #include <iostream>
 #include <iomanip>
 
-#include <OpenEXRConfig.h>
-using namespace OPENEXR_IMF_NAMESPACE;
+
+namespace IMF = OPENEXR_IMF_NAMESPACE;
+using namespace IMF;
+
 using namespace std;
 
 
@@ -143,15 +145,15 @@ printPixelType (PixelType pt)
 {
     switch (pt)
     {
-        case UINT:
+        case IMF::UINT:
             cout << "32-bit unsigned integer";
             break;
 
-        case HALF:
+        case IMF::HALF:
             cout << "16-bit floating-point";
             break;
 
-        case FLOAT:
+        case IMF::FLOAT:
             cout << "32-bit floating-point";
             break;
 
@@ -288,7 +290,7 @@ printInfo (const char fileName[])
 
     bool is_complete=true;
 
-    for (size_t i = 0; i < parts && is_complete; ++i)
+    for (int i = 0; i < parts && is_complete; ++i)
     {
         is_complete &= in.partComplete(i);
     }
@@ -302,7 +304,7 @@ printInfo (const char fileName[])
             "flags 0x" <<
             setbase (16) << getFlags (in.version()) << setbase (10) << "\n";
 
-    for (size_t p = 0; p < parts ; ++p)
+    for (int p = 0; p < parts ; ++p)
     {
         const Header & h = in.header(p);
         if( parts != 1 )

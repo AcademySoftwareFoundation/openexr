@@ -40,6 +40,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <ImfPartType.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfMultiPartOutputFile.h>
 #include <ImfStandardAttributes.h>
@@ -62,11 +63,18 @@
 #include <stdlib.h>
 #include <vector>
 
-#include <OpenEXRConfig.h>
-namespace CustomImf = OPENEXR_IMF_NAMESPACE;
-using namespace CustomImf;
+#include <ImfNamespace.h>
+#include <ImathNamespace.h>
+#include <IexNamespace.h>
+
+namespace IMF   = OPENEXR_IMF_NAMESPACE;
+namespace IMATH = IMATH_NAMESPACE;
+namespace IEX   = IEX_NAMESPACE;
+
+using namespace IMF;
+using namespace IMATH;
+using namespace IEX;
 using namespace std;
-using namespace IMATH_NAMESPACE;
 
 
 void
@@ -795,7 +803,7 @@ main(int argc, char **argv)
 	// update headers
 	//
         vector<Header> headers;
-        for(size_t p = 0 ; p < parts; p++)
+        for(int p = 0 ; p < parts; p++)
         {
             Header h = input.header (p);
             if (allparts)
@@ -820,29 +828,29 @@ main(int argc, char **argv)
         //
         MultiPartOutputFile output (outFileName, &headers[0], parts);
 
-        for (size_t p = 0 ; p < parts; p++)
+        for (int p = 0 ; p < parts; p++)
         {
             Header header = input.header (p);
             std::string type = header.type();
-            if (type == "tiledimage")
+            if (type == TILEDIMAGE)
             {
                 TiledInputPart in (input, p);
                 TiledOutputPart out (output, p);
                 out.copyPixels (in);
             }
-            else if (type == "scanlineimage")
+            else if (type == SCANLINEIMAGE)
             {
                 InputPart in (input, p);
                 OutputPart out (output, p);
                 out.copyPixels (in);
             }
-            else if (type == "deepscanline")
+            else if (type == DEEPSCANLINE)
             {
                 DeepScanLineInputPart in (input,p);
                 DeepScanLineOutputPart out (output,p);
                 out.copyPixels (in);
             }
-            else if (type == "deeptile")
+            else if (type == DEEPTILE)
             {
                 DeepTiledInputPart in (input,p);
                 DeepTiledOutputPart out (output,p);

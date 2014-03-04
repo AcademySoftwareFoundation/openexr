@@ -68,12 +68,12 @@ using std::max;
 using std::cout;
 using std::endl;
 using std::cerr;
-using namespace IMATH_NAMESPACE;
+using namespace IMATH;
 
 ImageView::ImageView (int x, int y,
                       int w, int h,
                       const char label[],
-                      const OPENEXR_IMF_NAMESPACE::Rgba pixels[],
+                      const IMF::Rgba pixels[],
                       float* dataZ[],
                       unsigned int sampleCount[],
                       int zsize,
@@ -203,7 +203,7 @@ ImageView::findZbound()
 }
 
 void
-ImageView::setPixels(const OPENEXR_IMF_NAMESPACE::Rgba pixels[/* w*h */],
+ImageView::setPixels(const IMF::Rgba pixels[/* w*h */],
                      float* dataZ[/* w*h */],
                      unsigned int sampleCount[/* w*h */],
                      int zsize,
@@ -300,7 +300,7 @@ ImageView::computeFogColor ()
 
     for (int j = 0; j < _dw * _dh; ++j)
     {
-        const OPENEXR_IMF_NAMESPACE::Rgba &rp = _rawPixels[j];
+        const IMF::Rgba &rp = _rawPixels[j];
 
         if (rp.r.isFinite())
             _fogR += rp.r;
@@ -317,6 +317,61 @@ ImageView::computeFogColor ()
     _fogB /= _dw * _dh;
 }
 
+void
+ImageView::drawChart (int x, int y, bool initChart)
+{
+    if (x >= 0 && x < w() && y >= 0 && y < h())
+    {
+        int px = x - _dx;
+        int py = y - _dy;
+
+        if (px >= 0 && px < _dw && py >= 0 && py < _dh)
+        {
+            float* z = _dataZ[py * _dw + px];
+            unsigned int count = _sampleCount[py * _dw + px];
+
+            cout << "\nsample Count: " << count << endl;
+            cout << "x: " << px << ", y: " << py << endl;
+
+            for (unsigned int i = 0; i < count; i++)
+            {
+                printf ("pixel Z value  %d: %.3f\n", i, float(z[i]));
+            }
+
+            const IMF::Rgba &p = _rawPixels[py * _dw + px];
+
+            cout << "R = " << p.r << ", G = " << p.g << ","
+            " B = " << p.b <<endl;
+
+            //
+            // draw the chart
+            //
+            drawChartRef();
+
+            for (unsigned int i = 0; i < count; i++)
+            {
+                double val = double(z[i]);
+                if (val < _farPlane)
+                {
+                    static char val_str[20];
+                    sprintf (val_str, "%.3lf", val);
+                    _chart->add (val, val_str, FL_BLUE);
+                }
+            }
+
+            redraw();
+
+            if (initChart)
+            {
+                _chartwin->resizable (_chartwin);
+                _chartwin->set_non_modal(); // make chart on top
+
+                if (!_chartwin->shown())
+                    _chartwin->show();
+            }
+        }
+    }
+}
 
 void
 ImageView::drawChartRef ()
@@ -349,6 +404,14 @@ ImageView::drawChartRef ()
 int
 ImageView::handle (int event)
 {
+
+    if (event == FL_PUSH)
+    {
+        // We want to get the other associated events for this widget so
+        // return a non-zero value here.
+        return 1;
+    }
+
     if (event == FL_MOVE)
     {
         //
@@ -366,7 +429,7 @@ ImageView::handle (int event)
 
             if (px >= 0 && px < _dw && py >= 0 && py < _dh)
             {
-                const OPENEXR_IMF_NAMESPACE::Rgba &p = _rawPixels[py * _dw + px];
+                const IMF::Rgba &p = _rawPixels[py * _dw + px];
 
                 sprintf (_rgbaBoxLabel,
                          "r = %.3g   g = %.3g   b = %.3g",
@@ -378,10 +441,35 @@ ImageView::handle (int event)
             }
 
             _rgbaBox->label (_rgbaBoxLabel);
+
+
+            if (_chartwin->shown() && _zsize > 0)
+            {
+                int x = Fl::event_x();
+                int y = Fl::event_y();
+                drawChart (x, y, false);
+            }
         }
     }
 
-    if ( event == FL_RELEASE && Fl::event_button() == FL_RIGHT_MOUSE )
+    if (event == FL_RELEASE && Fl::event_button() == FL_LEFT_MOUSE)
+    {
+        //
+        // Open a sample chart and print the z values of
+        // the pixel at the current cursor location
+        //
+
+        if(_zsize > 0)
+        {
+            int x = Fl::event_x();
+            int y = Fl::event_y();
+
+            drawChart (x, y, true);
+        }
+
+    }
+
+    if (event == FL_RELEASE && Fl::event_button() == FL_RIGHT_MOUSE)
     {
         if(_zsize > 0)
         {
@@ -404,71 +492,6 @@ ImageView::handle (int event)
                 _gl3d->show();
             }
         }
-    }
-
-    if (event == FL_RELEASE && Fl::event_button() == FL_LEFT_MOUSE)
-    {
-        //
-        // Open a sample chart and print the z values of
-        // the pixel at the current cursor location
-        //
-
-        if(_zsize > 0)
-        {
-            int x = Fl::event_x();
-            int y = Fl::event_y();
-
-            if (x >= 0 && x < w() && y >= 0 && y < h())
-            {
-                int px = x - _dx;
-                int py = y - _dy;
-
-                if (px >= 0 && px < _dw && py >= 0 && py < _dh)
-                {
-                    float* z = _dataZ[py * _dw + px];
-                    unsigned int count = _sampleCount[py * _dw + px];
-
-                    cout << "\nsample Count: " << count << endl;
-                    cout << "x: " << px << ", y: " << py << endl;
-
-                    for (unsigned int i = 0; i < count; i++)
-                    {
-                        printf ("pixel Z value  %d: %.3f\n", i, float(z[i]));
-                    }
-
-                    const OPENEXR_IMF_NAMESPACE::Rgba &p = _rawPixels[py * _dw + px];
-
-                    cout << "R = " << p.r << ", G = " << p.g << ","
-                    " B = " << p.b <<endl;
-
-                    //
-                    // draw the chart
-                    //
-                    drawChartRef();
-
-                    for (unsigned int i = 0; i < count; i++)
-                    {
-                        double val = double(z[i]);
-                        if (val < _farPlane)
-                        {
-                            static char val_str[20];
-                            sprintf (val_str, "%.3lf", val);
-                            _chart->add (val, val_str, FL_BLUE);
-                        }
-                    }
-
-                    redraw();
-
-                    _chartwin->resizable (_chartwin);
-                    _chartwin->set_non_modal(); // make chart on top
-
-                    if (!_chartwin->shown())
-                        _chartwin->show();
-                }
-
-            }
-        }
-
     }
 
     return Fl_Gl_Window::handle (event);
@@ -518,7 +541,7 @@ namespace {
 float
 knee (double x, double f)
 {
-    return float (IMATH_NAMESPACE::Math<double>::log (x * f + 1) / f);
+    return float (IMATH::Math<double>::log (x * f + 1) / f);
 }
 
 
@@ -571,12 +594,12 @@ Gamma::Gamma
  float kneeHigh)
 :
     g (gamma),
-    m (IMATH_NAMESPACE::Math<float>::pow (2, exposure + 2.47393)),
+    m (IMATH::Math<float>::pow (2, exposure + 2.47393)),
     d (defog),
-    kl (IMATH_NAMESPACE::Math<float>::pow (2, kneeLow)),
-    f (findKneeF (IMATH_NAMESPACE::Math<float>::pow (2, kneeHigh) - kl, 
-                  IMATH_NAMESPACE::Math<float>::pow (2, 3.5) - kl)),
-                  s (255.0 * IMATH_NAMESPACE::Math<float>::pow (2, -3.5 * g))
+    kl (IMATH::Math<float>::pow (2, kneeLow)),
+    f (findKneeF (IMATH::Math<float>::pow (2, kneeHigh) - kl,
+                  IMATH::Math<float>::pow (2, 3.5) - kl)),
+                  s (255.0 * IMATH::Math<float>::pow (2, -3.5 * g))
                   {}
 
 
@@ -606,7 +629,7 @@ Gamma::operator () (half h)
     // Gamma
     //
 
-    x = IMATH_NAMESPACE::Math<float>::pow (x, g);
+    x = IMATH::Math<float>::pow (x, g);
 
     //
     // Scale and clamp
@@ -685,7 +708,7 @@ ImageView::updateScreenPixels ()
         for (int x = 0; x < _dw; ++x)
         {
             int j = i + x;
-            const OPENEXR_IMF_NAMESPACE::Rgba &rp = _rawPixels[j];
+            const IMF::Rgba &rp = _rawPixels[j];
             unsigned char *sp = _screenPixels + j * 3;
             sp[0] = dither (rGamma (rp.r), x, y);
             sp[1] = dither (gGamma (rp.g), x, y);

@@ -1,9 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(PyIlmBase, 2.0.0)
-AC_SUBST(PYILMBASE_VERSION, 2.0.0)
+AC_INIT(PyIlmBase, 2.1.0)
+AC_SUBST(PYILMBASE_VERSION, 2.1.0)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(PyIex/iexmodule.cpp)
-AM_CONFIG_HEADER(config/PyIlmBaseConfig.h)
+AC_CONFIG_HEADER(config/PyIlmBaseConfig.h)
 AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 dnl static python modules make no sense - disable static
@@ -11,7 +11,7 @@ AC_DISABLE_STATIC
 
 
 LIBTOOL_CURRENT=2
-LIBTOOL_REVISION=0
+LIBTOOL_REVISION=1
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
 AC_SUBST(LIBTOOL_VERSION)
@@ -54,10 +54,18 @@ AM_COMPILELINKRUN(
    [$ILMBASE_LIBS],[[
 #include <stdlib.h>
 #include <ImathFun.h>
+#ifndef IMATH_NAMESPACE 
+#define IMATH_NAMESPACE Imath 
+#endif
 ]],
-   [[double d = Imath::succd(.23); d+= .2;]],
+   [[
+   double d = IMATH_NAMESPACE::succd(.23); d+= .2;
+   ]],
    AC_MSG_RESULT([Compiled and ran IlmBase test program.]), 
    AC_MSG_ERROR([Could not compile IlmBase test program.]))
+
+LDFLAGS="$LDFLAGS $ILMBASE_LDFLAGS"
+
 
 dnl Checks for python and boost python
 AM_PATH_PYTHON

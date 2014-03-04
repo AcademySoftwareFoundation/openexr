@@ -47,5 +47,6 @@ template <> PYIMATH_EXPORT const char * IntArray::name()          { return "IntA
 template <> PYIMATH_EXPORT const char * UnsignedIntArray::name()  { return "UnsignedIntArray"; }
 template <> PYIMATH_EXPORT const char * FloatArray::name()        { return "FloatArray"; }
 template <> PYIMATH_EXPORT const char * DoubleArray::name()       { return "DoubleArray"; }
+template <> PYIMATH_EXPORT const char * VIntArray::name()         { return "VIntArray"; }
 
 }

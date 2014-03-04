@@ -253,7 +253,7 @@ void BaseDeepHelper<RGBA_T,DERIVED,SPAN>::processDeepBox
 
     DeepOutRow<RGBA_T> outRow( width, m_params.doDeepBack, m_params.doRGB );
     
-    for ( int y = i_box.min.y; y <= i_box.max.y; ++y )
+    for ( int y = i_box.max.y; y >= i_box.min.y; --y )
     {
         outRow.clear();
         

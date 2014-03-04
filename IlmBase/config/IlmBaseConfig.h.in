@@ -13,7 +13,14 @@
 
 #undef HAVE_POSIX_SEMAPHORES
 
+
 #undef HAVE_UCONTEXT_H
+
+
+//
+// Dealing with FPEs
+//
+#undef ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT
 
 
 //
@@ -47,7 +54,18 @@
 
 
 //
-// Version string for runtime access
+// Version information
 //
 #undef ILMBASE_VERSION_STRING
 #undef ILMBASE_PACKAGE_STRING
+
+#undef ILMBASE_VERSION_MAJOR
+#undef ILMBASE_VERSION_MINOR
+#undef ILMBASE_VERSION_PATCH
+
+// Version as a single hex number, e.g. 0x01000300 == 1.0.3
+#define ILMBASE_VERSION_HEX ((ILMBASE_VERSION_MAJOR << 24) | \
+                             (ILMBASE_VERSION_MINOR << 16) | \
+                             (ILMBASE_VERSION_PATCH <<  8))
+
+

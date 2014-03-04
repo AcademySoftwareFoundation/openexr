@@ -40,7 +40,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 DeepTiledOutputPart::DeepTiledOutputPart(MultiPartOutputFile& multiPartFile, int partNumber)
 {
-    file = multiPartFile.createDeepTiledOutputPart(partNumber);
+    file = multiPartFile.getOutputPart<DeepTiledOutputFile>(partNumber);
 }
 
 const char *

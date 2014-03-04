@@ -42,6 +42,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include <ImfPartType.h>
 #include <ImfMultiPartOutputFile.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfTileDescription.h>
@@ -65,9 +66,9 @@ enum Extrapolation
 void    makeTiled (const char inFileName[],
                    const char outFileName[],
                    int partnum,
-                   CustomImf::LevelMode mode,
-                   CustomImf::LevelRoundingMode roundingMode,
-                   CustomImf::Compression compression,
+                   IMF::LevelMode mode,
+                   IMF::LevelRoundingMode roundingMode,
+                   IMF::Compression compression,
                    int tileSizeX,
                    int tileSizeY,
                    const std::set<std::string> &doNotFilter,

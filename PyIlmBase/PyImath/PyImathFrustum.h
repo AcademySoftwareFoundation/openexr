@@ -39,12 +39,14 @@
 #include <boost/python.hpp>
 //#include <PyImath.h>
 #include <ImathFrustum.h>
+#include <ImathFrustumTest.h>
 #include <PyImath.h>
 
 
 namespace PyImath {
 
 template <class T> boost::python::class_<IMATH_NAMESPACE::Frustum<T> > register_Frustum();
+template <class T> boost::python::class_<IMATH_NAMESPACE::FrustumTest<T> > register_FrustumTest();
 
 //
 

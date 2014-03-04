@@ -8,12 +8,12 @@ ADD_EXECUTABLE ( exrmultiview
 
 TARGET_LINK_LIBRARIES ( exrmultiview
   IlmImf
-  Imath
   Half
-  Iex
-  IlmThread
+  Imath-2_1
+  Iex-2_1
+  IlmThread-2_1
   ${PTHREAD_LIB}
-  ${Z_LIB}
+  ${ZLIB_LIBRARIES}
 )
 
 INSTALL ( TARGETS

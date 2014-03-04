@@ -52,7 +52,7 @@
 void	makeMultiView (const std::vector <std::string> &viewNames,
 		       const std::vector <const char *> &inFileNames,
 		       const char *outFileName,
-		       CustomImf::Compression compression,
+		       IMF::Compression compression,
 		       bool verbose);
 
 #endif

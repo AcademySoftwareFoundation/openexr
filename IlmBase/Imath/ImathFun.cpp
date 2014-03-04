@@ -124,7 +124,7 @@ succd (double d)
 
         u.i = 0x0000000000000001LL;
     }
-    else if (u.i > 0)
+    else if (u.d > 0)
     {
         // Positive double, normalized or denormalized.
         // Incrementing the largest positive double
@@ -159,7 +159,7 @@ predd (double d)
 
         u.i = 0x8000000000000001LL;
     }
-    else if (u.i > 0)
+    else if (u.d > 0)
     {
         // Positive double, normalized or denormalized.
 
