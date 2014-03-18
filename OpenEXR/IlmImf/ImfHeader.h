@@ -493,7 +493,7 @@ class Header::ConstIterator
 //
 //------------------------------------------------------------------------
 
-void staticInitialize ();
+IMF_EXPORT void staticInitialize ();
 
 
 //-----------------

@@ -37,26 +37,9 @@
 #ifndef INCLUDED_IEXMATHFLOATEXC_H
 #define INCLUDED_IEXMATHFLOATEXC_H
 
-#ifndef IEXMATH_EXPORT_H
-#define IEXMATH_EXPORT_H
-
-#if defined(OPENEXR_DLL)
-    #if defined(IEX_EXPORTS)
-    #define IEXMATH_EXPORT __declspec(dllexport)
-    #else
-    #define IEXMATH_EXPORT __declspec(dllimport)
-    #endif
-    #define IEXMATH_EXPORT_CONST
-#else
-    #define IEXMATH_EXPORT
-    #define IEXMATH_EXPORT_CONST const
-#endif
-
-#endif
-
+#include "IexMathExport.h"
 #include "IexNamespace.h"
 #include "IexMathExc.h"
-//#include <IexBaseExc.h>
 #include "IexMathIeeeExc.h"
 
 IEX_INTERNAL_NAMESPACE_HEADER_ENTER

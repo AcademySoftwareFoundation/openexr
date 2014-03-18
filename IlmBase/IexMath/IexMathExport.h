@@ -1,5 +1,5 @@
-#ifndef IMATHEXPORT_H
-#define IMATHEXPORT_H
+#ifndef IEXMATHEXPORT_H
+#define IEXMATHEXPORT_H
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -35,30 +35,30 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+
 #if defined(_WIN32)
 #  if defined(OPENEXR_DLL)
-#    define IMATH_EXPORT_DEFINITION __declspec(dllexport) 
-#    define IMATH_IMPORT_DEFINITION __declspec(dllimport)
+#    define IEXMATH_EXPORT_DEFINITION __declspec(dllexport) 
+#    define IEXMATH_IMPORT_DEFINITION __declspec(dllimport)
 #  else
-#    define IMATH_EXPORT_DEFINITION 
-#    define IMATH_IMPORT_DEFINITION
+#    define IEXMATH_EXPORT_DEFINITION 
+#    define IEXMATH_IMPORT_DEFINITION
 #  endif
 #else   // linux/macos
 #  if defined(PLATFORM_VISIBILITY_AVAILABLE)
-#    define IMATH_EXPORT_DEFINITION __attribute__((visibility("default")))
-#    define IMATH_IMPORT_DEFINITION
+#    define IEXMATH_EXPORT_DEFINITION __attribute__((visibility("default")))
+#    define IEXMATH_IMPORT_DEFINITION
 #  else
-#    define IMATH_EXPORT_DEFINITION 
-#    define IMATH_IMPORT_DEFINITION
+#    define IEXMATH_EXPORT_DEFINITION 
+#    define IEXMATH_IMPORT_DEFINITION
 #  endif
-    #endif
-
-#if defined(IMATH_EXPORTS)                          // create library
-#  define IMATH_EXPORT IMATH_EXPORT_DEFINITION
-#  define IMATH_EXPORT_VAR IMATH_EXPORT_DEFINITION extern
-#else                                              // use library
-#  define IMATH_EXPORT IMATH_IMPORT_DEFINITION
-#  define IMATH_EXPORT_VAR IMATH_IMPORT_DEFINITION extern
 #endif
 
-#endif // IMATHEXPORT_H
+#if defined(IEXMATH_EXPORTS)                          // create library
+#  define IEXMATH_EXPORT IEXMATH_EXPORT_DEFINITION
+#else                                              // use library
+#  define IEXMATH_EXPORT IEXMATH_IMPORT_DEFINITION
+#endif
+
+#endif // #ifndef IEXMATHEXPORT_H
+

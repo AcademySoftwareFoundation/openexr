@@ -270,7 +270,7 @@ class IMF_EXPORT ChannelList
 // Iterators
 //----------
 
-class ChannelList::Iterator
+class IMF_EXPORT ChannelList::Iterator
 {
   public:
 
@@ -291,7 +291,7 @@ class ChannelList::Iterator
 };
 
 
-class ChannelList::ConstIterator
+class IMF_EXPORT ChannelList::ConstIterator
 {
   public:
 

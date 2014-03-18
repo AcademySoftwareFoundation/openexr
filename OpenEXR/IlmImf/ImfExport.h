@@ -1,3 +1,6 @@
+#ifndef IMFEXPORT_H
+#define IMFEXPORT_H
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
@@ -32,15 +35,28 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#if defined(OPENEXR_DLL)
-    #if defined(ILMIMF_EXPORTS)
-	    #define IMF_EXPORT __declspec(dllexport)
-        #define IMF_EXPORT_CONST extern __declspec(dllexport)
-    #else
-	    #define IMF_EXPORT __declspec(dllimport)
-	    #define IMF_EXPORT_CONST extern __declspec(dllimport)
+#if defined(_WIN32)
+#  if defined(OPENEXR_DLL)
+#    define IMF_EXPORT_DEFINITION __declspec(dllexport) 
+#    define IMF_IMPORT_DEFINITION __declspec(dllimport)
+#  else
+#    define IMF_EXPORT_DEFINITION 
+#    define IMF_IMPORT_DEFINITION
+#  endif
+#else   // linux/macos
+#  if defined(PLATFORM_VISIBILITY_AVAILABLE)
+#    define IMF_EXPORT_DEFINITION __attribute__((visibility("default")))
+#    define IMF_IMPORT_DEFINITION
+#  else
+#    define IMF_EXPORT_DEFINITION 
+#    define IMF_IMPORT_DEFINITION
+#  endif
     #endif
-#else
-    #define IMF_EXPORT
-    #define IMF_EXPORT_CONST extern const
+
+#if defined(ILMIMF_EXPORTS)                          // create library
+#  define IMF_EXPORT IMF_EXPORT_DEFINITION
+#else                                              // use library
+#  define IMF_EXPORT IMF_IMPORT_DEFINITION
 #endif
+
+#endif // IMFEXPORT_H
