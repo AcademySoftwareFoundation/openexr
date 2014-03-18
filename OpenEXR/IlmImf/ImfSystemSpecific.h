@@ -35,8 +35,8 @@
 #ifndef INCLUDED_IMF_COMPILER_SPECIFIC_H
 #define INCLUDED_IMF_COMPILER_SPECIFIC_H
 
-#include <ImfNamespace.h>
-#include <ImfSimd.h>
+#include "ImfNamespace.h"
+#include "ImfSimd.h"
 #include <stdlib.h>
 #include "ImfExport.h"
 
