@@ -35,7 +35,7 @@
 #ifndef INCLUDED_IMF_COMPILER_SPECIFIC_H
 #define INCLUDED_IMF_COMPILER_SPECIFIC_H
 
-#include <ImfNamespace.h>
+#include "ImfNamespace.h"
 #include <stdlib.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
