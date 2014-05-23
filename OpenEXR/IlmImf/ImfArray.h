@@ -115,7 +115,7 @@ class Array
     // Return the size of this array.
     //-------------------------------
 
-    long size()                         {return _size;}
+    long size() const   {return _size;}
 
 
   private:
@@ -170,8 +170,8 @@ class Array2D
     // Return the size of this array.
     //-------------------------------
 
-    long height()                         {return _sizeX;}
-    long width()                         {return _sizeY;}
+    long height() const  {return _sizeX;}
+    long width() const   {return _sizeY;}
 
 
   private:
