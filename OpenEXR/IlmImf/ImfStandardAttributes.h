@@ -55,6 +55,7 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfHeader.h"
+#include "ImfBoxAttribute.h"
 #include "ImfChromaticitiesAttribute.h"
 #include "ImfEnvmapAttribute.h"
 #include "ImfDeepImageStateAttribute.h"
@@ -356,5 +357,16 @@ IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
 //
 
 IMF_STD_ATTRIBUTE_DEF (deepImageState, DeepImageState, DeepImageState)
+
+
+//
+// originalDataWindow -- if application software crops an image, then it
+// should save the data window of the original, un-cropped image in the
+// originalDataWindow attribute.
+//
+
+IMF_STD_ATTRIBUTE_DEF
+    (originalDataWindow, OriginalDataWindow, IMATH_NAMESPACE::Box2i)
+
 
 #endif

@@ -235,10 +235,10 @@ writeReadAttr (const Array2D<float> &pf1,
 	assert (hdr.typedAttribute <M44dAttribute>   ("a17").value()  == a17);
 	assert (hdr.typedAttribute <V2dAttribute>    ("a18").value()  == a18);
 	assert (hdr.typedAttribute <V3dAttribute>    ("a19").value()  == a19);
-	assert (hdr.typedAttribute <StringVectorAttribute>
-                                                  ("a20").value() == a20);
+        assert (hdr.typedAttribute <StringVectorAttribute>
+                                        ("a20").value() == a20);
 	assert (hdr.typedAttribute <DeepImageStateAttribute>
-				                                  ("a21").value() == a21);
+					("a21").value() == a21);
     }
 
     remove (fileName);
