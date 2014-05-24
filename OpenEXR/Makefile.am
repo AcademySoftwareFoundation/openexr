@@ -4,8 +4,8 @@
 # (an alternative to the acinclude.m4 mechanism)
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = config IlmImf \
-	  IlmImfTest IlmImfFuzzTest exrheader exrmaketiled IlmImfExamples doc \
+SUBDIRS = config IlmImf IlmImfUtil IlmImfTest IlmImfUtilTest \
+	  IlmImfFuzzTest exrheader exrmaketiled IlmImfExamples doc \
 	  exrstdattr exrmakepreview exrenvmap exrmultiview exrmultipart
 
 DIST_SUBDIRS = \

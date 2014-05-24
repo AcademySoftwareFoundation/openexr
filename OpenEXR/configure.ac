@@ -1,9 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(OpenEXR, 2.1.0)
+AC_INIT(OpenEXR, 2.2.0)
 
 AC_SUBST(OPENEXR_VERSION_MAJOR, 2)
-AC_SUBST(OPENEXR_VERSION_MINOR, 1)
+AC_SUBST(OPENEXR_VERSION_MINOR, 2)
 AC_SUBST(OPENEXR_VERSION_PATCH, 0)
 
 AC_SUBST(OPENEXR_VERSION, ${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH})
@@ -319,6 +319,8 @@ OpenEXR.pc
 config/Makefile
 IlmImf/Makefile
 IlmImfTest/Makefile
+IlmImfUtil/Makefile
+IlmImfUtilTest/Makefile
 IlmImfFuzzTest/Makefile
 exrheader/Makefile
 exrmaketiled/Makefile
