@@ -48,9 +48,10 @@
 #include <ImfHuf.h>
 #include <ImfInt64.h>
 #include "ImfAutoArray.h"
+#include "ImfFastHuf.h"
 #include "Iex.h"
-#include <string.h>
-#include <assert.h>
+#include <cstring>
+#include <cassert>
 #include <algorithm>
 
 
@@ -728,9 +729,15 @@ inline void
 sendCode (Int64 sCode, int runCount, Int64 runCode,
 	  Int64 &c, int &lc, char *&out)
 {
-    static const int RLMIN = 32; // min count to activate run-length coding
-
-    if (runCount > RLMIN)
+    //
+    // Output a run of runCount instances of the symbol sCount.
+    // Output the symbols explicitly, or if that is shorter, output
+    // the sCode symbol once followed by a runCode symbol and runCount
+    // expressed as an 8-bit number.
+    //
+    
+    if (hufLength (sCode) + hufLength (runCode) + 8 <
+        hufLength (sCode) * runCount)
     {
 	outputCode (sCode, c, lc, out);
 	outputCode (runCode, c, lc, out);
@@ -1014,7 +1021,8 @@ hufCompress (const unsigned short raw[],
 
     countFrequencies (freq, raw, nRaw);
 
-    int im, iM;
+    int im = 0;
+    int iM = 0;
     hufBuildEncTable (freq, &im, &iM);
 
     char *tableStart = compressed + 20;
@@ -1060,28 +1068,46 @@ hufUncompress (const char compressed[],
 
     const char *ptr = compressed + 20;
 
-    AutoArray <Int64, HUF_ENCSIZE> freq;
-    AutoArray <HufDec, HUF_DECSIZE> hdec;
+    // 
+    // Fast decoder needs at least 2x64-bits of compressed data, and
+    // needs to be run-able on this platform. Otherwise, fall back
+    // to the original decoder
+    //
 
-    hufClearDecTable (hdec);
-
-    hufUnpackEncTable (&ptr, nCompressed - (ptr - compressed), im, iM, freq);
-
-    try
+    if (FastHufDecoder::enabled() && nBits > 128)
     {
-	if (nBits > 8 * (nCompressed - (ptr - compressed)))
-	    invalidNBits();
-
-	hufBuildDecTable (freq, im, iM, hdec);
-	hufDecode (freq, hdec, ptr, nBits, iM, nRaw, raw);
+        FastHufDecoder fhd (ptr, nCompressed - (ptr - compressed), im, iM, iM);
+        fhd.decode ((unsigned char*)ptr, nBits, raw, nRaw);
     }
-    catch (...)
+    else
     {
-	hufFreeDecTable (hdec);
-	throw;
-    }
+        AutoArray <Int64, HUF_ENCSIZE> freq;
+        AutoArray <HufDec, HUF_DECSIZE> hdec;
 
-    hufFreeDecTable (hdec);
+        hufClearDecTable (hdec);
+
+        hufUnpackEncTable (&ptr,
+                           nCompressed - (ptr - compressed),
+                           im,
+                           iM,
+                           freq);
+
+        try
+        {
+            if (nBits > 8 * (nCompressed - (ptr - compressed)))
+                invalidNBits();
+
+            hufBuildDecTable (freq, im, iM, hdec);
+            hufDecode (freq, hdec, ptr, nBits, iM, nRaw, raw);
+        }
+        catch (...)
+        {
+            hufFreeDecTable (hdec);
+            throw;
+        }
+
+        hufFreeDecTable (hdec);
+    }
 }
 
 

@@ -32,58 +32,29 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifndef INCLUDED_IMF_RLE_H_
+#define INCLUDED_IMF_RLE_H_
 
-
-#ifndef INCLUDED_IMF_ZIP_COMPRESSOR_H
-#define INCLUDED_IMF_ZIP_COMPRESSOR_H
-
-//-----------------------------------------------------------------------------
-//
-//	class ZipCompressor -- performs zlib-style compression
-//
-//-----------------------------------------------------------------------------
-
-#include "ImfCompressor.h"
-#include "ImfZip.h"
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
+//
+// Compress an array of bytes, using run-length encoding,
+// and return the length of the compressed data.
+//
 
-class ZipCompressor: public Compressor
-{
-  public:
+int rleCompress (int inLength, const char in[], signed char out[]);
 
-    ZipCompressor (const Header &hdr, 
-                   size_t maxScanLineSize,
-                   size_t numScanLines);
+//
+// Uncompress an array of bytes compressed with rleCompress().
+// Returns the length of the uncompressed data, or 0 if the
+// length of the uncompressed data would be more than maxLength.
+//
 
-    virtual ~ZipCompressor ();
-
-    virtual int numScanLines () const;
-
-    virtual int	compress (const char *inPtr,
-			  int inSize,
-			  int minY,
-			  const char *&outPtr);
-
-    virtual int	uncompress (const char *inPtr,
-			    int inSize,
-			    int minY,
-			    const char *&outPtr);
-  private:
-
-    int		_maxScanLineSize;
-    int		_numScanLines;
-    char *	_outBuffer;
-    Zip     _zip;
-};
-
+int rleUncompress (int inLength, int maxLength,
+                                 const signed char in[], char out[]);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif

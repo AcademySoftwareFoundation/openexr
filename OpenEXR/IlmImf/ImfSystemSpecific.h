@@ -36,6 +36,7 @@
 #define INCLUDED_IMF_COMPILER_SPECIFIC_H
 
 #include <ImfNamespace.h>
+#include <ImfSimd.h>
 #include <stdlib.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -145,6 +146,23 @@ static void EXRFreeAligned(void* ptr)
 
 
 #endif  // IMF_HAVE_SSE2
+
+// 
+// Simple CPUID based runtime detection of various capabilities
+//
+class CpuId
+{
+    public:
+        CpuId();
+
+        bool sse2;
+        bool sse3;
+        bool ssse3;
+        bool sse4_1;
+        bool sse4_2;
+        bool avx;
+        bool f16c;
+};
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

@@ -1,7 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
+// Copyright (c) 2007, Weta Digital Ltd
 // 
 // All rights reserved.
 // 
@@ -14,7 +13,7 @@
 // copyright notice, this list of conditions and the following disclaimer
 // in the documentation and/or other materials provided with the
 // distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
+// *       Neither the name of Weta Digital nor the names of
 // its contributors may be used to endorse or promote products derived
 // from this software without specific prior written permission. 
 // 
@@ -34,56 +33,44 @@
 
 
 
-#ifndef INCLUDED_IMF_ZIP_COMPRESSOR_H
-#define INCLUDED_IMF_ZIP_COMPRESSOR_H
+#ifndef INCLUDED_IMF_FLOATVECTOR_ATTRIBUTE_H
+#define INCLUDED_IMF_FLOATVECTOR_ATTRIBUTE_H
 
 //-----------------------------------------------------------------------------
 //
-//	class ZipCompressor -- performs zlib-style compression
+//	class FloatVectorAttribute
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfCompressor.h"
-#include "ImfZip.h"
+#include "ImfAttribute.h"
 #include "ImfNamespace.h"
+
+#include <vector>
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
+typedef std::vector<float>
+    FloatVector;
 
-class ZipCompressor: public Compressor
-{
-  public:
+typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::FloatVector>
+    FloatVectorAttribute;
 
-    ZipCompressor (const Header &hdr, 
-                   size_t maxScanLineSize,
-                   size_t numScanLines);
+template <>
+IMF_EXPORT
+const char *FloatVectorAttribute::staticTypeName ();
 
-    virtual ~ZipCompressor ();
+template <>
+IMF_EXPORT
+void FloatVectorAttribute::writeValueTo
+    (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
 
-    virtual int numScanLines () const;
-
-    virtual int	compress (const char *inPtr,
-			  int inSize,
-			  int minY,
-			  const char *&outPtr);
-
-    virtual int	uncompress (const char *inPtr,
-			    int inSize,
-			    int minY,
-			    const char *&outPtr);
-  private:
-
-    int		_maxScanLineSize;
-    int		_numScanLines;
-    char *	_outBuffer;
-    Zip     _zip;
-};
+template <>
+IMF_EXPORT
+void FloatVectorAttribute::readValueFrom
+    (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif

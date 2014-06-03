@@ -553,11 +553,19 @@ copyIntoFrameBuffer (const char *& readPtr,
 
               case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
-                while (writePtr <= endPtr)
-                {
-                    *(half *) writePtr = *(half *)readPtr;
-                    readPtr += sizeof (half);
-                    writePtr += xStride;
+                // If we're tightly packed, just memcpy
+                if (xStride == sizeof(half)) {
+                    int numBytes = endPtr-writePtr+sizeof(half);
+                    memcpy(writePtr, readPtr, numBytes);
+                    readPtr  += numBytes;
+                    writePtr += numBytes;                    
+                } else {
+                    while (writePtr <= endPtr)
+                    {
+                        *(half *) writePtr = *(half *)readPtr;
+                        readPtr += sizeof (half);
+                        writePtr += xStride;
+                    }
                 }
                 break;
 
@@ -1296,7 +1304,7 @@ copyIntoDeepFrameBuffer (const char *& readPtr,
                 }
                 break;
 
-              case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
+              case FLOAT:
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -1539,7 +1547,7 @@ copyFromDeepFrameBuffer (char *& writePtr,
 
         switch (type)
         {
-          case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
+          case UINT:
 
             for (int x = xMin; x <= xMax; x++)
             {
@@ -1560,7 +1568,7 @@ copyFromDeepFrameBuffer (char *& writePtr,
             }
             break;
 
-          case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
+          case HALF:
 
             for (int x = xMin; x <= xMax; x++)
             {
@@ -1580,7 +1588,7 @@ copyFromDeepFrameBuffer (char *& writePtr,
             }
             break;
 
-          case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
+          case FLOAT:
 
             for (int x = xMin; x <= xMax; x++)
             {
@@ -1658,7 +1666,7 @@ copyFromDeepFrameBuffer (char *& writePtr,
             }
             break;
 
-          case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
+          case FLOAT:
 
             for (int x = xMin; x <= xMax; x++)
             {
@@ -1859,5 +1867,79 @@ getChunkOffsetTableSize(const Header& header,bool ignore_attribute)
         return getTiledChunkOffsetTableSize(header);
     
 }
+
+
+bool
+isValidYCChannelName (const std::string& name,
+                      std::string& layerViewName,
+                      std::string& channel)
+{
+    //
+    // label and channel params are not cleared, and their return values should be
+    // considered valid only if this fcn returns true
+    //
+
+    std::string ch;
+    int sepPosition = name.rfind ("."); // split on last "." character
+    if (sepPosition != std::string::npos)
+        ch = name.substr (sepPosition + 1, name.size () - 1);
+    else
+        ch = name;
+
+    bool isYC = false;
+
+    if (ch == "Y" || (ch == "RY") || (ch == "BY"))
+    {
+        isYC = true;
+        channel = ch;
+    }
+
+    if (channel.size () > 0)
+    {
+        if (sepPosition != std::string::npos)
+            layerViewName = name.substr (0, sepPosition);
+        else
+            layerViewName.clear ();
+    }
+
+    return isYC;
+}
+
+
+bool
+isValidRGBChannelName (const std::string& name,
+                       std::string& layerViewName,
+                       std::string& channel)
+{
+    //
+    // layerViewName and channel params are not cleared, and their return values
+    // should be considered valid only if this fcn returns true
+    //
+
+    std::string ch;
+    int sepPosition = name.rfind ("."); // split on last "." character
+    if (sepPosition != std::string::npos)
+        ch = name.substr (sepPosition + 1, name.size () - 1);
+    else
+        ch = name;
+
+    bool isRGB = false;
+    if ((ch == "R") || (ch == "G") || (ch == "B"))
+    {
+        isRGB = true;
+        channel = ch;
+    }
+
+    if (channel.size () > 0)
+    {
+        if (sepPosition != std::string::npos)
+            layerViewName = name.substr (0, sepPosition);
+        else
+            layerViewName.clear ();
+    }
+
+    return isRGB;
+}
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

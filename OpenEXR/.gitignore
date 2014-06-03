@@ -1,4 +1,5 @@
 IlmImf/b44ExpLogTable
+IlmImf/dwaLookups
 OpenEXR.pc
 autom4te.cache/
 config.guess
@@ -16,6 +17,7 @@ exrbuild/exrbuild
 exrheader/exrheader
 exrmakepreview/exrmakepreview
 exrmaketiled/exrmaketiled
+exrmultipart/exrmultipart
 exrmultiview/exrmultiview
 exrstdattr/exrstdattr
 install-sh

@@ -70,17 +70,19 @@
 #include "ImfNamespace.h"
 #include "ImfExport.h"
 
-#define IMF_STD_ATTRIBUTE_DEF(name,suffix,object)                                      \
-                                                                                       \
-    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER                                        \
-    IMF_EXPORT void				add##suffix (Header &header, const object &v);         \
-    IMF_EXPORT bool				has##suffix (const Header &header);                    \
-    IMF_EXPORT const TypedAttribute<object> & name##Attribute (const Header &header);  \
-    IMF_EXPORT TypedAttribute<object> &	 name##Attribute (Header &header);             \
-    IMF_EXPORT const object &	name (const Header &header);                           \
-    IMF_EXPORT object &			name (Header &header);                                 \
-    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT                                         \
-
+#define IMF_STD_ATTRIBUTE_DEF(name,suffix,object)                            \
+                                                                             \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER                              \
+    IMF_EXPORT void           add##suffix (Header &header, const object &v); \
+    IMF_EXPORT bool           has##suffix (const Header &header);            \
+    IMF_EXPORT const TypedAttribute<object> &                                \
+                              name##Attribute (const Header &header);        \
+    IMF_EXPORT TypedAttribute<object> &                                      \
+                              name##Attribute (Header &header);              \
+    IMF_EXPORT const object &                                                \
+                              name (const Header &header);                   \
+    IMF_EXPORT object &       name (Header &header);                         \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT                               \
 
 //
 // chromaticities -- for RGB images, specifies the CIE (x,y)
@@ -367,6 +369,14 @@ IMF_STD_ATTRIBUTE_DEF (deepImageState, DeepImageState, DeepImageState)
 
 IMF_STD_ATTRIBUTE_DEF
     (originalDataWindow, OriginalDataWindow, IMATH_NAMESPACE::Box2i)
+
+
+//
+// dwaCompressionLevel -- sets the quality level for images compressed
+// with the DWAA or DWAB method.
+//
+
+IMF_STD_ATTRIBUTE_DEF (dwaCompressionLevel, DwaCompressionLevel, float)
 
 
 #endif

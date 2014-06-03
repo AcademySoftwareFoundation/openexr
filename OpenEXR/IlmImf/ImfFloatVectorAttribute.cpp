@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2013, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -33,57 +33,52 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-
-#ifndef INCLUDED_IMF_ZIP_COMPRESSOR_H
-#define INCLUDED_IMF_ZIP_COMPRESSOR_H
-
 //-----------------------------------------------------------------------------
 //
-//	class ZipCompressor -- performs zlib-style compression
+//	class FloatVectorAttribute
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfCompressor.h"
-#include "ImfZip.h"
-#include "ImfNamespace.h"
-
-OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
+#include <ImfFloatVectorAttribute.h>
 
 
-class ZipCompressor: public Compressor
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
+
+
+using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
+
+
+template <>
+const char *
+FloatVectorAttribute::staticTypeName ()
 {
-  public:
-
-    ZipCompressor (const Header &hdr, 
-                   size_t maxScanLineSize,
-                   size_t numScanLines);
-
-    virtual ~ZipCompressor ();
-
-    virtual int numScanLines () const;
-
-    virtual int	compress (const char *inPtr,
-			  int inSize,
-			  int minY,
-			  const char *&outPtr);
-
-    virtual int	uncompress (const char *inPtr,
-			    int inSize,
-			    int minY,
-			    const char *&outPtr);
-  private:
-
-    int		_maxScanLineSize;
-    int		_numScanLines;
-    char *	_outBuffer;
-    Zip     _zip;
-};
+    return "floatvector";
+}
 
 
-OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+template <>
+void
+FloatVectorAttribute::writeValueTo
+    (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
+{
+    int n = _value.size();
+
+    for (int i = 0; i < n; ++i)
+        Xdr::write <StreamIO> (os, _value[i]);
+}
 
 
+template <>
+void
+FloatVectorAttribute::readValueFrom
+    (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
+{
+    int n = size / Xdr::size<float>();
+    _value.resize (n);
+
+    for (int i = 0; i < n; ++i)
+       Xdr::read <StreamIO> (is, _value[i]);
+}
 
 
-
-#endif
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 

@@ -1,9 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
+// Copyright (c) 2012, Autodesk, Inc.
 // 
 // All rights reserved.
+//
+// Implementation of IIF-specific file format and speed optimizations 
+// provided by Innobec Technologies inc on behalf of Autodesk.
 // 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -32,58 +34,26 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifndef INCLUDED_IMF_SIMD_H
+#define INCLUDED_IMF_SIMD_H
 
-
-#ifndef INCLUDED_IMF_ZIP_COMPRESSOR_H
-#define INCLUDED_IMF_ZIP_COMPRESSOR_H
-
-//-----------------------------------------------------------------------------
 //
-//	class ZipCompressor -- performs zlib-style compression
+// Compile time SSE detection:
+//    IMF_HAVE_SSE2 - Defined if it's safe to compile SSE2 optimizations
 //
-//-----------------------------------------------------------------------------
-
-#include "ImfCompressor.h"
-#include "ImfZip.h"
-#include "ImfNamespace.h"
-
-OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class ZipCompressor: public Compressor
+// GCC and Visual Studio SSE2 compiler flags
+#if defined __SSE2__ || (_MSC_VER >= 1300 && !_M_CEE_PURE)
+    #define IMF_HAVE_SSE2 1
+#endif
+
+extern "C"
 {
-  public:
-
-    ZipCompressor (const Header &hdr, 
-                   size_t maxScanLineSize,
-                   size_t numScanLines);
-
-    virtual ~ZipCompressor ();
-
-    virtual int numScanLines () const;
-
-    virtual int	compress (const char *inPtr,
-			  int inSize,
-			  int minY,
-			  const char *&outPtr);
-
-    virtual int	uncompress (const char *inPtr,
-			    int inSize,
-			    int minY,
-			    const char *&outPtr);
-  private:
-
-    int		_maxScanLineSize;
-    int		_numScanLines;
-    char *	_outBuffer;
-    Zip     _zip;
-};
-
-
-OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
+#if IMF_HAVE_SSE2
+    #include <emmintrin.h>
+    #include <mmintrin.h>
+#endif
+}
 
 #endif

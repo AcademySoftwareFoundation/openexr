@@ -33,57 +33,46 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+#ifndef INCLUDED_IMF_ZIP_H
+#define INCLUDED_IMF_ZIP_H
 
-#ifndef INCLUDED_IMF_ZIP_COMPRESSOR_H
-#define INCLUDED_IMF_ZIP_COMPRESSOR_H
-
-//-----------------------------------------------------------------------------
-//
-//	class ZipCompressor -- performs zlib-style compression
-//
-//-----------------------------------------------------------------------------
-
-#include "ImfCompressor.h"
-#include "ImfZip.h"
 #include "ImfNamespace.h"
+
+#include <cstddef>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
-class ZipCompressor: public Compressor
+class Zip
 {
-  public:
+    public:
+        explicit Zip(size_t rawMaxSize);
+        Zip(size_t maxScanlineSize, size_t numScanLines);
+        ~Zip();
 
-    ZipCompressor (const Header &hdr, 
-                   size_t maxScanLineSize,
-                   size_t numScanLines);
+        size_t maxRawSize();
+        size_t maxCompressedSize();
 
-    virtual ~ZipCompressor ();
+        //
+        // Compress the raw data into the provided buffer.
+        // Returns the amount of compressed data.
+        //
+        int compress(const char *raw, int rawSize, char *compressed);
 
-    virtual int numScanLines () const;
+        // 
+        // Uncompress the compressed data into the provided
+        // buffer. Returns the amount of raw data actually decoded.
+        //
+        int uncompress(const char *compressed, int compressedSize,
+                                                 char *raw);
 
-    virtual int	compress (const char *inPtr,
-			  int inSize,
-			  int minY,
-			  const char *&outPtr);
+    private:
+        size_t _maxRawSize;
+        char  *_tmpBuffer;
 
-    virtual int	uncompress (const char *inPtr,
-			    int inSize,
-			    int minY,
-			    const char *&outPtr);
-  private:
-
-    int		_maxScanLineSize;
-    int		_numScanLines;
-    char *	_outBuffer;
-    Zip     _zip;
+        Zip();
+        Zip(const Zip&);
 };
 
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif
