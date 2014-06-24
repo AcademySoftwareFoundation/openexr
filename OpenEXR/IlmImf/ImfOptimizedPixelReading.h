@@ -40,20 +40,6 @@
 #define INCLUDED_IMF_OPTIMIZED_PIXEL_READING_H
 
 #include "ImfSimd.h"
-// GCC and Visual Studio SSE2 compiler flags
-#if defined __SSE2__ || (_MSC_VER >= 1300 && !_M_CEE_PURE)
-    #define IMF_HAVE_SSE2 1
-#endif
-
-
-extern "C"
-{
-#if IMF_HAVE_SSE2
-    #include <emmintrin.h>
-    #include <mmintrin.h>
-#endif
-}
-
 #include "ImfSystemSpecific.h"
 #include <iostream>
 #include "ImfChannelList.h"

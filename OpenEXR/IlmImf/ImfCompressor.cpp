@@ -209,6 +209,7 @@ newTileCompressor (Compression c,
 
 	return new B44Compressor (hdr, tileLineSize, numTileLines, true);
 
+      case DWAA_COMPRESSION:
       case DWAB_COMPRESSION:
 
 	return new DwaCompressor (hdr, tileLineSize, numTileLines, 
