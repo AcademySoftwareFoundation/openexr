@@ -15,9 +15,9 @@ ADD_EXECUTABLE ( IlmImfExamples
 TARGET_LINK_LIBRARIES ( IlmImfExamples 
         IlmImf
         Half 
-        Iex-2_1
-        Imath-2_1 
-        IlmThread-2_1 
+        Iex-2_2
+        Imath-2_2 
+        IlmThread-2_2 
         ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
         )
   

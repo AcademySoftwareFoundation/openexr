@@ -6,8 +6,8 @@ ADD_EXECUTABLE ( b44ExpLogTable
   )
 TARGET_LINK_LIBRARIES ( b44ExpLogTable
   Half
-  Iex-2_1
-  IlmThread-2_1
+  Iex-2_2
+  IlmThread-2_2
   ${PTHREAD_LIB}
 )
 
@@ -23,7 +23,34 @@ ADD_CUSTOM_COMMAND (
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/IlmImf
 )
 SET_SOURCE_FILES_PROPERTIES(
-  ${CMAKE_SOURCE_DIR}/b44ExpLogTable.h
+  ${CMAKE_SOURCE_DIR}/IlmImf/b44ExpLogTable.h
+  PROPERTIES 
+  HEADER_FILE_ONLY TRUE
+  )
+
+ADD_EXECUTABLE ( dwaLookups
+  dwaLookups.cpp
+  )
+TARGET_LINK_LIBRARIES ( dwaLookups
+  Half
+  Iex-2_2
+  IlmThread-2_2
+  ${PTHREAD_LIB}
+)
+
+SET_TARGET_PROPERTIES(dwaLookups 
+  PROPERTIES 
+  EXCLUDE_FROM_DEFAULT_BUILD 1 EXCLUDE_FROM_ALL 1
+ )
+
+ADD_CUSTOM_COMMAND (
+  TARGET dwaLookups 
+  POST_BUILD
+  COMMAND dwaLookups > dwaLookups.h
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/IlmImf
+)
+SET_SOURCE_FILES_PROPERTIES(
+  ${CMAKE_SOURCE_DIR}/IlmImf/dwaLookups.h
   PROPERTIES 
   HEADER_FILE_ONLY TRUE
   )
@@ -56,6 +83,7 @@ SET ( ILMIMF_SRCS
   ImfZipCompressor.cpp
   ImfPizCompressor.cpp
   ImfB44Compressor.cpp
+  ImfDwaCompressor.cpp
   ImfMisc.cpp
   ImfCompressionAttribute.cpp
   ImfDoubleAttribute.cpp
@@ -112,6 +140,11 @@ SET ( ILMIMF_SRCS
   ImfDeepCompositing.cpp
   ImfCompositeDeepScanLine.cpp
   ImfDeepImageStateAttribute.cpp
+  ImfFastHuf.cpp
+  ImfFloatVectorAttribute.cpp
+  ImfRle.cpp
+  ImfSystemSpecific.cpp
+  ImfZip.cpp
 )
 
 IF(BUILD_SHARED_LIBS)
@@ -124,9 +157,9 @@ ADD_LIBRARY ( IlmImf ${LIB_TYPE}
 
 TARGET_LINK_LIBRARIES ( IlmImf 
   Half 
-  Iex-2_1 
-  Imath-2_1 
-  IlmThread-2_1 
+  Iex-2_2 
+  Imath-2_2 
+  IlmThread-2_2 
   ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
 )
 
@@ -136,7 +169,16 @@ ADD_DEPENDENCIES ( IlmImf b44ExpLogTable )
 SET_SOURCE_FILES_PROPERTIES (
   ImfB44Compressor.cpp
   PROPERTIES
-  OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/b44ExpLogTable.h
+  OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/IlmImf/b44ExpLogTable.h
+)
+
+
+ADD_DEPENDENCIES ( IlmImf dwaLookups )
+
+SET_SOURCE_FILES_PROPERTIES (
+  ImfDwaCompressor.cpp
+  PROPERTIES
+  OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/IlmImf/dwaLookups.h
 )
 
 # Libraries
@@ -236,6 +278,7 @@ INSTALL ( FILES
   ImfMisc.h
   ImfDeepImageState.h
   ImfDeepImageStateAttribute.h
+  ImfFloatVectorAttribute.h
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
   )

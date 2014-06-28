@@ -4,6 +4,7 @@
 
 ADD_EXECUTABLE ( IlmImfTest
   compareB44.cpp
+  compareDwa.cpp
   compareFloat.cpp
   main.cpp
   testAttributes.cpp
@@ -22,6 +23,7 @@ ADD_EXECUTABLE ( IlmImfTest
   testDeepScanLineHuge.cpp
   testDeepScanLineMultipleRead.cpp
   testDeepTiledBasic.cpp
+  testDwaCompressorSimd.cpp
   testExistingStreams.cpp
   testFutureProofing.cpp
   testHuf.cpp
@@ -44,6 +46,7 @@ ADD_EXECUTABLE ( IlmImfTest
   testPreviewImage.cpp
   testRgba.cpp
   testRgbaThreading.cpp
+  testRle.cpp
   testSampleImages.cpp
   testScanLineApi.cpp
   testSharedFrameBuffer.cpp
@@ -63,9 +66,9 @@ ADD_TEST ( TestIlmImf IlmImfTest )
 TARGET_LINK_LIBRARIES ( IlmImfTest 
         IlmImf  
         Half 
-        Iex-2_1
-        Imath-2_1 
-        IlmThread-2_1 
+        Iex-2_2
+        Imath-2_2 
+        IlmThread-2_2 
         ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
         )
 
