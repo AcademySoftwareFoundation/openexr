@@ -1,6 +1,9 @@
 
 # IlmImfUtilTest
 
+LINK_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR}/../IlmImf )
+
+
 ADD_EXECUTABLE ( IlmImfUtilTest
   main.cpp
   testFlatImage.cpp
