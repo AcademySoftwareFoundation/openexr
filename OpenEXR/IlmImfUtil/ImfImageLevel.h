@@ -45,13 +45,14 @@
 //----------------------------------------------------------------------------
 
 #include <ImfImageChannel.h>
+#include <ImfImageChannelRenaming.h>
 #include <ImathBox.h>
 #include <string>
-#include <map>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class Image;
+
 
 class ImageLevel
 {
@@ -101,6 +102,8 @@ class ImageLevel
 
     virtual void    renameChannel (const std::string &oldName,
                                    const std::string &newName) = 0;
+
+    virtual void    renameChannels (const RenamingMap &oldToNewNames) = 0;
 
     void            throwChannelExists (const std::string& name) const;
     void            throwBadChannelName (const std::string& name) const;

@@ -498,7 +498,7 @@ testCropping (const string &fileName)
 void
 testRenameChannel ()
 {
-    cout << "channel renaming" << endl;
+    cout << "renaming a single channel" << endl;
 
     FlatImage img (Box2i (V2i (15, 20), V2i (45, 60)), MIPMAP_LEVELS);
     img.insertChannel ("A", HALF);
@@ -544,6 +544,81 @@ testRenameChannel ()
 }
 
 
+void
+testRenameChannels ()
+{
+    cout << "renaming multiple channels at the same time" << endl;
+
+    FlatImage img (Box2i (V2i (0, 0), V2i (10, 10)), MIPMAP_LEVELS);
+    img.insertChannel ("A", HALF);
+    img.insertChannel ("B", HALF);
+    img.insertChannel ("C", HALF);
+    img.insertChannel ("D", HALF);
+
+    img.level(0).typedChannel<half>("A").at (0, 0) = 1;
+    img.level(0).typedChannel<half>("B").at (0, 0) = 2;
+    img.level(0).typedChannel<half>("C").at (0, 0) = 3;
+    img.level(0).typedChannel<half>("D").at (0, 0) = 4;
+
+    img.level(1).typedChannel<half>("A").at (0, 0) = 1;
+    img.level(1).typedChannel<half>("B").at (0, 0) = 2;
+    img.level(1).typedChannel<half>("C").at (0, 0) = 3;
+    img.level(1).typedChannel<half>("D").at (0, 0) = 4;
+
+    {
+        RenamingMap oldToNewNames;
+        oldToNewNames["A"] = "B";
+        oldToNewNames["B"] = "A";
+        oldToNewNames["C"] = "E";
+        oldToNewNames["X"] = "Y";
+
+        img.renameChannels (oldToNewNames);
+    }
+
+    assert (img.level(0).findChannel("A") != 0);
+    assert (img.level(0).findChannel("B") != 0);
+    assert (img.level(0).findChannel("C") == 0);
+    assert (img.level(0).findChannel("D") != 0);
+    assert (img.level(0).findChannel("E") != 0);
+
+    assert (img.level(0).typedChannel<half>("A").at (0, 0) == 2);
+    assert (img.level(0).typedChannel<half>("B").at (0, 0) == 1);
+    assert (img.level(0).typedChannel<half>("D").at (0, 0) == 4);
+    assert (img.level(0).typedChannel<half>("E").at (0, 0) == 3);
+
+    assert (img.level(1).typedChannel<half>("A").at (0, 0) == 2);
+    assert (img.level(1).typedChannel<half>("B").at (0, 0) == 1);
+    assert (img.level(1).typedChannel<half>("D").at (0, 0) == 4);
+    assert (img.level(1).typedChannel<half>("E").at (0, 0) == 3);
+
+    try
+    {
+        RenamingMap oldToNewNames;
+        oldToNewNames["A"] = "F";
+        oldToNewNames["B"] = "F";   // duplicate new name "F"
+
+        img.renameChannels (oldToNewNames);
+        assert (false);
+    }
+    catch (...)
+    {
+        // expecting exception
+    }
+
+    try
+    {
+        RenamingMap oldToNewNames;
+        oldToNewNames["A"] = "B";   // duplicate new name "B"
+
+        img.renameChannels (oldToNewNames);
+        assert (false);
+    }
+    catch (...)
+    {
+        // expecting exception
+    }
+}
+
 } // namespace
 
 
@@ -559,6 +634,7 @@ testFlatImage (const string &tempDir)
         testShiftPixels();
         testCropping (tempDir + "cropped.exr");
         testRenameChannel();
+        testRenameChannels();
 
 	cout << "ok\n" << endl;
     }

@@ -292,12 +292,32 @@ class Image
     // throws an ArgExc exception.
     //
     // In the (unlikely) event that renaming the image channel causes
-    // the process to run out of memory, renameChannel() erases the
+    // the program to run out of memory, renameChannel() erases the
     // channel that is being renamed, and throws an exception.
     //
 
     void                    renameChannel (const std::string &oldName,
                                            const std::string &newName);
+
+    //
+    // Rename multiple image channels at the same time:
+    //
+    // Given a map, m, from old to new channel names, renameChannels(m)
+    // assigns new names to the channels in the image.  If m has an entry
+    // for a channel named c, then the channel will be renamed to m[c].
+    // If m has no entry for c, then the channel keeps its old name.
+    //
+    // If the same name would be assigned to more than one channel, then
+    // renameChannels() does not rename any channels but throws an ArgExc
+    // exception instead.
+    // 
+    // In the (unlikely) event that renaming the image channel causes the
+    // program to run out of memory, renameChannels() erases all channels
+    // in the image and throws an exception.
+    //
+
+    void                    renameChannels (const RenamingMap &oldToNewNames);
+
 
     //
     // Accessing image levels by level number.

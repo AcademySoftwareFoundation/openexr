@@ -241,6 +241,13 @@ DeepImageLevel::renameChannel (const string &oldName, const string &newName)
 }
 
 
+void
+DeepImageLevel::renameChannels (const RenamingMap &oldToNewNames)
+{
+    renameChannelsInMap (oldToNewNames, _channels);
+}
+
+
 DeepImageChannel *
 DeepImageLevel::findChannel (const string& name)
 {

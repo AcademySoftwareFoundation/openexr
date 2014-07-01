@@ -59,7 +59,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //      is deep; otherwise the file will be flat.
 //
 //      If header h is given, then the channel list in h is replaced with
-//      the channel list i, and the levelMode and the levelRounding mode
+//      the channel list in i, and the levelMode and the levelRounding mode
 //      fields of the tile description are replaced with the level mode
 //      and the levelRounding mode of i.  In addition, if the data window
 //      source flag, d, is set to USE_IMAGE_DATA_WINDOW, then the data

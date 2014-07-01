@@ -158,6 +158,8 @@ class FlatImageLevel: public ImageLevel
     virtual void    renameChannel (const std::string &oldName,
                                    const std::string &newName);
 
+    virtual void    renameChannels (const RenamingMap &oldToNewNames);
+
     ChannelMap      _channels;
 };
 

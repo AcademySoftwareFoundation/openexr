@@ -58,7 +58,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //      file will be scan-line based.
 //
 //      If header h is given, then the channel list in h is replaced with
-//      the channel list i, and the levelMode and the levelRounding mode
+//      the channel list in i, and the levelMode and the levelRounding mode
 //      fields of the tile description are replaced with the level mode
 //      and the levelRounding mode of i.  In addition, if the data window
 //      source flag, d, is set to USE_IMAGE_DATA_WINDOW, then the data
@@ -110,7 +110,7 @@ loadFlatImage
 //      Saves image i in a scan-line based flat OpenEXR file with file name n.
 //
 //      If header h is given, then the channel list in h is replaced with
-//      the channel list i.  In addition, if the data window source flag, d,
+//      the channel list in i.  In addition, if the data window source flag, d,
 //      is set to USE_IMAGE_DATA_WINDOW, then the data window in the image is
 //      copied into the header; if d is set to USE_HEADER_DATA_WINDOW, then
 //      the data window in the header is replaced with the intersection of

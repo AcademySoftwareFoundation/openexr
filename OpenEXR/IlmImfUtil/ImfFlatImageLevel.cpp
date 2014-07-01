@@ -179,6 +179,13 @@ FlatImageLevel::renameChannel (const string &oldName, const string &newName)
 }
 
 
+void
+FlatImageLevel::renameChannels (const RenamingMap &oldToNewNames)
+{
+    renameChannelsInMap (oldToNewNames, _channels);
+}
+
+
 FlatImageChannel *
 FlatImageLevel::findChannel (const string& name)
 {

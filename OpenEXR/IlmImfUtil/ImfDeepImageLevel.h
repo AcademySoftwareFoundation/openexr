@@ -180,6 +180,8 @@ class DeepImageLevel: public ImageLevel
     virtual void renameChannel (const std::string &oldName,
                                 const std::string &newName);
 
+    virtual void renameChannels (const RenamingMap &oldToNewNames);
+
     ChannelMap          _channels;
     SampleCountChannel  _sampleCounts;
 };

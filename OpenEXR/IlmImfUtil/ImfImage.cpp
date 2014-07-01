@@ -547,6 +547,46 @@ Image::renameChannel (const string &oldName, const string &newName)
 }
 
 
+void
+Image::renameChannels (const RenamingMap &oldToNewNames)
+{
+    set <string> newNames;
+
+    for (ChannelMap::const_iterator i = _channels.begin();
+         i != _channels.end();
+         ++i)
+    {
+        RenamingMap::const_iterator j = oldToNewNames.find (i->first);
+        std::string newName = (j == oldToNewNames.end())? i->first: j->second;
+
+        if (newNames.find (newName) != newNames.end())
+        {
+            THROW (ArgExc, "Cannot rename image channels.  More than one "
+                           "channel would be named \"" << newName << "\".");
+        }
+        else
+        {
+            newNames.insert (newName);
+        }
+    }
+
+    try
+    {
+        renameChannelsInMap (oldToNewNames, _channels);
+
+        for (int y = 0; y < _levels.height(); ++y)
+            for (int x = 0; x < _levels.width(); ++x)
+                if (_levels[y][x])
+                    _levels[y][x]->renameChannels (oldToNewNames);
+    }
+    catch (...)
+    {
+        clearChannels();
+        throw;
+    }
+}
+
+
 ImageLevel &
 Image::level (int l)
 {
