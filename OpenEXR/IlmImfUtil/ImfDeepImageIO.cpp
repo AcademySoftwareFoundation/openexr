@@ -79,6 +79,7 @@ saveDeepImage
      const DeepImage &img)
 {
     Header hdr;
+    hdr.displayWindow() = img.dataWindow();
     saveDeepImage (fileName, hdr, img);
 }
 
@@ -188,6 +189,7 @@ saveDeepScanLineImage
      const DeepImage &img)
 {
     Header hdr;
+    hdr.displayWindow() = img.dataWindow();
     saveDeepScanLineImage (fileName, hdr, img);
 }
 
@@ -355,6 +357,7 @@ saveDeepTiledImage
      const DeepImage &img)
 {
     Header hdr;
+    hdr.displayWindow() = img.dataWindow();
     saveDeepTiledImage (fileName, hdr, img);
 }
 

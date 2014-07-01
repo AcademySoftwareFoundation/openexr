@@ -77,6 +77,7 @@ saveFlatImage
      const FlatImage &img)
 {
     Header hdr;
+    hdr.displayWindow() = img.dataWindow();
     saveFlatImage (fileName, hdr, img);
 }
 
@@ -166,6 +167,7 @@ saveFlatScanLineImage
      const FlatImage &img)
 {
     Header hdr;
+    hdr.displayWindow() = img.dataWindow();
     saveFlatScanLineImage (fileName, hdr, img);
 }
 
@@ -315,6 +317,7 @@ saveFlatTiledImage
      const FlatImage &img)
 {
     Header hdr;
+    hdr.displayWindow() = img.dataWindow();
     saveFlatTiledImage (fileName, hdr, img);
 }
 

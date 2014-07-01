@@ -83,6 +83,7 @@ void
 saveImage (const string &fileName, const Image &img)
 {
     Header hdr;
+    hdr.displayWindow() = img.dataWindow();
     saveImage (fileName, hdr, img);
 }
 
