@@ -252,7 +252,7 @@ template <class T>
 inline T &
 TypedFlatImageChannel<T>::operator () (int x, int y)
 {
-    return _base[(y / ySampling()) * _pixelsPerRow() + (x / xSampling())];
+    return _base[(y / ySampling()) * pixelsPerRow() + (x / xSampling())];
 }
 
 
@@ -286,7 +286,7 @@ template <class T>
 inline T *
 TypedFlatImageChannel<T>::row (int r)
 {
-    return _base + r * _pixelsPerRow();
+    return _base + r * pixelsPerRow();
 }
 
 
