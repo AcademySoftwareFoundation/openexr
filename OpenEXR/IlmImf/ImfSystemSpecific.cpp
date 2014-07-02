@@ -106,7 +106,7 @@ CpuId::CpuId():
         } else {
             xgetbv(0, eax, edx);
             // eax bit 1 - SSE managed, bit 2 - AVX managed
-            if (eax & 6 != 6) {
+            if ((eax & 6) != 6) {
                 avx = f16c = false;
             }
         }

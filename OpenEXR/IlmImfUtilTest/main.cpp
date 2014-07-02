@@ -32,6 +32,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#include "ImfNamespace.h"
 
 #include "testFlatImage.h"
 #include "testDeepImage.h"
@@ -44,6 +45,10 @@
 #include <iostream>
 #include <cstring>
 #include <time.h>
+
+#if defined(OPENEXR_IMF_HAVE_LINUX_PROCFS) || defined(OPENEXR_IMF_HAVE_DARWIN)
+    #include <unistd.h>
+#endif
 
 using namespace std;
 

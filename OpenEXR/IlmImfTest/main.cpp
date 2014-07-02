@@ -100,7 +100,7 @@
 #include <string.h>
 #include <time.h>
 
-#ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
+#if defined(OPENEXR_IMF_HAVE_LINUX_PROCFS) || defined(OPENEXR_IMF_HAVE_DARWIN)
     #include <unistd.h>
     #include <sstream>
 #endif
