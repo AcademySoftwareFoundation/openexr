@@ -31,7 +31,7 @@ TARGET_LINK_LIBRARIES ( IlmImfUtil
   Iex-2_2 
   Imath-2_2 
   IlmThread-2_2 
-  IlmImf-2_2
+  IlmImf
   ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
 )
 
