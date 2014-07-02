@@ -351,8 +351,11 @@ testConversion (const std::string &tempDir)
 
 	for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
 	{
-	    if (comp == B44_COMPRESSION || comp == B44A_COMPRESSION)
+	    if (comp == B44_COMPRESSION ||
+                comp == B44A_COMPRESSION)
+            {
 		continue;
+            }
 
 	    testImageChannel <unsigned int, IMF::UINT, unsigned int, IMF::UINT>
 			     (tempDir + "imf_test_conv.exr",
