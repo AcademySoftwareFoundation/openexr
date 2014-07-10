@@ -58,13 +58,13 @@ toNonlinear(half linear)
         return (half)0.0;                   
     }
 
-    if ( fabs( (float)linear ) <= 1.0) {
-        return (half)(sign * pow(fabs((float)linear), 1./2.2));
+    if ( fabs( (float)linear ) <= 1.0f) {
+        return (half)(sign * pow(fabs((float)linear), 1.f/2.2f));
     } else {
-        return (half)(sign * ( log(fabs((float)linear)) / log(logBase) + 1.0) );
+        return (half)(sign * ( log(fabs((float)linear)) / log(logBase) + 1.0f) );
     }
 
-    return (half)0.0;
+    return (half)0.0f;
 }
 
 

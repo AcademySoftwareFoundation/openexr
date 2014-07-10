@@ -133,6 +133,7 @@ class SimdAlignedBuffer64
 typedef SimdAlignedBuffer64<float>          SimdAlignedBuffer64f;
 typedef SimdAlignedBuffer64<unsigned short> SimdAlignedBuffer64us;
 
+namespace {
 
 //
 // Color space conversion, Inverse 709 CSC, Y'CbCr -> R'G'B'
@@ -1670,6 +1671,7 @@ dctForward8x8 (float *data)
 
 #endif /* IMF_HAVE_SSE2 */
 
+} // anonymous namespace
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
