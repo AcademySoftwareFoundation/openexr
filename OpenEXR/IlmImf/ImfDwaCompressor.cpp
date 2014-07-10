@@ -585,12 +585,6 @@ DwaCompressor::LossyDctDecoderBase::LossyDctDecoderBase
 DwaCompressor::LossyDctDecoderBase::~LossyDctDecoderBase () {}
 
 
-//
-// We should preprocessor protect the calls into execute() with __SSE__,
-// to avoid messy preprocessing logic in the function body. The template
-// is supposed to be enough for the function to switch on.
-//
-
 void
 DwaCompressor::LossyDctDecoderBase::execute ()
 {
@@ -598,8 +592,8 @@ DwaCompressor::LossyDctDecoderBase::execute ()
     int lastNonZero    = 0;
     int numBlocksX     = (int) ceil ((float)_width  / 8.0f);
     int numBlocksY     = (int) ceil ((float)_height / 8.0f);
-    int leftoverX      = _width  - (numBlocksX-1) * 8.0f;
-    int leftoverY      = _height - (numBlocksY-1) * 8.0f;
+    int leftoverX      = _width  - (numBlocksX-1) * 8;
+    int leftoverY      = _height - (numBlocksY-1) * 8;
 
     int numFullBlocksX = (int)floor ((float)_width / 8.0f);
 
@@ -1629,10 +1623,6 @@ DwaCompressor::LossyDctEncoderBase::rleAc
         // like using 0xff00 for "end of block" can save a bit
         // of space. 
         //
-        // This encoding is currently disabled, to let
-        // decoder support trickle out. At some point in the
-        // future, we should enable this and make smaller files.
-        //
 
         if (runLen == 1)
         {
@@ -1692,12 +1682,15 @@ DwaCompressor::DwaCompressor
     _acCompression(acCompression),
     _maxScanLineSize(maxScanLineSize),
     _numScanLines(numScanLines),
-    _maxOutBufferSize(0),
     _channels(hdr.channels()),
     _packedAcBuffer(0),
+    _packedAcBufferSize(0),
     _packedDcBuffer(0),
+    _packedDcBufferSize(0),
     _rleBuffer(0),
+    _rleBufferSize(0),
     _outBuffer(0),
+    _outBufferSize(0),
     _zip(0),
     _dwaCompressionLevel(45.0)
 {
@@ -1723,7 +1716,6 @@ DwaCompressor::DwaCompressor
 
     int maxOutBufferSize  = 0;
     int numLossyDctChans  = 0;
-    int rleBufferSize     = 0;
     int unknownBufferSize = 0;
 
     int maxLossyDctAcSize = (int)ceil ((float)numScanLines / 8.0f) * 
@@ -1760,7 +1752,7 @@ DwaCompressor::DwaCompressor
                 int rleAmount = 2 * numScanLines * (_max[0] - _min[0] + 1) *
                                 Imf::pixelTypeSize (_channelData[chan].type);
 
-                rleBufferSize += rleAmount;
+                _rleBufferSize += rleAmount;
             }
             break;
 
@@ -1785,7 +1777,7 @@ DwaCompressor::DwaCompressor
     // which could take slightly more space
     //
 
-    maxOutBufferSize += (int)(ceil (1.01f * (float)rleBufferSize) + 100);
+    maxOutBufferSize += (int)(ceil (1.01f * (float)_rleBufferSize) + 100);
     
     //
     // And the same goes for the UNKNOWN data
@@ -1823,22 +1815,24 @@ DwaCompressor::DwaCompressor
     // encode or decode.
     //
 
-    _maxOutBufferSize = maxOutBufferSize;
+    _outBufferSize = maxOutBufferSize;
     
     //
     // _packedAcBuffer holds the quantized DCT coefficients prior
     // to Huffman encoding
     //
 
-    _packedAcBuffer = new char[(maxLossyDctAcSize * numLossyDctChans)];
+    _packedAcBufferSize = maxLossyDctAcSize * numLossyDctChans;
+    _packedAcBuffer     = new char[_packedAcBufferSize];
 
     //
     // _packedDcBuffer holds one quantized DCT coef per 8x8 block
     //
 
-    _packedDcBuffer = new char[maxLossyDctDcSize * numLossyDctChans];
+    _packedDcBufferSize = maxLossyDctDcSize * numLossyDctChans;
+    _packedDcBuffer     = new char[_packedDcBufferSize];
 
-    _rleBuffer = new char[rleBufferSize];
+    _rleBuffer = new char[_rleBufferSize];
 
     // 
     // The planar uncompressed buffer will hold float data for LOSSY_DCT
@@ -1851,10 +1845,8 @@ DwaCompressor::DwaCompressor
     // all in one swoop (for each compression scheme).
     //
 
-    int planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
-
     for (int i=0; i<NUM_COMPRESSOR_SCHEMES; ++i)
-        planarUncBufferSize[i] = 0;
+        _planarUncBufferSize[i] = 0;
 
     for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
     {
@@ -1864,13 +1856,13 @@ DwaCompressor::DwaCompressor
             break;
 
           case RLE:
-            planarUncBufferSize[RLE] +=
+            _planarUncBufferSize[RLE] +=
                      numScanLines * (_max[0] - _min[0] + 1) *
                      Imf::pixelTypeSize (_channelData[chan].type);
             break;
 
           case UNKNOWN: 
-            planarUncBufferSize[UNKNOWN] +=
+            _planarUncBufferSize[UNKNOWN] +=
                      numScanLines * (_max[0] - _min[0] + 1) *
                      Imf::pixelTypeSize (_channelData[chan].type);
             break;
@@ -1886,18 +1878,18 @@ DwaCompressor::DwaCompressor
     // a little extra headroom
     //
 
-    if (planarUncBufferSize[UNKNOWN] > 0)
+    if (_planarUncBufferSize[UNKNOWN] > 0)
     {
-        planarUncBufferSize[UNKNOWN] =
-            (int) ceil (1.01f * (float)planarUncBufferSize[UNKNOWN]) + 100;
+        _planarUncBufferSize[UNKNOWN] =
+            (int) ceil (1.01f * (float)_planarUncBufferSize[UNKNOWN]) + 100;
     }
 
     for (int i = 0; i < NUM_COMPRESSOR_SCHEMES; ++i)
     {
         _planarUncBuffer[i] = 0;
 
-        if (planarUncBufferSize[i])
-            _planarUncBuffer[i] = new char[planarUncBufferSize[i]];
+        if (_planarUncBufferSize[i])
+            _planarUncBuffer[i] = new char[_planarUncBufferSize[i]];
     }
 }
 
@@ -1975,7 +1967,7 @@ DwaCompressor::compress
     //
 
     if (_outBuffer == 0)
-        _outBuffer = new char[_maxOutBufferSize];
+        _outBuffer = new char[_outBufferSize];
 
     char *outDataPtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(Imf::Int64)];
 
@@ -2389,6 +2381,13 @@ DwaCompressor::uncompress
     int minY = range.min.y;
     int maxY = std::min (range.max.y, _max[1]);
 
+    int headerSize = NUM_SIZES_SINGLE*sizeof(Int64);
+    if (inSize < headerSize) 
+    {
+        throw Iex::InputExc("Error uncompressing DWA data"
+                            "(truncated header).");
+    }
+
     //
     // Allocate _outBuffer, if we haven't done so already
     //
@@ -2430,6 +2429,31 @@ DwaCompressor::uncompress
 
     Int64 acCompression            = *(inPtr64 + AC_COMPRESSION); 
 
+    Int64 compressedSize           = unknownCompressedSize + 
+                                     acCompressedSize +
+                                     dcCompressedSize +
+                                     rleCompressedSize;
+
+    if (inSize < headerSize + compressedSize) 
+    {
+        throw Iex::InputExc("Error uncompressing DWA data"
+                            "(truncated file).");
+    }
+
+    if (unknownUncompressedSize < 0  || 
+        unknownCompressedSize < 0    ||
+        acCompressedSize < 0         || 
+        dcCompressedSize < 0         ||
+        rleCompressedSize < 0        || 
+        rleUncompressedSize < 0      ||
+        rleRawSize < 0               ||  
+        totalAcUncompressedCount < 0 || 
+        totalDcUncompressedCount < 0) 
+    {
+        throw Iex::InputExc("Error uncompressing DWA data"
+                            "(corrupt header).");
+    }
+       
     //
     // Find the start of the RLE packed AC components and
     // the DC components for each channel. This will be handy   
@@ -2455,10 +2479,11 @@ DwaCompressor::uncompress
     const char *compressedUnknownBuf = inPtr + NUM_SIZES_SINGLE * sizeof(Int64);
 
     const char *compressedAcBuf      = compressedUnknownBuf + 
-                                                 unknownCompressedSize;
-
-    const char *compressedDcBuf      = compressedAcBuf + acCompressedSize;
-    const char *compressedRleBuf     = compressedDcBuf + dcCompressedSize;
+                                  static_cast<ptrdiff_t>(unknownCompressedSize);
+    const char *compressedDcBuf      = compressedAcBuf +
+                                  static_cast<ptrdiff_t>(acCompressedSize);
+    const char *compressedRleBuf     = compressedDcBuf + 
+                                  static_cast<ptrdiff_t>(dcCompressedSize);
 
     // 
     // Sanity check that the version is something we expect. Right now, 
@@ -2480,6 +2505,13 @@ DwaCompressor::uncompress
         uLongf outSize = static_cast<uLongf>(
                 ceil( (float)unknownUncompressedSize * 1.01) + 100);
 
+        if (unknownUncompressedSize < 0 || 
+            outSize > _planarUncBufferSize[UNKNOWN]) 
+        {
+            throw Iex::InputExc("Error uncompressing DWA data"
+                                "(corrupt header).");
+        }
+
         if (Z_OK != ::uncompress
                         ((Bytef *)_planarUncBuffer[UNKNOWN],
                          &outSize,
@@ -2496,6 +2528,12 @@ DwaCompressor::uncompress
 
     if (acCompressedSize > 0)
     {
+        if (totalAcUncompressedCount*sizeof(unsigned short) > _packedAcBufferSize)
+        {
+            throw Iex::InputExc("Error uncompressing DWA data"
+                                "(corrupt header).");
+        }
+
         //
         // Don't trust the user to get it right, look in the file.
         //
@@ -2547,6 +2585,12 @@ DwaCompressor::uncompress
 
     if (dcCompressedSize > 0)
     {
+        if (totalDcUncompressedCount*sizeof(unsigned short) > _packedDcBufferSize)
+        {
+            throw Iex::InputExc("Error uncompressing DWA data"
+                                "(corrupt header).");
+        }
+
         if (_zip->uncompress
                     (compressedDcBuf, (int)dcCompressedSize, _packedDcBuffer)
             != (int)totalDcUncompressedCount * sizeof (unsigned short))
@@ -2562,6 +2606,13 @@ DwaCompressor::uncompress
 
     if (rleRawSize > 0)
     {
+        if (rleUncompressedSize > _rleBufferSize ||
+            rleRawSize > _planarUncBufferSize[RLE])
+        {
+            throw Iex::InputExc("Error uncompressing DWA data"
+                                "(corrupt header).");
+        }
+ 
         uLongf dstLen = (uLongf)rleUncompressedSize;
 
         if (Z_OK != ::uncompress

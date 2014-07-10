@@ -243,7 +243,8 @@ FastHufDecoder::FastHufDecoder
     _idToSymbol = new int[_numSymbols];
 
     Int64 mapping[MAX_CODE_LEN + 1];
-
+    for (int i = 0; i <= MAX_CODE_LEN + 1; ++i) 
+        mapping[i] = -1;
     for (int i = _minCodeLength; i <= _maxCodeLength; ++i)
         mapping[i] = offset[i];
 
@@ -254,6 +255,10 @@ FastHufDecoder::FastHufDecoder
         int codeLen = *i & 63;
         int symbol  = *i >> 6;
 
+        if (mapping[codeLen] < 0 || mapping[codeLen] >= _numSymbols) 
+            throw Iex::InputExc ("Huffman decode error "
+                                  "(Invalid symbol in header).");
+        
         _idToSymbol[mapping[codeLen]] = symbol;
         mapping[codeLen]++;
     }
@@ -389,9 +394,16 @@ FastHufDecoder::buildTables (Int64 *base, Int64 *offset)
             {
                 _tableCodeLen[i] = codeLen;
 
-                _tableSymbol[i]  =
-                    _idToSymbol[_ljOffset[codeLen] + (value >> (64 - codeLen))];
-
+                Int64 id = _ljOffset[codeLen] + (value >> (64 - codeLen));
+                if (id >= 0 && id < _numSymbols) 
+                {
+                    _tableSymbol[i] = _idToSymbol[id];
+                }
+                else
+                {
+                    throw Iex::InputExc ("Huffman decode error "
+                                          "(Overrun).");
+                }
                 break;
             }
         }
@@ -654,8 +666,16 @@ FastHufDecoder::decode
                                      "(Decoded an invalid symbol).");
             }
 
-            symbol =
-                _idToSymbol[_ljOffset[codeLen] + (buffer >> (64 - codeLen))];
+            Int64 id = _ljOffset[codeLen] + (buffer >> (64 - codeLen));
+            if (id >= 0 && id < _numSymbols) 
+            {
+                symbol = _idToSymbol[id];
+            }
+            else
+            {
+                throw Iex::InputExc ("Huffman decode error "
+                                     "(Decoded an invalid symbol).");
+            }
         }
 
         //
@@ -692,6 +712,12 @@ FastHufDecoder::decode
             {
                 throw Iex::InputExc ("Huffman decode error (Symbol run "
                                      "beyond expected output buffer lenght).");
+            }
+
+            if (rleCount <= 0) 
+            {
+                throw Iex::InputExc("Huffman decode error"
+                                    " (Invalid RLE length)");
             }
 
             for (int i = 0; i < rleCount; ++i)
