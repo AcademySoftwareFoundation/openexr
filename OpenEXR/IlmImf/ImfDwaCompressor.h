@@ -149,17 +149,21 @@ class DwaCompressor: public Compressor
     int               _maxScanLineSize;
     int               _numScanLines;
     int               _min[2], _max[2];
-    int               _maxOutBufferSize;
 
     ChannelList                _channels;
     std::vector<ChannelData>   _channelData;
     std::vector<CscChannelSet> _cscSets;
 
     char             *_packedAcBuffer;
+    size_t            _packedAcBufferSize;
     char             *_packedDcBuffer;
+    size_t            _packedDcBufferSize;
     char             *_rleBuffer;
+    size_t            _rleBufferSize;
     char             *_outBuffer;
+    size_t            _outBufferSize;
     char             *_planarUncBuffer[NUM_COMPRESSOR_SCHEMES];
+    size_t            _planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
 
     Zip              *_zip;
     float             _dwaCompressionLevel;
