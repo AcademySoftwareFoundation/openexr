@@ -107,6 +107,14 @@ printCompression (Compression c)
             cout << "b44a";
             break;
 
+        case DWAA_COMPRESSION:
+            cout << "dwa, small scanline blocks";
+            break;
+
+        case DWAB_COMPRESSION:
+            cout << "dwa, medium scanline blocks";
+            break;
+
         default:
             cout << int (c);
             break;
