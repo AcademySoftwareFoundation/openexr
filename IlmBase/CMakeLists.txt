@@ -100,7 +100,7 @@ ADD_SUBDIRECTORY ( Imath )
 ADD_SUBDIRECTORY ( IlmThread )
 
 IF (WIN32)
-  FILE ( COPY ${CMAKE_CURRENT_BINARY_DIR}/config.windows/IlmBaseConfig.h
+  FILE ( COPY ${CMAKE_CURRENT_SOURCE_DIR}/config.windows/IlmBaseConfig.h
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/config
     )
 ELSE ()
