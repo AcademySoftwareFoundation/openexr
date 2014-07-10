@@ -90,7 +90,8 @@ CpuId::CpuId():
     int  eax, ebx, ecx, edx;
 
     cpuid(0, max, ebx, ecx, edx);
-    if (max > 0) {
+    if (max > 0)
+    {
         cpuid(1, eax, ebx, ecx, edx);
         sse2    = ( edx & (1<<26) );
         sse3    = ( ecx & (1<< 0) );
@@ -101,12 +102,16 @@ CpuId::CpuId():
         avx     = ( ecx & (1<<28) );
         f16c    = ( ecx & (1<<29) );
 
-        if (!osxsave) {
+        if (!osxsave)
+        {
             avx = f16c = false;
-        } else {
+        }
+        else
+        {
             xgetbv(0, eax, edx);
             // eax bit 1 - SSE managed, bit 2 - AVX managed
-            if ((eax & 6) != 6) {
+            if ((eax & 6) != 6)
+            {
                 avx = f16c = false;
             }
         }
