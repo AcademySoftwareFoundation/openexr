@@ -37,5 +37,6 @@ EXTRA_DIST = CMakeLists.txt
 
 INCLUDES = @ILMBASE_CXXFLAGS@ \
 	   -I$(top_builddir)  \
+	   -I$(top_srcdir)/IlmImf  \
 	   -I$(top_srcdir)/config
 

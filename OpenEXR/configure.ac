@@ -261,7 +261,7 @@ if test "x${library_namespace_versioning}" == xyes ; then
     AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACE_CUSTOM)
 
     lib_namespace="Imf_${OPENEXR_VERSION_API}"
-    LIB_SUFFIX="Imf_${OPENEXR_VERSION_API}"
+    LIB_SUFFIX="${OPENEXR_VERSION_API}"
     lib_suffix_valid="yes"
 elif test "x${library_namespace_versioning}" == xno ; then
     AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE, Imf)

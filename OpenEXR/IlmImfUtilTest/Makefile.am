@@ -14,6 +14,7 @@ INCLUDES = -I$(top_builddir)  \
 	   @ILMBASE_CXXFLAGS@
 
 LDADD = -L$(top_builddir)/IlmImf \
+	-L$(top_builddir)/IlmImfUtil \
 	@ILMBASE_LDFLAGS@ @ILMBASE_LIBS@ \
 	-lIlmImfUtil -lIlmImf -lz
 
