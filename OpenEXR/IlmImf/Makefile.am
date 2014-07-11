@@ -154,7 +154,8 @@ libIlmImfinclude_HEADERS = ImfForward.h ImfAttribute.h ImfBoxAttribute.h \
 			   ImfNamespace.h ImfForward.h ImfExport.h \
 			   ImfMisc.h          \
 			   ImfPartHelper.h \
-			   ImfDeepImageState.h
+			   ImfDeepImageState.h \
+			   ImfDeepImageStateAttribute.h
 
 noinst_HEADERS = ImfCompressor.h    \
 		 ImfRleCompressor.h \
