@@ -250,7 +250,7 @@ testDct()
     } 
 
 
-#define INVERSE_DCT_SCALAR_TEST_N(func, _n, _desc)                 \
+#define INVERSE_DCT_SCALAR_TEST_N(_func, _n, _desc)                \
     cout << "         " << _desc << endl;                          \
     for (int iter=0; iter<numIter; ++iter)                         \
     {                                                              \
@@ -264,7 +264,7 @@ testDct()
             }                                                      \
         }                                                          \
         dctInverse8x8_scalar<0>(orig._buffer);                     \
-        func<_n>(test._buffer);                                    \
+        _func<_n>(test._buffer);                                   \
         compareBufferRelative(orig, test, .01, 1e-6);              \
     }
 
