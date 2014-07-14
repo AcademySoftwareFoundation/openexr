@@ -47,6 +47,7 @@
 #include "ImfSimd.h"
 #include "ImfSystemSpecific.h"
 #include <half.h>
+#include <assert.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -872,15 +873,13 @@ dctInverse8x8DcOnly (float *data)
 // just set zeroedRows=0.
 //
 
-#ifndef IMF_HAVE_SSE2
-
 //
 // Default implementation
 //
 
 template <int zeroedRows>
 void
-dctInverse8x8 (float *data)
+dctInverse8x8_scalar (float *data)
 {
     const float a = .5f * cosf (3.14159f / 4.0f);
     const float b = .5f * cosf (3.14159f / 16.0f);
@@ -985,7 +984,6 @@ dctInverse8x8 (float *data)
     }
 }
 
-#else  /* IMF_HAVE_SSE2 */
 
 //
 // SSE2 Implementation
@@ -993,259 +991,725 @@ dctInverse8x8 (float *data)
 
 template <int zeroedRows>
 void
-dctInverse8x8(float *data)
+dctInverse8x8_sse2 (float *data)
 {
-    __m128 a  = {3.535536e-01f, 3.535536e-01f, 3.535536e-01f, 3.535536e-01f};
-    __m128 b  = {4.903927e-01f, 4.903927e-01f, 4.903927e-01f, 4.903927e-01f};
-    __m128 c  = {4.619398e-01f, 4.619398e-01f, 4.619398e-01f, 4.619398e-01f};
-    __m128 d  = {4.157349e-01f, 4.157349e-01f, 4.157349e-01f, 4.157349e-01f};
-    __m128 e  = {2.777855e-01f, 2.777855e-01f, 2.777855e-01f, 2.777855e-01f};
-    __m128 f  = {1.913422e-01f, 1.913422e-01f, 1.913422e-01f, 1.913422e-01f};
-    __m128 g  = {9.754573e-02f, 9.754573e-02f, 9.754573e-02f, 9.754573e-02f};
+    #ifdef IMF_HAVE_SSE2
+        __m128 a  = {3.535536e-01f,3.535536e-01f,3.535536e-01f,3.535536e-01f};
+        __m128 b  = {4.903927e-01f,4.903927e-01f,4.903927e-01f,4.903927e-01f};
+        __m128 c  = {4.619398e-01f,4.619398e-01f,4.619398e-01f,4.619398e-01f};
+        __m128 d  = {4.157349e-01f,4.157349e-01f,4.157349e-01f,4.157349e-01f};
+        __m128 e  = {2.777855e-01f,2.777855e-01f,2.777855e-01f,2.777855e-01f};
+        __m128 f  = {1.913422e-01f,1.913422e-01f,1.913422e-01f,1.913422e-01f};
+        __m128 g  = {9.754573e-02f,9.754573e-02f,9.754573e-02f,9.754573e-02f};
 
-    __m128 c0 = {3.535536e-01f,  3.535536e-01f,  3.535536e-01f,  3.535536e-01f};
-    __m128 c1 = {4.619398e-01f,  1.913422e-01f, -1.913422e-01f, -4.619398e-01f};
-    __m128 c2 = {3.535536e-01f, -3.535536e-01f, -3.535536e-01f,  3.535536e-01f};
-    __m128 c3 = {1.913422e-01f, -4.619398e-01f,  4.619398e-01f, -1.913422e-01f};
+        __m128 c0 = {3.535536e-01f, 3.535536e-01f, 3.535536e-01f, 3.535536e-01f};
+        __m128 c1 = {4.619398e-01f, 1.913422e-01f,-1.913422e-01f,-4.619398e-01f};
+        __m128 c2 = {3.535536e-01f,-3.535536e-01f,-3.535536e-01f, 3.535536e-01f};
+        __m128 c3 = {1.913422e-01f,-4.619398e-01f, 4.619398e-01f,-1.913422e-01f};
 
-    __m128 c4 = {4.903927e-01f,  4.157349e-01f,  2.777855e-01f,  9.754573e-02f};
-    __m128 c5 = {4.157349e-01f, -9.754573e-02f, -4.903927e-01f, -2.777855e-01f};
-    __m128 c6 = {2.777855e-01f, -4.903927e-01f,  9.754573e-02f,  4.157349e-01f};
-    __m128 c7 = {9.754573e-02f, -2.777855e-01f,  4.157349e-01f, -4.903927e-01f};
+        __m128 c4 = {4.903927e-01f, 4.157349e-01f, 2.777855e-01f, 9.754573e-02f};
+        __m128 c5 = {4.157349e-01f,-9.754573e-02f,-4.903927e-01f,-2.777855e-01f};
+        __m128 c6 = {2.777855e-01f,-4.903927e-01f, 9.754573e-02f, 4.157349e-01f};
+        __m128 c7 = {9.754573e-02f,-2.777855e-01f, 4.157349e-01f,-4.903927e-01f};
 
-    __m128 *srcVec = (__m128 *)data;
-    __m128 x[8], evenSum, oddSum;
-    __m128 in[8], alpha[4], beta[4], theta[4], gamma[4];
-    
-    //
-    // Rows -   
-    //
-    //  Treat this just like matrix-vector multiplication. The
-    //  trick is to note that:
-    //
-    //     [M00 M01 M02 M03][v0]   [(v0 M00) + (v1 M01) + (v2 M02) + (v3 M03)]
-    //     [M10 M11 M12 M13][v1] = [(v0 M10) + (v1 M11) + (v2 M12) + (v3 M13)]
-    //     [M20 M21 M22 M23][v2]   [(v0 M20) + (v1 M21) + (v2 M22) + (v3 M23)]
-    //     [M30 M31 M32 M33][v3]   [(v0 M30) + (v1 M31) + (v2 M32) + (v3 M33)]
-    //
-    // Then, we can fill a register with v_i and multiply by the i-th column
-    // of M, accumulating across all i-s. 
-    //
-    // The kids refer to the populating of a register with a single value
-    // "broadcasting", and it can be done with a shuffle instruction. It
-    // seems to be the slowest part of the whole ordeal.
-    //
-    // Our matrix columns are stored above in c0-c7. c0-3 make up M1, and
-    // c4-7 are from M2.
-    //
+        __m128 *srcVec = (__m128 *)data;
+        __m128 x[8], evenSum, oddSum;
+        __m128 in[8], alpha[4], beta[4], theta[4], gamma[4];
+        
+        //
+        // Rows -   
+        //
+        //  Treat this just like matrix-vector multiplication. The
+        //  trick is to note that:
+        //
+        //    [M00 M01 M02 M03][v0]   [(v0 M00) + (v1 M01) + (v2 M02) + (v3 M03)]
+        //    [M10 M11 M12 M13][v1] = [(v0 M10) + (v1 M11) + (v2 M12) + (v3 M13)]
+        //    [M20 M21 M22 M23][v2]   [(v0 M20) + (v1 M21) + (v2 M22) + (v3 M23)]
+        //    [M30 M31 M32 M33][v3]   [(v0 M30) + (v1 M31) + (v2 M32) + (v3 M33)]
+        //
+        // Then, we can fill a register with v_i and multiply by the i-th column
+        // of M, accumulating across all i-s. 
+        //
+        // The kids refer to the populating of a register with a single value
+        // "broadcasting", and it can be done with a shuffle instruction. It
+        // seems to be the slowest part of the whole ordeal.
+        //
+        // Our matrix columns are stored above in c0-c7. c0-3 make up M1, and
+        // c4-7 are from M2.
+        //
 
-    #define DCT_INVERSE_8x8_SS2_ROW_LOOP(i)                             \
-        /*                                                              \
-         * Broadcast the components of the row                          \
-         */                                                             \
-                                                                        \
-        x[0] = _mm_shuffle_ps (srcVec[2 * i],                           \
-                               srcVec[2 * i],                           \
-                               _MM_SHUFFLE (0, 0, 0, 0));               \
-                                                                        \
-        x[1] = _mm_shuffle_ps (srcVec[2 * i],                           \
-                               srcVec[2 * i],                           \
-                               _MM_SHUFFLE (1, 1, 1, 1));               \
-                                                                        \
-        x[2] = _mm_shuffle_ps (srcVec[2 * i],                           \
-                               srcVec[2 * i],                           \
-                               _MM_SHUFFLE (2, 2, 2, 2));               \
-                                                                        \
-        x[3] = _mm_shuffle_ps (srcVec[2 * i],                           \
-                               srcVec[2 * i],                           \
-                               _MM_SHUFFLE (3, 3, 3, 3));               \
-                                                                        \
-        x[4] = _mm_shuffle_ps (srcVec[2 * i + 1],                       \
-                               srcVec[2 * i + 1],                       \
-                               _MM_SHUFFLE (0, 0, 0, 0));               \
-                                                                        \
-        x[5] = _mm_shuffle_ps (srcVec[2 * i + 1],                       \
-                               srcVec[2 * i + 1],                       \
-                               _MM_SHUFFLE (1, 1, 1, 1));               \
-                                                                        \
-        x[6] = _mm_shuffle_ps (srcVec[2 * i + 1],                       \
-                               srcVec[2 * i + 1],                       \
-                               _MM_SHUFFLE (2, 2, 2, 2));               \
-                                                                        \
-        x[7] = _mm_shuffle_ps (srcVec[2 * i + 1],                       \
-                               srcVec[2 * i + 1],                       \
-                               _MM_SHUFFLE (3, 3, 3, 3));               \
-        /*                                                              \
-         * Multiply the components by each column of the matrix         \
-         */                                                             \
-                                                                        \
-        x[0] = _mm_mul_ps (x[0], c0);                                   \
-        x[2] = _mm_mul_ps (x[2], c1);                                   \
-        x[4] = _mm_mul_ps (x[4], c2);                                   \
-        x[6] = _mm_mul_ps (x[6], c3);                                   \
-                                                                        \
-        x[1] = _mm_mul_ps (x[1], c4);                                   \
-        x[3] = _mm_mul_ps (x[3], c5);                                   \
-        x[5] = _mm_mul_ps (x[5], c6);                                   \
-        x[7] = _mm_mul_ps (x[7], c7);                                   \
-                                                                        \
-        /*                                                              \
-         * Add across                                                   \
-         */                                                             \
-                                                                        \
-        evenSum = _mm_setzero_ps();                                     \
-        evenSum = _mm_add_ps (evenSum, x[0]);                           \
-        evenSum = _mm_add_ps (evenSum, x[2]);                           \
-        evenSum = _mm_add_ps (evenSum, x[4]);                           \
-        evenSum = _mm_add_ps (evenSum, x[6]);                           \
-                                                                        \
-        oddSum = _mm_setzero_ps();                                      \
-        oddSum = _mm_add_ps (oddSum, x[1]);                             \
-        oddSum = _mm_add_ps (oddSum, x[3]);                             \
-        oddSum = _mm_add_ps (oddSum, x[5]);                             \
-        oddSum = _mm_add_ps (oddSum, x[7]);                             \
-                                                                        \
-        /*                                                              \
-         * Final Sum:                                                   \
-         *    out [0, 1, 2, 3] = evenSum + oddSum                       \
-         *    out [7, 6, 5, 4] = evenSum - oddSum                       \
-         */                                                             \
-                                                                        \
-        srcVec[2 * i]     = _mm_add_ps (evenSum, oddSum);               \
-        srcVec[2 * i + 1] = _mm_sub_ps (evenSum, oddSum);               \
-        srcVec[2 * i + 1] = _mm_shuffle_ps (srcVec[2 * i + 1],          \
-                                            srcVec[2 * i + 1],          \
-                                            _MM_SHUFFLE (0, 1, 2, 3));
+        #define DCT_INVERSE_8x8_SS2_ROW_LOOP(i)                             \
+            /*                                                              \
+             * Broadcast the components of the row                          \
+             */                                                             \
+                                                                            \
+            x[0] = _mm_shuffle_ps (srcVec[2 * i],                           \
+                                   srcVec[2 * i],                           \
+                                   _MM_SHUFFLE (0, 0, 0, 0));               \
+                                                                            \
+            x[1] = _mm_shuffle_ps (srcVec[2 * i],                           \
+                                   srcVec[2 * i],                           \
+                                   _MM_SHUFFLE (1, 1, 1, 1));               \
+                                                                            \
+            x[2] = _mm_shuffle_ps (srcVec[2 * i],                           \
+                                   srcVec[2 * i],                           \
+                                   _MM_SHUFFLE (2, 2, 2, 2));               \
+                                                                            \
+            x[3] = _mm_shuffle_ps (srcVec[2 * i],                           \
+                                   srcVec[2 * i],                           \
+                                   _MM_SHUFFLE (3, 3, 3, 3));               \
+                                                                            \
+            x[4] = _mm_shuffle_ps (srcVec[2 * i + 1],                       \
+                                   srcVec[2 * i + 1],                       \
+                                   _MM_SHUFFLE (0, 0, 0, 0));               \
+                                                                            \
+            x[5] = _mm_shuffle_ps (srcVec[2 * i + 1],                       \
+                                   srcVec[2 * i + 1],                       \
+                                   _MM_SHUFFLE (1, 1, 1, 1));               \
+                                                                            \
+            x[6] = _mm_shuffle_ps (srcVec[2 * i + 1],                       \
+                                   srcVec[2 * i + 1],                       \
+                                   _MM_SHUFFLE (2, 2, 2, 2));               \
+                                                                            \
+            x[7] = _mm_shuffle_ps (srcVec[2 * i + 1],                       \
+                                   srcVec[2 * i + 1],                       \
+                                   _MM_SHUFFLE (3, 3, 3, 3));               \
+            /*                                                              \
+             * Multiply the components by each column of the matrix         \
+             */                                                             \
+                                                                            \
+            x[0] = _mm_mul_ps (x[0], c0);                                   \
+            x[2] = _mm_mul_ps (x[2], c1);                                   \
+            x[4] = _mm_mul_ps (x[4], c2);                                   \
+            x[6] = _mm_mul_ps (x[6], c3);                                   \
+                                                                            \
+            x[1] = _mm_mul_ps (x[1], c4);                                   \
+            x[3] = _mm_mul_ps (x[3], c5);                                   \
+            x[5] = _mm_mul_ps (x[5], c6);                                   \
+            x[7] = _mm_mul_ps (x[7], c7);                                   \
+                                                                            \
+            /*                                                              \
+             * Add across                                                   \
+             */                                                             \
+                                                                            \
+            evenSum = _mm_setzero_ps();                                     \
+            evenSum = _mm_add_ps (evenSum, x[0]);                           \
+            evenSum = _mm_add_ps (evenSum, x[2]);                           \
+            evenSum = _mm_add_ps (evenSum, x[4]);                           \
+            evenSum = _mm_add_ps (evenSum, x[6]);                           \
+                                                                            \
+            oddSum = _mm_setzero_ps();                                      \
+            oddSum = _mm_add_ps (oddSum, x[1]);                             \
+            oddSum = _mm_add_ps (oddSum, x[3]);                             \
+            oddSum = _mm_add_ps (oddSum, x[5]);                             \
+            oddSum = _mm_add_ps (oddSum, x[7]);                             \
+                                                                            \
+            /*                                                              \
+             * Final Sum:                                                   \
+             *    out [0, 1, 2, 3] = evenSum + oddSum                       \
+             *    out [7, 6, 5, 4] = evenSum - oddSum                       \
+             */                                                             \
+                                                                            \
+            srcVec[2 * i]     = _mm_add_ps (evenSum, oddSum);               \
+            srcVec[2 * i + 1] = _mm_sub_ps (evenSum, oddSum);               \
+            srcVec[2 * i + 1] = _mm_shuffle_ps (srcVec[2 * i + 1],          \
+                                                srcVec[2 * i + 1],          \
+                                                _MM_SHUFFLE (0, 1, 2, 3));
 
-    switch (zeroedRows)
-    {
-      case 0:
-      default:
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (1)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (2)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (3)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (4)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (5)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (6)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (7)
-        break;
+        switch (zeroedRows)
+        {
+          case 0:
+          default:
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (1)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (2)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (3)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (4)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (5)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (6)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (7)
+            break;
 
-      case 1:
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (1)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (2)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (3)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (4)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (5)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (6)
-        break;
+          case 1:
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (1)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (2)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (3)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (4)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (5)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (6)
+            break;
 
-      case 2:
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (1)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (2)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (3)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (4)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (5)
-        break;
+          case 2:
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (1)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (2)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (3)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (4)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (5)
+            break;
 
-      case 3:
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (1)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (2)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (3)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (4)
-        break;
+          case 3:
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (1)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (2)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (3)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (4)
+            break;
 
-      case 4:
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (1)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (2)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (3)
-        break;
+          case 4:
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (1)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (2)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (3)
+            break;
 
-      case 5:
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (1)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (2)
-        break;
+          case 5:
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (1)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (2)
+            break;
 
-      case 6:
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (1)
-        break;
+          case 6:
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (1)
+            break;
 
-      case 7:
-        DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
-        break;
-    }
+          case 7:
+            DCT_INVERSE_8x8_SS2_ROW_LOOP (0)
+            break;
+        }
 
-    //
-    // Columns -
-    //
-    // This is slightly more straightforward, if less readable. Here
-    // we just operate on 4 columns at a time, in two batches.
-    //
-    // The slight mess is to try and cache sub-expressions, which
-    // we ignore in the row-wise pass.
-    //
+        //
+        // Columns -
+        //
+        // This is slightly more straightforward, if less readable. Here
+        // we just operate on 4 columns at a time, in two batches.
+        //
+        // The slight mess is to try and cache sub-expressions, which
+        // we ignore in the row-wise pass.
+        //
 
-    for (int col = 0; col < 2; ++col)
-    {
+        for (int col = 0; col < 2; ++col)
+        {
 
-        for (int i = 0; i < 8; ++i)
-            in[i] = srcVec[2 * i + col];
+            for (int i = 0; i < 8; ++i)
+                in[i] = srcVec[2 * i + col];
 
-        alpha[0] = _mm_mul_ps (c, in[2]);
-        alpha[1] = _mm_mul_ps (f, in[2]);
-        alpha[2] = _mm_mul_ps (c, in[6]);
-        alpha[3] = _mm_mul_ps (f, in[6]);
+            alpha[0] = _mm_mul_ps (c, in[2]);
+            alpha[1] = _mm_mul_ps (f, in[2]);
+            alpha[2] = _mm_mul_ps (c, in[6]);
+            alpha[3] = _mm_mul_ps (f, in[6]);
 
-        beta[0] = _mm_add_ps (_mm_add_ps (_mm_mul_ps (in[1], b),
-                                                      _mm_mul_ps (in[3], d)),
-                                          _mm_add_ps (_mm_mul_ps (in[5], e),
-                                                      _mm_mul_ps (in[7], g)));
+            beta[0] = _mm_add_ps (_mm_add_ps (_mm_mul_ps (in[1], b),
+                                                          _mm_mul_ps (in[3], d)),
+                                              _mm_add_ps (_mm_mul_ps (in[5], e),
+                                                          _mm_mul_ps (in[7], g)));
 
-        beta[1] = _mm_sub_ps (_mm_sub_ps (_mm_mul_ps (in[1], d),
-                                                      _mm_mul_ps (in[3], g)),
-                                          _mm_add_ps (_mm_mul_ps (in[5], b),
-                                                      _mm_mul_ps (in[7], e)));
+            beta[1] = _mm_sub_ps (_mm_sub_ps (_mm_mul_ps (in[1], d),
+                                                          _mm_mul_ps (in[3], g)),
+                                              _mm_add_ps (_mm_mul_ps (in[5], b),
+                                                          _mm_mul_ps (in[7], e)));
 
-        beta[2] = _mm_add_ps (_mm_sub_ps (_mm_mul_ps (in[1], e),
-                                                      _mm_mul_ps (in[3], b)),
-                                          _mm_add_ps (_mm_mul_ps (in[5], g),
-                                                      _mm_mul_ps (in[7], d)));
+            beta[2] = _mm_add_ps (_mm_sub_ps (_mm_mul_ps (in[1], e),
+                                                          _mm_mul_ps (in[3], b)),
+                                              _mm_add_ps (_mm_mul_ps (in[5], g),
+                                                          _mm_mul_ps (in[7], d)));
 
-        beta[3] = _mm_add_ps (_mm_sub_ps (_mm_mul_ps (in[1], g),
-                                                      _mm_mul_ps (in[3], e)),
-                                          _mm_sub_ps (_mm_mul_ps (in[5], d),
-                                                      _mm_mul_ps (in[7], b)));
+            beta[3] = _mm_add_ps (_mm_sub_ps (_mm_mul_ps (in[1], g),
+                                                          _mm_mul_ps (in[3], e)),
+                                              _mm_sub_ps (_mm_mul_ps (in[5], d),
+                                                          _mm_mul_ps (in[7], b)));
 
-        theta[0] = _mm_mul_ps (a, _mm_add_ps (in[0], in[4]));
-        theta[3] = _mm_mul_ps (a, _mm_sub_ps (in[0], in[4]));
+            theta[0] = _mm_mul_ps (a, _mm_add_ps (in[0], in[4]));
+            theta[3] = _mm_mul_ps (a, _mm_sub_ps (in[0], in[4]));
 
-        theta[1] = _mm_add_ps (alpha[0], alpha[3]);
-        theta[2] = _mm_sub_ps (alpha[1], alpha[2]);
+            theta[1] = _mm_add_ps (alpha[0], alpha[3]);
+            theta[2] = _mm_sub_ps (alpha[1], alpha[2]);
 
-        gamma[0] = _mm_add_ps (theta[0], theta[1]);
-        gamma[1] = _mm_add_ps (theta[3], theta[2]);
-        gamma[2] = _mm_sub_ps (theta[3], theta[2]);
-        gamma[3] = _mm_sub_ps (theta[0], theta[1]);
+            gamma[0] = _mm_add_ps (theta[0], theta[1]);
+            gamma[1] = _mm_add_ps (theta[3], theta[2]);
+            gamma[2] = _mm_sub_ps (theta[3], theta[2]);
+            gamma[3] = _mm_sub_ps (theta[0], theta[1]);
 
-        srcVec[  col] = _mm_add_ps (gamma[0], beta[0]);
-        srcVec[2+col] = _mm_add_ps (gamma[1], beta[1]);
-        srcVec[4+col] = _mm_add_ps (gamma[2], beta[2]);
-        srcVec[6+col] = _mm_add_ps (gamma[3], beta[3]);
+            srcVec[  col] = _mm_add_ps (gamma[0], beta[0]);
+            srcVec[2+col] = _mm_add_ps (gamma[1], beta[1]);
+            srcVec[4+col] = _mm_add_ps (gamma[2], beta[2]);
+            srcVec[6+col] = _mm_add_ps (gamma[3], beta[3]);
 
-        srcVec[ 8+col] = _mm_sub_ps (gamma[3], beta[3]);
-        srcVec[10+col] = _mm_sub_ps (gamma[2], beta[2]);
-        srcVec[12+col] = _mm_sub_ps (gamma[1], beta[1]);
-        srcVec[14+col] = _mm_sub_ps (gamma[0], beta[0]);
-    }
+            srcVec[ 8+col] = _mm_sub_ps (gamma[3], beta[3]);
+            srcVec[10+col] = _mm_sub_ps (gamma[2], beta[2]);
+            srcVec[12+col] = _mm_sub_ps (gamma[1], beta[1]);
+            srcVec[14+col] = _mm_sub_ps (gamma[0], beta[0]);
+        }
+
+    #else /* IMF_HAVE_SSE2 */
+
+        dctInverse8x8_scalar<zeroedRows> (data);
+
+    #endif /* IMF_HAVE_SSE2 */
 }
 
-#endif /* IMF_HAVE_SSE2 */
+
+//
+// AVX Implementation
+//
+
+#define STR(A) #A
+
+#define IDCT_AVX_SETUP_2_ROWS(_DST0,  _DST1,  _TMP0,  _TMP1, \
+                              _OFF00, _OFF01, _OFF10, _OFF11) \
+    "vmovaps                 " STR(_OFF00) "(%0),  %%xmm" STR(_TMP0) "  \n" \
+    "vmovaps                 " STR(_OFF01) "(%0),  %%xmm" STR(_TMP1) "  \n" \
+    "                                                                                \n" \
+    "vinsertf128  $1, " STR(_OFF10) "(%0), %%ymm" STR(_TMP0) ", %%ymm" STR(_TMP0) "  \n" \
+    "vinsertf128  $1, " STR(_OFF11) "(%0), %%ymm" STR(_TMP1) ", %%ymm" STR(_TMP1) "  \n" \
+    "                                                                                \n" \
+    "vunpcklpd      %%ymm" STR(_TMP1) ",  %%ymm" STR(_TMP0) ",  %%ymm" STR(_DST0) "  \n" \
+    "vunpckhpd      %%ymm" STR(_TMP1) ",  %%ymm" STR(_TMP0) ",  %%ymm" STR(_DST1) "  \n" \
+    "                                                                                \n" \
+    "vunpcklps      %%ymm" STR(_DST1) ",  %%ymm" STR(_DST0) ",  %%ymm" STR(_TMP0) "  \n" \
+    "vunpckhps      %%ymm" STR(_DST1) ",  %%ymm" STR(_DST0) ",  %%ymm" STR(_TMP1) "  \n" \
+    "                                                                                \n" \
+    "vunpcklpd      %%ymm" STR(_TMP1) ",  %%ymm" STR(_TMP0) ",  %%ymm" STR(_DST0) "  \n" \
+    "vunpckhpd      %%ymm" STR(_TMP1) ",  %%ymm" STR(_TMP0) ",  %%ymm" STR(_DST1) "  \n" 
+
+#define IDCT_AVX_MMULT_ROWS(_SRC)                       \
+    /* Broadcast the source values into y12-y15 */      \
+    "vpermilps $0x00, " STR(_SRC) ", %%ymm12       \n"  \
+    "vpermilps $0x55, " STR(_SRC) ", %%ymm13       \n"  \
+    "vpermilps $0xaa, " STR(_SRC) ", %%ymm14       \n"  \
+    "vpermilps $0xff, " STR(_SRC) ", %%ymm15       \n"  \
+                                                        \
+    /* Multiple coefs and the broadcasted values */     \
+    "vmulps    %%ymm12,  %%ymm8, %%ymm12     \n"        \
+    "vmulps    %%ymm13,  %%ymm9, %%ymm13     \n"        \
+    "vmulps    %%ymm14, %%ymm10, %%ymm14     \n"        \
+    "vmulps    %%ymm15, %%ymm11, %%ymm15     \n"        \
+                                                        \
+    /* Accumulate the result back into the source */    \
+    "vaddps    %%ymm13, %%ymm12, %%ymm12      \n"       \
+    "vaddps    %%ymm15, %%ymm14, %%ymm14      \n"       \
+    "vaddps    %%ymm14, %%ymm12, " STR(_SRC) "\n"     
+
+#define IDCT_AVX_EO_TO_ROW_HALVES(_EVEN, _ODD, _FRONT, _BACK)      \
+    "vsubps   " STR(_ODD) "," STR(_EVEN) "," STR(_BACK)  "\n"  \
+    "vaddps   " STR(_ODD) "," STR(_EVEN) "," STR(_FRONT) "\n"  \
+    /* Reverse the back half                                */ \
+    "vpermilps $0x1b," STR(_BACK) "," STR(_BACK) "\n"  
+
+/* In order to allow for path paths when we know certain rows
+ * of the 8x8 block are zero, most of the body of the DCT is
+ * in the following macro. Statements are wrapped in a ROWn()
+ * macro, where n is the lowest row in the 8x8 block in which
+ * they depend.
+ *
+ * This should work for the cases where we have 2-8 full rows.
+ * the 1-row case is special, and we'll handle it seperately.  
+ */
+#define IDCT_AVX_BODY \
+    /* ==============================================               
+     *               Row 1D DCT                                     
+     * ----------------------------------------------
+     */                                                           \
+                                                                  \
+    /* Setup for the row-oriented 1D DCT. Assuming that (%0) holds 
+     * the row-major 8x8 block, load ymm0-3 with the even columns
+     * and ymm4-7 with the odd columns. The lower half of the ymm
+     * holds one row, while the upper half holds the next row.
+     *
+     * If our source is:
+     *    a0 a1 a2 a3   a4 a5 a6 a7
+     *    b0 b1 b2 b3   b4 b5 b6 b7
+     *
+     * We'll be forming:
+     *    a0 a2 a4 a6   b0 b2 b4 b6
+     *    a1 a3 a5 a7   b1 b3 b5 b7
+     */                                                              \
+    ROW0( IDCT_AVX_SETUP_2_ROWS(0, 4, 14, 15,    0,  16,  32,  48) ) \
+    ROW2( IDCT_AVX_SETUP_2_ROWS(1, 5, 12, 13,   64,  80,  96, 112) ) \
+    ROW4( IDCT_AVX_SETUP_2_ROWS(2, 6, 10, 11,  128, 144, 160, 176) ) \
+    ROW6( IDCT_AVX_SETUP_2_ROWS(3, 7,  8,  9,  192, 208, 224, 240) ) \
+                                                                     \
+    /* Multiple the even columns (ymm0-3) by the matrix M1
+     * storing the results back in ymm0-3
+     *
+     * Assume that (%1) holds the matrix in column major order
+     */                                                              \
+    "vbroadcastf128   (%1),  %%ymm8         \n"                      \
+    "vbroadcastf128 16(%1),  %%ymm9         \n"                      \
+    "vbroadcastf128 32(%1), %%ymm10         \n"                      \
+    "vbroadcastf128 48(%1), %%ymm11         \n"                      \
+                                                                     \
+    ROW0( IDCT_AVX_MMULT_ROWS(%%ymm0) )                              \
+    ROW2( IDCT_AVX_MMULT_ROWS(%%ymm1) )                              \
+    ROW4( IDCT_AVX_MMULT_ROWS(%%ymm2) )                              \
+    ROW6( IDCT_AVX_MMULT_ROWS(%%ymm3) )                              \
+                                                                     \
+    /* Repeat, but with the odd columns (ymm4-7) and the 
+     * matrix M2
+     */                                                              \
+    "vbroadcastf128  64(%1),  %%ymm8         \n"                     \
+    "vbroadcastf128  80(%1),  %%ymm9         \n"                     \
+    "vbroadcastf128  96(%1), %%ymm10         \n"                     \
+    "vbroadcastf128 112(%1), %%ymm11         \n"                     \
+                                                                     \
+    ROW0( IDCT_AVX_MMULT_ROWS(%%ymm4) )                              \
+    ROW2( IDCT_AVX_MMULT_ROWS(%%ymm5) )                              \
+    ROW4( IDCT_AVX_MMULT_ROWS(%%ymm6) )                              \
+    ROW6( IDCT_AVX_MMULT_ROWS(%%ymm7) )                              \
+                                                                     \
+    /* Sum the M1 (ymm0-3) and M2 (ymm4-7) results to get the 
+     * front halves of the results, and difference to get the 
+     * back halves. The front halfs end up in ymm0-3, the back
+     * halves end up in ymm12-15. 
+     */                                                                \
+    ROW0( IDCT_AVX_EO_TO_ROW_HALVES(%%ymm0, %%ymm4, %%ymm0, %%ymm12) ) \
+    ROW2( IDCT_AVX_EO_TO_ROW_HALVES(%%ymm1, %%ymm5, %%ymm1, %%ymm13) ) \
+    ROW4( IDCT_AVX_EO_TO_ROW_HALVES(%%ymm2, %%ymm6, %%ymm2, %%ymm14) ) \
+    ROW6( IDCT_AVX_EO_TO_ROW_HALVES(%%ymm3, %%ymm7, %%ymm3, %%ymm15) ) \
+                                                                       \
+    /* Reassemble the rows halves into ymm0-7  */                      \
+    ROW7( "vperm2f128 $0x13, %%ymm3, %%ymm15, %%ymm7   \n" )           \
+    ROW6( "vperm2f128 $0x02, %%ymm3, %%ymm15, %%ymm6   \n" )           \
+    ROW5( "vperm2f128 $0x13, %%ymm2, %%ymm14, %%ymm5   \n" )           \
+    ROW4( "vperm2f128 $0x02, %%ymm2, %%ymm14, %%ymm4   \n" )           \
+    ROW3( "vperm2f128 $0x13, %%ymm1, %%ymm13, %%ymm3   \n" )           \
+    ROW2( "vperm2f128 $0x02, %%ymm1, %%ymm13, %%ymm2   \n" )           \
+    ROW1( "vperm2f128 $0x13, %%ymm0, %%ymm12, %%ymm1   \n" )           \
+    ROW0( "vperm2f128 $0x02, %%ymm0, %%ymm12, %%ymm0   \n" )           \
+                                                                       \
+                                                                       \
+    /* ==============================================
+     *                Column 1D DCT 
+     * ----------------------------------------------
+     */                                                                \
+                                                                       \
+    /* Rows should be in ymm0-7, and M2 columns should still be 
+     * preserved in ymm8-11.  M2 has 4 unique values (and +- 
+     * versions of each), and all (positive) values appear in 
+     * the first column (and row), which is in ymm8.
+     *
+     * For the column-wise DCT, we need to:
+     *   1) Broadcast each element a row of M2 into 4 vectors
+     *   2) Multiple the odd rows (ymm1,3,5,7) by the broadcasts.
+     *   3) Accumulate into ymm12-15 for the odd outputs.
+     *
+     * Instead of doing 16 broadcasts for each element in M2, 
+     * do 4, filling y8-11 with:
+     *
+     *     ymm8:  [ b  b  b  b  | b  b  b  b ]
+     *     ymm9:  [ d  d  d  d  | d  d  d  d ]
+     *     ymm10: [ e  e  e  e  | e  e  e  e ]
+     *     ymm11: [ g  g  g  g  | g  g  g  g ]
+     * 
+     * And deal with the negative values by subtracting during accum.
+     */                                                                \
+    "vpermilps        $0xff,  %%ymm8, %%ymm11  \n"                     \
+    "vpermilps        $0xaa,  %%ymm8, %%ymm10  \n"                     \
+    "vpermilps        $0x55,  %%ymm8, %%ymm9   \n"                     \
+    "vpermilps        $0x00,  %%ymm8, %%ymm8   \n"                     \
+                                                                       \
+    /* This one is easy, since we have ymm12-15 open for scratch   
+     *    ymm12 = b ymm1 + d ymm3 + e ymm5 + g ymm7 
+     */                                                                \
+    ROW1( "vmulps    %%ymm1,  %%ymm8, %%ymm12    \n" )                 \
+    ROW3( "vmulps    %%ymm3,  %%ymm9, %%ymm13    \n" )                 \
+    ROW5( "vmulps    %%ymm5, %%ymm10, %%ymm14    \n" )                 \
+    ROW7( "vmulps    %%ymm7, %%ymm11, %%ymm15    \n" )                 \
+                                                                       \
+    ROW3( "vaddps   %%ymm12, %%ymm13, %%ymm12    \n" )                 \
+    ROW7( "vaddps   %%ymm14, %%ymm15, %%ymm14    \n" )                 \
+    ROW5( "vaddps   %%ymm12, %%ymm14, %%ymm12    \n" )                 \
+                                                                       \
+    /* Tricker, since only y13-15 are open for scratch   
+     *    ymm13 = d ymm1 - g ymm3 - b ymm5 - e ymm7 
+     */                                                                \
+    ROW1( "vmulps    %%ymm1,   %%ymm9, %%ymm13   \n" )                 \
+    ROW3( "vmulps    %%ymm3,  %%ymm11, %%ymm14   \n" )                 \
+    ROW5( "vmulps    %%ymm5,   %%ymm8, %%ymm15   \n" )                 \
+                                                                       \
+    ROW5( "vaddps    %%ymm14, %%ymm15, %%ymm14   \n" )                 \
+    ROW3( "vsubps    %%ymm14, %%ymm13, %%ymm13   \n" )                 \
+                                                                       \
+    ROW7( "vmulps    %%ymm7,  %%ymm10, %%ymm15   \n" )                 \
+    ROW7( "vsubps    %%ymm15, %%ymm13, %%ymm13   \n" )                 \
+                                                                       \
+    /* Tricker still, as only y14-15 are open for scratch   
+     *    ymm14 = e ymm1 - b ymm3 + g ymm5 + d ymm7 
+     */                                                                \
+    ROW1( "vmulps     %%ymm1, %%ymm10,  %%ymm14  \n" )                 \
+    ROW3( "vmulps     %%ymm3,  %%ymm8,  %%ymm15  \n" )                 \
+                                                                       \
+    ROW3( "vsubps    %%ymm15, %%ymm14, %%ymm14   \n" )                 \
+                                                                       \
+    ROW5( "vmulps     %%ymm5, %%ymm11, %%ymm15   \n" )                 \
+    ROW5( "vaddps    %%ymm15, %%ymm14, %%ymm14   \n" )                 \
+                                                                       \
+    ROW7( "vmulps    %%ymm7,   %%ymm9, %%ymm15   \n" )                 \
+    ROW7( "vaddps    %%ymm15, %%ymm14, %%ymm14   \n" )                 \
+                                                                       \
+                                                                       \
+    /* Easy, as we can blow away ymm1,3,5,7 for scratch
+     *    ymm15 = g ymm1 - e ymm3 + d ymm5 - b ymm7 
+     */                                                                \
+    ROW1( "vmulps    %%ymm1, %%ymm11, %%ymm15    \n" )                 \
+    ROW3( "vmulps    %%ymm3, %%ymm10,  %%ymm3    \n" )                 \
+    ROW5( "vmulps    %%ymm5,  %%ymm9,  %%ymm5    \n" )                 \
+    ROW7( "vmulps    %%ymm7,  %%ymm8,  %%ymm7    \n" )                 \
+                                                                       \
+    ROW5( "vaddps   %%ymm15,  %%ymm5, %%ymm15    \n" )                 \
+    ROW7( "vaddps    %%ymm3,  %%ymm7,  %%ymm3    \n" )                 \
+    ROW3( "vsubps    %%ymm3, %%ymm15, %%ymm15    \n" )                 \
+                                                                       \
+                                                                       \
+    /* Load coefs for M1. Because we're going to broadcast
+     * coefs, we don't need to load the actual structure from
+     * M1. Instead, just load enough that we can broadcast.
+     * There are only 6 unique values in M1, but they're in +-
+     * pairs, leaving only 3 unique coefs if we add and subtract 
+     * properly.
+     *
+     * Fill      ymm1 with coef[2] = [ a  a  c  f | a  a  c  f ]
+     * Broadcast ymm5 with           [ f  f  f  f | f  f  f  f ]
+     * Broadcast ymm3 with           [ c  c  c  c | c  c  c  c ]
+     * Broadcast ymm1 with           [ a  a  a  a | a  a  a  a ]
+     */                                                                \
+    "vbroadcastf128   8(%1),  %%ymm1          \n"                      \
+    "vpermilps        $0xff,  %%ymm1, %%ymm5  \n"                      \
+    "vpermilps        $0xaa,  %%ymm1, %%ymm3  \n"                      \
+    "vpermilps        $0x00,  %%ymm1, %%ymm1  \n"                      \
+                                                                       \
+    /* If we expand E = [M1] [x0 x2 x4 x6]^t, we get the following 
+     * common expressions:
+     *
+     *   E_0 = ymm8  = (a ymm0 + a ymm4) + (c ymm2 + f ymm6) 
+     *   E_3 = ymm11 = (a ymm0 + a ymm4) - (c ymm2 + f ymm6)
+     * 
+     *   E_1 = ymm9  = (a ymm0 - a ymm4) + (f ymm2 - c ymm6)
+     *   E_2 = ymm10 = (a ymm0 - a ymm4) - (f ymm2 - c ymm6)
+     *
+     * Afterwards, ymm8-11 will hold the even outputs.
+     */                                                                \
+                                                                       \
+    /*  ymm11 = (a ymm0 + a ymm4),   ymm1 = (a ymm0 - a ymm4) */       \
+    ROW0( "vmulps    %%ymm1,  %%ymm0, %%ymm11   \n" )                  \
+    ROW4( "vmulps    %%ymm1,  %%ymm4,  %%ymm4   \n" )                  \
+    ROW0( "vmovaps   %%ymm11, %%ymm1            \n" )                  \
+    ROW4( "vaddps    %%ymm4, %%ymm11, %%ymm11   \n" )                  \
+    ROW4( "vsubps    %%ymm4,  %%ymm1,  %%ymm1   \n" )                  \
+                                                                       \
+    /* ymm7 = (c ymm2 + f ymm6) */                                     \
+    ROW2( "vmulps    %%ymm3, %%ymm2,  %%ymm7    \n" )                  \
+    ROW6( "vmulps    %%ymm5, %%ymm6,  %%ymm9    \n" )                  \
+    ROW6( "vaddps    %%ymm9, %%ymm7,  %%ymm7    \n" )                  \
+                                                                       \
+    /* E_0 = ymm8  = (a ymm0 + a ymm4) + (c ymm2 + f ymm6) 
+     * E_3 = ymm11 = (a ymm0 + a ymm4) - (c ymm2 + f ymm6) 
+     */                                                                \
+    ROW0( "vmovaps   %%ymm11, %%ymm8            \n" )                  \
+    ROW2( "vaddps     %%ymm7, %%ymm8,  %%ymm8   \n" )                  \
+    ROW2( "vsubps     %%ymm7, %%ymm11, %%ymm11  \n" )                  \
+                                                                       \
+    /* ymm7 = (f ymm2 - c ymm6) */                                     \
+    ROW2( "vmulps     %%ymm5,  %%ymm2, %%ymm7   \n" )                  \
+    ROW6( "vmulps     %%ymm3,  %%ymm6, %%ymm9   \n" )                  \
+    ROW6( "vsubps     %%ymm9,  %%ymm7, %%ymm7   \n" )                  \
+                                                                       \
+    /* E_1 = ymm9  = (a ymm0 - a ymm4) + (f ymm2 - c ymm6) 
+     * E_2 = ymm10 = (a ymm0 - a ymm4) - (f ymm2 - c ymm6)
+     */                                                                \
+    ROW0( "vmovaps   %%ymm1,  %%ymm9            \n" )                  \
+    ROW0( "vmovaps   %%ymm1, %%ymm10            \n" )                  \
+    ROW2( "vaddps    %%ymm7,  %%ymm1,  %%ymm9   \n" )                  \
+    ROW2( "vsubps    %%ymm7,  %%ymm1,  %%ymm10  \n" )                  \
+                                                                       \
+    /* Add the even (ymm8-11) and the odds (ymm12-15), 
+     * placing the results into ymm0-7 
+     */                                                                \
+    "vaddps   %%ymm12,  %%ymm8, %%ymm0       \n"                       \
+    "vaddps   %%ymm13,  %%ymm9, %%ymm1       \n"                       \
+    "vaddps   %%ymm14, %%ymm10, %%ymm2       \n"                       \
+    "vaddps   %%ymm15, %%ymm11, %%ymm3       \n"                       \
+                                                                       \
+    "vsubps   %%ymm12,  %%ymm8, %%ymm7       \n"                       \
+    "vsubps   %%ymm13,  %%ymm9, %%ymm6       \n"                       \
+    "vsubps   %%ymm14, %%ymm10, %%ymm5       \n"                       \
+    "vsubps   %%ymm15, %%ymm11, %%ymm4       \n"                       \
+                                                                       \
+    /* Copy out the results from ymm0-7  */                            \
+    "vmovaps   %%ymm0,    (%0)                   \n"                   \
+    "vmovaps   %%ymm1,  32(%0)                   \n"                   \
+    "vmovaps   %%ymm2,  64(%0)                   \n"                   \
+    "vmovaps   %%ymm3,  96(%0)                   \n"                   \
+    "vmovaps   %%ymm4, 128(%0)                   \n"                   \
+    "vmovaps   %%ymm5, 160(%0)                   \n"                   \
+    "vmovaps   %%ymm6, 192(%0)                   \n"                   \
+    "vmovaps   %%ymm7, 224(%0)                   \n"            
+
+/* Output, input, and clobber (OIC) sections of the inline asm */
+#define IDCT_AVX_OIC(_IN0)                          \
+        : /* Output  */                            \
+        : /* Input   */ "r"(_IN0), "r"(sAvxCoef)      \
+        : /* Clobber */ "memory",                  \
+                        "%xmm0",  "%xmm1",  "%xmm2",  "%xmm3", \
+                        "%xmm4",  "%xmm5",  "%xmm6",  "%xmm7", \
+                        "%xmm8",  "%xmm9",  "%xmm10", "%xmm11",\
+                        "%xmm12", "%xmm13", "%xmm14", "%xmm15" 
+
+/* Include vzeroupper for non-AVX builds                */
+#ifndef __AVX__ 
+    #define IDCT_AVX_ASM(_IN0)   \
+        __asm__(                 \
+            IDCT_AVX_BODY        \
+            "vzeroupper      \n" \
+            IDCT_AVX_OIC(_IN0)   \
+        );                       
+#else /* __AVX__ */
+    #define IDCT_AVX_ASM(_IN0)   \
+        __asm__(                 \
+            IDCT_AVX_BODY        \
+            IDCT_AVX_OIC(_IN0)   \
+        );                       
+#endif /* __AVX__ */
+
+template <int zeroedRows>
+void
+dctInverse8x8_avx (float *data)
+{
+    /* The column-major version of M1, followed by the 
+     * column-major version of M2:
+     *   
+     *          [ a  c  a  f ]          [ b  d  e  g ]
+     *   M1  =  [ a  f -a -c ]    M2 =  [ d -g -b -e ]
+     *          [ a -f -a  c ]          [ e -b  g  d ]
+     *          [ a -c  a -f ]          [ g -e  d -b ]
+     */   
+    const float sAvxCoef[32]  __attribute__((aligned(32))) = {
+        3.535536e-01,  3.535536e-01,  3.535536e-01,  3.535536e-01, /* a  a  a  a */
+        4.619398e-01,  1.913422e-01, -1.913422e-01, -4.619398e-01, /* c  f -f -c */
+        3.535536e-01, -3.535536e-01, -3.535536e-01,  3.535536e-01, /* a -a -a  a */
+        1.913422e-01, -4.619398e-01,  4.619398e-01, -1.913422e-01, /* f -c  c -f */
+
+        4.903927e-01,  4.157349e-01,  2.777855e-01,  9.754573e-02, /* b  d  e  g */
+        4.157349e-01, -9.754573e-02, -4.903927e-01, -2.777855e-01, /* d -g -b -e */
+        2.777855e-01, -4.903927e-01,  9.754573e-02,  4.157349e-01, /* e -b  g  d */
+        9.754573e-02, -2.777855e-01,  4.157349e-01, -4.903927e-01  /* g -e  d -b */
+    };
+
+    #if defined IMF_HAVE_GCC_INLINEASM_64
+        #define ROW0(_X) _X
+        #define ROW1(_X) _X
+        #define ROW2(_X) _X
+        #define ROW3(_X) _X 
+        #define ROW4(_X) _X
+        #define ROW5(_X) _X 
+        #define ROW6(_X) _X
+        #define ROW7(_X) _X 
+
+        if (zeroedRows == 0) {
+
+            IDCT_AVX_ASM(data)
+
+        } else if (zeroedRows == 1) {
+
+            #undef  ROW7
+            #define ROW7(_X)
+            IDCT_AVX_ASM(data)
+
+        } else if (zeroedRows == 2) {
+
+            #undef  ROW6
+            #define ROW6(_X)
+            IDCT_AVX_ASM(data)
+
+        } else if (zeroedRows == 3) {
+
+            #undef  ROW5
+            #define ROW5(_X)
+            IDCT_AVX_ASM(data)
+
+        } else if (zeroedRows == 4) {
+
+            #undef  ROW4
+            #define ROW4(_X)
+            IDCT_AVX_ASM(data)
+
+        } else if (zeroedRows == 5) {
+
+            #undef  ROW3
+            #define ROW3(_X)
+            IDCT_AVX_ASM(data)
+
+        } else if (zeroedRows == 6) {
+
+            #undef  ROW2
+            #define ROW2(_X)
+            IDCT_AVX_ASM(data)
+
+        } else if (zeroedRows == 7) {
+
+            __asm__(  
+
+                /* ==============================================
+                 *                Row 1D DCT 
+                 * ----------------------------------------------
+                 */ 
+                IDCT_AVX_SETUP_2_ROWS(0, 4, 14, 15,    0,  16,  32,  48) 
+
+                "vbroadcastf128   (%1),  %%ymm8         \n"
+                "vbroadcastf128 16(%1),  %%ymm9         \n"
+                "vbroadcastf128 32(%1), %%ymm10         \n"
+                "vbroadcastf128 48(%1), %%ymm11         \n"
+
+                /* Stash a vector of [a a a a | a a a a] away  in ymm2 */
+                "vinsertf128 $1,  %%xmm8,  %%ymm8,  %%ymm2 \n"
+
+                IDCT_AVX_MMULT_ROWS(%%ymm0) 
+
+                "vbroadcastf128  64(%1),  %%ymm8         \n"
+                "vbroadcastf128  80(%1),  %%ymm9         \n"
+                "vbroadcastf128  96(%1), %%ymm10         \n"
+                "vbroadcastf128 112(%1), %%ymm11         \n"
+
+                IDCT_AVX_MMULT_ROWS(%%ymm4) 
+
+                IDCT_AVX_EO_TO_ROW_HALVES(%%ymm0, %%ymm4, %%ymm0, %%ymm12) 
+
+                "vperm2f128 $0x02, %%ymm0, %%ymm12, %%ymm0   \n" 
+
+                /* ==============================================
+                 *                Column 1D DCT 
+                 * ----------------------------------------------
+                 */ 
+
+                /* DC only, so multiple by a and we're done */
+                "vmulps   %%ymm2, %%ymm0, %%ymm0  \n"
+
+                /* Copy out results  */
+                "vmovaps %%ymm0,    (%0)          \n"
+                "vmovaps %%ymm0,  32(%0)          \n"
+                "vmovaps %%ymm0,  64(%0)          \n"
+                "vmovaps %%ymm0,  96(%0)          \n"
+                "vmovaps %%ymm0, 128(%0)          \n"
+                "vmovaps %%ymm0, 160(%0)          \n"
+                "vmovaps %%ymm0, 192(%0)          \n"
+                "vmovaps %%ymm0, 224(%0)          \n"
+
+                #ifndef __AVX__
+                    "vzeroupper                   \n" 
+                #endif /* __AVX__ */
+                IDCT_AVX_OIC(data)
+            );
+        } else {
+            assert(false); // Invalid template instance parameter
+        }
+    #else  /* IMF_HAVE_GCC_INLINEASM_64 */
+
+        dctInverse8x8_scalar<zeroedRows>(data);
+
+    #endif /*  IMF_HAVE_GCC_INLINEASM_64 */
+}
 
 
 //
