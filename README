@@ -10,9 +10,9 @@ Industrial Light & Magic (ILM) for use in computer imaging applications.
 ILM subsequently released the source code and adjoining material as open 
 source software. 
 The distribution has evolved to include support for stereoscopic and deep 
-images.  Weta Digital, Disney, Sony Pictures Imageworks, Pixar and other 
-visual effects studios have made contributions to the code base.  The file 
-format has since seen wide adoption in a number of industries.
+images.  Weta Digital, Disney, Sony Pictures Imageworks, Pixar, DreamWorks
+Animation and other studios have made contributions to the code base.
+The file format has seen wide adoption in a number of industries.
 
 The library, including all contributions, is released under the modified 
 BSD license. 
@@ -27,9 +27,10 @@ OpenEXR's features include:
       is compatible with the half data type in NVIDIA's Cg graphics language 
       and is supported natively on their new GeForce FX and Quadro FX 3D 
       graphics solutions.
-    * Multiple lossless image compression algorithms. Some of the included 
-      codecs can achieve 2:1 lossless compression ratios on images with film 
-      grain.
+    * Multiple image compression algorithms, both lossless and lossy. Some of
+      the included codecs can achieve 2:1 lossless compression ratios on images
+      with film grain.  The lossy codecs have been tuned for visual quality and
+      decoding performance.
     * Extensibility. New compression codecs and image types can easily be added
       by extending the C++ classes included in the OpenEXR software distribution.
       New image attributes (strings, vectors, integers, etc.) can be added to 

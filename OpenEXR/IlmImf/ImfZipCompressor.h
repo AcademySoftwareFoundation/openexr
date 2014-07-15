@@ -44,6 +44,7 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfCompressor.h"
+#include "ImfZip.h"
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -74,8 +75,8 @@ class ZipCompressor: public Compressor
 
     int		_maxScanLineSize;
     int		_numScanLines;
-    char *	_tmpBuffer;
     char *	_outBuffer;
+    Zip     _zip;
 };
 
 

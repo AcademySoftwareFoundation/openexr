@@ -34,6 +34,7 @@
 
 
 #include "compareB44.h"
+#include "compareDwa.h"
 
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
@@ -44,15 +45,13 @@
 #include <half.h>
 #include <ImathRandom.h>
 #include <ImfTileDescriptionAttribute.h>
-#include <ImfNamespace.h>
-
 #include "compareFloat.h"
 
 #include <stdio.h>
 #include <assert.h>
+#include <algorithm>
 
-namespace IMF = OPENEXR_IMF_NAMESPACE;
-using namespace IMF;
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
@@ -190,9 +189,9 @@ writeRead (const Array2D<unsigned int> &pi1,
     hdr.compression() = comp;
     hdr.lineOrder() = lorder;
 
-    hdr.channels().insert ("I", Channel (IMF::UINT));
-    hdr.channels().insert ("H", Channel (IMF::HALF));
-    hdr.channels().insert ("F", Channel (IMF::FLOAT));
+    hdr.channels().insert ("I", Channel (UINT));
+    hdr.channels().insert ("H", Channel (HALF));
+    hdr.channels().insert ("F", Channel (FLOAT));
     
     hdr.setTileDescription(TileDescription(xSize, ySize, ONE_LEVEL));
     
@@ -200,21 +199,21 @@ writeRead (const Array2D<unsigned int> &pi1,
         FrameBuffer fb; 
 
         fb.insert ("I",                                       // name
-                   Slice (IMF::UINT,                               // type
+                   Slice (UINT,                               // type
                           (char *) &pi1[-yOffset][-xOffset],  // base
                           sizeof (pi1[0][0]),                 // xStride
                           sizeof (pi1[0][0]) * width)         // yStride
                   );
                   
         fb.insert ("H",                                       // name
-                   Slice (IMF::HALF,                               // type
+                   Slice (HALF,                               // type
                           (char *) &ph1[-yOffset][-xOffset],  // base
                           sizeof (ph1[0][0]),                 // xStride
                           sizeof (ph1[0][0]) * width)         // yStride
                   );
                   
         fb.insert ("F",                                       // name
-                   Slice (IMF::FLOAT,                              // type
+                   Slice (FLOAT,                              // type
                           (char *) &pf1[-yOffset][-xOffset],  // base
                           sizeof (pf1[0][0]),                 // xStride
                           sizeof (pf1[0][0]) * width)         // yStride
@@ -246,21 +245,21 @@ writeRead (const Array2D<unsigned int> &pi1,
         FrameBuffer fb;
 
         fb.insert ("I",                             // name
-                   Slice (IMF::UINT,                     // type
+                   Slice (UINT,                     // type
                           (char *) &pi2[-dwy][-dwx],// base
                           sizeof (pi2[0][0]),       // xStride
                           sizeof (pi2[0][0]) * w)   // yStride
                   );
 
         fb.insert ("H",                             // name
-                   Slice (IMF::HALF,                     // type
+                   Slice (HALF,                     // type
                           (char *) &ph2[-dwy][-dwx],// base
                           sizeof (ph2[0][0]),       // xStride
                           sizeof (ph2[0][0]) * w)   // yStride
                   );
 
         fb.insert ("F",                             // name
-                   Slice (IMF::FLOAT,                    // type
+                   Slice (FLOAT,                    // type
                           (char *) &pf2[-dwy][-dwx],// base
                           sizeof (pf2[0][0]),       // xStride
                           sizeof (pf2[0][0]) * w)   // yStride
@@ -296,7 +295,10 @@ writeRead (const Array2D<unsigned int> &pi1,
 
         assert (ii == in.header().channels().end());
 
-	if (comp == B44_COMPRESSION || comp == B44A_COMPRESSION)
+	if (comp == B44_COMPRESSION ||
+            comp == B44A_COMPRESSION ||
+            comp == DWAA_COMPRESSION ||
+            comp == DWAB_COMPRESSION)
 	{
 	    for (int y = 0; y < h; y += ySize)
 	    {
@@ -317,7 +319,16 @@ writeRead (const Array2D<unsigned int> &pi1,
 			}
 		    }
 
-		    compareB44 (nx, ny, ph3, ph4);
+                    if (comp == B44_COMPRESSION ||
+                        comp == B44A_COMPRESSION)
+                    {
+                        compareB44 (nx, ny, ph3, ph4);
+                    }
+                    else if (comp == DWAA_COMPRESSION ||
+                             comp == DWAB_COMPRESSION)
+                    {
+                        //XXX compareDwa (nx, ny, ph3, ph4);
+                    }
 		}
 	    }
 	}
@@ -328,8 +339,13 @@ writeRead (const Array2D<unsigned int> &pi1,
 	    {
 		assert (pi1[y][x] == pi2[y][x]);
 
-		if (comp != B44_COMPRESSION && comp != B44A_COMPRESSION)
+		if (comp != B44_COMPRESSION &&
+                    comp != B44A_COMPRESSION &&
+                    comp != DWAA_COMPRESSION &&
+                    comp != DWAB_COMPRESSION)
+                {
 		    assert (ph1[y][x] == ph2[y][x]);
+                }
 
 		assert (equivalent (pf1[y][x], pf2[y][x], comp));
 	    }
@@ -348,7 +364,7 @@ writeRead (const Array2D<unsigned int> &pi1,
         FrameBuffer fb;
 
         fb.insert ("I",                                 // name
-                   Slice (IMF::UINT,                         // type
+                   Slice (UINT,                         // type
                           (char *) &pi2[0][0],          // base
                           sizeof (pi2[0][0]),           // xStride
                           sizeof (pi2[0][0]) * xSize,   // yStride
@@ -360,7 +376,7 @@ writeRead (const Array2D<unsigned int> &pi1,
                   );
 
         fb.insert ("H",                                 // name
-                   Slice (IMF::HALF,                         // type
+                   Slice (HALF,                         // type
                           (char *) &ph2[0][0],          // base
                           sizeof (ph2[0][0]),           // xStride
                           sizeof (ph2[0][0]) * xSize,   // yStride
@@ -372,7 +388,7 @@ writeRead (const Array2D<unsigned int> &pi1,
                   );
 
         fb.insert ("F",                                 // name
-                   Slice (IMF::FLOAT,                        // type
+                   Slice (FLOAT,                        // type
                           (char *) &pf2[0][0],          // base
                           sizeof (pf2[0][0]),           // xStride
                           sizeof (pf2[0][0]) * xSize,   // yStride
@@ -427,7 +443,10 @@ writeRead (const Array2D<unsigned int> &pi1,
                     {
                         assert (pi1[oY + y][oX + x] == pi2[y][x]);
 
-			if (comp != B44_COMPRESSION && comp != B44A_COMPRESSION)
+			if (comp != B44_COMPRESSION &&
+                            comp != B44A_COMPRESSION &&
+                            comp != DWAA_COMPRESSION &&
+                            comp != DWAB_COMPRESSION)
 			{
 			    assert (ph1[oY + y][oX + x] == ph2[y][x]);
 			}

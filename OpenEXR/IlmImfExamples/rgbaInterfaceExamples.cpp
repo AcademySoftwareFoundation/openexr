@@ -51,6 +51,7 @@
 #include "drawImage.h"
 
 #include <iostream>
+#include <algorithm>
 
 #include "namespaceAlias.h"
 using namespace IMF;

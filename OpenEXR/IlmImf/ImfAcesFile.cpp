@@ -42,6 +42,7 @@
 #include <ImfRgbaFile.h>
 #include <ImfStandardAttributes.h>
 #include <Iex.h>
+#include <algorithm>
 
 using namespace std;
 using namespace IMATH_NAMESPACE;

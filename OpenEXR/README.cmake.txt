@@ -42,7 +42,7 @@ you set up at the previous step.
 -- OpenEXR --
 -------------
 initial bootstraping:
-    cmake -DILMBASE_PACKAGE_PREFIX=<location of installed IlmBase files> -DCMAKE_INSTALL_PREFIX=<install location> <source location of IlmBase>
+    cmake -DILMBASE_PACKAGE_PREFIX=<location of installed IlmBase files> -DCMAKE_INSTALL_PREFIX=<install location> <source location of OpenEXR>
 
 build the actual code base:
     make -j 4

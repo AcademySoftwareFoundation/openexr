@@ -68,6 +68,7 @@
 #include <vector>
 #include <fstream>
 #include <assert.h>
+#include <algorithm>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

@@ -86,6 +86,8 @@
 #include "testBadTypeAttributes.h"
 #include "testFutureProofing.h"
 #include "testPartHelper.h"
+#include "testDwaCompressorSimd.h"
+#include "testRle.h"
 
 #include "tmpDir.h"
 #include "ImathRandom.h"
@@ -98,119 +100,137 @@
 #include <string.h>
 #include <time.h>
 
-#ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
+#if defined(OPENEXR_IMF_HAVE_LINUX_PROCFS) || defined(OPENEXR_IMF_HAVE_DARWIN)
     #include <unistd.h>
     #include <sstream>
 #endif
 
 using namespace std;
-#define TEST(x,y) if (argc < 2 || (!strcmp (argv[1], #x) || !strcmp(argv[1],y))) \
-                         { cout << "\n=======\nTesting " << #x <<endl; x(tempDir);}
+
+#define TEST(x,y)                                                       \
+    if (argc < 2 || (!strcmp (argv[1], #x) || !strcmp (argv[1], y)))    \
+    {                                                                   \
+        cout << "\n=======\nRunning " << #x <<endl;                     \
+        x(tempDir);                                                     \
+    }
 
 int
 main (int argc, char *argv[])
 {
     // Create temporary files in a uniquely named private temporary
-    // subdirectory of IMF_TMP_DIR,
-    // to avoid colliding with other running instances of this program.
+    // subdirectory of IMF_TMP_DIR to avoid colliding with other
+    // running instances of this program.
+
     IMATH_NAMESPACE::Rand48 rand48 (time ((time_t*)0) );
     std::string tempDir;
+
     while (true)
     {
         tempDir = IMF_TMP_DIR "IlmImfTest_";
+
         for (int i = 0; i < 8; ++i)
-            tempDir += ('A' + rand48.nexti()%26);
-        std::cout << "tempDir = "<<tempDir << std::endl;
+            tempDir += ('A' + rand48.nexti() % 26);
+
+        std::cout << "tempDir = " << tempDir << std::endl;
+
         int status = mkdir(tempDir.c_str(), 0777);
+
         if (status == 0)
         {
             tempDir += IMF_PATH_SEPARATOR;
             break; // success
         }
+
         if (errno != EEXIST)
         {
-            std::cerr << "ERROR -- mkdir("<<tempDir<<") failed: errno="<<errno << std::endl;
+            std::cerr << "ERROR -- mkdir(" << tempDir << ") failed: "
+                         "errno = " << errno << std::endl;
             return 1;
         }
     }
 
-    TEST (testMagic,"core");
-    TEST (testXdr,"core");
-    TEST (testHuf,"core");
-    TEST (testWav,"core");
-    TEST (testRgba,"basic");
-    TEST (testSharedFrameBuffer,"basic");
-    TEST (testRgbaThreading,"basic");
-    TEST (testChannels,"basic");
-    TEST (testAttributes,"core");
-    TEST (testCustomAttributes,"core");
-    TEST (testLineOrder,"basic");
-    TEST (testCompression,"basic");
-    TEST (testCopyPixels,"basic");
-    TEST (testLut,"basic");
-    TEST (testSampleImages,"basic");
-    TEST (testPreviewImage,"basic");
-    TEST (testConversion,"basic");
-    TEST (testTiledRgba,"basic");
-    TEST (testTiledCopyPixels,"basic");
-    TEST (testTiledCompression,"basic");
-    TEST (testTiledLineOrder,"basic");
-    TEST (testScanLineApi,"basic");
-    TEST (testExistingStreams,"core");
-    TEST (testStandardAttributes,"core");
-    TEST (testOptimized,"basic");
-    TEST (testOptimizedInterleavePatterns,"basic");
-    TEST (testYca,"basic");
-    TEST (testTiledYa,"basic");
-    TEST (testNativeFormat,"basic");
-    TEST (testMultiView,"basic");
-    TEST (testIsComplete,"basic");
-    TEST (testDeepScanLineBasic,"deep");
-    TEST (testCopyDeepScanLine,"deep");
-    TEST (testDeepScanLineMultipleRead,"deep");
-    TEST (testDeepTiledBasic,"deep");
-    TEST (testCopyDeepTiled,"deep");
-    TEST (testCompositeDeepScanLine,"deep");
-    TEST (testMultiPartFileMixingBasic,"multi");
-    TEST (testInputPart,"multi");
-    TEST (testPartHelper,"multi");
-    TEST (testBadTypeAttributes,"multi");
-    TEST (testMultiScanlinePartThreading,"multi");
-    TEST (testMultiTiledPartThreading,"multi");
-    TEST (testMultiPartThreading,"multi");
-    TEST (testMultiPartApi,"multi");
-    TEST (testMultiPartSharedAttributes,"multi");
-    TEST (testCopyMultiPartFile,"multi");
+    TEST (testMagic, "core");
+    TEST (testXdr, "core");
+    TEST (testHuf, "core");
+    TEST (testWav, "core");
+    TEST (testRgba, "basic");
+    TEST (testSharedFrameBuffer, "basic");
+    TEST (testRgbaThreading, "basic");
+    TEST (testChannels, "basic");
+    TEST (testAttributes, "core");
+    TEST (testCustomAttributes, "core");
+    TEST (testLineOrder, "basic");
+    TEST (testCompression, "basic");
+    TEST (testCopyPixels, "basic");
+    TEST (testLut, "basic");
+    TEST (testSampleImages, "basic");
+    TEST (testPreviewImage, "basic");
+    TEST (testConversion, "basic");
+    TEST (testTiledRgba, "basic");
+    TEST (testTiledCopyPixels, "basic");
+    TEST (testTiledCompression, "basic");
+    TEST (testTiledLineOrder, "basic");
+    TEST (testScanLineApi, "basic");
+    TEST (testExistingStreams, "core");
+    TEST (testStandardAttributes, "core");
+    TEST (testOptimized, "basic");
+    TEST (testOptimizedInterleavePatterns, "basic");
+    TEST (testYca, "basic");
+    TEST (testTiledYa, "basic");
+    TEST (testNativeFormat, "basic");
+    TEST (testMultiView, "basic");
+    TEST (testIsComplete, "basic");
+    TEST (testDeepScanLineBasic, "deep");
+    TEST (testCopyDeepScanLine, "deep");
+    TEST (testDeepScanLineMultipleRead, "deep");
+    TEST (testDeepTiledBasic, "deep");
+    TEST (testCopyDeepTiled, "deep");
+    TEST (testCompositeDeepScanLine, "deep");
+    TEST (testMultiPartFileMixingBasic, "multi");
+    TEST (testInputPart, "multi");
+    TEST (testPartHelper, "multi");
+    TEST (testBadTypeAttributes, "multi");
+    TEST (testMultiScanlinePartThreading, "multi");
+    TEST (testMultiTiledPartThreading, "multi");
+    TEST (testMultiPartThreading, "multi");
+    TEST (testMultiPartApi, "multi");
+    TEST (testMultiPartSharedAttributes, "multi");
+    TEST (testCopyMultiPartFile, "multi");
     TEST (testBackwardCompatibility, "core");
-    TEST (testFutureProofing,"core");
-       
-#ifdef ENABLE_IMFHUGETEST // defined via configure with --enable-imfhugetest=yes
-    TEST (testDeepScanLineHuge,"deep");
-#endif    
+    TEST (testFutureProofing, "core");
+    TEST (testDwaCompressorSimd, "basic");
+    TEST (testRle, "core");
 
 
-    std::cout << "removing temp dir "<<tempDir << std::endl;
-    rmdir(tempDir.c_str());
+    //#ifdef ENABLE_IMFHUGETEST
+    // defined via configure with --enable-imfhugetest=yes/no
+    #if 0
+        TEST (testDeepScanLineHuge, "deep");
+    #endif    
 
-#ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
 
-	//
-	// Allow the user to check for file descriptor leaks
-	//
+    std::cout << "removing temp dir " << tempDir << std::endl;
+    rmdir (tempDir.c_str());
 
-	std::cout << "open file descriptors:" << std::endl;
+    #ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
 
-	std::stringstream ss;
-	ss << "ls -lG /proc/" << getpid() << "/fd";
-	
-    if(system (ss.str().c_str())==-1)
-    {
-        std::cout << "failed to run ls\n";
-    }
+        //
+        // Allow the user to check for file descriptor leaks
+        //
 
-	std::cout << std::endl;
+        std::cout << "open file descriptors:" << std::endl;
 
-#endif
+        std::stringstream ss;
+        ss << "ls -lG /proc/" << getpid() << "/fd";
+            
+        if (system (ss.str().c_str()) == -1)
+        {
+            std::cout << "failed to run ls\n";
+        }
+
+        std::cout << std::endl;
+
+    #endif
 
     return 0;
 }

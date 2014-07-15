@@ -41,13 +41,14 @@
 #include <ImfChannelList.h>
 #include <ImfArray.h>
 #include <ImfVersion.h>
-#include "half.h"
+#include <half.h>
 
 #include <ImfBoxAttribute.h>
 #include <ImfChannelListAttribute.h>
 #include <ImfCompressionAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfFloatAttribute.h>
+#include <ImfFloatVectorAttribute.h>
 #include <ImfEnvmapAttribute.h>
 #include <ImfDeepImageStateAttribute.h>
 #include <ImfDoubleAttribute.h>
@@ -121,6 +122,13 @@ writeReadAttr (const Array2D<float> &pf1,
 
     DeepImageState a21 (DIS_TIDY);
 
+    FloatVector a22;
+    FloatVector a23;
+    a23.push_back (1.5f);
+    a23.push_back (-1.5f);
+    a23.push_back (15.0f);
+    a23.push_back (150.0f);
+
     //
     // Write an image file with extra attributes in the header
     //
@@ -128,27 +136,29 @@ writeReadAttr (const Array2D<float> &pf1,
     {
 	Header hdr (width, height);
 
-	hdr.insert ("a1",  Box2iAttribute  (a1));
-	hdr.insert ("a2",  Box2fAttribute  (a2));
-	hdr.insert ("a3",  FloatAttribute  (a3));
-	hdr.insert ("a4",  IntAttribute    (a4));
-	hdr.insert ("a5",  M33fAttribute   (a5));
-	hdr.insert ("a6",  M44fAttribute   (a6));
-	hdr.insert ("a7",  StringAttribute (a7));
-	hdr.insert ("a8",  V2iAttribute    (a8));
-	hdr.insert ("a9",  V2fAttribute    (a9));
-	hdr.insert ("a10", V3iAttribute    (a10));
-	hdr.insert ("a11", V3fAttribute    (a11));
-	hdr.insert ("a12", DoubleAttribute (a12));
+	hdr.insert ("a1",  Box2iAttribute          (a1));
+	hdr.insert ("a2",  Box2fAttribute          (a2));
+	hdr.insert ("a3",  FloatAttribute          (a3));
+	hdr.insert ("a4",  IntAttribute            (a4));
+	hdr.insert ("a5",  M33fAttribute           (a5));
+	hdr.insert ("a6",  M44fAttribute           (a6));
+	hdr.insert ("a7",  StringAttribute         (a7));
+	hdr.insert ("a8",  V2iAttribute            (a8));
+	hdr.insert ("a9",  V2fAttribute            (a9));
+	hdr.insert ("a10", V3iAttribute            (a10));
+	hdr.insert ("a11", V3fAttribute            (a11));
+	hdr.insert ("a12", DoubleAttribute         (a12));
 	hdr.insert ("a13", ChromaticitiesAttribute (a13));
 	hdr.insert ("a14", EnvmapAttribute         (a14));
 	hdr.insert ("a15", StringVectorAttribute   (a15));
-	hdr.insert ("a16", M33dAttribute   (a16));
-	hdr.insert ("a17", M44dAttribute   (a17));
-	hdr.insert ("a18", V2dAttribute    (a18));
-	hdr.insert ("a19", V3dAttribute    (a19));
-	hdr.insert ("a20", StringVectorAttribute  (a20));
-	hdr.insert ("a21", DeepImageStateAttribute  (a21));
+	hdr.insert ("a16", M33dAttribute           (a16));
+	hdr.insert ("a17", M44dAttribute           (a17));
+	hdr.insert ("a18", V2dAttribute            (a18));
+	hdr.insert ("a19", V3dAttribute            (a19));
+	hdr.insert ("a20", StringVectorAttribute   (a20));
+	hdr.insert ("a21", DeepImageStateAttribute (a21));
+	hdr.insert ("a22", FloatVectorAttribute    (a22));
+	hdr.insert ("a23", FloatVectorAttribute    (a23));
 
 	hdr.channels().insert ("F",			// name
 			       Channel (IMF::FLOAT,	// type
@@ -235,10 +245,18 @@ writeReadAttr (const Array2D<float> &pf1,
 	assert (hdr.typedAttribute <M44dAttribute>   ("a17").value()  == a17);
 	assert (hdr.typedAttribute <V2dAttribute>    ("a18").value()  == a18);
 	assert (hdr.typedAttribute <V3dAttribute>    ("a19").value()  == a19);
-	assert (hdr.typedAttribute <StringVectorAttribute>
-                                                  ("a20").value() == a20);
+
+        assert (hdr.typedAttribute <StringVectorAttribute>
+                                        ("a20").value() == a20);
+
 	assert (hdr.typedAttribute <DeepImageStateAttribute>
-				                                  ("a21").value() == a21);
+					("a21").value() == a21);
+
+        assert (hdr.typedAttribute <FloatVectorAttribute>
+                                        ("a22").value() == a22);
+
+        assert (hdr.typedAttribute <FloatVectorAttribute>
+                                        ("a23").value() == a23);
     }
 
     remove (fileName);

@@ -120,6 +120,7 @@ bool areCounterparts (const std::string &channel1,
 // Return a list of all channels belonging to view viewName.
 //
 
+IMF_EXPORT
 ChannelList channelsInView (const std::string &viewName,
                             const ChannelList &channelList,
                             const StringVector &multiView);

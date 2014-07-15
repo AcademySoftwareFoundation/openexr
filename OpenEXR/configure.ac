@@ -1,9 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(OpenEXR, 2.1.0)
+AC_INIT(OpenEXR, 2.2.0)
 
 AC_SUBST(OPENEXR_VERSION_MAJOR, 2)
-AC_SUBST(OPENEXR_VERSION_MINOR, 1)
+AC_SUBST(OPENEXR_VERSION_MINOR, 2)
 AC_SUBST(OPENEXR_VERSION_PATCH, 0)
 
 AC_SUBST(OPENEXR_VERSION, ${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH})
@@ -261,7 +261,7 @@ if test "x${library_namespace_versioning}" == xyes ; then
     AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACE_CUSTOM)
 
     lib_namespace="Imf_${OPENEXR_VERSION_API}"
-    LIB_SUFFIX="Imf_${OPENEXR_VERSION_API}"
+    LIB_SUFFIX="${OPENEXR_VERSION_API}"
     lib_suffix_valid="yes"
 elif test "x${library_namespace_versioning}" == xno ; then
     AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE, Imf)
@@ -319,6 +319,8 @@ OpenEXR.pc
 config/Makefile
 IlmImf/Makefile
 IlmImfTest/Makefile
+IlmImfUtil/Makefile
+IlmImfUtilTest/Makefile
 IlmImfFuzzTest/Makefile
 exrheader/Makefile
 exrmaketiled/Makefile
