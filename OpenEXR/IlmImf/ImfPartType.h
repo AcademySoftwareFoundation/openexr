@@ -37,6 +37,7 @@
 
 #include <string>
 #include "ImfNamespace.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -48,7 +49,7 @@ const std::string DEEPTILE      = "deeptile";
 
 bool isImage(const std::string& name);
 
-bool isTiled(const std::string& name);
+IMF_EXPORT bool isTiled(const std::string& name);
 
 bool isDeepData(const std::string& name);
 

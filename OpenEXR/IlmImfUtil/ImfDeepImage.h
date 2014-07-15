@@ -47,6 +47,7 @@
 #include "ImfDeepImageLevel.h"
 #include <ImfImage.h>
 #include <ImfTileDescription.h>
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -61,28 +62,28 @@ class DeepImage: public Image
     // window level mode ONE_LEVEL and level rounding mode ROUND_DOWN.
     //
 
-    DeepImage ();
+	IMF_EXPORT DeepImage();
 
-    DeepImage (const IMATH_NAMESPACE::Box2i &dataWindow,
+	IMF_EXPORT DeepImage(const IMATH_NAMESPACE::Box2i &dataWindow,
                LevelMode levelMode = ONE_LEVEL,
                LevelRoundingMode levelRoundingMode = ROUND_DOWN);
 
-    virtual ~DeepImage ();
+	IMF_EXPORT virtual ~DeepImage();
 
 
     //
     // Accessing image levels by level number
     //
 
-    virtual DeepImageLevel &        level (int l = 0);
-    virtual const DeepImageLevel &  level (int l = 0) const;
+	IMF_EXPORT virtual DeepImageLevel &        level(int l = 0);
+	IMF_EXPORT virtual const DeepImageLevel &  level(int l = 0) const;
 
-    virtual DeepImageLevel &        level (int lx, int ly);
-    virtual const DeepImageLevel &  level (int lx, int ly) const;
+	IMF_EXPORT virtual DeepImageLevel &        level(int lx, int ly);
+	IMF_EXPORT virtual const DeepImageLevel &  level(int lx, int ly) const;
 
    protected:
 
-    virtual DeepImageLevel *
+	IMF_EXPORT virtual DeepImageLevel *
         newLevel (int lx, int ly, const IMATH_NAMESPACE::Box2i &dataWindow);
 };
 

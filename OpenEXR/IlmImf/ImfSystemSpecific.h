@@ -38,6 +38,7 @@
 #include <ImfNamespace.h>
 #include <ImfSimd.h>
 #include <stdlib.h>
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -153,7 +154,7 @@ static void EXRFreeAligned(void* ptr)
 class CpuId
 {
     public:
-        CpuId();
+        IMF_EXPORT CpuId();
 
         bool sse2;
         bool sse3;

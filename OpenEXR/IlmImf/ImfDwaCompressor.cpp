@@ -119,6 +119,7 @@
 // to HALF and continue down as we would for HALF source.
 //
 //---------------------------------------------------
+#define NOMINMAX
 
 #include "ImfDwaCompressor.h"
 #include "ImfDwaCompressorSimd.h"
@@ -155,6 +156,7 @@
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
+
 
 namespace {
 

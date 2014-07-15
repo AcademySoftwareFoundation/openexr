@@ -45,6 +45,7 @@
 //----------------------------------------------------------------------------
 
 #include "ImfImageChannel.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -154,9 +155,9 @@ class SampleCountChannel: public ImageChannel
     // level to which it belongs.
     //
 
-    void                set (int x, int y, unsigned int newNumSamples);
-    void                set (int r, unsigned int newNumSamples[]);
-    void                clear ();
+	IMF_EXPORT void                set(int x, int y, unsigned int newNumSamples);
+	IMF_EXPORT void                set(int r, unsigned int newNumSamples[]);
+	IMF_EXPORT void                clear();
 
 
     //
@@ -194,8 +195,8 @@ class SampleCountChannel: public ImageChannel
     // and the image level to which it belongs.
     //
 
-    unsigned int *      beginEdit ();
-    void                endEdit ();
+	IMF_EXPORT unsigned int *      beginEdit();
+	IMF_EXPORT void                endEdit();
 
     class Edit
     {

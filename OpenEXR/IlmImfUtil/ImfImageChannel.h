@@ -49,6 +49,7 @@
 #include <ImfChannelList.h>
 #include <ImathBox.h>
 #include <half.h>
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -112,7 +113,7 @@ class ImageChannel
 
     virtual void        resize ();
 
-    void                boundsCheck (int x, int y) const;
+	IMF_EXPORT void                boundsCheck(int x, int y) const;
 
   private:
 
