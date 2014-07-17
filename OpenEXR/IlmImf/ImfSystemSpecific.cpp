@@ -49,6 +49,20 @@ namespace {
             : /* Clobber */);
     }
 
+#else // IMF_HAVE_SSE2 && __GNUC__
+
+    // Helper functions for generic compiler - all disabled
+    void cpuid(int n, int &eax, int &ebx, int &ecx, int &edx)
+    {
+        eax = ebx = ecx = edx = 0;
+    }
+
+#endif // IMF_HAVE_SSE2 && __GNUC__
+} // namespace 
+
+
+#if defined(IMF_HAVE_SSE2) &&  defined(__GNUC__) && defined(__AVX__)
+	// AVX helper function
     void xgetbv(int n, int &eax, int &edx)
     {
         // Some compiler versions might not recognize "xgetbv" as a mnemonic.
@@ -59,22 +73,16 @@ namespace {
             : /* Input   */ "c"(n)
             : /* Clobber */);
     }
-
-#else // IMF_HAVE_SSE2 && __GNUC__
-
-    // Helper functions for generic compiler - all disabled
-    void cpuid(int n, int &eax, int &ebx, int &ecx, int &edx)
-    {
-        eax = ebx = ecx = edx = 0;
-    }
+	
+#else
 
     void xgetbv(int n, int &eax, int &edx)
     {
         eax = edx = 0;
     }
 
-#endif // IMF_HAVE_SSE2 && __GNUC__
-} // namespace 
+#endif // IMF_HAVE_SSE2 && __GNUC__ && __AVX__
+
 
 CpuId::CpuId():
     sse2(false), 
