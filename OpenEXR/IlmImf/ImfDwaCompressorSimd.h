@@ -59,7 +59,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //
 //  
 
-#if defined(IMF_HAVE_SSE2) && defined(__GNUC__) 
+#if defined(IMF_HAVE_SSE2) && defined(__GNUC__) && defined(__AVX__)
 
     #define IMF_HAVE_GCC_INLINEASM
 
