@@ -153,7 +153,12 @@
 #include <algorithm>
 
 // Windows specific addition to prevent the indirect import of the redefined min/max macros
-#define NOMINMAX
+#if defined _WIN32 || defined _WIN64
+	#ifdef NOMINMAX
+		#undef NOMINMAX
+	#endif
+	#define NOMINMAX
+#endif
 #include <zlib.h>
 
 
