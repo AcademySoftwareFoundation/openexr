@@ -52,7 +52,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class FlatImage: public Image
+class IMF_EXPORT FlatImage : public Image
 {
   public:
 
@@ -62,24 +62,24 @@ class FlatImage: public Image
     // window level mode ONE_LEVEL and level rounding mode ROUND_DOWN.
     //
 
-	IMF_EXPORT FlatImage();
+	FlatImage();
 
-	IMF_EXPORT FlatImage(const IMATH_NAMESPACE::Box2i &dataWindow,
+	FlatImage(const IMATH_NAMESPACE::Box2i &dataWindow,
                LevelMode levelMode = ONE_LEVEL,
                LevelRoundingMode levelRoundingMode = ROUND_DOWN);
 
-	IMF_EXPORT virtual ~FlatImage();
+	virtual ~FlatImage();
 
 
     //
     // Accessing image levels by level number
     //
 
-	IMF_EXPORT virtual FlatImageLevel &        level(int l = 0);
-	IMF_EXPORT virtual const FlatImageLevel &  level(int l = 0) const;
+	virtual FlatImageLevel &        level(int l = 0);
+	virtual const FlatImageLevel &  level(int l = 0) const;
 
-	IMF_EXPORT virtual FlatImageLevel &        level(int lx, int ly);
-	IMF_EXPORT virtual const FlatImageLevel &  level(int lx, int ly) const;
+	virtual FlatImageLevel &        level(int lx, int ly);
+	virtual const FlatImageLevel &  level(int lx, int ly) const;
 
    protected:
 

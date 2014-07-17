@@ -119,7 +119,7 @@
 // to HALF and continue down as we would for HALF source.
 //
 //---------------------------------------------------
-#define NOMINMAX
+
 
 #include "ImfDwaCompressor.h"
 #include "ImfDwaCompressorSimd.h"
@@ -152,6 +152,8 @@
 #include <cassert>
 #include <algorithm>
 
+// Windows specific addition to prevent the indirect import of the redefined min/max macros
+#define NOMINMAX
 #include <zlib.h>
 
 

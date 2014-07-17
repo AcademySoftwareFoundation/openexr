@@ -65,7 +65,7 @@ class ImageLevel;
 
 class ImageLevel;
 
-class ImageChannel
+class IMF_EXPORT ImageChannel
 {
   public:
 
@@ -113,7 +113,7 @@ class ImageChannel
 
     virtual void        resize ();
 
-	IMF_EXPORT void                boundsCheck(int x, int y) const;
+	void                boundsCheck(int x, int y) const;
 
   private:
 

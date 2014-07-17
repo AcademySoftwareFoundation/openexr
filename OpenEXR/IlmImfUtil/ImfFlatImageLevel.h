@@ -55,9 +55,9 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-IMF_EXPORT class FlatImage;
+class FlatImage;
 
-class FlatImageLevel: public ImageLevel
+class IMF_EXPORT FlatImageLevel : public ImageLevel
 {
   public:
     
@@ -65,8 +65,8 @@ class FlatImageLevel: public ImageLevel
     // Access to the flat image to which the level belongs.
     //
 
-	IMF_EXPORT FlatImage &                 flatImage();
-	IMF_EXPORT const FlatImage &           flatImage() const;
+	FlatImage &                 flatImage();
+	const FlatImage &           flatImage() const;
 
 
 
@@ -89,14 +89,10 @@ class FlatImageLevel: public ImageLevel
     //                          exception if no such channel exists.
     //
 
-	IMF_EXPORT
-    FlatImageChannel *          findChannel (const std::string& name);
-	IMF_EXPORT
+	FlatImageChannel *          findChannel (const std::string& name);
     const FlatImageChannel *    findChannel (const std::string& name) const;
 
-	IMF_EXPORT
     FlatImageChannel &          channel (const std::string& name);
-	IMF_EXPORT
     const FlatImageChannel &    channel (const std::string& name) const;
 
     template <class T>
@@ -124,11 +120,11 @@ class FlatImageLevel: public ImageLevel
     class Iterator;
     class ConstIterator;
 
-	IMF_EXPORT Iterator        begin();
-	IMF_EXPORT ConstIterator   begin() const;
+	Iterator        begin();
+	ConstIterator   begin() const;
 
-	IMF_EXPORT Iterator        end();
-	IMF_EXPORT ConstIterator   end() const;
+	Iterator        end();
+	ConstIterator   end() const;
 
   private:
     

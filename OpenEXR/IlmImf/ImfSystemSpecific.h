@@ -151,10 +151,10 @@ static void EXRFreeAligned(void* ptr)
 // 
 // Simple CPUID based runtime detection of various capabilities
 //
-class CpuId
+class IMF_EXPORT CpuId
 {
     public:
-        IMF_EXPORT CpuId();
+        CpuId();
 
         bool sse2;
         bool sse3;
