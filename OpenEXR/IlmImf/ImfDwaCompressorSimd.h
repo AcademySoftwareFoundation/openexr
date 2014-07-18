@@ -46,6 +46,8 @@
 #include "ImfNamespace.h"
 #include "ImfSimd.h"
 #include "ImfSystemSpecific.h"
+#include "OpenEXRConfig.h"
+
 #include <half.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -55,11 +57,10 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 #define _AVX_ALIGNMENT_MASK 0x1F
 
 //
-// Test if we should enable GCC inline asm paths
+// Test if we should enable GCC inline asm paths for AVX
 //
-//  
 
-#if defined(IMF_HAVE_SSE2) && defined(__GNUC__) 
+#ifdef OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX 
 
     #define IMF_HAVE_GCC_INLINEASM
 
@@ -67,7 +68,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
         #define IMF_HAVE_GCC_INLINEASM_64
     #endif /* __LP64__ */
 
-#endif /* IMF_HAVE_SSE2 && __GNUC__ */
+#endif /* OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX */
 
 //
 // A simple 64-element array, aligned properly for SIMD access. 
