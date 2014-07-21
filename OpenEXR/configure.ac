@@ -174,6 +174,38 @@ AC_TRY_COMPILE([#include <stdio.h>],
 CFLAGS=$old_cflags
 AC_MSG_RESULT([$EXTRA_OPT_CFLAGS])
 
+dnl Check to see if the toolset supports AVX instructions in inline asm
+AC_MSG_CHECKING(for AVX instructions in GCC style inline asm)
+gcc_inline_asm_avx="no"
+AC_COMPILE_IFELSE(
+    [
+        AC_LANG_PROGRAM([],
+        [
+             #if defined(__GNUC__) && defined(__SSE2__) 
+                 int n   = 0;
+                 int eax = 0;
+                 int edx = 0;
+                 __asm__(
+                     "xgetbv     \n"
+                     "vzeroupper  "
+                     : "=a"(eax), "=d"(edx) : "c"(n) : );
+             #else
+                 #error No GCC style inline asm supported for AVX instructions
+             #endif
+        ]) 
+   ],
+   [
+      gcc_inline_asm_avx="yes"
+   ],
+   [
+      gcc_inline_asm_avx="no"
+   ]
+)
+AC_MSG_RESULT([$gcc_inline_asm_avx])
+if test "x${gcc_inline_asm_avx}" == xyes ; then
+    AC_DEFINE(OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX)
+fi
+
 dnl Platform-specific stuff
 case "$host" in
 *linux*)

@@ -66,6 +66,26 @@ IF (USE_ZLIB_WINAPI)
   ADD_DEFINITIONS(-DZLIB_WINAPI)
 ENDIF ()
 
+# Test for GCC-style inline asm support with AVX instructions
+INCLUDE (CheckCXXSourceCompiles)
+CHECK_CXX_SOURCE_COMPILES (
+	"
+	int main()
+	{
+	 #if defined(__GNUC__) && defined(__SSE2__) 
+		 int n   = 0;
+		 int eax = 0;
+		 int edx = 0;
+		 __asm__(
+			 \"xgetbv     ;\"
+			 \"vzeroupper  \"
+			 : \"=a\"(eax), \"=d\"(edx) : \"c\"(n) : );
+	 #else
+		 #error No GCC style inline asm supported for AVX instructions
+	 #endif
+	}
+	" HAVE_GCC_INLINE_ASM_AVX)
+
 ##########################
 # OpenEXRConfig.h generation
 ##########################
@@ -103,8 +123,12 @@ FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/OpenEXRConfig.h "
 // Version as a single hex number, e.g. 0x01000300 == 1.0.3
 #define OPENEXR_VERSION_HEX ((OPENEXR_VERSION_MAJOR << 24) | \\
                              (OPENEXR_VERSION_MINOR << 16) | \\
-                             (OPENEXR_VERSION_PATCH <<  8))
+                             (OPENEXR_VERSION_PATCH <<  8))\n
 ")
+
+IF (HAVE_GCC_INLINE_ASM_AVX)
+  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX 1\n" )
+ENDIF()
   
   
 ##########################
