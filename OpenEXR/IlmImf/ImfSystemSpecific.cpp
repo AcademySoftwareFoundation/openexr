@@ -34,11 +34,13 @@
 #include "ImfSimd.h"
 #include "ImfSystemSpecific.h"
 #include "ImfNamespace.h"
+#include "OpenEXRConfig.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 namespace {
 #if defined(IMF_HAVE_SSE2) &&  defined(__GNUC__)
+
     // Helper functions for gcc + SSE enabled
     void cpuid(int n, int &eax, int &ebx, int &ecx, int &edx)
     {
@@ -46,17 +48,6 @@ namespace {
             "cpuid"
             : /* Output  */ "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx) 
             : /* Input   */ "a"(n)
-            : /* Clobber */);
-    }
-
-    void xgetbv(int n, int &eax, int &edx)
-    {
-        // Some compiler versions might not recognize "xgetbv" as a mnemonic.
-        // Might end up needing to use ".byte 0x0f, 0x01, 0xd0" instead.
-        __asm__ __volatile__ (
-            "xgetbv"
-            : /* Output  */ "=a"(eax), "=d"(edx) 
-            : /* Input   */ "c"(n)
             : /* Clobber */);
     }
 
@@ -68,12 +59,29 @@ namespace {
         eax = ebx = ecx = edx = 0;
     }
 
+#endif // IMF_HAVE_SSE2 && __GNUC__
+
+
+#ifdef OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX
+
+    void xgetbv(int n, int &eax, int &edx)
+    {
+        __asm__ __volatile__ (
+            "xgetbv"
+            : /* Output  */ "=a"(eax), "=d"(edx) 
+            : /* Input   */ "c"(n)
+            : /* Clobber */);
+    }
+
+#else //  OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX
+
     void xgetbv(int n, int &eax, int &edx)
     {
         eax = edx = 0;
     }
 
-#endif // IMF_HAVE_SSE2 && __GNUC__
+#endif //  OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX
+
 } // namespace 
 
 CpuId::CpuId():
