@@ -49,10 +49,12 @@ namespace
 {
 
 void
-dumpBuffer(const SimdAlignedBuffer64f &buffer)
+dumpBuffer (const SimdAlignedBuffer64f &buffer)
 {
-    for (int i=0; i<8; ++i) {
-        for (int j=0; j<8; ++j) {
+    for (int i=0; i<8; ++i) 
+    {
+        for (int j=0; j<8; ++j) 
+        {
             cout << buffer._buffer[i*8+j] << "  ";
         }
         cout << endl;
@@ -60,14 +62,16 @@ dumpBuffer(const SimdAlignedBuffer64f &buffer)
 }
 
 void
-compareBuffer(const SimdAlignedBuffer64f &src,
-              const SimdAlignedBuffer64f &dst,
-              const float                 errThresh)
+compareBuffer (const SimdAlignedBuffer64f &src,
+               const SimdAlignedBuffer64f &dst,
+               const float                 errThresh)
 {
-    for (int i=0; i<64; ++i) {
+    for (int i=0; i<64; ++i) 
+    {
         double diff   = fabs(src._buffer[i] - dst._buffer[i]);
 
-        if (diff > errThresh) {
+        if (diff > errThresh) 
+        {
             cout << scientific;
             cout << "Error exceeded threshold on element "  << i << endl;
             cout << " diff: " << diff << endl;
@@ -82,16 +86,18 @@ compareBuffer(const SimdAlignedBuffer64f &src,
 }
 
 void
-compareBufferRelative(const SimdAlignedBuffer64f &src,
-                      const SimdAlignedBuffer64f &dst,
-                      const float                 relErrThresh,
-                      const float                 absErrThresh)
+compareBufferRelative (const SimdAlignedBuffer64f &src,
+                       const SimdAlignedBuffer64f &dst,
+                       const float                 relErrThresh,
+                       const float                 absErrThresh)
 {
-    for (int i=0; i<64; ++i) {
+    for (int i=0; i<64; ++i)
+    {
         double diff    = fabs(src._buffer[i] - dst._buffer[i]);
         double relDiff = diff / fabs(src._buffer[i]);
 
-        if (relDiff > relErrThresh && diff > absErrThresh) {
+        if (relDiff > relErrThresh && diff > absErrThresh)
+        {
             cout << scientific;
             cout << "Error exceeded threshold on element "  << i << endl;
             cout << " diff: " << diff << " relErr: " << fixed << 100.0*relDiff << " %" << endl;
@@ -118,16 +124,18 @@ testCsc()
 
     cout << "   Color Space Conversion Round Trip " << endl;
     cout << "      csc709Forward64() - 64 x csc709Inverse()" << endl;
-    for (int iter=0; iter<numIter; ++iter) {
-    
-        for (int i=0; i<64; ++i) {
+    for (int iter=0; iter<numIter; ++iter)
+    {   
+        for (int i=0; i<64; ++i)
+        {
             test[0]._buffer[i] = orig[0]._buffer[i] = rand48.nextf();
             test[1]._buffer[i] = orig[1]._buffer[i] = rand48.nextf();
             test[2]._buffer[i] = orig[2]._buffer[i] = rand48.nextf();
         }
         
         csc709Forward64(test[0]._buffer, test[1]._buffer, test[2]._buffer);
-        for (int i=0; i<64; ++i) {
+        for (int i=0; i<64; ++i)
+        {
             csc709Inverse(test[0]._buffer[i], test[1]._buffer[i], test[2]._buffer[i]);
         }
 
@@ -138,9 +146,10 @@ testCsc()
     } // iter
 
     cout << "      csc709Forward64() - csc709Inverse64()" << endl;
-    for (int iter=0; iter<numIter; ++iter) {
-    
-        for (int i=0; i<64; ++i) {
+    for (int iter=0; iter<numIter; ++iter)
+    {    
+        for (int i=0; i<64; ++i)
+        {
             test[0]._buffer[i] = orig[0]._buffer[i] = rand48.nextf();
             test[1]._buffer[i] = orig[1]._buffer[i] = rand48.nextf();
             test[2]._buffer[i] = orig[2]._buffer[i] = rand48.nextf();
@@ -172,14 +181,16 @@ testInterleave()
     
     cout << "   Byte Interleaving " << endl;
 
-    for (int i=0; i<bufferLen; ++i) {
+    for (int i=0; i<bufferLen; ++i)
+    {
         srcA[i]    = (char)rand48.nextf(0.0, 255.0);
         srcB[i]    = (char)rand48.nextf(0.0, 255.0);
         dst[2*i]   = srcA[i];
         dst[2*i+1] = srcB[i];
     }
 
-    for (int iter=0; iter<numIter; ++iter) {
+    for (int iter=0; iter<numIter; ++iter)
+    {
         memset(test, 0, 2*bufferLen);
 
         int offset = (int)rand48.nextf(0.0, bufferLen/2);
@@ -210,17 +221,89 @@ testDct()
     SimdAlignedBuffer64f test;
    
     cout << "   DCT Round Trip " << endl;
-    for (int iter=0; iter<numIter; ++iter) {
-        for (int i=0; i<64; ++i) {
+    for (int iter=0; iter<numIter; ++iter) 
+    {
+        for (int i=0; i<64; ++i) 
+        {
             orig._buffer[i] = test._buffer[i] = rand48.nextf();
         }
 
         dctForward8x8(test._buffer);
-        dctInverse8x8<0>(test._buffer);
+        dctInverse8x8_scalar<0>(test._buffer);
 
         compareBufferRelative(orig, test, .02, 1e-3);
+    } 
 
-    } // iter
+    cout << "      Inverse, DC Only" << endl;
+    for (int iter=0; iter<numIter; ++iter) 
+    {
+        orig._buffer[0] = test._buffer[0] = rand48.nextf();
+        for (int i=1; i<64; ++i) 
+        {
+            orig._buffer[i] = test._buffer[i] = 0;
+        }
+
+        dctInverse8x8_scalar<0>(orig._buffer);
+        dctInverse8x8DcOnly(test._buffer);
+
+        compareBufferRelative(orig, test, .01, 1e-6);
+    } 
+
+
+#define INVERSE_DCT_SCALAR_TEST_N(_func, _n, _desc)                \
+    cout << "         " << _desc << endl;                          \
+    for (int iter=0; iter<numIter; ++iter)                         \
+    {                                                              \
+        for (int i=0; i<64; ++i)                                   \
+        {                                                          \
+            if (i < 8*(8-_n))                                      \
+            {                                                      \
+               orig._buffer[i] = test._buffer[i] = rand48.nextf(); \
+            } else {                                               \
+               orig._buffer[i] = test._buffer[i] = 0;              \
+            }                                                      \
+        }                                                          \
+        dctInverse8x8_scalar<0>(orig._buffer);                     \
+        _func<_n>(test._buffer);                                   \
+        compareBufferRelative(orig, test, .01, 1e-6);              \
+    }
+
+    cout << "      Inverse, Scalar: " << endl;
+    INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_scalar, 0, "8x8")
+    INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_scalar, 1, "7x8")
+    INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_scalar, 2, "6x8")
+    INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_scalar, 3, "5x8")
+    INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_scalar, 4, "4x8")
+    INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_scalar, 5, "3x8")
+    INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_scalar, 6, "2x8")
+    INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_scalar, 7, "1x8")
+
+    CpuId cpuid;
+    if (cpuid.sse2) 
+    {
+        cout << "      Inverse, SSE2: " << endl;
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_sse2, 0, "8x8")
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_sse2, 1, "7x8")
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_sse2, 2, "6x8")
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_sse2, 3, "5x8")
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_sse2, 4, "4x8")
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_sse2, 5, "3x8")
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_sse2, 6, "2x8")
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_sse2, 7, "1x8")
+    }
+
+    if (cpuid.avx) 
+    {
+        cout << "      Inverse, AVX: " << endl;
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_avx, 0, "8x8")
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_avx, 1, "7x8")
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_avx, 2, "6x8")
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_avx, 3, "5x8")
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_avx, 4, "4x8")
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_avx, 5, "3x8")
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_avx, 6, "2x8")
+        INVERSE_DCT_SCALAR_TEST_N(dctInverse8x8_avx, 7, "1x8")
+    }
 }
 
 //
@@ -237,11 +320,15 @@ testFloatToHalf()
     SimdAlignedBuffer64us dst;
 
     cout << "      convertFloatToHalf64_scalar()" << endl;
-    for (int iter=0; iter<numIter; ++iter) {
-        for (int i=0; i<64; ++i) {
-            if (i < 32) {
+    for (int iter=0; iter<numIter; ++iter)
+    {
+        for (int i=0; i<64; ++i)
+        {
+            if (i < 32)
+            {
                 src._buffer[i] = (float)140000*(rand48.nextf()-.5);
-            } else {
+            } else
+            {
                 src._buffer[i] = (float)(rand48.nextf()-.5);
             }
             dst._buffer[i] = 0;
@@ -249,9 +336,11 @@ testFloatToHalf()
 
         convertFloatToHalf64_scalar(dst._buffer, src._buffer);
 
-        for (int i=0; i<64; ++i) {
+        for (int i=0; i<64; ++i)
+        {
             half value = (half)src._buffer[i];
-            if (value.bits() != dst._buffer[i]) {
+            if (value.bits() != dst._buffer[i])
+            {
                 cout << src._buffer[i] << " -> " << dst._buffer[i] 
                                  << " expected " << value.bits() << endl;
                 assert(false);
@@ -261,13 +350,19 @@ testFloatToHalf()
 
 
     CpuId cpuid;
-    if (cpuid.avx && cpuid.f16c) {
+    if (cpuid.avx && cpuid.f16c)
+    {
         cout << "      convertFloatToHalf64_f16c()" << endl;
-        for (int iter=0; iter<numIter; ++iter) {
-            for (int i=0; i<64; ++i) {
-                if (i < 32) {
+        for (int iter=0; iter<numIter; ++iter)
+        {
+            for (int i=0; i<64; ++i)
+            {
+                if (i < 32)
+                {
                     src._buffer[i] = (float)140000*(rand48.nextf()-.5);
-                } else {
+                } 
+                else
+                {
                     src._buffer[i] = (float)(rand48.nextf()-.5);
                 }
                 dst._buffer[i] = 0;
@@ -275,9 +370,11 @@ testFloatToHalf()
 
             convertFloatToHalf64_f16c(dst._buffer, src._buffer);
 
-            for (int i=0; i<64; ++i) {
+            for (int i=0; i<64; ++i)
+            {
                 half value = (half)src._buffer[i];
-                if (value.bits() != dst._buffer[i]) {
+                if (value.bits() != dst._buffer[i])
+                {
                     cout << src._buffer[i] << " -> " << dst._buffer[i] 
                                      << " expected " << value.bits() << endl;
                     assert(false);
@@ -313,12 +410,15 @@ testFromHalfZigZag()
     };
 
     cout << "      fromHalfZigZag_scaler()" << endl;
-    for (int i=0; i<64; ++i) {
+    for (int i=0; i<64; ++i)
+    {
         src._buffer[i] = pattern[i];
     }
     fromHalfZigZag_scalar(src._buffer, dst._buffer);
-    for (int i=0; i<64; ++i) {
-        if ( fabsf(dst._buffer[i] - (float)i) > 1e-5 ) {
+    for (int i=0; i<64; ++i)
+    {
+        if ( fabsf(dst._buffer[i] - (float)i) > 1e-5 )
+        {
             cout << "At index " << i << ": ";
             cout << "expecting " << (float)i << "; got " << dst._buffer[i] << endl;
             assert(false);
@@ -327,7 +427,8 @@ testFromHalfZigZag()
        
     // Then compare the two implementations, if supported
     CpuId cpuid;
-    if (cpuid.avx && cpuid.f16c) {
+    if (cpuid.avx && cpuid.f16c)
+    {
         const int             numIter = 1000000;
         Rand48                rand48(0);
         half                  h;
@@ -335,11 +436,16 @@ testFromHalfZigZag()
 
         cout << "      fromHalfZigZag_f16c()" << endl;
 
-        for (int iter=0; iter<numIter; ++iter) {
-            for (int i=0; i<64; ++i) {
-                if (i < 32) {
+        for (int iter=0; iter<numIter; ++iter)
+        {
+            for (int i=0; i<64; ++i)
+            {
+                if (i < 32)
+                {
                     h = (half)(140000.*(rand48.nextf() - .5));
-                } else {
+                }
+                else 
+                {
                     h = (half)(rand48.nextf() - .5);
                 }
                 src._buffer[i] = h.bits();
@@ -348,8 +454,10 @@ testFromHalfZigZag()
             fromHalfZigZag_scalar(src._buffer, dst._buffer);
             fromHalfZigZag_f16c(src._buffer, dstF16c._buffer);
 
-            for (int i=0; i<64; ++i) {
-                if ( fabsf(dst._buffer[i] - dstF16c._buffer[i]) > 1e-5 ) {
+            for (int i=0; i<64; ++i)
+            {
+                if ( fabsf(dst._buffer[i] - dstF16c._buffer[i]) > 1e-5 )
+                {
                     cout << "At index " << i << ": ";
                     cout << "expecting " << dst._buffer[i] << "; got "
                          << dstF16c._buffer[i] << endl;
@@ -364,11 +472,12 @@ testFromHalfZigZag()
 } // namespace
 
 void 
-testDwaCompressorSimd(const string&)
+testDwaCompressorSimd (const string&)
 {
     cout << "SIMD helper functions for DwaCompressor:" << endl;
 
-    try {
+    try
+    {
     
         testCsc();
         testInterleave();
@@ -377,10 +486,14 @@ testDwaCompressorSimd(const string&)
 
         testDct();
 
-    } catch (const exception &e) {
+    }
+    catch (const exception &e)
+    {
         cout << "unexpected exception: " << e.what() << endl;
         assert (false);
-    } catch (...) {
+    }
+    catch (...)
+    {
         cout << "unexpected exception" << endl;
         assert (false);
     }
