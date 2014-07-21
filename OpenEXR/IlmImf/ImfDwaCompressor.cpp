@@ -173,6 +173,19 @@ namespace {
     
     void (*fromHalfZigZag)(unsigned short*, float*) =
         fromHalfZigZag_scalar;
+
+    //
+    // Dispatch the inverse DCT on an 8x8 block, where the last
+    // n rows can be all zeros. The n=0 case converts the full block.
+    //
+    void (*dctInverse8x8_0)(float*) = dctInverse8x8_scalar<0>;
+    void (*dctInverse8x8_1)(float*) = dctInverse8x8_scalar<1>;
+    void (*dctInverse8x8_2)(float*) = dctInverse8x8_scalar<2>;
+    void (*dctInverse8x8_3)(float*) = dctInverse8x8_scalar<3>;
+    void (*dctInverse8x8_4)(float*) = dctInverse8x8_scalar<4>;
+    void (*dctInverse8x8_5)(float*) = dctInverse8x8_scalar<5>;
+    void (*dctInverse8x8_6)(float*) = dctInverse8x8_scalar<6>;
+    void (*dctInverse8x8_7)(float*) = dctInverse8x8_scalar<7>;
     
 } // namespace
 
@@ -782,21 +795,21 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                     //
 
                     if (lastNonZero < 2)
-                        dctInverse8x8<7> (_dctData[comp]._buffer);
+                        dctInverse8x8_7(_dctData[comp]._buffer);
                     else if (lastNonZero < 5)
-                        dctInverse8x8<6> (_dctData[comp]._buffer);
+                        dctInverse8x8_6(_dctData[comp]._buffer);
                     else if (lastNonZero < 9)
-                        dctInverse8x8<5> (_dctData[comp]._buffer);
+                        dctInverse8x8_5(_dctData[comp]._buffer);
                     else if (lastNonZero < 14)
-                        dctInverse8x8<4> (_dctData[comp]._buffer);
+                        dctInverse8x8_4(_dctData[comp]._buffer);
                     else if (lastNonZero < 20)
-                        dctInverse8x8<3> (_dctData[comp]._buffer);
+                        dctInverse8x8_3(_dctData[comp]._buffer);
                     else if (lastNonZero < 27)
-                        dctInverse8x8<2> (_dctData[comp]._buffer);
+                        dctInverse8x8_2(_dctData[comp]._buffer);
                     else if (lastNonZero < 35)
-                        dctInverse8x8<1> (_dctData[comp]._buffer);
+                        dctInverse8x8_1(_dctData[comp]._buffer);
                     else
-                        dctInverse8x8<0> (_dctData[comp]._buffer);
+                        dctInverse8x8_0(_dctData[comp]._buffer);
                 }
             }
 
@@ -2361,10 +2374,50 @@ DwaCompressor::initializeFuncs()
 
     CpuId cpuId;
 
+    //
+    // Setup HALF <-> FLOAT conversion implementations
+    //
+
     if (cpuId.avx && cpuId.f16c)
     {
         convertFloatToHalf64 = convertFloatToHalf64_f16c;
         fromHalfZigZag       = fromHalfZigZag_f16c;
+    } 
+
+    //
+    // Setup inverse DCT implementations
+    //
+
+    dctInverse8x8_0 = dctInverse8x8_scalar<0>;
+    dctInverse8x8_1 = dctInverse8x8_scalar<1>;
+    dctInverse8x8_2 = dctInverse8x8_scalar<2>;
+    dctInverse8x8_3 = dctInverse8x8_scalar<3>;
+    dctInverse8x8_4 = dctInverse8x8_scalar<4>;
+    dctInverse8x8_5 = dctInverse8x8_scalar<5>;
+    dctInverse8x8_6 = dctInverse8x8_scalar<6>;
+    dctInverse8x8_7 = dctInverse8x8_scalar<7>;
+
+    if (cpuId.avx) 
+    {
+        dctInverse8x8_0 = dctInverse8x8_avx<0>;
+        dctInverse8x8_1 = dctInverse8x8_avx<1>;
+        dctInverse8x8_2 = dctInverse8x8_avx<2>;
+        dctInverse8x8_3 = dctInverse8x8_avx<3>;
+        dctInverse8x8_4 = dctInverse8x8_avx<4>;
+        dctInverse8x8_5 = dctInverse8x8_avx<5>;
+        dctInverse8x8_6 = dctInverse8x8_avx<6>;
+        dctInverse8x8_7 = dctInverse8x8_avx<7>;
+    } 
+    else if (cpuId.sse2) 
+    {
+        dctInverse8x8_0 = dctInverse8x8_sse2<0>;
+        dctInverse8x8_1 = dctInverse8x8_sse2<1>;
+        dctInverse8x8_2 = dctInverse8x8_sse2<2>;
+        dctInverse8x8_3 = dctInverse8x8_sse2<3>;
+        dctInverse8x8_4 = dctInverse8x8_sse2<4>;
+        dctInverse8x8_5 = dctInverse8x8_sse2<5>;
+        dctInverse8x8_6 = dctInverse8x8_sse2<6>;
+        dctInverse8x8_7 = dctInverse8x8_sse2<7>;
     }
 }
 
