@@ -146,7 +146,7 @@ usageMessage (const char argv0[], bool verbose = false)
                 "\n"
                 "-z x       sets the data compression method to x\n"
                 "           (none/rle/zip/piz/pxr24/b44/b44a/dwaa/dwab,\n"
-                "            default is zip)\n"
+                "           default is zip)\n"
                 "\n"
                 "-v         verbose mode\n"
                 "\n"
