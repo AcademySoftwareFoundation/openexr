@@ -191,6 +191,14 @@ getCompression (const string &str)
     {
         c = B44A_COMPRESSION;
     }
+    else if (str == "dwaa" || str == "DWAA")
+    {
+        c = DWAA_COMPRESSION;
+    }
+    else if (str == "dwab" || str == "DWAB")
+    {
+        c = DWAB_COMPRESSION;
+    }
     else
     {
         cerr << "Unknown compression method \"" << str << "\"." << endl;
