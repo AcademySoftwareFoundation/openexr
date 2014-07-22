@@ -44,6 +44,7 @@
 
 #include "ImfFlatImage.h"
 #include "ImfImageDataWindow.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -69,6 +70,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //      becomes the header of the image file.
 //
 
+IMF_EXPORT
 void
 saveFlatImage
     (const std::string &fileName,
@@ -76,6 +78,7 @@ saveFlatImage
      const FlatImage &img,
      DataWindowSource dws = USE_IMAGE_DATA_WINDOW);
 
+IMF_EXPORT
 void
 saveFlatImage
     (const std::string &fileName,
@@ -90,6 +93,7 @@ saveFlatImage
 //      If header h is given, then the header of the file is copied into h.
 //
 
+IMF_EXPORT
 void
 loadFlatImage
     (const std::string &fileName,
@@ -97,6 +101,7 @@ loadFlatImage
      FlatImage &img);
 
 
+IMF_EXPORT
 void
 loadFlatImage
     (const std::string &fileName,
@@ -118,6 +123,7 @@ loadFlatImage
 //      image.  The modified header then becomes the header of the image file.
 //
 
+IMF_EXPORT
 void
 saveFlatScanLineImage
     (const std::string &fileName,
@@ -125,6 +131,7 @@ saveFlatScanLineImage
      const FlatImage &img,
      DataWindowSource dws = USE_IMAGE_DATA_WINDOW);
 
+IMF_EXPORT
 void
 saveFlatScanLineImage
     (const std::string &fileName,
@@ -139,12 +146,14 @@ saveFlatScanLineImage
 //      If header h is given, then the header of the file is copied into h.
 //
 
+IMF_EXPORT
 void
 loadFlatScanLineImage
     (const std::string &fileName,
      Header &hdr,
      FlatImage &img);
 
+IMF_EXPORT
 void
 loadFlatScanLineImage
     (const std::string &fileName,
@@ -171,6 +180,7 @@ loadFlatScanLineImage
 //      level mode ONE_LEVEL.
 //
 
+IMF_EXPORT
 void
 saveFlatTiledImage
     (const std::string &fileName,
@@ -178,6 +188,7 @@ saveFlatTiledImage
      const FlatImage &img,
      DataWindowSource dws = USE_IMAGE_DATA_WINDOW);
 
+IMF_EXPORT
 void
 saveFlatTiledImage
     (const std::string &fileName,
@@ -191,12 +202,14 @@ saveFlatTiledImage
 //      If header h is given, then the header of the file is copied into h.
 //
 
+IMF_EXPORT
 void
 loadFlatTiledImage
     (const std::string &fileName,
      Header &hdr,
      FlatImage &img);
 
+IMF_EXPORT
 void
 loadFlatTiledImage
     (const std::string &fileName,

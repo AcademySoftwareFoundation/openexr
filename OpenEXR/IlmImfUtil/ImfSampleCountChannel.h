@@ -45,6 +45,7 @@
 //----------------------------------------------------------------------------
 
 #include "ImfImageChannel.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -66,7 +67,7 @@ class DeepImageLevel;
 //          x % c.xSampling() != 0 or y % c.ySampling() != 0,
 //
 
-class SampleCountChannel: public ImageChannel
+class IMF_EXPORT SampleCountChannel : public ImageChannel
 {
   public:
 
@@ -154,9 +155,9 @@ class SampleCountChannel: public ImageChannel
     // level to which it belongs.
     //
 
-    void                set (int x, int y, unsigned int newNumSamples);
-    void                set (int r, unsigned int newNumSamples[]);
-    void                clear ();
+	void                set(int x, int y, unsigned int newNumSamples);
+	void                set(int r, unsigned int newNumSamples[]);
+	void                clear();
 
 
     //
@@ -194,8 +195,8 @@ class SampleCountChannel: public ImageChannel
     // and the image level to which it belongs.
     //
 
-    unsigned int *      beginEdit ();
-    void                endEdit ();
+	unsigned int *      beginEdit();
+	void                endEdit();
 
     class Edit
     {

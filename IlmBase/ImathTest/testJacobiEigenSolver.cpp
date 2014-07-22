@@ -40,6 +40,7 @@
 #include <ctime>
 #include <cassert>
 #include <limits>
+#include <algorithm>
 
 using namespace std;
 using namespace IMATH_INTERNAL_NAMESPACE;

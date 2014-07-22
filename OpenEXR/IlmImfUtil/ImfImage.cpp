@@ -42,6 +42,7 @@
 #include <ImfChannelList.h>
 #include <Iex.h>
 #include <cassert>
+#include <algorithm>
 
 using namespace IMATH_NAMESPACE;
 using namespace IEX_NAMESPACE;

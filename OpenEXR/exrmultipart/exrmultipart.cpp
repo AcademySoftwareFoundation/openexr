@@ -65,6 +65,7 @@
 #include <sstream>
 #include <assert.h>
 #include <cctype>
+#include <algorithm>
 
 using std::cerr;
 using std::cout;
