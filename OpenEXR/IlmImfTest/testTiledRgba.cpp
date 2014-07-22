@@ -49,6 +49,7 @@
 #include <assert.h>
 #include <vector>
 #include <math.h>
+#include <algorithm>
 
 
 using namespace OPENEXR_IMF_NAMESPACE;

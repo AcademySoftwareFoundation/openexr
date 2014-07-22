@@ -95,13 +95,14 @@
 #include "ImfImageLevel.h"
 #include <ImfTileDescription.h>
 #include <ImfArray.h>
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class Channel;
 
 
-class Image
+class IMF_EXPORT Image
 {
   public:
 
@@ -117,8 +118,8 @@ class Image
     // Access to the image's level mode and level rounding mode.
     //
 
-    LevelMode               levelMode () const;
-    LevelRoundingMode       levelRoundingMode () const;
+	LevelMode               levelMode() const;
+	LevelRoundingMode       levelRoundingMode() const;
 
 
     //
@@ -159,9 +160,9 @@ class Image
     //      a LogicExc exception is thrown
     //
 
-    int                     numLevels () const;
-    int                     numXLevels () const;
-    int                     numYLevels () const;
+	int                     numLevels() const;
+	int                     numXLevels() const;
+	int                     numYLevels() const;
 
 
     //
@@ -186,9 +187,9 @@ class Image
     // and MIPMAP_LEVELS files.  It returns dataWindowForLevel(l,l)).
     //
 
-    const IMATH_NAMESPACE::Box2i &  dataWindow () const;
-    const IMATH_NAMESPACE::Box2i &  dataWindowForLevel (int l) const;
-    const IMATH_NAMESPACE::Box2i &  dataWindowForLevel (int lx, int ly) const;
+	const IMATH_NAMESPACE::Box2i &  dataWindow() const;
+	const IMATH_NAMESPACE::Box2i &  dataWindowForLevel(int l) const;
+	const IMATH_NAMESPACE::Box2i &  dataWindowForLevel(int lx, int ly) const;
 
 
     //
@@ -227,9 +228,9 @@ class Image
     // resize(dw) is the same as resize(dw,levelMode(),levelRoundingMode())
     //
 
-    void                    resize (const IMATH_NAMESPACE::Box2i &dataWindow);
+	void                    resize(const IMATH_NAMESPACE::Box2i &dataWindow);
 
-    virtual void            resize (const IMATH_NAMESPACE::Box2i &dataWindow,
+	virtual void            resize(const IMATH_NAMESPACE::Box2i &dataWindow,
                                     LevelMode levelMode,
                                     LevelRoundingMode levelRoundingMode);
 
@@ -246,7 +247,7 @@ class Image
     // shiftPixels() throws an ArgExc exception.
     //
 
-    void                    shiftPixels (int dx, int dy);
+	void                    shiftPixels(int dx, int dy);
 
 
     //
@@ -277,8 +278,8 @@ class Image
     // clearChannels() erases all channels.
     //
 
-    void                    eraseChannel (const std::string &name);
-    void                    clearChannels ();
+	void                    eraseChannel(const std::string &name);
+	void                    clearChannels();
 
 
     //
@@ -296,7 +297,7 @@ class Image
     // channel that is being renamed, and throws an exception.
     //
 
-    void                    renameChannel (const std::string &oldName,
+	void                    renameChannel(const std::string &oldName,
                                            const std::string &newName);
 
     //
@@ -316,7 +317,7 @@ class Image
     // in the image and throws an exception.
     //
 
-    void                    renameChannels (const RenamingMap &oldToNewNames);
+	void                    renameChannels(const RenamingMap &oldToNewNames);
 
 
     //

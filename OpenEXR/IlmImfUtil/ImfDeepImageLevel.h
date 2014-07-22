@@ -49,6 +49,7 @@
 #include "ImfDeepImageChannel.h"
 #include "ImfSampleCountChannel.h"
 #include "ImfImageLevel.h"
+#include "ImfExport.h"
 #include <string>
 #include <map>
 
@@ -56,7 +57,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class DeepImage;
 
-class DeepImageLevel: public ImageLevel
+class IMF_EXPORT DeepImageLevel : public ImageLevel
 {
   public:
 
@@ -87,8 +88,9 @@ class DeepImageLevel: public ImageLevel
     //                          exception if no such channel exists.
     //
 
+	
     DeepImageChannel *          findChannel (const std::string& name);
-    const DeepImageChannel *    findChannel (const std::string& name) const;
+	const DeepImageChannel *    findChannel (const std::string& name) const;
 
     DeepImageChannel &          channel (const std::string& name);
     const DeepImageChannel &    channel (const std::string& name) const;
@@ -115,21 +117,21 @@ class DeepImageLevel: public ImageLevel
 
     typedef std::map <std::string, DeepImageChannel *> ChannelMap;
 
-    class Iterator;
-    class ConstIterator;
+	class Iterator;
+	class ConstIterator;
 
-    Iterator        begin ();
-    ConstIterator   begin () const;
+	Iterator        begin();
+	ConstIterator   begin() const;
 
-    Iterator        end ();
-    ConstIterator   end () const;
+	Iterator        end();
+	ConstIterator   end() const;
 
     //
     // Access to the sample count channel
     //
 
-    SampleCountChannel &            sampleCounts ();
-    const SampleCountChannel &      sampleCounts () const;
+	SampleCountChannel &            sampleCounts();
+	const SampleCountChannel &      sampleCounts() const;
 
   private:
     

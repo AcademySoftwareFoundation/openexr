@@ -48,6 +48,7 @@
 #include <ImfImageChannelRenaming.h>
 #include <ImathBox.h>
 #include <string>
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -105,9 +106,9 @@ class ImageLevel
 
     virtual void    renameChannels (const RenamingMap &oldToNewNames) = 0;
 
-    void            throwChannelExists (const std::string& name) const;
-    void            throwBadChannelName (const std::string& name) const;
-    void            throwBadChannelNameOrType (const std::string& name) const;
+	IMF_EXPORT void            throwChannelExists(const std::string& name) const;
+	IMF_EXPORT void            throwBadChannelName(const std::string& name) const;
+    IMF_EXPORT void            throwBadChannelNameOrType (const std::string& name) const;
 
   private:
 

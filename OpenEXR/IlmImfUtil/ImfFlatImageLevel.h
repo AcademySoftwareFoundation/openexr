@@ -51,12 +51,13 @@
 #include <ImathBox.h>
 #include <string>
 #include <map>
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class FlatImage;
 
-class FlatImageLevel: public ImageLevel
+class IMF_EXPORT FlatImageLevel : public ImageLevel
 {
   public:
     
@@ -64,8 +65,8 @@ class FlatImageLevel: public ImageLevel
     // Access to the flat image to which the level belongs.
     //
 
-    FlatImage &                 flatImage ();
-    const FlatImage &           flatImage () const;
+	FlatImage &                 flatImage();
+	const FlatImage &           flatImage() const;
 
 
 
@@ -88,7 +89,7 @@ class FlatImageLevel: public ImageLevel
     //                          exception if no such channel exists.
     //
 
-    FlatImageChannel *          findChannel (const std::string& name);
+	FlatImageChannel *          findChannel (const std::string& name);
     const FlatImageChannel *    findChannel (const std::string& name) const;
 
     FlatImageChannel &          channel (const std::string& name);
@@ -119,11 +120,11 @@ class FlatImageLevel: public ImageLevel
     class Iterator;
     class ConstIterator;
 
-    Iterator        begin ();
-    ConstIterator   begin () const;
+	Iterator        begin();
+	ConstIterator   begin() const;
 
-    Iterator        end ();
-    ConstIterator   end () const;
+	Iterator        end();
+	ConstIterator   end() const;
 
   private:
     

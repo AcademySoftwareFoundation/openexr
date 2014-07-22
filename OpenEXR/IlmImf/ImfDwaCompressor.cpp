@@ -120,6 +120,7 @@
 //
 //---------------------------------------------------
 
+
 #include "ImfDwaCompressor.h"
 #include "ImfDwaCompressorSimd.h"
 
@@ -151,10 +152,18 @@
 #include <cassert>
 #include <algorithm>
 
+// Windows specific addition to prevent the indirect import of the redefined min/max macros
+#if defined _WIN32 || defined _WIN64
+	#ifdef NOMINMAX
+		#undef NOMINMAX
+	#endif
+	#define NOMINMAX
+#endif
 #include <zlib.h>
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
+
 
 namespace {
 

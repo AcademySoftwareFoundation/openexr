@@ -38,6 +38,7 @@
 #include <ImfNamespace.h>
 #include <ImfSimd.h>
 #include <stdlib.h>
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -150,7 +151,7 @@ static void EXRFreeAligned(void* ptr)
 // 
 // Simple CPUID based runtime detection of various capabilities
 //
-class CpuId
+class IMF_EXPORT CpuId
 {
     public:
         CpuId();
