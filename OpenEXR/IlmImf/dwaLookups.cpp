@@ -40,13 +40,235 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <vector>
+
+#include <OpenEXRConfig.h>
+
+#ifdef OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN
+#include <unistd.h>
+#endif
 
 #include <half.h>
+#include <IlmThread.h>
+#include <IlmThreadSemaphore.h>
 #include <ImfIO.h>
 #include <ImfXdr.h>
 #include "ImfNamespace.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
+
+namespace {
+
+    class LutHeaderWorker
+    {
+        public:
+            class Runner : public IlmThread::Thread
+            {
+                public:
+                    Runner(LutHeaderWorker &worker, bool output):
+                        IlmThread::Thread(),
+                        _worker(worker),
+                        _output(output)
+                    {
+                        start();
+                    }
+
+                    virtual ~Runner()
+                    {
+                        _semaphore.wait();
+                    }
+
+                    virtual void run()
+                    {
+                        _semaphore.post();
+                        _worker.run(_output);
+                    }
+
+                private:
+                    LutHeaderWorker     &_worker;
+                    bool                 _output;
+                    IlmThread::Semaphore _semaphore;
+
+            }; // class LutHeaderWorker::Runner
+
+
+            LutHeaderWorker(size_t startValue,
+                            size_t endValue):
+                _lastCandidateCount(0),
+                _startValue(startValue),
+                _endValue(endValue),
+                _numElements(0),
+                _offset(new size_t[numValues()]),
+                _elements(new unsigned short[1024*1024*2])
+            {
+            }
+
+            ~LutHeaderWorker()
+            {
+                delete[] _offset;
+                delete[] _elements;
+            }
+
+            size_t lastCandidateCount() const
+            {
+                return _lastCandidateCount;
+            }
+
+            size_t numValues() const 
+            {
+                return _endValue - _startValue;
+            }
+
+            size_t numElements() const
+            {
+                return _numElements;
+            }
+
+            const size_t* offset() const
+            {
+                return _offset;
+            }
+
+            const unsigned short* elements() const
+            {
+                return _elements;
+            }
+
+            void run(bool outputProgress)
+            {
+                half candidate[16];
+                int  candidateCount = 0;
+
+                for (size_t input=_startValue; input<_endValue; ++input) {
+
+                    if (outputProgress) {
+#ifdef __GNUC__
+                        if (input % 100 == 0) {
+                            fprintf(stderr, 
+                            " Building acceleration for DwaCompressor, %.2f %%      %c",
+                                          100.*(float)input/(float)numValues(), 13);
+                        }
+#else
+                        if (input % 1000 == 0) {
+                            fprintf(stderr, 
+                            " Building acceleration for DwaCompressor, %.2f %%\n",
+                                          100.*(float)input/(float)numValues);
+                        }
+#endif
+                    } 
+
+                    
+                    int  numSetBits = countSetBits(input);
+                    half inputHalf, closestHalf;
+
+                    inputHalf.setBits(input);
+
+                    _offset[input - _startValue] = _numElements;
+
+                    // Gather candidates
+                    candidateCount = 0;
+                    for (int targetNumSetBits=numSetBits-1; targetNumSetBits>=0;
+                                                           --targetNumSetBits) {
+                        bool valueFound = false;
+
+                        for (int i=0; i<65536; ++i) {
+                            if (countSetBits(i) != targetNumSetBits) continue;
+
+                            if (!valueFound) {
+                                closestHalf.setBits(i);
+                                valueFound = true;
+                            } else {
+                                half tmpHalf;
+
+                                tmpHalf.setBits(i);
+
+                                if (fabs((float)inputHalf - (float)tmpHalf) < 
+                                    fabs((float)inputHalf - (float)closestHalf)) {
+                                    closestHalf = tmpHalf;
+                                }
+                            }
+                        }
+
+                        if (valueFound == false) {
+                            fprintf(stderr, "bork bork bork!\n");
+                        }       
+
+                        candidate[candidateCount] = closestHalf;
+                        candidateCount++;
+                    }
+
+                    // Sort candidates by increasing number of bits set
+                    for (int i=0; i<candidateCount; ++i) {
+                        for (int j=i+1; j<candidateCount; ++j) {
+
+                            int   iCnt = countSetBits(candidate[i].bits());
+                            int   jCnt = countSetBits(candidate[j].bits());
+
+                            if (jCnt < iCnt) {
+                                half tmp     = candidate[i];
+                                candidate[i] = candidate[j];
+                                candidate[j] = tmp;
+                            }
+                        }
+                    }
+
+                    // Copy candidates to the data buffer;
+                    for (int i=0; i<candidateCount; ++i) {
+                        _elements[_numElements] = candidate[i].bits();
+                        _numElements++;
+                    }
+
+                    if (input == _endValue-1) {
+                        _lastCandidateCount = candidateCount;
+                    }
+                }
+            }
+            
+
+        private:
+            size_t          _lastCandidateCount;
+            size_t          _startValue;
+            size_t          _endValue;
+            size_t          _numElements;
+            size_t         *_offset;
+            unsigned short *_elements;
+
+            //
+            // Precomputing the bit count runs faster than using
+            // the builtin instruction, at least in one case..
+            //
+            // Precomputing 8-bits is no slower than 16-bits,
+            // and saves a fair bit of overhead..
+            //
+            int countSetBits(unsigned short src)
+            {
+                static const unsigned short numBitsSet[256] =
+                {
+                    0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
+                    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+                    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+                    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+                    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+                    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+                    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+                    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+                    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+                    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+                    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+                    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+                    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+                    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+                    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+                    4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
+                };
+
+                return numBitsSet[src & 0xff] + numBitsSet[src >> 8];
+            }
+
+    }; // class LutHeaderWorker
+
+} // namespace
+
 
 //
 // Generate a no-op LUT, to cut down in conditional branches
@@ -208,36 +430,32 @@ generateToNonlinear()
 }
 
 //
-// Precomputing the bit count runs faster than using
-// the builtin instruction, at least in one case..
-//
-// Precomputing 8-bits is no slower than 16-bits,
-// and saves a fair bit of overhead..
+// Attempt to get available CPUs in a somewhat portable way. 
 //
 
 int
-countSetBits(unsigned short src)
+cpuCount()
 {
-    static int            first = 1;
-    static unsigned short numBitsSet[256];
+    if (!IlmThread::supportsThreads()) return 1;
 
-    if (first) {
-        first = 0;
+    int cpuCount = 1;
 
-       for (int idx=0; idx<256; ++idx) {
-            int numSet = 0;
- 
-            for (int i=0; i<8; ++i) {
-                if (idx & (1<<i)) numSet++;
-            }
+#if defined (OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN)
 
-            numBitsSet[idx] = numSet;
-        }
-    }
+    cpuCount = sysconf(_SC_NPROCESSORS_ONLN);
 
-    return numBitsSet[src & 0xff] +
-           numBitsSet[src >> 8];
+#elif defined (_WIN32)
+
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo( &sysinfo );
+    cpuCount = sysinfo.dwNumberOfProcessors;
+
+#endif
+
+    if (cpuCount < 1) cpuCount = 1;
+    return cpuCount;
 }
+
 
 //
 // Generate acceleration luts for the quantization.
@@ -261,120 +479,76 @@ countSetBits(unsigned short src)
 void
 generateLutHeader()
 {
-    int             numElements = 0;
-    unsigned int    offset[65536];
-    unsigned short *closestData = new unsigned short[1024*1024*2];
+    std::vector<LutHeaderWorker*> workers;
 
-    half      candidate[16];
-    int       candidateCount = 0;
-    
-    for (int input=0; input<65536; ++input) {
+    size_t numWorkers     = cpuCount();
+    size_t workerInterval = 65536 / numWorkers;
 
-#ifdef __GNUC__
-        if (input % 100 == 0) {
-            fprintf(stderr, 
-                " Building acceleration for DwaCompressor, %.2f %%      %c",
-                              100.*(float)input/65535., 13);
-        }
-#else
-        if (input % 1000 == 0) {
-            fprintf(stderr, 
-                " Building acceleration for DwaCompressor, %.2f %%\n",
-                              100.*(float)input/65535.);            
-        }
-#endif
-
-        int  numSetBits = countSetBits(input);
-        half inputHalf, closestHalf;
-
-        inputHalf.setBits(input);
-
-        offset[input] = numElements;
-
-        candidateCount = 0;
-
-        // Gather candidates
-        for (int targetNumSetBits=numSetBits-1; targetNumSetBits>=0;
-                                                     --targetNumSetBits) {
-
-            bool valueFound = false;
-
-            for (int i=0; i<65536; ++i) {
-                if (countSetBits(i) != targetNumSetBits) continue;
-
-                if (!valueFound) {
-                    closestHalf.setBits(i);
-                    valueFound = true;
-                } else {
-                    half tmpHalf;
-
-                    tmpHalf.setBits(i);
-
-                    if ( fabs((float)inputHalf - (float)tmpHalf) < 
-                            fabs((float)inputHalf - (float)closestHalf)) {
-                        closestHalf = tmpHalf;
-                    }
-                }
-            }
-
-
-            if (valueFound == false) {
-                fprintf(stderr, "bork bork bork!\n");
-            }       
-
-            candidate[candidateCount] = closestHalf;
-            candidateCount++;
-        }
-
-        // Sort candidates by inceasing number of bits set
-        for (int i=0; i<candidateCount; ++i) {
-            for (int j=i+1; j<candidateCount; ++j) {
-
-                int   iCnt = countSetBits(candidate[i].bits());
-                int   jCnt = countSetBits(candidate[j].bits());
-
-                if (jCnt < iCnt) {
-                    half tmp     = candidate[i];
-                    candidate[i] = candidate[j];
-                    candidate[j] = tmp;
-                }
-            }
-        }
-
-        // Copy candidates to the data buffer;
-        for (int i=0; i<candidateCount; ++i) {
-            closestData[numElements] = candidate[i].bits();
-            numElements++;
+    for (size_t i=0; i<numWorkers; ++i) {
+        if (i != numWorkers-1) {
+            workers.push_back( new LutHeaderWorker( i   *workerInterval, 
+                                                   (i+1)*workerInterval) );
+        } else {
+            workers.push_back( new LutHeaderWorker(i*workerInterval, 65536) );
         }
     }
 
+    if (IlmThread::supportsThreads) {
+        std::vector<LutHeaderWorker::Runner*> runners;
+        for (size_t i=0; i<workers.size(); ++i) {
+            runners.push_back( new LutHeaderWorker::Runner(*workers[i], (i==0)) );
+        }
 
-    
+        for (size_t i=0; i<workers.size(); ++i) {
+            delete runners[i];
+        }
+    } else {
+        for (size_t i=0; i<workers.size(); ++i) {
+            workers[i]->run(i == 0);
+        }
+    }
+
     printf("static unsigned int closestDataOffset[] = {\n");
-    for (int i=0; i<65536; ++i) {
-        if (i % 8 == 0) {
-            printf("    ");
+    int offsetIdx  = 0;
+    int offsetPrev = 0;
+    for (size_t i=0; i<workers.size(); ++i) {
+        for (size_t value=0; value<workers[i]->numValues(); ++value) {
+            if (offsetIdx % 8 == 0) {
+                printf("    ");
+            }
+            printf("%6d, ", workers[i]->offset()[value] + offsetPrev);
+            if (offsetIdx % 8 == 7) {
+                printf("\n");
+            }
+            offsetIdx++;
         }
-        printf("%6d, ", offset[i]);
-        if (i % 8 == 7) {
-            printf("\n");
-        }
+        offsetPrev += workers[i]->offset()[workers[i]->numValues()-1] + 
+                      workers[i]->lastCandidateCount();
     }
     printf("};\n\n\n");
 
 
     printf("static unsigned short closestData[] = {\n");
-    for (int i=0; i<numElements; ++i) {
-        if (i % 8 == 0) {
-            printf("    ");
-        }
-        printf("%5d, ", closestData[i]);
-        if (i % 8 == 7) {
-            printf("\n");
-        }
+    int elementIdx = 0;
+    for (size_t i=0; i<workers.size(); ++i) {
+        for (size_t element=0; element<workers[i]->numElements(); ++element) {
+            if (elementIdx % 8 == 0) {
+                printf("    ");
+            }
+            printf("%5d, ", workers[i]->elements()[element]);
+            if (elementIdx % 8 == 7) {
+                printf("\n");
+            }
+            elementIdx++;
+        }    
     }
     printf("};\n\n\n");
+
+    for (size_t i=0; i<workers.size(); ++i) {
+        delete workers[i];
+    }
 }
+
 
 
 int

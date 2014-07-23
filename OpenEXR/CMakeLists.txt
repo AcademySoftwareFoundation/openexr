@@ -86,6 +86,17 @@ CHECK_CXX_SOURCE_COMPILES (
 	}
 	" HAVE_GCC_INLINE_ASM_AVX)
 
+# Check if sysconf(_SC_NPROCESSORS_ONLN) can be used for CPU count
+CHECK_CXX_SOURCE_COMPILES (
+    "
+    #include <unistd.h>
+    int main()
+    {
+        sysconf(_SC_NPROCESSORS_ONLN);
+    }
+    " HAVE_SYSCONF_NPROCESSORS_ONLN)
+
+
 ##########################
 # OpenEXRConfig.h generation
 ##########################
@@ -130,6 +141,10 @@ IF (HAVE_GCC_INLINE_ASM_AVX)
   FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX 1\n" )
 ENDIF()
   
+IF (HAVE_SYSCONF_NPROCESSORS_ONLN)
+  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN 1\n" )
+ENDIF()
+
   
 ##########################
 # IlmImf library
