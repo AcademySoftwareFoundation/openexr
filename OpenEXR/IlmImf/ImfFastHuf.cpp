@@ -255,7 +255,7 @@ FastHufDecoder::FastHufDecoder
         int codeLen = *i & 63;
         int symbol  = *i >> 6;
 
-        if (mapping[codeLen] < 0 || mapping[codeLen] >= _numSymbols) 
+        if (mapping[codeLen] >= _numSymbols)
             throw Iex::InputExc ("Huffman decode error "
                                   "(Invalid symbol in header).");
         
@@ -395,7 +395,7 @@ FastHufDecoder::buildTables (Int64 *base, Int64 *offset)
                 _tableCodeLen[i] = codeLen;
 
                 Int64 id = _ljOffset[codeLen] + (value >> (64 - codeLen));
-                if (id >= 0 && id < _numSymbols) 
+                if (id < _numSymbols)
                 {
                     _tableSymbol[i] = _idToSymbol[id];
                 }
@@ -667,7 +667,7 @@ FastHufDecoder::decode
             }
 
             Int64 id = _ljOffset[codeLen] + (buffer >> (64 - codeLen));
-            if (id >= 0 && id < _numSymbols) 
+            if (id < _numSymbols)
             {
                 symbol = _idToSymbol[id];
             }
@@ -708,10 +708,16 @@ FastHufDecoder::decode
 
             int rleCount = buffer >> 56;
 
+            if (dstIdx < 1)
+            {
+                throw Iex::InputExc ("Huffman decode error (RLE code "
+                                     "with no previous symbol).");
+            }
+
             if (dstIdx + rleCount > numDstElems)
             {
                 throw Iex::InputExc ("Huffman decode error (Symbol run "
-                                     "beyond expected output buffer lenght).");
+                                     "beyond expected output buffer length).");
             }
 
             if (rleCount <= 0) 
