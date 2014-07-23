@@ -243,7 +243,7 @@ FastHufDecoder::FastHufDecoder
     _idToSymbol = new int[_numSymbols];
 
     Int64 mapping[MAX_CODE_LEN + 1];
-    for (int i = 0; i <= MAX_CODE_LEN + 1; ++i) 
+    for (int i = 0; i < MAX_CODE_LEN + 1; ++i) 
         mapping[i] = -1;
     for (int i = _minCodeLength; i <= _maxCodeLength; ++i)
         mapping[i] = offset[i];
