@@ -456,7 +456,6 @@ cpuCount()
     return cpuCount;
 }
 
-
 //
 // Generate acceleration luts for the quantization.
 //
