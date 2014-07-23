@@ -152,7 +152,7 @@ namespace {
                         if (input % 1000 == 0) {
                             fprintf(stderr, 
                             " Building acceleration for DwaCompressor, %.2f %%\n",
-                                          100.*(float)input/(float)numValues);
+                                          100.*(float)input/(float)numValues());
                         }
 #endif
                     } 
