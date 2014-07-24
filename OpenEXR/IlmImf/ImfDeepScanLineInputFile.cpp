@@ -1877,19 +1877,16 @@ readSampleCountForLineBlock(InputStreamMutex* streamData,
 
             Xdr::read <CharPtrIO> (readPtr, accumulatedCount);
             
-            if (x == data->minX)
-                count = accumulatedCount;
-            else
-                count = accumulatedCount - lastAccumulatedCount;
-            lastAccumulatedCount = accumulatedCount;
-            
             // sample count table should always contain monotonically
-            // increasing values since count>=0. In the case of corruption, this may
-            // not be the case
-            if(count<0)
+            // increasing values.
+            if (accumulatedCount < lastAccumulatedCount)
             {
                 THROW(IEX_NAMESPACE::ArgExc,"Deep scanline sampleCount data corrupt at chunk " << lineBlockId << " (negative sample count detected)");
             }
+
+            count = accumulatedCount - lastAccumulatedCount;
+            lastAccumulatedCount = accumulatedCount;
+
             //
             // Store the data in both internal and external data structure.
             //
