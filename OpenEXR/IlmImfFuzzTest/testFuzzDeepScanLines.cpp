@@ -387,6 +387,8 @@ fuzzDeepScanLines (int numThreads, Rand48 &random)
     const char *goodFile = IMF_TMP_DIR "imf_test_deep_scanline_file_fuzz_good.exr";
     const char *brokenFile = IMF_TMP_DIR "imf_test_deep_scanline_file_fuzz_broken.exr";
 
+    // read file if it already exists: allows re-testing reading of broken file
+    readFile(brokenFile);
     
     for(int parts=1 ; parts < 3 ; parts++)
     {

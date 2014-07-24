@@ -1869,16 +1869,16 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                         int accumulatedCount;
                         Xdr::read <CharPtrIO> (readPtr, accumulatedCount);
                         
-                        int count = accumulatedCount - lastAccumulatedCount;
-                        
-                        if(count<0)
+                        if (accumulatedCount < lastAccumulatedCount)
                         {
                             THROW(IEX_NAMESPACE::ArgExc,"Deep tile sampleCount data corrupt at tile " 
                                   << dx << ',' << dy << ',' << lx << ',' <<  ly << " (negative sample count detected)");
                         }
+
+                        int count = accumulatedCount - lastAccumulatedCount;
+                        lastAccumulatedCount = accumulatedCount;
                         
                         _data->getSampleCount(i - xOffset, j - yOffset) =count;
-                        lastAccumulatedCount = accumulatedCount;
                     }
                     cumulative_total_samples += lastAccumulatedCount;
                 }
