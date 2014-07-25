@@ -706,7 +706,7 @@ greaterThan(const Vec4<T> &v, const object &obj)
         THROW(IEX_NAMESPACE::LogicExc, "invalid parameters passed to operator >");
     
     bool isGreaterThan = (v.x >= res.x && v.y >= res.y && v.z >= res.z && v.w >= res.w)
-                       & v != res;
+                       && v != res;
 
     return isGreaterThan;
 }

@@ -543,7 +543,7 @@ static bool
 greaterThan(Color4<T> &v, const Color4<T> &w)
 {
     bool isGreaterThan = (v.r >= w.r && v.g >= w.g && v.b >= w.b && v.a >= w.a)
-                       & v != w;
+                       && v != w;
                    
    return isGreaterThan;
 }
