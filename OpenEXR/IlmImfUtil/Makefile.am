@@ -29,7 +29,7 @@ libIlmImfUtil_la_LDFLAGS += -release @LIB_SUFFIX@
 endif
 
 
-libIlmImfUtil_la_LIBADD =  @ILMBASE_LIBS@ -lIlmImf
+libIlmImfUtil_la_LIBADD =  -L$(top_builddir)/IlmImf @ILMBASE_LIBS@ -lIlmImf
 
 libIlmImfUtilincludedir = $(includedir)/OpenEXR
 

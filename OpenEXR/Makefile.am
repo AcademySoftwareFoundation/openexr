@@ -13,9 +13,10 @@ DIST_SUBDIRS = \
 	vc
 
 EXTRA_DIST = \
-	AUTHORS COPYING ChangeLog INSTALL LICENSE NEWS \
-        README README.CVS README.OSX bootstrap README.win32 \
-	openexr.m4 \
+	AUTHORS COPYING ChangeLog INSTALL LICENSE NEWS PATENTS \
+        README README.CVS README.OSX README.win32 \
+	README.git README.namespacing README.cmake.txt \
+	bootstrap openexr.m4 \
 	config.windows/OpenEXRConfig.h \
         CMakeLists.txt
 
