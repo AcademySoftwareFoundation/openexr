@@ -8,8 +8,8 @@ ADD_EXECUTABLE ( b44ExpLogTable
 
 TARGET_LINK_LIBRARIES ( b44ExpLogTable
   Half
-  Iex-2_2
-  IlmThread-2_2
+  Iex${ILMBASE_LIBSUFFIX}
+  IlmThread${ILMBASE_LIBSUFFIX}
   ${PTHREAD_LIB}
 )
 
@@ -25,8 +25,8 @@ ADD_EXECUTABLE ( dwaLookups
 
 TARGET_LINK_LIBRARIES ( dwaLookups
   Half
-  Iex-2_2
-  IlmThread-2_2
+  Iex${ILMBASE_LIBSUFFIX}
+  IlmThread${ILMBASE_LIBSUFFIX}
   ${PTHREAD_LIB}
 )
 
@@ -138,9 +138,9 @@ ADD_LIBRARY ( IlmImf ${LIB_TYPE}
 
 TARGET_LINK_LIBRARIES ( IlmImf 
   Half 
-  Iex-2_2 
-  Imath-2_2 
-  IlmThread-2_2 
+  Iex${ILMBASE_LIBSUFFIX}
+  Imath${ILMBASE_LIBSUFFIX}
+  IlmThread${ILMBASE_LIBSUFFIX}
   ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
 )
 

@@ -6,8 +6,8 @@ ADD_EXECUTABLE ( exrmultipart
 
 TARGET_LINK_LIBRARIES ( exrmultipart
   IlmImf
-  IlmThread-2_2
-  Iex-2_2
+  IlmThread${ILMBASE_LIBSUFFIX}
+  Iex${ILMBASE_LIBSUFFIX}
   Half
   ${PTHREAD_LIB}
   ${ZLIB_LIBRARIES}

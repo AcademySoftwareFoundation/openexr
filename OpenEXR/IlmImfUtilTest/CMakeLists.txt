@@ -17,9 +17,9 @@ TARGET_LINK_LIBRARIES ( IlmImfUtilTest
         IlmImfUtil
         IlmImf  
         Half 
-        Iex-2_2
-        Imath-2_2 
-        IlmThread-2_2 
+        Iex${ILMBASE_LIBSUFFIX}
+        Imath${ILMBASE_LIBSUFFIX}
+        IlmThread${ILMBASE_LIBSUFFIX}
         ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
         )
 

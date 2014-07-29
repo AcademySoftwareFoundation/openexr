@@ -28,9 +28,9 @@ ADD_LIBRARY ( IlmImfUtil ${LIB_TYPE}
 
 TARGET_LINK_LIBRARIES ( IlmImfUtil 
   Half 
-  Iex-2_2 
-  Imath-2_2 
-  IlmThread-2_2 
+  Iex${ILMBASE_LIBSUFFIX}
+  Imath${ILMBASE_LIBSUFFIX}
+  IlmThread${ILMBASE_LIBSUFFIX}
   IlmImf
   ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
 )
