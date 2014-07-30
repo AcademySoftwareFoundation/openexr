@@ -1971,7 +1971,8 @@ DwaCompressor::compress
 
     setupChannelData (minX, minY, maxX, maxY);
 
-    if (fileVersion >= 2) {
+    if (fileVersion >= 2) 
+    {
         char *writePtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(Imf::Int64)];
         Xdr::write<CharPtrIO> (writePtr, channelRuleSize);
         
