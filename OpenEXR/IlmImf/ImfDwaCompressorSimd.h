@@ -108,12 +108,13 @@ class SimdAlignedBuffer64
             _handle = (char *) EXRAllocAligned
                 (64 * sizeof(T), _SSE_ALIGNMENT);
 
-            if ((size_t)_handle & (_SSE_ALIGNMENT - 1))
+            if (((size_t)_handle & (_SSE_ALIGNMENT - 1)) == 0)
             {
                 _buffer = (T *)_handle;
                 return;
             }
 
+            EXRFreeAligned(_handle);
             _handle = (char *) EXRAllocAligned
                 (64 * sizeof(T) + _SSE_ALIGNMENT, _SSE_ALIGNMENT);
 
