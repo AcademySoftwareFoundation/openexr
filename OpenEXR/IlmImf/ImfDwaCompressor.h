@@ -179,7 +179,7 @@ class DwaCompressor: public Compressor
                     Imath::Box2i  range,
                     const char  *&outPtr);
 
-    void initializeBuffers ();
+    void initializeBuffers (size_t&);
     void initializeDefaultChannelRules ();
     void initializeLegacyChannelRules ();
 

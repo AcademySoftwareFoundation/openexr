@@ -1900,7 +1900,8 @@ DwaCompressor::compress
     else 
         initializeDefaultChannelRules();
 
-    initializeBuffers();
+    size_t outBufferSize = 0;
+    initializeBuffers(outBufferSize);
 
     unsigned short          channelRuleSize = 0;
     std::vector<Classifier> channelRules;
@@ -1917,8 +1918,14 @@ DwaCompressor::compress
     // Remember to allocate _outBuffer, if we haven't done so already.
     //
 
-    if (_outBuffer == 0)
-        _outBuffer = new char[_outBufferSize + channelRuleSize];
+    outBufferSize += channelRuleSize;
+    if (outBufferSize > _outBufferSize) 
+    {
+        _outBufferSize = outBufferSize;
+        if (_outBuffer == 0)
+            delete[] _outBuffer;       
+        _outBuffer = new char[outBufferSize];
+    }
 
     char *outDataPtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(Imf::Int64) +
                                    channelRuleSize];
@@ -2418,14 +2425,21 @@ DwaCompressor::uncompress
     }
 
 
-    initializeBuffers();
+    size_t outBufferSize = 0;
+    initializeBuffers(outBufferSize);
 
     //
     // Allocate _outBuffer, if we haven't done so already
     //
 
-    if (_outBuffer == 0)
+    if (_maxScanLineSize * numScanLines() > _outBufferSize) 
+    {
+        _outBufferSize = _maxScanLineSize * numScanLines();
+        if (_outBuffer != 0)
+            delete[] _outBuffer;
         _outBuffer = new char[_maxScanLineSize * numScanLines()];
+    }
+
 
     char *outBufferEnd = _outBuffer;
 
@@ -2879,7 +2893,7 @@ DwaCompressor::initializeFuncs()
 //
 
 void
-DwaCompressor::initializeBuffers ()
+DwaCompressor::initializeBuffers (size_t &outBufferSize)
 {
     classifyChannels (_channels, _channelData, _cscSets);
 
@@ -2892,6 +2906,7 @@ DwaCompressor::initializeBuffers ()
     int maxOutBufferSize  = 0;
     int numLossyDctChans  = 0;
     int unknownBufferSize = 0;
+    int rleBufferSize     = 0;
 
     int maxLossyDctAcSize = (int)ceil ((float)numScanLines() / 8.0f) * 
                             (int)ceil ((float)(_max[0] - _min[0] + 1) / 8.0f) *
@@ -2927,7 +2942,7 @@ DwaCompressor::initializeBuffers ()
                 int rleAmount = 2 * numScanLines() * (_max[0] - _min[0] + 1) *
                                 Imf::pixelTypeSize (_channelData[chan].type);
 
-                _rleBufferSize += rleAmount;
+                rleBufferSize += rleAmount;
             }
             break;
 
@@ -2952,7 +2967,7 @@ DwaCompressor::initializeBuffers ()
     // which could take slightly more space
     //
 
-    maxOutBufferSize += (int)(ceil (1.01f * (float)_rleBufferSize) + 100);
+    maxOutBufferSize += (int)(ceil (1.01f * (float)rleBufferSize) + 100);
     
     //
     // And the same goes for the UNKNOWN data
@@ -2966,7 +2981,14 @@ DwaCompressor::initializeBuffers ()
     // for our output buffer
     //
 
-    _zip = new Zip (maxLossyDctDcSize * numLossyDctChans);
+    if (_zip == 0) 
+        _zip = new Zip (maxLossyDctDcSize * numLossyDctChans);
+    else if (_zip->maxRawSize() < maxLossyDctDcSize * numLossyDctChans)
+    {
+        delete _zip;
+        _zip = new Zip (maxLossyDctDcSize * numLossyDctChans);
+    }
+
 
     maxOutBufferSize += _zip->maxCompressedSize();
 
@@ -2990,7 +3012,7 @@ DwaCompressor::initializeBuffers ()
     // encode or decode.
     //
 
-    _outBufferSize = maxOutBufferSize;
+    outBufferSize = maxOutBufferSize;
 
 
     //
@@ -2998,17 +3020,33 @@ DwaCompressor::initializeBuffers ()
     // to Huffman encoding
     //
 
-    _packedAcBufferSize = maxLossyDctAcSize * numLossyDctChans;
-    _packedAcBuffer     = new char[_packedAcBufferSize];
+    if (maxLossyDctAcSize * numLossyDctChans > _packedAcBufferSize)
+    {
+        _packedAcBufferSize = maxLossyDctAcSize * numLossyDctChans;
+        if (_packedAcBuffer != 0) 
+            delete[] _packedAcBuffer;
+        _packedAcBuffer = new char[_packedAcBufferSize];
+    }
 
     //
     // _packedDcBuffer holds one quantized DCT coef per 8x8 block
     //
 
-    _packedDcBufferSize = maxLossyDctDcSize * numLossyDctChans;
-    _packedDcBuffer     = new char[_packedDcBufferSize];
+    if (maxLossyDctDcSize * numLossyDctChans > _packedDcBufferSize)
+    {
+        _packedDcBufferSize = maxLossyDctDcSize * numLossyDctChans;
+        if (_packedDcBuffer != 0) 
+            delete[] _packedDcBuffer;
+        _packedDcBuffer     = new char[_packedDcBufferSize];
+    }
 
-    _rleBuffer = new char[_rleBufferSize];
+    if (rleBufferSize > _rleBufferSize) 
+    {
+        _rleBufferSize = rleBufferSize;
+        if (_rleBuffer != 0) 
+            delete[] _rleBuffer;
+        _rleBuffer = new char[rleBufferSize];
+    }
 
     // 
     // The planar uncompressed buffer will hold float data for LOSSY_DCT
@@ -3021,8 +3059,9 @@ DwaCompressor::initializeBuffers ()
     // all in one swoop (for each compression scheme).
     //
 
+    int planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
     for (int i=0; i<NUM_COMPRESSOR_SCHEMES; ++i)
-        _planarUncBufferSize[i] = 0;
+        planarUncBufferSize[i] = 0;
 
     for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
     {
@@ -3032,13 +3071,13 @@ DwaCompressor::initializeBuffers ()
             break;
 
           case RLE:
-            _planarUncBufferSize[RLE] +=
+            planarUncBufferSize[RLE] +=
                      numScanLines() * (_max[0] - _min[0] + 1) *
                      Imf::pixelTypeSize (_channelData[chan].type);
             break;
 
           case UNKNOWN: 
-            _planarUncBufferSize[UNKNOWN] +=
+            planarUncBufferSize[UNKNOWN] +=
                      numScanLines() * (_max[0] - _min[0] + 1) *
                      Imf::pixelTypeSize (_channelData[chan].type);
             break;
@@ -3054,18 +3093,21 @@ DwaCompressor::initializeBuffers ()
     // a little extra headroom
     //
 
-    if (_planarUncBufferSize[UNKNOWN] > 0)
+    if (planarUncBufferSize[UNKNOWN] > 0)
     {
-        _planarUncBufferSize[UNKNOWN] =
-            (int) ceil (1.01f * (float)_planarUncBufferSize[UNKNOWN]) + 100;
+        planarUncBufferSize[UNKNOWN] =
+            (int) ceil (1.01f * (float)planarUncBufferSize[UNKNOWN]) + 100;
     }
 
     for (int i = 0; i < NUM_COMPRESSOR_SCHEMES; ++i)
     {
-        _planarUncBuffer[i] = 0;
-
-        if (_planarUncBufferSize[i])
-            _planarUncBuffer[i] = new char[_planarUncBufferSize[i]];
+        if (planarUncBufferSize[i] > _planarUncBufferSize[i]) 
+        {
+            _planarUncBufferSize[i] = planarUncBufferSize[i];
+            if (_planarUncBuffer[i] != 0) 
+                delete[] _planarUncBuffer[i];
+            _planarUncBuffer[i] = new char[planarUncBufferSize[i]];
+        }
     }
 }
 
