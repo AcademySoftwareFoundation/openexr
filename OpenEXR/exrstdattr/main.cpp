@@ -828,11 +828,11 @@ main(int argc, char **argv)
 
 	MultiPartInputFile in (inFileName);
 	int numParts = in.parts();
-        vector <Header> headers (numParts);
+        vector <Header> headers;
 
         for (int part = 0; part < numParts; ++part)
         {
-            Header &h = headers[part];
+            Header h = in.header (part);
 
             for (int i = 0; i < attrs.size(); ++i)
             {
@@ -851,6 +851,8 @@ main(int argc, char **argv)
                     return 1;
                 }
             }
+
+            headers.push_back(h);
         }
 
         //
