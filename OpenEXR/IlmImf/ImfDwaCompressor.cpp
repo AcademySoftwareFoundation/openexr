@@ -40,7 +40,13 @@
 // based in channel name. For RGB channels, we want a lossy method
 // described below. But, if we have alpha, we should do something
 // different (and probably using RLE). If we have depth, or velocity,
-// or something else, just fall back to ZIP.
+// or something else, just fall back to ZIP. The rules for deciding 
+// which strategy to use are setup in initializeDefaultChannelRules().
+// When writing a file, the relevant rules needed to decode are written
+// into the start of the data block, making a self-contained file. 
+// If initializeDefaultChannelRules() doesn't quite suite your naming
+// conventions, you can adjust the rules without breaking decoder
+// compatability.
 //
 // If we're going to lossy compress R, G, or B channels, it's easier
 // to toss bits in a more perceptual uniform space. One could argue
@@ -240,20 +246,103 @@ struct DwaCompressor::Classifier
     Classifier (std::string suffix,
                 CompressorScheme scheme,
                 PixelType type,
-                int cscIdx)
+                int cscIdx,
+                bool caseInsensitive):
+        _suffix(suffix),
+        _scheme(scheme),
+        _type(type),
+        _cscIdx(cscIdx),
+        _caseInsensitive(caseInsensitive)
     {
-        _suffix = suffix;
-        _scheme = scheme;
-        _type   = type;
-        _cscIdx = cscIdx;
+        if (caseInsensitive) 
+            transform(_suffix.begin(), _suffix.end(), _suffix.begin(), tolower);
+    }
 
-        transform(_suffix.begin(), _suffix.end(), _suffix.begin(), tolower);
+    Classifier (const char *&ptr, int size)
+    {
+        if (size <= 0) 
+            throw Iex::InputExc("Error uncompressing DWA data"
+                                " (truncated rule).");
+            
+        {
+            char suffix[Name::SIZE];
+            memset (suffix, 0, Name::SIZE);
+            Xdr::read<CharPtrIO> (ptr, std::min(size, Name::SIZE-1), suffix);
+            _suffix = std::string(suffix);
+        }
+
+        if (size < _suffix.length() + 1 + 2*Xdr::size<char>()) 
+            throw Iex::InputExc("Error uncompressing DWA data"
+                                " (truncated rule).");
+
+        char value;
+        Xdr::read<CharPtrIO> (ptr, value);
+
+        _cscIdx = (int)(value >> 4) - 1;
+        if (_cscIdx < -1 || _cscIdx >= 3) 
+            throw Iex::InputExc("Error uncompressing DWA data"
+                                " (corrupt cscIdx rule).");
+
+        _scheme = (CompressorScheme)((value >> 2) & 3);
+        if (_scheme < 0 || _scheme >= NUM_COMPRESSOR_SCHEMES) 
+            throw Iex::InputExc("Error uncompressing DWA data"
+                                " (corrupt scheme rule).");
+
+        _caseInsensitive = (value & 1 ? true : false);
+
+        Xdr::read<CharPtrIO> (ptr, value);
+        if (value < 0 || value >= NUM_PIXELTYPES) 
+            throw Iex::InputExc("Error uncompressing DWA data"
+                                " (corrupt rule).");
+        _type = (PixelType)value;
+    }
+
+    bool match (const std::string &suffix, const PixelType type) const
+    {
+        if (_type != type) return false;
+
+        if (_caseInsensitive) 
+        {
+            std::string tmp(suffix);
+            transform(tmp.begin(), tmp.end(), tmp.begin(), tolower);
+            return tmp == _suffix;
+        }
+
+        return suffix == _suffix;
+    }
+
+    size_t size () const 
+    {
+        // string length + \0
+        size_t sizeBytes = _suffix.length() + 1;
+
+        // 1 byte for scheme / cscIdx / caseInsensitive, and 1 byte for type
+        sizeBytes += 2 * Xdr::size<char>();
+
+        return sizeBytes;
+    }
+
+    void write (char *&ptr) const
+    {
+        Xdr::write<CharPtrIO> (ptr, _suffix.c_str());
+
+        // Encode _cscIdx (-1-3) in the upper 4 bits,
+        //        _scheme (0-2)  in the next 2 bits
+        //        _caseInsen     in the bottom bit
+        unsigned char value = 0;
+        value |= ((unsigned char)(_cscIdx+1)      & 15) << 4;
+        value |= ((unsigned char)_scheme          &  3) << 2;
+        value |=  (unsigned char)_caseInsensitive &  1;
+
+        Xdr::write<CharPtrIO> (ptr, value);
+        Xdr::write<CharPtrIO> (ptr, (unsigned char)_type);
     }
 
     std::string      _suffix;
     CompressorScheme _scheme;
     PixelType        _type;
     int              _cscIdx;
+    bool             _caseInsensitive;
 };
 
 
@@ -1721,198 +1810,18 @@ DwaCompressor::DwaCompressor
     _max[0] = hdr.dataWindow().max.x;
     _max[1] = hdr.dataWindow().max.y;
 
-    classifyChannels (_channels, _channelData, _cscSets);
-
+    for (int i=0; i < NUM_COMPRESSOR_SCHEMES; ++i) 
+    {
+        _planarUncBuffer[i] = 0;
+        _planarUncBufferSize[i] = 0;
+    }
+    
     //
     // Check the header for a quality attribute
     //
 
     if (hasDwaCompressionLevel (hdr))
         _dwaCompressionLevel = dwaCompressionLevel (hdr);
-   
-    //
-    // _outBuffer needs to be big enough to hold all our 
-    // compressed data - which could vary depending on what sort
-    // of channels we have. 
-    //
-
-    int maxOutBufferSize  = 0;
-    int numLossyDctChans  = 0;
-    int unknownBufferSize = 0;
-
-    int maxLossyDctAcSize = (int)ceil ((float)numScanLines / 8.0f) * 
-                            (int)ceil ((float)(_max[0] - _min[0] + 1) / 8.0f) *
-                            63 * sizeof (unsigned short);
-
-    int maxLossyDctDcSize = (int)ceil ((float)numScanLines / 8.0f) * 
-                            (int)ceil ((float)(_max[0] - _min[0] + 1) / 8.0f) *
-                            sizeof (unsigned short);
-
-    for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
-    {
-        switch (_channelData[chan].compression)
-        {
-          case LOSSY_DCT:
-
-            //
-            // This is the size of the number of packed
-            // components, plus the requirements for
-            // maximum Huffman encoding size.
-            //
-
-            maxOutBufferSize += 2 * maxLossyDctAcSize + 65536;
-            numLossyDctChans++;
-            break;
-
-          case RLE:
-            {
-                //
-                // RLE, if gone horribly wrong, could double the size
-                // of the source data.
-                //
-
-                int rleAmount = 2 * numScanLines * (_max[0] - _min[0] + 1) *
-                                Imf::pixelTypeSize (_channelData[chan].type);
-
-                _rleBufferSize += rleAmount;
-            }
-            break;
-
-
-          case UNKNOWN:
-
-            unknownBufferSize += numScanLines * (_max[0] - _min[0] + 1) *
-                                 Imf::pixelTypeSize (_channelData[chan].type);
-            break;
-
-          default:
-
-            throw Iex::NoImplExc ("Unhandled compression scheme case");
-            break;
-        }
-    }
-
-    //
-    // Also, since the results of the RLE are packed into 
-    // the output buffer, we need the extra room there. But
-    // we're going to zlib compress() the data we pack, 
-    // which could take slightly more space
-    //
-
-    maxOutBufferSize += (int)(ceil (1.01f * (float)_rleBufferSize) + 100);
-    
-    //
-    // And the same goes for the UNKNOWN data
-    //
-
-    maxOutBufferSize += (int)(ceil (1.01f * (float)unknownBufferSize) + 100);
-
-    //
-    // Allocate a zip/deflate compressor big enought to hold the DC data
-    // and include it's compressed results in the size requirements
-    // for our output buffer
-    //
-
-    _zip = new Zip (maxLossyDctDcSize * numLossyDctChans);
-
-    maxOutBufferSize += _zip->maxCompressedSize();
-
-    //
-    // We also need to reserve space at the head of the buffer to 
-    // write out the size of our various packed and compressed data.
-    //
-
-    maxOutBufferSize += NUM_SIZES_SINGLE * sizeof (Int64); 
-                    
-
-    //
-    // Later, we're going to hijack outBuffer for the result of
-    // both encoding and decoding. So it needs to be big enough
-    // to hold either a buffers' worth of uncompressed or
-    // compressed data
-    //
-    // For encoding, we'll need _outBuffer to hold maxOutBufferSize bytes,
-    // but for decoding, we only need it to be maxScanLineSize*numScanLines.
-    // Cache the max size for now, and alloc the buffer when we either
-    // encode or decode.
-    //
-
-    _outBufferSize = maxOutBufferSize;
-    
-    //
-    // _packedAcBuffer holds the quantized DCT coefficients prior
-    // to Huffman encoding
-    //
-
-    _packedAcBufferSize = maxLossyDctAcSize * numLossyDctChans;
-    _packedAcBuffer     = new char[_packedAcBufferSize];
-
-    //
-    // _packedDcBuffer holds one quantized DCT coef per 8x8 block
-    //
-
-    _packedDcBufferSize = maxLossyDctDcSize * numLossyDctChans;
-    _packedDcBuffer     = new char[_packedDcBufferSize];
-
-    _rleBuffer = new char[_rleBufferSize];
-
-    // 
-    // The planar uncompressed buffer will hold float data for LOSSY_DCT
-    // compressed values, and whatever the native type is for other
-    // channels. We're going to use this to hold data in a planar
-    // format, as opposed to the native interleaved format we take
-    // into compress() and give back from uncompress().
-    //
-    // This also makes it easier to compress the UNKNOWN and RLE data
-    // all in one swoop (for each compression scheme).
-    //
-
-    for (int i=0; i<NUM_COMPRESSOR_SCHEMES; ++i)
-        _planarUncBufferSize[i] = 0;
-
-    for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
-    {
-        switch (_channelData[chan].compression)
-        {
-          case LOSSY_DCT:
-            break;
-
-          case RLE:
-            _planarUncBufferSize[RLE] +=
-                     numScanLines * (_max[0] - _min[0] + 1) *
-                     Imf::pixelTypeSize (_channelData[chan].type);
-            break;
-
-          case UNKNOWN: 
-            _planarUncBufferSize[UNKNOWN] +=
-                     numScanLines * (_max[0] - _min[0] + 1) *
-                     Imf::pixelTypeSize (_channelData[chan].type);
-            break;
-
-          default:
-            throw Iex::NoImplExc ("Unhandled compression scheme case");
-            break;
-        }
-    }
-
-    //
-    // UNKNOWN data is going to be zlib compressed, which needs 
-    // a little extra headroom
-    //
-
-    if (_planarUncBufferSize[UNKNOWN] > 0)
-    {
-        _planarUncBufferSize[UNKNOWN] =
-            (int) ceil (1.01f * (float)_planarUncBufferSize[UNKNOWN]) + 100;
-    }
-
-    for (int i = 0; i < NUM_COMPRESSOR_SCHEMES; ++i)
-    {
-        _planarUncBuffer[i] = 0;
-
-        if (_planarUncBufferSize[i])
-            _planarUncBuffer[i] = new char[_planarUncBufferSize[i]];
-    }
 }
 
 
@@ -1983,15 +1892,43 @@ DwaCompressor::compress
     const char *inDataPtr   = inPtr;
     char       *packedAcEnd = 0;
     char       *packedDcEnd = 0; 
+    int         fileVersion = 2;   // Starting with 2, we write the channel
+                                   // classification rules into the file
+
+    if (fileVersion < 2) 
+        initializeLegacyChannelRules();
+    else 
+        initializeDefaultChannelRules();
+
+    size_t outBufferSize = 0;
+    initializeBuffers(outBufferSize);
+
+    unsigned short          channelRuleSize = 0;
+    std::vector<Classifier> channelRules;
+    if (fileVersion >= 2) 
+    {
+        relevantChannelRules(channelRules);
+
+        channelRuleSize = Xdr::size<unsigned short>();
+        for (size_t i = 0; i < channelRules.size(); ++i) 
+            channelRuleSize += channelRules[i].size();
+    }
 
     //
     // Remember to allocate _outBuffer, if we haven't done so already.
     //
 
-    if (_outBuffer == 0)
-        _outBuffer = new char[_outBufferSize];
+    outBufferSize += channelRuleSize;
+    if (outBufferSize > _outBufferSize) 
+    {
+        _outBufferSize = outBufferSize;
+        if (_outBuffer == 0)
+            delete[] _outBuffer;       
+        _outBuffer = new char[outBufferSize];
+    }
 
-    char *outDataPtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(Imf::Int64)];
+    char *outDataPtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(Imf::Int64) +
+                                   channelRuleSize];
 
     //
     // We might not be dealing with any color data, in which
@@ -2033,14 +1970,22 @@ DwaCompressor::compress
     memset (_outBuffer, 0, NUM_SIZES_SINGLE * sizeof (Int64));
 
     //
-    // Setup the AC compression strategy and the version in the data block
+    // Setup the AC compression strategy and the version in the data block,
+    // then write the relevant channel classification rules if needed
     //
-
-    *version = 1;  // using AC RLE end of block
-
+    *version       = fileVersion;  
     *acCompression = _acCompression;
 
     setupChannelData (minX, minY, maxX, maxY);
+
+    if (fileVersion >= 2) 
+    {
+        char *writePtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(Imf::Int64)];
+        Xdr::write<CharPtrIO> (writePtr, channelRuleSize);
+        
+        for (size_t i = 0; i < channelRules.size(); ++i) 
+            channelRules[i].write(writePtr);
+    }
 
     //
     // Determine the start of each row in the input buffer
@@ -2374,63 +2319,6 @@ DwaCompressor::uncompressTile
 }
 
 
-// static
-void
-DwaCompressor::initializeFuncs()
-{
-    convertFloatToHalf64 = convertFloatToHalf64_scalar;
-    fromHalfZigZag       = fromHalfZigZag_scalar;
-
-    CpuId cpuId;
-
-    //
-    // Setup HALF <-> FLOAT conversion implementations
-    //
-
-    if (cpuId.avx && cpuId.f16c)
-    {
-        convertFloatToHalf64 = convertFloatToHalf64_f16c;
-        fromHalfZigZag       = fromHalfZigZag_f16c;
-    } 
-
-    //
-    // Setup inverse DCT implementations
-    //
-
-    dctInverse8x8_0 = dctInverse8x8_scalar<0>;
-    dctInverse8x8_1 = dctInverse8x8_scalar<1>;
-    dctInverse8x8_2 = dctInverse8x8_scalar<2>;
-    dctInverse8x8_3 = dctInverse8x8_scalar<3>;
-    dctInverse8x8_4 = dctInverse8x8_scalar<4>;
-    dctInverse8x8_5 = dctInverse8x8_scalar<5>;
-    dctInverse8x8_6 = dctInverse8x8_scalar<6>;
-    dctInverse8x8_7 = dctInverse8x8_scalar<7>;
-
-    if (cpuId.avx) 
-    {
-        dctInverse8x8_0 = dctInverse8x8_avx<0>;
-        dctInverse8x8_1 = dctInverse8x8_avx<1>;
-        dctInverse8x8_2 = dctInverse8x8_avx<2>;
-        dctInverse8x8_3 = dctInverse8x8_avx<3>;
-        dctInverse8x8_4 = dctInverse8x8_avx<4>;
-        dctInverse8x8_5 = dctInverse8x8_avx<5>;
-        dctInverse8x8_6 = dctInverse8x8_avx<6>;
-        dctInverse8x8_7 = dctInverse8x8_avx<7>;
-    } 
-    else if (cpuId.sse2) 
-    {
-        dctInverse8x8_0 = dctInverse8x8_sse2<0>;
-        dctInverse8x8_1 = dctInverse8x8_sse2<1>;
-        dctInverse8x8_2 = dctInverse8x8_sse2<2>;
-        dctInverse8x8_3 = dctInverse8x8_sse2<3>;
-        dctInverse8x8_4 = dctInverse8x8_sse2<4>;
-        dctInverse8x8_5 = dctInverse8x8_sse2<5>;
-        dctInverse8x8_6 = dctInverse8x8_sse2<6>;
-        dctInverse8x8_7 = dctInverse8x8_sse2<7>;
-    }
-}
-
-
 int 
 DwaCompressor::uncompress
     (const char *inPtr,
@@ -2449,15 +2337,6 @@ DwaCompressor::uncompress
         throw Iex::InputExc("Error uncompressing DWA data"
                             "(truncated header).");
     }
-
-    //
-    // Allocate _outBuffer, if we haven't done so already
-    //
-
-    if (_outBuffer == 0)
-        _outBuffer = new char[_maxScanLineSize * _numScanLines];
-
-    char *outBufferEnd = _outBuffer;
 
     // 
     // Flip the counters from XDR to NATIVE
@@ -2496,6 +2375,8 @@ DwaCompressor::uncompress
                                      dcCompressedSize +
                                      rleCompressedSize;
 
+    const char *dataPtr            = inPtr + NUM_SIZES_SINGLE * sizeof(Int64);
+
     if (inSize < headerSize + compressedSize) 
     {
         throw Iex::InputExc("Error uncompressing DWA data"
@@ -2513,8 +2394,55 @@ DwaCompressor::uncompress
         totalDcUncompressedCount < 0) 
     {
         throw Iex::InputExc("Error uncompressing DWA data"
-                            "(corrupt header).");
+                            " (corrupt header).");
     }
+
+    if (version < 2) 
+        initializeLegacyChannelRules();
+    else
+    {
+        unsigned short ruleSize = 0;
+        Xdr::read<CharPtrIO>(dataPtr, ruleSize);
+
+        if (ruleSize < 0) 
+            throw Iex::InputExc("Error uncompressing DWA data"
+                                " (corrupt header file).");
+
+        headerSize += ruleSize;
+        if (inSize < headerSize + compressedSize)
+            throw Iex::InputExc("Error uncompressing DWA data"
+                                " (truncated file).");
+
+        _channelRules.clear();
+        ruleSize -= Xdr::size<unsigned short> ();
+        while (ruleSize > 0) 
+        {
+            Classifier rule(dataPtr, ruleSize);
+            
+            _channelRules.push_back(rule);
+            ruleSize -= rule.size();
+        }
+    }
+
+
+    size_t outBufferSize = 0;
+    initializeBuffers(outBufferSize);
+
+    //
+    // Allocate _outBuffer, if we haven't done so already
+    //
+
+    if (_maxScanLineSize * numScanLines() > _outBufferSize) 
+    {
+        _outBufferSize = _maxScanLineSize * numScanLines();
+        if (_outBuffer != 0)
+            delete[] _outBuffer;
+        _outBuffer = new char[_maxScanLineSize * numScanLines()];
+    }
+
+
+    char *outBufferEnd = _outBuffer;
+
        
     //
     // Find the start of the RLE packed AC components and
@@ -2538,7 +2466,7 @@ DwaCompressor::uncompress
     // and then the zlib compressed RLE data.
     //
     
-    const char *compressedUnknownBuf = inPtr + NUM_SIZES_SINGLE * sizeof(Int64);
+    const char *compressedUnknownBuf = dataPtr;
 
     const char *compressedAcBuf      = compressedUnknownBuf + 
                                   static_cast<ptrdiff_t>(unknownCompressedSize);
@@ -2549,11 +2477,12 @@ DwaCompressor::uncompress
 
     // 
     // Sanity check that the version is something we expect. Right now, 
-    // we can decode version 0 and 1. v1 adds 'end of block' symbols
-    // to the AC RLE.
+    // we can decode version 0, 1, and 2. v1 adds 'end of block' symbols
+    // to the AC RLE. v2 adds channel classification rules at the 
+    // start of the data block.
     //
 
-    if ((version < 0) || (version > 1))
+    if ((version < 0) || (version > 2))
         throw Iex::InputExc ("Invalid version of compressed data block");    
 
     setupChannelData(minX, minY, maxX, maxY);
@@ -2901,6 +2830,392 @@ DwaCompressor::uncompress
 }
 
 
+// static
+void
+DwaCompressor::initializeFuncs()
+{
+    convertFloatToHalf64 = convertFloatToHalf64_scalar;
+    fromHalfZigZag       = fromHalfZigZag_scalar;
+
+    CpuId cpuId;
+
+    //
+    // Setup HALF <-> FLOAT conversion implementations
+    //
+
+    if (cpuId.avx && cpuId.f16c)
+    {
+        convertFloatToHalf64 = convertFloatToHalf64_f16c;
+        fromHalfZigZag       = fromHalfZigZag_f16c;
+    } 
+
+    //
+    // Setup inverse DCT implementations
+    //
+
+    dctInverse8x8_0 = dctInverse8x8_scalar<0>;
+    dctInverse8x8_1 = dctInverse8x8_scalar<1>;
+    dctInverse8x8_2 = dctInverse8x8_scalar<2>;
+    dctInverse8x8_3 = dctInverse8x8_scalar<3>;
+    dctInverse8x8_4 = dctInverse8x8_scalar<4>;
+    dctInverse8x8_5 = dctInverse8x8_scalar<5>;
+    dctInverse8x8_6 = dctInverse8x8_scalar<6>;
+    dctInverse8x8_7 = dctInverse8x8_scalar<7>;
+
+    if (cpuId.avx) 
+    {
+        dctInverse8x8_0 = dctInverse8x8_avx<0>;
+        dctInverse8x8_1 = dctInverse8x8_avx<1>;
+        dctInverse8x8_2 = dctInverse8x8_avx<2>;
+        dctInverse8x8_3 = dctInverse8x8_avx<3>;
+        dctInverse8x8_4 = dctInverse8x8_avx<4>;
+        dctInverse8x8_5 = dctInverse8x8_avx<5>;
+        dctInverse8x8_6 = dctInverse8x8_avx<6>;
+        dctInverse8x8_7 = dctInverse8x8_avx<7>;
+    } 
+    else if (cpuId.sse2) 
+    {
+        dctInverse8x8_0 = dctInverse8x8_sse2<0>;
+        dctInverse8x8_1 = dctInverse8x8_sse2<1>;
+        dctInverse8x8_2 = dctInverse8x8_sse2<2>;
+        dctInverse8x8_3 = dctInverse8x8_sse2<3>;
+        dctInverse8x8_4 = dctInverse8x8_sse2<4>;
+        dctInverse8x8_5 = dctInverse8x8_sse2<5>;
+        dctInverse8x8_6 = dctInverse8x8_sse2<6>;
+        dctInverse8x8_7 = dctInverse8x8_sse2<7>;
+    }
+}
+
+
+//
+// Handle channel classification and buffer allocation once we know
+// how to classify channels
+//
+
+void
+DwaCompressor::initializeBuffers (size_t &outBufferSize)
+{
+    classifyChannels (_channels, _channelData, _cscSets);
+
+    //
+    // _outBuffer needs to be big enough to hold all our 
+    // compressed data - which could vary depending on what sort
+    // of channels we have. 
+    //
+
+    int maxOutBufferSize  = 0;
+    int numLossyDctChans  = 0;
+    int unknownBufferSize = 0;
+    int rleBufferSize     = 0;
+
+    int maxLossyDctAcSize = (int)ceil ((float)numScanLines() / 8.0f) * 
+                            (int)ceil ((float)(_max[0] - _min[0] + 1) / 8.0f) *
+                            63 * sizeof (unsigned short);
+
+    int maxLossyDctDcSize = (int)ceil ((float)numScanLines() / 8.0f) * 
+                            (int)ceil ((float)(_max[0] - _min[0] + 1) / 8.0f) *
+                            sizeof (unsigned short);
+
+    for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
+    {
+        switch (_channelData[chan].compression)
+        {
+          case LOSSY_DCT:
+
+            //
+            // This is the size of the number of packed
+            // components, plus the requirements for
+            // maximum Huffman encoding size.
+            //
+
+            maxOutBufferSize += 2 * maxLossyDctAcSize + 65536;
+            numLossyDctChans++;
+            break;
+
+          case RLE:
+            {
+                //
+                // RLE, if gone horribly wrong, could double the size
+                // of the source data.
+                //
+
+                int rleAmount = 2 * numScanLines() * (_max[0] - _min[0] + 1) *
+                                Imf::pixelTypeSize (_channelData[chan].type);
+
+                rleBufferSize += rleAmount;
+            }
+            break;
+
+
+          case UNKNOWN:
+
+            unknownBufferSize += numScanLines() * (_max[0] - _min[0] + 1) *
+                                 Imf::pixelTypeSize (_channelData[chan].type);
+            break;
+
+          default:
+
+            throw Iex::NoImplExc ("Unhandled compression scheme case");
+            break;
+        }
+    }
+
+    //
+    // Also, since the results of the RLE are packed into 
+    // the output buffer, we need the extra room there. But
+    // we're going to zlib compress() the data we pack, 
+    // which could take slightly more space
+    //
+
+    maxOutBufferSize += (int)(ceil (1.01f * (float)rleBufferSize) + 100);
+    
+    //
+    // And the same goes for the UNKNOWN data
+    //
+
+    maxOutBufferSize += (int)(ceil (1.01f * (float)unknownBufferSize) + 100);
+
+    //
+    // Allocate a zip/deflate compressor big enought to hold the DC data
+    // and include it's compressed results in the size requirements
+    // for our output buffer
+    //
+
+    if (_zip == 0) 
+        _zip = new Zip (maxLossyDctDcSize * numLossyDctChans);
+    else if (_zip->maxRawSize() < maxLossyDctDcSize * numLossyDctChans)
+    {
+        delete _zip;
+        _zip = new Zip (maxLossyDctDcSize * numLossyDctChans);
+    }
+
+
+    maxOutBufferSize += _zip->maxCompressedSize();
+
+    //
+    // We also need to reserve space at the head of the buffer to 
+    // write out the size of our various packed and compressed data.
+    //
+
+    maxOutBufferSize += NUM_SIZES_SINGLE * sizeof (Int64); 
+                    
+
+    //
+    // Later, we're going to hijack outBuffer for the result of
+    // both encoding and decoding. So it needs to be big enough
+    // to hold either a buffers' worth of uncompressed or
+    // compressed data
+    //
+    // For encoding, we'll need _outBuffer to hold maxOutBufferSize bytes,
+    // but for decoding, we only need it to be maxScanLineSize*numScanLines.
+    // Cache the max size for now, and alloc the buffer when we either
+    // encode or decode.
+    //
+
+    outBufferSize = maxOutBufferSize;
+
+
+    //
+    // _packedAcBuffer holds the quantized DCT coefficients prior
+    // to Huffman encoding
+    //
+
+    if (maxLossyDctAcSize * numLossyDctChans > _packedAcBufferSize)
+    {
+        _packedAcBufferSize = maxLossyDctAcSize * numLossyDctChans;
+        if (_packedAcBuffer != 0) 
+            delete[] _packedAcBuffer;
+        _packedAcBuffer = new char[_packedAcBufferSize];
+    }
+
+    //
+    // _packedDcBuffer holds one quantized DCT coef per 8x8 block
+    //
+
+    if (maxLossyDctDcSize * numLossyDctChans > _packedDcBufferSize)
+    {
+        _packedDcBufferSize = maxLossyDctDcSize * numLossyDctChans;
+        if (_packedDcBuffer != 0) 
+            delete[] _packedDcBuffer;
+        _packedDcBuffer     = new char[_packedDcBufferSize];
+    }
+
+    if (rleBufferSize > _rleBufferSize) 
+    {
+        _rleBufferSize = rleBufferSize;
+        if (_rleBuffer != 0) 
+            delete[] _rleBuffer;
+        _rleBuffer = new char[rleBufferSize];
+    }
+
+    // 
+    // The planar uncompressed buffer will hold float data for LOSSY_DCT
+    // compressed values, and whatever the native type is for other
+    // channels. We're going to use this to hold data in a planar
+    // format, as opposed to the native interleaved format we take
+    // into compress() and give back from uncompress().
+    //
+    // This also makes it easier to compress the UNKNOWN and RLE data
+    // all in one swoop (for each compression scheme).
+    //
+
+    int planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
+    for (int i=0; i<NUM_COMPRESSOR_SCHEMES; ++i)
+        planarUncBufferSize[i] = 0;
+
+    for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
+    {
+        switch (_channelData[chan].compression)
+        {
+          case LOSSY_DCT:
+            break;
+
+          case RLE:
+            planarUncBufferSize[RLE] +=
+                     numScanLines() * (_max[0] - _min[0] + 1) *
+                     Imf::pixelTypeSize (_channelData[chan].type);
+            break;
+
+          case UNKNOWN: 
+            planarUncBufferSize[UNKNOWN] +=
+                     numScanLines() * (_max[0] - _min[0] + 1) *
+                     Imf::pixelTypeSize (_channelData[chan].type);
+            break;
+
+          default:
+            throw Iex::NoImplExc ("Unhandled compression scheme case");
+            break;
+        }
+    }
+
+    //
+    // UNKNOWN data is going to be zlib compressed, which needs 
+    // a little extra headroom
+    //
+
+    if (planarUncBufferSize[UNKNOWN] > 0)
+    {
+        planarUncBufferSize[UNKNOWN] =
+            (int) ceil (1.01f * (float)planarUncBufferSize[UNKNOWN]) + 100;
+    }
+
+    for (int i = 0; i < NUM_COMPRESSOR_SCHEMES; ++i)
+    {
+        if (planarUncBufferSize[i] > _planarUncBufferSize[i]) 
+        {
+            _planarUncBufferSize[i] = planarUncBufferSize[i];
+            if (_planarUncBuffer[i] != 0) 
+                delete[] _planarUncBuffer[i];
+            _planarUncBuffer[i] = new char[planarUncBufferSize[i]];
+        }
+    }
+}
+
+
+//
+// Setup channel classification rules to use when writing files
+//
+
+void
+DwaCompressor::initializeDefaultChannelRules ()
+{
+    _channelRules.clear();
+
+    _channelRules.push_back (Classifier ("R",     LOSSY_DCT, HALF,   0, false));
+    _channelRules.push_back (Classifier ("R",     LOSSY_DCT, FLOAT,  0, false));
+    _channelRules.push_back (Classifier ("G",     LOSSY_DCT, HALF,   1, false));
+    _channelRules.push_back (Classifier ("G",     LOSSY_DCT, FLOAT,  1, false));
+    _channelRules.push_back (Classifier ("B",     LOSSY_DCT, HALF,   2, false));
+    _channelRules.push_back (Classifier ("B",     LOSSY_DCT, FLOAT,  2, false));
+
+    _channelRules.push_back (Classifier ("Y",     LOSSY_DCT, HALF,  -1, false));
+    _channelRules.push_back (Classifier ("Y",     LOSSY_DCT, FLOAT, -1, false));
+    _channelRules.push_back (Classifier ("BY",    LOSSY_DCT, HALF,  -1, false));
+    _channelRules.push_back (Classifier ("BY",    LOSSY_DCT, FLOAT, -1, false));
+    _channelRules.push_back (Classifier ("RY",    LOSSY_DCT, HALF,  -1, false));
+    _channelRules.push_back (Classifier ("RY",    LOSSY_DCT, FLOAT, -1, false));
+
+    _channelRules.push_back (Classifier ("A",     RLE,       UINT,  -1, false));
+    _channelRules.push_back (Classifier ("A",     RLE,       HALF,  -1, false));
+    _channelRules.push_back (Classifier ("A",     RLE,       FLOAT, -1, false));
+}
+
+
+//
+// Setup channel classification rules when reading files with VERSION < 2
+//
+
+void
+DwaCompressor::initializeLegacyChannelRules ()
+{
+    _channelRules.clear();
+
+    _channelRules.push_back (Classifier ("r",     LOSSY_DCT, HALF,   0, true));
+    _channelRules.push_back (Classifier ("r",     LOSSY_DCT, FLOAT,  0, true));
+    _channelRules.push_back (Classifier ("red",   LOSSY_DCT, HALF,   0, true));
+    _channelRules.push_back (Classifier ("red",   LOSSY_DCT, FLOAT,  0, true));
+    _channelRules.push_back (Classifier ("g",     LOSSY_DCT, HALF,   1, true));
+    _channelRules.push_back (Classifier ("g",     LOSSY_DCT, FLOAT,  1, true));
+    _channelRules.push_back (Classifier ("grn",   LOSSY_DCT, HALF,   1, true));
+    _channelRules.push_back (Classifier ("grn",   LOSSY_DCT, FLOAT,  1, true));
+    _channelRules.push_back (Classifier ("green", LOSSY_DCT, HALF,   1, true));
+    _channelRules.push_back (Classifier ("green", LOSSY_DCT, FLOAT,  1, true));
+    _channelRules.push_back (Classifier ("b",     LOSSY_DCT, HALF,   2, true));
+    _channelRules.push_back (Classifier ("b",     LOSSY_DCT, FLOAT,  2, true));
+    _channelRules.push_back (Classifier ("blu",   LOSSY_DCT, HALF,   2, true));
+    _channelRules.push_back (Classifier ("blu",   LOSSY_DCT, FLOAT,  2, true));
+    _channelRules.push_back (Classifier ("blue",  LOSSY_DCT, HALF,   2, true));
+    _channelRules.push_back (Classifier ("blue",  LOSSY_DCT, FLOAT,  2, true));
+
+    _channelRules.push_back (Classifier ("y",     LOSSY_DCT, HALF,  -1, true));
+    _channelRules.push_back (Classifier ("y",     LOSSY_DCT, FLOAT, -1, true));
+    _channelRules.push_back (Classifier ("by",    LOSSY_DCT, HALF,  -1, true));
+    _channelRules.push_back (Classifier ("by",    LOSSY_DCT, FLOAT, -1, true));
+    _channelRules.push_back (Classifier ("ry",    LOSSY_DCT, HALF,  -1, true));
+    _channelRules.push_back (Classifier ("ry",    LOSSY_DCT, FLOAT, -1, true));
+    _channelRules.push_back (Classifier ("a",     RLE,       UINT,  -1, true));
+    _channelRules.push_back (Classifier ("a",     RLE,       HALF,  -1, true));
+    _channelRules.push_back (Classifier ("a",     RLE,       FLOAT, -1, true));
+}
+
+
+// 
+// Given a set of rules and ChannelData, figure out which rules apply
+//
+
+void
+DwaCompressor::relevantChannelRules (std::vector<Classifier> &rules) const 
+{
+    rules.clear();
+
+    std::vector<std::string> suffixes;
+    
+    for (size_t cd = 0; cd < _channelData.size(); ++cd) 
+    {
+        std::string suffix  = _channelData[cd].name;
+        size_t      lastDot = suffix.find_last_of ('.');
+
+        if (lastDot != std::string::npos)
+            suffix = suffix.substr (lastDot+1, std::string::npos);
+
+        suffixes.push_back(suffix);
+    }
+
+    
+    for (size_t i = 0; i < _channelRules.size(); ++i) 
+    {
+        for (size_t cd = 0; cd < _channelData.size(); ++cd) 
+        {
+            if (_channelRules[i].match (suffixes[cd], _channelData[cd].type ))
+            {
+                rules.push_back (_channelRules[i]);
+                break;
+            }
+        }       
+    }
+}
+
+
 //
 // Take our initial list of channels, and cache the contents.
 //
@@ -2922,41 +3237,6 @@ DwaCompressor::classifyChannels
 
     std::map<std::string, DwaCompressor::CscChannelSet> prefixMap;
     std::vector<DwaCompressor::CscChannelSet>           tmpCscSet;
-
-    //
-    // Setup a list of how we should classify things, based on
-    // channel names. Channel name comparison is case-insensitive,
-    // at least for the suffix.
-    //
-
-    std::vector<Classifier> classifieds;
-
-    classifieds.push_back (Classifier ("r",     LOSSY_DCT, HALF,   0));
-    classifieds.push_back (Classifier ("r",     LOSSY_DCT, FLOAT,  0));
-    classifieds.push_back (Classifier ("red",   LOSSY_DCT, HALF,   0));
-    classifieds.push_back (Classifier ("red",   LOSSY_DCT, FLOAT,  0));
-    classifieds.push_back (Classifier ("g",     LOSSY_DCT, HALF,   1));
-    classifieds.push_back (Classifier ("g",     LOSSY_DCT, FLOAT,  1));
-    classifieds.push_back (Classifier ("grn",   LOSSY_DCT, HALF,   1));
-    classifieds.push_back (Classifier ("grn",   LOSSY_DCT, FLOAT,  1));
-    classifieds.push_back (Classifier ("green", LOSSY_DCT, HALF,   1));
-    classifieds.push_back (Classifier ("green", LOSSY_DCT, FLOAT,  1));
-    classifieds.push_back (Classifier ("b",     LOSSY_DCT, HALF,   2));
-    classifieds.push_back (Classifier ("b",     LOSSY_DCT, FLOAT,  2));
-    classifieds.push_back (Classifier ("blu",   LOSSY_DCT, HALF,   2));
-    classifieds.push_back (Classifier ("blu",   LOSSY_DCT, FLOAT,  2));
-    classifieds.push_back (Classifier ("blue",  LOSSY_DCT, HALF,   2));
-    classifieds.push_back (Classifier ("blue",  LOSSY_DCT, FLOAT,  2));
-
-    classifieds.push_back (Classifier ("y",     LOSSY_DCT, HALF,  -1));
-    classifieds.push_back (Classifier ("y",     LOSSY_DCT, FLOAT, -1));
-    classifieds.push_back (Classifier ("by",    LOSSY_DCT, HALF,  -1));
-    classifieds.push_back (Classifier ("by",    LOSSY_DCT, FLOAT, -1));
-    classifieds.push_back (Classifier ("ry",    LOSSY_DCT, HALF,  -1));
-    classifieds.push_back (Classifier ("ry",    LOSSY_DCT, FLOAT, -1));
-    classifieds.push_back (Classifier ("a",     RLE,       UINT,  -1));
-    classifieds.push_back (Classifier ("a",     RLE,       HALF,  -1));
-    classifieds.push_back (Classifier ("a",     RLE,       FLOAT, -1));
 
     unsigned int numChan = 0;
 
@@ -3019,25 +3299,22 @@ DwaCompressor::classifyChannels
             prefixMap[prefix] = tmpSet;
         }
 
-        transform (suffix.begin(), suffix.end(), suffix.begin(), tolower);
-
         // 
         // Check the suffix against the list of classifications
         // we defined previously. If the _cscIdx is not negative,
         // it indicates that we should be part of a CSC group.
         //
 
-        for (std::vector<Classifier>::iterator i = classifieds.begin();
-             i != classifieds.end();
+        for (std::vector<Classifier>::iterator i = _channelRules.begin();
+             i != _channelRules.end();
              ++i)
         {
-            if ((suffix == (*i)._suffix) &&
-                (chanData[offset].type == (*i)._type))
+            if ( i->match(suffix, chanData[offset].type) )
             {
-                chanData[offset].compression = (*i)._scheme;
+                chanData[offset].compression = i->_scheme;
 
-                if ( (*i)._cscIdx >= 0)
-                    prefixMap[prefix].idx[(*i)._cscIdx] = offset;
+                if ( i->_cscIdx >= 0)
+                    prefixMap[prefix].idx[i->_cscIdx] = offset;
             }
         }
     }

@@ -153,6 +153,7 @@ class DwaCompressor: public Compressor
     ChannelList                _channels;
     std::vector<ChannelData>   _channelData;
     std::vector<CscChannelSet> _cscSets;
+    std::vector<Classifier>    _channelRules;
 
     char             *_packedAcBuffer;
     size_t            _packedAcBufferSize;
@@ -177,6 +178,12 @@ class DwaCompressor: public Compressor
                     int           inSize,
                     Imath::Box2i  range,
                     const char  *&outPtr);
+
+    void initializeBuffers (size_t&);
+    void initializeDefaultChannelRules ();
+    void initializeLegacyChannelRules ();
+
+    void relevantChannelRules( std::vector<Classifier> &) const;
 
     //
     // Populate our cached version of the channel data with
