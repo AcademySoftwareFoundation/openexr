@@ -10,8 +10,7 @@ SUBDIRS = \
 	config
 
 DIST_SUBDIRS = \
-	$(SUBDIRS) \
-	vc
+	$(SUBDIRS) 
 
 
 EXTRA_DIST = \

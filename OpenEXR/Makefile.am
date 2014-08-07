@@ -9,8 +9,7 @@ SUBDIRS = config IlmImf IlmImfUtil IlmImfTest IlmImfUtilTest \
 	  exrstdattr exrmakepreview exrenvmap exrmultiview exrmultipart
 
 DIST_SUBDIRS = \
-	$(SUBDIRS) \
-	vc
+	$(SUBDIRS) 
 
 EXTRA_DIST = \
 	AUTHORS COPYING ChangeLog INSTALL LICENSE NEWS PATENTS \
