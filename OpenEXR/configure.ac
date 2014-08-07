@@ -206,6 +206,24 @@ if test "x${gcc_inline_asm_avx}" == xyes ; then
     AC_DEFINE(OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX)
 fi
 
+dnl Check if sysconf(_SC_NPROCESSORS_ONLN) can be used for CPU count
+AC_MSG_CHECKING([for sysconf(_SC_NPROCESSORS_ONLN)])
+sysconf_nproc="no"
+AC_COMPILE_IFELSE(
+   [
+        AC_LANG_PROGRAM(
+           [#include <unistd.h>],
+           [sysconf(_SC_NPROCESSORS_ONLN);]
+        )
+   ],
+   [sysconf_nproc="yes"],
+   [sysconf_nproc="no"]
+)
+AC_MSG_RESULT([$sysconf_nproc])
+if test "x${sysconf_nproc}" == xyes ; then
+    AC_DEFINE(OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN)
+fi
+
 dnl Platform-specific stuff
 case "$host" in
 *linux*)
