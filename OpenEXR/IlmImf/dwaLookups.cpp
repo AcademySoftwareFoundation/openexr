@@ -492,7 +492,7 @@ generateLutHeader()
         }
     }
 
-    if (IlmThread::supportsThreads) {
+    if (IlmThread::supportsThreads()) {
         std::vector<LutHeaderWorker::Runner*> runners;
         for (size_t i=0; i<workers.size(); ++i) {
             runners.push_back( new LutHeaderWorker::Runner(*workers[i], (i==0)) );
@@ -515,7 +515,7 @@ generateLutHeader()
             if (offsetIdx % 8 == 0) {
                 printf("    ");
             }
-            printf("%6d, ", workers[i]->offset()[value] + offsetPrev);
+            printf("%6lu, ", workers[i]->offset()[value] + offsetPrev);
             if (offsetIdx % 8 == 7) {
                 printf("\n");
             }
