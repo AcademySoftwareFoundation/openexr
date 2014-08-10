@@ -39,8 +39,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <playExr.h>
-#include <osDependent.h>
+#include "playExr.h"
+#include "osDependent.h"
 #include <IlmThread.h>
 
 #include <iostream>

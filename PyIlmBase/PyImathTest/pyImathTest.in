@@ -53,6 +53,21 @@ def numNonZeroMaskEntries(mask):
 def equalWithAbsErrorScalar(x1, x2, e):
     return abs(x1 - x2) < e
 
+def make_range(start, end):
+    num = end-start
+    increment = 1
+    if num < 0:
+        num = -num;
+        increment = -1
+
+    retval = IntArray(num)
+    val = start
+    for i in range(0, num):
+        retval[i] = val
+        val += increment
+
+    return retval
+
 # We want to be able to use the test helper
 # functions generically with different array types
 # so we use hasattr to check if the arguments support
@@ -7810,106 +7825,6 @@ testList.append (('testFrustum',testFrustum))
 
 
 # -------------------------------------------------------------------------
-# Tests for Perlin noise
-
-def testNoise ():
-
-    eps = 40 * FLT_EPS
-
-    assert equal(noiseCen(0.0), 0,           eps)
-    assert equal(noiseCen(0.1), 0.110369916, eps)
-    assert equal(noiseCen(0.2), 0.210070048, eps)
-
-    assert equal(noiseCen((0.0, 0.0)),  0,              eps)
-    assert equal(noiseCen((0.1, 0.1)), -0.150489230832, eps)
-    assert equal(noiseCen((0.2, 0.2)), -0.219769121024, eps)
-
-    assert equal(noiseCen((0.0, 0.0, 0.0)),  0,              eps)
-    assert equal(noiseCen((0.1, 0.1, 0.1)), -0.150404556446, eps)
-    assert equal(noiseCen((0.2, 0.2, 0.2)), -0.259250157847, eps)
-
-    assert equal(noise(0.0), 0.5,         eps)
-    assert equal(noise(0.1), 0.555184958, eps)
-    assert equal(noise(0.2), 0.605035024, eps)
-
-    assert equal(noise((0.0, 0.0)), 0.5,            eps)
-    assert equal(noise((0.1, 0.1)), 0.424755384584, eps)
-    assert equal(noise((0.2, 0.2)), 0.390115439488, eps)
-
-    assert equal(noise((0.0, 0.0, 0.0)), 0.5,            eps)
-    assert equal(noise((0.1, 0.1, 0.1)), 0.424797721777, eps)
-    assert equal(noise((0.2, 0.2, 0.2)), 0.370374921076, eps)
-
-    (n, g) = noiseCenGrad(0.0)
-    assert equal(n, 0.0, eps) and equal(g, 1.088993, eps)
-    (n, g) = noiseCenGrad(0.1)
-    assert equal(n, 0.110369916, eps) and equal(g, 1.08184108, eps)
-    (n, g) = noiseCenGrad(0.2)
-    assert equal(n, 0.210070048, eps) and equal(g, 0.88574412, eps)
-
-    (n, g) = noiseCenGrad((0.0, 0.0))
-    assert equal(n, 0.0, eps) and \
-	   g.equalWithAbsError((-0.828791, -0.9116), eps) 
-
-    (n, g) = noiseCenGrad((0.1, 0.1))
-    assert equal(n, -0.150489230832, eps) and \
-	   g.equalWithAbsError((-0.923214, -0.24764), eps) 
-
-    (n, g) = noiseCenGrad((0.2, 0.2))
-    assert equal(n, -0.219769121024, eps) and \
-	   g.equalWithAbsError((-0.574699, 0.399376), eps) 
-
-    (n, g) = noiseCenGrad((0.0, 0.0, 0.0))
-    assert equal(n, 0.0, eps) and \
-	   g.equalWithAbsError((-0.478393, -1.17491, 0.063697), eps) 
-
-    (n, g) = noiseCenGrad((0.1, 0.1, 0.1))
-    assert equal(n, -0.150404556446, eps) and \
-	   g.equalWithAbsError((-0.493882, -1.53089, 0.700577), eps) 
-
-    (n, g) = noiseCenGrad((0.2, 0.2, 0.2))
-    assert equal(n, -0.259250157847, eps) and \
-	   g.equalWithAbsError((-0.359504, -1.49074, 0.975563), eps) 
-
-    (n, g) = noiseGrad(0.0)
-    assert equal(n, 0.5, eps) and equal(g, 0.5444965, eps)
-    (n, g) = noiseGrad(0.1)
-    assert equal(n, 0.555184958, eps) and equal(g, 0.54092054, eps)
-    (n, g) = noiseGrad(0.2)
-    assert equal(n, 0.605035024, eps) and equal(g, 0.44287206, eps)
-
-    (n, g) = noiseGrad((0.0, 0.0))
-    assert equal(n, 0.5, eps) and \
-	   g.equalWithAbsError((-0.414396, -0.4558), eps) 
-
-    (n, g) = noiseGrad((0.1, 0.1))
-    assert equal(n, 0.424755384584, eps) and \
-	   g.equalWithAbsError((-0.461607, -0.12382), eps) 
-
-    (n, g) = noiseGrad((0.2, 0.2))
-    assert equal(n, 0.390115439488, eps) and \
-	   g.equalWithAbsError((-0.287349, 0.199688), eps) 
-
-    (n, g) = noiseGrad((0.0, 0.0, 0.0))
-    assert equal(n, 0.5, eps) and \
-	   g.equalWithAbsError((-0.239197, -0.587455, 0.0318485), eps) 
-
-    (n, g) = noiseGrad((0.1, 0.1, 0.1))
-    assert equal(n, 0.424797721777, eps) and \
-	   g.equalWithAbsError((-0.246941, -0.765447, 0.350289), eps) 
-
-    (n, g) = noiseGrad((0.2, 0.2, 0.2))
-    assert equal(n, 0.370374921076, eps) and \
-	   g.equalWithAbsError((-0.179752, -0.745372, 0.487781), eps) 
-
-    print "ok"
-
-    return
-
-testList.append (('testNoise',testNoise))
-
-
-# -------------------------------------------------------------------------
 # Tests for random number generators
 
 def testRandomCompare (r1a, r1b, r1c, r2):
@@ -8109,7 +8024,7 @@ def testFpExceptions():
     # Platform/PlatformFpu.cpp and note the non-implementation of 
     # setFpExceptions().
     #
-    if sys.platform != 'win32':
+    if sys.platform != 'win32' and sys.platform != 'darwin':
         try:
 	    v = V3d (1e200, 1e200, 1e200)
 	    v = v * v * v

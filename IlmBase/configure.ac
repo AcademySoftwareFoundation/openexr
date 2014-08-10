@@ -324,7 +324,6 @@ IexTest/Makefile
 IlmThread/Makefile
 Imath/Makefile
 ImathTest/Makefile
-vc/Makefile
 ])
 
 
