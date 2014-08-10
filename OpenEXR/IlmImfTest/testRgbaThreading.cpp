@@ -34,6 +34,7 @@
 
 
 #include "compareB44.h"
+#include "compareDwa.h"
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
@@ -145,6 +146,11 @@ writeReadRGBA (const char fileName[],
 	    in.compression() == B44A_COMPRESSION)
 	{
 	    compareB44 (w, h, p1, p2, channels);
+	}
+	else if (in.compression() == DWAA_COMPRESSION ||
+	         in.compression() == DWAB_COMPRESSION)
+	{
+	    compareDwa (w, h, p1, p2, channels);
 	}
 	else
 	{

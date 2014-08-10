@@ -145,7 +145,8 @@ usageMessage (const char argv0[], bool verbose = false)
                 "-u         sets level size rounding to ROUND_UP\n"
                 "\n"
                 "-z x       sets the data compression method to x\n"
-                "           (none/rle/zip/piz/pxr24/b44/b44a, default is zip)\n"
+                "           (none/rle/zip/piz/pxr24/b44/b44a/dwaa/dwab,\n"
+                "           default is zip)\n"
                 "\n"
                 "-v         verbose mode\n"
                 "\n"
@@ -190,6 +191,14 @@ getCompression (const string &str)
     else if (str == "b44a" || str == "B44A")
     {
         c = B44A_COMPRESSION;
+    }
+    else if (str == "dwaa" || str == "DWAA")
+    {
+        c = DWAA_COMPRESSION;
+    }
+    else if (str == "dwab" || str == "DWAB")
+    {
+        c = DWAB_COMPRESSION;
     }
     else
     {

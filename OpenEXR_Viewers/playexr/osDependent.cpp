@@ -39,7 +39,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include <osDependent.h>
+#include "osDependent.h"
 #include <stdlib.h>
 #include <iostream>
 

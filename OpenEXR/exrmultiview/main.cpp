@@ -81,7 +81,8 @@ usageMessage (const char argv0[], bool verbose = false)
 		"Options:\n"
 		"\n"
 		"-z x      sets the data compression method to x\n"
-		"          (none/rle/zip/piz/pxr24/b44/b44a, default is piz)\n"
+		"          (none/rle/zip/piz/pxr24/b44/b44a/dwaa/dwab,\n"
+		"          default is piz)\n"
 		"\n"
 		"-v        verbose mode\n"
 		"\n"
@@ -126,6 +127,14 @@ getCompression (const string &str)
     else if (str == "b44a" || str == "B44A")
     {
 	c = B44A_COMPRESSION;
+    }
+    else if (str == "dwaa" || str == "DWAA")
+    {
+	c = DWAA_COMPRESSION;
+    }
+    else if (str == "dwab" || str == "DWAB")
+    {
+	c = DWAB_COMPRESSION;
     }
     else
     {
