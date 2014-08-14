@@ -162,6 +162,17 @@ testSampleImages (const std::string&)
 	compareImages (ILM_IMF_TEST_IMAGEDIR "comp_b44.exr",
 		       ILM_IMF_TEST_IMAGEDIR "comp_b44_piz.exr");
 
+	compareImages (ILM_IMF_TEST_IMAGEDIR "comp_dwaa_v1.exr",
+		       ILM_IMF_TEST_IMAGEDIR "comp_dwaa_piz.exr");
+	compareImages (ILM_IMF_TEST_IMAGEDIR "comp_dwaa_v2.exr",
+		       ILM_IMF_TEST_IMAGEDIR "comp_dwaa_piz.exr");
+
+	compareImages (ILM_IMF_TEST_IMAGEDIR "comp_dwab_v1.exr",
+		       ILM_IMF_TEST_IMAGEDIR "comp_dwab_piz.exr");
+	compareImages (ILM_IMF_TEST_IMAGEDIR "comp_dwab_v2.exr",
+		       ILM_IMF_TEST_IMAGEDIR "comp_dwab_piz.exr");
+
+
 	cout << "ok\n" << endl;
     }
     catch (const std::exception &e)

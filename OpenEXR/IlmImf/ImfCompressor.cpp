@@ -46,6 +46,7 @@
 #include "ImfPizCompressor.h"
 #include "ImfPxr24Compressor.h"
 #include "ImfB44Compressor.h"
+#include "ImfDwaCompressor.h"
 #include "ImfCheckedArithmetic.h"
 #include "ImfNamespace.h"
 
@@ -100,6 +101,8 @@ isValidCompression (Compression c)
       case PXR24_COMPRESSION:
       case B44_COMPRESSION:
       case B44A_COMPRESSION:
+      case DWAA_COMPRESSION:
+      case DWAB_COMPRESSION:
 
 	return true;
 
@@ -156,6 +159,16 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header &hdr)
 
 	return new B44Compressor (hdr, maxScanLineSize, 32, true);
 
+      case DWAA_COMPRESSION:
+
+	return new DwaCompressor (hdr, maxScanLineSize, 32, 
+                               DwaCompressor::STATIC_HUFFMAN);
+
+      case DWAB_COMPRESSION:
+
+	return new DwaCompressor (hdr, maxScanLineSize, 256, 
+                               DwaCompressor::STATIC_HUFFMAN);
+
       default:
 
 	return 0;
@@ -195,6 +208,12 @@ newTileCompressor (Compression c,
       case B44A_COMPRESSION:
 
 	return new B44Compressor (hdr, tileLineSize, numTileLines, true);
+
+      case DWAA_COMPRESSION:
+      case DWAB_COMPRESSION:
+
+	return new DwaCompressor (hdr, tileLineSize, numTileLines, 
+                               DwaCompressor::DEFLATE);
 
       default:
 

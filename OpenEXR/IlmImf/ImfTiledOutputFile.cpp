@@ -68,6 +68,7 @@
 #include <fstream>
 #include <assert.h>
 #include <map>
+#include <algorithm>
 
 #include "ImfNamespace.h"
 

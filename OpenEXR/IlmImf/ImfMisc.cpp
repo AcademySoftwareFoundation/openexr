@@ -553,11 +553,19 @@ copyIntoFrameBuffer (const char *& readPtr,
 
               case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
-                while (writePtr <= endPtr)
-                {
-                    *(half *) writePtr = *(half *)readPtr;
-                    readPtr += sizeof (half);
-                    writePtr += xStride;
+                // If we're tightly packed, just memcpy
+                if (xStride == sizeof(half)) {
+                    int numBytes = endPtr-writePtr+sizeof(half);
+                    memcpy(writePtr, readPtr, numBytes);
+                    readPtr  += numBytes;
+                    writePtr += numBytes;                    
+                } else {
+                    while (writePtr <= endPtr)
+                    {
+                        *(half *) writePtr = *(half *)readPtr;
+                        readPtr += sizeof (half);
+                        writePtr += xStride;
+                    }
                 }
                 break;
 
@@ -1859,5 +1867,6 @@ getChunkOffsetTableSize(const Header& header,bool ignore_attribute)
         return getTiledChunkOffsetTableSize(header);
     
 }
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

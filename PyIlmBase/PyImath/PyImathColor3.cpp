@@ -545,7 +545,7 @@ static bool
 greaterThan(Color3<T> &v, const Color3<T> &w)
 {
     bool isGreaterThan = (v.x >= w.x && v.y >= w.y && v.z >= w.z)
-                       & v != w;
+                       && v != w;
                    
    return isGreaterThan;
 }

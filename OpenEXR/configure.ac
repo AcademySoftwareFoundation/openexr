@@ -1,9 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(OpenEXR, 2.1.0)
+AC_INIT(OpenEXR, 2.2.0)
 
 AC_SUBST(OPENEXR_VERSION_MAJOR, 2)
-AC_SUBST(OPENEXR_VERSION_MINOR, 1)
+AC_SUBST(OPENEXR_VERSION_MINOR, 2)
 AC_SUBST(OPENEXR_VERSION_PATCH, 0)
 
 AC_SUBST(OPENEXR_VERSION, ${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH})
@@ -16,7 +16,7 @@ AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 
 
-LIBTOOL_CURRENT=21
+LIBTOOL_CURRENT=22
 LIBTOOL_REVISION=0
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
@@ -174,6 +174,56 @@ AC_TRY_COMPILE([#include <stdio.h>],
 CFLAGS=$old_cflags
 AC_MSG_RESULT([$EXTRA_OPT_CFLAGS])
 
+dnl Check to see if the toolset supports AVX instructions in inline asm
+AC_MSG_CHECKING(for AVX instructions in GCC style inline asm)
+gcc_inline_asm_avx="no"
+AC_COMPILE_IFELSE(
+    [
+        AC_LANG_PROGRAM([],
+        [
+             #if defined(__GNUC__) && defined(__SSE2__) 
+                 int n   = 0;
+                 int eax = 0;
+                 int edx = 0;
+                 __asm__(
+                     "xgetbv     \n"
+                     "vzeroupper  "
+                     : "=a"(eax), "=d"(edx) : "c"(n) : );
+             #else
+                 #error No GCC style inline asm supported for AVX instructions
+             #endif
+        ]) 
+   ],
+   [
+      gcc_inline_asm_avx="yes"
+   ],
+   [
+      gcc_inline_asm_avx="no"
+   ]
+)
+AC_MSG_RESULT([$gcc_inline_asm_avx])
+if test "x${gcc_inline_asm_avx}" == xyes ; then
+    AC_DEFINE(OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX)
+fi
+
+dnl Check if sysconf(_SC_NPROCESSORS_ONLN) can be used for CPU count
+AC_MSG_CHECKING([for sysconf(_SC_NPROCESSORS_ONLN)])
+sysconf_nproc="no"
+AC_COMPILE_IFELSE(
+   [
+        AC_LANG_PROGRAM(
+           [#include <unistd.h>],
+           [sysconf(_SC_NPROCESSORS_ONLN);]
+        )
+   ],
+   [sysconf_nproc="yes"],
+   [sysconf_nproc="no"]
+)
+AC_MSG_RESULT([$sysconf_nproc])
+if test "x${sysconf_nproc}" == xyes ; then
+    AC_DEFINE(OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN)
+fi
+
 dnl Platform-specific stuff
 case "$host" in
 *linux*)
@@ -261,7 +311,7 @@ if test "x${library_namespace_versioning}" == xyes ; then
     AC_DEFINE(OPENEXR_IMF_INTERNAL_NAMESPACE_CUSTOM)
 
     lib_namespace="Imf_${OPENEXR_VERSION_API}"
-    LIB_SUFFIX="Imf_${OPENEXR_VERSION_API}"
+    LIB_SUFFIX="${OPENEXR_VERSION_API}"
     lib_suffix_valid="yes"
 elif test "x${library_namespace_versioning}" == xno ; then
     AC_DEFINE_UNQUOTED(OPENEXR_IMF_INTERNAL_NAMESPACE, Imf)
@@ -319,6 +369,8 @@ OpenEXR.pc
 config/Makefile
 IlmImf/Makefile
 IlmImfTest/Makefile
+IlmImfUtil/Makefile
+IlmImfUtilTest/Makefile
 IlmImfFuzzTest/Makefile
 exrheader/Makefile
 exrmaketiled/Makefile
@@ -328,7 +380,6 @@ exrstdattr/Makefile
 exrmakepreview/Makefile
 exrenvmap/Makefile
 exrmultiview/Makefile
-vc/Makefile
 exrmultipart/Makefile
 ])
 

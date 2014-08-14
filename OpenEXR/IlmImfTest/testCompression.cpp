@@ -329,12 +329,16 @@ writeRead (const Array2D<unsigned int> &pi1,
 		assert (pi1[y][x] == pi2[y][x]);
 		assert (equivalent (pf1[y][x], pf2[y][x], comp));
 
-		if (comp != B44_COMPRESSION && comp != B44A_COMPRESSION)
+		if (comp != B44_COMPRESSION &&
+                    comp != B44A_COMPRESSION)
+                {
 		    assert (ph1[y][x].bits() == ph2[y][x].bits());
+                }
 	    }
 	}
 
-	if (comp == B44_COMPRESSION || comp == B44A_COMPRESSION)
+	if (comp == B44_COMPRESSION ||
+            comp == B44A_COMPRESSION)
 	{
 	    Array2D<half> ph3 (h / ys, w / xs);
 

@@ -5,8 +5,7 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = playexr exrdisplay doc config
 
 DIST_SUBDIRS = \
-	$(SUBDIRS) \
-	vc
+	$(SUBDIRS) 
 
 EXTRA_DIST = \
 	AUTHORS COPYING ChangeLog INSTALL LICENSE NEWS \

@@ -46,7 +46,10 @@ IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
 		     testOptimized.cpp testOptimized.h \
 		     testOptimizedInterleavePatterns.cpp testOptimizedInterleavePatterns.h \
 		     testBadTypeAttributes.cpp testBadTypeAttributes.h \
-		     testFutureProofing.cpp testFutureProofing.h
+		     testFutureProofing.cpp testFutureProofing.h \
+	             compareDwa.cpp compareDwa.h \
+	             testDwaCompressorSimd.cpp testDwaCompressorSimd.h \
+	             testRle.cpp testRle.h
 
 AM_CPPFLAGS = -DILM_IMF_TEST_IMAGEDIR=\"$(srcdir)/\"
 

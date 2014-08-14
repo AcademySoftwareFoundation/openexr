@@ -522,11 +522,16 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
             tileOffsets[i] = createTileOffsets(parts[i]->header);
         }else{
             tileOffsets[i] = NULL;
+            // (TODO) fix this so that it doesn't need to be revised for future compression types.
             switch(parts[i]->header.compression())
             {
+                case DWAB_COMPRESSION :
+                    rowsizes[i] = 256;
+                    break;
                 case PIZ_COMPRESSION :
                 case B44_COMPRESSION :
                 case B44A_COMPRESSION :
+                case DWAA_COMPRESSION :
                     rowsizes[i]=32;
                     break;
                 case ZIP_COMPRESSION :
@@ -637,7 +642,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                 y_coordinate -= header.dataWindow().min.y;
                 y_coordinate /= rowsizes[partNumber];   
                 
-                if(y_coordinate<0 || y_coordinate>int(parts[partNumber]->chunkOffsets.size()))
+                if(y_coordinate < 0 || y_coordinate >= int(parts[partNumber]->chunkOffsets.size()))
                 {
                     //std::cout << "aborting reconstruction: bad data " << y_coordinate << endl;
                     //bail to exception catcher: broken scanline

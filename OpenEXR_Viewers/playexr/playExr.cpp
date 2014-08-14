@@ -55,13 +55,13 @@
 //
 //----------------------------------------------------------------------------
 
-#include <playExr.h>
-#include <ctlToLut.h>
-#include <fileNameForFrame.h>
-#include <FileReadingThread.h>
-#include <osDependent.h>
-#include <ImageBuffers.h>
-#include <Timer.h>
+#include "playExr.h"
+#include "ctlToLut.h"
+#include "fileNameForFrame.h"
+#include "FileReadingThread.h"
+#include "osDependent.h"
+#include "ImageBuffers.h"
+#include "Timer.h"
 #include <ImfThreading.h>
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>

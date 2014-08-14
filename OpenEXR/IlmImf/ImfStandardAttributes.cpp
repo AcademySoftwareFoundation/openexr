@@ -87,18 +87,21 @@
 
 #include "ImfNamespace.h"
 
+using namespace IMATH_NAMESPACE;
+using namespace std;
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
    
 IMF_STD_ATTRIBUTE_IMP (chromaticities, Chromaticities, Chromaticities)
 IMF_STD_ATTRIBUTE_IMP (whiteLuminance, WhiteLuminance, float)
-IMF_STD_ATTRIBUTE_IMP (adoptedNeutral, AdoptedNeutral, IMATH_NAMESPACE::V2f)
-IMF_STD_ATTRIBUTE_IMP (renderingTransform, RenderingTransform, std::string)
-IMF_STD_ATTRIBUTE_IMP (lookModTransform, LookModTransform, std::string)
+IMF_STD_ATTRIBUTE_IMP (adoptedNeutral, AdoptedNeutral, V2f)
+IMF_STD_ATTRIBUTE_IMP (renderingTransform, RenderingTransform, string)
+IMF_STD_ATTRIBUTE_IMP (lookModTransform, LookModTransform, string)
 IMF_STD_ATTRIBUTE_IMP (xDensity, XDensity, float)
-IMF_STD_ATTRIBUTE_IMP (owner, Owner, std::string)
-IMF_STD_ATTRIBUTE_IMP (comments, Comments, std::string)
-IMF_STD_ATTRIBUTE_IMP (capDate, CapDate, std::string)
+IMF_STD_ATTRIBUTE_IMP (owner, Owner, string)
+IMF_STD_ATTRIBUTE_IMP (comments, Comments, string)
+IMF_STD_ATTRIBUTE_IMP (capDate, CapDate, string)
 IMF_STD_ATTRIBUTE_IMP (utcOffset, UtcOffset, float)
 IMF_STD_ATTRIBUTE_IMP (longitude, Longitude, float)
 IMF_STD_ATTRIBUTE_IMP (latitude, Latitude, float)
@@ -110,11 +113,13 @@ IMF_STD_ATTRIBUTE_IMP (isoSpeed, IsoSpeed, float)
 IMF_STD_ATTRIBUTE_IMP (envmap, Envmap, Envmap)
 IMF_STD_ATTRIBUTE_IMP (keyCode, KeyCode, KeyCode)
 IMF_STD_ATTRIBUTE_IMP (timeCode, TimeCode, TimeCode)
-IMF_STD_ATTRIBUTE_IMP (wrapmodes, Wrapmodes, std::string)
+IMF_STD_ATTRIBUTE_IMP (wrapmodes, Wrapmodes, string)
 IMF_STD_ATTRIBUTE_IMP (framesPerSecond, FramesPerSecond, Rational)
 IMF_STD_ATTRIBUTE_IMP (multiView, MultiView, StringVector)
-IMF_STD_ATTRIBUTE_IMP (worldToCamera, WorldToCamera, IMATH_NAMESPACE::M44f)
-IMF_STD_ATTRIBUTE_IMP (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
+IMF_STD_ATTRIBUTE_IMP (worldToCamera, WorldToCamera, M44f)
+IMF_STD_ATTRIBUTE_IMP (worldToNDC, WorldToNDC, M44f)
 IMF_STD_ATTRIBUTE_IMP (deepImageState, DeepImageState, DeepImageState)
+IMF_STD_ATTRIBUTE_IMP (originalDataWindow, OriginalDataWindow, Box2i)
+IMF_STD_ATTRIBUTE_IMP (dwaCompressionLevel, DwaCompressionLevel, float)
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

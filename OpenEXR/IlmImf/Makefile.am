@@ -13,7 +13,8 @@ libIlmImf_la_SOURCES = ImfForward.h ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgb
 		       ImfThreading.cpp \
 		       ImfWav.cpp ImfLut.cpp ImfCompressor.cpp \
 		       ImfRleCompressor.cpp ImfZipCompressor.cpp \
-		       ImfPizCompressor.cpp ImfB44Compressor.cpp ImfMisc.cpp \
+		       ImfPizCompressor.cpp ImfB44Compressor.cpp \
+		       ImfDwaCompressor.cpp ImfMisc.cpp \
 		       ImfCompressionAttribute.cpp ImfDoubleAttribute.cpp \
 		       ImfAttribute.h ImfBoxAttribute.h \
 		       ImfCRgbaFile.h ImfChannelList.h \
@@ -29,7 +30,8 @@ libIlmImf_la_SOURCES = ImfForward.h ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgb
 		       ImfArray.h ImfCompression.h ImfLineOrder.h \
 		       ImfName.h ImfPixelType.h ImfVersion.h ImfXdr.h \
 		       ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
-		       ImfPizCompressor.h ImfMisc.h ImfAutoArray.h \
+		       ImfPizCompressor.h ImfDwaCompressor.h \
+	               ImfDwaCompressorSimd.h ImfMisc.h ImfAutoArray.h \
 		       ImfConvert.cpp ImfConvert.h ImfPreviewImage.cpp \
 		       ImfPreviewImage.h ImfPreviewImageAttribute.cpp \
 		       ImfPreviewImageAttribute.h ImfVersion.cpp \
@@ -84,7 +86,12 @@ libIlmImf_la_SOURCES = ImfForward.h ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgb
 		       ImfDeepFrameBuffer.cpp ImfDeepFrameBuffer.h \
 		       ImfDeepCompositing.h ImfDeepCompositing.cpp \
 		       ImfCompositeDeepScanLine.h ImfCompositeDeepScanLine.cpp \
-		       ImfDeepImageStateAttribute.h ImfDeepImageStateAttribute.cpp
+		       ImfDeepImageStateAttribute.h ImfDeepImageStateAttribute.cpp \
+	               ImfFastHuf.h ImfFastHuf.cpp \
+	               ImfFloatVectorAttribute.h ImfFloatVectorAttribute.cpp \
+	               ImfRle.h ImfRle.cpp ImfSimd.h \
+	               ImfSystemSpecific.cpp ImfZip.h ImfZip.cpp
+
 
 libIlmImf_la_LDFLAGS = @ILMBASE_LDFLAGS@ -version-info @LIBTOOL_VERSION@ \
 			-no-undefined 
@@ -154,12 +161,15 @@ libIlmImfinclude_HEADERS = ImfForward.h ImfAttribute.h ImfBoxAttribute.h \
 			   ImfNamespace.h ImfForward.h ImfExport.h \
 			   ImfMisc.h          \
 			   ImfPartHelper.h \
-			   ImfDeepImageState.h
+			   ImfDeepImageState.h \
+			   ImfDeepImageStateAttribute.h
 
 noinst_HEADERS = ImfCompressor.h    \
 		 ImfRleCompressor.h \
 		 ImfZipCompressor.h \
 		 ImfPizCompressor.h \
+		 ImfDwaCompressor.h \
+		 ImfDwaCompressorSimd.h \
 		 ImfAutoArray.h     \
 		 ImfTiledMisc.h     \
 		 ImfTileOffsets.h   \
@@ -175,14 +185,14 @@ noinst_HEADERS = ImfCompressor.h    \
 		 ImfOptimizedPixelReading.h
 
 
-EXTRA_DIST = $(noinst_HEADERS) b44ExpLogTable.cpp b44ExpLogTable.h CMakeLists.txt
+EXTRA_DIST = $(noinst_HEADERS) b44ExpLogTable.cpp b44ExpLogTable.h dwaLookups.cpp dwaLookups.h CMakeLists.txt
 
 
 INCLUDES = @ILMBASE_CXXFLAGS@ \
 	   -I$(top_builddir)  \
 	   -I$(top_srcdir)/config
 
-CLEANFILES = b44ExpLogTable b44ExpLogTable.h
+CLEANFILES = b44ExpLogTable b44ExpLogTable.h dwaLookups dwaLookups.h
 
 b44ExpLogTable_SOURCES = b44ExpLogTable.cpp
 b44ExpLogTable_LDADD = @ILMBASE_LDFLAGS@ @ILMBASE_LIBS@
@@ -190,6 +200,12 @@ b44ExpLogTable_LDADD = @ILMBASE_LDFLAGS@ @ILMBASE_LIBS@
 b44ExpLogTable.h: b44ExpLogTable
 	./b44ExpLogTable > b44ExpLogTable.h
 
-BUILT_SOURCES = b44ExpLogTable.h
+dwaLookups_SOURCES = dwaLookups.cpp
+dwaLookups_LDADD = @ILMBASE_LDFLAGS@ @ILMBASE_LIBS@
 
-noinst_PROGRAMS = b44ExpLogTable
+dwaLookups.h: dwaLookups
+	./dwaLookups > dwaLookups.h
+
+BUILT_SOURCES = b44ExpLogTable.h dwaLookups.h
+
+noinst_PROGRAMS = b44ExpLogTable dwaLookups
