@@ -107,7 +107,7 @@ FastHufDecoder::FastHufDecoder
     for (int i = 0; i <= MAX_CODE_LEN; ++i)
     {
         codeCount[i] = 0;
-        base[i]      = 0xffffffffffffffffLL;
+        base[i]      = 0xffffffffffffffffULL;
         offset[i]    = 0;
     }
 
@@ -352,7 +352,7 @@ FastHufDecoder::buildTables (Int64 *base, Int64 *offset)
 
     for (int i = 0; i <= MAX_CODE_LEN; ++i)
     {
-        if (base[i] != 0xffffffffffffffffLL)
+        if (base[i] != 0xffffffffffffffffULL)
         {
             _ljBase[i] = base[i] << (64 - i);
         }
@@ -362,7 +362,7 @@ FastHufDecoder::buildTables (Int64 *base, Int64 *offset)
             // Unused code length - insert dummy values
             //
 
-            _ljBase[i] = 0xffffffffffffffffLL;
+            _ljBase[i] = 0xffffffffffffffffULL;
         }
     }
 
@@ -417,7 +417,7 @@ FastHufDecoder::buildTables (Int64 *base, Int64 *offset)
 
     int minIdx = TABLE_LOOKUP_BITS;
 
-    while (minIdx > 0 && _ljBase[minIdx] == 0xffffffffffffffffLL)
+    while (minIdx > 0 && _ljBase[minIdx] == 0xffffffffffffffffULL)
         minIdx--;
 
     if (minIdx < 0)
@@ -427,7 +427,7 @@ FastHufDecoder::buildTables (Int64 *base, Int64 *offset)
         // Set the min value such that the table is never tested.
         //
 
-        _tableMin = 0xffffffffffffffffLL;
+        _tableMin = 0xffffffffffffffffULL;
     }
     else
     {
