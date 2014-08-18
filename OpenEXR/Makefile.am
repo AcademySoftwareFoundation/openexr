@@ -13,7 +13,7 @@ DIST_SUBDIRS = \
 
 EXTRA_DIST = \
 	AUTHORS COPYING ChangeLog INSTALL LICENSE NEWS PATENTS \
-        README README.CVS README.OSX README.win32 \
+        README README.CVS README.OSX \
 	README.git README.namespacing README.cmake.txt \
 	bootstrap openexr.m4 \
 	config.windows/OpenEXRConfig.h \
