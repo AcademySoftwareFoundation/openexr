@@ -261,7 +261,7 @@ struct DwaCompressor::Classifier
     Classifier (const char *&ptr, int size)
     {
         if (size <= 0) 
-            throw Iex::InputExc("Error uncompressing DWA data"
+            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                                 " (truncated rule).");
             
         {
@@ -272,7 +272,7 @@ struct DwaCompressor::Classifier
         }
 
         if (size < _suffix.length() + 1 + 2*Xdr::size<char>()) 
-            throw Iex::InputExc("Error uncompressing DWA data"
+            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                                 " (truncated rule).");
 
         char value;
@@ -280,19 +280,19 @@ struct DwaCompressor::Classifier
 
         _cscIdx = (int)(value >> 4) - 1;
         if (_cscIdx < -1 || _cscIdx >= 3) 
-            throw Iex::InputExc("Error uncompressing DWA data"
+            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                                 " (corrupt cscIdx rule).");
 
         _scheme = (CompressorScheme)((value >> 2) & 3);
         if (_scheme < 0 || _scheme >= NUM_COMPRESSOR_SCHEMES) 
-            throw Iex::InputExc("Error uncompressing DWA data"
+            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                                 " (corrupt scheme rule).");
 
         _caseInsensitive = (value & 1 ? true : false);
 
         Xdr::read<CharPtrIO> (ptr, value);
         if (value < 0 || value >= NUM_PIXELTYPES) 
-            throw Iex::InputExc("Error uncompressing DWA data"
+            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                                 " (corrupt rule).");
         _type = (PixelType)value;
     }
@@ -717,10 +717,10 @@ DwaCompressor::LossyDctDecoderBase::execute ()
     std::vector<SimdAlignedBuffer64us> halfZigBlock (_rowPtrs.size());
 
     if (_type.size() != _rowPtrs.size())
-        throw Iex::BaseExc ("Row pointers and types mismatch in count");
+        throw IEX_NAMESPACE::BaseExc ("Row pointers and types mismatch in count");
 
     if ((_rowPtrs.size() != 3) && (_rowPtrs.size() != 1))
-        throw Iex::NoImplExc ("Only 1 and 3 channel encoding is supported");
+        throw IEX_NAMESPACE::NoImplExc ("Only 1 and 3 channel encoding is supported");
 
     _dctData.resize(numComp);
 
@@ -1845,7 +1845,7 @@ DwaCompressor::numScanLines() const
 }
 
 
-Imf::Compressor::Format 
+OPENEXR_IMF_NAMESPACE::Compressor::Format 
 DwaCompressor::format() const
 {
     if (GLOBAL_SYSTEM_LITTLE_ENDIAN)
@@ -1865,18 +1865,18 @@ DwaCompressor::compress
     return compress
         (inPtr,
          inSize, 
-         Imath::Box2i (Imath::V2i (_min[0], minY),
-                       Imath::V2i (_max[0], minY + numScanLines() - 1)),
+         IMATH_NAMESPACE::Box2i (IMATH_NAMESPACE::V2i (_min[0], minY),
+                                 IMATH_NAMESPACE::V2i (_max[0], minY + numScanLines() - 1)),
          outPtr);
 }
 
 
 int
 DwaCompressor::compressTile
-    (const char *inPtr,
-     int inSize,
-     Imath::Box2i range,
-     const char *&outPtr)
+    (const char             *inPtr,
+     int                    inSize,
+     IMATH_NAMESPACE::Box2i range,
+     const char             *&outPtr)
 {
     return compress (inPtr, inSize, range, outPtr);
 }
@@ -1884,10 +1884,10 @@ DwaCompressor::compressTile
 
 int 
 DwaCompressor::compress
-    (const char *inPtr,
-     int inSize,
-     Imath::Box2i range,
-     const char  *&outPtr)
+    (const char             *inPtr,
+     int                    inSize,
+     IMATH_NAMESPACE::Box2i range,
+     const char             *&outPtr)
 {
     const char *inDataPtr   = inPtr;
     char       *packedAcEnd = 0;
@@ -1927,7 +1927,7 @@ DwaCompressor::compress
         _outBuffer = new char[outBufferSize];
     }
 
-    char *outDataPtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(Imf::Int64) +
+    char *outDataPtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(OPENEXR_IMF_NAMESPACE::Int64) +
                                    channelRuleSize];
 
     //
@@ -1980,7 +1980,7 @@ DwaCompressor::compress
 
     if (fileVersion >= 2) 
     {
-        char *writePtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(Imf::Int64)];
+        char *writePtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(OPENEXR_IMF_NAMESPACE::Int64)];
         Xdr::write<CharPtrIO> (writePtr, channelRuleSize);
         
         for (size_t i = 0; i < channelRules.size(); ++i) 
@@ -2007,11 +2007,11 @@ DwaCompressor::compress
 
             ChannelData *cd = &_channelData[chan];
 
-            if (Imath::modp(y, cd->ySampling) != 0)
+            if (IMATH_NAMESPACE::modp(y, cd->ySampling) != 0)
                 continue;
 
             rowPtrs[chan].push_back(inDataPtr);
-            inDataPtr += cd->width * Imf::pixelTypeSize(cd->type);
+            inDataPtr += cd->width * OPENEXR_IMF_NAMESPACE::pixelTypeSize(cd->type);
         }
     }
 
@@ -2111,7 +2111,7 @@ DwaCompressor::compress
                 for (int x = 0; x < cd->width; ++x)
                 {
                     for (int byte = 0;
-                         byte < Imf::pixelTypeSize (cd->type);
+                         byte < OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
                          ++byte)
                     {
                             
@@ -2119,7 +2119,7 @@ DwaCompressor::compress
                     }
                 }
 
-                *rleRawSize += cd->width * Imf::pixelTypeSize(cd->type);
+                *rleRawSize += cd->width * OPENEXR_IMF_NAMESPACE::pixelTypeSize(cd->type);
             }
 
             break;
@@ -2131,7 +2131,7 @@ DwaCompressor::compress
             //
 
             {
-                int scanlineSize = cd->width * Imf::pixelTypeSize(cd->type);
+                int scanlineSize = cd->width * OPENEXR_IMF_NAMESPACE::pixelTypeSize(cd->type);
 
                 for (unsigned int y = 0; y < rowPtrs[chan].size(); ++y)
                 {
@@ -2171,7 +2171,7 @@ DwaCompressor::compress
                                  inSize,
                                  9))
         {
-            throw Iex::BaseExc ("Data compression (zlib) failed.");
+            throw IEX_NAMESPACE::BaseExc ("Data compression (zlib) failed.");
         }
 
         outDataPtr += outSize;
@@ -2212,7 +2212,7 @@ DwaCompressor::compress
                                                 * sizeof (unsigned short)),
                                  9))
                 {
-                    throw Iex::InputExc ("Data compression (zlib) failed.");
+                    throw IEX_NAMESPACE::InputExc ("Data compression (zlib) failed.");
                 }
 
                 *acCompressedSize = destLen;        
@@ -2264,7 +2264,7 @@ DwaCompressor::compress
                          (uLong)(*rleUncompressedSize),
                          9))
         {
-            throw Iex::BaseExc ("Error compressing RLE'd data.");
+            throw IEX_NAMESPACE::BaseExc ("Error compressing RLE'd data.");
         }
         
        *rleCompressedSize = dstLen;
@@ -2302,8 +2302,8 @@ DwaCompressor::uncompress
 {
     return uncompress (inPtr,
                        inSize,
-                       Imath::Box2i (Imath::V2i (_min[0], minY),
-                       Imath::V2i (_max[0], minY + numScanLines() - 1)),
+                       IMATH_NAMESPACE::Box2i (IMATH_NAMESPACE::V2i (_min[0], minY),
+                       IMATH_NAMESPACE::V2i (_max[0], minY + numScanLines() - 1)),
                        outPtr);
 }
 
@@ -2312,7 +2312,7 @@ int
 DwaCompressor::uncompressTile
     (const char *inPtr,
      int inSize,
-     Imath::Box2i range,
+     IMATH_NAMESPACE::Box2i range,
      const char *&outPtr)
 {
     return uncompress (inPtr, inSize, range, outPtr);
@@ -2323,7 +2323,7 @@ int
 DwaCompressor::uncompress
     (const char *inPtr,
      int inSize,
-     Imath::Box2i range,
+     IMATH_NAMESPACE::Box2i range,
      const char *&outPtr)
 {
     int minX = range.min.x;
@@ -2334,7 +2334,7 @@ DwaCompressor::uncompress
     int headerSize = NUM_SIZES_SINGLE*sizeof(Int64);
     if (inSize < headerSize) 
     {
-        throw Iex::InputExc("Error uncompressing DWA data"
+        throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                             "(truncated header).");
     }
 
@@ -2379,7 +2379,7 @@ DwaCompressor::uncompress
 
     if (inSize < headerSize + compressedSize) 
     {
-        throw Iex::InputExc("Error uncompressing DWA data"
+        throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                             "(truncated file).");
     }
 
@@ -2393,7 +2393,7 @@ DwaCompressor::uncompress
         totalAcUncompressedCount < 0 || 
         totalDcUncompressedCount < 0) 
     {
-        throw Iex::InputExc("Error uncompressing DWA data"
+        throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                             " (corrupt header).");
     }
 
@@ -2405,12 +2405,12 @@ DwaCompressor::uncompress
         Xdr::read<CharPtrIO>(dataPtr, ruleSize);
 
         if (ruleSize < 0) 
-            throw Iex::InputExc("Error uncompressing DWA data"
+            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                                 " (corrupt header file).");
 
         headerSize += ruleSize;
         if (inSize < headerSize + compressedSize)
-            throw Iex::InputExc("Error uncompressing DWA data"
+            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                                 " (truncated file).");
 
         _channelRules.clear();
@@ -2483,7 +2483,7 @@ DwaCompressor::uncompress
     //
 
     if ((version < 0) || (version > 2))
-        throw Iex::InputExc ("Invalid version of compressed data block");    
+        throw IEX_NAMESPACE::InputExc ("Invalid version of compressed data block");    
 
     setupChannelData(minX, minY, maxX, maxY);
 
@@ -2499,7 +2499,7 @@ DwaCompressor::uncompress
         if (unknownUncompressedSize < 0 || 
             outSize > _planarUncBufferSize[UNKNOWN]) 
         {
-            throw Iex::InputExc("Error uncompressing DWA data"
+            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                                 "(corrupt header).");
         }
 
@@ -2509,7 +2509,7 @@ DwaCompressor::uncompress
                          (Bytef *)compressedUnknownBuf,
                          (uLong)unknownCompressedSize))
         {
-            throw Iex::BaseExc("Error uncompressing UNKNOWN data.");
+            throw IEX_NAMESPACE::BaseExc("Error uncompressing UNKNOWN data.");
         }
     }
 
@@ -2521,7 +2521,7 @@ DwaCompressor::uncompress
     {
         if (totalAcUncompressedCount*sizeof(unsigned short) > _packedAcBufferSize)
         {
-            throw Iex::InputExc("Error uncompressing DWA data"
+            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                                 "(corrupt header).");
         }
 
@@ -2552,20 +2552,20 @@ DwaCompressor::uncompress
                                  (Bytef *)compressedAcBuf,
                                  (uLong)acCompressedSize))
                 {
-                    throw Iex::InputExc ("Data decompression (zlib) failed.");
+                    throw IEX_NAMESPACE::InputExc ("Data decompression (zlib) failed.");
                 }
 
                 if (totalAcUncompressedCount * sizeof (unsigned short) !=
                                 destLen)
                 {
-                    throw Iex::InputExc ("AC data corrupt.");     
+                    throw IEX_NAMESPACE::InputExc ("AC data corrupt.");     
                 }
             }
             break;
 
           default:
 
-            throw Iex::NoImplExc ("Unknown AC Compression");
+            throw IEX_NAMESPACE::NoImplExc ("Unknown AC Compression");
             break;
         }
     }
@@ -2578,7 +2578,7 @@ DwaCompressor::uncompress
     {
         if (totalDcUncompressedCount*sizeof(unsigned short) > _packedDcBufferSize)
         {
-            throw Iex::InputExc("Error uncompressing DWA data"
+            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                                 "(corrupt header).");
         }
 
@@ -2586,7 +2586,7 @@ DwaCompressor::uncompress
                     (compressedDcBuf, (int)dcCompressedSize, _packedDcBuffer)
             != (int)totalDcUncompressedCount * sizeof (unsigned short))
         {
-            throw Iex::BaseExc("DC data corrupt.");
+            throw IEX_NAMESPACE::BaseExc("DC data corrupt.");
         }
     }
 
@@ -2600,7 +2600,7 @@ DwaCompressor::uncompress
         if (rleUncompressedSize > _rleBufferSize ||
             rleRawSize > _planarUncBufferSize[RLE])
         {
-            throw Iex::InputExc("Error uncompressing DWA data"
+            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                                 "(corrupt header).");
         }
  
@@ -2612,11 +2612,11 @@ DwaCompressor::uncompress
                          (Bytef *)compressedRleBuf,
                          (uLong)rleCompressedSize))
         {
-            throw Iex::BaseExc("Error uncompressing RLE data.");
+            throw IEX_NAMESPACE::BaseExc("Error uncompressing RLE data.");
         }
 
         if (dstLen != rleUncompressedSize)
-            throw Iex::BaseExc("RLE data corrupted");
+            throw IEX_NAMESPACE::BaseExc("RLE data corrupted");
 
         if (rleUncompress
                 ((int)rleUncompressedSize, 
@@ -2624,7 +2624,7 @@ DwaCompressor::uncompress
                  (signed char *)_rleBuffer,
                  _planarUncBuffer[RLE]) != rleRawSize)
         {        
-            throw Iex::BaseExc("RLE data corrupted");
+            throw IEX_NAMESPACE::BaseExc("RLE data corrupted");
         }
     }
 
@@ -2646,11 +2646,11 @@ DwaCompressor::uncompress
         {
             ChannelData *cd = &_channelData[chan];
 
-            if (Imath::modp (y, cd->ySampling) != 0)
+            if (IMATH_NAMESPACE::modp (y, cd->ySampling) != 0)
                 continue;
 
             rowPtrs[chan].push_back (outBufferEnd);
-            outBufferEnd += cd->width * Imf::pixelTypeSize (cd->type);
+            outBufferEnd += cd->width * OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
         }
     }
 
@@ -2702,7 +2702,7 @@ DwaCompressor::uncompress
             continue;
 
         ChannelData *cd = &_channelData[chan];
-        int pixelSize = Imf::pixelTypeSize (cd->type);
+        int pixelSize = OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
 
         switch (cd->compression)
         {
@@ -2753,7 +2753,7 @@ DwaCompressor::uncompress
 
                 for (int y = minY; y <= maxY; ++y)
                 {
-                    if (Imath::modp (y, cd->ySampling) != 0)
+                    if (IMATH_NAMESPACE::modp (y, cd->ySampling) != 0)
                         continue;
 
                     char *dst = rowPtrs[chan][row];
@@ -2794,11 +2794,11 @@ DwaCompressor::uncompress
 
             {
                 int row             = 0;
-                int dstScanlineSize = cd->width * Imf::pixelTypeSize (cd->type);
+                int dstScanlineSize = cd->width * OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
 
                 for (int y = minY; y <= maxY; ++y)
                 {
-                    if (Imath::modp (y, cd->ySampling) != 0)
+                    if (IMATH_NAMESPACE::modp (y, cd->ySampling) != 0)
                         continue;
 
                     memcpy (rowPtrs[chan][row],
@@ -2814,7 +2814,7 @@ DwaCompressor::uncompress
 
           default:
 
-            throw Iex::NoImplExc ("Unhandled compression scheme case");
+            throw IEX_NAMESPACE::NoImplExc ("Unhandled compression scheme case");
             break;
         }
 
@@ -2940,7 +2940,7 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
                 //
 
                 int rleAmount = 2 * numScanLines() * (_max[0] - _min[0] + 1) *
-                                Imf::pixelTypeSize (_channelData[chan].type);
+                                OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
 
                 rleBufferSize += rleAmount;
             }
@@ -2950,12 +2950,12 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
           case UNKNOWN:
 
             unknownBufferSize += numScanLines() * (_max[0] - _min[0] + 1) *
-                                 Imf::pixelTypeSize (_channelData[chan].type);
+                                 OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
             break;
 
           default:
 
-            throw Iex::NoImplExc ("Unhandled compression scheme case");
+            throw IEX_NAMESPACE::NoImplExc ("Unhandled compression scheme case");
             break;
         }
     }
@@ -3073,17 +3073,17 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
           case RLE:
             planarUncBufferSize[RLE] +=
                      numScanLines() * (_max[0] - _min[0] + 1) *
-                     Imf::pixelTypeSize (_channelData[chan].type);
+                     OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
             break;
 
           case UNKNOWN: 
             planarUncBufferSize[UNKNOWN] +=
                      numScanLines() * (_max[0] - _min[0] + 1) *
-                     Imf::pixelTypeSize (_channelData[chan].type);
+                     OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
             break;
 
           default:
-            throw Iex::NoImplExc ("Unhandled compression scheme case");
+            throw IEX_NAMESPACE::NoImplExc ("Unhandled compression scheme case");
             break;
         }
     }
@@ -3386,11 +3386,11 @@ DwaCompressor::setupChannelData (int minX, int minY, int maxX, int maxY)
     {
         ChannelData *cd = &_channelData[chan];
 
-        cd->width  = Imf::numSamples (cd->xSampling, minX, maxX);
-        cd->height = Imf::numSamples (cd->ySampling, minY, maxY);
+        cd->width  = OPENEXR_IMF_NAMESPACE::numSamples (cd->xSampling, minX, maxX);
+        cd->height = OPENEXR_IMF_NAMESPACE::numSamples (cd->ySampling, minY, maxY);
                                 
         cd->planarUncSize =
-            cd->width * cd->height * Imf::pixelTypeSize (cd->type);
+            cd->width * cd->height * OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
                                   
         cd->planarUncBuffer    = planarUncBuffer[cd->compression];
         cd->planarUncBufferEnd = cd->planarUncBuffer;
@@ -3398,7 +3398,7 @@ DwaCompressor::setupChannelData (int minX, int minY, int maxX, int maxY)
         cd->planarUncRle[0]    = cd->planarUncBuffer;
         cd->planarUncRleEnd[0] = cd->planarUncRle[0];
 
-        for (int byte = 1; byte < Imf::pixelTypeSize(cd->type); ++byte)
+        for (int byte = 1; byte < OPENEXR_IMF_NAMESPACE::pixelTypeSize(cd->type); ++byte)
         {
             cd->planarUncRle[byte] = 
                          cd->planarUncRle[byte-1] + cd->width * cd->height;
@@ -3416,7 +3416,7 @@ DwaCompressor::setupChannelData (int minX, int minY, int maxX, int maxY)
         else
         {
             planarUncBuffer[cd->compression] +=
-                cd->width * cd->height * Imf::pixelTypeSize (cd->planarUncType);
+                cd->width * cd->height * OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->planarUncType);
         }
     }
 }

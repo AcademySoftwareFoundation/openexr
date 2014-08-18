@@ -71,27 +71,27 @@ class DwaCompressor: public Compressor
 
     virtual int numScanLines () const;
 
-    virtual Imf::Compressor::Format format () const;
+    virtual OPENEXR_IMF_NAMESPACE::Compressor::Format format () const;
 
     virtual int compress (const char *inPtr,
                           int         inSize,
                           int         minY,
                           const char *&outPtr);
 
-    virtual int compressTile (const char   *inPtr,
-                              int           inSize,
-                              Imath::Box2i  range,
-                              const char  *&outPtr);
+    virtual int compressTile (const char              *inPtr,
+                              int                     inSize,
+                              IMATH_NAMESPACE::Box2i  range,
+                              const char              *&outPtr);
 
     virtual int uncompress (const char *inPtr,
                             int         inSize,
                             int         minY,
                             const char *&outPtr);
 
-    virtual int uncompressTile (const char  *inPtr,
-                                int          inSize,
-                                Imath::Box2i range,
-                                const char *&outPtr);
+    virtual int uncompressTile (const char             *inPtr,
+                                int                    inSize,
+                                IMATH_NAMESPACE::Box2i range,
+                                const char             *&outPtr);
 
     static void initializeFuncs ();
 
@@ -169,15 +169,15 @@ class DwaCompressor: public Compressor
     Zip              *_zip;
     float             _dwaCompressionLevel;
 
-    int compress (const char   *inPtr,
-                  int           inSize,
-                  Imath::Box2i  range,
-                  const char  *&outPtr);
+    int compress (const char              *inPtr,
+                  int                     inSize,
+                  IMATH_NAMESPACE::Box2i  range,
+                  const char              *&outPtr);
 
-    int uncompress (const char   *inPtr,
-                    int           inSize,
-                    Imath::Box2i  range,
-                    const char  *&outPtr);
+    int uncompress (const char             *inPtr,
+                    int                    inSize,
+                    IMATH_NAMESPACE::Box2i range,
+                    const char             *&outPtr);
 
     void initializeBuffers (size_t&);
     void initializeDefaultChannelRules ();
