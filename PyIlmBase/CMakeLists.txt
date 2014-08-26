@@ -49,6 +49,7 @@ SET (PYTHON_INSTALL_DIR
   "lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages"
   CACHE PATH "Python modules install dir")
 SET (LIB_INSTALL_DIR "lib" CACHE PATH "Shared libraries install dir")
+SET (INCLUDE_INSTALL_DIR "include" CACHE PATH "Headers install dir")
 
 IF (WIN32 AND NOT CYGWIN)
   SET (PYTHON_CEXTENSION ".pyd")

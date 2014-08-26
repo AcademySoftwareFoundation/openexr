@@ -67,3 +67,41 @@ INSTALL ( TARGETS imathmodule
 	DESTINATION ${PYTHON_INSTALL_DIR}
 )
 
+INSTALL ( FILES PyImath.h
+                PyImathAutovectorize.h
+                PyImathBoxArrayImpl.h
+                PyImathBox.h
+                PyImathColor3ArrayImpl.h
+                PyImathColor4Array2DImpl.h
+                PyImathColor4ArrayImpl.h
+                PyImathColor.h
+                PyImathDecorators.h
+                PyImathEuler.h
+                PyImathExport.h
+                PyImathFixedArray2D.h
+                PyImathFixedArray.h
+                PyImathFixedMatrix.h
+                PyImathFrustum.h
+                PyImathLine.h
+                PyImathMathExc.h
+                PyImathMatrix.h
+                PyImathOperators.h
+                PyImathPlane.h
+                PyImathQuat.h
+                PyImathRandom.h
+                PyImathShear.h
+                PyImathStringArray.h
+                PyImathStringArrayRegister.h
+                PyImathStringTable.h
+                PyImathTask.h
+                PyImathUtil.h
+                PyImathFixedVArray.h
+                PyImathVec2Impl.h
+                PyImathVec3ArrayImpl.h
+                PyImathVec3Impl.h
+                PyImathVec4ArrayImpl.h
+                PyImathVec4Impl.h
+                PyImathVec.h
+                PyImathVecOperators.h
+        DESTINATION ${INCLUDE_INSTALL_DIR}/OpenEXR
+        )

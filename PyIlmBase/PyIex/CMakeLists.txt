@@ -31,3 +31,6 @@ INSTALL ( TARGETS iexmodule
 	DESTINATION ${PYTHON_INSTALL_DIR}
 )
 
+INSTALL ( FILES PyIex.h PyIexExport.h PyIexTypeTranslator.h
+          DESTINATION ${INCLUDE_INSTALL_DIR}/OpenEXR
+)
