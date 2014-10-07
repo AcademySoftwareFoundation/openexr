@@ -179,6 +179,7 @@ SET_TARGET_PROPERTIES ( IlmImf
   VERSION 22.0.0
   SOVERSION 22
   OUTPUT_NAME "IlmImf${OPENEXR_LIBSUFFIX}"
+  DEBUG_POSTFIX _d
   )
   
 ##########################
@@ -191,6 +192,7 @@ SET_TARGET_PROPERTIES ( IlmImfUtil
   VERSION 22.0.0
   SOVERSION 22
   OUTPUT_NAME "IlmImfUtil${OPENEXR_LIBSUFFIX}"
+  DEBUG_POSTFIX _d
   )
   
 ##########################
