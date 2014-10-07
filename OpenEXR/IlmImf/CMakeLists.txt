@@ -24,9 +24,9 @@ ADD_EXECUTABLE ( dwaLookups
 )
 
 TARGET_LINK_LIBRARIES ( dwaLookups
-  Half
-  Iex${ILMBASE_LIBSUFFIX}
   IlmThread${ILMBASE_LIBSUFFIX}
+  Iex${ILMBASE_LIBSUFFIX}
+  Half
   ${PTHREAD_LIB}
 )
 

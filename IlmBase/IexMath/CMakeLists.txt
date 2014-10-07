@@ -19,6 +19,7 @@ INSTALL ( FILES
   IexMathFloatExc.h  
   IexMathFpu.h  
   IexMathIeeeExc.h
+  IexMathExport.h
   DESTINATION
   include/OpenEXR
 )

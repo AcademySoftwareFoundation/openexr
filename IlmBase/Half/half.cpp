@@ -53,9 +53,9 @@ using namespace std;
 // Lookup tables for half-to-float and float-to-half conversion
 //-------------------------------------------------------------
 
-HALF_EXPORT const half::uif half::_toFloat[1 << 16] =
+HALF_EXPORT_CONST half::uif half::_toFloat[1 << 16] =
     #include "toFloat.h"
-HALF_EXPORT const unsigned short half::_eLut[1 << 9] =
+HALF_EXPORT_CONST unsigned short half::_eLut[1 << 9] =
     #include "eLut.h"
 
 //-----------------------------------------------
@@ -94,9 +94,9 @@ half::convert (int i)
     // of float and half (127 versus 15).
     //
 
-    register int s =  (i >> 16) & 0x00008000;
-    register int e = ((i >> 23) & 0x000000ff) - (127 - 15);
-    register int m =   i        & 0x007fffff;
+    int s =  (i >> 16) & 0x00008000;
+    int e = ((i >> 23) & 0x000000ff) - (127 - 15);
+    int m =   i        & 0x007fffff;
 
     //
     // Now reassemble s, e and m into a half:

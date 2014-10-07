@@ -65,8 +65,12 @@ SET (LIB_TYPE STATIC)
 IF (BUILD_SHARED_LIBS)
   # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
   SET (LIB_TYPE SHARED)
-    IF (WIN32)
+  IF (WIN32)
     ADD_DEFINITIONS(-DOPENEXR_DLL)
+  ELSE ()
+    IF (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.1)
+      ADD_DEFINITIONS ( -fvisibility=hidden -DPLATFORM_VISIBILITY_AVAILABLE=1 )
+    ENDIF ()  
   ENDIF ()
 ENDIF ()
 
@@ -175,6 +179,7 @@ SET_TARGET_PROPERTIES ( IlmImf
   VERSION 22.0.0
   SOVERSION 22
   OUTPUT_NAME "IlmImf${OPENEXR_LIBSUFFIX}"
+  DEBUG_POSTFIX _d
   )
   
 ##########################
@@ -187,6 +192,7 @@ SET_TARGET_PROPERTIES ( IlmImfUtil
   VERSION 22.0.0
   SOVERSION 22
   OUTPUT_NAME "IlmImfUtil${OPENEXR_LIBSUFFIX}"
+  DEBUG_POSTFIX _d
   )
   
 ##########################

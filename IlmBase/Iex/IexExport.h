@@ -35,16 +35,29 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#if defined(OPENEXR_DLL)
-    #if defined(IEX_EXPORTS)
-    #define IEX_EXPORT __declspec(dllexport)
-    #else
-    #define IEX_EXPORT __declspec(dllimport)
+
+#if defined(_WIN32)
+#  if defined(OPENEXR_DLL)
+#    define IEX_EXPORT_DEFINITION __declspec(dllexport) 
+#    define IEX_IMPORT_DEFINITION __declspec(dllimport)
+#  else
+#    define IEX_EXPORT_DEFINITION 
+#    define IEX_IMPORT_DEFINITION
+#  endif
+#else   // linux/macos
+#  if defined(PLATFORM_VISIBILITY_AVAILABLE)
+#    define IEX_EXPORT_DEFINITION __attribute__((visibility("default")))
+#    define IEX_IMPORT_DEFINITION
+#  else
+#    define IEX_EXPORT_DEFINITION 
+#    define IEX_IMPORT_DEFINITION
+#  endif
     #endif
-    #define IEX_EXPORT_CONST
-#else
-    #define IEX_EXPORT
-    #define IEX_EXPORT_CONST const
+
+#if defined(IEX_EXPORTS)                          // create library
+#  define IEX_EXPORT IEX_EXPORT_DEFINITION
+#else                                              // use library
+#  define IEX_EXPORT IEX_IMPORT_DEFINITION
 #endif
 
 #endif // #ifndef IEXEXPORT_H
