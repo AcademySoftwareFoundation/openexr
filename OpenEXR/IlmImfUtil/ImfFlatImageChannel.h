@@ -66,7 +66,7 @@ class FlatImageLevel;
 // only for pixels within the data window of the level.
 //
 
-class FlatImageChannel: public ImageChannel
+class IMF_EXPORT FlatImageChannel: public ImageChannel
 {
   public:
 
