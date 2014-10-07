@@ -7,8 +7,8 @@ ADD_EXECUTABLE ( exrmakepreview
 
 TARGET_LINK_LIBRARIES ( exrmakepreview
   IlmImf
-  IlmThread-2_1
-  Iex-2_1
+  IlmThread${ILMBASE_LIBSUFFIX}
+  Iex${ILMBASE_LIBSUFFIX}
   Half
   ${PTHREAD_LIB}
   ${ZLIB_LIBRARIES}

@@ -52,6 +52,7 @@
 #include <ImathFun.h>
 #include <math.h>
 #include <iostream>
+#include <algorithm>
 
 #include <OpenEXRConfig.h>
 using namespace OPENEXR_IMF_NAMESPACE;

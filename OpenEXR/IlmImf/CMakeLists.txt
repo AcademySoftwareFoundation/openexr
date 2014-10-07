@@ -1,32 +1,40 @@
 # yue.nicholas@gmail.com
 
+SET(CMAKE_INCLUDE_CURRENT_DIR 1)
 
 ADD_EXECUTABLE ( b44ExpLogTable
   b44ExpLogTable.cpp
-  )
+)
+
 TARGET_LINK_LIBRARIES ( b44ExpLogTable
   Half
-  Iex-2_1
-  IlmThread-2_1
+  Iex${ILMBASE_LIBSUFFIX}
+  IlmThread${ILMBASE_LIBSUFFIX}
   ${PTHREAD_LIB}
 )
 
-SET_TARGET_PROPERTIES(b44ExpLogTable 
-  PROPERTIES 
-  EXCLUDE_FROM_DEFAULT_BUILD 1 EXCLUDE_FROM_ALL 1
- )
+ADD_CUSTOM_COMMAND (
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/b44ExpLogTable > ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
+  DEPENDS b44ExpLogTable
+)
+
+ADD_EXECUTABLE ( dwaLookups
+  dwaLookups.cpp
+)
+
+TARGET_LINK_LIBRARIES ( dwaLookups
+  Half
+  Iex${ILMBASE_LIBSUFFIX}
+  IlmThread${ILMBASE_LIBSUFFIX}
+  ${PTHREAD_LIB}
+)
 
 ADD_CUSTOM_COMMAND (
-  TARGET b44ExpLogTable 
-  POST_BUILD
-  COMMAND b44ExpLogTable > b44ExpLogTable.h
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/IlmImf
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/dwaLookups > ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
+  DEPENDS dwaLookups
 )
-SET_SOURCE_FILES_PROPERTIES(
-  ${CMAKE_SOURCE_DIR}/b44ExpLogTable.h
-  PROPERTIES 
-  HEADER_FILE_ONLY TRUE
-  )
 
 SET ( ILMIMF_SRCS
   ImfAttribute.cpp
@@ -56,6 +64,7 @@ SET ( ILMIMF_SRCS
   ImfZipCompressor.cpp
   ImfPizCompressor.cpp
   ImfB44Compressor.cpp
+  ImfDwaCompressor.cpp
   ImfMisc.cpp
   ImfCompressionAttribute.cpp
   ImfDoubleAttribute.cpp
@@ -112,9 +121,14 @@ SET ( ILMIMF_SRCS
   ImfDeepCompositing.cpp
   ImfCompositeDeepScanLine.cpp
   ImfDeepImageStateAttribute.cpp
+  ImfFastHuf.cpp
+  ImfFloatVectorAttribute.cpp
+  ImfRle.cpp
+  ImfSystemSpecific.cpp
+  ImfZip.cpp
 )
 
-IF(BUILD_SHARED_LIBS)
+IF (BUILD_SHARED_LIBS)
     ADD_DEFINITIONS(-DILMIMF_EXPORTS)
 ENDIF()
 
@@ -124,9 +138,9 @@ ADD_LIBRARY ( IlmImf ${LIB_TYPE}
 
 TARGET_LINK_LIBRARIES ( IlmImf 
   Half 
-  Iex-2_1 
-  Imath-2_1 
-  IlmThread-2_1 
+  Iex${ILMBASE_LIBSUFFIX}
+  Imath${ILMBASE_LIBSUFFIX}
+  IlmThread${ILMBASE_LIBSUFFIX}
   ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
 )
 
@@ -136,7 +150,16 @@ ADD_DEPENDENCIES ( IlmImf b44ExpLogTable )
 SET_SOURCE_FILES_PROPERTIES (
   ImfB44Compressor.cpp
   PROPERTIES
-  OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/b44ExpLogTable.h
+  OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
+)
+
+
+ADD_DEPENDENCIES ( IlmImf dwaLookups )
+
+SET_SOURCE_FILES_PROPERTIES (
+  ImfDwaCompressor.cpp
+  PROPERTIES
+  OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
 )
 
 # Libraries
@@ -149,7 +172,6 @@ INSTALL ( TARGETS
 
 # Headers
 INSTALL ( FILES
-  ${CMAKE_SOURCE_DIR}/config/OpenEXRConfig.h
   ImfForward.h
   ImfExport.h
   ImfAttribute.h
@@ -236,7 +258,8 @@ INSTALL ( FILES
   ImfMisc.h
   ImfDeepImageState.h
   ImfDeepImageStateAttribute.h
+  ImfFloatVectorAttribute.h
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
-  )
+)
 

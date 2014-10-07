@@ -10,13 +10,14 @@ SUBDIRS = \
 	config
 
 DIST_SUBDIRS = \
-	$(SUBDIRS) \
-	vc
+	$(SUBDIRS) 
 
 
 EXTRA_DIST = \
 	AUTHORS COPYING ChangeLog INSTALL LICENSE NEWS \
-	README README.CVS README.OSX README.win32 bootstrap \
+	README README.CVS README.OSX README.win32 \
+	README.cmake.txt README.namespacing README.git \
+	bootstrap \
 	config.windows/IlmBaseConfig.h \
         CMakeLists.txt
 

@@ -34,6 +34,7 @@
 
 
 #include "compareB44.h"
+#include "compareDwa.h"
 
 #include <ImfTiledRgbaFile.h>
 #include <ImfTiledOutputFile.h>
@@ -48,6 +49,7 @@
 #include <assert.h>
 #include <vector>
 #include <math.h>
+#include <algorithm>
 
 
 using namespace OPENEXR_IMF_NAMESPACE;
@@ -131,7 +133,10 @@ writeReadRGBAONE (const char fileName[],
         assert (in.compression() == header.compression());
         assert (in.channels() == channels);
 
-	if (comp == B44_COMPRESSION || comp == B44A_COMPRESSION)
+	if (comp == B44_COMPRESSION ||
+            comp == B44A_COMPRESSION ||
+	    comp == DWAA_COMPRESSION ||
+            comp == DWAB_COMPRESSION)
 	{
 	    for (int y = 0; y < h; y += ySize)
 	    {
@@ -152,7 +157,16 @@ writeReadRGBAONE (const char fileName[],
 			}
 		    }
 
-		    compareB44 (nx, ny, p3, p4, channels);
+                    if (comp == B44_COMPRESSION ||
+                        comp == B44A_COMPRESSION)
+                    {
+                        compareB44 (nx, ny, p3, p4, channels);
+                    }
+		    else if (comp == DWAA_COMPRESSION ||
+                             comp == DWAB_COMPRESSION)
+                    {
+		        compareDwa (nx, ny, p3, p4, channels);
+                    }
 		}
 	    }
 	}
@@ -422,22 +436,33 @@ writeReadRGBARIP (const char fileName[],
 
 
 void
-writeRead (const std::string &tempDir, int W, int H, Compression comp, int xSize, int ySize)
+writeRead (const std::string &tempDir,
+           int W,
+           int H,
+           Compression comp,
+           int xSize,
+           int ySize)
 {
     std::string filename = tempDir + "imf_test_tiled_rgba.exr";
 
     writeReadRGBAONE (filename.c_str(), W, H, WRITE_RGBA, comp, xSize, ySize);
 
-    if (comp != B44_COMPRESSION && comp != B44A_COMPRESSION)
+    if (comp != B44_COMPRESSION &&
+        comp != B44A_COMPRESSION &&
+        comp != DWAA_COMPRESSION &&
+        comp != DWAB_COMPRESSION)
     {
 	//
-	// Skip mipmaps and ripmaps with B44 compression; writing an
-	// image with a single resolution level, above, should be enough
-	// to verify that B44 compression works with tiled files.
+	// Skip mipmaps and ripmaps with B44 or DWA compression; writing
+	// an image with a single resolution level, above, should be enough
+        // to verify that B44 and DWA compression work with tiled files.
 	//
 
-	writeReadRGBAMIP (filename.c_str(), W, H, WRITE_RGBA, comp, xSize, ySize);
-	writeReadRGBARIP (filename.c_str(), W, H, WRITE_RGBA, comp, xSize, ySize);
+	writeReadRGBAMIP
+            (filename.c_str(), W, H, WRITE_RGBA, comp, xSize, ySize);
+
+	writeReadRGBARIP
+            (filename.c_str(), W, H, WRITE_RGBA, comp, xSize, ySize);
     }
 }
 

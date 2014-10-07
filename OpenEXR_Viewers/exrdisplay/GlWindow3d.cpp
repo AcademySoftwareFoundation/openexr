@@ -43,6 +43,7 @@
 #include "GlWindow3d.h"
 #include <FL/fl_draw.H>
 
+#include <string.h>
 #include <algorithm>
 using std::max;
 using std::min;

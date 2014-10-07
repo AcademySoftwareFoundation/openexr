@@ -586,8 +586,11 @@ writeCopyRead (const std::string &tempDir, int w, int h, int xs, int ys)
 
     for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
     {
-	if (comp == B44_COMPRESSION || comp == B44A_COMPRESSION)
+	if (comp == B44_COMPRESSION ||
+            comp == B44A_COMPRESSION)
+        {
 	    continue;
+        }
 
         for (int lorder = 0; lorder < RANDOM_Y; ++lorder)
         {

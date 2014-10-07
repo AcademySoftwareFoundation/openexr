@@ -38,9 +38,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <FileReadingThread.h>
-#include <fileNameForFrame.h>
-#include <ImageBuffers.h>
+#include "FileReadingThread.h"
+#include "fileNameForFrame.h"
+#include "ImageBuffers.h"
 #include <ImfInputFile.h>
 #include <Iex.h>
 #include <iostream>

@@ -12,9 +12,9 @@ ADD_EXECUTABLE ( IlmImfFuzzTest
 TARGET_LINK_LIBRARIES ( IlmImfFuzzTest 
         IlmImf
         Half
-        Iex-2_1
-        Imath-2_1
-        IlmThread-2_1
+        Iex${ILMBASE_LIBSUFFIX}
+        Imath${ILMBASE_LIBSUFFIX}
+        IlmThread${ILMBASE_LIBSUFFIX}
         ${PTHREAD_LIB} ${ZLIB_LIBRARIES})
 
 ADD_TEST ( TestIlmImfFuzz IlmImfFuzzTest )

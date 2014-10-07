@@ -904,6 +904,7 @@ generatedFunctions ()
     assert (hasWorldToCamera (header) == false);
     assert (hasWorldToNDC (header) == false);
     assert (hasDeepImageState (header) == false);
+    assert (hasOriginalDataWindow (header) == false);
 }
 
 

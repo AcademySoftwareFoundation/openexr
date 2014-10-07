@@ -66,9 +66,7 @@
 #include <iomanip>
 
 
-namespace IMF = OPENEXR_IMF_NAMESPACE;
-using namespace IMF;
-
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 
 
@@ -109,6 +107,14 @@ printCompression (Compression c)
             cout << "b44a";
             break;
 
+        case DWAA_COMPRESSION:
+            cout << "dwa, small scanline blocks";
+            break;
+
+        case DWAB_COMPRESSION:
+            cout << "dwa, medium scanline blocks";
+            break;
+
         default:
             cout << int (c);
             break;
@@ -145,15 +151,15 @@ printPixelType (PixelType pt)
 {
     switch (pt)
     {
-        case IMF::UINT:
+        case UINT:
             cout << "32-bit unsigned integer";
             break;
 
-        case IMF::HALF:
+        case HALF:
             cout << "16-bit floating-point";
             break;
 
-        case IMF::FLOAT:
+        case FLOAT:
             cout << "32-bit floating-point";
             break;
 
@@ -285,18 +291,21 @@ printInfo (const char fileName[])
     int parts = in.parts();
 
     //
-    // check to see if any parts are incomplete
+    // Check to see if any parts are incomplete
     //
 
-    bool is_complete=true;
+    bool fileComplete = true;
 
-    for (int i = 0; i < parts && is_complete; ++i)
-    {
-        is_complete &= in.partComplete(i);
-    }
+    for (int i = 0; i < parts && fileComplete; ++i)
+        if (!in.partComplete (i))
+            fileComplete = false;
 
-    cout << "\n" << fileName <<
-            (is_complete ? "": " (incomplete file)") <<
+    //
+    // Print file name and file format version
+    //
+
+    cout << "\nfile " << fileName <<
+            (fileComplete? "": " (incomplete)") <<
             ":\n\n";
 
     cout << "file format version: " <<
@@ -304,13 +313,18 @@ printInfo (const char fileName[])
             "flags 0x" <<
             setbase (16) << getFlags (in.version()) << setbase (10) << "\n";
 
+    //
+    // Print the header of every part in the file
+    //
+
     for (int p = 0; p < parts ; ++p)
     {
-        const Header & h = in.header(p);
-        if( parts != 1 )
+        const Header & h = in.header (p);
+
+        if (parts != 1)
         {
             cout  << "\n\n part " << p <<
-            ( in.partComplete(p) ? "": " (incomplete)") <<
+            (in.partComplete (p)? "": " (incomplete)") <<
             ":\n";
 
         }
@@ -517,12 +531,19 @@ printInfo (const char fileName[])
 }
 
 
+void
+usageMessage (const char argv0[])
+{
+    std::cerr << "usage: " << argv0 << " imagefile [imagefile ...]\n";
+}
+
+
 int
 main(int argc, char **argv)
 {
     if (argc < 2)
     {
-        std::cerr << "usage: " << argv[0] << " imagefile [imagefile ...]\n";
+        usageMessage (argv[0]);
         return 1;
     }
 
@@ -530,7 +551,7 @@ main(int argc, char **argv)
     {
         if (!strcmp (argv[i], "-h"))
         {
-            std::cerr << "usage: " << argv[0] << " imagefile [imagefile ...]\n";
+            usageMessage (argv[0]);
             return 1;
         }
     }
