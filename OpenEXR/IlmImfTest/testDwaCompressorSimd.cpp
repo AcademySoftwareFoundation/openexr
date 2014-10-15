@@ -171,8 +171,9 @@ testCsc()
 void
 testInterleave()
 {
-    const int bufferLen = 100000;
-    const int numIter   = 10000;
+    const int bufferLen     = 100000;
+    const int randomNumIter = 10000;
+    const int lengthNumIter = 128;
     Rand48    rand48(0);
     char     *srcA    = new char[bufferLen];
     char     *srcB    = new char[bufferLen];
@@ -189,7 +190,7 @@ testInterleave()
         dst[2*i+1] = srcB[i];
     }
 
-    for (int iter=0; iter<numIter; ++iter)
+    for (int iter=0; iter<randomNumIter; ++iter)
     {
         memset(test, 0, 2*bufferLen);
 
@@ -200,6 +201,46 @@ testInterleave()
         for (int i=0; i<len; ++i) {
             assert( test[2*offset + 2*i]     == dst[2*offset + 2*i]);
             assert( test[2*offset + 2*i + 1] == dst[2*offset + 2*i + 1]);
+        }
+    }
+
+    //
+    // Test increasing length buffers, with varying alignment
+    // on all the buffers.
+    //
+    for (int len=1; len<lengthNumIter; ++len) 
+    {
+        for (int offset=0; offset<16*16*16; ++offset) 
+        {
+            int offsetA    =  offset        % 16;
+            int offsetB    = (offset /  16) % 16;
+            int offsetTest = (offset / 256) % 16;
+
+            memset(srcA, 255, bufferLen);
+            memset(srcB, 255, bufferLen);
+            memset(dst,  0,   2*bufferLen);
+            memset(test, 0,   2*bufferLen);
+
+            char *a   = srcA + offsetA;
+            char *b   = srcB + offsetB;
+            char *out = test + offsetTest;
+            
+            for (int i=0; i<len; ++i) 
+            {
+                a[i] = (char)rand48.nextf(0.0, 255.0);
+                b[i] = (char)rand48.nextf(0.0, 255.0);
+
+                dst[2*i]   = a[i];
+                dst[2*i+1] = b[i];
+            }
+
+            interleaveByte2(out, a, b, len);
+            
+            for (int i=0; i<2*len+8; ++i) 
+            {
+                assert( dst[2*i]   == out[2*i] );
+                assert( dst[2*i+1] == out[2*i+1] );
+            }
         }
     }
 

@@ -334,34 +334,37 @@ interleaveByte2 (char *dst, char *src0, char *src1, int numBytes)
         // use aligned loads
         //
     
-        for (int x = 0; x < 8; ++x)
+        for (int x = 0; x < std::min (numBytes, 8); ++x)
         {
             dst[2 * x]     = src0[x];
             dst[2 * x + 1] = src1[x];
         }
 
-        dst_epi8  = (__m128i*)&dst[16];
-        src0_epi8 = (__m128i*)&src0[8];
-        src1_epi8 = (__m128i*)&src1[8];
-        sseWidth  =  (numBytes - 8) / 16;
-
-        for (int x=0; x<sseWidth; ++x)
+        if (numBytes > 8) 
         {
-            _mm_stream_si128 (&dst_epi8[2 * x],
-                              _mm_unpacklo_epi8 (src0_epi8[x], src1_epi8[x]));
+            dst_epi8  = (__m128i*)&dst[16];
+            src0_epi8 = (__m128i*)&src0[8];
+            src1_epi8 = (__m128i*)&src1[8];
+            sseWidth  =  (numBytes - 8) / 16;
 
-            _mm_stream_si128 (&dst_epi8[2 * x + 1],
-                              _mm_unpackhi_epi8 (src0_epi8[x], src1_epi8[x]));
-        }
+            for (int x=0; x<sseWidth; ++x)
+            {
+                _mm_stream_si128 (&dst_epi8[2 * x],
+                                  _mm_unpacklo_epi8 (src0_epi8[x], src1_epi8[x]));
 
-        //
-        // Then do run the leftovers one at a time
-        //
+                _mm_stream_si128 (&dst_epi8[2 * x + 1],
+                                  _mm_unpackhi_epi8 (src0_epi8[x], src1_epi8[x]));
+            }
 
-        for (int x = 16 * sseWidth + 8; x < numBytes; ++x)
-        {
-            dst[2 * x]     = src0[x];
-            dst[2 * x + 1] = src1[x];
+            //
+            // Then do run the leftovers one at a time
+            //
+
+            for (int x = 16 * sseWidth + 8; x < numBytes; ++x)
+            {
+                dst[2 * x]     = src0[x];
+                dst[2 * x + 1] = src1[x];
+            }
         }
     }
     else
