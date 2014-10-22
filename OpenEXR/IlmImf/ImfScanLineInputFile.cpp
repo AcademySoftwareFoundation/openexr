@@ -1699,4 +1699,38 @@ ScanLineInputFile::rawPixelData (int firstScanLine,
     }
 }
 
+
+void ScanLineInputFile::rawPixelDataToBuffer(int scanLine,
+                                             char *pixelData,
+                                             int &pixelDataSize) const
+{
+  if (_data->memoryMapped) {
+    throw IEX_NAMESPACE::ArgExc ("Reading raw pixel data to a buffer "
+                                 "is not supported for memory mapped "
+                                 "streams." );
+  }
+
+  try 
+  {
+    Lock lock (*_streamData);
+    
+    if (scanLine < _data->minY || scanLine > _data->maxY) 
+    {
+      throw IEX_NAMESPACE::ArgExc ("Tried to read scan line outside "
+                                   "the image file's data window.");
+    }
+    
+    readPixelData
+      (_streamData, _data, scanLine, pixelData, pixelDataSize);
+    
+  }
+  catch (IEX_NAMESPACE::BaseExc &e) 
+  {
+    REPLACE_EXC (e, "Error reading pixel data from image "
+                   "file \"" << fileName() << "\". " << e);
+    throw;
+  }
+}
+
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

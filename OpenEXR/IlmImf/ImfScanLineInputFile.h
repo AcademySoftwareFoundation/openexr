@@ -184,6 +184,28 @@ class IMF_EXPORT ScanLineInputFile : public GenericInputFile
 				      const char *&pixelData,
 				      int &pixelDataSize);
 
+   
+    //----------------------------------------------
+    // Read a scanline's worth of raw pixel data 
+    // from the file, without uncompressing it, and 
+    // store in an external buffer, pixelData. 
+    // pixelData should be pre-allocated with space 
+    // for pixelDataSize chars. 
+    //
+    // This function can be used to separate the 
+    // reading of a raw scan line from the 
+    // decompression of that scan line, for
+    // example to allow multiple scan lines to be
+    // decompressed in parallel by an application's
+    // own threads, where it is not convenient to 
+    // use the threading within the library.
+    //----------------------------------------------
+
+    void                rawPixelDataToBuffer(int scanLine,
+					     char *pixelData,
+					     int &pixelDataSize) const;
+    
+  
     struct Data;
 
   private:
