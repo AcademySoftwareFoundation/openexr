@@ -906,7 +906,7 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                         dctInverse8x8_2(_dctData[comp]._buffer);
                     else if (lastNonZero < 35)
                         dctInverse8x8_1(_dctData[comp]._buffer);
-                    else 
+                    else
                         dctInverse8x8_0(_dctData[comp]._buffer);
                 }
             }
