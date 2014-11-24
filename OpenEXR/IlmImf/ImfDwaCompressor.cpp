@@ -149,6 +149,7 @@
 #include "ImathBox.h"
 #include "ImathVec.h"
 #include "half.h"
+#include "halfLimits.h"
 
 #include "dwaLookups.h"
 
@@ -1408,6 +1409,15 @@ DwaCompressor::LossyDctEncoderBase::execute ()
             {
 
                 Xdr::read<CharPtrIO> (srcXdr, src);
+
+                //
+                // Clamp to half ranges, instead of just casting. This
+                // avoids introducing Infs which end up getting zeroed later
+                //
+                src = std::max (
+                    std::min ((float) std::numeric_limits<half>::max(), src),
+                              (float)-std::numeric_limits<half>::max());
+
                 Xdr::write<CharPtrIO> (dstXdr, ((half)src).bits());
 
                 //
