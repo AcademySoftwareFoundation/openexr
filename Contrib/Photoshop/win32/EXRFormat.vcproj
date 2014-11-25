@@ -53,7 +53,7 @@
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
+				PreprocessorDefinitions="OPENEXR_DEBUG"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
@@ -91,7 +91,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\rsrc,..\src\framework,..\src\main,..\src\resample,..\src\ui,..\sdk\PhotoshopAPI\ADM,..\sdk\PhotoshopAPI\General,..\sdk\PhotoshopAPI\Photoshop,..\sdk\PhotoshopAPI\Pica_sp,..\sdk\PhotoshopAPI\Resources,..\sdk\PhotoshopUtils\Includes,..\..\OpenEXR\Half,..\..\OpenEXR\Iex,..\..\OpenEXR\Imath,..\..\OpenEXR\IlmImf"
-				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV"
+				PreprocessorDefinitions="OPENEXR_DEBUG;WIN32;_WINDOWS;MSWindows=1;ISOLATION_AWARE_ENABLED;PLATFORM_WIN32;WIN_ENV"
 				RuntimeLibrary="2"
 				PrecompiledHeaderFile=""
 				AssemblerListingLocation=".\tempDebug/"
@@ -119,7 +119,7 @@
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
+				PreprocessorDefinitions="OPENEXR_DEBUG"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
@@ -133,7 +133,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG,MSWindows=1"
+				PreprocessorDefinitions="OPENEXR_DEBUG,MSWindows=1"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

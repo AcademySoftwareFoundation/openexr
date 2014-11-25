@@ -332,7 +332,7 @@ writePixelData (OutputStreamMutex *filedata,
     partdata->lineOffsets[(partdata->currentScanLine - partdata->minY) / partdata->linesInBuffer] =
         currentPosition;
 
-    #ifdef DEBUG
+    #ifdef OPENEXR_DEBUG
 
         assert (filedata->os->tellp() == currentPosition);
 
@@ -1303,7 +1303,7 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
                 _data->currentScanLine = _data->currentScanLine +
                                          step * numLines;
 
-                #ifdef DEBUG
+                #ifdef OPENEXR_DEBUG
 
                     assert (_data->currentScanLine ==
                             ((_data->lineOrder == INCREASING_Y) ?
