@@ -951,20 +951,25 @@ ImfOpenOutputFile (const char name[], const ImfHeader *hdr, int channels)
     }
 }
 
+template<typename T>
+int ImfCloseOutputFileMerged(T out)
+{
+    try
+    {
+    delete outfile (out);
+    return 1;
+    }
+    catch (const std::exception &e)
+    {
+    setErrorMessage (e);
+    return 0;
+    }
+}
 
 int		
 ImfCloseOutputFile (ImfOutputFile *out)
 {
-    try
-    {
-	delete outfile (out);
-	return 1;
-    }
-    catch (const std::exception &e)
-    {
-	setErrorMessage (e);
-	return 0;
-    }
+    return ImfCloseOutputFileMerged<ImfOutputFile*>(out);
 }
 
 
@@ -1051,16 +1056,7 @@ ImfOpenTiledOutputFile (const char name[],
 int		
 ImfCloseTiledOutputFile (ImfTiledOutputFile *out)
 {
-    try
-    {
-	delete outfile (out);
-	return 1;
-    }
-    catch (const std::exception &e)
-    {
-	setErrorMessage (e);
-	return 0;
-    }
+ 	return ImfCloseOutputFileMerged<ImfTiledOutputFile*>(out);   
 }
 
 
@@ -1177,19 +1173,25 @@ ImfOpenInputFile (const char name[])
 }
 
 
-int
-ImfCloseInputFile (ImfInputFile *in)
+template<typename T>
+int ImfCloseInputFileMerged (T in)
 {
     try
     {
-	delete infile (in);
-	return 1;
+    delete infile (in);
+    return 1;
     }
     catch (const std::exception &e)
     {
-	setErrorMessage (e);
-	return 0;
+    setErrorMessage (e);
+    return 0;
     }
+}
+
+int
+ImfCloseInputFile (ImfInputFile *in)
+{
+    return ImfCloseInputFileMerged<ImfInputFile*>(in);
 }
 
 
@@ -1267,16 +1269,7 @@ ImfOpenTiledInputFile (const char name[])
 int
 ImfCloseTiledInputFile (ImfTiledInputFile *in)
 {
-    try
-    {
-	delete infile (in);
-	return 1;
-    }
-    catch (const std::exception &e)
-    {
-	setErrorMessage (e);
-	return 0;
-    }
+    return ImfCloseInputFileMerged<ImfTiledInputFile*>(in);
 }
 
 
