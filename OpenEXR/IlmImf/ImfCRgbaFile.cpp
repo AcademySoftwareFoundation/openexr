@@ -956,13 +956,13 @@ int ImfCloseOutputFileMerged(T out)
 {
     try
     {
-    delete outfile (out);
-    return 1;
+      delete outfile (out);
+      return 1;
     }
     catch (const std::exception &e)
     {
-    setErrorMessage (e);
-    return 0;
+      setErrorMessage (e);
+      return 0;
     }
 }
 
@@ -1178,13 +1178,13 @@ int ImfCloseInputFileMerged (T in)
 {
     try
     {
-    delete infile (in);
-    return 1;
+   	  delete infile (in);
+      return 1;
     }
     catch (const std::exception &e)
     {
-    setErrorMessage (e);
-    return 0;
+      setErrorMessage (e);
+      return 0;
     }
 }
 
