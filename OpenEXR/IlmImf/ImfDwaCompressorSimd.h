@@ -91,6 +91,12 @@ class SimdAlignedBuffer64
             memcpy (_buffer, rhs._buffer, 64 * sizeof (T));
         }
 
+        SimdAlignedBuffer64 &operator=(const SimdAlignedBuffer64 &rhs)
+        {
+            memcpy (_buffer, rhs._buffer, 64 * sizeof (T));
+            return *this;
+        }
+
         ~SimdAlignedBuffer64 ()
         {
             EXRFreeAligned (_handle);
