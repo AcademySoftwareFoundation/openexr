@@ -11,7 +11,7 @@ SET(OPENEXR_VERSION_API ${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR})
 
 
 # enable the tests
-ENABLE_TESTING()
+#ENABLE_TESTING()
 
 
 # distro building 
@@ -180,39 +180,39 @@ SET_TARGET_PROPERTIES ( IlmImf
 ##########################
 # IlmImfUtil library
 ##########################
-ADD_SUBDIRECTORY ( IlmImfUtil )
+#ADD_SUBDIRECTORY ( IlmImfUtil )
 
-SET_TARGET_PROPERTIES ( IlmImfUtil
-  PROPERTIES
-  VERSION 22.0.0
-  SOVERSION 22
-  OUTPUT_NAME "IlmImfUtil${OPENEXR_LIBSUFFIX}"
-  )
+#SET_TARGET_PROPERTIES ( IlmImfUtil
+  #PROPERTIES
+  #VERSION 22.0.0
+  #SOVERSION 22
+  #OUTPUT_NAME "IlmImfUtil${OPENEXR_LIBSUFFIX}"
+  #)
   
 ##########################
 # Example Code
 ##########################
-ADD_SUBDIRECTORY ( IlmImfExamples )
+#ADD_SUBDIRECTORY ( IlmImfExamples )
 
   
 ##########################
 # Tests
 ##########################
-ADD_SUBDIRECTORY ( IlmImfTest )
-ADD_SUBDIRECTORY ( IlmImfUtilTest )
-ADD_SUBDIRECTORY ( IlmImfFuzzTest )
+#ADD_SUBDIRECTORY ( IlmImfTest )
+#ADD_SUBDIRECTORY ( IlmImfUtilTest )
+#ADD_SUBDIRECTORY ( IlmImfFuzzTest )
 
 
 ##########################
 # Binaries / Utilities
 ##########################
-ADD_SUBDIRECTORY ( exrheader )
-ADD_SUBDIRECTORY ( exrmaketiled )
-ADD_SUBDIRECTORY ( exrstdattr )
-ADD_SUBDIRECTORY ( exrmakepreview )
-ADD_SUBDIRECTORY ( exrenvmap )
-ADD_SUBDIRECTORY ( exrmultiview )
-ADD_SUBDIRECTORY ( exrmultipart )
+#ADD_SUBDIRECTORY ( exrheader )
+#ADD_SUBDIRECTORY ( exrmaketiled )
+#ADD_SUBDIRECTORY ( exrstdattr )
+#ADD_SUBDIRECTORY ( exrmakepreview )
+#ADD_SUBDIRECTORY ( exrenvmap )
+#ADD_SUBDIRECTORY ( exrmultiview )
+#ADD_SUBDIRECTORY ( exrmultipart )
 
 
 ##########################
@@ -226,35 +226,35 @@ INSTALL ( FILES
   )
 
 # Documentation
-INSTALL ( FILES
-  doc/TechnicalIntroduction.pdf
-  doc/ReadingAndWritingImageFiles.pdf
-  doc/OpenEXRFileLayout.pdf
-  doc/MultiViewOpenEXR.pdf
-  doc/InterpretingDeepPixels.pdf
-  doc/TheoryDeepPixels.pdf
-  DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${OPENEXR_VERSION}
-  )
+#INSTALL ( FILES
+  #doc/TechnicalIntroduction.pdf
+  #doc/ReadingAndWritingImageFiles.pdf
+  #doc/OpenEXRFileLayout.pdf
+  #doc/MultiViewOpenEXR.pdf
+  #doc/InterpretingDeepPixels.pdf
+  #doc/TheoryDeepPixels.pdf
+  #DESTINATION
+  #${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${OPENEXR_VERSION}
+  #)
 
 # Examples
-INSTALL ( FILES
-  IlmImfExamples/main.cpp
-  IlmImfExamples/drawImage.cpp
-  IlmImfExamples/rgbaInterfaceExamples.cpp
-  IlmImfExamples/rgbaInterfaceTiledExamples.cpp
-  IlmImfExamples/generalInterfaceExamples.cpp
-  IlmImfExamples/lowLevelIoExamples.cpp
-  IlmImfExamples/previewImageExamples.cpp
-  IlmImfExamples/generalInterfaceTiledExamples.cpp
-  IlmImfExamples/generalInterfaceTiledExamples.h
-  IlmImfExamples/drawImage.h
-  IlmImfExamples/rgbaInterfaceExamples.h
-  IlmImfExamples/generalInterfaceExamples.h
-  IlmImfExamples/rgbaInterfaceTiledExamples.h
-  IlmImfExamples/lowLevelIoExamples.h
-  IlmImfExamples/previewImageExamples.h
-  IlmImfExamples/namespaceAlias.h
-  DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${OPENEXR_VERSION}/examples
-  )
+#INSTALL ( FILES
+  #IlmImfExamples/main.cpp
+  #IlmImfExamples/drawImage.cpp
+  #IlmImfExamples/rgbaInterfaceExamples.cpp
+  #IlmImfExamples/rgbaInterfaceTiledExamples.cpp
+  #IlmImfExamples/generalInterfaceExamples.cpp
+  #IlmImfExamples/lowLevelIoExamples.cpp
+  #IlmImfExamples/previewImageExamples.cpp
+  #IlmImfExamples/generalInterfaceTiledExamples.cpp
+  #IlmImfExamples/generalInterfaceTiledExamples.h
+  #IlmImfExamples/drawImage.h
+  #IlmImfExamples/rgbaInterfaceExamples.h
+  #IlmImfExamples/generalInterfaceExamples.h
+  #IlmImfExamples/rgbaInterfaceTiledExamples.h
+  #IlmImfExamples/lowLevelIoExamples.h
+  #IlmImfExamples/previewImageExamples.h
+  #IlmImfExamples/namespaceAlias.h
+  #DESTINATION
+  #${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${OPENEXR_VERSION}/examples
+  #)
