@@ -2163,7 +2163,7 @@ DwaCompressor::compress
     if (*unknownUncompressedSize > 0)
     {
         uLongf inSize  = (uLongf)(*unknownUncompressedSize);
-        uLongf outSize = (uLongf)(ceil ((float)inSize * 1.01f) + 100);
+        uLongf outSize = compressBound (inSize);
 
         if (Z_OK != ::compress2 ((Bytef *)outDataPtr,
                                  &outSize,
@@ -2201,8 +2201,8 @@ DwaCompressor::compress
           case DEFLATE:
 
             {
-                uLongf destLen = (uLongf)
-                    (2 * (*totalAcUncompressedCount) * sizeof (unsigned short));
+                uLongf destLen = compressBound (
+                    (*totalAcUncompressedCount) * sizeof (unsigned short));
 
                 if (Z_OK != ::compress2
                                 ((Bytef *)outDataPtr,
@@ -2254,8 +2254,7 @@ DwaCompressor::compress
              _planarUncBuffer[RLE],
              (signed char *)_rleBuffer);
 
-        uLongf dstLen =
-            (uLongf)ceil (1.01f * (float) * rleUncompressedSize) + 24;
+        uLongf dstLen = compressBound ((uLongf)*rleUncompressedSize);
 
         if (Z_OK != ::compress2
                         ((Bytef *)outDataPtr, 
@@ -2493,15 +2492,13 @@ DwaCompressor::uncompress
 
     if (unknownCompressedSize > 0)
     {
-        uLongf outSize = static_cast<uLongf>(
-                ceil( (float)unknownUncompressedSize * 1.01) + 100);
-
-        if (unknownUncompressedSize < 0 || 
-            outSize > _planarUncBufferSize[UNKNOWN]) 
+        if (unknownUncompressedSize > _planarUncBufferSize[UNKNOWN]) 
         {
             throw Iex::InputExc("Error uncompressing DWA data"
                                 "(corrupt header).");
         }
+
+        uLongf outSize = (uLongf)unknownUncompressedSize;
 
         if (Z_OK != ::uncompress
                         ((Bytef *)_planarUncBuffer[UNKNOWN],
@@ -2925,10 +2922,13 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
             //
             // This is the size of the number of packed
             // components, plus the requirements for
-            // maximum Huffman encoding size.
+            // maximum Huffman encoding size (for STATIC_HUFFMAN)
+            // or for zlib compression (for DEFLATE)
             //
 
-            maxOutBufferSize += 2 * maxLossyDctAcSize + 65536;
+            maxOutBufferSize += std::max(
+                            (int)(2 * maxLossyDctAcSize + 65536),
+                            (int)compressBound (maxLossyDctAcSize) );
             numLossyDctChans++;
             break;
 
@@ -2967,13 +2967,13 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     // which could take slightly more space
     //
 
-    maxOutBufferSize += (int)(ceil (1.01f * (float)rleBufferSize) + 100);
+    maxOutBufferSize += (int)compressBound ((uLongf)rleBufferSize);
     
     //
     // And the same goes for the UNKNOWN data
     //
 
-    maxOutBufferSize += (int)(ceil (1.01f * (float)unknownBufferSize) + 100);
+    maxOutBufferSize += (int)compressBound ((uLongf)unknownBufferSize);
 
     //
     // Allocate a zip/deflate compressor big enought to hold the DC data
@@ -3095,8 +3095,8 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
 
     if (planarUncBufferSize[UNKNOWN] > 0)
     {
-        planarUncBufferSize[UNKNOWN] =
-            (int) ceil (1.01f * (float)planarUncBufferSize[UNKNOWN]) + 100;
+        planarUncBufferSize[UNKNOWN] = 
+            compressBound ((uLongf)planarUncBufferSize[UNKNOWN]);
     }
 
     for (int i = 0; i < NUM_COMPRESSOR_SCHEMES; ++i)
