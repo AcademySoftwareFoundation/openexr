@@ -23,6 +23,7 @@ ADD_CUSTOM_COMMAND (
 ADD_EXECUTABLE ( dwaLookups
   dwaLookups.cpp
 )
+message(STATUS "Using IlmBase version ${ILMBASE_LIBSUFFIX}")
 
 TARGET_LINK_LIBRARIES ( dwaLookups
   Half
