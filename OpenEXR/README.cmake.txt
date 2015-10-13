@@ -26,7 +26,7 @@ CMakeLists.txt, and type command:
 	del /f CMakeCache.txt
 	cmake 
       -DZLIB_ROOT=<zlib location>
-      -DILMBASE_PACKAGE_PREFIX=<where you installed the ilmbase builds>
+      -DIlmBase_ROOT=<where you installed the ilmbase builds>
       -DCMAKE_INSTALL_PREFIX=<where you want to instal the openexr builds>
       -G "Visual Studio 10 Win64" ^
       ..\openexr
@@ -42,7 +42,7 @@ you set up at the previous step.
 -- OpenEXR --
 -------------
 initial bootstraping:
-    cmake -DILMBASE_PACKAGE_PREFIX=<location of installed IlmBase files> -DCMAKE_INSTALL_PREFIX=<install location> <source location of OpenEXR>
+    cmake -DIlmBase_ROOT=<location of installed IlmBase files> -DCMAKE_INSTALL_PREFIX=<install location> <source location of OpenEXR>
 
 build the actual code base:
     make -j 4

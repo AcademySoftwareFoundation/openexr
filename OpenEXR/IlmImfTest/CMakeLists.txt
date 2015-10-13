@@ -64,11 +64,8 @@ ADD_EXECUTABLE ( IlmImfTest
 
 ADD_TEST ( TestIlmImf IlmImfTest )
 TARGET_LINK_LIBRARIES ( IlmImfTest 
-        IlmImf  
-        Half 
-        Iex${ILMBASE_LIBSUFFIX}
-        Imath${ILMBASE_LIBSUFFIX}
-        IlmThread${ILMBASE_LIBSUFFIX}
+        IlmImf
+        ${IlmBase_LIBRARIES}
         ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
         )
 
