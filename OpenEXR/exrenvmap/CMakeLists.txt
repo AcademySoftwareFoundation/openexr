@@ -12,9 +12,7 @@ ADD_EXECUTABLE ( exrenvmap
 
 TARGET_LINK_LIBRARIES ( exrenvmap
   IlmImf
-  IlmThread${ILMBASE_LIBSUFFIX}
-  Iex${ILMBASE_LIBSUFFIX}
-  Half
+  ${IlmBase_LIBRARIES}
   ${PTHREAD_LIB}
   ${ZLIB_LIBRARIES}
 )
