@@ -867,14 +867,14 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                     //
                     // Zig-Zag indices in normal layout are as follows:
                     //
-                    // 0   1   3   6   10  15  21  28
-                    // 2   4   7   11  16  22  29  36
-                    // 5   8   12  17  23  30  37  43
-                    // 9   13  18  24  31  38  44  49
-                    // 14  19  25  32  39  45  50  54
-                    // 20  26  33  40  46  51  55  58
-                    // 27  34  41  47  52  56  59  61
-                    // 35  42  48  53  57  60  62  63
+                    // 0   1   5   6   14  15  27  28
+                    // 2   4   7   13  16  26  29  42
+                    // 3   8   12  17  25  30  41  43
+                    // 9   11  18  24  31  40  44  53
+                    // 10  19  23  32  39  45  52  54
+                    // 20  22  33  38  46  51  55  60
+                    // 21  34  37  47  50  56  59  61
+                    // 35  36  48  49  57  58  62  63
                     //
                     // If lastNonZero is less than the first item on
                     // each row, we know that the whole row is zero and 
@@ -888,21 +888,21 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                     //
                     // where:
                     //
-                    //    const int rowStartIdx[] = {2, 5, 9, 14, 20, 27, 35};
+                    //    const int rowStartIdx[] = {2, 3, 9, 10, 20, 21, 35};
                     //    const int rowsEmpty[]   = {7, 6, 5,  4,  3,  2,  1};
                     //
 
                     if (lastNonZero < 2)
                         dctInverse8x8_7(_dctData[comp]._buffer);
-                    else if (lastNonZero < 5)
+                    else if (lastNonZero < 3)
                         dctInverse8x8_6(_dctData[comp]._buffer);
                     else if (lastNonZero < 9)
                         dctInverse8x8_5(_dctData[comp]._buffer);
-                    else if (lastNonZero < 14)
+                    else if (lastNonZero < 10)
                         dctInverse8x8_4(_dctData[comp]._buffer);
                     else if (lastNonZero < 20)
                         dctInverse8x8_3(_dctData[comp]._buffer);
-                    else if (lastNonZero < 27)
+                    else if (lastNonZero < 21)
                         dctInverse8x8_2(_dctData[comp]._buffer);
                     else if (lastNonZero < 35)
                         dctInverse8x8_1(_dctData[comp]._buffer);
