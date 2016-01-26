@@ -30,6 +30,8 @@ TARGET_LINK_LIBRARIES(IlmThread Iex)
 
 INSTALL ( TARGETS
   IlmThread
+  EXPORT
+  IlmBaseTargets
   DESTINATION
   lib
 )

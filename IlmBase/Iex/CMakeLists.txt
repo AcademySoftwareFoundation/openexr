@@ -9,9 +9,16 @@ ADD_LIBRARY ( Iex ${LIB_TYPE}
   IexThrowErrnoExc.cpp
   )
 
+TARGET_INCLUDE_DIRECTORIES ( Iex
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:include/OpenEXR>
+  )
 
 INSTALL ( TARGETS
   Iex
+  EXPORT
+  IlmBaseTargets
   DESTINATION
   lib
 )

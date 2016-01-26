@@ -40,11 +40,18 @@ ADD_LIBRARY ( Half ${LIB_TYPE}
   half.cpp
   )
 
+TARGET_INCLUDE_DIRECTORIES ( Half
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:include/OpenEXR>
+  )
 
 ADD_DEPENDENCIES ( Half toFloat eLut )
 
 INSTALL ( TARGETS
   Half
+  EXPORT
+  IlmBaseTargets
   DESTINATION
   lib
 )

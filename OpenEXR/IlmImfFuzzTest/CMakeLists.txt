@@ -11,10 +11,15 @@ ADD_EXECUTABLE ( IlmImfFuzzTest
 
 TARGET_LINK_LIBRARIES ( IlmImfFuzzTest 
         IlmImf
-        Half
-        Iex${ILMBASE_LIBSUFFIX}
-        Imath${ILMBASE_LIBSUFFIX}
-        IlmThread${ILMBASE_LIBSUFFIX}
+        IlmBase::Half
+        IlmBase::Imath
         ${PTHREAD_LIB} ${ZLIB_LIBRARIES})
+TARGET_INCLUDE_DIRECTORIES ( IlmImfFuzzTest
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  $<TARGET_PROPERTY:IlmImf,INTERFACE_INCLUDE_DIRS>
+  $<TARGET_PROPERTY:IlmBase::Half,INTERFACE_INCLUDE_DIRS>
+  $<TARGET_PROPERTY:IlmBase::Imath,INTERFACE_INCLUDE_DIRS>
+)
 
 ADD_TEST ( TestIlmImfFuzz IlmImfFuzzTest )

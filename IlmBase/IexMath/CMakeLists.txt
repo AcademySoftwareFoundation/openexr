@@ -11,6 +11,8 @@ TARGET_LINK_LIBRARIES(IexMath Iex)
 
 INSTALL ( TARGETS
   IexMath
+  EXPORT
+  IlmBaseTargets
   DESTINATION
   lib
 )

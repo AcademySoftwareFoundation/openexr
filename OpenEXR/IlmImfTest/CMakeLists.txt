@@ -65,10 +65,14 @@ ADD_EXECUTABLE ( IlmImfTest
 ADD_TEST ( TestIlmImf IlmImfTest )
 TARGET_LINK_LIBRARIES ( IlmImfTest 
         IlmImf  
-        Half 
-        Iex${ILMBASE_LIBSUFFIX}
-        Imath${ILMBASE_LIBSUFFIX}
-        IlmThread${ILMBASE_LIBSUFFIX}
+        IlmBase::Half
+        IlmBase::Imath
         ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
         )
-
+TARGET_INCLUDE_DIRECTORIES ( IlmImfTest
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  $<TARGET_PROPERTY:IlmImf,INTERFACE_INCLUDE_DIRS>
+  $<TARGET_PROPERTY:IlmBase::Half,INTERFACE_INCLUDE_DIRS>
+  $<TARGET_PROPERTY:IlmBase::Imath,INTERFACE_INCLUDE_DIRS>
+)
