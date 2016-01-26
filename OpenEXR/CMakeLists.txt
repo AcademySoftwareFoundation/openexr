@@ -205,6 +205,30 @@ ADD_SUBDIRECTORY ( exrenvmap )
 ADD_SUBDIRECTORY ( exrmultiview )
 ADD_SUBDIRECTORY ( exrmultipart )
 
+##########################
+# Package Exports
+##########################
+CONFIGURE_FILE ( OpenEXRConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/OpenEXRConfig.cmake"
+  @ONLY
+  )
+
+INCLUDE ( CMakePackageConfigHelpers )
+WRITE_BASIC_PACKAGE_VERSION_FILE (
+  "${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigVersion.cmake"
+  VERSION
+  ${OPENEXR_VERSION}
+  COMPATIBILITY
+  AnyNewerVersion
+  )
+
+EXPORT ( EXPORT
+  OpenEXRTargets
+  FILE
+  "${CMAKE_CURRENT_BINARY_DIR}/OpenEXRTargets.cmake"
+  NAMESPACE
+  OpenEXR::
+  )
 
 ##########################
 # Installation
@@ -248,4 +272,23 @@ INSTALL ( FILES
   IlmImfExamples/namespaceAlias.h
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${OPENEXR_VERSION}/examples
+  )
+
+# Package
+SET ( ConfigPackageLocation lib/cmake/OpenEXR )
+INSTALL ( FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/OpenEXRConfig.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigVersion.cmake"
+  DESTINATION
+  ${ConfigPackageLocation}
+  )
+
+INSTALL ( EXPORT
+  OpenEXRTargets
+  FILE
+  OpenEXRTargets.cmake
+  NAMESPACE
+  OpenEXR::
+  DESTINATION
+  ${ConfigPackageLocation}
   )
