@@ -144,11 +144,14 @@ ADD_LIBRARY ( IlmImf ${LIB_TYPE}
 )
 
 TARGET_LINK_LIBRARIES ( IlmImf 
+  PUBLIC
   IlmBase::Half
   IlmBase::Iex
   IlmBase::Imath
   IlmBase::IlmThread
-  ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
+  ${PTHREAD_LIB}
+  PRIVATE
+  ${ZLIB_LIBRARIES}
 )
 TARGET_INCLUDE_DIRECTORIES ( IlmImf
   PUBLIC

@@ -67,7 +67,7 @@ TARGET_LINK_LIBRARIES ( IlmImfTest
         IlmImf  
         IlmBase::Half
         IlmBase::Imath
-        ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
+        ${PTHREAD_LIB}
         )
 TARGET_INCLUDE_DIRECTORIES ( IlmImfTest
   PRIVATE

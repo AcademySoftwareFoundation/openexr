@@ -13,7 +13,7 @@ TARGET_LINK_LIBRARIES ( IlmImfFuzzTest
         IlmImf
         IlmBase::Half
         IlmBase::Imath
-        ${PTHREAD_LIB} ${ZLIB_LIBRARIES})
+        ${PTHREAD_LIB})
 TARGET_INCLUDE_DIRECTORIES ( IlmImfFuzzTest
   PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}

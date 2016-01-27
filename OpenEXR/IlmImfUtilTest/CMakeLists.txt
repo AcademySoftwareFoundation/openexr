@@ -18,6 +18,6 @@ TARGET_LINK_LIBRARIES ( IlmImfUtilTest
         IlmImf  
         IlmBase::Half
         IlmBase::Imath
-        ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
+        ${PTHREAD_LIB}
         )
 

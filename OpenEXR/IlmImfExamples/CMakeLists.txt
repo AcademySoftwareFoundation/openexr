@@ -15,6 +15,6 @@ ADD_EXECUTABLE ( IlmImfExamples
 TARGET_LINK_LIBRARIES ( IlmImfExamples 
         IlmImf
         IlmBase::Half
-        ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
+        ${PTHREAD_LIB}
         )
   

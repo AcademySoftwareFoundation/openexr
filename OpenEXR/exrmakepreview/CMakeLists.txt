@@ -8,7 +8,6 @@ ADD_EXECUTABLE ( exrmakepreview
 TARGET_LINK_LIBRARIES ( exrmakepreview
   IlmImf
   ${PTHREAD_LIB}
-  ${ZLIB_LIBRARIES}
 )
 
 INSTALL ( TARGETS

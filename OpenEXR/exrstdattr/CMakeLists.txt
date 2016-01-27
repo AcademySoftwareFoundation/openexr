@@ -7,7 +7,6 @@ ADD_EXECUTABLE ( exrstdattr
 TARGET_LINK_LIBRARIES ( exrstdattr
   IlmImf
   ${PTHREAD_LIB}
-  ${ZLIB_LIBRARIES}
 )
 
 INSTALL ( TARGETS
