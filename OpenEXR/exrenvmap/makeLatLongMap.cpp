@@ -39,13 +39,13 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <makeLatLongMap.h>
+#include "makeLatLongMap.h"
 
-#include <resizeImage.h>
+#include "resizeImage.h"
 #include <ImfRgbaFile.h>
 #include <ImfTiledRgbaFile.h>
 #include <ImfStandardAttributes.h>
-#include "Iex.h"
+#include <Iex.h>
 #include <iostream>
 #include <algorithm>
 

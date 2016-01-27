@@ -33,7 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <fuzzFile.h>
+#include "fuzzFile.h"
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>

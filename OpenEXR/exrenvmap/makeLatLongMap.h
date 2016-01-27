@@ -43,7 +43,7 @@
 
 #include <ImfTileDescription.h>
 #include <ImfCompression.h>
-#include <readInputImage.h>
+#include "readInputImage.h"
 #include "namespaceAlias.h"
 
 

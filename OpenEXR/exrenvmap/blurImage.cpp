@@ -43,9 +43,9 @@
 
 #include "namespaceAlias.h"
 
-#include <resizeImage.h>
+#include "resizeImage.h"
 #include <cstring>
-#include "Iex.h"
+#include <Iex.h>
 #include <iostream>
 #include <algorithm>
 #include <string.h>

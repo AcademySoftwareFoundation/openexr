@@ -48,7 +48,7 @@
 #include <ImfFrameBuffer.h>
 #include <ImfStandardAttributes.h>
 #include <ImfMultiView.h>
-#include "Iex.h"
+#include <Iex.h>
 #include <map>
 #include <algorithm>
 #include <iostream>

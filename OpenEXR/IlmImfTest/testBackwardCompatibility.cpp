@@ -43,7 +43,7 @@
 #include <ImfTiledOutputFile.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <tmpDir.h>
+#include "tmpDir.h"
 #include <ImathBox.h>
 #include <ImfChannelList.h>
 #include <IexMacros.h>

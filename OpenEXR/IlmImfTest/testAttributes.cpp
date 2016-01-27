@@ -34,7 +34,7 @@
 
 
 
-#include <tmpDir.h>
+#include "tmpDir.h"
 
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>

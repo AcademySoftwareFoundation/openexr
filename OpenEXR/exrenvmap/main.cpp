@@ -39,10 +39,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <makeCubeMap.h>
-#include <makeLatLongMap.h>
-#include <blurImage.h>
-#include <EnvmapImage.h>
+#include "makeCubeMap.h"
+#include "makeLatLongMap.h"
+#include "blurImage.h"
+#include "EnvmapImage.h"
 #include <ImfEnvmap.h>
 #include <ImfHeader.h>
 

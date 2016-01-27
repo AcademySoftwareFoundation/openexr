@@ -15,7 +15,7 @@ IF (WIN32)
     IlmThreadMutexWin32.cpp
     IlmThreadSemaphoreWin32.cpp
     IlmThreadWin32.cpp
-	)
+  )
 ENDIF()
 
 
@@ -27,6 +27,11 @@ ADD_LIBRARY ( IlmThread ${LIB_TYPE}
   ${ILMTHREAD_LIBRARY_SOURCES}
   )
 TARGET_LINK_LIBRARIES(IlmThread Iex)
+TARGET_INCLUDE_DIRECTORIES ( IlmThread
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:include/OpenEXR>
+  )
 
 INSTALL ( TARGETS
   IlmThread

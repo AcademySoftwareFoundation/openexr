@@ -33,8 +33,8 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <tmpDir.h>
-#include <fuzzFile.h>
+#include "tmpDir.h"
+#include "fuzzFile.h"
 
 #include <ImfTiledRgbaFile.h>
 #include <ImfArray.h>

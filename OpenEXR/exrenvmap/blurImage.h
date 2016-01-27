@@ -47,7 +47,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <readInputImage.h>
+#include "readInputImage.h"
 
 
 void
