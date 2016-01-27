@@ -9,12 +9,12 @@ files and building those two packages
 
 1. Launch a command window, navigate to the IlmBase folder with 
 CMakeLists.txt,and type command:
-	setlocal
-	del /f CMakeCache.txt
+	mkdir build
+	cd build
 	cmake
       -DCMAKE_INSTALL_PREFIX=<where you want to install the ilmbase builds>
       -G "Visual Studio 10 Win64" 
-      ..\ilmbase
+      ..
 
 2. Navigate to IlmBase folder in Windows Explorer, open ILMBase.sln
 and build the solution. When it build successfully, right click 
@@ -25,16 +25,19 @@ you set up at the previous step.
 	  
 4. Launch a command window, navigate to the OpenEXR folder with 
 CMakeLists.txt, and type command:	  
-	setlocal
-	del /f CMakeCache.txt
+	mkdir build
+	cd build
 	cmake 
       -DZLIB_ROOT=<zlib location>
-      -DILMBASE_PACKAGE_PREFIX=<where you installed the ilmbase builds>
       -DCMAKE_INSTALL_PREFIX=<where you want to instal the openexr builds>
-      -G "Visual Studio 10 Win64" ^
-      ..\openexr
+      -G "Visual Studio 10 Win64"
+      ..
+If installing to a different location to IlmBase then you will also need to supply the flag:
+  -DCMAKE_PREFIX_PATH=<where you installed the ilmbase builds>
 
-5. Navigate to OpenEXR folder in Windows Explorer, open OpenEXR.sln
+5. Make sure that the path to the IlmBase DLLs are in your PATH,
+as they are required by the executables that generate headers during building.
+Navigate to OpenEXR folder in Windows Explorer, open OpenEXR.sln
 and build the solution. When it build successfully, right click 
 INSTALL project and build. It will install the output to the path
 you set up at the previous step. 
@@ -49,7 +52,7 @@ cd  /tmp/openexrbuild
 -------------
 -- IlmBase --
 -------------
-initial bootstraping:
+initial bootstrapping:
     cmake -DCMAKE_INSTALL_PREFIX=<install location> <source location of IlmBase>
 
 build the actual code base:
