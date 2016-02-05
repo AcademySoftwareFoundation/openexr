@@ -1932,7 +1932,7 @@ DwaCompressor::compress
     if (outBufferSize > _outBufferSize) 
     {
         _outBufferSize = outBufferSize;
-        if (_outBuffer == 0)
+        if (_outBuffer != 0)
             delete[] _outBuffer;       
         _outBuffer = new char[outBufferSize];
     }
