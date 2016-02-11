@@ -876,6 +876,7 @@ TiledOutputFile::TiledOutputFile
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {
+        delete _streamData->os;
         delete _streamData;
 	delete _data;
 
@@ -885,6 +886,7 @@ TiledOutputFile::TiledOutputFile
     }
     catch (...)
     {
+        delete _streamData->os;
         delete _streamData;
 	delete _data;
         throw;

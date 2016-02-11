@@ -678,8 +678,9 @@ OutputFile::OutputFile
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {
-        if (_data && _data->_streamData) delete _data->_streamData;
-	if (_data)       delete _data;
+        delete _data->_streamData->os;
+        delete _data->_streamData;
+        delete _data;
 
 	REPLACE_EXC (e, "Cannot open image file "
 			"\"" << fileName << "\". " << e);
@@ -687,8 +688,9 @@ OutputFile::OutputFile
     }
     catch (...)
     {
-        if (_data && _data->_streamData) delete _data->_streamData;
-        if (_data)       delete _data;
+        delete _data->_streamData->os;
+        delete _data->_streamData;
+	delete _data;
 
         throw;
     }

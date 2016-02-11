@@ -226,6 +226,7 @@ MultiPartOutputFile::MultiPartOutputFile (const char fileName[],
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {
+        delete _data->os;
         delete _data;
 
         REPLACE_EXC (e, "Cannot open image file "
@@ -234,6 +235,7 @@ MultiPartOutputFile::MultiPartOutputFile (const char fileName[],
     }
     catch (...)
     {
+        delete _data->os;
         delete _data;
         throw;
     }
