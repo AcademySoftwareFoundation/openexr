@@ -836,6 +836,7 @@ DeepScanLineOutputFile::DeepScanLineOutputFile
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {
+        delete _data->_streamData->os;
         delete _data->_streamData;
         delete _data;
 
@@ -845,6 +846,7 @@ DeepScanLineOutputFile::DeepScanLineOutputFile
     }
     catch (...)
     {
+        delete _data->_streamData->os;
         delete _data->_streamData;
         delete _data;
         throw;
