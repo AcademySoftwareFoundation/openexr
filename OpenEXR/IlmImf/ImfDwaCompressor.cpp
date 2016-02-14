@@ -2397,15 +2397,15 @@ DwaCompressor::uncompress
                             "(truncated file).");
     }
 
-    if (unknownUncompressedSize < 0  || 
-        unknownCompressedSize < 0    ||
-        acCompressedSize < 0         || 
-        dcCompressedSize < 0         ||
-        rleCompressedSize < 0        || 
-        rleUncompressedSize < 0      ||
-        rleRawSize < 0               ||  
-        totalAcUncompressedCount < 0 || 
-        totalDcUncompressedCount < 0) 
+    if ((SInt64)unknownUncompressedSize < 0  ||
+        (SInt64)unknownCompressedSize < 0    ||
+        (SInt64)acCompressedSize < 0         ||
+        (SInt64)dcCompressedSize < 0         ||
+        (SInt64)rleCompressedSize < 0        ||
+        (SInt64)rleUncompressedSize < 0      ||
+        (SInt64)rleRawSize < 0               ||
+        (SInt64)totalAcUncompressedCount < 0 ||
+        (SInt64)totalDcUncompressedCount < 0)
     {
         throw Iex::InputExc("Error uncompressing DWA data"
                             " (corrupt header).");
@@ -2496,7 +2496,7 @@ DwaCompressor::uncompress
     // start of the data block.
     //
 
-    if ((version < 0) || (version > 2))
+    if (version > 2)
         throw Iex::InputExc ("Invalid version of compressed data block");    
 
     setupChannelData(minX, minY, maxX, maxY);
