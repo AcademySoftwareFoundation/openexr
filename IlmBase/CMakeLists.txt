@@ -211,7 +211,7 @@ CONFIGURE_FILE ( IlmBaseConfig.cmake.in
 
 INCLUDE ( CMakePackageConfigHelpers )
 WRITE_BASIC_PACKAGE_VERSION_FILE (
-  "${CMAKE_CURRENT_BINARY_DIR}/IlmBaseConfigVersion.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/IlmBase/IlmBaseConfigVersion.cmake"
   VERSION
   ${ILMBASE_VERSION}
   COMPATIBILITY
@@ -221,7 +221,7 @@ WRITE_BASIC_PACKAGE_VERSION_FILE (
 EXPORT ( EXPORT
   IlmBaseTargets
   FILE
-  "${CMAKE_CURRENT_BINARY_DIR}/IlmBaseTargets.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/IlmBase/IlmBaseTargets.cmake"
   NAMESPACE
   IlmBase::
   )
@@ -257,7 +257,7 @@ INSTALL ( FILES
 SET ( ConfigPackageLocation lib/cmake/IlmBase )
 INSTALL ( FILES
   "${CMAKE_CURRENT_BINARY_DIR}/IlmBase/IlmBaseConfig.cmake"
-  "${CMAKE_CURRENT_BINARY_DIR}/IlmBaseConfigVersion.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/IlmBase/IlmBaseConfigVersion.cmake"
   DESTINATION
   ${ConfigPackageLocation}
 )

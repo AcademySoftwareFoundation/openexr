@@ -212,7 +212,7 @@ CONFIGURE_FILE ( OpenEXRConfig.cmake.in
 
 INCLUDE ( CMakePackageConfigHelpers )
 WRITE_BASIC_PACKAGE_VERSION_FILE (
-  "${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigVersion.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/OpenEXRConfigVersion.cmake"
   VERSION
   ${OPENEXR_VERSION}
   COMPATIBILITY
@@ -222,7 +222,7 @@ WRITE_BASIC_PACKAGE_VERSION_FILE (
 EXPORT ( EXPORT
   OpenEXRTargets
   FILE
-  "${CMAKE_CURRENT_BINARY_DIR}/OpenEXRTargets.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/OpenEXRTargets.cmake"
   NAMESPACE
   OpenEXR::
   )
@@ -275,7 +275,7 @@ INSTALL ( FILES
 SET ( ConfigPackageLocation lib/cmake/OpenEXR )
 INSTALL ( FILES
   "${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/OpenEXRConfig.cmake"
-  "${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigVersion.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/OpenEXRConfigVersion.cmake"
   DESTINATION
   ${ConfigPackageLocation}
   )
