@@ -75,7 +75,6 @@ using IMATH_NAMESPACE::divp;
 using IMATH_NAMESPACE::modp;
 using std::string;
 using std::vector;
-using std::ofstream;
 using std::min;
 using std::max;
 using ILMTHREAD_NAMESPACE::Mutex;

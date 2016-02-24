@@ -46,7 +46,6 @@
 
 
 using namespace OPENEXR_IMF_NAMESPACE;
-using namespace std;
 
 
 namespace {
@@ -54,9 +53,14 @@ namespace {
 void
 testFile1 (const char fileName[], bool isImfFile)
 {
-    cout << fileName << " " << flush;
+    std::cout << fileName << " " << std::flush;
 
-    ifstream f (fileName, ios_base::binary);
+#ifdef _WIN32
+	std::wstring filenameStr = StrUtils::utf8_to_utf16(std::string(fileName));
+#else
+	std::string filenameStr(fileName);
+#endif
+    OPENEXR_IMF_INTERNAL_NAMESPACE::ifstream f (filenameStr, std::ios_base::binary);
     assert (!!f);
 
     char bytes[4];
@@ -64,14 +68,14 @@ testFile1 (const char fileName[], bool isImfFile)
 
     assert (!!f && isImfFile == isImfMagic (bytes));
 
-    cout << "is " << (isImfMagic (bytes)? "": "not ") << "an OpenEXR file\n";
+    std::cout << "is " << (isImfMagic (bytes)? "": "not ") << "an OpenEXR file\n";
 }
 
 
 void
 testFile2 (const char fileName[], bool exists, bool exrFile, bool tiledFile)
 {
-    cout << fileName << " " << flush;
+    std::cout << fileName << " " << std::flush;
 
     bool exr, tiled;
 
@@ -107,9 +111,9 @@ testFile2 (const char fileName[], bool exists, bool exrFile, bool tiledFile)
 	    assert (is.tellg() == 0);
     }
 
-    cout << (exists? "exists": "does not exist") << ", " <<
+    std::cout << (exists? "exists": "does not exist") << ", " <<
 	    (exrFile? "is an OpenEXR file": "is not an OpenEXR file") << ", " <<
-	    (tiledFile? "is tiled": "is not tiled") << endl;
+	    (tiledFile? "is tiled": "is not tiled") << std::endl;
 }
 
 } // namespace
@@ -120,7 +124,7 @@ testMagic (const std::string &)
 {
     try
     {
-	cout << "Testing magic number" << endl;
+	std::cout << "Testing magic number" << std::endl;
 
 	testFile1 (ILM_IMF_TEST_IMAGEDIR "comp_none.exr", true);
 	testFile1 (ILM_IMF_TEST_IMAGEDIR "invalid.exr", false);
@@ -130,11 +134,11 @@ testMagic (const std::string &)
 	testFile2 (ILM_IMF_TEST_IMAGEDIR "invalid.exr", true, false, false);
 	testFile2 (ILM_IMF_TEST_IMAGEDIR "does_not_exist.exr", false, false, false);
 
-	cout << "ok\n" << endl;
+	std::cout << "ok\n" << std::endl;
     }
     catch (const std::exception &e)
     {
-	cerr << "ERROR -- caught exception: " << e.what() << endl;
+	std::cerr << "ERROR -- caught exception: " << e.what() << std::endl;
 	assert (false);
     }
 }

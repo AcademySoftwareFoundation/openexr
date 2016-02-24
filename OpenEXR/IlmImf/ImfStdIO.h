@@ -50,8 +50,37 @@
 #include <fstream>
 #include <sstream>
 
+#if defined(_WIN32) && defined(__GLIBCXX__)
+#define FSTREAM_USE_STDIO_FILEBUF 1
+#include "fstream_mingw.h"
+#endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
+
+
+#if FSTREAM_USE_STDIO_FILEBUF
+// MingW uses GCC to build, but does not support having a wchar_t* passed as argument
+// of ifstream::open or ofstream::open. To properly support UTF-8 encoding on MingW we must
+// use the __gnu_cxx::stdio_filebuf GNU extension that can be used with _wfsopen and returned
+// into a istream which share the same API as ifsteam. The same reasoning holds for ofstream.
+typedef basic_ifstream<char> ifstream;
+typedef basic_ofstream<char> ofstream;
+#else
+typedef std::ifstream ifstream;
+typedef std::ofstream ofstream;
+#endif //FSTREAM_USE_STDIO_FILEBUF
+
+#ifdef _WIN32
+namespace StrUtils {
+//-------------------------------------------
+// Converts a UTF-8 encoded string into a UTF-16 encoded wide string.
+// This is useful on Windows to correctly handle UTF-8 encoded std::string filenames 
+// passed to ifstream/ofstream
+//-------------------------------------------
+IMF_EXPORT std::wstring utf8_to_utf16 (const std::string& str);
+
+} // namespace StrUtils
+#endif // _WIN32
 
 //-------------------------------------------
 // class StdIFStream -- an implementation of
@@ -76,7 +105,7 @@ class IMF_EXPORT StdIFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
     // will not close the std::ifstream.
     //---------------------------------------------------------
 
-    StdIFStream (std::ifstream &is, const char fileName[]);
+    StdIFStream (OPENEXR_IMF_INTERNAL_NAMESPACE::ifstream &is, const char fileName[]);
 
 
     virtual ~StdIFStream ();
@@ -88,7 +117,7 @@ class IMF_EXPORT StdIFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
 
   private:
 
-    std::ifstream *	_is;
+    OPENEXR_IMF_INTERNAL_NAMESPACE::ifstream *	_is;
     bool		_deleteStream;
 };
 
@@ -116,7 +145,7 @@ class IMF_EXPORT StdOFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
     // will not close the std::ofstream.
     //---------------------------------------------------------
 
-    StdOFStream (std::ofstream &os, const char fileName[]);
+    StdOFStream (OPENEXR_IMF_INTERNAL_NAMESPACE::ofstream &os, const char fileName[]);
 
 
     virtual ~StdOFStream ();
@@ -127,7 +156,7 @@ class IMF_EXPORT StdOFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
 
   private:
 
-    std::ofstream *	_os;
+    OPENEXR_IMF_INTERNAL_NAMESPACE::ofstream *	_os;
     bool		_deleteStream;
 };
 

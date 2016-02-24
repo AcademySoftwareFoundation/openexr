@@ -259,6 +259,7 @@ INSTALL ( FILES
   ImfDeepImageState.h
   ImfDeepImageStateAttribute.h
   ImfFloatVectorAttribute.h
+  fstream_mingw.h
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
 )

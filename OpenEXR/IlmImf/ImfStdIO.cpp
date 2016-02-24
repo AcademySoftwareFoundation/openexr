@@ -43,11 +43,31 @@
 #include <ImfStdIO.h>
 #include "Iex.h"
 #include <errno.h>
-
-using namespace std;
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
+
+#ifdef _WIN32
+
+namespace StrUtils {
+
+std::wstring
+utf8_to_utf16 (const std::string& str)
+{
+    std::wstring native;
+    
+    native.resize(MultiByteToWideChar (CP_UTF8, 0, str.c_str(), -1, NULL, 0));
+    MultiByteToWideChar (CP_UTF8, 0, str.c_str(), -1, &native[0], (int)native.size());
+
+    return native;
+}
+
+}
+
+#endif // _WIN32
 
 namespace {
 
@@ -59,7 +79,7 @@ clearError ()
 
 
 bool
-checkError (istream &is, streamsize expected = 0)
+checkError (std::istream &is, std::streamsize expected = 0)
 {
     if (!is)
     {
@@ -79,7 +99,7 @@ checkError (istream &is, streamsize expected = 0)
 
 
 void
-checkError (ostream &os)
+checkError (std::ostream &os)
 {
     if (!os)
     {
@@ -95,9 +115,16 @@ checkError (ostream &os)
 
 StdIFStream::StdIFStream (const char fileName[]):
     OPENEXR_IMF_INTERNAL_NAMESPACE::IStream (fileName),
-    _is (new ifstream (fileName, ios_base::binary)),
+    _is (0),
     _deleteStream (true)
 {
+#ifdef _WIN32
+	std::wstring wfilename = StrUtils::utf8_to_utf16(std::string(fileName));
+	_is = new OPENEXR_IMF_INTERNAL_NAMESPACE::ifstream (wfilename, std::ios_base::binary);
+#else
+	_is = new OPENEXR_IMF_INTERNAL_NAMESPACE::ifstream (fileName, std::ios_base::binary);
+#endif
+
     if (!*_is)
     {
 	delete _is;
@@ -106,7 +133,7 @@ StdIFStream::StdIFStream (const char fileName[]):
 }
 
     
-StdIFStream::StdIFStream (ifstream &is, const char fileName[]):
+StdIFStream::StdIFStream (OPENEXR_IMF_INTERNAL_NAMESPACE::ifstream &is, const char fileName[]):
     OPENEXR_IMF_INTERNAL_NAMESPACE::IStream (fileName),
     _is (&is),
     _deleteStream (false)
@@ -158,9 +185,15 @@ StdIFStream::clear ()
 
 StdOFStream::StdOFStream (const char fileName[]):
     OPENEXR_IMF_INTERNAL_NAMESPACE::OStream (fileName),
-    _os (new ofstream (fileName, ios_base::binary)),
+    _os (0),
     _deleteStream (true)
 {
+#ifdef _WIN32
+	std::wstring wfilename = StrUtils::utf8_to_utf16(std::string(fileName));
+	_os = new OPENEXR_IMF_INTERNAL_NAMESPACE::ofstream (wfilename, std::ios_base::binary);
+#else
+	_os = new OPENEXR_IMF_INTERNAL_NAMESPACE::ofstream (fileName, std::ios_base::binary);
+#endif
     if (!*_os)
     {
 	delete _os;
@@ -169,7 +202,7 @@ StdOFStream::StdOFStream (const char fileName[]):
 }
 
 
-StdOFStream::StdOFStream (ofstream &os, const char fileName[]):
+StdOFStream::StdOFStream (OPENEXR_IMF_INTERNAL_NAMESPACE::ofstream &os, const char fileName[]):
     OPENEXR_IMF_INTERNAL_NAMESPACE::OStream (fileName),
     _os (&os),
     _deleteStream (false)

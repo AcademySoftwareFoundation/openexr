@@ -33,6 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
+#include <ImfStdIO.h>
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
 #include <ImfPreviewImage.h>
@@ -46,7 +47,6 @@
 
 
 using namespace OPENEXR_IMF_NAMESPACE;
-using namespace std;
 using namespace IMATH_NAMESPACE;
 
 
@@ -77,7 +77,7 @@ readWriteFiles (const char fileName1[],
     // the files are identical.
     //
 
-    cout << "reading file " << fileName1 << endl;
+    std::cout << "reading file " << fileName1 << std::endl;
 
     RgbaInputFile file1 (fileName1);
 
@@ -94,7 +94,7 @@ readWriteFiles (const char fileName1[],
     file1.setFrameBuffer (pixels1 - dx - dy * w, 1, w);
     file1.readPixels (dw.min.y, dw.max.y);
 
-    cout << "generating preview image" << endl;
+    std::cout << "generating preview image" << std::endl;
 
     const int PREVIEW_WIDTH  = 128;
     const int PREVIEW_HEIGHT = 64;
@@ -105,7 +105,7 @@ readWriteFiles (const char fileName1[],
 	for (int x = 0; x < PREVIEW_WIDTH; ++x)
 	    preview1.pixel (x, y) = PreviewRgba (x*2, y*4, x+y, 128);
 
-    cout << "writing file " << fileName2 << endl;
+    std::cout << "writing file " << fileName2 << std::endl;
 
     {
 	Header header (file1.header());
@@ -118,7 +118,7 @@ readWriteFiles (const char fileName1[],
 	    file2.writePixels (1);
     }
 
-    cout << "reading file " << fileName2 << endl;
+    std::cout << "reading file " << fileName2 << std::endl;
 
     {
 	RgbaInputFile file2 (fileName2);
@@ -155,7 +155,7 @@ readWriteFiles (const char fileName1[],
 	}
     }
 
-    cout << "writing file " << fileName3 << endl;
+    std::cout << "writing file " << fileName3 << std::endl;
 
     {
 	Header header (file1.header());
@@ -173,11 +173,18 @@ readWriteFiles (const char fileName1[],
 	}
     }
 
-    cout << "comparing files " << fileName2 << " and " << fileName3 << endl;
+    std::cout << "comparing files " << fileName2 << " and " << fileName3 << std::endl;
 
     {
-	ifstream file2 (fileName2, std::ios_base::binary);
-	ifstream file3 (fileName3, std::ios_base::binary);
+#ifdef _WIN32
+	std::wstring filename2Str = StrUtils::utf8_to_utf16(std::string(fileName2));
+	std::wstring filename3Str = StrUtils::utf8_to_utf16(std::string(fileName3));
+#else
+	std::string filename2Str(fileName2);
+	std::string filename3Str(fileName3);
+#endif
+	OPENEXR_IMF_INTERNAL_NAMESPACE::ifstream file2 (filename2Str, std::ios_base::binary);
+	OPENEXR_IMF_INTERNAL_NAMESPACE::ifstream file3 (filename3Str, std::ios_base::binary);
 
 	while (true)
 	{
@@ -207,17 +214,17 @@ testPreviewImage (const std::string &tempDir)
 
     try
     {
-	cout << "Testing preview image attribute" << endl;
+	std::cout << "Testing preview image attribute" << std::endl;
 
 	readWriteFiles (ILM_IMF_TEST_IMAGEDIR "comp_piz.exr",
 			filename1.c_str(),
 			filename2.c_str());
 
-	cout << "ok\n" << endl;
+	std::cout << "ok\n" << std::endl;
     }
     catch (const std::exception &e)
     {
-	cerr << "ERROR -- caught exception: " << e.what() << endl;
+	std::cerr << "ERROR -- caught exception: " << e.what() << std::endl;
 	assert (false);
     }
 }
