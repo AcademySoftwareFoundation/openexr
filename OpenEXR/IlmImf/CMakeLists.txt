@@ -259,6 +259,29 @@ INSTALL ( FILES
   ImfDeepImageState.h
   ImfDeepImageStateAttribute.h
   ImfFloatVectorAttribute.h
+  ImfAutoArray.h
+  ImfCheckedArithmetic.h
+  ImfCompressor.h
+  ImfDwaCompressor.h
+  ImfDwaCompressorSimd.h
+  ImfFastHuf.h
+  ImfInputPartData.h
+  ImfInputStreamMutex.h
+  ImfOptimizedPixelReading.h
+  ImfOutputPartData.h
+  ImfOutputStreamMutex.h
+  ImfPizCompressor.h
+  ImfPxr24Compressor.h
+  ImfRle.h
+  ImfRleCompressor.h
+  ImfScanLineInputFile.h
+  ImfSimd.h
+  ImfStdIO.h
+  ImfSystemSpecific.h
+  ImfTiledMisc.h
+  ImfTileOffsets.h
+  ImfZip.h
+  ImfZipCompressor.h
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
 )
