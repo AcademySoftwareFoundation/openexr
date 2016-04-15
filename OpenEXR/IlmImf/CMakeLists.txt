@@ -2,39 +2,47 @@
 
 SET(CMAKE_INCLUDE_CURRENT_DIR 1)
 
-ADD_EXECUTABLE ( b44ExpLogTable
-  b44ExpLogTable.cpp
-)
+if (NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h")
+  ADD_EXECUTABLE ( b44ExpLogTable
+    b44ExpLogTable.cpp
+  )
+  
+  TARGET_LINK_LIBRARIES ( b44ExpLogTable
+    Half
+    Iex${ILMBASE_LIBSUFFIX}
+    IlmThread${ILMBASE_LIBSUFFIX}
+    ${PTHREAD_LIB}
+  )
+  
+  ADD_CUSTOM_COMMAND (
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/b44ExpLogTable >   ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
+    DEPENDS b44ExpLogTable
+  )
+else ()
+ message (STATUS "Skipping build of b44ExpLogTable.h")
+endif ()
 
-TARGET_LINK_LIBRARIES ( b44ExpLogTable
-  Half
-  Iex${ILMBASE_LIBSUFFIX}
-  IlmThread${ILMBASE_LIBSUFFIX}
-  ${PTHREAD_LIB}
-)
-
-ADD_CUSTOM_COMMAND (
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
-  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/b44ExpLogTable > ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
-  DEPENDS b44ExpLogTable
-)
-
-ADD_EXECUTABLE ( dwaLookups
-  dwaLookups.cpp
-)
-
-TARGET_LINK_LIBRARIES ( dwaLookups
-  Half
-  Iex${ILMBASE_LIBSUFFIX}
-  IlmThread${ILMBASE_LIBSUFFIX}
-  ${PTHREAD_LIB}
-)
-
-ADD_CUSTOM_COMMAND (
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
-  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/dwaLookups > ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
-  DEPENDS dwaLookups
-)
+if (NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h")
+  ADD_EXECUTABLE ( dwaLookups
+    dwaLookups.cpp
+  )
+  
+  TARGET_LINK_LIBRARIES ( dwaLookups
+    Half
+    Iex${ILMBASE_LIBSUFFIX}
+    IlmThread${ILMBASE_LIBSUFFIX}
+    ${PTHREAD_LIB}
+  )
+  
+  ADD_CUSTOM_COMMAND (
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/dwaLookups >   ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
+    DEPENDS dwaLookups
+  )
+else ()
+ message (STATUS "Skipping build of dwaLookups.h")
+endif ()
 
 SET ( ILMIMF_SRCS
   ImfAttribute.cpp
