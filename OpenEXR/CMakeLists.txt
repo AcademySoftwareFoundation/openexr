@@ -32,6 +32,8 @@ INCLUDE ( CPack )
 OPTION (BUILD_SHARED_LIBS    "Build Shared Libraries" ON)
 OPTION (USE_ZLIB_WINAPI      "Use ZLib Win API"       OFF)
 OPTION (NAMESPACE_VERSIONING "Use Namespace Versioning" ON)
+OPTION (BUILD_UTILS "Build the binary/utility programs" ON)
+OPTION (BUILD_TESTS "Build the tests" ON)
 
 # Setup osx rpathing
 SET (CMAKE_MACOSX_RPATH 1)
@@ -198,21 +200,25 @@ ADD_SUBDIRECTORY ( IlmImfExamples )
 ##########################
 # Tests
 ##########################
-ADD_SUBDIRECTORY ( IlmImfTest )
-ADD_SUBDIRECTORY ( IlmImfUtilTest )
-ADD_SUBDIRECTORY ( IlmImfFuzzTest )
+if (BUILD_TESTS)
+  ADD_SUBDIRECTORY ( IlmImfTest )
+  ADD_SUBDIRECTORY ( IlmImfUtilTest )
+  ADD_SUBDIRECTORY ( IlmImfFuzzTest )
+endif ()
 
 
 ##########################
 # Binaries / Utilities
 ##########################
-ADD_SUBDIRECTORY ( exrheader )
-ADD_SUBDIRECTORY ( exrmaketiled )
-ADD_SUBDIRECTORY ( exrstdattr )
-ADD_SUBDIRECTORY ( exrmakepreview )
-ADD_SUBDIRECTORY ( exrenvmap )
-ADD_SUBDIRECTORY ( exrmultiview )
-ADD_SUBDIRECTORY ( exrmultipart )
+if (BUILD_UTILS)
+  ADD_SUBDIRECTORY ( exrheader )
+  ADD_SUBDIRECTORY ( exrmaketiled )
+  ADD_SUBDIRECTORY ( exrstdattr )
+  ADD_SUBDIRECTORY ( exrmakepreview )
+  ADD_SUBDIRECTORY ( exrenvmap )
+  ADD_SUBDIRECTORY ( exrmultiview )
+  ADD_SUBDIRECTORY ( exrmultipart )
+endif ()
 
 
 ##########################
