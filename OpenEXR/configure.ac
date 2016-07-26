@@ -188,7 +188,7 @@ AC_COMPILE_IFELSE(
                  __asm__(
                      "xgetbv     \n"
                      "vzeroupper  "
-                     : "=a"(eax), "=d"(edx) : "c"(n) : );
+                     : "=a"(eax), "=d"(edx) : "c"(n));
              #else
                  #error No GCC style inline asm supported for AVX instructions
              #endif
