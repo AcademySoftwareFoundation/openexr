@@ -51,6 +51,8 @@
 #include <half.h>
 #include <assert.h>
 
+#include <algorithm>
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 #define _SSE_ALIGNMENT        32
