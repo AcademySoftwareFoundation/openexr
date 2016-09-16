@@ -854,6 +854,39 @@ InputFile::rawPixelData (int firstScanLine,
 }
 
 
+
+
+void
+InputFile::rawPixelDataToBuffer (int scanLine,
+                                 char *pixelData,
+                                 int &pixelDataSize) const
+{
+    try
+    {
+        if (_data->dsFile)
+        {
+            throw IEX_NAMESPACE::ArgExc ("Tried to read a raw scanline "
+                                         "from a deep image.");
+        }
+        
+        else if (_data->isTiled)
+        {
+            throw IEX_NAMESPACE::ArgExc ("Tried to read a raw scanline "
+                                         "from a tiled image.");
+        }
+        
+        _data->sFile->rawPixelDataToBuffer(scanLine, pixelData, pixelDataSize);
+    }
+    catch (IEX_NAMESPACE::BaseExc &e)
+    {
+        REPLACE_EXC (e, "Error reading pixel data from image "
+                     "file \"" << fileName() << "\". " << e);
+        throw;
+    }
+}
+
+
+
 void
 InputFile::rawTileData (int &dx, int &dy,
 			int &lx, int &ly,
