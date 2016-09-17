@@ -1264,7 +1264,7 @@ detectOptimizationMode (const vector<sliceOptimizationData>& optData)
     OptimizationMode w;
     
     // need to be compiled with SSE optimisations: if not, just returns false
-#if IMF_HAVE_SSE2
+#ifdef IMF_HAVE_SSE2
     
     
     // only handle reading 3,4,6 or 8 channels

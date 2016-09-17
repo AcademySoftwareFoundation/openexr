@@ -948,7 +948,7 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                 }
                 else
                 {
-                    #if IMF_HAVE_SSE2
+                    #ifdef IMF_HAVE_SSE2
 
                         __m128i *dst = (__m128i*)&rowBlock[comp][blockx*64];
 
