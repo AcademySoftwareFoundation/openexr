@@ -459,7 +459,7 @@ half::half (float f)
 	// to do the float-to-half conversion.
 	//
 
-	register int e = (x.i >> 23) & 0x000001ff;
+	int e = (x.i >> 23) & 0x000001ff;
 
 	e = _eLut[e];
 
@@ -470,7 +470,7 @@ half::half (float f)
 	    // bits and combine it with the sign and exponent.
 	    //
 
-	    register int m = x.i & 0x007fffff;
+	    int m = x.i & 0x007fffff;
 	    _h = e + ((m + 0x00000fff + ((m >> 13) & 1)) >> 13);
 	}
 	else
