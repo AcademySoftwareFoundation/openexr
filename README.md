@@ -1,18 +1,11 @@
 # OpenEXR
 
 
-**OpenEXR** is a high dynamic-range (HDR) image file format developed by 
-Industrial Light & Magic (ILM) for use in computer imaging applications.  
-ILM subsequently released the source code and adjoining material as open 
-source software.
+**OpenEXR** is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic (ILM) for use in computer imaging applications.  ILM subsequently released the source code and adjoining material as open source software.
 
-The distribution has evolved to include support for stereoscopic and deep 
-images.  Weta Digital, Disney, Sony Pictures Imageworks, Pixar, DreamWorks
-Animation and other studios have made contributions to the code base.
-The file format has seen wide adoption in a number of industries.
+The distribution has evolved to include support for stereoscopic and deep images.  Weta Digital, Disney, Sony Pictures Imageworks, Pixar, DreamWorks Animation and other studios have made contributions to the code base. The file format has seen wide adoption in a number of industries.
 
-The library, including all contributions, is released under the modified 
-BSD license. 
+The library, including all contributions, is released under the modified BSD license. 
 
 OpenEXR's features include:
 
@@ -37,7 +30,6 @@ The distribution is divided into the following sub-modules:
 * PyIlmBase
 * Contrib
     
-Please see the README files of each of the individual directories for more
-information.
+Please see the README files of each of the individual directories for more information.
 
 A collection of OpenEXR images are available from the adjecent repository [openexr-images](https://github.com/openexr/openexr-images)
