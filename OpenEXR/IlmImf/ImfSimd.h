@@ -50,7 +50,7 @@
 
 extern "C"
 {
-#if IMF_HAVE_SSE2
+#ifdef IMF_HAVE_SSE2
     #include <emmintrin.h>
     #include <mmintrin.h>
 #endif
