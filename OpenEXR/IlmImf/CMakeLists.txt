@@ -217,6 +217,7 @@ INSTALL ( FILES
   ImfRationalAttribute.h
   ImfFramesPerSecond.h
   ImfStandardAttributes.h
+  ImfStdIO.h
   ImfEnvmap.h
   ImfEnvmapAttribute.h
   ImfInt64.h

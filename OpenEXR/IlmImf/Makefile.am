@@ -127,6 +127,7 @@ libIlmImfinclude_HEADERS = ImfForward.h ImfAttribute.h ImfBoxAttribute.h \
 			   ImfRational.h ImfRationalAttribute.h \
 			   ImfFramesPerSecond.h \
 			   ImfStandardAttributes.h \
+			   ImfStdIO.h \
 			   ImfEnvmap.h \
 			   ImfEnvmapAttribute.h \
 			   ImfInt64.h ImfRgba.h \
