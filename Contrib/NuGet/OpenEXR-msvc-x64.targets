@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemDefinitionGroup Label="Release and x64" Condition="( $(Configuration.ToLower().IndexOf('debug')) == -1 ) And '$(Platform.ToLower())' == 'x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>HAS_OpenEXR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)../..//build/native/include/OpenEXR;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)../..//build/native/include/OpenEXR;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>$(MSBuildThisFileDirectory)../..//build/native/lib_release/Imath-2_2.lib;$(MSBuildThisFileDirectory)../..//build/native/lib_release/Half.lib;$(MSBuildThisFileDirectory)../..//build/native/lib_release/Iex-2_2.lib;$(MSBuildThisFileDirectory)../..//build/native/lib_release/IexMath-2_2.lib;$(MSBuildThisFileDirectory)../..//build/native/lib_release/IlmImf-2_2.lib;$(MSBuildThisFileDirectory)../..//build/native/lib_release/IlmImfUtil-2_2.lib;$(MSBuildThisFileDirectory)../..//build/native/lib_release/IlmThread-2_2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Label="Debug and x64" Condition="( $(Configuration.ToLower().IndexOf('debug')) &gt; -1 ) And '$(Platform.ToLower())' == 'x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>HAS_OpenEXR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)../..//build/native/include/OpenEXR;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)../..//build/native/include/OpenEXR;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>$(MSBuildThisFileDirectory)../..//build/native/lib_debug/Imath-2_2.lib;$(MSBuildThisFileDirectory)../..//build/native/lib_debug/Half.lib;$(MSBuildThisFileDirectory)../..//build/native/lib_debug/Iex-2_2.lib;$(MSBuildThisFileDirectory)../..//build/native/lib_debug/IexMath-2_2.lib;$(MSBuildThisFileDirectory)../..//build/native/lib_debug/IlmImf-2_2.lib;$(MSBuildThisFileDirectory)../..//build/native/lib_debug/IlmImfUtil-2_2.lib;$(MSBuildThisFileDirectory)../..//build/native/lib_debug/IlmThread-2_2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Target Name="openexr-msvc">
+  </Target>
+</Project>

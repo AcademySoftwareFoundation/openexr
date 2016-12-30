@@ -21,3 +21,5 @@ missing
 .DS_Store
 *.project
 *.cproject
+build-win/
+build-nuget/
