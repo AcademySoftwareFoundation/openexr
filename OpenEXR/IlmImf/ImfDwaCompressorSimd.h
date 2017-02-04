@@ -43,6 +43,15 @@
 // aligned. Unaligned pointers may risk seg-faulting.
 //
 
+// Windows specific addition to prevent the indirect import of the redefined
+// min/max macros
+#if defined _WIN32 || defined _WIN64
+	#ifdef NOMINMAX
+		#undef NOMINMAX
+	#endif
+	#define NOMINMAX
+#endif
+
 #include "ImfNamespace.h"
 #include "ImfSimd.h"
 #include "ImfSystemSpecific.h"
