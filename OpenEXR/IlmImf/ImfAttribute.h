@@ -105,7 +105,12 @@ class IMF_EXPORT Attribute
     //-----------------------------------------------------------
 
     static bool			knownType (const char typeName[]);
-
+ 
+    //------------------------------------------------------
+    // Un-register all known attributes.
+    //------------------------------------------------------
+ 
+    static void clearAttributeRegistration();
 
   protected:
 

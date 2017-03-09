@@ -1228,14 +1228,16 @@ Header::readFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int &version)
     }
 }
 
+static bool initialized = false;
+static Mutex criticalSection;
 
 void
 staticInitialize ()
 {
-    static Mutex criticalSection;
+    //static Mutex criticalSection;
     Lock lock (criticalSection);
 
-    static bool initialized = false;
+    //static bool initialized = false;
 
     if (!initialized)
     {
@@ -1278,6 +1280,17 @@ staticInitialize ()
 	initialized = true;
     }
 }
+
+void
+staticUninitialize ()
+{
+    Lock lock (criticalSection);
+
+    Attribute::clearAttributeRegistration();
+
+    initialized = false;
+}
+
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

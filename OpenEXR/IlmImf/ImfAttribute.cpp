@@ -84,21 +84,31 @@ class LockedTypeMap: public TypeMap
     Mutex mutex;
 };
 
+static Mutex criticalSection;
+static LockedTypeMap* typeMapVar = 0;
 
 LockedTypeMap &
 typeMap ()
 {
-    static Mutex criticalSection;
     Lock lock (criticalSection);
 
-    static LockedTypeMap* typeMap = 0;
+    if (typeMapVar == 0)
+    typeMapVar = new LockedTypeMap ();
 
-    if (typeMap == 0)
-	typeMap = new LockedTypeMap ();
-
-    return *typeMap;
+    return *typeMapVar;
 }
 
+void
+clearTypeMap ()
+{
+    Lock lock (criticalSection);
+
+    if (typeMapVar != 0)
+    {
+        delete typeMapVar;
+        typeMapVar = 0;
+    }
+}
 
 } // namespace
 
@@ -136,6 +146,16 @@ Attribute::unRegisterAttributeType (const char typeName[])
     Lock lock (tMap.mutex);
 
     tMap.erase (typeName);
+}
+
+void
+  Attribute::clearAttributeRegistration ()
+{
+    LockedTypeMap& tMap = typeMap();
+    Lock lock (tMap.mutex);
+
+    tMap.clear ();
+    clearTypeMap();
 }
 
 
