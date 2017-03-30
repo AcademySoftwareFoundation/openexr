@@ -132,26 +132,6 @@ bytesPerLineTable (const Header &header,
     return maxBytesPerLine;
 }
 
-
-const int&
-sampleCount(const char* base, int xStride, int yStride, int x, int y)
-{
-    const char* ptr = base + y * yStride + x * xStride;
-    int* intPtr = (int*) ptr;
-
-    return *intPtr;
-}
-
-int&
-sampleCount(char* base, int xStride, int yStride, int x, int y)
-{
-    char* ptr = base + y * yStride + x * xStride;
-    int* intPtr = (int*) ptr;
-    
-    return *intPtr;
-}
-
-
 size_t
 bytesPerDeepLineTable (const Header &header,
                        int minY, int maxY,
