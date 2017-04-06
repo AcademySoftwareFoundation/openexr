@@ -147,14 +147,18 @@ bytesPerDeepLineTable (const Header &header,
          c != channels.end();
          ++c)
     {
+        const int ySampling = c.channel().ySampling;
+        const int xSampling = c.channel().xSampling;
+        const int pixelSize = pixelTypeSize (c.channel().type);
+
         for (int y = minY; y <= maxY; ++y)
-            if (modp (y, c.channel().ySampling) == 0)
+            if (modp (y, ySampling) == 0)
             {
                 int nBytes = 0;
                 for (int x = dataWindow.min.x; x <= dataWindow.max.x; x++)
                 {
-                    if (modp (x, c.channel().xSampling) == 0)
-                        nBytes += pixelTypeSize (c.channel().type) *
+                    if (modp (x, xSampling) == 0)
+                        nBytes += pixelSize *
                                   sampleCount(base, xStride, yStride, x, y);
                 }
                 bytesPerLine[y - dataWindow.min.y] += nBytes;
