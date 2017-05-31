@@ -5,12 +5,14 @@ check_PROGRAMS = IlmImfTest
 IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
 		     testCompression.cpp testCopyPixels.cpp \
 		     testCustomAttributes.cpp testHuf.cpp testLineOrder.cpp \
+		     testMalformedImages.cpp \
 		     testLut.cpp testRgba.cpp testRgbaThreading.cpp \
 		     testSampleImages.cpp testSharedFrameBuffer.cpp \
 		     testWav.cpp testXdr.cpp testAttributes.h testChannels.h \
 		     testCompression.h testCopyPixels.h \
 		     testCustomAttributes.h testHuf.h testLineOrder.h \
 		     testLut.h testRgba.h testRgbaThreading.h \
+		     testMalformedImages.h \
 		     testSampleImages.h testWav.h testSharedFrameBuffer.h \
 		     testXdr.h testConversion.cpp testConversion.h \
 		     testNativeFormat.cpp testNativeFormat.h \

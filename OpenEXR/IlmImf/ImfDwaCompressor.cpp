@@ -2386,7 +2386,12 @@ DwaCompressor::uncompress
 
     const char *dataPtr            = inPtr + NUM_SIZES_SINGLE * sizeof(Int64);
 
-    if (inSize < headerSize + compressedSize) 
+    /* Both the sum and individual sizes are checked in case of overflow. */
+    if (inSize < (headerSize + compressedSize) ||
+        inSize < unknownCompressedSize ||
+        inSize < acCompressedSize ||
+        inSize < dcCompressedSize ||
+        inSize < rleCompressedSize)
     {
         throw Iex::InputExc("Error uncompressing DWA data"
                             "(truncated file).");
