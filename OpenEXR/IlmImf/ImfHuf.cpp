@@ -822,7 +822,7 @@ hufEncode				// return: output size (in bits)
 }
 
 
-#define getCode(po, rlc, c, lc, in, out, oe)	\
+#define getCode(po, rlc, c, lc, in, out, ob, oe)\
 {						\
     if (po == rlc)				\
     {						\
@@ -835,6 +835,8 @@ hufEncode				// return: output size (in bits)
 						\
 	if (out + cs > oe)			\
 	    tooMuchData();			\
+	else if (out - 1 < ob)			\
+	    notEnoughData();			\
 						\
 	unsigned short s = out[-1];		\
 						\
@@ -895,7 +897,7 @@ hufDecode
 		//
 
 		lc -= pl.len;
-		getCode (pl.lit, rlc, c, lc, in, out, oe);
+		getCode (pl.lit, rlc, c, lc, in, out, outb, oe);
 	    }
 	    else
 	    {
@@ -925,7 +927,7 @@ hufDecode
 			    //
 
 			    lc -= l;
-			    getCode (pl.p[j], rlc, c, lc, in, out, oe);
+			    getCode (pl.p[j], rlc, c, lc, in, out, outb, oe);
 			    break;
 			}
 		    }
@@ -952,7 +954,7 @@ hufDecode
 	if (pl.len)
 	{
 	    lc -= pl.len;
-	    getCode (pl.lit, rlc, c, lc, in, out, oe);
+	    getCode (pl.lit, rlc, c, lc, in, out, outb, oe);
 	}
 	else
 	{
