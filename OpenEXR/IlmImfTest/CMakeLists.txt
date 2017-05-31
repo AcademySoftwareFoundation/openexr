@@ -32,6 +32,7 @@ ADD_EXECUTABLE ( IlmImfTest
   testLineOrder.cpp
   testLut.cpp
   testMagic.cpp
+  testMalformedImages.cpp
   testMultiPartApi.cpp
   testMultiPartFileMixingBasic.cpp
   testMultiPartSharedAttributes.cpp

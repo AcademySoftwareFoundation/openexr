@@ -573,6 +573,12 @@ PizCompressor::uncompress (const char *inPtr,
     int length;
     Xdr::read <CharPtrIO> (inPtr, length);
 
+    if (length > inSize)
+    {
+	throw InputExc ("Error in header for PIZ-compressed data "
+			"(invalid array length).");
+    }
+
     hufUncompress (inPtr, length, _tmpBuffer, tmpBufferEnd - _tmpBuffer);
 
     //
