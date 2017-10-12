@@ -197,35 +197,38 @@ IF ( NOT WIN32 )
 ENDIF ()
 
 # Tests
-
-ADD_SUBDIRECTORY ( HalfTest )
-ADD_SUBDIRECTORY ( IexTest )
-ADD_SUBDIRECTORY ( ImathTest )
+IF (OPENEXR_BUILD_TESTS) #D/Labs 
+  ADD_SUBDIRECTORY ( HalfTest )
+  ADD_SUBDIRECTORY ( IexTest )
+  ADD_SUBDIRECTORY ( ImathTest )
+ENDIF (OPENEXR_BUILD_TESTS) #D/Labs
 
 # Installation
 
-INSTALL ( FILES 
-  ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h
-  DESTINATION
-  include/OpenEXR
+IF (OPENEXR_INSTALL) #D/Labs 
+  INSTALL ( FILES 
+    ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h
+    DESTINATION
+    include/OpenEXR
 
-)
+  )
 
-FILE ( WRITE ${CMAKE_BINARY_DIR}/IlmBase.pc "prefix=${CMAKE_INSTALL_PREFIX}\n" )
-FILE ( APPEND ${CMAKE_BINARY_DIR}/IlmBase.pc "exec_prefix=\${prefix}
-libdir=\${exec_prefix}/lib
-includedir=\${prefix}/include
-OpenEXR_includedir=\${prefix}/include/OpenEXR
+  FILE ( WRITE ${CMAKE_BINARY_DIR}/IlmBase.pc "prefix=${CMAKE_INSTALL_PREFIX}\n" )
+  FILE ( APPEND ${CMAKE_BINARY_DIR}/IlmBase.pc "exec_prefix=\${prefix}
+  libdir=\${exec_prefix}/lib
+  includedir=\${prefix}/include
+  OpenEXR_includedir=\${prefix}/include/OpenEXR
 
-Name: IlmBase
-Description: Base math and exception libraries
-Version: ${ILMBASE_VERSION}
-Libs: -L\${libdir} -lImath${ILMBASE_LIBSUFFIX} -lIexMath${ILMBASE_LIBSUFFIX} -lHalf -lIex${ILMBASE_LIBSUFFIX} -lIlmThread${ILMBASE_LIBSUFFIX} -pthread
-Cflags: -pthread -I\${OpenEXR_includedir}
-")
+  Name: IlmBase
+  Description: Base math and exception libraries
+  Version: ${ILMBASE_VERSION}
+  Libs: -L\${libdir} -lImath${ILMBASE_LIBSUFFIX} -lIexMath${ILMBASE_LIBSUFFIX} -lHalf -lIex${ILMBASE_LIBSUFFIX} -lIlmThread${ILMBASE_LIBSUFFIX} -pthread
+  Cflags: -pthread -I\${OpenEXR_includedir}
+  ")
 
-INSTALL ( FILES
-  ${CMAKE_BINARY_DIR}/IlmBase.pc
-  DESTINATION
-  lib/pkgconfig
-)
+  INSTALL ( FILES
+    ${CMAKE_BINARY_DIR}/IlmBase.pc
+    DESTINATION
+    lib/pkgconfig
+  )
+ENDIF(OPENEXR_INSTALL) #D/Labs

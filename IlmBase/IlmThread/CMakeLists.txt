@@ -28,20 +28,24 @@ ADD_LIBRARY ( IlmThread ${LIB_TYPE}
   )
 TARGET_LINK_LIBRARIES(IlmThread Iex)
 
-INSTALL ( TARGETS
-  IlmThread
-  DESTINATION
-  lib
-)
+IF (OPENEXR_INSTALL)
 
-INSTALL ( FILES 
-  IlmThreadPool.h
-  IlmThread.h
-  IlmThreadSemaphore.h
-  IlmThreadMutex.h
-  IlmThreadNamespace.h
-  IlmThreadExport.h
-  IlmThreadForward.h
-  DESTINATION
-  include/OpenEXR
-)
+  INSTALL ( TARGETS
+    IlmThread
+    DESTINATION
+    lib
+  )
+
+  INSTALL ( FILES 
+    IlmThreadPool.h
+    IlmThread.h
+    IlmThreadSemaphore.h
+    IlmThreadMutex.h
+    IlmThreadNamespace.h
+    IlmThreadExport.h
+    IlmThreadForward.h
+    DESTINATION
+    include/OpenEXR
+  )
+
+ENDIF(OPENEXR_INSTALL)

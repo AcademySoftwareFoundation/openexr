@@ -189,72 +189,76 @@ SET_TARGET_PROPERTIES ( IlmImfUtil
   OUTPUT_NAME "IlmImfUtil${OPENEXR_LIBSUFFIX}"
   )
   
-##########################
-# Example Code
-##########################
-ADD_SUBDIRECTORY ( IlmImfExamples )
 
-  
-##########################
-# Tests
-##########################
-ADD_SUBDIRECTORY ( IlmImfTest )
-ADD_SUBDIRECTORY ( IlmImfUtilTest )
-ADD_SUBDIRECTORY ( IlmImfFuzzTest )
+IF (OPENEXR_BUILD_TESTS) #D/Labs
+  ##########################
+  # Example Code
+  ##########################
+  ADD_SUBDIRECTORY ( IlmImfExamples )
+
+    
+  ##########################
+  # Tests
+  ##########################
+  ADD_SUBDIRECTORY ( IlmImfTest )
+  ADD_SUBDIRECTORY ( IlmImfUtilTest )
+  ADD_SUBDIRECTORY ( IlmImfFuzzTest )
 
 
-##########################
-# Binaries / Utilities
-##########################
-ADD_SUBDIRECTORY ( exrheader )
-ADD_SUBDIRECTORY ( exrmaketiled )
-ADD_SUBDIRECTORY ( exrstdattr )
-ADD_SUBDIRECTORY ( exrmakepreview )
-ADD_SUBDIRECTORY ( exrenvmap )
-ADD_SUBDIRECTORY ( exrmultiview )
-ADD_SUBDIRECTORY ( exrmultipart )
-
+  ##########################
+  # Binaries / Utilities
+  ##########################
+  ADD_SUBDIRECTORY ( exrheader )
+  ADD_SUBDIRECTORY ( exrmaketiled )
+  ADD_SUBDIRECTORY ( exrstdattr )
+  ADD_SUBDIRECTORY ( exrmakepreview )
+  ADD_SUBDIRECTORY ( exrenvmap )
+  ADD_SUBDIRECTORY ( exrmultiview )
+  ADD_SUBDIRECTORY ( exrmultipart )
+ENDIF (OPENEXR_BUILD_TESTS) #D/Labs
 
 ##########################
 # Installation
 ##########################
 
-INSTALL ( FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/config/OpenEXRConfig.h
-  DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
-  )
+IF (OPENEXR_INSTALL) #D/Labs 
+  INSTALL ( FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/config/OpenEXRConfig.h
+    DESTINATION
+    ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
+    )
 
-# Documentation
-INSTALL ( FILES
-  doc/TechnicalIntroduction.pdf
-  doc/ReadingAndWritingImageFiles.pdf
-  doc/OpenEXRFileLayout.pdf
-  doc/MultiViewOpenEXR.pdf
-  doc/InterpretingDeepPixels.pdf
-  doc/TheoryDeepPixels.pdf
-  DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${OPENEXR_VERSION}
-  )
+  # Documentation
+  INSTALL ( FILES
+    doc/TechnicalIntroduction.pdf
+    doc/ReadingAndWritingImageFiles.pdf
+    doc/OpenEXRFileLayout.pdf
+    doc/MultiViewOpenEXR.pdf
+    doc/InterpretingDeepPixels.pdf
+    doc/TheoryDeepPixels.pdf
+    DESTINATION
+    ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${OPENEXR_VERSION}
+    )
 
-# Examples
-INSTALL ( FILES
-  IlmImfExamples/main.cpp
-  IlmImfExamples/drawImage.cpp
-  IlmImfExamples/rgbaInterfaceExamples.cpp
-  IlmImfExamples/rgbaInterfaceTiledExamples.cpp
-  IlmImfExamples/generalInterfaceExamples.cpp
-  IlmImfExamples/lowLevelIoExamples.cpp
-  IlmImfExamples/previewImageExamples.cpp
-  IlmImfExamples/generalInterfaceTiledExamples.cpp
-  IlmImfExamples/generalInterfaceTiledExamples.h
-  IlmImfExamples/drawImage.h
-  IlmImfExamples/rgbaInterfaceExamples.h
-  IlmImfExamples/generalInterfaceExamples.h
-  IlmImfExamples/rgbaInterfaceTiledExamples.h
-  IlmImfExamples/lowLevelIoExamples.h
-  IlmImfExamples/previewImageExamples.h
-  IlmImfExamples/namespaceAlias.h
-  DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${OPENEXR_VERSION}/examples
-  )
+  # Examples
+  INSTALL ( FILES
+    IlmImfExamples/main.cpp
+    IlmImfExamples/drawImage.cpp
+    IlmImfExamples/rgbaInterfaceExamples.cpp
+    IlmImfExamples/rgbaInterfaceTiledExamples.cpp
+    IlmImfExamples/generalInterfaceExamples.cpp
+    IlmImfExamples/lowLevelIoExamples.cpp
+    IlmImfExamples/previewImageExamples.cpp
+    IlmImfExamples/generalInterfaceTiledExamples.cpp
+    IlmImfExamples/generalInterfaceTiledExamples.h
+    IlmImfExamples/drawImage.h
+    IlmImfExamples/rgbaInterfaceExamples.h
+    IlmImfExamples/generalInterfaceExamples.h
+    IlmImfExamples/rgbaInterfaceTiledExamples.h
+    IlmImfExamples/lowLevelIoExamples.h
+    IlmImfExamples/previewImageExamples.h
+    IlmImfExamples/namespaceAlias.h
+    DESTINATION
+    ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${OPENEXR_VERSION}/examples
+    )
+ENDIF(OPENEXR_INSTALL)
