@@ -9,16 +9,20 @@ ADD_LIBRARY ( IexMath ${LIB_TYPE}
   )
 TARGET_LINK_LIBRARIES(IexMath Iex)
 
-INSTALL ( TARGETS
-  IexMath
-  DESTINATION
-  lib
-)
+IF (OPENEXR_INSTALL)
 
-INSTALL ( FILES 
-  IexMathFloatExc.h  
-  IexMathFpu.h  
-  IexMathIeeeExc.h
-  DESTINATION
-  include/OpenEXR
-)
+  INSTALL ( TARGETS
+    IexMath
+    DESTINATION
+    lib
+  )
+
+  INSTALL ( FILES 
+    IexMathFloatExc.h  
+    IexMathFpu.h  
+    IexMathIeeeExc.h
+    DESTINATION
+    include/OpenEXR
+  )
+
+ENDIF (OPENEXR_INSTALL)

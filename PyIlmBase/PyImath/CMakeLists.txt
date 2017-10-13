@@ -41,10 +41,12 @@ TARGET_LINK_LIBRARIES ( PyImath
 	${PYTHON_LIBRARIES}
 )
 
-INSTALL ( TARGETS PyImath
-	DESTINATION
-	lib
-)
+IF (OPENEXR_INSTALL)
+    INSTALL ( TARGETS PyImath
+        DESTINATION
+        lib
+    )
+ENDIF (OPENEXR_INSTALL)
 
 ADD_LIBRARY ( imathmodule ${LIB_TYPE}
     imathmodule.cpp
@@ -64,7 +66,8 @@ TARGET_LINK_LIBRARIES ( imathmodule
 	${Boost_LIBRARIES}
 )
 
-INSTALL ( TARGETS imathmodule
-	DESTINATION lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages
-)
-
+IF (OPENEXR_INSTALL)
+    INSTALL ( TARGETS imathmodule
+        DESTINATION lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages
+    )
+ENDIF(OPENEXR_INSTALL)

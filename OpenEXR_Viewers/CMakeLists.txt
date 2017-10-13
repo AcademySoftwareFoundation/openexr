@@ -67,9 +67,11 @@ ENDIF ()
 ##########################
 
 # Documentation
-INSTALL ( FILES
-  doc/OpenEXRViewers.pdf
-  DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${OPENEXR_VERSION}
-  )
+IF (OPENEXR_INSTALL)
+  INSTALL ( FILES
+    doc/OpenEXRViewers.pdf
+    DESTINATION
+    ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${OPENEXR_VERSION}
+    )
+ENDIF (OPENEXR_INSTALL)
 

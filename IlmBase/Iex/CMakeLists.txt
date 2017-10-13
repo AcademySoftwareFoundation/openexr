@@ -9,23 +9,26 @@ ADD_LIBRARY ( Iex ${LIB_TYPE}
   IexThrowErrnoExc.cpp
   )
 
+IF (OPENEXR_INSTALL) #D/Labs 
 
-INSTALL ( TARGETS
-  Iex
-  DESTINATION
-  lib
-)
+  INSTALL ( TARGETS
+    Iex
+    DESTINATION
+    lib
+  )
 
-INSTALL ( FILES 
-  IexBaseExc.h
-  IexMathExc.h
-  IexThrowErrnoExc.h
-  IexErrnoExc.h
-  IexMacros.h
-  Iex.h
-  IexNamespace.h
-  IexExport.h
-  IexForward.h
-  DESTINATION
-  include/OpenEXR
-)
+  INSTALL ( FILES 
+    IexBaseExc.h
+    IexMathExc.h
+    IexThrowErrnoExc.h
+    IexErrnoExc.h
+    IexMacros.h
+    Iex.h
+    IexNamespace.h
+    IexExport.h
+    IexForward.h
+    DESTINATION
+    include/OpenEXR
+  )
+
+  ENDIF (OPENEXR_INSTALL) #D/Labs 

@@ -19,7 +19,8 @@ TARGET_LINK_LIBRARIES ( imathnumpymodule
 	${Boost_LIBRARIES}
 )
 
-INSTALL ( TARGETS imathnumpymodule
-	DESTINATION lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages
-)
-
+IF(OPENEXR_INSTALL)
+	INSTALL ( TARGETS imathnumpymodule
+		DESTINATION lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages
+	)
+ENDIF(OPENEXR_INSTALL)

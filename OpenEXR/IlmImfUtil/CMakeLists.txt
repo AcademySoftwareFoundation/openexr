@@ -37,31 +37,31 @@ TARGET_LINK_LIBRARIES ( IlmImfUtil
 
 
 # Libraries
-
-INSTALL ( TARGETS
-  IlmImfUtil
-  DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/lib
-)
-
-# Headers
-INSTALL ( FILES
-  ImfImageChannel.h
-  ImfFlatImageChannel.h
-  ImfDeepImageChannel.h
-  ImfSampleCountChannel.h
-  ImfImageLevel.h
-  ImfFlatImageLevel.h
-  ImfDeepImageLevel.h
-  ImfImage.h
-  ImfFlatImage.h
-  ImfDeepImage.h
-  ImfImageIO.h
-  ImfFlatImageIO.h
-  ImfDeepImageIO.h
-  ImfImageDataWindow.h
-  ImfImageChannelRenaming.h
-  DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
+IF(OPENEXR_INSTALL)
+  INSTALL ( TARGETS
+    IlmImfUtil
+    DESTINATION
+    ${CMAKE_INSTALL_PREFIX}/lib
   )
 
+  # Headers
+  INSTALL ( FILES
+    ImfImageChannel.h
+    ImfFlatImageChannel.h
+    ImfDeepImageChannel.h
+    ImfSampleCountChannel.h
+    ImfImageLevel.h
+    ImfFlatImageLevel.h
+    ImfDeepImageLevel.h
+    ImfImage.h
+    ImfFlatImage.h
+    ImfDeepImage.h
+    ImfImageIO.h
+    ImfFlatImageIO.h
+    ImfDeepImageIO.h
+    ImfImageDataWindow.h
+    ImfImageChannelRenaming.h
+    DESTINATION
+    ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
+    )
+ENDIF(OPENEXR_INSTALL)
