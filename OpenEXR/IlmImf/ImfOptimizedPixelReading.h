@@ -46,6 +46,12 @@
 #include "ImfFrameBuffer.h"
 #include "ImfStringVectorAttribute.h"
 
+#ifdef _MSC_VER // D/Labs
+# pragma warning(push)
+# pragma warning(disable: 4311)
+# pragma warning(disable: 4302)
+#endif //MSC_VER // D/Labs
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class OptimizationMode
@@ -642,5 +648,9 @@ void optimizedWriteToRGB (unsigned short*& readPtrRed,
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+#ifdef _MSC_VER // D/Labs
+# pragma warning(pop)
+#endif //MSC_VER // D/Labs
 
 #endif

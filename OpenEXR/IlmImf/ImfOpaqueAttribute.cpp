@@ -45,6 +45,12 @@
 #include <string.h>
 #include "ImfNamespace.h"
 
+#ifdef _MSC_VER // D/Labs
+# pragma warning(push)
+# pragma warning(disable: 4267)
+# pragma warning(disable: 4244)
+#endif //MSC_VER // D/Labs
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
@@ -124,3 +130,7 @@ OpaqueAttribute::copyValueFrom (const Attribute &other)
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
+
+#ifdef _MSC_VER // D/Labs
+# pragma warning(pop)
+#endif //MSC_VER // D/Labs

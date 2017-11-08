@@ -92,10 +92,19 @@
 // IEX_NAMESPACE and pulls the internal symbols into the public namespace.
 //
 
+#ifdef _MSC_VER // D/Labs
+# pragma warning(push)
+# pragma warning(disable: 4515)
+#endif //MSC_VER // D/Labs
+
 namespace IEX_INTERNAL_NAMESPACE {}
 namespace IEX_NAMESPACE {
     using namespace IEX_INTERNAL_NAMESPACE;
 }
+
+#ifdef _MSC_VER // D/Labs
+# pragma warning(pop)
+#endif //MSC_VER // D/Labs
 
 //
 // There are identical pairs of HEADER/SOURCE ENTER/EXIT macros so that
@@ -110,3 +119,5 @@ namespace IEX_NAMESPACE {
 #define IEX_INTERNAL_NAMESPACE_SOURCE_EXIT }
 
 #endif // INCLUDED_IEXNAMESPACE_H
+
+

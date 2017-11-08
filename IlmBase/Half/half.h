@@ -88,6 +88,12 @@
 #include "halfExport.h"    // for definition of HALF_EXPORT
 #include <iostream>
 
+#ifdef _MSC_VER // D/Labs
+# pragma warning(push)
+# pragma warning(disable: 4267)
+# pragma warning(disable: 4244)
+#endif //MSC_VER // D/Labs
+
 class half
 {
   public:
@@ -753,5 +759,10 @@ half::setBits (unsigned short bits)
 {
     _h = bits;
 }
+
+
+#ifdef _MSC_VER // D/Labs
+# pragma warning(pop)
+#endif //MSC_VER // D/Labs
 
 #endif

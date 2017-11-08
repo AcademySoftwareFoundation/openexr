@@ -77,7 +77,6 @@
 //
 #include "OpenEXRConfig.h"
 
-
 #ifndef OPENEXR_IMF_NAMESPACE
 #define OPENEXR_IMF_NAMESPACE Imf
 #endif
@@ -94,10 +93,19 @@
 // namespace.
 //
 
+#ifdef _MSC_VER // D/Labs
+# pragma warning(push)
+# pragma warning(disable: 4515)
+#endif //MSC_VER // D/Labs
+
 namespace OPENEXR_IMF_INTERNAL_NAMESPACE {}
 namespace OPENEXR_IMF_NAMESPACE {
      using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 }
+
+#ifdef _MSC_VER // D/Labs
+# pragma warning(pop)
+#endif //MSC_VER // D/Labs
 
 //
 // There are identical pairs of HEADER/SOURCE ENTER/EXIT macros so that
@@ -111,5 +119,5 @@ namespace OPENEXR_IMF_NAMESPACE {
 #define OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER namespace OPENEXR_IMF_INTERNAL_NAMESPACE {
 #define OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT }
 
-
 #endif /* INCLUDED_IMFNAMESPACE_H */
+

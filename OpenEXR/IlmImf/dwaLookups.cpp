@@ -36,6 +36,12 @@
 // for Imf::DwaCompressor
 //
 
+#ifdef _MSC_VER // D/Labs
+# pragma warning(push)
+# pragma warning(disable: 4267)
+# pragma warning(disable: 4244)
+#endif //MSC_VER // D/Labs
+
 #include <cstddef>
 #include <stdio.h>
 #include <stdlib.h>
@@ -515,7 +521,7 @@ generateLutHeader()
             if (offsetIdx % 8 == 0) {
                 printf("    ");
             }
-            printf("%6lu, ", workers[i]->offset()[value] + offsetPrev);
+            printf("%6zu, ", workers[i]->offset()[value] + offsetPrev);
             if (offsetIdx % 8 == 7) {
                 printf("\n");
             }
@@ -571,3 +577,7 @@ main(int argc, char **argv)
 
     return 0;
 }
+
+#ifdef _MSC_VER // D/Labs
+# pragma warning(pop)
+#endif //MSC_VER // D/Labs

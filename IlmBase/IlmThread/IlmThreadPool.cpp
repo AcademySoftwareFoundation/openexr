@@ -47,6 +47,13 @@
 
 using namespace std;
 
+#ifdef _MSC_VER // D/Labs
+# pragma warning(push)
+# pragma warning(disable: 4267)
+# pragma warning(disable: 4244)
+#endif //MSC_VER // D/Labs
+
+
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 namespace {
 
@@ -481,3 +488,7 @@ ThreadPool::addGlobalTask (Task* task)
 
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
+
+#ifdef _MSC_VER // D/Labs
+# pragma warning(pop)
+#endif //MSC_VER // D/Labs
