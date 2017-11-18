@@ -2,9 +2,9 @@
 //
 // Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +16,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
+// from this software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -138,8 +138,8 @@ sampleX (const TypedImageChannel<T> &channel,
 
         case CLAMP:
 
-            xs = clamp (xs, 0, w - 1);
-            xt = clamp (xt, 0, w - 1);
+            xs = IMATH_NAMESPACE::clamp (xs, 0, w - 1);  // c++17 standard has clamp, it conflicts with imath's clamp, need to specify which function
+            xt = IMATH_NAMESPACE::clamp (xt, 0, w - 1);  // c++17 standard has clamp, it conflicts with imath's clamp, need to specify which function
             vs = channel (xs, y);
             vt = channel (xt, y);
             break;
@@ -195,8 +195,8 @@ sampleY (const TypedImageChannel<T> &channel,
 
         case CLAMP:
 
-            ys = clamp (ys, 0, h - 1);
-            yt = clamp (yt, 0, h - 1);
+            ys = IMATH_NAMESPACE::clamp (ys, 0, h - 1);  // c++17 standard has clamp, it conflicts with imath's clamp, need to specify which function
+            yt = IMATH_NAMESPACE::clamp (yt, 0, h - 1);  // c++17 standard has clamp, it conflicts with imath's clamp, need to specify which function
             vs = channel (x, ys);
             vt = channel (x, yt);
             break;
@@ -407,9 +407,9 @@ reduceX (const ChannelList &channels,
                          image1.typedChannel<unsigned int> (name),
                          filter, ext, odd);
                 break;
-            default : 
+            default :
                 break;
-           
+
         }
     }
 }
@@ -458,9 +458,9 @@ reduceY (const ChannelList &channels,
                          image1.typedChannel<unsigned int> (name),
                          filter, ext, odd);
                 break;
-            default : 
+            default :
                 break;
-                
+
         }
     }
 }
@@ -751,4 +751,3 @@ makeTiled (const char inFileName[],
     if (verbose)
 	cout << "done." << endl;
 }
-

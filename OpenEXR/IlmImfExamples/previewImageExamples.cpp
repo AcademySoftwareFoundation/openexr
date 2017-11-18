@@ -2,9 +2,9 @@
 //
 // Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +16,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
+// from this software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -68,7 +68,7 @@ gamma (float x)
     //
 
     x = pow (5.5555f * max (0.f, x), 0.4545f) * 84.66f;
-    return (unsigned char) clamp (x, 0.f, 255.f);
+    return (unsigned char) IMATH_NAMESPACE::clamp (x, 0.f, 255.f);  // c++17 standard has clamp, it conflicts with imath's clamp, need to specify which function
 }
 
 
@@ -96,7 +96,7 @@ makePreviewImage (const Array2D <Rgba> &pixels,
 	    outPixel.r = gamma (inPixel.r);
 	    outPixel.g = gamma (inPixel.g);
 	    outPixel.b = gamma (inPixel.b);
-	    outPixel.a = int (clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
+	    outPixel.a = int (IMATH_NAMESPACE::clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);  // c++17 standard has clamp, it conflicts with imath's clamp, need to specify which function
 	}
     }
 }
@@ -157,7 +157,7 @@ writeRgbaWithPreview2 (const char fileName[],
     //   image is being rendered
     // - once the main image has been rendered, store the preview
     //   image in the file, overwriting the dummy preview
-    //   
+    //
 
     Array <Rgba> pixels (width);
 
@@ -188,7 +188,7 @@ writeRgbaWithPreview2 (const char fileName[],
 		outPixel.r = gamma (inPixel.r);
 		outPixel.g = gamma (inPixel.g);
 		outPixel.b = gamma (inPixel.b);
-		outPixel.a = int (clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
+		outPixel.a = int (IMATH_NAMESPACE::clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f); // c++17 standard has clamp, it conflicts with imath's clamp, need to specify which function
 	    }
 	}
     }
