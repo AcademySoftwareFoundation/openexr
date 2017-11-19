@@ -78,6 +78,8 @@
     #include <windows.h>
 #elif HAVE_PTHREAD
     #include <pthread.h>
+#elif HAVE_STDTHREAD
+    #include <mutex>
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -101,6 +103,8 @@ class ILMTHREAD_EXPORT Mutex
 	mutable CRITICAL_SECTION _mutex;
     #elif HAVE_PTHREAD
 	mutable pthread_mutex_t _mutex;
+    #elif HAVE_STDTHREAD
+	mutable std::mutex _mutex;
     #endif
 
     void operator = (const Mutex& M);	// not implemented

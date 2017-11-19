@@ -103,6 +103,8 @@
     #include <process.h>
 #elif HAVE_PTHREAD
     #include <pthread.h>
+#elif HAVE_STDTHREAD
+    #include <thread>
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -131,6 +133,8 @@ class ILMTHREAD_EXPORT Thread
 	HANDLE _thread;
     #elif HAVE_PTHREAD
 	pthread_t _thread;
+    #elif HAVE_STDTHREAD
+	std::thread _thread;
     #endif
 
     void operator = (const Thread& t);	// not implemented

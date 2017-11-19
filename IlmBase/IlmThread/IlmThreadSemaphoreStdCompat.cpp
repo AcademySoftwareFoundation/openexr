@@ -34,26 +34,91 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class Semaphore -- dummy implementation for
-//	for platforms that do not support threading
+//  class Semaphore -- implementation for for platforms that do
+//  support Posix or libc++ (C++11) threads but do not support semaphores,
+//  for example, OS X
 //
 //-----------------------------------------------------------------------------
 
 #include "IlmBaseConfig.h"
 
-#if !defined (_WIN32) && !(_WIN64) && !(HAVE_PTHREAD) && !(HAVE_STDTHREAD)
+#if HAVE_STDTHREAD && !HAVE_POSIX_SEMAPHORES
+
 #include "IlmThreadSemaphore.h"
+#include "Iex.h"
+#include <assert.h>
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
-Semaphore::Semaphore (unsigned int value) {}
-Semaphore::~Semaphore () {}
-void Semaphore::wait () {}
-bool Semaphore::tryWait () {return true;}
-void Semaphore::post () {}
-int Semaphore::value () const {return 0;}
+Semaphore::Semaphore (unsigned int value)
+{
+    _semaphore.count = value;
+    _semaphore.numWaiting = 0;
+}
 
+
+Semaphore::~Semaphore ()
+{
+    // empty
+}
+
+
+void
+Semaphore::wait ()
+{
+    std::unique_lock<std::mutex> lock (_semaphore.mutex);
+    
+    _semaphore.numWaiting++;
+    
+    while (_semaphore.count == 0)
+    {
+        _semaphore.nonZero.wait (lock);
+    }
+    
+    _semaphore.numWaiting--;
+    _semaphore.count--;
+}
+
+
+bool
+Semaphore::tryWait ()
+{
+    std::lock_guard<std::mutex> lock (_semaphore.mutex);
+    
+    if (_semaphore.count == 0)
+    {
+        return false;
+    }
+    else
+    {
+        _semaphore.count--;
+        return true;
+    }
+}
+
+
+void
+Semaphore::post ()
+{
+    std::lock_guard<std::mutex> lock (_semaphore.mutex);
+    
+    if (_semaphore.numWaiting > 0)
+    {
+        _semaphore.nonZero.notify_one ();
+    }
+    
+    _semaphore.count++;
+}
+
+
+int
+Semaphore::value () const
+{
+    std::lock_guard<std::mutex> lock (_semaphore.mutex);
+    
+    return _semaphore.count;
+}
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 

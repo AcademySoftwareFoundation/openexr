@@ -54,6 +54,8 @@
     #include <windows.h>
 #elif HAVE_PTHREAD && !HAVE_POSIX_SEMAPHORES
     #include <pthread.h>
+#elif HAVE_STDTHREAD && !HAVE_POSIX_SEMAPHORES
+	#include <mutex>
 #elif HAVE_PTHREAD && HAVE_POSIX_SEMAPHORES
     #include <semaphore.h>
 #endif
@@ -96,6 +98,23 @@ class ILMTHREAD_EXPORT Semaphore
 
 	mutable sema_t _semaphore;
 
+	#elif HAVE_STDTHREAD && !HAVE_POSIX_SEMAPHORES
+	
+	//
+	// If the platform has libc++ (C++11) threads but no semapohores,
+	// then we implement them ourselves using condition variables
+	//
+	
+	struct sema_t
+	{
+	    unsigned int count;
+	    unsigned long numWaiting;
+	    std::mutex mutex;
+	    std::condition_variable nonZero;
+	};
+	
+	mutable sema_t _semaphore;
+	
     #elif HAVE_PTHREAD && HAVE_POSIX_SEMAPHORES
 
 	mutable sem_t _semaphore;

@@ -2,9 +2,9 @@
 //
 // Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +16,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
+// from this software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -34,25 +34,56 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class Semaphore -- dummy implementation for
-//	for platforms that do not support threading
+//  class Thread -- implementation for
+//  platforms that support libc++ (C++11) threads
 //
 //-----------------------------------------------------------------------------
 
 #include "IlmBaseConfig.h"
 
-#if !defined (_WIN32) && !(_WIN64) && !(HAVE_PTHREAD) && !(HAVE_STDTHREAD)
-#include "IlmThreadSemaphore.h"
+#if HAVE_STDTHREAD
+
+#include "IlmThread.h"
+#include "Iex.h"
+
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
-Semaphore::Semaphore (unsigned int value) {}
-Semaphore::~Semaphore () {}
-void Semaphore::wait () {}
-bool Semaphore::tryWait () {return true;}
-void Semaphore::post () {}
-int Semaphore::value () const {return 0;}
+bool
+supportsThreads ()
+{
+    return true;
+}
+
+namespace {
+    
+    void
+    threadLoop (void * t)
+    {
+        return (reinterpret_cast<Thread*>(t))->run();
+    }
+    
+} // namespace
+
+
+Thread::Thread ()
+{
+    // empty
+}
+
+
+Thread::~Thread ()
+{
+    _thread.join ();
+}
+
+
+void
+Thread::start ()
+{
+    _thread = std::thread (threadLoop, this);
+}
 
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT

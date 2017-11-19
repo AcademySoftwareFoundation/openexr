@@ -41,7 +41,7 @@
 
 #include "IlmBaseConfig.h"
 
-#if !defined (_WIN32) && !(_WIN64) && !(HAVE_PTHREAD)
+#if !defined (_WIN32) && !(_WIN64) && !(HAVE_PTHREAD) && !(HAVE_STDTHREAD)
 
 #include "IlmThreadMutex.h"
 
