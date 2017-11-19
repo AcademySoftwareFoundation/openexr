@@ -430,6 +430,8 @@ ThreadPool::addTask (Task* task)
 
     if (_data->numThreads == 0)
     {
+        // run the task ourselves, don't keep holding the threadMutex
+        lock.release ();
         task->execute ();
         delete task;
     }
