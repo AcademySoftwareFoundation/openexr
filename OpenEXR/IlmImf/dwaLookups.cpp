@@ -456,6 +456,8 @@ cpuCount()
     GetSystemInfo( &sysinfo );
     cpuCount = sysinfo.dwNumberOfProcessors;
 
+#elif __APPLE__
+    return 1;
 #endif
 
     if (cpuCount < 1) cpuCount = 1;
@@ -498,7 +500,11 @@ generateLutHeader()
         }
     }
 
+#if __APPLE__
+    if (false) {
+#else
     if (IlmThread::supportsThreads()) {
+#endif
         std::vector<LutHeaderWorker::Runner*> runners;
         for (size_t i=0; i<workers.size(); ++i) {
             runners.push_back( new LutHeaderWorker::Runner(*workers[i], (i==0)) );
