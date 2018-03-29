@@ -26,6 +26,12 @@ ADD_EXECUTABLE ( ImathTest
   testVec.cpp
   )
 
+INSTALL ( TARGETS
+  ImathTest
+    RUNTIME DESTINATION bin
+)
+
+
 ADD_TEST ( TestImath ImathTest )
 TARGET_LINK_LIBRARIES ( ImathTest Imath Iex )
 
