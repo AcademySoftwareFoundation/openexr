@@ -141,11 +141,11 @@ ELSE ()
 ENDIF ()
 
 IF (FORCE_CXX03)
-  FILE ( WRITE  ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMBASE_FORCE_CXX03 1\n" )
+  FILE ( APPEND  ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMBASE_FORCE_CXX03 1\n" )
 ELSE ()
   # really only care about c++11 right now for the threading bits, but this can be changed to 14
   # when needed...
-  FILE ( WRITE  ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#if __cplusplus < 201103L\n# error \"Modern C++ 11/14 not enabled but force cxx98 not set\"\n#endif\n" )
+  FILE ( APPEND  ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#if __cplusplus < 201103L\n# error \"Modern C++ 11/14 not enabled but force cxx03 not set\"\n#endif\n" )
 ENDIF ()
 
 IF (NAMESPACE_VERSIONING)
