@@ -62,11 +62,7 @@
 #ifdef ILMBASE_FORCE_CXX03
 #   define IEX_THROW_SPEC(...) throw (__VA_ARGS__)
 #else
-#   if __cplusplus <= 201402L
-#      define IEX_THROW_SPEC(...)
-#   else
-#      define IEX_THROW_SPEC(...) throw (__VA_ARGS__)
-#   endif
+#   define IEX_THROW_SPEC(...)
 #endif
 
 IEX_INTERNAL_NAMESPACE_HEADER_ENTER
