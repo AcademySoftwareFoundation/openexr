@@ -31,6 +31,16 @@ OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 # Allow the developer to select if Dynamic or Static libraries are built
 OPTION (NAMESPACE_VERSIONING "Namespace Versioning" ON)
 
+OPTION (FORCE_CXX03 "Force CXX03" OFF)
+IF (FORCE_CXX03)
+  ADD_DEFINITIONS ( -std=c++03 )
+ELSE (FORCE_CXX03)
+  # VP18 switches to c++14, so let's do that
+  SET(CMAKE_CXX_STANDARD 14)
+  # but switch gnu++14 or other extensions off for portability
+  SET(CMAKE_CXX_EXTENSIONS OFF)
+ENDIF ()
+
 # Setup osx rpathing
 SET (CMAKE_MACOSX_RPATH 1)
 SET (BUILD_WITH_INSTALL_RPATH 1)
@@ -128,6 +138,14 @@ ELSE ()
     FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define HAVE_POSIX_SEMAPHORES 1\n" )
     FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT 1\n")
   ENDIF ()
+ENDIF ()
+
+IF (FORCE_CXX03)
+  FILE ( WRITE  ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMBASE_FORCE_CXX03 1\n" )
+ELSE ()
+  # really only care about c++11 right now for the threading bits, but this can be changed to 14
+  # when needed...
+  FILE ( WRITE  ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#if __cplusplus < 201103L\n# error \"Modern C++ 11/14 not enabled but force cxx98 not set\"\n#endif\n" )
 ENDIF ()
 
 IF (NAMESPACE_VERSIONING)

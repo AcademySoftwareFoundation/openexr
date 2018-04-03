@@ -39,6 +39,21 @@ fi
 
 export PKG_CONFIG_PATH
 
+AC_ARG_ENABLE(cxx14,
+              AC_HELP_STRING([--enable-cxx14],
+                             [enable c++11/14 [[default=auto]]]),
+              [cxx14="${enableval}"], [cxx14=yes])
+			  
+if test "${cxx14}" != no ; then
+    AX_CXX_COMPILE_STDCXX([14], [noext], [mandatory])
+	CXXFLAGS="$CXXFLAGS -std=c++14"
+else
+    AC_DEFINE(ILMBASE_FORCE_CXX03)
+    AX_CXX_COMPILE_STDCXX([11], [noext], [optional])
+    if test "${HAVE_CXX11}" != no ; then
+        CXXFLAGS="$CXXFLAGS -std=c++03"
+    fi
+fi
 
 dnl Checks for libraries.
 dnl --enable-threading
