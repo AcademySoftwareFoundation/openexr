@@ -12,4 +12,4 @@ INSTALL ( TARGETS
     RUNTIME DESTINATION bin
 )
 
-ADD_TEST ( TestIex   IexTest )
+ADD_TEST ( TestIex IexTest )
