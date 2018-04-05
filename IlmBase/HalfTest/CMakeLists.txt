@@ -13,9 +13,4 @@ ADD_EXECUTABLE ( HalfTest
 
 TARGET_LINK_LIBRARIES ( HalfTest Half )
 
-INSTALL ( TARGETS
-  HalfTest
-    RUNTIME DESTINATION bin
-)
-
-ADD_TEST ( TestHalf  HalfTest )
+ADD_TEST ( TestHalf HalfTest )
