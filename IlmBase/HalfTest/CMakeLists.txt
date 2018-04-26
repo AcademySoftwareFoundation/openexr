@@ -13,4 +13,4 @@ ADD_EXECUTABLE ( HalfTest
 
 TARGET_LINK_LIBRARIES ( HalfTest Half )
 
-ADD_TEST ( TestHalf  HalfTest )
+ADD_TEST ( TestHalf HalfTest )

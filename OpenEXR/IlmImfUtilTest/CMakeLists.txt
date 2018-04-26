@@ -16,7 +16,7 @@ ADD_TEST ( TestIlmImfUtil IlmImfUtilTest )
 TARGET_LINK_LIBRARIES ( IlmImfUtilTest 
         IlmImfUtil
         IlmImf  
-        Half 
+        Half${ILMBASE_LIBSUFFIX}
         Iex${ILMBASE_LIBSUFFIX}
         Imath${ILMBASE_LIBSUFFIX}
         IlmThread${ILMBASE_LIBSUFFIX}
