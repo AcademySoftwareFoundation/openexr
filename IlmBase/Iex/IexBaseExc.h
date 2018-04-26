@@ -50,6 +50,21 @@
 #include <exception>
 #include <sstream>
 
+//----------------------------------------------------------
+//
+//	C++11 deprecates the specification of dynamic exception throw and
+//	then changes this again in C++17. for convenience, put a macro
+//	here to enable existing places to specify the exception list, and
+//	have it done so appropriately based on the language features
+//	active.
+//
+//----------------------------------------------------------
+#ifdef ILMBASE_FORCE_CXX03
+#   define IEX_THROW_SPEC(...) throw (__VA_ARGS__)
+#else
+#   define IEX_THROW_SPEC(...)
+#endif
+
 IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
