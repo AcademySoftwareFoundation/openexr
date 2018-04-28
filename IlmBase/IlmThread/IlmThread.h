@@ -119,15 +119,15 @@ ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 ILMTHREAD_EXPORT bool supportsThreads ();
 
 
-class ILMTHREAD_EXPORT Thread
+class Thread
 {
   public:
 
-    Thread ();
-    virtual ~Thread ();
+    ILMTHREAD_EXPORT Thread ();
+    ILMTHREAD_EXPORT virtual ~Thread ();
 
-    void         start ();
-    virtual void run () = 0;
+    ILMTHREAD_EXPORT void         start ();
+    ILMTHREAD_EXPORT virtual void run () = 0;
 
   private:
 
