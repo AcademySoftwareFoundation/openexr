@@ -1,0 +1,650 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2A6D503C15CECDBF006BADE7 /* testClassification.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4FF215CECDBE006BADE7 /* testClassification.cpp */; };
+		2A6D503D15CECDBF006BADE7 /* testError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4FF415CECDBE006BADE7 /* testError.cpp */; };
+		2A6D503E15CECDBF006BADE7 /* testFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4FF615CECDBE006BADE7 /* testFunction.cpp */; };
+		2A6D503F15CECDBF006BADE7 /* testLimits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4FF815CECDBE006BADE7 /* testLimits.cpp */; };
+		2A6D504015CECDBF006BADE7 /* testSize.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4FFA15CECDBE006BADE7 /* testSize.cpp */; };
+		2A6D505C15CECE16006BADE7 /* testBitPatterns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4FF015CECDBE006BADE7 /* testBitPatterns.cpp */; };
+		2A6D505D15CECE16006BADE7 /* testArithmetic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4FEE15CECDBE006BADE7 /* testArithmetic.cpp */; };
+		2A6D505E15CECE17006BADE7 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4FEC15CECDBE006BADE7 /* main.cpp */; };
+		2A6D507C15CECEC2006BADE7 /* libIlmBase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6D507715CECEBD006BADE7 /* libIlmBase.a */; };
+		2A6D50B915CECFF1006BADE7 /* libIlmBase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6D507715CECEBD006BADE7 /* libIlmBase.a */; };
+		2A6D50C015CED027006BADE7 /* testBaseExc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D500715CECDBE006BADE7 /* testBaseExc.cpp */; };
+		2A6D50C115CED028006BADE7 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D500515CECDBE006BADE7 /* main.cpp */; };
+		2A6D50D015CED052006BADE7 /* libIlmBase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6D507715CECEBD006BADE7 /* libIlmBase.a */; };
+		2A6D50D715CED091006BADE7 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D500B15CECDBE006BADE7 /* main.cpp */; };
+		2A6D50D815CED092006BADE7 /* testBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D500D15CECDBE006BADE7 /* testBox.cpp */; };
+		2A6D50D915CED093006BADE7 /* testBoxAlgo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D500F15CECDBE006BADE7 /* testBoxAlgo.cpp */; };
+		2A6D50DA15CED094006BADE7 /* testColor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D501115CECDBF006BADE7 /* testColor.cpp */; };
+		2A6D50DB15CED095006BADE7 /* testExtractEuler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D501315CECDBF006BADE7 /* testExtractEuler.cpp */; };
+		2A6D50DC15CED096006BADE7 /* testExtractSHRT.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D501515CECDBF006BADE7 /* testExtractSHRT.cpp */; };
+		2A6D50DD15CED097006BADE7 /* testFrustum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D501715CECDBF006BADE7 /* testFrustum.cpp */; };
+		2A6D50DE15CED098006BADE7 /* testFrustumTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D501915CECDBF006BADE7 /* testFrustumTest.cpp */; };
+		2A6D50DF15CED098006BADE7 /* testFun.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D501B15CECDBF006BADE7 /* testFun.cpp */; };
+		2A6D50E015CED099006BADE7 /* testInvert.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D501D15CECDBF006BADE7 /* testInvert.cpp */; };
+		2A6D50E115CED09A006BADE7 /* testJacobiEigenSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D501F15CECDBF006BADE7 /* testJacobiEigenSolver.cpp */; };
+		2A6D50E215CED09B006BADE7 /* testLineAlgo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D502115CECDBF006BADE7 /* testLineAlgo.cpp */; };
+		2A6D50E315CED09C006BADE7 /* testMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D502315CECDBF006BADE7 /* testMatrix.cpp */; };
+		2A6D50E415CED09E006BADE7 /* testMiscMatrixAlgo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D502515CECDBF006BADE7 /* testMiscMatrixAlgo.cpp */; };
+		2A6D50E515CED09F006BADE7 /* testProcrustes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D502715CECDBF006BADE7 /* testProcrustes.cpp */; };
+		2A6D50E615CED0A0006BADE7 /* testQuat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D502915CECDBF006BADE7 /* testQuat.cpp */; };
+		2A6D50E715CED0A1006BADE7 /* testQuatSetRotation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D502B15CECDBF006BADE7 /* testQuatSetRotation.cpp */; };
+		2A6D50E815CED0A3006BADE7 /* testQuatSlerp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D502D15CECDBF006BADE7 /* testQuatSlerp.cpp */; };
+		2A6D50E915CED0A3006BADE7 /* testRandom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D502F15CECDBF006BADE7 /* testRandom.cpp */; };
+		2A6D50EA15CED0A5006BADE7 /* testRoots.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D503115CECDBF006BADE7 /* testRoots.cpp */; };
+		2A6D50EB15CED0A5006BADE7 /* testShear.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D503315CECDBF006BADE7 /* testShear.cpp */; };
+		2A6D50EC15CED0A6006BADE7 /* testTinySVD.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D503515CECDBF006BADE7 /* testTinySVD.cpp */; };
+		2A6D50ED15CED0A8006BADE7 /* testVec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D503715CECDBF006BADE7 /* testVec.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2A6D507615CECEBD006BADE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A6D507015CECEBD006BADE7 /* IlmBase.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2A6D4C4D15CDEB0A006BADE7;
+			remoteInfo = IlmBase;
+		};
+		2A6D507815CECEBD006BADE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A6D507015CECEBD006BADE7 /* IlmBase.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2A6D4CFF15CDEBEF006BADE7;
+			remoteInfo = eLut;
+		};
+		2A6D507A15CECEBD006BADE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A6D507015CECEBD006BADE7 /* IlmBase.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2A6D4D3715CDF275006BADE7;
+			remoteInfo = toFloat;
+		};
+		2A6D507D15CECED1006BADE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A6D507015CECEBD006BADE7 /* IlmBase.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 2A6D4C4C15CDEB0A006BADE7;
+			remoteInfo = IlmBase;
+		};
+		2A6D50B415CECFF1006BADE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A6D507015CECEBD006BADE7 /* IlmBase.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 2A6D4C4C15CDEB0A006BADE7;
+			remoteInfo = IlmBase;
+		};
+		2A6D50CB15CED052006BADE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A6D507015CECEBD006BADE7 /* IlmBase.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 2A6D4C4C15CDEB0A006BADE7;
+			remoteInfo = IlmBase;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		2A6D4FEC15CECDBE006BADE7 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		2A6D4FEE15CECDBE006BADE7 /* testArithmetic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testArithmetic.cpp; sourceTree = "<group>"; };
+		2A6D4FEF15CECDBE006BADE7 /* testArithmetic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testArithmetic.h; sourceTree = "<group>"; };
+		2A6D4FF015CECDBE006BADE7 /* testBitPatterns.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testBitPatterns.cpp; sourceTree = "<group>"; };
+		2A6D4FF115CECDBE006BADE7 /* testBitPatterns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testBitPatterns.h; sourceTree = "<group>"; };
+		2A6D4FF215CECDBE006BADE7 /* testClassification.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testClassification.cpp; sourceTree = "<group>"; };
+		2A6D4FF315CECDBE006BADE7 /* testClassification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testClassification.h; sourceTree = "<group>"; };
+		2A6D4FF415CECDBE006BADE7 /* testError.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testError.cpp; sourceTree = "<group>"; };
+		2A6D4FF515CECDBE006BADE7 /* testError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testError.h; sourceTree = "<group>"; };
+		2A6D4FF615CECDBE006BADE7 /* testFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testFunction.cpp; sourceTree = "<group>"; };
+		2A6D4FF715CECDBE006BADE7 /* testFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testFunction.h; sourceTree = "<group>"; };
+		2A6D4FF815CECDBE006BADE7 /* testLimits.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testLimits.cpp; sourceTree = "<group>"; };
+		2A6D4FF915CECDBE006BADE7 /* testLimits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testLimits.h; sourceTree = "<group>"; };
+		2A6D4FFA15CECDBE006BADE7 /* testSize.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testSize.cpp; sourceTree = "<group>"; };
+		2A6D4FFB15CECDBE006BADE7 /* testSize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testSize.h; sourceTree = "<group>"; };
+		2A6D500515CECDBE006BADE7 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		2A6D500715CECDBE006BADE7 /* testBaseExc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testBaseExc.cpp; sourceTree = "<group>"; };
+		2A6D500815CECDBE006BADE7 /* testBaseExc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testBaseExc.h; sourceTree = "<group>"; };
+		2A6D500B15CECDBE006BADE7 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		2A6D500D15CECDBE006BADE7 /* testBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testBox.cpp; sourceTree = "<group>"; };
+		2A6D500E15CECDBE006BADE7 /* testBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testBox.h; sourceTree = "<group>"; };
+		2A6D500F15CECDBE006BADE7 /* testBoxAlgo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testBoxAlgo.cpp; sourceTree = "<group>"; };
+		2A6D501015CECDBF006BADE7 /* testBoxAlgo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testBoxAlgo.h; sourceTree = "<group>"; };
+		2A6D501115CECDBF006BADE7 /* testColor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testColor.cpp; sourceTree = "<group>"; };
+		2A6D501215CECDBF006BADE7 /* testColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testColor.h; sourceTree = "<group>"; };
+		2A6D501315CECDBF006BADE7 /* testExtractEuler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testExtractEuler.cpp; sourceTree = "<group>"; };
+		2A6D501415CECDBF006BADE7 /* testExtractEuler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testExtractEuler.h; sourceTree = "<group>"; };
+		2A6D501515CECDBF006BADE7 /* testExtractSHRT.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testExtractSHRT.cpp; sourceTree = "<group>"; };
+		2A6D501615CECDBF006BADE7 /* testExtractSHRT.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testExtractSHRT.h; sourceTree = "<group>"; };
+		2A6D501715CECDBF006BADE7 /* testFrustum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testFrustum.cpp; sourceTree = "<group>"; };
+		2A6D501815CECDBF006BADE7 /* testFrustum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testFrustum.h; sourceTree = "<group>"; };
+		2A6D501915CECDBF006BADE7 /* testFrustumTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testFrustumTest.cpp; sourceTree = "<group>"; };
+		2A6D501A15CECDBF006BADE7 /* testFrustumTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testFrustumTest.h; sourceTree = "<group>"; };
+		2A6D501B15CECDBF006BADE7 /* testFun.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testFun.cpp; sourceTree = "<group>"; };
+		2A6D501C15CECDBF006BADE7 /* testFun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testFun.h; sourceTree = "<group>"; };
+		2A6D501D15CECDBF006BADE7 /* testInvert.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testInvert.cpp; sourceTree = "<group>"; };
+		2A6D501E15CECDBF006BADE7 /* testInvert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testInvert.h; sourceTree = "<group>"; };
+		2A6D501F15CECDBF006BADE7 /* testJacobiEigenSolver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testJacobiEigenSolver.cpp; sourceTree = "<group>"; };
+		2A6D502015CECDBF006BADE7 /* testJacobiEigenSolver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testJacobiEigenSolver.h; sourceTree = "<group>"; };
+		2A6D502115CECDBF006BADE7 /* testLineAlgo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testLineAlgo.cpp; sourceTree = "<group>"; };
+		2A6D502215CECDBF006BADE7 /* testLineAlgo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testLineAlgo.h; sourceTree = "<group>"; };
+		2A6D502315CECDBF006BADE7 /* testMatrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testMatrix.cpp; sourceTree = "<group>"; };
+		2A6D502415CECDBF006BADE7 /* testMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testMatrix.h; sourceTree = "<group>"; };
+		2A6D502515CECDBF006BADE7 /* testMiscMatrixAlgo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testMiscMatrixAlgo.cpp; sourceTree = "<group>"; };
+		2A6D502615CECDBF006BADE7 /* testMiscMatrixAlgo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testMiscMatrixAlgo.h; sourceTree = "<group>"; };
+		2A6D502715CECDBF006BADE7 /* testProcrustes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testProcrustes.cpp; sourceTree = "<group>"; };
+		2A6D502815CECDBF006BADE7 /* testProcrustes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testProcrustes.h; sourceTree = "<group>"; };
+		2A6D502915CECDBF006BADE7 /* testQuat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testQuat.cpp; sourceTree = "<group>"; };
+		2A6D502A15CECDBF006BADE7 /* testQuat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testQuat.h; sourceTree = "<group>"; };
+		2A6D502B15CECDBF006BADE7 /* testQuatSetRotation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testQuatSetRotation.cpp; sourceTree = "<group>"; };
+		2A6D502C15CECDBF006BADE7 /* testQuatSetRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testQuatSetRotation.h; sourceTree = "<group>"; };
+		2A6D502D15CECDBF006BADE7 /* testQuatSlerp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testQuatSlerp.cpp; sourceTree = "<group>"; };
+		2A6D502E15CECDBF006BADE7 /* testQuatSlerp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testQuatSlerp.h; sourceTree = "<group>"; };
+		2A6D502F15CECDBF006BADE7 /* testRandom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testRandom.cpp; sourceTree = "<group>"; };
+		2A6D503015CECDBF006BADE7 /* testRandom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testRandom.h; sourceTree = "<group>"; };
+		2A6D503115CECDBF006BADE7 /* testRoots.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testRoots.cpp; sourceTree = "<group>"; };
+		2A6D503215CECDBF006BADE7 /* testRoots.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testRoots.h; sourceTree = "<group>"; };
+		2A6D503315CECDBF006BADE7 /* testShear.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testShear.cpp; sourceTree = "<group>"; };
+		2A6D503415CECDBF006BADE7 /* testShear.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testShear.h; sourceTree = "<group>"; };
+		2A6D503515CECDBF006BADE7 /* testTinySVD.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testTinySVD.cpp; sourceTree = "<group>"; };
+		2A6D503615CECDBF006BADE7 /* testTinySVD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testTinySVD.h; sourceTree = "<group>"; };
+		2A6D503715CECDBF006BADE7 /* testVec.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testVec.cpp; sourceTree = "<group>"; };
+		2A6D503815CECDBF006BADE7 /* testVec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testVec.h; sourceTree = "<group>"; };
+		2A6D507015CECEBD006BADE7 /* IlmBase.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = IlmBase.xcodeproj; sourceTree = "<group>"; };
+		2A6D508815CECF25006BADE7 /* IlmBaseConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IlmBaseConfig.h; sourceTree = "<group>"; };
+		2A6D50BE15CECFF1006BADE7 /* IexTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = IexTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2A6D50D515CED052006BADE7 /* ImathTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ImathTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DD76F6C0486A84900D96B5E /* HalfTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = HalfTest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2A6D50B815CECFF1006BADE7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A6D50B915CECFF1006BADE7 /* libIlmBase.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2A6D50CF15CED052006BADE7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A6D50D015CED052006BADE7 /* libIlmBase.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8DD76F660486A84900D96B5E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A6D507C15CECEC2006BADE7 /* libIlmBase.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08FB7794FE84155DC02AAC07 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				2A6D4FEA15CECDBE006BADE7 /* HalfTest */,
+				2A6D500315CECDBE006BADE7 /* IexTest */,
+				2A6D500915CECDBE006BADE7 /* ImathTest */,
+				2A6D508815CECF25006BADE7 /* IlmBaseConfig.h */,
+				2A6D507015CECEBD006BADE7 /* IlmBase.xcodeproj */,
+				1AB674ADFE9D54B511CA2CBB /* Products */,
+			);
+			name = Tests;
+			sourceTree = "<group>";
+		};
+		1AB674ADFE9D54B511CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8DD76F6C0486A84900D96B5E /* HalfTest */,
+				2A6D50BE15CECFF1006BADE7 /* IexTest */,
+				2A6D50D515CED052006BADE7 /* ImathTest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2A6D4FEA15CECDBE006BADE7 /* HalfTest */ = {
+			isa = PBXGroup;
+			children = (
+				2A6D4FEC15CECDBE006BADE7 /* main.cpp */,
+				2A6D4FEE15CECDBE006BADE7 /* testArithmetic.cpp */,
+				2A6D4FEF15CECDBE006BADE7 /* testArithmetic.h */,
+				2A6D4FF015CECDBE006BADE7 /* testBitPatterns.cpp */,
+				2A6D4FF115CECDBE006BADE7 /* testBitPatterns.h */,
+				2A6D4FF215CECDBE006BADE7 /* testClassification.cpp */,
+				2A6D4FF315CECDBE006BADE7 /* testClassification.h */,
+				2A6D4FF415CECDBE006BADE7 /* testError.cpp */,
+				2A6D4FF515CECDBE006BADE7 /* testError.h */,
+				2A6D4FF615CECDBE006BADE7 /* testFunction.cpp */,
+				2A6D4FF715CECDBE006BADE7 /* testFunction.h */,
+				2A6D4FF815CECDBE006BADE7 /* testLimits.cpp */,
+				2A6D4FF915CECDBE006BADE7 /* testLimits.h */,
+				2A6D4FFA15CECDBE006BADE7 /* testSize.cpp */,
+				2A6D4FFB15CECDBE006BADE7 /* testSize.h */,
+			);
+			name = HalfTest;
+			path = ../../HalfTest;
+			sourceTree = SOURCE_ROOT;
+		};
+		2A6D500315CECDBE006BADE7 /* IexTest */ = {
+			isa = PBXGroup;
+			children = (
+				2A6D500515CECDBE006BADE7 /* main.cpp */,
+				2A6D500715CECDBE006BADE7 /* testBaseExc.cpp */,
+				2A6D500815CECDBE006BADE7 /* testBaseExc.h */,
+			);
+			name = IexTest;
+			path = ../../IexTest;
+			sourceTree = SOURCE_ROOT;
+		};
+		2A6D500915CECDBE006BADE7 /* ImathTest */ = {
+			isa = PBXGroup;
+			children = (
+				2A6D500B15CECDBE006BADE7 /* main.cpp */,
+				2A6D500D15CECDBE006BADE7 /* testBox.cpp */,
+				2A6D500E15CECDBE006BADE7 /* testBox.h */,
+				2A6D500F15CECDBE006BADE7 /* testBoxAlgo.cpp */,
+				2A6D501015CECDBF006BADE7 /* testBoxAlgo.h */,
+				2A6D501115CECDBF006BADE7 /* testColor.cpp */,
+				2A6D501215CECDBF006BADE7 /* testColor.h */,
+				2A6D501315CECDBF006BADE7 /* testExtractEuler.cpp */,
+				2A6D501415CECDBF006BADE7 /* testExtractEuler.h */,
+				2A6D501515CECDBF006BADE7 /* testExtractSHRT.cpp */,
+				2A6D501615CECDBF006BADE7 /* testExtractSHRT.h */,
+				2A6D501715CECDBF006BADE7 /* testFrustum.cpp */,
+				2A6D501815CECDBF006BADE7 /* testFrustum.h */,
+				2A6D501915CECDBF006BADE7 /* testFrustumTest.cpp */,
+				2A6D501A15CECDBF006BADE7 /* testFrustumTest.h */,
+				2A6D501B15CECDBF006BADE7 /* testFun.cpp */,
+				2A6D501C15CECDBF006BADE7 /* testFun.h */,
+				2A6D501D15CECDBF006BADE7 /* testInvert.cpp */,
+				2A6D501E15CECDBF006BADE7 /* testInvert.h */,
+				2A6D501F15CECDBF006BADE7 /* testJacobiEigenSolver.cpp */,
+				2A6D502015CECDBF006BADE7 /* testJacobiEigenSolver.h */,
+				2A6D502115CECDBF006BADE7 /* testLineAlgo.cpp */,
+				2A6D502215CECDBF006BADE7 /* testLineAlgo.h */,
+				2A6D502315CECDBF006BADE7 /* testMatrix.cpp */,
+				2A6D502415CECDBF006BADE7 /* testMatrix.h */,
+				2A6D502515CECDBF006BADE7 /* testMiscMatrixAlgo.cpp */,
+				2A6D502615CECDBF006BADE7 /* testMiscMatrixAlgo.h */,
+				2A6D502715CECDBF006BADE7 /* testProcrustes.cpp */,
+				2A6D502815CECDBF006BADE7 /* testProcrustes.h */,
+				2A6D502915CECDBF006BADE7 /* testQuat.cpp */,
+				2A6D502A15CECDBF006BADE7 /* testQuat.h */,
+				2A6D502B15CECDBF006BADE7 /* testQuatSetRotation.cpp */,
+				2A6D502C15CECDBF006BADE7 /* testQuatSetRotation.h */,
+				2A6D502D15CECDBF006BADE7 /* testQuatSlerp.cpp */,
+				2A6D502E15CECDBF006BADE7 /* testQuatSlerp.h */,
+				2A6D502F15CECDBF006BADE7 /* testRandom.cpp */,
+				2A6D503015CECDBF006BADE7 /* testRandom.h */,
+				2A6D503115CECDBF006BADE7 /* testRoots.cpp */,
+				2A6D503215CECDBF006BADE7 /* testRoots.h */,
+				2A6D503315CECDBF006BADE7 /* testShear.cpp */,
+				2A6D503415CECDBF006BADE7 /* testShear.h */,
+				2A6D503515CECDBF006BADE7 /* testTinySVD.cpp */,
+				2A6D503615CECDBF006BADE7 /* testTinySVD.h */,
+				2A6D503715CECDBF006BADE7 /* testVec.cpp */,
+				2A6D503815CECDBF006BADE7 /* testVec.h */,
+			);
+			name = ImathTest;
+			path = ../../ImathTest;
+			sourceTree = SOURCE_ROOT;
+		};
+		2A6D507115CECEBD006BADE7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2A6D507715CECEBD006BADE7 /* libIlmBase.a */,
+				2A6D507915CECEBD006BADE7 /* eLut */,
+				2A6D507B15CECEBD006BADE7 /* toFloat */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2A6D50B215CECFF1006BADE7 /* IexTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2A6D50BB15CECFF1006BADE7 /* Build configuration list for PBXNativeTarget "IexTest" */;
+			buildPhases = (
+				2A6D50B515CECFF1006BADE7 /* Sources */,
+				2A6D50B815CECFF1006BADE7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2A6D50B315CECFF1006BADE7 /* PBXTargetDependency */,
+			);
+			name = IexTest;
+			productInstallPath = "$(HOME)/bin";
+			productName = Tests;
+			productReference = 2A6D50BE15CECFF1006BADE7 /* IexTest */;
+			productType = "com.apple.product-type.tool";
+		};
+		2A6D50C915CED052006BADE7 /* ImathTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2A6D50D215CED052006BADE7 /* Build configuration list for PBXNativeTarget "ImathTest" */;
+			buildPhases = (
+				2A6D50CC15CED052006BADE7 /* Sources */,
+				2A6D50CF15CED052006BADE7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2A6D50CA15CED052006BADE7 /* PBXTargetDependency */,
+			);
+			name = ImathTest;
+			productInstallPath = "$(HOME)/bin";
+			productName = Tests;
+			productReference = 2A6D50D515CED052006BADE7 /* ImathTest */;
+			productType = "com.apple.product-type.tool";
+		};
+		8DD76F620486A84900D96B5E /* HalfTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "HalfTest" */;
+			buildPhases = (
+				8DD76F640486A84900D96B5E /* Sources */,
+				8DD76F660486A84900D96B5E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2A6D507E15CECED1006BADE7 /* PBXTargetDependency */,
+			);
+			name = HalfTest;
+			productInstallPath = "$(HOME)/bin";
+			productName = Tests;
+			productReference = 8DD76F6C0486A84900D96B5E /* HalfTest */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "Tests" */;
+			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 08FB7794FE84155DC02AAC07 /* Tests */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 2A6D507115CECEBD006BADE7 /* Products */;
+					ProjectRef = 2A6D507015CECEBD006BADE7 /* IlmBase.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				8DD76F620486A84900D96B5E /* HalfTest */,
+				2A6D50B215CECFF1006BADE7 /* IexTest */,
+				2A6D50C915CED052006BADE7 /* ImathTest */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		2A6D507715CECEBD006BADE7 /* libIlmBase.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libIlmBase.a;
+			remoteRef = 2A6D507615CECEBD006BADE7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		2A6D507915CECEBD006BADE7 /* eLut */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = eLut;
+			remoteRef = 2A6D507815CECEBD006BADE7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		2A6D507B15CECEBD006BADE7 /* toFloat */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = toFloat;
+			remoteRef = 2A6D507A15CECEBD006BADE7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2A6D50B515CECFF1006BADE7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A6D50C015CED027006BADE7 /* testBaseExc.cpp in Sources */,
+				2A6D50C115CED028006BADE7 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2A6D50CC15CED052006BADE7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A6D50D715CED091006BADE7 /* main.cpp in Sources */,
+				2A6D50D815CED092006BADE7 /* testBox.cpp in Sources */,
+				2A6D50D915CED093006BADE7 /* testBoxAlgo.cpp in Sources */,
+				2A6D50DA15CED094006BADE7 /* testColor.cpp in Sources */,
+				2A6D50DB15CED095006BADE7 /* testExtractEuler.cpp in Sources */,
+				2A6D50DC15CED096006BADE7 /* testExtractSHRT.cpp in Sources */,
+				2A6D50DD15CED097006BADE7 /* testFrustum.cpp in Sources */,
+				2A6D50DE15CED098006BADE7 /* testFrustumTest.cpp in Sources */,
+				2A6D50DF15CED098006BADE7 /* testFun.cpp in Sources */,
+				2A6D50E015CED099006BADE7 /* testInvert.cpp in Sources */,
+				2A6D50E115CED09A006BADE7 /* testJacobiEigenSolver.cpp in Sources */,
+				2A6D50E215CED09B006BADE7 /* testLineAlgo.cpp in Sources */,
+				2A6D50E315CED09C006BADE7 /* testMatrix.cpp in Sources */,
+				2A6D50E415CED09E006BADE7 /* testMiscMatrixAlgo.cpp in Sources */,
+				2A6D50E515CED09F006BADE7 /* testProcrustes.cpp in Sources */,
+				2A6D50E615CED0A0006BADE7 /* testQuat.cpp in Sources */,
+				2A6D50E715CED0A1006BADE7 /* testQuatSetRotation.cpp in Sources */,
+				2A6D50E815CED0A3006BADE7 /* testQuatSlerp.cpp in Sources */,
+				2A6D50E915CED0A3006BADE7 /* testRandom.cpp in Sources */,
+				2A6D50EA15CED0A5006BADE7 /* testRoots.cpp in Sources */,
+				2A6D50EB15CED0A5006BADE7 /* testShear.cpp in Sources */,
+				2A6D50EC15CED0A6006BADE7 /* testTinySVD.cpp in Sources */,
+				2A6D50ED15CED0A8006BADE7 /* testVec.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8DD76F640486A84900D96B5E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A6D503C15CECDBF006BADE7 /* testClassification.cpp in Sources */,
+				2A6D503D15CECDBF006BADE7 /* testError.cpp in Sources */,
+				2A6D503E15CECDBF006BADE7 /* testFunction.cpp in Sources */,
+				2A6D503F15CECDBF006BADE7 /* testLimits.cpp in Sources */,
+				2A6D504015CECDBF006BADE7 /* testSize.cpp in Sources */,
+				2A6D505C15CECE16006BADE7 /* testBitPatterns.cpp in Sources */,
+				2A6D505D15CECE16006BADE7 /* testArithmetic.cpp in Sources */,
+				2A6D505E15CECE17006BADE7 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2A6D507E15CECED1006BADE7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = IlmBase;
+			targetProxy = 2A6D507D15CECED1006BADE7 /* PBXContainerItemProxy */;
+		};
+		2A6D50B315CECFF1006BADE7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = IlmBase;
+			targetProxy = 2A6D50B415CECFF1006BADE7 /* PBXContainerItemProxy */;
+		};
+		2A6D50CA15CED052006BADE7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = IlmBase;
+			targetProxy = 2A6D50CB15CED052006BADE7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB923208733DC60010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = HalfTest;
+			};
+			name = Debug;
+		};
+		1DEB923308733DC60010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = HalfTest;
+			};
+			name = Release;
+		};
+		1DEB923608733DC60010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../Half,
+					../../Iex,
+					../../IexMath,
+					../../IlmThread,
+					../../Imath,
+				);
+				ONLY_ACTIVE_ARCH = YES;
+				PREBINDING = NO;
+			};
+			name = Debug;
+		};
+		1DEB923708733DC60010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../Half,
+					../../Iex,
+					../../IexMath,
+					../../IlmThread,
+					../../Imath,
+				);
+				PREBINDING = NO;
+			};
+			name = Release;
+		};
+		2A6D50BC15CECFF1006BADE7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = IexTest;
+			};
+			name = Debug;
+		};
+		2A6D50BD15CECFF1006BADE7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = IexTest;
+			};
+			name = Release;
+		};
+		2A6D50D315CED052006BADE7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = ImathTest;
+			};
+			name = Debug;
+		};
+		2A6D50D415CED052006BADE7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = ImathTest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "HalfTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB923208733DC60010E9CD /* Debug */,
+				1DEB923308733DC60010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB923608733DC60010E9CD /* Debug */,
+				1DEB923708733DC60010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2A6D50BB15CECFF1006BADE7 /* Build configuration list for PBXNativeTarget "IexTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A6D50BC15CECFF1006BADE7 /* Debug */,
+				2A6D50BD15CECFF1006BADE7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2A6D50D215CED052006BADE7 /* Build configuration list for PBXNativeTarget "ImathTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A6D50D315CED052006BADE7 /* Debug */,
+				2A6D50D415CED052006BADE7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}

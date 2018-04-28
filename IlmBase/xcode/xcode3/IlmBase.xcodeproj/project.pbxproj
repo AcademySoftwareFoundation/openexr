@@ -1,0 +1,753 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2A4D267015CF0E7F007CAFAC /* IexExport.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A4D266D15CF0E7F007CAFAC /* IexExport.h */; };
+		2A4D267115CF0E7F007CAFAC /* IexForward.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A4D266E15CF0E7F007CAFAC /* IexForward.h */; };
+		2A4D267215CF0E7F007CAFAC /* IexNamespace.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A4D266F15CF0E7F007CAFAC /* IexNamespace.h */; };
+		2A4D267815CF0EBD007CAFAC /* IlmThreadExport.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A4D267615CF0EBD007CAFAC /* IlmThreadExport.h */; };
+		2A4D267915CF0EBD007CAFAC /* IlmThreadForward.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A4D267715CF0EBD007CAFAC /* IlmThreadForward.h */; };
+		2A4D267F15CF0ED6007CAFAC /* ImathExport.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A4D267C15CF0ED6007CAFAC /* ImathExport.h */; };
+		2A4D268015CF0ED6007CAFAC /* ImathForward.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A4D267D15CF0ED6007CAFAC /* ImathForward.h */; };
+		2A4D268115CF0ED6007CAFAC /* ImathNamespace.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A4D267E15CF0ED6007CAFAC /* ImathNamespace.h */; };
+		2A6D4CB315CDEB54006BADE7 /* half.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C6015CDEB54006BADE7 /* half.cpp */; };
+		2A6D4CB415CDEB54006BADE7 /* half.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C6115CDEB54006BADE7 /* half.h */; };
+		2A6D4CB515CDEB54006BADE7 /* halfFunction.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C6215CDEB54006BADE7 /* halfFunction.h */; };
+		2A6D4CB615CDEB54006BADE7 /* halfLimits.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C6315CDEB54006BADE7 /* halfLimits.h */; };
+		2A6D4CD615CDEB54006BADE7 /* ImathBoxAlgo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C8E15CDEB54006BADE7 /* ImathBoxAlgo.h */; };
+		2A6D4CD715CDEB54006BADE7 /* ImathColor.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C8F15CDEB54006BADE7 /* ImathColor.h */; };
+		2A6D4CD815CDEB54006BADE7 /* ImathColorAlgo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C9015CDEB54006BADE7 /* ImathColorAlgo.cpp */; };
+		2A6D4CD915CDEB54006BADE7 /* ImathColorAlgo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C9115CDEB54006BADE7 /* ImathColorAlgo.h */; };
+		2A6D4CDA15CDEB54006BADE7 /* ImathEuler.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C9215CDEB54006BADE7 /* ImathEuler.h */; };
+		2A6D4CDB15CDEB54006BADE7 /* ImathExc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C9315CDEB54006BADE7 /* ImathExc.h */; };
+		2A6D4CDC15CDEB54006BADE7 /* ImathFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C9415CDEB54006BADE7 /* ImathFrame.h */; };
+		2A6D4CDD15CDEB54006BADE7 /* ImathFrustum.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C9515CDEB54006BADE7 /* ImathFrustum.h */; };
+		2A6D4CDE15CDEB54006BADE7 /* ImathFrustumTest.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C9615CDEB54006BADE7 /* ImathFrustumTest.h */; };
+		2A6D4CDF15CDEB54006BADE7 /* ImathFun.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C9715CDEB54006BADE7 /* ImathFun.cpp */; };
+		2A6D4CE015CDEB54006BADE7 /* ImathFun.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C9815CDEB54006BADE7 /* ImathFun.h */; };
+		2A6D4CE115CDEB54006BADE7 /* ImathGL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C9915CDEB54006BADE7 /* ImathGL.h */; };
+		2A6D4CE215CDEB54006BADE7 /* ImathGLU.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C9A15CDEB54006BADE7 /* ImathGLU.h */; };
+		2A6D4CE315CDEB54006BADE7 /* ImathHalfLimits.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C9B15CDEB54006BADE7 /* ImathHalfLimits.h */; };
+		2A6D4CE415CDEB54006BADE7 /* ImathInt64.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C9C15CDEB54006BADE7 /* ImathInt64.h */; };
+		2A6D4CE515CDEB54006BADE7 /* ImathInterval.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C9D15CDEB54006BADE7 /* ImathInterval.h */; };
+		2A6D4CE615CDEB54006BADE7 /* ImathLimits.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C9E15CDEB54006BADE7 /* ImathLimits.h */; };
+		2A6D4CE715CDEB54006BADE7 /* ImathLine.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C9F15CDEB54006BADE7 /* ImathLine.h */; };
+		2A6D4CE815CDEB54006BADE7 /* ImathLineAlgo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4CA015CDEB54006BADE7 /* ImathLineAlgo.h */; };
+		2A6D4CE915CDEB54006BADE7 /* ImathMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4CA115CDEB54006BADE7 /* ImathMath.h */; };
+		2A6D4CEA15CDEB54006BADE7 /* ImathMatrix.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4CA215CDEB54006BADE7 /* ImathMatrix.h */; };
+		2A6D4CEB15CDEB54006BADE7 /* ImathMatrixAlgo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4CA315CDEB54006BADE7 /* ImathMatrixAlgo.cpp */; };
+		2A6D4CEC15CDEB54006BADE7 /* ImathMatrixAlgo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4CA415CDEB54006BADE7 /* ImathMatrixAlgo.h */; };
+		2A6D4CED15CDEB54006BADE7 /* ImathPlane.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4CA515CDEB54006BADE7 /* ImathPlane.h */; };
+		2A6D4CEE15CDEB54006BADE7 /* ImathPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4CA615CDEB54006BADE7 /* ImathPlatform.h */; };
+		2A6D4CEF15CDEB54006BADE7 /* ImathQuat.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4CA715CDEB54006BADE7 /* ImathQuat.h */; };
+		2A6D4CF015CDEB54006BADE7 /* ImathRandom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4CA815CDEB54006BADE7 /* ImathRandom.cpp */; };
+		2A6D4CF115CDEB54006BADE7 /* ImathRandom.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4CA915CDEB54006BADE7 /* ImathRandom.h */; };
+		2A6D4CF215CDEB54006BADE7 /* ImathRoots.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4CAA15CDEB54006BADE7 /* ImathRoots.h */; };
+		2A6D4CF315CDEB54006BADE7 /* ImathShear.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4CAB15CDEB54006BADE7 /* ImathShear.cpp */; };
+		2A6D4CF415CDEB54006BADE7 /* ImathShear.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4CAC15CDEB54006BADE7 /* ImathShear.h */; };
+		2A6D4CF515CDEB54006BADE7 /* ImathSphere.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4CAD15CDEB54006BADE7 /* ImathSphere.h */; };
+		2A6D4CF615CDEB54006BADE7 /* ImathVec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4CAE15CDEB54006BADE7 /* ImathVec.cpp */; };
+		2A6D4CF715CDEB54006BADE7 /* ImathVec.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4CAF15CDEB54006BADE7 /* ImathVec.h */; };
+		2A6D4CF815CDEB54006BADE7 /* ImathVecAlgo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4CB015CDEB54006BADE7 /* ImathVecAlgo.h */; };
+		2A6D4D0A15CDF1A6006BADE7 /* ImathBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C8D15CDEB54006BADE7 /* ImathBox.h */; };
+		2A6D4D0B15CDF1A7006BADE7 /* ImathBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C8C15CDEB54006BADE7 /* ImathBox.cpp */; };
+		2A6D4D0E15CDF1AC006BADE7 /* IlmThreadSemaphorePosixCompat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C8615CDEB54006BADE7 /* IlmThreadSemaphorePosixCompat.cpp */; };
+		2A6D4D0F15CDF1AD006BADE7 /* IlmThreadSemaphorePosix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C8515CDEB54006BADE7 /* IlmThreadSemaphorePosix.cpp */; };
+		2A6D4D1015CDF1AE006BADE7 /* IlmThreadSemaphore.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C8415CDEB54006BADE7 /* IlmThreadSemaphore.h */; };
+		2A6D4D1115CDF1AF006BADE7 /* IlmThreadSemaphore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C8315CDEB54006BADE7 /* IlmThreadSemaphore.cpp */; };
+		2A6D4D1215CDF1AF006BADE7 /* IlmThreadPosix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C8215CDEB54006BADE7 /* IlmThreadPosix.cpp */; };
+		2A6D4D1315CDF1B0006BADE7 /* IlmThreadPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C8115CDEB54006BADE7 /* IlmThreadPool.h */; };
+		2A6D4D1415CDF1B1006BADE7 /* IlmThreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C8015CDEB54006BADE7 /* IlmThreadPool.cpp */; };
+		2A6D4D1615CDF1B3006BADE7 /* IlmThreadMutexPosix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C7E15CDEB54006BADE7 /* IlmThreadMutexPosix.cpp */; };
+		2A6D4D1715CDF1B4006BADE7 /* IlmThreadMutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C7D15CDEB54006BADE7 /* IlmThreadMutex.h */; };
+		2A6D4D1815CDF1B5006BADE7 /* IlmThreadMutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C7C15CDEB54006BADE7 /* IlmThreadMutex.cpp */; };
+		2A6D4D1915CDF1B6006BADE7 /* IlmThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C7B15CDEB54006BADE7 /* IlmThread.h */; };
+		2A6D4D1A15CDF1B7006BADE7 /* IlmThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C7A15CDEB54006BADE7 /* IlmThread.cpp */; };
+		2A6D4D1B15CDF1BB006BADE7 /* IexMathIeeeExc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C7615CDEB54006BADE7 /* IexMathIeeeExc.h */; };
+		2A6D4D1C15CDF1BC006BADE7 /* IexMathFpu.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C7515CDEB54006BADE7 /* IexMathFpu.h */; };
+		2A6D4D1D15CDF1BD006BADE7 /* IexMathFpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C7415CDEB54006BADE7 /* IexMathFpu.cpp */; };
+		2A6D4D1E15CDF1BE006BADE7 /* IexMathFloatExc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C7315CDEB54006BADE7 /* IexMathFloatExc.h */; };
+		2A6D4D1F15CDF1BF006BADE7 /* IexMathFloatExc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C7215CDEB54006BADE7 /* IexMathFloatExc.cpp */; };
+		2A6D4D2015CDF1C3006BADE7 /* IexThrowErrnoExc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C6F15CDEB54006BADE7 /* IexThrowErrnoExc.h */; };
+		2A6D4D2115CDF1C4006BADE7 /* IexThrowErrnoExc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C6E15CDEB54006BADE7 /* IexThrowErrnoExc.cpp */; };
+		2A6D4D2215CDF1C4006BADE7 /* IexMathExc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C6D15CDEB54006BADE7 /* IexMathExc.h */; };
+		2A6D4D2315CDF1C5006BADE7 /* IexMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C6C15CDEB54006BADE7 /* IexMacros.h */; };
+		2A6D4D2415CDF1C6006BADE7 /* IexErrnoExc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C6B15CDEB54006BADE7 /* IexErrnoExc.h */; };
+		2A6D4D2515CDF1C7006BADE7 /* IexBaseExc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C6A15CDEB54006BADE7 /* IexBaseExc.h */; };
+		2A6D4D2615CDF1C8006BADE7 /* IexBaseExc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C6915CDEB54006BADE7 /* IexBaseExc.cpp */; };
+		2A6D4D2715CDF1C8006BADE7 /* Iex.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4C6815CDEB54006BADE7 /* Iex.h */; };
+		2A6D4D2815CDF1E2006BADE7 /* eLut.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C5F15CDEB54006BADE7 /* eLut.cpp */; };
+		2A6D4D3915CDF28B006BADE7 /* toFloat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A6D4C6515CDEB54006BADE7 /* toFloat.cpp */; };
+		2A6D4D9415CE02F0006BADE7 /* IlmBaseConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4D9315CE02F0006BADE7 /* IlmBaseConfig.h */; };
+		2A6D4DA115CE041D006BADE7 /* toFloat.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4DA015CE041D006BADE7 /* toFloat.h */; };
+		2A6D4DB815CE0486006BADE7 /* eLut.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6D4DB715CE0486006BADE7 /* eLut.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2A6D4D4215CDF2E5006BADE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2A6D4CFE15CDEBEF006BADE7;
+			remoteInfo = eLut;
+		};
+		2A6D4D4415CDF2E9006BADE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2A6D4D3015CDF275006BADE7;
+			remoteInfo = toFloat;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		2A4D266D15CF0E7F007CAFAC /* IexExport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IexExport.h; sourceTree = "<group>"; };
+		2A4D266E15CF0E7F007CAFAC /* IexForward.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IexForward.h; sourceTree = "<group>"; };
+		2A4D266F15CF0E7F007CAFAC /* IexNamespace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IexNamespace.h; sourceTree = "<group>"; };
+		2A4D267615CF0EBD007CAFAC /* IlmThreadExport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IlmThreadExport.h; sourceTree = "<group>"; };
+		2A4D267715CF0EBD007CAFAC /* IlmThreadForward.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IlmThreadForward.h; sourceTree = "<group>"; };
+		2A4D267C15CF0ED6007CAFAC /* ImathExport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathExport.h; sourceTree = "<group>"; };
+		2A4D267D15CF0ED6007CAFAC /* ImathForward.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathForward.h; sourceTree = "<group>"; };
+		2A4D267E15CF0ED6007CAFAC /* ImathNamespace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathNamespace.h; sourceTree = "<group>"; };
+		2A6D4C4D15CDEB0A006BADE7 /* libIlmBase.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIlmBase.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2A6D4C5F15CDEB54006BADE7 /* eLut.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = eLut.cpp; sourceTree = "<group>"; };
+		2A6D4C6015CDEB54006BADE7 /* half.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = half.cpp; sourceTree = "<group>"; };
+		2A6D4C6115CDEB54006BADE7 /* half.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = half.h; sourceTree = "<group>"; };
+		2A6D4C6215CDEB54006BADE7 /* halfFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = halfFunction.h; sourceTree = "<group>"; };
+		2A6D4C6315CDEB54006BADE7 /* halfLimits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = halfLimits.h; sourceTree = "<group>"; };
+		2A6D4C6515CDEB54006BADE7 /* toFloat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = toFloat.cpp; sourceTree = "<group>"; };
+		2A6D4C6815CDEB54006BADE7 /* Iex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iex.h; sourceTree = "<group>"; };
+		2A6D4C6915CDEB54006BADE7 /* IexBaseExc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IexBaseExc.cpp; sourceTree = "<group>"; };
+		2A6D4C6A15CDEB54006BADE7 /* IexBaseExc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IexBaseExc.h; sourceTree = "<group>"; };
+		2A6D4C6B15CDEB54006BADE7 /* IexErrnoExc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IexErrnoExc.h; sourceTree = "<group>"; };
+		2A6D4C6C15CDEB54006BADE7 /* IexMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IexMacros.h; sourceTree = "<group>"; };
+		2A6D4C6D15CDEB54006BADE7 /* IexMathExc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IexMathExc.h; sourceTree = "<group>"; };
+		2A6D4C6E15CDEB54006BADE7 /* IexThrowErrnoExc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IexThrowErrnoExc.cpp; sourceTree = "<group>"; };
+		2A6D4C6F15CDEB54006BADE7 /* IexThrowErrnoExc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IexThrowErrnoExc.h; sourceTree = "<group>"; };
+		2A6D4C7215CDEB54006BADE7 /* IexMathFloatExc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IexMathFloatExc.cpp; sourceTree = "<group>"; };
+		2A6D4C7315CDEB54006BADE7 /* IexMathFloatExc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IexMathFloatExc.h; sourceTree = "<group>"; };
+		2A6D4C7415CDEB54006BADE7 /* IexMathFpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IexMathFpu.cpp; sourceTree = "<group>"; };
+		2A6D4C7515CDEB54006BADE7 /* IexMathFpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IexMathFpu.h; sourceTree = "<group>"; };
+		2A6D4C7615CDEB54006BADE7 /* IexMathIeeeExc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IexMathIeeeExc.h; sourceTree = "<group>"; };
+		2A6D4C7A15CDEB54006BADE7 /* IlmThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IlmThread.cpp; sourceTree = "<group>"; };
+		2A6D4C7B15CDEB54006BADE7 /* IlmThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IlmThread.h; sourceTree = "<group>"; };
+		2A6D4C7C15CDEB54006BADE7 /* IlmThreadMutex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IlmThreadMutex.cpp; sourceTree = "<group>"; };
+		2A6D4C7D15CDEB54006BADE7 /* IlmThreadMutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IlmThreadMutex.h; sourceTree = "<group>"; };
+		2A6D4C7E15CDEB54006BADE7 /* IlmThreadMutexPosix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IlmThreadMutexPosix.cpp; sourceTree = "<group>"; };
+		2A6D4C8015CDEB54006BADE7 /* IlmThreadPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IlmThreadPool.cpp; sourceTree = "<group>"; };
+		2A6D4C8115CDEB54006BADE7 /* IlmThreadPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IlmThreadPool.h; sourceTree = "<group>"; };
+		2A6D4C8215CDEB54006BADE7 /* IlmThreadPosix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IlmThreadPosix.cpp; sourceTree = "<group>"; };
+		2A6D4C8315CDEB54006BADE7 /* IlmThreadSemaphore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IlmThreadSemaphore.cpp; sourceTree = "<group>"; };
+		2A6D4C8415CDEB54006BADE7 /* IlmThreadSemaphore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IlmThreadSemaphore.h; sourceTree = "<group>"; };
+		2A6D4C8515CDEB54006BADE7 /* IlmThreadSemaphorePosix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IlmThreadSemaphorePosix.cpp; sourceTree = "<group>"; };
+		2A6D4C8615CDEB54006BADE7 /* IlmThreadSemaphorePosixCompat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IlmThreadSemaphorePosixCompat.cpp; sourceTree = "<group>"; };
+		2A6D4C8C15CDEB54006BADE7 /* ImathBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImathBox.cpp; sourceTree = "<group>"; };
+		2A6D4C8D15CDEB54006BADE7 /* ImathBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathBox.h; sourceTree = "<group>"; };
+		2A6D4C8E15CDEB54006BADE7 /* ImathBoxAlgo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathBoxAlgo.h; sourceTree = "<group>"; };
+		2A6D4C8F15CDEB54006BADE7 /* ImathColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathColor.h; sourceTree = "<group>"; };
+		2A6D4C9015CDEB54006BADE7 /* ImathColorAlgo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImathColorAlgo.cpp; sourceTree = "<group>"; };
+		2A6D4C9115CDEB54006BADE7 /* ImathColorAlgo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathColorAlgo.h; sourceTree = "<group>"; };
+		2A6D4C9215CDEB54006BADE7 /* ImathEuler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathEuler.h; sourceTree = "<group>"; };
+		2A6D4C9315CDEB54006BADE7 /* ImathExc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathExc.h; sourceTree = "<group>"; };
+		2A6D4C9415CDEB54006BADE7 /* ImathFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathFrame.h; sourceTree = "<group>"; };
+		2A6D4C9515CDEB54006BADE7 /* ImathFrustum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathFrustum.h; sourceTree = "<group>"; };
+		2A6D4C9615CDEB54006BADE7 /* ImathFrustumTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathFrustumTest.h; sourceTree = "<group>"; };
+		2A6D4C9715CDEB54006BADE7 /* ImathFun.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImathFun.cpp; sourceTree = "<group>"; };
+		2A6D4C9815CDEB54006BADE7 /* ImathFun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathFun.h; sourceTree = "<group>"; };
+		2A6D4C9915CDEB54006BADE7 /* ImathGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathGL.h; sourceTree = "<group>"; };
+		2A6D4C9A15CDEB54006BADE7 /* ImathGLU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathGLU.h; sourceTree = "<group>"; };
+		2A6D4C9B15CDEB54006BADE7 /* ImathHalfLimits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathHalfLimits.h; sourceTree = "<group>"; };
+		2A6D4C9C15CDEB54006BADE7 /* ImathInt64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathInt64.h; sourceTree = "<group>"; };
+		2A6D4C9D15CDEB54006BADE7 /* ImathInterval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathInterval.h; sourceTree = "<group>"; };
+		2A6D4C9E15CDEB54006BADE7 /* ImathLimits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathLimits.h; sourceTree = "<group>"; };
+		2A6D4C9F15CDEB54006BADE7 /* ImathLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathLine.h; sourceTree = "<group>"; };
+		2A6D4CA015CDEB54006BADE7 /* ImathLineAlgo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathLineAlgo.h; sourceTree = "<group>"; };
+		2A6D4CA115CDEB54006BADE7 /* ImathMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathMath.h; sourceTree = "<group>"; };
+		2A6D4CA215CDEB54006BADE7 /* ImathMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathMatrix.h; sourceTree = "<group>"; };
+		2A6D4CA315CDEB54006BADE7 /* ImathMatrixAlgo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImathMatrixAlgo.cpp; sourceTree = "<group>"; };
+		2A6D4CA415CDEB54006BADE7 /* ImathMatrixAlgo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathMatrixAlgo.h; sourceTree = "<group>"; };
+		2A6D4CA515CDEB54006BADE7 /* ImathPlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathPlane.h; sourceTree = "<group>"; };
+		2A6D4CA615CDEB54006BADE7 /* ImathPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathPlatform.h; sourceTree = "<group>"; };
+		2A6D4CA715CDEB54006BADE7 /* ImathQuat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathQuat.h; sourceTree = "<group>"; };
+		2A6D4CA815CDEB54006BADE7 /* ImathRandom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImathRandom.cpp; sourceTree = "<group>"; };
+		2A6D4CA915CDEB54006BADE7 /* ImathRandom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathRandom.h; sourceTree = "<group>"; };
+		2A6D4CAA15CDEB54006BADE7 /* ImathRoots.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathRoots.h; sourceTree = "<group>"; };
+		2A6D4CAB15CDEB54006BADE7 /* ImathShear.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImathShear.cpp; sourceTree = "<group>"; };
+		2A6D4CAC15CDEB54006BADE7 /* ImathShear.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathShear.h; sourceTree = "<group>"; };
+		2A6D4CAD15CDEB54006BADE7 /* ImathSphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathSphere.h; sourceTree = "<group>"; };
+		2A6D4CAE15CDEB54006BADE7 /* ImathVec.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImathVec.cpp; sourceTree = "<group>"; };
+		2A6D4CAF15CDEB54006BADE7 /* ImathVec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathVec.h; sourceTree = "<group>"; };
+		2A6D4CB015CDEB54006BADE7 /* ImathVecAlgo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImathVecAlgo.h; sourceTree = "<group>"; };
+		2A6D4CFF15CDEBEF006BADE7 /* eLut */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = eLut; sourceTree = BUILT_PRODUCTS_DIR; };
+		2A6D4D3715CDF275006BADE7 /* toFloat */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = toFloat; sourceTree = BUILT_PRODUCTS_DIR; };
+		2A6D4D9315CE02F0006BADE7 /* IlmBaseConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IlmBaseConfig.h; sourceTree = "<group>"; };
+		2A6D4DA015CE041D006BADE7 /* toFloat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = toFloat.h; sourceTree = "<group>"; };
+		2A6D4DB715CE0486006BADE7 /* eLut.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eLut.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2A6D4C4B15CDEB0A006BADE7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2A6D4CFD15CDEBEF006BADE7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2A6D4D3315CDF275006BADE7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		034768DDFF38A45A11DB9C8B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2A6D4C4D15CDEB0A006BADE7 /* libIlmBase.a */,
+				2A6D4CFF15CDEBEF006BADE7 /* eLut */,
+				2A6D4D3715CDF275006BADE7 /* toFloat */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0867D691FE84028FC02AAC07 /* IlmBase */ = {
+			isa = PBXGroup;
+			children = (
+				2A6D4D9315CE02F0006BADE7 /* IlmBaseConfig.h */,
+				2A6D4C5D15CDEB54006BADE7 /* Half */,
+				2A6D4C6615CDEB54006BADE7 /* Iex */,
+				2A6D4C7115CDEB54006BADE7 /* IexMath */,
+				2A6D4C7815CDEB54006BADE7 /* IlmThread */,
+				2A6D4C8A15CDEB54006BADE7 /* Imath */,
+				0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */,
+				034768DDFF38A45A11DB9C8B /* Products */,
+			);
+			name = IlmBase;
+			sourceTree = "<group>";
+		};
+		0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "External Frameworks and Libraries";
+			sourceTree = "<group>";
+		};
+		2A6D4C5D15CDEB54006BADE7 /* Half */ = {
+			isa = PBXGroup;
+			children = (
+				2A6D4DB715CE0486006BADE7 /* eLut.h */,
+				2A6D4DA015CE041D006BADE7 /* toFloat.h */,
+				2A6D4C5F15CDEB54006BADE7 /* eLut.cpp */,
+				2A6D4C6015CDEB54006BADE7 /* half.cpp */,
+				2A6D4C6115CDEB54006BADE7 /* half.h */,
+				2A6D4C6215CDEB54006BADE7 /* halfFunction.h */,
+				2A6D4C6315CDEB54006BADE7 /* halfLimits.h */,
+				2A6D4C6515CDEB54006BADE7 /* toFloat.cpp */,
+			);
+			name = Half;
+			path = ../../Half;
+			sourceTree = SOURCE_ROOT;
+		};
+		2A6D4C6615CDEB54006BADE7 /* Iex */ = {
+			isa = PBXGroup;
+			children = (
+				2A4D266D15CF0E7F007CAFAC /* IexExport.h */,
+				2A4D266E15CF0E7F007CAFAC /* IexForward.h */,
+				2A4D266F15CF0E7F007CAFAC /* IexNamespace.h */,
+				2A6D4C6815CDEB54006BADE7 /* Iex.h */,
+				2A6D4C6915CDEB54006BADE7 /* IexBaseExc.cpp */,
+				2A6D4C6A15CDEB54006BADE7 /* IexBaseExc.h */,
+				2A6D4C6B15CDEB54006BADE7 /* IexErrnoExc.h */,
+				2A6D4C6C15CDEB54006BADE7 /* IexMacros.h */,
+				2A6D4C6D15CDEB54006BADE7 /* IexMathExc.h */,
+				2A6D4C6E15CDEB54006BADE7 /* IexThrowErrnoExc.cpp */,
+				2A6D4C6F15CDEB54006BADE7 /* IexThrowErrnoExc.h */,
+			);
+			name = Iex;
+			path = ../../Iex;
+			sourceTree = SOURCE_ROOT;
+		};
+		2A6D4C7115CDEB54006BADE7 /* IexMath */ = {
+			isa = PBXGroup;
+			children = (
+				2A6D4C7215CDEB54006BADE7 /* IexMathFloatExc.cpp */,
+				2A6D4C7315CDEB54006BADE7 /* IexMathFloatExc.h */,
+				2A6D4C7415CDEB54006BADE7 /* IexMathFpu.cpp */,
+				2A6D4C7515CDEB54006BADE7 /* IexMathFpu.h */,
+				2A6D4C7615CDEB54006BADE7 /* IexMathIeeeExc.h */,
+			);
+			name = IexMath;
+			path = ../../IexMath;
+			sourceTree = SOURCE_ROOT;
+		};
+		2A6D4C7815CDEB54006BADE7 /* IlmThread */ = {
+			isa = PBXGroup;
+			children = (
+				2A4D267615CF0EBD007CAFAC /* IlmThreadExport.h */,
+				2A4D267715CF0EBD007CAFAC /* IlmThreadForward.h */,
+				2A6D4C7A15CDEB54006BADE7 /* IlmThread.cpp */,
+				2A6D4C7B15CDEB54006BADE7 /* IlmThread.h */,
+				2A6D4C7C15CDEB54006BADE7 /* IlmThreadMutex.cpp */,
+				2A6D4C7D15CDEB54006BADE7 /* IlmThreadMutex.h */,
+				2A6D4C7E15CDEB54006BADE7 /* IlmThreadMutexPosix.cpp */,
+				2A6D4C8015CDEB54006BADE7 /* IlmThreadPool.cpp */,
+				2A6D4C8115CDEB54006BADE7 /* IlmThreadPool.h */,
+				2A6D4C8215CDEB54006BADE7 /* IlmThreadPosix.cpp */,
+				2A6D4C8315CDEB54006BADE7 /* IlmThreadSemaphore.cpp */,
+				2A6D4C8415CDEB54006BADE7 /* IlmThreadSemaphore.h */,
+				2A6D4C8515CDEB54006BADE7 /* IlmThreadSemaphorePosix.cpp */,
+				2A6D4C8615CDEB54006BADE7 /* IlmThreadSemaphorePosixCompat.cpp */,
+			);
+			name = IlmThread;
+			path = ../../IlmThread;
+			sourceTree = SOURCE_ROOT;
+		};
+		2A6D4C8A15CDEB54006BADE7 /* Imath */ = {
+			isa = PBXGroup;
+			children = (
+				2A4D267C15CF0ED6007CAFAC /* ImathExport.h */,
+				2A4D267D15CF0ED6007CAFAC /* ImathForward.h */,
+				2A4D267E15CF0ED6007CAFAC /* ImathNamespace.h */,
+				2A6D4C8C15CDEB54006BADE7 /* ImathBox.cpp */,
+				2A6D4C8D15CDEB54006BADE7 /* ImathBox.h */,
+				2A6D4C8E15CDEB54006BADE7 /* ImathBoxAlgo.h */,
+				2A6D4C8F15CDEB54006BADE7 /* ImathColor.h */,
+				2A6D4C9015CDEB54006BADE7 /* ImathColorAlgo.cpp */,
+				2A6D4C9115CDEB54006BADE7 /* ImathColorAlgo.h */,
+				2A6D4C9215CDEB54006BADE7 /* ImathEuler.h */,
+				2A6D4C9315CDEB54006BADE7 /* ImathExc.h */,
+				2A6D4C9415CDEB54006BADE7 /* ImathFrame.h */,
+				2A6D4C9515CDEB54006BADE7 /* ImathFrustum.h */,
+				2A6D4C9615CDEB54006BADE7 /* ImathFrustumTest.h */,
+				2A6D4C9715CDEB54006BADE7 /* ImathFun.cpp */,
+				2A6D4C9815CDEB54006BADE7 /* ImathFun.h */,
+				2A6D4C9915CDEB54006BADE7 /* ImathGL.h */,
+				2A6D4C9A15CDEB54006BADE7 /* ImathGLU.h */,
+				2A6D4C9B15CDEB54006BADE7 /* ImathHalfLimits.h */,
+				2A6D4C9C15CDEB54006BADE7 /* ImathInt64.h */,
+				2A6D4C9D15CDEB54006BADE7 /* ImathInterval.h */,
+				2A6D4C9E15CDEB54006BADE7 /* ImathLimits.h */,
+				2A6D4C9F15CDEB54006BADE7 /* ImathLine.h */,
+				2A6D4CA015CDEB54006BADE7 /* ImathLineAlgo.h */,
+				2A6D4CA115CDEB54006BADE7 /* ImathMath.h */,
+				2A6D4CA215CDEB54006BADE7 /* ImathMatrix.h */,
+				2A6D4CA315CDEB54006BADE7 /* ImathMatrixAlgo.cpp */,
+				2A6D4CA415CDEB54006BADE7 /* ImathMatrixAlgo.h */,
+				2A6D4CA515CDEB54006BADE7 /* ImathPlane.h */,
+				2A6D4CA615CDEB54006BADE7 /* ImathPlatform.h */,
+				2A6D4CA715CDEB54006BADE7 /* ImathQuat.h */,
+				2A6D4CA815CDEB54006BADE7 /* ImathRandom.cpp */,
+				2A6D4CA915CDEB54006BADE7 /* ImathRandom.h */,
+				2A6D4CAA15CDEB54006BADE7 /* ImathRoots.h */,
+				2A6D4CAB15CDEB54006BADE7 /* ImathShear.cpp */,
+				2A6D4CAC15CDEB54006BADE7 /* ImathShear.h */,
+				2A6D4CAD15CDEB54006BADE7 /* ImathSphere.h */,
+				2A6D4CAE15CDEB54006BADE7 /* ImathVec.cpp */,
+				2A6D4CAF15CDEB54006BADE7 /* ImathVec.h */,
+				2A6D4CB015CDEB54006BADE7 /* ImathVecAlgo.h */,
+			);
+			name = Imath;
+			path = ../../Imath;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		2A6D4C4915CDEB0A006BADE7 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A6D4CB415CDEB54006BADE7 /* half.h in Headers */,
+				2A6D4CB515CDEB54006BADE7 /* halfFunction.h in Headers */,
+				2A6D4CB615CDEB54006BADE7 /* halfLimits.h in Headers */,
+				2A6D4CD615CDEB54006BADE7 /* ImathBoxAlgo.h in Headers */,
+				2A6D4CD715CDEB54006BADE7 /* ImathColor.h in Headers */,
+				2A6D4CD915CDEB54006BADE7 /* ImathColorAlgo.h in Headers */,
+				2A6D4CDA15CDEB54006BADE7 /* ImathEuler.h in Headers */,
+				2A6D4CDB15CDEB54006BADE7 /* ImathExc.h in Headers */,
+				2A6D4CDC15CDEB54006BADE7 /* ImathFrame.h in Headers */,
+				2A6D4CDD15CDEB54006BADE7 /* ImathFrustum.h in Headers */,
+				2A6D4CDE15CDEB54006BADE7 /* ImathFrustumTest.h in Headers */,
+				2A6D4CE015CDEB54006BADE7 /* ImathFun.h in Headers */,
+				2A6D4CE115CDEB54006BADE7 /* ImathGL.h in Headers */,
+				2A6D4CE215CDEB54006BADE7 /* ImathGLU.h in Headers */,
+				2A6D4CE315CDEB54006BADE7 /* ImathHalfLimits.h in Headers */,
+				2A6D4CE415CDEB54006BADE7 /* ImathInt64.h in Headers */,
+				2A6D4CE515CDEB54006BADE7 /* ImathInterval.h in Headers */,
+				2A6D4CE615CDEB54006BADE7 /* ImathLimits.h in Headers */,
+				2A6D4CE715CDEB54006BADE7 /* ImathLine.h in Headers */,
+				2A6D4CE815CDEB54006BADE7 /* ImathLineAlgo.h in Headers */,
+				2A6D4CE915CDEB54006BADE7 /* ImathMath.h in Headers */,
+				2A6D4CEA15CDEB54006BADE7 /* ImathMatrix.h in Headers */,
+				2A6D4CEC15CDEB54006BADE7 /* ImathMatrixAlgo.h in Headers */,
+				2A6D4CED15CDEB54006BADE7 /* ImathPlane.h in Headers */,
+				2A6D4CEE15CDEB54006BADE7 /* ImathPlatform.h in Headers */,
+				2A6D4CEF15CDEB54006BADE7 /* ImathQuat.h in Headers */,
+				2A6D4CF115CDEB54006BADE7 /* ImathRandom.h in Headers */,
+				2A6D4CF215CDEB54006BADE7 /* ImathRoots.h in Headers */,
+				2A6D4CF415CDEB54006BADE7 /* ImathShear.h in Headers */,
+				2A6D4CF515CDEB54006BADE7 /* ImathSphere.h in Headers */,
+				2A6D4CF715CDEB54006BADE7 /* ImathVec.h in Headers */,
+				2A6D4CF815CDEB54006BADE7 /* ImathVecAlgo.h in Headers */,
+				2A6D4D0A15CDF1A6006BADE7 /* ImathBox.h in Headers */,
+				2A6D4D1015CDF1AE006BADE7 /* IlmThreadSemaphore.h in Headers */,
+				2A6D4D1315CDF1B0006BADE7 /* IlmThreadPool.h in Headers */,
+				2A6D4D1715CDF1B4006BADE7 /* IlmThreadMutex.h in Headers */,
+				2A6D4D1915CDF1B6006BADE7 /* IlmThread.h in Headers */,
+				2A6D4D1B15CDF1BB006BADE7 /* IexMathIeeeExc.h in Headers */,
+				2A6D4D1C15CDF1BC006BADE7 /* IexMathFpu.h in Headers */,
+				2A6D4D1E15CDF1BE006BADE7 /* IexMathFloatExc.h in Headers */,
+				2A6D4D2015CDF1C3006BADE7 /* IexThrowErrnoExc.h in Headers */,
+				2A6D4D2215CDF1C4006BADE7 /* IexMathExc.h in Headers */,
+				2A6D4D2315CDF1C5006BADE7 /* IexMacros.h in Headers */,
+				2A6D4D2415CDF1C6006BADE7 /* IexErrnoExc.h in Headers */,
+				2A6D4D2515CDF1C7006BADE7 /* IexBaseExc.h in Headers */,
+				2A6D4D2715CDF1C8006BADE7 /* Iex.h in Headers */,
+				2A6D4D9415CE02F0006BADE7 /* IlmBaseConfig.h in Headers */,
+				2A6D4DA115CE041D006BADE7 /* toFloat.h in Headers */,
+				2A6D4DB815CE0486006BADE7 /* eLut.h in Headers */,
+				2A4D267015CF0E7F007CAFAC /* IexExport.h in Headers */,
+				2A4D267115CF0E7F007CAFAC /* IexForward.h in Headers */,
+				2A4D267215CF0E7F007CAFAC /* IexNamespace.h in Headers */,
+				2A4D267815CF0EBD007CAFAC /* IlmThreadExport.h in Headers */,
+				2A4D267915CF0EBD007CAFAC /* IlmThreadForward.h in Headers */,
+				2A4D267F15CF0ED6007CAFAC /* ImathExport.h in Headers */,
+				2A4D268015CF0ED6007CAFAC /* ImathForward.h in Headers */,
+				2A4D268115CF0ED6007CAFAC /* ImathNamespace.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		2A6D4C4C15CDEB0A006BADE7 /* IlmBase */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2A6D4C5515CDEB0E006BADE7 /* Build configuration list for PBXNativeTarget "IlmBase" */;
+			buildPhases = (
+				2A6D4D6215CDF3FA006BADE7 /* Generate Headers */,
+				2A6D4C4915CDEB0A006BADE7 /* Headers */,
+				2A6D4C4A15CDEB0A006BADE7 /* Sources */,
+				2A6D4C4B15CDEB0A006BADE7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2A6D4D4315CDF2E5006BADE7 /* PBXTargetDependency */,
+				2A6D4D4515CDF2E9006BADE7 /* PBXTargetDependency */,
+			);
+			name = IlmBase;
+			productName = IlmBase;
+			productReference = 2A6D4C4D15CDEB0A006BADE7 /* libIlmBase.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		2A6D4CFE15CDEBEF006BADE7 /* eLut */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2A6D4D0615CDEBF7006BADE7 /* Build configuration list for PBXNativeTarget "eLut" */;
+			buildPhases = (
+				2A6D4CFC15CDEBEF006BADE7 /* Sources */,
+				2A6D4CFD15CDEBEF006BADE7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = eLut;
+			productName = eLut;
+			productReference = 2A6D4CFF15CDEBEF006BADE7 /* eLut */;
+			productType = "com.apple.product-type.tool";
+		};
+		2A6D4D3015CDF275006BADE7 /* toFloat */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2A6D4D3415CDF275006BADE7 /* Build configuration list for PBXNativeTarget "toFloat" */;
+			buildPhases = (
+				2A6D4D3115CDF275006BADE7 /* Sources */,
+				2A6D4D3315CDF275006BADE7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = toFloat;
+			productName = eLut;
+			productReference = 2A6D4D3715CDF275006BADE7 /* toFloat */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0867D690FE84028FC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB916408733D950010E9CD /* Build configuration list for PBXProject "IlmBase" */;
+			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 0867D691FE84028FC02AAC07 /* IlmBase */;
+			productRefGroup = 034768DDFF38A45A11DB9C8B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2A6D4C4C15CDEB0A006BADE7 /* IlmBase */,
+				2A6D4CFE15CDEBEF006BADE7 /* eLut */,
+				2A6D4D3015CDF275006BADE7 /* toFloat */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2A6D4D6215CDF3FA006BADE7 /* Generate Headers */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate Headers";
+			outputPaths = (
+				"$(SRCROOT)/../../Half/toFloat.h",
+				"$(SRCROOT)/../../Half/eLut.h",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$TARGET_BUILD_DIR/toFloat > $SRCROOT/../../Half/toFloat.h\n$TARGET_BUILD_DIR/eLut > $SRCROOT/../../Half/eLut.h\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2A6D4C4A15CDEB0A006BADE7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A6D4CB315CDEB54006BADE7 /* half.cpp in Sources */,
+				2A6D4CD815CDEB54006BADE7 /* ImathColorAlgo.cpp in Sources */,
+				2A6D4CDF15CDEB54006BADE7 /* ImathFun.cpp in Sources */,
+				2A6D4CEB15CDEB54006BADE7 /* ImathMatrixAlgo.cpp in Sources */,
+				2A6D4CF015CDEB54006BADE7 /* ImathRandom.cpp in Sources */,
+				2A6D4CF315CDEB54006BADE7 /* ImathShear.cpp in Sources */,
+				2A6D4CF615CDEB54006BADE7 /* ImathVec.cpp in Sources */,
+				2A6D4D0B15CDF1A7006BADE7 /* ImathBox.cpp in Sources */,
+				2A6D4D0E15CDF1AC006BADE7 /* IlmThreadSemaphorePosixCompat.cpp in Sources */,
+				2A6D4D0F15CDF1AD006BADE7 /* IlmThreadSemaphorePosix.cpp in Sources */,
+				2A6D4D1115CDF1AF006BADE7 /* IlmThreadSemaphore.cpp in Sources */,
+				2A6D4D1215CDF1AF006BADE7 /* IlmThreadPosix.cpp in Sources */,
+				2A6D4D1415CDF1B1006BADE7 /* IlmThreadPool.cpp in Sources */,
+				2A6D4D1615CDF1B3006BADE7 /* IlmThreadMutexPosix.cpp in Sources */,
+				2A6D4D1815CDF1B5006BADE7 /* IlmThreadMutex.cpp in Sources */,
+				2A6D4D1A15CDF1B7006BADE7 /* IlmThread.cpp in Sources */,
+				2A6D4D1D15CDF1BD006BADE7 /* IexMathFpu.cpp in Sources */,
+				2A6D4D1F15CDF1BF006BADE7 /* IexMathFloatExc.cpp in Sources */,
+				2A6D4D2115CDF1C4006BADE7 /* IexThrowErrnoExc.cpp in Sources */,
+				2A6D4D2615CDF1C8006BADE7 /* IexBaseExc.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2A6D4CFC15CDEBEF006BADE7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A6D4D2815CDF1E2006BADE7 /* eLut.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2A6D4D3115CDF275006BADE7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A6D4D3915CDF28B006BADE7 /* toFloat.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2A6D4D4315CDF2E5006BADE7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2A6D4CFE15CDEBEF006BADE7 /* eLut */;
+			targetProxy = 2A6D4D4215CDF2E5006BADE7 /* PBXContainerItemProxy */;
+		};
+		2A6D4D4515CDF2E9006BADE7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2A6D4D3015CDF275006BADE7 /* toFloat */;
+			targetProxy = 2A6D4D4415CDF2E9006BADE7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB916508733D950010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PREBINDING = NO;
+			};
+			name = Debug;
+		};
+		1DEB916608733D950010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+			};
+			name = Release;
+		};
+		2A6D4C4E15CDEB0B006BADE7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = IlmBase;
+			};
+			name = Debug;
+		};
+		2A6D4C4F15CDEB0B006BADE7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = IlmBase;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		2A6D4D0115CDEBEF006BADE7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = eLut;
+			};
+			name = Debug;
+		};
+		2A6D4D0215CDEBEF006BADE7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = eLut;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		2A6D4D3515CDF275006BADE7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = toFloat;
+			};
+			name = Debug;
+		};
+		2A6D4D3615CDF275006BADE7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = toFloat;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB916408733D950010E9CD /* Build configuration list for PBXProject "IlmBase" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB916508733D950010E9CD /* Debug */,
+				1DEB916608733D950010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2A6D4C5515CDEB0E006BADE7 /* Build configuration list for PBXNativeTarget "IlmBase" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A6D4C4E15CDEB0B006BADE7 /* Debug */,
+				2A6D4C4F15CDEB0B006BADE7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2A6D4D0615CDEBF7006BADE7 /* Build configuration list for PBXNativeTarget "eLut" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A6D4D0115CDEBEF006BADE7 /* Debug */,
+				2A6D4D0215CDEBEF006BADE7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2A6D4D3415CDF275006BADE7 /* Build configuration list for PBXNativeTarget "toFloat" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A6D4D3515CDF275006BADE7 /* Debug */,
+				2A6D4D3615CDF275006BADE7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0867D690FE84028FC02AAC07 /* Project object */;
+}
