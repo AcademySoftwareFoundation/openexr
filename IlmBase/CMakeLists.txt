@@ -142,9 +142,10 @@ ENDIF ()
 
 IF (FORCE_CXX03)
   FILE ( APPEND  ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMBASE_FORCE_CXX03 1\n" )
-ELSE ()
+ELIF (NOT WIN32)
   # really only care about c++11 right now for the threading bits, but this can be changed to 14
   # when needed...
+  # Note that the __cplusplus check is not valid under MSVC
   FILE ( APPEND  ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#if __cplusplus < 201103L\n# error \"Modern C++ 11/14 not enabled but force cxx03 not set\"\n#endif\n" )
 ENDIF ()
 

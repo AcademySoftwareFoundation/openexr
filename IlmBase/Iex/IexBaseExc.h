@@ -137,15 +137,15 @@ class BaseExc: public std::string, public std::exception
 // class derived directly or indirectly from BaseExc:
 //-----------------------------------------------------
 
-#define DEFINE_EXC_EXP(exp, name, base)                         \
-    class exp name: public base                                 \
-    {                                                           \
-      public:                                                   \
-        name()                         throw(): base (0)    {}  \
-        name (const char* text)        throw(): base (text) {}  \
-        name (const std::string &text) throw(): base (text) {}  \
-        name (std::stringstream &text) throw(): base (text) {}  \
-        ~name() throw() { }                                     \
+#define DEFINE_EXC_EXP(exp, name, base)                             \
+    class name: public base                                         \
+    {                                                               \
+      public:                                                       \
+        exp name()                         throw(): base (0)    {}  \
+        exp name (const char* text)        throw(): base (text) {}  \
+        exp name (const std::string &text) throw(): base (text) {}  \
+        exp name (std::stringstream &text) throw(): base (text) {}  \
+        exp ~name() throw() { }                                     \
     };
 
 // For backward compatibility.
