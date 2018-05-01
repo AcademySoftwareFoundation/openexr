@@ -60,11 +60,11 @@ namespace PyImath {
  * Note: this is not compatible with additional interpreters (calls to
  * Py_NewInterpreter()); 
  */
-class PYIMATH_EXPORT PyAcquireLock
+class PyAcquireLock
 {
   public:
-    PyAcquireLock();
-    ~PyAcquireLock();
+    PYIMATH_EXPORT PyAcquireLock();
+    PYIMATH_EXPORT ~PyAcquireLock();
   private:
     PyGILState_STATE _gstate;
 };
@@ -79,11 +79,11 @@ class PYIMATH_EXPORT PyAcquireLock
  * instantiated while an AcquireLock is in effect (nested).
  *
  */
-class PYIMATH_EXPORT PyReleaseLock
+class PyReleaseLock
 {
   public:
-    PyReleaseLock();
-    ~PyReleaseLock();
+    PYIMATH_EXPORT PyReleaseLock();
+    PYIMATH_EXPORT ~PyReleaseLock();
   private:
     PyThreadState *_save;
 

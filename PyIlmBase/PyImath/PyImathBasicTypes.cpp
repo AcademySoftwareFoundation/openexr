@@ -36,6 +36,7 @@
 #include <Python.h>
 #include <boost/python.hpp>
 #include <PyImath.h>
+#include <PyImathExport.h>
 #include <PyImathFixedArray.h>
 #include <PyImathFixedVArray.h>
 

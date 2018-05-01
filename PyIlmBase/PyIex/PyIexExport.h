@@ -2,9 +2,9 @@
 //
 // Copyright (c) 2001-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +16,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
+// from this software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -35,28 +35,21 @@
 #ifndef PYIEXEXPORT_H
 #define PYIEXEXPORT_H
 
-#if defined(PLATFORM_WINDOWS)
-#  if defined(PLATFORM_BUILD_STATIC)
-#    define PYIEX_EXPORT_DEFINITION 
-#    define PYIEX_IMPORT_DEFINITION
-#  else
-#    define PYIEX_EXPORT_DEFINITION __declspec(dllexport) 
-#    define PYIEX_IMPORT_DEFINITION __declspec(dllimport)
-#  endif
-#else   // linux/macos
-#  if defined(PLATFORM_VISIBILITY_AVAILABLE)
-#    define PYIEX_EXPORT_DEFINITION __attribute__((visibility("default")))
-#    define PYIEX_IMPORT_DEFINITION
-#  else
-#    define PYIEX_EXPORT_DEFINITION 
-#    define PYIEX_IMPORT_DEFINITION
-#  endif
-#endif
-
-#if defined(PYIEX_EXPORTS)                         // create library
-#  define PYIEX_EXPORT PYIEX_EXPORT_DEFINITION
-#else                                              // use library
-#  define PYIEX_EXPORT PYIEX_IMPORT_DEFINITION
+#if defined(OPENEXR_DLL)
+    #if defined(PLATFORM_VISIBILITY_AVAILABLE)
+        #define PYIEX_EXPORT __attribute__((visibility("default")))
+        #define PYIEX_IMPORT __attribute__((visibility("default")))
+    #elif defined(_MSC_VER)
+        #if defined(PYIEX_BUILD)
+            #define PYIEX_EXPORT __declspec(dllexport)
+        #else
+            #define PYIEX_EXPORT __declspec(dllimport)
+        #endif
+    #else
+        #define PYIEX_EXPORT
+    #endif
+#else
+    #define PYIEX_EXPORT
 #endif
 
 #endif // #ifndef PYIEXEXPORT_H

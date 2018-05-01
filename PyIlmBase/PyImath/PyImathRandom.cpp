@@ -143,6 +143,7 @@ solidSphereRand(Rand &rand, int num)
     return retval;
 }
 
+PYIMATH_EXPORT
 class_<IMATH_NAMESPACE::Rand32>
 register_Rand32()
 {
@@ -241,6 +242,7 @@ register_Rand32()
     return rand32_class;
 }
 
+PYIMATH_EXPORT
 class_<IMATH_NAMESPACE::Rand48>
 register_Rand48()
 {

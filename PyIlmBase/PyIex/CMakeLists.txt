@@ -3,8 +3,15 @@ ADD_LIBRARY ( PyIex ${LIB_TYPE}
 	PyIex.cpp
 )
 
+IF(BUILD_SHARED_LIBS)
+    target_compile_definitions( PyIex PRIVATE -DPYIEX_EXPORTS )
+ENDIF()
+
+target_compile_definitions( PyIex PRIVATE PYIEX_BUILD )
+
 TARGET_LINK_LIBRARIES ( PyIex
 	${PYTHON_LIBRARIES}
+	${Boost_LIBRARIES}
 )
 
 INSTALL ( TARGETS PyIex
