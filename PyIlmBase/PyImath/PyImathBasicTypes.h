@@ -35,11 +35,9 @@
 #ifndef _PyImathBasicTypes_h_
 #define _PyImathBasicTypes_h_
 
-#include <PyImathExport.h>
-
 namespace PyImath {
 
-PYIMATH_EXPORT void register_basicTypes();
+void register_basicTypes();
 
 }
 

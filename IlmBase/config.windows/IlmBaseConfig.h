@@ -15,6 +15,7 @@
 #undef HAVE_POSIX_SEMAPHORES
 
 // Required for system-specific debug trap code in IexBaseExc.cpp
+// and DLL export macros
 
 #define PLATFORM_WINDOWS 1
 
