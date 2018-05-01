@@ -14,7 +14,7 @@ SET(ILMBASE_VERSION_API ${ILMBASE_VERSION_MAJOR}_${ILMBASE_VERSION_MINOR})
 ENABLE_TESTING()
 
 
-# distro building 
+# distro building
 SET(CPACK_PACKAGE_VERSION_MAJOR "${ILMBASE_VERSION_MAJOR}")
 SET(CPACK_PACKAGE_VERSION_MINOR "${ILMBASE_VERSION_MINOR}")
 SET(CPACK_PACKAGE_VERSION_PATCH "${ILMBASE_VERSION_PATCH}")
@@ -29,12 +29,20 @@ INCLUDE ( CPack )
 # Set this option to find the C++ libs with their namespaced versions
 # The python modules themselves are built without versioning
 OPTION (NAMESPACE_VERSIONING "Use Namespace Versioning" ON)
+# Allow the developer to select if Dynamic or Static libraries are built
+OPTION (BUILD_SHARED_LIBS    "Build Shared Libraries" ON)
 
 # Setup osx rpathing
 SET (CMAKE_MACOSX_RPATH 1)
 SET (BUILD_WITH_INSTALL_RPATH 1)
 
-SET (LIB_TYPE SHARED)
+IF (BUILD_SHARED_LIBS)
+  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
+  SET (LIB_TYPE SHARED)
+  IF (WIN32)
+    ADD_DEFINITIONS(-DOPENEXR_DLL)
+  ENDIF ()
+ENDIF (BUILD_SHARED_LIBS)
 
 FIND_PACKAGE ( PythonLibs REQUIRED )
 FIND_PACKAGE ( PythonInterp REQUIRED )
@@ -48,7 +56,8 @@ INCLUDE_DIRECTORIES (
 	PyIex
 	PyImath
 	PyImathNumpy
-	${PYTHON_INCLUDE_PATH}
+    ${PYTHON_INCLUDE_PATH}
+    ${Boost_INCLUDE_DIRS}
 )
 
 LINK_DIRECTORIES ( ${ILMBASE_PACKAGE_PREFIX}/lib )
@@ -68,7 +77,7 @@ IF (NUMPY_FOUND)
   ADD_SUBDIRECTORY ( PyImathNumpy )
   ADD_SUBDIRECTORY ( PyImathNumpyTest )
 ENDIF ()
-  
+
 ##########################
 # Tests
 ##########################

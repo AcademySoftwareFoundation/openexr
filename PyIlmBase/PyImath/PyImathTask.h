@@ -2,9 +2,9 @@
 //
 // Copyright (c) 2010-2011, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +16,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
+// from this software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -36,26 +36,26 @@
 #define _PyImathTask_h_
 
 #include <PyImathExport.h>
-#include <unistd.h>
+#include <cstddef>
 
 namespace PyImath {
 
-struct PYIMATH_EXPORT Task
+struct Task
 {
-    virtual ~Task() {}
-    virtual void execute(size_t start,size_t end) = 0;
-    virtual void execute(size_t start,size_t end, int tid) {execute(start,end);}
+    PYIMATH_EXPORT virtual ~Task() {}
+    PYIMATH_EXPORT virtual void execute(size_t start,size_t end) = 0;
+    PYIMATH_EXPORT virtual void execute(size_t start,size_t end, int tid) {execute(start,end);}
 };
 
-struct PYIMATH_EXPORT WorkerPool
+struct WorkerPool
 {
-    virtual ~WorkerPool() {}
-    virtual size_t workers() const = 0;
-    virtual void dispatch(Task &task,size_t length) = 0;
-    virtual bool inWorkerThread() const = 0;
+    PYIMATH_EXPORT virtual ~WorkerPool() {}
+    PYIMATH_EXPORT virtual size_t workers() const = 0;
+    PYIMATH_EXPORT virtual void dispatch(Task &task,size_t length) = 0;
+    PYIMATH_EXPORT virtual bool inWorkerThread() const = 0;
 
-    static WorkerPool *currentPool();
-    static void setCurrentPool(WorkerPool *pool);
+    PYIMATH_EXPORT static WorkerPool *currentPool();
+    PYIMATH_EXPORT static void setCurrentPool(WorkerPool *pool);
 };
 
 PYIMATH_EXPORT void dispatchTask(Task &task,size_t length);

@@ -1,10 +1,10 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2007-2011, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2001-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +16,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
+// from this software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -32,32 +32,24 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef PYIMATH_EXPORT_H
-#define PYIMATH_EXPORT_H
+#ifndef PYIMATHEXPORT_H
+#define PYIMATHEXPORT_H
 
-#if defined(PLATFORM_WINDOWS)
-#  if defined(PLATFORM_BUILD_STATIC)
-#    define PYIMATH_EXPORT_DEFINITION 
-#    define PYIMATH_IMPORT_DEFINITION
-#  else
-#    define PYIMATH_EXPORT_DEFINITION __declspec(dllexport) 
-#    define PYIMATH_IMPORT_DEFINITION __declspec(dllimport)
-#  endif
-#else   // linux/macos
-#  if defined(PLATFORM_VISIBILITY_AVAILABLE)
-#    define PYIMATH_EXPORT_DEFINITION __attribute__((visibility("default")))
-#    define PYIMATH_IMPORT_DEFINITION
-#  else
-#    define PYIMATH_EXPORT_DEFINITION 
-#    define PYIMATH_IMPORT_DEFINITION
-#  endif
-#endif
-
-#if defined(PYIMATH_EXPORTS)                         // create library
-#  define PYIMATH_EXPORT PYIMATH_EXPORT_DEFINITION
-#else                                                // use library
-#  define PYIMATH_EXPORT PYIMATH_IMPORT_DEFINITION
+#if defined(OPENEXR_DLL)
+    #if defined(PLATFORM_VISIBILITY_AVAILABLE)
+        #define PYIMATH_EXPORT __attribute__((visibility("default")))
+        #define PYIMATH_EXPORT __attribute__((visibility("default")))
+    #elif defined(_MSC_VER)
+        #if defined(PYIMATH_BUILD)
+            #define PYIMATH_EXPORT __declspec(dllexport)
+        #else
+            #define PYIMATH_EXPORT __declspec(dllimport)
+        #endif
+    #else
+        #define PYIMATH_EXPORT
+    #endif
+#else
+    #define PYIMATH_EXPORT
 #endif
 
 #endif // #ifndef PYIMATHEXPORT_H
-

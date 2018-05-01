@@ -36,6 +36,7 @@
 #include <PyIex.h>
 #include <PyImathExport.h>
 
+
 namespace PyImath {
 
 template <> PYIMATH_EXPORT const char * BoolArray::name()         { return "BoolArray"; }
