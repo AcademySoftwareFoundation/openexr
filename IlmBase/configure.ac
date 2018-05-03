@@ -39,6 +39,7 @@ fi
 
 export PKG_CONFIG_PATH
 
+dnl Enable and choose c++ standard
 AC_ARG_ENABLE(cxxstd,
               AC_HELP_STRING([--enable-cxxstd=14],
                              [enable ISO c++ standard 11/14 [[default=auto]]]),

@@ -78,6 +78,46 @@ AM_PATH_PKGCONFIG(
    [openexrctl-prefix])
 
 
+dnl Enable and choose c++ standard
+AC_ARG_ENABLE(cxxstd,
+              AC_HELP_STRING([--enable-cxxstd=14],
+                             [enable ISO c++ standard 11/14 [[default=auto]]]),
+              [cxxstd="${enableval}"], [cxxstd=14])
+
+if test "${cxxstd}" == 17 ; then
+    AX_CXX_COMPILE_STDCXX([17], [noext], [mandatory])
+	CXXFLAGS="$CXXFLAGS -std=c++17"
+else
+  if test "${cxxstd}" == 14 ; then
+      AX_CXX_COMPILE_STDCXX([14], [noext], [mandatory])
+  	CXXFLAGS="$CXXFLAGS -std=c++14"
+  else
+    if test "${cxxstd}" == 11 ; then
+      AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
+      CXXFLAGS="$CXXFLAGS -std=c++11"
+    else
+      if test "${cxxstd}" == 03 ; then
+        AC_DEFINE(ILMBASE_FORCE_CXX03)
+        CXXFLAGS="$CXXFLAGS -std=c++03"
+      else
+        dnl automatically determine...
+        AX_CXX_COMPILE_STDCXX([11], [noext], [optional])
+        AX_CXX_COMPILE_STDCXX([14], [noext], [optional])
+        AX_CXX_COMPILE_STDCXX([17], [noext], [optional])
+        if test "$HAVE_CXX14" == 1 ; then
+  	      CXXFLAGS="$CXXFLAGS -std=c++14"
+          cxxstd = 14
+        else
+          if test "$HAVE_CXX11" == 1 ; then
+  	        CXXFLAGS="$CXXFLAGS -std=c++11"
+            cxxstd = 11
+          fi
+        fi
+      fi
+    fi
+  fi
+fi
+
 dnl --enable-threading
 AC_ARG_ENABLE(threading,
               AC_HELP_STRING([--enable-threading],
