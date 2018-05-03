@@ -240,7 +240,11 @@ class FixedArray
     void extract_slice_indices(PyObject *index, size_t &start, size_t &end, Py_ssize_t &step, size_t &slicelength) const
     {
         if (PySlice_Check(index)) {
+#if PY_MAJOR_VERSION > 2
+            PyObject *slice = index;
+#else
             PySliceObject *slice = reinterpret_cast<PySliceObject *>(index);
+#endif
             Py_ssize_t s,e,sl;
             if (PySlice_GetIndicesEx(slice,_length,&s,&e,&step,&sl) == -1) {
                 boost::python::throw_error_already_set();
@@ -252,8 +256,13 @@ class FixedArray
             start = s;
             end = e;
             slicelength = sl;
+#if PY_MAJOR_VERSION > 2
+        } else if (PyLong_Check(index)) {
+            size_t i = canonical_index(PyLong_AsSsize_t(index));
+#else
         } else if (PyInt_Check(index)) {
             size_t i = canonical_index(PyInt_AsSsize_t(index));
+#endif
             start = i; end = i+1; step = 1; slicelength = 1;
         } else {
             PyErr_SetString(PyExc_TypeError, "Object is not a slice");

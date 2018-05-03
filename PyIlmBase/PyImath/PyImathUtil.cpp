@@ -58,6 +58,9 @@ extern "C" PyThreadState *_PyThreadState_Current;
 static bool
 pyHaveLock()
 {
+#if PY_MAJOR_VERSION > 2
+    return PyGILState_Check() != 0;
+#else
     // This is very much dependent on the current Python
     // implementation of this functionality.  If we switch versions of
     // Python and the implementation changes, we'll have to change
@@ -72,6 +75,7 @@ pyHaveLock()
     // If the interpreter is initialized the gil is held if the
     // current thread's thread state is the current thread state
     return myThreadState != 0 && myThreadState == _PyThreadState_Current;
+#endif
 }
 
 PyReleaseLock::PyReleaseLock()

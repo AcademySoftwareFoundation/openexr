@@ -104,7 +104,13 @@ arrayToNumpy_int(IntArray &va)
     object retval = object(handle<>(a));
     return retval;
 }
-
+#if PY_MAJOR_VERSION > 2
+static void *apply_import()
+{
+    import_array();
+    return 0;
+}
+#endif
 BOOST_PYTHON_MODULE(imathnumpy)
 {
     handle<> imath(PyImport_ImportModule("imath"));
@@ -115,7 +121,13 @@ BOOST_PYTHON_MODULE(imathnumpy)
     if (PyErr_Occurred()) throw_error_already_set();
     scope().attr("numpy") = numpy;
 
+#if PY_MAJOR_VERSION > 2
+    // seems like numpy expects this to be used in a scenario
+    // where there is a return value in python3...
+    (void)apply_import();
+#else
     import_array();
+#endif
 
     scope().attr("__doc__") = "Array wrapping module to overlay imath array data with numpy arrays";
 

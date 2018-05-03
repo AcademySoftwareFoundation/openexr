@@ -243,7 +243,11 @@ extract_slice_indices (PyObject* index, size_t& start, size_t& end,
 {
     if (PySlice_Check (index))
     {
+#if PY_MAJOR_VERSION > 2
+        PyObject* slice = index;
+#else
         PySliceObject* slice = reinterpret_cast<PySliceObject *>(index);
+#endif
         Py_ssize_t s, e, sl;
         if (PySlice_GetIndicesEx(slice, totalLength, &s, &e, &step, &sl) == -1)
         {
@@ -259,9 +263,15 @@ extract_slice_indices (PyObject* index, size_t& start, size_t& end,
         end   = e;
         sliceLength = sl;
     }
+#if PY_MAJOR_VERSION > 2
+    else if (PyLong_Check (index))
+    {
+        size_t i = canonical_index (PyLong_AsSsize_t(index), totalLength);
+#else
     else if (PyInt_Check (index))
     {
         size_t i = canonical_index (PyInt_AsSsize_t(index), totalLength);
+#endif
         start = i;
         end   = i + 1;
         step  = 1;
