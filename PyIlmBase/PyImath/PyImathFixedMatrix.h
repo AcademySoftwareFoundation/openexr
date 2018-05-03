@@ -131,12 +131,21 @@ class FixedMatrix
     void extract_slice_indices(PyObject *index, Py_ssize_t &start, Py_ssize_t &end, Py_ssize_t &step, Py_ssize_t &slicelength) const
     {
         if (PySlice_Check(index)) {
+#if PY_MAJOR_VERSION > 2
+            PyObject *slice = index;
+#else
             PySliceObject *slice = reinterpret_cast<PySliceObject *>(index);
+#endif
             if (PySlice_GetIndicesEx(slice,_rows,&start,&end,&step,&slicelength) == -1) {
 		    boost::python::throw_error_already_set();
             }
+#if PY_MAJOR_VERSION > 2
+        } else if (PyLong_Check(index)) {
+            ssize_t i = convert_index(PyLong_AsSsize_t(index));
+#else
         } else if (PyInt_Check(index)) {
             int i = convert_index(PyInt_AS_LONG(index));
+#endif
             start = i; end = i+1; step = 1; slicelength = 1;
         } else {
             PyErr_SetString(PyExc_TypeError, "Object is not a slice");
