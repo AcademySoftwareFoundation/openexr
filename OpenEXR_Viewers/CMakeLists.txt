@@ -24,6 +24,16 @@ INCLUDE ( CPack )
 
 OPTION (NAMESPACE_VERSIONING "Use Namespace Versioning" ON)
 
+OPTION (FORCE_CXX03 "Force CXX03" OFF)
+IF (FORCE_CXX03)
+  ADD_DEFINITIONS ( -std=c++03 )
+ELSE (FORCE_CXX03)
+  # VP18 switches to c++14, so let's do that by default
+  SET(CMAKE_CXX_STANDARD 14 CACHE STRING "C++ ISO Standard")
+  # but switch gnu++14 or other extensions off for portability
+  SET(CMAKE_CXX_EXTENSIONS OFF)
+ENDIF ()
+
 # Setup osx rpathing
 SET (CMAKE_MACOSX_RPATH 1)
 SET (BUILD_WITH_INSTALL_RPATH 1)
