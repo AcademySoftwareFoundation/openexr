@@ -256,7 +256,7 @@ struct DwaCompressor::Classifier
         _caseInsensitive(caseInsensitive)
     {
         if (caseInsensitive) 
-            transform(_suffix.begin(), _suffix.end(), _suffix.begin(), tolower);
+            std::transform(_suffix.begin(), _suffix.end(), _suffix.begin(), tolower);
     }
 
     Classifier (const char *&ptr, int size)
@@ -305,7 +305,7 @@ struct DwaCompressor::Classifier
         if (_caseInsensitive) 
         {
             std::string tmp(suffix);
-            transform(tmp.begin(), tmp.end(), tmp.begin(), tolower);
+            std::transform(tmp.begin(), tmp.end(), tmp.begin(), tolower);
             return tmp == _suffix;
         }
 
