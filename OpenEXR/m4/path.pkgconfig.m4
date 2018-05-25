@@ -50,8 +50,7 @@ TEST_LIBS=""
 AC_ARG_WITH(arg_test_prefix,[  --with-arg_test_prefix=PFX  Prefix where tested libraries are supposed to be installed (optional)], test_prefix="$withval", test_prefix="NONE")
 echo "test_prefix = $test_prefix"
 
-AC_ARG_VAR(PKG_CONFIG, Path to pkg-config command)
-AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
+PKG_PROG_PKG_CONFIG
 AC_ARG_WITH(pkg-config,[  --with-pkg-config=PATH Specify which pkg-config to use (optional)], PKG_CONFIG="$withval",)
 
 
