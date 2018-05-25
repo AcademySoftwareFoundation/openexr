@@ -47,7 +47,6 @@
 #ifndef ILMBASE_FORCE_CXX03
 # include <memory>
 # include <atomic>
-#else
 # include <thread>
 #endif
 
