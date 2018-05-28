@@ -131,7 +131,7 @@ namespace {
 //	x = 8 * log (y)
 //
 
-#include "b44ExpLogTable.h"
+#include <b44ExpLogTable.h>
 
 
 inline void
