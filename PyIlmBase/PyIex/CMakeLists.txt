@@ -23,9 +23,18 @@ ADD_LIBRARY ( iexmodule ${LIB_TYPE}
 	iexmodule.cpp
 )
 
-SET_TARGET_PROPERTIES ( iexmodule
-	PROPERTIES PREFIX "" SUFFIX ".so" BUILD_WITH_INSTALL_RPATH ON
-)
+if (WIN32)
+	SET_TARGET_PROPERTIES ( iexmodule
+		PROPERTIES 
+			PREFIX ""
+			OUTPUT_NAME "iex" 
+			SUFFIX ".pyd"
+	)
+else()
+	SET_TARGET_PROPERTIES ( iexmodule
+		PROPERTIES PREFIX "" SUFFIX ".so" BUILD_WITH_INSTALL_RPATH ON
+	)
+endif()
 
 TARGET_LINK_LIBRARIES ( iexmodule
 	PyIex
