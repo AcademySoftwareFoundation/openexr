@@ -191,13 +191,21 @@ static std::string Box2_repr(const Box<T> &box)
 
     PyObject *minObj = converter (box.min);
     PyObject *minReprObj = PyObject_Repr (minObj);
+#if PY_MAJOR_VERSION > 2
+    std::string minReprStr = PyUnicode_AsUTF8 (minReprObj);
+#else
     std::string minReprStr = PyString_AsString (minReprObj);
+#endif
     Py_DECREF (minReprObj);
     Py_DECREF (minObj);
 
     PyObject *maxObj = converter (box.max);
     PyObject *maxReprObj = PyObject_Repr (maxObj);
+#if PY_MAJOR_VERSION > 2
+    std::string maxReprStr = PyUnicode_AsUTF8 (maxReprObj);
+#else
     std::string maxReprStr = PyString_AsString (maxReprObj);
+#endif
     Py_DECREF (maxReprObj);
     Py_DECREF (maxObj);
 
@@ -214,13 +222,21 @@ static std::string Box3_repr(const Box<T> &box)
 
     PyObject *minObj = converter (box.min);
     PyObject *minReprObj = PyObject_Repr (minObj);
+#if PY_MAJOR_VERSION > 2
+    std::string minReprStr = PyUnicode_AsUTF8 (minReprObj);
+#else
     std::string minReprStr = PyString_AsString (minReprObj);
+#endif
     Py_DECREF (minReprObj);
     Py_DECREF (minObj);
 
     PyObject *maxObj = converter (box.max);
     PyObject *maxReprObj = PyObject_Repr (maxObj);
+#if PY_MAJOR_VERSION > 2
+    std::string maxReprStr = PyUnicode_AsUTF8 (maxReprObj);
+#else
     std::string maxReprStr = PyString_AsString (maxReprObj);
+#endif
     Py_DECREF (maxReprObj);
     Py_DECREF (maxObj);
 

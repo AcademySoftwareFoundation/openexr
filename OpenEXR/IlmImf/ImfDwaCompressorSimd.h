@@ -93,9 +93,31 @@ class SimdAlignedBuffer64
             memcpy (_buffer, rhs._buffer, 64 * sizeof (T));
         }
 
+        SimdAlignedBuffer64 &operator=(const SimdAlignedBuffer64 &rhs)
+        {
+            memcpy (_buffer, rhs._buffer, 64 * sizeof (T));
+            return *this;
+        }
+
+#if __cplusplus >= 201103L
+        SimdAlignedBuffer64(SimdAlignedBuffer64 &&rhs) noexcept
+            : _handle(rhs._handle), _buffer(rhs._buffer)
+        {
+            rhs._handle = nullptr;
+            rhs._buffer = nullptr;
+        }
+
+        SimdAlignedBuffer64 &operator=(SimdAlignedBuffer64 &&rhs) noexcept
+        {
+            std::swap(_handle, rhs._handle);
+            std::swap(_buffer, rhs._buffer);
+            return *this;
+        }
+#endif
         ~SimdAlignedBuffer64 ()
         {
-            EXRFreeAligned (_handle);
+            if (_handle)
+                EXRFreeAligned (_handle);
             _handle = 0;
             _buffer = 0;
         }

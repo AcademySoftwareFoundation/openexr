@@ -61,8 +61,11 @@ registerBaseExc()
     std::string name = "BaseExc";
     std::string module = "iex";
     std::string baseName = "RuntimeError";
+#if PY_MAJOR_VERSION > 2
+    std::string baseModule = "builtins";
+#else
     std::string baseModule = "__builtin__";
-
+#endif
     // if module != baseModule, the type object isn't used
     object exc_class = createExceptionProxy(name, module, baseName, baseModule, 0);
     scope().attr(name.c_str()) = exc_class;

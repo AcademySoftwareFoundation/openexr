@@ -427,13 +427,21 @@ static std::string Line3_repr(const Line3<T> &v)
 
     PyObject *v1Obj = V3<T>::wrap (v1);
     PyObject *v1ReprObj = PyObject_Repr (v1Obj);
+#if PY_MAJOR_VERSION > 2
+    std::string v1ReprStr = PyUnicode_AsUTF8 (v1ReprObj);
+#else
     std::string v1ReprStr = PyString_AsString (v1ReprObj);
+#endif
     Py_DECREF (v1ReprObj);
     Py_DECREF (v1Obj);
 
     PyObject *v2Obj = V3<T>::wrap (v2);
     PyObject *v2ReprObj = PyObject_Repr (v2Obj);
+#if PY_MAJOR_VERSION > 2
+    std::string v2ReprStr = PyUnicode_AsUTF8 (v2ReprObj);
+#else
     std::string v2ReprStr = PyString_AsString (v2ReprObj);
+#endif
     Py_DECREF (v2ReprObj);
     Py_DECREF (v2Obj);
 

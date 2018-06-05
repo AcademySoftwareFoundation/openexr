@@ -126,7 +126,16 @@ Semaphore::post ()
 
     if (_semaphore.numWaiting > 0)
     {
-        if (int error = ::pthread_cond_signal (&_semaphore.nonZero))
+        int error;
+        if (_semaphore.numWaiting > 1 && _semaphore.count > 1)
+        {
+            error =  ::pthread_cond_broadcast (&_semaphore.nonZero);
+        }
+        else
+        {
+            error = ::pthread_cond_signal (&_semaphore.nonZero);
+        }
+        if (error)
         {
             ::pthread_mutex_unlock (&_semaphore.mutex);
 

@@ -132,7 +132,7 @@ class IMF_EXPORT Attribute
 //-------------------------------------------------
     
 template <class T>
-class TypedAttribute: public Attribute
+class IMF_EXPORT TypedAttribute: public Attribute
 {
   public:
 

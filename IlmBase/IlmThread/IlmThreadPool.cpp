@@ -47,6 +47,7 @@
 #ifndef ILMBASE_FORCE_CXX03
 # include <memory>
 # include <atomic>
+# include <thread>
 #endif
 
 using namespace std;
@@ -80,49 +81,57 @@ struct TaskGroup::Data
 
 struct ThreadPool::Data
 {
-#ifdef ILMBASE_FORCE_CXX03
     typedef ThreadPoolProvider *TPPointer;
-#else
-    using TPPointer = std::shared_ptr<ThreadPoolProvider>;
-#endif
 
      Data ();
     ~Data();
 
     struct SafeProvider
     {
-        SafeProvider (Data *d, TPPointer p) : _data( d ), _ptr( p )
-        {}
+        SafeProvider (Data *d, ThreadPoolProvider *p) : _data( d ), _ptr( p )
+        {
+        }
 
         ~SafeProvider()
         {
-            _data->coalesceProviderUse();
+            if ( _data )
+                _data->coalesceProviderUse();
         }
         SafeProvider (const SafeProvider &o)
             : _data( o._data ), _ptr( o._ptr )
         {
-            _data->bumpProviderUse();
+            if ( _data )
+                _data->bumpProviderUse();
         }
         SafeProvider &operator= (const SafeProvider &o)
         {
             if ( this != &o )
             {
-                _data->coalesceProviderUse();
+                if ( o._data )
+                    o._data->bumpProviderUse();
+                if ( _data )
+                    _data->coalesceProviderUse();
                 _data = o._data;
-                _data->bumpProviderUse();
                 _ptr = o._ptr;
             }
             return *this;
         }
-        TPPointer raw () const { return _ptr; }
-
+#ifndef ILMBASE_FORCE_CXX03
+        SafeProvider( SafeProvider &&o )
+            : _data( o._data ), _ptr( o._ptr )
+        {
+            o._data = nullptr;
+        }
+        SafeProvider &operator=( SafeProvider &&o )
+        {
+            std::swap( _data, o._data );
+            std::swap( _ptr, o._ptr );
+            return *this;
+        }
+#endif
         inline ThreadPoolProvider *get () const
         {
-#ifdef ILMBASE_FORCE_CXX03
             return _ptr;
-#else
-            return _ptr.get();
-#endif
         }
         ThreadPoolProvider *operator-> () const
         {
@@ -130,7 +139,7 @@ struct ThreadPool::Data
         }
 
         Data *_data;
-        TPPointer _ptr;
+        ThreadPoolProvider *_ptr;
     };
 
     // NB: In C++20, there is full support for atomic shared_ptr, but that is not
@@ -140,12 +149,15 @@ struct ThreadPool::Data
     inline void bumpProviderUse ();
     inline void setProvider (ThreadPoolProvider *p);
 
-    TPPointer provider;
 #ifdef ILMBASE_FORCE_CXX03
     Semaphore provSem;
     Mutex provMutex;
     int provUsers;
-    TPPointer oldprovider;
+    ThreadPoolProvider *provider;
+    ThreadPoolProvider *oldprovider;
+#else
+    std::atomic<ThreadPoolProvider *> provider;
+    std::atomic<int> provUsers;
 #endif
 };
 
@@ -539,9 +551,11 @@ TaskGroup::Data::removeTask ()
 // struct ThreadPool::Data
 //
 
-ThreadPool::Data::Data (): provider (NULL)
+ThreadPool::Data::Data ():
+    provUsers (0), provider (NULL)
 #ifdef ILMBASE_FORCE_CXX03
-                         , provUsers (0), oldprovider (NULL)
+    , oldprovider (NULL)
+#else
 #endif
 {
     // empty
@@ -550,7 +564,12 @@ ThreadPool::Data::Data (): provider (NULL)
 
 ThreadPool::Data::~Data()
 {
+#ifdef ILMBASE_FORCE_CXX03
     provider->finish();
+#else
+    ThreadPoolProvider *p = provider.load( std::memory_order_relaxed );
+    p->finish();
+#endif
 }
 
 inline ThreadPool::Data::SafeProvider
@@ -561,7 +580,8 @@ ThreadPool::Data::getProvider ()
     ++provUsers;
     return SafeProvider( this, provider );
 #else
-    return SafeProvider( this, std::atomic_load_explicit( &provider, std::memory_order_relaxed ) );
+    provUsers.fetch_add( 1, std::memory_order_relaxed );
+    return SafeProvider( this, provider.load( std::memory_order_relaxed ) );
 #endif
 }
 
@@ -577,6 +597,13 @@ ThreadPool::Data::coalesceProviderUse ()
         if ( oldprovider )
             provSem.post();
     }
+#else
+    int ov = provUsers.fetch_sub( 1, std::memory_order_relaxed );
+    // ov is the previous value, so one means that now it might be 0
+    if ( ov == 1 )
+    {
+        
+    }
 #endif
 }
 
@@ -587,6 +614,8 @@ ThreadPool::Data::bumpProviderUse ()
 #ifdef ILMBASE_FORCE_CXX03
     Lock lock (provMutex);
     ++provUsers;
+#else
+    provUsers.fetch_add( 1, std::memory_order_relaxed );
 #endif
 }
 
@@ -617,15 +646,46 @@ ThreadPool::Data::setProvider (ThreadPoolProvider *p)
         oldprovider = NULL;
     }
 #else
-    std::shared_ptr<ThreadPoolProvider> newp( p );
-    std::shared_ptr<ThreadPoolProvider> curp = std::atomic_load_explicit( &provider, std::memory_order_relaxed );
+    ThreadPoolProvider *old = provider.load( std::memory_order_relaxed );
     do
     {
-        if ( ! std::atomic_compare_exchange_weak_explicit( &provider, &curp, newp, std::memory_order_release, std::memory_order_relaxed ) )
+        if ( ! provider.compare_exchange_weak( old, p, std::memory_order_release, std::memory_order_relaxed ) )
             continue;
     } while ( false );
-    if ( curp )
-        curp->finish();
+
+    // wait for any other users to finish prior to deleting, given
+    // that these are just mostly to query the thread count or push a
+    // task to the queue (so fast), just spin...
+    //
+    // (well, and normally, people don't do this mid stream anyway, so
+    // this will be 0 99.999% of the time, but just to be safe)
+    // 
+    while ( provUsers.load( std::memory_order_relaxed ) > 0 )
+        std::this_thread::yield();
+
+    if ( old )
+    {
+        old->finish();
+        delete old;
+    }
+
+    // NB: the shared_ptr mechanism is safer and means we don't have
+    // to have the provUsers counter since the shared_ptr keeps that
+    // for us. However, gcc 4.8/9 compilers which many people are
+    // still using even though it is 2018 forgot to add the shared_ptr
+    // functions... once that compiler is fully deprecated, switch to
+    // using the below, change provider to a std::shared_ptr and remove
+    // provUsers...
+    //
+//    std::shared_ptr<ThreadPoolProvider> newp( p );
+//    std::shared_ptr<ThreadPoolProvider> curp = std::atomic_load_explicit( &provider, std::memory_order_relaxed );
+//    do
+//    {
+//        if ( ! std::atomic_compare_exchange_weak_explicit( &provider, &curp, newp, std::memory_order_release, std::memory_order_relaxed ) )
+//            continue;
+//    } while ( false );
+//    if ( curp )
+//        curp->finish();
 #endif
 }
 
