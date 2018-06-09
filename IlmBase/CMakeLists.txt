@@ -27,8 +27,9 @@ INCLUDE ( CPack )
 
 # Allow the developer to select if Dynamic or Static libraries are built
 OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+OPTION (BUILD_STATIC_LIBS "Build Static Libraries" OFF)
 
-# Allow the developer to select if Dynamic or Static libraries are built
+# Enable namespace versioning
 OPTION (NAMESPACE_VERSIONING "Namespace Versioning" ON)
 
 OPTION (FORCE_CXX03 "Force CXX03" OFF)
@@ -104,15 +105,6 @@ MACRO(GET_TARGET_PROPERTY_WITH_DEFAULT _variable _target _property _default_valu
    INSTALL( FILES ${_laname} DESTINATION ${CMAKE_INSTALL_PREFIX}${_install_DIR})
  ENDMACRO(CREATE_LIBTOOL_FILE)
 
-SET (LIB_TYPE STATIC)
-IF (BUILD_SHARED_LIBS)
-  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
-  SET (LIB_TYPE SHARED)
-  IF (WIN32)
-    ADD_DEFINITIONS(-DOPENEXR_DLL)
-  ENDIF ()
-ENDIF (BUILD_SHARED_LIBS)
-
 IF (WIN32)
   SET (RUNTIME_DIR bin)
 ELSE ()
@@ -181,16 +173,6 @@ SET (ILMBASE_LIBSUFFIX "")
 IF (NAMESPACE_VERSIONING)
   SET ( ILMBASE_LIBSUFFIX "-${ILMBASE_VERSION_API}" )
 ENDIF ()
-
-SET (ILMBASE_LIBRARY_NAMES Half Iex Imath IlmThread IexMath)
-FOREACH (LIBNAME ${ILMBASE_LIBRARY_NAMES})
-  SET_TARGET_PROPERTIES ( ${LIBNAME}
-    PROPERTIES
-    VERSION 12.0.0
-    SOVERSION 12
-    OUTPUT_NAME "${LIBNAME}${ILMBASE_LIBSUFFIX}"
-    )
-ENDFOREACH()
 
 IF ( NOT WIN32 )
   CREATE_LIBTOOL_FILE ( Half /lib )

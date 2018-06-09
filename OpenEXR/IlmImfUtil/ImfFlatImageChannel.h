@@ -45,7 +45,9 @@
 //
 //----------------------------------------------------------------------------
 
-#include <ImfImageChannel.h>
+#include "ImfImageChannel.h"
+#include "ImfUtilExport.h"
+
 #include <ImfPixelType.h>
 #include <ImfFrameBuffer.h>
 #include <ImathBox.h>
@@ -81,7 +83,9 @@ class FlatImageChannel: public ImageChannel
     // Access to the flat image level to which this channel belongs.
     //
 
+    IMFUTIL_EXPORT
     FlatImageLevel &        flatLevel ();
+    IMFUTIL_EXPORT
     const FlatImageLevel &  flatLevel () const;
 
   protected:
