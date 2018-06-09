@@ -49,7 +49,8 @@
 #include "ImfDeepImageChannel.h"
 #include "ImfSampleCountChannel.h"
 #include "ImfImageLevel.h"
-#include "ImfExport.h"
+#include "ImfUtilExport.h"
+
 #include <string>
 #include <map>
 
@@ -57,7 +58,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class DeepImage;
 
-class IMF_EXPORT DeepImageLevel : public ImageLevel
+class DeepImageLevel : public ImageLevel
 {
   public:
 
@@ -65,7 +66,9 @@ class IMF_EXPORT DeepImageLevel : public ImageLevel
     // Access to the image to which the level belongs.
     //
 
+    IMFUTIL_EXPORT
     DeepImage &                 deepImage ();
+    IMFUTIL_EXPORT
     const DeepImage &           deepImage () const;
 
 
@@ -89,10 +92,14 @@ class IMF_EXPORT DeepImageLevel : public ImageLevel
     //
 
 	
+    IMFUTIL_EXPORT
     DeepImageChannel *          findChannel (const std::string& name);
-	const DeepImageChannel *    findChannel (const std::string& name) const;
+	IMFUTIL_EXPORT
+    const DeepImageChannel *    findChannel (const std::string& name) const;
 
+    IMFUTIL_EXPORT
     DeepImageChannel &          channel (const std::string& name);
+    IMFUTIL_EXPORT
     const DeepImageChannel &    channel (const std::string& name) const;
 
     template <class T>
@@ -120,18 +127,24 @@ class IMF_EXPORT DeepImageLevel : public ImageLevel
 	class Iterator;
 	class ConstIterator;
 
-	Iterator        begin();
-	ConstIterator   begin() const;
+	IMFUTIL_EXPORT
+    Iterator        begin();
+	IMFUTIL_EXPORT
+    ConstIterator   begin() const;
 
-	Iterator        end();
-	ConstIterator   end() const;
+	IMFUTIL_EXPORT
+    Iterator        end();
+	IMFUTIL_EXPORT
+    ConstIterator   end() const;
 
     //
     // Access to the sample count channel
     //
 
-	SampleCountChannel &            sampleCounts();
-	const SampleCountChannel &      sampleCounts() const;
+	IMFUTIL_EXPORT
+    SampleCountChannel &            sampleCounts();
+	IMFUTIL_EXPORT
+    const SampleCountChannel &      sampleCounts() const;
 
   private:
     
@@ -193,7 +206,9 @@ class DeepImageLevel::Iterator
 {
   public:
 
+    IMFUTIL_EXPORT
     Iterator ();
+    IMFUTIL_EXPORT
     Iterator (const DeepImageLevel::ChannelMap::iterator& i);
 
 
@@ -201,7 +216,9 @@ class DeepImageLevel::Iterator
     // Advance the iterator
     //
 
+    IMFUTIL_EXPORT
     Iterator &              operator ++ ();
+    IMFUTIL_EXPORT
     Iterator                operator ++ (int);
 
 
@@ -210,7 +227,9 @@ class DeepImageLevel::Iterator
     // and to the name of that channel.
     //
 
+    IMFUTIL_EXPORT
     const std::string &     name () const;
+    IMFUTIL_EXPORT
     DeepImageChannel &      channel () const;
 
   private:
@@ -225,8 +244,11 @@ class DeepImageLevel::ConstIterator
 {
   public:
 
+    IMFUTIL_EXPORT
     ConstIterator ();
+    IMFUTIL_EXPORT
     ConstIterator (const DeepImageLevel::ChannelMap::const_iterator& i);
+    IMFUTIL_EXPORT
     ConstIterator (const DeepImageLevel::Iterator& other);
 
 
@@ -234,7 +256,9 @@ class DeepImageLevel::ConstIterator
     // Advance the iterator
     //
 
+    IMFUTIL_EXPORT
     ConstIterator &             operator ++ ();
+    IMFUTIL_EXPORT
     ConstIterator               operator ++ (int);
 
 
@@ -243,7 +267,9 @@ class DeepImageLevel::ConstIterator
     // and to the name of that channel.
     //
 
+    IMFUTIL_EXPORT
     const std::string &         name () const;
+    IMFUTIL_EXPORT
     const DeepImageChannel &    channel () const;
 
   private:

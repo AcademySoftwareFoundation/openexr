@@ -44,7 +44,7 @@
 
 #include "ImfDeepImage.h"
 #include "ImfImageDataWindow.h"
-#include "ImfExport.h"
+#include "ImfUtilExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -70,7 +70,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //      becomes the header of the image file.
 //
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 void
 saveDeepImage
     (const std::string &fileName,
@@ -78,7 +78,7 @@ saveDeepImage
      const DeepImage &img,
      DataWindowSource dws = USE_IMAGE_DATA_WINDOW);
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 void
 saveDeepImage
     (const std::string &fileName,
@@ -93,7 +93,7 @@ saveDeepImage
 //      If header h is given, then the header of the file is copied into h.
 //
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 void
 loadDeepImage
     (const std::string &fileName,
@@ -101,7 +101,7 @@ loadDeepImage
      DeepImage &img);
 
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 void
 loadDeepImage
     (const std::string &fileName,
@@ -123,7 +123,7 @@ loadDeepImage
 //      image.  The modified header then becomes the header of the image file.
 //
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 void
 saveDeepScanLineImage
     (const std::string &fileName,
@@ -131,7 +131,7 @@ saveDeepScanLineImage
      const DeepImage &img,
      DataWindowSource dws = USE_IMAGE_DATA_WINDOW);
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 void
 saveDeepScanLineImage
     (const std::string &fileName,
@@ -146,14 +146,14 @@ saveDeepScanLineImage
 //      If header h is given, then the header of the file is copied into h.
 //
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 void
 loadDeepScanLineImage
     (const std::string &fileName,
      Header &hdr,
      DeepImage &img);
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 void
 loadDeepScanLineImage
     (const std::string &fileName,
@@ -180,7 +180,7 @@ loadDeepScanLineImage
 //      level mode ONE_LEVEL.
 //
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 void
 saveDeepTiledImage
     (const std::string &fileName,
@@ -188,7 +188,7 @@ saveDeepTiledImage
      const DeepImage &img,
      DataWindowSource dws = USE_IMAGE_DATA_WINDOW);
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 void
 saveDeepTiledImage
     (const std::string &fileName,
@@ -202,14 +202,14 @@ saveDeepTiledImage
 //      If header h is given, then the header of the file is copied into h.
 //
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 void
 loadDeepTiledImage
     (const std::string &fileName,
      Header &hdr,
      DeepImage &img);
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 void
 loadDeepTiledImage
     (const std::string &fileName,

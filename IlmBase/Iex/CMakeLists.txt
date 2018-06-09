@@ -1,31 +1,63 @@
 # yue.nicholas@gmail.com
 
+SET (ILMBASE_LIB_TARGETS "")
+
 IF(BUILD_SHARED_LIBS)
-    ADD_DEFINITIONS(-DIEX_EXPORTS)
+  LIST ( APPEND ILMBASE_LIB_TARGETS Iex )
+
+  ADD_LIBRARY ( Iex SHARED
+    IexBaseExc.cpp
+    IexThrowErrnoExc.cpp
+    )
+
+  TARGET_COMPILE_DEFINITIONS ( Iex PRIVATE IEX_EXPORTS )
+  IF (WIN32)
+    TARGET_COMPILE_DEFINITIONS ( Iex PUBLIC OPENEXR_DLL )
+  ENDIF ()
+
+  SET_TARGET_PROPERTIES ( Iex
+    PROPERTIES
+    VERSION ${ILMBASE_VERSION_MAJOR}.${ILMBASE_VERSION_MINOR}.${ILMBASE_VERSION_PATCH}
+    SOVERSION ${ILMBASE_VERSION_MAJOR}
+    OUTPUT_NAME "Iex${ILMBASE_LIBSUFFIX}"
+    )
 ENDIF()
 
-ADD_LIBRARY ( Iex ${LIB_TYPE}
-  IexBaseExc.cpp
-  IexThrowErrnoExc.cpp
-  )
+IF (BUILD_STATIC_LIBS)
+  LIST ( APPEND ILMBASE_LIB_TARGETS Iex_static )
 
-INSTALL ( TARGETS
-  Iex
+  ADD_LIBRARY ( Iex_static STATIC
+    IexBaseExc.cpp
+    IexThrowErrnoExc.cpp
+    )
+
+  SET_TARGET_PROPERTIES ( Iex_static
+    PROPERTIES
+    VERSION ${ILMBASE_VERSION_MAJOR}.${ILMBASE_VERSION_MINOR}.${ILMBASE_VERSION_PATCH}
+    OUTPUT_NAME "Iex${ILMBASE_LIBSUFFIX}_s"
+    )
+ENDIF()
+
+IF (BUILD_SHARED_LIBS OR BUILD_STATIC_LIBS)
+  INSTALL ( TARGETS ${ILMBASE_LIB_TARGETS}
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION ${RUNTIME_DIR}
-)
+  )
+ENDIF ()
 
-INSTALL ( FILES 
-  IexBaseExc.h
-  IexMathExc.h
-  IexThrowErrnoExc.h
-  IexErrnoExc.h
-  IexMacros.h
-  Iex.h
-  IexNamespace.h
-  IexExport.h
-  IexForward.h
+INSTALL (
+  FILES 
+    IexBaseExc.h
+    IexMathExc.h
+    IexThrowErrnoExc.h
+    IexErrnoExc.h
+    IexMacros.h
+    Iex.h
+    IexNamespace.h
+    IexExport.h
+    IexForward.h
+
   DESTINATION
-  include/OpenEXR
+    include/OpenEXR
 )
