@@ -9,10 +9,8 @@ SET(OPENEXR_VERSION_PATCH "0")
 SET(OPENEXR_VERSION ${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH})
 SET(OPENEXR_VERSION_API ${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR})
 
-
 # enable the tests
 ENABLE_TESTING()
-
 
 # distro building 
 SET(CPACK_PACKAGE_VERSION_MAJOR "${OPENEXR_VERSION_MAJOR}")
@@ -27,11 +25,15 @@ set(CPACK_SOURCE_IGNORE_FILES
 INCLUDE ( CPack )
 
 
-
 # Allow the developer to select if Dynamic or Static libraries are built
 OPTION (BUILD_SHARED_LIBS    "Build Shared Libraries" ON)
+OPTION (BUILD_STATIC_LIBS    "Build Shared Libraries" OFF)
 OPTION (USE_ZLIB_WINAPI      "Use ZLib Win API"       OFF)
 OPTION (NAMESPACE_VERSIONING "Use Namespace Versioning" ON)
+
+IF (NOT ILMBASE_PACKAGE_PREFIX)
+  SET (ILMBASE_PACKAGE_PREFIX ${CMAKE_INSTALL_PREFIX})
+ENDIF ()
 
 OPTION (FORCE_CXX03 "Force CXX03" OFF)
 IF (FORCE_CXX03)
@@ -77,48 +79,41 @@ INCLUDE_DIRECTORIES ( ${ILMBASE_PACKAGE_PREFIX}/include/OpenEXR )
 LINK_DIRECTORIES ( ${ILMBASE_PACKAGE_PREFIX}/lib )
 MESSAGE ( "ILMBASE_PACKAGE_PREFIX = " ${ILMBASE_PACKAGE_PREFIX})
 
-SET (LIB_TYPE STATIC)
-IF (BUILD_SHARED_LIBS)
-  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
-  SET (LIB_TYPE SHARED)
-    IF (WIN32)
-    ADD_DEFINITIONS(-DOPENEXR_DLL)
-  ENDIF ()
-ENDIF ()
-
 IF (USE_ZLIB_WINAPI)
   ADD_DEFINITIONS(-DZLIB_WINAPI)
 ENDIF ()
 
-# Test for GCC-style inline asm support with AVX instructions
-INCLUDE (CheckCXXSourceCompiles)
-CHECK_CXX_SOURCE_COMPILES (
-	"
-	int main()
-	{
-	 #if defined(__GNUC__) && defined(__SSE2__) 
-		 int n   = 0;
-		 int eax = 0;
-		 int edx = 0;
-		 __asm__(
-			 \"xgetbv     ;\"
-			 \"vzeroupper  \"
-			 : \"=a\"(eax), \"=d\"(edx) : \"c\"(n) : );
-	 #else
-		 #error No GCC style inline asm supported for AVX instructions
-	 #endif
-	}
-	" HAVE_GCC_INLINE_ASM_AVX)
+IF (NOT WIN32 AND NOT APPLE)
+  # Test for GCC-style inline asm support with AVX instructions
+  INCLUDE (CheckCXXSourceCompiles)
+  CHECK_CXX_SOURCE_COMPILES (
+  	"
+  	int main()
+  	{
+  	 #if defined(__GNUC__) && defined(__SSE2__) 
+  		 int n   = 0;
+  		 int eax = 0;
+  		 int edx = 0;
+  		 __asm__(
+  			 \"xgetbv     ;\"
+  			 \"vzeroupper  \"
+  			 : \"=a\"(eax), \"=d\"(edx) : \"c\"(n) : );
+  	 #else
+  		 #error No GCC style inline asm supported for AVX instructions
+  	 #endif
+  	}
+  	" HAVE_GCC_INLINE_ASM_AVX)
 
-# Check if sysconf(_SC_NPROCESSORS_ONLN) can be used for CPU count
-CHECK_CXX_SOURCE_COMPILES (
-    "
-    #include <unistd.h>
-    int main()
-    {
-        sysconf(_SC_NPROCESSORS_ONLN);
-    }
-    " HAVE_SYSCONF_NPROCESSORS_ONLN)
+  # Check if sysconf(_SC_NPROCESSORS_ONLN) can be used for CPU count
+  CHECK_CXX_SOURCE_COMPILES (
+      "
+      #include <unistd.h>
+      int main()
+      {
+          sysconf(_SC_NPROCESSORS_ONLN);
+      }
+      " HAVE_SYSCONF_NPROCESSORS_ONLN)
+ENDIF()
 
 
 ##########################
@@ -188,8 +183,8 @@ ADD_SUBDIRECTORY ( IlmImf )
 
 SET_TARGET_PROPERTIES ( IlmImf
   PROPERTIES
-  VERSION 22.0.0
-  SOVERSION 22
+  VERSION ${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH}
+  SOVERSION ${OPENEXR_VERSION_MAJOR}
   OUTPUT_NAME "IlmImf${OPENEXR_LIBSUFFIX}"
   )
   
@@ -200,8 +195,8 @@ ADD_SUBDIRECTORY ( IlmImfUtil )
 
 SET_TARGET_PROPERTIES ( IlmImfUtil
   PROPERTIES
-  VERSION 22.0.0
-  SOVERSION 22
+  VERSION ${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH}
+  SOVERSION ${OPENEXR_VERSION_MAJOR}
   OUTPUT_NAME "IlmImfUtil${OPENEXR_LIBSUFFIX}"
   )
   

@@ -45,7 +45,7 @@
 //----------------------------------------------------------------------------
 
 #include "ImfImageChannel.h"
-#include "ImfExport.h"
+#include "ImfUtilExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -67,7 +67,7 @@ class DeepImageLevel;
 //          x % c.xSampling() != 0 or y % c.ySampling() != 0,
 //
 
-class IMF_EXPORT SampleCountChannel : public ImageChannel
+class SampleCountChannel : public ImageChannel
 {
   public:
 
@@ -75,6 +75,7 @@ class IMF_EXPORT SampleCountChannel : public ImageChannel
     // The OpenEXR pixel type of this channel (HALF, FLOAT or UINT).
     //
 
+    IMFUTIL_EXPORT
     virtual PixelType   pixelType () const;
     
 
@@ -84,6 +85,7 @@ class IMF_EXPORT SampleCountChannel : public ImageChannel
     // file and for saving an image in an OpenEXR file.
     // 
 
+    IMFUTIL_EXPORT
     Slice                   slice () const;
 
 
@@ -91,7 +93,9 @@ class IMF_EXPORT SampleCountChannel : public ImageChannel
     // Access to the image level to which this channel belongs.
     //
 
+    IMFUTIL_EXPORT
     DeepImageLevel &        deepLevel ();
+    IMFUTIL_EXPORT
     const DeepImageLevel &  deepLevel () const;
 
 
@@ -101,6 +105,7 @@ class IMF_EXPORT SampleCountChannel : public ImageChannel
     // behavior.
     //
 
+    IMFUTIL_EXPORT
     const unsigned int &    operator () (int x, int y) const;
 
 
@@ -109,6 +114,7 @@ class IMF_EXPORT SampleCountChannel : public ImageChannel
     // the data window of the image level throws an Iex::ArgExc exception.
     //
 
+    IMFUTIL_EXPORT
     const unsigned int &    at (int x, int y) const;
 
     //
@@ -119,6 +125,7 @@ class IMF_EXPORT SampleCountChannel : public ImageChannel
     // results in undefined behavior.
     //
 
+    IMFUTIL_EXPORT
     const unsigned int *    row (int r) const;
 
 
@@ -155,8 +162,11 @@ class IMF_EXPORT SampleCountChannel : public ImageChannel
     // level to which it belongs.
     //
 
+    IMFUTIL_EXPORT
 	void                set(int x, int y, unsigned int newNumSamples);
+    IMFUTIL_EXPORT
 	void                set(int r, unsigned int newNumSamples[]);
+    IMFUTIL_EXPORT
 	void                clear();
 
 
@@ -195,7 +205,9 @@ class IMF_EXPORT SampleCountChannel : public ImageChannel
     // and the image level to which it belongs.
     //
 
+    IMFUTIL_EXPORT
 	unsigned int *      beginEdit();
+    IMFUTIL_EXPORT
 	void                endEdit();
 
     class Edit
@@ -207,13 +219,16 @@ class IMF_EXPORT SampleCountChannel : public ImageChannel
         // destructor calls level->endEdit().
         //
 
+         IMFUTIL_EXPORT
          Edit (SampleCountChannel& level);
+         IMFUTIL_EXPORT
         ~Edit ();
 
         //
         // Access to the writable sample count array.
         //
 
+        IMFUTIL_EXPORT
         unsigned int *          sampleCounts () const;
 
       private:
@@ -227,9 +242,13 @@ class IMF_EXPORT SampleCountChannel : public ImageChannel
     // Functions that support the implementation of deep image channels.
     //
 
+    IMFUTIL_EXPORT
     const unsigned int *    numSamples () const;
+    IMFUTIL_EXPORT
     const unsigned int *    sampleListSizes () const;
+    IMFUTIL_EXPORT
     const size_t *          sampleListPositions () const;
+    IMFUTIL_EXPORT
     size_t                  sampleBufferSize () const;
 
 

@@ -42,6 +42,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include "ImfUtilExport.h"
 #include <ImfNamespace.h>
 #include <ImathBox.h>
 
@@ -65,6 +66,7 @@ enum DataWindowSource
 class Image;
 class Header;
 
+IMFUTIL_EXPORT
 IMATH_NAMESPACE::Box2i
 dataWindowForFile (const Header &hdr, const Image &img, DataWindowSource dws);
 

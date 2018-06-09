@@ -58,9 +58,18 @@ ADD_LIBRARY ( imathmodule ${LIB_TYPE}
     PyImathBasicTypes.cpp
 )
 
-SET_TARGET_PROPERTIES ( imathmodule
-	PROPERTIES PREFIX "" SUFFIX ".so" BUILD_WITH_INSTALL_RPATH ON
-)
+if (WIN32)
+    SET_TARGET_PROPERTIES ( imathmodule
+        PROPERTIES 
+            PREFIX ""
+            OUTPUT_NAME "imath" 
+            SUFFIX ".pyd"
+    )
+else()
+    SET_TARGET_PROPERTIES ( imathmodule
+        PROPERTIES PREFIX "" SUFFIX ".so" BUILD_WITH_INSTALL_RPATH ON
+    )
+endif()
 
 TARGET_LINK_LIBRARIES ( imathmodule
 	PyImath

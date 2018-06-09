@@ -46,8 +46,9 @@
 //----------------------------------------------------------------------------
 
 #include "ImfImageChannel.h"
+#include "ImfUtilExport.h"
+
 #include <ImfDeepFrameBuffer.h>
-#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -81,16 +82,20 @@ class DeepImageChannel: public ImageChannel
     // Access to the image level to which this channel belongs.
     //
 
-	IMF_EXPORT DeepImageLevel &            deepLevel();
-	IMF_EXPORT const DeepImageLevel &      deepLevel() const;
+	IMFUTIL_EXPORT 
+    DeepImageLevel &            deepLevel();
+	IMFUTIL_EXPORT
+    const DeepImageLevel &      deepLevel() const;
 
 
     //
     // Access to the sample count channel for this deep channel.
     //
 
-	IMF_EXPORT SampleCountChannel &        sampleCounts();
-	IMF_EXPORT const SampleCountChannel &  sampleCounts() const;
+	IMFUTIL_EXPORT 
+    SampleCountChannel &        sampleCounts();
+	IMFUTIL_EXPORT
+    const SampleCountChannel &  sampleCounts() const;
 
 
   protected:

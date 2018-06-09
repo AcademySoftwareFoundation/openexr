@@ -44,12 +44,13 @@
 //
 //----------------------------------------------------------------------------
 
+#include "ImfUtilExport.h"
+
 #include <ImfPixelType.h>
 #include <ImfFrameBuffer.h>
 #include <ImfChannelList.h>
 #include <ImathBox.h>
 #include <half.h>
-#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -65,7 +66,7 @@ class ImageLevel;
 
 class ImageLevel;
 
-class IMF_EXPORT ImageChannel
+class ImageChannel
 {
   public:
 
@@ -79,6 +80,7 @@ class IMF_EXPORT ImageChannel
     // Generate an OpenEXR channel for this image channel.
     //
     
+    IMFUTIL_EXPORT
     Channel             channel () const;
 
 
