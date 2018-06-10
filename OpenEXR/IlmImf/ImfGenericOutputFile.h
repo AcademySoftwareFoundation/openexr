@@ -45,9 +45,10 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class IMF_EXPORT GenericOutputFile
+class GenericOutputFile
 {
     public:
+        IMF_EXPORT
         virtual ~GenericOutputFile() {}
 
     protected:
