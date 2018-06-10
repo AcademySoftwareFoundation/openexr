@@ -106,15 +106,19 @@ class ImageChannel
 
   protected:
 
+    IMFUTIL_EXPORT
     ImageChannel (ImageLevel &level,
                   int xSampling,
                   int ySampling,
                   bool pLinear);
 
+    IMFUTIL_EXPORT
     virtual ~ImageChannel();
 
+    IMFUTIL_EXPORT
     virtual void        resize ();
 
+    IMFUTIL_EXPORT
 	void                boundsCheck(int x, int y) const;
 
   private:
