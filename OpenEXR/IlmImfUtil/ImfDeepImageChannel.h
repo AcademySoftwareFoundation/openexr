@@ -368,7 +368,7 @@ TypedDeepImageChannel<T>::setSamplesToZero
     // newNumSamples    New number of samples in the sample list.
     //
 
-    for (int j = oldNumSamples; j < newNumSamples; ++j)
+    for (unsigned int j = oldNumSamples; j < newNumSamples; ++j)
         _sampleListPointers[i][j] = 0;
 }
 
@@ -408,15 +408,15 @@ TypedDeepImageChannel<T>::moveSampleList
 
     if (oldNumSamples > newNumSamples)
     {
-        for (int j = 0; j < newNumSamples; ++j)
+        for (unsigned int j = 0; j < newNumSamples; ++j)
             newSampleList[j] = oldSampleList[j];
     }
     else
     {
-        for (int j = 0; j < oldNumSamples; ++j)
+        for (unsigned int j = 0; j < oldNumSamples; ++j)
             newSampleList[j] = oldSampleList[j];
 
-        for (int j = oldNumSamples; j < newNumSamples; ++j)
+        for (unsigned int j = oldNumSamples; j < newNumSamples; ++j)
             newSampleList[j] = 0;
     }
 
@@ -462,15 +462,15 @@ TypedDeepImageChannel<T>::moveSamplesToNewBuffer
 
         if (oldNumSamples[i] > newNumSamples[i])
         {
-            for (int j = 0; j < newNumSamples[i]; ++j)
+            for (unsigned int j = 0; j < newNumSamples[i]; ++j)
                 newSampleList[j] = oldSampleList[j];
         }
         else
         {
-            for (int j = 0; j < oldNumSamples[i]; ++j)
+            for (unsigned int j = 0; j < oldNumSamples[i]; ++j)
                 newSampleList[j] = oldSampleList[j];
 
-            for (int j = oldNumSamples[i]; j < newNumSamples[i]; ++j)
+            for (unsigned int j = oldNumSamples[i]; j < newNumSamples[i]; ++j)
                 newSampleList[j] = 0;
         }
 
