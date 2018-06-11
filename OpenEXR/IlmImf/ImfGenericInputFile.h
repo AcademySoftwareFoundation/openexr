@@ -49,7 +49,9 @@ class GenericInputFile
         virtual ~GenericInputFile() {}
 
     protected:
+        IMF_EXPORT
         GenericInputFile() {}
+        IMF_EXPORT
         void readMagicNumberAndVersionField(OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int& version);
 };
 

@@ -142,6 +142,7 @@ class IStream
 
   protected:
 
+    IMF_EXPORT
     IStream (const char fileName[]);
 
   private:
@@ -207,6 +208,7 @@ class OStream
 
   protected:
 
+    IMF_EXPORT
     OStream (const char fileName[]);
 
   private:

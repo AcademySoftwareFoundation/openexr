@@ -118,6 +118,7 @@ class Attribute
     // knows how to make objects of this type.
     //--------------------------------------------------
 
+    IMF_EXPORT
     static void		registerAttributeType (const char typeName[],
 					       Attribute *(*newAttribute)());
 
@@ -127,6 +128,7 @@ class Attribute
     // debugging only).
     //------------------------------------------------------
 
+    IMF_EXPORT
     static void		unRegisterAttributeType (const char typeName[]);
 };
 
