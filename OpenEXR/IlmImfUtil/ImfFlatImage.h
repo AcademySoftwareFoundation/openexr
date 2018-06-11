@@ -91,6 +91,7 @@ class FlatImage : public Image
 
    protected:
 
+    IMFUTIL_EXPORT
     virtual FlatImageLevel *
         newLevel (int lx, int ly, const IMATH_NAMESPACE::Box2i &dataWindow);
 };

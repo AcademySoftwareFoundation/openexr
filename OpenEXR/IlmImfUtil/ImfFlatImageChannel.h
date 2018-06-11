@@ -92,13 +92,16 @@ class FlatImageChannel: public ImageChannel
 
     friend class FlatImageLevel;
 
+    IMFUTIL_EXPORT
     FlatImageChannel (FlatImageLevel &level,
                       int xSampling,
                       int ySampling,
                       bool pLinear);
 
+    IMFUTIL_EXPORT
     virtual ~FlatImageChannel();
 
+    IMFUTIL_EXPORT
     virtual void            resize ();
 
     virtual void            resetBasePointer () = 0;
