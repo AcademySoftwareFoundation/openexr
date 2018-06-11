@@ -82,14 +82,18 @@ class ImageLevel
     
     friend class Image;
 
+    IMFUTIL_EXPORT
     ImageLevel (Image& image,
                 int xLevelNumber,
                 int yLevelNumber);
 
+    IMFUTIL_EXPORT
     virtual ~ImageLevel ();
 
+    IMFUTIL_EXPORT
     virtual void    resize (const IMATH_NAMESPACE::Box2i& dataWindow);
 
+    IMFUTIL_EXPORT
     virtual void    shiftPixels (int dx, int dy);
 
     virtual void    insertChannel (const std::string& name,
