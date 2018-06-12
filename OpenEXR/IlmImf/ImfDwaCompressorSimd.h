@@ -43,11 +43,6 @@
 // aligned. Unaligned pointers may risk seg-faulting.
 //
 
-#include "ImfNamespace.h"
-#include "ImfSimd.h"
-#include "ImfSystemSpecific.h"
-#include "OpenEXRConfig.h"
-
 #include <half.h>
 #include <assert.h>
 
