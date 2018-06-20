@@ -52,6 +52,11 @@ INSTALL ( TARGETS PyImath
 	lib
 )
 
+INSTALL (DIRECTORY ./
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.h"
+)
+
 ADD_LIBRARY ( imathmodule ${LIB_TYPE}
     imathmodule.cpp
     PyImathFun.cpp
