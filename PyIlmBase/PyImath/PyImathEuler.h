@@ -37,10 +37,9 @@
 
 #include <Python.h>
 #include <boost/python.hpp>
-#include <PyImath.h>
+#include "PyImath.h"
 #include <ImathEuler.h>
 #include <ImathVec.h>
-#include <PyImath.h>
 
 namespace PyImath {
 

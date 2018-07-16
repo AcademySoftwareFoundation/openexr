@@ -38,8 +38,8 @@
 #include <Python.h>
 #include <boost/python.hpp>
 #include <ImathBox.h>
-#include <PyImathVec.h>
-#include <PyImathFixedArray.h>
+#include "PyImathVec.h"
+#include "PyImathFixedArray.h"
 
 namespace PyImath {
 

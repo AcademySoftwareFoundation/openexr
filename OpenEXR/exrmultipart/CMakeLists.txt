@@ -5,10 +5,10 @@ ADD_EXECUTABLE ( exrmultipart
 )
 
 TARGET_LINK_LIBRARIES ( exrmultipart
-  IlmImf
-  IlmThread${ILMBASE_LIBSUFFIX}
-  Iex${ILMBASE_LIBSUFFIX}
-  Half${ILMBASE_LIBSUFFIX}
+  OpenEXR::IlmImf
+  IlmBase::IlmThread
+  IlmBase::Iex
+  IlmBase::Half
   ${PTHREAD_LIB}
   ${ZLIB_LIBRARIES}
 )

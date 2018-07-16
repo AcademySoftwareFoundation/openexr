@@ -32,7 +32,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <PyImathAutovectorize.h>
+#include "PyImathAutovectorize.h"
 
 
 namespace PyImath {
