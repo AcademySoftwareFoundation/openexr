@@ -1,50 +1,5 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT (pyilmbase)
-
-SET(ILMBASE_VERSION_MAJOR "2")
-SET(ILMBASE_VERSION_MINOR "2")
-SET(ILMBASE_VERSION_PATCH "0")
-
-SET(ILMBASE_VERSION ${ILMBASE_VERSION_MAJOR}.${ILMBASE_VERSION_MINOR}.${ILMBASE_VERSION_PATCH})
-SET(ILMBASE_VERSION_API ${ILMBASE_VERSION_MAJOR}_${ILMBASE_VERSION_MINOR})
-
-
-# enable the tests
-ENABLE_TESTING()
-
-
-# distro building
-SET(CPACK_PACKAGE_VERSION_MAJOR "${ILMBASE_VERSION_MAJOR}")
-SET(CPACK_PACKAGE_VERSION_MINOR "${ILMBASE_VERSION_MINOR}")
-SET(CPACK_PACKAGE_VERSION_PATCH "${ILMBASE_VERSION_PATCH}")
-SET(CPACK_SOURCE_GENERATOR "TGZ")
-set(CPACK_SOURCE_PACKAGE_FILE_NAME
-    "${CMAKE_PROJECT_NAME}-${ILMBASE_VERSION}"
-  )
-set(CPACK_SOURCE_IGNORE_FILES
-  "/.git*;/.cvs*;${CPACK_SOURCE_IGNORE_FILES}")
-INCLUDE ( CPack )
-
-# Set this option to find the C++ libs with their namespaced versions
-# The python modules themselves are built without versioning
-OPTION (NAMESPACE_VERSIONING "Use Namespace Versioning" ON)
-# Allow the developer to select if Dynamic or Static libraries are built
-OPTION (BUILD_SHARED_LIBS    "Build Shared Libraries" ON)
-
-OPTION (FORCE_CXX03 "Force CXX03" OFF)
-IF (FORCE_CXX03)
-  ADD_DEFINITIONS ( -std=c++03 )
-ELSE (FORCE_CXX03)
-  # VP18 switches to c++14, so let's do that by default
-  SET(CMAKE_CXX_STANDARD 14 CACHE STRING "C++ ISO Standard")
-  # but switch gnu++14 or other extensions off for portability
-  SET(CMAKE_CXX_EXTENSIONS OFF)
-ENDIF ()
-
-# Setup osx rpathing
-SET (CMAKE_MACOSX_RPATH 1)
-SET (BUILD_WITH_INSTALL_RPATH 1)
 
 IF (BUILD_SHARED_LIBS)
   # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
@@ -54,30 +9,8 @@ IF (BUILD_SHARED_LIBS)
   ENDIF ()
 ENDIF (BUILD_SHARED_LIBS)
 
-FIND_PACKAGE ( PythonLibs REQUIRED )
-FIND_PACKAGE ( PythonInterp REQUIRED )
-FIND_PACKAGE ( Boost
-	COMPONENTS Python
-)
-FIND_PACKAGE ( NumPy )
-
-INCLUDE_DIRECTORIES (
-	${ILMBASE_PACKAGE_PREFIX}/include/OpenEXR
-	PyIex
-	PyImath
-	PyImathNumpy
-    ${PYTHON_INCLUDE_PATH}
-    ${Boost_INCLUDE_DIRS}
-)
-
 LINK_DIRECTORIES ( ${ILMBASE_PACKAGE_PREFIX}/lib )
 MESSAGE ( "ILMBASE_PACKAGE_PREFIX = " ${ILMBASE_PACKAGE_PREFIX})
-
-
-SET (ILMBASE_LIBSUFFIX "")
-IF (NAMESPACE_VERSIONING)
-  SET ( ILMBASE_LIBSUFFIX "-${ILMBASE_VERSION_API}" )
-ENDIF ()
 
 ##########################
 ADD_SUBDIRECTORY ( PyIex )
@@ -93,4 +26,3 @@ ENDIF ()
 ##########################
 ADD_SUBDIRECTORY ( PyIexTest )
 ADD_SUBDIRECTORY ( PyImathTest )
-

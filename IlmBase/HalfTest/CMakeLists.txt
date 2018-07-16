@@ -11,6 +11,6 @@ ADD_EXECUTABLE ( HalfTest
   testSize.cpp
   )
 
-TARGET_LINK_LIBRARIES ( HalfTest Half )
+TARGET_LINK_LIBRARIES ( HalfTest IlmBase::Half )
 
 ADD_TEST ( TestHalf HalfTest )

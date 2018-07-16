@@ -32,18 +32,18 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <PyImathEuler.h>
+#include "PyImathEuler.h"
 #include "PyImathDecorators.h"
 #include "PyImathExport.h"
 #include <Python.h>
 #include <boost/python.hpp>
 #include <boost/python/make_constructor.hpp>
 #include <boost/format.hpp>
-#include <PyImath.h>
-#include <PyImathMathExc.h>
+#include "PyImath.h"
+#include "PyImathMathExc.h"
 #include <ImathVec.h>
 #include <Iex.h>
-#include <PyImathOperators.h>
+#include "PyImathOperators.h"
 
 // XXX incomplete array wrapping, docstrings missing
 

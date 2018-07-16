@@ -38,11 +38,16 @@ ENDIF()
 
 target_compile_definitions( PyImath PRIVATE -DPYIMATH_BUILD )
 
+TARGET_INCLUDE_DIRECTORIES ( PyImath 
+    PRIVATE ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
+    ${PYTHON_INCLUDE_PATH}
+    ${Boost_INCLUDE_DIRS})
 
 TARGET_LINK_LIBRARIES ( PyImath
-	Iex${ILMBASE_LIBSUFFIX}
-	IexMath${ILMBASE_LIBSUFFIX}
-	Imath${ILMBASE_LIBSUFFIX}
+    IlmBase::Iex
+    IlmBase::IexMath
+    IlmBase::Imath
+    PyIex
 	${Boost_LIBRARIES}
 	${PYTHON_LIBRARIES}
 )
@@ -53,7 +58,7 @@ INSTALL ( TARGETS PyImath
 )
 
 INSTALL (DIRECTORY ./
-    DESTINATION include
+    DESTINATION include/OpenEXR
     FILES_MATCHING PATTERN "*.h"
 )
 
@@ -76,12 +81,18 @@ else()
     )
 endif()
 
+TARGET_INCLUDE_DIRECTORIES ( imathmodule 
+    PRIVATE ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
+    ${PYTHON_INCLUDE_PATH}
+    ${Boost_INCLUDE_DIRS})
+
 TARGET_LINK_LIBRARIES ( imathmodule
 	PyImath
 	PyIex
-	Imath${ILMBASE_LIBSUFFIX}
-	Iex${ILMBASE_LIBSUFFIX}
+	IlmBase::Imath
+	IlmBase::Iex
 	${Boost_LIBRARIES}
+	${PYTHON_LIBRARIES}
 )
 
 INSTALL ( TARGETS imathmodule

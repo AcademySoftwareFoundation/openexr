@@ -58,3 +58,61 @@ Please see the README files of each of the individual directories for more infor
 
 A collection of OpenEXR images is available from the adjacent repository
 [openexr-images](https://github.com/openexr/openexr-images).
+
+## Building
+
+OpenEXR's main build system is CMake. Other build systems are supported; see the
+individual sub-modules for more information on those build systems.
+
+To build with CMake, OpenEXR has a few prerequisites.
+
+* CMake 3.11 or newer
+* zlib
+* boost-python (if the python bindings are to be built)
+* fltk (if the openexr viewer is to be built)
+* Cg (if playexr is to be built)
+
+When these prerequisites are fulfulled, prepare the build environment.
+
+In the root CMakeLists.txt file, or using a tools such as ccmake or cmake-gui,
+configure the OpenEXR build. The options are detailed below.
+
+Create a build directory, cd into it, and run cmake to configure the build.
+Select an appropriate generator, such as "Unix Makefiles", or "Visual Studio 15 2017 Win64".
+
+````
+cmake -DCMAKE_INSTALL_PREFIX=<install location> <OpenEXR source root> -G "selected generator" -DCMAKE_PREFIX_PATH=<paths to dependencies - zlib etc>
+````
+
+
+The available options are:
+
+* BUILD_OPENEXR (ON)
+By default, OpenEXR is always built. OFF will build on only IlmBase.
+
+* BUILD_PYTHON_LIBS (ON)
+By default, the Python bindings will be built.
+
+* BUILD_VIEWERS (OFF)
+By default, the viewers are not built.
+
+* BUILD_SHARED_LIBS (ON)
+* BUILD_STATIC_LIBS (OFF)
+The build can be configured to create either shared libraries, or static 
+libraries, or both.
+
+* NAMESPACE_VERSIONING (ON)
+OpenEXR symbols will be contained within a namespace
+
+* FORCE_CXX03 (OFF)
+C++03 compatibility is possible as an option
+
+* ENABLE_TESTS (ON)
+By default, the tests will be built.
+
+* PYTHON_VERSION ("27")
+By default, OpenEXR is built against Python 2.7.x. Due to changing naming
+conventions in boost, it's necessary to hint OpenEXR how the system is configured.
+For boost versions starting with 1.67, it's necessary to request a version using
+a string such as "27" for "2.7", or "36" for "3.6". For older boost versions,
+"2" or "3" should be specified.

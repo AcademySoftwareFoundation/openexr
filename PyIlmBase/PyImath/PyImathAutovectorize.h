@@ -56,9 +56,9 @@
 #include <boost/static_assert.hpp>
 #include <boost/python/args.hpp>
 #include <iostream>
-#include <PyImathFixedArray.h>
-#include <PyImathTask.h>
-#include <PyImathUtil.h>
+#include "PyImathFixedArray.h"
+#include "PyImathTask.h"
+#include "PyImathUtil.h"
 #include <IexMathFloatExc.h>
 
 namespace PyImath {

@@ -33,8 +33,8 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <PyImathBoxArrayImpl.h>
-#include <PyImathExport.h>
+#include "PyImathBoxArrayImpl.h"
+#include "PyImathExport.h"
 
 namespace PyImath {
 using namespace boost::python;

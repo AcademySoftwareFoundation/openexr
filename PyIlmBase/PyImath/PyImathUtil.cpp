@@ -32,7 +32,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <PyImathUtil.h>
+#include "PyImathUtil.h"
 #include <Iex.h>
 #include <boost/python.hpp>
 #include <pystate.h>

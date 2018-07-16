@@ -32,16 +32,16 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <PyImathLine.h>
+#include "PyImathLine.h"
 #include "PyImathDecorators.h"
 #include "PyImathExport.h"
 #include <Python.h>
 #include <boost/python.hpp>
 #include <boost/python/make_constructor.hpp>
 #include <boost/format.hpp>
-#include <PyImath.h>
-#include <PyImathVec.h>
-#include <PyImathMathExc.h>
+#include "PyImath.h"
+#include "PyImathVec.h"
+#include "PyImathMathExc.h"
 #include <ImathLineAlgo.h>
 #include <ImathMatrix.h>
 #include <Iex.h>

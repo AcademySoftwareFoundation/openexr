@@ -42,7 +42,7 @@
 #include <Iex.h>
 #include <iostream>
 #include <IexMathFloatExc.h>
-#include <PyImathUtil.h>
+#include "PyImathUtil.h"
 
 #define PY_IMATH_LEAVE_PYTHON IEX_NAMESPACE::MathExcOn mathexcon (IEX_NAMESPACE::IEEE_OVERFLOW | \
                                                         IEX_NAMESPACE::IEEE_DIVZERO |  \

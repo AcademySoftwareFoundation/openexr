@@ -35,8 +35,8 @@
 #ifndef _PyImathStringArray_h_
 #define _PyImathStringArray_h_
 
-#include <PyImathFixedArray.h>
-#include <PyImathStringTable.h>
+#include "PyImathFixedArray.h"
+#include "PyImathStringTable.h"
 
 //
 // A fixed lengy array class for string and wide string type in python.

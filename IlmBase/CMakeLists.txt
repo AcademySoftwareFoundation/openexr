@@ -1,58 +1,6 @@
-# yue.nicholas@gmail.com
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
 
 PROJECT ( ilmbase )
-
-SET(ILMBASE_VERSION_MAJOR "2")
-SET(ILMBASE_VERSION_MINOR "2")
-SET(ILMBASE_VERSION_PATCH "0")
-
-SET(ILMBASE_VERSION ${ILMBASE_VERSION_MAJOR}.${ILMBASE_VERSION_MINOR}.${ILMBASE_VERSION_PATCH})
-SET(ILMBASE_VERSION_API ${ILMBASE_VERSION_MAJOR}_${ILMBASE_VERSION_MINOR})
-
-
-ENABLE_TESTING()
-
-SET(CPACK_PACKAGE_VERSION_MAJOR "${ILMBASE_VERSION_MAJOR}")
-SET(CPACK_PACKAGE_VERSION_MINOR "${ILMBASE_VERSION_MINOR}")
-SET(CPACK_PACKAGE_VERSION_PATCH "${ILMBASE_VERSION_PATCH}")
-SET(CPACK_SOURCE_GENERATOR "TGZ")
-set(CPACK_SOURCE_PACKAGE_FILE_NAME
-    "${CMAKE_PROJECT_NAME}-${ILMBASE_VERSION}"
-  )
-set(CPACK_SOURCE_IGNORE_FILES
-  "/.git*;/.cvs*;${CPACK_SOURCE_IGNORE_FILES}")
-INCLUDE ( CPack )
-
-
-# Allow the developer to select if Dynamic or Static libraries are built
-OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
-OPTION (BUILD_STATIC_LIBS "Build Static Libraries" OFF)
-
-# Enable namespace versioning
-OPTION (NAMESPACE_VERSIONING "Namespace Versioning" ON)
-
-OPTION (FORCE_CXX03 "Force CXX03" OFF)
-IF (FORCE_CXX03)
-  ADD_DEFINITIONS ( -std=c++03 )
-ELSE (FORCE_CXX03)
-  # VP18 switches to c++14, so let's do that by default
-  SET(CMAKE_CXX_STANDARD 14 CACHE STRING "C++ ISO Standard")
-  # but switch gnu++14 or other extensions off for portability
-  SET(CMAKE_CXX_EXTENSIONS OFF)
-ENDIF ()
-
-# Setup osx rpathing
-SET (CMAKE_MACOSX_RPATH 1)
-SET (BUILD_WITH_INSTALL_RPATH 1)
-
-IF ( NOT WIN32)
-  ADD_DEFINITIONS ( -pthread )
-ENDIF ()
-
-IF ( WIN32 )
-  SET(CMAKE_DEBUG_POSTFIX "_debug")
-ENDIF ()
 
 INCLUDE_DIRECTORIES ( Iex IexMath Imath Half ${CMAKE_CURRENT_BINARY_DIR}/config IlmThread IexTest ImathTest HalfTest )
 
@@ -109,17 +57,6 @@ MACRO(GET_TARGET_PROPERTY_WITH_DEFAULT _variable _target _property _default_valu
    INSTALL( FILES ${_laname} DESTINATION ${CMAKE_INSTALL_PREFIX}${_install_DIR})
  ENDMACRO(CREATE_LIBTOOL_FILE)
 
-IF (WIN32)
-  SET (RUNTIME_DIR bin)
-ELSE ()
-  SET (RUNTIME_DIR lib)
-ENDIF ()
-
-SET (ILMBASE_LIBSUFFIX "")
-IF (NAMESPACE_VERSIONING)
-  SET ( ILMBASE_LIBSUFFIX "-${ILMBASE_VERSION_API}" )
-ENDIF ()
-
 ADD_SUBDIRECTORY ( Half )
 ADD_SUBDIRECTORY ( Iex )
 ADD_SUBDIRECTORY ( IexMath )
@@ -127,9 +64,13 @@ ADD_SUBDIRECTORY ( Imath )
 ADD_SUBDIRECTORY ( IlmThread )
 
 IF (WIN32)
-  FILE ( COPY ${CMAKE_CURRENT_SOURCE_DIR}/config.windows/IlmBaseConfig.h
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/config
-    )
+  FILE ( WRITE  ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#ifdef HAVE_PTHREAD\n" )
+  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "# undef HAVE_PTHREAD\n" )
+  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#endif\n" )
+  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#ifdef HAVE_POSIX_SEMAPHORES\n" )
+  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "# undef HAVE_POSIX_SEMAPHORES\n" )
+  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#endif\n" )
+  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define PLATFORM_WINDOWS 1\n" )
 ELSE ()
   IF (APPLE)
     FILE ( WRITE  ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define HAVE_PTHREAD 1\n" )
@@ -173,9 +114,9 @@ FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMBAS
 
 FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "
 // Version as a single hex number, e.g. 0x01000300 == 1.0.3
-#define ILMBASE_VERSION_HEX ((ILMBASE_VERSION_MAJOR << 24) | \\
-                             (ILMBASE_VERSION_MINOR << 16) | \\
-                             (ILMBASE_VERSION_PATCH <<  8))
+#define ILMBASE_VERSION_HEX ((OPENEXR_VERSION_MAJOR << 24) | \\
+                             (OPENEXR_VERSION_MINOR << 16) | \\
+                             (OPENEXR_VERSION_PATCH <<  8))
 ")
 
 IF ( NOT WIN32 )
@@ -188,10 +129,11 @@ ENDIF ()
 
 
 # Tests
-
-ADD_SUBDIRECTORY ( HalfTest )
-ADD_SUBDIRECTORY ( IexTest )
-ADD_SUBDIRECTORY ( ImathTest )
+IF ( ENABLE_TESTS )
+  ADD_SUBDIRECTORY ( HalfTest )
+  ADD_SUBDIRECTORY ( IexTest )
+  ADD_SUBDIRECTORY ( ImathTest )
+ENDIF ()
 
 # Installation
 
@@ -201,8 +143,9 @@ INSTALL ( FILES
   include/OpenEXR
 )
 
-FILE ( WRITE ${CMAKE_BINARY_DIR}/IlmBase.pc "prefix=${CMAKE_INSTALL_PREFIX}\n" )
-FILE ( APPEND ${CMAKE_BINARY_DIR}/IlmBase.pc "exec_prefix=\${prefix}
+IF ( NOT WIN32 )
+  FILE ( WRITE ${CMAKE_BINARY_DIR}/IlmBase.pc "prefix=${CMAKE_INSTALL_PREFIX}\n" )
+  FILE ( APPEND ${CMAKE_BINARY_DIR}/IlmBase.pc "exec_prefix=\${prefix}
 libdir=\${exec_prefix}/lib
 includedir=\${prefix}/include
 OpenEXR_includedir=\${prefix}/include/OpenEXR
@@ -214,9 +157,9 @@ Libs: -L\${libdir} -lImath${ILMBASE_LIBSUFFIX} -lIexMath${ILMBASE_LIBSUFFIX} -lH
 Cflags: -pthread -I\${OpenEXR_includedir}
 ")
 
-INSTALL ( FILES
-  ${CMAKE_BINARY_DIR}/IlmBase.pc
-  DESTINATION
-  lib/pkgconfig
-)
-
+  INSTALL ( FILES
+    ${CMAKE_BINARY_DIR}/IlmBase.pc
+    DESTINATION
+    lib/pkgconfig
+  )
+ENDIF()

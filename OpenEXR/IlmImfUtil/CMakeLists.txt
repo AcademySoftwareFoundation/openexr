@@ -31,12 +31,13 @@ IF(BUILD_SHARED_LIBS)
   ENDIF ()
 
   TARGET_LINK_LIBRARIES ( IlmImfUtil 
-    Half${ILMBASE_LIBSUFFIX}
-    Iex${ILMBASE_LIBSUFFIX}
-    Imath${ILMBASE_LIBSUFFIX}
-    IlmThread${ILMBASE_LIBSUFFIX}
-    IlmImf
-    ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
+    PUBLIC  IlmBase::Iex
+    PUBLIC  IlmBase::Half
+    PUBLIC  IlmBase::Imath
+    PUBLIC  IlmBase::IlmThread
+    PUBLIC  OpenEXR::IlmImf
+    PRIVATE ${PTHREAD_LIB} 
+    PRIVATE ${ZLIB_LIBRARIES}
   )
 
   SET_TARGET_PROPERTIES ( IlmImfUtil
@@ -94,3 +95,9 @@ INSTALL (
   DESTINATION
     ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
   )
+
+if (BUILD_SHARED_LIBS)
+    add_library(OpenEXR::IlmImfUtil ALIAS IlmImfUtil)
+else()
+    add_library(OpenEXR::IlmImfUtil ALIAS IlmImfUtil_static)
+endif()

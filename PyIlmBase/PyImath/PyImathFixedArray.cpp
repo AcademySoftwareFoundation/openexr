@@ -33,7 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include "PyImathFixedArray.h"
-#include <PyImathExport.h>
+#include "PyImathExport.h"
 
 namespace PyImath {
 

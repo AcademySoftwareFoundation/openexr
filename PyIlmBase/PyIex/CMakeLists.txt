@@ -1,23 +1,34 @@
 
-ADD_LIBRARY ( PyIex ${LIB_TYPE}
-	PyIex.cpp
-)
-
-IF(BUILD_SHARED_LIBS)
-    target_compile_definitions( PyIex PRIVATE -DPYIEX_EXPORTS )
-ENDIF()
+ADD_LIBRARY ( PyIex ${LIB_TYPE} PyIex.cpp)
 
 target_compile_definitions( PyIex PRIVATE PYIEX_BUILD )
 
+TARGET_INCLUDE_DIRECTORIES ( PyIex 
+    PRIVATE ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
+    ${PYTHON_INCLUDE_PATH}
+    ${Boost_INCLUDE_DIRS})
+
 TARGET_LINK_LIBRARIES ( PyIex
-	${PYTHON_LIBRARIES}
-	${Boost_LIBRARIES}
+	PUBLIC  IlmBase::Iex
+	PRIVATE ${PYTHON_LIBRARIES}
+	PRIVATE ${Boost_LIBRARIES}
 )
 
 INSTALL ( TARGETS PyIex
 	DESTINATION
 	lib
 )
+
+INSTALL ( 
+  FILES 
+    PyIex.h
+    PyIexExport.h
+    PyIexTypeTranslator.h
+
+  DESTINATION
+    include/OpenEXR
+)
+
 
 ADD_LIBRARY ( iexmodule ${LIB_TYPE}
 	iexmodule.cpp
@@ -38,9 +49,15 @@ endif()
 
 TARGET_LINK_LIBRARIES ( iexmodule
 	PyIex
-	Iex${ILMBASE_LIBSUFFIX}
+    IlmBase::Iex
+	${PYTHON_LIBRARIES}
 	${Boost_LIBRARIES}
 )
+
+TARGET_INCLUDE_DIRECTORIES ( iexmodule 
+    PRIVATE ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
+    ${PYTHON_INCLUDE_PATH}
+    ${Boost_INCLUDE_DIRS})
 
 INSTALL ( TARGETS iexmodule
 	DESTINATION lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages

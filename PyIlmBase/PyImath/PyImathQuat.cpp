@@ -33,19 +33,19 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <PyImathQuat.h>
-#include <PyImathExport.h>
+#include "PyImathQuat.h"
+#include "PyImathExport.h"
 #include "PyImathDecorators.h"
 #include <Python.h>
 #include <boost/python.hpp>
 #include <boost/python/make_constructor.hpp>
 #include <boost/format.hpp>
-#include <PyImath.h>
-#include <PyImathMathExc.h>
+#include "PyImath.h"
+#include "PyImathMathExc.h"
 #include <ImathVec.h>
 #include <ImathMatrixAlgo.h>
 #include <ImathEuler.h>
-#include <PyImathOperators.h>
+#include "PyImathOperators.h"
 
 // XXX incomplete array wrapping, docstrings missing
 

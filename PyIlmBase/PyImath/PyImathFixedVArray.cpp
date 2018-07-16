@@ -32,13 +32,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <PyImathFixedVArray.h>
+#include "PyImathFixedVArray.h"
 
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 #include <boost/any.hpp>
 #include <Iex.h>
-#include <PyImathExport.h>
+#include "PyImathExport.h"
 
 namespace PyImath {
 
