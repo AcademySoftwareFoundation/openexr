@@ -18,6 +18,13 @@ named COPYING (included in this distribution) for details.
 BUILDING ILMBASE
 ----------------
 
+PyIlmBase requires numpy to be available to the builder. Install with
+your favorite package manager or use a Python virtualenv:
+
+virtualenv numpy
+soure numpy/bin/activate
+pip install numpy
+
 To build IlmBase on GNU/Linux or other UNIX-like systems, do this:
 
 ./configure
