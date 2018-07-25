@@ -10,7 +10,8 @@ set(OPENEXR_VERSION_API ${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR})
 project(OpenEXR VERSION ${OPENEXR_VERSION})
 
 # User Options
-option(BUILD_OPENEXR        "Build OpenEXR. IlmBase is always built." ON)
+option(BUILD_ILMBASE        "Build IlmBase"             ON)
+option(BUILD_OPENEXR        "Build OpenEXR"             ON)
 option(BUILD_PYTHON_LIBS    "Build the Python bindings" ON)
 option(BUILD_VIEWERS        "Build the viewers"         OFF)
 
@@ -114,8 +115,9 @@ if(BUILD_VIEWERS)
 endif()
 
 # Perform the build
-add_subdirectory(IlmBase)
-
+if(BUILD_ILMBASE)
+    add_subdirectory(IlmBase)
+endif()
 if(BUILD_OPENEXR)
     add_subdirectory(OpenEXR)
 else()
