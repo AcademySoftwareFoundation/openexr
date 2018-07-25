@@ -36,7 +36,7 @@ IF (NOT WIN32 AND NOT APPLE)
   	"
   	int main()
   	{
-  	 #if defined(__GNUC__) && defined(__SSE2__) 
+  	 #if defined(__GNUC__) && defined(__SSE2__)
   		 int n   = 0;
   		 int eax = 0;
   		 int edx = 0;
@@ -77,7 +77,7 @@ ELSE ()
   FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_HAVE_COMPLETE_IOMANIP 1\n" )
   FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_HAVE_LARGE_STACK 1\n" )
 ENDIF()
-  
+
 IF (NAMESPACE_VERSIONING)
     FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_INTERNAL_NAMESPACE_CUSTOM 1\n")
     FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_NAMESPACE Imf\n" )
@@ -109,7 +109,7 @@ FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/OpenEXRConfig.h "
 IF (HAVE_GCC_INLINE_ASM_AVX)
   FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX 1\n" )
 ENDIF()
-  
+
 IF (HAVE_SYSCONF_NPROCESSORS_ONLN)
   FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/OpenEXRConfig.h "#define OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN 1\n" )
 ENDIF()
@@ -126,7 +126,7 @@ SET_TARGET_PROPERTIES ( IlmImf
   SOVERSION ${OPENEXR_VERSION_MAJOR}
   OUTPUT_NAME "IlmImf${OPENEXR_LIBSUFFIX}"
   )
-  
+
 ##########################
 # IlmImfUtil library
 ##########################
@@ -138,20 +138,21 @@ SET_TARGET_PROPERTIES ( IlmImfUtil
   SOVERSION ${OPENEXR_VERSION_MAJOR}
   OUTPUT_NAME "IlmImfUtil${OPENEXR_LIBSUFFIX}"
   )
-  
+
 ##########################
 # Example Code
 ##########################
 ADD_SUBDIRECTORY ( IlmImfExamples )
 
-  
+
 ##########################
 # Tests
 ##########################
-ADD_SUBDIRECTORY ( IlmImfTest )
-ADD_SUBDIRECTORY ( IlmImfUtilTest )
-ADD_SUBDIRECTORY ( IlmImfFuzzTest )
-
+IF (ENABLE_TESTS)
+  ADD_SUBDIRECTORY ( IlmImfTest )
+  ADD_SUBDIRECTORY ( IlmImfUtilTest )
+  ADD_SUBDIRECTORY ( IlmImfFuzzTest )
+ENDIF ()
 
 ##########################
 # Binaries / Utilities
