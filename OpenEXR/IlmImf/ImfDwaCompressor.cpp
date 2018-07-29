@@ -2496,7 +2496,7 @@ DwaCompressor::uncompress
     // start of the data block.
     //
 
-    if ((version < 0) || (version > 2))
+    if (version > 2)
         throw IEX_NAMESPACE::InputExc ("Invalid version of compressed data block");    
 
     setupChannelData(minX, minY, maxX, maxY);
