@@ -70,7 +70,7 @@ ImageLevel::~ImageLevel ()
 
 
 void			
-ImageLevel::resize (const Imath::Box2i& dataWindow)
+ImageLevel::resize (const Box2i& dataWindow)
 {
     if (dataWindow.max.x < dataWindow.min.x - 1||
         dataWindow.max.y < dataWindow.min.y - 1)
