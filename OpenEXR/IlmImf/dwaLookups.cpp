@@ -62,11 +62,11 @@ namespace {
     class LutHeaderWorker
     {
         public:
-            class Runner : public IlmThread::Thread
+            class Runner : public ILMTHREAD_NAMESPACE::Thread
             {
                 public:
                     Runner(LutHeaderWorker &worker, bool output):
-                        IlmThread::Thread(),
+                        ILMTHREAD_NAMESPACE::Thread(),
                         _worker(worker),
                         _output(output)
                     {
@@ -87,7 +87,7 @@ namespace {
                 private:
                     LutHeaderWorker     &_worker;
                     bool                 _output;
-                    IlmThread::Semaphore _semaphore;
+                    ILMTHREAD_NAMESPACE::Semaphore _semaphore;
 
             }; // class LutHeaderWorker::Runner
 
@@ -436,7 +436,7 @@ generateToNonlinear()
 int
 cpuCount()
 {
-    if (!IlmThread::supportsThreads()) return 1;
+    if (!ILMTHREAD_NAMESPACE::supportsThreads()) return 1;
 
     int cpuCount = 1;
 
@@ -492,7 +492,7 @@ generateLutHeader()
         }
     }
 
-    if (IlmThread::supportsThreads()) {
+    if (ILMTHREAD_NAMESPACE::supportsThreads()) {
         std::vector<LutHeaderWorker::Runner*> runners;
         for (size_t i=0; i<workers.size(); ++i) {
             runners.push_back( new LutHeaderWorker::Runner(*workers[i], (i==0)) );
