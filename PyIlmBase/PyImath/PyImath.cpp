@@ -32,9 +32,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <PyImath.h>
+#include "PyImath.h"
 #include <PyIex.h>
-#include <PyImathExport.h>
+#include "PyImathExport.h"
 
 
 namespace PyImath {

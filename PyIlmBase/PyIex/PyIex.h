@@ -47,8 +47,8 @@
 #include <IexMathFloatExc.h>
 #include <boost/python/errors.hpp>
 #include <boost/format.hpp>
-#include <PyIexTypeTranslator.h>
-#include <PyIexExport.h>
+#include "PyIexTypeTranslator.h"
+#include "PyIexExport.h"
 
 namespace PyIex {
 

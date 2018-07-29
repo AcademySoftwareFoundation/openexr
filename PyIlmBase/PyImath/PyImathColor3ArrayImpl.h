@@ -46,9 +46,9 @@
 #include <boost/python.hpp>
 #include <boost/python/make_constructor.hpp>
 #include <boost/format.hpp>
-#include <PyImath.h>
+#include "PyImath.h"
 #include <Iex.h>
-#include <PyImathMathExc.h>
+#include "PyImathMathExc.h"
 
 namespace PyImath {
 using namespace boost::python;

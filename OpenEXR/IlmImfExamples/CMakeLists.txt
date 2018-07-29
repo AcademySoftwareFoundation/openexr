@@ -13,11 +13,11 @@ ADD_EXECUTABLE ( IlmImfExamples
 
 
 TARGET_LINK_LIBRARIES ( IlmImfExamples 
-        IlmImf
-        Half${ILMBASE_LIBSUFFIX}
-        Iex${ILMBASE_LIBSUFFIX}
-        Imath${ILMBASE_LIBSUFFIX}
-        IlmThread${ILMBASE_LIBSUFFIX}
+        OpenEXR::IlmImf
+        IlmBase::Half
+        IlmBase::Iex
+        IlmBase::Imath
+        IlmBase::IlmThread
         ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
         )
   

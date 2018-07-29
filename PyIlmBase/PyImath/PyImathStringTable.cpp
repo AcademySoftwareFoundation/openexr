@@ -32,10 +32,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <PyImathStringTable.h>
+#include "PyImathStringTable.h"
 #include <Iex.h>
 #include <limits>
-#include <PyImathExport.h>
+#include "PyImathExport.h"
 
 namespace PyImath {
 

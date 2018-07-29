@@ -10,6 +10,8 @@ Wojciech Jarosz <wjarosz@ucsd.edu>
 Andrew Kunz <akunz@ilm.com>
 Piotr Stanczyk <pstanczyk@ilm.com>
 Peter Hillman <peterh@weta.co.nz>
+Nick Porcino <nick.porcino@gmail.com>
+Kimball Thurston
 
 Contributors:
 -------------
@@ -26,12 +28,6 @@ Nicholas Yue <yue.nicholas@gmail.com>
 Yunfeng Bai (ILM)
 Pascal Jette (Autodesk)
 Karl Rasche, DreamWorks Animation <Karl.Rasche@dreamworks.com>
-
-Win32 build system:
--------------------
-
-Nick Porcino <NPorcino@lucasarts.com>
-Kimball Thurston
 
 Win32 port contributors:
 ------------------------

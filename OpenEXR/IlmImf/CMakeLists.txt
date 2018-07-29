@@ -13,9 +13,9 @@ ADD_EXECUTABLE ( b44ExpLogTable
 )
 
 TARGET_LINK_LIBRARIES ( b44ExpLogTable
-  Half${ILMBASE_LIBSUFFIX}
-  IlmThread${ILMBASE_LIBSUFFIX}
-  Iex${ILMBASE_LIBSUFFIX}
+  IlmBase::Half
+  IlmBase::IlmThread
+  IlmBase::Iex
   ${PTHREAD_LIB}
 )
 
@@ -38,15 +38,16 @@ ADD_CUSTOM_COMMAND (
 ADD_EXECUTABLE ( dwaLookups
   dwaLookups.cpp
 )
+message(STATUS "Using IlmBase version ${ILMBASE_LIBSUFFIX}")
 
 IF (BUILD_SHARED_LIBS AND WIN32)
     TARGET_COMPILE_DEFINITIONS( dwaLookups PUBLIC OPENEXR_DLL )
 ENDIF()
 
 TARGET_LINK_LIBRARIES ( dwaLookups
-  Half${ILMBASE_LIBSUFFIX}
-  IlmThread${ILMBASE_LIBSUFFIX}
-  Iex${ILMBASE_LIBSUFFIX}
+  IlmBase::Half
+  IlmBase::IlmThread
+  IlmBase::Iex
   ${PTHREAD_LIB}
 )
 
@@ -175,11 +176,12 @@ IF ( BUILD_SHARED_LIBS )
   ENDIF ()
 
   TARGET_LINK_LIBRARIES ( IlmImf
-    Half${ILMBASE_LIBSUFFIX}
-    Iex${ILMBASE_LIBSUFFIX}
-    Imath${ILMBASE_LIBSUFFIX}
-    IlmThread${ILMBASE_LIBSUFFIX}
-    ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
+    PUBLIC  IlmBase::Iex
+    PUBLIC  IlmBase::Half
+    PUBLIC  IlmBase::Imath
+    PUBLIC  IlmBase::IlmThread
+    PRIVATE ${PTHREAD_LIB} 
+    PRIVATE ${ZLIB_LIBRARIES}
   )
 
   SET_TARGET_PROPERTIES ( IlmImf
@@ -206,7 +208,7 @@ IF (BUILD_STATIC_LIBS)
     )
 
   IF (WIN32)
-    TARGET_COMPILE_DEFINITIONS ( IlmImf PUBLIC _CRT_SECURE_NO_WARNINGS )
+    TARGET_COMPILE_DEFINITIONS ( IlmImf_static PUBLIC _CRT_SECURE_NO_WARNINGS )
   ENDIF ()
 
   ADD_DEPENDENCIES ( IlmImf_static b44ExpLogTable )
@@ -316,3 +318,9 @@ INSTALL (
   DESTINATION
     include/OpenEXR
 )
+
+if (BUILD_SHARED_LIBS)
+    add_library(OpenEXR::IlmImf ALIAS IlmImf)
+else()
+    add_library(OpenEXR::IlmImf ALIAS IlmImf_static)
+endif()

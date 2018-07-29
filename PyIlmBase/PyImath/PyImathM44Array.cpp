@@ -32,9 +32,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <PyImathM44Array.h>
-#include <PyImathMatrix.h>
-#include <PyImathExport.h>
+#include "PyImathM44Array.h"
+#include "PyImathMatrix.h"
+#include "PyImathExport.h"
 
 namespace PyImath {
     

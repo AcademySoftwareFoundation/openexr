@@ -35,8 +35,8 @@
 #ifndef _PyImathOperators_h_
 #define _PyImathOperators_h_
 
-#include <PyImathFixedArray.h>
-#include <PyImathAutovectorize.h>
+#include "PyImathFixedArray.h"
+#include "PyImathAutovectorize.h"
 
 namespace PyImath {
 
