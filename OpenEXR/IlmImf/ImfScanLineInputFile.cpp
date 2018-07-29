@@ -375,6 +375,8 @@ readPixelData (InputStreamMutex *streamData,
     //
 
     int lineBufferNumber = (minY - ifd->minY) / ifd->linesInBuffer;
+    if (lineBufferNumber < 0 || lineBufferNumber >= int(ifd->lineOffsets.size()))
+        THROW (IEX_NAMESPACE::InputExc, "Invalid scan line " << minY << " requested or missing.");
 
     Int64 lineOffset = ifd->lineOffsets[lineBufferNumber];
 
