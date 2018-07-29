@@ -137,7 +137,7 @@ DeepImageLevel::initializeSampleLists ()
 
 
 void			
-DeepImageLevel::resize (const Imath::Box2i& dataWindow)
+DeepImageLevel::resize (const Box2i& dataWindow)
 {
     //
     // Note: if the following code throws an exception, then the image level

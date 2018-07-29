@@ -46,8 +46,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include <ImfFlatImageChannel.h>
-#include <ImfImageLevel.h>
+#include "ImfFlatImageChannel.h"
+#include "ImfImageLevel.h"
 #include <ImathBox.h>
 #include <string>
 #include <map>

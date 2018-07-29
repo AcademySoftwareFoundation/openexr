@@ -47,6 +47,7 @@
 
 #include "ImfImageChannel.h"
 #include "ImfUtilExport.h"
+#include "ImfImageLevel.h"
 
 #include <ImfPixelType.h>
 #include <ImfFrameBuffer.h>

@@ -337,7 +337,7 @@ Image::levelHeight (int ly) const
 
 
 void
-Image::resize (const Imath::Box2i &dataWindow)
+Image::resize (const Box2i &dataWindow)
 {
     resize (dataWindow, _levelMode, _levelRoundingMode);
 }
@@ -345,7 +345,7 @@ Image::resize (const Imath::Box2i &dataWindow)
 
 void
 Image::resize
-    (const Imath::Box2i &dataWindow,
+    (const Box2i &dataWindow,
      LevelMode levelMode,
      LevelRoundingMode levelRoundingMode)
 {

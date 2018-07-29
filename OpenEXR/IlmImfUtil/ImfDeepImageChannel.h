@@ -46,6 +46,8 @@
 //----------------------------------------------------------------------------
 
 #include "ImfImageChannel.h"
+#include "ImfSampleCountChannel.h"
+#include "ImfImageLevel.h"
 #include "ImfUtilExport.h"
 
 #include "ImfDeepFrameBuffer.h"

@@ -83,7 +83,7 @@ FlatImageLevel::~FlatImageLevel ()
 
 
 void			
-FlatImageLevel::resize (const Imath::Box2i& dataWindow)
+FlatImageLevel::resize (const Box2i& dataWindow)
 {
     //
     // Note: if the following code throws an exception, then the image level

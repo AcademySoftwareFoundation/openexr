@@ -43,14 +43,14 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-Imf::Zip::Zip(size_t maxRawSize):
+Zip::Zip(size_t maxRawSize):
     _maxRawSize(maxRawSize),
     _tmpBuffer(0)
 {
     _tmpBuffer = new char[_maxRawSize];
 }
 
-Imf::Zip::Zip(size_t maxScanLineSize, size_t numScanLines):
+Zip::Zip(size_t maxScanLineSize, size_t numScanLines):
     _maxRawSize(0),
     _tmpBuffer(0)
 {
@@ -58,19 +58,19 @@ Imf::Zip::Zip(size_t maxScanLineSize, size_t numScanLines):
     _tmpBuffer  = new char[_maxRawSize];
 }
 
-Imf::Zip::~Zip()
+Zip::~Zip()
 {
     if (_tmpBuffer) delete[] _tmpBuffer;
 }
 
 size_t
-Imf::Zip::maxRawSize()
+Zip::maxRawSize()
 {
     return _maxRawSize;
 }
 
 size_t
-Imf::Zip::maxCompressedSize()
+Zip::maxCompressedSize()
 {
     return uiAdd (uiAdd (_maxRawSize,
                size_t (ceil (_maxRawSize * 0.01))),
@@ -78,7 +78,7 @@ Imf::Zip::maxCompressedSize()
 }
 
 int
-Imf::Zip::compress(const char *raw, int rawSize, char *compressed)
+Zip::compress(const char *raw, int rawSize, char *compressed)
 {
     //
     // Reorder the pixel data.
@@ -130,7 +130,7 @@ Imf::Zip::compress(const char *raw, int rawSize, char *compressed)
     if (Z_OK != ::compress ((Bytef *)compressed, &outSize,
                 (const Bytef *) _tmpBuffer, rawSize))
     {
-        throw Iex::BaseExc ("Data compression (zlib) failed.");
+        throw IEX_NAMESPACE::BaseExc ("Data compression (zlib) failed.");
     }
 
     return outSize;
@@ -261,8 +261,8 @@ interleave_scalar(const char *source, size_t outSize, char *out)
 #endif
 
 int
-Imf::Zip::uncompress(const char *compressed, int compressedSize,
-                                            char *raw)
+Zip::uncompress(const char *compressed, int compressedSize,
+                char *raw)
 {
     //
     // Decompress the data using zlib
@@ -273,7 +273,7 @@ Imf::Zip::uncompress(const char *compressed, int compressedSize,
     if (Z_OK != ::uncompress ((Bytef *)_tmpBuffer, &outSize,
                      (const Bytef *) compressed, compressedSize))
     {
-        throw Iex::InputExc ("Data decompression (zlib) failed.");
+        throw IEX_NAMESPACE::InputExc ("Data decompression (zlib) failed.");
     }
 
     if (outSize == 0)
