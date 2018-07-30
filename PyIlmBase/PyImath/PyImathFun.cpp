@@ -32,10 +32,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <PyImathFun.h>
-#include <PyImathDecorators.h>
-#include <PyImathExport.h>
-#include <PyImathAutovectorize.h>
+#include "PyImathFun.h"
+#include "PyImathDecorators.h"
+#include "PyImathExport.h"
+#include "PyImathAutovectorize.h"
 #include <Python.h>
 #include <boost/python.hpp>
 #include <boost/python/make_constructor.hpp>

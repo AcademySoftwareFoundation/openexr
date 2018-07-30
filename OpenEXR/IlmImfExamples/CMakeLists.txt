@@ -11,13 +11,13 @@ ADD_EXECUTABLE ( IlmImfExamples
   rgbaInterfaceTiledExamples.cpp
  )
 
+ SET_ILMBASE_INCLUDE_DIRS( IlmImfExamples )
 
-TARGET_LINK_LIBRARIES ( IlmImfExamples 
-        IlmImf
-        Half${ILMBASE_LIBSUFFIX}
-        Iex${ILMBASE_LIBSUFFIX}
-        Imath${ILMBASE_LIBSUFFIX}
-        IlmThread${ILMBASE_LIBSUFFIX}
-        ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
-        )
-  
+TARGET_LINK_LIBRARIES ( IlmImfExamples
+  OpenEXR::IlmImf
+  IlmBase::Half
+  IlmBase::Iex
+  IlmBase::Imath
+  IlmBase::IlmThread
+  ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
+)

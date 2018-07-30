@@ -35,7 +35,7 @@
 #ifndef _PyImathStringArrayRegister_h_
 #define _PyImathStringArrayRegister_h_
 
-#include <PyImathExport.h>
+#include "PyImathExport.h"
 
 namespace PyImath {
 

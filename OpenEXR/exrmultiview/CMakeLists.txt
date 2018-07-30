@@ -6,12 +6,14 @@ ADD_EXECUTABLE ( exrmultiview
   Image.cpp
 )
 
+SET_ILMBASE_INCLUDE_DIRS( exrmultiview )
+
 TARGET_LINK_LIBRARIES ( exrmultiview
-  IlmImf
-  Half${ILMBASE_LIBSUFFIX}
-  Imath${ILMBASE_LIBSUFFIX}
-  Iex${ILMBASE_LIBSUFFIX}
-  IlmThread${ILMBASE_LIBSUFFIX}
+  OpenEXR::IlmImf
+  IlmBase::Half
+  IlmBase::Imath
+  IlmBase::Iex
+  IlmBase::IlmThread
   ${PTHREAD_LIB}
   ${ZLIB_LIBRARIES}
 )

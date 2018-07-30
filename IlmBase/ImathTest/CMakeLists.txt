@@ -27,5 +27,5 @@ ADD_EXECUTABLE ( ImathTest
   )
 
 ADD_TEST ( TestImath ImathTest )
-TARGET_LINK_LIBRARIES ( ImathTest Imath Iex )
+TARGET_LINK_LIBRARIES ( ImathTest IlmBase::Imath IlmBase::Iex )
 

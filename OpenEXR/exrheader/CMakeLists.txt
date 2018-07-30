@@ -1,14 +1,13 @@
 # yue.nicholas@gmail.com
 
-ADD_EXECUTABLE ( exrheader
-  main.cpp
-)
+ADD_EXECUTABLE ( exrheader main.cpp )
+SET_ILMBASE_INCLUDE_DIRS( exrheader )
 
 TARGET_LINK_LIBRARIES ( exrheader
-  IlmImf
-  Iex${ILMBASE_LIBSUFFIX}
-  IlmThread${ILMBASE_LIBSUFFIX}
-  Half${ILMBASE_LIBSUFFIX}
+  OpenEXR::IlmImf
+  IlmBase::Iex
+  IlmBase::IlmThread
+  IlmBase::Half
   ${PTHREAD_LIB}
   ${ZLIB_LIBRARIES}
 )

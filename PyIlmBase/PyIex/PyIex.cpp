@@ -39,8 +39,8 @@
 //-----------------------------------------------------------------------------
 
 
-#include <PyIex.h>
-#include <PyIexExport.h>
+#include "PyIex.h"
+#include "PyIexExport.h"
 #include <IexErrnoExc.h>
 
 namespace PyIex {

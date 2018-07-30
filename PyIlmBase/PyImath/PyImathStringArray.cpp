@@ -32,9 +32,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <PyImathStringArrayRegister.h>
-#include <PyImathStringArray.h>
-#include <PyImathExport.h>
+#include "PyImathStringArrayRegister.h"
+#include "PyImathStringArray.h"
+#include "PyImathExport.h"
 
 namespace PyImath {
 

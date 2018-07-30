@@ -37,9 +37,9 @@
 
 #include <Python.h>
 #include <boost/python.hpp>
-#include <PyImath.h>
+#include "PyImath.h"
 #include <ImathVec.h>
-#include <PyImathFixedArray.h>
+#include "PyImathFixedArray.h"
 
 namespace PyImath {
 

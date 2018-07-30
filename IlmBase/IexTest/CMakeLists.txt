@@ -5,7 +5,7 @@ ADD_EXECUTABLE ( IexTest
   testBaseExc.cpp
   )
 
-TARGET_LINK_LIBRARIES ( IexTest Iex )
+TARGET_LINK_LIBRARIES ( IexTest IlmBase::Iex )
 
 INSTALL ( TARGETS
   IexTest

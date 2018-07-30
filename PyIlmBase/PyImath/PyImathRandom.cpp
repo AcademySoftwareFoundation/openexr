@@ -33,15 +33,15 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <PyImathRandom.h>
+#include "PyImathRandom.h"
 #include "PyImathDecorators.h"
 #include <Python.h>
 #include <boost/python.hpp>
 #include <boost/format.hpp>
 #include <boost/python/make_constructor.hpp>
-#include <PyImath.h>
-#include <PyImathMathExc.h>
-#include <PyImathFixedArray.h>
+#include "PyImath.h"
+#include "PyImathMathExc.h"
+#include "PyImathFixedArray.h"
 
 
 namespace PyImath{
