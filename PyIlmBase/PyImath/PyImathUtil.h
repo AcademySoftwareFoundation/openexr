@@ -43,7 +43,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include <PyImathExport.h>
+#include "PyImathExport.h"
 #include <Python.h>
 
 namespace PyImath {

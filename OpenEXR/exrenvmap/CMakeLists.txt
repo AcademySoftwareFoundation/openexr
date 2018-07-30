@@ -10,11 +10,13 @@ ADD_EXECUTABLE ( exrenvmap
   EnvmapImage.cpp
 )
 
+SET_ILMBASE_INCLUDE_DIRS( exrenvmap )
+
 TARGET_LINK_LIBRARIES ( exrenvmap
-  IlmImf
-  IlmThread${ILMBASE_LIBSUFFIX}
-  Iex${ILMBASE_LIBSUFFIX}
-  Half${ILMBASE_LIBSUFFIX}
+  OpenEXR::IlmImf
+  IlmBase::IlmThread
+  IlmBase::Iex
+  IlmBase::Half
   ${PTHREAD_LIB}
   ${ZLIB_LIBRARIES}
 )

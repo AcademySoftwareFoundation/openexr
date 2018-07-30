@@ -19,12 +19,13 @@ ENDIF ()
 INCLUDE_DIRECTORIES (
 	${NUMPY_INCLUDE_DIRS}
 )
+SET_ILMBASE_INCLUDE_DIRS( imathnumpymodule )
 
 TARGET_LINK_LIBRARIES ( imathnumpymodule
 	PyImath
 	PyIex
-	Imath${ILMBASE_LIBSUFFIX}
-	Iex${ILMBASE_LIBSUFFIX}
+	IlmBase::Imath
+	IlmBase::Iex
 	${Boost_LIBRARIES}
 )
 

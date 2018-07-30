@@ -62,14 +62,15 @@ ADD_EXECUTABLE ( IlmImfTest
   testYca.cpp
  )
 
+ SET_ILMBASE_INCLUDE_DIRS( IlmImfTest )
 
 ADD_TEST ( TestIlmImf IlmImfTest )
-TARGET_LINK_LIBRARIES ( IlmImfTest 
-        IlmImf  
-        Half${ILMBASE_LIBSUFFIX}
-        Iex${ILMBASE_LIBSUFFIX}
-        Imath${ILMBASE_LIBSUFFIX}
-        IlmThread${ILMBASE_LIBSUFFIX}
+TARGET_LINK_LIBRARIES ( IlmImfTest
+        OpenEXR::IlmImf
+        IlmBase::Half
+        IlmBase::Iex
+        IlmBase::Imath
+        IlmBase::IlmThread
         ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
         )
 

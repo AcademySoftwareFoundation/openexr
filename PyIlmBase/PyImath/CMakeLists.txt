@@ -32,17 +32,22 @@ ADD_LIBRARY ( PyImath ${LIB_TYPE}
     PyImathVec4si.cpp
 )
 
-IF(BUILD_SHARED_LIBS)
-    target_compile_definitions( PyImath PRIVATE -DPYIMATH_EXPORTS )
-ENDIF()
-
 target_compile_definitions( PyImath PRIVATE -DPYIMATH_BUILD )
 
+IF (WIN32)
+  target_compile_definitions( PyImath
+    PRIVATE OPENEXR_DLL)
+ENDIF()
+
+
+
+SET_ILMBASE_INCLUDE_DIRS( PyImath )
 
 TARGET_LINK_LIBRARIES ( PyImath
-	Iex${ILMBASE_LIBSUFFIX}
-	IexMath${ILMBASE_LIBSUFFIX}
-	Imath${ILMBASE_LIBSUFFIX}
+    IlmBase::Iex
+    IlmBase::IexMath
+    IlmBase::Imath
+    PyIex
 	${Boost_LIBRARIES}
 	${PYTHON_LIBRARIES}
 )
@@ -53,7 +58,7 @@ INSTALL ( TARGETS PyImath
 )
 
 INSTALL (DIRECTORY ./
-    DESTINATION include
+    DESTINATION include/OpenEXR
     FILES_MATCHING PATTERN "*.h"
 )
 
@@ -65,9 +70,9 @@ ADD_LIBRARY ( imathmodule ${LIB_TYPE}
 
 if (WIN32)
     SET_TARGET_PROPERTIES ( imathmodule
-        PROPERTIES 
+        PROPERTIES
             PREFIX ""
-            OUTPUT_NAME "imath" 
+            OUTPUT_NAME "imath"
             SUFFIX ".pyd"
     )
 else()
@@ -76,12 +81,15 @@ else()
     )
 endif()
 
+SET_ILMBASE_INCLUDE_DIRS( imathmodule )
+
 TARGET_LINK_LIBRARIES ( imathmodule
 	PyImath
 	PyIex
-	Imath${ILMBASE_LIBSUFFIX}
-	Iex${ILMBASE_LIBSUFFIX}
+	IlmBase::Imath
+	IlmBase::Iex
 	${Boost_LIBRARIES}
+	${PYTHON_LIBRARIES}
 )
 
 INSTALL ( TARGETS imathmodule

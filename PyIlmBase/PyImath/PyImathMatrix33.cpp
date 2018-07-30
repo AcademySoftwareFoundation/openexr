@@ -34,7 +34,7 @@
 
 #define BOOST_PYTHON_MAX_ARITY 17
 
-#include <PyImathMatrix.h>
+#include "PyImathMatrix.h"
 #include "PyImathExport.h"
 #include "PyImathDecorators.h"
 #include <Python.h>
@@ -44,9 +44,9 @@
 #include <boost/python/tuple.hpp>
 #include <boost/python/dict.hpp>
 #include <boost/python/raw_function.hpp>
-#include <PyImath.h>
-#include <PyImathVec.h>
-#include <PyImathMathExc.h>
+#include "PyImath.h"
+#include "PyImathVec.h"
+#include "PyImathMathExc.h"
 #include <ImathVec.h>
 #include <ImathMatrixAlgo.h>
 #include <Iex.h>

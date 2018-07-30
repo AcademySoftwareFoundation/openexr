@@ -35,7 +35,7 @@
 #ifndef _PyImathFun_h_
 #define _PyImathFun_h_
 
-#include <PyImathExport.h>
+#include "PyImathExport.h"
 
 namespace PyImath {
 

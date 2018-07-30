@@ -58,3 +58,58 @@ Please see the README files of each of the individual directories for more infor
 
 A collection of OpenEXR images is available from the adjacent repository
 [openexr-images](https://github.com/openexr/openexr-images).
+
+## Building with CMake
+
+To build with CMake, OpenEXR has a few prerequisites.
+
+* CMake 3.11 or newer
+* zlib
+* boost-python (if the python bindings are to be built)
+* fltk (if the openexr viewer is to be built)
+* Cg (if playexr is to be built)
+
+When these prerequisites are fulfulled, prepare the build environment.
+
+In the root CMakeLists.txt file, or using a tools such as ccmake or cmake-gui,
+configure the OpenEXR build. The options are detailed below.
+
+Create a build directory, cd into it, and run cmake to configure the build.
+Select an appropriate generator, such as "Unix Makefiles", or "Visual Studio 15 2017 Win64".
+
+````
+cmake -DCMAKE_INSTALL_PREFIX=<install location> <OpenEXR source root> -G "selected generator" -DCMAKE_PREFIX_PATH=<paths to dependencies - zlib etc>
+````
+
+
+The available options are:
+
+* OPENEXR_BUILD_ILMBASE (ON)
+By default, IlmBase is always built.
+
+* OPENEXR_BUILD_OPENEXR (ON)
+By default, OpenEXR is always built.
+
+* OPENEXR_BUILD_PYTHON_LIBS (ON)
+By default, the Python bindings will be built.
+
+* OPENEXR_BUILD_VIEWERS (OFF)
+By default, the viewers are not built, as they have not been updated for
+modern OpenGL.
+
+* OPENEXR_BUILD_SHARED (ON)
+* OPENEXR_BUILD_STATIC (OFF)
+The build can be configured to create either shared libraries, or static 
+libraries, or both.
+
+* OPENEXR_NAMESPACE_VERSIONING (ON)
+OpenEXR symbols will be contained within a namespace
+
+* OPENEXR_FORCE_CXX03 (OFF)
+C++03 compatibility is possible as an option
+
+* OPENEXR_ENABLE_TESTS (ON)
+By default, the tests will be built.
+
+* OPENEXR_PYTHON_MAJOR, OPENEXR_PYTHON_MINOR "2", "7"
+By default, OpenEXR is built against Python 2.7.x.

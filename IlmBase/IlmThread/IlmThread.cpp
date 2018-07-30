@@ -36,7 +36,7 @@
 //
 //	class Thread -- this file contains two implementations of thread:
 //	- dummy implementation for platforms that do not support threading
-//	  when FORCE_CXX03 is on
+//	  when OPENEXR_FORCE_CXX03 is on
 //	- c++11 and newer version
 //
 //-----------------------------------------------------------------------------
@@ -82,7 +82,7 @@ Thread::start ()
 #else
 #   if !defined (_WIN32) &&!(_WIN64) && !(HAVE_PTHREAD)
 //-----------------------------------------------------------------------------
-// FORCE_CXX03 with no windows / pthread support
+// OPENEXR_FORCE_CXX03 with no windows / pthread support
 //-----------------------------------------------------------------------------
 bool
 supportsThreads ()

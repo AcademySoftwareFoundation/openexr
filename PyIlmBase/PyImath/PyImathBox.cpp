@@ -40,7 +40,7 @@
 #include <boost/python/make_constructor.hpp>
 #include <Iex.h>
 #include <ImathBoxAlgo.h>
-#include <PyImathTask.h>
+#include "PyImathTask.h"
 #include <vector>
 #include "PyImathBoxArrayImpl.h"
 
