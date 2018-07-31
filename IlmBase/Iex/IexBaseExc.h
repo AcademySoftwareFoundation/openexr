@@ -77,7 +77,7 @@ class BaseExc: public std::exception
     //--------------------------------------------
 
     IEX_EXPORT virtual const char * what () const throw ();
-    IEX_EXPORT const std::string &  name() const;
+    IEX_EXPORT const std::string &  message() const;
 
 
     //--------------------------------------------------
@@ -111,12 +111,6 @@ class BaseExc: public std::exception
     //--------------------------------------------------
 
     IEX_EXPORT const std::string &  stackTrace () const;
-
-
-    //--------------------------------------------------
-    // Conversion operators.
-    //--------------------------------------------------
-    IEX_EXPORT operator		const char *() const { return what(); }
 
 
   private:

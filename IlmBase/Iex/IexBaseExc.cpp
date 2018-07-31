@@ -138,7 +138,7 @@ BaseExc::append (std::stringstream &s)
 //-----------------
 
 const std::string &
-BaseExc::name() const
+BaseExc::message() const
 {
 	return _what;
 }
