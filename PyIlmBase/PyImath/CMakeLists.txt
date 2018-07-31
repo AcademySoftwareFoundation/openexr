@@ -43,10 +43,10 @@ ENDIF()
 
 SET_ILMBASE_INCLUDE_DIRS( PyImath )
 
+#    IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
 TARGET_LINK_LIBRARIES ( PyImath
-    IlmBase::Iex
-    IlmBase::IexMath
-    IlmBase::Imath
+    IlmBase::IexMath${OPENEXR_TARGET_SUFFIX}
+    IlmBase::Imath${OPENEXR_TARGET_SUFFIX}
     PyIex
 	${Boost_LIBRARIES}
 	${PYTHON_LIBRARIES}
@@ -83,11 +83,11 @@ endif()
 
 SET_ILMBASE_INCLUDE_DIRS( imathmodule )
 
+#	IlmBase::Imath${OPENEXR_TARGET_SUFFIX}
+#	IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
 TARGET_LINK_LIBRARIES ( imathmodule
 	PyImath
 	PyIex
-	IlmBase::Imath
-	IlmBase::Iex
 	${Boost_LIBRARIES}
 	${PYTHON_LIBRARIES}
 )
