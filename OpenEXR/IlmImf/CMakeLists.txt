@@ -22,9 +22,9 @@ IF (WIN32)
     IlmBase::Iex_static)
 ELSE()
   TARGET_LINK_LIBRARIES ( b44ExpLogTable
-    IlmBase::Half
-    IlmBase::IlmThread
-    IlmBase::Iex
+    IlmBase::Half${OPENEXR_TARGET_SUFFIX}
+    IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
+    IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
     ${PTHREAD_LIB})
 ENDIF()
 
@@ -51,9 +51,9 @@ IF (WIN32)
     IlmBase::Iex_static)
 ELSE()
   TARGET_LINK_LIBRARIES ( dwaLookups
-    IlmBase::Half
-    IlmBase::IlmThread
-    IlmBase::Iex
+    IlmBase::Half${OPENEXR_TARGET_SUFFIX}
+    IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
+    IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
     ${PTHREAD_LIB})
 ENDIF()
 
