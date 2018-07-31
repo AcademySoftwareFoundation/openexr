@@ -881,7 +881,7 @@ TiledOutputFile::TiledOutputFile
 	delete _data;
 
 	REPLACE_EXC (e, "Cannot open image file "
-			"\"" << fileName << "\". " << e);
+                 "\"" << fileName << "\". " << e.what());
 	throw;
     }
     catch (...)
@@ -923,7 +923,7 @@ TiledOutputFile::TiledOutputFile
 	delete _data;
 
 	REPLACE_EXC (e, "Cannot open image file "
-			"\"" << os.fileName() << "\". " << e);
+                 "\"" << os.fileName() << "\". " << e.what());
 	throw;
     }
     catch (...)
@@ -955,7 +955,7 @@ TiledOutputFile::TiledOutputFile(const OutputPartData* part) :
         delete _data;
 
         REPLACE_EXC (e, "Cannot initialize output part "
-                        "\"" << part->partNumber << "\". " << e);
+                     "\"" << part->partNumber << "\". " << e.what());
         throw;
     }
     catch (...)
@@ -1385,7 +1385,7 @@ TiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
     catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Failed to write pixel data to image "
-                        "file \"" << fileName() << "\". " << e);
+                     "file \"" << fileName() << "\". " << e.what());
         throw;
     }
 }
@@ -1652,7 +1652,7 @@ TiledOutputFile::levelWidth (int lx) const
     catch (IEX_NAMESPACE::BaseExc &e)
     {
 	REPLACE_EXC (e, "Error calling levelWidth() on image "
-			"file \"" << fileName() << "\". " << e);
+                 "file \"" << fileName() << "\". " << e.what());
 	throw;
     }
 }
@@ -1669,7 +1669,7 @@ TiledOutputFile::levelHeight (int ly) const
     catch (IEX_NAMESPACE::BaseExc &e)
     {
 	REPLACE_EXC (e, "Error calling levelHeight() on image "
-			"file \"" << fileName() << "\". " << e);
+                 "file \"" << fileName() << "\". " << e.what());
 	throw;
     }
 }
@@ -1720,7 +1720,7 @@ TiledOutputFile::dataWindowForLevel (int lx, int ly) const
     catch (IEX_NAMESPACE::BaseExc &e)
     {
 	REPLACE_EXC (e, "Error calling dataWindowForLevel() on image "
-			"file \"" << fileName() << "\". " << e);
+                 "file \"" << fileName() << "\". " << e.what());
 	throw;
     }
 }
@@ -1751,7 +1751,7 @@ TiledOutputFile::dataWindowForTile (int dx, int dy, int lx, int ly) const
     catch (IEX_NAMESPACE::BaseExc &e)
     {
 	REPLACE_EXC (e, "Error calling dataWindowForTile() on image "
-			"file \"" << fileName() << "\". " << e);
+                 "file \"" << fileName() << "\". " << e.what());
 	throw;
     }
 }
@@ -1808,7 +1808,7 @@ TiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
     catch (IEX_NAMESPACE::BaseExc &e)
     {
 	REPLACE_EXC (e, "Cannot update preview image pixels for "
-			"file \"" << fileName() << "\". " << e);
+                 "file \"" << fileName() << "\". " << e.what());
 	throw;
     }
 }
