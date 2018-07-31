@@ -50,6 +50,10 @@ else()
     set(BUILD_ILMBASE_STATIC OFF)
 endif()
 
+if (NOT OPENEXR_BUILD_SHARED)
+  set(OPENEXR_TARGET_SUFFIX _static)
+endif()
+
 # Testing
 set(ENABLE_TESTS ${OPENEXR_BUILD_TESTS})
 if(ENABLE_TESTS)

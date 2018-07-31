@@ -11,7 +11,7 @@ ENDIF()
 SET_ILMBASE_INCLUDE_DIRS( PyIex )
 
 TARGET_LINK_LIBRARIES ( PyIex
-	PUBLIC  IlmBase::Iex
+	PUBLIC  IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
 	PRIVATE ${PYTHON_LIBRARIES}
 	PRIVATE ${Boost_LIBRARIES}
 )
@@ -49,9 +49,9 @@ else()
 	)
 endif()
 
+#    IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
 TARGET_LINK_LIBRARIES ( iexmodule
 	PyIex
-    IlmBase::Iex
 	${PYTHON_LIBRARIES}
 	${Boost_LIBRARIES}
 )

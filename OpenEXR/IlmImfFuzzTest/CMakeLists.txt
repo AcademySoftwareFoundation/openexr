@@ -12,11 +12,11 @@ ADD_EXECUTABLE ( IlmImfFuzzTest
 SET_ILMBASE_INCLUDE_DIRS( IlmImfFuzzTest )
 
 TARGET_LINK_LIBRARIES ( IlmImfFuzzTest
-        OpenEXR::IlmImf
-        IlmBase::Half
-        IlmBase::Iex
-        IlmBase::Imath
-        IlmBase::IlmThread
-        ${PTHREAD_LIB} ${ZLIB_LIBRARIES})
+  OpenEXR::IlmImf${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Half${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Imath${OPENEXR_TARGET_SUFFIX}
+  IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
+  ${PTHREAD_LIB} ${ZLIB_LIBRARIES})
 
 ADD_TEST ( TestIlmImfFuzz IlmImfFuzzTest )

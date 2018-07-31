@@ -11,6 +11,6 @@ ADD_EXECUTABLE ( HalfTest
   testSize.cpp
   )
 
-TARGET_LINK_LIBRARIES ( HalfTest IlmBase::Half )
+TARGET_LINK_LIBRARIES ( HalfTest IlmBase::Half${OPENEXR_TARGET_SUFFIX} )
 
 ADD_TEST ( TestHalf HalfTest )
