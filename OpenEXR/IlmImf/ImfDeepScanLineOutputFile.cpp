@@ -841,7 +841,7 @@ DeepScanLineOutputFile::DeepScanLineOutputFile
         delete _data;
 
         REPLACE_EXC (e, "Cannot open image file "
-                        "\"" << fileName << "\". " << e);
+                     "\"" << fileName << "\". " << e.what());
         throw;
     }
     catch (...)
@@ -885,7 +885,7 @@ DeepScanLineOutputFile::DeepScanLineOutputFile
         delete _data;
 
         REPLACE_EXC (e, "Cannot open image file "
-                        "\"" << os.fileName() << "\". " << e);
+                     "\"" << os.fileName() << "\". " << e.what());
         throw;
     }
     catch (...)
@@ -917,7 +917,7 @@ DeepScanLineOutputFile::DeepScanLineOutputFile(const OutputPartData* part)
         delete _data;
 
         REPLACE_EXC (e, "Cannot initialize output part "
-                        "\"" << part->partNumber << "\". " << e);
+                     "\"" << part->partNumber << "\". " << e.what());
         throw;
     }
     catch (...)
@@ -1388,7 +1388,7 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
     catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Failed to write pixel data to image "
-                        "file \"" << fileName() << "\". " << e);
+                     "file \"" << fileName() << "\". " << e.what());
         throw;
     }
 }
@@ -1545,7 +1545,7 @@ DeepScanLineOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
     catch (IEX_NAMESPACE::BaseExc &e)
     {
         REPLACE_EXC (e, "Cannot update preview image pixels for "
-                        "file \"" << fileName() << "\". " << e);
+                     "file \"" << fileName() << "\". " << e.what());
         throw;
     }
 }

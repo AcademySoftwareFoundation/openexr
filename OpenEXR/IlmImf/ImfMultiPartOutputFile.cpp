@@ -230,7 +230,7 @@ MultiPartOutputFile::MultiPartOutputFile (const char fileName[],
         delete _data;
 
         REPLACE_EXC (e, "Cannot open image file "
-                        "\"" << fileName << "\". " << e);
+                     "\"" << fileName << "\". " << e.what());
         throw;
     }
     catch (...)
@@ -277,7 +277,7 @@ MultiPartOutputFile::MultiPartOutputFile(OStream& os,
         delete _data;
         
         REPLACE_EXC (e, "Cannot open image stream "
-        "\"" << os.fileName() << "\". " << e);
+                     "\"" << os.fileName() << "\". " << e.what());
         throw;
     }
     catch (...)
