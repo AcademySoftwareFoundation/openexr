@@ -133,7 +133,7 @@ FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "
                              (ILMBASE_VERSION_PATCH <<  8))
 ")
 
-IF ( NOT WIN32 )
+IF ( NOT WIN32 AND OPENEXR_BUILD_SHARED )
   CREATE_LIBTOOL_FILE ( Half /lib )
   CREATE_LIBTOOL_FILE ( Iex /lib )
   CREATE_LIBTOOL_FILE ( IexMath /lib )
