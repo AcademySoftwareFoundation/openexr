@@ -2,7 +2,7 @@
 #include "halfLimits.h"
 #include <iostream>
 #include <assert.h>
-
+#include <cmath>
 
 using namespace std;
 
@@ -88,6 +88,17 @@ testLimits()
 	half h (mypow (10, numeric_limits<half>::max_exponent10 + 1));
 	assert (h.isInfinity());
     }
+
+#if __cplusplus >= 201103L
+
+    cout << "max_digits10\n";
+    assert (numeric_limits<half>::max_digits10
+            == std::ceil(numeric_limits<half>::digits * std::log10(2) + 1));
+
+    cout << "lowest\n";
+    assert (numeric_limits<half>::lowest() == -HALF_MAX);
+
+#endif
 
     cout << "ok\n\n" << flush;
 
