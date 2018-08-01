@@ -277,6 +277,10 @@ HALF_EXPORT void        printBits   (char  c[35], float f);
 #define HALF_DIG	2		// Number of base 10 digits that
 					// can be represented without change
 
+#define HALF_DECIMAL_DIG	5	// Number of base-10 digits that are
+					// necessary to uniquely represent all
+					// distinct values
+
 #define HALF_RADIX	2		// Base of the exponent
 
 #define HALF_MIN_EXP	-13		// Minimum negative integer such that
