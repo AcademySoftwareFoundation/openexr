@@ -75,7 +75,7 @@ stackTracer ()
 
 
 BaseExc::BaseExc (const char* s) throw () :
-    _what (s? s: ""),
+    _message (s? s: ""),
     _stackTrace (currentStackTracer? currentStackTracer(): "")
 {
     // empty
@@ -83,7 +83,7 @@ BaseExc::BaseExc (const char* s) throw () :
 
 
 BaseExc::BaseExc (const std::string &s) throw () :
-    _what (s),
+    _message (s),
     _stackTrace (currentStackTracer? currentStackTracer(): "")
 {
     // empty
@@ -91,7 +91,7 @@ BaseExc::BaseExc (const std::string &s) throw () :
 
 
 BaseExc::BaseExc (std::stringstream &s) throw () :
-    _what (s.str()),
+    _message (s.str()),
     _stackTrace (currentStackTracer? currentStackTracer(): "")
 {
     // empty
@@ -99,7 +99,7 @@ BaseExc::BaseExc (std::stringstream &s) throw () :
 
 
 BaseExc::BaseExc (const BaseExc &be) throw () :
-    _what (be._what),
+    _message (be._message),
     _stackTrace (be._stackTrace)
 {
     // empty
@@ -115,32 +115,28 @@ BaseExc::~BaseExc () throw ()
 const char *
 BaseExc::what () const throw ()
 {
-    return _what.c_str();
+    return _message.c_str();
 }
 
 
 BaseExc &
 BaseExc::assign (std::stringstream &s)
 {
-    _what.assign (s.str());
+    _message.assign (s.str());
     return *this;
 }
 
 BaseExc &
 BaseExc::append (std::stringstream &s)
 {
-    _what.append (s.str());
+    _message.append (s.str());
     return *this;
 }
-
-//-----------------
-// Inline functions
-//-----------------
 
 const std::string &
 BaseExc::message() const
 {
-	return _what;
+	return _message;
 }
 
 BaseExc &
@@ -160,7 +156,7 @@ BaseExc::operator += (std::stringstream &s)
 BaseExc &
 BaseExc::assign (const char *s)
 {
-    _what.assign(s);
+    _message.assign(s);
     return *this;
 }
 
@@ -175,7 +171,7 @@ BaseExc::operator = (const char *s)
 BaseExc &
 BaseExc::append (const char *s)
 {
-    _what.append(s);
+    _message.append(s);
     return *this;
 }
 

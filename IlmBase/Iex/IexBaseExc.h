@@ -72,12 +72,11 @@ class BaseExc: public std::exception
     IEX_EXPORT BaseExc (const BaseExc &be) throw();
     IEX_EXPORT virtual ~BaseExc () throw ();
 
-    //--------------------------------------------
-    // what() method -- e.what() returns e.c_str()
-    //--------------------------------------------
+    //---------------------------------------------------
+    // what() method -- e.what() returns _message.c_str()
+    //---------------------------------------------------
 
     IEX_EXPORT virtual const char * what () const throw ();
-    IEX_EXPORT const std::string &  message() const;
 
 
     //--------------------------------------------------
@@ -102,6 +101,11 @@ class BaseExc: public std::exception
     IEX_EXPORT BaseExc &            append (const char *s);
     IEX_EXPORT BaseExc &            operator += (const char *s);
 
+    //---------------------------------------------------
+    // Access to the string representation of the message
+    //---------------------------------------------------
+
+    IEX_EXPORT const std::string &  message () const;
 
     //--------------------------------------------------
     // Stack trace for the point at which the exception
@@ -112,9 +116,9 @@ class BaseExc: public std::exception
 
     IEX_EXPORT const std::string &  stackTrace () const;
 
-
   private:
-    std::string                     _what;
+
+    std::string                     _message;
     std::string                     _stackTrace;
 };
 
