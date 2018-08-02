@@ -22,7 +22,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 option(OPENEXR_BUILD_ILMBASE        "Build IlmBase"             ON)
 option(OPENEXR_BUILD_OPENEXR        "Build OpenEXR"             ON)
-option(OPENEXR_BUILD_PYTHON_LIBS    "Build the Python bindings" OFF)
+option(OPENEXR_BUILD_PYTHON_LIBS    "Build the Python bindings" ON)
 option(OPENEXR_BUILD_VIEWERS        "Build the viewers"         OFF)
 option(OPENEXR_BUILD_TESTS          "Enable the tests"          ON)
 
