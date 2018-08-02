@@ -34,8 +34,19 @@ AC_PROG_MAKE_SET
 dnl
 dnl PKGCONFIG preparations
 dnl
-PKG_CHECK_MODULES([ILMBASE], [IlmBase])
+AM_PATH_PKGCONFIG(
+    [ILMBASE_CXXFLAGS],
+    [ILMBASE_LDFLAGS],
+    [ILMBASE_LIBS],
+    [IlmBase],
+    [OpenEXR],
+    [],
+    [-lImath -lHalf -lIlmThread -lIex -lpthread],
+    [ilmbase-prefix],
+    [ILMBASE])
 
+dnl Checks for zlib
+PKG_CHECK_MODULES([ZLIB], [zlib])
 
 dnl Define the version string
 AC_DEFINE_UNQUOTED([OPENEXR_VERSION_STRING], "${VERSION}", [OpenEXR version string])
@@ -151,13 +162,29 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
-dnl Checks for zlib
-PKG_CHECK_MODULES([ZLIB], [zlib])
-
-
-dnl We use a modern toolchain, don't care
-dnl about ancient broken stuff
+dnl don't need this check anymore..
+dnl dnl Checks for std::right etc. in iomanip
+dnl AC_MSG_CHECKING(for complete iomanip support in C++ standard library)
+dnl complete_iomanip="no"
+dnl AC_LANG_SAVE
+dnl AC_LANG_CPLUSPLUS
+dnl AC_TRY_COMPILE([#include <iomanip>],[
+dnl  	std::right;
+dnl ],
+dnl AC_DEFINE(OPENEXR_IMF_HAVE_COMPLETE_IOMANIP) complete_iomanip=yes)
+dnl
+dnl AC_MSG_RESULT($complete_iomanip)
+dnl AC_LANG_RESTORE
 AC_DEFINE([OPENEXR_IMF_HAVE_COMPLETE_IOMANIP], [1], [Define when std::right is available])
+
+AC_MSG_CHECKING(for gcc optimization flags)
+old_cflags=$CFLAGS
+CFLAGS="$CFLAGS -pipe"
+AC_TRY_COMPILE([#include <stdio.h>],
+[ printf ("hello, world"); ],
+[ EXTRA_OPT_CFLAGS="-pipe"],[ EXTRA_OPT_CFLAGS=""])
+CFLAGS=$old_cflags
+AC_MSG_RESULT([$EXTRA_OPT_CFLAGS])
 
 
 dnl Check to see if the toolset supports AVX instructions in inline asm
@@ -173,6 +200,10 @@ AS_IF([test "x$enable_avx" = "xyes"], [
 	gcc_inline_asm_avx="no"
 ])
 
+AM_CFLAGS="$EXTRA_OPT_CFLAGS"
+AM_CXXFLAGS="$EXTRA_OPT_CFLAGS"
+AC_SUBST(AM_CFLAGS)
+AC_SUBST(AM_CXXFLAGS)
 
 dnl Check if sysconf(_SC_NPROCESSORS_ONLN) can be used for CPU count
 AC_MSG_CHECKING([for sysconf(_SC_NPROCESSORS_ONLN)])
@@ -219,6 +250,7 @@ Please re-run configure with these options:
 
   ;;
 esac
+
 
 dnl build imfexamples example program?
 build_imfexamples="no"
