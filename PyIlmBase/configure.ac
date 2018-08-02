@@ -52,7 +52,6 @@ else
       CXXFLAGS="$CXXFLAGS -std=c++11"
     else
       if test "${cxxstd}" == 03 ; then
-        AC_DEFINE(ILMBASE_FORCE_CXX03)
         CXXFLAGS="$CXXFLAGS -std=c++03"
       else
         dnl automatically determine...
