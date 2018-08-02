@@ -11,11 +11,11 @@ INCLUDES = -I$(top_builddir)  \
 	   -I$(top_srcdir)/IlmImf \
 	   -I$(top_srcdir)/IlmImfUtil \
 	   -I$(top_srcdir)/config \
-	   $(ILMBASE_CFLAGS) $(ZLIB_CFLAGS)
+	   @ILMBASE_CXXFLAGS@ $(ILMBASE_CFLAGS) $(ZLIB_CFLAGS)
 
 LDADD = -L$(top_builddir)/IlmImf \
 	-L$(top_builddir)/IlmImfUtil \
-	$(ILMBASE_LIBS) \
+	@ILMBASE_LDFLAGS@ $(ILMBASE_LIBS) \
 	-lIlmImfUtil -lIlmImf $(ZLIB_LIBS)
 
 TESTS = IlmImfUtilTest

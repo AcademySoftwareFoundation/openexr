@@ -4,9 +4,9 @@ bin_PROGRAMS = exrmaketiled
 
 INCLUDES = -I$(top_builddir) \
            -I$(top_srcdir)/IlmImf -I$(top_srcdir)/config \
-           $(ILMBASE_CFLAGS) $(ZLIB_CFLAGS)
+           @ILMBASE_CXXFLAGS@ $(ILMBASE_CFLAGS) $(ZLIB_CFLAGS)
 
-LDADD = $(ILMBASE_LIBS) \
+LDADD = @ILMBASE_LDFLAGS@ $(ILMBASE_LIBS) \
 	$(top_builddir)/IlmImf/libIlmImf.la \
 	$(ZLIB_LIBS)
 
