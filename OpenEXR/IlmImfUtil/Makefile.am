@@ -18,7 +18,6 @@ libIlmImfUtil_la_SOURCES = \
 	ImfDeepImageIO.h ImfDeepImageIO.cpp \
 	ImfImageDataWindow.h ImfImageDataWindow.cpp \
 	ImfImageChannelRenaming.h
-	
 
 libIlmImfUtil_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ \
 			-no-undefined 
@@ -39,5 +38,5 @@ INCLUDES = \
 	   -I$(top_builddir) \
 	   -I$(top_srcdir)/IlmImf \
 	   -I$(top_srcdir)/config \
-	   $(ILMBASE_CFLAGS)
+	   @ILMBASE_CXXFLAGS@ $(ILMBASE_CFLAGS)
 

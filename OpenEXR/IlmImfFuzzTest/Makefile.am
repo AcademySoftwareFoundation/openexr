@@ -14,10 +14,10 @@ IlmImfFuzzTest_SOURCES = fuzzFile.cpp fuzzFile.h main.cpp tmpDir.h \
 INCLUDES = -I$(top_builddir)  \
 	   -I$(top_srcdir)/IlmImf \
 	   -I$(top_srcdir)/config \
-	   $(ILMBASE_CFLAGS) $(ZLIB_CFLAGS)
+	   @ILMBASE_CXXFLAGS@ $(ILMBASE_CFLAGS) $(ZLIB_CFLAGS)
 
 LDADD = -L$(top_builddir)/IlmImf \
-	$(ILMBASE_LIBS) \
+	@ILMBASE_LDFLAGS@ $(ILMBASE_LIBS) \
 	-lIlmImf $(ZLIB_LIBS)
 
 if BUILD_IMFFUZZTEST
