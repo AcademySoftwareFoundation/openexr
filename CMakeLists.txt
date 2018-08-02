@@ -13,6 +13,9 @@ set(OPENEXR_VERSION_API ${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR})
 
 project(OpenEXR VERSION ${OPENEXR_VERSION})
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+#set(OPENEXR_LOCATION ${CMAKE_INSTALL_PREFIX})
+
 #-------------------------------------------------------------------------------
 # The following user options are cached. They are named with the OPENEXR
 # prefix in order that they be grouped together in tools such as ccmake and cmake-gui.
@@ -138,6 +141,15 @@ if(OPENEXR_BUILD_VIEWERS)
   find_package(OpenGL)
   if(NOT OpenGL_FOUND)
     message(WARNING "OpenGL not found, exrdisplay will not be built")
+  endif()
+endif()
+
+if ((OPENEXR_BUILD_OPENEXR OR OPENEXR_BUILD_PYTHON_LIBS OR OPENEXR_BUILD_VIEWERS) AND NOT(OPENEXR_BUILD_ILMBASE))
+  message(INFO "OPENEXR_BUILD_ILMBASE not requested, searching for installed IlmBase instead")
+  find_package(IlmBase)
+  if (NOT IlmBase_FOUND)
+    message(ERROR "Could not find IlmBase, cannot build dependent libraries.")
+    message(INFO, "Set ILMBASE_LOCATION to location of IlmBase.")
   endif()
 endif()
 
