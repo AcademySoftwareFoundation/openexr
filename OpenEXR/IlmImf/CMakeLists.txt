@@ -10,58 +10,71 @@ ELSE ()
   SET(WORKING_DIR .)
 ENDIF ()
 
+SET(BUILD_B44EXPLOGTABLE OFF)
+IF (NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h")
+  SET(BUILD_B44EXPLOGTABLE ON)
+ENDIF ()
 
-ADD_EXECUTABLE ( b44ExpLogTable
-  b44ExpLogTable.cpp
-)
+IF (BUILD_B44EXPLOGTABLE)
+  ADD_EXECUTABLE ( b44ExpLogTable
+    b44ExpLogTable.cpp
+  )
 
-IF (WIN32)
-  TARGET_LINK_LIBRARIES ( b44ExpLogTable
-    IlmBase::Half_static
-    IlmBase::IlmThread_static
-    IlmBase::Iex_static)
-ELSE()
-  TARGET_LINK_LIBRARIES ( b44ExpLogTable
-    IlmBase::Half${OPENEXR_TARGET_SUFFIX}
-    IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
-    IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
-    ${PTHREAD_LIB})
+  IF (WIN32)
+    TARGET_LINK_LIBRARIES ( b44ExpLogTable
+      IlmBase::Half_static
+      IlmBase::IlmThread_static
+      IlmBase::Iex_static)
+  ELSE()
+    TARGET_LINK_LIBRARIES ( b44ExpLogTable
+      IlmBase::Half${OPENEXR_TARGET_SUFFIX}
+      IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
+      IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
+      ${PTHREAD_LIB})
+  ENDIF()
+
+  TARGET_INCLUDE_DIRECTORIES ( b44ExpLogTable
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../IlmBase/Half
+  )
+
+  ADD_CUSTOM_COMMAND (
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
+    COMMAND $<TARGET_FILE:b44ExpLogTable> > ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
+    DEPENDS b44ExpLogTable
+  )
+
+ELSE ()
+  message (STATUS "Skipping build of b44ExpLogTable.h")
 ENDIF()
 
-TARGET_INCLUDE_DIRECTORIES ( b44ExpLogTable
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../IlmBase/Half
-)
+if (NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h")
+  ADD_EXECUTABLE ( dwaLookups
+    dwaLookups.cpp
+  )
 
-ADD_CUSTOM_COMMAND (
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
-  COMMAND $<TARGET_FILE:b44ExpLogTable> > ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
-  DEPENDS b44ExpLogTable
-)
+  SET_ILMBASE_INCLUDE_DIRS(dwaLookups)
 
-ADD_EXECUTABLE ( dwaLookups
-  dwaLookups.cpp
-)
+  IF (WIN32)
+    TARGET_LINK_LIBRARIES ( dwaLookups
+      IlmBase::Half_static
+      IlmBase::IlmThread_static
+      IlmBase::Iex_static)
+  ELSE()
+    TARGET_LINK_LIBRARIES ( dwaLookups
+      IlmBase::Half${OPENEXR_TARGET_SUFFIX}
+      IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
+      IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
+      ${PTHREAD_LIB})
+  ENDIF()
 
-SET_ILMBASE_INCLUDE_DIRS(dwaLookups)
-
-IF (WIN32)
-  TARGET_LINK_LIBRARIES ( dwaLookups
-    IlmBase::Half_static
-    IlmBase::IlmThread_static
-    IlmBase::Iex_static)
-ELSE()
-  TARGET_LINK_LIBRARIES ( dwaLookups
-    IlmBase::Half${OPENEXR_TARGET_SUFFIX}
-    IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
-    IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
-    ${PTHREAD_LIB})
+  ADD_CUSTOM_COMMAND (
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
+    COMMAND $<TARGET_FILE:dwaLookups> > ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
+    DEPENDS dwaLookups
+  )
+ELSE ()
+  message (STATUS "Skipping build of dwaLookups.h")
 ENDIF()
-
-ADD_CUSTOM_COMMAND (
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
-  COMMAND $<TARGET_FILE:dwaLookups> > ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
-  DEPENDS dwaLookups
-)
 
 SET ( ILMIMF_SRCS
   ImfAttribute.cpp
@@ -155,16 +168,21 @@ SET ( ILMIMF_SRCS
   ImfZip.cpp
 )
 
-SET_SOURCE_FILES_PROPERTIES (
-  ImfB44Compressor.cpp
-  PROPERTIES
-  OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
-)
-SET_SOURCE_FILES_PROPERTIES (
-  ImfDwaCompressor.cpp
-  PROPERTIES
-  OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
-)
+IF (BUILD_B44EXPLOGTABLE)
+  SET_SOURCE_FILES_PROPERTIES (
+    ImfB44Compressor.cpp
+    PROPERTIES
+    OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
+  )
+ENDIF ()
+
+iF (BUILD_DWALOOKUPS)
+  SET_SOURCE_FILES_PROPERTIES (
+    ImfDwaCompressor.cpp
+    PROPERTIES
+    OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
+  )
+ENDIF ()
 
 SET (OPENEXR_LIB_TARGETS "")
 
@@ -196,8 +214,13 @@ IF ( OPENEXR_BUILD_SHARED )
     OUTPUT_NAME "IlmImf${OPENEXR_LIBSUFFIX}"
     )
 
-  ADD_DEPENDENCIES ( IlmImf b44ExpLogTable )
-  ADD_DEPENDENCIES ( IlmImf dwaLookups )
+  iF (BUILD_DWALOOKUPS)
+    ADD_DEPENDENCIES ( IlmImf b44ExpLogTable )
+  ENDIF ()
+
+  IF (BUILD_B44EXPLOGTABLE)
+    ADD_DEPENDENCIES ( IlmImf dwaLookups )
+  ENDIF()
 
 ENDIF ()
 
@@ -217,8 +240,13 @@ IF (OPENEXR_BUILD_STATIC)
     TARGET_COMPILE_DEFINITIONS ( IlmImf_static PUBLIC _CRT_SECURE_NO_WARNINGS )
   ENDIF ()
 
-  ADD_DEPENDENCIES ( IlmImf_static b44ExpLogTable )
-  ADD_DEPENDENCIES ( IlmImf_static dwaLookups )
+  iF (BUILD_DWALOOKUPS)
+    ADD_DEPENDENCIES ( IlmImf b44ExpLogTable )
+  ENDIF ()
+
+  IF (BUILD_B44EXPLOGTABLE)
+    ADD_DEPENDENCIES ( IlmImf dwaLookups )
+  ENDIF()
 
 ENDIF ()
 
