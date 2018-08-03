@@ -102,7 +102,7 @@ else
       ])
 fi
 
-echo "    arg_cxxflags = $TEST_CXXFLAGS xxxxx $ZLIB_LIBS"
+echo "    arg_cxxflags = $TEST_CXXFLAGS"
 echo "    arg_ldflags = $TEST_LDFLAGS"
 echo "    arg_libs = $TEST_LIBS"
 
