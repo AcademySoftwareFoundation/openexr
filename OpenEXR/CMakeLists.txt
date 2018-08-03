@@ -16,6 +16,11 @@ IF (NOT WIN32)
   SET ( PTHREAD_LIB pthread )
 ENDIF()
 
+IF(WIN32)
+  SET(CMAKE_DEBUG_POSTFIX "_d")
+ENDIF()
+
+
 MACRO(SET_ILMBASE_INCLUDE_DIRS _target)
   TARGET_INCLUDE_DIRECTORIES(${_target}
     PRIVATE ${ZLIB_INCLUDE_DIR}
@@ -167,14 +172,15 @@ ENDIF ()
 ##########################
 # Binaries / Utilities
 ##########################
-ADD_SUBDIRECTORY ( exrheader )
-ADD_SUBDIRECTORY ( exrmaketiled )
-ADD_SUBDIRECTORY ( exrstdattr )
-ADD_SUBDIRECTORY ( exrmakepreview )
-ADD_SUBDIRECTORY ( exrenvmap )
-ADD_SUBDIRECTORY ( exrmultiview )
-ADD_SUBDIRECTORY ( exrmultipart )
-
+IF (OPENEXR_BUILD_UTILS)
+  ADD_SUBDIRECTORY ( exrheader )
+  ADD_SUBDIRECTORY ( exrmaketiled )
+  ADD_SUBDIRECTORY ( exrstdattr )
+  ADD_SUBDIRECTORY ( exrmakepreview )
+  ADD_SUBDIRECTORY ( exrenvmap )
+  ADD_SUBDIRECTORY ( exrmultiview )
+  ADD_SUBDIRECTORY ( exrmultipart )
+ENDIF ()
 
 ##########################
 # Installation

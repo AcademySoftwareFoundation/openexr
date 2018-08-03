@@ -3244,13 +3244,13 @@ operator << (std::ostream &s, const Matrix33<T> &m)
     if (s.flags() & std::ios_base::fixed)
     {
         s.setf (std::ios_base::showpoint);
-        width = s.precision() + 5;
+        width = static_cast<int>(s.precision()) + 5;
     }
     else
     {
         s.setf (std::ios_base::scientific);
         s.setf (std::ios_base::showpoint);
-        width = s.precision() + 8;
+        width = static_cast<int>(s.precision()) + 8;
     }
 
     s << "(" << std::setw (width) << m[0][0] <<
@@ -3279,13 +3279,13 @@ operator << (std::ostream &s, const Matrix44<T> &m)
     if (s.flags() & std::ios_base::fixed)
     {
         s.setf (std::ios_base::showpoint);
-        width = s.precision() + 5;
+        width = static_cast<int>(s.precision()) + 5;
     }
     else
     {
         s.setf (std::ios_base::scientific);
         s.setf (std::ios_base::showpoint);
-        width = s.precision() + 8;
+        width = static_cast<int>(s.precision()) + 8;
     }
 
     s << "(" << std::setw (width) << m[0][0] <<
