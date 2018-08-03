@@ -122,8 +122,13 @@ if (OPENEXR_BUILD_PYTHON_LIBS)
 
   find_package(Boost COMPONENTS python${OPENEXR_PYTHON_MAJOR}${OPENEXR_PYTHON_MINOR})
   if(NOT Boost_PYTHON${OPENEXR_PYTHON_MAJOR}${OPENEXR_PYTHON_MINOR}_FOUND)
-    message(WARNING "Make boost Python${OPENEXR_PYTHON_MAJOR}${OPENEXR_PYTHON_MINOR} available to CMake's search path, and re-run configuration")
-    message(FATAL_ERROR "boost Python is a required dependency when OPENEXR_BUILD_PYTHON_LIBS is set")
+    message(WARNING "user provided Boost Python${OPENEXR_PYTHON_MAJOR}${OPENEXR_PYTHON_MINOR} was not found. Trying default path...")
+
+    find_package(Boost COMPONENTS python)
+    if(NOT Boost_PYTHON_FOUND)
+      message(WARNING "Make boost Python available to CMake's search path, and re-run configuration")
+      message(FATAL_ERROR "boost Python is a required dependency when OPENEXR_BUILD_PYTHON_LIBS is set")
+    endif()
   endif()
 
   find_package(NumPy)
