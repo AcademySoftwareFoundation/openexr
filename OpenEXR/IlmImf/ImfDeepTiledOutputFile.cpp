@@ -422,7 +422,7 @@ DeepTiledOutputFile::Data::nextTileCoord (const TileCoord &a)
                         b.lx = 0;
                         b.ly++;
 
-                        #ifdef DEBUG
+                        #ifdef OPENEXR_DEBUG
                             assert (b.ly <= numYLevels);
                         #endif
                     }
@@ -466,7 +466,7 @@ DeepTiledOutputFile::Data::nextTileCoord (const TileCoord &a)
                         b.lx = 0;
                         b.ly++;
 
-                        #ifdef DEBUG
+                        #ifdef OPENEXR_DEBUG
                             assert (b.ly <= numYLevels);
                         #endif
                     }
@@ -517,7 +517,7 @@ writeTileData (DeepTiledOutputFile::Data *ofd,
 
     ofd->tileOffsets (dx, dy, lx, ly) = currentPosition;
 
-    #ifdef DEBUG
+    #ifdef OPENEXR_DEBUG
         assert (ofd->_streamData->os->tellp() == currentPosition);
     #endif
 
@@ -744,7 +744,7 @@ convertToXdr (DeepTiledOutputFile::Data *ofd,
         }
     }
 
-    #ifdef DEBUG
+    #ifdef OPENEXR_DEBUG
 
         assert (writePtr == readPtr);
 
@@ -937,7 +937,7 @@ TileBufferTask::execute ()
                                              slice.yStride,
                                              _ofd->format,
                                              slice.type);
-#if defined(DEBUG)
+#if defined(OPENEXR_DEBUG)
                       assert(writePtr-_tileBuffer->buffer<=totalBytes);
 #endif
                 }

@@ -374,7 +374,7 @@ unpack14 (const unsigned char b[14], unsigned short s[16])
     // Unpack a 14-byte block into 4 by 4 16-bit pixels.
     //
 
-    #if defined (DEBUG)
+    #if defined (OPENEXR_DEBUG)
 	assert (b[2] != 0xfc);
     #endif
 
@@ -420,7 +420,7 @@ unpack3 (const unsigned char b[3], unsigned short s[16])
     // Unpack a 3-byte block into 4 by 4 identical 16-bit pixels.
     //
 
-    #if defined (DEBUG)
+    #if defined (OPENEXR_DEBUG)
 	assert (b[2] == 0xfc);
     #endif
 
@@ -726,7 +726,7 @@ B44Compressor::compress (const char *inPtr,
 	    {
 		ChannelData &cd = _channelData[i];
 
-		#if defined (DEBUG)
+		#if defined (OPENEXR_DEBUG)
 		    assert (cd.type == HALF);
 		#endif
 
@@ -747,7 +747,7 @@ B44Compressor::compress (const char *inPtr,
     // and FLOAT channels are in Xdr format.
     //
 
-    #if defined (DEBUG)
+    #if defined (OPENEXR_DEBUG)
 
 	for (int i = 1; i < _numChans; ++i)
 	    assert (_channelData[i-1].end == _channelData[i].start);
@@ -1037,7 +1037,7 @@ B44Compressor::uncompress (const char *inPtr,
 	    {
 		ChannelData &cd = _channelData[i];
 
-		#if defined (DEBUG)
+		#if defined (OPENEXR_DEBUG)
 		    assert (cd.type == HALF);
 		#endif
 
@@ -1052,7 +1052,7 @@ B44Compressor::uncompress (const char *inPtr,
 	}
     }
 
-    #if defined (DEBUG)
+    #if defined (OPENEXR_DEBUG)
 
 	for (int i = 1; i < _numChans; ++i)
 	    assert (_channelData[i-1].end == _channelData[i].start);

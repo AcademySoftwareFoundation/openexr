@@ -408,7 +408,7 @@ PizCompressor::compress (const char *inPtr,
 	}
     }
 
-    #if defined (DEBUG)
+    #if defined (OPENEXR_DEBUG)
 
 	for (int i = 1; i < _numChans; ++i)
 	    assert (_channelData[i-1].end == _channelData[i].start);
@@ -656,7 +656,7 @@ PizCompressor::uncompress (const char *inPtr,
 	}
     }
 
-    #if defined (DEBUG)
+    #if defined (OPENEXR_DEBUG)
 
 	for (int i = 1; i < _numChans; ++i)
 	    assert (_channelData[i-1].end == _channelData[i].start);
