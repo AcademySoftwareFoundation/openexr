@@ -137,7 +137,6 @@ MultiPartInputFile::MultiPartInputFile(const char fileName[],
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {
-        delete _data->is;
         delete _data;
 
         REPLACE_EXC (e, "Cannot read image file "
@@ -146,7 +145,6 @@ MultiPartInputFile::MultiPartInputFile(const char fileName[],
     }
     catch (...)
     {
-        delete _data->is;
         delete _data;
         throw;
     }
