@@ -34,6 +34,18 @@ AC_PROG_MAKE_SET
 dnl
 dnl PKGCONFIG preparations
 dnl
+
+dnl Checks for zlib
+PKG_CHECK_MODULES([ZLIB], [zlib], [], [AC_CHECK_LIB(z, compress, [:], [AC_MSG_ERROR([
+*** OpenEXR requires a recent version of zlib, which you don't appear to have.
+*** have.
+***
+*** This could be because the run-time linker is not finding zlib, or it
+*** is finding the wrong version.  In this case, you'll need to set your
+*** LD_LIBRARY_PATH environment variable, or edit /etc/ld.so.conf to point
+*** to the proper version.  Also, make sure you have run ldconfig if
+*** that is required on your system.
+])])])
 AM_PATH_PKGCONFIG(
     [ILMBASE_CXXFLAGS],
     [ILMBASE_LDFLAGS],
@@ -41,12 +53,9 @@ AM_PATH_PKGCONFIG(
     [IlmBase],
     [OpenEXR],
     [],
-    [-lImath -lHalf -lIlmThread -lIex -lpthread],
+    [-lImath -lHalf -lIlmThread -lIex -lpthread -lz],
     [ilmbase-prefix],
     [ILMBASE])
-
-dnl Checks for zlib
-PKG_CHECK_MODULES([ZLIB], [zlib])
 
 dnl Define the version string
 AC_DEFINE_UNQUOTED([OPENEXR_VERSION_STRING], "${VERSION}", [OpenEXR version string])
@@ -101,7 +110,16 @@ AC_ARG_ENABLE(threading,
               [multithread="${enableval}"], [multithread=yes])
 
 AS_IF([test "x${multithread}" != xno], [
-	AX_PTHREAD
+	ACX_PTHREAD(
+    [
+      AC_DEFINE(OPENEXR_IMF_HAVE_PTHREAD)
+      ILMBASE_LIBS="$PTHREAD_LIBS $ILMBASE_LIBS"
+      ILMBASE_CXXFLAGS="$ILMBASE_CXXFLAGS $PTHREAD_CFLAGS"
+      CC="$PTHREAD_CC"
+
+      AM_POSIX_SEM()
+    ],
+    [AC_MSG_ERROR([POSIX thread support required])])
 
 	AC_DEFINE([OPENEXR_IMF_HAVE_PTHREAD], [1], [Define if pthreads are available])
 
