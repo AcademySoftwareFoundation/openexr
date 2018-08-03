@@ -73,7 +73,12 @@ else
    dnl the -L flags will appear twice on the command line, but we can not
    dnl limit it to --libs-only-l because it may include the "-pthread" flag.
    dnl 
-   PKG_CHECK_MODULES([arg_pkg_prefix], [arg_pkg_name], [],
+   PKG_CHECK_MODULES([arg_pkg_prefix], [arg_pkg_name],
+      [
+         TEST_CXXFLAGS="`$PKG_CONFIG --cflags arg_pkg_name`"
+         TEST_LDFLAGS="`$PKG_CONFIG --libs-only-L arg_pkg_name`"
+         TEST_LIBS="`$PKG_CONFIG --libs arg_pkg_name`"
+      ],
       [
       if test -z "${TEST_CXXFLAGS}"; then
          TEST_CXXFLAGS=""
@@ -97,7 +102,7 @@ else
       ])
 fi
 
-echo "    arg_cxxflags = $TEST_CXXFLAGS"
+echo "    arg_cxxflags = $TEST_CXXFLAGS xxxxx $ZLIB_LIBS"
 echo "    arg_ldflags = $TEST_LDFLAGS"
 echo "    arg_libs = $TEST_LIBS"
 
