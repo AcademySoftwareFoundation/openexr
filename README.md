@@ -1,16 +1,13 @@
 # OpenEXR
 
 
-**OpenEXR** is a high dynamic-range (HDR) image file format developed by
-Industrial Light & Magic (ILM) for use in computer imaging applications.
-ILM subsequently released the source code and adjoining material as open source software.
-
-The distribution has evolved to include support for stereoscopic and deep
-images.  Weta Digital, Disney, Sony Pictures Imageworks, Pixar, DreamWorks
-Animation and other studios have made contributions to the code base.
-The file format has seen wide adoption in a number of industries.
-
-The library, including all contributions, is released under the modified BSD license. 
+**OpenEXR** is a high dynamic-range (HDR) image file format developed
+by Industrial Light & Magic (ILM) for use in computer imaging
+applications. It supports stereoscopic and deep images.  Weta Digital,
+Walt Disney Animation Studios, Sony Pictures Imageworks, Pixar
+Animation Studios, DreamWorks, and other studios, companies, and
+individuals have made contributions to the code base. The file format
+has seen wide adoption in a number of industries.
 
 OpenEXR's features include:
 
@@ -29,35 +26,63 @@ OpenEXR's features include:
   New image attributes (strings, vectors, integers, etc.) can be added to
   OpenEXR image headers without affecting backward compatibility with
   existing OpenEXR applications. 
-* Support for sterescopic image workflows and a generalization
+* Support for stereoscopic image workflows and a generalization
   to multi-views.
-
-## Added Feature highlights for v2 release
-
 * Flexible support for deep data: pixels can store a variable-length list
   of samples and, thus, it is possible to store multiple values at different
   depths for each pixel. Hard surfaces and volumetric data representations
-  are accomodated.
+  are accommodated.
 * Multipart: ability to encode separate, but related, images in one file.
   This allows for access to individual parts without the need to read other
   parts in the file.
 * Versioning: OpenEXR source allows for user configurable C++
   namespaces to provide protection when using multiple versions of the
   library in the same process space.
+
+## License
+
+OpenEXR, including all contributions, is released under the modified
+BSD license. Please see the LICENSE file for the legal fine print.
       
 ## Sub-modules
-The distribution is divided into the following sub-modules:
+The OpenEXR distribution consists of the following sub-modules:
 
-* IlmBase
-* OpenEXR
-* OpenEXR_Viewers
-* PyIlmBase
-* Contrib
+* IlmBase - Utility libraries from Industrial Light & Magic: Half, Imath, Iex, IlmThread.
+* PyIlmBase - Python bindings for the IlmBase libraries.
+* OpenEXR - The core image library.
+* OpenEXR_Viewers - Standard image viewing programs
+* Contrib - Various plugins and utilities, contributed by the community.
     
 Please see the README files of each of the individual directories for more information.
 
 A collection of OpenEXR images is available from the adjacent repository
 [openexr-images](https://github.com/openexr/openexr-images).
+
+## Web Resources
+
+Main web page: http:://www.openexr.org
+
+GitHub page: http://www.github.com/openexr
+
+Mail lists:
+
+http://lists.nongnu.org/mailman/listinfo/openexr-announce - OpenEXR-related announcements.
+
+http://lists.nongnu.org/mailman/listinfo/openexr-user - for discussion about OpenEXR applications or general questions.
+
+http://lists.nongnu.org/mailman/listinfo/openexr-devel - for developers using OpenEXR in their applications.
+
+## Building and Installation
+
+Download the latest release of OpenEXR from http://www.openexr.com/downloads.html.
+
+Alternatively, you can download the latest release or the lastest development branch directly from http://github.com/openexr.
+
+To build the OpenEXR binaries from source, compile and install the individual sub-models, according to the instructions in the respective README files.
+
+Build and install the IlmBase module first, then build and install the OpenEXR module. Optionally, then build and install PyIlmBase, OpenEXR_Viewers, and Contrib.
+
+The build system supports building via autoconf or cmake. See in README files in the IlmBase, PyIlmBase, OpenEXR, and OpenEXR_Viewers directories for specific instructions.
 
 ## Building with CMake
 
@@ -113,3 +138,8 @@ By default, the tests will be built.
 
 * OPENEXR_PYTHON_MAJOR, OPENEXR_PYTHON_MINOR "2", "7"
 By default, OpenEXR is built against Python 2.7.x.
+
+## Documentation
+
+Documentation is available at http://www.openexr.com/documentation.html.
+
