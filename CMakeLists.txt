@@ -13,20 +13,24 @@ set(OPENEXR_VERSION_API ${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR})
 
 project(OpenEXR VERSION ${OPENEXR_VERSION})
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+#set(OPENEXR_LOCATION ${CMAKE_INSTALL_PREFIX})
+
 #-------------------------------------------------------------------------------
 # The following user options are cached. They are named with the OPENEXR
 # prefix in order that they be grouped together in tools such as ccmake and cmake-gui.
 
-option(OPENEXR_BUILD_ILMBASE        "Build IlmBase"             ON)
-option(OPENEXR_BUILD_OPENEXR        "Build OpenEXR"             ON)
-option(OPENEXR_BUILD_PYTHON_LIBS    "Build the Python bindings" OFF)
-option(OPENEXR_BUILD_VIEWERS        "Build the viewers"         OFF)
-option(OPENEXR_BUILD_TESTS          "Enable the tests"          ON)
+option(OPENEXR_BUILD_ILMBASE        "Build IlmBase"              ON)
+option(OPENEXR_BUILD_OPENEXR        "Build OpenEXR"              ON)
+option(OPENEXR_BUILD_PYTHON_LIBS    "Build the Python bindings"  ON)
+option(OPENEXR_BUILD_VIEWERS        "Build the viewers"          OFF)
+option(OPENEXR_BUILD_TESTS          "Enable the tests"           ON)
+option(OPENEXR_BUILD_UTILS          "Build the utility programs" ON)
 
-option(OPENEXR_BUILD_SHARED    "Build Shared Libraries"    ON)
-option(OPENEXR_BUILD_STATIC    "Build Static Libraries"    OFF)
-option(OPENEXR_NAMESPACE_VERSIONING "Use Namespace Versioning"  ON)
-option(OPENEXR_FORCE_CXX03          "Force CXX03"               OFF)
+option(OPENEXR_BUILD_SHARED         "Build Shared Libraries"     ON)
+option(OPENEXR_BUILD_STATIC         "Build Static Libraries"     OFF)
+option(OPENEXR_NAMESPACE_VERSIONING "Use Namespace Versioning"   ON)
+option(OPENEXR_FORCE_CXX03          "Force CXX03"                OFF)
 set(OPENEXR_PYTHON_MAJOR "2" CACHE STRING "Python major version")
 set(OPENEXR_PYTHON_MINOR "7" CACHE STRING "Python minor version")
 
@@ -48,6 +52,10 @@ elseif (OPENEXR_BUILD_ILMBASE AND OPENEXR_BUILD_STATIC)
     set(BUILD_ILMBASE_STATIC ON)
 else()
     set(BUILD_ILMBASE_STATIC OFF)
+endif()
+
+if (NOT OPENEXR_BUILD_SHARED)
+  set(OPENEXR_TARGET_SUFFIX _static)
 endif()
 
 # Testing
@@ -114,8 +122,13 @@ if (OPENEXR_BUILD_PYTHON_LIBS)
 
   find_package(Boost COMPONENTS python${OPENEXR_PYTHON_MAJOR}${OPENEXR_PYTHON_MINOR})
   if(NOT Boost_PYTHON${OPENEXR_PYTHON_MAJOR}${OPENEXR_PYTHON_MINOR}_FOUND)
-    message(WARNING "Make boost Python${OPENEXR_PYTHON_MAJOR}${OPENEXR_PYTHON_MINOR} available to CMake's search path, and re-run configuration")
-    message(FATAL_ERROR "boost Python is a required dependency when OPENEXR_BUILD_PYTHON_LIBS is set")
+    message(WARNING "user provided Boost Python${OPENEXR_PYTHON_MAJOR}${OPENEXR_PYTHON_MINOR} was not found. Trying default path...")
+
+    find_package(Boost COMPONENTS python)
+    if(NOT Boost_PYTHON_FOUND)
+      message(WARNING "Make boost Python available to CMake's search path, and re-run configuration")
+      message(FATAL_ERROR "boost Python is a required dependency when OPENEXR_BUILD_PYTHON_LIBS is set")
+    endif()
   endif()
 
   find_package(NumPy)
@@ -134,6 +147,24 @@ if(OPENEXR_BUILD_VIEWERS)
   find_package(OpenGL)
   if(NOT OpenGL_FOUND)
     message(WARNING "OpenGL not found, exrdisplay will not be built")
+  endif()
+endif()
+
+if ((OPENEXR_BUILD_OPENEXR OR OPENEXR_BUILD_UTILS OR OPENEXR_BUILD_TESTS OR OPENEXR_BUILD_PYTHON_LIBS OR OPENEXR_BUILD_VIEWERS) AND NOT(OPENEXR_BUILD_ILMBASE))
+  message(INFO "OPENEXR_BUILD_ILMBASE not requested, searching for installed IlmBase instead")
+  find_package(IlmBase)
+  if (NOT IlmBase_FOUND)
+    message(ERROR "Could not find IlmBase, cannot build dependent libraries.")
+    message(INFO, "Set ILMBASE_LOCATION to location of IlmBase.")
+  endif()
+endif()
+
+if ((OPENEXR_BUILD_UTILS OR OPENEXR_BUILD_TESTS OR OPENEXR_BUILD_VIEWERS) AND NOT(OPENEXR_BUILD_OPENEXR))
+  message(INFO "OPENEXR_BUILD_OPENEXR not requested, searching for installed OpenEXR instead")
+  find_package(OpenEXR)
+  if (NOT OpenEXR_FOUND)
+    message(ERROR "Could not find OpenEXR, cannot build dependent libraries.")
+    message(INFO, "Set OPENEXR_LOCATION to location of OpenEXR.")
   endif()
 endif()
 

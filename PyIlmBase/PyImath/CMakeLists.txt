@@ -43,10 +43,10 @@ ENDIF()
 
 SET_ILMBASE_INCLUDE_DIRS( PyImath )
 
+#    IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
 TARGET_LINK_LIBRARIES ( PyImath
-    IlmBase::Iex
-    IlmBase::IexMath
-    IlmBase::Imath
+    IlmBase::IexMath${OPENEXR_TARGET_SUFFIX}
+    IlmBase::Imath${OPENEXR_TARGET_SUFFIX}
     PyIex
 	${Boost_LIBRARIES}
 	${PYTHON_LIBRARIES}
@@ -68,26 +68,26 @@ ADD_LIBRARY ( imathmodule ${LIB_TYPE}
     PyImathBasicTypes.cpp
 )
 
-if (WIN32)
+IF (WIN32)
     SET_TARGET_PROPERTIES ( imathmodule
         PROPERTIES
             PREFIX ""
             OUTPUT_NAME "imath"
             SUFFIX ".pyd"
     )
-else()
+ELSE ()
     SET_TARGET_PROPERTIES ( imathmodule
         PROPERTIES PREFIX "" SUFFIX ".so" BUILD_WITH_INSTALL_RPATH ON
     )
-endif()
+ENDIF ()
 
 SET_ILMBASE_INCLUDE_DIRS( imathmodule )
 
+#	IlmBase::Imath${OPENEXR_TARGET_SUFFIX}
+#	IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
 TARGET_LINK_LIBRARIES ( imathmodule
 	PyImath
 	PyIex
-	IlmBase::Imath
-	IlmBase::Iex
 	${Boost_LIBRARIES}
 	${PYTHON_LIBRARIES}
 )

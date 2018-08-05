@@ -9,11 +9,11 @@ ADD_EXECUTABLE ( exrmultiview
 SET_ILMBASE_INCLUDE_DIRS( exrmultiview )
 
 TARGET_LINK_LIBRARIES ( exrmultiview
-  OpenEXR::IlmImf
-  IlmBase::Half
-  IlmBase::Imath
-  IlmBase::Iex
-  IlmBase::IlmThread
+  OpenEXR::IlmImf${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Half${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Imath${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
+  IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
   ${PTHREAD_LIB}
   ${ZLIB_LIBRARIES}
 )

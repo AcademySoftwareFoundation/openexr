@@ -21,11 +21,11 @@ INCLUDE_DIRECTORIES (
 )
 SET_ILMBASE_INCLUDE_DIRS( imathnumpymodule )
 
+#	IlmBase::Imath${OPENEXR_TARGET_SUFFIX}
+#	IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
 TARGET_LINK_LIBRARIES ( imathnumpymodule
 	PyImath
 	PyIex
-	IlmBase::Imath
-	IlmBase::Iex
 	${Boost_LIBRARIES}
 )
 

@@ -3,10 +3,8 @@
 SET (ILMBASE_LIB_TARGETS "")
 
 SET ( IMATH_SOURCES
-  ImathBox.cpp
   ImathRandom.cpp
   ImathColorAlgo.cpp
-  ImathShear.cpp
   ImathFun.cpp
   ImathVec.cpp
   ImathMatrixAlgo.cpp

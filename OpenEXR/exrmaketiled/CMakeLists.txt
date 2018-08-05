@@ -8,10 +8,10 @@ ADD_EXECUTABLE ( exrmaketiled
 SET_ILMBASE_INCLUDE_DIRS( exrmaketiled )
 
 TARGET_LINK_LIBRARIES ( exrmaketiled
-  OpenEXR::IlmImf
-  IlmBase::IlmThread
-  IlmBase::Iex
-  IlmBase::Half
+  OpenEXR::IlmImf${OPENEXR_TARGET_SUFFIX}
+  IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Half${OPENEXR_TARGET_SUFFIX}
   ${PTHREAD_LIB}
   ${ZLIB_LIBRARIES}
 )

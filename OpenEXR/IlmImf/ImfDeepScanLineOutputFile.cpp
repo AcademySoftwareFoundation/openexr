@@ -832,7 +832,7 @@ DeepScanLineOutputFile::DeepScanLineOutputFile
                 _data->header.writeTo (*_data->_streamData->os);
         _data->lineOffsetsPosition =
                 writeLineOffsets (*_data->_streamData->os, _data->lineOffsets);
-	_data->multipart=false;// not multipart; only one header
+        _data->multipart=false;// not multipart; only one header
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {

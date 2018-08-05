@@ -863,32 +863,34 @@ TiledOutputFile::TiledOutputFile
 {
     try
     {
-	header.sanityCheck (true);
-	_streamData->os = new StdOFStream (fileName);
+        header.sanityCheck (true);
+        _streamData->os = new StdOFStream (fileName);
         _data->multipart=false; // since we opened with one header we can't be multipart        
-	initialize (header);
-	_streamData->currentPosition = _streamData->os->tellp();
+        initialize (header);
+        _streamData->currentPosition = _streamData->os->tellp();
 
-	// Write header and empty offset table to the file.
+        // Write header and empty offset table to the file.
         writeMagicNumberAndVersionField(*_streamData->os, _data->header);
-	_data->previewPosition = _data->header.writeTo (*_streamData->os, true);
+        _data->previewPosition = _data->header.writeTo (*_streamData->os, true);
         _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_streamData->os);
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {
+        // ~TiledOutputFile will not run, so free memory here
         delete _streamData->os;
         delete _streamData;
-	delete _data;
+        delete _data;
 
-	REPLACE_EXC (e, "Cannot open image file "
-                 "\"" << fileName << "\". " << e.what());
-	throw;
+        REPLACE_EXC (e, "Cannot open image file "
+                     "\"" << fileName << "\". " << e.what());
+        throw;
     }
     catch (...)
     {
+        // ~TiledOutputFile will not run, so free memory here
         delete _streamData->os;
         delete _streamData;
-	delete _data;
+        delete _data;
         throw;
     }
 }
@@ -905,31 +907,31 @@ TiledOutputFile::TiledOutputFile
 {
     try
     {
-	header.sanityCheck(true);
-	_streamData->os = &os;
+        header.sanityCheck(true);
+        _streamData->os = &os;
         _data->multipart=false; // since we opened with one header we can't be multipart
-	initialize (header);
-	_streamData->currentPosition = _streamData->os->tellp();
+        initialize (header);
+        _streamData->currentPosition = _streamData->os->tellp();
 
-	// Write header and empty offset table to the file.
-	writeMagicNumberAndVersionField(*_streamData->os, _data->header);
-	_data->previewPosition = _data->header.writeTo (*_streamData->os, true);
+        // Write header and empty offset table to the file.
+        writeMagicNumberAndVersionField(*_streamData->os, _data->header);
+        _data->previewPosition = _data->header.writeTo (*_streamData->os, true);
         _data->tileOffsetsPosition = _data->tileOffsets.writeTo (*_streamData->os);
-	
+    
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {
         delete _streamData;
-	delete _data;
+        delete _data;
 
-	REPLACE_EXC (e, "Cannot open image file "
-                 "\"" << os.fileName() << "\". " << e.what());
-	throw;
+        REPLACE_EXC (e, "Cannot open image file "
+                     "\"" << os.fileName() << "\". " << e.what());
+        throw;
     }
     catch (...)
     {
         delete _streamData;
-	delete _data;
+        delete _data;
         throw;
     }
 }

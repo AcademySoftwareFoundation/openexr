@@ -13,7 +13,8 @@ AC_SUBST(OPENEXR_VERSION_API, ${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR})
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(IlmImfTest/main.cpp)
 AC_CONFIG_HEADERS([config/OpenEXRConfig.h])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
+AM_MAINTAINER_MODE
 
 
 LIBTOOL_CURRENT=22
@@ -27,18 +28,38 @@ AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_CC
 AC_PROG_LN_S
-LT_INIT
+AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
 
 dnl
 dnl PKGCONFIG preparations
 dnl
-PKG_CHECK_MODULES([ILMBASE], [IlmBase])
 
+dnl Checks for zlib
+PKG_CHECK_MODULES([ZLIB], [zlib], [], [AC_CHECK_LIB(z, compress, [:], [AC_MSG_ERROR([
+*** OpenEXR requires a recent version of zlib, which you don't appear to have.
+*** have.
+***
+*** This could be because the run-time linker is not finding zlib, or it
+*** is finding the wrong version.  In this case, you'll need to set your
+*** LD_LIBRARY_PATH environment variable, or edit /etc/ld.so.conf to point
+*** to the proper version.  Also, make sure you have run ldconfig if
+*** that is required on your system.
+])])])
+AM_PATH_PKGCONFIG(
+    [ILMBASE_CXXFLAGS],
+    [ILMBASE_LDFLAGS],
+    [ILMBASE_LIBS],
+    [IlmBase],
+    [OpenEXR],
+    [],
+    [-lImath -lHalf -lIlmThread -lIex -lpthread -lz],
+    [ilmbase-prefix],
+    [ILMBASE])
 
 dnl Define the version string
-AC_DEFINE_UNQUOTED([OPENEXR_VERSION_STRING], [${VERSION}], [OpenEXR version string])
-AC_DEFINE_UNQUOTED([OPENEXR_PACKAGE_STRING], [${PACKAGE_STRING}], [OpenEXR version string])
+AC_DEFINE_UNQUOTED([OPENEXR_VERSION_STRING], "${VERSION}", [OpenEXR version string])
+AC_DEFINE_UNQUOTED([OPENEXR_PACKAGE_STRING], "${PACKAGE_STRING}", [OpenEXR version string])
 AC_DEFINE_UNQUOTED([OPENEXR_VERSION_MAJOR], [${OPENEXR_VERSION_MAJOR}], [OpenEXR version string])
 AC_DEFINE_UNQUOTED([OPENEXR_VERSION_MINOR], [${OPENEXR_VERSION_MINOR}], [OpenEXR version string])
 AC_DEFINE_UNQUOTED([OPENEXR_VERSION_PATCH], [${OPENEXR_VERSION_PATCH}], [OpenEXR version string])
@@ -62,7 +83,6 @@ else
       CXXFLAGS="$CXXFLAGS -std=c++11"
     else
       if test "${cxxstd}" == 03 ; then
-        AC_DEFINE(ILMBASE_FORCE_CXX03)
         CXXFLAGS="$CXXFLAGS -std=c++03"
       else
         dnl automatically determine...
@@ -90,7 +110,16 @@ AC_ARG_ENABLE(threading,
               [multithread="${enableval}"], [multithread=yes])
 
 AS_IF([test "x${multithread}" != xno], [
-	AX_PTHREAD
+	ACX_PTHREAD(
+    [
+      AC_DEFINE(OPENEXR_IMF_HAVE_PTHREAD)
+      ILMBASE_LIBS="$PTHREAD_LIBS $ILMBASE_LIBS"
+      ILMBASE_CXXFLAGS="$ILMBASE_CXXFLAGS $PTHREAD_CFLAGS"
+      CC="$PTHREAD_CC"
+
+      AM_POSIX_SEM()
+    ],
+    [AC_MSG_ERROR([POSIX thread support required])])
 
 	AC_DEFINE([OPENEXR_IMF_HAVE_PTHREAD], [1], [Define if pthreads are available])
 
@@ -151,13 +180,29 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
-dnl Checks for zlib
-PKG_CHECK_MODULES([ZLIB], [zlib])
-
-
-dnl We use a modern toolchain, don't care
-dnl about ancient broken stuff
+dnl don't need this check anymore..
+dnl dnl Checks for std::right etc. in iomanip
+dnl AC_MSG_CHECKING(for complete iomanip support in C++ standard library)
+dnl complete_iomanip="no"
+dnl AC_LANG_SAVE
+dnl AC_LANG_CPLUSPLUS
+dnl AC_TRY_COMPILE([#include <iomanip>],[
+dnl  	std::right;
+dnl ],
+dnl AC_DEFINE(OPENEXR_IMF_HAVE_COMPLETE_IOMANIP) complete_iomanip=yes)
+dnl
+dnl AC_MSG_RESULT($complete_iomanip)
+dnl AC_LANG_RESTORE
 AC_DEFINE([OPENEXR_IMF_HAVE_COMPLETE_IOMANIP], [1], [Define when std::right is available])
+
+AC_MSG_CHECKING(for gcc optimization flags)
+old_cflags=$CFLAGS
+CFLAGS="$CFLAGS -pipe"
+AC_TRY_COMPILE([#include <stdio.h>],
+[ printf ("hello, world"); ],
+[ EXTRA_OPT_CFLAGS="-pipe"],[ EXTRA_OPT_CFLAGS=""])
+CFLAGS=$old_cflags
+AC_MSG_RESULT([$EXTRA_OPT_CFLAGS])
 
 
 dnl Check to see if the toolset supports AVX instructions in inline asm
@@ -173,6 +218,10 @@ AS_IF([test "x$enable_avx" = "xyes"], [
 	gcc_inline_asm_avx="no"
 ])
 
+AM_CFLAGS="$EXTRA_OPT_CFLAGS"
+AM_CXXFLAGS="$EXTRA_OPT_CFLAGS"
+AC_SUBST(AM_CFLAGS)
+AC_SUBST(AM_CXXFLAGS)
 
 dnl Check if sysconf(_SC_NPROCESSORS_ONLN) can be used for CPU count
 AC_MSG_CHECKING([for sysconf(_SC_NPROCESSORS_ONLN)])
@@ -219,6 +268,7 @@ Please re-run configure with these options:
 
   ;;
 esac
+
 
 dnl build imfexamples example program?
 build_imfexamples="no"

@@ -135,8 +135,8 @@ class ILMTHREAD_EXPORT Lock
 {
   public:
 
-    Lock (Mutex& m, bool autoLock = true):
-        _mutex (m), _locked (false)
+    Lock (const Mutex& m, bool autoLock = true):
+        _mutex (const_cast<Mutex &>(m)), _locked (false)
     {
         if (autoLock)
         {
