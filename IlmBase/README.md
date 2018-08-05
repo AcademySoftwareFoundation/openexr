@@ -1,13 +1,13 @@
 The IlmBase Libraries
 =====================
 
-* **Half** is a class that encapsulates our 16-bit floating-point format.
+* **Half** - a class that encapsulates our 16-bit floating-point format.
 
-* **IlmThread** is a thread abstraction library for use with OpenEXR and
+* **IlmThread** - a thread abstraction library for use with OpenEXR and
 other software packages.  It currently supports pthreads and Windows
 threads.
 
-* **Imath** implements 2D and 3D vectors, 3x3 and 4x4 matrices, quaternions
+* **Imath** - 2D and 3D vectors, 3x3 and 4x4 matrices, quaternions
 and other useful 2D and 3D math functions.
 
 * **Iex** is an exception-handling library.
@@ -27,8 +27,7 @@ Building and Installation
 
 You can build IlmBase using either **autoconf** or **cmake**.
 
-Building with **autoconf**
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### Building with **autoconf**
 
 First, ensure that **autoconf** is instaleld.  Download and install it
 from https://www.gnu.org/software/autoconf/autoconf.html.
@@ -55,8 +54,7 @@ To build the libraries:
     make install
 
 
-Building with **cmake**
-~~~~~~~~~~~~~~~~~~~~~~~
+#### Building with **cmake**
 
 First, ensure that **cmake** is installed. Download and install it
 from https://cmake.org/download.
@@ -67,19 +65,18 @@ To bootstrap the cmake build process:
     make
     make install
 
-Buildint on Windows using **cmake**
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### Building on Windows using **cmake**
 
 To generate Visual Studio solution files and build the libraries:
 
 1. Launch a command window, navigate to the IlmBase folder with
    CMakeLists.txt,and type command:
 
-   setlocal
-   del /f CMakeCache.txt
-   cmake -DCMAKE_INSTALL_PREFIX=<where you want to install the ilmbase builds>
-       -G "Visual Studio 10 Win64" 
-       ..\ilmbase
+       setlocal
+       del /f CMakeCache.txt
+       cmake -DCMAKE_INSTALL_PREFIX=<where you want to install the ilmbase builds>
+           -G "Visual Studio 10 Win64" 
+           ..\ilmbase
 
 2. Navigate to IlmBase folder in Windows Explorer, open ILMBase.sln
    and build the solution. When it build successfully, right click
@@ -91,22 +88,21 @@ To generate Visual Studio solution files and build the libraries:
 4. Launch a command window, navigate to the OpenEXR folder with 
    CMakeLists.txt, and type command:	  
 
-   setlocal
-   del /f CMakeCache.txt
-   cmake 
-       -DZLIB_ROOT=<zlib location>
-       -DILMBASE_PACKAGE_PREFIX=<where you installed the ilmbase builds>
-       -DCMAKE_INSTALL_PREFIX=<where you want to instal the openexr builds>
-       -G "Visual Studio 10 Win64" ^
-       ..\openexr
+       setlocal
+       del /f CMakeCache.txt
+       cmake 
+           -DZLIB_ROOT=<zlib location>
+           -DILMBASE_PACKAGE_PREFIX=<where you installed the ilmbase builds>
+           -DCMAKE_INSTALL_PREFIX=<where you want to instal the openexr builds>
+           -G "Visual Studio 10 Win64" ^
+           ..\openexr
 
 5. Navigate to OpenEXR folder in Windows Explorer, open OpenEXR.sln
    and build the solution. When it build successfully, right click
    INSTALL project and build. It will install the output to the path
    you set up at the previous step.
 
-Building on **macOS**
-~~~~~~~~~~~~~~~~~~~~~
+#### Building on **macOS**
 
 **macOS** supports multiple architectures. By default, IlmBase will be
 built for the system doing the building. For example, if you build
@@ -136,8 +132,7 @@ available, but deprecated in favor of the more flexible
 ``--enable-osx-arch`` and ``--enable-osx-sdk`` switches.
 
 
-Choosing an SDK on macOS
-~~~~~~~~~~~~~~~~~~~~~~~~
+#### Choosing an SDK on macOS
 
 **macOS** allows you to specify one of several SDKs, or sysroots. This
 allows you to target systems other than the system that your build
@@ -186,8 +181,7 @@ and
 
     ./configure --enable-customusernamespace
 
-Internal Library Namespace
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### Internal Library Namespace
 
 The ``--enable-namespaceversioning`` option controls the namespace
 that is used in the library. Without an argument (see below) the
@@ -243,8 +237,7 @@ These forward declarations should be removed, and replaced with:
     
 which forward-declares all types correctly.
 
-Public/User Library Namespace
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### Public/User Library Namespace
 
 The ``--enable-customusernamespace`` option can override the namespace
 into which will the internal namespace will be exported. This takes an
@@ -272,7 +265,7 @@ the OpenEXR subdirectory of the install prefix,
 e.g. ``/usr/local/include/OpenEXR``.
 
 
-Uisng IlmBase in Your Applications
+Using IlmBase in Your Applications
 ----------------------------------
 
 On systems with support for **pkg-config**, use ``pkg-config --cflags
