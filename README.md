@@ -1,5 +1,5 @@
-# OpenEXR
-
+OpenEXR
+=======
 
 **OpenEXR** is a high dynamic-range (HDR) image file format developed
 by Industrial Light & Magic (ILM) for use in computer imaging
@@ -39,42 +39,48 @@ OpenEXR's features include:
   namespaces to provide protection when using multiple versions of the
   library in the same process space.
 
-## License
+License
+-------
 
 OpenEXR, including all contributions, is released under the modified
 BSD license. Please see the LICENSE file for the legal fine print.
       
-## Sub-modules
+OpenEXR Sub-modules
+-------------------
+
 The OpenEXR distribution consists of the following sub-modules:
 
-* IlmBase - Utility libraries from Industrial Light & Magic: Half, Imath, Iex, IlmThread.
-* PyIlmBase - Python bindings for the IlmBase libraries.
-* OpenEXR - The core image library.
-* OpenEXR_Viewers - Standard image viewing programs
-* Contrib - Various plugins and utilities, contributed by the community.
+* **IlmBase** - Utility libraries from Industrial Light & Magic: Half, Imath, Iex, IlmThread.
+* **PyIlmBase** - Python bindings for the IlmBase libraries.
+* **OpenEXR** - The core image library.
+* **OpenEXR_Viewers** - Standard image viewing programs
+* **Contrib** - Various plugins and utilities, contributed by the community.
     
 Please see the README files of each of the individual directories for more information.
 
 A collection of OpenEXR images is available from the adjacent repository
 [openexr-images](https://github.com/openexr/openexr-images).
 
-## Web Resources
+Web Resources
+-------------
 
 Main web page: http:://www.openexr.org
 
-GitHub page: http://www.github.com/openexr
+GitHub repository: http://www.github.com/openexr
 
 Mail lists:
 
-http://lists.nongnu.org/mailman/listinfo/openexr-announce - OpenEXR-related announcements.
+* **http://lists.nongnu.org/mailman/listinfo/openexr-announce** - OpenEXR-related announcements.
 
-http://lists.nongnu.org/mailman/listinfo/openexr-user - for discussion about OpenEXR applications or general questions.
+* **http://lists.nongnu.org/mailman/listinfo/openexr-user** - for discussion about OpenEXR applications or general questions.
 
-http://lists.nongnu.org/mailman/listinfo/openexr-devel - for developers using OpenEXR in their applications.
+* **http://lists.nongnu.org/mailman/listinfo/openexr-devel** - for developers using OpenEXR in their applications.
 
-## Building and Installation
+Building and Installation
+-------------------------
 
-Download the latest release of OpenEXR from http://www.openexr.com/downloads.html.
+Download the latest release of OpenEXR from
+http://www.openexr.com/downloads.html.
 
 Alternatively, you can download the latest release or the lastest development branch directly from http://github.com/openexr.
 
@@ -84,7 +90,7 @@ Build and install the IlmBase module first, then build and install the OpenEXR m
 
 The build system supports building via autoconf or cmake. See in README files in the IlmBase, PyIlmBase, OpenEXR, and OpenEXR_Viewers directories for specific instructions.
 
-## Building with CMake
+#### Building with CMake
 
 To build with CMake, OpenEXR has a few prerequisites.
 
@@ -102,41 +108,38 @@ configure the OpenEXR build. The options are detailed below.
 Create a build directory, cd into it, and run cmake to configure the build.
 Select an appropriate generator, such as "Unix Makefiles", or "Visual Studio 15 2017 Win64".
 
-````
-cmake -DCMAKE_INSTALL_PREFIX=<install location> <OpenEXR source root> -G "selected generator" -DCMAKE_PREFIX_PATH=<paths to dependencies - zlib etc>
-````
-
+    cmake -DCMAKE_INSTALL_PREFIX=<install location> <OpenEXR source root> -G "selected generator" -DCMAKE_PREFIX_PATH=<paths to dependencies - zlib etc>
 
 The available options are:
 
-* OPENEXR_BUILD_ILMBASE (ON)
+* ``OPENEXR_BUILD_ILMBASE`` (ON)
 By default, IlmBase is always built.
 
-* OPENEXR_BUILD_OPENEXR (ON)
+* ``OPENEXR_BUILD_OPENEXR`` (ON)
 By default, OpenEXR is always built.
 
-* OPENEXR_BUILD_PYTHON_LIBS (ON)
+* ``OPENEXR_BUILD_PYTHON_LIBS`` (ON)
 By default, the Python bindings will be built.
 
-* OPENEXR_BUILD_VIEWERS (OFF)
+* ``OPENEXR_BUILD_VIEWERS`` (OFF)
 By default, the viewers are not built, as they have not been updated for
 modern OpenGL.
 
-* OPENEXR_BUILD_SHARED (ON)
-* OPENEXR_BUILD_STATIC (OFF)
+* ``OPENEXR_BUILD_SHARED`` (ON)
+* ``OPENEXR_BUILD_STATIC`` (OFF)
 The build can be configured to create either shared libraries, or static 
 libraries, or both.
 
-* OPENEXR_NAMESPACE_VERSIONING (ON)
+* ``OPENEXR_NAMESPACE_VERSIONING`` (ON)
 OpenEXR symbols will be contained within a namespace
 
-* OPENEXR_FORCE_CXX03 (OFF)
+* ``OPENEXR_FORCE_CXX03`` (OFF)
 C++03 compatibility is possible as an option
 
-* OPENEXR_ENABLE_TESTS (ON)
+* ``OPENEXR_ENABLE_TESTS`` (ON)
 By default, the tests will be built.
 
-* OPENEXR_PYTHON_MAJOR, OPENEXR_PYTHON_MINOR "2", "7"
+* ``OPENEXR_PYTHON_MAJOR``, ``OPENEXR_PYTHON_MINOR`` "2", "7"
 By default, OpenEXR is built against Python 2.7.x.
 
 ## Documentation
