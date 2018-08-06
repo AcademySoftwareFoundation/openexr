@@ -42,8 +42,9 @@ OpenEXR's features include:
 License
 -------
 
-OpenEXR, including all contributions, is released under the modified
-BSD license. Please see the LICENSE file for the legal fine print.
+OpenEXR, including all contributions, is released under a modified BSD
+license. Please see the ``LICENSE`` file accompanying the distribution
+for the legal fine print.
       
 OpenEXR Sub-modules
 -------------------
@@ -56,7 +57,7 @@ The OpenEXR distribution consists of the following sub-modules:
 * **OpenEXR_Viewers** - Standard image viewing programs
 * **Contrib** - Various plugins and utilities, contributed by the community.
     
-Please see the README files of each of the individual directories for more information.
+Please see the ``README`` files of each of the individual directories for more information.
 
 A collection of OpenEXR images is available from the adjacent repository
 [openexr-images](https://github.com/openexr/openexr-images).
@@ -82,31 +83,45 @@ Building and Installation
 Download the latest release of OpenEXR from
 http://www.openexr.com/downloads.html.
 
-Alternatively, you can download the latest release or the lastest development branch directly from http://github.com/openexr.
+Alternatively, you can download the latest release or the lastest
+development branch directly from http://github.com/openexr.
 
-To build the OpenEXR binaries from source, compile and install the individual sub-models, according to the instructions in the respective README files.
+To build the OpenEXR binaries from source, compile and install the
+individual sub-models (IlmBase, PyIlmBase, OpenEXR, OpenEXR_Viewers),
+according to the instructions in the respective ``README`` files.
 
-Build and install the IlmBase module first, then build and install the OpenEXR module. Optionally, then build and install PyIlmBase, OpenEXR_Viewers, and Contrib.
+Build and install the IlmBase module first, then build and install the
+OpenEXR module. Optionally, then build and install PyIlmBase,
+OpenEXR_Viewers, and Contrib.
 
-The build system supports building via autoconf or cmake. See in README files in the IlmBase, PyIlmBase, OpenEXR, and OpenEXR_Viewers directories for specific instructions.
+The build system supports building via autoconf or cmake. See in
+``README`` files in the IlmBase, PyIlmBase, OpenEXR, and OpenEXR_Viewers
+directories for specific instructions.
+
+#### Dependencies
+
+OpenEXR depends on [zlib](https://zlib.net).
+
+PyIlmBase depends on [boost-python](https://github.com/boostorg/python).
+
+In OpenEXR_Viewers:
+
+* **exrdisplay** depends on [fltk](http://www.fltk.org/index.php)
+* **playexr** depends on [Cg](https://developer.nvidia.com/cg-toolkit)
 
 #### Building with CMake
 
-To build with CMake, OpenEXR has a few prerequisites.
-
-* CMake 3.11 or newer
-* zlib
-* boost-python (if the python bindings are to be built)
-* fltk (if the openexr viewer is to be built)
-* Cg (if playexr is to be built)
+To build with **cmake** requires **cmake** version 3.11 or newer.
 
 When these prerequisites are fulfulled, prepare the build environment.
 
-In the root CMakeLists.txt file, or using a tools such as ccmake or cmake-gui,
-configure the OpenEXR build. The options are detailed below.
+In the root ``CMakeLists.txt`` file, or using a tools such as
+**ccmake** or **cmake-gui**, configure the OpenEXR build. The options
+are detailed below.
 
-Create a build directory, cd into it, and run cmake to configure the build.
-Select an appropriate generator, such as "Unix Makefiles", or "Visual Studio 15 2017 Win64".
+Create a build directory, cd into it, and run **cmake** to configure
+the build.  Select an appropriate generator, such as "Unix Makefiles",
+or "Visual Studio 15 2017 Win64".
 
     cmake -DCMAKE_INSTALL_PREFIX=<install location> <OpenEXR source root> -G "selected generator" -DCMAKE_PREFIX_PATH=<paths to dependencies - zlib etc>
 

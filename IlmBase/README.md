@@ -1,6 +1,8 @@
 The IlmBase Libraries
 =====================
 
+The IlmBase libraries include the following:
+
 * **Half** - a class that encapsulates our 16-bit floating-point format.
 
 * **IlmThread** - a thread abstraction library for use with OpenEXR and
@@ -12,6 +14,9 @@ and other useful 2D and 3D math functions.
 
 * **Iex** is an exception-handling library.
 
+In addition, the distribution also includes confidence test libaries:
+**HalfTest**, **IexTest**, and **ImathTest**.
+
 If you have questions about using the IlmBase libraries, you may want
 to join our developer mailing list.  See http://www.openexr.com for
 details.
@@ -19,8 +24,9 @@ details.
 License
 -------
 
-IlmBase, including all contributions, is released under the modified
-BSD license. Please see the ``LICENSE`` file for the legal fine print.
+IlmBase, including all contributions, is released under a modified BSD
+license. Please see the ``LICENSE`` file accompanying the distribution
+for the legal fine print.
 
 Building and Installation
 -------------------------
@@ -29,7 +35,7 @@ You can build IlmBase using either **autoconf** or **cmake**.
 
 #### Building with **autoconf**
 
-First, ensure that **autoconf** is instaleld.  Download and install it
+First, ensure that **autoconf** is installed.  Download and install it
 from https://www.gnu.org/software/autoconf/autoconf.html.
 
 To bootstrap the build process:
@@ -53,13 +59,12 @@ To build the libraries:
     make
     make install
 
-
 #### Building with **cmake**
 
 First, ensure that **cmake** is installed. Download and install it
 from https://cmake.org/download.
 
-To bootstrap the cmake build process:
+To bootstrap the **cmake** build process:
 
     cmake -DCMAKE_INSTALL_PREFIX=<install directory> <IlmBase source directory>
     make
@@ -69,8 +74,8 @@ To bootstrap the cmake build process:
 
 To generate Visual Studio solution files and build the libraries:
 
-1. Launch a command window, navigate to the IlmBase folder with
-   CMakeLists.txt,and type command:
+1. Launch a command window, navigate to the ``IlmBase`` folder containing
+   ``CMakeLists.txt``, and type the command:
 
        setlocal
        del /f CMakeCache.txt
@@ -78,15 +83,15 @@ To generate Visual Studio solution files and build the libraries:
            -G "Visual Studio 10 Win64" 
            ..\ilmbase
 
-2. Navigate to IlmBase folder in Windows Explorer, open ILMBase.sln
-   and build the solution. When it build successfully, right click
-   INSTALL project and build. It will install the output to the path
+2. Navigate to ``IlmBase`` folder in Windows Explorer, open ``ILMBase.sln``
+   and build the solution. When it builds successfully, right click
+   ``INSTALL project`` and build. It will install the output to the path
    you set up at the previous step.
 
-3. Go to http://www.zlib.net and download zlib 
+3. Go to http://www.zlib.net and download zlib.
 	  
-4. Launch a command window, navigate to the OpenEXR folder with 
-   CMakeLists.txt, and type command:	  
+4. Launch a command window, navigate to the ``OpenEXR`` folder containing
+   ``CMakeLists.txt``, and type the command:	  
 
        setlocal
        del /f CMakeCache.txt
@@ -97,10 +102,10 @@ To generate Visual Studio solution files and build the libraries:
            -G "Visual Studio 10 Win64" ^
            ..\openexr
 
-5. Navigate to OpenEXR folder in Windows Explorer, open OpenEXR.sln
-   and build the solution. When it build successfully, right click
-   INSTALL project and build. It will install the output to the path
-   you set up at the previous step.
+5. Navigate to ``OpenEXR`` folder in Windows Explorer, open
+   ``OpenEXR.sln`` and build the solution. When it builds
+   successfully, right click ``INSTALL project`` and build. It will
+   install the output to the path you set up at the previous step.
 
 #### Building on **macOS**
 
@@ -125,7 +130,7 @@ For more information on universal builds, see:
 
     http://developer.apple.com/documentation/Porting/Conceptual/PortingUNIX/compiling/chapter_4_section_3.html
 
-Earlier releases of IlmBase included an
+Earlier releases of **IlmBase** included an
 ``--enable-osx-universal-binaries`` switch, which specifies a two-way
 universal build: Intel and PowerPC, 32-bit only.  This is still
 available, but deprecated in favor of the more flexible
@@ -142,7 +147,7 @@ For example, if you are building on Mac OS X 10.4, but you need access
 to features that were introduced in Mac OS X 10.5, you can build
 against the Mac OS X 10.5 versions of system libraries and headers.
 
-You can choose to build IlmBase with a specific SDK using the
+You can choose to build **IlmBase** with a specific SDK using the
 ``--enable-osx-sdk`` switch. For example:
 
     ./configure --enable-osx-sdk=MacOSX10.5.sdk
@@ -155,6 +160,10 @@ For more information on sysroots, see:
 
     http://developer.apple.com/documentation/DeveloperTools/gcc-4.2.1/gcc/Directory-Options.html
 
+#### Header Installation Directory
+
+All include files needed to use the OpenEXR libraries are installed in the 
+``OpenEXR`` subdirectory of the install prefix, e.g. ``/usr/local/include/OpenEXR``.
 
 Namespaces
 ----------
@@ -208,8 +217,8 @@ namespace is discouraged.  This ensures that code will continue to
 compile with customised or future versions of the library, which may
 have a different internal namespace.
 
-Similarily, for other namespaces in the libraries: ``Iex``,
-``IlmThread`` and ``IlmImf``.
+Similarily, for other namespaces in the libraries: **Iex**,
+**IlmThread** and **IlmImf**.
 
 Note that this scheme allows existing code to compile without
 modifications, since the 'old' namespaces ``Imath``, ``Iex``,
@@ -224,8 +233,8 @@ This is achieved via the following, in the Imath case:
          using namespace IMATH_INTERNAL_NAMESPACE;
     }
 
-This is included in all header files in the Imath library and similar ones
-are present for the libraries ``Iex``, ``IlmThread`` and ``IlmImf``.
+This is included in all header files in the **Imath** library and similar ones
+are present for the libraries **Iex**, **IlmThread** and **IlmImf**.
 
 The only exception to this is where user code has forward declarations
 of objects in the ``Imf`` namespace, as these will forward declare
@@ -233,7 +242,7 @@ symbols in an incorrect namespace
 
 These forward declarations should be removed, and replaced with: 
 
-    #include <ImfForward.h>,
+    #include <ImfForward.h>
     
 which forward-declares all types correctly.
 
@@ -257,11 +266,12 @@ Type:
 
     make check
 
-to run the IlmBase confidence tests.  They should all pass; if you
-find a test that does not pass on your system, please let us know.
+to run the IlmBase confidence tests (HalfTest, IexTest, and
+ImathTest).  They should all pass; if you find a test that does not
+pass on your system, please let us know.
 
 All include files needed to use the IlmBase libraries are installed in
-the OpenEXR subdirectory of the install prefix,
+the ``OpenEXR`` subdirectory of the install prefix,
 e.g. ``/usr/local/include/OpenEXR``.
 
 
@@ -270,6 +280,6 @@ Using IlmBase in Your Applications
 
 On systems with support for **pkg-config**, use ``pkg-config --cflags
 IlmBase`` for the C++ flags required to compile against IlmBase
-headers; and `pkg-config --libs IlmBase`` for the linker flags
+headers; and ``pkg-config --libs IlmBase`` for the linker flags
 required to link against IlmBase libraries.
 
