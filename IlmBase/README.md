@@ -12,7 +12,9 @@ threads.
 * **Imath** - 2D and 3D vectors, 3x3 and 4x4 matrices, quaternions
 and other useful 2D and 3D math functions.
 
-* **Iex** is an exception-handling library.
+* **Iex** - an exception-handling library.
+
+* **IexMath** - math exception types.
 
 In addition, the distribution also includes confidence test libaries:
 **HalfTest**, **IexTest**, and **ImathTest**.
