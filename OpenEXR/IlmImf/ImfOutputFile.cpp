@@ -678,20 +678,33 @@ OutputFile::OutputFile
     catch (IEX_NAMESPACE::BaseExc &e)
     {
         // ~OutputFile will not run, so free memory here
-        delete _data->_streamData->os;
-        delete _data->_streamData;
-        delete _data;
+        if (_data)
+        {
+            if (_data->_streamData)
+            {
+                delete _data->_streamData->os;
+                delete _data->_streamData;
+            }
 
-        REPLACE_EXC (e, "Cannot open image file "
-                     "\"" << fileName << "\". " << e.what());
-        throw;
+            delete _data;
+        }
+
+	REPLACE_EXC (e, "Cannot open image file "
+			"\"" << fileName << "\". " << e.what());
+	throw;
     }
     catch (...)
     {
         // ~OutputFile will not run, so free memory here
-        delete _data->_streamData->os;
-        delete _data->_streamData;
-        delete _data;
+        if (_data)
+        {
+            if (_data->_streamData)
+            {
+                delete _data->_streamData->os;
+                delete _data->_streamData;
+            }
+            delete _data;
+        }
 
         throw;
     }
@@ -725,8 +738,12 @@ OutputFile::OutputFile
     catch (IEX_NAMESPACE::BaseExc &e)
     {
         // ~OutputFile will not run, so free memory here
-        delete _data->_streamData;
-        delete _data;
+        if (_data)
+        {
+            if (_data->_streamData)
+                delete _data->_streamData;
+            delete _data;
+        }
 
         REPLACE_EXC (e, "Cannot open image file "
                      "\"" << os.fileName() << "\". " << e.what());
@@ -735,8 +752,12 @@ OutputFile::OutputFile
     catch (...)
     {
         // ~OutputFile will not run, so free memory here
-        delete _data->_streamData;
-        delete _data;
+        if (_data)
+        {
+            if (_data->_streamData)
+                delete _data->_streamData;
+            delete _data;
+        }
 
         throw;
     }
