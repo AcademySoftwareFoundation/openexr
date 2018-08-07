@@ -14,9 +14,8 @@ DIST_SUBDIRS = \
 
 
 EXTRA_DIST = \
-	AUTHORS COPYING ChangeLog INSTALL LICENSE NEWS \
-	README README.CVS README.OSX \
-	README.cmake.txt README.namespacing README.git \
+	AUTHORS ChangeLog LICENSE NEWS \
+	README.md \
 	bootstrap \
 	config.windows/IlmBaseConfig.h \
         CMakeLists.txt
