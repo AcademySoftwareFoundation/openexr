@@ -62,6 +62,18 @@ Please see the ``README`` files of each of the individual directories for more i
 A collection of OpenEXR images is available from the adjacent repository
 [openexr-images](https://github.com/openexr/openexr-images).
 
+Dependencies
+------------
+
+OpenEXR depends on [zlib](https://zlib.net).
+
+PyIlmBase depends on [boost-python](https://github.com/boostorg/python).
+
+In OpenEXR_Viewers:
+
+* **exrdisplay** depends on [fltk](http://www.fltk.org/index.php)
+* **playexr** depends on [Cg](https://developer.nvidia.com/cg-toolkit)
+
 Web Resources
 -------------
 
@@ -83,47 +95,67 @@ Building and Installation
 Download the latest release of OpenEXR from
 http://www.openexr.com/downloads.html.
 
+To build the OpenEXR binaries from source, compile and install the
+individual sub-models (IlmBase, PyIlmBase, OpenEXR, OpenEXR_Viewers),
+according to the instructions in the respective ``README``
+files. Build and install the IlmBase module first, then build and
+install the OpenEXR module. Optionally, then build and install
+PyIlmBase, OpenEXR_Viewers, and Contrib.
+
+For the basic installation:
+
+    cd <source root>/IlmBase
+    ./configure
+    make
+    make install
+
+    cd <source root>/OpenEXR
+    ./configure
+    make 
+    make install
+
+See the module ``README`` files for options to ``configure``.
+
+#### Building from Git
+
 Alternatively, you can download the latest release or the lastest
 development branch directly from http://github.com/openexr.
 
-To build the OpenEXR binaries from source, compile and install the
-individual sub-models (IlmBase, PyIlmBase, OpenEXR, OpenEXR_Viewers),
-according to the instructions in the respective ``README`` files.
+After cloning the repo locally, generate the configuration scripts by
+running the ``bootstrap`` script:
 
-Build and install the IlmBase module first, then build and install the
-OpenEXR module. Optionally, then build and install PyIlmBase,
-OpenEXR_Viewers, and Contrib.
+    cd <source root>/IlmBase
+    ./bootstrap
+    ./configure
+    make
+    make install
 
-The build system supports building via autoconf or cmake. See in
-``README`` files in the IlmBase, PyIlmBase, OpenEXR, and OpenEXR_Viewers
-directories for specific instructions.
+    cd <source root>/OpenExr
+    ./bootstrap
+    ./configure
+    make
+    make install
 
-#### Dependencies
-
-OpenEXR depends on [zlib](https://zlib.net).
-
-PyIlmBase depends on [boost-python](https://github.com/boostorg/python).
-
-In OpenEXR_Viewers:
-
-* **exrdisplay** depends on [fltk](http://www.fltk.org/index.php)
-* **playexr** depends on [Cg](https://developer.nvidia.com/cg-toolkit)
+Building from git and ``bootstrap`` requires that **autoconf** is
+installed.  Download and install it from
+https://www.gnu.org/software/autoconf/autoconf.html.
 
 #### Building with CMake
 
-To build with **cmake** requires **cmake** version 3.11 or newer.
-
-When these prerequisites are fulfulled, prepare the build environment.
+Alternatively, you can build with **cmake**, version 3.11 or newer. 
 
 In the root ``CMakeLists.txt`` file, or using a tools such as
 **ccmake** or **cmake-gui**, configure the OpenEXR build. The options
 are detailed below.
 
-Create a build directory, cd into it, and run **cmake** to configure
+Create a source root directory, cd into it, and run **cmake** to configure
 the build.  Select an appropriate generator, such as "Unix Makefiles",
-or "Visual Studio 15 2017 Win64".
+or "Visual Studio 15 2017 Win64". Then run **make** a the root
+directory; this will build the appropriate submodules, according to
+the settings of the **cmake** options, described below.
 
     cmake -DCMAKE_INSTALL_PREFIX=<install location> <OpenEXR source root> -G "selected generator" -DCMAKE_PREFIX_PATH=<paths to dependencies - zlib etc>
+    make
 
 The available options are:
 
