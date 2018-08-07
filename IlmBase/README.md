@@ -33,18 +33,7 @@ for the legal fine print.
 Building and Installation
 -------------------------
 
-You can build IlmBase using either **autoconf** or **cmake**.
-
-#### Building with **autoconf**
-
-First, ensure that **autoconf** is installed.  Download and install it
-from https://www.gnu.org/software/autoconf/autoconf.html.
-
-To bootstrap the build process:
-
-    ./bootstrap
-
-To create Makefiles via **autoconf**:
+To configure the Makefiles, run the ``configure`` script:
 
     ./configure
 
@@ -56,19 +45,20 @@ In particular, the ``--prefix=<install directory>`` option specifies a
 directory into which to install the headers and libraries. By default,
 headers and libraries are installed into ``/usr/local``.
 
-To build the libraries:
+To build the libraries after running ``configure``:
 
     make
     make install
 
-#### Building with **cmake**
+#### Building from Git
 
-First, ensure that **cmake** is installed. Download and install it
-from https://cmake.org/download.
+If building directly from a cloned git repo, first generate the
+configuration scripts by running ``bootstrap``, then ``configure`` and
+``make``:
 
-To bootstrap the **cmake** build process:
-
-    cmake -DCMAKE_INSTALL_PREFIX=<install directory> <IlmBase source directory>
+    cd <source root>/IlmBase
+    ./bootstrap
+    ./configure
     make
     make install
 
