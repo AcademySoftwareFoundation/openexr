@@ -19,8 +19,9 @@ DIST_SUBDIRS = \
 	#vc
 
 EXTRA_DIST = \
-	AUTHORS COPYING ChangeLog INSTALL LICENSE NEWS \
-        README README.OSX bootstrap \
+	LICENSE README.md \
+	ChangeLog \
+        bootstrap \
 	pyilmbase.m4 \
 	config.windows/PyIlmBaseConfig.h
 
