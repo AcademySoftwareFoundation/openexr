@@ -13,6 +13,8 @@ ADD_EXECUTABLE ( exrdisplay
 	GlWindow3d.cpp
 )
 
+SET_ILMBASE_INCLUDE_DIRS(exrdisplay)
+
 TARGET_INCLUDE_DIRECTORIES ( exrdisplay 
     PRIVATE
     ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
