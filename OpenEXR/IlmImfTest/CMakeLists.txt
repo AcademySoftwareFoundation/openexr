@@ -62,7 +62,7 @@ ADD_EXECUTABLE ( IlmImfTest
   testYca.cpp
  )
 
- SET_ILMBASE_INCLUDE_DIRS( IlmImfTest )
+SET_ILMBASE_INCLUDE_DIRS( IlmImfTest )
 
 ADD_TEST ( TestIlmImf IlmImfTest )
 TARGET_LINK_LIBRARIES ( IlmImfTest
