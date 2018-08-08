@@ -67,7 +67,8 @@ Dependencies
 
 OpenEXR depends on [zlib](https://zlib.net).
 
-PyIlmBase depends on [boost-python](https://github.com/boostorg/python).
+PyIlmBase depends on [boost-python](https://github.com/boostorg/python) and
+optionally on [numpy](http://www.numpy.org).
 
 In OpenEXR_Viewers:
 
@@ -144,9 +145,9 @@ https://www.gnu.org/software/autoconf/autoconf.html.
 
 Alternatively, you can build with **cmake**, version 3.11 or newer. 
 
-In the root ``CMakeLists.txt`` file, or using a tools such as
-**ccmake** or **cmake-gui**, configure the OpenEXR build. The options
-are detailed below.
+In the root ``CMakeLists.txt`` file, with -D options on the cmake
+line, or by using a tools such as **ccmake** or **cmake-gui**,
+configure the OpenEXR build. The options are detailed below.
 
 Create a source root directory, cd into it, and run **cmake** to configure
 the build.  Select an appropriate generator, such as "Unix Makefiles",
@@ -185,6 +186,12 @@ C++03 compatibility is possible as an option
 
 * ``OPENEXR_ENABLE_TESTS`` (ON)
 By default, the tests will be built.
+
+* ``OPENEXR_RUN_FUZZ_TESTS`` (OFF)
+By default, the damaged input tests will NOT be run, due to their long
+running time. If you wish to run them as part of "make test" (or equivalent
+in your build system), then enable this. A "make fuzz" target will be
+available to run the fuzz test regardless.
 
 * ``OPENEXR_PYTHON_MAJOR``, ``OPENEXR_PYTHON_MINOR`` "2", "7"
 By default, OpenEXR is built against Python 2.7.x.

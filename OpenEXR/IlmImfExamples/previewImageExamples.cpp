@@ -68,7 +68,7 @@ gamma (float x)
     //
 
     x = pow (5.5555f * max (0.f, x), 0.4545f) * 84.66f;
-    return (unsigned char) clamp (x, 0.f, 255.f);
+    return (unsigned char) IMATH_NAMESPACE::clamp (x, 0.f, 255.f);
 }
 
 
@@ -96,7 +96,7 @@ makePreviewImage (const Array2D <Rgba> &pixels,
 	    outPixel.r = gamma (inPixel.r);
 	    outPixel.g = gamma (inPixel.g);
 	    outPixel.b = gamma (inPixel.b);
-	    outPixel.a = int (clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
+	    outPixel.a = int (IMATH_NAMESPACE::clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
 	}
     }
 }
@@ -188,7 +188,7 @@ writeRgbaWithPreview2 (const char fileName[],
 		outPixel.r = gamma (inPixel.r);
 		outPixel.g = gamma (inPixel.g);
 		outPixel.b = gamma (inPixel.b);
-		outPixel.a = int (clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
+		outPixel.a = int (IMATH_NAMESPACE::clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
 	    }
 	}
     }

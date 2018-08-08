@@ -138,8 +138,8 @@ sampleX (const TypedImageChannel<T> &channel,
 
         case CLAMP:
 
-            xs = clamp (xs, 0, w - 1);
-            xt = clamp (xt, 0, w - 1);
+            xs = IMATH_NAMESPACE::clamp (xs, 0, w - 1);
+            xt = IMATH_NAMESPACE::clamp (xt, 0, w - 1);
             vs = channel (xs, y);
             vt = channel (xt, y);
             break;
@@ -195,8 +195,8 @@ sampleY (const TypedImageChannel<T> &channel,
 
         case CLAMP:
 
-            ys = clamp (ys, 0, h - 1);
-            yt = clamp (yt, 0, h - 1);
+            ys = IMATH_NAMESPACE::clamp (ys, 0, h - 1);
+            yt = IMATH_NAMESPACE::clamp (yt, 0, h - 1);
             vs = channel (x, ys);
             vt = channel (x, yt);
             break;

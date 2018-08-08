@@ -1,5 +1,6 @@
 
-ADD_LIBRARY ( imathnumpymodule ${LIB_TYPE}
+# must be shared
+ADD_LIBRARY ( imathnumpymodule SHARED
     imathnumpymodule.cpp
 )
 
@@ -30,6 +31,6 @@ TARGET_LINK_LIBRARIES ( imathnumpymodule
 )
 
 INSTALL ( TARGETS imathnumpymodule
-	DESTINATION lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages
+	DESTINATION lib/python${OPENEXR_PYTHON_MAJOR}.${OPENEXR_PYTHON_MINOR}/site-packages
 )
 

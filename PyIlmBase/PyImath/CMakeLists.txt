@@ -62,7 +62,8 @@ INSTALL (DIRECTORY ./
     FILES_MATCHING PATTERN "*.h"
 )
 
-ADD_LIBRARY ( imathmodule ${LIB_TYPE}
+# must be shared
+ADD_LIBRARY ( imathmodule SHARED
     imathmodule.cpp
     PyImathFun.cpp
     PyImathBasicTypes.cpp
@@ -93,6 +94,6 @@ TARGET_LINK_LIBRARIES ( imathmodule
 )
 
 INSTALL ( TARGETS imathmodule
-	DESTINATION lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages
+	DESTINATION lib/python${OPENEXR_PYTHON_MAJOR}.${OPENEXR_PYTHON_MINOR}/site-packages
 )
 
