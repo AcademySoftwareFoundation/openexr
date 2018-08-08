@@ -43,18 +43,7 @@ Building OpenEXR requires IlmBase and the [zlib](https://zlib.net) library.
 Building and Installation
 -------------------------
 
-You can build OpenEXR using either **autoconf** or **cmake**.
-
-#### Building with **autoconf**
-
-First, ensure that **autoconf** is installed.  Download and install it
-from https://www.gnu.org/software/autoconf/autoconf.html.
-
-To bootstrap the build process:
-
-    ./bootstrap
-
-To create Makefiles via **autoconf**:
+To configure the Makefiles, run the ``configure`` script:
 
     ./configure
 
@@ -74,19 +63,18 @@ In particular, arguments of note include:
 
 * ``--enable-imfexamples`` - build IlmImf example program.
 
-To build the libraries:
+See the Test section below for options to enable time-consuming
+confidence tests.
 
-    make
-    make install
+#### Building from Git
 
-#### Building with **cmake**
+If building directly from a cloned git repo, first generate the
+configuration scripts by running ``bootstrap``, then ``configure`` and
+``make``:
 
-First, ensure that **cmake** is installed. Download and install it
-from https://cmake.org/download.
-
-To bootstrap the **cmake** build process:
-
-    cmake -DCMAKE_INSTALL_PREFIX=<install directory> <OpenEXR source directory>
+    cd <source root>/IlmBase
+    ./bootstrap
+    ./configure
     make
     make install
 
