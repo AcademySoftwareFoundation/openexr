@@ -31,8 +31,8 @@ INSTALL (
     include/OpenEXR
 )
 
-
-ADD_LIBRARY ( iexmodule ${LIB_TYPE}
+# must be shared
+ADD_LIBRARY ( iexmodule SHARED
 	iexmodule.cpp
 )
 
@@ -59,6 +59,6 @@ TARGET_LINK_LIBRARIES ( iexmodule
 SET_ILMBASE_INCLUDE_DIRS( iexmodule )
 
 INSTALL ( TARGETS iexmodule
-	DESTINATION lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages
+	DESTINATION lib/python${OPENEXR_PYTHON_MAJOR}.${OPENEXR_PYTHON_MINOR}/site-packages
 )
 
