@@ -42,5 +42,8 @@ ENDIF ()
 ##########################
 # Tests
 ##########################
-ADD_SUBDIRECTORY ( PyIexTest )
-ADD_SUBDIRECTORY ( PyImathTest )
+IF (ENABLE_TESTS)
+  ADD_SUBDIRECTORY ( PyIexTest )
+  ADD_SUBDIRECTORY ( PyImathTest )
+ENDIF ()
+
