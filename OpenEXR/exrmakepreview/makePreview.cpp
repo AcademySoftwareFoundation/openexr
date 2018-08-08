@@ -85,7 +85,7 @@ gamma (half h, float m)
     if (x > 1)
 	x = 1 + knee (x - 1, 0.184874f);
 
-    return (unsigned char) (clamp (Math<float>::pow (x, 0.4545f) * 84.66f, 
+    return (unsigned char) (IMATH_NAMESPACE::clamp (Math<float>::pow (x, 0.4545f) * 84.66f, 
 				   0.f,
 				   255.f));
 }
@@ -122,7 +122,7 @@ generatePreview (const char inFileName[],
 
     float fx = (previewWidth  > 0)? (float (w - 1) / (previewWidth  - 1)): 1;
     float fy = (previewHeight > 0)? (float (h - 1) / (previewHeight - 1)): 1;
-    float m  = Math<float>::pow (2.f, clamp (exposure + 2.47393f, -20.f, 20.f));
+    float m  = Math<float>::pow (2.f, IMATH_NAMESPACE::clamp (exposure + 2.47393f, -20.f, 20.f));
 
     for (int y = 0; y < previewHeight; ++y)
     {
@@ -134,7 +134,7 @@ generatePreview (const char inFileName[],
 	    preview.r = gamma (pixel.r, m);
 	    preview.g = gamma (pixel.g, m);
 	    preview.b = gamma (pixel.b, m);
-	    preview.a = int (clamp (pixel.a * 255.f, 0.f, 255.f) + .5f);
+	    preview.a = int (IMATH_NAMESPACE::clamp (pixel.a * 255.f, 0.f, 255.f) + .5f);
 	}
     }
 }
