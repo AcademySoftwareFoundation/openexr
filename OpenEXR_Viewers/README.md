@@ -129,139 +129,147 @@ the related tools looks like this:
 If OpenEXR_Viewers is not being compiled, then fltk and nvidia will
 not be needed, but that will be covered later.
 
-1. Compile IlmBase
+* **1.** Compile IlmBase
 
-  a. Point Visual Studio at the .sln file in vc\<vc7|8>\IlmBase in the
-     IlmBase subdirectory
+    * **a.** Point Visual Studio at the .sln file in vc\<vc7|8>\IlmBase in the
+      IlmBase subdirectory
 
-  b. Select the Release configuration and hit Build Solution.  This
-     will create the Deploy directory, and copy the relevant parts to it.
+    * **b.** Select the Release configuration and hit Build Solution.  This
+      will create the Deploy directory, and copy the relevant parts to it.
 
-  c. If the debug versions are desired, select the Debug configuration
-     and hit Build Solution.  This will add the Debug directories to Deploy.
+    * **c.** If the debug versions are desired, select the Debug configuration
+      and hit Build Solution.  This will add the Debug directories to Deploy.
 
-2. Compile OpenEXR support
+* **2.** Compile OpenEXR support
 
-  a. Retrieve the zlib binaries. The project files are set up to link
-     against the dll version of zlib, but can easily be changed to link
-     against a static version, or a self-built version if desired.
+    * **a.** Retrieve the zlib binaries. The project files are set up to link
+      against the dll version of zlib, but can easily be changed to link
+      against a static version, or a self-built version if desired.
 
-    1. Go to http://www.zlib.net and download the precompiled DLL
-       version of zlib (as of writing, zlib123-dll.zip)
+        * **1.** Go to http://www.zlib.net and download the precompiled DLL
+          version of zlib (as of writing, zlib123-dll.zip)
 
-    2. If you don't wish to put the files into your MS visual studio
-       directories and install the dll into windows\system32:
+        * **2.** If you don't wish to put the files into your MS visual studio
+          directories and install the dll into windows\system32:
 
-        a. Put a copy of zlib1.dll into Deploy\bin\Release and
-           Deploy\bin\Debug
+            * **a.** Put a copy of zlib1.dll into Deploy\bin\Release and
+              Deploy\bin\Debug
 
-        b. Copy the header files into Deploy\include
+            * **b.** Copy the header files into Deploy\include
 
-        c. Copy zdll.lib and zdll.exp into Deploy\lib\Release and
-           Deploy\lib\Debug
+            * **c.** Copy zdll.lib and zdll.exp into Deploy\lib\Release and
+              Deploy\lib\Debug
 
-  b. Open the Visual Studio project in OpenEXR\vc\<vc7|8>\OpenEXR.
+    * **b.** Open the Visual Studio project in OpenEXR\vc\<vc7|8>\OpenEXR.
 
-  c. Select the Release configuration and build. The IlmImfTest
-     program runs a confidence test of your build to make sure
-     it is able to work, and may take some time to complete.
+    * **c.** Select the Release configuration and build. The IlmImfTest
+      program runs a confidence test of your build to make sure
+      it is able to work, and may take some time to complete.
 
-  d. Optionally select the Debug configuration and build.
+    * **d.** Optionally select the Debug configuration and build.
 
-3. Compile CTL support
+* **3.** Compile CTL support
 
-  a. Open the Visual Studio project in CTL\vc\<vc7|8>\CTL.
+    * **a.** Open the Visual Studio project in CTL\vc\<vc7|8>\CTL.
 
-  b. Select the Release configuration and build. The IlmCtlTest
-     program runs a confidence test of your build to make sure it is
-     able to work, and may take some time to complete.
+    * **b.** Select the Release configuration and build. The IlmCtlTest
+      program runs a confidence test of your build to make sure it is
+      able to work, and may take some time to complete.
 
-  c. Optionally select the Debug configuration and build.
+    * **c.** Optionally select the Debug configuration and build.
 
-4. Compile OpenEXR_CTL support
+* **4.** Compile OpenEXR_CTL support
 
-  a. Open the Visual Studio project in OpenEXR_CTL\vc\<vc7|8>\OpenEXR_CTL.
+    * **a.** Open the Visual Studio project in OpenEXR_CTL\vc\<vc7|8>\OpenEXR_CTL.
 
-  b. Select the Release configuration and build.
+    * **b.** Select the Release configuration and build.
 
-  c. Optionally select the Debug configuration and build.
+    * **c.** Optionally select the Debug configuration and build.
 
-5. Compile OpenEXR_Viewers
+* **5.** Compile OpenEXR_Viewers
 
-  a. Open the appropriate Visual Studio project in 
-     OpenEXR_Viewers\vc\<vc7|8>\OpenEXR_Viewers depending on whether or not
-     you want CTL support.
+    * **a.** Open the appropriate Visual Studio project in 
+      OpenEXR_Viewers\vc\<vc7|8>\OpenEXR_Viewers depending on whether or not
+      you want CTL support.
 
-  b. exrdisplay requires fltk to work.
+    * **b.** exrdisplay requires fltk to work.
 
-    1. Go to http://www.fltk.org and download fltk 1.1.7
+        * **1.** Go to http://www.fltk.org and download fltk 1.1.7
 
-    2. Open its project files and compile using the instructions they
-       provide.
+        * **2.** Open its project files and compile using the instructions they
+          provide.
 
-    3. Create the fltk directory at the top level of your directory
-       structure as presented above and copy the FL, GL, and lib folders
-       into the fltk directory
+        * **3.** Create the fltk directory at the top level of your directory
+          structure as presented above and copy the FL, GL, and lib folders
+          into the fltk directory
 
-    4. exrdisplay links fltk statically, so no dll is needed.
+        * **4.** exrdisplay links fltk statically, so no dll is needed.
 
-  c. playexr requires the nvidia cg library as well as glut and glew.
+     * **c.** playexr requires the nvidia cg library as well as glut and glew.
 
-    1. Setup the cg toolkit
+        * **1.** Setup the cg toolkit
 
-      a. Go to http://developer.nvidia.com, the developer section and
-         download the cg toolkit, version 1.5, and install it.  The path
-         where you choose to install Cg is referred to by the
-         <Cg install location> tag in the steps below.
+            * **a.** Go to http://developer.nvidia.com, the developer
+              section and download the cg toolkit, version 1.5, and
+              install it.  The path where you choose to install Cg is
+              referred to by the <Cg install location> tag in the
+              steps below.
  
-      b. During the installation, if the integrate with visual studio
-         option is selected, the header files will be automatically found.
-         Otherwise, copy the directory <Cg install location>\Cg\include\Cg
-         to Deploy\include\Cg
+            * **b.** During the installation, if the integrate with visual
+              studio option is selected, the header files will be
+              automatically found.  Otherwise, copy the directory <Cg
+              install location>\Cg\include\Cg to Deploy\include\Cg
 
-      b. Copy the cg.dll and cgGL.dll from the <Cg install location>\Cg\bin
-         into Deploy\bin\Release and Deploy\bin\Debug, or otherwise make
-         them available (put them in system32, add to path, etc.)
+            * **c.** Copy the cg.dll and cgGL.dll from the <Cg install
+              location>\Cg\bin into Deploy\bin\Release and
+              Deploy\bin\Debug, or otherwise make them available (put
+              them in system32, add to path, etc.)
 
-      c. Copy the cg.lib and cgGL.lib from <Cg install location>\Cg\lib
-         into Deploy\lib\Release and Deploy\lib\Debug
+            * **d.** Copy the cg.lib and cgGL.lib from <Cg install
+              location>\Cg\lib into Deploy\lib\Release and
+              Deploy\lib\Debug
 
-    2. Make glut available. This can be done via several mechanisms. 
-       See step 4 below.
+        * **2.** Make glut available. This can be done via several
+          mechanisms.  See step 4 below.
 
-    3. Make glew available. This can be done via several mechanisms.
-       http://glew.sourceforge.net is the master site for this
-       library. See step 4 below.
+        * **3.** Make glew available. This can be done via several
+          mechanisms.  http://glew.sourceforge.net is the master site
+          for this library. See step 4 below.
 
-    4. nVidia makes both glut and glew available in their SDK package,
-       which is a fairly large download, but provides a wealth of other
-       information on programming for the GPU, and is generally a useful
-       package, so that is the path chosen for this set up.
+        * **4.** nVidia makes both glut and glew available in their SDK
+          package, which is a fairly large download, but provides a
+          wealth of other information on programming for the GPU, and
+          is generally a useful package, so that is the path chosen
+          for this set up.
+            
+            * **a.** Go to http://developer.nvidia.com and download
+              version 10 of the SDK and install it.  It will prompt
+              you to install the Cg toolkit, but this is not necessary
+              as it was handled in step **1.**  The path where you choose
+              to install the SDK is referred to by the <SDK install
+              location> tag in the steps below.
 
-      a. Go to http://developer.nvidia.com and download version 10 of the
-         SDK and install it.  It will prompt you to install the Cg toolkit,
-         but this is not necessary as it was handled in step 1.  The path
-         where you choose to install the SDK is referred to by the
-         <SDK install location> tag in the steps below.
+            * **b.** Make an nvidia folder at the top level, with an
+              include and lib folder inside it.  Inside the lib
+              folder, make Debug and Release folders.
 
-      b. Make an nvidia folder at the top level, with an include and
-         lib folder inside it.  Inside the lib folder, make Debug and
-         Release folders.
+            * **c.** Copy the <SDK install location>\external\include\GL
+              directory into nvidia\include the GL and glh folders
+              into nvidia\include.
 
-      c. Copy the <SDK install location>\external\include\GL directory into 
-         nvidia\include the GL and glh folders into nvidia\include.
+            * **d.** Copy the glew headers in <SDK install
+              location>\common\GLEW\include\GL into nvidia\include\GL.
 
-      d. Copy the glew headers in <SDK install location>\common\GLEW\include\GL
-         into nvidia\include\GL.
+            * **e.** Copy <SDK install
+              location>\common\GLEW\lib\glew32.lib and <SDK install
+              location>\external\lib\glut32.lib into Deploy\bin\Release.
 
-      e. Copy <SDK install location>\common\GLEW\lib\glew32.lib and 
-         <SDK install location>\external\lib\glut32.lib into Deploy\bin\Release.
+            * **f.** Copy bin\glut32.dll and bin\glew32.dll into
+              Deploy\bin\Release.
 
-      f. Copy bin\glut32.dll and bin\glew32.dll into Deploy\bin\Release.
+     * **d.** Build the Release configuration of the OpenEXR_Viewers.
 
-  d. Build the Release configuration of the OpenEXR_Viewers.
-
-  e. Build the Debug configuration if desired.
+     * **e.** Build the Debug configuration if desired.
 
 At this point, the Deploy folder should be fully built out and ready
 to be used.  Both exrdisplay and playexr are meant to be launched from
