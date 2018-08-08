@@ -203,6 +203,9 @@ if ((OPENEXR_BUILD_UTILS OR OPENEXR_BUILD_TESTS OR OPENEXR_BUILD_VIEWERS) AND NO
   endif()
 endif()
 
+# Set position independent code (mostly for static builds, but not a bad idea regardless)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 # Perform the build
 if(OPENEXR_BUILD_ILMBASE)
     add_subdirectory(IlmBase)
