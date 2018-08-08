@@ -53,7 +53,7 @@ fi
 
 run_cmd aclocal -I m4 $ACLOCAL_INCLUDE
 run_cmd $LIBTOOLIZE --automake --copy
-run_cmd automake --add-missing --copy
+run_cmd automake --add-missing --copy --foreign
 run_cmd autoconf
 echo
 echo "Now type './configure' to configure DtexToExr."
