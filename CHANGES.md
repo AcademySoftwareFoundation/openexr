@@ -799,12 +799,12 @@
 	  internal image representations.
 	  (Florian Kainz)
 * exrenvmap improvements:
-	  - New command line flags set the type of the input image to
+  - New command line flags set the type of the input image to
 	    latitude-longitude map or cube-face map, overriding the
 	    envmap attribute in the input file header.
-	  - Cube-face maps can now be assembled from or split into six
+  - Cube-face maps can now be assembled from or split into six
 	    square sub-images.
-	  - Converting a cube-face map into a new cube-face map with
+  - Converting a cube-face map into a new cube-face map with
 	    the same face size copies the image instead of resampling
 	    it.  This avoids blurring when a cube-face map is assembled
 	    from or split into sub-images.
@@ -923,18 +923,18 @@
 * added new framesPerSecond optional standard attribute
 	  (Florian Kainz)
 * Imath cleanup:
-	  - Rewrote function Imath::Quat<T>::setRotation() to make it
+  - Rewrote function Imath::Quat<T>::setRotation() to make it
 	    numerically more accurate, added confidence tests
-	  - Rewrote function Imath::Quat<T>::slerp() using Don Hatch's
+  - Rewrote function Imath::Quat<T>::slerp() using Don Hatch's
 	    method, which is numerically more accurate, added confidence
 	    tests.
-	  - Rewrote functions Imath::closestPoints(), Imath::intersect(),
+  - Rewrote functions Imath::closestPoints(), Imath::intersect(),
 	    added confidence tests.
-	  - Removed broken function Imath::nearestPointOnTriangle().
-	  - Rewrote Imath::drand48(), Imath::lrand48(), etc. to make
+  - Removed broken function Imath::nearestPointOnTriangle().
+  - Rewrote Imath::drand48(), Imath::lrand48(), etc. to make
 	    them functionally identical with the Unix/Linux versions
 	    of drand48(), lrand48() and friends.
-	  - Replaced redundant definitions of Int64 in Imath and IlmImf
+  - Replaced redundant definitions of Int64 in Imath and IlmImf
 	    with a single definition in ImathInt64.h.
 	  (Florian Kainz)
 * exrdisplay: if the file's and the display's RGB chromaticities
@@ -1147,7 +1147,7 @@
 * Made template <class T> become  template <class S, class T> for 
           the transform(ObjectS, ObjectT) methods. This was done to allow
           for differing templated objects to be passed in e.g.  say a 
-          Box<Vec3<S>> and a Matrix44<T>, where S=float and T=double.
+          Box<Vec3<S> and a Matrix44<T>, where S=float and T=double.
           (Jeff Yost, Arkell Rasiah)
 * New method Matrix44::setTheMatrix(). Used for assigning a 
           M44f to a M44d. (Jeff Yost, Arkell Rasiah)
