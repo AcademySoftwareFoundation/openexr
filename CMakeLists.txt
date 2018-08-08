@@ -26,6 +26,10 @@ option(OPENEXR_BUILD_OPENEXR        "Build OpenEXR"              ON)
 option(OPENEXR_BUILD_PYTHON_LIBS    "Build the Python bindings"  ON)
 option(OPENEXR_BUILD_VIEWERS        "Build the viewers"          OFF)
 option(OPENEXR_BUILD_TESTS          "Enable the tests"           ON)
+# when enabled, adds the (long) running fuzz tests to the "make test" rule
+# even when this is disabled, as long as OPENEXR_BUILD_TESTS is enabled, one
+# can still run "make fuzz" (or equivalent)
+option(OPENEXR_RUN_FUZZ_TESTS       "Run damaged-input tests"    OFF)
 option(OPENEXR_BUILD_UTILS          "Build the utility programs" ON)
 
 option(OPENEXR_BUILD_SHARED         "Build Shared Libraries"     ON)
