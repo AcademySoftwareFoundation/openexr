@@ -339,6 +339,38 @@
    
 ### Commits \[ git log v2.2.1...develop\]
 
+*  [Add PyImathNumpyTest to Makefile and configure.ac](https://github.com/openexr/openexr/3f93f6a2ca02b8878ea5af49770b74b93b1eaf49) ([Cary Phillips](@cary@ilm.com), 2018-08-08) 
+
+*  [Add ImfExportUtil.h to Makefile.am](https://github.com/openexr/openexr/7e8daab2814208797fb5cd92e4a2bb65356e17e4) ([Cary Phillips](@cary@ilm.com), 2018-08-08) 
+
+*  [fix pyilmbase tests, static compilation](https://github.com/openexr/openexr/7e54e7dc7aaa59cef312987b1d3e07835b6c2abb) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-09) - python extensions must be shared, so can not follow the overall lib type for the library. - the code should be compiled fPIC when building a static library such that it can be linked into a .so - remove the dependency on the particle python extension in the numpy test - add environment variables such that the python tests will work in the build tree without a "make install" (win32 doesn't neede ld_library_path, but it doesn't hurt, but may need path?) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
+
+*  [fix OPENEXR_VERSION and OPENEXR_SOVERSION](https://github.com/openexr/openexr/0a3c73265726aac7897bcc6dea9e93d817469ae8) ([Cary Phillips](@cary@ilm.com), 2018-08-08) 
+
+*  [update readme documentation for new cmake option](https://github.com/openexr/openexr/159a2601211e5699cc444245b46a9fa61bb5b911) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
+
+*  [fix compile errors under c++17](https://github.com/openexr/openexr/3314d891d1c6b28cd86b30a22fe30da38e145dfa) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) Fixes errors with collisions due to the addition of clamp to the std namespace Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
+
+*  [add last ditch effort for numpy](https://github.com/openexr/openexr/768903ece03577e36534d2c8864bcaea8788a61a) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) Apparently not all distributions include a FindNumPy.cmake or similar, even if numpy is indeed installed. This makes a second effort to find using python itself Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
+
+*  [make pyilmbase tests conditional](https://github.com/openexr/openexr/380dbfb8b364091cddc9bda1b3ba582aaad13aa1) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) This makes the PyIlmBase tests conditional in the same manner as OpenEXR and IlmBase Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
+
+*  [optimize regeneration of config files](https://github.com/openexr/openexr/594e708e1489b3113c73d74f4781c6f1228e03b6) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) This makes the config files write to a temporary file, then use cmake's configure_file command with copyonly to compare the contents and not copy if they are the same. Incremental builds are much faster as a result when working on new features and adding files to the cmakelists.txt Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
+
+*  [make fuzz test optional like autoconf](https://github.com/openexr/openexr/92094cceaa3d5801b075696b80439d164526a97e) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) This makes running the fuzz tests as part of the "make test" rule optional. Even with this off by default, if building tests is enabled, the fuzz test will still be compiled, and is available to run via "make fuzz". This should enable a weekly jenkins build config to run the fuzz tests, given that it takes a long time to run. Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
+
+*  [Fix SO version](https://github.com/openexr/openexr/87d9fe9282802b1d000682b4908180e3e862ef76) ([Nick Porcino](@meshula@hotmail.com), 2018-08-07) 
+
+*  [Rebased existing develop changes into master, merging from the new head of master into develop to record the changes that were included.](https://github.com/openexr/openexr/b8c9cd101b4205af1516683767690cdea6ac5eab) ([Nick Rasmussen](@nick@ilm.com), 2018-08-08) 
+
+*  [CHANGES.md formatting](https://github.com/openexr/openexr/8cd1b9210855fa4f6923c1b94df8a86166be19b1) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
+
+*  [format old release notes](https://github.com/openexr/openexr/3c5b5f894def68cf5240e8f427147c867f745912) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
+
+*  [release notes upates](https://github.com/openexr/openexr/534e4bcde71ce34b9f8fa9fc39e9df1a58aa3f80) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
+
+*  [CHANGES.md](https://github.com/openexr/openexr/471d7bd1c558c54ecc3cbbb2a65932f1e448a370) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
+
 * [OpenEXR_Viewers/README.md formatting](https://github.com/openexr/openexr/24c488574d9497c8019cdcf63a1e719d6669a29d) ([Cary Phillips](@cary@ilm.com), 2018-08-07)
 
 * [more README fixes.](https://github.com/openexr/openexr/d2bf73fb67ded0cd089fb5ce7a9926ccbcc4b977) ([Cary Phillips](@cary@ilm.com), 2018-08-07)
