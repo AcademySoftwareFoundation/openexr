@@ -4,7 +4,7 @@
 # (an alternative to the acinclude.m4 mechanism)
 ACLOCAL_AMFLAGS = -I m4
 
-PYIMATH_SUBDIRS = config PyIex PyImath PyIexTest  PyImathTest
+PYIMATH_SUBDIRS = config PyIex PyImath PyIexTest  PyImathTest PyImathNumpyTest
 PYIMATHNUMPY_SUBDIRS = PyImathNumpy
 
 if BUILD_PYIMATHNUMPY
