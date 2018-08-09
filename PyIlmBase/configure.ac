@@ -111,8 +111,7 @@ AM_PATH_PYTHON
 PYTHON_INC_DIR=`$PYTHON -c 'from distutils.sysconfig import *; print (get_python_inc())'`
 PYTHON_LIB_DIR=`$PYTHON -c 'from distutils.sysconfig import *; print (get_config_var("LIBDIR"))'`
 PYTHON_VER_MAJ=`echo $PYTHON_VERSION|cut -d. -f1`
-PKG_CHECK_MODULES(PYTHON, [python${PYTHON_VER_MAJ}])
-LIBS="$LIBS $PYTHON_LIBS"
+LIBS="$LIBS -lpython$PYTHON_VERSION"
 
 BOOST_PYTHON_CXXFLAGS="" 
 BOOST_PYTHON_LDFLAGS="" 
