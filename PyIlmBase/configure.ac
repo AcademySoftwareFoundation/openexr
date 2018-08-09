@@ -225,6 +225,8 @@ PyImath/Makefile
 PyImathTest/Makefile
 PyImathTest/pyImathTest
 PyImathNumpy/Makefile
+PyImathNumpyTest/Makefile
+PyImathNumpyTest/pyImathNumpyTest
 ])
 
 AC_OUTPUT
