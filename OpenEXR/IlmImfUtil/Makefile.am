@@ -17,7 +17,7 @@ libIlmImfUtil_la_SOURCES = \
 	ImfFlatImageIO.h ImfFlatImageIO.cpp \
 	ImfDeepImageIO.h ImfDeepImageIO.cpp \
 	ImfImageDataWindow.h ImfImageDataWindow.cpp \
-	ImfImageChannelRenaming.h
+	ImfImageChannelRenaming.h ImfUtilExport.h
 
 libIlmImfUtil_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ \
 			-no-undefined 
