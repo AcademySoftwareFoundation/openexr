@@ -137,39 +137,6 @@ if (OPENEXR_BUILD_PYTHON_LIBS)
   endif()
 
   find_package(NumPy)
-  if(NOT NumPy_FOUND)
-
-    if(NOT PYTHON_EXECUTABLE)
-      find_package(PythonInterp QUIET)
-    endif()
-    if (PYTHON_EXECUTABLE)
-      # Find out the include path
-      execute_process(
-        COMMAND "${PYTHON_EXECUTABLE}" -c
-        "from __future__ import print_function\ntry: import numpy; print(numpy.get_include(), end='')\nexcept:pass\n"
-        OUTPUT_VARIABLE py_ilmbase_numpy_path)
-      # And the version
-      execute_process(
-        COMMAND "${PYTHON_EXECUTABLE}" -c
-        "from __future__ import print_function\ntry: import numpy; print(numpy.__version__, end='')\nexcept:pass\n"
-        OUTPUT_VARIABLE py_ilmbase_numpy_version)
-
-      find_path(NUMPY_INCLUDE_DIRS numpy/arrayobject.h
-        HINTS "${py_ilmbase_numpy_path}" "${PYTHON_INCLUDE_PATH}" NO_DEFAULT_PATH)
-
-      if(NUMPY_INCLUDE_DIRS)
-        set(NumPy_FOUND 1 CACHE INTERNAL "Python numpy found")
-
-        include(FindPackageHandleStandardArgs)
-        find_package_handle_standard_args(NumPy REQUIRED_VARS NUMPY_INCLUDE_DIRS
-          VERSION_VAR py_ilmbase_numpy_version)
-      else()
-        message(WARNING "Numpy not found, PyImathNumpy will not be built")
-      endif()
-    else ()
-      message(WARNING "Numpy not found, PyImathNumpy will not be built")
-    endif ()
-  endif()
 endif()
 
 if(OPENEXR_BUILD_VIEWERS)
