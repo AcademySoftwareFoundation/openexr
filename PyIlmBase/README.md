@@ -57,6 +57,17 @@ In particular, arguments of note include:
 * ``--with-boost-include-dir``, ``--with-boost-lib-dir`` - location of
   the boost installation.
 
+With recent versions of macOS, System Integrity Protection (SIP) is enabled by
+default.  This restricts where third party libraries can be loaded from and inhibits
+the use of DYLD_LIBRRARY_PATH to include other directories in the search path.
+If you are encountering an issue where boost_python is not being found during the
+configure process even after specifying the correct --with-boost-\* directories and
+boost is installed to a directory other than /usr/local, reinstall boost and IlmBase
+to /usr/local and use them from that location.  install_name_tool -change may also
+be used to rewrite library references to use absolute paths if installation in a
+different directory is required, however this is not currently performed by the
+build system and must be done manually to all the libraries and python modules.
+
 To build the libraries after running ``configure``:
 
     make
