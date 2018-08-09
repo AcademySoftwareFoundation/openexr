@@ -77,6 +77,7 @@ set(CPACK_SOURCE_IGNORE_FILES      "/.git*;/.cvs*;${CPACK_SOURCE_IGNORE_FILES}")
 set(CPACK_SOURCE_GENERATOR         "TGZ")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${OPENEXR_VERSION}" )
 include(CPack)
+include(GNUInstallDirs)
 
 # Configuration
 if(OPENEXR_FORCE_CXX03)
@@ -95,9 +96,9 @@ if(NOT WIN32)
 endif()
 
 if(WIN32)
-  set(RUNTIME_DIR bin)
+  set(RUNTIME_DIR ${CMAKE_INSTALL_BINDIR})
 else()
-  set(RUNTIME_DIR lib)
+  set(RUNTIME_DIR ${CMAKE_INSTALL_LIBDIR})
 endif()
 
 set(OPENEXR_LIBSUFFIX "")
@@ -168,6 +169,10 @@ if ((OPENEXR_BUILD_UTILS OR OPENEXR_BUILD_TESTS OR OPENEXR_BUILD_VIEWERS) AND NO
     message(ERROR "Could not find OpenEXR, cannot build dependent libraries.")
     message(INFO, "Set OPENEXR_LOCATION to location of OpenEXR.")
   endif()
+endif()
+
+if(NOT WIN32)
+  find_package(PkgConfig REQUIRED)
 endif()
 
 # Set position independent code (mostly for static builds, but not a bad idea regardless)

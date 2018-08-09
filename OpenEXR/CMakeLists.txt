@@ -6,10 +6,6 @@ ENDIF()
 
 PROJECT (openexr)
 
-IF (NOT ILMBASE_PACKAGE_PREFIX)
-  SET (ILMBASE_PACKAGE_PREFIX ${CMAKE_INSTALL_PREFIX})
-ENDIF ()
-
 ADD_DEFINITIONS (-DILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/IlmImfTest/" )
 
 IF (NOT WIN32)
@@ -37,8 +33,8 @@ MACRO(SET_ILMBASE_INCLUDE_DIRS _target)
   )
 ENDMACRO()
 
-LINK_DIRECTORIES ( ${ILMBASE_PACKAGE_PREFIX}/lib )
-MESSAGE ( "ILMBASE_PACKAGE_PREFIX = " ${ILMBASE_PACKAGE_PREFIX})
+LINK_DIRECTORIES ( ${CMAKE_INSTALL_LIBDIR} )
+MESSAGE ( "IlmBase Library Directory = " ${CMAKE_INSTALL_FULL_LIBDIR})
 
 IF (NOT WIN32 AND NOT APPLE)
   # Test for GCC-style inline asm support with AVX instructions
@@ -196,7 +192,7 @@ ENDIF ()
 INSTALL ( FILES
   ${CMAKE_CURRENT_BINARY_DIR}/config/OpenEXRConfig.h
   DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
+  ${CMAKE_INSTALL_INCLUDEDIR}/OpenEXR
   )
 
 # Documentation
@@ -208,7 +204,7 @@ INSTALL ( FILES
   doc/InterpretingDeepPixels.pdf
   doc/TheoryDeepPixels.pdf
   DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${OPENEXR_VERSION}
+  ${CMAKE_INSTALL_DOCDIR}
   )
 
 # Examples
@@ -230,5 +226,10 @@ INSTALL ( FILES
   IlmImfExamples/previewImageExamples.h
   IlmImfExamples/namespaceAlias.h
   DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${OPENEXR_VERSION}/examples
+  ${CMAKE_INSTALL_DOCDIR}/examples
   )
+
+if ( NOT WIN32 )
+  configure_file(OpenEXR.pc.cmake "${CMAKE_CURRENT_BINARY_DIR}/OpenEXR.pc" @ONLY)
+  install( FILES "${CMAKE_CURRENT_BINARY_DIR}/OpenEXR.pc" DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig COMPONENT dev )
+endif()

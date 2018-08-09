@@ -38,7 +38,7 @@ HINTS
     "$ENV{ILMBASE_ROOT}"
 
 PATH_SUFFIXES
-    include/
+    ${CMAKE_INSTALL_INCLUDEDIR}/
 
 NO_DEFAULT_PATH
 NO_SYSTEM_ENVIRONMENT_PATH
@@ -86,7 +86,7 @@ foreach(OPENEXR_LIB
             "${OPENEXR_LOCATION}"
             "$ENV{OPENEXR_LOCATION}"
         PATH_SUFFIXES
-            lib/
+            ${CMAKE_INSTALL_LIBDIR}/
         NO_DEFAULT_PATH
         NO_SYSTEM_ENVIRONMENT_PATH
         DOC
@@ -108,8 +108,8 @@ foreach(OPENEXR_LIB
             "${OPENEXR_LOCATION}"
             "$ENV{OPENEXR_LOCATION}"
         PATH_SUFFIXES
-            lib/
-            debug/lib/
+            ${CMAKE_INSTALL_LIBDIR}/
+            debug/${CMAKE_INSTALL_LIBDIR}/
         NO_DEFAULT_PATH
         NO_SYSTEM_ENVIRONMENT_PATH
         DOC
@@ -127,7 +127,7 @@ foreach(OPENEXR_LIB
             "${OPENEXR_LOCATION}"
             "$ENV{OPENEXR_LOCATION}"
         PATH_SUFFIXES
-            lib/
+            ${CMAKE_INSTALL_LIBDIR}/
         NO_DEFAULT_PATH
         NO_SYSTEM_ENVIRONMENT_PATH
         DOC
@@ -145,8 +145,8 @@ foreach(OPENEXR_LIB
             "${OPENEXR_LOCATION}"
             "$ENV{OPENEXR_LOCATION}"
         PATH_SUFFIXES
-            lib/
-            debug/lib/
+            ${CMAKE_INSTALL_LIBDIR}/
+            debug/${CMAKE_INSTALL_LIBDIR}/
         NO_DEFAULT_PATH
         NO_SYSTEM_ENVIRONMENT_PATH
         DOC
