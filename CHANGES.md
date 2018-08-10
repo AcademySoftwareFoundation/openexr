@@ -4,33 +4,32 @@
 
 ### Features/Improvements:
 
-* Iex::BaseExc no longer derived from std::string.
-* Imath throw() specifiers removed
-* ThreadPoolProvider class; ThreadPool overhead improvements, enable custom thread pool to be registered
+* ThreadPool overhead improvements, enable custom thread pool to be registered via ThreadPoolProvider class
 * Fixes to enable custom namespaces for Iex, Imf
 * Improve read performance for deep/zipped data, and SIMD-accelerated uncompress support
 * Added rawPixelDataToBuffer() function for access to compressed scanlines
+* Iex::BaseExc no longer derived from std::string.
+* Imath throw() specifiers removed
 * Initial Support for Python 3
-* Support for C++11/14
-* Support for GCC 6.3.1
 
 ### Bugs:
 
-* 25 various bug fixes (see below for details)
+* 25+ various bug fixes (see detailed Release Notes for the full list)
 
 ### Build Fixes:
 
 * Various fixes to the cmake and autoconf build infrastructures
-* Various changes to support compiling for C++11 / C++14 / C++17
+* Various changes to support compiling for C++11 / C++14 / C++17 and GCC 6.3.1
 * Various fixes to address Windows build issues
-* 60 total build-related fixes (see below for details)
+* 60+ total build-related fixes (see detailed Release Notes for the full list)
 
 ### Diff Stats \[git diff --stat v2.2.1\]
 
-    CMakeLists.txt                                     |   189 +
+    CHANGES.md                                         |  1487 +++
+    CMakeLists.txt                                     |   194 +
     Contrib/DtexToExr/bootstrap                        |     2 +-
     Contrib/DtexToExr/configure.ac                     |     2 +-
-    IlmBase/CMakeLists.txt                             |   160 +-
+    IlmBase/CMakeLists.txt                             |   214 +-
     IlmBase/COPYING                                    |    34 -
     IlmBase/Half/CMakeLists.txt                        |   107 +-
     IlmBase/Half/half.cpp                              |     6 +-
@@ -88,7 +87,7 @@
     IlmBase/m4/ax_cxx_compile_stdcxx.m4                |   982 ++
     LICENSE                                            |    34 +
     OpenEXR/AUTHORS                                    |     2 +
-    OpenEXR/CMakeLists.txt                             |   209 +-
+    OpenEXR/CMakeLists.txt                             |   272 +-
     OpenEXR/COPYING                                    |    34 -
     OpenEXR/INSTALL                                    |     2 -
     OpenEXR/IlmImf/CMakeLists.txt                      |   396 +-
@@ -177,7 +176,8 @@
     OpenEXR/IlmImf/dwaLookups.cpp                      |    10 +-
     OpenEXR/IlmImfExamples/CMakeLists.txt              |    18 +-
     OpenEXR/IlmImfExamples/Makefile.am                 |     8 +-
-    OpenEXR/IlmImfFuzzTest/CMakeLists.txt              |    16 +-
+    OpenEXR/IlmImfExamples/previewImageExamples.cpp    |     6 +-
+    OpenEXR/IlmImfFuzzTest/CMakeLists.txt              |    27 +-
     OpenEXR/IlmImfFuzzTest/Makefile.am                 |     6 +-
     OpenEXR/IlmImfTest/CMakeLists.txt                  |    18 +-
     OpenEXR/IlmImfTest/Makefile.am                     |     6 +-
@@ -204,7 +204,7 @@
     OpenEXR/IlmImfUtil/ImfImageLevel.h                 |    20 +-
     OpenEXR/IlmImfUtil/ImfSampleCountChannel.h         |    23 +-
     OpenEXR/IlmImfUtil/ImfUtilExport.h                 |    46 +
-    OpenEXR/IlmImfUtil/Makefile.am                     |    14 +-
+    OpenEXR/IlmImfUtil/Makefile.am                     |    16 +-
     OpenEXR/IlmImfUtilTest/CMakeLists.txt              |    20 +-
     OpenEXR/IlmImfUtilTest/Makefile.am                 |     6 +-
     OpenEXR/Makefile.am                                |     5 +-
@@ -215,7 +215,7 @@
     OpenEXR/README.git                                 |    16 -
     OpenEXR/README.md                                  |   132 +
     OpenEXR/README.namespacing                         |    83 -
-    OpenEXR/bootstrap                                  |     6 +-
+    OpenEXR/bootstrap                                  |     4 +-
     OpenEXR/build.log                                  | 11993 -------------------
     OpenEXR/configure.ac                               |   284 +-
     OpenEXR/doc/Makefile.am                            |     1 -
@@ -228,14 +228,17 @@
     OpenEXR/exrheader/Makefile.am                      |     6 +-
     OpenEXR/exrmakepreview/CMakeLists.txt              |    10 +-
     OpenEXR/exrmakepreview/Makefile.am                 |     6 +-
+    OpenEXR/exrmakepreview/makePreview.cpp             |     6 +-
     OpenEXR/exrmaketiled/CMakeLists.txt                |     9 +-
     OpenEXR/exrmaketiled/Makefile.am                   |     6 +-
+    OpenEXR/exrmaketiled/makeTiled.cpp                 |     8 +-
     OpenEXR/exrmultipart/CMakeLists.txt                |    13 +-
     OpenEXR/exrmultipart/Makefile.am                   |     8 +-
     OpenEXR/exrmultiview/CMakeLists.txt                |    12 +-
     OpenEXR/exrmultiview/Makefile.am                   |     6 +-
     OpenEXR/exrstdattr/CMakeLists.txt                  |    13 +-
     OpenEXR/exrstdattr/Makefile.am                     |     6 +-
+    OpenEXR/m4/ax_cxx_compile_stdcxx.m4                |   982 ++
     OpenEXR/m4/path.pkgconfig.m4                       |    63 +-
     OpenEXR_Viewers/AUTHORS                            |    12 -
     OpenEXR_Viewers/CMakeLists.txt                     |    71 +-
@@ -248,23 +251,25 @@
     OpenEXR_Viewers/README.OSX                         |    18 -
     OpenEXR_Viewers/README.md                          |   278 +
     OpenEXR_Viewers/README.win32                       |   196 -
-    OpenEXR_Viewers/bootstrap                          |     6 +-
+    OpenEXR_Viewers/bootstrap                          |     4 +-
     OpenEXR_Viewers/configure.ac                       |    47 +-
     OpenEXR_Viewers/exrdisplay/CMakeLists.txt          |    15 +-
     OpenEXR_Viewers/exrdisplay/GlWindow3d.h            |     5 +
+    OpenEXR_Viewers/m4/ax_cxx_compile_stdcxx.m4        |   982 ++
     OpenEXR_Viewers/playexr/CMakeLists.txt             |     8 +-
     PyIlmBase/AUTHORS                                  |    10 -
-    PyIlmBase/CMakeLists.txt                           |   123 +-
+    PyIlmBase/CMakeLists.txt                           |   128 +-
     PyIlmBase/COPYING                                  |    34 -
     PyIlmBase/INSTALL                                  |     2 -
-    PyIlmBase/Makefile.am                              |     5 +-
+    PyIlmBase/Makefile.am                              |     7 +-
     PyIlmBase/NEWS                                     |     2 -
-    PyIlmBase/PyIex/CMakeLists.txt                     |    48 +-
+    PyIlmBase/PyIex/CMakeLists.txt                     |    52 +-
     PyIlmBase/PyIex/PyIex.cpp                          |     4 +-
     PyIlmBase/PyIex/PyIex.h                            |     4 +-
     PyIlmBase/PyIex/PyIexExport.h                      |    45 +-
     PyIlmBase/PyIex/iexmodule.cpp                      |     5 +-
-    PyIlmBase/PyImath/CMakeLists.txt                   |    48 +-
+    PyIlmBase/PyIexTest/CMakeLists.txt                 |     4 +-
+    PyIlmBase/PyImath/CMakeLists.txt                   |    53 +-
     PyIlmBase/PyImath/PyImath.cpp                      |     5 +-
     PyIlmBase/PyImath/PyImath.h                        |     8 +-
     PyIlmBase/PyImath/PyImathAutovectorize.cpp         |     2 +-
@@ -324,434 +329,349 @@
     PyIlmBase/PyImath/PyImathVec4ArrayImpl.h           |    10 +-
     PyIlmBase/PyImath/PyImathVec4Impl.h                |     6 +-
     PyIlmBase/PyImath/imathmodule.cpp                  |    38 +-
-    PyIlmBase/PyImathNumpy/CMakeLists.txt              |    20 +-
+    PyIlmBase/PyImathNumpy/CMakeLists.txt              |    25 +-
     PyIlmBase/PyImathNumpy/imathnumpymodule.cpp        |    14 +-
+    PyIlmBase/PyImathNumpyTest/CMakeLists.txt          |     6 +-
+    PyIlmBase/PyImathNumpyTest/pyImathNumpyTest.in     |    81 +-
+    PyIlmBase/PyImathTest/CMakeLists.txt               |     2 +
+    PyIlmBase/PyImathTest/pyImathTest.in               |  1090 +-
     PyIlmBase/README                                   |    51 -
     PyIlmBase/README.OSX                               |    21 -
-    PyIlmBase/README.md                                |    88 +
-    PyIlmBase/bootstrap                                |     6 +-
-    PyIlmBase/configure.ac                             |    65 +-
+    PyIlmBase/README.md                                |    99 +
+    PyIlmBase/bootstrap                                |     4 +-
+    PyIlmBase/configure.ac                             |    64 +-
+    PyIlmBase/m4/ax_cxx_compile_stdcxx.m4              |   982 ++
     README                                             |    68 -
-    README.md                                          |   195 +
+    README.md                                          |   202 +
     cmake/FindIlmBase.cmake                            |   192 +
+    cmake/FindNumPy.cmake                              |    51 +
     cmake/FindOpenEXR.cmake                            |   198 +
-    308 files changed, 7609 insertions(+), 15731 deletions(-)
+    321 files changed, 12796 insertions(+), 16398 deletions(-)
    
-### Commits \[ git log v2.2.1...develop\]
+### Commits \[ git log v2.2.1...v.2.3.0\]
 
-*  [Add PyImathNumpyTest to Makefile and configure.ac](https://github.com/openexr/openexr/3f93f6a2ca02b8878ea5af49770b74b93b1eaf49) ([Cary Phillips](@cary@ilm.com), 2018-08-08) 
+*  [Reverted python library -l line logic to go back to the old PYTHON_VERSION based logic.](https://github.com/openexr/openexr/commit/02310c624547fd765cd6e08abe459755d4ecebcc) ([Nick Rasmussen](@nick@ilm.com), 2018-08-09) 
 
-*  [Add ImfExportUtil.h to Makefile.am](https://github.com/openexr/openexr/7e8daab2814208797fb5cd92e4a2bb65356e17e4) ([Cary Phillips](@cary@ilm.com), 2018-08-08) 
+*  [Updated build system to use local copies of the ax_cxx_copmile_stdcxx.m4 macro.](https://github.com/openexr/openexr/commit/3d6c9302b3d7f394a90ac3c95d12b1db1c183812) ([Nick Rasmussen](@nick@ilm.com), 2018-08-09) 
 
-*  [fix pyilmbase tests, static compilation](https://github.com/openexr/openexr/7e54e7dc7aaa59cef312987b1d3e07835b6c2abb) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-09) - python extensions must be shared, so can not follow the overall lib type for the library. - the code should be compiled fPIC when building a static library such that it can be linked into a .so - remove the dependency on the particle python extension in the numpy test - add environment variables such that the python tests will work in the build tree without a "make install" (win32 doesn't neede ld_library_path, but it doesn't hurt, but may need path?) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
+*  [accidentally commited Makefile instead of Makefile.am](https://github.com/openexr/openexr/commit/46dda162ef2b3defceaa25e6bdd2b71b98844685) ([Cary Phillips](@cary@ilm.com), 2018-08-09) 
 
-*  [fix OPENEXR_VERSION and OPENEXR_SOVERSION](https://github.com/openexr/openexr/0a3c73265726aac7897bcc6dea9e93d817469ae8) ([Cary Phillips](@cary@ilm.com), 2018-08-08) 
+*  [update CHANGES.md](https://github.com/openexr/openexr/commit/ea46c15be9572f81549eaa76a1bdf8dbe364f780) ([Cary Phillips](@cary@ilm.com), 2018-08-08) 
 
-*  [update readme documentation for new cmake option](https://github.com/openexr/openexr/159a2601211e5699cc444245b46a9fa61bb5b911) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
+*  [Added FindNumPy.cmake](https://github.com/openexr/openexr/commit/63870bb10415ca7ea76ecfdafdfe70f5894f66f2) ([Nick Porcino](@meshula@hotmail.com), 2018-08-08) 
 
-*  [fix compile errors under c++17](https://github.com/openexr/openexr/3314d891d1c6b28cd86b30a22fe30da38e145dfa) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) Fixes errors with collisions due to the addition of clamp to the std namespace Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
+*  [Add PyImathNumpyTest to Makefile and configure.ac](https://github.com/openexr/openexr/commit/36abd2b728e8759b010ceffe94363d5f473fe6dc) ([Cary Phillips](@cary@ilm.com), 2018-08-08) 
 
-*  [add last ditch effort for numpy](https://github.com/openexr/openexr/768903ece03577e36534d2c8864bcaea8788a61a) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) Apparently not all distributions include a FindNumPy.cmake or similar, even if numpy is indeed installed. This makes a second effort to find using python itself Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
+*  [Add ImfExportUtil.h to Makefile.am](https://github.com/openexr/openexr/commit/82f78f4a895e29b42d2ccc0d66be08948203f507) ([Cary Phillips](@cary@ilm.com), 2018-08-08) 
 
-*  [make pyilmbase tests conditional](https://github.com/openexr/openexr/380dbfb8b364091cddc9bda1b3ba582aaad13aa1) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) This makes the PyIlmBase tests conditional in the same manner as OpenEXR and IlmBase Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
+*  [fix pyilmbase tests, static compilation](https://github.com/openexr/openexr/commit/75c918b65c2394c7f7a9f769fee87572d06e81b5) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-09) - python extensions must be shared, so can not follow the overall lib type for the library. - the code should be compiled fPIC when building a static library such that it can be linked into a .so - remove the dependency on the particle python extension in the numpy test - add environment variables such that the python tests will work in the build tree without a "make install" (win32 doesn't neede ld_library_path, but it doesn't hurt, but may need path?) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-*  [optimize regeneration of config files](https://github.com/openexr/openexr/594e708e1489b3113c73d74f4781c6f1228e03b6) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) This makes the config files write to a temporary file, then use cmake's configure_file command with copyonly to compare the contents and not copy if they are the same. Incremental builds are much faster as a result when working on new features and adding files to the cmakelists.txt Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
+*  [fix OPENEXR_VERSION and OPENEXR_SOVERSION](https://github.com/openexr/openexr/commit/4481442b467e492a3a515b0992391dc160282786) ([Cary Phillips](@cary@ilm.com), 2018-08-08) 
 
-*  [make fuzz test optional like autoconf](https://github.com/openexr/openexr/92094cceaa3d5801b075696b80439d164526a97e) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) This makes running the fuzz tests as part of the "make test" rule optional. Even with this off by default, if building tests is enabled, the fuzz test will still be compiled, and is available to run via "make fuzz". This should enable a weekly jenkins build config to run the fuzz tests, given that it takes a long time to run. Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
+*  [update readme documentation for new cmake option](https://github.com/openexr/openexr/commit/081c9f9f9f26afc6943f1b2e63d171802895bee5) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-*  [Fix SO version](https://github.com/openexr/openexr/87d9fe9282802b1d000682b4908180e3e862ef76) ([Nick Porcino](@meshula@hotmail.com), 2018-08-07) 
+*  [fix compile errors under c++17](https://github.com/openexr/openexr/commit/6d9e3f6e2a9545e9d060f599967868d228d9a56a) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) Fixes errors with collisions due to the addition of clamp to the std namespace Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-*  [Rebased existing develop changes into master, merging from the new head of master into develop to record the changes that were included.](https://github.com/openexr/openexr/b8c9cd101b4205af1516683767690cdea6ac5eab) ([Nick Rasmussen](@nick@ilm.com), 2018-08-08) 
+*  [add last ditch effort for numpy](https://github.com/openexr/openexr/commit/af5fa2d84acf74e411d6592201890b1e489978c4) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) Apparently not all distributions include a FindNumPy.cmake or similar, even if numpy is indeed installed. This makes a second effort to find using python itself Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-*  [CHANGES.md formatting](https://github.com/openexr/openexr/8cd1b9210855fa4f6923c1b94df8a86166be19b1) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
+*  [make pyilmbase tests conditional](https://github.com/openexr/openexr/commit/07951c8bdf6164e34f37c3d88799e4e98e46d1ee) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) This makes the PyIlmBase tests conditional in the same manner as OpenEXR and IlmBase Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-*  [format old release notes](https://github.com/openexr/openexr/3c5b5f894def68cf5240e8f427147c867f745912) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
+*  [optimize regeneration of config files](https://github.com/openexr/openexr/commit/b610ff33e827c38ac3693d3e43ad973c891d808c) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) This makes the config files write to a temporary file, then use cmake's configure_file command with copyonly to compare the contents and not copy if they are the same. Incremental builds are much faster as a result when working on new features and adding files to the cmakelists.txt Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-*  [release notes upates](https://github.com/openexr/openexr/534e4bcde71ce34b9f8fa9fc39e9df1a58aa3f80) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
+*  [make fuzz test optional like autoconf](https://github.com/openexr/openexr/commit/79a50ea7eb869a94bb226841aebad9d46ecc3836) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) This makes running the fuzz tests as part of the "make test" rule optional. Even with this off by default, if building tests is enabled, the fuzz test will still be compiled, and is available to run via "make fuzz". This should enable a weekly jenkins build config to run the fuzz tests, given that it takes a long time to run. Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-*  [CHANGES.md](https://github.com/openexr/openexr/471d7bd1c558c54ecc3cbbb2a65932f1e448a370) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
+*  [Fix SO version](https://github.com/openexr/openexr/commit/f4055c33bb128bd4544d265b167337c584364716) ([Nick Porcino](@meshula@hotmail.com), 2018-08-07) 
 
-* [OpenEXR_Viewers/README.md formatting](https://github.com/openexr/openexr/24c488574d9497c8019cdcf63a1e719d6669a29d) ([Cary Phillips](@cary@ilm.com), 2018-08-07)
+*  [CHANGES.md formatting](https://github.com/openexr/openexr/commit/8cd1b9210855fa4f6923c1b94df8a86166be19b1) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
 
-* [more README fixes.](https://github.com/openexr/openexr/d2bf73fb67ded0cd089fb5ce7a9926ccbcc4b977) ([Cary Phillips](@cary@ilm.com), 2018-08-07)
+*  [format old release notes](https://github.com/openexr/openexr/commit/3c5b5f894def68cf5240e8f427147c867f745912) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
 
-* [Merge branch 'cary-ilm-develop' into develop](https://github.com/openexr/openexr/72fbc2a8afed2fe051f19aa04860c1bf4919c769) ([Cary Phillips](@cary@ilm.com), 2018-08-07)
+*  [release notes upates](https://github.com/openexr/openexr/commit/534e4bcde71ce34b9f8fa9fc39e9df1a58aa3f80) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
 
-* [Merge branch 'develop' of https://github.com/cary-ilm/openexr into cary-ilm-develop](https://github.com/openexr/openexr/657b5b71baaf1e7462559b882e1dcde4bee7c7af) ([Cary Phillips](@cary@ilm.com), 2018-08-07)
+*  [CHANGES.md](https://github.com/openexr/openexr/commit/471d7bd1c558c54ecc3cbbb2a65932f1e448a370) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
 
-* [README.md cleanup](https://github.com/openexr/openexr/acb1bf9ae1efafc130f474d171d77795e19c4914) ([Cary Phillips](@cary@ilm.com), 2018-08-07)
+*  [OpenEXR_Viewers/README.md formatting](https://github.com/openexr/openexr/commit/806db743cf0bcb7710d08f56ee6f2ece10e31367) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
 
-* [fix dependencies when building static](https://github.com/openexr/openexr/b51fc4a21da5e7543663ee033c674a74d355b6ff) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+*  [more README fixes.](https://github.com/openexr/openexr/commit/82bc701e605e092ae5f31d142450d921c293ded1) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
 
+*  [README.md cleanup](https://github.com/openexr/openexr/commit/d1d9760b084f460cf21de2b8e273e8d6adcfb4f6) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
 
-* [fix exrdisplay compile under cmake](https://github.com/openexr/openexr/b0016dc4a4be312fbf50a1d4d0f5270d471ce57f) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-07) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+*  [fix dependencies when building static](https://github.com/openexr/openexr/commit/03329c8d34c93ecafb4a35a8cc645cd3bea14217) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-08) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
+*  [fix exrdisplay compile under cmake](https://github.com/openexr/openexr/commit/a617dc1a9cc8c7b85df040f5587f1727dec31caf) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-07) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-* [PyIlmBase README.md cleanup](https://github.com/openexr/openexr/aeca555a42149cb105e32b539b69b6d48bd2f795) ([Cary Phillips](@cary@ilm.com), 2018-08-07)
+*  [PyIlmBase README.md cleanup](https://github.com/openexr/openexr/commit/a385fd4f09ab5dd1163fab6870393f1b71e163eb) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
 
-* [merge README updates](https://github.com/openexr/openexr/6557036d43830ea26f2ce793b6cbea77601ff5a8) ([Cary Phillips](@cary@ilm.com), 2018-08-07)
+*  [Updates to README's](https://github.com/openexr/openexr/commit/0690e762bb45afadd89e94838270080447998a48) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
 
-* [Updates to README's](https://github.com/openexr/openexr/24853b551239c391283bdf9e47cfb7451f2146de) ([Cary Phillips](@cary@ilm.com), 2018-08-07)
+*  [added --foreign to automake in bootstrap](https://github.com/openexr/openexr/commit/4a74696f2066dd4bb58433bbcb706fdf526a7770) ([Cary Phillips](@cary@ilm.com), 2018-08-06) 
 
-* [Merge pull request #1 from cary-ilm/version-bump-2.3](https://github.com/openexr/openexr/1a987781eb1c12b7b7f6c87e3e77a38d4710f3f5) ([Cary Phillips](@cary@ilm.com), 2018-08-06) Version bump 2.3
+*  [Remove obsolete README files from Makefile.am](https://github.com/openexr/openexr/commit/57259b7811f3adce23a1e4c99411d686c55fefed) ([Cary Phillips](@cary@ilm.com), 2018-08-06) 
 
-* [added --foreign to automake in bootstrap](https://github.com/openexr/openexr/adb66955685f621575483910360349eadf4ca1fc) ([Cary Phillips](@cary@ilm.com), 2018-08-06)
+*  [Removed COPYING, INSTALL, README.cmake.txt](https://github.com/openexr/openexr/commit/54d3bbcfef10a367591cced99f759b89e8478b07) ([Cary Phillips](@cary@ilm.com), 2018-08-05) 
 
-* [Remove obsolete README files from Makefile.am](https://github.com/openexr/openexr/c82a52edc29173ce85fcf46c8377e3deff6cd7ae) ([Cary Phillips](@cary@ilm.com), 2018-08-06)
+*  [cleaned up README files for root and IlmBase](https://github.com/openexr/openexr/commit/54e6ae149addd5b9673d1ee0f2954759b5ed073d) ([Cary Phillips](@cary@ilm.com), 2018-08-05) 
 
-* [LIBTOOL_CURRENT=24](https://github.com/openexr/openexr/a2f6c4b31a0e1613244a12fe6a52b039cdc32051) ([Cary Phillips](@cary@ilm.com), 2018-08-06)
+*  [LIBTOOL_CURRENT=24](https://github.com/openexr/openexr/commit/7b7ea9c86bbf8744cb41df6fa7e5f7dd270294a5) ([Cary Phillips](@cary@ilm.com), 2018-08-06) 
 
-* [bump version to 2.3](https://github.com/openexr/openexr/0348f96a0f56db9ddd4b595a9d6686a7ad2d80da) ([Cary Phillips](@cary@ilm.com), 2018-08-05)
+*  [bump version to 2.3](https://github.com/openexr/openexr/commit/8a7b4ad263103e725fda4e624962cc0f559c4faa) ([Cary Phillips](@cary@ilm.com), 2018-08-05) 
 
-* [Removed COPYING, INSTALL, README.cmake.txt](https://github.com/openexr/openexr/ae71d524871fd2f07ccc0d907281e24015425c9d) ([Cary Phillips](@cary@ilm.com), 2018-08-05)
+*  [folding in internal ILM changes - conditional delete in exception catch block.](https://github.com/openexr/openexr/commit/656f898dff3ab7d06c4d35219385251f7948437b) ([Cary Phillips](@cary@ilm.com), 2018-08-05) 
 
-* [edits to READMEs](https://github.com/openexr/openexr/27d2393478271b777d6e01cb63e2f1f2a6ad6027) ([Cary Phillips](@cary@ilm.com), 2018-08-05)
+*  [Removed COPYING, INSTALL, README.cmake.txt](https://github.com/openexr/openexr/commit/94ece7ca86ffccb3ec2bf4138f4ad47e3f496167) ([Cary Phillips](@cary@ilm.com), 2018-08-05) 
 
-* [README fixes.](https://github.com/openexr/openexr/4938749582ebe707c5e620fcd79e7aa1bac588ad) ([Cary Phillips](@cary@ilm.com), 2018-08-05)
+*  [edits to READMEs](https://github.com/openexr/openexr/commit/405fa911ad974eeaf3c3769820b7c4a0c59f0099) ([Cary Phillips](@cary@ilm.com), 2018-08-05) 
 
-* [cleaned up README files for root and IlmBase](https://github.com/openexr/openexr/5afb6c6f8b0c9fcf20e5495427736b8ea159faff) ([Cary Phillips](@cary@ilm.com), 2018-08-05)
+*  [README fixes.](https://github.com/openexr/openexr/commit/c612d8276a5d9e28ae6bdc39b770cbc083e21cf4) ([Cary Phillips](@cary@ilm.com), 2018-08-05) 
 
-* [LIBTOOL_CURRENT=24](https://github.com/openexr/openexr/7ad47628c7cd681654dfcdb5f22e5ff8809d9e18) ([Cary Phillips](@cary@ilm.com), 2018-08-06)
+*  [cleaned up README files for root and IlmBase](https://github.com/openexr/openexr/commit/cda04c6451b0b196c887b03e68d8a80863f58832) ([Cary Phillips](@cary@ilm.com), 2018-08-05) 
 
-* [bump version to 2.3](https://github.com/openexr/openexr/f81ac2d3749531841fc0165f21ca635625336373) ([Cary Phillips](@cary@ilm.com), 2018-08-05)
+*  [Fallback default system provided Boost Python](https://github.com/openexr/openexr/commit/a174497d1fd84378423f733053f1a058608d81f0) ([Thanh Ha](@thanh.ha@linuxfoundation.org), 2018-08-03) User provided Python version via OPENEXR_PYTHON_MAJOR and OPENEXR_PYTHON_MINOR parameters, failing that fallback onto the system's default "python" whichever that may be. Signed-off-by: Thanh Ha <thanh.ha@linuxfoundation.org> 
 
-* [folding in internal ILM changes - conditional delete in exception catch block.](https://github.com/openexr/openexr/52ebf9a92de228151a55555087764af5dc525e0a) ([Cary Phillips](@cary@ilm.com), 2018-08-05)
+*  [fix double delete in multipart files, check logic in others](https://github.com/openexr/openexr/commit/da96e3759758c1fcac5963e07eab8e1f58a674e7) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-04) Multipart files have a Data object that automatically cleans up it's stream if appropriate, the other file objects have the destructor of the file object perform the delete (instead of Data). This causes a double delete to happen in MultiPart objects when unable to open a stream. Additionally, fix tabs / spaces to just be spaces Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-* [Removed COPYING, INSTALL, README.cmake.txt](https://github.com/openexr/openexr/bed1c073f69241c47243a5b1bfee50524974bbaa) ([Cary Phillips](@cary@ilm.com), 2018-08-05)
+*  [fix scenario where ilmimf is being compiled from parent directory](https://github.com/openexr/openexr/commit/c246315fe392815399aee224f38bafd01585594b) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-04) need to use current source dir so test images can be found Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-* [edits to READMEs](https://github.com/openexr/openexr/cb77357d819f8884beaf4156b5e7d06691bdca74) ([Cary Phillips](@cary@ilm.com), 2018-08-05)
+*  [Fix logic errors with BUILD_DWALOOKUPS](https://github.com/openexr/openexr/commit/dc7cb41c4e8a3abd60dec46d0bcb6a1c9ef31452) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-04) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-* [README fixes.](https://github.com/openexr/openexr/e44cbf912d7119ef2199db2c3a16006192d99d72) ([Cary Phillips](@cary@ilm.com), 2018-08-05)
+*  [remove debug print](https://github.com/openexr/openexr/commit/8e16aa8930a85f1ef3f1f6ba454af275aabc205d) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-04) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-* [cleaned up README files for root and IlmBase](https://github.com/openexr/openexr/c17b8d8b42431a629390378ef8f5e88a7e0b2bb4) ([Cary Phillips](@cary@ilm.com), 2018-08-05)
+*  [fully set variables as pkg config does not seem to by default](https://github.com/openexr/openexr/commit/f478511f796e5d05dada28f9841dcf9ebd9730ac) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-04) 
 
-* [Merge remote-tracking branch 'orig/develop' into develop](https://github.com/openexr/openexr/d98dba4c785ca64a7b5d40d339390ee5325d091f) ([Cary Phillips](@cary@ilm.com), 2018-08-05)
+*  [add check with error message for zlib, fix defaults, restore old thread check](https://github.com/openexr/openexr/commit/788956537282cfcca712c1e9690d72cd19978ce0) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-04) 
 
-* [Fallback default system provided Boost Python](https://github.com/openexr/openexr/a12937f6d7650d4fb81b469900ee2fd4c082c208) ([Thanh Ha](@thanh.ha@linuxfoundation.org), 2018-08-03) User provided Python version via OPENEXR_PYTHON_MAJOR and OPENEXR_PYTHON_MINOR parameters, failing that fallback onto the system's default "python" whichever that may be. Signed-off-by: Thanh Ha <thanh.ha@linuxfoundation.org>
+*  [PR #187 CMake enhancements to speed up dependency builds of OpenEXR.](https://github.com/openexr/openexr/commit/17e10ab10ddf937bc2809bda858bf17af6fb3448) ([Nick Porcino](@meshula@hotmail.com), 2018-08-02) 
 
+*  [restore prefix, update to use PKG_CHECK_MODULES](https://github.com/openexr/openexr/commit/fb9d1be5c07779c90e7744ccbf27201fcafcdfdb) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-03) previous commit from dracwyrm had made it such that pkg-config must be used and ilmbase must be installed in the default pkg-config path by default. restore the original behaviour by which a prefix could be provided, yet still retain use of PKG_CHECK_MODULES to find IlmBase if the prefix is not specified, and continue to use pkg-config to find zlib instead of assuming -lz Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-* [fix double delete in multipart files, check logic in others](https://github.com/openexr/openexr/d34942acefb5aa41786fe64221a00c002d873489) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-04) Multipart files have a Data object that automatically cleans up it's stream if appropriate, the other file objects have the destructor of the file object perform the delete (instead of Data). This causes a double delete to happen in MultiPart objects when unable to open a stream. Additionally, fix tabs / spaces to just be spaces Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+*  [restore original API for Lock since we can't use typedef to unique_lock](https://github.com/openexr/openexr/commit/e7fc2258a16ab7fe17d24855d16d4e56b80c172e) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-02) 
 
+*  [fixes #292, issue with utf-8 filenames](https://github.com/openexr/openexr/commit/846fe64c584ebb89434aaa02f5d431fbd3ca6165) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-01) windows needs to widen the string to properly open files, this implements a solution for compiling with MSVC anyway using the extension for fstream to take a wchar Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-* [fix scenario where ilmimf is being compiled from parent directory](https://github.com/openexr/openexr/688b9ff5c45df3f34ff5fe978415fbccf8dea681) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-04) need to use current source dir so test images can be found. Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+*  [fix maintainer mode issue, extra line in paste](https://github.com/openexr/openexr/commit/772ff9ad045032fc338af1b684cb50983191bc0d) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-02) 
 
+*  [Default the python bindings to on](https://github.com/openexr/openexr/commit/dc5e26136b1c5edce911ff0eccc17cda40388b54) ([Nick Porcino](@meshula@hotmail.com), 2018-08-01) 
 
-* [Fix logic errors with BUILD_DWALOOKUPS](https://github.com/openexr/openexr/25940725ab4e3c950aadb21377fe63a95d19e67e) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-04) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+*  [Add Find scripts, and ability to build OpenEXR with pre-existing IlmBase](https://github.com/openexr/openexr/commit/34ee51e9118097f784653f08c9482c886f83d2ef) ([Nick Porcino](@meshula@hotmail.com), 2018-08-01) 
 
+*  [fix names, disable rules when not building shared](https://github.com/openexr/openexr/commit/dbd3b34baf4104e844c273b682e7b133304294f2) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-31) 
 
-* [remove debug print](https://github.com/openexr/openexr/1b107d2f9a9d9cd7d3621207bceefb9d83914289) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-04) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+*  [add suffix variable for target names to enable static-only build](https://github.com/openexr/openexr/commit/7b1ed10e241e793db9d8933df30dd305a93835dd) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-31) 
 
+*  [The string field is now called _message.](https://github.com/openexr/openexr/commit/bd32e84632da4754cfe6db47f2e72c29f4d7df27) ([Cary Phillips](@cary@ilm.com), 2018-08-01) 
 
-* [fully set variables as pkg config does not seem to by default](https://github.com/openexr/openexr/45337116e64f337775f6a987293835b555d20c43) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-04)
+*  [C++11 support for numeric_limits<Half>::max_digits10() and lowest()](https://github.com/openexr/openexr/commit/2d931bab38840ab3cdf9c6322767a862aae4037d) ([Cary Phillips](@cary@ilm.com), 2018-07-31) 
 
-* [add check with error message for zlib, fix defaults, restore old thread check](https://github.com/openexr/openexr/dbea8dc4b0e15a75d98161a268ac270d6b2aad15) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-04)
+*  [fixes for GCC 6.3.1 (courtesy of Will Harrower): - renamed local variables in THROW macros to avoid warnings - cast to bool](https://github.com/openexr/openexr/commit/7fda69a377ee41979284137795cb338bb3c6d147) ([Cary Phillips](@cary@rnd-build7-sf-38.lucasfilm.com), 2018-07-31) 
 
-* [PR #187 CMake enhancements to speed up dependency builds of OpenEXR.](https://github.com/openexr/openexr/b60990b9074674563d49b242cf1f63a1c7c54788) ([Nick Porcino](@meshula@hotmail.com), 2018-08-02)
+*  [renames name to message and removes implicit cast](https://github.com/openexr/openexr/commit/54105e3c292c6884e7870ecfddb561deda7a3458) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-31) This removes the implicit cast, which is arguably more "standard", and also less surprising. Further, renames the name function to message to match internal ILM changes, and message makes more sense as a function name than ... name. 
 
-* [restore prefix, update to use PKG_CHECK_MODULES](https://github.com/openexr/openexr/66525114b6fce2c0a887b6e48c6c8b7eab27ceb7) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-03) previous commit from dracwyrm had made it such that pkg-config must be used and ilmbase must be installed in the default pkg-config path by default. restore the original behaviour by which a prefix could be provided, yet still retain use of PKG_CHECK_MODULES to find IlmBase if the prefix is not specified, and continue to use pkg-config to find zlib instead of assuming -lz. Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+*  [Remove IEX_THROW_SPEC](https://github.com/openexr/openexr/commit/02c896501da244ec6345d7ee5ef825d71ba1f0a2) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-31) This removes the macro and uses therein. We changed the API with removing the subclass from std::string of Iex::BaseExc, so there is no reason to retain this compatibility as well, especially since it isn't really meaningful anyway in (modern) C++ 
 
+*  [CMake3 port. Various Windows fixes](https://github.com/openexr/openexr/commit/b2d37be8b874b300be1907f10339cac47e39170b) ([Nick Porcino](@meshula@hotmail.com), 2018-07-29) 
 
-* [restore original API for Lock since we can't use typedef to unique_lock](https://github.com/openexr/openexr/8f632e0e5f1242d6ef78031652d1341f1a581af4) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-02)
+*  [changes to enable custom namespace defines to be used](https://github.com/openexr/openexr/commit/acd76e16276b54186096b04b06bd118eb32a1bcf) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-29) 
 
-* [fixes #292, issue with utf-8 filenames](https://github.com/openexr/openexr/b14d8fcdc030c495d5b651bcb91ad02d7738325a) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-01) windows needs to widen the string to properly open files, this implements a solution for compiling with MSVC anyway using the extension for fstream to take a wchar. Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+*  [fix extraneous unsigned compare accidentally merged](https://github.com/openexr/openexr/commit/a56773bd7a1f9a8bb10afe5fb36c4e03f622eff6) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-29) 
 
+*  [Use proper definition of namespaces instead of default values.](https://github.com/openexr/openexr/commit/c6978f9fd998df32b2c56a7b25bbbd52005bbf9e) ([Juri Abramov](@gabramov@nvidia.com), 2014-08-18) 
 
-* [The string field is now called _message.](https://github.com/openexr/openexr/77962c3cc00c620cb531274bdd916fee00df31f7) ([Cary Phillips](@cary@ilm.com), 2018-08-01)
+*  [fixes #260, out of bounds vector access](https://github.com/openexr/openexr/commit/efc360fc17935453e95f62939dd5d7caacce4bf7) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-29) noticed by Google Autofuzz Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-* [C++11 support for numeric_limits<Half>::max_digits10() and lowest()](https://github.com/openexr/openexr/a1d7eb7069a7ac28ea6c9775d040a2142d5975f9) ([Cary Phillips](@cary@ilm.com), 2018-07-31)
+*  [fix potential io streams leak in case of exceptions during 'initialize' function](https://github.com/openexr/openexr/commit/19bac86f27bab8649858ef79658224e9a54cb4cf) ([CAHEK7](@ghosts.in.a.box@gmail.com), 2016-02-12) 
 
-* [fix maintainer mode issue, extra line in paste](https://github.com/openexr/openexr/9ea83adbf03c385695dfc844fe4fa28846745cdf) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-08-02)
+*  [OpenEXR: Fix build system and change doc install](https://github.com/openexr/openexr/commit/60cc8b711ab402c5526ca1f872de5209ad15ec7d) ([dracwyrm](@j.scruggs@gmail.com), 2017-08-11) The build sysem for the OpenEXR sub-module is has issues. This patch is being used on Gentoo Linux with great success. It also adresses the issue of linking to previously installed versions. Signed-off by: Jonathan Scruggs (j.scruggs@gmail.com) Signed-off by: David Seifert (soap@gentoo.org) 
 
-* [Default the python bindings to on](https://github.com/openexr/openexr/4e833e620b3107ffa0b9ee92e522ae3a6c27495f) ([Nick Porcino](@meshula@hotmail.com), 2018-08-01)
+*  [Note that numpy is required to build PyIlmBase](https://github.com/openexr/openexr/commit/76935a912a8e365ed4fe8c7a54b60561790dafd5) ([Thanh Ha](@thanh.ha@linuxfoundation.org), 2018-07-20) Signed-off-by: Thanh Ha <thanh.ha@linuxfoundation.org> 
 
-* [Add Find scripts, and ability to build OpenEXR with pre-existing IlmBase](https://github.com/openexr/openexr/ecfcac761d991a006ad138a25ab24fa666561bf5) ([Nick Porcino](@meshula@hotmail.com), 2018-08-01)
+*  [Fixed exports on DeepImageChannel and FlatImageChannel. If the whole class isn't exported, the typeinfo doesn't get exported, and so dynamic casting into those classes will not work.](https://github.com/openexr/openexr/commit/942ff971d30cba1b237c91e9f448376d279dc5ee) ([Halfdan Ingvarsson](@halfdan@sidefx.com), 2014-10-06) Also fixed angle-bracket include to a quoted include. 
 
-* [fix names, disable rules when not building shared](https://github.com/openexr/openexr/d171fc47d954726e91b7b3aa67e5fa20176cc6ee) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-31)
+*  [Fixed angle bracket vs quote includes.](https://github.com/openexr/openexr/commit/fd8570927a7124ff2990f5f38556b2ec03d77a44) ([Halfdan Ingvarsson](@halfdan@sidefx.com), 2014-03-18) 
 
-* [add suffix variable for target names to enable static-only build](https://github.com/openexr/openexr/116faa75c8838583782e3cc3d5a0173a13a7ca11) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-31)
+*  [Change IexBaseExc to no longer derive from std::string, but instead include it as a member variable. This resolves a problem with MSVC 2012 and dllexport-ing template classes.](https://github.com/openexr/openexr/commit/fa59776fd83a8f35ed5418b83bbc9975ba0ef3bc) ([Halfdan Ingvarsson](@halfdan@sidefx.com), 2014-03-03) 
 
-* [The string field is now called _message.](https://github.com/openexr/openexr/550e02fa3eed18b185a2582a6eefedf71e72ef82) ([Cary Phillips](@cary@ilm.com), 2018-08-01)
+*  [make code more amenable to compiling with mingw for cross-compiling](https://github.com/openexr/openexr/commit/dd867668c4c63d23c034cc2ea8f2352451e8554d) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-29) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com> 
 
-* [C++11 support for numeric_limits<Half>::max_digits10() and lowest()](https://github.com/openexr/openexr/f8fb47c50fe244fe7c9b6c588d3c7ded5fb604c8) ([Cary Phillips](@cary@ilm.com), 2018-07-31)
+*  [Fix shebang line to bash](https://github.com/openexr/openexr/commit/d3512e07a5af5053397ed62bd0d306b10357358c) ([Thanh Ha](@thanh.ha@linuxfoundation.org), 2018-07-19) Depending on the distro running the script the following error might appear: ./bootstrap: 4: [: Linux: unexpected operator This is because #!/bin/sh is not the same on every distro and this script is actually expecting bash. So update the shebang line to be bash. Signed-off-by: Thanh Ha <thanh.ha@linuxfoundation.org> 
 
-* [fixes for GCC 6.3.1 (courtesy of Will Harrower): - renamed local variables in THROW macros to avoid warnings - cast to bool](https://github.com/openexr/openexr/8fe2ac8e64ca9ee4d51d1af4ecc11a18ceca963e) ([Cary Phillips](@cary@rnd-build7-sf-38.lucasfilm.com), 2018-07-31)
+*  [Visual Studio and Windows fixes](https://github.com/openexr/openexr/commit/4cfefeab4be94b8c46d604075367b6496d29dcb5) ([Liam Fernandez](@liam@utexas.edu), 2018-06-20) IlmBase: Fix IF/ELSEIF clause (WIN32 only) PyImath: Install *.h in 'include' dir PyImathNumpy: Change python library filename to 'imathnumpy.pyd' (WIN32 only) 
 
-* [renames name to message and removes implicit cast](https://github.com/openexr/openexr/d1671ffc5c5b46fd5325f14188d2fed9064a597d) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-31) This removes the implicit cast, which is arguably more "standard", and also less surprising. Further, renames the name function to message to match internal ILM changes, and message makes more sense as a function name than ... name.
+*  [Fix probable typo for static builds.](https://github.com/openexr/openexr/commit/31e1ae8acad3126a63044dfb8518d70390131c7b) ([Simon Otter](@skurmedel@gmail.com), 2018-06-18) 
 
+*  [Must also export protected methods](https://github.com/openexr/openexr/commit/17384ee01e5fa842f282c833ab2bc2aa33e07125) ([Nick Porcino](@meshula@hotmail.com), 2018-06-10) 
 
-* [Remove IEX_THROW_SPEC](https://github.com/openexr/openexr/d45044c290d8b94684ffb087b7753a267353337e) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-31) This removes the macro and uses therein. We changed the API with removing the subclass from std::string of Iex::BaseExc, so there is no reason to retain this compatibility as well, especially since it isn't really meaningful anyway in (modern) C++
+*  [IlmImfUtilTest compiles successfully](https://github.com/openexr/openexr/commit/6093789bc7b7c543f128ab2b055987808ec15167) ([Nick Porcino](@meshula@hotmail.com), 2018-06-09) 
 
+*  [IlmImfUtil now builds on Windows](https://github.com/openexr/openexr/commit/d7328287d1ea363ab7839201e90d7d7f4deb635f) ([Nick Porcino](@meshula@hotmail.com), 2018-06-09) 
 
-* [CMake3 port. Various Windows fixes](https://github.com/openexr/openexr/317242b6e802650100b4bd80d2b452b0251ae633) ([Nick Porcino](@meshula@hotmail.com), 2018-07-29)
+*  [Set python module suffix per platform](https://github.com/openexr/openexr/commit/39b9edfdfcad5e77601d4462a6f9ba93bef83835) ([Nick Porcino](@meshula@hotmail.com), 2018-06-05) 
 
-* [changes to enable custom namespace defines to be used](https://github.com/openexr/openexr/208758937657933184e2faed6d6f371a77811ebd) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-29)
+*  [fix include ifdef](https://github.com/openexr/openexr/commit/32723d8112d1addf0064e8295b824faab60f0162) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-26) 
 
-* [fix extraneous unsigned compare accidentally merged](https://github.com/openexr/openexr/02421880aea52ff29d7ede3720b2422608f77071) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-29)
+*  [switch from shared pointer to a manually counted object as gcc 4.8 and 4.9 do not provide proper shared_ptr atomic functions](https://github.com/openexr/openexr/commit/3f532a7ab81c33f61dc6786a8c7ce6e0c09acc07) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-26) 
 
-* [Use proper definition of namespaces instead of default values.](https://github.com/openexr/openexr/4cafc218593cf4ec5728a6717a443306cfcade97) ([Juri Abramov](@gabramov@nvidia.com), 2014-08-18)
+*  [Fix typos to TheoryDeepPixels document](https://github.com/openexr/openexr/commit/655f96032e0eddd868a122fee80bd558e0cbf17d) ([peterhillman](@peter@peterhillman.org.uk), 2018-05-17) Equations 6 and 7 were incorrect. 
 
-* [fixes #260, out of bounds vector access](https://github.com/openexr/openexr/3189bbb25a523632fae54ce578b0c6fe0239f0a3) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-29) noticed by Google Autofuzz Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+*  [initial port of PyIlmBase to python 3](https://github.com/openexr/openexr/commit/84dbf637c5c3ac4296181dd93de4fb5ffdc4b582) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-04) 
 
+*  [replicate configure / cmake changes from ilmbase](https://github.com/openexr/openexr/commit/00df2c72ca1b7cb148e19a9bdc44651a6c74c9e4) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-04) This propagates the same chnages to configure.ac and cmakelists.txt to enable compiling with c++11/14. Additionally, adds some minor changes to configure to enable python 3 to be configured (source code changes tbd) 
 
-* [fix potential io streams leak in case of exceptions during 'initialize' function](https://github.com/openexr/openexr/84a4525a240a18501e0208666d7b43e153f6f37b) ([CAHEK7](@ghosts.in.a.box@gmail.com), 2016-02-12)
+*  [add move constructor and assignment operator](https://github.com/openexr/openexr/commit/cfebcc24e1a1cc307678ea757ec38bff02a5dc51) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-03) 
 
-* [OpenEXR: Fix build system and change doc install](https://github.com/openexr/openexr/2067dc01db2efaa3184ceca6422039a5263b8917) ([dracwyrm](@j.scruggs@gmail.com), 2017-08-11) The build sysem for the OpenEXR sub-module is has issues. This patch is being used on Gentoo Linux with great success. It also adresses the issue of linking to previously installed versions. Signed-off by: Jonathan Scruggs (j.scruggs@gmail.com) Signed-off by: David Seifert (soap@gentoo.org)
+*  [Fix Windows Python binding builds. Does not address PyImath runtime issues, but does allow build to succeed](https://github.com/openexr/openexr/commit/15ce54ca02fdfa16c4a99f45a30c7a54826c6ac3) ([Nick Porcino](@meshula@hotmail.com), 2018-04-30) 
 
+*  [Fix c++11 detection issue on windows. Fix ilmbase DLL export warnings](https://github.com/openexr/openexr/commit/7376f9b736f9503a9d34b67c99bc48ce826a6334) ([Nick Porcino](@meshula@hotmail.com), 2018-04-27) 
 
-* [Note that numpy is required to build PyIlmBase](https://github.com/openexr/openexr/2f8a908e5fd0b2c4d099bcbf8024edaf04841d9e) ([Thanh Ha](@thanh.ha@linuxfoundation.org), 2018-07-20) Signed-off-by: Thanh Ha <thanh.ha@linuxfoundation.org>
+*  [enable different c++ standards to be selected instead of just c++14](https://github.com/openexr/openexr/commit/99ecfcabbc2b95acb40283f04ab358b3db9cc0f9) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-15) 
 
+*  [Incorporate review feedback](https://github.com/openexr/openexr/commit/99b367d963ba0892e7ab830458b6a990aa3033ce) ([Nick Porcino](@meshula@hotmail.com), 2018-04-04) 
 
-* [Fixed exports on DeepImageChannel and FlatImageChannel. If the whole class isn't exported, the typeinfo doesn't get exported, and so dynamic casting into those classes will not work.](https://github.com/openexr/openexr/77d051fd3ad341dbff2fe8706403cb0d7eb3ce72) ([Halfdan Ingvarsson](@halfdan@sidefx.com), 2014-10-06) Also fixed angle-bracket include to a quoted include.
+*  [add compatibility std::condition_variable semaphore when posix semaphores not available](https://github.com/openexr/openexr/commit/b6dc2a6b71f9373640d988979f9ae1929640397a) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04) 
 
+*  [fix error overwriting beginning of config file](https://github.com/openexr/openexr/commit/01680dc4d90c9f7fd64e498e57588f630a52a214) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04) 
 
-* [Fixed angle bracket vs quote includes.](https://github.com/openexr/openexr/b9718e03d0c505b6cc4382a5870b76ab04e3a6c7) ([Halfdan Ingvarsson](@halfdan@sidefx.com), 2014-03-18)
+*  [remove the dynamic exception for all versions of c++ unless FORCE_CXX03 is on](https://github.com/openexr/openexr/commit/45cb2c8fb2418afaa3900c553e26ad3886cd5acf) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04) 
 
-* [Change IexBaseExc to no longer derive from std::string, but instead include it as a member variable. This resolves a problem with MSVC 2012 and dllexport-ing template classes.](https://github.com/openexr/openexr/242e54480d0c9eb32dd7a3a4fff7e8d3fa781d05) ([Halfdan Ingvarsson](@halfdan@sidefx.com), 2014-03-03)
+*  [ThreadPool improvements](https://github.com/openexr/openexr/commit/bf0cb8cdce32fce36017107c9982e1e5db2fb3fa) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04) - switch to use c++11 features - Add API to enable replacement of the thread pool - Add custom, low-latency handling when threads is 0 - Lower lock boundary when adding tasks (or eliminate in c++11 mode) 
 
-* [make code more amenable to compiling with mingw for cross-compiling](https://github.com/openexr/openexr/5d2d0632f54cad0aeeefa18b793b19c71b6fa7e8) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-07-29) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+*  [switch mutex to be based on std::mutex when available](https://github.com/openexr/openexr/commit/848c8c329b16aeee0d3773e827d506a2a53d4840) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04) 
 
+*  [switch IlmThread to use c++11 threads when enabled](https://github.com/openexr/openexr/commit/eea1e607177e339e05daa1a2ec969a9dd12f2497) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04) 
 
-* [Fix shebang line to bash](https://github.com/openexr/openexr/0bc0150cb2a0672f78269a35baf3a229285eba66) ([Thanh Ha](@thanh.ha@linuxfoundation.org), 2018-07-19) Depending on the distro running the script the following error might appear: ./bootstrap: 4: [: Linux: unexpected operator.  This is because #!/bin/sh is not the same on every distro and this script is actually expecting bash. So update the shebang line to be bash. Signed-off-by: Thanh Ha <thanh.ha@linuxfoundation.org>
+*  [use dynamic exception macro to avoid warnings in c++14 mode](https://github.com/openexr/openexr/commit/610179cbe3ffc2db206252343e75a16221d162b4) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04) 
 
+*  [add #define to manage dynamic exception deprecation in c++11/14](https://github.com/openexr/openexr/commit/b133b769aaee98566e695191476f59f32eece591) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04) 
 
-* [Merge pull request #299 from LiamGFX/windows_changes](https://github.com/openexr/openexr/bdf2d84f5e1c8914fcf05990b8d9a3e0ed35fc02) ([Nick Porcino](@meshula@hotmail.com), 2018-06-21) Visual Studio and Windows fixes
+*  [configuration changes to enable c++14](https://github.com/openexr/openexr/commit/5f58c94aea83d44e27afd1f65e4defc0f523f6be) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04) 
 
-* [Visual Studio and Windows fixes](https://github.com/openexr/openexr/606c1c075085b8f221b5478678587e54765dace4) ([Liam Fernandez](@liam@utexas.edu), 2018-06-20) IlmBase: Fix IF/ELSEIF clause (WIN32 only) PyImath: Install *.h in 'include' dir PyImathNumpy: Change python library filename to 'imathnumpy.pyd' (WIN32 only)
+*  [Cmake now building OpenEXR successfully for Windows](https://github.com/openexr/openexr/commit/ac055a9e50c974f4cd58c28a5a0bb96011812072) ([Nick Porcino](@meshula@hotmail.com), 2018-03-28) 
 
+*  [Missing symbols on Windows due to missing IMF_EXPORT](https://github.com/openexr/openexr/commit/965c1eb6513ad80c71b425c8a1b04a70b3bae291) ([Ibraheem Alhashim](@ibraheem.alhashim@gmail.com), 2018-03-05) 
 
-* [Merge pull request #298 from skurmedel/skurmedel-ilmthread-typo-1](https://github.com/openexr/openexr/f15b07ddac9cd3b4ea6a27450b9f4d040561109b) ([Nick Porcino](@meshula@hotmail.com), 2018-06-18) Fix probable typo in CMakeLists for IlmThread (static builds)
+*  [Implement SIMD-accelerated ImfZip::uncompress](https://github.com/openexr/openexr/commit/32f2aa58fe4f6f6691eef322fdfbbc9aa8363f80) ([John Loy](@jloy@pixar.com), 2017-04-12) The main bottleneck in ImfZip::uncompress appears not to be zlib but the predictor & interleaving loops that run after zlib's decompression. Fortunately, throughput in both of these loops can be improved with SIMD operations. Even though each trip of the predictor loop has data dependencies on all previous values, the usual SIMD prefix-sum construction is able to provide a significant speedup. While the uses of SSSE3 and SSE4.1 are minor in this change and could maybe be replaced with some slightly more complicated SSE2, SSE4.1 was released in 2007, so it doesn't seem unreasonable to require it in 2017. 
 
-* [Fix probable typo for static builds.](https://github.com/openexr/openexr/7d0a10744dfc43cfc54bc339eb7be6f91147bdb0) ([Simon Otter](@skurmedel@gmail.com), 2018-06-18)
+*  [Compute sample locations directly in Imf::readPerDeepLineTable.](https://github.com/openexr/openexr/commit/e64095257a29f9bc423298ee8dbc09a317f22046) ([John Loy](@jloy@pixar.com), 2017-04-06) By changing the function to iterate over sample locations directly instead of discarding unsampled pixel positions, we can avoid computing a lot of modulos (more than one per pixel.) Even on modern x86 processors, idiv is a relatively expensive instruction. Though it may appear like this optimization could be performed by a sufficiently sophisticated compiler, gcc 4.8 does not get there (even at -O3.) 
 
-* [Merge pull request #297 from meshula/develop](https://github.com/openexr/openexr/41891ebe25813ef4732c4969c197d254a031f43c) ([Nick Porcino](@meshula@hotmail.com), 2018-06-10) Must also export protected methods
+*  [Manually hoist loop invariants in Imf::bytesPerDeepLineTable.](https://github.com/openexr/openexr/commit/71b8109a4ad123ef0d5783f01922463a16d2ca59) ([John Loy](@jloy@pixar.com), 2017-04-05) This is primarily done to avoid a call to pixelTypeSize within the inner loop. In particular, gcc makes the call to pixelTypeSize via PLT indirection so it may have arbitrary side-effects (i.e. ELF symbol interposition strikes again) and may not be moved out of the loop by the compiler. 
 
-* [Must also export protected methods](https://github.com/openexr/openexr/601a197818b7893a9152d6db87a7bcf6357dbe69) ([Nick Porcino](@meshula@hotmail.com), 2018-06-10)
+*  [Inline Imf::sampleCount; this is an ABI-breaking change.](https://github.com/openexr/openexr/commit/5aa0afd5a4f8df9e09d6461f115e6e0cec5cbe46) ([John Loy](@jloy@pixar.com), 2017-03-29) gcc generates calls to sampleCount via PLT indirection even within libIlmImf. As such, they are not inlined and must be treated as having arbitrary side effects (because of ELF symbol interposition.) Making addressing computations visible at call sites allows a much wider range of optimizations by the compiler beyond simply eliminating the function call overhead. 
 
-* [Merge pull request #296 from meshula/develop](https://github.com/openexr/openexr/46f4437c0c3edc88c5278fe65e1fb50219e433ac) ([Nick Porcino](@meshula@hotmail.com), 2018-06-09) IlmImfUtilTest compiles successfully
+*  [Delete build.log](https://github.com/openexr/openexr/commit/148f1c230b5ecd94d795ca172a8246785c7caca7) ([Arkady Shapkin](@arkady.shapkin@gmail.com), 2017-02-18) 
 
-* [IlmImfUtilTest compiles successfully](https://github.com/openexr/openexr/21b92806c61b17d63f2f8c59f2179e1e3fdc543b) ([Nick Porcino](@meshula@hotmail.com), 2018-06-09)
+*  [fix defect in semaphore implementation which caused application hang at exit time, because not all worker threads get woken up when task semaphore is repeatedly posted (to wake them up) after setting the stopping flag in the thread pool](https://github.com/openexr/openexr/commit/4706d615e942462a532381a8a86bc5fe820c6816) ([Richard Goedeken](@Richard@fascinationsoftware.com), 2016-11-22) 
 
-* [Merge pull request #295 from meshula/fix-win-py](https://github.com/openexr/openexr/5e06341615264d3bffd45f24ee9d2ecc7ede0e15) ([Nick Porcino](@meshula@hotmail.com), 2018-06-09) [WIN32] Python bindings and IlmImfUtil now compile
+*  [fix comparison of unsigned expression < 0 (Issue #165)](https://github.com/openexr/openexr/commit/9e3913c94c55549640c732f549d2912fbd85c336) ([CAHEK7](@ghosts.in.a.box@gmail.com), 2016-02-15) 
 
-* [IlmImfUtil now builds on Windows](https://github.com/openexr/openexr/627cb1a0ed50d92e8b75938191b3e4782fe05e64) ([Nick Porcino](@meshula@hotmail.com), 2018-06-09)
+*  [Added Iex library once more for linker dependency](https://github.com/openexr/openexr/commit/b0b50791b5b36fddb010b5ad630dd429f947a080) ([Eric Sommerlade](@es0m@users.noreply.github.com), 2015-02-20) 
 
-* [Merge remote-tracking branch 'lucasfilm/develop' into fix-win-py](https://github.com/openexr/openexr/4eea0e82ca724289322071a5ac594af834dbdaca) ([Nick Porcino](@meshula@hotmail.com), 2018-06-05)
+*  [windows/cmake: Commands depend on Half.dll which needs to be in path. Running commands in Half.dll's directory addresses this and the commands run on first invocation](https://github.com/openexr/openexr/commit/1a23716fd7e9ae167f53c7f2099651ede1279fbb) ([E Sommerlade](@es0m@users.noreply.github.com), 2015-02-10) 
 
-* [Set python module suffix per platform](https://github.com/openexr/openexr/bc83f15adde24d133ed33fc79dd08429568bbde2) ([Nick Porcino](@meshula@hotmail.com), 2018-06-05)
+*  [Fixed memory corruption / actual crashes on Window](https://github.com/openexr/openexr/commit/c330c40e1962257b0e59328fdceaa9cdcde3041b) ([JuriAbramov](@openexr@dr-abramov.de), 2015-01-19) Fixed memory corruption caused by missing assignment operator with non-trivial copy constructor logic. FIxes crashes on Windows when "dwaa" or "dwab" codecs are used for saving files. 
 
-* [Merge pull request #293 from kdt3rd/gcc48_cpp11_compat_fix](https://github.com/openexr/openexr/8e3408c84cf5b7d41119c962e22ee5d4ddf34fd6) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-26) GCC 4.8/9 cpp11 compatibility fix
+*  [std namespace should be specified for transform](https://github.com/openexr/openexr/commit/4a00a9bc6c92b20443c61f5e9877123e7fef16e6) ([JuriAbramov](@openexr@dr-abramov.de), 2014-08-20) Fixes build with some VS and clang version. 
 
-* [fix include ifdef](https://github.com/openexr/openexr/c7549184f9c3a6bad25eb0c5cc3851e8059e8368) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-26)
+*  [m4/path.pkgconfig.m4: use PKG_PROG_PKG_CONFIG to find correct pkg-config](https://github.com/openexr/openexr/commit/056cb9f09efa9116c7f5fb8bc0717a260ad23744) ([Michael Thomas (malinka)](@malinka@entropy-development.com), 2016-05-24) pkg-config supplies this macro and prefers it to be used to allow for cross-compilation scenarios where target-prefixed binaries are prefered to pkg-config 
 
-* [switch from shared pointer to a manually counted object as gcc 4.8 and 4.9 do not provide proper shared_ptr atomic functions](https://github.com/openexr/openexr/0daf0863d796d534d18acb84d8994068b1cca7cd) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-26)
+*  [Updated list of EXTRA_DIST files to reflect the updated test images and prior removal of README.win32](https://github.com/openexr/openexr/commit/165dceaeee86e0f8ce1ed1db3e3030c609a49f17) ([Nick Rasmussen](@nick@ilm.com), 2017-11-17) 
 
-* [Merge pull request #272 from ialhashim/develop](https://github.com/openexr/openexr/7933a2042564a693b7caa8540191e30a2adca5f6) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-18) Missing symbols on Windows due to missing IMF_EXPORT
+*  [Updated list of EXTRA_DIST files to reflect the updated test images and prior removal of README.win32](https://github.com/openexr/openexr/commit/dcaf5fdb4d1244d8e60a58832cfe9c54734a2257) ([Nick Rasmussen](@nick@ilm.com), 2017-11-17) 
 
-* [Fix typos to TheoryDeepPixels document](https://github.com/openexr/openexr/305826b48de88b552488cf0c75dc52ab13fb7855) ([peterhillman](@peter@peterhillman.org.uk), 2018-05-17) Equations 6 and 7 were incorrect.
+*  [Updated openexr version to 2.2.1, resynced the .so version number to 23 across all projects.](https://github.com/openexr/openexr/commit/e69de40ddbb6bd58341618a506b2e913e5ac1797) ([Nick Rasmussen](@nick@ilm.com), 2017-11-17) 
 
-* [Merge pull request #229 from jloy/deep-zip-uncompress-perf](https://github.com/openexr/openexr/377eb2a367f1857abf3176fa93e03c46da94a372) ([peterhillman](@peter@peterhillman.org.uk), 2018-05-17) Improve read performance for deep/zipped data
+*  [Add additional input validation in an attempt to resolve issue #232](https://github.com/openexr/openexr/commit/49db4a4192482eec9c27669f75db144cf5434804) ([Shawn Walker-Salas](@shawn.walker@oracle.com), 2017-05-30) 
 
-* [Merge pull request #133 from JuriAbramov/patch-1](https://github.com/openexr/openexr/0cf11d74c27bd191f134ada90ac773a38860fbf9) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-05) std namespace should be specified for transform
+*  [Add additional input validation in an attempt to resolve issue #232](https://github.com/openexr/openexr/commit/f09f5f26c1924c4f7e183428ca79c9881afaf53c) ([Shawn Walker-Salas](@shawn.walker@oracle.com), 2017-05-30) 
 
-* [Merge pull request #216 from richard42/semaphore-cvar-fix](https://github.com/openexr/openexr/0b9403ab742c3efdfea96f17110f02736238f4d9) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-05) fix defect in semaphore implementation which caused application hang …
+*  [root level LICENSE](https://github.com/openexr/openexr/commit/a774d643b566d56314f26695f2bf9b75f88e64f6) ([cary-ilm](@cary@ilm.com), 2017-10-23) 
 
-* [Merge pull request #287 from kdt3rd/python3-port](https://github.com/openexr/openexr/12283c2d2a7e3bb1baffb52437334d40c9152e50) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-04) initial port of PyIlmBase to python 3
+*  [Fix copyright/license notice in halfExport.h](https://github.com/openexr/openexr/commit/20d043d017d4b752356bb76946ffdffaa9c15c72) ([Ed Hanway](@ehanway@ilm.com), 2017-01-09) 
 
-* [initial port of PyIlmBase to python 3](https://github.com/openexr/openexr/1318c0615a3885f18a2587292d8bb8ae009779c8) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-04)
+*  [Merge branch 'jkingsman-cleanup-readme' into develop](https://github.com/openexr/openexr/commit/6f6d9cea513ea409d4b65da40ac096eab9a549b0) ([Ed Hanway](@ehanway@ilm.com), 2016-10-28) 
 
-* [Merge pull request #286 from kdt3rd/replicate-cxxstd-configuration](https://github.com/openexr/openexr/1423d040ef8697fd9d6343c9cbe30f25eda46a6f) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-04) replicate configure / cmake changes from ilmbase
+*  [README edits.](https://github.com/openexr/openexr/commit/098a4893910d522b867082ed38d7388e6265bee0) ([Ed Hanway](@ehanway@ilm.com), 2016-10-28) 
 
-* [replicate configure / cmake changes from ilmbase](https://github.com/openexr/openexr/e6f32bb3cd00f355039f343c836ae737255a29ff) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-04) This propagates the same chnages to configure.ac and cmakelists.txt to enable compiling with c++11/14. Additionally, adds some minor changes to configure to enable python 3 to be configured (source code changes tbd)
+*  [Merge branch 'cleanup-readme' of https://github.com/jkingsman/openexr into jkingsman-cleanup-readme](https://github.com/openexr/openexr/commit/43e50ed5dca1ddfb3ca2cb4c38c7752497db6e50) ([Ed Hanway](@ehanway@ilm.com), 2016-10-28) 
 
+*  [Install ImfStdIO.h](https://github.com/openexr/openexr/commit/2872d3b230a7920696510f80a50d9ce36b6cc94e) ([Ed Hanway](@ehanway@ilm.com), 2016-10-28) This was originally intended to be an internal class only, but its use has become the de facto way to handle UTF-8 filenames on Windows. 
 
-* [Merge pull request #285 from kdt3rd/add-rule-of-5-to-simdbuffer](https://github.com/openexr/openexr/c151fbeb606ae46d34904d34989b0c437af5132c) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-04) add move constructor and assignment operator
+*  [Merge pull request #204 from dlemstra/IMF_HAVE_SSE2](https://github.com/openexr/openexr/commit/cbb01bf286a2e04df95fb51458d1c2cbdc08935b) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2016-10-19) Consistent check for IMF_HAVE_SSE2. 
 
-* [add move constructor and assignment operator](https://github.com/openexr/openexr/0471567e8540b32696c144ba218cadda3872abb8) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-03)
+*  [Remove fixed-length line breaks](https://github.com/openexr/openexr/commit/0ea6b8c7d077a18fb849c2b2ff532cd952d06a38) ([Jack Kingsman](@jack.kingsman@gmail.com), 2016-10-19) 
 
-* [Merge pull request #151 from JuriAbramov/patch-2](https://github.com/openexr/openexr/03fc7818c119a99042eb5c84dd3f0e5e451dd7a8) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-05-03) Fixed memory corruption / actual crashes on Window
+*  [Update README to markdown](https://github.com/openexr/openexr/commit/9c6d22e23a25d761f5456e08623b8d77c0f8930a) ([Jack Kingsman](@jack.kingsman@gmail.com), 2016-10-18) 
 
-* [Merge pull request #284 from meshula/fix-win-py](https://github.com/openexr/openexr/7313912437f0defe0efde5fc1041238e834d2070) ([Nick Porcino](@meshula@hotmail.com), 2018-04-30) Fix Windows Python binding build (but not runtime)
+*  [Merge pull request #206 from lgritz/lg-register](https://github.com/openexr/openexr/commit/6788745398594d479e8cf91a6c301fea0537108b) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2016-09-30) Remove 'register' keyword. 
 
-* [Fix Windows Python binding builds. Does not address PyImath runtime issues, but does allow build to succeed](https://github.com/openexr/openexr/72c41f705df9c8efcaee8ee2ce3275620471de29) ([Nick Porcino](@meshula@hotmail.com), 2018-04-30)
+*  [Remove 'register' keyword.](https://github.com/openexr/openexr/commit/6d297f35c5dbfacc8a5e94f33b986db7ab468db9) ([Larry Gritz](@lg@larrygritz.com), 2016-09-30) 'register' is a relic of K&R-era C, it's utterly useless in modern compilers. It's been deprecated in C++11, and therefore will generate warnings when encountered -- and many packages that use OpenEXR's public headers use -Werr to turn warnings into errors. Starting in C++17, the keyword is removed entirely, and thus will certainly be a build break for that version of the standard. So it's time for it to go. 
 
-* [Merge pull request #283 from meshula/fix_cxx11_test](https://github.com/openexr/openexr/ef66fb7e6ad700da9d1d73c69ff96aea3b5bcdca) ([Nick Porcino](@meshula@hotmail.com), 2018-04-27) Fix c++11 detection issue on windows. Fix ilmbase DLL export warnings
+*  [Consistent check for IMF_HAVE_SSE2.](https://github.com/openexr/openexr/commit/7403524c8fed971383c724d85913b2d52672caf3) ([dirk](@dirk@git.imagemagick.org), 2016-09-17) 
 
-* [Fix c++11 detection issue on windows. Fix ilmbase DLL export warnings](https://github.com/openexr/openexr/f0501dcc1cd8aeebc2b49e0e0aa868c9676f3a36) ([Nick Porcino](@meshula@hotmail.com), 2018-04-27)
+*  [Merge pull request #141 from lucywilkes/develop](https://github.com/openexr/openexr/commit/c23f5345a6cc89627cc416b3e0e6b182cd427479) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2016-09-16) Adding rawPixelDataToBuffer() function for access to compressed scanlines 
 
-* [Merge pull request #181 from CAHEK7/issue165](https://github.com/openexr/openexr/ccde3262f72f29876e310835a6a93643a71daffc) ([Nick Porcino](@meshula@hotmail.com), 2018-04-27) Issue #165
+*  [Merge pull request #198 from ZeroCrunch/develop](https://github.com/openexr/openexr/commit/891437f74805f6c8ebc897932091cbe0bb7e1163) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2016-08-02) Windows compile fix 
 
-* [Merge pull request #225 from KindDragon/patch-1](https://github.com/openexr/openexr/15a28cdff4e62eeaa82021e4efbd66fc3e81e837) ([Nick Porcino](@meshula@hotmail.com), 2018-04-27) Delete build.log
+*  [Windows compile fix](https://github.com/openexr/openexr/commit/77faf005b50e8f77a8080676738ef9b9c807bf53) ([Jamie Kenyon](@jamie.kenyon@thefoundry.co.uk), 2016-07-29) std::min wasn't found due to <algorithm> not being included. 
 
-* [Merge pull request #280 from kdt3rd/ilmbase-enable-cxx14](https://github.com/openexr/openexr/28a30becc2745708290aba0559f84463bd163678) ([Cary Phillips](@cary@ilm.com), 2018-04-26) Ilmbase enable cxx14, thread pool improvements
+*  [Merge pull request #179 from CAHEK7/NullptrBug](https://github.com/openexr/openexr/commit/a0a68393a4d3b622251fb7c490ee9d59e080b776) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2016-07-26) fix potential memory leak 
 
-* [Merge pull request #278 from meshula/nickp](https://github.com/openexr/openexr/e319c47d29095be4b2696c3b6494c76872d0807a) ([Cary Phillips](@cary@ilm.com), 2018-04-26) Fix building OpenEXR with cmake on Windows
+*  [Merge branch 'develop' of https://github.com/r-potter/openexr into r-potter-develop](https://github.com/openexr/openexr/commit/b206a243a03724650b04efcdf863c7761d5d5d5b) ([Ed Hanway](@ehanway@ilm.com), 2016-07-26) 
 
-* [enable different c++ standards to be selected instead of just c++14](https://github.com/openexr/openexr/405ecdaceeaa8e7dc71be1ebb222dc5ccb493f4f) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-15)
+*  [Merge pull request #154 into develop](https://github.com/openexr/openexr/commit/bc372d47186db31d104e84e4eb9e84850819db8d) ([Ed Hanway](@ehanway@ilm.com), 2016-07-25) 
 
-* [Incorporate review feedback](https://github.com/openexr/openexr/9f23bcc60b9786ffd5d97800750b953313080c87) ([Nick Porcino](@meshula@hotmail.com), 2018-04-04)
+*  [Merge pull request #168 into develop](https://github.com/openexr/openexr/commit/44d077672f558bc63d907891bb88d741b334d807) ([Ed Hanway](@ehanway@ilm.com), 2016-07-25) 
 
-* [add compatibility std::condition_variable semaphore when posix semaphores not available](https://github.com/openexr/openexr/e4e6924ce11d7d983df05b0c547b5d7c4a38f052) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04)
+*  [Merge pull request #175 into develop](https://github.com/openexr/openexr/commit/7513fd847cf38af89572cc209b03e5b548e6bfc8) ([Ed Hanway](@ehanway@ilm.com), 2016-07-25) 
 
-* [fix error overwriting beginning of config file](https://github.com/openexr/openexr/9e4a788b9598cb7213d42c6d092cf4ce2b6a5afb) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04)
+*  [Merge pull request #174 into develop](https://github.com/openexr/openexr/commit/b16664a2ee4627c235b9ce798f4fc911e9c5694f) ([Ed Hanway](@ehanway@ilm.com), 2016-07-25) 
 
-* [remove the dynamic exception for all versions of c++ unless FORCE_CXX03 is on](https://github.com/openexr/openexr/6d00f6019583a16546962b9c56461a16186a7a15) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04)
+*  [Merge branch pull request 172 into develop: fix copy and paste bug in ImfDeepTiledInputPart.cpp](https://github.com/openexr/openexr/commit/ef7b78d5988d37dbbc74c21ad245ed5c80927223) ([Ed Hanway](@ehanway@ilm.com), 2016-07-25) 
 
-* [ThreadPool improvements](https://github.com/openexr/openexr/3019fea12dabd63233c4667c9ebe1564d7f6a15c) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04) - switch to use c++11 features
-- Add API to enable replacement of the thread pool
-- Add custom, low-latency handling when threads is 0
-- Lower lock boundary when adding tasks (or eliminate in c++11 mode)
+*  [Merge pull request #195 from openexr/master](https://github.com/openexr/openexr/commit/bc234de193bd9cd32d94648e2936270aa4406e91) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2016-07-25) Catch develop branch up with commits in master. 
 
+*  [fix potential memory leak](https://github.com/openexr/openexr/commit/d2f10c784d52f841b85e382620100cdbf0d3b1e5) ([CAHEK7](@ghosts.in.a.box@gmail.com), 2016-02-05) 
 
-* [switch mutex to be based on std::mutex when available](https://github.com/openexr/openexr/f8d0a051428e948e014450a1f0b2b3259d4183c7) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04)
+*  [Fix warnings when compiled with MSVC 2013.](https://github.com/openexr/openexr/commit/3aabef263083024db9e563007d0d76609ac8d585) ([Xo Wang](@xow@google.com), 2016-01-06) Similar fix to that from a27e048451ba3084559634e5e045a92a613b1455. 
 
-* [switch IlmThread to use c++11 threads when enabled](https://github.com/openexr/openexr/08cc3b602ab51a4724903991bc800168e1bf474b) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04)
+*  [Fix typo in C bindings (Close #140)](https://github.com/openexr/openexr/commit/c229dfe63380f41dfae1e977b10dfc7c49c7efc7) ([Edward Kmett](@ekmett@gmail.com), 2015-12-09) IMF_RAMDOM_Y should be IMF_RANDOM_Y 
 
-* [use dynamic exception macro to avoid warnings in c++14 mode](https://github.com/openexr/openexr/e5c9542ca503e7a194ee77757db47def3ea87af2) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04)
+*  [Fix copy and paste bug](https://github.com/openexr/openexr/commit/501b654d851e2da1d9e5ca010a1e13fe34ae24ab) ([Christopher Kulla](@fpsunflower@users.noreply.github.com), 2015-11-19) The implementation of DeepTiledInputPart::tileXSize was copy and pasted from the function above but not changed. This causes it tor return incorrect values. 
 
-* [add #define to manage dynamic exception deprecation in c++11/14](https://github.com/openexr/openexr/8806bb7e9a401e8330559ac2b7afc1bf8461595c) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04)
+*  [Switch AVX detection asm to not use an empty clobber list for use with older gcc versions](https://github.com/openexr/openexr/commit/51073d1aa8f96963fc6a3ecad8f844ce70c90991) ([Kevin Wheatley](@kevin.wheatley@framestore.com), 2015-10-14) 
 
-* [configuration changes to enable c++14](https://github.com/openexr/openexr/8c6f007c3584849523f79a6f66663d2bea6e0007) ([Kimball Thurston](@kdt3rd@gmail.com), 2018-04-04)
+*  [Merge pull request #145 from karlrasche/DWAx_clamp_float32](https://github.com/openexr/openexr/commit/521b25df787b460e57d5c1e831b232152b93a6ee) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2015-10-23) Clamp, don't cast, float inputs with DWAx compression 
 
-* [Cmake now building OpenEXR successfully for Windows](https://github.com/openexr/openexr/74b5c1dc2dfbdce74987a57f5e011dc711f9ca65) ([Nick Porcino](@meshula@hotmail.com), 2018-03-28)
+*  [Merge pull request #143 from karlrasche/DWAx_bad_zigzag_order](https://github.com/openexr/openexr/commit/9547d38199f5db2712c06ccdda9195badbecccaa) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2015-10-23) Wrong zig-zag ordering used for DWAx decode optimization 
 
-* [Merge pull request #1 from es0m/cmake-windows-binary-path-fix](https://github.com/openexr/openexr/953a59e71d7fb967d173cb30f587d5005ebdd538) ([Nick Porcino](@meshula@hotmail.com), 2018-03-26) Cmake windows binary path fix
+*  [Merge pull request #157 from karlrasche/DWAx_compress_bound](https://github.com/openexr/openexr/commit/de27156b77896aeef5b1c99edbca2bc4fa784b51) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2015-10-23) Switch over to use compressBound() instead of manually computing headroom for compress() 
 
-* [Missing symbols on Windows due to missing IMF_EXPORT](https://github.com/openexr/openexr/2671ed0e54633c8aa9617399557d35ed3bf08540) ([Ibraheem Alhashim](@ibraheem.alhashim@gmail.com), 2018-03-05)
+*  [Switch over to use compressBound() instead of manually computing headroom for compress()](https://github.com/openexr/openexr/commit/c9a2e193ce243c66177ddec6be43bc6f655ff78a) ([Karl Rasche](@karl.rasche@dreamworks.com), 2015-02-18) 
 
-* [Updated list of EXTRA_DIST files to reflect the updated test images and prior removal of README.win32](https://github.com/openexr/openexr/165dceaeee86e0f8ce1ed1db3e3030c609a49f17) ([Nick Rasmussen](@nick@ilm.com), 2017-11-17)
+*  [Fix a linker error when compiling OpenEXR statically on Linux](https://github.com/openexr/openexr/commit/caa09c1b361e2b152786d9e8b2b90261c9d9a3aa) ([Wenzel Jakob](@wenzel@inf.ethz.ch), 2015-02-02) Linking OpenEXR and IlmBase statically on Linux failed due to interdependencies between Iex and IlmThread. Simply reversing their order in CMakeLists.txt fixes the issue (which only arises on Linux since the GNU linker is particularly sensitive to the order of static libraries) 
 
-* [Updated list of EXTRA_DIST files to reflect the updated test images and prior removal of README.win32](https://github.com/openexr/openexr/dcaf5fdb4d1244d8e60a58832cfe9c54734a2257) ([Nick Rasmussen](@nick@ilm.com), 2017-11-17)
+*  [Clamp incoming float values to half, instead of simply casting, on encode.](https://github.com/openexr/openexr/commit/cb172eea58b8be078b88eca35f246e12df2de620) ([Karl Rasche](@karl.rasche@dreamworks.com), 2014-11-24) Casting can introduce Infs, which are zero'ed later on, prior to the forward DCT step. This can have the nasty side effect of forcing bright values to zero, instead of clamping them to 65k. 
 
-* [Updated openexr version to 2.2.1, resynced the .so version number to 23 across all projects.](https://github.com/openexr/openexr/e69de40ddbb6bd58341618a506b2e913e5ac1797) ([Nick Rasmussen](@nick@ilm.com), 2017-11-17)
+*  [Remove errant whitespace](https://github.com/openexr/openexr/commit/fc67c8245dbff48e546abae027cc9c80c98b3db1) ([Karl Rasche](@karl.rasche@dreamworks.com), 2014-11-20) 
 
-* [Add additional input validation in an attempt to resolve issue #232](https://github.com/openexr/openexr/49db4a4192482eec9c27669f75db144cf5434804) ([Shawn Walker-Salas](@shawn.walker@oracle.com), 2017-05-30)
+*  [Use the correct zig-zag ordering when finding choosing between fast-path inverse DCT versions (computing which rows are all zero)](https://github.com/openexr/openexr/commit/b0d0d47b65c5ebcb8c6493aa2238b9f890c4d7fe) ([Karl Rasche](@karl.rasche@dreamworks.com), 2014-11-19) 
 
-* [Add additional input validation in an attempt to resolve issue #232](https://github.com/openexr/openexr/f09f5f26c1924c4f7e183428ca79c9881afaf53c) ([Shawn Walker-Salas](@shawn.walker@oracle.com), 2017-05-30)
+*  [Resolve dependency issue building eLut.h/toFloat.h with CMake/Ninja.](https://github.com/openexr/openexr/commit/8eed7012c10f1a835385d750fd55f228d1d35df9) ([Ralph Potter](@r.potter@bath.ac.uk), 2014-11-05) 
 
-* [root level LICENSE](https://github.com/openexr/openexr/a774d643b566d56314f26695f2bf9b75f88e64f6) ([cary-ilm](@cary@ilm.com), 2017-10-23)
+*  [Adding rawPixelDataToBuffer() function for access to compressed data read from scanline input files.](https://github.com/openexr/openexr/commit/1f6eddeea176ce773dacd5cdee0cbad0ab549bae) ([Lucy Wilkes](@lucywilkes@users.noreply.github.com), 2014-10-22) Changes from The Foundry to add rawPixelDataToBuffer(...) function to the OpenEXR library. This allows you to read raw scan lines into an external buffer. It's similar to the existing function rawPixelData, but unlike this existing function it allows the user to control where the data will be stored instead of reading it into a local buffer. This means you can store multiple raw scan lines at once and enables the decompression of these scan lines to be done in parallel using an application's own threads. (cherry picked from commit ca76ebb40a3c5a5c8e055f0c8d8be03ca52e91c8) 
 
-* [Implement SIMD-accelerated ImfZip::uncompress](https://github.com/openexr/openexr/4198128397c033d4f69e5cc0833195da500c31cf) ([John Loy](@jloy@pixar.com), 2017-04-12) The main bottleneck in ImfZip::uncompress appears not to be zlib but the predictor & interleaving loops that run after zlib's decompression. Fortunately, throughput in both of these loops can be improved with SIMD operations. Even though each trip of the predictor loop has data dependencies on all previous values, the usual SIMD prefix-sum construction is able to provide a significant speedup. While the uses of SSSE3 and SSE4.1 are minor in this change and could maybe be replaced with some slightly more complicated SSE2, SSE4.1 was released in 2007, so it doesn't seem unreasonable to require it in 2017.
+*  [Merge pull request #137 from karlrasche/interleaveByte2_sse_bug](https://github.com/openexr/openexr/commit/f4a6d3b9fabd82a11b63abf938e9e32f42d2d6d7) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2014-10-15) Fixing SSE2 byte interleaving path to work with short runs 
 
+*  [Fixing SSE2 byte interleaving path to work with short runs](https://github.com/openexr/openexr/commit/da28ad8cd54dfa3becfdac33872c5b1401a9cc3c) ([Karl Rasche](@karl.rasche@dreamworks.com), 2014-09-08) 
 
-* [Compute sample locations directly in Imf::readPerDeepLineTable.](https://github.com/openexr/openexr/2055e0507b9235ad2f2513368d4eacff1c48a276) ([John Loy](@jloy@pixar.com), 2017-04-06) By changing the function to iterate over sample locations directly instead of discarding unsampled pixel positions, we can avoid computing a lot of modulos (more than one per pixel.) Even on modern x86 processors, idiv is a relatively expensive instruction. Though it may appear like this optimization could be performed by a sufficiently sophisticated compiler, gcc 4.8 does not get there (even at -O3.)
+*  [Merge pull request #126 from fnordware/LL_literal](https://github.com/openexr/openexr/commit/91015147e5a6a1914bcb16b12886aede9e1ed065) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2014-08-14) Use LL for 64-bit literals 
 
+*  [Change suffixes to ULL because Int64 is unsigned](https://github.com/openexr/openexr/commit/353cbc2e89c582e07796f01bce8f203e84c8ae46) ([Brendan Bolles](@brendan@fnordware.com), 2014-08-14) As discusses in pull request #126 
 
-* [Manually hoist loop invariants in Imf::bytesPerDeepLineTable.](https://github.com/openexr/openexr/e06ad3150cf584d5dae016ca940024dbdb7610fe) ([John Loy](@jloy@pixar.com), 2017-04-05) This is primarily done to avoid a call to pixelTypeSize within the inner loop. In particular, gcc makes the call to pixelTypeSize via PLT indirection so it may have arbitrary side-effects (i.e. ELF symbol interposition strikes again) and may not be moved out of the loop by the compiler.
+*  [Merge pull request #127 from openexr/tarball_contents_fix](https://github.com/openexr/openexr/commit/699b4a62d5de9592d26f581a9cade89fdada7e6a) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2014-08-14) Tarball contents fix 
 
+*  [Add dwa test images to dist (tarball) manifest. Also drop README.win32 from tarball. (Already removed from repo.)](https://github.com/openexr/openexr/commit/cbac202a84b0b0bac0fcd92e5b5c8d634085329e) ([Ed Hanway](@ehanway@ilm.com), 2014-08-14) [New Cmake-centric instructions covering builds for Windows and other platforms to follow.] 
 
-* [Inline Imf::sampleCount; this is an ABI-breaking change.](https://github.com/openexr/openexr/c7e1ebaa26e9a726db77de7fea8b63bd454e26d0) ([John Loy](@jloy@pixar.com), 2017-03-29) gcc generates calls to sampleCount via PLT indirection even within libIlmImf. As such, they are not inlined and must be treated as having arbitrary side effects (because of ELF symbol interposition.) Making addressing computations visible at call sites allows a much wider range of optimizations by the compiler beyond simply eliminating the function call overhead.
+*  [Use LL for 64-bit literals](https://github.com/openexr/openexr/commit/57ecf581d053f5cacf2e8fc3c024490e0bbe536f) ([Brendan Bolles](@brendan@fnordware.com), 2014-08-13) On a 32-bit architecture, these literals are too big for just a long, they need to be long long, otherwise I get an error in GCC.
 
-
-* [Delete build.log](https://github.com/openexr/openexr/fe0d45c7ac34dfb2b9e906d0fd0eb19c302273fc) ([Arkady Shapkin](@arkady.shapkin@gmail.com), 2017-02-18)
-
-* [Fix copyright/license notice in halfExport.h](https://github.com/openexr/openexr/20d043d017d4b752356bb76946ffdffaa9c15c72) ([Ed Hanway](@ehanway@ilm.com), 2017-01-09)
-
-* [fix defect in semaphore implementation which caused application hang at exit time, because not all worker threads get woken up when task semaphore is repeatedly posted (to wake them up) after setting the stopping flag in the thread pool](https://github.com/openexr/openexr/c7ce579c693840fd5d333ab60e1e62d7eb77a2a4) ([Richard Goedeken](@Richard@fascinationsoftware.com), 2016-11-22)
-
-* [Merge branch 'jkingsman-cleanup-readme' into develop](https://github.com/openexr/openexr/6f6d9cea513ea409d4b65da40ac096eab9a549b0) ([Ed Hanway](@ehanway@ilm.com), 2016-10-28)
-
-* [README edits.](https://github.com/openexr/openexr/098a4893910d522b867082ed38d7388e6265bee0) ([Ed Hanway](@ehanway@ilm.com), 2016-10-28)
-
-* [Merge branch 'cleanup-readme' of https://github.com/jkingsman/openexr into jkingsman-cleanup-readme](https://github.com/openexr/openexr/43e50ed5dca1ddfb3ca2cb4c38c7752497db6e50) ([Ed Hanway](@ehanway@ilm.com), 2016-10-28)
-
-* [Install ImfStdIO.h](https://github.com/openexr/openexr/2872d3b230a7920696510f80a50d9ce36b6cc94e) ([Ed Hanway](@ehanway@ilm.com), 2016-10-28) This was originally intended to be an internal class only, but its use has become the de facto way to handle UTF-8 filenames on Windows.
-
-
-* [Merge pull request #204 from dlemstra/IMF_HAVE_SSE2](https://github.com/openexr/openexr/cbb01bf286a2e04df95fb51458d1c2cbdc08935b) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2016-10-19) Consistent check for IMF_HAVE_SSE2.
-
-* [Remove fixed-length line breaks](https://github.com/openexr/openexr/0ea6b8c7d077a18fb849c2b2ff532cd952d06a38) ([Jack Kingsman](@jack.kingsman@gmail.com), 2016-10-19)
-
-* [Update README to markdown](https://github.com/openexr/openexr/9c6d22e23a25d761f5456e08623b8d77c0f8930a) ([Jack Kingsman](@jack.kingsman@gmail.com), 2016-10-18)
-
-* [Merge pull request #206 from lgritz/lg-register](https://github.com/openexr/openexr/6788745398594d479e8cf91a6c301fea0537108b) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2016-09-30) Remove 'register' keyword.
-
-* [Remove 'register' keyword.](https://github.com/openexr/openexr/6d297f35c5dbfacc8a5e94f33b986db7ab468db9) ([Larry Gritz](@lg@larrygritz.com), 2016-09-30) 'register' is a relic of K&R-era C, it's utterly useless in modern compilers. It's been deprecated in C++11, and therefore will generate warnings when encountered -- and many packages that use OpenEXR's public headers use -Werr to turn warnings into errors. Starting in C++17, the keyword is removed entirely, and thus will certainly be a build break for that version of the standard. So it's time for it to go.
-
-
-* [Consistent check for IMF_HAVE_SSE2.](https://github.com/openexr/openexr/7403524c8fed971383c724d85913b2d52672caf3) ([dirk](@dirk@git.imagemagick.org), 2016-09-17)
-
-* [Merge pull request #141 from lucywilkes/develop](https://github.com/openexr/openexr/c23f5345a6cc89627cc416b3e0e6b182cd427479) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2016-09-16) Adding rawPixelDataToBuffer() function for access to compressed scanlines
-
-* [Merge pull request #198 from ZeroCrunch/develop](https://github.com/openexr/openexr/891437f74805f6c8ebc897932091cbe0bb7e1163) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2016-08-02) Windows compile fix
-
-* [Windows compile fix](https://github.com/openexr/openexr/77faf005b50e8f77a8080676738ef9b9c807bf53) ([Jamie Kenyon](@jamie.kenyon@thefoundry.co.uk), 2016-07-29) std::min wasn't found due to <algorithm> not being included.
-
-
-* [Merge pull request #179 from CAHEK7/NullptrBug](https://github.com/openexr/openexr/a0a68393a4d3b622251fb7c490ee9d59e080b776) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2016-07-26) fix potential memory leak
-
-* [Merge branch 'develop' of https://github.com/r-potter/openexr into r-potter-develop](https://github.com/openexr/openexr/b206a243a03724650b04efcdf863c7761d5d5d5b) ([Ed Hanway](@ehanway@ilm.com), 2016-07-26)
-
-* [Merge pull request #154 into develop](https://github.com/openexr/openexr/bc372d47186db31d104e84e4eb9e84850819db8d) ([Ed Hanway](@ehanway@ilm.com), 2016-07-25)
-
-* [Merge pull request #168 into develop](https://github.com/openexr/openexr/44d077672f558bc63d907891bb88d741b334d807) ([Ed Hanway](@ehanway@ilm.com), 2016-07-25)
-
-* [Merge pull request #175 into develop](https://github.com/openexr/openexr/7513fd847cf38af89572cc209b03e5b548e6bfc8) ([Ed Hanway](@ehanway@ilm.com), 2016-07-25)
-
-* [Merge pull request #174 into develop](https://github.com/openexr/openexr/b16664a2ee4627c235b9ce798f4fc911e9c5694f) ([Ed Hanway](@ehanway@ilm.com), 2016-07-25)
-
-* [Merge branch pull request 172 into develop: fix copy and paste bug in ImfDeepTiledInputPart.cpp](https://github.com/openexr/openexr/ef7b78d5988d37dbbc74c21ad245ed5c80927223) ([Ed Hanway](@ehanway@ilm.com), 2016-07-25)
-
-* [Merge pull request #195 from openexr/master](https://github.com/openexr/openexr/bc234de193bd9cd32d94648e2936270aa4406e91) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2016-07-25) Catch develop branch up with commits in master.
-
-* [fix comparison of unsigned expression < 0 (Issue #165)](https://github.com/openexr/openexr/c512841e27274c888b860d2e53029a671cc30f40) ([CAHEK7](@ghosts.in.a.box@gmail.com), 2016-02-15)
-
-* [fix potential memory leak](https://github.com/openexr/openexr/d2f10c784d52f841b85e382620100cdbf0d3b1e5) ([CAHEK7](@ghosts.in.a.box@gmail.com), 2016-02-05)
-
-* [Fix warnings when compiled with MSVC 2013.](https://github.com/openexr/openexr/3aabef263083024db9e563007d0d76609ac8d585) ([Xo Wang](@xow@google.com), 2016-01-06) Similar fix to that from a27e048451ba3084559634e5e045a92a613b1455.
-
-
-* [Fix typo in C bindings (Close #140)](https://github.com/openexr/openexr/c229dfe63380f41dfae1e977b10dfc7c49c7efc7) ([Edward Kmett](@ekmett@gmail.com), 2015-12-09) IMF_RAMDOM_Y should be IMF_RANDOM_Y
-
-* [Fix copy and paste bug](https://github.com/openexr/openexr/501b654d851e2da1d9e5ca010a1e13fe34ae24ab) ([Christopher Kulla](@fpsunflower@users.noreply.github.com), 2015-11-19) The implementation of DeepTiledInputPart::tileXSize was copy and pasted from the function above but not changed. This causes it tor return incorrect values.
-
-* [Switch AVX detection asm to not use an empty clobber list for use with older gcc versions](https://github.com/openexr/openexr/51073d1aa8f96963fc6a3ecad8f844ce70c90991) ([Kevin Wheatley](@kevin.wheatley@framestore.com), 2015-10-14)
-
-* [Merge pull request #145 from karlrasche/DWAx_clamp_float32](https://github.com/openexr/openexr/521b25df787b460e57d5c1e831b232152b93a6ee) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2015-10-23) Clamp, don't cast, float inputs with DWAx compression
-
-* [Merge pull request #143 from karlrasche/DWAx_bad_zigzag_order](https://github.com/openexr/openexr/9547d38199f5db2712c06ccdda9195badbecccaa) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2015-10-23) Wrong zig-zag ordering used for DWAx decode optimization
-
-* [Merge pull request #157 from karlrasche/DWAx_compress_bound](https://github.com/openexr/openexr/de27156b77896aeef5b1c99edbca2bc4fa784b51) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2015-10-23) Switch over to use compressBound() instead of manually computing headroom for compress()
-
-* [Added Iex library once more for linker dependency](https://github.com/openexr/openexr/13eef5157e0fed0186266fcb720361922b0e7e10) ([Eric Sommerlade](@es0m@users.noreply.github.com), 2015-02-20)
-
-* [Switch over to use compressBound() instead of manually computing headroom for compress()](https://github.com/openexr/openexr/c9a2e193ce243c66177ddec6be43bc6f655ff78a) ([Karl Rasche](@karl.rasche@dreamworks.com), 2015-02-18)
-
-* [windows/cmake: Commands depend on Half.dll which needs to be in path. Running commands in Half.dll's directory addresses this and the commands run on first invocation](https://github.com/openexr/openexr/cdc61d6a53ab12cdf354ae7ba811032d79e00d13) ([E Sommerlade](@es0m@users.noreply.github.com), 2015-02-10)
-
-* [Fix a linker error when compiling OpenEXR statically on Linux](https://github.com/openexr/openexr/caa09c1b361e2b152786d9e8b2b90261c9d9a3aa) ([Wenzel Jakob](@wenzel@inf.ethz.ch), 2015-02-02) Linking OpenEXR and IlmBase statically on Linux failed due to interdependencies between Iex and IlmThread. Simply reversing their order in CMakeLists.txt fixes the issue (which only arises on Linux since the GNU linker is particularly sensitive to the order of static libraries)
-
-
-* [Fixed memory corruption / actual crashes on Window](https://github.com/openexr/openexr/2c3b76987dc8feacdcbf59c397193f4e65adc77e) ([JuriAbramov](@openexr@dr-abramov.de), 2015-01-19) Fixed memory corruption caused by missing assignment operator with non-trivial copy constructor logic. FIxes crashes on Windows when "dwaa" or "dwab" codecs are used for saving files.
-
-* [Clamp incoming float values to half, instead of simply casting, on encode.](https://github.com/openexr/openexr/cb172eea58b8be078b88eca35f246e12df2de620) ([Karl Rasche](@karl.rasche@dreamworks.com), 2014-11-24) Casting can introduce Infs, which are zero'ed later on, prior to the forward DCT step. This can have the nasty side effect of forcing bright values to zero, instead of clamping them to 65k.
-
-
-* [Remove errant whitespace](https://github.com/openexr/openexr/fc67c8245dbff48e546abae027cc9c80c98b3db1) ([Karl Rasche](@karl.rasche@dreamworks.com), 2014-11-20)
-
-* [Use the correct zig-zag ordering when finding choosing between fast-path inverse DCT versions (computing which rows are all zero)](https://github.com/openexr/openexr/b0d0d47b65c5ebcb8c6493aa2238b9f890c4d7fe) ([Karl Rasche](@karl.rasche@dreamworks.com), 2014-11-19)
-
-* [Resolve dependency issue building eLut.h/toFloat.h with CMake/Ninja.](https://github.com/openexr/openexr/8eed7012c10f1a835385d750fd55f228d1d35df9) ([Ralph Potter](@r.potter@bath.ac.uk), 2014-11-05)
-
-* [Adding rawPixelDataToBuffer() function for access to compressed data read from scanline input files.](https://github.com/openexr/openexr/1f6eddeea176ce773dacd5cdee0cbad0ab549bae) ([Lucy Wilkes](@lucywilkes@users.noreply.github.com), 2014-10-22) Changes from The Foundry to add rawPixelDataToBuffer(...) function to the OpenEXR library. This allows you to read raw scan lines into an external buffer. It's similar to the existing function rawPixelData, but unlike this existing function it allows the user to control where the data will be stored instead of reading it into a local buffer. This means you can store multiple raw scan lines at once and enables the decompression of these scan lines to be done in parallel using an application's own threads. (cherry picked from commit ca76ebb40a3c5a5c8e055f0c8d8be03ca52e91c8)
-
-
-* [Merge pull request #137 from karlrasche/interleaveByte2_sse_bug](https://github.com/openexr/openexr/f4a6d3b9fabd82a11b63abf938e9e32f42d2d6d7) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2014-10-15) Fixing SSE2 byte interleaving path to work with short runs
-
-* [Fixing SSE2 byte interleaving path to work with short runs](https://github.com/openexr/openexr/da28ad8cd54dfa3becfdac33872c5b1401a9cc3c) ([Karl Rasche](@karl.rasche@dreamworks.com), 2014-09-08)
-
-* [std namespace should be specified for transform](https://github.com/openexr/openexr/85ef605a5cb2f998645586b9b7dc708871450f96) ([JuriAbramov](@openexr@dr-abramov.de), 2014-08-20) Fixes build with some VS and clang version.
-
-* [Merge pull request #126 from fnordware/LL_literal](https://github.com/openexr/openexr/91015147e5a6a1914bcb16b12886aede9e1ed065) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2014-08-14) Use LL for 64-bit literals
-
-* [Change suffixes to ULL because Int64 is unsigned](https://github.com/openexr/openexr/353cbc2e89c582e07796f01bce8f203e84c8ae46) ([Brendan Bolles](@brendan@fnordware.com), 2014-08-14) As discusses in pull request #126
-
-
-* [Merge pull request #127 from openexr/tarball_contents_fix](https://github.com/openexr/openexr/699b4a62d5de9592d26f581a9cade89fdada7e6a) ([Ed Hanway](@ehanway-ilm@users.noreply.github.com), 2014-08-14) Tarball contents fix
-
-* [Add dwa test images to dist (tarball) manifest. Also drop README.win32 from tarball. (Already removed from repo.)](https://github.com/openexr/openexr/cbac202a84b0b0bac0fcd92e5b5c8d634085329e) ([Ed Hanway](@ehanway@ilm.com), 2014-08-14) [New Cmake-centric instructions covering builds for Windows and other platforms to follow.]
-
-
-* [Use LL for 64-bit literals](https://github.com/openexr/openexr/57ecf581d053f5cacf2e8fc3c024490e0bbe536f) ([Brendan Bolles](@brendan@fnordware.com), 2014-08-13) On a 32-bit architecture, these literals are too big for just a long, they need to be long long, otherwise I get an error in GCC.
 
 ## Version 2.0.1
 
