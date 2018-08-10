@@ -2,6 +2,6 @@
 
 configincludedir = $(includedir)/OpenEXR
 
-configinclude_HEADERS = PyIlmBaseConfig.h
+nodist_configinclude_HEADERS = PyIlmBaseConfig.h
 
 EXTRA_DIST = PyIlmBaseConfig.h.in

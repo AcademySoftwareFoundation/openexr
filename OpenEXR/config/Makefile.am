@@ -2,6 +2,6 @@
 
 configincludedir = $(includedir)/OpenEXR
 
-configinclude_HEADERS = OpenEXRConfig.h
+nodist_configinclude_HEADERS = OpenEXRConfig.h
 
 EXTRA_DIST = OpenEXRConfig.h.in

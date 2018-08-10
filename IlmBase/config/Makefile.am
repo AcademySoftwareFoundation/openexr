@@ -2,6 +2,6 @@
 
 configincludedir = $(includedir)/OpenEXR
 
-configinclude_HEADERS = IlmBaseConfig.h
+nodist_configinclude_HEADERS = IlmBaseConfig.h
 
 EXTRA_DIST = IlmBaseConfig.h.in
