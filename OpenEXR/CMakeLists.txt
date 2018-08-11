@@ -199,6 +199,27 @@ INSTALL ( FILES
   ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
   )
 
+IF ( NOT WIN32 )
+  FILE ( WRITE ${CMAKE_BINARY_DIR}/OpenEXR.pc "libdir=${CMAKE_INSTALL_PREFIX}/lib\n" )
+  FILE ( APPEND ${CMAKE_BINARY_DIR}/OpenEXR.pc "includedir=${CMAKE_INSTALL_PREFIX}/include
+
+Name: OpenEXR
+Description: OpenEXR image library
+Version: ${OPENEXR_VERSION}
+
+Libs: -L\${libdir} -lIlmImf${ILMBASE_LIBSUFFIX} -llmImfUtil${ILMBASE_LIBSUFFIX}
+Cflags: -pthread -I\${includedir}/OpenEXR
+Requires: IlmBase
+Libs.private: -lz
+")
+
+  INSTALL ( FILES
+    ${CMAKE_BINARY_DIR}/IlmBase.pc
+    DESTINATION
+    ${PKGCONFIG_INSTALL_DIR}
+  )
+ENDIF()
+
 # Documentation
 INSTALL ( FILES
   doc/TechnicalIntroduction.pdf

@@ -70,6 +70,11 @@ if(ENABLE_TESTS)
   enable_testing()
 endif()
 
+# Default directory for .pc files
+if(NOT DEFINED PKGCONFIG_INSTALL_DIR AND NOT WIN32)
+  set(PKGCONFIG_INSTALL_DIR lib/pkgconfig CACHE STRING "The directory to install the Pkg-Config files.")
+endif()
+
 # CPACK
 set(CPACK_PROJECT_NAME             ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION          ${PROJECT_VERSION})

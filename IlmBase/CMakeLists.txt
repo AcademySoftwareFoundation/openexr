@@ -174,22 +174,20 @@ INSTALL ( FILES
 )
 
 IF ( NOT WIN32 )
-  FILE ( WRITE ${CMAKE_BINARY_DIR}/IlmBase.pc "prefix=${CMAKE_INSTALL_PREFIX}\n" )
-  FILE ( APPEND ${CMAKE_BINARY_DIR}/IlmBase.pc "exec_prefix=\${prefix}
-libdir=\${exec_prefix}/lib
-includedir=\${prefix}/include
-OpenEXR_includedir=\${prefix}/include/OpenEXR
+  FILE ( WRITE ${CMAKE_BINARY_DIR}/IlmBase.pc "libdir=${CMAKE_INSTALL_PREFIX}/lib\n" )
+  FILE ( APPEND ${CMAKE_BINARY_DIR}/IlmBase.pc "includedir=${CMAKE_INSTALL_PREFIX}/include
 
 Name: IlmBase
 Description: Base math and exception libraries
 Version: ${ILMBASE_VERSION}
+
 Libs: -L\${libdir} -lImath${ILMBASE_LIBSUFFIX} -lIexMath${ILMBASE_LIBSUFFIX} -lHalf${ILMBASE_LIBSUFFIX} -lIex${ILMBASE_LIBSUFFIX} -lIlmThread${ILMBASE_LIBSUFFIX} -pthread
-Cflags: -pthread -I\${OpenEXR_includedir}
+Cflags: -pthread -I\${includedir}/OpenEXR
 ")
 
   INSTALL ( FILES
     ${CMAKE_BINARY_DIR}/IlmBase.pc
     DESTINATION
-    lib/pkgconfig
+    ${PKGCONFIG_INSTALL_DIR}
   )
 ENDIF()
