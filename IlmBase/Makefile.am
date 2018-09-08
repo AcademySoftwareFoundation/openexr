@@ -18,8 +18,11 @@ EXTRA_DIST = \
 	README.md \
 	bootstrap \
 	config.windows/IlmBaseConfig.h \
-        CMakeLists.txt
+	CMakeLists.txt
 
+dist-hook:
+	cp -fpR $(abspath $(srcdir)/..)/cmake $(distdir)
+	find $(distdir)/cmake -type d ! -perm -700 -exec chmod u+rwx {} \;
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = IlmBase.pc

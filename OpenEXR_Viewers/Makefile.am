@@ -10,7 +10,11 @@ DIST_SUBDIRS = \
 EXTRA_DIST = \
 	ChangeLog \
 	LICENSE \
-        README.md \
+	README.md \
 	bootstrap
+
+dist-hook:
+	cp -fpR $(abspath $(srcdir)/..)/cmake $(distdir)
+	find $(distdir)/cmake -type d ! -perm -700 -exec chmod u+rwx {} \;
 
 
