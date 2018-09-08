@@ -62,6 +62,9 @@ configuration scripts by running ``bootstrap``, then ``configure`` and
     make
     make install
 
+Optionally, compiling from git using cmake, one can use the top level
+CMakeLists.txt file to build all the libraries at once.
+
 #### Building on Windows using **cmake**
 
 To generate Visual Studio solution files and build the libraries:
