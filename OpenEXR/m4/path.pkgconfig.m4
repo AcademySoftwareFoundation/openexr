@@ -42,6 +42,7 @@ define([arg_include_subdir],$5)
 define([arg_default_ldflags],$6)
 define([arg_default_libs],$7)
 define([arg_test_prefix],$8)
+define([arg_pkg_prefix],$9)
 
 TEST_CXXFLAGS=""
 TEST_LDFLAGS=""
@@ -50,8 +51,7 @@ TEST_LIBS=""
 AC_ARG_WITH(arg_test_prefix,[  --with-arg_test_prefix=PFX  Prefix where tested libraries are supposed to be installed (optional)], test_prefix="$withval", test_prefix="NONE")
 echo "test_prefix = $test_prefix"
 
-AC_ARG_VAR(PKG_CONFIG, Path to pkg-config command)
-AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
+PKG_PROG_PKG_CONFIG
 AC_ARG_WITH(pkg-config,[  --with-pkg-config=PATH Specify which pkg-config to use (optional)], PKG_CONFIG="$withval",)
 
 
@@ -73,40 +73,33 @@ else
    dnl the -L flags will appear twice on the command line, but we can not
    dnl limit it to --libs-only-l because it may include the "-pthread" flag.
    dnl 
-   if test x$PKG_CONFIG != xno ; then
-      echo "using pkg-config to set arg_cxxflags and arg_ldflags:"
-      TEST_CXXFLAGS="`$PKG_CONFIG --cflags arg_pkg_name`"
-      TEST_LDFLAGS="`$PKG_CONFIG --libs-only-L arg_pkg_name`"
-      TEST_LIBS="`$PKG_CONFIG --libs arg_pkg_name`"
-   else
-      echo "Not using pkg-config."
-      TEST_CXXFLAGS=""
-      TEST_LDFLAGS=""
-      TEST_LIBS=""
-   fi
-
-   dnl
-   dnl if the flags are still not set, try a prefix and finally a default
-   dnl
-   if test -z "${TEST_CXXFLAGS}"; then
-      TEST_CXXFLAGS=""
-      if test "x$prefix" != "xNONE"; then
-         echo "using prefix to set arg_cxxflags and arg_ldflags:"
-         for inc_dir in arg_include_subdir
-         do
-            TEST_CXXFLAGS="$TEST_CXXFLAGS -I$prefix/include/$inc_dir"
-         done
-         TEST_LDFLAGS="-L$prefix/lib"
-      else
-         echo "using default as guess for arg_cxxflags and arg_ldflags:"
-         for inc_dir in arg_include_subdir
-         do
-             TEST_CXXFLAGS="$TEST_CXXFLAGS -I/usr/local/include/$inc_dir"
-         done
-         TEST_LDFLAGS="arg_default_ldflags"
+   PKG_CHECK_MODULES([arg_pkg_prefix], [arg_pkg_name],
+      [
+         TEST_CXXFLAGS="`$PKG_CONFIG --cflags arg_pkg_name`"
+         TEST_LDFLAGS="`$PKG_CONFIG --libs-only-L arg_pkg_name`"
+         TEST_LIBS="`$PKG_CONFIG --libs arg_pkg_name`"
+      ],
+      [
+      if test -z "${TEST_CXXFLAGS}"; then
+         TEST_CXXFLAGS=""
+         if test "x$prefix" != "xNONE"; then
+            echo "using prefix to set arg_cxxflags and arg_ldflags:"
+            for inc_dir in arg_include_subdir
+            do
+               TEST_CXXFLAGS="$TEST_CXXFLAGS -I$prefix/include/$inc_dir"
+            done
+            TEST_LDFLAGS="-L$prefix/lib"
+         else
+            echo "using default as guess for arg_cxxflags and arg_ldflags:"
+            for inc_dir in arg_include_subdir
+            do
+               TEST_CXXFLAGS="$TEST_CXXFLAGS -I/usr/local/include/$inc_dir"
+            done
+            TEST_LDFLAGS="arg_default_ldflags"
+         fi
+         TEST_LIBS="arg_default_libs"
       fi
-      TEST_LIBS="arg_default_libs"
-   fi
+      ])
 fi
 
 echo "    arg_cxxflags = $TEST_CXXFLAGS"

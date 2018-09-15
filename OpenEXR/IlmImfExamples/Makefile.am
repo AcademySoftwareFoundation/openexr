@@ -6,11 +6,11 @@ endif
 
 INCLUDES = -I$(top_builddir) \
            -I$(top_srcdir)/IlmImf -I$(top_srcdir)/config \
-	   @ILMBASE_CXXFLAGS@
+           @ILMBASE_CXXFLAGS@ $(ILMBASE_CFLAGS) $(ZLIB_CFLAGS)
 
 LDADD = -L$(top_builddir)/IlmImf \
-	@ILMBASE_LDFLAGS@ @ILMBASE_LIBS@ \
-	-lIlmImf -lz
+	@ILMBASE_LDFLAGS@ $(ILMBASE_LIBS) \
+	-lIlmImf $(ZLIB_CFLAGS)
 
 imfexamples_SOURCES = main.cpp drawImage.cpp rgbaInterfaceExamples.cpp \
 		      rgbaInterfaceTiledExamples.cpp \
@@ -23,7 +23,7 @@ imfexamples_SOURCES = main.cpp drawImage.cpp rgbaInterfaceExamples.cpp \
 		      lowLevelIoExamples.h previewImageExamples.h \
 		      namespaceAlias.h
 
-examplesdir = $(datadir)/doc/OpenEXR-@OPENEXR_VERSION@/examples
+examplesdir = $(docdir)/examples
 examples_DATA = $(imfexamples_SOURCES)
 
 imfexamplesdir = $(examplesdir)

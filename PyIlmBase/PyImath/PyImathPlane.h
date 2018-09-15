@@ -38,7 +38,7 @@
 #include <Python.h>
 #include <boost/python.hpp>
 #include <ImathPlane.h>
-#include <PyImath.h>
+#include "PyImath.h"
 
 
 namespace PyImath {

@@ -77,8 +77,7 @@ dataWindowForFile (const Header &hdr, const Image &img, DataWindowSource dws)
         }
 
       default:
-
-        assert (false);
+        throw ArgExc("Unsupported DataWindowSource.");
     }
 }
 

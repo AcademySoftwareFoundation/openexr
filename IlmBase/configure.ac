@@ -1,8 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(IlmBase, 2.2.0)
+AC_INIT(IlmBase, 2.3.0)
 
 AC_SUBST(ILMBASE_VERSION_MAJOR, 2)
-AC_SUBST(ILMBASE_VERSION_MINOR, 2)
+AC_SUBST(ILMBASE_VERSION_MINOR, 3)
 AC_SUBST(ILMBASE_VERSION_PATCH, 0)
 
 AC_SUBST(ILMBASE_VERSION, ${ILMBASE_VERSION_MAJOR}.${ILMBASE_VERSION_MINOR}.${ILMBASE_VERSION_PATCH})
@@ -15,7 +15,7 @@ AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 
 
-LIBTOOL_CURRENT=12
+LIBTOOL_CURRENT=24
 LIBTOOL_REVISION=0
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
@@ -39,6 +39,45 @@ fi
 
 export PKG_CONFIG_PATH
 
+dnl Enable and choose c++ standard
+AC_ARG_ENABLE(cxxstd,
+              AC_HELP_STRING([--enable-cxxstd=14],
+                             [enable ISO c++ standard 11/14 [[default=auto]]]),
+              [cxxstd="${enableval}"], [cxxstd=14])
+
+if test "${cxxstd}" == 17 ; then
+    AX_CXX_COMPILE_STDCXX([17], [noext], [mandatory])
+	CXXFLAGS="$CXXFLAGS -std=c++17"
+else
+  if test "${cxxstd}" == 14 ; then
+      AX_CXX_COMPILE_STDCXX([14], [noext], [mandatory])
+  	CXXFLAGS="$CXXFLAGS -std=c++14"
+  else
+    if test "${cxxstd}" == 11 ; then
+      AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
+      CXXFLAGS="$CXXFLAGS -std=c++11"
+    else
+      if test "${cxxstd}" == 03 ; then
+        AC_DEFINE(ILMBASE_FORCE_CXX03)
+        CXXFLAGS="$CXXFLAGS -std=c++03"
+      else
+        dnl automatically determine...
+        AX_CXX_COMPILE_STDCXX([11], [noext], [optional])
+        AX_CXX_COMPILE_STDCXX([14], [noext], [optional])
+        AX_CXX_COMPILE_STDCXX([17], [noext], [optional])
+        if test "$HAVE_CXX14" == 1 ; then
+  	      CXXFLAGS="$CXXFLAGS -std=c++14"
+          cxxstd = 14
+        else
+          if test "$HAVE_CXX11" == 1 ; then
+  	        CXXFLAGS="$CXXFLAGS -std=c++11"
+            cxxstd = 11
+          fi
+        fi
+      fi
+    fi
+  fi
+fi
 
 dnl Checks for libraries.
 dnl --enable-threading
@@ -333,7 +372,8 @@ dnl
 AC_MSG_RESULT([
 ---------------------------------------------
 Summary for IlmBase features:
-enable large stack optimizations             $large_stack])
+enable large stack optimizations             $large_stack
+ISO C++ Standard                             $cxxstd])
   
 if test "x${library_namespace_versioning}" != xno ; then
   AC_MSG_RESULT([

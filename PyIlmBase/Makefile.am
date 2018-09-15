@@ -4,7 +4,7 @@
 # (an alternative to the acinclude.m4 mechanism)
 ACLOCAL_AMFLAGS = -I m4
 
-PYIMATH_SUBDIRS = config PyIex PyImath PyIexTest  PyImathTest
+PYIMATH_SUBDIRS = config PyIex PyImath PyIexTest  PyImathTest PyImathNumpyTest
 PYIMATHNUMPY_SUBDIRS = PyImathNumpy
 
 if BUILD_PYIMATHNUMPY
@@ -19,8 +19,9 @@ DIST_SUBDIRS = \
 	#vc
 
 EXTRA_DIST = \
-	AUTHORS COPYING ChangeLog INSTALL LICENSE NEWS \
-        README README.OSX bootstrap \
+	LICENSE README.md \
+	ChangeLog \
+        bootstrap \
 	pyilmbase.m4 \
 	config.windows/PyIlmBaseConfig.h
 

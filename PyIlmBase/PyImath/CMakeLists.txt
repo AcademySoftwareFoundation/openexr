@@ -30,13 +30,24 @@ ADD_LIBRARY ( PyImath ${LIB_TYPE}
     PyImathVec4fd.cpp
     PyImathVec4siArray.cpp
     PyImathVec4si.cpp
-
 )
 
+target_compile_definitions( PyImath PRIVATE -DPYIMATH_BUILD )
+
+IF (WIN32)
+  target_compile_definitions( PyImath
+    PRIVATE OPENEXR_DLL)
+ENDIF()
+
+
+
+SET_ILMBASE_INCLUDE_DIRS( PyImath )
+
+#    IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
 TARGET_LINK_LIBRARIES ( PyImath
-	Iex${ILMBASE_LIBSUFFIX}
-	IexMath${ILMBASE_LIBSUFFIX}
-	Imath${ILMBASE_LIBSUFFIX}
+    IlmBase::IexMath${OPENEXR_TARGET_SUFFIX}
+    IlmBase::Imath${OPENEXR_TARGET_SUFFIX}
+    PyIex
 	${Boost_LIBRARIES}
 	${PYTHON_LIBRARIES}
 )
@@ -46,25 +57,43 @@ INSTALL ( TARGETS PyImath
 	lib
 )
 
-ADD_LIBRARY ( imathmodule ${LIB_TYPE}
+INSTALL (DIRECTORY ./
+    DESTINATION include/OpenEXR
+    FILES_MATCHING PATTERN "*.h"
+)
+
+# must be shared
+ADD_LIBRARY ( imathmodule SHARED
     imathmodule.cpp
     PyImathFun.cpp
-    PyImathBasicTypes.cpp 
+    PyImathBasicTypes.cpp
 )
 
-SET_TARGET_PROPERTIES ( imathmodule
-	PROPERTIES PREFIX "" SUFFIX ".so" BUILD_WITH_INSTALL_RPATH ON
-)
+IF (WIN32)
+    SET_TARGET_PROPERTIES ( imathmodule
+        PROPERTIES
+            PREFIX ""
+            OUTPUT_NAME "imath"
+            SUFFIX ".pyd"
+    )
+ELSE ()
+    SET_TARGET_PROPERTIES ( imathmodule
+        PROPERTIES PREFIX "" SUFFIX ".so" BUILD_WITH_INSTALL_RPATH ON
+    )
+ENDIF ()
 
+SET_ILMBASE_INCLUDE_DIRS( imathmodule )
+
+#	IlmBase::Imath${OPENEXR_TARGET_SUFFIX}
+#	IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
 TARGET_LINK_LIBRARIES ( imathmodule
 	PyImath
 	PyIex
-	Imath${ILMBASE_LIBSUFFIX}
-	Iex${ILMBASE_LIBSUFFIX}
 	${Boost_LIBRARIES}
+	${PYTHON_LIBRARIES}
 )
 
 INSTALL ( TARGETS imathmodule
-	DESTINATION lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages
+	DESTINATION lib/python${OPENEXR_PYTHON_MAJOR}.${OPENEXR_PYTHON_MINOR}/site-packages
 )
 

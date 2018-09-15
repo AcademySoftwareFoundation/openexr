@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(OpenEXR_Viewers, 2.2.0)
-AC_SUBST(OPENEXR_VIEWERS_VERSION, 2.2.0)
+AC_INIT(OpenEXR_Viewers, 2.3.0)
+AC_SUBST(OPENEXR_VIEWERS_VERSION, 2.3.0)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(playexr/main.cpp)
 AM_CONFIG_HEADER(config/OpenEXR_ViewersConfig.h)
@@ -8,7 +8,7 @@ AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 
 
-LIBTOOL_CURRENT=6
+LIBTOOL_CURRENT=24
 LIBTOOL_REVISION=1
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
@@ -77,6 +77,45 @@ AM_PATH_PKGCONFIG(
    [-lIlmImfCtl -lIlmImf -lz -lImath -lHalf -lIex -lIlmThread -lpthread -lIlmCtlSimd -lIlmCtlMath -lIlmCtl],
    [openexrctl-prefix])
 
+
+dnl Enable and choose c++ standard
+AC_ARG_ENABLE(cxxstd,
+              AC_HELP_STRING([--enable-cxxstd=14],
+                             [enable ISO c++ standard 11/14 [[default=auto]]]),
+              [cxxstd="${enableval}"], [cxxstd=14])
+
+if test "${cxxstd}" == 17 ; then
+    AX_CXX_COMPILE_STDCXX([17], [noext], [mandatory])
+	CXXFLAGS="$CXXFLAGS -std=c++17"
+else
+  if test "${cxxstd}" == 14 ; then
+      AX_CXX_COMPILE_STDCXX([14], [noext], [mandatory])
+  	CXXFLAGS="$CXXFLAGS -std=c++14"
+  else
+    if test "${cxxstd}" == 11 ; then
+      AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
+      CXXFLAGS="$CXXFLAGS -std=c++11"
+    else
+      if test "${cxxstd}" == 03 ; then
+        CXXFLAGS="$CXXFLAGS -std=c++03"
+      else
+        dnl automatically determine...
+        AX_CXX_COMPILE_STDCXX([11], [noext], [optional])
+        AX_CXX_COMPILE_STDCXX([14], [noext], [optional])
+        AX_CXX_COMPILE_STDCXX([17], [noext], [optional])
+        if test "$HAVE_CXX14" == 1 ; then
+  	      CXXFLAGS="$CXXFLAGS -std=c++14"
+          cxxstd = 14
+        else
+          if test "$HAVE_CXX11" == 1 ; then
+  	        CXXFLAGS="$CXXFLAGS -std=c++11"
+            cxxstd = 11
+          fi
+        fi
+      fi
+    fi
+  fi
+fi
 
 dnl --enable-threading
 AC_ARG_ENABLE(threading,

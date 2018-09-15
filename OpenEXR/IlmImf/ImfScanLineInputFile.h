@@ -54,7 +54,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class IMF_EXPORT ScanLineInputFile : public GenericInputFile
+class ScanLineInputFile : public GenericInputFile
 {
   public:
 
@@ -62,6 +62,7 @@ class IMF_EXPORT ScanLineInputFile : public GenericInputFile
     // Constructor
     //------------
 
+    IMF_EXPORT
     ScanLineInputFile (const Header &header, OPENEXR_IMF_INTERNAL_NAMESPACE::IStream *is,
                        int numThreads = globalThreadCount());
 
@@ -71,6 +72,7 @@ class IMF_EXPORT ScanLineInputFile : public GenericInputFile
     // structures, but does not close the file.
     //-----------------------------------------
 
+    IMF_EXPORT
     virtual ~ScanLineInputFile ();
 
 
@@ -78,6 +80,7 @@ class IMF_EXPORT ScanLineInputFile : public GenericInputFile
     // Access to the file name
     //------------------------
 
+    IMF_EXPORT
     const char *	fileName () const;
 
 
@@ -85,6 +88,7 @@ class IMF_EXPORT ScanLineInputFile : public GenericInputFile
     // Access to the file header
     //--------------------------
 
+    IMF_EXPORT
     const Header &	header () const;
 
 
@@ -92,6 +96,7 @@ class IMF_EXPORT ScanLineInputFile : public GenericInputFile
     // Access to the file format version
     //----------------------------------
 
+    IMF_EXPORT
     int			version () const;
 
 
@@ -106,6 +111,7 @@ class IMF_EXPORT ScanLineInputFile : public GenericInputFile
     // to readPixels().
     //-----------------------------------------------------------
 
+    IMF_EXPORT
     void		setFrameBuffer (const FrameBuffer &frameBuffer);
 
 
@@ -113,6 +119,7 @@ class IMF_EXPORT ScanLineInputFile : public GenericInputFile
     // Access to the current frame buffer
     //-----------------------------------
 
+    IMF_EXPORT
     const FrameBuffer &	frameBuffer () const;
 
 
@@ -125,6 +132,7 @@ class IMF_EXPORT ScanLineInputFile : public GenericInputFile
     // writing may have been aborted prematurely.)
     //---------------------------------------------------------------
 
+    IMF_EXPORT
     bool		isComplete () const;
 
     
@@ -143,6 +151,7 @@ class IMF_EXPORT ScanLineInputFile : public GenericInputFile
     //
     //---------------------------------------------------------------
     
+    IMF_EXPORT
     bool                isOptimizationEnabled () const;
     
     
@@ -170,7 +179,9 @@ class IMF_EXPORT ScanLineInputFile : public GenericInputFile
     //
     //---------------------------------------------------------------
 
+    IMF_EXPORT
     void		readPixels (int scanLine1, int scanLine2);
+    IMF_EXPORT
     void		readPixels (int scanLine);
 
 
@@ -180,6 +191,7 @@ class IMF_EXPORT ScanLineInputFile : public GenericInputFile
     // used to implement OutputFile::copyPixels()).
     //----------------------------------------------
 
+    IMF_EXPORT
     void		rawPixelData (int firstScanLine,
 				      const char *&pixelData,
 				      int &pixelDataSize);
@@ -201,6 +213,7 @@ class IMF_EXPORT ScanLineInputFile : public GenericInputFile
     // use the threading within the library.
     //----------------------------------------------
 
+    IMF_EXPORT
     void                rawPixelDataToBuffer(int scanLine,
 					     char *pixelData,
 					     int &pixelDataSize) const;

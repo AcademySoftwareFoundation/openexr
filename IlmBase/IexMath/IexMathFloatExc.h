@@ -2,9 +2,9 @@
 //
 // Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +16,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
+// from this software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -41,7 +41,7 @@
 #define IEXMATH_EXPORT_H
 
 #if defined(OPENEXR_DLL)
-    #if defined(IEX_EXPORTS)
+    #if defined(IEXMATH_EXPORTS)
     #define IEXMATH_EXPORT __declspec(dllexport)
     #else
     #define IEXMATH_EXPORT __declspec(dllimport)
@@ -100,28 +100,12 @@ int getMathExcOn();
 //					// point exception settings
 //------------------------------------------------------------------------
 
-class IEXMATH_EXPORT MathExcOn
+class MathExcOn
 {
   public:
 
-    MathExcOn (int when)
-	:
-	_changed (false)
-    {
-	_saved = getMathExcOn(); 
-
-	if (_saved != when)
-	{
-	    _changed = true;
-	    mathExcOn (when);
-	}
-    }
-
-    ~MathExcOn ()
-    {
-	if (_changed)
-	    mathExcOn (_saved);
-    }
+    IEXMATH_EXPORT MathExcOn (int when);
+    IEXMATH_EXPORT ~MathExcOn ();
 
     // It is possible for functions to set the exception registers
     // yet not trigger a SIGFPE.  Specifically, the implementation
@@ -132,12 +116,12 @@ class IEXMATH_EXPORT MathExcOn
     // It should be called wherever this class is commonly used where it has
     // been found that certain floating point exceptions are not being thrown.
 
-    void handleOutstandingExceptions();
+    IEXMATH_EXPORT void handleOutstandingExceptions();
 
   private:
 
     bool                        _changed;
-    int				_saved;
+    int	                        _saved;
 };
 
 

@@ -37,7 +37,7 @@
 
 #include <boost/python.hpp>
 #include <ImathMatrix.h>
-#include <PyImathOperators.h>
+#include "PyImathOperators.h"
 
 namespace PyImath {
 using namespace boost::python;

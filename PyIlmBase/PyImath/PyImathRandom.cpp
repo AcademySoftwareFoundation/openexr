@@ -33,15 +33,15 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <PyImathRandom.h>
+#include "PyImathRandom.h"
 #include "PyImathDecorators.h"
 #include <Python.h>
 #include <boost/python.hpp>
 #include <boost/format.hpp>
 #include <boost/python/make_constructor.hpp>
-#include <PyImath.h>
-#include <PyImathMathExc.h>
-#include <PyImathFixedArray.h>
+#include "PyImath.h"
+#include "PyImathMathExc.h"
+#include "PyImathFixedArray.h"
 
 
 namespace PyImath{
@@ -143,6 +143,7 @@ solidSphereRand(Rand &rand, int num)
     return retval;
 }
 
+PYIMATH_EXPORT
 class_<IMATH_NAMESPACE::Rand32>
 register_Rand32()
 {
@@ -241,6 +242,7 @@ register_Rand32()
     return rand32_class;
 }
 
+PYIMATH_EXPORT
 class_<IMATH_NAMESPACE::Rand48>
 register_Rand48()
 {

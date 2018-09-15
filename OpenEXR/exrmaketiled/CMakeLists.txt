@@ -5,12 +5,13 @@ ADD_EXECUTABLE ( exrmaketiled
   main.cpp
   Image.cpp
 )
+SET_ILMBASE_INCLUDE_DIRS( exrmaketiled )
 
 TARGET_LINK_LIBRARIES ( exrmaketiled
-  IlmImf
-  IlmThread${ILMBASE_LIBSUFFIX}
-  Iex${ILMBASE_LIBSUFFIX}
-  Half
+  OpenEXR::IlmImf${OPENEXR_TARGET_SUFFIX}
+  IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Half${OPENEXR_TARGET_SUFFIX}
   ${PTHREAD_LIB}
   ${ZLIB_LIBRARIES}
 )

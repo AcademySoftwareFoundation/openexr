@@ -33,16 +33,16 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include <PyImathPlane.h>
+#include "PyImathPlane.h"
 #include "PyImathDecorators.h"
 #include "PyImathExport.h"
 #include <Python.h>
 #include <boost/python.hpp>
 #include <boost/python/make_constructor.hpp>
 #include <boost/format.hpp>
-#include <PyImath.h>
-#include <PyImathVec.h>
-#include <PyImathMathExc.h>
+#include "PyImath.h"
+#include "PyImathVec.h"
+#include "PyImathMathExc.h"
 #include <Iex.h>
 
 namespace PyImath{
@@ -195,7 +195,11 @@ static std::string Plane3_str(const Plane3<T> &plane)
 
     PyObject *normalObj = V3<T>::wrap (plane.normal);
     PyObject *normalReprObj = PyObject_Repr (normalObj);
+#if PY_MAJOR_VERSION > 2
+    std::string normalReprStr = PyUnicode_AsUTF8 (normalReprObj);
+#else
     std::string normalReprStr = PyString_AsString (normalReprObj);
+#endif
     Py_DECREF (normalReprObj);
     Py_DECREF (normalObj);
 
@@ -217,7 +221,11 @@ std::string Plane3_repr(const Plane3<float> &plane)
 {
     PyObject *normalObj = V3<float>::wrap (plane.normal);
     PyObject *normalReprObj = PyObject_Repr (normalObj);
+#if PY_MAJOR_VERSION > 2
+    std::string normalReprStr = PyUnicode_AsUTF8 (normalReprObj);
+#else
     std::string normalReprStr = PyString_AsString (normalReprObj);
+#endif
     Py_DECREF (normalReprObj);
     Py_DECREF (normalObj);
 
@@ -233,7 +241,11 @@ std::string Plane3_repr(const Plane3<double> &plane)
 {
     PyObject *normalObj = V3<double>::wrap (plane.normal);
     PyObject *normalReprObj = PyObject_Repr (normalObj);
+#if PY_MAJOR_VERSION > 2
+    std::string normalReprStr = PyUnicode_AsUTF8 (normalReprObj);
+#else
     std::string normalReprStr = PyString_AsString (normalReprObj);
+#endif
     Py_DECREF (normalReprObj);
     Py_DECREF (normalObj);
 

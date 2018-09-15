@@ -32,6 +32,7 @@ ADD_EXECUTABLE ( IlmImfTest
   testLineOrder.cpp
   testLut.cpp
   testMagic.cpp
+  testMalformedImages.cpp
   testMultiPartApi.cpp
   testMultiPartFileMixingBasic.cpp
   testMultiPartSharedAttributes.cpp
@@ -61,14 +62,14 @@ ADD_EXECUTABLE ( IlmImfTest
   testYca.cpp
  )
 
+SET_ILMBASE_INCLUDE_DIRS( IlmImfTest )
 
 ADD_TEST ( TestIlmImf IlmImfTest )
-TARGET_LINK_LIBRARIES ( IlmImfTest 
-        IlmImf  
-        Half 
-        Iex${ILMBASE_LIBSUFFIX}
-        Imath${ILMBASE_LIBSUFFIX}
-        IlmThread${ILMBASE_LIBSUFFIX}
-        ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
-        )
-
+TARGET_LINK_LIBRARIES ( IlmImfTest
+  OpenEXR::IlmImf${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Half${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Imath${OPENEXR_TARGET_SUFFIX}
+  IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
+  ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
+  )

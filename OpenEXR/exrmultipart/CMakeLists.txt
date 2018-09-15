@@ -1,14 +1,13 @@
 # yue.nicholas@gmail.com
 
-ADD_EXECUTABLE ( exrmultipart
-  exrmultipart.cpp
-)
+ADD_EXECUTABLE ( exrmultipart exrmultipart.cpp )
+SET_ILMBASE_INCLUDE_DIRS( exrmultipart )
 
 TARGET_LINK_LIBRARIES ( exrmultipart
-  IlmImf
-  IlmThread${ILMBASE_LIBSUFFIX}
-  Iex${ILMBASE_LIBSUFFIX}
-  Half
+  OpenEXR::IlmImf${OPENEXR_TARGET_SUFFIX}
+  IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Half${OPENEXR_TARGET_SUFFIX}
   ${PTHREAD_LIB}
   ${ZLIB_LIBRARIES}
 )

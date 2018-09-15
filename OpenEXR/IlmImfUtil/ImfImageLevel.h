@@ -44,11 +44,11 @@
 //
 //----------------------------------------------------------------------------
 
-#include <ImfImageChannel.h>
-#include <ImfImageChannelRenaming.h>
+#include "ImfUtilExport.h"
+#include "ImfImageChannel.h"
+#include "ImfImageChannelRenaming.h"
 #include <ImathBox.h>
 #include <string>
-#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -62,6 +62,7 @@ class ImageLevel
     //
     // Access to the image to which the level belongs.
     //
+
 
     Image &                     image ()                {return _image;}
     const Image &               image () const          {return _image;}
@@ -81,14 +82,18 @@ class ImageLevel
     
     friend class Image;
 
+    IMFUTIL_EXPORT
     ImageLevel (Image& image,
                 int xLevelNumber,
                 int yLevelNumber);
 
+    IMFUTIL_EXPORT
     virtual ~ImageLevel ();
 
+    IMFUTIL_EXPORT
     virtual void    resize (const IMATH_NAMESPACE::Box2i& dataWindow);
 
+    IMFUTIL_EXPORT
     virtual void    shiftPixels (int dx, int dy);
 
     virtual void    insertChannel (const std::string& name,
@@ -106,9 +111,12 @@ class ImageLevel
 
     virtual void    renameChannels (const RenamingMap &oldToNewNames) = 0;
 
-	IMF_EXPORT void            throwChannelExists(const std::string& name) const;
-	IMF_EXPORT void            throwBadChannelName(const std::string& name) const;
-    IMF_EXPORT void            throwBadChannelNameOrType (const std::string& name) const;
+    IMFUTIL_EXPORT
+    void            throwChannelExists(const std::string& name) const;
+    IMFUTIL_EXPORT
+    void            throwBadChannelName(const std::string& name) const;
+    IMFUTIL_EXPORT 
+    void            throwBadChannelNameOrType (const std::string& name) const;
 
   private:
 

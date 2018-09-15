@@ -38,7 +38,7 @@
 #include <boost/python.hpp>
 #include <boost/any.hpp>
 #include <vector>
-#include <PyImathFixedArray.h>
+#include "PyImathFixedArray.h"
 
 namespace PyImath {
 

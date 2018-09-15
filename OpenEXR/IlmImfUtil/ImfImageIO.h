@@ -44,7 +44,7 @@
 
 #include "ImfImage.h"
 #include "ImfImageDataWindow.h"
-#include "ImfExport.h"
+#include "ImfUtilExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -74,7 +74,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //      level mode ONE_LEVEL.
 //
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 void
 saveImage
     (const std::string &fileName,
@@ -82,7 +82,7 @@ saveImage
      const Image &img,
      DataWindowSource dws = USE_IMAGE_DATA_WINDOW);
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 void
 saveImage
     (const std::string &fileName,
@@ -99,13 +99,13 @@ saveImage
 //      If header h is given, then the header of the file is copied into h.
 //
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 Image *
 loadImage
     (const std::string &fileName,
      Header &hdr);
 
-IMF_EXPORT
+IMFUTIL_EXPORT
 Image *
 loadImage
     (const std::string &fileName);

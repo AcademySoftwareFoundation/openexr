@@ -375,6 +375,8 @@ readPixelData (InputStreamMutex *streamData,
     //
 
     int lineBufferNumber = (minY - ifd->minY) / ifd->linesInBuffer;
+    if (lineBufferNumber < 0 || lineBufferNumber >= int(ifd->lineOffsets.size()))
+        THROW (IEX_NAMESPACE::InputExc, "Invalid scan line " << minY << " requested or missing.");
 
     Int64 lineOffset = ifd->lineOffsets[lineBufferNumber];
 
@@ -1655,7 +1657,7 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
     catch (IEX_NAMESPACE::BaseExc &e)
     {
 	REPLACE_EXC (e, "Error reading pixel data from image "
-		        "file \"" << fileName() << "\". " << e);
+                 "file \"" << fileName() << "\". " << e.what());
 	throw;
     }
 }
@@ -1694,7 +1696,7 @@ ScanLineInputFile::rawPixelData (int firstScanLine,
     catch (IEX_NAMESPACE::BaseExc &e)
     {
 	REPLACE_EXC (e, "Error reading pixel data from image "
-		        "file \"" << fileName() << "\". " << e);
+                 "file \"" << fileName() << "\". " << e.what());
 	throw;
     }
 }
@@ -1727,7 +1729,7 @@ void ScanLineInputFile::rawPixelDataToBuffer(int scanLine,
   catch (IEX_NAMESPACE::BaseExc &e) 
   {
     REPLACE_EXC (e, "Error reading pixel data from image "
-                   "file \"" << fileName() << "\". " << e);
+                 "file \"" << fileName() << "\". " << e.what());
     throw;
   }
 }

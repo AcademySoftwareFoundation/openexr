@@ -103,6 +103,24 @@ getMathExcOn ()
     return when;
 }
 
+MathExcOn::MathExcOn (int when)
+: _changed (false)
+{
+    _saved = getMathExcOn();
+
+    if (_saved != when)
+    {
+        _changed = true;
+        mathExcOn (when);
+    }
+}
+
+MathExcOn::~MathExcOn ()
+{
+    if (_changed)
+        mathExcOn (_saved);
+}
+
 void
 MathExcOn::handleOutstandingExceptions()
 {

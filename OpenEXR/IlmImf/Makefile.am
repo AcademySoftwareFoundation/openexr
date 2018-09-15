@@ -102,7 +102,7 @@ libIlmImf_la_LDFLAGS += -release @LIB_SUFFIX@
 endif
 
 
-libIlmImf_la_LIBADD =  -lz @ILMBASE_LIBS@
+libIlmImf_la_LIBADD = $(ZLIB_LIBS) $(ILMBASE_LIBS)
 
 libIlmImfincludedir = $(includedir)/OpenEXR
 
@@ -190,19 +190,20 @@ EXTRA_DIST = $(noinst_HEADERS) b44ExpLogTable.cpp b44ExpLogTable.h dwaLookups.cp
 
 
 INCLUDES = @ILMBASE_CXXFLAGS@ \
-	   -I$(top_builddir)  \
-	   -I$(top_srcdir)/config
+	   -I$(top_builddir) \
+	   -I$(top_srcdir)/config \
+	   $(ILMBASE_CFLAGS) $(ZLIB_CFLAGS)
 
 CLEANFILES = b44ExpLogTable b44ExpLogTable.h dwaLookups dwaLookups.h
 
 b44ExpLogTable_SOURCES = b44ExpLogTable.cpp
-b44ExpLogTable_LDADD = @ILMBASE_LDFLAGS@ @ILMBASE_LIBS@
+b44ExpLogTable_LDADD = @ILMBASE_LDFLAGS@ $(ILMBASE_LIBS)
 
 b44ExpLogTable.h: b44ExpLogTable
 	./b44ExpLogTable > b44ExpLogTable.h
 
 dwaLookups_SOURCES = dwaLookups.cpp
-dwaLookups_LDADD = @ILMBASE_LDFLAGS@ @ILMBASE_LIBS@
+dwaLookups_LDADD = @ILMBASE_LDFLAGS@ $(ILMBASE_LIBS)
 
 dwaLookups.h: dwaLookups
 	./dwaLookups > dwaLookups.h

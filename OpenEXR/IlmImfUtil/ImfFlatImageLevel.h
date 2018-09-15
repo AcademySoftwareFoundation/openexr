@@ -46,18 +46,18 @@
 //
 //----------------------------------------------------------------------------
 
-#include <ImfFlatImageChannel.h>
-#include <ImfImageLevel.h>
+#include "ImfFlatImageChannel.h"
+#include "ImfImageLevel.h"
 #include <ImathBox.h>
 #include <string>
 #include <map>
-#include "ImfExport.h"
+#include "ImfUtilExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class FlatImage;
 
-class IMF_EXPORT FlatImageLevel : public ImageLevel
+class FlatImageLevel : public ImageLevel
 {
   public:
     
@@ -65,7 +65,9 @@ class IMF_EXPORT FlatImageLevel : public ImageLevel
     // Access to the flat image to which the level belongs.
     //
 
+    IMFUTIL_EXPORT
 	FlatImage &                 flatImage();
+    IMFUTIL_EXPORT
 	const FlatImage &           flatImage() const;
 
 
@@ -89,10 +91,14 @@ class IMF_EXPORT FlatImageLevel : public ImageLevel
     //                          exception if no such channel exists.
     //
 
+    IMFUTIL_EXPORT
 	FlatImageChannel *          findChannel (const std::string& name);
+    IMFUTIL_EXPORT
     const FlatImageChannel *    findChannel (const std::string& name) const;
 
+    IMFUTIL_EXPORT
     FlatImageChannel &          channel (const std::string& name);
+    IMFUTIL_EXPORT
     const FlatImageChannel &    channel (const std::string& name) const;
 
     template <class T>
@@ -120,10 +126,14 @@ class IMF_EXPORT FlatImageLevel : public ImageLevel
     class Iterator;
     class ConstIterator;
 
+    IMFUTIL_EXPORT
 	Iterator        begin();
+    IMFUTIL_EXPORT
 	ConstIterator   begin() const;
 
+    IMFUTIL_EXPORT
 	Iterator        end();
+    IMFUTIL_EXPORT
 	ConstIterator   end() const;
 
   private:
@@ -169,7 +179,9 @@ class FlatImageLevel::Iterator
 {
   public:
 
+    IMFUTIL_EXPORT
     Iterator ();
+    IMFUTIL_EXPORT
     Iterator (const FlatImageLevel::ChannelMap::iterator& i);
 
 
@@ -177,7 +189,9 @@ class FlatImageLevel::Iterator
     // Advance the iterator
     //
 
+    IMFUTIL_EXPORT
     Iterator &              operator ++ ();
+    IMFUTIL_EXPORT
     Iterator                operator ++ (int);
 
 
@@ -186,7 +200,9 @@ class FlatImageLevel::Iterator
     // and to the name of that channel.
     //
 
+    IMFUTIL_EXPORT
     const std::string &     name () const;
+    IMFUTIL_EXPORT
     FlatImageChannel &      channel () const;
 
   private:
@@ -201,8 +217,11 @@ class FlatImageLevel::ConstIterator
 {
   public:
 
+    IMFUTIL_EXPORT
     ConstIterator ();
+    IMFUTIL_EXPORT
     ConstIterator (const FlatImageLevel::ChannelMap::const_iterator& i);
+    IMFUTIL_EXPORT
     ConstIterator (const FlatImageLevel::Iterator& other);
 
 
@@ -210,7 +229,9 @@ class FlatImageLevel::ConstIterator
     // Advance the iterator
     //
 
+    IMFUTIL_EXPORT
     ConstIterator &             operator ++ ();
+    IMFUTIL_EXPORT
     ConstIterator               operator ++ (int);
 
 
@@ -219,7 +240,9 @@ class FlatImageLevel::ConstIterator
     // and to the name of that channel.
     //
 
+    IMFUTIL_EXPORT
     const std::string &         name () const;
+    IMFUTIL_EXPORT
     const FlatImageChannel &    channel () const;
 
   private:

@@ -4,11 +4,11 @@ bin_PROGRAMS = exrmultipart
 
 INCLUDES = -I$(top_builddir) \
 -I$(top_srcdir)/IlmImf -I$(top_srcdir)/config \
-@ILMBASE_CXXFLAGS@
+@ILMBASE_CXXFLAGS@ $(ILMBASE_CFLAGS) $(ZLIB_CFLAGS)
 
-LDADD = @ILMBASE_LDFLAGS@ @ILMBASE_LIBS@ \
-$(top_builddir)/IlmImf/libIlmImf.la \
--lz
+LDADD = @ILMBASE_LDFLAGS@ $(ILMBASE_LIBS) \
+	$(top_builddir)/IlmImf/libIlmImf.la \
+	$(ZLIB_LIBS)
 
 exrmultipart_SOURCES = exrmultipart.cpp
 

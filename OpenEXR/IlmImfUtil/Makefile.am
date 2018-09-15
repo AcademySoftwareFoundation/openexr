@@ -17,10 +17,9 @@ libIlmImfUtil_la_SOURCES = \
 	ImfFlatImageIO.h ImfFlatImageIO.cpp \
 	ImfDeepImageIO.h ImfDeepImageIO.cpp \
 	ImfImageDataWindow.h ImfImageDataWindow.cpp \
-	ImfImageChannelRenaming.h
-	
+	ImfImageChannelRenaming.h ImfUtilExport.h
 
-libIlmImfUtil_la_LDFLAGS = @ILMBASE_LDFLAGS@ -version-info @LIBTOOL_VERSION@ \
+libIlmImfUtil_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ \
 			-no-undefined 
 
 
@@ -29,14 +28,15 @@ libIlmImfUtil_la_LDFLAGS += -release @LIB_SUFFIX@
 endif
 
 
-libIlmImfUtil_la_LIBADD =  -L$(top_builddir)/IlmImf @ILMBASE_LIBS@ -lIlmImf
+libIlmImfUtil_la_LIBADD =  -L$(top_builddir)/IlmImf $(ILMBASE_LIBS) -lIlmImf
 
 libIlmImfUtilincludedir = $(includedir)/OpenEXR
 
 EXTRA_DIST = CMakeLists.txt
 
-INCLUDES = @ILMBASE_CXXFLAGS@ \
-	   -I$(top_builddir)  \
-	   -I$(top_srcdir)/IlmImf  \
-	   -I$(top_srcdir)/config
+INCLUDES = \
+	   -I$(top_builddir) \
+	   -I$(top_srcdir)/IlmImf \
+	   -I$(top_srcdir)/config \
+	   @ILMBASE_CXXFLAGS@ $(ILMBASE_CFLAGS)
 

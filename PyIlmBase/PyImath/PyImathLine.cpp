@@ -32,16 +32,16 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <PyImathLine.h>
+#include "PyImathLine.h"
 #include "PyImathDecorators.h"
 #include "PyImathExport.h"
 #include <Python.h>
 #include <boost/python.hpp>
 #include <boost/python/make_constructor.hpp>
 #include <boost/format.hpp>
-#include <PyImath.h>
-#include <PyImathVec.h>
-#include <PyImathMathExc.h>
+#include "PyImath.h"
+#include "PyImathVec.h"
+#include "PyImathMathExc.h"
 #include <ImathLineAlgo.h>
 #include <ImathMatrix.h>
 #include <Iex.h>
@@ -427,13 +427,21 @@ static std::string Line3_repr(const Line3<T> &v)
 
     PyObject *v1Obj = V3<T>::wrap (v1);
     PyObject *v1ReprObj = PyObject_Repr (v1Obj);
+#if PY_MAJOR_VERSION > 2
+    std::string v1ReprStr = PyUnicode_AsUTF8 (v1ReprObj);
+#else
     std::string v1ReprStr = PyString_AsString (v1ReprObj);
+#endif
     Py_DECREF (v1ReprObj);
     Py_DECREF (v1Obj);
 
     PyObject *v2Obj = V3<T>::wrap (v2);
     PyObject *v2ReprObj = PyObject_Repr (v2Obj);
+#if PY_MAJOR_VERSION > 2
+    std::string v2ReprStr = PyUnicode_AsUTF8 (v2ReprObj);
+#else
     std::string v2ReprStr = PyString_AsString (v2ReprObj);
+#endif
     Py_DECREF (v2ReprObj);
     Py_DECREF (v2Obj);
 

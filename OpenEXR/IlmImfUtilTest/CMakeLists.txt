@@ -11,15 +11,15 @@ ADD_EXECUTABLE ( IlmImfUtilTest
   testIO.cpp
  )
 
+ SET_ILMBASE_INCLUDE_DIRS( IlmImfUtilTest )
 
 ADD_TEST ( TestIlmImfUtil IlmImfUtilTest )
-TARGET_LINK_LIBRARIES ( IlmImfUtilTest 
-        IlmImfUtil
-        IlmImf  
-        Half 
-        Iex${ILMBASE_LIBSUFFIX}
-        Imath${ILMBASE_LIBSUFFIX}
-        IlmThread${ILMBASE_LIBSUFFIX}
-        ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
-        )
-
+TARGET_LINK_LIBRARIES ( IlmImfUtilTest
+  OpenEXR::IlmImfUtil${OPENEXR_TARGET_SUFFIX}
+  OpenEXR::IlmImf${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Half${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
+  IlmBase::Imath${OPENEXR_TARGET_SUFFIX}
+  IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
+  ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
+  )

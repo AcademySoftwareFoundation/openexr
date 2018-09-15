@@ -1,24 +1,66 @@
 # pstanczyk@ilm.com
 
-IF(BUILD_SHARED_LIBS)
-    ADD_DEFINITIONS(-DIEXMATH_EXPORTS)
-ENDIF()
-ADD_LIBRARY ( IexMath ${LIB_TYPE}
-  IexMathFloatExc.cpp  
-  IexMathFpu.cpp
+SET (ILMBASE_LIB_TARGETS "")
+
+IF ( OPENEXR_BUILD_SHARED )
+  LIST ( APPEND ILMBASE_LIB_TARGETS IexMath )
+
+  ADD_LIBRARY ( IexMath SHARED
+    IexMathFloatExc.cpp
+    IexMathFpu.cpp
+    )
+
+  TARGET_COMPILE_DEFINITIONS ( IexMath PRIVATE IEXMATH_EXPORTS )
+  IF (WIN32)
+    TARGET_COMPILE_DEFINITIONS ( IexMath PUBLIC OPENEXR_DLL )
+  ENDIF ()
+
+  TARGET_LINK_LIBRARIES( IexMath
+    PUBLIC IlmBase::Iex )
+  SET_TARGET_PROPERTIES ( IexMath
+    PROPERTIES
+    VERSION ${OPENEXR_VERSION}
+    SOVERSION ${OPENEXR_SOVERSION}
+    OUTPUT_NAME "IexMath${ILMBASE_LIBSUFFIX}"
+    )
+ENDIF ()
+
+IF (BUILD_ILMBASE_STATIC)
+  LIST ( APPEND ILMBASE_LIB_TARGETS IexMath_static )
+
+  ADD_LIBRARY ( IexMath_static STATIC
+    IexMathFloatExc.cpp
+    IexMathFpu.cpp
+    )
+
+  SET_TARGET_PROPERTIES ( IexMath_static
+    PROPERTIES
+    VERSION ${ILMBASE_VERSION_MAJOR}.${ILMBASE_VERSION_MINOR}.${ILMBASE_VERSION_PATCH}
+    OUTPUT_NAME "IexMath${ILMBASE_LIBSUFFIX}_s"
+    )
+ENDIF( )
+
+IF (OPENEXR_BUILD_SHARED OR BUILD_ILMBASE_STATIC)
+  INSTALL ( TARGETS ${ILMBASE_LIB_TARGETS}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION ${RUNTIME_DIR}
   )
-TARGET_LINK_LIBRARIES(IexMath Iex)
+ENDIF ()
 
-INSTALL ( TARGETS
-  IexMath
+INSTALL (
+  FILES
+    IexMathFloatExc.h
+    IexMathFpu.h
+    IexMathIeeeExc.h
+
   DESTINATION
-  lib
+    include/OpenEXR
 )
 
-INSTALL ( FILES 
-  IexMathFloatExc.h  
-  IexMathFpu.h  
-  IexMathIeeeExc.h
-  DESTINATION
-  include/OpenEXR
-)
+if (OPENEXR_BUILD_SHARED)
+    add_library(IlmBase::IexMath ALIAS IexMath)
+endif()
+if (BUILD_ILMBASE_STATIC)
+    add_library(IlmBase::IexMath_static ALIAS IexMath_static)
+endif()

@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(PyIlmBase, 2.2.0)
-AC_SUBST(PYILMBASE_VERSION, 2.2.0)
+AC_INIT(PyIlmBase, 2.3.0)
+AC_SUBST(PYILMBASE_VERSION, 2.3.0)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(PyIex/iexmodule.cpp)
 AC_CONFIG_HEADER(config/PyIlmBaseConfig.h)
@@ -10,7 +10,7 @@ dnl static python modules make no sense - disable static
 AC_DISABLE_STATIC
 
 
-LIBTOOL_CURRENT=2
+LIBTOOL_CURRENT=24
 LIBTOOL_REVISION=2
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
@@ -32,6 +32,45 @@ if test -z "${PKG_CONFIG_PATH}"; then
 fi
 
 export PKG_CONFIG_PATH
+
+dnl Enable and choose c++ standard
+AC_ARG_ENABLE(cxxstd,
+              AC_HELP_STRING([--enable-cxxstd=14],
+                             [enable ISO c++ standard 11/14 [[default=auto]]]),
+              [cxxstd="${enableval}"], [cxxstd=14])
+
+if test "${cxxstd}" == 17 ; then
+    AX_CXX_COMPILE_STDCXX([17], [noext], [mandatory])
+	CXXFLAGS="$CXXFLAGS -std=c++17"
+else
+  if test "${cxxstd}" == 14 ; then
+      AX_CXX_COMPILE_STDCXX([14], [noext], [mandatory])
+  	CXXFLAGS="$CXXFLAGS -std=c++14"
+  else
+    if test "${cxxstd}" == 11 ; then
+      AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
+      CXXFLAGS="$CXXFLAGS -std=c++11"
+    else
+      if test "${cxxstd}" == 03 ; then
+        CXXFLAGS="$CXXFLAGS -std=c++03"
+      else
+        dnl automatically determine...
+        AX_CXX_COMPILE_STDCXX([11], [noext], [optional])
+        AX_CXX_COMPILE_STDCXX([14], [noext], [optional])
+        AX_CXX_COMPILE_STDCXX([17], [noext], [optional])
+        if test "$HAVE_CXX14" == 1 ; then
+  	      CXXFLAGS="$CXXFLAGS -std=c++14"
+          cxxstd = 14
+        else
+          if test "$HAVE_CXX11" == 1 ; then
+  	        CXXFLAGS="$CXXFLAGS -std=c++11"
+            cxxstd = 11
+          fi
+        fi
+      fi
+    fi
+  fi
+fi
 
 dnl
 dnl get ccflags and libs from openexr packages, then check 
@@ -69,14 +108,19 @@ LDFLAGS="$LDFLAGS $ILMBASE_LDFLAGS"
 
 dnl Checks for python and boost python
 AM_PATH_PYTHON
-PYTHON_INC_DIR=`$PYTHON -c 'from distutils.sysconfig import *; print get_python_inc()'`
-PYTHON_LIB_DIR=`$PYTHON -c 'from distutils.sysconfig import *; print get_config_var("LIBDIR")'`
+PYTHON_INC_DIR=`$PYTHON -c 'from distutils.sysconfig import *; print (get_python_inc())'`
+PYTHON_LIB_DIR=`$PYTHON -c 'from distutils.sysconfig import *; print (get_config_var("LIBDIR"))'`
+PYTHON_VER_MAJ=`echo $PYTHON_VERSION|cut -d. -f1`
 LIBS="$LIBS -lpython$PYTHON_VERSION"
 
 BOOST_PYTHON_CXXFLAGS="" 
 BOOST_PYTHON_LDFLAGS="" 
-BOOST_PYTHON_LIBS="" 
-BOOST_PYTHON_LIBNAME="boost_python"
+BOOST_PYTHON_LIBS=""
+if test "${PYTHON_VER_MAJ}" == 3 ; then
+  BOOST_PYTHON_LIBNAME="boost_python3"
+else
+  BOOST_PYTHON_LIBNAME="boost_python"
+fi
 
 AC_ARG_WITH(
    [boost-include-dir],
@@ -139,7 +183,7 @@ case "$host" in
   ;;
 esac
 
-NUMPY_CXXFLAGS=`$PYTHON -c 'from numpy.distutils.misc_util import *; import string; print string.join(@<:@"-I"+x for x in get_numpy_include_dirs()@:>@," ")'`
+NUMPY_CXXFLAGS=`$PYTHON -c 'from numpy.distutils.misc_util import *; import string; print (" ".join(@<:@"-I"+x for x in get_numpy_include_dirs()@:>@))'`
 
 AC_ARG_WITH([numpy],
   [AS_HELP_STRING([--without-numpy],
@@ -180,6 +224,8 @@ PyImath/Makefile
 PyImathTest/Makefile
 PyImathTest/pyImathTest
 PyImathNumpy/Makefile
+PyImathNumpyTest/Makefile
+PyImathNumpyTest/pyImathNumpyTest
 ])
 
 AC_OUTPUT

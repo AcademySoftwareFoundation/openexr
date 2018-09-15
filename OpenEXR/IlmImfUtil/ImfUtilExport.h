@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002-2012, Industrial Light & Magic, a division of Lucas
+// Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
 // 
 // All rights reserved.
@@ -32,23 +32,15 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-
-
-
-//----------------------------------------------------------------------------
-//
-//	Specializations of the Shear6<T> template.
-//
-//----------------------------------------------------------------------------
-
-#include "ImathShear.h"
-
-IMATH_INTERNAL_NAMESPACE_SOURCE_ENTER
-
-
-
-// empty
-
-
-
-IMATH_INTERNAL_NAMESPACE_SOURCE_EXIT
+#if defined(OPENEXR_DLL)
+    #if defined(ILMIMFUTIL_EXPORTS)
+        #define IMFUTIL_EXPORT __declspec(dllexport)
+        #define IMFUTIL_EXPORT_CONST extern __declspec(dllexport)
+    #else
+        #define IMFUTIL_EXPORT __declspec(dllimport)
+        #define IMFUTIL_EXPORT_CONST extern __declspec(dllimport)
+    #endif
+#else
+    #define IMFUTIL_EXPORT
+    #define IMFUTIL_EXPORT_CONST extern const
+#endif

@@ -2,39 +2,81 @@
 
 SET(CMAKE_INCLUDE_CURRENT_DIR 1)
 
-ADD_EXECUTABLE ( b44ExpLogTable
-  b44ExpLogTable.cpp
-)
+IF (WIN32)
+  SET(RUNTIME_DIR ${OPENEXR_PACKAGE_PREFIX}/bin)
+  SET(WORKING_DIR ${RUNTIME_DIR})
+ELSE ()
+  SET(RUNTIME_DIR ${OPENEXR_PACKAGE_PREFIX}/lib)
+  SET(WORKING_DIR .)
+ENDIF ()
 
-TARGET_LINK_LIBRARIES ( b44ExpLogTable
-  Half
-  IlmThread${ILMBASE_LIBSUFFIX}
-  Iex${ILMBASE_LIBSUFFIX}
-  ${PTHREAD_LIB}
-)
+SET(BUILD_B44EXPLOGTABLE OFF)
+IF (NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h")
+  SET(BUILD_B44EXPLOGTABLE ON)
+ENDIF ()
 
-ADD_CUSTOM_COMMAND (
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
-  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/b44ExpLogTable > ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
-  DEPENDS b44ExpLogTable
-)
+IF (BUILD_B44EXPLOGTABLE)
+  ADD_EXECUTABLE ( b44ExpLogTable
+    b44ExpLogTable.cpp
+  )
 
-ADD_EXECUTABLE ( dwaLookups
-  dwaLookups.cpp
-)
+  IF (WIN32)
+    TARGET_LINK_LIBRARIES ( b44ExpLogTable
+      IlmBase::Half_static
+      IlmBase::IlmThread_static
+      IlmBase::Iex_static)
+  ELSE()
+    TARGET_LINK_LIBRARIES ( b44ExpLogTable
+      IlmBase::Half${OPENEXR_TARGET_SUFFIX}
+      IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
+      IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
+      ${PTHREAD_LIB})
+  ENDIF()
 
-TARGET_LINK_LIBRARIES ( dwaLookups
-  Half
-  IlmThread${ILMBASE_LIBSUFFIX}
-  Iex${ILMBASE_LIBSUFFIX}
-  ${PTHREAD_LIB}
-)
+  TARGET_INCLUDE_DIRECTORIES ( b44ExpLogTable
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../IlmBase/Half
+  )
 
-ADD_CUSTOM_COMMAND (
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
-  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/dwaLookups > ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
-  DEPENDS dwaLookups
-)
+  ADD_CUSTOM_COMMAND (
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
+    COMMAND $<TARGET_FILE:b44ExpLogTable> > ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
+    DEPENDS b44ExpLogTable
+  )
+
+ELSE ()
+  message (STATUS "Skipping build of b44ExpLogTable.h")
+ENDIF()
+
+if (NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h")
+  ADD_EXECUTABLE ( dwaLookups
+    dwaLookups.cpp
+  )
+
+  SET(BUILD_DWALOOKUPS ON)
+
+  SET_ILMBASE_INCLUDE_DIRS(dwaLookups)
+
+  IF (WIN32)
+    TARGET_LINK_LIBRARIES ( dwaLookups
+      IlmBase::Half_static
+      IlmBase::IlmThread_static
+      IlmBase::Iex_static)
+  ELSE()
+    TARGET_LINK_LIBRARIES ( dwaLookups
+      IlmBase::Half${OPENEXR_TARGET_SUFFIX}
+      IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
+      IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
+      ${PTHREAD_LIB})
+  ENDIF()
+
+  ADD_CUSTOM_COMMAND (
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
+    COMMAND $<TARGET_FILE:dwaLookups> > ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
+    DEPENDS dwaLookups
+  )
+ELSE ()
+  message (STATUS "Skipping build of dwaLookups.h")
+ENDIF()
 
 SET ( ILMIMF_SRCS
   ImfAttribute.cpp
@@ -128,139 +170,194 @@ SET ( ILMIMF_SRCS
   ImfZip.cpp
 )
 
-IF (BUILD_SHARED_LIBS)
-    ADD_DEFINITIONS(-DILMIMF_EXPORTS)
-ENDIF()
+IF (BUILD_B44EXPLOGTABLE)
+  SET_SOURCE_FILES_PROPERTIES (
+    ImfB44Compressor.cpp
+    PROPERTIES
+    OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
+  )
+ENDIF ()
 
-ADD_LIBRARY ( IlmImf ${LIB_TYPE}
-  ${ILMIMF_SRCS}
-)
+IF (BUILD_DWALOOKUPS)
+  SET_SOURCE_FILES_PROPERTIES (
+    ImfDwaCompressor.cpp
+    PROPERTIES
+    OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
+  )
+ENDIF ()
 
-TARGET_LINK_LIBRARIES ( IlmImf 
-  Half 
-  Iex${ILMBASE_LIBSUFFIX}
-  Imath${ILMBASE_LIBSUFFIX}
-  IlmThread${ILMBASE_LIBSUFFIX}
-  ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
-)
+SET (OPENEXR_LIB_TARGETS "")
 
+IF ( OPENEXR_BUILD_SHARED )
+  LIST ( APPEND OPENEXR_LIB_TARGETS IlmImf )
 
-ADD_DEPENDENCIES ( IlmImf b44ExpLogTable )
+  ADD_LIBRARY ( IlmImf SHARED ${ILMIMF_SRCS} )
 
-SET_SOURCE_FILES_PROPERTIES (
-  ImfB44Compressor.cpp
-  PROPERTIES
-  OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
-)
+  TARGET_COMPILE_DEFINITIONS ( IlmImf PRIVATE ILMIMF_EXPORTS )
+  IF (WIN32)
+    TARGET_COMPILE_DEFINITIONS ( IlmImf PUBLIC OPENEXR_DLL )
+    TARGET_COMPILE_DEFINITIONS ( IlmImf PUBLIC _CRT_SECURE_NO_WARNINGS )
+  ENDIF ()
 
+  TARGET_LINK_LIBRARIES ( IlmImf
+    PUBLIC  IlmBase::Iex
+    PUBLIC  IlmBase::Half
+    PUBLIC  IlmBase::Imath
+    PUBLIC  IlmBase::IlmThread
+    PRIVATE ${PTHREAD_LIB}
+    PRIVATE ${ZLIB_LIBRARIES}
+  )
+  SET_ILMBASE_INCLUDE_DIRS(IlmImf)
 
-ADD_DEPENDENCIES ( IlmImf dwaLookups )
+  SET_TARGET_PROPERTIES ( IlmImf
+    PROPERTIES
+    VERSION ${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH}
+    SOVERSION ${OPENEXR_SOVERSION}
+    OUTPUT_NAME "IlmImf${OPENEXR_LIBSUFFIX}"
+    )
 
-SET_SOURCE_FILES_PROPERTIES (
-  ImfDwaCompressor.cpp
-  PROPERTIES
-  OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
-)
+  IF (BUILD_DWALOOKUPS)
+    ADD_DEPENDENCIES ( IlmImf dwaLookups )
+  ENDIF ()
 
-# Libraries
+  IF (BUILD_B44EXPLOGTABLE)
+    ADD_DEPENDENCIES ( IlmImf b44ExpLogTable )
+  ENDIF()
 
-INSTALL ( TARGETS
-  IlmImf
+ENDIF ()
+
+IF (OPENEXR_BUILD_STATIC)
+  LIST ( APPEND OPENEXR_LIB_TARGETS IlmImf_static )
+
+  ADD_LIBRARY ( IlmImf_static STATIC ${ILMIMF_SRCS} )
+
+  SET_TARGET_PROPERTIES ( IlmImf_static
+    PROPERTIES
+    VERSION ${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH}
+    OUTPUT_NAME "IlmImf${OPENEXR_LIBSUFFIX}_s"
+    )
+    SET_ILMBASE_INCLUDE_DIRS(IlmImf_static)
+
+  IF (WIN32)
+    TARGET_COMPILE_DEFINITIONS ( IlmImf_static PUBLIC _CRT_SECURE_NO_WARNINGS )
+  ENDIF ()
+
+  iF (BUILD_DWALOOKUPS)
+    ADD_DEPENDENCIES ( IlmImf_static b44ExpLogTable )
+  ENDIF ()
+
+  IF (BUILD_B44EXPLOGTABLE)
+    ADD_DEPENDENCIES ( IlmImf_static dwaLookups )
+  ENDIF()
+
+ENDIF ()
+
+IF (OPENEXR_BUILD_SHARED OR OPENEXR_BUILD_STATIC)
+  INSTALL ( TARGETS ${OPENEXR_LIB_TARGETS}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION ${RUNTIME_DIR}
+  )
+ENDIF ()
+
+INSTALL (
+  FILES
+    ImfForward.h
+    ImfExport.h
+    ImfAttribute.h
+    ImfBoxAttribute.h
+    ImfCRgbaFile.h
+    ImfChannelList.h
+    ImfChannelListAttribute.h
+    ImfCompressionAttribute.h
+    ImfDoubleAttribute.h
+    ImfFloatAttribute.h
+    ImfFrameBuffer.h
+    ImfHeader.h
+    ImfIO.h
+    ImfInputFile.h
+    ImfIntAttribute.h
+    ImfLineOrderAttribute.h
+    ImfMatrixAttribute.h
+    ImfOpaqueAttribute.h
+    ImfOutputFile.h
+    ImfRgbaFile.h
+    ImfStringAttribute.h
+    ImfVecAttribute.h
+    ImfHuf.h
+    ImfWav.h
+    ImfLut.h
+    ImfArray.h
+    ImfCompression.h
+    ImfLineOrder.h
+    ImfName.h
+    ImfPixelType.h
+    ImfVersion.h
+    ImfXdr.h
+    ImfConvert.h
+    ImfPreviewImage.h
+    ImfPreviewImageAttribute.h
+    ImfChromaticities.h
+    ImfChromaticitiesAttribute.h
+    ImfKeyCode.h
+    ImfKeyCodeAttribute.h
+    ImfTimeCode.h
+    ImfTimeCodeAttribute.h
+    ImfRational.h
+    ImfRationalAttribute.h
+    ImfFramesPerSecond.h
+    ImfStandardAttributes.h
+    ImfStdIO.h
+    ImfEnvmap.h
+    ImfEnvmapAttribute.h
+    ImfInt64.h
+    ImfRgba.h
+    ImfTileDescription.h
+    ImfTileDescriptionAttribute.h
+    ImfTiledInputFile.h
+    ImfTiledOutputFile.h
+    ImfTiledRgbaFile.h
+    ImfRgbaYca.h
+    ImfTestFile.h
+    ImfThreading.h
+    ImfB44Compressor.h
+    ImfStringVectorAttribute.h
+    ImfMultiView.h
+    ImfAcesFile.h
+    ImfMultiPartOutputFile.h
+    ImfGenericOutputFile.h
+    ImfMultiPartInputFile.h
+    ImfGenericInputFile.h
+    ImfPartType.h
+    ImfPartHelper.h
+    ImfOutputPart.h
+    ImfTiledOutputPart.h
+    ImfInputPart.h
+    ImfTiledInputPart.h
+    ImfDeepScanLineOutputFile.h
+    ImfDeepScanLineOutputPart.h
+    ImfDeepScanLineInputFile.h
+    ImfDeepScanLineInputPart.h
+    ImfDeepTiledInputFile.h
+    ImfDeepTiledInputPart.h
+    ImfDeepTiledOutputFile.h
+    ImfDeepTiledOutputPart.h
+    ImfDeepFrameBuffer.h
+    ImfDeepCompositing.h
+    ImfCompositeDeepScanLine.h
+    ImfNamespace.h
+    ImfMisc.h
+    ImfDeepImageState.h
+    ImfDeepImageStateAttribute.h
+    ImfFloatVectorAttribute.h
+
   DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/lib
+    include/OpenEXR
 )
 
-# Headers
-INSTALL ( FILES
-  ImfForward.h
-  ImfExport.h
-  ImfAttribute.h
-  ImfBoxAttribute.h
-  ImfCRgbaFile.h
-  ImfChannelList.h
-  ImfChannelListAttribute.h
-  ImfCompressionAttribute.h
-  ImfDoubleAttribute.h
-  ImfFloatAttribute.h
-  ImfFrameBuffer.h
-  ImfHeader.h
-  ImfIO.h
-  ImfInputFile.h
-  ImfIntAttribute.h
-  ImfLineOrderAttribute.h
-  ImfMatrixAttribute.h
-  ImfOpaqueAttribute.h
-  ImfOutputFile.h
-  ImfRgbaFile.h
-  ImfStringAttribute.h
-  ImfVecAttribute.h
-  ImfHuf.h
-  ImfWav.h
-  ImfLut.h
-  ImfArray.h
-  ImfCompression.h
-  ImfLineOrder.h
-  ImfName.h
-  ImfPixelType.h
-  ImfVersion.h
-  ImfXdr.h
-  ImfConvert.h
-  ImfPreviewImage.h
-  ImfPreviewImageAttribute.h
-  ImfChromaticities.h
-  ImfChromaticitiesAttribute.h
-  ImfKeyCode.h
-  ImfKeyCodeAttribute.h
-  ImfTimeCode.h
-  ImfTimeCodeAttribute.h
-  ImfRational.h
-  ImfRationalAttribute.h
-  ImfFramesPerSecond.h
-  ImfStandardAttributes.h
-  ImfStdIO.h
-  ImfEnvmap.h
-  ImfEnvmapAttribute.h
-  ImfInt64.h
-  ImfRgba.h
-  ImfTileDescription.h
-  ImfTileDescriptionAttribute.h
-  ImfTiledInputFile.h
-  ImfTiledOutputFile.h
-  ImfTiledRgbaFile.h
-  ImfRgbaYca.h
-  ImfTestFile.h
-  ImfThreading.h
-  ImfB44Compressor.h
-  ImfStringVectorAttribute.h
-  ImfMultiView.h
-  ImfAcesFile.h
-  ImfMultiPartOutputFile.h
-  ImfGenericOutputFile.h
-  ImfMultiPartInputFile.h
-  ImfGenericInputFile.h
-  ImfPartType.h
-  ImfPartHelper.h
-  ImfOutputPart.h
-  ImfTiledOutputPart.h
-  ImfInputPart.h
-  ImfTiledInputPart.h
-  ImfDeepScanLineOutputFile.h
-  ImfDeepScanLineOutputPart.h
-  ImfDeepScanLineInputFile.h
-  ImfDeepScanLineInputPart.h
-  ImfDeepTiledInputFile.h
-  ImfDeepTiledInputPart.h
-  ImfDeepTiledOutputFile.h
-  ImfDeepTiledOutputPart.h
-  ImfDeepFrameBuffer.h
-  ImfDeepCompositing.h
-  ImfCompositeDeepScanLine.h
-  ImfNamespace.h
-  ImfMisc.h
-  ImfDeepImageState.h
-  ImfDeepImageStateAttribute.h
-  ImfFloatVectorAttribute.h
-  DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
-)
-
+if (OPENEXR_BUILD_SHARED)
+    add_library(OpenEXR::IlmImf ALIAS IlmImf)
+endif()
+if (OPENEXR_BUILD_STATIC)
+    add_library(OpenEXR::IlmImf_static ALIAS IlmImf_static)
+endif()
