@@ -22,6 +22,10 @@ REM # Clean Build Tree #
 rd /s /q %BUILDTREE%
 mkdir %BUILDTREE%
 mkdir %BUILDTREE%\deps
+
+REM # Change to Build Tree drive #
+%_SCRIPT_DRIVE%
+REM # Change to Build Tree directory #
 cd %BUILDTREE%
 
 :nuget_Dep
@@ -31,6 +35,9 @@ cd %BUILDTREE%\deps
 SET VER=1.2.11.8899
 set ZLIBDIR=%BUILDTREE%\deps\zlib-msvc-%tbs_arch%.%VER%\build\native
 nuget install zlib-msvc-%tbs_arch% -Version %VER%
+SET VER=1.3.4.8788
+set FLTKDIR=%BUILDTREE%\deps\FLTK-msvc-%tbs_arch%.%VER%\build\native
+nuget install FLTK-msvc-%tbs_arch% -Version %VER%
 
 :copy_files
 set BINDIR=%SRC%\build-nuget\
@@ -44,74 +51,75 @@ echo %BINDIR%
 REM # LIB STATIC #
 ECHO %cmake_platform% STATIC
 
-rd /s /q %BUILDTREE%\IlmBase
-mkdir %BUILDTREE%\IlmBase
-cd %BUILDTREE%\IlmBase
-cmake -G %cmake_platform% ^
--DBUILD_SHARED_LIBS:BOOL=OFF ^
--DCMAKE_CXX_FLAGS_RELEASE="/MD" ^
--DCMAKE_CXX_FLAGS_DEBUG="/MDd" ^
--DCMAKE_C_FLAGS_RELEASE="/MD" ^
--DCMAKE_C_FLAGS_DEBUG="/MDd" ^
--DZLIB_LIBRARY=%ZLIBDIR%\lib_release\zlibstatic.lib ^
--DZLIB_INCLUDE_DIR=%ZLIBDIR%\include ^
--DCMAKE_INSTALL_PREFIX=%BINDIR% ^
--DCMAKE_BUILD_TYPE="Release" %SRC%\IlmBase
-cmake --build . --config Release --target install
-
 rd /s /q %BUILDTREE%\OpenEXR
 mkdir %BUILDTREE%\OpenEXR
 cd %BUILDTREE%\OpenEXR
 cmake -G %cmake_platform% ^
--DBUILD_SHARED_LIBS:BOOL=OFF ^
+-DBUILD_ILMBASE_STATIC:BOOL=ON ^
+-DOPENEXR_BUILD_ILMBASE:BOOL=ON ^
+-DOPENEXR_BUILD_OPENEXR:BOOL=ON ^
+-DOPENEXR_BUILD_PYTHON_LIBS:BOOL=OFF ^
+-DOPENEXR_BUILD_VIEWERS:BOOL=ON ^
+-DOPENEXR_BUILD_TESTS:BOOL=ON ^
+-DOPENEXR_RUN_FUZZ_TESTS:BOOL=OFF ^
+-DOPENEXR_BUILD_UTILS:BOOL=ON ^
+-DOPENEXR_BUILD_SHARED:BOOL=OFF ^
+-DOPENEXR_BUILD_STATIC:BOOL=ON ^
 -DCMAKE_CXX_FLAGS_RELEASE="/MD" ^
 -DCMAKE_CXX_FLAGS_DEBUG="/MDd" ^
 -DCMAKE_C_FLAGS_RELEASE="/MD" ^
 -DCMAKE_C_FLAGS_DEBUG="/MDd" ^
 -DZLIB_LIBRARY=%ZLIBDIR%\lib_release\zlibstatic.lib ^
 -DZLIB_INCLUDE_DIR=%ZLIBDIR%\include ^
+-DFLTK_BASE_LIBRARY_RELEASE=%FLTKDIR%\lib_release\fltk.lib ^
+-DFLTK_GL_LIBRARY_RELEASE=%FLTKDIR%\lib_release\fltk_gl.lib ^
+-DFLTK_FORMS_LIBRARY_RELEASE=%FLTKDIR%\lib_release\fltk_forms.lib ^
+-DFLTK_IMAGES_LIBRARY_RELEASE=%FLTKDIR%\lib_release\fltk_images.lib ^
+-DFLTK_BASE_LIBRARY_DEBUG=%FLTKDIR%\lib_debug\fltkd.lib ^
+-DFLTK_GL_LIBRARY_DEBUG=%FLTKDIR%\lib_debug\fltk_gld.lib ^
+-DFLTK_FORMS_LIBRARY_DEBUG=%FLTKDIR%\lib_debug\fltk_formsd.lib ^
+-DFLTK_IMAGES_LIBRARY_DEBUG=%FLTKDIR%\lib_debug\fltk_imagesd.lib ^
+-DFLTK_INCLUDE_DIR=%FLTKDIR%\include ^
 -DCMAKE_INSTALL_PREFIX=%BINDIR% ^
--DILMBASE_PACKAGE_PREFIX=%BINDIR% ^
--DCMAKE_BUILD_TYPE="Release" %SRC%\OpenEXR
+-DCMAKE_BUILD_TYPE="Release" %SRC%
 cmake --build . --config Release --target install
 
 move %BINDIR%lib %BINDIR%lib_release
 move %BINDIR%bin %BINDIR%bin_release
 
-REM # Clean Build Tree #
-rd /s /q %BUILDTREE%\IlmBase
-rd /s /q %BUILDTREE%\OpenEXR
-
 REM # DEBUG #
-rd /s /q %BUILDTREE%\IlmBase
-mkdir %BUILDTREE%\IlmBase
-cd %BUILDTREE%\IlmBase
-cmake -G %cmake_platform% ^
--DBUILD_SHARED_LIBS:BOOL=OFF ^
--DCMAKE_CXX_FLAGS_RELEASE="/MD" ^
--DCMAKE_CXX_FLAGS_DEBUG="/MDd" ^
--DCMAKE_C_FLAGS_RELEASE="/MD" ^
--DCMAKE_C_FLAGS_DEBUG="/MDd" ^
--DZLIB_LIBRARY=%ZLIBDIR%\lib_debug\zlibstaticd.lib ^
--DZLIB_INCLUDE_DIR=%ZLIBDIR%\include ^
--DCMAKE_INSTALL_PREFIX=%BINDIR% ^
--DCMAKE_BUILD_TYPE="DEBUG" %SRC%\IlmBase
-cmake --build . --config DEBUG --target install
-
+REM # Clean Build Tree #
 rd /s /q %BUILDTREE%\OpenEXR
 mkdir %BUILDTREE%\OpenEXR
 cd %BUILDTREE%\OpenEXR
 cmake -G %cmake_platform% ^
--DBUILD_SHARED_LIBS:BOOL=OFF ^
+-DBUILD_ILMBASE_STATIC:BOOL=ON ^
+-DOPENEXR_BUILD_ILMBASE:BOOL=ON ^
+-DOPENEXR_BUILD_OPENEXR:BOOL=ON ^
+-DOPENEXR_BUILD_PYTHON_LIBS:BOOL=OFF ^
+-DOPENEXR_BUILD_VIEWERS:BOOL=ON ^
+-DOPENEXR_BUILD_TESTS:BOOL=ON ^
+-DOPENEXR_RUN_FUZZ_TESTS:BOOL=OFF ^
+-DOPENEXR_BUILD_UTILS:BOOL=ON ^
+-DOPENEXR_BUILD_SHARED:BOOL=OFF ^
+-DOPENEXR_BUILD_STATIC:BOOL=ON ^
 -DCMAKE_CXX_FLAGS_RELEASE="/MD" ^
 -DCMAKE_CXX_FLAGS_DEBUG="/MDd" ^
 -DCMAKE_C_FLAGS_RELEASE="/MD" ^
 -DCMAKE_C_FLAGS_DEBUG="/MDd" ^
 -DZLIB_LIBRARY=%ZLIBDIR%\lib_debug\zlibstaticd.lib ^
 -DZLIB_INCLUDE_DIR=%ZLIBDIR%\include ^
+-DFLTK_BASE_LIBRARY_RELEASE=%FLTKDIR%\lib_release\fltk.lib ^
+-DFLTK_GL_LIBRARY_RELEASE=%FLTKDIR%\lib_release\fltk_gl.lib ^
+-DFLTK_FORMS_LIBRARY_RELEASE=%FLTKDIR%\lib_release\fltk_forms.lib ^
+-DFLTK_IMAGES_LIBRARY_RELEASE=%FLTKDIR%\lib_release\fltk_images.lib ^
+-DFLTK_BASE_LIBRARY_DEBUG=%FLTKDIR%\lib_debug\fltkd.lib ^
+-DFLTK_GL_LIBRARY_DEBUG=%FLTKDIR%\lib_debug\fltk_gld.lib ^
+-DFLTK_FORMS_LIBRARY_DEBUG=%FLTKDIR%\lib_debug\fltk_formsd.lib ^
+-DFLTK_IMAGES_LIBRARY_DEBUG=%FLTKDIR%\lib_debug\fltk_imagesd.lib ^
+-DFLTK_INCLUDE_DIR=%FLTKDIR%\include ^
 -DCMAKE_INSTALL_PREFIX=%BINDIR% ^
--DILMBASE_PACKAGE_PREFIX=%BINDIR% ^
--DCMAKE_BUILD_TYPE="DEBUG" %SRC%\OpenEXR
+-DCMAKE_BUILD_TYPE="DEBUG" %SRC%
 cmake --build . --config DEBUG --target install
 
 move %BINDIR%lib %BINDIR%lib_debug
@@ -128,6 +136,7 @@ ECHO %cmake_platform% SHARED
 
 
 :nuget_req
+cd %BINDIR%
 REM # make nuget packages from binaries #
 copy %INITDIR%\OpenEXR-msvc-%tbs_arch%.targets %BINDIR%\OpenEXR-msvc-%tbs_arch%.targets
 cd %BUILDTREE%
