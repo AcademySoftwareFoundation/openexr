@@ -75,8 +75,12 @@ To generate Visual Studio solution files and build the libraries:
        setlocal
        del /f CMakeCache.txt
        cmake -DCMAKE_INSTALL_PREFIX=<where you want to install the ilmbase builds>
-           -G "Visual Studio 10 Win64" 
+           -G "Visual Studio 15 2017 Win64" 
            ..\ilmbase
+
+   Note: The "15 2017" indicates the specific Visual Studio version;
+   if compiling for a different version, replace this with the proper
+   target version string.
 
 2. Navigate to ``IlmBase`` folder in Windows Explorer, open ``ILMBase.sln``
    and build the solution. When it builds successfully, right click
