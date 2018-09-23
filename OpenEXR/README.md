@@ -83,6 +83,9 @@ CMakeLists.txt file to build all the libraries at once.
 
 #### Building on Windows using **cmake**
 
+See the ``README`` file in the IlmBase library for a guide to building
+on Windows.
+
 #### Building on **macOS**
 
 **macOS** supports multiple architectures. By default, IlmBase will be
