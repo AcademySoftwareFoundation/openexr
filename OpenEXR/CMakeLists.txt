@@ -248,3 +248,32 @@ INSTALL ( FILES
   DESTINATION
   ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${OPENEXR_VERSION}/examples
   )
+
+IF ( NOT WIN32 )
+  SET(prefix ${CMAKE_INSTALL_PREFIX})
+  SET(exec_prefix "\${prefix}")
+  SET(libdir "\${exec_prefix}/lib")
+  SET(includedir "\${prefix}/include")
+  #already set... SET(OPENEXR_VERSION )
+
+  IF (OPENEXR_BUILD_SHARED)
+    SET(LIB_SUFFIX_DASH ${OPENEXR_LIBSUFFIX})
+  ELSE()
+    SET(LIB_SUFFIX_DASH ${OPENEXR_LIBSUFFIX}_s)
+  ENDIF()
+
+  CONFIGURE_FILE(OpenEXR.pc.in ${CMAKE_BINARY_DIR}/OpenEXR.pc @ONLY)
+
+  UNSET(LIB_SUFFIX_DASH)
+  UNSET(PTHREAD_LIBS)
+  UNSET(includedir)
+  UNSET(libdir)
+  UNSET(exec_prefix)
+  UNSET(prefix)
+
+  INSTALL ( FILES
+    ${CMAKE_BINARY_DIR}/OpenEXR.pc
+    DESTINATION
+    lib/pkgconfig
+  )
+ENDIF()

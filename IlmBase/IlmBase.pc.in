@@ -7,5 +7,5 @@ OpenEXR_includedir=@includedir@/OpenEXR
 Name: IlmBase
 Description: Base math and exception libraries
 Version: @ILMBASE_VERSION@
-Libs: -L${libdir} -lImath -lHalf -lIex -lIexMath -lIlmThread @PTHREAD_LIBS@
+Libs: -L${libdir} -lImath@LIB_SUFFIX_DASH@ -lHalf@LIB_SUFFIX_DASH@ -lIex@LIB_SUFFIX_DASH@ -lIexMath@LIB_SUFFIX_DASH@ -lIlmThread@LIB_SUFFIX_DASH@ @PTHREAD_LIBS@
 Cflags: @PTHREAD_CFLAGS@ -I${OpenEXR_includedir}

@@ -190,18 +190,29 @@ INSTALL ( FILES
 )
 
 IF ( NOT WIN32 )
-  FILE ( WRITE ${CMAKE_BINARY_DIR}/IlmBase.pc "prefix=${CMAKE_INSTALL_PREFIX}\n" )
-  FILE ( APPEND ${CMAKE_BINARY_DIR}/IlmBase.pc "exec_prefix=\${prefix}
-libdir=\${exec_prefix}/lib
-includedir=\${prefix}/include
-OpenEXR_includedir=\${prefix}/include/OpenEXR
+  SET(prefix ${CMAKE_INSTALL_PREFIX})
+  SET(exec_prefix "\${prefix}")
+  SET(libdir "\${exec_prefix}/lib")
+  SET(includedir "\${prefix}/include")
+  SET(OpenEXR_includedir "\${prefix}/include/OpenEXR")
+  SET(PTHREAD_LIBS "-lpthread")
+  #already set... SET(ILMBASE_VERSION )
 
-Name: IlmBase
-Description: Base math and exception libraries
-Version: ${ILMBASE_VERSION}
-Libs: -L\${libdir} -lImath${ILMBASE_LIBSUFFIX} -lIexMath${ILMBASE_LIBSUFFIX} -lHalf${ILMBASE_LIBSUFFIX} -lIex${ILMBASE_LIBSUFFIX} -lIlmThread${ILMBASE_LIBSUFFIX} -pthread
-Cflags: -pthread -I\${OpenEXR_includedir}
-")
+  IF (OPENEXR_BUILD_SHARED)
+    SET(LIB_SUFFIX_DASH ${ILMBASE_LIBSUFFIX})
+  ELSE()
+    SET(LIB_SUFFIX_DASH ${ILMBASE_LIBSUFFIX}_s)
+  ENDIF()
+
+  CONFIGURE_FILE(IlmBase.pc.in ${CMAKE_BINARY_DIR}/IlmBase.pc @ONLY)
+
+  UNSET(LIB_SUFFIX_DASH)
+  UNSET(PTHREAD_LIBS)
+  UNSET(OpenEXR_includedir)
+  UNSET(includedir)
+  UNSET(libdir)
+  UNSET(exec_prefix)
+  UNSET(prefix)
 
   INSTALL ( FILES
     ${CMAKE_BINARY_DIR}/IlmBase.pc
