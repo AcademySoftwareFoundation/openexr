@@ -35,14 +35,13 @@
 //-----------------------------------------------------------------------------
 //
 //	class Semaphore -- implementation for for platforms that do
-//	support Posix threads but do not support Posix semaphores,
-//	for example, OS X
+//	support Posix threads but do not support Posix semaphores
 //
 //-----------------------------------------------------------------------------
 
 #include "IlmBaseConfig.h"
 
-#if (!HAVE_POSIX_SEMAPHORES) && !defined (_WIN32) && ! defined (_WIN64)
+#if (!HAVE_POSIX_SEMAPHORES) && !defined (_WIN32) && ! defined (_WIN64) && ! defined (__APPLE__)
 
 #include "IlmThreadSemaphore.h"
 #include "Iex.h"

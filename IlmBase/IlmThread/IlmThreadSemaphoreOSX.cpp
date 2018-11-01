@@ -32,101 +32,67 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef INCLUDED_ILM_THREAD_SEMAPHORE_H
-#define INCLUDED_ILM_THREAD_SEMAPHORE_H
-
 //-----------------------------------------------------------------------------
 //
-//	class Semaphore -- a wrapper class for
-//	system-dependent counting semaphores
+//	class Semaphore -- implementation for OSX platform(it don't support unnamed Posix semaphores)
+//	std::condition_variable + std::mutex emulation show poor performance
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmBaseConfig.h"
-#include "IlmThreadExport.h"
-#include "IlmThreadNamespace.h"
+#if __APPLE__
 
-#if defined _WIN32 || defined _WIN64
-#   ifdef NOMINMAX
-#      undef NOMINMAX
-#   endif
-#   define NOMINMAX
-#   include <windows.h>
-#elif HAVE_POSIX_SEMAPHORES
-#   include <semaphore.h>
-#elif __APPLE__
-#   include <dispatch/dispatch.h>
-#else
-#   ifdef ILMBASE_FORCE_CXX03
-#      if HAVE_PTHREAD
-#         include <pthread.h>
-#      endif
-#   else
-#      include <mutex>
-#      include <condition_variable>
-#   endif
-#endif
+#include "IlmThreadSemaphore.h"
+#include "Iex.h"
 
-ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
+ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
-class ILMTHREAD_EXPORT Semaphore
+Semaphore::Semaphore (unsigned int value)
 {
-  public:
+    // Calls to dispatch_semaphore_signal must be balanced with calls to wait().
+    // Attempting to dispose of a semaphore with a count lower than value causes an EXC_BAD_INSTRUCTION exception.
+    _semaphore = dispatch_semaphore_create (0);
+    while (value--)
+        post ();
+}
 
-    Semaphore (unsigned int value = 0);
-    virtual ~Semaphore();
 
-    void	wait();
-    bool	tryWait();
-    void	post();
-    int		value() const;
+Semaphore::~Semaphore ()
+{
+    dispatch_release (_semaphore);
+}
 
-  private:
 
-#if defined _WIN32 || defined _WIN64
+void
+Semaphore::wait ()
+{
+    dispatch_semaphore_wait (_semaphore, DISPATCH_TIME_FOREVER);
+}
 
-	mutable HANDLE _semaphore;
 
-#elif defined(HAVE_POSIX_SEMAPHORES)
+bool
+Semaphore::tryWait ()
+{
+    return dispatch_semaphore_wait (_semaphore, DISPATCH_TIME_NOW) == 0;
+}
 
-	mutable sem_t _semaphore;
 
-#elif defined(__APPLE__)
-	mutable dispatch_semaphore_t _semaphore;
+void
+Semaphore::post ()
+{
+    dispatch_semaphore_signal (_semaphore);
+}
 
-#else
-	//
-	// If the platform has Posix threads but no semapohores,
-	// then we implement them ourselves using condition variables
-	//
 
-	struct sema_t
-	{
-	    unsigned int count;
-	    unsigned long numWaiting;
-#   if ILMBASE_FORCE_CXX03
-#      if HAVE_PTHREAD
-	    pthread_mutex_t mutex;
-	    pthread_cond_t nonZero;
-#      else
-#         error unhandled legacy setup
-#      endif
-#   else
-        std::mutex mutex;
-        std::condition_variable nonZero;
-#   endif
-	};
+int
+Semaphore::value () const
+{
+    throw IEX_NAMESPACE::NoImplExc ("Not implemented on this platform");
 
-	mutable sema_t _semaphore;
-  
+    return 0;
+}
+
+
+ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
+
 #endif
-
-    void operator = (const Semaphore& s);	// not implemented
-    Semaphore (const Semaphore& s);		// not implemented
-};
-
-
-ILMTHREAD_INTERNAL_NAMESPACE_HEADER_EXIT
-
-#endif // INCLUDED_ILM_THREAD_SEMAPHORE_H
