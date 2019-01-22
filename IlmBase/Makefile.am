@@ -10,7 +10,7 @@ SUBDIRS = \
 	config
 
 DIST_SUBDIRS = \
-	$(SUBDIRS) 
+	$(SUBDIRS)
 
 
 EXTRA_DIST = \
@@ -18,7 +18,8 @@ EXTRA_DIST = \
 	README.md \
 	bootstrap \
 	config.windows/IlmBaseConfig.h \
-	CMakeLists.txt
+	CMakeLists.txt \
+	Config.cmake.in
 
 dist-hook:
 	cp -fpR $(abspath $(srcdir)/..)/cmake $(distdir)
@@ -26,4 +27,3 @@ dist-hook:
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = IlmBase.pc
-

@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-# tell autoconf to include the m4 macros in the /m4 directory 
+# tell autoconf to include the m4 macros in the /m4 directory
 # (an alternative to the acinclude.m4 mechanism)
 ACLOCAL_AMFLAGS = -I m4
 
@@ -9,14 +9,15 @@ SUBDIRS = config IlmImf IlmImfUtil IlmImfTest IlmImfUtilTest \
 	  exrstdattr exrmakepreview exrenvmap exrmultiview exrmultipart
 
 DIST_SUBDIRS = \
-	$(SUBDIRS) 
+	$(SUBDIRS)
 
 EXTRA_DIST = \
 	AUTHORS ChangeLog LICENSE NEWS PATENTS \
 	README.md \
 	bootstrap openexr.m4 \
 	config.windows/OpenEXRConfig.h \
-	CMakeLists.txt
+	CMakeLists.txt \
+	Config.cmake.in
 
 dist-hook:
 	cp -fpR $(abspath $(srcdir)/..)/cmake $(distdir)
@@ -27,4 +28,3 @@ pkgconfig_DATA = OpenEXR.pc
 
 m4datadir = $(datadir)/aclocal
 m4data_DATA = openexr.m4
-

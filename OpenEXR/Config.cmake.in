@@ -1,0 +1,9 @@
+
+# Required packages
+if(NOT ZLIB_FOUND)
+  find_package(ZLIB)
+endif()
+
+find_package(IlmBase)
+
+include("${CMAKE_CURRENT_LIST_DIR}/@TARGETS_EXPORT_NAME@.cmake")
