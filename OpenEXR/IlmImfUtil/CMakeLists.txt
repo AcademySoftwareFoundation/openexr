@@ -56,6 +56,16 @@ IF ( OPENEXR_BUILD_STATIC )
   ADD_LIBRARY ( IlmImfUtil_static STATIC ${ILMIMFUTIL_SRCS} )
   SET_ILMBASE_INCLUDE_DIRS( IlmImfUtil_static )
 
+  TARGET_LINK_LIBRARIES ( IlmImfUtil_static
+    PUBLIC  IlmBase::Iex_static
+    PUBLIC  IlmBase::Half_static
+    PUBLIC  IlmBase::Imath_static
+    PUBLIC  IlmBase::IlmThread_static
+    PUBLIC  OpenEXR::IlmImf_static
+    PRIVATE ${PTHREAD_LIB}
+    PRIVATE ${ZLIB_LIBRARIES}
+  )
+
   SET_TARGET_PROPERTIES ( IlmImfUtil_static
     PROPERTIES
     VERSION ${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH}
