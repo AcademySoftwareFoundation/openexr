@@ -105,7 +105,7 @@ ADD_SUBDIRECTORY ( IlmThread )
 # By using a temp file then using configure_file below with copy, we
 # avoid constantly updating it (unless a value has changed)
 SET(ILMBASE_TMP_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h.in)
-IF (WIN32)
+IF (WIN32 AND NOT MSYS)
   FILE ( WRITE  ${ILMBASE_TMP_CONFIG} "#ifdef HAVE_PTHREAD\n" )
   FILE ( APPEND ${ILMBASE_TMP_CONFIG} "# undef HAVE_PTHREAD\n" )
   FILE ( APPEND ${ILMBASE_TMP_CONFIG} "#endif\n" )

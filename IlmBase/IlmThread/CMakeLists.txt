@@ -10,7 +10,7 @@ SET( ILMTHREAD_LIBRARY_SOURCES
   IlmThreadSemaphorePosixCompat.cpp
   IlmThreadSemaphorePosix.cpp
 )
-IF (WIN32)
+IF (WIN32 AND NOT MSYS)
   SET( ILMTHREAD_LIBRARY_SOURCES ${ILMTHREAD_LIBRARY_SOURCES}
     IlmThreadMutexWin32.cpp
     IlmThreadSemaphoreWin32.cpp
