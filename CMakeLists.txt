@@ -13,10 +13,12 @@ project(OpenEXR VERSION ${OPENEXR_VERSION})
 include(OpenEXRSettings)
 
 # Packages
-find_package(ZLIB)
-if(OPENEXR_BUILD_OPENEXR AND NOT ZLIB_FOUND)
-  message(WARNING "Make Zlib available to CMake's search path, and re-run configuration")
-  message(FATAL_ERROR "Zlib is a required dependency when OPENEXR_BUILD_OPENEXR is set")
+if(OPENEXR_BUILD_OPENEXR OR OPENEXR_BUILD_VIEWERS)
+  find_package(ZLIB)
+  if(NOT ZLIB_FOUND)
+    message(WARNING "Make Zlib available to CMake's search path, and re-run configuration")
+    message(FATAL_ERROR "Zlib is a required dependency when OPENEXR_BUILD_OPENEXR or OPENEXR_BUILD_VIEWERS is set")
+  endif()
 endif()
 
 if (OPENEXR_BUILD_PYTHON_LIBS)
