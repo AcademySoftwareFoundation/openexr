@@ -26,47 +26,50 @@
 # language governing permissions and limitations under the Apache License.
 #
 
+set(ILMBASE_HINTS "${OPENEXR_LOCATION}"
+                  "${ILMBASE_LOCATION}"
+                  "$ENV{OPENEXR_LOCATION}"
+                  "$ENV{OPENEXR_ROOT}"
+                  "$ENV{ILMBASE_LOCATION}"
+                  "$ENV{ILMBASE_ROOT}"
+                  "${CMAKE_PREFIX_PATH}")
+
 find_path(ILMBASE_INCLUDE_DIR
     OpenEXR/Iex.h
 
-HINTS
-    "${OPENEXR_LOCATION}"
-    "${ILMBASE_LOCATION}"
-    "$ENV{OPENEXR_LOCATION}"
-    "$ENV{OPENEXR_ROOT}"
-    "$ENV{ILMBASE_LOCATION}"
-    "$ENV{ILMBASE_ROOT}"
+    HINTS
+        ${ILMBASE_HINTS}
 
-PATH_SUFFIXES
-    include/
+    PATH_SUFFIXES
+        include/
 
-NO_DEFAULT_PATH
-NO_SYSTEM_ENVIRONMENT_PATH
+    NO_DEFAULT_PATH
+    NO_SYSTEM_ENVIRONMENT_PATH
 
-DOC
-    "IlmBase headers path"
+    DOC
+        "IlmBase headers path"
 )
 
 if(ILMBASE_INCLUDE_DIR)
-  set(ilmbase_config_file "${ILMBASE_INCLUDE_DIR}/OpenEXR/OpenEXRConfig.h")
+  set(ilmbase_config_file "${ILMBASE_INCLUDE_DIR}/OpenEXR/IlmBaseConfig.h")
   if(EXISTS ${ilmbase_config_file})
       file(STRINGS
            ${ilmbase_config_file}
            TMP
-           REGEX "#define OPENEXR_VERSION_STRING.*$")
-      string(REGEX MATCHALL "[0-9.]+" OPENEXR_VERSION ${TMP})
+           REGEX "#define ILMBASE_VERSION_STRING.*$")
+      string(REGEX MATCHALL "[0-9.]+" ILMBASE_VERSION ${TMP})
 
       file(STRINGS
            ${ilmbase_config_file}
            TMP
-           REGEX "#define OPENEXR_VERSION_MAJOR.*$")
-      string(REGEX MATCHALL "[0-9]" OPENEXR_MAJOR_VERSION ${TMP})
+           REGEX "#define ILMBASE_VERSION_MAJOR.*$")
+      string(REGEX MATCHALL "[0-9]" ILMBASE_MAJOR_VERSION ${TMP})
 
       file(STRINGS
            ${ilmbase_config_file}
            TMP
-           REGEX "#define OPENEXR_VERSION_MINOR.*$")
-      string(REGEX MATCHALL "[0-9]" OPENEXR_MINOR_VERSION ${TMP})
+           REGEX "#define ILMBASE_VERSION_MINOR.*$")
+      string(REGEX MATCHALL "[0-9]" ILMBASE_MINOR_VERSION ${TMP})
   endif()
 else()
     message(WARNING, " IlmBase headers not found")
@@ -83,11 +86,10 @@ foreach(ILMBASE_LIB
     # using both versioned and unversioned names.
     find_library(OPENEXR_${ILMBASE_LIB}_LIBRARY
         NAMES
-            ${ILMBASE_LIB}-${OPENEXR_MAJOR_VERSION}_${OPENEXR_MINOR_VERSION}
+            ${ILMBASE_LIB}-${ILMBASE_MAJOR_VERSION}_${ILMBASE_MINOR_VERSION}
             ${ILMBASE_LIB}
         HINTS
-            "${OPENEXR_LOCATION}"
-            "$ENV{OPENEXR_LOCATION}"
+            ${ILMBASE_HINTS}
         PATH_SUFFIXES
             lib/
         DOC
@@ -102,11 +104,10 @@ foreach(ILMBASE_LIB
     # using both versioned and unversioned names.
     find_library(OPENEXR_${ILMBASE_LIB}_DEBUG_LIBRARY
         NAMES
-            ${ILMBASE_LIB}-${OPENEXR_MAJOR_VERSION}_${OPENEXR_MINOR_VERSION}_d
+            ${ILMBASE_LIB}-${ILMBASE_MAJOR_VERSION}_${ILMBASE_MINOR_VERSION}_d
             ${ILMBASE_LIB}_d
         HINTS
-            "${OPENEXR_LOCATION}"
-            "$ENV{OPENEXR_LOCATION}"
+            ${ILMBASE_HINTS}
         PATH_SUFFIXES
             lib/
             debug/lib/
@@ -118,11 +119,10 @@ foreach(ILMBASE_LIB
     # using both versioned and unversioned names.
     find_library(OPENEXR_${ILMBASE_LIB}_STATIC_LIBRARY
         NAMES
-            ${ILMBASE_LIB}-${OPENEXR_MAJOR_VERSION}_${OPENEXR_MINOR_VERSION}_s
+            ${ILMBASE_LIB}-${ILMBASE_MAJOR_VERSION}_${ILMBASE_MINOR_VERSION}_s
             ${ILMBASE_LIB}_s
         HINTS
-            "${OPENEXR_LOCATION}"
-            "$ENV{OPENEXR_LOCATION}"
+            ${ILMBASE_HINTS}
         PATH_SUFFIXES
             lib/
         DOC
@@ -133,11 +133,10 @@ foreach(ILMBASE_LIB
     # using both versioned and unversioned names.
     find_library(OPENEXR_${ILMBASE_LIB}_STATIC_DEBUG_LIBRARY
         NAMES
-            ${ILMBASE_LIB}-${OPENEXR_MAJOR_VERSION}_${OPENEXR_MINOR_VERSION}_s_d
+            ${ILMBASE_LIB}-${ILMBASE_MAJOR_VERSION}_${ILMBASE_MINOR_VERSION}_s_d
             ${ILMBASE_LIB}_s_d
         HINTS
-            "${OPENEXR_LOCATION}"
-            "$ENV{OPENEXR_LOCATION}"
+            ${ILMBASE_HINTS}
         PATH_SUFFIXES
             lib/
             debug/lib/
@@ -157,7 +156,7 @@ find_package_handle_standard_args(IlmBase
         ILMBASE_INCLUDE_DIR
         ILMBASE_LIBRARIES
     VERSION_VAR
-        OPENEXR_VERSION
+        ILMBASE_VERSION
 )
 
 foreach(ILMBASE_LIB

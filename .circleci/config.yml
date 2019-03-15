@@ -1,0 +1,22 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: aloysbaillet/aswf-vfx2018-conan
+
+    steps:
+      - checkout
+
+      - run:
+          name: IlmBase build
+          environment: 
+            CONAN_PRINT_RUN_COMMANDS: 1
+            CONAN_LOGGING_LEVEL: 10 # debug
+          command: conan create conan/IlmBase aswf/vfx2018
+
+      - run:
+          name: OpenEXR build
+          environment: 
+            CONAN_PRINT_RUN_COMMANDS: 1
+            CONAN_LOGGING_LEVEL: 10 # debug
+          command: conan create conan/OpenEXR aswf/vfx2018

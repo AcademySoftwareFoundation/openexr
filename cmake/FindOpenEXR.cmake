@@ -25,26 +25,28 @@
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
 #
+set(OPENEXR_HINTS "${OPENEXR_LOCATION}"
+                  "${ILMBASE_LOCATION}"
+                  "$ENV{OPENEXR_LOCATION}"
+                  "$ENV{OPENEXR_ROOT}"
+                  "$ENV{ILMBASE_LOCATION}"
+                  "$ENV{ILMBASE_ROOT}"
+                  "${CMAKE_PREFIX_PATH}")
 
 find_path(OPENEXR_INCLUDE_DIR
     OpenEXR/ImfHeader.h
 
-HINTS
-    "${OPENEXR_LOCATION}"
-    "${ILMBASE_LOCATION}"
-    "$ENV{OPENEXR_LOCATION}"
-    "$ENV{OPENEXR_ROOT}"
-    "$ENV{ILMBASE_LOCATION}"
-    "$ENV{ILMBASE_ROOT}"
+    HINTS
+        ${OPENEXR_HINTS}
 
-PATH_SUFFIXES
-    include/
+    PATH_SUFFIXES
+        include/
 
-NO_DEFAULT_PATH
-NO_SYSTEM_ENVIRONMENT_PATH
+    NO_DEFAULT_PATH
+    NO_SYSTEM_ENVIRONMENT_PATH
 
-DOC
-    "OpenEXR headers path"
+    DOC
+        "OpenEXR headers path"
 )
 
 if(OPENEXR_INCLUDE_DIR)
@@ -83,8 +85,7 @@ foreach(OPENEXR_LIB
             ${OPENEXR_LIB}-${OPENEXR_MAJOR_VERSION}_${OPENEXR_MINOR_VERSION}
             ${OPENEXR_LIB}
         HINTS
-            "${OPENEXR_LOCATION}"
-            "$ENV{OPENEXR_LOCATION}"
+            ${OPENEXR_HINTS}
         PATH_SUFFIXES
             lib/
         NO_DEFAULT_PATH
@@ -105,8 +106,7 @@ foreach(OPENEXR_LIB
             ${OPENEXR_LIB}-${OPENEXR_MAJOR_VERSION}_${OPENEXR_MINOR_VERSION}_d
             ${OPENEXR_LIB}_d
         HINTS
-            "${OPENEXR_LOCATION}"
-            "$ENV{OPENEXR_LOCATION}"
+            ${OPENEXR_HINTS}
         PATH_SUFFIXES
             lib/
             debug/lib/
@@ -124,8 +124,7 @@ foreach(OPENEXR_LIB
             ${OPENEXR_LIB}-${OPENEXR_MAJOR_VERSION}_${OPENEXR_MINOR_VERSION}_s
             ${OPENEXR_LIB}_s
         HINTS
-            "${OPENEXR_LOCATION}"
-            "$ENV{OPENEXR_LOCATION}"
+            ${OPENEXR_HINTS}
         PATH_SUFFIXES
             lib/
         NO_DEFAULT_PATH
@@ -142,8 +141,7 @@ foreach(OPENEXR_LIB
             ${OPENEXR_LIB}-${OPENEXR_MAJOR_VERSION}_${OPENEXR_MINOR_VERSION}_s_d
             ${OPENEXR_LIB}_s_d
         HINTS
-            "${OPENEXR_LOCATION}"
-            "$ENV{OPENEXR_LOCATION}"
+            ${OPENEXR_HINTS}
         PATH_SUFFIXES
             lib/
             debug/lib/
