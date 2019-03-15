@@ -1,0 +1,22 @@
+version: 2
+jobs:
+  default:
+    docker:
+      - image: debian:stretch
+    steps:
+      - checkout
+      - run:
+          name: Install
+          command: bash ci/run.sh install
+      - run:
+          name: Build
+          command: bash ci/run.sh build
+      - run:
+          name: Test
+          command: bash ci/run.sh test
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - default
