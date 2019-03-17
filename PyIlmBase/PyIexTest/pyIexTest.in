@@ -1,6 +1,12 @@
 #!@PYTHON@
 
-import iex
+try:
+    import iex
+except ImportError:
+    import traceback
+    traceback.print_exc()
+    import os
+    print "LD_LIBRARY_PATH=%s PYTHONPATH=%s"%(os.environ['LD_LIBRARY_PATH'], os.environ['PYTHONPATH'])
 
 print ""
 print "testing exception inheritance"

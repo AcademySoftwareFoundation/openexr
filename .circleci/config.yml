@@ -7,6 +7,11 @@ jobs:
     steps:
       - checkout
 
+      - restore_cache:
+          key: conan-data-cache
+          paths:
+            - /home/circleci/.conan/data
+
       - run:
           name: IlmBase build
           environment: 
@@ -14,9 +19,41 @@ jobs:
             CONAN_LOGGING_LEVEL: 10 # debug
           command: conan create conan/IlmBase aswf/vfx2018
 
+      # - store_artifacts:
+      #     path: /home/circleci/.conan/data/IlmBase
+      #     destination: conan-data-IlmBase-2.3.0
+
       - run:
           name: OpenEXR build
           environment: 
             CONAN_PRINT_RUN_COMMANDS: 1
             CONAN_LOGGING_LEVEL: 10 # debug
           command: conan create conan/OpenEXR aswf/vfx2018
+
+      # - store_artifacts:
+      #     path: /home/circleci/.conan/data/IlmBase
+      #     destination: conan-data-OpenEXR-2.3.0
+
+      - run:
+          name: PyIlmBase build
+          environment: 
+            CONAN_PRINT_RUN_COMMANDS: 1
+            CONAN_LOGGING_LEVEL: 10 # debug
+            CONAN_CPU_COUNT: 2 # the default of 36 on circleci makes the jor run out of memory!
+          command: conan create conan/PyIlmBase aswf/vfx2018
+
+      # - store_artifacts:
+      #     path: /home/circleci/.conan/data/IlmBase
+      #     destination: conan-data-PyIlmBase-2.3.0
+
+      - save_cache:
+          key: conan-data-cache
+          paths:
+            - /home/circleci/.conan/data
+
+      # - persist_to_workspace:
+      #     root: /home/circleci/.conan
+      #     paths:
+      #       - IlmBase
+      #       - OpenEXR
+      #       - PyIlmBase

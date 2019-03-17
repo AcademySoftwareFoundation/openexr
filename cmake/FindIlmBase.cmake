@@ -31,8 +31,7 @@ set(ILMBASE_HINTS "${OPENEXR_LOCATION}"
                   "$ENV{OPENEXR_LOCATION}"
                   "$ENV{OPENEXR_ROOT}"
                   "$ENV{ILMBASE_LOCATION}"
-                  "$ENV{ILMBASE_ROOT}"
-                  "${CMAKE_PREFIX_PATH}")
+                  "$ENV{ILMBASE_ROOT}")
 
 find_path(ILMBASE_INCLUDE_DIR
     OpenEXR/Iex.h
@@ -43,7 +42,7 @@ find_path(ILMBASE_INCLUDE_DIR
     PATH_SUFFIXES
         include/
 
-    NO_DEFAULT_PATH
+    NO_CMAKE_SYSTEM_PATH
     NO_SYSTEM_ENVIRONMENT_PATH
 
     DOC

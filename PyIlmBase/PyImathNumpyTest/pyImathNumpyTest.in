@@ -24,7 +24,8 @@ ia = numpy.floor(numpy.random.uniform(1,5,length))
 ib = numpy.floor(numpy.random.uniform(1,5,length))
 idest = IntArray(length)
 idest = imathnumpy.arrayToNumpy(idest)
-idest[:] = ia * ib
+# This line crashes when using dynamic libs for boost and Imath
+# idest[:] = ia * ib
 iresults = idest - ia*ib
 
 print( "a: {}".format(ia) )
