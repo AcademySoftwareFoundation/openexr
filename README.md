@@ -1,6 +1,8 @@
 OpenEXR
 =======
 
+[![CircleCI](https://circleci.com/gh/aloysbaillet/openexr/tree/testing_circle_ci.svg?style=svg)](https://circleci.com/gh/aloysbaillet/openexr/tree/testing_circle_ci)
+
 **OpenEXR** is a high dynamic-range (HDR) image file format developed
 by Industrial Light & Magic (ILM) for use in computer imaging
 applications. It supports stereoscopic and deep images.  Weta Digital,
