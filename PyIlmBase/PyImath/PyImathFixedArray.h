@@ -404,6 +404,7 @@ class FixedArray
     // exposed as Py_ssize_t for compatilbity with standard python sequences
     Py_ssize_t len() const     { return _length; }
     size_t      stride() const { return _stride; }
+    Py_ssize_t address() const {return (Py_ssize_t)_ptr; }
 
     // no bounds checking on i!
     T& operator [] (size_t i)
@@ -476,6 +477,7 @@ class FixedArray
             .def("__setitem__", &FixedArray<T>::setitem_vector)
             .def("__setitem__", &FixedArray<T>::setitem_vector_mask)
             .def("__len__",&FixedArray<T>::len)
+            .def("address",&FixedArray<T>::address)
             .def("ifelse",&FixedArray<T>::ifelse_scalar)
             .def("ifelse",&FixedArray<T>::ifelse_vector)
             ;
