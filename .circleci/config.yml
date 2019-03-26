@@ -30,7 +30,10 @@ jobs:
           working_directory: build
           no_output_timeout: 20m
           command: |
-            ctest -vv -E PyImathNumpyTest
+            ctest -vv -E PyImathNumpyTest --no-compress-output -T Test
+
+      - store_test_results:
+          path: build/Testing
 
       - save_cache:
           key: OpenEXR-conan-data-cache-vfx2018
