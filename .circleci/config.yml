@@ -1,0 +1,33 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: aloysbaillet/aswf-vfx2018-conan
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: conan-data-cache
+          paths:
+            - /home/circleci/.conan/data
+
+      - run:
+          name: OpenEXR build
+          command: |
+            mkdir build
+            cd build
+            conan install .
+            cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake
+            make -j 4
+
+      - run:
+          name: OpenEXR tests
+          command: |
+            cd build
+            ctest -vv
+
+      - save_cache:
+          key: conan-data-cache
+          paths:
+            - /home/circleci/.conan/data

@@ -1,0 +1,5 @@
+[requires]
+boost/1.61.0@aswf/vfx2018
+
+[generators]
+cmake_paths
