@@ -8,7 +8,7 @@ jobs:
       - checkout
 
       - restore_cache:
-          key: conan-data-cache
+          key: OpenEXR-conan-data-cache-vfx2018
           paths:
             - /home/circleci/.conan/data
 
@@ -21,17 +21,18 @@ jobs:
           name: OpenEXR build
           working_directory: build
           command: |
-            conan install ..
+            conan install boost/1.61.0@aswf/vfx2018 --generator cmake_paths
             cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake
             make -j 4
 
       - run:
           name: OpenEXR tests
           working_directory: build
+          no_output_timeout: 20m
           command: |
             ctest -vv -E PyImathNumpyTest
 
       - save_cache:
-          key: conan-data-cache
+          key: OpenEXR-conan-data-cache-vfx2018
           paths:
             - /home/circleci/.conan/data
