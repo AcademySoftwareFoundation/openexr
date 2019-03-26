@@ -13,19 +13,23 @@ jobs:
             - /home/circleci/.conan/data
 
       - run:
-          name: OpenEXR build
+          name: prepare build folder
           command: |
             mkdir build
-            cd build
-            conan install .
+
+      - run:
+          name: OpenEXR build
+          working_directory: build
+          command: |
+            conan install ..
             cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake
             make -j 4
 
       - run:
           name: OpenEXR tests
+          working_directory: build
           command: |
-            cd build
-            ctest -vv
+            ctest -vv -E PyImathNumpyTest
 
       - save_cache:
           key: conan-data-cache
