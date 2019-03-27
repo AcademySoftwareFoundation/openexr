@@ -9,7 +9,7 @@ ADD_LIBRARY ( Iex ${LIB_TYPE}
   IexThrowErrnoExc.cpp
   )
 
-IF (OPENEXR_INSTALL) #D/Labs 
+IF (OPENEXR_INSTALL) #Smode 
 
   INSTALL ( TARGETS
     Iex
@@ -31,4 +31,4 @@ IF (OPENEXR_INSTALL) #D/Labs
     include/OpenEXR
   )
 
-  ENDIF (OPENEXR_INSTALL) #D/Labs 
+  ENDIF (OPENEXR_INSTALL) #Smode 

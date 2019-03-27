@@ -11,12 +11,12 @@ SET(OPENEXR_VERSION_API ${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR})
 
 
 # enable the tests
-IF (OPENEXR_BUILD_TESTS) #D/Labs
+IF (OPENEXR_BUILD_TESTS) #Smode
   ENABLE_TESTING()
-ENDIF (OPENEXR_BUILD_TESTS) #D/Labs
+ENDIF (OPENEXR_BUILD_TESTS) #Smode
 
 # distro building 
-IF (OPENEXR_INSTALL) #D/Labs
+IF (OPENEXR_INSTALL) #Smode
   SET(CPACK_PACKAGE_VERSION_MAJOR "${OPENEXR_VERSION_MAJOR}")
   SET(CPACK_PACKAGE_VERSION_MINOR "${OPENEXR_VERSION_MINOR}")
   SET(CPACK_PACKAGE_VERSION_PATCH "${OPENEXR_VERSION_PATCH}")
@@ -27,7 +27,7 @@ IF (OPENEXR_INSTALL) #D/Labs
   set(CPACK_SOURCE_IGNORE_FILES
     "/.git*;/.cvs*;${CPACK_SOURCE_IGNORE_FILES}")
   INCLUDE ( CPack )
-ENDIF (OPENEXR_INSTALL) #D/Labs
+ENDIF (OPENEXR_INSTALL) #Smode
 
 
 # Allow the developer to select if Dynamic or Static libraries are built
@@ -52,6 +52,9 @@ INCLUDE_DIRECTORIES (
   IlmImfFuzzTest
 )
 
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 OLD)  # SMODE Silent find_package(ZLib) Warning
+endif()
 FIND_PACKAGE(ZLIB REQUIRED)
 INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
 
@@ -192,7 +195,7 @@ SET_TARGET_PROPERTIES ( IlmImfUtil
   )
   
 
-IF (OPENEXR_BUILD_TESTS) #D/Labs
+IF (OPENEXR_BUILD_TESTS) #Smode
   ##########################
   # Example Code
   ##########################
@@ -217,13 +220,13 @@ IF (OPENEXR_BUILD_TESTS) #D/Labs
   ADD_SUBDIRECTORY ( exrenvmap )
   ADD_SUBDIRECTORY ( exrmultiview )
   ADD_SUBDIRECTORY ( exrmultipart )
-ENDIF (OPENEXR_BUILD_TESTS) #D/Labs
+ENDIF (OPENEXR_BUILD_TESTS) #Smode
 
 ##########################
 # Installation
 ##########################
 
-IF (OPENEXR_INSTALL) #D/Labs 
+IF (OPENEXR_INSTALL) #Smode 
   INSTALL ( FILES
     ${CMAKE_CURRENT_BINARY_DIR}/config/OpenEXRConfig.h
     DESTINATION
