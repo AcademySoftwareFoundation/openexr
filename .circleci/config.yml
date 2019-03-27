@@ -21,7 +21,8 @@ jobs:
           name: OpenEXR build
           working_directory: build
           command: |
-            conan install boost/1.61.0@aswf/vfx2018 --generator cmake_paths
+            conan install .circleci/
+            source activate_run.sh
             cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake
             make -j 4
 
@@ -30,6 +31,7 @@ jobs:
           working_directory: build
           no_output_timeout: 20m
           command: |
+            source activate_run.sh
             ctest -vv -E PyImathNumpyTest --no-compress-output -T Test
 
       - store_test_results:
