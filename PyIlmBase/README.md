@@ -28,7 +28,7 @@ PyIlmBase requires **numpy** to be available to the builder. Install with
 your favorite package manager or use a Python virtualenv:
 
     virtualenv numpy
-    soure numpy/bin/activate
+    source numpy/bin/activate
     pip install numpy
 
 PyIlmBase also requires [boost-python](https://github.com/boostorg/python).
