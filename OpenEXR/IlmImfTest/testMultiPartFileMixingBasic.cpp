@@ -40,6 +40,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <byteswap.h>
 
 #include "tmpDir.h"
 #include "testMultiPartFileMixingBasic.h"
@@ -59,6 +60,7 @@
 #include <ImfDeepScanLineInputPart.h>
 #include <ImfPartType.h>
 #include <ImfMisc.h>
+#include <ImfSystemSpecific.h>
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
@@ -1383,6 +1385,11 @@ killOffsetTables (const std::string & fn)
             
             //length of attribute
             fread(&length,4,1,f);
+    	    if (!GLOBAL_SYSTEM_LITTLE_ENDIAN)
+    	    {
+    		int tmp = bswap_32(length);
+    		length = tmp;
+    	    }
             
             //value of attribute
             for(int i=0;i<length;i++) 
