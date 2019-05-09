@@ -10,7 +10,7 @@ of LF Projects, LLC** (the “Project”). LF Projects, LLC (“LF Projects”)
 is a Delaware series limited liability company. All Contributors to
 the Project must comply with the terms of this Charter.
 
-1. Mission and Scope of the Project
+### 1. Mission and Scope of the Project
 
   * **a.** The mission of the Project is to continue maintenance and
     development of an open source project with the goals indicated in
@@ -23,7 +23,7 @@ the Project must comply with the terms of this Charter.
     other artifacts that aid the development, deployment, operation or
     adoption of the open source software project.
 
-2. Technical Steering Committee
+### 2. Technical Steering Committee
 
   * **a.** The Technical Steering Committee (the “TSC”) will be
     responsible for all technical oversight of the open source
@@ -118,7 +118,7 @@ the Project must comply with the terms of this Charter.
       regarding the Project with the LF Projects Manager or their
       designee.
 
-3. TSC Voting
+### 3. TSC Voting
 
   * **a.** While the Project aims to operate as a consensus based
     community, if any TSC decision requires a vote to move the Project
@@ -140,7 +140,7 @@ the Project must comply with the terms of this Charter.
     voting member of the TSC may refer the matter to the Series
     Manager or its designee for assistance in reaching a resolution.
 
-4. Compliance with Policies
+### 4. Compliance with Policies
 
   * **a.** This Charter is subject to the Series Agreement for the
     Project and the Operating Agreement of LF Projects. Contributors
@@ -179,7 +179,7 @@ the Project must comply with the terms of this Charter.
     violations of this requirement should be reported immediately to
     the LF Projects Manager.
 
-5. Community Assets
+### 5. Community Assets
 
   * **a.** LF Projects will hold title to all trade or service marks
     used by the Project (“Project Trademarks”), whether based on
@@ -199,7 +199,7 @@ the Project must comply with the terms of this Charter.
     inconsistent with the tax-exempt status or purpose, as applicable,
     of LFP, Inc. or LF Projects, LLC.
 
-6. General Rules and Operations. 
+### 6. General Rules and Operations. 
 
   * **a.** The Project will:
 
@@ -212,7 +212,7 @@ the Project must comply with the terms of this Charter.
     - **ii.** respect the rights of all trademark owners, including
       any branding and trademark usage guidelines.
 
-7. Intellectual Property Policy
+### 7. Intellectual Property Policy
 
   * **a.** Participants acknowledge that the copyright in all new
     contributions shall be retained by the copyright holder as
@@ -275,7 +275,7 @@ the Project must comply with the terms of this Charter.
     as SPDX short form identifiers, indicating the open source license
     or licenses pertaining to the file.
 
-8. Amendments
+### 8. Amendments
 
   * **a.** This charter may be amended by a two-thirds vote of the
     entire TSC, subject to reasonable approval by LF Projects.
