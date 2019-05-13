@@ -13,15 +13,16 @@ jobs:
             - /home/circleci/.conan/data
 
       - run:
-          name: prepare build folder
+          name: Prepare
           command: |
             mkdir build
+            conan install .circleci/ --install-folder build/
 
       - run:
           name: OpenEXR build
           working_directory: build
           command: |
-            conan install .circleci/
+            source activate.sh
             source activate_run.sh
             cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake
             make -j 4
@@ -31,6 +32,7 @@ jobs:
           working_directory: build
           no_output_timeout: 20m
           command: |
+            source activate.sh
             source activate_run.sh
             ctest -vv -E PyImathNumpyTest --no-compress-output -T Test
 
