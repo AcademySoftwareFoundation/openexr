@@ -19,6 +19,7 @@ AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(IlmImfTest/main.cpp)
 AC_CONFIG_HEADERS([config/OpenEXRConfig.h])
 AC_CONFIG_HEADERS([config/OpenEXRConfigInternal.h])
+AC_CONFIG_HEADERS([config-for-build/OpenEXRConfigInternal.h])
 AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 
@@ -36,10 +37,23 @@ AC_PROG_CC
 AC_PROG_LN_S
 AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
+AX_CC_FOR_BUILD dnl for EXEEXT_FOR_BUILD not CC_FOR_BUILD
+AX_PROG_CXX_FOR_BUILD
 
 dnl
 dnl PKGCONFIG preparations
 dnl
+
+PKG_PROG_PKG_CONFIG
+AC_ARG_VAR([PKG_CONFIG_FOR_BUILD], [path to the build platform's pkg-config utility])
+AC_ARG_VAR([PKG_CONFIG_PATH_FOR_BUILD], [directories to add to the build platform's pkg-config's search path])
+AC_ARG_VAR([PKG_CONFIG_LIBDIR_FOR_BUILD], [path overriding the build platform's pkg-config's built-in search path])
+AC_ARG_WITH(pkg-config,[--with-pkg-config=PATH Specify which pkg-config to use (optional)], PKG_CONFIG="$withval",)
+AC_ARG_WITH(pkg-config-for-build,[--with-pkg-config-for-build=PATH Specify which pkg-config to use at build time (optional)], PKG_CONFIG_FOR_BUILD="$withval",)
+
+if [ "x$PKG_CONFIG_FOR_BUILD" = "x" ]; then
+	PKG_CONFIG_FOR_BUILD=$PKG_CONFIG
+fi
 
 dnl Checks for zlib
 PKG_CHECK_MODULES([ZLIB], [zlib], [], [AC_CHECK_LIB(z, compress, [:], [AC_MSG_ERROR([
@@ -62,6 +76,19 @@ AM_PATH_PKGCONFIG(
     [-lImath -lHalf -lIlmThread -lIex -lpthread -lz],
     [ilmbase-prefix],
     [ILMBASE])
+
+pushdef([PKG_CONFIG], PKG_CONFIG_FOR_BUILD)dnl
+AM_PATH_PKGCONFIG(
+    [ILMBASE_CXXFLAGS_FOR_BUILD],
+    [ILMBASE_LDFLAGS_FOR_BUILD],
+    [ILMBASE_LIBS_FOR_BUILD],
+    [IlmBase],
+    [OpenEXR],
+    [],
+    [-lImath -lHalf -lIlmThread -lIex -lpthread -lz],
+    [ilmbase-prefix],
+    [BUILD_ILMBASE])
+popdef([PKG_CONFIG])
 
 dnl Define the version string
 AC_DEFINE_UNQUOTED([OPENEXR_VERSION_STRING], "${VERSION}", [OpenEXR version string])
@@ -203,6 +230,13 @@ AC_SUBST(AM_CFLAGS)
 AC_SUBST(AM_CXXFLAGS)
 
 dnl Check if sysconf(_SC_NPROCESSORS_ONLN) can be used for CPU count
+
+dnl Use the standard macros, but make them use other variable names
+dnl
+pushdef([CC], CC_FOR_BUILD)dnl
+pushdef([CPP], CPP_FOR_BUILD)dnl
+pushdef([CCFLAGS], CCFLAGS_FOR_BUILD)dnl
+pushdef([CPPFLAGS], CPPFLAGS_FOR_BUILD)dnl
 AC_MSG_CHECKING([for sysconf(_SC_NPROCESSORS_ONLN)])
 sysconf_nproc="no"
 AC_COMPILE_IFELSE(
@@ -219,6 +253,13 @@ AC_MSG_RESULT([$sysconf_nproc])
 if test "x${sysconf_nproc}" = xyes ; then
     AC_DEFINE([OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN], [1], [Define if sysconf(_SC_NPROCESSORS_ONLN) can be used for CPU count])
 fi
+
+dnl Restore the old definitions
+dnl
+popdef([CC])dnl
+popdef([CPP])dnl
+popdef([CCFLAGS])dnl
+popdef([CPPFLAGS])dnl
 
 dnl Platform-specific stuff
 case "$host" in

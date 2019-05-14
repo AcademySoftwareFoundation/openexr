@@ -193,6 +193,9 @@ noinst_HEADERS = ImfCompressor.h    \
 
 EXTRA_DIST = $(noinst_HEADERS) b44ExpLogTable.cpp b44ExpLogTable.h dwaLookups.cpp dwaLookups.h CMakeLists.txt
 
+CXXFLAGS_FOR_BUILD = @ILMBASE_CXXFLAGS_FOR_BUILD@ \
+	   -I$(top_srcdir)/config-for-build \
+	   $(ILMBASE_CFLAGS_FOR_BUILD)
 
 AM_CPPFLAGS = @ILMBASE_CXXFLAGS@ \
 	   -I$(top_builddir) \
@@ -201,18 +204,16 @@ AM_CPPFLAGS = @ILMBASE_CXXFLAGS@ \
 
 CLEANFILES = b44ExpLogTable b44ExpLogTable.h dwaLookups dwaLookups.h
 
-b44ExpLogTable_SOURCES = b44ExpLogTable.cpp
-b44ExpLogTable_LDADD = @ILMBASE_LDFLAGS@ $(ILMBASE_LIBS)
+b44ExpLogTable$(EXEEXT_FOR_BUILD): b44ExpLogTable.cpp
+	$(CXX_FOR_BUILD) $(CXXFLAGS_FOR_BUILD) $< -o $@
 
-b44ExpLogTable.h: b44ExpLogTable
-	./b44ExpLogTable > b44ExpLogTable.h
+dwaLookups$(EXEEXT_FOR_BUILD): dwaLookups.cpp
+	$(CXX_FOR_BUILD) $(CXXFLAGS_FOR_BUILD) $< -o $@
 
-dwaLookups_SOURCES = dwaLookups.cpp
-dwaLookups_LDADD = @ILMBASE_LDFLAGS@ $(ILMBASE_LIBS)
+dwaLookups.h: dwaLookups$(EXEEXT_FOR_BUILD)
+	./$< > $@
 
-dwaLookups.h: dwaLookups
-	./dwaLookups > dwaLookups.h
+b44ExpLogTable.h: b44ExpLogTable$(EXEEXT_FOR_BUILD)
+	./$< > $@
 
 BUILT_SOURCES = b44ExpLogTable.h dwaLookups.h
-
-noinst_PROGRAMS = b44ExpLogTable dwaLookups

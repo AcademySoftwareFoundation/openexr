@@ -1,0 +1,5 @@
+//
+// Define if we can use sysconf(_SC_NPROCESSORS_ONLN) to get CPU count
+//
+
+#undef OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN
