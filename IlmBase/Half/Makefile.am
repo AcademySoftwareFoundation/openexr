@@ -25,16 +25,16 @@ EXTRA_DIST = eLut.cpp toFloat.cpp CMakeLists.txt
 
 CLEANFILES = eLut eLut.h toFloat toFloat.h
 
-eLut_SOURCES = eLut.cpp
+eLut$(EXEEXT_FOR_BUILD): eLut.cpp
+	$(CXX_FOR_BUILD) $(CXXFLAGS_FOR_BUILD) $< -o $@
 
-toFloat_SOURCES = toFloat.cpp
+toFloat$(EXEEXT_FOR_BUILD): toFloat.cpp
+	$(CXX_FOR_BUILD) $(CXXFLAGS_FOR_BUILD) $< -o $@
 
-eLut.h:	eLut
-	./eLut > eLut.h
+eLut.h: eLut$(EXEEXT_FOR_BUILD)
+	./$< > $@
 
-toFloat.h: toFloat
-	   ./toFloat > toFloat.h
+toFloat.h: toFloat$(EXEEXT_FOR_BUILD)
+	./$< > $@
 
 BUILT_SOURCES = eLut.h toFloat.h
-
-noinst_PROGRAMS = eLut toFloat
