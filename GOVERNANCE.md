@@ -1,8 +1,8 @@
 # OpenEXR Project Governance
 
-The OpenEXR project is owned by the Academy Software Foundation and is governed by its Committers, including a Technical
-Steering Committee (TSC) which is responsible for high-level guidance of the
-project.
+The OpenEXR project is owned by the Academy Software Foundation and is
+governed by its Committers, including a Technical Steering Committee
+(TSC) which is responsible for high-level guidance of the project.
 
 ## Contributors
 
@@ -63,9 +63,12 @@ directly.
 
 ## Technical Steering Committee
 
-A subset of the Committers forms the Technical Steering Committee (TSC), which
-has final authority over this project. As defined in the project charter, TSC
-responsibilities include, but are not limited to:
+The Technical Steering Committee (TSC) oversees the overall technical
+direction of OpenEXR, as defined in the project
+[charter](aswf-tsc/charter/OpenEXR-Technical-Charter.md).  This
+charter defines the TSC member terms and succession policies.
+
+The responsibilities of the TSC include:
 
 * Coordinating technical direction of the Project
 * Project governance and process (including this policy)
@@ -79,7 +82,7 @@ communities
 matters relating to the code base that affect multiple projects
 * Coordinating any marketing, events, or communications regarding the project
 
-The TSC has a Chair, who acts as the project manager, organizing meetings and
+The TSC elects a Chair person, who acts as the project manager, organizing meetings and
 providing oversight to project administration. The Chair is elected by the TSC.
 The Chair also serves as the OpenEXR representative on the Academy Software Foundation (ASWF) Technical
 Advisory Council (TAC). The chair represents the
@@ -102,9 +105,12 @@ project at all ASWF TAC meetings.
 
 ### TSC Meetings
 
-The TSC meets each Thursday at 1pm Pacific Time via Zoom video conference. 
-TSC meetings are open to the public, https://zoom.us/j/8362240307. 
-The TSC Chair moderates the meeting, or appoints another TSC member to moderate in his or her absence.
+All meetings of the TSC are open to participation by any member of the
+OpenEXR community. Meeting times are listed in the [ASWF technical
+community calendar](https://lists.aswf.io/g/tac/calendar), currently
+each Thursday at 1pm Pacific Time via Zoom video conference.  The TSC
+Chair moderates the meeting, or appoints another TSC member to
+moderate in his or her absence.
 
 Items are added to the TSC agenda which are considered contentious or are
 modifications of governance, contribution policy, TSC membership, or release
