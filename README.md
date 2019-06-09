@@ -1,5 +1,4 @@
-OpenEXR
-=======
+# OpenEXR
 
 **OpenEXR** is a high dynamic-range (HDR) image file format developed
 by Industrial Light & Magic (ILM) for use in computer imaging
@@ -39,15 +38,13 @@ OpenEXR's features include:
   namespaces to provide protection when using multiple versions of the
   library in the same process space.
 
-License
--------
+## License
 
 OpenEXR, including all contributions, is released under a modified BSD
 license. Please see the [LICENSE.md] (LICENSE.md) file accompanying
 the distribution for the legal fine print.
       
-OpenEXR Sub-modules
--------------------
+## OpenEXR Sub-modules
 
 The OpenEXR distribution consists of the following sub-modules:
 
@@ -62,8 +59,7 @@ Please see the ``README`` files of each of the individual directories for more i
 A collection of OpenEXR images is available from the adjacent repository
 [openexr-images](https://github.com/openexr/openexr-images).
 
-Dependencies
-------------
+## Dependencies
 
 OpenEXR depends on [zlib](https://zlib.net).
 
@@ -75,24 +71,32 @@ In OpenEXR_Viewers:
 * **exrdisplay** depends on [fltk](http://www.fltk.org/index.php)
 * **playexr** depends on [Cg](https://developer.nvidia.com/cg-toolkit)
 
-Web Resources
--------------
+## Web Resources
 
 Main web page: http:://www.openexr.org
 
 GitHub repository: http://www.github.com/openexr/openexr
 
-Mail list:
+Deverloper discussion mailing list:
 
 * [openexr-dev@lists.aswf.io] (https://lists.aswf.io/g/openexr-dev)
 
-Building and Installation
--------------------------
+## Building and Installation
 
 Download the latest release of OpenEXR from the GitHub Releases page:
-[https://github.com/openexr/openexr/releases] (https://github.com/openexr/openexr/releases).
+https://github.com/openexr/openexr/releases.
 
 For more information about building from sources, see the [INSTALL.md] (INSTALL.md) file.
+
+## Contributing
+
+See [CONTRIBUTING.md] (CONTRIBUTING.md) for more information about contributing to OpenEXR.
+
+## Project Goverance
+
+OpenEXR is owned by the Academy Software Foundation, and is maintained
+by the developer community. See [GOVERNANCE.md] (GOVERNANCE.md) for
+more infomation.
 
 ## Documentation
 
