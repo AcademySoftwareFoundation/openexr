@@ -1,5 +1,31 @@
 
-PROJECT (pyilmbase)
+IF (WIN32)
+    CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
+ELSE()
+    CMAKE_MINIMUM_REQUIRED(VERSION 3.2)
+ENDIF()
+
+# test if we are being built as a standalone library or if
+# we are being built as part of the overall project
+IF(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+  IF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+    SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+  ELSE()
+    MESSAGE(FATAL_ERROR "Please compile using the top-level CMakeLists.txt or a pre-built package")
+  ENDIF()
+  INCLUDE(OpenEXRVersion)
+  SET(PYILMBASE_STANDALONE ON)
+ENDIF()
+
+PROJECT (pyilmbase VERSION ${OPENEXR_VERSION})
+
+IF(PYILMBASE_STANDALONE)
+  INCLUDE(OpenEXRSettings)
+ENDIF()
+
+IF (NOT ILMBASE_PACKAGE_PREFIX)
+  SET (ILMBASE_PACKAGE_PREFIX ${CMAKE_INSTALL_PREFIX})
+ENDIF ()
 
 IF (OPENEXR_BUILD_SHARED)
   # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'

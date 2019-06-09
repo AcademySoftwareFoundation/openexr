@@ -13,10 +13,14 @@ DIST_SUBDIRS = \
 
 EXTRA_DIST = \
 	AUTHORS ChangeLog LICENSE NEWS PATENTS \
-        README.md \
+	README.md \
 	bootstrap openexr.m4 \
 	config.windows/OpenEXRConfig.h \
-        CMakeLists.txt
+	CMakeLists.txt
+
+dist-hook:
+	cp -fpR $(abspath $(srcdir)/..)/cmake $(distdir)
+	find $(distdir)/cmake -type d ! -perm -700 -exec chmod u+rwx {} \;
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = OpenEXR.pc
