@@ -70,12 +70,10 @@ Documentation](https://git-scm.com/doc).
 Once your Git environment is operational, the next step is to locally
 **clone** your forked OpenColorIO repository, and add a **remote**
 pointing to the upstream OpenColorIO repository. These topics are
-covered in [Cloning a repository]
-(https://help.github.com/articles/cloning-a-repository/) and
-[Configuring a remote for a fork]
-(https://help.github.com/articles/configuring-a-remote-for-a-fork/),
+covered in [Cloning a repository](https://help.github.com/articles/cloning-a-repository/) and
+[Configuring a remote for a fork](https://help.github.com/articles/configuring-a-remote-for-a-fork/),
 but again, if you need assistance feel free to reach out on the
-openexr-dev mail list.
+openexr-dev@lists.aswf.io mail list.
 
 ## Contributor Licence Agreements
 
@@ -89,14 +87,12 @@ project leader, but anything complex requires a CLA.
 
 * If you are an individual writing the code on your own time and
 you're SURE you are the sole owner of any intellectual property you
-contribute, use the [Individual Contributor License Agreement]
-(http://www.openexr.com/downloads/OpenEXRIndividualContributorLicenseAgreement.docx).
+contribute, use the [Individual Contributor License Agreement](http://www.openexr.com/downloads/OpenEXRIndividualContributorLicenseAgreement.docx).
 
 * If you are writing the code as part of your job, or if there is any
 possibility that your employers might think they own any intellectual
 property you create, then you should use the [Corporate Contributor
-Licence Agreement]
-(http://www.openexr.com/downloads/OpenEXRCorporateContributorLicenseAgreement.docx).
+Licence Agreement](http://www.openexr.com/downloads/OpenEXRCorporateContributorLicenseAgreement.docx).
 
 Download the appropriate CLA from the links above (or find them in the
 src/doc directory of the software distribution), print, sign, and

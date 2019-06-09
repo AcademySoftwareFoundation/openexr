@@ -41,7 +41,7 @@ OpenEXR's features include:
 ## License
 
 OpenEXR, including all contributions, is released under a modified BSD
-license. Please see the [LICENSE.md] (LICENSE.md) file accompanying
+license. Please see the [LICENSE.md](LICENSE.md) file accompanying
 the distribution for the legal fine print.
       
 ## OpenEXR Sub-modules
@@ -79,23 +79,23 @@ GitHub repository: http://www.github.com/openexr/openexr
 
 Deverloper discussion mailing list:
 
-* [openexr-dev@lists.aswf.io] (https://lists.aswf.io/g/openexr-dev)
+* [openexr-dev@lists.aswf.io](https://lists.aswf.io/g/openexr-dev)
 
 ## Building and Installation
 
 Download the latest release of OpenEXR from the GitHub Releases page:
 https://github.com/openexr/openexr/releases.
 
-For more information about building from sources, see the [INSTALL.md] (INSTALL.md) file.
+For more information about building from sources, see the [INSTALL.md](INSTALL.md) file.
 
 ## Contributing
 
-See [CONTRIBUTING.md] (CONTRIBUTING.md) for more information about contributing to OpenEXR.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more information about contributing to OpenEXR.
 
 ## Project Goverance
 
 OpenEXR is owned by the Academy Software Foundation, and is maintained
-by the developer community. See [GOVERNANCE.md] (GOVERNANCE.md) for
+by the developer community. See [GOVERNANCE.md](GOVERNANCE.md) for
 more infomation.
 
 ## Documentation
