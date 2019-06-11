@@ -70,9 +70,9 @@
 #include <string>
 #include <assert.h>
 #include <time.h>
-#ifndef WIN32
+#ifndef _WIN32
 #include <sys/times.h>
-#endif // WIN32
+#endif // _WIN32
 
 #ifndef ILM_IMF_TEST_IMAGEDIR
     #define ILM_IMF_TEST_IMAGEDIR
