@@ -16,7 +16,7 @@ technical conversations and decisions that have shaped the project.
 
 ### How to Ask for Help
 
-If you have trouble installing, building, or using the library, but there's not yet reason to suspect you've encountered a genuine but, start by posting a question to the [openexr-dev](http://lists.aswf.io/openexr-dev) mailing list. This is the place for question such has "How do I...".
+If you have trouble installing, building, or using the library, but there's not yet reason to suspect you've encountered a genuine bug, start by posting a question to the [openexr-dev](http://lists.aswf.io/openexr-dev) mailing list. This is the place for question such has "How do I...".
 
 ### How to Report a Bug
 
@@ -26,7 +26,7 @@ https://github.com/openexr/openexr/issues
 If you are submitting a bug report, please be sure to note which
 version of OpenEXR you are using, on what platform (OS/version, which
 compiler you used, and any special build flags or other unusual
-environmental issues). Please give a specific an account of
+environmental issues). Please give a specific account of
 
 * what you tried
 * what happened
@@ -66,7 +66,7 @@ See below for details.
 OpenEXR is owned by the Academy Software Foundation and follows the
 open source software best practice policies of the Linux Foundation.
 
-### Contributor Licence Agreements
+### Contributor License Agreements
 
 Developers who wish to contribute code to be considered for inclusion
 in the OpenEXR distribution must first complete a **Contributor
@@ -157,15 +157,15 @@ workflow.
 
 ### Use the Fork, Luke.
 
-In a typical workflow, yous should **fork** the OpenEXR repository to
+In a typical workflow, you should **fork** the OpenEXR repository to
 your account. This creates a copy of the repository under your user
 namespace and serves as the “home base” for your development branches,
 from which you will submit **pull requests** to the upstream
 repository to be merged.
 
 Once your Git environment is operational, the next step is to locally
-**clone** your forked OpenColorIO repository, and add a **remote**
-pointing to the upstream OpenColorIO repository. These topics are
+**clone** your forked OpenEXR repository, and add a **remote**
+pointing to the upstream OpenEXR repository. These topics are
 covered in [Cloning a
 repository](https://help.github.com/articles/cloning-a-repository/)
 and [Configuring a remote for a
@@ -369,7 +369,7 @@ going on in your code.
 Prefer C++ comments (starting line with `//`) rather than C comments (`/* ... */`).
 
 For public APIs we tend to use Doxygen-style comments (start with `///`).
-They looks like this:
+They look like this:
 
     /// Explanation of a class.  Note THREE slashes!
     /// Also, you need at least two lines like this.  If you don't have enough
@@ -403,7 +403,7 @@ Guidelines](http://opencolorio.org/developers/documentation_guidelines.html).
 OpenEXR uses [semantic versioning](https://semver.org), which labels
 each version with three numbers: Major.Minor.Patch, where:
 
-* **MAJOR** indicates incompatible API changes,
+* **MAJOR** indicates incompatible API changes
 * **MINOR** indicates functionality added in a backwards-compatible manner
 * **PATCH** indicates backwards-compatible bug fixes 
 
