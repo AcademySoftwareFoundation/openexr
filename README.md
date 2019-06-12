@@ -1,5 +1,8 @@
 # OpenEXR
 
+[![License](https://img.shields.io/badge/License-BSD%203%20Clause-blue.svg)](LICENSE.md)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2799/badge)](https://bestpractices.coreinfrastructure.org/projects/2799)
+
 **OpenEXR** is a high dynamic-range (HDR) image file format developed
 by Industrial Light & Magic (ILM) for use in computer imaging
 applications. It supports stereoscopic and deep images.  Weta Digital,
@@ -38,12 +41,6 @@ OpenEXR's features include:
   namespaces to provide protection when using multiple versions of the
   library in the same process space.
 
-## License
-
-OpenEXR, including all contributions, is released under a modified BSD
-license. Please see the [LICENSE.md](LICENSE.md) file accompanying
-the distribution for the legal fine print.
-      
 ## OpenEXR Sub-modules
 
 The OpenEXR distribution consists of the following sub-modules:
@@ -54,10 +51,21 @@ The OpenEXR distribution consists of the following sub-modules:
 * **OpenEXR_Viewers** - Standard image viewing programs
 * **Contrib** - Various plugins and utilities, contributed by the community.
     
-Please see the ``README`` files of each of the individual directories for more information.
+Please see the README.md files of each of the individual directories for more information.
 
 A collection of OpenEXR images is available from the adjacent repository
 [openexr-images](https://github.com/openexr/openexr-images).
+
+## Supported Platforms
+
+The OpenEXR codebase can be built with any of the following:
+
+* Linux: GCC 4.8 or newer
+* Microsoft Visual Studio 2015 or newer
+* Mac OS
+
+The Python bindings in PyIlmBase support Python 2.6 and 2.7; they have
+not been tested for Python 3.
 
 ## Dependencies
 
@@ -73,30 +81,56 @@ In OpenEXR_Viewers:
 
 ## Web Resources
 
-Main web page: http:://www.openexr.org
+* Main web page: http:://www.openexr.org
 
-GitHub repository: http://www.github.com/openexr/openexr
+* GitHub repository: http://www.github.com/openexr/openexr
 
-Deverloper discussion mailing list:
+* Documentation: http://www.openexr.com/documentation.html.
 
-* [openexr-dev@lists.aswf.io](https://lists.aswf.io/g/openexr-dev)
+* Deverloper discussion mailing list: [openexr-dev@lists.aswf.io](https://lists.aswf.io/g/openexr-dev)
 
-## Building and Installation
+## Developer Quick Start
 
 Download the latest release of OpenEXR from the GitHub Releases page:
 https://github.com/openexr/openexr/releases.
 
-For more information about building from sources, see the [INSTALL.md](INSTALL.md) file.
+For the basic installation on Linux:
+
+    cd <source root>/IlmBase
+    ./configure
+    make
+    make install
+
+    cd <source root>/OpenEXR
+    ./configure
+    make 
+    make install
+
+See the module README files for options to ``configure``.
+
+See the [build documentation](INSTALL.md) documentation for help with
+installation on other platforms.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for more information about contributing to OpenEXR.
+Developers who wish to contribute code to be considered for inclusion
+in the OpenEXR distribution must first complete the Contributor
+License Agreement and submit it to info@openexr.com. We prefer code
+submissions in the form of pull requests to this repository. Every
+commit must be signed off. That is, every commit log message must
+include a “Signed-off-by” line (generated, for example, with “git
+commit --signoff”), indicating that the committer wrote the code and
+has the right to release it under the BSD-3-Clause license. See
+http://developercertificate.org/ for more information on this
+requirement.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more information about
+contributing to OpenEXR.
 
 ## Project Goverance
 
-OpenEXR is owned by the Academy Software Foundation, and is maintained
-by the developer community. See [GOVERNANCE.md](GOVERNANCE.md) for
-more infomation.
+OpenEXR is governed by the Academy Software Foundation. See
+[GOVERNANCE.md](GOVERNANCE.md) for more infomation.
 
 ## Documentation
 
