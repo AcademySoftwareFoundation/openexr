@@ -69,10 +69,6 @@
 #include <fstream>
 #include <string>
 #include <assert.h>
-#include <time.h>
-#ifndef _WIN32
-#include <sys/times.h>
-#endif // _WIN32
 
 #ifndef ILM_IMF_TEST_IMAGEDIR
     #define ILM_IMF_TEST_IMAGEDIR
