@@ -785,6 +785,14 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 	throw IEX_NAMESPACE::ArgExc ("Invalid data window in image header.");
     }
 
+    // e. g. CVE-2017-9111, CVE-2017-9113, CVE-2017-9115
+    // int w = dw.max.x - dw.min.x + 1;
+    // in.setFrameBuffer (&pixels[0][0] - dw.min.y * w - dw.min.x, 1, w);
+    if (INT_MAX / abs(dataWindow.max.x - dataWindow.min.x + 1) < abs(dataWindow.min.y))
+      {
+        throw IEX_NAMESPACE::ArgExc ("Invalid data window in image header.");
+      }
+
     if (maxImageWidth > 0 &&
         maxImageWidth < (dataWindow.max.x - dataWindow.min.x + 1))
     {
