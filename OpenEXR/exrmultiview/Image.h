@@ -227,7 +227,7 @@ template <class T>
 void
 TypedImageChannel<T>::black ()
 {
-    memset(&_pixels[0][0],0,image().width()/_xSampling*image().height()/_ySampling*sizeof(T));
+    memset(&_pixels[0][0],0,image().width()/_xSampling*(image().height()/_ySampling)*sizeof(T));
 }
 
 
