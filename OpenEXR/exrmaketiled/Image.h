@@ -192,6 +192,9 @@ TypedImageChannel<T>::slice () const
     const IMATH_NAMESPACE::Box2i &dw = image().dataWindow();
     int w = dw.max.x - dw.min.x + 1;
 
+    if (INT_MAX / abs(w) < abs(dw.min.y) ||
+        INT_MAX - abs(dw.min.x) < abs(dw.min.y * w))
+      throw IEX_NAMESPACE::ArgExc ("Invalid data window in image header.");
     return OPENEXR_IMF_INTERNAL_NAMESPACE::Slice (pixelType(),
 		       (char *) (&_pixels[0][0] - dw.min.y * w - dw.min.x),
 		       sizeof (T),
