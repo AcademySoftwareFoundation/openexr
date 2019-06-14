@@ -98,10 +98,10 @@ projects.
 Every commit must be signed off.  That is, every commit log message
 must include a “`Signed-off-by`” line (generated, for example, with
 “`git commit --signoff`”), indicating that the committer wrote the
-code and has the right to release it under the [MPL
-2.0](https://www.mozilla.org/MPL/2.0/) license. See
-http://developercertificate.org/ for more information on this
-requirement.
+code and has the right to release it under the
+[Modified-BSD-3-Clause](https://opensource.org/licenses/BSD-3-Clause)
+license. See http://developercertificate.org/ for more information on
+this requirement.
 
 ## Development Workflow
 
@@ -166,7 +166,7 @@ repository to be merged.
 Once your Git environment is operational, the next step is to locally
 **clone** your forked OpenEXR repository, and add a **remote**
 pointing to the upstream OpenEXR repository. These topics are
-covered in [Cloning a
+covered in the GitHub documentation [Cloning a
 repository](https://help.github.com/articles/cloning-a-repository/)
 and [Configuring a remote for a
 fork](https://help.github.com/articles/configuring-a-remote-for-a-fork/),
@@ -177,7 +177,7 @@ openexr-dev@lists.aswf.io mail list.
 
 Contributions should be submitted as Github pull requests. See
 [Creating a pull request](https://help.github.com/articles/creating-a-pull-request/)
-if you're unfamiliar with this concept.
+if you're unfamiliar with this concept. 
 
 The development cycle for a code change should follow this protocol:
 
@@ -193,23 +193,14 @@ with a separate pull request.
 
 4. Create a Github pull request from your topic branch.
 
-5. All pull requests trigger CI builds on [Travis CI](https://travis-ci.org/)
-for Linux and Mac OS and [AppVeyor](https://www.appveyor.com/) for Windows.
-These builds verify that code compiles and all unit tests succeed. CI build
-status is displayed on the GitHub PR page, and changes will only be considered
-for merging after all builds have succeeded.
-
-6. Pull requests will be reviewed by project Committers and Contributors,
+5. Pull requests will be reviewed by project Committers and Contributors,
 who may discuss, offer constructive feedback, request changes, or approve
 the work.
 
-7. Upon receiving the required number of Committer approvals (as outlined
-in [Required Approvals](#required-approvals)), a Committer other than the PR
-contributor may squash and merge changes into the master branch.
-
-See also (from the OpenEXR Developer Guide):
-* [Getting started](http://opencolorio.org/developers/getting_started.html)
-* [Submitting Changes](http://opencolorio.org/developers/submitting_changes.html)
+6. Upon receiving the required number of Committer approvals (as
+outlined in [Required Approvals](#required-approvals)), a Committer
+other than the PR contributor may merge changes into the master
+branch.
 
 ### Code Review and Required Approvals
 
@@ -269,34 +260,49 @@ modifications to the TSC by assigning the `tsc-review` label to a pull
 request or issue. The TSC should serve as the final arbiter where
 required.
 
+### Project Issue Handling Process
+
+Incoming new issues are labeled promptly by the TSC using GitHub labels. 
+
+The labels include:
+
+* **Bug** - A bug in the source code. Something appears to be
+    functioning improperly: a compile error, a crash, unexpected behavior, etc. 
+
+* **Build/Install Issue** - A problem with building or installing the
+    library: configuration file, external dependency, a compile error
+    with a release version that prevents installation.
+
+* **C++** - A C++ compilation issue: a compiler warning, syntax issue,
+    or language usage or suggested upgrade.
+
+* **CMake** - A build issue with the CMake configuration files.
+
+* **CVE** - A security vulnerability bug.
+
+* **Documentation** - The project documentation: developer or user guide, web site, project policies, etc. 
+
+* **Feature Request** - A suggested change or addition of functionality to the library.
+
+* **MinGW** - An issue specific to MinGW
+
+* **Mac OS** - A build issue specific to Mac OS.
+
+* **Pending merge to master**
+
+* **Question/Problem/Help** - A request for help or further investigation, possibly just user error or misunderstanding.
+
+* **Test Failure** - One of the automated tests is failing, or an analysis tool is reporting problematic behavior.
+
+* **Windows** - A build issue specific to Windows
+
+* **Won't Fix** - No further action will taken.
+
 ## Coding Style
 
 #### Formatting
 
-We use [clang-format](https://clang.llvm.org/docs/ClangFormat.html)
-to uniformly format our source code prior to PR submission. Make sure that
-clang-format is installed on your local machine, and just run
-
-    make clang-format
-
-and it will automatically reformat your code according to the configuration
-file found in the `.clang-format` file at the root directory of the OpenEXR
-source code checkout.
-
-One of the TravisCI test matrix entries runs clang-format and fails if any
-diffs were generated (that is, if any of your code did not 100% conform to
-the `.clang-format` formatting configuration). If it fails, clicking on that
-test log will show you the diffs generated, so that you can easily correct
-it on your end and update the PR with the formatting fixes.
-
-If you don't have clang-format set up on your machine, and your patch is not
-very long, you may find that it's more convenient to just submit it and hope
-for the best, and if it doesn't pass the Travis test, look at the diffs in
-the log and make the corrections by hand and then submit an update to the
-patch (i.e. relying on Travis to run clang-format for you).
-
-Because the basic formatting is automated by clang-format, we won't
-enumerate the rules here.
+TBD
 
 #### File conventions
 
@@ -305,61 +311,25 @@ All headers should contain
 
     #pragma once
 
-All source files should begin with the copyright and license, which
-can be found in the [LICENSE](LICENSE.md) file (or cut and pasted from
-any other other source file).
+#### Copyright Notices
 
-For NEW source files, please change the copyright year to the present. DO
-NOT edit existing files only to update the copyright year, it just creates
-pointless deltas and offers no increased protection.
+All new source files should begin with a copyright and license stating:
 
+    // SPDX-License-Identifier: Modified-BSD-3-Clause
+    // Copyright Contributors to the OpenEXR Project. See LICENSE file for details.
 
 #### Identifiers
 
 In general, classes and templates should start with upper case and
-capitalize new words: `class CustomerList;` In general, local variables
-should start with lower case. Macros should be `ALL_CAPS`, if used at all.
-
-If your class is extremely similar to, or modeled after, something in the
-standard library, Boost, or something else we interoperate with, it's ok to
-use their naming conventions. For example, very general utility classes and
-templates (the kind of thing you would normally find in std or boost) should
-be lower case with underscores separating words, as they would be if they
-were standards.
-
-    template <class T> shared_ptr;
-    class scoped_mutex;
-
-Names of data should generally be nouns. Functions/methods are trickier: a
-the name of a function that returns a value but has no side effects should
-be a noun, but a procedure that performs an action should be a verb.
-
-#### Class structure
-
-Try to avoid public data members, although there are some classes that serve
-a role similar to a simple C struct -- a very straightforward collection of
-data members. In these, it's fine to make the data members public and have
-clients set and get them directly.
-
-Private member data should be named m_foo (alternately, it's ok to use the
-common practice of member data foo_, but don't mix the conventions within a
-class).
-
-Private member data that needs public accessors should use the convention:
-
-    void foo (const T& newfoo) { m_foo = newfoo; }
-    const T& foo () const { return m_foo; }
-
-Avoid multiple inheritance.
-
-Namespaces: yes, use them!
+capitalize new words: `class CustomerList;` In general, local
+variables should start with lower case. Macros should be `ALL_CAPS`,
+if used at all.
 
 #### Third-party libraries
 
-Prefer C++11 `std` rather than Boost, where both can do the same task.
-Feel free to use Boost classes you already see in the code base, but don't
-use any Boost you don't see us already using, without first checking with
-the project leader.
+Prefer C++11 `std` over Boost where possible. Feel free to use Boost
+classes you already see in the code base, but check with the project
+leadership before adding new boost usage.
 
 #### Comments and Doxygen
 
@@ -368,8 +338,7 @@ going on in your code.
 
 Prefer C++ comments (starting line with `//`) rather than C comments (`/* ... */`).
 
-For public APIs we tend to use Doxygen-style comments (start with `///`).
-They look like this:
+For public APIs, use Doxygen-style comments (start with `///`), such as:
 
     /// Explanation of a class.  Note THREE slashes!
     /// Also, you need at least two lines like this.  If you don't have enough
@@ -392,9 +361,6 @@ Prefer `std::unique_ptr` over raw new/delete.
 When in doubt, look elsewhere in the code base for examples of similar
 structures and try to format your code in the same manner, or ask on
 the openexr-dev mail list.
-
-For standards on contributing to documentation, see the [Documentation
-Guidelines](http://opencolorio.org/developers/documentation_guidelines.html).
 
 ## Release Management
 
