@@ -113,48 +113,56 @@ ADD_SUBDIRECTORY ( IexMath )
 ADD_SUBDIRECTORY ( Imath )
 ADD_SUBDIRECTORY ( IlmThread )
 
-IF (WIN32)
-  FILE ( COPY ${CMAKE_CURRENT_SOURCE_DIR}/config.windows/IlmBaseConfig.h
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/config
-    )
-ELSE ()
-  IF (APPLE)
-    FILE ( WRITE  ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define HAVE_PTHREAD 1\n" )
-  ELSE ()
-    FILE ( WRITE  ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define HAVE_PTHREAD 1\n" )
-    FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMBASE_HAVE_LARGE_STACK  1\n" )
-    FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define HAVE_POSIX_SEMAPHORES 1\n" )
-    FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT 1\n")
-  ENDIF ()
-ENDIF ()
+### Generate the config file header
 
-IF (NAMESPACE_VERSIONING)
-  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMBASE_INTERNAL_NAMESPACE_CUSTOM 1\n")
-  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define IMATH_INTERNAL_NAMESPACE Imath_${ILMBASE_VERSION_API}\n")
-  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define IEX_INTERNAL_NAMESPACE Iex_${ILMBASE_VERSION_API}\n")
-  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMTHREAD_INTERNAL_NAMESPACE IlmThread_${ILMBASE_VERSION_API}\n")
-ELSE ()
-  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMBASE_INTERNAL_NAMESPACE_CUSTOM 0\n")
-  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define IMATH_INTERNAL_NAMESPACE Imath\n")
-  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define IEX_INTERNAL_NAMESPACE Iex\n")
-  FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMTHREAD_INTERNAL_NAMESPACE IlmThread\n")
-ENDIF ()
+set(SRC_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/config.windows/IlmBaseConfig.h")
+set(BIN_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}/config")
+set(TMP_CONFIG_FILE "${BIN_CONFIG_DIR}/IlmBaseConfig.h.tmp")
+set(BIN_CONFIG_FILE "${BIN_CONFIG_DIR}/IlmBaseConfig.h")
+if(WIN32)
+  configure_file("${SRC_CONFIG_FILE}" "${TMP_CONFIG_FILE}" COPYONLY)
+else()
+  if(APPLE)
+    file(WRITE "${TMP_CONFIG_FILE}" "#define HAVE_PTHREAD 1\n")
+  else()
+    file(WRITE "${TMP_CONFIG_FILE}" "#define HAVE_PTHREAD 1\n")
+    file(APPEND "${TMP_CONFIG_FILE}" "#define ILMBASE_HAVE_LARGE_STACK  1\n")
+    file(APPEND "${TMP_CONFIG_FILE}" "#define HAVE_POSIX_SEMAPHORES 1\n")
+    file(APPEND "${TMP_CONFIG_FILE}" "#define ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT 1\n")
+  endif()
+endif()
 
-FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define IMATH_NAMESPACE Imath\n")
-FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define IEX_NAMESPACE Iex\n")
-FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMTHREAD_NAMESPACE IlmThread\n")
-FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_STRING \"${ILMBASE_VERSION}\"\n" )
-FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMBASE_PACKAGE_STRING \"IlmBase ${ILMBASE_VERSION}\"\n" )
-FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_MAJOR ${ILMBASE_VERSION_MAJOR}\n" )
-FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_MINOR ${ILMBASE_VERSION_MINOR}\n" )
-FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "#define ILMBASE_VERSION_PATCH ${ILMBASE_VERSION_PATCH}\n" )
+if(NAMESPACE_VERSIONING)
+  file(APPEND "${TMP_CONFIG_FILE}" "#define ILMBASE_INTERNAL_NAMESPACE_CUSTOM 1\n")
+  file(APPEND "${TMP_CONFIG_FILE}" "#define IMATH_INTERNAL_NAMESPACE Imath_${ILMBASE_VERSION_API}\n")
+  file(APPEND "${TMP_CONFIG_FILE}" "#define IEX_INTERNAL_NAMESPACE Iex_${ILMBASE_VERSION_API}\n")
+  file(APPEND "${TMP_CONFIG_FILE}" "#define ILMTHREAD_INTERNAL_NAMESPACE IlmThread_${ILMBASE_VERSION_API}\n")
+else()
+  file(APPEND "${TMP_CONFIG_FILE}" "#define ILMBASE_INTERNAL_NAMESPACE_CUSTOM 0\n")
+  file(APPEND "${TMP_CONFIG_FILE}" "#define IMATH_INTERNAL_NAMESPACE Imath\n")
+  file(APPEND "${TMP_CONFIG_FILE}" "#define IEX_INTERNAL_NAMESPACE Iex\n")
+  file(APPEND "${TMP_CONFIG_FILE}" "#define ILMTHREAD_INTERNAL_NAMESPACE IlmThread\n")
+endif()
 
-FILE ( APPEND ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h "
+file(APPEND "${TMP_CONFIG_FILE}" "#define IMATH_NAMESPACE Imath\n")
+file(APPEND "${TMP_CONFIG_FILE}" "#define IEX_NAMESPACE Iex\n")
+file(APPEND "${TMP_CONFIG_FILE}" "#define ILMTHREAD_NAMESPACE IlmThread\n")
+file(APPEND "${TMP_CONFIG_FILE}" "#define ILMBASE_VERSION_STRING \"${ILMBASE_VERSION}\"\n")
+file(APPEND "${TMP_CONFIG_FILE}" "#define ILMBASE_PACKAGE_STRING \"IlmBase ${ILMBASE_VERSION}\"\n")
+file(APPEND "${TMP_CONFIG_FILE}" "#define ILMBASE_VERSION_MAJOR ${ILMBASE_VERSION_MAJOR}\n")
+file(APPEND "${TMP_CONFIG_FILE}" "#define ILMBASE_VERSION_MINOR ${ILMBASE_VERSION_MINOR}\n")
+file(APPEND "${TMP_CONFIG_FILE}" "#define ILMBASE_VERSION_PATCH ${ILMBASE_VERSION_PATCH}\n")
+
+file(APPEND "${TMP_CONFIG_FILE}" "
 // Version as a single hex number, e.g. 0x01000300 == 1.0.3
 #define ILMBASE_VERSION_HEX ((ILMBASE_VERSION_MAJOR << 24) | \\
                              (ILMBASE_VERSION_MINOR << 16) | \\
                              (ILMBASE_VERSION_PATCH <<  8))
 ")
+# Update destination configuration file in the build-dir only if it has changed
+# to prevent unnecessary rebuild of the source file including it.
+execute_process(COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+  "${TMP_CONFIG_FILE}" "${BIN_CONFIG_FILE}")
 
 SET (ILMBASE_LIBSUFFIX "")
 IF (NAMESPACE_VERSIONING)
@@ -209,8 +217,8 @@ ENDIF (OPENEXR_BUILD_TESTS) #Smode
 # Installation
 
 IF (OPENEXR_INSTALL) #Smode 
-  INSTALL ( FILES 
-    ${CMAKE_CURRENT_BINARY_DIR}/config/IlmBaseConfig.h
+  INSTALL ( FILES
+    "${BIN_CONFIG_FILE}"
     DESTINATION
     include/OpenEXR
 
