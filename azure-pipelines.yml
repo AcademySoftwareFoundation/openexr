@@ -1,0 +1,25 @@
+# Azure CI
+
+jobs:
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-16.04'
+  container: aswfstaging/ci-base:2019
+  steps:
+  - bash: |
+      mkdir build
+      cd build
+      cmake ..
+      make -j4
+    displayName: Build
+  - bash: |
+      cd build
+      ctest -T Test --output-on-failure -VV -E PyImathNumpyTest
+    displayName: Test
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    displayName: 'Publish test results'
+    inputs:
+      testResultsFormat: 'cTest'
+      testResultsFiles: '**/Test*.xml' 
+      failTaskOnFailedTests: true
