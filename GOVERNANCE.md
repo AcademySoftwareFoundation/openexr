@@ -65,7 +65,7 @@ directly.
 
 The Technical Steering Committee (TSC) oversees the overall technical
 direction of OpenEXR, as defined in the project
-[charter](aswf-tsc/charter/OpenEXR-Technical-Charter.md).  This
+[charter](ASWF/charter/OpenEXR-Technical-Charter.md).  This
 charter defines the TSC member terms and succession policies.
 
 The responsibilities of the TSC include:
@@ -120,9 +120,10 @@ the project.
 The intention of the agenda is not to approve or review all patches. That should
 happen continuously on GitHub and be handled by the larger group of Committers.
 
-Any community member or Contributor can ask that something be reviewed by the
-TSC at the meeting by logging a GitHub issue. Any Committer, TSC member, or the meeting chair
-can bring the issue to the TSC's attention by applying the `tsc-review` label.
+Any community member or Contributor can ask that something be reviewed
+by the TSC at the meeting by logging a GitHub issue. Any Committer,
+TSC member, or the meeting chair can bring the issue to the TSC's
+attention by applying the `tsc-review` label.
 
 Prior to each TSC meeting, the meeting chair will share the agenda with members
 of the TSC. TSC members can also add items to the agenda at the beginning of
@@ -131,7 +132,7 @@ each meeting. The meeting chair and the TSC cannot veto or remove items.
 The TSC may invite additional persons to participate in a non-voting capacity.
 
 The meeting chair is responsible for archiving the minutes, stored at 
-https://github.com/openexr/openexr/tree/master/aswf-tsc/meetings.
+https://github.com/openexr/openexr/tree/master/ASWF/tsc-meetings.
 
 Due to the challenges of scheduling a global meeting with participants in
 several time zones, the TSC will seek to resolve as many agenda items as
