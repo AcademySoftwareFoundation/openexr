@@ -364,6 +364,10 @@ the openexr-dev mail list.
 
 ## Release Management
 
+Generate the release notes via:
+    git log v2.2.1...v2.3.0 --date=short --pretty=format:"[%s](https://github.com/openexr/openexr/commit/%H) ([%an](@%ae) %ad)"
+    
+
 ### Versioning Policy
 
 OpenEXR uses [semantic versioning](https://semver.org), which labels
