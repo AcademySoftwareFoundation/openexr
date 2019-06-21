@@ -1,6 +1,6 @@
 # OpenEXR Release Notes
 
-## Version 2.3.0:
+## Version 2.3.0 (August 13, 2018)
 
 ### Features/Improvements:
 
@@ -672,22 +672,164 @@
 
 *  [Use LL for 64-bit literals](https://github.com/openexr/openexr/commit/57ecf581d053f5cacf2e8fc3c024490e0bbe536f) ([Brendan Bolles](@brendan@fnordware.com), 2014-08-13) On a 32-bit architecture, these literals are too big for just a long, they need to be long long, otherwise I get an error in GCC.
 
+## Version 2.2.1 (November 30, 2017)
 
-## Version 2.0.1
+This maintenance release addresses the reported OpenEXR security
+vulnerabilities, specifically:
 
+* CVE-2017-9110
+* CVE-2017-9111
+* CVE-2017-9112
+* CVE-2017-9113
+* CVE-2017-9114
+* CVE-2017-9115
+* CVE-2017-9116.
 
-* Temporarily turning off optimisation code path
-	  (Piotr Stanczyk)
-* Added additional tests for future optimisation refactoring
-	  (Piotr Stanczyk / Peter Hillman)
-* Fixes for StringVectors
-	  (Peter Hillman)
-* Additional checks for type mismatches
-	  (Peter Hillman)
-* Fix for Composite Deep Scanline
-	  (Brendan Bolles)
+## Version 2.2.0 (August 10, 2014)
 
-## Version 2.0.0
+This release includes the following components:
+
+* OpenEXR: v2.2.0
+* IlmBase: v2.2.0
+* PyIlmBase: v2.2.0
+* OpenEXR_Viewers: v2.2.0
+
+This significant new features of this release include:
+
+* **DreamWorks Lossy Compression** A new high quality, high performance
+  lossy compression codec contributed by DreamWorks Animation. This
+  codec allows control over variable lossiness to balance visual
+  quality and file size. This contribution also includes performance
+  improvements that speed up the PIZ codec.
+
+* **IlmImfUtil** A new library intended to aid in development of image
+  file manipulation utilities that support the many types of OpenEXR
+  images.
+
+This release also includes improvements to cross-platform build
+support using CMake.
+
+## Version 2.1.0 (November 25, 2013)
+
+This release includes the following components (version locked):
+* OpenEXR: v2.1.0
+* IlmBase: v2.1.0
+* PyIlmBase: v2.1.0
+* OpenEXR_Viewers: v2.1.0
+
+This release includes a refactoring of the optimised read paths for
+RGBA data, optimisations for some of the python bindings to Imath,
+improvements to the cmake build environment as well as additional
+documentation describing deep data in more detail.
+
+## Version 2.0.1 (July 11, 2013)
+
+### Detailed Changes:
+
+* Temporarily turning off optimisation code path (Piotr Stanczyk)
+          
+* Added additional tests for future optimisation refactoring (Piotr
+	  Stanczyk / Peter Hillman)
+
+* Fixes for StringVectors (Peter Hillman)
+
+* Additional checks for type mismatches (Peter Hillman)
+          
+* Fix for Composite Deep Scanline (Brendan Bolles)
+
+## Version 2.0 (April 9, 2013)
+
+Industrial Light & Magic (ILM) and Weta Digital announce the release
+of OpenEXR 2.0, the major version update of the open source high
+dynamic range file format first introduced by ILM and maintained and
+expanded by a number of key industry leaders including Weta Digital,
+Pixar Animation Studios, Autodesk and others.
+
+The release includes a number of new features that align with the
+major version number increase. Amongst the major improvements are:
+
+* **Deep Data support** - Pixels can now store a variable-length list of
+  samples. The main rationale behind deep images is to enable the
+  storage of multiple values at different depths for each
+  pixel. OpenEXR 2.0 supports both hard-surface and volumetric
+  representations for Deep Compositing workflows.
+
+* **Multi-part Image Files** - With OpenEXR 2.0, files can now contain
+  a number of separate, but related, data parts in one file. Access to
+  any part is independent of the others, pixels from parts that are
+  not required in the current operation don't need to be accessed,
+  resulting in quicker read times when accessing only a subset of
+  channels. The multipart interface also incorporates support for
+  Stereo images where views are stored in separate parts. This makes
+  stereo OpenEXR 2.0 files significantly faster to work with than the
+  previous multiview support in OpenEXR.
+
+* **Optimized pixel reading** - decoding RGB(A) scanline images has
+  been accelerated on SSE processors providing a significant speedup
+  when reading both old and new format images, including multipart and
+  multiview files.
+
+* **Namespacing** - The library introduces versioned namespaces to
+  avoid conflicts between packages compiled with different versions of
+  the library.
+
+Although OpenEXR 2.0 is a major version update, files created by the
+new library that don't exercise the new feature set are completely
+backwards compatible with previous versions of the library. By using
+the OpenEXR 2.0 library, performance improvements, namespace versions
+and basic multi-part/deep reading support should be available to
+applications without code modifications.
+
+This code is designed to support Deep Compositing - a revolutionary
+compositing workflow developed at Weta Digital that detached the
+rendering of different elements in scene. In particular, changes in
+one layer could be rendered separately without the need to re-render
+other layers that would be required to handle holdouts in a
+traditional comp workflow or sorting of layers in complex scenes with
+elements moving in depth. Deep Compositing became the primary
+compositing workflow on Avatar and has seen wide industry
+adoption. The technique allows depth and color value to be stored for
+every pixel in a scene allowing for much more efficient handling of
+large complex scenes and greater freedom for artists to iterate.
+
+True to the open source ethos, a number of companies contributed to
+support the format and encourage adoption. Amongst others, Pixar
+Animation Studios has contributed its DtexToExr converter to the
+OpenEXR repository under a Microsoft Public License, which clears any
+concerns about existing patents in the area, and Autodesk provided
+performance optimizations geared towards real-time post-production
+workflows.
+
+Extensive effort has been put in ensuring all requirements were met to
+help a wide adoption, staying true to the wide success of
+OpenEXR. Many software companies were involved in the beta cycle to
+insure support amongst a number of industry leading
+applications. Numerous packages like SideFX's Houdini, Autodesk's
+Maya, Solid Angle's Arnold renderer, Sony Pictures Imageworks' Open
+Image IO have already announced their support of the format.
+
+Open EXR 2.0 is an important step in the adoption of deep compositing
+as it provides a consistent file format for deep data that is easy to
+read and work with throughout a visual effects pipeline. The Foundry
+has build OpenEXR 2.0 support into its Nuke Compositing application as
+the base for the Deep Compositing workflows.
+
+OpenEXR 2.0 is already in use at both Weta Digital and Industrial
+Light & Magic. ILM took advantage of the new format on Marvel's The
+Avengers and two highly anticipated summer 2013 releases, Pacific Rim
+and The Lone Ranger. Recent examples of Weta Digital's use of the
+format also include Marvel's Avengers as well as Prometheus and The
+Hobbit. In addition, a large number of visual effects studios have
+already integrated a deep workflow into their compositing pipelines or
+are in the process of doing so including:, Sony Pictures Imageworks,
+Pixar Animation Studios, Rhythm & Hues, Fuel and MPC.
+
+In addition to visual effects, the new additions to the format, means
+that depth data can also be assigned to two-dimensional data for a use
+in many design fields including, architecture, graphic design,
+automotive and product prototyping.
+
+### Detailed Changes:
 
 * Updated Documentation
 	   (Peter Hillman)
@@ -705,9 +847,38 @@
 	  (Nick Rasmussen)
 * Numerous minor fixes, missing includes etc
 
-## Version 2.0.0.beta.1:
+## Version 2.0.0.beta.1 (June 15, 2012)
 
-* Please read the separate file for v2 additions and changes.
+Development of OpenEXR v2 has been undertaken in a collaborative
+environment (cf. previous github announcement) comprised of Industrial
+Light & Magic, Weta Digital as well as a number of other contributors.
+
+Some of the new features included in the Beta.1 release of OpenEXR v2
+are:
+
+* **Deep Data** Pixels can now store a variable length list of
+  samples. The main rationale behind deep-images is to have multiple
+  values at different depths for each pixel. OpenEXR v2 supports both
+  hard surface and volumetric representation requirements for deep
+  compositing workflows.
+
+* **Multi-part image files** With OpenEXR v2, files can now contain a
+    number of separate, but related, images in one file. Access to any
+    part is independent of the others; in particular, no access of
+    data need take place for unrequested parts.
+
+In addition, OpenEXR v2 also contains platform independent mechanisms
+for handling co-existing library version conflicts in the same process
+space. (Currently implemented in IlmImf)
+
+Finally, a reminder that this is a Beta release and potentially
+incompatible changes may be introduced in future releases prior to the
+v2.0.0 production version.
+
+Please read the separate file for v2 additions and changes.
+
+### Detailed Changes:
+
 * Added git specific files 
 	  (Piotr Stanczyk)
 * Updated the so verison to 20
@@ -715,344 +886,551 @@
 * Initial use of the CMake build system 
 	  (Nicholas Yue)
 
-## Version 1.7.1:
+## Version 1.7.1 (July 31, 2012)
 
-* Updated the .so verison to 7.
-	  (Piotr Stanczyk)     
+This release includes the following components:
 
-## Version 1.7.0:
+* OpenEXR: v1.7.1
+* IlmBase: v1.0.3
+* PyIlmBase: v1.0.0 (introduces a Boost dependency)
+* OpenEXR_Viewers: v1.0.2
 
-* Added support for targetting builds on 64bit Windows and minimising 
-	  number of compiler warnings on Windows. Thanks to Ger Hobbelt for his
-	  contributions to CreateDLL.
-	  (Ji Hun Yu)
-* Added new atttribute types:
-	  M33dAttribute   3x3 double-precision matrix
-	  M44dAttribute   4x4 double-precision matrix
-	  V2d             2D double-precision vector
-	  V3d             3D double-precision vector
-	  (Florian Kainz)
-* Bug fix: crash when reading a damaged image file (found
-	  by Apple).  An exception thrown inside the PIZ Huffman
-	  decoder bypasses initialization of an array of pointers.
-	  The uninitialized pointers are later passed to operator
-	  delete.
-	  (Florian Kainz)
-* Bug fix: crash when reading a damaged image file (found by
-	  Apple).  Computing the size of input certain buffers may
-	  overflow and wrap around to a small number, later causing
-	  writes beyond the end of the buffer.
-	  (Florian Kainz)
-* In the "Technical Introduction" document, added
-	  Premultiplied vs. Un-Premulitiplied Color section:
-	  states explicitly that pixels with zero alpha and non-zero
-	  RGB are allowed, points out that preserving such a pixel can
-	  be a problem in application programs with un-premultiplied
-	  internal image representations.
-	  (Florian Kainz)
+Of particular note is the introduction of PyIlmBase. This module forms
+a comprehensive set of python bindings to the IlmBase module.
+
+In addition, contained in this release is a number of additions to
+Imath as well as a minor tweak to Imath::Frustrum (for better support
+for Windows platforms) as well as other minor fixes, including
+correction for soname version of IlmImf.
+
+## Version 1.7.0 (July 23, 2010)
+
+This release includes support for stereoscopic images, please see the
+adjoining documentation in the ``MultiViewOpenEXR.pdf``. (Many thanks
+to Weta Digital for their contribution.) In addition, we added support
+for targeting 64 bit Windows, fixes for buffer overruns and a number
+of other minor fixes, additions and optimisations. Please see the
+Changelog files for more detailed information.
+
+### Detailed Changes:
+
+* Added support for targetting builds on 64bit Windows and minimising
+  number of compiler warnings on Windows. Thanks to Ger Hobbelt for
+  his contributions to CreateDLL.  (Ji Hun Yu)
+          
+* Added new atttribute types (Florian Kainz):
+  * **M33dAttribute** 3x3 double-precision matrix
+  * **M44dAttribute** 4x4 double-precision matrix
+  * **V2d** 2D double-precision vector
+  * **V3d** 3D double-precision vector  
+	  
+* Bug fix: crash when reading a damaged image file (found by Apple).
+  An exception thrown inside the PIZ Huffman decoder bypasses
+  initialization of an array of pointers.  The uninitialized pointers
+  are later passed to operator delete.  (Florian Kainz)
+
+* Bug fix: crash when reading a damaged image file (found by Apple).
+  Computing the size of input certain buffers may overflow and wrap
+  around to a small number, later causing writes beyond the end of the
+  buffer.  (Florian Kainz)
+
+* In the "Technical Introduction" document, added Premultiplied
+  vs. Un-Premulitiplied Color section: states explicitly that pixels
+  with zero alpha and non-zero RGB are allowed, points out that
+  preserving such a pixel can be a problem in application programs
+  with un-premultiplied internal image representations.  (Florian
+  Kainz)
+
 * exrenvmap improvements:
+
   - New command line flags set the type of the input image to
-	    latitude-longitude map or cube-face map, overriding the
-	    envmap attribute in the input file header.
+    latitude-longitude map or cube-face map, overriding the envmap
+    attribute in the input file header.
+
   - Cube-face maps can now be assembled from or split into six
-	    square sub-images.
-  - Converting a cube-face map into a new cube-face map with
-	    the same face size copies the image instead of resampling
-	    it.  This avoids blurring when a cube-face map is assembled
-	    from or split into sub-images.
-	  (Florian Kainz)
-* Updated standard chromaticities in ImfAcesFile.cpp to match
-	  final ACES (Academy Color Encoding Specification) document.
-	  (Florian Kainz)
+    square sub-images.
+
+  - Converting a cube-face map into a new cube-face map with the same
+    face size copies the image instead of resampling it.  This avoids
+    blurring when a cube-face map is assembled from or split into
+    sub-images.  (Florian Kainz)
+
+* Updated standard chromaticities in ImfAcesFile.cpp to match final
+  ACES (Academy Color Encoding Specification) document.  (Florian
+  Kainz)
+
 * Added worldToCamera and worldToNDC matrices to
-	  ImfStandardAttributes.h (Florian Kainz)
-* Increased the maximum length of attribute and channel names
-	  from 31 to 255 characters.  For files that do contain names
-	  longer than 31 characters, a new LONG_NAMES_FLAG in the fil
-	  version number is set.  This flag causes older versions of
-	  the IlmImf library (1.6.1 and earlier) to reject files with
-	  long names.  Without the flag, older library versions would
-	  mis-interpret files with long names as broken.
-	  (Florian Kainz)
-* Reading luminance/chroma-encoded files via the RGBA
-	  interface is faster: buffer padding avoids cache thrashing
-	  for certain image sizes, redundant calls to saturation()
-	  have been eliminated.
-	  (Mike Wall)
-* Added "hemispherical blur" option to exrenvmap.
-	  (Florian Kainz)
-* Added experimental version of I/O classes for ACES file
-	  format (restricted OpenEXR format with special primaries
-	  and white point); added exr2aces file converter.
-	  (Florian Kainz)
+  ImfStandardAttributes.h (Florian Kainz)
+
+* Increased the maximum length of attribute and channel names from 31
+  to 255 characters.  For files that do contain names longer than 31
+  characters, a new LONG_NAMES_FLAG in the fil version number is set.
+  This flag causes older versions of the IlmImf library (1.6.1 and
+  earlier) to reject files with long names.  Without the flag, older
+  library versions would mis-interpret files with long names as
+  broken.  (Florian Kainz)
+
+* Reading luminance/chroma-encoded files via the RGBA interface is
+  faster: buffer padding avoids cache thrashing for certain image
+  sizes, redundant calls to saturation() have been eliminated.  (Mike
+  Wall)
+
+* Added "hemispherical blur" option to exrenvmap.  (Florian Kainz)
+
+* Added experimental version of I/O classes for ACES file format
+  (restricted OpenEXR format with special primaries and white point);
+  added exr2aces file converter.  (Florian Kainz)
+
 * Added new constructors to classes Imf::RgbaInputFile and
-	  Imf::TiledRgbaInputFile.  The new constructors have a
-	  layerName parameter, which allows the caller to specify
-	  which layer of a multi-layer or multi-view image will
-	  be read.
-	  (Florian Kainz)
+  Imf::TiledRgbaInputFile.  The new constructors have a layerName
+  parameter, which allows the caller to specify which layer of a
+  multi-layer or multi-view image will be read.  (Florian Kainz)
+
 * A number of member functions in classes Imf::Header,
-	  Imf::ChannelList and Imf::FrameBuffer have parameters
-	  of type "const char *".  Added equivalent functions that
-	  take "const std::string &" parameters.
-	  (Florian Kainz)
+  Imf::ChannelList and Imf::FrameBuffer have parameters of type "const
+  char *".  Added equivalent functions that take "const std::string &"
+  parameters.  (Florian Kainz)
+
 * Added library support for Weta Digital multi-view images:
-	  StringVector attribute type, multiView standard attribute
-	  of type StringVector, utility functions related to grouping
-	  channels into separate views.
-	  (Peter Hillman, Florian Kainz)
+  StringVector attribute type, multiView standard attribute of type
+  StringVector, utility functions related to grouping channels into
+  separate views.  (Peter Hillman, Florian Kainz)
 
-## Version 1.6.1:
+## Version 1.6.1 (October 22, 2007)
 
-* Removed Windows .suo files from distribution.
-	  (Eric Wimmer)
-* Bug fix: crashes, memory leaks and file descriptor leaks
-	  when reading damaged image files (some reported by Apple,
-	  others found by running IlmImfFuzzTest).
-	  (Florian Kainz)
-* Added new IlmImfFuzzTest program to test how resilient the
-	  IlmImf library is with respect broken input files: the program
-	  first damages OpenEXR files by partially overwriting them with
-	  random data; then it tries to read the damaged files.  If all
-	  goes well, the program doesn't crash.
-	  (Florian Kainz)
+This release fixes a buffer overrun in OpenEXR and a Windows build
+problem in CTL, and it removes a few unnecessary files from the
+.tar.gz packages.
 
-## Version 1.6.0:
+### Detailed Changes:
 
-* Bumped DSO version number to 6.0
-	  (Florian Kainz)
-* Added new standard attributes related to color rendering with
-	  CTL (Color Transformation Language): renderingTransform,
-	  lookModTransform and adoptedNeutral.
-	  (Florian Kainz)
-* Bug fix: for pixels with luminance near HALF_MIN, conversion
-	  from RGB to luminance/chroma produces NaNs and infinities
-	  (Florian Kainz)
-* Bug fix: excessive desaturation of small details with certain
-	  colors after repeatedly loading and saving luminance/chroma
-	  encoded images with B44 compression.
-	  (Florian Kainz)
-* Added B44A compression, a minor variation of B44: in most cases,
-	  the compression ratio is 2.28:1, the same as with B44, but in
-	  uniform image areas where all pixels have the same value, the
-	  compression ratio increases to 10.66:1.  Uniform areas occur, for
-	  example, in an image's alpha channel, which typically contains
-	  large patches that are solid black or white, or in computer-
-	  generated images with a black background.
-	  (Florian Kainz)
-* Added flag to configure.ac to enable or disable use of large
-	  auto arrays in the IlmImf library.  Default is "enable" for
-	  Linux, "disable" for everything else.
-	  (Darby Johnston, Florian Kainz)
+* Removed Windows .suo files from distribution.  (Eric Wimmer)
+
+* Bug fix: crashes, memory leaks and file descriptor leaks when
+  reading damaged image files (some reported by Apple, others found by
+  running IlmImfFuzzTest).  (Florian Kainz)
+          
+* Added new IlmImfFuzzTest program to test how resilient the IlmImf
+  library is with respect broken input files: the program first
+  damages OpenEXR files by partially overwriting them with random
+  data; then it tries to read the damaged files.  If all goes well,
+  the program doesn't crash.  (Florian Kainz)
+
+## Version 1.6.0 (August 3, 2007)
+
+OpenEXR 1.6.0:
+
+* Reduced generational loss in B44- and B44A-compressed images.
+
+* Added B44A compression. This is a variation of B44, but with a
+  better compression ratio for images with large uniform areas, such
+  as in an alpha channel.
+
+* Bug fixes.
+
+CTL 1.4.0:
+
+* Added new functions to the CTL standard library: 3x3 matrix support,
+  1D lookup tables with cubic interpolation.
+
+* Added new "ctlversion" statement to the language.
+
+* Bug fixes.
+
+OpenEXR_CTL 1.0.0:
+
+* Applying CTL transforms to a frame buffer is multi-threaded.
+Bug fixes.
+
+OpenEXR_Viewers 1.0.0:
+
+* Implemented new naming conventions for CTL parameters.
+
+IlmBase 1.0.0:
+
+* Half now implements "round to nearest even" mode.
+
+### Detailed Changes:
+
+* Bumped DSO version number to 6.0 (Florian Kainz)
+
+* Added new standard attributes related to color rendering with CTL
+  (Color Transformation Language): renderingTransform,
+  lookModTransform and adoptedNeutral.  (Florian Kainz)
+
+* Bug fix: for pixels with luminance near HALF_MIN, conversion from
+  RGB to luminance/chroma produces NaNs and infinities (Florian Kainz)
+          
+* Bug fix: excessive desaturation of small details with certain colors
+  after repeatedly loading and saving luminance/chroma encoded images
+  with B44 compression.  (Florian Kainz)
+
+* Added B44A compression, a minor variation of B44: in most cases, the
+  compression ratio is 2.28:1, the same as with B44, but in uniform
+  image areas where all pixels have the same value, the compression
+  ratio increases to 10.66:1.  Uniform areas occur, for example, in an
+  image's alpha channel, which typically contains large patches that
+  are solid black or white, or in computer- generated images with a
+  black background.  (Florian Kainz)
+
+* Added flag to configure.ac to enable or disable use of large auto
+  arrays in the IlmImf library.  Default is "enable" for Linux,
+  "disable" for everything else.  (Darby Johnston, Florian Kainz)
+
 * corrected version number on dso's (libtool) - now 5.0
-* Separated ILMBASE_LDFLAGS and ILMBASE_LIBS so that test programs
-	  can link with static libraries properly
-* eliminated some warning messages during install
-	  (Andrew Kunz)
-	
-## Version 1.5.0:
 
-* reorganized packaging of OpenEXR libraries to facilitate
-	  integration with CTL.  Now this library depends on the library
-	  IlmBase.  Some functionality has been moved into OpenEXR_Viewers,
-	  which depends on two other libraries, CTL and OpenEXR_CTL.
-	  Note: previously there were separate releases of
-	  OpenEXR-related plugins for Renderman, Shake and Photoshop.
-	  OpenEXR is supported natively by Rendermand and Photoshop, so
-	  these plugins will not be supported for this or future
-	  versions of OpenEXR.
-	  (Andrew Kunz)
-* New build scripts for Linux/Unix
-	  (Andrew Kunz)
-* New Windows project files and build scripts
-	  (Kimball Thurston)
-* float-to-half conversion now preserves the sign of float zeroes
-	  and of floats that are so small that they become half zeroes.
-	  (Florian Kainz)
-* Bug fix: Imath::Frustum<T>::planes() returns incorrect planes
-	  if the frustum is orthogonal.
-	  (Philip Hubbard)
-* added new framesPerSecond optional standard attribute
-	  (Florian Kainz)
+* Separated ILMBASE_LDFLAGS and ILMBASE_LIBS so that test programs can
+  link with static libraries properly
+
+* eliminated some warning messages during install (Andrew Kunz)
+	
+## Version 1.5.0 (December 15, 2006)
+
+The new version includes several significant changes:
+
+* OpenEXR supports a new image compression method, called B44. It has
+  a fixed compression rate of 2.28:1, or 4.57:1 if used in combination
+  with luminance/chroma encoding. B44-compressed images can be
+  uncompressed fast enough to support real-time playback of image
+  sequences.
+
+* The new playexr program plays back moving image sequences. Playexr
+  is multi-threaded and utilizes the threading capabilities of the
+  IlmImf library that were introduced in OpenEXR 1.3.0. The program
+  plays back B44-compressed images with fairly high-resolution in real
+  time on commodity hardware.
+
+* The playexr program and a new version of the existing exrdisplay
+  image viewer both support color rendering via color transforms
+  written in the new Color Transformation Language or CTL. CTL is not
+  part of OpenEXR; it will be released separately. CTL support in
+  playexr and exrdisplay is optional; the programs can be built and
+  will run without CTL.
+
+* In preparation for the release of CTL, OpenEXR has been split into
+  three separate packages:
+
+  * IlmBase 0.9.0 includes the Half, Iex, Imath and IlmThread libraries
+
+  * OpenEXR 1.5.0 includes the IlmImf library, programming examples and utility programs such as exrheader or exrenvmap
+
+  * OpenEXRViewers 0.9.0 includes the playexr and exrdisplay programs
+
+* The "Technical Introduction to OpenEXR" document now includes a
+  recommendation for storing CIE XYZ pixel data in OpenEXR files.
+
+* A new "OpenEXR Image Viewing Software" document describes the
+  playexr and exrdisplay programs. It briefly explains real-time
+  playback and color rendering, and includes recommendations for
+  testing if other image viewing software displays OpenEXR images
+  correctly.
+
+* The OpenEXR sample image set now includes B44-compressed files and
+  files with CIE XYZ pixel data.
+
+### Detailed Changes:  
+
+* reorganized packaging of OpenEXR libraries to facilitate integration
+  with CTL.  Now this library depends on the library IlmBase.  Some
+  functionality has been moved into OpenEXR_Viewers, which depends on
+  two other libraries, CTL and OpenEXR_CTL.  Note: previously there
+  were separate releases of OpenEXR-related plugins for Renderman,
+  Shake and Photoshop.  OpenEXR is supported natively by Rendermand
+  and Photoshop, so these plugins will not be supported for this or
+  future versions of OpenEXR.  (Andrew Kunz)
+
+* New build scripts for Linux/Unix (Andrew Kunz)
+
+* New Windows project files and build scripts (Kimball Thurston)
+
+* float-to-half conversion now preserves the sign of float zeroes and
+  of floats that are so small that they become half zeroes.  (Florian
+  Kainz)
+
+* Bug fix: Imath::Frustum<T>::planes() returns incorrect planes if the
+  frustum is orthogonal.  (Philip Hubbard)
+
+* added new framesPerSecond optional standard attribute (Florian
+  Kainz)
+
 * Imath cleanup:
+
   - Rewrote function Imath::Quat<T>::setRotation() to make it
-	    numerically more accurate, added confidence tests
-  - Rewrote function Imath::Quat<T>::slerp() using Don Hatch's
-	    method, which is numerically more accurate, added confidence
-	    tests.
+    numerically more accurate, added confidence tests
+
+  - Rewrote function Imath::Quat<T>::slerp() using Don Hatch's method,
+    which is numerically more accurate, added confidence tests.
+
   - Rewrote functions Imath::closestPoints(), Imath::intersect(),
-	    added confidence tests.
+    added confidence tests.
+
   - Removed broken function Imath::nearestPointOnTriangle().
-  - Rewrote Imath::drand48(), Imath::lrand48(), etc. to make
-	    them functionally identical with the Unix/Linux versions
-	    of drand48(), lrand48() and friends.
-  - Replaced redundant definitions of Int64 in Imath and IlmImf
-	    with a single definition in ImathInt64.h.
-	  (Florian Kainz)
+
+  - Rewrote Imath::drand48(), Imath::lrand48(), etc. to make them
+    functionally identical with the Unix/Linux versions of drand48(),
+    lrand48() and friends.
+
+  - Replaced redundant definitions of Int64 in Imath and IlmImf with a
+    single definition in ImathInt64.h.  (Florian Kainz)
+
 * exrdisplay: if the file's and the display's RGB chromaticities
-	  differ, the pixels RGB values are transformed from the file's
-	  to the display's RGB space.
-	  (Florian Kainz)
+  differ, the pixels RGB values are transformed from the file's to the
+  display's RGB space.  (Florian Kainz)
+
 * Added new lossy B44 compression method.  HALF channels are
-	  compressed with a fixed ratio of 2.28:1.  UINT and FLOAT
-	  channels are stored verbatim, without compression.
-	  (Florian Kainz)
+  compressed with a fixed ratio of 2.28:1.  UINT and FLOAT channels
+  are stored verbatim, without compression.  (Florian Kainz)
 
-## Version 1.4.0a:
+## Version 1.4.0a (August 9, 2006)
 
-* Fixed the ReleaseDLL targets for Visual Studio 2003.
-	  (Barnaby Robson)
+* Fixed the ReleaseDLL targets for Visual Studio 2003.  (Barnaby Robson)
 	
-## Version 1.4.0:	
+## Version 1.4.0 (August 2, 2006)	
+
+ This is the next major production-ready release of OpenEXR and offers
+ full compatibility with our last production release, which was
+ 1.2.2. This version obsoletes versions 1.3.x, which were test
+ versions for 1.4.0. If you have been using 1.3.x, please upgrade to
+ 1.4.0.
 
 * Production release.
-* Bug Fix: calling setFrameBuffer() for every scan line
-	  while reading a tiled file through the scan line API
-	  returns bad pixel data. (Paul Schneider, Florian Kainz)
 
-## Version 1.3.1:
+* Bug Fix: calling setFrameBuffer() for every scan line while reading
+  a tiled file through the scan line API returns bad pixel data. (Paul
+  Schneider, Florian Kainz)
 
-* Fixed the ReleaseDLL targets for Visual Studio 2005.
-	  (Nick Porcino, Drew Hess)
-* Fixes/enhancements for createDLL.
-	  (Nick Porcino)
+## Version 1.3.1 (June 14, 2006)
+
+* Fixed the ReleaseDLL targets for Visual Studio 2005.  (Nick Porcino, Drew Hess)
+
+* Fixes/enhancements for createDLL.  (Nick Porcino)
 	
-## Version 1.3.0:
+## Version 1.3.0 (June 8, 2006)
 
-* Removed openexr.spec file, it's out of date and broken to
-	  boot.
-	  (Drew Hess)
+This is a test release. The major new feature in this version is
+support for multithreaded file I/O. We've been testing the threaded
+code internally at ILM for a few months, and we have not encountered
+any bugs, but we'd like to get some feedback from others before we
+release the production version.
+
+Here's a summary of the changes since version 1.2.2:
+
+* Support for multithreaded file reading and writing.
+
+* Support for Intel-based OS X systems.
+
 * Support for Visual Studio 2005.
-	  (Drew Hess, Nick Porcino)
-* When compiling against OpenEXR headers on Windows, you
-	  no longer need to define any HAVE_* or PLATFORM_* 
-	  macros in your projects.  If you are using any OpenEXR
-	  DLLs, however, you must define OPENEXR_DLL in your
-	  project's preprocessor directives.
-	  (Drew Hess)
-* Many fixes to the Windows VC7 build system.
-	  (Drew Hess, Nick Porcino)
-* Support for building universal binaries on OS X 10.4.
-	  (Drew Hess, Paul Schneider)
-* Minor configure.ac fix to accomodate OS X's automake.
-	  (Drew Hess)
-* Removed CPU-specific optimizations from configure.ac,
-	  autoconf's guess at the CPU type isn't very useful,
-	  anyway.  Closes #13429.
-	  (Drew Hess)
-* Fixed quoting for tests in configure.ac.  Closes #13428.
-	  (Drew Hess)
-* Use host specification instead of target in configure.ac.
-	  Closes #13427.
-	  (Drew Hess)
-* Fix use of AC_ARG_ENABLE in configure.ac.  Closes
-	  #13426.
-	  (Drew Hess)
-* Removed workaround for OS X istream::read bug.
-	  (Drew Hess)
-* Added pthread support to OpenEXR pkg-config file.
-	  (Drew Hess)
-* Added -no-undefined to LDFLAGS and required libs to LIBADD
-	  for library projects with other library dependencies, per
-	  Rex Dieter's patch.
-	  (Drew Hess)
-* HAVE_* macros are now defined in the OpenEXRConfig.h header
-	  file instead of via compiler flags.  There are a handful of
-	  public headers which rely on the value of these macros,
-	  and projects including these headers have previously needed
-	  to define the same macros and values as used by OpenEXR's
-	  'configure', which is bad form.  Now 'configure' writes these
-	  values to the OpenEXRConfig.h header file, which is included
-	  by any OpenEXR source files that need these macros.  This
-	  method of specifying HAVE_* macros guarantees that projects
-	  will get the proper settings without needing to add compile-
-	  time flags to accomodate OpenEXR.  Note that this isn't
-	  implemented properly for Windows yet.
-	  (Drew Hess)
-* Platform cleanups:
-	  - No more support for IRIX or OSF1.
-	  - No more explicit support for SunOS, because we have no way to
-	    verify that it's working.  I suspect that newish versions of 
-	    SunOS will just work out of the box, but let me know if not.
-	  - No more PLATFORM_* macros (vestiges of the ILM internal build 
-	    system).  PLATFORM_DARWIN_PPC is replaced by HAVE_DARWIN.
-	    PLATFORM_REDHAT_IA32 (which was only used in IlmImfTest) is
-	    replaced by HAVE_LINUX_PROCFS.
-	  - OS X 10.4, which is the minimum version we're going to support
-	    with this version, appears to have support for nrand48 and friends,
-	    so no need to use the Imath-supplied version of them anymore.
-	  (Drew Hess)
-* No more PLATFORM_WINDOWS or PLATFORM_WIN32, replace with 
-	  proper standard Windows macros.  (Drew Hess)
-* Remove support for gcc 2.95, no longer supported.  (Drew Hess)
-* Eliminate HAVE_IOS_BASE macro, OpenEXR now requires support for
-	  ios_base.  (Drew Hess)
-* Eliminate HAVE_STL_LIMITS macro, OpenEXR now requires the ISO C++
-	  <limits> header.  (Drew Hess)
-* Use double quote-style include dirctives for OpenEXR
-	  includes.  (Drew Hess)
-* Added a document that gives an overview of the on-disk
-	  layout of OpenEXR files (Florian Kainz)
-* Added sections on layers and on memory-mapped file input
-	  to the documentation.  (Florian Kainz)
-* Bug fix: reading an incomplete file causes a deadlock while
-	  waiting on a semaphore.  (Florian Kainz)
-* Updated documentation (ReadingAndWritingImageFiles.sxw) and
-	  sample code (IlmImfExamples):
-	  Added a section about multi-threading, updated section on
-	  thread-safety, changed documentation and sample code to use
-	  readTiles()/writeTiles() instead of readTile()/writeTile()
-	  where possible, mentioned that environment maps contain
-	  redundant pixels, updated section on testing if a file is
-	  an OpenEXR file.
-	  (Florian Kainz)
-* Multi-threading bug fixes (exceptions could be thrown
-	  multiple times, some operations were not thread safe),
-	  updated some comments, added comments, more multithreaded
-	  testing.
-	  (Florian Kainz)
-* Added multi-threading support: multiple threads
-	  cooperate to read or write a single OpenEXR file.
-	  (Wojciech Jarosz)
-* Added operator== and operator!= to Imath::Frustum.
-	  (Andre Mazzone)
-* Bug fix: Reading a PIZ-compressed file with an invalid
-	  Huffman code table caused crashes by indexing off the
-	  end of an array.
-	  (Florian Kainz)
 
-## Version 1.2.2:
+* Better handling of **PLATFORM_** and **HAVE_** macros.
+
+* Updated documentation.
+
+* Bug fixes related to handling of incomplete and damaged files.
+
+* Numerous bug fixes and cleanups to the autoconf-based build system.
+
+* Removed support for the following configurations that were
+  previously supported. Some of these configurations may happen to
+  continue to function, but we can't help you if they don't, largely
+  because we don't have any way to test them:
+
+  * IRIX
+  * OSF1
+  * SunOS
+  * OS X versions prior to 10.3.
+  * gcc on any platform prior to version 3.3
+
+### Detailed Changes:
+
+* Removed openexr.spec file, it's out of date and broken to boot.
+ (Drew Hess)
+          
+* Support for Visual Studio 2005.  (Drew Hess, Nick Porcino)
+
+* When compiling against OpenEXR headers on Windows, you no longer
+  need to define any **HAVE_** or **PLATFORM_** macros in your
+  projects.  If you are using any OpenEXR DLLs, however, you must
+  define OPENEXR_DLL in your project's preprocessor directives.  (Drew
+  Hess)
+
+* Many fixes to the Windows VC7 build system.  (Drew Hess, Nick
+  Porcino)
+
+* Support for building universal binaries on OS X 10.4.  (Drew Hess,
+Paul Schneider)
+          
+* Minor configure.ac fix to accomodate OS X's automake.  (Drew Hess)
+          
+* Removed CPU-specific optimizations from configure.ac, autoconf's
+	  guess at the CPU type isn't very useful, anyway.  Closes
+	  #13429.  (Drew Hess)
+          
+* Fixed quoting for tests in configure.ac.  Closes #13428.  (Drew
+  Hess)
+          
+* Use host specification instead of target in configure.ac.  Closes
+  #13427.  (Drew Hess)
+
+* Fix use of AC_ARG_ENABLE in configure.ac.  Closes #13426.  (Drew
+Hess)
+
+* Removed workaround for OS X istream::read bug.  (Drew Hess)
+          
+* Added pthread support to OpenEXR pkg-config file.  (Drew Hess)
+          
+* Added -no-undefined to LDFLAGS and required libs to LIBADD for
+  library projects with other library dependencies, per Rex Dieter's
+  patch.  (Drew Hess)
+          
+* **HAVE_** macros are now defined in the OpenEXRConfig.h header file
+  instead of via compiler flags.  There are a handful of public
+  headers which rely on the value of these macros, and projects
+  including these headers have previously needed to define the same
+  macros and values as used by OpenEXR's 'configure', which is bad
+  form.  Now 'configure' writes these values to the OpenEXRConfig.h
+  header file, which is included by any OpenEXR source files that need
+  these macros.  This method of specifying **HAVE_** macros guarantees
+  that projects will get the proper settings without needing to add
+  compile- time flags to accomodate OpenEXR.  Note that this isn't
+  implemented properly for Windows yet.  (Drew Hess)
+
+* Platform cleanups:
+
+  - No more support for IRIX or OSF1.
+
+  - No more explicit support for SunOS, because we have no way to
+    verify that it's working.  I suspect that newish versions of SunOS
+    will just work out of the box, but let me know if not.
+
+  - No more **PLATFORM_** macros (vestiges of the ILM internal build
+    system).  PLATFORM_DARWIN_PPC is replaced by HAVE_DARWIN.
+    PLATFORM_REDHAT_IA32 (which was only used in IlmImfTest) is
+    replaced by HAVE_LINUX_PROCFS.
+
+  - OS X 10.4, which is the minimum version we're going to support
+    with this version, appears to have support for nrand48 and
+    friends, so no need to use the Imath-supplied version of them
+    anymore.  (Drew Hess)
+
+* No more PLATFORM_WINDOWS or PLATFORM_WIN32, replace with proper
+  standard Windows macros.  (Drew Hess)
+
+* Remove support for gcc 2.95, no longer supported.  (Drew Hess)
+
+* Eliminate HAVE_IOS_BASE macro, OpenEXR now requires support for
+  ios_base.  (Drew Hess)
+
+* Eliminate HAVE_STL_LIMITS macro, OpenEXR now requires the ISO C++
+  <limits> header.  (Drew Hess)
+
+* Use double quote-style include dirctives for OpenEXR
+  includes.  (Drew Hess)
+
+* Added a document that gives an overview of the on-disk
+  layout of OpenEXR files (Florian Kainz)
+
+* Added sections on layers and on memory-mapped file input
+  to the documentation.  (Florian Kainz)
+
+* Bug fix: reading an incomplete file causes a deadlock while
+  waiting on a semaphore.  (Florian Kainz)
+
+* Updated documentation (ReadingAndWritingImageFiles.sxw) and sample
+  code (IlmImfExamples): Added a section about multi-threading,
+  updated section on thread-safety, changed documentation and sample
+  code to use readTiles()/writeTiles() instead of
+  readTile()/writeTile() where possible, mentioned that environment
+  maps contain redundant pixels, updated section on testing if a file
+  is an OpenEXR file.  (Florian Kainz)
+
+* Multi-threading bug fixes (exceptions could be thrown multiple
+  times, some operations were not thread safe), updated some comments,
+  added comments, more multithreaded testing.  (Florian Kainz)
+
+* Added multi-threading support: multiple threads
+  cooperate to read or write a single OpenEXR file.
+  (Wojciech Jarosz)
+
+* Added operator== and operator!= to Imath::Frustum. (Andre Mazzone)
+
+* Bug fix: Reading a PIZ-compressed file with an invalid Huffman code
+  table caused crashes by indexing off the end of an array.  (Florian
+  Kainz)
+
+## Version 1.2.2 (March 15, 2005)
+
+This is a relatively minor update to the project, with the following changes:
+
+* New build system for Windows; support for DLLs.
+
+* Switched documentation from HTML to PDF format.
+
+* IlmImf: support for image layers in ChannelList.
+
+* IlmImf: added isComplete() method to file classes to check whether a file is complete.
+
+* IlmImf: exposed staticInitialize() in ImfHeader.h in order to allow
+  thread-safe library initialization in multithreaded applications.
+
+* IlmImf: New "time code" standard attribute.
+
+* exrdisplay: support for displaying wrap-around texture map images.
+
+* exrmaketiled: can now specify wrap mode.
+
+* IlmImf: New "wrapmodes" standard attribute to indicate extrapolation
+  mode for mipmaps and ripmaps.
+
+* IlmImf: New "key code" standard attribute to identify motion picture
+  film frames.
+
+* Imath: Removed TMatrix<T> classes; these classes are still under
+  development and are too difficult to keep in sync with OpenEXR CVS.
+
+### Detailed Changes:
+
 
 * Updated README to remove option for building with Visual C++ 6.0.
 	  (Drew Hess)
+
 * Some older versions of gcc don't support a full iomanip
 	  implemenation; check for this during configuration. 
 	  (Drew Hess)
+
 * Install PDF versions of documentation, remove old/out-of-date
 	  HTML documentation.  (Florian Kainz)
+
 * Removed vc/vc6 directory; Visual C++ 6.0 is no longer
 	  supported.  (Drew Hess)
+
 * Updated README.win32 with details of new build system.
 	  (Florian Kainz, Drew Hess)
+
 * New build system for Windows / Visual C++ 7 builds both
 	  static libraries and DLLs.
 	  (Nick Porcino)
+
 * Removed Imath::TMatrix<T> and related classes, which are not
 	  used anywhere in OpenEXR.
 	  (Florian Kainz)
+
 * Added minimal support for "image layers" to class Imf::ChannelList
 	  (Florian Kainz)
+
 * Added new isComplete() method to InputFile, TiledInputFile
 	  etc., that checks if a file is complete or if any pixels
 	  are missing (for example, because writing the file was
 	  aborted prematurely).
 	  (Florian Kainz)
+
 * Exposed staticInitialize() function in ImfHeader.h in order
 	  to allow thread-safe library initialization in multithreaded
 	  programs.
 	  (Florian Kainz)
+
 * Added a new "time code" attribute
 	  (Florian Kainz)
+
 * exrmaketiled: when a MIPMAP_LEVELS or RIPMAP_LEVELS image
 	  is produced, low-pass filtering takes samples outside the
 	  image's data window.  This requires extrapolating the image.
@@ -1068,51 +1446,80 @@
 	  to indicate the extrapolation mode for MIPMAP_LEVELS and
 	  RIPMAP_LEVELS images.
 	  (Florian Kainz)
+
 * Added a new "key code" attribute to identify motion picture
 	  film frames.
 	  (Florian Kainz)
+
 * Removed #include <Iex.h> from ImfAttribute.h, ImfHeader.h
 	  and ImfXdr.h so that including header files such as
 	  ImfInputFile.h no longer defines ASSERT and THROW macros,
 	  which may conflict with similar macros defined by
 	  application programs.
 	  (Florian Kainz)
+
 * Converted HTML documentation to OpenOffice format to
 	  make maintaining the documents easier:
 	      api.html -> ReadingAndWritingImageFiles.sxw
 	      details.html -> TechnicalIntroduction.sxw
 	  (Florian Kainz)
 
-## Version 1.2.1:
+## Version 1.2.1 (June 6, 2004)
+
+This is a fairly minor release, mostly just a few tweaks, a few bug
+fixes, and some new documentation. Here are the most important
+changes:
+
+* reduced memory footprint of exrenvmap and exrmaketiled utilities.
+
+* IlmImf: new helper functions to determine whether a file is an OpenEXR file, and whether it's scanline- or tile-based.
+
+* IlmImf: bug fix for PXR24 compression with ySampling != 1.
+
+* Better support for gcc 3.4.
+
+* Warning cleanups in Visual C++.
+
+### Detailed Changes:
 
 * exrenvmap and exrmaketiled use slightly less memory
 	  (Florian Kainz)
+
 * Added functions to IlmImf for quickly testing if a file
 	  is an OpenEXR file, and whether the file is scan-line
 	  based or tiled. (Florian Kainz)
+
 * Added preview image examples to IlmImfExamples.  Added
 	  description of preview images and environment maps to
 	  docs/api.html (Florian Kainz)
+
 * Bug fix: PXR24 compression did not work properly for channels
 	  with ySampling != 1.
 	  (Florian Kainz)
-* Made template <class T> become  template <class S, class T> for 
-          the transform(ObjectS, ObjectT) methods. This was done to allow
+
+* Made ``template <class T>`` become ``template <class S, class T>`` for 
+          the ``transform(ObjectS, ObjectT)`` methods. This was done to allow
           for differing templated objects to be passed in e.g.  say a 
-          Box<Vec3<S> and a Matrix44<T>, where S=float and T=double.
+          ``Box<Vec3<S>>`` and a ``Matrix44<T>``, where S=float and T=double.
           (Jeff Yost, Arkell Rasiah)
+
 * New method Matrix44::setTheMatrix(). Used for assigning a 
           M44f to a M44d. (Jeff Yost, Arkell Rasiah)
+
 * Added convenience Color typedefs for half versions of Color3
           and Color4. Note the Makefile.am for both Imath and ImathTest
           have been updated with -I and/or -L pathing to Half.
           (Max Chen, Arkell Rasiah)
+
 * Methods equalWithAbsError() and equalWithRelError() are now
           declared as const. (Colette Mullenhoff, Arkell Rasiah)
+
 * Fixes for gcc34. Mainly typename/template/using/this syntax
           correctness changes. (Nick Ramussen, Arkell Rasiah)
+
 * Added Custom low-level file I/O examples to IlmImfExamples
 	  and to the docs/api.html document.  (Florian Kainz)
+
 * Eliminated most warnings messages when OpenEXR is compiled
 	  with Visual C++.  The OpenEXR code uses lots of (intentional
 	  and unintended) implicit type conversions.  By default, Visual
@@ -1122,53 +1529,117 @@
 	  .cpp files are now compiled with warning level 1.
 	  (Florian Kainz)
 
-## Version 1.2.0:
+## Version 1.2.0 (May 11, 2004)
+
+OpenEXR 1.2.0 is now available. This is the first official,
+production-ready release since OpenEXR 1.0.7. If you have been using
+the development 1.1 series, please switch to 1.2.0 as soon as
+possible. We believe that OpenEXR 1.2.0 is ready for use in shipping
+applications. We have been using it in production at ILM for several
+months now with no problems. There are quite a few major new features
+in the 1.2 series as compared to the original 1.0 series:
+
+* Support for tiled images, including mipmaps and ripmaps. Note that
+  software based on the 1.0 series cannot read or write tiled
+  images. However, simply by recompiling your software against the 1.2
+  release, any code that reads scanline images can read tiled images,
+  too.
+
+* A new Pxr24 compressor, contributed by Pixar Animation
+  Studios. Values produced by the Pxr24 compressor provide the same
+  range as 32-bit floating-point numbers with slightly less precision,
+  and compress quite a bit better. The Pxr24 compressor stores UINT
+  and HALF channels losslessly, and for these data types performs
+  similarly to the ZIP compressor.
+
+* OpenEXR now supports high dynamic-range YCA (luminance/chroma/alpha)
+  images with subsampled chroma channels. These files are supported
+  via the RGBA convenience interface, so that data is presented to the
+  application as RGB(A) but stored in the file as YC(A). OpenEXR also
+  supports Y and YA (black-and-white/black-and-white with alpha)
+  images.
+
+* An abstracted file I/O interface, so that you can use OpenEXR with
+  interfaces other than C++'s iostreams.
+
+* Several new utilities for manipulating tiled image files.
+
+### Detailed Changes:
 
 * Production-ready release.
+
 * Disable long double warnings on OS X.  (Drew Hess)
+
 * Add new source files to VC7 IlmImfDll target.  (Drew Hess)
+
 * Iex: change the way that APPEND_EXC and REPLACE_EXC modify
 	  their what() string to work around an issue with Visual C++
 	  7.1.  (Florian Kainz, Nick Porcino)
+
 * Bumped OpenEXR version to 1.2 and .so versions to 2.0.0 in
 	  preparation for the release.  (Drew Hess)
+
 * Imath: fixed ImathTMatrix.h to work with gcc 3.4.  (Drew Hess)
+
 * Another quoting fix in openexr.m4.  (Drew Hess)
+
 * Quoting fix in acinclude.m4 for automake 1.8.  (Brad Hards)
+
 * Imath: put inline at beginning of declaration in ImathMatrix.h
 	  to fix a warning.  (Ken McGaugh)
-* Imath: made Vec equalWith*Error () methods const.
+
+* Imath: made Vec equalWithError () methods const.
+
 * Cleaned up compile-time Win32 support.  (Florian Kainz)
+
 * Bug fix: Reading a particular broken PIZ-compressed file
 	  caused crashes by indexing off the end of an array.
 	  (Florian Kainz)
 
-## Version 1.1.1:
+## Version 1.1.1 (March 27, 2004)
+
+OpenEXR 1.1.1 is now available. This another development release. We
+expect to release a stable version, 1.2, around the end of
+April. Version 1.1.1 includes support for PXR24 compression, and for
+high-dynamic-range luminance/chroma images with subsampled chroma
+channels. Version 1.1.1 also fixes a bug in the 1.1.0 tiled file
+format.
+
+### Detailed Changes:
 
 * Half: operator= and variants now return by reference rather
 	  than by value.  This brings half into conformance with
 	  built-in types.  (Drew Hess)
+
 * Half: remove copy constructor, let compiler supply its
 	  own.  This improves performance up to 25% on some
 	  expressions using half.  (Drew Hess)
+
 * configure: don't try to be fancy with CXXFLAGS, just use
 	  what the user supplies or let configure choose a sensible
 	  default if CXXFLAGS is not defined.
+
 * IlmImf: fixed a bug in reading scanline files on big-endian
           architectures.  (Drew Hess)
+
 * exrmaketiled: Added an option to select compression type.
 	  (Florian Kainz)
+
 * exrenvmap: Added an option to select compression type.
 	  (Florian Kainz)
+
 * exrdisplay: Added some new command-line options.  (Florian Kainz)
+
 * IlmImf: Added Pixar's new "slightly lossy" image compression
 	  method.  The new method, named PXR24, preserves HALF and
 	  UINT data without loss, but FLOAT pixels are converted to
 	  a 24-bit representation.  PXR24 appears to compress
 	  FLOAT depth buffers very well without losing much accuracy.
 	  (Loren Carpenter, Florian Kainz)
+
 * Changed top-level LICENSE file to allow for other copyright
 	  holders for individual files.
+
 * IlmImf: TILED FILE FORMAT CHANGE.  TiledOutputFile was
 	  incorrectly interleaving channels and scanlines before
 	  passing pixel data to a compressor.  The lossless compressors
@@ -1177,7 +1648,9 @@
 	  same way as ScanLineOutputFile does.  Programs compiled with
 	  the new version of IlmImf cannot read tiled images produced
 	  with version 1.1.0.  (Florian Kainz)
+
 * IlmImf: ImfXdr.h fix for 64-bit architectures.  (Florian Kainz)
+
 * IlmImf: OpenEXR now supports YCA (luminance/chroma/alpha)
 	  images with subsampled chroma channels.  When an image
 	  is written with the RGBA convenience interface, selecting
@@ -1187,221 +1660,361 @@
 	  images).  When an image file is read with the RGBA convenience
 	  interface, YCA data are automatically converted back to RGBA.
 	  (Florian Kainz)
+
 * IlmImf: speed up reading tiled files as scan lines.
 	  (Florian Kainz)
+
 * Half:  Fixed subtle bug in Half where signaling float NaNs
 	  were being converted to inf in half.  (Florian Kainz)
+
 * gcc 3.3 compiler warning cleanups.  (various)
+
 * Imath: ImathEuler.h fixes for gcc 3.4.  (Garrick Meeker)
 	
-## Version 1.1.0:
+## Version 1.1.0 (February 6, 2004)
+
+ OpenEXR 1.1.0 is now available. This is a major new release with
+ support for tiled images, multi-resolution files (mip/ripmaps),
+ environment maps, and abstracted file I/O. We've also released a new
+ set of images that demonstrate these features, and updated the
+ CodeWarrior project and Photoshop plugins for this release. See the
+ downloads section for the source code and the new images.
+
+## Detailed Changes:
 
 * Added new targets to Visual C++ .NET 2003 project
 	  for exrmaketiled, exrenvmap, exrmakepreview, and exrstdattr.
 	  (Drew Hess)
+
 * A few assorted Win32 fixes for Imath.  (Drew Hess)
+
 * GNU autoconf builds now produce versioned libraries.
 	  This release is 1:0:0.  (Drew Hess)
+
 * Fixes for Visual C++ .NET 2003.  (Paul Schneider)
+
 * Updated Visual C++ zlib project file to zlib 1.2.1.
 	  (Drew Hess)
+
 * exrdisplay: Fixed fragment shader version.  (Drew Hess)
+
 * *Test: Fixed some compiler issues.  (Drew Hess)
+
 * Imath: Handle "restrict" keyword properly.  (Drew Hess)
+
 * IlmImfExamples: Updated to latest versions of example
 	  source code, includes tiling and multi-res images.
 	  (Florian Kainz)
+
 * exrmakepreview: A new utility to create preview images.
 	  (Florian Kainz)
+
 * exrenvmap: A new utility to create OpenEXR environment
 	  maps.  (Florian Kainz)
+
 * exrstdattr: A new utility to modify standard 
 	  attributes.  (Florian Kainz)
+
 * Updated exrheader to print level rounding mode and
 	  preview image size.  (Florian Kainz)
+
 * Updated exrmaketiled to use level rounding mode.
 	  (Florian Kainz)
+
 * IlmImf: Changed the orientation of lat-long envmaps to
 	  match typical panoramic camera setups.  (Florian Kainz)
+
 * IlmImf: Fixed a bug where partially-completed files with
 	  DECREASING_Y could not be read.  (Florian Kainz)
+
 * IlmImf: Added support for selectable rounding mode (up/down)
 	  when generating multiresolution files.  (Florian Kainz)
+
 * exrdisplay: Support for tiled images, mip/ripmaps, preview
 	  images, and display windows.  (Florian Kainz, Drew Hess)
+
 * exrmaketiled: A new utility which generates tiled
 	  versions of OpenEXR images.  (Florian Kainz)
+
 * IlmImf: Changed Imf::VERSION to Imf::EXR_VERSION to
 	  work around problems with autoconf VERSION macro
 	  conflict.  (Drew Hess)
+
 * exrheader: Support for tiles, mipmaps, environment
 	  maps.  (Florian Kainz)
+
 * IlmImf: Environment map support.  (Florian Kainz)
+
 * IlmImf: Abstracted stream I/O support.  (Florian Kainz)
+
 * IlmImf: Support for tiled and mip/ripmapped files;
 	  requires new file format.  (Wojciech Jarosz, Florian Kainz)
-* Imath: TMatrix*, generic 2D matricies and algorithms.
+
+* Imath: **TMatrix**, generic 2D matricies and algorithms.
 	  (Francesco Callari)
+
 * Imath: major quaternions cleanup.  (Cary Phillips)
+
 * Imath: added GLBegin, GLPushAttrib, GLPushMatrix objects
 	  for automatic cleanup on exceptions.  (Cary Phillips)
+
 * Imath: removed implicit scalar->vector promotions and vector
 	  comparisons.  (Nick Rasmussen)
 	
-## Version 1.0.7:
+## Version 1.0.7 (January 7, 2004)
+
+OpenEXR 1.0.7 is now available. In addition to some bug fixes, this
+version adds support for some new standard attributes, such as primary
+and white point chromaticities, lens aperture, film speed, image
+acquisition time and place, and more. If you want to use these new
+attributes in your applications, see the ImfStandardAttributes.h
+header file for documentation.
+
+Our project hosting site, Savannah, is still recovering from a
+compromise last month, so in the meantime, we're hosting file
+downloads here. Some of the files are not currently available, but
+we're working to restore them.
+
+### Detailed Changes:
 
 * Fixed a typo in one of the IlmImfTest tests. (Paul Schneider)
+
 * Fixed a bug in exrdisplay that causes the image to display
 	  as all black if there's a NaN or infinity in an OpenEXR
 	  image. (Florian Kainz)
+
 * Updated exrheader per recent changes to IlmImf library.
 	  (Florian Kainz)
+
 * Changed an errant float to a T in ImathFrame.h nextFrame().
 	  (Cary Phillips)
+
 * Support for new "optional standard" attributes
 	  (chromaticities, luminance, comments, etc.).
 	  (Florian Kainz, Greg Ward, Joseph Goldstone)
+
 * Fixed a buffer overrun in ImfOpaqueAttribute. (Paul Schneider)
+
 * Added new function, isImfMagic (). (Florian Kainz)
 	
 ## Version 1.0.6:
 
 * Added README.win32 to disted files.
+
 * Fixed OpenEXR.pc.in pkg-config file, OpenEXR now works
 	  with pkg-config.
+
 * Random fixes to readme files for new release.
+
 * Fixed openexr.m4, now looks in /usr by default.
+
 * Added Visual Studio .NET 2003 "solution."
+
 * Fixes for Visual Studio .NET 2003 w/ Microsoft C++ compiler.
 	  (Various)
+
 * Random Imath fixes and enhancements.  Note that 
 	  extractSHRT now takes an additional optional
           argument, see ImathMatrixAlgo.h for details.  (Various)
+
 * Added Wojciech Jarosz to AUTHORS file.
+
 * Added test cases for uncompressed case, preview images,
 	  frame buffer type conversion.  (Wojciech Jarosz,
 	  Florian Kainz)
+
 * Fix a bug in IlmImf where uncompressed data doesn't get
 	  read/written correctly.  (Wojciech Jarosz)
+
 * Added support for preview images and preview image
 	  attributes (thumbnail images) in IlmImf.  (Florian Kainz)
+
 * Added support for automatic frame buffer type conversion
 	  in IlmImf.  (Florian Kainz)
+
 * Cleaned up some compile-time checks.
+
 * Added HalfTest unit tests.
+
 * [exrdisplay] Download half framebuffer to texture memory 
 	  instead of converting to float first.  Requires latest
 	  Nvidia drivers.
 
-## Version 1.0.5:
+## Version 1.0.5 (April 3, 2003)
+
+Industrial Light & Magic has released the source code for an OpenEXR
+display driver for Pixar's Renderman. This display driver is covered
+under the OpenEXR free software license. See the downloads section for
+the source code.
+
+### Detailed Changes:
 
 * Fixed IlmImf.dll to use static runtime libs (Andreas).
+
 * Added exrheader project to Visual Studio 6.0 workspace.
+
 * Added some example code showing how to use the IlmImf library.
 	  (Florian)
+
 * Use DLL runtime libs for Win32 libraries rather than static
 	  runtime libs.
+
 * Add an exrdisplay_fragshader project to the Visual Studio 6.0
 	  workspace to enable fragment shaders in Win32.
+
 * Add an IlmImfDll project to the Visual Studio 6.0 workspace.
+
 * In Win32, export the ImfCRgbaFile C interface via a DLL so
 	  that Visual C++ 6.0 users can link against an Intel-compiled
 	  IlmImf.  (Andreas Kahler)
+
 * Use auto_ptr in ImfAutoArray on Win32, it doesn't like large 
 	  automatic stacks.
+
 * Performance improvements in PIZ decoding, between
 	  20 and 60% speedup on Athlon and Pentium 4 systems.
           (Florian)
+
 * Updated the README with various information, made
 	  some cosmetic changes for readability.
+
 * Added fragment shader support to exrdisplay.
+
 * Bumped the version to 1.0.5 in prep for release.
+
 * Updated README and README.OSX to talk about CodeWarrior 
           project files.
+
 * Incorporated Rodrigo Damazio's patch for an openexr.m4
 	  macro file and an openexr.spec file for building RPMs.
+
 * Small change in ImfAttribute.h to make IlmImf compile with gcc 2.95.
+
 * Updated ImfDoubleAttribute.h for Codewarrior on MacOS.
+
 * Added exrheader utility.
+
 * Update to AUTHORS file.
+
 * Added a README.win32 file.
+
 * Added project files for Visual Studio 6.0.
+
 * Initial Win32 port.  Requires Visual Studio 6.0 and Intel C++
 	  compiler version 7.0.
+
 * Added new intersectT method in ImathSphere.h
+
 * Fixed some bugs in ImathQuat.h
+
 * Proper use of fltk-config to get platform-specific FLTK
 	  compile- and link-time flags.
+
 * exrdisplay uses Imath::Math<T>::pow instead of powf now.
 	  powf is not availble on all platforms.
+
 * Roll OS X "hack" into the source until Apple fixes their
 	  istream implementation.
 	
-## Version 1.0.4:
+## Version 1.0.4
+
+### Detailed Changes:
 
 * OpenEXR is now covered by a modified BSD license.  See LICENSE
 	  for the new terms.
 
 ## Version 1.0.3:
 
+### Detailed Changes:
 
 * OpenEXR is now in sf.net CVS.
+
 * Imf::Xdr namespace cleanups.
+
 * Some IlmImfTest cleanups for OS X.
+
 * Use .cpp extension in exrdisplay sources.
+
 * Iex cleanups.
+
 * Make IlmImf compile with Metrowerks Codewarrior.
+
 * Change large automatic stacks in ImfHuf.C to auto_ptrs allocated
 	  off the heap.  MacOS X default stack size isn't large enough.
+
 * std::ios fix for MacOS X in ImfInputFile.C.
+
 * Added new FP predecessor/successor functions to Imath, added
 	  tests to ImathTest
+
 * Fixed a bug in Imath::extractSHRT for 3x3 matricies when
 	  exactly one of the original scaling factors is negative, updated
 	  ImathTest to check this case.
+
 * Install include files when 'make install' is run.
+
 * exrdisplay requires fltk 1.1+ now in an effort to support
 	  a MacOS X display program (fltk 1.1 runs on OS X), though this
 	  is untested.
+
 * renamed configure.in to configure.ac
+
 * Removed some tests from IexTest that are no longer used.
+
 * Removed ImfHalfXdr.h, it's not used anymore.
+
 * Revamped the autoconf system, added some compile-time 
           optimizations, a pkgconfig target, and some maintainer-specific
           stuff.
 
-## Version 1.0.2:
+## Version 1.0.2
+
+### Detailed Changes:
 
 
 * More OS X fixes in Imath, IlmImf and IlmImfTest.
+
 * Imath updates.
+
 * Fixed a rotation bug in Imath
 
-## Version 1.0.1:
+## Version 1.0.1
 
+### Detailed Changes:
 
 * Used autoconf 2.53 and automake 1.6 to generate build environment.
+
 * Makefile.am cleanups.
+
 * OS X fixes.
+
 * removed images directory (now distributed separately).
 
-## Version 1.0:
+## Version 1.0
 
+### Detailed Changes:
 
 * first official release.
+
 * added some high-level documentation, removed the old OpenEXR.html
           documentation.
+
 * fixed a few nagging build problems.
+
 * bumped IMV_VERSION_NUMBER to 2
 
-## Version 0.9:
+## Version 0.9
 
+### Detailed Changes:
 
 * added exrdisplay viewer application.
+
 * cleanup _data in Imf::InputFile and Imf::OutputFile constructors.
+
 * removed old ILM copyright notices.
 
-## Version 0.8:
+## Version 0.8
 
+### Detailed Changes:
 
 * Initial release.
