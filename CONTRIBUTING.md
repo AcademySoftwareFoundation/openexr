@@ -302,12 +302,58 @@ The labels include:
 
 #### Formatting
 
-TBD
+When modifying existing code, follow the surrounding formatting
+conventions so that new or modified code blends in with the current
+code.
+
+* Indent with spaces, never tabs. Each indent level should be 4 spaces.
+
+* Function return types go on a separate line:
+
+        const float &	
+        Header::pixelAspectRatio () const
+        {
+            ...
+        }
+
+* Use a space between function names and the following parentheses
+  (although you can eliminate the space for functions with no
+  arguments):
+
+        void
+        Header::insert (const string& name, const Attribute& attribute)
+        {
+            insert (name.c_str(), attribute);
+        }
+
+* Place curly braces on their own lines:
+
+        void
+        RgbaOutputFile::ToYca::padTmpBuf ()
+        {
+            for (int i = 0; i < N2; ++i)
+            {
+                _tmpBuf[i] = _tmpBuf[N2];
+                _tmpBuf[_width + N2 + i] = _tmpBuf[_width + N2 - 2];
+            }
+        }
+
+#### Naming Conventions
+
+* In general, classes and template type names should start with upper
+  case and capitalize new words: `class CustomerList;`
+
+* In general, local variables should use camelCase. Macros and
+  constants should use `ALL_CAPS`.
+
+* Member fields in a class should start with an underscore. No other
+  variables should begin with underscore.
 
 #### File conventions
 
 C++ implementation should be named `*.cpp`. Headers should be named `.h`.
-All headers should contain
+
+All headers should contain:
 
     #pragma once
 
@@ -318,25 +364,19 @@ All new source files should begin with a copyright and license stating:
     // SPDX-License-Identifier: Modified-BSD-3-Clause
     // Copyright Contributors to the OpenEXR Project. See LICENSE file for details.
 
-#### Identifiers
-
-In general, classes and templates should start with upper case and
-capitalize new words: `class CustomerList;` In general, local
-variables should start with lower case. Macros should be `ALL_CAPS`,
-if used at all.
-
 #### Third-party libraries
 
-Prefer C++11 `std` over Boost where possible. Feel free to use Boost
-classes you already see in the code base, but check with the project
-leadership before adding new boost usage.
+Prefer C++11 `std` over boost where possible.  Use boost classes you
+already see in the code base, but check with the project leadership
+before adding new boost usage.
 
 #### Comments and Doxygen
 
-Comment philosophy: try to be clear, try to help teach the reader what's
-going on in your code.
+Comment philosophy: try to be clear, try to help teach the reader
+what's going on in your code.
 
-Prefer C++ comments (starting line with `//`) rather than C comments (`/* ... */`).
+Prefer C++ comments (starting line with `//`) rather than C comments
+(`/* ... */`).
 
 For public APIs, use Doxygen-style comments (start with `///`), such as:
 
@@ -349,26 +389,7 @@ For public APIs, use Doxygen-style comments (start with `///`), such as:
         float foo;  ///< Doxygen comments on same line look like this
     }
 
-#### Miscellaneous
-
-Macros should be used only rarely -- prefer inline functions, templates,
-enums, or "const" values wherever possible.
-
-Prefer `std::unique_ptr` over raw new/delete.
-
-#### Bottom Line
-
-When in doubt, look elsewhere in the code base for examples of similar
-structures and try to format your code in the same manner, or ask on
-the openexr-dev mail list.
-
-## Release Management
-
-Generate the release notes via:
-    git log v2.2.1...v2.3.0 --date=short --pretty=format:"[%s](https://github.com/openexr/openexr/commit/%H) ([%an](@%ae) %ad)"
-    
-
-### Versioning Policy
+## Versioning Policy
 
 OpenEXR uses [semantic versioning](https://semver.org), which labels
 each version with three numbers: Major.Minor.Patch, where:
@@ -377,3 +398,33 @@ each version with three numbers: Major.Minor.Patch, where:
 * **MINOR** indicates functionality added in a backwards-compatible manner
 * **PATCH** indicates backwards-compatible bug fixes 
 
+## Creating a Release
+
+To create a new release from the master branch:
+
+1. Update the release notes in ``CHANGES.md``.
+
+   Write a high-level summary of the features and improvements. Include the summary in
+   ``CHANGES.md`` and also in the Release comments.
+
+   Include the log of all changes since the last release, via:
+
+        git log v2.2.1...v2.3.0 --date=short --pretty=format:"[%s](https://github.com/openexr/openexr/commit/%H) ([%an](@%ae) %ad)"
+
+   Include diff status via:
+
+        git diff --stat v2.2.1
+       
+2. Create a new release on the GitHub Releases page.
+
+3. Tag the release with name beginning with '``v``', e.g. '``v2.3.0``'.
+
+4. Download and sign the release tarball, as described
+[here](https://wiki.debian.org/Creating%20signed%20GitHub%20releases),
+via:
+
+        git diff --stat v2.2.1
+
+5. Attach the detached ``.asc`` signature file to the GitHub release as a
+binary file.
+    
