@@ -3,6 +3,7 @@ alphabetically by first name.
 
 If you know of missing, please email: info@openexr.com.
 
+* Andre Mazzone
 * Andrew Kunz
 * Arkady Shapkin
 * Arkell Rasiah
@@ -50,5 +51,6 @@ If you know of missing, please email: info@openexr.com.
 * Thanh Ha
 * Thorsten Kaufmann
 * Wenzel Jakob
+* Wojciech Jarosz
 * Xo Wang
 * Yujie Shu
