@@ -117,7 +117,7 @@ FixedVArray<T>::FixedVArray(const T& initialValue, Py_ssize_t length)
     }
 
     boost::shared_array<std::vector<T> > a(new std::vector<T>[length]);
-    for (size_t i = 0; i < length; ++i)
+    for (Py_ssize_t i = 0; i < length; ++i)
     {
         a[i].push_back (initialValue);
     }
@@ -135,7 +135,7 @@ FixedVArray<T>::FixedVArray(FixedVArray<T>& other, const FixedArray<int>& mask)
             ("Masking an already-masked FixedVArray is not supported yet (SQ27000)");
     }
 
-    size_t len = other.match_dimension (mask);
+    size_t len = (size_t) other.match_dimension (mask);
     _unmaskedLength = len;
 
     size_t reduced_len = 0;
@@ -228,7 +228,7 @@ canonical_index (Py_ssize_t index, const size_t& totalLength)
     {
         index += totalLength;
     }
-    if (index >= totalLength || index < 0)
+    if ((size_t) index >= totalLength || index < 0)
     {
         PyErr_SetString (PyExc_IndexError, "Index out of range");
         boost::python::throw_error_already_set();
@@ -402,7 +402,7 @@ FixedVArray<T>::setitem_vector (PyObject* index, const FixedVArray<T>& data)
     Py_ssize_t step;
     extract_slice_indices (index, start, end, step, sliceLength, _length);
 
-    if (data.len() != sliceLength)
+    if ((size_t) data.len() != sliceLength)
     {
         PyErr_SetString (PyExc_IndexError,
                          "Dimensions of source do not match destination");
@@ -439,7 +439,7 @@ FixedVArray<T>::setitem_vector_mask (const FixedArray<int>& mask,
 
     size_t len = match_dimension(mask);
 
-    if (data.len() == len)
+    if ((size_t) data.len() == len)
     {
         for (size_t i = 0; i < len; ++i)
         {
@@ -459,7 +459,7 @@ FixedVArray<T>::setitem_vector_mask (const FixedArray<int>& mask,
                 count++;
             }
         }
-        if (data.len() != count)
+        if ((size_t) data.len() != count)
         {
             throw IEX_NAMESPACE::ArgExc
                 ("Dimensions of source data do not match destination "

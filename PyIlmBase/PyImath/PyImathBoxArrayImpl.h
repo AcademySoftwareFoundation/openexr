@@ -78,7 +78,7 @@ setItemTuple(FixedArray<IMATH_NAMESPACE::Box<T> > &va, Py_ssize_t index, const t
         Box<T> v;
         v.min = extract<T>(t[0]);
         v.max = extract<T>(t[1]);
-        va[va.canonical_index(index)] = v;
+        va[(size_t)va.canonical_index(index)] = v;
     }
     else
         THROW(IEX_NAMESPACE::LogicExc, "tuple of length 2 expected");

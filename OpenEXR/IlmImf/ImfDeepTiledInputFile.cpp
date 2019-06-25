@@ -458,59 +458,6 @@ readTileData (InputStreamMutex *streamData,
 }
 
 
-void
-readNextTileData (InputStreamMutex *streamData,
-                  DeepTiledInputFile::Data *ifd,
-                  int &dx, int &dy,
-                  int &lx, int &ly,
-                  char * & buffer,
-                  Int64 &dataSize,
-                  Int64 &unpackedDataSize)
-{
-    //
-    // Read the next tile block from the file
-    //
-
-    //
-    // Read the first few bytes of the tile (the header).
-    //
-
-    Xdr::read <StreamIO> (*streamData->is, dx);
-    Xdr::read <StreamIO> (*streamData->is, dy);
-    Xdr::read <StreamIO> (*streamData->is, lx);
-    Xdr::read <StreamIO> (*streamData->is, ly);
-
-    Int64 tableSize;
-    Xdr::read <StreamIO> (*streamData->is, tableSize);
-
-    Xdr::read <StreamIO> (*streamData->is, dataSize);
-    Xdr::read <StreamIO> (*streamData->is, unpackedDataSize);
-
-    //
-    // Skip the pixel sample count table because we have read this data.
-    //
-
-    Xdr::skip <StreamIO> (*streamData->is, tableSize);
-
-    //
-    // Read the pixel data.
-    //
-
-    streamData->is->read (buffer, dataSize);
-
-    //
-    // Keep track of which tile is the next one in
-    // the file, so that we can avoid redundant seekg()
-    // operations (seekg() can be fairly expensive).
-    //
-
-    streamData->currentPosition += 4 * Xdr::size<int>()   +
-                                   3 * Xdr::size<Int64>() +
-                                   tableSize              +
-                                   dataSize;
-}
-
-
 //
 // A TileBufferTask encapsulates the task of uncompressing
 // a single tile and copying it into the frame buffer.
@@ -1957,7 +1904,7 @@ DeepTiledInputFile::totalTiles() const
                 for (int i_lx = 0; i_lx < numXLevels (); ++i_lx)
                     numAllTiles += numXTiles (i_lx) * numYTiles (i_ly);
                 
-                break;
+            break;
             
         default:
             

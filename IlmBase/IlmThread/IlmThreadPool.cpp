@@ -156,8 +156,8 @@ struct ThreadPool::Data
     ThreadPoolProvider *provider;
     ThreadPoolProvider *oldprovider;
 #else
-    std::atomic<ThreadPoolProvider *> provider;
     std::atomic<int> provUsers;
+    std::atomic<ThreadPoolProvider *> provider;
 #endif
 };
 
@@ -459,7 +459,7 @@ class NullThreadPoolProvider : public ThreadPoolProvider
 // struct TaskGroup::Data
 //
 
-TaskGroup::Data::Data (): isEmpty (1), numPending (0)
+TaskGroup::Data::Data () : numPending (0), isEmpty (1)
 {
     // empty
 }

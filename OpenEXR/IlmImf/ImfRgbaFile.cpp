@@ -167,9 +167,10 @@ cachePadding (ptrdiff_t size)
     // we are running on.  (It is ok if CACHE_LINE_SIZE is larger
     // than a real cache line.)
     //
+    // CACHE_LINE_SIZE = (1 << LOG2_CACHE_LINE_SIZE)
+    //
 
     static int LOG2_CACHE_LINE_SIZE = 8;
-    static const ptrdiff_t CACHE_LINE_SIZE = (1 << LOG2_CACHE_LINE_SIZE);
 
     int i = LOG2_CACHE_LINE_SIZE + 2;
 

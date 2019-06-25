@@ -306,7 +306,7 @@ TypeTranslator<BaseClass>::ClassDesc::ClassDesc
 template <class BaseClass>
 TypeTranslator<BaseClass>::ClassDesc::~ClassDesc ()
 {
-    for (int i = 0; i < _derivedClasses.size(); ++i)
+    for (size_t i = 0; i < _derivedClasses.size(); ++i)
 	delete _derivedClasses[i];
 }
 

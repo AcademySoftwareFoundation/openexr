@@ -113,6 +113,8 @@ static std::string nameOfOrder(typename IMATH_NAMESPACE::Euler<T>::Order order)
             return "EULER_ZYZr";
         case IMATH_NAMESPACE::Euler<T>::ZXZr:
             return "EULER_ZXZr";
+        default:
+            break;
     }
     
     return "";
@@ -306,6 +308,8 @@ static typename Euler<T>::Order interpretOrder(typename IMATH_NAMESPACE::Eulerf:
         {
             o = Euler<T>::ZXZr;
         }break;            
+        default:
+            break;
     }
     
     return o;

@@ -356,7 +356,7 @@ entryAndExitPoints1 ()
 	Box3f ()
     };
 
-    for (int i = 0; i < sizeof (boxes) / sizeof (boxes[0]); ++i)
+    for (size_t i = 0; i < sizeof (boxes) / sizeof (boxes[0]); ++i)
 	testEntryAndExitPoints (boxes[i]);
 }
 
@@ -738,7 +738,7 @@ rayBoxIntersection1 ()
 	Box3f ()
     };
 
-    for (int i = 0; i < sizeof (boxes) / sizeof (boxes[0]); ++i)
+    for (size_t i = 0; i < sizeof (boxes) / sizeof (boxes[0]); ++i)
 	testRayBoxIntersection (boxes[i]);
 }
 
@@ -907,44 +907,6 @@ boxMatrixTransform ()
     assert (approximatelyEqual (b5.max, b6.max, e));
     assert (b51 == b5);
     
-}
-
-
-void
-pointInBox ()
-{
-    cout << "  closest point in box" << endl;
-
-    Box3f box (V3f (1, 2, 3), V3f (5, 4, 6));
-
-    //
-    // Points outside the box
-    //
-
-    assert (closestPointInBox (V3f (0, 0, 0), box) == V3f (1, 2, 3));
-    assert (closestPointInBox (V3f (7, 7, 7), box) == V3f (5, 4, 6));
-
-    assert (closestPointInBox (V3f (2, 3, 0), box) == V3f (2, 3, 3));
-    assert (closestPointInBox (V3f (2, 3, 7), box) == V3f (2, 3, 6));
-
-    assert (closestPointInBox (V3f (2, 0, 4), box) == V3f (2, 2, 4));
-    assert (closestPointInBox (V3f (2, 7, 4), box) == V3f (2, 4, 4));
-
-    assert (closestPointInBox (V3f (0, 3, 4), box) == V3f (1, 3, 4));
-    assert (closestPointInBox (V3f (7, 3, 4), box) == V3f (5, 3, 4));
-
-    //
-    // Points inside the box
-    //
-
-    assert (closestPointInBox (V3f (1.5, 3, 5), box) == V3f (1.5, 3, 5));
-    assert (closestPointInBox (V3f (4.5, 3, 5), box) == V3f (4.5, 3, 5));
-
-    assert (closestPointInBox (V3f (2, 2.5, 4), box) == V3f (2, 2.5, 4));
-    assert (closestPointInBox (V3f (2, 3.5, 4), box) == V3f (2, 3.5, 4));
-
-    assert (closestPointInBox (V3f (2, 3, 3.5), box) == V3f (2, 3, 3.5));
-    assert (closestPointInBox (V3f (2, 3, 5.5), box) == V3f (2, 3, 5.5));
 }
 
 

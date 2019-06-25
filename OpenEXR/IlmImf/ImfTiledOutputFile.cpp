@@ -1230,13 +1230,11 @@ TiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
             swap (dy1, dy2);
         
         int dyStart = dy1;
-	int dyStop  = dy2 + 1;
 	int dY      = 1;
     
         if (_data->lineOrder == DECREASING_Y)
         {
             dyStart = dy2;
-            dyStop  = dy1 - 1;
             dY      = -1;
         }
         
