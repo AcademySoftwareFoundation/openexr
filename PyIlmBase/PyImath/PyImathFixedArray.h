@@ -116,7 +116,7 @@ class FixedArray
         }
         boost::shared_array<T> a(new T[length]);
         T tmp = FixedArrayDefaultValue<T>::value();
-        for (size_t i=0; i<length; ++i) a[i] = tmp;
+        for (Py_ssize_t i=0; i<length; ++i) a[i] = tmp;
         _handle = a;
         _ptr = a.get();
     }
@@ -139,7 +139,7 @@ class FixedArray
             throw IEX_NAMESPACE::LogicExc("Fixed array length must be non-negative");
         }
         boost::shared_array<T> a(new T[length]);
-        for (size_t i=0; i<length; ++i) a[i] = initialValue;
+        for (Py_ssize_t i=0; i<length; ++i) a[i] = initialValue;
         _handle = a;
         _ptr = a.get();
     }
@@ -229,8 +229,8 @@ class FixedArray
     //
     size_t canonical_index(Py_ssize_t index) const
     {
-        if (index < 0) index += _length;
-        if (index >= _length || index < 0) {
+        if (index < 0) index += len();
+        if (index >= len() || index < 0) {
             PyErr_SetString(PyExc_IndexError, "Index out of range");
             boost::python::throw_error_already_set();
         }
@@ -345,7 +345,7 @@ class FixedArray
         extract_slice_indices(index,start,end,step,slicelength);
         
         // we have a valid range of indices
-        if (data.len() != slicelength) {
+        if ((size_t)data.len() != slicelength) {
             PyErr_SetString(PyExc_IndexError, "Dimensions of source do not match destination");
 	    boost::python::throw_error_already_set();
         }
@@ -374,7 +374,7 @@ class FixedArray
         }
 
         size_t len = match_dimension(mask);
-        if (data.len() == len)
+        if ((size_t)data.len() == len)
         {
             for (size_t i = 0; i < len; ++i)
                 if (mask[i]) _ptr[i*_stride] = data[i];
@@ -385,7 +385,7 @@ class FixedArray
             for (size_t i = 0; i < len; ++i)
                 if (mask[i]) count++;
 
-            if (data.len() != count) {
+            if ((size_t)data.len() != count) {
                 throw IEX_NAMESPACE::ArgExc("Dimensions of source data do not match destination either masked or unmasked");
             }
 
@@ -493,7 +493,7 @@ class FixedArray
             throwExc = true;
         else if (_indices)
         {
-            if (_unmaskedLength != a1.len())
+            if (_unmaskedLength != (size_t) a1.len())
                 throwExc = true;
         }
         else

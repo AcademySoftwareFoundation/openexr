@@ -151,8 +151,6 @@ void
 verifyProcrustes (const std::vector<IMATH_INTERNAL_NAMESPACE::Vec3<T> >& from, 
                   const std::vector<IMATH_INTERNAL_NAMESPACE::Vec3<T> >& to)
 {
-    typedef IMATH_INTERNAL_NAMESPACE::Vec3<T> V3;
-
     const T eps = std::sqrt(std::numeric_limits<T>::epsilon());
 
     const size_t n = from.size();
@@ -242,7 +240,7 @@ verifyProcrustes (const std::vector<IMATH_INTERNAL_NAMESPACE::Vec3<T> >& from,
 
         IMATH_INTERNAL_NAMESPACE::V3d netForce(0);
         IMATH_INTERNAL_NAMESPACE::V3d netTorque(0);
-        for (int iPoint = 0; iPoint < n; ++iPoint)
+        for (size_t iPoint = 0; iPoint < n; ++iPoint)
         {
             const IMATH_INTERNAL_NAMESPACE::V3d force = weights[iPoint] * (from[iPoint]*m - to[iPoint]);
             netForce += force;

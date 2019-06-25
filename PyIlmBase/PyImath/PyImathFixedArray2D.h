@@ -183,7 +183,7 @@ class FixedArray2D
     size_t canonical_index(Py_ssize_t index, size_t length) const
     {
         if (index < 0) index += length;
-        if (index >= length || index < 0) {
+        if ((size_t) index >= length || index < 0) {
             PyErr_SetString(PyExc_IndexError, "Index out of range");
             boost::python::throw_error_already_set();
         }
@@ -355,7 +355,7 @@ class FixedArray2D
     setitem_array1d_mask(const FixedArray2D<int> &mask, const FixedArray<T> &data)
     {
         IMATH_NAMESPACE::Vec2<size_t> len = match_dimension(mask);
-        if (data.len() == len.x*len.y) {
+        if ((size_t) data.len() == len.x*len.y) {
             for (size_t j = 0, z = 0; j < len.y; j++)
                 for (size_t i=0; i<len.x; ++i, ++z)
                     if (mask(i,j))
@@ -366,7 +366,7 @@ class FixedArray2D
                 for (size_t i=0; i<len.x; ++i, ++z)
                     if (mask(i,j)) count++;
 
-            if (data.len() != count) {
+            if ((size_t) data.len() != count) {
                 PyErr_SetString(PyExc_IndexError, "Dimensions of source data do not match destination either masked or unmasked");
                 boost::python::throw_error_already_set();
             }
@@ -389,7 +389,7 @@ class FixedArray2D
         extract_slice_indices(PyTuple_GetItem(index, 0),_length.x,startx,endx,stepx,slicelengthx);
         extract_slice_indices(PyTuple_GetItem(index, 1),_length.y,starty,endy,stepy,slicelengthy);
         // we have a valid range of indices
-        if (data.len() != slicelengthx*slicelengthy) {
+        if ((size_t) data.len() != slicelengthx*slicelengthy) {
             PyErr_SetString(PyExc_IndexError, "Dimensions of source data do not match destination");
             boost::python::throw_error_already_set();
         }
@@ -489,8 +489,8 @@ FixedArray2D<Ret> apply_array2d_unary_op(const FixedArray2D<T1> &a1)
 {
     IMATH_NAMESPACE::Vec2<size_t> len = a1.len();
     FixedArray2D<Ret> retval(len.x,len.y);
-    for (int j=0; j<len.y; ++j) {
-        for (int i=0;i<len.x;++i) {
+    for (size_t j=0; j<len.y; ++j) {
+        for (size_t i=0;i<len.x;++i) {
             retval(i,j) = Op<T1,Ret>::apply(a1(i,j));
         }
     }
@@ -503,8 +503,8 @@ FixedArray2D<Ret> apply_array2d_array2d_binary_op(const FixedArray2D<T1> &a1, co
 {
     IMATH_NAMESPACE::Vec2<size_t> len = a1.match_dimension(a2);
     FixedArray2D<Ret> retval(len.x,len.y);
-    for (int j=0; j<len.y; ++j) {
-        for (int i=0;i<len.x;++i) {
+    for (size_t j=0; j<len.y; ++j) {
+        for (size_t i=0;i<len.x;++i) {
             retval(i,j) = Op<T1,T2,Ret>::apply(a1(i,j),a2(i,j));
         }
     }
@@ -516,8 +516,8 @@ FixedArray2D<Ret> apply_array2d_scalar_binary_op(const FixedArray2D<T1> &a1, con
 {
     IMATH_NAMESPACE::Vec2<size_t> len = a1.len();
     FixedArray2D<Ret> retval(len.x,len.y);
-    for (int j=0; j<len.y; ++j) {
-        for (int i=0;i<len.x;++i) {
+    for (size_t j=0; j<len.y; ++j) {
+        for (size_t i=0;i<len.x;++i) {
             retval(i,j) = Op<T1,T2,Ret>::apply(a1(i,j),a2);
         }
     }
@@ -529,8 +529,8 @@ FixedArray2D<Ret> apply_array2d_scalar_binary_rop(const FixedArray2D<T1> &a1, co
 {
     IMATH_NAMESPACE::Vec2<size_t> len = a1.len();
     FixedArray2D<Ret> retval(len.x,len.y);
-    for (int j=0; j<len.y; ++j) {
-        for (int i=0;i<len.x;++i) {
+    for (size_t j=0; j<len.y; ++j) {
+        for (size_t i=0;i<len.x;++i) {
             retval(i,j) = Op<T2,T1,Ret>::apply(a2,a1(i,j));
         }
     }
@@ -542,8 +542,8 @@ template <template <class,class> class Op, class T1, class T2>
 FixedArray2D<T1> & apply_array2d_array2d_ibinary_op(FixedArray2D<T1> &a1, const FixedArray2D<T2> &a2)
 {
     IMATH_NAMESPACE::Vec2<size_t> len = a1.match_dimension(a2);
-    for (int j=0; j<len.y; ++j) {
-        for (int i=0;i<len.x;++i) {
+    for (size_t j=0; j<len.y; ++j) {
+        for (size_t i=0;i<len.x;++i) {
             Op<T1,T2>::apply(a1(i,j),a2(i,j));
         }
     }
@@ -555,8 +555,8 @@ template <template <class,class> class Op, class T1, class T2>
 FixedArray2D<T1> & apply_array2d_scalar_ibinary_op(FixedArray2D<T1> &a1, const T2 &a2)
 {
     IMATH_NAMESPACE::Vec2<size_t> len = a1.len();
-    for (int j=0; j<len.y; ++j) {
-        for (int i=0;i<len.x;++i) {
+    for (size_t j=0; j<len.y; ++j) {
+        for (size_t i=0;i<len.x;++i) {
             Op<T1,T2>::apply(a1(i,j),a2);
         }
     }

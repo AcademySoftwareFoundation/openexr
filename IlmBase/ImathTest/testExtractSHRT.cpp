@@ -57,7 +57,6 @@ using namespace IMATH_INTERNAL_NAMESPACE;
 namespace {
 
 float rad (float deg) {return deg * (M_PI / 180);}
-float deg (float rad) {return rad * (180 / M_PI);}
 
 
 void

@@ -115,7 +115,7 @@ procrustesRotationAndTranslation (const Vec3<T>* A, const Vec3<T>* B, const T* w
 
     if (weights == 0)
     {
-        for (int i = 0; i < numPoints; ++i)
+        for (size_t i = 0; i < numPoints; ++i)
         {
             Acenter += (V3d) A[i];
             Bcenter += (V3d) B[i];
@@ -124,7 +124,7 @@ procrustesRotationAndTranslation (const Vec3<T>* A, const Vec3<T>* B, const T* w
     }
     else
     {
-        for (int i = 0; i < numPoints; ++i)
+        for (size_t i = 0; i < numPoints; ++i)
         {
             const double w = weights[i];
             weightsSum += w;
@@ -152,12 +152,12 @@ procrustesRotationAndTranslation (const Vec3<T>* A, const Vec3<T>* B, const T* w
     M33d C (0.0);
     if (weights == 0)
     {
-        for (int i = 0; i < numPoints; ++i)
+        for (size_t i = 0; i < numPoints; ++i)
             C += outerProduct ((V3d) B[i] - Bcenter, (V3d) A[i] - Acenter);
     }
     else
     {
-        for (int i = 0; i < numPoints; ++i)
+        for (size_t i = 0; i < numPoints; ++i)
         {
             const double w = weights[i];
             C += outerProduct (w * ((V3d) B[i] - Bcenter), (V3d) A[i] - Acenter);
@@ -197,12 +197,12 @@ procrustesRotationAndTranslation (const Vec3<T>* A, const Vec3<T>* B, const T* w
         KahanSum traceATA;
         if (weights == 0)
         {
-            for (int i = 0; i < numPoints; ++i)
+            for (size_t i = 0; i < numPoints; ++i)
                 traceATA += ((V3d) A[i] - Acenter).length2();
         }
         else
         {
-            for (int i = 0; i < numPoints; ++i)
+            for (size_t i = 0; i < numPoints; ++i)
                 traceATA += ((double) weights[i]) * ((V3d) A[i] - Acenter).length2();
         }
 

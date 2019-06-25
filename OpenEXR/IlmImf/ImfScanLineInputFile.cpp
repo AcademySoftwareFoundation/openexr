@@ -1418,6 +1418,10 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
                   case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT :
                       offset+=2;
                       break;
+                  case OPENEXR_IMF_INTERNAL_NAMESPACE::NUM_PIXELTYPES:
+                  default:
+                      // not possible.
+                      break;
               }
               ++i;
 	}
@@ -1487,6 +1491,10 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
                       break;
                   case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT :
                       offset+=2;
+                      break;
+                  case OPENEXR_IMF_INTERNAL_NAMESPACE::NUM_PIXELTYPES:
+                  default:
+                      // not possible.
                       break;
               }
           }

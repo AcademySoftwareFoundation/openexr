@@ -146,7 +146,7 @@ class FixedVArray
         }
         else if (_indices)
         {
-            if (_unmaskedLength != mask.len())
+            if (_unmaskedLength != (size_t) mask.len())
             {
                 throwExc = true;
             }
@@ -179,7 +179,7 @@ class FixedVArray
         }
         else if (_indices)
         {
-            if (_unmaskedLength != other.len())
+            if (_unmaskedLength != (size_t) other.len())
             {
                 throwExc = true;
             }

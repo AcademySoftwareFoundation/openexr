@@ -738,7 +738,7 @@ struct VectorizedVoidMaskableMemberFunction1 {
         size_t len = cls.match_dimension(arg1, false);
         op_precompute<Op>::apply(len);
 
-        if (cls.isMaskedReference() && arg1.len() == cls.unmaskedLength())
+        if (cls.isMaskedReference() && (size_t) arg1.len() == cls.unmaskedLength())
         {
             // class is masked, and the unmasked length matches the right hand side
             VectorizedMaskedVoidOperation1<Op,class_type,arg1_type> vop(cls,arg1);

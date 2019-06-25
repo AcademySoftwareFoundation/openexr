@@ -316,7 +316,7 @@ box_extendBy(IMATH_NAMESPACE::Box<T> &box, const PyImath::FixedArray<T> &points)
     std::vector<IMATH_NAMESPACE::Box<T> > boxes(numBoxes);
     ExtendByTask<T> task(boxes,points);
     dispatchTask(task,points.len());
-    for (int i=0; i<numBoxes; ++i) {
+    for (size_t i=0; i<numBoxes; ++i) {
         box.extendBy(boxes[i]);
     }
 }

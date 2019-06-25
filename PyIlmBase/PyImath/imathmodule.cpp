@@ -102,7 +102,7 @@ procrustes1 (PyObject* from_input,
     bool useWeights = PySequence_Check (weights_input);
 
     // Now verify the lengths:
-    const size_t n = PySequence_Length (from_input);
+    const Py_ssize_t n = PySequence_Length (from_input);
     if (n != PySequence_Length (to_input) ||
         (useWeights && n != PySequence_Length (weights_input)))
     {
@@ -114,7 +114,7 @@ procrustes1 (PyObject* from_input,
     std::vector<IMATH_NAMESPACE::V3d> to;    to.reserve (n);
     std::vector<double> weights;   weights.reserve (n);
 
-    for (size_t i = 0; i < n; ++i)
+    for (Py_ssize_t i = 0; i < n; ++i)
     {
         PyObject* f = PySequence_GetItem (from_input, i);
         PyObject* t = PySequence_GetItem (to_input, i);

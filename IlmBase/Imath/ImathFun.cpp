@@ -41,7 +41,7 @@ IMATH_INTERNAL_NAMESPACE_SOURCE_ENTER
 float
 succf (float f)
 {
-    union {float f; int i;} u;
+    union {float f; unsigned int i;} u;
     u.f = f;
 
     if ((u.i & 0x7f800000) == 0x7f800000)
@@ -76,7 +76,7 @@ succf (float f)
 float
 predf (float f)
 {
-    union {float f; int i;} u;
+    union {float f; unsigned int i;} u;
     u.f = f;
 
     if ((u.i & 0x7f800000) == 0x7f800000)
