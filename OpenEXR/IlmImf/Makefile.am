@@ -110,7 +110,7 @@ libIlmImfinclude_HEADERS = ImfForward.h ImfAttribute.h ImfBoxAttribute.h \
 			   ImfCRgbaFile.h ImfChannelList.h \
 			   ImfChannelListAttribute.h \
 			   ImfCompressionAttribute.h \
-			   ImfDoubleAttribute.h ImfFloatAttribute.h \
+			   ImfDoubleAttribute.h ImfFloatAttribute.h ImfFloatVectorAttribute.h \
 			   ImfFrameBuffer.h ImfHeader.h ImfIO.h \
 			   ImfInputFile.h ImfIntAttribute.h \
 			   ImfLineOrderAttribute.h ImfMatrixAttribute.h \
