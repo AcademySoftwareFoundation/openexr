@@ -91,8 +91,8 @@ if(OPENEXR_NAMESPACE_VERSIONING)
 endif()
 
 # MacOs/linux rpathing
-set(CMAKE_MACOSX_RPATH 1)
-set(BUILD_WITH_INSTALL_RPATH 1)
+set(CMAKE_MACOSX_RPATH ON)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
 
 # Set position independent code (mostly for static builds, but not a bad idea regardless)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
