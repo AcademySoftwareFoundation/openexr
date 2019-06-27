@@ -118,7 +118,7 @@ class FixedMatrix
         unref();
     }
     
-    int convert_index(int index) const
+    Py_ssize_t convert_index(int index) const
     {
         if (index < 0) index += _rows;
         if (index >= _rows || index < 0) {
@@ -141,10 +141,10 @@ class FixedMatrix
             }
 #if PY_MAJOR_VERSION > 2
         } else if (PyLong_Check(index)) {
-            ssize_t i = convert_index(PyLong_AsSsize_t(index));
+            Py_ssize_t i = convert_index(PyLong_AsSsize_t(index));
 #else
         } else if (PyInt_Check(index)) {
-            int i = convert_index(PyInt_AS_LONG(index));
+            Py_ssize_t i = convert_index(PyInt_AS_LONG(index));
 #endif
             start = i; end = i+1; step = 1; slicelength = 1;
         } else {
