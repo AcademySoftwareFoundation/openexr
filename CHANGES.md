@@ -1,5 +1,9 @@
 # OpenEXR Release Notes
 
+## Version X.X.X (Some Date)
+
+* Fix CVE-2018-18443, a memory leak in ThreadPool
+
 ## Version 2.3.0 (August 13, 2018)
 
 ### Features/Improvements:
