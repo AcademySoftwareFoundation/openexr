@@ -20,6 +20,8 @@
 
 * 25+ various bug fixes (see detailed Release Notes for the full list)
 
+* This release addresses vulnerability [CVE-2017-12596](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-12596).
+
 ### Build Fixes:
 
 * Various fixes to the cmake and autoconf build infrastructures
