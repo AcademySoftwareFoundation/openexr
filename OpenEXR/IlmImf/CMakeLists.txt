@@ -238,11 +238,11 @@ IF (OPENEXR_BUILD_STATIC)
   ENDIF ()
 
   iF (BUILD_DWALOOKUPS)
-    ADD_DEPENDENCIES ( IlmImf_static b44ExpLogTable )
+    ADD_DEPENDENCIES ( IlmImf_static dwaLookups )
   ENDIF ()
 
   IF (BUILD_B44EXPLOGTABLE)
-    ADD_DEPENDENCIES ( IlmImf_static dwaLookups )
+    ADD_DEPENDENCIES ( IlmImf_static b44ExpLogTable )
   ENDIF()
 
 ENDIF ()
