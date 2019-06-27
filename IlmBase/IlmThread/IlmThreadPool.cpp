@@ -566,9 +566,11 @@ ThreadPool::Data::~Data()
 {
 #ifdef ILMBASE_FORCE_CXX03
     provider->finish();
+    delete provider;
 #else
     ThreadPoolProvider *p = provider.load( std::memory_order_relaxed );
     p->finish();
+    delete p;
 #endif
 }
 
