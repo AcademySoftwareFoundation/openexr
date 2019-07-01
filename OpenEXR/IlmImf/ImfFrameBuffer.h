@@ -48,6 +48,7 @@
 #include "ImfPixelType.h"
 #include "ImfExport.h"
 #include "ImfNamespace.h"
+#include "ImathBox.h"
 
 #include <map>
 #include <string>
@@ -55,6 +56,29 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
+//-------------------------------------------------------
+// Utility to compute the origin-based pointer address
+//
+// With large offsets for the data window, the naive code
+// can wrap around, especially on 32-bit machines.
+// This can be used to avoid that
+//-------------------------------------------------------
+
+template <typename T>
+inline T *
+ComputeOriginPointer( T *p, const IMATH_NAMESPACE::Box2i &dw, int xSamp = 1, int ySamp = 1 )
+{
+    // data window is an int, so force promote to higher type to avoid
+    // overflow for off y (degenerate size checks should be in
+    // ImfHeader::sanityCheck, but offset can be large-ish)
+    long long basex = static_cast<long long>( dw.min.x );
+    long long w = static_cast<long long>( dw.max.x ) - basex + 1;
+    long long offy = ( static_cast<long long>( dw.min.y ) /
+                       static_cast<long long>( ySamp ) );
+    offy *= w / static_cast<long long>( xSamp );
+
+    return p - offy - ( basex / static_cast<long long>( xSamp ) );
+}
 
 //-------------------------------------------------------
 // Description of a single slice of the frame buffer:
