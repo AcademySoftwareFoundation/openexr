@@ -124,7 +124,7 @@ exr2aces (const char inFileName[],
 	height = dw.max.y - dw.min.y + 1;
 	p.resizeErase (height, width);
 
-	in.setFrameBuffer (&p[0][0] - intptr_t( dw.min.x ) - intptr_t( dw.min.y ) * intptr_t( width ), 1, width);
+	in.setFrameBuffer (ComputeOriginPointer (&p[0][0], dw), 1, width);
 	in.readPixels (dw.min.y, dw.max.y);
     }
 
@@ -147,7 +147,7 @@ exr2aces (const char inFileName[],
 
 	AcesOutputFile out (outFileName, h, ch);
 
-	out.setFrameBuffer (&p[0][0] - intptr_t( dw.min.x ) - intptr_t( dw.min.y ) * intptr_t( width ), 1, width);
+	out.setFrameBuffer (ComputeOriginPointer (&p[0][0], dw), 1, width);
 	out.writePixels (height);
     }
 }
