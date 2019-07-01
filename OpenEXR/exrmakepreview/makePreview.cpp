@@ -110,7 +110,7 @@ generatePreview (const char inFileName[],
     int h = dw.max.y - dw.min.y + 1;
 
     Array2D <Rgba> pixels (h, w);
-    in.setFrameBuffer (&pixels[0][0] - intptr_t( dw.min.y ) * intptr_t( w ) - intptr_t( dw.min.x ), 1, w);
+    in.setFrameBuffer (ComputeOriginPointer (&pixels[0][0], dw), 1, w);
     in.readPixels (dw.min.y, dw.max.y);
 
     //
