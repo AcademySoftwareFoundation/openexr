@@ -40,7 +40,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <byteswap.h>
+
+#include "bswap_32.h"
 
 #include "tmpDir.h"
 #include "testMultiPartFileMixingBasic.h"
@@ -1387,8 +1388,7 @@ killOffsetTables (const std::string & fn)
             fread(&length,4,1,f);
     	    if (!GLOBAL_SYSTEM_LITTLE_ENDIAN)
     	    {
-    		int tmp = bswap_32(length);
-    		length = tmp;
+    		length = bswap_32(length);
     	    }
             
             //value of attribute
