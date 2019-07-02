@@ -40,7 +40,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <byteswap.h>
+#include "bswap_32.h"
 
 #include "tmpDir.h"
 #include "testFutureProofing.h"
@@ -1238,8 +1238,7 @@ modifyType (bool modify_version)
             fread(&length,4,1,f);
             if (!GLOBAL_SYSTEM_LITTLE_ENDIAN)
             {
-                int tmp = bswap_32(length);
-        	length = tmp;
+        	length = bswap_32(length);
             }
 
             if(!modify_version && attrib_name=="type")
