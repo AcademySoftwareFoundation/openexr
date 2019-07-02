@@ -918,6 +918,14 @@ for targeting 64 bit Windows, fixes for buffer overruns and a number
 of other minor fixes, additions and optimisations. Please see the
 Changelog files for more detailed information.
 
+### Bugs
+
+This release addresses the following vulnerabilities:
+
+* [CVE-2009-1720](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1720)
+* [CVE-2009-1721](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1721)
+* [CVE-2009-1722](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1722)
+
 ### Detailed Changes:
 
 * Added support for targetting builds on 64bit Windows and minimising
