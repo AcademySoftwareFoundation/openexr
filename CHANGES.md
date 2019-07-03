@@ -4,6 +4,12 @@
 
 * Fix CVE-2018-18443, a memory leak in ThreadPool
 
+### Bugs
+
+This version fixes the following security vulnerabilities:
+
+* [CVE-2018-18443](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18443)
+
 ## Version 2.3.0 (August 13, 2018)
 
 ### Features/Improvements:
@@ -683,13 +689,13 @@
 This maintenance release addresses the reported OpenEXR security
 vulnerabilities, specifically:
 
-* CVE-2017-9110
-* CVE-2017-9111
-* CVE-2017-9112
-* CVE-2017-9113
-* CVE-2017-9114
-* CVE-2017-9115
-* CVE-2017-9116.
+* [CVE-2017-9110](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9110)
+* [CVE-2017-9111](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9111)
+* [CVE-2017-9112](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9112)
+* [CVE-2017-9113](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9113)
+* [CVE-2017-9114](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9114)
+* [CVE-2017-9115](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9115)
+* [CVE-2017-9116](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9116)
 
 ## Version 2.2.0 (August 10, 2014)
 
@@ -920,7 +926,7 @@ Changelog files for more detailed information.
 
 ### Bugs
 
-This release addresses the following vulnerabilities:
+This release addresses the following security vulnerabilities:
 
 * [CVE-2009-1720](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1720)
 * [CVE-2009-1721](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1721)
