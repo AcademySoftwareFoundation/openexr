@@ -260,6 +260,27 @@ modifications to the TSC by assigning the `tsc-review` label to a pull
 request or issue. The TSC should serve as the final arbiter where
 required.
 
+### Test Policy
+
+All functionality in the library must be covered by an automated
+test. Each library has a companion ``Test`` project - ``ImathTest``,
+``HalfTest``, ``IlmImfTest`, etc.  This test suite is collectively
+expected to validate the behavior of very part of the library.
+
+* Any new functionality should be accompanied by a test that validates
+  its behavior.
+
+* Any change to existing functionality should have tests added if they
+  don't already exist.
+
+The test should should be run, via ``make check``, before submitting a
+pull request.
+
+In addition, the ``IlmImfFuzzTest`` project validates the library by
+feeding it corrupted input data. This test is time-consuming (possible
+over 24 hours), so it will only be run occasionally, but it must
+succeed before a release is made.
+
 ### Project Issue Handling Process
 
 Incoming new issues are labeled promptly by the TSC using GitHub labels. 
