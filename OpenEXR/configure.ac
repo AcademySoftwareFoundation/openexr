@@ -385,6 +385,7 @@ IlmImfUtil/Makefile
 IlmImfUtilTest/Makefile
 IlmImfFuzzTest/Makefile
 exrheader/Makefile
+exr2aces/Makefile
 exrmaketiled/Makefile
 IlmImfExamples/Makefile
 doc/Makefile
