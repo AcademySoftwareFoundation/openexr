@@ -73,7 +73,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <time.h>
-
+#include "ImfTiledMisc.h"
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -914,6 +914,10 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 	    THROW (IEX_NAMESPACE::ArgExc, "The width of the tiles exceeds the maximum "
 				"width of " << maxTileHeight << "pixels.");
 	}
+
+    // computes size of chunk offset table. Throws an exception if this exceeds
+    // the maximum allowable size
+    getTiledChunkOffsetTableSize(*this);
 
 	if (tileDesc.mode != ONE_LEVEL &&
 	    tileDesc.mode != MIPMAP_LEVELS &&
