@@ -357,6 +357,34 @@ All headers should contain:
 
     #pragma once
 
+#### Type Conventions
+
+Because OpenEXR must deal properly with large images, whose width
+and/or height approach the maximum allowable in 32-bit signed
+integers, take special care that integer arithmatic doesn't overlow,
+and make it as clear as possible exactly what the code is doing,
+especially in the edge cases.
+
+To clarify the intention, prefer to cast between types using
+``static_cast<>()`` rather than the basic C-style ``()`` notation:
+
+    // good:
+    size_t x = static_cast <size_t> (y);
+
+    // bad:
+    x = (size_t) y;
+    x = size_t (y);
+
+Prefer to use ``std::numeric_limits<>`` instead of preprocesser
+define's such as ``INT_MAX``:
+
+    // good:
+    if (x > std::numeric_limits<int>::max())
+        std::cout << "That's too freakin' high.\n";
+
+    // bad:
+    if (x > INT_MAX)
+
 #### Copyright Notices
 
 All new source files should begin with a copyright and license stating:
