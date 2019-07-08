@@ -216,31 +216,48 @@ testFrustum ()
     cout << "\nexceptions ";
     IMATH_INTERNAL_NAMESPACE::Frustum<float> badFrustum;
 
+    bool caught;
+
     badFrustum.set (n, n, l, r, t, b, false);
+    caught = false;
     try
     {
 	(void)badFrustum.projectionMatrix();
 	assert (!"near == far didn't throw an exception");
     }
-    catch (IEX_NAMESPACE::DivzeroExc) {}
+    catch (IEX_NAMESPACE::DivzeroExc)
+    {
+        caught = true;
+    }
+    assert (caught);
     cout << "1";
 
     badFrustum.set (n, f, l, l, t, b, false);
+    caught = false;
     try
     {
 	(void)badFrustum.projectionMatrix();
 	assert (!"left == right didn't throw an exception");
     }
-    catch (IEX_NAMESPACE::DivzeroExc) {}
+    catch (IEX_NAMESPACE::DivzeroExc)
+    {
+        caught = true;
+    }
+    assert (caught);
     cout << "2";
 
     badFrustum.set (n, f, l, r, t, t, false);
+    caught = false;
     try
     {
 	(void)badFrustum.projectionMatrix();
 	assert (!"top == bottom didn't throw an exception");
     }
-    catch (IEX_NAMESPACE::DivzeroExc) {}
+    catch (IEX_NAMESPACE::DivzeroExc)
+    {
+        caught = true;
+    }
+    assert (caught);
     cout << "3";
 
     cout << "\northographic ";

@@ -96,58 +96,69 @@ readBadBoundsImage (const char fileName[])
 void
 testMalformedImages (const std::string&)
 {
-	try
-	{
-		// id:000012,sig:11,src:000328+001154,op:splice,rep:16
-		readImage (ILM_IMF_TEST_IMAGEDIR "comp_short_decode_piz.exr");
-		cerr << "Malformed Images : InputFile : incorrect input file passed\n";
-		assert (false);
-	}
-	catch (const IEX_NAMESPACE::BaseExc &e)
-	{
-		// expected behaviour
-	}
+    bool caught;
 
-	try
-	{
-		// id:000077,sig:11,src:002575,op:havoc,rep:4
-		readImage (ILM_IMF_TEST_IMAGEDIR "comp_invalid_unknown.exr");
-		cerr << "Malformed Images : InputFile : incorrect input file passed\n";
-		assert (false);
-	}
-	catch (const IEX_NAMESPACE::IoExc &e)
-	{
-		// expected behaviour
-	}
+    try
+    {
+        // id:000012,sig:11,src:000328+001154,op:splice,rep:16
+        caught = false;
+        readImage (ILM_IMF_TEST_IMAGEDIR "comp_short_decode_piz.exr");
+        cerr << "Malformed Images : InputFile : incorrect input file passed\n";
+        assert (false);
+    }
+    catch (const IEX_NAMESPACE::BaseExc &e)
+    {
+        // expected behaviour
+        caught = true;
+    }
+    assert (caught);
 
-	try
-	{
-		// id:000103,sig:11,src:002037+004745,op:splice,rep:2
-		readImage (ILM_IMF_TEST_IMAGEDIR "comp_early_eof_piz.exr");
-		cerr << "Malformed Images : InputFile : incorrect input file passed\n";
-		assert (false);
-	}
-	catch (const IEX_NAMESPACE::InputExc &e)
-	{
-		// expected behaviour
-	}
+    try
+    {
+        // id:000077,sig:11,src:002575,op:havoc,rep:4
+        caught = false;
+        readImage (ILM_IMF_TEST_IMAGEDIR "comp_invalid_unknown.exr");
+        cerr << "Malformed Images : InputFile : incorrect input file passed\n";
+        assert (false);
+    }
+    catch (const IEX_NAMESPACE::IoExc &e)
+    {
+        // expected behaviour
+        caught = true;
+    }
+    assert (caught);
 
-	// The files below expose a bug in the test code (readImage which uses the
-	// logic taken from exr2aces) that calculates an invalid pointer for the
-	// framebuffer.  The dataWindow and displayWindow values used in these files
-	// seem valid based on a cursory reading of the OpenEXR specification. As
-	// such, the best we can do is ensure that parsing the basic header
-	// information doesn't cause any unexpected exceptions.
+    try
+    {
+        // id:000103,sig:11,src:002037+004745,op:splice,rep:2
+        caught = false;
+        readImage (ILM_IMF_TEST_IMAGEDIR "comp_early_eof_piz.exr");
+        cerr << "Malformed Images : InputFile : incorrect input file passed\n";
+        assert (false);
+    }
+    catch (const IEX_NAMESPACE::InputExc &e)
+    {
+        // expected behaviour
+        caught = true;
+    }
+    assert (caught);
 
-	// id:000087,sig:11,src:000562+000300,op:splice,rep:2
-	readBadBoundsImage (ILM_IMF_TEST_IMAGEDIR "comp_bad_pos_bounds_piz.exr");
+    // The files below expose a bug in the test code (readImage which uses the
+    // logic taken from exr2aces) that calculates an invalid pointer for the
+    // framebuffer.  The dataWindow and displayWindow values used in these files
+    // seem valid based on a cursory reading of the OpenEXR specification. As
+    // such, the best we can do is ensure that parsing the basic header
+    // information doesn't cause any unexpected exceptions.
 
-	// id:000104,sig:11,src:001329+000334,op:splice,rep:2
-	readBadBoundsImage (ILM_IMF_TEST_IMAGEDIR "comp_bad_pos_bounds_pxr24.exr");
+    // id:000087,sig:11,src:000562+000300,op:splice,rep:2
+    readBadBoundsImage (ILM_IMF_TEST_IMAGEDIR "comp_bad_pos_bounds_piz.exr");
 
-	// id:000131,sig:11,src:000514+002831,op:splice,rep:16
-	readBadBoundsImage (ILM_IMF_TEST_IMAGEDIR "comp_bad_neg_bounds_pxr24.exr");
+    // id:000104,sig:11,src:001329+000334,op:splice,rep:2
+    readBadBoundsImage (ILM_IMF_TEST_IMAGEDIR "comp_bad_pos_bounds_pxr24.exr");
 
-	// id:000132,sig:11,src:000895,op:havoc,rep:32
-	readBadBoundsImage (ILM_IMF_TEST_IMAGEDIR "comp_bad_bounds_piz.exr");
+    // id:000131,sig:11,src:000514+002831,op:splice,rep:16
+    readBadBoundsImage (ILM_IMF_TEST_IMAGEDIR "comp_bad_neg_bounds_pxr24.exr");
+
+    // id:000132,sig:11,src:000895,op:havoc,rep:32
+    readBadBoundsImage (ILM_IMF_TEST_IMAGEDIR "comp_bad_bounds_piz.exr");
 }

@@ -168,6 +168,7 @@ readImageONE (const char fileName[])
     catch (...)
     {
         // empty
+        assert (true);
     }
     try
     {
@@ -197,7 +198,8 @@ readImageONE (const char fileName[])
     }
     catch (...)
     {
-                // empty
+        // empty
+        assert (true);
     }
 }
 
@@ -270,6 +272,7 @@ readImageMIP (const char fileName[])
     catch (...)
     {
 	// empty
+        assert (true);
     }
 }
 
@@ -350,6 +353,7 @@ readImageRIP (const char fileName[])
     catch (...)
     {
 	// empty
+        assert (true);
     }
 }
 

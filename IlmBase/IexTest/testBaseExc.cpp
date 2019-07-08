@@ -69,13 +69,17 @@ throwNested()
     }
     catch (const IEX_INTERNAL_NAMESPACE::ArgExc &)
     {
+        bool caught = false;
 	try
 	{
 	    throwInt();
 	}
 	catch (...)
 	{
+            caught = true;
 	}
+
+        assert (caught);
 
 	throw;
     }

@@ -622,6 +622,8 @@ testRenameChannel ()
         assert (level.findTypedChannel <half> ("C") != 0);
     }
 
+    bool caught = false;
+
     try
     {
         img.renameChannel ("A", "D");   // "A" doesn't exist
@@ -630,8 +632,11 @@ testRenameChannel ()
     catch (...)
     {
         // expecting exception
+        caught = true;
     }
+    assert (caught);
 
+    caught = false;
     try
     {
         img.renameChannel ("C", "B");   // "B" exists already
@@ -640,7 +645,9 @@ testRenameChannel ()
     catch (...)
     {
         // expecting exception
+        caught = true;
     }
+    assert (caught);
 }
 
 
@@ -693,6 +700,7 @@ testRenameChannels ()
     assert (img.level(1).typedChannel<half>("D").at(0, 0)[0] == 4);
     assert (img.level(1).typedChannel<half>("E").at(0, 0)[0] == 3);
 
+    bool caught = false;
     try
     {
         RenamingMap oldToNewNames;
@@ -705,8 +713,11 @@ testRenameChannels ()
     catch (...)
     {
         // expecting exception
+        caught = true;
     }
+    assert (caught);
 
+    caught = false;
     try
     {
         RenamingMap oldToNewNames;
@@ -718,7 +729,9 @@ testRenameChannels ()
     catch (...)
     {
         // expecting exception
+        caught = true;
     }
+    assert (caught);
 }
 
 } // namespace

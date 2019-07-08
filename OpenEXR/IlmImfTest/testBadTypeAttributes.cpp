@@ -161,41 +161,62 @@ template<class T> void readScanlineThing(T& input,bool test)
 
 void checkDeepTypesFailToLoad(const char * file)
 {
-        
+    bool caught = false;
+
     // trying to open it as a deep tiled file should fail
-    try{
+
+    try
+    {
+        caught = false;
         DeepTiledInputFile f(file);
         assert(false);
-    }catch(...)
-    {
     }
+    catch(...)
+    {
+        caught = true;
+    }
+    assert (caught);
+
     // trying to open it as a deep tiled part of a multipart file should fail
-    try{
+    try
+    {
+        caught = false;
         MultiPartInputFile multiin(file);
         DeepTiledInputPart p(multiin,0);
         assert(false);
-    }catch(...)
-    {
     }
+    catch(...)
+    {
+        caught = true;
+    }
+    assert (caught);
     
     // trying to open it as a deep scanline file should fail
-    try{
+    try
+    {
+        caught = false;
         DeepScanLineInputFile f(file);
         assert(false);
-    }catch(...)
-    {
-        
     }
+    catch(...)
+    {
+        caught = true;
+    }
+    assert (caught);
+
     // trying to open it as a deep scanline part of a multipart file should fail
-    try{
+    try
+    {
+        caught = false;
         MultiPartInputFile multiin(file);
         DeepScanLineInputPart p(multiin,0);
         assert(false);
-    }catch(...)
-    {
-        
     }
-    
+    catch(...)
+    {
+        caught = true;
+    }
+    assert (caught);
 }
 
 
@@ -230,6 +251,8 @@ void testTiledWithBadAttribute(const char* file)
 
 void testScanLineWithBadAttribute(const char * file)
 {
+    bool caught;
+
     InputFile in(file);
     readScanlineThing(in,false);
  
@@ -241,20 +264,31 @@ void testScanLineWithBadAttribute(const char * file)
     checkDeepTypesFailToLoad(file);
     
     // trying to open it as a tiled file should also fail
-    try{
+    try
+    {
+        caught = false;
         TiledInputFile f(file);
         assert(false);
-    }catch(...)
-    {
     }
+    catch(...)
+    {
+        caught = true;
+    }
+    assert (caught);
+    
     // trying to open it as a tiled part of a multipart file should fail
-    try{
+    try
+    {
+        caught = false;
         MultiPartInputFile multiin(file);
         TiledInputPart p(multiin,0);
         assert(false);
-    }catch(...)
-    {
     }
+    catch(...)
+    {
+        caught = true;
+    }
+    assert (caught);
 }
 
 const std::string & NOTYPEATTR="";
