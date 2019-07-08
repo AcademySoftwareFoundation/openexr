@@ -87,7 +87,7 @@ In OpenEXR_Viewers:
 
 * Documentation: http://www.openexr.com/documentation.html.
 
-* Deverloper discussion mailing list: [openexr-dev@lists.aswf.io](https://lists.aswf.io/g/openexr-dev)
+* Developer discussion mailing list: [openexr-dev@lists.aswf.io](https://lists.aswf.io/g/openexr-dev)
 
 ## Developer Quick Start
 
