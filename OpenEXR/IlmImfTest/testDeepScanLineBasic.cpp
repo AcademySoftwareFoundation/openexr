@@ -511,37 +511,61 @@ void testCompressionTypeChecks()
     //
     // these should fail
     //
-    try{
+    bool caught = false;
+    try
+    {
         h.compression()=ZIP_COMPRESSION;
         h.sanityCheck();    
         assert(false);
-    }catch(...){ 
-        cout << "correctly identified bad compression setting (zip)\n";
     }
-    try{
+    catch(...)
+    { 
+        cout << "correctly identified bad compression setting (zip)\n";
+        caught = true;
+    }
+    assert (caught);
+
+    try
+    {
+        caught = false;
         h.compression()=B44_COMPRESSION;
         h.sanityCheck();
         assert(false);
-    }catch(...){ 
-        cout << "correctly identified bad compression setting (b44)\n";
     }
-    try{
+    catch(...)
+    { 
+        cout << "correctly identified bad compression setting (b44)\n";
+        caught = true;
+    }
+    assert (caught);
+
+    try
+    {
+        caught = false;
         h.compression()=B44A_COMPRESSION;
         h.sanityCheck();
         assert(false);
-    }catch(...) { 
-        cout << "correctly identified bad compression setting (b44a)\n";
     }
-    try{
+    catch(...)
+    { 
+        cout << "correctly identified bad compression setting (b44a)\n";
+        caught = true;
+    }
+    assert (caught);
+
+    try
+    {
+        caught = false;
         h.compression()=PXR24_COMPRESSION;
         h.sanityCheck();
         assert(false);
-    }catch(...) {
-        cout << "correctly identified bad compression setting (pxr24)\n";
     }
-    
-    
-    return;
+    catch(...)
+    {
+        cout << "correctly identified bad compression setting (pxr24)\n";
+        caught = true;
+    }
+    assert (caught);
 }
 
 }; // namespace

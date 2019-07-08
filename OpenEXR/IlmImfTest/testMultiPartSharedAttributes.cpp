@@ -147,6 +147,8 @@ testMultiPartOutputFileForExpectedFailure (const vector<Header> & headers,
                                            const std::string & fn,
                                            const string & failMessage="")
 {
+    bool caught = false;
+
     try
     {
         remove(fn.c_str());
@@ -157,9 +159,9 @@ testMultiPartOutputFileForExpectedFailure (const vector<Header> & headers,
     catch (const IEX_NAMESPACE::ArgExc & e)
     {
         // expected behaviour
+        caught = true;
     }
-
-    return;
+    assert (caught);
 }
 
 
@@ -373,6 +375,7 @@ testHeaders (const std::string & fn)
     //
     // expect this to fail - header has incorrect image attribute type
     //
+    bool caught = false;
     try
     {
         headers[0].setType ("invalid image type");
@@ -382,7 +385,9 @@ testHeaders (const std::string & fn)
     catch (const IEX_NAMESPACE::ArgExc & e)
     {
         // expected behaviour
+        caught = true;
     }
+    assert (caught);
 
 
     //
@@ -484,6 +489,7 @@ testHeaders (const std::string & fn)
     //
     try
     {
+        caught = false;
         MultiPartInputFile file (ILM_IMF_TEST_IMAGEDIR "invalid_shared_attrs_multipart.exr");
         cerr << "Shared Attributes : InputFile : incorrect input file passed\n";
         assert (false);
@@ -491,9 +497,9 @@ testHeaders (const std::string & fn)
     catch (const IEX_NAMESPACE::InputExc &e)
     {
         // expectected behaviour
+        caught = true;
     }
-
-    return;
+    assert (caught);
 }
 
 

@@ -321,6 +321,7 @@ void readFile(const char filename[])
                  }catch(...)
                  {
                      // catch exceptions thrown by readTiles, clean up anyway
+                     assert (true);
                  }
                  for (int i = 0; i < file.levelHeight(ly); i++)
                  {
@@ -338,6 +339,7 @@ void readFile(const char filename[])
     }catch(std::exception & e)
     {
         /* expect to get exceptions*/
+        assert (true);
     }
     
     
@@ -433,7 +435,7 @@ void readFile(const char filename[])
                         part.readTiles(0, part.numXTiles(lx) - 1, 0, part.numYTiles(ly) - 1, lx, ly);
                     }catch(...)
                     {
-                        
+                        assert (true);
                     }
                     
                     for (int i = 0; i < part.levelHeight(ly); i++)
@@ -452,6 +454,7 @@ void readFile(const char filename[])
     }catch(std::exception & e)
     {
         /* expect to get exceptions*/
+        assert (true);
     }
         
 }

@@ -264,6 +264,7 @@ void readFile(const char filename[])
         }catch(...)
         {
             // if readPixels excepts we must clean up
+            assert (true);
         }
         
         for (int i = 0; i < height; i++)
@@ -276,6 +277,7 @@ void readFile(const char filename[])
     }catch(std::exception & e)
     {
         /* ... yeah, that's likely to happen a lot ... */
+        assert (true);
     }
     
     
@@ -352,7 +354,7 @@ void readFile(const char filename[])
                 inpart.readPixels(dataWindow.min.y, dataWindow.max.y);
             }catch(...)
             {
-                
+                assert (true);
             }
     
             for (int i = 0; i < height; i++)
@@ -369,6 +371,7 @@ void readFile(const char filename[])
     }catch(...)
     {
         // nothing
+        assert (true);
     }
 }
 

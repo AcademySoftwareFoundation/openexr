@@ -1308,12 +1308,15 @@ testWriteRead (int partNumber)
         readWholeFiles(0);
         
         
+        bool caught = false;
+
         // for deep images, check that "version 2" files don't load
         if(headers[0].type()==DEEPSCANLINE || headers[0].type()==DEEPTILE)
         {
             modifyType(true);
             try
             {
+                caught = false;
                 readFirstPart();
                 cerr << " part reading succeeded but should have failed\n";
                 assert(false);
@@ -1321,17 +1324,18 @@ testWriteRead (int partNumber)
             catch(std::exception & e)
             {
                 cout << "recieved exception (" << e.what() << ") as expected\n";
+                caught = true;
                 // that's what we thought would happen
             }
+            assert (caught);
             readWholeFiles(2);
-            
         }
         
         modifyType(false);
         
-        
         try
         {
+            caught = false;
             readFirstPart();
             cerr << " part reading succeeded but should have failed\n";
             assert(false);
@@ -1339,8 +1343,10 @@ testWriteRead (int partNumber)
         catch(std::exception & e)
         {
             cout << "recieved exception (" << e.what() << ") as expected\n";
+            caught = true;
             // that's what we thought would happen
         }
+        assert (caught);
         
         // this should always succeed: it doesn't try to read the strange new type in part 0
         readWholeFiles(1);
