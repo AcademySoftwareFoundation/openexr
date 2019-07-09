@@ -49,19 +49,17 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
 OpaqueAttribute::OpaqueAttribute (const char typeName[]):
-    _typeName (strlen (typeName) + 1),
+    _typeName (typeName),
     _dataSize (0)
 {
-    strcpy (_typeName, typeName);
 }
 
 
 OpaqueAttribute::OpaqueAttribute (const OpaqueAttribute &other):
-    _typeName (strlen (other._typeName) + 1),
+    _typeName (other._typeName),
     _dataSize (other._dataSize),
     _data (other._dataSize)
 {
-    strcpy (_typeName, other._typeName);
     _data.resizeErase (other._dataSize);
     memcpy ((char *) _data, (const char *) other._data, other._dataSize);
 }
@@ -76,7 +74,7 @@ OpaqueAttribute::~OpaqueAttribute ()
 const char *
 OpaqueAttribute::typeName () const
 {
-    return _typeName;
+    return _typeName.c_str();
 }
 
 
@@ -108,7 +106,7 @@ OpaqueAttribute::copyValueFrom (const Attribute &other)
 {
     const OpaqueAttribute *oa = dynamic_cast <const OpaqueAttribute *> (&other);
 
-    if (oa == 0 || strcmp (_typeName, oa->_typeName))
+    if (oa == 0 || _typeName != oa->_typeName)
     {
 	THROW (IEX_NAMESPACE::TypeExc, "Cannot copy the value of an "
 			     "image file attribute of type "

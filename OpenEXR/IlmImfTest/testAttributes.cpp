@@ -71,6 +71,47 @@ using namespace std;
 using namespace IMATH_NAMESPACE;
 
 
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
+
+class TestOpaque 
+{
+   public:
+    TestOpaque () : magic (666) {}
+    TestOpaque (int m) : magic (m) {}
+    int  magic;
+};
+
+bool
+operator == (const TestOpaque& a, const TestOpaque& b)
+{
+    return a.magic == b.magic;
+}
+
+typedef TypedAttribute<TestOpaque> TestOpaqueAttribute;
+
+template <>
+const char *
+TestOpaqueAttribute::staticTypeName ()
+{
+    return "testOpaque";
+}
+    
+template <>
+void
+TestOpaqueAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os, int version) const
+{
+    Xdr::write <StreamIO> (os, _value.magic);
+}
+                              
+template <>
+void
+TestOpaqueAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int size, int version)
+{
+    Xdr::read <StreamIO> (is, _value.magic);
+}
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
 namespace {
 
 void
@@ -88,6 +129,8 @@ writeReadAttr (const Array2D<float> &pf1,
 	       int width,
 	       int height)
 {
+    TestOpaqueAttribute::registerAttributeType();
+    
     //
     // We don't test ChannelList, LineOrder, Compression and opaque
     // attributes here; those types are covered by other tests.
@@ -129,6 +172,8 @@ writeReadAttr (const Array2D<float> &pf1,
     a23.push_back (15.0f);
     a23.push_back (150.0f);
 
+    TestOpaque  a24 (42);
+
     //
     // Write an image file with extra attributes in the header
     //
@@ -159,7 +204,8 @@ writeReadAttr (const Array2D<float> &pf1,
 	hdr.insert ("a21", DeepImageStateAttribute (a21));
 	hdr.insert ("a22", FloatVectorAttribute    (a22));
 	hdr.insert ("a23", FloatVectorAttribute    (a23));
-
+        hdr.insert ("a24", TestOpaqueAttribute          (a24));
+        
 	hdr.channels().insert ("F",			// name
 			       Channel (IMF::FLOAT,	// type
 					1,		// xSampling
@@ -185,6 +231,14 @@ writeReadAttr (const Array2D<float> &pf1,
 	out.writePixels (height);
     }
 
+    //
+    // Test the handling of "opaque" attributes that preserve
+    // attributes whose type is not recognized; remove the definition
+    // of the "testOpaque" type now that the file has been written.
+    //
+
+    TestOpaqueAttribute::unRegisterAttributeType();
+    
     //
     // Read the header back from the file, and see if the
     // values of the extra attributes come back correctly.
@@ -257,6 +311,22 @@ writeReadAttr (const Array2D<float> &pf1,
 
         assert (hdr.typedAttribute <FloatVectorAttribute>
                                         ("a23").value() == a23);
+
+        //
+        // a24 should be an opaque attribute with type "testOpaque".
+        //
+
+        const Attribute& a = hdr["a24"];
+        const OpaqueAttribute* oa = dynamic_cast <const OpaqueAttribute*> (&a);
+        assert (oa);
+        assert (!strcmp (a.typeName(), "testOpaque"));
+
+        // test the copy constructor
+        OpaqueAttribute b (*oa);
+        assert (!strcmp (b.typeName(), a.typeName()));
+        assert (b.dataSize() == oa->dataSize());
+        for (int i=0; i<b.dataSize(); i++)
+            assert (b.data()[i] == oa->data()[i]);
     }
 
     remove (fileName);
@@ -525,7 +595,7 @@ testAttributes (const std::string &tempDir)
 	channelList();
         longNames(pf, filename.c_str(), W, H);
 
-    print_type(OPENEXR_IMF_NAMESPACE::TypedAttribute<int>());
+        print_type(OPENEXR_IMF_NAMESPACE::TypedAttribute<int>());
 
 	cout << "ok\n" << endl;
     }
