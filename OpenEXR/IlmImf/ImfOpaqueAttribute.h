@@ -105,9 +105,12 @@ class OpaqueAttribute: public Attribute
     virtual void		copyValueFrom (const Attribute &other);
 
 
+    const int                   dataSize() const { return _dataSize; }
+    const Array<char>&          data() const { return _data; }
+        
   private:
 
-    Array<char>			_typeName;
+    std::string			_typeName;
     long			_dataSize;
     Array<char>			_data;
 };
