@@ -369,8 +369,8 @@ getTiledChunkOffsetTableSize(const Header& header)
         case MIPMAP_LEVELS:
             for (int i = 0; i < numXLevels; i++)
             {
-                lineOffsetSize += Int64(numXTiles[i]) * Int64(numYTiles[i]);
-                if ( lineOffsetSize > INT_MAX )
+                lineOffsetSize += static_cast<Int64>(numXTiles[i]) * static_cast<Int64>(numYTiles[i]);
+                if ( lineOffsetSize > std::numeric_limits<int>::max() )
                 {
                     throw IEX_NAMESPACE::LogicExc("Maximum number of tiles exceeded");
                 }
@@ -381,8 +381,8 @@ getTiledChunkOffsetTableSize(const Header& header)
             {
                 for (int j = 0; j < numYLevels; j++)
                 {
-                     lineOffsetSize += Int64(numXTiles[i]) * Int64(numYTiles[j]);
-                     if ( lineOffsetSize > INT_MAX )
+                     lineOffsetSize += static_cast<Int64>(numXTiles[i]) * static_cast<Int64>(numYTiles[j]);
+                     if ( lineOffsetSize > std::numeric_limits<int>::max() )
                      {
                         throw IEX_NAMESPACE::LogicExc("Maximum number of tiles exceeded");
                      }
@@ -396,7 +396,7 @@ getTiledChunkOffsetTableSize(const Header& header)
     delete[] numXTiles;
     delete[] numYTiles;
 
-    return int(lineOffsetSize);
+    return static_cast<int>(lineOffsetSize);
 }
 
 
