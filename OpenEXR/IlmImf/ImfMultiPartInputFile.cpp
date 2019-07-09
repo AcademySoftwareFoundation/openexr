@@ -511,7 +511,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
     
     vector<TileOffsets*> tileOffsets(parts.size());
     
-    // for scanline-based parts, number of scanlines in each part
+    // for scanline-based parts, number of scanlines in each chunk
     vector<int> rowsizes(parts.size());
         
     for(size_t i = 0 ; i < parts.size() ; i++)
@@ -639,13 +639,18 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                 int y_coordinate;
                 OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, y_coordinate);
                 
+                
+                if(y_coordinate < header.dataWindow().min.y || y_coordinate > header.dataWindow().max.y)
+                {
+                    // bail to exception catcher: y out of range. Test now to prevent overflow in following arithmetic
+                   throw int();
+                }
                 y_coordinate -= header.dataWindow().min.y;
                 y_coordinate /= rowsizes[partNumber];   
                 
                 if(y_coordinate < 0 || y_coordinate >= int(parts[partNumber]->chunkOffsets.size()))
                 {
-                    //std::cout << "aborting reconstruction: bad data " << y_coordinate << endl;
-                    //bail to exception catcher: broken scanline
+                    //bail to exception catcher: broken scanline: out of range of chunk table size
                     throw int();
                 }
                 
