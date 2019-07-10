@@ -573,8 +573,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
             
             if(partNumber<0 || partNumber>int(parts.size()))
             {
-                // bail here - bad part number
-                throw int();
+                throw IEX_NAMESPACE::IoExc("part number out of range");
             }
             
             Header& header = parts[partNumber]->header;
@@ -601,14 +600,13 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                 {
                     // this shouldn't actually happen - we should have allocated a valid
                     // tileOffsets for any part which isTiled
-                    throw int();
+                    throw IEX_NAMESPACE::IoExc("part not tiled");
                     
                 }
                 
                 if(!tileOffsets[partNumber]->isValidTile(tilex,tiley,levelx,levely))
                 {
-                    //std::cout << "invalid tile : aborting\n";
-                    throw int();
+                    throw IEX_NAMESPACE::IoExc("invalid tile coordinates");
                 }
                 
                 (*tileOffsets[partNumber])(tilex,tiley,levelx,levely)=chunk_start;
@@ -642,20 +640,17 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                 
                 if(y_coordinate < header.dataWindow().min.y || y_coordinate > header.dataWindow().max.y)
                 {
-                    // bail to exception catcher: y out of range. Test now to prevent overflow in following arithmetic
-                   throw int();
+                   throw IEX_NAMESPACE::IoExc("y out of range");
                 }
                 y_coordinate -= header.dataWindow().min.y;
                 y_coordinate /= rowsizes[partNumber];   
                 
                 if(y_coordinate < 0 || y_coordinate >= int(parts[partNumber]->chunkOffsets.size()))
                 {
-                    //bail to exception catcher: broken scanline: out of range of chunk table size
-                    throw int();
+                   throw IEX_NAMESPACE::IoExc("chunk index out of range");
                 }
                 
                 parts[partNumber]->chunkOffsets[y_coordinate]=chunk_start;
-                //std::cout << "chunk_start for " << y_coordinate << ':' << chunk_start << std::endl;
                 
                 if(header.type()==DEEPSCANLINE)
                 {
@@ -682,8 +677,6 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
             }
             
             chunk_start+=size_of_chunk;
-            
-            //std::cout << " next chunk +"<<size_of_chunk << " = " << chunk_start << std::endl;
             
             is.seekg(chunk_start);
             
