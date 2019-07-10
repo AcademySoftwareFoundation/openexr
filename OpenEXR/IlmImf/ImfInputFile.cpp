@@ -38,6 +38,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfCheckedArithmetic.h"
 #include "ImfInputFile.h"
 #include "ImfScanLineInputFile.h"
 #include "ImfTiledInputFile.h"
@@ -679,8 +680,9 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 	    _data->cachedBuffer = new FrameBuffer();
 	    _data->offset = dataWindow.min.x;
 	    
-	    int tileRowSize = (dataWindow.max.x - dataWindow.min.x + 1) *
-			      _data->tFile->tileYSize();
+	    unsigned int tileRowSize =
+                uiMult(dataWindow.max.x - dataWindow.min.x + 1U,
+                       _data->tFile->tileYSize());
 
 	    for (FrameBuffer::ConstIterator k = frameBuffer.begin();
 		 k != frameBuffer.end();
