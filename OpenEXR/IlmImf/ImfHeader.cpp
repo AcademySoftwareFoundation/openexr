@@ -1185,6 +1185,11 @@ Header::readFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int &version)
 	checkIsNullTerminated (typeName, "attribute type name");
 	OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, size);
 
+    if( size < 0 )
+    {
+        throw IEX_NAMESPACE::InputExc("Invalid size field in header attribute");
+    }
+
 	AttributeMap::iterator i = _map.find (name);
 
 	if (i != _map.end())
