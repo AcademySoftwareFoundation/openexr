@@ -1,25 +1,30 @@
-IF (WIN32)
-  CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
-ELSE()
-  CMAKE_MINIMUM_REQUIRED(VERSION 3.2)
-ENDIF()
+# "More Modern" CMake version
+cmake_minimum_required(VERSION 3.12)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(CMAKE_PREFIX_PATH "/prefix")
 
-include(OpenEXRVersion)
+# An "official" way to make this a super-project
+# basically overrides the find_package to not find anything
+# for stuff we're including locally
+set(as_subproject IlmBase OpenEXR)
+macro(find_package)
+  if(NOT "${ARGV0}" IN_LIST as_subproject)
+    _find_package(${ARGV})
+  endif()
+endmacro()
 
-project(OpenEXR VERSION ${OPENEXR_VERSION})
+enable_testing()
 
-include(OpenEXRSettings)
+add_subdirectory(IlmBase)
+# TODO:
+#add_subdirectory(PyIlmBase)
+add_subdirectory(OpenEXR)
+# TODO:
+#add_subdirectory(OpenEXR_Viewers)
+
+#[==[
 
 # Packages
-if(OPENEXR_BUILD_OPENEXR OR OPENEXR_BUILD_VIEWERS)
-  find_package(ZLIB)
-  if(NOT ZLIB_FOUND)
-    message(WARNING "Make Zlib available to CMake's search path, and re-run configuration")
-    message(FATAL_ERROR "Zlib is a required dependency when OPENEXR_BUILD_OPENEXR or OPENEXR_BUILD_VIEWERS is set")
-  endif()
-endif()
 
 if (OPENEXR_BUILD_PYTHON_LIBS)
   find_package(PythonLibs ${OPENEXR_PYTHON_MAJOR}.${OPENEXR_PYTHON_MINOR})
@@ -74,40 +79,4 @@ if(OPENEXR_BUILD_VIEWERS)
   endif()
 endif()
 
-if ((OPENEXR_BUILD_OPENEXR OR OPENEXR_BUILD_UTILS OR OPENEXR_BUILD_TESTS OR OPENEXR_BUILD_PYTHON_LIBS OR OPENEXR_BUILD_VIEWERS) AND NOT(OPENEXR_BUILD_ILMBASE))
-  message(INFO "OPENEXR_BUILD_ILMBASE not requested, searching for installed IlmBase instead")
-  find_package(IlmBase)
-  if (NOT IlmBase_FOUND)
-    message(ERROR "Could not find IlmBase, cannot build dependent libraries.")
-    message(INFO, "Set ILMBASE_LOCATION to location of IlmBase.")
-  endif()
-endif()
-
-if ((OPENEXR_BUILD_UTILS OR OPENEXR_BUILD_TESTS OR OPENEXR_BUILD_VIEWERS) AND NOT(OPENEXR_BUILD_OPENEXR))
-  message(INFO "OPENEXR_BUILD_OPENEXR not requested, searching for installed OpenEXR instead")
-  find_package(OpenEXR)
-  if (NOT OpenEXR_FOUND)
-    message(ERROR "Could not find OpenEXR, cannot build dependent libraries.")
-    message(INFO, "Set OPENEXR_LOCATION to location of OpenEXR.")
-  endif()
-endif()
-
-# Perform the build
-if(OPENEXR_BUILD_ILMBASE)
-    add_subdirectory(IlmBase)
-endif()
-if(OPENEXR_BUILD_OPENEXR)
-    add_subdirectory(OpenEXR)
-else()
-    message(INFO, "Skipping OpenEXR build")
-endif()
-if(OPENEXR_BUILD_PYTHON_LIBS)
-    add_subdirectory(PyIlmBase)
-else()
-    message(INFO, "Skipping Python bindings")
-endif()
-if(OPENEXR_BUILD_VIEWERS AND FLTK_FOUND AND OpenGL_FOUND)
-    add_subdirectory(OpenEXR_Viewers)
-else()
-    message(INFO, "Skipping OpenEXR Viewers")
-endif()
+#]==]

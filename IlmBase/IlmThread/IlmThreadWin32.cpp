@@ -42,6 +42,7 @@
 #include "IlmBaseConfig.h"
 
 #ifdef ILMBASE_FORCE_CXX03
+#ifdef _WIN32
 
 #include "IlmThread.h"
 #include "Iex.h"
@@ -98,4 +99,5 @@ Thread::start ()
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
+#endif // _WIN32
 #endif

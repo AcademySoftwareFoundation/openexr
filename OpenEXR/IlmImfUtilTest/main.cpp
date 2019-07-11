@@ -33,6 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include "ImfNamespace.h"
+#include "OpenEXRConfigInternal.h"
 
 #include "testFlatImage.h"
 #include "testDeepImage.h"

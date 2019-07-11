@@ -217,7 +217,7 @@ void generateRandomFile(const char filename[], int channelCount, int parts , Com
                     {
                         for(int x=0;x<data[k].width();x++)
                         {
-                            delete data[k][y][x];
+                            delete reinterpret_cast<char *>( data[k][y][x] );
                             data[k][y][x]=0;
                         }
                     }

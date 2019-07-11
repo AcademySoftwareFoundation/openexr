@@ -1,0 +1,121 @@
+
+include(CheckIncludeFiles)
+include(CheckSymbolExists)
+include(CheckLibraryExists)
+include(CheckStructHasMember)
+include(CheckCXXSourceCompiles)
+
+if (NOT CMAKE_CROSSCOMPILING AND EXISTS "/proc/self/exe")
+  set(OPENEXR_IMF_HAVE_LINUX_PROCFS TRUE)
+endif()
+
+check_cxx_source_compiles(
+"
+#include <unistd.h>
+int main()
+{
+    sysconf(_SC_NPROCESSORS_ONLN);
+}
+" OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN
+)    
+
+check_cxx_source_compiles(
+"
+int main()
+{
+#if defined(__SSE2__)
+    int n   = 0;
+    int eax = 0;
+    int edx = 0;
+    __asm__(
+        \"xgetbv     ;\"
+        \"vzeroupper  \"
+        : \"=a\"(eax), \"=d\"(edx) : \"c\"(n) : );
+#else
+#    error No SSE support enabled to query AVX support
+#endif
+}
+" OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX
+)
+
+
+# This is no longer something that needs to be tested if we have
+# C++14 support...
+set(OPENEXR_IMF_HAVE_COMPLETE_IOMANIP TRUE)
+
+if(APPLE)
+  set(OPENEXR_IMF_HAVE_DARWIN TRUE)
+endif()
+
+find_package(ZLIB REQUIRED)
+set_target_properties(ZLIB::ZLIB PROPERTIES IMPORTED_GLOBAL TRUE)
+
+# so we know how to link / use...
+if(NOT TARGET Threads::Threads)
+  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+  set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+  find_package(Threads)
+  ###check_include_files(pthread.h OPENEXR_HAVE_PTHREAD)
+  if(Threads_FOUND)
+    set_target_properties(Threads::Threads PROPERTIES IMPORTED_GLOBAL TRUE)
+    if(CMAKE_HAVE_PTHREAD_H OR CMAKE_USE_PTHREADS_INIT OR CMAKE_HP_PTHREAD_INIT)
+      set(OPENEXR_HAVE_PTHREAD ON)
+      # TODO: remove this once we cleanly have OPENEXR_ prefix on all #defines
+      set(HAVE_PTHREAD ON)
+    endif()
+  endif()
+endif()
+
+configure_file(OpenEXRConfig.h.in_cmake ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h)
+configure_file(OpenEXRConfigInternal.h.in_cmake ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigInternal.h)
+
+add_library(IlmImfConfig INTERFACE)
+target_include_directories(IlmImfConfig INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}>)
+
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h
+  DESTINATION
+    ${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}
+)
+
+install(TARGETS IlmImfConfig EXPORT ${PROJECT_NAME})
+add_library(${PROJECT_NAME}::Config ALIAS IlmImfConfig)
+
+option(INSTALL_PKG_CONFIG "Install OpenEXR.pc file" ON)
+if(INSTALL_PKG_CONFIG)
+  # use a helper function to avoid variable pollution, but pretty simple
+  function(openexr_pkg_config_help pcinfile)
+    set(prefix ${CMAKE_INSTALL_PREFIX})
+    set(exec_prefix ${CMAKE_INSTALL_BINDIR})
+    set(libdir ${CMAKE_INSTALL_LIBDIR})
+    set(includedir ${CMAKE_INSTALL_INCLUDEDIR})
+    set(LIB_SUFFIX ${OPENEXR_LIB_SUFFIX})
+    if(TARGET Threads::Threads)
+      # hrm, can't use properties as they end up as generator expressions
+      # which don't seem to evaluate
+      if(THREADS_HAVE_PTHREAD_ARG)
+        set(PTHREAD_CFLAGS "-pthread")
+      endif()
+      set(PTHREAD_LIBS ${CMAKE_THREAD_LIBS_INIT})
+    endif()
+    string(REPLACE ".in" "" pcout ${pcinfile})
+    configure_file(${pcinfile} ${CMAKE_CURRENT_BINARY_DIR}/${pcout} @ONLY)
+    install(
+        FILES ${CMAKE_CURRENT_BINARY_DIR}/${pcout}
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+    )
+  endfunction()
+  openexr_pkg_config_help(../OpenEXR.pc.in)
+endif()
+
+# The main export of the configuration - This is the
+# moral equivalent of a pkg-config file for cmake
+# and replaces the Find*.cmake of the "old" cmake
+install(EXPORT ${PROJECT_NAME}
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+  NAMESPACE ${PROJECT_NAME}::
+)

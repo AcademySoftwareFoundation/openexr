@@ -1,6 +1,5 @@
-# yue.nicholas@gmail.com
 
-ADD_EXECUTABLE ( ImathTest 
+add_executable(ImathTest 
   main.cpp
   testBox.cpp
   testBoxAlgo.cpp
@@ -24,12 +23,7 @@ ADD_EXECUTABLE ( ImathTest
   testShear.cpp
   testTinySVD.cpp
   testVec.cpp
-  )
+)
 
-ADD_TEST ( TestImath ImathTest )
-
-TARGET_LINK_LIBRARIES ( ImathTest
-  IlmBase::Imath${OPENEXR_TARGET_SUFFIX}
-  IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
-  )
-
+target_link_libraries(ImathTest IlmBase::Imath)
+add_test(IlmBase.Imath ImathTest)

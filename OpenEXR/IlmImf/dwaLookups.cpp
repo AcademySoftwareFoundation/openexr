@@ -43,6 +43,11 @@
 #include <vector>
 
 #include <OpenEXRConfig.h>
+#include <OpenEXRConfigInternal.h>
+
+#if __cplusplus >= 201103L
+#include <thread>
+#endif
 
 #ifdef OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN
 #include <unistd.h>
@@ -440,6 +445,10 @@ cpuCount()
 
     int cpuCount = 1;
 
+#if __cplusplus >= 201103L
+    cpuCount = std::thread::hardware_concurrency();
+#else
+
 #if defined (OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN)
 
     cpuCount = sysconf(_SC_NPROCESSORS_ONLN);
@@ -452,6 +461,7 @@ cpuCount()
 
 #endif
 
+#endif
     if (cpuCount < 1) cpuCount = 1;
     return cpuCount;
 }

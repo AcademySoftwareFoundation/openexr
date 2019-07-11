@@ -34,6 +34,7 @@
 
 
 #include "ImfNamespace.h"
+#include "OpenEXRConfigInternal.h"
 
 #include "testXdr.h"
 #include "testMagic.h"

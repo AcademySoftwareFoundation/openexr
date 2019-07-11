@@ -1,6 +1,5 @@
-# yue.nicholas@gmail.com
 
-ADD_EXECUTABLE ( HalfTest
+add_executable(HalfTest
   main.cpp
   testArithmetic.cpp
   testBitPatterns.cpp
@@ -9,8 +8,7 @@ ADD_EXECUTABLE ( HalfTest
   testFunction.cpp
   testLimits.cpp
   testSize.cpp
-  )
+)
 
-TARGET_LINK_LIBRARIES ( HalfTest IlmBase::Half${OPENEXR_TARGET_SUFFIX} )
-
-ADD_TEST ( TestHalf HalfTest )
+target_link_libraries(HalfTest IlmBase::Half)
+add_test(IlmBase.Half HalfTest)

@@ -1,6 +1,5 @@
-# yue.nicholas@gmail.com
 
-ADD_EXECUTABLE ( IlmImfExamples
+add_executable(IlmImfExamples
   drawImage.cpp
   generalInterfaceExamples.cpp
   generalInterfaceTiledExamples.cpp
@@ -9,15 +8,28 @@ ADD_EXECUTABLE ( IlmImfExamples
   previewImageExamples.cpp
   rgbaInterfaceExamples.cpp
   rgbaInterfaceTiledExamples.cpp
- )
+)
+target_link_libraries(IlmImfExamples OpenEXR::IlmImf)
 
-SET_ILMBASE_INCLUDE_DIRS( IlmImfExamples )
-
-TARGET_LINK_LIBRARIES ( IlmImfExamples
-  OpenEXR::IlmImf${OPENEXR_TARGET_SUFFIX}
-  IlmBase::Half${OPENEXR_TARGET_SUFFIX}
-  IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
-  IlmBase::Imath${OPENEXR_TARGET_SUFFIX}
-  IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
-  ${PTHREAD_LIB} ${ZLIB_LIBRARIES}
+# Examples
+install(
+  FILES
+    main.cpp
+    drawImage.cpp
+    rgbaInterfaceExamples.cpp
+    rgbaInterfaceTiledExamples.cpp
+    generalInterfaceExamples.cpp
+    lowLevelIoExamples.cpp
+    previewImageExamples.cpp
+    generalInterfaceTiledExamples.cpp
+    generalInterfaceTiledExamples.h
+    drawImage.h
+    rgbaInterfaceExamples.h
+    generalInterfaceExamples.h
+    rgbaInterfaceTiledExamples.h
+    lowLevelIoExamples.h
+    previewImageExamples.h
+    namespaceAlias.h
+  DESTINATION
+    ${CMAKE_INSTALL_DOCDIR}/examples
   )

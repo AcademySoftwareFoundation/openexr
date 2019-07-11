@@ -13,6 +13,7 @@ AC_SUBST(OPENEXR_VERSION_API, ${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR})
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(IlmImfTest/main.cpp)
 AC_CONFIG_HEADERS([config/OpenEXRConfig.h])
+AC_CONFIG_HEADERS([config/OpenEXRConfigInternal.h])
 AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 
@@ -127,33 +128,6 @@ AS_IF([test "x${multithread}" != xno], [
 	CXXFLAGS="${CXXFLAGS} ${PTHREAD_CFLAGS}"
 	LIBS="${LIBS} ${PTHREAD_CFLAGS}"
 ])
-
-
-dnl --enable-large-stack
-case "$host" in
-*linux*)
-  AC_ARG_ENABLE(large-stack,
-		AC_HELP_STRING([--enable-large-stack],
-			       [enable optimizations for systems that support
-			       large stack sizes [[default=yes]]]),
-		[large_stack="${enableval}"],
-		[large_stack=yes])
-  ;;
-*)
-  AC_ARG_ENABLE(large-stack,
-		AC_HELP_STRING([--enable-large-stack],
-			       [enable optimizations for systems that support
-			       large stack sizes [[default=no]]]),
-		[large_stack="${enableval}"],
-		[large_stack=no])
-  ;;
-esac
-
-if test "x${large_stack}" != xno ; then
-    AC_DEFINE([OPENEXR_IMF_HAVE_LARGE_STACK], [1], [Define if large stack sizes are supported])
-fi
-
-
 
 save_CXXFLAGS="${CXXFLAGS}"
 save_LIBS="${LIBS}"
@@ -415,5 +389,3 @@ fi
 AC_MSG_RESULT([
 ---------------------------------------------
 ])
-
-

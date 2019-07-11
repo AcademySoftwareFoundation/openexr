@@ -1,0 +1,8 @@
+
+//
+// Dealing with FPEs
+//
+#undef HAVE_UCONTEXT_H
+
+#undef ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT
+

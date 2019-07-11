@@ -41,8 +41,10 @@
 #include "IlmBaseConfig.h"
 
 #ifdef ILMBASE_FORCE_CXX03
-#   include "IlmThreadMutex.h"
-#   include "Iex.h"
+#    ifdef _WIN32
+
+#        include "IlmThreadMutex.h"
+#        include "Iex.h"
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -75,4 +77,5 @@ Mutex::unlock () const
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
+#    endif // _WIN32
 #endif
