@@ -1,22 +1,4 @@
-# yue.nicholas@gmail.com
 
-ADD_EXECUTABLE ( exr2aces
-  main.cpp
-)
-
-TARGET_LINK_LIBRARIES ( exr2aces
-  OpenEXR::IlmImf${OPENEXR_TARGET_SUFFIX}
-  IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
-  IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
-  IlmBase::Half${OPENEXR_TARGET_SUFFIX}
-  ${PTHREAD_LIB}
-  ${ZLIB_LIBRARIES}
-)
-
-SET_ILMBASE_INCLUDE_DIRS( exr2aces )
-
-INSTALL ( TARGETS
-  exr2aces
-  DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/bin
-)
+add_executable(exr2aces main.cpp)
+target_link_libraries(exr2aces OpenEXR::IlmImf)
+install(TARGETS exr2aces DESTINATION ${CMAKE_INSTALL_BINDIR})

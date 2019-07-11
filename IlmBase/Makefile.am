@@ -12,17 +12,11 @@ SUBDIRS = \
 DIST_SUBDIRS = \
 	$(SUBDIRS) 
 
-
 EXTRA_DIST = \
 	AUTHORS ChangeLog LICENSE NEWS \
 	README.md \
 	bootstrap \
-	config.windows/IlmBaseConfig.h \
 	CMakeLists.txt
-
-dist-hook:
-	cp -fpR $(abspath $(srcdir)/..)/cmake $(distdir)
-	find $(distdir)/cmake -type d ! -perm -700 -exec chmod u+rwx {} \;
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = IlmBase.pc

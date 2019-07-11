@@ -38,6 +38,8 @@
 //
 //-----------------------------------------------------------------------------
 
+#ifdef _WIN32
+
 #include "IlmThreadSemaphore.h"
 #include "Iex.h"
 #include <string>
@@ -145,3 +147,5 @@ Semaphore::value() const
 
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
+
+#endif // _WIN32

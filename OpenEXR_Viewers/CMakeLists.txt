@@ -1,3 +1,17 @@
+# "More Modern" CMake version
+cmake_minimum_required(VERSION 3.12)
+
+# this is for target_sources, new policy converts relative paths to absolute
+cmake_policy(SET CMP0076 NEW)
+
+set(OPENEXR_VIEWERS_VERSION 2.3.0)
+
+project(OpenEXR_Viewers VERSION ${OPENEXR_VIEWERS_VERSION})
+
+find_package(IlmBase ${OPENEXR_VIEWERS_VERSION} EXACT REQUIRED)
+
+#[==[
+
 IF (WIN32)
   CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
 ELSE()
@@ -76,3 +90,4 @@ INSTALL ( FILES
   ${CMAKE_INSTALL_PREFIX}/share/doc/OpenEXR-${OPENEXR_VERSION}
   )
 
+#]==]

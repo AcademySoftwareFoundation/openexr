@@ -1,6 +1,5 @@
-# yue.nicholas@gmail.com
 
-ADD_EXECUTABLE ( exrenvmap
+add_executable( exrenvmap
   makeLatLongMap.cpp
   readInputImage.cpp
   resizeImage.cpp
@@ -10,19 +9,5 @@ ADD_EXECUTABLE ( exrenvmap
   EnvmapImage.cpp
 )
 
-SET_ILMBASE_INCLUDE_DIRS( exrenvmap )
-
-TARGET_LINK_LIBRARIES ( exrenvmap
-  OpenEXR::IlmImf${OPENEXR_TARGET_SUFFIX}
-  IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
-  IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
-  IlmBase::Half${OPENEXR_TARGET_SUFFIX}
-  ${PTHREAD_LIB}
-  ${ZLIB_LIBRARIES}
-)
-
-INSTALL ( TARGETS
-  exrenvmap
-  DESTINATION
-  ${CMAKE_INSTALL_PREFIX}/bin
-)
+target_link_libraries(exrenvmap OpenEXR::IlmImf)
+install(TARGETS exrenvmap DESTINATION ${CMAKE_INSTALL_BINDIR})

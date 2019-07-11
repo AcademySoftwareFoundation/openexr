@@ -34,6 +34,8 @@
 
 
 #include "ImfNamespace.h"
+#include "OpenEXRConfigInternal.h"
+
 #include "testFuzzDeepScanLines.h"
 #include "testFuzzDeepTiles.h"
 #include "testFuzzScanLines.h"

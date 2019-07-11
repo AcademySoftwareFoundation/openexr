@@ -52,12 +52,15 @@
     #define debug(x)
 #endif
 
-#if defined(HAVE_UCONTEXT_H) && (defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86))
+#include <IlmBaseConfigInternal.h>
+#if defined(HAVE_UCONTEXT_H) &&                                                \
+    (defined(ILMBASE_HAVE_SIGCONTEXT_CONTROL_REGISTER_SUPPORT) ||              \
+     defined(ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT))
 
-#include <ucontext.h>
-#include <signal.h>
-#include <iostream>
-#include <stdint.h>
+#        include <ucontext.h>
+#        include <signal.h>
+#        include <iostream>
+#        include <stdint.h>
 
 
 IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
