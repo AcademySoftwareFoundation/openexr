@@ -377,7 +377,7 @@ readTileData (InputStreamMutex *streamData,
     if (levelY != ly)
         throw IEX_NAMESPACE::InputExc ("Unexpected tile y level number coordinate.");
 
-    if (dataSize > (int) ifd->tileBufferSize)
+    if (dataSize < 0 || dataSize > static_cast<int>(ifd->tileBufferSize) )
         throw IEX_NAMESPACE::InputExc ("Unexpected tile block length.");
 
     //
