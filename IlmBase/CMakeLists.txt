@@ -38,9 +38,9 @@ add_subdirectory( IlmThread )
 # Can't seem to do EXCLUDE_FROM_ALL on the test executables
 # since you can't then create a dependency on the internal
 # "test" target such that it is auto built
-option(ILMBASE_ENABLE_TESTS "Enables building of tests" ON)
-if(ILMBASE_ENABLE_TESTS)
-  enable_testing()
+enable_testing()
+include(CTest)
+if(BUILD_TESTING)
   # TODO:
   #include(CTest)
   #set(CTEST_PROJECT_NAME "OpenEXR - IlmBase")

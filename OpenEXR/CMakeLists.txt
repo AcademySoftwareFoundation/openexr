@@ -39,9 +39,9 @@ add_subdirectory( IlmImfExamples )
 # Can't seem to do EXCLUDE_FROM_ALL on the test executables
 # since you can't then create a dependency on the internal
 # "test" target such that it is auto built
-option(OPENEXR_ENABLE_TESTS "Enables building of tests" ON)
-if(OPENEXR_ENABLE_TESTS)
-  enable_testing()
+enable_testing()
+include(CTest)
+if(BUILD_TESTING)
   add_subdirectory( IlmImfTest )
   add_subdirectory( IlmImfUtilTest )
   add_subdirectory( IlmImfFuzzTest )
