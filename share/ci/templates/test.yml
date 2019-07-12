@@ -1,0 +1,9 @@
+# azure-pipelines template file
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/process/templates?view=azure-devops
+
+steps:
+- bash: |
+    export LD_LIBRARY_PATH=$PWD/IlmBase/Half:$PWD/IlmBase/IlmThread:$PWD/IlmBase/Iex:$PWD/IlmBase/IexMath:$PWD/IlmBase/Imath:$PWD/OpenEXR/IlmImf:$PWD/OpenEXR/IlmImfUtil:$LD_LIBRARY_PATH
+    ctest -T Test --output-on-failure -VV -E PyImathNumpyTest
+  workingDirectory: _build
+  displayName: Test OpenEXR

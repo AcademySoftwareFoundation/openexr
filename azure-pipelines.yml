@@ -1,21 +1,47 @@
-# Azure CI
+# Azure CI build file
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema?view=azure-devops&tabs=schema
 
 jobs:
+# ------------------------------------------------------------------------------
+# Linux
+# ------------------------------------------------------------------------------
+# Note: 'agentImage' is the Microsoft-hosted agent. 'containerImage' is the
+#        Docker container where the build occurs.
+# Note: 'containerImage' images are hosted on DockerHub.
+
+# TODO: Move Docker images to ASWF DockerHub account
+
 - job: Linux
+  strategy:
+    matrix:
+      CentOS 7 VFX CY2019:
+        agentImage: 'ubuntu-16.04'
+        containerImage: aswfstaging/ci-base:2019
+        cxxCompiler: g++
+        cCompiler: gcc
+        installSh: ''
   pool:
-    vmImage: 'ubuntu-16.04'
-  container: aswfstaging/ci-base:2019
+    vmImage: $(agentImage)
+  container: $[ variables['containerImage'] ]
+
   steps:
-  - bash: |
-      mkdir build
-      cd build
-      cmake ..
-      make -j4
-    displayName: Build
-  - bash: |
-      cd build
-      ctest -T Test --output-on-failure -VV -E PyImathNumpyTest
-    displayName: Test
+  - template: share/ci/templates/checkout.yml
+  - bash: $(installSh)
+    displayName: Install dependencies
+    condition: and(succeeded(), variables['installSh'])
+
+ 
+  - template: share/ci/templates/configure.yml
+    parameters:
+      cxxCompiler: $(cxxCompiler)
+      cCompiler: $(cCompiler)
+
+  - template: share/ci/templates/build.yml
+    parameters:
+      cxxCompiler: $(cxxCompiler)
+      cCompiler: $(cCompiler)
+      cmakeOpts: -- -j4
+
   - task: PublishTestResults@2
     condition: succeededOrFailed()
     displayName: 'Publish test results'
@@ -23,3 +49,47 @@ jobs:
       testResultsFormat: 'cTest'
       testResultsFiles: '**/Test*.xml' 
       failTaskOnFailedTests: true
+#pool:
+#    vmImage: 'ubuntu-16.04'
+#  container: aswfstaging/ci-base:2019
+#  steps:
+#  - bash: |
+#      mkdir _build
+#      cd _build
+#      cmake -DOPENEXR_BUILD_VIEWERS=OFF ..
+#      echo "Working directory $PWD"
+#      export LD_LIBRARY_PATH=$PWD/IlmBase/Half:$PWD/IlmBase/IlmThread:$PWD/IlmBase/Iex:$PWD/IlmBase/IexMath:$PWD/IlmBase/Imath:$PWD/OpenEXR/IlmImf:$PWD/OpenEXR/IlmImfUtil:$LD_LIBRARY_PATH
+#      echo `ls $PWD/IlmBase/Half`
+#      echo $LD_LIBRARY_PATH
+#      echo "Hello World"
+#      make -j4
+#      echo `ls $PWD/IlmBase/Half`
+#    displayName: Build
+#  - bash: |
+#      cd _build
+#      ctest -T Test --output-on-failure -VV -E PyImathNumpyTest
+#    displayName: Test
+
+# ------------------------------------------------------------------------------
+#  SonarCloud static analysis
+# ------------------------------------------------------------------------------
+- job: SonarCloud
+  displayName: SonarCloud Ubuntu 16.04 VFX CY2019
+  condition: in(variables['Build.Reason'], 'Manual', 'Schedule')
+  pool:
+    vmImage: 'ubuntu-16.04'
+  container: aswfstaging/ci-base:2019
+
+  steps:
+  - template: share/ci/templates/checkout.yml
+  - template: share/ci/templates/configure.yml
+    parameters:
+      cxxFlags: -g -O0 -fprofile-arcs -ftest-coverage
+      cmakeOpts: |
+        -DCMAKE_EXE_LINKER_FLAGS="-lgcov" \
+        -DCMAKE_CXX_OUTPUT_EXTENSION_REPLACE=ON
+
+  - template: share/ci/templates/build_sonar.yml
+
+
+

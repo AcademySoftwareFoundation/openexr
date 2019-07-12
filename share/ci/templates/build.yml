@@ -1,0 +1,28 @@
+# azure-pipelines template file
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/process/templates?view=azure-devops
+
+parameters:
+  buildType: Release
+  cxxCompiler: ''
+  cCompiler: ''
+  cmakeOpts: ''
+
+steps:
+- bash: |
+    if [ "$CXXCOMPILER" ]; then
+        export CXX="$CXXCOMPILER"
+    fi
+    if [ "$CCOMPILER" ]; then
+        export CC="$CCOMPILER"
+    fi
+    export LD_LIBRARY_PATH=$PWD/IlmBase/Half:$PWD/IlmBase/IlmThread:$PWD/IlmBase/Iex:$PWD/IlmBase/IexMath:$PWD/IlmBase/Imath:$PWD/OpenEXR/IlmImf:$PWD/OpenEXR/IlmImfUtil:$LD_LIBRARY_PATH
+    cmake --build . \
+          --target install \
+          --config ${{ parameters.buildType }} \
+          ${{ parameters.cmakeOpts }}
+  workingDirectory: _build
+  displayName: Build OpenEXR
+
+- template: test.yml
+
+
