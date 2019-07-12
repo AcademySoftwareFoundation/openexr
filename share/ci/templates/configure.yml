@@ -1,0 +1,66 @@
+# azure-pipelines template file
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/process/templates?view=azure-devops
+
+parameters:
+  buildType: Release
+  buildIlmBase: ON
+  buildOpenEXR: ON
+  buildPythonLibs: ON
+  buildSharedLibs: ON
+  buildStaticLibs: OFF
+  buildTests: ON
+  buildUtils: ON
+  buildViewers: OFF
+  forceCXX03: OFF
+  useNamespaceVersioning: OFF
+  pythonMajor: 2
+  pythonMinor: 7
+  runFuzzTests: OFF
+  verbose: OFF
+  cxxStd: 14
+  cxxFlags: ''
+  cxxCompiler: ''
+  cCompiler: ''
+  cmakeOpts: ''
+
+steps:
+- bash: |
+    mkdir _build
+    mkdir _install
+  displayName: Create build directories
+
+- bash: |
+    if [ "$CXXCOMPILER" ]; then
+        export CXX="$CXXCOMPILER"
+    fi
+    if [ "$CCOMPILER" ]; then
+        export CC="$CCOMPILER"
+    fi
+    cmake ../. \
+          -DCMAKE_INSTALL_PREFIX=../_install \
+          -DCMAKE_BUILD_TYPE=${{ parameters.buildType }} \
+          -DCMAKE_CXX_STANDARD=${{ parameters.cxxStd }} \
+          -DCMAKE_CXX_FLAGS="${{ parameters.cxxFlags }}" \
+          -DCMAKE_VERBOSE_MAKEFILE:BOOL=${{ parameters.verbose }} \
+          -DBUILD_SHARED_LIBS=${{ parameters.buildSharedLibs }} \
+          -DOCIO_BUILD_TESTS=${{ parameters.buildTests }} \
+          -DOCIO_BUILD_GPU_TESTS=${{ parameters.buildGpuTests }} \
+          -DOCIO_BUILD_DOCS=${{ parameters.buildDocs }} \
+          -DOCIO_USE_SSE=${{ parameters.useSSE }} \
+          -DOCIO_WARNING_AS_ERROR=ON \
+          -DOPENEXR_BUILD_ILMBASE=${{ parameters.buildIlmBase }} \
+          -DOPENEXR_BUILD_OPENEXR=${{ parameters.buildOpenEXR }} \
+          -DOPENEXR_BUILD_PYTHONLIBS=${{ parameters.buildPythonLibs }} \
+          -DOPENEXR_BUILD_SHARED=${{ parameters.buildSharedLibs }} \
+          -DOPENEXR_BUILD_STATIC=${{ parameters.buildStaticLibs }} \
+          -DOPENEXR_BUILD_TESTS=${{ parameters.buildTests }} \
+          -DOPENEXR_BUILD_UTILS=${{ parameters.buildUtils }} \
+          -DOPENEXR_BUILD_VIEWERS=${{ parameters.buildViewers }} \
+          -DOPENEXR_FORCE_CXX03=${{ parameters.forceCXX03 }} \
+          -DOPENEXR_NAMESPACE_VERSIONING=${{ parameters.useNamespaceVersioning }} \
+          -DOPENEXR_PYTHON_MAJOR=${{ parameters.pythonMajor }} \
+          -DOPENEXR_PYTHON_MINOR=${{ parameters.pythonMinor }} \
+          -DOPENEXR_RUN_FUZZ_TESTS=${{ parameters.runFuzzTests }} \
+          ${{ parameters.cmakeOpts }}
+  workingDirectory: _build
+  displayName: Configure OpenEXR
