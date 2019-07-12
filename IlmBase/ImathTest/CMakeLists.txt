@@ -26,4 +26,4 @@ add_executable(ImathTest
 )
 
 target_link_libraries(ImathTest IlmBase::Imath)
-add_test(IlmBase.Imath ImathTest)
+add_test(NAME IlmBase.Imath COMMAND $<TARGET_FILE:ImathTest>)

@@ -11,4 +11,4 @@ add_executable(HalfTest
 )
 
 target_link_libraries(HalfTest IlmBase::Half)
-add_test(IlmBase.Half HalfTest)
+add_test(NAME IlmBase.Half COMMAND $<TARGET_FILE:HalfTest>)
