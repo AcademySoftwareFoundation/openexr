@@ -32,16 +32,18 @@ if(Threads_FOUND)
 
   # we have threads, but do we have posix semaphores for sem_init?
   # should be in pthreads
-  check_include_files(semaphore.h ILMBASE_HAVE_SEMAPHORE_H)
-  if(ILMBASE_HAVE_SEMAPHORE_H AND ILMBASE_HAVE_PTHREAD)
-    # should just be in libc, so no need for check_library_exists
-    set(CMAKE_REQUIRED_FLAGS ${CMAKE_THREAD_LIBS_INIT})
-    check_library_exists(pthread sem_init "" ILMBASE_HAVE_POSIX_SEMAPHORES)
-    # TODO: remove this once we cleanly have ILMBASE_ prefix on all #defines
-    if(ILMBASE_HAVE_POSIX_SEMAPHORES)
-      set(HAVE_POSIX_SEMAPHORES ON)
+  if(NOT APPLE)
+    check_include_files(semaphore.h ILMBASE_HAVE_SEMAPHORE_H)
+    if(ILMBASE_HAVE_SEMAPHORE_H AND ILMBASE_HAVE_PTHREAD)
+      # should just be in libc, so no need for check_library_exists
+      set(CMAKE_REQUIRED_FLAGS ${CMAKE_THREAD_LIBS_INIT})
+      check_library_exists(pthread sem_init "" ILMBASE_HAVE_POSIX_SEMAPHORES)
+      # TODO: remove this once we cleanly have ILMBASE_ prefix on all #defines
+      if(ILMBASE_HAVE_POSIX_SEMAPHORES)
+        set(HAVE_POSIX_SEMAPHORES ON)
+      endif()
+      set(CMAKE_REQUIRED_FLAGS)
     endif()
-    set(CMAKE_REQUIRED_FLAGS)
   endif()
 endif()
 

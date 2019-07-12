@@ -39,7 +39,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#if __APPLE__
+#if defined(__APPLE__)
 
 #include "IlmThreadSemaphore.h"
 #include "Iex.h"
