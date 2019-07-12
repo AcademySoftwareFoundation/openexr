@@ -429,8 +429,8 @@ readPixelData (InputStreamMutex *streamData,
     if (yInFile != minY)
         throw IEX_NAMESPACE::InputExc ("Unexpected data block y coordinate.");
 
-    if (dataSize > (int) ifd->lineBufferSize)
-	throw IEX_NAMESPACE::InputExc ("Unexpected data block length.");
+    if (dataSize < 0 || dataSize > static_cast<int>(ifd->lineBufferSize) )
+        throw IEX_NAMESPACE::InputExc ("Unexpected data block length.");
 
     //
     // Read the pixel data.
