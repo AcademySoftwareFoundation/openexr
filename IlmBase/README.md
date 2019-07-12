@@ -33,6 +33,12 @@ for the legal fine print.
 Building and Installation
 -------------------------
 
+IlmBase includes support to build and install using either autoconf
+"configure" scripts, or by using cmake, which tends to be safer to use
+in multiple platform scenarios.
+
+#### Building using autoconf
+
 To configure the Makefiles, run the ``configure`` script:
 
     ./configure
@@ -281,4 +287,3 @@ On systems with support for **pkg-config**, use ``pkg-config --cflags
 IlmBase`` for the C++ flags required to compile against IlmBase
 headers; and ``pkg-config --libs IlmBase`` for the linker flags
 required to link against IlmBase libraries.
-

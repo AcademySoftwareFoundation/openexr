@@ -10,6 +10,12 @@ files. Build and install the IlmBase module first, then build and
 install the OpenEXR module. Optionally, then build and install
 PyIlmBase, OpenEXR_Viewers, and Contrib.
 
+For cmake users, there is also a top-level cmake file that enables
+building all the sub-modules in one pass. See the section about
+cmake below.
+
+## Traditional autoconf configuration (unix platforms)
+
 For the basic installation:
 
     cd <source root>/IlmBase
@@ -29,8 +35,9 @@ See the module ``README`` files for options to ``configure``.
 Alternatively, you can download the latest release or the lastest
 development branch directly from http://github.com/openexr.
 
-After cloning the repo locally, generate the configuration scripts by
-running the ``bootstrap`` script:
+After cloning the repo locally, use the cmake path outlined later,
+or if you prefer the autoconf system, generate the configuration
+scripts by first running the ``bootstrap`` script:
 
     cd <source root>/IlmBase
     ./bootstrap
@@ -50,56 +57,59 @@ https://www.gnu.org/software/autoconf/autoconf.html.
 
 ## Building with CMake
 
-Alternatively, you can build with **cmake**, version 3.11 or newer. 
+Alternatively, you can build with **cmake**, version 3.12 or newer. 
 
-In the root ``CMakeLists.txt`` file, with -D options on the cmake
-line, or by using a tools such as **ccmake** or **cmake-gui**,
-configure the OpenEXR build. The options are detailed below.
+There are two ways of working with the OpenEXR repository with cmake.
+If you are downloading the individual package tarballs, this will be
+working with the folders as separate projects. The other method is if
+you download a tag, or just clone the repository from github, in which
+case this is called "super project" mode in cmake parlance. This
+involves a cmake setup at the top level above the individual folders
+which aggregates the tree into one build system, which can be used to
+build all the software as one set.
 
-Create a source root directory, cd into it, and run **cmake** to configure
-the build.  Select an appropriate generator, such as "Unix Makefiles",
-or "Visual Studio 15 2017 Win64". Then run **make** a the root
-directory; this will build the appropriate submodules, according to
-the settings of the **cmake** options, described below.
+Either way, the process of configuring and building is similar. You
+can accept the configuration defaults we have chosen, or customize
+the settings via normal cmake mechanisms. But in the case of individual
+folders, you will apply the process once per folder, but in the case of
+using the super project mode, you will configure and run from just the
+one build folder.
 
-    cmake -DCMAKE_INSTALL_PREFIX=<install location> <OpenEXR source root> -G "selected generator" -DCMAKE_PREFIX_PATH=<paths to dependencies - zlib etc>
-    make
+Cmake prefers to apply an out-of-tree configure and build process, where
+there may be multiple build configurations (i.e. debug and release), one
+per folder, all pointing at once source tree. OpenEXR assumes nothing
+different, so for a unix-like system, the process might be:
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make
+    - make test
+    - env DESTDIR=/path/to/install make install
 
-The available options are:
+Of course, there are a number of generators and other options that can
+be specified. This is beyond the scope of this document, however all of
+the sub-projects within OpenEXR (IlmBase, OpenEXR, PyIlmBase, ...)
+additionally have configuration options.
 
-* ``OPENEXR_BUILD_ILMBASE`` (ON)
-By default, IlmBase is always built.
+The libraries in IlmBase and OpenEXR follow the standard cmake setting
+of BUILD_SHARED_LIBS to control whether to build static or shared
+libraries. However, they each have separate controls over whether to
+build both shared AND static libraries as part of one configuration,
+as well as other customization options.
 
-* ``OPENEXR_BUILD_OPENEXR`` (ON)
-By default, OpenEXR is always built.
+If you are interested in controlling custom namespace declarations
+or similar options, you are encouraged to look at the CMakeLists.txt
+infrastructure. In particular, there has been an attempt to centralize
+the settings into a common place to more easily see all of them in a
+text editor. For IlmBase, this is config/IlmBaseSetup.cmake inside the
+IlmBase tree. For OpenEXR, the settings will similarly be found in
+config/OpenEXRSetup.cmake. As per usual, these settings can also be
+seen and/or edited using any of the various gui editors for working with
+cmake such as **ccmake**, **cmake-gui**, as well as some of the IDEs in
+common use.
 
-* ``OPENEXR_BUILD_PYTHON_LIBS`` (ON)
-By default, the Python bindings will be built.
-
-* ``OPENEXR_BUILD_VIEWERS`` (OFF)
-By default, the viewers are not built, as they have not been updated for
-modern OpenGL.
-
-* ``OPENEXR_BUILD_SHARED`` (ON)
-* ``OPENEXR_BUILD_STATIC`` (OFF)
-The build can be configured to create either shared libraries, or static 
-libraries, or both.
-
-* ``OPENEXR_NAMESPACE_VERSIONING`` (ON)
-OpenEXR symbols will be contained within a namespace
-
-* ``OPENEXR_FORCE_CXX03`` (OFF)
-C++03 compatibility is possible as an option
-
-* ``OPENEXR_ENABLE_TESTS`` (ON)
-By default, the tests will be built.
-
-* ``OPENEXR_RUN_FUZZ_TESTS`` (OFF)
-By default, the damaged input tests will NOT be run, due to their long
-running time. If you wish to run them as part of "make test" (or equivalent
-in your build system), then enable this. A "make fuzz" target will be
-available to run the fuzz test regardless.
-
-* ``OPENEXR_PYTHON_MAJOR``, ``OPENEXR_PYTHON_MINOR`` "2", "7"
-By default, OpenEXR is built against Python 2.7.x.
-
+For cross-compiling for additional platforms, there is also and included
+sample script in cmake/Toolchain-mingw.cmake which may work for you by
+following the comments at the top of that file, although some editing
+is likely to be needed to point cmake at the correct cross-compiler
+binaries for your platform.
