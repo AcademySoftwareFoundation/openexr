@@ -5,4 +5,4 @@ add_executable(IlmImfUtilTest
   testIO.cpp
  )
 target_link_libraries(IlmImfUtilTest OpenEXR::IlmImfUtil)
-add_test(OpenEXR.IlmImfUtil IlmImfUtilTest)
+add_test(NAME OpenEXR.IlmImfUtil COMMAND $<TARGET_FILE:IlmImfUtilTest>)

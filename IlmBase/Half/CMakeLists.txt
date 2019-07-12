@@ -18,7 +18,7 @@ add_custom_command(
 ### Now define the real library
 
 ilmbase_define_library(Half
-  PRIV_EXPORT IEXMATH_EXPORTS
+  PRIV_EXPORT HALF_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
   CURBINDIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCES

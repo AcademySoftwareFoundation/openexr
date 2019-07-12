@@ -4,4 +4,4 @@ add_executable(IexTest
 )
 
 target_link_libraries(IexTest IlmBase::Iex)
-add_test(IlmBase.Iex IexTest)
+add_test(NAME IlmBase.Iex COMMAND $<TARGET_FILE:IexTest>)

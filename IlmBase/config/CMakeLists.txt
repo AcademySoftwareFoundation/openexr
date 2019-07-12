@@ -3,6 +3,7 @@ include(CheckIncludeFiles)
 include(CheckSymbolExists)
 include(CheckLibraryExists)
 include(CheckStructHasMember)
+include(CMakeDependentOption)
 
 check_include_files(ucontext.h ILMBASE_HAVE_UCONTEXT_H)
 if(ILMBASE_HAVE_UCONTEXT_H)
@@ -32,7 +33,7 @@ if(Threads_FOUND)
 
   # we have threads, but do we have posix semaphores for sem_init?
   # should be in pthreads
-  if(NOT APPLE)
+  if(NOT (APPLE OR WIN32))
     check_include_files(semaphore.h ILMBASE_HAVE_SEMAPHORE_H)
     if(ILMBASE_HAVE_SEMAPHORE_H AND ILMBASE_HAVE_PTHREAD)
       # should just be in libc, so no need for check_library_exists
@@ -70,7 +71,7 @@ install(
 install(TARGETS IlmBaseConfig EXPORT ${PROJECT_NAME})
 add_library(IlmBase::Config ALIAS IlmBaseConfig)
 
-option(INSTALL_PKG_CONFIG "Install IlmBase.pc file" ON)
+cmake_dependent_option(INSTALL_PKG_CONFIG "Install IlmBase.pc file" ON "WIN32" OFF)
 if(INSTALL_PKG_CONFIG)
   # use a helper function to avoid variable pollution, but pretty simple
   function(ilmbase_pkg_config_help pcinfile)
