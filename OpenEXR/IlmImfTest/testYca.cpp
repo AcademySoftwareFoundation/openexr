@@ -165,6 +165,10 @@ writeReadYca (const char fileName[],
 	    }
 
 	    break;
+		case NUM_LINEORDERS:
+		default:
+			cerr << "invalid line order " << int(readOrder) << std::endl;
+			break;
 	}
     }
 

@@ -115,7 +115,7 @@ template<class T> void readTiledThing(T & input,bool test)
         case ONE_LEVEL :
             x_levels = 1;
             y_levels = 1;
-        break;
+			break;
         case MIPMAP_LEVELS :
             x_levels = input.numXLevels();
             y_levels = 1;
@@ -123,9 +123,14 @@ template<class T> void readTiledThing(T & input,bool test)
         case RIPMAP_LEVELS :
             x_levels = input.numXLevels();
             y_levels = input.numYLevels();
+			break;
+		case NUM_LEVELMODES:
+		default:
+			std::cerr << "Invalid tile mode " << int(t.mode) << std::endl;
+			break;
     }
-        
-    for(int x_level = 0 ; x_level < x_levels ; x_level++)
+
+	for(int x_level = 0 ; x_level < x_levels ; x_level++)
     {
         for(int y_level = 0 ; y_level < y_levels ;y_level++)
         {
