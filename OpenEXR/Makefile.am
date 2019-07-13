@@ -15,7 +15,6 @@ EXTRA_DIST = \
 	AUTHORS ChangeLog LICENSE NEWS PATENTS \
 	README.md \
 	bootstrap openexr.m4 \
-	config.windows/OpenEXRConfig.h \
 	CMakeLists.txt
 
 dist-hook:

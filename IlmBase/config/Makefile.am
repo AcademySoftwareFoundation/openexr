@@ -2,6 +2,9 @@
 
 configincludedir = $(includedir)/OpenEXR
 
-nodist_configinclude_HEADERS = IlmBaseConfig.h
+nodist_configinclude_HEADERS = IlmBaseConfig.h IlmBaseConfigInternal.h
 
-EXTRA_DIST = IlmBaseConfig.h.in
+EXTRA_DIST = IlmBaseConfig.h.in IlmBaseConfig.h.in_cmake \
+ IlmBaseConfigInternal.h.in IlmBaseConfigInternal.h.in_cmake \
+ CMakeLists.txt IlmBaseSetup.cmake LibraryDefine.cmake \
+ ParseConfigure.cmake
