@@ -26,12 +26,9 @@ set(ILMBASE_PACKAGE_NAME "IlmBase ${ILMBASE_VERSION}" CACHE STRING "Public strin
 ########################
 ## Build related options
 
-# This is a variable here for use in install lines, but OpenEXR pretty much
-# relies on this code to be intermingled currently... but someone
-# who is making an ilmbase only package could put it somewhere else...
-# NB: If you want to change this, make sure places like the pkgconfig
-# file are updated as appropriate
-set(ILMBASE_OUTPUT_SUBDIR OpenEXR)
+# This is a variable here for use in install lines. Care must be taken
+# when changing this, as many things assume this is OpenEXR
+set(ILMBASE_OUTPUT_SUBDIR OpenEXR CACHE STRING "Destination sub-folder of the include path for install")
 
 # This does not seem to be available as a per-target property,
 # but is pretty harmless to set globally
