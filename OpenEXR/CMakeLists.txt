@@ -12,7 +12,7 @@ project(OpenEXR VERSION ${OPENEXR_VERSION})
 
 # Everyone depends on IlmBase, and we currently rely on
 # the version matched with our release
-find_package(IlmBase ${OPENEXR_VERSION} EXACT REQUIRED)
+find_package(IlmBase ${OPENEXR_VERSION} EXACT REQUIRED CONFIG)
 
 #######################################
 #######################################
