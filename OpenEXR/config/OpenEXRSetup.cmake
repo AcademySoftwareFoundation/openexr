@@ -19,8 +19,10 @@ set(OPENEXR_PACKAGE_NAME "IlmBase ${ILMBASE_VERSION}" CACHE STRING "Public strin
 # Whether to build & install the various command line utility programs
 option(OPENEXR_BUILD_UTILS "Enables building of utility programs" ON)
 
-# The sub directory if include that library headers end up in
-set(OPENEXR_OUTPUT_SUBDIR OpenEXR)
+# This is a variable here for use in controlling where include files are 
+# installed. Care must be taken when changing this, as many things
+# probably assume this is OpenEXR
+set(OPENEXR_OUTPUT_SUBDIR OpenEXR CACHE STRING "Destination sub-folder of the include path for install")
 
 # This does not seem to be available as a per-target property,
 # but is pretty harmless to set globally
