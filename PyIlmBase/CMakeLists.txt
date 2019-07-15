@@ -1,77 +1,75 @@
+# "More Modern" CMake version
+cmake_minimum_required(VERSION 3.12)
 
-IF (WIN32)
-    CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
-ELSE()
-    CMAKE_MINIMUM_REQUIRED(VERSION 3.2)
-ENDIF()
+# this is for target_sources, new policy converts relative paths to absolute
+cmake_policy(SET CMP0076 NEW)
 
-# test if we are being built as a standalone library or if
-# we are being built as part of the overall project
-IF(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  IF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-    SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-  ELSE()
-    MESSAGE(FATAL_ERROR "Please compile using the top-level CMakeLists.txt or a pre-built package")
-  ENDIF()
-  INCLUDE(OpenEXRVersion)
-  SET(PYILMBASE_STANDALONE ON)
-ENDIF()
+# we include this first to parse configure.ac and extract the version
+# numbers
+include(config/ParseConfigure.cmake)
 
-PROJECT (pyilmbase VERSION ${OPENEXR_VERSION})
+project(PyIlmBase VERSION ${PYILMBASE_VERSION} LANGUAGES C CXX)
 
-IF(PYILMBASE_STANDALONE)
-  INCLUDE(OpenEXRSettings)
-ENDIF()
+#######################################
+#######################################
+# This declares all the configuration variables visible
+# in cmake-gui or similar and the rest of the global
+# project setup
+#
+# Please look at this file to see what is configurable
+#######################################
+#######################################
+include(config/PyIlmBaseSetup.cmake)
 
-IF (NOT ILMBASE_PACKAGE_PREFIX)
-  SET (ILMBASE_PACKAGE_PREFIX ${CMAKE_INSTALL_PREFIX})
-ENDIF ()
+# we have a strong dependence on IlmBase being an exact match
+find_package(IlmBase ${OPENEXR_VERSION} EXACT REQUIRED CONFIG)
 
-IF (OPENEXR_BUILD_SHARED)
-  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
-  SET (LIB_TYPE SHARED)
-  IF (WIN32)
-    ADD_DEFINITIONS(-DOPENEXR_DLL)
-  ENDIF ()
-ELSE (OPENEXR_BUILD_SHARED)
-  SET (LIB_TYPE STATIC)
-ENDIF (OPENEXR_BUILD_SHARED)
+# we are building a python extension, so of course we depend on
+# python as well. Excepth we don't know which version...
+# cmake 3.14 can also search for numpy, but we only depend on 3.12
+# in the rest of OpenEXR right now...
+#find_package(Python2 COMPONENTS Development NumPy)
+find_package(Python2 COMPONENTS Interpreter Development)
+find_package(Python3 COMPONENTS Interpreter Development)
+if(TARGET Python2::Python AND TARGET Python3::Python)
+  message(NOTICE ": Found Python ${Python2_VERSION} and ${Python3_VERSION}")
+elseif(TARGET Python2::Python)
+  message(NOTICE ": Found Python ${Python2_VERSION}")
+elseif(TARGET Python3::Python)
+  message(NOTICE ": Found Python ${Python3_VERSION}")
+else()
+  message(FATAL_ERROR ": Unable to find any python development libraries")
+endif()
 
-LINK_DIRECTORIES ( ${ILMBASE_PACKAGE_PREFIX}/lib )
-MESSAGE ( "ILMBASE_PACKAGE_PREFIX = " ${ILMBASE_PACKAGE_PREFIX})
+# Now that we know what versions of python we have, let's look
+# for our other dependency - boost.
+# Boost Python has some .. annoyances in that the python module
+# has version names attached to it
+if (TARGET Python2::Python)
+set(PYILMBASE_BOOST_PY2_COMPONENT "python${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
+set(PYILMBASE_BOOST_NUMPY2_COMPONENT "numpy${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
+message(": Python2 site lib: ${Python2_SITELIB}")
+endif()
+if (TARGET Python3::Python)
+set(PYILMBASE_BOOST_PY3_COMPONENT "python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
+set(PYILMBASE_BOOST_NUMPY3_COMPONENT "numpy${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
+message(": Python3 site lib: ${Python3_SITELIB}")
+endif()
 
-MACRO(SET_ILMBASE_INCLUDE_DIRS _target)
-  TARGET_INCLUDE_DIRECTORIES(${_target}
-    PRIVATE ${PYTHON_INCLUDE_PATH}
-    PRIVATE ${Boost_INCLUDE_DIRS}
-    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../config
-    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../IlmBase/config
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../PyIex
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../PyImath
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../PyImathNumpy
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../IlmBase/Half
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../IlmBase/Iex
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../IlmBase/IexMath
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../IlmBase/IlmThread
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../IlmBase/Imath
-  )
-ENDMACRO()
-
+find_package(Boost COMPONENTS ${PYILMBASE_BOOST_PY2_COMPONENT} ${PYILMBASE_BOOST_NUMPY2_COMPONENT} ${PYILMBASE_BOOST_PY3_COMPONENT} ${PYILMBASE_BOOST_NUMPY3_COMPONENT})
 ##########################
-ADD_SUBDIRECTORY ( PyIex )
-ADD_SUBDIRECTORY ( PyImath )
 
-IF (NUMPY_FOUND)
-  ADD_SUBDIRECTORY ( PyImathNumpy )
-  ADD_SUBDIRECTORY ( PyImathNumpyTest )
-ENDIF ()
+add_subdirectory( PyIex )
+#add_subdirectory( PyImath )
+#add_subdirectory( PyImathNumpy )
 
 ##########################
 # Tests
 ##########################
-IF (ENABLE_TESTS)
-  ADD_SUBDIRECTORY ( PyIexTest )
-  ADD_SUBDIRECTORY ( PyImathTest )
-ENDIF ()
-
+#include(CTest)
+#if(BUILD_TESTING)
+#  enable_testing()
+#  add_subdirectory( PyIexTest )
+#  add_subdirectory( PyImathTest )
+#  add_subdirectory( PyImathNumpyTest )
+#endif()
