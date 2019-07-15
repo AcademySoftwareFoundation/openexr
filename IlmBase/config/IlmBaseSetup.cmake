@@ -54,6 +54,16 @@ set(ILMBASE_LIB_SUFFIX "-${ILMBASE_VERSION_API}" CACHE STRING "string added to t
 # would use -lImath_static (or target_link_libraries(xxx IlmBase::Imath_static))
 set(ILMBASE_STATIC_LIB_SUFFIX "_static" CACHE STRING "When building both static and shared, name to append to static library (in addition to normal suffix)")
 
+# rpath related setup - if the user sets an install rpath
+# then just use that, or otherwise set one for them
+if(NOT CMAKE_INSTALL_RPATH)
+  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+  if("${isSystemDir}" STREQUAL "-1")
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  endif()
+  set(isSystemDir)
+endif()
+
 if(APPLE)
   # TODO: Right now, this will make a framework for every library
   # is that desired? Or should the framework be the set of libraries?
