@@ -38,36 +38,9 @@ add_subdirectory( IlmThread )
 # Can't seem to do EXCLUDE_FROM_ALL on the test executables
 # since you can't then create a dependency on the internal
 # "test" target such that it is auto built
-enable_testing()
 include(CTest)
 if(BUILD_TESTING)
-  # TODO:
-  #include(CTest)
-  #set(CTEST_PROJECT_NAME "OpenEXR - IlmBase")
-  #set(CTEST_NIGHTLY_START_TIME "01:01:01 UTC")
-  #set(CTEST_DROP_METHOD "http") # there are others...
-  #set(CTEST_DROP_SITE "open.cdash.org")
-  #set(CTEST_DROP_LOCATION "/submit.php?project=MyProject")
-  #set(CTEST_DROP_SITE_CDASH TRUE)
-  #
-  # Then can make a ctest script that has something like the following
-  # in it:
-  # set(CTEST_SOURCE_DIRECTORY "/source")
-  # set(CTEST_BINARY_DIRECTORY "/binary")
-  #
-  # set(ENV{CXXFLAGS} "--coverage")
-  # set(CTEST_CMAKE_GENERATOR "Ninja")
-  # set(CTEST_USE_LAUNCHERS 1)
-  # set(CTEST_COVERAGE_COMMAND "gcov")
-  # set(CTEST_MEMORYCHECK_COMMAND "valgrind")
-  # #set(CTEST_MEMORYCHECK_TYPE "ThreadSanitizer")
-  # ctest_start("Continuous")
-  # ctest_configure()
-  # ctest_build()
-  # ctest_test()
-  # ctest_coverage()
-  # ctest_memcheck()
-  # ctest_submit()
+  enable_testing()
 
   add_subdirectory( HalfTest )
   add_subdirectory( IexTest )
