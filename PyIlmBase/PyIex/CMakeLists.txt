@@ -1,4 +1,21 @@
 
+# can't re-use compile, so no sense for object library here...
+
+if(TARGET Python2::Python AND TARGET Boost::${PYILMBASE_BOOST_PY2_COMPONENT})
+  Python2_add_library(iexmodule_p2 MODULE PyIex.cpp iexmodule.cpp)
+  target_link_libraries(iexmodule_p2
+    PRIVATE IlmBase::Iex IlmBase::IexMath
+    PRIVATE Boost::${PYILMBASE_BOOST_PY2_COMPONENT})
+endif()
+
+if(TARGET Python3::Python AND TARGET Boost::${PYILMBASE_BOOST_PY3_COMPONENT})
+  Python3_add_library(iexmodule_p3 MODULE PyIex.cpp iexmodule.cpp)
+  target_link_libraries(iexmodule_p3
+    PRIVATE IlmBase::Iex IlmBase::IexMath
+    PRIVATE Boost::${PYILMBASE_BOOST_PY3_COMPONENT})
+endif()
+
+#[==[
 ADD_LIBRARY ( PyIex ${LIB_TYPE} PyIex.cpp)
 
 target_compile_definitions( PyIex PRIVATE PYIEX_BUILD )
@@ -62,3 +79,4 @@ INSTALL ( TARGETS iexmodule
 	DESTINATION lib/python${OPENEXR_PYTHON_MAJOR}.${OPENEXR_PYTHON_MINOR}/site-packages
 )
 
+#]==]
