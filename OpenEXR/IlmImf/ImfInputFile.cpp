@@ -530,7 +530,7 @@ InputFile::initialize ()
             _data->compositor->addSource(_data->dsFile);
         }
         
-        else if (isTiled (_data->version))
+        else if (isTiled (_data->version) && !isNonImage(_data->version)) 
         {
             _data->isTiled = true;
             _data->lineOrder = _data->header.lineOrder();
@@ -573,7 +573,7 @@ InputFile::initialize ()
             _data->compositor = new CompositeDeepScanLine;
             _data->compositor->addSource(_data->dsFile);
         }
-        else if (isTiled (_data->header.type()))
+        else if (_data->header.hasType() && _data->header.type()==TILEDIMAGE)
         {
             _data->isTiled = true;
             _data->lineOrder = _data->header.lineOrder();
