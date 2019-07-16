@@ -152,7 +152,7 @@ testMultiPartOutputFileForExpectedFailure (const vector<Header> & headers,
     try
     {
         remove(fn.c_str());
-        MultiPartOutputFile file(fn.c_str(), &headers[0],headers.size());
+        MultiPartOutputFile file(fn.c_str(), (headers.size()>0 ? &headers[0] : NULL) , headers.size() );
         cerr << "ERROR -- " << failMessage << endl;
         assert (false);
     }
