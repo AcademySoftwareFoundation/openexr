@@ -2,16 +2,16 @@
 
 import iex
 
-print ""
-print "testing exception inheritance"
+print ("")
+print ("testing exception inheritance")
 e = iex.BaseExc('test')
 assert(isinstance(e,iex.BaseExc))
 assert(isinstance(e,RuntimeError))
 del e
-print "ok"
-print ""
+print ("ok")
+print ("")
 
-print "testing C++ to Python exception translation"
+print ("testing C++ to Python exception translation")
 
 #-----------------------------------------------------------------------------
 # Test if the exception class hierarchy works
@@ -19,7 +19,7 @@ print "testing C++ to Python exception translation"
 
 try:
     raise iex.BaseExc('test')
-except iex.BaseExc, e:
+except iex.BaseExc as e:
     pass
 except:
     assert 0
@@ -100,16 +100,16 @@ except:
 else:
     assert 0
 
-print "ok"
-print ""
+print ("ok")
+print ("")
 
-print 'testing exception raising'
+print ('testing exception raising')
 try:
    raise iex.BaseExc('new BaseExc from python')
-except iex.ArgExc, e:
+except iex.ArgExc as e:
    traceback.print_exc()
    assert False
-except iex.BaseExc, e:
+except iex.BaseExc as e:
    pass
 except:
    traceback.print_exc()
@@ -119,9 +119,9 @@ else:
 
 try:
    raise iex.ArgExc('new ArgExc from python')
-except iex.ArgExc, e:
+except iex.ArgExc as e:
    pass
-except iex.BaseExc, e:
+except iex.BaseExc as e:
    traceback.print_exc()
    assert False
 except:
@@ -130,10 +130,10 @@ except:
 else:
    assert False
 
-print "ok"
-print ""
+print ("ok")
+print ("")
 
-print 'testing exception conversion'
+print ('testing exception conversion')
 be = iex.testMakeBaseExc('testStr')
 assert (isinstance(be,iex.BaseExc))
 assert (be.__class__ == iex.BaseExc)
@@ -145,5 +145,5 @@ assert (iex.testBaseExcString(be) == 'testStr')
 assert (iex.testBaseExcString(ae) == 'testStr')
 assert (iex.testArgExcString(ae) == 'testStr')
 
-print "ok"
-print ""
+print ("ok")
+print ("")

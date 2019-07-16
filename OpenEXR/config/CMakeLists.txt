@@ -85,8 +85,8 @@ install(
 install(TARGETS IlmImfConfig EXPORT ${PROJECT_NAME})
 add_library(${PROJECT_NAME}::Config ALIAS IlmImfConfig)
 
-option(INSTALL_PKG_CONFIG "Install OpenEXR.pc file" ON)
-if(INSTALL_PKG_CONFIG)
+option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" ON)
+if(OPENEXR_INSTALL_PKG_CONFIG)
   # use a helper function to avoid variable pollution, but pretty simple
   function(openexr_pkg_config_help pcinfile)
     set(prefix ${CMAKE_INSTALL_PREFIX})

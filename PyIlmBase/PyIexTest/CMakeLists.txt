@@ -1,5 +1,18 @@
-ADD_TEST ( PyIexTest
-	${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/pyIexTest.in
-    )
 
-SET_TESTS_PROPERTIES ( PyIexTest PROPERTIES ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/../PyIex;LD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}/../../IlmBase/Iex:${CMAKE_CURRENT_BINARY_DIR}/../PyIex" )
+if(TARGET Python2::Interpreter)
+  add_test(PyIlmBase.PyIexTest_Python2
+    ${Python2_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/pyIexTest.in
+  )
+  set_tests_properties(PyIlmBase.PyIexTest_Python2 PROPERTIES
+    ENVIRONMENT "PYTHONPATH=${CMAKE_BINARY_DIR}/python${Python2_VERSION_MAJOR}_${Python2_VERSION_MINOR}"
+  )
+endif()
+
+if(TARGET Python2::Interpreter)
+  add_test(PyIlmBase.PyIexTest_Python3
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/pyIexTest.in
+  )
+  set_tests_properties(PyIlmBase.PyIexTest_Python3 PROPERTIES
+    ENVIRONMENT "PYTHONPATH=${CMAKE_BINARY_DIR}/python${Python3_VERSION_MAJOR}_${Python3_VERSION_MINOR}"
+  )
+endif()

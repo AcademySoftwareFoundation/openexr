@@ -25,10 +25,11 @@ function(ILMBASE_DEFINE_LIBRARY libname)
   if(ILMBASE_CURLIB_PRIVATE_DEPS)
     target_link_libraries(${objlib} PRIVATE ${ILMBASE_CURLIB_PRIVATE_DEPS})
   endif()
-  set_property(TARGET ${objlib} PROPERTY CXX_STANDARD_REQUIRED ON)
-  set_property(TARGET ${objlib} PROPERTY CXX_EXTENSIONS OFF)
-  set_property(TARGET ${objlib} PROPERTY POSITION_INDEPENDENT_CODE ON)
-  
+  set_target_properties(${objlib} PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+    POSITION_INDEPENDENT_CODE ON
+  )
   set_property(TARGET ${objlib} PROPERTY PUBLIC_HEADER ${ILMBASE_CURLIB_HEADERS})
 
   install(TARGETS ${objlib}
