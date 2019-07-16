@@ -71,8 +71,8 @@ install(
 install(TARGETS IlmBaseConfig EXPORT ${PROJECT_NAME})
 add_library(IlmBase::Config ALIAS IlmBaseConfig)
 
-cmake_dependent_option(INSTALL_PKG_CONFIG "Install IlmBase.pc file" ON "WIN32" OFF)
-if(INSTALL_PKG_CONFIG)
+cmake_dependent_option(ILMBASE_INSTALL_PKG_CONFIG "Install IlmBase.pc file" ON "WIN32" OFF)
+if(ILMBASE_INSTALL_PKG_CONFIG)
   # use a helper function to avoid variable pollution, but pretty simple
   function(ilmbase_pkg_config_help pcinfile)
     set(prefix ${CMAKE_INSTALL_PREFIX})

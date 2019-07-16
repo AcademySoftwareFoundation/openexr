@@ -25,10 +25,14 @@ include(config/PyIlmBaseSetup.cmake)
 find_package(IlmBase ${OPENEXR_VERSION} EXACT REQUIRED CONFIG)
 
 # we are building a python extension, so of course we depend on
-# python as well. Excepth we don't know which version...
+# python as well. Except we don't know which version...
 # cmake 3.14 can also search for numpy, but we only depend on 3.12
 # in the rest of OpenEXR right now...
-#find_package(Python2 COMPONENTS Development NumPy)
+
+# first make sure we find *some* python
+find_package(Python REQUIRED)
+
+# now determine which (or both), and compile for both
 find_package(Python2 COMPONENTS Interpreter Development)
 find_package(Python3 COMPONENTS Interpreter Development)
 if(TARGET Python2::Python AND TARGET Python3::Python)
@@ -46,18 +50,25 @@ endif()
 # Boost Python has some .. annoyances in that the python module
 # has version names attached to it
 if (TARGET Python2::Python)
-set(PYILMBASE_BOOST_PY2_COMPONENT "python${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
-set(PYILMBASE_BOOST_NUMPY2_COMPONENT "numpy${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
-message(": Python2 site lib: ${Python2_SITELIB}")
+  set(PYILMBASE_BOOST_PY2_COMPONENT "python${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
+  set(PYILMBASE_BOOST_NUMPY2_COMPONENT "numpy${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
+  message(STATUS "Found Python2 libraries: ${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
+  # ${Python2_SITELIB}
 endif()
 if (TARGET Python3::Python)
-set(PYILMBASE_BOOST_PY3_COMPONENT "python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
-set(PYILMBASE_BOOST_NUMPY3_COMPONENT "numpy${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
-message(": Python3 site lib: ${Python3_SITELIB}")
+  set(PYILMBASE_BOOST_PY3_COMPONENT "python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
+  set(PYILMBASE_BOOST_NUMPY3_COMPONENT "numpy${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
+  message(STATUS "Found Python3 libraries: ${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
 endif()
 
-find_package(Boost COMPONENTS ${PYILMBASE_BOOST_PY2_COMPONENT} ${PYILMBASE_BOOST_NUMPY2_COMPONENT} ${PYILMBASE_BOOST_PY3_COMPONENT} ${PYILMBASE_BOOST_NUMPY3_COMPONENT})
+find_package(Boost REQUIRED COMPONENTS ${PYILMBASE_BOOST_PY2_COMPONENT} ${PYILMBASE_BOOST_NUMPY2_COMPONENT} ${PYILMBASE_BOOST_PY3_COMPONENT} ${PYILMBASE_BOOST_NUMPY3_COMPONENT})
+
+# utility function for the repeated boilerplate of defining
+# the libraries and/or python modules
+include(config/ModuleDefine.cmake)
+
 ##########################
+add_subdirectory(config)
 
 add_subdirectory( PyIex )
 #add_subdirectory( PyImath )
@@ -66,10 +77,10 @@ add_subdirectory( PyIex )
 ##########################
 # Tests
 ##########################
-#include(CTest)
-#if(BUILD_TESTING)
-#  enable_testing()
-#  add_subdirectory( PyIexTest )
+include(CTest)
+if(BUILD_TESTING)
+  enable_testing()
+  add_subdirectory( PyIexTest )
 #  add_subdirectory( PyImathTest )
 #  add_subdirectory( PyImathNumpyTest )
-#endif()
+endif()

@@ -48,12 +48,29 @@ set(OPENEXR_LIB_SUFFIX "-${OPENEXR_VERSION_API}" CACHE STRING "string added to t
 # would use -lImath_static (or target_link_libraries(xxx IlmBase::Imath_static))
 set(OPENEXR_STATIC_LIB_SUFFIX "_static" CACHE STRING "When building both static and shared, name to append to static library (in addition to normal suffix)")
 
-# rpath related setup - if the user sets an install rpath
+# rpath related setup
+# make sure we force an rpath to the rpath we're compiling
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+# adds the automatically determined parts of the rpath
+# which point to directories outside the build tree to the install RPATH
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+# if the user sets an install rpath
 # then just use that, or otherwise set one for them
 if(NOT CMAKE_INSTALL_RPATH)
   list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
   if("${isSystemDir}" STREQUAL "-1")
-    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+    if("${CMAKE_SYSTEM}" MATCHES "Linux")
+      get_filename_component(tmpSysPath "${CMAKE_INSTALL_FULL_LIBDIR}" NAME)
+      if(NOT tmpSysPath)
+        set(tmpSysPath "lib")
+      endif()
+      set(CMAKE_INSTALL_RPATH "\\\$ORIGIN/../${tmpSysPath}:${CMAKE_INSTALL_FULL_LIBDIR}")
+    elseif(APPLE)
+      set(CMAKE_INSTALL_RPATH "@rpath:${CMAKE_INSTALL_FULL_LIBDIR}")
+    else()
+      set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
+    endif()
   endif()
   set(isSystemDir)
 endif()
