@@ -48,6 +48,10 @@
 # include <memory>
 # include <atomic>
 # include <thread>
+#else
+# ifndef _WIN32
+#  include <unistd.h>
+# endif
 #endif
 
 using namespace std;
@@ -849,5 +853,23 @@ ThreadPool::addGlobalTask (Task* task)
     globalThreadPool().addTask (task);
 }
 
+unsigned
+ThreadPool::hardwareConcurrency ()
+{
+#ifdef ILMBASE_FORCE_CXX03
+#    if defined(_WIN32)
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo (&sysinfo);
+    return static_cast<unsigned> (sysinfo.dwNumberOfProcessors);
+#    elif defined(_SC_NPROCESSORS_ONLN)
+    int count = sysconf (_SC_NPROCESSORS_ONLN);
+    return static_cast<unsigned>( count < 0 ? 0 : count );
+#    else
+    return 0;
+#    endif
+#else
+    return std::thread::hardware_concurrency ();
+#endif
+}
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
