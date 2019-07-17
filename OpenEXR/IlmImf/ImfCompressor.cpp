@@ -211,9 +211,12 @@ newTileCompressor (Compression c,
 
       case DWAA_COMPRESSION:
       case DWAB_COMPRESSION:
-
-	return new DwaCompressor (hdr, tileLineSize, numTileLines, 
-                               DwaCompressor::DEFLATE);
+        // the threshold below is tileSize (48x48) times pixelSize(RGB, half)
+        // see also https://github.com/openexr/openexr/issues/344
+	return new DwaCompressor (hdr, tileLineSize, numTileLines,
+                               tileLineSize * numTileLines < 48 * 48 * 6
+                               ? DwaCompressor::DEFLATE
+                               : DwaCompressor::STATIC_HUFFMAN);
 
       default:
 
