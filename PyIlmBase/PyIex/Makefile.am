@@ -23,6 +23,6 @@ iexmodule_la_LIBADD  = libPyIex.la @BOOST_PYTHON_LIBS@
 
 noinst_HEADERS = 
 
-INCLUDES = @ILMBASE_CXXFLAGS@ \
+AM_CPPFLAGS = @ILMBASE_CXXFLAGS@ \
 	   -I$(top_builddir)  \
 	   -I$(top_srcdir)/config

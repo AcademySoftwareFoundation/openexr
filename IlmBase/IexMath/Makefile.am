@@ -19,7 +19,7 @@ endif
 
 libIexMath_la_LIBADD = ../Iex/libIex.la
 
-INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex \
+AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir)/Iex \
            -I$(top_srcdir)/config
 
 EXTRA_DIST = CMakeLists.txt

@@ -39,7 +39,7 @@ libIlmImfUtilincludedir = $(includedir)/OpenEXR
 
 EXTRA_DIST = CMakeLists.txt
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	   -I$(top_builddir) \
 	   -I$(top_srcdir)/IlmImf \
 	   -I$(top_srcdir)/config \

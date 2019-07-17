@@ -13,7 +13,7 @@ imathnumpymodule_la_LIBADD  = $(top_builddir)/PyImath/libPyImath.la @BOOST_PYTHO
 
 noinst_HEADERS = 
 
-INCLUDES = @ILMBASE_CXXFLAGS@      \
+AP_CPPFLAGS = @ILMBASE_CXXFLAGS@      \
            @NUMPY_CXXFLAGS@        \
            -I$(top_srcdir)/PyImath \
 	       -I$(top_builddir)       \

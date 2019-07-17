@@ -34,4 +34,4 @@ noinst_HEADERS =
 EXTRA_DIST = $(noinst_HEADERS) IlmThreadMutexWin32.cpp IlmThreadSemaphoreWin32.cpp \
 	     IlmThreadWin32.cpp CMakeLists.txt
 
-INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/config
+AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/config

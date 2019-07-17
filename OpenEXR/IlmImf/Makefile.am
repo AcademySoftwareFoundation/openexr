@@ -194,7 +194,7 @@ noinst_HEADERS = ImfCompressor.h    \
 EXTRA_DIST = $(noinst_HEADERS) b44ExpLogTable.cpp b44ExpLogTable.h dwaLookups.cpp dwaLookups.h CMakeLists.txt
 
 
-INCLUDES = @ILMBASE_CXXFLAGS@ \
+AM_CPPFLAGS = @ILMBASE_CXXFLAGS@ \
 	   -I$(top_builddir) \
 	   -I$(top_srcdir)/config \
 	   $(ILMBASE_CFLAGS) $(ZLIB_CFLAGS)

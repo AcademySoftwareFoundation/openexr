@@ -12,7 +12,7 @@ IlmImfUtilTest_SOURCES = main.cpp \
 	testDeepImage.h testDeepImage.cpp \
 	testIO.h testIO.cpp tmpDir.h
 
-INCLUDES = -I$(top_builddir)  \
+AM_CPPFLAGS = -I$(top_builddir)  \
 	   -I$(top_srcdir)/IlmImf \
 	   -I$(top_srcdir)/IlmImfUtil \
 	   -I$(top_srcdir)/config \

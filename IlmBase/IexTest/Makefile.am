@@ -9,7 +9,7 @@ check_PROGRAMS = IexTest
 
 IexTest_SOURCES = main.cpp testBaseExc.cpp testBaseExc.h
 
-INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/config
+AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/config
 
 LDADD = -L$(top_builddir)/Iex -lIex
 

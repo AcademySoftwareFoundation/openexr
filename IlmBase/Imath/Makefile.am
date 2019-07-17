@@ -43,7 +43,7 @@ libImathinclude_HEADERS = ImathColorAlgo.h ImathMatrixAlgo.h ImathVec.h \
                           ImathNamespace.h ImathForward.h ImathExport.h \
                           ImathFrustumTest.h
 
-INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/Half \
+AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/Half \
 	   -I$(top_srcdir)/config
 
 EXTRA_DIST = CMakeLists.txt
