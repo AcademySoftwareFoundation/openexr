@@ -51,71 +51,41 @@ static unsigned long* systemEndianCheckPointer = &systemEndianCheckValue;
 static bool GLOBAL_SYSTEM_LITTLE_ENDIAN =
         (*(unsigned char*)systemEndianCheckPointer == 0x78 ? true : false);
 
+inline void*
+EXRAllocAligned (size_t size, size_t alignment)
+{
+    // GNUC is used for things like mingw to (cross-)compile for windows
+#ifdef _WIN32
+    return _aligned_malloc (size, alignment);
+#elif defined(__INTEL_COMPILER) || defined(__ICL) || defined(__ICC) || defined(__ECC)
+    return _mm_malloc (size, alignment);
+#elif defined(_POSIX_C_SOURCE) && (_POSIX_C_SOURCE >= 200112L)
+    void* ptr = 0;
+    posix_memalign (&ptr, alignment, size);
+    return ptr;
+#else
+    return malloc(size);
+#endif
+}
 
-#ifdef IMF_HAVE_SSE2
+inline void
+EXRFreeAligned (void* ptr)
+{
+#ifdef _WIN32
+    _aligned_free (ptr);
+#elif defined(__INTEL_COMPILER) || defined(__ICL) || defined(__ICC) ||         \
+    defined(__ECC)
+    _mm_free (ptr);
+#else
+    free (ptr);
+#endif
+}
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__) || defined(_MSC_VER)
 // Causes issues on certain gcc versions
 //#define EXR_FORCEINLINE inline __attribute__((always_inline))
 #define EXR_FORCEINLINE inline
 #define EXR_RESTRICT __restrict
-
-static void* EXRAllocAligned(size_t size, size_t alignment)
-{
-    // GNUC is used for things like mingw to (cross-)compile for windows
-#ifdef _WIN32
-    return _aligned_malloc(size, alignment);
-#else
-    void* ptr = 0;
-    posix_memalign(&ptr, alignment, size);
-    return ptr;
-#endif
-}
-
-
-static void EXRFreeAligned(void* ptr)
-{
-#ifdef _WIN32
-    _aligned_free(ptr);
-#else
-    free(ptr);
-#endif
-}
-
-#elif defined _MSC_VER
-
-#define EXR_FORCEINLINE __forceinline
-#define EXR_RESTRICT __restrict
-
-static void* EXRAllocAligned(size_t size, size_t alignment)
-{
-    return _aligned_malloc(size, alignment);
-}
-
-
-static void EXRFreeAligned(void* ptr)
-{
-    _aligned_free(ptr);
-}
-
-#elif defined (__INTEL_COMPILER) || \
-        defined(__ICL) || \
-        defined(__ICC) || \
-        defined(__ECC)
-
-#define EXR_FORCEINLINE inline
-#define EXR_RESTRICT restrict
-
-static void* EXRAllocAligned(size_t size, size_t alignment)
-{
-    return _mm_malloc(size, alignment);
-}
-
-
-static void EXRFreeAligned(void* ptr)
-{
-    _mm_free(ptr);
-}
 
 #else
 
@@ -123,39 +93,7 @@ static void EXRFreeAligned(void* ptr)
 #define EXR_FORCEINLINE inline
 #define EXR_RESTRICT
 
-static void* EXRAllocAligned(size_t size, size_t alignment)
-{
-    return malloc(size);
-}
-
-
-static void EXRFreeAligned(void* ptr)
-{
-    free(ptr);
-}
-
-#endif // compiler switch
-
-
-#else // IMF_HAVE_SSE2
-
-
-#define EXR_FORCEINLINE inline
-#define EXR_RESTRICT
-
-static void* EXRAllocAligned(size_t size, size_t alignment)
-{
-    return malloc(size);
-}
-
-
-static void EXRFreeAligned(void* ptr)
-{
-    free(ptr);
-}
-
-
-#endif  // IMF_HAVE_SSE2
+#endif
 
 // 
 // Simple CPUID based runtime detection of various capabilities

@@ -3,7 +3,7 @@
 // Copyright Contributors to the OpenEXR Project. See LICENSE file for details.
 // 
 
-#ifdef _MSC_VER
+#if defined(_WIN32) || defined(_WIN64)
 #include <stdlib.h>
 #define bswap_32(x) _byteswap_ulong(x)
 #elif defined(__APPLE__)
