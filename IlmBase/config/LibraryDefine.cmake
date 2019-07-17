@@ -8,7 +8,7 @@ function(ILMBASE_DEFINE_LIBRARY libname)
 
   set(objlib ${libname}_Object)
   add_library(${objlib} OBJECT ${ILMBASE_CURLIB_SOURCES})
-  target_compile_features(${objlib} PUBLIC cxx_std_${ILMBASE_CXX_STANDARD})
+  target_compile_features(${objlib} PUBLIC cxx_std_${OPENEXR_CXX_STANDARD})
   if(ILMBASE_CURLIB_PRIV_EXPORT AND BUILD_SHARED_LIBS)
     target_compile_definitions(${objlib} PRIVATE ${ILMBASE_CURLIB_PRIV_EXPORT})
     if(WIN32)

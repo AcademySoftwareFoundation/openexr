@@ -8,20 +8,25 @@ include(GNUInstallDirs)
 set(PYILMBASE_OVERRIDE_PYTHON2_INSTALL_DIR "" CACHE STRING "Override the install location for any python 2.x modules compiled")
 set(PYILMBASE_OVERRIDE_PYTHON3_INSTALL_DIR "" CACHE STRING "Override the install location for any python 3.x modules compiled")
 
+# What C++ standard to compile for
+# VFX Platform 18 is c++14, so let's enable that by default
+set(tmp 14)
+if(CMAKE_CXX_STANDARD)
+  set(tmp ${CMAKE_CXX_STANDARD})
+endif()
+set(OPENEXR_CXX_STANDARD "${tmp}" CACHE STRING "C++ standard to compile against")
+set(tmp)
+
 ########################
 ## Build related options
 
-# This option builds the python modules with an extra library layer
-# for the various modules. This was originally done for a larger
-# internal system, but is unlikely to work on systems such as
-# windows, or with compiling for multiple python platforms at once,
-# without larger intervention and as such is disabled.
-option(PYILMBASE_BUILD_SUPPORT_LIBRARIES "Build python modules with library layer (see comments before enabling)" OFF)
 # Suffix to append to root name, this helps with version management
 # but can be turned off if you don't care, or otherwise customized
 # 
-set(PYILMBASE_LIB_SUFFIX "-${PYILMBASE_VERSION_API}" CACHE STRING "String added to the end of all the libraries (if on)")
-set(PYILMBASE_LIB_PYTHONVER_ROOT "_Python" CACHE STRING "String added as a root to the python version in the libraries (if libs are on)")
+set(PYILMBASE_LIB_SUFFIX "-${PYILMBASE_VERSION_API}" CACHE STRING "String added to the end of all the libraries")
+# This provides a root for the unique name of the library based on
+# the version of python being compiled for
+set(PYILMBASE_LIB_PYTHONVER_ROOT "_Python" CACHE STRING "String added as a root to the identifier of the python version in the libraries")
 
 # This is a variable here for use in install lines when creating
 # libraries (otherwise ignored). Care must be taken when changing this,
@@ -66,16 +71,25 @@ endif()
 
 ########################
 
+# set a default build type if not set
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to 'Release' as none was specified.")
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 # Code check related features
-option(PYILMBASE_USE_CLANG_TIDY "Check if clang-tidy is available, and enable that" OFF)
-if(PYILMBASE_USE_CLANG_TIDY)
-  find_program(PYILMBASE_CLANG_TIDY_BIN clang-tidy)
-  if(PYILMBASE_CLANG_TIDY_BIN-NOTFOUND)
+option(OPENEXR_USE_CLANG_TIDY "Check if clang-tidy is available, and enable that" OFF)
+if(OPENEXR_USE_CLANG_TIDY)
+  find_program(OPENEXR_CLANG_TIDY_BIN clang-tidy)
+  if(OPENEXR_CLANG_TIDY_BIN-NOTFOUND)
     message(FATAL_ERROR "clang-tidy processing requested, but no clang-tidy found")
   endif()
   # TODO: Need to define the list of valid checks and add a file with said list
   set(CMAKE_CXX_CLANG_TIDY
-    ${PYILMBASE_CLANG_TIDY_BIN};
+    ${OPENEXR_CLANG_TIDY_BIN};
     -header-filter=.;
     -checks=*;
   )

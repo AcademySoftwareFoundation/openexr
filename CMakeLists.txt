@@ -1,4 +1,5 @@
 # "More Modern" CMake version
+
 cmake_minimum_required(VERSION 3.12)
 
 # Hint: This can be set to enable custom find_package
@@ -47,6 +48,8 @@ include(CTest)
 if(BUILD_TESTING)
   enable_testing()
 endif()
+
+#######################################
 
 # Include these two modules without enable/disable options
 add_subdirectory(IlmBase)
