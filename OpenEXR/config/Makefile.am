@@ -4,4 +4,7 @@ configincludedir = $(includedir)/OpenEXR
 
 nodist_configinclude_HEADERS = OpenEXRConfig.h
 
-EXTRA_DIST = OpenEXRConfig.h.in
+EXTRA_DIST = OpenEXRConfig.h.in OpenEXRConfig.h.in_cmake \
+ OpenEXRConfigInternal.h.in OpenEXRConfigInternal.h.in_cmake \
+ CMakeLists.txt OpenEXRSetup.cmake LibraryDefine.cmake \
+ ParseConfigure.cmake

@@ -10,7 +10,12 @@ option(ILMBASE_ENABLE_LARGE_STACK "Enables code to take advantage of large stack
 
 # What C++ standard to compile for
 # VFX Platform 18 is c++14, so let's enable that by default
-set(ILMBASE_CXX_STANDARD "14" CACHE STRING "C++ standard to compile against")
+set(tmp 14)
+if(CMAKE_CXX_STANDARD)
+  set(tmp ${CMAKE_CXX_STANDARD})
+endif()
+set(OPENEXR_CXX_STANDARD "${tmp}" CACHE STRING "C++ standard to compile against")
+set(tmp)
 
 # Namespace-related settings, allows one to customize the
 # namespace generated, and to version the namespaces
@@ -94,16 +99,25 @@ endif()
 
 ########################
 
+# set a default build type if not set
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to 'Release' as none was specified.")
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 # Code check related features
-option(ILMBASE_USE_CLANG_TIDY "Check if clang-tidy is available, and enable that" OFF)
-if(ILMBASE_USE_CLANG_TIDY)
-  find_program(ILMBASE_CLANG_TIDY_BIN clang-tidy)
-  if(ILMBASE_CLANG_TIDY_BIN-NOTFOUND)
+option(OPENEXR_USE_CLANG_TIDY "Check if clang-tidy is available, and enable that" OFF)
+if(OPENEXR_USE_CLANG_TIDY)
+  find_program(OPENEXR_CLANG_TIDY_BIN clang-tidy)
+  if(OPENEXR_CLANG_TIDY_BIN-NOTFOUND)
     message(FATAL_ERROR "clang-tidy processing requested, but no clang-tidy found")
   endif()
   # TODO: Need to define the list of valid checks and add a file with said list
   set(CMAKE_CXX_CLANG_TIDY
-    ${ILMBASE_CLANG_TIDY_BIN};
+    ${OPENEXR_CLANG_TIDY_BIN};
     -header-filter=.;
     -checks=*;
   )

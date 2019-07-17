@@ -6,7 +6,12 @@ include(GNUInstallDirs)
 
 # What C++ standard to compile for
 # VFX Platform 18 is c++14, so let's enable that by default
-set(OPENEXR_CXX_STANDARD "14" CACHE STRING "C++ standard to compile against")
+set(tmp 14)
+if(CMAKE_CXX_STANDARD)
+  set(tmp ${CMAKE_CXX_STANDARD})
+endif()
+set(OPENEXR_CXX_STANDARD "${tmp}" CACHE STRING "C++ standard to compile against")
+set(tmp)
 
 set(OPENEXR_NAMESPACE_CUSTOM "0" CACHE STRING "Whether the namespace has been customized (so external users know)")
 set(OPENEXR_INTERNAL_IMF_NAMESPACE "Imf_${OPENEXR_VERSION_API}" CACHE STRING "Real namespace for Imath that will end up in compiled symbols")
@@ -87,6 +92,15 @@ if(APPLE)
 endif()
 
 ########################
+
+# set a default build type if not set
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to 'Release' as none was specified.")
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
 
 # Code check related features
 option(OPENEXR_USE_CLANG_TIDY "Check if clang-tidy is available, and enable that" OFF)

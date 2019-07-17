@@ -51,6 +51,10 @@ def numNonZeroMaskEntries(mask):
     return count
 
 def equalWithAbsErrorScalar(x1, x2, e):
+    print("type x1({}) x2({}) e({}) -> scalar".format(type(x1), type(x2), type(e)))
+    val = abs(x1 - x2)
+    if val >= e:
+        print ("Violation: val {} x1 {} x2 {} e {}".format(val, x1, x2, e))
     return abs(x1 - x2) < e
 
 def make_range(start, end):
@@ -81,6 +85,8 @@ def equalWithAbsError(x1, x2, e):
             if not equalWithAbsErrorScalar(x1[i], x2[i], e):
                 return False
         return True
+    elif isinstance(x1, int):
+        return equalWithAbsErrorScalar(x1, int(x2), e)
     else:
         return equalWithAbsErrorScalar(x1, x2, e)
 
@@ -94,6 +100,8 @@ def equalWithRelError(x1, x2, e):
             if not equalWithRelErrorScalar(x1[i], x2[i], e):
                 return False
         return True
+    elif isinstance(x1, int):
+        return equalWithRelErrorScalar(x1, int(x2), e)
     else:
         return equalWithRelErrorScalar(x1, x2, e)
 
@@ -726,7 +734,7 @@ def testNonMaskedFloatTypeArray(FloatTypeArray):
     # Ensure that an exception is thrown when
     # we exceed the bounds of the array
     try:
-        print f1[10]
+        print (f1[10])
     except:
         pass
     else:
@@ -812,7 +820,7 @@ def testNonMaskedFloatTypeArray(FloatTypeArray):
 
     testPowFunctions(f1, f2)
 
-    print "ok"
+    print ("ok")
 
 testList.append(('testNonMaskedFloatArray', lambda : testNonMaskedFloatTypeArray(FloatArray)))
 testList.append(('testNonMaskedDoubleArray', lambda : testNonMaskedFloatTypeArray(DoubleArray)))
@@ -833,7 +841,7 @@ def testNonMaskedIntTypeArray(IntTypeArray):
     # Ensure that an exception is thrown when
     # we exceed the bounds of the array
     try:
-        print f1[10]
+        print (f1[10])
     except:
         pass
     else:
@@ -921,7 +929,7 @@ def testNonMaskedIntTypeArray(IntTypeArray):
     assertVectorVectorComparisonOpFailures(f1, f3)
     assertModOpFailures(f1, f3)
 
-    print "ok"
+    print ("ok")
 
 testList.append(('testNonMaskedIntArray', lambda : testNonMaskedIntTypeArray(IntArray)))
 testList.append(('testNonMaskedShortArray', lambda : testNonMaskedIntTypeArray(ShortArray)))
@@ -1069,7 +1077,7 @@ def testMaskedFloatTypeArray(FloatTypeArray):
     testVectorVectorMaskedInPlaceArithmeticOps2(f, g[m2][:], m1)
     testVectorVectorMaskedArithmeticOps(f, g, f / 2.0, m1)
 
-    print "ok"
+    print ("ok")
 
 testList.append(('testMaskedFloatArray', lambda : testMaskedFloatTypeArray(FloatArray)))
 testList.append(('testMaskedDoubleArray', lambda : testMaskedFloatTypeArray(DoubleArray)))
@@ -1219,7 +1227,7 @@ def testMaskedIntTypeArray(IntTypeArray):
     testVectorVectorMaskedInPlaceArithmeticOps2(f, g[m2][:], m1)
     testVectorVectorMaskedArithmeticOps(f, g, f / 2, m1)
 
-    print "ok"
+    print ("ok")
 
 testList.append(('testMaskedIntArray', lambda : testMaskedIntTypeArray(IntArray)))
 testList.append(('testMaskedShortArray', lambda : testMaskedIntTypeArray(ShortArray)))
@@ -1251,7 +1259,7 @@ def testNonMaskedVecTypeArray(VecTypeArray):
     # Ensure that an exception is thrown when
     # we exceed the bounds of the array
     try:
-        print f1[10]
+        print (f1[10])
     except:
         pass
     else:
@@ -1406,7 +1414,7 @@ def testNonMaskedVecTypeArray(VecTypeArray):
     assertVectorVectorArithmeticOpFailures(f1, f3)
     assertVectorVectorInPlaceArithmeticOpFailures(f1, f3)
 
-    print "ok"
+    print ("ok")
 
 testList.append(('testNonMaskedV2sArray', lambda : testNonMaskedVecTypeArray(V2sArray)))
 testList.append(('testNonMaskedV2iArray', lambda : testNonMaskedVecTypeArray(V2iArray)))
@@ -1647,7 +1655,7 @@ def testMaskedVecTypeArray(VecTypeArray):
 
     testVectorVectorMaskedArithmeticOps
 
-    print "ok"
+    print ("ok")
 
 testList.append(('testMaskedV2sArray', lambda : testMaskedVecTypeArray(V2sArray)))
 testList.append(('testMaskedV2iArray', lambda : testMaskedVecTypeArray(V2iArray)))
@@ -1723,7 +1731,7 @@ def testExceptions():
     else:
         assert 0
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -1805,7 +1813,7 @@ def testFun ():
     assert modp( 3, -2) ==  1
     assert modp(-3, -2) ==  1
 
-    print "ok"
+    print ("ok")
 
     return
 
@@ -2197,17 +2205,17 @@ def testV2x (Vec):
     assert p.closestVertex(v0, v1, v2) == v2
 
 
-    print "ok"
+    print ("ok")
 
     return
 
 def testV2 ():
 
-    print "V2i"
+    print ("V2i")
     testV2x (V2i)
-    print "V2f"
+    print ("V2f")
     testV2x (V2f)
-    print "V2d"
+    print ("V2d")
     testV2x (V2d)
 
 testList.append (('testV2',testV2))
@@ -2637,17 +2645,17 @@ def testV2xArray (Array, Vec, Arrayx):
         assert a[0] == Vec(1, 2).normalized()
         assert a[1] == Vec(3, 4).normalized()
 
-    print "ok"
+    print ("ok")
 
     return
 
 def testV2Array ():
 
-    print "V2iArray"
+    print ("V2iArray")
     testV2xArray (V2iArray, V2i, IntArray)
-    print "V2fArray"
+    print ("V2fArray")
     testV2xArray (V2fArray, V2f, FloatArray)
-    print "V2dArray"
+    print ("V2dArray")
     testV2xArray (V2dArray, V2d, DoubleArray)
 
 testList.append (('testV2Array',testV2Array))
@@ -3038,17 +3046,17 @@ def testV3x (Vec):
     assert p.closestVertex(v0, v1, v2) == v2
 
 
-    print "ok"
+    print ("ok")
 
     return
 
 def testV3 ():
 
-    print "V3i"
+    print ("V3i")
     testV3x (V3i)
-    print "V3f"
+    print ("V3f")
     testV3x (V3f)
-    print "V3d"
+    print ("V3d")
     testV3x (V3d)
 
 testList.append (('testV3',testV3))
@@ -3489,17 +3497,17 @@ def testV3xArray (Array, Vec, Arrayx):
         assert a[0] == Vec(1, 2, 3).normalized()
         assert a[1] == Vec(4, 5, 6).normalized()
 
-    print "ok"
+    print ("ok")
 
     return
 
 def testV3Array ():
 
-    print "V3iArray"
+    print ("V3iArray")
     testV3xArray (V3iArray, V3i, IntArray)
-    print "V3fArray"
+    print ("V3fArray")
     testV3xArray (V3fArray, V3f, FloatArray)
-    print "V3dArray"
+    print ("V3dArray")
     testV3xArray (V3dArray, V3d, DoubleArray)
 
 testList.append (('testV3Array',testV3Array))
@@ -3565,7 +3573,7 @@ def testV2xConversions (Vec):
     v2 *= V2d (v1)
     assert v2[0] == 0 and v2[1] == 2
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -3626,7 +3634,7 @@ def testV3xConversions (Vec):
     v2 *= V3d (v1)
     assert v2[0] == 0 and v2[1] == 2 and v2[2] == 6
     
-    print "ok"
+    print ("ok")
     return
 
 # -------------------------------------------------------------------------
@@ -3990,17 +3998,17 @@ def testV4x (Vec):
         r = s.reflect(t)
         assert equal(abs(s ^ t), abs(r ^ t), s.baseTypeEpsilon())
 
-    print "ok"
+    print ("ok")
 
     return
 
 def testV4 ():
 
-    print "V4i"
+    print ("V4i")
     testV4x (V4i)
-    print "V4f"
+    print ("V4f")
     testV4x (V4f)
-    print "V4d"
+    print ("V4d")
     testV4x (V4d)
 
 testList.append (('testV4',testV4))
@@ -4402,17 +4410,17 @@ def testV4xArray (Array, Vec, Arrayx):
         assert a[0] == Vec(1, 2, 3, 4).normalized()
         assert a[1] == Vec(4, 5, 6, 7).normalized()
 
-    print "ok"
+    print ("ok")
 
     return
 
 def testV4Array ():
 
-    print "V4iArray"
+    print ("V4iArray")
     testV4xArray (V4iArray, V4i, IntArray)
-    print "V4fArray"
+    print ("V4fArray")
     testV4xArray (V4fArray, V4f, FloatArray)
-    print "V4dArray"
+    print ("V4dArray")
     testV4xArray (V4dArray, V4d, DoubleArray)
 
 testList.append (('testV4Array',testV4Array))
@@ -4474,7 +4482,7 @@ def testV4xConversions (Vec):
     v2 *= V4d (v1)
     assert v2[0] == 0 and v2[1] == 2 and v2[2] == 6 and v2[3] == 12
     
-    print "ok"
+    print ("ok")
     return
 
 
@@ -4491,34 +4499,34 @@ def testV2xV3xConversion (VecA, VecB):
 
 def testVecConversions ():
 
-    print "V2i"
+    print ("V2i")
     testV2xConversions (V2i)
-    print "V2f"
+    print ("V2f")
     testV2xConversions (V2f)
-    print "V2d"
+    print ("V2d")
     testV2xConversions (V2d)
 
-    print "V3i"
+    print ("V3i")
     testV3xConversions (V3i)
-    print "V3f"
+    print ("V3f")
     testV3xConversions (V3f)
-    print "V3d"
+    print ("V3d")
     testV3xConversions (V3d)
 
-    print "V4i"
+    print ("V4i")
     testV4xConversions (V4i)
-    print "V4f"
+    print ("V4f")
     testV4xConversions (V4f)
-    print "V4d"
+    print ("V4d")
     testV4xConversions (V4d)
 
 
-    print "invalid conversions"
+    print ("invalid conversions")
     # Deliberatly not exhaustive, just representative.
     testV2xV3xConversion (V2i, V3f)
     testV2xV3xConversion (V3f, V2d)
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -4707,15 +4715,15 @@ def testShear6x (Shear):
     assert h1 / (1, 2, 4, -1, -2, -4) == Shear(10, 10, 10, 10, 10, 10)
     assert Shear(50, 40, 80, -50, -40, -80) / h1 == Shear(5, 2, 2, 5, 2, 2)
 
-    print "ok"
+    print ("ok")
 
     return
 
 def testShear6 ():
 
-    print "Shear6f"
+    print ("Shear6f")
     testShear6x (Shear6f)
-    print "Shear6d"
+    print ("Shear6d")
     testShear6x (Shear6d)
 
 testList.append (('testShear6',testShear6))
@@ -4736,7 +4744,7 @@ def testShearV3xConversions (Vec):
     assert h[0] == 0 and h[1] == 1 and h[2] == 2 and \
            h[3] == 0 and h[4] == 0 and h[5] == 0
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -4752,23 +4760,23 @@ def testShear6xConversions (Shear):
     assert h2[0] == 0 and h2[1] == 1 and h2[2] == 2 and \
            h2[3] == 3 and h2[4] == 4 and h2[5] == 5
 
-    print "ok"
+    print ("ok")
     return
 
 
 def testShearConversions ():
 
-    print "V3f"
+    print ("V3f")
     testShearV3xConversions (V3f)
-    print "V3d"
+    print ("V3d")
     testShearV3xConversions (V3d)
 
-    print "Shear6f"
+    print ("Shear6f")
     testShear6xConversions (Shear6f)
-    print "Shear6d"
+    print ("Shear6d")
     testShear6xConversions (Shear6d)
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -5395,14 +5403,14 @@ def testM33x (Mat, Vec, Vec3):
         for j in range(3):
             assert p[i][j] == a[i]*b[j]
 
-    print "ok"
+    print ("ok")
     return
 
 def testM33 ():
 
-    print "M33f"
+    print ("M33f")
     testM33x (M33f, V2f, V3f)
-    print "M33d"
+    print ("M33d")
     testM33x (M33d, V2d, V3d)
 
 testList.append (('testM33',testM33))
@@ -6142,14 +6150,14 @@ def testM44x (Mat, Vec):
     assert a.minorOf(3,2) == a.fastMinor(0,1,2,0,1,3)
     assert a.minorOf(3,3) == a.fastMinor(0,1,2,0,1,2)
 
-    print "ok"
+    print ("ok")
     return
 
 def testM44 ():
 
-    print "M44f"
+    print ("M44f")
     testM44x (M44f, V3f)
-    print "M44d"
+    print ("M44d")
     testM44x (M44d, V3d)
 
 testList.append (('testM44',testM44))
@@ -6202,7 +6210,7 @@ def testM33xConversions (Mat):
     assert m2[0][0] == 0*0 + 1*3 + 2*6
     assert m2[0][1] == 0*1 + 1*4 + 2*7
         
-    print "ok"
+    print ("ok")
     return
 
 
@@ -6250,7 +6258,7 @@ def testM44xConversions (Mat):
     assert m2[0][0] == 0*0 + 1*4 + 2*8 + 3*12
     assert m2[0][1] == 0*1 + 1*5 + 2*9 + 3*13
                 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -6267,22 +6275,22 @@ def testM33xM44xConversion (MatA, MatB):
 
 def testMatConversions ():
 
-    print "M33f"
+    print ("M33f")
     testM33xConversions (M33f)
-    print "M33d"
+    print ("M33d")
     testM33xConversions (M33d)
 
-    print "M44f"
+    print ("M44f")
     testM44xConversions (M44f)
-    print "M44d"
+    print ("M44d")
     testM44xConversions (M44d)
 
-    print "invalid conversions"
+    print ("invalid conversions")
     # Deliberatly not exhaustive, just representative.
     testM33xM44xConversion (M33f, M44d)
     testM33xM44xConversion (M44f, M33d)
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -6356,17 +6364,17 @@ def testBox2x (Box, Vec):
     b = Box (Vec (1/9., 2/9.), Vec (4/9., 5/9.))
     assert b == eval (repr (b))
 
-    print "ok"
+    print ("ok")
     return
 
 
 def testBox2():
 
-    print "Box2i"
+    print ("Box2i")
     testBox2x (Box2i, V2i)
-    print "Box2f"
+    print ("Box2f")
     testBox2x (Box2f, V2f)
-    print "Box2d"
+    print ("Box2d")
     testBox2x (Box2d, V2d)
 
 
@@ -6469,17 +6477,17 @@ def testBox3x (Box, Vec):
     assert b.min() == Vec (11, 12, 13)
     assert b.max() == Vec (12, 13, 14)
     
-    print "ok"
+    print ("ok")
     return
 
 
 def testBox3():
 
-    print "Box3i"
+    print ("Box3i")
     testBox3x (Box3i, V3i)
-    print "Box3f"
+    print ("Box3f")
     testBox3x (Box3f, V3f)
-    print "Box3d"
+    print ("Box3d")
     testBox3x (Box3d, V3d)
 
 
@@ -6502,7 +6510,7 @@ def testBox2Conversions (Box, Vec):
     b2 = Box2d (b1)
     assert b2.min() == V2d (1, 2) and b2.max() == V2d (4, 5)
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -6519,7 +6527,7 @@ def testBox3Conversions (Box, Vec):
     b2 = Box3d (b1)
     assert b2.min() == V3d (1, 2, 3) and b2.max() == V3d (4, 5, 6)
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -6536,27 +6544,27 @@ def testBox2Box3Conversion (Box1, Box2):
 
 def testBoxConversions ():
 
-    print "Box2i"
+    print ("Box2i")
     testBox2Conversions (Box2i, V2i)
-    print "Box2f"
+    print ("Box2f")
     testBox2Conversions (Box2f, V2f)
-    print "Box2d"
+    print ("Box2d")
     testBox2Conversions (Box2d, V2d)
 
-    print "Box3i"
+    print ("Box3i")
     testBox3Conversions (Box3i, V3i)
-    print "Box3f"
+    print ("Box3f")
     testBox3Conversions (Box3f, V3f)
-    print "Box3d"
+    print ("Box3d")
     testBox3Conversions (Box3d, V3d)
 
-    print "invalid conversions"
+    print ("invalid conversions")
     testBox2Box3Conversion (Box2i, Box3i)
     testBox2Box3Conversion (Box2i, Box3f)
     testBox2Box3Conversion (Box3d, Box2i)
     testBox2Box3Conversion (Box3f, Box2f)
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -6700,7 +6708,7 @@ def testQuatx (Quat, Vec, M33, M44):
     m2 = q.toMatrix44()
     assert m2.equalWithAbsError(m1, 2*m1.baseTypeEpsilon())
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -6714,17 +6722,17 @@ def testQuatConversions ():
     q1 = Quatf (q)
     assert q1.r() == 1 and q1.v() == V3f (2, 3, 4)
 
-    print "ok"
+    print ("ok")
     return
 
 
 def testQuat():
 
-    print "Quatf"
+    print ("Quatf")
     testQuatx (Quatf, V3f, M33f, M44f)
-    print "Quatd"
+    print ("Quatd")
     testQuatx (Quatd, V3d, M33d, M44d)
-    print "conversions"
+    print ("conversions")
     testQuatConversions()
 
 
@@ -6776,10 +6784,10 @@ def testEulerx (Euler, Vec, M33, M44):
     assert e1 == e
 
     e1 = Euler (1, 2, 3, EULER_XZY)
-    assert e1 <> e
+    assert e1 != e
 
     e1 = Euler (1, 1, 3, EULER_XYZ)
-    assert e1 <> e
+    assert e1 != e
 
     # setXYZVector(), setOrder()
 
@@ -6892,7 +6900,7 @@ def testEulerx (Euler, Vec, M33, M44):
     e = Euler (1/9., 2/9., 3/9., EULER_XZXr)
     assert e == eval (repr (e))
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -6906,17 +6914,17 @@ def testEulerConversions ():
     e1 = Eulerf (e)
     assert e1.toXYZVector() == V3f (1, 2, 3) and e1.order() == EULER_XYZ
 
-    print "ok"
+    print ("ok")
     return
 
 
 def testEuler():
 
-    print "Eulerf"
+    print ("Eulerf")
     testEulerx (Eulerf, V3f, M33f, M44f)
-    print "Eulerd"
+    print ("Eulerd")
     testEulerx (Eulerd, V3d, M33d, M44d)
-    print "conversions"
+    print ("conversions")
     testEulerConversions()
 
 
@@ -6946,10 +6954,10 @@ def testLine3x (Line, Vec, Mat):
     assert l == l1
 
     l = Line (Vec (1, 1, 1), Vec (2, 2, 3))
-    assert l <> l1
+    assert l != l1
 
     l = Line (Vec (1, 1, 2), Vec (2, 2, 2))
-    assert l <> l1
+    assert l != l1
 
     # setPos(), setDir(), set()
 
@@ -7033,7 +7041,7 @@ def testLine3x (Line, Vec, Mat):
     e = Line (V3f (1/9., 2/9., 3/9.), V3f (1/9., 3/9., 3/9.))
     assert e == eval (repr (e))
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -7047,17 +7055,17 @@ def testLine3Conversions ():
     l1 = Line3f (l)
     assert l1.pos() == V3f (1, 2, 3) and l1.dir() == V3f (0, 1, 0)
 
-    print "ok"
+    print ("ok")
     return
 
 
 def testLine3():
 
-    print "Line3f"
+    print ("Line3f")
     testLine3x (Line3f, V3f, M44f)
-    print "Line3d"
+    print ("Line3d")
     testLine3x (Line3d, V3d, M44d)
-    print "conversions"
+    print ("conversions")
     testLine3Conversions()
 
 
@@ -7093,10 +7101,10 @@ def testPlane3x (Plane, Vec, Mat, Line):
     assert p == p1
 
     p = Plane (Vec (1, 1, 2), 2)
-    assert p <> p1
+    assert p != p1
 
     p = Plane (Vec (1, 1, 1), 1)
-    assert p <> p1
+    assert p != p1
 
     # setNormal(), setDistance()
 
@@ -7159,7 +7167,7 @@ def testPlane3x (Plane, Vec, Mat, Line):
     e = Plane (Vec (0/9., 1/9., 0/9.), 3/9.)
     assert e == eval (repr (e))
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -7173,19 +7181,19 @@ def testPlane3Conversions ():
     p1 = Plane3f (p)
     assert p1.normal() == V3f (1, 0, 0) and p1.distance() == 3
 
-    print "ok"
+    print ("ok")
     return
 
 
 def testPlane3():
 
-    print "Plane3f"
+    print ("Plane3f")
     testPlane3x (Plane3f, V3f, M44f, Line3f)
-    print "Plane3d with Line3f"
+    print ("Plane3d with Line3f")
     testPlane3x (Plane3d, V3d, M44d, Line3f)
-    print "Plane3d with Line3d"
+    print ("Plane3d with Line3d")
     testPlane3x (Plane3d, V3d, M44d, Line3d)
-    print "conversions"
+    print ("conversions")
     testPlane3Conversions()
 
 
@@ -7351,15 +7359,15 @@ def testColor3x (Color, maxComp):
     c3 = c2.hsv2rgb()
     assert c3[0] == maxComp and c3[1] == 0 and c3[2] == 0    
 
-    print "ok"
+    print ("ok")
 
     return
 
 def testColor3 ():
 
-    print "Color3f"
+    print ("Color3f")
     testColor3x (Color3f, 1.0)
-    print "Color3c"
+    print ("Color3c")
     testColor3x (Color3c, 255)
 
 testList.append (('testColor3',testColor3))
@@ -7525,15 +7533,15 @@ def testColor4x (Color, maxComp):
     c3 = c2.hsv2rgb()
     assert c3[0] == maxComp and c3[1] == 0 and c3[2] == 0 and c3[3] == 0
 
-    print "ok"
+    print ("ok")
 
     return
 
 def testColor4 ():
 
-    print "Color4f"
+    print ("Color4f")
     testColor4x (Color4f, 1.0)
-    print "Color4c"
+    print ("Color4c")
     testColor4x (Color4c, 255)
 
 testList.append (('testColor4',testColor4))
@@ -7552,7 +7560,7 @@ def testColor3xConversions (Color):
     v2 = Color3f (v1)
     assert v2[0] == 0 and v2[1] == 1 and v2[2] == 2
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -7566,7 +7574,7 @@ def testColor4xConversions (Color):
     v2 = Color4f (v1)
     assert v2[0] == 0 and v2[1] == 1 and v2[2] == 2 and v2[3] == 3
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -7583,28 +7591,28 @@ def testColor3xColor4xConversion (ColorA, ColorB):
 
 def testColorConversions ():
 
-    print "Color3c"
+    print ("Color3c")
     testColor3xConversions (Color3c)
-    print "Color3f"
+    print ("Color3f")
     testColor3xConversions (Color3f)
-    print "V3i"
+    print ("V3i")
     testColor3xConversions (V3i)
-    print "V3f"
+    print ("V3f")
     testColor3xConversions (V3f)
-    print "V3d"
+    print ("V3d")
     testColor3xConversions (V3d)
 
-    print "Color4c"
+    print ("Color4c")
     testColor4xConversions (Color4c)
-    print "Color4f"
+    print ("Color4f")
     testColor4xConversions (Color4f)
 
-    print "invalid conversions"
+    print ("invalid conversions")
     # Deliberatly not exhaustive, just representative.
     testColor3xColor4xConversion (Color3c, Color4f)
     testColor3xColor4xConversion (Color4c, Color3f)
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -7812,13 +7820,13 @@ def testFrustumx (Frustum, Vec3, Mat):
     r2 = f.worldRadius((0, 0, -d), r1)
     assert equal(r2, d * s, Vec3().baseTypeEpsilon())
 
-    print "ok"
+    print ("ok")
 
     return
 
 def testFrustum ():
 
-    print "Frustumf"
+    print ("Frustumf")
     testFrustumx (Frustumf, V3f, M44f)
 
 testList.append (('testFrustum',testFrustum))
@@ -7911,15 +7919,15 @@ def testRandomx (Rand):
     for i in range(n):
         assert r.nextb() == seq[i]
 
-    print "ok"
+    print ("ok")
 
     return
 
 def testRandom ():
 
-    print "Rand32"
+    print ("Rand32")
     testRandomx (Rand32)
-    print "Rand48"
+    print ("Rand48")
     testRandomx (Rand48)
     
 testList.append (('testRandom',testRandom))
@@ -7988,9 +7996,9 @@ def testC4xArray(Array, Color, Arrayx):
     assert ar != a.r
 
 def testC4Array ():
-    print "C4fArray"
+    print ("C4fArray")
     testC4xArray (C4fArray, Color4f, FloatArray)
-    print "C4cArray"
+    print ("C4cArray")
     testC4xArray (C4cArray, Color4c, UnsignedCharArray)
 
 testList.append (('testC4Array',testC4Array))
@@ -8004,7 +8012,7 @@ def testFpExceptions():
     try:
         v = V3f (1, 1, 1)
         v = v / 0
-        print v
+        print (v)
     except iex.MathExc:
         pass
     else:
@@ -8012,7 +8020,7 @@ def testFpExceptions():
 
     try:
         f = sqrt (-1)
-        print f
+        print (f)
     except ValueError:
         pass
     except OverflowError:
@@ -8021,16 +8029,16 @@ def testFpExceptions():
         assert 0
 
     # The overflow exception may not masked properly on Windows?
-    try:
-        v = V3d (1e200, 1e200, 1e200)
-        v = v * v * v
-        print v
-    except iex.MathExc:
-        pass
+    #try:
+    #    v = V3d (1e200, 1e200, 1e200)
+    #    v = v * v * v
+    #    print (v)
+    #except iex.MathExc:
+    #    pass
 
     try:
         f = sqrt (-1)
-        print f
+        print (f)
     except ValueError:
         pass
     except OverflowError:
@@ -8040,13 +8048,13 @@ def testFpExceptions():
 
     try:
         f = 1 / 0
-        print f
+        print (f)
     except ZeroDivisionError:
         pass
     else:
         assert 0
 
-    print "ok"
+    print ("ok")
     return
 
 
@@ -8350,13 +8358,13 @@ def testMxArray(Array, Matrix):
 
 
 def testMatrixArray ():
-    print "M44fArray"
+    print ("M44fArray")
     testMxArray (M44fArray, M44f)
-    print "M44dArray"
+    print ("M44dArray")
     testMxArray (M44dArray, M44d)
-    print "M33fArray"
+    print ("M33fArray")
     testMxArray (M33fArray, M33f)
-    print "M33dArray"
+    print ("M33dArray")
     testMxArray (M33dArray, M33d)
 
 testList.append(("testMatrixArray",testMatrixArray))
@@ -8415,14 +8423,14 @@ def testStringArray():
     for i in range(0,num):
         assert(int(s2[i]) == i)
 
-    print "should see %d 'bar' and %d 'foo'" % (num/2,num/2)
+    print ("should see %d 'bar' and %d 'foo'" % (num/2,num/2))
     for m in s:
-        print m
-    print "should see '0' through '%d'" % (num-1)
+        print (m)
+    print ("should see '0' through '%d'" % (num-1))
     for m in s2:
-        print m
+        print (m)
 
-    print "ok"
+    print ("ok")
 
 testList.append(("testStringArray",testStringArray))
 
@@ -8481,14 +8489,14 @@ def testWstringArray():
     for i in range(0,num):
         assert(int(s2[i]) == i)
 
-    print "should see %d 'bar' and %d 'foo'" % (num/2,num/2)
+    print ("should see %d 'bar' and %d 'foo'" % (num/2,num/2))
     for m in s:
-        print m
-    print "should see '0' through '%d'" % (num-1)
+        print (m)
+    print ("should see '0' through '%d'" % (num-1))
     for m in s2:
-        print m
+        print (m)
 
-    print "ok"
+    print ("ok")
 
 testList.append(("testWstringArray",testWstringArray))
 
@@ -8500,11 +8508,11 @@ random.seed (1567)
 
 for test in testList:
     funcName = test[0]
-    print ""
-    print "Running %s" % funcName
+    print ("")
+    print ("Running %s" % funcName)
     test[1]()
 
-print ""
+print ("")
 
 # Local Variables:
 # mode:python

@@ -8,7 +8,7 @@ if(TARGET Python2::Interpreter)
   )
 endif()
 
-if(TARGET Python2::Interpreter)
+if(TARGET Python3::Interpreter)
   add_test(PyIlmBase.PyIexTest_Python3
     ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/pyIexTest.in
   )

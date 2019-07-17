@@ -1,36 +1,47 @@
+if(TARGET Python2::Python AND
+   TARGET Boost::${PYILMBASE_BOOST_PY2_COMPONENT} AND
+   TARGET Python2::IlmBaseNumPy)
 
-# must be shared
-ADD_LIBRARY ( imathnumpymodule SHARED
+  set(moddeps_p2 PyIex PyImath)
+  list(TRANSFORM moddeps_p2 APPEND ${PYILMBASE_LIB_PYTHONVER_ROOT}${Python2_VERSION_MAJOR}_${Python2_VERSION_MINOR})
+
+  Python2_add_library(imathnumpy_python2 MODULE
     imathnumpymodule.cpp
-)
-
-IF (WIN32)
-    SET_TARGET_PROPERTIES (imathnumpymodule
-        PROPERTIES
-            PREFIX ""
-            OUTPUT_NAME "imathnumpy"
-            SUFFIX ".pyd"
+  )
+  target_link_libraries(imathnumpy_python2
+    PRIVATE
+      IlmBase::Iex IlmBase::IexMath IlmBase::Imath
+      ${moddeps_p2}
+      Python2::Python
+      Boost::${PYILMBASE_BOOST_PY2_COMPONENT}
+      Python2::IlmBaseNumPy
     )
-ELSE ()
-    SET_TARGET_PROPERTIES (imathnumpymodule
-        PROPERTIES PREFIX "" SUFFIX ".so" BUILD_WITH_INSTALL_RPATH ON
+  set_target_properties(imathnumpy_python2 PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/python${Python2_VERSION_MAJOR}_${Python2_VERSION_MINOR}/"
+    LIBRARY_OUTPUT_NAME "imathnumpy"
+  )
+endif()
+
+if(TARGET Python3::Python AND
+   TARGET Boost::${PYILMBASE_BOOST_PY3_COMPONENT} AND
+   TARGET Python3::IlmBaseNumPy)
+
+  set(moddeps_p3 PyIex PyImath)
+  list(TRANSFORM moddeps_p3 APPEND ${PYILMBASE_LIB_PYTHONVER_ROOT}${Python3_VERSION_MAJOR}_${Python3_VERSION_MINOR})
+
+  Python3_add_library(imathnumpy_python3 MODULE
+    imathnumpymodule.cpp
+  )
+  target_link_libraries(imathnumpy_python3
+    PRIVATE
+      IlmBase::Iex IlmBase::IexMath IlmBase::Imath
+      ${moddeps_p3}
+      Python3::Python
+      Boost::${PYILMBASE_BOOST_PY3_COMPONENT}
+      Python3::IlmBaseNumPy
     )
-ENDIF ()
-
-INCLUDE_DIRECTORIES (
-	${NUMPY_INCLUDE_DIRS}
-)
-SET_ILMBASE_INCLUDE_DIRS( imathnumpymodule )
-
-#	IlmBase::Imath${OPENEXR_TARGET_SUFFIX}
-#	IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
-TARGET_LINK_LIBRARIES ( imathnumpymodule
-	PyImath
-	PyIex
-	${Boost_LIBRARIES}
-)
-
-INSTALL ( TARGETS imathnumpymodule
-	DESTINATION lib/python${OPENEXR_PYTHON_MAJOR}.${OPENEXR_PYTHON_MINOR}/site-packages
-)
-
+  set_target_properties(imathnumpy_python3 PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/python${Python3_VERSION_MAJOR}_${Python3_VERSION_MINOR}/"
+    LIBRARY_OUTPUT_NAME "imathnumpy"
+  )
+endif()

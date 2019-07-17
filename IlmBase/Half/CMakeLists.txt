@@ -1,10 +1,10 @@
 
 add_executable(eLut eLut.cpp)
-target_compile_features(eLut PUBLIC cxx_std_${ILMBASE_CXX_STANDARD})
+target_compile_features(eLut PUBLIC cxx_std_${OPENEXR_CXX_STANDARD})
 
 
 add_executable(toFloat toFloat.cpp)
-target_compile_features(toFloat PUBLIC cxx_std_${ILMBASE_CXX_STANDARD})
+target_compile_features(toFloat PUBLIC cxx_std_${OPENEXR_CXX_STANDARD})
 
 add_custom_command(
   OUTPUT

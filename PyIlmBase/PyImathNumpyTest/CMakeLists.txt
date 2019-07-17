@@ -1,5 +1,18 @@
-ADD_TEST ( PyImathNumpyTest
-	${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/pyImathNumpyTest.in -nocuda
-)
 
-SET_TESTS_PROPERTIES ( PyImathNumpyTest PROPERTIES ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/../PyIex:${CMAKE_CURRENT_BINARY_DIR}/../PyImath:${CMAKE_CURRENT_BINARY_DIR}/../PyImathNumpy;LD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}/../../IlmBase/Iex:${CMAKE_CURRENT_BINARY_DIR}/../../IlmBase/IexMath:${CMAKE_CURRENT_BINARY_DIR}/../../IlmBase/Imath:${CMAKE_CURRENT_BINARY_DIR}/../PyIex:${CMAKE_CURRENT_BINARY_DIR}/../PyImath:${CMAKE_CURRENT_BINARY_DIR}/../PyImathNumpy" )
+if(TARGET Python2::Interpreter)
+  add_test(PyIlmBase.PyImathNumpyTest_Python2
+    ${Python2_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/pyImathNumpyTest.in
+  )
+  set_tests_properties(PyIlmBase.PyImathNumpyTest_Python2 PROPERTIES
+    ENVIRONMENT "PYTHONPATH=${CMAKE_BINARY_DIR}/python${Python2_VERSION_MAJOR}_${Python2_VERSION_MINOR}"
+  )
+endif()
+
+if(TARGET Python3::Interpreter)
+  add_test(PyIlmBase.PyImathNumpyTest_Python3
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/pyImathNumpyTest.in
+  )
+  set_tests_properties(PyIlmBase.PyImathNumpyTest_Python3 PROPERTIES
+    ENVIRONMENT "PYTHONPATH=${CMAKE_BINARY_DIR}/python${Python3_VERSION_MAJOR}_${Python3_VERSION_MINOR}"
+  )
+endif()

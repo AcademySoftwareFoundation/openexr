@@ -79,4 +79,5 @@ pyilmbase_define_module(imath
     PyImathVecOperators.h
   DEPENDENCIES
     IlmBase::Iex IlmBase::IexMath IlmBase::Imath
+  MODULE_DEPS PyIex
   )
