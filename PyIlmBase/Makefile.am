@@ -22,7 +22,7 @@ EXTRA_DIST = \
 	ChangeLog \
 	bootstrap \
 	pyilmbase.m4 \
-	config.windows/PyIlmBaseConfig.h
+	CMakeLists.txt
 
 dist-hook:
 	cp -fpR $(abspath $(srcdir)/..)/cmake $(distdir)
