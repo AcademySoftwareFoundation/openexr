@@ -108,7 +108,14 @@ class ILMTHREAD_EXPORT ThreadPoolProvider
 class ILMTHREAD_EXPORT ThreadPool  
 {
   public:
-
+    //-------------------------------------------------------
+    // static routine to query how many processors are currently
+    // online / suggested. This gives no indication of load
+    // balancing with other threads that may be active in the
+    // application / system. When compiling for >= c++11 this
+    // is the same as hardware_concurrency
+    //-------------------------------------------------------
+    static unsigned hardwareConcurrency ();
 
     //-------------------------------------------------------
     // Constructor -- creates numThreads worker threads which
