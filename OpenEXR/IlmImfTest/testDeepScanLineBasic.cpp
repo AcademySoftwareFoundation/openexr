@@ -275,8 +275,13 @@ void readFile (const std::string & filename,
 
     Array2D<unsigned int> localSampleCount;
     localSampleCount.resizeErase(height, width);
-    Array<Array2D< void* > > data(channelCount);
-    for (int i = 0; i < channelCount; i++)
+    
+        
+    // also test filling channels. Generate up to 2 extra channels
+    int fillChannels=rand()%3;
+    
+    Array<Array2D< void* > > data(channelCount+fillChannels);
+    for (int i = 0; i < channelCount+fillChannels; i++)
         data[i].resizeErase(height, width);
 
     DeepFrameBuffer frameBuffer;
@@ -339,7 +344,24 @@ void readFile (const std::string & filename,
       cout << "skipping " <<flush;
       return;
     }
-    
+    for(int i = 0 ; i < fillChannels ; ++i )
+    { 
+            PixelType type  = IMF::FLOAT;
+            int sampleSize = sizeof(float);            
+            int pointerSize = sizeof (char *);
+            stringstream ss;
+            // generate channel names that aren't in file but (might) interleave with existing file
+            ss << i << "fill";
+            string str = ss.str();
+               frameBuffer.insert (str,                            // name // 6
+                                DeepSlice (type,                    // type // 7
+                                (char *) (&data[i+channelCount][0][0]
+                                          - dataWindow.min.x
+                                          - dataWindow.min.y * width),               // base // 8)
+                                pointerSize * 1,          // xStride// 9
+                                pointerSize * width,      // yStride// 10
+                                sampleSize));             // sampleStride
+    }
     file.setFrameBuffer(frameBuffer);
 
     if (bulkRead)
@@ -355,15 +377,19 @@ void readFile (const std::string & filename,
             {
                 for (int k = 0; k < channelCount; k++)
                 {
-   		     if(!randomChannels || read_channel[k]==1)
-		     {
-                         if (channelTypes[k] == 0)
-                              data[k][i][j] = new unsigned int[localSampleCount[i][j]];
-                         if (channelTypes[k] == 1)
-                              data[k][i][j] = new half[localSampleCount[i][j]];
-                         if (channelTypes[k] == 2)
-                             data[k][i][j] = new float[localSampleCount[i][j]];
-		     }
+                    if(!randomChannels || read_channel[k]==1)
+                    {
+                                if (channelTypes[k] == 0)
+                                    data[k][i][j] = new unsigned int[localSampleCount[i][j]];
+                                if (channelTypes[k] == 1)
+                                    data[k][i][j] = new half[localSampleCount[i][j]];
+                                if (channelTypes[k] == 2)
+                                    data[k][i][j] = new float[localSampleCount[i][j]];
+                    }
+                }
+                for( int f = 0 ; f < fillChannels ; ++f )
+                {
+                       data[f+channelCount][i][j] = new float[localSampleCount[i][j]];
                 }
             }
         }
@@ -386,15 +412,19 @@ void readFile (const std::string & filename,
             {
                 for (int k = 0; k < channelCount; k++)
                 {
-		    if( !randomChannels || read_channel[k]==1)
-		    {
-                        if (channelTypes[k] == 0)
-                            data[k][i][j] = new unsigned int[localSampleCount[i][j]];
-                        if (channelTypes[k] == 1)
-                            data[k][i][j] = new half[localSampleCount[i][j]];
-                        if (channelTypes[k] == 2)
-                            data[k][i][j] = new float[localSampleCount[i][j]];
-		    }
+                    if( !randomChannels || read_channel[k]==1)
+                    {
+                                if (channelTypes[k] == 0)
+                                    data[k][i][j] = new unsigned int[localSampleCount[i][j]];
+                                if (channelTypes[k] == 1)
+                                    data[k][i][j] = new half[localSampleCount[i][j]];
+                                if (channelTypes[k] == 2)
+                                    data[k][i][j] = new float[localSampleCount[i][j]];
+                    }
+                }
+                for( int f = 0 ; f < fillChannels ; ++f )
+                {
+                       data[f+channelCount][i][j] = new float[localSampleCount[i][j]];
                 }
             }
 
@@ -407,8 +437,8 @@ void readFile (const std::string & filename,
         for (int j = 0; j < width; j++)
             for (int k = 0; k < channelCount; k++)
             {
-	        if( !randomChannels || read_channel[k]==1 )
-		{
+                if( !randomChannels || read_channel[k]==1 )
+                {
                     for (unsigned int l = 0; l < sampleCount[i][j]; l++)
                     {
                         if (channelTypes[k] == 0)
@@ -439,23 +469,29 @@ void readFile (const std::string & filename,
                             assert (((float*)(data[k][i][j]))[l] == (i * width + j) % 2049);
                         }
                     }
-		}
+                }
             }
 
     for (int i = 0; i < height; i++)
         for (int j = 0; j < width; j++)
+        {
             for (int k = 0; k < channelCount; k++)
             {
-      	        if( !randomChannels || read_channel[k]==1 )
-		{
+                if( !randomChannels || read_channel[k]==1 )
+                {
                     if (channelTypes[k] == 0)
                         delete[] (unsigned int*) data[k][i][j];
                     if (channelTypes[k] == 1)
                         delete[] (half*) data[k][i][j];
                     if (channelTypes[k] == 2)
                         delete[] (float*) data[k][i][j];
-		}
+                }
             }
+            for( int f = 0 ; f < fillChannels ; ++f )
+            {
+                 delete[] (float*) data[f+channelCount][i][j];
+            }
+       }
 }
 
 void readWriteTest(const std::string & tempDir, int channelCount, int testTimes)
