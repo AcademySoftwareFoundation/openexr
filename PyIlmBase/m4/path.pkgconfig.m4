@@ -37,15 +37,17 @@ dnl create some local m4 "variables" so that we don't have to use numbers
 define([arg_cxxflags],$1)
 define([arg_ldflags],$2)
 define([arg_libs],$3)
-define([arg_pkg_name],$4)
-define([arg_include_subdir],$5)
-define([arg_default_ldflags],$6)
-define([arg_default_libs],$7)
-define([arg_test_prefix],$8)
+define([arg_rpath],$4)
+define([arg_pkg_name],$5)
+define([arg_include_subdir],$6)
+define([arg_default_ldflags],$7)
+define([arg_default_libs],$8)
+define([arg_test_prefix],$9)
 
 TEST_CXXFLAGS=""
 TEST_LDFLAGS=""
 TEST_LIBS=""
+TEST_RPATH=""
 
 AC_ARG_WITH(arg_test_prefix,[  --with-arg_test_prefix=PFX  Prefix where tested libraries are supposed to be installed (optional)], test_prefix="$withval", test_prefix="NONE")
 echo "test_prefix = $test_prefix"
@@ -64,6 +66,7 @@ if test "x$test_prefix" != "xNONE" ; then
    TEST_LDFLAGS="-L$test_prefix/lib"
    TEST_LDFLAGS="$TEST_LDFLAGS arg_default_ldflags"
    TEST_LIBS="arg_default_libs"
+   TEST_RPATH="$test_prefix/lib"
 else
    dnl
    dnl Get the cflags and libraries from the arg_pkg_name package using 
@@ -78,11 +81,13 @@ else
       TEST_CXXFLAGS="`$PKG_CONFIG --cflags arg_pkg_name`"
       TEST_LDFLAGS="`$PKG_CONFIG --libs-only-L arg_pkg_name`"
       TEST_LIBS="`$PKG_CONFIG --libs arg_pkg_name`"
+      TEST_RPATH="`$PKG_CONFIG --variable=libdir arg_pkg_name`"
    else
       echo "Not using pkg-config."
       TEST_CXXFLAGS=""
       TEST_LDFLAGS=""
       TEST_LIBS=""
+      TEST_RPATH=""
    fi
 
    dnl
@@ -117,12 +122,13 @@ echo "    arg_libs = $TEST_LIBS"
 AC_SUBST(arg_cxxflags, $TEST_CXXFLAGS)
 AC_SUBST(arg_ldflags, $TEST_LDFLAGS)
 AC_SUBST(arg_libs, $TEST_LIBS)
-
+AC_SUBST(arg_rpath, $TEST_RPATH)
 
 dnl clean up local "variables"
 undefine([arg_cxxflags])
 undefine([arg_ldflags])
 undefine([arg_libs])
+undefine([arg_rpath])
 undefine([arg_pkg_name])
 undefine([arg_include_subdir])
 undefine([arg_default_ldflags])
