@@ -38,11 +38,11 @@ define([arg_disable],$2)
 define([arg_cxxflags],$3)
 define([arg_ldflags],$4)
 define([arg_libs],$5)
-define([arg_include_source],$6)
-define([arg_body_source],$7)
-define([arg_do_yes],$8)
-define([arg_do_no],$9)
-
+define([arg_rpath],$6)
+define([arg_include_source],$7)
+define([arg_body_source],$8)
+define([arg_do_yes],$9)
+define([arg_do_no],$10)
 
 dnl check arguments
 AC_ARG_ENABLE(arg_disable, [  --disable-arg_disable  Do not try to compile and run a test arg_pkg_name program],, enable_programtest=yes)
@@ -64,6 +64,7 @@ dnl
     CXXFLAGS="arg_cxxflags $CXXFLAGS"
     LDFLAGS="arg_ldflags $LDFLAGS"
     LIBS="arg_libs $LIBS"
+    LD_LIBRARY_PATH="arg_rpath:$LD_LIBRARY_PATH"
     AC_REQUIRE_CPP()
     AC_LANG_PUSH([C++])
     rm -f conf.testprogram

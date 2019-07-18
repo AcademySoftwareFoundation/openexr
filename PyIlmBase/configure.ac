@@ -79,6 +79,7 @@ AM_PATH_PKGCONFIG(
    [ILMBASE_CXXFLAGS],
    [ILMBASE_LDFLAGS],
    [ILMBASE_LIBS],
+   [ILMBASE_RPATH],
    [IlmBase],
    [OpenEXR],
    [-L/usr/local/lib],
@@ -90,7 +91,8 @@ AM_COMPILELINKRUN(
    [ilmbasetest],
    [$ILMBASE_CXXFLAGS],
    [$ILMBASE_LDFLAGS],
-   [$ILMBASE_LIBS],[[
+   [$ILMBASE_LIBS],
+   [$ILMBASE_RPATH],[[
 #include <stdlib.h>
 #include <ImathFun.h>
 #ifndef IMATH_NAMESPACE 
@@ -147,6 +149,7 @@ AM_COMPILELINKRUN(
    [boostpythontest],
    [$CXXFLAGS],
    [$LDFLAGS],
+   [],
    [$LIBS $BOOST_PYTHON_LIBS],[[
 #include <Python.h>
 #include <boost/python.hpp>
