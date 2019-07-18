@@ -410,7 +410,7 @@ define's such as ``INT_MAX``:
 
 All new source files should begin with a copyright and license stating:
 
-    // SPDX-License-Identifier: Modified-BSD-3-Clause
+    // SPDX-License-Identifier: BSD-3-Clause
     // Copyright Contributors to the OpenEXR Project. See LICENSE file for details.
 
 #### Third-party libraries
