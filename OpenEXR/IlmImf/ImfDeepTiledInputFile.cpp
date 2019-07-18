@@ -547,12 +547,12 @@ TileBufferTask::execute ()
                 int count = _ifd->getSampleCount(x - xOffset, y - yOffset);
                 for (unsigned int c = 0; c < _ifd->slices.size(); ++c)
                 {
-		    // This slice does not exist in the file.
-		    if (_ifd->slices[c]->fill)
-			continue;
-		    
-                    sizeOfTile += count * pixelTypeSize(_ifd->slices[c]->typeInFile);
-                    bytesPerLine += count * pixelTypeSize(_ifd->slices[c]->typeInFile);
+                    // This slice does not exist in the file.
+                    if ( !_ifd->slices[c]->fill)
+                    {
+                          sizeOfTile += count * pixelTypeSize(_ifd->slices[c]->typeInFile);
+                          bytesPerLine += count * pixelTypeSize(_ifd->slices[c]->typeInFile);     
+                    }
                 }
                 numPixelsPerScanLine[y - tileRange.min.y] += count;
             }
