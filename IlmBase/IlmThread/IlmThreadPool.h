@@ -109,13 +109,17 @@ class ILMTHREAD_EXPORT ThreadPool
 {
   public:
     //-------------------------------------------------------
-    // static routine to query how many processors are currently
-    // online / suggested. This gives no indication of load
-    // balancing with other threads that may be active in the
-    // application / system. When compiling for >= c++11 this
-    // is the same as hardware_concurrency
+    // static routine to query how many processors should be
+    // used for processing exr files. The user of ThreadPool
+    // is free to use std::thread::hardware_concurrency or
+    // whatever number of threads is appropriate based on the
+    // application. However, this routine exists such that
+    // in the future, if core counts expand faster than
+    // memory bandwidth, or higher order NUMA machines are built
+    // that we can query, this routine gives a place where we
+    // can centralize that logic
     //-------------------------------------------------------
-    static unsigned hardwareConcurrency ();
+    static unsigned estimateThreadCountForFileIO ();
 
     //-------------------------------------------------------
     // Constructor -- creates numThreads worker threads which

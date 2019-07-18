@@ -854,7 +854,7 @@ ThreadPool::addGlobalTask (Task* task)
 }
 
 unsigned
-ThreadPool::hardwareConcurrency ()
+ThreadPool::estimateThreadCountForFileIO ()
 {
 #ifdef ILMBASE_FORCE_CXX03
 #    if defined(_WIN32)
