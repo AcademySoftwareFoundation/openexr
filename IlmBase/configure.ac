@@ -1,3 +1,8 @@
+dnl
+dnl SPDX-License-Identifier: BSD-3-Clause
+dnl Copyright Contributors to the OpenEXR Project.
+dnl
+
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(IlmBase, 2.3.0)
 

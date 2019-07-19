@@ -1,4 +1,7 @@
 dnl
+dnl SPDX-License-Identifier: BSD-3-Clause
+dnl Copyright Contributors to the OpenEXR Project.
+dnl
 dnl
 dnl compilelinkrun.m4 - used to check whether a required package is properly 
 dnl installed.  Compiles, links and runs a c++ test program that uses the 
