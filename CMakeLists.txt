@@ -1,5 +1,8 @@
-# "More Modern" CMake version
+# We require this to get object library link library support and
+# combined python 2 + 3 support
 
+# We require this to get object library link library support and
+# combined python 2 + 3 support
 cmake_minimum_required(VERSION 3.12)
 
 # Hint: This can be set to enable custom find_package

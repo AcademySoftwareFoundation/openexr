@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
 
 openexr_define_library(IlmImfUtil
   PRIV_EXPORT ILMIMFUTIL_EXPORTS

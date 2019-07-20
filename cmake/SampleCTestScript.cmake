@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
+
 # This is a sample cmake test script that can be used to integrate into
 # a larger CI setup if you are building your own versions of OpenEXR
 # and also use a cdash (or cdash compliant) results server.

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
+
 pyilmbase_define_module(iex
   LIBNAME PyIex
   PRIV_EXPORT PYIEX_BUILD

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
 
 if(TARGET Python2::Interpreter)
   add_test(PyIlmBase.PyIexTest_Python2
