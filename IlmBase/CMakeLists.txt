@@ -1,9 +1,6 @@
 # "More Modern" CMake version
 cmake_minimum_required(VERSION 3.12)
 
-# this is for target_sources, new policy converts relative paths to absolute
-cmake_policy(SET CMP0076 NEW)
-
 # we include this first to parse configure.ac and extract the version
 # numbers
 include(config/ParseConfigure.cmake)
