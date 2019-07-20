@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
+
 # NB: This function has a number if IlmBase specific names / variables
 # in it, so be careful copying...
 function(ILMBASE_DEFINE_LIBRARY libname)

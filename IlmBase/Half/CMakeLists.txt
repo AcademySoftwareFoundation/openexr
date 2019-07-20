@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
 
 add_executable(eLut eLut.cpp)
 target_compile_features(eLut PUBLIC cxx_std_${OPENEXR_CXX_STANDARD})

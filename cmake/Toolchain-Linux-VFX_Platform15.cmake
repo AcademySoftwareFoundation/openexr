@@ -1,4 +1,6 @@
-#
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
+
 # This is only an example of a theoretical toolchain file
 # that might be used for compiling to target a VFX
 # reference platform (https://vfxplatform.com) that is

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
 
 function(PYILMBASE_ADD_LIBRARY_PRIV libname)
   set(options)

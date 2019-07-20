@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
+
 ilmbase_define_library(IlmThread
   PRIV_EXPORT ILMTHREAD_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
+
 pyilmbase_define_module(imath
   LIBNAME PyImath
   PRIV_EXPORT PYIMATH_BUILD
