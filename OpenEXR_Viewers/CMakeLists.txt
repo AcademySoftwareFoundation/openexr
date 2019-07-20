@@ -1,9 +1,6 @@
 # "More Modern" CMake version
 cmake_minimum_required(VERSION 3.12)
 
-# this is for target_sources, new policy converts relative paths to absolute
-cmake_policy(SET CMP0076 NEW)
-
 set(OPENEXR_VIEWERS_VERSION 2.3.0)
 
 project(OpenEXR_Viewers VERSION ${OPENEXR_VIEWERS_VERSION})
@@ -31,6 +28,19 @@ IF(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 ENDIF()
 
 PROJECT (openexr_viewers VERSION ${OPENEXR_VERSION})
+
+if(OPENEXR_BUILD_VIEWERS)
+  message(WARNING "Viewers are currently out of order. Building anyway")
+  SET (FLTK_SKIP_FLUID 1)
+  find_package(FLTK)
+  if(NOT FLTK_FOUND)
+    message(WARNING "FLTK not found, exrdisplay will not be built")
+  endif()
+  find_package(OpenGL)
+  if(NOT OpenGL_FOUND)
+    message(WARNING "OpenGL not found, exrdisplay will not be built")
+  endif()
+endif()
 
 IF(OPENEXR_VIEWERS_STANDALONE)
   INCLUDE(OpenEXRSettings)
