@@ -51,6 +51,9 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 # adds the automatically determined parts of the rpath
 # which point to directories outside the build tree to the install RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+if(APPLE)
+  set(CMAKE_MACOSX_RPATH ON)
+endif()
 # if the user sets an install rpath
 # then just use that, or otherwise set one for them
 if(NOT CMAKE_INSTALL_RPATH)
@@ -61,9 +64,10 @@ if(NOT CMAKE_INSTALL_RPATH)
       if(NOT tmpSysPath)
         set(tmpSysPath "lib")
       endif()
-      set(CMAKE_INSTALL_RPATH "\\\$ORIGIN/../${tmpSysPath}:${CMAKE_INSTALL_FULL_LIBDIR}")
+      set(CMAKE_INSTALL_RPATH "\\\$ORIGIN/../${tmpSysPath};${CMAKE_INSTALL_FULL_LIBDIR}")
+      set(tmpSysPath)
     elseif(APPLE)
-      set(CMAKE_INSTALL_RPATH "@rpath:${CMAKE_INSTALL_FULL_LIBDIR}")
+      set(CMAKE_INSTALL_RPATH "@loader_path/../lib;@executable_path/../lib;${CMAKE_INSTALL_FULL_LIBDIR}")
     else()
       set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
     endif()

@@ -52,13 +52,6 @@ function(ILMBASE_DEFINE_LIBRARY libname)
       OUTPUT_NAME "${libname}${ILMBASE_LIB_SUFFIX}"
     )
   endif()
-  if(ILMBASE_BUILD_FRAMEWORK)
-    set_target_properties(${libname} PROPERTIES
-        FRAMEWORK TRUE
-        FRAMEWORK_VERSION ${ILMBASE_LIB_VERSION}
-        MACOSX_FRAMEWORK_IDENTIFIER io.aswf.OpenEXR-IlmBase
-    )
-  endif()
   add_library(${PROJECT_NAME}::${libname} ALIAS ${libname})
 
   install(TARGETS ${libname}
