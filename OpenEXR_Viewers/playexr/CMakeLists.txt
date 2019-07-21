@@ -1,40 +1,30 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
 
-ADD_EXECUTABLE ( playexr
-	main.cpp 
-	playExr.cpp
-	playExr.h
-	fileNameForFrame.cpp
-	fileNameForFrame.h
-	FileReadingThread.cpp
-	FileReadingThread.h
-	ImageBuffers.cpp
-	ImageBuffers.h
-	Timer.cpp
-	Timer.h
-	ctlToLut.cpp
-	ctlToLut.h
-	osDependent.cpp
-	osDependent.h 
+add_executable(playexr
+  main.cpp 
+  playExr.cpp
+  playExr.h
+  fileNameForFrame.cpp
+  fileNameForFrame.h
+  FileReadingThread.cpp
+  FileReadingThread.h
+  ImageBuffers.cpp
+  ImageBuffers.h
+  Timer.cpp
+  Timer.h
+  ctlToLut.cpp
+  ctlToLut.h
+  osDependent.cpp
+  osDependent.h 
 )
 
-INCLUDE_DIRECTORIES ( 
-	${CG_INCLUDE_PATH}
+target_link_libraries(playexr
+  Cg::CgGL
+  GLUT::GLUT
+  OpenGL::GL
+  OpenGL::GLU
+  OpenEXR::IlmImf
 )
 
-TARGET_LINK_LIBRARIES ( playexr
-	OpenEXR::IlmImf${OPENEXR_TARGET_SUFFIX}
-	IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
-	IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
-	IlmBase::Half${OPENEXR_TARGET_SUFFIX}
-	${CG_LIBRARY}
-	${CG_GL_LIBRARY}
-	${OPENGL_LIBRARIES}
-	${GLUT_LIBRARY}
-)
-
-INSTALL ( TARGETS
-	playexr
-	DESTINATION
-	${CMAKE_INSTALL_PREFIX}/bin
-)
-
+install(TARGETS playexr DESTINATION ${CMAKE_INSTALL_BINDIR})
