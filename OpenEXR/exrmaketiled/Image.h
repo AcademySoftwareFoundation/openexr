@@ -191,10 +191,11 @@ TypedImageChannel<T>::slice () const
 {
     const IMATH_NAMESPACE::Box2i &dw = image().dataWindow();
 
-    return OPENEXR_IMF_INTERNAL_NAMESPACE::Slice (
+    return OPENEXR_IMF_INTERNAL_NAMESPACE::Slice::Make (
         pixelType(),
-        (char *) ComputeOriginPointer (&_pixels[0][0], dw),
-        sizeof (T), w * sizeof (T));
+        &_pixels[0][0],
+        dw,
+        sizeof (T));
 }
 
 
