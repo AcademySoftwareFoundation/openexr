@@ -51,19 +51,19 @@ AC_ARG_ENABLE(cxxstd,
                              [enable ISO c++ standard 11/14 [[default=auto]]]),
               [cxxstd="${enableval}"], [cxxstd=14])
 
-if test "${cxxstd}" == 17 ; then
+if test "${cxxstd}" = 17 ; then
     AX_CXX_COMPILE_STDCXX([17], [noext], [mandatory])
 	CXXFLAGS="$CXXFLAGS -std=c++17"
 else
-  if test "${cxxstd}" == 14 ; then
+  if test "${cxxstd}" = 14 ; then
       AX_CXX_COMPILE_STDCXX([14], [noext], [mandatory])
   	CXXFLAGS="$CXXFLAGS -std=c++14"
   else
-    if test "${cxxstd}" == 11 ; then
+    if test "${cxxstd}" = 11 ; then
       AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
       CXXFLAGS="$CXXFLAGS -std=c++11"
     else
-      if test "${cxxstd}" == 03 ; then
+      if test "${cxxstd}" = 03 ; then
         AC_DEFINE(ILMBASE_FORCE_CXX03)
         CXXFLAGS="$CXXFLAGS -std=c++03"
       else
@@ -71,11 +71,11 @@ else
         AX_CXX_COMPILE_STDCXX([11], [noext], [optional])
         AX_CXX_COMPILE_STDCXX([14], [noext], [optional])
         AX_CXX_COMPILE_STDCXX([17], [noext], [optional])
-        if test "$HAVE_CXX14" == 1 ; then
+        if test "$HAVE_CXX14" = 1 ; then
   	      CXXFLAGS="$CXXFLAGS -std=c++14"
           cxxstd = 14
         else
-          if test "$HAVE_CXX11" == 1 ; then
+          if test "$HAVE_CXX11" = 1 ; then
   	        CXXFLAGS="$CXXFLAGS -std=c++11"
             cxxstd = 11
           fi
@@ -263,7 +263,7 @@ AC_ARG_ENABLE(customusernamespace,
         [custom_public_namespace="${enableval}"], 
         [custom_public_namespace=no])
 
-if test "x${custom_public_namespace}" == xyes ; then
+if test "x${custom_public_namespace}" = xyes ; then
     AC_MSG_WARN([Enabling 'custom user namespace' requires an additional argument, reverting to default])
     AC_DEFINE(IMATH_NAMESPACE,     Imath)
     AC_DEFINE(IEX_NAMESPACE,       Iex)
@@ -271,7 +271,7 @@ if test "x${custom_public_namespace}" == xyes ; then
 
     public_namespace=""
     custom_public_namespace=no
-elif test "x${custom_public_namespace}" == xno ; then
+elif test "x${custom_public_namespace}" = xno ; then
     AC_DEFINE(IMATH_NAMESPACE,     Imath)
     AC_DEFINE(IEX_NAMESPACE,       Iex)
     AC_DEFINE(ILMTHREAD_NAMESPACE, IlmThread)
@@ -302,14 +302,12 @@ case "$host" in
 	      [osx_arch="${enableval}"], [osx_arch=default])
 
   if test "${osx_arch}" != default ; then
-     dnl Replace "a b c" with "-arch a -arch b -arch c". Should probably use an all-whitespace regexp rather than a single character for the search string.
-     osx_arch_flags="-arch ${osx_arch// / -arch }"
+     osx_arch_flags=$(printf ' -arch %s' ${osx_arch})
      CXXFLAGS="$CXXFLAGS $osx_arch_flags"
 
      dnl If multiple archs specified, make sure that --disable-dependency-tracking was also specified
      if test "$enable_dependency_tracking" != no ; then
-        osx_arch_array=( ${osx_arch} )
-        if test ${#osx_arch_array[@]} -gt 1 ; then
+        if echo "$osx_arch" | grep >/dev/null " " ; then
           AC_MSG_ERROR([building multiple OS X architectures requires --disable-dependency-tracking.
 Please re-run configure with these options:
   --enable-osx-arch="${osx_arch}" --disable-dependency-tracking
