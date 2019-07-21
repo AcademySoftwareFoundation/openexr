@@ -31,7 +31,11 @@ find_package(IlmBase ${OPENEXR_VERSION} EXACT REQUIRED CONFIG)
 # in the rest of OpenEXR right now...
 
 # first make sure we find *some* python
-find_package(Python REQUIRED)
+find_package(Python COMPONENTS Interpreter Development)
+if(NOT TARGET Python::Interpreter AND NOT TARGET Python::Python)
+  message(WARNING ": Unable to find any python interpreter or libraries, disabling PyIlmBase")
+  return()
+endif()
 
 # now determine which (or both), and compile for both
 find_package(Python2 COMPONENTS Interpreter Development)
@@ -43,7 +47,8 @@ elseif(TARGET Python2::Python)
 elseif(TARGET Python3::Python)
   message(NOTICE ": Found Python ${Python3_VERSION}")
 else()
-  message(FATAL_ERROR ": Unable to find any python development libraries")
+  message(WARNING ": Unable to find python development libraries for python 2 or 3")
+  return()
 endif()
 
 # Now that we know what versions of python we have, let's look
@@ -52,13 +57,11 @@ endif()
 # has version names attached to it
 if (TARGET Python2::Python)
   set(PYILMBASE_BOOST_PY2_COMPONENT "python${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
-  set(PYILMBASE_BOOST_NUMPY2_COMPONENT "numpy${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
   message(STATUS "Found Python2 libraries: ${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
   # ${Python2_SITELIB}
 endif()
 if (TARGET Python3::Python)
   set(PYILMBASE_BOOST_PY3_COMPONENT "python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
-  set(PYILMBASE_BOOST_NUMPY3_COMPONENT "numpy${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
   message(STATUS "Found Python3 libraries: ${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
 endif()
 # different flavors of O.S. have multiple versions of python
@@ -68,7 +71,7 @@ endif()
 # let's run a search and see what we get instead of making it
 # an explicit required. The older names are not portable, but
 # we'll do the best we can
-find_package(Boost REQUIRED OPTIONAL_COMPONENTS
+find_package(Boost OPTIONAL_COMPONENTS
   python
   python2
   ${PYILMBASE_BOOST_PY2_COMPONENT}
@@ -91,6 +94,10 @@ else()
   if(Boost_python3_FOUND AND NOT Boost_${PYILMBASE_BOOST_PY3_COMPONENT}_FOUND)
     message(WARNING "Legacy Boost python3 found, but does not include minor version, this is an old configuration and may not be portable")
     set(PYILMBASE_BOOST_PY3_COMPONENT python3)
+  endif()
+  if(NOT Boost_python_FOUND AND NOT(Boost_python2_FOUND OR Boost_python3_FOUND))
+    message(WARNING ": Unable to find boost::python library, disabling PyIlmBase")
+    return()
   endif()
 endif()
 
