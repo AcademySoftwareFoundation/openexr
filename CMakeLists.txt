@@ -65,8 +65,7 @@ if(PYILMBASE_ENABLE)
   add_subdirectory(PyIlmBase)
 endif()
 
-option(OPENEXRVIEWERS_ENABLE "Enables configuration of the viewers module" OFF)
-if(OPENEXRVIEWERS_ENABLE)
-# TODO:
-#  add_subdirectory(OpenEXR_Viewers)
+option(OPENEXR_VIEWERS_ENABLE "Enables configuration of the viewers module" ON)
+if(OPENEXR_VIEWERS_ENABLE)
+  add_subdirectory(OpenEXR_Viewers)
 endif()

@@ -5,93 +5,55 @@
 # combined python 2 + 3 support
 cmake_minimum_required(VERSION 3.12)
 
-set(OPENEXR_VIEWERS_VERSION 2.3.0)
+# we include this first to parse configure.ac and extract the version
+# numbers
+include(config/ParseConfigure.cmake)
 
 project(OpenEXR_Viewers VERSION ${OPENEXR_VIEWERS_VERSION})
 
-find_package(IlmBase ${OPENEXR_VIEWERS_VERSION} EXACT REQUIRED)
+#######################################
+#######################################
+# This declares all the configuration variables visible
+# in cmake-gui or similar and the rest of the global
+# project setup
+#
+# Please look at this file to see what is configurable
+#######################################
+#######################################
+include(config/OpenEXRViewersSetup.cmake)
 
-#[==[
+find_package(IlmBase ${OPENEXR_VIEWERS_VERSION} EXACT REQUIRED CONFIG)
+find_package(OpenEXR ${OPENEXR_VIEWERS_VERSION} EXACT REQUIRED CONFIG)
 
-IF (WIN32)
-  CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
-ELSE()
-  CMAKE_MINIMUM_REQUIRED(VERSION 3.2)
-ENDIF()
+find_package(OpenGL)
 
-# test if we are being built as a standalone library or if
-# we are being built as part of the overall project
-IF(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  IF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-    SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-  ELSE()
-    MESSAGE(FATAL_ERROR "Please compile using the top-level CMakeLists.txt or a pre-built package")
-  ENDIF()
-  INCLUDE(OpenEXRVersion)
-  SET(OPENEXR_VIEWERS_STANDALONE ON)
-ENDIF()
-
-PROJECT (openexr_viewers VERSION ${OPENEXR_VERSION})
-
-if(OPENEXR_BUILD_VIEWERS)
-  message(WARNING "Viewers are currently out of order. Building anyway")
-  SET (FLTK_SKIP_FLUID 1)
-  find_package(FLTK)
+set(FLTK_SKIP_FLUID 1)
+find_package(FLTK)
+if(FLTK_FOUND AND TARGET OpenGL::GL)
+  add_subdirectory( exrdisplay )
+else()
   if(NOT FLTK_FOUND)
     message(WARNING "FLTK not found, exrdisplay will not be built")
   endif()
-  find_package(OpenGL)
   if(NOT OpenGL_FOUND)
     message(WARNING "OpenGL not found, exrdisplay will not be built")
   endif()
 endif()
 
-IF(OPENEXR_VIEWERS_STANDALONE)
-  INCLUDE(OpenEXRSettings)
-ENDIF()
+if(NOT WIN32)
+  find_package(GLUT)
+  # nvidia doesn't seem to provide one of these...
+  #find_package(Cg)
+  include(config/LocateCg.cmake)
 
-IF (NOT ILMBASE_PACKAGE_PREFIX)
-  SET (ILMBASE_PACKAGE_PREFIX ${CMAKE_INSTALL_PREFIX})
-ENDIF ()
+  if(TARGET OpenGL::GLU AND TARGET Cg::CgGL AND TARGET GLUT::GLUT)
+    add_subdirectory( playexr )
+  endif()
+else()
+  message(NOTICE ": Disabling playexr, not yet ported to WIN32 platforms")
+endif()
 
-MACRO(SET_ILMBASE_INCLUDE_DIRS _target)
-  TARGET_INCLUDE_DIRECTORIES(${_target}
-    PRIVATE ${ZLIB_INCLUDE_DIR}
-    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../OpenEXR/config
-    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../IlmBase/config
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../OpenEXR/IlmImf
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../OpenEXR/IlmImfUtil
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../IlmBase/Half
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../IlmBase/Iex
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../IlmBase/IexMath
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../IlmBase/IlmThread
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../IlmBase/Imath
-  )
-ENDMACRO()
-
-#FIND_PACKAGE (OpenGL REQUIRED)
-#FIND_PACKAGE (FLTK)
-#FIND_PACKAGE (GLUT)
-#FIND_PACKAGE (Cg)
-
-INCLUDE_DIRECTORIES ( ${OPENEXR_PACKAGE_PREFIX}/include/OpenEXR )
-LINK_DIRECTORIES ( ${OPENEXR_PACKAGE_PREFIX}/lib )
-MESSAGE ( "OPENEXR_PACKAGE_PREFIX = " ${OPENEXR_PACKAGE_PREFIX})
-
-IF (NOT WIN32)
-  SET ( PTHREAD_LIB pthread )
-ENDIF()
-
-##########################
-IF (FLTK_FOUND)
-  ADD_SUBDIRECTORY ( exrdisplay )
-ENDIF ()
-
-IF (CG_FOUND AND GLUT_FOUND)
-  ADD_SUBDIRECTORY ( playexr )
-  INCLUDE_DIRECTORIES ( playexr )
-ENDIF ()
+#[==[
 
 ##########################
 # Installation

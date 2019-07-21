@@ -1,5 +1,7 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
 
-ADD_EXECUTABLE ( exrdisplay
+add_executable(exrdisplay
 	main.cpp 
 	ImageView.cpp
 	ImageView.h
@@ -12,28 +14,11 @@ ADD_EXECUTABLE ( exrdisplay
 	GlWindow3d.h
 	GlWindow3d.cpp
 )
-
-SET_ILMBASE_INCLUDE_DIRS(exrdisplay)
-
-TARGET_INCLUDE_DIRECTORIES ( exrdisplay 
-    PRIVATE
-    ${CMAKE_INSTALL_PREFIX}/include/OpenEXR
-  	${FLTK_INCLUDE_DIR} )
-
-TARGET_LINK_LIBRARIES ( exrdisplay
-	OpenEXR::IlmImf${OPENEXR_TARGET_SUFFIX}
-	IlmBase::Iex${OPENEXR_TARGET_SUFFIX}
-	IlmBase::Half${OPENEXR_TARGET_SUFFIX}
-	IlmBase::Imath${OPENEXR_TARGET_SUFFIX}
-	IlmBase::IlmThread${OPENEXR_TARGET_SUFFIX}
-	${PTHREAD_LIB}
-	${ZLIB_LIBRARIES}
-	${FLTK_LIBRARIES}
-	${OPENGL_LIBRARIES}
+target_include_directories(exrdisplay PRIVATE ${FLTK_INCLUDE_DIR})
+target_link_libraries(exrdisplay
+  ${FLTK_LIBRARIES}
+  OpenGL::GL
+  OpenEXR::IlmImf
 )
 
-INSTALL ( TARGETS
-	exrdisplay
-	DESTINATION
-	${CMAKE_INSTALL_PREFIX}/bin
-)
+install(TARGETS exrdisplay DESTINATION ${CMAKE_INSTALL_BINDIR})
