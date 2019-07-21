@@ -44,7 +44,7 @@
 #include "IexBaseExc.h"
 #include "IexMacros.h"
 
-#ifdef PLATFORM_WINDOWS
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -193,7 +193,7 @@ BaseExc::stackTrace () const
 IEX_INTERNAL_NAMESPACE_SOURCE_EXIT
 
 
-#ifdef PLATFORM_WINDOWS
+#ifdef _WIN32
 
 #pragma optimize("", off)
 void

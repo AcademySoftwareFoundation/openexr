@@ -46,7 +46,7 @@
 #include <string.h>
 #include <errno.h>
 
-#ifdef PLATFORM_WINDOWS
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -55,7 +55,7 @@ IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 void throwErrnoExc (const std::string &text, int errnum)
 {
-#ifdef PLATFORM_WINDOWS
+#ifdef _WIN32
     if (0 != getenv("IEXDEBUGTHROW"))
         DebugBreak();
 #endif
