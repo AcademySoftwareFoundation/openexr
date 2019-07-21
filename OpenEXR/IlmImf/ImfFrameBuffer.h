@@ -52,33 +52,10 @@
 
 #include <map>
 #include <string>
+#include <cstdint>
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
-
-//-------------------------------------------------------
-// Utility to compute the origin-based pointer address
-//
-// With large offsets for the data window, the naive code
-// can wrap around, especially on 32-bit machines.
-// This can be used to avoid that
-//-------------------------------------------------------
-
-template <typename T>
-inline T *
-ComputeOriginPointer( T *p, const IMATH_NAMESPACE::Box2i &dw, int xSamp = 1, int ySamp = 1 )
-{
-    // data window is an int, so force promote to higher type to avoid
-    // overflow for off y (degenerate size checks should be in
-    // ImfHeader::sanityCheck, but offset can be large-ish)
-    long long basex = static_cast<long long>( dw.min.x );
-    long long w = static_cast<long long>( dw.max.x ) - basex + 1;
-    long long offy = ( static_cast<long long>( dw.min.y ) /
-                       static_cast<long long>( ySamp ) );
-    offy *= w / static_cast<long long>( xSamp );
-
-    return p - offy - ( basex / static_cast<long long>( xSamp ) );
-}
 
 //-------------------------------------------------------
 // Description of a single slice of the frame buffer:
@@ -172,6 +149,36 @@ struct Slice
            double fillValue = 0.0,
            bool xTileCoords = false,
            bool yTileCoords = false);
+
+    // Does the heavy lifting of computing the base pointer for a slice,
+    // avoiding overflow issues with large origin offsets
+    //
+    // if xStride == 0, assumes sizeof(pixeltype)
+    // if yStride == 0, assumes xStride * ( w / xSampling )
+    static Slice Make(PixelType type,
+                      const void *ptr,
+                      const IMATH_NAMESPACE::V2i &origin,
+                      int64_t w,
+                      int64_t h,
+                      size_t xStride = 0,
+                      size_t yStride = 0,
+                      int xSampling = 1,
+                      int ySampling = 1,
+                      double fillValue = 0.0,
+                      bool xTileCoords = false,
+                      bool yTileCoords = false);
+    // same as above, just computes w and h for you
+    // from a data window
+    static Slice Make(PixelType type,
+                      const void *ptr,
+                      const IMATH_NAMESPACE::Box2i &dataWindow,
+                      size_t xStride = 0,
+                      size_t yStride = 0,
+                      int xSampling = 1,
+                      int ySampling = 1,
+                      double fillValue = 0.0,
+                      bool xTileCoords = false,
+                      bool yTileCoords = false);
 };
 
 

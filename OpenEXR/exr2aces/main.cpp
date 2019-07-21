@@ -43,6 +43,7 @@
 
 #include <ImfAcesFile.h>
 #include <ImfArray.h>
+#include <ImfRgbaFile.h>
 #include <iostream>
 #include <exception>
 #include <string>
@@ -124,7 +125,7 @@ exr2aces (const char inFileName[],
 	height = dw.max.y - dw.min.y + 1;
 	p.resizeErase (height, width);
 
-	in.setFrameBuffer (ComputeOriginPointer (&p[0][0], dw), 1, width);
+	in.setFrameBuffer (ComputeBasePointer (&p[0][0], dw), 1, width);
 	in.readPixels (dw.min.y, dw.max.y);
     }
 
@@ -147,7 +148,7 @@ exr2aces (const char inFileName[],
 
 	AcesOutputFile out (outFileName, h, ch);
 
-	out.setFrameBuffer (ComputeOriginPointer (&p[0][0], dw), 1, width);
+	out.setFrameBuffer (ComputeBasePointer (&p[0][0], dw), 1, width);
 	out.writePixels (height);
     }
 }

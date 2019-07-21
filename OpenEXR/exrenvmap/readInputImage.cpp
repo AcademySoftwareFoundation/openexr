@@ -194,7 +194,7 @@ readSixImages (const char inFileName[],
                    "from the data window of other cube faces.");
         }
 
-        in.setFrameBuffer (ComputeOriginPointer (pixels, dw), 1, w);
+        in.setFrameBuffer (ComputeBasePointer (pixels, dw), 1, w);
         in.readPixels (dw.min.y, dw.max.y);
 
         pixels += w * h;

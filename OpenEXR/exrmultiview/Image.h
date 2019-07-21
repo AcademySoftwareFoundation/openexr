@@ -203,13 +203,14 @@ TypedImageChannel<T>::slice () const
     const IMATH_NAMESPACE::Box2i &dw = image().dataWindow();
     int w = dw.max.x - dw.min.x + 1;
 
-    return IMF::Slice (pixelType(),
-                       (char *) IMF::ComputeOriginPointer(
-                           &_pixels[0][0], dw, _xSampling, _ySampling ),
-		       sizeof (T),
-		       (w / _xSampling) * sizeof (T),
-		       _xSampling,
-		       _ySampling);
+    return IMF::Slice::Make (
+        pixelType(),
+        &_pixels[0][0],
+        dw,
+        sizeof(T),
+        (w / _xSampling) * sizeof (T),
+        _xSampling,
+        _ySampling);
 }
 
 
