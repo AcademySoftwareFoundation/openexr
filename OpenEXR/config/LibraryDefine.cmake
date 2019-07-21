@@ -52,13 +52,6 @@ function(OPENEXR_DEFINE_LIBRARY libname)
       OUTPUT_NAME "${libname}${OPENEXR_LIB_SUFFIX}"
     )
   endif()
-  if(OPENEXR_BUILD_FRAMEWORK)
-    set_target_properties(${libname} PROPERTIES
-        FRAMEWORK TRUE
-        FRAMEWORK_VERSION ${OPENEXR_LIB_VERSION}
-        MACOSX_FRAMEWORK_IDENTIFIER io.aswf.OpenEXR
-    )
-  endif()
   add_library(${PROJECT_NAME}::${libname} ALIAS ${libname})
 
   install(TARGETS ${libname}
