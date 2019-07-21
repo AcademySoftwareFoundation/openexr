@@ -85,7 +85,7 @@ using namespace OPENEXR_IMF_NAMESPACE;
 
 #if defined(ANDROID) || defined(__ANDROID_API__)
     #define IMF_PATH_SEPARATOR "/"
-#elif defined(_WIN32) || defined(_WIN64) || defined(__MWERKS__)
+#elif defined(_WIN32) || defined(_WIN64)
     #define IMF_PATH_SEPARATOR "\\"
 #else
     #define IMF_PATH_SEPARATOR "/"

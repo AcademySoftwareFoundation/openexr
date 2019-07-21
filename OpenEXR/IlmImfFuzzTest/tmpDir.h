@@ -33,7 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#if defined(_WIN32) || defined(_WIN64) || defined(__MWERKS__) || defined(__ANDROID__)
+#if defined(_WIN32) || defined(_WIN64) || defined(__ANDROID__)
     #define IMF_TMP_DIR ""
 #else
     #define IMF_TMP_DIR "/var/tmp/"
