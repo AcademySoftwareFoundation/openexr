@@ -44,30 +44,30 @@ AC_ARG_ENABLE(cxxstd,
                              [enable ISO c++ standard 11/14 [[default=auto]]]),
               [cxxstd="${enableval}"], [cxxstd=14])
 
-if test "${cxxstd}" == 17 ; then
+if test "${cxxstd}" = 17 ; then
     AX_CXX_COMPILE_STDCXX([17], [noext], [mandatory])
 	CXXFLAGS="$CXXFLAGS -std=c++17"
 else
-  if test "${cxxstd}" == 14 ; then
+  if test "${cxxstd}" = 14 ; then
       AX_CXX_COMPILE_STDCXX([14], [noext], [mandatory])
   	CXXFLAGS="$CXXFLAGS -std=c++14"
   else
-    if test "${cxxstd}" == 11 ; then
+    if test "${cxxstd}" = 11 ; then
       AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
       CXXFLAGS="$CXXFLAGS -std=c++11"
     else
-      if test "${cxxstd}" == 03 ; then
+      if test "${cxxstd}" = 03 ; then
         CXXFLAGS="$CXXFLAGS -std=c++03"
       else
         dnl automatically determine...
         AX_CXX_COMPILE_STDCXX([11], [noext], [optional])
         AX_CXX_COMPILE_STDCXX([14], [noext], [optional])
         AX_CXX_COMPILE_STDCXX([17], [noext], [optional])
-        if test "$HAVE_CXX14" == 1 ; then
+        if test "$HAVE_CXX14" = 1 ; then
   	      CXXFLAGS="$CXXFLAGS -std=c++14"
           cxxstd = 14
         else
-          if test "$HAVE_CXX11" == 1 ; then
+          if test "$HAVE_CXX11" = 1 ; then
   	        CXXFLAGS="$CXXFLAGS -std=c++11"
             cxxstd = 11
           fi
@@ -123,7 +123,7 @@ LIBS="$LIBS -lpython$PYTHON_VERSION"
 BOOST_PYTHON_CXXFLAGS="" 
 BOOST_PYTHON_LDFLAGS="" 
 BOOST_PYTHON_LIBS=""
-if test "${PYTHON_VER_MAJ}" == 3 ; then
+if test "${PYTHON_VER_MAJ}" = 3 ; then
   BOOST_PYTHON_LIBNAME="boost_python3"
 else
   BOOST_PYTHON_LIBNAME="boost_python"
@@ -246,4 +246,3 @@ Python version                                  $PYTHON_VERSION
 boost::python libname                           $BOOST_PYTHON_LIBNAME
 ---------------------------------------------
 ])
-
