@@ -73,6 +73,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <time.h>
+#include <cmath>
 #include "ImfTiledMisc.h"
 #include "ImfNamespace.h"
 
