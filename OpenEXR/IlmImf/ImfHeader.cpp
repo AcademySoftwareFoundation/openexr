@@ -106,6 +106,8 @@ initialize (Header &header,
 {
     header.insert ("displayWindow", Box2iAttribute (displayWindow));
     header.insert ("dataWindow", Box2iAttribute (dataWindow));
+    if ( !std::isnormal (pixelAspectRatio) || pixelAspectRatio < 0.f)
+        THROW (IEX_NAMESPACE::ArgExc, "Invalid pixel aspect ratio");
     header.insert ("pixelAspectRatio", FloatAttribute (pixelAspectRatio));
     header.insert ("screenWindowCenter", V2fAttribute (screenWindowCenter));
     header.insert ("screenWindowWidth", FloatAttribute (screenWindowWidth));
@@ -843,10 +845,11 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
     const float MIN_PIXEL_ASPECT_RATIO = 1e-6f;
     const float MAX_PIXEL_ASPECT_RATIO = 1e+6f;
 
-    if (pixelAspectRatio < MIN_PIXEL_ASPECT_RATIO ||
-	pixelAspectRatio > MAX_PIXEL_ASPECT_RATIO)
+    if (!std::isnormal(pixelAspectRatio) ||
+        pixelAspectRatio < MIN_PIXEL_ASPECT_RATIO ||
+        pixelAspectRatio > MAX_PIXEL_ASPECT_RATIO)
     {
-	throw IEX_NAMESPACE::ArgExc ("Invalid pixel aspect ratio in image header.");
+        throw IEX_NAMESPACE::ArgExc ("Invalid pixel aspect ratio in image header.");
     }
 
     //
