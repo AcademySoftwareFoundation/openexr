@@ -34,8 +34,8 @@ find_package(IlmBase ${OPENEXR_VERSION} EXACT REQUIRED CONFIG)
 find_package(Python REQUIRED)
 
 # now determine which (or both), and compile for both
-find_package(Python2 COMPONENTS Interpreter Development NumPy)
-find_package(Python3 COMPONENTS Interpreter Development NumPy)
+find_package(Python2 COMPONENTS Interpreter Development)
+find_package(Python3 COMPONENTS Interpreter Development)
 if(TARGET Python2::Python AND TARGET Python3::Python)
   message(NOTICE ": Found Python ${Python2_VERSION} and ${Python3_VERSION}")
 elseif(TARGET Python2::Python)
