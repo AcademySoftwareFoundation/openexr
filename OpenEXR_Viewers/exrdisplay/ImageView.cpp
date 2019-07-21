@@ -51,7 +51,7 @@
 #include <algorithm>
 #include <stdio.h>
 
-#if defined PLATFORM_WINDOWS || defined _WIN32
+#if defined _WIN32
     #include <windows.h>
     #include <FL/Fl.H>
     #include <GL/gl.h>
