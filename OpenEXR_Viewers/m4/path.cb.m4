@@ -15,9 +15,17 @@ dnl
 AC_ARG_WITH(cg-prefix,[  --with-cg-prefix=PFX  Prefix where Cg is installed (optional)],
 	    cg_prefix="$withval", cg_prefix="")
 
+AC_ARG_WITH(cg-libdir,[  --with-cg-libdir=PATH Full directory to location for Cg libraries (not includes)],
+	    cg_libdir="$withval", cg_libdir="")
+
   if test x$cg_prefix != x ; then
     CG_CXXFLAGS="-I$cg_prefix/include"
-    CG_LDFLAGS="-L$cg_prefix/lib -lGL -lCg -lCgGL -lGLU -lpthread -lglut"
+	if test x$cg_libdir != x; then
+	  CG_LDFLAGS="-L$cg_libdir"
+	else
+	  CG_LDFLAGS="-L$cg_prefix/lib"
+	fi
+    CG_LDFLAGS="$CG_LDFLAGS -lGL -lCg -lCgGL -lGLU -lpthread -lglut"
   else
     case $host_os in
       darwin*)
