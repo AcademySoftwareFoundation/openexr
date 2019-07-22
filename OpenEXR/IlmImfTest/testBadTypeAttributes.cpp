@@ -127,6 +127,7 @@ template<class T> void readTiledThing(T & input,bool test)
 		case NUM_LEVELMODES:
 		default:
 			std::cerr << "Invalid tile mode " << int(t.mode) << std::endl;
+            x_levels = y_levels = 0;
 			break;
     }
 
@@ -409,4 +410,3 @@ void testBadTypeAttributes(const std::string & tempDir)
       
       cout << "ok\n" << endl;
 }
-

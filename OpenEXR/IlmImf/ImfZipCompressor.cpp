@@ -60,7 +60,9 @@ ZipCompressor::ZipCompressor
     _outBuffer (0),
     _zip(maxScanLineSize, numScanLines)
 {
-    _outBuffer = new char[_zip.maxCompressedSize()];
+    // TODO: Remove this when we can change the ABI
+    (void) _maxScanLineSize;
+    _outBuffer = new char[_zip.maxCompressedSize ()];
 }
 
 
@@ -124,4 +126,3 @@ ZipCompressor::uncompress (const char *inPtr,
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
-
