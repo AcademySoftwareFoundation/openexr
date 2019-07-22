@@ -72,9 +72,12 @@ function(ILMBASE_DEFINE_LIBRARY libname)
     set_target_properties(${libname} PROPERTIES
       SOVERSION ${ILMBASE_SOVERSION}
       VERSION ${ILMBASE_LIB_VERSION}
-      OUTPUT_NAME "${libname}${ILMBASE_LIB_SUFFIX}"
     )
   endif()
+  set_target_properties(${libname} PROPERTIES
+      OUTPUT_NAME "${libname}${ILMBASE_LIB_SUFFIX}"
+      RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+  )
   add_library(${PROJECT_NAME}::${libname} ALIAS ${libname})
 
   install(TARGETS ${libname}

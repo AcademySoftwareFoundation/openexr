@@ -8,4 +8,7 @@ add_executable(IlmImfUtilTest
   testIO.cpp
  )
 target_link_libraries(IlmImfUtilTest OpenEXR::IlmImfUtil)
+set_target_properties(IlmImfUtilTest PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
 add_test(NAME OpenEXR.IlmImfUtil COMMAND $<TARGET_FILE:IlmImfUtilTest>)
