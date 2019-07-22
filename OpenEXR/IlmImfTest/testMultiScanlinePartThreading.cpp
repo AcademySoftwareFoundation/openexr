@@ -91,7 +91,7 @@ bool checkPixels (Array2D<T> &ph, int lx, int rx, int ly, int ry, int width)
 {
     for (int y = ly; y <= ry; ++y)
         for (int x = lx; x <= rx; ++x)
-            if (ph[y][x] != (y * width + x) % 2049)
+            if (ph[y][x] != static_cast<T>(((y * width + x) % 2049)))
             {
                 cout << "value at " << x << ", " << y << ": " << ph[y][x]
                      << ", should be " << (y * width + x) % 2049 << endl << flush;

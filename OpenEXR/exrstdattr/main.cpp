@@ -834,7 +834,7 @@ main(int argc, char **argv)
         {
             Header h = in.header (part);
 
-            for (int i = 0; i < attrs.size(); ++i)
+            for (size_t i = 0; i < attrs.size(); ++i)
             {
                 const SetAttr &attr = attrs[i];
 

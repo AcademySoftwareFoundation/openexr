@@ -880,7 +880,7 @@ init3DLut
 	    float g = ig / (lutN - 1.0);
 	    half G = exp ((g - lutT) / lutM);
 
-	    for (int ir = 0; ir < lutN; ++ir)
+	    for (size_t ir = 0; ir < lutN; ++ir)
 	    {
 		float r = ir / (lutN - 1.0);
 		half R = exp ((r - lutT) / lutM);
@@ -899,7 +899,7 @@ init3DLut
 
     Array<half> lut (LUT_SIZE);
 
-    for (int i = 0; i < LUT_SIZE; ++i)
+    for (size_t i = 0; i < LUT_SIZE; ++i)
 	lut[i] = 0;
 
     //
@@ -916,7 +916,7 @@ init3DLut
     // produced by the CTL transforms.
     //
 
-    for (int i = 0; i < LUT_SIZE; ++i)
+    for (size_t i = 0; i < LUT_SIZE; ++i)
     {
 	if (lut[i] >= HALF_MIN && lut[i] <= HALF_MAX)
 	{

@@ -186,7 +186,7 @@ testPixelAspectRatio (const vector<Header> & hs, const std::string & fn)
 {
     vector<Header> headers(hs);
 
-    IMATH_NAMESPACE::Box2i newDisplayWindow = headers[0].displayWindow();
+    //IMATH_NAMESPACE::Box2i newDisplayWindow = headers[0].displayWindow();
     Header newHeader (headers[0].displayWindow().size().x+1,
                       headers[0].displayWindow().size().y+1,
                       headers[0].pixelAspectRatio() + 1.f);
@@ -225,7 +225,7 @@ testTimeCode (const vector<Header> & hs, const std::string & fn)
     // Test against a vector of headers that has chromaticities attribute
     // but of differing value
     //
-    for (int i=0; i<headers.size(); i++)
+    for (size_t i=0; i<headers.size(); i++)
         headers[i].insert (TimeCodeAttribute::staticTypeName(), ta);
 
     t.setTimeAndFlags (t.timeAndFlags()+1);
@@ -265,7 +265,7 @@ testChromaticities (const vector<Header> & hs, const std::string & fn)
     // Test against a vector of headers that has chromaticities attribute
     // but of differing value
     //
-    for (int i=0; i<headers.size(); i++)
+    for (size_t i=0; i<headers.size(); i++)
         headers[i].insert (ChromaticitiesAttribute::staticTypeName(), ca);
 
     c.red += IMATH_NAMESPACE::V2f (1.0f, 1.0f);
@@ -398,7 +398,7 @@ testHeaders (const std::string & fn)
     Chromaticities c;
     ChromaticitiesAttribute ca(c);
     vector<IntAttribute> ia;
-    for (int i=0; i<headers.size(); i++)
+    for (size_t i=0; i<headers.size(); i++)
     {
         stringstream ss;
         ss << i;
@@ -530,4 +530,3 @@ testMultiPartSharedAttributes (const std::string & tempDir)
         assert (false);
     }
 }
-

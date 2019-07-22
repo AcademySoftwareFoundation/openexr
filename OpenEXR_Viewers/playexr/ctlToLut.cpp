@@ -450,7 +450,7 @@ ctlToLut (vector<string> transformNames,
 
     assert (lutSize % 4 == 0);
 
-    for (int i = 0; i < lutSize; i += 4)
+    for (size_t i = 0; i < lutSize; i += 4)
     {
 	V3f rgb (pixelValues[i], pixelValues[i + 1], pixelValues[i + 2]);
 	rgb = rgb * M;

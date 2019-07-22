@@ -245,7 +245,7 @@ class data
         {
             // copy sample to a random part
             
-            for(int s=0;s<_samples[i].size();s++)
+            for(size_t s=0;s<_samples[i].size();s++)
             {
               int part = rand()% parts.size();
               parts[part]._samples[i].push_back(_samples[i][s]);
@@ -452,7 +452,6 @@ make_pattern(data<DATA> & bob,int pattern_number)
         // set channels
         
         bob << string("Z") << string("ZBack") << string("A") << string("R");
-        PixelType t;
 
         // regular two-pixel composite
         bob << 1.0 << 2.0 << 0.0 << 1.0 << end();

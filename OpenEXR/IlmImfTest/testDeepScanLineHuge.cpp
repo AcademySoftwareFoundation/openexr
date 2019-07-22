@@ -228,7 +228,7 @@ generateRandomFile (int channelCount,
                     
                     if(random_channel_data)
                     {
-                        for (int l = 0; l < sampleCount[i][j]; l++)
+                        for (unsigned int l = 0; l < sampleCount[i][j]; l++)
                         {
                             if (channelTypes[k] == 0)
                                 ((unsigned int*)data[k][i][j])[l] = rand();
@@ -240,7 +240,7 @@ generateRandomFile (int channelCount,
                     }
                     else
                     {
-                      for (int l = 0; l < sampleCount[i][j]; l++)
+                      for (unsigned int l = 0; l < sampleCount[i][j]; l++)
                       {
                           if (channelTypes[k] == 0)
                               ((unsigned int*)data[k][i][j])[l] = (i * width + j) % 2049;
@@ -337,9 +337,6 @@ readFile (int channelCount, bool bulkRead, const std::string & fn)
     
     for (int i = 0; i < dataWindow.max.y - dataWindow.min.y + 1; i++)
     {
-         int y = i + dataWindow.min.y;
-
-         
          for (int j = 0; j < width; j++)
          {
               assert(localSampleCount[i][j] == sampleCount[i][j]);
@@ -435,4 +432,3 @@ void testDeepScanLineHuge (const std::string & tempDir)
         assert (false);
     }
 }
-

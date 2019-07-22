@@ -822,7 +822,7 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
     // (only reachable for unknown types or damaged files: will have thrown earlier
     //  for regular image types)
     if( maxImageHeight>0 && maxImageWidth>0 && 
-	hasChunkCount() && chunkCount()>Int64(maxImageWidth)*Int64(maxImageHeight))
+	hasChunkCount() && static_cast<Int64>(chunkCount())>Int64(maxImageWidth)*Int64(maxImageHeight))
     {
 	THROW (IEX_NAMESPACE::ArgExc, "chunkCount exceeds maximum area of "
 	       << Int64(maxImageWidth)*Int64(maxImageHeight) << " pixels." );

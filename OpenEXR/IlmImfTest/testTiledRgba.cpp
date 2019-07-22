@@ -756,7 +756,7 @@ writeReadLayers(const std::string &tempDir)
 	{
 	    for (int x = 0; x < W; ++x)
 	    {
-		if (y < in.numYTiles() / 2 * in.tileYSize())
+		if (y < static_cast<int>( (in.numYTiles() / 2) * in.tileYSize()))
 		    assert (p3[y][x].r == p1[y][x]);
 		else
 		    assert (p3[y][x].r == p2[y][x]);
@@ -852,7 +852,7 @@ writeReadLayers(const std::string &tempDir)
 	{
 	    for (int x = 0; x < W; ++x)
 	    {
-		if (y < in.numYTiles() / 2 * in.tileYSize())
+		if (y < static_cast<int>((in.numYTiles() / 2) * in.tileYSize()))
 		{
 		    assert (p3[y][x].r == p1[y][x]);
 		    assert (p3[y][x].g == p1[y][x]);

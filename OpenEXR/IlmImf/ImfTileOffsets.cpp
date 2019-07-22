@@ -279,7 +279,7 @@ TileOffsets::writeTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os) const
     
     Int64 pos = os.tellp();
 
-    if (pos == -1)
+    if (pos == Int64(-1))
 	IEX_NAMESPACE::throwErrnoExc ("Cannot determine current file position (%T).");
 
     for (unsigned int l = 0; l < _offsets.size(); ++l)

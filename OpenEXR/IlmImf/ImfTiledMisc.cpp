@@ -370,7 +370,7 @@ getTiledChunkOffsetTableSize(const Header& header)
             for (int i = 0; i < numXLevels; i++)
             {
                 lineOffsetSize += static_cast<Int64>(numXTiles[i]) * static_cast<Int64>(numYTiles[i]);
-                if ( lineOffsetSize > std::numeric_limits<int>::max() )
+                if ( lineOffsetSize > static_cast<Int64>(std::numeric_limits<int>::max()) )
                 {
                     throw IEX_NAMESPACE::LogicExc("Maximum number of tiles exceeded");
                 }
@@ -382,7 +382,7 @@ getTiledChunkOffsetTableSize(const Header& header)
                 for (int j = 0; j < numYLevels; j++)
                 {
                      lineOffsetSize += static_cast<Int64>(numXTiles[i]) * static_cast<Int64>(numYTiles[j]);
-                     if ( lineOffsetSize > std::numeric_limits<int>::max() )
+                     if ( lineOffsetSize > static_cast<Int64>(std::numeric_limits<int>::max()) )
                      {
                         throw IEX_NAMESPACE::LogicExc("Maximum number of tiles exceeded");
                      }

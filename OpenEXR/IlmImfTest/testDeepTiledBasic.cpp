@@ -228,7 +228,7 @@ void generateRandomFile (int channelCount,
                                         data[k][dwy][dwx] = new half[sampleCount[dwy][dwx]];
                                     if (channelTypes[k] == 2)
                                         data[k][dwy][dwx] = new float[sampleCount[dwy][dwx]];
-                                    for (int l = 0; l < sampleCount[dwy][dwx]; l++)
+                                    for (unsigned int l = 0; l < sampleCount[dwy][dwx]; l++)
                                     {
                                         if (channelTypes[k] == 0)
                                             ((unsigned int*)data[k][dwy][dwx])[l] = (dwy * width + dwx) % 2049;
@@ -272,7 +272,7 @@ void generateRandomFile (int channelCount,
                                             data[k][dwy][dwx] = new half[sampleCount[dwy][dwx]];
                                         if (channelTypes[k] == 2)
                                             data[k][dwy][dwx] = new float[sampleCount[dwy][dwx]];
-                                        for (int l = 0; l < sampleCount[dwy][dwx]; l++)
+                                        for (unsigned int l = 0; l < sampleCount[dwy][dwx]; l++)
                                         {
                                             if (channelTypes[k] == 0)
                                                 ((unsigned int*)data[k][dwy][dwx])[l] = (dwy * width + dwx) % 2049;
@@ -315,7 +315,7 @@ void generateRandomFile (int channelCount,
                                             data[k][ty][tx] = new half[sampleCount[ty][tx]];
                                         if (channelTypes[k] == 2)
                                             data[k][ty][tx] = new float[sampleCount[ty][tx]];
-                                        for (int l = 0; l < sampleCount[ty][tx]; l++)
+                                        for (unsigned int l = 0; l < sampleCount[ty][tx]; l++)
                                         {
                                             if (channelTypes[k] == 0)
                                                 ((unsigned int*)data[k][ty][tx])[l] =
@@ -377,11 +377,11 @@ void checkValue (void* sampleRawData,
         if (channelType == 0)
         {
             unsigned int* value = (unsigned int*)(sampleRawData);
-            if (value[l] != (dwy * width + dwx) % 2049)
+            if (value[l] != static_cast<unsigned int>((dwy * width + dwx) % 2049))
                 cout << dwx << ", " << dwy << " error, should be "
                      << (dwy * width + dwx) % 2049 << ", is " << value[l]
                      << endl << flush;
-            assert (value[l] == (dwy * width + dwx) % 2049);
+            assert (value[l] == static_cast<unsigned int>((dwy * width + dwx) % 2049));
         }
         if (channelType == 1)
         {
@@ -520,7 +520,7 @@ void readFile (int channelCount,
                                 int dwx = x - dataWindowL.min.x;
                                 assert(localSampleCount[dwy][dwx] == sampleCountWhole[ly][lx][dwy][dwx]);
 
-                                for (int k = 0; k < channelTypes.size(); k++)
+                                for (size_t k = 0; k < channelTypes.size(); k++)
                                 {
                                     if (channelTypes[k] == 0)
                                         data[k][dwy][dwx] = new unsigned int[localSampleCount[dwy][dwx]];
@@ -557,7 +557,7 @@ void readFile (int channelCount,
                                     int dwx = x - dataWindowL.min.x;
                                     assert(localSampleCount[dwy][dwx] == sampleCountWhole[ly][lx][dwy][dwx]);
 
-                                    for (int k = 0; k < channelTypes.size(); k++)
+                                    for (size_t k = 0; k < channelTypes.size(); k++)
                                     {
                                         if (channelTypes[k] == 0)
                                             data[k][dwy][dwx] = new unsigned int[localSampleCount[dwy][dwx]];
@@ -594,7 +594,7 @@ void readFile (int channelCount,
                                     int tx = x - box.min.x;
                                     assert(localSampleCount[ty][tx] == sampleCountWhole[ly][lx][dwy][dwx]);
 
-                                    for (int k = 0; k < channelTypes.size(); k++)
+                                    for (size_t k = 0; k < channelTypes.size(); k++)
                                     {
                                         if (channelTypes[k] == 0)
                                             data[k][ty][tx] = new unsigned int[localSampleCount[ty][tx]];
@@ -615,7 +615,7 @@ void readFile (int channelCount,
                                     int ty = y - box.min.y;
                                     int tx = x - box.min.x;
 
-                                    for (int k = 0; k < channelTypes.size(); k++)
+                                    for (size_t k = 0; k < channelTypes.size(); k++)
                                     {
                                         checkValue(data[k][ty][tx],
                                                    localSampleCount[ty][tx],
@@ -640,16 +640,16 @@ void readFile (int channelCount,
                     for (int j = 0; j < file.levelWidth(lx); j++)
                         for (int k = 0; k < channelCount; k++)
                         {
-                            for (int l = 0; l < localSampleCount[i][j]; l++)
+                            for (unsigned int l = 0; l < localSampleCount[i][j]; l++)
                             {
                                 if (channelTypes[k] == 0)
                                 {
                                     unsigned int* value = (unsigned int*)(data[k][i][j]);
-                                    if (value[l] != (i * width + j) % 2049)
+                                    if (value[l] != static_cast<unsigned int>((i * width + j) % 2049))
                                         cout << j << ", " << i << " error, should be "
                                              << (i * width + j) % 2049 << ", is " << value[l]
                                              << endl << flush;
-                                    assert (value[l] == (i * width + j) % 2049);
+                                    assert (value[l] == static_cast<unsigned int>((i * width + j) % 2049));
                                 }
                                 if (channelTypes[k] == 1)
                                 {

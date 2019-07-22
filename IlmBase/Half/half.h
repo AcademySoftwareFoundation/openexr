@@ -96,9 +96,12 @@ class half
     // Constructors
     //-------------
 
-    half ();			// no initialization
+    half () = default;			// no initialization
     half (float f);
-
+    // rule of 5
+    ~half () = default;
+    half (const half &) = default;
+    half (half &&) noexcept = default;
 
     //--------------------
     // Conversion to float
@@ -118,7 +121,8 @@ class half
     // Assignment
     //-----------
 
-    half &		operator = (half  h);
+    half &		operator = (const half  &h) = default;
+    half &		operator = (half  &&h) noexcept = default;
     half &		operator = (float f);
 
     half &		operator += (half  h);
@@ -417,17 +421,6 @@ HALF_EXPORT void        printBits   (char  c[35], float f);
 //---------------------------------------------------------------------------
 
 
-//--------------------
-// Simple constructors
-//--------------------
-
-inline
-half::half ()
-{
-    // no initialization
-}
-
-
 //----------------------------
 // Half-from-float constructor
 //----------------------------
@@ -572,14 +565,6 @@ half::operator - () const
     half h;
     h._h = _h ^ 0x8000;
     return h;
-}
-
-
-inline half &
-half::operator = (half h)
-{
-    _h = h._h;
-    return *this;
 }
 
 

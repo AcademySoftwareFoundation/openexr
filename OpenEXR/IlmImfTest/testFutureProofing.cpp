@@ -108,7 +108,7 @@ fillPixels (Array2D<unsigned int>& sampleCount, Array2D<T*> &ph, int width, int 
         for (int x = 0; x < width; ++x)
         {
             ph[y][x] = new T[sampleCount[y][x]];
-            for (int i = 0; i < sampleCount[y][x]; i++)
+            for (unsigned int i = 0; i < sampleCount[y][x]; i++)
             {
                 //
                 // We do this because half cannot store number bigger than 2048 exactly.
@@ -190,7 +190,7 @@ checkPixels (Array2D<T> &ph, int lx, int rx, int ly, int ry, int width)
     {
         for (int x = lx; x <= rx; ++x)
         {
-            if (ph[y][x] != (y * width + x) % 2049)
+            if (ph[y][x] != static_cast<T>(((y * width + x) % 2049)))
             {
                 cout << "value at " << x << ", " << y << ": " << ph[y][x]
                      << ", should be " << (y * width + x) % 2049 << endl << flush;
@@ -219,9 +219,9 @@ checkPixels (Array2D<unsigned int>& sampleCount,
     {
         for (int x = lx; x <= rx; ++x)
         {
-            for (int i = 0; i < sampleCount[y][x]; i++)
+            for (unsigned int i = 0; i < sampleCount[y][x]; i++)
             {
-                if (ph[y][x][i] != (y * width + x) % 2049)
+                if (ph[y][x][i] != static_cast<T>(((y * width + x) % 2049)))
                 {
                     cout << "value at " << x << ", " << y << ", sample " << i << ": " << ph[y][x][i]
                          << ", should be " << (y * width + x) % 2049 << endl << flush;
@@ -251,7 +251,7 @@ checkSampleCount (Array2D<unsigned int>& sampleCount,
     {
         for (int j = x1; j <= x2; j++)
         {
-            if (sampleCount[i][j] != ((i * width) + j) % 10 + 1)
+            if (sampleCount[i][j] != static_cast<unsigned int>(((i * width) + j) % 10 + 1))
             {
                 cout << "sample count at " << j << ", " << i << ": " << sampleCount[i][j]
                      << ", should be " << (i * width + j) % 10 + 1 << endl << flush;
@@ -262,11 +262,13 @@ checkSampleCount (Array2D<unsigned int>& sampleCount,
     return true;
 }
 
+#if 0
 bool
 checkSampleCount (Array2D<unsigned int>& sampleCount, int width, int height)
 {
     return checkSampleCount(sampleCount, 0, width - 1, 0, height - 1, width);
 }
+#endif
 
 void
 generateRandomHeaders (int partCount, vector<Header>& headers)
@@ -739,7 +741,7 @@ readWholeFiles (int modification)
     Array2D<unsigned int> sampleCount;
 
     MultiPartInputFile file(filename.c_str());
-    for (size_t i = 0; i < file.parts(); i++)
+    for (int i = 0; i < file.parts(); i++)
     {
         const Header& header = file.header(i);
         assert (header.displayWindow() == headers[i].displayWindow());
@@ -767,12 +769,12 @@ readWholeFiles (int modification)
     // Shuffle part numbers.
     //
     vector<int> shuffledPartNumber;
-    for (int i = modification>0 ? 1 : 0; i < headers.size(); i++)
+    for (int i = modification>0 ? 1 : 0; i < static_cast<int>(headers.size()); i++)
         shuffledPartNumber.push_back(i);
-    for (int i = 0; i < shuffledPartNumber.size(); i++)
+    for (size_t i = 0; i < shuffledPartNumber.size(); i++)
     {
-        int a = rand() % shuffledPartNumber.size();
-        int b = rand() % shuffledPartNumber.size();
+        size_t a = rand() % shuffledPartNumber.size();
+        size_t b = rand() % shuffledPartNumber.size();
         swap (shuffledPartNumber[a], shuffledPartNumber[b]);
     }
 
@@ -782,11 +784,10 @@ readWholeFiles (int modification)
     //
     // Start reading whole files.
     //
-    int i;
     int partNumber;
     try
     {
-        for (i = 0; i < shuffledPartNumber.size(); i++)
+        for (size_t i = 0; i < shuffledPartNumber.size(); i++)
         {
             partNumber = shuffledPartNumber[i];
             switch (partTypes[partNumber])
@@ -1206,7 +1207,7 @@ modifyType (bool modify_version)
     }
     
     // skip over each header
-    for(int i=0;i<headers.size();i++)
+    for(size_t i=0;i<headers.size();i++)
     {
         // read each attribute in header i
         while(1)
