@@ -32,6 +32,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include "testMultiPartSharedAttributes.h"
 
 #include <ImfMultiPartInputFile.h>

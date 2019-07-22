@@ -3,6 +3,10 @@
 // Copyright Contributors to the OpenEXR Project.
 //
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include <testClassification.h>
 #include "half.h"
 #include <iostream>

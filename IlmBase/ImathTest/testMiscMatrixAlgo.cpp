@@ -32,6 +32,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
 
 #include <testMiscMatrixAlgo.h>
 #include "ImathMatrixAlgo.h"
@@ -337,5 +340,3 @@ testMiscMatrixAlgo ()
         cerr << "  Caught exception: " << e.what () << endl;
     }
 }
-
-

@@ -31,6 +31,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include "testPartHelper.h"
 
 #include <ImfPartHelper.h>

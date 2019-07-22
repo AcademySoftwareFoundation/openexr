@@ -32,8 +32,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-
-
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
 
 #include <ImfMultiPartOutputFile.h>
 #include <ImfMultiPartInputFile.h>

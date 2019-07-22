@@ -32,6 +32,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include "ImfInputFile.h"
 #include "ImfInputPart.h"
 #include "ImfTiledInputFile.h"

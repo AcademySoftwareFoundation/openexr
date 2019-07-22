@@ -32,6 +32,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
 
 #include <testExtractSHRT.h>
 #include "ImathMatrixAlgo.h"
@@ -443,4 +446,3 @@ testExtractSHRT ()
 	cerr << "  Caught exception: " << e.what () << endl;
     }
 }
-

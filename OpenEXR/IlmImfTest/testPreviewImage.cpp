@@ -32,6 +32,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
@@ -221,4 +224,3 @@ testPreviewImage (const std::string &tempDir)
 	assert (false);
     }
 }
-

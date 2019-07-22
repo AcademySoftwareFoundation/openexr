@@ -32,6 +32,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include "ImathMatrixAlgo.h"
 #include "ImathRandom.h"
 #include "ImathEuler.h"
@@ -398,5 +402,3 @@ testProcrustes ()
     std::cout << "Testing Procrustes algorithms in double precision..." << std::endl;
     testProcrustesImp<double>();
 }
-
-
