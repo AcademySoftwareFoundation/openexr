@@ -1,228 +1,332 @@
 # Building and Installation
 
-## TLDR; version
+## Download
 
-### For unix-ish systems (linux, mac, freebsd, etc.)
+To build the latest release of OpenEXR, begin by downloading the
+source from the Releases page
+https://github.com/openexr/openexr/tarball/v2.3.0.
 
-1. Download the all-in-one OpenEXR package.
-2. Unpack it, open a shell and cd to the source tree where you unpacked
-3. make sure you have cmake 3.12 or newer.
-4. Run something like (on mac / windos):
+To build from the latest development version, which may not be stable,
+download the master branch via
+https://github.com/openexr/openexr/tarball/master, and extract the
+contents via ``tar``.
 
-```console
-$ mkdir build
-$ cd build
-$ cmake -DCMAKE_BUILD_TYPE=Release ..
-$ make install
-```
+You can download the repository tarball file either via a browser, or
+on the Linux/macOS via the command line using ``wget`` or ``curl``:
 
-*For those who prefer autoconf, a configure based system is provided.
-See below for more information.*
+    % curl -L https://github.com/openexr/openexr/tarball/master | tar xv
 
-### For windows
+This will produce a source directory named
+``openexr-openexr-<abbreviated-SHA-1-checksum>``.
 
-Under windows, if you are using a command line-based setup, such as
+Alternatively, clone the GitHub repo directly via:
+
+    % git clone https://github.com/openexr/openexr.git
+
+In the instructions that follow, we will refer to the top-level
+directory of the source code tree as ``$source_directory``.
+
+## Prerequisites
+
+Make sure these are installed on your system before building OpenEXR:
+
+* OpenEXR requires CMake version 3.12 or newer (or autoconf on Linux systems).
+* C++ compiler that supports C++11
+* Zlib
+* Python and boost-python if building the PyIlmBase module.
+
+The instructions that follow describe building OpenEXR with CMake, but
+you can also build and install OpenEXR via the autoconf
+bootstrap/configure utilities, described below.
+
+## Linux/macOS Quick Start
+
+To build via CMake, first choose a location for the build directory,
+which we will refer to as ``$build_directory``.
+
+    % mkdir $build_directory
+    % cd $build_directory
+    % cmake $source_directory
+    % make
+    % make install
+
+Note that the CMake configuration prefers to apply an out-of-tree
+build process, since there may be multiple build configurations
+(i.e. debug and release), one per folder, all pointing at once source
+tree, hence the ``$build_directory`` noted above, referred to in CMake
+parlance as the *build directory*. You can place this directory
+wherever you like.
+
+See the CMake Configuration Options section below for the most common
+configuration options especially the install directory. Note that with
+no arguments, as above, ``make install`` installs the header files in
+``/usr/local/include``, the object libraries in ``/usr/local/lib``, and the
+executable programs in ``/usr/local/bin``.
+
+## Windows Quick Start
+
+Under Windows, if you are using a command line-based setup, such as
 cygwin, you can of course follow the above. For Visual Studio, cmake
-generators are "multiple configuration", so you don't even have to
-set the build type, although you will most likely need to specify
-the install location.
+generators are "multiple configuration", so you don't even have to set
+the build type, although you will most likely need to specify the
+install location.  Install Directory By default, ``make install``
+installs the headers, libraries, and programs into ``/usr/local``, but you
+can specify a local install directory to cmake via the
+``CMAKE_INSTALL_PREFIX`` variable:
 
-## General Setup
+    % cmake .. -DCMAKE_INSTALL_PREFIX=$install_directory
 
-Download the latest release of OpenEXR from github or
-http://www.openexr.com/downloads.html.
+## Sub-Modules
 
-To build OpenEXR, there are two methodologies that can be employed
-when using the cmake-based build setup provided. The first, and
-easiest, is as one big package. This means that you make your build
-tree, point cmake at the source tree from the build tree, configure
-as desired, and then compile / install away.
+OpenEXR consists of four separate sub-modules - IlmBase, PyIlmBase,
+OpenEXR, OpenEXR_Viewers - which can be built independently. The
+repository’s top-level CMakeLists.txt defines a *super-project* that
+builds all four modules, and the steps above for running cmake at the
+top level of the repo build each of the sub-modules, in parallel.
 
-The alternate method is as separate sub-folders. This allows one to
-only use IlmBase, for example. However, you must always compile
-IlmBase first, as all the other folders depend on that. Then OpenEXR
-must be compile prior to building the viewers, if you choose to build
-the provided viewers. Finally, there are other programs in Contrib
-that may be of interest.
+However you can build each submodule individually. To build and
+install individual sub-modules, build and install the IlmBase module
+first:
 
-This latter method is also the method followed by the traditional
-autoconf / configure setup that is provided (see that section below).
+    % mkdir $build_directory
+    % cd $build_directory
+    % cmake -DCMAKE_INSTALL_PREFIX=$install_directory \ $source_directory/Ilmbase
+    % cmake --build . --target install --config Release 
 
-## CMake Configuration and installation
+Once IlmBase is installed, then build and install the OpenEXR module,
+taking care to set the ``CMAKE_SYSTEM_PREFIX`` to the directory in which
+you installed IlmBase and ``CMAKE_INSTALL_PREFIX`` to the directory in
+which to install OpenEXR:
+ 
+    % mkdir $build_directory
+    % cd $build_directory
+    % cmake -DCMAKE_SYSTEM_PREFIX=$install_directory \ 
+            -DCMAKE_INSTALL_PREFIX=$install_directory \ 
+            $source_directory/OpenEXR
+    % cmake --build . --target install --config Release
 
-The cmake configuration files (CMakeLists.txt and all that it adds)
-represent current patterns and recommendations for "Modern CMake".
-As such, we have set the minimum required version to **_3.12_**.
-This is always an arbitrary line, but 3.12 is available on many
-systems by default at this point, andhad some significant improvements
-to the python discovery system for the PyIlmBase extension, and
-so seemed like a good line to draw.
+Optionally, then build and install PyIlmBase, OpenEXR_Viewers, and Contrib.
 
-As mentioned above, there are two ways of working with the OpenEXR
-repository with cmake. If you are downloading the individual package
-tarballs, this will be decided for you, as they are packaged as
-separate projects. However, the configuration process will remain
-mostly the same.
+The libraries in IlmBase and OpenEXR follow the standard cmake setting
+of ``BUILD_SHARED_LIBS`` to control whether to build static or shared
+libraries. However, they each have separate controls over whether to
+build both shared and static libraries as part of one configuration,
+as well as other customization options.
 
-When working with the "all-in-one" configuration, which would be the
-default if you just grab the release from github, the top level
-CMakeLists.txt just behaves as a "super project" in cmake parlance,
-which basically makes sure cmake doesn't actually look for the
-software being built in other places, but then just includes the
-relevant directories.
+## Custom Namespaces
 
-As such, each top level folder added is in itself a cmake project.
-This unfortunately causes a small amount of duplication for some
-options, with the benefit of greater flexibility.
+If you are interested in controlling custom namespace declarations or
+similar options, you are encouraged to look at the ``CMakeLists.txt``
+infrastructure. In particular, there has been an attempt to centralize
+the settings into a common place to more easily see all of them in a
+text editor. For IlmBase, this is config/IlmBaseSetup.cmake inside the
+IlmBase tree. For OpenEXR, the settings will similarly be found in
+``config/OpenEXRSetup.cmake``. As per usual, these settings can also be
+seen and/or edited using any of the various gui editors for working
+with cmake such as ``ccmake``, ``cmake-gui``, as well as some of the
+IDEs in common use.
 
-Once you have the software downloaded and are ready to build it, cmake
-prefers to apply an out-of-tree configure and build process, and it
-does so with one configuration (i.e. debug vs. release) per build
-folder, all referencing the one source folder. The only concession to
-this is that we offer the ability to build both static libraries and
-shared libraries at once.
+## Cross Compiling / Specifying Specific Compilers
 
-cmake is easy to use with all the defaults from a command prompt:
+When trying to either cross-compile for a different platform, or for
+tasks such as specifying a compiler set to match the VFX reference
+platform (https://vfxplatform.com/), cmake provides the idea of a
+toolchain which may be useful instead of having to remember a chain of
+configuration options. It also means that platform-specific compiler
+names and options are out of the main cmake file, providing better
+isolation.
 
-```console
-$ mkdir build
-$ cd build
-$ cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF ..
-$ env DESTDIR=/path/to/install make install
-```
+A toolchain file is simply just a cmake script that sets all the
+compiler and related flags and is run very early in the configuration
+step to be able to set all the compiler options and such for the
+discovery that cmake performs automatically. These options can be set
+on the command line still if that is clearer, but a theoretical
+toolchain file for compiling for VFX Platform 2015 is provided in the
+source tree at cmake/Toolchain-Linux-VFX_Platform15.cmake which will
+hopefully provide a guide how this might work.
 
-This only changes a couple of options, setting the build type and
-enables static-only libraries. You will notice that in this scenario,
-we are also able to use a delayed version of the install path, and a
-variable name that is more standard for GNU-related build tools.
-**NB:** If you are building using shared libraries, and installing
-to a non-system library, you may have to set CMAKE_INSTALL_PREFIX, or
-set CMAKE_INSTALL_RPATH, depending on what your system requires for
-run path resolution. Again, it is best to see the rpath handling docs
-from cmake to understand how that is controlled, and then double
-confirm that our settings are in line with what your install needs.
-This specific document is currently [here](https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/RPATH-handling)
+For cross-compiling for additional platforms, there is also an
+included sample script in cmake/Toolchain-mingw.cmake which shows how
+cross compiling from Linux for Windows may work. The compiler names
+and paths may need to be changed for your environment.
 
-A couple of tools are provided as part of cmake, **cmake-gui**
-and **cmake**. The former is a windowed application, the latter a
-console-based version of the same functionality. When starting from
-scratch, these tools run an initial configuration step that determines
-the setup / O.S. you have chosen based on the existing environment
-(paths to compilers, etc). This step is required, as this set of tools
-may change what options are provided (for example, the mac options for
-creating a framework are only displayed on a mac).
+More documentation:
 
-However, once cmake has performed an initial environment scan and
-configuration, it can display a UI with all the options and important
-variables we have defined. Once happy with the configuration,
-you generate the build scripts and compile the software (or load a
-project up in an IDE). If you are against all UI programs and would
-like to see this list, you can also run the following
+* Toolchains: https://cmake.org/cmake/help/v3.12/manual/cmake-toolchains.7.html
+* Cross compiling: https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/
 
-```console
-$ mkdir build
-$ cd build
-$ cmake ..
-$ cmake -LAH
-```
+## CMake Configuration Options
 
-which will list all options and "advanced" variables (values that are
-cached), at which point you could set those name on the command line
-when re-configuring from scratch using the -DOPTION_NAME=VALUE
-mechanism (NB: you may have to specify the type in special cases)
+The default CMake configuration options are stored in
+``IlmBase/config/IlmBaseSetup.cmake`` and in
+``OpenEXR/config/OpenEXRSetup.cmake``. To see a complete set of option
+variables, run:
 
-### Configuration options
+    % cmake -LAH $source_directory
 
-For the OpenEXR sub projects, we are either
-using the cmake accepted / generated names (i.e. BUILD_TESTING
-from ctest), or have them centralized per sub project as much as
-possible. Those files are:
+You can customize these options three ways:
 
-[Top Level Choices of Modules](CMakeLists.txt)
-[IlmBase Settings](IlmBase/config/IlmBaseSetup.cmake)
-[OpenEXR Settings](OpenEXR/config/OpenEXRSetup.cmake)
-[PyIlmBase Settings](PyIlmBase/config/PyIlmBaseSetup.cmake)
+1. Modify the ``.cmake`` files in place.
+2. Use the UI ``cmake-gui`` or ``ccmake``.
+2. Specify them as command-line arguments when you invoke cmake.
 
-If you are interested in controlling custom namespace declarations
-or similar options, you are encouraged to look at these files and
-read the comments in addition to the tooltip string provided for
-the gui application. 
-As per usual, these settings can also be
-seen and/or edited using any of the various gui editors for working with
-cmake such as **ccmake**, **cmake-gui**, as well as some of the IDEs in
-common use.
+### Verbose Output Options:
 
-### Side note on continuous integration
+* **CMAKE\_EXPORT\_COMPILE\_COMMANDS**
 
-The command line cmake tool is the driver behind all of the above,
-and has a rich set of integration capabilities with continuous
-integration systems, including the ability to make cross-platform
-scripts instead of a mish-mash of bash and cmd batch scripts. If you
-are integrating OpenEXR into an internal continuous integration
-system, please see [this file](cmake/SampleCTestScript.cmake)
-as a sample script that uses ctest to build a configuration and
-test it.
+  Enable/Disable output of compile commands during generation. Default is OFF.
 
-### A note on cross-compiling
+* **CMAKE\_VERBOSE\_MAKEFILE**
 
-Some limited attempts have been made to test cross compiling with
-OpenEXR. For cmake, this is usually done using a toolchain file.
-A sample file is provided in the cmake folder at the top level of
-OpenEXR which demonstrates a toolchain file for using mingw under
-linux to cross compile for windows. This toolchain file will
-probably need to be customized for your particular O.S.
-distribution and desired output platform. Additionally, you may
-have extra steps to get the code compiling if you do not have
-an emulator to run the binaries.
+  Echo all compile commands during make. Default is OFF.
 
-[Sample Toolchain file](cmake/Toolchain-mingw.cmake)
+### Compiler Options:
 
-## Traditional autoconf configuration (unix platforms)
+* **OPENEXR\_CXX\_STANDARD**
 
-The autoconf configuration assumes that each sub-element of
-OpenEXR is it's own project. As such, it needs to be compiled
-in stages, as was described as the second method to install
-OpenEXR in the general setup above.
+  C++ standard to compile against. This obeys the global ``CMAKE_CXX_STANDARD`` but doesn’t force the global setting to enable sub-project inclusion. Default is ``14``.
 
-Like most autoconf / configure based setups, there is a set of
-options that can be set via various flags to the ```configure```
-script. ```configure --help``` will show you these prior to
-configuring anything.
+### Library Naming Options:
 
-Unlike the very basic directions below, you can also do the
-out-of-tree builds using the configure mechanism - just pre-make
-and cd to that build folder, and add the path to the configure
-script. If you are using the git repo, you will have to have
-pre-run the bootstrap command to prepare the configure script.
+* **ILMBASE\_LIB\_SUFFIX**
 
-**Important:** If you are checking out the git repository and
-attempting to build and install, you need to insert a call to
-```bootstrap``` in the steps below. This requires you to have
-autoconf and all the autotools installed. A distribution
-package does not have this requirement.
+  Append the given string to the end of all the llmBase libraries. Default is ``-<major>_<minor>`` version string.
 
-1. Compile IlmBase:
+* **OPENEXR\_LIB\_SUFFIX**
 
-```console
-$ cd <source root>/IlmBase
-$ ./configure
-$ make
-$ make install
-```
+  Append the given string to the end of all the llmBase libraries. Default is ``-<major>_<minor>`` version string.
 
-2. Compile OpenEXR (if desired)
+### Namespace Options:
 
-```console
-$ cd <source root>/OpenEXR
-$ ./configure
-$ make
-$ make install
-```
+* **ILMBASE\_IEX\_NAMESPACE**
 
-From here, you are free to compile and install the extra modules
-included as desired - PyIlmBase and OpenEXR_Viewers using the
-same pattern as above.
+  Public namespace alias for Iex. Default is ``Iex``.
 
-## Building with CMake
+* **ILMBASE\_ILMTHREAD\_NAMESPACE**
 
-Alternatively, you can build with **cmake**, version 3.12 or newer. 
+  Public namespace alias for IlmThread. Default is ``IlmThread``.
+
+* **ILMBASE\_IMATH\_NAMESPACE**
+ 
+  Public namespace alias for Imath. Default is ``Imath``.
+
+* **ILMBASE\_INTERNAL\_IEX\_NAMESPACE**
+ 
+  Real namespace for Iex that will end up in compiled symbols. Default is ``Iex\_<major>\_<minor>``.
+
+* **ILMBASE\_INTERNAL\_ILMTHREAD\_NAMESPACE**
+ 
+  Real namespace for IlmThread that will end up in compiled symbols. Default is ``IlmThread\_<major>\_<minor>``.
+
+* **ILMBASE\_INTERNAL\_IMATH\_NAMESPACE**
+ 
+  Real namespace for Imath that will end up in compiled symbols. Default is ``Imath\_<major>\_<minor>``.
+
+* **ILMBASE\_NAMESPACE\_CUSTOM**
+ 
+  Whether the namespace has been customized (so external users know)
+
+* **OPENEXR\_IMF\_NAMESPACE**
+ 
+  Public namespace alias for Imath. Default is ``Imf``.
+
+* **OPENEXR\_INTERNAL\_IMF\_NAMESPACE**
+ 
+  Real namespace for Imath that will end up in compiled symbols. Default is ``Imf\_<major>\_<minor>``.
+
+* **OPENEXR\_NAMESPACE\_CUSTOM**
+ 
+  Whether the namespace has been customized (so external users know)
+
+### Linting Options:
+
+
+* **ILMBASE\_USE\_CLANG\_TIDY**
+ 
+  Enable clang-tidy for IlmBase libraries, if it is available. Default is OFF.
+
+* **OPENEXR\_USE\_CLANG\_TIDY**
+ 
+  Enable clang-tidy for OpenEXR libraries, if it is available. Default is OFF.
+
+### Testing Options:
+
+
+* **BUILD\_TESTING**
+ 
+  Build the testing tree. Default is ON.  Note that this causes the test suite to be compiled, but it is not executed.
+
+* **OPENEXR\_RUN\_FUZZ\_TESTS**
+ 
+  Controls whether to include the fuzz tests (very slow). Default is OFF.
+
+### Additional CMake Options:
+
+See the cmake documentation for more information (https://cmake.org/cmake/help/v3.12/)
+
+* **CMAKE\_BUILD\_TYPE**
+
+  For builds when not using a multi-configuration generator. Available values: ``Debug``, ``Release``, ``RelWithDebInfo``, ``MinSizeRel``
+
+* **BUILD\_SHARED\_LIBS**
+
+  This is the primary control whether to build static libraries or
+  shared libraries / dlls (side note: technically a convention, hence
+  not an official ``CMAKE\_`` variable, it is defined within cmake and
+  used everywhere to control this static / shared behavior)
+
+* For forcing particular compilers to match VFX platform requirements
+
+  ** CMAKE\_CXX\_COMPILER**
+
+  ** CMAKE\_C\_COMPILER**
+
+  ** CMAKE\_LINKER**
+
+     All the related cmake compiler flags (i.e. CMAKE\_CXX_FLAGS, CMAKE_CXX_FLAGS_DEBUG)
+
+  ** CMAKE\_INSTALL\_RPATH**
+
+     For non-standard install locations where you don’t want to have to set ``LD_LIBRARY_PATH`` to use them
+
+## Cmake Tips and Tricks:
+
+If you have ninja (https://ninja-build.org/) installed, it is faster than make. You can generate ninja files using cmake when doing the initial generation:
+
+    % cmake -G “Ninja” ..
+
+If you would like to confirm compile flags, you don’t have to specify the verbose configuration up front, you can instead run
+
+    % make VERBOSE=1
+
+## Configuring via Autoconf
+
+As an alternative to CMake on Linux systems, the OpenEXR build can be configured via the provided bootstrap/configure scripts: 
+
+    % cd $source_directory/IlmBase
+    % ./bootstrap
+    % ./configure --prefix=$install_directory
+    % make
+    % make install
+    
+    % cd $source_directory/OpenEXR
+    % ./bootstrap
+    % ./configure --prefix=$install_directory \ 
+     --with-ilmbase-prefix=$install_directory
+    % make 
+    % make install
+    
+    % cd $source_directory/PyIlmBase
+    % ./bootstrap
+    % ./configure --prefix=$install_directory \ 
+     --with-ilmbase-prefix=$install_directory
+    % make 
+    % make install
+
+Run ``./configure --help`` for a complete set of configuration options.
+
+
+
+
+
+
