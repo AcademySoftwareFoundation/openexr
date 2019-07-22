@@ -62,4 +62,7 @@ add_executable(IlmImfTest
 )
 target_compile_definitions(IlmImfTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 target_link_libraries(IlmImfTest OpenEXR::IlmImf)
+set_target_properties(IlmImfTest PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
 add_test(NAME OpenEXR.IlmImf COMMAND $<TARGET_FILE:IlmImfTest>)

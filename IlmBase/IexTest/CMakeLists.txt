@@ -7,4 +7,7 @@ add_executable(IexTest
 )
 
 target_link_libraries(IexTest IlmBase::Iex)
+set_target_properties(IexTest PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
 add_test(NAME IlmBase.Iex COMMAND $<TARGET_FILE:IexTest>)

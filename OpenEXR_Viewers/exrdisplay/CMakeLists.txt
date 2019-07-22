@@ -20,5 +20,8 @@ target_link_libraries(exrdisplay
   OpenGL::GL
   OpenEXR::IlmImf
 )
+set_target_properties(exrdisplay PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
 
 install(TARGETS exrdisplay DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -26,5 +26,8 @@ target_link_libraries(playexr
   OpenGL::GLU
   OpenEXR::IlmImf
 )
+set_target_properties(playexr PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
 
 install(TARGETS playexr DESTINATION ${CMAKE_INSTALL_BINDIR})
