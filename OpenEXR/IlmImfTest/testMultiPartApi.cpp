@@ -109,7 +109,7 @@ bool checkPixels (Array2D<T> &ph, int lx, int rx, int ly, int ry, int width)
 {
     for (int y = ly; y <= ry; ++y)
         for (int x = lx; x <= rx; ++x)
-            if (ph[y][x] != (y * width + x) % 2049)
+            if (ph[y][x] != static_cast<T>(((y * width + x) % 2049)))
             {
                 cout << "value at " << x << ", " << y << ": " << ph[y][x]
                      << ", should be " << (y * width + x) % 2049 << endl << flush;
@@ -440,8 +440,8 @@ generateRandomFile (int partCount, const std::string & fn)
     {
         int partNumber = taskList[i].partNumber;
         int partType = partTypes[partNumber];
-        int pixelType = pixelTypes[partNumber];
-        int levelMode = levelModes[partNumber];
+        //int pixelType = pixelTypes[partNumber];
+        //int levelMode = levelModes[partNumber];
         if (partType == 0)
         {
             OutputPart* part = (OutputPart*) parts[partNumber];
@@ -472,7 +472,7 @@ readWholeFiles (const std::string & fn)
     Array2D<half> hData;
 
     MultiPartInputFile file(fn.c_str());
-    for (size_t i = 0; i < file.parts(); i++)
+    for (size_t i = 0; i < static_cast<size_t>(file.parts()); i++)
     {
         const Header& header = file.header(i);
         assert (header.displayWindow() == headers[i].displayWindow());
@@ -509,12 +509,13 @@ readWholeFiles (const std::string & fn)
     // Shuffle part numbers.
     //
     vector<int> shuffledPartNumber;
-    for (int i = 0; i < headers.size(); i++)
+    int nHeaders = static_cast<int>(headers.size());
+    for (int i = 0; i < nHeaders; i++)
         shuffledPartNumber.push_back(i);
-    for (int i = 0; i < headers.size(); i++)
+    for (int i = 0; i < nHeaders; i++)
     {
-        int a = rand() % headers.size();
-        int b = rand() % headers.size();
+        int a = rand() % nHeaders;
+        int b = rand() % nHeaders;
         swap (shuffledPartNumber[a], shuffledPartNumber[b]);
     }
 
@@ -525,7 +526,7 @@ readWholeFiles (const std::string & fn)
     int partNumber;
     try
     {
-        for (i = 0; i < headers.size(); i++)
+        for (i = 0; i < nHeaders; i++)
         {
             partNumber = shuffledPartNumber[i];
             if (partTypes[partNumber] == 0)

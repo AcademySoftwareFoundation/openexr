@@ -498,7 +498,7 @@ MultiPartOutputFile::Data::writeChunkTableOffsets (vector<OutputPartData*> &part
 
         Int64 pos = os->tellp();
 
-        if (pos == -1)
+        if (pos == Int64(-1))
             IEX_NAMESPACE::throwErrnoExc ("Cannot determine current file position (%T).");
 
         parts[i]->chunkOffsetTablePosition = os->tellp();

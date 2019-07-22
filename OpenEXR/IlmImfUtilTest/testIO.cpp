@@ -112,7 +112,7 @@ testFlatTiledImage1 (const string &fileName)
     delete img2;
 }
 
-
+#if 0
 void
 testFlatTiledImage2 (const string &fileName)
 {
@@ -134,7 +134,7 @@ testFlatTiledImage2 (const string &fileName)
 
     delete img2;
 }
-
+#endif
 
 void
 testDeepScanLineImage1 (const string &fileName)

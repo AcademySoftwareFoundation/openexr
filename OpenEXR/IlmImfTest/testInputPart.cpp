@@ -104,6 +104,7 @@ void fillPixels (Array2D<unsigned int>& sampleCount, Array2D<T*> &ph, int width,
         }
 }
 
+#if 0
 void allocatePixels(int type, Array2D<unsigned int>& sampleCount,
                     Array2D<unsigned int*>& uintData, Array2D<float*>& floatData,
                     Array2D<half*>& halfData, int x1, int x2, int y1, int y2)
@@ -147,13 +148,14 @@ void releasePixels(int type, Array2D<unsigned int*>& uintData, Array2D<float*>& 
 {
     releasePixels(type, uintData, floatData, halfData, 0, width - 1, 0, height - 1);
 }
+#endif
 
 template <class T>
 bool checkPixels (Array2D<T> &ph, int lx, int rx, int ly, int ry, int width)
 {
     for (int y = ly; y <= ry; ++y)
         for (int x = lx; x <= rx; ++x)
-            if (ph[y][x] != (y * width + x) % 2049)
+            if (ph[y][x] != static_cast<T>(((y * width + x) % 2049)))
             {
                 cout << "value at " << x << ", " << y << ": " << ph[y][x]
                      << ", should be " << (y * width + x) % 2049 << endl << flush;
@@ -194,12 +196,13 @@ bool checkPixels (Array2D<unsigned int>& sampleCount, Array2D<T*> &ph, int width
     return checkPixels<T> (sampleCount, ph, 0, width - 1, 0, height - 1, width);
 }
 
+#if 0
 bool checkSampleCount(Array2D<unsigned int>& sampleCount, int x1, int x2, int y1, int y2, int width)
 {
     for (int i = y1; i <= y2; i++)
         for (int j = x1; j <= x2; j++)
         {
-            if (sampleCount[i][j] != ((i * width) + j) % 10 + 1)
+            if (sampleCount[i][j] != static_cast<unsigned int>(((i * width) + j) % 10 + 1))
             {
                 cout << "sample count at " << j << ", " << i << ": " << sampleCount[i][j]
                      << ", should be " << (i * width + j) % 10 + 1 << endl << flush;
@@ -213,6 +216,7 @@ bool checkSampleCount(Array2D<unsigned int>& sampleCount, int width, int height)
 {
     return checkSampleCount(sampleCount, 0, width - 1, 0, height - 1, width);
 }
+#endif
 
 void generateRandomHeaders(int partCount, vector<Header>& headers)
 {
@@ -507,7 +511,7 @@ readWholeFiles (const std::string & fn)
     Array2D<unsigned int> sampleCount;
 
     MultiPartInputFile file(fn.c_str());
-    for (size_t i = 0; i < file.parts(); i++)
+    for (int i = 0; i < file.parts(); i++)
     {
         const Header& header = file.header(i);
         assert (header.displayWindow() == headers[i].displayWindow());
@@ -528,12 +532,13 @@ readWholeFiles (const std::string & fn)
     // Shuffle part numbers.
     //
     vector<int> shuffledPartNumber;
-    for (int i = 0; i < headers.size(); i++)
+    int nHeaders = static_cast<int>(headers.size());
+    for (int i = 0; i < nHeaders; i++)
         shuffledPartNumber.push_back(i);
-    for (int i = 0; i < headers.size(); i++)
+    for (int i = 0; i < nHeaders; i++)
     {
-        int a = rand() % headers.size();
-        int b = rand() % headers.size();
+        int a = rand() % nHeaders;
+        int b = rand() % nHeaders;
         swap (shuffledPartNumber[a], shuffledPartNumber[b]);
     }
 
@@ -544,7 +549,7 @@ readWholeFiles (const std::string & fn)
     int partNumber;
     try
     {
-        for (i = 0; i < headers.size(); i++)
+        for (i = 0; i < nHeaders; i++)
         {
             partNumber = shuffledPartNumber[i];
             FrameBuffer frameBuffer;
@@ -590,7 +595,7 @@ readFirstPart (const std::string & fn)
     
     cout << "Reading first part " << flush;
     int pixelType = pixelTypes[0];
-    int levelMode = levelModes[0];
+    //int levelMode = levelModes[0];
 
     int l1, l2;
     l1 = rand() % height;
@@ -639,9 +644,9 @@ readPartialFiles (int randomReadCount, const std::string & fn)
     for (int i = 0; i < randomReadCount; i++)
     {
         int partNumber = rand() % file.parts();
-        int partType = partTypes[partNumber];
+        //int partType = partTypes[partNumber];
         int pixelType = pixelTypes[partNumber];
-        int levelMode = levelModes[partNumber];
+        //int levelMode = levelModes[partNumber];
 
         int l1, l2;
         l1 = rand() % height;

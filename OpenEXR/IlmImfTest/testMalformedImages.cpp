@@ -56,7 +56,6 @@ readImage (const char inFileName[])
 {
 	Array2D<Rgba> p;
 	Header h;
-	RgbaChannels ch;
 	Box2i dw;
 	int width;
 	int height;
@@ -67,7 +66,6 @@ readImage (const char inFileName[])
 		AcesInputFile in (inFileName);
 
 		h = in.header();
-		ch = in.channels();
 		dw = h.dataWindow();
 
 		width  = dw.max.x - dw.min.x + 1;
@@ -88,7 +86,7 @@ readBadBoundsImage (const char fileName[])
 
     cout << "version " << in.version() << " " << flush;
 
-    const Box2i &dw = in.dataWindow();
+    //const Box2i &dw = in.dataWindow();
 }
 
 } // namespace

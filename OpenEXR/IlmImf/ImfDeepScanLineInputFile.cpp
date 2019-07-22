@@ -1800,7 +1800,7 @@ readSampleCountForLineBlock(InputStreamMutex* streamData,
 
     
     
-    if(sampleCountTableDataSize>data->maxSampleCountTableSize)
+    if(sampleCountTableDataSize>static_cast<Int64>(data->maxSampleCountTableSize))
     {
         THROW (IEX_NAMESPACE::ArgExc, "Bad sampleCountTableDataSize read from chunk "<< lineBlockId << ": expected " << data->maxSampleCountTableSize << " or less, got "<< sampleCountTableDataSize);
     }
@@ -1839,7 +1839,7 @@ readSampleCountForLineBlock(InputStreamMutex* streamData,
     //
 
 
-    if (sampleCountTableDataSize < data->maxSampleCountTableSize)
+    if (sampleCountTableDataSize < Int64(data->maxSampleCountTableSize))
     {
         if(!data->sampleCountTableComp)
         {

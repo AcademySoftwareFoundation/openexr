@@ -144,10 +144,10 @@ zsp (Array2D<half> &gpx, Array2D<float> &zpx, int w, int h,
 	    if (r >= 1)
 		continue;
 
-	    float a = 1;
+	    //float a = 1;
 
-	    if (r * rc > rc - 1)
-		a = rc - r * rc;
+	    //if (r * rc > rc - 1)
+		//a = rc - r * rc;
 
 	    float zl = sqrt (1 - r * r);
 	    float zp = zc - rc * zl;

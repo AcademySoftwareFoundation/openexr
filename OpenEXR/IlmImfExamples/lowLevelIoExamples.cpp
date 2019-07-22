@@ -98,7 +98,7 @@ class C_OStream: public OStream
 bool
 C_IStream::read (char c[/*n*/], int n)
 {
-    if (n != fread (c, 1, n, _file))
+    if (size_t(n) != fread (c, 1, n, _file))
     {
 	//
 	// fread() failed, but the return value does not distinguish
@@ -143,7 +143,7 @@ C_OStream::write (const char c[/*n*/], int n)
 {
     clearerr (_file);
 
-    if (n != fwrite (c, 1, n, _file))
+    if (size_t(n) != fwrite (c, 1, n, _file))
 	IEX_NAMESPACE::throwErrnoExc();
 }
 

@@ -868,7 +868,7 @@ loadDeepTileImage (MultiPartInputFile &inmaster,
             pixels[i].g = dataG[i][0];
             pixels[i].b = dataB[i][0];
 
-            for(int s=1; s<sampleCount[i]; s++)
+            for(unsigned int s=1; s<sampleCount[i]; s++)
             {
                 if(a>=1.f)
                     break;

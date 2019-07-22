@@ -125,7 +125,7 @@ FastHufDecoder::FastHufDecoder
     const int LONG_ZEROCODE_RUN  = 63;
     const int SHORTEST_LONG_RUN  = 2 + LONG_ZEROCODE_RUN - SHORT_ZEROCODE_RUN;
 
-    for (Int64 symbol = minSymbol; symbol <= maxSymbol; symbol++)
+    for (Int64 symbol = static_cast<Int64>(minSymbol); symbol <= static_cast<Int64>(maxSymbol); symbol++)
     {
         if (currByte - table > numBytes)
         {
@@ -153,7 +153,7 @@ FastHufDecoder::FastHufDecoder
             int runLen = readBits (8, currBits, currBitCount, currByte) +
                          SHORTEST_LONG_RUN;
 
-            if (symbol + runLen > maxSymbol + 1)
+            if (symbol + runLen > Int64(maxSymbol + 1))
             {
                 throw IEX_NAMESPACE::InputExc ("Error decoding Huffman table "
                                                "(Run beyond end of table).");
@@ -166,7 +166,7 @@ FastHufDecoder::FastHufDecoder
         {
             int runLen = codeLen - SHORT_ZEROCODE_RUN + 2;
 
-            if (symbol + runLen > maxSymbol + 1)
+            if (symbol + runLen > static_cast<Int64>(maxSymbol + 1))
             {
                 throw IEX_NAMESPACE::InputExc ("Error decoding Huffman table "
                                                "(Run beyond end of table).");
@@ -255,7 +255,7 @@ FastHufDecoder::FastHufDecoder
         int codeLen = *i & 63;
         int symbol  = *i >> 6;
 
-        if (mapping[codeLen] >= _numSymbols)
+        if (mapping[codeLen] >= Int64(_numSymbols))
             throw IEX_NAMESPACE::InputExc ("Huffman decode error "
                                            "(Invalid symbol in header).");
         
@@ -395,7 +395,7 @@ FastHufDecoder::buildTables (Int64 *base, Int64 *offset)
                 _tableCodeLen[i] = codeLen;
 
                 Int64 id = _ljOffset[codeLen] + (value >> (64 - codeLen));
-                if (id < _numSymbols)
+                if (id < Int64(_numSymbols))
                 {
                     _tableSymbol[i] = _idToSymbol[id];
                 }
@@ -667,7 +667,7 @@ FastHufDecoder::decode
             }
 
             Int64 id = _ljOffset[codeLen] + (buffer >> (64 - codeLen));
-            if (id < _numSymbols)
+            if (id < Int64(_numSymbols))
             {
                 symbol = _idToSymbol[id];
             }

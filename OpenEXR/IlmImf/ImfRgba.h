@@ -61,16 +61,6 @@ struct Rgba
     
     Rgba () {}
     Rgba (half r, half g, half b, half a = 1.f): r (r), g (g), b (b), a (a) {}
-
-    Rgba & operator = (const Rgba &other)
-    {
-    	r = other.r;
-    	g = other.g;
-    	b = other.b;
-    	a = other.a;
-
-    	return *this;
-    }
 };
 
 

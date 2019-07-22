@@ -535,7 +535,7 @@ LineBufferTask::execute ()
 	    }
     
             if (_lineBuffer->compressor &&
-                _lineBuffer->dataSize < uncompressedSize)
+                static_cast<size_t>(_lineBuffer->dataSize) < uncompressedSize)
             {
                 _lineBuffer->format = _lineBuffer->compressor->format();
 
@@ -849,7 +849,7 @@ LineBufferTaskIIF::execute()
             }
             
             if (_lineBuffer->compressor &&
-                _lineBuffer->dataSize < uncompressedSize)
+                static_cast<size_t>(_lineBuffer->dataSize) < uncompressedSize)
             {
                 _lineBuffer->format = _lineBuffer->compressor->format();
                 
