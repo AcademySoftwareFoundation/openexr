@@ -51,7 +51,7 @@
 
 namespace{
 
-const char source_filename[] = IMF_TMP_DIR "imf_test_multiple_read.exr";
+//const char source_filename[] = IMF_TMP_DIR "imf_test_multiple_read.exr";
     
 using std::cout;
 using std::endl;

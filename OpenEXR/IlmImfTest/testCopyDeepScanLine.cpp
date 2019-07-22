@@ -68,8 +68,8 @@ const int minX = 42;
 const int minY = 51;
 const Box2i dataWindow(V2i(minX, minY), V2i(minX + width - 1, minY + height - 1));
 const Box2i displayWindow(V2i(0, 0), V2i(minX + width * 2, minY + height * 2));
-const char source_filename[] = IMF_TMP_DIR "imf_test_copy_deep_scanline_source.exr";
-const char copy_filename[]  = IMF_TMP_DIR "imf_test_copy_deep_scanline_copy.exr";
+//const char source_filename[] = IMF_TMP_DIR "imf_test_copy_deep_scanline_source.exr";
+//const char copy_filename[]  = IMF_TMP_DIR "imf_test_copy_deep_scanline_copy.exr";
 
 vector<int> channelTypes;
 Array2D<unsigned int> sampleCount;

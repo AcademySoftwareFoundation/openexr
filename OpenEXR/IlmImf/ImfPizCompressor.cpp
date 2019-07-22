@@ -183,8 +183,9 @@ PizCompressor::PizCompressor
     _channels (hdr.channels()),
     _channelData (0)
 {
-    size_t tmpBufferSize =
-                uiMult (maxScanLineSize, numScanLines) / 2;
+    // TODO: Remove this when we can change the ABI
+    (void) _maxScanLineSize;
+    size_t tmpBufferSize = uiMult (maxScanLineSize, numScanLines) / 2;
 
     size_t outBufferSize =
                 uiAdd (uiMult (maxScanLineSize, numScanLines),

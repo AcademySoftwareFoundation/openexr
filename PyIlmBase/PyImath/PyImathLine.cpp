@@ -348,8 +348,7 @@ intersect2(Line3<T> &line, const Vec3<T> &v0, const Vec3<T> &v1, const Vec3<T> &
     
     if(IMATH_NAMESPACE::intersect(line, v0, v1, v2, pt, bar, front))
     {
-        tuple t = make_tuple(pt, bar, front);
-        return t;
+        return make_tuple (pt, bar, front);
     }
     else
     {
@@ -591,5 +590,3 @@ template PYIMATH_EXPORT class_<Line3<float> > register_Line<float>();
 template PYIMATH_EXPORT class_<Line3<double> > register_Line<double>();
 
 } // namespace PyImath
-
-
