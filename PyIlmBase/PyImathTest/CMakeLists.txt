@@ -16,6 +16,5 @@ if(TARGET Python3::Interpreter)
   )
   set_tests_properties(PyIlmBase.PyImathTest_Python3 PROPERTIES
     ENVIRONMENT "PYTHONPATH=${CMAKE_BINARY_DIR}/python${Python3_VERSION_MAJOR}_${Python3_VERSION_MINOR}"
-    WILL_FAIL TRUE ###### TODO: Fix this once we officially support VFX platform 20 (currently broken)
   )
 endif()

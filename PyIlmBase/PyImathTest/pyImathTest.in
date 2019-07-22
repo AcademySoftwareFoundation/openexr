@@ -2007,11 +2007,11 @@ def testV2x (Vec):
     
     assert v1 / v2 == Vec(10/2, 20/4)
     assert v1 / 2 == Vec(10/2, 20/2)
-    assert 40 / v1 == Vec(40/10, 40/20)
+    assert Vec(40) / v1 == Vec(40/10, 40/20)
 
     # (with the switch to python2, we now allow ops between vectors and tuples)
     assert v1 / (1, 2) == Vec(10/1, 20/2)
-    assert (30, 40) / v1 == Vec(30/10, 40/20)
+    assert Vec(30, 40) / v1 == Vec(30/10, 40/20)
 
     assert v1 / V2i (2, 4) == Vec(10/2, 20/4)
     assert v1 / V2f (2, 4) == Vec(10/2, 20/4)
@@ -2849,7 +2849,7 @@ def testV3x (Vec):
     
     assert v1 / v2 == Vec(10/2, 20/4, 40/8)
     assert v1 / 2 == Vec(10/2, 20/2, 40/2)
-    assert 40 / v1 == Vec(40/10, 40/20, 40/40)
+    assert Vec(40) / v1 == Vec(40/10, 40/20, 40/40)
 
     # (with the switch to python2, we now allow ops between vectors and tuples)
     assert v1 / (1, 2, 4) == Vec(10, 10, 10)
@@ -3817,7 +3817,7 @@ def testV4x (Vec):
     
     assert v1 / v2 == Vec(10/2, 20/4, 40/8, 80/10)
     assert v1 / 2 == Vec(10/2, 20/2, 40/2, 80/2)
-    assert 80 / v1 == Vec(80/10, 80/20, 80/40, 80/80)
+    assert Vec(80) / v1 == Vec(80/10, 80/20, 80/40, 80/80)
 
     # (with the switch to python2, we now allow ops between vectors and tuples)
     assert v1 / (1, 2, 4, 8) == Vec(10, 10, 10, 10)
@@ -4709,7 +4709,7 @@ def testShear6x (Shear):
     
     assert h1 / h2 == Shear(10/2, 20/4, 40/8, -10/-2, -20/-4, -40/-8)
     assert h1 / 2 == Shear(10/2, 20/2, 40/2, -10/2, -20/2, -40/2)
-    assert 40 / h1 == Shear(40/10, 40/20, 40/40, 40/-10, 40/-20, 40/-40)
+    assert Shear(40) / h1 == Shear(40/10, 40/20, 40/40, 40/-10, 40/-20, 40/-40)
 
     # (with the switch to python2, we now allow ops between vectors and tuples)
     assert h1 / (1, 2, 4, -1, -2, -4) == Shear(10, 10, 10, 10, 10, 10)
@@ -7343,11 +7343,11 @@ def testColor3x (Color, maxComp):
     
     assert v1 / v2 == Color(10/2, 20/4, 40/8)
     assert v1 / 2 == Color(10/2, 20/2, 40/2)
-    assert 40 / v1 == Color(40/10, 40/20, 40/40)
+    assert Color(40) / v1 == Color(40/10, 40/20, 40/40)
 
     # (with the switch to python2, we now allow ops between colors and tuples)
     assert v1 / (1, 4, 20) == Color(10/1, 20/4, 40/20)
-    assert (20, 60, 160) / v1 == Color(20/10, 60/20, 160/40)
+    assert Color(20, 60, 160) / v1 == Color(20/10, 60/20, 160/40)
     
     # Color space conversion.
 
@@ -7517,11 +7517,11 @@ def testColor4x (Color, maxComp):
     
     assert v1 / v2 == Color(10/2, 20/4, 40/8, 40/8)
     assert v1 / 2 == Color(10/2, 20/2, 40/2, 40/2)
-    assert 40 / v1 == Color(40/10, 40/20, 40/40, 40/40)
+    assert Color(40) / v1 == Color(40/10, 40/20, 40/40, 40/40)
 
     # (with the switch to python2, we now allow ops between colors and tuples)
     assert v1 / (1, 4, 8, 20) == Color(10/1, 20/4, 40/8, 40/20)
-    assert (20, 60, 160, 40) / v1 == Color(20/10, 60/20, 160/40, 40/40)
+    assert Color(20, 60, 160, 40) / v1 == Color(20/10, 60/20, 160/40, 40/40)
 
     # Color space conversion.
 
@@ -8071,7 +8071,7 @@ def testProcrustes():
     f = []
     t = []
     w = []
-    for i in xrange (n):
+    for i in range (n):
         theta = 2.0 * pi * float(i)/float(n)
         fromVec = V3d(cos(theta), sin(theta), 0)
         w.append (1)
@@ -8079,7 +8079,7 @@ def testProcrustes():
         t.append (fromVec * m)
 
     result = procrustesRotationAndTranslation (f, t, None, False)
-    for i in xrange(n):
+    for i in range(n):
         res = f[i] * result
         assert ((res - t[i]).length2() < 1e-5)
 
@@ -8087,12 +8087,12 @@ def testProcrustes():
     r = Rand48(145)
     f1 = V3dArray (n)
     t1 = V3dArray (n)
-    for i in xrange(n):
+    for i in range(n):
         fromVec = V3d (r.nextf(), r.nextf(), r.nextf())
         f1[i] = fromVec
         t1[i] = fromVec * m
     result = procrustesRotationAndTranslation (f1, t1, None, False)
-    for i in xrange(n):
+    for i in range(n):
         res = f1[i] * result
         assert ((res - t1[i]).length2() < 1e-5)
 
@@ -8101,7 +8101,7 @@ def testProcrustes():
     t.append (V3d(10000,10000,100))
     w.append (0.0)
     result = procrustesRotationAndTranslation (f, t, w, False)
-    for i in xrange(n):
+    for i in range(n):
         res = f[i] * result
         assert ((res - t[i]).length2() < 1e-5)
    
@@ -8116,14 +8116,14 @@ def testSVD():
 
     eps = 1e-4
     def sameMatrix44 (m1, m2):
-        for i in xrange(4):
-            for j in xrange(4):
+        for i in range(4):
+            for j in range(4):
                 if (abs(m1[i][j] - m2[i][j]) > eps):
                     return False
         return True
 
     def sameVector4 (v1, v2):
-        for i in xrange(4):
+        for i in range(4):
             if (abs(v1[i] - v2[i]) > eps):
                 return False
         return True
@@ -8136,21 +8136,21 @@ def testSVD():
         [U, S, V] = m.singularValueDecomposition(True)
         assert (sameMatrix44(U*U.transposed(), M44d()))
         assert (sameMatrix44(V*V.transposed(), M44d()))
-        for i in xrange(3):
+        for i in range(3):
             assert S[i] >= 0
 
         assert (U.determinant() > 0)
         assert (V.determinant() > 0)
 
         sDiag = M44d()
-        for i in xrange(4):
+        for i in range(4):
             sDiag[i][i] = S[i]
         assert (sameMatrix44(U*sDiag*V.transposed(), m))
 
         [U2, S2, V2] = m.singularValueDecomposition(False)
-        for i in xrange(4):
+        for i in range(4):
             assert (S2[i] >= 0)
-        for i in xrange(3):
+        for i in range(3):
             assert (abs(S[i] - S2[i]) < eps)
         assert (abs(abs(S[3]) - S2[3]) < eps)
 
@@ -8173,14 +8173,14 @@ def testSVD():
 
     eps = 1e-4
     def sameMatrix33 (m1, m2):
-        for i in xrange(3):
-            for j in xrange(3):
+        for i in range(3):
+            for j in range(3):
                 if (abs(m1[i][j] - m2[i][j]) > eps):
                     return False
         return True
 
     def sameVector3 (v1, v2):
-        for i in xrange(3):
+        for i in range(3):
             if (abs(v1[i] - v2[i]) > eps):
                 return False
         return True
@@ -8193,21 +8193,21 @@ def testSVD():
         [U, S, V] = m.singularValueDecomposition(True)
         assert (sameMatrix33(U*U.transposed(), M33d()))
         assert (sameMatrix33(V*V.transposed(), M33d()))
-        for i in xrange(3):
+        for i in range(3):
             assert S[i] >= 0
 
         assert (U.determinant() > 0)
         assert (V.determinant() > 0)
 
         sDiag = M33d()
-        for i in xrange(3):
+        for i in range(3):
             sDiag[i][i] = S[i]
         assert (sameMatrix33(U*sDiag*V.transposed(), m))
 
         [U2, S2, V2] = m.singularValueDecomposition(False)
-        for i in xrange(2):
+        for i in range(2):
             assert (S2[i] >= 0)
-        for i in xrange(2):
+        for i in range(2):
             assert (abs(S[i] - S2[i]) < eps)
         assert (abs(abs(S[2]) - S2[2]) < eps)
 
@@ -8232,14 +8232,14 @@ def testSymmetricEigensolve():
 
     eps = 1e-4
     def sameMatrix44 (m1, m2):
-        for i in xrange(4):
-            for j in xrange(4):
+        for i in range(4):
+            for j in range(4):
                 if (abs(m1[i][j] - m2[i][j]) > eps):
                     return False
         return True
 
     def sameVector4 (v1, v2):
-        for i in xrange(4):
+        for i in range(4):
             if (abs(v1[i] - v2[i]) > eps):
                 return False
         return True
@@ -8257,7 +8257,7 @@ def testSymmetricEigensolve():
     assert (sameMatrix44(Q*Q.transposed(), M44d()))
 
     sDiag = M44d()
-    for i in xrange(4):
+    for i in range(4):
         sDiag[i][i] = S[i]
     assert (sameMatrix44 (Q * sDiag * Q.transposed(), m))
 
@@ -8271,14 +8271,14 @@ def testSymmetricEigensolve():
         assert 0
 
     def sameMatrix33 (m1, m2):
-        for i in xrange(3):
-            for j in xrange(3):
+        for i in range(3):
+            for j in range(3):
                 if (abs(m1[i][j] - m2[i][j]) > eps):
                     return False
         return True
 
     def sameVector3 (v1, v2):
-        for i in xrange(3):
+        for i in range(3):
             if (abs(v1[i] - v2[i]) > eps):
                 return False
         return True
@@ -8295,7 +8295,7 @@ def testSymmetricEigensolve():
     assert (sameMatrix33(Q*Q.transposed(), M33d()))
 
     sDiag = M33d()
-    for i in xrange(3):
+    for i in range(3):
         sDiag[i][i] = S[i]
     assert (sameMatrix33 (Q * sDiag * Q.transposed(), m))
 
@@ -8400,7 +8400,7 @@ def testStringArray():
     assert((s != s2).reduce() == 0)
     assert((s == s2).reduce() == num)
 
-    s[id < num/2] = 'bar'
+    s[id < num//2] = 'bar'
     
     assert((s != 'foo').reduce() == num/2)
     assert((s == 'foo').reduce() == num/2)
@@ -8466,7 +8466,7 @@ def testWstringArray():
     assert((s != s2).reduce() == 0)
     assert((s == s2).reduce() == num)
 
-    s[id < num/2] = u'bar'
+    s[id < num//2] = u'bar'
     
     assert((s != u'foo').reduce() == num/2)
     assert((s == u'foo').reduce() == num/2)
