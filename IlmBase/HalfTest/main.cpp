@@ -3,6 +3,10 @@
 // Copyright Contributors to the OpenEXR Project.
 //
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include <testSize.h>
 #include <testArithmetic.h>
 #include <testError.h>

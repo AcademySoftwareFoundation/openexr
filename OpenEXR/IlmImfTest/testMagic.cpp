@@ -32,6 +32,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include <ImfVersion.h>
 #include <ImfTestFile.h>
 #include <ImfStdIO.h>

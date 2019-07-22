@@ -32,7 +32,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
 
 #include <testRoots.h>
 #include "ImathRoots.h"
@@ -256,5 +258,3 @@ testRoots ()
     solve (3,  -6,  30,   0,   0,   0); // real solutions: none
     cout << "ok\n" << endl;
 }
-
-

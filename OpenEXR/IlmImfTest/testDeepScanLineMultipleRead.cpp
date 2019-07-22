@@ -31,6 +31,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include "testCompositeDeepScanLine.h"
 
 #include <ImfDeepScanLineOutputFile.h>

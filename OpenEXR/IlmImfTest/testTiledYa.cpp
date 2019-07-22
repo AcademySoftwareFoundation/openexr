@@ -36,6 +36,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
 
 #include <ImfTiledRgbaFile.h>
 #include <ImfArray.h>

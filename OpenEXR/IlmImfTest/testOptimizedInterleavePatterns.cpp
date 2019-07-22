@@ -31,6 +31,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include "ImfInputFile.h"
 #include <stdlib.h>
 #include <vector>
@@ -621,4 +625,3 @@ testOptimizedInterleavePatterns (const std::string & tempDir)
     
     cout << "ok\n" << endl;
 }
-

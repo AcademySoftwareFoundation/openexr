@@ -32,6 +32,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
 
 #include <testQuatSlerp.h>
 #include "ImathQuat.h"
@@ -197,4 +200,3 @@ testQuatSlerp ()
 
     cout << "ok\n" << endl;
 }
-

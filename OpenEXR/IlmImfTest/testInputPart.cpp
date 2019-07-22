@@ -33,7 +33,11 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 ///////////////////////////////////////////////////////////////////////////
-  
+
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include <iostream>
 #include <string>
 #include <vector>

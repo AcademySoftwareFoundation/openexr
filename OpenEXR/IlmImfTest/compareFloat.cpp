@@ -36,6 +36,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include "compareFloat.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;

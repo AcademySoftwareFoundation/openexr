@@ -32,6 +32,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include "ImathMatrixAlgo.h"
 #include <iostream>
 #include <assert.h>
@@ -357,4 +361,3 @@ testTinySVD ()
     std::cout << "Testing TinySVD algorithms in double precision..." << std::endl;
     testTinySVDImp<double>();
 }
-

@@ -3,6 +3,10 @@
 // Copyright Contributors to the OpenEXR Project.
 //
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include <testBitPatterns.h>
 #include "half.h"
 #include <float.h>

@@ -60,8 +60,12 @@ Semaphore::Semaphore (unsigned int value)
 
 Semaphore::~Semaphore ()
 {
+#ifdef NDEBUG
+    ::sem_destroy (&_semaphore);
+#else
     int error = ::sem_destroy (&_semaphore);
     assert (error == 0);
+#endif
 }
 
 

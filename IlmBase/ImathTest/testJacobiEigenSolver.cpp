@@ -32,6 +32,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include "ImathMatrix.h"
 #include "ImathMatrixAlgo.h"
 #include <iostream>
@@ -309,5 +313,3 @@ testJacobiEigenSolver()
     
     cout << "************      ALL PASS          ************" << endl;
 }
-
-	

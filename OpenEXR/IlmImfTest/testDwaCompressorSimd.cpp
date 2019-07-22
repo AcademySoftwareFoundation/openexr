@@ -31,6 +31,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include <half.h>
 #include <math.h>
 #include <string.h>

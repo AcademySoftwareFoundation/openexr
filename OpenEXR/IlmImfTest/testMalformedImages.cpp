@@ -32,6 +32,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
+
 #include <ImfAcesFile.h>
 #include <ImfArray.h>
 #include <ImfRgbaFile.h>
