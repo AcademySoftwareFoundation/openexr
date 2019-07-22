@@ -15,7 +15,7 @@ steps:
     if [ "$CCOMPILER" ]; then
         export CC="$CCOMPILER"
     fi
-    export LD_LIBRARY_PATH=$PWD/IlmBase/Half:$PWD/IlmBase/IlmThread:$PWD/IlmBase/Iex:$PWD/IlmBase/IexMath:$PWD/IlmBase/Imath:$PWD/OpenEXR/IlmImf:$PWD/OpenEXR/IlmImfUtil:$LD_LIBRARY_PATH
+    echo `which cmake`
     cmake --build . \
           --target install \
           --config ${{ parameters.buildType }} \
