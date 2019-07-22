@@ -872,7 +872,7 @@ notequal(const Vec4<T> &v, const tuple &t)
         res.x = extract<T>(t[0]);
         res.y = extract<T>(t[1]);
         res.z = extract<T>(t[2]);
-        res.z = extract<T>(t[3]);
+        res.w = extract<T>(t[3]);
         
         return (v != res);
     }

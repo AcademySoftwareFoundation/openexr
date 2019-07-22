@@ -134,6 +134,7 @@ class FixedMatrix
 
     void extract_slice_indices(PyObject *index, Py_ssize_t &start, Py_ssize_t &end, Py_ssize_t &step, Py_ssize_t &slicelength) const
     {
+        slicelength = 0;
         if (PySlice_Check(index)) {
 #if PY_MAJOR_VERSION > 2
             PyObject *slice = index;

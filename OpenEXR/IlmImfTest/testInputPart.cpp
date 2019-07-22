@@ -279,7 +279,7 @@ void generateRandomHeaders(int partCount, vector<Header>& headers)
             tileY = rand() % height + 1;
             levelMode = rand() % 3;
             levelModes[i] = levelMode;
-            LevelMode lm;
+            LevelMode lm  = NUM_LEVELMODES;
             switch (levelMode)
             {
                 case 0:
@@ -302,7 +302,7 @@ void generateRandomHeaders(int partCount, vector<Header>& headers)
             // can't write random scanlines
             order = rand() % (NUM_LINEORDERS-1);
         }
-        LineOrder l;
+        LineOrder l = NUM_LINEORDERS;
         switch(order)
         {
              case 0 : 

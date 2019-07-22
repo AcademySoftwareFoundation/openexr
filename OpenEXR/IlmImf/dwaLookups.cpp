@@ -167,6 +167,7 @@ namespace {
                     half inputHalf, closestHalf;
 
                     inputHalf.setBits(input);
+                    closestHalf.setBits(0);
 
                     _offset[input - _startValue] = _numElements;
 

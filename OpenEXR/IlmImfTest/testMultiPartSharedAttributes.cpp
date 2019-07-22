@@ -126,7 +126,7 @@ generateRandomHeaders (int partCount, vector<Header> & headers)
             tileX = rand() % width + 1;
             tileY = rand() % height + 1;
             levelMode = rand() % 3;
-            LevelMode lm;
+            LevelMode lm = NUM_LEVELMODES;
             switch (levelMode)
             {
                 case 0:
