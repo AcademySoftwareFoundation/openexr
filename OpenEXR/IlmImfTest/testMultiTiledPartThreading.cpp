@@ -269,7 +269,7 @@ generateFiles (const std::string & fn)
 
         int tileX = tileSize;
         int tileY = tileSize;
-        LevelMode lm;
+        LevelMode lm = NUM_LEVELMODES;
         switch (levelMode)
         {
             case 0:

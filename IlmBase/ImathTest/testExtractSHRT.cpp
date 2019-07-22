@@ -70,8 +70,8 @@ testMatrix (const M33f M)
     // angle back to a matrix, N.
     //
 
-    V2f s, t;
-    float h, r;
+    V2f s(0.f), t(0.f);
+    float h, r= 0.f;
   
     extractSHRT (M, s, h, r, t, true);
 

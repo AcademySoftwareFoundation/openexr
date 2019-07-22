@@ -163,7 +163,7 @@ solve (double a, double b, double c,	// coefficients
     // Solve the equation a*x^2 + b*x^1 + c*x
     //
 
-    double x[2];
+    double x[2] = {0.0, 0.0};
     int n = IMATH_INTERNAL_NAMESPACE::solveQuadratic (a, b, c, x);
 
     //
@@ -171,7 +171,7 @@ solve (double a, double b, double c,	// coefficients
     // Sort the expected solutions.
     //
     // Dummy variable for sort
-    double x2;
+    double x2 = 0;
     sort (nx, x0, x1, x2);
     sort (n, x);
 

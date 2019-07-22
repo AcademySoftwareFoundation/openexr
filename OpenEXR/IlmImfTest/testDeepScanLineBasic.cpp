@@ -131,7 +131,7 @@ void generateRandomFile (const std::string filename,
 
     for (int i = 0; i < channelCount; i++)
     {
-        PixelType type;
+        PixelType type = NUM_PIXELTYPES;
         if (channelTypes[i] == 0)
             type = IMF::UINT;
         if (channelTypes[i] == 1)
@@ -143,7 +143,7 @@ void generateRandomFile (const std::string filename,
         ss << i;
         string str = ss.str();
 
-        int sampleSize;
+        int sampleSize = 0;
         if (channelTypes[i] == 0) sampleSize = sizeof (unsigned int);
         if (channelTypes[i] == 1) sampleSize = sizeof (half);
         if (channelTypes[i] == 2) sampleSize = sizeof (float);
@@ -302,7 +302,7 @@ void readFile (const std::string & filename,
         }
         if(!randomChannels || read_channel[i]==1)
 	{
-            PixelType type;
+            PixelType type = NUM_PIXELTYPES;
             if (channelTypes[i] == 0)
                 type = IMF::UINT;
             if (channelTypes[i] == 1)
@@ -314,7 +314,7 @@ void readFile (const std::string & filename,
             ss << i;
             string str = ss.str();
 
-            int sampleSize;
+            int sampleSize = 0;
             if (channelTypes[i] == 0) sampleSize = sizeof (unsigned int);
             if (channelTypes[i] == 1) sampleSize = sizeof (half);
             if (channelTypes[i] == 2) sampleSize = sizeof (float);
