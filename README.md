@@ -3,13 +3,17 @@
 [![License](https://img.shields.io/badge/License-BSD%203%20Clause-blue.svg)](LICENSE.md)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2799/badge)](https://bestpractices.coreinfrastructure.org/projects/2799)
 
-**OpenEXR** is a high dynamic-range (HDR) image file format developed
-by Industrial Light & Magic (ILM) for use in computer imaging
-applications. It supports stereoscopic and deep images.  Weta Digital,
-Walt Disney Animation Studios, Sony Pictures Imageworks, Pixar
-Animation Studios, DreamWorks, and other studios, companies, and
-individuals have made contributions to the code base. The file format
-has seen wide adoption in a number of industries.
+![openexr](/OpenEXR/doc/source_images/openexr.png)
+
+**OpenEXR** is a high dynamic-range (HDR) image file format originally
+developed by Industrial Light & Magic (ILM) in 2003 for use in
+computer imaging applications. It supports stereoscopic and deep
+images.  Weta Digital, Walt Disney Animation Studios, Sony Pictures
+Imageworks, Pixar Animation Studios, DreamWorks, and other studios,
+companies, and individuals have made contributions to the code
+base. OpenEXR is now maintained by the [Academy Software
+Foundation](https://www.aswf.io). The file format has seen wide
+adoption in a number of industries.
 
 OpenEXR's features include:
 
@@ -48,11 +52,9 @@ The OpenEXR distribution consists of the following sub-modules:
 * **IlmBase** - Utility libraries from Industrial Light & Magic: Half, Imath, Iex, IlmThread.
 * **PyIlmBase** - Python bindings for the IlmBase libraries.
 * **OpenEXR** - The core image library.
-* **OpenEXR_Viewers** - Standard image viewing programs
+* **OpenEXR_Viewers** - Example code for image viewing programs.
 * **Contrib** - Various plugins and utilities, contributed by the community.
     
-Please see the README.md files of each of the individual directories for more information.
-
 A collection of OpenEXR images is available from the adjacent repository
 [openexr-images](https://github.com/openexr/openexr-images).
 
@@ -60,24 +62,25 @@ A collection of OpenEXR images is available from the adjacent repository
 
 The OpenEXR codebase can be built with any of the following:
 
-* Linux: GCC 4.8 or newer
+* Linux
+* macOS
 * Microsoft Visual Studio 2015 or newer
-* Mac OS
 
-The Python bindings in PyIlmBase support Python 2.6 and 2.7; they have
-not been tested for Python 3.
+The Python bindings in PyIlmBase support Python 2 and Python 3.
 
 ## Dependencies
 
-OpenEXR depends on [zlib](https://zlib.net).
+* OpenEXR depends on [zlib](https://zlib.net).
 
-PyIlmBase depends on [boost-python](https://github.com/boostorg/python) and
+* PyIlmBase depends on [boost-python](https://github.com/boostorg/python) and
 optionally on [numpy](http://www.numpy.org).
 
-In OpenEXR_Viewers:
+* In OpenEXR_Viewers:
 
-* **exrdisplay** depends on [fltk](http://www.fltk.org/index.php)
-* **playexr** depends on [Cg](https://developer.nvidia.com/cg-toolkit)
+  * **exrdisplay** depends on [fltk](http://www.fltk.org/index.php)
+  * **playexr** depends on [Cg](https://developer.nvidia.com/cg-toolkit)
+
+See [INSTALL](INSTALL.md) for more details.
 
 ## Web Resources
 
@@ -91,48 +94,62 @@ In OpenEXR_Viewers:
 
 ## Developer Quick Start
 
-Download the latest release of OpenEXR from the GitHub Releases page:
-https://github.com/openexr/openexr/releases.
+See [INSTALL](INSTALL.md) for instructions on downloading and building OpenEXR
+from source.
 
-For the basic installation on Linux:
+## License
 
-    cd <source root>/IlmBase
-    ./configure
-    make
-    make install
-
-    cd <source root>/OpenEXR
-    ./configure
-    make 
-    make install
-
-See the module README files for options to ``configure``.
-
-See the [build documentation](INSTALL.md) documentation for help with
-installation on other platforms.
+OpenEXR is released under the [BSD-3-Clause](LICENSE) license.
+ 
+Developers who wish to contribute code to be considered for inclusion
+in the OpenEXR distribution must first complete the Contributor
+License Agreement and submit it to info@openexr.com. Commits must
+include a “Signed-off-by” line indicating that the committer wrote the
+code and has the right to release it under the BSD-3-Clause
+license. See http://developercertificate.org/ for more information.
 
 ## Contributing
 
-Developers who wish to contribute code to be considered for inclusion
-in the OpenEXR distribution must first complete the Contributor
-License Agreement and submit it to info@openexr.com. We prefer code
-submissions in the form of pull requests to this repository. Every
-commit must be signed off. That is, every commit log message must
-include a “Signed-off-by” line (generated, for example, with “git
-commit --signoff”), indicating that the committer wrote the code and
-has the right to release it under the BSD-3-Clause license. See
-http://developercertificate.org/ for more information on this
-requirement.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for more information about
+See [CONTRIBUTING](CONTRIBUTING.md) for more information about
 contributing to OpenEXR.
 
 ## Project Goverance
 
 OpenEXR is governed by the Academy Software Foundation. See
-[GOVERNANCE.md](GOVERNANCE.md) for more infomation.
+[GOVERNANCE](GOVERNANCE.md) for more infomation.
 
 ## Documentation
 
-Documentation is available at http://www.openexr.com/documentation.html.
+Technical documentation is available at
+http://www.openexr.com/documentation.html, or:
 
+* [Technical Introduction](/OpenEXR/doc/TechnicalIntroduction.pdf)
+
+* [Reading and Writing Image Files](/OpenEXR/doc/ReadingAndWritingImageFiles.pdf)
+
+* [OpenEXR File Layout](/OpenEXR/doc/OpenEXRFileLayout.pdf)
+
+* [Multi-View OpenEXR](/OpenEXR/doc/MultiViewOpenEXR.pdf)
+
+* [Interpreting OpenEXR Deep Pixels](/OpenEXR/doc/InterpretingDeepPixels.pdf)
+
+* [The Theory Of OpenEXR Deep Samples](/OpenEXR/doc/InterpretingDeepPixels.pdf)
+
+## Frequently Asked Questions
+
+## "``pip install openexr`` doesn't work."
+
+The OpenEXR project provides python bindings for the Imath
+vector/matrix classes, but it does *not* provide python bindings for
+reading, writing, or editing .exr files.  The
+[openexrpython](https://github.com/jamesbowman/openexrpython) module
+is not affiliated with the OpenEXR project or the ASWF. Please direct
+questions there.
+
+Alternatively,
+[OpenImageIO](https://sites.google.com/site/openimageio/home) also
+includes python bindings for OpenEXR.
+
+---
+
+![aswf](/OpenEXR/doc/source_images/aswf.png)
