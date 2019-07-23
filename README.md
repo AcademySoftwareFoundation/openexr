@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-BSD%203%20Clause-blue.svg)](LICENSE.md)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2799/badge)](https://bestpractices.coreinfrastructure.org/projects/2799)
 
-![openexr](/OpenEXR/doc/source_images/openexr.png)
+![openexr](/OpenEXR/doc/images/windowExample1.big.png)
 
 **OpenEXR** is a high dynamic-range (HDR) image file format originally
 developed by Industrial Light & Magic (ILM) in 2003 for use in
@@ -137,19 +137,19 @@ http://www.openexr.com/documentation.html, or:
 
 ## Frequently Asked Questions
 
-## "``pip install openexr`` doesn't work."
+* "``pip install openexr`` doesn't work."
 
-The OpenEXR project provides python bindings for the Imath
-vector/matrix classes, but it does *not* provide python bindings for
-reading, writing, or editing .exr files.  The
-[openexrpython](https://github.com/jamesbowman/openexrpython) module
-is not affiliated with the OpenEXR project or the ASWF. Please direct
-questions there.
+  The OpenEXR project provides python bindings for the Imath
+  vector/matrix classes, but it does *not* provide python bindings for
+  reading, writing, or editing .exr files.  The
+  [openexrpython](https://github.com/jamesbowman/openexrpython) module
+  is not affiliated with the OpenEXR project or the ASWF. Please
+  direct questions there.
 
-Alternatively,
-[OpenImageIO](https://sites.google.com/site/openimageio/home) also
-includes python bindings for OpenEXR.
+  Alternatively,
+  [OpenImageIO](https://sites.google.com/site/openimageio/home) also
+  includes python bindings for OpenEXR.
 
 ---
 
-![aswf](/OpenEXR/doc/source_images/aswf.png)
+![aswf](/ASWF/images/aswf.png)
