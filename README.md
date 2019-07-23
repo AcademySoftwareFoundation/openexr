@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-BSD%203%20Clause-blue.svg)](LICENSE.md)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2799/badge)](https://bestpractices.coreinfrastructure.org/projects/2799)
 
-![openexr](/OpenEXR/doc/images/windowExample1.big.png)
+![openexr](/OpenEXR/doc/images/windowExample1.png)
 
 **OpenEXR** is a high dynamic-range (HDR) image file format originally
 developed by Industrial Light & Magic (ILM) in 2003 for use in
@@ -56,7 +56,7 @@ The OpenEXR distribution consists of the following sub-modules:
 * **Contrib** - Various plugins and utilities, contributed by the community.
     
 A collection of OpenEXR images is available from the adjacent repository
-[openexr-images](https://github.com/openexr/openexr-images).
+https://github.com/openexr/openexr-images.
 
 ## Supported Platforms
 
