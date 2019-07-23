@@ -219,8 +219,6 @@ class WritingTask: public Task
             {
                 int partNumber = data[i]->partNumber;
                 int partType = partTypes[partNumber];
-                //int pixelType = pixelTypes[partNumber];
-                //int levelMode = levelModes[partNumber];
 
                 if (partType == 0)
                 {

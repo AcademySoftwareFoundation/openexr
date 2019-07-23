@@ -1839,7 +1839,7 @@ readSampleCountForLineBlock(InputStreamMutex* streamData,
     //
 
 
-    if (sampleCountTableDataSize < Int64(data->maxSampleCountTableSize))
+    if (sampleCountTableDataSize < static_cast<Int64>(data->maxSampleCountTableSize))
     {
         if(!data->sampleCountTableComp)
         {

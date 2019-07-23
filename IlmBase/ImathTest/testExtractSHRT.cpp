@@ -73,7 +73,11 @@ testMatrix (const M33f M)
     V2f s(0.f), t(0.f);
     float h, r= 0.f;
   
-    extractSHRT (M, s, h, r, t, true);
+    if (!extractSHRT (M, s, h, r, t, true))
+    {
+        cout << "Unable to extractSHRT" << std::endl;
+        assert(false);
+    }
 
     M33f N;
 

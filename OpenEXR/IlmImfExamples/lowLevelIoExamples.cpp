@@ -98,18 +98,18 @@ class C_OStream: public OStream
 bool
 C_IStream::read (char c[/*n*/], int n)
 {
-    if (size_t(n) != fread (c, 1, n, _file))
+    if (n != static_cast<int>(fread (c, 1, n, _file)))
     {
-	//
-	// fread() failed, but the return value does not distinguish
-	// between I/O errors and end of file, so we call ferror() to
-	// determine what happened.
-	//
+        //
+        // fread() failed, but the return value does not distinguish
+        // between I/O errors and end of file, so we call ferror() to
+        // determine what happened.
+        //
 
-	if (ferror (_file))
-	    IEX_NAMESPACE::throwErrnoExc();
-	else
-	    throw IEX_NAMESPACE::InputExc ("Unexpected end of file.");
+        if (ferror (_file))
+            IEX_NAMESPACE::throwErrnoExc();
+        else
+            throw IEX_NAMESPACE::InputExc ("Unexpected end of file.");
     }
 
     return feof (_file);
@@ -143,8 +143,8 @@ C_OStream::write (const char c[/*n*/], int n)
 {
     clearerr (_file);
 
-    if (size_t(n) != fwrite (c, 1, n, _file))
-	IEX_NAMESPACE::throwErrnoExc();
+    if (n != static_cast<int>(fwrite (c, 1, n, _file)))
+        IEX_NAMESPACE::throwErrnoExc();
 }
 
 

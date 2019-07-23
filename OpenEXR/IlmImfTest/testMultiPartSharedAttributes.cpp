@@ -190,7 +190,6 @@ testPixelAspectRatio (const vector<Header> & hs, const std::string & fn)
 {
     vector<Header> headers(hs);
 
-    //IMATH_NAMESPACE::Box2i newDisplayWindow = headers[0].displayWindow();
     Header newHeader (headers[0].displayWindow().size().x+1,
                       headers[0].displayWindow().size().y+1,
                       headers[0].pixelAspectRatio() + 1.f);
