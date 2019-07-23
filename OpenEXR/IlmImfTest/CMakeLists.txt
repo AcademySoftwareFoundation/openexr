@@ -59,6 +59,7 @@ add_executable(IlmImfTest
   testWav.cpp
   testXdr.cpp
   testYca.cpp
+  testLargeDataWindowOffsets.cpp
 )
 target_compile_definitions(IlmImfTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 target_link_libraries(IlmImfTest OpenEXR::IlmImf)
