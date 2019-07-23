@@ -255,7 +255,7 @@ writeLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, const vector<Int6
 {
     Int64 pos = os.tellp();
 
-    if (pos == Int64(-1))
+    if (pos == static_cast<Int64>(-1))
 	IEX_NAMESPACE::throwErrnoExc ("Cannot determine current file position (%T).");
     
     for (unsigned int i = 0; i < lineOffsets.size(); i++)
