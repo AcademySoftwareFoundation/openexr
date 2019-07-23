@@ -1,3 +1,8 @@
+dnl
+dnl SPDX-License-Identifier: BSD-3-Clause
+dnl Copyright Contributors to the OpenEXR Project.
+dnl
+
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(DtexToExr, 1.0.0)
 AC_SUBST(DTEXTOEXR_VERSION, 1.0.0)

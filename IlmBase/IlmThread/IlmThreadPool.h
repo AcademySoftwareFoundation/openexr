@@ -108,7 +108,18 @@ class ILMTHREAD_EXPORT ThreadPoolProvider
 class ILMTHREAD_EXPORT ThreadPool  
 {
   public:
-
+    //-------------------------------------------------------
+    // static routine to query how many processors should be
+    // used for processing exr files. The user of ThreadPool
+    // is free to use std::thread::hardware_concurrency or
+    // whatever number of threads is appropriate based on the
+    // application. However, this routine exists such that
+    // in the future, if core counts expand faster than
+    // memory bandwidth, or higher order NUMA machines are built
+    // that we can query, this routine gives a place where we
+    // can centralize that logic
+    //-------------------------------------------------------
+    static unsigned estimateThreadCountForFileIO ();
 
     //-------------------------------------------------------
     // Constructor -- creates numThreads worker threads which

@@ -1,3 +1,8 @@
+##
+## SPDX-License-Identifier: BSD-3-Clause
+## Copyright Contributors to the OpenEXR Project.
+##
+
 ## Process this file with automake to produce Makefile.in
 
 check_PROGRAMS = ImathTest
@@ -19,7 +24,7 @@ ImathTest_SOURCES = main.cpp testExtractEuler.cpp testExtractSHRT.cpp \
 		    testJacobiEigenSolver.cpp testJacobiEigenSolver.h \
 		    testFrustumTest.cpp testFrustumTest.h
 
-INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Imath -I$(top_srcdir)/Iex -I$(top_srcdir)/Half \
+AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir)/Imath -I$(top_srcdir)/Iex -I$(top_srcdir)/Half \
 	   -I$(top_srcdir)/config
 
 LDADD = -L$(top_builddir)/Imath -L$(top_builddir)/Iex -L$(top_builddir)/Half \

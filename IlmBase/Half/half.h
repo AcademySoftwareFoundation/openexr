@@ -274,9 +274,12 @@ HALF_EXPORT void        printBits   (char  c[35], float f);
 #define HALF_MANT_DIG	11		// Number of digits in mantissa
 					// (significand + hidden leading 1)
 
-#define HALF_DIG	2		// Number of base 10 digits that
+// 
+// floor( (HALF_MANT_DIG - 1) * log10(2) ) => 3.01... -> 3
+#define HALF_DIG	3		// Number of base 10 digits that
 					// can be represented without change
 
+// ceil(HALF_MANT_DIG * log10(2) + 1) => 4.31... -> 5
 #define HALF_DECIMAL_DIG	5	// Number of base-10 digits that are
 					// necessary to uniquely represent all
 					// distinct values

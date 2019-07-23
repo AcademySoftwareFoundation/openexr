@@ -1,3 +1,8 @@
+dnl
+dnl SPDX-License-Identifier: BSD-3-Clause
+dnl Copyright Contributors to the OpenEXR Project.
+dnl
+
 
 dnl
 dnl Cg support

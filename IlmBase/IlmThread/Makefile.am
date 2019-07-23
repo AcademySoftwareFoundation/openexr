@@ -1,3 +1,8 @@
+##
+## SPDX-License-Identifier: BSD-3-Clause
+## Copyright Contributors to the OpenEXR Project.
+##
+
 ## Process this file with automake to produce Makefile.in
 
 lib_LTLIBRARIES = libIlmThread.la
@@ -29,4 +34,4 @@ noinst_HEADERS =
 EXTRA_DIST = $(noinst_HEADERS) IlmThreadMutexWin32.cpp IlmThreadSemaphoreWin32.cpp \
 	     IlmThreadWin32.cpp CMakeLists.txt
 
-INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/config
+AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir)/Iex -I$(top_srcdir)/config

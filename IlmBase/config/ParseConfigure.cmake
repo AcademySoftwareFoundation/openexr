@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
 
 file(READ configure.ac CONFIGURE_AC_CONTENTS)
 string(REGEX MATCH "AC_INIT\\(IlmBase,[ ]*([0-9]+).([0-9]+).([0-9]+)" DUMMY ${CONFIGURE_AC_CONTENTS})

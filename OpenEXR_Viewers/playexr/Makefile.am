@@ -1,3 +1,8 @@
+##
+## SPDX-License-Identifier: BSD-3-Clause
+## Copyright Contributors to the OpenEXR Project.
+##
+
 ## Process this file with automake to produce Makefile.in
 
 if HAVE_CG
@@ -6,7 +11,7 @@ bin_PROGRAMS = playexr
 
 playexr_CPPFLAGS = $(AM_CPPFLAGS) 
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	@OPENEXR_CTL_CXXFLAGS@ \
 	@GL_CXXFLAGS@ \
 	@CG_CXXFLAGS@

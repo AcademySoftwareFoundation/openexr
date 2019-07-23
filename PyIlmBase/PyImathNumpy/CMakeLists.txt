@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
+
 if(TARGET Python2::Python AND
    TARGET Boost::${PYILMBASE_BOOST_PY2_COMPONENT} AND
    TARGET Python2::IlmBaseNumPy)

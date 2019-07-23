@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
 
 ### The autoconf setup for this folder generates a PyIlmBaseConfig.h file
 ### but no source actually uses that, so let's elide that for now

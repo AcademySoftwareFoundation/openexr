@@ -1,6 +1,11 @@
+##
+## SPDX-License-Identifier: BSD-3-Clause
+## Copyright Contributors to the OpenEXR Project.
+##
+
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/config
+AM_CPPFLAGS = -I$(top_srcdir)/config
 
 lib_LTLIBRARIES = libHalf.la
 

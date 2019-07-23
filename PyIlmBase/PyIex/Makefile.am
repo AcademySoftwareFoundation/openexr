@@ -1,3 +1,8 @@
+##
+## SPDX-License-Identifier: BSD-3-Clause
+## Copyright Contributors to the OpenEXR Project.
+##
+
 ## Process this file with automake to produce Makefile.in
 
 pyexec_LTLIBRARIES = iexmodule.la
@@ -18,6 +23,6 @@ iexmodule_la_LIBADD  = libPyIex.la @BOOST_PYTHON_LIBS@
 
 noinst_HEADERS = 
 
-INCLUDES = @ILMBASE_CXXFLAGS@ \
+AM_CPPFLAGS = @ILMBASE_CXXFLAGS@ \
 	   -I$(top_builddir)  \
 	   -I$(top_srcdir)/config

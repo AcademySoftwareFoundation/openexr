@@ -1,5 +1,8 @@
-# "More Modern" CMake version
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
 
+# We require this to get object library link library support and
+# combined python 2 + 3 support
 cmake_minimum_required(VERSION 3.12)
 
 # Hint: This can be set to enable custom find_package
@@ -62,8 +65,7 @@ if(PYILMBASE_ENABLE)
   add_subdirectory(PyIlmBase)
 endif()
 
-option(OPENEXRVIEWERS_ENABLE "Enables configuration of the viewers module" OFF)
-if(OPENEXRVIEWERS_ENABLE)
-# TODO:
-#  add_subdirectory(OpenEXR_Viewers)
+option(OPENEXR_VIEWERS_ENABLE "Enables configuration of the viewers module" ON)
+if(OPENEXR_VIEWERS_ENABLE)
+  add_subdirectory(OpenEXR_Viewers)
 endif()

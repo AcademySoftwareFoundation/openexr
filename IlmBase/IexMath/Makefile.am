@@ -1,3 +1,8 @@
+##
+## SPDX-License-Identifier: BSD-3-Clause
+## Copyright Contributors to the OpenEXR Project.
+##
+
 ## Process this file with automake to produce Makefile.in
 
 lib_LTLIBRARIES = libIexMath.la
@@ -14,7 +19,7 @@ endif
 
 libIexMath_la_LIBADD = ../Iex/libIex.la
 
-INCLUDES = -I$(top_builddir) -I$(top_srcdir)/Iex \
+AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir)/Iex \
            -I$(top_srcdir)/config
 
 EXTRA_DIST = CMakeLists.txt

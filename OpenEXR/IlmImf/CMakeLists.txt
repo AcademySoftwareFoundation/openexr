@@ -1,5 +1,11 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
+
 add_executable(b44ExpLogTable b44ExpLogTable.cpp)
 target_link_libraries(b44ExpLogTable PRIVATE OpenEXR::Config IlmBase::Half IlmBase::IlmThread IlmBase::Iex)
+set_target_properties(b44ExpLogTable PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
 # TODO: Old file had logic to skip these if the file already exists
 add_custom_command(
   OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
@@ -10,6 +16,9 @@ add_custom_command(
 
 add_executable(dwaLookups dwaLookups.cpp)
 target_link_libraries(dwaLookups PRIVATE OpenEXR::Config IlmBase::Imath IlmBase::Half IlmBase::IlmThread IlmBase::Iex)
+set_target_properties(dwaLookups PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
 # TODO: Old file had logic to skip these if the file already exists
 add_custom_command(
   OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h

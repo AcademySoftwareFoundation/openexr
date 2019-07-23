@@ -1,3 +1,8 @@
+##
+## SPDX-License-Identifier: BSD-3-Clause
+## Copyright Contributors to the OpenEXR Project.
+##
+
 ## Process this file with automake to produce Makefile.in
 
 if BUILD_IMFFUZZTEST
@@ -11,7 +16,7 @@ IlmImfFuzzTest_SOURCES = fuzzFile.cpp fuzzFile.h main.cpp tmpDir.h \
 			 testFuzzTiles.cpp testFuzzTiles.h 
 
 
-INCLUDES = -I$(top_builddir)  \
+AM_CPPFLAGS = -I$(top_builddir)  \
 	   -I$(top_srcdir)/IlmImf \
 	   -I$(top_srcdir)/config \
 	   @ILMBASE_CXXFLAGS@ $(ILMBASE_CFLAGS) $(ZLIB_CFLAGS)

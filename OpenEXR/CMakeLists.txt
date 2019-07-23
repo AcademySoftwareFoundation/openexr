@@ -1,8 +1,9 @@
-# "More Modern" CMake version
-cmake_minimum_required(VERSION 3.12)
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
 
-# this is for target_sources, new policy converts relative paths to absolute
-cmake_policy(SET CMP0076 NEW)
+# We require this to get object library link library support and
+# combined python 2 + 3 support
+cmake_minimum_required(VERSION 3.12)
 
 # we include this first to parse configure.ac and extract the version
 # numbers

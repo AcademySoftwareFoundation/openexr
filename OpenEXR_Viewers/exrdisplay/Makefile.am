@@ -1,10 +1,15 @@
+##
+## SPDX-License-Identifier: BSD-3-Clause
+## Copyright Contributors to the OpenEXR Project.
+##
+
 ## Process this file with automake to produce Makefile.in
 
 if HAVE_FLTK
 
 bin_PROGRAMS = exrdisplay
 
-INCLUDES = @OPENEXR_CXXFLAGS@ \
+AM_CPPFLAGS = @OPENEXR_CXXFLAGS@ \
         @GL_CXXFLAGS@ @CG_CXXFLAGS@ @FLTK_CXXFLAGS@ -I$(top_builddir) \
 	@OPENEXR_CTL_CXXFLAGS@
 

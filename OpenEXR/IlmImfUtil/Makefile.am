@@ -1,3 +1,8 @@
+##
+## SPDX-License-Identifier: BSD-3-Clause
+## Copyright Contributors to the OpenEXR Project.
+##
+
 ## Process this file with automake to produce Makefile.in
 
 lib_LTLIBRARIES = libIlmImfUtil.la
@@ -34,7 +39,7 @@ libIlmImfUtilincludedir = $(includedir)/OpenEXR
 
 EXTRA_DIST = CMakeLists.txt
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	   -I$(top_builddir) \
 	   -I$(top_srcdir)/IlmImf \
 	   -I$(top_srcdir)/config \

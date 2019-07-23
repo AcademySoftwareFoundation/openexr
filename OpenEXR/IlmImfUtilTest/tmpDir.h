@@ -36,7 +36,7 @@
 #if defined(ANDROID) || defined(__ANDROID_API__)
     #define IMF_TMP_DIR "/sdcard/"
     #define IMF_PATH_SEPARATOR "/"
-#elif defined(_WIN32) || defined(_WIN64) || defined(__MWERKS__)
+#elif defined(_WIN32) || defined(_WIN64)
     #define IMF_TMP_DIR ""  // TODO: get this from GetTempPath() or env var $TEMP or $TMP
     #define IMF_PATH_SEPARATOR "\\"
     #include <direct.h> // for _mkdir, _rmdir

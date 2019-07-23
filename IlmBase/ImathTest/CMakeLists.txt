@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
 
 add_executable(ImathTest 
   main.cpp
@@ -26,4 +28,7 @@ add_executable(ImathTest
 )
 
 target_link_libraries(ImathTest IlmBase::Imath)
+set_target_properties(ImathTest PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
 add_test(NAME IlmBase.Imath COMMAND $<TARGET_FILE:ImathTest>)
