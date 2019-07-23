@@ -541,6 +541,7 @@ usageMessage (const char argv0[])
 int
 main(int argc, char **argv)
 {
+
     if (argc < 2)
     {
         usageMessage (argv[0]);
@@ -554,13 +555,24 @@ main(int argc, char **argv)
             usageMessage (argv[0]);
             return 1;
         }
+        else if(!strcmp(argv[i],"-x"))
+        {
+            Header::setMaxImageSize(0,0);
+            Header::setMaxTileSize(0,0);
+        }
+
     }
 
     try
     {
         for (int i = 1; i < argc; ++i)
-            printInfo (argv[i]);
-
+        {
+            // only process args which are not '-x'
+            if(strcmp(argv[i],"-x"))
+            {
+                 printInfo (argv[i]);
+            }
+        }
         return 0;
     }
     catch (const std::exception &e)

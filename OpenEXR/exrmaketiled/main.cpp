@@ -98,8 +98,11 @@ usageMessage (const char argv0[], bool verbose = false)
         "\n"
         "-z x      sets the data compression method to x\n"
         "          (none/rle/zip/piz/pxr24/b44/b44a/dwaa/dwab,\n"
-        "          default is zip)\n"
+        "          default is zip)\n"        
         "\n"
+        "-x        support large images: remove 65535 pixel limit on image\n"
+        "          width/height (requires significant memory to process)\n"
+		"\n"        
         "-v        verbose mode\n"
         "\n"
         "-h        prints this message\n"
@@ -228,6 +231,8 @@ main(int argc, char **argv)
     Extrapolation extY = CLAMP;
     bool verbose = false;
 
+    int maximumSize = 65535;
+    
     //
     // Parse the command line.
     //
@@ -240,6 +245,11 @@ main(int argc, char **argv)
 
     while (i < argc)
     {
+        if (!strcmp (argv[i], "-x"))
+        {
+            maximumSize = 0;
+            i += 1;
+        }
         if (!strcmp (argv[i], "-o"))
         {
             //
@@ -419,6 +429,7 @@ main(int argc, char **argv)
     try
     {
         makeTiled (inFile, outFile, partnum,
+                   maximumSize,
                    mode, roundingMode, compression,
                    tileSizeX, tileSizeY,
                    doNotFilter,

@@ -66,6 +66,7 @@ enum Extrapolation
 void    makeTiled (const char inFileName[],
                    const char outFileName[],
                    int partnum,
+                   int maximumSize,
                    IMF::LevelMode mode,
                    IMF::LevelRoundingMode roundingMode,
                    IMF::Compression compression,

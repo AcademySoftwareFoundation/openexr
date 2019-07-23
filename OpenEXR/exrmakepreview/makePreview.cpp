@@ -145,10 +145,15 @@ generatePreview (const char inFileName[],
 void
 makePreview (const char inFileName[],
 	     const char outFileName[],
+         int maximumSize,
 	     int previewWidth,
 	     float exposure,
 	     bool verbose)
 {
+    
+    Header::setMaxImageSize(maximumSize,maximumSize);
+    Header::setMaxTileSize(maximumSize,maximumSize);
+    
     if (verbose)
 	cout << "generating preview image" << endl;
 

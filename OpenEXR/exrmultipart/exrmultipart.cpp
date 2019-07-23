@@ -712,6 +712,8 @@ usageMessage (const char argv[])
 
     cout << "-view name           (after specifying -i) "
             "assign following inputs to view 'name'\n";
+    cout << "-x        support large images: remove 65535 pixel limit on image\n"
+            "          width/height (requires significant memory to process)\n";
     exit (1);
 }
 
@@ -722,7 +724,10 @@ main (int argc, char * argv[])
     {
         usageMessage (argv[0]);
     }
-
+    
+    Header::setMaxImageSize(65535,65535);
+    Header::setMaxTileSize(65535,65535);
+    
     vector <const char*> inFiles;
     vector <const char*> views;
     const char* view = 0;
@@ -737,6 +742,11 @@ main (int argc, char * argv[])
         if (!strcmp (argv[i], "-h"))
         {
             usageMessage (argv[0]);
+        }
+        if (!strcmp (argv[i], "-x"))
+        {
+            Header::setMaxImageSize(0,0);
+            Header::setMaxTileSize(0,0);   
         }
 
         if (!strcmp (argv[i], "-i"))

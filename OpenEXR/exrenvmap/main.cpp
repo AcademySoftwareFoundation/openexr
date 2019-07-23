@@ -143,12 +143,15 @@ usageMessage (const char argv0[], bool verbose = false)
                 "-d         sets level size rounding to ROUND_DOWN (default)\n"
                 "\n"
                 "-u         sets level size rounding to ROUND_UP\n"
-                "\n"
+                "\n"        
                 "-z x       sets the data compression method to x\n"
                 "           (none/rle/zip/piz/pxr24/b44/b44a/dwaa/dwab,\n"
                 "           default is zip)\n"
                 "\n"
                 "-v         verbose mode\n"
+                "\n"
+                "-x        support large images: remove 65535 pixel limit on image\n"
+                "          width/height (requires significant memory to process)\n"
                 "\n"
                 "-h         prints this message\n";
 
@@ -232,6 +235,10 @@ main(int argc, char **argv)
     bool diffuseBlur = false;
     bool verbose = false;
 
+    
+    Header::setMaxImageSize(65535,65535);
+    Header::setMaxTileSize(65535,65535);
+    
     //
     // Parse the command line.
     //
@@ -430,6 +437,13 @@ main(int argc, char **argv)
             verbose = true;
             i += 1;
         }
+        else if(!strcmp(argv[i],"-x"))
+        {
+            Header::setMaxImageSize(0,0);
+            Header::setMaxTileSize(0,0);
+            i+=1;
+        }
+
         else if (!strcmp (argv[i], "-h"))
         {
             //

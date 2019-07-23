@@ -500,6 +500,7 @@ storeLevel (TiledOutputPart &out,
 void
 makeTiled (const char inFileName[],
            const char outFileName[],
+           int maximumSize,
            int partnum,
            LevelMode mode,
            LevelRoundingMode roundingMode,
@@ -518,6 +519,9 @@ makeTiled (const char inFileName[],
     FrameBuffer fb;
     vector<Header> headers;
 
+    Header::setMaxImageSize(maximumSize,maximumSize);
+    Header::setMaxTileSize(maximumSize,maximumSize);
+    
     //
     // Load the input image
     //

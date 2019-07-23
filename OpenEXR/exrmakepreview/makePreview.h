@@ -44,6 +44,7 @@
 
 void	makePreview (const char inFileName[],
 	             const char outFileName[],
+             int maximumSize,
 		     int previewWidth,
 		     float exposure,
 		     bool verbose);

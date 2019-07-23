@@ -64,9 +64,12 @@ void
 makeMultiView (const vector <string> &viewNames,
 	       const vector <const char *> &inFileNames,
 	       const char *outFileName,
+           int maximumSize,
 	       Compression compression,
 	       bool verbose)
 {
+    Header::setMaxImageSize(maximumSize,maximumSize);
+    Header::setMaxTileSize(maximumSize,maximumSize);
     Header header;
     Image image;
     FrameBuffer outFb;

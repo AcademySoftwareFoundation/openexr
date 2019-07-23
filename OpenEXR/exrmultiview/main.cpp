@@ -86,8 +86,9 @@ usageMessage (const char argv0[], bool verbose = false)
 		"\n"
 		"-v        verbose mode\n"
 		"\n"
-		"-h        prints this message\n";
-
+		"-h        prints this message\n"
+        " -x         support large images: remove 65535 pixel limit on image\n"
+        "            width/height (requires significant memory to process)\n";
 	 cerr << endl;
     }
 
@@ -156,6 +157,7 @@ main(int argc, char **argv)
     const char *outFile = 0;
     Compression compression = PIZ_COMPRESSION;
     bool verbose = false;
+    int maximumSize = 65535;
 
     //
     // Parse the command line.
@@ -180,6 +182,11 @@ main(int argc, char **argv)
 	    compression = getCompression (argv[i + 1]);
 	    i += 2;
 	}
+	else if(!strcmp (argv[i],"-x"))
+    {
+        maximumSize = 0;
+        i += 1;
+    }
 	else if (!strcmp (argv[i], "-v"))
 	{
 	    //
@@ -248,7 +255,7 @@ main(int argc, char **argv)
 
     try
     {
-	makeMultiView (views, inFiles, outFile, compression, verbose);
+	makeMultiView (views, inFiles, outFile, maximumSize , compression, verbose);
     }
     catch (const exception &e)
     {
