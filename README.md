@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-BSD%203%20Clause-blue.svg)](LICENSE.md)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2799/badge)](https://bestpractices.coreinfrastructure.org/projects/2799)
 
-![openexr](/ASWF/images/openexr-logo.jpg) ![openexr](/OpenEXR/doc/images/windowExample1.png)
+![openexr](/OpenEXR/doc/images/windowExample1.png)
 
 **OpenEXR** is a high dynamic-range (HDR) image file format originally
 developed by Industrial Light & Magic (ILM) in 2003 for use in
