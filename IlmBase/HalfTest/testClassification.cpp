@@ -11,11 +11,13 @@
 #include "half.h"
 #include <iostream>
 #include <assert.h>
-
+#include <type_traits>
 
 using namespace std;
 
 namespace {
+
+static_assert(std::is_trivially_default_constructible<half>::value, "half is trivial and default constructible");
 
 void
 testClass (half h,
