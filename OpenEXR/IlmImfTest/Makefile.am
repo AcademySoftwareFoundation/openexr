@@ -56,6 +56,7 @@ IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
 		     testFutureProofing.cpp testFutureProofing.h \
 	             compareDwa.cpp compareDwa.h \
 	             testDwaCompressorSimd.cpp testDwaCompressorSimd.h \
+  	             testLargeDataWindowOffsets.cpp testLargeDataWindowOffsets.h \
 	             testRle.cpp testRle.h \
 		     bswap_32.h
 

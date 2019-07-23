@@ -802,22 +802,6 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 			    "maximum height of " << maxImageHeight << "pixels.");
     }
 
-    // make sure to avoid simple math overflow for large offsets
-    // we know we're at a positive width because of checks above
-    long long bigW = static_cast<long long>( w );
-    long long absOffY = std::abs ( dataWindow.min.y );
-    long long absOffX = std::abs ( dataWindow.min.x );
-    long long offX = static_cast<long long>( INT_MAX ) - absOffX;
-    long long offsetCount = absOffY * bigW;
-    long long bytesLeftPerLine = static_cast<long long>( INT_MAX ) / bigW;
-    if (bytesLeftPerLine < absOffY || offX < offsetCount)
-    {
-	THROW (IEX_NAMESPACE::ArgExc, "Data window [ (" << dataWindow.min.x
-	       << ", " << dataWindow.min.x << ") - (" << dataWindow.max.x
-	       << ", " << dataWindow.max.x
-	       << ") ] offset / size will overflow pointer calculations");
-    }
-
     // chunk table must be smaller than the maximum image area
     // (only reachable for unknown types or damaged files: will have thrown earlier
     //  for regular image types)

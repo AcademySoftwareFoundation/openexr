@@ -63,6 +63,7 @@
 #include "testYca.h"
 #include "testTiledYa.h"
 #include "testIsComplete.h"
+#include "testLargeDataWindowOffsets.h"
 #include "testSharedFrameBuffer.h"
 #include "testMultiView.h"
 #include "testMultiPartApi.h"
@@ -155,6 +156,7 @@ main (int argc, char *argv[])
     TEST (testHuf, "core");
     TEST (testWav, "core");
     TEST (testRgba, "basic");
+    TEST (testLargeDataWindowOffsets, "basic");
     TEST (testSharedFrameBuffer, "basic");
     TEST (testRgbaThreading, "basic");
     TEST (testChannels, "basic");
