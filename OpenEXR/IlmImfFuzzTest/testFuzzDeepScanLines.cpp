@@ -249,8 +249,6 @@ void readFile(const char filename[])
         file.readPixelSampleCounts(dataWindow.min.y, dataWindow.max.y);
         for (int i = 0; i < dataWindow.max.y - dataWindow.min.y + 1; i++)
         {
-            //int y = i + dataWindow.min.y;
-            
             for (int j = 0; j < width; j++)
             {
                 for (int k = 0; k < channelCount; k++)
@@ -342,8 +340,6 @@ void readFile(const char filename[])
             inpart.readPixelSampleCounts(dataWindow.min.y, dataWindow.max.y);
             for (int i = 0; i < dataWindow.max.y - dataWindow.min.y + 1; i++)
             {
-                //int y = i + dataWindow.min.y;
-                
                 for (int j = 0; j < width; j++)
                 {
                     for (int k = 0; k < channelCount; k++)

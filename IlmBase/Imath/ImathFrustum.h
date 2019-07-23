@@ -278,7 +278,8 @@ void Frustum<T>::modifyNearAndFar(T n, T f)
         Line3<T> upperRight( Vec3<T>(0,0,0), Vec3<T>(_right,_top,-_nearPlane) );
         Plane3<T> nearPlane( Vec3<T>(0,0,-1), n );
 
-        Vec3<T> ll = Vec3<T> (0, 0, 0), ur = Vec3<T> (0, 0, 0);
+        Vec3<T> ll = Vec3<T> (0, 0, 0);
+        Vec3<T> ur = Vec3<T> (0, 0, 0);
         nearPlane.intersect(lowerLeft,ll);
         nearPlane.intersect(upperRight,ur);
 

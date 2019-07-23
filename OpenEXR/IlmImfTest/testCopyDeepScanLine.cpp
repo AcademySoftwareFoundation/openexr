@@ -72,8 +72,6 @@ const int minX = 42;
 const int minY = 51;
 const Box2i dataWindow(V2i(minX, minY), V2i(minX + width - 1, minY + height - 1));
 const Box2i displayWindow(V2i(0, 0), V2i(minX + width * 2, minY + height * 2));
-//const char source_filename[] = IMF_TMP_DIR "imf_test_copy_deep_scanline_source.exr";
-//const char copy_filename[]  = IMF_TMP_DIR "imf_test_copy_deep_scanline_copy.exr";
 
 vector<int> channelTypes;
 Array2D<unsigned int> sampleCount;
@@ -306,8 +304,6 @@ void readFile (const std::string & copy_filename, int channelCount)
         file.readPixelSampleCounts(dataWindow.min.y, dataWindow.max.y);
         for (int i = 0; i < dataWindow.max.y - dataWindow.min.y + 1; i++)
         {
-            //int y = i + dataWindow.min.y;
-
             for (int j = 0; j < width; j++)
                 assert(localSampleCount[i][j] == sampleCount[i][j]);
 

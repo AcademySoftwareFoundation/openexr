@@ -444,8 +444,7 @@ generateRandomFile (int partCount, const std::string & fn)
     {
         int partNumber = taskList[i].partNumber;
         int partType = partTypes[partNumber];
-        //int pixelType = pixelTypes[partNumber];
-        //int levelMode = levelModes[partNumber];
+
         if (partType == 0)
         {
             OutputPart* part = (OutputPart*) parts[partNumber];
