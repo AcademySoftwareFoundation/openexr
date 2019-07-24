@@ -17,7 +17,9 @@ using namespace std;
 
 namespace {
 
+#if __cplusplus >= 201402L
 static_assert(std::is_trivially_default_constructible<half>::value, "half is trivial and default constructible");
+#endif
 
 void
 testClass (half h,
