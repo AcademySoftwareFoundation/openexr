@@ -71,9 +71,9 @@ usageMessage (const char argv0[], bool verbose = false)
 		"-e s      adjusts the preview image's exposure by s f-stops\n"
 		"          (default is 0).  Positive values make the image\n"
 		"          brighter, negative values make it darker.\n"
-        "\n"
-        "-x        support large images: remove 65535 pixel limit on image\n"
-        "          width/height (requires significant memory to process)\n"
+		"\n"
+		"-x        support large images: remove 65535 pixel limit on image\n"
+		"          width/height (requires significant memory to process)\n"
 		"\n"
 		"-v        verbose mode\n"
 		"\n"
@@ -193,7 +193,7 @@ main(int argc, char **argv)
 
     try
     {
-	makePreview (inFile, outFile, maximumSize , previewWidth, exposure, verbose);
+	makePreview (inFile, outFile, maximumSize, previewWidth, exposure, verbose);
     }
     catch (const exception &e)
     {

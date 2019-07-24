@@ -64,7 +64,7 @@ void
 makeMultiView (const vector <string> &viewNames,
 	       const vector <const char *> &inFileNames,
 	       const char *outFileName,
-           int maximumSize,
+	       int maximumSize,
 	       Compression compression,
 	       bool verbose)
 {

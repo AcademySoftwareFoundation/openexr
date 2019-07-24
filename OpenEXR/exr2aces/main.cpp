@@ -88,8 +88,8 @@ usageMessage (const char argv0[], bool verbose = false)
 		"\n"
 		"Options:\n"
 		"\n"
-        "-x        support large images: remove 65535 pixel limit on image\n"
-        "          width/height (requires significant memory to process)\n"
+		"-x        support large images: remove 65535 pixel limit on image\n"
+		"          width/height (requires significant memory to process)\n"
 		"\n"        
 		"-v        verbose mode\n"
 		"\n"
@@ -190,9 +190,9 @@ main(int argc, char **argv)
 	}
 	else if(!strcmp(argv[i],"-x"))
 	{
-            Header::setMaxImageSize(0,0);
-            Header::setMaxTileSize(0,0);
-            i+=1;
+	    Header::setMaxImageSize(0,0);
+	    Header::setMaxTileSize(0,0);
+	    i+=1;
         }
 	else if (!strcmp (argv[i], "-h"))
 	{

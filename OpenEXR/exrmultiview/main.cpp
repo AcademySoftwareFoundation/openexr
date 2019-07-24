@@ -183,10 +183,10 @@ main(int argc, char **argv)
 	    i += 2;
 	}
 	else if(!strcmp (argv[i],"-x"))
-    {
-        maximumSize = 0;
-        i += 1;
-    }
+	{
+		maximumSize = 0;
+		i += 1;
+	}
 	else if (!strcmp (argv[i], "-v"))
 	{
 	    //

@@ -143,7 +143,7 @@ usageMessage (const char argv0[], bool verbose = false)
                 "-d         sets level size rounding to ROUND_DOWN (default)\n"
                 "\n"
                 "-u         sets level size rounding to ROUND_UP\n"
-                "\n"        
+                "\n"
                 "-z x       sets the data compression method to x\n"
                 "           (none/rle/zip/piz/pxr24/b44/b44a/dwaa/dwab,\n"
                 "           default is zip)\n"

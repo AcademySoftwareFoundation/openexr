@@ -808,11 +808,11 @@ main(int argc, char **argv)
 		usageMessage (argv[0], true);
 	    }
 	    else if(!strcmp(argv[i],"-x"))
-        {
-            Header::setMaxImageSize(0,0);
-            Header::setMaxTileSize(0,0);
-            i+=1;
-        }
+	    {
+		Header::setMaxImageSize(0,0);
+		Header::setMaxTileSize(0,0);
+		i+=1;
+	    }
 	    else
 	    {
 		if (inFileName == 0)
