@@ -87,6 +87,14 @@ function(OPENEXR_DEFINE_LIBRARY libname)
     PUBLIC_HEADER
       DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}
   )
+  if(BUILD_SHARED_LIBS AND (NOT "${OPENEXR_LIB_SUFFIX}" STREQUAL ""))
+    set(verlibname ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}${OPENEXR_LIB_SUFFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})
+    set(baselibname ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}${CMAKE_SHARED_LIBRARY_SUFFIX})
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_INSTALL_FULL_LIBDIR} ${CMAKE_COMMAND} -E create_symlink ${verlibname} ${baselibname})")
+    install(CODE "message(\"-- Creating symlink in ${CMAKE_INSTALL_FULL_LIBDIR} ${baselibname} -> ${verlibname}\")")
+    set(verlibname)
+    set(baselibname)
+  endif()
 
   if(OPENEXR_BUILD_BOTH_STATIC_SHARED)
     if(use_objlib)

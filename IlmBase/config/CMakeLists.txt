@@ -5,7 +5,6 @@ include(CheckIncludeFiles)
 include(CheckSymbolExists)
 include(CheckLibraryExists)
 include(CheckStructHasMember)
-include(CMakeDependentOption)
 
 check_include_files(ucontext.h ILMBASE_HAVE_UCONTEXT_H)
 if(ILMBASE_HAVE_UCONTEXT_H)
@@ -73,7 +72,6 @@ install(
 install(TARGETS IlmBaseConfig EXPORT ${PROJECT_NAME})
 add_library(IlmBase::Config ALIAS IlmBaseConfig)
 
-cmake_dependent_option(ILMBASE_INSTALL_PKG_CONFIG "Install IlmBase.pc file" ON "WIN32" OFF)
 if(ILMBASE_INSTALL_PKG_CONFIG)
   # use a helper function to avoid variable pollution, but pretty simple
   function(ilmbase_pkg_config_help pcinfile)
@@ -81,7 +79,7 @@ if(ILMBASE_INSTALL_PKG_CONFIG)
     set(exec_prefix ${CMAKE_INSTALL_BINDIR})
     set(libdir ${CMAKE_INSTALL_LIBDIR})
     set(includedir ${CMAKE_INSTALL_INCLUDEDIR})
-    set(LIB_SUFFIX ${ILMBASE_LIB_SUFFIX})
+    set(LIB_SUFFIX_DASH ${ILMBASE_LIB_SUFFIX})
     if(TARGET Threads::Threads)
       # hrm, can't use properties as they end up as generator expressions
       # which don't seem to evaluate
@@ -98,6 +96,8 @@ if(ILMBASE_INSTALL_PKG_CONFIG)
     )
   endfunction()
   ilmbase_pkg_config_help(../IlmBase.pc.in)
+else()
+  message(NOTICE "-- WARNING pkg-config generation disabled")
 endif()
 
 # The main export of the configuration - This is the

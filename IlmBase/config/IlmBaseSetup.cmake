@@ -30,6 +30,13 @@ set(ILMBASE_IEX_NAMESPACE "Iex" CACHE STRING "Public namespace alias for Iex")
 set(ILMBASE_ILMTHREAD_NAMESPACE "IlmThread" CACHE STRING "Public namespace alias for IlmThread")
 set(ILMBASE_PACKAGE_NAME "IlmBase ${ILMBASE_VERSION}" CACHE STRING "Public string / label for displaying package")
 
+# Whether to generate and install a pkg-config file IlmBase.pc on
+if(WIN32)
+option(ILMBASE_INSTALL_PKG_CONFIG "Install IlmBase.pc file" OFF)
+else()
+option(ILMBASE_INSTALL_PKG_CONFIG "Install IlmBase.pc file" ON)
+endif()
+
 ########################
 ## Build related options
 
