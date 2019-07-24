@@ -87,7 +87,6 @@ install(
 install(TARGETS IlmImfConfig EXPORT ${PROJECT_NAME})
 add_library(${PROJECT_NAME}::Config ALIAS IlmImfConfig)
 
-option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" ON)
 if(OPENEXR_INSTALL_PKG_CONFIG)
   # use a helper function to avoid variable pollution, but pretty simple
   function(openexr_pkg_config_help pcinfile)
@@ -95,7 +94,7 @@ if(OPENEXR_INSTALL_PKG_CONFIG)
     set(exec_prefix ${CMAKE_INSTALL_BINDIR})
     set(libdir ${CMAKE_INSTALL_LIBDIR})
     set(includedir ${CMAKE_INSTALL_INCLUDEDIR})
-    set(LIB_SUFFIX ${OPENEXR_LIB_SUFFIX})
+    set(LIB_SUFFIX_DASH ${OPENEXR_LIB_SUFFIX})
     if(TARGET Threads::Threads)
       # hrm, can't use properties as they end up as generator expressions
       # which don't seem to evaluate

@@ -20,6 +20,13 @@ set(OPENEXR_INTERNAL_IMF_NAMESPACE "Imf_${OPENEXR_VERSION_API}" CACHE STRING "Re
 set(OPENEXR_IMF_NAMESPACE "Imf" CACHE STRING "Public namespace alias for Imath")
 set(OPENEXR_PACKAGE_NAME "IlmBase ${ILMBASE_VERSION}" CACHE STRING "Public string / label for displaying package")
 
+# Whether to generate and install a pkg-config file OpenEXR.pc
+if (WIN32)
+option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" OFF)
+else()
+option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" ON)
+endif()
+
 ########################
 ## Build related options
 
