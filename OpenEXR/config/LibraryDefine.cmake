@@ -24,10 +24,14 @@ function(OPENEXR_DEFINE_LIBRARY libname)
 
   if(use_objlib)
     set(objlib ${libname}_Object)
-    add_library(${objlib} OBJECT ${OPENEXR_CURLIB_SOURCES})
+    add_library(${objlib} OBJECT
+      ${OPENEXR_CURLIB_HEADERS}
+      ${OPENEXR_CURLIB_SOURCES})
   else()
     set(objlib ${libname})
-    add_library(${objlib} ${OPENEXR_CURLIB_SOURCES})
+    add_library(${objlib}
+      ${OPENEXR_CURLIB_HEADERS}
+      ${OPENEXR_CURLIB_SOURCES})
   endif()
 
   target_compile_features(${objlib} PUBLIC cxx_std_${OPENEXR_CXX_STANDARD})
