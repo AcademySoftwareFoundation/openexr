@@ -76,6 +76,31 @@ can specify a local install directory to cmake via the
 
     % cmake .. -DCMAKE_INSTALL_PREFIX=$install_directory
 
+## Library Names
+
+Using either cmake or autoconf based configuration mechanisms described
+in this document, by default the installed libraries follow a pattern
+for how they are named. This is done to enable multiple versions of the
+library to be installed and targeted by different builds depending on
+the needs of the project. A simple example of this would be to have
+different versions of the library installed to allow for applications
+targeting different VFX Platform years to co-exist.
+
+If you are building dynamic libraries, once you have configured, built,
+and installed the libraries, you should see the following pattern of
+symlinks and files in the install lib folder:
+
+    libHalf.so -> libHalf-LIB_SUFFIX.so
+    libHalf-LIB_SUFFIX.so -> libHalf-LIB_SUFFIX.so.SO_MAJOR_VERSION
+    libHalf-LIB_SUFFIX.so.SO_MAJOR_VERSION -> libHalf-LIB_SUFFIX.so.SO_FULL_VERSION
+    libHalf-LIB_SUFFIX.so.SO_FULL_VERSION (actual file)
+
+You can configure the LIB_SUFFIX, although it defaults to the library
+major and minor version, so in the case of a 2.3 library, it would default
+to 2_3. You would then link your programs against this versioned library
+to have maximum safety (i.e. `-lHalf-2_3`), and the pkg-config and cmake
+configuration files included with find_package should set this up.
+
 ## Sub-Modules
 
 OpenEXR consists of four separate sub-modules - IlmBase, PyIlmBase,
@@ -190,11 +215,11 @@ You can customize these options three ways:
 
 * **ILMBASE\_LIB\_SUFFIX**
 
-  Append the given string to the end of all the llmBase libraries. Default is ``-<major>_<minor>`` version string.
+  Append the given string to the end of all the llmBase libraries. Default is ``-<major>_<minor>`` version string. Please see the section on library names
 
 * **OPENEXR\_LIB\_SUFFIX**
 
-  Append the given string to the end of all the llmBase libraries. Default is ``-<major>_<minor>`` version string.
+  Append the given string to the end of all the llmBase libraries. Default is ``-<major>_<minor>`` version string. Please see the section on library names
 
 ### Namespace Options:
 
@@ -324,9 +349,3 @@ As an alternative to CMake on Linux systems, the OpenEXR build can be configured
     % make install
 
 Run ``./configure --help`` for a complete set of configuration options.
-
-
-
-
-
-
