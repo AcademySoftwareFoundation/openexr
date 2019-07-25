@@ -1313,6 +1313,13 @@ TiledInputFile::rawTileData (int &dx, int &dy,
                 throw IEX_NAMESPACE::ArgExc ("rawTileData read the wrong tile");
             }
         }
+        else
+        {
+             if(!isValidTile (dx, dy, lx, ly) )
+             {
+                 throw IEX_NAMESPACE::IoExc ("rawTileData read an invalid tile");
+             }
+        }
         pixelData = tileBuffer->buffer;
     }
     catch (IEX_NAMESPACE::BaseExc &e)
