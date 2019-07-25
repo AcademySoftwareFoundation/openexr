@@ -98,7 +98,7 @@ void fillPixels (Array2D<unsigned int>& sampleCount, Array2D<T*> &ph, int width,
         for (int x = 0; x < width; ++x)
         {
             ph[y][x] = new T[sampleCount[y][x]];
-            for (int i = 0; i < sampleCount[y][x]; i++)
+            for (unsigned int i = 0; i < sampleCount[y][x]; i++)
             {
                 //
                 // We do this because half cannot store number bigger than 2048 exactly.
@@ -181,7 +181,7 @@ bool checkPixels (Array2D<unsigned int>& sampleCount, Array2D<T*> &ph,
     for (int y = ly; y <= ry; ++y)
         for (int x = lx; x <= rx; ++x)
         {
-            for (int i = 0; i < sampleCount[y][x]; i++)
+            for (unsigned int i = 0; i < sampleCount[y][x]; i++)
             {
                 if (ph[y][x][i] != (y * width + x) % 2049)
                 {
