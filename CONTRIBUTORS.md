@@ -1,4 +1,4 @@
-This is a list of all the contributors to OpenEXR, sorted
+This is a list of contributors to the OpenEXR project, sorted
 alphabetically by first name.
 
 If you know of missing, please email: info@openexr.com.
@@ -27,7 +27,6 @@ If you know of missing, please email: info@openexr.com.
 * John Loy
 * John Mertic
 * Jonathan Stone
-* JuriAbramov
 * Juri Abramov
 * Karl Rasche
 * Kevin Wheatley
