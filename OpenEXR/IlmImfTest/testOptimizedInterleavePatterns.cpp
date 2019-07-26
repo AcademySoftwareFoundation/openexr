@@ -171,6 +171,14 @@ Schema Schemes[] =
         {NULL,NULL,NULL,0,NULL,NULL}
 };
 
+template<class T> inline T alignToFour(T input)
+{
+    while( (intptr_t(input)&3) !=0 )
+    {
+        input++;
+    }
+    return input;
+}
 
 
 bool compare(const FrameBuffer& asRead,
@@ -192,6 +200,7 @@ bool compare(const FrameBuffer& asRead,
                 switch (i.slice().type)
                 {
                     case IMF::FLOAT :
+                        assert(alignToFour(ptr)==ptr);                        
                         readHalf =  half(*(float*) ptr);
                         break;
                     case IMF::HALF :
@@ -213,6 +222,7 @@ bool compare(const FrameBuffer& asRead,
                     switch (p.slice().type)
                     {
                     case IMF::FLOAT :
+                        assert(alignToFour(ptr)==ptr);
                         writtenHalf = half(*(float*) ptr);
                         break;
                     case IMF::HALF :
@@ -250,6 +260,8 @@ bool compare(const FrameBuffer& asRead,
     return true;
 }
 
+
+
 //
 // allocate readingBuffer or writingBuffer, setting up a framebuffer to point to the right thing
 //
@@ -272,7 +284,7 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
     //
     int activechans = 0;
     int bytes_per_pixel =0;
-    
+    bool has32BitValue = false;
     while (channels[activechans]!=NULL)
     {
         if (pt==NULL)
@@ -284,7 +296,15 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
             switch (pt[activechans])
             {
                 case IMF::HALF : bytes_per_pixel+=2;break;
-                case IMF::FLOAT : case IMF::UINT : bytes_per_pixel+=4;break;
+                case IMF::FLOAT : case IMF::UINT : 
+                    // some architectures (e.g arm7 cannot write 32 bit values
+                    // to addresses which aren't aligned to 32 bit addresses)
+                    // so bump to next multiple of four
+                    bytes_per_pixel =  alignToFour(bytes_per_pixel);
+                    bytes_per_pixel+=4;
+                    has32BitValue = true;
+                    break;
+                    
                 default :
                     cout << "Unexpected PixelType?\n";
                     exit(1);
@@ -306,13 +326,22 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
             switch (pt[passivechans+activechans])
             {
                 case IMF::HALF : bytes_per_pixel+=2;break;
-                case IMF::FLOAT : case IMF::UINT : bytes_per_pixel+=4;break;
+                case IMF::FLOAT : case IMF::UINT : 
+                    bytes_per_pixel =  alignToFour(bytes_per_pixel);
+                    bytes_per_pixel+=4;
+                    has32BitValue = true;
+                    break;
                 default :
                     cout << "Unexpected PixelType?\n";
                     exit(1);
             }
         }
         passivechans++;
+    }
+    
+    if(has32BitValue)
+    {
+        bytes_per_pixel = alignToFour(bytes_per_pixel);
     }
 
    int chans = activechans+passivechans;
@@ -350,7 +379,9 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
          }
          else
          {
+             write_ptr = alignToFour(write_ptr);
              *(float*)write_ptr = float(v);
+             
              write_ptr+=4;
          }
          chan++;
@@ -395,7 +426,13 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
             offset = (writing ? &writingBuffer[0] :
                                 &readingBuffer[0]) + bank*bytes_per_bank_row - first_pixel_index;
         }
-        
+       
+
+         if(type==FLOAT || type==UINT)
+         {
+           offset = alignToFour(offset);
+         }
+ 
         if (i<activechans)
         {
             
@@ -419,6 +456,7 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
                                            1,1,0.4));
 
                 char * pre_offset = offset-&readingBuffer[0]+&preReadBuffer[0];
+ 
                 prereadbuf.insert (passivechannels[i-activechans],
                                    Slice (type,
                                           pre_offset,
