@@ -1381,6 +1381,20 @@ skipChannel (const char *& readPtr,
 }
 
 
+namespace
+{
+//
+// helper function to realign floats
+// for architectures that require 32-bit alignment for float reading
+//
+
+struct FBytes { uint8_t b[4]; };
+union bytesOrFloat {
+  FBytes b;
+  float f;
+} ;
+}
+
 void
 convertInPlace (char *& writePtr,
                 const char *& readPtr,
@@ -1411,7 +1425,9 @@ convertInPlace (char *& writePtr,
     
         for (size_t j = 0; j < numPixels; ++j)
         {
-            Xdr::write <CharPtrIO> (writePtr, *(const float *) readPtr);
+            union bytesOrFloat tmp;
+            tmp.b = * reinterpret_cast<const FBytes *>( readPtr );
+            Xdr::write <CharPtrIO> (writePtr, tmp.f);
             readPtr += sizeof(float);
         }
         break;
