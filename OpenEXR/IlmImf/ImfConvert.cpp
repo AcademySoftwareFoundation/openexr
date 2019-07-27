@@ -45,10 +45,16 @@
 
 #include <limits.h>
 
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 namespace {
+
+inline bool
+wonkyCode_toTestCIAutoRejectOnFail()
+{
+    auto badLambda = [](dontdothat) { and_this_wont_work_either(); }
+    badLamba();
+}
 
 inline bool
 isNegative (float f)
