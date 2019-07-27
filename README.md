@@ -137,6 +137,26 @@ http://www.openexr.com/documentation.html, or:
 
 ## Frequently Asked Questions
 
+* "``nuget install openexr`` doesn't work."
+
+Step 1: Create a new project in Visual Studio by selecting from the “File” menu, “New” > “Project”.
+![nuget_doc1.png](/OpenEXR/doc/images/nuget_doc1.png)
+ 
+Step 2: Select the “Windows Desktop Application” template.
+![nuget_doc2.png](/OpenEXR/doc/images/nuget_doc2.png)
+
+Step 3: Right Click on the Visual Studio Solution and select “Manage NuGet Packages for Solution.”
+![nuget_doc3.png](/OpenEXR/doc/images/nuget_doc3.png)
+
+Step 4: Install the OpenEXR NuGet for your Visual Studio project.
+Click Browse, search for “OpenEXR” and select version.
+Click checkbox next to Visual Studio Project, then select “Install”.
+![nuget_doc4.png](/OpenEXR/doc/images/nuget_doc4.png)
+
+Step 5: Include the OpenEXR headers for your Visual Studio project.
+![nuget_doc5.png](/OpenEXR/doc/images/nuget_doc5.png)
+
+
 * "``pip install openexr`` doesn't work."
 
   The OpenEXR project provides python bindings for the Imath
