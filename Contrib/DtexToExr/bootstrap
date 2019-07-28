@@ -1,4 +1,8 @@
 #! /bin/sh
+
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
+
 # If we're on OS X, use glibtoolize instead of toolize
 HOSTTYPE=`uname`
 if [ "$HOSTTYPE" == "Darwin" ]; then
