@@ -3,12 +3,12 @@
 Thank you for your interest in contributing to OpenEXR. This document
 explains our contribution process and procedures:
 
-* [Getting Information](#Getting Information)
-* [Legal Requirements](#Legal Requirements)
-* [Development Workflow](#Development Workflow)
-* [Coding Style](#Coding Style)
-* [Versioning Policy](#Versioning Policy)
-* [Creating a Release](#Creating a Release)
+* [Getting Information](#Getting-Information)
+* [Legal Requirements](#Legal-Requirements)
+* [Development Workflow](#Development-Workflow)
+* [Coding Style](#Coding-Style)
+* [Versioning Policy](#Versioning-Policy)
+* [Creating a Release](#Creating-a-Release)
 
 For a description of the roles and responsibilities of the various
 members of the OpenEXR community, see [GOVERNANCE](GOVERNANCE.md), and
