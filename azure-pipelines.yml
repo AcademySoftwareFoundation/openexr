@@ -107,33 +107,33 @@ jobs:
 # ------------------------------------------------------------------------------
 # macOS
 # ------------------------------------------------------------------------------
-#- job: macOS
-#  strategy:
-#    matrix:
-#      10.14 AppleClang 10.0:
-#        agentImage: 'macOS-10.14'
-#      10.13 AppleClang 10.0:
-#        agentImage: 'macOS-10.13'
-#  pool:
-#    vmImage: $(agentImage)
-#
-#  steps:
-#  - template: share/ci/templates/checkout.yml
-#  - bash: |
-#      share/ci/scripts/macos/install.sh
-#      share/ci/scripts/macos/install_python.sh 2.7.16
-#    displayName: Install dependencies
-#
-#  - template: share/ci/templates/configure.yml
-#    parameters:
-#      cmakeOpts: |
-#        -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7 \
-#        -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib \
-#        -DPYTHON_EXECUTABLE=$(which python2)
-#
-#  - template: share/ci/templates/build.yml
-#    parameters:
-#      cmakeOpts: -- -j4
+- job: macOS
+  strategy:
+    matrix:
+      10.14 AppleClang 10.0:
+        agentImage: 'macOS-10.14'
+      10.13 AppleClang 10.0:
+        agentImage: 'macOS-10.13'
+  pool:
+    vmImage: $(agentImage)
+
+  steps:
+  - template: share/ci/templates/checkout.yml
+  - bash: |
+      share/ci/scripts/macos/install.sh
+      share/ci/scripts/macos/install_python.sh 2.7.16
+    displayName: Install dependencies
+
+  - template: share/ci/templates/configure.yml
+    parameters:
+      cmakeOpts: |
+        -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7 \
+        -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib \
+        -DPYTHON_EXECUTABLE=$(which python2)
+
+  - template: share/ci/templates/build.yml
+    parameters:
+      cmakeOpts: -- -j4
 
 # ------------------------------------------------------------------------------
 # Windows
