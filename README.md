@@ -2,20 +2,14 @@
 
 [![License](https://img.shields.io/badge/License-BSD%203%20Clause-blue.svg)](LICENSE.md)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2799/badge)](https://bestpractices.coreinfrastructure.org/projects/2799)
+[![Build Status](https://dev.azure.com/openexr/OpenEXR/_apis/build/status/openexr.openexr?branchName=master)](https://dev.azure.com/openexr/OpenEXR/_build/latest?definitionId=1&branchName=master)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=openexr_openexr&metric=alert_status)](https://sonarcloud.io/dashboard?id=openexr_openexr)
 
 ![openexr](/OpenEXR/doc/images/windowExample1.png)
 
-**OpenEXR** is a high dynamic-range (HDR) image file format originally
-developed by Industrial Light & Magic (ILM) in 2003 for use in
+**OpenEXR** is a high dynamic-range (HDR) image file format for use in
 computer imaging applications. It supports stereoscopic and deep
-images.  Weta Digital, Walt Disney Animation Studios, Sony Pictures
-Imageworks, Pixar Animation Studios, DreamWorks, and other studios,
-companies, and individuals have made contributions to the code
-base. OpenEXR is now maintained by the [Academy Software
-Foundation](https://www.aswf.io). The file format has seen wide
-adoption in a number of industries.
-
-OpenEXR's features include:
+images. OpenEXR's features include:
 
 * Higher dynamic range and color precision than existing 8- and 10-bit
   image file formats.
@@ -45,7 +39,14 @@ OpenEXR's features include:
   namespaces to provide protection when using multiple versions of the
   library in the same process space.
 
-## OpenEXR Sub-modules
+OpenEXR is a project of the [Academy Software
+Foundation](https://www.aswf.io).  It was originally developed by
+Industrial Light & Magic (ILM) in 2003.  Weta Digital, Walt Disney
+Animation Studios, Sony Pictures Imageworks, Pixar Animation Studios,
+DreamWorks, and other studios, companies, and individuals have made
+contributions to the code base. 
+
+## OpenEXR Sub-Modules
 
 The OpenEXR distribution consists of the following sub-modules:
 
@@ -60,7 +61,7 @@ https://github.com/openexr/openexr-images.
 
 ## Supported Platforms
 
-The OpenEXR codebase can be built with any of the following:
+OpenEXR builds on:
 
 * Linux
 * macOS
@@ -68,34 +69,37 @@ The OpenEXR codebase can be built with any of the following:
 
 The Python bindings in PyIlmBase support Python 2 and Python 3.
 
-## Dependencies
+## Resources
 
-* OpenEXR depends on [zlib](https://zlib.net).
-
-* PyIlmBase depends on [boost-python](https://github.com/boostorg/python) and
-optionally on [numpy](http://www.numpy.org).
-
-* In OpenEXR_Viewers:
-
-  * **exrdisplay** depends on [fltk](http://www.fltk.org/index.php)
-  * **playexr** depends on [Cg](https://developer.nvidia.com/cg-toolkit)
-
-See [INSTALL](INSTALL.md) for more details.
-
-## Web Resources
-
-* Main web page: http:://www.openexr.org
+* Main web page: http:://www.openexr.com
 
 * GitHub repository: http://www.github.com/openexr/openexr
 
 * Documentation: http://www.openexr.com/documentation.html.
 
-* Developer discussion mailing list: [openexr-dev@lists.aswf.io](https://lists.aswf.io/g/openexr-dev)
+### Getting Help
+
+There are two primary ways to connect with the OpenEXR project:
+
+* The openexr-dev@lists.aswf.io mail list: This is a development
+  focused mail list with a deep history of technical conversations and
+  decisions that have shaped the project. Subscribe a
+  [openexr-dev@lists.aswf.io](https://lists.aswf.io/g/openexr-dev).
+
+* GitHub Issues: GitHub issues are used both to track bugs and to
+  discuss feature requests.
+
+See [CONTRIBUTING](CONTRIBUTING.md) for more information.
 
 ## Developer Quick Start
 
 See [INSTALL](INSTALL.md) for instructions on downloading and building OpenEXR
 from source.
+
+## Contributing
+
+See [CONTRIBUTING](CONTRIBUTING.md) for more information about
+contributing to OpenEXR.
 
 ## License
 
@@ -108,32 +112,11 @@ include a “Signed-off-by” line indicating that the committer wrote the
 code and has the right to release it under the BSD-3-Clause
 license. See http://developercertificate.org/ for more information.
 
-## Contributing
-
-See [CONTRIBUTING](CONTRIBUTING.md) for more information about
-contributing to OpenEXR.
-
 ## Project Goverance
 
 OpenEXR is governed by the Academy Software Foundation. See
-[GOVERNANCE](GOVERNANCE.md) for more infomation.
-
-## Documentation
-
-Technical documentation is available at
-http://www.openexr.com/documentation.html, or:
-
-* [Technical Introduction](/OpenEXR/doc/TechnicalIntroduction.pdf)
-
-* [Reading and Writing Image Files](/OpenEXR/doc/ReadingAndWritingImageFiles.pdf)
-
-* [OpenEXR File Layout](/OpenEXR/doc/OpenEXRFileLayout.pdf)
-
-* [Multi-View OpenEXR](/OpenEXR/doc/MultiViewOpenEXR.pdf)
-
-* [Interpreting OpenEXR Deep Pixels](/OpenEXR/doc/InterpretingDeepPixels.pdf)
-
-* [The Theory Of OpenEXR Deep Samples](/OpenEXR/doc/InterpretingDeepPixels.pdf)
+[GOVERNANCE](GOVERNANCE.md) for more infomation about how the project
+operates.
 
 ## Frequently Asked Questions
 
