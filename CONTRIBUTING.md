@@ -1,22 +1,41 @@
 # Contributing to OpenEXR
 
 Thank you for your interest in contributing to OpenEXR. This document
-explains our contribution process and procedures
+explains our contribution process and procedures:
+
+* [Getting Information](#Getting Information)
+* [Legal Requirements](#Legal Requirements)
+* [Development Workflow](#Development Workflow)
+* [Coding Style](#Coding Style)
+* [Versioning Policy](#Versioning Policy)
+* [Creating a Release](#Creating a Release)
+
+For a description of the roles and responsibilities of the various
+members of the OpenEXR community, see [GOVERNANCE](GOVERNANCE.md), and
+for further details, see the project's [Technical
+Charter](ASWF/charter/OpenEXR-Technical-Charter.md). Briefly,
+Contributors are anyone who submits content to the project, Committers
+review and approve such submissions, and the Technical Steering
+Committee provides general project oversight.
 
 ## Getting Information
 
 There are two primary ways to connect with the OpenEXR project:
 
 * The [openexr-dev](https://lists.aswf.io/g/openexr-dev) mail list:
-This is a development focused mail list with a deep history of
-technical conversations and decisions that have shaped the project.
+  This is a development focused mail list with a deep history of
+  technical conversations and decisions that have shaped the project.
 
 * [GitHub Issues](https://github.com/openexr/openexr/issues): GitHub
-**issues** are used both to track bugs and to discuss feature requests.
+  Issues are used both to track bugs and to discuss feature requests.
 
 ### How to Ask for Help
 
-If you have trouble installing, building, or using the library, but there's not yet reason to suspect you've encountered a genuine bug, start by posting a question to the [openexr-dev](http://lists.aswf.io/openexr-dev) mailing list. This is the place for question such has "How do I...".
+If you have trouble installing, building, or using the library, but
+there's not yet reason to suspect you've encountered a genuine bug,
+start by posting a question to the
+[openexr-dev](http://lists.aswf.io/openexr-dev) mailing list. This is
+the place for question such has "How do I...".
 
 ### How to Report a Bug
 
@@ -52,19 +71,27 @@ an investigation.
 
 ### How to Contribute a Bug Fix or Change
 
-To contribute code to the project, you'll need:
+To contribute code to the project, first read over the [GOVERNANCE](GOVERNANCE.md) page to understand the roles involved. You'll need:
 
 * A good knowledge of git.
-* A fork of the GitHub repo.
-* An understanding of the project's development workflow
-* Legal Authorization
 
-See below for details.
+* A fork of the GitHub repo.
+
+* An understanding of the project's development workflow.
+
+* Legal authorization, that is, you need to have signed a Contributor
+  License Agreement. See below for details.
 
 ## Legal Requirements
 
-OpenEXR is owned by the Academy Software Foundation and follows the
+OpenEXR is a project of the Academy Software Foundation and follows the
 open source software best practice policies of the Linux Foundation.
+
+### License
+
+OpenEXR is licensed under the [BSD-3-Clause](LICENSE.md)
+license. Contributions to the library should abide by that standard
+license.
 
 ### Contributor License Agreements
 
@@ -72,18 +99,16 @@ Developers who wish to contribute code to be considered for inclusion
 in the OpenEXR distribution must first complete a **Contributor
 License Agreement**.
 
-Trivial changes (such as an alteration to the Makefiles, a one-line
-bug fix, etc.) may be accepted without a CLA, at the sole discretion of the
-project leader, but anything complex requires a CLA. 
-
 * If you are an individual writing the code on your own time and
-you're SURE you are the sole owner of any intellectual property you
-contribute, use the [Individual Contributor License Agreement](http://www.openexr.com/downloads/OpenEXRIndividualContributorLicenseAgreement.docx).
+  you're SURE you are the sole owner of any intellectual property you
+  contribute, use the [Individual Contributor License
+  Agreement](http://www.openexr.com/downloads/OpenEXRIndividualContributorLicenseAgreement.docx).
 
 * If you are writing the code as part of your job, or if there is any
-possibility that your employers might think they own any intellectual
-property you create, then you should use the [Corporate Contributor
-Licence Agreement](http://www.openexr.com/downloads/OpenEXRCorporateContributorLicenseAgreement.docx).
+  possibility that your employers might think they own any
+  intellectual property you create, then you should use the [Corporate
+  Contributor Licence
+  Agreement](http://www.openexr.com/downloads/OpenEXRCorporateContributorLicenseAgreement.docx).
 
 Download the appropriate CLA from the links above (or find them in the
 src/doc directory of the software distribution), print, sign, and
@@ -287,6 +312,8 @@ Incoming new issues are labeled promptly by the TSC using GitHub labels.
 
 The labels include:
 
+* **Autotools** - A problem with the autoconf configuration setup.
+
 * **Bug** - A bug in the source code. Something appears to be
     functioning improperly: a compile error, a crash, unexpected behavior, etc. 
 
@@ -301,19 +328,29 @@ The labels include:
 
 * **CVE** - A security vulnerability bug.
 
-* **Documentation** - The project documentation: developer or user guide, web site, project policies, etc. 
+* **Documentation** - The project documentation: developer or user
+    guide, web site, project policies, etc.
 
-* **Feature Request** - A suggested change or addition of functionality to the library.
-
-* **MinGW** - An issue specific to MinGW
+* **Feature Request** - A suggested change or addition of
+    functionality to the library.
 
 * **Mac OS** - A build issue specific to Mac OS.
 
-* **Pending merge to master**
+* **MinGW** - An issue specific to MinGW
 
-* **Question/Problem/Help** - A request for help or further investigation, possibly just user error or misunderstanding.
+* **Modification** - A modification to the code, refactoring or
+    optimization without significant additional behavior
 
-* **Test Failure** - One of the automated tests is failing, or an analysis tool is reporting problematic behavior.
+* **Needs Info** - Issue is waiting for more information from the
+    submitter.
+
+* **Question/Problem/Help** - A request for help or further
+    investigation, possibly just user error or misunderstanding.
+
+* **Test Failure** - One of the automated tests is failing, or an
+    analysis tool is reporting problematic behavior.
+
+* **TSC** - To be discussed in the technical steering committee.
 
 * **Windows** - A build issue specific to Windows
 
@@ -453,8 +490,9 @@ To create a new release from the master branch:
 
 1. Update the release notes in ``CHANGES.md``.
 
-   Write a high-level summary of the features and improvements. Include the summary in
-   ``CHANGES.md`` and also in the Release comments.
+   Write a high-level summary of the features and
+   improvements. Include the summary in ``CHANGES.md`` and also in the
+   Release comments.
 
    Include the log of all changes since the last release, via:
 
@@ -470,9 +508,6 @@ To create a new release from the master branch:
 
 4. Download and sign the release tarball, as described
 [here](https://wiki.debian.org/Creating%20signed%20GitHub%20releases),
-via:
-
-        git diff --stat v2.2.1
 
 5. Attach the detached ``.asc`` signature file to the GitHub release as a
 binary file.
