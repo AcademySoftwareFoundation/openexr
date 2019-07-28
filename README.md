@@ -69,9 +69,14 @@ OpenEXR builds on:
 
 The Python bindings in PyIlmBase support Python 2 and Python 3.
 
+## Developer Quick Start
+
+See [INSTALL](INSTALL.md) for instructions on downloading and building OpenEXR
+from source.
+
 ## Resources
 
-* Main web page: http:://www.openexr.com
+* Website: http:://www.openexr.com
 
 * GitHub repository: http://www.github.com/openexr/openexr
 
@@ -83,7 +88,7 @@ There are two primary ways to connect with the OpenEXR project:
 
 * The openexr-dev@lists.aswf.io mail list: This is a development
   focused mail list with a deep history of technical conversations and
-  decisions that have shaped the project. Subscribe a
+  decisions that have shaped the project. Subscribe at
   [openexr-dev@lists.aswf.io](https://lists.aswf.io/g/openexr-dev).
 
 * GitHub Issues: GitHub issues are used both to track bugs and to
@@ -91,14 +96,10 @@ There are two primary ways to connect with the OpenEXR project:
 
 See [CONTRIBUTING](CONTRIBUTING.md) for more information.
 
-## Developer Quick Start
+### Getting Involved
 
-See [INSTALL](INSTALL.md) for instructions on downloading and building OpenEXR
-from source.
-
-## Contributing
-
-See [CONTRIBUTING](CONTRIBUTING.md) for more information about
+OpenEXR welcomes contributions to the project. See
+[CONTRIBUTING](CONTRIBUTING.md) for more information about
 contributing to OpenEXR.
 
 ## License

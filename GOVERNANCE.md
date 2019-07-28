@@ -10,7 +10,7 @@ project guidance.
 
 * [Contributors](#Contributors)
 * [Committers](#Committers)
-* [Technical Steering Committee](#Technical Steering Committee)
+* [Technical Steering Committee](#Technical-Steering-Committee)
 
 ## Contributors
 
