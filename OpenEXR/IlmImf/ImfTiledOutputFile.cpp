@@ -1071,7 +1071,7 @@ TiledOutputFile::~TiledOutputFile ()
                     //
                     _streamData->os->seekp (originalPosition);
                 }
-                catch (...)
+                catch (...) //NOSONAR - suppress vulnerability reports from SonarCloud.
                 {
                     //
                     // We cannot safely throw any exceptions from here.

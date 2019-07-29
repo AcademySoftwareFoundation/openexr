@@ -187,7 +187,7 @@ TileOffsets::reconstructFromFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,bo
     {
 	findTiles (is,isMultiPart,isDeep,false);
     }
-    catch (...)
+    catch (...) //NOSONAR - suppress vulnerability reports from SonarCloud.
     {
         //
         // Suppress all exceptions.  This function is called only to
