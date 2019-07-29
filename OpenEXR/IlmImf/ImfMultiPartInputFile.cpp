@@ -683,7 +683,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
         }
         
     }
-    catch (...)
+    catch (...) //NOSONAR - suppress vulnerability reports from SonarCloud.
     {
         //
         // Suppress all exceptions.  This functions is

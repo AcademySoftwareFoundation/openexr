@@ -305,7 +305,7 @@ reconstructLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 		lineOffsets[lineOffsets.size() - i - 1] = lineOffset;
 	}
     }
-    catch (...)
+    catch (...) //NOSONAR - suppress vulnerability reports from SonarCloud.
     {
 	//
 	// Suppress all exceptions.  This functions is
