@@ -2,9 +2,9 @@
 //
 // Copyright (c) 2007, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +16,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
+// from this software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -41,33 +41,33 @@
 //-----------------------------------------------------------------------------
 //
 //	ACES image file I/O.
-//	
+//
 //	This header file declares two classes that directly support
 //	image file input and output according to the Academy Image
 //	Interchange Framework.
-//	
+//
 //	The Academy Image Interchange file format is a subset of OpenEXR:
-//	
+//
 //	    - Images are stored as scanlines.  Tiles are not allowed.
-//	
+//
 //	    - Images contain three color channels, either
 //		    R, G, B (red, green, blue) or
 //		    Y, RY, BY (luminance, sub-sampled chroma)
-//	
+//
 //	    - Images may optionally contain an alpha channel.
-//	
+//
 //	    - Only three compression types are allowed:
 //		    - NO_COMPRESSION (file is not compressed)
 //		    - PIZ_COMPRESSION (lossless)
 //		    - B44A_COMPRESSION (lossy)
-//	
+//
 //	    - The "chromaticities" header attribute must specify
 //	      the ACES RGB primaries and white point.
-//	
+//
 //	class AcesOutputFile writes an OpenEXR file, enforcing the
 //	restrictions listed above.  Pixel data supplied by application
 //	software must already be in the ACES RGB space.
-//	
+//
 //	class AcesInputFile reads an OpenEXR file.  Pixel data delivered
 //	to application software is guaranteed to be in the ACES RGB space.
 //	If the RGB space of the file is not the same as the ACES space,
@@ -194,8 +194,10 @@ class AcesOutputFile
     // The pixels are assumed to contain ACES RGB data.
     //-------------------------------------------------
 
-    void			writePixels (int numScanLines = 1);
-    int				currentScanLine () const;
+    IMF_EXPORT
+    void            writePixels (int numScanLines = 1);
+    IMF_EXPORT
+    int             currentScanLine () const;
 
 
     //--------------------------
