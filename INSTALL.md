@@ -90,10 +90,10 @@ If you are building dynamic libraries, once you have configured, built,
 and installed the libraries, you should see the following pattern of
 symlinks and files in the install lib folder:
 
-    libHalf.so -> libHalf-LIB_SUFFIX.so
-    libHalf-LIB_SUFFIX.so -> libHalf-LIB_SUFFIX.so.SO_MAJOR_VERSION
-    libHalf-LIB_SUFFIX.so.SO_MAJOR_VERSION -> libHalf-LIB_SUFFIX.so.SO_FULL_VERSION
-    libHalf-LIB_SUFFIX.so.SO_FULL_VERSION (actual file)
+    libHalf.so -> libHalf-$LIB_SUFFIX.so
+    libHalf-$LIB_SUFFIX.so -> libHalf-$LIB_SUFFIX.so.$SO_MAJOR_VERSION
+    libHalf-$LIB_SUFFIX.so.$SO_MAJOR_VERSION -> libHalf-$LIB_SUFFIX.so.$SO_FULL_VERSION
+    libHalf-$LIB_SUFFIX.so.$SO_FULL_VERSION (actual file)
 
 You can configure the LIB_SUFFIX, although it defaults to the library
 major and minor version, so in the case of a 2.3 library, it would default
