@@ -361,20 +361,20 @@ isDate (const char attrName[], const char str[])
 
 void
 getFloat (const char attrName[],
-          int argc,
-          char **argv,
-          int &i,
+	  int argc,
+	  char **argv,
+	  int &i,
           int part,
-          SetAttrVector &attrs,
-          void (*check) (const char attrName[], float f) = 0)
+	  SetAttrVector &attrs,
+	  void (*check) (const char attrName[], float f) = 0)
 {
     if (i > argc - 2)
-        usageMessage (argv[0]);
+	usageMessage (argv[0]);
 
     float f = static_cast<float>(strtod (argv[i + 1], 0));
 
     if (check)
-        check (attrName, f);
+	check (attrName, f);
 
     attrs.push_back (SetAttr (attrName, part, new FloatAttribute (f)));
     i += 2;
@@ -383,31 +383,31 @@ getFloat (const char attrName[],
 
 void
 getPosFloatOrInf (const char attrName[],
-                 int argc,
-                 char **argv,
-                 int &i,
-                 int part,
-                 SetAttrVector &attrs)
+	          int argc,
+		  char **argv,
+		  int &i,
+                  int part,
+		  SetAttrVector &attrs)
 {
     if (i > argc - 2)
-        usageMessage (argv[0]);
+	usageMessage (argv[0]);
 
     float f;
 
     if (!strcmp (argv[i + 1], "inf") || !strcmp (argv[i + 1], "infinity"))
     {
-        f = float (half::posInf());
+	f = float (half::posInf());
     }
     else
     {
-        f = static_cast<float>(strtod (argv[i + 1], 0));
+	f = static_cast<float>(strtod (argv[i + 1], 0));
 
-        if (f <= 0)
-        {
-            cerr << "The value for the " << attrName << " attribute "
-                    "must be greater than zero, or \"infinity\"." << endl;
-            exit (1);
-        }
+	if (f <= 0)
+	{
+	    cerr << "The value for the " << attrName << " attribute "
+		    "must be greater than zero, or \"infinity\"." << endl;
+	    exit (1);
+	}
     }
 
     attrs.push_back (SetAttr (attrName, part, new FloatAttribute (f)));
@@ -417,21 +417,21 @@ getPosFloatOrInf (const char attrName[],
 
 void
 getV2f (const char attrName[],
-        int argc,
-        char **argv,
-        int &i,
+	int argc,
+	char **argv,
+	int &i,
         int part,
-        SetAttrVector &attrs,
-        void (*check) (const char attrName[], const V2f &v) = 0)
+	SetAttrVector &attrs,
+	void (*check) (const char attrName[], const V2f &v) = 0)
 {
     if (i > argc - 3)
-        usageMessage (argv[0]);
+	usageMessage (argv[0]);
 
     V2f v (static_cast<float>(strtod (argv[i + 1], 0)),
            static_cast<float>(strtod (argv[i + 2], 0)));
 
     if (check)
-        check (attrName, v);
+	check (attrName, v);
 
     attrs.push_back (SetAttr (attrName, part, new V2fAttribute (v)));
     i += 3;
@@ -440,20 +440,20 @@ getV2f (const char attrName[],
 
 void
 getRational (const char attrName[],
-            int argc,
-            char **argv,
-            int &i,
-            int part,
-            SetAttrVector &attrs,
-            void (*check) (const char attrName[], const Rational &r) = 0)
+	     int argc,
+	     char **argv,
+	     int &i,
+             int part,
+	     SetAttrVector &attrs,
+	     void (*check) (const char attrName[], const Rational &r) = 0)
 {
     if (i > argc - 3)
-        usageMessage (argv[0]);
+	usageMessage (argv[0]);
 
     Rational r (strtol (argv[i + 1], 0, 0), strtol (argv[i + 2], 0, 0));
 
     if (check)
-        check (attrName, r);
+	check (attrName, r);
 
     attrs.push_back (SetAttr (attrName, part, new RationalAttribute (r)));
     i += 3;
@@ -501,13 +501,13 @@ getNameAndString (int argc,
 
 void
 getNameAndFloat (int argc,
-                 char **argv,
-                 int &i,
+		 char **argv,
+		 int &i,
                  int part,
-                 SetAttrVector &attrs)
+		 SetAttrVector &attrs)
 {
     if (i > argc - 3)
-        usageMessage (argv[0]);
+	usageMessage (argv[0]);
 
     const char *attrName = argv[i + 1];
     float f = static_cast<float>(strtod (argv[i + 2], 0));
@@ -518,10 +518,10 @@ getNameAndFloat (int argc,
 
 void
 getNameAndInt (int argc,
-               char **argv,
-               int &i,
+	       char **argv,
+	       int &i,
                int part,
-               SetAttrVector &attrs)
+	       SetAttrVector &attrs)
 {
     if (i > argc - 3)
 	usageMessage (argv[0]);
@@ -535,14 +535,14 @@ getNameAndInt (int argc,
 
 void
 getChromaticities (const char attrName[],
-                   int argc,
-                   char **argv,
-                   int &i,
+		   int argc,
+	           char **argv,
+		   int &i,
                    int part,
-                   SetAttrVector &attrs)
+		   SetAttrVector &attrs)
 {
     if (i > argc - 9)
-        usageMessage (argv[0]);
+	usageMessage (argv[0]);
 
     ChromaticitiesAttribute *a = new ChromaticitiesAttribute;
     attrs.push_back (SetAttr (attrName, part, a));
@@ -561,31 +561,31 @@ getChromaticities (const char attrName[],
 
 void
 getEnvmap (const char attrName[],
-           int argc,
-           char **argv,
-           int &i,
+	   int argc,
+	   char **argv,
+	   int &i,
            int part,
-           SetAttrVector &attrs)
+	   SetAttrVector &attrs)
 {
     if (i > argc - 2)
-        usageMessage (argv[0]);
+	usageMessage (argv[0]);
 
     char *str = argv[i + 1];
     Envmap type;
 
     if (!strcmp (str, "latlong") || !strcmp (str, "LATLONG"))
     {
-        type = ENVMAP_LATLONG;
+	type = ENVMAP_LATLONG;
     }
     else if (!strcmp (str, "cube") || !strcmp (str, "CUBE"))
     {
-        type = ENVMAP_CUBE;
+	type = ENVMAP_CUBE;
     }
     else
     {
-        cerr << "The value for the " << attrName << " attribute "
-                "must be either LATLONG or CUBE." << endl;
-        exit (1);
+	cerr << "The value for the " << attrName << " attribute "
+	        "must be either LATLONG or CUBE." << endl;
+	exit (1);
     }
 
     attrs.push_back (SetAttr (attrName, part, new EnvmapAttribute (type)));
@@ -595,14 +595,14 @@ getEnvmap (const char attrName[],
 
 void
 getKeyCode (const char attrName[],
-            int argc,
-            char **argv,
-            int &i,
+	    int argc,
+	    char **argv,
+	    int &i,
             int part,
-            SetAttrVector &attrs)
+	    SetAttrVector &attrs)
 {
     if (i > argc - 8)
-        usageMessage (argv[0]);
+	usageMessage (argv[0]);
 
     KeyCodeAttribute *a = new KeyCodeAttribute;
     attrs.push_back (SetAttr (attrName, part, a));
@@ -646,7 +646,7 @@ getPart (const char attrName[],
          int &part)
 {
     if (i > argc - 2)
-        usageMessage (argv[0]);
+	usageMessage (argv[0]);
 
     if (!strcmp (argv[i + 1], "any"))
         part = -1;
@@ -665,18 +665,18 @@ main(int argc, char **argv)
     //
 
     if (argc < 2)
-        usageMessage (argv[0], true);
+	usageMessage (argv[0], true);
 
     int exitStatus = 0;
 
     try
     {
-        const char *inFileName = 0;
-        const char *outFileName = 0;
+	const char *inFileName = 0;
+	const char *outFileName = 0;
 
-        SetAttrVector attrs;
-        int part = -1;
-        int i = 1;
+	SetAttrVector attrs;
+	int part = -1;
+	int i = 1;
 
 	while (i < argc)
 	{
