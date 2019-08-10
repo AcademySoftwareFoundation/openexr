@@ -1,14 +1,505 @@
 # OpenEXR Release Notes
 
-## Version X.X.X (Some Date)
+* [Version 2.4.0](#version-240-tbd)
+* [Version 2.3.0](#version-230-august-13-2018)
+* [Version 2.2.1](#version-221-november-30-2017)
+* [Version 2.2.0](#version-220-august-10-2014)
+* [Version 2.1.0](#version-210-november-25-2013)
+* [Version 2.0.1](#version-201-july-11-2013)
+* [Version 2.0.0](#version-200-april-9-2013)
+* [Version 1.7.1](#version-171-july-31-2012)
+* [Version 1.7.0](#version-170-july-23-2010)
+* [Version 1.6.1](#version-161-october-22-2007)
+* [Version 1.6.0](#version-160-august-3,2007)
+* [Version 1.5.0](#version-150-december-15-2006)
+* [Version 1.4.0a](#version-140a-august-9-2006)
+* [Version 1.4.0](#version-140-august-2,2006)
+* [Version 1.3.1](#version-131-june-14-2006)
+* [Version 1.3.0](#version-130-june-8,2006)
+* [Version 1.2.2](#version-122-march-15-2005)
+* [Version 1.2.1](#version-121-june-6,2004)
+* [Version 1.2.0](#version-120-may-11-2004)
+* [Version 1.1.1](#version-111-march-27-2004)
+* [Version 1.1.0](#version-110-february-6-2004)
+* [Version 1.0.7](#version-107-january-7-2004)
+* [Version 1.0.6](#version-106)
+* [Version 1.0.5](#version-105-april-3-2003)
+* [Version 1.0.4](#version-104)
+* [Version 1.0.3](#version-103)
+* [Version 1.0.2](#version-102)
+* [Version 1.0.1](#version-101)
+* [Version 1.0](#version-10)
 
-* Fix CVE-2018-18443, a memory leak in ThreadPool
+## Version 2.4.0 (TBD)
+
+* Fixes:
+
+* CVE-2018-18443, a memory leak in ThreadPool
 
 ### Bugs
 
 This version fixes the following security vulnerabilities:
 
 * [CVE-2018-18443](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18443)
+
+### Commits \[ git log v2.3.0...v2.4.0\]
+
+* [TSC meeting notes August 8, 2019](https://github.com/openexr/openexr/commit/ee8830f108e7a930f6326175f444ed026e504f27) ([Cary Phillips](@cary@ilm.com) 2019-08-08) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [changed AP_CPPFLAGS to AM_CPPFLAGS in PyImathNumpy/Makefile.am.](https://github.com/openexr/openexr/commit/859017261d4401ebdb965f268d88b10455984719) ([Cary Phillips](@cary@ilm.com) 2019-08-07) What this a typo? The automake-generated Makefiles expect 'AM', which
+was leading to a failure to find PyImath.h. Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Removed the d_exr Renderman plugin from Contrib. It was hopelessly outdated, not updated since 2003, and no longer of benefit.](https://github.com/openexr/openexr/commit/6999eb39465d99d5fbb01eff9f1acfdb424d9f82) ([Cary Phillips](@cary@ilm.com) 2019-07-27) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Removed the Photoshop plugin from Contrib. It was hopelessly outdated and no longer of benefit.](https://github.com/openexr/openexr/commit/e84040bde6259777035b3032337aee4a24f34548) ([Cary Phillips](@cary@ilm.com) 2019-07-27) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [added SPDX license identifier.](https://github.com/openexr/openexr/commit/e9e4f34616460b3a3c179a7bcc2be2e8f4e79ae8) ([Cary Phillips](@cary@ilm.com) 2019-07-27) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Upon the request of the ASWF Governing Board and the advice of Pixar/Lucasfilm attorney Richard Guo, changed the license on the DtexToExr source code to BSD-3-Clause, to bring in line with the standard OpenEXR license. Also, removed COPYING, as it only contained license info; remoted INSTALL because it was only a copy of the boilerplate bootstrap/config documentation; remove NEWS because we're not using that file any more.](https://github.com/openexr/openexr/commit/a73956bfd4809769bcb8fe2229f7d888c7deccff) ([Cary Phillips](@cary@ilm.com) 2019-07-27) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [TSC meeting notes from 7/25/2019](https://github.com/openexr/openexr/commit/2ebd7ade2f392fc3da50c0227e3ff11a7a2f4d8e) ([Cary Phillips](@cary@ilm.com) 2019-07-26) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Match variable style syntax per Cary](https://github.com/openexr/openexr/commit/f5ab8176637d8ea1decc83929950aa3864c87141) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-10) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Add headers to build so programs that can parse and display that will do so](https://github.com/openexr/openexr/commit/19557bfaf1b6b38a2407a6a261ee8f3b376c0bd6) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-25) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [First pass of describing versioning and naming of library names](https://github.com/openexr/openexr/commit/eeae20a72f596589b6429ba43bff69281b801015) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-25) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Normalize library naming between cmake and autoconf](https://github.com/openexr/openexr/commit/c3ebd44bdb64c5bfe0065f3d0ac898387a0fbb63) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-25) installed libraries should follow the following basic pattern: (-> indicates a symlink)
+
+    libFoo.so -> libFoo-LIB_SUFFIX.so
+    libFoo-LIB_SUFFIX.so -> libFoo-LIB_SUFFIX.so.MAJ_SO_VERSION
+    libFoo-LIB_SUFFIX.so.MAJ_SO_VERSION ->
+    libFoo-LIB_SUFFIX.so.FULL_SO_VERSION
+
+    so with a concrete example of 2.3 lib w/ so version of 24
+
+    libFoo.so -> libFoo-2_3.so
+    libFoo-2_3.so -> libFoo-2_3.so.24
+    libFoo-2_3.so.24 -> libFoo-2_3.so.24.0.0
+    libFoo-2_3.so.24.0.0.0 <--- actual file
+
+    (there may be slight variations in the link destinations based on
+    differences in libtool and cmake, but the file names available should
+    all be there) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [only perform check in c++14 to avoid old c++11 standards deficient compilers](https://github.com/openexr/openexr/commit/1aeba79984bef35cead1da540550441f2b8244af) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-25) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix #246, add type traits check](https://github.com/openexr/openexr/commit/5323c345361dcf01d012fd8f40e8c6c975b9cb83) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-23) previous cleanup did most of the work, but add an explicit test that
+half is now trivial and default constructible.  Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [remove sanityCheck for 32 bit overflow. Add test for large offsets](https://github.com/openexr/openexr/commit/b0acdd7bcbd006ff93972cc3c6d66c617280c557) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-23) 
+
+* [Makes building of fuzz test optional](https://github.com/openexr/openexr/commit/73d5676079d77b4241719f57d0219a3287503b8b) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-09) This further makes the fuzz test compilation dependent on whether you
+want to include the fuzz test in the ctest "make test" rule. This is
+mostly for sonar cloud such that it doesn't complain that the fuzz test
+code isn't being run as a false positive (because it isn't included in
+the test) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Added MacOS jobs to Azure pipeline](https://github.com/openexr/openexr/commit/29eab92cdee9130b7d1cc6adb801966d0bc87c94) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-07-27) 
+
+* [initial draft of release notes for 2.3.1](https://github.com/openexr/openexr/commit/4fa4251dc1cce417a7832478f6d05421561e2fd2) ([Cary Phillips](@cary@ilm.com) 2019-08-06) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Add //NOSONAR to the "unhandled exception" catches that SonarCloud identifies as vulnerabilities, to suppress the warning. In each of these cases, a comment explains that no action is called for in the catch, so it should not, in fact, be regarded as a bug or vulnerability.](https://github.com/openexr/openexr/commit/c46428acaca50e824403403ebdaec45b97d92bca) ([Cary Phillips](@cary@ilm.com) 2019-07-28) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [explicitly name the path for the autoconf-generated files in .gitignore.](https://github.com/openexr/openexr/commit/220cfcdd7e08d28098bf13c992d48df4b0ab191d) ([Cary Phillips](@cary@ilm.com) 2019-08-04) 
+
+* [add the file generated by bootstrap/configure to .gitignore.](https://github.com/openexr/openexr/commit/81af15fd5ea58c33cfa18c60797daaba55126c1b) ([Cary Phillips](@cary@ilm.com) 2019-08-04) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Fixes #353, support for overriding Cg libdir](https://github.com/openexr/openexr/commit/63924fd0f47e428b63c82579e8b03a1eeb4e4ca1) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-22) to handle systems where it isn't lib, but lib64, as needed
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [more documentation tweaks](https://github.com/openexr/openexr/commit/b6c006aafc500816e42909491437bf9af79bb03c) ([Cary Phillips](@cary@ilm.com) 2019-07-28) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Updates to README, CONTRIBUTING, GOVERNANCE: better introduction, removed some of the TSC process descriptions that are redudant in the charter.](https://github.com/openexr/openexr/commit/1cd03756bbf22a65f84eb42c9d83b78be2902c02) ([Cary Phillips](@cary@ilm.com) 2019-07-28) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [update to the template copyright notice.](https://github.com/openexr/openexr/commit/21c307aaf054f304f52bb488258f81d68e38385f) ([Cary Phillips](@cary@ilm.com) 2019-07-25) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Updates to LICENSE and CONTRIBUTORS.](https://github.com/openexr/openexr/commit/559186e6c638190ec1db122ec5f1a0890c056a16) ([Cary Phillips](@cary@ilm.com) 2019-07-25) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Fix another set of warnings that crept in during previous fix merges](https://github.com/openexr/openexr/commit/e07ef34af508b7ce9115ebc5454edeaacb35fb8c) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-25) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix logic for 1 pixel high/wide preview images (Fixes #493)](https://github.com/openexr/openexr/commit/74504503cff86e986bac441213c403b0ba28d58f) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-25) 
+
+* [Fix for #494: validate tile coordinates when doing copyPixels](https://github.com/openexr/openexr/commit/6bb36714528a9563dd3b92720c5063a1284b86f8) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-25) 
+
+* [add test for filled channels in DeepScanlines](https://github.com/openexr/openexr/commit/c04673810a86ba050d809da42339aeb7129fc910) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-18) 
+
+* [add test for skipped and filled channels in DeepTiles](https://github.com/openexr/openexr/commit/b1a5c8ca1921a3fc573952c8034fddd8fdac214b) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-18) 
+
+* [slightly rearrange test for filled channels](https://github.com/openexr/openexr/commit/3c9d0b244ec31ab5e5849e1b6020c55096707ab5) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-18) 
+
+* [Make sure to skip over slices that will only be filled when computing the uncompressed pixel size. Otherwise chunks that compressed to larger sizes than the original will fail to load.](https://github.com/openexr/openexr/commit/14905ee6d802b27752890d39880cd05338337e39) ([Halfdan Ingvarsson](@halfdan@sidefx.com) 2013-04-25) 
+
+* [Fix #491, issue with part number range check reconstructing chunk offset table](https://github.com/openexr/openexr/commit/8b5370c688a7362673c3a5256d93695617a4cd9a) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-25) The chunk offset was incorrectly testing for a part number that was the
+same size (i.e. an invalid index)
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [removed logo, that didn't work.](https://github.com/openexr/openexr/commit/d5800c14296527b3540da7aefd28b5937158d2cc) ([Cary Phillips](@cary@ilm.com) 2019-07-23) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [added logo](https://github.com/openexr/openexr/commit/70435d286a0fe1a022ba26f00a1fd6eb37505a32) ([Cary Phillips](@cary@ilm.com) 2019-07-23) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [OpenEXR logo](https://github.com/openexr/openexr/commit/d6eeb1432bc626709f934da7428561d4aeb8c5a5) ([Cary Phillips](@cary@ilm.com) 2019-07-23) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [smaller window image](https://github.com/openexr/openexr/commit/fcedcad366988a24fb9c756510488f8fb83dc2ac) ([Cary Phillips](@cary@ilm.com) 2019-07-23) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [fixed image references in README.md](https://github.com/openexr/openexr/commit/6def338579442d0fe1e3fbed0d458db3c5cf2a42) ([Cary Phillips](@cary@ilm.com) 2019-07-23) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Revised the overview information in README.md, and condensed the information in the module README.md's, and removed the local AUTHORS, NEWS, ChangeLog files.](https://github.com/openexr/openexr/commit/0c04c734d1a7ba3f3f85577ec56388238c9202c6) ([Cary Phillips](@cary@ilm.com) 2019-07-23) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Azure: updated docker containers, added windows install scripts.](https://github.com/openexr/openexr/commit/941082379a49a1aecafe2b9e84f3403314d910a9) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-07-22) 
+
+* [rewrite of build and installation documentation in INSTALL.md](https://github.com/openexr/openexr/commit/591b671ba549bccca1e41ad457f569107242565d) ([Cary Phillips](@cary@ilm.com) 2019-07-22) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Convert constructor casts to static_cast](https://github.com/openexr/openexr/commit/625b95fa026c3b78e537e9bb6a39fcd51920ad13) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-23) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Convert constructor casts to static_cast, remove dead code](https://github.com/openexr/openexr/commit/5cbf3cb368cd7013a119c3f08555a69fe33a932b) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-23) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix issues and warnings compiling in optimized using gcc -Wall](https://github.com/openexr/openexr/commit/6d4e118cebbb7adf8ed29d846bb6f7fb0fb198eb) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-23) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Ensure tests have assert when building in a release mode](https://github.com/openexr/openexr/commit/fe93c2c1ade319a7bc9a733cbeaad3c625a31d0d) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-23) Fixes warnings and makes sure tests are ... testing
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Cleanup warnings for clang -Wall](https://github.com/openexr/openexr/commit/a5fbf7d669ca6b2b402f4fdf9022b43e5eea616f) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-23) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [First pass of warning cleanup](https://github.com/openexr/openexr/commit/c1501ec2b29c95501c8fc324f4ec91bd93f0c1d3) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-23) This fixes g++ -Wall to compile warning free
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Update Azure Linux/SonarCloud jobs to work with new build](https://github.com/openexr/openexr/commit/b19c8d221976bc6c0debc77431b0fe40dfeb8887) ([¨Christina Tempelaar-Lietz¨](@xlietz@gmail.com) 2019-07-21) Signed-off-by: Christina Tempelaar-Lietz <xlietz@gmail.com>
+
+* [Fix dos files to unix, part of #462](https://github.com/openexr/openexr/commit/0f97a86349b377e0f380d2782326844bef652820) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-22) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Put all runtime artefacts in a single folder to help win32 find dlls](https://github.com/openexr/openexr/commit/e2e8b53e267c373971f3e6da700670679a46403d) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-23) This will (hopefully) fix issues with compiling ilmbase as a dll and
+using that to generate and compile openexr
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix #224, imath python code such that tests pass under python3](https://github.com/openexr/openexr/commit/ab50d774e91a6448443e6cdb303bd040105cfaf8) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-22) Previously had fixed print functions, this pass converts the following:
+- integer division changed in python3 3/2 -> 1.5, have to use 3//2 to
+get an int
+- xrange is no more, just use range
+- integer type coersion for division not working, force type constructor
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fixes #252, incorrect math computing half digits](https://github.com/openexr/openexr/commit/bca0bc002b222d64712b748a733d9c9a0701f834) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-22) Based on float / double math for base 10 digits, with 1 bit of rounding
+error, the equation should be floor( mantissa_digits - 1 ) * log10(2) ),
+which in the case of half becomes floor( 10 * log10(2) ) or 3
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fixes #139](https://github.com/openexr/openexr/commit/ba329cba788d4f320e6fc455919233222c27a0dd) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-21) Removes bash-isms from the autoconf bootstrap / configure.ac files
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Add viewers library to default build](https://github.com/openexr/openexr/commit/f52164dcc92c98775c3503aa9827fbd5d1e69b63) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-21) If libraries can't be found, will warn and not build
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Warn the user, but make PyIlmBase not fail a build by default](https://github.com/openexr/openexr/commit/a0dcd35c51fc7811bc17b766ded17622f91e3fd0) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-21) By default, many people won't have the dependencies to build PyIlmBase.
+Make it such that the build will warn, but continue to build without the
+python extension
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix missing #include <cmath> for std::isnormal](https://github.com/openexr/openexr/commit/9aa10cfac3209ac398b12c14eec2611420f20985) ([Axel Waggershauser](@awagger@gmail.com) 2019-07-21) fixes compile regression on macos + clang-6
+
+* [further cleanup and remove old mworks checks that had been copied around](https://github.com/openexr/openexr/commit/351ad1897e3b84bd5b1e29835c7e68bb09f1f914) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-21) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Remove last vestiges of old ifdef for windows previously removed elsewhere](https://github.com/openexr/openexr/commit/b3651854491afa8b6c98e9078a5f4a33178c1a66) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-21) Previously PLATFORM_WINDOWS was used to conditionally include things,
+but that had been removed elsewhere, and a few spots missed.
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix #352, issue with aspect ratio](https://github.com/openexr/openexr/commit/34e2e78f205c49eafb49b7589701746f748194ad) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-21) If a file is contructed with an abnormal aspect ratio, tools like make
+preview will fail. This adds an extra check to the creation / reading of
+ImfHeader to avoid this issue
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix #455 by not using object libraries under apple](https://github.com/openexr/openexr/commit/0451df8f7986ff5ab37c26d2aa6a7aeb115c8948) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-21) Per the docs, add_library calls with only object library dependencies
+are not yet handled properly by Xcode and similar. Disable the use of
+object libraries as a compilation speedup mechanism as a result.
+Similarly, disable under win32 when building both types of libs to avoid
+exported symbols in the static libs. Finally, use same mechanism to
+avoid extra layer of libs in generated exports when only building one
+config on all platforms
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [NumPy lookup logic is only in newer versions of cmake than our minimum](https://github.com/openexr/openexr/commit/5b4b23d1cf49ee89132251bc7987d65b7a11efe6) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-21) We are doing the numpy lookup manually for now
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix #461, issue with macos rpath support, remove half-baked framework support](https://github.com/openexr/openexr/commit/9aa52c8c0c96b24c8d645d7850dae77f4bf64620) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-21) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Refactor origin function to a Slice factory and Rgba custom utility](https://github.com/openexr/openexr/commit/119eb2d4672e5c77a79929758f7e4c566f47c794) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-21) Instead of a general templated routine, have a Slice factory function
+and then a custom Rgba utility function to clarify and avoid missing
+strides, etc. when dealing with slices
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [merges common fixes and move bounds check to central location](https://github.com/openexr/openexr/commit/6a41400b47d574a5fc6133b9a7139bcd7b59d585) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-01) PR #401 had conflicts, and some of the checks were not in a central
+location. This incorporates those changes, moving the extra range checks
+to the central sanityCheck already in ImfHeader. Then adds a new utility
+function for computing the pointer offsets that can prevent simple
+overflow when there are large offsets from origin or widths with
+subsampling.
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+Co-Authored-By: pgajdos <pgajdos@suse.cz>
+
+* [Fix part of #232, issue with pointer overflows](https://github.com/openexr/openexr/commit/4aa6a4e0fcd52b220c71807307b9139966c3644c) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-06-27) This addresses pointer overflow in exr2aces with large datawindow
+offsets. It also fixes similar issues in exrenvmap and exrmakepreview.
+This addresses the crashes in CVE-2017-9111, CVE-2017-9113,
+CVE-2017-9115
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix portion of #462](https://github.com/openexr/openexr/commit/2309b42be084939e8593e036b814049f98eb7888) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-21) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix copyright notice, clarify version requirement comment](https://github.com/openexr/openexr/commit/688b50d1982854b1a2be63160eae03472cf4820e) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-20) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix copyright notice, clarify version requirement comment](https://github.com/openexr/openexr/commit/bbf1f5ed9814f35f953c5b28349ca8dd59a3ed87) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-20) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix #457, (unused) policy tag only in 3.13+ of cmake, no longer needed](https://github.com/openexr/openexr/commit/e69dc2131791a42d5e0618506a4846ec7d53b997) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-20) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [TSC meeting notes 7/18/2019](https://github.com/openexr/openexr/commit/04e21585d01c36790dad186a34c4c64c8e0a1dae) ([Cary Phillips](@cary@ilm.com) 2019-07-18) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Typo in Makefile.am, AM_CPPFLAGS should append to the previous value.](https://github.com/openexr/openexr/commit/97626390f86007fcff2d33c68919389e211983e1) ([Cary Phillips](@cary@ilm.com) 2019-07-18) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [changed INCLUDE to AM_CPPFLAGS, upon the recommendation of automake warnings.](https://github.com/openexr/openexr/commit/f91edef414e319235959a537e0ef62c49dddcde3) ([Cary Phillips](@cary@ilm.com) 2019-07-17) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [added missing copyright notices](https://github.com/openexr/openexr/commit/76cb1ef869a23ab49f4313fee16a4d5750e91485) ([Cary Phillips](@cary@ilm.com) 2019-07-18) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [in PyIlmBase/configure.ac, set LD_LIBRARY_PATH explicitly for the ilmbase test program,so that it finds the libraries when it executes.](https://github.com/openexr/openexr/commit/0bd322d424781f20750141ddc829fc9e16f7e305) ([Cary Phillips](@cary@ilm.com) 2019-07-18) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [remove the reference to the LICENSE file in the copyright notice template.](https://github.com/openexr/openexr/commit/1aedb3ceec973e9bc0bad88fc151b2504884e84c) ([Cary Phillips](@cary@ilm.com) 2019-07-18) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [fix incorrect license identifier](https://github.com/openexr/openexr/commit/02f1e3d876a784cfd0ab8d0581bafe1fd0d98df2) ([Cary Phillips](@cary@ilm.com) 2019-07-18) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Rename new function and clarify purpose](https://github.com/openexr/openexr/commit/e8dc4326383540ef4a4e2a388cb176da72c120fb) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-18) After discussion with phillman, renamed to give this routine a purpose
+beyond some soon to be deleted legacy support, and clarified this in the
+comment documenting the function.
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Implements #15, request for hardware concurrency utility function](https://github.com/openexr/openexr/commit/23eaf0f45ff531ba0ab3fb1540d5c7d31b4bfe94) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-18) new static member of ThreadPool, call as
+ThreadPool::hardwareConcurrency, so no abi breakage or api change
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [use headers.data() instead of &headers[0]](https://github.com/openexr/openexr/commit/42665b55f4062f1492156c7bc9482318c7b49cda) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-17) 
+
+* [don't index empty array in testMultiPartSharedAttributes](https://github.com/openexr/openexr/commit/bb5aad9b793b1113cae42d80fea8925503607de1) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-16) 
+
+* [Added IlmThreadSemaphoreOSX to IlmBase/IlmThread/Makefile.am and added PyIlmBase/PyIlmBase.pc.in back in, looks like it got inadvertently removed by a previous commit.](https://github.com/openexr/openexr/commit/c580d3531c36ed1de35fbfe359eed5f74c2de6dc) ([Cary Phillips](@cary@ilm.com) 2019-07-16) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Azure and SonarCloud setup](https://github.com/openexr/openexr/commit/9d053e4871e721144ad25ac04437646cf4f16d66) ([¨Christina Tempelaar-Lietz¨](@xlietz@gmail.com) 2019-07-12) Signed-off-by: ¨Christina Tempelaar-Lietz¨ <xlietz@gmail.com>
+
+* [Fixes #95, compilation issue with mingw](https://github.com/openexr/openexr/commit/2cf0560dd8eb469680d2281e6d80348dad9ad500) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-18) The tree now compiles using mingw to compile, tested by cross compiling
+for windows from linux
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fixes #282, missing link against pthread](https://github.com/openexr/openexr/commit/e90f1b0ed19cb05821c7351ce8d5d9a22fb094eb) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-18) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Remove removed file, add CMakeLists.txt file](https://github.com/openexr/openexr/commit/9683c48479ed2372d26eb51ed91d89b01c495dfd) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-18) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [PyIlmBase finished refactor, misc cleanup](https://github.com/openexr/openexr/commit/4d97270c6ce0916483c1aff5b1f77846cfff11a0) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-18) - add extra dist to automake for make dist
+- finish numpy lookup
+- add sample vfx 15 toolchain file for doc purposes
+- merge cxx standard, pay attention to global setting if set
+- merge clang tidy option
+- add default build type if not set
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Remove un-needed files now that cmake can provide correct values](https://github.com/openexr/openexr/commit/08332041bb46b45e93855c9843a2aa916ec4ebef) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-18) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix issues with rpath, message cleanup, checkpoint better python layer](https://github.com/openexr/openexr/commit/0eff97241f495027021b54978028475f0b2459dd) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-17) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Start to integrate python module using FindPython and FindBoost from modern cmake](https://github.com/openexr/openexr/commit/c236ed81b7146947999b75fd93aedc5d54d78f64) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-16) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Attempt to set rpath for more common scenarios when people are building custom versions](https://github.com/openexr/openexr/commit/10adf360120898c6ad3a0be2838056948bf22233) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-16) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Documentation pass](https://github.com/openexr/openexr/commit/ba22a8e0a366c87677c53bab72af72dbc378b0dd) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-16) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Enable custom install subfolder for headers](https://github.com/openexr/openexr/commit/9067b792c6f178bd2ff1d15e7b4d898fc1677495) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-13) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Generate version file to ensure proper version check](https://github.com/openexr/openexr/commit/edb6938738462009990086fb7081a860412ec0d4) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-13) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Properly include additional cmake files in "make dist" under autoconf](https://github.com/openexr/openexr/commit/ae54f3d656f8c6336c22385ee5d5ab1f35324c37) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-13) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [First pass updating the documentation for cmake builds](https://github.com/openexr/openexr/commit/120b93ecf33c45284dff68eaf0ee779fa1cb6747) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-12) 
+
+* [Switch testing control to use standard ctest setting option](https://github.com/openexr/openexr/commit/fe6bf4c585723ff8851dfe965343a2adb0f1c1f4) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-12) 
+
+* [First pass making cross compile work, cross compiling windows using mingw on linux](https://github.com/openexr/openexr/commit/f44721e0c504b0b400a71513600295fc5e00f014) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-12) This currently works for building using static libraries, but not yet
+tested with dlls.
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix new (WIP) cmake setup to work on OS/X](https://github.com/openexr/openexr/commit/2fe5a26d7ef36276ba4aa354178b81fc6612868d) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-12) This includes a fix for the semaphore configure check as well as a
+couple of compile warnings
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Add missing file, remove unused exrbuild tool cmake](https://github.com/openexr/openexr/commit/9a1ca7579b1ac793ae2d7bbee667e498d9bc8322) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-12) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Refactor cmake](https://github.com/openexr/openexr/commit/df41027db50bd52a0b797444f02d5907b756652e) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-07-12) This refactors the cmake setup, modernizing it to a current flavor of
+cmake and cleaning up the definitions. This also makes the top level
+folder a "super project", meaning it is including what should be
+distinct / standalone sub-projects with their own finds that should
+work.
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [TiledInputFile only supports regular TILEDIMAGE types, not DEEPTILE or unknown tiled types. Enforce for both InputFile and InputPart API. Fixes #266, Related to #70](https://github.com/openexr/openexr/commit/ece555214a63aaf0917ad9df26be7e17451fefb9) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-15) 
+
+* [address #271: catch scanlines with negative sizes](https://github.com/openexr/openexr/commit/849c616e0c96665559341451a08fe730534d3cec) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-12) 
+
+* [TSC meeting notes, July 7, 2019](https://github.com/openexr/openexr/commit/960a56f58da13be6c97c59eae1f57bd8882c4588) ([Cary Phillips](@cary@ilm.com) 2019-07-12) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [securty policy](https://github.com/openexr/openexr/commit/8f483c2552070f3d9dd2df98f6500dfa1c051dcc) ([Cary Phillips](@cary@ilm.com) 2019-07-12) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [code of conduct](https://github.com/openexr/openexr/commit/f31407518aa361263c77eae13f1eef46999ca01f) ([Cary Phillips](@cary@ilm.com) 2019-07-12) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [bswap_32 to correct endianness on read, to address #81.](https://github.com/openexr/openexr/commit/225ddb8777e75978b88c2d6311bb0cf94c0b6f22) ([Cary Phillips](@cary@ilm.com) 2019-07-02) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [fix reading files](https://github.com/openexr/openexr/commit/5350d10ffc03c774e5cd574062297fc91001064d) ([Dan Horák](@dan@danny.cz) 2019-04-15) testFutureProofing and testMultiPartFileMixingBasic both use fread(&length,4,f) to get a 4 byte
+integer value from input file. The value read is not converted from the little endian format to
+the machine format causing problems (eg. test didn't finish after 24 hours).
+fixes issue #81
+
+* [SonarCloud considers strcpy() a vulernability. It was used only in OpaqueAttribute, whose type name was stored as Array<char>.  I changed the type to std::string. I suspect this simply dates to a time before std::string was commonly used.](https://github.com/openexr/openexr/commit/29d18b70bf542ef9ec6e8861c015d2e7b3d3ec58) ([Cary Phillips](@cary@ilm.com) 2019-07-09) Also, it appears that nothing in the test suite validated opaque attributes, which hold values read from a file when the attribute type is not known. I added a test to validate the behavior, which also validates that the typeName() works when implemented with std::string instead of Array<char>.
+Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Updated pdf with fixes for file version bits on page 7.](https://github.com/openexr/openexr/commit/8da36708caaf0591f72538bfa414d8af20af90e9) ([Cary Phillips](@cary@ilm.com) 2019-07-11) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Fixed column labels in table on page 7; bit 11 is "deep", bit 12 is "multi-part". Bit 9 is long names, and is not in the table.](https://github.com/openexr/openexr/commit/a3198419f7593564747337e763083492c0470f45) ([Cary Phillips](@cary@ilm.com) 2019-07-09) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [New CI with aswfstaging/ci-base image](https://github.com/openexr/openexr/commit/5e7cde5c082881009516aa57a711a19e3eb92f64) ([aloysb](@aloysb@al.com.au) 2019-06-17) Signed-off-by: Aloys Baillet <aloys.baillet@gmail.com>
+Conflicts:
+	azure-pipelines.yml
+
+* [use static_cast in error test](https://github.com/openexr/openexr/commit/700e4996ce619743d5bebe07b4158ccc4547e9ad) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-11) 
+
+* [throw better exceptions in multipart chunk reconstruction](https://github.com/openexr/openexr/commit/001a852cca078c23d98c6a550c65268cc160042a) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-11) 
+
+* [Fix for #263: prevent overflow in multipart chunk offset table reconstruction](https://github.com/openexr/openexr/commit/6e4b6ac0b5223f6e813e025532b3f0fc4e02f541) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-09) 
+
+* [protect against negative sized tiles](https://github.com/openexr/openexr/commit/395aa4cbcaf91ce37aeb5e9876c44291bed4d1f9) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-11) 
+
+* [apply suggested for for #262](https://github.com/openexr/openexr/commit/9e9e4616f60891a8b27ee9cdeac930e5686dca4f) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-10) 
+
+* [specific check for bad size field in header attributes (related to #248)](https://github.com/openexr/openexr/commit/4c146c50e952655bc193567224c2a081c7da5e98) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-12) 
+
+* [use static_cast and numeric_limits as suggested](https://github.com/openexr/openexr/commit/eda733c5880e226873116ba66ce9069dbc844bdd) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-09) 
+
+* [Address #270: limit to INT_MAX tiles total](https://github.com/openexr/openexr/commit/7f438ffac4f6feb46383f66cb7e83ab41074943d) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-05) 
+
+* [exr2aces wasn't built via the configure script](https://github.com/openexr/openexr/commit/1959f74ee7f47948038a1ecb16c8ba8b84d4eb89) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-07-05) 
+
+* [added links for CVE's](https://github.com/openexr/openexr/commit/afd9beac8b7e114def78793b6810cbad8764a477) ([Cary Phillips](@cary@ilm.com) 2019-07-02) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [added "Test Policy" section to CONTRIBUTING.](https://github.com/openexr/openexr/commit/695019e4b98b55ed583d1455a9219e55fc777d1a) ([Cary Phillips](@cary@ilm.com) 2019-07-02) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [updated references to CVE's in release notes.](https://github.com/openexr/openexr/commit/2a0226b4c99c057ab7f3b038dafd92543ade3e6f) ([Cary Phillips](@cary@ilm.com) 2019-07-02) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Fixed the 2.3.0 release notes to mention that CVE-2017-12596 is fixed.](https://github.com/openexr/openexr/commit/9da28302194b413b57da757ab69eb33373407f51) ([Cary Phillips](@cary@ilm.com) 2019-06-26) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Added Coding Style section on Type Casting.](https://github.com/openexr/openexr/commit/7790ad78bb4e2b6f4bf22a7c1703af1e352004a4) ([Cary Phillips](@cary@ilm.com) 2019-07-08) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [adding source .odt files for the .pdf's on the documention page on openexr.com](https://github.com/openexr/openexr/commit/2f7847e3faf7146f2be8c1c0c3053c50b7ee9d97) ([Cary Phillips](@cary@ilm.com) 2019-07-03) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [fix readme typo](https://github.com/openexr/openexr/commit/67c1d4d2fc62f1bbc94202e49e65bd92de2e580f) ([Nick Porcino](@meshula@hotmail.com) 2019-07-08) 
+
+* [Handle exceptions, per SonarCloud rules; all catch blocks must do something to indicate the exception isn't ignored.](https://github.com/openexr/openexr/commit/fbce9002eff631b3feeeb18d45419c1fba4204ea) ([Cary Phillips](@cary@ilm.com) 2019-07-07) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [TSC meeting notes June 27, 2019](https://github.com/openexr/openexr/commit/4093d0fbb16ad687779ec6cc7b44308596d5579f) ([Cary Phillips](@cary@ilm.com) 2019-06-28) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Implement semaphore for osx](https://github.com/openexr/openexr/commit/fbb912c3c8b13a9581ffde445e390c1603bae35d) ([oleksii.vorobiov](@oleksii.vorobiov@globallogic.com) 2018-11-01) 
+
+* [Various fixes to address compiler warnings: - removed unused variables and functions - added default cases to switch statements - member initialization order in class constructors - lots of signed/unsigned comparisons fixed either by changing a loop iterator from int to size_t, or by selective type casting.](https://github.com/openexr/openexr/commit/c8a7f6a5ebce9a6d5bd9a3320bc746221789f407) ([Cary Phillips](@cary@ilm.com) 2019-06-24) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [convert_index returns Py_ssize_t](https://github.com/openexr/openexr/commit/ce886b87336ba04a12eb631ecfcc71da0c9b74bf) ([Cary Phillips](@cary@ilm.com) 2019-06-27) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [Fix #342, copy paste bug with dependencies](https://github.com/openexr/openexr/commit/2b28d90bc5e329c989dc44c1d5fdcdf715d225d7) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-06-28) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fixes the rpath setting to have the correct variable name](https://github.com/openexr/openexr/commit/5093aaa05278030d07304588fa52466538794fe7) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-06-27) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Add ImfFloatVectorAttribute.h to the automake install](https://github.com/openexr/openexr/commit/d61c0967cb7cd8fa255de64e4e79894d59c0f82d) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-06-26) The CMake file was previously updated to include this file on install,
+but was missing from the automake side.
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix #350 - memory leak on exit](https://github.com/openexr/openexr/commit/adbc1900cb9d25fcc4df008d4008b781cf2fa4f8) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-06-27) This fixes CVE-2018-18443, the last thread pool provider set into the
+pool was not being correctly cleaned up at shutdown of the thread pool.
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Fix library suffix issue in cmake file for exr2aces](https://github.com/openexr/openexr/commit/e4099a673e3348d4836c79a760e07b28b1912083) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-06-27) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Iterate on formatting, add script to run the formatting](https://github.com/openexr/openexr/commit/969305c5731aef054e170e776086e3747eb20ee0) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-06-27) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [Add initial rules for running clang-format on the code base](https://github.com/openexr/openexr/commit/6513fcf2e25ebd92c8f80f18e8cd7718ba7c4a41) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-06-27) Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [find Boost.Python 3 on older Boost versions](https://github.com/openexr/openexr/commit/9b58cf0fc197947dc5798854de639233bb35c6cb) ([Jens Lindgren](@lindgren_jens@hotmail.com) 2018-11-19) 
+
+* [MSYS support](https://github.com/openexr/openexr/commit/a19c806a7b52cdf74bfa6966b720efd8b24a2590) ([Harry Mallon](@hjmallon@gmail.com) 2019-01-30) 
+
+* [Only find_package ZLIB when required](https://github.com/openexr/openexr/commit/ab357b0a7a6d7e0ee761bf8ee5846688626d9236) ([Harry Mallon](@hjmallon@gmail.com) 2019-02-06) 
+
+* [Remove unused headers](https://github.com/openexr/openexr/commit/db9fcdc9c448a9f0d0da78010492398a394c87e7) ([Grant Kim](@6302240+enpinion@users.noreply.github.com) 2019-06-13) 
+
+* [WIN32 to _WIN32 for Compiler portability](https://github.com/openexr/openexr/commit/6e2a73ed8721da899a5bd844397444d5b15a5c71) ([Grant Kim](@6302240+enpinion@users.noreply.github.com) 2019-06-11) https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=vs-2019
+_WIN32 is the standard according to the official documentation from Microsoft and also this fixes MinGW compile error.
+
+* [Update README.md](https://github.com/openexr/openexr/commit/45e9910be6009ac4ddf4db51c3c505daafc942a3) ([Huibean Luo](@huibean.luo@gmail.com) 2019-04-08) 
+
+* [Added a few people to CREDITS.](https://github.com/openexr/openexr/commit/db512f5de8f4cc0f6ff81a67bf1bb7e8e7f0cc53) ([Cary Phillips](@cary@ilm.com) 2019-06-20) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [added release note summary information for all old releases from the "Announcements" section of openexr.com to CHANGES.md, so the repo's release notes are complete.](https://github.com/openexr/openexr/commit/61bbd0df59494cc2fa0e508506f32526acf2bf51) ([Cary Phillips](@cary@ilm.com) 2019-06-20) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [first real draft of coding style, and steps in the release process.](https://github.com/openexr/openexr/commit/1d514e66313cac0440b80c290b35cfa6b8f89b51) ([Cary Phillips](@cary@ilm.com) 2019-06-20) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [- added CREDITS.md (generated from "git log") - added CODEOWNERS (mostly a placeholder, everything is currently owned by TSC members) - the Release Process section of CONTRIBUTING gives the git log arguments to generate release notes. - remove stray meeting minutes file at the root level.](https://github.com/openexr/openexr/commit/050048c72ef4c32119d21cdb499e23418429f529) ([Cary Phillips](@cary@ilm.com) 2019-06-19) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [fixed references to renamed ASWF folder](https://github.com/openexr/openexr/commit/bd4c36cf07db310bb8350a4e5f575d86f1c7f8cb) ([Cary Phillips](@cary@ilm.com) 2019-06-19) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [June 20, 2019 TSC meeting notes](https://github.com/openexr/openexr/commit/82134840a001c2692ee762b0a767ab1b43cb64db) ([Cary Phillips](@cary@ilm.com) 2019-06-20) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [CLA's Renamed aswf-tsc to ASWF](https://github.com/openexr/openexr/commit/7ebb766d7540ae9a2caea80b9f1c9799d7c8d8af) ([Cary Phillips](@cary@ilm.com) 2019-06-15) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [2019-06-13.md](https://github.com/openexr/openexr/commit/9b2719c68635879421805ed3b602ea19aae68a77) ([seabeepea](@seabeepea@gmail.com) 2019-06-14) Signed-off-by: seabeepea <seabeepea@gmail.com>
+
+* [Missed John on the attendee list.](https://github.com/openexr/openexr/commit/0035649cc6d7f4d86be8609758b927b01b8c110c) ([Cary Phillips](@cary@ilm.com) 2019-06-13) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [TSC Meeting notes June 13, 2019](https://github.com/openexr/openexr/commit/79857214aec3d81f73f2e9613a4b44caa21751c8) ([Cary Phillips](@cary@ilm.com) 2019-06-13) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [- Formatting section is TBD - fixed references to license - removed references to CI - added section on GitHub labels](https://github.com/openexr/openexr/commit/0045a12d20112b253895d88b4e2bce3ffcff0d90) ([Cary Phillips](@cary@ilm.com) 2019-06-14) Signed-off-by: Cary Phillips <cary@ilm.com>
+
+* [fixing minor typos](https://github.com/openexr/openexr/commit/f62e9c0f9903e03c1d0d80e68e29ffba573c7f8d) ([xlietz](@31363633+xlietz@users.noreply.github.com) 2019-06-12) 
+
+* [Edits to README.md and CONTRIBUTING.md](https://github.com/openexr/openexr/commit/55a674bde7ee63c1badacbe061d3cb222927c68e) ([Cary Phillips](@cary@ilm.com) 2019-06-11) 
+
+* [Add initial Azure pipeline setup file](https://github.com/openexr/openexr/commit/9ed83bd964008c4ff19958b0e2824e08bdf6e610) ([seabeepea](@seabeepea@gmail.com) 2019-06-12) 
+
+* [typos](https://github.com/openexr/openexr/commit/10e33e334df9202cd8c8a940c7cd3ec36548d7d8) ([seabeepea](@seabeepea@gmail.com) 2019-06-09) 
+
+* [Contributing and Goverance sections](https://github.com/openexr/openexr/commit/ce9f05fbcc4c47330c43815cc40fc164e2ad53d3) ([seabeepea](@seabeepea@gmail.com) 2019-06-09) 
+
+* [meeting notes](https://github.com/openexr/openexr/commit/eed7c0aa972cf8b5f5641ca9946b27a3a054155f) ([Cary Phillips](@cary@ilm.com) 2019-05-09) 
+
+* [Fixed formatting](https://github.com/openexr/openexr/commit/b10e1015e349313b589f4c0b5b4bddefd3da64f7) ([John Mertic](@jmertic@linuxfoundation.org) 2019-05-08) Signed-off-by: John Mertic <jmertic@linuxfoundation.org>
+
+* [moved charter to charter subfolder.](https://github.com/openexr/openexr/commit/db49dcfdfcfaca5a60a84f65ced11df97d0df1ec) ([Cary Phillips](@cary@ilm.com) 2019-05-08) 
+
+* [OpenEXR-Technical-Charter.md](https://github.com/openexr/openexr/commit/2a33b9a4ca520490c5f368d6028decb9c76f8837) ([Cary Phillips](@cary@ilm.com) 2019-05-08) 
+
+* [OpenEXR-Adoption-Proposal.md](https://github.com/openexr/openexr/commit/3e22cab39663b5c97ba3fd20df02ae634e21fc84) ([Cary Phillips](@cary@ilm.com) 2019-05-08) 
+
+* [Meeting notes 2019-5-2](https://github.com/openexr/openexr/commit/c33d52f6c5a7d453d4b969224ab33852e47fe084) ([Cary Phillips](@cary@ilm.com) 2019-05-05) 
+
+* [Remove unused cmake variable](https://github.com/openexr/openexr/commit/c3a1da6f47279d34c23d29f6e2f264cf2126a4f8) ([Nick Porcino](@nick.porcino@oculus.com) 2019-03-29) 
+
+* [add build-win/, build-nuget/, and *~ to .gitignore.](https://github.com/openexr/openexr/commit/94ab55d8d4103881324ec15b8a41b3298ca7e467) ([Cary Phillips](@cary@ilm.com) 2018-09-22) 
+
+* [Update the README files with instructions for building on Windows, specifically calling out the proper Visual Studio version.](https://github.com/openexr/openexr/commit/ab742b86a37a7eb93f0312d98fc47f7526ddd65a) ([Cary Phillips](@cary@ilm.com) 2018-09-22) 
+
+* [Removed OpenEXRViewers.pc.in and PyIlmBase.pc.in. Since these modules are binaries, not libraries, there is no need to support pkgconfig for them.](https://github.com/openexr/openexr/commit/999a49d721604bb88178b596675deda4dc25cf1b) ([Cary Phillips](@cary@ilm.com) 2018-09-22) 
+
+* [Rebuild OpenEXR NuGet with 2.3 source and enable exrviewer for testing purposes](https://github.com/openexr/openexr/commit/c0d0a637a25e1741f528999a2556eda39102ddac) ([mancoast](@RobertPancoast77@gmail.com) 2018-09-15) 
+
+* [fix standalone and combined cmake](https://github.com/openexr/openexr/commit/017d027cc27ac0a7b2af90196fe3e49c4afe1aab) ([Kimball Thurston](@kdt3rd@gmail.com) 2018-09-08) This puts the version numbers into one file, and the settings and
+variables for building into another, that is then replicated and
+conditionally included when building a standalone package.
+Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
+
+* [CONTRIBUTING.md, INSTALL.md, and changes README.md and INSTALL.md](https://github.com/openexr/openexr/commit/d1d9f19475c858e66c1260fcc2be9e26dcddfc03) ([seabeepea](@seabeepea@gmail.com) 2019-06-09) 
+
+* [added GOVERNANCE.md](https://github.com/openexr/openexr/commit/09a11a92b149f0e7d51a62086572050ad4fdc4fe) ([seabeepea](@seabeepea@gmail.com) 2019-06-09) 
+
+
 
 ## Version 2.3.0 (August 13, 2018)
 
@@ -1700,7 +2191,7 @@ format.
  CodeWarrior project and Photoshop plugins for this release. See the
  downloads section for the source code and the new images.
 
-## Detailed Changes:
+### Detailed Changes:
 
 * Added new targets to Visual C++ .NET 2003 project
 	  for exrmaketiled, exrenvmap, exrmakepreview, and exrstdattr.
