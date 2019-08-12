@@ -81,7 +81,6 @@ using IMATH_NAMESPACE::Box2i;
 using IMATH_NAMESPACE::V2i;
 using std::string;
 using std::vector;
-using std::ofstream;
 using std::map;
 using std::min;
 using std::max;
