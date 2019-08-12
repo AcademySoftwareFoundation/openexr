@@ -42,6 +42,7 @@
 #include <fstream>
 #include <stdio.h>
 #include <assert.h>
+#include "TestUtilFStream.h"
 
 #ifndef ILM_IMF_TEST_IMAGEDIR
     #define ILM_IMF_TEST_IMAGEDIR
@@ -179,20 +180,23 @@ readWriteFiles (const char fileName1[],
     cout << "comparing files " << fileName2 << " and " << fileName3 << endl;
 
     {
-	ifstream file2 (fileName2, std::ios_base::binary);
-	ifstream file3 (fileName3, std::ios_base::binary);
+        ifstream file2, file3;
+        testutil::OpenStreamWithUTF8Name (
+            file2, fileName2, std::ios_base::in | std::ios_base::binary);
+        testutil::OpenStreamWithUTF8Name (
+            file3, fileName3, std::ios_base::in | std::ios_base::binary);
 
-	while (true)
-	{
-	    int c2 = file2.get();
-	    int c3 = file3.get();
+        while (true)
+        {
+            int c2 = file2.get();
+            int c3 = file3.get();
 
-	    if (file2.eof())
-		break;
+            if (file2.eof())
+                break;
 
-	    assert (c2 == c3);
-	    assert (!!file2 && !!file3);
-	}
+            assert (c2 == c3);
+            assert (!!file2 && !!file3);
+        }
     }
 
     remove (fileName2);

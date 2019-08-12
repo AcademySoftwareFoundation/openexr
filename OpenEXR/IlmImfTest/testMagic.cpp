@@ -44,6 +44,8 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "TestUtilFStream.h"
+
 #ifndef ILM_IMF_TEST_IMAGEDIR
     #define ILM_IMF_TEST_IMAGEDIR
 #endif
@@ -60,7 +62,8 @@ testFile1 (const char fileName[], bool isImfFile)
 {
     cout << fileName << " " << flush;
 
-    ifstream f (fileName, ios_base::binary);
+    ifstream f;
+    testutil::OpenStreamWithUTF8Name (f, fileName, ios::in | ios_base::binary);
     assert (!!f);
 
     char bytes[4];
