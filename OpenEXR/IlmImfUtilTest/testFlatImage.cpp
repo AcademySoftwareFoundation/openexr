@@ -495,8 +495,8 @@ testCropping (const string &fileName)
     verifyPixelsAreEqual <half> (img3.level(0).channel ("A"),
                                  img1.level(0).channel ("A"),
                                  0, 0);
+    remove (fileName.c_str ());
 }
-
 
 void
 testRenameChannel ()
