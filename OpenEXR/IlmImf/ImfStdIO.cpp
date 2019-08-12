@@ -43,10 +43,17 @@
 #include <ImfStdIO.h>
 #include "Iex.h"
 #include <errno.h>
-#ifdef _MSC_VER
+#ifdef _WIN32
 # define VC_EXTRALEAN
-# include <Windows.h>
+# include <windows.h>
 # include <string.h>
+# include <io.h>
+# include <fcntl.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <share.h>
+# include <string>
+# include <iostream>
 #endif
 
 using namespace std;
@@ -56,10 +63,10 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 namespace {
 
-#ifdef _MSC_VER
-std::wstring WidenFilename (const char *filename)
+#ifdef _WIN32
+wstring WidenFilename (const char *filename)
 {
-    std::wstring ret;
+    wstring ret;
     int fnlen = static_cast<int>( strlen(filename) );
     int len = MultiByteToWideChar(CP_UTF8, 0, filename, fnlen, NULL, 0 );
     if (len > 0)
@@ -68,6 +75,117 @@ std::wstring WidenFilename (const char *filename)
         MultiByteToWideChar(CP_UTF8, 0, filename, fnlen, &ret[0], len);
     }
     return ret;
+}
+
+# if defined(__GLIBCXX__) && !(defined(_GLIBCXX_HAVE_WFOPEN) && defined(_GLIBCXX_USE_WCHAR_T))
+#  define USE_CUSTOM_WIDE_OPEN 1
+# endif
+
+# ifdef USE_CUSTOM_WIDE_OPEN
+template <typename CharT, typename TraitsT>
+class InjectFilebuf : public basic_filebuf<CharT, TraitsT>
+{
+public:
+    using base_filebuf = basic_filebuf<CharT, TraitsT>;
+    inline base_filebuf* wide_open (int fd, ios_base::openmode m)
+    {
+        // sys_open will do an fdopen internally which will then clean up the fd upon close
+        this->_M_file.sys_open (fd, m);
+        if (this->is_open ())
+        {
+            // reset the internal state, these members are consistent between gcc versions 4.3 - 9
+            // but at 9, the wfopen stuff should become available, such that this will no longer be
+            // active
+            this->_M_allocate_internal_buffer ();
+            this->_M_mode    = m;
+            this->_M_reading = false;
+            this->_M_writing = false;
+            this->_M_set_buffer (-1);
+            this->_M_state_last = this->_M_state_cur = this->_M_state_beg;
+            // we don't ever seek to end or anything, so should be done at this point...
+            return this;
+        }
+        return nullptr;
+    }
+};
+# endif // USE_CUSTOM_WIDE_OPEN
+
+ifstream*
+make_ifstream (const char *filename)
+{
+    wstring wfn = WidenFilename (filename);
+# ifdef USE_CUSTOM_WIDE_OPEN
+    int     fd;
+    errno_t e = _wsopen_s (
+        &fd, wfn.c_str (), _O_RDONLY|_O_BINARY, _SH_DENYNO, _S_IREAD | _S_IWRITE);
+    if (e != 0)
+    {
+        char errbuf[4096];
+        strerror_s (errbuf, 4096, e);
+        errno = e;
+        throw IEX_NAMESPACE::ErrnoExc (
+            "Unable to open input filestream: " + std::string (errbuf));
+    }
+    ifstream* ret = new ifstream;
+    using CharT   = ifstream::char_type;
+    using TraitsT = ifstream::traits_type;
+    if (static_cast<InjectFilebuf<CharT, TraitsT>*> (ret->rdbuf ())
+        ->wide_open (fd, ios_base::in | ios_base::binary))
+    {
+        ret->clear();
+        ret->setstate(ios_base::goodbit);
+    }
+#    else
+    ifstream* ret = new ifstream(wfn.c_str (), ios_base::in | ios_base::binary);
+#    endif
+    return ret;
+}
+
+ofstream*
+make_ofstream (const char* filename)
+{
+    wstring   wfn = WidenFilename (filename);
+# ifdef USE_CUSTOM_WIDE_OPEN
+    int     fd;
+    errno_t e = _wsopen_s (
+        &fd,
+        wfn.c_str (),
+        _O_WRONLY | _O_CREAT | _O_BINARY,
+        _SH_DENYNO,
+        _S_IREAD | _S_IWRITE);
+    if (e != 0)
+    {
+        char errbuf[4096];
+        strerror_s (errbuf, 4096, e);
+        errno = e;
+        throw IEX_NAMESPACE::ErrnoExc (
+            "Unable to open output filestream: " + std::string(errbuf));
+    }
+    ofstream* ret = new ofstream;
+    using CharT   = ifstream::char_type;
+    using TraitsT = ifstream::traits_type;
+    if (static_cast<InjectFilebuf<CharT, TraitsT>*> (ret->rdbuf ())
+            ->wide_open (fd, ios_base::out | ios_base::binary))
+    {
+        ret->clear ();
+        ret->setstate (ios_base::goodbit);
+    }
+#    else
+    ofstream *ret = new ofstream (wfn.c_str (), ios_base::binary);
+#    endif
+    return ret;
+}
+#else
+ifstream*
+make_ifstream (const char* filename)
+{
+    return new ifstream (filename, ios_base::binary);
+}
+
+inline ofstream*
+make_ofstream (const char* filename)
+{
+    return new ofstream (filename, ios_base::binary);
 }
 #endif
 
@@ -115,13 +233,7 @@ checkError (ostream &os)
 
 StdIFStream::StdIFStream (const char fileName[]):
     OPENEXR_IMF_INTERNAL_NAMESPACE::IStream (fileName),
-    _is (new ifstream (
-#ifdef _MSC_VER
-             WidenFilename(fileName).c_str(),
-#else
-             fileName,
-#endif
-             ios_base::binary)),
+    _is (make_ifstream (fileName)),
     _deleteStream (true)
 {
     if (!*_is)
@@ -181,17 +293,10 @@ StdIFStream::clear ()
     _is->clear();
 }
 
-
-StdOFStream::StdOFStream (const char fileName[]):
-    OPENEXR_IMF_INTERNAL_NAMESPACE::OStream (fileName),
-    _os (new ofstream (
-#ifdef _MSC_VER
-             WidenFilename(fileName).c_str(),
-#else
-             fileName,
-#endif
-             ios_base::binary)),
-    _deleteStream (true)
+StdOFStream::StdOFStream (const char fileName[])
+    : OPENEXR_IMF_INTERNAL_NAMESPACE::OStream (fileName)
+    , _os (make_ofstream (fileName))
+    , _deleteStream (true)
 {
     if (!*_os)
     {
