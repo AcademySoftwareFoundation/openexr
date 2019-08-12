@@ -51,8 +51,10 @@
 #include <cstring>
 #include <time.h>
 
-#if defined(OPENEXR_IMF_HAVE_LINUX_PROCFS) || defined(OPENEXR_IMF_HAVE_DARWIN)
-    #include <unistd.h>
+#ifdef _WIN32
+# include <windows.h>
+#else
+# include <unistd.h>
 #endif
 
 using namespace std;
@@ -74,8 +76,21 @@ main (int argc, char *argv[])
 
     while (true)
     {
+#ifdef _WIN32
+        char tmpbuf[4096];
+        DWORD len = GetTempPathA(4096, tmpbuf);
+        if ( len == 0 || len > 4095 )
+        {
+            cerr << "Cannot retrieve temporary directory" << endl;
+            return 1;
+        }
+        tempDir = tmpbuf;
+        // windows does this automatically
+        // tempDir += IMF_PATH_SEPARATOR;
+        tempDir += "IlmImfTest_";
+#else
         tempDir = IMF_TMP_DIR "IlmImfTest_";
-
+#endif
         for (int i = 0; i < 8; ++i)
             tempDir += ('A' + rand48.nexti() % 26);
 
