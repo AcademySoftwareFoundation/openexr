@@ -373,7 +373,7 @@ FastHufDecoder::buildTables (Int64 *base, Int64 *offset)
     // as 'offset', when using the left justified base table.
     //
 
-	_ljOffset[0] = offset[0] - _ljBase[0];
+    _ljOffset[0] = offset[0] - _ljBase[0];
     for (int i = 1; i <= MAX_CODE_LEN; ++i)
         _ljOffset[i] = offset[i] - (_ljBase[i] >> (64 - i));
 
