@@ -197,8 +197,8 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
    
      const char * write_ptr = writing ? &writingBuffer[0] : &readingBuffer[0];
      // fill with random halfs, casting to floats for float channels
-     int chan=0;
-     for (int i=0;i<samples;i++)
+     size_t chan=0;
+     for (size_t i=0;i<samples;i++)
      {
          unsigned short int values = (unsigned short int) floor((double(rand())/double(RAND_MAX))*65535.0);
          half v;
@@ -229,7 +229,7 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
     int64_t bytes_per_row = bytes_per_pixel*width;
    
     const char* offset = ( writing ? writingBuffer.data() : readingBuffer.data() ); 
-    for (int i=0;i<activechans;i++)
+    for (size_t i=0;i<activechans;i++)
     {
         PixelType type = pt==NULL ? IMF::HALF : pt[i];
 
@@ -351,7 +351,7 @@ test (int testCount)
     for(int i = 0 ; i < testCount ; ++i )
     {
         FrameBuffer writeFrameBuf;
-        const char** channels;
+        const char** channels=NULL;
         switch( rand()% 4)
         {
             case 0 : channels = rgb; break;
@@ -422,4 +422,3 @@ testLargeDataWindowOffsets (const std::string & tempDir)
     
     cout << "ok\n" << endl;
 }
-

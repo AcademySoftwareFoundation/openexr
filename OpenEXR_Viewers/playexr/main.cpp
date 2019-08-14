@@ -49,7 +49,9 @@
 #include <string>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#ifndef _WIN32
+# include <unistd.h>
+#endif
 #include <cstring>
 
 using namespace std;
