@@ -72,6 +72,7 @@ jobs:
       cxxCompiler: $(cxxCompiler)
       cCompiler: $(cCompiler)
       cmakeOpts: -- -j4
+      excludeTests: 'PyIlmBase.*'
 
   - task: PublishTestResults@2
     condition: succeededOrFailed()
@@ -120,20 +121,20 @@ jobs:
   steps:
   - template: share/ci/templates/checkout.yml
   - bash: |
-      share/ci/scripts/macos/install.sh
       share/ci/scripts/macos/install_python.sh 2.7.16
+      share/ci/scripts/macos/install_python.sh 3.7.4
+      share/ci/scripts/macos/install.sh
     displayName: Install dependencies
 
   - template: share/ci/templates/configure.yml
     parameters:
-      cmakeOpts: |
-        -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7 \
-        -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib \
-        -DPYTHON_EXECUTABLE=$(which python2)
+      cmakeOpts: ''
 
   - template: share/ci/templates/build.yml
     parameters:
       cmakeOpts: -- -j4
+      excludeTests: ''
+
 
 # ------------------------------------------------------------------------------
 # Windows

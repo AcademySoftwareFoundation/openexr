@@ -1,8 +1,11 @@
 # azure-pipelines template file
 # https://docs.microsoft.com/en-us/azure/devops/pipelines/process/templates?view=azure-devops
 
+parameters:
+  excludeTests: ''
+
 steps:
 - bash: |
-    ctest -T Test -E PyIlmBase.* --output-on-failure -VV
+    ctest -T Test -E ${{ parameters.excludeTests }} --output-on-failure -VV
   workingDirectory: _build
   displayName: Test OpenEXR
