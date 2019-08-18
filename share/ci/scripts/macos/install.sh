@@ -3,4 +3,6 @@
 set -ex
 
 brew update
-brew install glew
+brew install boost
+brew install boost-python
+brew install boost-python3
