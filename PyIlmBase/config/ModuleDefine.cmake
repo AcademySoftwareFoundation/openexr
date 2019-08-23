@@ -118,6 +118,7 @@ function(PYILMBASE_DEFINE_MODULE modname)
     set_target_properties(${modname}_python2 PROPERTIES
       LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/python${Python2_VERSION_MAJOR}_${Python2_VERSION_MINOR}/"
       LIBRARY_OUTPUT_NAME "${modname}"
+      DEBUG_POSTFIX ""
     )
     #### TODO: Define installation rules
   endif()
@@ -143,6 +144,7 @@ function(PYILMBASE_DEFINE_MODULE modname)
     set_target_properties(${modname}_python3 PROPERTIES
       LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/python${Python3_VERSION_MAJOR}_${Python3_VERSION_MINOR}/"
       LIBRARY_OUTPUT_NAME "${modname}"
+      DEBUG_POSTFIX ""
     )
     #### TODO: Define installation rules
   endif()
