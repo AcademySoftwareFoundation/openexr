@@ -8,15 +8,17 @@ function(PYILMBASE_ADD_LIBRARY_PRIV libname)
   cmake_parse_arguments(PYILMBASE_CURLIB "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
 
-  # let the default behaviour BUILD_SHARED_LIBS control the
-  # disposition of the default library...
-  add_library(${libname} ${PYILMBASE_CURLIB_SOURCE})
-  if(BUILD_SHARED_LIBS)
-    set_target_properties(${libname} PROPERTIES
-    SOVERSION ${PYILMBASE_SOVERSION}
-    VERSION ${PYILMBASE_LIB_VERSION}
-    )
-  endif()
+  # Currently, the python bindings REQUIRE a shared library for
+  # the Iex stuff to be initialized correctly. As such, force that
+  # here
+  # TODO Change this back when these bindings are refactored
+  add_library(${libname} SHARED ${PYILMBASE_CURLIB_SOURCE})
+  #if(BUILD_SHARED_LIBS)
+  set_target_properties(${libname} PROPERTIES
+  SOVERSION ${PYILMBASE_SOVERSION}
+  VERSION ${PYILMBASE_LIB_VERSION}
+  )
+  #endif()
   set_target_properties(${libname} PROPERTIES
     OUTPUT_NAME "${PYILMBASE_CURLIB_OUTROOT}${libname}${PYILMBASE_LIB_SUFFIX}"
   )
