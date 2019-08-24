@@ -18,7 +18,7 @@ function(PYILMBASE_ADD_LIBRARY_PRIV libname)
     )
   endif()
   set_target_properties(${libname} PROPERTIES
-    OUTPUT_NAME "${PYILMBASE_OUTPUT_OUTROOT}${libname}${PYILMBASE_LIB_SUFFIX}"
+    OUTPUT_NAME "${PYILMBASE_CURLIB_OUTROOT}${libname}${PYILMBASE_LIB_SUFFIX}"
   )
   target_compile_features(${libname} PUBLIC cxx_std_${OPENEXR_CXX_STANDARD})
   if(PYILMBASE_CURLIB_PRIV_EXPORT AND BUILD_SHARED_LIBS)
