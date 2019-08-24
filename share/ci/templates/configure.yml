@@ -4,7 +4,7 @@
 parameters:
   buildType: Release
   buildUtils: ON
-  forceCXX03: OFF
+  buildSharedLibs: ON
   runFuzzTests: OFF
   verbose: OFF
   cxxStd: 14
