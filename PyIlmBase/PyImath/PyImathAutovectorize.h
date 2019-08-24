@@ -442,7 +442,7 @@ struct VectorizedFunction1 {
         result_type retval = create_uninitalized_return_value<result_type>::apply(len);
         VectorizedOperation1<Op,result_type,arg1_type> vop(retval,arg1);
         dispatchTask(vop,len);
-        mathexcon.handleOutstandingExceptions();
+        PY_IMATH_RETURN_PYTHON;
         return retval;
     }
 
@@ -474,7 +474,7 @@ struct VectorizedFunction2 {
         result_type retval = create_uninitalized_return_value<result_type>::apply(len);
         VectorizedOperation2<Op,result_type,arg1_type,arg2_type> vop(retval,arg1,arg2);
         dispatchTask(vop,len);
-        mathexcon.handleOutstandingExceptions();
+        PY_IMATH_RETURN_PYTHON;
         return retval;
     }
 
@@ -507,7 +507,7 @@ struct VectorizedFunction3 {
         result_type retval = create_uninitalized_return_value<result_type>::apply(len);
         VectorizedOperation3<Op,result_type,arg1_type,arg2_type,arg3_type> vop(retval,arg1,arg2,arg3);
         dispatchTask(vop,len);
-        mathexcon.handleOutstandingExceptions();
+        PY_IMATH_RETURN_PYTHON;
         return retval;
     }
 
@@ -682,7 +682,7 @@ struct VectorizedVoidMemberFunction0 {
         op_precompute<Op>::apply(len);
         VectorizedVoidOperation0<Op,class_type> vop(cls);
         dispatchTask(vop,len);
-        mathexcon.handleOutstandingExceptions();
+        PY_IMATH_RETURN_PYTHON;
         return cls;
     }
 };
@@ -704,7 +704,7 @@ struct VectorizedVoidMemberFunction1 {
         op_precompute<Op>::apply(len);
         VectorizedVoidOperation1<Op,class_type,arg1_type> vop(cls,arg1);
         dispatchTask(vop,len);
-        mathexcon.handleOutstandingExceptions();
+        PY_IMATH_RETURN_PYTHON;
         return cls;
     }
 
@@ -751,7 +751,7 @@ struct VectorizedVoidMaskableMemberFunction1 {
             dispatchTask(vop,len);
         }
            
-        mathexcon.handleOutstandingExceptions();
+        PY_IMATH_RETURN_PYTHON;
         return cls;
     }
 
@@ -781,7 +781,7 @@ struct VectorizedVoidMemberFunction2 {
         op_precompute<Op>::apply(len);
         VectorizedVoidOperation2<Op,class_type,arg1_type,arg2_type> vop(cls,arg1,arg2);
         dispatchTask(vop,len);
-        mathexcon.handleOutstandingExceptions();
+        PY_IMATH_RETURN_PYTHON;
         return cls;
     }
 
@@ -812,7 +812,7 @@ struct VectorizedMemberFunction0 {
         result_type retval = create_uninitalized_return_value<result_type>::apply(len);
         VectorizedOperation1<Op,result_type,class_type> vop(retval,cls);
         dispatchTask(vop,len);
-        mathexcon.handleOutstandingExceptions();
+        PY_IMATH_RETURN_PYTHON;
         return retval;
     }
 };
@@ -836,7 +836,7 @@ struct VectorizedMemberFunction1 {
         result_type retval = create_uninitalized_return_value<result_type>::apply(len);
         VectorizedOperation2<Op,result_type,class_type,arg1_type> vop(retval,cls,arg1);
         dispatchTask(vop,len);
-        mathexcon.handleOutstandingExceptions();
+        PY_IMATH_RETURN_PYTHON;
         return retval;
     }
 
@@ -868,7 +868,7 @@ struct VectorizedMemberFunction2 {
         result_type retval = create_uninitalized_return_value<result_type>::apply(len);
         VectorizedOperation3<Op,result_type,class_type,arg1_type,arg2_type> vop(retval,cls,arg1,arg2);
         dispatchTask(vop,len);
-        mathexcon.handleOutstandingExceptions();
+        PY_IMATH_RETURN_PYTHON;
         return retval;
     }
 

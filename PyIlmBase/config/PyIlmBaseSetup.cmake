@@ -10,6 +10,10 @@ include(GNUInstallDirs)
 set(PYILMBASE_OVERRIDE_PYTHON2_INSTALL_DIR "" CACHE STRING "Override the install location for any python 2.x modules compiled")
 set(PYILMBASE_OVERRIDE_PYTHON3_INSTALL_DIR "" CACHE STRING "Override the install location for any python 3.x modules compiled")
 
+# Enables tracking of floating point exceptions and throwing them
+# as the signals are received
+option(PYIMATH_ENABLE_EXCEPTIONS "Enable runtime floating point exceptions" OFF)
+
 # What C++ standard to compile for
 # VFX Platform 18 is c++14, so let's enable that by default
 set(tmp 14)
