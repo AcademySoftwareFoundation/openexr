@@ -49,11 +49,11 @@ class GenericOutputFile
 {
     public:
         IMF_EXPORT
-        virtual ~GenericOutputFile() {}
+        virtual ~GenericOutputFile();
 
     protected:
         IMF_EXPORT
-        GenericOutputFile() {}
+        GenericOutputFile();
         IMF_EXPORT
         void writeMagicNumberAndVersionField (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os, const Header& header);
         IMF_EXPORT

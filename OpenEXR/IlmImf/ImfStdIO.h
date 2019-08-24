@@ -165,7 +165,7 @@ class StdOSStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
     virtual void	seekp (Int64 pos);
 
     IMF_EXPORT
-    std::string		str () const {return _os.str();}
+    std::string		str () const;
 
   private:
 

@@ -50,11 +50,15 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
     
 using namespace std;
 
+GenericOutputFile::~GenericOutputFile ()
+{}
 
-    
+GenericOutputFile::GenericOutputFile ()
+{}
+
 void
-GenericOutputFile::writeMagicNumberAndVersionField (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os,
-                                                    const Header& header)
+GenericOutputFile::writeMagicNumberAndVersionField (
+    OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os, const Header& header)
 {
     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (os, MAGIC);
 

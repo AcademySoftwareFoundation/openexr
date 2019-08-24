@@ -132,11 +132,11 @@ class BaseExc: public std::exception
     class name: public base                                         \
     {                                                               \
       public:                                                       \
-        exp name()                         throw(): base (0)    {}  \
-        exp name (const char* text)        throw(): base (text) {}  \
-        exp name (const std::string &text) throw(): base (text) {}  \
-        exp name (std::stringstream &text) throw(): base (text) {}  \
-        exp ~name() throw() { }                                     \
+        inline name()                         throw(): base (0)    {}  \
+        inline name (const char* text)        throw(): base (text) {}  \
+        inline name (const std::string &text) throw(): base (text) {}  \
+        inline name (std::stringstream &text) throw(): base (text) {}  \
+        inline ~name() throw() { }                                     \
     };
 
 // For backward compatibility.
