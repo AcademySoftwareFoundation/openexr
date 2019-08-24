@@ -140,6 +140,10 @@ include(config/ModuleDefine.cmake)
 ##########################
 add_subdirectory(config)
 
+if(NOT BUILD_SHARED_LIBS)
+  message(WARNING "Forcing python bindings to be built with dynamic libraries")
+endif()
+
 add_subdirectory( PyIex )
 add_subdirectory( PyImath )
 if(TARGET Python2::IlmBaseNumPy OR TARGET Python3::IlmBaseNumPy)
