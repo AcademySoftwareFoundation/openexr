@@ -60,7 +60,6 @@ template <typename T>
 static void
 setBaseObject (PyObject* nparr, T& arr)
 {
-    using converter_type = typename reference_existing_object::apply<T*>::type;
     using holder         = Holder<T>;
 
     holder* ph = new holder (arr);
