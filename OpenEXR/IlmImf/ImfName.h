@@ -77,9 +77,9 @@ class Name
     // Access to the string
     //---------------------
 
-    IMF_EXPORT
+    inline
     const char *	text () const		{return _text;}
-    IMF_EXPORT
+    inline
     const char *	operator * () const	{return _text;}
 
     //---------------

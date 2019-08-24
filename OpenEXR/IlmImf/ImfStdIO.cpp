@@ -375,5 +375,10 @@ StdOSStream::seekp (Int64 pos)
     checkError (_os);
 }
 
+std::string
+StdOSStream::str () const
+{
+    return _os.str ();
+}
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

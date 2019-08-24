@@ -109,14 +109,14 @@ class PreviewImage
     // Access to width, height and to the pixel array
     //-----------------------------------------------
 
-    IMF_EXPORT
+    inline
     unsigned int	width () const	{return _width;}
-    IMF_EXPORT
+    inline
     unsigned int	height () const	{return _height;}
 
-    IMF_EXPORT
+    inline
     PreviewRgba *	pixels ()	{return _pixels;}
-    IMF_EXPORT
+    inline
     const PreviewRgba *	pixels () const	{return _pixels;}
 
 
@@ -124,11 +124,11 @@ class PreviewImage
     // Access to individual pixels
     //----------------------------
 
-    IMF_EXPORT
+    inline
     PreviewRgba &	pixel (unsigned int x, unsigned int y)
     					{return _pixels[y * _width + x];}
 
-    IMF_EXPORT
+    inline
     const PreviewRgba &	pixel (unsigned int x, unsigned int y) const
     					{return _pixels[y * _width + x];}
 
