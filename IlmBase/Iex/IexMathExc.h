@@ -46,11 +46,11 @@ IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 // point exceptions.
 //---------------------------------------------------------
 
-DEFINE_EXC (OverflowExc,    MathExc)	// Overflow
-DEFINE_EXC (UnderflowExc,   MathExc)	// Underflow
-DEFINE_EXC (DivzeroExc,     MathExc)	// Division by zero
-DEFINE_EXC (InexactExc,     MathExc)	// Inexact result
-DEFINE_EXC (InvalidFpOpExc, MathExc)	// Invalid operation
+DEFINE_EXC_EXP (IEX_EXPORT, OverflowExc,    MathExc)	// Overflow
+DEFINE_EXC_EXP (IEX_EXPORT, UnderflowExc,   MathExc)	// Underflow
+DEFINE_EXC_EXP (IEX_EXPORT, DivzeroExc,     MathExc)	// Division by zero
+DEFINE_EXC_EXP (IEX_EXPORT, InexactExc,     MathExc)	// Inexact result
+DEFINE_EXC_EXP (IEX_EXPORT, InvalidFpOpExc, MathExc)	// Invalid operation
 
 IEX_INTERNAL_NAMESPACE_HEADER_EXIT
 
