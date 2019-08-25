@@ -240,7 +240,7 @@ template <class T>
 typename TypeTranslator<BaseClass>::ClassDesc *
 TypeTranslator<BaseClass>::findClassDesc (ClassDesc *cd)
 {
-    if (cd->typeInfo() == typeid (T))
+    if (cd->typeInfo().hash_code() == typeid (T).hash_code())
 	return cd;
 
     for (int i = 0; i < cd->numDerivedClasses(); ++i)
@@ -259,7 +259,7 @@ template <class T>
 const typename TypeTranslator<BaseClass>::ClassDesc *
 TypeTranslator<BaseClass>::findClassDesc (const ClassDesc *cd) const
 {
-    if (cd->typeInfo() == typeid (T))
+    if (cd->typeInfo().hash_code() == typeid (T).hash_code())
 	return cd;
 
     for (int i = 0; i < cd->numDerivedClasses(); ++i)
