@@ -136,8 +136,9 @@ class BaseExc: public std::exception
         inline name (const char* text)        throw(): base (text) {}  \
         inline name (const std::string &text) throw(): base (text) {}  \
         inline name (std::stringstream &text) throw(): base (text) {}  \
-        inline ~name() throw() { }                                     \
+        exp ~name() throw() override;                                  \
     };
+#define DEFINE_EXC_EXP_IMPL(exp, name, base) name::~name() throw() {}
 
 // For backward compatibility.
 #define DEFINE_EXC(name, base) DEFINE_EXC_EXP(, name, base)

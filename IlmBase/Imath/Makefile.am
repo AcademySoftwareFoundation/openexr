@@ -8,7 +8,7 @@
 lib_LTLIBRARIES = libImath.la
 
 libImath_la_SOURCES = ImathMatrixAlgo.cpp ImathVec.cpp \
-		      ImathColorAlgo.cpp ImathFun.cpp \
+		      ImathColorAlgo.cpp ImathExc.cpp ImathFun.cpp \
 		      ImathColorAlgo.h ImathMatrixAlgo.h ImathVec.h \
 		      ImathShear.h ImathFun.h ImathBox.h ImathBoxAlgo.h \
 		      ImathEuler.h ImathExc.h ImathLimits.h ImathLine.h \
