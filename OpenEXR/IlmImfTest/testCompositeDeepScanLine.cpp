@@ -126,7 +126,7 @@ class data
     
     data() : _inserting_result(false),_started(false)
     {  
-        if(typeid(T)==typeid(half))
+        if(typeid(T).hash_code()==typeid(half).hash_code())
         {
             _type = OPENEXR_IMF_NAMESPACE::HALF;
         }
