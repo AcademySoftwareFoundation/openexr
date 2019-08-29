@@ -30,19 +30,314 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 2.4.0 (TBD)
+## Version 2.4.0 
 
-* Fixes:
+### Summary
 
-* CVE-2018-18443, a memory leak in ThreadPool
+* Completely re-written CMake configuration files
+* Improved support for building on Windows, via CMake
+* Improved support for building on macOS, via CMake
+* All code compiles without warnings on gcc, clang, msvc
+* Cleanup of license and copyright notices
+* floating-point exception handling is disabled by default
+* New Slice::Make method to reliably compute base pointer for a slice.
+* Miscellaneous bug fixes
 
-### Bugs
+### Security Vulnerabilities
 
 This version fixes the following security vulnerabilities:
 
-* [CVE-2018-18443](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18443)
+* [CVE-2018-18444](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18444) [Issue #351](https://github.com/openexr/openexr/issues/351) Out of Memory
+* [CVE-2018-18443](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18443) [Issue #350](https://github.com/openexr/openexr/issues/350) heap-buffer-overflow
+* [CVE-2017-12596](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-12596) [Issue #238](https://github.com/openexr/openexr/issues/238) heap-based buffer overflow in exrmaketiled
+
+### Closed Issues
+
+* [529](https://github.com/openexr/openexr/issues/529) The OpenEXR_viewer can't be installed successfully due to the Cg support
+* [511](https://github.com/openexr/openexr/issues/511) A confused problem in the EXR to JPEG
+* [494](https://github.com/openexr/openexr/issues/494) SEGV exrmakepreview in ImfTiledOutputFile.cpp:458
+* [493](https://github.com/openexr/openexr/issues/493) SEGV exrmakepreview in makePreview.cpp:132
+* [491](https://github.com/openexr/openexr/issues/491) SEGV exrheader in ImfMultiPartInputFile.cpp:579
+* [488](https://github.com/openexr/openexr/issues/488) Wiki has outdated info
+* [462](https://github.com/openexr/openexr/issues/462) Inconsistent line terminators (CRLF)
+* [461](https://github.com/openexr/openexr/issues/461) Wrong LC_RPATH after make install (cmake setup on macos)
+* [457](https://github.com/openexr/openexr/issues/457) New CMake setup fails on cmake 3.12
+* [455](https://github.com/openexr/openexr/issues/455) Build for mac using cmake to Xcode fails to compile
+* [449](https://github.com/openexr/openexr/issues/449) OpenEXR.cpp:36:10: fatal error: 'ImathBox.h' file not found
+* [424](https://github.com/openexr/openexr/issues/424) Integrating with OSS-Fuzz
+* [421](https://github.com/openexr/openexr/issues/421) How to normalize multi-channel exr image?
+* [400](https://github.com/openexr/openexr/issues/400) Create security@openexr.com and info@openexr.com addresses
+* [398](https://github.com/openexr/openexr/issues/398) Document CVE's in CHANGES.md release notes file
+* [396](https://github.com/openexr/openexr/issues/396) Set up a CREDITS.md file
+* [395](https://github.com/openexr/openexr/issues/395) Migrate CLA's from openexr.com to the GitHub repo
+* [394](https://github.com/openexr/openexr/issues/394) Properly document the OpenEXR coding style
+* [393](https://github.com/openexr/openexr/issues/393) Set up CODEOWNERS file
+* [389](https://github.com/openexr/openexr/issues/389) fix -Wall compiler warnings
+* [388](https://github.com/openexr/openexr/issues/388) OpenEXR build fails with multiple errors
+* [381](https://github.com/openexr/openexr/issues/381) Replace deprecated FindPythonLibs in CMakeLists.txt
+* [380](https://github.com/openexr/openexr/issues/380) undefined symbol: _ZTIN7Iex_2_27BaseExcE
+* [379](https://github.com/openexr/openexr/issues/379) ZLIB_LIBRARY ZLIB_INCLUDE_DIR being ignored (LNK2019 errors) in OpenEXR\IlmImf\IlmImf.vcxproj
+* [377](https://github.com/openexr/openexr/issues/377) 2.3.0: test suite is failing
+* [364](https://github.com/openexr/openexr/issues/364) Standalone build of openexr on windows - (with already installed ilmbase)
+* [363](https://github.com/openexr/openexr/issues/363) `OpenEXRSettings.cmake` is missing from the release tarball
+* [362](https://github.com/openexr/openexr/issues/362) Cmake macro `SET_ILMBASE_INCLUDE_DIRS` assumes
+* [360](https://github.com/openexr/openexr/issues/360) Specified Boost.Python not found on Boost versions < 1.67
+* [359](https://github.com/openexr/openexr/issues/359) [VS2015] Compile error C2782: 'ssize_t' in PyImathFixedMatrix
+* [357](https://github.com/openexr/openexr/issues/357) Move ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT to a private header
+* [353](https://github.com/openexr/openexr/issues/353) Add --with-cg-libdir option to support arch dependant Cg library paths
+* [352](https://github.com/openexr/openexr/issues/352) buffer-overflow
+* [351](https://github.com/openexr/openexr/issues/351) Out of Memory 
+* [350](https://github.com/openexr/openexr/issues/350) heap-buffer-overflow
+* [348](https://github.com/openexr/openexr/issues/348) Possible compile/install issues in PyIlmBase with multiple jobs
+* [343](https://github.com/openexr/openexr/issues/343) CMake issues on Windows
+* [342](https://github.com/openexr/openexr/issues/342) IlmImf CMake dependency issue
+* [340](https://github.com/openexr/openexr/issues/340) Cannot figure out how to build OpenEXR under mingw64 with v2.3.0
+* [333](https://github.com/openexr/openexr/issues/333) openexr 2.3.0 static cmake build broken.
+* [302](https://github.com/openexr/openexr/issues/302) Error when linking Half project: unresolved external symbol "private: static union half::uif const * const half::_toFloat" (?_toFloat@half@@0QBTuif@1@B)
+* [301](https://github.com/openexr/openexr/issues/301) How to link different IlmBase library names according to Debug/Release configuration, when building OpenEXR with CMake + VS2015?
+* [294](https://github.com/openexr/openexr/issues/294) Problem building OpenEXR-2.2.1 in Visual Studio 2015 x64
+* [290](https://github.com/openexr/openexr/issues/290) Out Of Memory in Pxr24Compressor (79678745)
+* [288](https://github.com/openexr/openexr/issues/288) Out of Memory in B44Compressor (79258415)
+* [282](https://github.com/openexr/openexr/issues/282) IlmBase should link pthread
+* [281](https://github.com/openexr/openexr/issues/281) Error in installing OpenEXR
+* [276](https://github.com/openexr/openexr/issues/276) The savanah.nongnu.org tar.gz hosting
+* [274](https://github.com/openexr/openexr/issues/274) Cmake installation of ilmbase places .dll files under `/lib` instead of `/bin`
+* [271](https://github.com/openexr/openexr/issues/271) heap-buffer-overflow
+* [270](https://github.com/openexr/openexr/issues/270) Out of Memory in TileOffsets (73566621)
+* [268](https://github.com/openexr/openexr/issues/268) Invalid Shift at FastHufDecoder (72367575)
+* [267](https://github.com/openexr/openexr/issues/267) Cast Overflow at FastHufDecoder (72375479)
+* [266](https://github.com/openexr/openexr/issues/266) Divide by Zero at calculateNumTiles (72239767)
+* [265](https://github.com/openexr/openexr/issues/265) Signed Integer Overflow in getTiledChunkOffsetTableSize (72377177)
+* [264](https://github.com/openexr/openexr/issues/264) Signed Integer Overflow in calculateNumTiles (73181093)
+* [263](https://github.com/openexr/openexr/issues/263) Signed Integer Overflow in chunkOffsetReconstruction (72873449, 73090589)
+* [262](https://github.com/openexr/openexr/issues/262) Heap Out-of-Bounds write in Imf_2_2::copyIntoFrameBuffer (72940266)
+* [261](https://github.com/openexr/openexr/issues/261) Heap Out of Bounds Read in TiledInputFile (72228841)
+* [259](https://github.com/openexr/openexr/issues/259) Heap Out of Bounds Access (72839282)
+* [257](https://github.com/openexr/openexr/issues/257) Out of Memory / Invalid allocation in lmfArray resizeErase (72828572, 72837441)
+* [255](https://github.com/openexr/openexr/issues/255) Process for reporting security bugs
+* [254](https://github.com/openexr/openexr/issues/254) [VS 2015] Can't run tests and OpenVDB compile errors
+* [253](https://github.com/openexr/openexr/issues/253) C++11-style compile-time type information for `half`.
+* [252](https://github.com/openexr/openexr/issues/252) `std::numeric_limits<half>::digits10` value is wrong.
+* [250](https://github.com/openexr/openexr/issues/250) SO version change in 2.2.1
+* [246](https://github.com/openexr/openexr/issues/246) half.h default user-provided constructor breaks c++ semantics (value/zero initialization vs default initialization)
+* [244](https://github.com/openexr/openexr/issues/244) Cannot write to Z channel
+* [240](https://github.com/openexr/openexr/issues/240) CpuId' was not declared in this scope
+* [239](https://github.com/openexr/openexr/issues/239) pyilmbase error vs2015 with boost1.61 and python27 please help ，alse error
+* [238](https://github.com/openexr/openexr/issues/238)  heap-based buffer overflow in exrmaketiled 
+* [237](https://github.com/openexr/openexr/issues/237) Can RgbaOutputFile use 32-bit float?
+* [234](https://github.com/openexr/openexr/issues/234) How to link compress2, uncompress and compress on 64 bit Windows 7 & Visual Studio 2015 when building openexr?
+* [232](https://github.com/openexr/openexr/issues/232) Multiple segmentation faults CVE-2017-9110 to CVE-2017-9116
+* [231](https://github.com/openexr/openexr/issues/231) Half.h stops OpenEXR from compiling
+* [230](https://github.com/openexr/openexr/issues/230) Imf::OutputFile Produce binary different files
+* [226](https://github.com/openexr/openexr/issues/226) IMathExc - multiple definitions on linking.
+* [224](https://github.com/openexr/openexr/issues/224) Make PyIlmBase compatible with Python 3.x
+* [217](https://github.com/openexr/openexr/issues/217) Issue with optimized build compiled with Intel C/C++ compiler (ICC)
+* [213](https://github.com/openexr/openexr/issues/213) AddressSanitizer CHECK failed in ImageMagick fuzz test.  
+* [208](https://github.com/openexr/openexr/issues/208) build issues on OSX: ImfDwaCompressorSimd.h:483:no such instruction: `vmovaps (%rsi), %ymm0'
+* [205](https://github.com/openexr/openexr/issues/205) Building with VS 2015
+* [202](https://github.com/openexr/openexr/issues/202) Documentation error: File Layout "Verson Field" lists wrong bits
+* [199](https://github.com/openexr/openexr/issues/199) Unexpected rpaths on macOS
+* [194](https://github.com/openexr/openexr/issues/194) RLE Broken for 32-bit formats
+* [191](https://github.com/openexr/openexr/issues/191) PyIlmBase Cmake unable to find Boost
+* [189](https://github.com/openexr/openexr/issues/189) store to misaligned address / for type 'int64_t', which requires 8 byte alignment
+* [188](https://github.com/openexr/openexr/issues/188) iex_debugTrap link error
+* [182](https://github.com/openexr/openexr/issues/182) Many C4275 warning compiling on Windows
+* [176](https://github.com/openexr/openexr/issues/176) Implement a canonical FindIlmbase.cmake
+* [166](https://github.com/openexr/openexr/issues/166) CMake static build of OpenEXR 2.2 fails to link dwaLookups on Linux
+* [165](https://github.com/openexr/openexr/issues/165) Clang compilation warnings
+* [164](https://github.com/openexr/openexr/issues/164) OpenEXR.pc is not created during "configure" stage.
+* [163](https://github.com/openexr/openexr/issues/163) Problems building the OpenEXR-2.2.0
+* [160](https://github.com/openexr/openexr/issues/160) Visual Studio 2013 not linking properly with IlmThread
+* [158](https://github.com/openexr/openexr/issues/158) Python3 support
+* [150](https://github.com/openexr/openexr/issues/150) build issue, debian 7.0 x64
+* [139](https://github.com/openexr/openexr/issues/139) configure scripts contain bashisms
+* [134](https://github.com/openexr/openexr/issues/134) DWA compressor fails to compile on Win/Mac for some compiler versions
+* [132](https://github.com/openexr/openexr/issues/132) Wrong namespaces used in DWA Compressor.
+* [125](https://github.com/openexr/openexr/issues/125) cmake: cannot link against static ilmbase libraries
+* [123](https://github.com/openexr/openexr/issues/123) cmake: allow building of static and dynamic libs at the same time
+* [105](https://github.com/openexr/openexr/issues/105) Building pyilmbase 1.0.0 issues
+* [098](https://github.com/openexr/openexr/issues/98) Race condition in creation of LockedTypeMap and registerAttributeTypes 
+* [095](https://github.com/openexr/openexr/issues/95) Compile fail with MinGW-w64 on Windows
+* [094](https://github.com/openexr/openexr/issues/94) CMake does not generate "toFloat.h" with Ninja
+* [092](https://github.com/openexr/openexr/issues/92) MultiPartOutputFile API fails when single part has no type
+* [089](https://github.com/openexr/openexr/issues/89) gcc 4.8 compilation issues
+* [086](https://github.com/openexr/openexr/issues/86) VS 2010 broken: exporting std::string subclass crashes
+* [079](https://github.com/openexr/openexr/issues/79) compile openexr with mingw 64 bit
+* [067](https://github.com/openexr/openexr/issues/67) testBox failure on i386
+* [050](https://github.com/openexr/openexr/issues/50) Recommended way of opening an EXR file in python?
+* [015](https://github.com/openexr/openexr/issues/15) IlmImf Thread should report an 'optimal' number ofthreads to use.
+
+### Merged Pull Requests
+
+* [541](https://github.com/openexr/openexr/pull/541) TSC meeting notes Aug 22, 2019
+* [540](https://github.com/openexr/openexr/pull/540) Fix exports when compiling DLLs enabled with mingw
+* [539](https://github.com/openexr/openexr/pull/539) Force exception handling / unwind disposition under msvc
+* [538](https://github.com/openexr/openexr/pull/538) Add option to control whether pyimath uses the fp exception mechanism
+* [537](https://github.com/openexr/openexr/pull/537) Set default value for buildSharedLibs
+* [536](https://github.com/openexr/openexr/pull/536) Force the python binding libraries to shared
+* [535](https://github.com/openexr/openexr/pull/535) Fix cmake warnings, fix check for numpy
+* [534](https://github.com/openexr/openexr/pull/534) Create a "holder" object to fix stale reference to array
+* [533](https://github.com/openexr/openexr/pull/533) Disable the debug postfix for the python modules
+* [532](https://github.com/openexr/openexr/pull/532) explicitly add the boost includes to the target
+* [531](https://github.com/openexr/openexr/pull/531) Update license for DreamWorks Lossy Compression
+* [530](https://github.com/openexr/openexr/pull/530) Azure updates for MacOS/Windows/Linux
+* [528](https://github.com/openexr/openexr/pull/528) brief notes of TSC meeting 2019-08-16
+* [526](https://github.com/openexr/openexr/pull/526) Fix compile warnings from the latest merges
+* [525](https://github.com/openexr/openexr/pull/525) Rework boost python search logic to be simpler and more robust
+* [524](https://github.com/openexr/openexr/pull/524) Fix #268, issue with right shift in fast huf decoder
+* [523](https://github.com/openexr/openexr/pull/523) Address issues with mingw and win32 wide filenames
+* [522](https://github.com/openexr/openexr/pull/522) 2.4.0 release notes
+* [520](https://github.com/openexr/openexr/pull/520) Add missing symbol export to Slice::Make
+* [519](https://github.com/openexr/openexr/pull/519) TSC meeting notes August 8, 2019
+* [518](https://github.com/openexr/openexr/pull/518) Makes building of fuzz test optional
+* [517](https://github.com/openexr/openexr/pull/517) Added defines for DWAA and DWAB compression.
+* [516](https://github.com/openexr/openexr/pull/516) changed AP_CPPFLAGS to AM_CPPFLAGS in PyImathNumpy/Makefile.am.
+* [515](https://github.com/openexr/openexr/pull/515) add the files generated by bootstrap/configure to .gitignore.
+* [514](https://github.com/openexr/openexr/pull/514) suppress SonarCloud warnings about unhandled exceptions
+* [512](https://github.com/openexr/openexr/pull/512) Project documentation edits
+* [510](https://github.com/openexr/openexr/pull/510) Added MacOS jobs to Azure pipeline
+* [509](https://github.com/openexr/openexr/pull/509) Contrib cleanup
+* [503](https://github.com/openexr/openexr/pull/503) TSC meeting notes from 7/25/2019
+* [501](https://github.com/openexr/openexr/pull/501) license and copyright fixes
+* [500](https://github.com/openexr/openexr/pull/500) Fix another set of warnings that crept in during previous fix merges
+* [498](https://github.com/openexr/openexr/pull/498) Fix #491, issue with part number range check reconstructing chunk off…
+* [497](https://github.com/openexr/openexr/pull/497) Fix logic for 1 pixel high/wide preview images (Fixes #493)
+* [495](https://github.com/openexr/openexr/pull/495) Fix for #494: validate tile coordinates when doing copyPixels
+* [490](https://github.com/openexr/openexr/pull/490) Normalize library naming between cmake and autoconf
+* [489](https://github.com/openexr/openexr/pull/489) Refresh of README's
+* [487](https://github.com/openexr/openexr/pull/487) Azure: updated docker containers, added windows install scripts.
+* [486](https://github.com/openexr/openexr/pull/486) Fix #246, add type traits check
+* [483](https://github.com/openexr/openexr/pull/483) Large dataWindow Offset test: for discussion
+* [482](https://github.com/openexr/openexr/pull/482) Update Azure Linux/SonarCloud jobs to work with new build
+* [481](https://github.com/openexr/openexr/pull/481) rewrite of build and installation documentation in INSTALL.md
+* [480](https://github.com/openexr/openexr/pull/480) Put all runtime artefacts in a single folder to help win32 find dlls
+* [479](https://github.com/openexr/openexr/pull/479) Fix compile warnings
+* [478](https://github.com/openexr/openexr/pull/478) Fixes #353, support for overriding Cg libdir
+* [477](https://github.com/openexr/openexr/pull/477) Fix #224, imath python code such that tests pass under python3
+* [476](https://github.com/openexr/openexr/pull/476) Fix dos files to unix, part of #462
+* [475](https://github.com/openexr/openexr/pull/475) Fixes #252, incorrect math computing half digits
+* [474](https://github.com/openexr/openexr/pull/474) Fixes #139
+* [473](https://github.com/openexr/openexr/pull/473) Fix missing #include <cmath> for std::isnormal
+* [472](https://github.com/openexr/openexr/pull/472) Add viewers library to default build
+* [471](https://github.com/openexr/openexr/pull/471) Warn the user, but make PyIlmBase not fail a build by default
+* [470](https://github.com/openexr/openexr/pull/470) Fix #352, issue with aspect ratio
+* [468](https://github.com/openexr/openexr/pull/468) Fix #455 by not using object libraries under apple
+* [467](https://github.com/openexr/openexr/pull/467) NumPy lookup logic is only in newer versions of cmake than our minimum
+* [466](https://github.com/openexr/openexr/pull/466) Remove last vestiges of old ifdef for windows
+* [465](https://github.com/openexr/openexr/pull/465) Fix #461, issue with macos rpath support
+* [463](https://github.com/openexr/openexr/pull/463) Fix #457, (unused) policy tag only in 3.13+ of cmake, no longer needed
+* [460](https://github.com/openexr/openexr/pull/460) TSC meeting notes 7/18/2019
+* [459](https://github.com/openexr/openexr/pull/459) added missing copyright notices
+* [458](https://github.com/openexr/openexr/pull/458) fix for failing PyIlmBase/configure because it can't run the IlmBase test program.
+* [456](https://github.com/openexr/openexr/pull/456) fix incorrect license identifier
+* [450](https://github.com/openexr/openexr/pull/450) change INCLUDES to AM_CPPFLAGS, upon the recommendation of automake warnings
+* [448](https://github.com/openexr/openexr/pull/448) Fixes #95, compilation issue with mingw
+* [447](https://github.com/openexr/openexr/pull/447) Implements #15, request for hardware concurrency utility function
+* [446](https://github.com/openexr/openexr/pull/446) Fixes #282, missing link against pthread
+* [444](https://github.com/openexr/openexr/pull/444) added missing files in autoconf setup
+* [443](https://github.com/openexr/openexr/pull/443) don't index empty array in testMultiPartSharedAttributes
+* [442](https://github.com/openexr/openexr/pull/442) TiledInputFile only supports regular TILEDIMAGE types, not DEEPTILE...
+* [441](https://github.com/openexr/openexr/pull/441) TSC meeting notes, July 7, 2019
+* [440](https://github.com/openexr/openexr/pull/440) security policy
+* [439](https://github.com/openexr/openexr/pull/439) code of conduct
+* [438](https://github.com/openexr/openexr/pull/438) Azure and SonarCloud setup
+* [437](https://github.com/openexr/openexr/pull/437) address #271: catch scanlines with negative sizes
+* [436](https://github.com/openexr/openexr/pull/436) specific check for bad size field in header attributes (related to #248)
+* [435](https://github.com/openexr/openexr/pull/435) Refactor cmake
+* [434](https://github.com/openexr/openexr/pull/434) Issue #262
+* [433](https://github.com/openexr/openexr/pull/433) Fix for #263: prevent overflow in multipart chunk offset reconstruction
+* [432](https://github.com/openexr/openexr/pull/432) Fix for #378, bswap on read on big-endian architectures
+* [431](https://github.com/openexr/openexr/pull/431) Fixed column labels in OpenEXRFileLayout document
+* [429](https://github.com/openexr/openexr/pull/429) change OpaqueAttribute's _typeName field to be std::string
+* [428](https://github.com/openexr/openexr/pull/428) Added Coding Style section on Type Casting.
+* [427](https://github.com/openexr/openexr/pull/427) adding source .odt files for the .pdf's on the documentation page
+* [425](https://github.com/openexr/openexr/pull/425) Handle exceptions, per SonarCloud rules
+* [423](https://github.com/openexr/openexr/pull/423) Address #270: limit Tiled images to INT_MAX total number of tiles
+* [422](https://github.com/openexr/openexr/pull/422) Add exr2aces to autoconf build script
+* [420](https://github.com/openexr/openexr/pull/420) updated references to CVE's in release notes.
+* [417](https://github.com/openexr/openexr/pull/417) TSC meeting notes June 27, 2019
+* [416](https://github.com/openexr/openexr/pull/416) Fix #342, copy paste bug with dependencies
+* [415](https://github.com/openexr/openexr/pull/415) convert_index returns Py_ssize_t
+* [414](https://github.com/openexr/openexr/pull/414) Fix part of #232, issue with pointer overflows
+* [413](https://github.com/openexr/openexr/pull/413) Fix library suffix issue in cmake file for exr2aces
+* [412](https://github.com/openexr/openexr/pull/412) Fix #350 - memory leak on exit
+* [411](https://github.com/openexr/openexr/pull/411) Fixes the rpath setting to have the correct variable name
+* [410](https://github.com/openexr/openexr/pull/410) Fixed the 2.3.0 release notes to mention that CVE-2017-12596 is fixed.
+* [409](https://github.com/openexr/openexr/pull/409) Add initial rules for running clang-format on the code base
+* [408](https://github.com/openexr/openexr/pull/408) Add ImfFloatVectorAttribute.h to the automake install
+* [406](https://github.com/openexr/openexr/pull/406) New CI with aswfstaging/ci-base image
+* [405](https://github.com/openexr/openexr/pull/405) June 20, 2019 TSC meeting notes
+* [404](https://github.com/openexr/openexr/pull/404) Miscellaneous documentation improvements
+* [403](https://github.com/openexr/openexr/pull/403) Added CLA forms
+* [402](https://github.com/openexr/openexr/pull/402) TSC Meeting notes June 13, 2019
+* [397](https://github.com/openexr/openexr/pull/397) Updates to README.md, and initial CONTRIBUTING.md, GOVERNANCE.md, INSTALL.md
+* [383](https://github.com/openexr/openexr/pull/383) Fixed formatting
+* [382](https://github.com/openexr/openexr/pull/382) TSC meeting notes 2019-5-2
+* [339](https://github.com/openexr/openexr/pull/339) fix standalone and combined cmake
 
 ### Commits \[ git log v2.3.0...v2.4.0\]
+
+* [Add missing include](https://github.com/openexr/openexr/commit/cd1b068ab1d2e2b40cb81c79e997fecfe31dfa11) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-24)
+
+* [Add option to control whether pyimath uses the fp exception mechanism](https://github.com/openexr/openexr/commit/be0df7b76106ba4b33efca289641fdeb59adb3a2) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-24)
+
+* [Update license for DreamWorks Lossy Compression](https://github.com/openexr/openexr/commit/5b64c63cef71f4542ef4e2452077f62755b66252) ([jbradley](@jbradley@dreamworks.com) 2019-08-19)
+
+* [Added defines for DWAA and DWAB compression.](https://github.com/openexr/openexr/commit/1b88251b8d955124d7a5da9716ec287ef78440e5) ([Dirk Lemstra](@dirk@lemstra.org) 2019-08-08)
+
+* [TSC meeting notes Aug 22, 2019](https://github.com/openexr/openexr/commit/9307279963b44d31152441bbe771de044329f356) ([Cary Phillips](@cary@ilm.com) 2019-08-26)
+
+* [2.4.0 release notes * Added commit history * Added table of contents Signed-off-by: Cary Phillips <cary@ilm.com>](https://github.com/openexr/openexr/commit/9fe66510bb5c353bb855b6a5bdbb6be8d3762778) ([Cary Phillips](@cary@ilm.com) 2019-08-10)
+
+* [Fix vtable insertion for win32, use new macro everywhere](https://github.com/openexr/openexr/commit/54d46dacb88fbfa41608c7e347cffa5552742bc4) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-25)
+
+* [Use unique id, not typeid reference which may differ](https://github.com/openexr/openexr/commit/728c26ccbd9f0700633c89c94b8328ee78f40cec) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-25)
+
+* [Force vtable into a translation unit](https://github.com/openexr/openexr/commit/7678a9d09c45cc9ae2b9f591f3565d10a503aadd) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-25)
+
+* [Fix exports when compiling DLLs enabled with mingw](https://github.com/openexr/openexr/commit/3674dd27ce45c1f2cc11993957dccee4bdd840dd) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-25)
+
+* [Force exception handling / unwind disposition under msvc](https://github.com/openexr/openexr/commit/b4d5d867a49029e93b4b3aa6708d1fc0093613cc) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-25)
+
+* [Force the python binding libraries to shared](https://github.com/openexr/openexr/commit/39c17b9ceef2ec05b1ebd25a9ee3f15e5fe17181) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-24)
+
+* [Fix cmake warnings, fix check for numpy](https://github.com/openexr/openexr/commit/85bde2ea9afbddffc6ffbfa597f8bb1d25b42859) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-24)
+
+* [Remove unused typedef from previous failed attempt at boost python usage](https://github.com/openexr/openexr/commit/6d5b23a258b562c29012953e13d67012a66322f0) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-24)
+
+* [Create a "holder" object to fix stale reference to array](https://github.com/openexr/openexr/commit/d2a9dec4d37143feb3b9daeb646b9e93632c5d8a) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-24)
+
+* [Disable the debug postfix for the python modules](https://github.com/openexr/openexr/commit/311ebb0485a253445c7324b3d42eaadd01ceb8b4) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-24)
+
+* [explicitly add the boost includes to the target as Boost::headers does not seem to](https://github.com/openexr/openexr/commit/bdedcc6361da71e7512f978d4017a1fbb25ace92) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-24)
+
+* [Set default value for buildSharedLibs](https://github.com/openexr/openexr/commit/62427d2dc3d3ee147e01e6d0e3b2119f37dfa689) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-24)
+
+* [Azure updates for MacOS/Windows/Linux](https://github.com/openexr/openexr/commit/3a49e9fe3f3d586a57d25265335752380cbe1b31) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-08-18)
+
+* [brief notes of TSC meeting 2019-08-16](https://github.com/openexr/openexr/commit/36fb144da1110232bf416d5e1c4abde263056d17) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-16)
+
+* [Fix compile warnings from the latest merges](https://github.com/openexr/openexr/commit/181add33e9391372e76abb6bfc654f37d3788e4a) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-14)
+
+* [Fix boost checks when a versioned python is not found](https://github.com/openexr/openexr/commit/d6c176718595415e7b17e7a6c77af0df75cc36de) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-14)
+
+* [Rework boost python search logic to be simpler and more robust](https://github.com/openexr/openexr/commit/c21272230b30562d219d41d00cdcbc98be602c37) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-14)
+
+* [Fix spacing](https://github.com/openexr/openexr/commit/4f8137070fa257557f7b474c41b9b9c260b7f3cd) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-14)
+
+* [Fix #268, issue with right shift in fast huf decoder](https://github.com/openexr/openexr/commit/2f33f0ff08cf66286fda5cf60ee6f995821bde0d) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-14)
+
+* [Add mechanism for test programs to use win32 wide filename fix when manually creating std::fstreams](https://github.com/openexr/openexr/commit/e0ac10e045b6d932c221c9223d88940b14e12b8b) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-12)
+
+* [Use temp directory for tests under win32, properly cleanup files from util tests](https://github.com/openexr/openexr/commit/1d0b240557a230cf704c8797f97ce373a3ca5474) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-12)
+
+* [Fix issue with mingw gcc and wide / utf8 filenames](https://github.com/openexr/openexr/commit/02fbde4e1942e2ffcf652eb99e32fb15530cc93d) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-12)
+
+* [Remove unused using statements](https://github.com/openexr/openexr/commit/ce09ee004050ec2c1c0fff72b28d1d69a98dfaea) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-08-12)
+
+* [Add missing exports for ImfAcesFile](https://github.com/openexr/openexr/commit/631d5d49bab5ef0194983a0e15471102b5acacd9) ([Nick Porcino](@meshula@hotmail.com) 2019-08-10)
+
+* [Add missing symbol export to Slice::Make](https://github.com/openexr/openexr/commit/efb5d10f6001e165149bf0dc17f96b4671d213c3) ([Nick Porcino](@meshula@hotmail.com) 2019-08-09)
 
 * [TSC meeting notes August 8, 2019](https://github.com/openexr/openexr/commit/ee8830f108e7a930f6326175f444ed026e504f27) ([Cary Phillips](@cary@ilm.com) 2019-08-08) Signed-off-by: Cary Phillips <cary@ilm.com>
 
