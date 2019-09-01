@@ -25,6 +25,9 @@ cd $zlibInstallPath
 Write-Host "ls ${zlibInstallPath}"
 & ls
 
+cd 
+& ls
+
 Write-Host "##vso[task.prependpath]${zlibInstallPath}"
 Write-Host "##vso[task.prependpath]${zlibInstallPath}\bin"
 
