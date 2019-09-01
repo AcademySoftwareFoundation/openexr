@@ -18,6 +18,6 @@ if(OPENEXR_RUN_FUZZ_TESTS)
   add_test(NAME OpenEXR.ImfFuzz COMMAND $<TARGET_FILE:IlmImfFuzzTest>)
   set_tests_properties(OpenEXR.ImfFuzz PROPERTIES TIMEOUT 36000)
 
-  add_custom_target(fuzz ${CMAKE_CURRENT_BINARY_DIR}/IlmImfFuzzTest)
+  add_custom_target(fuzz $<TARGET_FILE:IlmImfFuzzTest>)
   add_dependencies(fuzz IlmImfFuzzTest)
 endif()
