@@ -6,7 +6,6 @@ parameters:
   cxxCompiler: ''
   cCompiler: ''
   cmakeOpts: ''
-  excludeTests: ''
 
 steps:
 - bash: |
@@ -23,10 +22,4 @@ steps:
           ${{ parameters.cmakeOpts }}
   workingDirectory: _build
   displayName: Build OpenEXR
-
-- template: test.yml 
-  parameters:
-    buildType: ${{ parameters.buildType }}
-    excludeTests: ${{ parameters.excludeTests }}
-
 
