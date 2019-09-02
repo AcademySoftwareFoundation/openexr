@@ -109,7 +109,7 @@ represents the project at ASWF TAC meetings.
 * Peter Hillman - Weta Digital, Ltd.
 * Kimball Thurston - Weta Digital, Ltd.
 * Nick Porcino - Oculus
-* Christina Templaar-Leitz - Epic Games
+* Christina Tempelaar-Lietz - Epic Games
 * John Mertic - The Linux Foundation
 
 ### TSC Meetings
