@@ -9,6 +9,7 @@ If you know of missing, please email: info@openexr.com.
 * Arkell Rasiah
 * Brendan Bolles
 * Cary Phillips
+* Christina Tempelaar-Lietz
 * Christopher Horvath
 * Christopher Kulla
 * Daniel Kaneider
