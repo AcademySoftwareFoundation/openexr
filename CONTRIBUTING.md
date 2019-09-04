@@ -99,24 +99,22 @@ Developers who wish to contribute code to be considered for inclusion
 in the OpenEXR distribution must first complete a **Contributor
 License Agreement**.
 
+OpenEXR uses EasyCLA for managing CLAs, which automatically
+checks to ensure CLAs are signed by a contributor before a commit
+can be merged. 
+
 * If you are an individual writing the code on your own time and
   you're SURE you are the sole owner of any intellectual property you
-  contribute, use the [Individual Contributor License
-  Agreement](http://www.openexr.com/downloads/OpenEXRIndividualContributorLicenseAgreement.docx).
+  contribute, you can [signing the CLA as an individual contributor](https://github.com/communitybridge/easycla/blob/master/docs/Sign-a-CLA-as-an-Individual-Contributor-to-GitHub.md).
 
 * If you are writing the code as part of your job, or if there is any
   possibility that your employers might think they own any
   intellectual property you create, then you should use the [Corporate
   Contributor Licence
-  Agreement](http://www.openexr.com/downloads/OpenEXRCorporateContributorLicenseAgreement.docx).
-
-Download the appropriate CLA from the links above (or find them in the
-src/doc directory of the software distribution), print, sign, and
-rescan it (or just add a digital signature directly), and email it
-back to us at [info@openexr.com](info@openexr.com).
+  Agreement](https://github.com/communitybridge/easycla/blob/master/docs/Contribute-to-a-GitHub-Company-Project.md).
 
 The OpenEXR CLA's are the standard forms used by Linux Foundation
-projects.
+projects and [recommended by the ASWF TAC](https://github.com/AcademySoftwareFoundation/tac/blob/master/process/contributing.md#contributor-license-agreement-cla).
 
 ### Commit Sign-Off
 
@@ -125,8 +123,7 @@ must include a “`Signed-off-by`” line (generated, for example, with
 “`git commit --signoff`”), indicating that the committer wrote the
 code and has the right to release it under the
 [Modified-BSD-3-Clause](https://opensource.org/licenses/BSD-3-Clause)
-license. See http://developercertificate.org/ for more information on
-this requirement.
+license. See https://github.com/AcademySoftwareFoundation/tac/blob/master/process/contributing.md#contribution-sign-off for more information on this requirement.
 
 ## Development Workflow
 
