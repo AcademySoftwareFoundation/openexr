@@ -105,11 +105,21 @@ contributing to OpenEXR.
 ## License
 
 OpenEXR is released under the [BSD-3-Clause](LICENSE) license.
+
+See [PATENTS](PATENTS) for license information about portions of OpenEXR that are provided under a different license.
+
+## Contribution
  
 Developers who wish to contribute code to be considered for inclusion
 in the OpenEXR distribution must first complete the Contributor
-License Agreement and submit it to info@openexr.com. Commits must
-include a “Signed-off-by” line indicating that the committer wrote the
+License Agreement. OpenEXR uses EasyCLA for managing CLAs, which automatically
+checks to ensure CLAs are signed by a contributor before a commit
+can be merged. Read more about the workflow of signing a CLA at:
+
+- [Signing a CLA as an individual contributor](https://github.com/communitybridge/easycla/blob/master/docs/Sign-a-CLA-as-an-Individual-Contributor-to-GitHub.md)
+- [Authorizing employees at an organization to contribute with a corporate CLA](https://github.com/communitybridge/easycla/blob/master/docs/Contribute-to-a-GitHub-Company-Project.md)
+
+Commits must include a “Signed-off-by” line indicating that the committer wrote the
 code and has the right to release it under the BSD-3-Clause
 license. See http://developercertificate.org/ for more information.
 
