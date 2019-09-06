@@ -48,6 +48,7 @@ jobs:
   pool:
     vmImage: $(agentImage)
   container: $[ variables['containerImage'] ]
+  timeoutInMinutes: 360
 
   steps:
   - template: share/ci/templates/checkout.yml
@@ -83,6 +84,7 @@ jobs:
 - job: SonarCloud
   displayName: SonarCloud Ubuntu 16.04 VFX CY2019
   condition: in(variables['Build.Reason'], 'Manual', 'Schedule')
+  timeoutInMinutes: 360
   pool:
     vmImage: 'ubuntu-16.04'
   container: aswfstaging/ci-base:2019.0
@@ -112,6 +114,7 @@ jobs:
         agentImage: 'macOS-10.13'
   pool:
     vmImage: $(agentImage)
+  timeoutInMinutes: 360
 
   steps:
   - template: share/ci/templates/checkout.yml
