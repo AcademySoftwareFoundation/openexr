@@ -49,6 +49,7 @@
 #include <ImathBox.h>
 
 #include "tmpDir.h"
+#include "random.h"
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
@@ -369,7 +370,7 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
      int chan=0;
      for (int i=0;i<samples;i++)
      {
-         unsigned short int values = (unsigned short int) floor((double(rand())/double(RAND_MAX))*65535.0);
+         unsigned short int values = random_int(std::numeric_limits<unsigned short>::max());
          half v;
          v.setBits(values);
          if (pt==NULL || pt[chan]==IMF::HALF)
@@ -493,22 +494,22 @@ Box2i writefile(Schema & scheme,FrameBuffer& buf,bool tiny)
     Header hdr(width,height,1);
     
     
-    //min values in range (-100,100)
-    hdr.dataWindow().min.x = int(200.0*double(rand())/double(RAND_MAX)-100.0);
-    hdr.dataWindow().min.y = int(200.0*double(rand())/double(RAND_MAX)-100.0);
+    //min values in range [-100,100]
+    hdr.dataWindow().min.x = random_int(201)-100;
+    hdr.dataWindow().min.y = random_int(201)-100;
     
     
     // in tiny mode, make image up to 14*14 pixels (less than two SSE instructions)
     if (tiny)
     {
-        hdr.dataWindow().max.x = hdr.dataWindow().min.x + 1+int(13*double(rand())/double(RAND_MAX));
-        hdr.dataWindow().max.y = hdr.dataWindow().min.y + 1+int(13*double(rand())/double(RAND_MAX));
+        hdr.dataWindow().max.x = hdr.dataWindow().min.x + 1 + random_int(14);
+        hdr.dataWindow().max.y = hdr.dataWindow().min.y + 1 + random_int(14);
     }
     else
     {
         // in normal mode, make chunky images
-        hdr.dataWindow().max.x = hdr.dataWindow().min.x + 64+int(400*double(rand())/double(RAND_MAX));
-        hdr.dataWindow().max.y = hdr.dataWindow().min.y + 64+int(400*double(rand())/double(RAND_MAX));
+        hdr.dataWindow().max.x = hdr.dataWindow().min.x + 64 + random_int(400);
+        hdr.dataWindow().max.y = hdr.dataWindow().min.y + 64 + random_int(400);
     }
     
     hdr.compression()=ZIPS_COMPRESSION;
@@ -603,7 +604,7 @@ test (Schema writeScheme, Schema readScheme, bool nonfatal, bool tiny)
 
 void runtests(bool nonfatal,bool tiny)
 {
-    srand(1);
+    random_reseed(1);
     int i=0;
     int skipped=0;
     

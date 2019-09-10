@@ -36,6 +36,7 @@
 #endif
 
 #include "testCompositeDeepScanLine.h"
+#include "random.h"
 
 #include <ImfDeepScanLineOutputFile.h>
 #include <ImfDeepScanLineInputFile.h>
@@ -148,7 +149,7 @@ static void read_file(const char * filename)
     
     for(int count=0;count<4000;count++)
     {
-        int row = rand() % height + y_offset;
+        int row = random_int(height) + y_offset;
         
         //
         // read row y (at random)
@@ -220,7 +221,7 @@ testDeepScanLineMultipleRead(const std::string & tempDir)
     cout << "\n\nTesting random re-reads from deep scanline file:\n" << endl;
     
     std::string source_filename = tempDir + "imf_test_multiple_read";
-    srand(1);
+    random_reseed(1);
     
     make_file(source_filename.c_str());
     read_file(source_filename.c_str());

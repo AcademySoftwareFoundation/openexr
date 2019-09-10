@@ -37,6 +37,7 @@
 #endif
 
 #include "testDeepTiledBasic.h"
+#include "random.h"
 
 #include <assert.h>
 #include <string.h>
@@ -98,7 +99,7 @@ void generateRandomFile (int channelCount,
 
     for (int i = 0; i < channelCount; i++)
     {
-        int type = rand() % 3;
+        int type = random_int(3);
         stringstream ss;
         ss << i;
         string str = ss.str();
@@ -113,7 +114,7 @@ void generateRandomFile (int channelCount,
 
     header.setType(DEEPTILE);
     header.setTileDescription(
-        TileDescription(rand() % width + 1, rand() % height + 1, RIPMAP_LEVELS));
+        TileDescription(random_int(width) + 1, random_int(height) + 1, RIPMAP_LEVELS));
 
 
     //
@@ -222,7 +223,7 @@ void generateRandomFile (int channelCount,
                             {
                                 int dwy = y - dataWindowL.min.y;
                                 int dwx = x - dataWindowL.min.x;
-                                sampleCount[dwy][dwx] = rand() % 10 + 1;
+                                sampleCount[dwy][dwx] = random_int(10) + 1;
                                 sampleCountWhole[ly][lx][dwy][dwx] = sampleCount[dwy][dwx];
                                 for (int k = 0; k < channelCount; k++)
                                 {
@@ -266,7 +267,7 @@ void generateRandomFile (int channelCount,
                                 {
                                     int dwy = y - dataWindowL.min.y;
                                     int dwx = x - dataWindowL.min.x;
-                                    sampleCount[dwy][dwx] = rand() % 10 + 1;
+                                    sampleCount[dwy][dwx] = random_int(10) + 1;
                                     sampleCountWhole[ly][lx][dwy][dwx] = sampleCount[dwy][dwx];
                                     for (int k = 0; k < channelCount; k++)
                                     {
@@ -309,7 +310,7 @@ void generateRandomFile (int channelCount,
                                     int dwx = x - dataWindowL.min.x;
                                     int ty = y - box.min.y;
                                     int tx = x - box.min.x;
-                                    sampleCount[ty][tx] = rand() % 10 + 1;
+                                    sampleCount[ty][tx] = random_int(10) + 1;
                                     sampleCountWhole[ly][lx][dwy][dwx] = sampleCount[ty][tx];
                                     for (int k = 0; k < channelCount; k++)
                                     {
@@ -437,7 +438,7 @@ void readFile (int channelCount,
     localSampleCount.resizeErase(height, width);
     
     // also test filling channels. Generate up to 2 extra channels
-    int fillChannels=rand()%3;
+    int fillChannels=random_int(3);
     
     Array<Array2D< void* > > data(channelCount+fillChannels);
     for (int i = 0; i < channelCount+fillChannels; i++)
@@ -466,7 +467,7 @@ void readFile (int channelCount,
     {
          if(randomChannels)
         {
-	     read_channel[i] = rand() % 2;
+	     read_channel[i] = random_int(2);
 	     
         }
         if(!randomChannels || read_channel[i]==1)
@@ -830,7 +831,7 @@ void testDeepTiledBasic (const std::string & tempDir)
     {
         cout << "Testing the DeepTiledInput/OutputFile for basic use" << endl;
 
-        srand(1);
+        random_reseed(1);
 
         int numThreads = ThreadPool::globalThreadPool().numThreads();
         ThreadPool::globalThreadPool().setNumThreads(2);

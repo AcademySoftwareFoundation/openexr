@@ -37,7 +37,7 @@
 #endif
 
 #include "testDeepScanLineBasic.h"
-
+#include "random.h"
 
 #include <assert.h>
 #include <string.h>
@@ -96,7 +96,7 @@ void generateRandomFile (const std::string filename,
 
     for (int i = 0; i < channelCount; i++)
     {
-        int type = rand() % 3;
+        int type = random_int(3);
         stringstream ss;
         ss << i;
         string str = ss.str();
@@ -174,7 +174,7 @@ void generateRandomFile (const std::string filename,
 
             for (int j = 0; j < width; j++)
             {
-                sampleCount[i][j] = rand() % 10 + 1;
+                sampleCount[i][j] = random_int(10) + 1;
                 for (int k = 0; k < channelCount; k++)
                 {
                     if (channelTypes[k] == 0)
@@ -209,7 +209,7 @@ void generateRandomFile (const std::string filename,
 
             for (int j = 0; j < width; j++)
             {
-                sampleCount[i][j] = rand() % 10 + 1;
+                sampleCount[i][j] = random_int(10) + 1;
                 for (int k = 0; k < channelCount; k++)
                 {
                     if (channelTypes[k] == 0)
@@ -278,7 +278,7 @@ void readFile (const std::string & filename,
     
         
     // also test filling channels. Generate up to 2 extra channels
-    int fillChannels=rand()%3;
+    int fillChannels=random_int(3);
     
     Array<Array2D< void* > > data(channelCount+fillChannels);
     for (int i = 0; i < channelCount+fillChannels; i++)
@@ -302,7 +302,7 @@ void readFile (const std::string & filename,
     {
         if(randomChannels)
         {
-	     read_channel[i] = rand() % 2;
+	     read_channel[i] = random_int(2);
 	     
         }
         if(!randomChannels || read_channel[i]==1)
@@ -614,7 +614,7 @@ void testDeepScanLineBasic (const std::string &tempDir)
     {
         cout << "\n\nTesting the DeepScanLineInput/OutputFile for basic use:\n" << endl;
 
-        srand(1);
+        random_reseed(1);
 
         int numThreads = ThreadPool::globalThreadPool().numThreads();
         ThreadPool::globalThreadPool().setNumThreads(4);

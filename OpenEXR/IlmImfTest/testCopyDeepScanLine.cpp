@@ -39,7 +39,7 @@
 #endif
 
 #include "testCopyDeepScanLine.h"
-
+#include "random.h"
 
 #include <assert.h>
 #include <string.h>
@@ -99,7 +99,7 @@ void generateRandomFile (const std::string & source_filename,
 
     for (int i = 0; i < channelCount; i++)
     {
-        int type = rand() % 3;
+        int type = random_int(3);
         stringstream ss;
         ss << i;
         string str = ss.str();
@@ -174,7 +174,7 @@ void generateRandomFile (const std::string & source_filename,
 
             for (int j = 0; j < width; j++)
             {
-                sampleCount[i][j] = rand() % 10 + 1;
+                sampleCount[i][j] = random_int(10) + 1;
                 for (int k = 0; k < channelCount; k++)
                 {
                     if (channelTypes[k] == 0)
@@ -419,7 +419,7 @@ void testCopyDeepScanLine (const std::string &tempDir)
     {
         cout << "\n\nTesting raw data copy in DeepScanLineInput/OutputFile:\n" << endl;
 
-        srand(1);
+        random_reseed(1);
 
         int numThreads = ThreadPool::globalThreadPool().numThreads();
         ThreadPool::globalThreadPool().setNumThreads(4);

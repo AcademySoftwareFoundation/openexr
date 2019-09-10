@@ -37,6 +37,7 @@
 #endif
 
 #include "testMultiPartSharedAttributes.h"
+#include "random.h"
 
 #include <ImfMultiPartInputFile.h>
 #include <ImfMultiPartOutputFile.h>
@@ -88,8 +89,8 @@ generateRandomHeaders (int partCount, vector<Header> & headers)
     for (int i = 0; i < partCount; i++)
     {
         Header header(width, height);
-        int pixelType = rand() % 3;
-        int partType = rand() % 2;
+        int pixelType = random_int(3);
+        int partType = random_int(2);
 
         stringstream ss;
         ss << i;
@@ -123,9 +124,9 @@ generateRandomHeaders (int partCount, vector<Header> & headers)
         int levelMode;
         if (partType == 1)
         {
-            tileX = rand() % width + 1;
-            tileY = rand() % height + 1;
-            levelMode = rand() % 3;
+            tileX = random_int(width) + 1;
+            tileY = random_int(height) + 1;
+            levelMode = random_int(3);
             LevelMode lm = NUM_LEVELMODES;
             switch (levelMode)
             {
@@ -514,6 +515,8 @@ testMultiPartSharedAttributes (const std::string & tempDir)
     try
     {
         cout << "Testing multi part APIs : shared attributes, header... " << endl;
+
+        random_reseed(1);
 
         std::string fn = tempDir +  "imf_test_multipart_shared_attrs.exr";
 

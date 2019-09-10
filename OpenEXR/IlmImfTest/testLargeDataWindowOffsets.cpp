@@ -45,6 +45,7 @@
 #include <ImathBox.h>
 
 #include "tmpDir.h"
+#include "random.h"
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
@@ -200,7 +201,7 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
      size_t chan=0;
      for (size_t i=0;i<samples;i++)
      {
-         unsigned short int values = (unsigned short int) floor((double(rand())/double(RAND_MAX))*65535.0);
+         unsigned short int values = random_int(std::numeric_limits<unsigned short>::max());
          half v;
          v.setBits(values);
          if (pt==NULL || pt[chan]==IMF::HALF)
@@ -269,22 +270,22 @@ Header writefile(FrameBuffer& buf, const char * const *channels, // NULL termina
              const PixelType *pt)
 {
     
-    const int height = rand()/2; 
-    const int width  = rand()/2;
+    const int height = random_int()/2; 
+    const int width  = random_int()/2;
 
     Header hdr(width,height,1);
     
     
     //
-    // set min origin to be anything up to half RAND_MAX
+    // set min origin to be anything up to half INT_MAX
     //
-    hdr.dataWindow().min.x = rand() / 4;
-    hdr.dataWindow().min.y = rand() / 4;
-    if(rand()%2) 
+    hdr.dataWindow().min.x = random_int() / 4;
+    hdr.dataWindow().min.y = random_int() / 4;
+    if(random_int(2)) 
     {
         hdr.dataWindow().min.x = -hdr.dataWindow().min.x;
     }
-    if(rand()%2) 
+    if(random_int(2)) 
     {
         hdr.dataWindow().min.y = -hdr.dataWindow().min.y;
     }
@@ -292,15 +293,15 @@ Header writefile(FrameBuffer& buf, const char * const *channels, // NULL termina
     //
     // up to 512 scanlines
     //
-    hdr.dataWindow().max.y = hdr.dataWindow().min.y + int(512.0*double(rand())/double(RAND_MAX));
-    
+    hdr.dataWindow().max.y = hdr.dataWindow().min.y + random_int (512) + 1;
+
     //
     // compute image width to give us at most 'pixelCount' pixels in the image
     //
-    hdr.dataWindow().max.x = hdr.dataWindow().min.x+ pixelCount / ((long long) (hdr.dataWindow().max.y) - (long long) (hdr.dataWindow().min.y));
+    hdr.dataWindow().max.x = hdr.dataWindow().min.x+ pixelCount /
+        ((long long) (hdr.dataWindow().max.y) - (long long) (hdr.dataWindow().min.y));
     
-
-    hdr.compression() = Compression(rand() % int(NUM_COMPRESSION_METHODS));
+    hdr.compression() = Compression(random_int(static_cast<int>(NUM_COMPRESSION_METHODS)));
     hdr.channels() = setupBuffer (hdr,
                                   channels,
                                   pt,
@@ -352,15 +353,15 @@ test (int testCount)
     {
         FrameBuffer writeFrameBuf;
         const char** channels=NULL;
-        switch( rand()% 4)
-        {
+        switch( random_int(4)
+)        {
             case 0 : channels = rgb; break;
             case 1 : channels = rgba; break;
             case 2 : channels = rgbaz; break;
             case 3 : channels = lots; break;
         }
         const PixelType* writetypes=NULL;
-        switch( rand()% 4)
+        switch( random_int(4))
         {
             case 0 : writetypes = NULL; break;
             case 1 : writetypes = allFloats; break;
@@ -368,14 +369,13 @@ test (int testCount)
             case 3 : writetypes = floatHalf; break;
         }
         const PixelType* readTypes=NULL;
-        switch( rand()% 4)
+        switch( random_int(4))
         {
             case 0 : readTypes = NULL; break;
             case 1 : readTypes = allFloats; break;
             case 2 : readTypes = halfFloat; break;
             case 3 : readTypes = floatHalf; break;
         }
-        
         
         Header hdr = writefile(writeFrameBuf,channels,writetypes);
         Box2i dw = hdr.dataWindow();
@@ -393,7 +393,6 @@ test (int testCount)
             if (compare(readFrameBuf, writeFrameBuf, dw))
             {
                 cout <<  " OK ";
-                cout << "\n";        
             }
             else
             {
@@ -401,6 +400,7 @@ test (int testCount)
                 
             }
         }
+        cout << "\n";        
     }
     remove (filename.c_str());
 }
@@ -414,11 +414,11 @@ testLargeDataWindowOffsets (const std::string & tempDir)
 {
     filename = tempDir + "imf_test_interleave_patterns.exr";
 
-    srand(1);
+    random_reseed(1);
 
     cout << "Testing dataWindows with large offsets ... " << endl;
-    test (100);
 
+    test (100);
     
     cout << "ok\n" << endl;
 }
