@@ -45,6 +45,7 @@
 
 #include "tmpDir.h"
 #include "testMultiPartThreading.h"
+#include "random.h"
 
 #include <ImfPartType.h>
 #include <ImfMultiPartInputFile.h>
@@ -262,7 +263,7 @@ class RandomReadingTask : public Task
 
         void execute()
         {
-            int partNumber = rand() % headers.size();
+            int partNumber = random_int(headers.size());
             int partType = partTypes[partNumber];
             int pixelType = pixelTypes[partNumber];
             int levelMode = levelModes[partNumber];
@@ -273,8 +274,8 @@ class RandomReadingTask : public Task
             if (partType == 0)
             {
                 int l1, l2;
-                l1 = rand() % height;
-                l2 = rand() % height;
+                l1 = random_int(height);
+                l2 = random_int(height);
                 if (l1 > l2) swap(l1, l2);
 
                 InputPart part(*file, partNumber);
@@ -319,8 +320,8 @@ class RandomReadingTask : public Task
                 int numXLevels = part.numXLevels();
                 int numYLevels = part.numYLevels();
 
-                lx = rand() % numXLevels;
-                ly = rand() % numYLevels;
+                lx = random_int(numXLevels);
+                ly = random_int(numYLevels);
                 if (levelMode == 1) ly = lx;
 
                 int w = part.levelWidth(lx);
@@ -328,10 +329,10 @@ class RandomReadingTask : public Task
 
                 int numXTiles = part.numXTiles(lx);
                 int numYTiles = part.numYTiles(ly);
-                tx1 = rand() % numXTiles;
-                tx2 = rand() % numXTiles;
-                ty1 = rand() % numYTiles;
-                ty2 = rand() % numYTiles;
+                tx1 = random_int(numXTiles);
+                tx2 = random_int(numXTiles);
+                ty1 = random_int(numYTiles);
+                ty2 = random_int(numYTiles);
                 if (tx1 > tx2) swap(tx1, tx2);
                 if (ty1 > ty2) swap(ty1, ty2);
 
@@ -373,8 +374,8 @@ void generateRandomHeaders(int partCount, vector<Header>& headers, vector<Writin
     for (int i = 0; i < partCount; i++)
     {
         Header header(width, height);
-        int pixelType = rand() % 3;
-        int partType = rand() % 2;
+        int pixelType = random_int(3);
+        int partType = random_int(2);
         pixelTypes[i] = pixelType;
         partTypes[i] = partType;
 
@@ -410,9 +411,9 @@ void generateRandomHeaders(int partCount, vector<Header>& headers, vector<Writin
         int levelMode = 0;
         if (partType == 1)
         {
-            tileX = rand() % width + 1;
-            tileY = rand() % height + 1;
-            levelMode = rand() % 3;
+            tileX = random_int(width) + 1;
+            tileY = random_int(height) + 1;
+            levelMode = random_int(3);
             levelModes[i] = levelMode;
             LevelMode lm = NUM_LEVELMODES;
             switch (levelMode)
@@ -519,8 +520,8 @@ generateRandomFile (int partCount, const std::string & fn)
     for (int i = 0; i < taskListSize; i++)
     {
         int a, b;
-        a = rand() % taskListSize;
-        b = rand() % taskListSize;
+        a = random_int(taskListSize);
+        b = random_int(taskListSize);
         swap(taskList[a], taskList[b]);
     }
 
@@ -681,8 +682,8 @@ readWholeFiles (const std::string & fn)
         shuffledPartNumber.push_back(i);
     for (int i = 0; i < nHeaders; i++)
     {
-        int a = rand() % nHeaders;
-        int b = rand() % nHeaders;
+        int a = random_int(nHeaders);
+        int b = random_int(nHeaders);
         swap (shuffledPartNumber[a], shuffledPartNumber[b]);
     }
 
@@ -810,7 +811,7 @@ void testMultiPartThreading (const std::string & tempDir)
     {
         cout << "Testing the multi part APIs for multi-thread use" << endl;
 
-        srand(1);
+        random_reseed(1);
 
         int numThreads = ThreadPool::globalThreadPool().numThreads();
         ThreadPool::globalThreadPool().setNumThreads(32);

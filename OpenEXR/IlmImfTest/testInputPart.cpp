@@ -47,6 +47,7 @@
 
 #include "tmpDir.h"
 #include "testInputPart.h"
+#include "random.h"
 
 #include <IlmThreadPool.h>
 #include <ImfMultiPartInputFile.h>
@@ -237,8 +238,8 @@ void generateRandomHeaders(int partCount, vector<Header>& headers)
                        INCREASING_Y, 
                        ZIPS_COMPRESSION);
                    
-        int pixelType = rand() % 3;
-        int partType = rand() % 2;
+        int pixelType = random_int(3);
+        int partType = random_int(2);
         
         pixelTypes[i] = pixelType;
         partTypes[i] = partType;
@@ -275,9 +276,9 @@ void generateRandomHeaders(int partCount, vector<Header>& headers)
         int levelMode;
         if (partType == 1)
         {
-            tileX = rand() % width + 1;
-            tileY = rand() % height + 1;
-            levelMode = rand() % 3;
+            tileX = random_int(width) + 1;
+            tileY = random_int(height) + 1;
+            levelMode = random_int(3);
             levelModes[i] = levelMode;
             LevelMode lm  = NUM_LEVELMODES;
             switch (levelMode)
@@ -296,11 +297,11 @@ void generateRandomHeaders(int partCount, vector<Header>& headers)
         }
 
  
-        int order = rand() % NUM_LINEORDERS;
+        int order = random_int(NUM_LINEORDERS);
         if(partType==0 || partType ==2)
         {
             // can't write random scanlines
-            order = rand() % (NUM_LINEORDERS-1);
+            order = random_int(NUM_LINEORDERS-1);
         }
         LineOrder l = NUM_LINEORDERS;
         switch(order)
@@ -541,8 +542,8 @@ readWholeFiles (const std::string & fn)
         shuffledPartNumber.push_back(i);
     for (int i = 0; i < nHeaders; i++)
     {
-        int a = rand() % nHeaders;
-        int b = rand() % nHeaders;
+        int a = random_int(nHeaders);
+        int b = random_int(nHeaders);
         swap (shuffledPartNumber[a], shuffledPartNumber[b]);
     }
 
@@ -602,8 +603,8 @@ readFirstPart (const std::string & fn)
     //int levelMode = levelModes[0];
 
     int l1, l2;
-    l1 = rand() % height;
-    l2 = rand() % height;
+    l1 = random_int(height);
+    l2 = random_int(height);
     if (l1 > l2) swap(l1, l2);
 
     InputFile part(fn.c_str());
@@ -647,14 +648,14 @@ readPartialFiles (int randomReadCount, const std::string & fn)
 
     for (int i = 0; i < randomReadCount; i++)
     {
-        int partNumber = rand() % file.parts();
+        int partNumber = random_int(file.parts());
         //int partType = partTypes[partNumber];
         int pixelType = pixelTypes[partNumber];
         //int levelMode = levelModes[partNumber];
 
         int l1, l2;
-        l1 = rand() % height;
-        l2 = rand() % height;
+        l1 = random_int(height);
+        l2 = random_int(height);
         
         if (l1 > l2) swap(l1, l2);
 
@@ -716,7 +717,7 @@ void testInputPart (const std::string & tempDir)
     {
         cout << "Testing reading multipart tiles and scanlines with InputPart" << endl;
 
-        srand(1);
+        random_reseed(1);
 
         int numThreads = ThreadPool::globalThreadPool().numThreads();
         ThreadPool::globalThreadPool().setNumThreads(4);

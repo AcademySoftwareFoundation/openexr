@@ -47,6 +47,7 @@
 
 #include "tmpDir.h"
 #include "testCopyMultiPartFile.h"
+#include "random.h"
 
 #include <IlmThreadPool.h>
 #include <ImfMultiPartInputFile.h>
@@ -242,8 +243,8 @@ void generateRandomHeaders(int partCount, vector<Header>& headers)
                        INCREASING_Y, 
                        ZIPS_COMPRESSION);
                    
-        int pixelType = rand() % 3;
-        int partType = rand() % 4;
+        int pixelType = random_int(3);
+        int partType = random_int(4);
         
         pixelTypes[i] = pixelType;
         partTypes[i] = partType;
@@ -286,9 +287,9 @@ void generateRandomHeaders(int partCount, vector<Header>& headers)
         int levelMode;
         if (partType == 1 || partType == 3)
         {
-            tileX = rand() % width + 1;
-            tileY = rand() % height + 1;
-            levelMode = rand() % 3;
+            tileX = random_int(width) + 1;
+            tileY = random_int(height) + 1;
+            levelMode = random_int(3);
             levelModes[i] = levelMode;
             LevelMode lm  = NUM_LEVELMODES;
             switch (levelMode)
@@ -307,11 +308,11 @@ void generateRandomHeaders(int partCount, vector<Header>& headers)
         }
 
  
-        int order = rand() % NUM_LINEORDERS;
+        int order = random_int(NUM_LINEORDERS);
         if(partType==0 || partType ==2)
         {
             // can't write random scanlines
-            order = rand() % (NUM_LINEORDERS-1);
+            order = random_int(NUM_LINEORDERS-1);
         }
         LineOrder l = NUM_LINEORDERS;
         switch(order)
@@ -704,8 +705,8 @@ readWholeFiles (const std::string & cpyFn)
         shuffledPartNumber.push_back(i);
     for (int i = 0; i < nHeaders; i++)
     {
-        int a = rand() % nHeaders;
-        int b = rand() % nHeaders;
+        int a = random_int(nHeaders);
+        int b = random_int(nHeaders);
         swap (shuffledPartNumber[a], shuffledPartNumber[b]);
     }
 
@@ -966,7 +967,7 @@ void testCopyMultiPartFile (const std::string & tempDir)
     {
         cout << "Testing copying multi-part files" << endl;
 
-        srand(1);
+        random_reseed(1);
 
         int numThreads = ThreadPool::globalThreadPool().numThreads();
         ThreadPool::globalThreadPool().setNumThreads(4);

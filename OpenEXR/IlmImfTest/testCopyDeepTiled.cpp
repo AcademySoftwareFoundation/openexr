@@ -37,6 +37,7 @@
 #endif
 
 #include "testCopyDeepTiled.h"
+#include "random.h"
 
 
 #include <assert.h>
@@ -100,7 +101,7 @@ generateRandomFile (int channelCount,
 
     for (int i = 0; i < channelCount; i++)
     {
-        int type = rand() % 3;
+        int type = random_int(3);
         stringstream ss;
         ss << i;
         string str = ss.str();
@@ -115,7 +116,7 @@ generateRandomFile (int channelCount,
 
     header.setType(DEEPTILE);
     header.setTileDescription(
-        TileDescription(rand() % width + 1, rand() % height + 1, RIPMAP_LEVELS));
+        TileDescription(random_int(width) + 1, random_int(height) + 1, RIPMAP_LEVELS));
 
     Array<Array2D< void* > > data(channelCount);
     for (int i = 0; i < channelCount; i++)
@@ -203,7 +204,7 @@ generateRandomFile (int channelCount,
                             {
                                 int dwy = y - dataWindowL.min.y;
                                 int dwx = x - dataWindowL.min.x;
-                                sampleCount[dwy][dwx] = rand() % 10 + 1;
+                                sampleCount[dwy][dwx] = random_int(10) + 1;
                                 sampleCountWhole[ly][lx][dwy][dwx] = sampleCount[dwy][dwx];
                                 for (int k = 0; k < channelCount; k++)
                                 {
@@ -504,7 +505,7 @@ void testCopyDeepTiled  (const std::string & tempDir)
     {
         cout << "Testing raw copy in DeepTiledInput/OutputFile " << endl;
 
-        srand(1);
+        random_reseed(1);
 
         int numThreads = ThreadPool::globalThreadPool().numThreads();
         ThreadPool::globalThreadPool().setNumThreads(2);
