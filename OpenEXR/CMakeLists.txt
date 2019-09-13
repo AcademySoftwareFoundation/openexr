@@ -3,7 +3,14 @@
 
 # We require this to get object library link library support and
 # combined python 2 + 3 support
-cmake_minimum_required(VERSION 3.12)
+if(OPENEXR_BUILD_BOTH_STATIC_SHARED)
+  if (${CMAKE_VERSION} VERSION_LESS "3.12.0")
+    message(FATAL_ERROR "CMake 3.12 or newer is required for object library support when building both static and shared libraries")
+  endif()
+  cmake_minimum_required(VERSION 3.12)
+else()
+  cmake_minimum_required(VERSION 3.10)
+endif()
 
 # we include this first to parse configure.ac and extract the version
 # numbers

@@ -1,9 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright Contributors to the OpenEXR Project.
 
-# We require this to get object library link library support and
-# combined python 2 + 3 support
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.10)
 
 # we include this first to parse configure.ac and extract the version
 # numbers
@@ -25,6 +23,8 @@ include(config/OpenEXRViewersSetup.cmake)
 find_package(IlmBase ${OPENEXR_VIEWERS_VERSION} EXACT REQUIRED CONFIG)
 find_package(OpenEXR ${OPENEXR_VIEWERS_VERSION} EXACT REQUIRED CONFIG)
 
+# This is for newer cmake versions who know about vendor versions
+set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL)
 
 set(FLTK_SKIP_FLUID 1)
