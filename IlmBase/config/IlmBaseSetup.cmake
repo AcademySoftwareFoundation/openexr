@@ -124,3 +124,17 @@ if(OPENEXR_USE_CLANG_TIDY)
     -checks=*;
   )
 endif()
+
+###############################
+# Dependent libraries
+
+# so we know how to link / use threads and don't have to have a -pthread
+# everywhere...
+if(NOT TARGET Threads::Threads)
+  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+  set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+  find_package(Threads)
+  if(NOT Threads_FOUND)
+    message(FATAL_ERROR "Unable to find a threading library which is required for IlmThread")
+  endif()
+endif()

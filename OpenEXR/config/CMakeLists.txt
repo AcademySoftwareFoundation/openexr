@@ -52,22 +52,6 @@ endif()
 find_package(ZLIB REQUIRED)
 set_target_properties(ZLIB::ZLIB PROPERTIES IMPORTED_GLOBAL TRUE)
 
-# so we know how to link / use...
-if(NOT TARGET Threads::Threads)
-  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-  set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-  find_package(Threads)
-  ###check_include_files(pthread.h OPENEXR_HAVE_PTHREAD)
-  if(Threads_FOUND)
-    set_target_properties(Threads::Threads PROPERTIES IMPORTED_GLOBAL TRUE)
-    if(CMAKE_HAVE_PTHREAD_H OR CMAKE_USE_PTHREADS_INIT OR CMAKE_HP_PTHREAD_INIT)
-      set(OPENEXR_HAVE_PTHREAD ON)
-      # TODO: remove this once we cleanly have OPENEXR_ prefix on all #defines
-      set(HAVE_PTHREAD ON)
-    endif()
-  endif()
-endif()
-
 configure_file(OpenEXRConfig.h.in_cmake ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h)
 configure_file(OpenEXRConfigInternal.h.in_cmake ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigInternal.h)
 
