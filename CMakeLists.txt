@@ -3,7 +3,14 @@
 
 # We require this to get object library link library support and
 # combined python 2 + 3 support
-cmake_minimum_required(VERSION 3.12)
+if(OPENEXR_BUILD_BOTH_STATIC_SHARED OR ILMBASE_BUILD_BOTH_STATIC_SHARED)
+  if (${CMAKE_VERSION} VERSION_LESS "3.12.0")
+    message(FATAL_ERROR "CMake 3.12 or newer is required for object library support when building both static and shared libraries")
+  endif()
+  cmake_minimum_required(VERSION 3.12)
+else()
+  cmake_minimum_required(VERSION 3.10)
+endif()
 
 # Hint: This can be set to enable custom find_package
 # search paths, probably best to set it when configuring
@@ -62,7 +69,11 @@ add_subdirectory(OpenEXR)
 # is found and warn otherwise? or error out?
 option(PYILMBASE_ENABLE "Enables configuration of the PyIlmBase module" ON)
 if(PYILMBASE_ENABLE)
-  add_subdirectory(PyIlmBase)
+  if (${CMAKE_VERSION} VERSION_LESS "3.12.0")
+    message(WARNING ": CMake version ${CMAKE_VERSION} detected, PyIlmBase uses newer features of cmake (>= 3.12), disabling")
+  else()
+    add_subdirectory(PyIlmBase)
+  endif()
 endif()
 
 option(OPENEXR_VIEWERS_ENABLE "Enables configuration of the viewers module" ON)
