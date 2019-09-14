@@ -30,7 +30,8 @@ directory of the source code tree as ``$source_directory``.
 
 Make sure these are installed on your system before building OpenEXR:
 
-* OpenEXR requires CMake version 3.12 or newer (or autoconf on Linux systems).
+* OpenEXR requires CMake version 3.10 or newer (or autoconf on Linux systems).
+  - NB: CMake 3.12 is required for current PyIlmBase support
 * C++ compiler that supports C++11
 * Zlib
 * Python and boost-python if building the PyIlmBase module.
