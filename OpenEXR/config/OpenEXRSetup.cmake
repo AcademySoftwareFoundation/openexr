@@ -132,3 +132,8 @@ if(NOT TARGET Threads::Threads)
     message(FATAL_ERROR "Unable to find a threading library which is required for OpenEXR")
   endif()
 endif()
+
+find_package(ZLIB REQUIRED)
+if(NOT TARGET ZLIB::ZLIB)
+  message(FATAL_ERROR "Unable to find zlib library target which is required for OpenEXR")
+endif()

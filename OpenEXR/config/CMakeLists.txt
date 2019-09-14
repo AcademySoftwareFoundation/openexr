@@ -49,9 +49,6 @@ if(APPLE)
   set(OPENEXR_IMF_HAVE_DARWIN TRUE)
 endif()
 
-find_package(ZLIB REQUIRED)
-set_target_properties(ZLIB::ZLIB PROPERTIES IMPORTED_GLOBAL TRUE)
-
 configure_file(OpenEXRConfig.h.in_cmake ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h)
 configure_file(OpenEXRConfigInternal.h.in_cmake ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigInternal.h)
 
