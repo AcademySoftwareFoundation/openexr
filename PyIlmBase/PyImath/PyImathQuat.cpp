@@ -524,8 +524,8 @@ register_Quat()
         .def ("__itruediv__", &idivT<T>, return_internal_reference<>())
         .def ("__iadd__", &iadd<T>, return_internal_reference<>())
         .def ("__isub__", &isub<T>, return_internal_reference<>())
-        .def(self == self)
-        .def(self != self)
+        .def(self == self) // NOSONAR - suppress SonarCloud bug report.
+        .def(self != self) // NOSONAR - suppress SonarCloud bug report.
         .def ("__rmul__", &rmulM33<T>)
         .def ("__mul__", &mulM33<T>)
         .def ("__mul__", &mul<T>)

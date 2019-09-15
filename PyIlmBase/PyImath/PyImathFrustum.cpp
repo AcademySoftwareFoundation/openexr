@@ -306,8 +306,8 @@ register_Frustum()
         .def(init<>("Frustum() default construction"))
         .def(init<T,T,T,T,T,T,bool>("Frustum(nearPlane,farPlane,left,right,top,bottom,ortho) construction"))
         .def(init<T,T,T,T,T>("Frustum(nearPlane,farPlane,fovx,fovy,aspect) construction"))
-        .def(self == self)
-        .def(self != self)
+        .def(self == self) // NOSONAR - suppress SonarCloud bug report.
+        .def(self != self) // NOSONAR - suppress SonarCloud bug report.
         .def("__repr__",&Frustum_repr<T>)
         .def("set", set1,
         	 "F.set(nearPlane, farPlane, left, right, top, bottom, "

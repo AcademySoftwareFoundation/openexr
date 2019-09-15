@@ -356,8 +356,8 @@ register_Box2()
         .def_readwrite("max",&Box<T>::max)
         .def("min", &boxMin<T>)
         .def("max", &boxMax<T>)
-        .def(self == self)
-        .def(self != self)
+        .def(self == self) // NOSONAR - suppress SonarCloud bug report.
+        .def(self != self) // NOSONAR - suppress SonarCloud bug report.
         .def("__repr__", &Box2_repr<T>)
         .def("makeEmpty",&Box<T>::makeEmpty,"makeEmpty() make the box empty")
         .def("makeInfinite",&Box<T>::makeInfinite,"makeInfinite() make the box cover all space")
@@ -416,8 +416,8 @@ register_Box3()
         .def("__init__", make_constructor(boxConstructor<T, IMATH_NAMESPACE::V3i>))
         .def_readwrite("min",&Box<T>::min)
         .def_readwrite("max",&Box<T>::max)
-        .def(self == self)
-        .def(self != self)
+        .def(self == self) // NOSONAR - suppress SonarCloud bug report.
+        .def(self != self) // NOSONAR - suppress SonarCloud bug report.
         .def("__mul__", &mulM44<T, float>)
         .def("__mul__", &mulM44<T, double>)
         .def("__imul__", &imulM44<T, float>,return_internal_reference<>())

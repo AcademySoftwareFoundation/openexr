@@ -905,8 +905,8 @@ register_Matrix33()
         .def("minorOf",&Matrix33<T>::minorOf,"minorOf() return the matrix minor of the (row,col) element of this matrix")
         .def("fastMinor",&Matrix33<T>::fastMinor,"fastMinor() return the matrix minor using the specified rows and columns of this matrix")
         .def("determinant",&Matrix33<T>::determinant,"determinant() return the determinant of this matrix")
-        .def(self == self)
-        .def(self != self)
+        .def(self == self) // NOSONAR - suppress SonarCloud bug report.
+        .def(self != self) // NOSONAR - suppress SonarCloud bug report.
         .def("__iadd__", &iadd33<T, float>,return_internal_reference<>())
         .def("__iadd__", &iadd33<T, double>,return_internal_reference<>())
         .def("__iadd__", &iadd33T<T>,return_internal_reference<>())
