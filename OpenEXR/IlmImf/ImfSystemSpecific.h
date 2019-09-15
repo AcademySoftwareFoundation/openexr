@@ -61,7 +61,12 @@ EXRAllocAligned (size_t size, size_t alignment)
     return _mm_malloc (size, alignment);
 #elif defined(_POSIX_C_SOURCE) && (_POSIX_C_SOURCE >= 200112L)
     void* ptr = 0;
-    posix_memalign (&ptr, alignment, size);
+    // With fortify_source on, just doing the (void) cast trick
+    // doesn't remove the unused result warning but we expect the
+    // other mallocs to return null and to check the return value
+    // of this function
+    if ( posix_memalign (&ptr, alignment, size) )
+        ptr = 0;
     return ptr;
 #else
     return malloc(size);
