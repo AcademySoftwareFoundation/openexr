@@ -592,8 +592,8 @@ register_Color4()
         .def_readwrite("a", &Color4<T>::a)
         .def("__str__", &color4_str<T>)
         .def("__repr__", &color4_repr<T>)
-        .def(self == self)
-        .def(self != self)
+        .def(self == self) // NOSONAR - suppress SonarCloud bug report.
+        .def(self != self) // NOSONAR - suppress SonarCloud bug report.
         .def("__iadd__", &iadd<T>,return_internal_reference<>())
         .def("__add__", &add<T>)
         .def("__add__", &addTuple<T>)

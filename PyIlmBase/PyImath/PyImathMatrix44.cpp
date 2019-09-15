@@ -1004,8 +1004,8 @@ register_Matrix44()
         .def("inverse",&inverse44<T>,inverse44_overloads("inverse() return a inverted copy of this matrix"))
         .def("gjInvert",&gjInvert44<T>,gjInvert44_overloads("gjInvert() invert this matrix")[return_internal_reference<>()])
         .def("gjInverse",&gjInverse44<T>,gjInverse44_overloads("gjInverse() return a inverted copy of this matrix"))
-        .def(self == self)
-        .def(self != self)
+        .def(self == self) // NOSONAR - suppress SonarCloud bug report.
+        .def(self != self) // NOSONAR - suppress SonarCloud bug report.
         .def("__iadd__", &iadd44<T, float>,return_internal_reference<>())
         .def("__iadd__", &iadd44<T, double>,return_internal_reference<>())
         .def("__iadd__", &iadd44T<T>,return_internal_reference<>())
