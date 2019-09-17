@@ -83,7 +83,6 @@ jobs:
 # ------------------------------------------------------------------------------
 - job: SonarCloud
   displayName: SonarCloud Ubuntu 16.04 VFX CY2019
-  condition: in(variables['Build.Reason'], 'Manual', 'Schedule')
   timeoutInMinutes: 360
   pool:
     vmImage: 'ubuntu-16.04'
