@@ -113,9 +113,13 @@ class halfFunction
 		  T nanValue     = 0);
 
 #ifndef ILMBASE_HAVE_LARGE_STACK
-    ~halfFunction () { delete [] _lut; }    
+    ~halfFunction () { delete [] _lut; }
+    halfFunction (const halfFunction &) = delete;
+    halfFunction& operator= (const halfFunction &) = delete;
+    halfFunction (halfFunction &&) = delete;
+    halfFunction& operator= (halfFunction &&) = delete;
 #endif
-    
+
     //-----------
     // Evaluation
     //-----------

@@ -62,7 +62,7 @@ class Color3: public Vec3 <T>
     Color3 ();			// no initialization
     explicit Color3 (T a);	// (a a a)
     Color3 (T a, T b, T c);	// (a b c)
-
+    ~Color3 () = default;
 
     //---------------------------------
     // Copy constructors and assignment
@@ -139,7 +139,7 @@ template <class T> class Color4
     Color4 ();			    	// no initialization
     explicit Color4 (T a);		// (a a a a)
     Color4 (T a, T b, T c, T d);	// (a b c d)
-
+    ~Color4 () = default;
 
     //---------------------------------
     // Copy constructors and assignment

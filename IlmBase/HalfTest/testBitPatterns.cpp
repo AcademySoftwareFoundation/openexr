@@ -210,7 +210,7 @@ testBitPatterns()
     testBits (HALF_MIN + HALF_MIN * 0.5001f,
 	      "0 00000 0000000010",
 	      "0 01101000 00000000000000000000000");
-    testBits (HALF_MIN - HALF_MIN,
+    testBits (HALF_MIN - HALF_MIN, // NOSONAR - suppress SonarCloud bug report.
 	      "0 00000 0000000000",
 	      "0 00000000 00000000000000000000000");
     testBits (HALF_MIN - HALF_MIN * 0.5f,
@@ -381,7 +381,7 @@ testBitPatterns()
     testBits (-(HALF_MIN + HALF_MIN * 0.5001f),
 	      "1 00000 0000000010",
 	      "1 01101000 00000000000000000000000");
-    testBits (-(HALF_MIN - HALF_MIN),
+    testBits (-(HALF_MIN - HALF_MIN), // NOSONAR - suppress SonarCloud bug report.
 	      "X 00000 0000000000",
 	      "X 00000000 00000000000000000000000");
     testBits (-(HALF_MIN - HALF_MIN * 0.5f),
