@@ -502,9 +502,9 @@ template <class T>
 static void add_mod_math_functions(boost::python::class_<FixedMatrix<T> > &c) {
     using namespace boost::python;
     c
-        .def(self % self)
+        .def(self % self) // NOSONAR - suppress SonarCloud bug report.
         .def(self % other<T>())
-        .def(self %= self)
+        .def(self %= self) // NOSONAR - suppress SonarCloud bug report.
         .def(self %= other<T>())
         ;
 }
@@ -513,13 +513,13 @@ template <class T>
 static void add_shift_math_functions(boost::python::class_<FixedMatrix<T> > &c) {
     using namespace boost::python;
     c
-        .def(self << self)
+        .def(self << self) // NOSONAR - suppress SonarCloud bug report.
         .def(self << other<T>())
-        .def(self <<= self)
+        .def(self <<= self) // NOSONAR - suppress SonarCloud bug report.
         .def(self <<= other<T>())
-        .def(self >> self)
+        .def(self >> self) // NOSONAR - suppress SonarCloud bug report.
         .def(self >> other<T>())
-        .def(self >>= self)
+        .def(self >>= self) // NOSONAR - suppress SonarCloud bug report.
         .def(self >>= other<T>())
         ;
 }
@@ -530,15 +530,15 @@ static void add_bitwise_math_functions(boost::python::class_<FixedMatrix<T> > &c
     c
         .def(self & self)
         .def(self & other<T>())
-        .def(self &= self)
+        .def(self &= self) // NOSONAR - suppress SonarCloud bug report.
         .def(self &= other<T>())
         .def(self | self)
         .def(self | other<T>())
-        .def(self |= self)
+        .def(self |= self) // NOSONAR - suppress SonarCloud bug report.
         .def(self |= other<T>())
         .def(self ^ self)
         .def(self ^ other<T>())
-        .def(self ^= self)
+        .def(self ^= self) // NOSONAR - suppress SonarCloud bug report.
         .def(self ^= other<T>())
         ;
 }
