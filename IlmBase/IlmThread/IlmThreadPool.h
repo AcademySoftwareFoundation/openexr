@@ -136,7 +136,10 @@ class ILMTHREAD_EXPORT ThreadPool
     //-----------------------------------------------------------
 
     virtual ~ThreadPool ();
-    
+    ThreadPool (const ThreadPool&) = delete;
+    ThreadPool& operator= (const ThreadPool&) = delete;
+    ThreadPool (ThreadPool&&) = delete;
+    ThreadPool& operator= (ThreadPool&&) = delete;
 
     //--------------------------------------------------------
     // Query and set the number of worker threads in the pool.
@@ -193,6 +196,10 @@ class ILMTHREAD_EXPORT Task
 
     Task (TaskGroup* g);
     virtual ~Task ();
+    Task (const Task&) = delete;
+    Task &operator= (const Task&) = delete;
+    Task (Task&&) = delete;
+    Task& operator= (Task&&) = delete;
 
     virtual void	execute () = 0;
     TaskGroup *		group();

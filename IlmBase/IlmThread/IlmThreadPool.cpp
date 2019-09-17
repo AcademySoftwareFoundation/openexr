@@ -89,6 +89,8 @@ struct ThreadPool::Data
 
      Data ();
     ~Data();
+    Data (const Data&) = delete;
+    Data &operator= (const Data&)  = delete;
 
     struct SafeProvider
     {
@@ -653,11 +655,12 @@ ThreadPool::Data::setProvider (ThreadPoolProvider *p)
     }
 #else
     ThreadPoolProvider *old = provider.load( std::memory_order_relaxed );
+    // work around older gcc bug just in case
     do
     {
         if ( ! provider.compare_exchange_weak( old, p, std::memory_order_release, std::memory_order_relaxed ) )
             continue;
-    } while ( false );
+    } while (false); // NOSONAR - suppress SonarCloud bug report.
 
     // wait for any other users to finish prior to deleting, given
     // that these are just mostly to query the thread count or push a
