@@ -23,14 +23,10 @@ post patches as quickly as possible.
 * [CVE-2017-9112](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9112) 2.0.0, 2.0.1, 2.1.0, 2.2.0
 * [CVE-2017-9111](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9111) 2.0.0, 2.0.1, 2.1.0, 2.2.0
 * [CVE-2017-9110](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9110) 2.0.0, 2.0.1, 2.1.0, 2.2.0
-* [CVE-2017-14988](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-14988) invalid CVE
 * [CVE-2017-12596](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-12596) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0
-* [CVE-2016-4630](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-4630) unknown
-* [CVE-2016-4629](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-4629) unknown
 * [CVE-2009-1722](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1722) 1.0.*, 1.1.*, 1.2.*, 1.3.*, 1.4.*, 1.5.*, 1.6.*
 * [CVE-2009-1721](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1721) 1.0.*, 1.1.*, 1.2.*, 1.3.*, 1.4.*, 1.5.*, 1.6.*
 * [CVE-2009-1720](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1720) 1.0.*, 1.1.*, 1.2.*, 1.3.*, 1.4.*, 1.5.*, 1.6.*
-* [CVE-2006-2277](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-2277) unknown
 
 See the [release notes](CHANGES.md) for more information.
 
