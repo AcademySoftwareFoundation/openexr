@@ -72,6 +72,8 @@ class BaseExc: public std::exception
     IEX_EXPORT BaseExc (const BaseExc &be) throw();
     IEX_EXPORT virtual ~BaseExc () throw ();
 
+    IEX_EXPORT BaseExc & operator = (const BaseExc& be) throw () = delete;
+
     //---------------------------------------------------
     // what() method -- e.what() returns _message.c_str()
     //---------------------------------------------------

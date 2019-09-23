@@ -113,7 +113,6 @@ BaseExc::~BaseExc () throw ()
     // empty
 }
 
-
 const char *
 BaseExc::what () const throw ()
 {
