@@ -38,6 +38,7 @@
 
 #include <testBaseExc.h>
 #include <Iex.h>
+#include <IexErrnoExc.h>
 #include <iostream>
 #include <stdexcept>
 #include <assert.h>
@@ -214,6 +215,11 @@ test6()
     IEX_INTERNAL_NAMESPACE::setStackTracer (getStackTrace);
     assert (IEX_INTERNAL_NAMESPACE::stackTracer() == getStackTrace);
     
+    //
+    // Test the constructors that take char* and stringstream,
+    // and the += and assign functions.
+    //
+    
     T e1 ("arg");
 
     e1 += "X";
@@ -222,7 +228,7 @@ test6()
     e1 += s;
     
     T e2 (e1);
-
+    
     assert (e1.message() == "argXY");
     assert (e1.stackTrace() == getStackTrace());
 
@@ -233,6 +239,31 @@ test6()
     assert (e2.message() == "Z");
     e2.assign (s);
     assert (e2.message() == "Y");
+
+    T e3 (s);
+    assert (e3.message() == s.str());
+
+    //
+    // Confirm the throw/catch
+    //
+    
+    bool caught = false;
+    
+    try
+    {
+        throw e1;
+    }
+    catch (T& e)
+    {
+        caught = true;
+        assert (e.message() == e1.message());
+    }
+    catch (...)
+    {
+        assert (false);
+    }
+
+    assert (caught);
 }
     
 
@@ -250,17 +281,6 @@ testBaseExc()
     test4();
     test5();
     
-    test6<IEX_INTERNAL_NAMESPACE::ArgExc>();
-    test6<IEX_INTERNAL_NAMESPACE::LogicExc>();
-    test6<IEX_INTERNAL_NAMESPACE::InputExc>();
-    test6<IEX_INTERNAL_NAMESPACE::IoExc>();
-    test6<IEX_INTERNAL_NAMESPACE::MathExc>();
-    test6<IEX_INTERNAL_NAMESPACE::ErrnoExc>();
-    test6<IEX_INTERNAL_NAMESPACE::NoImplExc>();
-    test6<IEX_INTERNAL_NAMESPACE::NullExc>();
-    test6<IEX_INTERNAL_NAMESPACE::TypeExc>();
-
-#if XXX
     test6<IEX_INTERNAL_NAMESPACE::ArgExc>();
     test6<IEX_INTERNAL_NAMESPACE::LogicExc>();
     test6<IEX_INTERNAL_NAMESPACE::InputExc>();
@@ -430,7 +450,6 @@ testBaseExc()
     test6<IEX_INTERNAL_NAMESPACE::DivzeroExc>();
     test6<IEX_INTERNAL_NAMESPACE::InexactExc>();
     test6<IEX_INTERNAL_NAMESPACE::InvalidFpOpExc>();
-#endif
     
     std::cout << "ok\n" << std::endl;
 }
