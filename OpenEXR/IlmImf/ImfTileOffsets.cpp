@@ -477,17 +477,14 @@ TileOffsets::operator () (int dx, int dy, int lx, int ly)
       case ONE_LEVEL:
 
         return _offsets[0][dy][dx];
-        break;
 
       case MIPMAP_LEVELS:
 
         return _offsets[lx][dy][dx];
-        break;
 
       case RIPMAP_LEVELS:
 
         return _offsets[lx + ly * _numXLevels][dy][dx];
-        break;
 
       default:
 
@@ -517,17 +514,14 @@ TileOffsets::operator () (int dx, int dy, int lx, int ly) const
       case ONE_LEVEL:
 
         return _offsets[0][dy][dx];
-        break;
 
       case MIPMAP_LEVELS:
 
         return _offsets[lx][dy][dx];
-        break;
 
       case RIPMAP_LEVELS:
 
         return _offsets[lx + ly * _numXLevels][dy][dx];
-        break;
 
       default:
 
