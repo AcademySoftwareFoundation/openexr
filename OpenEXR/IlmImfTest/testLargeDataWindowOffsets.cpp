@@ -352,9 +352,9 @@ test (int testCount)
     for(int i = 0 ; i < testCount ; ++i )
     {
         FrameBuffer writeFrameBuf;
-        const char** channels=NULL;
-        switch( random_int(4)
-)        {
+        const char** channels=rgb;
+        switch( random_int(4))        
+        {
             case 0 : channels = rgb; break;
             case 1 : channels = rgba; break;
             case 2 : channels = rgbaz; break;
