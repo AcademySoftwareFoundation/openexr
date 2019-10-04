@@ -114,10 +114,11 @@
 
 using namespace std;
 
+#define TEST_STRING(x) #x
 #define TEST(x,y)                                                       \
-    if (argc < 2 || (!strcmp (argv[1], #x) || !strcmp (argv[1], y)))    \
+    if (argc < 2 || (!strcmp (argv[1], TEST_STRING(x)) || !strcmp (argv[1], y)))    \
     {                                                                   \
-        cout << "\n=======\nRunning " << #x <<endl;                     \
+        cout << "\n=======\nRunning " << TEST_STRING(x) <<endl;                     \
         x(tempDir);                                                     \
     }
 
