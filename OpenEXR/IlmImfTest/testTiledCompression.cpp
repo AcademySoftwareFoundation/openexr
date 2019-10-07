@@ -145,7 +145,7 @@ fillPixels4 (Array2D<unsigned int> &pi,
             {
                 ph[y][x].setBits (rand.nexti());
             }
-            while (ph[y][x].isNan());
+            while (ph[y][x].isNan() || ph[y][x].isInfinity());
 
             union {int i; float f;} u;
 
@@ -154,7 +154,7 @@ fillPixels4 (Array2D<unsigned int> &pi,
                 u.i = rand.nexti();
                 pf[y][x] = u.f;
             }
-            while (pf[y][x] != pf[y][x]);
+            while (isnan(pf[y][x]) || isinf(pf[y][x]));
         }
 }
 
