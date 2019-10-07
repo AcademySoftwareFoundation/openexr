@@ -973,8 +973,8 @@ register_Vec4()
         .def("__idiv__", &Vec4_idivObj<T>,return_internal_reference<>())
         .def("__itruediv__", &Vec4_idivObj<T>,return_internal_reference<>())
         .def("__xor__", &Vec4_dot<T>)
-        .def(self == self)
-        .def(self != self)
+        .def(self == self) // NOSONAR - suppress SonarCloud bug report.
+        .def(self != self) // NOSONAR - suppress SonarCloud bug report.
         .def("__add__", &Vec4_add<T>)
         .def("__add__", &Vec4_addV<T, int>)
         .def("__add__", &Vec4_addV<T, float>)
