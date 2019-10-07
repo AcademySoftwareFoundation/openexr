@@ -70,7 +70,6 @@ IStream::readMemoryMapped (int n)
 {
     throw IEX_NAMESPACE::InputExc ("Attempt to perform a memory-mapped read "
 			 "on a file that is not memory mapped.");
-    return 0;
 }
 
 
