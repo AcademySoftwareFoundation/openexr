@@ -119,6 +119,12 @@ template <class T> class Matrix33
     const Matrix33 &    operator = (T a);
 
 
+    //------------
+    // Destructor
+    //------------
+
+    ~Matrix33 () = default;
+	
     //----------------------
     // Compatibility with Sb
     //----------------------
@@ -474,6 +480,11 @@ template <class T> class Matrix44
                                 // r r r 0
                                 // t t t 1
 
+    //------------
+    // Destructor
+    //------------
+
+    ~Matrix44 () = default;
 
     //--------------------------------
     // Copy constructor and assignment

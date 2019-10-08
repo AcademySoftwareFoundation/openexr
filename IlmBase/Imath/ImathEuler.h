@@ -226,6 +226,12 @@ class Euler : public Vec3<T>
     Euler(const Matrix33<T> &, Order o = Default);
     Euler(const Matrix44<T> &, Order o = Default);
 
+    //-------------
+    //  Destructor
+    //-------------
+	
+	~Euler() = default;
+
     //---------------------------------
     //  Algebraic functions/ Operators
     //---------------------------------
@@ -746,14 +752,14 @@ Quat<T> Euler<T>::toQuat() const
     if ( _initialRepeated )
     {
 	a[i]	= cj*(cs + sc);
-	a[j]	= sj*(cc + ss) * parity,
+	a[j]	= sj*(cc + ss) * parity, // NOSONAR - suppress SonarCloud bug report.
 	a[k]	= sj*(cs - sc);
 	q.r	= cj*(cc - ss);
     }
     else
     {
 	a[i]	= cj*sc - sj*cs,
-	a[j]	= (cj*ss + sj*cc) * parity,
+	a[j]	= (cj*ss + sj*cc) * parity, // NOSONAR - suppress SonarCloud bug report.
 	a[k]	= cj*cs - sj*sc;
 	q.r	= cj*cc + sj*ss;
     }
