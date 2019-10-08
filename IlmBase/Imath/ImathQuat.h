@@ -78,7 +78,7 @@ class Quat
 
 
     //-----------------------------------------------------
-    //	Constructors - default constructor is identity quat
+    // Constructors - default constructor is identity quat
     //-----------------------------------------------------
 
     Quat ();
@@ -92,6 +92,17 @@ class Quat
 
     static Quat<T> identity ();
 
+    //-------------------
+    // Copy constructor
+    //-------------------
+
+    Quat (const Quat &q);
+
+    //-------------
+    // Destructor
+    //-------------
+
+    ~Quat () = default;
 
     //-------------------------------------------------
     //	Basic Algebra - Operators and Methods
@@ -258,6 +269,12 @@ Quat<T>::Quat (T s, Vec3<T> d): r (s), v (d)
     // empty
 }
 
+template<class T>
+inline
+Quat<T>::Quat(const Quat<T> &q)
+{
+	operator=(q);
+}
 
 template<class T>
 inline Quat<T>

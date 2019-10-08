@@ -91,6 +91,11 @@ template <class T> class Shear6
     template <class S> 
 	const Shear6 &	operator = (const Vec3<S> &v);
 
+    //------------
+    // Destructor
+    //------------
+
+	~Shear6() = default;
 
     //----------------------
     // Compatibility with Sb
@@ -251,14 +256,14 @@ template <class T>
 inline T &
 Shear6<T>::operator [] (int i)
 {
-    return (&xy)[i];
+    return (&xy)[i]; // NOSONAR - suppress SonarCloud bug report.
 }
 
 template <class T>
 inline const T &
 Shear6<T>::operator [] (int i) const
 {
-    return (&xy)[i];
+    return (&xy)[i]; // NOSONAR - suppress SonarCloud bug report.
 }
 
 template <class T>

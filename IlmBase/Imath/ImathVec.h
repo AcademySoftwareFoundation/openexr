@@ -98,6 +98,11 @@ template <class T> class Vec2
 
     const Vec2 &	operator = (const Vec2 &v);
 
+    //------------
+    // Destructor
+    //------------
+	
+    ~Vec2 () = default;
 
     //----------------------
     // Compatibility with Sb
@@ -296,6 +301,11 @@ template <class T> class Vec3
 
     const Vec3 &	operator = (const Vec3 &v);
 
+    //-----------
+    // Destructor
+    //-----------
+	
+    ~Vec3 () = default;
 
     //---------------------------------------------------------
     // Vec4 to Vec3 conversion, divides x, y and z by w:
@@ -509,6 +519,11 @@ template <class T> class Vec4
 
     const Vec4 &    operator = (const Vec4 &v);
 
+    //-----------
+    // Destructor
+    //-----------
+	
+    ~Vec4 () = default;
 
     //-------------------------------------
     // Vec3 to Vec4 conversion, sets w to 1
@@ -853,14 +868,14 @@ template <class T>
 inline T &
 Vec2<T>::operator [] (int i)
 {
-    return (&x)[i];
+    return (&x)[i]; // NOSONAR - suppress SonarCloud bug report.
 }
 
 template <class T>
 inline const T &
 Vec2<T>::operator [] (int i) const
 {
-    return (&x)[i];
+    return (&x)[i]; // NOSONAR - suppress SonarCloud bug report.
 }
 
 template <class T>
@@ -1274,14 +1289,14 @@ template <class T>
 inline T &
 Vec3<T>::operator [] (int i)
 {
-    return (&x)[i];
+    return (&x)[i]; // NOSONAR - suppress SonarCloud bug report.
 }
 
 template <class T>
 inline const T &
 Vec3<T>::operator [] (int i) const
 {
-    return (&x)[i];
+    return (&x)[i]; // NOSONAR - suppress SonarCloud bug report.
 }
 
 template <class T>
@@ -1768,14 +1783,14 @@ template <class T>
 inline T &
 Vec4<T>::operator [] (int i)
 {
-    return (&x)[i];
+    return (&x)[i]; // NOSONAR - suppress SonarCloud bug report.
 }
 
 template <class T>
 inline const T &
 Vec4<T>::operator [] (int i) const
 {
-    return (&x)[i];
+    return (&x)[i]; // NOSONAR - suppress SonarCloud bug report.
 }
 
 template <class T>
