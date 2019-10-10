@@ -32,8 +32,9 @@ source .bash_profile
 env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install -v ${PYTHON_VERSION}
 pyenv global ${PYTHON_VERSION}
 
-if [[ ${PYTHON_MAJOR}=2 ]]; then
-    pip install numpy
+sudo pip install --upgrade pip
+if [[ $PYTHON_MAJOR -eq 2 ]]; then
+    sudo pip install numpy
 else
-    pip3 install numpy
+    sudo pip3 install numpy
 fi
