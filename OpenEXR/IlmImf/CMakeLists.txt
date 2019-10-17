@@ -1,30 +1,47 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright Contributors to the OpenEXR Project.
 
-add_executable(b44ExpLogTable b44ExpLogTable.cpp)
-target_link_libraries(b44ExpLogTable PRIVATE OpenEXR::Config IlmBase::Half IlmBase::IlmThread IlmBase::Iex)
-set_target_properties(b44ExpLogTable PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-)
-# TODO: Old file had logic to skip these if the file already exists
-add_custom_command(
-  OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
-  COMMAND $<TARGET_FILE:b44ExpLogTable> > ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
-  DEPENDS b44ExpLogTable
-)
+check_include_files(${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h HAVE_B44_EXP_LOG_TABLE_H)
+check_include_files(${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h HAVE_DWA_LOOKUPS_H)
 
+if((NOT HAVE_B44_EXP_LOG_TABLE_H) OR (NOT HAVE_DWA_LOOKUPS_H))
+  if(CMAKE_CROSSCOMPILING)
+    message(STATUS "We're cross-compiling; will use native executables from a previous build to generate b44ExpLogTable.h and dwaLookups.h")
+    set(NATIVE_OPENEXR_BUILD_DIR "NATIVE_OPENEXR-NOTFOUND" CACHE FILEPATH "Point it to the build folder of a native build.")
+    if (NATIVE_OPENEXR_BUILD_DIR)
+      set (b44ExpLogTable_PATH "${NATIVE_OPENEXR_BUILD_DIR}/bin/b44ExpLogTable")
+      set (dwaLookups_PATH "${NATIVE_OPENEXR_BUILD_DIR}/bin/dwaLookups")
+    else()
+      message(FATAL_ERROR "Missing path to native build directory.")
+    endif()
+   else()
+    add_executable(b44ExpLogTable b44ExpLogTable.cpp)
+    target_link_libraries(b44ExpLogTable PRIVATE OpenEXR::Config IlmBase::Half IlmBase::IlmThread IlmBase::Iex)
+    set_target_properties(b44ExpLogTable PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    )
+    target_compile_features(b44ExpLogTable PUBLIC cxx_std_${OPENEXR_CXX_STANDARD})
+    
+    add_executable(dwaLookups dwaLookups.cpp)
+    target_link_libraries(dwaLookups PRIVATE OpenEXR::Config IlmBase::Imath IlmBase::Half IlmBase::IlmThread IlmBase::Iex)
+    set_target_properties(dwaLookups PROPERTIES
+     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    )
+    
+    set (b44ExpLogTable_PATH "$<TARGET_FILE:b44ExpLogTable>")
+    set (dwaLookups_PATH "$<TARGET_FILE:dwaLookups>")
+   endif()
+    add_custom_command(
+      OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
+        ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
+      COMMAND "${b44ExpLogTable_PATH}" ARGS > "${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h"
+      COMMAND "${dwaLookups_PATH}" ARGS > "${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h"
+      DEPENDS $<$<NOT:$<BOOL:${CMAKE_CROSSCOMPILING}>>:b44ExpLogTable>
+      DEPENDS $<$<NOT:$<BOOL:${CMAKE_CROSSCOMPILING}>>:dwaLookups>
+    )
+endif()
 
-add_executable(dwaLookups dwaLookups.cpp)
-target_link_libraries(dwaLookups PRIVATE OpenEXR::Config IlmBase::Imath IlmBase::Half IlmBase::IlmThread IlmBase::Iex)
-set_target_properties(dwaLookups PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-)
-# TODO: Old file had logic to skip these if the file already exists
-add_custom_command(
-  OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
-  COMMAND $<TARGET_FILE:dwaLookups> > ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
-  DEPENDS dwaLookups
-)
 
 openexr_define_library(IlmImf
   PRIV_EXPORT ILMIMF_EXPORTS
