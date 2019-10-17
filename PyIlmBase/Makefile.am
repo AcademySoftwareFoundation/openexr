@@ -26,7 +26,6 @@ EXTRA_DIST = \
 	LICENSE README.md \
 	ChangeLog \
 	bootstrap \
-	pyilmbase.m4 \
 	CMakeLists.txt
 
 dist-hook:
@@ -37,5 +36,4 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = PyIlmBase.pc
 
 m4datadir = $(datadir)/aclocal
-m4data_DATA = pyilmbase.m4
 
