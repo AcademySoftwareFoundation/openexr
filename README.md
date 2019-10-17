@@ -7,16 +7,31 @@
 
 ![openexr](/OpenEXR/doc/images/windowExample1.png)
 
-**OpenEXR** is a high dynamic-range (HDR) image file format for use in
-computer imaging applications. It supports stereoscopic and deep
-images. OpenEXR's features include:
+The OpenEXR project provides the specification and reference
+implementation of the EXR file format. The format is an accurate,
+flexible, and efficient representation for high dynamic range linear
+scene image data and associated metadata, with strong support for
+multi-part, multi-channel use cases, including deep compositing. The
+library includes routines for efficiently reading, writing,
+compressing/decompressing, and modifying EXR images, as well as
+reference images and example programs for examining and updating image
+header attributes. The goal of the OpenEXR project is to keep the
+format modern and to maintain its place as the preferred image
+representation of the motion picture industry.
 
-* Higher dynamic range and color precision than existing 8- and 10-bit
-  image file formats.
+Also a part of OpenEXR, the IlmBase library is a simple, light-weight,
+and efficient representation of 2D and 3D vectors and matrices and
+other useful mathematical objects and functions and data types,
+including the Half 16-bit floating-point type. With its associated
+bindings for Python 2 and Python 3 and its extensive test suite, the
+Imath and Half libraries provide a common representation for 2D and 3D
+data across visual effects software applications and libraries.
+
+OpenEXR's features include:
+
+* High dynamic range and color precision.
 * Support for 16-bit floating-point, 32-bit floating-point, and
-  32-bit integer pixels. The 16-bit floating-point format, called "half",
-  is compatible with the half data type in NVIDIA's Cg graphics language
-  and is supported natively on their GPUs.
+  32-bit integer pixels.
 * Multiple image compression algorithms, both lossless and lossy. Some of
   the included codecs can achieve 2:1 lossless compression ratios on images
   with film grain.  The lossy codecs have been tuned for visual quality and
@@ -39,12 +54,15 @@ images. OpenEXR's features include:
   namespaces to provide protection when using multiple versions of the
   library in the same process space.
 
+OpenEXR is included in the [VFX Reference
+Platform](https://vfxplatform.com).
+
 OpenEXR is a project of the [Academy Software
 Foundation](https://www.aswf.io).  It was originally developed by
-Industrial Light & Magic (ILM) in 2003.  Weta Digital, Walt Disney
-Animation Studios, Sony Pictures Imageworks, Pixar Animation Studios,
-DreamWorks, and other studios, companies, and individuals have made
-contributions to the code base. 
+Industrial Light & Magic (ILM) and first released in 2003.  Weta
+Digital, Walt Disney Animation Studios, Sony Pictures Imageworks,
+Pixar Animation Studios, DreamWorks, and other studios, companies, and
+individuals have made contributions to the code base.
 
 ## OpenEXR Sub-Modules
 
