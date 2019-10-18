@@ -28,7 +28,7 @@ OpenEXR/config/OpenEXRConfigInternal.h
 OpenEXR/IlmImfTest/IlmImfTest
 OpenEXR/IlmImfUtilTest/IlmImfUtilTest
 OpenEXR/IlmImfFuzzTest/IlmImfFuzzTest
-Contrib/DtexToExr
+Contrib/DtexToExr/DtexToExr
 b44ExpLogTable.h
 dwaLookups.h
 eLut
