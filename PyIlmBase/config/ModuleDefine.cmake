@@ -116,6 +116,7 @@ function(PYILMBASE_DEFINE_MODULE modname)
         ${extraDeps}
         ${PYILMBASE_CURMOD_DEPENDENCIES}
         ${PYILMBASE_CURMOD_PRIVATE_DEPS}
+        Boost::${PYILMBASE_BOOST_PY2_COMPONENT}
       )
     set_target_properties(${modname}_python2 PROPERTIES
       LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/python${Python2_VERSION_MAJOR}_${Python2_VERSION_MINOR}/"
@@ -142,6 +143,7 @@ function(PYILMBASE_DEFINE_MODULE modname)
         ${libname} ${extraDeps}
         ${PYILMBASE_CURMOD_DEPENDENCIES}
         ${PYILMBASE_CURMOD_PRIVATE_DEPS}
+        Boost::${PYILMBASE_BOOST_PY3_COMPONENT}
       )
     set_target_properties(${modname}_python3 PROPERTIES
       LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/python${Python3_VERSION_MAJOR}_${Python3_VERSION_MINOR}/"
