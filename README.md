@@ -8,24 +8,42 @@
 ![openexr](/OpenEXR/doc/images/windowExample1.png)
 
 The OpenEXR project provides the specification and reference
-implementation of the EXR file format. The format is an accurate,
-flexible, and efficient representation for high dynamic range linear
-scene image data and associated metadata, with strong support for
-multi-part, multi-channel use cases, including deep compositing. The
-library includes routines for efficiently reading, writing,
-compressing/decompressing, and modifying EXR images, as well as
-reference images and example programs for examining and updating image
-header attributes. The goal of the OpenEXR project is to keep the
-format modern and to maintain its place as the preferred image
-representation of the motion picture industry.
+implementation of the EXR file format, the professional-grade image
+storage format of the motion picture industry. The purpose of format
+is to accurately and efficiently represent high-dynamic-range
+scene-linear image data and associated metadata, with strong support
+for multi-part, multi-channel use cases. The library is widely used in
+host application software where accuracy is critical, such as
+photorealistic rendering, texture access, image compositing, deep
+compositing, and DI.
 
-Also a part of OpenEXR, the IlmBase library is a simple, light-weight,
+## OpenEXR Mission Statement
+
+The goal of the OpenEXR project is to keep the format reliable and
+modern and to maintain its place as the preferred image format for
+entertainment content creation. Major revisions are infrequent, and
+new features will be carefully weighed against increased complexity.
+
+The principal priorities of the project are:
+* Robustness, reliability, security
+* Backwards compatibility, data longevity
+* Performance - read/write/compression/decompression time
+* Simplicity, ease of use, maintainability
+* Wide adoption, multi-platform support - Linux, Windows, macOS, and others
+
+OpenEXR is intended solely for 2D data. It is not appropriate for
+storage of volumetric data, cached or lit 3D scenes, or more complex
+3D data such as light fields.
+
+Also a part of OpenEXR, the IlmBase library is a basic, light-weight,
 and efficient representation of 2D and 3D vectors and matrices and
-other useful mathematical objects and functions and data types,
-including the Half 16-bit floating-point type. With its associated
-bindings for Python 2 and Python 3 and its extensive test suite, the
-Imath and Half libraries provide a common representation for 2D and 3D
-data across visual effects software applications and libraries.
+other simple but useful mathematical objects, functions, and data
+types common in computer graphics applications, including the “half”
+16-bit floating-point type. The goal of the project is simplicity,
+ease of use, and breadth of adoption. It is not intended to be a
+comprehensive linear algebra or numerical analysis package.
+
+## Features
 
 OpenEXR's features include:
 
