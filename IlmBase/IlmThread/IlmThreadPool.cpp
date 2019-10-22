@@ -67,17 +67,17 @@ struct TaskGroup::Data
      Data ();
     ~Data ();
     
-    void    addTask () ;
-    void    removeTask ();
 #ifndef ILMBASE_FORCE_CXX03
+    void addTask () ;
+    void removeTask ();
     std::atomic<int> numPending;
 #else
-    int              numPending;     // number of pending tasks to still execute
+    int numPending;     // number of pending tasks to still execute
 #endif
-    Semaphore        isEmpty;        // used to signal that the taskgroup is empty
+    Semaphore isEmpty;        // used to signal that the taskgroup is empty
 #if defined(ENABLE_SEM_DTOR_WORKAROUND) || defined(ILMBASE_FORCE_CXX03)
     // this mutex is also used to lock numPending in the legacy c++ mode...
-    Mutex            dtorMutex;      // used to work around the glibc bug:
+    Mutex dtorMutex;      // used to work around the glibc bug:
                                      // http://sources.redhat.com/bugzilla/show_bug.cgi?id=12674
 #endif
 };
@@ -219,7 +219,7 @@ class DefaultWorkerThread: public Thread
 
     DefaultWorkerThread (DefaultWorkData* data);
 
-    virtual void    run ();
+    virtual void run ();
     
   private:
 

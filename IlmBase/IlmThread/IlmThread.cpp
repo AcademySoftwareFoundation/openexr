@@ -34,10 +34,10 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class Thread -- this file contains two implementations of thread:
-//	- dummy implementation for platforms that do not support threading
-//	  when OPENEXR_FORCE_CXX03 is on
-//	- c++11 and newer version
+//  class Thread -- this file contains two implementations of thread:
+//  - dummy implementation for platforms that do not support threading
+//    when OPENEXR_FORCE_CXX03 is on
+//  - c++11 and newer version
 //
 //-----------------------------------------------------------------------------
 

@@ -34,8 +34,8 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class Semaphore -- implementation for for platforms that do
-//	support Posix threads but do not support Posix semaphores
+//  class Semaphore -- implementation for for platforms that do
+//  support Posix threads but do not support Posix semaphores
 //
 //-----------------------------------------------------------------------------
 

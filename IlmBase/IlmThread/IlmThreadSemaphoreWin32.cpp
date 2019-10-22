@@ -34,7 +34,7 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class Semaphore -- implementation for Windows
+//  class Semaphore -- implementation for Windows
 //
 //-----------------------------------------------------------------------------
 #if (defined(_WIN32) || defined(_WIN64))
@@ -68,17 +68,17 @@ errorString ()
     //
 
     if (bufferLength = FormatMessageA (FORMAT_MESSAGE_ALLOCATE_BUFFER |
-				       FORMAT_MESSAGE_IGNORE_INSERTS |
-				       FORMAT_MESSAGE_FROM_SYSTEM,
-				       0,
-				       GetLastError (),
-				       MAKELANGID (LANG_NEUTRAL,
-						   SUBLANG_DEFAULT),
-				       (LPSTR) &messageBuffer,
-				       0,
-				       NULL))
+                       FORMAT_MESSAGE_IGNORE_INSERTS |
+                       FORMAT_MESSAGE_FROM_SYSTEM,
+                       0,
+                       GetLastError (),
+                       MAKELANGID (LANG_NEUTRAL,
+                           SUBLANG_DEFAULT),
+                       (LPSTR) &messageBuffer,
+                       0,
+                       NULL))
     {
-	message = messageBuffer;
+    message = messageBuffer;
         LocalFree (messageBuffer);
     }
 
@@ -92,8 +92,8 @@ Semaphore::Semaphore (unsigned int value)
 {
     if ((_semaphore = ::CreateSemaphore (0, value, 0x7fffffff, 0)) == 0)
     {
-	THROW (LogicExc, "Could not create semaphore "
-			 "(" << errorString() << ").");
+    THROW (LogicExc, "Could not create semaphore "
+             "(" << errorString() << ").");
     }
 }
 
@@ -110,8 +110,8 @@ Semaphore::wait()
 {
     if (::WaitForSingleObject (_semaphore, INFINITE) != WAIT_OBJECT_0)
     {
-	THROW (LogicExc, "Could not wait on semaphore "
-			 "(" << errorString() << ").");
+    THROW (LogicExc, "Could not wait on semaphore "
+             "(" << errorString() << ").");
     }
 }
 
@@ -128,8 +128,8 @@ Semaphore::post()
 {
     if (!::ReleaseSemaphore (_semaphore, 1, 0))
     {
-	THROW (LogicExc, "Could not post on semaphore "
-			 "(" << errorString() << ").");
+    THROW (LogicExc, "Could not post on semaphore "
+             "(" << errorString() << ").");
     }
 }
 
@@ -141,8 +141,8 @@ Semaphore::value() const
 
     if (!::ReleaseSemaphore (_semaphore, 0, &v) || v < 0)
     {
-	THROW (LogicExc, "Could not get value of semaphore "
-			 "(" << errorString () << ").");
+    THROW (LogicExc, "Could not get value of semaphore "
+             "(" << errorString () << ").");
     }
 
     return v;

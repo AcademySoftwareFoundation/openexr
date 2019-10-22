@@ -37,8 +37,8 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class Semaphore -- a wrapper class for
-//	system-dependent counting semaphores
+//  class Semaphore -- a wrapper class for
+//  system-dependent counting semaphores
 //
 //-----------------------------------------------------------------------------
 
@@ -77,38 +77,38 @@ class ILMTHREAD_EXPORT Semaphore
     Semaphore (unsigned int value = 0);
     virtual ~Semaphore();
 
-    void	wait();
-    bool	tryWait();
-    void	post();
-    int		value() const;
+    void wait();
+    bool tryWait();
+    void post();
+    int value() const;
 
   private:
 
 #if ((defined _WIN32 || defined _WIN64) && !defined(HAVE_POSIX_SEMAPHORES))
 
-	mutable HANDLE _semaphore;
+    mutable HANDLE _semaphore;
 
 #elif defined(HAVE_POSIX_SEMAPHORES)
 
-	mutable sem_t _semaphore;
+    mutable sem_t _semaphore;
 
 #elif defined(__APPLE__)
-	mutable dispatch_semaphore_t _semaphore;
+    mutable dispatch_semaphore_t _semaphore;
 
 #else
-	//
-	// If the platform has Posix threads but no semapohores,
-	// then we implement them ourselves using condition variables
-	//
+    //
+    // If the platform has Posix threads but no semapohores,
+    // then we implement them ourselves using condition variables
+    //
 
-	struct sema_t
-	{
-	    unsigned int count;
-	    unsigned long numWaiting;
+    struct sema_t
+    {
+        unsigned int count;
+        unsigned long numWaiting;
 #   if ILMBASE_FORCE_CXX03
 #      if HAVE_PTHREAD
-	    pthread_mutex_t mutex;
-	    pthread_cond_t nonZero;
+        pthread_mutex_t mutex;
+        pthread_cond_t nonZero;
 #      else
 #         error unhandled legacy setup
 #      endif
@@ -116,14 +116,14 @@ class ILMTHREAD_EXPORT Semaphore
         std::mutex mutex;
         std::condition_variable nonZero;
 #   endif
-	};
+    };
 
-	mutable sema_t _semaphore;
+    mutable sema_t _semaphore;
   
 #endif
 
-    void operator = (const Semaphore& s);	// not implemented
-    Semaphore (const Semaphore& s);		// not implemented
+    void operator = (const Semaphore& s);   // not implemented
+    Semaphore (const Semaphore& s);     // not implemented
 };
 
 
