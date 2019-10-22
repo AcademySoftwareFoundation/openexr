@@ -40,9 +40,12 @@
 
 #include "IlmBaseConfig.h"
 
-#ifdef ILMBASE_FORCE_CXX03
-#    ifdef _WIN32
+#if (defined(_WIN32) || defined(_WIN64))
+#include <IlmThreadMinGWThread.h>
+#endif
 
+#ifdef ILMBASE_FORCE_CXX03
+#    if ((defined _WIN32 || defined _WIN64) && !defined(__MINGW64_VERSION_MAJOR))
 #        include "IlmThreadMutex.h"
 #        include "Iex.h"
 

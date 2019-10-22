@@ -37,8 +37,11 @@
 //	class Semaphore -- implementation for Windows
 //
 //-----------------------------------------------------------------------------
+#if (defined(_WIN32) || defined(_WIN64))
+#include <IlmThreadMinGWThread.h>
+#endif
 
-#ifdef _WIN32
+#if (defined _WIN32 || defined _WIN64) && !defined(HAVE_POSIX_SEMAPHORES)
 
 #include "IlmThreadSemaphore.h"
 #include "Iex.h"

@@ -70,8 +70,12 @@
 #include "IlmBaseConfig.h"
 #include "IlmThreadNamespace.h"
 
+#if (defined(_WIN32) || defined(_WIN64))
+#include <IlmThreadMinGWThread.h>
+#endif
+
 #ifdef ILMBASE_FORCE_CXX03
-#   if defined _WIN32 || defined _WIN64
+#   if (defined _WIN32 || defined _WIN64)
 #      ifdef NOMINMAX
 #         undef NOMINMAX
 #      endif
@@ -116,7 +120,7 @@ class ILMTHREAD_EXPORT Mutex
     void	lock () const;
     void	unlock () const;
 
-    #if defined _WIN32 || defined _WIN64
+    #if (defined _WIN32 || defined _WIN64)
 	mutable CRITICAL_SECTION _mutex;
     #elif HAVE_PTHREAD
 	mutable pthread_mutex_t _mutex;

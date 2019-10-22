@@ -41,7 +41,11 @@
 
 #include "IlmBaseConfig.h"
 
-#if (!HAVE_POSIX_SEMAPHORES) && !defined (_WIN32) && ! defined (_WIN64) && ! defined (__APPLE__)
+#if (defined(_WIN32) || defined(_WIN64))
+#include <IlmThreadMinGWThread.h>
+#endif
+
+#if (!defined(HAVE_POSIX_SEMAPHORES)) && (!defined (_WIN32) && !defined (_WIN64) || defined(__MINGW64_VERSION_MAJOR)) && !defined (__APPLE__)
 
 #include "IlmThreadSemaphore.h"
 #include "Iex.h"

@@ -46,24 +46,24 @@
 #include "IlmThreadExport.h"
 #include "IlmThreadNamespace.h"
 
-#if defined _WIN32 || defined _WIN64
-#   ifdef NOMINMAX
-#      undef NOMINMAX
-#   endif
-#   define NOMINMAX
-#   include <windows.h>
-#elif defined(HAVE_POSIX_SEMAPHORES)
-#   include <semaphore.h>
-#elif defined(__APPLE__)
-#   include <dispatch/dispatch.h>
-#else
-#   ifdef ILMBASE_FORCE_CXX03
-#      if HAVE_PTHREAD
-#         include <pthread.h>
-#      endif
+#if (defined(_WIN32) || defined(_WIN64))
+#include <IlmThreadMinGWThread.h>
+#endif
+
+#if (!(defined(_WIN32) || defined(_WIN64)) || defined(__MINGW64_VERSION_MAJOR))
+#   if defined(HAVE_POSIX_SEMAPHORES)
+#       include <semaphore.h>
+#   elif defined(__APPLE__)
+#       include <dispatch/dispatch.h>
 #   else
-#      include <mutex>
-#      include <condition_variable>
+#       ifdef ILMBASE_FORCE_CXX03
+#           if HAVE_PTHREAD
+#               include <pthread.h>
+#           endif
+#       else
+#           include <mutex>
+#           include <condition_variable>
+#       endif
 #   endif
 #endif
 
@@ -84,7 +84,7 @@ class ILMTHREAD_EXPORT Semaphore
 
   private:
 
-#if defined _WIN32 || defined _WIN64
+#if ((defined _WIN32 || defined _WIN64) && !defined(HAVE_POSIX_SEMAPHORES))
 
 	mutable HANDLE _semaphore;
 

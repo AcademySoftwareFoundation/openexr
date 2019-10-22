@@ -21,6 +21,7 @@ ilmbase_define_library(IlmThread
     IlmThreadPool.h
     IlmThread.h
     IlmThreadSemaphore.h
+    IlmThreadMinGWThread.h
     IlmThreadMutex.h
     IlmThreadNamespace.h
     IlmThreadExport.h

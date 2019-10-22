@@ -32,29 +32,32 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifndef INCLUDED_ILM_THREAD_MINGW_THREAD_H
+#define INCLUDED_ILM_THREAD_MINGW_THREAD_H
+
 //-----------------------------------------------------------------------------
 //
-//	class Mutex, class Lock -- dummy implementation
-//	for platforms that do not support threading
+//  This file is just some boilerplate to ensure macros are correctly defined
+//  in order to compile against MinGW-W64's implementation of posix threads
+//  and semaphores.
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmBaseConfig.h"
-
-#ifdef ILMBASE_FORCE_CXX03
-#   if !defined(_WIN32) && !defined(_WIN64) && !(HAVE_PTHREAD)
-#      include "IlmThreadMutex.h"
-
-ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
-
-
-Mutex::Mutex () {}
-Mutex::~Mutex () {}
-void Mutex::lock () const {}
-void Mutex::unlock () const {}
-
-
-ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
-
+#if defined(_WIN32) || defined(_WIN64)
+# ifdef NOMINMAX
+#   undef NOMINMAX
+# endif
+# define NOMINMAX
+# include <windows.h>
+# if defined(__MINGW64_VERSION_MAJOR)
+#   include <pthread_unistd.h>
+#   if (defined(_POSIX_SEMAPHORES) && !defined(HAVE_POSIX_SEMAPHORES))
+#     define HAVE_POSIX_SEMAPHORES
 #   endif
+#   if (defined(_POSIX_THREADS) && !defined(HAVE_PTHREAD))
+#     define HAVE_PTHREAD
+#   endif
+# endif
 #endif
+
+#endif // INCLUDED_ILM_THREAD_MINGW_THREAD_H
