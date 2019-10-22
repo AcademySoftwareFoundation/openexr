@@ -41,10 +41,6 @@
 
 #include "IlmBaseConfig.h"
 
-#if (defined(_WIN32) || defined(_WIN64))
-#include <IlmThreadMinGWThread.h>
-#endif
-
 #if defined(HAVE_PTHREAD) && defined(HAVE_POSIX_SEMAPHORES)
 
 #include "IlmThreadSemaphore.h"

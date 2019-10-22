@@ -47,24 +47,26 @@
 #include "IlmThreadNamespace.h"
 
 #if (defined(_WIN32) || defined(_WIN64))
-#include <IlmThreadMinGWThread.h>
+#   ifdef NOMINMAX
+#      undef NOMINMAX
+#   endif
+#   define NOMINMAX
+#   include <windows.h>
 #endif
 
-#if ((!defined(_WIN32) && !defined(_WIN64)) || defined(__MINGW64_VERSION_MAJOR))
-#   ifdef HAVE_POSIX_SEMAPHORES
-#       include <semaphore.h>
-#   elif defined(__APPLE__)
-#       include <dispatch/dispatch.h>
-#   else
-#       ifdef ILMBASE_FORCE_CXX03
-#           ifdef HAVE_PTHREAD
-#               include <pthread.h>
-#           endif
-#       else
-#           include <mutex>
-#           include <condition_variable>
-#       endif
-#   endif
+#ifdef HAVE_POSIX_SEMAPHORES
+#  include <semaphore.h>
+#elif defined(__APPLE__)
+#  include <dispatch/dispatch.h>
+#else
+#  ifdef ILMBASE_FORCE_CXX03
+#    ifdef HAVE_PTHREAD
+#      include <pthread.h>
+#    endif
+#  else
+#    include <mutex>
+#    include <condition_variable>
+#  endif
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER

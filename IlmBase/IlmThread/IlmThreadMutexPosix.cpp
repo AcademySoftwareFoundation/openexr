@@ -41,10 +41,6 @@
 
 #include "IlmBaseConfig.h"
 
-#if (defined(_WIN32) || defined(_WIN64))
-#include <IlmThreadMinGWThread.h>
-#endif
-
 #ifdef ILMBASE_FORCE_CXX03
 #   ifdef HAVE_PTHREAD
 

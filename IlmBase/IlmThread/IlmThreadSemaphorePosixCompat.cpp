@@ -40,15 +40,11 @@
 //-----------------------------------------------------------------------------
 
 #include "IlmBaseConfig.h"
-
-#if (defined(_WIN32) || defined(_WIN64))
-#include <IlmThreadMinGWThread.h>
-#endif
+#include "IlmThreadSemaphore.h" // We need to have windows.h before checking for __MINGW64_VERSION_MAJOR
 
 #if (!defined(HAVE_POSIX_SEMAPHORES) && !defined(__APPLE__))
 #if ((!defined(_WIN32) && !defined(_WIN64)) || defined(__MINGW64_VERSION_MAJOR))
 
-#include "IlmThreadSemaphore.h"
 #include "Iex.h"
 #include <assert.h>
 

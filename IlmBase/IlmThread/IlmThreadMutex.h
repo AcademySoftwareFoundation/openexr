@@ -70,10 +70,6 @@
 #include "IlmBaseConfig.h"
 #include "IlmThreadNamespace.h"
 
-#if (defined(_WIN32) || defined(_WIN64))
-#include <IlmThreadMinGWThread.h>
-#endif
-
 #ifdef ILMBASE_FORCE_CXX03
 #   if (defined(_WIN32) || defined(_WIN64))
 #      ifdef NOMINMAX
