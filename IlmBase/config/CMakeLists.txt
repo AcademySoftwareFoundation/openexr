@@ -29,9 +29,9 @@ if(Threads_FOUND)
 
   # we have threads, but do we have posix semaphores for sem_init?
   # should be in pthreads
-  if(NOT (APPLE OR (WIN32 AND NOT MINGW)))
+  if(NOT (APPLE OR (WIN32 AND (NOT MINGW))))
     if(MINGW)
-      check_include_files(pthread_unistd.h ILMBASE_HAVE_SEMAPHORE_H)
+      check_include_files("pthread_unistd.h;semaphore.h" ILMBASE_HAVE_SEMAPHORE_H)
     else()
       check_include_files(semaphore.h ILMBASE_HAVE_SEMAPHORE_H)
     endif()
