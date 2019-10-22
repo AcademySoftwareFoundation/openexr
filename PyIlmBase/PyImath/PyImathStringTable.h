@@ -112,7 +112,7 @@ struct StringTableEntry
     T                s;
 };
 
-namespace PyImath {
+namespace {
 
 using boost::multi_index_container;
 using namespace boost::multi_index;
