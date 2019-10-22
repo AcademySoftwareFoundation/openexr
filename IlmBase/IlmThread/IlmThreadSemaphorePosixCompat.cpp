@@ -45,7 +45,8 @@
 #include <IlmThreadMinGWThread.h>
 #endif
 
-#if (!defined(HAVE_POSIX_SEMAPHORES)) && (!defined (_WIN32) && !defined (_WIN64) || defined(__MINGW64_VERSION_MAJOR)) && !defined (__APPLE__)
+#if (!defined(HAVE_POSIX_SEMAPHORES) && !defined(__APPLE__))
+#if ((!defined(_WIN32) && !defined(_WIN64)) || defined(__MINGW64_VERSION_MAJOR))
 
 #include "IlmThreadSemaphore.h"
 #include "Iex.h"
@@ -53,7 +54,7 @@
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-#if ILMBASE_FORCE_CXX03 && HAVE_PTHREAD
+#if (defined(ILMBASE_FORCE_CXX03) && defined(HAVE_PTHREAD))
 Semaphore::Semaphore (unsigned int value)
 {
     if (int error = ::pthread_mutex_init (&_semaphore.mutex, 0))
@@ -227,4 +228,5 @@ Semaphore::value () const
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
-#endif
+#endif // _WIN32
+#endif // HAVE_POSIX_SEMAPHORES

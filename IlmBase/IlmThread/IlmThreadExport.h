@@ -32,8 +32,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#if defined(OPENEXR_DLL)
-    #if defined(ILMTHREAD_EXPORTS)
+#ifdef OPENEXR_DLL
+    #ifdef ILMTHREAD_EXPORTS
         #define ILMTHREAD_EXPORT __declspec(dllexport)
         #define ILMTHREAD_EXPORT_CONST extern __declspec(dllexport)
     #else

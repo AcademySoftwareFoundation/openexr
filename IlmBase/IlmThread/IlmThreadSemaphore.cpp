@@ -45,7 +45,7 @@
 #include <IlmThreadMinGWThread.h>
 #endif
 
-#if !defined (_WIN32) && !(_WIN64) && !(HAVE_PTHREAD)
+#if (!defined(_WIN32) && !defined(_WIN64) && !defined(HAVE_PTHREAD))
 #include "IlmThreadSemaphore.h"
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER

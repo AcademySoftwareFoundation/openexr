@@ -45,7 +45,7 @@
 #include <IlmThreadMinGWThread.h>
 #endif
 
-#if HAVE_PTHREAD
+#ifdef HAVE_PTHREAD
 #ifdef ILMBASE_FORCE_CXX03
 
 #include "IlmThread.h"

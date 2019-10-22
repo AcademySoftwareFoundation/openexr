@@ -49,7 +49,7 @@
 # endif
 # define NOMINMAX
 # include <windows.h>
-# if defined(__MINGW64_VERSION_MAJOR)
+# ifdef __MINGW64_VERSION_MAJOR
 #   include <pthread_unistd.h>
 #   if (defined(_POSIX_SEMAPHORES) && !defined(HAVE_POSIX_SEMAPHORES))
 #     define HAVE_POSIX_SEMAPHORES

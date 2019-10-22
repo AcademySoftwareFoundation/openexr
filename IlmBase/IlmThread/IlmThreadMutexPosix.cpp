@@ -46,7 +46,7 @@
 #endif
 
 #ifdef ILMBASE_FORCE_CXX03
-#   if HAVE_PTHREAD
+#   ifdef HAVE_PTHREAD
 
 #      include "IlmThreadMutex.h"
 #      include "Iex.h"

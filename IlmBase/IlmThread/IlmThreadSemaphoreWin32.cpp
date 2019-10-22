@@ -41,7 +41,7 @@
 #include <IlmThreadMinGWThread.h>
 #endif
 
-#if (defined _WIN32 || defined _WIN64) && !defined(HAVE_POSIX_SEMAPHORES)
+#if (defined(_WIN32) || defined(_WIN64)) && !defined(HAVE_POSIX_SEMAPHORES)
 
 #include "IlmThreadSemaphore.h"
 #include "Iex.h"

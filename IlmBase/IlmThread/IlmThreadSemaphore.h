@@ -50,14 +50,14 @@
 #include <IlmThreadMinGWThread.h>
 #endif
 
-#if (!(defined(_WIN32) || defined(_WIN64)) || defined(__MINGW64_VERSION_MAJOR))
-#   if defined(HAVE_POSIX_SEMAPHORES)
+#if ((!defined(_WIN32) && !defined(_WIN64)) || defined(__MINGW64_VERSION_MAJOR))
+#   ifdef HAVE_POSIX_SEMAPHORES
 #       include <semaphore.h>
 #   elif defined(__APPLE__)
 #       include <dispatch/dispatch.h>
 #   else
 #       ifdef ILMBASE_FORCE_CXX03
-#           if HAVE_PTHREAD
+#           ifdef HAVE_PTHREAD
 #               include <pthread.h>
 #           endif
 #       else
@@ -84,7 +84,7 @@ class ILMTHREAD_EXPORT Semaphore
 
   private:
 
-#if ((defined _WIN32 || defined _WIN64) && !defined(HAVE_POSIX_SEMAPHORES))
+#if ((defined(_WIN32) || defined(_WIN64)) && !defined(HAVE_POSIX_SEMAPHORES))
 
     mutable HANDLE _semaphore;
 
@@ -105,8 +105,8 @@ class ILMTHREAD_EXPORT Semaphore
     {
         unsigned int count;
         unsigned long numWaiting;
-#   if ILMBASE_FORCE_CXX03
-#      if HAVE_PTHREAD
+#   ifdef ILMBASE_FORCE_CXX03
+#      ifdef HAVE_PTHREAD
         pthread_mutex_t mutex;
         pthread_cond_t nonZero;
 #      else
