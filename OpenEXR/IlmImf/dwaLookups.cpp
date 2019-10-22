@@ -108,6 +108,9 @@ namespace {
             {
             }
 
+            LutHeaderWorker(const LutHeaderWorker& other) = delete;
+            const LutHeaderWorker& operator = (const LutHeaderWorker& other) = delete;
+
             ~LutHeaderWorker()
             {
                 delete[] _offset;

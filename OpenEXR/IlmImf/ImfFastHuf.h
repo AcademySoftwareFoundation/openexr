@@ -92,6 +92,9 @@ class FastHufDecoder
     IMF_EXPORT
     ~FastHufDecoder ();
 
+    FastHufDecoder (const FastHufDecoder& other) = delete;
+    const FastHufDecoder& operator = (const FastHufDecoder& other) = delete;
+
     IMF_EXPORT
     static bool enabled ();
 

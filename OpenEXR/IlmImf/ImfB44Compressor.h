@@ -63,6 +63,9 @@ class B44Compressor: public Compressor
     IMF_EXPORT
     virtual ~B44Compressor ();
 
+    B44Compressor (const B44Compressor& other) = delete;
+    const B44Compressor& operator = (const B44Compressor& other) = delete;
+    
     IMF_EXPORT
     virtual int		numScanLines () const;
 

@@ -114,6 +114,9 @@ class Image
     Image (const IMATH_NAMESPACE::Box2i &dataWindow);
    ~Image ();
 
+    Image (const Image& other) = delete;
+    const Image & operator = (const Image& other) = delete;
+    
     const IMATH_NAMESPACE::Box2i &	dataWindow () const;
     void			resize (const IMATH_NAMESPACE::Box2i &dataWindow);
 

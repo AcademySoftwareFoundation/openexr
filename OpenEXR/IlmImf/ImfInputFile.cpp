@@ -112,6 +112,9 @@ struct InputFile::Data : public Mutex
      Data (int numThreads);
     ~Data ();
 
+    Data (const Data& other) = delete;
+    const Data& operator = (const Data& other) = delete;
+
     void		deleteCachedBuffer();
 };
 
