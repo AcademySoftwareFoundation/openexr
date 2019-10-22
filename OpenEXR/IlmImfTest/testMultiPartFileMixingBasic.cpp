@@ -65,7 +65,7 @@
 #include <ImfDeepTiledInputPart.h>
 #include <ImfDeepScanLineInputPart.h>
 #include <ImfPartType.h>
-#include <ImfMisc.h>
+//#include <ImfMisc.h>
 #include <ImfSystemSpecific.h>
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;

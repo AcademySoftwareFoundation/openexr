@@ -65,6 +65,9 @@ class PyAcquireLock
   public:
     PYIMATH_EXPORT PyAcquireLock();
     PYIMATH_EXPORT ~PyAcquireLock();
+    PYIMATH_EXPORT PyAcquireLock(const PyAcquireLock& other) = delete;
+    PYIMATH_EXPORT PyAcquireLock & operator = (PyAcquireLock& other) = delete;
+    
   private:
     PyGILState_STATE _gstate;
 };
@@ -84,6 +87,9 @@ class PyReleaseLock
   public:
     PYIMATH_EXPORT PyReleaseLock();
     PYIMATH_EXPORT ~PyReleaseLock();
+    PYIMATH_EXPORT PyReleaseLock(const PyReleaseLock& other) = delete;
+    PYIMATH_EXPORT PyReleaseLock & operator = (PyReleaseLock& other) = delete;
+
   private:
     PyThreadState *_save;
 

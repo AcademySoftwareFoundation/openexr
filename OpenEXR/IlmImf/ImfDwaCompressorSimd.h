@@ -2166,7 +2166,7 @@ dctForward8x8 (float *data)
 
 #endif /* IMF_HAVE_SSE2 */
 
-} // anonymous namespace
+} // namespace
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

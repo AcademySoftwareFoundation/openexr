@@ -60,10 +60,12 @@ struct StringTableIndex
     StringTableIndex() : _index(0) {}
     StringTableIndex (const StringTableIndex &si) : _index (si._index) {}
     explicit StringTableIndex (index_type i) : _index (i) {}
-
+    ~StringTableIndex() = default;
+    
     const StringTableIndex & operator = (const StringTableIndex &si)
     { 
-        _index = si._index; return *this;
+        _index = si._index; // NOSONAR - suppress SonarCloud warning
+        return *this;
     }
 
     bool operator == (const StringTableIndex &si) const
@@ -110,7 +112,7 @@ struct StringTableEntry
     T                s;
 };
 
-namespace {
+namespace PyImath {
 
 using boost::multi_index_container;
 using namespace boost::multi_index;
@@ -131,7 +133,7 @@ class StringTableDetailT {
     > StringTableContainer;
 };
 
-} // namespace
+} // namespace PyImath
 
 typedef StringTableDetailT<std::string> StringTableDetail;
 typedef StringTableDetailT<std::wstring> WStringTableDetail;
