@@ -234,8 +234,8 @@ class AcesOutputFile
 
   private:
 
-    AcesOutputFile (const AcesOutputFile &);		  // not implemented
-    AcesOutputFile & operator = (const AcesOutputFile &); // not implemented
+    AcesOutputFile (const AcesOutputFile &) = delete;
+    const AcesOutputFile & operator = (const AcesOutputFile &) = delete;
 
     class Data;
 
@@ -343,8 +343,8 @@ class AcesInputFile
 
   private:
 
-    AcesInputFile (const AcesInputFile &);		  // not implemented
-    AcesInputFile & operator = (const AcesInputFile &);   // not implemented
+    AcesInputFile (const AcesInputFile &) = delete;
+    const AcesInputFile & operator = (const AcesInputFile &) = delete;
 
     class Data;
 

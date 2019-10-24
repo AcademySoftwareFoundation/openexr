@@ -149,6 +149,9 @@ struct TileBuffer
      TileBuffer (Compressor * const comp);
     ~TileBuffer ();
 
+    TileBuffer (const TileBuffer& other) = delete;
+    const TileBuffer& operator = (const TileBuffer& other) = delete;
+
     inline void		wait () {_sem.wait();}
     inline void		post () {_sem.post();}
 
@@ -242,6 +245,9 @@ struct TiledInputFile::Data: public Mutex
 
      Data (int numThreads);
     ~Data ();
+
+    Data (const Data& other) = delete;
+    const Data& operator = (const Data& other) = delete;
 
     inline TileBuffer * getTileBuffer (int number);
 					    // hash function from tile indices

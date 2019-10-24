@@ -100,13 +100,14 @@ class MultiPartOutputFile : public GenericOutputFile
         IMF_EXPORT
         ~MultiPartOutputFile();
 
+        MultiPartOutputFile(const MultiPartOutputFile& other) = delete;
+        const MultiPartOutputFile& operator = (const MultiPartOutputFile& other) = delete;
+
         struct Data;
 
     private:
         Data*                           _data;
 
-        MultiPartOutputFile(const MultiPartOutputFile &); // not implemented
-        
         template<class T>         T*  getOutputPart(int partNumber);
 
     

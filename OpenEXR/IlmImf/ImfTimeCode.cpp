@@ -114,8 +114,11 @@ TimeCode::TimeCode (const TimeCode &other)
 TimeCode &
 TimeCode::operator = (const TimeCode &other)
 {
-    _time = other._time;
-    _user = other._user;
+    if (&other != this)
+    {
+        _time = other._time;
+        _user = other._user;
+    }
     return *this;
 }
 

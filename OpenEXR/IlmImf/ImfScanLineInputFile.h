@@ -75,6 +75,9 @@ class ScanLineInputFile : public GenericInputFile
     IMF_EXPORT
     virtual ~ScanLineInputFile ();
 
+    ScanLineInputFile (const ScanLineInputFile& other) = delete;
+    const ScanLineInputFile& operator = (const ScanLineInputFile& other) = delete;
+
 
     //------------------------
     // Access to the file name

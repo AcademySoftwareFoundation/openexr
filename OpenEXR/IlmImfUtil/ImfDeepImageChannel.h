@@ -103,6 +103,9 @@ class DeepImageChannel: public ImageChannel
     IMFUTIL_EXPORT DeepImageChannel (DeepImageLevel &level, bool pLinear);
     IMFUTIL_EXPORT virtual ~DeepImageChannel();
 
+    DeepImageChannel (const DeepImageChannel& other) = delete;
+    const DeepImageChannel& operator = (const DeepImageChannel& other) = delete;
+
     virtual void setSamplesToZero
                         (size_t i,
                          unsigned int oldNumSamples,
