@@ -143,8 +143,8 @@ class CompositeDeepScanLine
     private :  
       struct Data *_Data;
       
-      CompositeDeepScanLine(const CompositeDeepScanLine &); // not implemented
-      const CompositeDeepScanLine & operator=(const CompositeDeepScanLine &);  // not implemented
+      CompositeDeepScanLine(const CompositeDeepScanLine &) = delete;
+      const CompositeDeepScanLine & operator=(const CompositeDeepScanLine &) = delete;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

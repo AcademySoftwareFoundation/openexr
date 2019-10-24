@@ -93,6 +93,9 @@ class TiledInputFile : public GenericInputFile
     IMF_EXPORT
     virtual ~TiledInputFile ();
 
+    TiledInputFile (const TiledInputFile& other) = delete;
+    const TiledInputFile& operator = (const TiledInputFile& other) = delete;
+
 
     //------------------------
     // Access to the file name
@@ -398,9 +401,6 @@ class TiledInputFile : public GenericInputFile
     friend class MultiPartInputFile;
 
     TiledInputFile (InputPartData* part);
-
-    TiledInputFile (const TiledInputFile &);		  // not implemented
-    TiledInputFile & operator = (const TiledInputFile &); // not implemented
 
     TiledInputFile (const Header &header, OPENEXR_IMF_INTERNAL_NAMESPACE::IStream *is, int version,
                     int numThreads);

@@ -440,8 +440,8 @@ class DeepTiledInputFile : public GenericInputFile
 
     DeepTiledInputFile (InputPartData* part);
 
-    DeepTiledInputFile (const DeepTiledInputFile &);              // not implemented
-    DeepTiledInputFile & operator = (const DeepTiledInputFile &); // not implemented
+    DeepTiledInputFile (const DeepTiledInputFile &) = delete;
+    const DeepTiledInputFile & operator = (const DeepTiledInputFile &) = delete;
 
     DeepTiledInputFile (const Header &header, OPENEXR_IMF_INTERNAL_NAMESPACE::IStream *is, int version,
                     int numThreads);

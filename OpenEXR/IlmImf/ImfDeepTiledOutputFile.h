@@ -482,8 +482,8 @@ class DeepTiledOutputFile : public GenericOutputFile
     // ----------------------------------------------------------------
     DeepTiledOutputFile (const OutputPartData* part);
 
-    DeepTiledOutputFile (const DeepTiledOutputFile &);              // not implemented
-    DeepTiledOutputFile & operator = (const DeepTiledOutputFile &); // not implemented
+    DeepTiledOutputFile (const DeepTiledOutputFile &) = delete;
+    const DeepTiledOutputFile & operator = (const DeepTiledOutputFile &) = delete;
 
     void                initialize (const Header &header);
 

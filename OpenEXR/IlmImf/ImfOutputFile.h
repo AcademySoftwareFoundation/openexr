@@ -257,8 +257,8 @@ class OutputFile : public GenericOutputFile
     //------------------------------------------------------------
     OutputFile (const OutputPartData* part);
 
-    OutputFile (const OutputFile &);			// not implemented
-    OutputFile & operator = (const OutputFile &);	// not implemented
+    OutputFile (const OutputFile &) = delete;
+    const OutputFile & operator = (const OutputFile &) = delete;
 
     void		initialize (const Header &header);
 

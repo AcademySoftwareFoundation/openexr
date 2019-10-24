@@ -97,7 +97,8 @@ class MultiPartInputFile : public GenericInputFile
   private:
     Data*                           _data;
 
-    MultiPartInputFile(const MultiPartInputFile &); // not implemented
+    MultiPartInputFile(const MultiPartInputFile &) = delete;
+    const MultiPartInputFile& operator = (const MultiPartInputFile &) = delete;
 
     
     //

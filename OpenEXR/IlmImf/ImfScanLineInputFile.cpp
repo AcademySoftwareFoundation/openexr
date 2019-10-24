@@ -150,6 +150,9 @@ struct LineBuffer
     LineBuffer (Compressor * const comp);
     ~LineBuffer ();
 
+    LineBuffer (const LineBuffer& other) = delete;
+    const LineBuffer& operator = (const LineBuffer& other) = delete;
+
     inline void		wait () {_sem.wait();}
     inline void		post () {_sem.post();}
 

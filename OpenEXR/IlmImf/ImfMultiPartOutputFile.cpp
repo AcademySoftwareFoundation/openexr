@@ -124,6 +124,10 @@ struct MultiPartOutputFile::Data: public OutputStreamMutex
             for (size_t i = 0; i < parts.size(); i++)
                 delete parts[i];
         }
+
+    Data (const Data& other) = delete;
+    const Data& operator = (const Data& other) = delete;
+    
 };
 
 void

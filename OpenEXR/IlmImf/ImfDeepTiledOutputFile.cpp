@@ -202,6 +202,9 @@ struct BufferedTile
         delete [] pixelData;
         delete [] sampleCountTableData;
     }
+
+    BufferedTile (const BufferedTile& other) = delete;
+    const BufferedTile& operator = (const BufferedTile& other) = delete;
 };
 
 

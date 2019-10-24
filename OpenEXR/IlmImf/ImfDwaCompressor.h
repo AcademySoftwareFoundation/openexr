@@ -71,6 +71,7 @@ class DwaCompressor: public Compressor
     IMF_EXPORT
     virtual ~DwaCompressor ();
 
+    DwaCompressor (const DwaCompressor& other) = delete;
     const DwaCompressor& operator = (const DwaCompressor& other) = delete;
     
     IMF_EXPORT

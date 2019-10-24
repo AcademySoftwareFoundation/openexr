@@ -238,8 +238,8 @@ class DeepScanLineOutputFile : public GenericOutputFile
     //------------------------------------------------------------
     DeepScanLineOutputFile (const OutputPartData* part);
 
-    DeepScanLineOutputFile (const DeepScanLineOutputFile &);                    // not implemented
-    DeepScanLineOutputFile & operator = (const DeepScanLineOutputFile &);       // not implemented
+    DeepScanLineOutputFile (const DeepScanLineOutputFile &) = delete;
+    const DeepScanLineOutputFile & operator = (const DeepScanLineOutputFile &) = delete;
 
     void                initialize (const Header &header);
     void                initializeLineBuffer();

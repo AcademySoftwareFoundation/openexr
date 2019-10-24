@@ -53,6 +53,9 @@ class Zip
         IMF_EXPORT
         ~Zip();
 
+        Zip (const Zip& other) = delete;
+        const Zip& operator = (const Zip& other) = delete;
+
         IMF_EXPORT
         size_t maxRawSize();
         IMF_EXPORT
@@ -76,9 +79,6 @@ class Zip
     private:
         size_t _maxRawSize;
         char  *_tmpBuffer;
-
-        Zip();
-        Zip(const Zip&);
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
