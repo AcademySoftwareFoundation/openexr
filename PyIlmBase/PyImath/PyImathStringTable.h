@@ -64,7 +64,9 @@ struct StringTableIndex
     
     const StringTableIndex & operator = (const StringTableIndex &si)
     { 
-        _index = si._index; // NOSONAR - suppress SonarCloud warning
+        if (&si != this)
+            _index = si._index;
+        
         return *this;
     }
 
@@ -133,7 +135,7 @@ class StringTableDetailT {
     > StringTableContainer;
 };
 
-} // namespace PyImath
+} // namespace
 
 typedef StringTableDetailT<std::string> StringTableDetail;
 typedef StringTableDetailT<std::wstring> WStringTableDetail;
