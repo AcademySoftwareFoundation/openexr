@@ -151,7 +151,9 @@ struct LineBuffer
     ~LineBuffer ();
 
     LineBuffer (const LineBuffer& other) = delete;
-    const LineBuffer& operator = (const LineBuffer& other) = delete;
+    LineBuffer& operator = (const LineBuffer& other) = delete;
+    LineBuffer (const LineBuffer&& other) = delete;
+    LineBuffer& operator = (const LineBuffer&& other) = delete;
 
     inline void		wait () {_sem.wait();}
     inline void		post () {_sem.post();}
@@ -243,7 +245,9 @@ struct ScanLineInputFile::Data: public Mutex
     ~Data ();
 
     Data (const Data& other) = delete;
-    const Data operator = (const Data& other) = delete;
+    Data& operator = (const Data& other) = delete;
+    Data (const Data&& other) = delete;
+    Data& operator = (const Data&& other) = delete;
     
     inline LineBuffer * getLineBuffer (int number); // hash function from line
     						    // buffer indices into our

@@ -70,7 +70,9 @@ class DeepScanLineInputFile : public GenericInputFile
                            int numThreads = globalThreadCount());
 
     DeepScanLineInputFile (const DeepScanLineInputFile& other) = delete;
-    const DeepScanLineInputFile& operator = (const DeepScanLineInputFile& other) = delete;
+    DeepScanLineInputFile& operator = (const DeepScanLineInputFile& other) = delete;
+    DeepScanLineInputFile (const DeepScanLineInputFile&& other) = delete;
+    DeepScanLineInputFile& operator = (const DeepScanLineInputFile&& other) = delete;
 
     //-----------------------------------------
     // Destructor -- deallocates internal data

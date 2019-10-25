@@ -109,7 +109,9 @@ namespace {
             }
 
             LutHeaderWorker(const LutHeaderWorker& other) = delete;
-            const LutHeaderWorker& operator = (const LutHeaderWorker& other) = delete;
+            LutHeaderWorker& operator = (const LutHeaderWorker& other) = delete;
+            LutHeaderWorker(const LutHeaderWorker&& other) = delete;
+            LutHeaderWorker& operator = (const LutHeaderWorker&& other) = delete;
 
             ~LutHeaderWorker()
             {

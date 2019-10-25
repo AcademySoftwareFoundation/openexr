@@ -103,7 +103,9 @@ class FlatImageChannel: public ImageChannel
     virtual ~FlatImageChannel();
 
     FlatImageChannel (const FlatImageChannel& other) = delete;
-    const FlatImageChannel& operator = (const FlatImageChannel& other) = delete;
+    FlatImageChannel& operator = (const FlatImageChannel& other) = delete;
+    FlatImageChannel (const FlatImageChannel&& other) = delete;
+    FlatImageChannel& operator = (const FlatImageChannel&& other) = delete;
 
     IMFUTIL_EXPORT
     virtual void            resize ();
@@ -178,7 +180,9 @@ class TypedFlatImageChannel: public FlatImageChannel
     virtual ~TypedFlatImageChannel ();
 
     TypedFlatImageChannel (const TypedFlatImageChannel& other) = delete;
-    const TypedFlatImageChannel& operator = (const TypedFlatImageChannel& other) = delete;    
+    TypedFlatImageChannel& operator = (const TypedFlatImageChannel& other) = delete;    
+    TypedFlatImageChannel (const TypedFlatImageChannel&& other) = delete;
+    TypedFlatImageChannel& operator = (const TypedFlatImageChannel&& other) = delete;    
 
     virtual void        resize ();
 

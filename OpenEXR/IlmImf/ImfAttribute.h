@@ -151,8 +151,10 @@ class TypedAttribute: public Attribute
     TypedAttribute (const TypedAttribute<T> &other);
     virtual ~TypedAttribute ();
 
-    const TypedAttribute& operator = (const TypedAttribute& other) = delete;
-
+    TypedAttribute& operator = (const TypedAttribute& other) = delete;
+    TypedAttribute (const TypedAttribute<T> &&other);
+    TypedAttribute& operator = (const TypedAttribute&& other) = delete;
+    
     //--------------------------------
     // Access to the attribute's value
     //--------------------------------

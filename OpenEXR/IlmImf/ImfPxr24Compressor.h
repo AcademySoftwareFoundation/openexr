@@ -61,7 +61,9 @@ class Pxr24Compressor: public Compressor
     virtual ~Pxr24Compressor ();
 
     Pxr24Compressor (const Pxr24Compressor& other) = delete;
-    const Pxr24Compressor& operator = (const Pxr24Compressor& other) = delete;
+    Pxr24Compressor& operator = (const Pxr24Compressor& other) = delete;
+    Pxr24Compressor (const Pxr24Compressor&& other) = delete;
+    Pxr24Compressor& operator = (const Pxr24Compressor&& other) = delete;
 
     IMF_EXPORT
     virtual int		numScanLines () const;

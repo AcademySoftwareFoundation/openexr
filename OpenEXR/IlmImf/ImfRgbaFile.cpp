@@ -197,7 +197,9 @@ class RgbaOutputFile::ToYca: public Mutex
     ~ToYca ();
 
     ToYca (const ToYca& other) = delete;
-    const ToYca& operator = (const ToYca& other) = delete;
+    ToYca& operator = (const ToYca& other) = delete;
+    ToYca (const ToYca&& other) = delete;
+    ToYca& operator = (const ToYca&& other) = delete;
 
     void		setYCRounding (unsigned int roundY,
 	    			       unsigned int roundC);
@@ -816,7 +818,9 @@ class RgbaInputFile::FromYca: public Mutex
     ~FromYca ();
 
     FromYca (const FromYca& other) = delete;
-    const FromYca& operator = (const FromYca& other) = delete;
+    FromYca& operator = (const FromYca& other) = delete;
+    FromYca (const FromYca&& other) = delete;
+    FromYca& operator = (const FromYca&& other) = delete;
 
     void		setFrameBuffer (Rgba *base,
 					size_t xStride,
