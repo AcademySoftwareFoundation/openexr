@@ -213,7 +213,9 @@ struct OutputFile::Data
     ~Data ();
 
     Data (const Data& other) = delete;
-    const Data& operator = (const Data& other) = delete;
+    Data& operator = (const Data& other) = delete;
+    Data (const Data&& other) = delete;
+    Data& operator = (const Data&& other) = delete;
     
     inline LineBuffer *	getLineBuffer (int number); // hash function from line
     						    // buffer indices into our

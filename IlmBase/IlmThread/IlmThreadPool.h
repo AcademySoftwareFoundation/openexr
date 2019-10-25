@@ -218,7 +218,9 @@ class ILMTHREAD_EXPORT TaskGroup
     ~TaskGroup();
 
     TaskGroup (const TaskGroup& other) = delete;
-    const TaskGroup& operator = (const TaskGroup& other) = delete;
+    TaskGroup& operator = (const TaskGroup& other) = delete;
+    TaskGroup (const TaskGroup&& other) = delete;
+    TaskGroup& operator = (const TaskGroup&& other) = delete;
     
     // marks one task as finished
     // should be used by the thread pool provider to notify

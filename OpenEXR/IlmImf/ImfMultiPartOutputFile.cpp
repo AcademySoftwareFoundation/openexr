@@ -126,7 +126,9 @@ struct MultiPartOutputFile::Data: public OutputStreamMutex
         }
 
     Data (const Data& other) = delete;
-    const Data& operator = (const Data& other) = delete;
+    Data& operator = (const Data& other) = delete;
+    Data (const Data&& other) = delete;
+    Data& operator = (const Data&& other) = delete;
     
 };
 

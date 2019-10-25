@@ -204,7 +204,9 @@ struct BufferedTile
     }
 
     BufferedTile (const BufferedTile& other) = delete;
-    const BufferedTile& operator = (const BufferedTile& other) = delete;
+    BufferedTile& operator = (const BufferedTile& other) = delete;
+    BufferedTile (const BufferedTile&& other) = delete;
+    BufferedTile& operator = (const BufferedTile&& other) = delete;
 };
 
 
@@ -315,7 +317,9 @@ struct DeepTiledOutputFile::Data
     ~Data ();
 
     Data (const Data& other) = delete;
-    const Data& operator = (const Data& other) = delete;
+    Data& operator = (const Data& other) = delete;
+    Data (const Data&& other) = delete;
+    Data& operator = (const Data&& other) = delete;
     
     inline TileBuffer * getTileBuffer (int number);
                                                 // hash function from tile

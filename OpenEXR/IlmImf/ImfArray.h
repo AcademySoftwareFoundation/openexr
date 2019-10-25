@@ -121,7 +121,9 @@ class Array
   private:
 
     Array (const Array &) = delete;
-    const Array & operator = (const Array &) = delete;
+    Array & operator = (const Array &) = delete;
+    Array (const Array &&) = delete;
+    Array & operator = (const Array &&) = delete;
 
     long _size;
     T * _data;
@@ -177,7 +179,9 @@ class Array2D
   private:
 
     Array2D (const Array2D &) = delete;
-    const Array2D & operator = (const Array2D &) = delete;
+    Array2D & operator = (const Array2D &) = delete;
+    Array2D (const Array2D &&) = delete;
+    Array2D & operator = (const Array2D &&) = delete;
 
     long        _sizeX;
     long	_sizeY;

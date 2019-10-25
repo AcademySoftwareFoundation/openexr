@@ -292,7 +292,9 @@ class RgbaOutputFile
   private:
 
     RgbaOutputFile (const RgbaOutputFile &) = delete;
-    const RgbaOutputFile & operator = (const RgbaOutputFile &) = delete;
+    RgbaOutputFile & operator = (const RgbaOutputFile &) = delete;
+    RgbaOutputFile (const RgbaOutputFile &&) = delete;
+    RgbaOutputFile & operator = (const RgbaOutputFile &&) = delete;
 
     class ToYca;
 
@@ -429,7 +431,9 @@ class RgbaInputFile
   private:
 
     RgbaInputFile (const RgbaInputFile &) = delete;
-    const RgbaInputFile & operator = (const RgbaInputFile &) = delete;
+    RgbaInputFile & operator = (const RgbaInputFile &) = delete;
+    RgbaInputFile (const RgbaInputFile &&) = delete;
+    RgbaInputFile & operator = (const RgbaInputFile &&) = delete;
 
     class FromYca;
 

@@ -54,7 +54,9 @@ class Zip
         ~Zip();
 
         Zip (const Zip& other) = delete;
-        const Zip& operator = (const Zip& other) = delete;
+        Zip& operator = (const Zip& other) = delete;
+        Zip (const Zip&& other) = delete;
+        Zip& operator = (const Zip&& other) = delete;
 
         IMF_EXPORT
         size_t maxRawSize();

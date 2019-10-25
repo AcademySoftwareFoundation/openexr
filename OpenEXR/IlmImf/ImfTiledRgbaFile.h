@@ -317,7 +317,9 @@ class TiledRgbaOutputFile
     //
 
     TiledRgbaOutputFile (const TiledRgbaOutputFile &) = delete;	
-    const TiledRgbaOutputFile & operator = (const TiledRgbaOutputFile &) = delete;
+    TiledRgbaOutputFile & operator = (const TiledRgbaOutputFile &) = delete;
+    TiledRgbaOutputFile (const TiledRgbaOutputFile &&) = delete;	
+    TiledRgbaOutputFile & operator = (const TiledRgbaOutputFile &&) = delete;
 
     class ToYa;
 
@@ -540,7 +542,9 @@ class TiledRgbaInputFile
     //
 
     TiledRgbaInputFile (const TiledRgbaInputFile &) = delete;
-    const TiledRgbaInputFile & operator = (const TiledRgbaInputFile &) = delete;
+    TiledRgbaInputFile & operator = (const TiledRgbaInputFile &) = delete;
+    TiledRgbaInputFile (const TiledRgbaInputFile &&) = delete;
+    TiledRgbaInputFile & operator = (const TiledRgbaInputFile &&) = delete;
 
     class FromYa;
 

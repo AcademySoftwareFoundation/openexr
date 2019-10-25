@@ -239,7 +239,9 @@ class DeepScanLineOutputFile : public GenericOutputFile
     DeepScanLineOutputFile (const OutputPartData* part);
 
     DeepScanLineOutputFile (const DeepScanLineOutputFile &) = delete;
-    const DeepScanLineOutputFile & operator = (const DeepScanLineOutputFile &) = delete;
+    DeepScanLineOutputFile & operator = (const DeepScanLineOutputFile &) = delete;
+    DeepScanLineOutputFile (const DeepScanLineOutputFile &&) = delete;
+    DeepScanLineOutputFile & operator = (const DeepScanLineOutputFile &&) = delete;
 
     void                initialize (const Header &header);
     void                initializeLineBuffer();

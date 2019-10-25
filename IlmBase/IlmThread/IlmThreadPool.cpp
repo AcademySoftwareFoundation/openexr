@@ -91,6 +91,8 @@ struct ThreadPool::Data
     ~Data();
     Data (const Data&) = delete;
     Data &operator= (const Data&)  = delete;
+    Data (const Data&&) = delete;
+    Data &operator= (const Data&&)  = delete;
 
     struct SafeProvider
     {

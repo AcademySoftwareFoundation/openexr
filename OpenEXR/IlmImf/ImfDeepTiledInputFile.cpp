@@ -267,7 +267,9 @@ struct DeepTiledInputFile::Data: public Mutex
     ~Data ();
 
     Data (const Data& other) = delete;
-    const Data& operator = (const Data& other) = delete;
+    Data& operator = (const Data& other) = delete;
+    Data (const Data&& other) = delete;
+    Data& operator = (const Data&& other) = delete;
     
     inline TileBuffer * getTileBuffer (int number);
                                                     // hash function from tile indices

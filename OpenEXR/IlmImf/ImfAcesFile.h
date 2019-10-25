@@ -235,7 +235,9 @@ class AcesOutputFile
   private:
 
     AcesOutputFile (const AcesOutputFile &) = delete;
-    const AcesOutputFile & operator = (const AcesOutputFile &) = delete;
+    AcesOutputFile & operator = (const AcesOutputFile &) = delete;
+    AcesOutputFile (const AcesOutputFile &&) = delete;
+    AcesOutputFile & operator = (const AcesOutputFile &&) = delete;
 
     class Data;
 
@@ -344,7 +346,9 @@ class AcesInputFile
   private:
 
     AcesInputFile (const AcesInputFile &) = delete;
-    const AcesInputFile & operator = (const AcesInputFile &) = delete;
+    AcesInputFile & operator = (const AcesInputFile &) = delete;
+    AcesInputFile (const AcesInputFile &&) = delete;
+    AcesInputFile & operator = (const AcesInputFile &&) = delete;
 
     class Data;
 
