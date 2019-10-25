@@ -193,6 +193,9 @@ class TypedDeepImageChannel: public DeepImageChannel
     TypedDeepImageChannel (DeepImageLevel &level, bool pLinear);
     virtual ~TypedDeepImageChannel ();
 
+    TypedDeepImageChannel (const TypedDeepImageChannel& other) = delete;
+    const TypedDeepImageChannel& operator = (const TypedDeepImageChannel& other) = delete;    
+
     virtual void setSamplesToZero
                             (size_t i,
                              unsigned int oldNumSamples,

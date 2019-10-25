@@ -177,6 +177,9 @@ class TypedFlatImageChannel: public FlatImageChannel
 
     virtual ~TypedFlatImageChannel ();
 
+    TypedFlatImageChannel (const TypedFlatImageChannel& other) = delete;
+    const TypedFlatImageChannel& operator = (const TypedFlatImageChannel& other) = delete;    
+
     virtual void        resize ();
 
     virtual void        resetBasePointer ();
