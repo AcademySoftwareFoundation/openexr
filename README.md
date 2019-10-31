@@ -19,7 +19,7 @@ The library is widely used in host application software where accuracy
 is critical, such as photorealistic rendering, texture access, image
 compositing, deep compositing, and DI.
 
-### About
+### About OpenEXR
 
 OpenEXR is a project of the [Academy Software
 Foundation](https://www.aswf.io).  It was originally developed by
@@ -31,12 +31,7 @@ individuals have made contributions to the code base.
 OpenEXR is included in the [VFX Reference
 Platform](https://vfxplatform.com).
 
-A collection of OpenEXR images is available a from the [openexr-images
-repo](https://github.com/openexr/openexr-images).
-
 ### OpenEXR Features
-
-OpenEXR's features include:
 
 * High dynamic range and color precision.
 * Support for 16-bit floating-point, 32-bit floating-point, and
@@ -71,6 +66,13 @@ other simple but useful mathematical objects, functions, and data
 types common in computer graphics applications, including the “half”
 16-bit floating-point type. 
 
+### Supported Platforms
+
+OpenEXR builds on Linux, macOS, Microsoft Windows, and is
+cross-compilable on other systems.
+
+The Python bindings in PyIlmBase support Python 2 and Python 3.
+
 ### OpenEXR Project Mission
 
 The goal of the OpenEXR project is to keep the EXR format reliable and
@@ -101,12 +103,9 @@ OpenEXR is governed by the Academy Software Foundation. See
 [GOVERNANCE](GOVERNANCE.md) for more infomation about how the project
 operates.
 
-## Supported Platforms
-
-OpenEXR builds on Linux, macOS, Microsoft Windows, and is
-cross-compilable on other systems.
-
-The Python bindings in PyIlmBase support Python 2 and Python 3.
+The OpenEXR project is dedicated to promoting a harassment-free
+community. Read our [code of conduct](CODE_OF_CONDUCT.md) for more
+information.
 
 ## Developer Quick Start
 
@@ -120,6 +119,8 @@ from source.
 * GitHub repository: http://www.github.com/openexr/openexr
 
 * Documentation: http://www.openexr.com/documentation.html.
+
+* Reference images: https://github.com/openexr/openexr-images.
 
 ### Getting Help
 
