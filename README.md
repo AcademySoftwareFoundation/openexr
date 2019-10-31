@@ -1,11 +1,9 @@
-# OpenEXR
-
 [![License](https://img.shields.io/badge/License-BSD%203%20Clause-blue.svg)](LICENSE.md)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2799/badge)](https://bestpractices.coreinfrastructure.org/projects/2799)
 [![Build Status](https://dev.azure.com/openexr/OpenEXR/_apis/build/status/openexr.openexr?branchName=master)](https://dev.azure.com/openexr/OpenEXR/_build/latest?definitionId=1&branchName=master)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=openexr_openexr&metric=alert_status)](https://sonarcloud.io/dashboard?id=openexr_openexr)
 
-![openexr](/OpenEXR/doc/images/windowExample1.png)
+![openexr](/OpenEXR/doc/images/windowExample1.png){:style="float: right}
 
 The OpenEXR project provides the specification and reference
 implementation of the EXR file format, the professional-grade image
@@ -17,14 +15,16 @@ host application software where accuracy is critical, such as
 photorealistic rendering, texture access, image compositing, deep
 compositing, and DI.
 
-## OpenEXR Mission Statement
+## OpenEXR Project Mission
 
-The goal of the OpenEXR project is to keep the format reliable and
+The goal of the OpenEXR project is to keep the EXR format reliable and
 modern and to maintain its place as the preferred image format for
-entertainment content creation. Major revisions are infrequent, and
-new features will be carefully weighed against increased complexity.
+entertainment content creation. 
 
-The principal priorities of the project are:
+Major revisions are infrequent, and new features will be carefully
+weighed against increased complexity.  The principal priorities of the
+project are:
+
 * Robustness, reliability, security
 * Backwards compatibility, data longevity
 * Performance - read/write/compression/decompression time
@@ -97,11 +97,8 @@ https://github.com/openexr/openexr-images.
 
 ## Supported Platforms
 
-OpenEXR builds on:
-
-* Linux
-* macOS
-* Microsoft Visual Studio 2015 or newer
+OpenEXR builds on Linux, macOS, Microsoft Windows, and is
+cross-compilable on other systems.
 
 The Python bindings in PyIlmBase support Python 2 and Python 3.
 
