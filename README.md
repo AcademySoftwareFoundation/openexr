@@ -91,9 +91,10 @@ OpenEXR is intended solely for 2D data. It is not appropriate for
 storage of volumetric data, cached or lit 3D scenes, or more complex
 3D data such as light fields.
 
-The goals of the IlmBase project are simplicity, ease of use, and
-breadth of adoption. IlmBase is not intended to be a comprehensive
-linear algebra or numerical analysis package.
+The goals of the IlmBase project are simplicity, ease of use,
+correctness and verifiability, and breadth of adoption. IlmBase is not
+intended to be a comprehensive linear algebra or numerical analysis
+package.
 
 ### OpenEXR Project Goverance
 
