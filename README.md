@@ -3,21 +3,22 @@
 [![Build Status](https://dev.azure.com/openexr/OpenEXR/_apis/build/status/openexr.openexr?branchName=master)](https://dev.azure.com/openexr/OpenEXR/_build/latest?definitionId=1&branchName=master)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=openexr_openexr&metric=alert_status)](https://sonarcloud.io/dashboard?id=openexr_openexr)
 
-<img align="right" src="/OpenEXR/doc/images/windowExample1.png">
-
 # OpenEXR
+
+<img align="right" src="/OpenEXR/doc/images/windowExample1.png">
 
 The OpenEXR project provides the specification and reference
 implementation of the EXR file format, the professional-grade image
-storage format of the motion picture industry. The purpose of format
-is to accurately and efficiently represent high-dynamic-range
-scene-linear image data and associated metadata, with strong support
-for multi-part, multi-channel use cases. The library is widely used in
-host application software where accuracy is critical, such as
-photorealistic rendering, texture access, image compositing, deep
-compositing, and DI.
+storage format of the motion picture industry. 
 
-## OpenEXR Project Mission
+The purpose of format is to accurately and efficiently represent
+high-dynamic-range scene-linear image data and associated metadata,
+with strong support for multi-part, multi-channel use cases. The
+library is widely used in host application software where accuracy is
+critical, such as photorealistic rendering, texture access, image
+compositing, deep compositing, and DI.
+
+### OpenEXR Project Mission
 
 The goal of the OpenEXR project is to keep the EXR format reliable and
 modern and to maintain its place as the preferred image format for
@@ -45,7 +46,7 @@ types common in computer graphics applications, including the “half”
 ease of use, and breadth of adoption. It is not intended to be a
 comprehensive linear algebra or numerical analysis package.
 
-## Features
+### OpenEXR Features
 
 OpenEXR's features include:
 
@@ -84,7 +85,7 @@ Digital, Walt Disney Animation Studios, Sony Pictures Imageworks,
 Pixar Animation Studios, DreamWorks, and other studios, companies, and
 individuals have made contributions to the code base.
 
-## OpenEXR Sub-Modules
+### OpenEXR Sub-Modules
 
 The OpenEXR distribution consists of the following sub-modules:
 
