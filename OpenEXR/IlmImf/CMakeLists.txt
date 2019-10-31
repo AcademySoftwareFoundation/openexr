@@ -206,7 +206,6 @@ openexr_define_library(IlmImf
     ImfDeepCompositing.h
     ImfCompositeDeepScanLine.h
     ImfNamespace.h
-    ImfMisc.h
     ImfDeepImageState.h
     ImfDeepImageStateAttribute.h
     ImfFloatVectorAttribute.h
