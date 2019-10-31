@@ -13,40 +13,28 @@ storage format of the motion picture industry.
 
 The purpose of format is to accurately and efficiently represent
 high-dynamic-range scene-linear image data and associated metadata,
-with strong support for multi-part, multi-channel use cases. The
-library is widely used in host application software where accuracy is
-critical, such as photorealistic rendering, texture access, image
+with strong support for multi-part, multi-channel use cases. 
+
+The library is widely used in host application software where accuracy
+is critical, such as photorealistic rendering, texture access, image
 compositing, deep compositing, and DI.
 
-### OpenEXR Project Mission
+### About
 
-The goal of the OpenEXR project is to keep the EXR format reliable and
-modern and to maintain its place as the preferred image format for
-entertainment content creation. 
+OpenEXR is a project of the [Academy Software
+Foundation](https://www.aswf.io).  It was originally developed by
+Industrial Light & Magic (ILM) and first released in 2003.  Weta
+Digital, Walt Disney Animation Studios, Sony Pictures Imageworks,
+Pixar Animation Studios, DreamWorks, and other studios, companies, and
+individuals have made contributions to the code base.
 
-Major revisions are infrequent, and new features will be carefully
-weighed against increased complexity.  The principal priorities of the
-project are:
+OpenEXR is included in the [VFX Reference
+Platform](https://vfxplatform.com).
 
-* Robustness, reliability, security
-* Backwards compatibility, data longevity
-* Performance - read/write/compression/decompression time
-* Simplicity, ease of use, maintainability
-* Wide adoption, multi-platform support - Linux, Windows, macOS, and others
+A collection of OpenEXR images is available a from the [openexr-images
+repo](https://github.com/openexr/openexr-images).
 
-OpenEXR is intended solely for 2D data. It is not appropriate for
-storage of volumetric data, cached or lit 3D scenes, or more complex
-3D data such as light fields.
-
-Also a part of OpenEXR, the IlmBase library is a basic, light-weight,
-and efficient representation of 2D and 3D vectors and matrices and
-other simple but useful mathematical objects, functions, and data
-types common in computer graphics applications, including the “half”
-16-bit floating-point type. The goal of the project is simplicity,
-ease of use, and breadth of adoption. It is not intended to be a
-comprehensive linear algebra or numerical analysis package.
-
-### OpenEXR Features
+### Features
 
 OpenEXR's features include:
 
@@ -75,28 +63,35 @@ OpenEXR's features include:
   namespaces to provide protection when using multiple versions of the
   library in the same process space.
 
-OpenEXR is included in the [VFX Reference
-Platform](https://vfxplatform.com).
+### IlmBase
 
-OpenEXR is a project of the [Academy Software
-Foundation](https://www.aswf.io).  It was originally developed by
-Industrial Light & Magic (ILM) and first released in 2003.  Weta
-Digital, Walt Disney Animation Studios, Sony Pictures Imageworks,
-Pixar Animation Studios, DreamWorks, and other studios, companies, and
-individuals have made contributions to the code base.
+Also a part of OpenEXR, the IlmBase library is a basic, light-weight,
+and efficient representation of 2D and 3D vectors and matrices and
+other simple but useful mathematical objects, functions, and data
+types common in computer graphics applications, including the “half”
+16-bit floating-point type. The goal of the project is simplicity,
+ease of use, and breadth of adoption. It is not intended to be a
+comprehensive linear algebra or numerical analysis package.
 
-### OpenEXR Sub-Modules
+### OpenEXR Project Mission
 
-The OpenEXR distribution consists of the following sub-modules:
+The goal of the OpenEXR project is to keep the EXR format reliable and
+modern and to maintain its place as the preferred image format for
+entertainment content creation. 
 
-* **IlmBase** - Utility libraries from Industrial Light & Magic: Half, Imath, Iex, IlmThread.
-* **PyIlmBase** - Python bindings for the IlmBase libraries.
-* **OpenEXR** - The core image library.
-* **OpenEXR_Viewers** - Example code for image viewing programs.
-* **Contrib** - Various plugins and utilities, contributed by the community.
-    
-A collection of OpenEXR images is available from the adjacent repository
-https://github.com/openexr/openexr-images.
+Major revisions are infrequent, and new features will be carefully
+weighed against increased complexity.  The principal priorities of the
+project are:
+
+* Robustness, reliability, security
+* Backwards compatibility, data longevity
+* Performance - read/write/compression/decompression time
+* Simplicity, ease of use, maintainability
+* Wide adoption, multi-platform support - Linux, Windows, macOS, and others
+
+OpenEXR is intended solely for 2D data. It is not appropriate for
+storage of volumetric data, cached or lit 3D scenes, or more complex
+3D data such as light fields.
 
 ## Supported Platforms
 
