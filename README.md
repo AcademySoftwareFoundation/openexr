@@ -34,7 +34,7 @@ Platform](https://vfxplatform.com).
 A collection of OpenEXR images is available a from the [openexr-images
 repo](https://github.com/openexr/openexr-images).
 
-### Features
+### OpenEXR Features
 
 OpenEXR's features include:
 
@@ -69,9 +69,7 @@ Also a part of OpenEXR, the IlmBase library is a basic, light-weight,
 and efficient representation of 2D and 3D vectors and matrices and
 other simple but useful mathematical objects, functions, and data
 types common in computer graphics applications, including the “half”
-16-bit floating-point type. The goal of the project is simplicity,
-ease of use, and breadth of adoption. It is not intended to be a
-comprehensive linear algebra or numerical analysis package.
+16-bit floating-point type. 
 
 ### OpenEXR Project Mission
 
@@ -92,6 +90,16 @@ project are:
 OpenEXR is intended solely for 2D data. It is not appropriate for
 storage of volumetric data, cached or lit 3D scenes, or more complex
 3D data such as light fields.
+
+The goals of the IlmBase project are simplicity, ease of use, and
+breadth of adoption. IlmBase is not intended to be a comprehensive
+linear algebra or numerical analysis package.
+
+### Project Goverance
+
+OpenEXR is governed by the Academy Software Foundation. See
+[GOVERNANCE](GOVERNANCE.md) for more infomation about how the project
+operates.
 
 ## Supported Platforms
 
@@ -138,12 +146,6 @@ contributing to OpenEXR.
 OpenEXR is released under the [BSD-3-Clause](LICENSE) license.
 
 See [PATENTS](OpenEXR/PATENTS) for license information about portions of OpenEXR that are provided under a different license.
-
-## Project Goverance
-
-OpenEXR is governed by the Academy Software Foundation. See
-[GOVERNANCE](GOVERNANCE.md) for more infomation about how the project
-operates.
 
 ## Frequently Asked Questions
 
