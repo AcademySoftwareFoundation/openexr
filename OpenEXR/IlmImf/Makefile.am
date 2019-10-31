@@ -36,7 +36,7 @@ libIlmImf_la_SOURCES = ImfForward.h ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgb
 		       ImfName.h ImfPixelType.h ImfVersion.h ImfXdr.h \
 		       ImfCompressor.h ImfRleCompressor.h ImfZipCompressor.h \
 		       ImfPizCompressor.h ImfDwaCompressor.h \
-	               ImfDwaCompressorSimd.h ImfMisc.h ImfAutoArray.h \
+	               ImfDwaCompressorSimd.h ImfAutoArray.h \
 		       ImfConvert.cpp ImfConvert.h ImfPreviewImage.cpp \
 		       ImfPreviewImage.h ImfPreviewImageAttribute.cpp \
 		       ImfPreviewImageAttribute.h ImfVersion.cpp \
@@ -165,7 +165,6 @@ libIlmImfinclude_HEADERS = ImfForward.h ImfAttribute.h ImfBoxAttribute.h \
 			   ImfDeepFrameBuffer.h \
 			   ImfDeepCompositing.h ImfCompositeDeepScanLine.h \
 			   ImfNamespace.h ImfForward.h ImfExport.h \
-			   ImfMisc.h          \
 			   ImfPartHelper.h \
 			   ImfDeepImageState.h \
 			   ImfDeepImageStateAttribute.h
