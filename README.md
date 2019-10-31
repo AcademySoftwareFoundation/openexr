@@ -5,6 +5,8 @@
 
 <img align="right" src="/OpenEXR/doc/images/windowExample1.png">
 
+# OpenEXR
+
 The OpenEXR project provides the specification and reference
 implementation of the EXR file format, the professional-grade image
 storage format of the motion picture industry. The purpose of format
