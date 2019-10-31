@@ -7,26 +7,26 @@
 
 <img align="right" src="/OpenEXR/doc/images/windowExample1.png">
 
-The OpenEXR project provides the specification and reference
-implementation of the EXR file format, the professional-grade image
-storage format of the motion picture industry. 
+OpenEXR provides the specification and reference implementation of the
+EXR file format, the professional-grade image storage format of the
+motion picture industry.
 
-The purpose of format is to accurately and efficiently represent
+The purpose of EXR format is to accurately and efficiently represent
 high-dynamic-range scene-linear image data and associated metadata,
-with strong support for multi-part, multi-channel use cases. 
+with strong support for multi-part, multi-channel use cases.
 
-The library is widely used in host application software where accuracy
-is critical, such as photorealistic rendering, texture access, image
+OpenEXR is widely used in host application software where accuracy is
+critical, such as photorealistic rendering, texture access, image
 compositing, deep compositing, and DI.
 
 ### About OpenEXR
 
 OpenEXR is a project of the [Academy Software
-Foundation](https://www.aswf.io).  It was originally developed by
-Industrial Light & Magic (ILM) and first released in 2003.  Weta
-Digital, Walt Disney Animation Studios, Sony Pictures Imageworks,
-Pixar Animation Studios, DreamWorks, and other studios, companies, and
-individuals have made contributions to the code base.
+Foundation](https://www.aswf.io).  The format and library were
+originally developed by Industrial Light & Magic and first released
+in 2003.  Weta Digital, Walt Disney Animation Studios, Sony Pictures
+Imageworks, Pixar Animation Studios, DreamWorks, and other studios,
+companies, and individuals have made contributions to the code base.
 
 OpenEXR is included in the [VFX Reference
 Platform](https://vfxplatform.com).
@@ -58,7 +58,7 @@ Platform](https://vfxplatform.com).
   namespaces to provide protection when using multiple versions of the
   library in the same process space.
 
-### IlmBase
+### The IlmBase Library
 
 Also a part of OpenEXR, the IlmBase library is a basic, light-weight,
 and efficient representation of 2D and 3D vectors and matrices and
@@ -70,8 +70,6 @@ types common in computer graphics applications, including the “half”
 
 OpenEXR builds on Linux, macOS, Microsoft Windows, and is
 cross-compilable on other systems.
-
-The Python bindings in PyIlmBase support Python 2 and Python 3.
 
 ### OpenEXR Project Mission
 
@@ -97,15 +95,14 @@ The goals of the IlmBase project are simplicity, ease of use, and
 breadth of adoption. IlmBase is not intended to be a comprehensive
 linear algebra or numerical analysis package.
 
-### Project Goverance
+### OpenEXR Project Goverance
 
 OpenEXR is governed by the Academy Software Foundation. See
 [GOVERNANCE](GOVERNANCE.md) for more infomation about how the project
 operates.
 
 The OpenEXR project is dedicated to promoting a harassment-free
-community. Read our [code of conduct](CODE_OF_CONDUCT.md) for more
-information.
+community. Read our [code of conduct](CODE_OF_CONDUCT.md).
 
 ## Developer Quick Start
 
@@ -144,9 +141,9 @@ contributing to OpenEXR.
 
 ## License
 
-OpenEXR is released under the [BSD-3-Clause](LICENSE) license.
-
-See [PATENTS](OpenEXR/PATENTS) for license information about portions of OpenEXR that are provided under a different license.
+OpenEXR is released under the [BSD-3-Clause](LICENSE) license. See
+[PATENTS](OpenEXR/PATENTS) for license information about portions of
+OpenEXR that are provided under a different license.
 
 ## Frequently Asked Questions
 
