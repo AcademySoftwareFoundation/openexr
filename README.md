@@ -3,8 +3,7 @@
 [![Build Status](https://dev.azure.com/openexr/OpenEXR/_apis/build/status/openexr.openexr?branchName=master)](https://dev.azure.com/openexr/OpenEXR/_build/latest?definitionId=1&branchName=master)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=openexr_openexr&metric=alert_status)](https://sonarcloud.io/dashboard?id=openexr_openexr)
 
-<img align="right"
-src="https://github.com/openexr/openexr/tree/master/OpenEXR/doc/images/windowExample1.png">
+<img align="right" src="/OpenEXR/doc/images/windowExample1.png">
 
 The OpenEXR project provides the specification and reference
 implementation of the EXR file format, the professional-grade image
