@@ -4,8 +4,9 @@
 ilmbase_define_library(Half
   PRIV_EXPORT HALF_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
-  CURBINDIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCES
+    toFloat.h
+    eLut.h
     half.cpp
   HEADERS
     half.h
