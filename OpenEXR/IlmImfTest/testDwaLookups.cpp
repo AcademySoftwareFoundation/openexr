@@ -28,13 +28,23 @@
 #include <ImfXdr.h>
 #include "ImfNamespace.h"
 
+//
+// This test uses the code that generates the dwaLookups.h header to
+// validate the the values in the tables are correct.
+//
+
 using namespace OPENEXR_IMF_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 extern const unsigned short dwaCompressorNoOp[];
 extern const unsigned short dwaCompressorToLinear[];
 extern const unsigned short dwaCompressorToNonlinear[];
 extern const unsigned short closestData[];
 extern const unsigned int closestDataOffset[];
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
 
 namespace {
 
@@ -240,7 +250,7 @@ testNoop()
     for (int i=0; i<65536; ++i)
     {
         unsigned short src = (unsigned short)i;
-        assert (src == dwaCompressorNoOp[i]);
+        assert (src == OPENEXR_IMF_INTERNAL_NAMESPACE::dwaCompressorNoOp[i]);
     }
 }
 
@@ -313,7 +323,7 @@ testToLinear()
     
     printf("test dwaCompressorToLinear[]\n");
     for (int i=0; i<65536; ++i)
-        assert (toLinear[i] == dwaCompressorToLinear[i]);
+        assert (toLinear[i] == OPENEXR_IMF_INTERNAL_NAMESPACE::dwaCompressorToLinear[i]);
 }
 
 
@@ -363,7 +373,7 @@ testToNonlinear()
 
     printf("test dwaCompressorToNonlinear[]\n");
     for (int i=0; i<65536; ++i)
-        assert (toNonLinear[i] == dwaCompressorToNonLinear[i]);
+        assert (toNonLinear[i] == OPENEXR_IMF_INTERNAL_NAMESPACE::dwaCompressorToNonLinear[i]);
 }
 
 //
@@ -455,7 +465,7 @@ testLutHeader()
     for (size_t i=0; i<workers.size(); ++i) {
         for (size_t value=0; value<workers[i]->numValues(); ++value)
         {
-            assert (closestDataOffset[offsetIdx] == workers[i]->offset()[value] + offsetPrev);
+            assert (OPENEXR_IMF_INTERNAL_NAMESPACE::closestDataOffset[offsetIdx] == workers[i]->offset()[value] + offsetPrev);
             offsetIdx++;
         }
         offsetPrev += workers[i]->offset()[workers[i]->numValues()-1] + 
@@ -467,7 +477,7 @@ testLutHeader()
     for (size_t i=0; i<workers.size(); ++i) {
         for (size_t element=0; element<workers[i]->numElements(); ++element)
         {
-            assert (closestData[elementIdx] == workers[i]->elements()[element]);
+            assert (OPENEXR_IMF_INTERNAL_NAMESPACE::closestData[elementIdx] == workers[i]->elements()[element]);
             elementIdx++;
         }    
     }

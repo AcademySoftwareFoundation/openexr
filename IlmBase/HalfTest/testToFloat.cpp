@@ -11,6 +11,11 @@
 
 using namespace std;
 
+//
+// This test uses the code that generates the toFLoat.h header to
+// validate the the tabel values are correct.
+//
+
 //---------------------------------------------------
 // Interpret an unsigned short bit pattern as a half,
 // and convert that half to the corresponding float's
