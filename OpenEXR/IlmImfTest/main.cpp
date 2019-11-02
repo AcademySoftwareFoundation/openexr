@@ -93,6 +93,8 @@
 #include "testPartHelper.h"
 #include "testDwaCompressorSimd.h"
 #include "testRle.h"
+#include "testB44ExpLogTable.h"
+#include "testDwaLookups.h"
 
 #include "tmpDir.h"
 #include "ImathRandom.h"
@@ -222,7 +224,9 @@ main (int argc, char *argv[])
     TEST (testFutureProofing, "core");
     TEST (testDwaCompressorSimd, "basic");
     TEST (testRle, "core");
-
+    TEST (testB44ExpLogTable, "core");
+    TEST (testDwaLookups, "core");
+    
 
     //#ifdef ENABLE_IMFHUGETEST
     // defined via configure with --enable-imfhugetest=yes/no
