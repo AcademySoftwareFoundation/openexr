@@ -10,8 +10,13 @@
 #include <iomanip>
 #include <assert.h>
 
-using namespace std;
+//
+// This test uses the code from the program that generate the
+// expTable.h and logTable.h headers and validates that the generated
+// values match the values from the headers.
+//
 
+using namespace std;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

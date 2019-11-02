@@ -168,11 +168,7 @@ libIlmImfinclude_HEADERS = ImfForward.h ImfAttribute.h ImfBoxAttribute.h \
 			   ImfMisc.h          \
 			   ImfPartHelper.h \
 			   ImfDeepImageState.h \
-			   ImfDeepImageStateAttribute.h \
-		           ImfSystemSpecific.h    \
-	 		   ImfOptimizedPixelReading.h \
-		           b44ExpLogTable.h \
-                           dwaLookups.h 
+			   ImfDeepImageStateAttribute.h
 
 noinst_HEADERS = ImfCompressor.h    \
 		 ImfRleCompressor.h \
