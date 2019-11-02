@@ -60,6 +60,8 @@ add_executable(IlmImfTest
   testXdr.cpp
   testYca.cpp
   testLargeDataWindowOffsets.cpp
+  testB44ExpLogTable.cpp
+  testDwaLookups.cpp
   random.cpp
 )
 target_compile_definitions(IlmImfTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/")

@@ -1,37 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright Contributors to the OpenEXR Project.
 
-add_executable(b44ExpLogTable b44ExpLogTable.cpp)
-target_link_libraries(b44ExpLogTable PRIVATE OpenEXR::Config IlmBase::Half IlmBase::IlmThread IlmBase::Iex)
-set_target_properties(b44ExpLogTable PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-)
-# TODO: Old file had logic to skip these if the file already exists
-add_custom_command(
-  OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
-  COMMAND $<TARGET_FILE:b44ExpLogTable> > ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
-  DEPENDS b44ExpLogTable
-)
-
-
-add_executable(dwaLookups dwaLookups.cpp)
-target_link_libraries(dwaLookups PRIVATE OpenEXR::Config IlmBase::Imath IlmBase::Half IlmBase::IlmThread IlmBase::Iex)
-set_target_properties(dwaLookups PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-)
-# TODO: Old file had logic to skip these if the file already exists
-add_custom_command(
-  OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
-  COMMAND $<TARGET_FILE:dwaLookups> > ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
-  DEPENDS dwaLookups
-)
-
 openexr_define_library(IlmImf
   PRIV_EXPORT ILMIMF_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
-    ${CMAKE_CURRENT_BINARY_DIR}/b44ExpLogTable.h
-    ${CMAKE_CURRENT_BINARY_DIR}/dwaLookups.h
+    b44ExpLogTable.h
+    dwaLookups.h
     ImfAttribute.cpp
     ImfBoxAttribute.cpp
     ImfCRgbaFile.cpp

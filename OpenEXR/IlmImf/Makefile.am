@@ -168,7 +168,11 @@ libIlmImfinclude_HEADERS = ImfForward.h ImfAttribute.h ImfBoxAttribute.h \
 			   ImfMisc.h          \
 			   ImfPartHelper.h \
 			   ImfDeepImageState.h \
-			   ImfDeepImageStateAttribute.h
+			   ImfDeepImageStateAttribute.h \
+		           ImfSystemSpecific.h    \
+	 		   ImfOptimizedPixelReading.h \
+		           b44ExpLogTable.h \
+                           dwaLookups.h 
 
 noinst_HEADERS = ImfCompressor.h    \
 		 ImfRleCompressor.h \
@@ -186,12 +190,13 @@ noinst_HEADERS = ImfCompressor.h    \
 		 ImfOutputStreamMutex.h \
 		 ImfInputPartData.h     \
 		 ImfOutputPartData.h    \
-		 ImfScanLineInputFile.h \
 		 ImfSystemSpecific.h    \
-		 ImfOptimizedPixelReading.h
+		 ImfOptimizedPixelReading.h \
+		 b44ExpLogTable.h \
+                 dwaLookups.h 
 
 
-EXTRA_DIST = $(noinst_HEADERS) b44ExpLogTable.cpp b44ExpLogTable.h dwaLookups.cpp dwaLookups.h CMakeLists.txt
+EXTRA_DIST = $(noinst_HEADERS) CMakeLists.txt
 
 
 AM_CPPFLAGS = @ILMBASE_CXXFLAGS@ \
@@ -199,20 +204,3 @@ AM_CPPFLAGS = @ILMBASE_CXXFLAGS@ \
 	   -I$(top_srcdir)/config \
 	   $(ILMBASE_CFLAGS) $(ZLIB_CFLAGS)
 
-CLEANFILES = b44ExpLogTable b44ExpLogTable.h dwaLookups dwaLookups.h
-
-b44ExpLogTable_SOURCES = b44ExpLogTable.cpp
-b44ExpLogTable_LDADD = @ILMBASE_LDFLAGS@ $(ILMBASE_LIBS)
-
-b44ExpLogTable.h: b44ExpLogTable
-	./b44ExpLogTable > b44ExpLogTable.h
-
-dwaLookups_SOURCES = dwaLookups.cpp
-dwaLookups_LDADD = @ILMBASE_LDFLAGS@ $(ILMBASE_LIBS)
-
-dwaLookups.h: dwaLookups
-	./dwaLookups > dwaLookups.h
-
-BUILT_SOURCES = b44ExpLogTable.h dwaLookups.h
-
-noinst_PROGRAMS = b44ExpLogTable dwaLookups
