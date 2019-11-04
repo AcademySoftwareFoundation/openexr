@@ -63,8 +63,8 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
         AutoArray (const AutoArray& other) = delete;
         AutoArray& operator = (const AutoArray& other) = delete;
-        AutoArray (const AutoArray&& other) = delete;
-        AutoArray& operator = (const AutoArray&& other) = delete;
+        AutoArray (AutoArray&& other) = delete;
+        AutoArray& operator = (AutoArray&& other) = delete;
         
 	operator T * ()			{return _data;}
 	operator const T * () const	{return _data;}

@@ -105,8 +105,8 @@ class DeepImageChannel: public ImageChannel
 
     DeepImageChannel (const DeepImageChannel& other) = delete;
     DeepImageChannel& operator = (const DeepImageChannel& other) = delete;
-    DeepImageChannel (const DeepImageChannel&& other) = delete;
-    DeepImageChannel& operator = (const DeepImageChannel&& other) = delete;
+    DeepImageChannel (DeepImageChannel&& other) = delete;
+    DeepImageChannel& operator = (DeepImageChannel&& other) = delete;
 
     virtual void setSamplesToZero
                         (size_t i,
@@ -197,8 +197,8 @@ class TypedDeepImageChannel: public DeepImageChannel
 
     TypedDeepImageChannel (const TypedDeepImageChannel& other) = delete;
     TypedDeepImageChannel& operator = (const TypedDeepImageChannel& other) = delete;    
-    TypedDeepImageChannel (const TypedDeepImageChannel&& other) = delete;
-    TypedDeepImageChannel& operator = (const TypedDeepImageChannel&& other) = delete;    
+    TypedDeepImageChannel (TypedDeepImageChannel&& other) = delete;
+    TypedDeepImageChannel& operator = (TypedDeepImageChannel&& other) = delete;    
 
     virtual void setSamplesToZero
                             (size_t i,

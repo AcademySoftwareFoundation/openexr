@@ -71,8 +71,8 @@ class DeepScanLineInputFile : public GenericInputFile
 
     DeepScanLineInputFile (const DeepScanLineInputFile& other) = delete;
     DeepScanLineInputFile& operator = (const DeepScanLineInputFile& other) = delete;
-    DeepScanLineInputFile (const DeepScanLineInputFile&& other) = delete;
-    DeepScanLineInputFile& operator = (const DeepScanLineInputFile&& other) = delete;
+    DeepScanLineInputFile (DeepScanLineInputFile&& other) = delete;
+    DeepScanLineInputFile& operator = (DeepScanLineInputFile&& other) = delete;
 
     //-----------------------------------------
     // Destructor -- deallocates internal data

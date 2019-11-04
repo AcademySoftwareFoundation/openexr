@@ -95,8 +95,8 @@ class TiledInputFile : public GenericInputFile
 
     TiledInputFile (const TiledInputFile& other) = delete;
     TiledInputFile& operator = (const TiledInputFile& other) = delete;
-    TiledInputFile (const TiledInputFile&& other) = delete;
-    TiledInputFile& operator = (const TiledInputFile&& other) = delete;
+    TiledInputFile (TiledInputFile&& other) = delete;
+    TiledInputFile& operator = (TiledInputFile&& other) = delete;
 
 
     //------------------------
