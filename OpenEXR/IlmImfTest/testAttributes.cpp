@@ -578,6 +578,8 @@ print_type(const OPENEXR_IMF_NAMESPACE::TypedAttribute<T> & object)
     cout << object.typeName() << endl;
 }
 
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
+
 //
 // Test to confirm that the copy/move constructors are implemented
 // properly.
@@ -723,10 +725,15 @@ testArg (TestTypedAttribute a)
     return a;
 }
 
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
 void
 testTypedAttribute()
 {
     std::cout << "running testTypedAttribute()\n";
+    
+    using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
     
     //
     // Validate the test type
