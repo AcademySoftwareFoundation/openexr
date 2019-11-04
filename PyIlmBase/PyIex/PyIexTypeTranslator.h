@@ -63,8 +63,8 @@ class TypeTranslator
 
     TypeTranslator (const TypeTranslator& other) = delete;
     TypeTranslator& operator = (const TypeTranslator& other) = delete;
-    TypeTranslator (const TypeTranslator&& other) = delete;
-    TypeTranslator& operator = (const TypeTranslator&& other) = delete;
+    TypeTranslator (TypeTranslator&& other) = delete;
+    TypeTranslator& operator = (TypeTranslator&& other) = delete;
 
     PyObject *	typeObject (const BaseClass *ptr) const;
     PyObject *	baseTypeObject () const;
@@ -88,8 +88,8 @@ class TypeTranslator
 
         ClassDesc (const ClassDesc& other) = delete;
         ClassDesc& operator = (const ClassDesc& other) = delete;
-        ClassDesc (const ClassDesc&& other) = delete;
-        ClassDesc& operator = (const ClassDesc&& other) = delete;
+        ClassDesc (ClassDesc&& other) = delete;
+        ClassDesc& operator = (ClassDesc&& other) = delete;
 
 	virtual bool		typeMatches (const BaseClass *ptr) const = 0;
 

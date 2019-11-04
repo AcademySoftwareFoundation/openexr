@@ -102,8 +102,8 @@ class MultiPartOutputFile : public GenericOutputFile
 
         MultiPartOutputFile(const MultiPartOutputFile& other) = delete;
         MultiPartOutputFile& operator = (const MultiPartOutputFile& other) = delete;
-        MultiPartOutputFile(const MultiPartOutputFile&& other) = delete;
-        MultiPartOutputFile& operator = (const MultiPartOutputFile&& other) = delete;
+        MultiPartOutputFile(MultiPartOutputFile&& other) = delete;
+        MultiPartOutputFile& operator = (MultiPartOutputFile&& other) = delete;
 
         struct Data;
 

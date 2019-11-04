@@ -60,8 +60,8 @@ class RleCompressor: public Compressor
 
     RleCompressor (const RleCompressor& other) = delete;
     RleCompressor& operator = (const RleCompressor& other) = delete;
-    RleCompressor (const RleCompressor&& other) = delete;
-    RleCompressor& operator = (const RleCompressor&& other) = delete;
+    RleCompressor (RleCompressor&& other) = delete;
+    RleCompressor& operator = (RleCompressor&& other) = delete;
 
     IMF_EXPORT
     virtual int numScanLines () const;

@@ -117,8 +117,8 @@ class Image
 
     Image (const Image& other) = delete;
     Image & operator = (const Image& other) = delete;
-    Image (const Image&& other) = delete;
-    Image & operator = (const Image&& other) = delete;
+    Image (Image&& other) = delete;
+    Image & operator = (Image&& other) = delete;
 
    const IMATH_NAMESPACE::Box2i &		dataWindow () const;
    void				resize (const IMATH_NAMESPACE::Box2i &dataWindow);

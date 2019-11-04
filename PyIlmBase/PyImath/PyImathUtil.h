@@ -68,7 +68,7 @@ class PyAcquireLock
 
     PYIMATH_EXPORT PyAcquireLock(const PyAcquireLock& other) = delete;
     PYIMATH_EXPORT PyAcquireLock & operator = (PyAcquireLock& other) = delete;
-    PYIMATH_EXPORT PyAcquireLock(const PyAcquireLock&& other) = delete;
+    PYIMATH_EXPORT PyAcquireLock(PyAcquireLock&& other) = delete;
     PYIMATH_EXPORT PyAcquireLock & operator = (PyAcquireLock&& other) = delete;
     
   private:
@@ -92,7 +92,7 @@ class PyReleaseLock
     PYIMATH_EXPORT ~PyReleaseLock();
     PYIMATH_EXPORT PyReleaseLock(const PyReleaseLock& other) = delete;
     PYIMATH_EXPORT PyReleaseLock & operator = (PyReleaseLock& other) = delete;
-    PYIMATH_EXPORT PyReleaseLock(const PyReleaseLock&& other) = delete;
+    PYIMATH_EXPORT PyReleaseLock(PyReleaseLock&& other) = delete;
     PYIMATH_EXPORT PyReleaseLock & operator = (PyReleaseLock&& other) = delete;
 
   private:

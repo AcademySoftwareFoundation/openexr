@@ -99,8 +99,8 @@ class MultiPartInputFile : public GenericInputFile
 
     MultiPartInputFile(const MultiPartInputFile &) = delete;
     MultiPartInputFile& operator = (const MultiPartInputFile &) = delete;
-    MultiPartInputFile(const MultiPartInputFile &&) = delete;
-    MultiPartInputFile& operator = (const MultiPartInputFile &&) = delete;
+    MultiPartInputFile(MultiPartInputFile &&) = delete;
+    MultiPartInputFile& operator = (MultiPartInputFile &&) = delete;
 
     
     //

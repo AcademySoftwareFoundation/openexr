@@ -505,8 +505,8 @@ class TiledOutputFile : public GenericOutputFile
 
     TiledOutputFile (const TiledOutputFile &) = delete;
     TiledOutputFile & operator = (const TiledOutputFile &) = delete;
-    TiledOutputFile (const TiledOutputFile &&) = delete;
-    TiledOutputFile & operator = (const TiledOutputFile &&) = delete;
+    TiledOutputFile (TiledOutputFile &&) = delete;
+    TiledOutputFile & operator = (TiledOutputFile &&) = delete;
 
     void		initialize (const Header &header);
 

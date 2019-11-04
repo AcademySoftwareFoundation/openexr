@@ -145,8 +145,8 @@ class CompositeDeepScanLine
       
     CompositeDeepScanLine(const CompositeDeepScanLine &) = delete;
     CompositeDeepScanLine & operator=(const CompositeDeepScanLine &) = delete;
-    CompositeDeepScanLine(const CompositeDeepScanLine &&) = delete;
-    CompositeDeepScanLine & operator=(const CompositeDeepScanLine &&) = delete;
+    CompositeDeepScanLine(CompositeDeepScanLine &&) = delete;
+    CompositeDeepScanLine & operator=(CompositeDeepScanLine &&) = delete;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
