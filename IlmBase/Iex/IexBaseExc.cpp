@@ -117,6 +117,8 @@ BaseExc::operator = (const BaseExc& be) throw ()
         _message = be._message;
         _stackTrace = be._stackTrace;
     }
+
+    return *this;
 }
 
 BaseExc &
@@ -127,6 +129,7 @@ BaseExc::operator = (BaseExc&& be) throw ()
         _message = std::move (be._message);
         _stackTrace = std::move (be._stackTrace);
     }
+    return *this;
 }
 
 const char *
