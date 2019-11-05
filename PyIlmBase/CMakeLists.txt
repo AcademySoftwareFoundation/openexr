@@ -58,11 +58,46 @@ endif()
 if (TARGET Python2::Python)
   set(PYILMBASE_BOOST_PY2_COMPONENT "python${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
   message(STATUS "Found Python2 libraries: ${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
-  # ${Python2_SITELIB}
+  # we can't just use the Python2_SITEARCH variable as that then will
+  # ignore CMAKE_INSTALL_PREFIX. Could extract this to a function somewhere
+  # if it is generally useful
+  get_filename_component(_exedir ${Python2_EXECUTABLE} DIRECTORY)
+  string(FIND ${Python2_SITEARCH} ${_exedir} _findloc)
+  string(LENGTH ${_exedir} _elen)
+  while(_findloc EQUAL -1 AND _elen GREATER 0)
+    get_filename_component(_exedir ${_exedir} DIRECTORY)
+    string(FIND ${Python2_SITEARCH} ${_exedir} _findloc)
+    string(LENGTH ${_exedir} _elen)
+  endwhile()
+  math(EXPR _elen "${_elen}+1")
+  string(SUBSTRING ${Python2_SITEARCH} ${_elen} -1 _reldir)
+  set(PyIlmBase_Python2_SITEARCH_REL ${_reldir} CACHE STRING "Destination sub-folder (relative) for the python 2 modules")
+  unset(_elen)
+  unset(_exedir)
+  unset(_findloc)
+  unset(_reldir)
+  message(STATUS "  -> Installing to: \${CMAKE_INSTALL_PREFIX}/${PyIlmBase_Python2_SITEARCH_REL}")
 endif()
 if (TARGET Python3::Python)
   set(PYILMBASE_BOOST_PY3_COMPONENT "python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
   message(STATUS "Found Python3 libraries: ${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
+  # and figure out the install root here
+  get_filename_component(_exedir ${Python3_EXECUTABLE} DIRECTORY)
+  string(FIND ${Python3_SITEARCH} ${_exedir} _findloc)
+  string(LENGTH ${_exedir} _elen)
+  while(_findloc EQUAL -1 AND _elen GREATER 0)
+    get_filename_component(_exedir ${_exedir} DIRECTORY)
+    string(FIND ${Python3_SITEARCH} ${_exedir} _findloc)
+    string(LENGTH ${_exedir} _elen)
+  endwhile()
+  math(EXPR _elen "${_elen}+1")
+  string(SUBSTRING ${Python3_SITEARCH} ${_elen} -1 _reldir)
+  set(PyIlmBase_Python3_SITEARCH_REL ${_reldir} CACHE STRING "Destination sub-folder (relative) for the python 3 modules")
+  unset(_elen)
+  unset(_exedir)
+  unset(_findloc)
+  unset(_reldir)
+  message(STATUS "  -> Installing to: \${CMAKE_INSTALL_PREFIX}/${PyIlmBase_Python3_SITEARCH_REL}")
 endif()
 # different flavors of O.S. have multiple versions of python
 # some of them have both. Then for boost, some versions of boost
@@ -71,6 +106,7 @@ endif()
 # let's run a search and see what we get instead of making it
 # an explicit required. The older names are not portable, but
 # we'll do the best we can
+set(Boost_NO_BOOST_CMAKE ON)
 find_package(Boost OPTIONAL_COMPONENTS
   python
   python2
