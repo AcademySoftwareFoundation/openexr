@@ -123,7 +123,7 @@ function(PYILMBASE_DEFINE_MODULE modname)
       LIBRARY_OUTPUT_NAME "${modname}"
       DEBUG_POSTFIX ""
     )
-    #### TODO: Define installation rules
+    install(TARGETS ${modname}_python2 DESTINATION ${PyIlmBase_Python2_SITEARCH_REL})
   endif()
 
   if(TARGET Python3::Python AND TARGET Boost::${PYILMBASE_BOOST_PY3_COMPONENT})
@@ -150,6 +150,6 @@ function(PYILMBASE_DEFINE_MODULE modname)
       LIBRARY_OUTPUT_NAME "${modname}"
       DEBUG_POSTFIX ""
     )
-    #### TODO: Define installation rules
+    install(TARGETS ${modname}_python3 DESTINATION ${PyIlmBase_Python3_SITEARCH_REL})
   endif()
 endfunction()
