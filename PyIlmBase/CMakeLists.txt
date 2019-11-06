@@ -57,11 +57,17 @@ endif()
 # has version names attached to it
 function(PYILMBASE_EXTRACT_REL_SITEARCH varname pyver pyexe pysitearch)
   get_filename_component(_exedir ${pyexe} DIRECTORY)
-  string(FIND ${pysitearch} ${_exedir} _findloc)
+  # we do this such that cmake will canonicalize the slashes
+  # so the directory search will work under windows and unix
+  # consistently
+  get_filename_component(_basedir ${pysitearch} DIRECTORY)
+  get_filename_component(_basename ${pysitearch} NAME)
+  set(_basedir "${_basedir}/${_basename}")
+  string(FIND ${_basedir} ${_exedir} _findloc)
   string(LENGTH ${_exedir} _elen)
   while(_findloc EQUAL -1 AND _elen GREATER 0)
     get_filename_component(_nexedir ${_exedir} DIRECTORY)
-    string(FIND ${pysitearch} ${_nexedir} _findloc)
+    string(FIND ${_basedir} ${_nexedir} _findloc)
     if (_nexedir STREQUAL _exedir)
         message(WARNING "Unable to get parent directory for ${_exedir}, using absolute python site arch folder ${pysitearch}")
         set(_elen -1)
@@ -72,7 +78,7 @@ function(PYILMBASE_EXTRACT_REL_SITEARCH varname pyver pyexe pysitearch)
     string(LENGTH ${_exedir} _elen)
   endwhile()
   math(EXPR _elen "${_elen}+1")
-  string(SUBSTRING ${pysitearch} ${_elen} -1 _reldir)
+  string(SUBSTRING ${_basedir} ${_elen} -1 _reldir)
   set(${varname} ${_reldir} CACHE STRING "Destination sub-folder (relative) for the python ${pyver} modules")
 endfunction()
 
@@ -99,7 +105,6 @@ endif()
 # let's run a search and see what we get instead of making it
 # an explicit required. The older names are not portable, but
 # we'll do the best we can
-set(Boost_NO_BOOST_CMAKE ON)
 find_package(Boost OPTIONAL_COMPONENTS
   python
   python2
