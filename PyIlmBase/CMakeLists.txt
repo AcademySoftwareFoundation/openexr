@@ -5,6 +5,10 @@
 # combined python 2 + 3 support
 cmake_minimum_required(VERSION 3.12)
 
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW)
+endif()
+
 # we include this first to parse configure.ac and extract the version
 # numbers
 include(config/ParseConfigure.cmake)
