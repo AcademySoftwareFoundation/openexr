@@ -12,6 +12,10 @@ else()
   cmake_minimum_required(VERSION 3.10)
 endif()
 
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW)
+endif()
+
 # Hint: This can be set to enable custom find_package
 # search paths, probably best to set it when configuring
 # on the command line to cmake instead of setting it
