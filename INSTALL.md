@@ -35,6 +35,10 @@ Make sure these are installed on your system before building OpenEXR:
 * C++ compiler that supports C++11
 * Zlib
 * Python and boost-python if building the PyIlmBase module.
+  - NB: If you have a custom install of boost and have issues, you may
+    need to set Boost_ROOT and/or manually disable Boost_NO_BOOST_CMAKE
+    in the PyIlmBase cmake file when you run cmake. See the FindBoost
+    documentation that is part of cmake for more information.
 
 The instructions that follow describe building OpenEXR with CMake, but
 you can also build and install OpenEXR via the autoconf
