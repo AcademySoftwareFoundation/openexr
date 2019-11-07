@@ -84,6 +84,7 @@ function(PYILMBASE_EXTRACT_REL_SITEARCH varname pyver pyexe pysitearch)
   math(EXPR _elen "${_elen}+1")
   string(SUBSTRING ${_basedir} ${_elen} -1 _reldir)
   set(${varname} ${_reldir} CACHE STRING "Destination sub-folder (relative) for the python ${pyver} modules")
+  message(STATUS "  -> Will install to: ${_reldir}")
 endfunction()
 
 if (TARGET Python2::Python)
@@ -93,15 +94,14 @@ if (TARGET Python2::Python)
   # ignore CMAKE_INSTALL_PREFIX. Could extract this to a function somewhere
   # if it is generally useful
   pyilmbase_extract_rel_sitearch(PyIlmBase_Python2_SITEARCH_REL 2 ${Python2_EXECUTABLE} ${Python2_SITEARCH})
-  message(STATUS "  -> Installing to: \${CMAKE_INSTALL_PREFIX}/${PyIlmBase_Python2_SITEARCH_REL}")
 endif()
 if (TARGET Python3::Python)
   set(PYILMBASE_BOOST_PY3_COMPONENT "python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
   message(STATUS "Found Python3 libraries: ${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
   # and figure out the install root here
   pyilmbase_extract_rel_sitearch(PyIlmBase_Python3_SITEARCH_REL 3 ${Python3_EXECUTABLE} ${Python3_SITEARCH})
-  message(STATUS "  -> Installing to: \${CMAKE_INSTALL_PREFIX}/${PyIlmBase_Python3_SITEARCH_REL}")
 endif()
+
 # different flavors of O.S. have multiple versions of python
 # some of them have both. Then for boost, some versions of boost
 # have just a python component, some it's by major version (python2/python3)
@@ -109,6 +109,13 @@ endif()
 # let's run a search and see what we get instead of making it
 # an explicit required. The older names are not portable, but
 # we'll do the best we can
+
+### NB: We are turning this on globally by default as the boost
+###     generated cmake config files seem to be broken and they
+###     cross-wire python 2 with 3 in the same variables
+message(STATUS "Disabling boost-provided cmake config. If this causes problems, consider manually adjusting this in the CMakeLists.txt")
+set(Boost_NO_BOOST_CMAKE ON)
+
 find_package(Boost OPTIONAL_COMPONENTS
   python
   python2
@@ -139,24 +146,24 @@ endif()
 
 if(Boost_PYTHON_FOUND AND NOT _pyilmbase_have_perver_boost)
   # old boost case, I guess we just warn and assume it is python2 (likely)
-  message(WARNING "Ambiguous boost python module found, assuming python 2")
+  message(WARNING "Ambiguous boost python module found, assuming python 2. If you have a new boost library, try cleaning the cmake cache and reconfigure with -DBoost_NO_BOOST_CMAKE=ON")
   set(PYILMBASE_BOOST_PY2_COMPONENT python)
   # set it to a bogus string but not empty so later we don't test against a namespace only target
   set(PYILMBASE_BOOST_PY3_COMPONENT pythonIgnore)
 elseif(NOT _pyilmbase_have_perver_boost)
-  message(WARNING "Unable to find boost::python library, disabling PyIlmBase")
+  message(WARNING "Unable to find boost::python library, disabling PyIlmBase. If you believe this is wrong, check the cmake documentation and see if you need to set Boost_ROOT or Boost_NO_BOOST_CMAKE")
   return()
 else()
   if(TARGET Boost::${PYILMBASE_BOOST_PY2_COMPONENT})
-    message(NOTICE "Found Python 2 boost: Boost::${PYILMBASE_BOOST_PY2_COMPONENT}")
+    message(STATUS " -> Found Python 2 boost: Boost::${PYILMBASE_BOOST_PY2_COMPONENT}")
   elseif(Boost_PYTHON2_FOUND OR Boost_${PYILMBASE_PY2_UPPER}_FOUND)
-    message(WARNING "Found boost for python 2, but FindBoost did not create an import library")
+    message(WARNING "Found boost for python 2, but FindBoost did not create an import library. If you believe this is wrong, check the cmake documentation and see if you need to set Boost_ROOT or Boost_NO_BOOST_CMAKE")
     return()
   endif()
   if(TARGET Boost::${PYILMBASE_BOOST_PY3_COMPONENT})
-    message(NOTICE "Found Python 3 boost: Boost::${PYILMBASE_BOOST_PY3_COMPONENT}")
+    message(STATUS " -> Found Python 3 boost: Boost::${PYILMBASE_BOOST_PY3_COMPONENT}")
   elseif(Boost_PYTHON3_FOUND OR Boost_${PYILMBASE_PY3_UPPER}_FOUND)
-    message(WARNING "Found boost for python 3, but FindBoost did not create an import library")
+    message(WARNING "Found boost for python 3, but FindBoost did not create an import library. If you believe this is wrong, check the cmake documentation and see if you need to set Boost_ROOT or Boost_NO_BOOST_CMAKE")
     return()
   endif()
 endif()
