@@ -67,9 +67,9 @@ struct TaskGroup::Data
      Data ();
     ~Data ();
     
-#ifndef ILMBASE_FORCE_CXX03
     void addTask () ;
     void removeTask ();
+#ifndef ILMBASE_FORCE_CXX03
     std::atomic<int> numPending;
 #else
     int numPending;     // number of pending tasks to still execute

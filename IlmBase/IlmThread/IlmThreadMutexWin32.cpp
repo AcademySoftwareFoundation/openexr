@@ -39,10 +39,10 @@
 //-----------------------------------------------------------------------------
 
 #include "IlmBaseConfig.h"
+#include "IlmThreadMutex.h" // We will need windows.h to know whether __MINGW64_VERSION_MAJOR is defined or not.
 
 #ifdef ILMBASE_FORCE_CXX03
 #    if ((defined _WIN32 || defined _WIN64) && !defined(__MINGW64_VERSION_MAJOR))
-#        include "IlmThreadMutex.h"
 #        include "Iex.h"
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
