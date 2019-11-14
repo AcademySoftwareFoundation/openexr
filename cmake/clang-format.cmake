@@ -29,7 +29,7 @@ find_program (CLANG_FORMAT_EXE
                     ENV LLVM_ROOT
               DOC "Path to clang-format executable")
 
-# If clang-format was foudn, set up a custom `clang-format` target that will
+# If clang-format was found, set up a custom `clang-format` target that will
 # reformat all source code with filenames patterns matching
 # CLANG_FORMAT_INCLUDES and excluding CLANG_FORMAT_EXCLUDES.
 if (CLANG_FORMAT_EXE)
