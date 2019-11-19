@@ -137,6 +137,7 @@ exr2aces (const char inFileName[],
       case B44_COMPRESSION:
       case B44A_COMPRESSION:
 	h.compression() = B44A_COMPRESSION;
+	break;
 
       default:
 	h.compression() = PIZ_COMPRESSION;
