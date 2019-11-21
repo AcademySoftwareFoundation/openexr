@@ -114,11 +114,11 @@ from source.
 
 * Website: http:://www.openexr.com
 
-* GitHub repository: http://www.github.com/openexr/openexr
+* GitHub repository: http://www.github.com/AcademySoftwareFoundation/openexr
 
 * Documentation: http://www.openexr.com/documentation.html.
 
-* Reference images: https://github.com/openexr/openexr-images.
+* Reference images: https://github.com/AcademySoftwareFoundation/openexr-images.
 
 ### Getting Help
 
