@@ -26,7 +26,7 @@ There are two primary ways to connect with the OpenEXR project:
   This is a development focused mail list with a deep history of
   technical conversations and decisions that have shaped the project.
 
-* [GitHub Issues](https://github.com/openexr/openexr/issues): GitHub
+* [GitHub Issues](https://github.com/AcademySoftwareFoundation/openexr/issues): GitHub
   Issues are used both to track bugs and to discuss feature requests.
 
 ### How to Ask for Help
@@ -40,7 +40,7 @@ the place for question such has "How do I...".
 ### How to Report a Bug
 
 OpenEXR use GitHub's issue tracking system for bugs and enhancements:
-https://github.com/openexr/openexr/issues
+https://github.com/AcademySoftwareFoundation/openexr/issues
 
 If you are submitting a bug report, please be sure to note which
 version of OpenEXR you are using, on what platform (OS/version, which
@@ -55,7 +55,7 @@ with enough detail that others can reproduce the problem.
 
 ### How to Request a Change
 
-Open a GitHub issue: https://github.com/openexr/openexr/issues.
+Open a GitHub issue: https://github.com/AcademySoftwareFoundation/openexr/issues.
 
 Describe the situation and the objective in as much detail as
 possible. Feature requests will almost certainly spawn a discussion
@@ -493,7 +493,7 @@ To create a new release from the master branch:
 
    Include the log of all changes since the last release, via:
 
-        git log v2.2.1...v2.3.0 --date=short --pretty=format:"[%s](https://github.com/openexr/openexr/commit/%H) ([%an](@%ae) %ad)"
+        git log v2.2.1...v2.3.0 --date=short --pretty=format:"[%s](https://github.com/AcademySoftwareFoundation/openexr/commit/%H) ([%an](@%ae) %ad)"
 
    Include diff status via:
 
