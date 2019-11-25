@@ -701,13 +701,13 @@ ImageView::updateScreenPixels ()
                    0.f, 255.f, 0.f, 0.f);
 
 
-    for (int y = 0; y < _dh; ++y)
+    for (size_t y = 0; y < _dh; ++y)
     {
-        int i = y * _dw;
+        size_t i = y * _dw;
 
-        for (int x = 0; x < _dw; ++x)
+        for (size_t x = 0; x < _dw; ++x)
         {
-            int j = i + x;
+            size_t j = i + x;
             const IMF::Rgba &rp = _rawPixels[j];
             unsigned char *sp = _screenPixels + j * 3;
             sp[0] = dither (rGamma (rp.r), x, y);
