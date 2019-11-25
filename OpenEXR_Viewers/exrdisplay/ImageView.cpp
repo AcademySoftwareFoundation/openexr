@@ -106,7 +106,7 @@ ImageView::ImageView (int x, int y,
     _dy (dy),
     _zsize (zsize),
     _rgbaBox (rgbaBox),
-    _screenPixels (dw * dh * 3)
+    _screenPixels ( static_cast<Int64>(dw) * static_cast<Int64>(dh) * 3ul)
 {
     computeFogColor();
     updateScreenPixels();
