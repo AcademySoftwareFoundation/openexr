@@ -24,9 +24,6 @@ endif()
 
 project(OpenEXRMetaProject)
 
-# Search for custom modules in our cmake directory
-list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
-
 
 # An "official" way to make this a super-project
 # basically overrides the find_package to not find anything
@@ -91,4 +88,4 @@ endif()
 
 # Including this module will add a `clang-format` target to the build if
 # the clang-format executable can be found.
-include(clang-format)
+include(cmake/clang-format)
