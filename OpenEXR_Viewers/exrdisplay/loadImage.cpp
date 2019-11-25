@@ -101,14 +101,16 @@ loadImage (const char fileName[],
         int dx = dataWindow.min.x;
         int dy = dataWindow.min.y;
 
-        pixels.resizeErase (dw * dh);
-        memset (pixels, 0, (dw * dh) * (sizeof(Rgba)));
+        Int64 pixelCount = static_cast<Int64>(dw) * static_cast<Int64>(dh);
+         
+        pixels.resizeErase ( pixelCount );
+        memset (pixels, 0, pixelCount * (sizeof(Rgba)));
 
         size_t xs = 1 * sizeof (Rgba);
         size_t ys = dw * sizeof (Rgba);
 
         FrameBuffer fb;
-        Rgba *base = pixels - dx - dy * dw;
+        Rgba *base = pixels - static_cast<Int64>(dx) - (static_cast<Int64>(dy) * static_cast<Int64>(dw) );
 
         fb.insert ("R",
                    Slice (HALF,
