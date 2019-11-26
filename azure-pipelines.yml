@@ -22,6 +22,9 @@ schedules:
         - master
     always: true
 
+variables:
+  - group: sonar
+
 jobs:
 # ------------------------------------------------------------------------------
 # Linux
