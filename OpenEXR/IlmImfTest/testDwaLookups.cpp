@@ -26,6 +26,7 @@
 #include <IlmThreadSemaphore.h>
 #include <ImfIO.h>
 #include <ImfXdr.h>
+#include "dwaLookups.h"
 #include "ImfNamespace.h"
 
 //
@@ -38,11 +39,7 @@ using namespace OPENEXR_IMF_NAMESPACE;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-extern const unsigned short dwaCompressorNoOp[];
-extern const unsigned short dwaCompressorToLinear[];
-extern const unsigned short dwaCompressorToNonlinear[];
-extern const unsigned short closestData[];
-extern const unsigned int closestDataOffset[];
+#include "dwaLookups.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
 
@@ -373,7 +370,7 @@ testToNonlinear()
 
     printf("test dwaCompressorToNonlinear[]\n");
     for (int i=0; i<65536; ++i)
-        assert (toNonLinear[i] == OPENEXR_IMF_INTERNAL_NAMESPACE::dwaCompressorToNonLinear[i]);
+        assert (toNonlinear[i] == OPENEXR_IMF_INTERNAL_NAMESPACE::dwaCompressorToNonlinear[i]);
 }
 
 //
