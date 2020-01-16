@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/License-BSD%203%20Clause-blue.svg)](LICENSE.md)
+[![License](https://img.shields.io/github/license/AcademySoftwareFoundation/openexr)](LICENSE.md)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2799/badge)](https://bestpractices.coreinfrastructure.org/projects/2799)
 [![Build Status](https://dev.azure.com/academysoftwarefoundation/Academy%20Software%20Foundation/_apis/build/status/academysoftwarefoundation.openexr)](https://dev.azure.com/academysoftwarefoundation/Academy%20Software%20Foundation/_build?definitionId=4&_a=summary)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=AcademySoftwareFoundation_openexr&metric=alert_status)](https://sonarcloud.io/dashboard?id=AcademySoftwareFoundation_openexr)
@@ -98,7 +98,7 @@ package.
 
 ### OpenEXR Project Goverance
 
-OpenEXR is governed by the Academy Software Foundation. See
+OpenEXR is hosted by the Academy Software Foundation. See
 [GOVERNANCE](GOVERNANCE.md) for more infomation about how the project
 operates.
 
