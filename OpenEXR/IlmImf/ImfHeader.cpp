@@ -902,7 +902,7 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 
 	const TileDescription &tileDesc = tileDescription();
 
-	if (tileDesc.xSize <= 0 || tileDesc.ySize <= 0)
+	if (tileDesc.xSize <= 0 || tileDesc.ySize <= 0 || tileDesc.xSize > INT_MAX || tileDesc.ySize > INT_MAX )
 	    throw IEX_NAMESPACE::ArgExc ("Invalid tile size in image header.");
 
 	if (maxTileWidth > 0 &&
