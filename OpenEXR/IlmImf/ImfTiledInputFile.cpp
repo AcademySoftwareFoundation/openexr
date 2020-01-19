@@ -1316,6 +1316,11 @@ TiledInputFile::rawTileData (int &dx, int &dy,
         readNextTileData (_data->_streamData, _data, dx, dy, lx, ly,
 			  tileBuffer->buffer,
                           pixelDataSize);
+
+        if ( !isValidLevel(lx,ly) || !isValidTile (dx, dy, lx, ly) )
+            throw IEX_NAMESPACE::ArgExc ("File contains an invalid tile");
+
+
         if(isMultiPart(version()))
         {
             if (old_dx!=dx || old_dy !=dy || old_lx!=lx || old_ly!=ly)
