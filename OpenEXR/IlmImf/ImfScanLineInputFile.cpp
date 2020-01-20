@@ -1432,6 +1432,14 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
                       // not possible.
                       break;
               }
+
+              //
+              // optimization mode cannot currently skip subsampled channels
+              //
+              if (i.channel().xSampling!=1 || i.channel().ySampling!=1)
+              {
+                  optimizationPossible = false;
+              }
               ++i;
 	}
 
