@@ -1070,6 +1070,11 @@ hufUncompress (const char compressed[],
 
     const char *ptr = compressed + 20;
 
+    if ( ptr + (nBits+7 )/8 > compressed+nCompressed)
+    {
+        throw Iex::InputExc("invalid bit count for data size in Huf data");
+    }
+
     // 
     // Fast decoder needs at least 2x64-bits of compressed data, and
     // needs to be run-able on this platform. Otherwise, fall back
