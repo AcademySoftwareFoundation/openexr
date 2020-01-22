@@ -2422,7 +2422,7 @@ DwaCompressor::uncompress
         unsigned short ruleSize = 0;
         Xdr::read<CharPtrIO>(dataPtr, ruleSize);
 
-        if (ruleSize < 0) 
+        if (ruleSize < Xdr::size<unsigned short>() ) 
             throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                                 " (corrupt header file).");
 
