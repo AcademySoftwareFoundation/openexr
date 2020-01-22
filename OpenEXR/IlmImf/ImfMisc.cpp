@@ -114,9 +114,9 @@ bytesPerLineTable (const Header &header,
 	 c != channels.end();
 	 ++c)
     {
-	int nBytes = pixelTypeSize (c.channel().type) *
-		     (dataWindow.max.x - dataWindow.min.x + 1) /
-		     c.channel().xSampling;
+	size_t nBytes = size_t(pixelTypeSize (c.channel().type)) *
+		     size_t(dataWindow.max.x - dataWindow.min.x + 1) /
+		     size_t(c.channel().xSampling);
 
 	for (int y = dataWindow.min.y, i = 0; y <= dataWindow.max.y; ++y, ++i)
 	    if (modp (y, c.channel().ySampling) == 0)
