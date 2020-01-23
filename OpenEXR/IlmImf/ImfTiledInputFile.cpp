@@ -745,7 +745,10 @@ TiledInputFile::TiledInputFile (const char fileName[], int numThreads):
 
             delete _data->_streamData;
         }
-
+        if (_data)
+        {
+            delete _data;
+        }
         if (is != 0)
             delete is;
 
@@ -768,6 +771,10 @@ TiledInputFile::TiledInputFile (const char fileName[], int numThreads):
 
         if (is != 0)
             delete is;
+        if (_data)
+        {
+            delete _data;
+        }
         throw;
     }
 }
@@ -855,7 +862,15 @@ TiledInputFile::TiledInputFile (InputPartData* part)
 {
     _data = new Data (part->numThreads);
     _data->_deleteStream=false;
-    multiPartInitialize(part);
+    try
+    {
+      multiPartInitialize(part);
+    }
+    catch(...)
+    {
+        if (_data) delete _data;
+        throw;
+    }
 }
 
 
