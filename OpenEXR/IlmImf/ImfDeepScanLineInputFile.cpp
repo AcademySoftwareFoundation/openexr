@@ -955,7 +955,6 @@ DeepScanLineInputFile::DeepScanLineInputFile
 :
      _data (new Data (numThreads))
 {
-    _data->_streamData = new InputStreamMutex();
     _data->_deleteStream = true;
     OPENEXR_IMF_INTERNAL_NAMESPACE::IStream* is = 0;
 
@@ -965,12 +964,29 @@ DeepScanLineInputFile::DeepScanLineInputFile
         readMagicNumberAndVersionField(*is, _data->version);
         //
         // Backward compatibility to read multpart file.
-        //
+        // multiPartInitialize will create _streamData
         if (isMultiPart(_data->version))
         {
             compatibilityInitialize(*is);
             return;
         }
+    }
+    catch (IEX_NAMESPACE::BaseExc &e)
+    {
+        if (is)          delete is;
+        if (_data)       delete _data;
+
+        REPLACE_EXC (e, "Cannot read image file "
+                     "\"" << fileName << "\". " << e.what());
+        throw;
+    }
+
+    // 
+    // not multiPart - allocate stream data and intialise as normal
+    //
+    try
+    { 
+        _data->_streamData = new InputStreamMutex();
         _data->_streamData->is = is;
         _data->memoryMapped = is->isMemoryMapped();
         _data->header.readFrom (*_data->_streamData->is, _data->version);
