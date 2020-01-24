@@ -151,13 +151,14 @@
 #include "half.h"
 #include "halfLimits.h"
 
-#include "dwaLookups.h"
-
 #include <vector>
 #include <string>
 #include <cctype>
 #include <cassert>
 #include <algorithm>
+
+#include <cstddef>
+
 
 // Windows specific addition to prevent the indirect import of the redefined min/max macros
 #if defined _WIN32 || defined _WIN64
@@ -171,6 +172,7 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
+#include "dwaLookups.h"
 
 namespace {
 
