@@ -64,10 +64,7 @@ among the project community.
 ### How to Report a Security Vulnerability
 
 If you think you've found a potential vulnerability in OpenEXR, please
-report it by emailing security@openexr.com. Only TSC members and ASWF
-project management have access to these messages. Include detailed
-steps to reproduce the issue, and any other information that could aid
-an investigation.
+refer to [SECURITY.md] to responsibly disclose it.
 
 ### How to Contribute a Bug Fix or Change
 
