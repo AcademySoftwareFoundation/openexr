@@ -64,7 +64,7 @@ among the project community.
 ### How to Report a Security Vulnerability
 
 If you think you've found a potential vulnerability in OpenEXR, please
-refer to [SECURITY.md] to responsibily disclose it.
+refer to [SECURITY.md] to responsibly disclose it.
 
 ### How to Contribute a Bug Fix or Change
 
