@@ -147,8 +147,10 @@ class IStream
 
   private:
 
-    IStream (const IStream &);			// not implemented
-    IStream & operator = (const IStream &);	// not implemented
+    IStream (const IStream &) = delete;
+    IStream & operator = (const IStream &) = delete;
+    IStream (IStream &&) = delete;
+    IStream & operator = (IStream &&) = delete;
 
     std::string		_fileName;
 };
@@ -213,8 +215,10 @@ class OStream
 
   private:
 
-    OStream (const OStream &);			// not implemented
-    OStream & operator = (const OStream &);	// not implemented
+    OStream (const OStream &) = delete;
+    OStream & operator = (const OStream &) = delete;
+    OStream (OStream &&) = delete;
+    OStream & operator = (OStream &&) = delete;
 
     std::string		_fileName;
 };

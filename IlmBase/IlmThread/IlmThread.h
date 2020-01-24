@@ -143,7 +143,9 @@ class Thread
     std::thread _thread;
 
     Thread &operator= (const Thread& t) = delete;
+    Thread &operator= (Thread&& t) = delete;
     Thread (const Thread& t) = delete;
+    Thread (Thread&& t) = delete;
 #endif
 };
 

@@ -142,16 +142,21 @@ class TypedAttribute: public Attribute
 {
   public:
 
-    //----------------------------
-    // Constructors and destructor
-    //------------_---------------
+    //------------------------------------------------------------
+    // Constructors and destructor: default behavior. This assumes
+    // that the type T is copyable/assignable/moveable.
+    //------------------------------------------------------------
 
-    TypedAttribute ();
+    TypedAttribute () = default;
     TypedAttribute (const T &value);
-    TypedAttribute (const TypedAttribute<T> &other);
-    virtual ~TypedAttribute ();
+    TypedAttribute (const TypedAttribute<T> &other) = default;
+    TypedAttribute (TypedAttribute<T> &&other) = default;
 
+    virtual ~TypedAttribute () = default;
 
+    TypedAttribute& operator = (const TypedAttribute<T>& other) = default;
+    TypedAttribute& operator = (TypedAttribute<T>&& other) = default;
+    
     //--------------------------------
     // Access to the attribute's value
     //--------------------------------
@@ -244,14 +249,6 @@ class TypedAttribute: public Attribute
 //------------------------------------
 // Implementation of TypedAttribute<T>
 //------------------------------------
-template <class T>
-TypedAttribute<T>::TypedAttribute ():
-    Attribute (),
-    _value (T())
-{
-    // empty
-}
-
 
 template <class T>
 TypedAttribute<T>::TypedAttribute (const T & value):
@@ -260,23 +257,6 @@ TypedAttribute<T>::TypedAttribute (const T & value):
 {
     // empty
 }
-
-
-template <class T>
-TypedAttribute<T>::TypedAttribute (const TypedAttribute<T> &other):
-    Attribute (other),
-    _value ()
-{
-    copyValueFrom (other);
-}
-
-
-template <class T>
-TypedAttribute<T>::~TypedAttribute ()
-{
-    // empty
-}
-
 
 template <class T>
 inline T &

@@ -56,8 +56,10 @@ IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
 		     testFutureProofing.cpp testFutureProofing.h \
 	             compareDwa.cpp compareDwa.h \
 	             testDwaCompressorSimd.cpp testDwaCompressorSimd.h \
-  	             testLargeDataWindowOffsets.cpp testLargeDataWindowOffsets.h \
+	             testLargeDataWindowOffsets.cpp testLargeDataWindowOffsets.h \
 	             testRle.cpp testRle.h \
+	             testB44ExpLogTable.cpp testB44ExpLogTable.h \
+	             testDwaLookups.cpp testDwaLookups.h \
 		     bswap_32.h
 
 AM_CPPFLAGS = -DILM_IMF_TEST_IMAGEDIR=\"$(srcdir)/\"

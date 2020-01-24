@@ -291,8 +291,10 @@ class RgbaOutputFile
 						char c);
   private:
 
-    RgbaOutputFile (const RgbaOutputFile &);		  // not implemented
-    RgbaOutputFile & operator = (const RgbaOutputFile &); // not implemented
+    RgbaOutputFile (const RgbaOutputFile &) = delete;
+    RgbaOutputFile & operator = (const RgbaOutputFile &) = delete;
+    RgbaOutputFile (RgbaOutputFile &&) = delete;
+    RgbaOutputFile & operator = (RgbaOutputFile &&) = delete;
 
     class ToYca;
 
@@ -428,8 +430,10 @@ class RgbaInputFile
 
   private:
 
-    RgbaInputFile (const RgbaInputFile &);		  // not implemented
-    RgbaInputFile & operator = (const RgbaInputFile &);   // not implemented
+    RgbaInputFile (const RgbaInputFile &) = delete;
+    RgbaInputFile & operator = (const RgbaInputFile &) = delete;
+    RgbaInputFile (RgbaInputFile &&) = delete;
+    RgbaInputFile & operator = (RgbaInputFile &&) = delete;
 
     class FromYca;
 

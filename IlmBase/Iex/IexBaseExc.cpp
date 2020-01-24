@@ -99,18 +99,37 @@ BaseExc::BaseExc (std::stringstream &s) throw () :
     // empty
 }
 
-
-BaseExc::BaseExc (const BaseExc &be) throw () :
-    _message (be._message),
-    _stackTrace (be._stackTrace)
+BaseExc::BaseExc (const BaseExc &be) throw()
+    : _message (be._message),
+      _stackTrace (be._stackTrace)
 {
-    // empty
 }
-
 
 BaseExc::~BaseExc () throw ()
 {
-    // empty
+}
+
+BaseExc &
+BaseExc::operator = (const BaseExc& be) throw ()
+{
+    if (this != &be)
+    {
+        _message = be._message;
+        _stackTrace = be._stackTrace;
+    }
+
+    return *this;
+}
+
+BaseExc &
+BaseExc::operator = (BaseExc&& be) throw ()
+{
+    if (this != &be)
+    {
+        _message = std::move (be._message);
+        _stackTrace = std::move (be._stackTrace);
+    }
+    return *this;
 }
 
 const char *

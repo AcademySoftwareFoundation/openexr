@@ -120,8 +120,10 @@ class Array
 
   private:
 
-    Array (const Array &);		// Copying and assignment
-    Array & operator = (const Array &);	// are not implemented
+    Array (const Array &) = delete;
+    Array & operator = (const Array &) = delete;
+    Array (Array &&) = delete;
+    Array & operator = (Array &&) = delete;
 
     long _size;
     T * _data;
@@ -176,8 +178,10 @@ class Array2D
 
   private:
 
-    Array2D (const Array2D &);			// Copying and assignment
-    Array2D & operator = (const Array2D &);	// are not implemented
+    Array2D (const Array2D &) = delete;
+    Array2D & operator = (const Array2D &) = delete;
+    Array2D (Array2D &&) = delete;
+    Array2D & operator = (Array2D &&) = delete;
 
     long        _sizeX;
     long	_sizeY;

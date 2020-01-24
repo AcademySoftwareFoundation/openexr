@@ -10,6 +10,7 @@ add_executable(HalfTest
   testFunction.cpp
   testLimits.cpp
   testSize.cpp
+  testToFloat.cpp
 )
 
 target_link_libraries(HalfTest IlmBase::Half)

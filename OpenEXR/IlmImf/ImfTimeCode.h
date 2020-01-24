@@ -167,6 +167,8 @@ class TimeCode
     IMF_EXPORT
     TimeCode (const TimeCode &other);
 
+    ~TimeCode () = default;
+
     IMF_EXPORT
     TimeCode & operator = (const TimeCode &other);
 

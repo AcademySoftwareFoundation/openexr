@@ -79,14 +79,17 @@ KeyCode::KeyCode (const KeyCode &other)
 KeyCode &
 KeyCode::operator = (const KeyCode &other)
 {
-    _filmMfcCode = other._filmMfcCode;
-    _filmType = other._filmType;
-    _prefix = other._prefix;
-    _count = other._count;
-    _perfOffset = other._perfOffset;
-    _perfsPerFrame = other._perfsPerFrame;
-    _perfsPerCount = other._perfsPerCount;
-
+    if (this != &other)
+    {
+        _filmMfcCode = other._filmMfcCode;
+        _filmType = other._filmType;
+        _prefix = other._prefix;
+        _count = other._count;
+        _perfOffset = other._perfOffset;
+        _perfsPerFrame = other._perfsPerFrame;
+        _perfsPerCount = other._perfsPerCount;
+    }
+    
     return *this;
 }
 

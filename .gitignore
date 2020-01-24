@@ -29,12 +29,6 @@ OpenEXR/IlmImfTest/IlmImfTest
 OpenEXR/IlmImfUtilTest/IlmImfUtilTest
 OpenEXR/IlmImfFuzzTest/IlmImfFuzzTest
 Contrib/DtexToExr/DtexToExr
-b44ExpLogTable.h
-dwaLookups.h
-eLut
-eLut.h
-toFloat
-toFloat.h
 .deps
 *.o
 *.lo

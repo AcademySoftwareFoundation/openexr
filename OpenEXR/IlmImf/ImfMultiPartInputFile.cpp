@@ -118,6 +118,11 @@ struct MultiPartInputFile::Data: public InputStreamMutex
             delete parts[i];
     }
     
+    Data (const Data& other) = delete;
+    Data& operator = (const Data& other) = delete;
+    Data (Data&& other) = delete;
+    Data& operator = (Data&& other) = delete;
+    
     template <class T>
     T*    createInputPartT(int partNumber)
     {

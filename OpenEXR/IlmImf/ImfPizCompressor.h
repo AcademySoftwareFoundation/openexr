@@ -63,6 +63,11 @@ class PizCompressor: public Compressor
     IMF_EXPORT
     virtual ~PizCompressor ();
 
+    PizCompressor (const PizCompressor& other) = delete;
+    PizCompressor& operator = (const PizCompressor& other) = delete;
+    PizCompressor (PizCompressor&& other) = delete;
+    PizCompressor& operator = (PizCompressor&& other) = delete;
+
     IMF_EXPORT
     virtual int		numScanLines () const;
 

@@ -72,6 +72,11 @@ class AcesOutputFile::Data
      Data();
     ~Data();
 
+    Data (const Data& other) = delete;
+    Data& operator = (const Data& other) = delete;
+    Data (Data&& other) = delete;
+    Data& operator = (Data&& other) = delete;
+
     RgbaOutputFile *	rgbaFile;
 };
 
@@ -337,6 +342,11 @@ class AcesInputFile::Data
 
      Data();
     ~Data();
+
+    Data (const Data& other) = delete;
+    Data& operator = (const Data& other) = delete;
+    Data (Data&& other) = delete;
+    Data& operator = (Data&& other) = delete;
 
     void		initColorConversion ();
 
