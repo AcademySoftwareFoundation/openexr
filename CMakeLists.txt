@@ -88,4 +88,4 @@ endif()
 
 # Including this module will add a `clang-format` target to the build if
 # the clang-format executable can be found.
-include(cmake/clang-format)
+include(cmake/clang-format.cmake)
