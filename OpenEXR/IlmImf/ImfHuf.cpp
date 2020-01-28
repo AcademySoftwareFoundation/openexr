@@ -1053,7 +1053,7 @@ hufUncompress (const char compressed[],
 	       int nRaw)
 {
     //
-    // nead at least 20 bytes for header
+    // need at least 20 bytes for header
     //
     if (nCompressed < 20 )
     {

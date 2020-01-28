@@ -735,20 +735,13 @@ TiledInputFile::TiledInputFile (const char fileName[], int numThreads):
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {
-        if (_data->_streamData != 0)
+        if (_data->_streamData)
         {
-            if (_data->_streamData->is != 0)
-            {
-                delete _data->_streamData->is;
-                _data->_streamData->is = is = 0;
-            }
-
+            delete _data->_streamData->is;
+           _data->_streamData->is = is = 0;
             delete _data->_streamData;
         }
-        if (_data)
-        {
-            delete _data;
-        }
+        delete _data;
         if (is != 0)
             delete is;
 
@@ -760,21 +753,13 @@ TiledInputFile::TiledInputFile (const char fileName[], int numThreads):
     {
         if ( _data->_streamData != 0)
         {
-            if ( _data->_streamData->is != 0)
-            {
-                delete _data->_streamData->is;
-                _data->_streamData->is = is = 0;
-            }
-
+            delete _data->_streamData->is;
+            _data->_streamData->is = is = 0;
             delete _data->_streamData;
         }
 
-        if (is != 0)
-            delete is;
-        if (_data)
-        {
-            delete _data;
-        }
+        delete is;
+        delete _data;
         throw;
     }
 }
