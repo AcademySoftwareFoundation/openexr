@@ -288,8 +288,8 @@ DeepTiledInputFile::Data::Data (int numThreads):
     multiPartBackwardSupport(false),
     numThreads(numThreads),
     memoryMapped(false),
-    sampleCountTableComp(NULL),
-    _streamData(NULL),
+    sampleCountTableComp(nullptr),
+    _streamData(nullptr),
     _deleteStream(false)
 {
     //
