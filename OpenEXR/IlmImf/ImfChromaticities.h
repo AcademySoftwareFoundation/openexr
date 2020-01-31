@@ -122,11 +122,11 @@ struct Chromaticities
 // 
 // XYZ to RGB:
 // 
-// 	YYZtoRGB(c,Y) returns RGBtoXYZ(c,Y).inverse().
+// 	XYZtoRGB(c,Y) returns RGBtoXYZ(c,Y).inverse().
 // 
 
-IMF_EXPORT IMATH_NAMESPACE::M44f    RGBtoXYZ (const Chromaticities chroma, float Y);
-IMF_EXPORT IMATH_NAMESPACE::M44f    XYZtoRGB (const Chromaticities chroma, float Y);
+IMF_EXPORT IMATH_NAMESPACE::M44f    RGBtoXYZ (const Chromaticities &chroma, float Y);
+IMF_EXPORT IMATH_NAMESPACE::M44f    XYZtoRGB (const Chromaticities &chroma, float Y);
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
