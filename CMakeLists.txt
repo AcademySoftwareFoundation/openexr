@@ -24,6 +24,7 @@ endif()
 
 project(OpenEXRMetaProject)
 
+
 # An "official" way to make this a super-project
 # basically overrides the find_package to not find anything
 # for stuff we're including locally
@@ -84,3 +85,7 @@ option(OPENEXR_VIEWERS_ENABLE "Enables configuration of the viewers module" ON)
 if(OPENEXR_VIEWERS_ENABLE)
   add_subdirectory(OpenEXR_Viewers)
 endif()
+
+# Including this module will add a `clang-format` target to the build if
+# the clang-format executable can be found.
+include(cmake/clang-format.cmake)
