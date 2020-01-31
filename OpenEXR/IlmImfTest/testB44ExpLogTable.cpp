@@ -20,8 +20,7 @@ using namespace std;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-extern const unsigned short expTable[];
-extern const unsigned short logTable[];
+#include "b44ExpLogTable.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
 
