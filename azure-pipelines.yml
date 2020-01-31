@@ -39,17 +39,37 @@ jobs:
   strategy:
     matrix:
       CentOS 7 gcc VFX CY2019:
-        agentImage: 'ubuntu-16.04'
         containerImage: aswfstaging/ci-openexr:2019.0
+        buildType: Release
         cxxCompiler: g++
         cCompiler: gcc
       CentOS 7 Clang 7 VFX CY2019:
-        agentImage: 'ubuntu-16.04'
         containerImage: aswfstaging/ci-openexr:2019.0
+        buildType: Release
         cxxCompiler: clang++
         cCompiler: clang
+      CentOS 7 gcc VFX CY2020:
+        containerImage: aswfstaging/ci-openexr:2020.0
+        buildType: Release
+        cxxCompiler: g++
+        cCompiler: gcc
+        excludeTests: PyIlmBase.*_Python2|PyIlmBase.PyImathNumpyTest_Python3
+      CentOS 7 Clang 7 VFX CY2020:
+        containerImage: aswfstaging/ci-openexr:2020.0
+        buildType: Release
+        cxxCompiler: clang++
+        cCompiler: clang
+        excludeTests: PyIlmBase.*_Python2|PyIlmBase.PyImathNumpyTest_Python3
+      # Sanitize Test CentOS 7 gcc VFX CY2019:
+      #   containerImage: aswfstaging/ci-openexr:2019.0
+      #   buildType: Debug
+      #   cxxCompiler: g++
+      #   cCompiler: gcc
+      #   cxxFlags: -g -fsanitize=address
+      #   cFlags: -g -fsanitize=address
+      #   ldFlags: -fsanitize=address
   pool:
-    vmImage: $(agentImage)
+    vmImage: 'ubuntu-16.04'
   container: $[ variables['containerImage'] ]
   timeoutInMinutes: 360
 
@@ -62,6 +82,10 @@ jobs:
     parameters:
       cxxCompiler: $(cxxCompiler)
       cCompiler: $(cCompiler)
+      cxxFlags: $(cxxFlags)
+      cFlags: $(cFlags)
+      ldFlags: $(ldFlags)
+      buildType: $(buildType)
 
   - template: share/ci/templates/build.yml
     parameters:
@@ -71,7 +95,7 @@ jobs:
 
   - template: share/ci/templates/test.yml
     parameters:
-      excludeTests: ''
+      excludeTests: $(excludeTests)
 
   - task: PublishTestResults@2
     condition: succeededOrFailed()
@@ -85,8 +109,9 @@ jobs:
 #  SonarCloud static analysis
 # ------------------------------------------------------------------------------
 - job: SonarCloud
-  displayName: SonarCloud Ubuntu 16.04 VFX CY2019
-  condition: in(variables['Build.Reason'], 'Manual', 'Schedule')
+  displayName: SonarCloud Ubuntu 16.04 VFX CY2020
+  condition: succeededOrFailed()
+#  condition: in(variables['Build.Reason'], 'Manual', 'Schedule')
   timeoutInMinutes: 360
   pool:
     vmImage: 'ubuntu-16.04'
@@ -113,8 +138,6 @@ jobs:
     matrix:
       10.14 AppleClang 10.0:
         agentImage: 'macOS-10.14'
-      10.13 AppleClang 10.0:
-        agentImage: 'macOS-10.13'
   pool:
     vmImage: $(agentImage)
   timeoutInMinutes: 360
