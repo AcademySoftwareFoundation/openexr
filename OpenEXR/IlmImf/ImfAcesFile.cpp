@@ -395,7 +395,10 @@ AcesInputFile::Data::initColorConversion ()
     V2f fileNeutral = fileChr.white;
 
     if (hasAdoptedNeutral (header))
+    {
 	fileNeutral = adoptedNeutral (header);
+        fileChr.white = fileNeutral; // for RGBtoXYZ() purposes.
+    }
 
     const Chromaticities acesChr = acesChromaticities();
 
