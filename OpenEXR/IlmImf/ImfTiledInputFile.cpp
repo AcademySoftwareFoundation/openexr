@@ -735,6 +735,16 @@ TiledInputFile::TiledInputFile (const char fileName[], int numThreads):
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {
+        if (!_data->memoryMapped)
+        {
+            for (size_t i = 0; i < _data->tileBuffers.size(); i++)
+            {
+                if(_data->tileBuffers[i])
+                {
+                   delete [] _data->tileBuffers[i]->buffer;
+                }
+            }
+        }
         if (_data->_streamData)
         {
             delete _data->_streamData->is;
@@ -751,6 +761,16 @@ TiledInputFile::TiledInputFile (const char fileName[], int numThreads):
     }
     catch (...)
     {
+        if (!_data->memoryMapped)
+        {
+            for (size_t i = 0; i < _data->tileBuffers.size(); i++)
+            {
+                if(_data->tileBuffers[i])
+                {
+                   delete [] _data->tileBuffers[i]->buffer;
+                }
+            }
+        }
         if ( _data->_streamData != 0)
         {
             delete _data->_streamData->is;
@@ -801,6 +821,13 @@ TiledInputFile::TiledInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {
+        if (!_data->memoryMapped)
+        {
+            for (size_t i = 0; i < _data->tileBuffers.size(); i++)
+            {
+                delete [] _data->tileBuffers[i]->buffer;
+            }
+        }
         if (streamDataCreated) delete _data->_streamData;
 	delete _data;
 
@@ -810,6 +837,13 @@ TiledInputFile::TiledInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int
     }
     catch (...)
     {
+        if (!_data->memoryMapped)
+        {
+            for (size_t i = 0; i < _data->tileBuffers.size(); i++)
+            {
+                delete [] _data->tileBuffers[i]->buffer;
+            }
+        }
         if (streamDataCreated) delete _data->_streamData;
 	delete _data;
         throw;
@@ -833,13 +867,29 @@ TiledInputFile::TiledInputFile (const Header &header,
     // we have somehow got the header.
     //
 
-    _data->_streamData->is = is;
-    _data->header = header;
-    _data->version = version;
-    initialize();
-    _data->tileOffsets.readFrom (*(_data->_streamData->is),_data->fileIsComplete,false,false);
-    _data->memoryMapped = is->isMemoryMapped();
-    _data->_streamData->currentPosition = _data->_streamData->is->tellg();
+    try
+    {
+        _data->_streamData->is = is;
+        _data->header = header;
+        _data->version = version;
+        initialize();
+        _data->tileOffsets.readFrom (*(_data->_streamData->is),_data->fileIsComplete,false,false);
+        _data->memoryMapped = is->isMemoryMapped();
+        _data->_streamData->currentPosition = _data->_streamData->is->tellg();
+    }
+    catch(...)
+    {
+        if (!_data->memoryMapped)
+        {
+            for (size_t i = 0; i < _data->tileBuffers.size(); i++)
+            {
+                delete [] _data->tileBuffers[i]->buffer;
+            }
+        }
+        delete _data->_streamData;
+	delete _data;
+        throw; 
+    }
 }
 
 
