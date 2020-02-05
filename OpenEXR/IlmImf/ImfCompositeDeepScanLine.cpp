@@ -44,6 +44,7 @@
 
 #include <Iex.h>
 #include <vector>
+#include <stddef.h>
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using std::vector;
@@ -179,7 +180,7 @@ CompositeDeepScanLine::Data::handleDeepFrameBuffer (DeepFrameBuffer& buf,
                                                     int start,
                                                     int end)
 {
-    int width=_dataWindow.size().x+1;
+    ptrdiff_t width=_dataWindow.size().x+1;
     size_t pixelcount = width * (end-start+1);
     pointers.resize(_channels.size());
     counts.resize(pixelcount);

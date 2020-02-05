@@ -1122,6 +1122,12 @@ void ScanLineInputFile::initialize(const Header& header)
 
         size_t maxBytesPerLine = bytesPerLineTable (_data->header,
                                                     _data->bytesPerLine);
+        
+        if(maxBytesPerLine > INT_MAX)
+        {
+            throw IEX_NAMESPACE::InputExc("maximum bytes per scanline exceeds maximum permissible size");
+        }
+
 
         for (size_t i = 0; i < _data->lineBuffers.size(); i++)
         {
@@ -1156,6 +1162,8 @@ void ScanLineInputFile::initialize(const Header& header)
     }
     catch (...)
     {
+        if (_data->partNumber == -1)
+           delete _streamData;
         delete _data;
         _data=NULL;
         throw;
@@ -1431,6 +1439,14 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
                   default:
                       // not possible.
                       break;
+              }
+
+              //
+              // optimization mode cannot currently skip subsampled channels
+              //
+              if (i.channel().xSampling!=1 || i.channel().ySampling!=1)
+              {
+                  optimizationPossible = false;
               }
               ++i;
 	}

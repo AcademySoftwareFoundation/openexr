@@ -735,17 +735,13 @@ TiledInputFile::TiledInputFile (const char fileName[], int numThreads):
     }
     catch (IEX_NAMESPACE::BaseExc &e)
     {
-        if (_data->_streamData != 0)
+        if (_data->_streamData)
         {
-            if (_data->_streamData->is != 0)
-            {
-                delete _data->_streamData->is;
-                _data->_streamData->is = is = 0;
-            }
-
+            delete _data->_streamData->is;
+           _data->_streamData->is = is = 0;
             delete _data->_streamData;
         }
-
+        delete _data;
         if (is != 0)
             delete is;
 
@@ -757,17 +753,13 @@ TiledInputFile::TiledInputFile (const char fileName[], int numThreads):
     {
         if ( _data->_streamData != 0)
         {
-            if ( _data->_streamData->is != 0)
-            {
-                delete _data->_streamData->is;
-                _data->_streamData->is = is = 0;
-            }
-
+            delete _data->_streamData->is;
+            _data->_streamData->is = is = 0;
             delete _data->_streamData;
         }
 
-        if (is != 0)
-            delete is;
+        delete is;
+        delete _data;
         throw;
     }
 }
@@ -855,7 +847,15 @@ TiledInputFile::TiledInputFile (InputPartData* part)
 {
     _data = new Data (part->numThreads);
     _data->_deleteStream=false;
-    multiPartInitialize(part);
+    try
+    {
+      multiPartInitialize(part);
+    }
+    catch(...)
+    {
+        if (_data) delete _data;
+        throw;
+    }
 }
 
 
@@ -1316,6 +1316,11 @@ TiledInputFile::rawTileData (int &dx, int &dy,
         readNextTileData (_data->_streamData, _data, dx, dy, lx, ly,
 			  tileBuffer->buffer,
                           pixelDataSize);
+
+        if ( !isValidLevel(lx,ly) || !isValidTile (dx, dy, lx, ly) )
+            throw IEX_NAMESPACE::ArgExc ("File contains an invalid tile");
+
+
         if(isMultiPart(version()))
         {
             if (old_dx!=dx || old_dy !=dy || old_lx!=lx || old_ly!=ly)
