@@ -713,51 +713,34 @@ TiledInputFile::TiledInputFile (const char fileName[], int numThreads):
     IStream* is = 0;
     try
     {
-        is = new StdIFStream (fileName);
-	readMagicNumberAndVersionField(*is, _data->version);
-
-	//
-        // Backward compatibility to read multpart file.
-        //
-	if (isMultiPart(_data->version))
-	{
-	    compatibilityInitialize(*is);
-	    return;
-	}
-
-	_data->_streamData = new InputStreamMutex();
-	_data->_streamData->is = is;
-	_data->header.readFrom (*_data->_streamData->is, _data->version);
-	initialize();
-        //read tile offsets - we are not multipart or deep
-        _data->tileOffsets.readFrom (*(_data->_streamData->is), _data->fileIsComplete,false,false);
-	_data->_streamData->currentPosition = _data->_streamData->is->tellg();
-    }
-    catch (IEX_NAMESPACE::BaseExc &e)
-    {
-        if (!_data->memoryMapped)
+        try
         {
-            for (size_t i = 0; i < _data->tileBuffers.size(); i++)
+            is = new StdIFStream (fileName);
+            readMagicNumberAndVersionField(*is, _data->version);
+
+            //
+            // Backward compatibility to read multpart file.
+            //
+            if (isMultiPart(_data->version))
             {
-                if(_data->tileBuffers[i])
-                {
-                   delete [] _data->tileBuffers[i]->buffer;
-                }
+                compatibilityInitialize(*is);
+                return;
             }
-        }
-        if (_data->_streamData)
-        {
-            delete _data->_streamData->is;
-           _data->_streamData->is = is = 0;
-            delete _data->_streamData;
-        }
-        delete _data;
-        if (is != 0)
-            delete is;
 
-	REPLACE_EXC (e, "Cannot open image file "
-                 "\"" << fileName << "\". " << e.what());
-	throw;
+            _data->_streamData = new InputStreamMutex();
+            _data->_streamData->is = is;
+            _data->header.readFrom (*_data->_streamData->is, _data->version);
+            initialize();
+            //read tile offsets - we are not multipart or deep
+            _data->tileOffsets.readFrom (*(_data->_streamData->is), _data->fileIsComplete,false,false);
+            _data->_streamData->currentPosition = _data->_streamData->is->tellg();
+        }
+        catch (IEX_NAMESPACE::BaseExc &e)
+        {
+            REPLACE_EXC (e, "Cannot open image file "
+                    "\"" << fileName << "\". " << e.what());
+            throw;
+        }
     }
     catch (...)
     {
@@ -798,42 +781,35 @@ TiledInputFile::TiledInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int
 
     try
     {
-	readMagicNumberAndVersionField(is, _data->version);
-
-	//
-	// Backward compatibility to read multpart file.
-	//
-	if (isMultiPart(_data->version))
+        try
         {
-	    compatibilityInitialize(is);
-            return;
-        }
+            readMagicNumberAndVersionField(is, _data->version);
 
-	streamDataCreated = true;
-	_data->_streamData = new InputStreamMutex();
-	_data->_streamData->is = &is;
-	_data->header.readFrom (*_data->_streamData->is, _data->version);
-	initialize();
-        // file is guaranteed to be single part, regular image
-        _data->tileOffsets.readFrom (*(_data->_streamData->is), _data->fileIsComplete,false,false);
-	_data->memoryMapped = _data->_streamData->is->isMemoryMapped();
-	_data->_streamData->currentPosition = _data->_streamData->is->tellg();
-    }
-    catch (IEX_NAMESPACE::BaseExc &e)
-    {
-        if (!_data->memoryMapped)
-        {
-            for (size_t i = 0; i < _data->tileBuffers.size(); i++)
+            //
+            // Backward compatibility to read multpart file.
+            //
+            if (isMultiPart(_data->version))
             {
-                delete [] _data->tileBuffers[i]->buffer;
+                compatibilityInitialize(is);
+                return;
             }
-        }
-        if (streamDataCreated) delete _data->_streamData;
-	delete _data;
 
-	REPLACE_EXC (e, "Cannot open image file "
-                 "\"" << is.fileName() << "\". " << e.what());
-	throw;
+            streamDataCreated = true;
+            _data->_streamData = new InputStreamMutex();
+            _data->_streamData->is = &is;
+            _data->header.readFrom (*_data->_streamData->is, _data->version);
+            initialize();
+            // file is guaranteed to be single part, regular image
+            _data->tileOffsets.readFrom (*(_data->_streamData->is), _data->fileIsComplete,false,false);
+            _data->memoryMapped = _data->_streamData->is->isMemoryMapped();
+            _data->_streamData->currentPosition = _data->_streamData->is->tellg();
+        }
+        catch (IEX_NAMESPACE::BaseExc &e)
+        {
+            REPLACE_EXC (e, "Cannot open image file "
+                    "\"" << is.fileName() << "\". " << e.what());
+            throw;
+        }
     }
     catch (...)
     {
