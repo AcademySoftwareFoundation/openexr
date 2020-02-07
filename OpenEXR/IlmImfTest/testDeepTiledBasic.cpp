@@ -754,15 +754,12 @@ void readFile (int channelCount,
                     {
                         for (int k = 0; k < channelCount; k++)
                         {
-                            if( !randomChannels || read_channel[k]==1)
-                            {
                                 if (channelTypes[k] == 0)
                                     delete[] (unsigned int*) data[k][i][j];
                                 if (channelTypes[k] == 1)
                                     delete[] (half*) data[k][i][j];
                                 if (channelTypes[k] == 2)
                                     delete[] (float*) data[k][i][j];
-                            }
                         }
                         for( int f = 0 ; f < fillChannels ; ++f )
                         {
