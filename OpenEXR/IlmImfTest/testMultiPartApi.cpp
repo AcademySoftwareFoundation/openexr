@@ -463,6 +463,21 @@ generateRandomFile (int partCount, const std::string & fn)
         }
     }
 
+    for (size_t i = 0 ; i < parts.size() ; ++i )
+    {
+        int partType = partTypes[i];
+
+        if (partType == 0)
+        {
+            delete (OutputPart*) parts[i];
+        }
+        else
+        {
+            delete (TiledOutputPart*) parts[i];
+        }
+
+    }
+
     delete[] tiledHalfData;
     delete[] tiledUintData;
     delete[] tiledFloatData;
