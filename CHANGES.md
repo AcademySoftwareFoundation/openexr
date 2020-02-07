@@ -1,6 +1,7 @@
 # OpenEXR Release Notes
 
-* [Version 2.4.0](#version-240-tbd)
+* [Version 2.4.1](#version-241-february-11-2020)
+* [Version 2.4.0](#version-240-september-19-2019)
 * [Version 2.3.0](#version-230-august-13-2018)
 * [Version 2.2.1](#version-221-november-30-2017)
 * [Version 2.2.0](#version-220-august-10-2014)
@@ -30,7 +31,63 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 2.4.0 
+## Version 2.4.1 (February 11, 2020)
+
+Patch release with minor bug fixes.
+
+### Summary
+
+* Various fixes for integer overflow with large images.
+* Various cmake fixes for build/install of python modules.
+* ImfMisc.h is no longer installed, since it's a private header.
+
+### Merged Pull Requests
+
+* [609](https://github.com/AcademySoftwareFoundation/openexr/pull/609) Fixes #593, others - issues with pyilmbase install 
+
+* [605](https://github.com/AcademySoftwareFoundation/openexr/pull/605) No longer install ImfMisc.h 
+
+* [603](https://github.com/openexr/openexr/pull/603) Update Azure build to work with new RB-2.4 branch. 
+
+* [596](https://github.com/AcademySoftwareFoundation/openexr/pull/596) Add Boost::Python to Python modules link libraries
+
+* [592](https://github.com/AcademySoftwareFoundation/openexr/pull/592) Take DESTDIR into account when creating library symlinks
+
+* [589](https://github.com/openexr/openexr/pull/589) Fix int32 overflow bugs with deep images 
+
+### Commits \[ git log v2.4.0...v2.4.1\]
+
+* [Fix overzealous removal of if statements breaking all builds except win32](https://github.com/openexr/openexr/commit/031199cd4fc062dd7bfe902c6552cf22f6bfbbdb) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+
+* [Handle python2 not being installed, but python3 being present](https://github.com/openexr/openexr/commit/8228578da6f86d17b9a2a3f8c6053f8b4ee3fb71) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+
+* [Fix issue with defines not being set correctly for win32](https://github.com/openexr/openexr/commit/d10895ef0ad25dd60e68a2ab00bab7c0592f8c5b) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+
+* [Re-enable Boost_NO_BOOST_CMAKE by default, document, clean up status messages](https://github.com/openexr/openexr/commit/b303f6788a434fd61e52c1bacb93a96c4c3440ea) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+
+* [Set CMP0074 such that people who set Boost_ROOT won't get warnings](https://github.com/openexr/openexr/commit/8ec1440cbd999f17457be605150bc53395fbb334) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+
+* [ensure paths are canonicalized by get_filename_component prior to comparing](https://github.com/openexr/openexr/commit/28d1cb256f1b46f120adb131e606b2699acc72d7) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+
+* [Fix issue with drive letter under windows](https://github.com/openexr/openexr/commit/34ce16c2653d02fcef6a297a2a61112dbf693922) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-06)
+
+* [Extract to function, protect against infinite loop](https://github.com/openexr/openexr/commit/650da0d63410d863c4a0aed15a6bee1b46b559cb) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-06)
+
+* [Fixes #593, others - issues with pyilmbase install](https://github.com/openexr/openexr/commit/df768ec8a97adb82947fc4b92a199db9a38c044c) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-05)
+
+* [Take DESTDIR into account when creating library symlinks](https://github.com/openexr/openexr/commit/ed4807b9e4dc8d94ce79d0b2ed36acc548bee57e) ([Antonio Rojas](@arojas@archlinux.org) 2019-10-19)
+
+* [No longer install ImfMisc.h](https://github.com/openexr/openexr/commit/f1b017c8029b529c5c5ed01b6ad1b10a0e48036c) ([Cary Phillips](@cary@ilm.com) 2019-10-31)
+
+* [add boost to python module link library](https://github.com/openexr/openexr/commit/a571bdfe42866a1f1c579114e2fcae8318172c21) ([Jens Lindgren](@lindgren_jens@hotmail.com) 2019-10-22)
+
+* [Update Azure build to work with new branch.](https://github.com/openexr/openexr/commit/4273e84f86fe27392dec53a5cef900caf6727154) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-26)
+
+* [Fix int32 overflow bugs with deep images](https://github.com/openexr/openexr/commit/e53ebd3ef677ab983f83f927f6525efcb5dcb995) ([Larry Gritz](@lg@larrygritz.com) 2019-10-17)
+
+* [Prepare 2.4 release branch](https://github.com/openexr/openexr/commit/486ff10547d034530c5190bbef6181324b42c209) ([Larry Gritz](@lg@larrygritz.com) 2019-10-24)
+
+## Version 2.4.0 (September 19, 2019)
 
 ### Summary
 
