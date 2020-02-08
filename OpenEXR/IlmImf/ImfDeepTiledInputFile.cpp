@@ -283,7 +283,8 @@ DeepTiledInputFile::Data::Data (int numThreads):
     multiPartBackwardSupport(false),
     numThreads(numThreads),
     memoryMapped(false),
-    _streamData(NULL),
+    sampleCountTableComp(nullptr),
+    _streamData(nullptr),
     _deleteStream(false)
 {
     //
@@ -308,6 +309,8 @@ DeepTiledInputFile::Data::~Data ()
 
     for (size_t i = 0; i < slices.size(); i++)
         delete slices[i];
+
+    delete sampleCountTableComp;
 }
 
 
@@ -878,7 +881,15 @@ DeepTiledInputFile::DeepTiledInputFile (InputPartData* part) :
     _data (new Data (part->numThreads))
 {
     _data->_deleteStream=false;
-    multiPartInitialize(part);
+    try
+    {
+       multiPartInitialize(part);
+    }
+    catch(...)
+    {
+        delete _data;
+        throw;
+    }
 }
 
 
