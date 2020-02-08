@@ -363,40 +363,51 @@ getTiledChunkOffsetTableSize(const Header& header)
     //
     Int64 lineOffsetSize = 0;
     const TileDescription &desc = header.tileDescription();
-    switch (desc.mode)
+    try
     {
-        case ONE_LEVEL:
-        case MIPMAP_LEVELS:
-            for (int i = 0; i < numXLevels; i++)
-            {
-                lineOffsetSize += static_cast<Int64>(numXTiles[i]) * static_cast<Int64>(numYTiles[i]);
-                if ( lineOffsetSize > static_cast<Int64>(std::numeric_limits<int>::max()) )
+        switch (desc.mode)
+        {
+            case ONE_LEVEL:
+            case MIPMAP_LEVELS:
+                for (int i = 0; i < numXLevels; i++)
                 {
-                    throw IEX_NAMESPACE::LogicExc("Maximum number of tiles exceeded");
-                }
-            }
-           break;
-        case RIPMAP_LEVELS:
-            for (int i = 0; i < numXLevels; i++)
-            {
-                for (int j = 0; j < numYLevels; j++)
-                {
-                     lineOffsetSize += static_cast<Int64>(numXTiles[i]) * static_cast<Int64>(numYTiles[j]);
-                     if ( lineOffsetSize > static_cast<Int64>(std::numeric_limits<int>::max()) )
-                     {
+                    lineOffsetSize += static_cast<Int64>(numXTiles[i]) * static_cast<Int64>(numYTiles[i]);
+                    if ( lineOffsetSize > static_cast<Int64>(std::numeric_limits<int>::max()) )
+                    {
                         throw IEX_NAMESPACE::LogicExc("Maximum number of tiles exceeded");
-                     }
+                    }
                 }
-            }
-           break;
-        case NUM_LEVELMODES :
-            throw IEX_NAMESPACE::LogicExc("Bad level mode getting chunk offset table size");
+            break;
+            case RIPMAP_LEVELS:
+                for (int i = 0; i < numXLevels; i++)
+                {
+                    for (int j = 0; j < numYLevels; j++)
+                    {
+                        lineOffsetSize += static_cast<Int64>(numXTiles[i]) * static_cast<Int64>(numYTiles[j]);
+                        if ( lineOffsetSize > static_cast<Int64>(std::numeric_limits<int>::max()) )
+                        {
+                            throw IEX_NAMESPACE::LogicExc("Maximum number of tiles exceeded");
+                        }
+                    }
+                }
+            break;
+            case NUM_LEVELMODES :
+                throw IEX_NAMESPACE::LogicExc("Bad level mode getting chunk offset table size");
+        }
+        delete[] numXTiles;
+        delete[] numYTiles;
+
+        return static_cast<int>(lineOffsetSize);
+
+    }
+    catch(...)
+    {
+        delete[] numXTiles;
+        delete[] numYTiles;
+
+        throw;
     }
 
-    delete[] numXTiles;
-    delete[] numYTiles;
-
-    return static_cast<int>(lineOffsetSize);
 }
 
 
