@@ -37,11 +37,14 @@ Patch release with minor bug fixes.
 
 ### Summary
 
+* Various fixes for memory leaks and invalid memory accesses
 * Various fixes for integer overflow with large images.
 * Various cmake fixes for build/install of python modules.
 * ImfMisc.h is no longer installed, since it's a private header.
 
 ### Merged Pull Requests
+
+* [659](https://github.com/AcademySoftwareFoundation/openexr/pull/659) fix memory leaks and invalid memory accesses
 
 * [609](https://github.com/AcademySoftwareFoundation/openexr/pull/609) Fixes #593, others - issues with pyilmbase install 
 
@@ -56,6 +59,8 @@ Patch release with minor bug fixes.
 * [589](https://github.com/openexr/openexr/pull/589) Fix int32 overflow bugs with deep images 
 
 ### Commits \[ git log v2.4.0...v2.4.1\]
+
+* [fix memory leaks and invalid memory accesses](https://github.com/AcademySoftwareFoundation/openexr/commit/e79d2296496a50826a15c667bf92bdc5a05518b4) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-02-08)
 
 * [Fix overzealous removal of if statements breaking all builds except win32](https://github.com/openexr/openexr/commit/031199cd4fc062dd7bfe902c6552cf22f6bfbbdb) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
 
