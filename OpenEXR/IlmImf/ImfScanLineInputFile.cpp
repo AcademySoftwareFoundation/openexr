@@ -1181,8 +1181,11 @@ ScanLineInputFile::ScanLineInputFile(InputPartData* part)
         {
             for (size_t i = 0; i < _data->lineBuffers.size(); i++)
             {
-                EXRFreeAligned(_data->lineBuffers[i]->buffer);
-                _data->lineBuffers[i]->buffer=nullptr;
+                if( _data->lineBuffers[i] )
+                {
+                   EXRFreeAligned(_data->lineBuffers[i]->buffer);
+                   _data->lineBuffers[i]->buffer=nullptr;
+                }
             }
         }
         
@@ -1234,11 +1237,14 @@ ScanLineInputFile::ScanLineInputFile
         {
            if (!_data->memoryMapped)
            {
-             for (size_t i = 0; i < _data->lineBuffers.size(); i++)
-             {
-                 EXRFreeAligned(_data->lineBuffers[i]->buffer);
-                 _data->lineBuffers[i]->buffer=nullptr;
-             }
+              for (size_t i = 0; i < _data->lineBuffers.size(); i++)
+              {
+                 if( _data->lineBuffers[i] )
+                 {
+                   EXRFreeAligned(_data->lineBuffers[i]->buffer);
+                   _data->lineBuffers[i]->buffer=nullptr;
+                 }
+              }
            }
         }
         delete _streamData;
