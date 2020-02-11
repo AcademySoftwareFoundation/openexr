@@ -53,7 +53,7 @@
     #include <sstream>
 #endif
 
-#define TEST(x) if (argc < 2 || !strcmp (argv[1], #x)) x();
+#define TEST(x) if (argc < 2 || !strcmp (argv[1], #x)) x(argc==3 ? argv[2] : nullptr);
 
 int
 main (int argc, char *argv[])

@@ -219,7 +219,7 @@ void generateRandomFile(const char filename[], int channelCount, int parts , Com
                     {
                         for(int x=0;x<data[k].width();x++)
                         {
-                            delete reinterpret_cast<char *>( data[k][y][x] );
+                            delete [] reinterpret_cast<char *>( data[k][y][x] );
                             data[k][y][x]=0;
                         }
                     }
@@ -503,23 +503,30 @@ fuzzDeepTiles (int numThreads, Rand48 &random)
 
 
 void
-testFuzzDeepTiles ()
+testFuzzDeepTiles (const char* file)
 {
     
     
     try
     {
-	cout << "Testing deep tile-based files "
-		"with randomly inserted errors" << endl;
+        if(file)
+        {
+            readFile(file);
+        }
+        else
+        {
+            cout << "Testing deep tile-based files "
+                    "with randomly inserted errors" << endl;
 
-	Rand48 random (1);
+            Rand48 random (1);
 
-	fuzzDeepTiles (0, random);
+            fuzzDeepTiles (0, random);
 
-	if (ILMTHREAD_NAMESPACE::supportsThreads())
-	    fuzzDeepTiles (2, random);
+            if (ILMTHREAD_NAMESPACE::supportsThreads())
+                fuzzDeepTiles (2, random);
 
-	cout << "ok\n" << endl;
+            cout << "ok\n" << endl;
+        }
     }
     catch (const std::exception &e)
     {
