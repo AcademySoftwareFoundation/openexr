@@ -107,6 +107,8 @@
 #include <string.h>
 #include <time.h>
 
+#include <set>
+
 #ifdef _WIN32
 #    include <windows.h>
 #else
@@ -118,22 +120,23 @@ using namespace std;
 
 #define TEST_STRING(x) #x
 #define TEST(x,y)                                                       \
-    if (argc < 2 || (!strcmp (argv[1], TEST_STRING(x)) || !strcmp (argv[1], y)))    \
+    if (helpMode)\
+    {\
+	tests.insert(string(TEST_STRING(x)));\
+	suites.insert(string(y));\
+    }\
+    else if (argc < 2 || (!strcmp (argv[1], TEST_STRING(x)) || !strcmp (argv[1], y)))    \
     {                                                                   \
         cout << "\n=======\nRunning " << TEST_STRING(x) <<endl;                     \
         x(tempDir);                                                     \
     }
 
-int
-main (int argc, char *argv[])
+
+string makeTempDir()
 {
-    // Create temporary files in a uniquely named private temporary
-    // subdirectory of IMF_TMP_DIR to avoid colliding with other
-    // running instances of this program.
+    string tempDir;
 
     IMATH_NAMESPACE::Rand48 rand48 (time ((time_t*)0) );
-    std::string tempDir;
-
     while (true)
     {
 #ifdef _WIN32
@@ -142,7 +145,7 @@ main (int argc, char *argv[])
         if (len == 0 || len > 4095)
         {
             cerr << "Cannot retrieve temporary directory" << endl;
-            return 1;
+            exit(1);
         }
         tempDir = tmpbuf;
         // windows does this automatically
@@ -168,8 +171,35 @@ main (int argc, char *argv[])
         {
             std::cerr << "ERROR -- mkdir(" << tempDir << ") failed: "
                          "errno = " << errno << std::endl;
-            return 1;
+            exit(1);
         }
+    }
+
+    return tempDir;
+
+}
+
+int
+main (int argc, char *argv[])
+{
+    // Create temporary files in a uniquely named private temporary
+    // subdirectory of IMF_TMP_DIR to avoid colliding with other
+    // running instances of this program.
+
+    std::string tempDir;
+
+    bool helpMode = false;
+    if( argc==2 && (strcmp(argv[1],"--help")==0 || strcmp(argv[1],"-h")==0))
+    {
+            helpMode = true;
+    }
+    set<string> tests;
+    set<string> suites;
+
+
+    if ( !helpMode )
+    {
+	    tempDir = makeTempDir();
     }
 
     TEST (testMagic, "core");
@@ -235,8 +265,43 @@ main (int argc, char *argv[])
 #endif    
 
 
-    std::cout << "removing temp dir " << tempDir << std::endl;
-    rmdir (tempDir.c_str());
+    if ( helpMode )
+    {
+        cout << "IlmImfTest runs a series of tests to confirm\n"
+		"correct behavior of the IlmImf OpenEXR library.\n"
+	        "If all is correct, IlmImfTest will complete without\n"
+		"crashing or leaking memory.\n";
+	cout << "\n";
+	cout << "If a test fails, an individual test can be re-run, avoiding\n"
+		"the wait for previous tests to complete. This allows easier debugging\n"
+                "of the failure.\n";
+	cout << "\n";
+	cout << "A 'suite' of tests can also be run, to allow a subset of\n"
+	     << "tests to run. This is useful as an initial confirmation\n"
+	     << "that a modification to the library has not introduced an error.\n"
+	     << "Suites can be run in parallel for speed. Every test is in one suite.\n";
+	cout << "\n";
+	cout << "usage:\n"
+	     << "IlmImfTest           : with no arguments, run all tests\n"
+	     << "IlmImfTest TEST      : run only specific test, then quit\n"
+             << "IlmImfTest SUITE     : run all the tests in the given SUITE\n";
+	cout << "\n";
+	cout << "available TESTs:\n";
+	for ( auto i = tests.begin() ; i!= tests.end() ; ++i)
+	{
+		cout << ' ' << *i << endl;
+	}
+	cout << "\n";
+	cout << "available SUITEs:\n";
+	for ( auto i = suites.begin() ; i!= suites.end() ; ++i )
+	{
+		cout << ' ' << *i << endl;
+	}
+    } 
+    else
+    {
+        cout << "removing temp dir " << tempDir << endl;
+        rmdir (tempDir.c_str());
 
 #ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
 
@@ -244,19 +309,19 @@ main (int argc, char *argv[])
         // Allow the user to check for file descriptor leaks
         //
 
-        std::cout << "open file descriptors:" << std::endl;
+        cout << "open file descriptors:" << endl;
 
-        std::stringstream ss;
+        stringstream ss;
         ss << "ls -lG /proc/" << getpid() << "/fd";
             
         if (system (ss.str().c_str()) == -1)
         {
-            std::cout << "failed to run ls\n";
+            cout << "failed to run ls\n";
         }
 
-        std::cout << std::endl;
+        cout << endl;
 
 #endif
-
+   }
     return 0;
 }
