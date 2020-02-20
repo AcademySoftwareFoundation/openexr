@@ -35,5 +35,5 @@
 
 
 
-void testFuzzDeepScanLines ();
+void testFuzzDeepScanLines (const char* file);
 
