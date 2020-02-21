@@ -873,6 +873,7 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
     }
     
     const std::string & part_type=hasType() ? type() : "";
+
     
     if(part_type!="" && !isSupportedType(part_type))
     {
@@ -882,6 +883,7 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
         return;
     }
     
+    bool isDeep = isDeepData(part_type);
    
     //
     // If the file is tiled, verify that the tile description has reasonable
@@ -902,7 +904,7 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 
 	const TileDescription &tileDesc = tileDescription();
 
-	if (tileDesc.xSize <= 0 || tileDesc.ySize <= 0)
+	if (tileDesc.xSize <= 0 || tileDesc.ySize <= 0 || tileDesc.xSize > INT_MAX || tileDesc.ySize > INT_MAX )
 	    throw IEX_NAMESPACE::ArgExc ("Invalid tile size in image header.");
 
 	if (maxTileWidth > 0 &&
@@ -953,7 +955,8 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
     if (!isValidCompression (this->compression()))
   	throw IEX_NAMESPACE::ArgExc ("Unknown compression type in image header.");
     
-    if(isDeepData(part_type))
+    
+    if( isDeep )
     {
         if (!isValidDeepCompression (this->compression()))
             throw IEX_NAMESPACE::ArgExc ("Compression type in header not valid for deep data");
@@ -965,6 +968,8 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
     // If the file is tiled then for each channel, the type must be one of the
     // predefined values, and the x and y sampling must both be 1.
     //
+    // x and y sampling must currently also be 1 for deep scanline images
+    //
     // If the file is not tiled then for each channel, the type must be one
     // of the predefined values, the x and y coordinates of the data window's
     // upper left corner must be divisible by the x and y subsampling factors,
@@ -974,7 +979,7 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 
     const ChannelList &channels = this->channels();
     
-    if (isTiled)
+    if (isTiled || isDeep)
     {
 	for (ChannelList::ConstIterator i = channels.begin();
 	     i != channels.end();

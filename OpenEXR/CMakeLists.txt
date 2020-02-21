@@ -48,7 +48,11 @@ include(config/LibraryDefine.cmake)
 
 add_subdirectory( IlmImf )
 add_subdirectory( IlmImfUtil )
-add_subdirectory( IlmImfExamples )
+
+option(INSTALL_OPENEXR_EXAMPLES "Install OpenEXR examples" ON)
+if(INSTALL_OPENEXR_EXAMPLES)
+  add_subdirectory( IlmImfExamples )
+endif()
 
 ##########################
 # Tests
@@ -78,4 +82,7 @@ if(OPENEXR_BUILD_UTILS)
   add_subdirectory( exrmultipart )
 endif()
 
-add_subdirectory(doc)
+option(INSTALL_OPENEXR_DOCS "Install OpenEXR documentation" ON)
+if(INSTALL_OPENEXR_DOCS)
+  add_subdirectory(doc)
+endif()

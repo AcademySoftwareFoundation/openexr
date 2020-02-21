@@ -179,13 +179,19 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
     }
    
      const char * write_ptr = writing ? &writingBuffer[0] : &readingBuffer[0];
-     // fill with random halfs, casting to floats for float channels
+     // fill with random halfs, casting to floats for float channels - don't write NaN values
      size_t chan=0;
      for (size_t i=0;i<samples;i++)
      {
-         unsigned short int values = random_int(std::numeric_limits<unsigned short>::max());
+
          half v;
-         v.setBits(values);
+         do
+         {
+           unsigned short int values = random_int(std::numeric_limits<unsigned short>::max());
+           v.setBits(values);
+         }
+         while ( v.isNan() );
+
          if (pt==NULL || pt[chan]==IMF::HALF)
          {
              *(half*)write_ptr = half(v);
