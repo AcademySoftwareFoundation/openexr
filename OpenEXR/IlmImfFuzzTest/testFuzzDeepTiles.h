@@ -35,5 +35,5 @@
 
 
 
-void testFuzzDeepTiles ();
+void testFuzzDeepTiles (const char* file);
 
