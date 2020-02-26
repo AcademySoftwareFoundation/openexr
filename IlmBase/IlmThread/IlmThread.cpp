@@ -80,7 +80,7 @@ Thread::start ()
 }
 
 #else
-#   if !defined (_WIN32) &&!(_WIN64) && !(HAVE_PTHREAD)
+#   if !defined (_WIN32) && !defined (_WIN64) && ! defined(HAVE_PTHREAD)
 //-----------------------------------------------------------------------------
 // OPENEXR_FORCE_CXX03 with no windows / pthread support
 //-----------------------------------------------------------------------------

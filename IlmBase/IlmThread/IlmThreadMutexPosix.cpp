@@ -40,11 +40,10 @@
 //-----------------------------------------------------------------------------
 
 #include "IlmBaseConfig.h"
+#include "IlmThreadMutex.h"
 
 #ifdef ILMBASE_FORCE_CXX03
-#   if HAVE_PTHREAD
-
-#      include "IlmThreadMutex.h"
+#   ifdef HAVE_PTHREAD
 #      include "Iex.h"
 #      include <assert.h>
 
