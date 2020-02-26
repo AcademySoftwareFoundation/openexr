@@ -12,7 +12,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <assert.h>
-
+#include <random>
 
 using namespace std;
 
@@ -21,7 +21,10 @@ namespace {
 float
 drand()
 {
-    return static_cast<float> (rand()/(RAND_MAX+1.0f));
+    static std::default_random_engine generator;
+    static std::uniform_real_distribution<float> distribution (0.0f, 1.0f);
+    float r = distribution (generator);
+    return r;
 }
 
 } // namespace

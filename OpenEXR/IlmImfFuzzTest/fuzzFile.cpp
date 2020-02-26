@@ -45,6 +45,7 @@
 
 #include <iostream>
 #include <fstream>
+#include "../IlmImfTest/TestUtilFStream.h"
 
 // Handle the case when the custom namespace is not exposed
 #include <OpenEXRConfig.h>
@@ -58,7 +59,9 @@ namespace {
 Int64
 lengthOfFile (const char fileName[])
 {
-    ifstream ifs (fileName, ios_base::binary);
+    ifstream ifs;
+    testutil::OpenStreamWithUTF8Name (
+        ifs, fileName, ios::in | ios_base::binary);
 
     if (!ifs)
 	return 0;
@@ -80,7 +83,9 @@ fuzzFile (const char goodFile[],
     // Read the input file.
     //
 
-    ifstream ifs (goodFile, ios_base::binary);
+    ifstream ifs;
+    testutil::OpenStreamWithUTF8Name (
+        ifs, goodFile, ios::in | ios_base::binary);
 
     if (!ifs)
 	THROW_ERRNO ("Cannot open file " << goodFile << " (%T).");
@@ -110,7 +115,9 @@ fuzzFile (const char goodFile[],
     // Save the damaged file contents in the output file.
     //
 
-    ofstream ofs (brokenFile, ios_base::binary);
+    ofstream ofs;
+    testutil::OpenStreamWithUTF8Name (
+        ofs, brokenFile, ios::out | ios_base::binary);
 
     if (!ofs)
 	THROW_ERRNO ("Cannot open file " << brokenFile << " (%T)." << endl);

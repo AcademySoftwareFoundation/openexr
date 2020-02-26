@@ -41,6 +41,12 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
+GenericInputFile::~GenericInputFile ()
+{}
+
+GenericInputFile::GenericInputFile ()
+{}
+
 void GenericInputFile::readMagicNumberAndVersionField(OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int& version)
 {
     //

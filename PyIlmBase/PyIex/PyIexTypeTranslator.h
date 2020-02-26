@@ -61,6 +61,11 @@ class TypeTranslator
      TypeTranslator (const std::string &typeName, const std::string &moduleName, PyObject *typeObject);
     ~TypeTranslator ();
 
+    TypeTranslator (const TypeTranslator& other) = delete;
+    TypeTranslator& operator = (const TypeTranslator& other) = delete;
+    TypeTranslator (TypeTranslator&& other) = delete;
+    TypeTranslator& operator = (TypeTranslator&& other) = delete;
+
     PyObject *	typeObject (const BaseClass *ptr) const;
     PyObject *	baseTypeObject () const;
 
@@ -80,6 +85,11 @@ class TypeTranslator
 		   const ClassDesc *baseClass);
 
 	virtual ~ClassDesc ();
+
+        ClassDesc (const ClassDesc& other) = delete;
+        ClassDesc& operator = (const ClassDesc& other) = delete;
+        ClassDesc (ClassDesc&& other) = delete;
+        ClassDesc& operator = (ClassDesc&& other) = delete;
 
 	virtual bool		typeMatches (const BaseClass *ptr) const = 0;
 
@@ -240,7 +250,7 @@ template <class T>
 typename TypeTranslator<BaseClass>::ClassDesc *
 TypeTranslator<BaseClass>::findClassDesc (ClassDesc *cd)
 {
-    if (cd->typeInfo() == typeid (T))
+    if (cd->typeInfo().hash_code() == typeid (T).hash_code())
 	return cd;
 
     for (int i = 0; i < cd->numDerivedClasses(); ++i)
@@ -259,7 +269,7 @@ template <class T>
 const typename TypeTranslator<BaseClass>::ClassDesc *
 TypeTranslator<BaseClass>::findClassDesc (const ClassDesc *cd) const
 {
-    if (cd->typeInfo() == typeid (T))
+    if (cd->typeInfo().hash_code() == typeid (T).hash_code())
 	return cd;
 
     for (int i = 0; i < cd->numDerivedClasses(); ++i)

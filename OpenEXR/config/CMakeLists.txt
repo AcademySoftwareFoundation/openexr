@@ -49,25 +49,6 @@ if(APPLE)
   set(OPENEXR_IMF_HAVE_DARWIN TRUE)
 endif()
 
-find_package(ZLIB REQUIRED)
-set_target_properties(ZLIB::ZLIB PROPERTIES IMPORTED_GLOBAL TRUE)
-
-# so we know how to link / use...
-if(NOT TARGET Threads::Threads)
-  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-  set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-  find_package(Threads)
-  ###check_include_files(pthread.h OPENEXR_HAVE_PTHREAD)
-  if(Threads_FOUND)
-    set_target_properties(Threads::Threads PROPERTIES IMPORTED_GLOBAL TRUE)
-    if(CMAKE_HAVE_PTHREAD_H OR CMAKE_USE_PTHREADS_INIT OR CMAKE_HP_PTHREAD_INIT)
-      set(OPENEXR_HAVE_PTHREAD ON)
-      # TODO: remove this once we cleanly have OPENEXR_ prefix on all #defines
-      set(HAVE_PTHREAD ON)
-    endif()
-  endif()
-endif()
-
 configure_file(OpenEXRConfig.h.in_cmake ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h)
 configure_file(OpenEXRConfigInternal.h.in_cmake ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigInternal.h)
 
@@ -87,15 +68,14 @@ install(
 install(TARGETS IlmImfConfig EXPORT ${PROJECT_NAME})
 add_library(${PROJECT_NAME}::Config ALIAS IlmImfConfig)
 
-option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" ON)
 if(OPENEXR_INSTALL_PKG_CONFIG)
   # use a helper function to avoid variable pollution, but pretty simple
   function(openexr_pkg_config_help pcinfile)
     set(prefix ${CMAKE_INSTALL_PREFIX})
-    set(exec_prefix ${CMAKE_INSTALL_BINDIR})
-    set(libdir ${CMAKE_INSTALL_LIBDIR})
-    set(includedir ${CMAKE_INSTALL_INCLUDEDIR})
-    set(LIB_SUFFIX ${OPENEXR_LIB_SUFFIX})
+    set(exec_prefix "\${prefix}")
+    set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
+    set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+    set(LIB_SUFFIX_DASH ${OPENEXR_LIB_SUFFIX})
     if(TARGET Threads::Threads)
       # hrm, can't use properties as they end up as generator expressions
       # which don't seem to evaluate
@@ -120,7 +100,7 @@ endif()
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
   VERSION ${OPENEXR_VERSION}
-  COMPATIBILITY SameMinorVersion
+  COMPATIBILITY SameMajorVersion
 )
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}

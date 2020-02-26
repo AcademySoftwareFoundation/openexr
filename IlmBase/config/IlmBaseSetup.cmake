@@ -30,6 +30,13 @@ set(ILMBASE_IEX_NAMESPACE "Iex" CACHE STRING "Public namespace alias for Iex")
 set(ILMBASE_ILMTHREAD_NAMESPACE "IlmThread" CACHE STRING "Public namespace alias for IlmThread")
 set(ILMBASE_PACKAGE_NAME "IlmBase ${ILMBASE_VERSION}" CACHE STRING "Public string / label for displaying package")
 
+# Whether to generate and install a pkg-config file IlmBase.pc on
+if(WIN32)
+option(ILMBASE_INSTALL_PKG_CONFIG "Install IlmBase.pc file" OFF)
+else()
+option(ILMBASE_INSTALL_PKG_CONFIG "Install IlmBase.pc file" ON)
+endif()
+
 ########################
 ## Build related options
 
@@ -116,4 +123,18 @@ if(OPENEXR_USE_CLANG_TIDY)
     -header-filter=.;
     -checks=*;
   )
+endif()
+
+###############################
+# Dependent libraries
+
+# so we know how to link / use threads and don't have to have a -pthread
+# everywhere...
+if(NOT TARGET Threads::Threads)
+  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+  set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+  find_package(Threads)
+  if(NOT Threads_FOUND)
+    message(FATAL_ERROR "Unable to find a threading library which is required for IlmThread")
+  endif()
 endif()

@@ -9,6 +9,7 @@ ilmbase_define_library(Imath
     ImathColorAlgo.cpp
     ImathFun.cpp
     ImathVec.cpp
+    ImathExc.cpp
     ImathMatrixAlgo.cpp
   HEADERS
     ImathBoxAlgo.h

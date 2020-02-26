@@ -120,8 +120,8 @@ generatePreview (const char inFileName[],
     previewHeight = max (int (h / (w * a) * previewWidth + .5f), 1);
     previewPixels.resizeErase (previewHeight, previewWidth);
 
-    float fx = (previewWidth  > 1)? (float (w - 1) / (previewWidth  - 1)): 1;
-    float fy = (previewHeight > 1)? (float (h - 1) / (previewHeight - 1)): 1;
+    double fx = (previewWidth  > 1)? (double (w - 1) / (previewWidth  - 1)): 1;
+    double fy = (previewHeight > 1)? (double (h - 1) / (previewHeight - 1)): 1;
     float m  = Math<float>::pow (2.f, IMATH_NAMESPACE::clamp (exposure + 2.47393f, -20.f, 20.f));
 
     for (int y = 0; y < previewHeight; ++y)

@@ -250,4 +250,5 @@ testIO (const string &tempDir)
 	cerr << "ERROR -- caught exception: " << e.what() << endl;
 	assert (false);
     }
+    remove ((tempDir + "io.exr").c_str());
 }

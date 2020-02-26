@@ -109,7 +109,7 @@ represents the project at ASWF TAC meetings.
 * Peter Hillman - Weta Digital, Ltd.
 * Kimball Thurston - Weta Digital, Ltd.
 * Nick Porcino - Oculus
-* Christina Templaar-Leitz - Epic Games
+* Christina Tempelaar-Lietz - Epic Games
 * John Mertic - The Linux Foundation
 
 ### TSC Meetings
@@ -142,7 +142,7 @@ each meeting. The meeting chair and the TSC cannot veto or remove items.
 The TSC may invite additional persons to participate in a non-voting capacity.
 
 The meeting chair is responsible for archiving the minutes, stored at 
-https://github.com/openexr/openexr/tree/master/ASWF/tsc-meetings.
+https://github.com/AcademySoftwareFoundation/openexr/tree/master/ASWF/tsc-meetings.
 
 Due to the challenges of scheduling a global meeting with participants
 in several time zones, the TSC will seek to resolve as many agenda

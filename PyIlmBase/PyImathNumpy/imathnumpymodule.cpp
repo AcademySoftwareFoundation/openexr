@@ -44,6 +44,29 @@
 using namespace boost::python;
 using namespace PyImath;
 
+template <typename T>
+struct Holder
+{
+    Holder( T &a ) : m_val( a ) {}
+    static void Cleanup (PyObject *capsule)
+    {
+        Holder* h = static_cast<Holder*> (PyCapsule_GetPointer (capsule, NULL));
+        delete h;
+    }
+    T m_val;
+};
+
+template <typename T>
+static void
+setBaseObject (PyObject* nparr, T& arr)
+{
+    using holder         = Holder<T>;
+
+    holder* ph = new holder (arr);
+    PyObject* capsule = PyCapsule_New (ph, NULL, holder::Cleanup);
+    PyArray_SetBaseObject ((PyArrayObject*) nparr, capsule);
+}
+
 static
 object 
 arrayToNumpy_float(FloatArray &fa)
@@ -59,8 +82,9 @@ arrayToNumpy_float(FloatArray &fa)
     if (!a) {
         throw_error_already_set();
     }
+    setBaseObject (a, fa);
 
-    object retval = object(handle<>(a));
+    object retval = object (handle<> (a));
     return retval;
 }
 
@@ -81,6 +105,7 @@ arrayToNumpy_V3f(V3fArray &va)
     if (!a) {
         throw_error_already_set();
     }
+    setBaseObject (a, va);
 
     object retval = object(handle<>(a));
     return retval;
@@ -101,6 +126,7 @@ arrayToNumpy_int(IntArray &va)
     if (!a) {
         throw_error_already_set();
     }
+    setBaseObject (a, va);
 
     object retval = object(handle<>(a));
     return retval;

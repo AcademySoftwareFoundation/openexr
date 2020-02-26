@@ -266,6 +266,11 @@ struct DeepTiledInputFile::Data: public Mutex
      Data (int numThreads);
     ~Data ();
 
+    Data (const Data& other) = delete;
+    Data& operator = (const Data& other) = delete;
+    Data (Data&& other) = delete;
+    Data& operator = (Data&& other) = delete;
+    
     inline TileBuffer * getTileBuffer (int number);
                                                     // hash function from tile indices
                                                     // into our vector of tile buffers
@@ -283,7 +288,8 @@ DeepTiledInputFile::Data::Data (int numThreads):
     multiPartBackwardSupport(false),
     numThreads(numThreads),
     memoryMapped(false),
-    _streamData(NULL),
+    sampleCountTableComp(nullptr),
+    _streamData(nullptr),
     _deleteStream(false)
 {
     //
@@ -308,6 +314,8 @@ DeepTiledInputFile::Data::~Data ()
 
     for (size_t i = 0; i < slices.size(); i++)
         delete slices[i];
+
+    delete sampleCountTableComp;
 }
 
 
@@ -592,6 +600,15 @@ TileBufferTask::execute ()
             _tileBuffer->format = Compressor::XDR;
             _tileBuffer->uncompressedData = _tileBuffer->buffer;
         }
+
+	//
+	// sanity check data size: the uncompressed data should be exactly 
+	// 'sizeOfTile' (if it's less, the file is corrupt and there'll be a buffer overrun)
+	//
+        if(_tileBuffer->dataSize != sizeOfTile)
+	{
+		THROW (IEX_NAMESPACE::InputExc, "size mismatch when reading deep tile: expected " << sizeOfTile << "bytes of uncompressed data but got " << _tileBuffer->dataSize);
+	}
 
         //
         // Convert the tile of pixel data back from the machine-independent
@@ -878,7 +895,15 @@ DeepTiledInputFile::DeepTiledInputFile (InputPartData* part) :
     _data (new Data (part->numThreads))
 {
     _data->_deleteStream=false;
-    multiPartInitialize(part);
+    try
+    {
+       multiPartInitialize(part);
+    }
+    catch(...)
+    {
+        delete _data;
+        throw;
+    }
 }
 
 

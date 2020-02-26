@@ -76,7 +76,7 @@ Chromaticities::operator != (const Chromaticities & c) const
     
     
 IMATH_NAMESPACE::M44f
-RGBtoXYZ (const Chromaticities chroma, float Y)
+RGBtoXYZ (const Chromaticities &chroma, float Y)
 {
     //
     // For an explanation of how the color conversion matrix is derived,
@@ -142,7 +142,7 @@ RGBtoXYZ (const Chromaticities chroma, float Y)
 
 
 IMATH_NAMESPACE::M44f
-XYZtoRGB (const Chromaticities chroma, float Y)
+XYZtoRGB (const Chromaticities &chroma, float Y)
 {
     return RGBtoXYZ (chroma, Y).inverse();
 }

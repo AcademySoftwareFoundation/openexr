@@ -60,10 +60,14 @@ struct StringTableIndex
     StringTableIndex() : _index(0) {}
     StringTableIndex (const StringTableIndex &si) : _index (si._index) {}
     explicit StringTableIndex (index_type i) : _index (i) {}
-
+    ~StringTableIndex() = default;
+    
     const StringTableIndex & operator = (const StringTableIndex &si)
     { 
-        _index = si._index; return *this;
+        if (&si != this)
+            _index = si._index;
+        
+        return *this;
     }
 
     bool operator == (const StringTableIndex &si) const

@@ -23,6 +23,3 @@ steps:
   workingDirectory: _build
   displayName: Build OpenEXR
 
-- template: test.yml
-
-

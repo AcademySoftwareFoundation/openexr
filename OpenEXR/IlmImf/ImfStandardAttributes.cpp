@@ -47,27 +47,27 @@
 #define IMF_STD_ATTRIBUTE_IMP(name,suffix,type)				 \
 									 \
     void								 \
-    add##suffix (Header &header, const type &value)			 \
+    IMF_ADD_SUFFIX(suffix) (Header &header, const type &value)          \
     {									 \
 	header.insert (IMF_STRING (name), TypedAttribute<type> (value)); \
     }									 \
 									 \
     bool								 \
-    has##suffix (const Header &header)					 \
+    IMF_HAS_SUFFIX(suffix) (const Header &header)                       \
     {									 \
 	return header.findTypedAttribute <TypedAttribute <type> >	 \
 		(IMF_STRING (name)) != 0;				 \
     }									 \
 									 \
     const TypedAttribute<type> &					 \
-    name##Attribute (const Header &header)				 \
+    IMF_NAME_ATTRIBUTE(name) (const Header &header)                    \
     {									 \
 	return header.typedAttribute <TypedAttribute <type> >		 \
 		(IMF_STRING (name));					 \
     }									 \
 									 \
     TypedAttribute<type> &						 \
-    name##Attribute (Header &header)					 \
+    IMF_NAME_ATTRIBUTE(name) (Header &header)                      \
     {									 \
 	return header.typedAttribute <TypedAttribute <type> >		 \
 		(IMF_STRING (name));					 \
@@ -76,13 +76,13 @@
     const type &							 \
     name (const Header &header)						 \
     {									 \
-	return name##Attribute(header).value();				 \
+	return IMF_NAME_ATTRIBUTE(name) (header).value();           \
     }									 \
 									 \
     type &								 \
     name (Header &header)						 \
     {									 \
-	return name##Attribute(header).value();				 \
+	return IMF_NAME_ATTRIBUTE(name) (header).value();           \
     }
 
 #include "ImfNamespace.h"

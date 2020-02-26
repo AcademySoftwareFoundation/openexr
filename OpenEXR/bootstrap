@@ -58,7 +58,15 @@ if [ -d /usr/local/share/aclocal ]; then
 fi	
 
 run_cmd aclocal -I m4 $ACLOCAL_INCLUDE
+# Injects an additional naming scheme so we have
+# libFoo.so -> libFoo-SUFFIX.so
+# libFoo-SUFFIX.so -> libFoo-SUFFIX.so.MAJ
+# libFoo-SUFFIX.so.MAJ -> libFoo-SUFFIX.so.FULL_SO_VERSION
+# (or short cut from libFoo-SUFFIX to FULL_SO_VERSION depending
+# on libtool, but link file names are the same.
+sed -e 's/shared_ext\$major \$libname\$shared_ext/shared_ext\$major \$libname\$release\$shared_ext \$libname\$shared_ext/' -i aclocal.m4
 run_cmd $LIBTOOLIZE --automake --copy
+sed -e 's/shared_ext\$major \$libname\$shared_ext/shared_ext\$major \$libname\$release\$shared_ext \$libname\$shared_ext/' -i m4/libtool.m4
 run_cmd automake --add-missing --copy --foreign
 run_cmd autoconf
 echo

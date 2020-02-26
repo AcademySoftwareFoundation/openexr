@@ -18,6 +18,7 @@ IlmBase/config/IlmBaseConfigInternal.h
 IlmBase/HalfTest/HalfTest
 IlmBase/IexTest/IexTest
 IlmBase/ImathTest/ImathTest
+PyIlmBase/config/PyIlmBaseConfigInternal.h
 PyIlmBase/config/PyIlmBaseConfig.h
 PyIlmBase/PyIlmBase.pc
 PyIlmBase/PyIexTest/pyIexTest
@@ -27,12 +28,7 @@ OpenEXR/config/OpenEXRConfigInternal.h
 OpenEXR/IlmImfTest/IlmImfTest
 OpenEXR/IlmImfUtilTest/IlmImfUtilTest
 OpenEXR/IlmImfFuzzTest/IlmImfFuzzTest
-b44ExpLogTable.h
-dwaLookups.h
-eLut
-eLut.h
-toFloat
-toFloat.h
+Contrib/DtexToExr/DtexToExr
 .deps
 *.o
 *.lo

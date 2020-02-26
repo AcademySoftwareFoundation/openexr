@@ -19,7 +19,7 @@ DIST_SUBDIRS = \
 EXTRA_DIST = \
 	AUTHORS ChangeLog LICENSE NEWS PATENTS \
 	README.md \
-	bootstrap openexr.m4 \
+	bootstrap \
 	CMakeLists.txt
 
 dist-hook:
@@ -30,5 +30,4 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = OpenEXR.pc
 
 m4datadir = $(datadir)/aclocal
-m4data_DATA = openexr.m4
 

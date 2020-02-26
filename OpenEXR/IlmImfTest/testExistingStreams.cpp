@@ -54,6 +54,7 @@
 #include <vector>
 #include <ImfChannelList.h>
 
+#include "TestUtilFStream.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -139,7 +140,9 @@ MMIFStream::MMIFStream (const char fileName[]):
     _length (0),
     _pos (0)
 {
-    std::ifstream ifs (fileName, ios_base::binary);
+    std::ifstream ifs;
+    testutil::OpenStreamWithUTF8Name (
+        ifs, fileName, ios::in | ios_base::binary);
 
     //
     // Get length of file
@@ -229,19 +232,23 @@ writeReadScanLines (const char fileName[],
 
     {
         cout << "writing";
-	remove (fileName);
-	std::ofstream os (fileName, ios_base::binary);
-	StdOFStream ofs (os, fileName);
-	RgbaOutputFile out (ofs, header, WRITE_RGBA);
-	out.setFrameBuffer (&p1[0][0], 1, width);
-	out.writePixels (height);
+        remove (fileName);
+        std::ofstream os;
+        testutil::OpenStreamWithUTF8Name (
+            os, fileName, ios::out | ios_base::binary);
+        StdOFStream ofs (os, fileName);
+        RgbaOutputFile out (ofs, header, WRITE_RGBA);
+        out.setFrameBuffer (&p1[0][0], 1, width);
+        out.writePixels (height);
     }
 
     {
         cout << ", reading";
-	std::ifstream is (fileName, ios_base::binary);
-	StdIFStream ifs (is, fileName);
-	RgbaInputFile in (ifs);
+        std::ifstream is;
+        testutil::OpenStreamWithUTF8Name (
+            is, fileName, ios::in | ios_base::binary);
+        StdIFStream ifs (is, fileName);
+        RgbaInputFile in (ifs);
 
 	const Box2i &dw = in.dataWindow();
 	int w = dw.max.x - dw.min.x + 1;
@@ -333,7 +340,9 @@ writeReadMultiPart (const char fileName[],
     {
         cout << "writing";
         remove (fileName);
-        std::ofstream os (fileName, ios_base::binary);
+        std::ofstream os;
+        testutil::OpenStreamWithUTF8Name (
+            os, fileName, ios::out | ios_base::binary);
         StdOFStream ofs (os, fileName);
         MultiPartOutputFile out (ofs, &headers[0],2);
         FrameBuffer f;
@@ -352,7 +361,9 @@ writeReadMultiPart (const char fileName[],
                         
     {
         cout << ", reading";
-        std::ifstream is (fileName, ios_base::binary);
+        std::ifstream is;
+        testutil::OpenStreamWithUTF8Name (
+            is, fileName, ios::in | ios_base::binary);
         StdIFStream ifs (is, fileName);
         MultiPartInputFile in (ifs);
         
@@ -464,19 +475,23 @@ writeReadTiles (const char fileName[],
 
     {
         cout << "writing";
-	remove (fileName);
-	std::ofstream os (fileName, ios_base::binary);
-	StdOFStream ofs (os, fileName);
-	TiledRgbaOutputFile out (ofs, header, WRITE_RGBA, 20, 20, ONE_LEVEL);
-	out.setFrameBuffer (&p1[0][0], 1, width);
+        remove (fileName);
+        std::ofstream os;
+        testutil::OpenStreamWithUTF8Name (
+            os, fileName, ios_base::out | ios_base::binary);
+        StdOFStream ofs (os, fileName);
+        TiledRgbaOutputFile out (ofs, header, WRITE_RGBA, 20, 20, ONE_LEVEL);
+        out.setFrameBuffer (&p1[0][0], 1, width);
         out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
     }
 
     {
         cout << ", reading";
-	std::ifstream is (fileName, ios_base::binary);
-	StdIFStream ifs (is, fileName);
-	TiledRgbaInputFile in (ifs);
+        std::ifstream is;
+        testutil::OpenStreamWithUTF8Name (
+            is, fileName, ios::in | ios_base::binary);
+        StdIFStream ifs (is, fileName);
+        TiledRgbaInputFile in (ifs);
 
 	const Box2i &dw = in.dataWindow();
 	int w = dw.max.x - dw.min.x + 1;

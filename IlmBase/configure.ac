@@ -4,10 +4,10 @@ dnl Copyright Contributors to the OpenEXR Project.
 dnl
 
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(IlmBase, 2.3.0)
+AC_INIT(IlmBase, 2.4.0)
 
 AC_SUBST(ILMBASE_VERSION_MAJOR, 2)
-AC_SUBST(ILMBASE_VERSION_MINOR, 3)
+AC_SUBST(ILMBASE_VERSION_MINOR, 4)
 AC_SUBST(ILMBASE_VERSION_PATCH, 0)
 
 AC_SUBST(ILMBASE_VERSION, ${ILMBASE_VERSION_MAJOR}.${ILMBASE_VERSION_MINOR}.${ILMBASE_VERSION_PATCH})

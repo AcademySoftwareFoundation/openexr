@@ -8,30 +8,36 @@ function(PYILMBASE_ADD_LIBRARY_PRIV libname)
   cmake_parse_arguments(PYILMBASE_CURLIB "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
 
-  # let the default behaviour BUILD_SHARED_LIBS control the
-  # disposition of the default library...
-  add_library(${libname} ${PYILMBASE_CURLIB_SOURCE})
-  if(BUILD_SHARED_LIBS)
-    set_target_properties(${libname} PROPERTIES
-    SOVERSION ${PYILMBASE_SOVERSION}
-    VERSION ${PYILMBASE_LIB_VERSION}
-    )
-  endif()
+  # Currently, the python bindings REQUIRE a shared library for
+  # the Iex stuff to be initialized correctly. As such, force that
+  # here
+  # TODO Change this back when these bindings are refactored
+  add_library(${libname} SHARED ${PYILMBASE_CURLIB_SOURCE})
+  #if(BUILD_SHARED_LIBS)
   set_target_properties(${libname} PROPERTIES
-    OUTPUT_NAME "${PYILMBASE_OUTPUT_OUTROOT}${libname}${PYILMBASE_LIB_SUFFIX}"
+  SOVERSION ${PYILMBASE_SOVERSION}
+  VERSION ${PYILMBASE_LIB_VERSION}
+  )
+  #endif()
+  set_target_properties(${libname} PROPERTIES
+    OUTPUT_NAME "${PYILMBASE_CURLIB_OUTROOT}${libname}${PYILMBASE_LIB_SUFFIX}"
   )
   target_compile_features(${libname} PUBLIC cxx_std_${OPENEXR_CXX_STANDARD})
-  if(PYILMBASE_CURLIB_PRIV_EXPORT AND BUILD_SHARED_LIBS)
+  # we are always building shared, so don't check for that
+  if(PYILMBASE_CURLIB_PRIV_EXPORT)
     target_compile_definitions(${libname} PRIVATE ${PYILMBASE_CURLIB_PRIV_EXPORT})
-    if(WIN32)
-      target_compile_definitions(${libname} PUBLIC OPENEXR_DLL)
-    endif()
+  endif()
+  if(WIN32)
+    target_compile_definitions(${libname} PUBLIC OPENEXR_DLL)
   endif()
   if(PYILMBASE_CURLIB_CURDIR)
     target_include_directories(${libname} PUBLIC $<BUILD_INTERFACE:${PYILMBASE_CURLIB_CURDIR}>)
   endif()
   if(PYILMBASE_CURLIB_CURBINDIR)
     target_include_directories(${libname} PRIVATE $<BUILD_INTERFACE:${PYILMBASE_CURLIB_CURBINDIR}>)
+  endif()
+  if(Boost_INCLUDE_DIR)
+    target_include_directories(${libname} PUBLIC ${Boost_INCLUDE_DIR})
   endif()
   target_link_libraries(${libname} PUBLIC ${PYILMBASE_CURLIB_DEPENDENCIES})
   if(PYILMBASE_CURLIB_PRIVATE_DEPS)
@@ -86,7 +92,7 @@ function(PYILMBASE_DEFINE_MODULE modname)
     list(APPEND libarglist CURDIR ${PYILMBASE_CURMOD_CURDIR})
   endif()
   if(PYILMBASE_CURMOD_CURBINDIR)
-    list(APPEND libarglist CURDIR ${PYILMBASE_CURMOD_CURBINDIR})
+    list(APPEND libarglist CURBINDIR ${PYILMBASE_CURMOD_CURBINDIR})
   endif()
   if(PYILMBASE_CURMOD_DEPENDENCIES)
     list(APPEND libarglist DEPENDENCIES ${PYILMBASE_CURMOD_DEPENDENCIES})
@@ -113,12 +119,14 @@ function(PYILMBASE_DEFINE_MODULE modname)
         ${extraDeps}
         ${PYILMBASE_CURMOD_DEPENDENCIES}
         ${PYILMBASE_CURMOD_PRIVATE_DEPS}
+        Boost::${PYILMBASE_BOOST_PY2_COMPONENT}
       )
     set_target_properties(${modname}_python2 PROPERTIES
       LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/python${Python2_VERSION_MAJOR}_${Python2_VERSION_MINOR}/"
       LIBRARY_OUTPUT_NAME "${modname}"
+      DEBUG_POSTFIX ""
     )
-    #### TODO: Define installation rules
+    install(TARGETS ${modname}_python2 DESTINATION ${PyIlmBase_Python2_SITEARCH_REL})
   endif()
 
   if(TARGET Python3::Python AND TARGET Boost::${PYILMBASE_BOOST_PY3_COMPONENT})
@@ -138,11 +146,13 @@ function(PYILMBASE_DEFINE_MODULE modname)
         ${libname} ${extraDeps}
         ${PYILMBASE_CURMOD_DEPENDENCIES}
         ${PYILMBASE_CURMOD_PRIVATE_DEPS}
+        Boost::${PYILMBASE_BOOST_PY3_COMPONENT}
       )
     set_target_properties(${modname}_python3 PROPERTIES
       LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/python${Python3_VERSION_MAJOR}_${Python3_VERSION_MINOR}/"
       LIBRARY_OUTPUT_NAME "${modname}"
+      DEBUG_POSTFIX ""
     )
-    #### TODO: Define installation rules
+    install(TARGETS ${modname}_python3 DESTINATION ${PyIlmBase_Python3_SITEARCH_REL})
   endif()
 endfunction()

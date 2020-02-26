@@ -304,10 +304,10 @@ void register_StringArrays()
         .def("__setitem__", &StringArray::setitem_string_vector)
         .def("__setitem__", &StringArray::setitem_string_vector_mask)
         .def("__len__",&StringArray::len)
-        .def(self == self)
+        .def(self == self) // NOSONAR - suppress SonarCloud bug report.
         .def(self == other<std::string>())
         .def(other<std::string>() == self)
-        .def(self != self)
+        .def(self != self) // NOSONAR - suppress SonarCloud bug report.
         .def(self != other<std::string>())
         .def(other<std::string>() != self)
         ;
@@ -324,10 +324,10 @@ void register_StringArrays()
         .def("__setitem__", &WstringArray::setitem_string_vector)
         .def("__setitem__", &WstringArray::setitem_string_vector_mask)
         .def("__len__",&WstringArray::len)
-        .def(self == self)
+        .def(self == self) // NOSONAR - suppress SonarCloud bug report.
         .def(self == other<std::wstring>())
         .def(other<std::wstring>() == self)
-        .def(self != self)
+        .def(self != self) // NOSONAR - suppress SonarCloud bug report.
         .def(self != other<std::wstring>())
         .def(other<std::wstring>() != self)
         ;

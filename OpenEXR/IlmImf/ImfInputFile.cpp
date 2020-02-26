@@ -112,6 +112,11 @@ struct InputFile::Data : public Mutex
      Data (int numThreads);
     ~Data ();
 
+    Data (const Data& other) = delete;
+    Data& operator = (const Data& other) = delete;
+    Data (Data&& other) = delete;
+    Data& operator = (Data&& other) = delete;
+
     void		deleteCachedBuffer();
 };
 
@@ -475,7 +480,15 @@ InputFile::InputFile (InputPartData* part) :
     _data (new Data (part->numThreads))
 {
     _data->_deleteStream=false;
-    multiPartInitialize (part);
+    try
+    {
+       multiPartInitialize (part);
+    }
+    catch(...)
+    {
+        delete _data;
+        throw;
+    }
 }
 
 

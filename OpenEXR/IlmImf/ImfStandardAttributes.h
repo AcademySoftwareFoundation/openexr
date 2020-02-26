@@ -70,15 +70,19 @@
 #include "ImfNamespace.h"
 #include "ImfExport.h"
 
+#define IMF_ADD_SUFFIX(suffix) add##suffix
+#define IMF_HAS_SUFFIX(suffix) has##suffix
+#define IMF_NAME_ATTRIBUTE(name) name##Attribute
+
 #define IMF_STD_ATTRIBUTE_DEF(name,suffix,object)                            \
                                                                              \
     OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER                              \
-    IMF_EXPORT void           add##suffix (Header &header, const object &v); \
-    IMF_EXPORT bool           has##suffix (const Header &header);            \
+    IMF_EXPORT void           IMF_ADD_SUFFIX(suffix) (Header &header, const object &v); \
+    IMF_EXPORT bool           IMF_HAS_SUFFIX(suffix) (const Header &header);     \
     IMF_EXPORT const TypedAttribute<object> &                                \
-                              name##Attribute (const Header &header);        \
+                              IMF_NAME_ATTRIBUTE(name) (const Header &header); \
     IMF_EXPORT TypedAttribute<object> &                                      \
-                              name##Attribute (Header &header);              \
+                              IMF_NAME_ATTRIBUTE(name) (Header &header);     \
     IMF_EXPORT const object &                                                \
                               name (const Header &header);                   \
     IMF_EXPORT object &       name (Header &header);                         \

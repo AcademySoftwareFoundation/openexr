@@ -99,7 +99,7 @@ inline
 int&
 sampleCount(char* base, int xStride, int yStride, int x, int y)
 {
-    char* ptr = base + y * yStride + x * xStride;
+    char* ptr = base + y * ptrdiff_t(yStride) + x * ptrdiff_t(xStride);
     int* intPtr = (int*) ptr;
 
     return *intPtr;
@@ -110,7 +110,7 @@ inline
 const int&
 sampleCount(const char* base, int xStride, int yStride, int x, int y)
 {
-    const char* ptr = base + y * yStride + x * xStride;
+    const char* ptr = base + y * ptrdiff_t(yStride) + x * ptrdiff_t(xStride);
     int* intPtr = (int*) ptr;
     
     return *intPtr;

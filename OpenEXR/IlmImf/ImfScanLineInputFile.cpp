@@ -73,7 +73,6 @@ using IMATH_NAMESPACE::divp;
 using IMATH_NAMESPACE::modp;
 using std::string;
 using std::vector;
-using std::ifstream;
 using std::min;
 using std::max;
 using std::sort;
@@ -150,6 +149,11 @@ struct LineBuffer
 
     LineBuffer (Compressor * const comp);
     ~LineBuffer ();
+
+    LineBuffer (const LineBuffer& other) = delete;
+    LineBuffer& operator = (const LineBuffer& other) = delete;
+    LineBuffer (LineBuffer&& other) = delete;
+    LineBuffer& operator = (LineBuffer&& other) = delete;
 
     inline void		wait () {_sem.wait();}
     inline void		post () {_sem.post();}
@@ -239,6 +243,11 @@ struct ScanLineInputFile::Data: public Mutex
     
     Data (int numThreads);
     ~Data ();
+
+    Data (const Data& other) = delete;
+    Data& operator = (const Data& other) = delete;
+    Data (Data&& other) = delete;
+    Data& operator = (Data&& other) = delete;
     
     inline LineBuffer * getLineBuffer (int number); // hash function from line
     						    // buffer indices into our
@@ -1098,8 +1107,6 @@ newLineBufferTask (TaskGroup *group,
 
 void ScanLineInputFile::initialize(const Header& header)
 {
-    try
-    {
         _data->header = header;
 
         _data->lineOrder = _data->header.lineOrder();
@@ -1113,6 +1120,12 @@ void ScanLineInputFile::initialize(const Header& header)
 
         size_t maxBytesPerLine = bytesPerLineTable (_data->header,
                                                     _data->bytesPerLine);
+        
+        if(maxBytesPerLine > INT_MAX)
+        {
+            throw IEX_NAMESPACE::InputExc("maximum bytes per scanline exceeds maximum permissible size");
+        }
+
 
         for (size_t i = 0; i < _data->lineBuffers.size(); i++)
         {
@@ -1144,13 +1157,6 @@ void ScanLineInputFile::initialize(const Header& header)
                               _data->linesInBuffer) / _data->linesInBuffer;
 
         _data->lineOffsets.resize (lineOffsetSize);
-    }
-    catch (...)
-    {
-        delete _data;
-        _data=NULL;
-        throw;
-    }
 }
 
 
@@ -1165,8 +1171,27 @@ ScanLineInputFile::ScanLineInputFile(InputPartData* part)
 
     _data->version = part->version;
 
-    initialize(part->header);
-
+    try
+    {
+       initialize(part->header);
+    }
+    catch(...)
+    {
+        if (!_data->memoryMapped)
+        {
+            for (size_t i = 0; i < _data->lineBuffers.size(); i++)
+            {
+                if( _data->lineBuffers[i] )
+                {
+                   EXRFreeAligned(_data->lineBuffers[i]->buffer);
+                   _data->lineBuffers[i]->buffer=nullptr;
+                }
+            }
+        }
+        
+        delete _data;
+        throw;
+    }
     _data->lineOffsets = part->chunkOffsets;
 
     _data->partNumber = part->partNumber;
@@ -1189,19 +1214,43 @@ ScanLineInputFile::ScanLineInputFile
     _streamData->is = is;
     _data->memoryMapped = is->isMemoryMapped();
 
-    initialize(header);
-    
-    //
-    // (TODO) this is nasty - we need a better way of working out what type of file has been used.
-    // in any case I believe this constructor only gets used with single part files
-    // and 'version' currently only tracks multipart state, so setting to 0 (not multipart) works for us
-    //
-    
-    _data->version=0;
-    readLineOffsets (*_streamData->is,
-                     _data->lineOrder,
-                     _data->lineOffsets,
-                     _data->fileIsComplete);
+    try
+    {
+
+        initialize(header);
+        
+        //
+        // (TODO) this is nasty - we need a better way of working out what type of file has been used.
+        // in any case I believe this constructor only gets used with single part files
+        // and 'version' currently only tracks multipart state, so setting to 0 (not multipart) works for us
+        //
+        
+        _data->version=0;
+        readLineOffsets (*_streamData->is,
+                        _data->lineOrder,
+                        _data->lineOffsets,
+                        _data->fileIsComplete);
+    }
+    catch(...)
+    {
+        if(_data)
+        {
+           if (!_data->memoryMapped)
+           {
+              for (size_t i = 0; i < _data->lineBuffers.size(); i++)
+              {
+                 if( _data->lineBuffers[i] )
+                 {
+                   EXRFreeAligned(_data->lineBuffers[i]->buffer);
+                   _data->lineBuffers[i]->buffer=nullptr;
+                 }
+              }
+           }
+        }
+        delete _streamData;
+        delete _data;
+        throw;
+    }
 }
 
 
@@ -1422,6 +1471,14 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
                   default:
                       // not possible.
                       break;
+              }
+
+              //
+              // optimization mode cannot currently skip subsampled channels
+              //
+              if (i.channel().xSampling!=1 || i.channel().ySampling!=1)
+              {
+                  optimizationPossible = false;
               }
               ++i;
 	}

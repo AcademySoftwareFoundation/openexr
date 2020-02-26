@@ -503,8 +503,10 @@ class TiledOutputFile : public GenericOutputFile
     // ----------------------------------------------------------------
     TiledOutputFile (const OutputPartData* part);
 
-    TiledOutputFile (const TiledOutputFile &);		    // not implemented
-    TiledOutputFile & operator = (const TiledOutputFile &); // not implemented
+    TiledOutputFile (const TiledOutputFile &) = delete;
+    TiledOutputFile & operator = (const TiledOutputFile &) = delete;
+    TiledOutputFile (TiledOutputFile &&) = delete;
+    TiledOutputFile & operator = (TiledOutputFile &&) = delete;
 
     void		initialize (const Header &header);
 

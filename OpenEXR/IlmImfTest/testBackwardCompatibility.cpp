@@ -37,6 +37,7 @@
 #endif
 
 #include "testBackwardCompatibility.h"
+#include "TestUtilFStream.h"
 
 #include <ImfArray.h>
 #include <ImfHeader.h>
@@ -104,8 +105,9 @@ const int H = 197;
 void
 diffImageFiles (const char * fn1, const char * fn2)
 {
-    ifstream i1 (fn1, ios::binary);
-    ifstream i2 (fn2, ios::binary);
+    ifstream i1, i2;
+    testutil::OpenStreamWithUTF8Name (i1, fn1, ios::in | ios::binary);
+    testutil::OpenStreamWithUTF8Name (i2, fn2, ios::in | ios::binary);
 
     if(!i1.good()){THROW (IEX_NAMESPACE::BaseExc, string("cannot open ") + string(fn1));}
     if(!i2.good()){THROW (IEX_NAMESPACE::BaseExc, string("cannot open ") + string(fn2));}

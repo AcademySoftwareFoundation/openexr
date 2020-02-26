@@ -4,24 +4,24 @@
 
 To build the latest release of OpenEXR, begin by downloading the
 source from the Releases page
-https://github.com/openexr/openexr/tarball/v2.3.0.
+https://github.com/AcademySoftwareFoundation/openexr/tarball/v2.3.0.
 
 To build from the latest development version, which may not be stable,
 download the master branch via
-https://github.com/openexr/openexr/tarball/master, and extract the
+https://github.com/AcademySoftwareFoundation/openexr/tarball/master, and extract the
 contents via ``tar``.
 
 You can download the repository tarball file either via a browser, or
 on the Linux/macOS via the command line using ``wget`` or ``curl``:
 
-    % curl -L https://github.com/openexr/openexr/tarball/master | tar xv
+    % curl -L https://github.com/AcademySoftwareFoundation/openexr/tarball/master | tar xv
 
 This will produce a source directory named
 ``openexr-openexr-<abbreviated-SHA-1-checksum>``.
 
 Alternatively, clone the GitHub repo directly via:
 
-    % git clone https://github.com/openexr/openexr.git
+    % git clone https://github.com/AcademySoftwareFoundation/openexr.git
 
 In the instructions that follow, we will refer to the top-level
 directory of the source code tree as ``$source_directory``.
@@ -30,10 +30,15 @@ directory of the source code tree as ``$source_directory``.
 
 Make sure these are installed on your system before building OpenEXR:
 
-* OpenEXR requires CMake version 3.12 or newer (or autoconf on Linux systems).
+* OpenEXR requires CMake version 3.10 or newer (or autoconf on Linux systems).
+  - NB: CMake 3.12 is required for current PyIlmBase support
 * C++ compiler that supports C++11
 * Zlib
 * Python and boost-python if building the PyIlmBase module.
+  - NB: If you have a custom install of boost and have issues, you may
+    need to set Boost_ROOT and/or manually disable Boost_NO_BOOST_CMAKE
+    in the PyIlmBase cmake file when you run cmake. See the FindBoost
+    documentation that is part of cmake for more information.
 
 The instructions that follow describe building OpenEXR with CMake, but
 you can also build and install OpenEXR via the autoconf
@@ -75,6 +80,31 @@ can specify a local install directory to cmake via the
 ``CMAKE_INSTALL_PREFIX`` variable:
 
     % cmake .. -DCMAKE_INSTALL_PREFIX=$install_directory
+
+## Library Names
+
+Using either cmake or autoconf based configuration mechanisms described
+in this document, by default the installed libraries follow a pattern
+for how they are named. This is done to enable multiple versions of the
+library to be installed and targeted by different builds depending on
+the needs of the project. A simple example of this would be to have
+different versions of the library installed to allow for applications
+targeting different VFX Platform years to co-exist.
+
+If you are building dynamic libraries, once you have configured, built,
+and installed the libraries, you should see the following pattern of
+symlinks and files in the install lib folder:
+
+    libHalf.so -> libHalf-$LIB_SUFFIX.so
+    libHalf-$LIB_SUFFIX.so -> libHalf-$LIB_SUFFIX.so.$SO_MAJOR_VERSION
+    libHalf-$LIB_SUFFIX.so.$SO_MAJOR_VERSION -> libHalf-$LIB_SUFFIX.so.$SO_FULL_VERSION
+    libHalf-$LIB_SUFFIX.so.$SO_FULL_VERSION (actual file)
+
+You can configure the LIB_SUFFIX, although it defaults to the library
+major and minor version, so in the case of a 2.3 library, it would default
+to 2_3. You would then link your programs against this versioned library
+to have maximum safety (i.e. `-lHalf-2_3`), and the pkg-config and cmake
+configuration files included with find_package should set this up.
 
 ## Sub-Modules
 
@@ -190,11 +220,11 @@ You can customize these options three ways:
 
 * **ILMBASE\_LIB\_SUFFIX**
 
-  Append the given string to the end of all the llmBase libraries. Default is ``-<major>_<minor>`` version string.
+  Append the given string to the end of all the IlmBase libraries. Default is ``-<major>_<minor>`` version string. Please see the section on library names
 
 * **OPENEXR\_LIB\_SUFFIX**
 
-  Append the given string to the end of all the llmBase libraries. Default is ``-<major>_<minor>`` version string.
+  Append the given string to the end of all the OpenEXR libraries. Default is ``-<major>_<minor>`` version string. Please see the section on library names
 
 ### Namespace Options:
 
@@ -238,8 +268,22 @@ You can customize these options three ways:
  
   Whether the namespace has been customized (so external users know)
 
+### Python Options:
+
+* **PyIlmBase\_Python2\_SITEARCH\_REL**
+
+  This will normally be computed based on where the python2 binary and site-packages live and
+  then be a relative path based on the root of those. For example, if site-packages is in
+  ``/usr/lib/python2.7/site-packages`` and the python binary is ``/usr/bin/python2.7``, this
+  will result in the default install path being ``${CMAKE\_INSTALL\_PREFIX}/lib/python2.7/site-packages``
+
+* **PyIlmBase\_Python3\_SITEARCH\_REL**
+
+  Identical logic to PyIlmBase\_Python2\_SITEARCH\_REL path above, but for python 3.x
+
 ### Linting Options:
 
+These linting options are experimental, and primarily for developer-only use at this time.
 
 * **ILMBASE\_USE\_CLANG\_TIDY**
  
@@ -324,9 +368,3 @@ As an alternative to CMake on Linux systems, the OpenEXR build can be configured
     % make install
 
 Run ``./configure --help`` for a complete set of configuration options.
-
-
-
-
-
-

@@ -533,8 +533,8 @@ register_Shear()
         .def("__div__",&divT<T>)
         .def("__truediv__",&div<T>)
         .def("__truediv__",&divT<T>)
-        .def(self == self)
-        .def(self != self)
+        .def(self == self) // NOSONAR - suppress SonarCloud bug report.
+        .def(self != self) // NOSONAR - suppress SonarCloud bug report.
         .def("__str__",&Shear_str<T>)
         .def("__repr__",&Shear_repr<T>)
         .def("setValue", setValue1)

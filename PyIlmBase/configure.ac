@@ -4,11 +4,12 @@ dnl Copyright Contributors to the OpenEXR Project.
 dnl
 
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(PyIlmBase, 2.3.0)
-AC_SUBST(PYILMBASE_VERSION, 2.3.0)
+AC_INIT(PyIlmBase, 2.4.0)
+AC_SUBST(PYILMBASE_VERSION, 2.4.0)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(PyIex/iexmodule.cpp)
-AC_CONFIG_HEADER(config/PyIlmBaseConfig.h)
+AC_CONFIG_HEADERS([config/PyIlmBaseConfig.h])
+AC_CONFIG_HEADERS([config/PyIlmBaseConfigInternal.h])
 AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 dnl static python modules make no sense - disable static

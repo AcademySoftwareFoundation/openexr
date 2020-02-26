@@ -224,6 +224,11 @@ class SampleCountChannel : public ImageChannel
          IMFUTIL_EXPORT
         ~Edit ();
 
+        Edit (const Edit& other) = delete;
+        Edit& operator = (const Edit& other) = delete;
+        Edit (Edit&& other) = delete;
+        Edit& operator = (Edit&& other) = delete;
+
         //
         // Access to the writable sample count array.
         //

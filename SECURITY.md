@@ -3,15 +3,30 @@
 ## Reporting a Vulnerability
 
 If you think you've found a potential vulnerability in OpenEXR, please
-report it by emailing security@openexr.com. Only TSC members and ASWF
-project management have access to these messages. Include detailed
-steps to reproduce the issue, and any other information that could aid
-an investigation. Our policy is to respond to vulernability reports
-within 14 days.
+report it by emailing security@openexr.org. Only Technical Steering
+Committee members and Academy Software Foundation project management
+have access to these messages. Include detailed steps to reproduce the
+issue, and any other information that could aid an investigation. Our
+policy is to respond to vulernability reports within 14 days.
 
 Our policy is to address critical security vulnerabilities rapidly and
 post patches as quickly as possible.
 
-See the [release notes](CHANGES.md) for a listing of known CVEs and
-the releases in which they have been addressed.
+## Known Vulnerabilities
+
+* [CVE-2018-18444](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18444) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0
+* [CVE-2018-18443](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18443) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0
+* [CVE-2017-9116](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9116) 2.0.0, 2.0.1, 2.1.0, 2.2.0
+* [CVE-2017-9115](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9115) 2.0.0, 2.0.1, 2.1.0, 2.2.0
+* [CVE-2017-9114](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9114) 2.0.0, 2.0.1, 2.1.0, 2.2.0
+* [CVE-2017-9113](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9113) 2.0.0, 2.0.1, 2.1.0, 2.2.0
+* [CVE-2017-9112](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9112) 2.0.0, 2.0.1, 2.1.0, 2.2.0
+* [CVE-2017-9111](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9111) 2.0.0, 2.0.1, 2.1.0, 2.2.0
+* [CVE-2017-9110](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9110) 2.0.0, 2.0.1, 2.1.0, 2.2.0
+* [CVE-2017-12596](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-12596) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0
+* [CVE-2009-1722](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1722) 1.0.*, 1.1.*, 1.2.*, 1.3.*, 1.4.*, 1.5.*, 1.6.*
+* [CVE-2009-1721](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1721) 1.0.*, 1.1.*, 1.2.*, 1.3.*, 1.4.*, 1.5.*, 1.6.*
+* [CVE-2009-1720](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1720) 1.0.*, 1.1.*, 1.2.*, 1.3.*, 1.4.*, 1.5.*, 1.6.*
+
+See the [release notes](CHANGES.md) for more information.
 

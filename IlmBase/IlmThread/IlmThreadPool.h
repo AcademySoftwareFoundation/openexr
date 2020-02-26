@@ -136,7 +136,10 @@ class ILMTHREAD_EXPORT ThreadPool
     //-----------------------------------------------------------
 
     virtual ~ThreadPool ();
-    
+    ThreadPool (const ThreadPool&) = delete;
+    ThreadPool& operator= (const ThreadPool&) = delete;
+    ThreadPool (ThreadPool&&) = delete;
+    ThreadPool& operator= (ThreadPool&&) = delete;
 
     //--------------------------------------------------------
     // Query and set the number of worker threads in the pool.
@@ -193,6 +196,10 @@ class ILMTHREAD_EXPORT Task
 
     Task (TaskGroup* g);
     virtual ~Task ();
+    Task (const Task&) = delete;
+    Task &operator= (const Task&) = delete;
+    Task (Task&&) = delete;
+    Task& operator= (Task&&) = delete;
 
     virtual void	execute () = 0;
     TaskGroup *		group();
@@ -210,6 +217,11 @@ class ILMTHREAD_EXPORT TaskGroup
     TaskGroup();
     ~TaskGroup();
 
+    TaskGroup (const TaskGroup& other) = delete;
+    TaskGroup& operator = (const TaskGroup& other) = delete;
+    TaskGroup (TaskGroup&& other) = delete;
+    TaskGroup& operator = (TaskGroup&& other) = delete;
+    
     // marks one task as finished
     // should be used by the thread pool provider to notify
     // as it finishes tasks

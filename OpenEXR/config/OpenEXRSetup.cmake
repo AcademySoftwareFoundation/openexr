@@ -20,6 +20,13 @@ set(OPENEXR_INTERNAL_IMF_NAMESPACE "Imf_${OPENEXR_VERSION_API}" CACHE STRING "Re
 set(OPENEXR_IMF_NAMESPACE "Imf" CACHE STRING "Public namespace alias for Imath")
 set(OPENEXR_PACKAGE_NAME "IlmBase ${ILMBASE_VERSION}" CACHE STRING "Public string / label for displaying package")
 
+# Whether to generate and install a pkg-config file OpenEXR.pc
+if (WIN32)
+option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" OFF)
+else()
+option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" ON)
+endif()
+
 ########################
 ## Build related options
 
@@ -110,4 +117,23 @@ if(OPENEXR_USE_CLANG_TIDY)
     -header-filter=.;
     -checks=*;
   )
+endif()
+
+###############################
+# Dependent libraries
+
+# so we know how to add the thread stuff to the pkg-config package
+# which is the only (but good) reason.
+if(NOT TARGET Threads::Threads)
+  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+  set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+  find_package(Threads)
+  if(NOT Threads_FOUND)
+    message(FATAL_ERROR "Unable to find a threading library which is required for OpenEXR")
+  endif()
+endif()
+
+find_package(ZLIB REQUIRED)
+if(NOT TARGET ZLIB::ZLIB)
+  message(FATAL_ERROR "Unable to find zlib library target which is required for OpenEXR")
 endif()

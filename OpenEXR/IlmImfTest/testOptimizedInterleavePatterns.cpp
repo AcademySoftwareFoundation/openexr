@@ -49,6 +49,7 @@
 #include <ImathBox.h>
 
 #include "tmpDir.h"
+#include "random.h"
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
@@ -171,6 +172,14 @@ Schema Schemes[] =
         {NULL,NULL,NULL,0,NULL,NULL}
 };
 
+template<class T> inline T alignToFour(T input)
+{
+    while( (intptr_t(input)&3) !=0 )
+    {
+        input++;
+    }
+    return input;
+}
 
 
 bool compare(const FrameBuffer& asRead,
@@ -192,6 +201,7 @@ bool compare(const FrameBuffer& asRead,
                 switch (i.slice().type)
                 {
                     case IMF::FLOAT :
+                        assert(alignToFour(ptr)==ptr);                        
                         readHalf =  half(*(float*) ptr);
                         break;
                     case IMF::HALF :
@@ -213,6 +223,7 @@ bool compare(const FrameBuffer& asRead,
                     switch (p.slice().type)
                     {
                     case IMF::FLOAT :
+                        assert(alignToFour(ptr)==ptr);
                         writtenHalf = half(*(float*) ptr);
                         break;
                     case IMF::HALF :
@@ -250,6 +261,8 @@ bool compare(const FrameBuffer& asRead,
     return true;
 }
 
+
+
 //
 // allocate readingBuffer or writingBuffer, setting up a framebuffer to point to the right thing
 //
@@ -272,7 +285,7 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
     //
     int activechans = 0;
     int bytes_per_pixel =0;
-    
+    bool has32BitValue = false;
     while (channels[activechans]!=NULL)
     {
         if (pt==NULL)
@@ -284,7 +297,15 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
             switch (pt[activechans])
             {
                 case IMF::HALF : bytes_per_pixel+=2;break;
-                case IMF::FLOAT : case IMF::UINT : bytes_per_pixel+=4;break;
+                case IMF::FLOAT : case IMF::UINT : 
+                    // some architectures (e.g arm7 cannot write 32 bit values
+                    // to addresses which aren't aligned to 32 bit addresses)
+                    // so bump to next multiple of four
+                    bytes_per_pixel =  alignToFour(bytes_per_pixel);
+                    bytes_per_pixel+=4;
+                    has32BitValue = true;
+                    break;
+                    
                 default :
                     cout << "Unexpected PixelType?\n";
                     exit(1);
@@ -306,13 +327,22 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
             switch (pt[passivechans+activechans])
             {
                 case IMF::HALF : bytes_per_pixel+=2;break;
-                case IMF::FLOAT : case IMF::UINT : bytes_per_pixel+=4;break;
+                case IMF::FLOAT : case IMF::UINT : 
+                    bytes_per_pixel =  alignToFour(bytes_per_pixel);
+                    bytes_per_pixel+=4;
+                    has32BitValue = true;
+                    break;
                 default :
                     cout << "Unexpected PixelType?\n";
                     exit(1);
             }
         }
         passivechans++;
+    }
+    
+    if(has32BitValue)
+    {
+        bytes_per_pixel = alignToFour(bytes_per_pixel);
     }
 
    int chans = activechans+passivechans;
@@ -340,7 +370,7 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
      int chan=0;
      for (int i=0;i<samples;i++)
      {
-         unsigned short int values = (unsigned short int) floor((double(rand())/double(RAND_MAX))*65535.0);
+         unsigned short int values = random_int(std::numeric_limits<unsigned short>::max());
          half v;
          v.setBits(values);
          if (pt==NULL || pt[chan]==IMF::HALF)
@@ -350,7 +380,9 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
          }
          else
          {
+             write_ptr = alignToFour(write_ptr);
              *(float*)write_ptr = float(v);
+             
              write_ptr+=4;
          }
          chan++;
@@ -395,7 +427,13 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
             offset = (writing ? &writingBuffer[0] :
                                 &readingBuffer[0]) + bank*bytes_per_bank_row - first_pixel_index;
         }
-        
+       
+
+         if(type==FLOAT || type==UINT)
+         {
+           offset = alignToFour(offset);
+         }
+ 
         if (i<activechans)
         {
             
@@ -419,6 +457,7 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
                                            1,1,0.4));
 
                 char * pre_offset = offset-&readingBuffer[0]+&preReadBuffer[0];
+ 
                 prereadbuf.insert (passivechannels[i-activechans],
                                    Slice (type,
                                           pre_offset,
@@ -455,22 +494,22 @@ Box2i writefile(Schema & scheme,FrameBuffer& buf,bool tiny)
     Header hdr(width,height,1);
     
     
-    //min values in range (-100,100)
-    hdr.dataWindow().min.x = int(200.0*double(rand())/double(RAND_MAX)-100.0);
-    hdr.dataWindow().min.y = int(200.0*double(rand())/double(RAND_MAX)-100.0);
+    //min values in range [-100,100]
+    hdr.dataWindow().min.x = random_int(201)-100;
+    hdr.dataWindow().min.y = random_int(201)-100;
     
     
     // in tiny mode, make image up to 14*14 pixels (less than two SSE instructions)
     if (tiny)
     {
-        hdr.dataWindow().max.x = hdr.dataWindow().min.x + 1+int(13*double(rand())/double(RAND_MAX));
-        hdr.dataWindow().max.y = hdr.dataWindow().min.y + 1+int(13*double(rand())/double(RAND_MAX));
+        hdr.dataWindow().max.x = hdr.dataWindow().min.x + 1 + random_int(14);
+        hdr.dataWindow().max.y = hdr.dataWindow().min.y + 1 + random_int(14);
     }
     else
     {
         // in normal mode, make chunky images
-        hdr.dataWindow().max.x = hdr.dataWindow().min.x + 64+int(400*double(rand())/double(RAND_MAX));
-        hdr.dataWindow().max.y = hdr.dataWindow().min.y + 64+int(400*double(rand())/double(RAND_MAX));
+        hdr.dataWindow().max.x = hdr.dataWindow().min.x + 64 + random_int(400);
+        hdr.dataWindow().max.y = hdr.dataWindow().min.y + 64 + random_int(400);
     }
     
     hdr.compression()=ZIPS_COMPRESSION;
@@ -565,7 +604,7 @@ test (Schema writeScheme, Schema readScheme, bool nonfatal, bool tiny)
 
 void runtests(bool nonfatal,bool tiny)
 {
-    srand(1);
+    random_reseed(1);
     int i=0;
     int skipped=0;
     

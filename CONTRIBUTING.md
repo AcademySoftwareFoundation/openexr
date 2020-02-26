@@ -26,7 +26,7 @@ There are two primary ways to connect with the OpenEXR project:
   This is a development focused mail list with a deep history of
   technical conversations and decisions that have shaped the project.
 
-* [GitHub Issues](https://github.com/openexr/openexr/issues): GitHub
+* [GitHub Issues](https://github.com/AcademySoftwareFoundation/openexr/issues): GitHub
   Issues are used both to track bugs and to discuss feature requests.
 
 ### How to Ask for Help
@@ -40,7 +40,7 @@ the place for question such has "How do I...".
 ### How to Report a Bug
 
 OpenEXR use GitHub's issue tracking system for bugs and enhancements:
-https://github.com/openexr/openexr/issues
+https://github.com/AcademySoftwareFoundation/openexr/issues
 
 If you are submitting a bug report, please be sure to note which
 version of OpenEXR you are using, on what platform (OS/version, which
@@ -55,7 +55,7 @@ with enough detail that others can reproduce the problem.
 
 ### How to Request a Change
 
-Open a GitHub issue: https://github.com/openexr/openexr/issues.
+Open a GitHub issue: https://github.com/AcademySoftwareFoundation/openexr/issues.
 
 Describe the situation and the objective in as much detail as
 possible. Feature requests will almost certainly spawn a discussion
@@ -64,10 +64,7 @@ among the project community.
 ### How to Report a Security Vulnerability
 
 If you think you've found a potential vulnerability in OpenEXR, please
-report it by emailing security@openexr.com. Only TSC members and ASWF
-project management have access to these messages. Include detailed
-steps to reproduce the issue, and any other information that could aid
-an investigation.
+refer to [SECURITY.md] to responsibly disclose it.
 
 ### How to Contribute a Bug Fix or Change
 
@@ -99,34 +96,30 @@ Developers who wish to contribute code to be considered for inclusion
 in the OpenEXR distribution must first complete a **Contributor
 License Agreement**.
 
+OpenEXR uses EasyCLA for managing CLAs, which automatically
+checks to ensure CLAs are signed by a contributor before a commit
+can be merged. 
+
 * If you are an individual writing the code on your own time and
   you're SURE you are the sole owner of any intellectual property you
-  contribute, use the [Individual Contributor License
-  Agreement](http://www.openexr.com/downloads/OpenEXRIndividualContributorLicenseAgreement.docx).
+  contribute, you can [sign the CLA as an individual contributor](https://github.com/communitybridge/easycla/blob/master/docs/sign-a-cla-as-an-individual-contributor-to-github.md).
 
 * If you are writing the code as part of your job, or if there is any
   possibility that your employers might think they own any
   intellectual property you create, then you should use the [Corporate
   Contributor Licence
-  Agreement](http://www.openexr.com/downloads/OpenEXRCorporateContributorLicenseAgreement.docx).
+  Agreement](https://github.com/communitybridge/easycla/blob/master/docs/contribute-to-a-github-company-project.md).
 
-Download the appropriate CLA from the links above (or find them in the
-src/doc directory of the software distribution), print, sign, and
-rescan it (or just add a digital signature directly), and email it
-back to us at [info@openexr.com](info@openexr.com).
-
-The OpenEXR CLA's are the standard forms used by Linux Foundation
-projects.
+The OpenEXR CLAs are the standard forms used by Linux Foundation
+projects and [recommended by the ASWF TAC](https://github.com/AcademySoftwareFoundation/tac/blob/master/process/contributing.md#contributor-license-agreement-cla).
 
 ### Commit Sign-Off
 
 Every commit must be signed off.  That is, every commit log message
 must include a “`Signed-off-by`” line (generated, for example, with
 “`git commit --signoff`”), indicating that the committer wrote the
-code and has the right to release it under the
-[Modified-BSD-3-Clause](https://opensource.org/licenses/BSD-3-Clause)
-license. See http://developercertificate.org/ for more information on
-this requirement.
+code and has the right to release it under the [BSD-3-Clause](LICENSE.md)
+license. See https://github.com/AcademySoftwareFoundation/tac/blob/master/process/contributing.md#contribution-sign-off for more information on this requirement.
 
 ## Development Workflow
 
@@ -496,7 +489,7 @@ To create a new release from the master branch:
 
    Include the log of all changes since the last release, via:
 
-        git log v2.2.1...v2.3.0 --date=short --pretty=format:"[%s](https://github.com/openexr/openexr/commit/%H) ([%an](@%ae) %ad)"
+        git log v2.2.1...v2.3.0 --date=short --pretty=format:"[%s](https://github.com/AcademySoftwareFoundation/openexr/commit/%H) ([%an](@%ae) %ad)"
 
    Include diff status via:
 

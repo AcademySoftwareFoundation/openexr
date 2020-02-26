@@ -256,14 +256,29 @@ FastHufDecoder::FastHufDecoder
         int symbol  = *i >> 6;
 
         if (mapping[codeLen] >= static_cast<Int64>(_numSymbols))
+        {
+            delete[] _idToSymbol;
+            _idToSymbol = NULL;
             throw IEX_NAMESPACE::InputExc ("Huffman decode error "
                                            "(Invalid symbol in header).");
-        
+        }
         _idToSymbol[mapping[codeLen]] = symbol;
         mapping[codeLen]++;
     }
 
-    buildTables(base, offset);
+    //
+    // exceptions can be thrown whilst building tables. Delete
+    // _idToSynmbol before re-throwing to prevent memory leak
+    //
+    try
+    {
+      buildTables(base, offset);
+    }catch(...)
+    {
+            delete[] _idToSymbol;
+            _idToSymbol = NULL;
+            throw;
+    }
 }
 
 
@@ -373,7 +388,8 @@ FastHufDecoder::buildTables (Int64 *base, Int64 *offset)
     // as 'offset', when using the left justified base table.
     //
 
-    for (int i = 0; i <= MAX_CODE_LEN; ++i)
+    _ljOffset[0] = offset[0] - _ljBase[0];
+    for (int i = 1; i <= MAX_CODE_LEN; ++i)
         _ljOffset[i] = offset[i] - (_ljBase[i] >> (64 - i));
 
     //

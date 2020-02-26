@@ -12,6 +12,7 @@ HalfTest_SOURCES = main.cpp testArithmetic.cpp testArithmetic.h \
 		   testClassification.cpp testClassification.h \
 		   testError.cpp testError.h testFunction.cpp \
 		   testFunction.h testLimits.cpp testLimits.h testSize.cpp \
+		   testToFloat.cpp testToFloat.h \
 		   testSize.h
 
 AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir)/Half -I$(top_srcdir)/config

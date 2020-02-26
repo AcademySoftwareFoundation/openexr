@@ -37,6 +37,7 @@
 #endif
 
 #include "testDeepScanLineBasic.h"
+#include "random.h"
 
 #include "ImfDeepScanLineInputFile.h"
 #include "ImfDeepScanLineOutputFile.h"
@@ -102,7 +103,7 @@ generateRandomFile (int channelCount,
 
     for (int i = 0; i < channelCount; i++)
     {
-        int type = rand() % 3;
+        int type = random_int(3);
         stringstream ss;
         ss << i;
         string str = ss.str();
@@ -189,7 +190,7 @@ generateRandomFile (int channelCount,
     {
             for (int j = 0; j < width; j++)
             {
-                sampleCount[i][j] = (rand() % 4000) + (samples_per_pixel-2000);
+                sampleCount[i][j] = random_int(4000) + (samples_per_pixel-2000);
                 total_number_of_samples += sampleCount[i][j];
             }
     }
@@ -235,11 +236,11 @@ generateRandomFile (int channelCount,
                         for (unsigned int l = 0; l < sampleCount[i][j]; l++)
                         {
                             if (channelTypes[k] == 0)
-                                ((unsigned int*)data[k][i][j])[l] = rand();
+                                ((unsigned int*)data[k][i][j])[l] = random_int();
                             if (channelTypes[k] == 1)
-                                ((half*)data[k][i][j])[l] = rand()/RAND_MAX;
+                                ((half*)data[k][i][j])[l] = random_float();
                             if (channelTypes[k] == 2)
-                                ((float*)data[k][i][j])[l] = rand()/RAND_MAX;
+                                ((float*)data[k][i][j])[l] = random_float();
                         }
                     }
                     else
@@ -423,7 +424,7 @@ void testDeepScanLineHuge (const std::string & tempDir)
     {
         cout << "\n\nTesting the DeepScanLineInput/OutputFile for huge scanlines:\n" << endl;
 
-        srand(1);
+        random_reseed(1);
         std::string fn = tempDir + "imf_test_deep_scanline_huge.exr";
 
         readWriteTest (10, 5 , false, fn);

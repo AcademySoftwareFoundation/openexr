@@ -7,8 +7,13 @@
 
 configincludedir = $(includedir)/OpenEXR
 
-nodist_configinclude_HEADERS = PyIlmBaseConfig.h
+nodist_configinclude_HEADERS = PyIlmBaseConfig.h PyIlmBaseConfigInternal.h
 
-EXTRA_DIST = PyIlmBaseConfig.h.in ModuleDefine.cmake \
- NumPyLocate.cmake ParseConfigure.cmake PyIlmBaseSetup.cmake \
- CMakeLists.txt
+EXTRA_DIST = PyIlmBaseConfig.h.in \
+             PyIlmBaseConfigInternal.h.in \
+             PyIlmBaseConfigInternal.h.in_cmake \
+             PyIlmBaseSetup.cmake \
+	     NumPyLocate.cmake \
+	     ModuleDefine.cmake \
+	     ParseConfigure.cmake \
+             CMakeLists.txt

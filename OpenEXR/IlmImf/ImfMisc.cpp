@@ -114,9 +114,9 @@ bytesPerLineTable (const Header &header,
 	 c != channels.end();
 	 ++c)
     {
-	int nBytes = pixelTypeSize (c.channel().type) *
-		     (dataWindow.max.x - dataWindow.min.x + 1) /
-		     c.channel().xSampling;
+	size_t nBytes = size_t(pixelTypeSize (c.channel().type)) *
+		     size_t(dataWindow.max.x - dataWindow.min.x + 1) /
+		     size_t(c.channel().xSampling);
 
 	for (int y = dataWindow.min.y, i = 0; y <= dataWindow.max.y; ++y, ++i)
 	    if (modp (y, c.channel().ySampling) == 0)
@@ -269,6 +269,7 @@ defaultFormat (Compressor * compressor)
 }
 
 
+//obsolete
 int
 numLinesInBuffer (Compressor * compressor)
 {
@@ -1381,6 +1382,20 @@ skipChannel (const char *& readPtr,
 }
 
 
+namespace
+{
+//
+// helper function to realign floats
+// for architectures that require 32-bit alignment for float reading
+//
+
+struct FBytes { uint8_t b[4]; };
+union bytesOrFloat {
+  FBytes b;
+  float f;
+} ;
+}
+
 void
 convertInPlace (char *& writePtr,
                 const char *& readPtr,
@@ -1411,7 +1426,9 @@ convertInPlace (char *& writePtr,
     
         for (size_t j = 0; j < numPixels; ++j)
         {
-            Xdr::write <CharPtrIO> (writePtr, *(const float *) readPtr);
+            union bytesOrFloat tmp;
+            tmp.b = * reinterpret_cast<const FBytes *>( readPtr );
+            Xdr::write <CharPtrIO> (writePtr, tmp.f);
             readPtr += sizeof(float);
         }
         break;
@@ -1826,6 +1843,39 @@ usesLongNames (const Header &header)
     return false;
 }
 
+namespace
+{
+// for a given compression type, return the number of scanlines
+// compressed into a single chunk
+// TODO add to API and move to ImfCompressor.cpp
+int
+numLinesInBuffer(Compression comp)
+{
+    switch(comp)
+    {
+        case NO_COMPRESSION :
+        case RLE_COMPRESSION:
+        case ZIPS_COMPRESSION:
+            return 1;
+        case ZIP_COMPRESSION:
+            return 16;
+        case PIZ_COMPRESSION:
+            return 32;
+        case PXR24_COMPRESSION:
+            return 16;
+        case B44_COMPRESSION:
+        case B44A_COMPRESSION:
+        case DWAA_COMPRESSION:
+            return 32;
+        case DWAB_COMPRESSION:
+            return 256;
+
+        default:
+	        throw IEX_NAMESPACE::ArgExc ("Unknown compression type");
+    }
+}
+}
+
 int
 getScanlineChunkOffsetTableSize(const Header& header)
 {
@@ -1835,16 +1885,10 @@ getScanlineChunkOffsetTableSize(const Header& header)
     size_t maxBytesPerLine = bytesPerLineTable (header,
                                                 bytesPerLine);
 
-    Compressor* compressor = newCompressor(header.compression(),
-                                           maxBytesPerLine,
-                                           header);
-
-    int linesInBuffer = numLinesInBuffer (compressor);
+    int linesInBuffer = numLinesInBuffer ( header.compression() );
 
     int lineOffsetSize = (dataWindow.max.y - dataWindow.min.y +
                           linesInBuffer) / linesInBuffer;
-
-    delete compressor;
 
     return lineOffsetSize;
 }

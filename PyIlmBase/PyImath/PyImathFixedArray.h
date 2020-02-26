@@ -43,11 +43,18 @@
 #include <iostream>
 #include <IexMathFloatExc.h>
 #include "PyImathUtil.h"
+#include <PyIlmBaseConfigInternal.h>
 
-#define PY_IMATH_LEAVE_PYTHON IEX_NAMESPACE::MathExcOn mathexcon (IEX_NAMESPACE::IEEE_OVERFLOW | \
+#ifdef PYIMATH_ENABLE_EXCEPTIONS
+# define PY_IMATH_LEAVE_PYTHON IEX_NAMESPACE::MathExcOn mathexcon (IEX_NAMESPACE::IEEE_OVERFLOW | \
                                                         IEX_NAMESPACE::IEEE_DIVZERO |  \
                                                         IEX_NAMESPACE::IEEE_INVALID);  \
                               PyImath::PyReleaseLock pyunlock;
+# define PY_IMATH_RETURN_PYTHON mathexcon.handleOutstandingExceptions()
+#else
+# define PY_IMATH_LEAVE_PYTHON PyImath::PyReleaseLock pyunlock;
+# define PY_IMATH_RETURN_PYTHON
+#endif
 
 namespace PyImath {
 

@@ -79,7 +79,6 @@ using IMATH_NAMESPACE::Box2i;
 using IMATH_NAMESPACE::V2i;
 using std::string;
 using std::vector;
-using std::ofstream;
 using std::map;
 using std::min;
 using std::max;
@@ -188,6 +187,11 @@ struct BufferedTile
     {
 	delete [] pixelData;
     }
+
+    BufferedTile (const BufferedTile& other) = delete;
+    BufferedTile& operator = (const BufferedTile& other) = delete;
+    BufferedTile (BufferedTile&& other) = delete;
+    BufferedTile& operator = (BufferedTile&& other) = delete;
 };
 
 
@@ -279,6 +283,11 @@ struct TiledOutputFile::Data
      Data (int numThreads);
     ~Data ();
     
+    Data (const Data& other) = delete;
+    Data& operator = (const Data& other) = delete;
+    Data (Data&& other) = delete;
+    Data& operator = (Data&& other) = delete;
+
     inline TileBuffer *	getTileBuffer (int number);
     						// hash function from tile
 						// buffer coords into our

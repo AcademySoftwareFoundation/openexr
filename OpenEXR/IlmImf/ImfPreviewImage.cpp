@@ -88,15 +88,18 @@ PreviewImage::~PreviewImage ()
 PreviewImage &
 PreviewImage::operator = (const PreviewImage &other)
 {
-    delete [] _pixels;
+    if (this != &other)
+    {
+        delete [] _pixels;
 
-    _width = other._width;
-    _height = other._height;
-    _pixels = new PreviewRgba [other._width * other._height];
+        _width = other._width;
+        _height = other._height;
+        _pixels = new PreviewRgba [other._width * other._height];
 
-    for (unsigned int i = 0; i < _width * _height; ++i)
-	_pixels[i] = other._pixels[i];
-
+        for (unsigned int i = 0; i < _width * _height; ++i)
+            _pixels[i] = other._pixels[i];
+    }
+    
     return *this;
 }
 

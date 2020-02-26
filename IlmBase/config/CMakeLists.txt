@@ -5,7 +5,6 @@ include(CheckIncludeFiles)
 include(CheckSymbolExists)
 include(CheckLibraryExists)
 include(CheckStructHasMember)
-include(CMakeDependentOption)
 
 check_include_files(ucontext.h ILMBASE_HAVE_UCONTEXT_H)
 if(ILMBASE_HAVE_UCONTEXT_H)
@@ -20,13 +19,8 @@ if(ILMBASE_HAVE_UCONTEXT_H)
   endif()
 endif()
 
-# so we know how to link / use...
-set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-find_package(Threads)
 ###check_include_files(pthread.h ILMBASE_HAVE_PTHREAD)
 if(Threads_FOUND)
-  set_target_properties(Threads::Threads PROPERTIES IMPORTED_GLOBAL TRUE)
   if(CMAKE_HAVE_PTHREAD_H OR CMAKE_USE_PTHREADS_INIT OR CMAKE_HP_PTHREAD_INIT)
     set(ILMBASE_HAVE_PTHREAD ON)
     # TODO: remove this once we cleanly have ILMBASE_ prefix on all #defines
@@ -73,15 +67,14 @@ install(
 install(TARGETS IlmBaseConfig EXPORT ${PROJECT_NAME})
 add_library(IlmBase::Config ALIAS IlmBaseConfig)
 
-cmake_dependent_option(ILMBASE_INSTALL_PKG_CONFIG "Install IlmBase.pc file" ON "WIN32" OFF)
 if(ILMBASE_INSTALL_PKG_CONFIG)
   # use a helper function to avoid variable pollution, but pretty simple
   function(ilmbase_pkg_config_help pcinfile)
     set(prefix ${CMAKE_INSTALL_PREFIX})
-    set(exec_prefix ${CMAKE_INSTALL_BINDIR})
-    set(libdir ${CMAKE_INSTALL_LIBDIR})
-    set(includedir ${CMAKE_INSTALL_INCLUDEDIR})
-    set(LIB_SUFFIX ${ILMBASE_LIB_SUFFIX})
+    set(exec_prefix "\${prefix}")
+    set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
+    set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+    set(LIB_SUFFIX_DASH ${ILMBASE_LIB_SUFFIX})
     if(TARGET Threads::Threads)
       # hrm, can't use properties as they end up as generator expressions
       # which don't seem to evaluate
@@ -98,6 +91,8 @@ if(ILMBASE_INSTALL_PKG_CONFIG)
     )
   endfunction()
   ilmbase_pkg_config_help(../IlmBase.pc.in)
+else()
+  message(NOTICE "-- WARNING pkg-config generation disabled")
 endif()
 
 # The main export of the configuration - This is the

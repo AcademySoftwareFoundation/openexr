@@ -75,7 +75,6 @@ using IMATH_NAMESPACE::divp;
 using IMATH_NAMESPACE::modp;
 using std::string;
 using std::vector;
-using std::ofstream;
 using std::min;
 using std::max;
 using ILMTHREAD_NAMESPACE::Mutex;
@@ -235,6 +234,10 @@ struct DeepScanLineOutputFile::Data
     Data (int numThreads);
     ~Data ();
 
+    Data (const Data& other) = delete;
+    Data& operator = (const Data& other) = delete;
+    Data (Data&& other) = delete;
+    Data& operator = (Data&& other) = delete;
 
     inline LineBuffer *         getLineBuffer (int number);// hash function from line
                                                            // buffer indices into our

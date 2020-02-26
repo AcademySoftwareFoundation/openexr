@@ -256,8 +256,11 @@ class InputFile : public GenericInputFile
   private:
 
     InputFile (InputPartData* part);
-    InputFile (const InputFile &);			// not implemented
-    InputFile & operator = (const InputFile &);		// not implemented
+
+    InputFile (const InputFile &) = delete;
+    InputFile & operator = (const InputFile &) = delete;
+    InputFile (InputFile &&) = delete;
+    InputFile & operator = (InputFile &&) = delete;
 
     void		initialize ();
     void                multiPartInitialize(InputPartData* part);
