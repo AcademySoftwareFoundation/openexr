@@ -293,6 +293,61 @@ StdIFStream::clear ()
     _is->clear();
 }
 
+
+StdISStream::StdISStream (): OPENEXR_IMF_INTERNAL_NAMESPACE::IStream ("(string)")
+{
+    // empty
+}
+
+bool
+StdISStream::read (char c[/*n*/], int n)
+{
+    if (!_is)
+        throw IEX_NAMESPACE::InputExc ("Unexpected end of file.");
+
+    clearError();
+    _is.read (c, n);
+    return checkError (_is, n);
+}
+
+
+Int64
+StdISStream::tellg ()
+{
+    return std::streamoff (_is.tellg());
+}
+
+
+void
+StdISStream::seekg (Int64 pos)
+{
+    _is.seekg (pos);
+    checkError (_is);
+}
+
+
+void
+StdISStream::clear ()
+{
+    _is.clear();
+}
+
+
+std::string
+StdISStream::str () const
+{
+    return _is.str ();
+}
+
+
+void
+StdISStream::str (const std::string &s)
+{
+    _is.str(s);
+}
+
+
+
 StdOFStream::StdOFStream (const char fileName[])
     : OPENEXR_IMF_INTERNAL_NAMESPACE::OStream (fileName)
     , _os (make_ofstream (fileName))

@@ -64,19 +64,19 @@ Chromaticities::Chromaticities (const IMATH_NAMESPACE::V2f &red,
 bool
 Chromaticities::operator == (const Chromaticities & c) const
 {
-    return red == c.red && green == c.green && blue == c.blue;
+    return red == c.red && green == c.green && blue == c.blue && white == c.white;
 }
 
     
 bool
 Chromaticities::operator != (const Chromaticities & c) const
 {
-    return red != c.red || green != c.green || blue != c.blue;
+    return red != c.red || green != c.green || blue != c.blue || white != c.white;
 }
     
     
 IMATH_NAMESPACE::M44f
-RGBtoXYZ (const Chromaticities chroma, float Y)
+RGBtoXYZ (const Chromaticities &chroma, float Y)
 {
     //
     // For an explanation of how the color conversion matrix is derived,
@@ -142,7 +142,7 @@ RGBtoXYZ (const Chromaticities chroma, float Y)
 
 
 IMATH_NAMESPACE::M44f
-XYZtoRGB (const Chromaticities chroma, float Y)
+XYZtoRGB (const Chromaticities &chroma, float Y)
 {
     return RGBtoXYZ (chroma, Y).inverse();
 }

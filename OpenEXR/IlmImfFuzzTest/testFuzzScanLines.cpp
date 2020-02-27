@@ -252,21 +252,28 @@ fuzzScanLines (int numThreads, Rand48 &random)
 
 
 void
-testFuzzScanLines ()
+testFuzzScanLines (const char* file)
 {
     try
     {
-	cout << "Testing scanline-based files "
-		"with randomly inserted errors" << endl;
+        if(file)
+        {
+            readImage(file);
+        }
+        else
+        {
+            cout << "Testing scanline-based files "
+                    "with randomly inserted errors" << endl;
 
-	Rand48 random (1);
+            Rand48 random (1);
 
-	fuzzScanLines (0, random);
+            fuzzScanLines (0, random);
 
-	if (ILMTHREAD_NAMESPACE::supportsThreads())
-	    fuzzScanLines (2, random);
+            if (ILMTHREAD_NAMESPACE::supportsThreads())
+                fuzzScanLines (2, random);
 
-	cout << "ok\n" << endl;
+            cout << "ok\n" << endl;
+        }
     }
     catch (const std::exception &e)
     {
