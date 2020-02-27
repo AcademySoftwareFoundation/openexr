@@ -64,14 +64,14 @@ Chromaticities::Chromaticities (const IMATH_NAMESPACE::V2f &red,
 bool
 Chromaticities::operator == (const Chromaticities & c) const
 {
-    return red == c.red && green == c.green && blue == c.blue;
+    return red == c.red && green == c.green && blue == c.blue && white == c.white;
 }
 
     
 bool
 Chromaticities::operator != (const Chromaticities & c) const
 {
-    return red != c.red || green != c.green || blue != c.blue;
+    return red != c.red || green != c.green || blue != c.blue || white != c.white;
 }
     
     
