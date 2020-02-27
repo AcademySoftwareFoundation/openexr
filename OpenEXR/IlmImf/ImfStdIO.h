@@ -100,6 +100,40 @@ class StdIFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
 };
 
 
+//------------------------------------------------
+// class StdISStream -- an implementation of class
+// OPENEXR_IMF_INTERNAL_NAMESPACE::IStream, based on class std::istringstream
+//------------------------------------------------
+
+class StdISStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
+{
+  public:
+
+    IMF_EXPORT
+    StdISStream ();
+
+    IMF_EXPORT
+    virtual bool	read (char c[/*n*/], int n);
+    IMF_EXPORT
+    virtual Int64	tellg ();
+    IMF_EXPORT
+    virtual void	seekg (Int64 pos);
+    IMF_EXPORT
+    virtual void	clear ();
+
+    IMF_EXPORT
+    std::string		str () const; 
+
+    IMF_EXPORT
+    void                str (const std::string &s);
+
+  private:
+
+    std::istringstream 	_is;
+};
+
+
+
 //-------------------------------------------
 // class StdOFStream -- an implementation of
 // class OPENEXR_IMF_INTERNAL_NAMESPACE::OStream based on class std::ofstream
