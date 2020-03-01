@@ -265,6 +265,7 @@ TiledInputFile::Data::Data (int numThreads):
     partNumber (-1),
     multiPartBackwardSupport(false),
     numThreads(numThreads),
+    multiPartFile(nullptr),
     memoryMapped(false),
     _streamData(NULL),
     _deleteStream(false)
@@ -754,7 +755,7 @@ TiledInputFile::TiledInputFile (const char fileName[], int numThreads):
                 }
             }
         }
-        if ( _data->_streamData != 0)
+        if ( _data->_streamData != 0 && !isMultiPart(_data->version))
         {
             delete _data->_streamData->is;
             _data->_streamData->is = is = 0;
@@ -879,7 +880,20 @@ TiledInputFile::TiledInputFile (InputPartData* part)
     }
     catch(...)
     {
-        if (_data) delete _data;
+        if(_data)
+        {
+          if (!_data->memoryMapped)
+          {
+            for (size_t i = 0; i < _data->tileBuffers.size(); i++)
+            {
+                if(_data->tileBuffers[i])
+                {
+                   delete [] _data->tileBuffers[i]->buffer;
+                }
+            }
+          }
+          delete _data;
+        }
         throw;
     }
 }
