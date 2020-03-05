@@ -11,6 +11,24 @@ target_include_directories(PyIlmBaseConfig INTERFACE
 install(TARGETS PyIlmBaseConfig EXPORT ${PROJECT_NAME})
 add_library(PyIlmBase::Config ALIAS PyIlmBaseConfig)
 
+if(PYILMBASE_INSTALL_PKG_CONFIG)
+  # use a helper function to avoid variable pollution, but pretty simple
+  function(pyilmbase_pkg_config_help pcinfile)
+    set(prefix ${CMAKE_INSTALL_PREFIX})
+    set(exec_prefix ${CMAKE_INSTALL_BINDIR})
+    set(libdir ${CMAKE_INSTALL_LIBDIR})
+    set(includedir ${CMAKE_INSTALL_INCLUDEDIR})
+    set(LIB_SUFFIX_DASH ${OPENEXR_LIB_SUFFIX})
+    string(REPLACE ".in" "" pcout ${pcinfile})
+    configure_file(${pcinfile} ${CMAKE_CURRENT_BINARY_DIR}/${pcout} @ONLY)
+    install(
+        FILES ${CMAKE_CURRENT_BINARY_DIR}/${pcout}
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+    )
+  endfunction()
+  pyilmbase_pkg_config_help(../PyIlmBase.pc.in)
+endif()
+
 # The main export of the configuration - This is the
 # moral equivalent of a pkg-config file for cmake
 # and replaces the Find*.cmake of the "old" cmake
