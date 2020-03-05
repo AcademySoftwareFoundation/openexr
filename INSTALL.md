@@ -111,7 +111,7 @@ configuration files included with find_package should set this up.
 OpenEXR consists of three separate sub-modules - IlmBase, PyIlmBase,
 and OpenEXR - which can be built independently. The repository’s
 top-level CMakeLists.txt defines a *super-project* that builds all
-four modules, and the steps above for running cmake at the top level
+three modules, and the steps above for running cmake at the top level
 of the repo build each of the sub-modules, in parallel.
 
 However you can build each submodule individually. To build and
