@@ -75,7 +75,6 @@ namespace {
                         _worker(worker),
                         _output(output)
                     {
-                        start();
                     }
 
                     virtual ~Runner()
@@ -512,6 +511,7 @@ generateLutHeader()
         std::vector<LutHeaderWorker::Runner*> runners;
         for (size_t i=0; i<workers.size(); ++i) {
             runners.push_back( new LutHeaderWorker::Runner(*workers[i], (i==0)) );
+            runners.back()->start();
         }
 
         for (size_t i=0; i<workers.size(); ++i) {
