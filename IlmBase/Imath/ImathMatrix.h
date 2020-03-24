@@ -66,6 +66,276 @@ IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 enum Uninitialized {UNINITIALIZED};
 
 
+template <class T> class Matrix22
+{
+  public:
+
+    //-------------------
+    // Access to elements
+    //-------------------
+
+    T           x[2][2];
+
+    T *         operator [] (int i);
+    const T *   operator [] (int i) const;
+
+
+    //-------------
+    // Constructors
+    //-------------
+
+    Matrix22 (Uninitialized) {}
+
+    Matrix22 ();
+                                // 1 0
+                                // 0 1
+
+    Matrix22 (T a);
+                                // a a
+                                // a a
+
+    Matrix22 (const T a[2][2]);
+                                // a[0][0] a[0][1]
+                                // a[1][0] a[1][1]
+
+    Matrix22 (T a, T b, T c, T d);
+
+                                // a b
+                                // c d
+
+
+    //--------------------------------
+    // Copy constructor and assignment
+    //--------------------------------
+
+    Matrix22 (const Matrix22 &v);
+    template <class S> explicit Matrix22 (const Matrix22<S> &v);
+
+    const Matrix22 &    operator = (const Matrix22 &v);
+    const Matrix22 &    operator = (T a);
+
+
+    //------------
+    // Destructor
+    //------------
+
+    ~Matrix22 () = default;
+	
+    //----------------------
+    // Compatibility with Sb
+    //----------------------
+    
+    T *                 getValue ();
+    const T *           getValue () const;
+
+    template <class S>
+    void                getValue (Matrix22<S> &v) const;
+    template <class S>
+    Matrix22 &          setValue (const Matrix22<S> &v);
+
+    template <class S>
+    Matrix22 &          setTheMatrix (const Matrix22<S> &v);
+
+
+    //---------
+    // Identity
+    //---------
+
+    void                makeIdentity();
+
+
+    //---------
+    // Equality
+    //---------
+
+    bool                operator == (const Matrix22 &v) const;
+    bool                operator != (const Matrix22 &v) const;
+
+    //-----------------------------------------------------------------------
+    // Compare two matrices and test if they are "approximately equal":
+    //
+    // equalWithAbsError (m, e)
+    //
+    //      Returns true if the coefficients of this and m are the same with
+    //      an absolute error of no more than e, i.e., for all i, j
+    //
+    //      abs (this[i][j] - m[i][j]) <= e
+    //
+    // equalWithRelError (m, e)
+    //
+    //      Returns true if the coefficients of this and m are the same with
+    //      a relative error of no more than e, i.e., for all i, j
+    //
+    //      abs (this[i] - v[i][j]) <= e * abs (this[i][j])
+    //-----------------------------------------------------------------------
+
+    bool                equalWithAbsError (const Matrix22<T> &v, T e) const;
+    bool                equalWithRelError (const Matrix22<T> &v, T e) const;
+
+
+    //------------------------
+    // Component-wise addition
+    //------------------------
+
+    const Matrix22 &    operator += (const Matrix22 &v);
+    const Matrix22 &    operator += (T a);
+    Matrix22            operator + (const Matrix22 &v) const;
+
+
+    //---------------------------
+    // Component-wise subtraction
+    //---------------------------
+
+    const Matrix22 &    operator -= (const Matrix22 &v);
+    const Matrix22 &    operator -= (T a);
+    Matrix22            operator - (const Matrix22 &v) const;
+
+
+    //------------------------------------
+    // Component-wise multiplication by -1
+    //------------------------------------
+
+    Matrix22            operator - () const;
+    const Matrix22 &    negate ();
+
+
+    //------------------------------
+    // Component-wise multiplication
+    //------------------------------
+
+    const Matrix22 &    operator *= (T a);
+    Matrix22            operator * (T a) const;
+
+
+    //-----------------------------------
+    // Matrix-times-matrix multiplication
+    //-----------------------------------
+
+    const Matrix22 &    operator *= (const Matrix22 &v);
+    Matrix22            operator * (const Matrix22 &v) const;
+
+
+    //-----------------------------------------------------------------
+    // Vector-times-matrix multiplication; see also the "operator *"
+    // functions defined below.
+    //
+    // m.multDirMatrix(src,dst) multiplies src by the matrix m.
+    //-----------------------------------------------------------------
+
+    template <class S>
+    void                multDirMatrix(const Vec2<S> &src, Vec2<S> &dst) const;
+
+
+    //------------------------
+    // Component-wise division
+    //------------------------
+
+    const Matrix22 &    operator /= (T a);
+    Matrix22            operator / (T a) const;
+
+
+    //------------------
+    // Transposed matrix
+    //------------------
+
+    const Matrix22 &    transpose ();
+    Matrix22            transposed () const;
+
+
+    //------------------------------------------------------------
+    // Inverse matrix: If singExc is false, inverting a singular
+    // matrix produces an identity matrix.  If singExc is true,
+    // inverting a singular matrix throws a SingMatrixExc.
+    //
+    // inverse() and invert() invert matrices using determinants.
+    //
+    //------------------------------------------------------------
+
+    const Matrix22 &    invert (bool singExc = false);
+
+    Matrix22<T>         inverse (bool singExc = false) const;
+
+    //------------
+    // Determinant
+    //------------
+
+    T                   determinant() const;
+
+    //-----------------------------------------
+    // Set matrix to rotation by r (in radians)
+    //-----------------------------------------
+
+    template <class S>
+    const Matrix22 &    setRotation (S r);
+
+
+    //-----------------------------
+    // Rotate the given matrix by r
+    //-----------------------------
+
+    template <class S>
+    const Matrix22 &    rotate (S r);
+
+
+    //--------------------------------------------
+    // Set matrix to scale by given uniform factor
+    //--------------------------------------------
+
+    const Matrix22 &    setScale (T s);
+
+
+    //------------------------------------
+    // Set matrix to scale by given vector
+    //------------------------------------
+
+    template <class S>
+    const Matrix22 &    setScale (const Vec2<S> &s);
+
+
+    //----------------------
+    // Scale the matrix by s
+    //----------------------
+
+    template <class S>
+    const Matrix22 &    scale (const Vec2<S> &s);
+
+
+    //--------------------------------------------------------
+    // Number of the row and column dimensions, since
+    // Matrix22 is a square matrix.
+    //--------------------------------------------------------
+
+    static unsigned int	dimensions() {return 2;}
+
+
+    //-------------------------------------------------
+    // Limitations of type T (see also class limits<T>)
+    //-------------------------------------------------
+
+    static T            baseTypeMin()           {return limits<T>::min();}
+    static T            baseTypeMax()           {return limits<T>::max();}
+    static T            baseTypeSmallest()      {return limits<T>::smallest();}
+    static T            baseTypeEpsilon()       {return limits<T>::epsilon();}
+
+    typedef T		BaseType;
+    typedef Vec2<T>	BaseVecType;
+    
+  private:
+
+    template <typename R, typename S>
+    struct isSameType
+    {
+        enum {value = 0};
+    };
+
+    template <typename R>
+    struct isSameType<R, R>
+    {
+        enum {value = 1};
+    };
+};
+
+
 template <class T> class Matrix33
 {
   public:
@@ -833,6 +1103,9 @@ template <class T> class Matrix44
 //--------------
 
 template <class T>
+std::ostream &  operator << (std::ostream & s, const Matrix22<T> &m); 
+
+template <class T>
 std::ostream &  operator << (std::ostream & s, const Matrix33<T> &m); 
 
 template <class T>
@@ -842,6 +1115,13 @@ std::ostream &  operator << (std::ostream & s, const Matrix44<T> &m);
 //---------------------------------------------
 // Vector-times-matrix multiplication operators
 //---------------------------------------------
+
+
+template <class S, class T>
+const Vec2<S> &            operator *= (Vec2<S> &v, const Matrix22<T> &m);
+
+template <class S, class T>
+Vec2<S>                    operator * (const Vec2<S> &v, const Matrix22<T> &m);
 
 template <class S, class T>
 const Vec2<S> &            operator *= (Vec2<S> &v, const Matrix33<T> &m);
@@ -871,10 +1151,561 @@ Vec4<S>                    operator * (const Vec4<S> &v, const Matrix44<T> &m);
 // Typedefs for convenience
 //-------------------------
 
+typedef Matrix22 <float>  M22f;
+typedef Matrix22 <double> M22d;
 typedef Matrix33 <float>  M33f;
 typedef Matrix33 <double> M33d;
 typedef Matrix44 <float>  M44f;
 typedef Matrix44 <double> M44d;
+
+
+//---------------------------
+// Implementation of Matrix22
+//---------------------------
+
+template <class T>
+inline T *
+Matrix22<T>::operator [] (int i)
+{
+    return x[i];
+}
+
+template <class T>
+inline const T *
+Matrix22<T>::operator [] (int i) const
+{
+    return x[i];
+}
+
+template <class T>
+inline
+Matrix22<T>::Matrix22 ()
+{
+    memset (x, 0, sizeof (x));
+    x[0][0] = 1;
+    x[1][1] = 1;
+}
+
+template <class T>
+inline
+Matrix22<T>::Matrix22 (T a)
+{
+    x[0][0] = a;
+    x[0][1] = a;
+    x[1][0] = a;
+    x[1][1] = a;
+}
+
+template <class T>
+inline
+Matrix22<T>::Matrix22 (const T a[2][2]) 
+{
+    memcpy (x, a, sizeof (x));
+}
+
+template <class T>
+inline
+Matrix22<T>::Matrix22 (T a, T b, T c, T d)
+{
+    x[0][0] = a;
+    x[0][1] = b;
+    x[1][0] = c;
+    x[1][1] = d;
+}
+
+template <class T>
+inline
+Matrix22<T>::Matrix22 (const Matrix22 &v)
+{
+    memcpy (x, v.x, sizeof (x));
+}
+
+template <class T>
+template <class S>
+inline
+Matrix22<T>::Matrix22 (const Matrix22<S> &v)
+{
+    x[0][0] = T (v.x[0][0]);
+    x[0][1] = T (v.x[0][1]);
+    x[1][0] = T (v.x[1][0]);
+    x[1][1] = T (v.x[1][1]);
+}
+
+template <class T>
+inline const Matrix22<T> &
+Matrix22<T>::operator = (const Matrix22 &v)
+{
+    memcpy (x, v.x, sizeof (x));
+    return *this;
+}
+
+template <class T>
+inline const Matrix22<T> &
+Matrix22<T>::operator = (T a)
+{
+    x[0][0] = a;
+    x[0][1] = a;
+    x[1][0] = a;
+    x[1][1] = a;
+    return *this;
+}
+
+template <class T>
+inline T *
+Matrix22<T>::getValue ()
+{
+    return (T *) &x[0][0];
+}
+
+template <class T>
+inline const T *
+Matrix22<T>::getValue () const
+{
+    return (const T *) &x[0][0];
+}
+
+template <class T>
+template <class S>
+inline void
+Matrix22<T>::getValue (Matrix22<S> &v) const
+{
+    if (isSameType<S,T>::value)
+    {
+        memcpy (v.x, x, sizeof (x));
+    }
+    else
+    {
+        v.x[0][0] = x[0][0];
+        v.x[0][1] = x[0][1];
+        v.x[1][0] = x[1][0];
+        v.x[1][1] = x[1][1];
+    }
+}
+
+template <class T>
+template <class S>
+inline Matrix22<T> &
+Matrix22<T>::setValue (const Matrix22<S> &v)
+{
+    if (isSameType<S,T>::value)
+    {
+        memcpy (x, v.x, sizeof (x));
+    }
+    else
+    {
+        x[0][0] = v.x[0][0];
+        x[0][1] = v.x[0][1];
+        x[1][0] = v.x[1][0];
+        x[1][1] = v.x[1][1];
+    }
+
+    return *this;
+}
+
+template <class T>
+template <class S>
+inline Matrix22<T> &
+Matrix22<T>::setTheMatrix (const Matrix22<S> &v)
+{
+    if (isSameType<S,T>::value)
+    {
+        memcpy (x, v.x, sizeof (x));
+    }
+    else
+    {
+        x[0][0] = v.x[0][0];
+        x[0][1] = v.x[0][1];
+        x[1][0] = v.x[1][0];
+        x[1][1] = v.x[1][1];
+    }
+
+    return *this;
+}
+
+template <class T>
+inline void
+Matrix22<T>::makeIdentity()
+{
+    memset (x, 0, sizeof (x));
+    x[0][0] = 1;
+    x[1][1] = 1;
+}
+
+template <class T>
+bool
+Matrix22<T>::operator == (const Matrix22 &v) const
+{
+    return x[0][0] == v.x[0][0] &&
+           x[0][1] == v.x[0][1] &&
+           x[1][0] == v.x[1][0] &&
+           x[1][1] == v.x[1][1];
+}
+
+template <class T>
+bool
+Matrix22<T>::operator != (const Matrix22 &v) const
+{
+    return x[0][0] != v.x[0][0] ||
+           x[0][1] != v.x[0][1] ||
+           x[1][0] != v.x[1][0] ||
+           x[1][1] != v.x[1][1];
+}
+
+template <class T>
+bool
+Matrix22<T>::equalWithAbsError (const Matrix22<T> &m, T e) const
+{
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++)
+            if (!IMATH_INTERNAL_NAMESPACE::equalWithAbsError ((*this)[i][j], m[i][j], e))
+                return false;
+
+    return true;
+}
+
+template <class T>
+bool
+Matrix22<T>::equalWithRelError (const Matrix22<T> &m, T e) const
+{
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++)
+            if (!IMATH_INTERNAL_NAMESPACE::equalWithRelError ((*this)[i][j], m[i][j], e))
+                return false;
+
+    return true;
+}
+
+template <class T>
+const Matrix22<T> &
+Matrix22<T>::operator += (const Matrix22<T> &v)
+{
+    x[0][0] += v.x[0][0];
+    x[0][1] += v.x[0][1];
+    x[1][0] += v.x[1][0];
+    x[1][1] += v.x[1][1];
+
+    return *this;
+}
+
+template <class T>
+const Matrix22<T> &
+Matrix22<T>::operator += (T a)
+{
+    x[0][0] += a;
+    x[0][1] += a;
+    x[1][0] += a;
+    x[1][1] += a;
+  
+    return *this;
+}
+
+template <class T>
+Matrix22<T>
+Matrix22<T>::operator + (const Matrix22<T> &v) const
+{
+    return Matrix22 (x[0][0] + v.x[0][0],
+                     x[0][1] + v.x[0][1],
+                     x[1][0] + v.x[1][0],
+                     x[1][1] + v.x[1][1]);
+}
+
+template <class T>
+const Matrix22<T> &
+Matrix22<T>::operator -= (const Matrix22<T> &v)
+{
+    x[0][0] -= v.x[0][0];
+    x[0][1] -= v.x[0][1];
+    x[1][0] -= v.x[1][0];
+    x[1][1] -= v.x[1][1];
+  
+    return *this;
+}
+
+template <class T>
+const Matrix22<T> &
+Matrix22<T>::operator -= (T a)
+{
+    x[0][0] -= a;
+    x[0][1] -= a;
+    x[1][0] -= a;
+    x[1][1] -= a;
+  
+    return *this;
+}
+
+template <class T>
+Matrix22<T>
+Matrix22<T>::operator - (const Matrix22<T> &v) const
+{
+    return Matrix22 (x[0][0] - v.x[0][0],
+                     x[0][1] - v.x[0][1],
+                     x[1][0] - v.x[1][0],
+                     x[1][1] - v.x[1][1]);
+}
+
+template <class T>
+Matrix22<T>
+Matrix22<T>::operator - () const
+{
+    return Matrix22 (-x[0][0],
+                     -x[0][1],
+                     -x[1][0],
+                     -x[1][1]);
+}
+
+template <class T>
+const Matrix22<T> &
+Matrix22<T>::negate ()
+{
+    x[0][0] = -x[0][0];
+    x[0][1] = -x[0][1];
+    x[1][0] = -x[1][0];
+    x[1][1] = -x[1][1];
+
+    return *this;
+}
+
+template <class T>
+const Matrix22<T> &
+Matrix22<T>::operator *= (T a)
+{
+    x[0][0] *= a;
+    x[0][1] *= a;
+    x[1][0] *= a;
+    x[1][1] *= a;
+  
+    return *this;
+}
+
+template <class T>
+Matrix22<T>
+Matrix22<T>::operator * (T a) const
+{
+    return Matrix22 (x[0][0] * a,
+                     x[0][1] * a,
+                     x[1][0] * a,
+                     x[1][1] * a);
+}
+
+template <class T>
+inline Matrix22<T>
+operator * (T a, const Matrix22<T> &v)
+{
+    return v * a;
+}
+
+template <class T>
+const Matrix22<T> &
+Matrix22<T>::operator *= (const Matrix22<T> &v)
+{
+    Matrix22 tmp (T (0));
+
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++)
+            for (int k = 0; k < 2; k++)
+                tmp.x[i][j] += x[i][k] * v.x[k][j];
+
+    *this = tmp;
+    return *this;
+}
+
+template <class T>
+Matrix22<T>
+Matrix22<T>::operator * (const Matrix22<T> &v) const
+{
+    Matrix22 tmp (T (0));
+
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++)
+            for (int k = 0; k < 2; k++)
+                tmp.x[i][j] += x[i][k] * v.x[k][j];
+
+    return tmp;
+}
+
+template <class T>
+template <class S>
+void
+Matrix22<T>::multDirMatrix(const Vec2<S> &src, Vec2<S> &dst) const
+{
+    S a, b;
+
+    a = src[0] * x[0][0] + src[1] * x[1][0];
+    b = src[0] * x[0][1] + src[1] * x[1][1];
+
+    dst.x = a;
+    dst.y = b;
+}
+
+template <class T>
+const Matrix22<T> &
+Matrix22<T>::operator /= (T a)
+{
+    x[0][0] /= a;
+    x[0][1] /= a;
+    x[1][0] /= a;
+    x[1][1] /= a;
+  
+    return *this;
+}
+
+template <class T>
+Matrix22<T>
+Matrix22<T>::operator / (T a) const
+{
+    return Matrix22 (x[0][0] / a,
+                     x[0][1] / a,
+                     x[1][0] / a,
+                     x[1][1] / a);
+}
+
+template <class T>
+const Matrix22<T> &
+Matrix22<T>::transpose ()
+{
+    Matrix22 tmp (x[0][0],
+                  x[1][0],
+                  x[0][1],
+                  x[1][1]);
+    *this = tmp;
+    return *this;
+}
+
+template <class T>
+Matrix22<T>
+Matrix22<T>::transposed () const
+{
+    return Matrix22 (x[0][0],
+                     x[1][0],
+                     x[0][1],
+                     x[1][1]);
+}
+
+template <class T>
+const Matrix22<T> &
+Matrix22<T>::invert (bool singExc)
+{
+    *this = inverse (singExc);
+    return *this;
+}
+
+template <class T>
+Matrix22<T>
+Matrix22<T>::inverse (bool singExc) const
+{
+    Matrix22 s ( x[1][1],  -x[0][1],
+                -x[1][0],   x[0][0]);
+
+    T r = x[0][0] * x[1][1] - x[1][0] * x[0][1];
+
+    if (IMATH_INTERNAL_NAMESPACE::abs (r) >= 1)
+    {
+        for (int i = 0; i < 2; ++i)
+        {
+            for (int j = 0; j < 2; ++j)
+            {
+                s[i][j] /= r;
+            }
+        }
+    }
+    else
+    {
+        T mr = IMATH_INTERNAL_NAMESPACE::abs (r) / limits<T>::smallest();
+
+        for (int i = 0; i < 2; ++i)
+        {
+            for (int j = 0; j < 2; ++j)
+            {
+                if (mr > IMATH_INTERNAL_NAMESPACE::abs (s[i][j]))
+                {
+                    s[i][j] /= r;
+                }
+                else
+                {
+                    if (singExc)
+                        throw SingMatrixExc ("Cannot invert "
+                                                "singular matrix.");
+                    return Matrix22();
+                }
+            }
+        }
+    }
+    return s;
+}
+
+template <class T>
+inline T
+Matrix22<T>::determinant () const
+{
+    return x[0][0] * x[1][1] - x[1][0] * x[0][1];
+}
+
+template <class T>
+template <class S>
+const Matrix22<T> &
+Matrix22<T>::setRotation (S r)
+{
+    S cos_r, sin_r;
+
+    cos_r = Math<T>::cos (r);
+    sin_r = Math<T>::sin (r);
+
+    x[0][0] =  cos_r;
+    x[0][1] =  sin_r;
+
+    x[1][0] =  -sin_r;
+    x[1][1] =  cos_r;
+
+    return *this;
+}
+
+template <class T>
+template <class S>
+const Matrix22<T> &
+Matrix22<T>::rotate (S r)
+{
+    *this *= Matrix22<T>().setRotation (r);
+    return *this;
+}
+
+template <class T>
+const Matrix22<T> &
+Matrix22<T>::setScale (T s)
+{
+    x[0][0] = s;
+    x[0][1] = static_cast<T>(0);
+    x[1][0] = static_cast<T>(0);
+    x[1][1] = s;
+
+    return *this;
+}
+
+template <class T>
+template <class S>
+const Matrix22<T> &
+Matrix22<T>::setScale (const Vec2<S> &s)
+{
+    x[0][0] = s[0];
+    x[0][1] = static_cast<T>(0);
+    x[1][0] = static_cast<T>(0);
+    x[1][1] = s[1];
+
+    return *this;
+}
+
+template <class T>
+template <class S>
+const Matrix22<T> &
+Matrix22<T>::scale (const Vec2<S> &s)
+{
+    x[0][0] *= s[0];
+    x[0][1] *= s[0];
+
+    x[1][0] *= s[1];
+    x[1][1] *= s[1];
+
+    return *this;
+}
 
 
 //---------------------------
