@@ -37,24 +37,18 @@ Platform](https://vfxplatform.com).
 * Support for 16-bit floating-point, 32-bit floating-point, and
   32-bit integer pixels.
 * Multiple image compression algorithms, both lossless and lossy. Some of
-  the included codecs can achieve 2:1 lossless compression ratios on images
-  with film grain.  The lossy codecs have been tuned for visual quality and
-  decoding performance.
+  the included codecs can achieve 2:1 lossless compression ratios on images with film grain.  The lossy codecs have been tuned for visual quality and decoding performance.
 * Extensibility. New compression codecs and image types can easily be added
   by extending the C++ classes included in the OpenEXR software distribution.
   New image attributes (strings, vectors, integers, etc.) can be added to
-  OpenEXR image headers without affecting backward compatibility with
-  existing OpenEXR applications. 
+  OpenEXR image headers without affecting backward compatibility with existing OpenEXR applications. 
 * Support for stereoscopic image workflows and a generalization
   to multi-views.
 * Flexible support for deep data: pixels can store a variable-length list
-  of samples and, thus, it is possible to store multiple values at different
-  depths for each pixel. Hard surfaces and volumetric data representations
-  are accommodated.
+  of samples and, thus, it is possible to store multiple values at different depths for each pixel. Hard surfaces and volumetric data representations are accommodated.
 * Multipart: ability to encode separate, but related, images in one file.
-  This allows for access to individual parts without the need to read other
-  parts in the file.
-* Versioning: OpenEXR source allows for user configurable C++
+  This allows for access to individual parts without the need to read other parts in the file.
+* Versioning: OpenEXR source allows for user-configurable C++
   namespaces to provide protection when using multiple versions of the
   library in the same process space.
 
@@ -96,10 +90,10 @@ correctness and verifiability, and breadth of adoption. IlmBase is not
 intended to be a comprehensive linear algebra or numerical analysis
 package.
 
-### OpenEXR Project Goverance
+### OpenEXR Project Governance
 
 OpenEXR is hosted by the Academy Software Foundation. See
-[GOVERNANCE](GOVERNANCE.md) for more infomation about how the project
+[GOVERNANCE](GOVERNANCE.md) for more information about how the project
 operates.
 
 The OpenEXR project is dedicated to promoting a harassment-free
@@ -125,8 +119,7 @@ from source.
 There are two primary ways to connect with the OpenEXR project:
 
 * The openexr-dev@lists.aswf.io mail list: This is a development
-  focused mail list with a deep history of technical conversations and
-  decisions that have shaped the project. Subscribe at
+  focused mail list with a deep history of technical conversations and decisions that have shaped the project. Subscribe at
   [openexr-dev@lists.aswf.io](https://lists.aswf.io/g/openexr-dev).
 
 * GitHub Issues: GitHub issues are used both to track bugs and to
@@ -150,12 +143,8 @@ OpenEXR that are provided under a different license.
 
 * "``pip install openexr`` doesn't work."
 
-  The OpenEXR project provides python bindings for the Imath
-  vector/matrix classes, but it does *not* provide python bindings for
-  reading, writing, or editing .exr files.  The
-  [openexrpython](https://github.com/jamesbowman/openexrpython) module
-  is not affiliated with the OpenEXR project or the ASWF. Please
-  direct questions there.
+  The OpenEXR project provides python bindings for the Imath vector/matrix classes, but it does *not* provide python bindings for reading, writing, or editing .exr files.  The
+  [openexrpython](https://github.com/jamesbowman/openexrpython) module is not affiliated with the OpenEXR project or the ASWF. Please direct questions there.
 
   Alternatively,
   [OpenImageIO](https://sites.google.com/site/openimageio/home) also
