@@ -1181,8 +1181,9 @@ template <class T>
 inline
 Matrix22<T>::Matrix22 ()
 {
-    memset (x, 0, sizeof (x));
     x[0][0] = 1;
+    x[0][1] = 0;
+    x[1][0] = 0;
     x[1][1] = 1;
 }
 
@@ -1326,8 +1327,9 @@ template <class T>
 inline void
 Matrix22<T>::makeIdentity()
 {
-    memset (x, 0, sizeof (x));
     x[0][0] = 1;
+    x[0][1] = 0;
+    x[1][0] = 0;
     x[1][1] = 1;
 }
 
