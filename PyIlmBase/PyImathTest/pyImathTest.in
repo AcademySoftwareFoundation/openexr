@@ -1,12 +1,14 @@
 #!/usr/bin/env python2
 
-from imath import *
-from math import sqrt, pi, sin, cos
 import math
-import string, traceback, sys
-import iex
 import random
+import string
+import sys
+import traceback
+from math import cos, pi, sin, sqrt
 
+import iex
+from imath import *
 
 
 testList = []
@@ -4783,6 +4785,340 @@ def testShearConversions ():
 testList.append (('testShearConversions',testShearConversions))
 
 
+# -------------------------------------------------------------------------
+# Tests for M22x
+
+def testM22x (Mat, Vec):
+    
+    # Constructors (and element access).
+
+    m = Mat()
+    assert m[0][0] == 1 and m[0][1] == 0 and \
+           m[1][0] == 0 and m[1][1] == 1
+
+    m = Mat(1)
+    assert m[0][0] == 1 and m[0][1] == 1 and \
+           m[1][0] == 1 and m[1][1] == 1
+
+    m = Mat((0, 1), (2, 3))
+    assert m[0][0] == 0 and m[0][1] == 1 and \
+           m[1][0] == 2 and m[1][1] == 3
+
+
+    m = Mat(0, 1, 2, 3)
+    assert m[0][0] == 0 and m[0][1] == 1 and \
+           m[1][0] == 2 and m[1][1] == 3
+
+    # Repr.
+
+    m = Mat(0/9., 1/9., 2/9., 3/9.)
+    assert m == eval(repr(m))
+
+    # Sequence length.
+
+    m = Mat()
+    assert len(m) == 2
+
+    # Element setting.
+
+    m = Mat()
+    m[0][0] = 10
+    m[1][1] = 11
+    assert m[0][0] == 10 and m[1][1] == 11
+
+    try:
+        m[-4][0] = 0           # This should raise an exception.
+    except:
+        pass
+    else:
+        assert 0           # We shouldn't get here.
+
+    try:
+        v[3][0] = 0           # This should raise an exception.
+    except:
+        pass
+    else:
+        assert 0           # We shouldn't get here.
+
+    try:
+        m[0][-4] = 0           # This should raise an exception.
+    except:
+        pass
+    else:
+        assert 0           # We shouldn't get here.
+
+    try:
+        v[0][3] = 0           # This should raise an exception.
+    except:
+        pass
+    else:
+        assert 0           # We shouldn't get here.
+
+    try:
+        v[1] = (1,2,3)           # This should raise an exception.
+    except:
+        pass
+    else:
+        assert 0           # We shouldn't get here.
+
+    # Assignment.
+
+    m1 = Mat(1)
+    
+    m2 = m1
+    assert m2[0][0] == 1 and m2[0][1] == 1 and \
+           m2[1][0] == 1 and m2[1][1] == 1
+
+    m1[0][0] = 2
+    assert m2[0][0] == 2 and m2[0][1] == 1 and \
+           m2[1][0] == 1 and m2[1][1] == 1
+
+    # Identity.
+
+    m = Mat(2)
+
+    m.makeIdentity()
+    assert m[0][0] == 1 and m[0][1] == 0 and \
+           m[1][0] == 0 and m[1][1] == 1
+           
+    # Comparison operators.
+
+    m1 = Mat()
+    m1[1][1] = 2
+    m2 = Mat()
+    m2[1][1] = 2
+    m3 = Mat()
+    m3[1][1] = 3
+
+    assert m1 == m2
+    assert m1 != m3
+    assert not (m1 < m2)
+    assert m1 < m3
+    assert m1 <= m2
+    assert m1 <= m3
+    assert not (m3 <= m1)
+    assert not (m2 > m1)
+    assert m3 > m1
+    assert m2 >= m1
+    assert m3 >= m1
+    assert not (m1 >= m3)
+
+    # Epsilon equality.
+
+    e = 0.005
+    m1 = Mat(1)
+    m2 = Mat(1 + e)
+
+    assert m1.equalWithAbsError(m2, e)
+    assert m2.equalWithAbsError(m1, e)
+
+    e = 0.003
+    m1 = Mat(10)
+    m2 = Mat(10 + 10 * e)
+
+    assert m1.equalWithRelError(m2, e)
+    assert m2.equalWithRelError(m1, e)
+
+    # Addition.
+
+    m1 = Mat(1)
+    m2 = Mat(2)
+
+    assert m1 + m2 == Mat(3)
+    assert m2 + m1 == m1 + m2
+    assert m1 + 1 == Mat(2)
+    assert 1 + m1 == m1 + 1
+
+    # Subtraction and negation.
+
+    m1 = Mat(2)
+    m2 = Mat(3)
+
+    assert m2 - m1 == Mat(1)
+    assert m1 - 1 == Mat(1)
+    assert 1 - m1 == - (m1 - 1)
+    assert m1.negate() == Mat(-2)
+
+    # Multiplication.
+
+    m1 = Mat(1)
+    # (Scales by (3, 4).)
+    m2 = Mat()
+    m2[0][0] = 3
+    m2[1][1] = 4
+    v = Vec(1, 2)
+
+    assert m1 * 2 == Mat(2)
+    assert m1 * 2 == 2 * m1
+    assert m1 * m2 == Mat((3,4),(3,4))
+    assert v * m2 == Vec(3, 8)
+    try:
+        m1 * v                   # This should raise an exception.
+    except:
+        pass
+    else:
+        assert 0           # We shouldn't get here.
+
+    m2f = M22f()
+    m2f[0][0] = 1
+    m2f[1][1] = 2
+    v = Vec(1, 2)
+    v *= m2f
+    assert v == Vec(1, 4)
+
+    m2d = M22d()
+    m2d[0][0] = 1
+    m2d[1][1] = 2
+    v = Vec(1, 2)
+    v *= m2d
+    assert v == Vec(1, 4)
+
+    # (Rotates by 45 degrees.)
+    m3 = Mat()
+    m3[0][0] = 0
+    m3[0][1] = 1
+    m3[1][0] = -1
+    m3[1][1] = 0    
+    m4 = m3 * Mat()
+    v1 = Vec(1, 0)
+    v2 = Vec()
+
+    m4.multDirMatrix(v1,v2)
+    assert v2.equalWithAbsError((0, 1), v2.baseTypeEpsilon())
+    v2 = m4.multDirMatrix(v1)
+    assert v2.equalWithAbsError((0, 1), v2.baseTypeEpsilon())
+    v1a = V2fArray(1)
+    v1a[:] = V2f(v1)
+    v2a = m4.multDirMatrix(v1a)
+    assert v2a[0].equalWithAbsError((0, 1), v2a[0].baseTypeEpsilon())
+    v1a = V2dArray(1)
+    v1a[:] = V2d(v1)
+    v2a = m4.multDirMatrix(v1a)
+    assert v2a[0].equalWithAbsError((0, 1), v2a[0].baseTypeEpsilon())
+    
+    # Division.
+
+    m = Mat(4)
+
+    assert m / 2 == Mat(2)
+    try:
+        4 / m                   # This should raise an exception.
+    except:
+        pass
+    else:
+        assert 0           # We shouldn't get here.
+
+    # Transpose.
+
+    m = Mat(1, 2, 3, 4)
+
+    assert m.transpose() == Mat(1, 3, 2, 4)
+    m.transposed()
+    assert m == Mat(1, 3, 2, 4)
+    
+    # Invert.
+
+    m1 = Mat()
+    m1[0][0] = 1
+    m1[1][1] = 2
+    
+    m1I = m1.inverse()
+    assert m1 * m1I == Mat()
+
+    m2 = Mat(m1)
+    m2.invert()
+    assert m1 * m2 == Mat()
+
+    # Rotation (in radians).
+
+    v1 = Vec(1, 0)
+
+    m = Mat()
+    m.setRotation(-pi / 2)
+
+    v2 = v1 * m
+    assert v2.equalWithAbsError((0, -1), v2.baseTypeEpsilon())
+
+    m.rotate(-pi / 2)
+
+    v2 = v1 * m
+    assert v2.equalWithAbsError((-1, 0), v2.baseTypeEpsilon())
+
+    # Scaling.
+
+    v1 = Vec(1, 2)
+
+    m = Mat()
+    m.setScale(2)
+
+    v2 = v1 * m
+    assert v2.equalWithAbsError((2, 4), v2.baseTypeEpsilon())
+
+    m.scale(3)
+
+    v2 = v1 * m
+    assert v2.equalWithAbsError((6, 12), v2.baseTypeEpsilon())
+
+    m = Mat()
+    m.setScale((1, 2))
+
+    v2 = v1 * m
+    assert v2.equalWithAbsError((1, 4), v2.baseTypeEpsilon())
+
+    m.scale((2, 3))
+
+    v2 = v1 * m
+    assert v2.equalWithAbsError((2, 12), v2.baseTypeEpsilon())
+
+    # It is not essential for correctness that the following exceptions
+    # occur.  Instead, these tests merely document the way the Python
+    # wrappings currently work.
+    try:
+        m.setScale(1, 2)        # This should raise an exception.
+    except:
+        pass
+    else:
+        assert 0                   # We shouldn't get here.
+
+    m = Mat()
+    a = pi/4
+    # (Rotation by -a around Z axis.)
+    m[0][0] = cos(a)
+    m[0][1] = -sin(a)
+    m[1][0] = sin(a)
+    m[1][1] = cos(a)
+    v = Vec()
+
+    m.extractEuler(v)
+    assert v.equalWithAbsError((-a, 0), v.baseTypeEpsilon())
+
+    # Determinants (by building a random singular value decomposition)
+
+    u = Mat()
+    v = Mat()
+    s = Mat()
+
+    u.setRotation( random.random() )
+    v.setRotation( random.random() )
+    s[0][0] = random.random()
+    s[1][1] = random.random()
+
+    c = u * s * v.transpose()
+    assert abs(c.determinant() - s[0][0]*s[1][1]) <= u.baseTypeEpsilon()
+
+
+    print ("ok")
+    return
+
+def testM22 ():
+
+    print ("M22f")
+    testM22x (M22f, V2f)
+    print ("M22d")
+    testM22x (M22d, V2d)
+
+testList.append (('testM22',testM22))
+
 
 # -------------------------------------------------------------------------
 # Tests for M33x
@@ -6166,6 +6502,54 @@ testList.append (('testM44',testM44))
 # -------------------------------------------------------------------------
 # Tests for Mat --> Mat conversions
 
+def testM22xConversions (Mat):
+
+    # Assignment
+    
+    m1 = Mat(0,1, 2,3)
+
+    m2 = M22f (m1)
+    assert m2[0][0] == 0 and m2[0][1] == 1
+
+    m2 = M22d (m1)
+    assert m2[0][0] == 0 and m2[0][1] == 1
+
+    # The += operator
+
+    m2 = Mat(0,1, 2,3)
+    m2 += M22f (m1)
+    assert m2[0][0] == 0 and m2[0][1] == 2
+    
+    m2 = Mat(0,1, 2,3)
+    m2 += M22d (m1)
+    assert m2[0][0] == 0 and m2[0][1] == 2
+    
+    # The -= operator
+
+    m2 = Mat(0,1, 2,3)
+    m2 -= M22f (m1)
+    assert m2[0][0] == 0 and m2[0][1] == 0
+    
+    m2 = Mat(0,1, 2,3)
+    m2 -= M22d (m1)
+    assert m2[0][0] == 0 and m2[0][1] == 0
+
+    # The *= operator
+
+    m2 = Mat(0,1, 2,3)
+    m2 *= M22f (m1)
+    assert m2[0][0] == 0*0 + 1*2
+    assert m2[0][1] == 0*1 + 1*3
+        
+    m2 = Mat(0,1, 2,3)
+    m2 *= M22d (m1)
+    assert m2[0][0] == 0*0 + 1*2
+    assert m2[0][1] == 0*1 + 1*3
+        
+    print ("ok")
+    return
+
+
 def testM33xConversions (Mat):
 
     # Assignment
@@ -6262,8 +6646,7 @@ def testM44xConversions (Mat):
     return
 
 
-def testM33xM44xConversion (MatA, MatB):
-
+def testInvalidConversion (MatA, MatB):
     try:
         m = MatA();
         m1 = MatB (m);           # This should raise an exception.
@@ -6273,7 +6656,24 @@ def testM33xM44xConversion (MatA, MatB):
         assert 0           # We shouldn't get here.
 
 
+def testM33xM44xConversion (MatA, MatB):
+    testInvalidConversion (MatA, MatB)
+
+
+def testM22xM33xConversion (MatA, MatB):
+    testInvalidConversion (MatA, MatB)
+
+
+def testM22xM44xConversion (MatA, MatB):
+    testInvalidConversion (MatA, MatB)
+
+
 def testMatConversions ():
+
+    print ("M22f")
+    testM22xConversions (M22f)
+    print ("M22d")
+    testM22xConversions (M22d)
 
     print ("M33f")
     testM33xConversions (M33f)
@@ -6287,6 +6687,13 @@ def testMatConversions ():
 
     print ("invalid conversions")
     # Deliberatly not exhaustive, just representative.
+
+    testM22xM33xConversion (M22f, M33d)
+    testM22xM33xConversion (M33f, M22d)
+
+    testM22xM44xConversion (M22f, M44d)
+    testM22xM44xConversion (M44f, M22d)
+
     testM33xM44xConversion (M33f, M44d)
     testM33xM44xConversion (M44f, M33d)
 
@@ -8366,6 +8773,11 @@ def testMatrixArray ():
     testMxArray (M33fArray, M33f)
     print ("M33dArray")
     testMxArray (M33dArray, M33d)
+    print ("M22fArray")
+    testMxArray (M22fArray, M22f)
+    print ("M22dArray")
+    testMxArray (M22dArray, M22d)
+
 
 testList.append(("testMatrixArray",testMatrixArray))
 
