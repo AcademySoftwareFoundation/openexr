@@ -4192,6 +4192,29 @@ operator << (std::ostream &s, const Matrix44<T> &m)
 
 template <class S, class T>
 inline const Vec2<S> &
+operator *= (Vec2<S> &v, const Matrix22<T> &m)
+{
+    S x = S(v.x * m[0][0] + v.y * m[1][0]);
+    S y = S(v.x * m[0][1] + v.y * m[1][1]);
+
+    v.x = x;
+    v.y = y;
+
+    return v;
+}
+
+template <class S, class T>
+inline Vec2<S>
+operator * (const Vec2<S> &v, const Matrix22<T> &m)
+{
+    S x = S(v.x * m[0][0] + v.y * m[1][0]);
+    S y = S(v.x * m[0][1] + v.y * m[1][1]);
+
+    return Vec2<S> (x, y);
+}
+
+template <class S, class T>
+inline const Vec2<S> &
 operator *= (Vec2<S> &v, const Matrix33<T> &m)
 {
     S x = S(v.x * m[0][0] + v.y * m[1][0] + m[2][0]);
