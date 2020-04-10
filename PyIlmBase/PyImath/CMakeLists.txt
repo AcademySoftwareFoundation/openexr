@@ -17,6 +17,7 @@ pyilmbase_define_module(imath
     PyImathFixedArray.cpp
     PyImathFrustum.cpp
     PyImathLine.cpp
+    PyImathMatrix22.cpp
     PyImathMatrix33.cpp
     PyImathMatrix44.cpp
     PyImathPlane.cpp
