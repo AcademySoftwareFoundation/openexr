@@ -42,6 +42,27 @@ Patch release with minor bug fixes.
 * Various cmake fixes for build/install of python modules.
 * ImfMisc.h is no longer installed, since it's a private header.
 
+### Security Vulnerabilities
+
+This version fixes the following security vulnerabilities:
+
+* [CVE-2020-11765](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11765) There is an off-by-one error in use of the ImfXdr.h read function by DwaCompressor::Classifier::ClasGsifier, leading to an out-of-bounds read.
+
+* [CVE-2020-11764](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11764) There is an out-of-bounds write in copyIntoFrameBuffer in ImfMisc.cpp.
+
+* [CVE-2020-11763](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11763) There is an std::vector out-of-bounds read and write, as demonstrated by ImfTileOffsets.cpp.
+
+* [CVE-2020-11762](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11762) There is an out-of-bounds read and write in DwaCompressor::uncompress in ImfDwaCompressor.cpp when handling the UNKNOWN compression case.
+
+* [CVE-2020-11761](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11761) There is an out-of-bounds read during Huffman uncompression, as demonstrated by FastHufDecoder::refill in ImfFastHuf.cpp.
+
+* [CVE-2020-11760](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11760) There is an out-of-bounds read during RLE uncompression in rleUncompress in ImfRle.cpp.
+
+* [CVE-2020-11759](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11759) Because of integer overflows in CompositeDeepScanLine::Data::handleDeepFrameBuffer and readSampleCountForLineBlock, an attacker can write to an out-of-bounds pointer.
+
+* [CVE-2020-11758](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11758) There is an out-of-bounds read in ImfOptimizedPixelReading.h.
+
+
 ### Merged Pull Requests
 
 * [659](https://github.com/AcademySoftwareFoundation/openexr/pull/659) fix memory leaks and invalid memory accesses
