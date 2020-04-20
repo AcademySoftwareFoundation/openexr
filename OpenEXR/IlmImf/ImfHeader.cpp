@@ -68,6 +68,7 @@
 #include <ImfTimeCodeAttribute.h>
 #include <ImfVecAttribute.h>
 #include <ImfPartType.h>
+#include <ImfIDManifestAttribute.h>
 #include "IlmThreadMutex.h"
 #include "Iex.h"
 #include <sstream>
@@ -1292,6 +1293,8 @@ staticInitialize ()
 	V3fAttribute::registerAttributeType();
 	V3iAttribute::registerAttributeType();
 	DwaCompressor::initializeFuncs();
+    IDManifestAttribute::registerAttributeType();
+
 
 	initialized = true;
     }

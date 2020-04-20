@@ -95,7 +95,9 @@ libIlmImf_la_SOURCES = ImfForward.h ImfAttribute.cpp ImfBoxAttribute.cpp ImfCRgb
 	               ImfFastHuf.h ImfFastHuf.cpp \
 	               ImfFloatVectorAttribute.h ImfFloatVectorAttribute.cpp \
 	               ImfRle.h ImfRle.cpp ImfSimd.h \
-	               ImfSystemSpecific.cpp ImfZip.h ImfZip.cpp
+	               ImfSystemSpecific.cpp ImfZip.h ImfZip.cpp \
+	               ImfIDManifest.cpp ImfIDManifest.h \
+	               ImfIDManifestAttribute.cpp ImfIDManifestAttribute.h
 
 
 libIlmImf_la_LDFLAGS = @ILMBASE_LDFLAGS@ -version-info @LIBTOOL_VERSION@ \

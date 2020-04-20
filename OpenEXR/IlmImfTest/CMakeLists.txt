@@ -63,6 +63,7 @@ add_executable(IlmImfTest
   testB44ExpLogTable.cpp
   testDwaLookups.cpp
   random.cpp
+  testIDManifest.cpp
 )
 target_compile_definitions(IlmImfTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 target_link_libraries(IlmImfTest OpenEXR::IlmImf)

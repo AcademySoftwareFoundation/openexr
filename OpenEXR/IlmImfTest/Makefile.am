@@ -60,7 +60,8 @@ IlmImfTest_SOURCES = main.cpp tmpDir.h testAttributes.cpp testChannels.cpp \
 	             testRle.cpp testRle.h \
 	             testB44ExpLogTable.cpp testB44ExpLogTable.h \
 	             testDwaLookups.cpp testDwaLookups.h \
-		     bswap_32.h random.cpp
+		     bswap_32.h random.cpp \
+		     testIDManifest.cpp testIDManifest.h
 
 AM_CPPFLAGS = -DILM_IMF_TEST_IMAGEDIR=\"$(srcdir)/\"
 
