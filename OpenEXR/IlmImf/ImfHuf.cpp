@@ -1052,7 +1052,10 @@ hufUncompress (const char compressed[],
 	       unsigned short raw[],
 	       int nRaw)
 {
-    if (nCompressed == 0)
+    //
+    // need at least 20 bytes for header
+    //
+    if (nCompressed < 20 )
     {
 	if (nRaw != 0)
 	    notEnoughData();
@@ -1069,6 +1072,12 @@ hufUncompress (const char compressed[],
 	invalidTableSize();
 
     const char *ptr = compressed + 20;
+
+    if ( ptr + (nBits+7 )/8 > compressed+nCompressed)
+    {
+        notEnoughData();
+        return;
+    }
 
     // 
     // Fast decoder needs at least 2x64-bits of compressed data, and

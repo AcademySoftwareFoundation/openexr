@@ -265,8 +265,9 @@ struct DwaCompressor::Classifier
                                 " (truncated rule).");
             
         {
-            char suffix[Name::SIZE];
-            memset (suffix, 0, Name::SIZE);
+            // maximum length of string plus one byte for terminating NULL
+            char suffix[Name::SIZE+1];
+            memset (suffix, 0, Name::SIZE+1);
             Xdr::read<CharPtrIO> (ptr, std::min(size, Name::SIZE-1), suffix);
             _suffix = std::string(suffix);
         }
@@ -2409,7 +2410,7 @@ DwaCompressor::uncompress
         unsigned short ruleSize = 0;
         Xdr::read<CharPtrIO>(dataPtr, ruleSize);
 
-        if (ruleSize < 0) 
+        if (ruleSize < Xdr::size<unsigned short>())
             throw Iex::InputExc("Error uncompressing DWA data"
                                 " (corrupt header file).");
 
@@ -2805,6 +2806,14 @@ DwaCompressor::uncompress
                 {
                     if (Imath::modp (y, cd->ySampling) != 0)
                         continue;
+
+                    //
+                    // sanity check for buffer data lying within range
+                    //
+                    if (cd->planarUncBufferEnd + dstScanlineSize - _planarUncBuffer[UNKNOWN] > _planarUncBufferSize[UNKNOWN] )
+                    {
+                        throw Iex::InputExc("DWA data corrupt");
+                    }
 
                     memcpy (rowPtrs[chan][row],
                             cd->planarUncBufferEnd,
