@@ -95,6 +95,16 @@ function(PYILMBASE_EXTRACT_REL_SITEARCH varname pyver pyexe pysitearch)
   endwhile()
   math(EXPR _elen "${_elen}+1")
   string(SUBSTRING ${_basedir} ${_elen} -1 _reldir)
+  if(APPLE)
+    # on macOS, set install path to user's python package directory
+    # so that elevated privileges are not necessary
+    execute_process(
+      COMMAND "${pyexe}" -c "if True:
+        import sysconfig
+        print(sysconfig.get_path('platlib', 'posix_user'))"
+      OUTPUT_VARIABLE _reldir
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+  endif()
   set(${varname} ${_reldir} CACHE STRING "Destination sub-folder (relative) for the python ${pyver} modules")
   message(STATUS "  -> Will install to: ${_reldir}")
 endfunction()
