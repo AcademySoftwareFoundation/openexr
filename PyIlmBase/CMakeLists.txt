@@ -135,8 +135,10 @@ endif()
 ### NB: We are turning this on globally by default as the boost
 ###     generated cmake config files seem to be broken and they
 ###     cross-wire python 2 with 3 in the same variables
-message(STATUS "Disabling boost-provided cmake config. If this causes problems, consider manually adjusting this in the CMakeLists.txt")
-set(Boost_NO_BOOST_CMAKE ON)
+option(Boost_NO_BOOST_CMAKE "Disable boost-provided cmake config" ON)
+if(Boost_NO_BOOST_CMAKE)
+  message(STATUS "Disabling boost-provided cmake config. If this causes problems, consider setting Boost_NO_BOOST_CMAKE variable to OFF")
+endif()
 
 find_package(Boost OPTIONAL_COMPONENTS
   python
