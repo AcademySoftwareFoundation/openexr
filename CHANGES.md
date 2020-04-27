@@ -45,370 +45,425 @@ Minor release with miscellaneous bug fixes and small features
 
 ### Merged Pull Requests
 
-### Commits \[ git log v2.4.1...v2.5.0\]
+* [694](https://github.com/AcademySoftwareFoundation/openexr/pull/694) TSC meeting notes 4-16-20
 
-* [TSC meeting notes 4-16-20](https://github.com/AcademySoftwareFoundation/openexr/commit/0b26caf6c33656d38cf10f7a090d3713ac4ee291) ([Cary Phillips](@cary@ilm.com) 2020-04-16)
+* [693](https://github.com/AcademySoftwareFoundation/openexr/pull/693) Update the release notes and security notices with 2020 CVE's
 
-* [Implemented all tests transferable to the 2x2 matrix case from 3x3. Added needed functionality to ensure boost::python worked for testing.](https://github.com/AcademySoftwareFoundation/openexr/commit/9d8bb109968cd169765f1da7b2022a6b6b3a93f0) ([Owen Thompson](@oxt3479@rit.edu) 2020-04-09)
+* [692](https://github.com/AcademySoftwareFoundation/openexr/pull/692) Meetings 4.2.20
 
-* [Implemented additional C++ functionality needed to pass 2x2 testing parameters: extracting euler angles and overloaded vector multiplication.](https://github.com/AcademySoftwareFoundation/openexr/commit/713e6ce54babdd4181c23d7d0e6c8bb00164a953) ([Owen Thompson](@oxt3479@rit.edu) 2020-04-09)
+* [690](https://github.com/AcademySoftwareFoundation/openexr/pull/690) Implementation of Matrix22
 
-* [Wrote tests transferable to the 2x2 cases in C++](https://github.com/AcademySoftwareFoundation/openexr/commit/1b20f7bd7dc1a8bf37200d46f84645c613513c4a) ([Owen Thompson](@oxt3479@rit.edu) 2020-04-09)
+* [685](https://github.com/AcademySoftwareFoundation/openexr/pull/685) Fix libc++abi.dylib: Pure virtual function called!
 
-* [Matrix22 template constructor and make identity no longer use memset.](https://github.com/AcademySoftwareFoundation/openexr/commit/d404df499a32b63ab57f48177d275806ea8addd5) ([Owen Thompson](@oxt3479@rit.edu) 2020-03-30)
+* [683](https://github.com/AcademySoftwareFoundation/openexr/pull/683) Typo in INSTALL.md: cmake now builds three modules, not four.
 
-* [Implementation of operator << on Matrix22 for stream output.](https://github.com/AcademySoftwareFoundation/openexr/commit/f20e1602d64b03397bc54425ff7f5be2e3214aff) ([Owen Thompson](@oxt3479@rit.edu) 2020-03-30)
+* [682](https://github.com/AcademySoftwareFoundation/openexr/pull/682) TSC meeting notes 2020 03 05
 
-* [Implementation of arbitrarily transferable functions from 3x3 to 2x2. Removed gaus-jordan and other problematic operations (doesn't work on 2x2)](https://github.com/AcademySoftwareFoundation/openexr/commit/c5a10a776c8655dbcbe241a3496952c4c3787071) ([Owen Thompson](@oxt3479@rit.edu) 2020-03-24)
+* [680](https://github.com/AcademySoftwareFoundation/openexr/pull/680) fixed a/an use in Matrix33 and Matrix44
 
-* [fixed spacing](https://github.com/AcademySoftwareFoundation/openexr/commit/308f1076d001e573a9fbf240bb85995aaea1ce2c) ([Cary Phillips](@cary@ilm.com) 2020-04-16)
+* [676](https://github.com/AcademySoftwareFoundation/openexr/pull/676) Remove OpenEXR_Viewers from the cmake build files and from INSTALL.md
 
-* [update with new CVE's](https://github.com/AcademySoftwareFoundation/openexr/commit/a2392101e8101bed90fc3370e8840d208dd88c02) ([Cary Phillips](@cary@ilm.com) 2020-04-16)
+* [675](https://github.com/AcademySoftwareFoundation/openexr/pull/675) TSC meeting notes for 2/27/2020
 
-* [edited GSoC discussion](https://github.com/AcademySoftwareFoundation/openexr/commit/d7da549e1561002d9d278960fdc537f7c535376c) ([Cary Phillips](@cary@ilm.com) 2020-04-03)
+* [672](https://github.com/AcademySoftwareFoundation/openexr/pull/672) Fix cmake install failing when install dir contains spaces, fix symlinks for shared libraries on DLL platforms
 
-* [typo](https://github.com/AcademySoftwareFoundation/openexr/commit/c4d27400c51db899b35b4fb729815e17054391ea) ([Cary Phillips](@cary@ilm.com) 2020-04-02)
+* [669](https://github.com/AcademySoftwareFoundation/openexr/pull/669) CLA docs moved from "docs" to "contributors"
 
-* [added John](https://github.com/AcademySoftwareFoundation/openexr/commit/c76f4c8d3feb670c14a4320f6c171deea4c750da) ([Cary Phillips](@cary@ilm.com) 2020-04-02)
+* [667](https://github.com/AcademySoftwareFoundation/openexr/pull/667) TSC meeting notes 2/20/2020
 
-* [typo.](https://github.com/AcademySoftwareFoundation/openexr/commit/e9ff88bb1d3de0d19029d159ac9d1414b790b88c) ([Cary Phillips](@cary@ilm.com) 2020-04-02)
+* [666](https://github.com/AcademySoftwareFoundation/openexr/pull/666) ImfChromaticities.cpp: Add back white to equality ops.
 
-* [TSC meeting notes 4/2/2020](https://github.com/AcademySoftwareFoundation/openexr/commit/b0f4dc4849910819b4d54a895823591057e9d2a5) ([Cary Phillips](@cary@ilm.com) 2020-04-02)
+* [662](https://github.com/AcademySoftwareFoundation/openexr/pull/662) support reloading broken files with IlmImfFuzzTest
 
-* [Fix libc++abi.dylib: Pure virtual function called!](https://github.com/AcademySoftwareFoundation/openexr/commit/fa435e2afe5fce3f5e26220bc46474b8775c6716) ([dgmzc](@dorian.gmz@hotmail.com) 2020-03-10)
+* [661](https://github.com/AcademySoftwareFoundation/openexr/pull/661) fix unitialized pointer and double-delete bugs
 
-* [Typo in INSTALL.md: cmake now builds three modules, not four.](https://github.com/AcademySoftwareFoundation/openexr/commit/e23fdf6e02dbd8157b1d468143a82f6632781dee) ([Cary Phillips](@cary@ilm.com) 2020-03-05)
+* [660](https://github.com/AcademySoftwareFoundation/openexr/pull/660) exrdisplay: limit maximum image size based on available screen res
 
-* [added some details.](https://github.com/AcademySoftwareFoundation/openexr/commit/0132627f3e46fd376c785e223abbc3f5e418ae5e) ([Cary Phillips](@cary@ilm.com) 2020-03-05)
+* [659](https://github.com/AcademySoftwareFoundation/openexr/pull/659) fix memory leaks and invalid memory accesses
 
-* [TSC Meeting notes 3/5/2020](https://github.com/AcademySoftwareFoundation/openexr/commit/23c7e72cb25daa3820d9745d9f49c86320316082) ([Cary Phillips](@cary@ilm.com) 2020-03-05)
+* [658](https://github.com/AcademySoftwareFoundation/openexr/pull/658) Fix yet more memory leaks from constructor exceptions
 
-* [fixed a/an use in Matrix33 and Matrix44](https://github.com/AcademySoftwareFoundation/openexr/commit/6780843d9da05e5f7bebab2bda9dd437cc4a1909) ([Phyrexian](@jarko.paska@gmail.com) 2020-03-05)
+* [657](https://github.com/AcademySoftwareFoundation/openexr/pull/657) Release notes for 2.4.1 patch release.
 
-* [Remove OpenEXR_Viewers from the cmake build files and from the INSTALL.md instructions.](https://github.com/AcademySoftwareFoundation/openexr/commit/560f7c2e0eb1e4adec40884eb6126585d08e70f5) ([Cary Phillips](@cary@ilm.com) 2020-02-27)
+* [656](https://github.com/AcademySoftwareFoundation/openexr/pull/656) fix crash with damaged EXR files
 
-* [TSC meeting notes for 2/27/2020](https://github.com/AcademySoftwareFoundation/openexr/commit/01fa5a20dde82849203117bfe5de2b2cb21d84a4) ([Cary Phillips](@cary@ilm.com) 2020-02-27)
+* [655](https://github.com/AcademySoftwareFoundation/openexr/pull/655) Notes 2020 02 06
 
-* [Add interface includes to IlmBase and OpenEXR](https://github.com/AcademySoftwareFoundation/openexr/commit/d2639ab3bb60b7b316d6f7893446e38591bd9f3e) ([Harry Mallon](@hjmallon@gmail.com) 2020-01-07)
+* [653](https://github.com/AcademySoftwareFoundation/openexr/pull/653) fix memory leak from constructor exceptions
 
-* [Fix cmake install failing when install dir contains spaces, fix symlinks for shared libraries on DLL platforms](https://github.com/AcademySoftwareFoundation/openexr/commit/6da250f63d8460788a8b6bb2a642d9c981ab2bb8) ([Simon Boorer](@sboorer@ilm.com) 2020-02-26)
+* [650](https://github.com/AcademySoftwareFoundation/openexr/pull/650) ImfAcesFile.cpp: Fix primary conversion edge case.
 
-* [Split Targets and Config and add find_package](https://github.com/AcademySoftwareFoundation/openexr/commit/6d26cbfc1c453c79513b0dad5704fed13e76feda) ([Harry Mallon](@hjmallon@gmail.com) 2020-01-07)
+* [649](https://github.com/AcademySoftwareFoundation/openexr/pull/649) ImfChromaticities.h/cpp: Typo and pass by ref change.
 
-* [ImfChromaticities.cpp: Add back white to equality ops.](https://github.com/AcademySoftwareFoundation/openexr/commit/2f92fcbb4fb25caafe4358d1c4a4c7b940016af4) ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-02-20)
+* [647](https://github.com/AcademySoftwareFoundation/openexr/pull/647) fix typo and ref to theory document in InterpretingDeepPixels
 
-* [IlmImfTest/testExistingStreams.cpp: Test for Imf::StdOSStream/StdISStream.](https://github.com/AcademySoftwareFoundation/openexr/commit/d2deb6d8844814615fed247048d36898e7f4c407) ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-02-26)
+* [645](https://github.com/AcademySoftwareFoundation/openexr/pull/645) Various CI Updates:
 
-* [OpenEXR/ImfStdIO.[cpp h]: Added StdISStream.](https://github.com/AcademySoftwareFoundation/openexr/commit/9a172a220d59dd4363f4c07bac59facae9a1ae6f) ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-01-10)
+* [643](https://github.com/AcademySoftwareFoundation/openexr/pull/643) Various checks to improve handling of damaged input files
 
-* [CLA docs moved from "docs" to "contributors"](https://github.com/AcademySoftwareFoundation/openexr/commit/d9019d81a74ac7cf8710bb72590200369686856d) ([Cary Phillips](@cary@ilm.com) 2020-02-24)
+* [642](https://github.com/AcademySoftwareFoundation/openexr/pull/642) Fixed security email address to security@openexr.org
 
-* [ImfAcesFile.cpp: Remove redundant equality check.](https://github.com/AcademySoftwareFoundation/openexr/commit/48c2106310c8edefc7c1387cffc466665e4f38d2) ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-02-07)
+* [641](https://github.com/AcademySoftwareFoundation/openexr/pull/641) Updates to fix broken Windows build.
 
-* [ImfAcesFile.cpp: Fix primary conversion edge case.](https://github.com/AcademySoftwareFoundation/openexr/commit/adc21e5250cf938ecd6bf6fcbcfb4e7da7382671) ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-01-31)
+* [640](https://github.com/AcademySoftwareFoundation/openexr/pull/640) notes from 1/9/20 and 1/16/20
 
-* [TSC meeting notes 2/20/2020](https://github.com/AcademySoftwareFoundation/openexr/commit/3576a8bd16ba36ad20832b5727d3fe9ff210dd0d) ([Cary Phillips](@cary@ilm.com) 2020-02-20)
+* [639](https://github.com/AcademySoftwareFoundation/openexr/pull/639) Split Targets and Config and add find_package
 
-* [fix unitialised pointer and double-delete bugs (#661)](https://github.com/AcademySoftwareFoundation/openexr/commit/817faac5c18a7c9e66ae2adb9e3f312ff3e7f631) ([peterhillman](@peterh@wetafx.co.nz) 2020-02-24)
+* [638](https://github.com/AcademySoftwareFoundation/openexr/pull/638) OpenEXR/ImfStdIO.[cpp h]: Added StdISStream.
 
-* [add help and options information IlmImfTest and IlmImfFuzzTest](https://github.com/AcademySoftwareFoundation/openexr/commit/a0e84f62def6276f38e518a2724d9f7ac4daa9ad) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-02-13)
+* [637](https://github.com/AcademySoftwareFoundation/openexr/pull/637) OpenEXR/IlmImf/ImfHuf.cpp: Fix OS dependent exr binary data for piz.
 
-* [support reloading broken files with IlmImfFuzzTest](https://github.com/AcademySoftwareFoundation/openexr/commit/608b4938fb23861cf6e6792ecf8373e0c9a8ebb5) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-02-11)
+* [635](https://github.com/AcademySoftwareFoundation/openexr/pull/635) Make docs install optional in CMake
 
-* [Added #659 and associated commit to 2.4.1 release notes.](https://github.com/AcademySoftwareFoundation/openexr/commit/d129fae907a2928f675b1c654f9c8a32a84103b2) ([Cary Phillips](@cary@ilm.com) 2020-02-10)
+* [634](https://github.com/AcademySoftwareFoundation/openexr/pull/634) Add interface includes to IlmBase and OpenEXR
 
-* [Release notes for 2.4.1 patch release.](https://github.com/AcademySoftwareFoundation/openexr/commit/b6bef53821384c82ebd0912513be3e4579d1c176) ([Cary Phillips](@cary@ilm.com) 2020-02-06)
+* [631](https://github.com/AcademySoftwareFoundation/openexr/pull/631) add missing IMF_EXPORT to ImfOpenInputFile for dllexport
 
-* [Added #659 and associated commit to 2.4.1 release notes.](https://github.com/AcademySoftwareFoundation/openexr/commit/0ca9b6e855d32a794874b1624581d68fcc3f87c0) ([Cary Phillips](@cary@ilm.com) 2020-02-10)
+* [629](https://github.com/AcademySoftwareFoundation/openexr/pull/629) Fixed some typos
 
-* [Release notes for 2.4.1 patch release.](https://github.com/AcademySoftwareFoundation/openexr/commit/a966db0341369108c6f85bdd92b44ef26265f43b) ([Cary Phillips](@cary@ilm.com) 2020-02-06)
+* [627](https://github.com/AcademySoftwareFoundation/openexr/pull/627) possible fix for #570: avoid writing NaNs into test images
 
-* [exrdisplay: limit maximum image size based on available screen resolution](https://github.com/AcademySoftwareFoundation/openexr/commit/d06c223f2e9f36766ef7dbec89954393a3b0ba0b) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-02-10)
+* [626](https://github.com/AcademySoftwareFoundation/openexr/pull/626) fix testB44ExpLogTable and testDwaLookups, and Makefile.am
 
-* [fix memory leaks and invalid memory accesses](https://github.com/AcademySoftwareFoundation/openexr/commit/e79d2296496a50826a15c667bf92bdc5a05518b4) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-02-08)
+* [622](https://github.com/AcademySoftwareFoundation/openexr/pull/622) Azure and SonarCloud updates.
 
-* [Fix yet more memory leaks from constructor exceptions (#658)](https://github.com/AcademySoftwareFoundation/openexr/commit/2c37c4bd39d3b03248cca42c63d0adbc40827c58) ([peterhillman](@peterh@wetafx.co.nz) 2020-02-09)
+* [620](https://github.com/AcademySoftwareFoundation/openexr/pull/620) Switch from int to size_t to prevent overflow with huge images in exrdisplay (Fix for #610)
 
-* [fix crash with damaged EXR files (#656)](https://github.com/AcademySoftwareFoundation/openexr/commit/3422b344f6189e499fe4c00f11491843a23d24a4) ([peterhillman](@peterh@wetafx.co.nz) 2020-02-08)
+* [619](https://github.com/AcademySoftwareFoundation/openexr/pull/619) TSC meeting notes November 21, 2019
 
-* [typo in date.](https://github.com/AcademySoftwareFoundation/openexr/commit/5754217fc506efad20f0ccb509ac447c7c68b671) ([Cary Phillips](@cary@ilm.com) 2020-02-06)
+* [618](https://github.com/AcademySoftwareFoundation/openexr/pull/618) change URL to https://github.com/AcademySoftwareFoundation/openexr
 
-* [TSC meeting notes for Feb 6, 2020](https://github.com/AcademySoftwareFoundation/openexr/commit/7f18395337d9a439246370245eb585e5c2efaa6c) ([Cary Phillips](@cary@ilm.com) 2020-02-06)
+* [616](https://github.com/AcademySoftwareFoundation/openexr/pull/616) Fix issue 289, C++17 compatibility
 
-* [ImfChromaticities.h/cpp: Typo and pass by ref change.](https://github.com/AcademySoftwareFoundation/openexr/commit/cdc70f60c525c533aefa2b0663b9e0b723cad463) ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-01-31)
+* [615](https://github.com/AcademySoftwareFoundation/openexr/pull/615) Add a missing break statement when determining compression in exr2aces
 
-* [fix memory leak from constructor exceptions (#653)](https://github.com/AcademySoftwareFoundation/openexr/commit/51bd0ff530fb20586c4bf95241d035f237792989) ([peterhillman](@peterh@wetafx.co.nz) 2020-02-07)
+* [613](https://github.com/AcademySoftwareFoundation/openexr/pull/613) Notes 2019 11 15
 
-* [OpenEXR/IlmImfTest/testHuf.cpp: Do the compressVerify() on deterministic data sets.](https://github.com/AcademySoftwareFoundation/openexr/commit/88246d991e0318c043e6f584f7493da08a31f9f8) ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-01-17)
+* [612](https://github.com/AcademySoftwareFoundation/openexr/pull/612) Add a 'clang-format' build target
 
-* [OpenEXR/IlmImf/ImfHuf.cpp: Fix OS dependent exr binary data for piz.](https://github.com/AcademySoftwareFoundation/openexr/commit/0042c45171aeff6ec2d165c4c2621514f055d380) ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-01-10)
+* [608](https://github.com/AcademySoftwareFoundation/openexr/pull/608) Fix #595 and others, issue with pkgconfig generation under cmake
 
-* [force x/y Sampling to 1 for Deep Scanline Images](https://github.com/AcademySoftwareFoundation/openexr/commit/89ce46f38c5e658d21df9179c1641c496cab7396) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-28)
+* [606](https://github.com/AcademySoftwareFoundation/openexr/pull/606) Remove all build-time header generation
 
-* [minor tweaks and typo fixes](https://github.com/AcademySoftwareFoundation/openexr/commit/0a1aa55ef108169c933ddaa631c1f6cb02b69050) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-28)
+* [601](https://github.com/AcademySoftwareFoundation/openexr/pull/601) "Rule of 5" copy/assign/move declarations
 
-* [missing header for ptrdiff_t](https://github.com/AcademySoftwareFoundation/openexr/commit/acad98d6d3e787f36012a3737c23c42c7f43a00f) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-24)
+* [600](https://github.com/AcademySoftwareFoundation/openexr/pull/600) TSC Meeting Notes 2019/10/24
 
-* [fix test suite memory leak from testDeepTiledBasic](https://github.com/AcademySoftwareFoundation/openexr/commit/c14af4bb58c8748cfe2f132147ba38abd0845812) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-24)
+* [599](https://github.com/AcademySoftwareFoundation/openexr/pull/599) Prepare 2.4 release branch
 
-* [test for multipart threading was leaking memory](https://github.com/AcademySoftwareFoundation/openexr/commit/a8508ab05ffeedba394e646506030f94769e0f15) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-24)
+* [598](https://github.com/AcademySoftwareFoundation/openexr/pull/598) Fix for #571: keep all values word-aligned in IlmImfTest testLargeDataWindowOffsets
 
-* [Fix cleanup when DeepScanLineInputFile constructor throws](https://github.com/AcademySoftwareFoundation/openexr/commit/b673e6ad0ec6cef94d86b9586244d26088a3d792) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-24)
+* [590](https://github.com/AcademySoftwareFoundation/openexr/pull/590) TSC Meeting notes for 2019-10-17
 
-* [fixes to memory leak when constructors throw exceptions](https://github.com/AcademySoftwareFoundation/openexr/commit/53a06468ef5a08f4f2beb2d264a20547d7a78753) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-23)
+* [588](https://github.com/AcademySoftwareFoundation/openexr/pull/588) Gitignore
 
-* [fix memory leak in test suite](https://github.com/AcademySoftwareFoundation/openexr/commit/d4fbaad4efe5d0ddf325da44ecbab105ebb2954e) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-23)
+* [587](https://github.com/AcademySoftwareFoundation/openexr/pull/587) removed unnecessary .m4 files
 
-* [fix memory leak on DeepTiledInput files: compressor for sample count table wasn't deleted](https://github.com/AcademySoftwareFoundation/openexr/commit/dea0ef1ee7b2f4d2aa42ffba7b442e5d8051222b) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-23)
+* [586](https://github.com/AcademySoftwareFoundation/openexr/pull/586) TSC Meeting Notes 2019-10-3
 
-* [fix check for valid ruleSize](https://github.com/AcademySoftwareFoundation/openexr/commit/2ae5f8376b0a6c3e2bb100042f5de79503ba837a) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-23)
+* [585](https://github.com/AcademySoftwareFoundation/openexr/pull/585) Added mission statement to README.md
 
-* [avoid creating compression object just to compute numLinesInBuffer](https://github.com/AcademySoftwareFoundation/openexr/commit/a6408c90339bdf19f89476578d7f936b741be9b2) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-23)
+* [582](https://github.com/AcademySoftwareFoundation/openexr/pull/582) Azure macOS job fixes
 
-* [abort when file claims to have excessive scanline data requirements](https://github.com/AcademySoftwareFoundation/openexr/commit/e7c26f6ef5bf7ae8ea21ecf19963186cd1391720) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-22)
+* [580](https://github.com/AcademySoftwareFoundation/openexr/pull/580) More SonarCloud "bug" fixes in Imath
 
-* [fix memory leak when reading damaged PIZ files](https://github.com/AcademySoftwareFoundation/openexr/commit/b1c34c496b62117115b1089b18a44e0031800a09) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-22)
+* [578](https://github.com/AcademySoftwareFoundation/openexr/pull/578) More fixes for SonarCloud bugs
 
-* [sanity check data reads from PIZ data](https://github.com/AcademySoftwareFoundation/openexr/commit/ea3349896d4a8a3b523e8f3b830334a85240b1e6) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-21)
+* [577](https://github.com/AcademySoftwareFoundation/openexr/pull/577) Sonar fixes in IlmImf and IlmImfTest
 
-* [improve bad count detection in huf decompress](https://github.com/AcademySoftwareFoundation/openexr/commit/43cd3ad47d53356da6ae2e983e47c8313aebf72e) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-21)
+* [576](https://github.com/AcademySoftwareFoundation/openexr/pull/576) TSC meeting notes
 
-* [check for bad bit counts in Huff encoded data](https://github.com/AcademySoftwareFoundation/openexr/commit/801272c9bf8b84a66c62f1e8a4490ece81da6a56) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-21)
+* [575](https://github.com/AcademySoftwareFoundation/openexr/pull/575) Sonar fixes for Iex, IexTest, and ImathTest
 
-* [bypass SSE optimization when skipping subsampled channels](https://github.com/AcademySoftwareFoundation/openexr/commit/7a52d40ae23c148f27116cb1f6e897b9143b372c) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-21)
+* [574](https://github.com/AcademySoftwareFoundation/openexr/pull/574) Change Azure SonarCloud job to run weekly.
 
-* [prevent int overflow when calculating buffer offsets](https://github.com/AcademySoftwareFoundation/openexr/commit/b9997d0c045fa01af3d2e46e1a74b07cc4519446) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-20)
+* [569](https://github.com/AcademySoftwareFoundation/openexr/pull/569) TSC meeting notes for the last 3 weeks
 
-* [exrmakepreview: switch preview-to-full scaling vars from floats to doubles to prevent rounding causing overflows](https://github.com/AcademySoftwareFoundation/openexr/commit/822e218c795e989abdf74112b924d0da8acc967b) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-20)
+* [562](https://github.com/AcademySoftwareFoundation/openexr/pull/562) CVE listing in SECURITY.md
 
-* [fixes for DWA uncompress: sanity check unknown data reading, off-by-one error on max suffix string length](https://github.com/AcademySoftwareFoundation/openexr/commit/3eda5d70aba127bae9bd6bae9956fcf024b64031) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-20)
+* [561](https://github.com/AcademySoftwareFoundation/openexr/pull/561) A few more NOSONAR suppressions in PyImath
 
-* [Sanity check for input buffer overruns in RLE uncompress](https://github.com/AcademySoftwareFoundation/openexr/commit/37750013830def57f19f3c3b7faaa9fc1dae81b3) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-20)
+* [560](https://github.com/AcademySoftwareFoundation/openexr/pull/560) Clean up small number of sonarcloud bugs / warnings
 
-* [validate tiles have valid headers when raw reading tiles](https://github.com/AcademySoftwareFoundation/openexr/commit/df987cabc20c90803692022fd232def837cb88cc) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-20)
+* [559](https://github.com/AcademySoftwareFoundation/openexr/pull/559) Change Azure SonarCloud job to run for every PR, rather than only for…
 
-* [Force tile sizes to be less than INT_MAX bytes, in line with the maximum dimensions of data windows](https://github.com/AcademySoftwareFoundation/openexr/commit/6bad53af7eebed507564dd5fc90320e4c6a6c0bc) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-20)
+* [558](https://github.com/AcademySoftwareFoundation/openexr/pull/558) Add NOSONAR comments to PyImath to suppress "self==self" bug reports.
 
-* [fix typo and ref to theory document in InterpretingDeepPixels](https://github.com/AcademySoftwareFoundation/openexr/commit/1cbf6b9a4497f71586ac11dc60ed21cf0cc529bd) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-28)
+* [557](https://github.com/AcademySoftwareFoundation/openexr/pull/557) Fix warnings when _FORTIFY_SOURCE set
 
-* [Various CI Updates: - fix python warnings. - fix Cmake include(clang_format) error - added Linux VFX 2020 builds - removed MacOS 10.13 due to Azure ending support - temporarily disable gcov in Sonar, due to SC regression CPP-2395](https://github.com/AcademySoftwareFoundation/openexr/commit/6546ff20961003825f86662efe16842ff6a64f32) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2020-01-25)
+* [556](https://github.com/AcademySoftwareFoundation/openexr/pull/556) Fix #555
 
-* [Updates to fix broken Windows build.](https://github.com/AcademySoftwareFoundation/openexr/commit/f9229e98c93b4bc0179bb12904d03071cc5a8718) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2020-01-20)
+* [554](https://github.com/AcademySoftwareFoundation/openexr/pull/554) Replace use of rand()/srand() with the C++11 <random>
 
-* [possible fix for #570: avoid writing NaNs into test images](https://github.com/AcademySoftwareFoundation/openexr/commit/fce8c17b3731fd3212c8fba52fecfea597eb98fa) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-11-29)
-
-* [fix testB44ExpLogTable and testDwaLookups, and Makefile.am](https://github.com/AcademySoftwareFoundation/openexr/commit/9750a1db7f92be3def678977eb741b6762316580) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-11-29)
-
-* [use Int64 types for width*height calculations in exrdisplay](https://github.com/AcademySoftwareFoundation/openexr/commit/bd6ab91f6002e90c17c385391e17c06c7ea1dfb8) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-11-25)
-
-* [Switch from int to size_t to prevent overflow with huge images](https://github.com/AcademySoftwareFoundation/openexr/commit/5adac705e18de43008ec0ecb562969ede2a7a927) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-11-25)
-
-* [added Rod to TSC notes](https://github.com/AcademySoftwareFoundation/openexr/commit/b1477e0eea3d9e901012795bed2f499c96e028dc) ([Cary Phillips](@cary@ilm.com) 2019-11-14)
-
-* [TSC notes 2019-11-15](https://github.com/AcademySoftwareFoundation/openexr/commit/220f9d4b2a36c994b9043aa785b1970ad652b8f1) ([Cary Phillips](@cary@ilm.com) 2019-11-14)
-
-* [Don't change CMAKE_MODULE_PATH](https://github.com/AcademySoftwareFoundation/openexr/commit/93a4c794950c042ee025f8c4250e1c5b34c18af8) ([Larry Gritz](@lg@larrygritz.com) 2019-11-24)
-
-* [typo](https://github.com/AcademySoftwareFoundation/openexr/commit/18d7b6a184718a6bb7a0583ae072f507b83bab66) ([Larry Gritz](@lg@larrygritz.com) 2019-11-14)
-
-* [Add a 'clang-format' build target](https://github.com/AcademySoftwareFoundation/openexr/commit/66f48992ddd1401f8e9f4f876a737c2c62c209f8) ([Larry Gritz](@lg@larrygritz.com) 2019-11-12)
-
-* [notes from 1/9/20 and 1/16/20](https://github.com/AcademySoftwareFoundation/openexr/commit/63fdd36686baf1fd69990309ae43128fb2ab3f16) ([Cary Phillips](@cary@ilm.com) 2020-01-16)
-
-* [fixed typo in CONTRIBUTING.md](https://github.com/AcademySoftwareFoundation/openexr/commit/56b248ec86499992488b549863d4ef1bc6eb459f) ([Cary Phillips](@cary@ilm.com) 2020-01-24)
-
-* [Reference SECURITY.md in CONTRIBUTING.md](https://github.com/AcademySoftwareFoundation/openexr/commit/7e6e6f0b1244450c5da2a4e8caed8febd19e1d95) ([John Mertic](@jmertic@linuxfoundation.org) 2020-01-21)
-
-* [Fixed security email address to security@openexr.org](https://github.com/AcademySoftwareFoundation/openexr/commit/fbe08034eebf9eff192d4068ffbdb807351a3c46) ([John Mertic](@jmertic@linuxfoundation.org) 2020-01-21)
-
-* [TSC meeting notes November 21, 2019](https://github.com/AcademySoftwareFoundation/openexr/commit/8f43dd559609a2b1f8787b922c1e5a87a8057838) ([Cary Phillips](@cary@ilm.com) 2019-11-21)
-
-* [add missing IMF_EXPORT to ImfOpenInputFile in order to be able to use it from a windows dll](https://github.com/AcademySoftwareFoundation/openexr/commit/767d497c09d9a20dea4c510fc997b6393d52c33d) ([Laurens Voerman](@l.voerman@rug.nl) 2019-12-12)
-
-* [Make docs install optional in CMake](https://github.com/AcademySoftwareFoundation/openexr/commit/7bd899ac6f90efe5348518389d944856b5a73c7e) ([Harry Mallon](@hjmallon@gmail.com) 2020-01-08)
-
-* [Fixed typos](https://github.com/AcademySoftwareFoundation/openexr/commit/afa84f87ae24546f71a0e9ffac400e92a8da8b99) ([John Mertic](@jmertic@linuxfoundation.org) 2019-12-04)
-
-* [Fixed some typos](https://github.com/AcademySoftwareFoundation/openexr/commit/b65a275f189ee679c1e252c60085e8ceadce929f) ([John Mertic](@jmertic@linuxfoundation.org) 2019-12-04)
-
-* [Updated SonarCloud properties/token and README status widgets.](https://github.com/AcademySoftwareFoundation/openexr/commit/824ed557b3c59288a685356c708e5806b1122fe1) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-11-26)
-
-* [change URL to https://github.com/AcademySoftwareFoundation/openexr](https://github.com/AcademySoftwareFoundation/openexr/commit/c02742f28c23226352bd5d2050a282fbe9b868e1) ([Cary Phillips](@cary@ilm.com) 2019-11-21)
-
-* [change URL to https://github.com/AcademySoftwareFoundation/openexr](https://github.com/AcademySoftwareFoundation/openexr/commit/2ae3d476ac19f6aa9950bb7beffdb10dbd120308) ([Cary Phillips](@cary@ilm.com) 2019-11-21)
-
-* [Add a missing break statement when determining compression in exr2aces](https://github.com/AcademySoftwareFoundation/openexr/commit/1296f73cac143eaa50ee87ae1947129e4ce740cf) ([karlhendrikse](@karlhendrikse@gmail.com) 2019-11-20)
-
-* [Fix issue 289, C++17 compatibility](https://github.com/AcademySoftwareFoundation/openexr/commit/780c22304e2b1419d5d5267183e4dfc39dcd7373) ([Nick Porcino](@nporcino@pixar.com) 2019-11-20)
-
-* [add toFloat.h and eLut.h to SOURCES](https://github.com/AcademySoftwareFoundation/openexr/commit/d778a0b47b18fe1ede3824fe013cea9dd7404360) ([Cary Phillips](@cary@ilm.com) 2019-11-02)
-
-* [move dwaLookups.h declarations to the OPENEXR_IMF_INTERNAL_NAMESPACE](https://github.com/AcademySoftwareFoundation/openexr/commit/d80927bebec8c38147c3614f1d3c7df898beebbf) ([Cary Phillips](@cary@ilm.com) 2019-11-02)
-
-* [add b44ExpLogTable.h and dwaLookups.h as official headers](https://github.com/AcademySoftwareFoundation/openexr/commit/36edde927a831686040f6c97a8f080ff13aa4759) ([Cary Phillips](@cary@ilm.com) 2019-11-02)
-
-* [add toFloat.h and eLut.h as source files](https://github.com/AcademySoftwareFoundation/openexr/commit/00bf05cd090e4ac4a79877962abf26869c6c1672) ([Cary Phillips](@cary@ilm.com) 2019-11-01)
-
-* [typo from previous commit: operator= wasn't returning a value](https://github.com/AcademySoftwareFoundation/openexr/commit/861aad165e78c4281dae8306f108ede2ae15322c) ([Cary Phillips](@cary@ilm.com) 2019-11-03)
-
-* [mvoe TestType and TestTypedAttribute to OPENEXR_IMF_INTERNAL_NAMESPACE](https://github.com/AcademySoftwareFoundation/openexr/commit/03b464a01aedbc6607f0f3ca0cb5a61cfac78e12) ([Cary Phillips](@cary@ilm.com) 2019-11-03)
-
-* [remove const from arg declaration in move-constructors/move-assignments](https://github.com/AcademySoftwareFoundation/openexr/commit/9a5c8d4f41dd6e972f9a03860b0a42d136609364) ([Cary Phillips](@cary@ilm.com) 2019-11-03)
-
-* [=default copy/move/assign for TypedAttribute](https://github.com/AcademySoftwareFoundation/openexr/commit/b7857b96aed4f29ee1605caf1e56e60fa2dd4389) ([Cary Phillips](@cary@ilm.com) 2019-11-03)
-
-* [SonarCloud-inspired fixes](https://github.com/AcademySoftwareFoundation/openexr/commit/fa2e4585ea960d77ec220c5f13de00da7edbdcb6) ([Cary Phillips](@cary@ilm.com) 2019-10-25)
-
-* [SonarCloud-inspired bug fixes:](https://github.com/AcademySoftwareFoundation/openexr/commit/19cd10142a399fc9ddce863acc3dc46ec2b703b5) ([Cary Phillips](@cary@ilm.com) 2019-10-24)
-
-* [More SonarCloud-inspired fixes:](https://github.com/AcademySoftwareFoundation/openexr/commit/64f145a05135aefaac3e9e467be80869ffa276fe) ([Cary Phillips](@cary@ilm.com) 2019-10-24)
-
-* [SonarCloud-inspired fixes](https://github.com/AcademySoftwareFoundation/openexr/commit/5c985fcf79d38188caae4ccb75b2f77718a44298) ([Cary Phillips](@cary@ilm.com) 2019-10-24)
-
-* [sonar fixes](https://github.com/AcademySoftwareFoundation/openexr/commit/8e7ba0fafa53ba91d9aa8382af4652c905d5cea0) ([Cary Phillips](@cary@ilm.com) 2019-10-21)
-
-* [sonar fixes](https://github.com/AcademySoftwareFoundation/openexr/commit/ba3d5efb6bfdadb4d0c489dac89ef1d0aa3996b8) ([Cary Phillips](@cary@ilm.com) 2019-10-21)
-
-* [Fix overzealous removal of if statements breaking all builds except win32](https://github.com/AcademySoftwareFoundation/openexr/commit/031199cd4fc062dd7bfe902c6552cf22f6bfbbdb) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
-
-* [Handle python2 not being installed, but python3 being present](https://github.com/AcademySoftwareFoundation/openexr/commit/8228578da6f86d17b9a2a3f8c6053f8b4ee3fb71) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
-
-* [Fix issue with defines not being set correctly for win32](https://github.com/AcademySoftwareFoundation/openexr/commit/d10895ef0ad25dd60e68a2ab00bab7c0592f8c5b) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
-
-* [Re-enable Boost_NO_BOOST_CMAKE by default, document, clean up status messages](https://github.com/AcademySoftwareFoundation/openexr/commit/b303f6788a434fd61e52c1bacb93a96c4c3440ea) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
-
-* [Set CMP0074 such that people who set Boost_ROOT won't get warnings](https://github.com/AcademySoftwareFoundation/openexr/commit/8ec1440cbd999f17457be605150bc53395fbb334) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
-
-* [ensure paths are canonicalized by get_filename_component prior to comparing](https://github.com/AcademySoftwareFoundation/openexr/commit/28d1cb256f1b46f120adb131e606b2699acc72d7) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
-
-* [Fix issue with drive letter under windows](https://github.com/AcademySoftwareFoundation/openexr/commit/34ce16c2653d02fcef6a297a2a61112dbf693922) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-06)
-
-* [Extract to function, protect against infinite loop](https://github.com/AcademySoftwareFoundation/openexr/commit/650da0d63410d863c4a0aed15a6bee1b46b559cb) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-06)
-
-* [Fixes #593, others - issues with pyilmbase install](https://github.com/AcademySoftwareFoundation/openexr/commit/df768ec8a97adb82947fc4b92a199db9a38c044c) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-05)
-
-* [Take DESTDIR into account when creating library symlinks](https://github.com/AcademySoftwareFoundation/openexr/commit/ed4807b9e4dc8d94ce79d0b2ed36acc548bee57e) ([Antonio Rojas](@arojas@archlinux.org) 2019-10-19)
-
-* [No longer install ImfMisc.h](https://github.com/AcademySoftwareFoundation/openexr/commit/f1b017c8029b529c5c5ed01b6ad1b10a0e48036c) ([Cary Phillips](@cary@ilm.com) 2019-10-31)
-
-* [add boost to python module link library](https://github.com/AcademySoftwareFoundation/openexr/commit/a571bdfe42866a1f1c579114e2fcae8318172c21) ([Jens Lindgren](@lindgren_jens@hotmail.com) 2019-10-22)
-
-* [Fix overzealous removal of if statements breaking all builds except win32](https://github.com/AcademySoftwareFoundation/openexr/commit/cf8b35c9bbde9ea78036af2fda04a7c6e9c9a399) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
-
-* [Handle python2 not being installed, but python3 being present](https://github.com/AcademySoftwareFoundation/openexr/commit/442665384d44e464c68381d560f08bea295b9e04) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
-
-* [Fix issue with defines not being set correctly for win32](https://github.com/AcademySoftwareFoundation/openexr/commit/1eb2df5aa219a819153bb891dc4488875259fb28) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
-
-* [Re-enable Boost_NO_BOOST_CMAKE by default, document, clean up status messages](https://github.com/AcademySoftwareFoundation/openexr/commit/8a05994a86fabf39f18890928ee5cef1913fa85a) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
-
-* [Set CMP0074 such that people who set Boost_ROOT won't get warnings](https://github.com/AcademySoftwareFoundation/openexr/commit/40e68bb9f38bf791594ccbaf1320ec520f58180b) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
-
-* [ensure paths are canonicalized by get_filename_component prior to comparing](https://github.com/AcademySoftwareFoundation/openexr/commit/b021db409cfe52a9f28ad432897552bee735aeee) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
-
-* [Fix issue with drive letter under windows](https://github.com/AcademySoftwareFoundation/openexr/commit/7e0714f279fdb42956235bf4141c59f382b6c3a1) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-06)
-
-* [Extract to function, protect against infinite loop](https://github.com/AcademySoftwareFoundation/openexr/commit/89dceca80dc28fbabf262e38c9e1acf4863d97f6) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-06)
-
-* [Fixes #593, others - issues with pyilmbase install](https://github.com/AcademySoftwareFoundation/openexr/commit/599e52119d01004d6c5252f1070073fbd1518bfa) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-05)
-
-* [Fix #595 and others, issue with pkgconfig generation under cmake](https://github.com/AcademySoftwareFoundation/openexr/commit/0b26a9dedda4924841323677f1ce0bce37bfbeb4) ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-05)
-
-* [Take DESTDIR into account when creating library symlinks](https://github.com/AcademySoftwareFoundation/openexr/commit/4e54bde78f65c0fef8a9f794aaacea07813fba09) ([Antonio Rojas](@arojas@archlinux.org) 2019-10-19)
-
-* [No longer install ImfMisc.h](https://github.com/AcademySoftwareFoundation/openexr/commit/a2c12ec3619de1923de86436c134be458523e5fd) ([Cary Phillips](@cary@ilm.com) 2019-10-31)
-
-* [formatting tweaks](https://github.com/AcademySoftwareFoundation/openexr/commit/04aa9d332718748da0afa30dbb66e03b9ea789ab) ([Cary Phillips](@cary@ilm.com) 2019-10-31)
-
-* [formatting tweaks](https://github.com/AcademySoftwareFoundation/openexr/commit/29af8e8b50373d3bb8de38486ac3973f9758575d) ([Cary Phillips](@cary@ilm.com) 2019-10-31)
-
-* [formatting tweaks](https://github.com/AcademySoftwareFoundation/openexr/commit/9c8766467bb738787dd2bdde527f3391d2da7058) ([Cary Phillips](@cary@ilm.com) 2019-10-31)
-
-* [formatting tweaks](https://github.com/AcademySoftwareFoundation/openexr/commit/b79e44c6e2c41b2e7362f0d7b5517ea1ce4b56e8) ([Cary Phillips](@cary@ilm.com) 2019-10-31)
-
-* [formatting tweaks](https://github.com/AcademySoftwareFoundation/openexr/commit/d31c84e3f2db70dd247578ea2cdbd3d3ae3c4157) ([Cary Phillips](@cary@ilm.com) 2019-10-31)
-
-* [README formatting tweaks](https://github.com/AcademySoftwareFoundation/openexr/commit/b459acdc485e8f1cc280700157642a607637eb4d) ([Cary Phillips](@cary@ilm.com) 2019-10-31)
-
-* [image tweak](https://github.com/AcademySoftwareFoundation/openexr/commit/c5931e548d354c45a9107f690bc81a9b8400ea76) ([Cary Phillips](@cary@ilm.com) 2019-10-31)
-
-* [tweak image](https://github.com/AcademySoftwareFoundation/openexr/commit/c0469c8c44e59eb33f51db4c1480415b5713fa40) ([Cary Phillips](@cary@ilm.com) 2019-10-31)
-
-* [tweak to image in README.md](https://github.com/AcademySoftwareFoundation/openexr/commit/15d8706bc2692b05a5818de142644dfa3dca26d9) ([Cary Phillips](@cary@ilm.com) 2019-10-31)
-
-* [tweaks to the mission statement](https://github.com/AcademySoftwareFoundation/openexr/commit/e993b8f434c8f663a0b095ba819f9f77e9f7e888) ([Cary Phillips](@cary@ilm.com) 2019-10-31)
-
-* [updated mission statement in README.md](https://github.com/AcademySoftwareFoundation/openexr/commit/df4315a4ecafd2190387cdcc73e3ba9caaec296f) ([Cary Phillips](@cary@ilm.com) 2019-10-21)
-
-* [Added mission statement to README.md](https://github.com/AcademySoftwareFoundation/openexr/commit/5147f255c43049e2ff38dba903b8db4c350a6a35) ([Cary Phillips](@cary@ilm.com) 2019-10-17)
-
-* [typo](https://github.com/AcademySoftwareFoundation/openexr/commit/4527b6f351bca040a70470b93d67704e5b30d5f3) ([Cary Phillips](@cary@ilm.com) 2019-10-24)
-
-* [TSC Meeting notes 2019-10-24](https://github.com/AcademySoftwareFoundation/openexr/commit/ca31d92e5a8f0dbd19a1cbf428432adc4a67e63e) ([Cary Phillips](@cary@ilm.com) 2019-10-24)
-
-* [Update Azure build to work with new branch.](https://github.com/AcademySoftwareFoundation/openexr/commit/4273e84f86fe27392dec53a5cef900caf6727154) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-26)
-
-* [Fix int32 overflow bugs with deep images](https://github.com/AcademySoftwareFoundation/openexr/commit/e53ebd3ef677ab983f83f927f6525efcb5dcb995) ([Larry Gritz](@lg@larrygritz.com) 2019-10-17)
-
-* [Prepare 2.4 release branch](https://github.com/AcademySoftwareFoundation/openexr/commit/486ff10547d034530c5190bbef6181324b42c209) ([Larry Gritz](@lg@larrygritz.com) 2019-10-24)
-
-* [add boost to python module link library](https://github.com/AcademySoftwareFoundation/openexr/commit/c1c82f7d2582fb74ad53e5cd1b6525e8dcdfa492) ([Jens Lindgren](@lindgren_jens@hotmail.com) 2019-10-22)
-
-* [keep all values word-aligned in IlmImfTest testLargeDataWindowOffsets](https://github.com/AcademySoftwareFoundation/openexr/commit/a3c246b335d44fef35a66f6da36444d9f812bbf5) ([Peter Hillman](@peterh@wetafx.co.nz) 2019-10-24)
-
-* [fix Contrib/DtexToExr/DtexToExr in .gitignore](https://github.com/AcademySoftwareFoundation/openexr/commit/5db0364244d0e27a44dc245f8a0c686d76471e91) ([Cary Phillips](@cary@ilm.com) 2019-10-17)
-
-* [add PyIlmBaseConfigInternal.h and Contrib/DtexToExr to .gitignore](https://github.com/AcademySoftwareFoundation/openexr/commit/a4b69af6a714f7a267da90d2cd934c2bb89dc56e) ([Cary Phillips](@cary@ilm.com) 2019-10-17)
-
-* [Fix int32 overflow bugs with deep images](https://github.com/AcademySoftwareFoundation/openexr/commit/eadfbf82875cce8106047c933c0b053809a8ff74) ([Larry Gritz](@lg@larrygritz.com) 2019-10-17)
-
-* [TSC Meeting notes for 2019-10-17](https://github.com/AcademySoftwareFoundation/openexr/commit/eef4c99d08f7b31a5d392024031a4e4b447df1b5) ([Cary Phillips](@cary@ilm.com) 2019-10-17)
-
-* [TSC Meeting Notes 2019-10-3](https://github.com/AcademySoftwareFoundation/openexr/commit/046b2f75700044e6b581cba437e0f86a6f9d625c) ([Cary Phillips](@cary@ilm.com) 2019-10-17)
-
-* [removed unnecessary .m4 files](https://github.com/AcademySoftwareFoundation/openexr/commit/e65b38903bc4259295f042b4f3f442ba2aca7deb) ([Cary Phillips](@cary@ilm.com) 2019-10-17)
-
-* [Fixed various MacOS Azure pipeline issues, all tests run now.](https://github.com/AcademySoftwareFoundation/openexr/commit/cb16232387a8dabf75797ff8d3015594a7a87abe) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-09)
-
-* [Fix links](https://github.com/AcademySoftwareFoundation/openexr/commit/aef48d6811df5d1ba1a446df0c4d039444d18b32) ([John Mertic](@jmertic@linuxfoundation.org) 2019-10-14)
-
-* [Explicitly define destructors. Suppress SonarCloud bug reports for array index operators.](https://github.com/AcademySoftwareFoundation/openexr/commit/7e7e0d476e3ab0a38df50c387964ead1f8896433) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-07)
-
-* [Removed unreachable return statement.](https://github.com/AcademySoftwareFoundation/openexr/commit/d8fc18e8edd6d7db055975f6ad0a02d185c188eb) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-07)
-
-* [More NOSONAR suppressions in PyImath.](https://github.com/AcademySoftwareFoundation/openexr/commit/a2a133ad266a1d65ad5410f43f2949a43834a8f6) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-07)
-
-* [Change 'a!=a' to std::isnan() to fix Sonar "bug", added infinity checks](https://github.com/AcademySoftwareFoundation/openexr/commit/2b64316c8272111120b628d1395200b4107c7d64) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-07)
-
-* [Fix static analysis warning re: potential null pointer dereference.](https://github.com/AcademySoftwareFoundation/openexr/commit/bf1288def9c09176cdf6658a58934ec018e33d24) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-03)
-
-* [Edit macro to use only a single instance of '#'.](https://github.com/AcademySoftwareFoundation/openexr/commit/247dbacd5ddde6766f6362a3109ea721f378fc4a) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-03)
-
-* [Remove unreached 'return'.](https://github.com/AcademySoftwareFoundation/openexr/commit/e2860cec59853ba5552f4dc39e55b341f362e54e) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-03)
-
-* [Remove unnecessary break statements.](https://github.com/AcademySoftwareFoundation/openexr/commit/6337096e825036c2da04a3bca76c506610bfb21b) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-03)
-
-* [TSC meeting notes for the last 3 weeks](https://github.com/AcademySoftwareFoundation/openexr/commit/e1ff97f15755963b4dd19aba052d4321af0c58f1) ([Cary Phillips](@cary@ilm.com) 2019-09-24)
-
-* [fixed date of last TSC meeting](https://github.com/AcademySoftwareFoundation/openexr/commit/2f4937baf455feabe1bb0c837c7aa776aaa60bd3) ([Cary Phillips](@cary@ilm.com) 2019-10-02)
-
-* [TSC meeting notes from 9/26/2019](https://github.com/AcademySoftwareFoundation/openexr/commit/9a4a0c567be8dd9e8d237ea7e8409041070e0e2b) ([Cary Phillips](@cary@ilm.com) 2019-10-02)
-
-* [TSC meeting notes for the last 3 weeks](https://github.com/AcademySoftwareFoundation/openexr/commit/4dec0313570f021661302ae776d25edb1950ba97) ([Cary Phillips](@cary@ilm.com) 2019-09-24)
-
-* [Added tests for all exception types derived from BaseExc.](https://github.com/AcademySoftwareFoundation/openexr/commit/f82e1989f462e535e571aca2bf3f78edf9dde28e) ([Cary Phillips](@cary@ilm.com) 2019-09-22)
-
-* [operator = (const BaseExc& be) throw () = delete;](https://github.com/AcademySoftwareFoundation/openexr/commit/a82c4c23d4b3db281db3bba109b3ec272dccb109) ([Cary Phillips](@cary@ilm.com) 2019-09-22)
-
-* [change floating-point loop variables to iterate on a fixed-size array.](https://github.com/AcademySoftwareFoundation/openexr/commit/09a14a9ee3ec9ee2d030e7da3d5b36c01c7cc303) ([Cary Phillips](@cary@ilm.com) 2019-09-22)
-
-* [Change Azure SonarCloud job to run weekly.](https://github.com/AcademySoftwareFoundation/openexr/commit/bd7a04f7c75e6392595e00895c720524aae82ec3) ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-09-29)
-
-* [removed references to the CVE's that are not specific to OpenEXR](https://github.com/AcademySoftwareFoundation/openexr/commit/8dd9112733ae15f1c108b64124e6c77a11f3eb83) ([Cary Phillips](@cary@ilm.com) 2019-09-20)
-
-* [CVE listing in SECURITY.md](https://github.com/AcademySoftwareFoundation/openexr/commit/33d1ac61d46c075171cb37cccc21736ab4cf03d8) ([Cary Phillips](@cary@ilm.com) 2019-09-19)
-
+* [553](https://github.com/AcademySoftwareFoundation/openexr/pull/553) Increase Azure timeout for SonarCloud, Linux and MacOS jobs.
 
 ### Closed Issues
+
+* [689](https://github.com/AcademySoftwareFoundation/openexr/issues/689) I was able to get OpenEXR to install by adding `-std=c++11` to the `extra_compile_flags` in setup.py, as Igritz  and peterhillman suggested. Here's the file with it added:
+
+* [688](https://github.com/AcademySoftwareFoundation/openexr/issues/688) Invalid shift (141647077)
+
+* [687](https://github.com/AcademySoftwareFoundation/openexr/issues/687) ZLIB not found
+
+* [686](https://github.com/AcademySoftwareFoundation/openexr/issues/686) Using the example Chromacity files - issue with chromaticities
+
+* [679](https://github.com/AcademySoftwareFoundation/openexr/issues/679) mipmap / ripmap question
+
+* [674](https://github.com/AcademySoftwareFoundation/openexr/issues/674) OpenEXR_Viewers  / libCg aliasing error
+
+* [671](https://github.com/AcademySoftwareFoundation/openexr/issues/671) Tiles/Ocean.exr core dumps on latest code built from git
+
+* [668](https://github.com/AcademySoftwareFoundation/openexr/issues/668) 2.4.1: test suite build is failing
+
+* [665](https://github.com/AcademySoftwareFoundation/openexr/issues/665) openexr/OpenEXR_Viewers/config/LocateCg.cmake issue on Linux
+
+* [663](https://github.com/AcademySoftwareFoundation/openexr/issues/663) 2.4.1: missing dist tar balls
+
+* [654](https://github.com/AcademySoftwareFoundation/openexr/issues/654) build breaks backwards compatibility
+
+* [651](https://github.com/AcademySoftwareFoundation/openexr/issues/651) ImfChromaticities.cpp: Revisiting the == and != operators
+
+* [648](https://github.com/AcademySoftwareFoundation/openexr/issues/648) find_package macro redefinition conflicts with vcpkg macro on Windows.
+
+* [633](https://github.com/AcademySoftwareFoundation/openexr/issues/633) ImfStdIO.[cpp h]:  Missing StdISStream class
+
+* [632](https://github.com/AcademySoftwareFoundation/openexr/issues/632) Platform/OS dependent piz compressed binary data
+
+* [630](https://github.com/AcademySoftwareFoundation/openexr/issues/630) OpenEXR loading not making use of multiple threads
+
+* [628](https://github.com/AcademySoftwareFoundation/openexr/issues/628) Missing C++11 type traits for half
+
+* [625](https://github.com/AcademySoftwareFoundation/openexr/issues/625) OPENEXR_DLL issues
+
+* [623](https://github.com/AcademySoftwareFoundation/openexr/issues/623) Documentation : Typo in "Interpreting Deep Pixels"
+
+* [617](https://github.com/AcademySoftwareFoundation/openexr/issues/617) Move openexr repo to AcademySoftwareFoundation organization
+
+* [611](https://github.com/AcademySoftwareFoundation/openexr/issues/611) How to force Python3 build on Linux
+
+* [610](https://github.com/AcademySoftwareFoundation/openexr/issues/610) huge images cause bad_array_new_length exception in exrdisplay
+
+* [607](https://github.com/AcademySoftwareFoundation/openexr/issues/607) Getting started... build & hello world.
+
+* [604](https://github.com/AcademySoftwareFoundation/openexr/issues/604) PyIlmBaseConfig not in export set?
+
+* [595](https://github.com/AcademySoftwareFoundation/openexr/issues/595) Broken pkgconfig files when building with cmake
+
+* [594](https://github.com/AcademySoftwareFoundation/openexr/issues/594) Python modules are not linked to Boost::python
+
+* [593](https://github.com/AcademySoftwareFoundation/openexr/issues/593) Python modules are not installed with cmake
+
+* [584](https://github.com/AcademySoftwareFoundation/openexr/issues/584) OpenEXR CLAs
+
+* [581](https://github.com/AcademySoftwareFoundation/openexr/issues/581) ImfCompressor.h  is not installed
+
+* [579](https://github.com/AcademySoftwareFoundation/openexr/issues/579) ImfFrameBuffer.h not compatible with C++98 code
+
+* [573](https://github.com/AcademySoftwareFoundation/openexr/issues/573) Linker cannot find "boost_python-vc140-mt-x64-1_66.lib" on Windows.
+
+* [572](https://github.com/AcademySoftwareFoundation/openexr/issues/572) "IlmImf-2_3.dll" shared library is not built anymore in 2.3.0.
+
+* [571](https://github.com/AcademySoftwareFoundation/openexr/issues/571) Test failure on ARMv7
+
+* [570](https://github.com/AcademySoftwareFoundation/openexr/issues/570) Test failure on i686
+
+* [567](https://github.com/AcademySoftwareFoundation/openexr/issues/567) CMake builds produce invalid pkg-config files
+
+* [566](https://github.com/AcademySoftwareFoundation/openexr/issues/566) throwErrno symbols missing when Iex is linked before other libraries statically
+
+* [565](https://github.com/AcademySoftwareFoundation/openexr/issues/565) 2.4.0 tarball signature missing
+
+* [564](https://github.com/AcademySoftwareFoundation/openexr/issues/564) CVE-2006-2277
+
+* [563](https://github.com/AcademySoftwareFoundation/openexr/issues/563) CVE-2016-4629 and CVE-2016-4630
+
+* [555](https://github.com/AcademySoftwareFoundation/openexr/issues/555) cmake errors when used as sub-project via add_subdirectory()
+
+
+
+### Commits \[ git log v2.4.1...v2.5.0\]
+
+* [40744811](https://github.com/AcademySoftwareFoundation/openexr/commit/40744811ad7d6333b98fbe8860b2d839e15630fe) added 2.5.0 commits to release notes ([Cary Phillips](@cary@ilm.com) 2020-04-27)
+* [0b26caf6](https://github.com/AcademySoftwareFoundation/openexr/commit/0b26caf6c33656d38cf10f7a090d3713ac4ee291) TSC meeting notes 4-16-20 ([Cary Phillips](@cary@ilm.com) 2020-04-16)
+* [9d8bb109](https://github.com/AcademySoftwareFoundation/openexr/commit/9d8bb109968cd169765f1da7b2022a6b6b3a93f0) Implemented all tests transferable to the 2x2 matrix case from 3x3. Added needed functionality to ensure boost::python worked for testing. ([Owen Thompson](@oxt3479@rit.edu) 2020-04-09)
+* [713e6ce5](https://github.com/AcademySoftwareFoundation/openexr/commit/713e6ce54babdd4181c23d7d0e6c8bb00164a953) Implemented additional C++ functionality needed to pass 2x2 testing parameters: extracting euler angles and overloaded vector multiplication. ([Owen Thompson](@oxt3479@rit.edu) 2020-04-09)
+* [1b20f7bd](https://github.com/AcademySoftwareFoundation/openexr/commit/1b20f7bd7dc1a8bf37200d46f84645c613513c4a) Wrote tests transferable to the 2x2 cases in C++ ([Owen Thompson](@oxt3479@rit.edu) 2020-04-09)
+* [d404df49](https://github.com/AcademySoftwareFoundation/openexr/commit/d404df499a32b63ab57f48177d275806ea8addd5) Matrix22 template constructor and make identity no longer use memset. ([Owen Thompson](@oxt3479@rit.edu) 2020-03-30)
+* [f20e1602](https://github.com/AcademySoftwareFoundation/openexr/commit/f20e1602d64b03397bc54425ff7f5be2e3214aff) Implementation of operator << on Matrix22 for stream output. ([Owen Thompson](@oxt3479@rit.edu) 2020-03-30)
+* [c5a10a77](https://github.com/AcademySoftwareFoundation/openexr/commit/c5a10a776c8655dbcbe241a3496952c4c3787071) Implementation of arbitrarily transferable functions from 3x3 to 2x2. Removed gaus-jordan and other problematic operations (doesn't work on 2x2) ([Owen Thompson](@oxt3479@rit.edu) 2020-03-24)
+* [308f1076](https://github.com/AcademySoftwareFoundation/openexr/commit/308f1076d001e573a9fbf240bb85995aaea1ce2c) fixed spacing ([Cary Phillips](@cary@ilm.com) 2020-04-16)
+* [a2392101](https://github.com/AcademySoftwareFoundation/openexr/commit/a2392101e8101bed90fc3370e8840d208dd88c02) update with new CVE's ([Cary Phillips](@cary@ilm.com) 2020-04-16)
+* [d7da549e](https://github.com/AcademySoftwareFoundation/openexr/commit/d7da549e1561002d9d278960fdc537f7c535376c) edited GSoC discussion ([Cary Phillips](@cary@ilm.com) 2020-04-03)
+* [c4d27400](https://github.com/AcademySoftwareFoundation/openexr/commit/c4d27400c51db899b35b4fb729815e17054391ea) typo ([Cary Phillips](@cary@ilm.com) 2020-04-02)
+* [c76f4c8d](https://github.com/AcademySoftwareFoundation/openexr/commit/c76f4c8d3feb670c14a4320f6c171deea4c750da) added John ([Cary Phillips](@cary@ilm.com) 2020-04-02)
+* [e9ff88bb](https://github.com/AcademySoftwareFoundation/openexr/commit/e9ff88bb1d3de0d19029d159ac9d1414b790b88c) typo. ([Cary Phillips](@cary@ilm.com) 2020-04-02)
+* [b0f4dc48](https://github.com/AcademySoftwareFoundation/openexr/commit/b0f4dc4849910819b4d54a895823591057e9d2a5) TSC meeting notes 4/2/2020 ([Cary Phillips](@cary@ilm.com) 2020-04-02)
+* [fa435e2a](https://github.com/AcademySoftwareFoundation/openexr/commit/fa435e2afe5fce3f5e26220bc46474b8775c6716) Fix libc++abi.dylib: Pure virtual function called! ([dgmzc](@dorian.gmz@hotmail.com) 2020-03-10)
+* [e23fdf6e](https://github.com/AcademySoftwareFoundation/openexr/commit/e23fdf6e02dbd8157b1d468143a82f6632781dee) Typo in INSTALL.md: cmake now builds three modules, not four. ([Cary Phillips](@cary@ilm.com) 2020-03-05)
+* [0132627f](https://github.com/AcademySoftwareFoundation/openexr/commit/0132627f3e46fd376c785e223abbc3f5e418ae5e) added some details. ([Cary Phillips](@cary@ilm.com) 2020-03-05)
+* [23c7e72c](https://github.com/AcademySoftwareFoundation/openexr/commit/23c7e72cb25daa3820d9745d9f49c86320316082) TSC Meeting notes 3/5/2020 ([Cary Phillips](@cary@ilm.com) 2020-03-05)
+* [6780843d](https://github.com/AcademySoftwareFoundation/openexr/commit/6780843d9da05e5f7bebab2bda9dd437cc4a1909) fixed a/an use in Matrix33 and Matrix44 ([Phyrexian](@jarko.paska@gmail.com) 2020-03-05)
+* [560f7c2e](https://github.com/AcademySoftwareFoundation/openexr/commit/560f7c2e0eb1e4adec40884eb6126585d08e70f5) Remove OpenEXR_Viewers from the cmake build files and from the INSTALL.md instructions. ([Cary Phillips](@cary@ilm.com) 2020-02-27)
+* [01fa5a20](https://github.com/AcademySoftwareFoundation/openexr/commit/01fa5a20dde82849203117bfe5de2b2cb21d84a4) TSC meeting notes for 2/27/2020 ([Cary Phillips](@cary@ilm.com) 2020-02-27)
+* [d2639ab3](https://github.com/AcademySoftwareFoundation/openexr/commit/d2639ab3bb60b7b316d6f7893446e38591bd9f3e) Add interface includes to IlmBase and OpenEXR ([Harry Mallon](@hjmallon@gmail.com) 2020-01-07)
+* [6da250f6](https://github.com/AcademySoftwareFoundation/openexr/commit/6da250f63d8460788a8b6bb2a642d9c981ab2bb8) Fix cmake install failing when install dir contains spaces, fix symlinks for shared libraries on DLL platforms ([Simon Boorer](@sboorer@ilm.com) 2020-02-26)
+* [6d26cbfc](https://github.com/AcademySoftwareFoundation/openexr/commit/6d26cbfc1c453c79513b0dad5704fed13e76feda) Split Targets and Config and add find_package ([Harry Mallon](@hjmallon@gmail.com) 2020-01-07)
+* [2f92fcbb](https://github.com/AcademySoftwareFoundation/openexr/commit/2f92fcbb4fb25caafe4358d1c4a4c7b940016af4) ImfChromaticities.cpp: Add back white to equality ops. ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-02-20)
+* [d2deb6d8](https://github.com/AcademySoftwareFoundation/openexr/commit/d2deb6d8844814615fed247048d36898e7f4c407) IlmImfTest/testExistingStreams.cpp: Test for Imf::StdOSStream/StdISStream. ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-02-26)
+* [9a172a22](https://github.com/AcademySoftwareFoundation/openexr/commit/9a172a220d59dd4363f4c07bac59facae9a1ae6f) OpenEXR/ImfStdIO.[cpp h]: Added StdISStream. ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-01-10)
+* [d9019d81](https://github.com/AcademySoftwareFoundation/openexr/commit/d9019d81a74ac7cf8710bb72590200369686856d) CLA docs moved from "docs" to "contributors" ([Cary Phillips](@cary@ilm.com) 2020-02-24)
+* [48c21063](https://github.com/AcademySoftwareFoundation/openexr/commit/48c2106310c8edefc7c1387cffc466665e4f38d2) ImfAcesFile.cpp: Remove redundant equality check. ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-02-07)
+* [adc21e52](https://github.com/AcademySoftwareFoundation/openexr/commit/adc21e5250cf938ecd6bf6fcbcfb4e7da7382671) ImfAcesFile.cpp: Fix primary conversion edge case. ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-01-31)
+* [3576a8bd](https://github.com/AcademySoftwareFoundation/openexr/commit/3576a8bd16ba36ad20832b5727d3fe9ff210dd0d) TSC meeting notes 2/20/2020 ([Cary Phillips](@cary@ilm.com) 2020-02-20)
+* [817faac5](https://github.com/AcademySoftwareFoundation/openexr/commit/817faac5c18a7c9e66ae2adb9e3f312ff3e7f631) fix unitialised pointer and double-delete bugs (#661) ([peterhillman](@peterh@wetafx.co.nz) 2020-02-24)
+* [a0e84f62](https://github.com/AcademySoftwareFoundation/openexr/commit/a0e84f62def6276f38e518a2724d9f7ac4daa9ad) add help and options information IlmImfTest and IlmImfFuzzTest ([Peter Hillman](@peterh@wetafx.co.nz) 2020-02-13)
+* [608b4938](https://github.com/AcademySoftwareFoundation/openexr/commit/608b4938fb23861cf6e6792ecf8373e0c9a8ebb5) support reloading broken files with IlmImfFuzzTest ([Peter Hillman](@peterh@wetafx.co.nz) 2020-02-11)
+* [d129fae9](https://github.com/AcademySoftwareFoundation/openexr/commit/d129fae907a2928f675b1c654f9c8a32a84103b2) Added #659 and associated commit to 2.4.1 release notes. ([Cary Phillips](@cary@ilm.com) 2020-02-10)
+* [b6bef538](https://github.com/AcademySoftwareFoundation/openexr/commit/b6bef53821384c82ebd0912513be3e4579d1c176) Release notes for 2.4.1 patch release. ([Cary Phillips](@cary@ilm.com) 2020-02-06)
+* [0ca9b6e8](https://github.com/AcademySoftwareFoundation/openexr/commit/0ca9b6e855d32a794874b1624581d68fcc3f87c0) Added #659 and associated commit to 2.4.1 release notes. ([Cary Phillips](@cary@ilm.com) 2020-02-10)
+* [a966db03](https://github.com/AcademySoftwareFoundation/openexr/commit/a966db0341369108c6f85bdd92b44ef26265f43b) Release notes for 2.4.1 patch release. ([Cary Phillips](@cary@ilm.com) 2020-02-06)
+* [d06c223f](https://github.com/AcademySoftwareFoundation/openexr/commit/d06c223f2e9f36766ef7dbec89954393a3b0ba0b) exrdisplay: limit maximum image size based on available screen resolution ([Peter Hillman](@peterh@wetafx.co.nz) 2020-02-10)
+* [e79d2296](https://github.com/AcademySoftwareFoundation/openexr/commit/e79d2296496a50826a15c667bf92bdc5a05518b4) fix memory leaks and invalid memory accesses ([Peter Hillman](@peterh@wetafx.co.nz) 2020-02-08)
+* [2c37c4bd](https://github.com/AcademySoftwareFoundation/openexr/commit/2c37c4bd39d3b03248cca42c63d0adbc40827c58) Fix yet more memory leaks from constructor exceptions (#658) ([peterhillman](@peterh@wetafx.co.nz) 2020-02-09)
+* [3422b344](https://github.com/AcademySoftwareFoundation/openexr/commit/3422b344f6189e499fe4c00f11491843a23d24a4) fix crash with damaged EXR files (#656) ([peterhillman](@peterh@wetafx.co.nz) 2020-02-08)
+* [5754217f](https://github.com/AcademySoftwareFoundation/openexr/commit/5754217fc506efad20f0ccb509ac447c7c68b671) typo in date. ([Cary Phillips](@cary@ilm.com) 2020-02-06)
+* [7f183953](https://github.com/AcademySoftwareFoundation/openexr/commit/7f18395337d9a439246370245eb585e5c2efaa6c) TSC meeting notes for Feb 6, 2020 ([Cary Phillips](@cary@ilm.com) 2020-02-06)
+* [cdc70f60](https://github.com/AcademySoftwareFoundation/openexr/commit/cdc70f60c525c533aefa2b0663b9e0b723cad463) ImfChromaticities.h/cpp: Typo and pass by ref change. ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-01-31)
+* [51bd0ff5](https://github.com/AcademySoftwareFoundation/openexr/commit/51bd0ff530fb20586c4bf95241d035f237792989) fix memory leak from constructor exceptions (#653) ([peterhillman](@peterh@wetafx.co.nz) 2020-02-07)
+* [88246d99](https://github.com/AcademySoftwareFoundation/openexr/commit/88246d991e0318c043e6f584f7493da08a31f9f8) OpenEXR/IlmImfTest/testHuf.cpp: Do the compressVerify() on deterministic data sets. ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-01-17)
+* [0042c451](https://github.com/AcademySoftwareFoundation/openexr/commit/0042c45171aeff6ec2d165c4c2621514f055d380) OpenEXR/IlmImf/ImfHuf.cpp: Fix OS dependent exr binary data for piz. ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-01-10)
+* [89ce46f3](https://github.com/AcademySoftwareFoundation/openexr/commit/89ce46f38c5e658d21df9179c1641c496cab7396) force x/y Sampling to 1 for Deep Scanline Images ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-28)
+* [0a1aa55e](https://github.com/AcademySoftwareFoundation/openexr/commit/0a1aa55ef108169c933ddaa631c1f6cb02b69050) minor tweaks and typo fixes ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-28)
+* [acad98d6](https://github.com/AcademySoftwareFoundation/openexr/commit/acad98d6d3e787f36012a3737c23c42c7f43a00f) missing header for ptrdiff_t ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-24)
+* [c14af4bb](https://github.com/AcademySoftwareFoundation/openexr/commit/c14af4bb58c8748cfe2f132147ba38abd0845812) fix test suite memory leak from testDeepTiledBasic ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-24)
+* [a8508ab0](https://github.com/AcademySoftwareFoundation/openexr/commit/a8508ab05ffeedba394e646506030f94769e0f15) test for multipart threading was leaking memory ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-24)
+* [b673e6ad](https://github.com/AcademySoftwareFoundation/openexr/commit/b673e6ad0ec6cef94d86b9586244d26088a3d792) Fix cleanup when DeepScanLineInputFile constructor throws ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-24)
+* [53a06468](https://github.com/AcademySoftwareFoundation/openexr/commit/53a06468ef5a08f4f2beb2d264a20547d7a78753) fixes to memory leak when constructors throw exceptions ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-23)
+* [d4fbaad4](https://github.com/AcademySoftwareFoundation/openexr/commit/d4fbaad4efe5d0ddf325da44ecbab105ebb2954e) fix memory leak in test suite ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-23)
+* [dea0ef1e](https://github.com/AcademySoftwareFoundation/openexr/commit/dea0ef1ee7b2f4d2aa42ffba7b442e5d8051222b) fix memory leak on DeepTiledInput files: compressor for sample count table wasn't deleted ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-23)
+* [2ae5f837](https://github.com/AcademySoftwareFoundation/openexr/commit/2ae5f8376b0a6c3e2bb100042f5de79503ba837a) fix check for valid ruleSize ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-23)
+* [a6408c90](https://github.com/AcademySoftwareFoundation/openexr/commit/a6408c90339bdf19f89476578d7f936b741be9b2) avoid creating compression object just to compute numLinesInBuffer ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-23)
+* [e7c26f6e](https://github.com/AcademySoftwareFoundation/openexr/commit/e7c26f6ef5bf7ae8ea21ecf19963186cd1391720) abort when file claims to have excessive scanline data requirements ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-22)
+* [b1c34c49](https://github.com/AcademySoftwareFoundation/openexr/commit/b1c34c496b62117115b1089b18a44e0031800a09) fix memory leak when reading damaged PIZ files ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-22)
+* [ea334989](https://github.com/AcademySoftwareFoundation/openexr/commit/ea3349896d4a8a3b523e8f3b830334a85240b1e6) sanity check data reads from PIZ data ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-21)
+* [43cd3ad4](https://github.com/AcademySoftwareFoundation/openexr/commit/43cd3ad47d53356da6ae2e983e47c8313aebf72e) improve bad count detection in huf decompress ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-21)
+* [801272c9](https://github.com/AcademySoftwareFoundation/openexr/commit/801272c9bf8b84a66c62f1e8a4490ece81da6a56) check for bad bit counts in Huff encoded data ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-21)
+* [7a52d40a](https://github.com/AcademySoftwareFoundation/openexr/commit/7a52d40ae23c148f27116cb1f6e897b9143b372c) bypass SSE optimization when skipping subsampled channels ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-21)
+* [b9997d0c](https://github.com/AcademySoftwareFoundation/openexr/commit/b9997d0c045fa01af3d2e46e1a74b07cc4519446) prevent int overflow when calculating buffer offsets ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-20)
+* [822e218c](https://github.com/AcademySoftwareFoundation/openexr/commit/822e218c795e989abdf74112b924d0da8acc967b) exrmakepreview: switch preview-to-full scaling vars from floats to doubles to prevent rounding causing overflows ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-20)
+* [3eda5d70](https://github.com/AcademySoftwareFoundation/openexr/commit/3eda5d70aba127bae9bd6bae9956fcf024b64031) fixes for DWA uncompress: sanity check unknown data reading, off-by-one error on max suffix string length ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-20)
+* [37750013](https://github.com/AcademySoftwareFoundation/openexr/commit/37750013830def57f19f3c3b7faaa9fc1dae81b3) Sanity check for input buffer overruns in RLE uncompress ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-20)
+* [df987cab](https://github.com/AcademySoftwareFoundation/openexr/commit/df987cabc20c90803692022fd232def837cb88cc) validate tiles have valid headers when raw reading tiles ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-20)
+* [6bad53af](https://github.com/AcademySoftwareFoundation/openexr/commit/6bad53af7eebed507564dd5fc90320e4c6a6c0bc) Force tile sizes to be less than INT_MAX bytes, in line with the maximum dimensions of data windows ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-20)
+* [1cbf6b9a](https://github.com/AcademySoftwareFoundation/openexr/commit/1cbf6b9a4497f71586ac11dc60ed21cf0cc529bd) fix typo and ref to theory document in InterpretingDeepPixels ([Peter Hillman](@peterh@wetafx.co.nz) 2020-01-28)
+* [6546ff20](https://github.com/AcademySoftwareFoundation/openexr/commit/6546ff20961003825f86662efe16842ff6a64f32) Various CI Updates: - fix python warnings. - fix Cmake include(clang_format) error - added Linux VFX 2020 builds - removed MacOS 10.13 due to Azure ending support - temporarily disable gcov in Sonar, due to SC regression CPP-2395 ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2020-01-25)
+* [f9229e98](https://github.com/AcademySoftwareFoundation/openexr/commit/f9229e98c93b4bc0179bb12904d03071cc5a8718) Updates to fix broken Windows build. ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2020-01-20)
+* [fce8c17b](https://github.com/AcademySoftwareFoundation/openexr/commit/fce8c17b3731fd3212c8fba52fecfea597eb98fa) possible fix for #570: avoid writing NaNs into test images ([Peter Hillman](@peterh@wetafx.co.nz) 2019-11-29)
+* [9750a1db](https://github.com/AcademySoftwareFoundation/openexr/commit/9750a1db7f92be3def678977eb741b6762316580) fix testB44ExpLogTable and testDwaLookups, and Makefile.am ([Peter Hillman](@peterh@wetafx.co.nz) 2019-11-29)
+* [bd6ab91f](https://github.com/AcademySoftwareFoundation/openexr/commit/bd6ab91f6002e90c17c385391e17c06c7ea1dfb8) use Int64 types for width*height calculations in exrdisplay ([Peter Hillman](@peterh@wetafx.co.nz) 2019-11-25)
+* [5adac705](https://github.com/AcademySoftwareFoundation/openexr/commit/5adac705e18de43008ec0ecb562969ede2a7a927) Switch from int to size_t to prevent overflow with huge images ([Peter Hillman](@peterh@wetafx.co.nz) 2019-11-25)
+* [b1477e0e](https://github.com/AcademySoftwareFoundation/openexr/commit/b1477e0eea3d9e901012795bed2f499c96e028dc) added Rod to TSC notes ([Cary Phillips](@cary@ilm.com) 2019-11-14)
+* [220f9d4b](https://github.com/AcademySoftwareFoundation/openexr/commit/220f9d4b2a36c994b9043aa785b1970ad652b8f1) TSC notes 2019-11-15 ([Cary Phillips](@cary@ilm.com) 2019-11-14)
+* [93a4c794](https://github.com/AcademySoftwareFoundation/openexr/commit/93a4c794950c042ee025f8c4250e1c5b34c18af8) Don't change CMAKE_MODULE_PATH ([Larry Gritz](@lg@larrygritz.com) 2019-11-24)
+* [18d7b6a1](https://github.com/AcademySoftwareFoundation/openexr/commit/18d7b6a184718a6bb7a0583ae072f507b83bab66) typo ([Larry Gritz](@lg@larrygritz.com) 2019-11-14)
+* [66f48992](https://github.com/AcademySoftwareFoundation/openexr/commit/66f48992ddd1401f8e9f4f876a737c2c62c209f8) Add a 'clang-format' build target ([Larry Gritz](@lg@larrygritz.com) 2019-11-12)
+* [63fdd366](https://github.com/AcademySoftwareFoundation/openexr/commit/63fdd36686baf1fd69990309ae43128fb2ab3f16) notes from 1/9/20 and 1/16/20 ([Cary Phillips](@cary@ilm.com) 2020-01-16)
+* [56b248ec](https://github.com/AcademySoftwareFoundation/openexr/commit/56b248ec86499992488b549863d4ef1bc6eb459f) fixed typo in CONTRIBUTING.md ([Cary Phillips](@cary@ilm.com) 2020-01-24)
+* [7e6e6f0b](https://github.com/AcademySoftwareFoundation/openexr/commit/7e6e6f0b1244450c5da2a4e8caed8febd19e1d95) Reference SECURITY.md in CONTRIBUTING.md ([John Mertic](@jmertic@linuxfoundation.org) 2020-01-21)
+* [fbe08034](https://github.com/AcademySoftwareFoundation/openexr/commit/fbe08034eebf9eff192d4068ffbdb807351a3c46) Fixed security email address to security@openexr.org ([John Mertic](@jmertic@linuxfoundation.org) 2020-01-21)
+* [8f43dd55](https://github.com/AcademySoftwareFoundation/openexr/commit/8f43dd559609a2b1f8787b922c1e5a87a8057838) TSC meeting notes November 21, 2019 ([Cary Phillips](@cary@ilm.com) 2019-11-21)
+* [767d497c](https://github.com/AcademySoftwareFoundation/openexr/commit/767d497c09d9a20dea4c510fc997b6393d52c33d) add missing IMF_EXPORT to ImfOpenInputFile in order to be able to use it from a windows dll ([Laurens Voerman](@l.voerman@rug.nl) 2019-12-12)
+* [7bd899ac](https://github.com/AcademySoftwareFoundation/openexr/commit/7bd899ac6f90efe5348518389d944856b5a73c7e) Make docs install optional in CMake ([Harry Mallon](@hjmallon@gmail.com) 2020-01-08)
+* [afa84f87](https://github.com/AcademySoftwareFoundation/openexr/commit/afa84f87ae24546f71a0e9ffac400e92a8da8b99) Fixed typos ([John Mertic](@jmertic@linuxfoundation.org) 2019-12-04)
+* [b65a275f](https://github.com/AcademySoftwareFoundation/openexr/commit/b65a275f189ee679c1e252c60085e8ceadce929f) Fixed some typos ([John Mertic](@jmertic@linuxfoundation.org) 2019-12-04)
+* [824ed557](https://github.com/AcademySoftwareFoundation/openexr/commit/824ed557b3c59288a685356c708e5806b1122fe1) Updated SonarCloud properties/token and README status widgets. ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-11-26)
+* [c02742f2](https://github.com/AcademySoftwareFoundation/openexr/commit/c02742f28c23226352bd5d2050a282fbe9b868e1) change URL to https://github.com/AcademySoftwareFoundation/openexr ([Cary Phillips](@cary@ilm.com) 2019-11-21)
+* [2ae3d476](https://github.com/AcademySoftwareFoundation/openexr/commit/2ae3d476ac19f6aa9950bb7beffdb10dbd120308) change URL to https://github.com/AcademySoftwareFoundation/openexr ([Cary Phillips](@cary@ilm.com) 2019-11-21)
+* [1296f73c](https://github.com/AcademySoftwareFoundation/openexr/commit/1296f73cac143eaa50ee87ae1947129e4ce740cf) Add a missing break statement when determining compression in exr2aces ([karlhendrikse](@karlhendrikse@gmail.com) 2019-11-20)
+* [780c2230](https://github.com/AcademySoftwareFoundation/openexr/commit/780c22304e2b1419d5d5267183e4dfc39dcd7373) Fix issue 289, C++17 compatibility ([Nick Porcino](@nporcino@pixar.com) 2019-11-20)
+* [d778a0b4](https://github.com/AcademySoftwareFoundation/openexr/commit/d778a0b47b18fe1ede3824fe013cea9dd7404360) add toFloat.h and eLut.h to SOURCES ([Cary Phillips](@cary@ilm.com) 2019-11-02)
+* [d80927be](https://github.com/AcademySoftwareFoundation/openexr/commit/d80927bebec8c38147c3614f1d3c7df898beebbf) move dwaLookups.h declarations to the OPENEXR_IMF_INTERNAL_NAMESPACE ([Cary Phillips](@cary@ilm.com) 2019-11-02)
+* [36edde92](https://github.com/AcademySoftwareFoundation/openexr/commit/36edde927a831686040f6c97a8f080ff13aa4759) add b44ExpLogTable.h and dwaLookups.h as official headers ([Cary Phillips](@cary@ilm.com) 2019-11-02)
+* [00bf05cd](https://github.com/AcademySoftwareFoundation/openexr/commit/00bf05cd090e4ac4a79877962abf26869c6c1672) add toFloat.h and eLut.h as source files ([Cary Phillips](@cary@ilm.com) 2019-11-01)
+* [861aad16](https://github.com/AcademySoftwareFoundation/openexr/commit/861aad165e78c4281dae8306f108ede2ae15322c) typo from previous commit: operator= wasn't returning a value ([Cary Phillips](@cary@ilm.com) 2019-11-03)
+* [03b464a0](https://github.com/AcademySoftwareFoundation/openexr/commit/03b464a01aedbc6607f0f3ca0cb5a61cfac78e12) mvoe TestType and TestTypedAttribute to OPENEXR_IMF_INTERNAL_NAMESPACE ([Cary Phillips](@cary@ilm.com) 2019-11-03)
+* [9a5c8d4f](https://github.com/AcademySoftwareFoundation/openexr/commit/9a5c8d4f41dd6e972f9a03860b0a42d136609364) remove const from arg declaration in move-constructors/move-assignments ([Cary Phillips](@cary@ilm.com) 2019-11-03)
+* [b7857b96](https://github.com/AcademySoftwareFoundation/openexr/commit/b7857b96aed4f29ee1605caf1e56e60fa2dd4389) =default copy/move/assign for TypedAttribute ([Cary Phillips](@cary@ilm.com) 2019-11-03)
+* [fa2e4585](https://github.com/AcademySoftwareFoundation/openexr/commit/fa2e4585ea960d77ec220c5f13de00da7edbdcb6) SonarCloud-inspired fixes ([Cary Phillips](@cary@ilm.com) 2019-10-25)
+* [19cd1014](https://github.com/AcademySoftwareFoundation/openexr/commit/19cd10142a399fc9ddce863acc3dc46ec2b703b5) SonarCloud-inspired bug fixes: ([Cary Phillips](@cary@ilm.com) 2019-10-24)
+* [64f145a0](https://github.com/AcademySoftwareFoundation/openexr/commit/64f145a05135aefaac3e9e467be80869ffa276fe) More SonarCloud-inspired fixes: ([Cary Phillips](@cary@ilm.com) 2019-10-24)
+* [5c985fcf](https://github.com/AcademySoftwareFoundation/openexr/commit/5c985fcf79d38188caae4ccb75b2f77718a44298) SonarCloud-inspired fixes ([Cary Phillips](@cary@ilm.com) 2019-10-24)
+* [8e7ba0fa](https://github.com/AcademySoftwareFoundation/openexr/commit/8e7ba0fafa53ba91d9aa8382af4652c905d5cea0) sonar fixes ([Cary Phillips](@cary@ilm.com) 2019-10-21)
+* [ba3d5efb](https://github.com/AcademySoftwareFoundation/openexr/commit/ba3d5efb6bfdadb4d0c489dac89ef1d0aa3996b8) sonar fixes ([Cary Phillips](@cary@ilm.com) 2019-10-21)
+* [031199cd](https://github.com/AcademySoftwareFoundation/openexr/commit/031199cd4fc062dd7bfe902c6552cf22f6bfbbdb) Fix overzealous removal of if statements breaking all builds except win32 ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+* [8228578d](https://github.com/AcademySoftwareFoundation/openexr/commit/8228578da6f86d17b9a2a3f8c6053f8b4ee3fb71) Handle python2 not being installed, but python3 being present ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+* [d10895ef](https://github.com/AcademySoftwareFoundation/openexr/commit/d10895ef0ad25dd60e68a2ab00bab7c0592f8c5b) Fix issue with defines not being set correctly for win32 ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+* [b303f678](https://github.com/AcademySoftwareFoundation/openexr/commit/b303f6788a434fd61e52c1bacb93a96c4c3440ea) Re-enable Boost_NO_BOOST_CMAKE by default, document, clean up status messages ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+* [8ec1440c](https://github.com/AcademySoftwareFoundation/openexr/commit/8ec1440cbd999f17457be605150bc53395fbb334) Set CMP0074 such that people who set Boost_ROOT won't get warnings ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+* [28d1cb25](https://github.com/AcademySoftwareFoundation/openexr/commit/28d1cb256f1b46f120adb131e606b2699acc72d7) ensure paths are canonicalized by get_filename_component prior to comparing ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+* [34ce16c2](https://github.com/AcademySoftwareFoundation/openexr/commit/34ce16c2653d02fcef6a297a2a61112dbf693922) Fix issue with drive letter under windows ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-06)
+* [650da0d6](https://github.com/AcademySoftwareFoundation/openexr/commit/650da0d63410d863c4a0aed15a6bee1b46b559cb) Extract to function, protect against infinite loop ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-06)
+* [df768ec8](https://github.com/AcademySoftwareFoundation/openexr/commit/df768ec8a97adb82947fc4b92a199db9a38c044c) Fixes #593, others - issues with pyilmbase install ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-05)
+* [ed4807b9](https://github.com/AcademySoftwareFoundation/openexr/commit/ed4807b9e4dc8d94ce79d0b2ed36acc548bee57e) Take DESTDIR into account when creating library symlinks ([Antonio Rojas](@arojas@archlinux.org) 2019-10-19)
+* [f1b017c8](https://github.com/AcademySoftwareFoundation/openexr/commit/f1b017c8029b529c5c5ed01b6ad1b10a0e48036c) No longer install ImfMisc.h ([Cary Phillips](@cary@ilm.com) 2019-10-31)
+* [a571bdfe](https://github.com/AcademySoftwareFoundation/openexr/commit/a571bdfe42866a1f1c579114e2fcae8318172c21) add boost to python module link library ([Jens Lindgren](@lindgren_jens@hotmail.com) 2019-10-22)
+* [cf8b35c9](https://github.com/AcademySoftwareFoundation/openexr/commit/cf8b35c9bbde9ea78036af2fda04a7c6e9c9a399) Fix overzealous removal of if statements breaking all builds except win32 ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+* [44266538](https://github.com/AcademySoftwareFoundation/openexr/commit/442665384d44e464c68381d560f08bea295b9e04) Handle python2 not being installed, but python3 being present ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+* [1eb2df5a](https://github.com/AcademySoftwareFoundation/openexr/commit/1eb2df5aa219a819153bb891dc4488875259fb28) Fix issue with defines not being set correctly for win32 ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+* [8a05994a](https://github.com/AcademySoftwareFoundation/openexr/commit/8a05994a86fabf39f18890928ee5cef1913fa85a) Re-enable Boost_NO_BOOST_CMAKE by default, document, clean up status messages ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+* [40e68bb9](https://github.com/AcademySoftwareFoundation/openexr/commit/40e68bb9f38bf791594ccbaf1320ec520f58180b) Set CMP0074 such that people who set Boost_ROOT won't get warnings ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+* [b021db40](https://github.com/AcademySoftwareFoundation/openexr/commit/b021db409cfe52a9f28ad432897552bee735aeee) ensure paths are canonicalized by get_filename_component prior to comparing ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-07)
+* [7e0714f2](https://github.com/AcademySoftwareFoundation/openexr/commit/7e0714f279fdb42956235bf4141c59f382b6c3a1) Fix issue with drive letter under windows ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-06)
+* [89dceca8](https://github.com/AcademySoftwareFoundation/openexr/commit/89dceca80dc28fbabf262e38c9e1acf4863d97f6) Extract to function, protect against infinite loop ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-06)
+* [599e5211](https://github.com/AcademySoftwareFoundation/openexr/commit/599e52119d01004d6c5252f1070073fbd1518bfa) Fixes #593, others - issues with pyilmbase install ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-05)
+* [0b26a9de](https://github.com/AcademySoftwareFoundation/openexr/commit/0b26a9dedda4924841323677f1ce0bce37bfbeb4) Fix #595 and others, issue with pkgconfig generation under cmake ([Kimball Thurston](@kdt3rd@gmail.com) 2019-11-05)
+* [4e54bde7](https://github.com/AcademySoftwareFoundation/openexr/commit/4e54bde78f65c0fef8a9f794aaacea07813fba09) Take DESTDIR into account when creating library symlinks ([Antonio Rojas](@arojas@archlinux.org) 2019-10-19)
+* [a2c12ec3](https://github.com/AcademySoftwareFoundation/openexr/commit/a2c12ec3619de1923de86436c134be458523e5fd) No longer install ImfMisc.h ([Cary Phillips](@cary@ilm.com) 2019-10-31)
+* [04aa9d33](https://github.com/AcademySoftwareFoundation/openexr/commit/04aa9d332718748da0afa30dbb66e03b9ea789ab) formatting tweaks ([Cary Phillips](@cary@ilm.com) 2019-10-31)
+* [29af8e8b](https://github.com/AcademySoftwareFoundation/openexr/commit/29af8e8b50373d3bb8de38486ac3973f9758575d) formatting tweaks ([Cary Phillips](@cary@ilm.com) 2019-10-31)
+* [9c876646](https://github.com/AcademySoftwareFoundation/openexr/commit/9c8766467bb738787dd2bdde527f3391d2da7058) formatting tweaks ([Cary Phillips](@cary@ilm.com) 2019-10-31)
+* [b79e44c6](https://github.com/AcademySoftwareFoundation/openexr/commit/b79e44c6e2c41b2e7362f0d7b5517ea1ce4b56e8) formatting tweaks ([Cary Phillips](@cary@ilm.com) 2019-10-31)
+* [d31c84e3](https://github.com/AcademySoftwareFoundation/openexr/commit/d31c84e3f2db70dd247578ea2cdbd3d3ae3c4157) formatting tweaks ([Cary Phillips](@cary@ilm.com) 2019-10-31)
+* [b459acdc](https://github.com/AcademySoftwareFoundation/openexr/commit/b459acdc485e8f1cc280700157642a607637eb4d) README formatting tweaks ([Cary Phillips](@cary@ilm.com) 2019-10-31)
+* [c5931e54](https://github.com/AcademySoftwareFoundation/openexr/commit/c5931e548d354c45a9107f690bc81a9b8400ea76) image tweak ([Cary Phillips](@cary@ilm.com) 2019-10-31)
+* [c0469c8c](https://github.com/AcademySoftwareFoundation/openexr/commit/c0469c8c44e59eb33f51db4c1480415b5713fa40) tweak image ([Cary Phillips](@cary@ilm.com) 2019-10-31)
+* [15d8706b](https://github.com/AcademySoftwareFoundation/openexr/commit/15d8706bc2692b05a5818de142644dfa3dca26d9) tweak to image in README.md ([Cary Phillips](@cary@ilm.com) 2019-10-31)
+* [e993b8f4](https://github.com/AcademySoftwareFoundation/openexr/commit/e993b8f434c8f663a0b095ba819f9f77e9f7e888) tweaks to the mission statement ([Cary Phillips](@cary@ilm.com) 2019-10-31)
+* [df4315a4](https://github.com/AcademySoftwareFoundation/openexr/commit/df4315a4ecafd2190387cdcc73e3ba9caaec296f) updated mission statement in README.md ([Cary Phillips](@cary@ilm.com) 2019-10-21)
+* [5147f255](https://github.com/AcademySoftwareFoundation/openexr/commit/5147f255c43049e2ff38dba903b8db4c350a6a35) Added mission statement to README.md ([Cary Phillips](@cary@ilm.com) 2019-10-17)
+* [4527b6f3](https://github.com/AcademySoftwareFoundation/openexr/commit/4527b6f351bca040a70470b93d67704e5b30d5f3) typo ([Cary Phillips](@cary@ilm.com) 2019-10-24)
+* [ca31d92e](https://github.com/AcademySoftwareFoundation/openexr/commit/ca31d92e5a8f0dbd19a1cbf428432adc4a67e63e) TSC Meeting notes 2019-10-24 ([Cary Phillips](@cary@ilm.com) 2019-10-24)
+* [4273e84f](https://github.com/AcademySoftwareFoundation/openexr/commit/4273e84f86fe27392dec53a5cef900caf6727154) Update Azure build to work with new branch. ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-26)
+* [e53ebd3e](https://github.com/AcademySoftwareFoundation/openexr/commit/e53ebd3ef677ab983f83f927f6525efcb5dcb995) Fix int32 overflow bugs with deep images ([Larry Gritz](@lg@larrygritz.com) 2019-10-17)
+* [486ff105](https://github.com/AcademySoftwareFoundation/openexr/commit/486ff10547d034530c5190bbef6181324b42c209) Prepare 2.4 release branch ([Larry Gritz](@lg@larrygritz.com) 2019-10-24)
+* [c1c82f7d](https://github.com/AcademySoftwareFoundation/openexr/commit/c1c82f7d2582fb74ad53e5cd1b6525e8dcdfa492) add boost to python module link library ([Jens Lindgren](@lindgren_jens@hotmail.com) 2019-10-22)
+* [a3c246b3](https://github.com/AcademySoftwareFoundation/openexr/commit/a3c246b335d44fef35a66f6da36444d9f812bbf5) keep all values word-aligned in IlmImfTest testLargeDataWindowOffsets ([Peter Hillman](@peterh@wetafx.co.nz) 2019-10-24)
+* [5db03642](https://github.com/AcademySoftwareFoundation/openexr/commit/5db0364244d0e27a44dc245f8a0c686d76471e91) fix Contrib/DtexToExr/DtexToExr in .gitignore ([Cary Phillips](@cary@ilm.com) 2019-10-17)
+* [a4b69af6](https://github.com/AcademySoftwareFoundation/openexr/commit/a4b69af6a714f7a267da90d2cd934c2bb89dc56e) add PyIlmBaseConfigInternal.h and Contrib/DtexToExr to .gitignore ([Cary Phillips](@cary@ilm.com) 2019-10-17)
+* [eadfbf82](https://github.com/AcademySoftwareFoundation/openexr/commit/eadfbf82875cce8106047c933c0b053809a8ff74) Fix int32 overflow bugs with deep images ([Larry Gritz](@lg@larrygritz.com) 2019-10-17)
+* [eef4c99d](https://github.com/AcademySoftwareFoundation/openexr/commit/eef4c99d08f7b31a5d392024031a4e4b447df1b5) TSC Meeting notes for 2019-10-17 ([Cary Phillips](@cary@ilm.com) 2019-10-17)
+* [046b2f75](https://github.com/AcademySoftwareFoundation/openexr/commit/046b2f75700044e6b581cba437e0f86a6f9d625c) TSC Meeting Notes 2019-10-3 ([Cary Phillips](@cary@ilm.com) 2019-10-17)
+* [e65b3890](https://github.com/AcademySoftwareFoundation/openexr/commit/e65b38903bc4259295f042b4f3f442ba2aca7deb) removed unnecessary .m4 files ([Cary Phillips](@cary@ilm.com) 2019-10-17)
+* [cb162323](https://github.com/AcademySoftwareFoundation/openexr/commit/cb16232387a8dabf75797ff8d3015594a7a87abe) Fixed various MacOS Azure pipeline issues, all tests run now. ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-09)
+* [aef48d68](https://github.com/AcademySoftwareFoundation/openexr/commit/aef48d6811df5d1ba1a446df0c4d039444d18b32) Fix links ([John Mertic](@jmertic@linuxfoundation.org) 2019-10-14)
+* [7e7e0d47](https://github.com/AcademySoftwareFoundation/openexr/commit/7e7e0d476e3ab0a38df50c387964ead1f8896433) Explicitly define destructors. Suppress SonarCloud bug reports for array index operators. ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-07)
+* [d8fc18e8](https://github.com/AcademySoftwareFoundation/openexr/commit/d8fc18e8edd6d7db055975f6ad0a02d185c188eb) Removed unreachable return statement. ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-07)
+* [a2a133ad](https://github.com/AcademySoftwareFoundation/openexr/commit/a2a133ad266a1d65ad5410f43f2949a43834a8f6) More NOSONAR suppressions in PyImath. ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-07)
+* [2b64316c](https://github.com/AcademySoftwareFoundation/openexr/commit/2b64316c8272111120b628d1395200b4107c7d64) Change 'a!=a' to std::isnan() to fix Sonar "bug", added infinity checks ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-07)
+* [bf1288de](https://github.com/AcademySoftwareFoundation/openexr/commit/bf1288def9c09176cdf6658a58934ec018e33d24) Fix static analysis warning re: potential null pointer dereference. ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-03)
+* [247dbacd](https://github.com/AcademySoftwareFoundation/openexr/commit/247dbacd5ddde6766f6362a3109ea721f378fc4a) Edit macro to use only a single instance of '#'. ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-03)
+* [e2860cec](https://github.com/AcademySoftwareFoundation/openexr/commit/e2860cec59853ba5552f4dc39e55b341f362e54e) Remove unreached 'return'. ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-03)
+* [6337096e](https://github.com/AcademySoftwareFoundation/openexr/commit/6337096e825036c2da04a3bca76c506610bfb21b) Remove unnecessary break statements. ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-10-03)
+* [e1ff97f1](https://github.com/AcademySoftwareFoundation/openexr/commit/e1ff97f15755963b4dd19aba052d4321af0c58f1) TSC meeting notes for the last 3 weeks ([Cary Phillips](@cary@ilm.com) 2019-09-24)
+* [2f4937ba](https://github.com/AcademySoftwareFoundation/openexr/commit/2f4937baf455feabe1bb0c837c7aa776aaa60bd3) fixed date of last TSC meeting ([Cary Phillips](@cary@ilm.com) 2019-10-02)
+* [9a4a0c56](https://github.com/AcademySoftwareFoundation/openexr/commit/9a4a0c567be8dd9e8d237ea7e8409041070e0e2b) TSC meeting notes from 9/26/2019 ([Cary Phillips](@cary@ilm.com) 2019-10-02)
+* [4dec0313](https://github.com/AcademySoftwareFoundation/openexr/commit/4dec0313570f021661302ae776d25edb1950ba97) TSC meeting notes for the last 3 weeks ([Cary Phillips](@cary@ilm.com) 2019-09-24)
+* [f82e1989](https://github.com/AcademySoftwareFoundation/openexr/commit/f82e1989f462e535e571aca2bf3f78edf9dde28e) Added tests for all exception types derived from BaseExc. ([Cary Phillips](@cary@ilm.com) 2019-09-22)
+* [a82c4c23](https://github.com/AcademySoftwareFoundation/openexr/commit/a82c4c23d4b3db281db3bba109b3ec272dccb109) operator = (const BaseExc& be) throw () = delete; ([Cary Phillips](@cary@ilm.com) 2019-09-22)
+* [09a14a9e](https://github.com/AcademySoftwareFoundation/openexr/commit/09a14a9ee3ec9ee2d030e7da3d5b36c01c7cc303) change floating-point loop variables to iterate on a fixed-size array. ([Cary Phillips](@cary@ilm.com) 2019-09-22)
+* [bd7a04f7](https://github.com/AcademySoftwareFoundation/openexr/commit/bd7a04f7c75e6392595e00895c720524aae82ec3) Change Azure SonarCloud job to run weekly. ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-09-29)
+* [8dd91127](https://github.com/AcademySoftwareFoundation/openexr/commit/8dd9112733ae15f1c108b64124e6c77a11f3eb83) removed references to the CVE's that are not specific to OpenEXR ([Cary Phillips](@cary@ilm.com) 2019-09-20)
+* [33d1ac61](https://github.com/AcademySoftwareFoundation/openexr/commit/33d1ac61d46c075171cb37cccc21736ab4cf03d8) CVE listing in SECURITY.md ([Cary Phillips](@cary@ilm.com) 2019-09-19)
 
 ## Version 2.4.1 (February 11, 2020)
 
