@@ -39,9 +39,17 @@ Minor release with miscellaneous bug fixes and small features
 
 ## Summary
 
-* This.
-* That.
-* The other thing.
+* No more build-time header generation: toFloat.h, eLut.h,
+  b44ExpLogTable.h, and dwaLookups.h are now ordinary header files, no
+  longer generated on the fly.
+* New StdISSTream class, an "input" stringstream version of StdOSStream
+* New Matrix22 class in Imath
+* Chromaticity comparison operator now includes white (formerly ignored)
+* Various cmake fixes
+* Bug fixes for various memory leaks
+* Bug fixes for various invalid memory accesses
+* New checks to detect damaged input files
+* OpenEXR_Viewers has been deprecated, removed from distribution.
 
 ### Merged Pull Requests
 
