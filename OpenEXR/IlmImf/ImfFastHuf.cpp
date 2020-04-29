@@ -256,14 +256,29 @@ FastHufDecoder::FastHufDecoder
         int symbol  = *i >> 6;
 
         if (mapping[codeLen] >= _numSymbols)
+        {
+            delete[] _idToSymbol;
+            _idToSymbol = NULL;
             throw Iex::InputExc ("Huffman decode error "
                                   "(Invalid symbol in header).");
-        
+        }
         _idToSymbol[mapping[codeLen]] = symbol;
         mapping[codeLen]++;
     }
 
-    buildTables(base, offset);
+    //
+    // exceptions can be thrown whilst building tables. Delete
+    // _idToSynmbol before re-throwing to prevent memory leak
+    //
+    try
+    {
+      buildTables(base, offset);
+    }catch(...)
+    {
+            delete[] _idToSymbol;
+            _idToSymbol = NULL;
+            throw;
+    }
 }
 
 
