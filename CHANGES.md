@@ -49,7 +49,8 @@ Minor release with miscellaneous bug fixes and small features
 * Bug fixes for various memory leaks
 * Bug fixes for various invalid memory accesses
 * New checks to detect damaged input files
-* OpenEXR_Viewers has been deprecated, removed from distribution.
+* OpenEXR_Viewers has been deprecated, removed from the top-level
+  cmake build and documentation.
 
 ### Merged Pull Requests
 
