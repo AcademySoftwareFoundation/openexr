@@ -54,240 +54,124 @@ Minor release with miscellaneous bug fixes and small features
 ### Merged Pull Requests
 
 * [694](https://github.com/AcademySoftwareFoundation/openexr/pull/694) TSC meeting notes 4-16-20
-
 * [693](https://github.com/AcademySoftwareFoundation/openexr/pull/693) Update the release notes and security notices with 2020 CVE's
-
 * [692](https://github.com/AcademySoftwareFoundation/openexr/pull/692) Meetings 4.2.20
-
 * [690](https://github.com/AcademySoftwareFoundation/openexr/pull/690) Implementation of Matrix22
-
 * [685](https://github.com/AcademySoftwareFoundation/openexr/pull/685) Fix libc++abi.dylib: Pure virtual function called!
-
 * [683](https://github.com/AcademySoftwareFoundation/openexr/pull/683) Typo in INSTALL.md: cmake now builds three modules, not four.
-
 * [682](https://github.com/AcademySoftwareFoundation/openexr/pull/682) TSC meeting notes 2020 03 05
-
 * [680](https://github.com/AcademySoftwareFoundation/openexr/pull/680) fixed a/an use in Matrix33 and Matrix44
-
 * [676](https://github.com/AcademySoftwareFoundation/openexr/pull/676) Remove OpenEXR_Viewers from the cmake build files and from INSTALL.md
-
 * [675](https://github.com/AcademySoftwareFoundation/openexr/pull/675) TSC meeting notes for 2/27/2020
-
 * [672](https://github.com/AcademySoftwareFoundation/openexr/pull/672) Fix cmake install failing when install dir contains spaces, fix symlinks for shared libraries on DLL platforms
-
 * [669](https://github.com/AcademySoftwareFoundation/openexr/pull/669) CLA docs moved from "docs" to "contributors"
-
 * [667](https://github.com/AcademySoftwareFoundation/openexr/pull/667) TSC meeting notes 2/20/2020
-
 * [666](https://github.com/AcademySoftwareFoundation/openexr/pull/666) ImfChromaticities.cpp: Add back white to equality ops.
-
 * [662](https://github.com/AcademySoftwareFoundation/openexr/pull/662) support reloading broken files with IlmImfFuzzTest
-
 * [661](https://github.com/AcademySoftwareFoundation/openexr/pull/661) fix unitialized pointer and double-delete bugs
-
 * [660](https://github.com/AcademySoftwareFoundation/openexr/pull/660) exrdisplay: limit maximum image size based on available screen res
-
 * [659](https://github.com/AcademySoftwareFoundation/openexr/pull/659) fix memory leaks and invalid memory accesses
-
 * [658](https://github.com/AcademySoftwareFoundation/openexr/pull/658) Fix yet more memory leaks from constructor exceptions
-
 * [657](https://github.com/AcademySoftwareFoundation/openexr/pull/657) Release notes for 2.4.1 patch release.
-
 * [656](https://github.com/AcademySoftwareFoundation/openexr/pull/656) fix crash with damaged EXR files
-
 * [655](https://github.com/AcademySoftwareFoundation/openexr/pull/655) Notes 2020 02 06
-
 * [653](https://github.com/AcademySoftwareFoundation/openexr/pull/653) fix memory leak from constructor exceptions
-
 * [650](https://github.com/AcademySoftwareFoundation/openexr/pull/650) ImfAcesFile.cpp: Fix primary conversion edge case.
-
 * [649](https://github.com/AcademySoftwareFoundation/openexr/pull/649) ImfChromaticities.h/cpp: Typo and pass by ref change.
-
 * [647](https://github.com/AcademySoftwareFoundation/openexr/pull/647) fix typo and ref to theory document in InterpretingDeepPixels
-
 * [645](https://github.com/AcademySoftwareFoundation/openexr/pull/645) Various CI Updates:
-
 * [643](https://github.com/AcademySoftwareFoundation/openexr/pull/643) Various checks to improve handling of damaged input files
-
 * [642](https://github.com/AcademySoftwareFoundation/openexr/pull/642) Fixed security email address to security@openexr.org
-
 * [641](https://github.com/AcademySoftwareFoundation/openexr/pull/641) Updates to fix broken Windows build.
-
 * [640](https://github.com/AcademySoftwareFoundation/openexr/pull/640) notes from 1/9/20 and 1/16/20
-
 * [639](https://github.com/AcademySoftwareFoundation/openexr/pull/639) Split Targets and Config and add find_package
-
 * [638](https://github.com/AcademySoftwareFoundation/openexr/pull/638) OpenEXR/ImfStdIO.[cpp h]: Added StdISStream.
-
 * [637](https://github.com/AcademySoftwareFoundation/openexr/pull/637) OpenEXR/IlmImf/ImfHuf.cpp: Fix OS dependent exr binary data for piz.
-
 * [635](https://github.com/AcademySoftwareFoundation/openexr/pull/635) Make docs install optional in CMake
-
 * [634](https://github.com/AcademySoftwareFoundation/openexr/pull/634) Add interface includes to IlmBase and OpenEXR
-
 * [631](https://github.com/AcademySoftwareFoundation/openexr/pull/631) add missing IMF_EXPORT to ImfOpenInputFile for dllexport
-
 * [629](https://github.com/AcademySoftwareFoundation/openexr/pull/629) Fixed some typos
-
 * [627](https://github.com/AcademySoftwareFoundation/openexr/pull/627) possible fix for #570: avoid writing NaNs into test images
-
 * [626](https://github.com/AcademySoftwareFoundation/openexr/pull/626) fix testB44ExpLogTable and testDwaLookups, and Makefile.am
-
 * [622](https://github.com/AcademySoftwareFoundation/openexr/pull/622) Azure and SonarCloud updates.
-
 * [620](https://github.com/AcademySoftwareFoundation/openexr/pull/620) Switch from int to size_t to prevent overflow with huge images in exrdisplay (Fix for #610)
-
 * [619](https://github.com/AcademySoftwareFoundation/openexr/pull/619) TSC meeting notes November 21, 2019
-
 * [618](https://github.com/AcademySoftwareFoundation/openexr/pull/618) change URL to https://github.com/AcademySoftwareFoundation/openexr
-
 * [616](https://github.com/AcademySoftwareFoundation/openexr/pull/616) Fix issue 289, C++17 compatibility
-
 * [615](https://github.com/AcademySoftwareFoundation/openexr/pull/615) Add a missing break statement when determining compression in exr2aces
-
 * [613](https://github.com/AcademySoftwareFoundation/openexr/pull/613) Notes 2019 11 15
-
 * [612](https://github.com/AcademySoftwareFoundation/openexr/pull/612) Add a 'clang-format' build target
-
 * [608](https://github.com/AcademySoftwareFoundation/openexr/pull/608) Fix #595 and others, issue with pkgconfig generation under cmake
-
 * [606](https://github.com/AcademySoftwareFoundation/openexr/pull/606) Remove all build-time header generation
-
 * [601](https://github.com/AcademySoftwareFoundation/openexr/pull/601) "Rule of 5" copy/assign/move declarations
-
 * [600](https://github.com/AcademySoftwareFoundation/openexr/pull/600) TSC Meeting Notes 2019/10/24
-
 * [599](https://github.com/AcademySoftwareFoundation/openexr/pull/599) Prepare 2.4 release branch
-
 * [598](https://github.com/AcademySoftwareFoundation/openexr/pull/598) Fix for #571: keep all values word-aligned in IlmImfTest testLargeDataWindowOffsets
-
 * [590](https://github.com/AcademySoftwareFoundation/openexr/pull/590) TSC Meeting notes for 2019-10-17
-
 * [588](https://github.com/AcademySoftwareFoundation/openexr/pull/588) Gitignore
-
 * [587](https://github.com/AcademySoftwareFoundation/openexr/pull/587) removed unnecessary .m4 files
-
 * [586](https://github.com/AcademySoftwareFoundation/openexr/pull/586) TSC Meeting Notes 2019-10-3
-
 * [585](https://github.com/AcademySoftwareFoundation/openexr/pull/585) Added mission statement to README.md
-
 * [582](https://github.com/AcademySoftwareFoundation/openexr/pull/582) Azure macOS job fixes
-
 * [580](https://github.com/AcademySoftwareFoundation/openexr/pull/580) More SonarCloud "bug" fixes in Imath
-
 * [578](https://github.com/AcademySoftwareFoundation/openexr/pull/578) More fixes for SonarCloud bugs
-
 * [577](https://github.com/AcademySoftwareFoundation/openexr/pull/577) Sonar fixes in IlmImf and IlmImfTest
-
 * [576](https://github.com/AcademySoftwareFoundation/openexr/pull/576) TSC meeting notes
-
 * [575](https://github.com/AcademySoftwareFoundation/openexr/pull/575) Sonar fixes for Iex, IexTest, and ImathTest
-
 * [574](https://github.com/AcademySoftwareFoundation/openexr/pull/574) Change Azure SonarCloud job to run weekly.
-
 * [569](https://github.com/AcademySoftwareFoundation/openexr/pull/569) TSC meeting notes for the last 3 weeks
-
 * [562](https://github.com/AcademySoftwareFoundation/openexr/pull/562) CVE listing in SECURITY.md
-
 * [561](https://github.com/AcademySoftwareFoundation/openexr/pull/561) A few more NOSONAR suppressions in PyImath
-
 * [560](https://github.com/AcademySoftwareFoundation/openexr/pull/560) Clean up small number of sonarcloud bugs / warnings
-
 * [559](https://github.com/AcademySoftwareFoundation/openexr/pull/559) Change Azure SonarCloud job to run for every PR, rather than only for…
-
 * [558](https://github.com/AcademySoftwareFoundation/openexr/pull/558) Add NOSONAR comments to PyImath to suppress "self==self" bug reports.
-
 * [557](https://github.com/AcademySoftwareFoundation/openexr/pull/557) Fix warnings when _FORTIFY_SOURCE set
-
 * [556](https://github.com/AcademySoftwareFoundation/openexr/pull/556) Fix #555
-
 * [554](https://github.com/AcademySoftwareFoundation/openexr/pull/554) Replace use of rand()/srand() with the C++11 <random>
-
 * [553](https://github.com/AcademySoftwareFoundation/openexr/pull/553) Increase Azure timeout for SonarCloud, Linux and MacOS jobs.
 
 ### Closed Issues
 
 * [689](https://github.com/AcademySoftwareFoundation/openexr/issues/689) I was able to get OpenEXR to install by adding `-std=c++11` to the `extra_compile_flags` in setup.py, as Igritz  and peterhillman suggested. Here's the file with it added:
-
 * [688](https://github.com/AcademySoftwareFoundation/openexr/issues/688) Invalid shift (141647077)
-
 * [687](https://github.com/AcademySoftwareFoundation/openexr/issues/687) ZLIB not found
-
 * [686](https://github.com/AcademySoftwareFoundation/openexr/issues/686) Using the example Chromacity files - issue with chromaticities
-
 * [679](https://github.com/AcademySoftwareFoundation/openexr/issues/679) mipmap / ripmap question
-
 * [674](https://github.com/AcademySoftwareFoundation/openexr/issues/674) OpenEXR_Viewers  / libCg aliasing error
-
 * [671](https://github.com/AcademySoftwareFoundation/openexr/issues/671) Tiles/Ocean.exr core dumps on latest code built from git
-
 * [668](https://github.com/AcademySoftwareFoundation/openexr/issues/668) 2.4.1: test suite build is failing
-
 * [665](https://github.com/AcademySoftwareFoundation/openexr/issues/665) openexr/OpenEXR_Viewers/config/LocateCg.cmake issue on Linux
-
 * [663](https://github.com/AcademySoftwareFoundation/openexr/issues/663) 2.4.1: missing dist tar balls
-
 * [654](https://github.com/AcademySoftwareFoundation/openexr/issues/654) build breaks backwards compatibility
-
 * [651](https://github.com/AcademySoftwareFoundation/openexr/issues/651) ImfChromaticities.cpp: Revisiting the == and != operators
-
 * [648](https://github.com/AcademySoftwareFoundation/openexr/issues/648) find_package macro redefinition conflicts with vcpkg macro on Windows.
-
 * [633](https://github.com/AcademySoftwareFoundation/openexr/issues/633) ImfStdIO.[cpp h]:  Missing StdISStream class
-
 * [632](https://github.com/AcademySoftwareFoundation/openexr/issues/632) Platform/OS dependent piz compressed binary data
-
 * [630](https://github.com/AcademySoftwareFoundation/openexr/issues/630) OpenEXR loading not making use of multiple threads
-
 * [628](https://github.com/AcademySoftwareFoundation/openexr/issues/628) Missing C++11 type traits for half
-
 * [625](https://github.com/AcademySoftwareFoundation/openexr/issues/625) OPENEXR_DLL issues
-
 * [623](https://github.com/AcademySoftwareFoundation/openexr/issues/623) Documentation : Typo in "Interpreting Deep Pixels"
-
 * [617](https://github.com/AcademySoftwareFoundation/openexr/issues/617) Move openexr repo to AcademySoftwareFoundation organization
-
 * [611](https://github.com/AcademySoftwareFoundation/openexr/issues/611) How to force Python3 build on Linux
-
 * [610](https://github.com/AcademySoftwareFoundation/openexr/issues/610) huge images cause bad_array_new_length exception in exrdisplay
-
 * [607](https://github.com/AcademySoftwareFoundation/openexr/issues/607) Getting started... build & hello world.
-
 * [604](https://github.com/AcademySoftwareFoundation/openexr/issues/604) PyIlmBaseConfig not in export set?
-
 * [595](https://github.com/AcademySoftwareFoundation/openexr/issues/595) Broken pkgconfig files when building with cmake
-
 * [594](https://github.com/AcademySoftwareFoundation/openexr/issues/594) Python modules are not linked to Boost::python
-
 * [593](https://github.com/AcademySoftwareFoundation/openexr/issues/593) Python modules are not installed with cmake
-
 * [584](https://github.com/AcademySoftwareFoundation/openexr/issues/584) OpenEXR CLAs
-
 * [581](https://github.com/AcademySoftwareFoundation/openexr/issues/581) ImfCompressor.h  is not installed
-
 * [579](https://github.com/AcademySoftwareFoundation/openexr/issues/579) ImfFrameBuffer.h not compatible with C++98 code
-
 * [573](https://github.com/AcademySoftwareFoundation/openexr/issues/573) Linker cannot find "boost_python-vc140-mt-x64-1_66.lib" on Windows.
-
 * [572](https://github.com/AcademySoftwareFoundation/openexr/issues/572) "IlmImf-2_3.dll" shared library is not built anymore in 2.3.0.
-
 * [571](https://github.com/AcademySoftwareFoundation/openexr/issues/571) Test failure on ARMv7
-
 * [570](https://github.com/AcademySoftwareFoundation/openexr/issues/570) Test failure on i686
-
 * [567](https://github.com/AcademySoftwareFoundation/openexr/issues/567) CMake builds produce invalid pkg-config files
-
 * [566](https://github.com/AcademySoftwareFoundation/openexr/issues/566) throwErrno symbols missing when Iex is linked before other libraries statically
-
 * [565](https://github.com/AcademySoftwareFoundation/openexr/issues/565) 2.4.0 tarball signature missing
-
 * [564](https://github.com/AcademySoftwareFoundation/openexr/issues/564) CVE-2006-2277
-
 * [563](https://github.com/AcademySoftwareFoundation/openexr/issues/563) CVE-2016-4629 and CVE-2016-4630
-
 * [555](https://github.com/AcademySoftwareFoundation/openexr/issues/555) cmake errors when used as sub-project via add_subdirectory()
-
-
 
 ### Commits \[ git log v2.4.1...v2.5.0\]
 
