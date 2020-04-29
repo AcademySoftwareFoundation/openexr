@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(PyIlmBase, 2.2.1)
-AC_SUBST(PYILMBASE_VERSION, 2.2.1)
+AC_INIT(PyIlmBase, 2.2.2)
+AC_SUBST(PYILMBASE_VERSION, 2.2.2)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(PyIex/iexmodule.cpp)
 AC_CONFIG_HEADER(config/PyIlmBaseConfig.h)
