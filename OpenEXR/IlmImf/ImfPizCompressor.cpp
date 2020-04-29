@@ -491,7 +491,9 @@ PizCompressor::uncompress (const char *inPtr,
     // This is the cunompress function which is used by both the tiled and
     // scanline decompression routines.
     //
-    
+   
+    const char* inputEnd=inPtr+inSize;
+
     //
     // Special case - empty input buffer
     //
@@ -501,6 +503,7 @@ PizCompressor::uncompress (const char *inPtr,
 	outPtr = _outBuffer;
 	return 0;
     }
+
 
     //
     // Determine the layout of the compressed pixel data
@@ -548,6 +551,12 @@ PizCompressor::uncompress (const char *inPtr,
     AutoArray <unsigned char, BITMAP_SIZE> bitmap;
     memset (bitmap, 0, sizeof (unsigned char) * BITMAP_SIZE);
 
+
+    if(inPtr + sizeof(unsigned short)*2 > inputEnd)
+    {
+   	   throw InputExc ("PIZ compressed data too short");
+    }
+
     Xdr::read <CharPtrIO> (inPtr, minNonZero);
     Xdr::read <CharPtrIO> (inPtr, maxNonZero);
 
@@ -559,8 +568,14 @@ PizCompressor::uncompress (const char *inPtr,
 
     if (minNonZero <= maxNonZero)
     {
-	Xdr::read <CharPtrIO> (inPtr, (char *) &bitmap[0] + minNonZero,
-			       maxNonZero - minNonZero + 1);
+        size_t bytesToRead = maxNonZero - minNonZero + 1;
+	    if(inPtr + bytesToRead > inputEnd)
+        {
+   	      throw InputExc ("PIZ compressed data too short");
+        }
+
+Xdr::read <CharPtrIO> (inPtr, (char *) &bitmap[0] + minNonZero,
+			       bytesToRead);
     }
 
     AutoArray <unsigned short, USHORT_RANGE> lut;
@@ -569,6 +584,11 @@ PizCompressor::uncompress (const char *inPtr,
     //
     // Huffman decoding
     //
+   if(inPtr + sizeof(int)> inputEnd)
+   {
+       throw InputExc ("PIZ compressed data too short");
+   }
+
 
     int length;
     Xdr::read <CharPtrIO> (inPtr, length);
