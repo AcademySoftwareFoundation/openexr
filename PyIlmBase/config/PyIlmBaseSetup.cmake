@@ -23,6 +23,13 @@ endif()
 set(OPENEXR_CXX_STANDARD "${tmp}" CACHE STRING "C++ standard to compile against")
 set(tmp)
 
+# Whether to generate and install a pkg-config file PyIlmBase.pc
+if (WIN32)
+option(PYILMBASE_INSTALL_PKG_CONFIG "Install PyIlmBase.pc file" OFF)
+else()
+option(PYILMBASE_INSTALL_PKG_CONFIG "Install PyIlmBase.pc file" ON)
+endif()
+
 ########################
 ## Build related options
 
