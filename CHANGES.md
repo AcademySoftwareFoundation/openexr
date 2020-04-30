@@ -4,6 +4,7 @@
 * [Version 2.4.1](#version-241-february-11-2020)
 * [Version 2.4.0](#version-240-september-19-2019)
 * [Version 2.3.0](#version-230-august-13-2018)
+* [Version 2.2.2](#version-222-april-30-2020)
 * [Version 2.2.1](#version-221-november-30-2017)
 * [Version 2.2.0](#version-220-august-10-2014)
 * [Version 2.1.0](#version-210-november-25-2013)
@@ -1865,6 +1866,19 @@ Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
 *  [Add dwa test images to dist (tarball) manifest. Also drop README.win32 from tarball. (Already removed from repo.)](https://github.com/openexr/openexr/commit/cbac202a84b0b0bac0fcd92e5b5c8d634085329e) ([Ed Hanway](@ehanway@ilm.com), 2014-08-14) [New Cmake-centric instructions covering builds for Windows and other platforms to follow.] 
 
 *  [Use LL for 64-bit literals](https://github.com/openexr/openexr/commit/57ecf581d053f5cacf2e8fc3c024490e0bbe536f) ([Brendan Bolles](@brendan@fnordware.com), 2014-08-13) On a 32-bit architecture, these literals are too big for just a long, they need to be long long, otherwise I get an error in GCC.
+
+## Version 2.2.2 (April 30, 2020)
+
+This is a patch release that includes fixes for the following security vulnerabilities:
+
+* [CVE-2020-11765](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11765) There is an off-by-one error in use of the ImfXdr.h read function by DwaCompressor::Classifier::ClasGsifier, leading to an out-of-bounds read.
+* [CVE-2020-11764](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11764) There is an out-of-bounds write in copyIntoFrameBuffer in ImfMisc.cpp.
+* [CVE-2020-11763](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11763) There is an std::vector out-of-bounds read and write, as demonstrated by ImfTileOffsets.cpp.
+* [CVE-2020-11762](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11762) There is an out-of-bounds read and write in DwaCompressor::uncompress in ImfDwaCompressor.cpp when handling the UNKNOWN compression case.
+* [CVE-2020-11761](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11761) There is an out-of-bounds read during Huffman uncompression, as demonstrated by FastHufDecoder::refill in ImfFastHuf.cpp.
+* [CVE-2020-11760](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11760) There is an out-of-bounds read during RLE uncompression in rleUncompress in ImfRle.cpp.
+* [CVE-2020-11759](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11759) Because of integer overflows in CompositeDeepScanLine::Data::handleDeepFrameBuffer and readSampleCountForLineBlock, an attacker can write to an out-of-bounds pointer.
+* [CVE-2020-11758](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11758) There is an out-of-bounds read in ImfOptimizedPixelReading.h.
 
 ## Version 2.2.1 (November 30, 2017)
 
