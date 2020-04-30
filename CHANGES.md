@@ -54,6 +54,14 @@ Minor release with miscellaneous bug fixes and small features
 
 ### Merged Pull Requests
 
+* [704](https://github.com/AcademySoftwareFoundation/openexr/pull/704) fixed typos in README.md
+* [703](https://github.com/AcademySoftwareFoundation/openexr/pull/703) Release notes for 2.2.2
+* [702](https://github.com/AcademySoftwareFoundation/openexr/pull/702) bump version on the 2.2 branch to 2.2.2
+* [700](https://github.com/AcademySoftwareFoundation/openexr/pull/700) Patch fixes for CVE-2020-* from commit e79d229 into release/2.2
+* [699](https://github.com/AcademySoftwareFoundation/openexr/pull/699) Bump version to 2.5.0
+* [698](https://github.com/AcademySoftwareFoundation/openexr/pull/698) Fix to make Boost_NO_BOOST_CMAKE a cache variable
+* [697](https://github.com/AcademySoftwareFoundation/openexr/pull/697) Fix python module install on macOS
+* [696](https://github.com/AcademySoftwareFoundation/openexr/pull/696) TSC meeting notes 4-23-20
 * [694](https://github.com/AcademySoftwareFoundation/openexr/pull/694) TSC meeting notes 4-16-20
 * [693](https://github.com/AcademySoftwareFoundation/openexr/pull/693) Update the release notes and security notices with 2020 CVE's
 * [692](https://github.com/AcademySoftwareFoundation/openexr/pull/692) Meetings 4.2.20
@@ -174,9 +182,21 @@ Minor release with miscellaneous bug fixes and small features
 * [563](https://github.com/AcademySoftwareFoundation/openexr/issues/563) CVE-2016-4629 and CVE-2016-4630
 * [555](https://github.com/AcademySoftwareFoundation/openexr/issues/555) cmake errors when used as sub-project via add_subdirectory()
 
-### Commits \[ git log v2.4.1...v2.5.0\]
+### Commits \[ git log v2.4.0...v2.5.0\]
 
-* [40744811](https://github.com/AcademySoftwareFoundation/openexr/commit/40744811ad7d6333b98fbe8860b2d839e15630fe) added 2.5.0 commits to release notes ([Cary Phillips](@cary@ilm.com) 2020-04-27)
+* [ac4fb158](https://github.com/AcademySoftwareFoundation/openexr/commit/ac4fb15895447ce042528cc965ce2b242d130311) fixed wording of OpenEXR_Viewers in 2.5.0 release notes. ([Cary Phillips](@cary@ilm.com) 2020-04-29)
+* [c0542060](https://github.com/AcademySoftwareFoundation/openexr/commit/c0542060df75e5726e0b51ecc1de01aa29b3b448) fixed spacing in 2.5.0 release notes ([Cary Phillips](@cary@ilm.com) 2020-04-28)
+* [c65d0d87](https://github.com/AcademySoftwareFoundation/openexr/commit/c65d0d8708e99758a7f10fb1b4596d53298a52bb) Added summary of changes to 2.5.0 release notes. ([Cary Phillips](@cary@ilm.com) 2020-04-28)
+* [275ab234](https://github.com/AcademySoftwareFoundation/openexr/commit/275ab2341081d32160298b01ef903eb4befce8c9) added merged PR's and closed issues to 2.5.0 release notes ([Cary Phillips](@cary@ilm.com) 2020-04-27)
+* [99bcaf5a](https://github.com/AcademySoftwareFoundation/openexr/commit/99bcaf5aba87eb0c987f5e43e279d1f72ad8b953) added 2.5.0 commits to release notes ([Cary Phillips](@cary@ilm.com) 2020-04-27)
+* [70202128](https://github.com/AcademySoftwareFoundation/openexr/commit/70202128342b5daf0e97b227c923cb573edecff5) Update SECURITY.md to note that CVE-2020-* are not in v2.2.2 ([Cary Phillips](@cary@ilm.com) 2020-04-29)
+* [8ab7adbc](https://github.com/AcademySoftwareFoundation/openexr/commit/8ab7adbc2b4c0fca637a7115344f5f34c6f26139) Release notes for 2.2.2 ([Cary Phillips](@cary@ilm.com) 2020-04-29)
+* [72e9ff25](https://github.com/AcademySoftwareFoundation/openexr/commit/72e9ff25d8e843f6a475a2e81b8aae0df04d3a25) TSC meeting notes 4-23-20 ([Cary Phillips](@cary@ilm.com) 2020-04-23)
+* [656a3a5c](https://github.com/AcademySoftwareFoundation/openexr/commit/656a3a5c60394880b50081c95c4ca0ab2cf4143e) Add cmake option to install PyIlmBase pkg-config file ([Cary Phillips](@cary@ilm.com) 2020-03-05)
+* [2a82f18c](https://github.com/AcademySoftwareFoundation/openexr/commit/2a82f18c83a17cf1e98d6d9349779a150f5bdc3c) fixed typos in README.md ([Cary Phillips](@cary@ilm.com) 2020-04-29)
+* [27f45978](https://github.com/AcademySoftwareFoundation/openexr/commit/27f459781b6a3cb69727397bb989e8dc2aa8850c) Bump version to 2.5.0 ([Cary Phillips](@cary@ilm.com) 2020-04-28)
+* [72cc6e02](https://github.com/AcademySoftwareFoundation/openexr/commit/72cc6e02e991771db075d5c5e6a184325be47b0a) Fix to make Boost_NO_BOOST_CMAKE a cache variable ([Mark Sisson](@5761292+marksisson@users.noreply.github.com) 2020-04-26)
+* [b9199b51](https://github.com/AcademySoftwareFoundation/openexr/commit/b9199b5155ab8c1d245ddeb61006b1bf2de66d84) Fix python module install on macos ([Mark Sisson](@5761292+marksisson@users.noreply.github.com) 2020-04-26)
 * [0b26caf6](https://github.com/AcademySoftwareFoundation/openexr/commit/0b26caf6c33656d38cf10f7a090d3713ac4ee291) TSC meeting notes 4-16-20 ([Cary Phillips](@cary@ilm.com) 2020-04-16)
 * [9d8bb109](https://github.com/AcademySoftwareFoundation/openexr/commit/9d8bb109968cd169765f1da7b2022a6b6b3a93f0) Implemented all tests transferable to the 2x2 matrix case from 3x3. Added needed functionality to ensure boost::python worked for testing. ([Owen Thompson](@oxt3479@rit.edu) 2020-04-09)
 * [713e6ce5](https://github.com/AcademySoftwareFoundation/openexr/commit/713e6ce54babdd4181c23d7d0e6c8bb00164a953) Implemented additional C++ functionality needed to pass 2x2 testing parameters: extracting euler angles and overloaded vector multiplication. ([Owen Thompson](@oxt3479@rit.edu) 2020-04-09)
