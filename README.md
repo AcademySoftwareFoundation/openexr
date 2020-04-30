@@ -96,10 +96,10 @@ correctness and verifiability, and breadth of adoption. IlmBase is not
 intended to be a comprehensive linear algebra or numerical analysis
 package.
 
-### OpenEXR Project Goverance
+### OpenEXR Project Governance
 
 OpenEXR is hosted by the Academy Software Foundation. See
-[GOVERNANCE](GOVERNANCE.md) for more infomation about how the project
+[GOVERNANCE](GOVERNANCE.md) for more information about how the project
 operates.
 
 The OpenEXR project is dedicated to promoting a harassment-free

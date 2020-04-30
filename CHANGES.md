@@ -42,20 +42,28 @@ Patch release with minor bug fixes.
 * Various cmake fixes for build/install of python modules.
 * ImfMisc.h is no longer installed, since it's a private header.
 
+### Security Vulnerabilities
+
+This version fixes the following security vulnerabilities:
+
+* [CVE-2020-11765](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11765) There is an off-by-one error in use of the ImfXdr.h read function by DwaCompressor::Classifier::ClasGsifier, leading to an out-of-bounds read.
+* [CVE-2020-11764](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11764) There is an out-of-bounds write in copyIntoFrameBuffer in ImfMisc.cpp.
+* [CVE-2020-11763](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11763) There is an std::vector out-of-bounds read and write, as demonstrated by ImfTileOffsets.cpp.
+* [CVE-2020-11762](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11762) There is an out-of-bounds read and write in DwaCompressor::uncompress in ImfDwaCompressor.cpp when handling the UNKNOWN compression case.
+* [CVE-2020-11761](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11761) There is an out-of-bounds read during Huffman uncompression, as demonstrated by FastHufDecoder::refill in ImfFastHuf.cpp.
+* [CVE-2020-11760](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11760) There is an out-of-bounds read during RLE uncompression in rleUncompress in ImfRle.cpp.
+* [CVE-2020-11759](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11759) Because of integer overflows in CompositeDeepScanLine::Data::handleDeepFrameBuffer and readSampleCountForLineBlock, an attacker can write to an out-of-bounds pointer.
+* [CVE-2020-11758](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11758) There is an out-of-bounds read in ImfOptimizedPixelReading.h.
+
+
 ### Merged Pull Requests
 
 * [659](https://github.com/AcademySoftwareFoundation/openexr/pull/659) fix memory leaks and invalid memory accesses
-
 * [609](https://github.com/AcademySoftwareFoundation/openexr/pull/609) Fixes #593, others - issues with pyilmbase install 
-
 * [605](https://github.com/AcademySoftwareFoundation/openexr/pull/605) No longer install ImfMisc.h 
-
 * [603](https://github.com/openexr/openexr/pull/603) Update Azure build to work with new RB-2.4 branch. 
-
 * [596](https://github.com/AcademySoftwareFoundation/openexr/pull/596) Add Boost::Python to Python modules link libraries
-
 * [592](https://github.com/AcademySoftwareFoundation/openexr/pull/592) Take DESTDIR into account when creating library symlinks
-
 * [589](https://github.com/openexr/openexr/pull/589) Fix int32 overflow bugs with deep images 
 
 ### Commits \[ git log v2.4.0...v2.4.1\]
