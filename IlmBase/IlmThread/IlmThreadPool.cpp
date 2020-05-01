@@ -509,7 +509,7 @@ TaskGroup::Data::addTask ()
     // extra lock but for c++98, to add the ability for custom thread
     // pool we add the lock here
     //
-#if ILMBASE_FORCE_CXX03
+#ifdef ILMBASE_FORCE_CXX03
     Lock lock (dtorMutex);
 #endif
     if (numPending++ == 0)
@@ -862,7 +862,7 @@ unsigned
 ThreadPool::estimateThreadCountForFileIO ()
 {
 #ifdef ILMBASE_FORCE_CXX03
-#    if defined(_WIN32)
+#    if defined (_WIN32) || defined (_WIN64)
     SYSTEM_INFO sysinfo;
     GetSystemInfo (&sysinfo);
     return static_cast<unsigned> (sysinfo.dwNumberOfProcessors);
