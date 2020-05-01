@@ -310,15 +310,17 @@ BOOST_PYTHON_MODULE(imath)
     class_<FixedArray<IMATH_NAMESPACE::Box3d> > b3d_class = register_BoxArray<IMATH_NAMESPACE::V3d>();
 
     //
-    // Matrix33/44
+    // Matrix22/33/44
     //
+    register_Matrix22<float>();
+    register_Matrix22<double>();
     register_Matrix33<float>();
     register_Matrix33<double>();
     register_Matrix44<float>();
     register_Matrix44<double>();
 
     //
-    // M33/44Array
+    // M22/M33/44Array
     //
     class_<FixedArray<IMATH_NAMESPACE::M44d> > m44d_class = register_M44Array<double>();
     class_<FixedArray<IMATH_NAMESPACE::M44f> > m44f_class = register_M44Array<float>();
@@ -329,6 +331,11 @@ BOOST_PYTHON_MODULE(imath)
     class_<FixedArray<IMATH_NAMESPACE::M33f> > m33f_class = register_M33Array<float>();
     add_explicit_construction_from_type< IMATH_NAMESPACE::Matrix33<double> >(m33d_class);
     add_explicit_construction_from_type< IMATH_NAMESPACE::Matrix33<float> > (m33f_class);
+
+    class_<FixedArray<IMATH_NAMESPACE::M22d> > m22d_class = register_M22Array<double>();
+    class_<FixedArray<IMATH_NAMESPACE::M22f> > m22f_class = register_M22Array<float>();
+    add_explicit_construction_from_type< IMATH_NAMESPACE::Matrix22<double> >(m22d_class);
+    add_explicit_construction_from_type< IMATH_NAMESPACE::Matrix22<float> > (m22f_class);
 
     //
     // String Array

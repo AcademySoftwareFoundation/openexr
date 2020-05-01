@@ -1001,9 +1001,9 @@ register_Matrix44()
         .def("fastMinor",&Matrix44<T>::fastMinor,"fastMinor() return matrix minor using the specified rows and columns of this matrix")
         .def("determinant",&Matrix44<T>::determinant,"determinant() return the determinant of this matrix")
         .def("invert",&invert44<T>,invert44_overloads("invert() invert this matrix")[return_internal_reference<>()])
-        .def("inverse",&inverse44<T>,inverse44_overloads("inverse() return a inverted copy of this matrix"))
+        .def("inverse",&inverse44<T>,inverse44_overloads("inverse() return an inverted copy of this matrix"))
         .def("gjInvert",&gjInvert44<T>,gjInvert44_overloads("gjInvert() invert this matrix")[return_internal_reference<>()])
-        .def("gjInverse",&gjInverse44<T>,gjInverse44_overloads("gjInverse() return a inverted copy of this matrix"))
+        .def("gjInverse",&gjInverse44<T>,gjInverse44_overloads("gjInverse() return an inverted copy of this matrix"))
         .def(self == self) // NOSONAR - suppress SonarCloud bug report.
         .def(self != self) // NOSONAR - suppress SonarCloud bug report.
         .def("__iadd__", &iadd44<T, float>,return_internal_reference<>())

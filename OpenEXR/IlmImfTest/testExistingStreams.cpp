@@ -176,7 +176,7 @@ MMIFStream::~MMIFStream ()
 bool
 MMIFStream::read (char c[/*n*/], int n)
 {
-    if ((_pos < 0 || _pos >= _length) && n != 0)
+    if (_pos >= _length && n != 0)
 	throw IEX_NAMESPACE::InputExc ("Unexpected end of file.");
         
     Int64 n2 = n;
@@ -197,7 +197,7 @@ MMIFStream::read (char c[/*n*/], int n)
 char*
 MMIFStream::readMemoryMapped (int n)
 {
-    if (_pos < 0 || _pos >= _length)
+    if (_pos >= _length)
 	throw IEX_NAMESPACE::InputExc ("Unexpected end of file.");
        
     if (_pos + n > _length)
@@ -228,8 +228,6 @@ writeReadScanLines (const char fileName[],
 
     cout << "scan-line based file:" << endl;
 
-    Header header (width, height);
-
     {
         cout << "writing";
         remove (fileName);
@@ -237,6 +235,7 @@ writeReadScanLines (const char fileName[],
         testutil::OpenStreamWithUTF8Name (
             os, fileName, ios::out | ios_base::binary);
         StdOFStream ofs (os, fileName);
+        Header header (width, height);
         RgbaOutputFile out (ofs, header, WRITE_RGBA);
         out.setFrameBuffer (&p1[0][0], 1, width);
         out.writePixels (height);
@@ -323,20 +322,7 @@ writeReadMultiPart (const char fileName[],
     //
                         
     cout << "scan-line based mulitpart file:" << endl;
-                        
-    vector<Header> headers(2);
-    headers[0] = Header(width, height);
-    headers[0].setName("part1");
-    headers[0].channels().insert("R",Channel());
-    headers[0].channels().insert("G",Channel());
-    headers[0].channels().insert("B",Channel());
-    headers[0].channels().insert("A",Channel());
-    headers[0].setType(SCANLINEIMAGE);
-    
-    headers[1]=headers[0];
-    headers[1].setName("part2");
-    
-    
+                            
     {
         cout << "writing";
         remove (fileName);
@@ -344,6 +330,19 @@ writeReadMultiPart (const char fileName[],
         testutil::OpenStreamWithUTF8Name (
             os, fileName, ios::out | ios_base::binary);
         StdOFStream ofs (os, fileName);
+
+        vector<Header> headers(2);
+        headers[0] = Header(width, height);
+        headers[0].setName("part1");
+        headers[0].channels().insert("R",Channel());
+        headers[0].channels().insert("G",Channel());
+        headers[0].channels().insert("B",Channel());
+        headers[0].channels().insert("A",Channel());
+        headers[0].setType(SCANLINEIMAGE);
+
+        headers[1]=headers[0];
+        headers[1].setName("part2");
+
         MultiPartOutputFile out (ofs, &headers[0],2);
         FrameBuffer f;
         f.insert("R",Slice(HALF,(char *) &p1[0][0].r,sizeof(Rgba),width*sizeof(Rgba)));
@@ -471,8 +470,6 @@ writeReadTiles (const char fileName[],
 
     cout << "tiled file:" << endl;
 
-    Header header (width, height);
-
     {
         cout << "writing";
         remove (fileName);
@@ -480,6 +477,7 @@ writeReadTiles (const char fileName[],
         testutil::OpenStreamWithUTF8Name (
             os, fileName, ios_base::out | ios_base::binary);
         StdOFStream ofs (os, fileName);
+        Header header (width, height);
         TiledRgbaOutputFile out (ofs, header, WRITE_RGBA, 20, 20, ONE_LEVEL);
         out.setFrameBuffer (&p1[0][0], 1, width);
         out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
@@ -550,6 +548,236 @@ writeReadTiles (const char fileName[],
 }
 
 
+//
+// stringstream version
+//
+void
+writeReadScanLines (int width,
+		    int height,
+		    const Array2D<Rgba> &p1)
+{
+    //
+    // Save a scanline-based RGBA image, but instead of
+    // letting the RgbaOutputFile object open the file,
+    // make the RgbaOutputFile object use an existing
+    // StdOSStream.  Read the image back, using an
+    // existing StdISStream, and compare the pixels
+    // with the original data.
+    //
+
+    cout << "scan-line based stringstream:" << endl;
+
+    std::string strEXRFile;
+
+    {
+        cout << "writing";
+        Imf::StdOSStream oss;
+        Header header (width, height);
+        RgbaOutputFile out (oss, header, WRITE_RGBA);
+        out.setFrameBuffer (&p1[0][0], 1, width);
+        out.writePixels (height);
+        strEXRFile = oss.str();
+    }
+
+    {
+        cout << ", reading";
+        Imf::StdISStream iss;
+        iss.clear();
+        iss.str(strEXRFile);
+        RgbaInputFile in (iss);
+
+	const Box2i &dw = in.dataWindow();
+	int w = dw.max.x - dw.min.x + 1;
+	int h = dw.max.y - dw.min.y + 1;
+	int dx = dw.min.x;
+	int dy = dw.min.y;
+
+	Array2D<Rgba> p2 (h, w);
+	in.setFrameBuffer (&p2[-dy][-dx], 1, w);
+	in.readPixels (dw.min.y, dw.max.y);
+
+        cout << ", comparing";
+	for (int y = 0; y < h; ++y)
+	{
+	    for (int x = 0; x < w; ++x)
+	    {
+		assert (p2[y][x].r == p1[y][x].r);
+		assert (p2[y][x].g == p1[y][x].g);
+		assert (p2[y][x].b == p1[y][x].b);
+		assert (p2[y][x].a == p1[y][x].a);
+	    }
+	}
+    }
+        
+    cout << endl;
+}
+
+
+//
+// stringstream version
+//
+void
+writeReadMultiPart (int width,
+                    int height,
+                    const Array2D<Rgba> &p1)
+{
+    //
+    // Save a two scanline parts in an image, but instead of
+    // letting the MultiPartOutputFile object open the file,
+    // make the MultiPartOutputFile object use an existing
+    // StdOSStream.  Read the image back, using an
+    // existing StdISStream, and compare the pixels
+    // with the original data.
+    //
+                        
+    cout << "scan-line based mulitpart stringstream:" << endl;
+                            
+    std::string strEXRFile;
+
+    {
+        cout << "writing";
+        StdOSStream oss;
+
+        vector<Header> headers(2);
+        headers[0] = Header(width, height);
+        headers[0].setName("part1");
+        headers[0].channels().insert("R",Channel());
+        headers[0].channels().insert("G",Channel());
+        headers[0].channels().insert("B",Channel());
+        headers[0].channels().insert("A",Channel());
+        headers[0].setType(SCANLINEIMAGE);
+
+        headers[1]=headers[0];
+        headers[1].setName("part2");
+
+        MultiPartOutputFile out (oss, &headers[0],2);
+        FrameBuffer f;
+        f.insert("R",Slice(HALF,(char *) &p1[0][0].r,sizeof(Rgba),width*sizeof(Rgba)));
+        f.insert("G",Slice(HALF,(char *) &p1[0][0].g,sizeof(Rgba),width*sizeof(Rgba)));
+        f.insert("B",Slice(HALF,(char *) &p1[0][0].b,sizeof(Rgba),width*sizeof(Rgba)));
+        f.insert("A",Slice(HALF,(char *) &p1[0][0].a,sizeof(Rgba),width*sizeof(Rgba)));
+        
+        for(int i=0;i<2;i++)
+        {
+            OutputPart p(out,i);
+            p.setFrameBuffer (f);
+            p.writePixels (height);
+        }
+
+        strEXRFile = oss.str();
+    }
+
+    {
+        cout << ", reading";
+        StdISStream iss;
+        iss.clear();
+        iss.str(strEXRFile);
+        MultiPartInputFile in (iss);
+        
+        assert(in.parts() == 2);
+        
+        assert(in.header(0).dataWindow()==in.header(1).dataWindow());
+        
+        const Box2i &dw = in.header(0).dataWindow();
+        int w = dw.max.x - dw.min.x + 1;
+        int h = dw.max.y - dw.min.y + 1;
+        int dx = dw.min.x;
+        int dy = dw.min.y;
+        
+        Array2D<Rgba> p2 (h, w);
+        FrameBuffer f;
+        f.insert("R",Slice(HALF,(char *) &p2[-dy][-dx].r,sizeof(Rgba),w*sizeof(Rgba)));
+        f.insert("G",Slice(HALF,(char *) &p2[-dy][-dx].g,sizeof(Rgba),w*sizeof(Rgba)));
+        f.insert("B",Slice(HALF,(char *) &p2[-dy][-dx].b,sizeof(Rgba),w*sizeof(Rgba)));
+        f.insert("A",Slice(HALF,(char *) &p2[-dy][-dx].a,sizeof(Rgba),w*sizeof(Rgba)));
+        
+        for(int part=0;part<2;part++)
+        {
+            InputPart p(in,part);
+            p.setFrameBuffer(f);
+            p.readPixels (dw.min.y, dw.max.y);
+                            
+            cout << ", comparing pt " << part;
+            for (int y = 0; y < h; ++y)
+            {
+                for (int x = 0; x < w; ++x)
+                {
+                    assert (p2[y][x].r == p1[y][x].r);
+                    assert (p2[y][x].g == p1[y][x].g);
+                    assert (p2[y][x].b == p1[y][x].b);
+                    assert (p2[y][x].a == p1[y][x].a);
+                }
+            }
+        }
+    }
+    
+    cout << endl;
+}
+                    
+//
+// stringstream version
+//
+void
+writeReadTiles (int width,
+		int height,
+		const Array2D<Rgba> &p1)
+{
+    //
+    // Save a tiled RGBA image, but instead of letting
+    // the TiledRgbaOutputFile object open the file, make
+    // it use an existing StdOSStream.  Read the image back,
+    // using an existing StdISStream, and compare the pixels
+    // with the original data.  
+    //
+
+    cout << "tiled stringstream:" << endl;
+
+    std::string strEXRFile;
+
+    {
+        cout << "writing";
+        StdOSStream oss;
+        Header header (width, height);
+        TiledRgbaOutputFile out (oss, header, WRITE_RGBA, 20, 20, ONE_LEVEL);
+        out.setFrameBuffer (&p1[0][0], 1, width);
+        out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
+
+        strEXRFile = oss.str();
+    }
+
+    {
+        cout << ", reading";
+        StdISStream iss;
+        iss.clear();
+        iss.str(strEXRFile);
+        TiledRgbaInputFile in (iss);
+
+	const Box2i &dw = in.dataWindow();
+	int w = dw.max.x - dw.min.x + 1;
+	int h = dw.max.y - dw.min.y + 1;
+	int dx = dw.min.x;
+	int dy = dw.min.y;
+
+	Array2D<Rgba> p2 (h, w);
+	in.setFrameBuffer (&p2[-dy][-dx], 1, w);
+        in.readTiles (0, in.numXTiles() - 1, 0, in.numYTiles() - 1);
+
+        cout << ", comparing";
+	for (int y = 0; y < h; ++y)
+	{
+	    for (int x = 0; x < w; ++x)
+	    {
+		assert (p2[y][x].r == p1[y][x].r);
+		assert (p2[y][x].g == p1[y][x].g);
+		assert (p2[y][x].b == p1[y][x].b);
+		assert (p2[y][x].a == p1[y][x].a);
+	    }
+	}
+    }
+
+    cout << endl;
+}
+
 } // namespace
 
 
@@ -558,23 +786,26 @@ testExistingStreams (const std::string &tempDir)
 {
     try
     {
-	cout << "Testing reading and writing using existing streams" << endl;
+        cout << "Testing reading and writing using existing streams" << endl;
 
-	const int W = 119;
-	const int H = 237;
+        const int W = 119;
+        const int H = 237;
 
-	Array2D<Rgba> p1 (H, W);
+        Array2D<Rgba> p1 (H, W);
 
-	fillPixels1 (p1, W, H);
-	writeReadScanLines ((tempDir + "imf_test_streams.exr").c_str(), W, H, p1);
+        fillPixels1 (p1, W, H);
+        writeReadScanLines ((tempDir + "imf_test_streams.exr").c_str(), W, H, p1);
+        writeReadScanLines (W, H, p1);
 
-	fillPixels2 (p1, W, H);
-	writeReadTiles ((tempDir + "imf_test_streams2.exr").c_str(), W, H, p1);
+        fillPixels2 (p1, W, H);
+        writeReadTiles ((tempDir + "imf_test_streams2.exr").c_str(), W, H, p1);
+        writeReadTiles (W, H, p1);
 
-    fillPixels1 (p1, W, H);
-    writeReadMultiPart ((tempDir +  "imf_test_streams3.exr").c_str(), W, H, p1);
+        fillPixels1 (p1, W, H);
+        writeReadMultiPart ((tempDir +  "imf_test_streams3.exr").c_str(), W, H, p1);
+        writeReadMultiPart (W, H, p1);
 
-	cout << "ok\n" << endl;
+        cout << "ok\n" << endl;
     }
     catch (const std::exception &e)
     {

@@ -108,11 +108,11 @@ configuration files included with find_package should set this up.
 
 ## Sub-Modules
 
-OpenEXR consists of four separate sub-modules - IlmBase, PyIlmBase,
-OpenEXR, OpenEXR_Viewers - which can be built independently. The
-repository’s top-level CMakeLists.txt defines a *super-project* that
-builds all four modules, and the steps above for running cmake at the
-top level of the repo build each of the sub-modules, in parallel.
+OpenEXR consists of three separate sub-modules - IlmBase, PyIlmBase,
+and OpenEXR - which can be built independently. The repository’s
+top-level CMakeLists.txt defines a *super-project* that builds all
+three modules, and the steps above for running cmake at the top level
+of the repo build each of the sub-modules, in parallel.
 
 However you can build each submodule individually. To build and
 install individual sub-modules, build and install the IlmBase module
@@ -135,7 +135,7 @@ which to install OpenEXR:
             $source_directory/OpenEXR
     % cmake --build . --target install --config Release
 
-Optionally, then build and install PyIlmBase, OpenEXR_Viewers, and Contrib.
+Optionally, then build and install PyIlmBase
 
 The libraries in IlmBase and OpenEXR follow the standard cmake setting
 of ``BUILD_SHARED_LIBS`` to control whether to build static or shared
