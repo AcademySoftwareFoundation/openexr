@@ -1,6 +1,6 @@
 # OpenEXR Release Notes
 
-* [Version 2.5.0](#version-250-may-1-2020)
+* [Version 2.5.0](#version-250-may-4-2020)
 * [Version 2.4.1](#version-241-february-11-2020)
 * [Version 2.4.0](#version-240-september-19-2019)
 * [Version 2.3.0](#version-230-august-13-2018)
@@ -33,7 +33,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 2.5.0 (May 1, 2020)
+## Version 2.5.0 (May 4, 2020)
 
 Minor release with miscellaneous bug fixes and small features
 
@@ -54,6 +54,10 @@ Minor release with miscellaneous bug fixes and small features
 
 ### Merged Pull Requests
 
+
+
+* [707](https://github.com/AcademySoftwareFoundation/openexr/pull/707) A clean version of #673: Allow the use of Pthreads with WIN32/64 
+* [705](https://github.com/AcademySoftwareFoundation/openexr/pull/705) added recent commits and PR's to 2.5.0 release notes 
 * [704](https://github.com/AcademySoftwareFoundation/openexr/pull/704) fixed typos in README.md
 * [703](https://github.com/AcademySoftwareFoundation/openexr/pull/703) Release notes for 2.2.2
 * [702](https://github.com/AcademySoftwareFoundation/openexr/pull/702) bump version on the 2.2 branch to 2.2.2
@@ -141,7 +145,7 @@ Minor release with miscellaneous bug fixes and small features
 
 ### Closed Issues
 
-* [689](https://github.com/AcademySoftwareFoundation/openexr/issues/689) I was able to get OpenEXR to install by adding `-std=c++11` to the `extra_compile_flags` in setup.py, as Igritz  and peterhillman suggested. Here's the file with it added:
+* [689](https://github.com/AcademySoftwareFoundation/openexr/issues/689) I was able to get OpenEXR to install by adding `-std=c++11` to the `extra_compile_flags` in setup.py, as lgritz  and peterhillman suggested. Here's the file with it added:
 * [688](https://github.com/AcademySoftwareFoundation/openexr/issues/688) Invalid shift (141647077)
 * [687](https://github.com/AcademySoftwareFoundation/openexr/issues/687) ZLIB not found
 * [686](https://github.com/AcademySoftwareFoundation/openexr/issues/686) Using the example Chromacity files - issue with chromaticities
@@ -184,6 +188,8 @@ Minor release with miscellaneous bug fixes and small features
 
 ### Commits \[ git log v2.4.0...v2.5.0\]
 
+* [3ab677bd](https://github.com/AcademySoftwareFoundation/openexr/commit/3ab677bd375db896215459a49de77ac87fbbb19c) A clean version of #673: Allow the use of Pthreads with WIN32/64 builds under MinGW ([Cary Phillips](@cary@ilm.com) 2020-05-01)
+* [4bb99704](https://github.com/AcademySoftwareFoundation/openexr/commit/4bb99704799830f1be1fa8cde559e3f2f63068a1) added recent commits and PR's to 2.5.0 release notes ([Cary Phillips](@cary@ilm.com) 2020-04-30)
 * [ac4fb158](https://github.com/AcademySoftwareFoundation/openexr/commit/ac4fb15895447ce042528cc965ce2b242d130311) fixed wording of OpenEXR_Viewers in 2.5.0 release notes. ([Cary Phillips](@cary@ilm.com) 2020-04-29)
 * [c0542060](https://github.com/AcademySoftwareFoundation/openexr/commit/c0542060df75e5726e0b51ecc1de01aa29b3b448) fixed spacing in 2.5.0 release notes ([Cary Phillips](@cary@ilm.com) 2020-04-28)
 * [c65d0d87](https://github.com/AcademySoftwareFoundation/openexr/commit/c65d0d8708e99758a7f10fb1b4596d53298a52bb) Added summary of changes to 2.5.0 release notes. ([Cary Phillips](@cary@ilm.com) 2020-04-28)
