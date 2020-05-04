@@ -52,7 +52,9 @@
 #   endif
 #   define NOMINMAX
 #   include <windows.h>
-#elif defined(HAVE_POSIX_SEMAPHORES)
+#endif
+
+#ifdef HAVE_POSIX_SEMAPHORES
 #   include <semaphore.h>
 #elif defined(__APPLE__)
 #   include <dispatch/dispatch.h>
