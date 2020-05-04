@@ -29,8 +29,12 @@ if(Threads_FOUND)
 
   # we have threads, but do we have posix semaphores for sem_init?
   # should be in pthreads
-  if(NOT (APPLE OR WIN32))
-    check_include_files(semaphore.h ILMBASE_HAVE_SEMAPHORE_H)
+  if(NOT (APPLE OR (WIN32 AND (NOT MINGW))))
+    if(MINGW)
+      check_include_files("pthread_unistd.h;semaphore.h" ILMBASE_HAVE_SEMAPHORE_H)
+    else()
+      check_include_files(semaphore.h ILMBASE_HAVE_SEMAPHORE_H)
+    endif()
     if(ILMBASE_HAVE_SEMAPHORE_H AND ILMBASE_HAVE_PTHREAD)
       # should just be in libc, so no need for check_library_exists
       set(CMAKE_REQUIRED_FLAGS ${CMAKE_THREAD_LIBS_INIT})
