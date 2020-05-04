@@ -77,7 +77,8 @@
 #      endif
 #      define NOMINMAX
 #      include <windows.h>
-#   elif defined (HAVE_PTHREAD)
+#   endif
+#   ifdef HAVE_PTHREAD
 #      include <pthread.h>
 #   endif
 #else
