@@ -3,11 +3,15 @@
 // Copyright Contributors to the OpenEXR Project.
 //
 
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
 
 #include <iostream>
 #include <iomanip>
 #include <half.h>
 #include <assert.h>
+#include <cmath>
 
 using namespace std;
 
@@ -103,17 +107,57 @@ testToFloat ()
     
     constexpr int iMax = (1 << 16);
 
-    HalfShort hs;
-
-    for (int i = 0; i < iMax; i++)
+    //
+    // for each 16-bit bit pattern...
+    //
+    
+    for (int s = 0; s < iMax; s++)
     {
-        float f = halfToFloat (i);
-        half h1 = (half) f;
-        half h2 (f);
+        HalfShort hs;
+        hs.s = s;
         
-        hs.s = i;
-        assert (hs.h == h1);
-        assert (hs.h == h2);
+        //
+        // cast these bits to a float, using the cast-to-float
+        // operator.
+        //
+        
+        float f = float (hs.h); // = _toFloat[s]
+
+        //
+        // Cast that float back to a half.
+        //
+        
+        half h = half (f);
+
+        //
+        // halfToFloat() above is what generated the _toFloat table.
+        // The i value return is the integer bit pattern of the corresponding
+        // float.
+        //
+        
+        half::uif uif;
+        uif.i = halfToFloat (s);
+
+        //
+        // Equality operators fail for inf and nan, so handle them
+        // specially.
+        //
+        
+        if (isnan (f))
+        {
+            assert (h.isNan());
+            assert (isnan (uif.f));
+        }
+        else if (isinf (f))
+        {
+            assert (h.isInfinity());
+            assert (isinf (uif.f));
+        }
+        else
+        {
+            assert (h == hs.h);
+            assert (f == uif.f);
+        }
     }
 
     std::cout << "ok" << std::endl;
