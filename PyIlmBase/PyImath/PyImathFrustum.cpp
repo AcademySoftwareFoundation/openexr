@@ -32,6 +32,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#include "PyIlmBaseConfigInternal.h"
+
 #include "PyImathFrustum.h"
 #include "PyImathDecorators.h"
 #include "PyImathExport.h"
