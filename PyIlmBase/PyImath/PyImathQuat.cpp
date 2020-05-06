@@ -32,6 +32,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#include "PyIlmBaseConfigInternal.h"
 
 #include "PyImathQuat.h"
 #include "PyImathExport.h"

@@ -32,6 +32,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#include "PyIlmBaseConfigInternal.h"
+
 #include "PyImathTask.h"
 
 namespace PyImath {

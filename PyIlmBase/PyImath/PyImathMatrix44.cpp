@@ -32,6 +32,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#include "PyIlmBaseConfigInternal.h"
+
 #define BOOST_PYTHON_MAX_ARITY 17
 
 #include "PyImathMatrix.h"
