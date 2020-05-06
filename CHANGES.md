@@ -1,6 +1,6 @@
 # OpenEXR Release Notes
 
-* [Version 2.5.0](#version-250-may-4-2020)
+* [Version 2.5.0](#version-250-may-6-2020)
 * [Version 2.4.1](#version-241-february-11-2020)
 * [Version 2.4.0](#version-240-september-19-2019)
 * [Version 2.3.0](#version-230-august-13-2018)
@@ -33,7 +33,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 2.5.0 (May 4, 2020)
+## Version 2.5.0 (May 6, 2020)
 
 Minor release with miscellaneous bug fixes and small features
 
@@ -54,6 +54,8 @@ Minor release with miscellaneous bug fixes and small features
 
 ### Merged Pull Requests
 
+* [712](https://github.com/AcademySoftwareFoundation/openexr/pull/712) Removed #include PyIlmBaseConfigInternal.h from all public .h files.
+* [711](https://github.com/AcademySoftwareFoundation/openexr/pull/711) Rewrote testToFloat(). 
 * [709](https://github.com/AcademySoftwareFoundation/openexr/pull/709) Fix clean pthreads strikes back
 * [708](https://github.com/AcademySoftwareFoundation/openexr/pull/708) Fix clean pthreads
 * [707](https://github.com/AcademySoftwareFoundation/openexr/pull/707) A clean version of #673: Allow the use of Pthreads with WIN32/64 
