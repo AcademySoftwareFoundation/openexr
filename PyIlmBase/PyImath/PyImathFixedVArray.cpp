@@ -32,6 +32,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#include "PyIlmBaseConfigInternal.h"
+
 #include "PyImathFixedVArray.h"
 
 #include <boost/python.hpp>

@@ -43,7 +43,6 @@
 #include <iostream>
 #include <IexMathFloatExc.h>
 #include "PyImathUtil.h"
-#include <PyIlmBaseConfigInternal.h>
 
 #ifdef PYIMATH_ENABLE_EXCEPTIONS
 # define PY_IMATH_LEAVE_PYTHON IEX_NAMESPACE::MathExcOn mathexcon (IEX_NAMESPACE::IEEE_OVERFLOW | \

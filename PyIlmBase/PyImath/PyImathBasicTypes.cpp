@@ -32,6 +32,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#include "PyIlmBaseConfigInternal.h"
+
 #include "PyImathBasicTypes.h"
 #include <Python.h>
 #include <boost/python.hpp>
