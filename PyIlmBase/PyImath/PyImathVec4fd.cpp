@@ -32,6 +32,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#include "PyIlmBaseConfigInternal.h"
 
 #include "PyImathVec4Impl.h"
 #include "PyImathVec4ArrayImpl.h"

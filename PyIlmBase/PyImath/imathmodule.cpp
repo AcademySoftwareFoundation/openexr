@@ -32,6 +32,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#include "PyIlmBaseConfigInternal.h"
 
 #include <Python.h>
 #include <boost/python.hpp>
@@ -42,6 +43,7 @@
 #include <ImathEuler.h>
 #include <ImathFun.h>
 #include <ImathMatrixAlgo.h>
+
 #include <PyIexExport.h>
 #include "PyImathFixedArray.h"
 #include "PyImath.h"

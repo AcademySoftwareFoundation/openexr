@@ -258,25 +258,46 @@ if test "${enable_posix_sem:-yes}" != "no"; then
     AC_CHECK_HEADERS([semaphore.h], [
 	AC_SEARCH_LIBS(sem_init, [posix4 pthread], [
 	    AC_MSG_CHECKING([whether to use POSIX unnamed semaphores])
-	    AC_RUN_IFELSE([
-		AC_LANG_PROGRAM([#include <semaphore.h>], [
-		    sem_t mysem;
-		    if (sem_init (&mysem, 1, 1) == 0)
-		    {
-			if (sem_wait (&mysem) == 0)
-			{
-			    sem_post (&mysem);
-			    sem_destroy (&mysem);
-			    return 0;
-			}
-		    }
-		    return 1;
-		])
-		], [
-		AC_MSG_RESULT([yes])
-		am_posix_sem_ok=yes], [
-		AC_MSG_RESULT([no (pshared not usable)])], [
-		AC_MSG_RESULT([no (cannot check usability when cross compiling)])])
+		if test "${cross_compiling}" == "yes"; then
+			AC_LINK_IFELSE([
+			AC_LANG_PROGRAM([#include <semaphore.h>], [
+				sem_t mysem;
+				if (sem_init (&mysem, 1, 1) == 0)
+				{
+				if (sem_wait (&mysem) == 0)
+				{
+					sem_post (&mysem);
+					sem_destroy (&mysem);
+					return 0;
+				}
+				}
+				return 1;
+			])
+			], [
+			AC_MSG_RESULT([yes])
+			am_posix_sem_ok=yes], [
+			AC_MSG_RESULT([no (pshared not usable)])])
+		else
+			AC_RUN_IFELSE([
+			AC_LANG_PROGRAM([#include <semaphore.h>], [
+				sem_t mysem;
+				if (sem_init (&mysem, 1, 1) == 0)
+				{
+				if (sem_wait (&mysem) == 0)
+				{
+					sem_post (&mysem);
+					sem_destroy (&mysem);
+					return 0;
+				}
+				}
+				return 1;
+			])
+			], [
+			AC_MSG_RESULT([yes])
+			am_posix_sem_ok=yes], [
+			AC_MSG_RESULT([no (pshared not usable)])], [
+			AC_MSG_RESULT([no (we are cross-compiling, and this test should have only tried to link, not run.))])])
+			fi
 	])
     ])
 fi

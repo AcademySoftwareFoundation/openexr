@@ -38,6 +38,8 @@
 // order to work around MSVC limitations.
 //
 
+#include "PyIlmBaseConfigInternal.h"
+
 #include "PyImathColor.h"
 #include "PyImathVec.h"
 #include "PyImathDecorators.h"
