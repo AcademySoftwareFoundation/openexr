@@ -181,9 +181,9 @@ compressUncompressSubset(const unsigned short raw[], int n)
 // This DEK hash is determined from an aprior initial run of this
 // test noting its value from the assert message compressVerify().
 // 
-#define  HUF_COMPRESS_DEK_HASH_FOR_FILL4_USHRT_MAX_PLUS_ONE 2956869585U
-#define  HUF_COMPRESS_DEK_HASH_FOR_FILL4_N 3414126535U
-#define  HUF_COMPRESS_DEK_HASH_FOR_FILL5_N 169791374U
+#define  HUF_COMPRESS_DEK_HASH_FOR_FILL4_USHRT_MAX_PLUS_ONE 2013380646U
+#define  HUF_COMPRESS_DEK_HASH_FOR_FILL4_N 213880353U
+#define  HUF_COMPRESS_DEK_HASH_FOR_FILL5_N 2492982090U
 
 void
 compressVerify (const unsigned short raw[], 
@@ -204,11 +204,30 @@ compressVerify (const unsigned short raw[],
     for (int i = 0; i < nCompressed; ++i)
     {
         compressedHash = 
-            ((compressedHash << 5) ^ (compressedHash >> 27)) ^ (*cptr++);
+            ((compressedHash << 5) ^ (compressedHash >> 27)) ^ (*(const unsigned char*) cptr++);
     }
 
     cout << "verifying compressed checksum hash = " 
         << compressedHash << std::endl;
+
+    if (compressedHash != dekHash)
+    {
+       cout << "hash verification failed. Got " << compressedHash << " expected " << dekHash << std::endl;
+       cptr = compressed;
+       for(int i = 0 ; i < nCompressed ; ++i )
+       {
+           cout << std::hex << (0xFF & (int) (*cptr++));
+           if ( (i & 0xF) ==0 )
+           {
+              cout << '\n';
+           }
+           else
+           {
+              cout << ' ';
+           }
+       }
+       cout << "\n";
+    }
 
     assert (compressedHash == dekHash);
 }
