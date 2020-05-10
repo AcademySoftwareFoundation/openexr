@@ -200,11 +200,11 @@ compressVerify (const unsigned short raw[],
     // under the topic of sorting and search chapter 6.4. 
     //
     unsigned int compressedHash = nCompressed;
-    const char* cptr = compressed;
+    const unsigned char* cptr = reinterpret_cast<const unsigned char*>( (const char*) compressed);
     for (int i = 0; i < nCompressed; ++i)
     {
         compressedHash = 
-            ((compressedHash << 5) ^ (compressedHash >> 27)) ^ (*(const unsigned char*) cptr++);
+            ((compressedHash << 5) ^ (compressedHash >> 27)) ^ (*cptr++);
     }
 
     cout << "verifying compressed checksum hash = " 
@@ -213,7 +213,7 @@ compressVerify (const unsigned short raw[],
     if (compressedHash != dekHash)
     {
        cout << "hash verification failed. Got " << compressedHash << " expected " << dekHash << std::endl;
-       cptr = compressed;
+       const unsigned char* cptr = reinterpret_cast<const unsigned char*>( (const char*) compressed);
        for(int i = 0 ; i < nCompressed ; ++i )
        {
            cout << std::hex << (0xFF & (int) (*cptr++));
