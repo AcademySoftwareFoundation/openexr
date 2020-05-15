@@ -4,7 +4,7 @@
 
 To build the latest release of OpenEXR, begin by downloading the
 source from the Releases page
-https://github.com/AcademySoftwareFoundation/openexr/tarball/v2.3.0.
+https://github.com/AcademySoftwareFoundation/openexr/tarball/v2.5.1.
 
 To build from the latest development version, which may not be stable,
 download the master branch via
