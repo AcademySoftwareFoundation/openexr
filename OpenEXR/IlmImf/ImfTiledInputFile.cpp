@@ -807,7 +807,10 @@ TiledInputFile::TiledInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int
         {
             for (size_t i = 0; i < _data->tileBuffers.size(); i++)
             {
-                delete [] _data->tileBuffers[i]->buffer;
+                if( _data->tileBuffers[i])
+                {
+                   delete [] _data->tileBuffers[i]->buffer;
+                }
             }
         }
         if (streamDataCreated) delete _data->_streamData;
@@ -849,11 +852,14 @@ TiledInputFile::TiledInputFile (const Header &header,
         {
             for (size_t i = 0; i < _data->tileBuffers.size(); i++)
             {
-                delete [] _data->tileBuffers[i]->buffer;
+                if(_data->tileBuffers[i])
+                {
+                     delete [] _data->tileBuffers[i]->buffer;
+                }
             }
         }
         delete _data->_streamData;
-	delete _data;
+        delete _data;
         throw; 
     }
 }
