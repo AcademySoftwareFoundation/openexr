@@ -1048,6 +1048,8 @@ DeepScanLineInputFile::DeepScanLineInputFile
             delete _data->_streamData;
         }
         if (_data)       delete _data;
+
+        throw;
    }
 
     readLineOffsets (*_data->_streamData->is,
