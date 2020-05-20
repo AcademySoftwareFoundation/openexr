@@ -83,7 +83,6 @@ jobs:
           - build: 3
             build-type: Release
             build-shared: 'ON'
-            use-sse: 'ON'
             cxx-standard: 14
             cxx-compiler: g++
             cc-compiler: gcc
