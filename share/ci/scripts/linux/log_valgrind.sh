@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-echo "here"
-
 set -ex
 
 LOGDIR="$1"
