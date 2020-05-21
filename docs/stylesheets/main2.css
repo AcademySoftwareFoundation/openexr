@@ -136,6 +136,8 @@ header{
 	background-position: left top;
 	position: fixed;
 	z-index: 6;
+	transition: 0.2s;
+
 	
 	
 }
