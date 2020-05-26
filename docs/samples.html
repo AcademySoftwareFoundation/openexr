@@ -7,7 +7,6 @@
 		<script src="popUp.js" language="javascript"> </script>
 		<script src="headerScroll.js" language="javascript"> </script>
 	</head>
-	
 	<header class= "collapse-header">
 		<aside class="header-logo" id="collapse-logo">
 			<img class="logo-img" id="logo-img" src="images/openEXR_logo.png" >
@@ -18,6 +17,7 @@
 	</div>
 
 	<div class="page">
+
 		<div class="sticky-pos">
 		<nav id="nav-container">
 			<ul class="nav-ul-container">
@@ -34,90 +34,98 @@
 			</ul>
 		</nav>
 		</div>
-		<!-- begin content -->
 		<div class="content">
-			<h1>OpenEXR Samples</h1>
+			<h1>About OpenEXR</h1>
 			<hr class="divider">
-			<table>
-			<h3><a class="samp">Sample 1</a></h3><br>
 			
-				<table>
-					<tr> 
-						<td class="table-header"><b>Original OpenEXR Image</b></td>
-						<td class="table-header"><b>Adjust 3 Stops Brighter</b></td>
-						<td class="table-header"><b>Adjust 7 Stops Brighter</b</td>
-					</tr>
-					<tr> 
-						<td class="table-content"><a href="javascript:OpenWinMed('samples/sample1_01.html')"><img src="images/sample1_01_sm.jpg" alt=""></a></td>
-						<td class="table-content"><a href="javascript:OpenWinMed('samples/sample1_02.html')"><img src="images/sample1_02_sm.jpg" alt=""></a></td>
-						<td class="table-content"><a href="javascript:OpenWinMed('samples/sample1_03.html')"><img src="images/sample1_03_sm.jpg" alt=""></a></td>
-					</tr>
-					<tr> 
-						<td class="table-footer"><a href="javascript:OpenWinMed('samples/sample1_01.html')">(click for larger image)</a></td>
-						<td class="table-footer"><a href="javascript:OpenWinMed('samples/sample1_02.html')">(click for larger image)</a></td>
-						<td class="table-footer"><a href="javascript:OpenWinMed('samples/sample1_03.html')">(click for larger image)</a></td>
-					</tr>
-				</table>
+			<h3>Revealing More Detail in OpenEXR Images</h3>
+			
+			<p>This section gives a short tutorial on using the <i>exrdisplay</i> program, which is included with the OpenEXR software distribution.
+			<p>You can reveal more detail in OpenEXR images by changing the exposure using the <b>Exposure</b> slider. 
+				This operation is analogous to changing the exposure of a piece of film, lightening or darkening the image to reveal more detail at the high or low end.  
+
+			<p>With <i>exrdisplay</i>, however, changing the exposure does not affect image data itself, it simply changes the way that the original 16-bit floating-point pixel values in the image are converted to 8-bit integer data in the frame buffer.  We call the original 16-bit FP pixels the &quot;raw&quot; image data, and the converted 8-bit pixels the &quot;cooked&quot; image data.  When you change the exposure, you are &quot;re-cooking&quot; the data.
+
+			<p>For example, in the following image you can see the light areas (fog) very 
+				clearly but in the dark areas (rock closest to camera) the detail is too dark to 
+				see. By changing the exposure to positive 3 (taking the image up 3 stops) 
+				the detail in the dark areas becomes visible. However, you lose the detail in 
+				the light areas because it is now too bright to see.
+				
+			<br><br>
+			
+			<table>
+				<tr> 
+					<td class="table-header"><b>Original image<br>0 exposure</b><br></td>
+					<td class="table-header"><b>Same image<br>Exposure adjusted to positive 3</b><br></td>
+				</tr>
+				<tr> 
+					<td class="table-content"><a href="javascript:OpenWinMed('view_02.html')"><img src="images/viewer_02_sm.jpg" alt=""></a></td>
+					<td class="table-content"><a href="javascript:OpenWinMed('view_03.html')"><img src="images/viewer_03_sm.jpg" alt=""></a></td>
+				</tr>
+				<tr> 
+					<td class="table-footer"><a href="javascript:OpenWinMed('view_02.html')">(click for larger image)</a></td>
+					<td class="table-footer"><a href="javascript:OpenWinMed('view_03.html')">(click for larger image)</a></td>
+				</tr>
+			</table>
+			
 			<p align="right"><a href="#top" style="text-decoration: none;"><img src="images/top.gif" width="45" height="26" alt="back to top" border="0"></a></p>
-			<h3><a class="samp">Sample 2</a></h3><br>
-			    <table>
-					<tr> 
-						<td class="table-header"><b>Original OpenEXR Image</b></td>
-						<td class="table-header"><b>Adjust 3 Stops Brighter</b></td>
-						<td class="table-header"><b>Adjust 7 Stops Brighter</b></td>
-					</tr>
-					<tr> 
-						<td class="table-content"><a href="javascript:OpenWinLarge('samples/sample2_01.html')"><img src="images/sample2_01_sm.jpg" alt=""></td>
-						<td class="table-content"><a href="javascript:OpenWinLarge('samples/sample2_02.html')"><img src="images/sample2_02_sm.jpg" alt=""></td>
-						<td class="table-content"><a href="javascript:OpenWinLarge('samples/sample2_03.html')"><img src="images/sample2_03_sm.jpg" alt=""></td>
-					</tr>
-					<tr> 
-						<td class="table-footer"><a href="javascript:OpenWinLarge('samples/sample2_01.html')">(click for larger image)</a></td>
-						<td class="table-footer"><a href="javascript:OpenWinLarge('samples/sample2_02.html')">(click for larger image)</a></td>
-						<td class="table-footer"><a href="javascript:OpenWinLarge('samples/sample2_03.html')">(click for larger image)</a></td>
-					</tr>
-				</table>
+			
+			<h3><a name="modify">How Your Image Is Displayed</a></h3>
+			
+			<p>The Viewer has other sliders that you can use to specify how your 16-bit OpenEXR 
+				image is displayed on your 8-bit monitor:
+					  
+			<ul>
+				<li><b>Exposure</b> - sets the apparent exposure of the image on the display.  It lightens or darkens the displayed image, allowing you to reveal detail in the high or low end.
+				<li><b>Defog</b> - subtracted from pixel values to compensate for fogging due to stray light in the recording device.
+				<li><b>kneeHigh and kneeLow</b> - pixel values between kneeHigh and kneeLow set the white level of the displayed image, determining which value is mapped to the maximum intensity of the monitor  (<i>exrdisplay</i> lets you set the white level between 3.5 and 7 f-stops above middle gray).
+			</ul>
+					  
+			<p>The actual process for conversion from raw data to data ready for the display card happens 
+					  like this (as taken from comments from the exrdisplay source code):
+					  
+			<ol>
+				<li>Compensate for fogging by subtracting 
+					defog from the raw pixel values.
+			
+				<li>Multiply the defogged pixel values 
+					by 2<sup>(exposure + 2.47393)</sup>.
+				
+				<li>Values, which are now 1.0, are called &quot;middle gray.&quot; If defog 
+					and exposure are both set to 0.0, then middle gray corresponds to a raw pixel 
+					value of 0.18. In step 6, middle gray values will be mapped to an intensity 
+					3.5 f-stops below the display's maximum intensity.
+				
+				<li>Apply a knee function. The knee 
+				  f	unction has two 
+					parameters, kneeLow and kneeHigh. Pixel values 
+					below 2<sup>kneeLow</sup> are not changed by the knee 
+					function. Pixel values above kneeLow are lowered 
+					according to a logarithmic curve, such that the 
+					value 2<sup>kneeHigh</sup> is mapped to 2<sup>3.5</sup> (in step 6, 
+					this value will be mapped to the display's 
+					maximum intensity).
+				
+				<li>Gamma-correct the pixel values, 
+					assuming that the 
+					screen's gamma is 2.2.
+				
+				<li>Scale the values such that 
+					middle gray 
+					pixels are mapped to 84.66 (or 3.5 f-stops below 
+					the display's maximum intensity).
+				
+				<li>Clamp the values to [0, 255].
+			
+			</ul>
+			
 			<p align="right"><a href="#top" style="text-decoration: none;"><img src="images/top.gif" width="45" height="26" alt="back to top" border="0"></a></p>
-			<h3><a class="samp">Sample 3</a></h3><br>
-				<table>
-					<tr> 
-						<td class="table-header"><b>Original OpenEXR Image</b></td>
-						<td class="table-header"><b>Adjust 3 Stops Brighter</b></td>
-						<td class="table-header"><b>Adjust 5 Stops Brighter</b></td>
-					</tr>
-					<tr> 
-						<td class="table-content"><a href="javascript:OpenWin('samples/sample3_01.html')"><img src="images/sample3_01_sm.jpg" alt=""></a></td>
-						<td class="table-content"><a href="javascript:OpenWin('samples/sample3_02.html')"><img src="images/sample3_02_sm.jpg" alt=""></a></td>
-						<td class="table-content"><a href="javascript:OpenWin('samples/sample3_03.html')"><img src="images/sample3_03_sm.jpg" alt=""></a></td>
-					</tr>
-					<tr> 
-						<td  class="table-footer"><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><a href="javascript:OpenWin('samples/sample3_01.html')">(click for larger image)</a></font></td>
-						<td  class="table-footer"><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><a href="javascript:OpenWin('samples/sample3_02.html')">(click for larger image)</a></font></td>
-						<td  class="table-footer"><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><a href="javascript:OpenWin('samples/sample3_03.html')">(click for larger image)</a></font></td>
-					</tr>
-				  </table>
-					  <p align="right"><a href="#top" style="text-decoration: none;"><img src="images/top.gif" width="45" height="26" alt="back to top" border="0"></a></p>
-			<h3><a class="samp">Sample 4</a></h3><br>
-			  <!-- <font size="2" face="Verdana, Arial, Helvetica, sans-serif">description goes here...</font> -->
-				<table>
-					<tr> 
-						<td class="table-header"><b>Original OpenEXR Image</b></td>
-						<td class="table-header"><b>Adjust 3 Stops Darker</b></td>
-						<td class="table-header"><b>Adjust 7 Stops Darker</b></td>
-					</tr>
-					<tr> 
-						<td class="table-content"><a href="javascript:OpenWin('samples/sample4_01.html')"><img src="images/sample4_01_sm.jpg" alt=""></td>
-						<td class="table-content"><a href="javascript:OpenWin('samples/sample4_02.html')"><img src="images/sample4_02_sm.jpg" alt=""></td>
-						<td class="table-content"><a href="javascript:OpenWin('samples/sample4_03.html')"><img src="images/sample4_03_sm.jpg" alt=""></td>
-					</tr>
-					<tr> 
-						<td class="table-footer"><a href="javascript:OpenWin('samples/sample4_01.html')">(click for larger image)</a></td>
-						<td class="table-footer"><a href="javascript:OpenWin('samples/sample4_02.html')">(click for larger image)</a></td>
-						<td class="table-footer"><a href="javascript:OpenWin('samples/sample4_03.html')">(click for larger image)</a></td>
-					</tr>
-				</table>
+		
 		</div>
+	
 	</div>
+	
 	<footer class="primary-footer">
 		<small>
 			&copy; 
