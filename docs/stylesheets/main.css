@@ -101,7 +101,6 @@ body
 
 header{
 	left: 0%;
-	height: 200px;
 	width: 100%;
 	padding: 2%;
 	background: url(../images/StillLife.jpg);
@@ -110,6 +109,7 @@ header{
 	background-position: left top;
 	position: fixed;
 	z-index: 8;
+	transition: 0.2s;
 
 
 }
@@ -118,10 +118,12 @@ header{
 	margin: 0 auto;
 	left: 20px;
 	top:20px;
+	transition: 0.1s;
 }
 
 .logo-img{
 	height:160px;
+	transition: 0.2s;
 }
 
 .scroll-banner
@@ -136,6 +138,7 @@ header{
 	background-position: left top;
 	position: fixed;
 	z-index: 6;
+	transition: 0.2s;
 	
 	
 }
