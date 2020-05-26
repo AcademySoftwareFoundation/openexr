@@ -1,0 +1,442 @@
+@page {  }
+table { border-collapse:collapse; border-spacing:0; empty-cells:show }
+td, th { vertical-align:top; font-size:12pt;}
+li { list-style: none; margin:0; padding:0;}
+<!-- "li span.odfLiEnd" - IE 7 issue-->
+li span. { clear: both; line-height:0; width:0; height:0; margin:0; padding:0; }
+span.footnodeNumber { padding-right:1em; }
+span.annotation_style_by_filter { font-size:95%; font-family:Arial; background-color:#fff000;  margin:0; border:0; padding:0;  }
+* { margin:0;}
+.fr1 { font-size:12pt; text-align:center; vertical-align:top; writing-mode:lr-tb; }
+.fr2 { font-size:12pt; text-align:center; vertical-align:top; writing-mode:lr-tb; margin-left:0in; margin-right:0in; margin-top:0in; margin-bottom:0in; padding:0in; border-style:none; }
+.fr3 { font-size:12pt; text-align:center; vertical-align:top; writing-mode:lr-tb; }
+.fr4 { background-color:transparent; font-size:12pt; margin-left:0.0791in; margin-right:0.0791in; vertical-align:middle; writing-mode:lr-tb; }
+.Contents_20_2 { color: #993333; font-size:10pt; font-family:Times New Roman; writing-mode:page; margin-left:0.1965in; margin-right:0in; text-indent:0in; }
+.Contents_20_3 { color: #993333;font-size:10pt; font-family:Times New Roman; writing-mode:page; margin-left:0.3929in; margin-right:0in; text-indent:0in; }
+.Contents_20_Heading { color: #993333;font-size:12pt; margin-bottom:0.0835in; margin-top:0.1665in; font-family:Arial; writing-mode:page; margin-left:0in; margin-right:0in; text-indent:0in; font-weight:bold; }
+.Heading_20_2 { color: #993333; font-size:12pt; margin-bottom:0.0835in; margin-top:0.1665in; font-family:Arial; writing-mode:page; font-style:italic; font-weight:bold; }
+.Heading_20_3 { color: #993333; font-size:11pt; margin-bottom:0.0835in; margin-top:0.1665in; font-family:Arial; writing-mode:page; font-weight:bold; }
+.P1 { font-size:10pt; font-family:Times New Roman; writing-mode:page; text-align:center ! important; }
+.P10 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-top:0in; text-align:justify ! important; font-family:Times New Roman; writing-mode:page; }
+.P11 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-top:0in; text-align:justify ! important; font-family:Times New Roman; writing-mode:page; }
+.P12 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-top:0in; text-align:justify ! important; font-family:Times New Roman; writing-mode:page; }
+.P13 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-top:0in; text-align:justify ! important; font-family:Times New Roman; writing-mode:page; }
+.P14 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-top:0in; text-align:justify ! important; font-family:Times New Roman; writing-mode:page; }
+.P15 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-top:0in; text-align:justify ! important; font-family:Times New Roman; writing-mode:page; }
+.P16 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-top:0in; text-align:justify ! important; font-family:Times New Roman; writing-mode:page; }
+.P17 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-top:0in; text-align:justify ! important; font-family:Times New Roman; writing-mode:page; }
+.P18 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-top:0in; text-align:justify ! important; font-family:Times New Roman; writing-mode:page; }
+.P19 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-left:0.1965in; margin-right:0in; margin-top:0in; text-align:justify ! important; text-indent:0in; font-family:Times New Roman; writing-mode:page; }
+.P20 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-left:0.1965in; margin-right:0in; margin-top:0in; text-align:justify ! important; text-indent:0in; font-family:Times New Roman; writing-mode:page; }
+.P21 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-left:0.1965in; margin-right:0in; margin-top:0in; text-align:justify ! important; text-indent:0in; font-family:Times New Roman; writing-mode:page; }
+.P22 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-left:0.1965in; margin-right:0in; margin-top:0in; text-align:justify ! important; text-indent:0in; font-family:Times New Roman; writing-mode:page; }
+.P23 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-left:0.1965in; margin-right:0in; margin-top:0in; text-align:justify ! important; text-indent:0in; font-family:Times New Roman; writing-mode:page; }
+.P24 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-left:0.1965in; margin-right:0in; margin-top:0in; text-align:justify ! important; text-indent:0in; font-family:Times New Roman; writing-mode:page; }
+.P25 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-left:0.1965in; margin-right:0in; margin-top:0in; text-align:justify ! important; text-indent:0in; font-family:Times New Roman; writing-mode:page; }
+.P26 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-left:0.1965in; margin-right:0in; margin-top:0in; text-align:justify ! important; text-indent:0in; font-family:Times New Roman; writing-mode:page; }
+.P27 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-left:0.1965in; margin-right:0in; margin-top:0in; text-align:justify ! important; text-indent:0in; font-family:Times New Roman; writing-mode:page; }
+.P28 { font-size:10pt; margin-bottom:0in; margin-top:0in; font-family:Courier New; writing-mode:page; }
+.P3 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-top:0in; text-align:center ! important; font-family:Times New Roman; writing-mode:page; }
+.P4 { font-size:10pt; margin-left:0.1965in; margin-right:0in; text-indent:0in; font-family:Times New Roman; writing-mode:page; }
+.P5 { font-size:10pt; margin-left:0.3929in; margin-right:0in; text-indent:0in; font-family:Times New Roman; writing-mode:page; }
+.P6 { font-size:10pt; margin-bottom:0in; margin-top:0in; font-family:Courier New; writing-mode:page; }
+.P7 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-top:0in; text-align:justify ! important; font-family:Times New Roman; writing-mode:page; }
+.P8 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-top:0in; text-align:center ! important; font-family:Times New Roman; writing-mode:page; }
+.P9 { font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-top:0in; text-align:justify ! important; font-family:Times New Roman; writing-mode:page; }
+.Preformatted_20_Text { font-size:10pt; font-family:Courier New; writing-mode:page; margin-top:0in; margin-bottom:0in; }
+.Text_20_body { color: black; font-size:10pt; font-family:Times New Roman; writing-mode:page; margin-top:0in; margin-bottom:0.0835in; text-align:justify ! important; font-weight:normal; }
+.Text_20_body_20_indent { color: black; font-size:10pt; font-weight:normal; margin-bottom:0.0835in; margin-top:0in; text-align:justify ! important; font-family:Times New Roman; writing-mode:page; margin-left:0.1965in; margin-right:0in; text-indent:0in; }
+.Title { font-size:16pt; margin-bottom:0.0835in; margin-top:0.1665in; font-family:Arial; writing-mode:page; text-align:center ! important; font-weight:bold; }
+.Table1 { width:5.2549in; margin-left:0.3319in; margin-right:0.4132in; float:none; }
+.Table10 { width:5.0715in; margin-left:0.4646in; margin-right:0.4639in; float:none; }
+.Table11 { width:5.0715in; margin-left:0.4646in; margin-right:0.4639in; float:none; }
+.Table12 { width:5.0597in; margin-left:0.4646in; margin-right:0.4757in; float:none; }
+.Table13 { width:5.0597in; margin-left:0.4646in; margin-right:0.4757in; float:none; }
+.Table2 { width:5.2451in; margin-left:0.3319in; margin-right:0.4229in; float:none; }
+.Table3 { width:5.2347in; margin-left:0.3319in; margin-right:0.4333in; float:none; }
+.Table4 { width:2.4896in; margin-left:0.4646in; margin-right:3.0458in; float:none; }
+.Table5 { width:3.5611in; margin-left:0.4646in; margin-right:1.9743in; float:none; }
+.Table6 { width:5.0611in; margin-left:0.4646in; margin-right:0.4743in; float:none; }
+.Table7 { width:5.1021in; margin-left:0.4438in; margin-right:0.4542in; float:none; }
+.Table8 { width:5.0507in; margin-left:0.4438in; margin-right:0.5056in; float:none; }
+.Table9 { width:5.0715in; margin-left:0.4646in; margin-right:0.4639in; float:none; }
+.Table1_A1 { padding:0.0382in; border-style:none; }
+.Table10_A1 { padding:0.0382in; border-style:none; }
+.Table11_A1 { padding:0.0382in; border-style:none; }
+.Table12_A1 { padding:0.0382in; border-style:none; }
+.Table13_A1 { padding:0.0382in; border-style:none; }
+.Table2_A1 { padding:0.0382in; border-style:none; }
+.Table3_A1 { padding:0.0382in; border-style:none; }
+.Table4_A1 { padding:0.0382in; border-style:none; }
+.Table4_C2 { vertical-align:bottom; padding:0.0382in; border-style:none; }
+.Table5_A1 { padding:0.0382in; border-style:none; }
+.Table6_A1 { padding:0.0382in; border-style:none; }
+.Table7_A1 { padding:0.0382in; border-style:none; }
+.Table8_A1 { padding:0.0382in; border-style:none; }
+.Table9_A1 { padding:0.0382in; border-style:none; }
+.Table1_A { width:0.7958in; }
+.Table1_B { width:4.459in; }
+.Table10_A { width:1.1833in; }
+.Table10_B { width:3.8882in; }
+.Table10_B2_1 { width:0.7771in; }
+.Table10_B2_2 { width:0.7653in; }
+.Table10_B2_3 { width:0.7896in; }
+.Table10_B2_4 { width:0.384in; }
+.Table10_B2_5 { width:1.1715in; }
+.Table11_A { width:1.1833in; }
+.Table11_B { width:3.8882in; }
+.Table12_A { width:0.8701in; }
+.Table12_B { width:4.1896in; }
+.Table13_A { width:0.8701in; }
+.Table13_B { width:4.1896in; }
+.Table2_A { width:0.8069in; }
+.Table2_B { width:4.4382in; }
+.Table3_A { width:1.3576in; }
+.Table3_B { width:3.8771in; }
+.Table3_B5_1 { width:0.2486in; }
+.Table3_B5_2 { width:0.3931in; }
+.Table3_B5_3 { width:0.4097in; }
+.Table3_B5_4 { width:2.825in; }
+.Table4_A { width:0.5208in; }
+.Table4_B { width:0.4681in; }
+.Table4_C { width:0.5014in; }
+.Table4_E { width:0.4778in; }
+.Table5_A { width:1.2861in; }
+.Table5_B { width:2.275in; }
+.Table6_A { width:1.4347in; }
+.Table6_B { width:3.6264in; }
+.Table7_A { width:0.6625in; }
+.Table7_B { width:4.4396in; }
+.Table8_A { width:0.8882in; }
+.Table8_B { width:4.1625in; }
+.Table9_A { width:1.184in; }
+.Table9_B { width:3.8875in; }
+.Table9_B3_1 { width:0.7778in; }
+.Table9_B3_2 { width:0.7535in; }
+.Table9_B3_3 { width:0.8021in; }
+.Table9_B3_4 { width:0.2924in; }
+.Table9_B3_5 { width:1.2611in; }
+.Table9_B5_1 { width:0.7771in; }
+.Table9_B5_2 { width:0.7528in; }
+.Table9_B5_3 { width:0.8014in; }
+.Table9_B5_4 { width:0.3944in; }
+.Table9_B5_5 { width:1.1611in; }
+.Bullet_20_Symbols { font-family:StarSymbol; font-size:9pt; }
+.Definition { font-size:10pt; font-style:italic; }
+.Source_20_Text { font-family:Courier New; }
+.Strong_20_Emphasis { font-weight:bold; }
+.Subscript { vertical-align:sub; font-size:58%;}
+.Superscript { vertical-align:super; font-size:58%;}
+.T1 { font-family:Times; }
+.T2 { font-style:italic; }
+.T3 { vertical-align:sub; font-size:58%;font-style:italic; }
+.T4 { font-style:normal; }
+.T5 { font-style:italic; }
+<!-- ODF styles with no properties representable as CSS -->
+.Sect1 .Endnote_20_Symbol .Footnote_20_Symbol { }
+/* http://meyerweb.com/eric/tools/css/reset/ 2. v2.0 | 20110126
+  License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+body {
+  line-height: 1;
+}
+ol, ul {
+  list-style: none;
+}
+blockquote, q {
+  quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  
+}
+a{
+	color: black;
+	text-decoration: none;
+}
+b{
+	font-weight: bold;
+}
+i{
+	font-style: italic;
+}
+sup {
+	font-size:xx-small; vertical-align:super;
+}
+
+strong {
+    font-family: 'ColaborateMediumRegular', Arial, sans-serif;
+    font-weight: 700;
+}
+/*
+	========================================
+	Grid
+	=========================================
+*/
+*,
+*:before,
+*:after {
+	box-sizing: border-box;
+}
+
+html,
+body
+{
+	background-image: linear-gradient(
+      #AAAAAA, #222222
+    );
+	background-attachment: fixed;
+	color: black;
+	font: 300 16px/22px "Arial","Open Sans", "Garamond", "Bookman", "Roboto", "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    margin: 0; 
+    padding: 0; 
+    width: 100%; 
+    height: 100%;
+
+}
+
+/*
+	========================================
+	Header
+	=========================================
+*/
+
+header{
+	left: 0%;
+	width: 100%;
+	padding: 2%;
+	background: url(../images/StillLife.jpg);
+	background-color: black;
+    background-repeat : no-repeat;
+	background-position: left top;
+	position: fixed;
+	z-index: 8;
+	transition: 0.2s;
+
+
+}
+.header-logo{
+	position:absolute;
+	margin: 0 auto;
+	left: 20px;
+	top:20px;
+	transition: 0.1s;
+}
+
+.logo-img{
+	height:160px;
+	transition: 0.2s;
+}
+
+.scroll-banner
+{
+	height: 250px;
+	width: 100%;
+	top: 0%;
+	left:0%;
+	background: url(../images/StillLife.jpg);
+	background-repeat : no-repeat;
+	background-color: black;
+	background-position: left top;
+	position: fixed;
+	z-index: 6;
+	transition: 0.2s;
+}
+
+.page{
+	/*width: 80%;*/
+	margin: 0 auto;
+	background-color: white;
+	top: 200px;
+	min-width: 550px;
+	min-height: 700px; 
+	font-size:  14pt;
+	margin-left: max( calc(5% + 150px),200px);
+	margin-right: min(5%, 200px);
+	position: relative;
+	z-index:7;
+	box-shadow: inset 0 7px 9px -7px rgba(0,0,0,0.7);
+	
+}
+
+.content{
+	background-color:white;
+	margin-left: 100px;
+	min-width: 500px;
+	padding:75px 75px 75px 0%;
+	word-wrap:break-word;
+	line-height: 20pt;
+	box-shadow: inset 0 20px 9px -20px rgba(0,0,0,0.7);
+	
+}
+.sticky-pos{
+	top: 300px;
+	margin-left: -160px;
+	float:left;
+	position: sticky;
+}
+nav{
+	padding: 5%;
+	width:200px;
+	background-color: rgba(0,0,0,0.82);
+	z-index: 11;
+	position: sticky;
+	border-radius: 20px;
+	box-shadow: -4px 0px 0px 4px rgba(0,0,0,0.4);
+
+}
+ul{
+	list-style-type: circle;
+	margin-left: 10%;
+}
+ol{
+	margin-left: 10%;
+	list-style-position: inside;
+	list-style-type: decimal;
+}
+
+a.samp{
+	margin: auto;
+	padding-left: 20%;
+	text-align: center;
+}
+nav ul{
+	margin-left: 0;
+	text-align: left;
+	list-style-type: none;
+	width: 90%;
+	position:relative;
+	left: 7%;
+}
+nav ul li{
+	margin: auto;
+	padding: 3%;
+	color: white;
+}
+nav ul li a{
+	color: white;
+	font-size: 13pt;
+	line-height: 20pt;
+	text-decoration: none;
+	word-wrap:none;
+
+}
+
+nav ul li a:hover{
+	color: #993333;
+}
+
+
+blockquote{
+	background: #f9f9f9;
+	border-left: 10px solid #993333;
+	margin-bottom: 1em;
+	margin-left: 5%;
+	margin-right: 5%;
+	padding: 0.5em 5%;
+}
+
+blockquote p{
+	display: inline;
+}
+
+p.release{
+	font-size: 11pt;
+	color: black;
+}
+div.license-page{
+	font-size: 12pt;
+	font-style: italic;
+	
+}
+p.copy-legal{
+	margin: 2% 5%;
+	text-align: left;
+	font-size: 10pt;
+	font-style: normal;
+}
+
+/*
+	========================================
+	Nav
+	=========================================
+*/
+
+/*
+	========================================
+	Page
+	=========================================
+*/
+
+h1{
+	font-size: 18pt;
+	font-weight: bold;
+	font-style: normal;
+	color: #993333;
+}
+h3
+{
+	font-size: 16pt;
+	font-style: normal;
+	color: #993333;
+	padding-top: 15px;
+	padding-bottom: 10px;
+	font-weight: bold;
+}
+.divider{
+	margin-bottom: 2em;
+	border-top: 1px solid #A9A9A9;
+}
+/*
+	========================================
+	Footer
+	=========================================
+*/
+
+footer{
+	top: calc(100% - 50px);
+	height: 100px;
+	width: 100%;
+	padding: 1%;
+	font-size: 8pt;
+	color: #993333;
+	background-color: black;
+	position: fixed;
+	z-index: 14;
+}
+
+
+
+
