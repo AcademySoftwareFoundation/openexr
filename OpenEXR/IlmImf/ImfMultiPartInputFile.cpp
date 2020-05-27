@@ -733,7 +733,7 @@ MultiPartInputFile::Data::readChunkOffsetTables(bool reconstructChunkOffsetTable
 
     for (size_t i = 0; i < parts.size(); i++)
     {
-        int chunkOffsetTableSize = getChunkOffsetTableSize(parts[i]->header,false);
+        int chunkOffsetTableSize = getChunkOffsetTableSize(parts[i]->header);
         parts[i]->chunkOffsets.resize(chunkOffsetTableSize);
 
         for (int j = 0; j < chunkOffsetTableSize; j++)
