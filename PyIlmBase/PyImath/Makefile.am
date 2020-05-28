@@ -5,7 +5,7 @@
 
 ## Process this file with automake to produce Makefile.in
 
-pyexec_LTLIBRARIES = imathmodule.la
+pyexec_LTLIBRARIES = imath.la
 lib_LTLIBRARIES = libPyImath.la
 
 libPyImath_la_SOURCES = PyImath.cpp \
@@ -83,12 +83,12 @@ libPyImath_la_LIBADD  = -lz $(top_builddir)/PyIex/libPyIex.la \
                         @ILMBASE_LIBS@ @BOOST_PYTHON_LIBS@
 libPyImathincludedir  = $(includedir)/OpenEXR
 
-imathmodule_la_SOURCES = imathmodule.cpp \
+imath_la_SOURCES = imathmodule.cpp \
     PyImathFun.cpp \
     PyImathBasicTypes.cpp 
 
-imathmodule_la_LDFLAGS = -avoid-version -module
-imathmodule_la_LIBADD  = -lPyImath @BOOST_PYTHON_LIBS@
+imath_la_LDFLAGS = -avoid-version -module
+imath_la_LIBADD  = -lPyImath @BOOST_PYTHON_LIBS@
 
 noinst_HEADERS = PyImathFun.h \
     PyImathBasicTypes.h 
