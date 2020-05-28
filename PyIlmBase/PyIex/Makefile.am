@@ -5,7 +5,7 @@
 
 ## Process this file with automake to produce Makefile.in
 
-pyexec_LTLIBRARIES = iexmodule.la
+pyexec_LTLIBRARIES = iex.la
 lib_LTLIBRARIES = libPyIex.la
 
 libPyIex_la_SOURCES = PyIex.cpp 
@@ -17,9 +17,9 @@ libPyIex_la_LDFLAGS = -version-info @LIBTOOL_VERSION@ \
 libPyIex_la_LIBADD  = -lz @ILMBASE_LIBS@ @BOOST_PYTHON_LIBS@
 libPyIexincludedir  = $(includedir)/OpenEXR
 
-iexmodule_la_SOURCES = iexmodule.cpp
-iexmodule_la_LDFLAGS = -avoid-version -module
-iexmodule_la_LIBADD  = libPyIex.la @BOOST_PYTHON_LIBS@
+iex_la_SOURCES = iexmodule.cpp
+iex_la_LDFLAGS = -avoid-version -module
+iex_la_LIBADD  = libPyIex.la @BOOST_PYTHON_LIBS@
 
 noinst_HEADERS = 
 
