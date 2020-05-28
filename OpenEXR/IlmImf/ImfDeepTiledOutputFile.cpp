@@ -1237,7 +1237,7 @@ DeepTiledOutputFile::initialize (const Header &header)
                                       _data->numYTiles);
                                       
     //ignore the existing value of chunkCount - correct it if it's wrong
-    _data->header.setChunkCount(getChunkOffsetTableSize(_data->header,true));                                   
+    _data->header.setChunkCount(getChunkOffsetTableSize(_data->header));
                                       
     _data->maxSampleCountTableSize = _data->tileDesc.ySize *
                                      _data->tileDesc.xSize *
