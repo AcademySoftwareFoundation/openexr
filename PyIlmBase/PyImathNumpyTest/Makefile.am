@@ -8,3 +8,4 @@
 # check_PROGRAMS = pyImathNumpyTest
 
 # TESTS = $(check_PROGRAMS)
+TESTS = pyImathNumpyTest
