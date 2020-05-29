@@ -7,3 +7,4 @@
 
 # check_PROGRAMS = pyIexTest
 # TESTS = $(check_PROGRAMS)
+TESTS = pyIexTest
