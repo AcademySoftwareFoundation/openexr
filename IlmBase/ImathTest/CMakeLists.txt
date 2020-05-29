@@ -31,4 +31,7 @@ target_link_libraries(ImathTest IlmBase::Imath)
 set_target_properties(ImathTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
+if(WIN32 AND (BUILD_SHARED_LIBS OR OPENEXR_BUILD_BOTH_STATIC_SHARED))
+  target_compile_definitions(ImathTest PRIVATE OPENEXR_DLL)
+endif()
 add_test(NAME IlmBase.Imath COMMAND $<TARGET_FILE:ImathTest>)
