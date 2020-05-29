@@ -228,14 +228,15 @@ PyIlmBase.pc
 config/Makefile
 PyIex/Makefile
 PyIexTest/Makefile
-PyIexTest/pyIexTest
 PyImath/Makefile
 PyImathTest/Makefile
-PyImathTest/pyImathTest
 PyImathNumpy/Makefile
 PyImathNumpyTest/Makefile
-PyImathNumpyTest/pyImathNumpyTest
 ])
+
+AC_CONFIG_FILES([PyIexTest/pyIexTest], [chmod +x PyIexTest/pyIexTest])
+AC_CONFIG_FILES([PyImathTest/pyImathTest], [chmod +x PyImathTest/pyImathTest])
+AC_CONFIG_FILES([PyImathNumpyTest/pyImathNumpyTest], [chmod +x PyImathNumpyTest/pyImathNumpyTest])
 
 AC_OUTPUT
 
