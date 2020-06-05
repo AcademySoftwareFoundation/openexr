@@ -1937,7 +1937,7 @@ DwaCompressor::compress
         _outBufferSize = outBufferSize;
         if (_outBuffer != 0)
             delete[] _outBuffer;       
-        _outBuffer = new char[outBufferSize];
+        _outBuffer = new char[outBufferSize]();
     }
 
     char *outDataPtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(OPENEXR_IMF_NAMESPACE::Int64) +
