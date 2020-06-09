@@ -1,3 +1,6 @@
+#
+# TODO: fix this script to work with sourceforge archive!
+#
 $homeDir = (pwd)
 
 $boostVersion = $Args[0]
@@ -13,7 +16,7 @@ $boostMajor = $boostArray[0]
 $boostMinor = $boostArray[1]
 $boostPatch = $boostArray[2];
 $boostVersionU = "boost_${boostMajor}_${boostMinor}_${boostPatch}"
-$boostArchive = "http://dl.bintray.com/boostorg/release/${boostVersion}/source/${boostVersionU}.zip"
+$boostArchive = "https://sourceforge.net/projects/boost/files/boost-binaries/1.70.0/boost_1_70_0-msvc-14.1-64.exe"
 $boostBuildPath = "${boostRoot}\boost-${boostVersion}\${boostVersionU}"
 
 $pythonMajor = ($pythonVersion -split '\.')[0]
