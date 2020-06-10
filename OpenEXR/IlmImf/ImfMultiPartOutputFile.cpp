@@ -151,7 +151,7 @@ MultiPartOutputFile::Data::do_header_sanity_checks(bool overrideSharedAttributes
     if (isMultiPart)
     {
         // multipart files must contain a chunkCount attribute
-        _headers[0].setChunkCount(getChunkOffsetTableSize(_headers[0],true));
+        _headers[0].setChunkCount(getChunkOffsetTableSize(_headers[0]));
         
         for (size_t i = 1; i < parts; i++)
         {
@@ -159,7 +159,7 @@ MultiPartOutputFile::Data::do_header_sanity_checks(bool overrideSharedAttributes
                 throw IEX_NAMESPACE::ArgExc ("Every header in a multipart file should have a type");
             
             
-            _headers[i].setChunkCount(getChunkOffsetTableSize(_headers[i],true));
+            _headers[i].setChunkCount(getChunkOffsetTableSize(_headers[i]));
             _headers[i].sanityCheck (_headers[i].hasTileDescription(), isMultiPart);
             
             
@@ -191,7 +191,7 @@ MultiPartOutputFile::Data::do_header_sanity_checks(bool overrideSharedAttributes
         
         if (_headers[0].hasType() && isImage(_headers[0].type()) == false)
         {
-            _headers[0].setChunkCount(getChunkOffsetTableSize(_headers[0],true));
+            _headers[0].setChunkCount(getChunkOffsetTableSize(_headers[0]));
         }
         
     }
@@ -500,7 +500,7 @@ MultiPartOutputFile::Data::writeChunkTableOffsets (vector<OutputPartData*> &part
 {
     for (size_t i = 0; i < parts.size(); i++)
     {
-        int chunkTableSize = getChunkOffsetTableSize(parts[i]->header,false);
+        int chunkTableSize = getChunkOffsetTableSize(parts[i]->header);
 
         Int64 pos = os->tellp();
 
