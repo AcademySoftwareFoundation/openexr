@@ -7,13 +7,6 @@
 name: Analysis
 
 on:
-  push:
-    # Versioned branches and tags are ignored for OpenEXR <= 1.x.x
-    branches-ignore:
-      - RB-2.*
-    # Jobs are skipped when ONLY Markdown (*.md) files are changed
-    paths-ignore:
-      - '**.md'
   schedule:
     # Weekly Sunday build
     - cron: "0 0 * * 0"
