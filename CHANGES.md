@@ -1,5 +1,7 @@
 # OpenEXR Release Notes
 
+* [Version 2.5.2](#version-252-june-15-2020)
+* [Version 2.5.1](#version-251-may-11-2020)
 * [Version 2.5.0](#version-250-may-6-2020)
 * [Version 2.4.1](#version-241-february-11-2020)
 * [Version 2.4.0](#version-240-september-19-2019)
@@ -33,11 +35,76 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
+## Version 2.5.2 (June 15, 2020)
+
+### Summary
+### Merged Pull Requests
+
+* [755](https://github.com/AcademySoftwareFoundation/openexr/pull/755) Fix OPENXR_PACKAGE_NAME
+
+* [751](https://github.com/AcademySoftwareFoundation/openexr/pull/751) Disable all Windows builds temporarily.
+
+* [749](https://github.com/AcademySoftwareFoundation/openexr/pull/749) Fix Windows CI
+
+* [747](https://github.com/AcademySoftwareFoundation/openexr/pull/747) Fix the PyIlmBase tests for the autotools build
+
+* [746](https://github.com/AcademySoftwareFoundation/openexr/pull/746) Rename imathmodule.s to imath.so in the autotools build
+
+* [745](https://github.com/AcademySoftwareFoundation/openexr/pull/745) Added Joseph to the TSC members, and updated Nick's affiliation
+
+* [743](https://github.com/AcademySoftwareFoundation/openexr/pull/743) Applies OPENEXR_DLL only to shared libraries and no longer to static libraries
+
+* [742](https://github.com/AcademySoftwareFoundation/openexr/pull/742) Removes symlink creation under Windows
+
+* [738](https://github.com/AcademySoftwareFoundation/openexr/pull/738) always ignore chunkCount attribute unless it cannot be computed
+
+* [737](https://github.com/AcademySoftwareFoundation/openexr/pull/737) Removed glew fix from CI
+
+* [736](https://github.com/AcademySoftwareFoundation/openexr/pull/736) TSC meeting notes for 5/21/20 and 5/14/20
+
+* [735](https://github.com/AcademySoftwareFoundation/openexr/pull/735) Fix Analysis CI script permissions.
+
+* [734](https://github.com/AcademySoftwareFoundation/openexr/pull/734) CI updates - valgrind & memcheck jobs, ci badges
+
+* [733](https://github.com/AcademySoftwareFoundation/openexr/pull/733) added missing PyImathMatrix22.cpp to Makefile.am, for the autotools build
+
+* [732](https://github.com/AcademySoftwareFoundation/openexr/pull/732) Removed Azure pipelines CI.
+
+* [731](https://github.com/AcademySoftwareFoundation/openexr/pull/731) Added github actions CI.
+
+* [730](https://github.com/AcademySoftwareFoundation/openexr/pull/730) fix #728 - missing 'throw' in deepscanline error handling
+
+* [727](https://github.com/AcademySoftwareFoundation/openexr/pull/727) check null pointer in broken tiled file handling
+
+* [726](https://github.com/AcademySoftwareFoundation/openexr/pull/726) update to version 2.5.1
+
+### Commits \[ git log v2.5.0...v2.5.1\]
+
+## Version 2.5.1 (May 11, 2020)
+
+A patch release that corrects the SO version for the v2.5 release,
+which missed getting bumped in v2.5.0.
+
+This release also fixes an improper failure in IlmImfTest when running
+on ARMv7 and AAarch64.
+
+### Merged Pull Requests
+
+* [718](https://github.com/AcademySoftwareFoundation/openexr/pull/718) merge #717 cast to unsigned in testHuf checksum to RB-2.5 branch
+
+* [717](https://github.com/AcademySoftwareFoundation/openexr/pull/717) Fix #713: cast to unsigned in testHuf checksum
+
+* [716](https://github.com/AcademySoftwareFoundation/openexr/pull/716) Bump the SO version and patch number for the 2.5.1 release
+
+* [714](https://github.com/AcademySoftwareFoundation/openexr/pull/714) Bump the SO version to 25 for the 2.5 release
+
+### Commits \[ git log v2.5.0...v2.5.1\]
+
 ## Version 2.5.0 (May 6, 2020)
 
 Minor release with miscellaneous bug fixes and small features
 
-## Summary
+### Summary
 
 * No more build-time header generation: toFloat.h, eLut.h,
   b44ExpLogTable.h, and dwaLookups.h are now ordinary header files, no
