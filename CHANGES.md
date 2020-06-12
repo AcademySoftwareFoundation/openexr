@@ -3,6 +3,7 @@
 * [Version 2.5.2](#version-252-june-15-2020)
 * [Version 2.5.1](#version-251-may-11-2020)
 * [Version 2.5.0](#version-250-may-6-2020)
+* [Version 2.4.2](#version-242-june-15-2020)
 * [Version 2.4.1](#version-241-february-11-2020)
 * [Version 2.4.0](#version-240-september-19-2019)
 * [Version 2.3.0](#version-230-august-13-2018)
@@ -43,6 +44,7 @@ Patch release with various bug/security fixes and build/install fixes.
 
 * Invalid input could cause a heap-use-after-free error in DeepScanLineInputFile::DeepScanLineInputFile()
 * Invalid chunkCount attributes could cause heap buffer overflow in getChunkOffsetTableSize()
+* Invalid tiled input file can cause invalid memory access TiledInputFile::TiledInputFile()
 * OpenEXRConfig.h now correctly sets OPENEXR_PACKAGE_STRING to "OpenEXR" (rather than "IlmBase")
 * Various Windows build fixes
 
@@ -447,6 +449,14 @@ Minor release with miscellaneous bug fixes and small features
 * [bd7a04f7](https://github.com/AcademySoftwareFoundation/openexr/commit/bd7a04f7c75e6392595e00895c720524aae82ec3) Change Azure SonarCloud job to run weekly. ([Christina Tempelaar-Lietz](@xlietz@gmail.com) 2019-09-29)
 * [8dd91127](https://github.com/AcademySoftwareFoundation/openexr/commit/8dd9112733ae15f1c108b64124e6c77a11f3eb83) removed references to the CVE's that are not specific to OpenEXR ([Cary Phillips](@cary@ilm.com) 2019-09-20)
 * [33d1ac61](https://github.com/AcademySoftwareFoundation/openexr/commit/33d1ac61d46c075171cb37cccc21736ab4cf03d8) CVE listing in SECURITY.md ([Cary Phillips](@cary@ilm.com) 2019-09-19)
+
+## Version 2.4.2 (June 15, 2020)
+
+This is a patch release that includes fixes for the following security vulnerabilities:
+
+* Invalid input could cause a heap-use-after-free error in DeepScanLineInputFile::DeepScanLineInputFile()
+* Invalid chunkCount attributes could cause heap buffer overflow in getChunkOffsetTableSize()
+* Invalid tiled input file can cause invalid memory access TiledInputFile::TiledInputFile()
 
 ## Version 2.4.1 (February 11, 2020)
 
