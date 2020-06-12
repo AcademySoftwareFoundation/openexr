@@ -458,6 +458,12 @@ This is a patch release that includes fixes for the following security vulnerabi
 * Invalid chunkCount attributes could cause heap buffer overflow in getChunkOffsetTableSize()
 * Invalid tiled input file can cause invalid memory access TiledInputFile::TiledInputFile()
 
+### Merged Pull Requests
+
+* [738](https://github.com/AcademySoftwareFoundation/openexr/pull/738) always ignore chunkCount attribute unless it cannot be computed
+* [730](https://github.com/AcademySoftwareFoundation/openexr/pull/730) fix #728 - missing 'throw' in deepscanline error handling
+* [727](https://github.com/AcademySoftwareFoundation/openexr/pull/727) check null pointer in broken tiled file handling
+
 ## Version 2.4.1 (February 11, 2020)
 
 Patch release with minor bug fixes.
