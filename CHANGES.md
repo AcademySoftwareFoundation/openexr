@@ -59,20 +59,20 @@ Patch release with various bug/security fixes and build/install fixes.
 * [730](https://github.com/AcademySoftwareFoundation/openexr/pull/730) fix #728 - missing 'throw' in deepscanline error handling
 * [727](https://github.com/AcademySoftwareFoundation/openexr/pull/727) check null pointer in broken tiled file handling
 
-### Commits \[ git log v2.5.0...v2.5.1\]
+### Commits \[ git log v2.5.1...v2.5.2\]
 
-* [Fix OPENXR_PACKAGE_NAME](https://github.com/AcademySoftwareFoundation/openexr/commit/99ab90f46092265de539ab46bfed62a9134286e4) ([Cary Phillips](@cary@ilm.com) 2020-06-10)
-* [removed commented out lines in Makefile.am](https://github.com/AcademySoftwareFoundation/openexr/commit/3c6455b77af7e5214b48cfdf768c24a6be030de0) ([Cary Phillips](@cary@ilm.com) 2020-05-28)
-* [Fix PyImathTest, PyImathNumpyTest, PyIexTest to work in the autotools build.](https://github.com/AcademySoftwareFoundation/openexr/commit/370bab235cd968516795f71c103a280996858576) ([Cary Phillips](@cary@ilm.com) 2020-05-28)
-* [Fix OPENEXR_DLL on test applications](https://github.com/AcademySoftwareFoundation/openexr/commit/e8b17bf4d9b8481464f19fee110ec96d190ac34b) ([Transporter](@ogre.transporter@gmail.com) 2020-05-29)
-* [Applies OPENEXR_DLL only to shared libraries and no longer to static libraries](https://github.com/AcademySoftwareFoundation/openexr/commit/9153f53203112e41fbc0771f7b9dac83bce46e5e) ([Transporter](@ogre.transporter@gmail.com) 2020-05-26)
-* [Removes symlink creation under Windows](https://github.com/AcademySoftwareFoundation/openexr/commit/5c7d2f05405a1b6cee7b25ab1bccbfe4d7c32e17) ([Transporter](@ogre.transporter@gmail.com) 2020-05-26)
-* [update to version 2.5.1](https://github.com/AcademySoftwareFoundation/openexr/commit/4628e17a117ef624cec3ea7cf4f1f6f7c3297cab) ([Reto Kromer](@retokromer@users.noreply.github.com) 2020-05-15)
-* [added missing PyImathMatrix22.cpp to Makefile.am, for the autotools build.](https://github.com/AcademySoftwareFoundation/openexr/commit/d831f97ef8f65b2f292fd8dd54d6ccc5e734162b) ([Cary Phillips](@cary@ilm.com) 2020-05-19)
-* [fix memory leak in deep scanline IlmImfFuzzTest](https://github.com/AcademySoftwareFoundation/openexr/commit/029cf76f62b2208b4dabd312dad954a334f3af9e) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-05-16)
-* [fix memory leak in deep scanline IlmImfFuzzTest](https://github.com/AcademySoftwareFoundation/openexr/commit/86e3301b4e55a73372b7c1e4e2e808e47b632a9c) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-05-16)
-* [check null pointer in broken tiled file handling](https://github.com/AcademySoftwareFoundation/openexr/commit/654c83f26921ffded4d2343c5a5ea41e39ad9374) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-05-16)
-* [fix #728 - missing 'throw' in deepscanline error handling](https://github.com/AcademySoftwareFoundation/openexr/commit/929e7d447215f9a374bd60b01714cf959744d9c4) ([Peter Hillman](@peterh@wetafx.co.nz) 2020-05-19)
+* [6f0d14d5](https://github.com/AcademySoftwareFoundation/openexr/commit/6f0d14d576b6c2d3931f2c444b994207bc4bbc44) bump version to 2.5.2 ([Cary Phillips](@cary@ilm.com) 2020-06-11)
+* [162fe820](https://github.com/AcademySoftwareFoundation/openexr/commit/162fe82092188fd172cba26af0deec3b0a95a4fa) Fix OPENXR_PACKAGE_NAME ([Cary Phillips](@cary@ilm.com) 2020-06-10)
+* [58e96f53](https://github.com/AcademySoftwareFoundation/openexr/commit/58e96f534cd42bf9ee59725aadbf5d3b25d041fe) removed commented out lines in Makefile.am ([Cary Phillips](@cary@ilm.com) 2020-05-28)
+* [6c82409e](https://github.com/AcademySoftwareFoundation/openexr/commit/6c82409e14f415d460a3318dc9848f0c266f1215) Fix PyImathTest, PyImathNumpyTest, PyIexTest to work in the autotools build. ([Cary Phillips](@cary@ilm.com) 2020-05-28)
+* [248abc23](https://github.com/AcademySoftwareFoundation/openexr/commit/248abc23d134705bc41d167dcc04fafae231409c) Fix OPENEXR_DLL on test applications ([Transporter](@ogre.transporter@gmail.com) 2020-05-29)
+* [ccf91b95](https://github.com/AcademySoftwareFoundation/openexr/commit/ccf91b95b662d97b0cd8b9d87fd3eb4f5d70e880) Applies OPENEXR_DLL only to shared libraries and no longer to static libraries ([Transporter](@ogre.transporter@gmail.com) 2020-05-26)
+* [c8f2463a](https://github.com/AcademySoftwareFoundation/openexr/commit/c8f2463a910da90640d13d325ef689160d17ffe9) Removes symlink creation under Windows ([Transporter](@ogre.transporter@gmail.com) 2020-05-26)
+* [78274436](https://github.com/AcademySoftwareFoundation/openexr/commit/782744364aa92d02add62f38bc29ae2ce2c743e9) added missing PyImathMatrix22.cpp to Makefile.am, for the autotools build. ([Cary Phillips](@cary@ilm.com) 2020-05-19)
+* [30349291](https://github.com/AcademySoftwareFoundation/openexr/commit/303492919aa1cc39fb0c3d34d96b9f0090d3bdac) fix memory leak in deep scanline IlmImfFuzzTest ([Peter Hillman](@peterh@wetafx.co.nz) 2020-05-16)
+* [21014549](https://github.com/AcademySoftwareFoundation/openexr/commit/21014549c2728049abe273a719c3fca074234799) fix memory leak in deep scanline IlmImfFuzzTest ([Peter Hillman](@peterh@wetafx.co.nz) 2020-05-16)
+* [07e93a3d](https://github.com/AcademySoftwareFoundation/openexr/commit/07e93a3de1200355c1c32e2c4cc15ec87e312602) check null pointer in broken tiled file handling ([Peter Hillman](@peterh@wetafx.co.nz) 2020-05-16)
+* [d8741bcc](https://github.com/AcademySoftwareFoundation/openexr/commit/d8741bccbcc5e68cc4fac3cb11f08c655e6553fc) fix #728 - missing 'throw' in deepscanline error handling ([Peter Hillman](@peterh@wetafx.co.nz) 2020-05-19)
 
 ## Version 2.5.1 (May 11, 2020)
 
@@ -89,10 +89,10 @@ on ARMv7 and AAarch64.
 
 ### Commits \[ git log v2.5.0...v2.5.1\]
 
-* [Fix #713: cast to unsigned in testHuf checksum (#717)](https://github.com/AcademySoftwareFoundation/openexr/commit/e823bf282882d02e8ad1c7f6ca867807e1fd6044) ([peterhillman](@peterh@wetafx.co.nz) 2020-05-10)
-* [Bump the version to 2.5.1 on the RB-2.5 branch](https://github.com/AcademySoftwareFoundation/openexr/commit/5670325ea2f44c2b4d4764b151b7570181bd280b) ([Cary Phillips](@cary@ilm.com) 2020-05-09)
-* [set LIBTOOL_REVISION=0 for the 2.5 release.](https://github.com/AcademySoftwareFoundation/openexr/commit/d944fface105c79fc4a34a4aa4bc1be39d5aabbc) ([Cary Phillips](@cary@ilm.com) 2020-05-09)
-* [Bump SO version to 25 for the 2.5 release.](https://github.com/AcademySoftwareFoundation/openexr/commit/3ec82975243d83e2732da7b7cbdc08f87f30609c) ([Cary Phillips](@cary@ilm.com) 2020-05-09)
+* [e823bf28](https://github.com/AcademySoftwareFoundation/openexr/commit/e823bf282882d02e8ad1c7f6ca867807e1fd6044) Fix #713: cast to unsigned in testHuf checksum (#717) ([peterhillman](@peterh@wetafx.co.nz) 2020-05-10)
+* [5670325e](https://github.com/AcademySoftwareFoundation/openexr/commit/5670325ea2f44c2b4d4764b151b7570181bd280b) Bump the version to 2.5.1 on the RB-2.5 branch ([Cary Phillips](@cary@ilm.com) 2020-05-09)
+* [d944ffac](https://github.com/AcademySoftwareFoundation/openexr/commit/d944fface105c79fc4a34a4aa4bc1be39d5aabbc) set LIBTOOL_REVISION=0 for the 2.5 release. ([Cary Phillips](@cary@ilm.com) 2020-05-09)
+* [3ec82975](https://github.com/AcademySoftwareFoundation/openexr/commit/3ec82975243d83e2732da7b7cbdc08f87f30609c) Bump SO version to 25 for the 2.5 release. ([Cary Phillips](@cary@ilm.com) 2020-05-09)
 
 ## Version 2.5.0 (May 6, 2020)
 
