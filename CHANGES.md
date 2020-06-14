@@ -1,35 +1,53 @@
 # OpenEXR Release Notes
 
-* [Version 2.4.1](#version-241-february-11-2020)
-* [Version 2.4.0](#version-240-september-19-2019)
-* [Version 2.3.0](#version-230-august-13-2018)
-* [Version 2.2.1](#version-221-november-30-2017)
-* [Version 2.2.0](#version-220-august-10-2014)
-* [Version 2.1.0](#version-210-november-25-2013)
-* [Version 2.0.1](#version-201-july-11-2013)
-* [Version 2.0.0](#version-200-april-9-2013)
-* [Version 1.7.1](#version-171-july-31-2012)
-* [Version 1.7.0](#version-170-july-23-2010)
-* [Version 1.6.1](#version-161-october-22-2007)
-* [Version 1.6.0](#version-160-august-3,2007)
-* [Version 1.5.0](#version-150-december-15-2006)
-* [Version 1.4.0a](#version-140a-august-9-2006)
-* [Version 1.4.0](#version-140-august-2,2006)
-* [Version 1.3.1](#version-131-june-14-2006)
-* [Version 1.3.0](#version-130-june-8,2006)
-* [Version 1.2.2](#version-122-march-15-2005)
-* [Version 1.2.1](#version-121-june-6,2004)
-* [Version 1.2.0](#version-120-may-11-2004)
-* [Version 1.1.1](#version-111-march-27-2004)
-* [Version 1.1.0](#version-110-february-6-2004)
-* [Version 1.0.7](#version-107-january-7-2004)
+* [Version 2.4.2](#version-242-june-15-2020) June 15, 2020
+* [Version 2.4.1](#version-241-february-11-2020) February 11, 2020
+* [Version 2.4.0](#version-240-september-19-2019) September 19, 2019
+* [Version 2.3.0](#version-230-august-13-2018) August 13, 2018
+* [Version 2.2.2](#version-222-april-30-2020) April 30, 2020
+* [Version 2.2.1](#version-221-november-30-2017) November 30, 2017
+* [Version 2.2.0](#version-220-august-10-2014) August 10, 2014
+* [Version 2.1.0](#version-210-november-25-2013) November 25, 2013
+* [Version 2.0.1](#version-201-july-11-2013) July 11, 2013
+* [Version 2.0.0](#version-200-april-9-2013) April 9, 2013
+* [Version 1.7.1](#version-171-july-31-2012) July 31, 2012
+* [Version 1.7.0](#version-170-july-23-2010) July 23, 2010
+* [Version 1.6.1](#version-161-october-22-2007) October 22, 2007
+* [Version 1.6.0](#version-160-august-3,2007) August 3, 2007
+* [Version 1.5.0](#version-150-december-15-2006) December 15, 2006
+* [Version 1.4.0a](#version-140a-august-9-2006) August 9, 2006
+* [Version 1.4.0](#version-140-august-2,2006) August 2, 2006
+* [Version 1.3.1](#version-131-june-14-2006) June 14, 2006
+* [Version 1.3.0](#version-130-june-8,2006) June 8, 2006
+* [Version 1.2.2](#version-122-march-15-2005) March 15, 2005
+* [Version 1.2.1](#version-121-june-6,2004) June 6, 2004
+* [Version 1.2.0](#version-120-may-11-2004) May 11, 2004
+* [Version 1.1.1](#version-111-march-27-2004) March 27, 2004
+* [Version 1.1.0](#version-110-february-6-2004) February 6, 2004
+* [Version 1.0.7](#version-107-january-7-2004) January 7, 2004
 * [Version 1.0.6](#version-106)
-* [Version 1.0.5](#version-105-april-3-2003)
+* [Version 1.0.5](#version-105-april-3-2003) April 3, 2003
 * [Version 1.0.4](#version-104)
 * [Version 1.0.3](#version-103)
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 2.4.2 (June 15, 2020)
+
+This is a patch release that includes fixes for the following security vulnerabilities:
+
+* Invalid input could cause a heap-use-after-free error in DeepScanLineInputFile::DeepScanLineInputFile()
+* Invalid chunkCount attributes could cause heap buffer overflow in getChunkOffsetTableSize()
+* Invalid tiled input file could cause invalid memory access TiledInputFile::TiledInputFile()
+* OpenEXRConfig.h now correctly sets OPENEXR_PACKAGE_STRING to "OpenEXR" (rather than "IlmBase")
+
+### Merged Pull Requests
+
+* [755](https://github.com/AcademySoftwareFoundation/openexr/pull/755) Fix OPENEXR_PACKAGE_NAME
+* [738](https://github.com/AcademySoftwareFoundation/openexr/pull/738) always ignore chunkCount attribute unless it cannot be computed
+* [730](https://github.com/AcademySoftwareFoundation/openexr/pull/730) fix #728 - missing 'throw' in deepscanline error handling
+* [727](https://github.com/AcademySoftwareFoundation/openexr/pull/727) check null pointer in broken tiled file handling
 
 ## Version 2.4.1 (February 11, 2020)
 
@@ -42,20 +60,28 @@ Patch release with minor bug fixes.
 * Various cmake fixes for build/install of python modules.
 * ImfMisc.h is no longer installed, since it's a private header.
 
+### Security Vulnerabilities
+
+This version fixes the following security vulnerabilities:
+
+* [CVE-2020-11765](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11765) There is an off-by-one error in use of the ImfXdr.h read function by DwaCompressor::Classifier::ClasGsifier, leading to an out-of-bounds read.
+* [CVE-2020-11764](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11764) There is an out-of-bounds write in copyIntoFrameBuffer in ImfMisc.cpp.
+* [CVE-2020-11763](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11763) There is an std::vector out-of-bounds read and write, as demonstrated by ImfTileOffsets.cpp.
+* [CVE-2020-11762](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11762) There is an out-of-bounds read and write in DwaCompressor::uncompress in ImfDwaCompressor.cpp when handling the UNKNOWN compression case.
+* [CVE-2020-11761](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11761) There is an out-of-bounds read during Huffman uncompression, as demonstrated by FastHufDecoder::refill in ImfFastHuf.cpp.
+* [CVE-2020-11760](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11760) There is an out-of-bounds read during RLE uncompression in rleUncompress in ImfRle.cpp.
+* [CVE-2020-11759](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11759) Because of integer overflows in CompositeDeepScanLine::Data::handleDeepFrameBuffer and readSampleCountForLineBlock, an attacker can write to an out-of-bounds pointer.
+* [CVE-2020-11758](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11758) There is an out-of-bounds read in ImfOptimizedPixelReading.h.
+
+
 ### Merged Pull Requests
 
 * [659](https://github.com/AcademySoftwareFoundation/openexr/pull/659) fix memory leaks and invalid memory accesses
-
 * [609](https://github.com/AcademySoftwareFoundation/openexr/pull/609) Fixes #593, others - issues with pyilmbase install 
-
 * [605](https://github.com/AcademySoftwareFoundation/openexr/pull/605) No longer install ImfMisc.h 
-
 * [603](https://github.com/openexr/openexr/pull/603) Update Azure build to work with new RB-2.4 branch. 
-
 * [596](https://github.com/AcademySoftwareFoundation/openexr/pull/596) Add Boost::Python to Python modules link libraries
-
 * [592](https://github.com/AcademySoftwareFoundation/openexr/pull/592) Take DESTDIR into account when creating library symlinks
-
 * [589](https://github.com/openexr/openexr/pull/589) Fix int32 overflow bugs with deep images 
 
 ### Commits \[ git log v2.4.0...v2.4.1\]
@@ -1531,6 +1557,19 @@ Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
 *  [Add dwa test images to dist (tarball) manifest. Also drop README.win32 from tarball. (Already removed from repo.)](https://github.com/openexr/openexr/commit/cbac202a84b0b0bac0fcd92e5b5c8d634085329e) ([Ed Hanway](@ehanway@ilm.com), 2014-08-14) [New Cmake-centric instructions covering builds for Windows and other platforms to follow.] 
 
 *  [Use LL for 64-bit literals](https://github.com/openexr/openexr/commit/57ecf581d053f5cacf2e8fc3c024490e0bbe536f) ([Brendan Bolles](@brendan@fnordware.com), 2014-08-13) On a 32-bit architecture, these literals are too big for just a long, they need to be long long, otherwise I get an error in GCC.
+
+## Version 2.2.2 (April 30, 2020)
+
+This is a patch release that includes fixes for the following security vulnerabilities:
+
+* [CVE-2020-11765](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11765) There is an off-by-one error in use of the ImfXdr.h read function by DwaCompressor::Classifier::ClasGsifier, leading to an out-of-bounds read.
+* [CVE-2020-11764](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11764) There is an out-of-bounds write in copyIntoFrameBuffer in ImfMisc.cpp.
+* [CVE-2020-11763](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11763) There is an std::vector out-of-bounds read and write, as demonstrated by ImfTileOffsets.cpp.
+* [CVE-2020-11762](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11762) There is an out-of-bounds read and write in DwaCompressor::uncompress in ImfDwaCompressor.cpp when handling the UNKNOWN compression case.
+* [CVE-2020-11761](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11761) There is an out-of-bounds read during Huffman uncompression, as demonstrated by FastHufDecoder::refill in ImfFastHuf.cpp.
+* [CVE-2020-11760](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11760) There is an out-of-bounds read during RLE uncompression in rleUncompress in ImfRle.cpp.
+* [CVE-2020-11759](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11759) Because of integer overflows in CompositeDeepScanLine::Data::handleDeepFrameBuffer and readSampleCountForLineBlock, an attacker can write to an out-of-bounds pointer.
+* [CVE-2020-11758](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11758) There is an out-of-bounds read in ImfOptimizedPixelReading.h.
 
 ## Version 2.2.1 (November 30, 2017)
 
