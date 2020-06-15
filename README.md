@@ -113,7 +113,7 @@ from source.
 
 ## Resources
 
-* Website: http:://www.openexr.com
+* Website: http://www.openexr.com
 
 * GitHub repository: http://www.github.com/AcademySoftwareFoundation/openexr
 
