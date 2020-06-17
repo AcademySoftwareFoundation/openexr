@@ -24,18 +24,6 @@ endif()
 
 project(OpenEXRMetaProject)
 
-
-# An "official" way to make this a super-project
-# basically overrides the find_package to not find anything
-# for stuff we're including locally
-set(as_subproject IlmBase OpenEXR)
-macro(find_package)
-  if(NOT "${ARGV0}" IN_LIST as_subproject)
-    _find_package(${ARGV})
-  endif()
-endmacro()
-
-
 # If you want to use ctest to configure, build and
 # upload the results, cmake has builtin support for
 # submitting to CDash, or any server who speaks the
@@ -68,7 +56,22 @@ endif()
 
 # Include these two modules without enable/disable options
 add_subdirectory(IlmBase)
+
+# Tell CMake where to find the IlmBaseConfig.cmake file. Makes it posible to call 
+# find_package(IlmBase) in downstream projects
+set(IlmBase_DIR "${CMAKE_CURRENT_BINARY_DIR}/IlmBase/config" CACHE PATH "" FORCE)
+# Add an empty IlmBaseTargets.cmake file for the config to use. 
+# Can be empty since we already defined the targets in add_subdirectory
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/IlmBase/config/IlmBaseTargets.cmake" "# Dummy file")
+
 add_subdirectory(OpenEXR)
+
+# Tell CMake where to find the OpenEXRConfig.cmake file. Makes it posible to call 
+# find_package(OpenEXR) in downstream projects
+set(OpenEXR_DIR "${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/config" CACHE PATH "" FORCE)
+# Add an empty OpenEXRTargets.cmake file for the config to use. 
+# Can be empty since we already defined the targets in add_subdirectory
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/config/OpenEXRTargets.cmake" "# Dummy file")
 
 # should this just be always on and we conditionally compile what
 # is found and warn otherwise? or error out?
