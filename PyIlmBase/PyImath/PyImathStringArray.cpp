@@ -32,6 +32,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#include "PyIlmBaseConfigInternal.h"
+
 #include "PyImathStringArrayRegister.h"
 #include "PyImathStringArray.h"
 #include "PyImathExport.h"

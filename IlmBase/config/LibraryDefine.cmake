@@ -12,8 +12,6 @@ function(ILMBASE_DEFINE_LIBRARY libname)
   # only do the object library mechanism in a few cases:
   # - xcode doesn't handle "empty" targets (i.e. add_library with
   #   an object lib only)
-  # - under windows, we don't want the static library targets to
-  #   have the export tags
   # - if we're not compiling both, don't add the extra layer to prevent
   #   extra compiles since we aren't doing that anyway
   if(ILMBASE_BUILD_BOTH_STATIC_SHARED AND NOT (APPLE OR WIN32))
@@ -39,7 +37,7 @@ function(ILMBASE_DEFINE_LIBRARY libname)
   target_compile_features(${objlib} PUBLIC cxx_std_${OPENEXR_CXX_STANDARD})
   if(ILMBASE_CURLIB_PRIV_EXPORT AND BUILD_SHARED_LIBS)
     target_compile_definitions(${objlib} PRIVATE ${ILMBASE_CURLIB_PRIV_EXPORT})
-    if(WIN32)
+    if(WIN32 AND NOT ILMBASE_BUILD_BOTH_STATIC_SHARED)
       target_compile_definitions(${objlib} PUBLIC OPENEXR_DLL)
     endif()
   endif()
@@ -94,13 +92,14 @@ function(ILMBASE_DEFINE_LIBRARY libname)
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     PUBLIC_HEADER
       DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${ILMBASE_OUTPUT_SUBDIR}
   )
-  if(BUILD_SHARED_LIBS AND (NOT "${ILMBASE_LIB_SUFFIX}" STREQUAL ""))
+  if(BUILD_SHARED_LIBS AND (NOT "${ILMBASE_LIB_SUFFIX}" STREQUAL "") AND NOT WIN32)
     set(verlibname ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}${ILMBASE_LIB_SUFFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})
     set(baselibname ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}${CMAKE_SHARED_LIBRARY_SUFFIX})
-    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E chdir \$ENV\{DESTDIR\}${CMAKE_INSTALL_FULL_LIBDIR} ${CMAKE_COMMAND} -E create_symlink ${verlibname} ${baselibname})")
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E chdir \"\$ENV\{DESTDIR\}${CMAKE_INSTALL_FULL_LIBDIR}\" ${CMAKE_COMMAND} -E create_symlink ${verlibname} ${baselibname})")
     install(CODE "message(\"-- Creating symlink in ${CMAKE_INSTALL_FULL_LIBDIR} ${baselibname} -> ${verlibname}\")")
     set(verlibname)
     set(baselibname)
@@ -112,6 +111,7 @@ function(ILMBASE_DEFINE_LIBRARY libname)
       target_link_libraries(${libname}_static INTERFACE ${objlib})
     else()
       # have to build multiple times... but have different flags anyway (i.e. no dll)
+      target_compile_definitions(${libname} PRIVATE OPENEXR_DLL)
       set(curlib ${libname}_static)
       add_library(${curlib} STATIC ${ILMBASE_CURLIB_SOURCES})
       target_compile_features(${curlib} PUBLIC cxx_std_${OPENEXR_CXX_STANDARD})
@@ -143,6 +143,7 @@ function(ILMBASE_DEFINE_LIBRARY libname)
       RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
       LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
   endif()
 endfunction()

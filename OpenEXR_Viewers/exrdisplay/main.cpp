@@ -283,6 +283,11 @@ makeMainWindow (const char imageFile[],
     int zsize;
 
     //
+    // limit maximum size to twice screen resolution
+    //
+    Header::setMaxImageSize(Fl::w()*2 , Fl::h()*2);
+    
+    //
     //pass 0 as partnum for the first load
     //
     loadImage (imageFile,

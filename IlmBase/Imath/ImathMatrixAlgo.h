@@ -64,8 +64,10 @@ IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 // Identity matrices
 //------------------
 
+IMATH_EXPORT_CONST M22f identity22f;
 IMATH_EXPORT_CONST M33f identity33f;
 IMATH_EXPORT_CONST M44f identity44f;
+IMATH_EXPORT_CONST M22d identity22d;
 IMATH_EXPORT_CONST M33d identity33d;
 IMATH_EXPORT_CONST M44d identity44d;
 
@@ -323,6 +325,10 @@ template <class T>  bool        extractAndRemoveScalingAndShear
 					     Vec2<T>     &scl,
 					     T           &shr,
 					     bool exc = true);
+
+template <class T>  void	extractEuler
+                                            (const Matrix22<T> &mat,
+					     T       &rot);
 
 template <class T>  void	extractEuler
                                             (const Matrix33<T> &mat,
@@ -1231,6 +1237,26 @@ extractAndRemoveScalingAndShear (Matrix33<T> &mat,
     return true;
 }
 
+template <class T>
+void
+extractEuler (const Matrix22<T> &mat, T &rot)
+{
+    //
+    // Normalize the local x and y axes to remove scaling.
+    //
+
+    Vec2<T> i (mat[0][0], mat[0][1]);
+    Vec2<T> j (mat[1][0], mat[1][1]);
+
+    i.normalize();
+    j.normalize();
+
+    //
+    // Extract the angle, rot.
+    // 
+
+    rot = - Math<T>::atan2 (j[0], i[0]);
+}
 
 template <class T>
 void

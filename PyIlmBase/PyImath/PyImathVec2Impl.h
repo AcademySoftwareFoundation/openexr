@@ -407,6 +407,14 @@ Vec2_imulT(IMATH_NAMESPACE::Vec2<T> &v, T t)
 
 template <class T, class U>
 static Vec2<T>
+Vec2_mulM22 (Vec2<T> &v, const Matrix22<U> &m)
+{
+    MATH_EXC_ON;
+    return v * m;
+}
+
+template <class T, class U>
+static Vec2<T>
 Vec2_mulM33 (Vec2<T> &v, const Matrix33<U> &m)
 {
     MATH_EXC_ON;
@@ -569,6 +577,14 @@ Vec2_mulTuple(const Vec2<T> &v, BoostPyType t)
         THROW(IEX_NAMESPACE::LogicExc, "tuple must have length of 1 or 2");
     
     return w;
+}
+
+template <class T, class U>
+static const Vec2<T> &
+Vec2_imulM22 (Vec2<T> &v, const Matrix22<U> &m)
+{
+    MATH_EXC_ON;
+    return v *= m;
 }
 
 template <class T, class U>
@@ -1003,8 +1019,12 @@ register_Vec2()
         .def("__imul__", &Vec2_imulV<T, double>,return_internal_reference<>())
         .def("__imul__", &Vec2_imulT<T>,return_internal_reference<>())
         .def(self * self)
+        .def("__mul__", &Vec2_mulM22<T, float>)
+        .def("__mul__", &Vec2_mulM22<T, double>)
         .def("__mul__", &Vec2_mulM33<T, float>)
         .def("__mul__", &Vec2_mulM33<T, double>)
+        .def("__imul__", &Vec2_imulM22<T, float>, return_internal_reference<>())
+        .def("__imul__", &Vec2_imulM22<T, double>, return_internal_reference<>())
         .def("__imul__", &Vec2_imulM33<T, float>, return_internal_reference<>())
         .def("__imul__", &Vec2_imulM33<T, double>, return_internal_reference<>())
         .def(self / self) // NOSONAR - suppress SonarCloud bug report.

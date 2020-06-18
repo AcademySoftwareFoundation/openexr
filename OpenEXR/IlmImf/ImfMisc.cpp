@@ -114,9 +114,9 @@ bytesPerLineTable (const Header &header,
 	 c != channels.end();
 	 ++c)
     {
-	int nBytes = pixelTypeSize (c.channel().type) *
-		     (dataWindow.max.x - dataWindow.min.x + 1) /
-		     c.channel().xSampling;
+	size_t nBytes = size_t(pixelTypeSize (c.channel().type)) *
+		     size_t(dataWindow.max.x - dataWindow.min.x + 1) /
+		     size_t(c.channel().xSampling);
 
 	for (int y = dataWindow.min.y, i = 0; y <= dataWindow.max.y; ++y, ++i)
 	    if (modp (y, c.channel().ySampling) == 0)
@@ -269,6 +269,7 @@ defaultFormat (Compressor * compressor)
 }
 
 
+//obsolete
 int
 numLinesInBuffer (Compressor * compressor)
 {
@@ -1842,6 +1843,39 @@ usesLongNames (const Header &header)
     return false;
 }
 
+namespace
+{
+// for a given compression type, return the number of scanlines
+// compressed into a single chunk
+// TODO add to API and move to ImfCompressor.cpp
+int
+numLinesInBuffer(Compression comp)
+{
+    switch(comp)
+    {
+        case NO_COMPRESSION :
+        case RLE_COMPRESSION:
+        case ZIPS_COMPRESSION:
+            return 1;
+        case ZIP_COMPRESSION:
+            return 16;
+        case PIZ_COMPRESSION:
+            return 32;
+        case PXR24_COMPRESSION:
+            return 16;
+        case B44_COMPRESSION:
+        case B44A_COMPRESSION:
+        case DWAA_COMPRESSION:
+            return 32;
+        case DWAB_COMPRESSION:
+            return 256;
+
+        default:
+	        throw IEX_NAMESPACE::ArgExc ("Unknown compression type");
+    }
+}
+}
+
 int
 getScanlineChunkOffsetTableSize(const Header& header)
 {
@@ -1851,16 +1885,10 @@ getScanlineChunkOffsetTableSize(const Header& header)
     size_t maxBytesPerLine = bytesPerLineTable (header,
                                                 bytesPerLine);
 
-    Compressor* compressor = newCompressor(header.compression(),
-                                           maxBytesPerLine,
-                                           header);
-
-    int linesInBuffer = numLinesInBuffer (compressor);
+    int linesInBuffer = numLinesInBuffer ( header.compression() );
 
     int lineOffsetSize = (dataWindow.max.y - dataWindow.min.y +
                           linesInBuffer) / linesInBuffer;
-
-    delete compressor;
 
     return lineOffsetSize;
 }
@@ -1872,18 +1900,30 @@ int
 getTiledChunkOffsetTableSize(const Header& header);
 
 int
-getChunkOffsetTableSize(const Header& header,bool ignore_attribute)
+getChunkOffsetTableSize(const Header& header,bool)
 {
-    if(!ignore_attribute && header.hasChunkCount())
-    {
-        return header.chunkCount();
-    }
-    
+    //
+    // if there is a type in the header which indicates the part is not a currently supported type,
+    // use the chunkCount attribute
+    //
+
+
     if(header.hasType()  && !isSupportedType(header.type()))
     {
-        throw IEX_NAMESPACE::ArgExc ("unsupported header type to "
-        "get chunk offset table size");
+        if(header.hasChunkCount())
+        {
+           return header.chunkCount();
+        }
+        else
+        {
+           throw IEX_NAMESPACE::ArgExc ("unsupported header type to "
+           "get chunk offset table size");
+        }
     }
+
+    //
+    // part is a known type - ignore the header attribute and compute the chunk size from the header
+    //
     if (isTiled(header.type()) == false)
         return getScanlineChunkOffsetTableSize(header);
     else

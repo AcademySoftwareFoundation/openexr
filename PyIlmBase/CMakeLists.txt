@@ -44,14 +44,26 @@ endif()
 # now determine which (or both), and compile for both
 find_package(Python2 COMPONENTS Interpreter Development)
 find_package(Python3 COMPONENTS Interpreter Development)
-if(TARGET Python2::Python AND TARGET Python3::Python)
-  message(STATUS ": Found Python ${Python2_VERSION} and ${Python3_VERSION}")
-elseif(TARGET Python2::Python)
+if(Python2_FOUND)
   message(STATUS ": Found Python ${Python2_VERSION}")
-elseif(TARGET Python3::Python)
-  message(STATUS ": Found Python ${Python3_VERSION}")
+elseif(Python2::Python)
+  message(WARNING ": Found Python ${Python2_VERSION} development libraries, but no interpreter")
+elseif(Python2::Interpreter)
+  message(WARNING ": Found Python ${Python2_VERSION} interpreter, but no development libraries")
 else()
-  message(WARNING ": Unable to find python development libraries for python 2 or 3")
+  message(WARNING ": Unable to find Python2 interpreter or development libraries")
+endif()
+if(Python3_FOUND)
+  message(STATUS ": Found Python ${Python3_VERSION}")
+elseif(Python3::Python)
+  message(WARNING ": Found Python ${Python3_VERSION} development libraries, but no interpreter")
+elseif(Python3::Interpreter)
+  message(WARNING ": Found Python ${Python3_VERSION} interpreter, but no development libraries")
+else()
+  message(WARNING ": Unable to find Python3 interpreter or development libraries")
+endif()
+if (NOT Python2_FOUND AND NOT Python3_FOUND)
+  message(WARNING ": Disabling PyIlmBase")
   return()
 endif()
 
@@ -83,11 +95,21 @@ function(PYILMBASE_EXTRACT_REL_SITEARCH varname pyver pyexe pysitearch)
   endwhile()
   math(EXPR _elen "${_elen}+1")
   string(SUBSTRING ${_basedir} ${_elen} -1 _reldir)
+  if(APPLE)
+    # on macOS, set install path to user's python package directory
+    # so that elevated privileges are not necessary
+    execute_process(
+      COMMAND "${pyexe}" -c "if True:
+        import sysconfig
+        print(sysconfig.get_path('platlib', 'posix_user'))"
+      OUTPUT_VARIABLE _reldir
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+  endif()
   set(${varname} ${_reldir} CACHE STRING "Destination sub-folder (relative) for the python ${pyver} modules")
   message(STATUS "  -> Will install to: ${_reldir}")
 endfunction()
 
-if (TARGET Python2::Python)
+if(Python2_FOUND)
   set(PYILMBASE_BOOST_PY2_COMPONENT "python${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
   message(STATUS "Found Python2 libraries: ${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
   # we can't just use the Python2_SITEARCH variable as that then will
@@ -95,7 +117,7 @@ if (TARGET Python2::Python)
   # if it is generally useful
   pyilmbase_extract_rel_sitearch(PyIlmBase_Python2_SITEARCH_REL 2 ${Python2_EXECUTABLE} ${Python2_SITEARCH})
 endif()
-if (TARGET Python3::Python)
+if(Python3_FOUND)
   set(PYILMBASE_BOOST_PY3_COMPONENT "python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
   message(STATUS "Found Python3 libraries: ${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
   # and figure out the install root here
@@ -113,8 +135,10 @@ endif()
 ### NB: We are turning this on globally by default as the boost
 ###     generated cmake config files seem to be broken and they
 ###     cross-wire python 2 with 3 in the same variables
-message(STATUS "Disabling boost-provided cmake config. If this causes problems, consider manually adjusting this in the CMakeLists.txt")
-set(Boost_NO_BOOST_CMAKE ON)
+option(Boost_NO_BOOST_CMAKE "Disable boost-provided cmake config" ON)
+if(Boost_NO_BOOST_CMAKE)
+  message(STATUS "Disabling boost-provided cmake config. If this causes problems, consider setting Boost_NO_BOOST_CMAKE variable to OFF")
+endif()
 
 find_package(Boost OPTIONAL_COMPONENTS
   python

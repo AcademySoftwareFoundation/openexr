@@ -29,8 +29,12 @@ if(Threads_FOUND)
 
   # we have threads, but do we have posix semaphores for sem_init?
   # should be in pthreads
-  if(NOT (APPLE OR WIN32))
-    check_include_files(semaphore.h ILMBASE_HAVE_SEMAPHORE_H)
+  if(NOT (APPLE OR (WIN32 AND (NOT MINGW))))
+    if(MINGW)
+      check_include_files("pthread_unistd.h;semaphore.h" ILMBASE_HAVE_SEMAPHORE_H)
+    else()
+      check_include_files(semaphore.h ILMBASE_HAVE_SEMAPHORE_H)
+    endif()
     if(ILMBASE_HAVE_SEMAPHORE_H AND ILMBASE_HAVE_PTHREAD)
       # should just be in libc, so no need for check_library_exists
       set(CMAKE_REQUIRED_FLAGS ${CMAKE_THREAD_LIBS_INIT})
@@ -99,16 +103,21 @@ endif()
 # moral equivalent of a pkg-config file for cmake
 # and replaces the Find*.cmake of the "old" cmake
 include(CMakePackageConfigHelpers)
+configure_package_config_file(IlmBaseConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
 write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
   VERSION ${ILMBASE_VERSION}
   COMPATIBILITY SameMajorVersion
 )
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 )
 install(EXPORT ${PROJECT_NAME}
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-  FILE ${PROJECT_NAME}Config.cmake
+  FILE ${PROJECT_NAME}Targets.cmake
   NAMESPACE ${PROJECT_NAME}::
   EXPORT_LINK_INTERFACE_LIBRARIES
 )

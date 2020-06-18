@@ -69,4 +69,7 @@ target_link_libraries(IlmImfTest OpenEXR::IlmImf)
 set_target_properties(IlmImfTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
+if(WIN32 AND (BUILD_SHARED_LIBS OR OPENEXR_BUILD_BOTH_STATIC_SHARED))
+  target_compile_definitions(IlmImfTest PRIVATE OPENEXR_DLL)
+endif()
 add_test(NAME OpenEXR.IlmImf COMMAND $<TARGET_FILE:IlmImfTest>)

@@ -185,6 +185,21 @@ void generateRandomFile(const char filename[], int channelCount,int parts , Comp
         }
         
         pt.writePixels(height);
+
+
+        // free sample memory
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+                sampleCount[i][j] = rand() % 4 + 1;
+                for (int k = 0; k < channelCount; k++)
+                {
+                    delete[] (float*) data[k][i][j];
+                }
+            }
+        }
+
     }
 }
     
@@ -408,21 +423,29 @@ fuzzDeepScanLines (int numThreads, Rand48 &random)
 
 
 void
-testFuzzDeepScanLines ()
+testFuzzDeepScanLines (const char* file)
 {
     try
     {
-	cout << "Testing deep scanline-based files "
-		"with randomly inserted errors" << endl;
+        if(file)
+        {
+            readFile(file);
+        }
+        else
+        {
 
-	Rand48 random (1);
+            cout << "Testing deep scanline-based files "
+                    "with randomly inserted errors" << endl;
 
-	fuzzDeepScanLines (0, random);
+            Rand48 random (1);
 
-	if (ILMTHREAD_NAMESPACE::supportsThreads())
-	    fuzzDeepScanLines (2, random);
+            fuzzDeepScanLines (0, random);
 
-	cout << "ok\n" << endl;
+            if (ILMTHREAD_NAMESPACE::supportsThreads())
+                fuzzDeepScanLines (2, random);
+
+            cout << "ok\n" << endl;
+        }
     }
     catch (const std::exception &e)
     {

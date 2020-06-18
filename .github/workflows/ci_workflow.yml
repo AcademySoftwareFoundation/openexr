@@ -1,0 +1,435 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
+#
+# GitHub Actions workflow file
+# https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
+
+name: CI
+
+on:
+  push:
+    # Versioned branches and tags are ignored for OpenEXR <= 1.x.x
+    branches-ignore:
+      - RB-2.*
+    tags-ignore:
+      - v1.*
+      - v2.*
+    # Jobs are skipped when ONLY Markdown (*.md) files are changed
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    branches-ignore:
+      - RB-2.*
+    tags-ignore:
+      - v1.*
+      - v2.*
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  # Linux jobs run in Docker containers, so the latest OS version is OK. macOS 
+  # and Windows jobs need to be locked to specific virtual environment 
+  # versions to mitigate issues from OS updates, and will require maintenance 
+  # as OS versions are retired.
+  #
+  # GH Actions (Free plan) supports 20 concurrent jobs, with 5 concurrent macOS 
+  # jobs. This workflow tries to utilize (but not exceed) that budget to 
+  # promote timely CI.
+
+  # ---------------------------------------------------------------------------
+  # Linux
+  # ---------------------------------------------------------------------------
+  # TODO: Add ARM build. Add sanitize build.
+
+  linux:
+    name: 'Linux CentOS 7 VFX CY${{ matrix.vfx-cy }} 
+      <${{ matrix.compiler-desc }} 
+       config=${{ matrix.build-type }}, 
+       shared=${{ matrix.build-shared }}, 
+       cxx=${{ matrix.cxx-standard }}>'
+    # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
+    runs-on: ubuntu-latest
+    container:
+      # DockerHub: https://hub.docker.com/u/aswf
+      # Source: https://github.com/AcademySoftwareFoundation/aswf-docker
+      image: aswf/ci-openexr:${{ matrix.vfx-cy }}
+    strategy:
+      matrix:
+        build: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        include:
+          # -------------------------------------------------------------------
+          # GCC, VFX CY2020
+          # -------------------------------------------------------------------
+          # C++11, Python 3.7
+          - build: 1
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 11
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: GCC 6.3.1
+            vfx-cy: 2020
+            exclude-tests: -E PyIlmBase.*_Python2
+          # Debug
+          - build: 2
+            build-type: Debug
+            build-shared: 'ON'
+            cxx-standard: 11
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: GCC 6.3.1
+            vfx-cy: 2020
+            exclude-tests: -E PyIlmBase.*_Python2
+          # C++14
+          - build: 3
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 14
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: GCC 6.3.1
+            vfx-cy: 2020
+            exclude-tests: -E PyIlmBase.*_Python2
+          # Static
+          - build: 4
+            build-type: Release
+            build-shared: 'OFF'
+            cxx-standard: 11
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: GCC 6.3.1
+            vfx-cy: 2020
+            exclude-tests: -E PyIlmBase.*_Python2
+          # -------------------------------------------------------------------
+          # GCC, VFX CY2019
+          # -------------------------------------------------------------------
+          # Python 2.7
+          - build: 5
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 11
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: GCC 6.3.1
+            vfx-cy: 2019
+            exclude-tests: 
+          # -------------------------------------------------------------------
+          # Clang, VFX CY2020
+          # -------------------------------------------------------------------
+          # C++11, Python 3.7
+          - build: 6
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 11
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: Clang 7
+            vfx-cy: 2020
+            exclude-tests: -E PyIlmBase.*_Python2
+          # Debug
+          - build: 7
+            build-type: Debug
+            build-shared: 'ON'
+            cxx-standard: 11
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: Clang 7
+            vfx-cy: 2020
+            exclude-tests: -E PyIlmBase.*_Python2
+          # C++14
+          - build: 8
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 14
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: Clang 7
+            vfx-cy: 2020
+            exclude-tests: -E PyIlmBase.*_Python2
+          # Static
+          - build: 9
+            build-type: Release
+            build-shared: 'OFF'
+            cxx-standard: 11
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: Clang 7
+            vfx-cy: 2020
+            exclude-tests: -E PyIlmBase.*_Python2
+          # -------------------------------------------------------------------
+          # Clang, VFX CY2019
+          # -------------------------------------------------------------------
+          # Python 2.7
+          - build: 10
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 11
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: Clang 7
+            vfx-cy: 2019
+            exclude-tests:
+    env:
+      CXX: ${{ matrix.cxx-compiler }}
+      CC: ${{ matrix.cc-compiler }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Create build directories
+        run: |
+          mkdir _install
+          mkdir _build
+      - name: Configure
+        run: |
+          cmake ../. \
+                -DCMAKE_INSTALL_PREFIX=../_install \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
+                -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
+                -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
+                -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
+                -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
+                -DOPENEXR_BUILD_UTILS='ON' \
+                -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
+                -DPYTHON_EXECUTABLE=$(which python) 
+        working-directory: _build
+      - name: Build
+        run: |
+          cmake --build . \
+                --target install \
+                --config ${{ matrix.build-type }} \
+                -- -j4
+        working-directory: _build
+      - name: Test
+        run: |
+          ctest -T Test ${{ matrix.exclude-tests }} \
+                -C ${{ matrix.build-type }} \
+                --timeout 7200 \
+                --output-on-failure \
+                -VV
+        working-directory: _build
+
+  # ---------------------------------------------------------------------------
+  # macOS
+  # ---------------------------------------------------------------------------
+  # TODO: Figure out why the excluded PyIlmBase tests are failing.
+  
+  macos:
+    name: 'macOS 10.15 
+      <AppleClang 11.0 
+       config=${{ matrix.build-type }}, 
+       shared=${{ matrix.build-shared }}, 
+       cxx=${{ matrix.cxx-standard }}, 
+       python=${{ matrix.python-version }}, 
+       docs=${{ matrix.build-docs }}>'
+    runs-on: macos-10.15
+    strategy:
+      matrix:
+        build: [1, 2, 3, 4, 5]
+        include:
+          # C++11, Python 3.7
+          - build: 1
+            build-type: Release
+            build-shared: 'ON'
+            build-docs: 'ON'
+            cxx-standard: 11
+            python-version: 3.7
+            exclude-tests: -E PyIlmBase.*_Python3
+          # Debug
+          - build: 2
+            build-type: Debug
+            build-shared: 'ON'
+            build-docs: 'OFF'
+            cxx-standard: 11
+            python-version: 3.7
+            exclude-tests: -E PyIlmBase.*_Python3
+          # C++14
+          - build: 3
+            build-type: Release
+            build-shared: 'ON'
+            build-docs: 'OFF'
+            cxx-standard: 14
+            python-version: 3.7
+            exclude-tests: -E PyIlmBase.*_Python3
+          # Static
+          - build: 4
+            build-type: Release
+            build-shared: 'OFF'
+            build-docs: 'OFF'
+            cxx-standard: 11
+            python-version: 3.7
+            exclude-tests: -E "PyIlmBase.*_Python3|PyIlmBase.PyImathTest_Python2"
+          # Python 2.7
+          - build: 5
+            build-type: Release
+            build-shared: 'ON'
+            build-docs: 'ON'
+            cxx-standard: 11
+            python-version: 2.7
+            exclude-tests: -E PyIlmBase.*_Python3
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Create build directories
+        run: |
+          mkdir _install
+          mkdir _build
+      - name: Install Dependences
+        run: |
+          share/ci/scripts/macos/install_boost.sh 
+        shell: bash
+      - name: Configure
+        run: |
+          cmake ../. \
+                -DCMAKE_INSTALL_PREFIX=../_install \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
+                -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
+                -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
+                -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
+                -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
+                -DOPENEXR_BUILD_UTILS='ON' \
+                -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
+                -DPYTHON_EXECUTABLE=$(which python) \
+                -DBoost_NO_BOOST_CMAKE=ON
+        working-directory: _build
+      - name: Build
+        run: |
+          cmake --build . \
+                --target install \
+                --config ${{ matrix.build-type }} \
+                -- -j2
+        working-directory: _build
+      - name: Test
+        run: |
+          ctest -T Test ${{matrix.exclude-tests }} \
+                -C ${{matrix.build-type}} \
+                --timeout 7200 \
+                --output-on-failure \
+                -VV
+        working-directory: _build
+
+  # ---------------------------------------------------------------------------
+  # Windows
+  # ---------------------------------------------------------------------------
+  # TODO: Figure out how to get CMake to use Python 3.7.7.
+  #       Boost 1.70.0 will only make boost python for 3.7.
+  #       CMake finds Python 3.8 on the VM when configuring, then does not find 
+  #       a corresponding boost python38 module. As a result PyIlmbase tests are not 
+  #       built or run.
+  # TODO: Determine why tests hang in Debug job.
+  # TODO: Fix boost script to install from sourceforge.
+
+  # windows:
+    # name: 'Windows 2019 
+      # <MSVC 16.4 
+       # config=${{ matrix.build-type }}, 
+       # shared=${{ matrix.build-shared }}, 
+       # cxx=${{ matrix.cxx-standard }}, 
+       # python=${{ matrix.python-version }}, 
+       # docs=${{ matrix.build-docs }}>'
+    # runs-on: windows-2019
+    # strategy:
+      # matrix:
+        # build: [1, 3, 4]
+        # include:
+          # # C++11, Python 3.7
+          # - build: 1
+            # build-type: Release
+            # build-shared: 'ON'
+            # build-docs: 'ON'
+            # cxx-standard: 11
+            # python-version: 3.7.7
+            # boost-version: 1.70.0
+            # zlib-version: 1.2.11
+            # zlib-lib: zlib.lib
+            # exclude-tests: ''
+          # # Debug -
+          # # - build: 2
+            # # build-type: Debug
+            # # build-shared: 'ON'
+            # # build-docs: 'OFF'
+            # # cxx-standard: 11
+            # # python-version: 3.7.7
+            # # boost-version: 1.70.0
+            # # zlib-version: 1.2.11
+            # # zlib-lib: zlib.lib
+            # # exclude-tests: ''
+          # # C++14
+          # - build: 3
+            # build-type: Release
+            # build-shared: 'ON'
+            # build-docs: 'OFF'
+            # cxx-standard: 14
+            # python-version: 3.7.7
+            # boost-version: 1.70.0
+            # zlib-version: 1.2.11
+            # zlib-lib: zlib.lib
+            # exclude-tests: ''
+          # # Static
+          # - build: 4
+            # build-type: Release
+            # build-shared: 'OFF'
+            # build-docs: 'OFF'
+            # cxx-standard: 11
+            # python-version: 3.7.7
+            # boost-version: 1.70.0
+            # zlib-version: 1.2.11
+            # zlib-lib: zlibstatic.lib
+            # exclude-tests: ''
+ 
+    # steps:
+      # - name: Setup Python
+        # uses: actions/setup-python@v1
+        # with:
+          # python-version: ${{ matrix.python-version }}
+      # - name: Checkout
+        # uses: actions/checkout@v2
+      # - name: Create build directories
+        # run: |
+          # mkdir _install
+          # mkdir _build
+        # shell: bash
+      # - name: Install Dependences
+        # run: |
+          # share/ci/scripts/windows/install_python.ps1 ${{ matrix.python-version }} $HOME 
+          # share/ci/scripts/windows/install_boost.ps1 ${{ matrix.boost-version }} $HOME 3.8
+          # share/ci/scripts/windows/install_zlib.ps1 ${{ matrix.zlib-version }} $HOME 
+        # shell: powershell
+      # - name: Configure
+        # run: |
+          # cmake ../. \
+                # -DCMAKE_INSTALL_PREFIX=../_install \
+                # -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
+                # -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
+                # -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
+                # -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
+                # -DBOOST_ROOT:FILEPATH=$BOOST_ROOT \
+                # -DZLIB_ROOT:FILEPATH="$ZLIB_ROOT" \
+                # -DZLIB_LIBRARY:FILEPATH="$ZLIB_ROOT/lib/${{ matrix.zlib-lib }}" \
+                # -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
+                # -DOPENEXR_BUILD_UTILS='ON' \
+                # -DOPENEXR_RUN_FUZZ_TESTS='OFF' 
+               # # -DPython_EXECUTABLE:FILEPATH="$PYTHON_ROOT" \
+               # # -DPython_INCLUDE_DIR:FILEPATH="$PYTHON_ROOT/include" \       
+               # # -DPython_LIBRARY:"$PYTHON_ROOT\libs" \
+        # shell: bash
+        # working-directory: _build
+      # - name: Build
+        # run: |
+          # cmake --build . \
+                # --target install \
+                # --config ${{ matrix.build-type }}
+        # shell: bash
+        # working-directory: _build
+      # - name: Test
+        # run: |
+          # ctest -T Test ${{ matrix.exclude-tests }} \
+                # -C ${{ matrix.build-type }} \
+                # --timeout 7200 \
+                # --output-on-failure \
+                # -VV
+        # shell: bash
+        # working-directory: _build

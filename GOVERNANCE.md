@@ -108,8 +108,9 @@ represents the project at ASWF TAC meetings.
 * Larry Gritz - Sony Pictures ImageWorks
 * Peter Hillman - Weta Digital, Ltd.
 * Kimball Thurston - Weta Digital, Ltd.
-* Nick Porcino - Oculus
+* Nick Porcino - Pixar Animation Studios
 * Christina Tempelaar-Lietz - Epic Games
+* Joseph Goldstone - ARRI
 * John Mertic - The Linux Foundation
 
 ### TSC Meetings

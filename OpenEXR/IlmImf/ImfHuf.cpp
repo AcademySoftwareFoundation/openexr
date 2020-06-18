@@ -206,8 +206,13 @@ getBits (int nBits, Int64 &c, int &lc, const char *&in)
 //	- see http://www.compressconsult.com/huffman/
 //
 
+#if !defined (OPENEXR_IMF_HAVE_LARGE_STACK)
+void
+hufCanonicalCodeTable (Int64 *hcode)
+#else
 void
 hufCanonicalCodeTable (Int64 hcode[HUF_ENCSIZE])
+#endif
 {
     Int64 n[59];
 
@@ -263,11 +268,19 @@ hufCanonicalCodeTable (Int64 hcode[HUF_ENCSIZE])
 //	- original frequencies are destroyed;
 //	- encoding tables are used by hufEncode() and hufBuildDecTable();
 //
+// NB: The following code "(*a == *b) && (a > b))" was added to ensure
+//     elements in the heap with the same value are sorted by index.
+//     This is to ensure, the STL make_heap()/pop_heap()/push_heap() methods
+//     produced a resultant sorted heap that is identical across OSes.
+//
 
 
 struct FHeapCompare
 {
-    bool operator () (Int64 *a, Int64 *b) {return *a > *b;}
+    bool operator () (Int64 *a, Int64 *b)
+    {
+        return ((*a > *b) || ((*a == *b) && (a > b)));
+    }
 };
 
 
@@ -967,10 +980,17 @@ hufDecode
 }
 
 
+#if !defined (OPENEXR_IMF_HAVE_LARGE_STACK)
+void
+countFrequencies (Int64 *freq,
+		  const unsigned short data[/*n*/],
+		  int n)
+#else
 void
 countFrequencies (Int64 freq[HUF_ENCSIZE],
 		  const unsigned short data[/*n*/],
 		  int n)
+#endif
 {
     for (int i = 0; i < HUF_ENCSIZE; ++i)
 	freq[i] = 0;
@@ -1052,7 +1072,10 @@ hufUncompress (const char compressed[],
 	       unsigned short raw[],
 	       int nRaw)
 {
-    if (nCompressed == 0)
+    //
+    // need at least 20 bytes for header
+    //
+    if (nCompressed < 20 )
     {
 	if (nRaw != 0)
 	    notEnoughData();
@@ -1069,6 +1092,12 @@ hufUncompress (const char compressed[],
 	invalidTableSize();
 
     const char *ptr = compressed + 20;
+
+    if ( ptr + (nBits+7 )/8 > compressed+nCompressed)
+    {
+        notEnoughData();
+        return;
+    }
 
     // 
     // Fast decoder needs at least 2x64-bits of compressed data, and

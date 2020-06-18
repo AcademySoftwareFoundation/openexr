@@ -40,11 +40,11 @@
 
 
 #include "IlmBaseConfig.h"
+#include "IlmThread.h"
 
 #ifdef ILMBASE_FORCE_CXX03
-#ifdef _WIN32
+#if (defined (_WIN32) || defined (_WIN64)) && !defined(HAVE_PTHREAD)
 
-#include "IlmThread.h"
 #include "Iex.h"
 #include <iostream>
 #include <assert.h>
