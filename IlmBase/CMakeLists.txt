@@ -23,6 +23,8 @@ include(config/ParseConfigure.cmake)
 #set up our project
 project(IlmBase VERSION ${ILMBASE_VERSION} LANGUAGES C CXX)
 
+find_package(Imath)
+
 #######################################
 #######################################
 # This declares all the configuration variables visible
@@ -41,10 +43,8 @@ add_subdirectory(config)
 # the libraries
 include(config/LibraryDefine.cmake)
 
-add_subdirectory( Half )
 add_subdirectory( Iex )
 add_subdirectory( IexMath )
-add_subdirectory( Imath )
 add_subdirectory( IlmThread )
 
 # Can't seem to do EXCLUDE_FROM_ALL on the test executables
@@ -54,7 +54,5 @@ include(CTest)
 if(BUILD_TESTING)
   enable_testing()
 
-  add_subdirectory( HalfTest )
   add_subdirectory( IexTest )
-  add_subdirectory( ImathTest )
 endif()
