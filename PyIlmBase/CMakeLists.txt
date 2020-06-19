@@ -220,10 +220,6 @@ if(NOT BUILD_SHARED_LIBS)
 endif()
 
 add_subdirectory( PyIex )
-add_subdirectory( PyImath )
-if(TARGET Python2::IlmBaseNumPy OR TARGET Python3::IlmBaseNumPy)
-  add_subdirectory( PyImathNumpy )
-endif()
 
 ##########################
 # Tests
@@ -232,8 +228,4 @@ include(CTest)
 if(BUILD_TESTING)
   enable_testing()
   add_subdirectory( PyIexTest )
-  add_subdirectory( PyImathTest )
-  if(TARGET Python2::IlmBaseNumPy OR TARGET Python3::IlmBaseNumPy)
-    add_subdirectory( PyImathNumpyTest )
-  endif()
 endif()
