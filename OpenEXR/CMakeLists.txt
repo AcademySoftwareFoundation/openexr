@@ -36,6 +36,7 @@ include(config/OpenEXRSetup.cmake)
 # Everyone depends on IlmBase, and we currently rely on
 # the version matched with our release
 find_package(IlmBase ${OPENEXR_VERSION} EXACT REQUIRED CONFIG)
+find_package(Imath)
 
 # generates config headers, package config files
 add_subdirectory(config)

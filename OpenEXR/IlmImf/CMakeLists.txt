@@ -187,8 +187,8 @@ openexr_define_library(IlmImf
   DEPENDENCIES
     OpenEXR::Config
     IlmBase::Iex
-    IlmBase::Half
-    IlmBase::Imath
+    Imath::Half
+    Imath::Imath
     IlmBase::IlmThread
     ZLIB::ZLIB
   )
