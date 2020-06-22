@@ -41,6 +41,7 @@
 
 #include "Image.h"
 #include "namespaceAlias.h"
+#include <Iex.h>
 
 using namespace IMF;
 using namespace IMATH_NAMESPACE;
