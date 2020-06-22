@@ -46,6 +46,7 @@
 #include <ImfArray.h>
 #include <ImathBox.h>
 #include <half.h>
+#include <Iex.h>
 
 #include <string>
 #include <map>
