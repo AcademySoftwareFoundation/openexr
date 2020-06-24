@@ -605,7 +605,7 @@ TileBufferTask::execute ()
 	// sanity check data size: the uncompressed data should be exactly 
 	// 'sizeOfTile' (if it's less, the file is corrupt and there'll be a buffer overrun)
 	//
-        if(_tileBuffer->dataSize != sizeOfTile)
+        if(_tileBuffer->dataSize != Int64(sizeOfTile))
 	{
 		THROW (IEX_NAMESPACE::InputExc, "size mismatch when reading deep tile: expected " << sizeOfTile << "bytes of uncompressed data but got " << _tileBuffer->dataSize);
 	}
