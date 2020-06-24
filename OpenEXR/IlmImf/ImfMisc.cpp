@@ -1882,7 +1882,7 @@ getScanlineChunkOffsetTableSize(const Header& header)
     const Box2i &dataWindow = header.dataWindow();
 
     vector<size_t> bytesPerLine;
-    (void) bytesPerLineTable (header, bytesPerLine);
+    bytesPerLineTable (header, bytesPerLine);
 
     int linesInBuffer = numLinesInBuffer ( header.compression() );
 
