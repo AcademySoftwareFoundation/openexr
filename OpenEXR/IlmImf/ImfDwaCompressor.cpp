@@ -2820,7 +2820,7 @@ DwaCompressor::uncompress
                     //
                     // sanity check for buffer data lying within range
                     //
-                    if (cd->planarUncBufferEnd + dstScanlineSize - _planarUncBuffer[UNKNOWN] > _planarUncBufferSize[UNKNOWN] )
+                    if (cd->planarUncBufferEnd + (size_t) dstScanlineSize  > _planarUncBuffer[UNKNOWN] + _planarUncBufferSize[UNKNOWN] )
                     {
                         throw Iex::InputExc("DWA data corrupt");
                     }
