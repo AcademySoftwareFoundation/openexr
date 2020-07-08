@@ -42,10 +42,10 @@ Patch release with various bug/security fixes and build/install fixes.
 
 ### Summary
 
-* Invalid input could cause a heap-use-after-free error in DeepScanLineInputFile::DeepScanLineInputFile()
-* Invalid chunkCount attributes could cause heap buffer overflow in getChunkOffsetTableSize()
-* Invalid tiled input file could cause invalid memory access TiledInputFile::TiledInputFile()
-* OpenEXRConfig.h now correctly sets OPENEXR_PACKAGE_STRING to "OpenEXR" (rather than "IlmBase")
+* [CVE-2020-15305](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15305) Invalid input could cause a heap-use-after-free error in DeepScanLineInputFile::DeepScanLineInputFile() 
+* [CVE-2020-15306](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15306) Invalid chunkCount attributes could cause heap buffer overflow in getChunkOffsetTableSize() 
+* [CVE-2020-15304](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15304) Invalid tiled input file could cause invalid memory access TiledInputFile::TiledInputFile() 
+* OpenEXRConfig.h now correctly sets OPENEXR_PACKAGE_STRING to "OpenEXR" (rather than "IlmBase") 
 * Various Windows build fixes
 
 ### Merged Pull Requests
@@ -454,9 +454,9 @@ Minor release with miscellaneous bug fixes and small features
 
 This is a patch release that includes fixes for the following security vulnerabilities:
 
-* Invalid input could cause a heap-use-after-free error in DeepScanLineInputFile::DeepScanLineInputFile()
-* Invalid chunkCount attributes could cause heap buffer overflow in getChunkOffsetTableSize()
-* Invalid tiled input file could cause invalid memory access TiledInputFile::TiledInputFile()
+* [CVE-2020-15305](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15305) Invalid input could cause a heap-use-after-free error in DeepScanLineInputFile::DeepScanLineInputFile() 
+* [CVE-2020-15306](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15306) Invalid chunkCount attributes could cause heap buffer overflow in getChunkOffsetTableSize() 
+* [CVE-2020-15304](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15304) Invalid tiled input file could cause invalid memory access TiledInputFile::TiledInputFile() 
 * OpenEXRConfig.h now correctly sets OPENEXR_PACKAGE_STRING to "OpenEXR" (rather than "IlmBase")
 
 ### Merged Pull Requests
