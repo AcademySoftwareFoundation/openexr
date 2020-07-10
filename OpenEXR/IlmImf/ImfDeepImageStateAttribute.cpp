@@ -71,6 +71,13 @@ DeepImageStateAttribute::readValueFrom
 {
     unsigned char tmp;
     Xdr::read <StreamIO> (is, tmp);
+    if (tmp >= DIS_NUMSTATES)
+    {
+        std::stringstream s;
+        s << "Invalid DeepImageState " << static_cast<int> (tmp);
+        throw IEX_NAMESPACE::InputExc(s);
+    }
+            
     _value = DeepImageState (tmp);
 }
 
