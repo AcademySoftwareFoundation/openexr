@@ -64,6 +64,7 @@ StringVectorAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os
     for (int i = 0; i < size; i++)
     {
         int strSize = _value[i].size();
+
         Xdr::write <StreamIO> (os, strSize);
 	Xdr::write <StreamIO> (os, &_value[i][0], strSize);
     }
@@ -81,6 +82,13 @@ StringVectorAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &i
        int strSize;
        Xdr::read <StreamIO> (is, strSize);
        read += Xdr::size<int>();       
+
+       // check there is enough space remaining in attribute to
+       // contain claimed string length
+       if( strSize < 0 || strSize+read > size)
+       {
+           throw IEX_NAMESPACE::InputExc("Invalid size field reading stringvector attribute");
+       }
 
        std::string str;
        str.resize (strSize);
