@@ -322,8 +322,11 @@ TypedAttribute<T>::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 template <class T>
 void		
 TypedAttribute<T>::copyValueFrom (const Attribute &other)
+#if defined (__clang__)
+    __attribute__((no_sanitize ("undefined")))
+#endif    
 {
-    _value = cast(other)._value;
+    _value = cast(other).value();
 }
 
 
