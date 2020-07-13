@@ -323,6 +323,9 @@ template <class T>
 void		
 TypedAttribute<T>::copyValueFrom (const Attribute &other)
 #if defined (__clang__)
+// if T is an enum, _value may be an invalid value, which the clang
+// sanitizer reports as undefined behavior, even though the value is
+// acceptable in this context.
     __attribute__((no_sanitize ("undefined")))
 #endif    
 {
