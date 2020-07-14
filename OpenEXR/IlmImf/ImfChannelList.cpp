@@ -52,11 +52,17 @@ using std::set;
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 
-Channel::Channel (PixelType t, int xs, int ys, bool pl):
-    type (t),
-    xSampling (xs),
-    ySampling (ys),
-    pLinear (pl)
+Channel::Channel (PixelType t, int xs, int ys, bool pl)
+#if defined (__clang__)
+// t may be an invalid enum value, which the clang sanitizer reports
+// as undefined behavior, even though the value is acceptable in this
+// context.
+    __attribute__((no_sanitize ("undefined")))
+#endif    
+    : type (t),
+      xSampling (xs),
+      ySampling (ys),
+      pLinear (pl)
 {
     // empty
 }
