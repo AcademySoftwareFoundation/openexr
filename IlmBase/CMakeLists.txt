@@ -25,6 +25,23 @@ project(IlmBase VERSION ${ILMBASE_VERSION} LANGUAGES C CXX)
 
 find_package(Imath)
 
+if(NOT Imath_FOUND)
+  message("Imath was not found. It is going to be cloned and installed.")
+  
+  include(ExternalProject)
+
+  set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/Imath)
+
+  ExternalProject_Add(Imath
+    GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/Imath.git
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+    )
+
+  include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
+  link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)
+endif()
+
+
 #######################################
 #######################################
 # This declares all the configuration variables visible
