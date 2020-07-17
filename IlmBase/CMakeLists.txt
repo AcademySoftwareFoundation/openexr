@@ -23,7 +23,7 @@ include(config/ParseConfigure.cmake)
 #set up our project
 project(IlmBase VERSION ${ILMBASE_VERSION} LANGUAGES C CXX)
 
-find_package(Imath)
+find_package(Imath QUIET)
 
 if(NOT Imath_FOUND)
   message("Imath was not found. It is going to be cloned and installed.")
