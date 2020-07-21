@@ -133,12 +133,14 @@ void checkIsNullTerminated (const char (&str)[N], const char *what)
 void
 sanityCheckDisplayWindow (int width, int height)
 {
-    if (width <= 0 || height <= 0)
-    {
-        // Note that if width == -INT_MAX the width-1 below will
-        // overflow, so better to catch that case here.
+    //
+    // Ensure a valid displayWindow.  All values for which width-1 < 0
+    // are invalid, but in particular, note that if width=-INT_MAX,
+    // width-1 will overflow.
+    //
+    
+    if (width < 1 || height < 1)
 	throw IEX_NAMESPACE::ArgExc ("Invalid display window in image header.");
-    }
 }
 
 } // namespace
