@@ -130,6 +130,17 @@ void checkIsNullTerminated (const char (&str)[N], const char *what)
 	throw IEX_NAMESPACE::InputExc(s);
 }
 
+void
+sanityCheckDisplayWindow (int width, int height)
+{
+    if (width <= 0 || height <= 0)
+    {
+        // Note that if width == -INT_MAX the width-1 below will
+        // overflow, so better to catch that case here.
+	throw IEX_NAMESPACE::ArgExc ("Invalid display window in image header.");
+    }
+}
+
 } // namespace
 
 
@@ -143,6 +154,8 @@ Header::Header (int width,
 :
     _map()
 {
+    sanityCheckDisplayWindow (width, height);
+
     staticInitialize();
 
     Box2i displayWindow (V2i (0, 0), V2i (width - 1, height - 1));
@@ -169,6 +182,8 @@ Header::Header (int width,
 :
     _map()
 {
+    sanityCheckDisplayWindow (width, height);
+
     staticInitialize();
 
     Box2i displayWindow (V2i (0, 0), V2i (width - 1, height - 1));
