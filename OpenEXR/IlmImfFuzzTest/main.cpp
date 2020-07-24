@@ -61,18 +61,39 @@ using std::string;
 using std::cout;
 using std::endl;
 
-#define TEST(x) if (helpMode) tests.insert(string(#x)); else if (argc < 2 || !strcmp (argv[1], #x)) x(argc==3 ? argv[2] : nullptr);
+#define TEST(x)                                 \
+    if (helpMode)                               \
+    {                                           \
+        tests.insert(string(#x));               \
+    }                                           \
+    else if (argc < 2 || !strcmp (argv[1], #x)) \
+    {                                           \
+        testFound = true;                       \
+        x(argc==3 ? argv[2] : nullptr);         \
+    }
 
 int
 main (int argc, char *argv[])
 {
     bool helpMode = false;
+    bool testFound = false;
+    
     if( argc==2 && (strcmp(argv[1],"--help")==0 || strcmp(argv[1],"-h")==0))
     {
 	    helpMode = true;
     }
     set<string> tests;
 
+    //
+    // If there's a second argument, it's a test file, so make sure it
+    // exists.
+    //
+    
+    if (argc == 3 && access (argv[2], R_OK) != 0)
+    {
+        std::cout << "No such file: " << argv[2] << endl;
+        exit (-1);
+    }
 
     TEST (testFuzzScanLines);
     TEST (testFuzzTiles);
@@ -106,21 +127,24 @@ main (int argc, char *argv[])
        }
 
     }
+    else if (!testFound)
+    {
+        cout << "No such test: " << argv[1] << endl;
+    }
     else
     {
-
 #ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
 
-    //
-    // Allow the user to check for file descriptor leaks
-    //
+        //
+        // Allow the user to check for file descriptor leaks
+        //
 
-    cout << "open file descriptors:" << endl;
+        cout << "open file descriptors:" << endl;
 
-    std::stringstream ss;
-    ss << "ls -lG /proc/" << getpid() << "/fd";
-
-    system (ss.str().c_str());
+        std::stringstream ss;
+        ss << "ls -lG /proc/" << getpid() << "/fd";
+        
+        system (ss.str().c_str());
 #endif
     }
     return 0;
