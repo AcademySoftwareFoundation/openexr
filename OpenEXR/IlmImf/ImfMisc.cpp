@@ -1882,8 +1882,7 @@ getScanlineChunkOffsetTableSize(const Header& header)
     const Box2i &dataWindow = header.dataWindow();
 
     vector<size_t> bytesPerLine;
-    size_t maxBytesPerLine = bytesPerLineTable (header,
-                                                bytesPerLine);
+    bytesPerLineTable (header, bytesPerLine);
 
     int linesInBuffer = numLinesInBuffer ( header.compression() );
 
@@ -1900,18 +1899,30 @@ int
 getTiledChunkOffsetTableSize(const Header& header);
 
 int
-getChunkOffsetTableSize(const Header& header,bool ignore_attribute)
+getChunkOffsetTableSize(const Header& header,bool)
 {
-    if(!ignore_attribute && header.hasChunkCount())
-    {
-        return header.chunkCount();
-    }
-    
+    //
+    // if there is a type in the header which indicates the part is not a currently supported type,
+    // use the chunkCount attribute
+    //
+
+
     if(header.hasType()  && !isSupportedType(header.type()))
     {
-        throw IEX_NAMESPACE::ArgExc ("unsupported header type to "
-        "get chunk offset table size");
+        if(header.hasChunkCount())
+        {
+           return header.chunkCount();
+        }
+        else
+        {
+           throw IEX_NAMESPACE::ArgExc ("unsupported header type to "
+           "get chunk offset table size");
+        }
     }
+
+    //
+    // part is a known type - ignore the header attribute and compute the chunk size from the header
+    //
     if (isTiled(header.type()) == false)
         return getScanlineChunkOffsetTableSize(header);
     else

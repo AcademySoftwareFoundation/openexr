@@ -1,4 +1,14 @@
+#
+# TODO: fix this script to work with sourceforge archive!
+#
+$homeDir = (pwd)
+
 $boostVersion = $Args[0]
+$boostWorkingDir = $Args[1]
+$pythonVersion = $Args[2]
+
+$boostRoot = "${boostWorkingDir}\_boost"
+
 $boostMajorMinor = [io.path]::GetFileNameWithoutExtension("$boostVersion")
 $boostVersionConcise = $boostVersion -replace '[.]',''
 $boostArray = $boostVersion -split "\."
@@ -6,16 +16,22 @@ $boostMajor = $boostArray[0]
 $boostMinor = $boostArray[1]
 $boostPatch = $boostArray[2];
 $boostVersionU = "boost_${boostMajor}_${boostMinor}_${boostPatch}"
-$boostArchive = "http://dl.bintray.com/boostorg/release/${boostVersion}/source/${boostVersionU}.zip"
+$boostArchive = "https://sourceforge.net/projects/boost/files/boost-binaries/1.70.0/boost_1_70_0-msvc-14.1-64.exe"
+$boostBuildPath = "${boostRoot}\boost-${boostVersion}\${boostVersionU}"
 
-$homeDir = (pwd)
-$boostRoot = "${homeDir}\_boost"
-$boostInstallDir = "${boostRoot}\boost-${boostVersion}\${boostVersionU}"
+$pythonMajor = ($pythonVersion -split '\.')[0]
+$pythonMinor = ($pythonVersion -split '\.')[1]
+$pythonMajorMinor = "${pythonMajor}.${pythonMinor}"
 
 Write-Host "boostRoot ${boostRoot}"
-Write-Host "boostInstallDir ${boostInstallDir}"
+Write-Host "boostBuildPath ${boostBuildPath}"
+Write-Host "pythonMajorMinor ${pythonMajorMinor}"
 
-mkdir $boostRoot
+if (-NOT (Test-Path $boostRoot))
+{
+	New-Item -ItemType Directory $boostRoot
+}
+
 cd $boostRoot
 
 # Retrieve/expand archive 
@@ -24,41 +40,31 @@ Invoke-WebRequest $boostArchive -OutFile "boost-${boostVersion}.zip"
 Write-Host "Expanding archive boost-${boostVersion}.zip"
 Expand-Archive "boost-${boostVersion}.zip" 
 
+cd "${boostBuildPath}\tools\build"
+
 # Configure and install boost 
-cd "${boostInstallDir}\tools\build"
-& .\bootstrap.bat 
+echo "Configuring boost..."
+& .\bootstrap.bat --with-python-version=$pythonMajorMinor
 & .\b2 install -j4 variant=release toolset=msvc `
-      --prefix=$boostInstallDir `
+      --prefix=$boostBuildPath `
       --address-model=64
 
-$env:Path = "${boostInstallDir}\bin;${boostInstallDir};$env:Path"
+$env:Path = "${boostBuildPath}\bin;${boostBuildPath};$env:Path"
 
-cd ..\..
+cd $boostBuildPath
 
 # Build boost-python2 libs 
+echo "Building boost python..."
 & b2 --with-python `
-     --buildid=2 `
-     --address-model=64 `
-     --prefix=$boostInstallDir `
-     toolset=msvc
+	 --address-model=64 `
+	 --prefix=$boostBuildPath `
+	 toolset=msvc
 
-# Build boost-python3 libs 
-# & b2 --with-python --clean
-# & bootstrap.bat --with-python=$python3Dir
-# & b2 --with-python `
-#      --buildid=3 `
-#      --address-model=64 `
-#      --prefix=$boostInstallDir `
-#      toolset=msvc
+cd $homeDir
 
-cd ..\..\..
-
-$newBoostRoot = "c:\Program Files\Boost\${boostVersion}"
-New-Item -Path "c:\Program Files\Boost" -ItemType "directory" -Name $boostVersion
-Move-Item -Path "${boostInstallDir}\boost" -Destination $newBoostRoot
-Move-Item -Path "${boostInstallDir}\stage\lib" -Destination $newBoostRoot
-ls $newBoostRoot
-
-$env:BOOST_ROOT = $newBoostRoot
+$env:BOOST_ROOT = $boostBuildPath
 echo "BOOST_ROOT = ${env:BOOST_ROOT}"
+
+echo "::set-env name=BOOST_ROOT::$boostBuildPath"
+echo "::add-path::$boostBuildPath"
 

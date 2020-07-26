@@ -649,8 +649,8 @@ read (T &in, signed short &v)
 
     readSignedChars<S> (in, b, 2);
 
-    v = (b[0] & 0x00ff) |
-	(b[1] << 8);
+    v = (static_cast <unsigned char> (b[0]) & 0x00ff) |
+	(static_cast <unsigned char> (b[1]) << 8);
 }
 
 
@@ -675,10 +675,10 @@ read (T &in, signed int &v)
 
     readSignedChars<S> (in, b, 4);
 
-    v =  (b[0]        & 0x000000ff) |
-	((b[1] << 8)  & 0x0000ff00) |
-	((b[2] << 16) & 0x00ff0000) |
-	 (b[3] << 24);
+    v =  (static_cast <unsigned char> (b[0])        & 0x000000ff) |
+	((static_cast <unsigned char> (b[1]) << 8)  & 0x0000ff00) |
+	((static_cast <unsigned char> (b[2]) << 16) & 0x00ff0000) |
+         (static_cast <unsigned char> (b[3]) << 24);
 }
 
 
@@ -707,10 +707,10 @@ read (T &in, signed long &v)
 
     #if LONG_MAX == 2147483647
 
-	v =  (b[0]        & 0x000000ff) |
-	    ((b[1] << 8)  & 0x0000ff00) |
-	    ((b[2] << 16) & 0x00ff0000) |
-	     (b[3] << 24);
+        v =  (static_cast <unsigned char> (b[0])        & 0x000000ff) |
+            ((static_cast <unsigned char> (b[1]) << 8)  & 0x0000ff00) |
+            ((static_cast <unsigned char> (b[2]) << 16) & 0x00ff0000) |
+             (static_cast <unsigned char> (b[3]) << 24);
 
 	if (( b[4] ||  b[5] ||  b[6] ||  b[7]) &&
 	    (~b[4] || ~b[5] || ~b[6] || ~b[7]))

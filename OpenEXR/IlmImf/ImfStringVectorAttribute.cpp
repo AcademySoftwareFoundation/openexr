@@ -82,6 +82,13 @@ StringVectorAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &i
        Xdr::read <StreamIO> (is, strSize);
        read += Xdr::size<int>();       
 
+       // check there is enough space remaining in attribute to
+       // contain claimed string length
+       if( strSize < 0 ||  strSize > size - read)
+       {
+           throw IEX_NAMESPACE::InputExc("Invalid size field reading stringvector attribute");
+       }
+
        std::string str;
        str.resize (strSize);
   

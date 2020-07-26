@@ -4,8 +4,8 @@ dnl Copyright Contributors to the OpenEXR Project.
 dnl
 
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(OpenEXR_Viewers, 2.4.0)
-AC_SUBST(OPENEXR_VIEWERS_VERSION, 2.3.0)
+AC_INIT(OpenEXR_Viewers, 2.5.0)
+AC_SUBST(OPENEXR_VIEWERS_VERSION, 2.5.0)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(playexr/main.cpp)
 AM_CONFIG_HEADER(config/OpenEXR_ViewersConfig.h)
@@ -13,8 +13,8 @@ AM_INIT_AUTOMAKE(1.6.3)  dnl Require automake 1.6.3 or better
 AM_MAINTAINER_MODE
 
 
-LIBTOOL_CURRENT=24
-LIBTOOL_REVISION=1
+LIBTOOL_CURRENT=25
+LIBTOOL_REVISION=0
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
 AC_SUBST(LIBTOOL_VERSION)

@@ -71,13 +71,14 @@
 #include "IlmThreadNamespace.h"
 
 #ifdef ILMBASE_FORCE_CXX03
-#   if defined _WIN32 || defined _WIN64
+#   if defined (_WIN32) || defined (_WIN64)
 #      ifdef NOMINMAX
 #         undef NOMINMAX
 #      endif
 #      define NOMINMAX
 #      include <windows.h>
-#   elif HAVE_PTHREAD
+#   endif
+#   ifdef HAVE_PTHREAD
 #      include <pthread.h>
 #   endif
 #else
@@ -116,9 +117,9 @@ class ILMTHREAD_EXPORT Mutex
     void	lock () const;
     void	unlock () const;
 
-    #if defined _WIN32 || defined _WIN64
+    #if (defined (_WIN32) || defined (_WIN64)) && !defined (HAVE_PTHREAD)
 	mutable CRITICAL_SECTION _mutex;
-    #elif HAVE_PTHREAD
+    #elif defined (HAVE_PTHREAD)
 	mutable pthread_mutex_t _mutex;
     #endif
 

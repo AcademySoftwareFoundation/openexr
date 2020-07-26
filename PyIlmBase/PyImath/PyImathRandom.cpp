@@ -32,6 +32,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#include "PyIlmBaseConfigInternal.h"
 
 #include "PyImathRandom.h"
 #include "PyImathDecorators.h"

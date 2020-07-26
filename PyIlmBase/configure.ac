@@ -4,8 +4,8 @@ dnl Copyright Contributors to the OpenEXR Project.
 dnl
 
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(PyIlmBase, 2.4.0)
-AC_SUBST(PYILMBASE_VERSION, 2.4.0)
+AC_INIT(PyIlmBase, 2.5.2)
+AC_SUBST(PYILMBASE_VERSION, 2.5.2)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(PyIex/iexmodule.cpp)
 AC_CONFIG_HEADERS([config/PyIlmBaseConfig.h])
@@ -16,8 +16,8 @@ dnl static python modules make no sense - disable static
 AC_DISABLE_STATIC
 
 
-LIBTOOL_CURRENT=24
-LIBTOOL_REVISION=2
+LIBTOOL_CURRENT=25
+LIBTOOL_REVISION=1
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
 AC_SUBST(LIBTOOL_VERSION)
@@ -228,14 +228,15 @@ PyIlmBase.pc
 config/Makefile
 PyIex/Makefile
 PyIexTest/Makefile
-PyIexTest/pyIexTest
 PyImath/Makefile
 PyImathTest/Makefile
-PyImathTest/pyImathTest
 PyImathNumpy/Makefile
 PyImathNumpyTest/Makefile
-PyImathNumpyTest/pyImathNumpyTest
 ])
+
+AC_CONFIG_FILES([PyIexTest/pyIexTest], [chmod +x PyIexTest/pyIexTest])
+AC_CONFIG_FILES([PyImathTest/pyImathTest], [chmod +x PyImathTest/pyImathTest])
+AC_CONFIG_FILES([PyImathNumpyTest/pyImathNumpyTest], [chmod +x PyImathNumpyTest/pyImathNumpyTest])
 
 AC_OUTPUT
 

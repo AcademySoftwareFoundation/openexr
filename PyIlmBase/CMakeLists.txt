@@ -95,6 +95,16 @@ function(PYILMBASE_EXTRACT_REL_SITEARCH varname pyver pyexe pysitearch)
   endwhile()
   math(EXPR _elen "${_elen}+1")
   string(SUBSTRING ${_basedir} ${_elen} -1 _reldir)
+  if(APPLE)
+    # on macOS, set install path to user's python package directory
+    # so that elevated privileges are not necessary
+    execute_process(
+      COMMAND "${pyexe}" -c "if True:
+        import sysconfig
+        print(sysconfig.get_path('platlib', 'posix_user'))"
+      OUTPUT_VARIABLE _reldir
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+  endif()
   set(${varname} ${_reldir} CACHE STRING "Destination sub-folder (relative) for the python ${pyver} modules")
   message(STATUS "  -> Will install to: ${_reldir}")
 endfunction()
@@ -125,8 +135,10 @@ endif()
 ### NB: We are turning this on globally by default as the boost
 ###     generated cmake config files seem to be broken and they
 ###     cross-wire python 2 with 3 in the same variables
-message(STATUS "Disabling boost-provided cmake config. If this causes problems, consider manually adjusting this in the CMakeLists.txt")
-set(Boost_NO_BOOST_CMAKE ON)
+option(Boost_NO_BOOST_CMAKE "Disable boost-provided cmake config" ON)
+if(Boost_NO_BOOST_CMAKE)
+  message(STATUS "Disabling boost-provided cmake config. If this causes problems, consider setting Boost_NO_BOOST_CMAKE variable to OFF")
+endif()
 
 find_package(Boost OPTIONAL_COMPONENTS
   python

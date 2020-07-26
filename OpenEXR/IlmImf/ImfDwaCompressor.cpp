@@ -742,7 +742,7 @@ DwaCompressor::LossyDctDecoderBase::execute ()
 
     for (int i = 0; i < _SSE_ALIGNMENT; ++i)
     {
-        if (((size_t)(rowBlockHandle + i) & _SSE_ALIGNMENT_MASK) == 0)
+        if ((reinterpret_cast<uintptr_t>(rowBlockHandle + i) & _SSE_ALIGNMENT_MASK) == 0)
             rowBlock[0] = (unsigned short *)(rowBlockHandle + i);
     }
 
@@ -1010,7 +1010,7 @@ DwaCompressor::LossyDctDecoderBase::execute ()
 
             for (int y = 8 * blocky; y < 8 * blocky + maxY; ++y)
             {
-                if ((size_t)_rowPtrs[comp][y] & _SSE_ALIGNMENT_MASK)
+                if (reinterpret_cast<uintptr_t>(_rowPtrs[comp][y]) & _SSE_ALIGNMENT_MASK)
                     fastPath = false;
             }
 
@@ -2820,7 +2820,7 @@ DwaCompressor::uncompress
                     //
                     // sanity check for buffer data lying within range
                     //
-                    if (cd->planarUncBufferEnd + dstScanlineSize - _planarUncBuffer[UNKNOWN] > _planarUncBufferSize[UNKNOWN] )
+                    if ((cd->planarUncBufferEnd + static_cast<size_t>(dstScanlineSize))  > (_planarUncBuffer[UNKNOWN] + _planarUncBufferSize[UNKNOWN]) )
                     {
                         throw Iex::InputExc("DWA data corrupt");
                     }

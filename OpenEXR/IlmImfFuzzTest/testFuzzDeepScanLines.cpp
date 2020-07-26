@@ -185,6 +185,21 @@ void generateRandomFile(const char filename[], int channelCount,int parts , Comp
         }
         
         pt.writePixels(height);
+
+
+        // free sample memory
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+                sampleCount[i][j] = rand() % 4 + 1;
+                for (int k = 0; k < channelCount; k++)
+                {
+                    delete[] (float*) data[k][i][j];
+                }
+            }
+        }
+
     }
 }
     

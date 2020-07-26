@@ -73,6 +73,54 @@ testMatrix ()
     union {double d; Int64 i;} nand;
     nand.i = 0x7ff0000000000001ULL; //  NAN
 
+    {	
+	cout << "Imath::M22f constructors and equality operators" << endl;
+
+    IMATH_INTERNAL_NAMESPACE::M22f m1;
+    m1[0][0] = 99.0f;
+    m1[1][2] = 101.0f;
+
+	IMATH_INTERNAL_NAMESPACE::M22f test(m1);
+	assert(test == m1);
+
+	IMATH_INTERNAL_NAMESPACE::M22f test2;
+	assert(test != test2);
+
+	IMATH_INTERNAL_NAMESPACE::M22f test3;
+	test3.makeIdentity();
+	assert(test2 == test3);
+    }
+
+    {
+	cout << "M22d constructors and equality operators" << endl;
+
+	IMATH_INTERNAL_NAMESPACE::M22d m2;
+	m2[0][0] = 99.0f;
+	m2[1][2] = 101.0f;
+
+	IMATH_INTERNAL_NAMESPACE::M22d test(m2);
+	assert(test == m2);
+
+	IMATH_INTERNAL_NAMESPACE::M22d test2;
+	assert(test != test2);
+
+	IMATH_INTERNAL_NAMESPACE::M22d test3;
+	test3.makeIdentity();
+	assert(test2 == test3);
+
+        IMATH_INTERNAL_NAMESPACE::M22f test4 (1.0f, 2.0f, 3.0f,
+                           4.0f);
+
+        IMATH_INTERNAL_NAMESPACE::M22d test5 = IMATH_INTERNAL_NAMESPACE::M22d (test4);
+
+        assert (test5[0][0] == 1.0);
+        assert (test5[0][1] == 2.0);
+
+
+        assert (test5[1][0] == 3.0);
+        assert (test5[1][1] == 4.0);
+    }
+    
     {
 	cout << "Imath::M33f shear functions" << endl;
 
@@ -276,6 +324,40 @@ testMatrix ()
     }
 
     // Determinants (by building a random singular value decomposition)
+    
+    {
+        cout << "2x2 determinant" << endl;
+
+        IMATH_INTERNAL_NAMESPACE::Rand32 random;
+
+        IMATH_INTERNAL_NAMESPACE::M22f u;
+        IMATH_INTERNAL_NAMESPACE::M22f v;
+        IMATH_INTERNAL_NAMESPACE::M22f s;
+
+        u.setRotation( random.nextf() );
+        v.setRotation( random.nextf() );
+        s[0][0] = random.nextf();
+        s[1][1] = random.nextf();
+
+        IMATH_INTERNAL_NAMESPACE::M22f c = u * s * v.transpose();
+        assert (fabsf(c.determinant() - s[0][0]*s[1][1]) <= u.baseTypeEpsilon());
+    }
+    {
+        IMATH_INTERNAL_NAMESPACE::Rand32 random;
+
+        IMATH_INTERNAL_NAMESPACE::M22d u;
+        IMATH_INTERNAL_NAMESPACE::M22d v;
+        IMATH_INTERNAL_NAMESPACE::M22d s;
+
+        u.setRotation( (double)random.nextf() );
+        v.setRotation( (double)random.nextf() );
+        s[0][0] = (double)random.nextf();
+        s[1][1] = (double)random.nextf();
+
+        IMATH_INTERNAL_NAMESPACE::M22d c = u * s * v.transpose();
+        assert (fabs(c.determinant() - s[0][0]*s[1][1]) <= u.baseTypeEpsilon());
+    }
+
     {
         cout << "3x3 determinant" << endl;
 

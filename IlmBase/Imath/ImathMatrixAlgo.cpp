@@ -54,6 +54,12 @@
 
 IMATH_INTERNAL_NAMESPACE_SOURCE_ENTER
 
+EXPORT_CONST M22f identity22f ( 1, 0,
+				0, 1);
+
+EXPORT_CONST M22d identity22d ( 1, 0,
+				0, 1);
+
 EXPORT_CONST M33f identity33f ( 1, 0, 0,
 				0, 1, 0,
 				0, 0, 1);

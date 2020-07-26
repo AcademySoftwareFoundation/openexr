@@ -626,7 +626,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, packed_sample);
                     
                     //add 40 byte header to packed sizes (tile coordinates, packed sizes, unpacked size)
-                    size_of_chunk=packed_offset+packed_sample+40;
+                    size_of_chunk=packed_offset+packed_sample + 40ll;
                 }
                 else
                 {
@@ -634,7 +634,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                     // regular image has 20 bytes of header, 4 byte chunksize;
                     int chunksize;
                     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, chunksize);
-                    size_of_chunk=chunksize+20;
+                    size_of_chunk=static_cast<Int64>(chunksize) + 20ll;
                 }
             }
             else
@@ -665,13 +665,13 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, packed_sample);
                     
                     
-                    size_of_chunk=packed_offset+packed_sample+28;
+                    size_of_chunk=packed_offset+packed_sample + 28ll;
                 }
                 else
                 {
                     int chunksize;
                     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, chunksize);   
-                    size_of_chunk=chunksize+8;
+                    size_of_chunk=static_cast<Int64>(chunksize) + 8ll;
                 }
                 
             }
@@ -738,7 +738,7 @@ MultiPartInputFile::Data::readChunkOffsetTables(bool reconstructChunkOffsetTable
 
     for (size_t i = 0; i < parts.size(); i++)
     {
-        int chunkOffsetTableSize = getChunkOffsetTableSize(parts[i]->header,false);
+        int chunkOffsetTableSize = getChunkOffsetTableSize(parts[i]->header);
         parts[i]->chunkOffsets.resize(chunkOffsetTableSize);
 
         for (int j = 0; j < chunkOffsetTableSize; j++)

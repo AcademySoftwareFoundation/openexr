@@ -14,6 +14,19 @@ post patches as quickly as possible.
 
 ## Known Vulnerabilities
 
+These vulnerabilities are present in the given versions:
+
+* [CVE-2020-15306](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15306) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0, 2.4.1, 2.5.0, 2.5.1 
+* [CVE-2020-15305](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15305) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0, 2.4.1, 2.5.0, 2.5.1 
+* [CVE-2020-15304](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15304) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0, 2.4.1, 2.5.0, 2.5.1 
+* [CVE-2020-11765](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11765) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0 
+* [CVE-2020-11764](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11764) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0 
+* [CVE-2020-11763](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11763) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0 
+* [CVE-2020-11762](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11762) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0 
+* [CVE-2020-11761](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11761) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0 
+* [CVE-2020-11760](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11760) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0 
+* [CVE-2020-11759](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11759) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0 
+* [CVE-2020-11758](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11758) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0 
 * [CVE-2018-18444](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18444) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0
 * [CVE-2018-18443](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18443) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0
 * [CVE-2017-9116](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9116) 2.0.0, 2.0.1, 2.1.0, 2.2.0

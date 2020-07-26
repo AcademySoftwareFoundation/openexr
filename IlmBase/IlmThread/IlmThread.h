@@ -95,7 +95,7 @@
 #include "IlmThreadNamespace.h"
 
 #ifdef ILMBASE_FORCE_CXX03
-#   if defined _WIN32 || defined _WIN64
+#   if (defined (_WIN32) || defined (_WIN64)) && !defined(HAVE_PTHREAD)
 #       ifdef NOMINMAX
 #          undef NOMINMAX
 #       endif
@@ -132,7 +132,7 @@ class Thread
   private:
 
 #ifdef ILMBASE_FORCE_CXX03
-#   if defined _WIN32 || defined _WIN64
+#   if (defined (_WIN32) || defined (_WIN64)) && !defined (HAVE_PTHREAD)
 	HANDLE _thread;
 #   elif HAVE_PTHREAD
 	pthread_t _thread;

@@ -39,11 +39,10 @@
 //-----------------------------------------------------------------------------
 
 #include "IlmBaseConfig.h"
+#include "IlmThreadMutex.h"
 
 #ifdef ILMBASE_FORCE_CXX03
-#    ifdef _WIN32
-
-#        include "IlmThreadMutex.h"
+#    if ((defined _WIN32 || defined _WIN64) && !defined(__MINGW64_VERSION_MAJOR))
 #        include "Iex.h"
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER

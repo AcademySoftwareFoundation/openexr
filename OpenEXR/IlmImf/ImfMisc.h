@@ -464,13 +464,16 @@ bool usesLongNames (const Header &header);
 
 
 //
-// compute size of chunk offset table - if ignore_attribute set to true
-// will compute from the image size and layout, rather than the attribute
-// The default behaviour is to read the attribute
+// compute size of chunk offset table - for existing types, computes
+// the chunk size from the image size, compression type, and tile description
+// (for tiled types). If the type is not supported, uses the chunkCount attribute
+// if present, or throws an exception otherwise
+// deprecated_attribute is no longer used by this function
+//
 //
 
 IMF_EXPORT
-int getChunkOffsetTableSize(const Header& header,bool ignore_attribute=false);
+int getChunkOffsetTableSize(const Header& header,bool deprecated_attribute=false);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
