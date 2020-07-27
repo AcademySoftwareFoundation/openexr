@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright Contributors to the OpenEXR Project.
 
-ilmbase_define_library(IlmThread
+openexr_define_library(IlmThread
   PRIV_EXPORT ILMTHREAD_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
@@ -26,6 +26,6 @@ ilmbase_define_library(IlmThread
     IlmThreadExport.h
     IlmThreadForward.h
   DEPENDENCIES
-    IlmBase::Iex
+    OpenEXR::Iex
     Threads::Threads
   )
