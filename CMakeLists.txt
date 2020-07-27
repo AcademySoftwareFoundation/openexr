@@ -22,7 +22,35 @@ endif()
 # here.
 ###set(CMAKE_PREFIX_PATH "/prefix")
 
-project(OpenEXRMetaProject)
+include(cmake/OpenEXRVersion.cmake)
+include(cmake/IlmBaseVersion.cmake)
+
+project(OpenEXR VERSION ${OPENEXR_VERSION} LANGUAGES C CXX)
+
+include(cmake/LibraryDefine.cmake)
+include(cmake/OpenEXRSetup.cmake)
+include(cmake/IlmBaseSetup.cmake)
+add_subdirectory(cmake)
+
+# Include these two modules without enable/disable options
+add_subdirectory(src/lib)
+
+# Tell CMake where to find the IlmBaseConfig.cmake file. Makes it posible to call 
+# find_package(IlmBase) in downstream projects
+set(IlmBase_DIR "${CMAKE_CURRENT_BINARY_DIR}/src/lib/config" CACHE PATH "" FORCE)
+# Add an empty IlmBaseTargets.cmake file for the config to use. 
+# Can be empty since we already defined the targets in add_subdirectory
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/src/lib/config/IlmBaseTargets.cmake" "# Dummy file")
+
+add_subdirectory(src/bin)
+
+# Tell CMake where to find the OpenEXRConfig.cmake file. Makes it posible to call 
+# find_package(OpenEXR) in downstream projects
+set(OpenEXR_DIR "${CMAKE_CURRENT_BINARY_DIR}/src/bin/config" CACHE PATH "" FORCE)
+# Add an empty OpenEXRTargets.cmake file for the config to use. 
+# Can be empty since we already defined the targets in add_subdirectory
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/src/bin/config/OpenEXRTargets.cmake" "# Dummy file")
+
 
 # If you want to use ctest to configure, build and
 # upload the results, cmake has builtin support for
@@ -50,32 +78,35 @@ project(OpenEXRMetaProject)
 include(CTest)
 if(BUILD_TESTING)
   enable_testing()
+  #add_subdirectory(src/test)
 endif()
 
 #######################################
 
-# Include these two modules without enable/disable options
-add_subdirectory(IlmBase)
+find_package(Imath QUIET)
 
-# Tell CMake where to find the IlmBaseConfig.cmake file. Makes it posible to call 
-# find_package(IlmBase) in downstream projects
-set(IlmBase_DIR "${CMAKE_CURRENT_BINARY_DIR}/IlmBase/config" CACHE PATH "" FORCE)
-# Add an empty IlmBaseTargets.cmake file for the config to use. 
-# Can be empty since we already defined the targets in add_subdirectory
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/IlmBase/config/IlmBaseTargets.cmake" "# Dummy file")
+if(NOT Imath_FOUND)
+  message("Imath was not found. It is going to be cloned and installed.")
+  
+  include(ExternalProject)
 
-add_subdirectory(OpenEXR)
+  set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/Imath)
 
-# Tell CMake where to find the OpenEXRConfig.cmake file. Makes it posible to call 
-# find_package(OpenEXR) in downstream projects
-set(OpenEXR_DIR "${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/config" CACHE PATH "" FORCE)
-# Add an empty OpenEXRTargets.cmake file for the config to use. 
-# Can be empty since we already defined the targets in add_subdirectory
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/config/OpenEXRTargets.cmake" "# Dummy file")
+  ExternalProject_Add(Imath
+    GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/Imath.git
+    GIT_TAG origin/master
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DPYTHON=${PYTHON}
+    # Python bindings will be generated for Imath if PYTHON=ON
+    )
+
+  include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
+  link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)
+  
+endif()
 
 # should this just be always on and we conditionally compile what
 # is found and warn otherwise? or error out?
-option(PYILMBASE_ENABLE "Enables configuration of the PyIlmBase module" ON)
+option(PYILMBASE_ENABLE "Enables configuration of the PyIlmBase module" OFF)
 if(PYILMBASE_ENABLE)
   if (${CMAKE_VERSION} VERSION_LESS "3.12.0")
     message(WARNING ": CMake version ${CMAKE_VERSION} detected, PyIlmBase uses newer features of cmake (>= 3.12), disabling")

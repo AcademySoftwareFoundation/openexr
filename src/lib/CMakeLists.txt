@@ -16,63 +16,19 @@ if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW)
 endif()
 
-# we include this first to parse configure.ac and extract the version
-# numbers
-include(config/ParseConfigure.cmake)
-
 #set up our project
-project(IlmBase VERSION ${ILMBASE_VERSION} LANGUAGES C CXX)
+#project(IlmBase VERSION ${ILMBASE_VERSION} LANGUAGES C CXX)
 
-find_package(Imath QUIET)
-
-if(NOT Imath_FOUND)
-  message("Imath was not found. It is going to be cloned and installed.")
-  
-  include(ExternalProject)
-
-  set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/Imath)
-
-  ExternalProject_Add(Imath
-    GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/Imath.git
-    GIT_TAG origin/master
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DPYTHON=${PYTHON}
-    # Python bindings will be generated for Imath if PYTHON=ON
-    )
-
-  include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
-  link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)
-  
-endif()
-
-
-#######################################
-#######################################
-# This declares all the configuration variables visible
-# in cmake-gui or similar and the rest of the global
-# project setup
-#
-# Please look at this file to see what is configurable
-#######################################
-#######################################
-include(config/IlmBaseSetup.cmake)
-
-# generates config headers, package config files
-add_subdirectory(config)
-
-# utility function for the repeated boilerplate of defining
-# the libraries
-include(config/LibraryDefine.cmake)
+find_package(Imath REQUIRED CONFIG)
 
 add_subdirectory( Iex )
 add_subdirectory( IexMath )
 add_subdirectory( IlmThread )
 
-# Can't seem to do EXCLUDE_FROM_ALL on the test executables
-# since you can't then create a dependency on the internal
-# "test" target such that it is auto built
-include(CTest)
-if(BUILD_TESTING)
-  enable_testing()
+add_subdirectory( OpenEXR )
+add_subdirectory( OpenEXRUtil )
 
-  add_subdirectory( IexTest )
+option(INSTALL_OPENEXR_EXAMPLES "Install OpenEXR examples" ON)
+if(INSTALL_OPENEXR_EXAMPLES)
+  add_subdirectory( OpenEXRExamples )
 endif()
