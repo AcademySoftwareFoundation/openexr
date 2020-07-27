@@ -71,6 +71,19 @@ LineOrderAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, 
 {
     unsigned char tmp;
     Xdr::read <StreamIO> (is, tmp);
+
+    //
+    // prevent invalid values being written to LineOrder enum
+    // by forcing all unknown types to NUM_LINEORDERS which is also an invalid
+    // value but is a legal enum. Note that Header::sanityCheck will
+    // throw an exception when files with invalid lineOrders 
+    //
+    
+    if (tmp != INCREASING_Y &&
+        tmp != DECREASING_Y &&
+        tmp != RANDOM_Y)
+        tmp = NUM_LINEORDERS;
+
     _value = LineOrder (tmp);
 }
 

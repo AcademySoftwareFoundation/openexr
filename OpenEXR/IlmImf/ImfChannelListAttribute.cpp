@@ -139,6 +139,19 @@ ChannelListAttribute::readValueFrom (IStream &is,
 	Xdr::read <StreamIO> (is, xSampling);
 	Xdr::read <StreamIO> (is, ySampling);
 
+    //
+    // prevent invalid values being written to PixelType enum
+    // by forcing all unknown types to NUM_PIXELTYPES which is also an invalid
+    // pixel type, but can be used as a PixelType enum value
+    // (Header::sanityCheck will throw an exception when files with invalid PixelTypes are read)
+    //
+      if (type != OPENEXR_IMF_INTERNAL_NAMESPACE::UINT &&
+          type != OPENEXR_IMF_INTERNAL_NAMESPACE::HALF &&
+         type != OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT)
+      {
+          type = OPENEXR_IMF_INTERNAL_NAMESPACE::NUM_PIXELTYPES;
+      }
+
 	_value.insert (name, Channel (PixelType (type),
 	                              xSampling,
 	                              ySampling,
