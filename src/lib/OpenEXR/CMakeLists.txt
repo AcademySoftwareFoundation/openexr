@@ -186,9 +186,9 @@ openexr_define_library(IlmImf
     ImfFloatVectorAttribute.h
   DEPENDENCIES
     OpenEXR::Config
-    IlmBase::Iex
+    OpenEXR::Iex
+    OpenEXR::IlmThread
     Imath::Half
     Imath::Imath
-    IlmBase::IlmThread
     ZLIB::ZLIB
   )
