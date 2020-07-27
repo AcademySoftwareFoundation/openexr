@@ -52,17 +52,15 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class IDManifest
 {
-    public:
+public:
            
-        
-        
     // indication of how long a mapping between an ID number and the text holds for
     typedef enum 
     {
         LIFETIME_FRAME, // The mapping may change every frame:
         LIFETIME_SHOT,  // The mapping is consistent for every frame of a shot
         LIFETIME_STABLE // The mapping is consistent for all time.
-    }IdLifetime;
+    } IdLifetime;
 
     //
     // hashing scheme is stored as a string rather than an enum, to allow
@@ -71,15 +69,15 @@ class IDManifest
     //
 
     
-    static const std::string UNKNOWN /*="unknown"*/;                 // default value for  encoding scheme and hash scheme - should be changed
-    static const std::string NOTHASHED /*= "none"*/;                 // no relationship between text and ID
-    static const std::string CUSTOMHASH /*= "custom"*/;              // text is hashed using defined scheme
-    static const std::string MURMURHASH3_32 /*= "MurmurHash3_32"*/;  // MurmurHash3 32 bit is used
-    static const std::string MURMURHASH3_64 /*= "MurmurHash3_64"*/;  // bottom 8 bytes of MurmarHash3_128 (64 bit architecture version) is used
+    static const std::string UNKNOWN;        // = "unknown" : default value for encoding scheme and hash scheme - should be changed
+    static const std::string NOTHASHED;      // = "none" : no relationship between text and ID
+    static const std::string CUSTOMHASH;     // = "custom" : text is hashed using defined scheme
+    static const std::string MURMURHASH3_32; // = "MurmurHash3_32" : MurmurHash3 32 bit is used
+    static const std::string MURMURHASH3_64; // = "MurmurHash3_64" : bottom 8 bytes of MurmarHash3_128 (64 bit architecture version) is used
 
 
-    static const std::string ID_SCHEME /*="id"*/; // 32 bit ID stored directly in a UINT channel
-    static const std::string ID2_SCHEME /*="id2"*/; // 64 bit ID stored in two channels, specified by the ChannelGroup
+    static const std::string ID_SCHEME;      // ="id" : 32 bit ID stored directly in a UINT channel
+    static const std::string ID2_SCHEME;     // ="id2" : 64 bit ID stored in two channels, specified by the ChannelGroup
     
     
     
@@ -110,16 +108,18 @@ public :
     {
     private:
         std::set<std::string> _channels; // group of channels this manifest represents
-        std::vector <std::string> _components; // ordered list of components represented by this channel group
+        std::vector<std::string> _components; // ordered list of components represented by this channel group
         IdLifetime _lifeTime;
         std::string _hashScheme; //one of above strings or custom value e.g "nz.co.wetafx.cleverhash2"
         std::string _encodingScheme; //string identifying scheme to encode ID numbers within the image
 
         typedef std::map<Int64, std::vector<std::string> > IDTable;
         IDTable _table;
+
         // used for << operator to work: tracks the last item inserted into the Manifest 
         IDTable::iterator _insertionIterator; 
         bool _insertingEntry; // true if << has been called but not enough strings yet set
+
     public:
         
         ChannelGroupManifest();
@@ -207,7 +207,7 @@ private:
 public:
 
     // add a new channel group definition to the table, presumably populated with mappings
-    // 'table' will be copied to the internal manifest; to further modify use the return value;
+    // 'table' will be copied to the internal manifest; to further modify use the return value
     ChannelGroupManifest& add(const ChannelGroupManifest& table);
     
     
@@ -269,7 +269,8 @@ public:
 // zlip compressed version of IDManifest - the IDManifestAttribute encodes this format
 // This should be transparent to the user, since there is implicit casting between the two types
 //
-class CompressedIDManifest{
+class CompressedIDManifest
+{
 public:
     CompressedIDManifest();
     CompressedIDManifest(const CompressedIDManifest& other);
@@ -290,6 +291,11 @@ public:
     
 };
 
+
+//
+// Read/Write Iterator object to access individual entries within a manifest
+//
+
 class IDManifest::ChannelGroupManifest::Iterator
 {
 public:
@@ -306,6 +312,11 @@ private:
     std::map< Int64 , std::vector<std::string> >::iterator _i;
     
 };
+
+//
+// Read-only Iterator object to access individual entries within a manifest
+//
+
 
 class IDManifest::ChannelGroupManifest::ConstIterator
 {
