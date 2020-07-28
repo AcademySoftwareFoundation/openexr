@@ -32,8 +32,3 @@ if(OPENEXR_BUILD_UTILS)
   add_subdirectory( exrmultiview )
   add_subdirectory( exrmultipart )
 endif()
-
-option(INSTALL_OPENEXR_DOCS "Install OpenEXR documentation" ON)
-if(INSTALL_OPENEXR_DOCS)
-  add_subdirectory(doc)
-endif()
