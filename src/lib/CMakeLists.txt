@@ -16,9 +16,6 @@ if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW)
 endif()
 
-#set up our project
-#project(IlmBase VERSION ${ILMBASE_VERSION} LANGUAGES C CXX)
-
 find_package(Imath REQUIRED CONFIG)
 
 add_subdirectory( Iex )
