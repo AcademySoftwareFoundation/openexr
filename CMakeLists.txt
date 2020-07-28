@@ -78,7 +78,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cmake/OpenEXRTargets.cmake" "# Dummy fil
 
 option(INSTALL_OPENEXR_EXAMPLES "Install OpenEXR examples" ON)
 if(INSTALL_OPENEXR_EXAMPLES)
-  add_subdirectory( OpenEXRExamples )
+  add_subdirectory( src/examples )
 endif()
 
 # If you want to use ctest to configure, build and
