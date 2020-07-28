@@ -52,10 +52,8 @@ if(APPLE)
   endif()
 endif()
 
-configure_file(OpenEXRConfig.h.in_cmake ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h)
-configure_file(OpenEXRConfigInternal.h.in_cmake ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigInternal.h)
-configure_file(IlmBaseConfig.h.in_cmake ${CMAKE_CURRENT_BINARY_DIR}/IlmBaseConfig.h)
-configure_file(IlmBaseConfigInternal.h.in_cmake ${CMAKE_CURRENT_BINARY_DIR}/IlmBaseConfigInternal.h)
+configure_file(OpenEXRConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h)
+configure_file(OpenEXRConfigInternal.h.in ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigInternal.h)
 
 add_library(IlmImfConfig INTERFACE)
 target_include_directories(IlmImfConfig INTERFACE
@@ -170,8 +168,8 @@ if (ILMBASE_ENABLE_LARGE_STACK)
   set(ILMBASE_HAVE_LARGE_STACK ON)
 endif()
 
-configure_file(IlmBaseConfig.h.in_cmake ${CMAKE_CURRENT_BINARY_DIR}/IlmBaseConfig.h)
-configure_file(IlmBaseConfigInternal.h.in_cmake ${CMAKE_CURRENT_BINARY_DIR}/IlmBaseConfigInternal.h)
+configure_file(IlmBaseConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/IlmBaseConfig.h)
+configure_file(IlmBaseConfigInternal.h.in ${CMAKE_CURRENT_BINARY_DIR}/IlmBaseConfigInternal.h)
 
 add_library(IlmBaseConfig INTERFACE)
 target_include_directories(IlmBaseConfig INTERFACE
