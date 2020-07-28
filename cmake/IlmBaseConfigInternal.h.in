@@ -1,13 +1,11 @@
-//
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the OpenEXR Project.
-//
 
 #pragma once
 
 //
 // Dealing with FPEs
 //
-#undef HAVE_UCONTEXT_H
-
-#undef ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT
+#cmakedefine HAVE_UCONTEXT_H 1
+#cmakedefine ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT 1
+#cmakedefine ILMBASE_HAVE_SIGCONTEXT_CONTROL_REGISTER_SUPPORT 1
