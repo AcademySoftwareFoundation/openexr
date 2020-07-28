@@ -78,7 +78,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/src/bin/config/OpenEXRTargets.cmake" "# 
 include(CTest)
 if(BUILD_TESTING)
   enable_testing()
-  #add_subdirectory(src/test)
+  add_subdirectory(src/test)
 endif()
 
 #######################################
@@ -102,17 +102,6 @@ if(NOT Imath_FOUND)
   include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
   link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)
   
-endif()
-
-# should this just be always on and we conditionally compile what
-# is found and warn otherwise? or error out?
-option(PYILMBASE_ENABLE "Enables configuration of the PyIlmBase module" OFF)
-if(PYILMBASE_ENABLE)
-  if (${CMAKE_VERSION} VERSION_LESS "3.12.0")
-    message(WARNING ": CMake version ${CMAKE_VERSION} detected, PyIlmBase uses newer features of cmake (>= 3.12), disabling")
-  else()
-    add_subdirectory(PyIlmBase)
-  endif()
 endif()
 
 # Including this module will add a `clang-format` target to the build if
