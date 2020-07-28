@@ -6,7 +6,7 @@ add_executable(IexTest
   testBaseExc.cpp
 )
 
-target_link_libraries(IexTest IlmBase::Iex)
+target_link_libraries(IexTest OpenEXR::Iex)
 set_target_properties(IexTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
