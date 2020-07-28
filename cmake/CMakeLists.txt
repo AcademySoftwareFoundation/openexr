@@ -95,7 +95,7 @@ if(OPENEXR_INSTALL_PKG_CONFIG)
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
     )
   endfunction()
-  openexr_pkg_config_help(../OpenEXR.pc.in)
+  openexr_pkg_config_help(./OpenEXR.pc.in)
 endif()
 
 # The main export of the configuration - This is the
@@ -210,7 +210,7 @@ if(ILMBASE_INSTALL_PKG_CONFIG)
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
     )
   endfunction()
-  ilmbase_pkg_config_help(../IlmBase.pc.in)
+  ilmbase_pkg_config_help(./IlmBase.pc.in)
 else()
   message(NOTICE "-- WARNING pkg-config generation disabled")
 endif()
