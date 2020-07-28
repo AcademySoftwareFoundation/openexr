@@ -16,10 +16,7 @@ if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW)
 endif()
 
-#project(OpenEXR VERSION ${OPENEXR_VERSION} LANGUAGES C CXX)
-
-# the version matched with our release
-#find_package(IlmBase ${OPENEXR_VERSION} EXACT REQUIRED CONFIG)
+# the Imath version matched with our release
 find_package(Imath REQUIRED CONFIG)
 
 ##########################
@@ -39,5 +36,5 @@ endif()
 
 option(INSTALL_OPENEXR_DOCS "Install OpenEXR documentation" ON)
 if(INSTALL_OPENEXR_DOCS)
- # add_subdirectory(doc)
+  add_subdirectory(doc)
 endif()
