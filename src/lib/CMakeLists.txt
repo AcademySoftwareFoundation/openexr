@@ -24,8 +24,3 @@ add_subdirectory( IlmThread )
 
 add_subdirectory( OpenEXR )
 add_subdirectory( OpenEXRUtil )
-
-option(INSTALL_OPENEXR_EXAMPLES "Install OpenEXR examples" ON)
-if(INSTALL_OPENEXR_EXAMPLES)
-  add_subdirectory( OpenEXRExamples )
-endif()
