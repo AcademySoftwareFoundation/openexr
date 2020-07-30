@@ -56,8 +56,10 @@ if(NOT Imath_FOUND)
     # Python bindings will be generated for Imath if PYTHON=ON
     )
 
-  include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
-  link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)
+  include_directories(${EXTERNAL_INSTALL_LOCATION}/Imath)
+  include_directories(${EXTERNAL_INSTALL_LOCATION}/Half)
+  link_directories(${EXTERNAL_INSTALL_LOCATION})
+  set(Imath_DIR "${EXTERNAL_INSTALL_LOCATION}/config")
   
 endif()
 
