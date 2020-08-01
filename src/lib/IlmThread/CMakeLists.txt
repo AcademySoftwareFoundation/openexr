@@ -6,15 +6,12 @@ openexr_define_library(IlmThread
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
     IlmThread.cpp
-    IlmThreadMutex.cpp
-    IlmThreadMutexPosix.cpp
     IlmThreadPool.cpp
     IlmThreadPosix.cpp
     IlmThreadSemaphore.cpp
     IlmThreadSemaphorePosixCompat.cpp
     IlmThreadSemaphorePosix.cpp
     IlmThreadSemaphoreOSX.cpp
-    IlmThreadMutexWin32.cpp
     IlmThreadSemaphoreWin32.cpp
     IlmThreadWin32.cpp
   HEADERS
