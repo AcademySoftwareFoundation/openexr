@@ -39,6 +39,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -60,7 +61,6 @@
 #include <ImfTiledOutputPart.h>
 #include <ImfTiledInputPart.h>
 #include <IlmThreadPool.h>
-#include <IlmThreadMutex.h>
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;

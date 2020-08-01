@@ -39,13 +39,14 @@
 //-----------------------------------------------------------------------------
 
 #include "IlmThread.h"
-#include "IlmThreadMutex.h"
 #include "IlmThreadSemaphore.h"
 #include "IlmThreadPool.h"
 #include "Iex.h"
-#include <vector>
-#include <memory>
+
 #include <atomic>
+#include <memory>
+#include <mutex>
+#include <vector>
 #include <thread>
 
 using namespace std;
@@ -159,11 +160,11 @@ class DefaultWorkerThread;
 struct DefaultWorkData
 {
     Semaphore taskSemaphore;        // threads wait on this for ready tasks
-    mutable Mutex taskMutex;        // mutual exclusion for the tasks list
+    mutable std::mutex taskMutex;        // mutual exclusion for the tasks list
     vector<Task*> tasks;            // the list of tasks to execute
 
     Semaphore threadSemaphore;      // signaled when a thread starts executing
-    mutable Mutex threadMutex;      // mutual exclusion for threads list
+    mutable std::mutex threadMutex;      // mutual exclusion for threads list
     vector<DefaultWorkerThread*> threads;  // the list of all threads
     
     std::atomic<bool> hasThreads;
