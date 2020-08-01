@@ -55,7 +55,6 @@
 #include "ImfInputStreamMutex.h"
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
-#include "IlmThreadMutex.h"
 #include "ImathVec.h"
 #include "Iex.h"
 #include <string>
@@ -73,8 +72,6 @@ using std::string;
 using std::vector;
 using std::min;
 using std::max;
-using ILMTHREAD_NAMESPACE::Mutex;
-using ILMTHREAD_NAMESPACE::Lock;
 using ILMTHREAD_NAMESPACE::Semaphore;
 using ILMTHREAD_NAMESPACE::Task;
 using ILMTHREAD_NAMESPACE::TaskGroup;
@@ -197,7 +194,7 @@ class MultiPartInputFile;
 // needed between calls to readTile()
 //
 
-struct TiledInputFile::Data: public Mutex
+struct TiledInputFile::Data: public std::mutex
 {
     Header	    header;	        	    // the image header
     TileDescription tileDesc;		            // describes the tile layout
@@ -1063,7 +1060,7 @@ TiledInputFile::version () const
 void	
 TiledInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
 
     //
     // Set the frame buffer
@@ -1182,7 +1179,7 @@ TiledInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 TiledInputFile::frameBuffer () const
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
     return _data->frameBuffer;
 }
 
@@ -1203,7 +1200,7 @@ TiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2, int lx, int ly)
 
     try
     {
-        Lock lock (*_data->_streamData);
+        std::lock_guard<std::mutex> lock (*_data->_streamData);
 
         if (_data->slices.size() == 0)
             throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
@@ -1339,7 +1336,7 @@ TiledInputFile::rawTileData (int &dx, int &dy,
 {
     try
     {
-        Lock lock (*_data->_streamData);
+        std::lock_guard<std::mutex> lock (*_data->_streamData);
 
         if (!isValidTile (dx, dy, lx, ly))
             throw IEX_NAMESPACE::ArgExc ("Tried to read a tile outside "

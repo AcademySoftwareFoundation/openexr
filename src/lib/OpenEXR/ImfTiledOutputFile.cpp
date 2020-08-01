@@ -59,7 +59,6 @@
 #include <ImfPartType.h>
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
-#include "IlmThreadMutex.h"
 #include "ImfOutputStreamMutex.h"
 #include "ImfOutputPartData.h"
 #include "Iex.h"
@@ -83,8 +82,6 @@ using std::map;
 using std::min;
 using std::max;
 using std::swap;
-using ILMTHREAD_NAMESPACE::Mutex;
-using ILMTHREAD_NAMESPACE::Lock;
 using ILMTHREAD_NAMESPACE::Semaphore;
 using ILMTHREAD_NAMESPACE::Task;
 using ILMTHREAD_NAMESPACE::TaskGroup;
@@ -1065,7 +1062,7 @@ TiledOutputFile::~TiledOutputFile ()
     if (_data)
     {
         {
-            Lock lock(*_streamData);
+            std::lock_guard<std::mutex> lock(*_streamData);
             Int64 originalPosition = _streamData->os->tellp();
 
             if (_data->tileOffsetsPosition > 0)
@@ -1120,7 +1117,7 @@ TiledOutputFile::header () const
 void	
 TiledOutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
-    Lock lock (*_streamData);
+    std::lock_guard<std::mutex> lock (*_streamData);
 
     //
     // Check if the new frame buffer descriptor
@@ -1202,7 +1199,7 @@ TiledOutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 TiledOutputFile::frameBuffer () const
 {
-    Lock lock (*_streamData);
+    std::lock_guard<std::mutex> lock (*_streamData);
     return _data->frameBuffer;
 }
 
@@ -1213,7 +1210,7 @@ TiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
 {
     try
     {
-        Lock lock (*_streamData);
+        std::lock_guard<std::mutex> lock (*_streamData);
 
         if (_data->slices.size() == 0)
 	    throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
@@ -1424,7 +1421,7 @@ TiledOutputFile::writeTile (int dx, int dy, int l)
 void	
 TiledOutputFile::copyPixels (TiledInputFile &in)
 {
-    Lock lock (*_streamData);
+    std::lock_guard<std::mutex> lock (*_streamData);
 
     //
     // Check if this file's and and the InputFile's
@@ -1779,7 +1776,7 @@ TiledOutputFile::isValidTile (int dx, int dy, int lx, int ly) const
 void
 TiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
-    Lock lock (*_streamData);
+    std::lock_guard<std::mutex> lock (*_streamData);
 
     if (_data->previewPosition <= 0)
 	THROW (IEX_NAMESPACE::LogicExc, "Cannot update preview image pixels. "
@@ -1831,7 +1828,7 @@ TiledOutputFile::breakTile
      int length,
      char c)
 {
-    Lock lock (*_streamData);
+    std::lock_guard<std::mutex> lock (*_streamData);
 
     Int64 position = _data->tileOffsets (dx, dy, lx, ly);
 

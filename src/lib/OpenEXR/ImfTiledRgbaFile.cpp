@@ -48,17 +48,17 @@
 #include <ImfStandardAttributes.h>
 #include <ImfRgbaYca.h>
 #include <ImfArray.h>
-#include "IlmThreadMutex.h"
-#include "Iex.h"
 
+#include "Iex.h"
 #include "ImfNamespace.h"
+
+#include <mutex>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using namespace std;
 using namespace IMATH_NAMESPACE;
 using namespace RgbaYca;
-using namespace ILMTHREAD_NAMESPACE;
 
 namespace {
 
@@ -153,7 +153,7 @@ ywFromHeader (const Header &header)
 } // namespace
 
 
-class TiledRgbaOutputFile::ToYa: public Mutex
+class TiledRgbaOutputFile::ToYa: public std::mutex
 {
   public:
 
@@ -390,7 +390,7 @@ TiledRgbaOutputFile::setFrameBuffer (const Rgba *base,
 {
     if (_toYa)
     {
-	Lock lock (*_toYa);
+	std::lock_guard<std::mutex> lock (*_toYa);
 	_toYa->setFrameBuffer (base, xStride, yStride);
     }
     else
@@ -597,7 +597,7 @@ TiledRgbaOutputFile::writeTile (int dx, int dy, int l)
 {
     if (_toYa)
     {
-	Lock lock (*_toYa);
+	std::lock_guard<std::mutex> lock (*_toYa);
 	_toYa->writeTile (dx, dy, l, l);
     }
     else
@@ -612,7 +612,7 @@ TiledRgbaOutputFile::writeTile (int dx, int dy, int lx, int ly)
 {
     if (_toYa)
     {
-	Lock lock (*_toYa);
+	std::lock_guard<std::mutex> lock (*_toYa);
 	_toYa->writeTile (dx, dy, lx, ly);
     }
     else
@@ -628,7 +628,7 @@ TiledRgbaOutputFile::writeTiles
 {
     if (_toYa)
     {
-	Lock lock (*_toYa);
+	std::lock_guard<std::mutex> lock (*_toYa);
 
         for (int dy = dyMin; dy <= dyMax; dy++)
             for (int dx = dxMin; dx <= dxMax; dx++)
@@ -648,7 +648,7 @@ TiledRgbaOutputFile::writeTiles
 }
 
 
-class TiledRgbaInputFile::FromYa: public Mutex
+class TiledRgbaInputFile::FromYa: public std::mutex
 {
   public:
 
@@ -827,7 +827,7 @@ TiledRgbaInputFile::setFrameBuffer (Rgba *base, size_t xStride, size_t yStride)
 {
     if (_fromYa)
     {
-	Lock lock (*_fromYa);
+	std::lock_guard<std::mutex> lock (*_fromYa);
 	_fromYa->setFrameBuffer (base, xStride, yStride, _channelNamePrefix);
     }
     else
@@ -1094,7 +1094,7 @@ TiledRgbaInputFile::readTile (int dx, int dy, int l)
 {
     if (_fromYa)
     {
-	Lock lock (*_fromYa);
+	std::lock_guard<std::mutex> lock (*_fromYa);
 	_fromYa->readTile (dx, dy, l, l);
     }
     else
@@ -1109,7 +1109,7 @@ TiledRgbaInputFile::readTile (int dx, int dy, int lx, int ly)
 {
     if (_fromYa)
     {
-	Lock lock (*_fromYa);
+	std::lock_guard<std::mutex> lock (*_fromYa);
 	_fromYa->readTile (dx, dy, lx, ly);
     }
     else
@@ -1125,7 +1125,7 @@ TiledRgbaInputFile::readTiles (int dxMin, int dxMax, int dyMin, int dyMax,
 {
     if (_fromYa)
     {
-	Lock lock (*_fromYa);
+	std::lock_guard<std::mutex> lock (*_fromYa);
 
         for (int dy = dyMin; dy <= dyMax; dy++)
             for (int dx = dxMin; dx <= dxMax; dx++)

@@ -62,7 +62,6 @@
 
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
-#include "IlmThreadMutex.h"
 
 #include "Iex.h"
 
@@ -85,8 +84,6 @@ using std::map;
 using std::min;
 using std::max;
 using std::swap;
-using ILMTHREAD_NAMESPACE::Mutex;
-using ILMTHREAD_NAMESPACE::Lock;
 using ILMTHREAD_NAMESPACE::Semaphore;
 using ILMTHREAD_NAMESPACE::Task;
 using ILMTHREAD_NAMESPACE::TaskGroup;
@@ -1267,7 +1264,7 @@ DeepTiledOutputFile::~DeepTiledOutputFile ()
     if (_data)
     {
         {
-            Lock lock(*_data->_streamData);
+            std::lock_guard<std::mutex> lock(*_data->_streamData);
             Int64 originalPosition = _data->_streamData->os->tellp();
 
             if (_data->tileOffsetsPosition > 0)
@@ -1327,7 +1324,7 @@ DeepTiledOutputFile::header () const
 void
 DeepTiledOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
 
     //
     // Check if the new frame buffer descriptor
@@ -1437,7 +1434,7 @@ DeepTiledOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 const DeepFrameBuffer &
 DeepTiledOutputFile::frameBuffer () const
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
     return _data->frameBuffer;
 }
 
@@ -1448,7 +1445,7 @@ DeepTiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
 {
     try
     {
-        Lock lock (*_data->_streamData);
+        std::lock_guard<std::mutex> lock (*_data->_streamData);
 
         if (_data->slices.size() == 0)
             throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
@@ -1718,7 +1715,7 @@ DeepTiledOutputFile::copyPixels (DeepTiledInputFile &in)
  
     int numAllTiles = in.totalTiles();                              
                               
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
     
     //
     // special handling for random tiles
@@ -1989,7 +1986,7 @@ DeepTiledOutputFile::isValidTile (int dx, int dy, int lx, int ly) const
 void
 DeepTiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
 
     if (_data->previewPosition <= 0)
         THROW (IEX_NAMESPACE::LogicExc, "Cannot update preview image pixels. "
@@ -2041,7 +2038,7 @@ DeepTiledOutputFile::breakTile
      int length,
      char c)
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
 
     Int64 position = _data->tileOffsets (dx, dy, lx, ly);
 

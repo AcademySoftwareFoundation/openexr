@@ -58,7 +58,6 @@
 #include "IlmThreadPool.h"
 #include "ImfOutputStreamMutex.h"
 #include "IlmThreadSemaphore.h"
-#include "IlmThreadMutex.h"
 #include "Iex.h"
 #include "ImfInputPart.h"
 #include "ImfNamespace.h"
@@ -67,6 +66,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <mutex>
 #include <assert.h>
 #include <algorithm>
 
@@ -79,8 +79,6 @@ using std::string;
 using std::vector;
 using std::min;
 using std::max;
-using ILMTHREAD_NAMESPACE::Mutex;
-using ILMTHREAD_NAMESPACE::Lock;
 using ILMTHREAD_NAMESPACE::Semaphore;
 using ILMTHREAD_NAMESPACE::Task;
 using ILMTHREAD_NAMESPACE::TaskGroup;
@@ -859,7 +857,7 @@ OutputFile::~OutputFile ()
     if (_data)
     {
         {
-            Lock lock(*_data->_streamData);
+            std::lock_guard<std::mutex> lock(*_data->_streamData);
             Int64 originalPosition = _data->_streamData->os->tellp();
 
             if (_data->lineOffsetsPosition > 0)
@@ -915,7 +913,7 @@ OutputFile::header () const
 void	
 OutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
     
     //
     // Check if the new frame buffer descriptor
@@ -1007,7 +1005,7 @@ OutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 OutputFile::frameBuffer () const
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
     return _data->frameBuffer;
 }
 
@@ -1017,7 +1015,7 @@ OutputFile::writePixels (int numScanLines)
 {
     try
     {
-        Lock lock (*_data->_streamData);
+        std::lock_guard<std::mutex> lock (*_data->_streamData);
 
 	if (_data->slices.size() == 0)
 	    throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
@@ -1240,7 +1238,7 @@ OutputFile::writePixels (int numScanLines)
 int	
 OutputFile::currentScanLine () const
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
     return _data->currentScanLine;
 }
 
@@ -1248,7 +1246,7 @@ OutputFile::currentScanLine () const
 void	
 OutputFile::copyPixels (InputFile &in)
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
 
     //
     // Check if this file's and and the InputFile's
@@ -1338,7 +1336,7 @@ OutputFile::copyPixels( InputPart & in)
 void
 OutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
 
     if (_data->previewPosition <= 0)
 	THROW (IEX_NAMESPACE::LogicExc, "Cannot update preview image pixels. "
@@ -1385,7 +1383,7 @@ OutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 void	
 OutputFile::breakScanLine  (int y, int offset, int length, char c)
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
 
     Int64 position = 
 	_data->lineOffsets[(y - _data->minY) / _data->linesInBuffer];

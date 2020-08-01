@@ -37,6 +37,7 @@
 #endif
 
 #include <iostream>
+#include <mutex>
 #include <string>
 #include <vector>
 #include <stdio.h>
@@ -60,7 +61,6 @@
 #include <ImfTiledOutputPart.h>
 #include <ImfTiledInputPart.h>
 #include <IlmThreadPool.h>
-#include <IlmThreadMutex.h>
 #include <ImfTiledMisc.h>
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
@@ -80,7 +80,7 @@ vector<int> pixelTypes;
 vector<int> partTypes;
 vector<int> levelModes;
 
-Mutex mutexes[200];
+std::mutex mutexes[200];
 
 template <class T>
 void fillPixels (Array2D<T> &ph, int width, int height)
@@ -239,7 +239,7 @@ class WritingTask: public Task
                     // the same part won't mess things up.
                     //
 
-                    Lock lock(mutexes[partNumber]);
+                    std::lock_guard<std::mutex> lock(mutexes[partNumber]);
 
                     part.setFrameBuffer(tiledFrameBuffers[partNumber][ly][lx]);
                     part.writeTile(tx, ty, lx, ly);
@@ -283,7 +283,7 @@ class RandomReadingTask : public Task
                 // We add lock here to assure that two threads that accessing
                 // the same part won't mess things up.
                 //
-                Lock lock(mutexes[partNumber]);
+                std::lock_guard<std::mutex> lock(mutexes[partNumber]);
 
                 FrameBuffer frameBuffer;
                 setInputFrameBuffer(frameBuffer, pixelType,
@@ -315,7 +315,7 @@ class RandomReadingTask : public Task
                 // We add lock here to assure that two threads that accessing
                 // the same part won't mess things up.
                 //
-                Lock lock(mutexes[partNumber]);
+                std::lock_guard<std::mutex> lock(mutexes[partNumber]);
 
                 int numXLevels = part.numXLevels();
                 int numYLevels = part.numYLevels();
