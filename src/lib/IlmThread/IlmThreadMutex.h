@@ -50,7 +50,7 @@
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 
-using Mutex = std::mutex;
+using Mutex ILMBASE_DEPRECATED ("replace with std::mutex") = std::mutex;
 
 // unfortunately we can't use std::unique_lock as a replacement for Lock since
 // they have different API. Let us deprecate for now and give people a chance

@@ -61,8 +61,6 @@
 #include <ImfTiledOutputPart.h>
 #include <ImfTiledInputPart.h>
 #include <IlmThreadPool.h>
-#include <IlmThreadMutex.h>
-
 
 namespace
 {
