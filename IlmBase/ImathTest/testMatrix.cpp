@@ -78,7 +78,7 @@ testMatrix ()
 
     IMATH_INTERNAL_NAMESPACE::M22f m1;
     m1[0][0] = 99.0f;
-    m1[1][2] = 101.0f;
+    m1[1][1] = 101.0f;
 
 	IMATH_INTERNAL_NAMESPACE::M22f test(m1);
 	assert(test == m1);
@@ -96,7 +96,7 @@ testMatrix ()
 
 	IMATH_INTERNAL_NAMESPACE::M22d m2;
 	m2[0][0] = 99.0f;
-	m2[1][2] = 101.0f;
+	m2[1][1] = 101.0f;
 
 	IMATH_INTERNAL_NAMESPACE::M22d test(m2);
 	assert(test == m2);
