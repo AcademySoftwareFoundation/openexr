@@ -51,4 +51,16 @@
                              (uint32_t(ILMBASE_VERSION_MINOR) << 16) | \
                              (uint32_t(ILMBASE_VERSION_PATCH) <<  8))
 
+#if defined(__cplusplus) && (__cplusplus >= 201402L)
+# define ILMBASE_DEPRECATED(msg) [[deprecated(msg)]]
+#endif
+
+#ifndef ILMBASE_DEPRECATED
+# ifdef _MSC_VER
+#  define ILMBASE_DEPRECATED(msg) __declspec(deprecated(msg))
+# else
+#  define ILMBASE_DEPRECATED(msg) __attribute__((deprecated(msg)))
+# endif
+#endif
+
 #endif // INCLUDED_ILMBASE_CONFIG_H
