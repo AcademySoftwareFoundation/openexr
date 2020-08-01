@@ -46,10 +46,10 @@
 #include <ImfRgbaYca.h>
 #include <ImfStandardAttributes.h>
 #include <ImathFun.h>
-#include <IlmThreadMutex.h>
 #include <Iex.h>
 #include <string.h>
 #include <algorithm>
+#include <mutex>
 
 #include "ImfNamespace.h"
 
@@ -58,7 +58,6 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 using namespace std;
 using namespace IMATH_NAMESPACE;
 using namespace RgbaYca;
-using namespace ILMTHREAD_NAMESPACE;
 
 namespace {
 
@@ -189,7 +188,7 @@ cachePadding (ptrdiff_t size)
 } // namespace
 
 
-class RgbaOutputFile::ToYca: public Mutex
+class RgbaOutputFile::ToYca: public std::mutex
 {
   public:
 
@@ -670,7 +669,7 @@ RgbaOutputFile::setFrameBuffer (const Rgba *base,
 {
     if (_toYca)
     {
-	Lock lock (*_toYca);
+	std::lock_guard<std::mutex> lock (*_toYca);
 	_toYca->setFrameBuffer (base, xStride, yStride);
     }
     else
@@ -695,7 +694,7 @@ RgbaOutputFile::writePixels (int numScanLines)
 {
     if (_toYca)
     {
-	Lock lock (*_toYca);
+	std::lock_guard<std::mutex> lock (*_toYca);
 	_toYca->writePixels (numScanLines);
     }
     else
@@ -710,7 +709,7 @@ RgbaOutputFile::currentScanLine () const
 {
     if (_toYca)
     {
-	Lock lock (*_toYca);
+	std::lock_guard<std::mutex> lock (*_toYca);
 	return _toYca->currentScanLine();
     }
     else
@@ -802,7 +801,7 @@ RgbaOutputFile::setYCRounding (unsigned int roundY, unsigned int roundC)
 {
     if (_toYca)
     {
-	Lock lock (*_toYca);
+	std::lock_guard<std::mutex> lock (*_toYca);
 	_toYca->setYCRounding (roundY, roundC);
     }
 }
@@ -815,7 +814,7 @@ RgbaOutputFile::breakScanLine  (int y, int offset, int length, char c)
 }
 
 
-class RgbaInputFile::FromYca: public Mutex
+class RgbaInputFile::FromYca: public std::mutex
 {
   public:
 
@@ -1248,7 +1247,7 @@ RgbaInputFile::setFrameBuffer (Rgba *base, size_t xStride, size_t yStride)
 {
     if (_fromYca)
     {
-	Lock lock (*_fromYca);
+	std::lock_guard<std::mutex> lock (*_fromYca);
 	_fromYca->setFrameBuffer (base, xStride, yStride, _channelNamePrefix);
     }
     else
@@ -1329,7 +1328,7 @@ RgbaInputFile::readPixels (int scanLine1, int scanLine2)
 {
     if (_fromYca)
     {
-	Lock lock (*_fromYca);
+	std::lock_guard<std::mutex> lock (*_fromYca);
 	_fromYca->readPixels (scanLine1, scanLine2);
     }
     else

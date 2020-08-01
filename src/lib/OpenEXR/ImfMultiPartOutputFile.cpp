@@ -42,7 +42,6 @@
 #include "ImfOutputFile.h"
 #include "ImfTiledOutputFile.h"
 #include "ImfThreading.h"
-#include "IlmThreadMutex.h"
 #include "ImfMisc.h"
 #include "ImfStdIO.h"
 #include "ImfDeepScanLineOutputFile.h"
@@ -59,8 +58,6 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using IMATH_NAMESPACE::Box2i;
-using ILMTHREAD_NAMESPACE::Lock;
-    
 
 using std::vector;
 using std::map;
@@ -324,7 +321,7 @@ template <class T>
 T*
 MultiPartOutputFile::getOutputPart(int partNumber)
 {
-    Lock lock(*_data);
+    std::lock_guard<std::mutex> lock(*_data);
     if (_data->_outputFiles.find(partNumber) == _data->_outputFiles.end())
     {
         T* file = new T(_data->parts[partNumber]);

@@ -54,31 +54,27 @@
 #include <ImfDeepScanLineInputFile.h>
 
 #include "ImathFun.h"
-#include "IlmThreadMutex.h"
 #include "Iex.h"
 #include "half.h"
 
 #include <fstream>
 #include <algorithm>
+#include <mutex>
 
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-
 using IMATH_NAMESPACE::Box2i;
 using IMATH_NAMESPACE::divp;
 using IMATH_NAMESPACE::modp;
-using ILMTHREAD_NAMESPACE::Mutex;
-using ILMTHREAD_NAMESPACE::Lock;
-
 
 //
 // Struct InputFile::Data stores things that will be
 // needed between calls to readPixels
 //
 
-struct InputFile::Data : public Mutex
+struct InputFile::Data : public std::mutex
 {
     Header              header;
     int                 version;
@@ -736,7 +732,7 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
     if (_data->isTiled)
     {
-	Lock lock (*_data);
+	std::lock_guard<std::mutex> lock (*_data);
 
 	//
         // We must invalidate the cached buffer if the new frame
@@ -872,7 +868,7 @@ InputFile::frameBuffer () const
     }
     else if(_data->isTiled)
     {
-	Lock lock (*_data);
+	std::lock_guard<std::mutex> lock (*_data);
 	return _data->tFileBuffer;
     }
     else
@@ -914,7 +910,7 @@ InputFile::readPixels (int scanLine1, int scanLine2)
     }
     else if (_data->isTiled)
     {
-	Lock lock (*_data);
+	std::lock_guard<std::mutex> lock (*_data);
         bufferedReadPixels (_data, scanLine1, scanLine2);
     }
     else

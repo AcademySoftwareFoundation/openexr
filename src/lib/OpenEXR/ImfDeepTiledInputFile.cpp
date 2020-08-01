@@ -55,16 +55,17 @@
 #include <ImfMultiPartInputFile.h>
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
-#include "IlmThreadMutex.h"
 #include "ImfInputStreamMutex.h"
 #include "ImfInputPartData.h"
 #include "ImathVec.h"
 #include "Iex.h"
-#include <string>
-#include <vector>
+
 #include <algorithm>
 #include <assert.h>
 #include <limits>
+#include <mutex>
+#include <string>
+#include <vector>
 
 #include "ImfNamespace.h"
 
@@ -76,8 +77,6 @@ using std::string;
 using std::vector;
 using std::min;
 using std::max;
-using ILMTHREAD_NAMESPACE::Mutex;
-using ILMTHREAD_NAMESPACE::Lock;
 using ILMTHREAD_NAMESPACE::Semaphore;
 using ILMTHREAD_NAMESPACE::Task;
 using ILMTHREAD_NAMESPACE::TaskGroup;
@@ -201,7 +200,7 @@ class MultiPartInputFile;
 // needed between calls to readTile()
 //
 
-struct DeepTiledInputFile::Data: public Mutex
+struct DeepTiledInputFile::Data: public std::mutex
 {
     Header          header;                         // the image header
     TileDescription tileDesc;                       // describes the tile layout
@@ -1113,7 +1112,7 @@ DeepTiledInputFile::version () const
 void
 DeepTiledInputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
 
     //
     // Set the frame buffer
@@ -1261,7 +1260,7 @@ DeepTiledInputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 const DeepFrameBuffer &
 DeepTiledInputFile::frameBuffer () const
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
     return _data->frameBuffer;
 }
 
@@ -1282,7 +1281,7 @@ DeepTiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2, int lx, int l
 
     try
     {
-        Lock lock (*_data->_streamData);
+        std::lock_guard<std::mutex> lock (*_data->_streamData);
 
         if (_data->slices.size() == 0)
             throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
@@ -1427,7 +1426,7 @@ DeepTiledInputFile::rawTileData (int &dx, int &dy,
         lx << ", " << ly << ") is missing.");
      }
      
-     Lock lock(*_data->_streamData);
+     std::lock_guard<std::mutex> lock(*_data->_streamData);
                                    
      if (_data->_streamData->is->tellg() != tileOffset)
                                           _data->_streamData->is->seekg (tileOffset);
@@ -1735,7 +1734,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
 
     try
     {
-        Lock lock (*_data->_streamData);
+        std::lock_guard<std::mutex> lock (*_data->_streamData);
 
         savedFilePos = _data->_streamData->is->tellg();
 

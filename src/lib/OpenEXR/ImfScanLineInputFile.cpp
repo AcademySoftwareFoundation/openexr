@@ -52,7 +52,6 @@
 #include <ImfPartType.h>
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
-#include "IlmThreadMutex.h"
 #include "Iex.h"
 #include "ImfVersion.h"
 #include "ImfOptimizedPixelReading.h"
@@ -64,6 +63,7 @@
 #include <vector>
 #include <assert.h>
 #include <cstring>
+#include <mutex>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -76,8 +76,6 @@ using std::vector;
 using std::min;
 using std::max;
 using std::sort;
-using ILMTHREAD_NAMESPACE::Mutex;
-using ILMTHREAD_NAMESPACE::Lock;
 using ILMTHREAD_NAMESPACE::Semaphore;
 using ILMTHREAD_NAMESPACE::Task;
 using ILMTHREAD_NAMESPACE::TaskGroup;
@@ -210,7 +208,7 @@ struct sliceOptimizationData
 } // namespace
 
 
-struct ScanLineInputFile::Data: public Mutex
+struct ScanLineInputFile::Data: public std::mutex
 {
     Header		header;		    // the image header
     int			version;            // file's version
@@ -1424,7 +1422,7 @@ detectOptimizationMode (const vector<sliceOptimizationData>& optData)
 void	
 ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
-    Lock lock (*_streamData);
+    std::lock_guard<std::mutex> lock (*_streamData);
 
     
     
@@ -1630,7 +1628,7 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 ScanLineInputFile::frameBuffer () const
 {
-    Lock lock (*_streamData);
+    std::lock_guard<std::mutex> lock (*_streamData);
     return _data->frameBuffer;
 }
 
@@ -1656,7 +1654,7 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 {
     try
     {
-        Lock lock (*_streamData);
+        std::lock_guard<std::mutex> lock (*_streamData);
 
 	if (_data->slices.size() == 0)
 	    throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
@@ -1780,7 +1778,7 @@ ScanLineInputFile::rawPixelData (int firstScanLine,
 {
     try
     {
-        Lock lock (*_streamData);
+        std::lock_guard<std::mutex> lock (*_streamData);
 
 	if (firstScanLine < _data->minY || firstScanLine > _data->maxY)
 	{
@@ -1817,7 +1815,7 @@ void ScanLineInputFile::rawPixelDataToBuffer(int scanLine,
 
   try 
   {
-    Lock lock (*_streamData);
+    std::lock_guard<std::mutex> lock (*_streamData);
     
     if (scanLine < _data->minY || scanLine > _data->maxY) 
     {
