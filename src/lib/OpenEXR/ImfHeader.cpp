@@ -68,12 +68,12 @@
 #include <ImfTimeCodeAttribute.h>
 #include <ImfVecAttribute.h>
 #include <ImfPartType.h>
-#include "IlmThreadMutex.h"
 #include "Iex.h"
 #include <sstream>
 #include <stdlib.h>
 #include <time.h>
 #include <cmath>
+#include <mutex>
 #include "ImfTiledMisc.h"
 #include "ImfNamespace.h"
 
@@ -83,8 +83,6 @@ using namespace std;
 using IMATH_NAMESPACE::Box2i;
 using IMATH_NAMESPACE::V2i;
 using IMATH_NAMESPACE::V2f;
-using ILMTHREAD_NAMESPACE::Mutex;
-using ILMTHREAD_NAMESPACE::Lock;
 
 
 namespace {
@@ -1268,8 +1266,8 @@ Header::readFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int &version)
 void
 staticInitialize ()
 {
-    static Mutex criticalSection;
-    Lock lock (criticalSection);
+    static std::mutex criticalSection;
+	std::lock_guard<std::mutex> lock (criticalSection);
 
     static bool initialized = false;
 

@@ -41,16 +41,16 @@
 
 #include <ImfRgbaFile.h>
 #include <ImfArray.h>
-#include <string>
 #include <ImathRandom.h>
 #include <ImfThreading.h>
 #include <IlmThread.h>
-#include <IlmThreadMutex.h>
 #include <IlmThreadSemaphore.h>
 #include <ImfThreading.h>
 
-#include <stdio.h>
 #include <assert.h>
+#include <mutex>
+#include <stdio.h>
+#include <string>
 
 
 using namespace OPENEXR_IMF_NAMESPACE;
@@ -62,7 +62,7 @@ using namespace ILMTHREAD_NAMESPACE;
 namespace {
 
 Rand48 rand1 (27);
-Mutex scanlineMutex;
+std::mutex scanlineMutex;
 Semaphore threadSemaphore;
 int remainingScanlines = 0;
 
@@ -119,7 +119,7 @@ WriterThread::run ()
 
     while (true)
     {
-	Lock lock (scanlineMutex);
+	std::lock_guard<std::mutex> lock (scanlineMutex);
 
 	if (remainingScanlines)
 	{

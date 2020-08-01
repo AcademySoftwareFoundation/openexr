@@ -61,16 +61,15 @@
 
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
-#include "IlmThreadMutex.h"
 
 #include "Iex.h"
 
-#include <string>
-#include <vector>
+#include <algorithm>
 #include <assert.h>
 #include <limits>
-#include <algorithm>
-
+#include <mutex>
+#include <string>
+#include <vector>
 
 #include "ImfNamespace.h"
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -82,8 +81,6 @@ using std::string;
 using std::vector;
 using std::min;
 using std::max;
-using ILMTHREAD_NAMESPACE::Mutex;
-using ILMTHREAD_NAMESPACE::Lock;
 using ILMTHREAD_NAMESPACE::Semaphore;
 using ILMTHREAD_NAMESPACE::Task;
 using ILMTHREAD_NAMESPACE::TaskGroup;
@@ -197,7 +194,7 @@ LineBuffer::~LineBuffer ()
 } // namespace
 
 
-struct DeepScanLineInputFile::Data: public Mutex
+struct DeepScanLineInputFile::Data: public std::mutex
 {
     Header                      header;             // the image header
     int                         version;            // file's version
@@ -1236,7 +1233,7 @@ DeepScanLineInputFile::version () const
 void
 DeepScanLineInputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
 
     
     //
@@ -1370,7 +1367,7 @@ DeepScanLineInputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 const DeepFrameBuffer &
 DeepScanLineInputFile::frameBuffer () const
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
     return _data->frameBuffer;
 }
 
@@ -1387,7 +1384,7 @@ DeepScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 {
     try
     {
-        Lock lock (*_data->_streamData);
+        std::lock_guard<std::mutex> lock (*_data->_streamData);
 
         if (_data->slices.size() == 0)
             throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
@@ -1543,7 +1540,7 @@ DeepScanLineInputFile::rawPixelData (int firstScanLine,
     
     
     // enter the lock here - prevent another thread reseeking the file during read
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
     
     //
     // Seek to the start of the scan line in the file,
@@ -2085,7 +2082,7 @@ DeepScanLineInputFile::readPixelSampleCounts (int scanline1, int scanline2)
     
     try
     {
-        Lock lock (*_data->_streamData);
+        std::lock_guard<std::mutex> lock (*_data->_streamData);
 
         savedFilePos = _data->_streamData->is->tellg();
 

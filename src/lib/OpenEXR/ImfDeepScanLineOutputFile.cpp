@@ -58,13 +58,14 @@
 
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
-#include "IlmThreadMutex.h"
 #include "Iex.h"
-#include <string>
-#include <vector>
-#include <fstream>
+
 #include <assert.h>
 #include <algorithm>
+#include <fstream>
+#include <mutex>
+#include <string>
+#include <vector>
 
 #include "ImfNamespace.h"
 
@@ -77,8 +78,6 @@ using std::string;
 using std::vector;
 using std::min;
 using std::max;
-using ILMTHREAD_NAMESPACE::Mutex;
-using ILMTHREAD_NAMESPACE::Lock;
 using ILMTHREAD_NAMESPACE::Semaphore;
 using ILMTHREAD_NAMESPACE::Task;
 using ILMTHREAD_NAMESPACE::TaskGroup;
@@ -989,7 +988,7 @@ DeepScanLineOutputFile::initialize (const Header &header)
 DeepScanLineOutputFile::~DeepScanLineOutputFile ()
 {
     {
-        Lock lock(*_data->_streamData);
+        std::lock_guard<std::mutex> lock(*_data->_streamData);
         Int64 originalPosition = _data->_streamData->os->tellp();
 
         if (_data->lineOffsetsPosition > 0)
@@ -1048,7 +1047,7 @@ DeepScanLineOutputFile::header () const
 void
 DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
 
     //
     // Check if the new frame buffer descriptor
@@ -1167,7 +1166,7 @@ DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 const DeepFrameBuffer &
 DeepScanLineOutputFile::frameBuffer () const
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
     return _data->frameBuffer;
 }
 
@@ -1177,7 +1176,7 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
 {
     try
     {
-        Lock lock (*_data->_streamData);
+        std::lock_guard<std::mutex> lock (*_data->_streamData);
 
         if (_data->slices.size() == 0)
             throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
@@ -1400,7 +1399,7 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
 int
 DeepScanLineOutputFile::currentScanLine () const
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
     return _data->currentScanLine;
 }
 
@@ -1432,7 +1431,7 @@ void
 DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile &in)
 {
 
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
 
     //
     // Check if this file's and and the InputFile's
@@ -1534,7 +1533,7 @@ DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile &in)
 void
 DeepScanLineOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
-    Lock lock (*_data->_streamData);
+    std::lock_guard<std::mutex> lock (*_data->_streamData);
 
     if (_data->previewPosition <= 0)
         THROW (IEX_NAMESPACE::LogicExc, "Cannot update preview image pixels. "

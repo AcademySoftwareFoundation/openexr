@@ -36,20 +36,18 @@
 #define IMFOUTPUTSTREAMMUTEX_H_
 
 #include <vector>
+#include <mutex>
 
 #include "ImfIO.h"
-#include "IlmThreadMutex.h"
 #include "ImfGenericOutputFile.h"
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-using ILMTHREAD_NAMESPACE::Mutex;
-
 //
 // Used to wrap OPENEXR_IMF_INTERNAL_NAMESPACE::OStream as a Mutex.
 //
-struct OutputStreamMutex : public Mutex
+struct OutputStreamMutex : public std::mutex
 {
         OPENEXR_IMF_INTERNAL_NAMESPACE::OStream* os;
         Int64 currentPosition;

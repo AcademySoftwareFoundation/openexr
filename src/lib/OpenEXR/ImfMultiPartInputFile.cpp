@@ -54,7 +54,6 @@
 
 #include <OpenEXRConfig.h>
 #include <IlmThread.h>
-#include <IlmThreadMutex.h>
 
 #include <Iex.h>
 #include <map>
@@ -62,8 +61,6 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using ILMTHREAD_NAMESPACE::Mutex;
-using ILMTHREAD_NAMESPACE::Lock;
 using IMATH_NAMESPACE::Box2i;
 
 using std::vector;
@@ -184,7 +181,7 @@ template<class T>
 T*
 MultiPartInputFile::getInputPart(int partNumber)
 {
-    Lock lock(*_data);
+    std::lock_guard<std::mutex> lock(*_data);
             if (_data->_inputFiles.find(partNumber) == _data->_inputFiles.end())
         {
             T* file = new T(_data->getPart(partNumber));
