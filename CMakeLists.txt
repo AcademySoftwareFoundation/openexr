@@ -39,15 +39,22 @@ add_subdirectory(cmake)
 #######################################
 # Find or install Imath
 #######################################
-
+# Check to see if Imath is installed outside of the current build directory.
+set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/build/_deps/imath-src/config/") 
 find_package(Imath QUIET)
+set(CMAKE_IGNORE_PATH "") 
 
 if(NOT Imath_FOUND)
+  if (${CMAKE_VERSION} VERSION_LESS "3.11.0")
+    message(FATAL_ERROR "CMake 3.11 or newer is required for FetchContent, you must manually install Imath if you are using an earlier version of CMake")
+  endif()
+  cmake_minimum_required(VERSION 3.11)
+  
   message("Imath was not found. It is going to be cloned and installed.")
   
-  include(ExternalProject)
+  include(FetchContent)
 
-  ExternalProject_Add(Imath
+  FetchContent_Declare(Imath
     GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/Imath.git
     GIT_TAG origin/master #TODO: Release should not clone from master, this is a place holder
     CMAKE_ARGS
@@ -57,7 +64,13 @@ if(NOT Imath_FOUND)
       -D CMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
       -D PYTHON=${PYTHON}
       # Python bindings will be generated for Imath if PYTHON=ON
-    )
+  )
+  FetchContent_GetProperties(Imath)
+  if(NOT Imath_POPULATED)
+    FetchContent_Populate(Imath)
+    add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src)
+  endif()
+
 endif()
 
 #######################################
@@ -109,6 +122,9 @@ if(BUILD_TESTING)
   add_subdirectory(src/test)
 endif()
 
-# Including this module will add a `clang-format` target to the build if
-# the clang-format executable can be found.
-include(cmake/clang-format.cmake)
+if(Imath_FOUND)
+  # Including this module will add a `clang-format` target to the build if
+  # the clang-format executable can be found. Imath comes with its own, hence the
+  # conditional inclusion.
+  include(cmake/clang-format.cmake)
+endif()
