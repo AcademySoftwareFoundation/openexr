@@ -40,9 +40,9 @@ add_subdirectory(cmake)
 # Find or install Imath
 #######################################
 # Check to see if Imath is installed outside of the current build directory.
-set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/build/_deps/imath-src/config/") 
+set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config/") 
 find_package(Imath QUIET)
-set(CMAKE_IGNORE_PATH "") 
+set(CMAKE_IGNORE_PATH "")
 
 if(NOT Imath_FOUND)
   if (${CMAKE_VERSION} VERSION_LESS "3.11.0")
@@ -64,11 +64,13 @@ if(NOT Imath_FOUND)
       -D CMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
       -D PYTHON=${PYTHON}
       # Python bindings will be generated for Imath if PYTHON=ON
-  )
+      )
+    
   FetchContent_GetProperties(Imath)
   if(NOT Imath_POPULATED)
     FetchContent_Populate(Imath)
-    add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src)
+    add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src
+                     ${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src)
   endif()
 
 endif()
