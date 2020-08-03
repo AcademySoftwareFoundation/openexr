@@ -60,7 +60,7 @@ class ILMTHREAD_EXPORT Lock
   public:
 
     ILMBASE_DEPRECATED ("replace with std::lock_guard or std::unique_lock")
-    inline Lock (const Mutex& m, bool autoLock = true):
+    Lock (const Mutex& m, bool autoLock = true):
         _mutex (const_cast<Mutex &>(m)), _locked (false)
     {
         if (autoLock)
@@ -70,7 +70,7 @@ class ILMTHREAD_EXPORT Lock
         }
     }
     
-    inline ~Lock ()
+    ~Lock ()
     {
         if (_locked)
             _mutex.unlock();
@@ -80,19 +80,19 @@ class ILMTHREAD_EXPORT Lock
     Lock (Lock&&) = delete;
     Lock& operator= (Lock&&) = delete;
 
-    inline void acquire ()
+    void acquire ()
     {
         _mutex.lock();
         _locked = true;
     }
     
-    inline void release ()
+    void release ()
     {
         _locked = false;
         _mutex.unlock();
     }
     
-    inline bool locked ()
+    bool locked ()
     {
         return _locked;
     }
