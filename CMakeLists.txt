@@ -47,20 +47,17 @@ if(NOT Imath_FOUND)
   
   include(ExternalProject)
 
-  set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/Imath)
-
   ExternalProject_Add(Imath
     GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/Imath.git
     GIT_TAG origin/master #TODO: Release should not clone from master, this is a place holder
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DPYTHON=${PYTHON}
-    # Python bindings will be generated for Imath if PYTHON=ON
+    CMAKE_ARGS
+      -D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+      -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+      -D CMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+      -D CMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
+      -D PYTHON=${PYTHON}
+      # Python bindings will be generated for Imath if PYTHON=ON
     )
-
-  include_directories(${EXTERNAL_INSTALL_LOCATION}/Imath)
-  include_directories(${EXTERNAL_INSTALL_LOCATION}/Half)
-  link_directories(${EXTERNAL_INSTALL_LOCATION})
-  set(Imath_DIR "${EXTERNAL_INSTALL_LOCATION}/config")
-  
 endif()
 
 #######################################
