@@ -77,8 +77,29 @@ TileDescriptionAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
 
     unsigned char tmp;
     Xdr::read <StreamIO> (is, tmp);
-    _value.mode = LevelMode (tmp & 0x0f);
-    _value.roundingMode = LevelRoundingMode ((tmp >> 4) & 0x0f);
+
+    //
+    // four bits are allocated for 'mode' for future use (16 possible values)
+    // but only values 0,1,2 are currently valid. '3' is a special valid enum value
+    // that indicates bad values have been used
+    //
+    // roundingMode can only be 0 or 1, and 2 is a special enum value for 'bad enum'
+    //
+    unsigned char levelMode = tmp & 0x0f;
+    if(levelMode > 3)
+    {
+        levelMode = 3;
+    }
+
+    _value.mode = LevelMode(levelMode);
+
+    unsigned char levelRoundingMode = (tmp >> 4) & 0x0f;
+    if(levelRoundingMode > 2)
+    {
+        levelRoundingMode = 2;
+    }
+
+    _value.roundingMode = LevelRoundingMode (levelRoundingMode);
     
 }
 
