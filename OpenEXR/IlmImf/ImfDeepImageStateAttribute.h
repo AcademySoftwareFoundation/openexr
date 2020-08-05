@@ -62,6 +62,8 @@ template <> IMF_EXPORT
 void DeepImageStateAttribute::readValueFrom
     (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
 
+template <> IMF_EXPORT
+void DeepImageStateAttribute::copyValueFrom (const OPENEXR_IMF_INTERNAL_NAMESPACE::Attribute &other);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
