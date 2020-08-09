@@ -130,6 +130,19 @@ void checkIsNullTerminated (const char (&str)[N], const char *what)
 	throw IEX_NAMESPACE::InputExc(s);
 }
 
+void
+sanityCheckDisplayWindow (int width, int height)
+{
+    //
+    // Ensure a valid displayWindow.  All values for which width-1 < 0
+    // are invalid, but in particular, note that if width=-INT_MAX,
+    // width-1 will overflow.
+    //
+    
+    if (width < 1 || height < 1)
+	throw IEX_NAMESPACE::ArgExc ("Invalid display window in image header.");
+}
+
 } // namespace
 
 
@@ -143,6 +156,8 @@ Header::Header (int width,
 :
     _map()
 {
+    sanityCheckDisplayWindow (width, height);
+
     staticInitialize();
 
     Box2i displayWindow (V2i (0, 0), V2i (width - 1, height - 1));
@@ -169,6 +184,8 @@ Header::Header (int width,
 :
     _map()
 {
+    sanityCheckDisplayWindow (width, height);
+
     staticInitialize();
 
     Box2i displayWindow (V2i (0, 0), V2i (width - 1, height - 1));
@@ -896,48 +913,49 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 
     if (isTiled)
     {
-	if (!hasTileDescription())
-	{
-	    throw IEX_NAMESPACE::ArgExc ("Tiled image has no tile "
-			       "description attribute.");
-	}
+        if (!hasTileDescription())
+        {
+            throw IEX_NAMESPACE::ArgExc ("Tiled image has no tile "
+                        "description attribute.");
+        }
 
-	const TileDescription &tileDesc = tileDescription();
+        const TileDescription &tileDesc = tileDescription();
 
-	if (tileDesc.xSize <= 0 || tileDesc.ySize <= 0 || tileDesc.xSize > INT_MAX || tileDesc.ySize > INT_MAX )
-	    throw IEX_NAMESPACE::ArgExc ("Invalid tile size in image header.");
+        if (tileDesc.xSize <= 0 || tileDesc.ySize <= 0 || tileDesc.xSize > INT_MAX || tileDesc.ySize > INT_MAX )
+            throw IEX_NAMESPACE::ArgExc ("Invalid tile size in image header.");
 
-	if (maxTileWidth > 0 &&
-	    maxTileWidth < int(tileDesc.xSize))
-	{
-	    THROW (IEX_NAMESPACE::ArgExc, "The width of the tiles exceeds the maximum "
-				"width of " << maxTileWidth << "pixels.");
-	}
+        if (maxTileWidth > 0 &&
+            maxTileWidth < int(tileDesc.xSize))
+        {
+            THROW (IEX_NAMESPACE::ArgExc, "The width of the tiles exceeds the maximum "
+                    "width of " << maxTileWidth << "pixels.");
+        }
 
-	if (maxTileHeight > 0 &&
-	    maxTileHeight < int(tileDesc.ySize))
-	{
-	    THROW (IEX_NAMESPACE::ArgExc, "The width of the tiles exceeds the maximum "
-				"width of " << maxTileHeight << "pixels.");
-	}
+        if (maxTileHeight > 0 &&
+            maxTileHeight < int(tileDesc.ySize))
+        {
+            THROW (IEX_NAMESPACE::ArgExc, "The width of the tiles exceeds the maximum "
+                    "width of " << maxTileHeight << "pixels.");
+        }
 
-    // computes size of chunk offset table. Throws an exception if this exceeds
-    // the maximum allowable size
-    getTiledChunkOffsetTableSize(*this);
+        if (tileDesc.mode != ONE_LEVEL &&
+            tileDesc.mode != MIPMAP_LEVELS &&
+            tileDesc.mode != RIPMAP_LEVELS)
+            throw IEX_NAMESPACE::ArgExc ("Invalid level mode in image header.");
 
-	if (tileDesc.mode != ONE_LEVEL &&
-	    tileDesc.mode != MIPMAP_LEVELS &&
-	    tileDesc.mode != RIPMAP_LEVELS)
-	    throw IEX_NAMESPACE::ArgExc ("Invalid level mode in image header.");
+        if (tileDesc.roundingMode != ROUND_UP &&
+            tileDesc.roundingMode != ROUND_DOWN)
+            throw IEX_NAMESPACE::ArgExc ("Invalid level rounding mode in image header.");
 
-	if (tileDesc.roundingMode != ROUND_UP &&
-	    tileDesc.roundingMode != ROUND_DOWN)
-	    throw IEX_NAMESPACE::ArgExc ("Invalid level rounding mode in image header.");
+        if (lineOrder != INCREASING_Y &&
+            lineOrder != DECREASING_Y &&
+            lineOrder != RANDOM_Y)
+            throw IEX_NAMESPACE::ArgExc ("Invalid line order in image header.");
 
-	if (lineOrder != INCREASING_Y &&
-	    lineOrder != DECREASING_Y &&
-	    lineOrder != RANDOM_Y)
-	    throw IEX_NAMESPACE::ArgExc ("Invalid line order in image header.");
+        // computes size of chunk offset table. Throws an exception if this exceeds
+        // the maximum allowable size
+        getTiledChunkOffsetTableSize(*this);
+
     }
     else
     {
