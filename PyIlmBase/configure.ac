@@ -4,8 +4,8 @@ dnl Copyright Contributors to the OpenEXR Project.
 dnl
 
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(PyIlmBase, 2.5.2)
-AC_SUBST(PYILMBASE_VERSION, 2.5.2)
+AC_INIT(PyIlmBase, 2.5.3)
+AC_SUBST(PYILMBASE_VERSION, 2.5.3)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(PyIex/iexmodule.cpp)
 AC_CONFIG_HEADERS([config/PyIlmBaseConfig.h])
@@ -16,7 +16,7 @@ dnl static python modules make no sense - disable static
 AC_DISABLE_STATIC
 
 
-LIBTOOL_CURRENT=25
+LIBTOOL_CURRENT=26
 LIBTOOL_REVISION=1
 LIBTOOL_AGE=0
 LIBTOOL_VERSION=$LIBTOOL_CURRENT:$LIBTOOL_REVISION:$LIBTOOL_AGE
