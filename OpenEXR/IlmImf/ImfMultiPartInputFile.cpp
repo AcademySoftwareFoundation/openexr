@@ -451,25 +451,37 @@ MultiPartInputFile::Data::createTileOffsets(const Header& header)
     // Precompute level and tile information
     //
 
-    int* numXTiles;
-    int* numYTiles;
+    int* numXTiles = nullptr;
+    int* numYTiles = nullptr;
     int numXLevels, numYLevels;
     TileDescription tileDesc = header.tileDescription();
-    precalculateTileInfo (tileDesc,
-                          minX, maxX,
-                          minY, maxY,
-                          numXTiles, numYTiles,
-                          numXLevels, numYLevels);
+    try
+    {
 
-    TileOffsets* tileOffsets = new TileOffsets (tileDesc.mode,
-                                                numXLevels,
-                                                numYLevels,
-                                                numXTiles,
-                                                numYTiles);
-    delete [] numXTiles;
-    delete [] numYTiles;
+        precalculateTileInfo (tileDesc,
+                            minX, maxX,
+                            minY, maxY,
+                            numXTiles, numYTiles,
+                            numXLevels, numYLevels);
 
-    return tileOffsets;
+        TileOffsets* tileOffsets = new TileOffsets (tileDesc.mode,
+                                                    numXLevels,
+                                                    numYLevels,
+                                                    numXTiles,
+                                                    numYTiles);
+        delete [] numXTiles;
+        delete [] numYTiles;
+
+        return tileOffsets;
+
+    }
+    catch(...)
+    {
+        delete [] numXTiles;
+        delete [] numYTiles;
+        throw;
+    }
+
 }
 
 
