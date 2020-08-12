@@ -41,6 +41,8 @@
 
 Patch release with various bug/security fixes and build/install fixes, plus a performance optimization:
 
+### Summary
+
 * Various sanitizer/fuzz-identified issues related to handling of invalid input
 * Fixes to misc compiler warnings
 * Cmake fix for building on arm64 macOS (#772)
@@ -48,34 +50,39 @@ Patch release with various bug/security fixes and build/install fixes, plus a pe
 * Fix for building on non-glibc (#798)
 * Fixes to tests
 
-### Summary
+### Merged Pull Requests
 
-* [738](https://github.com/AcademySoftwareFoundation/openexr/pull/738) always ignore chunkCount attribute unless it cannot be computed #738
-* [770](https://github.com/AcademySoftwareFoundation/openexr/pull/770) IlmImf: Fix clang compiler warnings
-* [772](https://github.com/AcademySoftwareFoundation/openexr/pull/772) Disable OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX when building on arm64 macOS
-* [775](https://github.com/AcademySoftwareFoundation/openexr/pull/775) Removes overridden find_package in CMakeLists.txt
-* [777](https://github.com/AcademySoftwareFoundation/openexr/pull/777) IlmImfFuzzTest reports incorrect test names and missing files as errors
-* [778](https://github.com/AcademySoftwareFoundation/openexr/pull/778) Sanity check stringvector size fields on read
-* [782](https://github.com/AcademySoftwareFoundation/openexr/pull/782) refactor: use local loop variable in copyFromFrameBuffer
-* [783](https://github.com/AcademySoftwareFoundation/openexr/pull/783) explicitly cast signed chars to unsigned before bitwise left shift in Xdr::read()
-* [784](https://github.com/AcademySoftwareFoundation/openexr/pull/784) sanity check preview attribute sizes
-* [785](https://github.com/AcademySoftwareFoundation/openexr/pull/785) prevent invalid values in Channel's PixelType enum
-* [787](https://github.com/AcademySoftwareFoundation/openexr/pull/787) change sanity check in stringvectorattribute to prevent overflow
-* [788](https://github.com/AcademySoftwareFoundation/openexr/pull/788) use 64 bit computation in chunk offset table reconstruction
-* [792](https://github.com/AcademySoftwareFoundation/openexr/pull/792) cast signed chars to unsigned longs before left shift in Xdr::read of signed long
-* [793](https://github.com/AcademySoftwareFoundation/openexr/pull/793) sanityCheckDisplayWindow() ensures that width and height don't cause integer overflow
-* [794](https://github.com/AcademySoftwareFoundation/openexr/pull/794) suppress clang undefined behavior sanitizer in DeepImageStateAttribute::copyValuesFrom()
-* [795](https://github.com/AcademySoftwareFoundation/openexr/pull/795) prevent invalid values in LineOrder enum
-* [798](https://github.com/AcademySoftwareFoundation/openexr/pull/798) IexMathFpu.cpp: Fix build on non-glibc (e.g. musl libc)
-* [801](https://github.com/AcademySoftwareFoundation/openexr/pull/801) prevent invalid Compression enum values being read from file
-* [803](https://github.com/AcademySoftwareFoundation/openexr/pull/803) Fix stack corruption in Matrix tests
-* [804](https://github.com/AcademySoftwareFoundation/openexr/pull/804) prevent invalid tile description enums
-* [805](https://github.com/AcademySoftwareFoundation/openexr/pull/805) remove extraneous vector allocation in getScanlineChunkOffsetTableSize 
-* [806](https://github.com/AcademySoftwareFoundation/openexr/pull/806) suppress clang undefined behavior sanitizer in EnvmapAttribute::copyValuesFrom() 
+* [812](https://github.com/AcademySoftwareFoundation/openexr/pull/812) free memory if precalculateTileInfo throws
 * [809](https://github.com/AcademySoftwareFoundation/openexr/pull/809) Avoid integer overflow in calculateNumTiles() 
+* [806](https://github.com/AcademySoftwareFoundation/openexr/pull/806) suppress clang undefined behavior sanitizer in EnvmapAttribute::copyValuesFrom() 
+* [805](https://github.com/AcademySoftwareFoundation/openexr/pull/805) remove extraneous vector allocation in getScanlineChunkOffsetTableSize 
+* [804](https://github.com/AcademySoftwareFoundation/openexr/pull/804) prevent invalid tile description enums
+* [803](https://github.com/AcademySoftwareFoundation/openexr/pull/803) Fix stack corruption in Matrix tests
+* [801](https://github.com/AcademySoftwareFoundation/openexr/pull/801) prevent invalid Compression enum values being read from file
+* [798](https://github.com/AcademySoftwareFoundation/openexr/pull/798) IexMathFpu.cpp: Fix build on non-glibc (e.g. musl libc)
+* [795](https://github.com/AcademySoftwareFoundation/openexr/pull/795) prevent invalid values in LineOrder enum
+* [794](https://github.com/AcademySoftwareFoundation/openexr/pull/794) suppress clang undefined behavior sanitizer in DeepImageStateAttribute::copyValuesFrom()
+* [793](https://github.com/AcademySoftwareFoundation/openexr/pull/793) sanityCheckDisplayWindow() ensures that width and height don't cause integer overflow
+* [792](https://github.com/AcademySoftwareFoundation/openexr/pull/792) cast signed chars to unsigned longs before left shift in Xdr::read of signed long
+* [788](https://github.com/AcademySoftwareFoundation/openexr/pull/788) use 64 bit computation in chunk offset table reconstruction
+* [787](https://github.com/AcademySoftwareFoundation/openexr/pull/787) change sanity check in stringvectorattribute to prevent overflow
+* [785](https://github.com/AcademySoftwareFoundation/openexr/pull/785) prevent invalid values in Channel's PixelType enum
+* [784](https://github.com/AcademySoftwareFoundation/openexr/pull/784) sanity check preview attribute sizes
+* [783](https://github.com/AcademySoftwareFoundation/openexr/pull/783) explicitly cast signed chars to unsigned before bitwise left shift in Xdr::read()
+* [782](https://github.com/AcademySoftwareFoundation/openexr/pull/782) refactor: use local loop variable in copyFromFrameBuffer
+* [778](https://github.com/AcademySoftwareFoundation/openexr/pull/778) Sanity check stringvector size fields on read
+* [777](https://github.com/AcademySoftwareFoundation/openexr/pull/777) IlmImfFuzzTest reports incorrect test names and missing files as errors
+* [775](https://github.com/AcademySoftwareFoundation/openexr/pull/775) Removes overridden find_package in CMakeLists.txt
+* [772](https://github.com/AcademySoftwareFoundation/openexr/pull/772) Disable OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX when building on arm64 macOS
+* [770](https://github.com/AcademySoftwareFoundation/openexr/pull/770) IlmImf: Fix clang compiler warnings
+* [738](https://github.com/AcademySoftwareFoundation/openexr/pull/738) always ignore chunkCount attribute unless it cannot be computed #738
 
-### Commits \[ git log v2.5.1...v2.5.2\]
+### Commits \[ git log v2.5.2...v2.5.3\]
 
+* [425c104f](https://github.com/AcademySoftwareFoundation/openexr/commit/425c104f7ae9e8e17cc3d9d120d684b93195c402) free memory if precalculateTileInfo throws ([Peter Hillman](@peterh@wetafx.co.nz) 2020-08-10)
+* [7212e337](https://github.com/AcademySoftwareFoundation/openexr/commit/7212e33729e036d16fb5fd3494af815869771963) Set LIBTOOL_VERSION to 25:2:0 for 2.5.3 ([Cary Phillips](@cary@ilm.com) 2020-08-09)
+* [0b6d5185](https://github.com/AcademySoftwareFoundation/openexr/commit/0b6d5185d99bff1c4ab7b2fe00d297ef2fcd46e8) Release notes for 2.5.3 ([Cary Phillips](@cary@ilm.com) 2020-08-09)
+* [6b55722b](https://github.com/AcademySoftwareFoundation/openexr/commit/6b55722b4477e8d4aed04fbeb6b9f5b4226d2bbd) Bump version to 2.5.3 and LIBTOOL_CURRENT to 26 ([Cary Phillips](@cary@ilm.com) 2020-08-09)
 * [40a7ed76](https://github.com/AcademySoftwareFoundation/openexr/commit/40a7ed76cde1427aa6c935565de96f7ee10d9f76) Change >= to > in overflow calculation ([Cary Phillips](@cary@ilm.com) 2020-08-08)
 * [b10412d5](https://github.com/AcademySoftwareFoundation/openexr/commit/b10412d55964459e04ff95f982fd8ce2ded4ea43) Avoid integer overflow in calculateNumTiles() ([Cary Phillips](@cary@ilm.com) 2020-08-08)
 * [ed469311](https://github.com/AcademySoftwareFoundation/openexr/commit/ed469311ac17a8912e2c4cb14856aa2b7f228fac) reformatted references to CVEs in CHANGES.md ([Cary Phillips](@cary@ilm.com) 2020-07-07)
