@@ -205,7 +205,7 @@ FastHufDecoder::FastHufDecoder
         for (int l = _minCodeLength; l <= _maxCodeLength; ++l)
         {
             countTmp[l] = (double)codeCount[l] * 
-                          (double)(2 << (_maxCodeLength-l));
+                          (double)(2ll << (_maxCodeLength-l));
         }
     
         for (int l = _minCodeLength; l <= _maxCodeLength; ++l)
@@ -215,7 +215,7 @@ FastHufDecoder::FastHufDecoder
             for (int k =l + 1; k <= _maxCodeLength; ++k)
                 tmp += countTmp[k];
             
-            tmp /= (double)(2 << (_maxCodeLength - l));
+            tmp /= (double)(2ll << (_maxCodeLength - l));
 
             base[l] = (Int64)ceil (tmp);
         }
