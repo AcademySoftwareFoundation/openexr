@@ -538,18 +538,24 @@ FastHufDecoder::refill
 
         buffer |= bufferBack >> (64 - numBits);
     }
-    
-    bufferBack         = bufferBack << numBits;
-    bufferBackNumBits -= numBits;
 
-    // 
-    // We can have cases where the previous shift of bufferBack is << 64 - 
-    // in which case no shift occurs. The bit count math still works though,
-    // so if we don't have any bits left, zero out bufferBack.
+
+    //
+    // We can have cases where the previous shift of bufferBack is << 64 -
+    // this is an undefined operation but tends to create just zeroes.
+    // so if we won't have any bits left, zero out bufferBack insetad of computing the shift
     //
 
-    if (bufferBackNumBits == 0)
+    if (bufferBackNumBits <= numBits)
+    {
         bufferBack = 0;
+    }else
+    {
+        bufferBack = bufferBack << numBits;
+    }
+    bufferBackNumBits -= numBits;
+
+
 }
 
 //
