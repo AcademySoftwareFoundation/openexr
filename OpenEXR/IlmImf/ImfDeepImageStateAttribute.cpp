@@ -58,6 +58,12 @@ template <>
 void
 DeepImageStateAttribute::writeValueTo
     (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
+#if defined (__clang__)
+    // _value may be an invalid value, which the clang sanitizer reports
+    // as undefined behavior, even though the value is acceptable in this
+    // context.
+    __attribute__((no_sanitize ("undefined")))
+#endif
 {
     unsigned char tmp = _value;
     Xdr::write <StreamIO> (os, tmp);
