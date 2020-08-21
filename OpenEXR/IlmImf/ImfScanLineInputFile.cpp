@@ -1161,17 +1161,17 @@ void ScanLineInputFile::initialize(const Header& header)
 
 
         //
-        // avoid allocating excessive memory due to large lineOffsets table size
-        // if the chunktablesize claims to be large,
+        // avoid allocating excessive memory due to large lineOffsets table size.
+        // If the chunktablesize claims to be large,
         // check the file is big enough to contain the file before allocating memory
         //
-        if(chunkOffsetTableSize > gLargeChunkTableSize)
+        if(lineOffsetSize > gLargeChunkTableSize)
         {
-            Int64 pos = is->tellg();
-            is->seekg(pos + (gLargeChunkTableSize-1)*sizeof(Int64));
+            Int64 pos = _streamData->is->tellg();
+            _streamData->is->seekg(pos + (lineOffsetSize-1)*sizeof(Int64));
             Int64 temp;
-            OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*is, temp);
-            is->seekg(pos);
+            OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*_streamData->is, temp);
+            _streamData->is->seekg(pos);
 
         }
 

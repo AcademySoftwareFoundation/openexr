@@ -762,7 +762,7 @@ MultiPartInputFile::Data::readChunkOffsetTables(bool reconstructChunkOffsetTable
         if(chunkOffsetTableSize > gLargeChunkTableSize)
         {
             Int64 pos = is->tellg();
-            is->seekg(pos + (gLargeChunkTableSize-1)*sizeof(Int64));
+            is->seekg(pos + (chunkOffsetTableSize-1)*sizeof(Int64));
             Int64 temp;
             OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*is, temp);
             is->seekg(pos);
