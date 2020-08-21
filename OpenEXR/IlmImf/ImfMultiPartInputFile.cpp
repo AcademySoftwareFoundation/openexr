@@ -741,7 +741,9 @@ MultiPartInputFile::Data::getPart(int partNumber)
     return parts[partNumber];
 }
 
-
+namespace{
+static const int gLargeChunkTableSize = 1024*1024;
+}
 
 void
 MultiPartInputFile::Data::readChunkOffsetTables(bool reconstructChunkOffsetTable)
@@ -751,7 +753,25 @@ MultiPartInputFile::Data::readChunkOffsetTables(bool reconstructChunkOffsetTable
     for (size_t i = 0; i < parts.size(); i++)
     {
         int chunkOffsetTableSize = getChunkOffsetTableSize(parts[i]->header);
+
+        //
+        // avoid allocating excessive memory.
+        // If the chunktablesize claims to be large,
+        // check the file is big enough to contain the file before allocating memory
+        //
+        if(chunkOffsetTableSize > gLargeChunkTableSize)
+        {
+            Int64 pos = is->tellg();
+            is->seekg(pos + (gLargeChunkTableSize-1)*sizeof(Int64));
+            Int64 temp;
+            OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*is, temp);
+            is->seekg(pos);
+
+        }
+
         parts[i]->chunkOffsets.resize(chunkOffsetTableSize);
+
+
 
         for (int j = 0; j < chunkOffsetTableSize; j++)
             OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*is, parts[i]->chunkOffsets[j]);

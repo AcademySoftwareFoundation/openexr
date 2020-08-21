@@ -268,6 +268,14 @@ Compressor *    newTileCompressor (Compression c,
 				   const Header &hdr);
 
 
+//-----------------------------------------------------------------
+// Return the maximum number of scanlines in each chunk
+// of a scanline image using the given compression scheme
+//-----------------------------------------------------------------
+
+IMF_EXPORT
+int              numLinesInBuffer(Compression comp);
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif

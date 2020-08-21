@@ -1100,7 +1100,7 @@ newLineBufferTask (TaskGroup *group,
  }
  
   
-
+static const int gLargeChunkTableSize = 1024*1024;
 
 } // namespace
 
@@ -1121,7 +1121,9 @@ void ScanLineInputFile::initialize(const Header& header)
         size_t maxBytesPerLine = bytesPerLineTable (_data->header,
                                                     _data->bytesPerLine);
         
-        if(maxBytesPerLine > INT_MAX)
+        Compression comp = _data->header.compression();
+
+        if(maxBytesPerLine*numLinesInBuffer(comp) > INT_MAX)
         {
             throw IEX_NAMESPACE::InputExc("maximum bytes per scanline exceeds maximum permissible size");
         }
@@ -1129,8 +1131,7 @@ void ScanLineInputFile::initialize(const Header& header)
 
         for (size_t i = 0; i < _data->lineBuffers.size(); i++)
         {
-            _data->lineBuffers[i] = new LineBuffer (newCompressor
-                                                (_data->header.compression(),
+            _data->lineBuffers[i] = new LineBuffer (newCompressor(comp,
                                                  maxBytesPerLine,
                                                  _data->header));
         }
@@ -1155,6 +1156,24 @@ void ScanLineInputFile::initialize(const Header& header)
 
         int lineOffsetSize = (dataWindow.max.y - dataWindow.min.y +
                               _data->linesInBuffer) / _data->linesInBuffer;
+
+
+
+
+        //
+        // avoid allocating excessive memory due to large lineOffsets table size
+        // if the chunktablesize claims to be large,
+        // check the file is big enough to contain the file before allocating memory
+        //
+        if(chunkOffsetTableSize > gLargeChunkTableSize)
+        {
+            Int64 pos = is->tellg();
+            is->seekg(pos + (gLargeChunkTableSize-1)*sizeof(Int64));
+            Int64 temp;
+            OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*is, temp);
+            is->seekg(pos);
+
+        }
 
         _data->lineOffsets.resize (lineOffsetSize);
 }
