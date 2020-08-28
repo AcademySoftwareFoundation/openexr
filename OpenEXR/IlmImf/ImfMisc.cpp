@@ -1848,38 +1848,7 @@ usesLongNames (const Header &header)
     return false;
 }
 
-namespace
-{
-// for a given compression type, return the number of scanlines
-// compressed into a single chunk
-// TODO add to API and move to ImfCompressor.cpp
-int
-numLinesInBuffer(Compression comp)
-{
-    switch(comp)
-    {
-        case NO_COMPRESSION :
-        case RLE_COMPRESSION:
-        case ZIPS_COMPRESSION:
-            return 1;
-        case ZIP_COMPRESSION:
-            return 16;
-        case PIZ_COMPRESSION:
-            return 32;
-        case PXR24_COMPRESSION:
-            return 16;
-        case B44_COMPRESSION:
-        case B44A_COMPRESSION:
-        case DWAA_COMPRESSION:
-            return 32;
-        case DWAB_COMPRESSION:
-            return 256;
 
-        default:
-	        throw IEX_NAMESPACE::ArgExc ("Unknown compression type");
-    }
-}
-}
 
 int
 getScanlineChunkOffsetTableSize(const Header& header)
