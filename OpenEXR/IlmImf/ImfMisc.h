@@ -476,12 +476,6 @@ IMF_EXPORT
 int getChunkOffsetTableSize(const Header& header,bool deprecated_attribute=false);
 
 
-//
-// return the number of scanlines in each chunk of a scanlineimage for the given scheme
-//
-IMF_EXPORT int
-numLinesInBuffer(Compression comp);
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 

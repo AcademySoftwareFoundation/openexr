@@ -757,9 +757,11 @@ MultiPartInputFile::Data::readChunkOffsetTables(bool reconstructChunkOffsetTable
         //
         // avoid allocating excessive memory.
         // If the chunktablesize claims to be large,
-        // check the file is big enough to contain the file before allocating memory
+        // check the file is big enough to contain the table before allocating memory.
+        // Attempt to read the last entry in the table. Either the seekg() or the read()
+        // call will throw an exception if the file is too small to contain the table
         //
-        if(chunkOffsetTableSize > gLargeChunkTableSize)
+        if (chunkOffsetTableSize > gLargeChunkTableSize)
         {
             Int64 pos = is->tellg();
             is->seekg(pos + (chunkOffsetTableSize-1)*sizeof(Int64));

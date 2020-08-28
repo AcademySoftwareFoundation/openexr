@@ -1129,8 +1129,10 @@ void ScanLineInputFile::initialize(const Header& header)
         //
         // avoid allocating excessive memory due to large lineOffsets table size.
         // If the chunktablesize claims to be large,
-        // check the file is big enough to contain the file before allocating memory
-        // in the bytesPerLineTable and the lineOffsets table
+        // check the file is big enough to contain the table before allocating memory
+        // in the bytesPerLineTable and the lineOffsets table.
+        // Attempt to read the last entry in the table. Either the seekg() or the read()
+        // call will throw an exception if the file is too small to contain the table
         //
         if (lineOffsetSize > gLargeChunkTableSize)
         {
