@@ -301,7 +301,9 @@ calculateNumTiles (int *numTiles,
 {
     for (int i = 0; i < numLevels; i++)
     {
-	numTiles[i] = (levelSize (min, max, i, rmode) + size - 1) / size;
+        // use 64 bits to avoid int overflow if size is large.
+        Int64 l = levelSize (min, max, i, rmode);
+        numTiles[i] = (l + size - 1) / size;
     }
 }
 
