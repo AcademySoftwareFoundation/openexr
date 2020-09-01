@@ -195,6 +195,7 @@ writeReadYca (const char fileName[],
 	    else
 	    {
 		assert (p1.g == p2.g);
+		assert (p1.b == p2.b);
 	    }
 
 	    if (channels & WRITE_A)
