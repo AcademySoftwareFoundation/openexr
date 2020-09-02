@@ -1390,9 +1390,10 @@ namespace
 //
 
 struct FBytes { uint8_t b[4]; };
-union bytesOrFloat {
+union bytesUintOrFloat {
   FBytes b;
   float f;
+  unsigned int u;
 } ;
 }
 
@@ -1408,7 +1409,9 @@ convertInPlace (char *& writePtr,
     
         for (size_t j = 0; j < numPixels; ++j)
         {
-            Xdr::write <CharPtrIO> (writePtr, *(const unsigned int *) readPtr);
+            union bytesUintOrFloat tmp;
+            tmp.b = * reinterpret_cast<const FBytes *>( readPtr );
+            Xdr::write <CharPtrIO> (writePtr, tmp.u);
             readPtr += sizeof(unsigned int);
         }
         break;
@@ -1426,7 +1429,7 @@ convertInPlace (char *& writePtr,
     
         for (size_t j = 0; j < numPixels; ++j)
         {
-            union bytesOrFloat tmp;
+            union bytesUintOrFloat tmp;
             tmp.b = * reinterpret_cast<const FBytes *>( readPtr );
             Xdr::write <CharPtrIO> (writePtr, tmp.f);
             readPtr += sizeof(float);
