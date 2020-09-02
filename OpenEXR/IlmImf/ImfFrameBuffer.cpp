@@ -89,7 +89,7 @@ Slice::Make (
     bool                        xTileCoords,
     bool                        yTileCoords)
 {
-    char* base = reinterpret_cast<char*> (const_cast<void *> (ptr));
+    intptr_t base = reinterpret_cast<intptr_t> (const_cast<void *> (ptr));
     if (xStride == 0)
     {
         switch (type)
@@ -117,7 +117,7 @@ Slice::Make (
 
     return Slice (
         type,
-        base - offx - offy,
+        reinterpret_cast<char*>(base - offx - offy),
         xStride,
         yStride,
         xSampling,

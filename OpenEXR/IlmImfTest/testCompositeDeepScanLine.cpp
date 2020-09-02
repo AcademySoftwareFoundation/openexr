@@ -341,8 +341,9 @@ class data
         {
             if(!dontbotherloadingdepth || (_channels[i]!="Z" && _channels[i]!="ZBack") )
             {
+                intptr_t base =  reinterpret_cast<intptr_t>(&data[i]);
                 framebuf.insert(_channels[i].c_str(),
-                                Slice(_type,(char *) (&data[i] - (dw.min.x + dw.min.y*(dw.size().x+1))*_channels.size() ),
+                                Slice(_type,reinterpret_cast<char*>(base - sizeof(T)*(dw.min.x + dw.min.y*(dw.size().x+1))*_channels.size() ),
                                       sizeof(T)*_channels.size(),
                                       sizeof(T)*(dw.size().x+1)*_channels.size())
                                       );

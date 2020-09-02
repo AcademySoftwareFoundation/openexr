@@ -323,7 +323,6 @@ class LineCompositeTask : public Task
 
 };
 
-
 void
 composite_line(int y,
                int start,
@@ -386,16 +385,17 @@ composite_line(int y,
            {
 
                float value = output_pixel[ _Data->_bufferMap[channel_number] ]; // value to write
-
+               intptr_t base = reinterpret_cast<intptr_t>(it.slice().base);
 
                 // cast to half float if necessary
                if(it.slice().type==OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT)
                {
-                   * (float *)(it.slice().base + y*it.slice().yStride + x*it.slice().xStride) = value;
+
+                   * reinterpret_cast<float*>(base + y*it.slice().yStride + x*it.slice().xStride) = value;
                }
                else if(it.slice().type==HALF)
                {
-                   * (half *)(it.slice().base + y*it.slice().yStride + x*it.slice().xStride) = half(value);
+                   * reinterpret_cast<half*>(base + y*it.slice().yStride + x*it.slice().xStride) = half(value);
                }
 
                channel_number++;

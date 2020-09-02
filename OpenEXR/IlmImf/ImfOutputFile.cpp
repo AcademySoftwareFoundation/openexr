@@ -558,13 +558,18 @@ LineBufferTask::execute ()
                     // If necessary, convert the pixel data to Xdr format.
 		    // Then store the pixel data in _ofd->lineBuffer.
                     //
-        
-                    const char *linePtr = slice.base +
-                                          divp (y, slice.ySampling) *
+                    // slice.base may be 'negative' but
+                    // pointer arithmetic is not allowed to overflow, so
+                    // perform computation with the non-pointer 'intptr_t' instead
+                    //
+                    intptr_t base =  reinterpret_cast<intptr_t>(slice.base);
+                    intptr_t linePtr =  base + divp (y, slice.ySampling) *
                                           slice.yStride;
         
-                    const char *readPtr = linePtr + dMinX * slice.xStride;
-                    const char *endPtr  = linePtr + dMaxX * slice.xStride;
+                    const char *readPtr = reinterpret_cast<const char*>(linePtr +
+                                          dMinX * slice.xStride);
+                    const char *endPtr  = reinterpret_cast<const char*>(linePtr +
+                                          dMaxX * slice.xStride);
     
                     copyFromFrameBuffer (writePtr, readPtr, endPtr,
                                          slice.xStride, _ofd->format,

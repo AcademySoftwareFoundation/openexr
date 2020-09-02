@@ -227,10 +227,11 @@ TiledRgbaOutputFile::ToYa::writeTile (int dx, int dy, int lx, int ly)
     Box2i dw = _outputFile.dataWindowForTile (dx, dy, lx, ly);
     int width = dw.max.x - dw.min.x + 1;
 
+    intptr_t  base= reinterpret_cast<intptr_t>(_fbBase);
     for (int y = dw.min.y, y1 = 0; y <= dw.max.y; ++y, ++y1)
     {
 	for (int x = dw.min.x, x1 = 0; x <= dw.max.x; ++x, ++x1)
-	    _buf[y1][x1] = _fbBase[x * _fbXStride + y * _fbYStride];
+	    _buf[y1][x1] = *reinterpret_cast<Rgba*>(base + sizeof(Rgba)*(x * _fbXStride + y * _fbYStride));
 
 	RGBAtoYCA (_yw, width, _writeA, _buf[y1], _buf[y1]);
     }
@@ -750,6 +751,9 @@ TiledRgbaInputFile::FromYa::readTile (int dx, int dy, int lx, int ly)
 
     Box2i dw = _inputFile.dataWindowForTile (dx, dy, lx, ly);
     int width = dw.max.x - dw.min.x + 1;
+    intptr_t  base= reinterpret_cast<intptr_t>(_fbBase);
+
+
 
     for (int y = dw.min.y, y1 = 0; y <= dw.max.y; ++y, ++y1)
     {
@@ -763,7 +767,8 @@ TiledRgbaInputFile::FromYa::readTile (int dx, int dy, int lx, int ly)
 
 	for (int x = dw.min.x, x1 = 0; x <= dw.max.x; ++x, ++x1)
 	{
-	    _fbBase[x * _fbXStride + y * _fbYStride] = _buf[y1][x1];
+	    *reinterpret_cast<Rgba*>(base + sizeof(Rgba)*(x * _fbXStride + y * _fbYStride))
+               = _buf[y1][x1];
 	}
     }
 }
