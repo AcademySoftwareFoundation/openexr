@@ -115,11 +115,7 @@ WriterThread::WriterThread (RgbaOutputFile *outfile): _outfile (outfile)
 void
 WriterThread::run ()
 {
-    //
-    // Signal that the thread has started
-    //
 
-    threadSemaphore.post();
 
     while (true)
     {
@@ -136,6 +132,12 @@ WriterThread::run ()
 	    break;
 	}
     }
+
+    //
+    // Signal that the thread has finished
+    //
+
+    threadSemaphore.post();
 }
     
 
@@ -146,7 +148,7 @@ class ReaderThread : public Thread
     ReaderThread (RgbaInputFile *infile, int start, int step);
 
     virtual void	run ();
-    
+
   private:
 
     RgbaInputFile *	_infile;
@@ -165,17 +167,20 @@ ReaderThread::ReaderThread (RgbaInputFile *infile, int start, int step):
 void
 ReaderThread::run ()
 {
-    //
-    // Signal that the thread has started
-    //
 
-    threadSemaphore.post ();
 
     int num = _infile->header().dataWindow().max.y -
 	      _infile->header().dataWindow().min.y + 1;
 
     for (int i = _start; i < num; i += _step)
 	_infile->readPixels (i);
+
+    //
+    // Signal that the thread has finished
+    //
+
+    threadSemaphore.post ();
+
 }
     
 
