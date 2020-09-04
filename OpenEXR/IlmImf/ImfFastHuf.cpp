@@ -127,7 +127,7 @@ FastHufDecoder::FastHufDecoder
 
     for (Int64 symbol = static_cast<Int64>(minSymbol); symbol <= static_cast<Int64>(maxSymbol); symbol++)
     {
-        if (currByte - table > numBytes)
+        if (currByte - table >= numBytes)
         {
             throw IEX_NAMESPACE::InputExc ("Error decoding Huffman table "
                                            "(Truncated table data).");
@@ -144,7 +144,7 @@ FastHufDecoder::FastHufDecoder
 
         if (codeLen == (Int64) LONG_ZEROCODE_RUN)
         {
-            if (currByte - table > numBytes)
+            if (currByte - table >= numBytes)
             {
                 throw IEX_NAMESPACE::InputExc ("Error decoding Huffman table "
                                                "(Truncated table data).");
