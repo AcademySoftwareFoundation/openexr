@@ -594,7 +594,7 @@ Xdr::read <CharPtrIO> (inPtr, (char *) &bitmap[0] + minNonZero,
     int length;
     Xdr::read <CharPtrIO> (inPtr, length);
 
-    if (length > inSize)
+    if (inPtr + length > inputEnd || length<0 )
     {
 	throw InputExc ("Error in header for PIZ-compressed data "
 			"(invalid array length).");
