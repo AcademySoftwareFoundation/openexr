@@ -390,12 +390,13 @@ composite_line(int y,
                 // cast to half float if necessary
                if(it.slice().type==OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT)
                {
-
-                   * reinterpret_cast<float*>(base + y*it.slice().yStride + x*it.slice().xStride) = value;
+                   float* ptr = reinterpret_cast<float*>(base + y*it.slice().yStride + x*it.slice().xStride);
+                   *ptr  = value;
                }
                else if(it.slice().type==HALF)
                {
-                   * reinterpret_cast<half*>(base + y*it.slice().yStride + x*it.slice().xStride) = half(value);
+                   half* ptr =  reinterpret_cast<half*>(base + y*it.slice().yStride + x*it.slice().xStride);
+                   *ptr = half(value);
                }
 
                channel_number++;

@@ -424,8 +424,9 @@ RgbaOutputFile::ToYca::writePixels (int numScanLines)
 
 	    for (int j = 0; j < _width; ++j)
 	    {
-		_tmpBuf[j + N2] = *reinterpret_cast<const Rgba*>(base+sizeof(Rgba)*
+                const Rgba* ptr = reinterpret_cast<const Rgba*>(base+sizeof(Rgba)*
 		(_fbYStride * _currentScanLine + _fbXStride * (j + _xMin)) );
+		_tmpBuf[j + N2] = *ptr;
 	    }
 
 	    //
@@ -1089,8 +1090,8 @@ RgbaInputFile::FromYca::readPixels (int scanLine)
     intptr_t base = reinterpret_cast<intptr_t>(_fbBase);
     for (int i = 0; i < _width; ++i)
     {
-        *reinterpret_cast<Rgba*>(base + sizeof(Rgba)*
-	(_fbYStride * scanLine + _fbXStride * (i + _xMin))) = _tmpBuf[i];
+        Rgba* ptr = reinterpret_cast<Rgba*>(base + sizeof(Rgba)*(_fbYStride * scanLine + _fbXStride * (i + _xMin)));
+        *ptr = _tmpBuf[i];
     }
     _currentScanLine = scanLine;
 }
@@ -1343,10 +1344,11 @@ RgbaInputFile::readPixels (int scanLine1, int scanLine2)
             //
             const Slice* s = _inputFile->frameBuffer().findSlice(_channelNamePrefix + "Y");
             Box2i dataWindow = _inputFile->header().dataWindow();
+            intptr_t base = reinterpret_cast<intptr_t>(s->base);
 
             for( int scanLine = scanLine1  ; scanLine <= scanLine2 ; scanLine++ )
             {
-                char* rowBase = s->base + scanLine*s->yStride;
+                intptr_t rowBase = base + scanLine*s->yStride;
                 for(int x = dataWindow.min.x ; x <= dataWindow.max.x ; ++x )
                 {
                     Rgba* pixel = reinterpret_cast<Rgba*>(rowBase+x*s->xStride);

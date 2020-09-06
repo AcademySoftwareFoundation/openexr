@@ -105,7 +105,7 @@ bool compare(const FrameBuffer& asRead,
                 
 
                 //
-                // extract value written to gile
+                // extract value written to file
                 //
 
                 half writtenHalf;
