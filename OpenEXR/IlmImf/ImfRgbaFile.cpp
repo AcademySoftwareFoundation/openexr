@@ -1188,7 +1188,7 @@ RgbaInputFile::RgbaInputFile (const char name[], int numThreads):
 {
     RgbaChannels rgbaChannels = channels();
 
-    if (rgbaChannels & (WRITE_Y | WRITE_C))
+    if (rgbaChannels & WRITE_C)
 	_fromYca = new FromYca (*_inputFile, rgbaChannels);
 }
 
@@ -1200,7 +1200,7 @@ RgbaInputFile::RgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int n
 {
     RgbaChannels rgbaChannels = channels();
 
-    if (rgbaChannels & (WRITE_Y | WRITE_C))
+    if (rgbaChannels & WRITE_C)
 	_fromYca = new FromYca (*_inputFile, rgbaChannels);
 }
 
@@ -1215,7 +1215,7 @@ RgbaInputFile::RgbaInputFile (const char name[],
 {
     RgbaChannels rgbaChannels = channels();
 
-    if (rgbaChannels & (WRITE_Y | WRITE_C))
+    if (rgbaChannels & WRITE_C)
 	_fromYca = new FromYca (*_inputFile, rgbaChannels);
 }
 
@@ -1230,7 +1230,7 @@ RgbaInputFile::RgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 {
     RgbaChannels rgbaChannels = channels();
 
-    if (rgbaChannels & (WRITE_Y | WRITE_C))
+    if (rgbaChannels & WRITE_C)
 	_fromYca = new FromYca (*_inputFile, rgbaChannels);
 }
 
@@ -1257,27 +1257,42 @@ RgbaInputFile::setFrameBuffer (Rgba *base, size_t xStride, size_t yStride)
 
 	FrameBuffer fb;
 
-	fb.insert (_channelNamePrefix + "R",
-		   Slice (HALF,
-			  (char *) &base[0].r,
-			  xs, ys,
-			  1, 1,		// xSampling, ySampling
-			  0.0));	// fillValue
+        if( channels() & WRITE_Y )
+        {
+            fb.insert (_channelNamePrefix + "Y",
+                    Slice (HALF,
+                            (char *) &base[0].r,
+                            xs, ys,
+                            1, 1,		// xSampling, ySampling
+                            0.0));	// fillValue
+        }
+        else
+        {
 
-	fb.insert (_channelNamePrefix + "G",
-		   Slice (HALF,
-			  (char *) &base[0].g,
-			  xs, ys,
-			  1, 1,		// xSampling, ySampling
-			  0.0));	// fillValue
 
-	fb.insert (_channelNamePrefix + "B",
-		   Slice (HALF,
-			  (char *) &base[0].b,
-			  xs, ys,
-			  1, 1,		// xSampling, ySampling
-			  0.0));	// fillValue
+            fb.insert (_channelNamePrefix + "R",
+                    Slice (HALF,
+                            (char *) &base[0].r,
+                            xs, ys,
+                            1, 1,		// xSampling, ySampling
+                            0.0));	// fillValue
 
+
+
+            fb.insert (_channelNamePrefix + "G",
+                    Slice (HALF,
+                            (char *) &base[0].g,
+                            xs, ys,
+                            1, 1,		// xSampling, ySampling
+                            0.0));	// fillValue
+
+            fb.insert (_channelNamePrefix + "B",
+                    Slice (HALF,
+                            (char *) &base[0].b,
+                            xs, ys,
+                            1, 1,		// xSampling, ySampling
+                            0.0));	// fillValue
+        }
 	fb.insert (_channelNamePrefix + "A",
 		   Slice (HALF,
 			  (char *) &base[0].a,
@@ -1300,7 +1315,7 @@ RgbaInputFile::setLayerName (const string &layerName)
 
     RgbaChannels rgbaChannels = channels();
 
-    if (rgbaChannels & (WRITE_Y | WRITE_C))
+    if (rgbaChannels & WRITE_C)
 	_fromYca = new FromYca (*_inputFile, rgbaChannels);
 
     FrameBuffer fb;
@@ -1319,6 +1334,28 @@ RgbaInputFile::readPixels (int scanLine1, int scanLine2)
     else
     {
 	_inputFile->readPixels (scanLine1, scanLine2);
+
+        if (channels() & WRITE_Y)
+        {
+            //
+            // Luma channel has been written into red channel
+            // Duplicate into green and blue channel to create gray image
+            //
+            const Slice* s = _inputFile->frameBuffer().findSlice(_channelNamePrefix + "Y");
+            Box2i dataWindow = _inputFile->header().dataWindow();
+
+            for( int scanLine = scanLine1  ; scanLine <= scanLine2 ; scanLine++ )
+            {
+                char* rowBase = s->base + scanLine*s->yStride;
+                for(int x = dataWindow.min.x ; x <= dataWindow.max.x ; ++x )
+                {
+                    Rgba* pixel = reinterpret_cast<Rgba*>(rowBase+x*s->xStride);
+                    pixel->g = pixel->r;
+                    pixel->b = pixel->r;
+                }
+
+            }
+        }
     }
 }
 
