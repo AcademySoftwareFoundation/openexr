@@ -278,9 +278,14 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
             //
             // We don't have any valid buffered info, so we need to read in
             // from the file.
+            // if no channels are being read that are present in file, cachedBuffer will be empty
             //
 
-            ifd->tFile->readTiles (0, ifd->tFile->numXTiles (0) - 1, j, j);
+            if (ifd->cachedBuffer->begin() != ifd->cachedBuffer->end())
+            {
+                ifd->tFile->readTiles (0, ifd->tFile->numXTiles (0) - 1, j, j);
+            }
+
             ifd->cachedTileY = j;
         }
 
@@ -313,7 +318,7 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
             if( c!=ifd->cachedBuffer->end())
             {
                 //
-                // copy channel from source slice to output slice
+                // output channel was read from source image: copy to output slice
                 //
                 Slice fromSlice = c.slice();	// slice to write to
 
@@ -357,7 +362,7 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
             {
 
                 //
-                // fill output slice
+                // channel wasn't present in source file: fill output slice
                 //
                 for (int y = yStart;
                     y <= maxYThisRow;
@@ -841,6 +846,7 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 	    }
 
 	    _data->tFile->setFrameBuffer (*_data->cachedBuffer);
+
         }
 
 	_data->tFileBuffer = frameBuffer;
