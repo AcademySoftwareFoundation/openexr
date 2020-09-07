@@ -369,6 +369,7 @@ RgbaOutputFile::ToYca::writePixels (int numScanLines)
 			    "\"" << _outputFile.fileName() << "\".");
     }
 
+    intptr_t base = reinterpret_cast<intptr_t>(_fbBase);
     if (_writeY && !_writeC)
     {
 	//
@@ -385,8 +386,9 @@ RgbaOutputFile::ToYca::writePixels (int numScanLines)
 
 	    for (int j = 0; j < _width; ++j)
 	    {
-		_tmpBuf[j] = _fbBase[_fbYStride * _currentScanLine +
-				     _fbXStride * (j + _xMin)];
+		_tmpBuf[j] = *reinterpret_cast<Rgba*>(base + sizeof(Rgba)*
+		(_fbYStride * _currentScanLine +
+				     _fbXStride * (j + _xMin)));
 	    }
 
 	    //
@@ -418,10 +420,13 @@ RgbaOutputFile::ToYca::writePixels (int numScanLines)
 	    // frame buffer into _tmpBuf.
 	    //
 
+            intptr_t base = reinterpret_cast<intptr_t>(_fbBase);
+
 	    for (int j = 0; j < _width; ++j)
 	    {
-		_tmpBuf[j + N2] = _fbBase[_fbYStride * _currentScanLine +
-					  _fbXStride * (j + _xMin)];
+                const Rgba* ptr = reinterpret_cast<const Rgba*>(base+sizeof(Rgba)*
+		(_fbYStride * _currentScanLine + _fbXStride * (j + _xMin)) );
+		_tmpBuf[j + N2] = *ptr;
 	    }
 
 	    //
@@ -1081,9 +1086,13 @@ RgbaInputFile::FromYca::readPixels (int scanLine)
 
     fixSaturation (_yw, _width, _buf2, _tmpBuf);
 
-    for (int i = 0; i < _width; ++i)
-	_fbBase[_fbYStride * scanLine + _fbXStride * (i + _xMin)] = _tmpBuf[i];
 
+    intptr_t base = reinterpret_cast<intptr_t>(_fbBase);
+    for (int i = 0; i < _width; ++i)
+    {
+        Rgba* ptr = reinterpret_cast<Rgba*>(base + sizeof(Rgba)*(_fbYStride * scanLine + _fbXStride * (i + _xMin)));
+        *ptr = _tmpBuf[i];
+    }
     _currentScanLine = scanLine;
 }
 
@@ -1335,10 +1344,11 @@ RgbaInputFile::readPixels (int scanLine1, int scanLine2)
             //
             const Slice* s = _inputFile->frameBuffer().findSlice(_channelNamePrefix + "Y");
             Box2i dataWindow = _inputFile->header().dataWindow();
+            intptr_t base = reinterpret_cast<intptr_t>(s->base);
 
             for( int scanLine = scanLine1  ; scanLine <= scanLine2 ; scanLine++ )
             {
-                char* rowBase = s->base + scanLine*s->yStride;
+                intptr_t rowBase = base + scanLine*s->yStride;
                 for(int x = dataWindow.min.x ; x <= dataWindow.max.x ; ++x )
                 {
                     Rgba* pixel = reinterpret_cast<Rgba*>(rowBase+x*s->xStride);

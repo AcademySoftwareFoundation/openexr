@@ -1411,6 +1411,23 @@ DeepScanLineOutputFile::copyPixels (DeepScanLineInputPart &in)
     copyPixels(*in.file);
 }
 
+
+// helper structure to read Int64 from non 8 byte aligned addresses
+namespace
+{
+struct I64Bytes
+{
+    uint8_t b[8];
+};
+
+
+union bytesOrInt64
+{
+    I64Bytes b;
+    Int64 i;
+};
+}
+
 void
 DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile &in)
 {
@@ -1487,9 +1504,16 @@ DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile &in)
 
         // extract header from block to pass to writePixelData
         
-        Int64 packedSampleCountSize = *(Int64 *) (&data[4]);
-        Int64 packedDataSize = *(Int64 *) (&data[12]);
-        Int64 unpackedDataSize = *(Int64 *) (&data[20]);
+        bytesOrInt64 tmp;
+        memcpy(&tmp.b,&data[4],8);
+        Int64 packedSampleCountSize = tmp.i;
+
+        memcpy(&tmp.b,&data[12],8);
+        Int64 packedDataSize = tmp.i;
+
+        memcpy(&tmp.b,&data[20],8);
+        Int64 unpackedDataSize = tmp.i;
+
         const char * sampleCountTable = &data[0]+28;
         const char * pixelData = sampleCountTable + packedSampleCountSize;
         

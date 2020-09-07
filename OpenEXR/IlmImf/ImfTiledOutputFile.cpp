@@ -789,10 +789,11 @@ TileBufferTask::execute ()
                     // The frame buffer contains data for this channel.
                     //
     
-                    const char *readPtr = slice.base +
+                    intptr_t base = reinterpret_cast<intptr_t>(slice.base);
+                    const char *readPtr = reinterpret_cast<const char*>(base +
                                           (y - yOffset) * slice.yStride +
                                           (tileRange.min.x - xOffset) *
-                                          slice.xStride;
+                                          slice.xStride);
 
                     const char *endPtr  = readPtr +
                                           (numPixelsPerScanLine - 1) *

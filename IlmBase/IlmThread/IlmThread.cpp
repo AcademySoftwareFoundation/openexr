@@ -72,6 +72,12 @@ Thread::~Thread ()
         _thread.join ();
 }
 
+void
+Thread::join()
+{
+    if ( _thread.joinable () )
+        _thread.join ();
+}
 
 void
 Thread::start ()
@@ -105,6 +111,12 @@ Thread::~Thread ()
 
 void
 Thread::start ()
+{
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
+}
+
+void
+Thread::join ()
 {
     throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
 }
