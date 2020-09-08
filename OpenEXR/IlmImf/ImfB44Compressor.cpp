@@ -380,7 +380,16 @@ unpack14 (const unsigned char b[14], unsigned short s[16])
 
     s[ 0] = (b[0] << 8) | b[1];
 
-    unsigned short shift = (b[ 2] >> 2);
+
+
+    //
+    //TODO unverified fix for undefined behavior
+    // (0x20 << shift) will overflow 32 bit int if 'shift' is greater than 26
+    // this should only occur in corrupt files. Clamping 'shift' to 26
+    // prevents undefined behavior in this circumstance (but cast to unsigned short
+    // will still overflow)
+    //
+    unsigned short shift = std::min( 26 , b[ 2] >> 2);
     unsigned short bias = (0x20 << shift);
 
     s[ 4] = s[ 0] + ((((b[ 2] << 4) | (b[ 3] >> 4)) & 0x3f) << shift) - bias;
