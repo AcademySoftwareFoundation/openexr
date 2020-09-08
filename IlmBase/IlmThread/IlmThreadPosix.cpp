@@ -85,6 +85,13 @@ Thread::~Thread ()
     assert (error == 0);
 }
 
+void
+Thread::join ()
+{
+    int error = ::pthread_join (_thread, 0);
+    assert (error == 0);
+}
+
 
 void
 Thread::start ()

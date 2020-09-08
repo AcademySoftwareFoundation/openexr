@@ -150,7 +150,7 @@ readWriteFiles (const char fileName1[],
 	file2.setFrameBuffer (pixels2 - dx - dy * w, 1, w);
 	file2.readPixels (dw.min.y, dw.max.y);
 
-	for (int i = 0; i < w * h; ++h)
+	for (size_t i = 0; i < w * h; ++i)
 	{
 	    assert (pixels1[i].r == pixels2[i].r);
 	    assert (pixels1[i].g == pixels2[i].g);

@@ -196,7 +196,11 @@ bool compare(const FrameBuffer& asRead,
             for (int x = dataWindow.min.x; x <= dataWindow.max.x; x++)
                  
             {
-                char * ptr = (i.slice().base+i.slice().yStride*y +i.slice().xStride*x);
+                 //
+                // extract value read back from file
+                //
+                intptr_t base = reinterpret_cast<intptr_t>(i.slice().base);
+                char * ptr = reinterpret_cast<char*>(base+i.slice().yStride*intptr_t(y) +i.slice().xStride*intptr_t(x));
                 half readHalf;
                 switch (i.slice().type)
                 {
@@ -218,8 +222,10 @@ bool compare(const FrameBuffer& asRead,
 
                 if (p!=asWritten.end())
                 {
-                    char * ptr = p.slice().base+p.slice().yStride*y +
-                                 p.slice().xStride*x;
+
+                    intptr_t base =reinterpret_cast<intptr_t>( p.slice().base);
+                    char * ptr =  reinterpret_cast<char*>(base+p.slice().yStride*intptr_t(y) +
+                                 p.slice().xStride*intptr_t(x));
                     switch (p.slice().type)
                     {
                     case IMF::FLOAT :

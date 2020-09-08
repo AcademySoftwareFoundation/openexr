@@ -97,8 +97,9 @@ compareBufferRelative (const SimdAlignedBuffer64f &src,
 {
     for (int i=0; i<64; ++i)
     {
+
         double diff    = fabs(src._buffer[i] - dst._buffer[i]);
-        double relDiff = diff / fabs(src._buffer[i]);
+        double relDiff = src._buffer[i]==0 ? 0.0 : diff / fabs(src._buffer[i]);
 
         if (relDiff > relErrThresh && diff > absErrThresh)
         {

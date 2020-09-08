@@ -391,18 +391,9 @@ generateRandomFile (int partCount, const std::string & fn)
             int numYLevels = part->numYLevels();
 
             // Allocating space.
-            switch (pixelTypes[i])
-            {
-                case 0:
-                    tiledUintData[i].resizeErase(numYLevels, numXLevels);
-                    break;
-                case 1:
-                    tiledFloatData[i].resizeErase(numYLevels, numXLevels);
-                    break;
-                case 2:
-                    tiledHalfData[i].resizeErase(numYLevels, numXLevels);
-                    break;
-            }
+            tiledUintData[i].resizeErase(numYLevels, numXLevels);
+            tiledFloatData[i].resizeErase(numYLevels, numXLevels);
+            tiledHalfData[i].resizeErase(numYLevels, numXLevels);
 
             tiledFrameBuffers[i].resizeErase(numYLevels, numXLevels);
 

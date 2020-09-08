@@ -636,12 +636,14 @@ LineBufferTask::execute ()
                     // The frame buffer contains a slice for this channel.
                     //
     
-                    char *linePtr  = slice.base +
+                    intptr_t base = reinterpret_cast<intptr_t>(slice.base);
+
+                    intptr_t linePtr  = base +
                                         intptr_t( divp (y, slice.ySampling) ) *
                                         intptr_t( slice.yStride );
     
-                    char *writePtr = linePtr + intptr_t( dMinX ) * intptr_t( slice.xStride );
-                    char *endPtr   = linePtr + intptr_t( dMaxX ) * intptr_t( slice.xStride );
+                    char *writePtr = reinterpret_cast<char*> (linePtr + intptr_t( dMinX ) * intptr_t( slice.xStride ));
+                    char *endPtr   = reinterpret_cast<char*> (linePtr + intptr_t( dMaxX ) * intptr_t( slice.xStride ));
                     
                     copyIntoFrameBuffer (readPtr, writePtr, endPtr,
                                          slice.xStride, slice.fill,
@@ -794,20 +796,21 @@ void LineBufferTaskIIF::getWritePointer
           outWritePointerRight  = 0;
       }
       
-      const char* linePtr1  = firstSlice.base +
+      intptr_t base = reinterpret_cast<intptr_t>(firstSlice.base);
+
+      intptr_t linePtr1  = (base +
       divp (y, firstSlice.ySampling) *
-      firstSlice.yStride;
+      firstSlice.yStride);
       
       int dMinX1 = divp (_ifd->minX, firstSlice.xSampling);
       int dMaxX1 = divp (_ifd->maxX, firstSlice.xSampling);
       
       // Construct the writePtr so that we start writing at
       // linePtr + Min offset in the line.
-      outWritePointerRight =  (unsigned short*)(linePtr1 +
+      outWritePointerRight =  reinterpret_cast<unsigned short*>(linePtr1 +
       dMinX1 * firstSlice.xStride );
       
-      size_t bytesToCopy  = ((linePtr1 + dMaxX1 * firstSlice.xStride ) -
-      (linePtr1 + dMinX1 * firstSlice.xStride )) + 2;
+      size_t bytesToCopy  = ((dMaxX1 * firstSlice.xStride ) - (dMinX1 * firstSlice.xStride )) + 2;
       size_t shortsToCopy = bytesToCopy / sizeOfSingleValue;
       size_t pixelsToCopy = (shortsToCopy / nbSlicesInBank ) + 1;
       

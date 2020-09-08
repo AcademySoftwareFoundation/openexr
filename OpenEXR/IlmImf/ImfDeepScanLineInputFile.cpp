@@ -1425,6 +1425,20 @@ DeepScanLineInputFile::readPixels (int scanLine)
 }
 
 
+namespace
+{
+struct I64Bytes
+{
+    uint8_t b[8];
+};
+
+
+union bytesOrInt64
+{
+    I64Bytes b;
+    Int64 i;
+};
+}
 void
 DeepScanLineInputFile::rawPixelData (int firstScanLine,
                                      char *pixelData,
@@ -1507,12 +1521,16 @@ DeepScanLineInputFile::rawPixelData (int firstScanLine,
     
     // copy the values we have read into the output block
     *(int *) pixelData = yInFile;
-    *(Int64 *) (pixelData+4) =sampleCountTableSize;
-    *(Int64 *) (pixelData+12) = packedDataSize;
-    
+    bytesOrInt64 tmp;
+    tmp.i=sampleCountTableSize;
+    memcpy(pixelData+4,&tmp.b,8);
+    tmp.i = packedDataSize;
+    memcpy(pixelData+12,&tmp.b,8);
+
     // didn't read the unpackedsize - do that now
-    Xdr::read<StreamIO> (*_data->_streamData->is, *(Int64 *) (pixelData+20));
-    
+    Xdr::read<StreamIO> (*_data->_streamData->is,tmp.i);
+    memcpy(pixelData+20,&tmp.b,8);
+
     // read the actual data
     _data->_streamData->is->read(pixelData+28, sampleCountTableSize+packedDataSize);
     

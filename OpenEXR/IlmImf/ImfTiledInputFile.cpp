@@ -609,10 +609,11 @@ TileBufferTask::execute ()
                     // The frame buffer contains a slice for this channel.
                     //
     
-                    char *writePtr = slice.base +
+                    intptr_t base = reinterpret_cast<intptr_t>(slice.base);
+                    char *writePtr = reinterpret_cast<char*>(base +
                                      (y - yOffset) * slice.yStride +
                                      (tileRange.min.x - xOffset) *
-                                     slice.xStride;
+                                     slice.xStride);
 
                     char *endPtr = writePtr +
                                    (numPixelsPerScanLine - 1) * slice.xStride;

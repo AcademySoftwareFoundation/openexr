@@ -313,6 +313,7 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
                 ++yStart;
 
             FrameBuffer::ConstIterator c = ifd->cachedBuffer->find(k.name());
+            intptr_t toBase = reinterpret_cast<intptr_t>(toSlice.base);
 
 
             if( c!=ifd->cachedBuffer->end())
@@ -321,6 +322,7 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
                 // output channel was read from source image: copy to output slice
                 //
                 Slice fromSlice = c.slice();	// slice to write to
+                intptr_t fromBase = reinterpret_cast<intptr_t>(fromSlice.base);
 
                 int size = pixelTypeSize (toSlice.type);
                 char* fromPtr;
@@ -334,13 +336,13 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
                     // this row of tiles
                     //
 
-                    fromPtr = fromSlice.base +
+                    fromPtr = reinterpret_cast<char*> (fromBase  +
                             (y - tileRange.min.y) * fromSlice.yStride +
-                            xStart * fromSlice.xStride;
+                            xStart * fromSlice.xStride);
 
-                    toPtr = toSlice.base +
+                    toPtr = reinterpret_cast<char*> (toBase +
                             divp (y, toSlice.ySampling) * toSlice.yStride +
-                            divp (xStart, toSlice.xSampling) * toSlice.xStride;
+                            divp (xStart, toSlice.xSampling) * toSlice.xStride);
 
                     //
                     // Copy all pixels for the scanline in this row of tiles
@@ -369,9 +371,9 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
                     y += toSlice.ySampling)
                 {
 
-                    toPtr = toSlice.base +
+                    toPtr = reinterpret_cast<char*> (toBase+
                             divp (y, toSlice.ySampling) * toSlice.yStride +
-                            divp (xStart, toSlice.xSampling) * toSlice.xStride;
+                            divp (xStart, toSlice.xSampling) * toSlice.xStride);
 
                     //
                     // Copy all pixels for the scanline in this row of tiles
