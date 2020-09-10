@@ -93,7 +93,9 @@ writeRead (const Array2D<unsigned int> &pi1,
            int yOffset,
            Compression comp,
            LevelMode mode,
-	   LevelRoundingMode rmode)
+	   LevelRoundingMode rmode,
+           bool fillChannel
+          )
 {
     //
     // Write the pixel data in pi1, ph1 and ph2 to a tiled
@@ -263,6 +265,16 @@ writeRead (const Array2D<unsigned int> &pi1,
         Array2D<half>         ph2 (h, w);
         Array2D<float>        pf2 (h, w);
 
+        Array2D<unsigned int> fi2 (fillChannel ? h : 1 , fillChannel ? w : 1);
+        Array2D<half>         fh2 (fillChannel ? h : 1 , fillChannel ? w : 1);
+        Array2D<float>        ff2 (fillChannel ? h : 1 , fillChannel ? w : 1);
+
+
+        const unsigned int fillInt = 12;
+        const half fillHalf = 4.5;
+        const float fillFloat = M_PI;
+
+
         FrameBuffer fb;
 
         fb.insert ("I",                             // name
@@ -285,6 +297,30 @@ writeRead (const Array2D<unsigned int> &pi1,
                           sizeof (pf2[0][0]),       // xStride
                           sizeof (pf2[0][0]) * w)   // yStride
                   );
+
+        if(fillChannel)
+        {
+            fb.insert ("FI",                             // name
+                   Slice (IMF::UINT,                // type
+                          (char *) &fi2[-dwy][-dwx],// base
+                          sizeof (fi2[0][0]),       // xStride
+                          sizeof (fi2[0][0]) * w,1,1,fillInt)  // yStride
+                  );
+
+            fb.insert ("FH",                             // name
+                    Slice (IMF::HALF,                // type
+                            (char *) &fh2[-dwy][-dwx],// base
+                            sizeof (fh2[0][0]),       // xStride
+                            sizeof (fh2[0][0]) * w,1,1,fillHalf)   // yStride
+                    );
+
+            fb.insert ("FF",                             // name
+                    Slice (IMF::FLOAT,               // type
+                            (char *) &ff2[-dwy][-dwx],// base
+                            sizeof (ff2[0][0]),       // xStride
+                            sizeof (ff2[0][0]) * w,1,1,fillFloat)   // yStride
+                    );
+        }
 
         in.setFrameBuffer (fb);
         for (int y = dw.min.y; y <= dw.max.y; ++y)
@@ -323,6 +359,13 @@ writeRead (const Array2D<unsigned int> &pi1,
                 assert (pi1[y][x] == pi2[y][x]);
                 assert (ph1[y][x] == ph2[y][x]);
                 assert (pf1[y][x] == pf2[y][x]);
+
+                if (fillChannel)
+                {
+                    assert(fi2[y][x] == fillInt);
+                    assert(fh2[y][x] == fillHalf);
+                    assert(ff2[y][x] == fillFloat);
+                }
             }
         }    
     }
@@ -341,6 +384,10 @@ writeRead (const Array2D<unsigned int> &pi1,
         Array2D<unsigned int> pi2 (h, w);
         Array2D<half>         ph2 (h, w);
         Array2D<float>        pf2 (h, w);
+
+        Array2D<unsigned int> fi2 (fillChannel ? h : 1 , fillChannel ? w : 1);
+        Array2D<half>         fh2 (fillChannel ? h : 1 , fillChannel ? w : 1);
+        Array2D<float>        ff2 (fillChannel ? h : 1 , fillChannel ? w : 1);
 
         FrameBuffer fb;
 
@@ -364,6 +411,34 @@ writeRead (const Array2D<unsigned int> &pi1,
                           sizeof (pf2[0][0]),       // xStride
                           sizeof (pf2[0][0]) * w)   // yStride
                   );
+        const unsigned int fillInt = 21;
+        const half fillHalf = 42;
+        const float fillFloat = 2.8;
+
+        if (fillChannel)
+        {
+            fb.insert ("FI",                             // name
+                   Slice (IMF::UINT,                // type
+                          (char *) &fi2[-dwy][-dwx],// base
+                          sizeof (fi2[0][0]),       // xStride
+                          sizeof (fi2[0][0]) * w,1,1,fillInt)   // yStride
+                  );
+
+            fb.insert ("FH",                             // name
+                    Slice (IMF::HALF,                // type
+                            (char *) &fh2[-dwy][-dwx],// base
+                            sizeof (fh2[0][0]),       // xStride
+                            sizeof (fh2[0][0]) * w,1,1,fillHalf)   // yStride
+                    );
+
+            fb.insert ("FF",                             // name
+                    Slice (IMF::FLOAT,               // type
+                            (char *) &ff2[-dwy][-dwx],// base
+                            sizeof (ff2[0][0]),       // xStride
+                            sizeof (ff2[0][0]) * w,1,1,fillFloat)   // yStride
+                    );
+
+        }
 
         in.setFrameBuffer (fb);
         for (int y = dw.max.y; y >= dw.min.y; --y)
@@ -402,6 +477,12 @@ writeRead (const Array2D<unsigned int> &pi1,
                 assert (pi1[y][x] == pi2[y][x]);
                 assert (ph1[y][x] == ph2[y][x]);
                 assert (pf1[y][x] == pf2[y][x]);
+                if (fillChannel)
+                {
+                    assert(fi2[y][x] == fillInt);
+                    assert(fh2[y][x] == fillHalf);
+                    assert(ff2[y][x] == fillFloat);
+                }
             }
         }
     }
@@ -421,6 +502,17 @@ writeRead (const Array2D<unsigned int> &pi1,
         Array2D<unsigned int> pi2 (h, w);
         Array2D<half>         ph2 (h, w);
         Array2D<float>        pf2 (h, w);
+
+
+        Array2D<unsigned int> fi2 (fillChannel ? h : 1 , fillChannel ? w : 1);
+        Array2D<half>         fh2 (fillChannel ? h : 1 , fillChannel ? w : 1);
+        Array2D<float>        ff2 (fillChannel ? h : 1 , fillChannel ? w : 1);
+
+
+        const unsigned int fillInt = 81;
+        const half fillHalf = 0.5;
+        const float fillFloat = 7.8;
+
 
         for (int y = dw.min.y; y <= dw.max.y; ++y)
 	{
@@ -446,6 +538,31 @@ writeRead (const Array2D<unsigned int> &pi1,
 			      sizeof (pf2[0][0]),		// xStride
 			      0)				// yStride
 		      );
+
+            if (fillChannel)
+            {
+                fb.insert ("FI",					// name
+                        Slice (IMF::UINT,			// type
+                                (char *) &fi2[y - dwy][-dwx],	// base
+                                sizeof (fi2[0][0]),		// xStride
+                                0,1,1,fillInt)				// yStride
+                        );
+
+                fb.insert ("FH",					// name
+                        Slice (IMF::HALF,			// type
+                                (char *) &fh2[y - dwy][-dwx],	// base
+                                sizeof (fh2[0][0]),		// xStride
+                                0,1,1,fillHalf)				// yStride
+                        );
+
+                fb.insert ("FF",                     	        // name
+                        Slice (IMF::FLOAT,			// type
+                                (char *) &ff2[y - dwy][-dwx],	// base
+                                sizeof (ff2[0][0]),		// xStride
+                                0,1,1,fillFloat)				// yStride
+                        );
+
+            }
 
 	    in.setFrameBuffer (fb);
             in.readPixels (y);
@@ -484,7 +601,14 @@ writeRead (const Array2D<unsigned int> &pi1,
                 assert (pi1[y][x] == pi2[y][x]);
                 assert (ph1[y][x] == ph2[y][x]);
                 assert (pf1[y][x] == pf2[y][x]);
+                if (fillChannel)
+                {
+                    assert (fi2[y][x] == fillInt);
+                    assert (fh2[y][x] == fillHalf);
+                    assert (ff2[y][x] == fillFloat);
+                }
             }
+
         }    
     }
 
@@ -509,11 +633,13 @@ writeRead (const std::string &tempDir,
     std::string filename = tempDir + "imf_test_scanline_api.exr";
 
     writeRead (pi, ph, pf, filename.c_str(), lorder, W, H,
-               xSize, ySize, dx, dy, comp, ONE_LEVEL, rmode);
+               xSize, ySize, dx, dy, comp, ONE_LEVEL, rmode , false);
     writeRead (pi, ph, pf, filename.c_str(), lorder, W, H,
-               xSize, ySize, dx, dy, comp, MIPMAP_LEVELS, rmode);
+               xSize, ySize, dx, dy, comp, MIPMAP_LEVELS, rmode , false );
     writeRead (pi, ph, pf, filename.c_str(), lorder, W, H,
-               xSize, ySize, dx, dy, comp, RIPMAP_LEVELS, rmode);
+               xSize, ySize, dx, dy, comp, RIPMAP_LEVELS, rmode , false);
+    writeRead (pi, ph, pf, filename.c_str(), lorder, W, H,
+               xSize, ySize, dx, dy, comp, ONE_LEVEL, rmode , true);
 }
 
 } // namespace
