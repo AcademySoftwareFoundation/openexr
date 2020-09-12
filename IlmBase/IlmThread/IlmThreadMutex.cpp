@@ -42,7 +42,7 @@
 #include "IlmBaseConfig.h"
 
 #ifdef ILMBASE_FORCE_CXX03
-#   if !defined (_WIN32) && !defined (_WIN64) && !defined (HAVE_PTHREAD)
+#   if (defined (__MINGW32__) || !defined (_WIN32)) && (defined (__MINGW64__) || !defined (_WIN64)) && !defined (HAVE_PTHREAD)
 #      include "IlmThreadMutex.h"
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
