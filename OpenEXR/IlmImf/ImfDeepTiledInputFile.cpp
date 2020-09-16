@@ -261,7 +261,7 @@ struct DeepTiledInputFile::Data: public Mutex
                                                     // sample count table
     int             combinedSampleSize;             // total size of all channels combined to check sampletable size
     static const int gLargeChunkTableSize = 1024*1024;
-    DeepTiledInputFile validateStreamSize();        // throw an exception if the file is significantly
+    void validateStreamSize();        // throw an exception if the file is significantly
                                                     // smaller than the data/tile geometry would require
     InputStreamMutex *  _streamData;
     bool                _deleteStream; // should we delete the stream
