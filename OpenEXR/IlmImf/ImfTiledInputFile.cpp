@@ -310,8 +310,10 @@ TiledInputFile::Data::getTileBuffer (int number)
 // If the chunktablesize claims to be large,
 // check the file is big enough to contain the table before allocating memory
 // in the bytesPerLineTable and the lineOffsets table.
-// Attempt to read the last entry in the table. Either the seekg() or the read()
-// call will throw an exception if the file is too small to contain the table
+// Attempt to read the last entry in the first level of the table. Either the seekg() or the read()
+// call will throw an exception if the file is much too small to contain the table.
+// For speed, does not compute the entire table size for Mipmap/Ripmap images
+// (Roughly 50% or 100% bigger respectively)
 //
 
 // assumes the input stream pointer is at (or before) the beginning of the chunk table
@@ -320,7 +322,16 @@ TiledInputFile::Data::getTileBuffer (int number)
 void
 TiledInputFile::Data::validateStreamSize()
 {
-    int chunkCount = getTiledChunkOffsetTableSize(header);
+    const Box2i &dataWindow = header.dataWindow();
+    Int64 tileWidth = header.tileDescription().xSize;
+    Int64 tileHeight = header.tileDescription().ySize;
+
+    Int64 tilesX = (static_cast<Int64>(dataWindow.max.x+1-dataWindow.min.x) + tileWidth -1) / tileWidth;
+
+    Int64 tilesY = (static_cast<Int64>(dataWindow.max.y+1-dataWindow.min.y) + tileHeight -1) / tileHeight;
+
+
+    Int64 chunkCount = tilesX*tilesY;
     if ( chunkCount > gLargeChunkTableSize)
     {
 

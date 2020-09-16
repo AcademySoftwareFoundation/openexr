@@ -260,7 +260,9 @@ struct DeepTiledInputFile::Data: public Mutex
     Int64           maxSampleCountTableSize;        // the max size in bytes for a pixel
                                                     // sample count table
     int             combinedSampleSize;             // total size of all channels combined to check sampletable size
-                                                    
+    static const int gLargeChunkTableSize = 1024*1024;
+    DeepTiledInputFile validateStreamSize();        // throw an exception if the file is significantly
+                                                    // smaller than the data/tile geometry would require
     InputStreamMutex *  _streamData;
     bool                _deleteStream; // should we delete the stream
      Data (int numThreads);
@@ -333,6 +335,36 @@ DeepTiledInputFile::Data::getSampleCount(int x, int y)
                        sampleCountXStride,
                        sampleCountYStride,
                        x, y);
+}
+
+
+void
+DeepTiledInputFile::Data::validateStreamSize()
+{
+    const Box2i &dataWindow = header.dataWindow();
+    Int64 tileWidth = header.tileDescription().xSize;
+    Int64 tileHeight = header.tileDescription().ySize;
+
+    Int64 tilesX = (static_cast<Int64>(dataWindow.max.x+1-dataWindow.min.x) + tileWidth -1) / tileWidth;
+
+    Int64 tilesY = (static_cast<Int64>(dataWindow.max.y+1-dataWindow.min.y) + tileHeight -1) / tileHeight;
+
+
+    Int64 chunkCount = tilesX*tilesY;
+    if ( chunkCount > gLargeChunkTableSize)
+    {
+
+        if (chunkCount > gLargeChunkTableSize)
+        {
+            Int64 pos = _streamData->is->tellg();
+            _streamData->is->seekg(pos + (chunkCount-1)*sizeof(Int64));
+            Int64 temp;
+            OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*_streamData->is, temp);
+            _streamData->is->seekg(pos);
+
+        }
+    }
+
 }
 
 
@@ -953,6 +985,17 @@ DeepTiledInputFile::initialize ()
    }
         
     _data->header.sanityCheck (true);
+
+    //
+    // before allocating memory for tile offsets, confirm file is large enough
+    // to contain tile offset table
+    // (for multipart files, the chunk offset table has already been read)
+    //
+    if (!isMultiPart(_data->version))
+    {
+        _data->validateStreamSize();
+    }
+
 
     _data->tileDesc = _data->header.tileDescription();
     _data->lineOrder = _data->header.lineOrder();
