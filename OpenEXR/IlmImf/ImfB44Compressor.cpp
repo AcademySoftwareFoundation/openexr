@@ -951,7 +951,10 @@ B44Compressor::uncompress (const char *inPtr,
 		if (inSize < 3)
 		    notEnoughData();
 
-		if (((const unsigned char *)inPtr)[2] == 0xfc)
+                //
+                // If shift exponent is 63, call unpack14 (ignoring unused bits)
+                //
+		if (((const unsigned char *)inPtr)[2] >= (13<<2) )
 		{
 		    unpack3 ((const unsigned char *)inPtr, s);
 		    inPtr += 3;
