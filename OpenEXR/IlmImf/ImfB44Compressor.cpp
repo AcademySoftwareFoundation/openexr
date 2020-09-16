@@ -380,15 +380,7 @@ unpack14 (const unsigned char b[14], unsigned short s[16])
 
     s[ 0] = (b[0] << 8) | b[1];
 
-
-
-    //
-    // shifting unsigned ints by more than 31 bits is undefined behavior
-    // clamp shift to 31 to enforce consistent handling
-    //
-    //
-
-    unsigned short shift = std::min( 31 , b[ 2] >> 2);
+    unsigned short shift = (b[ 2] >> 2);
     unsigned short bias = (0x20u << shift);
 
     s[ 4] = s[ 0] + ((((b[ 2] << 4) | (b[ 3] >> 4)) & 0x3fu) << shift) - bias;
