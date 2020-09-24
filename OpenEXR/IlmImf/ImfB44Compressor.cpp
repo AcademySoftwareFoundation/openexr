@@ -494,7 +494,7 @@ B44Compressor::B44Compressor
     //
 
     _tmpBuffer = new unsigned short
-        [checkArraySize (uiMult (maxScanLineSize, numScanLines),
+        [checkArraySize (uiMult (maxScanLineSize / sizeof(unsigned short), numScanLines),
                          sizeof (unsigned short))];
 
     const ChannelList &channels = header().channels();
