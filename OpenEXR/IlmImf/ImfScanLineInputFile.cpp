@@ -1145,6 +1145,10 @@ void ScanLineInputFile::initialize(const Header& header)
             for (size_t i = 0; i < _data->lineBuffers.size(); i++)
             {
                 _data->lineBuffers[i]->buffer = (char *) EXRAllocAligned(_data->lineBufferSize*sizeof(char),16);
+                if (!_data->lineBuffers[i]->buffer)
+                {
+                    throw IEX_NAMESPACE::LogicExc("Failed to allocate memory for scanline buffers");
+                }
             }
         }
         _data->nextLineBufferMinY = _data->minY - 1;
