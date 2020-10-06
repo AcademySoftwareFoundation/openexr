@@ -2681,6 +2681,10 @@ DwaCompressor::uncompress
         int gChan = _cscSets[csc].idx[1];    
         int bChan = _cscSets[csc].idx[2];    
 
+        if (_channelData[rChan].compression != LOSSY_DCT || _channelData[gChan].compression != LOSSY_DCT || _channelData[bChan].compression != LOSSY_DCT)
+        {
+            throw IEX_NAMESPACE::BaseExc("Bad DWA compression type detected");
+        }
 
         LossyDctDecoderCsc decoder
             (rowPtrs[rChan],
