@@ -19,6 +19,7 @@ openexr_define_library(IlmImfUtil
     ImfFlatImageIO.cpp
     ImfDeepImageIO.cpp
     ImfImageDataWindow.cpp
+    ImfCheckFile.cpp
   HEADERS
     ImfImageChannel.h
     ImfFlatImageChannel.h
@@ -36,6 +37,7 @@ openexr_define_library(IlmImfUtil
     ImfImageDataWindow.h
     ImfImageChannelRenaming.h
     ImfUtilExport.h
+    ImfCheckFile.h
   DEPENDENCIES
     OpenEXR::IlmImf
 )

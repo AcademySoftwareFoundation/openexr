@@ -393,31 +393,32 @@ main(int argc, char **argv)
 
     int exitStatus = 0;
 
-    //
-    // check input
-    //
-    {
-        MultiPartInputFile input (inFile);
-        int parts = input.parts();
-
-        if (partnum < 0 || partnum >= parts){
-            cerr << "ERROR: you asked for part " << partnum << " in " << inFile;
-            cerr << ", which only has " << parts << " parts\n";
-            exit(1);
-        }
-
-        Header h = input.header (partnum);
-        if (h.type() == DEEPTILE || h.type() == DEEPSCANLINE)
-        {
-            cerr << "Cannot make tile for deep data" << endl;
-            exit(1);
-        }
-
-    }
-
-
     try
     {
+        //
+        // check input
+        //
+        {
+            MultiPartInputFile input (inFile);
+            int parts = input.parts();
+
+            if (partnum < 0 || partnum >= parts){
+                cerr << "ERROR: you asked for part " << partnum << " in " << inFile;
+                cerr << ", which only has " << parts << " parts\n";
+                exit(1);
+            }
+
+            Header h = input.header (partnum);
+            if (h.type() == DEEPTILE || h.type() == DEEPSCANLINE)
+            {
+                cerr << "Cannot make tile for deep data" << endl;
+                exit(1);
+            }
+
+        }
+
+
+
         makeTiled (inFile, outFile, partnum,
                    mode, roundingMode, compression,
                    tileSizeX, tileSizeY,
