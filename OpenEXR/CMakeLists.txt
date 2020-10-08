@@ -80,6 +80,7 @@ if(OPENEXR_BUILD_UTILS)
   add_subdirectory( exrenvmap )
   add_subdirectory( exrmultiview )
   add_subdirectory( exrmultipart )
+  add_subdirectory( exrcheck )
 endif()
 
 option(INSTALL_OPENEXR_DOCS "Install OpenEXR documentation" ON)

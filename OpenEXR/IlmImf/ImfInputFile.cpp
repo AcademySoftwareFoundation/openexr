@@ -281,7 +281,7 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
             // if no channels are being read that are present in file, cachedBuffer will be empty
             //
 
-            if (ifd->cachedBuffer->begin() != ifd->cachedBuffer->end())
+            if (ifd->cachedBuffer && ifd->cachedBuffer->begin() != ifd->cachedBuffer->end())
             {
                 ifd->tFile->readTiles (0, ifd->tFile->numXTiles (0) - 1, j, j);
             }
