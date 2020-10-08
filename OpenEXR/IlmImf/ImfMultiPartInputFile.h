@@ -91,6 +91,18 @@ class MultiPartInputFile : public GenericInputFile
     bool partComplete(int part) const;
 
 
+    // ----------------------------------------
+    // Flush internal part cache
+    // Invalidates all 'Part' types previously
+    // constructed from this file
+    // Intended for test purposes, but can be
+    // used to temporarily reduce memory overhead,
+    // or to switch between types (e.g. TiledInputPart
+    // or DeepScanLineInputPart to InputPart)
+    // ----------------------------------------
+
+    IMF_EXPORT
+    void flushPartCache();
     struct Data;
 
 

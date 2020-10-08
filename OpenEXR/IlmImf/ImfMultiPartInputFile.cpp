@@ -194,6 +194,18 @@ MultiPartInputFile::getInputPart(int partNumber)
         else return (T*) _data->_inputFiles[partNumber];
 }
 
+void
+MultiPartInputFile::flushPartCache()
+{
+    Lock lock(*_data);
+    while ( _data->_inputFiles.begin() != _data->_inputFiles.end())
+    {
+       delete _data->_inputFiles.begin()->second;
+       _data->_inputFiles.erase(_data->_inputFiles.begin());
+    }
+
+}
+
 
 template InputFile* MultiPartInputFile::getInputPart<InputFile>(int);
 template TiledInputFile* MultiPartInputFile::getInputPart<TiledInputFile>(int);
@@ -339,6 +351,11 @@ MultiPartInputFile::initialize()
     //
     // Perform usual check on headers.
     //
+
+    if ( _data->_headers.size() == 0)
+    {
+        throw IEX_NAMESPACE::ArgExc ("Files must contain at least one header");
+    }
 
     for (size_t i = 0; i < _data->_headers.size(); i++)
     {

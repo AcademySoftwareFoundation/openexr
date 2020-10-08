@@ -65,6 +65,11 @@ class DeepScanLineInputFile : public GenericInputFile
                            int numThreads = globalThreadCount());
 
     IMF_EXPORT
+    DeepScanLineInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
+                           int numThreads = globalThreadCount());
+
+
+    IMF_EXPORT
     DeepScanLineInputFile (const Header &header, OPENEXR_IMF_INTERNAL_NAMESPACE::IStream *is,
                            int version, /*version field from file*/
                            int numThreads = globalThreadCount());

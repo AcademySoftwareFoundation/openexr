@@ -1093,7 +1093,9 @@ hufUncompress (const char compressed[],
 
     const char *ptr = compressed + 20;
 
-    if ( ptr + (nBits+7 )/8 > compressed+nCompressed)
+    uint64_t nBytes = (static_cast<uint64_t>(nBits)+7) / 8 ;
+
+    if ( ptr + nBytes > compressed+nCompressed)
     {
         notEnoughData();
         return;
