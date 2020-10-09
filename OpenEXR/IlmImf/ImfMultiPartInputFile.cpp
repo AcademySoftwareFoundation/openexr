@@ -655,6 +655,11 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, packed_sample);
                     
                     //add 40 byte header to packed sizes (tile coordinates, packed sizes, unpacked size)
+                    // check for bad values to prevent overflow
+                    if ( (INT64_MAX - packed_offset < packed_sample) || ( INT64_MAX - (packed_offset + packed_sample) < 40ll) )
+                    {
+                          throw IEX_NAMESPACE::IoExc("Invalid chunk size");
+                    }
                     size_of_chunk=packed_offset+packed_sample + 40ll;
                 }
                 else
@@ -663,6 +668,12 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                     // regular image has 20 bytes of header, 4 byte chunksize;
                     int chunksize;
                     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, chunksize);
+                    // check for bad values to prevent overflow
+                    if ( chunksize < 0 )
+                    {
+                          throw IEX_NAMESPACE::IoExc("Invalid chunk size");
+                    }
+
                     size_of_chunk=static_cast<Int64>(chunksize) + 20ll;
                 }
             }
@@ -692,14 +703,27 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                     Int64 packed_sample;
                     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, packed_offset);
                     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, packed_sample);
-                    
-                    
+
+                    // check for bad values to prevent overflow
+                    if ( packed_offset < 0 ||
+                        packed_sample < 0 ||
+                        (INT64_MAX - packed_offset < packed_sample) ||
+                        ( INT64_MAX - (packed_offset + packed_sample) < 28ll) )
+                    {
+                          throw IEX_NAMESPACE::IoExc("Invalid chunk size");
+                    }
                     size_of_chunk=packed_offset+packed_sample + 28ll;
                 }
                 else
                 {
                     int chunksize;
                     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, chunksize);   
+
+                    // check for bad values to prevent overflow
+                    if ( chunksize < 0 )
+                    {
+                          throw IEX_NAMESPACE::IoExc("Invalid chunk size");
+                    }
                     size_of_chunk=static_cast<Int64>(chunksize) + 8ll;
                 }
                 

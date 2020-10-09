@@ -306,6 +306,11 @@ reconstructLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 	    int dataSize;
 	    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, dataSize);
 
+            // check for bad values to prevent overflow
+            if ( dataSize < 0 )
+            {
+                throw IEX_NAMESPACE::IoExc("Invalid chunk size");
+            }
 	    Xdr::skip <StreamIO> (is, dataSize);
 
 	    if (lineOrder == INCREASING_Y)
