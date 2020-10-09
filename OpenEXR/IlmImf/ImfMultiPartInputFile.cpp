@@ -733,7 +733,11 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
             {
                 chunk_start+=4;
             }
-            
+
+            if (  (INT64_MAX - chunk_start) < size_of_chunk )
+            {
+               throw IEX_NAMESPACE::IoExc("File pointer overflow during reconstruction");
+            }
             chunk_start+=size_of_chunk;
             
             is.seekg(chunk_start);
