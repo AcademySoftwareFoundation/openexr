@@ -47,7 +47,11 @@
 #if !ILMBASE_FORCE_CXX03
 # include <memory>
 # include <atomic>
-# include "jpegxl/mingw.thread.h"
+# if defined(__MINGW32__) || defined(__MINGW64__)
+#  include "mingw.thread.h"
+# else
+#  include <thread>
+# endif
 #else
 #if !defined (_WIN32) && !defined (_WIN64)
 # include <unistd.h>

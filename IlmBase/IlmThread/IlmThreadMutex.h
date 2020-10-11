@@ -82,7 +82,11 @@
 #      include <pthread.h>
 #   endif
 #else
-#   include "jpegxl/mingw.mutex.h"
+#   if defined(__MINGW32__) || defined(__MINGW64__)
+#      include "mingw.mutex.h"
+#   else
+#      include <mutex>
+#   endif
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER

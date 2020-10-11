@@ -43,7 +43,7 @@
 #include "IlmThreadMutex.h"
 
 #if ILMBASE_FORCE_CXX03
-#   ifdef HAVE_PTHREAD
+#   if HAVE_PTHREAD
 #      include "Iex.h"
 #      include <assert.h>
 

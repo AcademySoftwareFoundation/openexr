@@ -64,8 +64,13 @@
 #         include <pthread.h>
 #      endif
 #   else
-#      include "jpegxl/mingw.mutex.h"
-#      include "jpegxl/mingw.condition_variable.h"
+#      if defined(__MINGW32__) || defined(__MINGW64__)
+#         include "mingw.mutex.h"
+#         include "mingw.condition_variable.h"
+#      else
+#         include <mutex>
+#         include <condition_variable>
+#      endif
 #   endif
 #endif
 

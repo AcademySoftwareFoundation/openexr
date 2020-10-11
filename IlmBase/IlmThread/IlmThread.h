@@ -108,7 +108,11 @@
 #   endif
 #   endif
 #else
-#   include "jpegxl/mingw.thread.h"
+#   if defined(__MINGW32__) || defined(__MINGW64__)
+#      include "mingw.thread.h"
+#   else
+#      include <thread>
+#   endif
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
