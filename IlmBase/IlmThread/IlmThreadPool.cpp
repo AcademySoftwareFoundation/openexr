@@ -2,9 +2,9 @@
 //
 // Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +16,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
+// from this software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -42,16 +42,20 @@
 #include "IlmThreadMutex.h"
 #include "IlmThreadSemaphore.h"
 #include "IlmThreadPool.h"
-#include "Iex.h"
+#include "../Iex/Iex.h"
 #include <vector>
-#ifndef ILMBASE_FORCE_CXX03
+#if !ILMBASE_FORCE_CXX03
 # include <memory>
 # include <atomic>
-# include <thread>
-#else
-# ifndef _WIN32
-#  include <unistd.h>
+# if defined(__MINGW32__) || defined(__MINGW64__)
+#  include "mingw.thread.h"
+# else
+#  include <thread>
 # endif
+#else
+#if !defined (_WIN32) && !defined (_WIN64)
+# include <unistd.h>
+#endif
 #endif
 
 using namespace std;
@@ -59,23 +63,23 @@ using namespace std;
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 #if defined(__GNU_LIBRARY__) && ( __GLIBC__ < 2 || ( __GLIBC__ == 2 && __GLIBC_MINOR__ < 21 ) )
-# define ENABLE_SEM_DTOR_WORKAROUND
+# define ENABLE_SEM_DTOR_WORKAROUND 1
 #endif
 
 struct TaskGroup::Data
 {
      Data ();
     ~Data ();
-    
+
     void    addTask () ;
     void    removeTask ();
-#ifndef ILMBASE_FORCE_CXX03
+#if !ILMBASE_FORCE_CXX03
     std::atomic<int> numPending;
 #else
     int              numPending;     // number of pending tasks to still execute
 #endif
     Semaphore        isEmpty;        // used to signal that the taskgroup is empty
-#if defined(ENABLE_SEM_DTOR_WORKAROUND) || defined(ILMBASE_FORCE_CXX03)
+#if ENABLE_SEM_DTOR_WORKAROUND || ILMBASE_FORCE_CXX03
     // this mutex is also used to lock numPending in the legacy c++ mode...
     Mutex            dtorMutex;      // used to work around the glibc bug:
                                      // http://sources.redhat.com/bugzilla/show_bug.cgi?id=12674
@@ -124,7 +128,7 @@ struct ThreadPool::Data
             }
             return *this;
         }
-#ifndef ILMBASE_FORCE_CXX03
+#if !ILMBASE_FORCE_CXX03
         SafeProvider( SafeProvider &&o )
             : _data( o._data ), _ptr( o._ptr )
         {
@@ -157,7 +161,7 @@ struct ThreadPool::Data
     inline void bumpProviderUse ();
     inline void setProvider (ThreadPoolProvider *p);
 
-#ifdef ILMBASE_FORCE_CXX03
+#if ILMBASE_FORCE_CXX03
     Semaphore provSem;
     Mutex provMutex;
     int provUsers;
@@ -184,8 +188,8 @@ struct DefaultWorkData
     Semaphore threadSemaphore;      // signaled when a thread starts executing
     mutable Mutex threadMutex;      // mutual exclusion for threads list
     vector<DefaultWorkerThread*> threads;  // the list of all threads
-    
-#ifdef ILMBASE_FORCE_CXX03
+
+#if ILMBASE_FORCE_CXX03
     bool stopping;                  // flag indicating whether to stop threads
     mutable Mutex stopMutex;        // mutual exclusion for stopping flag
 #else
@@ -195,7 +199,7 @@ struct DefaultWorkData
 
     inline bool stopped () const
     {
-#ifdef ILMBASE_FORCE_CXX03
+#if ILMBASE_FORCE_CXX03
         Lock lock (stopMutex);
         return stopping;
 #else
@@ -205,7 +209,7 @@ struct DefaultWorkData
 
     inline void stop ()
     {
-#ifdef ILMBASE_FORCE_CXX03
+#if ILMBASE_FORCE_CXX03
         Lock lock (stopMutex);
 #endif
         stopping = true;
@@ -222,7 +226,7 @@ class DefaultWorkerThread: public Thread
     DefaultWorkerThread (DefaultWorkData* data);
 
     virtual void    run ();
-    
+
   private:
 
     DefaultWorkData *  _data;
@@ -255,7 +259,7 @@ DefaultWorkerThread::run ()
 
         {
             Lock taskLock (_data->taskMutex);
-    
+
             //
             // If there is a task pending, pop off the next task in the FIFO
             //
@@ -352,7 +356,7 @@ DefaultThreadPoolProvider::setNumThreads (int count)
         while (_data.threads.size() < desired)
             _data.threads.push_back (new DefaultWorkerThread (&_data));
     }
-#ifndef ILMBASE_FORCE_CXX03
+#if !ILMBASE_FORCE_CXX03
     _data.hasThreads = !(_data.threads.empty());
 #endif
 }
@@ -363,7 +367,7 @@ DefaultThreadPoolProvider::addTask (Task *task)
     //
     // Lock the threads, needed to access numThreads
     //
-#ifdef ILMBASE_FORCE_CXX03
+#if ILMBASE_FORCE_CXX03
     bool doPush;
     {
         Lock lock (_data.threadMutex);
@@ -387,7 +391,7 @@ DefaultThreadPoolProvider::addTask (Task *task)
             //
             _data.tasks.push_back (task);
         }
-        
+
         //
         // Signal that we have a new task to process
         //
@@ -436,7 +440,7 @@ DefaultThreadPoolProvider::finish ()
         delete _data.threads[i];
     }
     Lock lock1 (_data.taskMutex);
-#ifdef ILMBASE_FORCE_CXX03
+#if ILMBASE_FORCE_CXX03
     Lock lock2 (_data.stopMutex);
 #endif
     _data.threads.clear();
@@ -460,7 +464,7 @@ class NullThreadPoolProvider : public ThreadPoolProvider
         delete t;
     }
     virtual void finish () {}
-}; 
+};
 
 } //namespace
 
@@ -485,7 +489,7 @@ TaskGroup::Data::~Data ()
 
     isEmpty.wait ();
 
-#ifdef ENABLE_SEM_DTOR_WORKAROUND
+#if ENABLE_SEM_DTOR_WORKAROUND
     // Update: this was fixed in v. 2.2.21, so this ifdef checks for that
     //
     // Alas, given the current bug in glibc we need a secondary
@@ -504,14 +508,14 @@ TaskGroup::Data::~Data ()
 
 
 void
-TaskGroup::Data::addTask () 
+TaskGroup::Data::addTask ()
 {
     //
     // in c++11, we use an atomic to protect numPending to avoid the
     // extra lock but for c++98, to add the ability for custom thread
     // pool we add the lock here
     //
-#ifdef ILMBASE_FORCE_CXX03
+#if ILMBASE_FORCE_CXX03
     Lock lock (dtorMutex);
 #endif
     if (numPending++ == 0)
@@ -536,11 +540,11 @@ TaskGroup::Data::removeTask ()
 
     // Further update:
     //
-    // we could remove this if it is a new enough glibc, however 
+    // we could remove this if it is a new enough glibc, however
     // we've changed the API to enable a custom override of a
     // thread pool. In order to provide safe access to the numPending,
     // we need the lock anyway, except for c++11 or newer
-#ifdef ILMBASE_FORCE_CXX03
+#if ILMBASE_FORCE_CXX03
     Lock lock (dtorMutex);
 
     if (--numPending == 0)
@@ -548,14 +552,14 @@ TaskGroup::Data::removeTask ()
 #else
     if (--numPending == 0)
     {
-#ifdef ENABLE_SEM_DTOR_WORKAROUND
+#if ENABLE_SEM_DTOR_WORKAROUND
         Lock lock (dtorMutex);
 #endif
         isEmpty.post ();
     }
 #endif
 }
-    
+
 
 //
 // struct ThreadPool::Data
@@ -563,7 +567,7 @@ TaskGroup::Data::removeTask ()
 
 ThreadPool::Data::Data ():
     provUsers (0), provider (NULL)
-#ifdef ILMBASE_FORCE_CXX03
+#if ILMBASE_FORCE_CXX03
     , oldprovider (NULL)
 #else
 #endif
@@ -574,7 +578,7 @@ ThreadPool::Data::Data ():
 
 ThreadPool::Data::~Data()
 {
-#ifdef ILMBASE_FORCE_CXX03
+#if ILMBASE_FORCE_CXX03
     provider->finish();
     delete provider;
 #else
@@ -587,7 +591,7 @@ ThreadPool::Data::~Data()
 inline ThreadPool::Data::SafeProvider
 ThreadPool::Data::getProvider ()
 {
-#ifdef ILMBASE_FORCE_CXX03
+#if ILMBASE_FORCE_CXX03
     Lock provLock( provMutex );
     ++provUsers;
     return SafeProvider( this, provider );
@@ -601,7 +605,7 @@ ThreadPool::Data::getProvider ()
 inline void
 ThreadPool::Data::coalesceProviderUse ()
 {
-#ifdef ILMBASE_FORCE_CXX03
+#if ILMBASE_FORCE_CXX03
     Lock provLock( provMutex );
     --provUsers;
     if ( provUsers == 0 )
@@ -614,7 +618,7 @@ ThreadPool::Data::coalesceProviderUse ()
     // ov is the previous value, so one means that now it might be 0
     if ( ov == 1 )
     {
-        
+
     }
 #endif
 }
@@ -623,7 +627,7 @@ ThreadPool::Data::coalesceProviderUse ()
 inline void
 ThreadPool::Data::bumpProviderUse ()
 {
-#ifdef ILMBASE_FORCE_CXX03
+#if ILMBASE_FORCE_CXX03
     Lock lock (provMutex);
     ++provUsers;
 #else
@@ -635,7 +639,7 @@ ThreadPool::Data::bumpProviderUse ()
 inline void
 ThreadPool::Data::setProvider (ThreadPoolProvider *p)
 {
-#ifdef ILMBASE_FORCE_CXX03
+#if ILMBASE_FORCE_CXX03
     Lock provLock( provMutex );
 
     if ( oldprovider )
@@ -672,7 +676,7 @@ ThreadPool::Data::setProvider (ThreadPoolProvider *p)
     //
     // (well, and normally, people don't do this mid stream anyway, so
     // this will be 0 99.999% of the time, but just to be safe)
-    // 
+    //
     while ( provUsers.load( std::memory_order_relaxed ) > 0 )
         std::this_thread::yield();
 
@@ -835,7 +839,7 @@ ThreadPool::setThreadProvider (ThreadPoolProvider *provider)
 
 
 void
-ThreadPool::addTask (Task* task) 
+ThreadPool::addTask (Task* task)
 {
     _data->getProvider ()->addTask (task);
 }
@@ -847,7 +851,7 @@ ThreadPool::globalThreadPool ()
     //
     // The global thread pool
     //
-    
+
     static ThreadPool gThreadPool (0);
 
     return gThreadPool;
@@ -863,17 +867,17 @@ ThreadPool::addGlobalTask (Task* task)
 unsigned
 ThreadPool::estimateThreadCountForFileIO ()
 {
-#ifdef ILMBASE_FORCE_CXX03
-#    if defined (_WIN32) || defined (_WIN64)
+#if ILMBASE_FORCE_CXX03
+#   if defined (_WIN32) || defined (_WIN64)
     SYSTEM_INFO sysinfo;
     GetSystemInfo (&sysinfo);
     return static_cast<unsigned> (sysinfo.dwNumberOfProcessors);
-#    elif defined(_SC_NPROCESSORS_ONLN)
+#   elif defined(_SC_NPROCESSORS_ONLN)
     int count = sysconf (_SC_NPROCESSORS_ONLN);
     return static_cast<unsigned>( count < 0 ? 0 : count );
-#    else
+#   else
     return 0;
-#    endif
+#   endif
 #else
     return std::thread::hardware_concurrency ();
 #endif

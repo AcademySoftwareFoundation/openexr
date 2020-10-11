@@ -2,9 +2,9 @@
 //
 // Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +16,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
+// from this software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -39,10 +39,11 @@
 //-----------------------------------------------------------------------------
 
 #include "IlmBaseConfig.h"
-#if (defined(_WIN32) || defined(_WIN64)) && !defined(HAVE_POSIX_SEMAPHORES)
+#if defined(_WIN32) || defined(_WIN64)
+#if !HAVE_POSIX_SEMAPHORES
 
 #include "IlmThreadSemaphore.h"
-#include "Iex.h"
+#include "../Iex/Iex.h"
 #include <string>
 #include <assert.h>
 #include <iostream>
@@ -61,7 +62,7 @@ errorString ()
     std::string message;
 
     //
-    // Call FormatMessage() to allow for message 
+    // Call FormatMessage() to allow for message
     // text to be acquired from the system.
     //
 
@@ -149,4 +150,5 @@ Semaphore::value() const
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
+#endif // HAVE_POSIX_SEMAPHORES
 #endif // _WIN32

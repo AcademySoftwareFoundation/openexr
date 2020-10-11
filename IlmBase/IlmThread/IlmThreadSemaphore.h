@@ -2,9 +2,9 @@
 //
 // Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +16,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
+// from this software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -46,7 +46,7 @@
 #include "IlmThreadExport.h"
 #include "IlmThreadNamespace.h"
 
-#if defined _WIN32 || defined _WIN64
+#if defined(_WIN32) || defined(_WIN64)
 #   ifdef NOMINMAX
 #      undef NOMINMAX
 #   endif
@@ -54,18 +54,23 @@
 #   include <windows.h>
 #endif
 
-#ifdef HAVE_POSIX_SEMAPHORES
+#if HAVE_POSIX_SEMAPHORES
 #   include <semaphore.h>
 #elif defined(__APPLE__)
 #   include <dispatch/dispatch.h>
 #else
-#   ifdef ILMBASE_FORCE_CXX03
-#      ifdef HAVE_PTHREAD
+#   if ILMBASE_FORCE_CXX03
+#      if HAVE_PTHREAD
 #         include <pthread.h>
 #      endif
 #   else
-#      include <mutex>
-#      include <condition_variable>
+#      if defined(__MINGW32__) || defined(__MINGW64__)
+#         include "mingw.mutex.h"
+#         include "mingw.condition_variable.h"
+#      else
+#         include <mutex>
+#         include <condition_variable>
+#      endif
 #   endif
 #endif
 
@@ -86,15 +91,18 @@ class ILMTHREAD_EXPORT Semaphore
 
   private:
 
-#if (defined (_WIN32) || defined (_WIN64)) && !defined (HAVE_POSIX_SEMAPHORES)
+#if defined (_WIN32) || defined (_WIN64)
+#if !HAVE_POSIX_SEMAPHORES
 
 	mutable HANDLE _semaphore;
 
-#elif defined(HAVE_POSIX_SEMAPHORES)
+#else
 
 	mutable sem_t _semaphore;
 
+#endif
 #elif defined(__APPLE__)
+
 	mutable dispatch_semaphore_t _semaphore;
 
 #else
@@ -121,7 +129,7 @@ class ILMTHREAD_EXPORT Semaphore
 	};
 
 	mutable sema_t _semaphore;
-  
+
 #endif
 
     void operator = (const Semaphore& s);	// not implemented

@@ -2,9 +2,9 @@
 //
 // Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +16,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
+// from this software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -94,19 +94,25 @@
 #include "IlmThreadExport.h"
 #include "IlmThreadNamespace.h"
 
-#ifdef ILMBASE_FORCE_CXX03
-#   if (defined (_WIN32) || defined (_WIN64)) && !defined(HAVE_PTHREAD)
+#if ILMBASE_FORCE_CXX03
+#   if defined (_WIN32) || defined (_WIN64)
+#   if !HAVE_PTHREAD
 #       ifdef NOMINMAX
 #          undef NOMINMAX
 #       endif
 #       define NOMINMAX
 #       include <windows.h>
 #       include <process.h>
-#   elif HAVE_PTHREAD
+#   else
 #      include <pthread.h>
 #   endif
+#   endif
 #else
-#   include <thread>
+#   if defined(__MINGW32__) || defined(__MINGW64__)
+#      include "mingw.thread.h"
+#   else
+#      include <thread>
+#   endif
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -136,11 +142,13 @@ class Thread
 
   private:
 
-#ifdef ILMBASE_FORCE_CXX03
-#   if (defined (_WIN32) || defined (_WIN64)) && !defined (HAVE_PTHREAD)
+#if ILMBASE_FORCE_CXX03
+#   if defined (_WIN32) || defined (_WIN64)
+#   if !HAVE_PTHREAD
 	HANDLE _thread;
-#   elif HAVE_PTHREAD
+#   else
 	pthread_t _thread;
+#   endif
 #   endif
     void operator = (const Thread& t);	// not implemented
     Thread (const Thread& t);		// not implemented

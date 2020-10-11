@@ -2,9 +2,9 @@
 //
 // Copyright (c) 2005-2012, Industrial Light & Magic, a division of Lucas
 // Digital Ltd. LLC
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -16,8 +16,8 @@
 // distribution.
 // *       Neither the name of Industrial Light & Magic nor the names of
 // its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
+// from this software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -51,7 +51,7 @@
 //	share a Lock object among multiple threads.
 //
 //	Typical usage:
-//    
+//
 //	    Mutex mtx;	// Create a Mutex object that is visible
 //	    		//to multiple threads
 //
@@ -70,7 +70,7 @@
 #include "IlmBaseConfig.h"
 #include "IlmThreadNamespace.h"
 
-#ifdef ILMBASE_FORCE_CXX03
+#if ILMBASE_FORCE_CXX03
 #   if defined (_WIN32) || defined (_WIN64)
 #      ifdef NOMINMAX
 #         undef NOMINMAX
@@ -78,11 +78,15 @@
 #      define NOMINMAX
 #      include <windows.h>
 #   endif
-#   ifdef HAVE_PTHREAD
+#   if HAVE_PTHREAD
 #      include <pthread.h>
 #   endif
 #else
-#   include <mutex>
+#   if defined(__MINGW32__) || defined(__MINGW64__)
+#      include "mingw.mutex.h"
+#   else
+#      include <mutex>
+#   endif
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -100,8 +104,8 @@ ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 // or
 // using Lock = std::unique_lock<std::mutex>;
 //
-// (or eliminate the type completely and have people use the std library) 
-#ifdef ILMBASE_FORCE_CXX03
+// (or eliminate the type completely and have people use the std library)
+#if ILMBASE_FORCE_CXX03
 
 class Lock;
 
@@ -117,15 +121,17 @@ class ILMTHREAD_EXPORT Mutex
     void	lock () const;
     void	unlock () const;
 
-    #if (defined (_WIN32) || defined (_WIN64)) && !defined (HAVE_PTHREAD)
+#   if defined (_WIN32) || defined (_WIN64)
+#   if !HAVE_PTHREAD
 	mutable CRITICAL_SECTION _mutex;
-    #elif defined (HAVE_PTHREAD)
+#   else
 	mutable pthread_mutex_t _mutex;
-    #endif
+#   endif
+#   endif
 
     void operator = (const Mutex& M);	// not implemented
     Mutex (const Mutex& M);		// not implemented
-    
+
     friend class Lock;
 };
 #else
@@ -145,7 +151,7 @@ class ILMTHREAD_EXPORT Lock
             _locked = true;
         }
     }
-    
+
     ~Lock ()
     {
         if (_locked)
@@ -161,13 +167,13 @@ class ILMTHREAD_EXPORT Lock
         _mutex.lock();
         _locked = true;
     }
-    
+
     void release ()
     {
         _mutex.unlock();
         _locked = false;
     }
-    
+
     bool locked ()
     {
         return _locked;
