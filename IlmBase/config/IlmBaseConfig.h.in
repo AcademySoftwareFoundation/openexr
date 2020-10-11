@@ -9,7 +9,7 @@
 #pragma once
 
 //
-// Define and set to 1 if the target system has c++11/14 support
+// Define and set to 1 if the target system has c++03 support
 // and you want IlmBase to NOT use it's features
 //
 
