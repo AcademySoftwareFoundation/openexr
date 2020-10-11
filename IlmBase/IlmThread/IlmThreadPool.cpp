@@ -489,7 +489,7 @@ TaskGroup::Data::~Data ()
 
     isEmpty.wait ();
 
-#ifdef ENABLE_SEM_DTOR_WORKAROUND
+#if ENABLE_SEM_DTOR_WORKAROUND
     // Update: this was fixed in v. 2.2.21, so this ifdef checks for that
     //
     // Alas, given the current bug in glibc we need a secondary
