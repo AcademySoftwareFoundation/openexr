@@ -91,16 +91,14 @@ class ILMTHREAD_EXPORT Semaphore
 
   private:
 
-#if defined (_WIN32) || defined (_WIN64)
-#if !HAVE_POSIX_SEMAPHORES
+#if (defined (_WIN32) || defined (_WIN64)) && !HAVE_POSIX_SEMAPHORES
 
 	mutable HANDLE _semaphore;
 
-#else
+#elif HAVE_POSIX_SEMAPHORES
 
 	mutable sem_t _semaphore;
 
-#endif
 #elif defined(__APPLE__)
 
 	mutable dispatch_semaphore_t _semaphore;
