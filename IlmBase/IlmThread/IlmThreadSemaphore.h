@@ -64,7 +64,7 @@
 #         include <pthread.h>
 #      endif
 #   else
-#      if defined(__MINGW32__) || defined(__MINGW64__)
+#      if defined(__MINGW32__) || defined(__MINGW64__) || defined(__clang__) || __GNUC__ > 6
 #         include "mingw.mutex.h"
 #         include "mingw.condition_variable.h"
 #      else
