@@ -910,6 +910,11 @@ hufDecode
 		//
 
 		lc -= pl.len;
+
+		if ( lc < 0 )
+		{
+			invalidCode(); // code length too long
+		}
 		getCode (pl.lit, rlc, c, lc, in, out, outb, oe);
 	    }
 	    else
@@ -967,6 +972,10 @@ hufDecode
 	if (pl.len)
 	{
 	    lc -= pl.len;
+            if ( lc < 0 )
+            {
+   	        invalidCode(); // code length too long
+            }
 	    getCode (pl.lit, rlc, c, lc, in, out, outb, oe);
 	}
 	else
