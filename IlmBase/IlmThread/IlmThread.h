@@ -109,7 +109,12 @@
 #   endif
 #else
 #   if defined(__MINGW32__) || defined(__MINGW64__)
-#      include "mingw.thread.h"
+#      if ILMBASE_FORCE_CXX17
+#         define SAFE
+#         include "jthread.h"
+#      else
+#         include "mingw.thread.h"
+#      endif
 #   else
 #      include <thread>
 #   endif
@@ -125,12 +130,21 @@ ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 ILMTHREAD_EXPORT bool supportsThreads ();
 
 
+#if ILMBASE_FORCE_CXX17
+class jthread
+{
+  public:
+
+    ILMTHREAD_EXPORT jthread ();
+    ILMTHREAD_EXPORT virtual ~jthread ();
+#else
 class Thread
 {
   public:
 
     ILMTHREAD_EXPORT Thread ();
     ILMTHREAD_EXPORT virtual ~Thread ();
+#endif
 
     ILMTHREAD_EXPORT void         start ();
     ILMTHREAD_EXPORT virtual void run () = 0;
@@ -153,12 +167,21 @@ class Thread
     void operator = (const Thread& t);	// not implemented
     Thread (const Thread& t);		// not implemented
 #else
+#   if ILMBASE_FORCE_CXX17
+    std::jthread _thread;
+
+    jthread &operator= (const jthread& t) = delete;
+    jthread &operator= (jthread&& t) = delete;
+    jthread (const jthread& t) = delete;
+    jthread (jthread&& t) = delete;
+#   else
     std::thread _thread;
 
     Thread &operator= (const Thread& t) = delete;
     Thread &operator= (Thread&& t) = delete;
     Thread (const Thread& t) = delete;
     Thread (Thread&& t) = delete;
+#   endif
 #endif
 };
 
