@@ -61,20 +61,6 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 #define _AVX_ALIGNMENT_MASK 0x1F
 
 //
-// Test if we should enable GCC inline asm paths for AVX
-//
-
-#ifdef OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX 
-
-    #define IMF_HAVE_GCC_INLINEASM
-
-    #ifdef __LP64__
-        #define IMF_HAVE_GCC_INLINEASM_64
-    #endif /* __LP64__ */
-
-#endif /* OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX */
-
-//
 // A simple 64-element array, aligned properly for SIMD access. 
 //
 
@@ -467,7 +453,7 @@ convertFloatToHalf64_f16c (unsigned short *dst, float *src)
     // I'll take the asm.
     //
 
-    #if defined IMF_HAVE_GCC_INLINEASM
+    #if defined IMF_HAVE_GCC_INLINEASM_X86
         __asm__
            ("vmovaps       (%0),     %%ymm0         \n"
             "vmovaps   0x20(%0),     %%ymm1         \n"
@@ -506,7 +492,7 @@ convertFloatToHalf64_f16c (unsigned short *dst, float *src)
            );
     #else
         convertFloatToHalf64_scalar (dst, src);
-    #endif /* IMF_HAVE_GCC_INLINEASM */
+    #endif /* IMF_HAVE_GCC_INLINEASM_X86 */
 }
 
 
@@ -683,7 +669,7 @@ fromHalfZigZag_scalar (unsigned short *src, float *dst)
 void 
 fromHalfZigZag_f16c (unsigned short *src, float *dst)
 {
-    #if defined IMF_HAVE_GCC_INLINEASM_64
+    #if defined IMF_HAVE_GCC_INLINEASM_X86_64
         __asm__
 
            /* x3 <- 0                    
@@ -835,7 +821,7 @@ fromHalfZigZag_f16c (unsigned short *src, float *dst)
 
     #else
         fromHalfZigZag_scalar(src, dst);
-    #endif /* defined IMF_HAVE_GCC_INLINEASM_64 */
+    #endif /* defined IMF_HAVE_GCC_INLINEASM_X86_64 */
 }
 
 
@@ -1607,7 +1593,7 @@ template <int zeroedRows>
 void
 dctInverse8x8_avx (float *data)
 {
-    #if defined IMF_HAVE_GCC_INLINEASM_64
+    #if defined IMF_HAVE_GCC_INLINEASM_X86_64
 
     /* The column-major version of M1, followed by the 
      * column-major version of M2:
@@ -1735,11 +1721,11 @@ dctInverse8x8_avx (float *data)
         } else {
             assert(false); // Invalid template instance parameter
         }
-    #else  /* IMF_HAVE_GCC_INLINEASM_64 */
+    #else  /* IMF_HAVE_GCC_INLINEASM_X86_64 */
 
         dctInverse8x8_scalar<zeroedRows>(data);
 
-    #endif /*  IMF_HAVE_GCC_INLINEASM_64 */
+    #endif /*  IMF_HAVE_GCC_INLINEASM_X86_64 */
 }
 
 
