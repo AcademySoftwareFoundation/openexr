@@ -20,12 +20,13 @@ int main()
     sysconf(_SC_NPROCESSORS_ONLN);
 }
 " OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN
-)    
+)
 
 check_cxx_source_compiles(
 "
 int main()
 {
+#if defined(_M_X64) || defined(__x86_64__)
 #if defined(__SSE2__)
     int n   = 0;
     int eax = 0;
@@ -36,6 +37,7 @@ int main()
         : \"=a\"(eax), \"=d\"(edx) : \"c\"(n) : );
 #else
 #    error No SSE support enabled to query AVX support
+#endif
 #endif
 }
 " OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX
