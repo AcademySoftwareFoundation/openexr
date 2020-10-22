@@ -2301,7 +2301,7 @@ DwaCompressor::compress
 
     outPtr = _outBuffer;
 
-    return static_cast<int>(outDataPtr - _outBuffer + 1);
+    return static_cast<int>(outDataPtr - _outBuffer);
 }
 
 

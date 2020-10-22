@@ -150,13 +150,29 @@ TileOffsets::findTiles (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, bool isMult
                      OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, packed_offset_table_size);
                      OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, packed_sample_size);
                      
+                     // check for bad values to prevent overflow
+                     if ( packed_offset_table_size < 0 ||
+                          packed_sample_size < 0 ||
+                         ( INT64_MAX -  packed_offset_table_size < packed_sample_size) ||
+                         ( INT64_MAX - (packed_offset_table_size + packed_sample_size) ) < 8 )
+                     {
+                          throw IEX_NAMESPACE::IoExc("Invalid deep tile size");
+                     }
+
                      // next Int64 is unpacked sample size - skip that too
                      Xdr::skip <StreamIO> (is, packed_offset_table_size+packed_sample_size+8);
                     
-                }else{
-                    
-		     int dataSize;
+                }
+                else
+                {
+                     int dataSize;
 		     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, dataSize);
+
+                     // check for bad values to prevent overflow
+                     if ( dataSize < 0 )
+                     {
+                          throw IEX_NAMESPACE::IoExc("Invalid tile size");
+                     }
 
 		     Xdr::skip <StreamIO> (is, dataSize);
                 }
