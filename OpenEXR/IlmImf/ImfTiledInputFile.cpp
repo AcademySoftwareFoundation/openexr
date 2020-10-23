@@ -253,6 +253,11 @@ struct TiledInputFile::Data: public Mutex
     Data (Data&& other) = delete;
     Data& operator = (Data&& other) = delete;
 
+    static const int gLargeChunkTableSize = 1024*1024;
+    void validateStreamSize();                       // throw an exception if the file is significantly
+                                                     // smaller than the data/tile geometry would require
+
+
     inline TileBuffer * getTileBuffer (int number);
 					    // hash function from tile indices
 					    // into our vector of tile buffers
@@ -298,6 +303,50 @@ TiledInputFile::Data::getTileBuffer (int number)
     return tileBuffers[number % tileBuffers.size()];
 }
 
+
+
+//
+// avoid allocating excessive memory due to large lineOffsets table size.
+// If the chunktablesize claims to be large,
+// check the file is big enough to contain the table before allocating memory
+// in the bytesPerLineTable and the lineOffsets table.
+// Attempt to read the last entry in the first level of the table. Either the seekg() or the read()
+// call will throw an exception if the file is much too small to contain the table.
+// For speed, does not compute the entire table size for Mipmap/Ripmap images
+// (Roughly 50% or 100% bigger respectively)
+//
+
+// assumes the input stream pointer is at (or before) the beginning of the chunk table
+
+
+void
+TiledInputFile::Data::validateStreamSize()
+{
+    const Box2i &dataWindow = header.dataWindow();
+    Int64 tileWidth = header.tileDescription().xSize;
+    Int64 tileHeight = header.tileDescription().ySize;
+
+    Int64 tilesX = (static_cast<Int64>(dataWindow.max.x+1-dataWindow.min.x) + tileWidth -1) / tileWidth;
+
+    Int64 tilesY = (static_cast<Int64>(dataWindow.max.y+1-dataWindow.min.y) + tileHeight -1) / tileHeight;
+
+
+    Int64 chunkCount = tilesX*tilesY;
+    if ( chunkCount > gLargeChunkTableSize)
+    {
+
+        if (chunkCount > gLargeChunkTableSize)
+        {
+            Int64 pos = _streamData->is->tellg();
+            _streamData->is->seekg(pos + (chunkCount-1)*sizeof(Int64));
+            Int64 temp;
+            OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*_streamData->is, temp);
+            _streamData->is->seekg(pos);
+
+        }
+    }
+
+}
 
 namespace {
 
@@ -732,6 +781,7 @@ TiledInputFile::TiledInputFile (const char fileName[], int numThreads):
             _data->_streamData = new InputStreamMutex();
             _data->_streamData->is = is;
             _data->header.readFrom (*_data->_streamData->is, _data->version);
+
             initialize();
             //read tile offsets - we are not multipart or deep
             _data->tileOffsets.readFrom (*(_data->_streamData->is), _data->fileIsComplete,false,false);
@@ -974,6 +1024,15 @@ TiledInputFile::initialize ()
     
     _data->header.sanityCheck (true);
 
+    //
+    // before allocating memory for tile offsets, confirm file is large enough
+    // to contain tile offset table
+    // (for multipart files, the chunk offset table has already been read)
+    //
+    if (!isMultiPart(_data->version))
+    {
+        _data->validateStreamSize();
+    }
     _data->tileDesc = _data->header.tileDescription();
     _data->lineOrder = _data->header.lineOrder();
 
