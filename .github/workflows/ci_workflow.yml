@@ -211,8 +211,6 @@ jobs:
   # ---------------------------------------------------------------------------
   # macOS
   # ---------------------------------------------------------------------------
-  # TODO: Figure out why the excluded PyIlmBase tests are failing.
-  
   macos:
     name: 'macOS 10.15 
       <AppleClang 11.0 
@@ -299,7 +297,6 @@ jobs:
   # Windows
   # ---------------------------------------------------------------------------
   # TODO: Determine why tests hang in Debug job.
-
   windows:
     name: 'Windows 2019 
       <MSVC 16.4 
@@ -310,67 +307,37 @@ jobs:
     runs-on: windows-2019
     strategy:
       matrix:
+        #build: [1, 2, 3, 4]
         build: [1, 2, 3, 4]
         include:
-          # # C++11, Python 3.7
+          # C++11, Shared, Release
           - build: 1
             build-type: Release
             build-shared: 'ON'
             build-docs: 'ON'
             cxx-standard: 11
-            exclude-tests: ''
+            exclude-tests:
+          # C++14, Shared, Release
           - build: 2
-            build-type: Debug
-            build-shared: 'ON'
-            build-docs: 'ON'
-            cxx-standard: 11
-            exclude-tests: ''
-          - build: 3
             build-type: Release
             build-shared: 'ON'
-            build-docs: 'ON'
+            build-docs: 'OFF'
             cxx-standard: 14
             exclude-tests: ''
+          # C++11, Static, Release
+          - build: 3
+            build-type: Release
+            build-shared: 'OFF'
+            build-docs: 'OFF'
+            cxx-standard: 14
+            exclude-tests: ''
+          # C++14, Static, Release
           - build: 4
-            build-type: Debug
-            build-shared: 'ON'
-            build-docs: 'ON'
+            build-type: Release
+            build-shared: 'OFF'
+            build-docs: 'OFF'
             cxx-standard: 14
             exclude-tests: ''
-          # # Debug -
-          # # - build: 2
-            # # build-type: Debug
-            # # build-shared: 'ON'
-            # # build-docs: 'OFF'
-            # # cxx-standard: 11
-            # # python-version: 3.7.7
-            # # boost-version: 1.70.0
-            # # zlib-version: 1.2.11
-            # # zlib-lib: zlib.lib
-            # # exclude-tests: ''
-          # # C++14
-          # - build: 3
-            # build-type: Release
-            # build-shared: 'ON'
-            # build-docs: 'OFF'
-            # cxx-standard: 14
-            # python-version: 3.7.7
-            # boost-version: 1.70.0
-            # zlib-version: 1.2.11
-            # zlib-lib: zlib.lib
-            # exclude-tests: ''
-          # # Static
-          # - build: 4
-            # build-type: Release
-            # build-shared: 'OFF'
-            # build-docs: 'OFF'
-            # cxx-standard: 11
-            # python-version: 3.7.7
-            # boost-version: 1.70.0
-            # zlib-version: 1.2.11
-            # zlib-lib: zlibstatic.lib
-            # exclude-tests: ''
- 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
