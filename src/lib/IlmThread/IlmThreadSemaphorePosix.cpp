@@ -41,7 +41,7 @@
 
 #include "IlmBaseConfig.h"
 
-#if defined (HAVE_PTHREAD) && defined(HAVE_POSIX_SEMAPHORES)
+#if defined(ILMBASE_HAVE_POSIX_SEMAPHORES) && ILMBASE_HAVE_POSIX_SEMAPHORES > 0
 
 #include "IlmThreadSemaphore.h"
 #include "Iex.h"

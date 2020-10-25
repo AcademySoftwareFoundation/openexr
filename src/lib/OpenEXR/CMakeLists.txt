@@ -188,7 +188,6 @@ openexr_define_library(IlmImf
     OpenEXR::Config
     OpenEXR::Iex
     OpenEXR::IlmThread
-    Imath::Half
     Imath::Imath
     ZLIB::ZLIB
   )

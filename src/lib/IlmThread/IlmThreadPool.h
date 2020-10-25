@@ -93,16 +93,10 @@ class ILMTHREAD_EXPORT ThreadPoolProvider
     virtual void finish () = 0;
 
     // Make the provider non-copyable
-#if __cplusplus >= 201103L
     ThreadPoolProvider (const ThreadPoolProvider &) = delete;
     ThreadPoolProvider &operator= (const ThreadPoolProvider &) = delete;
     ThreadPoolProvider (ThreadPoolProvider &&) = delete;
     ThreadPoolProvider &operator= (ThreadPoolProvider &&) = delete;
-#else
-  private:
-    ThreadPoolProvider (const ThreadPoolProvider &);
-    ThreadPoolProvider &operator= (const ThreadPoolProvider &);
-#endif
 };  
 
 class ILMTHREAD_EXPORT ThreadPool  

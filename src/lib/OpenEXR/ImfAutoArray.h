@@ -50,7 +50,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-#if !defined (HAVE_LARGE_STACK)
+#if !defined (OPENEXR_HAVE_LARGE_STACK)
 
 
     template <class T, int size>

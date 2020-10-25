@@ -9,6 +9,20 @@
 #pragma once
 
 //
+// Options / configuration based on O.S. / compiler
+/////////////////////
+
+//
+// Define and set to 1 if the target system has support for large
+// stack sizes.
+//
+#cmakedefine OPENEXR_HAVE_LARGE_STACK 1
+
+//////////////////////
+//
+// C++ namespace configuration / options
+
+//
 // Current internal library namepace name
 //
 #define OPENEXR_IMF_INTERNAL_NAMESPACE_CUSTOM @OPENEXR_NAMESPACE_CUSTOM@

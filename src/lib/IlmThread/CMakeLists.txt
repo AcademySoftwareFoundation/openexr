@@ -7,13 +7,11 @@ openexr_define_library(IlmThread
   SOURCES
     IlmThread.cpp
     IlmThreadPool.cpp
-    IlmThreadPosix.cpp
     IlmThreadSemaphore.cpp
     IlmThreadSemaphorePosixCompat.cpp
     IlmThreadSemaphorePosix.cpp
     IlmThreadSemaphoreOSX.cpp
     IlmThreadSemaphoreWin32.cpp
-    IlmThreadWin32.cpp
   HEADERS
     IlmThreadPool.h
     IlmThread.h
@@ -24,5 +22,12 @@ openexr_define_library(IlmThread
     IlmThreadForward.h
   DEPENDENCIES
     OpenEXR::Iex
-    Threads::Threads
-  )
+)
+
+if(OPENEXR_ENABLE_THREADING)
+  target_link_libraries(IlmThread PUBLIC Threads::Threads)
+  if(OPENEXR_BUILD_BOTH_STATIC_SHARED)
+    target_link_libraries(IlmThread_static PUBLIC Threads::Threads)
+  endif()
+endif()
+
