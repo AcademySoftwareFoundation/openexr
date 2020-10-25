@@ -296,7 +296,7 @@ jobs:
   # ---------------------------------------------------------------------------
   # Windows
   # ---------------------------------------------------------------------------
-  # TODO: Determine why tests hang in Debug job.
+  # TODO: Debug mode is catatonically slow under windows
   windows:
     name: 'Windows 2019 
       <MSVC 16.4 

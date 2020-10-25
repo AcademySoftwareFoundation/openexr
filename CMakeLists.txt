@@ -76,16 +76,17 @@ endif()
 #set(CTEST_DROP_SITE "open.cdash.org")
 #set(CTEST_DROP_LOCATION "/submit.php?project=MyProject")
 #set(CTEST_DROP_SITE_CDASH TRUE)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+  include(CTest)
 
-include(CTest)
-if(BUILD_TESTING)
-  enable_testing()
-  add_subdirectory(src/test)
+  if(BUILD_TESTING)
+    enable_testing()
+    add_subdirectory(src/test)
+  endif()
 endif()
 
-if(Imath_FOUND)
-  # Including this module will add a `clang-format` target to the build if
-  # the clang-format executable can be found. Imath comes with its own, hence the
-  # conditional inclusion.
+# Including this module will add a `clang-format` target to the build if
+# the clang-format executable can be found. Only do this if we are top level
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   include(cmake/clang-format.cmake)
 endif()
