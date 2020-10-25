@@ -155,7 +155,7 @@ endif()
 
 option(OPENEXR_FORCE_INTERNAL_ZLIB "Force using an internal zlib" OFF)
 if (NOT OPENEXR_FORCE_INTERNAL_ZLIB)
-  find_package(ZLIB REQUIRED)
+  find_package(ZLIB)
 endif()
 if(OPENEXR_FORCE_INTERNAL_ZLIB OR NOT ZLIB_FOUND)
   set(zlib_VER "1.2.11")
