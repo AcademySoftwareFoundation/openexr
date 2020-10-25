@@ -194,7 +194,7 @@ MultiPartInputFile::getInputPart(int partNumber)
 void
 MultiPartInputFile::flushPartCache()
 {
-    Lock lock(*_data);
+    std::lock_guard<std::mutex> lock(*_data);
     while ( _data->_inputFiles.begin() != _data->_inputFiles.end())
     {
        delete _data->_inputFiles.begin()->second;

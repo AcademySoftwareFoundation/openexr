@@ -13,5 +13,5 @@ Description: Base math and exception libraries
 Version: @ILMBASE_VERSION@
 Requires:
 Conflicts:
-Libs: -L${libdir} -lImath${libsuffix} -lHalf${libsuffix} -lIex${libsuffix} -lIexMath${libsuffix} -lIlmThread${libsuffix} @PTHREAD_LIBS@
+Libs: -L${libdir} -lIex${libsuffix} -lIexMath${libsuffix} -lIlmThread${libsuffix} @PTHREAD_LIBS@
 Cflags: @PTHREAD_CFLAGS@ -I${includedir} -I${includedir}/OpenEXR

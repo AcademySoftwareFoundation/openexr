@@ -46,23 +46,17 @@
 #include "IlmThreadExport.h"
 #include "IlmThreadNamespace.h"
 
-#if defined _WIN32 || defined _WIN64
-#   ifdef NOMINMAX
-#      undef NOMINMAX
-#   endif
-#   define NOMINMAX
-#   include <windows.h>
-#endif
-
-#ifdef HAVE_POSIX_SEMAPHORES
-#   include <semaphore.h>
-#elif defined(__APPLE__)
-#   include <dispatch/dispatch.h>
-#else
-#   ifdef ILMBASE_FORCE_CXX03
-#      ifdef HAVE_PTHREAD
-#         include <pthread.h>
+#if defined(ILMBASE_THREADING_ENABLED) && ILMBASE_THREADING_ENABLED > 0
+#   if defined(ILMBASE_HAVE_POSIX_SEMAPHORES) && ILMBASE_HAVE_POSIX_SEMAPHORES > 0
+#      include <semaphore.h>
+#   elif defined(__APPLE__)
+#      include <dispatch/dispatch.h>
+#   elif (defined (_WIN32) || defined (_WIN64))
+#      ifdef NOMINMAX
+#         undef NOMINMAX
 #      endif
+#      define NOMINMAX
+#      include <windows.h>
 #   else
 #      include <mutex>
 #      include <condition_variable>
@@ -86,20 +80,20 @@ class ILMTHREAD_EXPORT Semaphore
 
   private:
 
-#if (defined (_WIN32) || defined (_WIN64)) && !defined (HAVE_POSIX_SEMAPHORES)
-
-	mutable HANDLE _semaphore;
-
-#elif defined(HAVE_POSIX_SEMAPHORES)
+#if defined(ILMBASE_HAVE_POSIX_SEMAPHORES) && ILMBASE_HAVE_POSIX_SEMAPHORES > 0
 
 	mutable sem_t _semaphore;
 
 #elif defined(__APPLE__)
 	mutable dispatch_semaphore_t _semaphore;
 
-#else
+#elif (defined (_WIN32) || defined (_WIN64))
+
+	mutable HANDLE _semaphore;
+
+#elif defined(ILMBASE_THREADING_ENABLED)
 	//
-	// If the platform has Posix threads but no semapohores,
+	// If the platform has threads but no semapohores,
 	// then we implement them ourselves using condition variables
 	//
 
@@ -107,25 +101,18 @@ class ILMTHREAD_EXPORT Semaphore
 	{
 	    unsigned int count;
 	    unsigned long numWaiting;
-#   if ILMBASE_FORCE_CXX03
-#      if HAVE_PTHREAD
-	    pthread_mutex_t mutex;
-	    pthread_cond_t nonZero;
-#      else
-#         error unhandled legacy setup
-#      endif
-#   else
         std::mutex mutex;
         std::condition_variable nonZero;
-#   endif
 	};
 
 	mutable sema_t _semaphore;
   
 #endif
 
-    void operator = (const Semaphore& s);	// not implemented
-    Semaphore (const Semaphore& s);		// not implemented
+    void operator = (const Semaphore& s) = delete;
+    Semaphore (const Semaphore& s) = delete;
+    void operator = (Semaphore&& s) = delete;
+    Semaphore (Semaphore&& s) = delete;
 };
 
 

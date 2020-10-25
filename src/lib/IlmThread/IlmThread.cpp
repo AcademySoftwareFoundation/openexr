@@ -35,8 +35,7 @@
 //-----------------------------------------------------------------------------
 //
 //	class Thread -- this file contains two implementations of thread:
-//	- dummy implementation for platforms that do not support threading
-//	  when OPENEXR_FORCE_CXX03 is on
+//	- dummy implementation for platforms that disable / do not support threading
 //	- c++11 and newer version
 //
 //-----------------------------------------------------------------------------
@@ -47,10 +46,8 @@
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-#ifndef ILMBASE_FORCE_CXX03
-//-----------------------------------------------------------------------------
-// C++11 and newer implementation
-//-----------------------------------------------------------------------------
+#if defined(ILMBASE_THREADING_ENABLED) && ILMBASE_THREADING_ENABLED > 0
+
 bool
 supportsThreads ()
 {
@@ -86,10 +83,7 @@ Thread::start ()
 }
 
 #else
-#   if !defined (_WIN32) && !defined (_WIN64) && ! defined(HAVE_PTHREAD)
-//-----------------------------------------------------------------------------
-// OPENEXR_FORCE_CXX03 with no windows / pthread support
-//-----------------------------------------------------------------------------
+
 bool
 supportsThreads ()
 {
@@ -99,28 +93,28 @@ supportsThreads ()
 
 Thread::Thread ()
 {
-    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported / enabled on this platform.");
 }
 
 
 Thread::~Thread ()
 {
-    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported / enabled on this platform.");
 }
 
 
 void
 Thread::start ()
 {
-    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported / enabled on this platform.");
 }
 
 void
 Thread::join ()
 {
-    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported / enabled on this platform.");
 }
-#   endif
+
 #endif
 
 

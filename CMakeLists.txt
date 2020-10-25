@@ -21,13 +21,11 @@ endif()
 #######################################
 
 include(cmake/OpenEXRVersion.cmake)
-include(cmake/IlmBaseVersion.cmake)
 
 project(OpenEXR VERSION ${OPENEXR_VERSION} LANGUAGES C CXX)
 
 include(cmake/LibraryDefine.cmake)
 include(cmake/OpenEXRSetup.cmake)
-include(cmake/IlmBaseSetup.cmake)
 add_subdirectory(cmake)
 
 # Hint: This can be set to enable custom find_package
@@ -35,45 +33,6 @@ add_subdirectory(cmake)
 # on the command line to cmake instead of setting it
 # here.
 ###set(CMAKE_PREFIX_PATH "/prefix")
-
-#######################################
-# Find or install Imath
-#######################################
-# Check to see if Imath is installed outside of the current build directory.
-set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config/") 
-find_package(Imath QUIET)
-set(CMAKE_IGNORE_PATH "")
-
-if(NOT Imath_FOUND)
-  if (${CMAKE_VERSION} VERSION_LESS "3.11.0")
-    message(FATAL_ERROR "CMake 3.11 or newer is required for FetchContent, you must manually install Imath if you are using an earlier version of CMake")
-  endif()
-  cmake_minimum_required(VERSION 3.11)
-  
-  message("Imath was not found. It is going to be cloned and installed.")
-  
-  include(FetchContent)
-
-  FetchContent_Declare(Imath
-    GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/Imath.git
-    GIT_TAG origin/master #TODO: Release should not clone from master, this is a place holder
-    CMAKE_ARGS
-      -D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-      -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-      -D CMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-      -D CMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
-      -D PYTHON=${PYTHON}
-      # Python bindings will be generated for Imath if PYTHON=ON
-      )
-    
-  FetchContent_GetProperties(Imath)
-  if(NOT Imath_POPULATED)
-    FetchContent_Populate(Imath)
-    add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src
-                     ${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src)
-  endif()
-
-endif()
 
 #######################################
 # Add all source in subdirectories

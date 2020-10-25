@@ -53,9 +53,15 @@ using namespace std;
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
+#if defined(ILMBASE_THREADING_ENABLED) && ILMBASE_THREADING_ENABLED > 0
+# define ENABLE_THREADING
+#endif
+
 #if defined(__GNU_LIBRARY__) && ( __GLIBC__ < 2 || ( __GLIBC__ == 2 && __GLIBC_MINOR__ < 21 ) )
 # define ENABLE_SEM_DTOR_WORKAROUND
 #endif
+
+#ifdef ENABLE_THREADING
 
 struct TaskGroup::Data
 {
@@ -424,7 +430,6 @@ class NullThreadPoolProvider : public ThreadPoolProvider
 
 } //namespace
 
-
 //
 // struct TaskGroup::Data
 //
@@ -598,14 +603,18 @@ ThreadPool::Data::setProvider (ThreadPoolProvider *p)
 //        curp->finish();
 }
 
+#endif // ENABLE_THREADING
+
 //
 // class Task
 //
 
 Task::Task (TaskGroup* g): _group(g)
 {
+#ifdef ENABLE_THREADING
     if ( g )
         g->_data->addTask ();
+#endif
 }
 
 
@@ -623,7 +632,11 @@ Task::group ()
 
 
 TaskGroup::TaskGroup ():
+#ifdef ENABLE_THREADING
     _data (new Data())
+#else
+    _data (nullptr)
+#endif
 {
     // empty
 }
@@ -631,14 +644,18 @@ TaskGroup::TaskGroup ():
 
 TaskGroup::~TaskGroup ()
 {
+#ifdef ENABLE_THREADING
     delete _data;
+#endif
 }
 
 
 void
 TaskGroup::finishOneTask ()
 {
+#ifdef ENABLE_THREADING
     _data->removeTask ();
+#endif
 }
 
 //
@@ -661,31 +678,44 @@ ThreadPoolProvider::~ThreadPoolProvider()
 //
 
 ThreadPool::ThreadPool (unsigned nthreads):
+#ifdef ENABLE_THREADING
     _data (new Data)
+#else
+    _data (nullptr)
+#endif
 {
+#ifdef ENABLE_THREADING
     if ( nthreads == 0 )
         _data->setProvider( new NullThreadPoolProvider );
     else
         _data->setProvider( new DefaultThreadPoolProvider( int(nthreads) ) );
+#endif
 }
 
 
 ThreadPool::~ThreadPool ()
 {
+#ifdef ENABLE_THREADING
     delete _data;
+#endif
 }
 
 
 int
 ThreadPool::numThreads () const
 {
+#ifdef ENABLE_THREADING
     return _data->getProvider ()->numThreads ();
+#else
+    return 0;
+#endif
 }
 
 
 void
 ThreadPool::setNumThreads (int count)
 {
+#ifdef ENABLE_THREADING
     if (count < 0)
         throw IEX_INTERNAL_NAMESPACE::ArgExc ("Attempt to set the number of threads "
                "in a thread pool to a negative value.");
@@ -720,20 +750,35 @@ ThreadPool::setNumThreads (int count)
         else
             _data->setProvider( new DefaultThreadPoolProvider( count ) );
     }
+#else
+    // just blindly ignore
+    (void)count;
+#endif
 }
 
 
 void
 ThreadPool::setThreadProvider (ThreadPoolProvider *provider)
 {
+#ifdef ENABLE_THREADING
     _data->setProvider (provider);
+#else
+    throw IEX_INTERNAL_NAMESPACE::ArgExc (
+        "Attempt to set a thread provider on a system with threads"
+        " disabled / not available");
+#endif
 }
 
 
 void
 ThreadPool::addTask (Task* task) 
 {
+#ifdef ENABLE_THREADING
     _data->getProvider ()->addTask (task);
+#else
+    task->execute ();
+    delete task;
+#endif
 }
 
 
@@ -759,7 +804,11 @@ ThreadPool::addGlobalTask (Task* task)
 unsigned
 ThreadPool::estimateThreadCountForFileIO ()
 {
+#ifdef ENABLE_THREADING
     return std::thread::hardware_concurrency ();
+#else
+    return 0;
+#endif
 }
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT

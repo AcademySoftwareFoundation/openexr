@@ -39,7 +39,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(ILMBASE_HAVE_POSIX_SEMAPHORES)
 
 #include "IlmThreadSemaphore.h"
 #include "Iex.h"

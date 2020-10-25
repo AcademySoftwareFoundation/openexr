@@ -20,12 +20,29 @@ set(OPENEXR_INTERNAL_IMF_NAMESPACE "Imf_${OPENEXR_VERSION_API}" CACHE STRING "Re
 set(OPENEXR_IMF_NAMESPACE "Imf" CACHE STRING "Public namespace alias for OpenEXR")
 set(OPENEXR_PACKAGE_NAME "OpenEXR ${OPENEXR_VERSION}" CACHE STRING "Public string / label for displaying package")
 
-# Whether to generate and install a pkg-config file OpenEXR.pc
+# Namespace-related settings, allows one to customize the
+# namespace generated, and to version the namespaces
+set(ILMBASE_NAMESPACE_CUSTOM "0" CACHE STRING "Whether the namespace has been customized (so external users know)")
+set(ILMBASE_INTERNAL_IEX_NAMESPACE "Iex_${ILMBASE_VERSION_API}" CACHE STRING "Real namespace for Iex that will end up in compiled symbols")
+set(ILMBASE_INTERNAL_ILMTHREAD_NAMESPACE "IlmThread_${ILMBASE_VERSION_API}" CACHE STRING "Real namespace for IlmThread that will end up in compiled symbols")
+set(ILMBASE_IEX_NAMESPACE "Iex" CACHE STRING "Public namespace alias for Iex")
+set(ILMBASE_ILMTHREAD_NAMESPACE "IlmThread" CACHE STRING "Public namespace alias for IlmThread")
+set(ILMBASE_PACKAGE_NAME "IlmBase ${ILMBASE_VERSION}" CACHE STRING "Public string / label for displaying package")
+
+# Whether to generate and install a pkg-config file OpenEXR.pc and IlmBase.pc
 if (WIN32)
 option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" OFF)
 else()
 option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" ON)
 endif()
+
+# Whether to enable threading. This can be disabled, although thread pool and tasks
+# are still used, just processed immediately
+option(OPENEXR_ENABLE_THREADING "Enables threaded processing of requests" ON)
+
+# This is primarily for the auto array that enables a stack
+# object (if you enable this) that contains member to avoid double allocations
+option(OPENEXR_ENABLE_LARGE_STACK "Enables code to take advantage of large stack support"     OFF)
 
 ########################
 ## Build related options
@@ -124,16 +141,103 @@ endif()
 
 # so we know how to add the thread stuff to the pkg-config package
 # which is the only (but good) reason.
-if(NOT TARGET Threads::Threads)
-  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-  set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-  find_package(Threads)
-  if(NOT Threads_FOUND)
-    message(FATAL_ERROR "Unable to find a threading library which is required for OpenEXR")
+if(OPENEXR_ENABLE_THREADING)
+
+  if(NOT TARGET Threads::Threads)
+    set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+    set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+    find_package(Threads)
+    if(NOT Threads_FOUND)
+      message(FATAL_ERROR "Unable to find a threading library which is required for OpenEXR")
+    endif()
   endif()
 endif()
 
-find_package(ZLIB REQUIRED)
-if(NOT TARGET ZLIB::ZLIB)
-  message(FATAL_ERROR "Unable to find zlib library target which is required for OpenEXR")
+option(OPENEXR_FORCE_INTERNAL_ZLIB "Force using an internal zlib" OFF)
+if (NOT OPENEXR_FORCE_INTERNAL_ZLIB)
+  find_package(ZLIB REQUIRED)
+endif()
+if(OPENEXR_FORCE_INTERNAL_ZLIB OR NOT ZLIB_FOUND)
+  set(zlib_VER "1.2.11")
+  if(OPENEXR_FORCE_INTERNAL_ZLIB)
+    message(NOTICE "Compiling internal copy of zlib version ${zlib_VER}")
+  else()
+    message(NOTICE "ZLIB library not found, compiling ${zlib_VER}")
+  endif()
+  include(ExternalProject)
+
+  set(cmake_cc_arg)
+  if (CMAKE_CROSSCOMPILING)
+    set(cmake_cc_arg -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE})
+  endif ()
+
+  ExternalProject_Add(zlib_external
+    PREFIX "${CMAKE_BINARY_DIR}"
+    GIT_REPOSITORY "https://github.com/madler/zlib.git"
+    GIT_SHALLOW ON
+    GIT_TAG "v${zlib_VER}"
+    SOURCE_DIR zlib-src
+    BINARY_DIR zlib-build
+    INSTALL_DIR zlib-install
+    BUILD_BYPRODUCTS "${CMAKE_BINARY_DIR}/zlib-install/lib/${CMAKE_STATIC_LIBRARY_PREFIX}z${CMAKE_STATIC_LIBRARY_SUFFIX}"
+    CMAKE_ARGS
+      -D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+      -D CMAKE_POSITION_INDEPENDENT_CODE=ON
+      -D CMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+      -D CMAKE_GENERATOR:STRING=${CMAKE_GENERATOR}
+      ${cmake_cc_arg}
+      )
+
+  set(zlib_INTERNAL_DIR "${CMAKE_BINARY_DIR}/zlib-install" CACHE PATH "zlib dir" FORCE)
+  file(MAKE_DIRECTORY "${zlib_INTERNAL_DIR}")
+  file(MAKE_DIRECTORY "${zlib_INTERNAL_DIR}/include")
+  file(MAKE_DIRECTORY "${zlib_INTERNAL_DIR}/lib")
+
+  add_library(zlib_static STATIC IMPORTED)
+  add_dependencies(zlib_static zlib_external)
+
+  target_include_directories(zlib_static INTERFACE "${zlib_INTERNAL_DIR}/include")
+  set_property(TARGET zlib_static PROPERTY
+    IMPORTED_LOCATION "${zlib_INTERNAL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}z${CMAKE_STATIC_LIBRARY_SUFFIX}"
+  )
+  add_library(ZLIB::ZLIB ALIAS zlib_static)
+endif()
+
+#######################################
+# Find or install Imath
+#######################################
+# Check to see if Imath is installed outside of the current build directory.
+set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config/") 
+find_package(Imath QUIET)
+set(CMAKE_IGNORE_PATH)
+
+if(NOT Imath_FOUND)
+  if (${CMAKE_VERSION} VERSION_LESS "3.11.0")
+    message(FATAL_ERROR "CMake 3.11 or newer is required for FetchContent, you must manually install Imath if you are using an earlier version of CMake")
+  endif()
+  cmake_minimum_required(VERSION 3.11)
+  
+  message(STATUS "Imath was not found. It is going to be cloned and installed.")
+  
+  include(FetchContent)
+
+  FetchContent_Declare(Imath
+    GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/Imath.git
+    GIT_TAG origin/master #TODO: Release should not clone from master, this is a place holder
+    CMAKE_ARGS
+      -D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+      -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+      -D CMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+      -D CMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
+      -D PYTHON=${PYTHON}
+      # Python bindings will be generated for Imath if PYTHON=ON
+      )
+    
+  FetchContent_GetProperties(Imath)
+  if(NOT Imath_POPULATED)
+    FetchContent_Populate(Imath)
+    add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src
+                     ${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src)
+  endif()
+
 endif()
