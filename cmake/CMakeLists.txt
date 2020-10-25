@@ -6,6 +6,7 @@ include(CheckSymbolExists)
 include(CheckLibraryExists)
 include(CheckStructHasMember)
 include(CheckCXXSourceCompiles)
+include("${CMAKE_CURRENT_LIST_DIR}/JoinPaths.cmake")
 
 if (NOT CMAKE_CROSSCOMPILING AND EXISTS "/proc/self/exe")
   set(OPENEXR_IMF_HAVE_LINUX_PROCFS TRUE)
