@@ -5,8 +5,9 @@
 #ifndef INCLUDED_IMF_CHECKFILE_H
 #define INCLUDED_IMF_CHECKFILE_H
 
+#include "ImfUtilExport.h"
 #include "ImfNamespace.h"
-#include "ImfExport.h"
+
 #include <cstddef>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -27,7 +28,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //
 //
 
-IMF_EXPORT bool
+IMFUTIL_EXPORT bool
 checkOpenEXRFile(const char* fileName,
                  bool reduceMemory  = false,
                  bool reduceTime = false
@@ -38,7 +39,7 @@ checkOpenEXRFile(const char* fileName,
 // overloaded version of checkOpenEXRFile that takes a pointer to in-memory data
 //
 
-IMF_EXPORT bool
+IMFUTIL_EXPORT bool
 checkOpenEXRFile(const char* data,
                  size_t numBytes,
                  bool reduceMemory = false,

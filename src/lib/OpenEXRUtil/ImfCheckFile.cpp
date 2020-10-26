@@ -743,7 +743,7 @@ class PtrIStream: public IStream
     virtual bool        isMemoryMapped () const { return false;}
 
 
-    IMF_EXPORT
+    IMFUTIL_EXPORT
     virtual char *	readMemoryMapped (int n)
     {
 
