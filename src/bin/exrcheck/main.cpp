@@ -7,7 +7,11 @@
 #include <iostream>
 #include <fstream>
 #include <string.h>
-#include <unistd.h>
+#if defined _WIN32 || defined _WIN64
+# include <io.h>
+#else
+# include <unistd.h>
+#endif
 #include <vector>
 
 using namespace OPENEXR_IMF_NAMESPACE;
@@ -97,7 +101,11 @@ main(int argc, char **argv)
         else
         {
 
+#if defined _WIN32 || defined _WIN64
+            if (_access (argv[i], 4) != 0)
+#else
             if (access (argv[i], R_OK) != 0)
+#endif
             {
                cerr << "No such file: " << argv[i] << endl;
                exit (-1);
