@@ -206,7 +206,7 @@ if(OPENEXR_FORCE_INTERNAL_ZLIB OR NOT ZLIB_FOUND)
   file(MAKE_DIRECTORY "${zlib_INTERNAL_DIR}/include")
   file(MAKE_DIRECTORY "${zlib_INTERNAL_DIR}/lib")
 
-  if(BUILD_SHARED_LIBS AND NOT OPENEXR_FORCE_INTERNAL_ZLIB)
+  if(NOT (APPLE OR WIN32) AND BUILD_SHARED_LIBS AND NOT OPENEXR_FORCE_INTERNAL_ZLIB)
     add_library(zlib_shared SHARED IMPORTED)
     add_dependencies(zlib_shared zlib_external)
     set_property(TARGET zlib_shared PROPERTY
@@ -222,7 +222,7 @@ if(OPENEXR_FORCE_INTERNAL_ZLIB OR NOT ZLIB_FOUND)
     )
   target_include_directories(zlib_static INTERFACE "${zlib_INTERNAL_DIR}/include")
 
-  if (BUILD_SHARED_LIBS AND NOT OPENEXR_FORCE_INTERNAL_ZLIB)
+  if(NOT (APPLE OR WIN32) AND BUILD_SHARED_LIBS AND NOT OPENEXR_FORCE_INTERNAL_ZLIB)
     add_library(ZLIB::ZLIB ALIAS zlib_shared)
   else()
     add_library(ZLIB::ZLIB ALIAS zlib_static)
