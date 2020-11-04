@@ -14,6 +14,7 @@
 #include "ImfDeepTiledInputPart.h"
 #include "ImfStdIO.h"
 #include "ImfMultiPartInputFile.h"
+#include "ImfStandardAttributes.h"
 
 #include <vector>
 
@@ -636,6 +637,39 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
     return threw;
 }
 
+//
+// EXR will read files that have out-of-range values in certain enum attributes, to allow
+// values to be added in the future. This function returns 'false' if any such enum attributes
+// have unknown values
+//
+// (implementation node: it is undefined behavior to set an enum variable to an invalid value
+//  this code circumvents that by casting the enums to integers and checking them that way)
+//
+bool enumsValid( const Header& hdr)
+{
+    if ( hasEnvmap (hdr) )
+    {
+
+        const Envmap* typeInFile = &envmap (hdr);
+        int envMapAsInt = * reinterpret_cast<const int*>(typeInFile);
+        if (envMapAsInt != ENVMAP_LATLONG && envMapAsInt!= ENVMAP_CUBE)
+        {
+             return false;
+        }
+    }
+
+    if (hasDeepImageState(hdr))
+    {
+        const DeepImageState * typeInFile = &deepImageState (hdr);
+        int deepImageStateAsInt = * reinterpret_cast<const int*>(typeInFile);
+        if (deepImageStateAsInt < 0 || deepImageStateAsInt >= DIS_NUMSTATES)
+        {
+             return false;
+        }
+    }
+
+    return true;
+}
 
 bool
 readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
@@ -644,6 +678,10 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
     for(int part = 0 ; part < in.parts() ; ++ part)
     {
 
+       if (!enumsValid( in.header(part)))
+       {
+           threw = true;
+       }
        {
             bool gotThrow = false;
             try
