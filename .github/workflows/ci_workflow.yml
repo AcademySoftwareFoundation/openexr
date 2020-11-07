@@ -184,7 +184,7 @@ jobs:
           # Other config variants
           # -------------------------------------------------------------------
           # 
-          - build: 1
+          - build: 11
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 14
