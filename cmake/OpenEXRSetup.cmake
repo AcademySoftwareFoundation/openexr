@@ -3,6 +3,11 @@
 
 include(GNUInstallDirs)
 
+if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}")
+  set(OPENEXR_IS_SUBPROJECT ON)
+  message(NOTICE "OpenEXR is configuring as a cmake sub project")
+endif()
+
 ########################
 ## Target configuration
 
