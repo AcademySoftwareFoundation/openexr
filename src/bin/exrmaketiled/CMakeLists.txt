@@ -6,7 +6,7 @@ add_executable(exrmaketiled
   main.cpp
   Image.cpp
 )
-target_link_libraries(exrmaketiled OpenEXR::IlmImf)
+target_link_libraries(exrmaketiled OpenEXR::OpenEXR)
 set_target_properties(exrmaketiled PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )

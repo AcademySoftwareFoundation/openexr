@@ -112,7 +112,7 @@ loadDeepImage
 
     //XXX TODO: the tiled flag obtained above is unreliable;
     // open the file as a multi-part file and inspect the header.
-    // Can the IlmImf library be fixed?
+    // Can the OpenEXR library be fixed?
 
     {
         MultiPartInputFile mpi (fileName.c_str());
@@ -161,7 +161,7 @@ saveDeepScanLineImage
     newHdr.dataWindow() = dataWindowForFile (hdr, img, dws);
 
     //XXX TODO: setting the compression to, for example,  ZIP_COMPRESSION,
-    //then the IlmImf library will save the file, but later it will not be
+    //then the OpenEXR library will save the file, but later it will not be
     //able to read it.  Fix the library!
 
     newHdr.compression() = ZIPS_COMPRESSION;
@@ -309,7 +309,7 @@ saveDeepTiledImage
     newHdr.dataWindow() = dataWindowForFile (hdr, img, dws);
 
     //XXX TODO: setting the compression to, for example,  ZIP_COMPRESSION,
-    //then the IlmImf library will save the file, but later it will not be
+    //then the OpenEXR library will save the file, but later it will not be
     //able to read it.  Fix the library!
 
     newHdr.compression() = ZIPS_COMPRESSION;

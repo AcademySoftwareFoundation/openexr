@@ -150,9 +150,9 @@ string makeTempDir()
         tempDir = tmpbuf;
         // windows does this automatically
         // tempDir += IMF_PATH_SEPARATOR;
-        tempDir += "IlmImfTest_";
+        tempDir += "OpenEXRTest_";
 #else
-        tempDir = IMF_TMP_DIR "IlmImfTest_";
+        tempDir = IMF_TMP_DIR "OpenEXRTest_";
 #endif
         for (int i = 0; i < 8; ++i)
             tempDir += ('A' + rand48.nexti() % 26);
@@ -202,6 +202,8 @@ main (int argc, char *argv[])
 	    tempDir = makeTempDir();
     }
 
+    // NB: If you add a test here, make sure to enumerate it in the
+    // CMakeLists.txt so it runs as part of the test suite
     TEST (testMagic, "core");
     TEST (testXdr, "core");
     TEST (testHuf, "core");
@@ -256,6 +258,8 @@ main (int argc, char *argv[])
     TEST (testRle, "core");
     TEST (testB44ExpLogTable, "core");
     TEST (testDwaLookups, "core");
+    // NB: If you add a test here, make sure to enumerate it in the
+    // CMakeLists.txt so it runs as part of the test suite
     
 
     //#ifdef ENABLE_IMFHUGETEST
@@ -267,9 +271,9 @@ main (int argc, char *argv[])
 
     if ( helpMode )
     {
-        cout << "IlmImfTest runs a series of tests to confirm\n"
-		"correct behavior of the IlmImf OpenEXR library.\n"
-	        "If all is correct, IlmImfTest will complete without\n"
+        cout << "OpenEXRTest runs a series of tests to confirm\n"
+		"correct behavior of the OpenEXR library.\n"
+	        "If all is correct, OpenEXRTest will complete without\n"
 		"crashing or leaking memory.\n";
 	cout << "\n";
 	cout << "If a test fails, an individual test can be re-run, avoiding\n"
@@ -282,9 +286,9 @@ main (int argc, char *argv[])
 	     << "Suites can be run in parallel for speed. Every test is in one suite.\n";
 	cout << "\n";
 	cout << "usage:\n"
-	     << "IlmImfTest           : with no arguments, run all tests\n"
-	     << "IlmImfTest TEST      : run only specific test, then quit\n"
-             << "IlmImfTest SUITE     : run all the tests in the given SUITE\n";
+	     << "OpenEXRTest           : with no arguments, run all tests\n"
+	     << "OpenEXRTest TEST      : run only specific test, then quit\n"
+             << "OpenEXRTest SUITE     : run all the tests in the given SUITE\n";
 	cout << "\n";
 	cout << "available TESTs:\n";
 	for ( auto i = tests.begin() ; i!= tests.end() ; ++i)

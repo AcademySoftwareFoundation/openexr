@@ -356,7 +356,7 @@ IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
 // Note: this attribute can be set by application code that writes a file
 // in order to tell applications that read the file whether the pixel data
 // must be cleaned up prior to image processing operations such as flattening. 
-// The IlmImf library does not verify that the attribute is consistent with
+// The OpenEXR library does not verify that the attribute is consistent with
 // the actual state of the pixels.  Application software may assume that the
 // attribute is valid, as long as the software will not crash or lock up if
 // any pixels are inconsistent with the deepImageState attribute.

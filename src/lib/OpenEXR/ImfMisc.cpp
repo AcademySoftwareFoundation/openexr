@@ -1821,11 +1821,11 @@ usesLongNames (const Header &header)
     //
     // If an OpenEXR file contains any attribute names, attribute type names
     // or channel names longer than 31 characters, then the file cannot be
-    // read by older versions of the IlmImf library (up to OpenEXR 1.6.1).
+    // read by older versions of the OpenEXR library (up to OpenEXR 1.6.1).
     // Before writing the file header, we check if the header contains
     // any names longer than 31 characters; if it does, then we set the
     // LONG_NAMES_FLAG in the file version number.  Older versions of the
-    // IlmImf library will refuse to read files that have the LONG_NAMES_FLAG
+    // OpenEXR library will refuse to read files that have the LONG_NAMES_FLAG
     // set.  Without the flag, older versions of the library would mis-
     // interpret the file as broken.
     //

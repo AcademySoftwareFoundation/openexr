@@ -87,9 +87,9 @@ main (int argc, char *argv[])
         tempDir = tmpbuf;
         // windows does this automatically
         // tempDir += IMF_PATH_SEPARATOR;
-        tempDir += "IlmImfTest_";
+        tempDir += "OpenEXRTest_";
 #else
-        tempDir = IMF_TMP_DIR "IlmImfTest_";
+        tempDir = IMF_TMP_DIR "OpenEXRTest_";
 #endif
         for (int i = 0; i < 8; ++i)
             tempDir += ('A' + rand48.nexti() % 26);
@@ -111,9 +111,13 @@ main (int argc, char *argv[])
 
     cout << "using temporary directory " << tempDir << endl;
 
+    // NB: If you add a test here, make sure to enumerate it in the
+    // CMakeLists.txt so it runs as part of the test suite
     TEST (testFlatImage);
     TEST (testDeepImage);
     TEST (testIO);
+    // NB: If you add a test here, make sure to enumerate it in the
+    // CMakeLists.txt so it runs as part of the test suite
 
     cout << "removing temporary directory " << tempDir << endl;
     rmdir (tempDir.c_str());

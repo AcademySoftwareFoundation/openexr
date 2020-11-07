@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright Contributors to the OpenEXR Project.
 
-add_executable(IlmImfTest
+add_executable(OpenEXRTest
   compareB44.cpp
   compareDwa.cpp
   compareFloat.cpp
@@ -64,12 +64,79 @@ add_executable(IlmImfTest
   testDwaLookups.cpp
   random.cpp
 )
-target_compile_definitions(IlmImfTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/")
-target_link_libraries(IlmImfTest OpenEXR::IlmImf)
-set_target_properties(IlmImfTest PROPERTIES
+target_compile_definitions(OpenEXRTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/")
+target_link_libraries(OpenEXRTest OpenEXR::OpenEXR)
+set_target_properties(OpenEXRTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 if(WIN32 AND (BUILD_SHARED_LIBS OR OPENEXR_BUILD_BOTH_STATIC_SHARED))
-  target_compile_definitions(IlmImfTest PRIVATE OPENEXR_DLL)
+  target_compile_definitions(OpenEXRTest PRIVATE OPENEXR_DLL)
 endif()
-add_test(NAME OpenEXR.IlmImf COMMAND $<TARGET_FILE:IlmImfTest>)
+
+#add_test(NAME OpenEXR.Core COMMAND $<TARGET_FILE:OpenEXRTest> core)
+#add_test(NAME OpenEXR.Basic COMMAND $<TARGET_FILE:OpenEXRTest> basic)
+#add_test(NAME OpenEXR.Deep COMMAND $<TARGET_FILE:OpenEXRTest> deep)
+#add_test(NAME OpenEXR.Multi COMMAND $<TARGET_FILE:OpenEXRTest> multi)
+
+function(DEFINE_OPENEXR_TESTS)
+  foreach(curtest IN LISTS ARGN)
+    add_test(NAME OpenEXR.${curtest} COMMAND $<TARGET_FILE:OpenEXRTest> ${curtest})
+  endforeach()
+endfunction()
+
+define_openexr_tests(
+ testAttributes
+ testB44ExpLogTable
+ testBackwardCompatibility
+ testBadTypeAttributes
+ testChannels
+ testCompositeDeepScanLine
+ testCompression
+ testConversion
+ testCopyDeepScanLine
+ testCopyDeepTiled
+ testCopyMultiPartFile
+ testCopyPixels
+ testCustomAttributes
+ testDeepScanLineBasic
+ testDeepScanLineMultipleRead
+ testDeepTiledBasic
+ testDwaCompressorSimd
+ testDwaLookups
+ testExistingStreams
+ testFutureProofing
+ testHuf
+ testInputPart
+ testIsComplete
+ testLargeDataWindowOffsets
+ testLineOrder
+ testLut
+ testMagic
+ testMultiPartApi
+ testMultiPartFileMixingBasic
+ testMultiPartSharedAttributes
+ testMultiPartThreading
+ testMultiScanlinePartThreading
+ testMultiTiledPartThreading
+ testMultiView
+ testNativeFormat
+ testOptimized
+ testOptimizedInterleavePatterns
+ testPartHelper
+ testPreviewImage
+ testRgba
+ testRgbaThreading
+ testRle
+ testSampleImages
+ testScanLineApi
+ testSharedFrameBuffer
+ testStandardAttributes
+ testTiledCompression
+ testTiledCopyPixels
+ testTiledLineOrder
+ testTiledRgba
+ testTiledYa
+ testWav
+ testXdr
+ testYca
+)

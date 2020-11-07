@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright Contributors to the OpenEXR Project.
 
-add_executable(IlmImfExamples
+add_executable(OpenEXRExamples
   drawImage.cpp
   generalInterfaceExamples.cpp
   generalInterfaceTiledExamples.cpp
@@ -11,7 +11,7 @@ add_executable(IlmImfExamples
   rgbaInterfaceExamples.cpp
   rgbaInterfaceTiledExamples.cpp
 )
-target_link_libraries(IlmImfExamples OpenEXR::IlmImf)
+target_link_libraries(OpenEXRExamples OpenEXR::OpenEXR)
 
 # Examples
 install(
@@ -36,5 +36,5 @@ install(
     ${CMAKE_INSTALL_DOCDIR}/examples
   )
 if(WIN32 AND (BUILD_SHARED_LIBS OR OPENEXR_BUILD_BOTH_STATIC_SHARED))
-  target_compile_definitions(IlmImfExamples PRIVATE OPENEXR_DLL)
+  target_compile_definitions(OpenEXRExamples PRIVATE OPENEXR_DLL)
 endif()

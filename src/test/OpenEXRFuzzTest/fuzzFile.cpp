@@ -45,7 +45,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "../IlmImfTest/TestUtilFStream.h"
+#include "../OpenEXRTest/TestUtilFStream.h"
 
 // Handle the case when the custom namespace is not exposed
 #include <OpenEXRConfig.h>
@@ -140,11 +140,11 @@ fuzzFile (const char goodFile[],
 	  Rand48 &random)
 {
     //
-    // We want to test how resilient the IlmImf library is with respect
+    // We want to test how resilient the OpenEXR library is with respect
     // to malformed OpenEXR input files.  In order to do this we damage
     // a good input file by overwriting parts of it with random data.
     // We then call function readFile() to try and read the damaged file.
-    // Provided the IlmImf library works as advertised, a try/catch(...)
+    // Provided the OpenEXR library works as advertised, a try/catch(...)
     // block in readFile() should be able to handle all errors that could
     // possibly result from reading a broken OpenEXR file.  We repeat
     // this damage/read cycle many times, overwriting different parts

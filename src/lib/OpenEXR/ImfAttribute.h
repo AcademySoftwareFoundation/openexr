@@ -227,7 +227,7 @@ class TypedAttribute: public Attribute
     // a global variable in the IlmIlm library.  A thread in a multi-
     // threaded program may call registerAttributeType() only when no
     // other thread is accessing any functions or classes in the
-    // IlmImf library.
+    // OpenEXR library.
     //
     //---------------------------------------------------------------
 

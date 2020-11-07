@@ -8,13 +8,13 @@ licensee's option, under either:
 
 The files to which this choice applies are:
 
-* /OpenEXR/IlmImf/ImfDwaCompressor.h
-* /OpenEXR/IlmImf/ImfDwaCompressor.cpp
-* /OpenEXR/IlmImf/ImfDwaCompressorSimd.h
-* /OpenEXR/IlmImfTest/compareDwa.h
-* /OpenEXR/IlmImfTest/compareDwa.cpp
-* /OpenEXR/IlmImfTest/testDwaCompressorSimd.h
-* /OpenEXR/IlmImfTest/testDwaCompressorSimd.cpp
+* /src/lib/OpenEXR/ImfDwaCompressor.h
+* /src/lib/OpenEXR/ImfDwaCompressor.cpp
+* /src/lib/OpenEXR/ImfDwaCompressorSimd.h
+* /src/test/OpenEXRTest/compareDwa.h
+* /src/test/OpenEXRTest/compareDwa.cpp
+* /src/test/OpenEXRTest/testDwaCompressorSimd.h
+* /src/test/OpenEXRTest/testDwaCompressorSimd.cpp
 
 = = = = =
 

@@ -50,11 +50,12 @@
 #include <string.h>
 #include <string>
 
-#ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
-    #include <unistd.h>
-    #include <sstream>
+#if defined _WIN32 || defined _WIN64
+# include <io.h>
+#else
+# include <unistd.h>
 #endif
-
+#include <sstream>
 
 using std::set;
 using std::string;
@@ -89,36 +90,43 @@ main (int argc, char *argv[])
     // exists.
     //
     
+#if defined _WIN32 || defined _WIN64
+    if (argc == 3 && _access (argv[2], 4) != 0)
+#else
     if (argc == 3 && access (argv[2], R_OK) != 0)
+#endif
     {
         std::cout << "No such file: " << argv[2] << endl;
         exit (-1);
     }
 
+    // NB: If you add a test here, make sure to enumerate it in the
+    // CMakeLists.txt so it runs as part of the test suite
     TEST (testFuzzScanLines);
     TEST (testFuzzTiles);
     TEST (testFuzzDeepScanLines);
     TEST (testFuzzDeepTiles);
-   
+    // NB: If you add a test here, make sure to enumerate it in the
+    // CMakeLists.txt so it runs as part of the test suite
 
     if(helpMode)
     {
-       cout << "IlmImfFuzzTest tests how resilient the IlmImf library is with\n"
+       cout << "OpenEXRFuzzTest tests how resilient the OpenEXR library is with\n"
 	       "respect to broken input files: the program first damages\n"
 	       "OpenEXR files by partially overwriting them with random data;\n"
 	       "then it tries to read the damaged files.  If all goes well,\n"
 	       "then the program doesn't crash.\n";
        cout << "\n";
-       cout << "If IlmImfFuzzTest does crash, it will leave a file in the current\n"
-	       "directory, or /var/tmp. Running 'IlmImfFuzzTest test file' will\n"
+       cout << "If OpenEXRFuzzTest does crash, it will leave a file in the current\n"
+	       "directory, or /var/tmp. Running 'OpenEXRFuzzTest test file' will\n"
 	       "usually quickly reproduce the issue by attempting to reload the file,\n"
 	       "(without running the normal tests) and is useful for debugging\n"
 	       "the exact cause of the crash or confirming a bug is fixed.\n";
        cout << "\n";
        cout << "usage:\n";
-       cout << " IlmImfFuzzTest             : with no arguments, run all tests\n";
-       cout << " IlmImfFuzzTest TEST        : run specific TEST only\n";
-       cout << " IlmImfFuzzTest TEST file   : try to read 'file' with given TEST\n";
+       cout << " OpenEXRFuzzTest             : with no arguments, run all tests\n";
+       cout << " OpenEXRFuzzTest TEST        : run specific TEST only\n";
+       cout << " OpenEXRFuzzTest TEST file   : try to read 'file' with given TEST\n";
        cout << "\n";
        cout << "TEST can be one of the following:\n";
        for ( auto i = tests.begin() ; i!= tests.end() ; ++i )

@@ -13,4 +13,4 @@ set_target_properties(IexTest PROPERTIES
 if(WIN32 AND (BUILD_SHARED_LIBS OR OPENEXR_BUILD_BOTH_STATIC_SHARED))
   target_compile_definitions(IexTest PRIVATE OPENEXR_DLL)
 endif()
-add_test(NAME IlmBase.Iex COMMAND $<TARGET_FILE:IexTest>)
+add_test(NAME OpenEXR.Iex COMMAND $<TARGET_FILE:IexTest>)

@@ -570,7 +570,7 @@ class Header::ConstIterator
 //
 // In a multithreaded program, staticInitialize() must be called once
 // during startup, before the program accesses any other functions or
-// classes in the IlmImf library.  Calling staticInitialize() in this
+// classes in the OpenEXR library.  Calling staticInitialize() in this
 // way avoids races during initialization of the library's global
 // variables.
 //
