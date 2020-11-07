@@ -11,7 +11,7 @@ add_executable( exrenvmap
   EnvmapImage.cpp
 )
 
-target_link_libraries(exrenvmap OpenEXR::IlmImf)
+target_link_libraries(exrenvmap OpenEXR::OpenEXR)
 set_target_properties(exrenvmap PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )

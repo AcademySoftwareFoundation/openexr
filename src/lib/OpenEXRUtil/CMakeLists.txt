@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright Contributors to the OpenEXR Project.
 
-openexr_define_library(IlmImfUtil
-  PRIV_EXPORT ILMIMFUTIL_EXPORTS
+openexr_define_library(OpenEXRUtil
+  PRIV_EXPORT OPENEXRUTIL_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
     ImfImageChannel.cpp
@@ -39,5 +39,5 @@ openexr_define_library(IlmImfUtil
     ImfUtilExport.h
     ImfCheckFile.h
   DEPENDENCIES
-    OpenEXR::IlmImf
+    OpenEXR::OpenEXR
 )

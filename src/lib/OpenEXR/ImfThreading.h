@@ -40,9 +40,9 @@
 
 //-----------------------------------------------------------------------------
 //
-//	Threading support for the IlmImf library
+//	Threading support for the OpenEXR library
 //
-//	The IlmImf library uses threads to perform reading and writing
+//	The OpenEXR library uses threads to perform reading and writing
 //	of OpenEXR files in parallel.  The thread that calls the library
 //	always performs the actual file IO (this is usually the main
 //	application thread) whereas a several worker threads perform
@@ -54,7 +54,7 @@
 //	worker threads, then pipelining as well as concurrent compression
 //	of multiple blocks can be performed.
 // 
-//	Threading in the Imf library is controllable at two granularities:
+//	Threading in the EXR library is controllable at two granularities:
 //
 //	* The functions in this file query and control the total number
 //	  of worker threads, which will be created globally for the whole

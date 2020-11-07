@@ -107,7 +107,7 @@ loadImage (const string &fileName, Header &hdr)
 
     //XXX TODO: the tiled flag obtained above is unreliable;
     // open the file as a multi-part file and inspect the header.
-    // Can the IlmImf library be fixed?
+    // Can the OpenEXR library be fixed?
 
     {
         MultiPartInputFile mpi (fileName.c_str());

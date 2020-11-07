@@ -5,7 +5,7 @@ add_executable(exrmakepreview
   main.cpp
   makePreview.cpp
 )
-target_link_libraries(exrmakepreview OpenEXR::IlmImf)
+target_link_libraries(exrmakepreview OpenEXR::OpenEXR)
 set_target_properties(exrmakepreview PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )

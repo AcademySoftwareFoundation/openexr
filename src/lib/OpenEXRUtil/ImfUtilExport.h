@@ -33,7 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #if defined(OPENEXR_DLL)
-    #if defined(ILMIMFUTIL_EXPORTS)
+    #if defined(OPENEXRUTIL_EXPORTS)
         #define IMFUTIL_EXPORT __declspec(dllexport)
         #define IMFUTIL_EXPORT_CONST extern __declspec(dllexport)
     #else

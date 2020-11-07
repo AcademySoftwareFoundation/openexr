@@ -39,7 +39,7 @@
 //	Code examples that show how implement custom low-level
 //	file input and output for OpenEXR files:
 //
-//	Classes C_IStream and C_OStream are derived from IlmImf's
+//	Classes C_IStream and C_OStream are derived from OpenEXR's
 //	abstract IStream and OStreamd classes.  They allow OpenEXR
 //	file input and output via C stdio files (FILE *).
 //

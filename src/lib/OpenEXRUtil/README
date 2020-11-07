@@ -1,7 +1,7 @@
-The IlmImfUtil Library
+The OpenEXRUtil Library
 ----------------------
 
-The IlmImfUtil library implements an in-memory image data structure, as
+The OpenEXRUtil library implements an in-memory image data structure, as
 well as simple function calls for saving images in OpenEXR files, and for
 constructing images from the contents of existing OpenEXR files.
 
@@ -11,7 +11,7 @@ format selection, sub-sampled channels, multi-resolution images, deep
 images, or storing images as tiles or scan lines.  While reading a simple
 RGBA image does not require a lot of code, reading the contents of an
 arbitrary OpenEXR file, and representing those contents in main memory
-is not trivial.  The IlmImfUtil library simplifies those tasks.
+is not trivial.  The OpenEXRUtil library simplifies those tasks.
 
 Image, Image Level, Image Channel
 ---------------------------------
@@ -132,7 +132,7 @@ or
 The application owns the image that is returned by the loadImage() call.
 It is the application's responsibility to delete the Image object.
 
-The IlmImfUtil library also provides versions of the saveImage() and
+The OpenEXRUtil library also provides versions of the saveImage() and
 loadImage() functions that work only on flat images or only on deep images:
 
     saveFlatImage()
@@ -216,7 +216,7 @@ Reading and writing pixels in the single-level deep image:
 In addition to functions for reading and writing individual pixels, there
 are functions for accessing a whole row of pixels with a single function
 call.  For details see the ImfFlatImageChannel.h, ImfDeepImageChannel.h
-and ImfSampleCountChannel.h header files in the IlmImf library:
+and ImfSampleCountChannel.h header files in the OpenEXR library:
 
     T*                   TypedFlatImageChannel<T>::row (int r);
     const T*             TypedFlatImageChannel<T>::row (int r) const;
@@ -256,7 +256,7 @@ Erase a channel, rename a channel, rename multiple channels at the same time:
 Missing Functionality:
 ----------------------
 
-At this point, the IlmImfUtil library cannot read or write multi-part
+At this point, the OpenEXRUtil library cannot read or write multi-part
 files.  A future version of the library should probably define a new class
 MultiPartImage that contains a set of regular images.  The library should
 also define corresponding loadMultiPartImage() and saveMultiPartImage()

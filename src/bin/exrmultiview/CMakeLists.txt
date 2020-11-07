@@ -6,7 +6,7 @@ add_executable(exrmultiview
   main.cpp
   Image.cpp
 )
-target_link_libraries(exrmultiview OpenEXR::IlmImf)
+target_link_libraries(exrmultiview OpenEXR::OpenEXR)
 set_target_properties(exrmultiview PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )

@@ -2,7 +2,7 @@
 # Copyright Contributors to the OpenEXR Project.
 
 add_executable(exr2aces main.cpp)
-target_link_libraries(exr2aces OpenEXR::IlmImf)
+target_link_libraries(exr2aces OpenEXR::OpenEXR)
 set_target_properties(exr2aces PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
