@@ -42,8 +42,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmBaseConfig.h"
 #include "IlmThreadExport.h"
+
+#include "IlmBaseConfig.h"
 #include "IlmThreadNamespace.h"
 
 #if ILMBASE_THREADING_ENABLED
