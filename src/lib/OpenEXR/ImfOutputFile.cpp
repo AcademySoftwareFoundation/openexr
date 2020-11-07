@@ -66,7 +66,6 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <mutex>
 #include <assert.h>
 #include <algorithm>
 
@@ -862,7 +861,9 @@ OutputFile::~OutputFile ()
     if (_data)
     {
         {
+#if ILMBASE_THREADING_ENABLED
             std::lock_guard<std::mutex> lock(*_data->_streamData);
+#endif
             Int64 originalPosition = _data->_streamData->os->tellp();
 
             if (_data->lineOffsetsPosition > 0)
@@ -918,8 +919,9 @@ OutputFile::header () const
 void	
 OutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
-    
+#endif
     //
     // Check if the new frame buffer descriptor
     // is compatible with the image file header.
@@ -1010,7 +1012,9 @@ OutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 OutputFile::frameBuffer () const
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
+#endif
     return _data->frameBuffer;
 }
 
@@ -1020,11 +1024,12 @@ OutputFile::writePixels (int numScanLines)
 {
     try
     {
+#if ILMBASE_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
-
-	if (_data->slices.size() == 0)
-	    throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
-			       "as pixel data source.");
+#endif
+        if (_data->slices.size() == 0)
+            throw IEX_NAMESPACE::ArgExc (
+                "No frame buffer specified as pixel data source.");
 
         //
         // Maintain two iterators:
@@ -1243,7 +1248,9 @@ OutputFile::writePixels (int numScanLines)
 int	
 OutputFile::currentScanLine () const
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
+#endif
     return _data->currentScanLine;
 }
 
@@ -1251,8 +1258,9 @@ OutputFile::currentScanLine () const
 void	
 OutputFile::copyPixels (InputFile &in)
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
-
+#endif
     //
     // Check if this file's and and the InputFile's
     // headers are compatible.
@@ -1341,8 +1349,9 @@ OutputFile::copyPixels( InputPart & in)
 void
 OutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
-
+#endif
     if (_data->previewPosition <= 0)
 	THROW (IEX_NAMESPACE::LogicExc, "Cannot update preview image pixels. "
 			      "File \"" << fileName() << "\" does not "
@@ -1388,8 +1397,9 @@ OutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 void	
 OutputFile::breakScanLine  (int y, int offset, int length, char c)
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
-
+#endif
     Int64 position = 
 	_data->lineOffsets[(y - _data->minY) / _data->linesInBuffer];
 

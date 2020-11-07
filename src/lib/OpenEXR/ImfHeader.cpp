@@ -68,14 +68,19 @@
 #include <ImfTimeCodeAttribute.h>
 #include <ImfVecAttribute.h>
 #include <ImfPartType.h>
+#include <IlmBaseConfig.h>
 #include "Iex.h"
 #include <sstream>
 #include <stdlib.h>
 #include <time.h>
 #include <cmath>
-#include <mutex>
+
 #include "ImfTiledMisc.h"
 #include "ImfNamespace.h"
+
+#if ILMBASE_THREADING_ENABLED
+#include <mutex>
+#endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -1266,9 +1271,10 @@ Header::readFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int &version)
 void
 staticInitialize ()
 {
+#if ILMBASE_THREADING_ENABLED
     static std::mutex criticalSection;
 	std::lock_guard<std::mutex> lock (criticalSection);
-
+#endif
     static bool initialized = false;
 
     if (!initialized)

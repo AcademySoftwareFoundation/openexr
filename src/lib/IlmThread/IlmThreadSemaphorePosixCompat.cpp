@@ -41,8 +41,8 @@
 
 #include "IlmBaseConfig.h"
 
-#if defined ILMBASE_THREADING_ENABLED
-#if ( !defined (ILMBASE_HAVE_POSIX_SEMAPHORES) && !defined (__APPLE__) && !defined (_WIN32) && !defined (_WIN64) )
+#if ILMBASE_THREADING_ENABLED
+#if ( !(ILMBASE_HAVE_POSIX_SEMAPHORES) && !defined (__APPLE__) && !defined (_WIN32) && !defined (_WIN64) )
 
 #include "IlmThreadSemaphore.h"
 
@@ -113,5 +113,5 @@ Semaphore::value () const
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
-#endif
-#endif
+#endif // posix semaphore compat
+#endif // enable threading

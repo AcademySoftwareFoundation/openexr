@@ -59,7 +59,6 @@
 
 #include <fstream>
 #include <algorithm>
-#include <mutex>
 
 #include "ImfNamespace.h"
 
@@ -74,7 +73,10 @@ using IMATH_NAMESPACE::modp;
 // needed between calls to readPixels
 //
 
-struct InputFile::Data : public std::mutex
+struct InputFile::Data
+#if ILMBASE_THREADING_ENABLED
+    : public std::mutex
+#endif
 {
     Header              header;
     int                 version;
@@ -732,8 +734,9 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
     if (_data->isTiled)
     {
-	std::lock_guard<std::mutex> lock (*_data);
-
+#if ILMBASE_THREADING_ENABLED
+        std::lock_guard<std::mutex> lock (*_data);
+#endif
 	//
         // We must invalidate the cached buffer if the new frame
 	// buffer has a different set of channels than the old
@@ -868,8 +871,10 @@ InputFile::frameBuffer () const
     }
     else if(_data->isTiled)
     {
-	std::lock_guard<std::mutex> lock (*_data);
-	return _data->tFileBuffer;
+#if ILMBASE_THREADING_ENABLED
+        std::lock_guard<std::mutex> lock (*_data);
+#endif
+        return _data->tFileBuffer;
     }
     else
     {
@@ -910,7 +915,9 @@ InputFile::readPixels (int scanLine1, int scanLine2)
     }
     else if (_data->isTiled)
     {
-	std::lock_guard<std::mutex> lock (*_data);
+#if ILMBASE_THREADING_ENABLED
+        std::lock_guard<std::mutex> lock (*_data);
+#endif
         bufferedReadPixels (_data, scanLine1, scanLine2);
     }
     else

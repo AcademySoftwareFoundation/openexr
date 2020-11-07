@@ -53,7 +53,6 @@
 #include "ImfVersion.h"
 
 #include <OpenEXRConfig.h>
-#include <IlmThread.h>
 
 #include <Iex.h>
 #include <map>
@@ -181,26 +180,30 @@ template<class T>
 T*
 MultiPartInputFile::getInputPart(int partNumber)
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock(*_data);
-            if (_data->_inputFiles.find(partNumber) == _data->_inputFiles.end())
-        {
-            T* file = new T(_data->getPart(partNumber));
-            _data->_inputFiles.insert(std::make_pair(partNumber, (GenericInputFile*) file));
-            return file;
-        }
-        else return (T*) _data->_inputFiles[partNumber];
+#endif
+    if (_data->_inputFiles.find(partNumber) == _data->_inputFiles.end())
+    {
+        T* file = new T(_data->getPart(partNumber));
+        _data->_inputFiles.insert(std::make_pair(partNumber, (GenericInputFile*) file));
+        return file;
+    }
+
+    return (T*) _data->_inputFiles[partNumber];
 }
 
 void
 MultiPartInputFile::flushPartCache()
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock(*_data);
+#endif
     while ( _data->_inputFiles.begin() != _data->_inputFiles.end())
     {
        delete _data->_inputFiles.begin()->second;
        _data->_inputFiles.erase(_data->_inputFiles.begin());
     }
-
 }
 
 

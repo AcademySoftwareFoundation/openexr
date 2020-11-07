@@ -71,6 +71,9 @@
 
 #include "ImfNamespace.h"
 
+#if ILMBASE_THREADING_ENABLED
+#    include <mutex>
+#endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -1074,7 +1077,9 @@ TiledOutputFile::~TiledOutputFile ()
     if (_data)
     {
         {
+#if ILMBASE_THREADING_ENABLED
             std::lock_guard<std::mutex> lock(*_streamData);
+#endif
             Int64 originalPosition = _streamData->os->tellp();
 
             if (_data->tileOffsetsPosition > 0)
@@ -1129,8 +1134,9 @@ TiledOutputFile::header () const
 void	
 TiledOutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
-
+#endif
     //
     // Check if the new frame buffer descriptor
     // is compatible with the image file header.
@@ -1211,7 +1217,9 @@ TiledOutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 TiledOutputFile::frameBuffer () const
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
+#endif
     return _data->frameBuffer;
 }
 
@@ -1222,8 +1230,9 @@ TiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
 {
     try
     {
+#if ILMBASE_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_streamData);
-
+#endif
         if (_data->slices.size() == 0)
 	    throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
 			       "as pixel data source.");
@@ -1433,8 +1442,9 @@ TiledOutputFile::writeTile (int dx, int dy, int l)
 void	
 TiledOutputFile::copyPixels (TiledInputFile &in)
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
-
+#endif
     //
     // Check if this file's and and the InputFile's
     // headers are compatible.
@@ -1788,8 +1798,9 @@ TiledOutputFile::isValidTile (int dx, int dy, int lx, int ly) const
 void
 TiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
-
+#endif
     if (_data->previewPosition <= 0)
 	THROW (IEX_NAMESPACE::LogicExc, "Cannot update preview image pixels. "
 			      "File \"" << fileName() << "\" does not "
@@ -1840,8 +1851,9 @@ TiledOutputFile::breakTile
      int length,
      char c)
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
-
+#endif
     Int64 position = _data->tileOffsets (dx, dy, lx, ly);
 
     if (!position)

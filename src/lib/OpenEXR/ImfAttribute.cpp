@@ -41,12 +41,15 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfAttribute.h>
-#include "Iex.h"
+#include <Iex.h>
 #include <string.h>
 #include <map>
-#include <mutex>
 
-#include "ImfNamespace.h"
+#include <IlmBaseConfig.h>
+
+#if ILMBASE_THREADING_ENABLED
+#include <mutex>
+#endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER 
 
@@ -76,7 +79,9 @@ class LockedTypeMap: public TypeMap
 {
   public:
 
+#if ILMBASE_THREADING_ENABLED
     std::mutex mutex;
+#endif
 };
 
 
@@ -95,8 +100,9 @@ bool
 Attribute::knownType (const char typeName[])
 {
     LockedTypeMap& tMap = typeMap();
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (tMap.mutex);
-
+#endif
     return tMap.find (typeName) != tMap.end();
 }
 
@@ -106,8 +112,9 @@ Attribute::registerAttributeType (const char typeName[],
 			          Attribute *(*newAttribute)())
 {
     LockedTypeMap& tMap = typeMap();
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (tMap.mutex);
-
+#endif
     if (tMap.find (typeName) != tMap.end())
 	THROW (IEX_NAMESPACE::ArgExc, "Cannot register image file attribute "
 			    "type \"" << typeName << "\". "
@@ -121,8 +128,9 @@ void
 Attribute::unRegisterAttributeType (const char typeName[])
 {
     LockedTypeMap& tMap = typeMap();
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (tMap.mutex);
-
+#endif
     tMap.erase (typeName);
 }
 
@@ -131,8 +139,9 @@ Attribute *
 Attribute::newAttribute (const char typeName[])
 {
     LockedTypeMap& tMap = typeMap();
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (tMap.mutex);
-
+#endif
     TypeMap::const_iterator i = tMap.find (typeName);
 
     if (i == tMap.end())

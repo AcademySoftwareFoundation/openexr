@@ -63,7 +63,6 @@
 #include <assert.h>
 #include <algorithm>
 #include <fstream>
-#include <mutex>
 #include <string>
 #include <vector>
 
@@ -988,7 +987,9 @@ DeepScanLineOutputFile::initialize (const Header &header)
 DeepScanLineOutputFile::~DeepScanLineOutputFile ()
 {
     {
+#if ILMBASE_THREADING_ENABLED
         std::lock_guard<std::mutex> lock(*_data->_streamData);
+#endif
         Int64 originalPosition = _data->_streamData->os->tellp();
 
         if (_data->lineOffsetsPosition > 0)
@@ -1047,8 +1048,9 @@ DeepScanLineOutputFile::header () const
 void
 DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
-
+#endif
     //
     // Check if the new frame buffer descriptor
     // is compatible with the image file header.
@@ -1166,7 +1168,9 @@ DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 const DeepFrameBuffer &
 DeepScanLineOutputFile::frameBuffer () const
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
+#endif
     return _data->frameBuffer;
 }
 
@@ -1176,8 +1180,9 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
 {
     try
     {
+#if ILMBASE_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
-
+#endif
         if (_data->slices.size() == 0)
             throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
                                "as pixel data source.");
@@ -1399,7 +1404,9 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
 int
 DeepScanLineOutputFile::currentScanLine () const
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
+#endif
     return _data->currentScanLine;
 }
 
@@ -1430,9 +1437,9 @@ union bytesOrInt64
 void
 DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile &in)
 {
-
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
-
+#endif
     //
     // Check if this file's and and the InputFile's
     // headers are compatible.
@@ -1533,8 +1540,9 @@ DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile &in)
 void
 DeepScanLineOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
-
+#endif
     if (_data->previewPosition <= 0)
         THROW (IEX_NAMESPACE::LogicExc, "Cannot update preview image pixels. "
                               "File \"" << fileName() << "\" does not "

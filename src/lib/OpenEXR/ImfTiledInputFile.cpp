@@ -194,7 +194,10 @@ class MultiPartInputFile;
 // needed between calls to readTile()
 //
 
-struct TiledInputFile::Data: public std::mutex
+struct TiledInputFile::Data
+#if ILMBASE_THREADING_ENABLED
+    : public std::mutex
+#endif
 {
     Header	    header;	        	    // the image header
     TileDescription tileDesc;		            // describes the tile layout
@@ -1133,8 +1136,9 @@ TiledInputFile::version () const
 void	
 TiledInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
-
+#endif
     //
     // Set the frame buffer
     //
@@ -1252,7 +1256,9 @@ TiledInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 TiledInputFile::frameBuffer () const
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
+#endif
     return _data->frameBuffer;
 }
 
@@ -1273,8 +1279,9 @@ TiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2, int lx, int ly)
 
     try
     {
+#if ILMBASE_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
-
+#endif
         if (_data->slices.size() == 0)
             throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
 			       "as pixel data destination.");
@@ -1409,8 +1416,9 @@ TiledInputFile::rawTileData (int &dx, int &dy,
 {
     try
     {
+#if ILMBASE_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
-
+#endif
         if (!isValidTile (dx, dy, lx, ly))
             throw IEX_NAMESPACE::ArgExc ("Tried to read a tile outside "
 			       "the image file's data window.");

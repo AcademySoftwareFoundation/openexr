@@ -59,6 +59,7 @@ using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
 
 
+#if ILMBASE_THREADING_ENABLED
 namespace {
 
 Rand48 rand1 (27);
@@ -297,7 +298,7 @@ writeReadRGBA (const char fileName[],
 
 
 } // namespace
-
+#endif
 
 void
 testSharedFrameBuffer (const std::string &tempDir)
@@ -313,6 +314,7 @@ testSharedFrameBuffer (const std::string &tempDir)
             return;
         }
                 
+#if ILMBASE_THREADING_ENABLED
 	const int W = 1371;
 	const int H = 159;
         
@@ -349,7 +351,7 @@ testSharedFrameBuffer (const std::string &tempDir)
                                 Compression (comp));
             }
         }
-
+#endif
 	cout << "ok\n" << endl;
     }
     catch (const std::exception &e)

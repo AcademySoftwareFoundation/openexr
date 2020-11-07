@@ -94,7 +94,9 @@
 #include "IlmThreadExport.h"
 #include "IlmThreadNamespace.h"
 
+#if ILMBASE_THREADING_ENABLED
 #include <thread>
+#endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -123,7 +125,9 @@ class Thread
 
   private:
 
+#if ILMBASE_THREADING_ENABLED
     std::thread _thread;
+#endif
 
     Thread &operator= (const Thread& t) = delete;
     Thread &operator= (Thread&& t) = delete;
