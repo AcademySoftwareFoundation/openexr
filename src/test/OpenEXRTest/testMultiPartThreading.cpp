@@ -37,7 +37,6 @@
 #endif
 
 #include <iostream>
-#include <mutex>
 #include <string>
 #include <vector>
 #include <stdio.h>
@@ -61,7 +60,12 @@
 #include <ImfTiledOutputPart.h>
 #include <ImfTiledInputPart.h>
 #include <IlmThreadPool.h>
+#include <IlmThread.h>
 #include <ImfTiledMisc.h>
+
+#if ILMBASE_THREADING_ENABLED
+#include <mutex>
+#endif
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
@@ -69,6 +73,7 @@ using namespace std;
 using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
 
+#if ILMBASE_THREADING_ENABLED
 namespace
 {
 
@@ -806,6 +811,7 @@ testWriteRead (int partNumber,
 }
 
 } // namespace
+#endif // ILMBASE_THREADING_ENABLED
 
 void testMultiPartThreading (const std::string & tempDir)
 {
@@ -813,6 +819,12 @@ void testMultiPartThreading (const std::string & tempDir)
     {
         cout << "Testing the multi part APIs for multi-thread use" << endl;
 
+        if (!ILMTHREAD_NAMESPACE::supportsThreads ())
+        {
+            cout << "   Threading not supported!" << endl << endl;
+            return;
+        }
+#if ILMBASE_THREADING_ENABLED
         random_reseed(1);
 
         int numThreads = ThreadPool::globalThreadPool().numThreads();
@@ -824,7 +836,7 @@ void testMultiPartThreading (const std::string & tempDir)
         testWriteRead (50, 2, 250, tempDir);
 
         ThreadPool::globalThreadPool().setNumThreads(numThreads);
-
+#endif
         cout << "ok\n" << endl;
     }
     catch (const std::exception &e)

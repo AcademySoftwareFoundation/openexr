@@ -42,14 +42,17 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <mutex>
-
 #include "IlmThreadExport.h"
 #include "IlmBaseConfig.h"
 #include "IlmThreadNamespace.h"
 
+#if ILMBASE_THREADING_ENABLED
+#include <mutex>
+#endif
+
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 
+#if ILMBASE_THREADING_ENABLED
 using Mutex ILMBASE_DEPRECATED ("replace with std::mutex") = std::mutex;
 
 // unfortunately we can't use std::unique_lock as a replacement for Lock since
@@ -102,7 +105,7 @@ class ILMTHREAD_EXPORT Lock
     Mutex & _mutex;
     bool    _locked;
 };
-
+#endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_EXIT
 

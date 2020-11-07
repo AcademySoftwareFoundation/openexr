@@ -12,8 +12,8 @@
 // Options / configuration based on O.S. / compiler
 /////////////////////
 
-#cmakedefine ILMBASE_THREADING_ENABLED 1
-#cmakedefine ILMBASE_HAVE_POSIX_SEMAPHORES 1
+#cmakedefine01 ILMBASE_THREADING_ENABLED
+#cmakedefine01 ILMBASE_HAVE_POSIX_SEMAPHORES
 
 //////////////////////
 //

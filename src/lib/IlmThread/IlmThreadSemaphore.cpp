@@ -41,7 +41,7 @@
 
 #include "IlmBaseConfig.h"
 
-#if !defined (ILMBASE_THREADING_ENABLED) || ILMBASE_THREADING_ENABLED == 0
+#if !(ILMBASE_THREADING_ENABLED)
 
 #include "IlmThreadSemaphore.h"
 

@@ -35,26 +35,27 @@
 #ifndef IMFINPUTSTREAMMUTEX_H_
 #define IMFINPUTSTREAMMUTEX_H_
 
-#include <mutex>
-
 #include "ImfIO.h"
 #include "ImfNamespace.h"
+
+#include "IlmBaseConfig.h"
+
+#if ILMBASE_THREADING_ENABLED
+#include <mutex>
+#endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 //
 // Used to wrap OPENEXR_IMF_INTERNAL_NAMESPACE::IStream as a mutex.
 //
-struct InputStreamMutex : public std::mutex
+struct InputStreamMutex
+#if ILMBASE_THREADING_ENABLED
+    : public std::mutex
+#endif
 {
-    OPENEXR_IMF_INTERNAL_NAMESPACE::IStream* is;
-    Int64 currentPosition;
-
-    InputStreamMutex()
-    {
-        is = 0;
-        currentPosition = 0;
-    }
+    OPENEXR_IMF_INTERNAL_NAMESPACE::IStream* is = nullptr;
+    Int64 currentPosition = 0;
 };
 
 

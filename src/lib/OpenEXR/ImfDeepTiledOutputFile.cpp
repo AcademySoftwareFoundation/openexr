@@ -1264,7 +1264,9 @@ DeepTiledOutputFile::~DeepTiledOutputFile ()
     if (_data)
     {
         {
+#if ILMBASE_THREADING_ENABLED
             std::lock_guard<std::mutex> lock(*_data->_streamData);
+#endif
             Int64 originalPosition = _data->_streamData->os->tellp();
 
             if (_data->tileOffsetsPosition > 0)
@@ -1324,8 +1326,9 @@ DeepTiledOutputFile::header () const
 void
 DeepTiledOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
-
+#endif
     //
     // Check if the new frame buffer descriptor
     // is compatible with the image file header.
@@ -1434,7 +1437,9 @@ DeepTiledOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 const DeepFrameBuffer &
 DeepTiledOutputFile::frameBuffer () const
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
+#endif
     return _data->frameBuffer;
 }
 
@@ -1445,7 +1450,9 @@ DeepTiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
 {
     try
     {
+#if ILMBASE_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
+#endif
 
         if (_data->slices.size() == 0)
             throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
@@ -1715,8 +1722,9 @@ DeepTiledOutputFile::copyPixels (DeepTiledInputFile &in)
  
     int numAllTiles = in.totalTiles();                              
                               
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
-    
+#endif
     //
     // special handling for random tiles
     //
@@ -1986,8 +1994,9 @@ DeepTiledOutputFile::isValidTile (int dx, int dy, int lx, int ly) const
 void
 DeepTiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
-
+#endif
     if (_data->previewPosition <= 0)
         THROW (IEX_NAMESPACE::LogicExc, "Cannot update preview image pixels. "
                               "File \"" << fileName() << "\" does not "
@@ -2038,8 +2047,9 @@ DeepTiledOutputFile::breakTile
      int length,
      char c)
 {
+#if ILMBASE_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
-
+#endif
     Int64 position = _data->tileOffsets (dx, dy, lx, ly);
 
     if (!position)
