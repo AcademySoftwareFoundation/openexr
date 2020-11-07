@@ -76,17 +76,15 @@ endif()
 #set(CTEST_DROP_SITE "open.cdash.org")
 #set(CTEST_DROP_LOCATION "/submit.php?project=MyProject")
 #set(CTEST_DROP_SITE_CDASH TRUE)
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-  include(CTest)
+include(CTest)
 
-  if(BUILD_TESTING)
-    enable_testing()
-    add_subdirectory(src/test)
-  endif()
+if(BUILD_TESTING AND NOT OPENEXR_IS_SUBPROJECT)
+  enable_testing()
+  add_subdirectory(src/test)
 endif()
 
 # Including this module will add a `clang-format` target to the build if
 # the clang-format executable can be found. Only do this if we are top level
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+if(NOT OPENEXR_IS_SUBPROJECT)
   include(cmake/clang-format.cmake)
 endif()
