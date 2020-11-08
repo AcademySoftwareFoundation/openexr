@@ -144,7 +144,7 @@ contributing to OpenEXR.
 ## License
 
 OpenEXR is released under the [BSD-3-Clause](LICENSE) license. See
-[PATENTS](OpenEXR/PATENTS) for license information about portions of
+[PATENTS](PATENTS) for license information about portions of
 OpenEXR that are provided under a different license.
 
 ## Frequently Asked Questions

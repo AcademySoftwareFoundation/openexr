@@ -1,0 +1,52 @@
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright Contributors to the OpenEXR Project.
+
+
+#ifndef INCLUDED_IMF_CHECKFILE_H
+#define INCLUDED_IMF_CHECKFILE_H
+
+#include "ImfUtilExport.h"
+#include "ImfNamespace.h"
+
+#include <cstddef>
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
+
+
+//
+// attempt to read the given file as an OpenEXR, using
+// various OpenEXR read paths.
+// This can be used to validate correctness of the library, when running the library
+// with a sanitizer or memory checker, as well as checking that a file is a correct OpenEXR
+//
+// returns true if the file read correctly using expected API calls, or false
+// if an exception was thrown that indicates the file is invalid
+//
+// if reduceMemory and/or reduceTime are true, will avoid tests or inputs that are known to
+// take large amounts of memory and/or time respectively. This may hide errors within the
+// file or library
+//
+//
+
+IMFUTIL_EXPORT bool
+checkOpenEXRFile(const char* fileName,
+                 bool reduceMemory  = false,
+                 bool reduceTime = false
+                );
+
+
+//
+// overloaded version of checkOpenEXRFile that takes a pointer to in-memory data
+//
+
+IMFUTIL_EXPORT bool
+checkOpenEXRFile(const char* data,
+                 size_t numBytes,
+                 bool reduceMemory = false,
+                 bool reduceTime = false
+                );
+
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+#endif
+
