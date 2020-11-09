@@ -16,7 +16,7 @@ LPATH = -L${DTEXTOEXR_PREFIX}/lib \
 	-Wl,-rpath ${DTEXTOEXR_RMANROOT}/lib/prmansdk-160 \
 	-Wl,-rpath ${DTEXTOEXR_RMANROOT}/lib
 
-LIBS = -lIlmImf -lImath -lIlmThread -lIex -lHalf \
+LIBS = -lOpenEXR -lImath -lIlmThread -lIex -lHalf \
 	-lprman \
 	-lpthread -lm
 
