@@ -40,19 +40,19 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 namespace {
-#if defined(IMF_HAVE_SSE2) &&  defined(__GNUC__)
+#if defined(IMF_HAVE_SSE2) &&  defined(__GNUC__) && !defined(__e2k__)
 
     // Helper functions for gcc + SSE enabled
     void cpuid(int n, int &eax, int &ebx, int &ecx, int &edx)
     {
         __asm__ __volatile__ (
             "cpuid"
-            : /* Output  */ "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx) 
+            : /* Output  */ "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
             : /* Input   */ "a"(n)
             : /* Clobber */);
     }
 
-#else // IMF_HAVE_SSE2 && __GNUC__
+#else // IMF_HAVE_SSE2 && __GNUC__ && !__e2k__
 
     // Helper functions for generic compiler - all disabled
     void cpuid(int n, int &eax, int &ebx, int &ecx, int &edx)
@@ -60,7 +60,7 @@ namespace {
         eax = ebx = ecx = edx = 0;
     }
 
-#endif // IMF_HAVE_SSE2 && __GNUC__
+#endif // IMF_HAVE_SSE2 && __GNUC__ && !__e2k__
 
 
 #ifdef IMF_HAVE_GCC_INLINEASM_X86
@@ -69,7 +69,7 @@ namespace {
     {
         __asm__ __volatile__ (
             "xgetbv"
-            : /* Output  */ "=a"(eax), "=d"(edx) 
+            : /* Output  */ "=a"(eax), "=d"(edx)
             : /* Input   */ "c"(n)
             : /* Clobber */);
     }
@@ -83,7 +83,7 @@ namespace {
 
 #endif //  IMF_HAVE_GCC_INLINEASM_X86
 
-} // namespace 
+} // namespace
 
 CpuId::CpuId():
     sse2(false), 
@@ -94,6 +94,30 @@ CpuId::CpuId():
     avx(false), 
     f16c(false)
 {
+#if defined(__e2k__) // e2k - MCST Elbrus 2000 architecture
+    // Use IMF_HAVE definitions to determine e2k CPU features
+#   if defined(IMF_HAVE_SSE2)
+        sse2 = true;
+#   endif
+#   if defined(IMF_HAVE_SSE3)
+        sse3 = true;
+#   endif
+#   if defined(IMF_HAVE_SSSE3)
+        ssse3 = true;
+#   endif
+#   if defined(IMF_HAVE_SSE4_1)
+        sse4_1 = true;
+#   endif
+#   if defined(IMF_HAVE_SSE4_2)
+        sse4_2 = true;
+#   endif
+#   if defined(IMF_HAVE_AVX)
+        avx = true;
+#   endif
+#   if defined(IMF_HAVE_F16C)
+        f16c = true;
+#   endif
+#else // x86/x86_64
     bool osxsave = false;
     int  max     = 0;
     int  eax, ebx, ecx, edx;
@@ -125,6 +149,7 @@ CpuId::CpuId():
             }
         }
     }
+#endif
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
