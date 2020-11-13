@@ -76,41 +76,48 @@ stackTracer ()
 }
 
 
-BaseExc::BaseExc (const char* s) throw () :
-    _message (s? s: ""),
-    _stackTrace (currentStackTracer? currentStackTracer(): "")
+BaseExc::BaseExc (const char* s) :
+    _message (s? s : ""),
+    _stackTrace (currentStackTracer? currentStackTracer(): std::string())
 {
-    // empty
 }
 
 
-BaseExc::BaseExc (const std::string &s) throw () :
+BaseExc::BaseExc (const std::string &s) :
     _message (s),
-    _stackTrace (currentStackTracer? currentStackTracer(): "")
+    _stackTrace (currentStackTracer? currentStackTracer(): std::string())
 {
     // empty
 }
 
 
-BaseExc::BaseExc (std::stringstream &s) throw () :
+BaseExc::BaseExc (std::string &&s) :
+    _message (std::move (s)),
+    _stackTrace (currentStackTracer? currentStackTracer(): std::string())
+{
+    // empty
+}
+
+
+BaseExc::BaseExc (std::stringstream &s) :
     _message (s.str()),
-    _stackTrace (currentStackTracer? currentStackTracer(): "")
+    _stackTrace (currentStackTracer? currentStackTracer(): std::string())
 {
     // empty
 }
 
-BaseExc::BaseExc (const BaseExc &be) throw()
+BaseExc::BaseExc (const BaseExc &be)
     : _message (be._message),
       _stackTrace (be._stackTrace)
 {
 }
 
-BaseExc::~BaseExc () throw ()
+BaseExc::~BaseExc () noexcept
 {
 }
 
 BaseExc &
-BaseExc::operator = (const BaseExc& be) throw ()
+BaseExc::operator = (const BaseExc& be)
 {
     if (this != &be)
     {
@@ -122,7 +129,7 @@ BaseExc::operator = (const BaseExc& be) throw ()
 }
 
 BaseExc &
-BaseExc::operator = (BaseExc&& be) throw ()
+BaseExc::operator = (BaseExc&& be) noexcept
 {
     if (this != &be)
     {
@@ -133,7 +140,7 @@ BaseExc::operator = (BaseExc&& be) throw ()
 }
 
 const char *
-BaseExc::what () const throw ()
+BaseExc::what () const noexcept
 {
     return _message.c_str();
 }
@@ -154,7 +161,7 @@ BaseExc::append (std::stringstream &s)
 }
 
 const std::string &
-BaseExc::message() const
+BaseExc::message() const noexcept
 {
 	return _message;
 }
@@ -204,7 +211,7 @@ BaseExc::operator += (const char *s)
 
 
 const std::string &
-BaseExc::stackTrace () const
+BaseExc::stackTrace () const noexcept
 {
     return _stackTrace;
 }
