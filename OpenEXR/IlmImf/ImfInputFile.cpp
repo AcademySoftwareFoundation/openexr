@@ -456,6 +456,14 @@ InputFile::InputFile (const char fileName[], int numThreads):
             _data->_streamData->is = is;
             _data->header.readFrom (*_data->_streamData->is, _data->version);
             
+            if(isNonImage(_data->version))
+            {
+                if(!_data->header.hasType())
+                {
+                      throw(IEX_NAMESPACE::InputExc("Non-image files must have a 'type' attribute"));
+                }
+            }
+
             // fix type attribute in single part regular image types
             // (may be wrong if an old version of OpenEXR converts
             // a tiled image to scanline or vice versa)
@@ -524,6 +532,14 @@ InputFile::InputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThread
             _data->_streamData->is = &is;
             _data->header.readFrom (*_data->_streamData->is, _data->version);
             
+            if(isNonImage(_data->version))
+            {
+                if(!_data->header.hasType())
+                {
+                      throw(IEX_NAMESPACE::InputExc("Non-image files must have a 'type' attribute"));
+                }
+            }
+
             // fix type attribute in single part regular image types
             // (may be wrong if an old version of OpenEXR converts
             // a tiled image to scanline or vice versa)
