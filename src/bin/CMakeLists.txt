@@ -7,6 +7,7 @@
 if(OPENEXR_BUILD_UTILS)
   add_subdirectory( exr2aces )
   add_subdirectory( exrheader )
+  add_subdirectory( exrinfo )
   add_subdirectory( exrmaketiled )
   add_subdirectory( exrstdattr )
   add_subdirectory( exrmakepreview )
