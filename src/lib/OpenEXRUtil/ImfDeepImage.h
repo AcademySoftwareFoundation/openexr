@@ -24,7 +24,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class DeepImage : public Image
+class IMFUTIL_EXPORT DeepImage : public Image
 {
   public:
 
@@ -34,15 +34,12 @@ class DeepImage : public Image
     // window level mode ONE_LEVEL and level rounding mode ROUND_DOWN.
     //
 
-  	IMFUTIL_EXPORT 
     DeepImage();
 
-    IMFUTIL_EXPORT 
   	DeepImage(const IMATH_NAMESPACE::Box2i &dataWindow,
                LevelMode levelMode = ONE_LEVEL,
                LevelRoundingMode levelRoundingMode = ROUND_DOWN);
 
-    IMFUTIL_EXPORT 
   	virtual ~DeepImage();
 
 
@@ -50,19 +47,14 @@ class DeepImage : public Image
     // Accessing image levels by level number
     //
 
-    IMFUTIL_EXPORT 
     virtual DeepImageLevel &        level(int l = 0);
-    IMFUTIL_EXPORT 
     virtual const DeepImageLevel &  level(int l = 0) const;
 
-    IMFUTIL_EXPORT 
     virtual DeepImageLevel &        level(int lx, int ly);
-    IMFUTIL_EXPORT 
     virtual const DeepImageLevel &  level(int lx, int ly) const;
 
   protected:
 
-    IMFUTIL_EXPORT 
   	virtual DeepImageLevel *
         newLevel (int lx, int ly, const IMATH_NAMESPACE::Box2i &dataWindow);
 };

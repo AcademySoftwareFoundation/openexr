@@ -79,7 +79,7 @@ ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 ILMTHREAD_EXPORT bool supportsThreads ();
 
 
-class Thread
+class ILMTHREAD_EXPORT Thread
 {
   public:
 

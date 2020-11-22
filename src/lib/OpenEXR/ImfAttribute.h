@@ -23,7 +23,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class Attribute
+class IMF_EXPORT Attribute
 {
   public:
 

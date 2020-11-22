@@ -25,7 +25,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // class IStream -- an abstract base class for input streams.
 //-----------------------------------------------------------
 
-class IStream
+class IMF_EXPORT IStream
 {
   public:
 
@@ -130,7 +130,7 @@ class IStream
 // class OStream -- an abstract base class for output streams
 //-----------------------------------------------------------
 
-class OStream
+class IMF_EXPORT OStream
 {
   public:
 
@@ -200,13 +200,13 @@ class OStream
 
 struct StreamIO
 {
-    static void
+    static inline void
     writeChars (OStream &os, const char c[/*n*/], int n)
     {
         os.write (c, n);
     }
 
-    static bool
+    static inline bool
     readChars (IStream &is, char c[/*n*/], int n)
     {
         return is.read (c, n);
@@ -216,14 +216,14 @@ struct StreamIO
 
 struct CharPtrIO
 {
-    static void
+    static inline void
     writeChars (char *&op, const char c[/*n*/], int n)
     {
         while (n--)
             *op++ = *c++;
     }
 
-    static bool
+    static inline bool
     readChars (const char *&ip, char c[/*n*/], int n)
     {
         while (n--)
