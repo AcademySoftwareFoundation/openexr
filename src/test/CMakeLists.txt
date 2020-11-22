@@ -5,6 +5,7 @@
 # combined python 2 + 3 support
 
 add_subdirectory(IexTest)
+add_subdirectory(OpenEXRCoreTest)
 add_subdirectory(OpenEXRTest)
 add_subdirectory(OpenEXRUtilTest)
 add_subdirectory(OpenEXRFuzzTest)
