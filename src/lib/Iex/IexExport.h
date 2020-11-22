@@ -13,7 +13,11 @@
 #        define IEX_EXPORT __declspec(dllimport)
 #    endif
 #else
-#    define IEX_EXPORT __attribute__ ((visibility ("default")))
+#    ifndef _MSC_VER
+#        define IEX_EXPORT __attribute__ ((visibility ("default")))
+#    else
+#        define IEX_EXPORT
+#    endif
 #endif
 #ifndef IEX_EXPORT_TYPE
 #    define IEX_EXPORT_TYPE

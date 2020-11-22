@@ -12,6 +12,11 @@
 #	    define ILMTHREAD_EXPORT_CONST extern __declspec(dllimport)
 #    endif
 #else
-#    define ILMTHREAD_EXPORT __attribute__ ((visibility ("default")))
-#    define ILMTHREAD_EXPORT_CONST extern const __attribute__ ((visibility ("default")))
+#    ifndef _MSC_VER
+#        define ILMTHREAD_EXPORT __attribute__ ((visibility ("default")))
+#        define ILMTHREAD_EXPORT_CONST extern const __attribute__ ((visibility ("default")))
+#    else
+#	    define ILMTHREAD_EXPORT
+#	    define ILMTHREAD_EXPORT_CONST extern
+#    endif
 #endif

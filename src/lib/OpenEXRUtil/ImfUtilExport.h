@@ -12,6 +12,11 @@
 #        define IMFUTIL_EXPORT_CONST extern __declspec(dllimport)
 #    endif
 #else
-#    define IMFUTIL_EXPORT __attribute__ ((visibility ("default")))
-#    define IMFUTIL_EXPORT_CONST extern const __attribute__ ((visibility ("default")))
+#    ifndef _MSC_VER
+#        define IMFUTIL_EXPORT __attribute__ ((visibility ("default")))
+#        define IMFUTIL_EXPORT_CONST extern const __attribute__ ((visibility ("default")))
+#    else
+#        define IMFUTIL_EXPORT
+#        define IMFUTIL_EXPORT_CONST extern
+#    endif
 #endif
