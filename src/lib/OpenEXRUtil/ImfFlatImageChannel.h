@@ -55,22 +55,18 @@ class IMFUTIL_EXPORT FlatImageChannel: public ImageChannel
     // Access to the flat image level to which this channel belongs.
     //
 
-    IMFUTIL_EXPORT
     FlatImageLevel &        flatLevel ();
-    IMFUTIL_EXPORT
     const FlatImageLevel &  flatLevel () const;
 
   protected:
 
     friend class FlatImageLevel;
 
-    IMFUTIL_EXPORT
     FlatImageChannel (FlatImageLevel &level,
                       int xSampling,
                       int ySampling,
                       bool pLinear);
 
-    IMFUTIL_EXPORT
     virtual ~FlatImageChannel();
 
     FlatImageChannel (const FlatImageChannel& other) = delete;
@@ -78,7 +74,6 @@ class IMFUTIL_EXPORT FlatImageChannel: public ImageChannel
     FlatImageChannel (FlatImageChannel&& other) = delete;
     FlatImageChannel& operator = (FlatImageChannel&& other) = delete;
 
-    IMFUTIL_EXPORT
     virtual void            resize ();
 
     virtual void            resetBasePointer () = 0;
