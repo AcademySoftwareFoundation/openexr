@@ -83,11 +83,11 @@ class ILMTHREAD_EXPORT Thread
 {
   public:
 
-    ILMTHREAD_EXPORT Thread ();
-    ILMTHREAD_EXPORT virtual ~Thread ();
+    Thread ();
+    virtual ~Thread ();
 
-    ILMTHREAD_EXPORT void         start ();
-    ILMTHREAD_EXPORT virtual void run () = 0;
+    void         start ();
+    virtual void run () = 0;
 
     //
     // wait for thread to exit - must be called before deleting thread
