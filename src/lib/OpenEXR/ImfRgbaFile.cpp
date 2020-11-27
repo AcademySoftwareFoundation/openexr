@@ -42,6 +42,7 @@
 #include <ImfRgbaFile.h>
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
+#include <ImfMultiPartInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfRgbaYca.h>
 #include <ImfStandardAttributes.h>
@@ -1193,6 +1194,20 @@ RgbaInputFile::RgbaInputFile (const char name[], int numThreads):
 }
 
 
+RgbaInputFile::RgbaInputFile (int partNumber, const char name[], int numThreads):
+    _inputFile (0),
+    _fromYca (0),
+    _channelNamePrefix ("")
+{
+    _multiPartFile = new MultiPartInputFile(name, numThreads);
+    _inputFile = _multiPartFile->getInputPart<InputFile>(partNumber);
+    RgbaChannels rgbaChannels = channels();
+
+    if (rgbaChannels & (WRITE_Y | WRITE_C))
+	_fromYca = new FromYca (*_inputFile, rgbaChannels);
+}
+
+
 RgbaInputFile::RgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThreads):
     _inputFile (new InputFile (is, numThreads)),
     _fromYca (0),
@@ -1237,7 +1252,10 @@ RgbaInputFile::RgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 
 RgbaInputFile::~RgbaInputFile ()
 {
-    delete _inputFile;
+    if (_multiPartFile)
+        delete _multiPartFile;
+    else
+        delete _inputFile;
     delete _fromYca;
 }
 
