@@ -782,17 +782,20 @@ class PtrIStream: public IStream
     }
     virtual void	seekg (Int64 pos)
     {
+
         if( pos < 0 )
         {
           THROW (IEX_NAMESPACE::InputExc, "internal error: seek to " << pos << " requested");
         }
 
-        current = base + pos;
+        const char* newcurrent = base + pos;
 
-        if( current < base || current > end)
+        if( newcurrent < base || newcurrent > end)
         {
             THROW (IEX_NAMESPACE::InputExc, "Out of range seek requested\n");
         }
+
+        current = newcurrent;
 
     }
 
