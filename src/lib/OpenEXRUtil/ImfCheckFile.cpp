@@ -131,10 +131,11 @@ readScanline(T& in, bool reduceMemory , bool reduceTime)
         {
             switch (channelIndex % 3)
             {
-                case 0 : i.insert(c.name(),Slice(HALF, (char*)&halfChannels[-dx] , sizeof(half) , 0 , c.channel().xSampling , c.channel().ySampling ));
+                case 0 : i.insert(c.name(),Slice(HALF, (char*)&halfChannels[-dx/c.channel().xSampling ] , sizeof(half) , 0 , c.channel().xSampling , c.channel().ySampling ));
                 break;
-                case 1 : i.insert(c.name(),Slice(FLOAT, (char*)&floatChannels[-dx] , sizeof(float) , 0 , c.channel().xSampling , c.channel().ySampling ));
-                case 2 : i.insert(c.name(),Slice(UINT, (char*)&uintChannels[-dx] , sizeof(unsigned int) , 0 , c.channel().xSampling , c.channel().ySampling ));
+                case 1 : i.insert(c.name(),Slice(FLOAT, (char*)&floatChannels[-dx/c.channel().xSampling ] , sizeof(float) , 0 , c.channel().xSampling , c.channel().ySampling ));
+                break;
+                case 2 : i.insert(c.name(),Slice(UINT, (char*)&uintChannels[-dx/c.channel().xSampling ] , sizeof(unsigned int) , 0 , c.channel().xSampling , c.channel().ySampling ));
                 break;
             }
             channelIndex ++;
@@ -241,10 +242,10 @@ readTile(T& in, bool reduceMemory , bool reduceTime)
         {
             switch (channelIndex % 3)
             {
-                case 0 : i.insert(c.name(),Slice(HALF, (char*)&halfChannels[-dwx] , sizeof(half) , 0 , c.channel().xSampling , c.channel().ySampling ));
+                case 0 : i.insert(c.name(),Slice(HALF, (char*)&halfChannels[-dwx / c.channel().xSampling ] , sizeof(half) , 0 , c.channel().xSampling , c.channel().ySampling ));
                 break;
-                case 1 : i.insert(c.name(),Slice(FLOAT, (char*)&floatChannels[-dwx] , sizeof(float) , 0 ,  c.channel().xSampling , c.channel().ySampling));
-                case 2 : i.insert(c.name(),Slice(UINT, (char*)&uintChannels[-dwx] , sizeof(unsigned int) , 0 , c.channel().xSampling , c.channel().ySampling));
+                case 1 : i.insert(c.name(),Slice(FLOAT, (char*)&floatChannels[-dwx / c.channel().xSampling ] , sizeof(float) , 0 ,  c.channel().xSampling , c.channel().ySampling));
+                case 2 : i.insert(c.name(),Slice(UINT, (char*)&uintChannels[-dwx / c.channel().xSampling ] , sizeof(unsigned int) , 0 , c.channel().xSampling , c.channel().ySampling));
                 break;
             }
             channelIndex ++;
@@ -781,17 +782,20 @@ class PtrIStream: public IStream
     }
     virtual void	seekg (Int64 pos)
     {
+
         if( pos < 0 )
         {
           THROW (IEX_NAMESPACE::InputExc, "internal error: seek to " << pos << " requested");
         }
 
-        current = base + pos;
+        const char* newcurrent = base + pos;
 
-        if( current < base || current > end)
+        if( newcurrent < base || newcurrent > end)
         {
             THROW (IEX_NAMESPACE::InputExc, "Out of range seek requested\n");
         }
+
+        current = newcurrent;
 
     }
 

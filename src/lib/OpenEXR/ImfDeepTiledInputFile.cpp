@@ -960,7 +960,7 @@ DeepTiledInputFile::compatibilityInitialize(OPENEXR_IMF_INTERNAL_NAMESPACE::IStr
 void
 DeepTiledInputFile::multiPartInitialize(InputPartData* part)
 {
-    if (isTiled(part->header.type()) == false)
+    if (part->header.type() != DEEPTILE)
         THROW (IEX_NAMESPACE::ArgExc, "Can't build a DeepTiledInputFile from a part of type " << part->header.type());
 
     _data->_streamData = part->mutex;
