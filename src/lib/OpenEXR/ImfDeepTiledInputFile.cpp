@@ -960,7 +960,7 @@ DeepTiledInputFile::compatibilityInitialize(OPENEXR_IMF_INTERNAL_NAMESPACE::IStr
 void
 DeepTiledInputFile::multiPartInitialize(InputPartData* part)
 {
-    if (isTiled(part->header.type()) == false)
+    if (part->header.type() != DEEPTILE)
         THROW (IEX_NAMESPACE::ArgExc, "Can't build a DeepTiledInputFile from a part of type " << part->header.type());
 
     _data->_streamData = part->mutex;
@@ -1034,8 +1034,8 @@ DeepTiledInputFile::initialize ()
     for (size_t i = 0; i < _data->tileBuffers.size(); i++)
         _data->tileBuffers[i] = new TileBuffer ();
 
-    _data->maxSampleCountTableSize = _data->tileDesc.ySize *
-                                     _data->tileDesc.xSize *
+    _data->maxSampleCountTableSize = static_cast<size_t>(_data->tileDesc.ySize) *
+                                     static_cast<size_t>(_data->tileDesc.xSize) *
                                      sizeof(int);
 
     _data->sampleCountTableBuffer.resizeErase(_data->maxSampleCountTableSize);

@@ -19,6 +19,7 @@ jobs:
 
   linux_sonarcloud:
     name: 'SonarCloud Linux CentOS 7 VFX CY2020 <GCC 6.3.1>'
+    if: github.repository == ‘AcademySoftwareFoundation/openexr’
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
@@ -85,6 +86,7 @@ jobs:
   # ------------------------------------------------------------------------------
   linux_valgrind:
     name: 'Valgrind Linux CentOS 7 VFX CY2020 <GCC 6.3.1>'
+    if: github.repository == ‘AcademySoftwareFoundation/openexr’
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
@@ -151,6 +153,7 @@ jobs:
   # ------------------------------------------------------------------------------
   linux_fuzz:
     name: 'Fuzz Test Linux CentOS 7 VFX CY2020 <GCC 6.3.1>'
+    if: github.repository == ‘AcademySoftwareFoundation/openexr’
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:

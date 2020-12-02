@@ -316,15 +316,15 @@ FastHufDecoder::~FastHufDecoder()
 bool
 FastHufDecoder::enabled()
 {
-    #if defined(__INTEL_COMPILER) || defined(__GNUC__)  
+    #if defined(__INTEL_COMPILER) || defined(__GNUC__)
 
         //
         // Enabled for ICC, GCC:
         //       __i386__   -> x86
         //       __x86_64__ -> 64-bit x86
-        //
+        //       __e2k__    -> e2k (MCST Elbrus 2000)
 
-        #if defined (__i386__) || defined(__x86_64__)
+        #if defined (__i386__) || defined(__x86_64__) || defined(__e2k__)
             return true;
         #else
             return false;

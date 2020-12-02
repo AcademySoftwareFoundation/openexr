@@ -65,22 +65,23 @@ class BaseExc: public std::exception
     // Constructors and destructor
     //----------------------------
 
-    IEX_EXPORT BaseExc (const char *s = nullptr) throw();     // std::string (s)
-    IEX_EXPORT BaseExc (const std::string &s) throw();        // std::string (s)
-    IEX_EXPORT BaseExc (std::stringstream &s) throw();        // std::string (s.str())
+    IEX_EXPORT BaseExc (const char *s = nullptr);
+    IEX_EXPORT BaseExc (const std::string &s);
+    IEX_EXPORT BaseExc (std::string &&s); // not noexcept because of stacktrace
+    IEX_EXPORT BaseExc (std::stringstream &s);
 
-    IEX_EXPORT BaseExc (const BaseExc &be) throw();
-    IEX_EXPORT BaseExc (BaseExc &&be) throw();
-    IEX_EXPORT virtual ~BaseExc () throw ();
+    IEX_EXPORT BaseExc (const BaseExc &be);
+    IEX_EXPORT BaseExc (BaseExc &&be) noexcept;
+    IEX_EXPORT virtual ~BaseExc () noexcept;
 
-    IEX_EXPORT BaseExc & operator = (const BaseExc& be) throw ();
-    IEX_EXPORT BaseExc & operator = (BaseExc&& be) throw ();
+    IEX_EXPORT BaseExc & operator = (const BaseExc& be);
+    IEX_EXPORT BaseExc & operator = (BaseExc&& be) noexcept;
 
     //---------------------------------------------------
     // what() method -- e.what() returns _message.c_str()
     //---------------------------------------------------
 
-    IEX_EXPORT virtual const char * what () const throw ();
+    IEX_EXPORT virtual const char * what () const noexcept;
 
 
     //--------------------------------------------------
@@ -109,7 +110,7 @@ class BaseExc: public std::exception
     // Access to the string representation of the message
     //---------------------------------------------------
 
-    IEX_EXPORT const std::string &  message () const;
+    IEX_EXPORT const std::string &  message () const noexcept;
 
     //--------------------------------------------------
     // Stack trace for the point at which the exception
@@ -118,7 +119,7 @@ class BaseExc: public std::exception
     // has been installed (see below, setStackTracer()).
     //--------------------------------------------------
 
-    IEX_EXPORT const std::string &  stackTrace () const;
+    IEX_EXPORT const std::string &  stackTrace () const noexcept;
 
   private:
 
@@ -136,26 +137,28 @@ class BaseExc: public std::exception
     class name: public base                                         \
     {                                                               \
       public:                                                       \
-        exp name() throw();                                         \
-        exp name (const char* text) throw();                        \
-        exp name (const std::string &text) throw();                 \
-        exp name (std::stringstream &text) throw();                 \
-        exp name (const name &other) throw();                       \
-        exp name (name &&other) throw();                            \
-        exp name& operator = (name &other) throw();                 \
-        exp name& operator = (name &&other) throw();                \
-        exp ~name() throw();                                        \
+        exp name();                                                 \
+        exp name (const char* text);                                \
+        exp name (const std::string &text);                         \
+        exp name (std::string &&text);                              \
+        exp name (std::stringstream &text);                         \
+        exp name (const name &other);                               \
+        exp name (name &&other) noexcept;                           \
+        exp name& operator = (name &other);                         \
+        exp name& operator = (name &&other) noexcept;               \
+        exp ~name() noexcept;                                       \
     };
 
-#define DEFINE_EXC_EXP_IMPL(exp, name, base)                       \
-exp name::name () throw () : base () {}                            \
-exp name::name (const char* text) throw () : base (text) {}        \
-exp name::name (const std::string& text) throw () : base (text) {} \
-exp name::name (std::stringstream& text) throw () : base (text) {} \
-exp name::name (const name &other) throw() : base (other) {}       \
-exp name::name (name &&other) throw() : base (other) {}            \
-exp name& name::operator = (name &other) throw() { base::operator=(other); return *this; } \
-exp name& name::operator = (name &&other) throw() { base::operator=(other); return *this; } \
+#define DEFINE_EXC_EXP_IMPL(exp, name, base)                     \
+exp name::name () : base () {}                                   \
+exp name::name (const char* text) : base (text) {}               \
+exp name::name (const std::string& text) : base (text) {}        \
+exp name::name (std::string&& text) : base (std::move (text)) {} \
+exp name::name (std::stringstream& text) : base (text) {}        \
+exp name::name (const name &other) : base (other) {}             \
+exp name::name (name &&other) noexcept : base (other) {}         \
+exp name& name::operator = (name &other) { base::operator=(other); return *this; } \
+exp name& name::operator = (name &&other) noexcept { base::operator=(other); return *this; } \
 exp name::~name () throw () {}
 
 // For backward compatibility.

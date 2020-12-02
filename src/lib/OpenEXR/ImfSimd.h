@@ -53,6 +53,27 @@
     #define IMF_HAVE_SSE4_1 1
 #endif
 
+// Compiler flags on e2k (MCST Elbrus 2000) architecture
+#if defined(__SSE3__) && defined(__e2k__)
+    #define IMF_HAVE_SSE3 1
+#endif
+
+#if defined(__SSSE3__) && defined(__e2k__)
+    #define IMF_HAVE_SSSE3 1
+#endif
+
+#if defined(__SSE4_2__) && defined(__e2k__)
+    #define IMF_HAVE_SSE4_2 1
+#endif
+
+#if defined(__AVX__) && defined(__e2k__)
+    #define IMF_HAVE_AVX 1
+#endif
+
+#if defined(__F16C__) && defined(__e2k__)
+    #define IMF_HAVE_F16C 1
+#endif
+
 extern "C"
 {
 #ifdef IMF_HAVE_SSE2
