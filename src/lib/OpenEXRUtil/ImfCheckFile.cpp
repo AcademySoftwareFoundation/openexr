@@ -651,9 +651,8 @@ bool enumsValid( const Header& hdr)
     if ( hasEnvmap (hdr) )
     {
 
-        const Envmap* typeInFile = &envmap (hdr);
-        int envMapAsInt = * reinterpret_cast<const int*>(typeInFile);
-        if (envMapAsInt != ENVMAP_LATLONG && envMapAsInt!= ENVMAP_CUBE)
+        const Envmap& typeInFile = envmap (hdr);
+        if (typeInFile != ENVMAP_LATLONG && typeInFile!= ENVMAP_CUBE)
         {
              return false;
         }
@@ -661,9 +660,8 @@ bool enumsValid( const Header& hdr)
 
     if (hasDeepImageState(hdr))
     {
-        const DeepImageState * typeInFile = &deepImageState (hdr);
-        int deepImageStateAsInt = * reinterpret_cast<const int*>(typeInFile);
-        if (deepImageStateAsInt < 0 || deepImageStateAsInt >= DIS_NUMSTATES)
+        const DeepImageState& typeInFile = deepImageState (hdr);
+        if (typeInFile < 0 || typeInFile >= DIS_NUMSTATES)
         {
              return false;
         }

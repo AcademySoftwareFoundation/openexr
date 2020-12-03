@@ -95,13 +95,13 @@ readSingleImage (const char inFileName[],
     else if (hasEnvmap (in.header()))
     {
         // validate type is known before using
-        const Envmap* typeInFile = &envmap (in.header());
-        int envMapAsInt = * reinterpret_cast<const int*>(typeInFile);
-        if (envMapAsInt != ENVMAP_LATLONG && envMapAsInt != ENVMAP_CUBE)
+        const Envmap& typeInFile = envmap (in.header());
+
+        if (typeInFile != ENVMAP_LATLONG && typeInFile != ENVMAP_CUBE)
         {
-             THROW (IEX::InputExc, "unknown envmap type " << envMapAsInt);
+             THROW (IEX::InputExc, "unknown envmap type " << int(typeInFile) );
         }
-        type = *typeInFile;
+        type = typeInFile;
     }
 
     const Box2i &dw = in.dataWindow();

@@ -248,27 +248,19 @@ printTimeCode (TimeCode tc)
 void
 printEnvmap (const Envmap& e)
 {
-    int envmapAsInt = *( reinterpret_cast<const int*>(&e) );
-    if( envmapAsInt > ENVMAP_CUBE || envmapAsInt < 0)
+    switch (e)
     {
-        cout << "map type " << envmapAsInt;
-    }
-    else
-    {
-        switch (e)
-        {
-            case ENVMAP_LATLONG:
-                cout << "latitude-longitude map";
-                break;
+        case ENVMAP_LATLONG:
+            cout << "latitude-longitude map";
+            break;
 
-            case ENVMAP_CUBE:
-                cout << "cube-face map";
-                break;
+        case ENVMAP_CUBE:
+            cout << "cube-face map";
+            break;
 
-            default:
-                cout << "map type " << int (e);
-                break;
-        }
+        default:
+            cout << "map type " << int (e);
+            break;
     }
 }
 
