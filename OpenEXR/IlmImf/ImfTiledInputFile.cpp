@@ -958,7 +958,10 @@ TiledInputFile::initialize ()
     {
         if (!isTiled (_data->version))
             throw IEX_NAMESPACE::ArgExc ("Expected a tiled file but the file is not tiled.");
-        
+
+        if (isNonImage (_data->version))
+            throw IEX_NAMESPACE::ArgExc ("File is not a regular tiled image.");
+
     }
     else
     {
