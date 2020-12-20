@@ -908,6 +908,46 @@ generatedFunctions ()
     assert (hasWorldToNDC (header) == false);
     assert (hasDeepImageState (header) == false);
     assert (hasOriginalDataWindow (header) == false);
+    assert (hasAcesImageContainerFlag(header) == false);
+    assert (hasOriginalImageFlag(header) == false);
+    assert (hasCreator (header) == false);
+    assert (hasCameraFirmwareVersion (header) == false);
+    assert (hasCameraIdentifier (header) == false);
+    assert (hasCameraLabel (header) == false);
+    assert (hasCameraMake (header) == false);
+    assert (hasCameraModel (header) == false);
+    assert (hasColorTemperature (header) == false);
+    assert (hasTint (header) == false);
+    assert (hasLensMake (header) == false);
+    assert (hasLensModel (header) == false);
+    assert (hasLensSerialNumber (header) == false);
+    assert (hasLensFirmwareVersion (header) == false);
+    assert (hasLensTemperature (header) == false);
+    assert (hasLensAttributes (header) == false);
+    assert (hasFocalPlaneImageSize (header) == false);
+    assert (hasConvergenceDistance (header) == false);
+    assert (hasInterocularDistance (header) == false);
+    assert (hasEntrancePupilOffset (header) == false);
+    assert (hasCaptureRate (header) == false);
+    assert (hasFocalLength (header) == false);
+    assert (hasEffectiveFocalLength (header) == false);
+    assert (hasFNumber (header) == false);
+    assert (hasTStop (header) == false);
+    assert (hasRecorderMake (header) == false);
+    assert (hasRecorderModel (header) == false);
+    assert (hasRecorderSerialNumber (header) == false);
+    assert (hasRecorderFirmwareVersion (header) == false);
+    assert (hasStorageMediaSerialNumber (header) == false);
+    assert (hasReelName (header) == false);
+    assert (hasUuid (header) == false);
+    assert (hasTimecodeRate (header) == false);
+    assert (hasImageCounter (header) == false);
+    assert (hasFramelines (header) == false);
+    assert (hasFramelines (header) == false);
+    assert (hasImageRotation (header) == false);
+    assert (hasCameraPosition (header) == false);
+    assert (hasCameraUpDirection (header) == false);
+    assert (hasCameraViewingDirection (header) == false);
 }
 
 
