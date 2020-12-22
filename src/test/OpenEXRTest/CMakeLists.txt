@@ -69,7 +69,7 @@ target_link_libraries(OpenEXRTest OpenEXR::OpenEXR)
 set_target_properties(OpenEXRTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
-if(WIN32 AND (BUILD_SHARED_LIBS OR OPENEXR_BUILD_BOTH_STATIC_SHARED))
+if(WIN32 AND BUILD_SHARED_LIBS)
   target_compile_definitions(OpenEXRTest PRIVATE OPENEXR_DLL)
 endif()
 
