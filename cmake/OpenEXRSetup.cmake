@@ -68,14 +68,12 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # (if you should choose to install those)
 set(CMAKE_DEBUG_POSTFIX "_d" CACHE STRING "Suffix for debug builds")
 
-# Usual cmake option to build shared libraries or not
-option(BUILD_SHARED_LIBS "Build shared library" ON)
-# This allows a "double library" setup, where we compile both
-# a dynamic and shared library
-option(OPENEXR_BUILD_BOTH_STATIC_SHARED  "Build both static and shared libraries in one step (otherwise follows BUILD_SHARED_LIBS)" OFF)
-if (OPENEXR_BUILD_BOTH_STATIC_SHARED)
-  set(BUILD_SHARED_LIBS ON)
+if(NOT OPENEXR_IS_SUBPROJECT)
+  # Usual cmake option to build shared libraries or not, only overriden if OpenEXR is a top level project,
+  # in general this setting should be explicitly configured by the end user
+  option(BUILD_SHARED_LIBS "Build shared library" ON)
 endif()
+
 # Suffix to append to root name, this helps with version management
 # but can be turned off if you don't care, or otherwise customized
 set(OPENEXR_LIB_SUFFIX "-${OPENEXR_VERSION_API}" CACHE STRING "string added to the end of all the libraries")
