@@ -910,6 +910,11 @@ hufDecode
 		//
 
 		lc -= pl.len;
+
+		if ( lc < 0 )
+		{
+			invalidCode(); // code length too long
+		}
 		getCode (pl.lit, rlc, c, lc, in, out, outb, oe);
 	    }
 	    else
@@ -967,6 +972,10 @@ hufDecode
 	if (pl.len)
 	{
 	    lc -= pl.len;
+            if ( lc < 0 )
+            {
+   	        invalidCode(); // code length too long
+            }
 	    getCode (pl.lit, rlc, c, lc, in, out, outb, oe);
 	}
 	else
@@ -1093,7 +1102,9 @@ hufUncompress (const char compressed[],
 
     const char *ptr = compressed + 20;
 
-    if ( ptr + (nBits+7 )/8 > compressed+nCompressed)
+    uint64_t nBytes = (static_cast<uint64_t>(nBits)+7) / 8 ;
+
+    if ( ptr + nBytes > compressed+nCompressed)
     {
         notEnoughData();
         return;

@@ -721,10 +721,12 @@ LineBufferTask::execute ()
 
                     int width = (_ifd->maxX - _ifd->minX + 1);
 
+                    ptrdiff_t base = reinterpret_cast<ptrdiff_t>(&_ifd->sampleCount[0][0]);
+                    base -= sizeof(unsigned int)*_ifd->minX;
+                    base -= sizeof(unsigned int)*static_cast<ptrdiff_t>(_ifd->minY) * static_cast<ptrdiff_t>(width);
+
                     copyIntoDeepFrameBuffer (readPtr, slice.base,
-                                             (char*) (&_ifd->sampleCount[0][0]
-                                                      - _ifd->minX
-                                                      - _ifd->minY * width),
+                                             reinterpret_cast<char*>(base),
                                              sizeof(unsigned int) * 1,
                                              sizeof(unsigned int) * width,
                                              y, _ifd->minX, _ifd->maxX,

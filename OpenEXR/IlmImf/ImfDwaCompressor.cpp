@@ -2535,7 +2535,7 @@ DwaCompressor::uncompress
 
     if (acCompressedSize > 0)
     {
-        if (totalAcUncompressedCount*sizeof(unsigned short) > _packedAcBufferSize)
+        if ( !_packedAcBuffer || totalAcUncompressedCount*sizeof(unsigned short) > _packedAcBufferSize)
         {
             throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                                 "(corrupt header).");
@@ -2681,6 +2681,10 @@ DwaCompressor::uncompress
         int gChan = _cscSets[csc].idx[1];    
         int bChan = _cscSets[csc].idx[2];    
 
+        if (_channelData[rChan].compression != LOSSY_DCT || _channelData[gChan].compression != LOSSY_DCT || _channelData[bChan].compression != LOSSY_DCT)
+        {
+            throw IEX_NAMESPACE::BaseExc("Bad DWA compression type detected");
+        }
 
         LossyDctDecoderCsc decoder
             (rowPtrs[rChan],

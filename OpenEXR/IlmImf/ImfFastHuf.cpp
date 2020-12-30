@@ -127,7 +127,7 @@ FastHufDecoder::FastHufDecoder
 
     for (Int64 symbol = static_cast<Int64>(minSymbol); symbol <= static_cast<Int64>(maxSymbol); symbol++)
     {
-        if (currByte - table > numBytes)
+        if (currByte - table >= numBytes)
         {
             throw IEX_NAMESPACE::InputExc ("Error decoding Huffman table "
                                            "(Truncated table data).");
@@ -144,7 +144,7 @@ FastHufDecoder::FastHufDecoder
 
         if (codeLen == (Int64) LONG_ZEROCODE_RUN)
         {
-            if (currByte - table > numBytes)
+            if (currByte - table >= numBytes)
             {
                 throw IEX_NAMESPACE::InputExc ("Error decoding Huffman table "
                                                "(Truncated table data).");
@@ -205,7 +205,7 @@ FastHufDecoder::FastHufDecoder
         for (int l = _minCodeLength; l <= _maxCodeLength; ++l)
         {
             countTmp[l] = (double)codeCount[l] * 
-                          (double)(2 << (_maxCodeLength-l));
+                          (double)(2ll << (_maxCodeLength-l));
         }
     
         for (int l = _minCodeLength; l <= _maxCodeLength; ++l)
@@ -215,7 +215,7 @@ FastHufDecoder::FastHufDecoder
             for (int k =l + 1; k <= _maxCodeLength; ++k)
                 tmp += countTmp[k];
             
-            tmp /= (double)(2 << (_maxCodeLength - l));
+            tmp /= (double)(2ll << (_maxCodeLength - l));
 
             base[l] = (Int64)ceil (tmp);
         }
@@ -538,18 +538,24 @@ FastHufDecoder::refill
 
         buffer |= bufferBack >> (64 - numBits);
     }
-    
-    bufferBack         = bufferBack << numBits;
-    bufferBackNumBits -= numBits;
 
-    // 
-    // We can have cases where the previous shift of bufferBack is << 64 - 
-    // in which case no shift occurs. The bit count math still works though,
-    // so if we don't have any bits left, zero out bufferBack.
+
+    //
+    // We can have cases where the previous shift of bufferBack is << 64 -
+    // this is an undefined operation but tends to create just zeroes.
+    // so if we won't have any bits left, zero out bufferBack insetad of computing the shift
     //
 
-    if (bufferBackNumBits == 0)
+    if (bufferBackNumBits <= numBits)
+    {
         bufferBack = 0;
+    }else
+    {
+        bufferBack = bufferBack << numBits;
+    }
+    bufferBackNumBits -= numBits;
+
+
 }
 
 //

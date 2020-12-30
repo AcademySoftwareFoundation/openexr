@@ -278,9 +278,14 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
             //
             // We don't have any valid buffered info, so we need to read in
             // from the file.
+            // if no channels are being read that are present in file, cachedBuffer will be empty
             //
 
-            ifd->tFile->readTiles (0, ifd->tFile->numXTiles (0) - 1, j, j);
+            if (ifd->cachedBuffer && ifd->cachedBuffer->begin() != ifd->cachedBuffer->end())
+            {
+                ifd->tFile->readTiles (0, ifd->tFile->numXTiles (0) - 1, j, j);
+            }
+
             ifd->cachedTileY = j;
         }
 
@@ -289,55 +294,133 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
         // framebuffer.
         //
 
-        for (FrameBuffer::ConstIterator k = ifd->cachedBuffer->begin();
-             k != ifd->cachedBuffer->end();
+        for (FrameBuffer::ConstIterator k = ifd->tFileBuffer.begin();
+             k != ifd->tFileBuffer.end();
              ++k)
         {
-            Slice fromSlice = k.slice();		// slice to write from
-            Slice toSlice = ifd->tFileBuffer[k.name()];	// slice to write to
 
-            char *fromPtr, *toPtr;
-            int size = pixelTypeSize (toSlice.type);
 
-	    int xStart = levelRange.min.x;
-	    int yStart = minYThisRow;
+            Slice toSlice = k.slice();		// slice to read from
+            char* toPtr;
 
-	    while (modp (xStart, toSlice.xSampling) != 0)
-		++xStart;
+            int xStart = levelRange.min.x;
+            int yStart = minYThisRow;
 
-	    while (modp (yStart, toSlice.ySampling) != 0)
-		++yStart;
+            while (modp (xStart, toSlice.xSampling) != 0)
+                ++xStart;
 
-            for (int y = yStart;
-		 y <= maxYThisRow;
-		 y += toSlice.ySampling)
+            while (modp (yStart, toSlice.ySampling) != 0)
+                ++yStart;
+
+            FrameBuffer::ConstIterator c = ifd->cachedBuffer->find(k.name());
+
+
+            if( c!=ifd->cachedBuffer->end())
             {
-		//
-                // Set the pointers to the start of the y scanline in
-                // this row of tiles
-		//
-                
-                fromPtr = fromSlice.base +
-                          (y - tileRange.min.y) * fromSlice.yStride +
-                          xStart * fromSlice.xStride;
+                //
+                // output channel was read from source image: copy to output slice
+                //
+                Slice fromSlice = c.slice();	// slice to write to
 
-                toPtr = toSlice.base +
-                        divp (y, toSlice.ySampling) * toSlice.yStride +
-                        divp (xStart, toSlice.xSampling) * toSlice.xStride;
+                int size = pixelTypeSize (toSlice.type);
+                char* fromPtr;
 
-		//
-                // Copy all pixels for the scanline in this row of tiles
-		//
-
-                for (int x = xStart;
-		     x <= levelRange.max.x;
-		     x += toSlice.xSampling)
+                for (int y = yStart;
+                    y <= maxYThisRow;
+                    y += toSlice.ySampling)
                 {
-		    for (int i = 0; i < size; ++i)
-			toPtr[i] = fromPtr[i];
+                    //
+                    // Set the pointers to the start of the y scanline in
+                    // this row of tiles
+                    //
 
-		    fromPtr += fromSlice.xStride * toSlice.xSampling;
-		    toPtr += toSlice.xStride;
+                    fromPtr = fromSlice.base +
+                            (y - tileRange.min.y) * fromSlice.yStride +
+                            xStart * fromSlice.xStride;
+
+                    toPtr = toSlice.base +
+                            divp (y, toSlice.ySampling) * toSlice.yStride +
+                            divp (xStart, toSlice.xSampling) * toSlice.xStride;
+
+                    //
+                    // Copy all pixels for the scanline in this row of tiles
+                    //
+
+                    for (int x = xStart;
+                        x <= levelRange.max.x;
+                        x += toSlice.xSampling)
+                    {
+                        for (int i = 0; i < size; ++i)
+                            toPtr[i] = fromPtr[i];
+
+                        fromPtr += fromSlice.xStride * toSlice.xSampling;
+                        toPtr += toSlice.xStride;
+                    }
+                }
+            }
+            else
+            {
+
+                //
+                // channel wasn't present in source file: fill output slice
+                //
+                for (int y = yStart;
+                    y <= maxYThisRow;
+                    y += toSlice.ySampling)
+                {
+
+                    toPtr = toSlice.base +
+                            divp (y, toSlice.ySampling) * toSlice.yStride +
+                            divp (xStart, toSlice.xSampling) * toSlice.xStride;
+
+                    //
+                    // Copy all pixels for the scanline in this row of tiles
+                    //
+
+                    switch ( toSlice.type)
+                    {
+                        case UINT:
+                        {
+                            unsigned int fill = toSlice.fillValue;
+                            for (int x = xStart;
+                                x <= levelRange.max.x;
+                                x += toSlice.xSampling)
+                            {
+                                * reinterpret_cast<unsigned int*>(toPtr) = fill;
+                                toPtr += toSlice.xStride;
+                            }
+                            break;
+                        }
+                        case HALF :
+                        {
+                            half fill = toSlice.fillValue;
+                            for (int x = xStart;
+                                x <= levelRange.max.x;
+                                x += toSlice.xSampling)
+                            {
+                                * reinterpret_cast<half*>(toPtr) = fill;
+                                toPtr += toSlice.xStride;
+                            }
+                            break;
+                        }
+                        case FLOAT :
+                        {
+                            float fill = toSlice.fillValue;
+                            for (int x = xStart;
+                                x <= levelRange.max.x;
+                                x += toSlice.xSampling)
+                            {
+                                * reinterpret_cast<float*>(toPtr) = fill;
+                                toPtr += toSlice.xStride;
+                            }
+                            break;
+                        }
+                        case NUM_PIXELTYPES :
+                        {
+                            break;
+                        }
+
+                    }
                 }
             }
         }
@@ -373,6 +456,14 @@ InputFile::InputFile (const char fileName[], int numThreads):
             _data->_streamData->is = is;
             _data->header.readFrom (*_data->_streamData->is, _data->version);
             
+            if(isNonImage(_data->version))
+            {
+                if(!_data->header.hasType())
+                {
+                      throw(IEX_NAMESPACE::InputExc("Non-image files must have a 'type' attribute"));
+                }
+            }
+
             // fix type attribute in single part regular image types
             // (may be wrong if an old version of OpenEXR converts
             // a tiled image to scanline or vice versa)
@@ -441,6 +532,14 @@ InputFile::InputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThread
             _data->_streamData->is = &is;
             _data->header.readFrom (*_data->_streamData->is, _data->version);
             
+            if(isNonImage(_data->version))
+            {
+                if(!_data->header.hasType())
+                {
+                      throw(IEX_NAMESPACE::InputExc("Non-image files must have a 'type' attribute"));
+                }
+            }
+
             // fix type attribute in single part regular image types
             // (may be wrong if an old version of OpenEXR converts
             // a tiled image to scanline or vice versa)
@@ -703,60 +802,67 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 	    {
 		Slice s = k.slice();
 
-		switch (s.type)
-		{
-		  case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
+                //
+                // omit adding channels that are not listed - 'fill' channels are added later
+                //
+                if ( _data->header.channels().find(k.name()) != _data->header.channels().end() )
+                {
+                    switch (s.type)
+                    {
+                    case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
-		    _data->cachedBuffer->insert
-			(k.name(),
-			 Slice (UINT,
-				(char *)(new unsigned int[tileRowSize] - 
-					_data->offset),
-				sizeof (unsigned int),
-				sizeof (unsigned int) *
-				    _data->tFile->levelWidth(0),
-				1, 1,
-				s.fillValue,
-				false, true));
-		    break;
+                        _data->cachedBuffer->insert
+                            (k.name(),
+                            Slice (UINT,
+                                    (char *)(new unsigned int[tileRowSize] -
+                                            _data->offset),
+                                    sizeof (unsigned int),
+                                    sizeof (unsigned int) *
+                                        _data->tFile->levelWidth(0),
+                                    1, 1,
+                                    s.fillValue,
+                                    false, true));
+                        break;
 
-		  case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
+                    case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
-		    _data->cachedBuffer->insert
-			(k.name(),
-			 Slice (HALF,
-				(char *)(new half[tileRowSize] - 
-					_data->offset),
-				sizeof (half),
-				sizeof (half) *
-				    _data->tFile->levelWidth(0),
-				1, 1,
-				s.fillValue,
-				false, true));
-		    break;
+                        _data->cachedBuffer->insert
+                            (k.name(),
+                            Slice (HALF,
+                                    (char *)(new half[tileRowSize] -
+                                            _data->offset),
+                                    sizeof (half),
+                                    sizeof (half) *
+                                        _data->tFile->levelWidth(0),
+                                    1, 1,
+                                    s.fillValue,
+                                    false, true));
+                        break;
 
-		  case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
+                    case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
-		    _data->cachedBuffer->insert
-			(k.name(),
-			 Slice (OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT,
-				(char *)(new float[tileRowSize] - 
-					_data->offset),
-				sizeof(float),
-				sizeof(float) *
-				    _data->tFile->levelWidth(0),
-				1, 1,
-				s.fillValue,
-				false, true));
-		    break;
+                        _data->cachedBuffer->insert
+                            (k.name(),
+                            Slice (OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT,
+                                    (char *)(new float[tileRowSize] -
+                                            _data->offset),
+                                    sizeof(float),
+                                    sizeof(float) *
+                                        _data->tFile->levelWidth(0),
+                                    1, 1,
+                                    s.fillValue,
+                                    false, true));
+                        break;
 
-		  default:
+                    default:
 
-		    throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
-		}
+                        throw IEX_NAMESPACE::ArgExc ("Unknown pixel data type.");
+                    }
+                }
 	    }
 
 	    _data->tFile->setFrameBuffer (*_data->cachedBuffer);
+
         }
 
 	_data->tFileBuffer = frameBuffer;
