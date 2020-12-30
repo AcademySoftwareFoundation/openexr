@@ -43,6 +43,30 @@
 Patch release with various bug/sanitizer/security fixes, primarily
 related to reading corrupted input files.
 
+Specific OSS-fuzz issues include:
+
+* OSS-fuzz [#24854](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=24854) Segv on unknown address in Imf_2_5::hufUncompress
+* OSS-fuzz [#24831](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=24831) Undefined-shift in Imf_2_5::FastHufDecoder::FastHufDecoder
+* OSS-fuzz [#24969](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=24969) Invalid-enum-value in Imf_2_5::TypedAttribute<Imf_2_5::Envmap>::writeValueTo
+* OSS-fuzz [#25297](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25297) Integer-overflow in Imf_2_5::calculateNumTiles
+* OSS-fuzz [#24787](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=24787) Undefined-shift in Imf_2_5::unpack14
+* OSS-fuzz [#25326](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25326) Out-of-memory in openexr_scanlines_fuzzer
+* OSS-fuzz [#25399](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25399) Heap-buffer-overflow in Imf_2_5::FastHufDecoder::FastHufDecoder
+* OSS-fuzz [#25415](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25415) Abrt in __cxxabiv1::failed_throw
+* OSS-fuzz [#25370](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25370) Out-of-memory in openexr_exrenvmap_fuzzer
+* OSS-fuzz [#25501](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25501) Out-of-memory in openexr_scanlines_fuzzer
+* OSS-fuzz [#25505](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25505) Heap-buffer-overflow in Imf_2_5::copyIntoFrameBuffer
+* OSS-fuzz [#25562](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25562) Integer-overflow in Imf_2_5::hufUncompress
+* OSS-fuzz [#25740](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25740) Null-dereference READ in Imf_2_5::Header::operator
+* OSS-fuzz [#25743](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25743) Null-dereference in Imf_2_5::MultiPartInputFile::header
+* OSS-fuzz [#25913](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25913) Out-of-memory in openexr_exrenvmap_fuzzer
+* OSS-fuzz [#26229](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=26229) Undefined-shift in Imf_2_5::hufDecode
+* OSS-fuzz [#26658](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=26658) Out-of-memory in openexr_scanlines_fuzzer
+* OSS-fuzz [#26956](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=26956) Heap-buffer-overflow in Imf_2_5::DeepTiledInputFile::readPixelSampleCounts
+* OSS-fuzz [#27409](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=27409) Out-of-memory in openexr_exrcheck_fuzzer
+* OSS-fuzz [#25892](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25892) Divide-by-zero in Imf_2_5::calculateNumTiles
+* OSS-fuzz [#25894](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25894) Floating-point-exception in Imf_2_5::precalculateTileInfo
+
 ### Merged Pull Requests
 
 * [#817](https://github.com/AcademySoftwareFoundation/openexr/pull/817): double-check unpackedBuffer created in DWA uncompress (OSS-fuzz 24854)
@@ -54,7 +78,7 @@ related to reading corrupted input files.
 * [#827](https://github.com/AcademySoftwareFoundation/openexr/pull/827): lighter weight reading of Luma-only images via RgbaInputFile (OSS-fuzz 25326)
 * [#829](https://github.com/AcademySoftwareFoundation/openexr/pull/829): fix buffer overflow check in PIZ decompression (OSS-fuzz 25399, OSS-fuzz 25415)
 * [#830](https://github.com/AcademySoftwareFoundation/openexr/pull/830): refactor channel filling in InputFile API with tiled source (OSS-fuzz 25370 , OSS-fuzz 25501)
-[* #831](https://github.com/AcademySoftwareFoundation/openexr/pull/ #831): Use Int64 in dataWindowForTile to prevent integer overflow (OSS-fuzz 25505)
+* [#831](https://github.com/AcademySoftwareFoundation/openexr/pull/ #831): Use Int64 in dataWindowForTile to prevent integer overflow (OSS-fuzz 25505)
 * [#836](https://github.com/AcademySoftwareFoundation/openexr/pull/836): prevent overflow in hufUncompress if nBits is large (OSS-fuzz 25562)
 * [#840](https://github.com/AcademySoftwareFoundation/openexr/pull/840): add sanity check for reading multipart files with no parts (OSS-fuzz 25740 , OSS-fuzz 25743)
 * [#841](https://github.com/AcademySoftwareFoundation/openexr/pull/841): more elegant exception handling in exrmaketiled (ZhiWei Sun from Topsec Alpha Lab)
@@ -69,7 +93,7 @@ related to reading corrupted input files.
 
 ### Commits \[ git log v2.5.3...v2.5.4\]
 
-* [0c2b46f6](https://github.com/AcademySoftwareFoundation/openexr/commit/0c2b46f630a3b5f2f561c2849d047ee39f899179) ([peterhillman](@peterh@wetafx.co.nz) 2020-12-31)
+* [0c2b46f6](https://github.com/AcademySoftwareFoundation/openexr/commit/0c2b46f630a3b5f2f561c2849d047ee39f899179) Cherry-pick PRs from master branch which fix issues reported by fuzz tests (#875) ([peterhillman](@peterh@wetafx.co.nz) 2020-12-31)
 
 ## Version 2.5.3 (August 12, 2020)
 
