@@ -16,6 +16,9 @@ post patches as quickly as possible.
 
 These vulnerabilities are present in the given versions:
 
+* [CVE-2020-16589](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-16589) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0
+* [CVE-2020-16588](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-16588) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0
+* [CVE-2020-16587](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-16587) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0
 * [CVE-2020-15306](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15306) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0, 2.4.1, 2.5.0, 2.5.1 
 * [CVE-2020-15305](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15305) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0, 2.4.1, 2.5.0, 2.5.1 
 * [CVE-2020-15304](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15304) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0, 2.4.1, 2.5.0, 2.5.1 
