@@ -156,6 +156,7 @@
 #include <cctype>
 #include <cassert>
 #include <algorithm>
+#include <limits>
 
 #include <cstddef>
 
