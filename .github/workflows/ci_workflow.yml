@@ -56,8 +56,55 @@ jobs:
       image: aswf/ci-openexr:${{ matrix.vfx-cy }}
     strategy:
       matrix:
-        build: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        build: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
         include:
+          # -------------------------------------------------------------------
+          # GCC, VFX CY2021
+          # -------------------------------------------------------------------
+          # Shared, Release
+          - build: 12
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 14
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: GCC 6.3.1
+            threads-enabled: 'ON'
+            vfx-cy: 2021.4
+            exclude-tests:
+          # Shared, Debug
+          - build: 13
+            build-type: Debug
+            build-shared: 'ON'
+            cxx-standard: 14
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: GCC 6.3.1
+            threads-enabled: 'ON'
+            vfx-cy: 2021.4
+            exclude-tests:
+          # Static, Release
+          - build: 14
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 14
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: GCC 6.3.1
+            threads-enabled: 'ON'
+            vfx-cy: 2021.4
+            exclude-tests:
+          # Static, Debug
+          - build: 15
+            build-type: Debug
+            build-shared: 'OFF'
+            cxx-standard: 14
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: GCC 6.3.1
+            threads-enabled: 'ON'
+            vfx-cy: 2021.4
+            exclude-tests:
           # -------------------------------------------------------------------
           # GCC, VFX CY2020
           # -------------------------------------------------------------------
@@ -119,6 +166,53 @@ jobs:
             threads-enabled: 'ON'
             vfx-cy: 2019
             exclude-tests: 
+          # -------------------------------------------------------------------
+          # Clang, VFX CY2021
+          # -------------------------------------------------------------------
+          # Release
+          - build: 16
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 14
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: Clang 7
+            threads-enabled: 'ON'
+            vfx-cy: 2021.4
+            exclude-tests:
+          # Debug
+          - build: 17
+            build-type: Debug
+            build-shared: 'ON'
+            cxx-standard: 14
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: Clang 7
+            threads-enabled: 'ON'
+            vfx-cy: 2021.4
+            exclude-tests:
+          # Static, Release
+          - build: 18
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 14
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: Clang 7
+            threads-enabled: 'ON'
+            vfx-cy: 2021.4
+            exclude-tests:
+          # Static, Debug
+          - build: 19
+            build-type: Debug
+            build-shared: 'OFF'
+            cxx-standard: 14
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: Clang 7
+            threads-enabled: 'ON'
+            vfx-cy: 2021.4
+            exclude-tests:
           # -------------------------------------------------------------------
           # Clang, VFX CY2020
           # -------------------------------------------------------------------
