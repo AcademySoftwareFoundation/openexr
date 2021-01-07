@@ -168,25 +168,6 @@ IMF_STD_ATTRIBUTE_DEF (adoptedNeutral, AdoptedNeutral, IMATH_NAMESPACE::V2f)
 
 
 //
-// renderingTransform, lookModTransform -- names of the CTL functions
-// that implement the intended color rendering and look modification
-// transforms for this image
-// 
-
-IMF_STD_ATTRIBUTE_DEF (renderingTransform, RenderingTransform, std::string)
-IMF_STD_ATTRIBUTE_DEF (lookModTransform, LookModTransform, std::string)
-
-
-//
-// xDensity -- horizontal output density, in pixels per inch
-//
-// The image's vertical output density is xDensity * pixelAspectRatio.
-//
-
-IMF_STD_ATTRIBUTE_DEF (xDensity, XDensity, float)
-
-
-//
 // owner -- name of the owner of the image
 //
 // If present, the value should contain only printable characters
@@ -260,16 +241,6 @@ IMF_STD_ATTRIBUTE_DEF (altitude, Altitude, float)
 
 
 //
-// cameraFirmwareVersion -- the firmware version of the camera
-//
-// If present, the value should contain only printable characters
-// and have a nonzero length.
-//
-
-IMF_STD_ATTRIBUTE_DEF (cameraFirmwareVersion, CameraFirmwareVersion, std::string)
-
-
-//
 // cameraIdentifier -- identifies this camera uniquely among all
 // cameras from all vendors
 
@@ -326,6 +297,30 @@ IMF_STD_ATTRIBUTE_DEF (cameraSerialNumber, CameraSerialNumber, std::string)
 
 
 //
+// cameraFirmwareVersion -- the firmware version of the camera
+//
+// If present, the value should contain only printable characters
+// and have a nonzero length.
+//
+
+IMF_STD_ATTRIBUTE_DEF (cameraFirmwareVersion, CameraFirmwareVersion, std::string)
+
+
+//
+// isoSpeed -- measure of sensitivity of the camera system to light,
+// as established by the International Standards Organization [ISO].
+// that was used to record the image
+//
+// For a film-based camera system, the ISO speed will typically be a
+// camera setting indicating some combination of electronic and/or
+// digital signal processing altering the relationship between light
+// impinging on the sensor at a given point, and the digital value 
+// recording that impingment.
+//
+
+IMF_STD_ATTRIBUTE_DEF (isoSpeed, IsoSpeed, float)
+
+
 // colorTemperature -- correlated color temperature, in Kelvin,
 // in effect for the software or hardware creating or capturing
 // the image
@@ -333,7 +328,12 @@ IMF_STD_ATTRIBUTE_DEF (cameraSerialNumber, CameraSerialNumber, std::string)
 // The colorTemperature attribute's value is primarily forensic,
 // and indicates the stated color balance of a film stock, or the
 // color temperature chosen as a part of a real or virtual digital
-// camera's white balance settings.
+// camera's white balance settings. It should be noted that there
+// is no consensus amongst camera manufacturers as to what CIE
+// 1960 UCS uv chromaticity pertains to a particular correlated
+// color temperature, especially in that region of temperatures
+// that could be considered a high-end Planckian curve temperature
+// or a low-end CIE D-series illuminant temperature.
 //
 
 IMF_STD_ATTRIBUTE_DEF (colorTemperature, ColorTemperature, float)
@@ -341,22 +341,37 @@ IMF_STD_ATTRIBUTE_DEF (colorTemperature, ColorTemperature, float)
 
 //
 // tint - green / magenta tint in effect for the software or
-// hardware creating or capturing the image
-//
-// Positive units of tint correspond to a green shift equal to
-// that effected by a Kodak CC035G or Rosco E-Colour Eighth Plus
-// Green filter; negative units of tint correspond to a magenta
-// shift equal to that effected by a Kodak CC035M or Rosco E-Colour
-// Eighth Minus Green filter.
+// hardware creating or capturing the image, modifying the white
+// point suggested by the colorTemperature attribute
 //
 // As with colorTemperature, the tint attribute's value is primarily
-// forensic.
+// forensic; tint has no metric set by any normative body, and
+// different camera vendors assign different meanings to the numbers.
+// For one vendor, positive units of tint correspond to a green shift
+// equal to that effected by a Kodak CC035G or Rosco E-Colour
+// Eighth Plus Green filter, and negative units of tint correspond to
+// a magenta shift equal to that effected by a Kodak CC035M or Rosco
+// E-Colour Eighth Minus Green filter; but another vendor might
+// choose wholly different values to tint numbers.
 //
 // If the tint attribute is present, the colorTemperature attribute
 // is required to give context to the tint.
 //
 
 IMF_STD_ATTRIBUTE_DEF (tint, Tint, float)
+
+
+// 
+// Deprecated as of OpenEXR 3.0
+// (How does one deprecate an attribute?)
+// //
+// // renderingTransform, lookModTransform -- names of the CTL functions
+// // that implement the intended color rendering and look modification
+// // transforms for this image
+// // 
+
+// IMF_STD_ATTRIBUTE_DEF (renderingTransform, RenderingTransform, std::string)
+// IMF_STD_ATTRIBUTE_DEF (lookModTransform, LookModTransform, std::string)
 
 
 //
@@ -442,61 +457,12 @@ IMF_STD_ATTRIBUTE_DEF (focus, Focus, float)
 
 
 //
-// convergenceDistance -- distance in meters from the baseline of the
-// two lens entrance pupils to the point where the lens optical center
-// axes cross each other
-//
-// Positive values indicate a point in front of the baseline of the
-// two entrance pupils. Orthogonal stereo images represent their
-// infinitely distance convergence distance with a value of positive
-// infinity.
-//
-
-IMF_STD_ATTRIBUTE_DEF (convergenceDistance, ConvergenceDistance, float)
-
-
-//
-// interocularDistance -- distance in meters between centers of entrance
-// pupils of two lenses (a negative value can reflect a 'flip' of the
-// eye positions for each camera)
-//
-
-IMF_STD_ATTRIBUTE_DEF (interocularDistance, InterocularDistance, float)
-
-
-//
 // entrancePupilOffset -- distance in millimeters between the entrance
 // pupil of a lens and the point where that lens's optical axis 
 // intersects the film or sensor plane
 //
 
 IMF_STD_ATTRIBUTE_DEF (entrancePupilOffset, EntrancePupilOffset, float)
-
-
-//
-// captureRate -- capture rate, in frames per second, of the image
-// sequence to which the image belongs, represented as a rational
-// number
-// 
-// For variable frame rates, time-lapse photography, etc. the capture
-// rate r is calculated as
-//
-//   r = 1 / (tN - tNm1)
-//
-// where tn is the time, in seconds, of the center of frame N's 
-// exposure interval, and tNm1 is the time, in seconds, of the center
-// of frame N-1's exposure interval.
-//
-// Both the numerator and denominator of r must be strictly positive.
-
-IMF_STD_ATTRIBUTE_DEF (captureRate, CaptureRate, Rational)
-
-
-//
-// exposure -- exposure time, in seconds
-//
-
-IMF_STD_ATTRIBUTE_DEF (expTime, ExpTime, float)
 
 
 //
@@ -545,6 +511,7 @@ IMF_STD_ATTRIBUTE_DEF (effectiveFocalLength, EffectiveFocalLength, float)
 // If T-stop and/or f-Number is/are knwown, the aperture attribute
 // should be omitted unless existing downstream processes depend on its
 // presence instead of the more precisely-defined attribute(s).
+//
 
 IMF_STD_ATTRIBUTE_DEF (aperture, Aperture, float)
 
@@ -565,21 +532,52 @@ IMF_STD_ATTRIBUTE_DEF (fNumber, FNumber, float)
 //
 // tStop -- ratio of lens focal length to diameter, adjusted for
 // transmittance
+//
 
 IMF_STD_ATTRIBUTE_DEF (tStop, TStop, float)
 
 
 //
-// isoSpeed -- the ISO speed of the film or image sensor
-// that was used to record the image
+// convergenceDistance -- distance in meters from the baseline of the
+// two lens entrance pupils to the point where the lens optical center
+// axes cross each other
 //
-// Techniques to determine the ISO speed rating of a digital still camera
-// are given in ISO 12232:2019. In the absence of any comparable
-// specification for a digital motion picture camera the same procedures
-// can be used. For film, the manufacturer's stated ISO is appropriate.
+// Positive values indicate a point in front of the baseline of the
+// two entrance pupils. Orthogonal stereo images represent their
+// infinitely distance convergence distance with a value of positive
+// infinity.
 //
 
-IMF_STD_ATTRIBUTE_DEF (isoSpeed, IsoSpeed, float)
+IMF_STD_ATTRIBUTE_DEF (convergenceDistance, ConvergenceDistance, float)
+
+
+//
+// interocularDistance -- distance in meters between centers of entrance
+// pupils of two lenses (a negative value can reflect a 'flip' of the
+// eye positions for each camera)
+//
+
+IMF_STD_ATTRIBUTE_DEF (interocularDistance, InterocularDistance, float)
+
+
+//
+// multiView -- defines the view names for multi-view image files
+//
+// A multi-view image contains two or more views of the same scene,
+// as seen from different viewpoints, for example a left-eye and
+// a right-eye view for stereo displays.  The multiView attribute
+// lists the names of the views in an image, and a naming convention
+// identifies the channels that belong to each view.
+//
+// Files conformant to SMPTE ST 2065-4 ("ACES Container File Format")
+// which have a multiView attribute will always have the two strings
+// "right" and "left" in that order. When an ACES Container file is
+// used to hold a stereoscopic image, this attribute will be present.
+//
+// For details, please see header file ImfMultiView.h
+//
+
+IMF_STD_ATTRIBUTE_DEF (multiView, MultiView, StringVector)
 
 
 //
@@ -651,16 +649,6 @@ IMF_STD_ATTRIBUTE_DEF (reelName, ReelName, std::string)
 
 
 //
-// envmap -- if this attribute is present, the image represents
-// an environment map.  The attribute's value defines how 3D
-// directions are mapped to 2D pixel locations.  For details
-// see header file ImfEnvmap.h
-//
-
-IMF_STD_ATTRIBUTE_DEF (envmap, Envmap, Envmap)
-
-
-//
 // uuid -- universally unique identifier (UUID) as specified in
 // IETF RFC 4122, as a 128-bit-long string
 //
@@ -682,10 +670,30 @@ IMF_STD_ATTRIBUTE_DEF (keyCode, KeyCode, KeyCode)
 
 
 //
-// timeCode -- time and control code
+// exposure -- exposure time, in seconds
 //
 
-IMF_STD_ATTRIBUTE_DEF (timeCode, TimeCode, TimeCode)
+IMF_STD_ATTRIBUTE_DEF (expTime, ExpTime, float)
+
+
+//
+// captureRate -- capture rate, in frames per second, of the image
+// sequence to which the image belongs, represented as a rational
+// number
+// 
+// For variable frame rates, time-lapse photography, etc. the capture
+// rate r is calculated as
+//
+//   r = 1 / (tN - tNm1)
+//
+// where tn is the time, in seconds, of the center of frame N's 
+// exposure interval, and tNm1 is the time, in seconds, of the center
+// of frame N-1's exposure interval.
+//
+// Both the numerator and denominator of r must be strictly positive.
+//
+
+IMF_STD_ATTRIBUTE_DEF (captureRate, CaptureRate, Rational)
 
 
 //
@@ -697,47 +705,28 @@ IMF_STD_ATTRIBUTE_DEF (timecodeRate, TimecodeRate, int)
 
 
 //
+// timeCode -- time and control code
+//
+
+IMF_STD_ATTRIBUTE_DEF (timeCode, TimeCode, TimeCode)
+
+
+//
 // imageCounter -- an image number
 //
 // For a sequence of images, the image number increases 
-// when the images are accessed in the intended play order. Can be
-// used to uniquely identify frames of high-speed photography that
-// would have identical timecode.
+// when the images are accessed in the intended play order. 
+// imageCounter can be used to order frames when more standard
+// ordering systems are inapplicable, including but not limited
+// to uniquely identifying frames of high-speed photography that
+// would have identical time codes, ordering sequences of frames
+// where some frames may have been captured and discarded due to
+// real-time constraints, or ordering frames in a sequence that
+// is intermittently accumulated from devices such as security
+// cameras triggered by motoin in an environment.
 //
 
 IMF_STD_ATTRIBUTE_DEF (imageCounter, ImageCounter, int)
-
-
-//
-// wrapmodes -- texture map images extrapolation specifier
-//
-// If an OpenEXR file is used as a texture map for 3D rendering,
-// texture coordinates (0.0, 0.0) and (1.0, 1.0) correspond to
-// the upper left and lower right corners of the data window.
-// If the image is mapped onto a surface with texture coordinates
-// outside the zero-to-one range, then the image must be extrapolated.
-// This attribute tells the renderer how to do this extrapolation.
-// The attribute contains either a pair of comma-separated keywords,
-// to specify separate extrapolation modes for the horizontal and
-// vertical directions; or a single keyword, to specify extrapolation
-// in both directions (e.g. "clamp,periodic" or "clamp").  Extra white
-// space surrounding the keywords is allowed, but should be ignored
-// by the renderer ("clamp, black " is equivalent to "clamp,black").
-// The keywords listed below are predefined; some renderers may support
-// additional extrapolation modes:
-//
-//	black		pixels outside the zero-to-one range are black
-//
-//	clamp		texture coordinates less than 0.0 and greater
-//			than 1.0 are clamped to 0.0 and 1.0 respectively
-//
-//	periodic	the texture image repeats periodically
-//
-//	mirror		the texture image repeats periodically, but
-//			every other instance is mirrored
-//
-
-IMF_STD_ATTRIBUTE_DEF (wrapmodes, Wrapmodes, std::string)
 
 
 //
@@ -762,26 +751,6 @@ IMF_STD_ATTRIBUTE_DEF (framesPerSecond, FramesPerSecond, Rational)
 
 
 //
-// multiView -- defines the view names for multi-view image files
-//
-// A multi-view image contains two or more views of the same scene,
-// as seen from different viewpoints, for example a left-eye and
-// a right-eye view for stereo displays.  The multiView attribute
-// lists the names of the views in an image, and a naming convention
-// identifies the channels that belong to each view.
-//
-// Files conformant to SMPTE ST 2065-4 ("ACES Container File Format")
-// which have a multiView attribute will always have the two strings
-// "right" and "left" in that order. When an ACES Container file is
-// used to hold a stereoscopic image, this attribute will be present.
-//
-// For details, please see header file ImfMultiView.h
-//
-
-IMF_STD_ATTRIBUTE_DEF (multiView, MultiView, StringVector)
-
-
-//
 // framelines -- set of rectangles used for creative purposes, e.g. to
 // indicate safe areas, cropping for derivative image sequences, etc
 //
@@ -794,29 +763,14 @@ IMF_STD_ATTRIBUTE_DEF (framelines, Framelines, std::string)
 
 
 //
-// imageRotation -- rotation of the image in degrees, in the closed interval
-// [-45, +45], with the rotation around the center of the display window, a
-// positive value specifying a rotation from x-axis to y-axis
-//
-
-IMF_STD_ATTRIBUTE_DEF (imageRotation, ImageRotation, float)
-
-
-//
 // cameraPosition -- x, y, z position of the camera, in meters
 //
-// The attribute may record the center of the camera's sensor, or the
-// center of the entrance pupil of the lens. The coordinate system for
+// The attribute describes the intersection of the lens optical axis with
+// the film plane or the camera's sensor. The coordinate system for
 // the camera's position is fixed in relation to the set, and is a
 // right-handed Cartesian coordinate system with the z-axis pointing
 // upwards and the y-axis pointing 90 degrees to the left of the
 // x-axis direction.
-//
-// Recording the position of the center of the entrance pupil provides the
-// most usable value in some circumstances, e.g. as the camera pans. This
-// position changes, however, with lens and focus. For cases when this
-// precision is not needed, recording the center of the sensor is provided
-// as an alternative.
 //
 // For higher precision the chosen coordinate system is usually NOT the GPS
 // system, but an on-set coordinate system. Any coordinate system can be 
@@ -824,6 +778,7 @@ IMF_STD_ATTRIBUTE_DEF (imageRotation, ImageRotation, float)
 // orthogonal, and z points up. The coordinate system can be moving with
 // the set, for example, when on a ship. Its reference point (usually
 // assignged position 0,0,0) can be within or outside the set.
+//
 
 IMF_STD_ATTRIBUTE_DEF (cameraPosition, CameraPosition, IMATH_NAMESPACE::V3f)
 
@@ -836,6 +791,7 @@ IMF_STD_ATTRIBUTE_DEF (cameraPosition, CameraPosition, IMATH_NAMESPACE::V3f)
 // cameraViewingDirection attribute. The coordinate system in which the
 // 'up' direction is expressed is that defined for the cameraViewingDirection
 // attribute.
+//
 
 IMF_STD_ATTRIBUTE_DEF (cameraUpDirection, CameraUpDirection, IMATH_NAMESPACE::V3f)
 
@@ -848,11 +804,11 @@ IMF_STD_ATTRIBUTE_DEF (cameraUpDirection, CameraUpDirection, IMATH_NAMESPACE::V3
 // 
 // If present, must be accompanied by a cameraUpDirection attribute.
 //
-// If the cameraPosition attribute is present, the axes of the
-// cameraViewingDirection attribute are parallel to, and point in the same
-// direction as, those of the cameraPosition attribute; if the cameraPosition
-// attribute is not present then the directions of the axes in the coordinate
-// shall be fixed in relation to the set.
+// The cameraViewingDirection coordinate system shall share the same fixed
+// relationship to the set as does the cameraPosition coordinate system,
+// if the latter is present. In the absence of a cameraPosition coordinate
+// system, the cameraViewingDirection coordinate system shall itself
+// establish a fixed relationship to the set.
 //
 // If the cameraViewingDirection attribute is not present, then the camera's
 // viewing and up directions are undefined.
@@ -899,6 +855,67 @@ IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
 
 
 //
+// originalDataWindow -- if application software crops an image, then it
+// should save the data window of the original, un-cropped image in the
+// originalDataWindow attribute.
+//
+
+IMF_STD_ATTRIBUTE_DEF
+    (originalDataWindow, OriginalDataWindow, IMATH_NAMESPACE::Box2i)
+
+
+//
+// envmap -- if this attribute is present, the image represents
+// an environment map.  The attribute's value defines how 3D
+// directions are mapped to 2D pixel locations.  For details
+// see header file ImfEnvmap.h
+//
+
+IMF_STD_ATTRIBUTE_DEF (envmap, Envmap, Envmap)
+
+
+//
+// wrapmodes -- texture map images extrapolation specifier
+//
+// If an OpenEXR file is used as a texture map for 3D rendering,
+// texture coordinates (0.0, 0.0) and (1.0, 1.0) correspond to
+// the upper left and lower right corners of the data window.
+// If the image is mapped onto a surface with texture coordinates
+// outside the zero-to-one range, then the image must be extrapolated.
+// This attribute tells the renderer how to do this extrapolation.
+// The attribute contains either a pair of comma-separated keywords,
+// to specify separate extrapolation modes for the horizontal and
+// vertical directions; or a single keyword, to specify extrapolation
+// in both directions (e.g. "clamp,periodic" or "clamp").  Extra white
+// space surrounding the keywords is allowed, but should be ignored
+// by the renderer ("clamp, black " is equivalent to "clamp,black").
+// The keywords listed below are predefined; some renderers may support
+// additional extrapolation modes:
+//
+//  black   pixels outside the zero-to-one range are black
+//
+//  clamp   texture coordinates less than 0.0 and greater
+//      than 1.0 are clamped to 0.0 and 1.0 respectively
+//
+//  periodic  the texture image repeats periodically
+//
+//  mirror    the texture image repeats periodically, but
+//      every other instance is mirrored
+//
+
+IMF_STD_ATTRIBUTE_DEF (wrapmodes, Wrapmodes, std::string)
+
+
+//
+// xDensity -- horizontal output density, in pixels per inch
+//
+// The image's vertical output density is xDensity * pixelAspectRatio.
+//
+
+IMF_STD_ATTRIBUTE_DEF (xDensity, XDensity, float)
+
+
+//
 // deepImageState -- specifies whether the pixels in a deep image are
 // sorted and non-overlapping.
 //
@@ -915,21 +932,10 @@ IMF_STD_ATTRIBUTE_DEF (deepImageState, DeepImageState, DeepImageState)
 
 
 //
-// originalDataWindow -- if application software crops an image, then it
-// should save the data window of the original, un-cropped image in the
-// originalDataWindow attribute.
-//
-
-IMF_STD_ATTRIBUTE_DEF
-    (originalDataWindow, OriginalDataWindow, IMATH_NAMESPACE::Box2i)
-
-
-//
 // dwaCompressionLevel -- sets the quality level for images compressed
 // with the DWAA or DWAB method.
 //
 
 IMF_STD_ATTRIBUTE_DEF (dwaCompressionLevel, DwaCompressionLevel, float)
-
 
 #endif
