@@ -903,8 +903,6 @@ generatedFunctions ()
     assert (hasIsoSpeed (header) == false);
     assert (hasColorTemperature (header) == false);
     assert (hasTint (header) == false);
-    // assert (hasRenderingTransform (header) == false);
-    // assert (hasLookModTransform (header) == false);
     assert (hasLensMake (header) == false);
     assert (hasLensModel (header) == false);
     assert (hasLensSerialNumber (header) == false);

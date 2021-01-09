@@ -114,10 +114,6 @@ IMF_STD_ATTRIBUTE_IMP (cameraFirmwareVersion, CameraFirmwareVersion, std::string
 IMF_STD_ATTRIBUTE_IMP (isoSpeed, IsoSpeed, float)
 IMF_STD_ATTRIBUTE_IMP (colorTemperature, ColorTemperature, float)
 IMF_STD_ATTRIBUTE_IMP (tint, Tint, float)
-// Deprecated as of OpenEXR 3.0
-// (How does one deprecate an attribute?)
-// IMF_STD_ATTRIBUTE_IMP (renderingTransform, RenderingTransform, string)
-// IMF_STD_ATTRIBUTE_IMP (lookModTransform, LookModTransform, string)
 IMF_STD_ATTRIBUTE_IMP (lensMake, LensMake, std::string)
 IMF_STD_ATTRIBUTE_IMP (lensModel, LensModel, std::string)
 IMF_STD_ATTRIBUTE_IMP (lensSerialNumber, LensSerialNumber, std::string)

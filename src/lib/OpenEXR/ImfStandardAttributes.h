@@ -351,27 +351,14 @@ IMF_STD_ATTRIBUTE_DEF (colorTemperature, ColorTemperature, float)
 // equal to that effected by a Kodak CC035G or Rosco E-Colour
 // Eighth Plus Green filter, and negative units of tint correspond to
 // a magenta shift equal to that effected by a Kodak CC035M or Rosco
-// E-Colour Eighth Minus Green filter; but another vendor might
-// choose wholly different values to tint numbers.
+// E-Colour Eighth Minus Green filter; but another vendor might assign
+// a wholly different meaning to tint numbers.
 //
 // If the tint attribute is present, the colorTemperature attribute
 // is required to give context to the tint.
 //
 
 IMF_STD_ATTRIBUTE_DEF (tint, Tint, float)
-
-
-// 
-// Deprecated as of OpenEXR 3.0
-// (How does one deprecate an attribute?)
-// //
-// // renderingTransform, lookModTransform -- names of the CTL functions
-// // that implement the intended color rendering and look modification
-// // transforms for this image
-// // 
-
-// IMF_STD_ATTRIBUTE_DEF (renderingTransform, RenderingTransform, std::string)
-// IMF_STD_ATTRIBUTE_DEF (lookModTransform, LookModTransform, std::string)
 
 
 //
@@ -490,48 +477,43 @@ IMF_STD_ATTRIBUTE_DEF (effectiveFocalLength, EffectiveFocalLength, float)
 
 
 //
-// aperture -- the camera's lens aperture, in f-stops (focal length
-// of the lens divided by the diameter of the iris opening)
+// aperture -- the camera's lens aperture setting at time of image
+// creation or capture.
 // 
-// SMPTE ST 2065-4:2013 defines ACES Container file where the attribute
-// named 'aperture' can contain either the T-stop of the lens, or the
-// F-number of the lens.
+// If the lens is manufactured to indicate aperture in T-stops,
+// the T-stop in effect at time of image creation or capture can be
+// carried as the value of the tStop attribute, and the aperture attribute
+// is best omitted unless required for compatibility with established
+// workflows.
 //
-// If the T-stop is known, it is preferable to use the tStop attribute
-// to indicate this unambiguously.
+// Likewise, if the lens is manufactured with aperture indicated in
+// f-numbers, then the f-number in effect at the time of image creation
+// or capture can be carried as the value of the fNumber attribute, and
+// the aperture attribute is best omitted unless required for
+// compatibility with established workflows.
 //
-// If the f-Number is known, it is preferable to use the fNumber
-// attribute to indicate this unambiguously to OpenEXR readers following
-// strict ACES Container semantics.
-// 
-// If a number is provided to an application creating an OpenEXR file
-// but it's unclear whether that number is a T-stop or an F-number, the
-// aperture attribute should be used to carry that metadatum.
-//
-// If T-stop and/or f-Number is/are knwown, the aperture attribute
-// should be omitted unless existing downstream processes depend on its
-// presence instead of the more precisely-defined attribute(s).
+// If it is unclear whether the lens is indicating aperture in T-stops
+// or f-numbers, then the value from the lens can be carried as the
+// value of the aperture attribute, with the ambiguity indicated by
+// the absence of both tStop and fNumber attributes.
 //
 
 IMF_STD_ATTRIBUTE_DEF (aperture, Aperture, float)
 
 
 //
-// fNumber -- ratio of lens focal length to diameter of lens entrance
-// pupil at the time the image was created or captured
+// fNumber -- ratio of lens infinite image focal length to diameter
+// of lens entrance pupil at the time the image was created or captured
 // 
-// The lens focal length used in the calculation is the nominal focal
-// length which would be stored in the focalLength attribute, even if
-// the effective focal length (compensating for any focus breathing)
-// is known and stored in an effectiveFocalLength attribute.
-//
 
 IMF_STD_ATTRIBUTE_DEF (fNumber, FNumber, float)
 
 
 //
-// tStop -- ratio of lens focal length to diameter, adjusted for
-// transmittance
+// tStop -- f-number of an ideal lens of 100% transmittance that would
+// produce the same image illuminance on axis as the actual lens to
+// which the attribute pertains, at the aperture at which the lens
+// was configured during image creation or capture.
 //
 
 IMF_STD_ATTRIBUTE_DEF (tStop, TStop, float)
@@ -723,7 +705,7 @@ IMF_STD_ATTRIBUTE_DEF (timeCode, TimeCode, TimeCode)
 // where some frames may have been captured and discarded due to
 // real-time constraints, or ordering frames in a sequence that
 // is intermittently accumulated from devices such as security
-// cameras triggered by motoin in an environment.
+// cameras triggered by motion in an environment.
 //
 
 IMF_STD_ATTRIBUTE_DEF (imageCounter, ImageCounter, int)
@@ -765,12 +747,43 @@ IMF_STD_ATTRIBUTE_DEF (framelines, Framelines, std::string)
 //
 // cameraPosition -- x, y, z position of the camera, in meters
 //
-// The attribute describes the intersection of the lens optical axis with
-// the film plane or the camera's sensor. The coordinate system for
-// the camera's position is fixed in relation to the set, and is a
-// right-handed Cartesian coordinate system with the z-axis pointing
-// upwards and the y-axis pointing 90 degrees to the left of the
-// x-axis direction.
+// The attribute, part of the ACES Container File Format specification
+// (SMPTE ST 2065-4:202x) describes the intersection of the lens
+// optical axis with the film plane or the camera's sensor. The
+// coordinate system for the camera's position is fixed in relation
+// to the set, and is a right-handed Cartesian coordinate system
+// with the z-axis pointing upwards and the y-axis pointing 90
+// degrees to the left of the x-axis direction.
+// 
+// Note that the 3D coordinate system employed by this attribute from
+// the ACES Container is not the same as the 3D coordinate system long
+// present in OpenEXR. If it is desirable to translate coordinates in the
+// coordinate system employed in this attribute into equivalent
+// coordinates suitable as input to the matrices that may be provided
+// by the worldToCamera and worldToNDC attributes, the following matrix
+// may be used, as follows:
+// 
+//   [ Xref ]   [ 1 0 0    0 ] [ Xaces ]
+//   [ Yref ] = [ 0 0 1 -oep ] [ Yaces ]
+//   [ Zref ]   [ 0 0 1    0 ] [ Zaces ]
+//   [ 0    ]   [ 0 0 0    0 ] [     1 ]
+//
+// where
+//   Xaces, Yaces, and Zaces are the coordinates of a position P
+//     expressed in the coordinate system of the ACES Container,
+//   oep is the entrance pupil offset (from the entrancePupilOffset
+//     attribute, if present), and
+//   Xref, Yref, and Zref are the coordinates of P expressed in the
+//     coordinate system used in this reference implementation.
+//
+//   If the entrancePupilOffset attribute is not present, then the
+//     ACES container file predates SMPTE ST 2065-4:202x and may
+//     conform to an earlier version in the specification where
+//     cameraPosition might indicate the intersection of the optical
+//     axis with the film plane or camera sensor, or it might indicate
+//     the entrance pupil, and one really needs to look on the camera
+//     report or talk with the person who created or captured the
+//     content to understand how cameraPosition should be interpreted.
 //
 // For higher precision the chosen coordinate system is usually NOT the GPS
 // system, but an on-set coordinate system. Any coordinate system can be 
@@ -792,6 +805,11 @@ IMF_STD_ATTRIBUTE_DEF (cameraPosition, CameraPosition, IMATH_NAMESPACE::V3f)
 // 'up' direction is expressed is that defined for the cameraViewingDirection
 // attribute.
 //
+// Note that these coordinates are in the ACES Container coordinate system,
+// not the 3D coordinate system long present in OpenEXR. For conversion from
+// the former to the latter, see the documentation of the cameraPosition
+// attribute above.
+//
 
 IMF_STD_ATTRIBUTE_DEF (cameraUpDirection, CameraUpDirection, IMATH_NAMESPACE::V3f)
 
@@ -812,6 +830,11 @@ IMF_STD_ATTRIBUTE_DEF (cameraUpDirection, CameraUpDirection, IMATH_NAMESPACE::V3
 //
 // If the cameraViewingDirection attribute is not present, then the camera's
 // viewing and up directions are undefined.
+//
+// Note that these coordinates are in the ACES Container coordinate system,
+// not the 3D coordinate system long present in OpenEXR. For conversion from
+// the former to the latter, see the documentation of the cameraPosition
+// attribute above.
 //
 
 IMF_STD_ATTRIBUTE_DEF (cameraViewingDirection, CameraViewingDirection, IMATH_NAMESPACE::V3f)
