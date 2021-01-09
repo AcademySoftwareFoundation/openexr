@@ -362,6 +362,18 @@ IMF_STD_ATTRIBUTE_DEF (tint, Tint, float)
 
 
 //
+// whiteBalanceFactors -- gain factors applied to sensor data,
+// normalized such that the green channel has a value of 1.0. 
+//
+// Excessively large amplification factors relative to the green
+// channel gain may be forensically useful when investigating
+// noisy red or blue channels.
+//
+
+IMF_STD_ATTRIBUTE_DEF (whiteBalanceFactors, WhiteBalanceFactors, IMATH_NAMESPACE::V3f)
+
+
+//
 // lensMake -- manufacturer or vendor of the lens
 //
 // If present, the value should contain only printable characters

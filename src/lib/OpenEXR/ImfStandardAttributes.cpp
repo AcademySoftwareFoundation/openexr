@@ -114,6 +114,7 @@ IMF_STD_ATTRIBUTE_IMP (cameraFirmwareVersion, CameraFirmwareVersion, std::string
 IMF_STD_ATTRIBUTE_IMP (isoSpeed, IsoSpeed, float)
 IMF_STD_ATTRIBUTE_IMP (colorTemperature, ColorTemperature, float)
 IMF_STD_ATTRIBUTE_IMP (tint, Tint, float)
+IMF_STD_ATTRIBUTE_IMP (whiteBalanceFactors, WhiteBalanceFactors, IMATH_NAMESPACE::V3f)
 IMF_STD_ATTRIBUTE_IMP (lensMake, LensMake, std::string)
 IMF_STD_ATTRIBUTE_IMP (lensModel, LensModel, std::string)
 IMF_STD_ATTRIBUTE_IMP (lensSerialNumber, LensSerialNumber, std::string)
