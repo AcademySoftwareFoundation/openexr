@@ -691,8 +691,9 @@ IMF_STD_ATTRIBUTE_DEF (captureRate, CaptureRate, Rational)
 
 
 //
-// timecodeRate -- the timecode rate of the image sequence to which
-// the image belongs, specified in timecodes per second
+// timecodeRate -- the timecode rate associated with the playback of
+// the image sequence to which the image belongs, specified in
+// timecodes per second
 //
 
 IMF_STD_ATTRIBUTE_DEF (timecodeRate, TimecodeRate, int)
