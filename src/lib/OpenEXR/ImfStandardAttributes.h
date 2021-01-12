@@ -415,14 +415,6 @@ IMF_STD_ATTRIBUTE_DEF (lensFirmwareVersion, LensFirmwareVersion, std::string)
 
 
 //
-// lensTemperature -- Celsius temperature of the lens at time the
-// image was captured
-//
-
-IMF_STD_ATTRIBUTE_DEF (lensTemperature, LensTemperature, float)
-
-
-//
 // lensAttributes -- lens metadata not specified in other predefined
 // attributes (such as aperture, fNumber, focus, focalLength, lensMake,
 // tStop, etc)

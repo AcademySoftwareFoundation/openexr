@@ -908,7 +908,6 @@ generatedFunctions ()
     assert (hasLensModel (header) == false);
     assert (hasLensSerialNumber (header) == false);
     assert (hasLensFirmwareVersion (header) == false);
-    assert (hasLensTemperature (header) == false);
     assert (hasLensAttributes (header) == false);
     assert (hasFocalPlaneImageSize (header) == false);
     assert (hasFocus (header) == false);
