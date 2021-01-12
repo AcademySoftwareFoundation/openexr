@@ -172,16 +172,16 @@ cachePadding (ptrdiff_t size)
 
     static int LOG2_CACHE_LINE_SIZE = 8;
 
-    int i = LOG2_CACHE_LINE_SIZE + 2;
+    size_t i = LOG2_CACHE_LINE_SIZE + 2;
 
     while ((size >> i) > 1)
 	++i;
 
-    if (size > (1 << (i + 1)) - 64)
-	return 64 + ((1 << (i + 1)) - size);
+    if (size > (1ll << (i + 1)) - 64ll)
+	return 64ll + ((1ll << (i + 1ll)) - size);
 
-    if (size < (1 << i) + 64)
-	return 64 + ((1 << i) - size);
+    if (size < (1ll << i) + 64ll)
+	return 64ll + ((1ll << i) - size);
 
     return 0;
 }
