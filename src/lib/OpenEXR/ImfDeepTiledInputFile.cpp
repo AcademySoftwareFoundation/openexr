@@ -65,6 +65,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <limits>
 
 #include "ImfNamespace.h"
 

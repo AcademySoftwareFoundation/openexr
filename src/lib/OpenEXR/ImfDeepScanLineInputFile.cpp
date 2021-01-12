@@ -69,6 +69,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <limits>
 
 #include "ImfNamespace.h"
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
