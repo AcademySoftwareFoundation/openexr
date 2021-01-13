@@ -1,0 +1,5 @@
+workspace(name = "openexr")
+
+load("//:bazel/third_party/openexr.bzl", "openexr_deps")
+
+openexr_deps()
