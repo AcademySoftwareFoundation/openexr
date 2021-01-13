@@ -1119,6 +1119,14 @@ hufUncompress (const char compressed[],
     if (FastHufDecoder::enabled() && nBits > 128)
     {
         FastHufDecoder fhd (ptr, nCompressed - (ptr - compressed), im, iM, iM);
+
+        // must be nBytes remaining in buffer
+        if( ptr-compressed  + nBytes > nCompressed)
+        {
+            notEnoughData();
+            return;
+        }
+
         fhd.decode ((unsigned char*)ptr, nBits, raw, nRaw);
     }
     else
