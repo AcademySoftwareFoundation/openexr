@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 2.5.4](#version-254-december-31-2020) December 31, 2020
 * [Version 2.5.3](#version-253-august-12-2020) August 12, 2020
 * [Version 2.5.2](#version-252-june-15-2020) June 15, 2020
 * [Version 2.5.1](#version-251-may-11-2020) May 11, 2020
@@ -36,6 +37,63 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 2.5.4 (December 31, 2020)
+
+Patch release with various bug/sanitizer/security fixes, primarily
+related to reading corrupted input files.
+
+Specific OSS-fuzz issues include:
+
+* OSS-fuzz [#24854](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=24854) Segv on unknown address in Imf_2_5::hufUncompress
+* OSS-fuzz [#24831](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=24831) Undefined-shift in Imf_2_5::FastHufDecoder::FastHufDecoder
+* OSS-fuzz [#24969](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=24969) Invalid-enum-value in Imf_2_5::TypedAttribute<Imf_2_5::Envmap>::writeValueTo
+* OSS-fuzz [#25297](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25297) Integer-overflow in Imf_2_5::calculateNumTiles
+* OSS-fuzz [#24787](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=24787) Undefined-shift in Imf_2_5::unpack14
+* OSS-fuzz [#25326](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25326) Out-of-memory in openexr_scanlines_fuzzer
+* OSS-fuzz [#25399](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25399) Heap-buffer-overflow in Imf_2_5::FastHufDecoder::FastHufDecoder
+* OSS-fuzz [#25415](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25415) Abrt in __cxxabiv1::failed_throw
+* OSS-fuzz [#25370](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25370) Out-of-memory in openexr_exrenvmap_fuzzer
+* OSS-fuzz [#25501](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25501) Out-of-memory in openexr_scanlines_fuzzer
+* OSS-fuzz [#25505](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25505) Heap-buffer-overflow in Imf_2_5::copyIntoFrameBuffer
+* OSS-fuzz [#25562](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25562) Integer-overflow in Imf_2_5::hufUncompress
+* OSS-fuzz [#25740](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25740) Null-dereference READ in Imf_2_5::Header::operator
+* OSS-fuzz [#25743](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25743) Null-dereference in Imf_2_5::MultiPartInputFile::header
+* OSS-fuzz [#25913](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25913) Out-of-memory in openexr_exrenvmap_fuzzer
+* OSS-fuzz [#26229](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=26229) Undefined-shift in Imf_2_5::hufDecode
+* OSS-fuzz [#26658](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=26658) Out-of-memory in openexr_scanlines_fuzzer
+* OSS-fuzz [#26956](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=26956) Heap-buffer-overflow in Imf_2_5::DeepTiledInputFile::readPixelSampleCounts
+* OSS-fuzz [#27409](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=27409) Out-of-memory in openexr_exrcheck_fuzzer
+* OSS-fuzz [#25892](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25892) Divide-by-zero in Imf_2_5::calculateNumTiles
+* OSS-fuzz [#25894](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25894) Floating-point-exception in Imf_2_5::precalculateTileInfo
+
+### Merged Pull Requests
+
+* [#817](https://github.com/AcademySoftwareFoundation/openexr/pull/817): double-check unpackedBuffer created in DWA uncompress (OSS-fuzz 24854)
+* [#818](https://github.com/AcademySoftwareFoundation/openexr/pull/818): compute Huf codelengths using 64 bit to prevent shift overrflow (OSS-fuzz 24831)
+* [#820](https://github.com/AcademySoftwareFoundation/openexr/pull/820): suppress sanitizer warnings when writing invalid enums (OSS-fuzz 24969)
+* [#825](https://github.com/AcademySoftwareFoundation/openexr/pull/825): Avoid overflow in calculateNumTiles when size=MAX_INT (OSS-fuzz 25297)
+* [#826](https://github.com/AcademySoftwareFoundation/openexr/pull/826): restrict maximum tile size to INT_MAX byte limit (OSS-fuzz 25297)
+* [#832](https://github.com/AcademySoftwareFoundation/openexr/pull/832): ignore unused bits in B44 mode detection (OSS-fuzz 24787)
+* [#827](https://github.com/AcademySoftwareFoundation/openexr/pull/827): lighter weight reading of Luma-only images via RgbaInputFile (OSS-fuzz 25326)
+* [#829](https://github.com/AcademySoftwareFoundation/openexr/pull/829): fix buffer overflow check in PIZ decompression (OSS-fuzz 25399, OSS-fuzz 25415)
+* [#830](https://github.com/AcademySoftwareFoundation/openexr/pull/830): refactor channel filling in InputFile API with tiled source (OSS-fuzz 25370 , OSS-fuzz 25501)
+* [#831](https://github.com/AcademySoftwareFoundation/openexr/pull/ #831): Use Int64 in dataWindowForTile to prevent integer overflow (OSS-fuzz 25505)
+* [#836](https://github.com/AcademySoftwareFoundation/openexr/pull/836): prevent overflow in hufUncompress if nBits is large (OSS-fuzz 25562)
+* [#840](https://github.com/AcademySoftwareFoundation/openexr/pull/840): add sanity check for reading multipart files with no parts (OSS-fuzz 25740 , OSS-fuzz 25743)
+* [#841](https://github.com/AcademySoftwareFoundation/openexr/pull/841): more elegant exception handling in exrmaketiled (ZhiWei Sun from Topsec Alpha Lab)
+* [#843](https://github.com/AcademySoftwareFoundation/openexr/pull/843): reduce B44 _tmpBufferSize (was allocating two bytes per byte) (OSS-fuzz 25913)
+* [#844](https://github.com/AcademySoftwareFoundation/openexr/pull/844): check EXRAllocAligned succeeded to allocate ScanlineInputFile lineBuffers (ZhiWei Sun from Topsec Alpha Lab)
+* [#845](https://github.com/AcademySoftwareFoundation/openexr/pull/845): test channels are DCT compressed before DWA decompression (ZhiWei Sun from Topsec Alpha Lab)
+* [#849](https://github.com/AcademySoftwareFoundation/openexr/pull/849): check for valid Huf code lengths (OSS-fuzz 26229)
+* [#860](https://github.com/AcademySoftwareFoundation/openexr/pull/860): check 1 part files with 'nonimage' bit have type attribute (OSS-fuzz 26658)
+* [#861](https://github.com/AcademySoftwareFoundation/openexr/pull/861): Fix overflow computing deeptile sample table size (OSS-fuzz 26956)
+* [#863](https://github.com/AcademySoftwareFoundation/openexr/pull/863): re-order shift/compare in FastHuf to prevent undefined shift overflow (OSS-fuzz 27409)
+* Also, partial fixes from [#842](https://github.com/AcademySoftwareFoundation/openexr/pull/842) which do not change the ABI: (OSS-fuzz 25892 , OSS-fuzz 25894)
+
+### Commits \[ git log v2.5.3...v2.5.4\]
+
+* [0c2b46f6](https://github.com/AcademySoftwareFoundation/openexr/commit/0c2b46f630a3b5f2f561c2849d047ee39f899179) Cherry-pick PRs from master branch which fix issues reported by fuzz tests (#875) ([peterhillman](@peterh@wetafx.co.nz) 2020-12-31)
 
 ## Version 2.5.3 (August 12, 2020)
 
@@ -641,9 +699,11 @@ This version fixes the following security vulnerabilities:
 
 This version fixes the following security vulnerabilities:
 
-* [CVE-2018-18444](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18444) [Issue #351](https://github.com/openexr/openexr/issues/351) Out of Memory
-* [CVE-2018-18443](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18443) [Issue #350](https://github.com/openexr/openexr/issues/350) heap-buffer-overflow
-* [CVE-2017-12596](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-12596) [Issue #238](https://github.com/openexr/openexr/issues/238) heap-based buffer overflow in exrmaketiled
+* [CVE-2020-16589](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-16589) A head-based buffer overflow exists in Academy Software Foundation OpenEXR 2.3.0 in writeTileData in ImfTiledOutputFile.cpp that can cause a denial of service via a crafted EXR file.
+* [CVE-2020-16588](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-16588) A Null Pointer Deference issue exists in Academy Software Foundation OpenEXR 2.3.0 in generatePreview in makePreview.cpp that can cause a denial of service via a crafted EXR file.
+* [CVE-2020-16587](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-16587) A heap-based buffer overflow vulnerability exists in Academy Software Foundation OpenEXR 2.3.0 in chunkOffsetReconstruction in ImfMultiPartInputFile.cpp that can cause a denial of service via a crafted EXR file.
+* [CVE-2018-18444](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18444) makeMultiView.cpp in exrmultiview in OpenEXR 2.3.0 has an out-of-bounds write, leading to an assertion failure or possibly unspecified other impact.
+* [CVE-2018-18443](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18443) OpenEXR 2.3.0 has a memory leak in ThreadPool in IlmBase/IlmThread/IlmThreadPool.cpp, as demonstrated by exrmultiview.
 
 ### Closed Issues
 
