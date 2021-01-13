@@ -64,6 +64,8 @@
 #include <vector>
 #include <algorithm>
 #include <assert.h>
+#include <string>
+#include <vector>
 #include <limits>
 
 #include "ImfNamespace.h"

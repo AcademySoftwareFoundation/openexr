@@ -65,12 +65,11 @@
 
 #include "Iex.h"
 
+#include <algorithm>
+#include <assert.h>
 #include <string>
 #include <vector>
-#include <assert.h>
 #include <limits>
-#include <algorithm>
-
 
 #include "ImfNamespace.h"
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
