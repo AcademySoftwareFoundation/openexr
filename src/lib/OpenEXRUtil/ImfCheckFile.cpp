@@ -32,12 +32,12 @@ int
 getStep( const Box2i &dw , bool reduceTime)
 {
 
-    // limit to approximately 2,000,000 pixels in fast mode
+    // limit to approximately 2,000,000 pixels or 2000 rows in fast mode
     if (reduceTime)
     {
-        size_t pixelCount = (dw.max.y - dw.min.y + 1);
-        pixelCount *= (dw.max.x - dw.min.x + 1);
-        return  max( 1 , static_cast<int>(pixelCount / 2000000) );
+        size_t rowCount = (dw.max.y - dw.min.y + 1);
+        size_t pixelCount = rowCount * (dw.max.x - dw.min.x + 1);
+        return  max( 1 , max ( static_cast<int>(pixelCount / 2000000) , static_cast<int>(rowCount / 2000) ) );
     }
     else
     {
@@ -405,7 +405,7 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
             //
             // limit total number of samples read in reduceMemory mode
             //
-            if (!reduceMemory || bufferSize < 1<<12)
+            if (!reduceMemory || bufferSize < 1<<10)
             {
                 //
                 // allocate sample buffer and set per-pixel pointers into buffer
@@ -645,6 +645,15 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
     for(int part = 0 ; part < in.parts() ; ++ part)
     {
 
+        bool widePart = false;
+        Box2i b = in.header( part ).dataWindow();
+        if (b.max.x - b.min.x > 1000000)
+        {
+             widePart = true;
+        }
+
+
+       if (!reduceMemory || !widePart)
        {
             bool gotThrow = false;
             try
@@ -684,6 +693,8 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
             }
        }
 
+
+       if (!reduceMemory || !widePart)
        {
             bool gotThrow = false;
 
@@ -820,21 +831,32 @@ void resetInput(PtrIStream& stream)
 }
 
 
+
 template<class T> bool
 runChecks(T& source,bool reduceMemory,bool reduceTime)
 {
     //
     // multipart test: also grab the type of the first part to
     // check which other tests are expected to fail
+    // check the image width for the first part - significant memory
+    // is required to process wide parts
     //
 
     string firstPartType;
+    bool firstPartWide = false;
+
     bool threw = false;
     {
       try
       {
          MultiPartInputFile multi(source);
          firstPartType = multi.header(0).type();
+         Box2i b = multi.header(0).dataWindow();
+         if (b.max.x - b.min.x > 1000000)
+         {
+             firstPartWide = true;
+         }
+
          threw = readMultiPart(multi , reduceMemory , reduceTime);
       }
       catch(...)
@@ -843,40 +865,46 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
       }
 
     }
+
+    // read using both scanline interfaces (unless the image is wide and reduce memory enabled)
+    if( !reduceMemory || !firstPartWide)
     {
-        bool gotThrow = false;
-        resetInput(source);
-        try
         {
-          RgbaInputFile rgba(source);
-          gotThrow = readRgba( rgba, reduceMemory , reduceTime );
+            bool gotThrow = false;
+            resetInput(source);
+            try
+            {
+            RgbaInputFile rgba(source);
+            gotThrow = readRgba( rgba, reduceMemory , reduceTime );
+            }
+            catch(...)
+            {
+                gotThrow = true;
+            }
+            if (gotThrow && firstPartType != DEEPTILE)
+            {
+                threw = true;
+            }
         }
-        catch(...)
         {
-            gotThrow = true;
-        }
-        if (gotThrow && firstPartType != DEEPTILE)
-        {
-            threw = true;
+            bool gotThrow = false;
+            resetInput(source);
+            try
+            {
+            InputFile rgba(source);
+            gotThrow = readScanline( rgba, reduceMemory , reduceTime );
+            }
+            catch(...)
+            {
+                gotThrow = true;
+            }
+            if (gotThrow && firstPartType != DEEPTILE)
+            {
+                threw = true;
+            }
         }
     }
-    {
-        bool gotThrow = false;
-        resetInput(source);
-        try
-        {
-          InputFile rgba(source);
-          gotThrow = readScanline( rgba, reduceMemory , reduceTime );
-        }
-        catch(...)
-        {
-            gotThrow = true;
-        }
-        if (gotThrow && firstPartType != DEEPTILE)
-        {
-            threw = true;
-        }
-    }
+
     {
         bool gotThrow = false;
         resetInput(source);
@@ -895,6 +923,7 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
         }
     }
 
+    if( !reduceMemory || !firstPartWide )
     {
         bool gotThrow = false;
         resetInput(source);
@@ -912,6 +941,7 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
             threw = true;
         }
     }
+
     {
         bool gotThrow = false;
         resetInput(source);
