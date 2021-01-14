@@ -16,7 +16,7 @@
 #include "ImfMultiPartInputFile.h"
 
 #include <vector>
-
+#include <algorithm>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
