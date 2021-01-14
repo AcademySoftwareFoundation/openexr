@@ -2932,7 +2932,7 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     // of channels we have. 
     //
 
-    int maxOutBufferSize  = 0;
+    size_t maxOutBufferSize  = 0;
     int numLossyDctChans  = 0;
     int unknownBufferSize = 0;
     int rleBufferSize     = 0;
@@ -2959,8 +2959,8 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
             //
 
             maxOutBufferSize += std::max(
-                            (int)(2 * maxLossyDctAcSize + 65536),
-                            (int)compressBound (maxLossyDctAcSize) );
+                            2lu * maxLossyDctAcSize + 65536lu,
+                            compressBound (maxLossyDctAcSize) );
             numLossyDctChans++;
             break;
 
@@ -2999,13 +2999,13 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     // which could take slightly more space
     //
 
-    maxOutBufferSize += (int)compressBound ((uLongf)rleBufferSize);
+    maxOutBufferSize += compressBound ((uLongf)rleBufferSize);
     
     //
     // And the same goes for the UNKNOWN data
     //
 
-    maxOutBufferSize += (int)compressBound ((uLongf)unknownBufferSize);
+    maxOutBufferSize += compressBound ((uLongf)unknownBufferSize);
 
     //
     // Allocate a zip/deflate compressor big enought to hold the DC data
