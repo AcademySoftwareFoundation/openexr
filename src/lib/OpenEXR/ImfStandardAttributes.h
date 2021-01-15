@@ -321,58 +321,6 @@ IMF_STD_ATTRIBUTE_DEF (cameraFirmwareVersion, CameraFirmwareVersion, std::string
 IMF_STD_ATTRIBUTE_DEF (isoSpeed, IsoSpeed, float)
 
 
-// colorTemperature -- correlated color temperature, in Kelvin,
-// in effect for the software or hardware creating or capturing
-// the image
-//
-// The colorTemperature attribute's value is primarily forensic,
-// and indicates the stated color balance of a film stock, or the
-// color temperature chosen as a part of a real or virtual digital
-// camera's white balance settings. It should be noted that there
-// is no consensus amongst camera manufacturers as to what CIE
-// 1960 UCS uv chromaticity pertains to a particular correlated
-// color temperature, especially in that region of temperatures
-// that could be considered a high-end Planckian curve temperature
-// or a low-end CIE D-series illuminant temperature.
-//
-
-IMF_STD_ATTRIBUTE_DEF (colorTemperature, ColorTemperature, float)
-
-
-//
-// tint - green / magenta tint in effect for the software or
-// hardware creating or capturing the image, modifying the white
-// point suggested by the colorTemperature attribute
-//
-// As with colorTemperature, the tint attribute's value is primarily
-// forensic; tint has no metric set by any normative body, and
-// different camera vendors assign different meanings to the numbers.
-// For one vendor, positive units of tint correspond to a green shift
-// equal to that effected by a Kodak CC035G or Rosco E-Colour
-// Eighth Plus Green filter, and negative units of tint correspond to
-// a magenta shift equal to that effected by a Kodak CC035M or Rosco
-// E-Colour Eighth Minus Green filter; but another vendor might assign
-// a wholly different meaning to tint numbers.
-//
-// If the tint attribute is present, the colorTemperature attribute
-// is required to give context to the tint.
-//
-
-IMF_STD_ATTRIBUTE_DEF (tint, Tint, float)
-
-
-//
-// whiteBalanceFactors -- gain factors applied to sensor data,
-// normalized such that the green channel has a value of 1.0. 
-//
-// Excessively large amplification factors relative to the green
-// channel gain may be forensically useful when investigating
-// noisy red or blue channels.
-//
-
-IMF_STD_ATTRIBUTE_DEF (whiteBalanceFactors, WhiteBalanceFactors, IMATH_NAMESPACE::V3f)
-
-
 //
 // lensMake -- manufacturer or vendor of the lens
 //
@@ -405,16 +353,6 @@ IMF_STD_ATTRIBUTE_DEF (lensSerialNumber, LensSerialNumber, std::string)
 
 
 //
-// lensFirmwareVersion -- firmware version of the lens
-//
-// If present, the value should contain only printable characters
-// and have a nonzero length.
-//
-
-IMF_STD_ATTRIBUTE_DEF (lensFirmwareVersion, LensFirmwareVersion, std::string)
-
-
-//
 // lensAttributes -- lens metadata not specified in other predefined
 // attributes (such as aperture, fNumber, focus, focalLength, lensMake,
 // tStop, etc)
@@ -425,15 +363,6 @@ IMF_STD_ATTRIBUTE_DEF (lensFirmwareVersion, LensFirmwareVersion, std::string)
 //
 
 IMF_STD_ATTRIBUTE_DEF (lensAttributes, LensAttributes, std::string)
-
-
-//
-// focalPlaneImageSize -- width and height in millimeters of the area
-// on the focal plane corresponding to the pixels in the data window,
-// with x defining the width and y defining the height
-//
-
-IMF_STD_ATTRIBUTE_DEF (focalPlaneImageSize, FocalPlaneImageSize, IMATH_NAMESPACE::V2f)
 
 
 //
@@ -448,15 +377,6 @@ IMF_STD_ATTRIBUTE_DEF (focus, Focus, float)
 
 
 //
-// entrancePupilOffset -- distance in millimeters between the entrance
-// pupil of a lens and the point where that lens's optical axis 
-// intersects the film or sensor plane
-//
-
-IMF_STD_ATTRIBUTE_DEF (entrancePupilOffset, EntrancePupilOffset, float)
-
-
-//
 // focalLength -- the focal length of the lens, in millimeters, when
 // the image was created or captured
 //
@@ -468,16 +388,6 @@ IMF_STD_ATTRIBUTE_DEF (entrancePupilOffset, EntrancePupilOffset, float)
 // 
 
 IMF_STD_ATTRIBUTE_DEF (focalLength, FocalLength, float)
-
-
-//
-// effectiveFocalLength -- focal length in millimeters of a hypothetical
-// lens the field of view of which matches the actual field of view of the
-// lens used in creating or capturing the image and which exhibits
-// no 'focus breathing'
-//
-
-IMF_STD_ATTRIBUTE_DEF (effectiveFocalLength, EffectiveFocalLength, float)
 
 
 //
@@ -503,24 +413,6 @@ IMF_STD_ATTRIBUTE_DEF (effectiveFocalLength, EffectiveFocalLength, float)
 //
 
 IMF_STD_ATTRIBUTE_DEF (aperture, Aperture, float)
-
-
-//
-// fNumber -- ratio of lens infinite image focal length to diameter
-// of lens entrance pupil at the time the image was created or captured
-// 
-
-IMF_STD_ATTRIBUTE_DEF (fNumber, FNumber, float)
-
-
-//
-// tStop -- f-number of an ideal lens of 100% transmittance that would
-// produce the same image illuminance on axis as the actual lens to
-// which the attribute pertains, at the aperture at which the lens
-// was configured during image creation or capture.
-//
-
-IMF_STD_ATTRIBUTE_DEF (tStop, TStop, float)
 
 
 //
@@ -735,18 +627,6 @@ IMF_STD_ATTRIBUTE_DEF (imageCounter, ImageCounter, int)
 //
 
 IMF_STD_ATTRIBUTE_DEF (framesPerSecond, FramesPerSecond, Rational)
-
-
-//
-// framelines -- set of rectangles used for creative purposes, e.g. to
-// indicate safe areas, cropping for derivative image sequences, etc
-//
-// The way in which the format encodes these rectangles is not defined;
-// the encoding might be camera-vendor-specific, or it might be formally
-// or informally standardized (e.g. an ASC Frameline Decision List)
-//
-
-IMF_STD_ATTRIBUTE_DEF (framelines, Framelines, std::string)
 
 
 //
