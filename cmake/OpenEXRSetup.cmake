@@ -5,7 +5,7 @@ include(GNUInstallDirs)
 
 if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}")
   set(OPENEXR_IS_SUBPROJECT ON)
-  message(NOTICE "OpenEXR is configuring as a cmake sub project")
+  message(STATUS "OpenEXR is configuring as a cmake subproject")
 endif()
 
 ########################
@@ -165,9 +165,9 @@ endif()
 if(OPENEXR_FORCE_INTERNAL_ZLIB OR NOT ZLIB_FOUND)
   set(zlib_VER "1.2.11")
   if(OPENEXR_FORCE_INTERNAL_ZLIB)
-    message(NOTICE "Compiling internal copy of zlib version ${zlib_VER}")
+    message(STATUS "Compiling internal copy of zlib version ${zlib_VER}")
   else()
-    message(NOTICE "ZLIB library not found, compiling ${zlib_VER}")
+    message(STATUS "zlib library not found, compiling ${zlib_VER}")
   endif()
 
   # Unfortunately, zlib has an ancient cmake setup which does not include
@@ -255,7 +255,7 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
   if (${CMAKE_VERSION} VERSION_LESS "3.11.0")
     message(FATAL_ERROR "CMake 3.11 or newer is required for FetchContent, you must manually install Imath if you are using an earlier version of CMake")
   endif()
-  message(NOTICE "Imath was not found, installing from github")
+  message(STATUS "Imath was not found, installing from github")
   
   include(FetchContent)
   FetchContent_Declare(Imath

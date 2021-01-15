@@ -179,7 +179,7 @@ if(OPENEXR_INSTALL_PKG_CONFIG)
   openexr_pkg_config_help(OpenEXR.pc.in)
   openexr_pkg_config_help(IlmBase.pc.in)
 else()
-  message(NOTICE "-- WARNING pkg-config generation disabled")
+  message(STATUS "-- pkg-config generation disabled")
 endif()
 
 ###################################################
