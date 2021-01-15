@@ -114,7 +114,7 @@ IMF_STD_ATTRIBUTE_DEF (acesImageContainerFlag, AcesImageContainerFlag, int)
 // unaltered original from a source such as an electronic camera, a film
 // scanner, or a computer graphics rendering engine
 //
-// A value of 1 indicates the image is an unaltered orginal, and a value
+// A value of 1 indicates the image is an unaltered original, and a value
 //  of 0 indicates that the image has been altered in some way. Values
 // other than 0 or 1 are undefined and should not be used.
 //
