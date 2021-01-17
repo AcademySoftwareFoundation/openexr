@@ -2934,8 +2934,8 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
 
     size_t maxOutBufferSize  = 0;
     int numLossyDctChans  = 0;
-    int unknownBufferSize = 0;
-    int rleBufferSize     = 0;
+    size_t unknownBufferSize = 0;
+    size_t rleBufferSize     = 0;
 
     int maxLossyDctAcSize = (int)ceil ((float)numScanLines() / 8.0f) * 
                             (int)ceil ((float)(_max[0] - _min[0] + 1) / 8.0f) *
@@ -2944,6 +2944,8 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     int maxLossyDctDcSize = (int)ceil ((float)numScanLines() / 8.0f) * 
                             (int)ceil ((float)(_max[0] - _min[0] + 1) / 8.0f) *
                             sizeof (unsigned short);
+
+    size_t pixelCount = static_cast<size_t>(numScanLines()) * static_cast<size_t>(_max[0] - _min[0] + 1);
 
     for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
     {
@@ -2971,8 +2973,7 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
                 // of the source data.
                 //
 
-                int rleAmount = 2 * numScanLines() * (_max[0] - _min[0] + 1) *
-                                OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
+                size_t rleAmount = 2 * pixelCount * OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
 
                 rleBufferSize += rleAmount;
             }
@@ -2981,8 +2982,7 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
 
           case UNKNOWN:
 
-            unknownBufferSize += numScanLines() * (_max[0] - _min[0] + 1) *
-                                 OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
+            unknownBufferSize += pixelCount * OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
             break;
 
           default:
@@ -2999,13 +2999,13 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     // which could take slightly more space
     //
 
-    maxOutBufferSize += compressBound ((uLongf)rleBufferSize);
+    maxOutBufferSize += compressBound (rleBufferSize);
     
     //
     // And the same goes for the UNKNOWN data
     //
 
-    maxOutBufferSize += compressBound ((uLongf)unknownBufferSize);
+    maxOutBufferSize += compressBound (unknownBufferSize);
 
     //
     // Allocate a zip/deflate compressor big enought to hold the DC data
@@ -3072,7 +3072,7 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
         _packedDcBuffer     = new char[_packedDcBufferSize];
     }
 
-    if (static_cast<size_t>(rleBufferSize) > _rleBufferSize) 
+    if ( rleBufferSize > _rleBufferSize )
     {
         _rleBufferSize = rleBufferSize;
         if (_rleBuffer != 0) 
@@ -3091,7 +3091,7 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     // all in one swoop (for each compression scheme).
     //
 
-    int planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
+    size_t planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
     for (int i=0; i<NUM_COMPRESSOR_SCHEMES; ++i)
         planarUncBufferSize[i] = 0;
 
@@ -3103,14 +3103,12 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
             break;
 
           case RLE:
-            planarUncBufferSize[RLE] +=
-                     numScanLines() * (_max[0] - _min[0] + 1) *
+            planarUncBufferSize[RLE] += pixelCount *
                      OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
             break;
 
           case UNKNOWN: 
-            planarUncBufferSize[UNKNOWN] +=
-                     numScanLines() * (_max[0] - _min[0] + 1) *
+            planarUncBufferSize[UNKNOWN] += pixelCount *
                      OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
             break;
 
@@ -3128,12 +3126,12 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     if (planarUncBufferSize[UNKNOWN] > 0)
     {
         planarUncBufferSize[UNKNOWN] = 
-            compressBound ((uLongf)planarUncBufferSize[UNKNOWN]);
+            compressBound (planarUncBufferSize[UNKNOWN]);
     }
 
     for (int i = 0; i < NUM_COMPRESSOR_SCHEMES; ++i)
     {
-        if (static_cast<size_t>(planarUncBufferSize[i]) > _planarUncBufferSize[i]) 
+        if ( planarUncBufferSize[i] > _planarUncBufferSize[i])
         {
             _planarUncBufferSize[i] = planarUncBufferSize[i];
             if (_planarUncBuffer[i] != 0) 
