@@ -27,24 +27,14 @@ using std::vector;
 using std::max;
 using Imath::Box2i;
 
-
-int
-getStep( const Box2i &dw , bool reduceTime)
-{
-
-    // limit to approximately 2,000,000 pixels or 2000 rows in fast mode
-    if (reduceTime)
-    {
-        size_t rowCount = (dw.max.y - dw.min.y + 1);
-        size_t pixelCount = rowCount * (dw.max.x - dw.min.x + 1);
-        return  max( 1 , max ( static_cast<int>(pixelCount / 2000000) , static_cast<int>(rowCount / 2000) ) );
-    }
-    else
-    {
-        return 1;
-    }
-
-}
+//
+// limits for reduceMemory mode
+//
+const int gMaxScanlineWidth= 1000000;
+const int gMaxTilePixelsPerScanline = 8000000;
+const int gMaxTileSize = 1000*1000;
+const int gMaxSamplesPerDeepPixel = 1000;
+const int gMaxSamplesPerScanline = 1<<12;
 
 //
 // read image or part using the Rgba interface
@@ -62,7 +52,7 @@ readRgba(T& in, bool reduceMemory , bool reduceTime)
         int w = dw.max.x - dw.min.x + 1;
         int dx = dw.min.x;
 
-        if (reduceMemory && w > (1 << 10))
+        if (reduceMemory && w > gMaxScanlineWidth )
         {
             return false;
         }
@@ -70,9 +60,7 @@ readRgba(T& in, bool reduceMemory , bool reduceTime)
         Array<Rgba> pixels (w);
         in.setFrameBuffer (&pixels[-dx], 1, 0);
 
-
-
-        int step = getStep( dw , reduceTime );
+        int step = 1;
 
         //
         // try reading scanlines. Continue reading scanlines
@@ -87,6 +75,15 @@ readRgba(T& in, bool reduceMemory , bool reduceTime)
             catch(...)
             {
                 threw = true;
+
+                //
+                // in reduceTime mode, fail immediately - the file is corrupt
+                //
+                if (reduceTime)
+                {
+                    return threw;
+                }
+
             }
         }
     }
@@ -112,7 +109,7 @@ readScanline(T& in, bool reduceMemory , bool reduceTime)
         int w = dw.max.x - dw.min.x + 1;
         int dx = dw.min.x;
 
-        if (reduceMemory && w > (1 << 10))
+        if (reduceMemory && w > gMaxScanlineWidth )
         {
             return false;
         }
@@ -143,9 +140,7 @@ readScanline(T& in, bool reduceMemory , bool reduceTime)
 
         in.setFrameBuffer(i);
 
-        int step = getStep( dw , reduceTime );
-
-
+        int step = 1;
 
         //
         // try reading scanlines. Continue reading scanlines
@@ -160,6 +155,15 @@ readScanline(T& in, bool reduceMemory , bool reduceTime)
             catch(...)
             {
                 threw = true;
+
+                //
+                // in reduceTime mode, fail immediately - the file is corrupt
+                //
+                if (reduceTime)
+                {
+                    return threw;
+                }
+
             }
         }
     }
@@ -182,7 +186,7 @@ readTileRgba( T& in,bool reduceMemory, bool reduceTime)
         int w = dw.max.x - dw.min.x + 1;
         int h = dw.max.y - dw.min.y + 1;
 
-        if ( (reduceMemory || reduceTime ) && h*w > 1000*1000)
+        if ( (reduceMemory || reduceTime ) && h*w > gMaxTileSize )
         {
             return false;
         }
@@ -216,16 +220,14 @@ readTile(T& in, bool reduceMemory , bool reduceTime)
         const Box2i& dw = in.header().dataWindow();
 
         int w = dw.max.x - dw.min.x + 1;
-        int h = dw.max.y - dw.min.y + 1;
         int dwx = dw.min.x;
-        int dwy = dw.min.y;
         int numXLevels = in.numXLevels();
         int numYLevels = in.numYLevels();
 
         const TileDescription& td = in.header().tileDescription();
 
 
-        if (reduceMemory && w > (1 << 10))
+        if (reduceMemory && (w > gMaxScanlineWidth || (td.xSize*td.ySize) > gMaxTileSize) )
         {
                 return false;
         }
@@ -253,18 +255,7 @@ readTile(T& in, bool reduceMemory , bool reduceTime)
 
         in.setFrameBuffer (i);
 
-
-        //
-        // limit to 2,000 tiles
-        //
         size_t step = 1;
-
-        if (reduceTime && in.numXTiles(0) * in.numYTiles(0) > 2000)
-        {
-            step = max(1, (in.numXTiles(0) * in.numYTiles(0)) / 2000 );
-        }
-
-
 
         size_t tileIndex =0;
         bool isRipMap = td.mode == RIPMAP_LEVELS;
@@ -297,6 +288,14 @@ readTile(T& in, bool reduceMemory , bool reduceTime)
                                 if (isRipMap || xlevel==ylevel)
                                 {
                                     threw = true;
+
+                                    //
+                                    // in reduceTime mode, fail immediately - the file is corrupt
+                                    //
+                                    if (reduceTime)
+                                    {
+                                        return threw;
+                                    }
                                 }
                             }
                         }
@@ -327,9 +326,8 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
 
         int w = dw.max.x - dw.min.x + 1;
         int dwx = dw.min.x;
-        int dwy = dw.min.y;
 
-        if ( reduceMemory && w > (1 << 8) )
+        if ( reduceMemory && w > gMaxScanlineWidth )
         {
             return false;
         }
@@ -371,11 +369,6 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
         in.setFrameBuffer(frameBuffer);
 
         int step = 1;
-        // only read 200 scanlines in fast mode
-        if (reduceTime)
-        {
-           step = max( 1 , (dw.max.y - dw.min.y + 1) / 200 );
-        }
 
         vector<float> pixelBuffer;
 
@@ -395,7 +388,7 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
                     //
                     // don't read samples which require a lot of memory in reduceMemory mode
                     //
-                    if (!reduceMemory || localSampleCount[j] <= 1000)
+                    if (!reduceMemory || localSampleCount[j] <= gMaxSamplesPerDeepPixel )
                     {
                         bufferSize += localSampleCount[j];
                     }
@@ -405,7 +398,7 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
             //
             // limit total number of samples read in reduceMemory mode
             //
-            if (!reduceMemory || bufferSize < 1<<10)
+            if (!reduceMemory || bufferSize < gMaxScanlineWidth )
             {
                 //
                 // allocate sample buffer and set per-pixel pointers into buffer
@@ -418,7 +411,7 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
                     for (int k = 0; k < channelCount; k++)
                     {
 
-                        if (reduceMemory && localSampleCount[j] > 1000)
+                        if (reduceMemory && localSampleCount[j] > gMaxSamplesPerDeepPixel )
                         {
                             data[k][j] = nullptr;
                         }
@@ -437,6 +430,13 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
                 catch(...)
                 {
                     threw = true;
+                    //
+                    // in reduceTime mode, fail immediately - the file is corrupt
+                    //
+                    if (reduceTime)
+                    {
+                        return threw;
+                    }
                 }
             }
 
@@ -524,11 +524,6 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
          in.setFrameBuffer(frameBuffer);
          size_t step = 1;
 
-         if (reduceTime && in.numXTiles(0) * in.numYTiles(0) > 2000)
-         {
-            step = max(1, (in.numXTiles(0) * in.numYTiles(0)) / 2000 );
-         }
-
          int tileIndex = 0;
          bool isRipMap = td.mode == RIPMAP_LEVELS;
 
@@ -567,7 +562,7 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
                                         {
                                             for (int tx = 0 ; tx < tileWidth ; ++tx )
                                             {
-                                                if (!reduceMemory || localSampleCount[ty][tx] <  100)
+                                                if (!reduceMemory || localSampleCount[ty][tx] < gMaxSamplesPerDeepPixel )
                                                 {
                                                     bufferSize += channelCount * localSampleCount[ty][tx];
                                                 }
@@ -575,7 +570,7 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
                                         }
 
                                         // limit total samples allocated for this tile
-                                        if (!reduceMemory || bufferSize < 1<<12)
+                                        if (!reduceMemory || bufferSize < gMaxSamplesPerScanline )
                                         {
 
                                             pixelBuffer.resize( bufferSize );
@@ -585,7 +580,7 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
                                             {
                                                 for (int tx = 0 ; tx < tileWidth ; ++tx )
                                                 {
-                                                    if (!reduceMemory || localSampleCount[ty][tx] <  100)
+                                                    if (!reduceMemory || localSampleCount[ty][tx] <  gMaxSamplesPerDeepPixel )
                                                     {
                                                         for (int k = 0 ; k < channelCount ; ++k )
                                                         {
@@ -619,6 +614,13 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
                                         if (isRipMap || xlevel==ylevel)
                                         {
                                             threw = true;
+                                            //
+                                            // in reduceTime mode, fail immediately - the file is corrupt
+                                            //
+                                            if (reduceTime)
+                                            {
+                                                return threw;
+                                            }
                                         }
 
                                     }
@@ -647,9 +649,29 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
 
         bool widePart = false;
         Box2i b = in.header( part ).dataWindow();
-        if (b.max.x - b.min.x > 1000000)
+
+         //
+         // very wide scanline parts take excessive memory to read.
+         // detect that here so that tests can be skipped when reduceMemory is set
+         //
+
+
+        if (b.max.x - b.min.x > gMaxScanlineWidth )
         {
-             widePart = true;
+            widePart = true;
+
+        }
+        //
+        // significant memory is also required to read a tiled part
+        // using the scanline interface with tall tiles - the scanlineAPI
+        // needs to allocate memory to store an entire row of tiles
+        //
+        if (isTiled(in.header( part ).type()))
+        {
+            if ( in.header( part ).tileDescription().ySize *  (b.max.x-b.min.x+1) > gMaxTilePixelsPerScanline )
+            {
+                widePart = true;
+            }
         }
 
 
@@ -819,7 +841,7 @@ class PtrIStream: public IStream
 
 
 
-void resetInput(const char*fileName)
+void resetInput(const char* /*fileName*/)
 {
     // do nothing: filename doesn't need to be 'reset' between calls
 }
@@ -852,10 +874,29 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
          MultiPartInputFile multi(source);
          firstPartType = multi.header(0).type();
          Box2i b = multi.header(0).dataWindow();
-         if (b.max.x - b.min.x > 1000000)
+
+         //
+         // scanline images with very wide parts take excessive memory to read
+         // detect that here so that tests can be skipped when reduceMemory is set
+         //
+         if (b.max.x - b.min.x > gMaxScanlineWidth )
          {
              firstPartWide = true;
          }
+         //
+         // significant memory is also required to read a tiled file
+         // using the scanline interface with tall tiles - the scanlineAPI
+         // needs to allocate memory to store an entire row of tiles
+         //
+
+         if (isTiled(firstPartType))
+         {
+             if ( multi.header(0).tileDescription().ySize *  (b.max.x-b.min.x+1) > gMaxTilePixelsPerScanline )
+             {
+                 firstPartWide = true;
+             }
+         }
+
 
          threw = readMultiPart(multi , reduceMemory , reduceTime);
       }
