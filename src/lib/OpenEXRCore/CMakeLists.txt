@@ -68,3 +68,5 @@ openexr_define_library(OpenEXRCore
   DEPENDENCIES
     ZLIB::ZLIB
   )
+
+target_link_libraries(OpenEXRCore PUBLIC ${OPENEXR_EXTRA_MATH_LIB})

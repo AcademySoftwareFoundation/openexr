@@ -64,6 +64,11 @@ else()
   set(OPENEXR_ENABLE_API_VISIBILITY ON)
 endif()
 
+check_library_exists(m fpclassify "" HAVE_LIB_M)
+if (HAVE_LIB_M)
+  set(OPENEXR_EXTRA_MATH_LIB m)
+endif()
+
 configure_file(OpenEXRConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h)
 configure_file(OpenEXRConfigInternal.h.in ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigInternal.h)
 
