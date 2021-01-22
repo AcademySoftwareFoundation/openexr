@@ -26,58 +26,58 @@ extern "C" {
 /** Data types allowed for a channel */
 typedef enum
 {
-    EXR_DEF(PIXEL_UINT) = 0,
-    EXR_DEF(PIXEL_HALF) = 1,
-    EXR_DEF(PIXEL_FLOAT) = 2,
-    EXR_DEF(PIXEL_LAST_TYPE)
-} EXR_TYPE(PIXEL_TYPE);
+    EXR_PIXEL_UINT = 0,
+    EXR_PIXEL_HALF = 1,
+    EXR_PIXEL_FLOAT = 2,
+    EXR_PIXEL_LAST_TYPE
+} exr_PIXEL_TYPE_t;
 
 /** Individual channel information*/
 typedef struct
 {
-    EXR_TYPE(attr_string) name;
-    EXR_TYPE(PIXEL_TYPE) pixel_type; /** Data representation for these pixels: uint, half, float */
+    exr_attr_string_t name;
+    exr_PIXEL_TYPE_t pixel_type; /** Data representation for these pixels: uint, half, float */
     uint8_t p_linear; /**< Possible values are 0 and 1 per docs,
                        * appears deprecated and unused in openexr
                        * lib */
     uint8_t reserved[3];
     int32_t x_sampling;
     int32_t y_sampling;
-} EXR_TYPE(attr_chlist_entry);
+} exr_attr_chlist_entry_t;
 
 /** List of channel information (sorted alphabetically) */
 typedef struct
 {
     int num_channels;
     int num_alloced;
-    EXR_TYPE(attr_chlist_entry) *entries;
-} EXR_TYPE(attr_chlist);
+    exr_attr_chlist_entry_t *entries;
+} exr_attr_chlist_t;
 
 /** @brief initialize a channel list with a number of channels to be added later */
-EXR_EXPORT int EXR_FUN(attr_chlist_init)( EXR_TYPE(FILE) *f,
-                                          EXR_TYPE(attr_chlist) *chl,
+EXR_EXPORT int exr_attr_chlist_init( exr_file_t *f,
+                                          exr_attr_chlist_t *chl,
                                           int nchans );
 
 /** @brief Add a channel to the channel list */
-EXR_EXPORT int EXR_FUN(attr_chlist_add)( EXR_TYPE(FILE) *f,
-                                         EXR_TYPE(attr_chlist) *chl,
+EXR_EXPORT int exr_attr_chlist_add( exr_file_t *f,
+                                         exr_attr_chlist_t *chl,
                                          const char *name,
-                                         EXR_TYPE(PIXEL_TYPE) ptype,
+                                         exr_PIXEL_TYPE_t ptype,
                                          uint8_t islinear,
                                          int32_t xsamp,
                                          int32_t ysamp );
 /** @brief Add a channel to the channel list */
-EXR_EXPORT int EXR_FUN(attr_chlist_add_with_length)( EXR_TYPE(FILE) *f,
-                                                     EXR_TYPE(attr_chlist) *chl,
+EXR_EXPORT int exr_attr_chlist_add_with_length( exr_file_t *f,
+                                                     exr_attr_chlist_t *chl,
                                                      const char *name,
                                                      int32_t namelen,
-                                                     EXR_TYPE(PIXEL_TYPE) ptype,
+                                                     exr_PIXEL_TYPE_t ptype,
                                                      uint8_t islinear,
                                                      int32_t xsamp,
                                                      int32_t ysamp );
 
 /** @brief Frees memory for the channel list and all channels inside */
-EXR_EXPORT void EXR_FUN(attr_chlist_destroy)( EXR_TYPE(attr_chlist) * );
+EXR_EXPORT void exr_attr_chlist_destroy( exr_attr_chlist_t * );
 
 /** @} */
 

@@ -32,7 +32,7 @@ extern "C" {
  *                  implementor may wish to cleanup temporary
  *                  files
  */
-typedef void (* EXR_TYPE(destroy_stream_func_ptr) )( EXR_TYPE(FILE) *file, void *userdata, int failed );
+typedef void (* exr_destroy_stream_func_ptr_t )( exr_file_t *file, void *userdata, int failed );
 
 /** Query stream size function pointer
  *
@@ -44,7 +44,7 @@ typedef void (* EXR_TYPE(destroy_stream_func_ptr) )( EXR_TYPE(FILE) *file, void 
  * for this file, although appropriate memory safeguards must be in
  * place in the calling application.
  */
-typedef ssize_t (* EXR_TYPE(query_size_func_ptr) )( EXR_TYPE(FILE) *file, void *userdata );
+typedef ssize_t (* exr_query_size_func_ptr_t )( exr_file_t *file, void *userdata );
 
 /** Read custom stream function pointer
  *
@@ -64,10 +64,10 @@ typedef ssize_t (* EXR_TYPE(query_size_func_ptr) )( EXR_TYPE(FILE) *file, void *
  *  - chunks can then be read in any order as preferred by the
  *    application
  */
-typedef ssize_t (* EXR_TYPE(read_func_ptr) )(
-    EXR_TYPE(FILE) *file,
+typedef ssize_t (* exr_read_func_ptr_t )(
+    exr_file_t *file,
     void *userdata, void *buffer, size_t sz, off_t offset,
-    EXR_TYPE(stream_error_func_ptr) error_cb );
+    exr_stream_error_func_ptr_t error_cb );
 
 /** Write custom stream function pointer
  *
@@ -88,10 +88,10 @@ typedef ssize_t (* EXR_TYPE(read_func_ptr) )(
  *    table (unless written in that order)
  *  - at file close, the chunk offset tables are written to the file
  */
-typedef ssize_t (* EXR_TYPE(write_func_ptr) )(
-    EXR_TYPE(FILE) *file,
+typedef ssize_t (* exr_write_func_ptr_t )(
+    exr_file_t *file,
     void *userdata, const void *buffer, size_t sz, off_t offset,
-    EXR_TYPE(stream_error_func_ptr) error_cb );
+    exr_stream_error_func_ptr_t error_cb );
 
 /** @} */
 
@@ -124,14 +124,14 @@ typedef ssize_t (* EXR_TYPE(write_func_ptr) )(
  *
  * @returns 0 upon success, otherwise returns a value indicating the error
  */
-EXR_EXPORT int EXR_FUN(start_read_stream)(
-    EXR_TYPE(FILE) **file,
+EXR_EXPORT int exr_start_read_stream(
+    exr_file_t **file,
     const char *streamname,
     void *userdata,
-    EXR_TYPE(read_func_ptr) read_fn,
-    EXR_TYPE(query_size_func_ptr) size_fn,
-    EXR_TYPE(destroy_stream_func_ptr) destroy_fn,
-    EXR_TYPE(error_handler_cb) error_cb );
+    exr_read_func_ptr_t read_fn,
+    exr_query_size_func_ptr_t size_fn,
+    exr_destroy_stream_func_ptr_t destroy_fn,
+    exr_error_handler_cb_t error_cb );
 
 /** Starts a custom stream write.
  *
@@ -149,13 +149,13 @@ EXR_EXPORT int EXR_FUN(start_read_stream)(
  *
  * @returns 0 upon success, otherwise returns a value indicating the error
  */
-EXR_EXPORT int EXR_FUN(start_write_stream)(
-    EXR_TYPE(FILE) **file,
+EXR_EXPORT int exr_start_write_stream(
+    exr_file_t **file,
     const char *streamname,
     void *userdata,
-    EXR_TYPE(write_func_ptr) write_fn,
-    EXR_TYPE(destroy_stream_func_ptr) destroy_fn,
-    EXR_TYPE(error_handler_cb) error_cb );
+    exr_write_func_ptr_t write_fn,
+    exr_destroy_stream_func_ptr_t destroy_fn,
+    exr_error_handler_cb_t error_cb );
 
 /** Starts a header update read/write file.
  *
@@ -170,15 +170,15 @@ EXR_EXPORT int EXR_FUN(start_write_stream)(
  *
  * @returns 0 upon success, otherwise returns a value indicating the error
  */
-EXR_EXPORT int EXR_FUN(start_inplace_header_update_stream)(
-    EXR_TYPE(FILE) **file,
+EXR_EXPORT int exr_start_inplace_header_update_stream(
+    exr_file_t **file,
     const char *streamname,
     void *userdata,
-    EXR_TYPE(read_func_ptr) read_fn,
-    EXR_TYPE(query_size_func_ptr) size_fn,
-    EXR_TYPE(write_func_ptr) write_fn,
-    EXR_TYPE(destroy_stream_func_ptr) destroy_fn,
-    EXR_TYPE(error_handler_cb) error_cb );
+    exr_read_func_ptr_t read_fn,
+    exr_query_size_func_ptr_t size_fn,
+    exr_write_func_ptr_t write_fn,
+    exr_destroy_stream_func_ptr_t destroy_fn,
+    exr_error_handler_cb_t error_cb );
 
 /** @} */
 

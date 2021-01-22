@@ -13,17 +13,17 @@
 
 /**************************************/
 
-static EXR_TYPE(memory_allocation_func) _glob_alloc_func = NULL;
-static EXR_TYPE(memory_free_func) _glob_free_func = NULL;
+static exr_memory_allocation_func_t _glob_alloc_func = NULL;
+static exr_memory_free_func_t _glob_free_func = NULL;
 #ifdef _WIN32
 static HANDLE _glob_heap = GetProcessHeap();
 #endif
 
 /**************************************/
 
-void EXR_FUN(set_memory_routines)(
-    EXR_TYPE(memory_allocation_func) alloc_func,
-    EXR_TYPE(memory_free_func) free_func )
+void exr_set_memory_routines(
+    exr_memory_allocation_func_t alloc_func,
+    exr_memory_free_func_t free_func )
 {
     _glob_alloc_func = alloc_func;
     _glob_free_func = free_func;

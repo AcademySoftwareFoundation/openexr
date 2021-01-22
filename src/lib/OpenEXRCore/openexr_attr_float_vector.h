@@ -28,28 +28,28 @@ typedef struct
     int32_t length;
     int32_t alloc_size; /**< if this is non-zero, the float vector owns the data, if 0, is a const ref */
     const float *arr;
-} EXR_TYPE(attr_float_vector);
+} exr_attr_float_vector_t;
 
 /** Allocates storage for a float vector with the provided number of entries.
  *
  * Leaves the float data uninitialized
  */
-EXR_EXPORT int EXR_FUN(attr_float_vector_init)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_float_vector) *fv, int32_t nent );
+EXR_EXPORT int exr_attr_float_vector_init(
+    exr_file_t *f, exr_attr_float_vector_t *fv, int32_t nent );
 /** Initializes a float vector with the provided number of entries and sets the pointer to the provided pointer
  *
  * This will result in a float vector pointing at a float array that
  * is owned by the calling application and will not be freed, and is
  * expected to outlive the lifetime of the attribute.
  */
-EXR_EXPORT int EXR_FUN(attr_float_vector_init_static)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_float_vector) *fv, const float *arr, int32_t nent );
+EXR_EXPORT int exr_attr_float_vector_init_static(
+    exr_file_t *f, exr_attr_float_vector_t *fv, const float *arr, int32_t nent );
 /** Allocates storage for a float vector with the provided number of entries and initializes */
-EXR_EXPORT int EXR_FUN(attr_float_vector_create)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_float_vector) *fv, const float *arr, int32_t nent );
+EXR_EXPORT int exr_attr_float_vector_create(
+    exr_file_t *f, exr_attr_float_vector_t *fv, const float *arr, int32_t nent );
 
 /** Frees any owned storage for a float vector */
-EXR_EXPORT void EXR_FUN(attr_float_vector_destroy)( EXR_TYPE(attr_float_vector) *fv );
+EXR_EXPORT void exr_attr_float_vector_destroy( exr_attr_float_vector_t *fv );
 
 /** @} */
 

@@ -63,9 +63,9 @@ typedef struct
     int output_line_stride; 
 
     /** @} */
-} EXR_TYPE(channel_decode_info);
+} exr_channel_decode_info_t;
 
-typedef struct EXR_TYPE(decode_chunk_info_)
+typedef struct exr_decode_chunk_info__t
 {
     int64_t chunk_data_offset;
 
@@ -79,10 +79,10 @@ typedef struct EXR_TYPE(decode_chunk_info_)
      * the decoding process shall be freed by a call to @see
      * destroy_chunk_decoder
      */
-    EXR_TYPE(channel_decode_info) *channels;
+    exr_channel_decode_info_t *channels;
     /** faster than calling malloc when the channel count in the part
      * is small (RGBAZ) but do not rely on this being used */
-    EXR_TYPE(channel_decode_info) chan_store[5];
+    exr_channel_decode_info_t chan_store[5];
 
     /** starting y, going either in increasing / decreasing depending on file */
     int start_y;
@@ -175,7 +175,7 @@ typedef struct EXR_TYPE(decode_chunk_info_)
         uint8_t *buffer;
     } spare;
 
-} EXR_TYPE(decode_chunk_info);
+} exr_decode_chunk_info_t;
 
 /** returns the maximum unpacked size of a chunk for the file part.
  *
@@ -183,7 +183,7 @@ typedef struct EXR_TYPE(decode_chunk_info_)
  * used to pre-allocate buffers for multiple threads in one block or
  * whatever your application may require.
  */
-EXR_EXPORT size_t EXR_FUN(get_chunk_unpacked_size)( EXR_TYPE(FILE) *file, int part_index );
+EXR_EXPORT size_t exr_get_chunk_unpacked_size( exr_file_t *file, int part_index );
 
 /** @brief Computes the chunk_info for a particular scanline.
  *
@@ -209,9 +209,9 @@ EXR_EXPORT size_t EXR_FUN(get_chunk_unpacked_size)( EXR_TYPE(FILE) *file, int pa
  *
  * @return 0 upon success, otherwise an appropriate error code
  */
-EXR_EXPORT int EXR_FUN(decode_chunk_init_scanline)(
-    EXR_TYPE(FILE) *file, int part_index,
-    EXR_TYPE(decode_chunk_info) *outinfo,
+EXR_EXPORT int exr_decode_chunk_init_scanline(
+    exr_file_t *file, int part_index,
+    exr_decode_chunk_info_t *outinfo,
     int y, int own_scratch_space );
 
 /** @brief Initializes the chunk_info for a particular tile.
@@ -239,16 +239,16 @@ EXR_EXPORT int EXR_FUN(decode_chunk_init_scanline)(
  *
  * @return 0 upon success, otherwise an appropriate error code
  */
-EXR_EXPORT int EXR_FUN(decode_chunk_init_tile)(
-    EXR_TYPE(FILE) *file, int part_index,
-    EXR_TYPE(decode_chunk_info) *outinfo,
+EXR_EXPORT int exr_decode_chunk_init_tile(
+    exr_file_t *file, int part_index,
+    exr_decode_chunk_info_t *outinfo,
     int tilex, int tiley,
     int levelx, int levely,
     int own_scratch_space );
 
 /** @brief Free any allocated data owned by the decode_chunk_info struct */
-EXR_EXPORT void EXR_FUN(destroy_decode_chunk_info)(
-    EXR_TYPE(decode_chunk_info) *outinfo );
+EXR_EXPORT void exr_destroy_decode_chunk_info(
+    exr_decode_chunk_info_t *outinfo );
 
 /** @brief Read a chunk from a file.
  *
@@ -285,18 +285,18 @@ EXR_EXPORT void EXR_FUN(destroy_decode_chunk_info)(
  * @param cinfo The chunk to read, as computed using
  *              @sa compute_chunk_for_scanline or @sa compute_chunk_for_tile.
  */
-EXR_EXPORT int EXR_FUN(read_chunk)(
-    EXR_TYPE(FILE) *file,
-    EXR_TYPE(decode_chunk_info) *cinfo );
+EXR_EXPORT int exr_read_chunk(
+    exr_file_t *file,
+    exr_decode_chunk_info_t *cinfo );
 
 /** @brief Perform buffer decompression
  * TODO: This will need more info for all the compression types
  *       like b44 and pxr24 that do different things depending on
  *       the underlying buffer type
  */
-EXR_EXPORT int EXR_FUN(decompress_data)(
-    EXR_TYPE(FILE) *f,
-    const EXR_TYPE(COMPRESSION_TYPE) ctype,
+EXR_EXPORT int exr_decompress_data(
+    exr_file_t *f,
+    const exr_COMPRESSION_TYPE_t ctype,
     void *compressed_data, size_t comp_buf_size,
     void *uncompressed_data, size_t uncompressed_size );
 

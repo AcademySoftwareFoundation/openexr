@@ -23,8 +23,8 @@ typedef struct
 {
     int32_t n_strings;
     int32_t alloc_size; /**< if this is non-zero, the string vector owns the data, if 0, is a const ref */
-    const EXR_TYPE(attr_string) *strings;
-} EXR_TYPE(attr_string_vector);
+    const exr_attr_string_t *strings;
+} exr_attr_string_vector_t;
 
 /** @brief Allocates memory for a list of strings of length nelt
  *
@@ -36,11 +36,11 @@ typedef struct
  *
  * @return 0 on success, error code otherwise
  */
-EXR_EXPORT int EXR_FUN(attr_string_vector_init)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_string_vector) *sv, int32_t nelt );
+EXR_EXPORT int exr_attr_string_vector_init(
+    exr_file_t *f, exr_attr_string_vector_t *sv, int32_t nelt );
 
 /** @brief Frees memory for the channel list and all channels inside */
-EXR_EXPORT void EXR_FUN(attr_string_vector_destroy)( EXR_TYPE(attr_string_vector) *sv );
+EXR_EXPORT void exr_attr_string_vector_destroy( exr_attr_string_vector_t *sv );
 
 /** @brief Allocates memory for a particular string within the list
  *
@@ -53,22 +53,22 @@ EXR_EXPORT void EXR_FUN(attr_string_vector_destroy)( EXR_TYPE(attr_string_vector
  *
  * @return 0 on success, error code otherwise
  */
-EXR_EXPORT int EXR_FUN(attr_string_vector_init_entry)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_string_vector) *sv, int32_t idx, int32_t length );
+EXR_EXPORT int exr_attr_string_vector_init_entry(
+    exr_file_t *f, exr_attr_string_vector_t *sv, int32_t idx, int32_t length );
 
 /** @brief Set a string within the string vector */
-EXR_EXPORT int EXR_FUN(attr_string_vector_set_entry_with_length)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_string_vector) *sv, int32_t idx, const char *s, int32_t length );
+EXR_EXPORT int exr_attr_string_vector_set_entry_with_length(
+    exr_file_t *f, exr_attr_string_vector_t *sv, int32_t idx, const char *s, int32_t length );
 /** @brief Set a string within the string vector */
-EXR_EXPORT int EXR_FUN(attr_string_vector_set_entry)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_string_vector) *sv, int32_t idx, const char *s );
+EXR_EXPORT int exr_attr_string_vector_set_entry(
+    exr_file_t *f, exr_attr_string_vector_t *sv, int32_t idx, const char *s );
 
 /** @brief Append a string to the string vector */
-EXR_EXPORT int EXR_FUN(attr_string_vector_add_entry_with_length)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_string_vector) *sv, const char *s, int32_t length );
+EXR_EXPORT int exr_attr_string_vector_add_entry_with_length(
+    exr_file_t *f, exr_attr_string_vector_t *sv, const char *s, int32_t length );
 /** @brief Append a string to the string vector */
-EXR_EXPORT int EXR_FUN(attr_string_vector_add_entry)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_string_vector) *sv, const char *s );
+EXR_EXPORT int exr_attr_string_vector_add_entry(
+    exr_file_t *f, exr_attr_string_vector_t *sv, const char *s );
 
 /** @} */
 

@@ -153,18 +153,18 @@ static int undozip( const void *src, size_t packsz, void *out, size_t outsz )
     /* TODO: find a way to not do this? */
     uint8_t *tmpbuf = priv_alloc( outsz );
     if ( tmpbuf == NULL )
-        return EXR_DEF(ERR_OUT_OF_MEMORY);
+        return EXR_ERR_OUT_OF_MEMORY;
 
     rstat = uncompress( (Bytef *)tmpbuf, &outSize, (const Bytef *)src, packsz );
     if ( rstat == Z_OK )
     {
         reconstruct( tmpbuf, outSize );
         interleave( out, tmpbuf, outSize );
-        rstat = EXR_DEF(ERR_SUCCESS);
+        rstat = EXR_ERR_SUCCESS;
     }
     else
     {
-        rstat = EXR_DEF(ERR_BAD_CHUNK_DATA);
+        rstat = EXR_ERR_BAD_CHUNK_DATA;
     }
     priv_free( tmpbuf );
 
@@ -194,12 +194,12 @@ static int undorle( const void *src, size_t packsz, void *out, size_t outsz )
                 }
                 else
                 {
-                    return EXR_DEF(ERR_BAD_CHUNK_DATA);
+                    return EXR_ERR_BAD_CHUNK_DATA;
                 }
             }
             else
             {
-                return EXR_DEF(ERR_BAD_CHUNK_DATA);
+                return EXR_ERR_BAD_CHUNK_DATA;
             }
         }
         else if ( packsz >= 2 )
@@ -214,75 +214,75 @@ static int undorle( const void *src, size_t packsz, void *out, size_t outsz )
             }
             else
             {
-                return EXR_DEF(ERR_BAD_CHUNK_DATA);
+                return EXR_ERR_BAD_CHUNK_DATA;
             }
             ++in;
         }
     }
-    return EXR_DEF(ERR_SUCCESS);
+    return EXR_ERR_SUCCESS;
 }
 
 /**************************************/
 
-int EXR_FUN(decompress_data)(
-    EXR_TYPE(FILE) *f,
-    const EXR_TYPE(COMPRESSION_TYPE) ctype,
+int exr_decompress_data(
+    exr_file_t *f,
+    const exr_COMPRESSION_TYPE_t ctype,
     void *compressed_data, size_t comp_buf_size,
     void *uncompressed_data, size_t uncompressed_size )
 {
     int rv;
     if ( ! f )
-        return EXR_DEF(ERR_INVALID_ARGUMENT);
+        return EXR_ERR_INVALID_ARGUMENT;
 
     switch ( ctype )
     {
-        case EXR_DEF(COMPRESSION_NONE):
+        case EXR_COMPRESSION_NONE:
             if ( compressed_data == uncompressed_data )
-                return EXR_DEF(ERR_SUCCESS);
+                return EXR_ERR_SUCCESS;
             if ( comp_buf_size != uncompressed_size )
                 return EXR_GETFILE(f)->report_error(
-                    f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                    f, EXR_ERR_INVALID_ARGUMENT,
                     "no compresssion set but buffers do not match" );
             if ( uncompressed_size > 0 )
                 memcpy( uncompressed_data, compressed_data, uncompressed_size );
             break;
-        case EXR_DEF(COMPRESSION_RLE):
+        case EXR_COMPRESSION_RLE:
             if ( compressed_data == uncompressed_data )
-                return EXR_DEF(ERR_SUCCESS);
+                return EXR_ERR_SUCCESS;
             if ( comp_buf_size > 0 )
             {
                 rv = undorle( compressed_data, comp_buf_size,
                               uncompressed_data, uncompressed_size );
-                if ( rv != EXR_DEF(ERR_SUCCESS) )
+                if ( rv != EXR_ERR_SUCCESS )
                     return EXR_GETFILE(f)->report_error(
                         f, rv, "Unable to RLE decompress" );
             }
             break;
-        case EXR_DEF(COMPRESSION_ZIP):
-        case EXR_DEF(COMPRESSION_ZIPS):
+        case EXR_COMPRESSION_ZIP:
+        case EXR_COMPRESSION_ZIPS:
             if ( compressed_data == uncompressed_data )
-                return EXR_DEF(ERR_SUCCESS);
+                return EXR_ERR_SUCCESS;
             if ( comp_buf_size > 0 )
             {
                 rv = undozip( compressed_data, comp_buf_size,
                               uncompressed_data, uncompressed_size );
-                if ( rv != EXR_DEF(ERR_SUCCESS) )
+                if ( rv != EXR_ERR_SUCCESS )
                     return EXR_GETFILE(f)->report_error(
                         f, rv, "Unable to decompress using zlib" );
             }
             break;
-        case EXR_DEF(COMPRESSION_PIZ):
-        case EXR_DEF(COMPRESSION_PXR24):
-        case EXR_DEF(COMPRESSION_B44):
-        case EXR_DEF(COMPRESSION_B44A):
-        case EXR_DEF(COMPRESSION_DWAA):
-        case EXR_DEF(COMPRESSION_DWAB):
+        case EXR_COMPRESSION_PIZ:
+        case EXR_COMPRESSION_PXR24:
+        case EXR_COMPRESSION_B44:
+        case EXR_COMPRESSION_B44A:
+        case EXR_COMPRESSION_DWAA:
+        case EXR_COMPRESSION_DWAB:
         default:
             return EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                f, EXR_ERR_INVALID_ARGUMENT,
                 "Compression technique 0x%02X not yet implemented", ctype );
     }
 
-    return EXR_DEF(ERR_SUCCESS);
+    return EXR_ERR_SUCCESS;
 }
 

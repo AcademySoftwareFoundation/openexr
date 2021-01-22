@@ -29,7 +29,7 @@ typedef struct
     uint32_t height;
     size_t alloc_size; /**< if this is non-zero, the preview owns the data, if 0, is a const ref */
     const uint8_t *rgba;
-} EXR_TYPE(attr_preview);
+} exr_attr_preview_t;
 
 /** @brief Allocates memory for a w * h * 4 entry in the preview
  *
@@ -42,8 +42,8 @@ typedef struct
  *
  * @return 0 on success, error code otherwise
  */
-EXR_EXPORT int EXR_FUN(attr_preview_init)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_preview) *p, uint32_t w, uint32_t h );
+EXR_EXPORT int exr_attr_preview_init(
+    exr_file_t *f, exr_attr_preview_t *p, uint32_t w, uint32_t h );
 
 /** @brief Allocates memory for a w * h * 4 entry in the preview and fills with provided data
  *
@@ -57,11 +57,11 @@ EXR_EXPORT int EXR_FUN(attr_preview_init)(
  *
  * @return 0 on success, error code otherwise
  */
-EXR_EXPORT int EXR_FUN(attr_preview_create)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_preview) *p, uint32_t w, uint32_t h, const uint8_t *d );
+EXR_EXPORT int exr_attr_preview_create(
+    exr_file_t *f, exr_attr_preview_t *p, uint32_t w, uint32_t h, const uint8_t *d );
 
 /** @brief Frees memory for the preview attribute if memory is owned by the preview attr */
-EXR_EXPORT void EXR_FUN(attr_preview_destroy)( EXR_TYPE(attr_preview) *p );
+EXR_EXPORT void exr_attr_preview_destroy( exr_attr_preview_t *p );
 
 /** @} */
 

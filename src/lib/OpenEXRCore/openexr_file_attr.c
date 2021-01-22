@@ -11,9 +11,9 @@
 
 /**************************************/
 
-int EXR_FUN(attr_count)( EXR_TYPE(FILE) *file, int part_index )
+int exr_attr_count( exr_file_t *file, int part_index )
 {
-    EXR_TYPE(PRIV_FILE) *f = EXR_GETFILE(file);
+    exr_PRIV_FILE_t *f = EXR_GETFILE(file);
     if ( f && part_index >= 0 && part_index < f->num_parts )
     {
         return f->parts[part_index]->attributes.num_attributes;
@@ -23,13 +23,13 @@ int EXR_FUN(attr_count)( EXR_TYPE(FILE) *file, int part_index )
 
 /**************************************/
 
-EXR_TYPE(attribute) *EXR_FUN(attr_find_by_name)(
-    EXR_TYPE(FILE) *file, int part_index, const char *name )
+exr_attribute_t *exr_attr_find_by_name(
+    exr_file_t *file, int part_index, const char *name )
 {
-    EXR_TYPE(PRIV_FILE) *f = EXR_GETFILE(file);
+    exr_PRIV_FILE_t *f = EXR_GETFILE(file);
     if ( f && part_index >= 0 && part_index < f->num_parts )
     {
-        return EXR_FUN(attr_list_find_by_name)(
+        return exr_attr_list_find_by_name(
             file, &(f->parts[part_index]->attributes), name );
     }
     return NULL;
@@ -37,10 +37,10 @@ EXR_TYPE(attribute) *EXR_FUN(attr_find_by_name)(
 
 /**************************************/
 
-EXR_TYPE(attribute_list) *EXR_FUN(get_attribute_list)(
-    EXR_TYPE(FILE) *file, int part_index )
+exr_attribute_list_t *exr_get_attribute_list(
+    exr_file_t *file, int part_index )
 {
-    EXR_TYPE(PRIV_FILE) *f = EXR_GETFILE(file);
+    exr_PRIV_FILE_t *f = EXR_GETFILE(file);
     if ( f && part_index >= 0 && part_index < f->num_parts )
     {
         return &(f->parts[part_index]->attributes);
@@ -50,55 +50,55 @@ EXR_TYPE(attribute_list) *EXR_FUN(get_attribute_list)(
 
 /**************************************/
 
-int EXR_FUN(attr_declare_by_type)(
-    EXR_TYPE(FILE) *file,
+int exr_attr_declare_by_type(
+    exr_file_t *file,
     int part_index,
     const char *name,
     const char *type,
-    EXR_TYPE(attribute) **outattr )
+    exr_attribute_t **outattr )
 {
-    EXR_TYPE(PRIV_FILE) *f = EXR_GETFILE(file);
-    EXR_TYPE(PRIV_PART) *part;
+    exr_PRIV_FILE_t *f = EXR_GETFILE(file);
+    exr_PRIV_PART_t *part;
     if ( ! file )
-        return EXR_DEF(ERR_INVALID_ARGUMENT);
+        return EXR_ERR_INVALID_ARGUMENT;
 
     if ( part_index < 0 || part_index >= f->num_parts )
     {
         return f->print_error(
-            file, EXR_DEF(ERR_INVALID_ARGUMENT),
+            file, EXR_ERR_INVALID_ARGUMENT,
             "Invalid part index (%d) requested",
             part_index );
     }
 
     part = f->parts[part_index];
-    return EXR_FUN(attr_list_add_by_type)(
+    return exr_attr_list_add_by_type(
         file, &(part->attributes), name, type, 0, NULL, outattr );
 }
 
 /**************************************/
 
-int EXR_FUN(attr_declare)(
-    EXR_TYPE(FILE) *file,
+int exr_attr_declare(
+    exr_file_t *file,
     int part_index,
     const char *name,
-    EXR_TYPE(ATTRIBUTE_TYPE) type,
-    EXR_TYPE(attribute) **outattr )
+    exr_ATTRIBUTE_TYPE_t type,
+    exr_attribute_t **outattr )
 {
-    EXR_TYPE(PRIV_FILE) *f = EXR_GETFILE(file);
-    EXR_TYPE(PRIV_PART) *part;
+    exr_PRIV_FILE_t *f = EXR_GETFILE(file);
+    exr_PRIV_PART_t *part;
     if ( ! file )
-        return EXR_DEF(ERR_INVALID_ARGUMENT);
+        return EXR_ERR_INVALID_ARGUMENT;
 
     if ( part_index < 0 || part_index >= f->num_parts )
     {
         return f->print_error(
-            file, EXR_DEF(ERR_INVALID_ARGUMENT),
+            file, EXR_ERR_INVALID_ARGUMENT,
             "Invalid part index (%d) requested",
             part_index );
     }
 
     part = f->parts[part_index];
-    return EXR_FUN(attr_list_add)(
+    return exr_attr_list_add(
         file, &(part->attributes), name, type, 0, NULL, outattr );
 }
 

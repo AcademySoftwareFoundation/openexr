@@ -11,66 +11,66 @@
 /**************************************/
 
 #define REQ_ATTR_GET_IMPL(name, entry) \
-    EXR_TYPE(PRIV_FILE) *f = EXR_GETFILE(file);                 \
+    exr_PRIV_FILE_t *f = EXR_GETFILE(file);                 \
     if ( f && part_index >= 0 && part_index < f->num_parts )    \
     {                                                           \
-        EXR_TYPE(PRIV_PART) *part = f->parts[part_index];       \
+        exr_PRIV_PART_t *part = f->parts[part_index];       \
         if ( part->name )                                       \
             retval = part->name->entry;                         \
     }
 
 #define REQ_ATTR_FIND_CREATE(name, type)                        \
-    EXR_TYPE(PRIV_FILE) *f = EXR_GETFILE(file);                 \
+    exr_PRIV_FILE_t *f = EXR_GETFILE(file);                 \
     if ( f && part_index >= 0 && part_index < f->num_parts )    \
     {                                                           \
-        EXR_TYPE(PRIV_PART) *part = f->parts[part_index];       \
+        exr_PRIV_PART_t *part = f->parts[part_index];       \
         if ( part->name )                                       \
         {                                                       \
             attr = part->name;                                  \
-            rv = EXR_DEF(ERR_SUCCESS);                          \
+            rv = EXR_ERR_SUCCESS;                          \
         }                                                       \
         else                                                    \
         {                                                       \
-            rv = EXR_FUN(attr_list_add)(                        \
+            rv = exr_attr_list_add(                        \
                 file, &(part->attributes), #name,               \
                 type, 0, NULL, &(part->name) );                 \
-            if ( rv == EXR_DEF(ERR_SUCCESS) )                   \
+            if ( rv == EXR_ERR_SUCCESS )                   \
                 attr = part->name;                              \
         }                                                       \
     }                                                           \
     else                                                        \
     {                                                           \
         rv = f->print_error(                                    \
-            file, EXR_DEF(ERR_INVALID_ARGUMENT),                \
+            file, EXR_ERR_INVALID_ARGUMENT,                \
             "Missing file or invalid part number (%d)",         \
             part_index );                                       \
     }
 
 /**************************************/
 
-const EXR_TYPE(attr_chlist) *EXR_FUN(get_channels)(
-    EXR_TYPE(FILE) *file, int part_index )
+const exr_attr_chlist_t *exr_get_channels(
+    exr_file_t *file, int part_index )
 {
-    EXR_TYPE(attr_chlist) *retval = NULL;
+    exr_attr_chlist_t *retval = NULL;
     REQ_ATTR_GET_IMPL(channels, chlist);
     return retval;
 }
 
 /**************************************/
 
-int EXR_FUN(add_channels)(
-    EXR_TYPE(FILE) *file, int part_index,
+int exr_add_channels(
+    exr_file_t *file, int part_index,
     const char *name,
-    EXR_TYPE(PIXEL_TYPE) ptype,
+    exr_PIXEL_TYPE_t ptype,
     uint8_t islinear,
     int32_t xsamp, int32_t ysamp )
 {
-    EXR_TYPE(attribute) *attr = NULL;
+    exr_attribute_t *attr = NULL;
     int rv;
-    REQ_ATTR_FIND_CREATE(channels, EXR_DEF(ATTR_CHLIST) );
-    if ( rv == EXR_DEF(ERR_SUCCESS) )
+    REQ_ATTR_FIND_CREATE(channels, EXR_ATTR_CHLIST );
+    if ( rv == EXR_ERR_SUCCESS )
     {
-        rv = EXR_FUN(attr_chlist_add)(
+        rv = exr_attr_chlist_add(
             file, attr->chlist, name, ptype, islinear, xsamp, ysamp );
     }
     return rv;
@@ -78,33 +78,33 @@ int EXR_FUN(add_channels)(
 
 /**************************************/
 
-int EXR_FUN(set_channels)(
-    EXR_TYPE(FILE) *file, int part_index,
-    const EXR_TYPE(attr_chlist) *channels )
+int exr_set_channels(
+    exr_file_t *file, int part_index,
+    const exr_attr_chlist_t *channels )
 {
-    EXR_TYPE(attribute) *attr = NULL;
+    exr_attribute_t *attr = NULL;
     int rv;
 
     /* TODO: validate here or later? */
-    REQ_ATTR_FIND_CREATE(channels, EXR_DEF(ATTR_CHLIST) );
-    if ( rv == EXR_DEF(ERR_SUCCESS) )
+    REQ_ATTR_FIND_CREATE(channels, EXR_ATTR_CHLIST );
+    if ( rv == EXR_ERR_SUCCESS )
     {
-        EXR_TYPE(attr_chlist) *clist = attr->chlist;
-        EXR_FUN(attr_chlist_destroy)( clist );
+        exr_attr_chlist_t *clist = attr->chlist;
+        exr_attr_chlist_destroy( clist );
         if ( channels )
         {
             int numchans = channels->num_channels;
-            rv = EXR_FUN(attr_chlist_init)( file, clist, numchans );
-            if ( rv != EXR_DEF(ERR_SUCCESS) )
+            rv = exr_attr_chlist_init( file, clist, numchans );
+            if ( rv != EXR_ERR_SUCCESS )
                 return rv;
             for ( int c = 0; c < numchans; ++c )
             {
-                EXR_TYPE(attr_chlist_entry) *cur = channels->entries + c;
-                rv = EXR_FUN(attr_chlist_add_with_length)(
+                exr_attr_chlist_entry_t *cur = channels->entries + c;
+                rv = exr_attr_chlist_add_with_length(
                     file, clist, cur->name.str, cur->name.length,
                     cur->pixel_type, cur->p_linear,
                     cur->x_sampling, cur->y_sampling );
-                if ( rv != EXR_DEF(ERR_SUCCESS) )
+                if ( rv != EXR_ERR_SUCCESS )
                     return rv;
             }
         }
@@ -114,36 +114,36 @@ int EXR_FUN(set_channels)(
 
 /**************************************/
 
-EXR_TYPE(COMPRESSION_TYPE) EXR_FUN(get_compression)(
-    EXR_TYPE(FILE) *file, int part_index )
+exr_COMPRESSION_TYPE_t exr_get_compression(
+    exr_file_t *file, int part_index )
 {
-    EXR_TYPE(COMPRESSION_TYPE) retval = EXR_DEF(COMPRESSION_LAST_TYPE);
+    exr_COMPRESSION_TYPE_t retval = EXR_COMPRESSION_LAST_TYPE;
     REQ_ATTR_GET_IMPL(compression, uc);
     return retval;
 }
 
 /**************************************/
 
-int EXR_FUN(set_compression)(
-    EXR_TYPE(FILE) *file, int part_index, EXR_TYPE(COMPRESSION_TYPE) ctype )
+int exr_set_compression(
+    exr_file_t *file, int part_index, exr_COMPRESSION_TYPE_t ctype )
 {
-    EXR_TYPE(attribute) *attr = NULL;
+    exr_attribute_t *attr = NULL;
     int rv;
 
     /* TODO: validate here or later? */
-    REQ_ATTR_FIND_CREATE(compression, EXR_DEF(ATTR_COMPRESSION) );
-    if ( rv == EXR_DEF(ERR_SUCCESS) )
+    REQ_ATTR_FIND_CREATE(compression, EXR_ATTR_COMPRESSION );
+    if ( rv == EXR_ERR_SUCCESS )
         attr->uc = (uint8_t)ctype;
     return rv;
 }
 
 /**************************************/
 
-EXR_TYPE(attr_box2i) EXR_FUN(get_data_window)(
-    EXR_TYPE(FILE) *file, int part_index )
+exr_attr_box2i_t exr_get_data_window(
+    exr_file_t *file, int part_index )
 {
-    EXR_TYPE(attr_box2i) ret = {0};
-    EXR_TYPE(attr_box2i) *retval = NULL;
+    exr_attr_box2i_t ret = {0};
+    exr_attr_box2i_t *retval = NULL;
     REQ_ATTR_GET_IMPL(dataWindow, box2i);
     if ( retval )
         ret = *(retval);
@@ -152,16 +152,16 @@ EXR_TYPE(attr_box2i) EXR_FUN(get_data_window)(
 
 /**************************************/
 
-int EXR_FUN(set_data_window)(
-    EXR_TYPE(FILE) *file, int part_index,
+int exr_set_data_window(
+    exr_file_t *file, int part_index,
     int32_t x_min, int32_t y_min, int32_t x_max, int32_t y_max )
 {
-    EXR_TYPE(attribute) *attr = NULL;
+    exr_attribute_t *attr = NULL;
     int rv;
 
     /* TODO: validate here or later? */
-    REQ_ATTR_FIND_CREATE(dataWindow, EXR_DEF(ATTR_BOX2I) );
-    if ( rv == EXR_DEF(ERR_SUCCESS) )
+    REQ_ATTR_FIND_CREATE(dataWindow, EXR_ATTR_BOX2I );
+    if ( rv == EXR_ERR_SUCCESS )
     {
         attr->box2i->x_min = x_min;
         attr->box2i->y_min = y_min;
@@ -173,11 +173,11 @@ int EXR_FUN(set_data_window)(
 
 /**************************************/
 
-EXR_TYPE(attr_box2i) EXR_FUN(get_display_window)(
-    EXR_TYPE(FILE) *file, int part_index )
+exr_attr_box2i_t exr_get_display_window(
+    exr_file_t *file, int part_index )
 {
-    EXR_TYPE(attr_box2i) ret = {0};
-    EXR_TYPE(attr_box2i) *retval = NULL;
+    exr_attr_box2i_t ret = {0};
+    exr_attr_box2i_t *retval = NULL;
     REQ_ATTR_GET_IMPL(displayWindow, box2i);
     if ( retval )
         ret = *(retval);
@@ -186,16 +186,16 @@ EXR_TYPE(attr_box2i) EXR_FUN(get_display_window)(
 
 /**************************************/
 
-int EXR_FUN(set_display_window)(
-    EXR_TYPE(FILE) *file, int part_index,
+int exr_set_display_window(
+    exr_file_t *file, int part_index,
     int32_t x_min, int32_t y_min, int32_t x_max, int32_t y_max )
 {
-    EXR_TYPE(attribute) *attr = NULL;
+    exr_attribute_t *attr = NULL;
     int rv;
 
     /* TODO: validate here or later? */
-    REQ_ATTR_FIND_CREATE(displayWindow, EXR_DEF(ATTR_BOX2I) );
-    if ( rv == EXR_DEF(ERR_SUCCESS) )
+    REQ_ATTR_FIND_CREATE(displayWindow, EXR_ATTR_BOX2I );
+    if ( rv == EXR_ERR_SUCCESS )
     {
         attr->box2i->x_min = x_min;
         attr->box2i->y_min = y_min;
@@ -207,34 +207,34 @@ int EXR_FUN(set_display_window)(
 
 /**************************************/
 
-EXR_TYPE(LINEORDER_TYPE) EXR_FUN(get_line_order)(
-    EXR_TYPE(FILE) *file,
+exr_LINEORDER_TYPE_t exr_get_line_order(
+    exr_file_t *file,
     int part_index )
 {
-    EXR_TYPE(LINEORDER_TYPE) retval = EXR_DEF(LINEORDER_LAST_TYPE);
+    exr_LINEORDER_TYPE_t retval = EXR_LINEORDER_LAST_TYPE;
     REQ_ATTR_GET_IMPL(lineOrder, uc);
     return retval;
 }
 
 /**************************************/
 
-int EXR_FUN(set_line_order)(
-    EXR_TYPE(FILE) *file, int part_index, EXR_TYPE(LINEORDER_TYPE) lo )
+int exr_set_line_order(
+    exr_file_t *file, int part_index, exr_LINEORDER_TYPE_t lo )
 {
-    EXR_TYPE(attribute) *attr = NULL;
+    exr_attribute_t *attr = NULL;
     int rv;
 
     /* TODO: validate here or later? */
-    REQ_ATTR_FIND_CREATE(lineOrder, EXR_DEF(ATTR_LINEORDER) );
-    if ( rv == EXR_DEF(ERR_SUCCESS) )
+    REQ_ATTR_FIND_CREATE(lineOrder, EXR_ATTR_LINEORDER );
+    if ( rv == EXR_ERR_SUCCESS )
         attr->uc = (uint8_t)lo;
     return rv;
 }
 
 /**************************************/
 
-float EXR_FUN(get_pixel_aspect_ratio)(
-    EXR_TYPE(FILE) *file, int part_index )
+float exr_get_pixel_aspect_ratio(
+    exr_file_t *file, int part_index )
 {
     float retval = 0.f;
     REQ_ATTR_GET_IMPL(pixelAspectRatio, f);
@@ -243,26 +243,26 @@ float EXR_FUN(get_pixel_aspect_ratio)(
 
 /**************************************/
 
-int EXR_FUN(set_pixel_aspect_ratio)(
-    EXR_TYPE(FILE) *file, int part_index, float par )
+int exr_set_pixel_aspect_ratio(
+    exr_file_t *file, int part_index, float par )
 {
-    EXR_TYPE(attribute) *attr = NULL;
+    exr_attribute_t *attr = NULL;
     int rv;
 
     /* TODO: validate here or later? */
-    REQ_ATTR_FIND_CREATE(pixelAspectRatio, EXR_DEF(ATTR_FLOAT) );
-    if ( rv == EXR_DEF(ERR_SUCCESS) )
+    REQ_ATTR_FIND_CREATE(pixelAspectRatio, EXR_ATTR_FLOAT );
+    if ( rv == EXR_ERR_SUCCESS )
         attr->f = par;
     return rv;
 }
 
 /**************************************/
 
-EXR_TYPE(attr_v2f) EXR_FUN(get_screen_window_center)(
-    EXR_TYPE(FILE) *file, int part_index )
+exr_attr_v2f_t exr_get_screen_window_center(
+    exr_file_t *file, int part_index )
 {
-    EXR_TYPE(attr_v2f) *retval = NULL;
-    EXR_TYPE(attr_v2f) ret = {0};
+    exr_attr_v2f_t *retval = NULL;
+    exr_attr_v2f_t ret = {0};
     REQ_ATTR_GET_IMPL(screenWindowCenter, v2f);
     if ( retval )
         ret = *retval;
@@ -271,16 +271,16 @@ EXR_TYPE(attr_v2f) EXR_FUN(get_screen_window_center)(
 
 /**************************************/
 
-int EXR_FUN(set_screen_window_center)(
-    EXR_TYPE(FILE) *file, int part_index,
+int exr_set_screen_window_center(
+    exr_file_t *file, int part_index,
     float x, float y )
 {
-    EXR_TYPE(attribute) *attr = NULL;
+    exr_attribute_t *attr = NULL;
     int rv;
 
     /* TODO: validate here or later? */
-    REQ_ATTR_FIND_CREATE(screenWindowCenter, EXR_DEF(ATTR_V2F) );
-    if ( rv == EXR_DEF(ERR_SUCCESS) )
+    REQ_ATTR_FIND_CREATE(screenWindowCenter, EXR_ATTR_V2F );
+    if ( rv == EXR_ERR_SUCCESS )
     {
         attr->v2f->x = x;
         attr->v2f->y = y;
@@ -290,8 +290,8 @@ int EXR_FUN(set_screen_window_center)(
 
 /**************************************/
 
-float EXR_FUN(get_screen_window_width)(
-    EXR_TYPE(FILE) *file, int part_index )
+float exr_get_screen_window_width(
+    exr_file_t *file, int part_index )
 {
     float retval = 0.f;
     REQ_ATTR_GET_IMPL(screenWindowWidth, f);
@@ -300,73 +300,73 @@ float EXR_FUN(get_screen_window_width)(
 
 /**************************************/
 
-int EXR_FUN(set_screen_window_width)(
-    EXR_TYPE(FILE) *file, int part_index, float ssw )
+int exr_set_screen_window_width(
+    exr_file_t *file, int part_index, float ssw )
 {
-    EXR_TYPE(attribute) *attr = NULL;
+    exr_attribute_t *attr = NULL;
     int rv;
 
     /* TODO: validate here or later? */
-    REQ_ATTR_FIND_CREATE(screenWindowWidth, EXR_DEF(ATTR_FLOAT) );
-    if ( rv == EXR_DEF(ERR_SUCCESS) )
+    REQ_ATTR_FIND_CREATE(screenWindowWidth, EXR_ATTR_FLOAT );
+    if ( rv == EXR_ERR_SUCCESS )
         attr->f = ssw;
     return rv;
 }
 
 /**************************************/
 
-uint32_t EXR_FUN(get_tile_x_size)(
-    EXR_TYPE(FILE) *file, int part_index )
+uint32_t exr_get_tile_x_size(
+    exr_file_t *file, int part_index )
 {
-    EXR_TYPE(attr_tiledesc) *retval = NULL;
+    exr_attr_tiledesc_t *retval = NULL;
     REQ_ATTR_GET_IMPL(tiles, tiledesc);
     return retval ? retval->x_size : 0;
 }
 
 /**************************************/
 
-uint32_t EXR_FUN(get_tile_y_size)(
-    EXR_TYPE(FILE) *file, int part_index )
+uint32_t exr_get_tile_y_size(
+    exr_file_t *file, int part_index )
 {
-    EXR_TYPE(attr_tiledesc) *retval = NULL;
+    exr_attr_tiledesc_t *retval = NULL;
     REQ_ATTR_GET_IMPL(tiles, tiledesc);
     return retval ? retval->y_size : 0;
 }
 
 /**************************************/
 
-EXR_TYPE(TILE_LEVEL_MODE) EXR_FUN(get_tile_level_mode)(
-    EXR_TYPE(FILE) *file, int part_index )
+exr_TILE_LEVEL_MODE_t exr_get_tile_level_mode(
+    exr_file_t *file, int part_index )
 {
-    EXR_TYPE(attr_tiledesc) *retval = NULL;
+    exr_attr_tiledesc_t *retval = NULL;
     REQ_ATTR_GET_IMPL(tiles, tiledesc);
-    return retval ? EXR_GET_TILE_LEVEL_MODE(*retval) : EXR_DEF(TILE_LAST_TYPE);
+    return retval ? EXR_GET_TILE_LEVEL_MODE(*retval) : EXR_TILE_LAST_TYPE;
 }
 
 /**************************************/
 
-EXR_TYPE(TILE_ROUND_MODE) EXR_FUN(get_tile_round_mode)(
-    EXR_TYPE(FILE) *file, int part_index )
+exr_TILE_ROUND_MODE_t exr_get_tile_round_mode(
+    exr_file_t *file, int part_index )
 {
-    EXR_TYPE(attr_tiledesc) *retval = NULL;
+    exr_attr_tiledesc_t *retval = NULL;
     REQ_ATTR_GET_IMPL(tiles, tiledesc);
-    return retval ? EXR_GET_TILE_ROUND_MODE(*retval) : EXR_DEF(TILE_ROUND_LAST_TYPE);
+    return retval ? EXR_GET_TILE_ROUND_MODE(*retval) : EXR_TILE_ROUND_LAST_TYPE;
 }
 
 /**************************************/
 
-int EXR_FUN(set_tile_descriptor)(
-    EXR_TYPE(FILE) *file, int part_index,
+int exr_set_tile_descriptor(
+    exr_file_t *file, int part_index,
     uint32_t x_size, uint32_t y_size,
-    EXR_TYPE(TILE_LEVEL_MODE) level_mode,
-    EXR_TYPE(TILE_ROUND_MODE) round_mode )
+    exr_TILE_LEVEL_MODE_t level_mode,
+    exr_TILE_ROUND_MODE_t round_mode )
 {
-    EXR_TYPE(attribute) *attr = NULL;
+    exr_attribute_t *attr = NULL;
     int rv;
 
     /* TODO: validate here or later? */
-    REQ_ATTR_FIND_CREATE(tiles, EXR_DEF(ATTR_TILEDESC) );
-    if ( rv == EXR_DEF(ERR_SUCCESS) )
+    REQ_ATTR_FIND_CREATE(tiles, EXR_ATTR_TILEDESC );
+    if ( rv == EXR_ERR_SUCCESS )
     {
         attr->tiledesc->x_size = x_size;
         attr->tiledesc->y_size = y_size;

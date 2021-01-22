@@ -15,7 +15,7 @@
 
 /**************************************/
 
-void EXR_FUN(get_library_version)( int *maj, int *min, int *patch, const char **extra )
+void exr_get_library_version( int *maj, int *min, int *patch, const char **extra )
 {
     if ( maj )
         *maj = OPENEXR_VERSION_MAJOR;
@@ -59,7 +59,7 @@ static int the_default_error_count = sizeof(the_default_errors) / sizeof(const c
 
 /**************************************/
 
-const char *EXR_FUN(get_default_error_message)( int code )
+const char *exr_get_default_error_message( int code )
 {
     code = code < 0 ? -code : code;
     if ( code >= the_default_error_count )
@@ -72,7 +72,7 @@ const char *EXR_FUN(get_default_error_message)( int code )
 static int sMaxW = 0;
 static int sMaxH = 0;
 
-void EXR_FUN(set_maximum_image_size)( int w, int h )
+void exr_set_maximum_image_size( int w, int h )
 {
     if ( w >= 0 && h >= 0 )
     {
@@ -83,14 +83,14 @@ void EXR_FUN(set_maximum_image_size)( int w, int h )
 
 /**************************************/
 
-int EXR_FUN(get_maximum_image_width)()
+int exr_get_maximum_image_width()
 {
     return sMaxW;
 }
 
 /**************************************/
 
-int EXR_FUN(get_maximum_image_height)()
+int exr_get_maximum_image_height()
 {
     return sMaxH;
 }
@@ -99,7 +99,7 @@ int EXR_FUN(get_maximum_image_height)()
 
 static int sTileMaxW = 0;
 static int sTileMaxH = 0;
-void EXR_FUN(set_maximum_tile_size)( int w, int h )
+void exr_set_maximum_tile_size( int w, int h )
 {
     if ( w >= 0 && h >= 0 )
     {
@@ -110,14 +110,14 @@ void EXR_FUN(set_maximum_tile_size)( int w, int h )
 
 /**************************************/
 
-int EXR_FUN(get_maximum_tile_width)()
+int exr_get_maximum_tile_width()
 {
     return sTileMaxW;
 }
 
 /**************************************/
 
-int EXR_FUN(get_maximum_tile_height)()
+int exr_get_maximum_tile_height()
 {
     return sTileMaxH;
 }
@@ -125,46 +125,46 @@ int EXR_FUN(get_maximum_tile_height)()
 /**************************************/
 
 static void
-print_attr( EXR_TYPE(attribute) *a, int verbose )
+print_attr( exr_attribute_t *a, int verbose )
 {
     printf( "%s: ", a->name );
     if ( verbose )
         printf( "%s ", a->type_name );
 	switch ( a->type )
 	{
-		case EXR_DEF(ATTR_BOX2I):
+		case EXR_ATTR_BOX2I:
 			printf( "[ %d, %d - %d %d ] %d x %d",
                     a->box2i->x_min, a->box2i->y_min, a->box2i->x_max, a->box2i->y_max,
                     a->box2i->x_max - a->box2i->x_min + 1,
                     a->box2i->y_max - a->box2i->y_min + 1 );
 			break;
-		case EXR_DEF(ATTR_BOX2F):
+		case EXR_ATTR_BOX2F:
 			printf( "[ %g, %g - %g %g ]",
                     a->box2f->x_min, a->box2f->y_min, a->box2f->x_max, a->box2f->y_max );
 			break;
-		case EXR_DEF(ATTR_CHLIST):
+		case EXR_ATTR_CHLIST:
 			printf( "%d channels\n", a->chlist->num_channels );
             for ( int c = 0; c < a->chlist->num_channels; ++c )
             {
                 if ( c > 0 )
                     printf( "\n" );
                 printf( "   '%s': %s samp %d %d", a->chlist->entries[c].name.str,
-                        ( a->chlist->entries[c].pixel_type == EXR_DEF(PIXEL_UINT) ? "uint" :
-                          ( a->chlist->entries[c].pixel_type == EXR_DEF(PIXEL_HALF) ? "half" :
-                            a->chlist->entries[c].pixel_type == EXR_DEF(PIXEL_FLOAT) ? "float" :
+                        ( a->chlist->entries[c].pixel_type == EXR_PIXEL_UINT ? "uint" :
+                          ( a->chlist->entries[c].pixel_type == EXR_PIXEL_HALF ? "half" :
+                            a->chlist->entries[c].pixel_type == EXR_PIXEL_FLOAT ? "float" :
                             "<UNKNOWN>" ) ),
                         a->chlist->entries[c].x_sampling,
                         a->chlist->entries[c].y_sampling );
             }
 			break;
-		case EXR_DEF(ATTR_CHROMATICITIES):
+		case EXR_ATTR_CHROMATICITIES:
 			printf( "r[%g, %g] g[%g, %g] b[%g, %g] w[%g, %g]",
 					a->chromaticities->red_x, a->chromaticities->red_y,
 					a->chromaticities->green_x, a->chromaticities->green_y,
 					a->chromaticities->blue_x, a->chromaticities->blue_y,
 					a->chromaticities->white_x, a->chromaticities->white_y );
 			break;
-		case EXR_DEF(ATTR_COMPRESSION):
+		case EXR_ATTR_COMPRESSION:
         {
             static char *compressionnames[] = {
                 "none",
@@ -183,73 +183,73 @@ print_attr( EXR_TYPE(attribute) *a, int verbose )
                 printf( " (0x%02X)", a->uc );
 			break;
         }
-		case EXR_DEF(ATTR_DOUBLE):
+		case EXR_ATTR_DOUBLE:
 			printf( "%g", a->d );
 			break;
-		case EXR_DEF(ATTR_ENVMAP):
+		case EXR_ATTR_ENVMAP:
 			printf( "%s", a->uc == 0 ? "latlong" : "cube" );
 			break;
-		case EXR_DEF(ATTR_FLOAT):
+		case EXR_ATTR_FLOAT:
 			printf( "%g", a->f );
 			break;
-		case EXR_DEF(ATTR_FLOAT_VECTOR):
+		case EXR_ATTR_FLOAT_VECTOR:
 			printf( "[%d entries]:\n   ", a->floatvector->length );
             for ( int i = 0; i < a->floatvector->length; ++i )
                 printf( " %g", a->floatvector->arr[i] );
 			break;
-		case EXR_DEF(ATTR_INT):
+		case EXR_ATTR_INT:
 			printf( "%d", a->i );
 			break;
-		case EXR_DEF(ATTR_KEYCODE):
+		case EXR_ATTR_KEYCODE:
 			printf( "mfgc %d film %d prefix %d count %d perf_off %d ppf %d ppc %d",
 					a->keycode->film_mfc_code, a->keycode->film_type, a->keycode->prefix,
 					a->keycode->count, a->keycode->perf_offset, a->keycode->perfs_per_frame,
 					a->keycode->perfs_per_count );
 			break;
-		case EXR_DEF(ATTR_LINEORDER):
+		case EXR_ATTR_LINEORDER:
 			printf( "%d (%s)", (int)a->uc,
-					a->uc == EXR_DEF(LINEORDER_INCREASING_Y) ? "increasing" :
-					( a->uc == EXR_DEF(LINEORDER_DECREASING_Y) ? "decreasing" :
-					  ( a->uc == EXR_DEF(LINEORDER_RANDOM_Y) ? "random" : "<UNKNOWN>" ) ) );
+					a->uc == EXR_LINEORDER_INCREASING_Y ? "increasing" :
+					( a->uc == EXR_LINEORDER_DECREASING_Y ? "decreasing" :
+					  ( a->uc == EXR_LINEORDER_RANDOM_Y ? "random" : "<UNKNOWN>" ) ) );
 			break;
-		case EXR_DEF(ATTR_M33F):
+		case EXR_ATTR_M33F:
 			printf( "[ [%g %g %g] [%g %g %g] [%g %g %g] ]",
 					a->m33f->m[0], a->m33f->m[1], a->m33f->m[2],
 					a->m33f->m[3], a->m33f->m[4], a->m33f->m[5],
 					a->m33f->m[6], a->m33f->m[7], a->m33f->m[8] );
 			break;
-		case EXR_DEF(ATTR_M33D):
+		case EXR_ATTR_M33D:
 			printf( "[ [%g %g %g] [%g %g %g] [%g %g %g] ]",
 					a->m33d->m[0], a->m33d->m[1], a->m33f->m[2],
 					a->m33d->m[3], a->m33d->m[4], a->m33f->m[5],
 					a->m33d->m[6], a->m33d->m[7], a->m33f->m[8] );
 			break;
-		case EXR_DEF(ATTR_M44F):
+		case EXR_ATTR_M44F:
 			printf( "[ [%g %g %g %g] [%g %g %g %g] [%g %g %g %g] [%g %g %g %g] ]",
 					a->m44f->m[0], a->m44f->m[1], a->m44f->m[2], a->m44f->m[3],
 					a->m44f->m[4], a->m44f->m[5], a->m44f->m[6], a->m44f->m[7],
 					a->m44f->m[8], a->m44f->m[9], a->m44f->m[10], a->m44f->m[11],
 					a->m44f->m[12], a->m44f->m[13], a->m44f->m[14], a->m44f->m[15] );
 			break;
-		case EXR_DEF(ATTR_M44D):
+		case EXR_ATTR_M44D:
 			printf( "[ [%g %g %g %g] [%g %g %g %g] [%g %g %g %g] [%g %g %g %g] ]",
 					a->m44d->m[0], a->m44d->m[1], a->m44d->m[2], a->m44d->m[3],
 					a->m44d->m[4], a->m44d->m[5], a->m44d->m[6], a->m44d->m[7],
 					a->m44d->m[8], a->m44d->m[9], a->m44d->m[10], a->m44d->m[11],
 					a->m44d->m[12], a->m44d->m[13], a->m44d->m[14], a->m44d->m[15] );
 			break;
-		case EXR_DEF(ATTR_PREVIEW):
+		case EXR_ATTR_PREVIEW:
 			printf( "%u x %u", a->preview->width, a->preview->height );
 			break;
-		case EXR_DEF(ATTR_RATIONAL):
+		case EXR_ATTR_RATIONAL:
 			printf( "%d / %u", a->rational->num, a->rational->denom );
 			if ( a->rational->denom != 0 )
 				printf( " (%g)", (double)( a->rational->num ) / (double)( a->rational->denom ) );
 			break;
-		case EXR_DEF(ATTR_STRING):
+		case EXR_ATTR_STRING:
 			printf( "'%s'", a->string->str ? a->string->str : "<NULL>" );
 			break;
-		case EXR_DEF(ATTR_STRING_VECTOR):
+		case EXR_ATTR_STRING_VECTOR:
 			printf( "[%d entries]:\n", a->stringvector->n_strings );
             for ( int i = 0; i < a->stringvector->n_strings; ++i )
             {
@@ -258,7 +258,7 @@ print_attr( EXR_TYPE(attribute) *a, int verbose )
                 printf( "    '%s'", a->stringvector->strings[i].str );
             }
 			break;
-		case EXR_DEF(ATTR_TILEDESC):
+		case EXR_ATTR_TILEDESC:
 		{
 			static const char *lvlModes[] = { "single image", "mipmap", "ripmap" };
 			uint8_t lvlMode = EXR_GET_TILE_LEVEL_MODE( *(a->tiledesc) );
@@ -269,35 +269,35 @@ print_attr( EXR_TYPE(attribute) *a, int verbose )
 					rndMode, rndMode == 0 ? "down" : "up" );
 			break;
 		}
-		case EXR_DEF(ATTR_TIMECODE):
+		case EXR_ATTR_TIMECODE:
 			printf( "time %u user %u", a->timecode->time_and_flags, a->timecode->user_data );
 			break;
-		case EXR_DEF(ATTR_V2I):
+		case EXR_ATTR_V2I:
 			printf( "[ %d, %d ]", a->v2i->x, a->v2i->y );
 			break;
-		case EXR_DEF(ATTR_V2F):
+		case EXR_ATTR_V2F:
 			printf( "[ %g, %g ]", a->v2f->x, a->v2f->y );
 			break;
-		case EXR_DEF(ATTR_V2D):
+		case EXR_ATTR_V2D:
 			printf( "[ %g, %g ]", a->v2d->x, a->v2d->y );
 			break;
-		case EXR_DEF(ATTR_V3I):
+		case EXR_ATTR_V3I:
 			printf( "[ %d, %d, %d ]", a->v3i->x, a->v3i->y, a->v3i->z );
 			break;
-		case EXR_DEF(ATTR_V3F):
+		case EXR_ATTR_V3F:
 			printf( "[ %g, %g, %g ]", a->v3f->x, a->v3f->y, a->v3f->z );
 			break;
-		case EXR_DEF(ATTR_V3D):
+		case EXR_ATTR_V3D:
 			printf( "[ %g, %g, %g ]", a->v3d->x, a->v3d->y, a->v3d->z );
 			break;
-		case EXR_DEF(ATTR_OPAQUE):
+		case EXR_ATTR_OPAQUE:
 			printf( "(size %d unp size %d hdlrs %p %p %p)",
                     a->opaque->size, a->opaque->unpacked_size,
                     a->opaque->unpack_func_ptr,
                     a->opaque->pack_func_ptr,
                     a->opaque->destroy_func_ptr );
 			break;
-		case EXR_DEF(ATTR_UNKNOWN):
+		case EXR_ATTR_UNKNOWN:
 		default:
 			printf( "<ERROR Unknown type '%s'>", a->type_name );
 			break;
@@ -306,9 +306,9 @@ print_attr( EXR_TYPE(attribute) *a, int verbose )
 
 /**************************************/
 
-void EXR_FUN(print_info)( EXR_TYPE(FILE) *file, int verbose )
+void exr_print_info( exr_file_t *file, int verbose )
 {
-    EXR_TYPE(PRIV_FILE) *f = EXR_GETFILE(file);
+    exr_PRIV_FILE_t *f = EXR_GETFILE(file);
     if ( f )
     {
         if ( verbose )
@@ -328,7 +328,7 @@ void EXR_FUN(print_info)( EXR_TYPE(FILE) *file, int verbose )
 
         for ( int partidx = 0; partidx < f->num_parts; ++partidx )
         {
-            EXR_TYPE(PRIV_PART) *curpart = f->parts[partidx];
+            exr_PRIV_PART_t *curpart = f->parts[partidx];
             if ( verbose || f->is_multipart || curpart->name )
                 printf( " part %d: %s\n", partidx + 1, curpart->name ? curpart->name->string->str : "<single>" );
             if ( verbose )

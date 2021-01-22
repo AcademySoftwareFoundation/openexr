@@ -41,38 +41,38 @@ typedef struct
     int (*unpack_func_ptr)( const void *data, int32_t attrsize, int32_t *outsize, void **outbuffer );
     int (*pack_func_ptr)( const void *data, int32_t datasize, int32_t *outsize, void **outbuffer );
     void (*destroy_func_ptr)( void *data, int32_t attrsize );
-} EXR_TYPE(attr_opaquedata);
+} exr_attr_opaquedata_t;
 
-EXR_EXPORT int EXR_FUN(attr_opaquedata_init)(
-    EXR_TYPE(FILE) *, EXR_TYPE(attr_opaquedata) *, size_t );
-EXR_EXPORT int EXR_FUN(attr_opaquedata_create)(
-    EXR_TYPE(FILE) *, EXR_TYPE(attr_opaquedata) *, size_t, const void * );
-EXR_EXPORT void EXR_FUN(attr_opaquedata_destroy)( EXR_TYPE(attr_opaquedata) *ud );
+EXR_EXPORT int exr_attr_opaquedata_init(
+    exr_file_t *, exr_attr_opaquedata_t *, size_t );
+EXR_EXPORT int exr_attr_opaquedata_create(
+    exr_file_t *, exr_attr_opaquedata_t *, size_t, const void * );
+EXR_EXPORT void exr_attr_opaquedata_destroy( exr_attr_opaquedata_t *ud );
 
 /** If an unpack routine was registered, this unpacks the opaque data, returning the pointer and size.
  *
  * The unpacked pointer is stored internally and will be freed during destroy */
-EXR_EXPORT void *EXR_FUN(attr_opaquedata_unpack)(
-    EXR_TYPE(FILE) *, EXR_TYPE(attr_opaquedata) *, int32_t *sz );
+EXR_EXPORT void *exr_attr_opaquedata_unpack(
+    exr_file_t *, exr_attr_opaquedata_t *, int32_t *sz );
 /** If a pack routine was registered, this packs the opaque data, returning the pointer and size.
  *
  * The packed pointer is stored internally and will be freed during destroy */
-EXR_EXPORT void *EXR_FUN(attr_opaquedata_pack)(
-    EXR_TYPE(FILE) *, EXR_TYPE(attr_opaquedata) *, int32_t *sz );
+EXR_EXPORT void *exr_attr_opaquedata_pack(
+    exr_file_t *, exr_attr_opaquedata_t *, int32_t *sz );
 /** Assigns unpacked data
  *
  * Assuming the appropriate handlers have been registered, assigns the
  * unpacked data to the provided value. This memory will be freed at
  * destruction time
  */
-EXR_EXPORT int EXR_FUN(attr_opaquedata_set_unpacked)(
-    EXR_TYPE(FILE) *, EXR_TYPE(attr_opaquedata) *, void *unpacked, int32_t sz );
+EXR_EXPORT int exr_attr_opaquedata_set_unpacked(
+    exr_file_t *, exr_attr_opaquedata_t *, void *unpacked, int32_t sz );
 
 /** Any opaque data entry of the specified type is tagged with these
  * functions enabling downstream users to unpack (or pack) the data.
  */
-EXR_EXPORT int EXR_FUN(register_attr_handler)(
-    EXR_TYPE(FILE) *file, const char *type,
+EXR_EXPORT int exr_register_attr_handler(
+    exr_file_t *file, const char *type,
     int (*unpack_func_ptr)( const void *data, int32_t attrsize, int32_t *outsize, void **outbuffer ),
     int (*pack_func_ptr)( const void *data, int32_t datasize, int32_t *outsize, void **outbuffer ),
     void (*destroy_func_ptr)( void *data, int32_t datasize ) );

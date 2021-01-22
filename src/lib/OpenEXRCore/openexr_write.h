@@ -18,16 +18,16 @@ extern "C" {
  * @{
  */
 
-EXR_EXPORT int EXR_FUN(set_longname_support)(
-    EXR_TYPE(FILE) *file, int onoff );
+EXR_EXPORT int exr_set_longname_support(
+    exr_file_t *file, int onoff );
 
-EXR_EXPORT int EXR_FUN(add_part)(
-    EXR_TYPE(FILE) *file,
+EXR_EXPORT int exr_add_part(
+    exr_file_t *file,
     const char *partname,
-    EXR_TYPE(STORAGE_TYPE) type );
+    exr_STORAGE_TYPE_t type );
 
-EXR_EXPORT int EXR_FUN(set_part_name)(
-    EXR_TYPE(FILE) *file, int part_index,
+EXR_EXPORT int exr_set_part_name(
+    exr_file_t *file, int part_index,
     const char *partname );
 
 /** @brief Writes the header data.
@@ -41,13 +41,13 @@ EXR_EXPORT int EXR_FUN(set_part_name)(
  *
  * @return 0 on success, otherwise an appropriate error code
  */
-EXR_EXPORT int EXR_FUN(write_header)(
-    EXR_TYPE(FILE) *file );
+EXR_EXPORT int exr_write_header(
+    exr_file_t *file );
 
 /*
-EXR_EXPORT int EXR_FUN(write_chunk)(
-    EXR_TYPE(FILE) *file,
-    const EXR_TYPE(chunk_info) *cinfo,
+EXR_EXPORT int exr_write_chunk(
+    exr_file_t *file,
+    const exr_chunk_info_t *cinfo,
     void *compressed_data, size_t comp_buf_size,
     const void *uncompressed_data, size_t uncompressed_size );
 */

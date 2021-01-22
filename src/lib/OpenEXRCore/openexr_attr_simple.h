@@ -26,45 +26,45 @@ extern "C" {
 /** enum declaring allowed values for uint8_t value stored in built-in compression type */
 typedef enum
 {
-    EXR_DEF(COMPRESSION_NONE) = 0,
-    EXR_DEF(COMPRESSION_RLE) = 1,
-    EXR_DEF(COMPRESSION_ZIPS) = 2,
-    EXR_DEF(COMPRESSION_ZIP) = 3,
-    EXR_DEF(COMPRESSION_PIZ) = 4,
-    EXR_DEF(COMPRESSION_PXR24) = 5,
-    EXR_DEF(COMPRESSION_B44) = 6,
-    EXR_DEF(COMPRESSION_B44A) = 7,
-    EXR_DEF(COMPRESSION_DWAA) = 8,
-    EXR_DEF(COMPRESSION_DWAB) = 9,
-    EXR_DEF(COMPRESSION_LAST_TYPE) /**< invalid value, provided for range checking */
-} EXR_TYPE(COMPRESSION_TYPE);
+    EXR_COMPRESSION_NONE = 0,
+    EXR_COMPRESSION_RLE = 1,
+    EXR_COMPRESSION_ZIPS = 2,
+    EXR_COMPRESSION_ZIP = 3,
+    EXR_COMPRESSION_PIZ = 4,
+    EXR_COMPRESSION_PXR24 = 5,
+    EXR_COMPRESSION_B44 = 6,
+    EXR_COMPRESSION_B44A = 7,
+    EXR_COMPRESSION_DWAA = 8,
+    EXR_COMPRESSION_DWAB = 9,
+    EXR_COMPRESSION_LAST_TYPE /**< invalid value, provided for range checking */
+} exr_COMPRESSION_TYPE_t;
 
 /** enum declaring allowed values for uint8_t value stored in built-in env map type */
 typedef enum
 {
-    EXR_DEF(ENVMAP_LATLONG) = 0,
-    EXR_DEF(ENVMAP_CUBE) = 1,
-    EXR_DEF(ENVMAP_LAST_TYPE) /**< invalid value, provided for range checking */
-} EXR_TYPE(ENVMAP_TYPE);
+    EXR_ENVMAP_LATLONG = 0,
+    EXR_ENVMAP_CUBE = 1,
+    EXR_ENVMAP_LAST_TYPE /**< invalid value, provided for range checking */
+} exr_ENVMAP_TYPE_t;
 
 /** enum declaring allowed values for uint8_t value stored in lineOrder type */
 typedef enum
 {
-    EXR_DEF(LINEORDER_INCREASING_Y) = 0,
-    EXR_DEF(LINEORDER_DECREASING_Y) = 1,
-    EXR_DEF(LINEORDER_RANDOM_Y) = 2,
-    EXR_DEF(LINEORDER_LAST_TYPE) /**< invalid value, provided for range checking */
-} EXR_TYPE(LINEORDER_TYPE);
+    EXR_LINEORDER_INCREASING_Y = 0,
+    EXR_LINEORDER_DECREASING_Y = 1,
+    EXR_LINEORDER_RANDOM_Y = 2,
+    EXR_LINEORDER_LAST_TYPE /**< invalid value, provided for range checking */
+} exr_LINEORDER_TYPE_t;
 
 /** enum declaring allowed values for part type */
 typedef enum
 {
-    EXR_DEF(STORAGE_SCANLINE) = 0, /**< corresponds to type of 'scanlineimage' */
-    EXR_DEF(STORAGE_TILED), /**< corresponds to type of 'tiledimage' */
-    EXR_DEF(STORAGE_DEEP_SCANLINE), /**< corresponds to type of 'deepscanline' */
-    EXR_DEF(STORAGE_DEEP_TILED), /**< corresponds to type of 'deeptile' */
-    EXR_DEF(STORAGE_LAST_TYPE) /**< invalid value, provided for range checking */
-} EXR_TYPE(STORAGE_TYPE);
+    EXR_STORAGE_SCANLINE = 0, /**< corresponds to type of 'scanlineimage' */
+    EXR_STORAGE_TILED, /**< corresponds to type of 'tiledimage' */
+    EXR_STORAGE_DEEP_SCANLINE, /**< corresponds to type of 'deepscanline' */
+    EXR_STORAGE_DEEP_TILED, /**< corresponds to type of 'deeptile' */
+    EXR_STORAGE_LAST_TYPE /**< invalid value, provided for range checking */
+} exr_STORAGE_TYPE_t;
 
 /** @} */
 
@@ -90,7 +90,7 @@ typedef struct
     int32_t y_min;
     int32_t x_max;
     int32_t y_max;
-} EXR_TYPE(attr_box2i);
+} exr_attr_box2i_t;
 
 /** @brief struct to hold a floating-point box / region definition */
 typedef struct
@@ -99,7 +99,7 @@ typedef struct
     float y_min;
     float x_max;
     float y_max;
-} EXR_TYPE(attr_box2f);
+} exr_attr_box2f_t;
 
 /** @brief struct to hold color chromaticities to interpret the tristimulus color values in the image data */
 typedef struct
@@ -112,7 +112,7 @@ typedef struct
     float blue_y;
     float white_x;
     float white_y;
-} EXR_TYPE(attr_chromaticities);
+} exr_attr_chromaticities_t;
 
 /** @brief struct to hold keycode information */
 typedef struct
@@ -124,45 +124,45 @@ typedef struct
     int32_t perf_offset;
     int32_t perfs_per_frame;
     int32_t perfs_per_count;
-} EXR_TYPE(attr_keycode);
+} exr_attr_keycode_t;
 
 /** @brief struct to hold a 32-bit floating-point 3x3 matrix */
 typedef struct
 {
     float m[9];
-} EXR_TYPE(attr_m33f);
+} exr_attr_m33f_t;
 
 /** @brief struct to hold a 64-bit floating-point 3x3 matrix */
 typedef struct
 {
     double m[9];
-} EXR_TYPE(attr_m33d);
+} exr_attr_m33d_t;
 
 /** @brief struct to hold a 32-bit floating-point 4x4 matrix */
 typedef struct
 {
     float m[16];
-} EXR_TYPE(attr_m44f);
+} exr_attr_m44f_t;
 
 /** @brief struct to hold a 64-bit floating-point 4x4 matrix */
 typedef struct
 {
     double m[16];
-} EXR_TYPE(attr_m44d);
+} exr_attr_m44d_t;
 
 /** @brief struct to hold an integer ratio value */
 typedef struct
 {
     int32_t num;
     uint32_t denom;
-} EXR_TYPE(attr_rational);
+} exr_attr_rational_t;
 
 /** @brief struct to hold timecode information */
 typedef struct
 {
     uint32_t time_and_flags;
     uint32_t user_data;
-} EXR_TYPE(attr_timecode);
+} exr_attr_timecode_t;
 
 /** @brief struct to hold a 2-element integer vector */
 typedef struct
@@ -175,7 +175,7 @@ typedef struct
         };
         int32_t arr[2];
     };
-} EXR_TYPE(attr_v2i);
+} exr_attr_v2i_t;
 
 /** @brief struct to hold a 2-element 32-bit float vector */
 typedef struct
@@ -188,7 +188,7 @@ typedef struct
         };
         float arr[2];
     };
-} EXR_TYPE(attr_v2f);
+} exr_attr_v2f_t;
 
 /** @brief struct to hold a 2-element 64-bit float vector */
 typedef struct
@@ -201,7 +201,7 @@ typedef struct
         };
         double arr[2];
     };
-} EXR_TYPE(attr_v2d);
+} exr_attr_v2d_t;
 
 /** @brief struct to hold a 3-element integer vector */
 typedef struct
@@ -214,7 +214,7 @@ typedef struct
         };
         int32_t arr[3];
     };
-} EXR_TYPE(attr_v3i);
+} exr_attr_v3i_t;
 
 /** @brief struct to hold a 3-element 32-bit float vector */
 typedef struct
@@ -227,7 +227,7 @@ typedef struct
         };
         float arr[3];
     };
-} EXR_TYPE(attr_v3f);
+} exr_attr_v3f_t;
 
 /** @brief struct to hold a 3-element 64-bit float vector */
 typedef struct
@@ -240,7 +240,7 @@ typedef struct
         };
         double arr[3];
     };
-} EXR_TYPE(attr_v3d);
+} exr_attr_v3d_t;
 
 #pragma pack(pop)
 /* Done with structures we'll read directly... */

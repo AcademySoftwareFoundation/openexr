@@ -23,9 +23,9 @@
 
 /**************************************/
 
-static int default_error_cb( EXR_TYPE(FILE) *f, int code, const char *msg )
+static int default_error_cb( exr_file_t *f, int code, const char *msg )
 {
-    EXR_TYPE(PRIV_FILE) *file = EXR_GETFILE(f);
+    exr_PRIV_FILE_t *file = EXR_GETFILE(f);
 #ifdef ILMBASE_THREADING_ENABLED
 #  ifdef _WIN32
     static CRITICAL_SECTION sMutex;
@@ -72,9 +72,9 @@ static int default_error_cb( EXR_TYPE(FILE) *f, int code, const char *msg )
     return code;
 }
 
-static int dispatch_error( EXR_TYPE(FILE) *f, int code, const char *msg )
+static int dispatch_error( exr_file_t *f, int code, const char *msg )
 {
-    EXR_TYPE(PRIV_FILE) *file = EXR_GETFILE(f);
+    exr_PRIV_FILE_t *file = EXR_GETFILE(f);
     if ( file && file->error_cb )
     {
         file->error_cb( file, code, msg );
@@ -86,17 +86,17 @@ static int dispatch_error( EXR_TYPE(FILE) *f, int code, const char *msg )
 
 /**************************************/
 
-static int dispatch_standard_error( EXR_TYPE(FILE) *file, int code )
+static int dispatch_standard_error( exr_file_t *file, int code )
 {
-    return dispatch_error( file, code, EXR_FUN(get_default_error_message)( code ) );
+    return dispatch_error( file, code, exr_get_default_error_message( code ) );
 }
 
 /**************************************/
 
-static int dispatch_print_error( EXR_TYPE(FILE) *file, int code, const char *msg, ... ) EXR_PRINTF_FUNC_ATTRIBUTE;
-static int dispatch_print_error( EXR_TYPE(FILE) *f, int code, const char *msg, ... )
+static int dispatch_print_error( exr_file_t *file, int code, const char *msg, ... ) EXR_PRINTF_FUNC_ATTRIBUTE;
+static int dispatch_print_error( exr_file_t *f, int code, const char *msg, ... )
 {
-    EXR_TYPE(PRIV_FILE) *file = EXR_GETFILE(f);
+    exr_PRIV_FILE_t *file = EXR_GETFILE(f);
     char stackbuf[256];
     char *heapbuf = NULL;
     int nwrit = 0;
@@ -130,15 +130,15 @@ static int dispatch_print_error( EXR_TYPE(FILE) *f, int code, const char *msg, .
 
 /**************************************/
 
-static void priv_destroy_parts( EXR_TYPE(PRIV_FILE) *f )
+static void priv_destroy_parts( exr_PRIV_FILE_t *f )
 {
     uint64_t *ctable;
-    EXR_TYPE(PRIV_PART) nil = {0};
+    exr_PRIV_PART_t nil = {0};
     for ( int p = 0; p < f->num_parts; ++p )
     {
-        EXR_TYPE(PRIV_PART) *cur = f->parts[p];
+        exr_PRIV_PART_t *cur = f->parts[p];
 
-        EXR_FUN(attr_list_destroy)( &(cur->attributes) );
+        exr_attr_list_destroy( &(cur->attributes) );
 
         /* we stack x and y together so only have to free the first */
         priv_free( cur->tile_level_tile_count_x );
@@ -165,11 +165,11 @@ static void priv_destroy_parts( EXR_TYPE(PRIV_FILE) *f )
 
 /**************************************/
 
-int priv_add_part( EXR_TYPE(PRIV_FILE) *f, EXR_TYPE(PRIV_PART) **outpart )
+int priv_add_part( exr_PRIV_FILE_t *f, exr_PRIV_PART_t **outpart )
 {
     int ncount = f->num_parts + 1;
-    EXR_TYPE(PRIV_PART) *part;
-    EXR_TYPE(PRIV_PART) **nptrs = NULL;
+    exr_PRIV_PART_t *part;
+    exr_PRIV_PART_t **nptrs = NULL;
 
     if ( ncount == 1 )
     {
@@ -180,23 +180,23 @@ int priv_add_part( EXR_TYPE(PRIV_FILE) *f, EXR_TYPE(PRIV_PART) **outpart )
     }
     else
     {
-        EXR_TYPE(PRIV_PART) nil = {0};
+        exr_PRIV_PART_t nil = {0};
 
-        part = priv_alloc( sizeof(EXR_TYPE(PRIV_PART)) );
+        part = priv_alloc( sizeof(exr_PRIV_PART_t) );
         if ( ! part )
-            return f->standard_error( (EXR_TYPE(FILE) *)f, EXR_DEF(ERR_OUT_OF_MEMORY) );
+            return f->standard_error( (exr_file_t *)f, EXR_ERR_OUT_OF_MEMORY );
 
-        nptrs = priv_alloc( sizeof(EXR_TYPE(PRIV_PART) *) * ncount );
+        nptrs = priv_alloc( sizeof(exr_PRIV_PART_t *) * ncount );
         if ( ! nptrs )
         {
             priv_free( part );
-            return f->standard_error( (EXR_TYPE(FILE) *)f, EXR_DEF(ERR_OUT_OF_MEMORY) );
+            return f->standard_error( (exr_file_t *)f, EXR_ERR_OUT_OF_MEMORY );
         }
         *part = nil;
     }
 
     /* assign appropriately invalid values */
-    part->storage_mode = EXR_DEF(STORAGE_LAST_TYPE);
+    part->storage_mode = EXR_STORAGE_LAST_TYPE;
     part->data_window.x_max = -1;
     part->data_window.y_max = -1;
     part->display_window.x_max = -1;
@@ -222,25 +222,25 @@ int priv_add_part( EXR_TYPE(PRIV_FILE) *f, EXR_TYPE(PRIV_PART) **outpart )
     if ( outpart )
         *outpart = part;
 
-    return EXR_DEF(ERR_SUCCESS);
+    return EXR_ERR_SUCCESS;
 }
 
 /**************************************/
 
-int priv_create_file( EXR_TYPE(PRIV_FILE) **out, EXR_TYPE(error_handler_cb) errcb, size_t userdatasz, int isread )
+int priv_create_file( exr_PRIV_FILE_t **out, exr_error_handler_cb_t errcb, size_t userdatasz, int isread )
 {
     uint8_t *ptr;
-    EXR_TYPE(PRIV_FILE) *ret, nil = {0};
+    exr_PRIV_FILE_t *ret, nil = {0};
 
     ptr = (uint8_t *)priv_alloc( sizeof(*ret) + userdatasz );
     if ( ptr == NULL )
     {
         if ( errcb )
-            (*errcb)( NULL, EXR_DEF(ERR_OUT_OF_MEMORY),
-                      EXR_FUN(get_default_error_message)( EXR_DEF(ERR_OUT_OF_MEMORY) ) );
-        return EXR_DEF(ERR_OUT_OF_MEMORY);
+            (*errcb)( NULL, EXR_ERR_OUT_OF_MEMORY,
+                      exr_get_default_error_message( EXR_ERR_OUT_OF_MEMORY ) );
+        return EXR_ERR_OUT_OF_MEMORY;
     }
-    ret = (EXR_TYPE(PRIV_FILE) *)ptr;
+    ret = (exr_PRIV_FILE_t *)ptr;
     *ret = nil;
 
     if ( userdatasz > 0 )
@@ -258,22 +258,22 @@ int priv_create_file( EXR_TYPE(PRIV_FILE) **out, EXR_TYPE(error_handler_cb) errc
      * but set properly invalid arguments */
     if ( isread )
     {
-        EXR_TYPE(PRIV_PART) *part;
+        exr_PRIV_PART_t *part;
         /* we know it won't be allocating, so there won't be anything to fail */
         priv_add_part( ret, &part );
     }
 
     *out = ret;
-    return EXR_DEF(ERR_SUCCESS);
+    return EXR_ERR_SUCCESS;
 }
 
 /**************************************/
 
-void priv_destroy_file( EXR_TYPE(PRIV_FILE) *pf )
+void priv_destroy_file( exr_PRIV_FILE_t *pf )
 {
-    EXR_FUN(attr_string_destroy)( &(pf->filename) );
-    EXR_FUN(attr_string_destroy)( &(pf->tmp_filename) );
-    EXR_FUN(attr_list_destroy)( &(pf->custom_handlers) );
+    exr_attr_string_destroy( &(pf->filename) );
+    exr_attr_string_destroy( &(pf->tmp_filename) );
+    exr_attr_list_destroy( &(pf->custom_handlers) );
     priv_destroy_parts( pf );
 
     priv_free( pf );

@@ -21,7 +21,7 @@ void testBase( const std::string &tempdir )
     const char *extra;
     const char *compextra = COMP_EXTRA;
 
-    EXR_FUN(get_library_version)( &maj, &min, &patch, &extra );
+    exr_get_library_version( &maj, &min, &patch, &extra );
     if ( maj != COMP_MAJ ||
          min != COMP_MIN ||
          patch != COMP_PATCH ||
@@ -44,10 +44,10 @@ void testBase( const std::string &tempdir )
             std::cout << "-" << extra;
     std::cout << std::endl;
 
-    EXR_FUN(get_library_version)( NULL, &min, &patch, &extra );
-    EXR_FUN(get_library_version)( &maj, NULL, &patch, &extra );
-    EXR_FUN(get_library_version)( &maj, &min, NULL, &extra );
-    EXR_FUN(get_library_version)( &maj, &min, &patch, NULL );
+    exr_get_library_version( NULL, &min, &patch, &extra );
+    exr_get_library_version( &maj, NULL, &patch, &extra );
+    exr_get_library_version( &maj, &min, NULL, &extra );
+    exr_get_library_version( &maj, &min, &patch, NULL );
 }
 
 void testBaseErrors( const std::string &tempdir )
@@ -56,33 +56,33 @@ void testBaseErrors( const std::string &tempdir )
 
     // just spot check that we get results and don't get null for out
     // of bounds access
-    errmsg = EXR_FUN(get_default_error_message)( EXR_DEF(ERR_SUCCESS) );
+    errmsg = exr_get_default_error_message( EXR_ERR_SUCCESS );
     if ( errmsg == NULL )
     {
         assert(false);
     }
-    errmsg = EXR_FUN(get_default_error_message)( EXR_DEF(ERR_OUT_OF_MEMORY) );
+    errmsg = exr_get_default_error_message( EXR_ERR_OUT_OF_MEMORY );
     if ( errmsg == NULL )
     {
         assert(false);
     }
-    errmsg = EXR_FUN(get_default_error_message)( EXR_DEF(ERR_UNKNOWN) );
+    errmsg = exr_get_default_error_message( EXR_ERR_UNKNOWN );
     if ( errmsg == NULL )
     {
         assert(false);
     }
-    errmsg = EXR_FUN(get_default_error_message)( -1 );
+    errmsg = exr_get_default_error_message( -1 );
     if ( errmsg == NULL || strcmp( errmsg, "Unable to allocate memory" ) )
     {
         std::cerr << "errmsg: " << errmsg << std::endl;
         assert(false);
     }
-    errmsg = EXR_FUN(get_default_error_message)( (int)EXR_DEF(ERR_UNKNOWN) + 1 );
+    errmsg = exr_get_default_error_message( (int)EXR_ERR_UNKNOWN + 1 );
     if ( errmsg == NULL )
     {
         assert(false);
     }
-    errmsg = EXR_FUN(get_default_error_message)( 110 );
+    errmsg = exr_get_default_error_message( 110 );
     if ( errmsg == NULL || strcmp( errmsg, "Unknown error code" ) )
     {
         assert(false);
@@ -91,51 +91,51 @@ void testBaseErrors( const std::string &tempdir )
 
 void testBaseLimits( const std::string &tempdir )
 {
-    EXR_FUN(set_maximum_image_size)( 42, 42 );
-    if ( EXR_FUN(get_maximum_image_width)() != 42 ||
-         EXR_FUN(get_maximum_image_height)() != 42 )
+    exr_set_maximum_image_size( 42, 42 );
+    if ( exr_get_maximum_image_width() != 42 ||
+         exr_get_maximum_image_height() != 42 )
     {
         std::cerr << "Unable to set_maximum_image_size: 42, 42 -> "
-                  << EXR_FUN(get_maximum_image_width)() << ", "
-                  << EXR_FUN(get_maximum_image_height)() << std::endl;
+                  << exr_get_maximum_image_width() << ", "
+                  << exr_get_maximum_image_height() << std::endl;
         assert(false);
     }
-    EXR_FUN(set_maximum_image_size)( -1, -1 );
-    if ( EXR_FUN(get_maximum_image_width)() != 42 ||
-         EXR_FUN(get_maximum_image_height)() != 42 )
+    exr_set_maximum_image_size( -1, -1 );
+    if ( exr_get_maximum_image_width() != 42 ||
+         exr_get_maximum_image_height() != 42 )
     {
         std::cerr << "Invalid request not ignored to set_maximum_image_size: 42, 42 -> "
-                  << EXR_FUN(get_maximum_image_width)() << ", "
-                  << EXR_FUN(get_maximum_image_height)() << std::endl;
+                  << exr_get_maximum_image_width() << ", "
+                  << exr_get_maximum_image_height() << std::endl;
         assert(false);
     }
 
-    EXR_FUN(set_maximum_tile_size)( 128, 128 );
-    if ( EXR_FUN(get_maximum_tile_width)() != 128 ||
-         EXR_FUN(get_maximum_tile_height)() != 128 )
+    exr_set_maximum_tile_size( 128, 128 );
+    if ( exr_get_maximum_tile_width() != 128 ||
+         exr_get_maximum_tile_height() != 128 )
     {
         std::cerr << "Unable to set_maximum_tile_size: 128, 128 -> "
-                  << EXR_FUN(get_maximum_tile_width)() << ", "
-                  << EXR_FUN(get_maximum_tile_height)() << std::endl;
+                  << exr_get_maximum_tile_width() << ", "
+                  << exr_get_maximum_tile_height() << std::endl;
         assert(false);
     }
-    EXR_FUN(set_maximum_tile_size)( -1, -1 );
-    if ( EXR_FUN(get_maximum_tile_width)() != 128 ||
-         EXR_FUN(get_maximum_tile_height)() != 128 )
+    exr_set_maximum_tile_size( -1, -1 );
+    if ( exr_get_maximum_tile_width() != 128 ||
+         exr_get_maximum_tile_height() != 128 )
     {
         std::cerr << "Invalid request not ignored to set_maximum_image_size: 128, 128 -> "
-                  << EXR_FUN(get_maximum_tile_width)() << ", "
-                  << EXR_FUN(get_maximum_tile_height)() << std::endl;
+                  << exr_get_maximum_tile_width() << ", "
+                  << exr_get_maximum_tile_height() << std::endl;
         assert(false);
     }
-    EXR_FUN(set_maximum_image_size)( 0, 0 );
-    EXR_FUN(set_maximum_tile_size)( 0, 0 );
+    exr_set_maximum_image_size( 0, 0 );
+    exr_set_maximum_tile_size( 0, 0 );
 }
 
 void testBaseDebug( const std::string &tempdir )
 {
-    EXR_TYPE(FILE) *f = NULL;
+    exr_file_t *f = NULL;
     // make sure we don't crash with null file handle (there should be error prints)
-    EXR_FUN(print_info)( NULL, 0 );
-    EXR_FUN(print_info)( f, 0 );
+    exr_print_info( NULL, 0 );
+    exr_print_info( f, 0 );
 }

@@ -21,27 +21,27 @@ extern "C" {
 /** Returns either the raw file name or the provided stream file name depending
  *  on which file creation routine was used
  */
-EXR_EXPORT const char *EXR_FUN(get_file_name)( EXR_TYPE(FILE) *file );
+EXR_EXPORT const char *exr_get_file_name( exr_file_t *file );
 
 /** @brief Query how many parts are in the file, returns 0 on error */
-EXR_EXPORT int EXR_FUN(get_part_count)( EXR_TYPE(FILE) *file );
+EXR_EXPORT int exr_get_part_count( exr_file_t *file );
 
 /** @brief Query whether the file has deep (nonimage data) in at least
  * one of it's constituent parts */
-EXR_EXPORT int EXR_FUN(has_deep)( EXR_TYPE(FILE) *file );
+EXR_EXPORT int exr_has_deep( exr_file_t *file );
 
 /** @brief Query the part name for the specified part
  *
  * NB: If this file is a single part file and name has not been set, this
  * will return NULL
  */
-EXR_EXPORT const char * EXR_FUN(get_part_name)(
-    EXR_TYPE(FILE) *file,
+EXR_EXPORT const char * exr_get_part_name(
+    exr_file_t *file,
     int part_index );
 
 /** @brief Query the storage type for the specified part */
-EXR_EXPORT EXR_TYPE(STORAGE_TYPE) EXR_FUN(get_part_storage)(
-    EXR_TYPE(FILE) *file,
+EXR_EXPORT exr_STORAGE_TYPE_t exr_get_part_storage(
+    exr_file_t *file,
     int part_index );
 
 /** @brief Query how many levels are in the specified part.
@@ -56,7 +56,7 @@ EXR_EXPORT EXR_TYPE(STORAGE_TYPE) EXR_FUN(get_part_storage)(
  * if you don't need both (i.e. in the case of a mip-level tiled
  * image)
  */
-EXR_EXPORT int EXR_FUN(get_tile_levels)( EXR_TYPE(FILE) *file, int part_index, int32_t *levelsx, int32_t *levelsy );
+EXR_EXPORT int exr_get_tile_levels( exr_file_t *file, int part_index, int32_t *levelsx, int32_t *levelsy );
 
 /** Return the number of chunks contained in this part of the file
  *
@@ -67,7 +67,7 @@ EXR_EXPORT int EXR_FUN(get_tile_levels)( EXR_TYPE(FILE) *file, int part_index, i
  * 
  * @return -1 on failure
  */
-EXR_EXPORT int32_t EXR_FUN(get_chunk_count)( EXR_TYPE(FILE) *file, int part_index );
+EXR_EXPORT int32_t exr_get_chunk_count( exr_file_t *file, int part_index );
 
 /** Return the number of scanlines chunks for this file part
  *
@@ -76,7 +76,7 @@ EXR_EXPORT int32_t EXR_FUN(get_chunk_count)( EXR_TYPE(FILE) *file, int part_inde
  * 
  * @return -1 on failure
  */
-EXR_EXPORT int32_t EXR_FUN(get_scanlines_per_chunk)( EXR_TYPE(FILE) *file, int part_index );
+EXR_EXPORT int32_t exr_get_scanlines_per_chunk( exr_file_t *file, int part_index );
 
 /** @} */
 

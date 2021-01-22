@@ -15,24 +15,24 @@ usage( const char *argv0 )
 	fprintf( stderr, "Usage: %s [-v|--verbose] <filename> [<filename> ...]\n\n", argv0 );
 }
 
-static void error_handler_cb( EXR_TYPE(FILE) *f, int code, const char *msg )
+static void error_handler_cb( exr_file_t *f, int code, const char *msg )
 {
     const char *fn = "<error>";
     if ( f )
-        fn = EXR_FUN(get_file_name)( f );
+        fn = exr_get_file_name( f );
 	fprintf( stderr, "ERROR '%s' (%d): %s\n", fn, code, msg );
 }
 
 static ssize_t stdin_reader(
-    EXR_TYPE(FILE) *file,
+    exr_file_t *file,
     void *userdata, void *buffer, size_t sz, off_t offset,
-    EXR_TYPE(stream_error_func_ptr) error_cb )
+    exr_stream_error_func_ptr_t error_cb )
 {
     static off_t lastoffset = 0;
     ssize_t nread = 0;
     if ( offset != lastoffset )
     {
-        error_cb( file, EXR_DEF(ERR_READ_IO), "Unable to seek in stdin stream" );
+        error_cb( file, EXR_ERR_READ_IO, "Unable to seek in stdin stream" );
         return -1;
     }
     nread = read( STDIN_FILENO, buffer, sz );
@@ -45,13 +45,13 @@ static ssize_t stdin_reader(
 static int process_stdin( int verbose )
 {
     int rv;
-    EXR_TYPE(FILE) *e = NULL;
+    exr_file_t *e = NULL;
 
-    rv = EXR_FUN(start_read_stream)( &e, "<stdin>", NULL, stdin_reader, NULL, NULL, error_handler_cb );
+    rv = exr_start_read_stream( &e, "<stdin>", NULL, stdin_reader, NULL, NULL, error_handler_cb );
 	if ( rv == 0 )
 	{
-        EXR_FUN(print_info)( e, verbose );
-		EXR_FUN(close)( &e );
+        exr_print_info( e, verbose );
+		exr_close( &e );
     }
     return rv;
 }
@@ -59,13 +59,13 @@ static int process_stdin( int verbose )
 static int process_file( const char *filename, int verbose )
 {
     int rv;
-    EXR_TYPE(FILE) *e = NULL;
+    exr_file_t *e = NULL;
 
-    rv = EXR_FUN(start_read)( &e, filename, error_handler_cb );
+    rv = exr_start_read( &e, filename, error_handler_cb );
 	if ( rv == 0 )
 	{
-        EXR_FUN(print_info)( e, verbose );
-		EXR_FUN(close)( &e );
+        exr_print_info( e, verbose );
+		exr_close( &e );
     }
     return rv;
 }

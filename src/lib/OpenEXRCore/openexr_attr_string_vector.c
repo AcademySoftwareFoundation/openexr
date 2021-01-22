@@ -12,39 +12,39 @@
 
 /**************************************/
 
-int EXR_FUN(attr_string_vector_init)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_string_vector) *sv, int32_t nent )
+int exr_attr_string_vector_init(
+    exr_file_t *f, exr_attr_string_vector_t *sv, int32_t nent )
 {
-    EXR_TYPE(attr_string_vector) nil = {0};
-    EXR_TYPE(attr_string) nils = {0};
-    size_t bytes = (size_t)nent * sizeof(EXR_TYPE(attr_string));
+    exr_attr_string_vector_t nil = {0};
+    exr_attr_string_t nils = {0};
+    size_t bytes = (size_t)nent * sizeof(exr_attr_string_t);
 
     if ( ! sv )
     {
         if ( f )
             EXR_GETFILE(f)->report_error(
-                f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                f, EXR_ERR_INVALID_ARGUMENT,
                 "Invalid reference to string vector object to assign to" );
-        return EXR_DEF(ERR_INVALID_ARGUMENT);
+        return EXR_ERR_INVALID_ARGUMENT;
     }
     
     if ( nent < 0 )
     {
         if ( f )
             EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                f, EXR_ERR_INVALID_ARGUMENT,
                 "Received request to allocate negative sized string vector (%d entries)",
                 nent );
-        return EXR_DEF(ERR_INVALID_ARGUMENT);
+        return EXR_ERR_INVALID_ARGUMENT;
     }
     if ( bytes > (size_t)INT32_MAX )
     {
         if ( f )
             EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                f, EXR_ERR_INVALID_ARGUMENT,
                 "Invalid too large size for string vector (%d entries)",
                 nent );
-        return EXR_DEF(ERR_INVALID_ARGUMENT);
+        return EXR_ERR_INVALID_ARGUMENT;
     }
 
     *sv = nil;
@@ -55,32 +55,32 @@ int EXR_FUN(attr_string_vector_init)(
         {
             if ( f )
                 EXR_GETFILE(f)->print_error(
-                    f, EXR_DEF(ERR_OUT_OF_MEMORY),
+                    f, EXR_ERR_OUT_OF_MEMORY,
                     "Unable to create memory for string vector (%lu bytes)",
                     bytes );
-            return EXR_DEF(ERR_OUT_OF_MEMORY);
+            return EXR_ERR_OUT_OF_MEMORY;
         }
         sv->n_strings = nent;
         sv->alloc_size = nent;
         for ( int32_t i = 0; i < nent; ++i )
-            *((EXR_TYPE(attr_string) *)(sv->strings + i)) = nils;
+            *((exr_attr_string_t *)(sv->strings + i)) = nils;
     }
         
-    return EXR_DEF(ERR_SUCCESS);
+    return EXR_ERR_SUCCESS;
 }
 
 /**************************************/
 
-void EXR_FUN(attr_string_vector_destroy)( EXR_TYPE(attr_string_vector) *sv )
+void exr_attr_string_vector_destroy( exr_attr_string_vector_t *sv )
 {
     if ( sv )
     {
-        EXR_TYPE(attr_string_vector) nil = {0};
+        exr_attr_string_vector_t nil = {0};
         if ( sv->alloc_size > 0 )
         {
-            EXR_TYPE(attr_string) *strs = (EXR_TYPE(attr_string) *)sv->strings;
+            exr_attr_string_t *strs = (exr_attr_string_t *)sv->strings;
             for ( int32_t i = 0; i < sv->n_strings; ++i )
-                EXR_FUN(attr_string_destroy)( strs + i );
+                exr_attr_string_destroy( strs + i );
             if ( strs )
                 priv_free( strs );
         }
@@ -90,8 +90,8 @@ void EXR_FUN(attr_string_vector_destroy)( EXR_TYPE(attr_string_vector) *sv )
 
 /**************************************/
 
-int EXR_FUN(attr_string_vector_init_entry)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_string_vector) *sv, int32_t idx, int32_t len )
+int exr_attr_string_vector_init_entry(
+    exr_file_t *f, exr_attr_string_vector_t *sv, int32_t idx, int32_t len )
 {
     if ( sv )
     {
@@ -99,98 +99,98 @@ int EXR_FUN(attr_string_vector_init_entry)(
         {
             if ( f )
                 EXR_GETFILE(f)->print_error(
-                    f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                    f, EXR_ERR_INVALID_ARGUMENT,
                     "Invalid index (%d of %d) initializing string vector",
                     idx, sv->n_strings );
-            return EXR_DEF(ERR_INVALID_ARGUMENT);
+            return EXR_ERR_INVALID_ARGUMENT;
         }
 
-        return EXR_FUN(attr_string_init)( f, (EXR_TYPE(attr_string) *)sv->strings + idx, len );
+        return exr_attr_string_init( f, (exr_attr_string_t *)sv->strings + idx, len );
     }
     
     if ( f )
         EXR_GETFILE(f)->print_error(
-            f, EXR_DEF(ERR_INVALID_ARGUMENT),
+            f, EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to string vector object to initialize index %d",
             idx );
-    return EXR_DEF(ERR_INVALID_ARGUMENT);
+    return EXR_ERR_INVALID_ARGUMENT;
 }
 
 /**************************************/
 
-int EXR_FUN(attr_string_vector_set_entry_with_length)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_string_vector) *sv, int32_t idx, const char *s, int32_t len )
+int exr_attr_string_vector_set_entry_with_length(
+    exr_file_t *f, exr_attr_string_vector_t *sv, int32_t idx, const char *s, int32_t len )
 {
     if ( ! sv )
     {
         if ( f )
             EXR_GETFILE(f)->report_error(
-                f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                f, EXR_ERR_INVALID_ARGUMENT,
                 "Invalid reference to string vector object to assign to" );
-        return EXR_DEF(ERR_INVALID_ARGUMENT);
+        return EXR_ERR_INVALID_ARGUMENT;
     }
     
     if ( idx < 0 || idx >= sv->n_strings )
     {
         if ( f )
             EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                f, EXR_ERR_INVALID_ARGUMENT,
                 "Invalid index (%d of %d) assigning string vector ('%s', len %d)",
                 idx, sv->n_strings, s ? s : "<nil>", len );
-        return EXR_DEF(ERR_INVALID_ARGUMENT);
+        return EXR_ERR_INVALID_ARGUMENT;
     }
 
-    return EXR_FUN(attr_string_set_with_length)( f, (EXR_TYPE(attr_string) *)sv->strings + idx, s, len );
+    return exr_attr_string_set_with_length( f, (exr_attr_string_t *)sv->strings + idx, s, len );
 }
 
 /**************************************/
 
-int EXR_FUN(attr_string_vector_set_entry)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_string_vector) *sv, int32_t idx, const char *s )
+int exr_attr_string_vector_set_entry(
+    exr_file_t *f, exr_attr_string_vector_t *sv, int32_t idx, const char *s )
 {
     int32_t len = 0;
     if ( s )
         len = (int32_t)strlen( s );
-    return EXR_FUN(attr_string_vector_set_entry_with_length)( f, sv, idx, s, len );
+    return exr_attr_string_vector_set_entry_with_length( f, sv, idx, s, len );
 }
 
 /**************************************/
 
-int EXR_FUN(attr_string_vector_add_entry_with_length)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_string_vector) *sv, const char *s, int32_t len )
+int exr_attr_string_vector_add_entry_with_length(
+    exr_file_t *f, exr_attr_string_vector_t *sv, const char *s, int32_t len )
 {
     int32_t nent;
     int rv;
-    EXR_TYPE(attr_string) *nlist;
+    exr_attr_string_t *nlist;
 
     if ( ! sv )
     {
         if ( f )
             EXR_GETFILE(f)->report_error(
-                f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                f, EXR_ERR_INVALID_ARGUMENT,
                 "Invalid reference to string vector object to assign to" );
-        return EXR_DEF(ERR_INVALID_ARGUMENT);
+        return EXR_ERR_INVALID_ARGUMENT;
     }
     
     nent = sv->n_strings + 1;
     if ( nent > sv->alloc_size )
     {
-        EXR_TYPE(attr_string) nil = {0};
+        exr_attr_string_t nil = {0};
         size_t bytes;
         int32_t allsz = sv->alloc_size * 2;
 
         if ( nent > allsz )
             allsz = nent + 1;
-        bytes = allsz * sizeof(EXR_TYPE(attr_string));
-        nlist = (EXR_TYPE(attr_string) *)priv_alloc( bytes );
+        bytes = allsz * sizeof(exr_attr_string_t);
+        nlist = (exr_attr_string_t *)priv_alloc( bytes );
         if ( nlist == NULL )
         {
             if ( f )
                 EXR_GETFILE(f)->print_error(
-                    f, EXR_DEF(ERR_OUT_OF_MEMORY),
+                    f, EXR_ERR_OUT_OF_MEMORY,
                     "Unable to create memory for string vector (%lu bytes)",
                     bytes );
-            return EXR_DEF(ERR_OUT_OF_MEMORY);
+            return EXR_ERR_OUT_OF_MEMORY;
         }
         for ( int32_t i = 0; i < sv->n_strings; ++i )
             *(nlist + i) = sv->strings[i];
@@ -202,10 +202,10 @@ int EXR_FUN(attr_string_vector_add_entry_with_length)(
     else
     {
         /* that means we own this and can write into, cast away const */
-        nlist = (EXR_TYPE(attr_string) *)sv->strings;
+        nlist = (exr_attr_string_t *)sv->strings;
     }
 
-    rv = EXR_FUN(attr_string_create_with_length)(
+    rv = exr_attr_string_create_with_length(
         f, nlist + sv->n_strings, s, len );
     if ( rv == 0 )
         sv->n_strings = nent;
@@ -214,11 +214,11 @@ int EXR_FUN(attr_string_vector_add_entry_with_length)(
 
 /**************************************/
 
-int EXR_FUN(attr_string_vector_add_entry)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_string_vector) *sv, const char *s )
+int exr_attr_string_vector_add_entry(
+    exr_file_t *f, exr_attr_string_vector_t *sv, const char *s )
 {
     int32_t len = 0;
     if ( s )
         len = (int32_t)strlen( s );
-    return EXR_FUN(attr_string_vector_add_entry_with_length)( f, sv, s, len );
+    return exr_attr_string_vector_add_entry_with_length( f, sv, s, len );
 }

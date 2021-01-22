@@ -16,32 +16,32 @@
 /**************************************/
 
 static int initialize_part_read(
-    EXR_TYPE(FILE) *f,
+    exr_file_t *f,
     int part_index,
-    EXR_TYPE(decode_chunk_info) *cinfo,
-    EXR_TYPE(PRIV_PART) **part,
+    exr_decode_chunk_info_t *cinfo,
+    exr_PRIV_PART_t **part,
     uint64_t **chunktable )
 {
-    //EXR_TYPE(decode_chunk_info) nil = {0};
-    EXR_TYPE(PRIV_FILE) *file = EXR_GETFILE(f);
-    EXR_TYPE(PRIV_PART) *retval = NULL;
+    //exr_decode_chunk_info_t nil = {0};
+    exr_PRIV_FILE_t *file = EXR_GETFILE(f);
+    exr_PRIV_PART_t *retval = NULL;
     uint64_t *ctable = NULL;
     int chans;
-    EXR_TYPE(attr_chlist) *chanlist;
-    EXR_TYPE(channel_decode_info) *chandecodes;
-    //EXR_TYPE(channel_decode_info) nilcd = {0};
+    exr_attr_chlist_t *chanlist;
+    exr_channel_decode_info_t *chandecodes;
+    //exr_channel_decode_info_t nilcd = {0};
     if ( ! f )
-        return EXR_DEF(ERR_INVALID_ARGUMENT);
+        return EXR_ERR_INVALID_ARGUMENT;
     if ( ! cinfo )
         return EXR_GETFILE(f)->report_error(
-            f, EXR_DEF(ERR_INVALID_ARGUMENT),
+            f, EXR_ERR_INVALID_ARGUMENT,
             "Missing chunk info pointer to compute scanline chunk" );
 
     //*cinfo = nil;
 
     if ( part_index < 0 || part_index >= file->num_parts )
         return EXR_GETFILE(f)->print_error(
-            f, EXR_DEF(ERR_INVALID_ARGUMENT),
+            f, EXR_ERR_INVALID_ARGUMENT,
             "Invalid part index (%d), file only has %d part(s)",
             part_index, file->num_parts );
 
@@ -58,11 +58,11 @@ static int initialize_part_read(
 
         if ( retval->chunk_count <= 0 )
             return EXR_GETFILE(f)->report_error(
-                f, EXR_DEF(ERR_INVALID_ARGUMENT), "Invalid file with no chunks" );
+                f, EXR_ERR_INVALID_ARGUMENT, "Invalid file with no chunks" );
 
         ctable = (uint64_t *)priv_alloc( chunkbytes );
         if ( ctable == NULL )
-            return EXR_GETFILE(f)->standard_error( f, EXR_DEF(ERR_OUT_OF_MEMORY) );
+            return EXR_GETFILE(f)->standard_error( f, EXR_ERR_OUT_OF_MEMORY );
 
         rv = file->do_read( f, ctable, chunkbytes, &chunkoff, &nread, EXR_MUST_READ_ALL );
         if ( rv != 0 )
@@ -71,7 +71,7 @@ static int initialize_part_read(
             return rv;
         }
         priv_to_native64( ctable, retval->chunk_count );
-        //EXR_GETFILE(f)->report_error( f, EXR_DEF(ERR_UNKNOWN), "TODO: implement reconstructLineOffsets and similar" );
+        //EXR_GETFILE(f)->report_error( f, EXR_ERR_UNKNOWN, "TODO: implement reconstructLineOffsets and similar" );
         nptr = (uintptr_t)ctable;
         // see if we win or not
         if ( ! atomic_compare_exchange_strong( &(retval->chunk_table), &eptr, nptr ) )
@@ -92,31 +92,31 @@ static int initialize_part_read(
     }
     else
     {
-        chandecodes = priv_alloc( chans * sizeof(EXR_TYPE(channel_decode_info)) );
+        chandecodes = priv_alloc( chans * sizeof(exr_channel_decode_info_t) );
         if ( chandecodes == NULL )
-            return EXR_GETFILE(f)->standard_error( f, EXR_DEF(ERR_OUT_OF_MEMORY) );
+            return EXR_GETFILE(f)->standard_error( f, EXR_ERR_OUT_OF_MEMORY );
     }
 
     cinfo->channels = chandecodes;
     cinfo->channel_count = chans;
     for ( int c = 0; c < chans; ++c )
     {
-        EXR_TYPE(attr_chlist_entry) *curc = (chanlist->entries + c);
+        exr_attr_chlist_entry_t *curc = (chanlist->entries + c);
         //*(chandecodes + c) = nilcd;
         chandecodes[c].channel_name = curc->name.str;
-        chandecodes[c].bytes_per_pel = ( curc->pixel_type == EXR_DEF(PIXEL_HALF) ) ? 2 : 4;
+        chandecodes[c].bytes_per_pel = ( curc->pixel_type == EXR_PIXEL_HALF ) ? 2 : 4;
         chandecodes[c].x_samples = curc->x_sampling;
         chandecodes[c].y_samples = curc->y_sampling;
     }
 
-    return EXR_DEF(ERR_SUCCESS);
+    return EXR_ERR_SUCCESS;
 }
 
 /**************************************/
 
-size_t EXR_FUN(get_chunk_unpacked_size)( EXR_TYPE(FILE) *f, int part_index )
+size_t exr_get_chunk_unpacked_size( exr_file_t *f, int part_index )
 {
-    EXR_TYPE(PRIV_FILE) *file = EXR_GETFILE(f);
+    exr_PRIV_FILE_t *file = EXR_GETFILE(f);
 
     if ( ! f )
         return (size_t)-1;
@@ -129,12 +129,12 @@ size_t EXR_FUN(get_chunk_unpacked_size)( EXR_TYPE(FILE) *f, int part_index )
 
 /**************************************/
 
-void EXR_FUN(destroy_decode_chunk_info)(
-    EXR_TYPE(decode_chunk_info) *cinfo )
+void exr_destroy_decode_chunk_info(
+    exr_decode_chunk_info_t *cinfo )
 {
     if ( cinfo )
     {
-        EXR_TYPE(decode_chunk_info) nil = {0};
+        exr_decode_chunk_info_t nil = {0};
         if ( cinfo->channels && cinfo->channels != cinfo->chan_store )
             priv_free( cinfo->channels );
 
@@ -154,19 +154,19 @@ void EXR_FUN(destroy_decode_chunk_info)(
 
 /**************************************/
 
-int EXR_FUN(decode_chunk_init_scanline)(
-    EXR_TYPE(FILE) *f, int part_index,
-    EXR_TYPE(decode_chunk_info) *cinfo,
+int exr_decode_chunk_init_scanline(
+    exr_file_t *f, int part_index,
+    exr_decode_chunk_info_t *cinfo,
     int y, int own_scratch_space )
 {
-    EXR_TYPE(PRIV_PART) *part;
+    exr_PRIV_PART_t *part;
     uint64_t *ctable;
     int rv, miny, cidx, rdcnt, lpc;
     int data[3];
     int64_t ddata[3];
     off_t dataoff;
     ssize_t fsize;
-    EXR_TYPE(attr_box2i) dw;
+    exr_attr_box2i_t dw;
 
     rv = initialize_part_read( f, part_index, cinfo, &part, &ctable );
     if ( rv != 0 )
@@ -175,18 +175,18 @@ int EXR_FUN(decode_chunk_init_scanline)(
     lpc = part->lines_per_chunk;
     dw = part->data_window;
 
-    if ( part->storage_mode == EXR_DEF(STORAGE_TILED) ||
-         part->storage_mode == EXR_DEF(STORAGE_DEEP_TILED) )
+    if ( part->storage_mode == EXR_STORAGE_TILED ||
+         part->storage_mode == EXR_STORAGE_DEEP_TILED )
     {
-        EXR_FUN(destroy_decode_chunk_info)( cinfo );
-        return EXR_GETFILE(f)->standard_error( f, EXR_DEF(ERR_SCAN_TILE_MIXEDAPI) );
+        exr_destroy_decode_chunk_info( cinfo );
+        return EXR_GETFILE(f)->standard_error( f, EXR_ERR_SCAN_TILE_MIXEDAPI );
     }
 
     if ( y < dw.y_min || y > dw.y_max )
     {
-        EXR_FUN(destroy_decode_chunk_info)( cinfo );
+        exr_destroy_decode_chunk_info( cinfo );
         return EXR_GETFILE(f)->print_error(
-            f, EXR_DEF(ERR_INVALID_ARGUMENT),
+            f, EXR_ERR_INVALID_ARGUMENT,
             "Invalid request for scanline %d outside range of data window (%d - %d)",
             y, dw.y_min, dw.y_max );
     }
@@ -195,7 +195,7 @@ int EXR_FUN(decode_chunk_init_scanline)(
     if ( lpc > 1 )
         cidx /= lpc;
 
-    if ( part->lineorder == EXR_DEF(LINEORDER_DECREASING_Y) )
+    if ( part->lineorder == EXR_LINEORDER_DECREASING_Y )
     {
         cidx = part->chunk_count - ( cidx + 1 );
         miny = dw.y_max - ( cidx + 1 ) * lpc;
@@ -206,9 +206,9 @@ int EXR_FUN(decode_chunk_init_scanline)(
     }
     if ( cidx < 0 || cidx >= part->chunk_count )
     {
-        EXR_FUN(destroy_decode_chunk_info)( cinfo );
+        exr_destroy_decode_chunk_info( cinfo );
         return EXR_GETFILE(f)->print_error(
-            f, EXR_DEF(ERR_INVALID_ARGUMENT),
+            f, EXR_ERR_INVALID_ARGUMENT,
             "Invalid request for scanline %d in chunk %d outside chunk count %d",
             y, cidx, part->chunk_count );
     }
@@ -231,7 +231,7 @@ int EXR_FUN(decode_chunk_init_scanline)(
     cinfo->own_scratch_buffers = own_scratch_space;
     for ( int c = 0; c < cinfo->channel_count; ++c )
     {
-        EXR_TYPE(channel_decode_info) *curc = (cinfo->channels + c);
+        exr_channel_decode_info_t *curc = (cinfo->channels + c);
         if ( curc->y_samples > 1 )
         {
             if ( cinfo->height == 1 )
@@ -250,24 +250,24 @@ int EXR_FUN(decode_chunk_init_scanline)(
 
     /* need to read from the file to get the packed chunk size */
     rdcnt = ( EXR_GETFILE(f)->is_multipart ) ? 2 : 1;
-    if ( part->storage_mode != EXR_DEF(STORAGE_DEEP_SCANLINE) )
+    if ( part->storage_mode != EXR_STORAGE_DEEP_SCANLINE )
         ++rdcnt;
 
     dataoff = (off_t)( ctable[cidx] );
     rv = EXR_GETFILE(f)->do_read( f, data, rdcnt * sizeof(int32_t), &dataoff, NULL, EXR_MUST_READ_ALL );
     if ( rv != 0 )
     {
-        EXR_FUN(destroy_decode_chunk_info)( cinfo );
+        exr_destroy_decode_chunk_info( cinfo );
         return rv;
     }
     priv_to_native32( data, rdcnt );
 
-    if ( part->storage_mode == EXR_DEF(STORAGE_DEEP_SCANLINE) )
+    if ( part->storage_mode == EXR_STORAGE_DEEP_SCANLINE )
     {
         rv = EXR_GETFILE(f)->do_read( f, ddata, 3 * sizeof(int64_t), &dataoff, NULL, EXR_MUST_READ_ALL );
         if ( rv != 0 )
         {
-            EXR_FUN(destroy_decode_chunk_info)( cinfo );
+            exr_destroy_decode_chunk_info( cinfo );
             return rv;
         }
         priv_to_native64( ddata, 3 );
@@ -279,9 +279,9 @@ int EXR_FUN(decode_chunk_init_scanline)(
     {
         if ( data[rdcnt] != part_index )
         {
-            EXR_FUN(destroy_decode_chunk_info)( cinfo );
+            exr_destroy_decode_chunk_info( cinfo );
             return EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+                f, EXR_ERR_BAD_CHUNK_DATA,
                 "Request for scanline %d found mismatch part %d vs %d in file",
                 y, data[rdcnt], part_index );
         }
@@ -289,15 +289,15 @@ int EXR_FUN(decode_chunk_init_scanline)(
     }
     if ( miny != data[rdcnt] )
     {
-        EXR_FUN(destroy_decode_chunk_info)( cinfo );
+        exr_destroy_decode_chunk_info( cinfo );
         return EXR_GETFILE(f)->print_error(
-            f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+            f, EXR_ERR_BAD_CHUNK_DATA,
             "Request for scanline %d found scanline %d, not %d at chunk %d",
             y, data[rdcnt], miny, cidx );
     }
     ++rdcnt;
 
-    if ( part->storage_mode == EXR_DEF(STORAGE_DEEP_SCANLINE) )
+    if ( part->storage_mode == EXR_STORAGE_DEEP_SCANLINE )
     {
         cinfo->sample_table.size = ddata[0];
         cinfo->packed.size = ddata[1];
@@ -306,25 +306,25 @@ int EXR_FUN(decode_chunk_init_scanline)(
 
         if ( ddata[0] < 0 )
         {
-            EXR_FUN(destroy_decode_chunk_info)( cinfo );
+            exr_destroy_decode_chunk_info( cinfo );
             return EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+                f, EXR_ERR_BAD_CHUNK_DATA,
                 "Request for deep scanline %d invalid sample table size %ld",
                 y, ddata[0] );
         }
         if ( ddata[1] < 0 || ddata[1] > (int64_t)INT_MAX )
         {
-            EXR_FUN(destroy_decode_chunk_info)( cinfo );
+            exr_destroy_decode_chunk_info( cinfo );
             return EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+                f, EXR_ERR_BAD_CHUNK_DATA,
                 "Request for deep scanline %d packed size %ld not supported",
                 y, ddata[1] );
         }
         if ( ddata[2] < 0 || ddata[2] > (int64_t)INT_MAX )
         {
-            EXR_FUN(destroy_decode_chunk_info)( cinfo );
+            exr_destroy_decode_chunk_info( cinfo );
             return EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+                f, EXR_ERR_BAD_CHUNK_DATA,
                 "Request for deep scanline %d unpacked size %ld not supported",
                 y, ddata[2] );
         }
@@ -333,9 +333,9 @@ int EXR_FUN(decode_chunk_init_scanline)(
     {
         if ( data[rdcnt] < 0 || (size_t)data[rdcnt] > part->unpacked_size_per_chunk )
         {
-            EXR_FUN(destroy_decode_chunk_info)( cinfo );
+            exr_destroy_decode_chunk_info( cinfo );
             return EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+                f, EXR_ERR_BAD_CHUNK_DATA,
                 "Request for scanline %d found invalid packed data block size %d",
                 y, data[rdcnt] );
         }
@@ -344,36 +344,36 @@ int EXR_FUN(decode_chunk_init_scanline)(
         cinfo->spare.size = part->unpacked_size_per_chunk;
     }
 
-    return EXR_DEF(ERR_SUCCESS);
+    return EXR_ERR_SUCCESS;
 }
 
 /**************************************/
 
-static int compute_tile_chunk_off( EXR_TYPE(FILE) *f,
-                                   EXR_TYPE(PRIV_PART) *part,
+static int compute_tile_chunk_off( exr_file_t *f,
+                                   exr_PRIV_PART_t *part,
                                    int tilex, int tiley,
                                    int levelx, int levely,
                                    int32_t *chunkoffout )
 {
     int numx, numy;
     int64_t chunkoff = 0;
-    const EXR_TYPE(attr_tiledesc) *tiledesc = part->tiles->tiledesc;
+    const exr_attr_tiledesc_t *tiledesc = part->tiles->tiledesc;
 
     switch ( EXR_GET_TILE_LEVEL_MODE( (*tiledesc) ) )
     {
-        case EXR_DEF(TILE_ONE_LEVEL):
-        case EXR_DEF(TILE_MIPMAP_LEVELS):
+        case EXR_TILE_ONE_LEVEL:
+        case EXR_TILE_MIPMAP_LEVELS:
             if ( levelx != levely )
             {
                 return EXR_GETFILE(f)->print_error(
-                    f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                    f, EXR_ERR_INVALID_ARGUMENT,
                     "Request for tile (%d, %d) level (%d, %d), but single level and mipmap tiles must have same level x and y",
                     tilex, tiley, levelx, levely );
             }
             if ( levelx >= part->num_tile_levels_x )
             {
                 return EXR_GETFILE(f)->print_error(
-                    f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                    f, EXR_ERR_INVALID_ARGUMENT,
                     "Request for tile (%d, %d) level %d, but level past available levels (%d)",
                     tilex, tiley, levelx, part->num_tile_levels_x );
             }
@@ -384,7 +384,7 @@ static int compute_tile_chunk_off( EXR_TYPE(FILE) *f,
             if ( tilex >= numx || tiley >= numy )
             {
                 return EXR_GETFILE(f)->print_error(
-                    f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                    f, EXR_ERR_INVALID_ARGUMENT,
                     "Request for tile (%d, %d) level %d, but level only has %d x %d tiles",
                     tilex, tiley, levelx, numx, numy );
             }
@@ -395,51 +395,51 @@ static int compute_tile_chunk_off( EXR_TYPE(FILE) *f,
             chunkoff += tiley * numx + tilex;
             break;
 
-        case EXR_DEF(TILE_RIPMAP_LEVELS):
+        case EXR_TILE_RIPMAP_LEVELS:
             if ( levelx >= part->num_tile_levels_x )
             {
                 return EXR_GETFILE(f)->print_error(
-                    f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                    f, EXR_ERR_INVALID_ARGUMENT,
                     "Request for tile (%d, %d) level %d, %d, but x level past available levels (%d)",
                     tilex, tiley, levelx, levely, part->num_tile_levels_x );
             }
             if ( levely >= part->num_tile_levels_y )
             {
                 return EXR_GETFILE(f)->print_error(
-                    f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                    f, EXR_ERR_INVALID_ARGUMENT,
                     "Request for tile (%d, %d) level %d, %d, but y level past available levels (%d)",
                     tilex, tiley, levelx, levely, part->num_tile_levels_y );
             }
 
             // TODO
             return EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_UNKNOWN),
+                f, EXR_ERR_UNKNOWN,
                 "RIPMAP support not yet finished in C layer" );
             break;
         default:
             return EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_UNKNOWN), "Invalid tile description" );
+                f, EXR_ERR_UNKNOWN, "Invalid tile description" );
     }
 
     if ( chunkoff >= part->chunk_count )
     {
         return EXR_GETFILE(f)->print_error(
-            f, EXR_DEF(ERR_UNKNOWN), "Invalid tile chunk offset %ld (%d avail)",
+            f, EXR_ERR_UNKNOWN, "Invalid tile chunk offset %ld (%d avail)",
             chunkoff, part->chunk_count );
     }
 
     *chunkoffout = (int32_t)chunkoff;
-    return EXR_DEF(ERR_SUCCESS);
+    return EXR_ERR_SUCCESS;
 }
 
-int EXR_FUN(decode_chunk_init_tile)(
-    EXR_TYPE(FILE) *f, int part_index,
-    EXR_TYPE(decode_chunk_info) *cinfo,
+int exr_decode_chunk_init_tile(
+    exr_file_t *f, int part_index,
+    exr_decode_chunk_info_t *cinfo,
     int tilex, int tiley,
     int levelx, int levely,
     int own_scratch_space )
 {
-    EXR_TYPE(PRIV_PART) *part;
+    exr_PRIV_PART_t *part;
     int32_t data[6];
     int32_t *tdata = data;
     int32_t cidx = 0, ntoread = 5;
@@ -450,14 +450,14 @@ int EXR_FUN(decode_chunk_init_tile)(
     int rv;
 
     rv = initialize_part_read( f, part_index, cinfo, &part, &ctable );
-    if ( rv != EXR_DEF(ERR_SUCCESS) )
+    if ( rv != EXR_ERR_SUCCESS )
         return rv;
 
-    if ( part->storage_mode == EXR_DEF(STORAGE_SCANLINE) ||
-         part->storage_mode == EXR_DEF(STORAGE_DEEP_SCANLINE) )
+    if ( part->storage_mode == EXR_STORAGE_SCANLINE ||
+         part->storage_mode == EXR_STORAGE_DEEP_SCANLINE )
     {
-        EXR_FUN(destroy_decode_chunk_info)( cinfo );
-        return EXR_GETFILE(f)->standard_error( f, EXR_DEF(ERR_TILE_SCAN_MIXEDAPI) );
+        exr_destroy_decode_chunk_info( cinfo );
+        return EXR_GETFILE(f)->standard_error( f, EXR_ERR_TILE_SCAN_MIXEDAPI );
     }
 
     if ( ! part->tiles ||
@@ -466,16 +466,16 @@ int EXR_FUN(decode_chunk_init_tile)(
          ! part->tile_level_tile_count_x ||
          ! part->tile_level_tile_count_y )
     {
-        EXR_FUN(destroy_decode_chunk_info)( cinfo );
+        exr_destroy_decode_chunk_info( cinfo );
         return EXR_GETFILE(f)->print_error(
-            f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+            f, EXR_ERR_BAD_CHUNK_DATA,
             "Request for tile, but no tile data exists" );
     }
 
     rv = compute_tile_chunk_off( f, part, tilex, tiley, levelx, levely, &cidx );
-    if ( rv != EXR_DEF(ERR_SUCCESS) )
+    if ( rv != EXR_ERR_SUCCESS )
     {
-        EXR_FUN(destroy_decode_chunk_info)( cinfo );
+        exr_destroy_decode_chunk_info( cinfo );
         return rv;
     }
 
@@ -492,7 +492,7 @@ int EXR_FUN(decode_chunk_init_tile)(
     cinfo->width = tilew;
     for ( int c = 0; c < cinfo->channel_count; ++c )
     {
-        EXR_TYPE(channel_decode_info) *curc = (cinfo->channels + c);
+        exr_channel_decode_info_t *curc = (cinfo->channels + c);
         curc->height = tileh;
         curc->width = tilew;
         unpacksize += tilew * tileh * curc->bytes_per_pel;
@@ -500,7 +500,7 @@ int EXR_FUN(decode_chunk_init_tile)(
 
     if ( EXR_GETFILE(f)->is_multipart )
         ++ntoread;
-    if ( part->storage_mode == EXR_DEF(STORAGE_DEEP_TILED) )
+    if ( part->storage_mode == EXR_STORAGE_DEEP_TILED )
         --ntoread;
     if ( EXR_GETFILE(f)->is_multipart )
         ++ntoread;
@@ -509,10 +509,10 @@ int EXR_FUN(decode_chunk_init_tile)(
     rv = EXR_GETFILE(f)->do_read( f, data, ntoread * sizeof(int32_t), &dataoff, &fsize, EXR_MUST_READ_ALL );
     if ( rv != 0 )
     {
-        EXR_FUN(destroy_decode_chunk_info)( cinfo );
+        exr_destroy_decode_chunk_info( cinfo );
         dataoff = (off_t)( ctable[cidx] );
         return EXR_GETFILE(f)->print_error(
-            f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+            f, EXR_ERR_BAD_CHUNK_DATA,
             "Request for tile (%d, %d), level (%d, %d) but unable to read %ld bytes from offset %ld, got %ld bytes",
             tilex, tiley, levelx, levely, ntoread * sizeof(int32_t), dataoff, fsize );
     }
@@ -522,9 +522,9 @@ int EXR_FUN(decode_chunk_init_tile)(
     {
         if ( part_index != data[0] )
         {
-            EXR_FUN(destroy_decode_chunk_info)( cinfo );
+            exr_destroy_decode_chunk_info( cinfo );
             return EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+                f, EXR_ERR_BAD_CHUNK_DATA,
                 "Request for multi-part tile found bad part index (%d), expect %d",
                 data[0], part_index );
         }
@@ -532,70 +532,70 @@ int EXR_FUN(decode_chunk_init_tile)(
     }
     if ( tdata[0] != tilex )
     {
-        EXR_FUN(destroy_decode_chunk_info)( cinfo );
+        exr_destroy_decode_chunk_info( cinfo );
         return EXR_GETFILE(f)->print_error(
-            f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+            f, EXR_ERR_BAD_CHUNK_DATA,
             "Request for tile found tile x coord mismatch: found %d, expect %d",
             tdata[0], tilex );
     }
     if ( tdata[1] != tiley )
     {
-        EXR_FUN(destroy_decode_chunk_info)( cinfo );
+        exr_destroy_decode_chunk_info( cinfo );
         return EXR_GETFILE(f)->print_error(
-            f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+            f, EXR_ERR_BAD_CHUNK_DATA,
             "Request for tile found tile y coord mismatch: found %d, expect %d",
             tdata[1], tiley );
     }
     if ( tdata[2] != levelx )
     {
-        EXR_FUN(destroy_decode_chunk_info)( cinfo );
+        exr_destroy_decode_chunk_info( cinfo );
         return EXR_GETFILE(f)->print_error(
-            f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+            f, EXR_ERR_BAD_CHUNK_DATA,
             "Request for tile found tile level x mismatch: found %d, expect %d",
             tdata[2], levelx );
     }
     if ( tdata[3] != levely )
     {
-        EXR_FUN(destroy_decode_chunk_info)( cinfo );
+        exr_destroy_decode_chunk_info( cinfo );
         return EXR_GETFILE(f)->print_error(
-            f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+            f, EXR_ERR_BAD_CHUNK_DATA,
             "Request for tile found tile level y mismatch: found %d, expect %d",
             tdata[3], levely );
     }
 
     fsize = EXR_GETFILE(f)->file_size;
-    if ( part->storage_mode == EXR_DEF(STORAGE_DEEP_TILED) )
+    if ( part->storage_mode == EXR_STORAGE_DEEP_TILED )
     {
         int64_t ddata[3];
         rv = EXR_GETFILE(f)->do_read( f, ddata, 3 * sizeof(int64_t), &dataoff, NULL, EXR_MUST_READ_ALL );
         if ( rv != 0 )
         {
-            EXR_FUN(destroy_decode_chunk_info)( cinfo );
+            exr_destroy_decode_chunk_info( cinfo );
             return rv;
         }
         priv_to_native64( ddata, 3 );
 
         if ( ddata[0] < 0 )
         {
-            EXR_FUN(destroy_decode_chunk_info)( cinfo );
+            exr_destroy_decode_chunk_info( cinfo );
             return EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+                f, EXR_ERR_BAD_CHUNK_DATA,
                 "Request for deep tile (%d, %d), level (%d, %d) invalid sample table size %ld",
                 tilex, tiley, levelx, levely, ddata[0] );
         }
         if ( ddata[1] < 0 || ddata[1] > (int64_t)INT_MAX )
         {
-            EXR_FUN(destroy_decode_chunk_info)( cinfo );
+            exr_destroy_decode_chunk_info( cinfo );
             return EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+                f, EXR_ERR_BAD_CHUNK_DATA,
                 "Request for deep tile (%d, %d), level (%d, %d) invalid packed size %ld",
                 tilex, tiley, levelx, levely, ddata[1] );
         }
         if ( ddata[2] < 0 || ddata[2] > (int64_t)INT_MAX )
         {
-            EXR_FUN(destroy_decode_chunk_info)( cinfo );
+            exr_destroy_decode_chunk_info( cinfo );
             return EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+                f, EXR_ERR_BAD_CHUNK_DATA,
                 "Request for deep tile (%d, %d), level (%d, %d) invalid unpacked size %ld",
                 tilex, tiley, levelx, levely, ddata[1] );
         }
@@ -607,9 +607,9 @@ int EXR_FUN(decode_chunk_init_tile)(
     }
     else if ( tdata[4] < 0 || tdata[4] > unpacksize || (fsize > 0 && tdata[4] > fsize) )
     {
-        EXR_FUN(destroy_decode_chunk_info)( cinfo );
+        exr_destroy_decode_chunk_info( cinfo );
         return EXR_GETFILE(f)->print_error(
-            f, EXR_DEF(ERR_BAD_CHUNK_DATA),
+            f, EXR_ERR_BAD_CHUNK_DATA,
             "Invalid data size found for tile (%d, %d) at level (%d, %d): %d unpack size %d file size %ld",
             tilex, tiley, levelx, levely, tdata[4], unpacksize, fsize );
     }
@@ -621,19 +621,19 @@ int EXR_FUN(decode_chunk_init_tile)(
         cinfo->chunk_data_offset = dataoff;
     }
 
-    return EXR_DEF(ERR_SUCCESS);
+    return EXR_ERR_SUCCESS;
 }
 
 /**************************************/
 
 static int read_uncompressed_direct(
-    EXR_TYPE(FILE) *f,
-    EXR_TYPE(decode_chunk_info) *cinfo )
+    exr_file_t *f,
+    exr_decode_chunk_info_t *cinfo )
 {
     off_t dataoffset = cinfo->chunk_data_offset;
     size_t nToRead;
     uint8_t *cdata;
-    int rv = EXR_DEF(ERR_SUCCESS);
+    int rv = EXR_ERR_SUCCESS;
 
     for ( int y = 0; y < cinfo->height; ++y )
     {
@@ -660,7 +660,7 @@ static int read_uncompressed_direct(
                 
             /* actual read into the output pointer */
             rv = EXR_GETFILE(f)->do_read( f, cdata, nToRead, &dataoffset, NULL, EXR_MUST_READ_ALL );
-            if ( rv != EXR_DEF(ERR_SUCCESS ) )
+            if ( rv != EXR_ERR_SUCCESS )
                 return rv;
 
             // need to swab them to native
@@ -677,8 +677,8 @@ static int read_uncompressed_direct(
 /**************************************/
 
 static void unpack_16bit_4_chans(
-    EXR_TYPE(FILE) *f,
-    EXR_TYPE(decode_chunk_info) *cinfo,
+    exr_file_t *f,
+    exr_decode_chunk_info_t *cinfo,
     const uint8_t *unpackbuffer )
 {
     /* we know we're unpacking all the channels and there is no subsampling */
@@ -807,8 +807,8 @@ static void unpack_16bit_4_chans(
 /**************************************/
 
 static void unpack_16bit_all_chans(
-    EXR_TYPE(FILE) *f,
-    EXR_TYPE(decode_chunk_info) *cinfo,
+    exr_file_t *f,
+    exr_decode_chunk_info_t *cinfo,
     const uint8_t *unpackbuffer )
 {
     /* we know we're unpacking all the channels and there is no subsampling */
@@ -865,8 +865,8 @@ static void unpack_16bit_all_chans(
 /**************************************/
 
 static void unpack_32bit_all_chans(
-    EXR_TYPE(FILE) *f,
-    EXR_TYPE(decode_chunk_info) *cinfo,
+    exr_file_t *f,
+    exr_decode_chunk_info_t *cinfo,
     const uint8_t *unpackbuffer )
 {
     /* we know we're unpacking all the channels and there is no subsampling */
@@ -925,8 +925,8 @@ static void unpack_32bit_all_chans(
 /**************************************/
 
 static void generic_unpack_subsampled(
-    EXR_TYPE(FILE) *f,
-    EXR_TYPE(decode_chunk_info) *cinfo,
+    exr_file_t *f,
+    exr_decode_chunk_info_t *cinfo,
     const uint8_t *unpackbuffer )
 {
     const uint8_t *srcbuffer = unpackbuffer;
@@ -1033,8 +1033,8 @@ static void generic_unpack_subsampled(
 /**************************************/
 
 static inline void unpack_data(
-    EXR_TYPE(FILE) *f,
-    EXR_TYPE(decode_chunk_info) *cinfo,
+    exr_file_t *f,
+    exr_decode_chunk_info_t *cinfo,
     const uint8_t *unpackbuffer,
     int chanstofill,
     int samebpc,
@@ -1063,21 +1063,21 @@ static inline void unpack_data(
 
 /**************************************/
 
-int EXR_FUN(read_chunk)(
-    EXR_TYPE(FILE) *f,
-    EXR_TYPE(decode_chunk_info) *cinfo )
+int exr_read_chunk(
+    exr_file_t *f,
+    exr_decode_chunk_info_t *cinfo )
 {
     int chanstofill = 0, chanstounpack = 0, samebpc = 0, hassampling = 0;
     off_t dataoffset = cinfo->chunk_data_offset;
     size_t nToRead;
     uint8_t *cdata;
-    int rv = EXR_DEF(ERR_SUCCESS);
+    int rv = EXR_ERR_SUCCESS;
 
     if ( ! f )
-        return EXR_DEF(ERR_INVALID_ARGUMENT);
+        return EXR_ERR_INVALID_ARGUMENT;
     if ( ! cinfo )
         return EXR_GETFILE(f)->report_error(
-            f, EXR_DEF(ERR_INVALID_ARGUMENT),
+            f, EXR_ERR_INVALID_ARGUMENT,
             "Missing chunk info pointer to read chunk" );
 
     for ( int c = 0; c < cinfo->channel_count; ++c )
@@ -1119,25 +1119,25 @@ int EXR_FUN(read_chunk)(
             cinfo->packed.buffer = priv_alloc( cinfo->packed.size );
             if ( ! cinfo->packed.buffer )
             {
-                return EXR_GETFILE(f)->standard_error( f, EXR_DEF(ERR_OUT_OF_MEMORY) );
+                return EXR_GETFILE(f)->standard_error( f, EXR_ERR_OUT_OF_MEMORY );
             }
         }
         else
         {
-            return EXR_GETFILE(f)->standard_error( f, EXR_DEF(ERR_OUT_OF_MEMORY) );
+            return EXR_GETFILE(f)->standard_error( f, EXR_ERR_OUT_OF_MEMORY );
         }
     }
     cdata = cinfo->packed.buffer;
     dataoffset = cinfo->chunk_data_offset;
     nToRead = cinfo->packed.size;
     rv = EXR_GETFILE(f)->do_read( f, cdata, nToRead, &dataoffset, NULL, EXR_MUST_READ_ALL );
-    if ( rv != EXR_DEF(ERR_SUCCESS ) )
+    if ( rv != EXR_ERR_SUCCESS )
         return rv;
 
     if ( cinfo->packed.size != cinfo->unpacked.size )
     {
-        if ( cinfo->chunk_compression == EXR_DEF(COMPRESSION_NONE) )
-            return EXR_GETFILE(f)->standard_error( f, EXR_DEF(ERR_INVALID_ARGUMENT) );
+        if ( cinfo->chunk_compression == EXR_COMPRESSION_NONE )
+            return EXR_GETFILE(f)->standard_error( f, EXR_ERR_INVALID_ARGUMENT );
 
         if ( ! cinfo->unpacked.buffer )
         {
@@ -1146,7 +1146,7 @@ int EXR_FUN(read_chunk)(
                 cinfo->unpacked.buffer = priv_alloc( cinfo->unpacked.size );
                 if ( ! cinfo->unpacked.buffer )
                 {
-                    return EXR_GETFILE(f)->standard_error( f, EXR_DEF(ERR_OUT_OF_MEMORY) );
+                    return EXR_GETFILE(f)->standard_error( f, EXR_ERR_OUT_OF_MEMORY );
                 }
             }
             else
@@ -1154,10 +1154,10 @@ int EXR_FUN(read_chunk)(
                 /****** EXIT POINT ******/
                 /* user said they own the buffers, and we've done what we can,
                  * they only want the compressed */
-                return EXR_DEF(ERR_SUCCESS);
+                return EXR_ERR_SUCCESS;
             }
         }
-        rv = EXR_FUN(decompress_data)( f, (EXR_TYPE(COMPRESSION_TYPE))cinfo->chunk_compression,
+        rv = exr_decompress_data( f, (exr_COMPRESSION_TYPE_t)cinfo->chunk_compression,
                                        cinfo->packed.buffer, cinfo->packed.size,
                                        cinfo->unpacked.buffer, cinfo->unpacked.size );
 

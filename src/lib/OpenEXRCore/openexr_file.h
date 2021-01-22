@@ -34,10 +34,10 @@ extern "C" {
  *
  * @returns 0 upon success, otherwise returns a value indicating the error
  */
-EXR_EXPORT int EXR_FUN(start_read)(
-    EXR_TYPE(FILE) **file,
+EXR_EXPORT int exr_start_read(
+    exr_file_t **file,
     const char *filename,
-    EXR_TYPE(error_handler_cb) error_cb );
+    exr_error_handler_cb_t error_cb );
 
 /** Starts a default filesystem write. If you have custom I/O requirements,
  * see the corresponding stream function in @see openexr_stream.h
@@ -47,11 +47,11 @@ EXR_EXPORT int EXR_FUN(start_read)(
  *
  * @returns 0 upon success, otherwise returns a value indicating the error
  */
-EXR_EXPORT int EXR_FUN(start_write)(
-    EXR_TYPE(FILE) **file,
+EXR_EXPORT int exr_start_write(
+    exr_file_t **file,
     const char *filename,
     int use_tempfile,
-    EXR_TYPE(error_handler_cb) error_cb );
+    exr_error_handler_cb_t error_cb );
 
 /** Starts a default filesystem header update read/write. If you have
  * custom I/O requirements, see the corresponding stream function in
@@ -66,10 +66,10 @@ EXR_EXPORT int EXR_FUN(start_write)(
  *
  * @returns 0 upon success, otherwise returns a value indicating the error
  */
-EXR_EXPORT int EXR_FUN(start_inplace_header_update)(
-    EXR_TYPE(FILE) **file,
+EXR_EXPORT int exr_start_inplace_header_update(
+    exr_file_t **file,
     const char *filename,
-    EXR_TYPE(error_handler_cb) error_cb );
+    exr_error_handler_cb_t error_cb );
 
 /** @brief Closes and frees any internally allocated memory,
  * calling any provided destroy function for custom streams
@@ -79,7 +79,7 @@ EXR_EXPORT int EXR_FUN(start_inplace_header_update)(
  * @return 0 upon success, error code otherwise. An error will
  * only be able to happen when the file is opened for write.
  */
-EXR_EXPORT int EXR_FUN(close)( EXR_TYPE(FILE) **file );
+EXR_EXPORT int exr_close( exr_file_t **file );
 
 /** @} */
 

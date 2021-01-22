@@ -13,27 +13,27 @@
 
 /**************************************/
 
-int EXR_FUN(attr_opaquedata_init)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_opaquedata) *u, size_t b )
+int exr_attr_opaquedata_init(
+    exr_file_t *f, exr_attr_opaquedata_t *u, size_t b )
 {
-    EXR_TYPE(attr_opaquedata) nil = {0};
+    exr_attr_opaquedata_t nil = {0};
     if ( ! u )
     {
         if ( f )
             EXR_GETFILE(f)->report_error(
-                f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                f, EXR_ERR_INVALID_ARGUMENT,
                 "Invalid reference to opaque data object to initialize" );
-        return EXR_DEF(ERR_INVALID_ARGUMENT);
+        return EXR_ERR_INVALID_ARGUMENT;
     }
     
     if ( b > (size_t)INT32_MAX )
     {
         if ( f )
             EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                f, EXR_ERR_INVALID_ARGUMENT,
                 "Invalid size for opaque data (%lu bytes, must be <= INT32_MAX)",
                 b );
-        return EXR_DEF(ERR_INVALID_ARGUMENT);
+        return EXR_ERR_INVALID_ARGUMENT;
     }
 
     *u = nil;
@@ -42,23 +42,23 @@ int EXR_FUN(attr_opaquedata_init)(
     {
         if ( f )
             EXR_GETFILE(f)->print_error(
-                f, EXR_DEF(ERR_OUT_OF_MEMORY),
+                f, EXR_ERR_OUT_OF_MEMORY,
                 "Unable to create memory for opaque data of %lu bytes",
                 b );
-        return EXR_DEF(ERR_OUT_OF_MEMORY);
+        return EXR_ERR_OUT_OF_MEMORY;
     }
     u->size = b;
     u->alloc_size = b;
-    return EXR_DEF(ERR_SUCCESS);
+    return EXR_ERR_SUCCESS;
 
 }
 
 /**************************************/
 
-int EXR_FUN(attr_opaquedata_create)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_opaquedata) *u, size_t b, const void *d )
+int exr_attr_opaquedata_create(
+    exr_file_t *f, exr_attr_opaquedata_t *u, size_t b, const void *d )
 {
-    int rv = EXR_FUN(attr_opaquedata_init)( f, u, b );
+    int rv = exr_attr_opaquedata_init( f, u, b );
     if ( rv == 0 )
     {
         if ( d )
@@ -70,11 +70,11 @@ int EXR_FUN(attr_opaquedata_create)(
 
 /**************************************/
 
-void EXR_FUN(attr_opaquedata_destroy)( EXR_TYPE(attr_opaquedata) *ud )
+void exr_attr_opaquedata_destroy( exr_attr_opaquedata_t *ud )
 {
     if ( ud )
     {
-        EXR_TYPE(attr_opaquedata) nil = {0};
+        exr_attr_opaquedata_t nil = {0};
         if ( ud->packed_data )
         {
             if ( ud->alloc_size > 0 )
@@ -96,8 +96,8 @@ void EXR_FUN(attr_opaquedata_destroy)( EXR_TYPE(attr_opaquedata) *ud )
 
 /**************************************/
 
-void *EXR_FUN(attr_opaquedata_unpack)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_opaquedata) *u, int32_t *sz )
+void *exr_attr_opaquedata_unpack(
+    exr_file_t *f, exr_attr_opaquedata_t *u, int32_t *sz )
 {
     if ( sz )
         *sz = 0;
@@ -106,7 +106,7 @@ void *EXR_FUN(attr_opaquedata_unpack)(
     {
         if ( f )
             EXR_GETFILE(f)->report_error(
-                f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                f, EXR_ERR_INVALID_ARGUMENT,
                 "Invalid reference to opaque data object to initialize" );
         return NULL;
     }
@@ -122,7 +122,7 @@ void *EXR_FUN(attr_opaquedata_unpack)(
     {
         if ( f )
             EXR_GETFILE(f)->report_error(
-                f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                f, EXR_ERR_INVALID_ARGUMENT,
                 "No unpack provider specified for opaque data" );
         return NULL;
     }
@@ -134,10 +134,10 @@ void *EXR_FUN(attr_opaquedata_unpack)(
 
 /**************************************/
 
-void *EXR_FUN(attr_opaquedata_pack)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_opaquedata) *u, int32_t *sz )
+void *exr_attr_opaquedata_pack(
+    exr_file_t *f, exr_attr_opaquedata_t *u, int32_t *sz )
 {
-    int rv = EXR_DEF(ERR_SUCCESS);
+    int rv = EXR_ERR_SUCCESS;
     int32_t nsize = 0;
     void *tmpptr = NULL;
     if ( sz )
@@ -147,7 +147,7 @@ void *EXR_FUN(attr_opaquedata_pack)(
     {
         if ( f )
             EXR_GETFILE(f)->report_error(
-                f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                f, EXR_ERR_INVALID_ARGUMENT,
                 "Invalid reference to opaque data object to initialize" );
         return NULL;
     }
@@ -163,12 +163,12 @@ void *EXR_FUN(attr_opaquedata_pack)(
     {
         if ( f )
             EXR_GETFILE(f)->report_error(
-                f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                f, EXR_ERR_INVALID_ARGUMENT,
                 "No pack provider specified for opaque data" );
         return NULL;
     }
     rv = u->pack_func_ptr( u->unpacked_data, u->unpacked_size, &nsize, &tmpptr );
-    if ( rv != EXR_DEF(ERR_SUCCESS) )
+    if ( rv != EXR_ERR_SUCCESS )
     {
         return NULL;
     }
@@ -183,16 +183,16 @@ void *EXR_FUN(attr_opaquedata_pack)(
 
 /**************************************/
 
-int EXR_FUN(attr_opaquedata_set_unpacked)(
-    EXR_TYPE(FILE) *f, EXR_TYPE(attr_opaquedata) *u, void *unpacked, int32_t sz )
+int exr_attr_opaquedata_set_unpacked(
+    exr_file_t *f, exr_attr_opaquedata_t *u, void *unpacked, int32_t sz )
 {
     if ( ! u )
     {
         if ( f )
             EXR_GETFILE(f)->report_error(
-                f, EXR_DEF(ERR_INVALID_ARGUMENT),
+                f, EXR_ERR_INVALID_ARGUMENT,
                 "Invalid reference to opaque data object to initialize" );
-        return EXR_DEF(ERR_INVALID_ARGUMENT);
+        return EXR_ERR_INVALID_ARGUMENT;
     }
 
     if ( u->unpacked_data )
@@ -213,52 +213,52 @@ int EXR_FUN(attr_opaquedata_set_unpacked)(
         u->size = 0;
     }
 
-    return EXR_DEF(ERR_SUCCESS);
+    return EXR_ERR_SUCCESS;
 }
 
 /**************************************/
 
-int EXR_FUN(register_attr_handler)(
-    EXR_TYPE(FILE) *file, const char *type,
+int exr_register_attr_handler(
+    exr_file_t *file, const char *type,
     int (*unpack_func_ptr)( const void *data, int32_t attrsize, int32_t *outsize, void **outbuffer ),
     int (*pack_func_ptr)( const void *data, int32_t datasize, int32_t *outsize, void **outbuffer ),
     void (*destroy_func_ptr)( void *data, int32_t datasize ) )
 {
-    EXR_TYPE(PRIV_FILE) *f = EXR_GETFILE(file);
-    EXR_TYPE(attribute) *ent;
+    exr_PRIV_FILE_t *f = EXR_GETFILE(file);
+    exr_attribute_t *ent;
     int rv;
     int32_t nlen, tlen, mlen = EXR_SHORTNAME_MAXLEN;
     char *ptr = NULL;
-    size_t attrblocksz = sizeof(EXR_TYPE(attribute));
+    size_t attrblocksz = sizeof(exr_attribute_t);
     int partcount = 0;
-    EXR_TYPE(attribute_list) *curattrs;
+    exr_attribute_list_t *curattrs;
 
     if ( ! f )
-        return EXR_DEF(ERR_INVALID_ARGUMENT);
+        return EXR_ERR_INVALID_ARGUMENT;
 
     mlen = (int32_t)EXR_GETFILE(f)->max_name_length;
 
     if ( ! type || type[0] == '\0' )
         return EXR_GETFILE(f)->report_error(
-            f, EXR_DEF(ERR_INVALID_ARGUMENT),
+            f, EXR_ERR_INVALID_ARGUMENT,
             "Invalid type to register_attr_handler" );
 
     tlen = (int32_t)strlen( type );
     if ( tlen > mlen )
         return EXR_GETFILE(f)->print_error(
-            f, EXR_DEF(ERR_INVALID_ARGUMENT),
+            f, EXR_ERR_INVALID_ARGUMENT,
             "Provided type name '%s' too long for file (len %d, max %d)",
             type, nlen, mlen );
 
-    ent = EXR_FUN(attr_list_find_by_name)( f, &(f->custom_handlers), type );
+    ent = exr_attr_list_find_by_name( f, &(f->custom_handlers), type );
     if ( ent )
         return EXR_GETFILE(f)->print_error(
-            f, EXR_DEF(ERR_INVALID_ARGUMENT),
+            f, EXR_ERR_INVALID_ARGUMENT,
             "Attribute handler for '%s' previously registered",
             type );
     ent = NULL;
-    rv = EXR_FUN(attr_list_add_by_type)( file, &(f->custom_handlers), type, type, 0, NULL, &ent );
-    if ( rv == EXR_DEF(ERR_SUCCESS) && ent )
+    rv = exr_attr_list_add_by_type( file, &(f->custom_handlers), type, type, 0, NULL, &ent );
+    if ( rv == EXR_ERR_SUCCESS && ent )
     {
         ent->opaque->unpack_func_ptr = unpack_func_ptr;
         ent->opaque->pack_func_ptr = pack_func_ptr;
@@ -270,10 +270,10 @@ int EXR_FUN(register_attr_handler)(
             f, rv, "Unable to register custom handler for type '%s'", type );
     }
 
-    partcount = EXR_FUN(get_part_count)( file );
+    partcount = exr_get_part_count( file );
     for ( int p = 0; p < partcount; ++p )
     {
-        curattrs = EXR_FUN(get_attribute_list)( file, p );
+        curattrs = exr_get_attribute_list( file, p );
         if ( curattrs )
         {
             int nattr = curattrs->num_attributes;

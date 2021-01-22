@@ -24,25 +24,25 @@
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
 
-static void error_handler_new( EXR_TYPE(FILE) *file, int code, const char *msg )
+static void error_handler_new( exr_file_t *file, int code, const char *msg )
 {
     std::cerr << "Core EXR ERROR:";
     if ( file )
-        std::cerr << " '" << EXR_FUN(get_file_name)( file ) << "'";
+        std::cerr << " '" << exr_get_file_name( file ) << "'";
     std::cerr << " (" << code << "): " << msg << std::endl;
 }
 
 class CoreReadTask : public Task
 {
 public:
-    CoreReadTask( TaskGroup *g, EXR_TYPE(FILE) *f, int y, uint8_t *ptr )
+    CoreReadTask( TaskGroup *g, exr_file_t *f, int y, uint8_t *ptr )
         : Task( g ), _f( f ), _y( y ), _ptr( ptr )
     {}
     void execute() override
     {
-        EXR_TYPE(decode_chunk_info) chunk = {0};
-        int rv = EXR_FUN(decode_chunk_init_scanline)( _f, 0, &chunk, _y, 1 );
-        if ( rv == EXR_DEF(ERR_SUCCESS) )
+        exr_decode_chunk_info_t chunk = {0};
+        int rv = exr_decode_chunk_init_scanline( _f, 0, &chunk, _y, 1 );
+        if ( rv == EXR_ERR_SUCCESS )
         {
             uint8_t *curchanptr = _ptr;
             int bytesperpixel = 0;
@@ -50,27 +50,27 @@ public:
                 bytesperpixel += chunk.channels[c].bytes_per_pel;
             for ( int c = 0; c < chunk.channel_count; ++c )
             {
-                EXR_TYPE(channel_decode_info) &outc = chunk.channels[c];
+                exr_channel_decode_info_t &outc = chunk.channels[c];
                 outc.data_ptr = curchanptr;
                 outc.output_pixel_stride = bytesperpixel;
                 outc.output_line_stride = outc.width * bytesperpixel;
                 curchanptr += chunk.channels[c].bytes_per_pel;
             }
-            rv = EXR_FUN(read_chunk)( _f, &chunk );
+            rv = exr_read_chunk( _f, &chunk );
         }
-        EXR_FUN(destroy_decode_chunk_info)( &chunk );
+        exr_destroy_decode_chunk_info( &chunk );
     }
 private:
-    EXR_TYPE(FILE) *_f;
+    exr_file_t *_f;
     int _y;
     uint8_t *_ptr;
 };
 
 #define THREADS 16
 
-static uint64_t read_pixels_raw( EXR_TYPE(FILE) *f )
+static uint64_t read_pixels_raw( exr_file_t *f )
 {
-    EXR_TYPE(attr_box2i) dw = EXR_FUN(get_data_window)( f, 0 );
+    exr_attr_box2i_t dw = exr_get_data_window( f, 0 );
     int64_t w = (int64_t)dw.x_max - (int64_t)dw.x_min + (int64_t)1;
     int64_t h = (int64_t)dw.x_max - (int64_t)dw.x_min + (int64_t)1;
     uint64_t ret = 0;
@@ -80,21 +80,21 @@ static uint64_t read_pixels_raw( EXR_TYPE(FILE) *f )
     if ( h <= 0 )
         return ret;
 
-    auto stortype = EXR_FUN(get_part_storage)( f, 0 );
+    auto stortype = exr_get_part_storage( f, 0 );
 
-    if ( stortype == EXR_DEF(STORAGE_TILED) ||
-         stortype == EXR_DEF(STORAGE_DEEP_TILED) )
+    if ( stortype == EXR_STORAGE_TILED ||
+         stortype == EXR_STORAGE_DEEP_TILED )
         throw std::logic_error( "Tiled performance read test NYI" );
 
-    if ( EXR_FUN(get_line_order)( f, 0 ) != EXR_DEF(LINEORDER_DECREASING_Y) )
+    if ( exr_get_line_order( f, 0 ) != EXR_LINEORDER_DECREASING_Y )
     {
         std::vector<uint8_t> rawBuf;
-        size_t sizePerChunk = EXR_FUN(get_chunk_unpacked_size)( f, 0 );
-        int32_t ccount = EXR_FUN(get_chunk_count)( f, 0 );
-        int32_t linesread = EXR_FUN(get_scanlines_per_chunk)( f, 0 );
+        size_t sizePerChunk = exr_get_chunk_unpacked_size( f, 0 );
+        int32_t ccount = exr_get_chunk_count( f, 0 );
+        int32_t linesread = exr_get_scanlines_per_chunk( f, 0 );
         if ( ccount <= 0 || sizePerChunk == 0 || sizePerChunk == size_t(-1) )
         {
-            EXR_FUN(print_info)( f, 1 );
+            exr_print_info( f, 1 );
             std::cerr << "sizePerChunk: " << sizePerChunk << std::endl;
             std::cerr << "chunk_count: " << ccount << std::endl;
             std::cerr << "linesperchunk: " << linesread << std::endl;
@@ -116,11 +116,11 @@ static uint64_t read_pixels_raw( EXR_TYPE(FILE) *f )
             ret += linesread * w;
         }
 #else
-        EXR_TYPE(decode_chunk_info) chunk = {0};
+        exr_decode_chunk_info_t chunk = {0};
         for ( int y = dw.y_min; y <= dw.y_max; )
         {
-            int rv = EXR_FUN(decode_chunk_init_scanline)( f, 0, &chunk, y, 1 );
-            if ( rv == EXR_DEF(ERR_SUCCESS) )
+            int rv = exr_decode_chunk_init_scanline( f, 0, &chunk, y, 1 );
+            if ( rv == EXR_ERR_SUCCESS )
             {
                 uint8_t *curchanptr = imgptr;
                 int bytesperpixel = 0;
@@ -128,14 +128,14 @@ static uint64_t read_pixels_raw( EXR_TYPE(FILE) *f )
                     bytesperpixel += chunk.channels[c].bytes_per_pel;
                 for ( int c = 0; c < chunk.channel_count; ++c )
                 {
-                    EXR_TYPE(channel_decode_info) &outc = chunk.channels[c];
+                    exr_channel_decode_info_t &outc = chunk.channels[c];
                     outc.data_ptr = curchanptr;
                     outc.output_pixel_stride = bytesperpixel;
                     outc.output_line_stride = outc.width * bytesperpixel;
                     curchanptr += chunk.channels[c].bytes_per_pel;
                 }
-                rv = EXR_FUN(read_chunk)( f, &chunk );
-                EXR_FUN(destroy_decode_chunk_info)( &chunk );
+                rv = exr_read_chunk( f, &chunk );
+                exr_destroy_decode_chunk_info( &chunk );
             }
             imgptr += sizePerChunk;
             y += linesread;
@@ -144,9 +144,9 @@ static uint64_t read_pixels_raw( EXR_TYPE(FILE) *f )
 #endif
 #if 0
         std::vector<uint8_t> compBuf, rawBuf;
-        const EXR_TYPE(attr_chlist) *channels = EXR_FUN(get_channels)( f, 0 );
-        size_t sizePerChunk = EXR_FUN(get_chunk_unpacked_size)( f, 0 );
-        int32_t ccount = EXR_FUN(get_chunk_count)( f, 0 );
+        const exr_attr_chlist_t *channels = exr_get_channels( f, 0 );
+        size_t sizePerChunk = exr_get_chunk_unpacked_size( f, 0 );
+        int32_t ccount = exr_get_chunk_count( f, 0 );
         if ( ccount < 0 || sizePerChunk == size_t(-1) )
             throw std::logic_error( "invalid chunk information" );
 
@@ -156,8 +156,8 @@ static uint64_t read_pixels_raw( EXR_TYPE(FILE) *f )
         // random or increasing
         for ( int y = dw.y_min; y <= dw.y_max; )
         {
-            EXR_TYPE(chunk_info) chunk = {0};
-            if ( EXR_FUN(compute_chunk_for_scanline)( f, 0, y, &chunk ) )
+            exr_chunk_info_t chunk = {0};
+            if ( exr_compute_chunk_for_scanline( f, 0, y, &chunk ) )
                 throw std::runtime_error( "Unable to compute chunk for scanline" );
             compBuf.resize( chunk.packed_size );
             if ( chunk.unpacked_size > sizePerChunk )
@@ -166,7 +166,7 @@ static uint64_t read_pixels_raw( EXR_TYPE(FILE) *f )
 
             linesread = chunk.scan_last_y - chunk.scan_start_y + 1;
 
-            if ( EXR_FUN(read_chunk)( f, &chunk, compBuf.data(), compBuf.size(),
+            if ( exr_read_chunk( f, &chunk, compBuf.data(), compBuf.size(),
                                       imgptr, chunk.unpacked_size ) )
                 throw std::runtime_error( "Unable to compute chunk for scanline" );
 
@@ -188,15 +188,15 @@ static void readCore( const std::string &fn,
                       uint64_t &closeTimeAccum,
                       uint64_t &pixCount )
 {
-    EXR_TYPE(FILE) *f = NULL;
+    exr_file_t *f = NULL;
 
     auto hstart = std::chrono::steady_clock::now();
-    if ( EXR_DEF(ERR_SUCCESS) == EXR_FUN(start_read)( &f, fn.c_str(), &error_handler_new ) )
+    if ( EXR_ERR_SUCCESS == exr_start_read( &f, fn.c_str(), &error_handler_new ) )
     {
         auto hend = std::chrono::steady_clock::now();
         pixCount += read_pixels_raw( f );
         auto imgtime = std::chrono::steady_clock::now();
-        EXR_FUN(close)( &f );
+        exr_close( &f );
         auto closetime = std::chrono::steady_clock::now();
         headerTimeAccum += std::chrono::duration_cast<std::chrono::nanoseconds>( hend - hstart ).count();
         imgDataTimeAccum += std::chrono::duration_cast<std::chrono::nanoseconds>( imgtime - hend ).count();
