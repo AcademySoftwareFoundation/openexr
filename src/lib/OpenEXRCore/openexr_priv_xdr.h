@@ -6,7 +6,81 @@
 #ifndef OPENEXR_PRIVATE_XDR_H
 #define OPENEXR_PRIVATE_XDR_H
 
-#include <endian.h>
+/*
+ * This is only a subset of generic endian behavior. OpenEXR is
+ * defined as little endian, so we only care about host <-> little
+ * endian and not anything with big endian.
+ */
+#if defined(__linux__) || defined(__CYGWIN__)
+
+#  include <endian.h>
+#  define EXR_HOST_IS_NOT_LITTLE_ENDIAN (__BYTE_ORDER != __LITTLE_ENDIAN)
+
+#elif defined(_WIN32) || defined(_WIN64)
+
+#  include <windows.h>
+#  include <stdlib.h>
+#  define EXR_HOST_IS_NOT_LITTLE_ENDIAN (BYTE_ORDER != LITTLE_ENDIAN)
+#  if EXR_HOST_IS_NOT_LITTLE_ENDIAN
+#    if defined(_MSC_VER)
+#      define htole16(x) _byteswap_ushort(x)
+#      define le16toh(x) _byteswap_ushort(x)
+#      define htole32(x) _byteswap_ulong(x)
+#      define le32toh(x) _byteswap_ulong(x)
+#      define htole64(x) _byteswap_uint64(x)
+#      define le64toh(x) _byteswap_uint64(x)
+#    elif defined(__GNUC__) || defined(__clang__)
+#      define htole16(x) __builtin_bswap16(x)
+#      define le16toh(x) __builtin_bswap16(x)
+#      define htole32(x) __builtin_bswap32(x)
+#      define le32toh(x) __builtin_bswap32(x)
+#      define htole64(x) __builtin_bswap64(x)
+#      define le64toh(x) __builtin_bswap64(x)
+#    else
+#      error Windows compiler unrecognized
+#    endif
+#  else
+#    define htole16(x) (x)
+#    define le16toh(x) (x)
+#    define htole32(x) (x)
+#    define le32toh(x) (x)
+#    define htole64(x) (x)
+#    define le64toh(x) (x)
+#  endif
+
+#elif defined(__APPLE__)
+
+#  include <libkern/OSByteOrder.h>
+#  define htole16(x) OSSwapHostToLittleInt16(x)
+#  define le16toh(x) OSSwapLittleToHostInt16(x)
+#  define htole32(x) OSSwapHostToLittleInt32(x)
+#  define le32toh(x) OSSwapLittleToHostInt32(x)
+#  define htole64(x) OSSwapHostToLittleInt64(x)
+#  define le64toh(x) OSSwapLittleToHostInt64(x)
+#  define EXR_HOST_IS_NOT_LITTLE_ENDIAN (BYTE_ORDER != LITTLE_ENDIAN)
+
+#elif defined(__OpenBSD__)
+
+#  include <sys/endian.h>
+#  define EXR_HOST_IS_NOT_LITTLE_ENDIAN (__BYTE_ORDER != __LITTLE_ENDIAN)
+
+#elif defined(__NetBSD__) || defined(__FreeBSD__) || defined(__DragonFly__)
+
+#  include <sys/endian.h>
+#  define be16toh(x) betoh16(x)
+#  define le16toh(x) letoh16(x)
+#  define be32toh(x) betoh32(x)
+#  define le32toh(x) letoh32(x)
+#  define be64toh(x) betoh64(x)
+#  define le64toh(x) letoh64(x)
+#  define EXR_HOST_IS_NOT_LITTLE_ENDIAN (__BYTE_ORDER != __LITTLE_ENDIAN)
+
+#else
+
+#  include <endian.h>
+#  define EXR_HOST_IS_NOT_LITTLE_ENDIAN (__BYTE_ORDER != __LITTLE_ENDIAN)
+
+#endif
 
 static inline uint64_t one_to_native64( uint64_t v )
 {
@@ -20,7 +94,7 @@ static inline uint64_t one_from_native64( uint64_t v )
 
 static inline void priv_to_native64( void *ptr, int n )
 {
-#if __BYTE_ORDER != __LITTLE_ENDIAN
+#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
     uint64_t *vals = (uint64_t *)ptr;
     for ( int i = 0; i < n; ++i )
         vals[i] = le64toh( vals[i] );
@@ -29,7 +103,7 @@ static inline void priv_to_native64( void *ptr, int n )
 
 static inline void priv_from_native64( void *ptr, int n )
 {
-#if __BYTE_ORDER != __LITTLE_ENDIAN
+#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
     uint64_t *vals = (uint64_t *)ptr;
     for ( int i = 0; i < n; ++i )
         vals[i] = htole64( vals[i] );
@@ -50,7 +124,7 @@ static inline uint32_t one_from_native32( uint32_t v )
 
 static inline void priv_to_native32( void *ptr, int n )
 {
-#if __BYTE_ORDER != __LITTLE_ENDIAN
+#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
     uint32_t *vals = (uint32_t *)ptr;
     for ( int i = 0; i < n; ++i )
         vals[i] = le32toh( vals[i] );
@@ -59,7 +133,7 @@ static inline void priv_to_native32( void *ptr, int n )
 
 static inline void priv_from_native32( void *ptr, int n )
 {
-#if __BYTE_ORDER != __LITTLE_ENDIAN
+#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
     uint32_t *vals = (uint32_t *)ptr;
     for ( int i = 0; i < n; ++i )
         vals[i] = htole32( vals[i] );
@@ -80,7 +154,7 @@ static inline uint16_t one_from_native16( uint16_t v )
 
 static inline void priv_to_native16( void *ptr, int n )
 {
-#if __BYTE_ORDER != __LITTLE_ENDIAN
+#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
     uint16_t *vals = (uint16_t *)ptr;
     for ( int i = 0; i < n; ++i )
         vals[i] = le16toh( vals[i] );
@@ -89,7 +163,7 @@ static inline void priv_to_native16( void *ptr, int n )
 
 static inline void priv_from_native16( void *ptr, int n )
 {
-#if __BYTE_ORDER != __LITTLE_ENDIAN
+#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
     uint16_t *vals = (uint16_t *)ptr;
     for ( int i = 0; i < n; ++i )
         vals[i] = htole16( vals[i] );
