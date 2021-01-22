@@ -64,7 +64,7 @@ else()
   set(OPENEXR_ENABLE_API_VISIBILITY ON)
 endif()
 
-check_library_exists(m fpclassify "" HAVE_LIB_M)
+check_library_exists(m __fpclassifyf "" HAVE_LIB_M)
 if (HAVE_LIB_M)
   set(OPENEXR_EXTRA_MATH_LIB m)
 endif()
