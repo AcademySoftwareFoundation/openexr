@@ -24,8 +24,8 @@ extern "C" {
 
 #if defined(_WIN32) || defined(_WIN64)
 /* msvc 2015+ has off_t in stdint.h / sys/types.h, we can use that as it's signed */
-typedef _off64_t exr_ssize_t;
-typedef _off64_t exr_off_t;
+typedef long long exr_ssize_t;
+typedef long long exr_off_t;
 #else
 typedef ssize_t exr_ssize_t;
 typedef off_t exr_off_t;
