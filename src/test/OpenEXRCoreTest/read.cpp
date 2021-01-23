@@ -20,8 +20,8 @@ static void err_cb( exr_file_t *f, int code, const char *msg )
     std::cerr << "err_cb ERROR " << code << ": " << msg << std::endl;
 }
 
-ssize_t dummyreadstream( exr_file_t *f, void *, void *, size_t, off_t,
-                         exr_stream_error_func_ptr_t errcb )
+exr_ssize_t dummyreadstream( exr_file_t *f, void *, void *, size_t, exr_off_t,
+                             exr_stream_error_func_ptr_t errcb )
 {
     return -1;
 }
