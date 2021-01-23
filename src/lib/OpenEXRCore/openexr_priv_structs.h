@@ -8,7 +8,36 @@
 
 #include "openexr.h"
 
-#include <stdatomic.h>
+#if defined(_MSC_VER)
+/* in theory, stdatomic.h is coming to msvc w/ c11 support, but not yet...
+ *
+ * we are only using a pointer and file offset during writing, both of
+ * which can be 64-bit (might be wasteful on 32-bit O.S., but will
+ * work until better support exists)
+ *
+ * if other atomic types / sizes are needed, something smarter will
+ * also be needed using if ( sizeof(*object) == XXXX ) tests, there
+ * are a few examples on the internet
+ */
+typedef uint64_t atomic_uintptr_t;
+typedef int64_t atomic_llong;
+
+#define atomic_load(object) InterlockedOr64( (int64_t volatile *)object, 0 )
+#define atomic_fetch_add(object, val) InterlockedExchangeAdd64( (int64_t volatile *)object, val )
+
+static inline bool atomic_compare_exchange_strong64( int64_t volatile *object, int64_t *expected, int64_t desired )
+{
+    int64_t prev = InterlockedCompareExchange64( object, desired, *expected );
+    if ( prev == *expected ) 
+        return true;
+    *expected = prev;
+    return false;
+}
+#define atomic_compare_exchange_strong(object, val, des) atomic_compare_exchange_strong64( object, val, des )
+
+#else
+# include <stdatomic.h>
+#endif
 
 typedef struct exr_part_t
 {
@@ -83,7 +112,7 @@ typedef struct _priv_exr_file_t
     exr_read_func_ptr_t  read_fn;
     exr_write_func_ptr_t write_fn;
 
-    atomic_long file_offset; /**< used when writing */
+    atomic_llong file_offset; /**< used when writing */
     exr_ssize_t file_size;
 
     uint8_t version;
