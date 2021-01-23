@@ -67,6 +67,6 @@ openexr_define_library(OpenEXRCore
 
   DEPENDENCIES
     ZLIB::ZLIB
+  PRIVATE_DEPS
+    ${OPENEXR_EXTRA_MATH_LIB}
   )
-
-target_link_libraries(OpenEXRCore PUBLIC ${OPENEXR_EXTRA_MATH_LIB})
