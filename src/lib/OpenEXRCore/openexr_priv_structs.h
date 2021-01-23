@@ -8,7 +8,10 @@
 
 #include "openexr.h"
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && ! defined(__GNUC__) && ! defined(__clang__)
+
+# include <windows.h>
+
 /* in theory, stdatomic.h is coming to msvc w/ c11 support, but not yet...
  *
  * we are only using a pointer and file offset during writing, both of
@@ -84,7 +87,7 @@ typedef struct exr_part_t
     int32_t lines_per_chunk;
 
     int32_t chunk_count;
-    off_t chunk_table_offset;
+    exr_off_t chunk_table_offset;
     atomic_uintptr_t chunk_table;
 } exr_PRIV_PART_t;
 
@@ -99,8 +102,8 @@ typedef struct _priv_exr_file_t
     exr_attr_string_t filename;
     exr_attr_string_t tmp_filename;
 
-    int (*do_read)( struct _priv_exr_file_t *file, void *, size_t, off_t *, exr_ssize_t *, __PRIV_READ_MODE );
-    int (*do_write)( struct _priv_exr_file_t *file, const void *, size_t, off_t * );
+    int (*do_read)( struct _priv_exr_file_t *file, void *, size_t, exr_off_t *, exr_ssize_t *, __PRIV_READ_MODE );
+    int (*do_write)( struct _priv_exr_file_t *file, const void *, size_t, exr_off_t * );
 
     int (*standard_error)( struct _priv_exr_file_t *file, int code );
     int (*report_error)( struct _priv_exr_file_t *file, int code, const char *msg );

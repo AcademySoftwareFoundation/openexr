@@ -7,6 +7,7 @@
 
 #include <windows.h>
 #include <fileapi.h>
+#include <strsafe.h>
 
 static int print_error_helper( exr_PRIV_FILE_t *pf,
                                int errcode,
@@ -37,18 +38,17 @@ static int print_error_helper( exr_PRIV_FILE_t *pf,
     
     if ( FAILED( StringCchPrintf((LPTSTR)lpDisplayBuf, bufsz,
                                  TEXT("%s: (%ld) %s"), 
-                                 lpszFunction, 
+                                 msg, 
                                  dw, 
                                  lpMsgBuf) ) )
     {
         return pf->print_error(
             pf, EXR_ERR_OUT_OF_MEMORY,
             "Unable to format message print" );
-        printf("FATAL ERROR: Unable to output error code.\n");
     }
 
     if ( error_cb )
-        error_cb( pf, errorcode, (const char *)lpDisplayBuf );
+        error_cb( pf, errcode, (const char *)lpDisplayBuf );
     else
         pf->print_error( pf, errcode, (const char *)lpDisplayBuf );
 
@@ -65,7 +65,20 @@ static int print_error( exr_PRIV_FILE_t *pf, int errcode, const char *msg )
 
 static int send_error( exr_PRIV_FILE_t *pf, int errcode, exr_stream_error_func_ptr_t error_cb, const char *msg )
 {
-    return send_error_helper( pf, errcode, GetLastError(), error_cb, msg );
+    return print_error_helper( pf, errcode, GetLastError(), error_cb, msg );
+}
+
+static wchar_t *widen_filename( const char *fn )
+{
+    int wcSize = 0, fnlen = 0;
+    wchar_t *wcFn = NULL;
+
+    fnlen = (int)strlen( file->filename.str );
+    wcSize = MultiByteToWideChar( CP_UTF8, 0, file->filename.str, fnlen, NULL, 0 );
+    wcFn = priv_alloc( sizeof(wchar_t) * ( wcSize + 1 ) );
+    if ( wcFn )
+        MultiByteToWideChar( CP_UTF8, 0, file->filename.str, fnlen, wcFn, wcSize );
+    return wcFn;
 }
 
 typedef struct
@@ -94,15 +107,29 @@ static int finalize_write( exr_PRIV_FILE_t *pf, int failed )
     /* TODO: Do we actually want to do this or leave the garbage file there */
     if ( failed && pf->destroy_fn == &default_shutdown )
     {
+        wchar_t *wcFn;
         if (  pf->tmp_filename.str )
-            DeleteFileA( pf->tmp_filename.str );
+            wcFn = widen_filename( pf->tmp_filename.str );
         else
-            DeleteFileA( pf->filename.str );
+            wcFn = widen_filename( pf->filename.str );
+        if ( wcFn )
+        {
+            DeleteFileW( wcFn );
+            priv_free( wcFn );
+        }
     }
 
     if ( !failed && pf->tmp_filename.str )
     {
-        if ( ! ReplaceFileA( pf->filename.str, pf->tmp_filename.str, NULL, NULL, NULL ) )
+        wchar_t *wcFnTmp = widen_filename( pf->tmp_filename.str );
+        wchar_t *wcFn = widen_filename( pf->filename.str );
+        BOOL res = FALSE;
+        if ( wcFn && wcFnTmp )
+            res = ReplaceFileW( wcFn, wcFnTmp, NULL, 0, NULL, NULL );
+        priv_free( wcFn );
+        priv_free( wcFnTmp );
+
+        if ( ! res )
             return print_error( pf, EXR_ERR_FILE_ACCESS,
                                 "Unable to rename temporary file to final destination" );
     }
@@ -117,7 +144,7 @@ static exr_ssize_t default_read_func(
     void *userdata,
     void *buffer,
     size_t sz,
-    off_t offset,
+    exr_off_t offset,
     exr_stream_error_func_ptr_t error_cb )
 {
     exr_ssize_t retsz = -1;
@@ -154,7 +181,7 @@ static exr_ssize_t default_read_func(
         DWORD dw = GetLastError();
         if ( dw != ERROR_HANDLE_EOF )
         {
-            print_error( EXR_GETFILE(file), EXR_ERR_READ_IO, error_cb, "Unable to read requested data" );
+            print_error_helper( EXR_GETFILE(file), EXR_ERR_READ_IO, dw, error_cb, "Unable to read requested data" );
         }
         else
         {
@@ -172,7 +199,7 @@ static exr_ssize_t default_write_func(
     void *userdata,
     const void *buffer,
     size_t sz,
-    off_t offset,
+    exr_off_t offset,
     exr_stream_error_func_ptr_t error_cb )
 {
     exr_ssize_t retsz = -1;
@@ -206,7 +233,6 @@ static exr_ssize_t default_write_func(
 
 static int default_init_read_file( exr_PRIV_FILE_t *file )
 {
-    int wcSize = 0, fnlen = 0;
     wchar_t *wcFn = NULL;
     HANDLE fd;
     exr_default_filehandle_t *fh = file->user_data;
@@ -215,12 +241,9 @@ static int default_init_read_file( exr_PRIV_FILE_t *file )
     file->destroy_fn = &default_shutdown;
     file->read_fn = &default_read_func;
 
-    fnlen = (int)strlen( file->filename.str );
-    wcSize = MultiByteToWideChar( CP_UTF8, 0, file->filename.str, fnlen, NULL, 0 );
-    wcFn = priv_alloc( sizeof(wchar_t) * ( wcSize + 1 ) );
+    wcFn = widen_filename( file->filename.str );
     if ( wcFn )
     {
-        MultiByteToWideChar( CP_UTF8, 0, file->filename.str, fnlen, wcFn, wcSize );
 #if defined(_WIN32_WINNT) && (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
         fd = CreateFile2( wcFn,
                           GENERIC_READ,
@@ -253,7 +276,6 @@ static int default_init_read_file( exr_PRIV_FILE_t *file )
 
 static int default_init_write_file( exr_PRIV_FILE_t *file )
 {
-    int wcSize = 0, fnlen = 0;
     wchar_t *wcFn = NULL;
     exr_default_filehandle_t *fh = file->user_data;
     HANDLE fd;
@@ -266,12 +288,9 @@ static int default_init_write_file( exr_PRIV_FILE_t *file )
     file->destroy_fn = &default_shutdown;
     file->write_fn = &default_write_func;
 
-    fnlen = (int)strlen( outfn );
-    wcSize = MultiByteToWideChar( CP_UTF8, 0, outfn, fnlen, NULL, 0 );
-    wcFn = priv_alloc( sizeof(wchar_t) * ( wcSize + 1 ) );
+    wcFn = widen_filename( outfn );
     if ( wcFn )
     {
-        MultiByteToWideChar( CP_UTF8, 0, outfn, fnlen, wcFn, wcSize );
 #if defined(_WIN32_WINNT) && (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
         fd = CreateFile2( wcFn,
                           GENERIC_WRITE | DELETE,
@@ -332,7 +351,7 @@ static int make_temp_filename( exr_PRIV_FILE_t *ret )
     char *tmpname;
     size_t tlen, newlen;
     const char *srcfile = ret->filename.str;
-    int nwr = snprintf( tmproot, 32, "tmp.%d", getpid() );
+    int nwr = _snprintf_s( tmproot, 32, _TRUNCATE, "tmp.%d", GetCurrentProcessId() );
     if ( nwr >= 32 )
         return ret->report_error( ret, EXR_ERR_INVALID_ARGUMENT,
                                   "Invalid assumption in temporary filename" );
@@ -365,15 +384,16 @@ static int make_temp_filename( exr_PRIV_FILE_t *ret )
         if ( lastslash )
         {
             size_t nPrev = (uintptr_t)lastslash - (uintptr_t)srcfile + 1;
-            strncpy( tmpname, srcfile, nPrev );
-            strncpy( tmpname + nPrev, tmproot, tlen );
-            strncpy( tmpname + nPrev + tlen, srcfile + nPrev, ret->filename.length - nPrev );
+            strncpy_s( tmpname, newlen + 1, srcfile, nPrev );
+            strncpy_s( tmpname + nPrev, newlen + 1 - nPrev, tmproot, tlen );
+            strncpy_s( tmpname + nPrev + tlen, newlen + 1 - nPrev - tlen,
+                       srcfile + nPrev, ret->filename.length - nPrev );
             tmpname[newlen] = '\0';
         }
         else
         {
-            strncpy( tmpname, tmproot, tlen );
-            strncpy( tmpname + tlen, srcfile, ret->filename.length );
+            strncpy_s( tmpname, newlen + 1, tmproot, tlen );
+            strncpy_s( tmpname + tlen, newlen + 1 - tlen, srcfile, ret->filename.length );
             tmpname[newlen] = '\0';
         }
     }

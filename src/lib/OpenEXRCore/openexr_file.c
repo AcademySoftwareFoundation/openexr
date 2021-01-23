@@ -9,6 +9,8 @@
 #include "openexr_priv_constants.h"
 #include "openexr_priv_memory.h"
 
+#include <stdio.h>
+
 #if defined(_WIN32) || defined(_WIN64)
 # include "openexr_file_win32_impl.h"
 #else
@@ -17,7 +19,7 @@
 
 /**************************************/
 
-static int dispatch_read( exr_file_t *f, void *buf, size_t sz, off_t *offsetp, exr_ssize_t *nread, __PRIV_READ_MODE rmode )
+static int dispatch_read( exr_file_t *f, void *buf, size_t sz, exr_off_t *offsetp, exr_ssize_t *nread, __PRIV_READ_MODE rmode )
 {
     exr_PRIV_FILE_t *file = EXR_GETFILE(f);
     exr_ssize_t rval = -1;
@@ -53,12 +55,12 @@ static int dispatch_read( exr_file_t *f, void *buf, size_t sz, off_t *offsetp, e
 
 /**************************************/
 
-static int dispatch_write( exr_file_t *f, const void *buf, size_t sz, off_t *offsetp )
+static int dispatch_write( exr_file_t *f, const void *buf, size_t sz, exr_off_t *offsetp )
 {
     exr_PRIV_FILE_t *file = EXR_GETFILE(f);
     exr_ssize_t rval = -1;
     int rv = EXR_ERR_UNKNOWN;
-    off_t outpos;
+    exr_off_t outpos;
 
     if ( ! file )
         return file->report_error( f, EXR_ERR_INVALID_ARGUMENT, "No file provided for write" );
@@ -68,7 +70,7 @@ static int dispatch_write( exr_file_t *f, const void *buf, size_t sz, off_t *off
             file, EXR_ERR_INVALID_ARGUMENT,
             "write requested with no output offset pointer" );
 
-    outpos = atomic_fetch_add( &(file->file_offset), (off_t)sz );
+    outpos = (exr_off_t)atomic_fetch_add( &(file->file_offset), (exr_off_t)sz );
     if ( file->write_fn )
         rval = file->write_fn( file, file->user_data, buf, sz, outpos, file->print_error );
     else

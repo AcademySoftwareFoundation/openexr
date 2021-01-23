@@ -24,9 +24,11 @@ extern "C" {
 
 #if defined(_WIN32) || defined(_WIN64)
 /* msvc 2015+ has off_t in stdint.h / sys/types.h, we can use that as it's signed */
-typedef off_t exr_ssize_t;
+typedef _off64_t exr_ssize_t;
+typedef _off64_t exr_off_t;
 #else
 typedef ssize_t exr_ssize_t;
+typedef off_t exr_off_t;
 #endif
 
 /** Destroy custom stream function pointer
@@ -73,7 +75,7 @@ typedef exr_ssize_t (* exr_query_size_func_ptr_t )( exr_file_t *file, void *user
  */
 typedef exr_ssize_t (* exr_read_func_ptr_t )(
     exr_file_t *file,
-    void *userdata, void *buffer, size_t sz, off_t offset,
+    void *userdata, void *buffer, size_t sz, exr_off_t offset,
     exr_stream_error_func_ptr_t error_cb );
 
 /** Write custom stream function pointer
@@ -97,7 +99,7 @@ typedef exr_ssize_t (* exr_read_func_ptr_t )(
  */
 typedef exr_ssize_t (* exr_write_func_ptr_t )(
     exr_file_t *file,
-    void *userdata, const void *buffer, size_t sz, off_t offset,
+    void *userdata, const void *buffer, size_t sz, exr_off_t offset,
     exr_stream_error_func_ptr_t error_cb );
 
 /** @} */

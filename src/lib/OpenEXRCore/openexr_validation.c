@@ -80,7 +80,6 @@ static int validate_image_dimensions( exr_file_t *f, exr_PRIV_PART_t *curpart )
     const exr_attr_box2i_t dspw = curpart->display_window;
     int64_t w, h;
     float par, sww;
-    int rv;
     int maxw = exr_get_maximum_image_width();
     int maxh = exr_get_maximum_image_height();
 

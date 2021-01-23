@@ -6,7 +6,7 @@
 #include "openexr_priv_memory.h"
 
 #ifdef _WIN32
-#  include <heapapi.h>
+#  include <windows.h>
 #else
 #  include <stdlib.h>
 #endif

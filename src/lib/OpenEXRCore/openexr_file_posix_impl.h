@@ -87,7 +87,7 @@ static exr_ssize_t default_read_func(
     void *userdata,
     void *buffer,
     size_t sz,
-    off_t offset,
+    exr_off_t offset,
     exr_stream_error_func_ptr_t error_cb )
 {
     exr_ssize_t rv, retsz = -1;
@@ -114,13 +114,13 @@ static exr_ssize_t default_read_func(
 #if ! CAN_USE_PREAD
     pthread_mutex_lock( &(fh->mutex) );
     {
-        off_t spos = lseek( fd, offset, SEEK_SET );
+        exr_off_t spos = lseek( fd, offset, SEEK_SET );
         if ( spos != offset )
         {
             pthread_mutex_unlock( &(fh->mutex) );
             if ( error_cb )
             {
-                if ( spos == (off_t)-1 )
+                if ( spos == (exr_off_t)-1 )
                     error_cb( file, EXR_ERR_READ_IO, strerror( errno ) );
                 else
                     error_cb( file, EXR_ERR_READ_IO, "Unable to seek to requested position" );
@@ -171,7 +171,7 @@ static exr_ssize_t default_write_func(
     void *userdata,
     const void *buffer,
     size_t sz,
-    off_t offset,
+    exr_off_t offset,
     exr_stream_error_func_ptr_t error_cb )
 {
     exr_ssize_t rv, retsz = -1;
@@ -198,13 +198,13 @@ static exr_ssize_t default_write_func(
 #if ! CAN_USE_PREAD
     pthread_mutex_lock( &(fh->mutex) );
     {
-        off_t spos = lseek( fd, offset, SEEK_SET );
+        exr_off_t spos = lseek( fd, offset, SEEK_SET );
         if ( spos != offset )
         {
             pthread_mutex_unlock( &(fh->mutex) );
             if ( error_cb )
             {
-                if ( spos == (off_t)-1 )
+                if ( spos == (exr_off_t)-1 )
                     error_cb( file, EXR_ERR_WRITE_IO, strerror( errno ) );
                 else
                     error_cb( file, EXR_ERR_WRITE_IO, "Unable to seek to requested position" );

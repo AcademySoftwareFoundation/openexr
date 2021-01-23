@@ -47,7 +47,7 @@ int exr_attr_opaquedata_init(
                 b );
         return EXR_ERR_OUT_OF_MEMORY;
     }
-    u->size = b;
+    u->size = (int32_t)b;
     u->alloc_size = b;
     return EXR_ERR_SUCCESS;
 
@@ -227,7 +227,7 @@ int exr_register_attr_handler(
     exr_PRIV_FILE_t *f = EXR_GETFILE(file);
     exr_attribute_t *ent;
     int rv;
-    int32_t nlen, tlen, mlen = EXR_SHORTNAME_MAXLEN;
+    int32_t tlen, mlen = EXR_SHORTNAME_MAXLEN;
     char *ptr = NULL;
     size_t attrblocksz = sizeof(exr_attribute_t);
     int partcount = 0;
@@ -248,7 +248,7 @@ int exr_register_attr_handler(
         return EXR_GETFILE(f)->print_error(
             f, EXR_ERR_INVALID_ARGUMENT,
             "Provided type name '%s' too long for file (len %d, max %d)",
-            type, nlen, mlen );
+            type, tlen, mlen );
 
     ent = exr_attr_list_find_by_name( f, &(f->custom_handlers), type );
     if ( ent )

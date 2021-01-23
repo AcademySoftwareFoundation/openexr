@@ -23,7 +23,7 @@ typedef struct exr_seq_scratch_t
     uint8_t *scratch;
     size_t curpos;
     exr_ssize_t navail;
-    off_t fileoff;
+    exr_off_t fileoff;
 
     int (*sequential_read)( struct exr_seq_scratch_t *, void *, size_t );
 
@@ -98,7 +98,7 @@ static int scratch_seq_read( struct exr_seq_scratch_t *scr, void *buf, size_t sz
 
 /**************************************/
 
-static int priv_init_scratch( exr_file_t *file, exr_PRIV_SEQ_SCRATCH_t *scr, off_t offset )
+static int priv_init_scratch( exr_file_t *file, exr_PRIV_SEQ_SCRATCH_t *scr, exr_off_t offset )
 {
     exr_PRIV_SEQ_SCRATCH_t nil = {0};
     *scr = nil;
@@ -1778,7 +1778,7 @@ int priv_parse_header( exr_PRIV_FILE_t *file )
     uint32_t flags;
     uint8_t next_byte;
     int rv = EXR_ERR_UNKNOWN, got_attr;
-    off_t curoffset = 0;
+    exr_off_t curoffset = 0;
 
     rv = priv_init_scratch( file, &scratch, 0 );
     if ( rv != EXR_ERR_SUCCESS )

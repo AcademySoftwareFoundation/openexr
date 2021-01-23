@@ -96,9 +96,21 @@ int exr_attr_string_init_static_with_length(
 int exr_attr_string_init_static(
     exr_file_t *f, exr_attr_string_t *s, const char *v )
 {
+    size_t fulllen = 0;
     int32_t length = 0;
     if ( v )
-        length = strlen( v );
+    {
+        fulllen = strlen( v );
+        if ( fulllen >= (size_t)INT32_MAX )
+        {
+            if ( f )
+                EXR_GETFILE(f)->report_error(
+                    f, EXR_ERR_INVALID_ARGUMENT,
+                    "Invalid string too long for attribute" );
+            return EXR_ERR_INVALID_ARGUMENT;
+        }
+        length = (int32_t)fulllen;
+    }
     return exr_attr_string_init_static_with_length( f, s, v, length );
 }
 

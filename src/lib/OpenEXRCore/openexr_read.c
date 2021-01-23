@@ -50,7 +50,7 @@ static int initialize_part_read(
     ctable = (uint64_t *)atomic_load( &(retval->chunk_table) );
     if ( ctable == NULL )
     {
-        off_t chunkoff = retval->chunk_table_offset;
+        exr_off_t chunkoff = retval->chunk_table_offset;
         size_t chunkbytes = sizeof(uint64_t) * (size_t)retval->chunk_count;
         exr_ssize_t nread = 0;
         uintptr_t eptr = 0, nptr = 0;
@@ -164,8 +164,7 @@ int exr_decode_chunk_init_scanline(
     int rv, miny, cidx, rdcnt, lpc;
     int data[3];
     int64_t ddata[3];
-    off_t dataoff;
-    exr_ssize_t fsize;
+    exr_off_t dataoff;
     exr_attr_box2i_t dw;
 
     rv = initialize_part_read( f, part_index, cinfo, &part, &ctable );
@@ -253,7 +252,7 @@ int exr_decode_chunk_init_scanline(
     if ( part->storage_mode != EXR_STORAGE_DEEP_SCANLINE )
         ++rdcnt;
 
-    dataoff = (off_t)( ctable[cidx] );
+    dataoff = (exr_off_t)( ctable[cidx] );
     rv = EXR_GETFILE(f)->do_read( f, data, rdcnt * sizeof(int32_t), &dataoff, NULL, EXR_MUST_READ_ALL );
     if ( rv != 0 )
     {
@@ -443,7 +442,7 @@ int exr_decode_chunk_init_tile(
     int32_t data[6];
     int32_t *tdata = data;
     int32_t cidx = 0, ntoread = 5;
-    off_t dataoff;
+    exr_off_t dataoff;
     exr_ssize_t fsize;
     int tilew, tileh, unpacksize = 0;
     uint64_t *ctable;
@@ -505,12 +504,12 @@ int exr_decode_chunk_init_tile(
     if ( EXR_GETFILE(f)->is_multipart )
         ++ntoread;
 
-    dataoff = (off_t)( ctable[cidx] );
+    dataoff = (exr_off_t)( ctable[cidx] );
     rv = EXR_GETFILE(f)->do_read( f, data, ntoread * sizeof(int32_t), &dataoff, &fsize, EXR_MUST_READ_ALL );
     if ( rv != 0 )
     {
         exr_destroy_decode_chunk_info( cinfo );
-        dataoff = (off_t)( ctable[cidx] );
+        dataoff = (exr_off_t)( ctable[cidx] );
         return EXR_GETFILE(f)->print_error(
             f, EXR_ERR_BAD_CHUNK_DATA,
             "Request for tile (%d, %d), level (%d, %d) but unable to read %ld bytes from offset %ld, got %ld bytes",
@@ -630,7 +629,7 @@ static int read_uncompressed_direct(
     exr_file_t *f,
     exr_decode_chunk_info_t *cinfo )
 {
-    off_t dataoffset = cinfo->chunk_data_offset;
+    exr_off_t dataoffset = cinfo->chunk_data_offset;
     size_t nToRead;
     uint8_t *cdata;
     int rv = EXR_ERR_SUCCESS;
@@ -1068,7 +1067,7 @@ int exr_read_chunk(
     exr_decode_chunk_info_t *cinfo )
 {
     int chanstofill = 0, chanstounpack = 0, samebpc = 0, hassampling = 0;
-    off_t dataoffset = cinfo->chunk_data_offset;
+    exr_off_t dataoffset = cinfo->chunk_data_offset;
     size_t nToRead;
     uint8_t *cdata;
     int rv = EXR_ERR_SUCCESS;

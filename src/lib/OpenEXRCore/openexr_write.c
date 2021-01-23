@@ -14,7 +14,6 @@ int exr_set_longname_support(
     exr_file_t *file, int onoff )
 {
     exr_PRIV_FILE_t *pf = EXR_GETFILE(file);
-    exr_PRIV_PART_t *curp;
     uint8_t oldval, newval;
 
     if ( ! file )
@@ -138,7 +137,7 @@ int exr_add_part (
             &(part->attributes),
             EXR_REQ_NAME_STR,
             EXR_ATTR_STRING,
-            pnamelen + 1,
+            (int32_t)(pnamelen + 1),
             &namestr,
             &(part->name));
 
