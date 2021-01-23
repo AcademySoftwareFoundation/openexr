@@ -44,7 +44,12 @@ static exr_ssize_t stdin_reader(
         return -1;
     }
 #ifdef _WIN32
-    nread = _read( STDIN_FILENO, buffer, sz );
+    if ( sz >= (size_t)(INT32_MAX) )
+    {
+        error_cb( file, EXR_ERR_READ_IO, "Read request too large for win32 API" );
+        return -1;
+    }
+    nread = _read( _fileno(stdin), buffer, (unsigned)sz );
 #else
     nread = read( STDIN_FILENO, buffer, sz );
 #endif
@@ -60,7 +65,7 @@ static int process_stdin( int verbose )
     exr_file_t *e = NULL;
 
 #ifdef _WIN32
-    _setmode( STDIN_FILENO, _O_BINARY );
+    _setmode( _fileno(stdin), _O_BINARY );
 #endif
     rv = exr_start_read_stream( &e, "<stdin>", NULL, stdin_reader, NULL, NULL, error_handler_cb );
 	if ( rv == 0 )
