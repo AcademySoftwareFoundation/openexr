@@ -329,7 +329,6 @@ static int default_init_write_file( exr_PRIV_FILE_t *file )
 
 static int default_query_size( exr_PRIV_FILE_t *file )
 {
-    int rv;
     exr_default_filehandle_t *fh = file->user_data;
 
     file->file_size = -1;
