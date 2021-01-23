@@ -20,6 +20,8 @@
 #else
 # if defined(__GNUC__) || defined(__clang__)
 #  define EXR_EXPORT __attribute__ ((visibility ("default")))
+#else
+#  define EXR_EXPORT extern
 # endif
 #endif
 
