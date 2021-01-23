@@ -55,8 +55,7 @@
 std::string makeTempDir()
 {
     std::string tempDir;
-
-    while (true)
+    for ( int trycount = 0; trycount < 3; ++trycount )
     {
 #ifdef _WIN32
         IMATH_NAMESPACE::Rand48 rand48 (time ((time_t*)0) );
@@ -75,13 +74,16 @@ std::string makeTempDir()
         for (int i = 0; i < 8; ++i)
             tempDir += ('A' + rand48.nexti() % 26);
 
-        int status = mkdir(tempDir.c_str(), 0777);
+        int status = _mkdir(tempDir.c_str());
 
-        if (errno != EEXIST)
+        if (status != 0)
         {
             std::cerr << "ERROR -- mkdir(" << tempDir << ") failed: "
                          "errno = " << errno << std::endl;
-            exit(1);
+            if ( errno == EEXIST )
+                continue;
+            if ( trycount == 2 )
+                exit(1);
         }
 #else
         char tmpbuf[4096];
