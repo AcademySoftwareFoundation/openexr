@@ -70,7 +70,7 @@ typedef struct _priv_exr_file_t
     exr_attr_string_t filename;
     exr_attr_string_t tmp_filename;
 
-    int (*do_read)( struct _priv_exr_file_t *file, void *, size_t, off_t *, ssize_t *, __PRIV_READ_MODE );
+    int (*do_read)( struct _priv_exr_file_t *file, void *, size_t, off_t *, exr_ssize_t *, __PRIV_READ_MODE );
     int (*do_write)( struct _priv_exr_file_t *file, const void *, size_t, off_t * );
 
     int (*standard_error)( struct _priv_exr_file_t *file, int code );
@@ -84,7 +84,7 @@ typedef struct _priv_exr_file_t
     exr_write_func_ptr_t write_fn;
 
     atomic_long file_offset; /**< used when writing */
-    ssize_t file_size;
+    exr_ssize_t file_size;
 
     uint8_t version;
     uint8_t max_name_length;

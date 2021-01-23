@@ -22,6 +22,12 @@ extern "C" {
  * @{
  */
 
+#if defined(_WIN32) || defined(_WIN64)
+typedef LONGLONG exr_ssize_t;
+#else
+typedef ssize_t exr_ssize_t;
+#endif
+
 /** Destroy custom stream function pointer
  *
  *  Generic callback to clean up user data for custom streams.
@@ -44,7 +50,7 @@ typedef void (* exr_destroy_stream_func_ptr_t )( exr_file_t *file, void *userdat
  * for this file, although appropriate memory safeguards must be in
  * place in the calling application.
  */
-typedef ssize_t (* exr_query_size_func_ptr_t )( exr_file_t *file, void *userdata );
+typedef exr_ssize_t (* exr_query_size_func_ptr_t )( exr_file_t *file, void *userdata );
 
 /** Read custom stream function pointer
  *
@@ -64,7 +70,7 @@ typedef ssize_t (* exr_query_size_func_ptr_t )( exr_file_t *file, void *userdata
  *  - chunks can then be read in any order as preferred by the
  *    application
  */
-typedef ssize_t (* exr_read_func_ptr_t )(
+typedef exr_ssize_t (* exr_read_func_ptr_t )(
     exr_file_t *file,
     void *userdata, void *buffer, size_t sz, off_t offset,
     exr_stream_error_func_ptr_t error_cb );
@@ -88,7 +94,7 @@ typedef ssize_t (* exr_read_func_ptr_t )(
  *    table (unless written in that order)
  *  - at file close, the chunk offset tables are written to the file
  */
-typedef ssize_t (* exr_write_func_ptr_t )(
+typedef exr_ssize_t (* exr_write_func_ptr_t )(
     exr_file_t *file,
     void *userdata, const void *buffer, size_t sz, off_t offset,
     exr_stream_error_func_ptr_t error_cb );

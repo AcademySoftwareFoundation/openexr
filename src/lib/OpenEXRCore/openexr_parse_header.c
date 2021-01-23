@@ -22,7 +22,7 @@ typedef struct exr_seq_scratch_t
 {
     uint8_t *scratch;
     size_t curpos;
-    ssize_t navail;
+    exr_ssize_t navail;
     off_t fileoff;
 
     int (*sequential_read)( struct exr_seq_scratch_t *, void *, size_t );
@@ -49,7 +49,7 @@ static int scratch_seq_read( struct exr_seq_scratch_t *scr, void *buf, size_t sz
                 nCopy = nLeft;
             memcpy( outbuf, scr->scratch + scr->curpos, nCopy );
             scr->curpos += nCopy;
-            scr->navail -= (ssize_t)nCopy;
+            scr->navail -= (exr_ssize_t)nCopy;
             notdone -= nCopy;
             outbuf += nCopy;
             nCopied += nCopy;
@@ -57,7 +57,7 @@ static int scratch_seq_read( struct exr_seq_scratch_t *scr, void *buf, size_t sz
         else if ( notdone > SCRATCH_BUFFER_SIZE )
         {
             size_t nPages = notdone / SCRATCH_BUFFER_SIZE;
-            ssize_t nread = 0;
+            exr_ssize_t nread = 0;
             size_t nToRead = nPages * SCRATCH_BUFFER_SIZE;
             rv = EXR_GETFILE(scr->file)->do_read(
                 scr->file, outbuf, nToRead, &(scr->fileoff), &nread, EXR_MUST_READ_ALL );
@@ -72,7 +72,7 @@ static int scratch_seq_read( struct exr_seq_scratch_t *scr, void *buf, size_t sz
         }
         else
         {
-            ssize_t nread = 0;
+            exr_ssize_t nread = 0;
             rv = EXR_GETFILE(scr->file)->do_read(
                 scr->file, scr->scratch, SCRATCH_BUFFER_SIZE, &(scr->fileoff), &nread, EXR_ALLOW_SHORT_READ );
             if ( nread > 0 )
@@ -124,7 +124,7 @@ static void priv_destroy_scratch( exr_PRIV_SEQ_SCRATCH_t *scr )
 
 static int32_t check_bad_attrsz( exr_file_t *f, int attrsz, int eltsize, const char *aname, const char *tname )
 {
-    ssize_t fsize = EXR_GETFILE(f)->file_size;
+    exr_ssize_t fsize = EXR_GETFILE(f)->file_size;
     int32_t n = attrsz;
 
     if ( attrsz < 0 )
@@ -571,7 +571,7 @@ static int extract_attr_preview( exr_file_t *f,
 {
     size_t bytes;
     uint32_t sz[2];
-    ssize_t fsize = EXR_GETFILE(f)->file_size;
+    exr_ssize_t fsize = EXR_GETFILE(f)->file_size;
 
     if ( attrsz < 8 )
         return EXR_GETFILE(f)->print_error(

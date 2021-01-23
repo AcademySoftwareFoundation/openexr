@@ -21,6 +21,14 @@
 # define EXR_EXPORT __attribute__ ((visibility ("default")))
 #endif
 
-#define EXR_PRINTF_FUNC_ATTRIBUTE __attribute__ ((format (printf, 3, 4)))
+/*
+ * MSVC does have printf format checks, but it is not in the form of a
+ * function attribute, so just skip for non-GCC / clang builds
+ */
+#if defined(__GNUC__) || defined(__clang__)
+#  define EXR_PRINTF_FUNC_ATTRIBUTE __attribute__ ((format (printf, 3, 4)))
+#else
+#  define EXR_PRINTF_FUNC_ATTRIBUTE
+#endif
 
 #endif /* OPENEXR_CONF_H */

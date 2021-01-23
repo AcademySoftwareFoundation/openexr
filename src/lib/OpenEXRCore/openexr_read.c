@@ -52,7 +52,7 @@ static int initialize_part_read(
     {
         off_t chunkoff = retval->chunk_table_offset;
         size_t chunkbytes = sizeof(uint64_t) * (size_t)retval->chunk_count;
-        ssize_t nread = 0;
+        exr_ssize_t nread = 0;
         uintptr_t eptr = 0, nptr = 0;
         int rv;
 
@@ -165,7 +165,7 @@ int exr_decode_chunk_init_scanline(
     int data[3];
     int64_t ddata[3];
     off_t dataoff;
-    ssize_t fsize;
+    exr_ssize_t fsize;
     exr_attr_box2i_t dw;
 
     rv = initialize_part_read( f, part_index, cinfo, &part, &ctable );
@@ -444,7 +444,7 @@ int exr_decode_chunk_init_tile(
     int32_t *tdata = data;
     int32_t cidx = 0, ntoread = 5;
     off_t dataoff;
-    ssize_t fsize;
+    exr_ssize_t fsize;
     int tilew, tileh, unpacksize = 0;
     uint64_t *ctable;
     int rv;
