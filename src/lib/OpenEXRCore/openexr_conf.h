@@ -18,7 +18,9 @@
 #  define EXR_EXPORT __declspec(dllimport)
 # endif
 #else
-# define EXR_EXPORT __attribute__ ((visibility ("default")))
+# if defined(__GNUC__) || defined(__clang__)
+#  define EXR_EXPORT __attribute__ ((visibility ("default")))
+# endif
 #endif
 
 /*
