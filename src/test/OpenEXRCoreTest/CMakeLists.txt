@@ -20,6 +20,11 @@ target_compile_definitions(OpenEXRCoreTest PRIVATE
 set_target_properties(OpenEXRCoreTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
   )
+
+if(WIN32)
+  target_link_libraries(OpenEXRCoreTest Imath::Imath)
+endif()
+
 if(WIN32 AND (BUILD_SHARED_LIBS OR OPENEXR_BUILD_BOTH_STATIC_SHARED))
   target_compile_definitions(OpenEXRCoreTest PRIVATE OPENEXR_DLL)
 endif()
