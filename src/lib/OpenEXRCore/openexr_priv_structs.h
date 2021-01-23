@@ -25,13 +25,13 @@ typedef int64_t atomic_llong;
 #define atomic_load(object) InterlockedOr64( (int64_t volatile *)object, 0 )
 #define atomic_fetch_add(object, val) InterlockedExchangeAdd64( (int64_t volatile *)object, val )
 
-static inline bool atomic_compare_exchange_strong64( int64_t volatile *object, int64_t *expected, int64_t desired )
+static inline int atomic_compare_exchange_strong64( int64_t volatile *object, int64_t *expected, int64_t desired )
 {
     int64_t prev = InterlockedCompareExchange64( object, desired, *expected );
     if ( prev == *expected ) 
-        return true;
+        return 1;
     *expected = prev;
-    return false;
+    return 0;
 }
 #define atomic_compare_exchange_strong(object, val, des) atomic_compare_exchange_strong64( object, val, des )
 

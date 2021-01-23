@@ -12,7 +12,7 @@
 /*  TODO: Move this stuff to OpenEXRConfig.h.in? */
 
 #if defined(OPENEXR_DLL)
-# if defined(OPENEXR_EXPORTS)
+# if defined(OPENEXRCORE_EXPORTS)
 #  define EXR_EXPORT __declspec(dllexport)
 # else
 #  define EXR_EXPORT __declspec(dllimport)
