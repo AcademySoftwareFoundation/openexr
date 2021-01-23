@@ -73,11 +73,11 @@ static wchar_t *widen_filename( const char *fn )
     int wcSize = 0, fnlen = 0;
     wchar_t *wcFn = NULL;
 
-    fnlen = (int)strlen( file->filename.str );
-    wcSize = MultiByteToWideChar( CP_UTF8, 0, file->filename.str, fnlen, NULL, 0 );
+    fnlen = (int)strlen( fn );
+    wcSize = MultiByteToWideChar( CP_UTF8, 0, fn, fnlen, NULL, 0 );
     wcFn = priv_alloc( sizeof(wchar_t) * ( wcSize + 1 ) );
     if ( wcFn )
-        MultiByteToWideChar( CP_UTF8, 0, file->filename.str, fnlen, wcFn, wcSize );
+        MultiByteToWideChar( CP_UTF8, 0, fn, fnlen, wcFn, wcSize );
     return wcFn;
 }
 
@@ -169,10 +169,17 @@ static exr_ssize_t default_read_func(
         return retsz;
     }
 
+    if ( sz > (size_t)(INT32_MAX) )
+    {
+        if ( error_cb )
+            error_cb( file, EXR_ERR_INVALID_ARGUMENT, "Read request too large for win32 api" );
+        return retsz;
+    }
+
     lint.QuadPart = offset;
     overlap.Offset = lint.LowPart;
     overlap.OffsetHigh = lint.HighPart;
-    if ( ReadFile( fd, buffer, sz, &nread, &overlap ) )
+    if ( ReadFile( fd, buffer, (DWORD)sz, &nread, &overlap ) )
     {
         retsz = nread;
     }

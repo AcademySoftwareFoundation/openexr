@@ -15,9 +15,6 @@
 
 static exr_memory_allocation_func_t _glob_alloc_func = NULL;
 static exr_memory_free_func_t _glob_free_func = NULL;
-#ifdef _WIN32
-static HANDLE _glob_heap = GetProcessHeap();
-#endif
 
 /**************************************/
 
@@ -36,7 +33,7 @@ void *priv_alloc( size_t bytes )
     if ( _glob_alloc_func )
         return (*_glob_alloc_func)( bytes );
 #ifdef _WIN32
-    return HeapAlloc( _glob_heap, 0, bytes );
+    return HeapAlloc( GetProcessHeap(), 0, bytes );
 #else
     return malloc( bytes );
 #endif
@@ -50,11 +47,16 @@ void priv_free( void *ptr )
         return;
     
     if ( _glob_free_func )
-        return (*_glob_free_func)( ptr );
+    {
+        (*_glob_free_func)( ptr );
+    }
+    else
+    {
 #ifdef _WIN32
-    return HeapFree( _glob_heap, 0, ptr );
+        HeapFree( GetProcessHeap(), 0, ptr );
 #else
-    return free( ptr );
+        free( ptr );
 #endif
+    }
 }
 

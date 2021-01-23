@@ -527,7 +527,7 @@ static int add_to_list(
             return EXR_ERR_OUT_OF_MEMORY;
         }
 
-        list->num_alloced = nsize;
+        list->num_alloced = (int32_t)nsize;
         sorted_attrs = attrs + nsize;
 
         for ( int i = 0; i < cattrsz; ++i )
