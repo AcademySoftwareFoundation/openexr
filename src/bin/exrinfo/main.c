@@ -6,7 +6,15 @@
 #include <openexr.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
+
+#ifdef _WIN32
+# include <windows.h>
+# include <io.h>
+# include <fcntl.h>
+#else
+# include <unistd.h>
+#endif
+
 #include <stdlib.h>
 
 static void
@@ -23,19 +31,23 @@ static void error_handler_cb( exr_file_t *f, int code, const char *msg )
 	fprintf( stderr, "ERROR '%s' (%d): %s\n", fn, code, msg );
 }
 
-static ssize_t stdin_reader(
+static exr_ssize_t stdin_reader(
     exr_file_t *file,
-    void *userdata, void *buffer, size_t sz, off_t offset,
+    void *userdata, void *buffer, size_t sz, exr_off_t offset,
     exr_stream_error_func_ptr_t error_cb )
 {
-    static off_t lastoffset = 0;
-    ssize_t nread = 0;
+    static exr_off_t lastoffset = 0;
+    exr_ssize_t nread = 0;
     if ( offset != lastoffset )
     {
         error_cb( file, EXR_ERR_READ_IO, "Unable to seek in stdin stream" );
         return -1;
     }
+#ifdef _WIN32
+    nread = _read( STDIN_FILENO, buffer, sz );
+#else
     nread = read( STDIN_FILENO, buffer, sz );
+#endif
     if ( nread > 0 )
         lastoffset = offset + nread;
     return nread;
@@ -47,6 +59,9 @@ static int process_stdin( int verbose )
     int rv;
     exr_file_t *e = NULL;
 
+#ifdef _WIN32
+    _setmode( STDIN_FILENO, _O_BINARY );
+#endif
     rv = exr_start_read_stream( &e, "<stdin>", NULL, stdin_reader, NULL, NULL, error_handler_cb );
 	if ( rv == 0 )
 	{
