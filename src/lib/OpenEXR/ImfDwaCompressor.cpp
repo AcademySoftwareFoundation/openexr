@@ -2962,7 +2962,7 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
 
             maxOutBufferSize += std::max(
                             2lu * maxLossyDctAcSize + 65536lu,
-                            compressBound (maxLossyDctAcSize) );
+                            static_cast<Int64>(compressBound (maxLossyDctAcSize)) );
             numLossyDctChans++;
             break;
 
@@ -2999,13 +2999,13 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     // which could take slightly more space
     //
 
-    maxOutBufferSize += compressBound (rleBufferSize);
+    maxOutBufferSize += static_cast<Int64>(compressBound (rleBufferSize));
     
     //
     // And the same goes for the UNKNOWN data
     //
 
-    maxOutBufferSize += compressBound (unknownBufferSize);
+    maxOutBufferSize += static_cast<Int64>(compressBound (unknownBufferSize));
 
     //
     // Allocate a zip/deflate compressor big enought to hold the DC data
@@ -3125,8 +3125,8 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
 
     if (planarUncBufferSize[UNKNOWN] > 0)
     {
-        planarUncBufferSize[UNKNOWN] = 
-            compressBound (planarUncBufferSize[UNKNOWN]);
+        planarUncBufferSize[UNKNOWN] =
+                static_cast<Int64>( compressBound (planarUncBufferSize[UNKNOWN]) );
     }
 
     for (int i = 0; i < NUM_COMPRESSOR_SCHEMES; ++i)
