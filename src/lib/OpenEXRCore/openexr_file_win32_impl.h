@@ -77,7 +77,10 @@ static wchar_t *widen_filename( const char *fn )
     wcSize = MultiByteToWideChar( CP_UTF8, 0, fn, fnlen, NULL, 0 );
     wcFn = priv_alloc( sizeof(wchar_t) * ( wcSize + 1 ) );
     if ( wcFn )
+    {
         MultiByteToWideChar( CP_UTF8, 0, fn, fnlen, wcFn, wcSize );
+        wcFn[wcSize] = 0;
+    }
     return wcFn;
 }
 

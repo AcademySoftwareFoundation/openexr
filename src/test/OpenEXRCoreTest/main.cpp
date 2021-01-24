@@ -15,6 +15,7 @@
 #ifdef _WIN32
 # include <windows.h>
 # include <ImathRandom.h>
+# include <time.h>
 #else
 # include <unistd.h>
 #endif
