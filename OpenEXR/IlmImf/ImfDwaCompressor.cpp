@@ -2933,16 +2933,16 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     //
 
     Int64 maxOutBufferSize  = 0;
-    int numLossyDctChans  = 0;
+    Int64 numLossyDctChans  = 0;
     Int64 unknownBufferSize = 0;
     Int64 rleBufferSize     = 0;
 
-    int maxLossyDctAcSize = (int)ceil ((float)numScanLines() / 8.0f) * 
-                            (int)ceil ((float)(_max[0] - _min[0] + 1) / 8.0f) *
+    Int64 maxLossyDctAcSize = static_cast<Int64>(ceil ((float)numScanLines() / 8.0f)) *
+                            static_cast<Int64>(ceil ((float)(_max[0] - _min[0] + 1) / 8.0f)) *
                             63 * sizeof (unsigned short);
 
-    int maxLossyDctDcSize = (int)ceil ((float)numScanLines() / 8.0f) * 
-                            (int)ceil ((float)(_max[0] - _min[0] + 1) / 8.0f) *
+    Int64 maxLossyDctDcSize = static_cast<Int64>(ceil ((float)numScanLines() / 8.0f)) *
+                            static_cast<Int64>(ceil ((float)(_max[0] - _min[0] + 1) / 8.0f)) *
                             sizeof (unsigned short);
 
     Int64 pixelCount = static_cast<Int64>(numScanLines()) * static_cast<Int64>(_max[0] - _min[0] + 1);
@@ -2961,8 +2961,8 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
             //
 
             maxOutBufferSize += std::max(
-                            (int)(2 * maxLossyDctAcSize + 65536),
-                            (int)compressBound (maxLossyDctAcSize) );
+                            2lu * maxLossyDctAcSize + 65536lu,
+                            static_cast<Int64>(compressBound (maxLossyDctAcSize)) );
             numLossyDctChans++;
             break;
 
@@ -2999,13 +2999,13 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     // which could take slightly more space
     //
 
-    maxOutBufferSize += compressBound (rleBufferSize);
+    maxOutBufferSize += static_cast<Int64>(compressBound (rleBufferSize));
     
     //
     // And the same goes for the UNKNOWN data
     //
 
-    maxOutBufferSize += compressBound (unknownBufferSize);
+    maxOutBufferSize += static_cast<Int64>(compressBound (unknownBufferSize));
 
     //
     // Allocate a zip/deflate compressor big enought to hold the DC data
@@ -3052,7 +3052,7 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     // to Huffman encoding
     //
 
-    if (static_cast<Int64>(maxLossyDctAcSize * numLossyDctChans) > _packedAcBufferSize)
+    if (maxLossyDctAcSize * numLossyDctChans > _packedAcBufferSize)
     {
         _packedAcBufferSize = maxLossyDctAcSize * numLossyDctChans;
         if (_packedAcBuffer != 0) 
@@ -3064,7 +3064,7 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     // _packedDcBuffer holds one quantized DCT coef per 8x8 block
     //
 
-    if (static_cast<Int64>(maxLossyDctDcSize * numLossyDctChans) > _packedDcBufferSize)
+    if (maxLossyDctDcSize * numLossyDctChans > _packedDcBufferSize)
     {
         _packedDcBufferSize = maxLossyDctDcSize * numLossyDctChans;
         if (_packedDcBuffer != 0) 
@@ -3125,8 +3125,8 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
 
     if (planarUncBufferSize[UNKNOWN] > 0)
     {
-        planarUncBufferSize[UNKNOWN] = 
-            compressBound (planarUncBufferSize[UNKNOWN]);
+        planarUncBufferSize[UNKNOWN] =
+                static_cast<Int64>( compressBound (planarUncBufferSize[UNKNOWN]) );
     }
 
     for (int i = 0; i < NUM_COMPRESSOR_SCHEMES; ++i)
