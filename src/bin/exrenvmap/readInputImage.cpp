@@ -85,14 +85,23 @@ readSingleImage (const char inFileName[],
 
     Envmap type = ENVMAP_LATLONG;
 
-    if (hasEnvmap (in.header()))
-        type = envmap (in.header());
 
     if (overrideType == ENVMAP_LATLONG ||
         overrideType == ENVMAP_CUBE)
     {
         type = overrideType;
         addEnvmap (header, overrideType);
+    }
+    else if (hasEnvmap (in.header()))
+    {
+        // validate type is known before using
+        const Envmap& typeInFile = envmap (in.header());
+
+        if (typeInFile != ENVMAP_LATLONG && typeInFile != ENVMAP_CUBE)
+        {
+             THROW (IEX::InputExc, "unknown envmap type " << int(typeInFile) );
+        }
+        type = typeInFile;
     }
 
     const Box2i &dw = in.dataWindow();

@@ -246,7 +246,7 @@ printTimeCode (TimeCode tc)
 
 
 void
-printEnvmap (Envmap e)
+printEnvmap (const Envmap& e)
 {
     switch (e)
     {

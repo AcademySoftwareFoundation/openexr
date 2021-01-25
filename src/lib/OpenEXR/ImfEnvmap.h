@@ -83,7 +83,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // Supported environment map types
 //--------------------------------
 
-enum Envmap
+enum Envmap : int
 {
     ENVMAP_LATLONG = 0,		// Latitude-longitude environment map
     ENVMAP_CUBE = 1,		// Cube map
