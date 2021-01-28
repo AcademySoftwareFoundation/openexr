@@ -223,6 +223,15 @@ IMF_EXPORT
 bool            isValidDeepCompression (Compression c);
 
 
+//---------------------------------------
+// Return true for compression types which
+// do not guarantee that HALF type values
+// are preserved precisely
+//---------------------------------------
+IMF_EXPORT
+bool isLossyCompression(Compression c);
+
+
 //-----------------------------------------------------------------
 // Construct a Compressor for compression type c:
 //
