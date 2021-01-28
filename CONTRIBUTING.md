@@ -96,19 +96,18 @@ Developers who wish to contribute code to be considered for inclusion
 in the OpenEXR distribution must first complete a **Contributor
 License Agreement**.
 
-OpenEXR uses EasyCLA for managing CLAs, which automatically
-checks to ensure CLAs are signed by a contributor before a commit
-can be merged. 
+OpenEXR uses [EasyCLA](https://lfx.linuxfoundation.org/tools/easycla) 
+for managing CLAs, which automatically checks to ensure CLAs are signed 
+by a contributor before a commit can be merged. 
 
 * If you are an individual writing the code on your own time and
   you're SURE you are the sole owner of any intellectual property you
-  contribute, you can [sign the CLA as an individual contributor](https://github.com/communitybridge/easycla/blob/master/contributors/sign-a-cla-as-an-individual-contributor-to-github.md).
+  contribute, you can [sign the CLA as an individual contributor](https://docs.linuxfoundation.org/lfx/easycla/contributors/individual-contributor).
 
 * If you are writing the code as part of your job, or if there is any
-  possibility that your employers might think they own any
-  intellectual property you create, then you should use the [Corporate
-  Contributor Licence
-  Agreement](https://github.com/communitybridge/easycla/blob/master/contributors/contribute-to-a-github-company-project.md).
+  possibility that your employers might think they own any intellectual 
+  property you create, then you should use the [Corporate Contributor Licence
+  Agreement](https://docs.linuxfoundation.org/lfx/easycla/contributors/corporate-contributor).
 
 The OpenEXR CLAs are the standard forms used by Linux Foundation
 projects and [recommended by the ASWF TAC](https://github.com/AcademySoftwareFoundation/tac/blob/master/process/contributing.md#contributor-license-agreement-cla).
@@ -282,7 +281,7 @@ required.
 
 All functionality in the library must be covered by an automated
 test. Each library has a companion ``Test`` project - ``ImathTest``,
-``HalfTest``, ``IlmImfTest`, etc.  This test suite is collectively
+``HalfTest``, ``OpenEXRTest`, etc.  This test suite is collectively
 expected to validate the behavior of very part of the library.
 
 * Any new functionality should be accompanied by a test that validates
@@ -294,7 +293,7 @@ expected to validate the behavior of very part of the library.
 The test should should be run, via ``make check``, before submitting a
 pull request.
 
-In addition, the ``IlmImfFuzzTest`` project validates the library by
+In addition, the ``OpenEXRFuzzTest`` project validates the library by
 feeding it corrupted input data. This test is time-consuming (possible
 over 24 hours), so it will only be run occasionally, but it must
 succeed before a release is made.

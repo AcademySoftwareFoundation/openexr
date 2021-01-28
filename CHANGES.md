@@ -1,5 +1,7 @@
 # OpenEXR Release Notes
 
+* [Version 2.5.4](#version-254-december-31-2020) December 31, 2020
+* [Version 2.5.3](#version-253-august-12-2020) August 12, 2020
 * [Version 2.5.2](#version-252-june-15-2020) June 15, 2020
 * [Version 2.5.1](#version-251-may-11-2020) May 11, 2020
 * [Version 2.5.0](#version-250-may-6-2020) May 6, 2020
@@ -35,6 +37,151 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 2.5.4 (December 31, 2020)
+
+Patch release with various bug/sanitizer/security fixes, primarily
+related to reading corrupted input files.
+
+Specific OSS-fuzz issues include:
+
+* OSS-fuzz [#24854](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=24854) Segv on unknown address in Imf_2_5::hufUncompress
+* OSS-fuzz [#24831](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=24831) Undefined-shift in Imf_2_5::FastHufDecoder::FastHufDecoder
+* OSS-fuzz [#24969](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=24969) Invalid-enum-value in Imf_2_5::TypedAttribute<Imf_2_5::Envmap>::writeValueTo
+* OSS-fuzz [#25297](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25297) Integer-overflow in Imf_2_5::calculateNumTiles
+* OSS-fuzz [#24787](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=24787) Undefined-shift in Imf_2_5::unpack14
+* OSS-fuzz [#25326](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25326) Out-of-memory in openexr_scanlines_fuzzer
+* OSS-fuzz [#25399](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25399) Heap-buffer-overflow in Imf_2_5::FastHufDecoder::FastHufDecoder
+* OSS-fuzz [#25415](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25415) Abrt in __cxxabiv1::failed_throw
+* OSS-fuzz [#25370](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25370) Out-of-memory in openexr_exrenvmap_fuzzer
+* OSS-fuzz [#25501](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25501) Out-of-memory in openexr_scanlines_fuzzer
+* OSS-fuzz [#25505](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25505) Heap-buffer-overflow in Imf_2_5::copyIntoFrameBuffer
+* OSS-fuzz [#25562](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25562) Integer-overflow in Imf_2_5::hufUncompress
+* OSS-fuzz [#25740](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25740) Null-dereference READ in Imf_2_5::Header::operator
+* OSS-fuzz [#25743](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25743) Null-dereference in Imf_2_5::MultiPartInputFile::header
+* OSS-fuzz [#25913](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25913) Out-of-memory in openexr_exrenvmap_fuzzer
+* OSS-fuzz [#26229](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=26229) Undefined-shift in Imf_2_5::hufDecode
+* OSS-fuzz [#26658](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=26658) Out-of-memory in openexr_scanlines_fuzzer
+* OSS-fuzz [#26956](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=26956) Heap-buffer-overflow in Imf_2_5::DeepTiledInputFile::readPixelSampleCounts
+* OSS-fuzz [#27409](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=27409) Out-of-memory in openexr_exrcheck_fuzzer
+* OSS-fuzz [#25892](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25892) Divide-by-zero in Imf_2_5::calculateNumTiles
+* OSS-fuzz [#25894](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25894) Floating-point-exception in Imf_2_5::precalculateTileInfo
+
+### Merged Pull Requests
+
+* [#817](https://github.com/AcademySoftwareFoundation/openexr/pull/817): double-check unpackedBuffer created in DWA uncompress (OSS-fuzz 24854)
+* [#818](https://github.com/AcademySoftwareFoundation/openexr/pull/818): compute Huf codelengths using 64 bit to prevent shift overrflow (OSS-fuzz 24831)
+* [#820](https://github.com/AcademySoftwareFoundation/openexr/pull/820): suppress sanitizer warnings when writing invalid enums (OSS-fuzz 24969)
+* [#825](https://github.com/AcademySoftwareFoundation/openexr/pull/825): Avoid overflow in calculateNumTiles when size=MAX_INT (OSS-fuzz 25297)
+* [#826](https://github.com/AcademySoftwareFoundation/openexr/pull/826): restrict maximum tile size to INT_MAX byte limit (OSS-fuzz 25297)
+* [#832](https://github.com/AcademySoftwareFoundation/openexr/pull/832): ignore unused bits in B44 mode detection (OSS-fuzz 24787)
+* [#827](https://github.com/AcademySoftwareFoundation/openexr/pull/827): lighter weight reading of Luma-only images via RgbaInputFile (OSS-fuzz 25326)
+* [#829](https://github.com/AcademySoftwareFoundation/openexr/pull/829): fix buffer overflow check in PIZ decompression (OSS-fuzz 25399, OSS-fuzz 25415)
+* [#830](https://github.com/AcademySoftwareFoundation/openexr/pull/830): refactor channel filling in InputFile API with tiled source (OSS-fuzz 25370 , OSS-fuzz 25501)
+* [#831](https://github.com/AcademySoftwareFoundation/openexr/pull/ #831): Use Int64 in dataWindowForTile to prevent integer overflow (OSS-fuzz 25505)
+* [#836](https://github.com/AcademySoftwareFoundation/openexr/pull/836): prevent overflow in hufUncompress if nBits is large (OSS-fuzz 25562)
+* [#840](https://github.com/AcademySoftwareFoundation/openexr/pull/840): add sanity check for reading multipart files with no parts (OSS-fuzz 25740 , OSS-fuzz 25743)
+* [#841](https://github.com/AcademySoftwareFoundation/openexr/pull/841): more elegant exception handling in exrmaketiled (ZhiWei Sun from Topsec Alpha Lab)
+* [#843](https://github.com/AcademySoftwareFoundation/openexr/pull/843): reduce B44 _tmpBufferSize (was allocating two bytes per byte) (OSS-fuzz 25913)
+* [#844](https://github.com/AcademySoftwareFoundation/openexr/pull/844): check EXRAllocAligned succeeded to allocate ScanlineInputFile lineBuffers (ZhiWei Sun from Topsec Alpha Lab)
+* [#845](https://github.com/AcademySoftwareFoundation/openexr/pull/845): test channels are DCT compressed before DWA decompression (ZhiWei Sun from Topsec Alpha Lab)
+* [#849](https://github.com/AcademySoftwareFoundation/openexr/pull/849): check for valid Huf code lengths (OSS-fuzz 26229)
+* [#860](https://github.com/AcademySoftwareFoundation/openexr/pull/860): check 1 part files with 'nonimage' bit have type attribute (OSS-fuzz 26658)
+* [#861](https://github.com/AcademySoftwareFoundation/openexr/pull/861): Fix overflow computing deeptile sample table size (OSS-fuzz 26956)
+* [#863](https://github.com/AcademySoftwareFoundation/openexr/pull/863): re-order shift/compare in FastHuf to prevent undefined shift overflow (OSS-fuzz 27409)
+* Also, partial fixes from [#842](https://github.com/AcademySoftwareFoundation/openexr/pull/842) which do not change the ABI: (OSS-fuzz 25892 , OSS-fuzz 25894)
+
+### Commits \[ git log v2.5.3...v2.5.4\]
+
+* [0c2b46f6](https://github.com/AcademySoftwareFoundation/openexr/commit/0c2b46f630a3b5f2f561c2849d047ee39f899179) Cherry-pick PRs from master branch which fix issues reported by fuzz tests (#875) ([peterhillman](@peterh@wetafx.co.nz) 2020-12-31)
+
+## Version 2.5.3 (August 12, 2020)
+
+Patch release with various bug/security fixes and build/install fixes, plus a performance optimization:
+
+### Summary
+
+* Various sanitizer/fuzz-identified issues related to handling of invalid input
+* Fixes to misc compiler warnings
+* Cmake fix for building on arm64 macOS (#772)
+* Read performance optimization (#782)
+* Fix for building on non-glibc (#798)
+* Fixes to tests
+
+### Merged Pull Requests
+
+* [812](https://github.com/AcademySoftwareFoundation/openexr/pull/812) free memory if precalculateTileInfo throws
+* [809](https://github.com/AcademySoftwareFoundation/openexr/pull/809) Avoid integer overflow in calculateNumTiles() 
+* [806](https://github.com/AcademySoftwareFoundation/openexr/pull/806) suppress clang undefined behavior sanitizer in EnvmapAttribute::copyValuesFrom() 
+* [805](https://github.com/AcademySoftwareFoundation/openexr/pull/805) remove extraneous vector allocation in getScanlineChunkOffsetTableSize 
+* [804](https://github.com/AcademySoftwareFoundation/openexr/pull/804) prevent invalid tile description enums
+* [803](https://github.com/AcademySoftwareFoundation/openexr/pull/803) Fix stack corruption in Matrix tests
+* [801](https://github.com/AcademySoftwareFoundation/openexr/pull/801) prevent invalid Compression enum values being read from file
+* [798](https://github.com/AcademySoftwareFoundation/openexr/pull/798) IexMathFpu.cpp: Fix build on non-glibc (e.g. musl libc)
+* [795](https://github.com/AcademySoftwareFoundation/openexr/pull/795) prevent invalid values in LineOrder enum
+* [794](https://github.com/AcademySoftwareFoundation/openexr/pull/794) suppress clang undefined behavior sanitizer in DeepImageStateAttribute::copyValuesFrom()
+* [793](https://github.com/AcademySoftwareFoundation/openexr/pull/793) sanityCheckDisplayWindow() ensures that width and height don't cause integer overflow
+* [792](https://github.com/AcademySoftwareFoundation/openexr/pull/792) cast signed chars to unsigned longs before left shift in Xdr::read of signed long
+* [788](https://github.com/AcademySoftwareFoundation/openexr/pull/788) use 64 bit computation in chunk offset table reconstruction
+* [787](https://github.com/AcademySoftwareFoundation/openexr/pull/787) change sanity check in stringvectorattribute to prevent overflow
+* [785](https://github.com/AcademySoftwareFoundation/openexr/pull/785) prevent invalid values in Channel's PixelType enum
+* [784](https://github.com/AcademySoftwareFoundation/openexr/pull/784) sanity check preview attribute sizes
+* [783](https://github.com/AcademySoftwareFoundation/openexr/pull/783) explicitly cast signed chars to unsigned before bitwise left shift in Xdr::read()
+* [782](https://github.com/AcademySoftwareFoundation/openexr/pull/782) refactor: use local loop variable in copyFromFrameBuffer
+* [778](https://github.com/AcademySoftwareFoundation/openexr/pull/778) Sanity check stringvector size fields on read
+* [777](https://github.com/AcademySoftwareFoundation/openexr/pull/777) IlmImfFuzzTest reports incorrect test names and missing files as errors
+* [775](https://github.com/AcademySoftwareFoundation/openexr/pull/775) Removes overridden find_package in CMakeLists.txt
+* [772](https://github.com/AcademySoftwareFoundation/openexr/pull/772) Disable OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX when building on arm64 macOS
+* [770](https://github.com/AcademySoftwareFoundation/openexr/pull/770) IlmImf: Fix clang compiler warnings
+* [738](https://github.com/AcademySoftwareFoundation/openexr/pull/738) always ignore chunkCount attribute unless it cannot be computed #738
+
+### Commits \[ git log v2.5.2...v2.5.3\]
+
+* [425c104f](https://github.com/AcademySoftwareFoundation/openexr/commit/425c104f7ae9e8e17cc3d9d120d684b93195c402) free memory if precalculateTileInfo throws ([Peter Hillman](@peterh@wetafx.co.nz) 2020-08-10)
+* [7212e337](https://github.com/AcademySoftwareFoundation/openexr/commit/7212e33729e036d16fb5fd3494af815869771963) Set LIBTOOL_VERSION to 25:2:0 for 2.5.3 ([Cary Phillips](@cary@ilm.com) 2020-08-09)
+* [0b6d5185](https://github.com/AcademySoftwareFoundation/openexr/commit/0b6d5185d99bff1c4ab7b2fe00d297ef2fcd46e8) Release notes for 2.5.3 ([Cary Phillips](@cary@ilm.com) 2020-08-09)
+* [6b55722b](https://github.com/AcademySoftwareFoundation/openexr/commit/6b55722b4477e8d4aed04fbeb6b9f5b4226d2bbd) Bump version to 2.5.3 and LIBTOOL_CURRENT to 26 ([Cary Phillips](@cary@ilm.com) 2020-08-09)
+* [40a7ed76](https://github.com/AcademySoftwareFoundation/openexr/commit/40a7ed76cde1427aa6c935565de96f7ee10d9f76) Change >= to > in overflow calculation ([Cary Phillips](@cary@ilm.com) 2020-08-08)
+* [b10412d5](https://github.com/AcademySoftwareFoundation/openexr/commit/b10412d55964459e04ff95f982fd8ce2ded4ea43) Avoid integer overflow in calculateNumTiles() ([Cary Phillips](@cary@ilm.com) 2020-08-08)
+* [ed469311](https://github.com/AcademySoftwareFoundation/openexr/commit/ed469311ac17a8912e2c4cb14856aa2b7f228fac) reformatted references to CVEs in CHANGES.md ([Cary Phillips](@cary@ilm.com) 2020-07-07)
+* [f7c8a7a1](https://github.com/AcademySoftwareFoundation/openexr/commit/f7c8a7a11a69579d8618f31d0e4a1b7bcc20e939) Add references to CVE-2020-15304, CVE-2020-15305, CVE-2020-15306 to SECURITY.md and CHANGES.md ([Cary Phillips](@cary@ilm.com) 2020-07-07)
+* [0d226001](https://github.com/AcademySoftwareFoundation/openexr/commit/0d22600163f58c4e3ca20b9f67bd2fe7866e9201) Add #755 to 2.4.2 release notes ([Cary Phillips](@cary@ilm.com) 2020-06-13)
+* [4a4a4f4a](https://github.com/AcademySoftwareFoundation/openexr/commit/4a4a4f4a58a5d34a132655cc82116a383d787e5d) Improved formatting of commits in release notes ([Cary Phillips](@cary@ilm.com) 2020-06-11)
+* [9c42766b](https://github.com/AcademySoftwareFoundation/openexr/commit/9c42766bd0347dccb84a68977d11fab8cc83ae3c) added merged PR's to v2.4.2 release notes. ([Cary Phillips](@cary@ilm.com) 2020-06-11)
+* [cc1809ed](https://github.com/AcademySoftwareFoundation/openexr/commit/cc1809ed27aed48c54cfb730c90bdf570bb18551) Release notes for v2.4.2 ([Cary Phillips](@cary@ilm.com) 2020-06-11)
+* [7fe8d40d](https://github.com/AcademySoftwareFoundation/openexr/commit/7fe8d40db0c2c02da5f7d2a602fb87a630c3c70d) Remove non-code-related PR's and commits from v2.5.2 release notes. ([Cary Phillips](@cary@ilm.com) 2020-06-11)
+* [bc0b229c](https://github.com/AcademySoftwareFoundation/openexr/commit/bc0b229c5618ffdc6337817898e3d145b6854194) add commit history to release notes for v2.5.1 and v2.5.2 ([Cary Phillips](@cary@ilm.com) 2020-06-11)
+* [ba76b8ca](https://github.com/AcademySoftwareFoundation/openexr/commit/ba76b8ca62c2f1d4ccabd2887dc8d09c69102c2f) always ignore chunkCount attribute unless it cannot be computed (#738) ([peterhillman](@peterh@wetafx.co.nz) 2020-05-27)
+* [81818f2a](https://github.com/AcademySoftwareFoundation/openexr/commit/81818f2a9c9336d71b65b194aaecdef493e9122b) suppress clang undefined behavior sanitizer in EnvmapAttribute::copyValuesFrom() ([Peter Hillman](@peterh@wetafx.co.nz) 2020-08-07)
+* [2f83442f](https://github.com/AcademySoftwareFoundation/openexr/commit/2f83442f067788751ce857effa3472bf4f79f743) allow undefined EnvMap enum values for future proofing ([Peter Hillman](@peterh@wetafx.co.nz) 2020-08-07)
+* [485b5fe4](https://github.com/AcademySoftwareFoundation/openexr/commit/485b5fe4d6e575b4af389af98d7a3a2104ce828b) remove extraneous vector allocation in getScanlineChunkOffsetTableSize ([Peter Hillman](@peterh@wetafx.co.nz) 2020-08-06)
+* [7da32d3c](https://github.com/AcademySoftwareFoundation/openexr/commit/7da32d3ccf6d4eace88ffad093f692a4287b2fbf) refactor: use local loop variable in copyFromFrameBuffer ([Gyula Gubacsi](@gyula.gubacsi@foundry.com) 2020-07-14)
+* [1ecaf4bd](https://github.com/AcademySoftwareFoundation/openexr/commit/1ecaf4bdfa00204e17aa2a0f51d1ca7d672a9303) prevent invalid tile description enums ([Peter Hillman](@peterh@wetafx.co.nz) 2020-08-05)
+* [88420f93](https://github.com/AcademySoftwareFoundation/openexr/commit/88420f93857eb2a892683a8a212472883abc8476) prevent invalid Compression enum values being read from file ([Peter Hillman](@peterh@wetafx.co.nz) 2020-07-31)
+* [90736089](https://github.com/AcademySoftwareFoundation/openexr/commit/90736089eb2c51cfdc311de9b5acc337e4a4c49a) Fix out of bounds assignments ([Darby Johnston](@darbyjohnston@yahoo.com) 2020-08-01)
+* [9752e70d](https://github.com/AcademySoftwareFoundation/openexr/commit/9752e70d31193f649eb5286bb649916ecfcc51ea) IexMathFpu.cpp: Fix build on non-glibc (e.g. musl libc). ([Niklas Hambüchen](@mail@nh2.me) 2020-07-30)
+* [37e16a88](https://github.com/AcademySoftwareFoundation/openexr/commit/37e16a88db863da9feeadc721d8df86118c5aab5) cast signed chars to unsigned longs before left shift in read of signed long ([Cary Phillips](@cary@ilm.com) 2020-07-17)
+* [02e1ac54](https://github.com/AcademySoftwareFoundation/openexr/commit/02e1ac54368ef40e493a67d6804bc706e1bd52db) suppress clang undefined behavior sanitizer in DeepImageStateAttribute::copyValuesFrom() ([Cary Phillips](@cary@ilm.com) 2020-07-22)
+* [bf3edf27](https://github.com/AcademySoftwareFoundation/openexr/commit/bf3edf271a638e95120c83cbd794502b55f1c64e) fixed CI and Analysis badges in README.md ([Cary Phillips](@cary@ilm.com) 2020-07-16)
+* [93e9f2ac](https://github.com/AcademySoftwareFoundation/openexr/commit/93e9f2ac3212353414a4e65eb359bcd6dbe7fe6f) prevent invalid values in LineOrder enum ([Cary Phillips](@cary@ilm.com) 2020-07-22)
+* [6bb6257f](https://github.com/AcademySoftwareFoundation/openexr/commit/6bb6257ffb24f375dfcc40568bfd6357dd6028f8) fixed comment ([Cary Phillips](@cary@ilm.com) 2020-07-20)
+* [1a1e13fd](https://github.com/AcademySoftwareFoundation/openexr/commit/1a1e13fd8579900ee9f05c3c12bdf2b2aa994593) sanityCheckDisplayWindow() ensures that width and height don't cause integer overflow ([Cary Phillips](@cary@ilm.com) 2020-07-20)
+* [45e14fdf](https://github.com/AcademySoftwareFoundation/openexr/commit/45e14fdf0700b7afdb94ea7bb788ba9a162d04d7) IlmImfFuzzTest reports incorrect test names and missing files as errors rather than silently succeeding. ([Cary Phillips](@cary@ilm.com) 2020-07-09)
+* [a6bc10f5](https://github.com/AcademySoftwareFoundation/openexr/commit/a6bc10f5f28c19b8338eb2c6c7226bb6408554f7) use ll in chunk size computation ([Peter Hillman](@peterh@wetafx.co.nz) 2020-07-17)
+* [c6058144](https://github.com/AcademySoftwareFoundation/openexr/commit/c6058144b653c8ded2e8c0cf0709186486b2453d) use 64 bit computation in chunkoffsettable reconstruction ([Peter Hillman](@peterh@wetafx.co.nz) 2020-07-17)
+* [b33b1187](https://github.com/AcademySoftwareFoundation/openexr/commit/b33b1187342ff76da08fc7a3ef848b937d7374a3) prevent invalid values in Channel's PixelType enum ([Peter Hillman](@peterh@wetafx.co.nz) 2020-07-16)
+* [b7b8a568](https://github.com/AcademySoftwareFoundation/openexr/commit/b7b8a5685c0db270b4671ef78c388e3a89605e85) change sanity check in stringvectorattribute to prevent overflow (#787) ([peterhillman](@peterh@wetafx.co.nz) 2020-07-17)
+* [09eadd12](https://github.com/AcademySoftwareFoundation/openexr/commit/09eadd12d86763fda854b36524ae37680d8ff4c5) cast signed chars to unsigned before bitwise left shift in Xdr::read() ([Cary Phillips](@cary@ilm.com) 2020-07-14)
+* [3cf874cb](https://github.com/AcademySoftwareFoundation/openexr/commit/3cf874cbbd23d945a0057f10145bd5f3ce2be679) sanity check preview attribute sizes ([Peter Hillman](@peterh@wetafx.co.nz) 2020-07-15)
+* [849c6776](https://github.com/AcademySoftwareFoundation/openexr/commit/849c6776f6627a11710227c026dd4aa6de8f7738) Tidy whitespace in ImfStringVectorAttribute.cpp ([peterhillman](@peterh@wetafx.co.nz) 2020-07-10)
+* [fcaa1691](https://github.com/AcademySoftwareFoundation/openexr/commit/fcaa1691071f90df9202818315f4f9d1bc13c54e) sanity check string vectors on read ([Peter Hillman](@peterh@wetafx.co.nz) 2020-07-10)
+* [0d13c74a](https://github.com/AcademySoftwareFoundation/openexr/commit/0d13c74a3bfa497465c3e42847b9c62089f0454b) Removes overridden find_package in CMakeLists.txt in favor of reusing the generated config files and setting (IlmBase/OpenEXR)_DIR variables Overriding a cmake function is undocumented functionallity and only works one time. Better to avoid if possible. ([Peter Steneteg](@peter@steneteg.se) 2020-06-17)
+* [1343c08a](https://github.com/AcademySoftwareFoundation/openexr/commit/1343c08a7eb13764bbb6c21db22e5a78169754db) Cast to uintptr_t instead of size_t for mask ops on ptrs. ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-06-25)
+* [72de4c9e](https://github.com/AcademySoftwareFoundation/openexr/commit/72de4c9ef32e2e9eb4e6d9499a0fadb96ae28796) Switching to current c++ casting style. ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-06-24)
+* [9534e36d](https://github.com/AcademySoftwareFoundation/openexr/commit/9534e36d1d1993db7a7cc3ba4c58ec4d7a4a8dd5) IlmImf: Fix misc compiler warnings. ([Arkell Rasiah](@arkellrasiah@gmail.com) 2020-06-23)
+* [8e53ab8d](https://github.com/AcademySoftwareFoundation/openexr/commit/8e53ab8d13b1b6c14c716573e6f16d079e799ab4) Disable OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX when building on arm64 macOS ([Yining Karl Li](@betajippity@gmail.com) 2020-07-03)
+* [67b1b88d](https://github.com/AcademySoftwareFoundation/openexr/commit/67b1b88de6ad454a1b267ee9a4e19b4efbdbe19d) Addresses PR#767: Removal of legacy .cvsignore files. ([Arkell Rasiah](@arkellrasiah@gmail.com) 2020-06-19)
+* [801e5d87](https://github.com/AcademySoftwareFoundation/openexr/commit/801e5d8750dd8b8a6e25c131899136c575b20d07) Fix typo in README ([cia-rana](@kiwamura0314@gmail.com) 2020-06-15)
 
 ## Version 2.5.2 (June 15, 2020)
 
@@ -552,9 +699,11 @@ This version fixes the following security vulnerabilities:
 
 This version fixes the following security vulnerabilities:
 
-* [CVE-2018-18444](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18444) [Issue #351](https://github.com/openexr/openexr/issues/351) Out of Memory
-* [CVE-2018-18443](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18443) [Issue #350](https://github.com/openexr/openexr/issues/350) heap-buffer-overflow
-* [CVE-2017-12596](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-12596) [Issue #238](https://github.com/openexr/openexr/issues/238) heap-based buffer overflow in exrmaketiled
+* [CVE-2020-16589](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-16589) A head-based buffer overflow exists in Academy Software Foundation OpenEXR 2.3.0 in writeTileData in ImfTiledOutputFile.cpp that can cause a denial of service via a crafted EXR file.
+* [CVE-2020-16588](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-16588) A Null Pointer Deference issue exists in Academy Software Foundation OpenEXR 2.3.0 in generatePreview in makePreview.cpp that can cause a denial of service via a crafted EXR file.
+* [CVE-2020-16587](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-16587) A heap-based buffer overflow vulnerability exists in Academy Software Foundation OpenEXR 2.3.0 in chunkOffsetReconstruction in ImfMultiPartInputFile.cpp that can cause a denial of service via a crafted EXR file.
+* [CVE-2018-18444](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18444) makeMultiView.cpp in exrmultiview in OpenEXR 2.3.0 has an out-of-bounds write, leading to an assertion failure or possibly unspecified other impact.
+* [CVE-2018-18443](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-18443) OpenEXR 2.3.0 has a memory leak in ThreadPool in IlmBase/IlmThread/IlmThreadPool.cpp, as demonstrated by exrmultiview.
 
 ### Closed Issues
 

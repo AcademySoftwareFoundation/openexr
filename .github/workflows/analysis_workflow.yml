@@ -19,6 +19,7 @@ jobs:
 
   linux_sonarcloud:
     name: 'SonarCloud Linux CentOS 7 VFX CY2020 <GCC 6.3.1>'
+    if: github.repository == ‘AcademySoftwareFoundation/openexr’
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
@@ -46,15 +47,14 @@ jobs:
           cmake ../. \
                 -DCMAKE_INSTALL_PREFIX=../_install \
                 -DCMAKE_BUILD_TYPE=Release \
-                -DCMAKE_CXX_STANDARD=11 \
+                -DCMAKE_CXX_STANDARD=14 \
                 -DCMAKE_CXX_FLAGS="-g -O0 -fprofile-arcs -ftest-coverage" \
                 -DCMAKE_CXX_OUTPUT_EXTENSION_REPLACE=ON \
                 -DCMAKE_EXE_LINKER_FLAGS="-lgcov" \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
                 -DOPENEXR_BUILD_UTILS='ON' \
-                -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
-                -DPYTHON_EXECUTABLE=$(which python)
+                -DOPENEXR_RUN_FUZZ_TESTS='OFF'
         working-directory: _build
       - name: Build OpenEXR with build-wrapper
         shell: bash
@@ -68,7 +68,6 @@ jobs:
         run: |
           ctest -T Test \
                 -C Release \
-                -E PyIlmBase.*_Python2 \
                 --timeout 7200 \
                 --output-on-failure \
                 -VV
@@ -87,6 +86,7 @@ jobs:
   # ------------------------------------------------------------------------------
   linux_valgrind:
     name: 'Valgrind Linux CentOS 7 VFX CY2020 <GCC 6.3.1>'
+    if: github.repository == ‘AcademySoftwareFoundation/openexr’
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
@@ -153,6 +153,7 @@ jobs:
   # ------------------------------------------------------------------------------
   linux_fuzz:
     name: 'Fuzz Test Linux CentOS 7 VFX CY2020 <GCC 6.3.1>'
+    if: github.repository == ‘AcademySoftwareFoundation/openexr’
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:

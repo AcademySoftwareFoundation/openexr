@@ -62,7 +62,7 @@ AM_PATH_PKGCONFIG(
    [OpenEXR],
    [OpenEXR],
    [$LIB64_IF_EXISTS -L/usr/local/lib],
-   [-lIlmImf -lImath -lIex -lHalf -lz -lpthread],
+   [-lOpenEXR -lImath -lIex -lHalf -lz -lpthread],
    [openexr-prefix])
 
 
