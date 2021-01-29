@@ -85,40 +85,41 @@ namespace
 
     size_t getVariableLengthIntegerSize(Int64 value)
     {    
-       if(value<1lu<<7)
+
+       if(value < 1llu<<7)
        {
            return 1;
        }
        
-       if(value<1lu<<14)
+       if(value < 1llu<<14)
        {
            return 2;
        }      
-       if(value<1lu<<21)
+       if(value < 1llu<<21)
        {
            return 3;
        }
-       if(value<1lu<<28)
+       if(value < 1llu<<28)
        {
            return 4;
        }
-       if(value<1lu<<35)
+       if(value < 1llu<<35)
        {
            return 5;
        }
-       if(value<1lu<<42)
+       if(value < 1llu<<42)
        {
            return 6;
        }
-       if(value<1lu<<49)
+       if(value < 1llu<<49)
        {
            return 7;
        }
-       if(value<1lu<<56)
+       if(value < 1llu<<56)
        {
            return 8;
        }
-       if(value<1lu<<63)
+       if(value < 1llu<<63)
        {
            return 9;
        }

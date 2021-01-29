@@ -315,11 +315,8 @@ public:
     IMF_EXPORT
    ~CompressedIDManifest();
 
-    IMF_EXPORT
     int _compressedDataSize;
-    IMF_EXPORT
     size_t _uncompressedDataSize;
-    IMF_EXPORT
     unsigned char* _data;
 
     
