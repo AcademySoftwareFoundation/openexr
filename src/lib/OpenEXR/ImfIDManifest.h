@@ -16,6 +16,7 @@
 #include <set>
 #include <string>
 #include "ImfForward.h"
+#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -37,19 +38,26 @@ public:
     // proprietary schemes should be encoded in a reverse-URL syntax
     //
 
-    
+    IMF_EXPORT
     static const std::string UNKNOWN;        // = "unknown" : default value for encoding scheme and hash scheme - should be changed
+    IMF_EXPORT
     static const std::string NOTHASHED;      // = "none" : no relationship between text and ID
+    IMF_EXPORT
     static const std::string CUSTOMHASH;     // = "custom" : text is hashed using defined scheme
+    IMF_EXPORT
     static const std::string MURMURHASH3_32; // = "MurmurHash3_32" : MurmurHash3 32 bit is used
+    IMF_EXPORT
     static const std::string MURMURHASH3_64; // = "MurmurHash3_64" : bottom 8 bytes of MurmarHash3_128 (64 bit architecture version) is used
 
 
+    IMF_EXPORT
     static const std::string ID_SCHEME;      // ="id" : 32 bit ID stored directly in a UINT channel
+    IMF_EXPORT
     static const std::string ID2_SCHEME;     // ="id2" : 64 bit ID stored in two channels, specified by the ChannelGroup
     
     
     
+    IMF_EXPORT
     IDManifest();
     
     friend class CompressedIDManifest;
@@ -57,11 +65,13 @@ public:
     //
     // decompress a compressed IDManifest into IDManifest for reading
     //
+    IMF_EXPORT
     IDManifest(const CompressedIDManifest&);
     
     //
     // construct manifest from serialized representation stored at 'data'
     //
+    IMF_EXPORT
     IDManifest(const char* data, const char* end);
     
 
@@ -90,34 +100,48 @@ public :
         bool _insertingEntry; // true if << has been called but not enough strings yet set
 
     public:
-        
+        IMF_EXPORT
         ChannelGroupManifest();
-        
+
+        IMF_EXPORT
         const std::set<std::string>& getChannels() const;
+
+        IMF_EXPORT
         std::set<std::string>& getChannels();
         
+        IMF_EXPORT
         void setChannels(const std::set<std::string>& channels);
+        IMF_EXPORT
         void setChannel(const std::string& channel);
         
          // get list of components for this channel group
+        IMF_EXPORT
          const std::vector<std::string>& getComponents() const;
          
          // set components: throws an exception if there are already entries in the table
          // and the component length changes
+         IMF_EXPORT
          void setComponents(const std::vector<std::string>& components);
          
          // set name of single component: throws an exception if there are already entries in the table
          // unless there was previously one component
+         IMF_EXPORT
          void setComponent(const std::string& component);
          
-         
+         IMF_EXPORT
          IdLifetime getLifetime() const { return _lifeTime;}
+
+         IMF_EXPORT
          void setLifetime(const IdLifetime& lifeTime)      { _lifeTime = lifeTime;}
          
+         IMF_EXPORT
          const std::string& getHashScheme() const { return _hashScheme;}
+         IMF_EXPORT
          void setHashScheme(const std::string& hashScheme)             { _hashScheme = hashScheme;}
          
+         IMF_EXPORT
          const std::string& getEncodingScheme() const { return _encodingScheme;}
+         IMF_EXPORT
          void setEncodingScheme(const std::string& encodingScheme)             { _encodingScheme = encodingScheme;}
          
          
@@ -125,43 +149,61 @@ public :
          class ConstIterator;     // iterator which does not allow modification
          
          
-         
+         IMF_EXPORT
          Iterator begin();
+         IMF_EXPORT
          ConstIterator begin() const;
+         IMF_EXPORT
          Iterator end();
+         IMF_EXPORT
          ConstIterator end() const;
          
          // return number of entries in manifest - could be 0
+         IMF_EXPORT
          size_t size() const ;
          
          // insert a new entry - text must contain same number of items as getComponents
+         IMF_EXPORT
          Iterator insert(Int64 idValue,  const std::vector<std::string>& text);
          
          // insert a new entry - getComponents must be a single entry
+         IMF_EXPORT
          Iterator insert(Int64 idValue,  const std::string& text);
          
          
          // compute hash of given entry, insert into manifest, and return 
          // the computed hash. Exception will be thrown if hash scheme isn't recognised
+         IMF_EXPORT
          Int64 insert(const std::vector<std::string>& text);
+         IMF_EXPORT
          Int64 insert(const std::string& text);
          
+         IMF_EXPORT
          Iterator find(Int64 idValue);
+
+         IMF_EXPORT
          ConstIterator find(Int64 idValue) const;
+
+         IMF_EXPORT
          void erase(Int64 idValue); 
          
          // return reference to idName for given idValue. Adds the mapping to the vector if it doesn't exist
+         IMF_EXPORT
          std::vector<std::string>& operator[](Int64 idValue); 
          
          // add a new entry to the manifest as an insertion operator: <<
          // the component strings must also be inserted using <<
          // throws an exception if the previous insert operation didn't insert the correct number of string components
+         IMF_EXPORT
          ChannelGroupManifest& operator<<(Int64 idValue);
          
          // insert a string as the next component of a previously inserted attribute
+         IMF_EXPORT
          ChannelGroupManifest& operator<<(const std::string& text);
          
+         IMF_EXPORT
          bool operator==(const ChannelGroupManifest& other) const;
+         IMF_EXPORT
          bool operator!=(const ChannelGroupManifest& other) const { return !(*this==other);}
          
          friend class IDManifest;
@@ -177,30 +219,40 @@ public:
 
     // add a new channel group definition to the table, presumably populated with mappings
     // 'table' will be copied to the internal manifest; to further modify use the return value
+    IMF_EXPORT
     ChannelGroupManifest& add(const ChannelGroupManifest& table);
     
     
     //insert an empty table definition for the given channel / group of channels
+    IMF_EXPORT
     ChannelGroupManifest& add(const std::set<std::string>& group);
+    IMF_EXPORT
     ChannelGroupManifest& add(const std::string& channel);
     
  
     // return number of items in manifest
+    IMF_EXPORT
     size_t size() const;
     
     // find the first manifest ChannelGroupManifest that defines the given channel
     // if channel not find, returns a value equal to size()
+    IMF_EXPORT
     size_t find(const std::string& channel) const;
 
+    IMF_EXPORT
     const ChannelGroupManifest& operator[](size_t index) const;    
+    IMF_EXPORT
     ChannelGroupManifest& operator[](size_t index);
     
     //
     // serialize manifest into data array. Array will be resized to the required size
     //
+    IMF_EXPORT
     void serialize(std::vector<char>& data) const;
     
+    IMF_EXPORT
     bool operator==(const IDManifest& other) const;
+    IMF_EXPORT
     bool operator!=(const IDManifest& other) const;
     
     
@@ -218,16 +270,21 @@ public:
     // but with different _components, _hashScheme, _lifeTime or _encodingScheme
     // or if any idValue maps to different strings in 'other' and 'this'
     //
+    IMF_EXPORT
     bool merge(const IDManifest& other);
     
     
     //
     // static has generation functions
     //
+    IMF_EXPORT
     static unsigned int MurmurHash32(const std::string& idString);    
+    IMF_EXPORT
     static unsigned int MurmurHash32(const std::vector<std::string>& idString);
     
+    IMF_EXPORT
     static Int64 MurmurHash64(const std::string& idString);
+    IMF_EXPORT
     static Int64 MurmurHash64(const std::vector<std::string>& idString);
     
 
@@ -241,20 +298,28 @@ public:
 class CompressedIDManifest
 {
 public:
+    IMF_EXPORT
     CompressedIDManifest();
+    IMF_EXPORT
     CompressedIDManifest(const CompressedIDManifest& other);
     
+    IMF_EXPORT
     CompressedIDManifest& operator=(const CompressedIDManifest& other);
     
     //
     // construct a compressed version of the given manifest - to decompress it cast to an IDManifest
     //
+    IMF_EXPORT
     CompressedIDManifest(const IDManifest& manifest);
     
+    IMF_EXPORT
    ~CompressedIDManifest();
 
+    IMF_EXPORT
     int _compressedDataSize;
+    IMF_EXPORT
     size_t _uncompressedDataSize;
+    IMF_EXPORT
     unsigned char* _data;
 
     
@@ -268,13 +333,19 @@ public:
 class IDManifest::ChannelGroupManifest::Iterator
 {
 public:
+    IMF_EXPORT
     Iterator ();
+
+    IMF_EXPORT
     explicit Iterator (const IDManifest::ChannelGroupManifest::IDTable::iterator &i);
     
     friend class IDManifest::ChannelGroupManifest::ConstIterator;
+    IMF_EXPORT
     Iterator &                         operator ++ ();
 
+    IMF_EXPORT
     Int64                              id() const;
+    IMF_EXPORT
     std::vector<std::string>&          text();
     
 private:
@@ -290,20 +361,27 @@ private:
 class IDManifest::ChannelGroupManifest::ConstIterator
 {
 public:
+    IMF_EXPORT
     ConstIterator ();
 
     // explicit cast from internal map operator (for internal use only)
+    IMF_EXPORT
     explicit ConstIterator (const IDManifest::ChannelGroupManifest::IDTable::const_iterator &i);
     // cast from non-const to const iterator
+    IMF_EXPORT
     ConstIterator (const IDManifest::ChannelGroupManifest::Iterator &other);
+    IMF_EXPORT
     ConstIterator &                         operator ++ ();
 
+    IMF_EXPORT
     Int64                              id() const;
+    IMF_EXPORT
     const std::vector<std::string>&          text() const;
     
     private:
         
     std::map< Int64 , std::vector<std::string> >::const_iterator _i;
+
     friend bool operator == (const ConstIterator &, const ConstIterator &);
     friend bool operator != (const ConstIterator &, const ConstIterator &);
 };
@@ -362,8 +440,6 @@ operator!=(const IDManifest::ChannelGroupManifest::ConstIterator& a, const IDMan
 {
    return a._i !=b._i;
 }
-
-
 
 
 
