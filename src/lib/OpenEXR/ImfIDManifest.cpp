@@ -818,7 +818,7 @@ void IDManifest::serialize(std::vector< char >& data) const
        
            Int64 idToStore = i->first-previousId;
            IdStorageForVariableScheme+=getVariableLengthIntegerSize(idToStore);
-           if(idToStore >= 1l<<32)
+           if(idToStore >= 1llu<<32)
            {
                canUse32Bits = false;
            }
