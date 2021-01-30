@@ -149,6 +149,11 @@ void testReadTiles( const std::string &tempdir )
     assert( levelsx == 1 );
     assert( levelsy == 1 );
 
+    rv = exr_get_tile_sizes( f, 0, 0, 0, &levelsx, &levelsy );
+    assert( rv == EXR_ERR_SUCCESS );
+    assert( levelsx == 12 );
+    assert( levelsy == 24 );
+
     exr_decode_chunk_info_t chunk = {0};
     rv = exr_decode_chunk_init_scanline( f, 0, &chunk, 42, 1 );
     assert( rv == EXR_ERR_SCAN_TILE_MIXEDAPI );

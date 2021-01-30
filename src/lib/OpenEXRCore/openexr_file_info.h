@@ -58,6 +58,20 @@ EXR_EXPORT exr_STORAGE_TYPE_t exr_get_part_storage(
  */
 EXR_EXPORT int exr_get_tile_levels( exr_file_t *file, int part_index, int32_t *levelsx, int32_t *levelsy );
 
+/** @brief Query the tile size for a particular level in the specified part.
+ *
+ * If the part is a tiled part, fills in the tile size for the specified part / level
+ *
+ * return ERR_SUCCESS on sucess, an error otherwise (i.e. if the part
+ * is not tiled)
+ *
+ * it is valid to pass NULL to either of the tilew or tileh
+ * arguments, which enables testing if this part is a tiled part, or
+ * if you don't need both (i.e. in the case of a mip-level tiled
+ * image)
+ */
+EXR_EXPORT int exr_get_tile_sizes( exr_file_t *file, int part_index, int levelx, int levely, int32_t *tilew, int32_t *tileh );
+
 /** Return the number of chunks contained in this part of the file
  *
  * This should be used as a basis for splitting up how a file is

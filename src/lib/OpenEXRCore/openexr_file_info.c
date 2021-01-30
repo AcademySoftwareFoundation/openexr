@@ -84,10 +84,71 @@ int exr_get_tile_levels( exr_file_t *f, int part_index, int *levelsx, int *level
     if ( part->storage_mode == EXR_STORAGE_TILED ||
          part->storage_mode == EXR_STORAGE_DEEP_TILED )
     {
+        if ( ! part->tiles ||
+             part->num_tile_levels_x <= 0 ||
+             part->num_tile_levels_y <= 0 ||
+             ! part->tile_level_tile_count_x ||
+             ! part->tile_level_tile_count_y )
+        {
+            return EXR_GETFILE(f)->print_error(
+                f, EXR_ERR_BAD_CHUNK_DATA,
+                "Request for tile, but no tile data exists" );
+        }
+
         if ( levelsx )
             *levelsx = part->num_tile_levels_x;
         if ( levelsy )
             *levelsy = part->num_tile_levels_y;
+        return EXR_ERR_SUCCESS;
+    }
+
+    return EXR_GETFILE(f)->standard_error( f, EXR_ERR_TILE_SCAN_MIXEDAPI );
+}
+
+/**************************************/
+
+int exr_get_tile_sizes( exr_file_t *f, int part_index, int levelx, int levely, int32_t *tilew, int32_t *tileh )
+{
+    exr_PRIV_PART_t *part;
+    exr_PRIV_FILE_t *file = EXR_GETFILE(f);
+    const exr_attr_tiledesc_t *tiledesc;
+
+    if ( ! f )
+        return -1;
+
+    if ( part_index < 0 || part_index >= file->num_parts || levelx < 0 || levely < 0 )
+        return EXR_GETFILE(f)->standard_error( f, EXR_ERR_INVALID_ARGUMENT );
+
+    part = file->parts[part_index];
+    if ( part->storage_mode == EXR_STORAGE_TILED ||
+         part->storage_mode == EXR_STORAGE_DEEP_TILED )
+    {
+        if ( ! part->tiles ||
+             part->num_tile_levels_x <= 0 ||
+             part->num_tile_levels_y <= 0 ||
+             ! part->tile_level_tile_count_x ||
+             ! part->tile_level_tile_count_y )
+        {
+            return EXR_GETFILE(f)->print_error(
+                f, EXR_ERR_BAD_CHUNK_DATA,
+                "Request for tile, but no tile data exists" );
+        }
+
+        if ( levelx >= part->num_tile_levels_x || levely >= part->num_tile_levels_y )
+            return EXR_GETFILE(f)->standard_error( f, EXR_ERR_INVALID_ARGUMENT );
+        tiledesc = part->tiles->tiledesc;
+        if ( tilew )
+        {
+            *tilew = part->tile_level_tile_size_x[levelx];
+            if ( tiledesc->x_size < *tilew )
+                *tilew = tiledesc->x_size;
+        }
+        if ( tileh )
+        {
+            *tileh = part->tile_level_tile_size_y[levely];
+            if ( tiledesc->y_size < *tileh )
+                *tileh = tiledesc->y_size;
+        }
         return EXR_ERR_SUCCESS;
     }
 
