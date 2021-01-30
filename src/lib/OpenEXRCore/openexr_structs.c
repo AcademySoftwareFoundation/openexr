@@ -227,7 +227,7 @@ int priv_add_part( exr_PRIV_FILE_t *f, exr_PRIV_PART_t **outpart )
 
 /**************************************/
 
-int priv_create_file( exr_PRIV_FILE_t **out, exr_error_handler_cb_t errcb, size_t userdatasz, int isread )
+int priv_create_file( exr_PRIV_FILE_t **out, exr_error_handler_cb_t errcb, uint64_t userdatasz, int isread )
 {
     uint8_t *ptr;
     exr_PRIV_FILE_t *ret, nil = {0};
