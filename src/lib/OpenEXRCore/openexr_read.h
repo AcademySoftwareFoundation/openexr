@@ -183,7 +183,7 @@ typedef struct exr_decode_chunk_info__t
  * used to pre-allocate buffers for multiple threads in one block or
  * whatever your application may require.
  */
-EXR_EXPORT size_t exr_get_chunk_unpacked_size( exr_file_t *file, int part_index );
+EXR_EXPORT uint64_t exr_get_chunk_unpacked_size( exr_file_t *file, int part_index );
 
 /** @brief Computes the chunk_info for a particular scanline.
  *

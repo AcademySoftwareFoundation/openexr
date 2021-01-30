@@ -4,7 +4,6 @@
 */
 
 /* implementation for unix-like file io routines (used in openexr_file.c) */
-
 #include <errno.h>
 
 #include <sys/types.h>
@@ -82,19 +81,29 @@ static int finalize_write( exr_PRIV_FILE_t *pf, int failed )
 
 /**************************************/
 
-static exr_ssize_t default_read_func(
+static int64_t default_read_func(
     exr_file_t *file,
     void *userdata,
     void *buffer,
-    size_t sz,
-    exr_off_t offset,
+    uint64_t sz,
+    uint64_t offset,
     exr_stream_error_func_ptr_t error_cb )
 {
-    exr_ssize_t rv, retsz = -1;
+    int64_t rv, retsz = -1;
     exr_default_filehandle_t *fh = userdata;
     int fd = -1;
     char *curbuf = (char *)buffer;
-    size_t readsz = sz;
+    uint64_t readsz = sz;
+
+    if ( sizeof(size_t) == 4 )
+    {
+        if ( sz >= (uint64_t)UINT32_MAX )
+        {
+            if ( error_cb )
+                error_cb( file, EXR_ERR_INVALID_ARGUMENT, "read request size too large for architecture" );
+            return retsz;
+        }
+    }
 
     if ( ! fh )
     {
@@ -114,13 +123,17 @@ static exr_ssize_t default_read_func(
 #if ! CAN_USE_PREAD
     pthread_mutex_lock( &(fh->mutex) );
     {
-        exr_off_t spos = lseek( fd, offset, SEEK_SET );
+#if defined __USE_LARGEFILE64
+        uint64_t spos = (uint64_t)lseek64( fd, (off64_t)offset, SEEK_SET );
+#else
+        uint64_t spos = (uint64_t)lseek( fd, (off_t)offset, SEEK_SET );
+#endif
         if ( spos != offset )
         {
             pthread_mutex_unlock( &(fh->mutex) );
             if ( error_cb )
             {
-                if ( spos == (exr_off_t)-1 )
+                if ( spos == (uint64_t)-1 )
                     error_cb( file, EXR_ERR_READ_IO, strerror( errno ) );
                 else
                     error_cb( file, EXR_ERR_READ_IO, "Unable to seek to requested position" );
@@ -134,9 +147,9 @@ static exr_ssize_t default_read_func(
     do
     {
 #if CAN_USE_PREAD
-        rv = pread( fd, curbuf, readsz, offset );
+        rv = pread( fd, curbuf, (size_t)readsz, (off_t)offset );
 #else
-        rv = read( fd, curbuf, readsz );
+        rv = read( fd, curbuf, (size_t)readsz );
 #endif
         if ( rv < 0 )
         {
@@ -166,19 +179,29 @@ static exr_ssize_t default_read_func(
 
 /**************************************/
 
-static exr_ssize_t default_write_func(
+static int64_t default_write_func(
     exr_file_t *file,
     void *userdata,
     const void *buffer,
-    size_t sz,
-    exr_off_t offset,
+    uint64_t sz,
+    uint64_t offset,
     exr_stream_error_func_ptr_t error_cb )
 {
-    exr_ssize_t rv, retsz = -1;
+    int64_t rv, retsz = -1;
     exr_default_filehandle_t *fh = userdata;
     int fd = -1;
     const uint8_t *curbuf = (const uint8_t *)buffer;
-    size_t readsz = sz;
+    uint64_t writesz = sz;
+
+    if ( sizeof(size_t) < sizeof(uint64_t) )
+    {
+        if ( sz >= (uint64_t)UINT32_MAX )
+        {
+            if ( error_cb )
+                error_cb( file, EXR_ERR_INVALID_ARGUMENT, "read request size too large for architecture" );
+            return retsz;
+        }
+    }
 
     if ( ! fh )
     {
@@ -198,13 +221,17 @@ static exr_ssize_t default_write_func(
 #if ! CAN_USE_PREAD
     pthread_mutex_lock( &(fh->mutex) );
     {
-        exr_off_t spos = lseek( fd, offset, SEEK_SET );
+#if defined __USE_LARGEFILE64
+        uint64_t spos = (uint64_t)lseek64( fd, (off64_t)offset, SEEK_SET );
+#else
+        uint64_t spos = (uint64_t)lseek( fd, (off_t)offset, SEEK_SET );
+#endif
         if ( spos != offset )
         {
             pthread_mutex_unlock( &(fh->mutex) );
             if ( error_cb )
             {
-                if ( spos == (exr_off_t)-1 )
+                if ( spos == (uint64_t)-1 )
                     error_cb( file, EXR_ERR_WRITE_IO, strerror( errno ) );
                 else
                     error_cb( file, EXR_ERR_WRITE_IO, "Unable to seek to requested position" );
@@ -218,9 +245,9 @@ static exr_ssize_t default_write_func(
     do
     {
 #if CAN_USE_PREAD
-        rv = pwrite( fd, curbuf, readsz, offset );
+        rv = pwrite( fd, curbuf, (size_t)writesz, (off_t)offset );
 #else
-        rv = write( fd, curbuf, readsz );
+        rv = write( fd, curbuf, (size_t)writesz );
 #endif
         if ( rv < 0 )
         {
@@ -233,14 +260,14 @@ static exr_ssize_t default_write_func(
         }
         retsz += rv;
         curbuf += rv;
-        readsz -= rv;
+        writesz -= rv;
         offset += rv;
     } while ( retsz < sz );
 
 #if ! CAN_USE_PREAD
     pthread_mutex_unlock( &(fh->mutex) );
 #endif
-    if ( retsz != (exr_ssize_t)sz && error_cb )
+    if ( retsz != (int64_t)sz && error_cb )
         error_cb( file, EXR_ERR_WRITE_IO,
                   "Unable to write %lu bytes to stream, wrote %ld: %s",
                   sz, retsz, strerror( errno ) );
@@ -339,7 +366,7 @@ static int make_temp_filename( exr_PRIV_FILE_t *ret )
     /* we checked the pointers we care about before calling */
     char tmproot[32];
     char *tmpname;
-    size_t tlen, newlen;
+    uint64_t tlen, newlen;
     const char *srcfile = ret->filename.str;
     int nwr = snprintf( tmproot, 32, "tmp.%d", getpid() );
     if ( nwr >= 32 )
@@ -347,7 +374,7 @@ static int make_temp_filename( exr_PRIV_FILE_t *ret )
                                   "Invalid assumption in temporary filename" );
 
     tlen = strlen( tmproot );
-    newlen = tlen + (size_t)ret->filename.length;
+    newlen = tlen + (uint64_t)ret->filename.length;
 
     if ( newlen >= INT32_MAX )
         return ret->standard_error( ret, EXR_ERR_OUT_OF_MEMORY );
@@ -363,7 +390,7 @@ static int make_temp_filename( exr_PRIV_FILE_t *ret )
 
         if ( lastslash )
         {
-            size_t nPrev = (uintptr_t)lastslash - (uintptr_t)srcfile + 1;
+            uint64_t nPrev = (uintptr_t)lastslash - (uintptr_t)srcfile + 1;
             strncpy( tmpname, srcfile, nPrev );
             strncpy( tmpname + nPrev, tmproot, tlen );
             strncpy( tmpname + nPrev + tlen, srcfile + nPrev, ret->filename.length - nPrev );

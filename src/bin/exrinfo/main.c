@@ -31,13 +31,13 @@ static void error_handler_cb( exr_file_t *f, int code, const char *msg )
 	fprintf( stderr, "ERROR '%s' (%d): %s\n", fn, code, msg );
 }
 
-static exr_ssize_t stdin_reader(
+static int64_t stdin_reader(
     exr_file_t *file,
-    void *userdata, void *buffer, size_t sz, exr_off_t offset,
+    void *userdata, void *buffer, uint64_t sz, uint64_t offset,
     exr_stream_error_func_ptr_t error_cb )
 {
-    static exr_off_t lastoffset = 0;
-    exr_ssize_t nread = 0;
+    static uint64_t lastoffset = 0;
+    int64_t nread = 0;
     if ( offset != lastoffset )
     {
         error_cb( file, EXR_ERR_READ_IO, "Unable to seek in stdin stream" );

@@ -8,22 +8,23 @@
 
 #include "openexr.h"
 
-#if defined(_MSC_VER) && ! defined(__GNUC__) && ! defined(__clang__)
+#if defined __has_include
+#  if __has_include (<stdatomic.h>)
+#    define EXR_HAS_STD_ATOMICS 1
+#  endif
+#endif
 
-# include <windows.h>
+#ifdef EXR_HAS_STD_ATOMICS
+#  include <stdatomic.h>
+#elif defined(_MSC_VER)
 
-/* in theory, stdatomic.h is coming to msvc w/ c11 support, but not yet...
- *
- * we are only using a pointer and file offset during writing, both of
- * which can be 64-bit (might be wasteful on 32-bit O.S., but will
- * work until better support exists)
- *
- * if other atomic types / sizes are needed, something smarter will
- * also be needed using if ( sizeof(*object) == XXXX ) tests, there
- * are a few examples on the internet
- */
+/* msvc w/ c11 support is only very new, until we know what the preprocessor checks are, provide defaults */
+#  include <windows.h>
+
+/* yeah, yeah, 32-bit is possible here, but if we make it the same, we
+ * can write less since we know support is coming (eventually) */
 typedef uint64_t atomic_uintptr_t;
-typedef int64_t atomic_llong;
+typedef int64_t atomic_int_least64_t;
 
 #define atomic_load(object) InterlockedOr64( (int64_t volatile *)object, 0 )
 #define atomic_fetch_add(object, val) InterlockedExchangeAdd64( (int64_t volatile *)object, val )
@@ -36,10 +37,13 @@ static inline int atomic_compare_exchange_strong64( int64_t volatile *object, in
     *expected = prev;
     return 0;
 }
-#define atomic_compare_exchange_strong(object, val, des) atomic_compare_exchange_strong64( object, val, des )
+#define atomic_compare_exchange_strong(object, val, des)                \
+    ( ( sizeof(*object) == 8 )                                          \
+      ? atomic_compare_exchange_strong64( (int64_t volatile *)object, (int64_t *)val, (int64_t)des ) \
+      : 0 )
 
 #else
-# include <stdatomic.h>
+# error OS unimplemented support for atomics
 #endif
 
 typedef struct exr_part_t
@@ -83,11 +87,11 @@ typedef struct exr_part_t
     int32_t *tile_level_tile_size_x;
     int32_t *tile_level_tile_size_y;
 
-    size_t unpacked_size_per_chunk;
+    uint64_t unpacked_size_per_chunk;
     int32_t lines_per_chunk;
 
     int32_t chunk_count;
-    exr_off_t chunk_table_offset;
+    uint64_t chunk_table_offset;
     atomic_uintptr_t chunk_table;
 } exr_PRIV_PART_t;
 
@@ -102,8 +106,8 @@ typedef struct _priv_exr_file_t
     exr_attr_string_t filename;
     exr_attr_string_t tmp_filename;
 
-    int (*do_read)( struct _priv_exr_file_t *file, void *, size_t, exr_off_t *, exr_ssize_t *, __PRIV_READ_MODE );
-    int (*do_write)( struct _priv_exr_file_t *file, const void *, size_t, exr_off_t * );
+    int (*do_read)( struct _priv_exr_file_t *file, void *, uint64_t, uint64_t *, int64_t *, __PRIV_READ_MODE );
+    int (*do_write)( struct _priv_exr_file_t *file, const void *, uint64_t, uint64_t * );
 
     int (*standard_error)( struct _priv_exr_file_t *file, int code );
     int (*report_error)( struct _priv_exr_file_t *file, int code, const char *msg );
@@ -115,8 +119,8 @@ typedef struct _priv_exr_file_t
     exr_read_func_ptr_t  read_fn;
     exr_write_func_ptr_t write_fn;
 
-    atomic_llong file_offset; /**< used when writing */
-    exr_ssize_t file_size;
+    atomic_int_least64_t file_offset; /**< used when writing, is there a better way? */
+    int64_t file_size;
 
     uint8_t version;
     uint8_t max_name_length;
@@ -139,7 +143,7 @@ typedef struct _priv_exr_file_t
 
 int priv_add_part( exr_PRIV_FILE_t *, exr_PRIV_PART_t ** );
 
-int priv_create_file( exr_PRIV_FILE_t **, exr_error_handler_cb_t errcb, size_t userdatasz, int isread );
+int priv_create_file( exr_PRIV_FILE_t **, exr_error_handler_cb_t errcb, uint64_t userdatasz, int isread );
 void priv_destroy_file( exr_PRIV_FILE_t * );
 
 #endif /* OPENEXR_PRIVATE_STRUCTS_H */

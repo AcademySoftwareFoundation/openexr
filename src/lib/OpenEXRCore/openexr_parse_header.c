@@ -21,44 +21,44 @@
 typedef struct exr_seq_scratch_t
 {
     uint8_t *scratch;
-    size_t curpos;
-    exr_ssize_t navail;
-    exr_off_t fileoff;
+    uint64_t curpos;
+    int64_t navail;
+    uint64_t fileoff;
 
-    int (*sequential_read)( struct exr_seq_scratch_t *, void *, size_t );
+    int (*sequential_read)( struct exr_seq_scratch_t *, void *, uint64_t );
 
     exr_file_t *file;
 } exr_PRIV_SEQ_SCRATCH_t;
 
 #define SCRATCH_BUFFER_SIZE 4096
 
-static int scratch_seq_read( struct exr_seq_scratch_t *scr, void *buf, size_t sz )
+static int scratch_seq_read( struct exr_seq_scratch_t *scr, void *buf, uint64_t sz )
 {
     uint8_t *outbuf = buf;
-    size_t nCopied = 0;
-    size_t notdone = sz;
+    uint64_t nCopied = 0;
+    uint64_t notdone = sz;
     int rv = -1;
 
     while ( notdone > 0 )
     {
         if ( scr->navail > 0 )
         {
-            size_t nLeft = (size_t)scr->navail;
-            size_t nCopy = notdone;
+            uint64_t nLeft = (uint64_t)scr->navail;
+            uint64_t nCopy = notdone;
             if ( nCopy > nLeft )
                 nCopy = nLeft;
             memcpy( outbuf, scr->scratch + scr->curpos, nCopy );
             scr->curpos += nCopy;
-            scr->navail -= (exr_ssize_t)nCopy;
+            scr->navail -= (int64_t)nCopy;
             notdone -= nCopy;
             outbuf += nCopy;
             nCopied += nCopy;
         }
         else if ( notdone > SCRATCH_BUFFER_SIZE )
         {
-            size_t nPages = notdone / SCRATCH_BUFFER_SIZE;
-            exr_ssize_t nread = 0;
-            size_t nToRead = nPages * SCRATCH_BUFFER_SIZE;
+            uint64_t nPages = notdone / SCRATCH_BUFFER_SIZE;
+            int64_t nread = 0;
+            uint64_t nToRead = nPages * SCRATCH_BUFFER_SIZE;
             rv = EXR_GETFILE(scr->file)->do_read(
                 scr->file, outbuf, nToRead, &(scr->fileoff), &nread, EXR_MUST_READ_ALL );
             if ( nread > 0 )
@@ -72,7 +72,7 @@ static int scratch_seq_read( struct exr_seq_scratch_t *scr, void *buf, size_t sz
         }
         else
         {
-            exr_ssize_t nread = 0;
+            int64_t nread = 0;
             rv = EXR_GETFILE(scr->file)->do_read(
                 scr->file, scr->scratch, SCRATCH_BUFFER_SIZE, &(scr->fileoff), &nread, EXR_ALLOW_SHORT_READ );
             if ( nread > 0 )
@@ -98,7 +98,7 @@ static int scratch_seq_read( struct exr_seq_scratch_t *scr, void *buf, size_t sz
 
 /**************************************/
 
-static int priv_init_scratch( exr_file_t *file, exr_PRIV_SEQ_SCRATCH_t *scr, exr_off_t offset )
+static int priv_init_scratch( exr_file_t *file, exr_PRIV_SEQ_SCRATCH_t *scr, uint64_t offset )
 {
     exr_PRIV_SEQ_SCRATCH_t nil = {0};
     *scr = nil;
@@ -124,7 +124,7 @@ static void priv_destroy_scratch( exr_PRIV_SEQ_SCRATCH_t *scr )
 
 static int32_t check_bad_attrsz( exr_file_t *f, int attrsz, int eltsize, const char *aname, const char *tname )
 {
-    exr_ssize_t fsize = EXR_GETFILE(f)->file_size;
+    int64_t fsize = EXR_GETFILE(f)->file_size;
     int32_t n = attrsz;
 
     if ( attrsz < 0 )
@@ -348,7 +348,7 @@ static int extract_attr_float_vector( exr_file_t *f,
         if ( exr_attr_float_vector_init( f, attrdata, n ) )
             return 1;
 
-        if ( scratch->sequential_read( scratch, (void *)attrdata->arr, (size_t)attrsz ) )
+        if ( scratch->sequential_read( scratch, (void *)attrdata->arr, (uint64_t)attrsz ) )
         {
             exr_attr_float_vector_destroy( attrdata );
             return EXR_GETFILE(f)->print_error(
@@ -377,7 +377,7 @@ static int extract_attr_string( exr_file_t *f,
     {
         if ( n > 0 )
         {
-            if ( scratch->sequential_read( scratch, (void *)strptr, (size_t)n ) )
+            if ( scratch->sequential_read( scratch, (void *)strptr, (uint64_t)n ) )
             {
                 return EXR_GETFILE(f)->print_error(
                     f, EXR_ERR_READ_IO,
@@ -470,7 +470,7 @@ static int extract_attr_string_vector( exr_file_t *f,
         if ( rv != 0 )
             goto extract_string_vector_fail;
 
-        if ( scratch->sequential_read( scratch, (void *)nlist->str, (size_t)nlen ) )
+        if ( scratch->sequential_read( scratch, (void *)nlist->str, (uint64_t)nlen ) )
         {
             rv = EXR_GETFILE(f)->print_error(
                 f, EXR_ERR_READ_IO,
@@ -546,10 +546,10 @@ static int extract_attr_opaque( exr_file_t *f,
     if ( n <= 0 )
         return -n;
 
-    if ( exr_attr_opaquedata_init( f, attrdata, (size_t)attrsz ) )
+    if ( exr_attr_opaquedata_init( f, attrdata, (uint64_t)attrsz ) )
         return 1;
 
-    if ( scratch->sequential_read( scratch, (void *)attrdata->packed_data, (size_t)attrsz ) )
+    if ( scratch->sequential_read( scratch, (void *)attrdata->packed_data, (uint64_t)attrsz ) )
     {
         exr_attr_opaquedata_destroy( attrdata );
         return EXR_GETFILE(f)->print_error(
@@ -569,9 +569,9 @@ static int extract_attr_preview( exr_file_t *f,
                                  const char *tname,
                                  int32_t attrsz )
 {
-    size_t bytes;
+    uint64_t bytes;
     uint32_t sz[2];
-    exr_ssize_t fsize = EXR_GETFILE(f)->file_size;
+    int64_t fsize = EXR_GETFILE(f)->file_size;
 
     if ( attrsz < 8 )
         return EXR_GETFILE(f)->print_error(
@@ -587,7 +587,7 @@ static int extract_attr_preview( exr_file_t *f,
     sz[0] = one_to_native32( sz[0] );
     sz[1] = one_to_native32( sz[1] );
     bytes = 4 * sz[0] * sz[1];
-    if ( (size_t)attrsz != (8 + bytes) )
+    if ( (uint64_t)attrsz != (8 + bytes) )
         return EXR_GETFILE(f)->print_error(
             f, EXR_ERR_INVALID_ATTR,
             "Attribute '%s': Invalid size %d (exp '%s' %u x %u * 4 + sizevals)",
@@ -1778,7 +1778,7 @@ int priv_parse_header( exr_PRIV_FILE_t *file )
     uint32_t flags;
     uint8_t next_byte;
     int rv = EXR_ERR_UNKNOWN, got_attr;
-    exr_off_t curoffset = 0;
+    uint64_t curoffset = 0;
 
     rv = priv_init_scratch( file, &scratch, 0 );
     if ( rv != EXR_ERR_SUCCESS )

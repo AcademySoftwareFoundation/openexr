@@ -17,7 +17,7 @@ static int print_error_helper( exr_PRIV_FILE_t *pf,
 {
     LPVOID lpMsgBuf;
     LPVOID lpDisplayBuf;
-    size_t bufsz = 0;
+    uint64_t bufsz = 0;
 
     FormatMessage(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -142,15 +142,15 @@ static int finalize_write( exr_PRIV_FILE_t *pf, int failed )
 
 /**************************************/
 
-static exr_ssize_t default_read_func(
+static int64_t default_read_func(
     exr_file_t *file,
     void *userdata,
     void *buffer,
-    size_t sz,
-    exr_off_t offset,
+    uint64_t sz,
+    uint64_t offset,
     exr_stream_error_func_ptr_t error_cb )
 {
-    exr_ssize_t retsz = -1;
+    int64_t retsz = -1;
     DWORD nread = 0;
     exr_default_filehandle_t *fh = userdata;
     HANDLE fd;
@@ -172,7 +172,7 @@ static exr_ssize_t default_read_func(
         return retsz;
     }
 
-    if ( sz > (size_t)(INT32_MAX) )
+    if ( sz > (uint64_t)(INT32_MAX) )
     {
         if ( error_cb )
             error_cb( file, EXR_ERR_INVALID_ARGUMENT, "Read request too large for win32 api" );
@@ -204,15 +204,15 @@ static exr_ssize_t default_read_func(
 
 /**************************************/
 
-static exr_ssize_t default_write_func(
+static int64_t default_write_func(
     exr_file_t *file,
     void *userdata,
     const void *buffer,
-    size_t sz,
-    exr_off_t offset,
+    uint64_t sz,
+    uint64_t offset,
     exr_stream_error_func_ptr_t error_cb )
 {
-    exr_ssize_t retsz = -1;
+    int64_t retsz = -1;
     exr_default_filehandle_t *fh = userdata;
     HANDLE fd;
     const uint8_t *curbuf = buffer;
@@ -358,7 +358,7 @@ static int make_temp_filename( exr_PRIV_FILE_t *ret )
     /* we checked the pointers we care about before calling */
     char tmproot[32];
     char *tmpname;
-    size_t tlen, newlen;
+    uint64_t tlen, newlen;
     const char *srcfile = ret->filename.str;
     int nwr = _snprintf_s( tmproot, 32, _TRUNCATE, "tmp.%d", GetCurrentProcessId() );
     if ( nwr >= 32 )
@@ -366,7 +366,7 @@ static int make_temp_filename( exr_PRIV_FILE_t *ret )
                                   "Invalid assumption in temporary filename" );
 
     tlen = strlen( tmproot );
-    newlen = tlen + (size_t)ret->filename.length;
+    newlen = tlen + (uint64_t)ret->filename.length;
 
     if ( newlen >= INT32_MAX )
         return ret->standard_error( ret, EXR_ERR_OUT_OF_MEMORY );
@@ -392,7 +392,7 @@ static int make_temp_filename( exr_PRIV_FILE_t *ret )
 
         if ( lastslash )
         {
-            size_t nPrev = (uintptr_t)lastslash - (uintptr_t)srcfile + 1;
+            uintptr_t nPrev = (uintptr_t)lastslash - (uintptr_t)srcfile + 1;
             strncpy_s( tmpname, newlen + 1, srcfile, nPrev );
             strncpy_s( tmpname + nPrev, newlen + 1 - nPrev, tmproot, tlen );
             strncpy_s( tmpname + nPrev + tlen, newlen + 1 - nPrev - tlen,

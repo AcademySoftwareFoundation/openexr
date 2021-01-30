@@ -50,9 +50,9 @@ static int initialize_part_read(
     ctable = (uint64_t *)atomic_load( &(retval->chunk_table) );
     if ( ctable == NULL )
     {
-        exr_off_t chunkoff = retval->chunk_table_offset;
-        size_t chunkbytes = sizeof(uint64_t) * (size_t)retval->chunk_count;
-        exr_ssize_t nread = 0;
+        uint64_t chunkoff = retval->chunk_table_offset;
+        uint64_t chunkbytes = sizeof(uint64_t) * (uint64_t)retval->chunk_count;
+        int64_t nread = 0;
         uintptr_t eptr = 0, nptr = 0;
         int rv;
 
@@ -114,15 +114,15 @@ static int initialize_part_read(
 
 /**************************************/
 
-size_t exr_get_chunk_unpacked_size( exr_file_t *f, int part_index )
+uint64_t exr_get_chunk_unpacked_size( exr_file_t *f, int part_index )
 {
     exr_PRIV_FILE_t *file = EXR_GETFILE(f);
 
     if ( ! f )
-        return (size_t)-1;
+        return (uint64_t)-1;
 
     if ( part_index < 0 || part_index >= file->num_parts )
-        return (size_t)-1;
+        return (uint64_t)-1;
 
     return file->parts[part_index]->unpacked_size_per_chunk;
 }
@@ -164,7 +164,7 @@ int exr_decode_chunk_init_scanline(
     int rv, miny, cidx, rdcnt, lpc;
     int data[3];
     int64_t ddata[3];
-    exr_off_t dataoff;
+    uint64_t dataoff;
     exr_attr_box2i_t dw;
 
     rv = initialize_part_read( f, part_index, cinfo, &part, &ctable );
@@ -252,7 +252,7 @@ int exr_decode_chunk_init_scanline(
     if ( part->storage_mode != EXR_STORAGE_DEEP_SCANLINE )
         ++rdcnt;
 
-    dataoff = (exr_off_t)( ctable[cidx] );
+    dataoff = ctable[cidx];
     rv = EXR_GETFILE(f)->do_read( f, data, rdcnt * sizeof(int32_t), &dataoff, NULL, EXR_MUST_READ_ALL );
     if ( rv != 0 )
     {
@@ -330,7 +330,7 @@ int exr_decode_chunk_init_scanline(
     }
     else
     {
-        if ( data[rdcnt] < 0 || (size_t)data[rdcnt] > part->unpacked_size_per_chunk )
+        if ( data[rdcnt] < 0 || (uint64_t)data[rdcnt] > part->unpacked_size_per_chunk )
         {
             exr_destroy_decode_chunk_info( cinfo );
             return EXR_GETFILE(f)->print_error(
@@ -442,8 +442,8 @@ int exr_decode_chunk_init_tile(
     int32_t data[6];
     int32_t *tdata = data;
     int32_t cidx = 0, ntoread = 5;
-    exr_off_t dataoff;
-    exr_ssize_t fsize;
+    uint64_t dataoff;
+    int64_t fsize;
     int tilew, tileh, unpacksize = 0;
     uint64_t *ctable;
     int rv;
@@ -504,16 +504,15 @@ int exr_decode_chunk_init_tile(
     if ( EXR_GETFILE(f)->is_multipart )
         ++ntoread;
 
-    dataoff = (exr_off_t)( ctable[cidx] );
+    dataoff = ctable[cidx];
     rv = EXR_GETFILE(f)->do_read( f, data, ntoread * sizeof(int32_t), &dataoff, &fsize, EXR_MUST_READ_ALL );
     if ( rv != 0 )
     {
         exr_destroy_decode_chunk_info( cinfo );
-        dataoff = (exr_off_t)( ctable[cidx] );
         return EXR_GETFILE(f)->print_error(
             f, EXR_ERR_BAD_CHUNK_DATA,
             "Request for tile (%d, %d), level (%d, %d) but unable to read %ld bytes from offset %ld, got %ld bytes",
-            tilex, tiley, levelx, levely, ntoread * sizeof(int32_t), dataoff, fsize );
+            tilex, tiley, levelx, levely, ntoread * sizeof(int32_t), ctable[cidx], fsize );
     }
 
     priv_to_native32( data, ntoread );
@@ -629,8 +628,8 @@ static int read_uncompressed_direct(
     exr_file_t *f,
     exr_decode_chunk_info_t *cinfo )
 {
-    exr_off_t dataoffset = cinfo->chunk_data_offset;
-    size_t nToRead;
+    uint64_t dataoffset = cinfo->chunk_data_offset;
+    uint64_t nToRead;
     uint8_t *cdata;
     int rv = EXR_ERR_SUCCESS;
 
@@ -731,16 +730,16 @@ static void unpack_16bit_4_chans(
             srcbuffer += w * 8;
             for ( int x = 0; x < w; ++x )
             {
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-                combined.a = in0[x];
-                combined.b = in1[x];
-                combined.g = in2[x];
-                combined.r = in3[x];
-#else
+#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
                 combined.a = le16toh( in0[x] );
                 combined.b = le16toh( in1[x] );
                 combined.g = le16toh( in2[x] );
                 combined.r = le16toh( in3[x] );
+#else
+                combined.a = in0[x];
+                combined.b = in1[x];
+                combined.g = in2[x];
+                combined.r = in3[x];
 #endif
                 outall[x] = combined.allc;
             }
@@ -757,12 +756,7 @@ static void unpack_16bit_4_chans(
             in2 = (const uint16_t *)srcbuffer + w * 4;
             in3 = (const uint16_t *)srcbuffer + w * 6;
             srcbuffer += w * 8;
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-            memcpy( out0, in0, w * 2 );
-            memcpy( out1, in1, w * 2 );
-            memcpy( out2, in2, w * 2 );
-            memcpy( out3, in3, w * 2 );
-#else
+#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
             for ( int x = 0; x < w; ++x )
                 *(((uint16_t *)out0) + x) = le16toh( in0[x] );
             for ( int x = 0; x < w; ++x )
@@ -771,6 +765,11 @@ static void unpack_16bit_4_chans(
                 *(((uint16_t *)out2) + x) = le16toh( in2[x] );
             for ( int x = 0; x < w; ++x )
                 *(((uint16_t *)out3) + x) = le16toh( in3[x] );
+#else
+            memcpy( out0, in0, w * 2 );
+            memcpy( out1, in1, w * 2 );
+            memcpy( out2, in2, w * 2 );
+            memcpy( out3, in3, w * 2 );
 #endif
             out0 += linc0;
             out1 += linc1;
@@ -822,21 +821,7 @@ static void unpack_16bit_all_chans(
             w = cinfo->channels[c].width;
             pixincrement = cinfo->channels[c].output_pixel_stride;
             cdata += (uint64_t)y * (uint64_t)cinfo->channels[c].output_line_stride;
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-            if ( pixincrement == 2 )
-            {
-                memcpy( cdata, srcbuffer, w * pixincrement );
-            }
-            else
-            {
-                const uint16_t *src = (const uint16_t *)srcbuffer;
-                for ( int x = 0; x < w; ++x )
-                {
-                    *((uint16_t *)cdata) = *src++;
-                    cdata += pixincrement;
-                }
-            }
-#else
+#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
             if ( pixincrement == 2 )
             {
                 uint16_t *tmp = (uint16_t *)cdata;
@@ -852,6 +837,20 @@ static void unpack_16bit_all_chans(
                 for ( int x = 0; x < w; ++x )
                 {
                     *((uint16_t *)cdata) = le16toh( *src++ );
+                    cdata += pixincrement;
+                }
+            }
+#else
+            if ( pixincrement == 2 )
+            {
+                memcpy( cdata, srcbuffer, w * pixincrement );
+            }
+            else
+            {
+                const uint16_t *src = (const uint16_t *)srcbuffer;
+                for ( int x = 0; x < w; ++x )
+                {
+                    *((uint16_t *)cdata) = *src++;
                     cdata += pixincrement;
                 }
             }
@@ -882,21 +881,7 @@ static void unpack_32bit_all_chans(
             w = cinfo->channels[c].width;
             pixincrement = cinfo->channels[c].output_pixel_stride;
             cdata += y * (int64_t)cinfo->channels[c].output_line_stride;
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-            if ( pixincrement == 4 )
-            {
-                memcpy( cdata, srcbuffer, w * pixincrement );
-            }
-            else
-            {
-                const uint32_t *src = (const uint32_t *)srcbuffer;
-                for ( int64_t x = 0; x < w; ++x )
-                {
-                    *((uint32_t *)cdata) = *src++;
-                    cdata += pixincrement;
-                }
-            }
-#else
+#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
             if ( pixincrement == 4 )
             {
                 uint32_t *tmp = (uint32_t *)cdata;
@@ -912,6 +897,20 @@ static void unpack_32bit_all_chans(
                 for ( int64_t x = 0; x < w; ++x )
                 {
                     *((uint32_t *)cdata) = le32toh( *src++ );
+                    cdata += pixincrement;
+                }
+            }
+#else
+            if ( pixincrement == 4 )
+            {
+                memcpy( cdata, srcbuffer, w * pixincrement );
+            }
+            else
+            {
+                const uint32_t *src = (const uint32_t *)srcbuffer;
+                for ( int64_t x = 0; x < w; ++x )
+                {
+                    *((uint32_t *)cdata) = *src++;
                     cdata += pixincrement;
                 }
             }
@@ -956,30 +955,7 @@ static void generic_unpack_subsampled(
             if ( cdata )
             {
                 int pixincrement = cinfo->channels[c].output_pixel_stride;
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-                if ( bpc == pixincrement )
-                {
-                    memcpy( cdata, srcbuffer, w * pixincrement );
-                }
-                else if ( bpc == 2 )
-                {
-                    const uint16_t *src = (const uint16_t *)srcbuffer;
-                    for ( int x = 0; x < w; ++x )
-                    {
-                        *((uint16_t *)cdata) = *src++;
-                        cdata += pixincrement;
-                    }
-                }
-                else if ( bpc == 4 )
-                {
-                    const uint32_t *src = (const uint32_t *)srcbuffer;
-                    for ( int x = 0; x < w; ++x )
-                    {
-                        *((uint32_t *)cdata) = *src++;
-                        cdata += pixincrement;
-                    }
-                }
-#else
+#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
                 if ( bpc == 2 )
                 {
                     if ( pixincrement == 2 )
@@ -1020,6 +996,29 @@ static void generic_unpack_subsampled(
                             *((uint32_t *)cdata) = le32toh( *src++ );
                             cdata += pixincrement;
                         }
+                    }
+                }
+#else
+                if ( bpc == pixincrement )
+                {
+                    memcpy( cdata, srcbuffer, w * pixincrement );
+                }
+                else if ( bpc == 2 )
+                {
+                    const uint16_t *src = (const uint16_t *)srcbuffer;
+                    for ( int x = 0; x < w; ++x )
+                    {
+                        *((uint16_t *)cdata) = *src++;
+                        cdata += pixincrement;
+                    }
+                }
+                else if ( bpc == 4 )
+                {
+                    const uint32_t *src = (const uint32_t *)srcbuffer;
+                    for ( int x = 0; x < w; ++x )
+                    {
+                        *((uint32_t *)cdata) = *src++;
+                        cdata += pixincrement;
                     }
                 }
 #endif /* byte order check */
@@ -1067,8 +1066,8 @@ int exr_read_chunk(
     exr_decode_chunk_info_t *cinfo )
 {
     int chanstofill = 0, chanstounpack = 0, samebpc = 0, hassampling = 0;
-    exr_off_t dataoffset = cinfo->chunk_data_offset;
-    size_t nToRead;
+    uint64_t dataoffset = cinfo->chunk_data_offset;
+    uint64_t nToRead;
     uint8_t *cdata;
     int rv = EXR_ERR_SUCCESS;
 

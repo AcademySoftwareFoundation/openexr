@@ -3,6 +3,8 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
+#define _LARGEFILE64_SOURCE
+
 #include "openexr.h"
 
 #include "openexr_priv_file.h"
@@ -19,10 +21,10 @@
 
 /**************************************/
 
-static int dispatch_read( exr_file_t *f, void *buf, size_t sz, exr_off_t *offsetp, exr_ssize_t *nread, __PRIV_READ_MODE rmode )
+static int dispatch_read( exr_file_t *f, void *buf, uint64_t sz, uint64_t *offsetp, int64_t *nread, __PRIV_READ_MODE rmode )
 {
     exr_PRIV_FILE_t *file = EXR_GETFILE(f);
-    exr_ssize_t rval = -1;
+    int64_t rval = -1;
     int rv = EXR_ERR_UNKNOWN;
 
     if ( nread )
@@ -46,7 +48,7 @@ static int dispatch_read( exr_file_t *f, void *buf, size_t sz, exr_off_t *offset
     if ( rval > 0 )
         *offsetp += rval;
 
-    if ( rval == (exr_ssize_t)sz || ( rmode == EXR_ALLOW_SHORT_READ && rval >= 0 ) )
+    if ( rval == (int64_t)sz || ( rmode == EXR_ALLOW_SHORT_READ && rval >= 0 ) )
         rv = EXR_ERR_SUCCESS;
     else
         rv = EXR_ERR_READ_IO;
@@ -55,12 +57,12 @@ static int dispatch_read( exr_file_t *f, void *buf, size_t sz, exr_off_t *offset
 
 /**************************************/
 
-static int dispatch_write( exr_file_t *f, const void *buf, size_t sz, exr_off_t *offsetp )
+static int dispatch_write( exr_file_t *f, const void *buf, uint64_t sz, uint64_t *offsetp )
 {
     exr_PRIV_FILE_t *file = EXR_GETFILE(f);
-    exr_ssize_t rval = -1;
+    int64_t rval = -1;
     int rv = EXR_ERR_UNKNOWN;
-    exr_off_t outpos;
+    uint64_t outpos;
 
     if ( ! file )
         return file->report_error( f, EXR_ERR_INVALID_ARGUMENT, "No file provided for write" );
@@ -70,7 +72,7 @@ static int dispatch_write( exr_file_t *f, const void *buf, size_t sz, exr_off_t 
             file, EXR_ERR_INVALID_ARGUMENT,
             "write requested with no output offset pointer" );
 
-    outpos = (exr_off_t)atomic_fetch_add( &(file->file_offset), (exr_off_t)sz );
+    outpos = (uint64_t)atomic_fetch_add( &(file->file_offset), (uint64_t)sz );
     if ( file->write_fn )
         rval = file->write_fn( file, file->user_data, buf, sz, outpos, file->print_error );
     else
@@ -81,7 +83,7 @@ static int dispatch_write( exr_file_t *f, const void *buf, size_t sz, exr_off_t 
     else
         *offsetp = outpos;
     
-    if ( rval == (exr_ssize_t)sz )
+    if ( rval == (int64_t)sz )
         rv = EXR_ERR_SUCCESS;
     else
         rv = EXR_ERR_READ_IO;
