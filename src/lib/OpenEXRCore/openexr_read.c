@@ -444,6 +444,7 @@ int exr_decode_chunk_init_tile(
     int32_t cidx = 0, ntoread = 5;
     uint64_t dataoff;
     int64_t fsize;
+    const exr_attr_tiledesc_t *tiledesc;
     int tilew, tileh, unpacksize = 0;
     uint64_t *ctable;
     int rv;
@@ -478,8 +479,13 @@ int exr_decode_chunk_init_tile(
         return rv;
     }
 
+    tiledesc = part->tiles->tiledesc;
     tilew = part->tile_level_tile_size_x[levelx];
+    if ( tiledesc->x_size < tilew )
+        tilew = tiledesc->x_size;
     tileh = part->tile_level_tile_size_y[levely];
+    if ( tiledesc->y_size < tileh )
+        tileh = tiledesc->y_size;
 
     cinfo->chunk_idx = cidx;
     cinfo->chunk_type = (uint8_t)part->storage_mode;

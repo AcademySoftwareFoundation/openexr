@@ -12,8 +12,12 @@
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
+#include <float.h>
+#include <math.h>
 
 #include <iostream>
+#include <iomanip>
+#include <memory>
 
 static void err_cb( exr_file_t *f, int code, const char *msg )
 {
@@ -159,14 +163,55 @@ void testReadTiles( const std::string &tempdir )
     assert( rv == EXR_ERR_SCAN_TILE_MIXEDAPI );
 
     // actually read a tile...
-    rv = exr_decode_chunk_init_tile( f, 0, &chunk, 1, 1, 0, 0, 1 );
+    rv = exr_decode_chunk_init_tile( f, 0, &chunk, 4, 2, 0, 0, 1 );
     assert( rv == EXR_ERR_SUCCESS );
     assert( chunk.unpacked.size == exr_get_chunk_unpacked_size( f, 0 ) );
+    assert( chunk.channel_count == 2 );
+    assert( ! strcmp( chunk.channels[0].channel_name, "G" ) );
+    assert( chunk.channels[0].bytes_per_pel == 2 );
+    assert( chunk.channels[0].width == 12 );
+    assert( chunk.channels[0].height == 24 );
+    assert( chunk.channels[0].x_samples == 1 );
+    assert( chunk.channels[0].y_samples == 1 );
+    assert( ! strcmp( chunk.channels[1].channel_name, "Z" ) );
+    assert( chunk.channels[1].bytes_per_pel == 4 );
+    assert( chunk.channels[1].width == 12 );
+    assert( chunk.channels[1].height == 24 );
+    assert( chunk.channels[1].x_samples == 1 );
+    assert( chunk.channels[1].y_samples == 1 );
+
+    std::unique_ptr<uint8_t []> gptr 
+        {
+            new uint8_t[24*12*2]
+        };
+    std::unique_ptr<uint8_t []> zptr 
+        {
+            new uint8_t[24*12*4]
+        };
+    memset( gptr.get(), 0, 24*12*2 );
+    memset( zptr.get(), 0, 24*12*4 );
+    chunk.channels[0].data_ptr = gptr.get();
+    chunk.channels[0].output_pixel_stride = 2;
+    chunk.channels[0].output_line_stride = 2 * 12;
+    chunk.channels[1].data_ptr = zptr.get();
+    chunk.channels[1].output_pixel_stride = 4;
+    chunk.channels[1].output_line_stride = 4 * 12;
 
     rv = exr_read_chunk( f, &chunk );
     assert( rv == EXR_ERR_SUCCESS );
     assert( chunk.packed.buffer != NULL );
     assert( chunk.unpacked.buffer != NULL );
+    /* TODO: add actual comparison against C++ library */
+    const uint16_t *curg = reinterpret_cast<const uint16_t *>( gptr.get() );
+    const float *curz = reinterpret_cast<const float *>( zptr.get() );
+    assert( *curg == 0x33d5 );
+    assert( fabsf( *curz - 0.244778f ) < 0.000001f );
+    //for ( int y = 0; y < 24; ++y )
+    //{
+    //    for ( int x = 0; x < 12; ++x )
+    //        std::cout << ' ' << std::hex << std::setw( 4 ) << std::setfill( '0' ) << *curg++ << std::dec << " (" << *curz++ << " )";
+    //    std::cout << std::endl;
+    //}
 
     exr_destroy_decode_chunk_info( &chunk );
     exr_close( &f );
