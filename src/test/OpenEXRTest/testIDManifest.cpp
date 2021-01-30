@@ -152,9 +152,20 @@ namespace
 
     }
     
+    //
+    // create an example manifest, write it to file, and check it reads back OK
+    //
+
     void testReadWriteManifest(const string& tempDir)
     {
         const string fn = tempDir + "id_manifest.exr";
+
+        //
+        // create a manifest with two separate channel groups
+        //
+        // the first is for a channel called "id", which encodes two components in the same
+        // channel, called model and material
+        //
         IDManifest mfst;
         IDManifest::ChannelGroupManifest& idGroup = mfst.add("id");
         vector<string> comps(2);
@@ -163,11 +174,17 @@ namespace
         idGroup.setComponents(comps);
         idGroup.setHashScheme(IDManifest::NOTHASHED);
         idGroup.setLifetime(IDManifest::LIFETIME_STABLE);
+
+        // use insertion operator to set ID number, then the string for each
         idGroup << 1 << "merino/body" << "wool";
         idGroup << 2 << "merino/body" << "skin";
         idGroup << 3 << "merino/body" << "skin";
         idGroup << 4 << "merino/eye" << "eye";
 
+        //
+        // the second channel group would be a 64 bit ID spread across two 32 bit channels
+        // called instance1 and instance2.
+        //
         set<string> chans2;
         chans2.insert("instance1");
         chans2.insert("instance2");
@@ -175,10 +192,22 @@ namespace
         idGroup2.setComponent("instance");
         idGroup2.setHashScheme(IDManifest::MURMURHASH3_64);
         idGroup2.setEncodingScheme(IDManifest::ID2_SCHEME);
+
+        //
+        // insert strings into attribute, and allow the library to compute the IDs for us
+        // (in practice, the return value from insert would be used as the value written
+        // into the image data)
+        //
         idGroup2.insert("1/2/3/4/5");
         idGroup2.insert("6/7/8/9/10");
         idGroup2.insert("11/12/13/14/15");
 
+
+        //
+        // read/write and test the manifest. Although the manifest implies there are
+        // three channels (id,instance1 and instance2) those don't actually get written into the file
+        // in this test
+        //
         doReadWriteManifest(mfst,fn,true);
     }
     
