@@ -321,9 +321,6 @@ void
 TiledInputFile::Data::validateStreamSize()
 {
     const TileDescription& td = header.tileDescription();
-
-    Int64 tileWidth = td.xSize;
-    Int64 tileHeight = td.ySize;
     Int64 chunkCount;
 
     if (td.mode==RIPMAP_LEVELS)
@@ -338,7 +335,8 @@ TiledInputFile::Data::validateStreamSize()
         // but 'chunkCount' can be less than the real offset table size for a meaningful sanity check
         //
         const Box2i &dataWindow = header.dataWindow();
-
+        Int64 tileWidth = td.xSize;
+        Int64 tileHeight = td.ySize;
 
         Int64 tilesX = (static_cast<Int64>(dataWindow.max.x+1-dataWindow.min.x) + tileWidth -1) / tileWidth;
         Int64 tilesY = (static_cast<Int64>(dataWindow.max.y+1-dataWindow.min.y) + tileHeight -1) / tileHeight;
