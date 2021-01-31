@@ -312,8 +312,6 @@ TiledInputFile::Data::getTileBuffer (int number)
 // in the bytesPerLineTable and the lineOffsets table.
 // Attempt to read the last entry in the first level of the table. Either the seekg() or the read()
 // call will throw an exception if the file is much too small to contain the table.
-// For speed, does not compute the entire table size for Mipmap/Ripmap images
-// (Roughly 50% or 100% bigger respectively)
 //
 
 // assumes the input stream pointer is at (or before) the beginning of the chunk table
@@ -323,15 +321,28 @@ void
 TiledInputFile::Data::validateStreamSize()
 {
     const Box2i &dataWindow = header.dataWindow();
-    Int64 tileWidth = header.tileDescription().xSize;
-    Int64 tileHeight = header.tileDescription().ySize;
 
-    Int64 tilesX = (static_cast<Int64>(dataWindow.max.x+1-dataWindow.min.x) + tileWidth -1) / tileWidth;
+    const TileDescription& td = header.tileDescription();
+    Int64 tileWidth = td.xSize;
+    Int64 tileHeight = td.ySize;
+    Int64 chunkCount;
 
-    Int64 tilesY = (static_cast<Int64>(dataWindow.max.y+1-dataWindow.min.y) + tileHeight -1) / tileHeight;
+    if (td.mode==RIPMAP_LEVELS)
+    {
+        // use slow function to calculate exact size of ripmap
+        chunkCount = getTiledChunkOffsetTableSize(header);
+    }
+    else
+    {
+        // for ONE_LEVEL image, calculate exact number of tiles
+        // MIPMAP_LEVELS images will have roughly 1/3 more tiles than this
+        // but 'chunkCount' can be less than the real offset table size for a meaningful sanity check
+        //
+        Int64 tilesX = (static_cast<Int64>(dataWindow.max.x+1-dataWindow.min.x) + tileWidth -1) / tileWidth;
+        Int64 tilesY = (static_cast<Int64>(dataWindow.max.y+1-dataWindow.min.y) + tileHeight -1) / tileHeight;
 
-
-    Int64 chunkCount = tilesX*tilesY;
+        chunkCount = tilesX*tilesY;
+    }
     if ( chunkCount > gLargeChunkTableSize)
     {
 
