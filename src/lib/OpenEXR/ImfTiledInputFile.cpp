@@ -347,15 +347,11 @@ TiledInputFile::Data::validateStreamSize()
     if (chunkCount > gLargeChunkTableSize)
     {
 
-        if (chunkCount > gLargeChunkTableSize)
-        {
-            Int64 pos = _streamData->is->tellg();
-            _streamData->is->seekg(pos + (chunkCount-1)*sizeof(Int64));
-            Int64 temp;
-            OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*_streamData->is, temp);
-            _streamData->is->seekg(pos);
-
-        }
+       Int64 pos = _streamData->is->tellg();
+       _streamData->is->seekg(pos + (chunkCount-1)*sizeof(Int64));
+       Int64 temp;
+       OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*_streamData->is, temp);
+       _streamData->is->seekg(pos);
     }
 
 }
