@@ -538,6 +538,7 @@ void testCompressionTypeChecks()
 {
     Header h;
     h.setType(DEEPTILE);
+    h.channels().insert("Dummy",Channel());
     h.compression()=NO_COMPRESSION;
     h.sanityCheck();
     h.compression()=ZIPS_COMPRESSION;

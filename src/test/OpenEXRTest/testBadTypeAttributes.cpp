@@ -306,7 +306,8 @@ const std::string & NOTYPEATTR="";
 template<class IN,class OUT> void check(const char* filename,const string& inputtype,const string &outputtype,bool add_tiledesc)
 {
     Header f;
-    
+    f.channels().insert("Dummy",Channel());
+
     if(inputtype!=NOTYPEATTR)
     {
         f.setType(inputtype);
@@ -323,7 +324,7 @@ template<class IN,class OUT> void check(const char* filename,const string& input
     }
     
     {
-        IMF::MultiPartInputFile file(filename);
+        MultiPartInputFile file(filename);
     
         if(outputtype!=NOTYPEATTR && file.header(0).type()!=outputtype)
         {

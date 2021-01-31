@@ -174,9 +174,11 @@ void
 testDisplayWindow (const vector<Header> & hs, const std::string & fn)
 {
     vector<Header> headers(hs);
+    headers[0].channels().insert("Dummy",Channel());
     IMATH_NAMESPACE::Box2i newDisplayWindow = headers[0].displayWindow();
     Header newHeader (newDisplayWindow.size().x+10, newDisplayWindow.size().y+10);
     newHeader.setType (headers[0].type());
+    newHeader.channels() = headers[0].channels();
     newHeader.setName (headers[0].name() + string("_newHeader"));
     headers.push_back (newHeader);
     testMultiPartOutputFileForExpectedFailure (headers,
@@ -196,6 +198,7 @@ testPixelAspectRatio (const vector<Header> & hs, const std::string & fn)
                       headers[0].pixelAspectRatio() + 1.f);
     newHeader.setType (headers[0].type());
     newHeader.setName (headers[0].name() + string("_newHeader"));
+    newHeader.channels().insert("Dummy",Channel());
     headers.push_back (newHeader);
     testMultiPartOutputFileForExpectedFailure (headers,
                                                fn,
@@ -211,6 +214,7 @@ testTimeCode (const vector<Header> & hs, const std::string & fn)
 
     Header newHeader (headers[0]);
     newHeader.setName (headers[0].name() + string("_newHeader"));
+    newHeader.channels().insert("Dummy",Channel());
 
 
     //
@@ -251,6 +255,7 @@ testChromaticities (const vector<Header> & hs, const std::string & fn)
 
     Header newHeader (headers[0]);
     newHeader.setName (headers[0].name() + string("_newHeader"));
+    newHeader.channels().insert("Dummy",Channel());
 
     Chromaticities c;
     ChromaticitiesAttribute ca(c);
@@ -359,6 +364,7 @@ testHeaders (const std::string & fn)
     // expect this to fail - header has no image attribute type
     //
     Header h;
+    h.channels().insert("Dummy",Channel());
     headers.push_back (h);
     testMultiPartOutputFileForExpectedFailure (headers,
                                                fn,
