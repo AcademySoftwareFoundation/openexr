@@ -320,9 +320,8 @@ TiledInputFile::Data::getTileBuffer (int number)
 void
 TiledInputFile::Data::validateStreamSize()
 {
-    const Box2i &dataWindow = header.dataWindow();
-
     const TileDescription& td = header.tileDescription();
+
     Int64 tileWidth = td.xSize;
     Int64 tileHeight = td.ySize;
     Int64 chunkCount;
@@ -338,12 +337,16 @@ TiledInputFile::Data::validateStreamSize()
         // MIPMAP_LEVELS images will have roughly 1/3 more tiles than this
         // but 'chunkCount' can be less than the real offset table size for a meaningful sanity check
         //
+        const Box2i &dataWindow = header.dataWindow();
+
+
         Int64 tilesX = (static_cast<Int64>(dataWindow.max.x+1-dataWindow.min.x) + tileWidth -1) / tileWidth;
         Int64 tilesY = (static_cast<Int64>(dataWindow.max.y+1-dataWindow.min.y) + tileHeight -1) / tileHeight;
 
         chunkCount = tilesX*tilesY;
     }
-    if ( chunkCount > gLargeChunkTableSize)
+
+    if (chunkCount > gLargeChunkTableSize)
     {
 
         if (chunkCount > gLargeChunkTableSize)
