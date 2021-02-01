@@ -998,7 +998,15 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
     // x and y subsampling factors.
     //
 
+
+
+
     const ChannelList &channels = this->channels();
+
+    if (channels.begin()==channels.end())
+    {
+        THROW (IEX_NAMESPACE::ArgExc, "Missing or empty channel list in header");
+    }
     
     if (isTiled || isDeep)
     {
