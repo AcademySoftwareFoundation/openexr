@@ -193,7 +193,6 @@ cc_library(
     name = "Iex",
     srcs = [
         "src/lib/Iex/IexBaseExc.cpp",
-        "src/lib/Iex/IexNamespace.h",
         "src/lib/Iex/IexThrowErrnoExc.cpp",
     ],
     hdrs = [
