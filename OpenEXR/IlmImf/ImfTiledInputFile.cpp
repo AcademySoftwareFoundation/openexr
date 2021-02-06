@@ -253,6 +253,11 @@ struct TiledInputFile::Data: public Mutex
     Data (Data&& other) = delete;
     Data& operator = (Data&& other) = delete;
 
+    static const int gLargeChunkTableSize = 1024*1024;
+    void validateStreamSize();                       // throw an exception if the file is significantly
+                                                     // smaller than the data/tile geometry would require
+
+
     inline TileBuffer * getTileBuffer (int number);
 					    // hash function from tile indices
 					    // into our vector of tile buffers
@@ -297,6 +302,7 @@ TiledInputFile::Data::getTileBuffer (int number)
 {
     return tileBuffers[number % tileBuffers.size()];
 }
+
 
 
 //
@@ -350,7 +356,6 @@ TiledInputFile::Data::validateStreamSize()
 
 }
 
->>>>>>> 52d2dc3a... update tileoffset sanitycheck to handle ripmaps  (#910):src/lib/OpenEXR/ImfTiledInputFile.cpp
 namespace {
 
 void
@@ -661,10 +666,11 @@ TileBufferTask::execute ()
                     // The frame buffer contains a slice for this channel.
                     //
     
-                    char *writePtr = slice.base +
+                    intptr_t base = reinterpret_cast<intptr_t>(slice.base);
+                    char *writePtr = reinterpret_cast<char*>(base +
                                      (y - yOffset) * slice.yStride +
                                      (tileRange.min.x - xOffset) *
-                                     slice.xStride;
+                                     slice.xStride);
 
                     char *endPtr = writePtr +
                                    (numPixelsPerScanLine - 1) * slice.xStride;
@@ -783,6 +789,7 @@ TiledInputFile::TiledInputFile (const char fileName[], int numThreads):
             _data->_streamData = new InputStreamMutex();
             _data->_streamData->is = is;
             _data->header.readFrom (*_data->_streamData->is, _data->version);
+
             initialize();
             //read tile offsets - we are not multipart or deep
             _data->tileOffsets.readFrom (*(_data->_streamData->is), _data->fileIsComplete,false,false);
@@ -1025,6 +1032,15 @@ TiledInputFile::initialize ()
     
     _data->header.sanityCheck (true);
 
+    //
+    // before allocating memory for tile offsets, confirm file is large enough
+    // to contain tile offset table
+    // (for multipart files, the chunk offset table has already been read)
+    //
+    if (!isMultiPart(_data->version))
+    {
+        _data->validateStreamSize();
+    }
     _data->tileDesc = _data->header.tileDescription();
     _data->lineOrder = _data->header.lineOrder();
 
