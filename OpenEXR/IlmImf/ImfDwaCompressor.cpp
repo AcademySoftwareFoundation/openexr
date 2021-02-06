@@ -2606,6 +2606,14 @@ DwaCompressor::uncompress
             throw IEX_NAMESPACE::BaseExc("DC data corrupt.");
         }
     }
+    else
+    {
+        // if the compressed size is 0, then the uncompressed size must also be zero
+        if (totalDcUncompressedCount!=0)
+        {
+             throw IEX_NAMESPACE::BaseExc("DC data corrupt.");
+        }
+    }
 
     //
     // Uncompress the RLE data into _rleBuffer, then unRLE the results
