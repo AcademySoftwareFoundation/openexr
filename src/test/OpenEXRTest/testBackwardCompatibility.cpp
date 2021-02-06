@@ -215,6 +215,7 @@ generateScanlinePlanarImage (const char * fn)
     header.channels().insert("R", Channel(IMF::HALF));
     header.channels().insert("G", Channel(IMF::HALF));
     header.channels().insert("B", Channel(IMF::HALF));
+    header.compression()=NO_COMPRESSION;
     addUserAttributesToHeader (header);
 
     FrameBuffer fb;
@@ -243,7 +244,7 @@ generateScanlinePlanarImage (const char * fn)
 
     OutputFile file (fn, header);
     file.setFrameBuffer (fb);
-    file.writePixels (H-40);
+    file.writePixels (dod.max.y-dod.min.y+1);
 }
 
 struct RZ
@@ -271,6 +272,7 @@ generateScanlineInterleavedImage (const char * fn)
     OPENEXR_IMF_NAMESPACE::Header header = Header (W, H, dod);
     header.channels().insert("Z", Channel(IMF::FLOAT));
     header.channels().insert("R", Channel(IMF::HALF));
+    header.compression() = NO_COMPRESSION;
     addUserAttributesToHeader (header);
 
     FrameBuffer fb;
@@ -289,7 +291,7 @@ generateScanlineInterleavedImage (const char * fn)
 
     OutputFile file (fn, header);
     file.setFrameBuffer (fb);
-    file.writePixels (H-40);
+    file.writePixels (dod.max.y-dod.min.y+1);
 }
 
 void
@@ -325,6 +327,7 @@ generateTiledImage (const char * fn)
     Header header (W, H);
     header.channels().insert ("G", Channel (IMF::HALF));
     header.channels().insert ("Z", Channel (IMF::FLOAT));
+    header.compression() = NO_COMPRESSION;
 
     int tileW = 12;
     int tileH = 24;
