@@ -901,30 +901,39 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
     //
 
     string firstPartType;
-    bool firstPartWide = false;
+
+
+    //
+    // scanline images with very wide parts take excessive memory to read
+    // assume the first part is wide until the header of the first part is checked
+    // so the single part scanline input APIs can be skipped.
+    //
+    // If the MultiPartInputFile constructor throws an exception, the first part
+    // will assumed to be a wide image
+    //
+    bool firstPartWide = true;
 
     bool threw = false;
     {
       try
       {
          MultiPartInputFile multi(source);
-         firstPartType = multi.header(0).type();
          Box2i b = multi.header(0).dataWindow();
 
-         //
-         // scanline images with very wide parts take excessive memory to read
-         // detect that here so that tests can be skipped when reduceMemory is set
-         //
-         if (b.max.x - b.min.x > gMaxScanlineWidth )
+         // confirm first part is small enough to read without using excessive memory
+         if (b.max.x - b.min.x <= gMaxScanlineWidth )
          {
-             firstPartWide = true;
+             firstPartWide = false;
          }
+
+
          //
          // significant memory is also required to read a tiled file
          // using the scanline interface with tall tiles - the scanlineAPI
          // needs to allocate memory to store an entire row of tiles
          //
 
+         firstPartType = multi.header(0).type();
          if (isTiled(firstPartType))
          {
              if ( multi.header(0).tileDescription().ySize *  (b.max.x-b.min.x+1) > gMaxTilePixelsPerScanline )
