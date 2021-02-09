@@ -360,8 +360,9 @@ class DwaCompressor::LossyDctDecoderBase
   public:
 
     LossyDctDecoderBase
-        (char *packedAc,
-         char *packedDc,
+        (char* packedAc,
+         char* packedAcEnd,
+         char* packedDc,
          const unsigned short *toLinear,
          int width,
          int height);
@@ -393,8 +394,9 @@ class DwaCompressor::LossyDctDecoderBase
     // order data. If we return 0, we have DC only data.
     // 
 
-    int unRleAc (unsigned short *&currAcComp,
-                 unsigned short  *halfZigBlock); 
+    int unRleAc (unsigned short*& currAcComp,
+                 unsigned short* acBufferEnd,
+                 unsigned short* halfZigBlock);
 
 
     //
@@ -418,8 +420,9 @@ class DwaCompressor::LossyDctDecoderBase
     // AC and DC buffers to pack
     //
 
-    char                 *_packedAc;
-    char                 *_packedDc;
+    char*                 _packedAc;
+    char*                 _packedAcEnd;
+    char*                 _packedDc;
 
 
     // 
@@ -471,14 +474,15 @@ class DwaCompressor::LossyDctDecoder: public LossyDctDecoderBase
 
     LossyDctDecoder
         (std::vector<char *> &rowPtrs,
-         char *packedAc,
-         char *packedDc,
+         char* packedAc,
+         char* packedAcEnd,
+         char* packedDc,
          const unsigned short *toLinear,
          int width,
          int height,
          PixelType type)
     :
-        LossyDctDecoderBase(packedAc, packedDc, toLinear, width, height)
+        LossyDctDecoderBase(packedAc, packedAcEnd, packedDc, toLinear, width, height)
     {
         _rowPtrs.push_back(rowPtrs);
         _type.push_back(type);
@@ -507,8 +511,9 @@ class DwaCompressor::LossyDctDecoderCsc: public LossyDctDecoderBase
         (std::vector<char *> &rowPtrsR,
          std::vector<char *> &rowPtrsG,
          std::vector<char *> &rowPtrsB,
-         char *packedAc,
-         char *packedDc,
+         char* packedAc,
+         char* packedAcEnd,
+         char* packedDc,
          const unsigned short *toLinear,
          int width,
          int height,
@@ -516,7 +521,7 @@ class DwaCompressor::LossyDctDecoderCsc: public LossyDctDecoderBase
          PixelType typeG,
          PixelType typeB)
     :
-        LossyDctDecoderBase(packedAc, packedDc, toLinear, width, height)
+        LossyDctDecoderBase(packedAc, packedAcEnd, packedDc, toLinear, width, height)
     {
         _rowPtrs.push_back(rowPtrsR);
         _rowPtrs.push_back(rowPtrsG);
@@ -677,6 +682,7 @@ class DwaCompressor::LossyDctEncoderCsc: public LossyDctEncoderBase
 
 DwaCompressor::LossyDctDecoderBase::LossyDctDecoderBase
     (char *packedAc,
+     char *packedAcEnd,
      char *packedDc,
      const unsigned short *toLinear,
      int width,
@@ -686,6 +692,7 @@ DwaCompressor::LossyDctDecoderBase::LossyDctDecoderBase
     _packedAcCount(0),
     _packedDcCount(0),
     _packedAc(packedAc),
+    _packedAcEnd(packedAcEnd),
     _packedDc(packedDc),
     _toLinear(toLinear),
     _width(width),
@@ -717,7 +724,9 @@ DwaCompressor::LossyDctDecoderBase::execute ()
     unsigned short tmpShortXdr    = 0;
     const char *tmpConstCharPtr   = 0;
 
-    unsigned short                    *currAcComp = (unsigned short *)_packedAc;
+    unsigned short* currAcComp = reinterpret_cast<unsigned short*>(_packedAc);
+    unsigned short* acCompEnd = reinterpret_cast<unsigned short*>(_packedAcEnd);
+
     std::vector<unsigned short *>      currDcComp (_rowPtrs.size());
     std::vector<SimdAlignedBuffer64us> halfZigBlock (_rowPtrs.size());
 
@@ -821,7 +830,7 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                 // UnRLE the AC. This will modify currAcComp
                 //
 
-                lastNonZero = unRleAc (currAcComp, halfZigBlock[comp]._buffer);
+                lastNonZero = unRleAc (currAcComp, acCompEnd, halfZigBlock[comp]._buffer);
 
                 //
                 // Convert from XDR to NATIVE
@@ -1193,8 +1202,9 @@ DwaCompressor::LossyDctDecoderBase::execute ()
 
 int 
 DwaCompressor::LossyDctDecoderBase::unRleAc
-    (unsigned short *&currAcComp,
-     unsigned short  *halfZigBlock) 
+    (unsigned short*& currAcComp,
+     unsigned short*  packedAcEnd,
+     unsigned short*  halfZigBlock)
 {
     //
     // Un-RLE the RLE'd blocks. If we find an item whose
@@ -1214,6 +1224,11 @@ DwaCompressor::LossyDctDecoderBase::unRleAc
 
     while (dctComp < 64)
     {
+        if (currAcComp >= packedAcEnd)
+        {
+            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
+                                " (packed AC buffer too small).");
+        }
         if (*currAcComp == 0xff00)
         {
             // 
@@ -1247,6 +1262,7 @@ DwaCompressor::LossyDctDecoderBase::unRleAc
 
         _packedAcCount++;
         currAcComp++;
+
     }
 
     return lastNonZero;
@@ -2700,6 +2716,7 @@ DwaCompressor::uncompress
              rowPtrs[gChan],
              rowPtrs[bChan],
              packedAcBufferEnd,
+             packedAcBufferEnd + totalAcUncompressedCount * sizeof (unsigned short),
              packedDcBufferEnd,
              dwaCompressorToLinear,
              _channelData[rChan].width,
@@ -2751,6 +2768,7 @@ DwaCompressor::uncompress
                 LossyDctDecoder decoder
                     (rowPtrs[chan],
                      packedAcBufferEnd,
+                     packedAcBufferEnd + totalAcUncompressedCount * sizeof (unsigned short),
                      packedDcBufferEnd,
                      linearLut,
                      cd->width,
