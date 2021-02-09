@@ -904,14 +904,16 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
 
 
     //
-    // scanline images with very wide parts take excessive memory to read
-    // assume the first part is wide until the header of the first part is checked
-    // so the single part scanline input APIs can be skipped.
+    // scanline images with very wide parts and tiled images with large tiles
+    // take excessive memory to read.
+    // Assume the first part requires excessive memory until the header of the first part is checked
+    // so the single part input APIs can be skipped.
     //
     // If the MultiPartInputFile constructor throws an exception, the first part
     // will assumed to be a wide image
     //
     bool firstPartWide = true;
+    bool largeTiles = true;
 
     bool threw = false;
     {
@@ -936,10 +938,17 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
          firstPartType = multi.header(0).type();
          if (isTiled(firstPartType))
          {
-             if ( multi.header(0).tileDescription().ySize *  (b.max.x-b.min.x+1) > gMaxTilePixelsPerScanline )
+             const TileDescription& tileDescription = multi.header(0).tileDescription();
+             if ( tileDescription.ySize *  (b.max.x-b.min.x+1) > gMaxTilePixelsPerScanline )
              {
                  firstPartWide = true;
              }
+
+             if( tileDescription.ySize * tileDescription.xSize <= gMaxTileSize)
+             {
+                 largeTiles = false;
+             }
+
          }
 
 
@@ -991,6 +1000,7 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
         }
     }
 
+    if( !reduceMemory || !largeTiles )
     {
         bool gotThrow = false;
         resetInput(source);
@@ -1028,6 +1038,7 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
         }
     }
 
+    if( !reduceMemory || !largeTiles )
     {
         bool gotThrow = false;
         resetInput(source);
