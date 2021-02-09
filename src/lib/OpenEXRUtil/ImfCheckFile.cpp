@@ -950,6 +950,13 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
              }
 
          }
+         else
+         {
+             // file is not tiled, so can't contain large tiles
+             // setting largeTiles false here causes the Tile and DeepTile API
+             // tests to run on non-tiled files, which should cause exceptions to be thrown
+             largeTiles = false;
+         }
 
 
          threw = readMultiPart(multi , reduceMemory , reduceTime);
