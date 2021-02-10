@@ -122,6 +122,7 @@ class Thread
     // wait for thread to exit - must be called before deleting thread
     //
     void join();
+    bool joinable() const;
 
   private:
 
