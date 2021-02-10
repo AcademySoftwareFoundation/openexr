@@ -423,14 +423,21 @@ DefaultThreadPoolProvider::finish ()
     size_t curT = _data.threads.size();
     for (size_t i = 0; i != curT; ++i)
     {
-        _data.taskSemaphore.post();
-        _data.threadSemaphore.wait();
+        if (_data.threads[i]->joinable())
+        {
+            _data.taskSemaphore.post();
+            _data.threadSemaphore.wait();
+        }
     }
 
     //
     // Join all the threads
     //
     for (size_t i = 0; i != curT; ++i)
+    {
+        if (_data.threads[i]->joinable())
+            _data.threads[i]->join();
+
         delete _data.threads[i];
 
     Lock lock1 (_data.taskMutex);

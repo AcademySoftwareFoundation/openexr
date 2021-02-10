@@ -129,6 +129,12 @@ class Thread
     ILMTHREAD_EXPORT void         start ();
     ILMTHREAD_EXPORT virtual void run () = 0;
 
+    //
+    // wait for thread to exit - must be called before deleting thread
+    //
+    void join();
+    bool joinable() const;
+
   private:
 
 #ifdef ILMBASE_FORCE_CXX03
