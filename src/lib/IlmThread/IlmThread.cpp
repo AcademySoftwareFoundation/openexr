@@ -76,6 +76,12 @@ Thread::join()
         _thread.join ();
 }
 
+bool
+Thread::joinable() const
+{
+    return _thread.joinable();
+}
+
 void
 Thread::start ()
 {
@@ -111,6 +117,12 @@ Thread::start ()
 
 void
 Thread::join ()
+{
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported / enabled on this platform.");
+}
+
+bool
+Thread::joinable () const
 {
     throw IEX_NAMESPACE::NoImplExc ("Threads not supported / enabled on this platform.");
 }
