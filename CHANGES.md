@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 2.5.5](#version-255-february-12-2021) February 12, 2021
 * [Version 2.5.4](#version-254-december-31-2020) December 31, 2020
 * [Version 2.5.3](#version-253-august-12-2020) August 12, 2020
 * [Version 2.5.2](#version-252-june-15-2020) June 15, 2020
@@ -38,8 +39,34 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 2.5.4 (December 31, 2020)
+## Version 2.5.5 (February 12, 2021)
 
+Patch release with various bug/sanitizer/security fixes, primarily
+related to reading corrupted input files, but also a fix for universal
+build support on macOS.
+
+Specific OSS-fuzz issues include:
+
+* OSS-fuzz [#30291](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=30291)
+* OSS-fuzz [#29106](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=29106)
+* OSS-fuzz [#28971](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28971)
+* OSS-fuzz [#29829](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=29829)
+* OSS-fuzz [#30121](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=30121)
+
+### Merged Pull Requests
+
+* [#914](https://github.com/AcademySoftwareFoundation/openexr/pull/914) additional verification of DWA data sizes
+* [#910](https://github.com/AcademySoftwareFoundation/openexr/pull/910) update tileoffset sanitycheck to handle ripmaps
+* [#903](https://github.com/AcademySoftwareFoundation/openexr/pull/903) prevent overflows by using Int64 for all vars in DWA initialize
+* [#901](https://github.com/AcademySoftwareFoundation/openexr/pull/901) Use size_t for DWA buffersize calculation
+* [#897](https://github.com/AcademySoftwareFoundation/openexr/pull/897) prevent overflow in RgbaFile cachePadding
+* [#896](https://github.com/AcademySoftwareFoundation/openexr/pull/896) add buffer size validation to FastHuf decode
+* [#893](https://github.com/AcademySoftwareFoundation/openexr/pull/893) Include <limits> where required by newer compilers
+* [#889](https://github.com/AcademySoftwareFoundation/openexr/pull/889) Add explicit #include <limits> for numeric_limits
+* [#854](https://github.com/AcademySoftwareFoundation/openexr/pull/854) Fix Apple Universal 2 (arm64/x86_64) builds
+ 
+## Version 2.5.4 (December 31, 2020)
+ 
 Patch release with various bug/sanitizer/security fixes, primarily
 related to reading corrupted input files.
 

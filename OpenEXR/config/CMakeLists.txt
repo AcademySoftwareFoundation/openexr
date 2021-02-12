@@ -19,12 +19,13 @@ int main()
     sysconf(_SC_NPROCESSORS_ONLN);
 }
 " OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN
-)    
+)
 
 check_cxx_source_compiles(
 "
 int main()
 {
+#if defined(_M_X64) || defined(__x86_64__)
 #if defined(__SSE2__)
     int n   = 0;
     int eax = 0;
@@ -35,6 +36,7 @@ int main()
         : \"=a\"(eax), \"=d\"(edx) : \"c\"(n) : );
 #else
 #    error No SSE support enabled to query AVX support
+#endif
 #endif
 }
 " OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX
@@ -47,9 +49,6 @@ set(OPENEXR_IMF_HAVE_COMPLETE_IOMANIP TRUE)
 
 if(APPLE)
   set(OPENEXR_IMF_HAVE_DARWIN TRUE)
-  if (${CMAKE_OSX_ARCHITECTURES} MATCHES arm64)
-    set(OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX FALSE)
-  endif()
 endif()
 
 configure_file(OpenEXRConfig.h.in_cmake ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h)

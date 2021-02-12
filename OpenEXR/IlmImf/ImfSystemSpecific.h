@@ -39,9 +39,24 @@
 #include "ImfSimd.h"
 #include <stdlib.h>
 #include "ImfExport.h"
+#include "OpenEXRConfig.h"
+#include "OpenEXRConfigInternal.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
+//
+// Test if we should enable GCC inline asm paths for AVX
+//
+
+#if defined(OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX) && (defined(_M_X64) || defined(__x86_64__))
+
+    #define IMF_HAVE_GCC_INLINEASM_X86
+
+    #ifdef __LP64__
+        #define IMF_HAVE_GCC_INLINEASM_X86_64
+    #endif /* __LP64__ */
+
+#endif /* OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX */
 
 static unsigned long  systemEndianCheckValue   = 0x12345678;
 static unsigned long* systemEndianCheckPointer = &systemEndianCheckValue;

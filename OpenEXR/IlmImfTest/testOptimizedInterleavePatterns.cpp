@@ -44,6 +44,7 @@
 #include "ImfStandardAttributes.h"
 #include <algorithm>
 #include <iostream>
+#include <limits>
 #include <assert.h>
 #include <IlmThread.h>
 #include <ImathBox.h>
