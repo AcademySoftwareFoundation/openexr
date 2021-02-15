@@ -830,7 +830,15 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                 // UnRLE the AC. This will modify currAcComp
                 //
 
-                lastNonZero = unRleAc (currAcComp, acCompEnd, halfZigBlock[comp]._buffer);
+                try
+                {
+                   lastNonZero = unRleAc (currAcComp, acCompEnd, halfZigBlock[comp]._buffer);
+                }
+                catch(...)
+                {
+                    delete [] rowBlockHandle;
+                    throw;
+                }
 
                 //
                 // Convert from XDR to NATIVE
