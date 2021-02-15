@@ -69,6 +69,7 @@
 #include "ImfVecAttribute.h"
 #include "ImfNamespace.h"
 #include "ImfExport.h"
+#include "ImfIDManifestAttribute.h"
 
 #define IMF_ADD_SUFFIX(suffix) add##suffix
 #define IMF_HAS_SUFFIX(suffix) has##suffix
@@ -382,5 +383,10 @@ IMF_STD_ATTRIBUTE_DEF
 
 IMF_STD_ATTRIBUTE_DEF (dwaCompressionLevel, DwaCompressionLevel, float)
 
+//
+// ID Manifest
+//
+
+IMF_STD_ATTRIBUTE_DEF( idManifest,IDManifest,CompressedIDManifest)
 
 #endif

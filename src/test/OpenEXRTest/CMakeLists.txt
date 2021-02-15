@@ -62,6 +62,7 @@ add_executable(OpenEXRTest
   testLargeDataWindowOffsets.cpp
   testB44ExpLogTable.cpp
   testDwaLookups.cpp
+  testIDManifest.cpp
   random.cpp
 )
 target_compile_definitions(OpenEXRTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/")
@@ -139,4 +140,5 @@ define_openexr_tests(
  testWav
  testXdr
  testYca
+ testIDManifest
 )

@@ -96,6 +96,8 @@ openexr_define_library(OpenEXR
     ImfRle.cpp
     ImfSystemSpecific.cpp
     ImfZip.cpp
+    ImfIDManifest.cpp
+    ImfIDManifestAttribute.cpp
   HEADERS
     ImfForward.h
     ImfExport.h
@@ -184,6 +186,8 @@ openexr_define_library(OpenEXR
     ImfDeepImageState.h
     ImfDeepImageStateAttribute.h
     ImfFloatVectorAttribute.h
+    ImfIDManifest.h
+    ImfIDManifestAttribute.h
   DEPENDENCIES
     OpenEXR::Config
     OpenEXR::Iex

@@ -95,6 +95,7 @@
 #include "testRle.h"
 #include "testB44ExpLogTable.h"
 #include "testDwaLookups.h"
+#include "testIDManifest.h"
 
 #include "tmpDir.h"
 #include "ImathRandom.h"
@@ -258,10 +259,11 @@ main (int argc, char *argv[])
     TEST (testRle, "core");
     TEST (testB44ExpLogTable, "core");
     TEST (testDwaLookups, "core");
+    TEST (testIDManifest, "core");
+
     // NB: If you add a test here, make sure to enumerate it in the
     // CMakeLists.txt so it runs as part of the test suite
     
-
     //#ifdef ENABLE_IMFHUGETEST
     // defined via configure with --enable-imfhugetest=yes/no
 #if 0

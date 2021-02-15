@@ -120,6 +120,9 @@ struct PreviewRgba;
 class OStream;
 class IStream;
 
+class IDManifest;
+class CompressedIDManifest;
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
