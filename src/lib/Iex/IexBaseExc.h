@@ -27,7 +27,7 @@ IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 // Our most basic exception class
 //-------------------------------
 
-class IEX_EXPORT BaseExc: public std::exception
+class IEX_EXPORT_VAGUELINKAGE BaseExc: public std::exception
 {
   public:
 
@@ -35,34 +35,34 @@ class IEX_EXPORT BaseExc: public std::exception
     // Constructors and destructor
     //----------------------------
 
-    BaseExc (const char *s = nullptr);
-    BaseExc (const std::string &s);
-    BaseExc (std::string &&s); // not noexcept because of stacktrace
-    BaseExc (std::stringstream &s);
+    IEX_EXPORT BaseExc (const char *s = nullptr);
+    IEX_EXPORT BaseExc (const std::string &s);
+    IEX_EXPORT BaseExc (std::string &&s); // not noexcept because of stacktrace
+    IEX_EXPORT BaseExc (std::stringstream &s);
 
-    BaseExc (const BaseExc &be);
-    BaseExc (BaseExc &&be) noexcept;
-    virtual ~BaseExc () noexcept;
+    IEX_EXPORT BaseExc (const BaseExc &be);
+    IEX_EXPORT BaseExc (BaseExc &&be) noexcept;
+    IEX_EXPORT virtual ~BaseExc () noexcept;
 
-    BaseExc & operator = (const BaseExc& be);
-    BaseExc & operator = (BaseExc&& be) noexcept;
+    IEX_EXPORT BaseExc & operator = (const BaseExc& be);
+    IEX_EXPORT BaseExc & operator = (BaseExc&& be) noexcept;
 
     //---------------------------------------------------
     // what() method -- e.what() returns _message.c_str()
     //---------------------------------------------------
 
-    virtual const char * what () const noexcept;
+    IEX_EXPORT virtual const char * what () const noexcept;
 
 
     //--------------------------------------------------
     // Convenient methods to change the exception's text
     //--------------------------------------------------
 
-    BaseExc &            assign (std::stringstream &s);	// assign (s.str())
-    BaseExc &            operator = (std::stringstream &s);
+    IEX_EXPORT BaseExc &            assign (std::stringstream &s);	// assign (s.str())
+    IEX_EXPORT BaseExc &            operator = (std::stringstream &s);
 
-    BaseExc &            append (std::stringstream &s);	// append (s.str())
-    BaseExc &            operator += (std::stringstream &s);
+    IEX_EXPORT BaseExc &            append (std::stringstream &s);	// append (s.str())
+    IEX_EXPORT BaseExc &            operator += (std::stringstream &s);
 
 
     //--------------------------------------------------
@@ -70,17 +70,17 @@ class IEX_EXPORT BaseExc: public std::exception
     // the definitions above.
     //--------------------------------------------------
 
-    BaseExc &            assign (const char *s);
-    BaseExc &            operator = (const char *s);
+    IEX_EXPORT BaseExc &            assign (const char *s);
+    IEX_EXPORT BaseExc &            operator = (const char *s);
 
-    BaseExc &            append (const char *s);
-    BaseExc &            operator += (const char *s);
+    IEX_EXPORT BaseExc &            append (const char *s);
+    IEX_EXPORT BaseExc &            operator += (const char *s);
 
     //---------------------------------------------------
     // Access to the string representation of the message
     //---------------------------------------------------
 
-    const std::string &  message () const noexcept;
+    IEX_EXPORT const std::string &  message () const noexcept;
 
     //--------------------------------------------------
     // Stack trace for the point at which the exception
@@ -89,12 +89,12 @@ class IEX_EXPORT BaseExc: public std::exception
     // has been installed (see below, setStackTracer()).
     //--------------------------------------------------
 
-    const std::string &  stackTrace () const noexcept;
+    IEX_EXPORT const std::string &  stackTrace () const noexcept;
 
   private:
 
-    std::string                     _message;
-    std::string                     _stackTrace;
+    std::string _message;
+    std::string _stackTrace;
 };
 
 
@@ -104,32 +104,32 @@ class IEX_EXPORT BaseExc: public std::exception
 //-----------------------------------------------------
 
 #define DEFINE_EXC_EXP(exp, name, base)                             \
-    class exp name: public base                                     \
+    class IEX_EXPORT_VAGUELINKAGE name: public base                 \
     {                                                               \
       public:                                                       \
-        name();                                                 \
-        name (const char* text);                                \
-        name (const std::string &text);                         \
-        name (std::string &&text);                              \
-        name (std::stringstream &text);                         \
-        name (const name &other);                               \
-        name (name &&other) noexcept;                           \
-        name& operator = (name &other);                         \
-        name& operator = (name &&other) noexcept;               \
-        ~name() noexcept;                                       \
+        exp name();                                                 \
+        exp name (const char* text);                                \
+        exp name (const std::string &text);                         \
+        exp name (std::string &&text);                              \
+        exp name (std::stringstream &text);                         \
+        exp name (const name &other);                               \
+        exp name (name &&other) noexcept;                           \
+        exp name& operator = (name &other);                         \
+        exp name& operator = (name &&other) noexcept;               \
+        exp ~name() noexcept;                                       \
     };
 
 #define DEFINE_EXC_EXP_IMPL(exp, name, base)                     \
-name::name () : base () {}                                   \
-name::name (const char* text) : base (text) {}               \
-name::name (const std::string& text) : base (text) {}        \
-name::name (std::string&& text) : base (std::move (text)) {} \
-name::name (std::stringstream& text) : base (text) {}        \
-name::name (const name &other) : base (other) {}             \
-name::name (name &&other) noexcept : base (other) {}         \
-name& name::operator = (name &other) { base::operator=(other); return *this; } \
-name& name::operator = (name &&other) noexcept { base::operator=(other); return *this; } \
-name::~name () noexcept {}
+exp name::name () : base () {}                                   \
+exp name::name (const char* text) : base (text) {}               \
+exp name::name (const std::string& text) : base (text) {}        \
+exp name::name (std::string&& text) : base (std::move (text)) {} \
+exp name::name (std::stringstream& text) : base (text) {}        \
+exp name::name (const name &other) : base (other) {}             \
+exp name::name (name &&other) noexcept : base (other) {}         \
+exp name& name::operator = (name &other) { base::operator=(other); return *this; } \
+exp name& name::operator = (name &&other) noexcept { base::operator=(other); return *this; } \
+exp name::~name () noexcept {}
 
 // For backward compatibility.
 #define DEFINE_EXC(name, base) DEFINE_EXC_EXP(, name, base)

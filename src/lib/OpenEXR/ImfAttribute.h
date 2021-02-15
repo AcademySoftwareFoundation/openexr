@@ -23,7 +23,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class IMF_EXPORT Attribute
+class IMF_EXPORT_VAGUELINKAGE Attribute
 {
   public:
 
@@ -31,8 +31,8 @@ class IMF_EXPORT Attribute
     // Constructor and destructor
     //---------------------------
 
-    Attribute ();
-    virtual ~Attribute ();
+    IMF_EXPORT Attribute ();
+    IMF_EXPORT virtual ~Attribute ();
 
 
     //-------------------------------
@@ -67,14 +67,14 @@ class IMF_EXPORT Attribute
     // Attribute factory
     //------------------
 
-    static Attribute *		newAttribute (const char typeName[]);
+    IMF_EXPORT static Attribute *		newAttribute (const char typeName[]);
 
 
     //-----------------------------------------------------------
     // Test if a given attribute type has already been registered
     //-----------------------------------------------------------
 
-    static bool			knownType (const char typeName[]);
+    IMF_EXPORT static bool			knownType (const char typeName[]);
 
 
   protected:
@@ -83,7 +83,7 @@ class IMF_EXPORT Attribute
     // Register an attribute type so that newAttribute()
     // knows how to make objects of this type.
     //--------------------------------------------------
-
+    IMF_EXPORT
     static void		registerAttributeType (const char typeName[],
 					       Attribute *(*newAttribute)());
 
@@ -92,7 +92,7 @@ class IMF_EXPORT Attribute
     // no longer knows how to make objects of this type (for
     // debugging only).
     //------------------------------------------------------
-
+    IMF_EXPORT
     static void		unRegisterAttributeType (const char typeName[]);
 };
 
@@ -102,7 +102,7 @@ class IMF_EXPORT Attribute
 //-------------------------------------------------
     
 template <class T>
-class TypedAttribute: public Attribute
+class  TypedAttribute: public Attribute
 {
   public:
 

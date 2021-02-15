@@ -28,7 +28,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // class OPENEXR_IMF_INTERNAL_NAMESPACE::IStream based on class std::ifstream
 //-------------------------------------------
 
-class IMF_EXPORT StdIFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
+class IMF_EXPORT_VAGUELINKAGE StdIFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
 {
   public:
 
@@ -37,7 +37,7 @@ class IMF_EXPORT StdIFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
     // The destructor will close the file.
     //-------------------------------------------------------
 
-    StdIFStream (const char fileName[]);
+    IMF_EXPORT StdIFStream (const char fileName[]);
 
     
     //---------------------------------------------------------
@@ -46,11 +46,12 @@ class IMF_EXPORT StdIFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
     // will not close the std::ifstream.
     //---------------------------------------------------------
 
-    StdIFStream (std::ifstream &is, const char fileName[]);
+    IMF_EXPORT StdIFStream (std::ifstream &is, const char fileName[]);
 
 
-    virtual ~StdIFStream ();
+    IMF_EXPORT virtual ~StdIFStream ();
 
+    IMF_EXPORT
     virtual bool	read (char c[/*n*/], int n);
     IMF_EXPORT
     virtual uint64_t	tellg ();
@@ -71,12 +72,13 @@ class IMF_EXPORT StdIFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
 // OPENEXR_IMF_INTERNAL_NAMESPACE::IStream, based on class std::istringstream
 //------------------------------------------------
 
-class IMF_EXPORT StdISStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
+class IMF_EXPORT_VAGUELINKAGE StdISStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
 {
   public:
 
-    StdISStream ();
+    IMF_EXPORT StdISStream ();
 
+    IMF_EXPORT
     virtual bool	read (char c[/*n*/], int n);
     IMF_EXPORT
     virtual uint64_t	tellg ();
@@ -85,9 +87,9 @@ class IMF_EXPORT StdISStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
     IMF_EXPORT
     virtual void	clear ();
 
-    std::string		str () const; 
+    IMF_EXPORT std::string   str () const; 
 
-    void                str (const std::string &s);
+    IMF_EXPORT void          str (const std::string &s);
 
   private:
 
@@ -101,7 +103,7 @@ class IMF_EXPORT StdISStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
 // class OPENEXR_IMF_INTERNAL_NAMESPACE::OStream based on class std::ofstream
 //-------------------------------------------
 
-class IMF_EXPORT StdOFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
+class IMF_EXPORT_VAGUELINKAGE StdOFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
 {
   public:
 
@@ -110,7 +112,7 @@ class IMF_EXPORT StdOFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
     // The destructor will close the file.
     //-------------------------------------------------------
 
-    StdOFStream (const char fileName[]);
+    IMF_EXPORT StdOFStream (const char fileName[]);
     
 
     //---------------------------------------------------------
@@ -119,11 +121,12 @@ class IMF_EXPORT StdOFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
     // will not close the std::ofstream.
     //---------------------------------------------------------
 
-    StdOFStream (std::ofstream &os, const char fileName[]);
+    IMF_EXPORT StdOFStream (std::ofstream &os, const char fileName[]);
 
 
-    virtual ~StdOFStream ();
+    IMF_EXPORT virtual ~StdOFStream ();
 
+    IMF_EXPORT
     virtual void	write (const char c[/*n*/], int n);
     IMF_EXPORT
     virtual uint64_t	tellp ();
@@ -142,19 +145,20 @@ class IMF_EXPORT StdOFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
 // OPENEXR_IMF_INTERNAL_NAMESPACE::OStream, based on class std::ostringstream
 //------------------------------------------------
 
-class IMF_EXPORT StdOSStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
+class IMF_EXPORT_VAGUELINKAGE StdOSStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
 {
   public:
 
-    StdOSStream ();
+    IMF_EXPORT StdOSStream ();
 
+    IMF_EXPORT
     virtual void	write (const char c[/*n*/], int n);
     IMF_EXPORT
     virtual uint64_t	tellp ();
     IMF_EXPORT
     virtual void	seekp (uint64_t pos);
 
-    std::string		str () const;
+    IMF_EXPORT std::string   str () const;
 
   private:
 

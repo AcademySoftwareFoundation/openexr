@@ -79,21 +79,22 @@ ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 ILMTHREAD_EXPORT bool supportsThreads ();
 
 
-class ILMTHREAD_EXPORT Thread
+class ILMTHREAD_EXPORT_VAGUELINKAGE Thread
 {
   public:
 
-    Thread ();
-    virtual ~Thread ();
+    ILMTHREAD_EXPORT Thread ();
+    ILMTHREAD_EXPORT virtual ~Thread ();
 
-    void         start ();
+    ILMTHREAD_EXPORT void         start ();
+
     virtual void run () = 0;
 
     //
     // wait for thread to exit - must be called before deleting thread
     //
-    void join();
-    bool joinable() const;
+    ILMTHREAD_EXPORT void join();
+    ILMTHREAD_EXPORT bool joinable() const;
 
   private:
 

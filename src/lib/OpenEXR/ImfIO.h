@@ -25,7 +25,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // class IStream -- an abstract base class for input streams.
 //-----------------------------------------------------------
 
-class IMF_EXPORT IStream
+class IMF_EXPORT_VAGUELINKAGE IStream
 {
   public:
 
@@ -33,7 +33,7 @@ class IMF_EXPORT IStream
     // Destructor
     //-----------
 
-    virtual ~IStream ();
+    IMF_EXPORT virtual ~IStream ();
     
     
     //-------------------------------------------------
@@ -45,7 +45,7 @@ class IMF_EXPORT IStream
     // into a buffer supplied by the caller.
     //-------------------------------------------------
 
-    virtual bool        isMemoryMapped () const;
+    IMF_EXPORT virtual bool        isMemoryMapped () const;
 
 
     //------------------------------------------------------
@@ -107,7 +107,7 @@ class IMF_EXPORT IStream
 
   protected:
 
-    IStream (const char fileName[]);
+    IMF_EXPORT IStream (const char fileName[]);
 
   private:
 
@@ -124,7 +124,7 @@ class IMF_EXPORT IStream
 // class OStream -- an abstract base class for output streams
 //-----------------------------------------------------------
 
-class IMF_EXPORT OStream
+class IMF_EXPORT_VAGUELINKAGE OStream
 {
   public:
 
@@ -132,7 +132,7 @@ class IMF_EXPORT OStream
     // Destructor
     //-----------
 
-    virtual ~OStream ();
+    IMF_EXPORT virtual ~OStream ();
   
 
     //----------------------------------------------------------
@@ -168,11 +168,11 @@ class IMF_EXPORT OStream
     // Get the name of the file associated with this stream.
     //------------------------------------------------------
 
-    const char *	fileName () const;
+    IMF_EXPORT const char *	fileName () const;
 
   protected:
 
-    OStream (const char fileName[]);
+    IMF_EXPORT OStream (const char fileName[]);
 
   private:
 

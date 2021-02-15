@@ -73,7 +73,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 struct Channel;
 
 
-class IMFUTIL_EXPORT Image
+class IMFUTIL_EXPORT_VAGUELINKAGE Image
 {
   public:
 
@@ -81,16 +81,16 @@ class IMFUTIL_EXPORT Image
     // Constructor and destructor
     //
 
-    Image ();
-    virtual ~Image ();
+    IMFUTIL_EXPORT Image ();
+    IMFUTIL_EXPORT virtual ~Image ();
 
 
     //
     // Access to the image's level mode and level rounding mode.
     //
 
-	LevelMode               levelMode() const;
-	LevelRoundingMode       levelRoundingMode() const;
+	IMFUTIL_EXPORT LevelMode               levelMode() const;
+	IMFUTIL_EXPORT LevelRoundingMode       levelRoundingMode() const;
 
 
     //
@@ -131,9 +131,9 @@ class IMFUTIL_EXPORT Image
     //      a LogicExc exception is thrown
     //
 
-	int                     numLevels() const;
-	int                     numXLevels() const;
-	int                     numYLevels() const;
+	IMFUTIL_EXPORT int  numLevels() const;
+	IMFUTIL_EXPORT int  numXLevels() const;
+	IMFUTIL_EXPORT int  numYLevels() const;
 
 
     //
@@ -157,9 +157,11 @@ class IMFUTIL_EXPORT Image
     // dataWindowForLevel(l) is a convenience function used for ONE_LEVEL
     // and MIPMAP_LEVELS files.  It returns dataWindowForLevel(l,l)).
     //
-
+    IMFUTIL_EXPORT
 	const IMATH_NAMESPACE::Box2i &  dataWindow() const;
+    IMFUTIL_EXPORT
 	const IMATH_NAMESPACE::Box2i &  dataWindowForLevel(int l) const;
+    IMFUTIL_EXPORT
 	const IMATH_NAMESPACE::Box2i &  dataWindowForLevel(int lx, int ly) const;
 
 
@@ -180,7 +182,9 @@ class IMFUTIL_EXPORT Image
     //      max (1, rfunc (h / pow (2, ly)))
     //
 
+    IMFUTIL_EXPORT
     int			    levelWidth  (int lx) const;
+    IMFUTIL_EXPORT
     int			    levelHeight (int ly) const;
 
 
@@ -198,9 +202,9 @@ class IMFUTIL_EXPORT Image
     //
     // resize(dw) is the same as resize(dw,levelMode(),levelRoundingMode())
     //
-
+    IMFUTIL_EXPORT
 	void                    resize(const IMATH_NAMESPACE::Box2i &dataWindow);
-
+    IMFUTIL_EXPORT
 	virtual void            resize(const IMATH_NAMESPACE::Box2i &dataWindow,
                                     LevelMode levelMode,
                                     LevelRoundingMode levelRoundingMode);
@@ -217,7 +221,7 @@ class IMFUTIL_EXPORT Image
     // the x and y sampling rates of all image channels.  If they are not,
     // shiftPixels() throws an ArgExc exception.
     //
-
+    IMFUTIL_EXPORT
 	void                    shiftPixels(int dx, int dy);
 
 
@@ -232,13 +236,13 @@ class IMFUTIL_EXPORT Image
     // as the new name then the existing channel is deleted before
     // the new channel is added.
     //
-
+    IMFUTIL_EXPORT
     void                    insertChannel (const std::string &name,
                                            PixelType type,
                                            int xSampling = 1,
                                            int ySampling = 1,
                                            bool pLinear = false);
-
+    IMFUTIL_EXPORT
     void                    insertChannel (const std::string &name,
                                            const Channel &channel);
 
@@ -248,8 +252,9 @@ class IMFUTIL_EXPORT Image
     // eraseChannel(n) erases the channel with name n.
     // clearChannels() erases all channels.
     //
-
+    IMFUTIL_EXPORT
 	void                    eraseChannel(const std::string &name);
+    IMFUTIL_EXPORT
 	void                    clearChannels();
 
 
@@ -267,7 +272,7 @@ class IMFUTIL_EXPORT Image
     // the program to run out of memory, renameChannel() erases the
     // channel that is being renamed, and throws an exception.
     //
-
+    IMFUTIL_EXPORT
 	void                    renameChannel(const std::string &oldName,
                                            const std::string &newName);
 
@@ -287,7 +292,7 @@ class IMFUTIL_EXPORT Image
     // program to run out of memory, renameChannels() erases all channels
     // in the image and throws an exception.
     //
-
+    IMFUTIL_EXPORT
 	void                    renameChannels(const RenamingMap &oldToNewNames);
 
 
@@ -300,11 +305,11 @@ class IMFUTIL_EXPORT Image
     // level(l) returns level(l,l).
     //
 
-    virtual ImageLevel &            level (int l = 0);
-    virtual const ImageLevel &      level (int l = 0) const;
+    IMFUTIL_EXPORT virtual ImageLevel &            level (int l = 0);
+    IMFUTIL_EXPORT virtual const ImageLevel &      level (int l = 0) const;
 
-    virtual ImageLevel &            level (int lx, int ly);
-    virtual const ImageLevel &      level (int lx, int ly) const;
+    IMFUTIL_EXPORT virtual ImageLevel &            level (int lx, int ly);
+    IMFUTIL_EXPORT virtual const ImageLevel &      level (int lx, int ly) const;
 
 
   protected:
@@ -314,10 +319,10 @@ class IMFUTIL_EXPORT Image
 
   private:
 
-    bool        levelNumberIsValid (int lx, int ly) const;
-    void        clearLevels ();
+    IMFUTIL_EXPORT_LOCAL bool        levelNumberIsValid (int lx, int ly) const;
+    IMFUTIL_EXPORT_LOCAL void        clearLevels ();
 
-    struct ChannelInfo
+    struct IMFUTIL_EXPORT_LOCAL ChannelInfo
     {
         ChannelInfo (PixelType type = HALF,
                      int xSampling = 1,
