@@ -72,7 +72,7 @@ class IMF_EXPORT_VAGUELINKAGE IStream
     // mapped, readMemoryMapped(n) throws an exception.  
     //---------------------------------------------------
 
-    virtual char *	readMemoryMapped (int n);
+    IMF_EXPORT virtual char *	readMemoryMapped (int n);
 
 
     //--------------------------------------------------------
@@ -96,14 +96,14 @@ class IMF_EXPORT_VAGUELINKAGE IStream
     // Clear error conditions after an operation has failed.
     //------------------------------------------------------
 
-    virtual void	clear ();
+    IMF_EXPORT virtual void	clear ();
 
 
     //------------------------------------------------------
     // Get the name of the file associated with this stream.
     //------------------------------------------------------
 
-    const char *	fileName () const;
+    IMF_EXPORT const char *	fileName () const;
 
   protected:
 
