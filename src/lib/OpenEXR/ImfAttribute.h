@@ -20,6 +20,9 @@
 #include "ImfExport.h"
 #include "ImfNamespace.h"
 
+#include <typeinfo>
+#include <cstring>
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class IMF_EXPORT_TYPE Attribute
