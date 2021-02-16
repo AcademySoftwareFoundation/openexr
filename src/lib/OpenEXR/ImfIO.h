@@ -25,7 +25,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // class IStream -- an abstract base class for input streams.
 //-----------------------------------------------------------
 
-class IMF_EXPORT_VAGUELINKAGE IStream
+class IMF_EXPORT_TYPE IStream
 {
   public:
 
@@ -124,7 +124,7 @@ class IMF_EXPORT_VAGUELINKAGE IStream
 // class OStream -- an abstract base class for output streams
 //-----------------------------------------------------------
 
-class IMF_EXPORT_VAGUELINKAGE OStream
+class IMF_EXPORT_TYPE OStream
 {
   public:
 

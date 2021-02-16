@@ -27,7 +27,7 @@ IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 // Our most basic exception class
 //-------------------------------
 
-class IEX_EXPORT_VAGUELINKAGE BaseExc: public std::exception
+class IEX_EXPORT_TYPE BaseExc: public std::exception
 {
   public:
 
@@ -104,7 +104,7 @@ class IEX_EXPORT_VAGUELINKAGE BaseExc: public std::exception
 //-----------------------------------------------------
 
 #define DEFINE_EXC_EXP(exp, name, base)                             \
-    class IEX_EXPORT_VAGUELINKAGE name: public base                 \
+    class IEX_EXPORT_TYPE name: public base                         \
     {                                                               \
       public:                                                       \
         exp name();                                                 \

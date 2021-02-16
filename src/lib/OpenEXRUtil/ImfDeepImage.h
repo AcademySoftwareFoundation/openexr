@@ -24,7 +24,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class IMFUTIL_EXPORT_VAGUELINKAGE DeepImage : public Image
+class IMFUTIL_EXPORT_TYPE DeepImage : public Image
 {
   public:
 

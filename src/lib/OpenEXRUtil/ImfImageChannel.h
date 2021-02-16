@@ -38,7 +38,7 @@ class ImageLevel;
 
 class ImageLevel;
 
-class IMFUTIL_EXPORT_VAGUELINKAGE ImageChannel
+class IMFUTIL_EXPORT_TYPE ImageChannel
 {
   public:
 

@@ -39,7 +39,7 @@ class SampleCountChannel;
 // of the level.
 //
 
-class IMFUTIL_EXPORT_VAGUELINKAGE DeepImageChannel: public ImageChannel
+class IMFUTIL_EXPORT_TYPE DeepImageChannel: public ImageChannel
 {
   public:
 

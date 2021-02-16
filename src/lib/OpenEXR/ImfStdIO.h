@@ -28,7 +28,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // class OPENEXR_IMF_INTERNAL_NAMESPACE::IStream based on class std::ifstream
 //-------------------------------------------
 
-class IMF_EXPORT_VAGUELINKAGE StdIFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
+class IMF_EXPORT_TYPE StdIFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
 {
   public:
 
@@ -72,7 +72,7 @@ class IMF_EXPORT_VAGUELINKAGE StdIFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE
 // OPENEXR_IMF_INTERNAL_NAMESPACE::IStream, based on class std::istringstream
 //------------------------------------------------
 
-class IMF_EXPORT_VAGUELINKAGE StdISStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
+class IMF_EXPORT_TYPE StdISStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStream
 {
   public:
 
@@ -103,7 +103,7 @@ class IMF_EXPORT_VAGUELINKAGE StdISStream: public OPENEXR_IMF_INTERNAL_NAMESPACE
 // class OPENEXR_IMF_INTERNAL_NAMESPACE::OStream based on class std::ofstream
 //-------------------------------------------
 
-class IMF_EXPORT_VAGUELINKAGE StdOFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
+class IMF_EXPORT_TYPE StdOFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
 {
   public:
 
@@ -145,7 +145,7 @@ class IMF_EXPORT_VAGUELINKAGE StdOFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE
 // OPENEXR_IMF_INTERNAL_NAMESPACE::OStream, based on class std::ostringstream
 //------------------------------------------------
 
-class IMF_EXPORT_VAGUELINKAGE StdOSStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
+class IMF_EXPORT_TYPE StdOSStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStream
 {
   public:
 

@@ -24,7 +24,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class IMFUTIL_EXPORT_VAGUELINKAGE FlatImage : public Image
+class IMFUTIL_EXPORT_TYPE FlatImage : public Image
 {
   public:
 

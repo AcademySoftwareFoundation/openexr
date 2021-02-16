@@ -38,7 +38,7 @@ class FlatImageLevel;
 // only for pixels within the data window of the level.
 //
 
-class IMFUTIL_EXPORT_VAGUELINKAGE FlatImageChannel: public ImageChannel
+class IMFUTIL_EXPORT_TYPE FlatImageChannel: public ImageChannel
 {
   public:
 

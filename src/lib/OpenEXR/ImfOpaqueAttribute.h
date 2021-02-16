@@ -26,7 +26,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class IMF_EXPORT_VAGUELINKAGE OpaqueAttribute: public Attribute
+class IMF_EXPORT_TYPE OpaqueAttribute: public Attribute
 {
   public:
 

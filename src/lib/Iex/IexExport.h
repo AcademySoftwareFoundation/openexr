@@ -26,7 +26,7 @@
 /// the class level, but if we were to do this under Windows, then the
 /// class member data types also end up being exported, which leaks
 /// STL details. So, to differentiate this, we use
-/// IMF_EXPORT_VAGUELINKAGE at the class level, and continue to use
+/// IMF_EXPORT_TYPE at the class level, and continue to use
 /// IMF_EXPORT on the public function symbols. Unfortunately, by
 /// putting the export at the class level, that means that private
 /// functions are then exported as well. Hence, we must force any of
@@ -48,16 +48,16 @@
 #    else
 #        define IEX_EXPORT __declspec(dllimport)
 #    endif
-#    define IEX_EXPORT_VAGUELINKAGE
+#    define IEX_EXPORT_TYPE
 #    define IEX_EXPORT_LOCAL
 #else
 #    ifndef _MSC_VER
 #        define IEX_EXPORT __attribute__ ((visibility ("default")))
-#        define IEX_EXPORT_VAGUELINKAGE __attribute__ ((visibility ("default")))
+#        define IEX_EXPORT_TYPE __attribute__ ((visibility ("default")))
 #        define IEX_EXPORT_LOCAL __attribute__ ((visibility ("hidden")))
 #    else
 #        define IEX_EXPORT
-#        define IEX_EXPORT_VAGUELINKAGE
+#        define IEX_EXPORT_TYPE
 #        define IEX_EXPORT_LOCAL
 #    endif
 #endif
