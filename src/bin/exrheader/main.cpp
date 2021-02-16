@@ -306,24 +306,24 @@ printInfo (const char fileName[])
             cout << i.name() << " (type " << a->typeName() << ")";
 
             if (const Box2iAttribute *ta =
-                            dynamic_cast <const Box2iAttribute *> (a))
+                            dynamic_cast_attr <Box2iAttribute> (a))
             {
                 cout << ": " << ta->value().min << " - " << ta->value().max;
             }
 
             else if (const Box2fAttribute *ta =
-                            dynamic_cast <const Box2fAttribute *> (a))
+                            dynamic_cast_attr <Box2fAttribute> (a))
             {
                 cout << ": " << ta->value().min << " - " << ta->value().max;
             }
             else if (const ChannelListAttribute *ta =
-                            dynamic_cast <const ChannelListAttribute *> (a))
+                            dynamic_cast_attr <ChannelListAttribute> (a))
             {
                 cout << ":";
                 printChannelList (ta->value());
             }
             else if (const ChromaticitiesAttribute *ta =
-                            dynamic_cast <const ChromaticitiesAttribute *> (a))
+                            dynamic_cast_attr <ChromaticitiesAttribute> (a))
             {
                 cout << ":\n"
                 "    red   " << ta->value().red << "\n"
@@ -332,34 +332,34 @@ printInfo (const char fileName[])
                 "    white " << ta->value().white;
             }
             else if (const CompressionAttribute *ta =
-                            dynamic_cast <const CompressionAttribute *> (a))
+                            dynamic_cast_attr <CompressionAttribute> (a))
             {
                 cout << ": ";
                 printCompression (ta->value());
             }
             else if (const DoubleAttribute *ta =
-                            dynamic_cast <const DoubleAttribute *> (a))
+                            dynamic_cast_attr <DoubleAttribute> (a))
             {
                 cout << ": " << ta->value();
             }
             else if (const EnvmapAttribute *ta =
-                            dynamic_cast <const EnvmapAttribute *> (a))
+                            dynamic_cast_attr <EnvmapAttribute> (a))
             {
                 cout << ": ";
                 printEnvmap (ta->value());
             }
             else if (const FloatAttribute *ta =
-                            dynamic_cast <const FloatAttribute *> (a))
+                            dynamic_cast_attr <FloatAttribute> (a))
             {
                 cout << ": " << ta->value();
             }
             else if (const IntAttribute *ta =
-                            dynamic_cast <const IntAttribute *> (a))
+                            dynamic_cast_attr <IntAttribute> (a))
             {
                 cout << ": " << ta->value();
             }
             else if (const KeyCodeAttribute *ta =
-                            dynamic_cast <const KeyCodeAttribute *> (a))
+                            dynamic_cast_attr <KeyCodeAttribute> (a))
             {
                 cout << ":\n"
                 "    film manufacturer code " <<
@@ -378,13 +378,13 @@ printInfo (const char fileName[])
                 ta->value().perfsPerCount();
             }
             else if (const LineOrderAttribute *ta =
-                            dynamic_cast <const LineOrderAttribute *> (a))
+                            dynamic_cast_attr <LineOrderAttribute> (a))
             {
                 cout << ": ";
                 printLineOrder (ta->value());
             }
             else if (const M33fAttribute *ta =
-                            dynamic_cast <const M33fAttribute *> (a))
+                            dynamic_cast_attr <M33fAttribute> (a))
             {
                 cout << ":\n"
                 "   (" <<
@@ -399,7 +399,7 @@ printInfo (const char fileName[])
                 ta->value()[2][2] << ")";
             }
             else if (const M44fAttribute *ta =
-                            dynamic_cast <const M44fAttribute *> (a))
+                            dynamic_cast_attr <M44fAttribute> (a))
             {
                 cout << ":\n"
                 "   (" <<
@@ -421,19 +421,19 @@ printInfo (const char fileName[])
                 ta->value()[3][3] << ")";
             }
             else if (const PreviewImageAttribute *ta =
-                            dynamic_cast <const PreviewImageAttribute *> (a))
+                            dynamic_cast_attr <PreviewImageAttribute> (a))
             {
                 cout << ": " <<
                 ta->value().width()  << " by " <<
                 ta->value().height() << " pixels";
             }
             else if (const StringAttribute *ta =
-                            dynamic_cast <const StringAttribute *> (a))
+                            dynamic_cast_attr <StringAttribute> (a))
             {
                 cout << ": \"" << ta->value() << "\"";
             }
             else if (const StringVectorAttribute * ta =
-                            dynamic_cast<const StringVectorAttribute *>(a))
+                            dynamic_cast_attr <StringVectorAttribute> (a))
             {
                 cout << ":";
 
@@ -445,13 +445,13 @@ printInfo (const char fileName[])
                 }
             }
             else if (const RationalAttribute *ta =
-                            dynamic_cast <const RationalAttribute *> (a))
+                            dynamic_cast_attr <RationalAttribute> (a))
             {
                 cout << ": " << ta->value().n << "/" << ta->value().d <<
                 " (" << double (ta->value()) << ")";
             }
             else if (const TileDescriptionAttribute *ta =
-                            dynamic_cast <const TileDescriptionAttribute *> (a))
+                            dynamic_cast_attr <TileDescriptionAttribute> (a))
             {
                 cout << ":\n    ";
 
@@ -468,28 +468,28 @@ printInfo (const char fileName[])
                 }
             }
             else if (const TimeCodeAttribute *ta =
-                            dynamic_cast <const TimeCodeAttribute *> (a))
+                            dynamic_cast_attr <TimeCodeAttribute> (a))
             {
                 cout << ":\n";
                 printTimeCode (ta->value());
             }
             else if (const V2iAttribute *ta =
-                            dynamic_cast <const V2iAttribute *> (a))
+                            dynamic_cast_attr <V2iAttribute> (a))
             {
                 cout << ": " << ta->value();
             }
             else if (const V2fAttribute *ta =
-                            dynamic_cast <const V2fAttribute *> (a))
+                            dynamic_cast_attr <V2fAttribute> (a))
             {
                 cout << ": " << ta->value();
             }
             else if (const V3iAttribute *ta =
-                            dynamic_cast <const V3iAttribute *> (a))
+                            dynamic_cast_attr <V3iAttribute> (a))
             {
                 cout << ": " << ta->value();
             }
             else if (const V3fAttribute *ta =
-                            dynamic_cast <const V3fAttribute *> (a))
+                            dynamic_cast_attr <V3fAttribute> (a))
             {
                 cout << ": " << ta->value();
             }

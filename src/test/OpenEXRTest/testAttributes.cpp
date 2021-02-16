@@ -290,7 +290,7 @@ writeReadAttr (const Array2D<float> &pf1,
         //
 
         const Attribute& a = hdr["a24"];
-        const OpaqueAttribute* oa = dynamic_cast <const OpaqueAttribute*> (&a);
+        const OpaqueAttribute* oa = dynamic_cast_attr <OpaqueAttribute> (&a);
         assert (oa);
         assert (!strcmp (a.typeName(), "testOpaque"));
 

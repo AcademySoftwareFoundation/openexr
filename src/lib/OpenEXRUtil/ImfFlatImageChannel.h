@@ -81,7 +81,6 @@ class IMFUTIL_EXPORT_VAGUELINKAGE FlatImageChannel: public ImageChannel
     virtual void            resetBasePointer () = 0;
 };
 
-
 template <class T>
 class TypedFlatImageChannel: public FlatImageChannel
 {

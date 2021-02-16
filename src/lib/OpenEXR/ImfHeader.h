@@ -24,6 +24,7 @@
 #include "ImfForward.h"
 #include "ImfNamespace.h"
 #include "ImfExport.h"
+#include "ImfAttribute.h"
 
 #include <map>
 #include <iosfwd>
@@ -677,7 +678,7 @@ T &
 Header::typedAttribute (const char name[])
 {
     Attribute *attr = &(*this)[name];
-    T *tattr = dynamic_cast <T*> (attr);
+    T *tattr = dynamic_cast_attr <T> (attr);
 
     if (tattr == 0)
 	throw IEX_NAMESPACE::TypeExc ("Unexpected attribute type.");
@@ -691,7 +692,7 @@ const T &
 Header::typedAttribute (const char name[]) const
 {
     const Attribute *attr = &(*this)[name];
-    const T *tattr = dynamic_cast <const T*> (attr);
+    const T *tattr = dynamic_cast_attr <T> (attr);
 
     if (tattr == 0)
 	throw IEX_NAMESPACE::TypeExc ("Unexpected attribute type.");
@@ -721,7 +722,7 @@ T *
 Header::findTypedAttribute (const char name[])
 {
     AttributeMap::iterator i = _map.find (name);
-    return (i == _map.end())? 0: dynamic_cast <T*> (i->second);
+    return (i == _map.end())? 0: dynamic_cast_attr <T> (i->second);
 }
 
 
@@ -730,7 +731,7 @@ const T *
 Header::findTypedAttribute (const char name[]) const
 {
     AttributeMap::const_iterator i = _map.find (name);
-    return (i == _map.end())? 0: dynamic_cast <const T*> (i->second);
+    return (i == _map.end())? 0: dynamic_cast_attr <T> (i->second);
 }
 
 

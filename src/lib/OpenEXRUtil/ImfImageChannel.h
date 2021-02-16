@@ -17,6 +17,7 @@
 
 #include "ImfUtilExport.h"
 
+#include <IexBaseExc.h>
 #include <ImfPixelType.h>
 #include <ImfFrameBuffer.h>
 #include <ImfChannelList.h>
@@ -105,6 +106,51 @@ class IMFUTIL_EXPORT_VAGUELINKAGE ImageChannel
     int                 _pixelsPerColumn;
     size_t              _numPixels;
 };
+
+/// \addtogroup TypeConversion
+///
+/// @{
+
+/// similar to ImfAttribute, we may have type-erased image channels we use internally.
+template <typename U>
+static U *dynamic_cast_channel (ImageChannel *a)
+{
+    if (!a)
+        return nullptr;
+    const auto &aid = typeid(*a);
+    const auto &uid = typeid(U);
+    // check the fast tests first before comparing names...
+    if (aid == uid ||
+        (aid.hash_code() == uid.hash_code() &&
+         aid.name() == uid.name()))
+    {
+        return static_cast<U *>( a );
+    }
+    return nullptr;
+}
+template <typename U>
+static const U *dynamic_cast_channel (const ImageChannel *a)
+{
+    return dynamic_cast_channel <U> ( const_cast <ImageChannel *> ( a ) );
+}
+template<class U>
+static U &dynamic_cast_channel (ImageChannel &a)
+{
+    U *ret = dynamic_cast_channel <U> (&a);
+    if ( ! ret )
+        throw IEX_NAMESPACE::TypeExc ("Mismatched image channel type.");
+    return *ret;
+}
+template<class U>
+static const U &dynamic_cast_channel (const ImageChannel &a)
+{
+    const U *ret = dynamic_cast_channel <U> (&a);
+    if ( ! ret )
+        throw IEX_NAMESPACE::TypeExc ("Mismatched image channel type.");
+    return *ret;
+}
+
+/// @}
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

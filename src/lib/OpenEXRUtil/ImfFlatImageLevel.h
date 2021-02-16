@@ -237,7 +237,7 @@ template <class T>
 TypedFlatImageChannel<T> *
 FlatImageLevel::findTypedChannel (const std::string& name)
 {
-    return dynamic_cast <TypedFlatImageChannel<T>*> (findChannel (name));
+    return dynamic_cast_channel <TypedFlatImageChannel<T>> (findChannel (name));
 }
 
 
@@ -245,7 +245,7 @@ template <class T>
 const TypedFlatImageChannel<T> *
 FlatImageLevel::findTypedChannel (const std::string& name) const
 {
-    return dynamic_cast <const TypedFlatImageChannel<T>*> (findChannel (name));
+    return dynamic_cast_channel <TypedFlatImageChannel<T>> (findChannel (name));
 }
 
 

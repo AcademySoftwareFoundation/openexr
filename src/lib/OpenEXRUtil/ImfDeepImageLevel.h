@@ -263,7 +263,7 @@ template <class T>
 TypedDeepImageChannel<T> *
 DeepImageLevel::findTypedChannel (const std::string& name)
 {
-    return dynamic_cast <TypedDeepImageChannel<T>*> (findChannel (name));
+    return dynamic_cast_channel <TypedDeepImageChannel<T>> (findChannel (name));
 }
 
 
@@ -271,7 +271,7 @@ template <class T>
 const TypedDeepImageChannel<T> *
 DeepImageLevel::findTypedChannel (const std::string& name) const
 {
-    return dynamic_cast <const TypedDeepImageChannel<T>*> (findChannel (name));
+    return dynamic_cast_channel <TypedDeepImageChannel<T>> (findChannel (name));
 }
 
 

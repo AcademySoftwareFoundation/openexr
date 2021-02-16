@@ -13,7 +13,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IexBaseExc.h"
+#include <IexBaseExc.h>
 #include "ImfIO.h"
 #include "ImfXdr.h"
 #include "ImfForward.h"
@@ -21,7 +21,6 @@
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
-
 
 class IMF_EXPORT_VAGUELINKAGE Attribute
 {
@@ -76,7 +75,6 @@ class IMF_EXPORT_VAGUELINKAGE Attribute
 
     IMF_EXPORT static bool			knownType (const char typeName[]);
 
-
   protected:
 
     //--------------------------------------------------
@@ -96,6 +94,59 @@ class IMF_EXPORT_VAGUELINKAGE Attribute
     static void		unRegisterAttributeType (const char typeName[]);
 };
 
+/// \defgroup TypeConversion type conversion helpers
+///
+/// We define these here for systems such as libc++ where the typeinfo
+/// may not be the same between what is compiled into the library, and
+/// the one used in code put into applications, especially with hidden
+/// visibility enabled by default. The internal type checks as one
+/// sets attributes into headers would then fail. As a result, we use
+/// these where the types are more loosely defined to only include the
+/// hash and name. With our custom, versioned namespace, this should
+/// be safe, and allows us to have hidden visibility on symbols and
+/// make a tidy shared object.
+///
+/// @{
+
+template <typename U>
+static U *dynamic_cast_attr (Attribute *a)
+{
+    if (!a)
+        return nullptr;
+    const auto &aid = typeid(*a);
+    const auto &uid = typeid(U);
+    // check the fast tests first before comparing names...
+    if (aid == uid ||
+        (aid.hash_code() == uid.hash_code() &&
+         aid.name() == uid.name()))
+    {
+        return static_cast<U *>( a );
+    }
+    return nullptr;
+}
+template <typename U>
+static const U *dynamic_cast_attr (const Attribute *a)
+{
+    return dynamic_cast_attr <U> ( const_cast <Attribute *> ( a ) );
+}
+template<class U>
+static U &dynamic_cast_attr (Attribute &a)
+{
+    U *ret = dynamic_cast_attr <U> (&a);
+    if ( ! ret )
+        throw IEX_NAMESPACE::TypeExc ("Mismatched attribute type.");
+    return *ret;
+}
+template<class U>
+static const U &dynamic_cast_attr (const Attribute &a)
+{
+    const U *ret = dynamic_cast_attr <U> (&a);
+    if ( ! ret )
+        throw IEX_NAMESPACE::TypeExc ("Mismatched attribute type.");
+    return *ret;
+}
+
+/// @}
 
 //-------------------------------------------------
 // Class template for attributes of a specific type
@@ -296,7 +347,7 @@ TypedAttribute<T> *
 TypedAttribute<T>::cast (Attribute *attribute)
 {
     TypedAttribute<T> *t =
-	dynamic_cast <TypedAttribute<T> *> (attribute);
+	dynamic_cast_attr <TypedAttribute<T>> (attribute);
 
     if (t == 0)
 	throw IEX_NAMESPACE::TypeExc ("Unexpected attribute type.");
@@ -310,7 +361,7 @@ const TypedAttribute<T> *
 TypedAttribute<T>::cast (const Attribute *attribute)
 {
     const TypedAttribute<T> *t =
-	dynamic_cast <const TypedAttribute<T> *> (attribute);
+	dynamic_cast_attr <TypedAttribute<T>> (attribute);
 
     if (t == 0)
 	throw IEX_NAMESPACE::TypeExc ("Unexpected attribute type.");

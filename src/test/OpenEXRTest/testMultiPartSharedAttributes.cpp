@@ -300,7 +300,7 @@ void
 testDiskAttrValue (const Header & diskHeader, const T & testAttribute)
 {
     const string & attrName = testAttribute.typeName();
-    const T & diskAttr = dynamic_cast <const T &> (diskHeader[attrName]);
+    const T & diskAttr = dynamic_cast_attr <T> (diskHeader[attrName]);
     if (diskAttr.value() != testAttribute.value())
     {
         throw IEX_NAMESPACE::InputExc ("incorrect value from disk");
