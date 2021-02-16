@@ -17,7 +17,7 @@
 
 #include <string>
 #include <cstdint>
-
+#include <cstring>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
