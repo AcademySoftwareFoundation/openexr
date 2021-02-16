@@ -116,9 +116,7 @@ static U *dynamic_cast_attr (Attribute *a)
     const auto &aid = typeid(*a);
     const auto &uid = typeid(U);
     // check the fast tests first before comparing names...
-    if (aid == uid ||
-        (aid.hash_code() == uid.hash_code() &&
-         aid.name() == uid.name()))
+    if (aid == uid || !strcmp(aid.name(), uid.name()))
     {
         return static_cast<U *>( a );
     }
