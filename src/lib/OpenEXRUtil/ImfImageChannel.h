@@ -24,6 +24,9 @@
 #include <ImathBox.h>
 #include <half.h>
 
+#include <typeinfo>
+#include <cstring>
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class ImageLevel;
@@ -120,9 +123,7 @@ static U *dynamic_cast_channel (ImageChannel *a)
     const auto &aid = typeid(*a);
     const auto &uid = typeid(U);
     // check the fast tests first before comparing names...
-    if (aid == uid ||
-        (aid.hash_code() == uid.hash_code() &&
-         aid.name() == uid.name()))
+    if (aid == uid || !strcmp(aid.name(), uid.name()))
     {
         return static_cast<U *>( a );
     }
