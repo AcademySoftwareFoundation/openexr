@@ -38,6 +38,37 @@ const int gMaxSamplesPerDeepPixel = 1000;
 const int gMaxSamplesPerScanline = 1<<12;
 
 //
+// limits for reduceTime mode
+//
+const int gTargetPixelsToRead = 1<<28;
+const int gMaxScanlinesToRead = 1<<20;
+
+
+
+
+//
+// compute row stride appropriate to process files quickly
+// only used for the 'Rgba' interfaces, which read potentially non-existant channels
+//
+//
+
+int
+getStep( const Box2i &dw , bool reduceTime)
+{
+
+    if (reduceTime)
+    {
+        size_t rowCount = (dw.max.y - dw.min.y + 1);
+        size_t pixelCount = rowCount * (dw.max.x - dw.min.x + 1);
+        return  max( 1 , max ( static_cast<int>(pixelCount / gTargetPixelsToRead) , static_cast<int>(rowCount / gMaxScanlinesToRead) ) );
+    }
+    else
+    {
+        return 1;
+    }
+
+}
+//
 // read image or part using the Rgba interface
 //
 template<class T> bool
@@ -61,7 +92,7 @@ readRgba(T& in, bool reduceMemory , bool reduceTime)
         Array<Rgba> pixels (w);
         in.setFrameBuffer (&pixels[-dx], 1, 0);
 
-        int step = 1;
+        int step = getStep( dw , reduceTime );
 
         //
         // try reading scanlines. Continue reading scanlines
