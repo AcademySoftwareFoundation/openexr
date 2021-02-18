@@ -7,7 +7,6 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
-OpenEXR_includedir=@includedir@/OpenEXR
 libsuffix=@LIB_SUFFIX_DASH@
 
 Name: OpenEXR
@@ -15,6 +14,6 @@ Description: OpenEXR image library
 Version: @OPENEXR_VERSION@
 
 Libs: -L${libdir} -lOpenEXR${libsuffix}
-Cflags: -I${OpenEXR_includedir}
+Cflags: -I${includedir}
 Requires: IlmBase
 Libs.private: @zlib_link@
