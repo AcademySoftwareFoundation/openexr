@@ -716,6 +716,7 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
        }
 
         bool widePart = false;
+        bool largeTiles = false;
         Box2i b = in.header( part ).dataWindow();
 
          //
@@ -736,9 +737,15 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
         //
         if (isTiled(in.header( part ).type()))
         {
-            if ( in.header( part ).tileDescription().ySize *  (b.max.x-b.min.x+1) > gMaxTilePixelsPerScanline )
+            const TileDescription& tileDescription = in.header( part ).tileDescription();
+            int tilesPerScanline = (b.max.x-b.min.x + tileDescription.xSize) / tileDescription.xSize;
+            if ( tileDescription.ySize * tileDescription.xSize * tilesPerScanline > gMaxTilePixelsPerScanline )
             {
                 widePart = true;
+            }
+            if( tileDescription.ySize * tileDescription.xSize > gMaxTileSize)
+            {
+                 largeTiles = true;
             }
         }
 
@@ -762,7 +769,8 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
             }
        }
 
-       {
+        if (!reduceMemory || !largeTiles)
+        {
             bool gotThrow = false;
 
             try
@@ -804,6 +812,7 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
             }
        }
 
+       if (!reduceMemory || !largeTiles)
        {
             bool gotThrow = false;
 
@@ -970,7 +979,8 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
          if (isTiled(firstPartType))
          {
              const TileDescription& tileDescription = multi.header(0).tileDescription();
-             if ( tileDescription.ySize *  (b.max.x-b.min.x+1) > gMaxTilePixelsPerScanline )
+             int tilesPerScanline = (b.max.x-b.min.x + tileDescription.xSize) / tileDescription.xSize;
+             if ( tileDescription.ySize * tileDescription.xSize * tilesPerScanline > gMaxTilePixelsPerScanline )
              {
                  firstPartWide = true;
              }
