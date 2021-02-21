@@ -200,7 +200,7 @@ class MultiPartInputFile;
 //
 
 struct DeepTiledInputFile::Data
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     : public std::mutex
 #endif
 {
@@ -1114,7 +1114,7 @@ DeepTiledInputFile::version () const
 void
 DeepTiledInputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     //
@@ -1263,7 +1263,7 @@ DeepTiledInputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 const DeepFrameBuffer &
 DeepTiledInputFile::frameBuffer () const
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     return _data->frameBuffer;
@@ -1286,7 +1286,7 @@ DeepTiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2, int lx, int l
 
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
         if (_data->slices.size() == 0)
@@ -1432,7 +1432,7 @@ DeepTiledInputFile::rawTileData (int &dx, int &dy,
         lx << ", " << ly << ") is missing.");
      }
      
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
      std::lock_guard<std::mutex> lock(*_data->_streamData);
 #endif
      if (_data->_streamData->is->tellg() != tileOffset)
@@ -1741,7 +1741,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
 
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
         savedFilePos = _data->_streamData->is->tellg();

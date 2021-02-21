@@ -12,5 +12,6 @@ openexr_define_library(IexMath
     IexMathFpu.h
     IexMathIeeeExc.h
   DEPENDENCIES
+    OpenEXR::Config
     OpenEXR::Iex
   )

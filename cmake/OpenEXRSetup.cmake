@@ -27,14 +27,15 @@ set(OPENEXR_PACKAGE_NAME "OpenEXR ${OPENEXR_VERSION}" CACHE STRING "Public strin
 
 # Namespace-related settings, allows one to customize the
 # namespace generated, and to version the namespaces
-set(ILMBASE_NAMESPACE_CUSTOM "0" CACHE STRING "Whether the namespace has been customized (so external users know)")
-set(ILMBASE_INTERNAL_IEX_NAMESPACE "Iex_${ILMBASE_VERSION_API}" CACHE STRING "Real namespace for Iex that will end up in compiled symbols")
-set(ILMBASE_INTERNAL_ILMTHREAD_NAMESPACE "IlmThread_${ILMBASE_VERSION_API}" CACHE STRING "Real namespace for IlmThread that will end up in compiled symbols")
-set(ILMBASE_IEX_NAMESPACE "Iex" CACHE STRING "Public namespace alias for Iex")
-set(ILMBASE_ILMTHREAD_NAMESPACE "IlmThread" CACHE STRING "Public namespace alias for IlmThread")
-set(ILMBASE_PACKAGE_NAME "IlmBase ${ILMBASE_VERSION}" CACHE STRING "Public string / label for displaying package")
+set(ILMTHREAD_NAMESPACE_CUSTOM "0" CACHE STRING "Whether the namespace has been customized (so external users know)")
+set(ILMTHREAD_INTERNAL_NAMESPACE "IlmThread_${OPENEXR_VERSION_API}" CACHE STRING "Real namespace for IlmThread that will end up in compiled symbols")
+set(ILMTHREAD_NAMESPACE "IlmThread" CACHE STRING "Public namespace alias for IlmThread")
 
-# Whether to generate and install a pkg-config file OpenEXR.pc and IlmBase.pc
+set(IEX_NAMESPACE_CUSTOM "0" CACHE STRING "Whether the namespace has been customized (so external users know)")
+set(IEX_INTERNAL_NAMESPACE "Iex_${OPENEXR_VERSION_API}" CACHE STRING "Real namespace for Iex that will end up in compiled symbols")
+set(IEX_NAMESPACE "Iex" CACHE STRING "Public namespace alias for Iex")
+
+# Whether to generate and install a pkg-config file OpenEXR.pc
 if (WIN32)
 option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" OFF)
 else()

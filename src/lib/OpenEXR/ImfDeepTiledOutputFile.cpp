@@ -1264,7 +1264,7 @@ DeepTiledOutputFile::~DeepTiledOutputFile ()
     if (_data)
     {
         {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
             std::lock_guard<std::mutex> lock(*_data->_streamData);
 #endif
             Int64 originalPosition = _data->_streamData->os->tellp();
@@ -1326,7 +1326,7 @@ DeepTiledOutputFile::header () const
 void
 DeepTiledOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     //
@@ -1437,7 +1437,7 @@ DeepTiledOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 const DeepFrameBuffer &
 DeepTiledOutputFile::frameBuffer () const
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     return _data->frameBuffer;
@@ -1450,7 +1450,7 @@ DeepTiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
 {
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
 
@@ -1722,7 +1722,7 @@ DeepTiledOutputFile::copyPixels (DeepTiledInputFile &in)
  
     int numAllTiles = in.totalTiles();                              
                               
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     //
@@ -1994,7 +1994,7 @@ DeepTiledOutputFile::isValidTile (int dx, int dy, int lx, int ly) const
 void
 DeepTiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     if (_data->previewPosition <= 0)
@@ -2047,7 +2047,7 @@ DeepTiledOutputFile::breakTile
      int length,
      char c)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     Int64 position = _data->tileOffsets (dx, dy, lx, ly);

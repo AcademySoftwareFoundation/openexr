@@ -74,7 +74,7 @@ using IMATH_NAMESPACE::modp;
 //
 
 struct InputFile::Data
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     : public std::mutex
 #endif
 {
@@ -750,7 +750,7 @@ InputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
     if (_data->isTiled)
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data);
 #endif
 	//
@@ -887,7 +887,7 @@ InputFile::frameBuffer () const
     }
     else if(_data->isTiled)
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data);
 #endif
         return _data->tFileBuffer;
@@ -931,7 +931,7 @@ InputFile::readPixels (int scanLine1, int scanLine2)
     }
     else if (_data->isTiled)
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data);
 #endif
         bufferedReadPixels (_data, scanLine1, scanLine2);

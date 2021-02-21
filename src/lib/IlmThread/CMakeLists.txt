@@ -21,6 +21,7 @@ openexr_define_library(IlmThread
     IlmThreadExport.h
     IlmThreadForward.h
   DEPENDENCIES
+    OpenEXR::Config
     OpenEXR::Iex
 )
 

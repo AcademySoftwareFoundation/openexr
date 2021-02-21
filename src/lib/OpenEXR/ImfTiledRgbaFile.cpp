@@ -52,7 +52,7 @@
 #include "Iex.h"
 #include "ImfNamespace.h"
 
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #include <mutex>
 #endif
 
@@ -156,7 +156,7 @@ ywFromHeader (const Header &header)
 
 
 class TiledRgbaOutputFile::ToYa
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     : public std::mutex
 #endif
 {
@@ -398,7 +398,7 @@ TiledRgbaOutputFile::setFrameBuffer (const Rgba *base,
 {
     if (_toYa)
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_toYa);
 #endif
 	_toYa->setFrameBuffer (base, xStride, yStride);
@@ -607,7 +607,7 @@ TiledRgbaOutputFile::writeTile (int dx, int dy, int l)
 {
     if (_toYa)
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_toYa);
 #endif
 	_toYa->writeTile (dx, dy, l, l);
@@ -624,7 +624,7 @@ TiledRgbaOutputFile::writeTile (int dx, int dy, int lx, int ly)
 {
     if (_toYa)
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_toYa);
 #endif
 	_toYa->writeTile (dx, dy, lx, ly);
@@ -642,7 +642,7 @@ TiledRgbaOutputFile::writeTiles
 {
     if (_toYa)
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_toYa);
 #endif
         for (int dy = dyMin; dy <= dyMax; dy++)
@@ -664,7 +664,7 @@ TiledRgbaOutputFile::writeTiles
 
 
 class TiledRgbaInputFile::FromYa
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     : public std::mutex
 #endif
 {
@@ -849,7 +849,7 @@ TiledRgbaInputFile::setFrameBuffer (Rgba *base, size_t xStride, size_t yStride)
 {
     if (_fromYa)
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_fromYa);
 #endif
 	_fromYa->setFrameBuffer (base, xStride, yStride, _channelNamePrefix);
@@ -1118,7 +1118,7 @@ TiledRgbaInputFile::readTile (int dx, int dy, int l)
 {
     if (_fromYa)
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_fromYa);
 #endif
 	_fromYa->readTile (dx, dy, l, l);
@@ -1135,7 +1135,7 @@ TiledRgbaInputFile::readTile (int dx, int dy, int lx, int ly)
 {
     if (_fromYa)
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_fromYa);
 #endif
 	_fromYa->readTile (dx, dy, lx, ly);
@@ -1153,7 +1153,7 @@ TiledRgbaInputFile::readTiles (int dxMin, int dxMax, int dyMin, int dyMax,
 {
     if (_fromYa)
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_fromYa);
 #endif
         for (int dy = dyMin; dy <= dyMax; dy++)

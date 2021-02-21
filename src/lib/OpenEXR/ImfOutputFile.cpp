@@ -861,7 +861,7 @@ OutputFile::~OutputFile ()
     if (_data)
     {
         {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
             std::lock_guard<std::mutex> lock(*_data->_streamData);
 #endif
             Int64 originalPosition = _data->_streamData->os->tellp();
@@ -919,7 +919,7 @@ OutputFile::header () const
 void	
 OutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     //
@@ -1012,7 +1012,7 @@ OutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 OutputFile::frameBuffer () const
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     return _data->frameBuffer;
@@ -1024,7 +1024,7 @@ OutputFile::writePixels (int numScanLines)
 {
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
         if (_data->slices.size() == 0)
@@ -1248,7 +1248,7 @@ OutputFile::writePixels (int numScanLines)
 int	
 OutputFile::currentScanLine () const
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     return _data->currentScanLine;
@@ -1258,7 +1258,7 @@ OutputFile::currentScanLine () const
 void	
 OutputFile::copyPixels (InputFile &in)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     //
@@ -1349,7 +1349,7 @@ OutputFile::copyPixels( InputPart & in)
 void
 OutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     if (_data->previewPosition <= 0)
@@ -1397,7 +1397,7 @@ OutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 void	
 OutputFile::breakScanLine  (int y, int offset, int length, char c)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     Int64 position = 

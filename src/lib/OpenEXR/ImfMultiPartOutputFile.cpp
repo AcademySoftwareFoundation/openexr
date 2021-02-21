@@ -321,7 +321,7 @@ template <class T>
 T*
 MultiPartOutputFile::getOutputPart(int partNumber)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock(*_data);
 #endif
     if (_data->_outputFiles.find(partNumber) == _data->_outputFiles.end())

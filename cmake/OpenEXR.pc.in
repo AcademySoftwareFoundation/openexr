@@ -15,6 +15,6 @@ Description: OpenEXR image library
 Version: @OPENEXR_VERSION@
 
 Libs: -L${libdir} -lOpenEXR${libsuffix}
-Cflags: -I${OpenEXR_includedir}
-Requires: IlmBase
+Cflags: -I${includedir}
+Requires: Imath
 Libs.private: @zlib_link@

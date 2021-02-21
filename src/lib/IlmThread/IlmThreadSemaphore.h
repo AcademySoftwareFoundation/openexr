@@ -44,11 +44,11 @@
 
 #include "IlmThreadExport.h"
 
-#include "IlmBaseConfig.h"
+#include "IlmThreadConfig.h"
 #include "IlmThreadNamespace.h"
 
-#if ILMBASE_THREADING_ENABLED
-#   if ILMBASE_HAVE_POSIX_SEMAPHORES
+#if ILMTHREAD_THREADING_ENABLED
+#   if ILMTHREAD_HAVE_POSIX_SEMAPHORES
 #      include <semaphore.h>
 #   elif defined(__APPLE__)
 #      include <dispatch/dispatch.h>
@@ -81,7 +81,7 @@ class ILMTHREAD_EXPORT Semaphore
 
   private:
 
-#if ILMBASE_HAVE_POSIX_SEMAPHORES
+#if ILMTHREAD_HAVE_POSIX_SEMAPHORES
 
 	mutable sem_t _semaphore;
 
@@ -92,7 +92,7 @@ class ILMTHREAD_EXPORT Semaphore
 
 	mutable HANDLE _semaphore;
 
-#elif ILMBASE_THREADING_ENABLED
+#elif ILMTHREAD_THREADING_ENABLED
 	//
 	// If the platform has threads but no semapohores,
 	// then we implement them ourselves using condition variables

@@ -63,7 +63,7 @@
 #include <IlmThread.h>
 #include <ImfTiledMisc.h>
 
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #include <mutex>
 #endif
 
@@ -73,7 +73,7 @@ using namespace std;
 using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
 
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 namespace
 {
 
@@ -811,7 +811,7 @@ testWriteRead (int partNumber,
 }
 
 } // namespace
-#endif // ILMBASE_THREADING_ENABLED
+#endif // ILMTHREAD_THREADING_ENABLED
 
 void testMultiPartThreading (const std::string & tempDir)
 {
@@ -824,7 +824,7 @@ void testMultiPartThreading (const std::string & tempDir)
             cout << "   Threading not supported!" << endl << endl;
             return;
         }
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         random_reseed(1);
 
         int numThreads = ThreadPool::globalThreadPool().numThreads();

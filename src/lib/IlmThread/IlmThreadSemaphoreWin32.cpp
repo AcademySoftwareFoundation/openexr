@@ -38,9 +38,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmBaseConfig.h"
+#include "IlmThreadConfig.h"
 
-#if (defined(_WIN32) || defined(_WIN64)) && !ILMBASE_HAVE_POSIX_SEMAPHORES
+#if (defined(_WIN32) || defined(_WIN64)) && !ILMTHREAD_HAVE_POSIX_SEMAPHORES
 
 #include "IlmThreadSemaphore.h"
 #include "Iex.h"

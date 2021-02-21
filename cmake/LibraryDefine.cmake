@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright Contributors to the OpenEXR Project.
 
-# NB: This function has a number if IlmBase specific names / variables
+# NB: This function has a number of Imath-specific names/variables
 # in it, so be careful copying...
 function(OPENEXR_DEFINE_LIBRARY libname)
   set(options)
@@ -20,7 +20,7 @@ function(OPENEXR_DEFINE_LIBRARY libname)
     set(use_objlib)
   endif()
   if (MSVC)
-    set(_ilmbase_extra_flags "/EHsc")
+    set(_imath_extra_flags "/EHsc")
   endif()
   if(use_objlib)
     set(objlib ${libname}_Object)
@@ -56,8 +56,8 @@ function(OPENEXR_DEFINE_LIBRARY libname)
     CXX_EXTENSIONS OFF
     POSITION_INDEPENDENT_CODE ON
   )
-  if (_ilmbase_extra_flags)
-    target_compile_options(${objlib} PUBLIC ${_ilmbase_extra_flags})
+  if (_imath_extra_flags)
+    target_compile_options(${objlib} PUBLIC ${_imath_extra_flags})
   endif()
   set_property(TARGET ${objlib} PROPERTY PUBLIC_HEADER ${OPENEXR_CURLIB_HEADERS})
 

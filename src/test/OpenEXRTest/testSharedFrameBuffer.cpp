@@ -59,7 +59,7 @@ using namespace IMATH_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
 
 
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 namespace {
 
 Rand48 rand1 (27);
@@ -314,7 +314,7 @@ testSharedFrameBuffer (const std::string &tempDir)
             return;
         }
                 
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 	const int W = 1371;
 	const int H = 159;
         

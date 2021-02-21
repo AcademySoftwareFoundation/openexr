@@ -35,17 +35,17 @@
 #ifndef INCLUDED_ILMTHREADFORWARD_H
 #define INCLUDED_ILMTHREADFORWARD_H
 
-#include "IlmBaseConfig.h"
+#include "IlmThreadConfig.h"
 #include "IlmThreadNamespace.h"
 
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 namespace std { class mutex; }
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class Thread;
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 using Mutex = std::mutex;
 #else
 class Mutex;

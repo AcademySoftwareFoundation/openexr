@@ -71,7 +71,7 @@
 
 #include "ImfNamespace.h"
 
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #    include <mutex>
 #endif
 
@@ -1077,7 +1077,7 @@ TiledOutputFile::~TiledOutputFile ()
     if (_data)
     {
         {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
             std::lock_guard<std::mutex> lock(*_streamData);
 #endif
             Int64 originalPosition = _streamData->os->tellp();
@@ -1134,7 +1134,7 @@ TiledOutputFile::header () const
 void	
 TiledOutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
     //
@@ -1217,7 +1217,7 @@ TiledOutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 TiledOutputFile::frameBuffer () const
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
     return _data->frameBuffer;
@@ -1230,7 +1230,7 @@ TiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
 {
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_streamData);
 #endif
         if (_data->slices.size() == 0)
@@ -1442,7 +1442,7 @@ TiledOutputFile::writeTile (int dx, int dy, int l)
 void	
 TiledOutputFile::copyPixels (TiledInputFile &in)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
     //
@@ -1798,7 +1798,7 @@ TiledOutputFile::isValidTile (int dx, int dy, int lx, int ly) const
 void
 TiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
     if (_data->previewPosition <= 0)
@@ -1851,7 +1851,7 @@ TiledOutputFile::breakTile
      int length,
      char c)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
     Int64 position = _data->tileOffsets (dx, dy, lx, ly);

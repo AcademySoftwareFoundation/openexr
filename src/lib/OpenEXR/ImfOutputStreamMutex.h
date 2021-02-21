@@ -39,9 +39,9 @@
 #include "ImfGenericOutputFile.h"
 #include "ImfNamespace.h"
 
-#include "IlmBaseConfig.h"
+#include "IlmThreadConfig.h"
 
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #include <mutex>
 #endif
 
@@ -51,7 +51,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // Used to wrap OPENEXR_IMF_INTERNAL_NAMESPACE::OStream as a Mutex.
 //
 struct OutputStreamMutex
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     : public std::mutex
 #endif
 {

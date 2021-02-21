@@ -39,9 +39,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmBaseConfig.h"
+#include "IlmThreadConfig.h"
 
-#if !(ILMBASE_THREADING_ENABLED)
+#if !(ILMTHREAD_THREADING_ENABLED)
 
 #include "IlmThreadSemaphore.h"
 

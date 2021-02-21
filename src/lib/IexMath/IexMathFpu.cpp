@@ -42,7 +42,7 @@
 #include "IexMathFpu.h"
 
 #include <stdint.h>
-#include <IlmBaseConfig.h>
+#include <IexConfig.h>
 #include <stdio.h>
 
 #if 0
@@ -52,10 +52,10 @@
     #define debug(x)
 #endif
 
-#include <IlmBaseConfigInternal.h>
+#include <IexConfigInternal.h>
 #if defined(HAVE_UCONTEXT_H) &&                                                \
-    (defined(ILMBASE_HAVE_SIGCONTEXT_CONTROL_REGISTER_SUPPORT) ||              \
-     defined(ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT))
+    (defined(IEX_HAVE_SIGCONTEXT_CONTROL_REGISTER_SUPPORT) ||              \
+     defined(IEX_HAVE_CONTROL_REGISTER_SUPPORT))
 
 #        include <ucontext.h>
 #        include <signal.h>
@@ -258,7 +258,7 @@ const uint16_t cwRestoreMask = ~((3 << 10) | (3 << 8));
 const uint16_t cwRestoreVal = (0 << 10) | (3 << 8);
 
 
-#ifdef ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT
+#ifdef IEX_HAVE_CONTROL_REGISTER_SUPPORT
 
 inline void
 restoreControlRegs (const ucontext_t & ucon, bool clearExceptions)
