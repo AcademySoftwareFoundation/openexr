@@ -31,11 +31,11 @@ using Imath::Box2i;
 //
 // limits for reduceMemory mode
 //
-const int gMaxScanlineWidth= 1000000;
-const int gMaxTilePixelsPerScanline = 8000000;
-const int gMaxTileSize = 1000*1000;
-const int gMaxSamplesPerDeepPixel = 1000;
-const int gMaxSamplesPerScanline = 1<<12;
+const Int64 gMaxScanlineWidth= 1000000;
+const Int64 gMaxTilePixelsPerScanline = 8000000;
+const Int64 gMaxTileSize = 1000*1000;
+const Int64 gMaxSamplesPerDeepPixel = 1000;
+const Int64 gMaxSamplesPerScanline = 1<<12;
 
 //
 // limits for reduceTime mode
@@ -718,6 +718,7 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
         bool widePart = false;
         bool largeTiles = false;
         Box2i b = in.header( part ).dataWindow();
+        Int64 imageWidth = static_cast<Int64>(b.max.x) - static_cast<Int64>(b.min.x) + 1ll;
 
          //
          // very wide scanline parts take excessive memory to read.
@@ -725,7 +726,7 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
          //
 
 
-        if (b.max.x - b.min.x > gMaxScanlineWidth )
+        if ( imageWidth > gMaxScanlineWidth )
         {
             widePart = true;
 
@@ -738,12 +739,15 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
         if (isTiled(in.header( part ).type()))
         {
             const TileDescription& tileDescription = in.header( part ).tileDescription();
-            int tilesPerScanline = (b.max.x-b.min.x + tileDescription.xSize) / tileDescription.xSize;
-            if ( tileDescription.ySize * tileDescription.xSize * tilesPerScanline > gMaxTilePixelsPerScanline )
+
+            Int64 tilesPerScanline = ( imageWidth + tileDescription.xSize - 1ll) / tileDescription.xSize;
+            Int64 tileSize = static_cast<Int64>(tileDescription.xSize) * static_cast<Int64>(tileDescription.ySize);
+
+            if ( tileSize * tilesPerScanline > gMaxTilePixelsPerScanline )
             {
                 widePart = true;
             }
-            if( tileDescription.ySize * tileDescription.xSize > gMaxTileSize)
+            if( tileSize > gMaxTileSize)
             {
                  largeTiles = true;
             }
@@ -961,9 +965,10 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
       {
          MultiPartInputFile multi(source);
          Box2i b = multi.header(0).dataWindow();
+         Int64 imageWidth = static_cast<Int64>(b.max.x) - static_cast<Int64>(b.min.x) + 1ll;
 
          // confirm first part is small enough to read without using excessive memory
-         if (b.max.x - b.min.x <= gMaxScanlineWidth )
+         if ( imageWidth <= gMaxScanlineWidth )
          {
              firstPartWide = false;
          }
@@ -979,8 +984,9 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
          if (isTiled(firstPartType))
          {
              const TileDescription& tileDescription = multi.header(0).tileDescription();
-             int tilesPerScanline = (b.max.x-b.min.x + tileDescription.xSize) / tileDescription.xSize;
-             if ( tileDescription.ySize * tileDescription.xSize * tilesPerScanline > gMaxTilePixelsPerScanline )
+             Int64 tilesPerScanline = ( imageWidth + tileDescription.xSize - 1ll) / tileDescription.xSize;
+             Int64 tileSize = static_cast<Int64>(tileDescription.xSize) * static_cast<Int64>(tileDescription.ySize);
+             if ( tileSize * tilesPerScanline > gMaxTilePixelsPerScanline )
              {
                  firstPartWide = true;
              }
