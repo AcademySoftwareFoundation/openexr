@@ -530,10 +530,16 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
         DeepFrameBuffer frameBuffer;
 
         //
-        // use 64 bit integer arithmetic instead of pointer arithmetic to compute offset into array. Pointer arithmetic may overflow
         // memOffset is difference in bytes between theoretical address of pixel (0,0) and the origin of the data window
         //
         Int64 memOffset = sizeof(unsigned int) * (static_cast<Int64>(dataWindow.min.x) + static_cast<Int64>(dataWindow.min.y) * width);
+
+        //
+        // Use integer arithmetic instead of pointer arithmetic to compute offset into array.
+        // if memOffset is larger than base, then the computed pointer is negative, which is reported as undefined behavior
+        // Instead, integers are used for computation which behaves as expected an all known architectures
+        //
+
         intptr_t base = reinterpret_cast<intptr_t>(&localSampleCount[0][0] );
         frameBuffer.insertSampleCountSlice (Slice (UINT,
                                                    reinterpret_cast<char*> (base - memOffset),
