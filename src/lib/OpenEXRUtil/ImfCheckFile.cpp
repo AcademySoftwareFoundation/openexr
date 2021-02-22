@@ -90,7 +90,8 @@ readRgba(T& in, bool reduceMemory , bool reduceTime)
         }
 
         Array<Rgba> pixels (w);
-        in.setFrameBuffer (&pixels[-dx], 1, 0);
+        intptr_t base = reinterpret_cast<intptr_t>(&pixels[0]);
+        in.setFrameBuffer (reinterpret_cast<Rgba*>(base - dx*sizeof(Rgba)), 1, 0);
 
         int step = getStep( dw , reduceTime );
 
@@ -154,17 +155,21 @@ readScanline(T& in, bool reduceMemory , bool reduceTime)
         vector<float> floatChannels(w);
         vector<unsigned int> uintChannels(w);
 
+        intptr_t halfData = reinterpret_cast<intptr_t>(halfChannels.data());
+        intptr_t floatData = reinterpret_cast<intptr_t>(floatChannels.data());
+        intptr_t uintData = reinterpret_cast<intptr_t>(uintChannels.data());
+
         int channelIndex = 0;
         const ChannelList& channelList = in.header().channels();
         for (ChannelList::ConstIterator c = channelList.begin() ; c != channelList.end() ; ++c )
         {
             switch (channelIndex % 3)
             {
-                case 0 : i.insert(c.name(),Slice(HALF, (char*)&halfChannels[-dx/c.channel().xSampling ] , sizeof(half) , 0 , c.channel().xSampling , c.channel().ySampling ));
+                case 0 : i.insert(c.name(),Slice(HALF, (char*) (halfData - sizeof(half)*dx/c.channel().xSampling)  , sizeof(half) , 0 , c.channel().xSampling , c.channel().ySampling ));
                 break;
-                case 1 : i.insert(c.name(),Slice(FLOAT, (char*)&floatChannels[-dx/c.channel().xSampling ] , sizeof(float) , 0 , c.channel().xSampling , c.channel().ySampling ));
+                case 1 : i.insert(c.name(),Slice(FLOAT, (char*) (floatData - sizeof(float)*dx/c.channel().xSampling)  , sizeof(float) , 0 , c.channel().xSampling , c.channel().ySampling ));
                 break;
-                case 2 : i.insert(c.name(),Slice(UINT, (char*)&uintChannels[-dx/c.channel().xSampling ] , sizeof(unsigned int) , 0 , c.channel().xSampling , c.channel().ySampling ));
+                case 2 : i.insert(c.name(),Slice(UINT, (char*) (uintData - sizeof(unsigned int)*dx/c.channel().xSampling)  , sizeof(unsigned int) , 0 , c.channel().xSampling , c.channel().ySampling ));
                 break;
             }
             channelIndex ++;
@@ -443,7 +448,7 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
                     for (int k = 0; k < channelCount; k++)
                     {
 
-                        if (reduceMemory && localSampleCount[j] > gMaxSamplesPerDeepPixel )
+                        if (localSampleCount[j]==0 || ( reduceMemory && localSampleCount[j] > gMaxSamplesPerDeepPixel ) )
                         {
                             data[k][j] = nullptr;
                         }
@@ -497,8 +502,11 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
 
         Box2i dataWindow = fileHeader.dataWindow();
 
-        int height = dataWindow.size().y+1;
-        int width = dataWindow.size().x+1;
+        //
+        // use Int64 for dimensions, since dataWindow+1 could overflow int storage
+        //
+        Int64 height = static_cast<Int64>(dataWindow.size().y)+1;
+        Int64 width = static_cast<Int64>(dataWindow.size().x)+1;
 
         const TileDescription& td = in.header().tileDescription();
         int tileWidth = td.xSize;
@@ -521,9 +529,14 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
 
         DeepFrameBuffer frameBuffer;
 
-        int memOffset = dataWindow.min.x + dataWindow.min.y * width;
+        //
+        // use 64 bit integer arithmetic instead of pointer arithmetic to compute offset into array. Pointer arithmetic may overflow
+        // memOffset is difference in bytes between theoretical address of pixel (0,0) and the origin of the data window
+        //
+        Int64 memOffset = sizeof(unsigned int) * (static_cast<Int64>(dataWindow.min.x) + static_cast<Int64>(dataWindow.min.y) * width);
+        intptr_t base = reinterpret_cast<intptr_t>(&localSampleCount[0][0] );
         frameBuffer.insertSampleCountSlice (Slice (UINT,
-                                                   (char *) (&localSampleCount[0][0] - memOffset),
+                                                   reinterpret_cast<char*> (base - memOffset),
                                                    sizeof (unsigned int) * 1,
                                                    sizeof (unsigned int) * width,
                                                    0.0, // fill
@@ -539,10 +552,11 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
              int sampleSize  = sizeof (float);
 
              int pointerSize = sizeof (char *);
+             intptr_t base = reinterpret_cast<intptr_t>(&data[channel][0][0]);
 
              frameBuffer.insert (i.name(),
                                  DeepSlice (FLOAT,
-                                            (char *) (&data[channel][0][0] - memOffset),
+                                            reinterpret_cast<char*> (base- memOffset),
                                             pointerSize * 1,
                                             pointerSize * width,
                                             sampleSize,
