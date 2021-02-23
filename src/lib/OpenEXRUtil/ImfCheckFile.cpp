@@ -165,11 +165,11 @@ readScanline(T& in, bool reduceMemory , bool reduceTime)
         {
             switch (channelIndex % 3)
             {
-                case 0 : i.insert(c.name(),Slice(HALF, (char*) (halfData - sizeof(half)*dx/c.channel().xSampling)  , sizeof(half) , 0 , c.channel().xSampling , c.channel().ySampling ));
+                case 0 : i.insert(c.name(),Slice(HALF, (char*) (halfData - sizeof(half)*(dx/c.channel().xSampling))  , sizeof(half) , 0 , c.channel().xSampling , c.channel().ySampling ));
                 break;
-                case 1 : i.insert(c.name(),Slice(FLOAT, (char*) (floatData - sizeof(float)*dx/c.channel().xSampling)  , sizeof(float) , 0 , c.channel().xSampling , c.channel().ySampling ));
+                case 1 : i.insert(c.name(),Slice(FLOAT, (char*) (floatData - sizeof(float)*(dx/c.channel().xSampling))  , sizeof(float) , 0 , c.channel().xSampling , c.channel().ySampling ));
                 break;
-                case 2 : i.insert(c.name(),Slice(UINT, (char*) (uintData - sizeof(unsigned int)*dx/c.channel().xSampling)  , sizeof(unsigned int) , 0 , c.channel().xSampling , c.channel().ySampling ));
+                case 2 : i.insert(c.name(),Slice(UINT, (char*) (uintData - sizeof(unsigned int)*(dx/c.channel().xSampling))  , sizeof(unsigned int) , 0 , c.channel().xSampling , c.channel().ySampling ));
                 break;
             }
             channelIndex ++;
