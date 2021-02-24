@@ -50,6 +50,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <limits>
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
