@@ -180,7 +180,7 @@ template<class T>
 T*
 MultiPartInputFile::getInputPart(int partNumber)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock(*_data);
 #endif
     if (_data->_inputFiles.find(partNumber) == _data->_inputFiles.end())
@@ -196,7 +196,7 @@ MultiPartInputFile::getInputPart(int partNumber)
 void
 MultiPartInputFile::flushPartCache()
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock(*_data);
 #endif
     while ( _data->_inputFiles.begin() != _data->_inputFiles.end())

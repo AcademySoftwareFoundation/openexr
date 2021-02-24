@@ -2,7 +2,7 @@
 # Copyright Contributors to the OpenEXR Project.
 
 # We require this to get object library link library support
-if(OPENEXR_BUILD_BOTH_STATIC_SHARED OR ILMBASE_BUILD_BOTH_STATIC_SHARED)
+if(OPENEXR_BUILD_BOTH_STATIC_SHARED)
   if (${CMAKE_VERSION} VERSION_LESS "3.12.0")
     message(FATAL_ERROR "CMake 3.12 or newer is required for object library support when building both static and shared libraries")
   endif()

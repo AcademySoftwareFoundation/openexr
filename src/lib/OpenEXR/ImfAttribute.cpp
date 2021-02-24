@@ -45,9 +45,9 @@
 #include <string.h>
 #include <map>
 
-#include <IlmBaseConfig.h>
+#include <IlmThreadConfig.h>
 
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #include <mutex>
 #endif
 
@@ -79,7 +79,7 @@ class LockedTypeMap: public TypeMap
 {
   public:
 
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::mutex mutex;
 #endif
 };
@@ -100,7 +100,7 @@ bool
 Attribute::knownType (const char typeName[])
 {
     LockedTypeMap& tMap = typeMap();
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (tMap.mutex);
 #endif
     return tMap.find (typeName) != tMap.end();
@@ -112,7 +112,7 @@ Attribute::registerAttributeType (const char typeName[],
 			          Attribute *(*newAttribute)())
 {
     LockedTypeMap& tMap = typeMap();
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (tMap.mutex);
 #endif
     if (tMap.find (typeName) != tMap.end())
@@ -128,7 +128,7 @@ void
 Attribute::unRegisterAttributeType (const char typeName[])
 {
     LockedTypeMap& tMap = typeMap();
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (tMap.mutex);
 #endif
     tMap.erase (typeName);
@@ -139,7 +139,7 @@ Attribute *
 Attribute::newAttribute (const char typeName[])
 {
     LockedTypeMap& tMap = typeMap();
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (tMap.mutex);
 #endif
     TypeMap::const_iterator i = tMap.find (typeName);

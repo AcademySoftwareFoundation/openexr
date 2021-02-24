@@ -43,17 +43,17 @@
 //-----------------------------------------------------------------------------
 
 #include "IlmThreadExport.h"
-#include "IlmBaseConfig.h"
+#include "IlmThreadConfig.h"
 #include "IlmThreadNamespace.h"
 
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #include <mutex>
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 
-#if ILMBASE_THREADING_ENABLED
-using Mutex ILMBASE_DEPRECATED ("replace with std::mutex") = std::mutex;
+#if ILMTHREAD_THREADING_ENABLED
+using Mutex ILMTHREAD_DEPRECATED ("replace with std::mutex") = std::mutex;
 
 // unfortunately we can't use std::unique_lock as a replacement for Lock since
 // they have different API. Let us deprecate for now and give people a chance
@@ -62,7 +62,7 @@ class ILMTHREAD_EXPORT Lock
 {
   public:
 
-    ILMBASE_DEPRECATED ("replace with std::lock_guard or std::unique_lock")
+    ILMTHREAD_DEPRECATED ("replace with std::lock_guard or std::unique_lock")
     Lock (const Mutex& m, bool autoLock = true):
         _mutex (const_cast<Mutex &>(m)), _locked (false)
     {

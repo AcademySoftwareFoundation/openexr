@@ -39,9 +39,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmBaseConfig.h"
+#include "IlmThreadConfig.h"
 
-#if ILMBASE_HAVE_POSIX_SEMAPHORES
+#if ILMTHREAD_HAVE_POSIX_SEMAPHORES
 
 #include "IlmThreadSemaphore.h"
 #include "Iex.h"

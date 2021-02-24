@@ -208,7 +208,7 @@ struct sliceOptimizationData
 
 
 struct ScanLineInputFile::Data
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     : public std::mutex
 #endif
 {
@@ -1424,7 +1424,7 @@ detectOptimizationMode (const vector<sliceOptimizationData>& optData)
 void	
 ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
 
@@ -1630,7 +1630,7 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 ScanLineInputFile::frameBuffer () const
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
     return _data->frameBuffer;
@@ -1658,7 +1658,7 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 {
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_streamData);
 #endif
         if (_data->slices.size() == 0)
@@ -1783,7 +1783,7 @@ ScanLineInputFile::rawPixelData (int firstScanLine,
 {
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_streamData);
 #endif
 	if (firstScanLine < _data->minY || firstScanLine > _data->maxY)
@@ -1821,7 +1821,7 @@ void ScanLineInputFile::rawPixelDataToBuffer(int scanLine,
 
   try 
   {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
     if (scanLine < _data->minY || scanLine > _data->maxY) 

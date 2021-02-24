@@ -17,4 +17,6 @@ openexr_define_library(Iex
     IexNamespace.h
     IexExport.h
     IexForward.h
+  DEPENDENCIES
+    OpenEXR::Config
   )

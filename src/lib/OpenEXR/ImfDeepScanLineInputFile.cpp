@@ -194,7 +194,7 @@ LineBuffer::~LineBuffer ()
 
 
 struct DeepScanLineInputFile::Data
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     : public std::mutex
 #endif
 {
@@ -1235,7 +1235,7 @@ DeepScanLineInputFile::version () const
 void
 DeepScanLineInputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     
@@ -1370,7 +1370,7 @@ DeepScanLineInputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 const DeepFrameBuffer &
 DeepScanLineInputFile::frameBuffer () const
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     return _data->frameBuffer;
@@ -1389,7 +1389,7 @@ DeepScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 {
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
         if (_data->slices.size() == 0)
@@ -1545,7 +1545,7 @@ DeepScanLineInputFile::rawPixelData (int firstScanLine,
         THROW (IEX_NAMESPACE::InputExc, "Scan line " << minY << " is missing.");
     
     
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     // enter the lock here - prevent another thread reseeking the file during read
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
@@ -2089,7 +2089,7 @@ DeepScanLineInputFile::readPixelSampleCounts (int scanline1, int scanline2)
     
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
         savedFilePos = _data->_streamData->is->tellg();

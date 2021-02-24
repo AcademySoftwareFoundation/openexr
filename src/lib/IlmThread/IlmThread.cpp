@@ -40,13 +40,13 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmBaseConfig.h"
+#include "IlmThreadConfig.h"
 #include "IlmThread.h"
 #include "Iex.h"
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 
 bool
 supportsThreads ()

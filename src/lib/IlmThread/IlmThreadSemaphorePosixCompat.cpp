@@ -39,10 +39,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmBaseConfig.h"
+#include "IlmThreadConfig.h"
 
-#if ILMBASE_THREADING_ENABLED
-#if ( !(ILMBASE_HAVE_POSIX_SEMAPHORES) && !defined (__APPLE__) && !defined (_WIN32) && !defined (_WIN64) )
+#if ILMTHREAD_THREADING_ENABLED
+#if ( !(ILMTHREAD_HAVE_POSIX_SEMAPHORES) && !defined (__APPLE__) && !defined (_WIN32) && !defined (_WIN64) )
 
 #include "IlmThreadSemaphore.h"
 

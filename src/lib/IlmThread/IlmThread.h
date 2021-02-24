@@ -90,11 +90,11 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmBaseConfig.h"
+#include "IlmThreadConfig.h"
 #include "IlmThreadExport.h"
 #include "IlmThreadNamespace.h"
 
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #include <thread>
 #endif
 
@@ -126,7 +126,7 @@ class Thread
 
   private:
 
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::thread _thread;
 #endif
 

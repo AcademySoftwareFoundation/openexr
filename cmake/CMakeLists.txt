@@ -69,40 +69,40 @@ install(
 )
 
 ###################################################
-####### IlmBaseConfig.h and IlmBaseConfigInternal.h
+####### IexConfig.h and IexConfigInternal.h
 
-check_include_files(ucontext.h ILMBASE_HAVE_UCONTEXT_H)
-if(ILMBASE_HAVE_UCONTEXT_H)
-  # TODO: remove this once we cleanly have ILMBASE_ prefix on all #defines
+check_include_files(ucontext.h IEX_HAVE_UCONTEXT_H)
+if(IEX_HAVE_UCONTEXT_H)
+  # TODO: remove this once we cleanly have IEX_ prefix on all #defines
   set(HAVE_UCONTEXT_H ON)
-  check_struct_has_member("struct _libc_fpstate" mxcsr ucontext.h ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT)
-  if(NOT ILMBASE_HAVE_CONTROL_REGISTER_SUPPORT)
-    check_include_files(asm/sigcontext.h ILMBASE_HAVE_SIGCONTEXT_H)
-    if(ILMBASE_HAVE_SIGCONTEXT_H)
-      check_struct_has_member("struct _fpstate" mxcsr asm/sigcontext.h ILMBASE_HAVE_SIGCONTEXT_CONTROL_REGISTER_SUPPORT)
+  check_struct_has_member("struct _libc_fpstate" mxcsr ucontext.h IEX_HAVE_CONTROL_REGISTER_SUPPORT)
+  if(NOT IEX_HAVE_CONTROL_REGISTER_SUPPORT)
+    check_include_files(asm/sigcontext.h IEX_HAVE_SIGCONTEXT_H)
+    if(IEX_HAVE_SIGCONTEXT_H)
+      check_struct_has_member("struct _fpstate" mxcsr asm/sigcontext.h IEX_HAVE_SIGCONTEXT_CONTROL_REGISTER_SUPPORT)
     endif()
   endif()
 endif()
 
-###check_include_files(pthread.h ILMBASE_HAVE_PTHREAD)
+###check_include_files(pthread.h ILMTHREAD_HAVE_PTHREAD)
 if(OPENEXR_ENABLE_THREADING AND Threads_FOUND)
-  set(ILMBASE_THREADING_ENABLED ON)
+  set(ILMTHREAD_THREADING_ENABLED ON)
   if(CMAKE_HAVE_PTHREAD_H OR CMAKE_USE_PTHREADS_INIT OR CMAKE_HP_PTHREAD_INIT)
-    set(ILMBASE_HAVE_PTHREAD ON)
+    set(ILMTHREAD_HAVE_PTHREAD ON)
   endif()
 
   # we have threads, but do we have posix semaphores for sem_init?
   # should be in pthreads
   if(NOT (APPLE OR (WIN32 AND (NOT MINGW))))
     if(MINGW)
-      check_include_files("pthread_unistd.h;semaphore.h" ILMBASE_HAVE_SEMAPHORE_H)
+      check_include_files("pthread_unistd.h;semaphore.h" ILMTHREAD_HAVE_SEMAPHORE_H)
     else()
-      check_include_files(semaphore.h ILMBASE_HAVE_SEMAPHORE_H)
+      check_include_files(semaphore.h ILMTHREAD_HAVE_SEMAPHORE_H)
     endif()
-    if(ILMBASE_HAVE_SEMAPHORE_H AND ILMBASE_HAVE_PTHREAD)
+    if(ILMTHREAD_HAVE_SEMAPHORE_H AND ILMTHREAD_HAVE_PTHREAD)
       # should just be in libc, so no need for check_library_exists
       set(CMAKE_REQUIRED_FLAGS ${CMAKE_THREAD_LIBS_INIT})
-      check_library_exists(pthread sem_init "" ILMBASE_HAVE_POSIX_SEMAPHORES)
+      check_library_exists(pthread sem_init "" ILMTHREAD_HAVE_POSIX_SEMAPHORES)
       set(CMAKE_REQUIRED_FLAGS)
     endif()
   endif()
@@ -112,8 +112,9 @@ if (OPENEXR_ENABLE_LARGE_STACK)
   set(OPENEXR_HAVE_LARGE_STACK ON)
 endif()
 
-configure_file(IlmBaseConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/IlmBaseConfig.h)
-configure_file(IlmBaseConfigInternal.h.in ${CMAKE_CURRENT_BINARY_DIR}/IlmBaseConfigInternal.h)
+configure_file(IexConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/IexConfig.h)
+configure_file(IexConfigInternal.h.in ${CMAKE_CURRENT_BINARY_DIR}/IexConfigInternal.h)
+configure_file(IlmThreadConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/IlmThreadConfig.h)
 
 ###################################################
 ####### Install public config headers
@@ -121,7 +122,8 @@ configure_file(IlmBaseConfigInternal.h.in ${CMAKE_CURRENT_BINARY_DIR}/IlmBaseCon
 install(
   FILES
     ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h
-    ${CMAKE_CURRENT_BINARY_DIR}/IlmBaseConfig.h
+    ${CMAKE_CURRENT_BINARY_DIR}/IexConfig.h
+    ${CMAKE_CURRENT_BINARY_DIR}/IlmThreadConfig.h
   DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}
 )
@@ -138,14 +140,23 @@ target_include_directories(OpenEXRConfig INTERFACE
 install(TARGETS OpenEXRConfig EXPORT ${PROJECT_NAME})
 add_library(${PROJECT_NAME}::Config ALIAS OpenEXRConfig)
 
-add_library(IlmBaseConfig INTERFACE)
-target_include_directories(IlmBaseConfig INTERFACE
+add_library(IexConfig INTERFACE)
+target_include_directories(IexConfig INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${ILMBASE_OUTPUT_SUBDIR}>)
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}>)
 
-install(TARGETS IlmBaseConfig EXPORT ${PROJECT_NAME})
-add_library(${PROJECT_NAME}::Config ALIAS IlmBaseConfig)
+install(TARGETS IexConfig EXPORT ${PROJECT_NAME})
+add_library(${PROJECT_NAME}::Config ALIAS IexConfig)
+
+add_library(IlmThreadConfig INTERFACE)
+target_include_directories(IlmThreadConfig INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}>)
+
+install(TARGETS IlmThreadConfig EXPORT ${PROJECT_NAME})
+add_library(${PROJECT_NAME}::Config ALIAS IlmThreadConfig)
 
 ###################################################
 ####### Install pkg-config files if requested
@@ -177,7 +188,6 @@ if(OPENEXR_INSTALL_PKG_CONFIG)
     )
   endfunction()
   openexr_pkg_config_help(OpenEXR.pc.in)
-  openexr_pkg_config_help(IlmBase.pc.in)
 else()
   message(STATUS "-- pkg-config generation disabled")
 endif()
