@@ -108,8 +108,9 @@ floatToUint (float f)
     if (isNegative (f) || isNan (f))
 	return 0;
 
-    if (isInfinity (f) || f > static_cast <float> (std::numeric_limits <unsigned int>::max()))
-	return static_cast <float> (std::numeric_limits <unsigned int>::max());
+    constexpr float ui_max = static_cast <float> (std::numeric_limits <unsigned int>::max());
+    if (isInfinity (f) || f > ui_max)
+	return ui_max;
 
     return static_cast <unsigned int> (f);
 }
