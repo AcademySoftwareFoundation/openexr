@@ -46,7 +46,6 @@
 #include "halfLimits.h"
 #include <limits>
 
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 namespace {
@@ -108,9 +107,9 @@ floatToUint (float f)
     if (isNegative (f) || isNan (f))
 	return 0;
 
-    constexpr float ui_max = static_cast <float> (std::numeric_limits <unsigned int>::max());
-    if (isInfinity (f) || f > ui_max)
-	return ui_max;
+    if (isInfinity (f) ||
+        f > static_cast <float> (std::numeric_limits <unsigned int>::max()))
+	return std::numeric_limits<unsigned int>::max();
 
     return static_cast <unsigned int> (f);
 }
