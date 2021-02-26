@@ -1121,7 +1121,7 @@ hufUncompress (const char compressed[],
         FastHufDecoder fhd (ptr, nCompressed - (ptr - compressed), im, iM, iM);
 
         // must be nBytes remaining in buffer
-        if( ptr-compressed  + nBytes > nCompressed)
+        if( ptr-compressed  + nBytes > static_cast<uint64_t>(nCompressed))
         {
             notEnoughData();
             return;
