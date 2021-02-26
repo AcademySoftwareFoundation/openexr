@@ -246,6 +246,11 @@ endif()
 #######################################
 
 # Check to see if Imath is installed outside of the current build directory.
+set(IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING
+    "Repo for auto-build of Imath")
+set(IMATH_TAG "master" CACHE STRING
+    "Tag for auto-build of Imath (branch, tag, or SHA)")
+#TODO: ^^ Release should not clone from master, this is a place holder
 set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-build/config")
 find_package(Imath QUIET)
 set(CMAKE_IGNORE_PATH)
@@ -254,12 +259,12 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
   if (${CMAKE_VERSION} VERSION_LESS "3.11.0")
     message(FATAL_ERROR "CMake 3.11 or newer is required for FetchContent, you must manually install Imath if you are using an earlier version of CMake")
   endif()
-  message(STATUS "Imath was not found, installing from github")
+  message(STATUS "Imath was not found, installing from ${IMATH_REPO} (${IMATH_TAG})")
   
   include(FetchContent)
   FetchContent_Declare(Imath
-    GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/Imath.git
-    GIT_TAG origin/master #TODO: Release should not clone from master, this is a place holder
+    GIT_REPOSITORY ${IMATH_REPO}
+    GIT_TAG ${IMATH_TAG}
     GIT_SHALLOW ON
       )
     
