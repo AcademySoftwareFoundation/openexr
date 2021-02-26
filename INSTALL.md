@@ -119,11 +119,9 @@ the directory in which to install OpenEXR:
 
 The libraries in OpenEXR follow the standard cmake setting of
 ``BUILD_SHARED_LIBS`` to control whether to build static or shared
-libraries. However, there also exists an option
-``OPENEXR_BUILD_BOTH_STATIC_SHARED`` to enable building both shared
-and static libraries as part of one configuration, in addition to
-other customization options. Please see cmake/OpenEXRSetup.cmake for
-these options.
+libraries.
+
+Please see cmake/OpenEXRSetup.cmake for other customization options.
 
 ## Custom Namespaces
 
