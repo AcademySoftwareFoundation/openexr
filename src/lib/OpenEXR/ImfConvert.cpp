@@ -133,7 +133,7 @@ floatToHalf (float f)
 	if (f >  std::numeric_limits<half>::max())
 	    return half::posInf();
 
-	if (f < -std::numeric_limits<half>::max())
+	if (f < std::numeric_limits<half>::lowest())
 	    return half::negInf();
     }
 
