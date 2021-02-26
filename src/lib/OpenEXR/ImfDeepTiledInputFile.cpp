@@ -1015,7 +1015,7 @@ DeepTiledInputFile::initialize ()
 
    if(_data->maxSampleCountTableSize > std::numeric_limits<unsigned int>::max())
    {
-           THROW(IEX_NAMESPACE::ArgExc, "Version " << _data->header.version() << " not supported for deeptiled images in this version of the library");
+       THROW(IEX_NAMESPACE::ArgExc, "Deep tile size exceeds maximum permitted area");
    }
 
 
