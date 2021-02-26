@@ -43,8 +43,8 @@
 #include "ImfConvert.h"
 #include "ImfNamespace.h"
 
-#include <limits.h>
-
+#include "halfLimits.h"
+#include <limits>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -95,9 +95,9 @@ halfToUint (half h)
 	return 0;
 
     if (h.isInfinity())
-	return UINT_MAX;
+	return std::numeric_limits <unsigned int>::max();
 
-    return (unsigned int) h;
+    return static_cast <unsigned int> (h);
 }
 
 
@@ -107,17 +107,18 @@ floatToUint (float f)
     if (isNegative (f) || isNan (f))
 	return 0;
 
-    if (isInfinity (f) || f > UINT_MAX)
-	return UINT_MAX;
+    if (isInfinity (f) ||
+        f > static_cast <float> (std::numeric_limits <unsigned int>::max()))
+	return std::numeric_limits<unsigned int>::max();
 
-    return (unsigned int) f;
+    return static_cast <unsigned int> (f);
 }
 
 
 half	
 uintToHalf (unsigned int ui)
 {
-    if (ui >  HALF_MAX)
+    if (ui >  std::numeric_limits<half>::max())
 	return half::posInf();
 
     return half ((float) ui);
@@ -129,10 +130,10 @@ floatToHalf (float f)
 {
     if (isFinite (f))
     {
-	if (f >  HALF_MAX)
+	if (f >  std::numeric_limits<half>::max())
 	    return half::posInf();
 
-	if (f < -HALF_MAX)
+	if (f < std::numeric_limits<half>::lowest())
 	    return half::negInf();
     }
 
