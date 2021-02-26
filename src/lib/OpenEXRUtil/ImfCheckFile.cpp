@@ -1011,7 +1011,7 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
                  firstPartWide = true;
              }
 
-             if( tileDescription.ySize * tileDescription.xSize <= gMaxTileSize)
+             if( tileSize <= gMaxTileSize)
              {
                  largeTiles = false;
              }

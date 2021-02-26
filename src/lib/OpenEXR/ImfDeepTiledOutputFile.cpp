@@ -71,6 +71,7 @@
 #include <assert.h>
 #include <map>
 #include <algorithm>
+#include <limits>
 
 #include "ImfNamespace.h"
 
@@ -1197,6 +1198,21 @@ DeepTiledOutputFile::initialize (const Header &header)
     _data->minY = dataWindow.min.y;
     _data->maxY = dataWindow.max.y;
 
+   _data->maxSampleCountTableSize = _data->tileDesc.ySize *
+                                     _data->tileDesc.xSize *
+                                     sizeof(int);
+
+    //
+    // impose limit of 2^32 bytes of storage for maxSampleCountTableSize
+    // (disallow files with very large tile areas that would otherwise cause excessive memory allocation)
+    //
+
+    if(_data->maxSampleCountTableSize > std::numeric_limits<unsigned int>::max())
+    {
+        THROW(IEX_NAMESPACE::ArgExc, "Deep tile size exceeds maximum permitted area");
+    }
+
+
     //
     // Precompute level and tile information to speed up utility functions
     //
@@ -1236,9 +1252,6 @@ DeepTiledOutputFile::initialize (const Header &header)
     //ignore the existing value of chunkCount - correct it if it's wrong
     _data->header.setChunkCount(getChunkOffsetTableSize(_data->header));
                                       
-    _data->maxSampleCountTableSize = _data->tileDesc.ySize *
-                                     _data->tileDesc.xSize *
-                                     sizeof(int);
 
                                      
     for (size_t i = 0; i < _data->tileBuffers.size(); i++)

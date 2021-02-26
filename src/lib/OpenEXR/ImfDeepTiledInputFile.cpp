@@ -1001,6 +1001,24 @@ DeepTiledInputFile::initialize ()
     _data->tileDesc = _data->header.tileDescription();
     _data->lineOrder = _data->header.lineOrder();
 
+
+   _data->maxSampleCountTableSize = static_cast<size_t>(_data->tileDesc.ySize) *
+                                    static_cast<size_t>(_data->tileDesc.xSize) *
+                                    sizeof(int);
+
+
+    //
+    // impose limit of 2^32 bytes of storage for maxSampleCountTableSize
+    // (disallow files with very large tile areas that would otherwise cause excessive memory allocation)
+    //
+
+
+   if(_data->maxSampleCountTableSize > std::numeric_limits<unsigned int>::max())
+   {
+       THROW(IEX_NAMESPACE::ArgExc, "Deep tile size exceeds maximum permitted area");
+   }
+
+
     //
     // Save the dataWindow information
     //
@@ -1034,9 +1052,6 @@ DeepTiledInputFile::initialize ()
     for (size_t i = 0; i < _data->tileBuffers.size(); i++)
         _data->tileBuffers[i] = new TileBuffer ();
 
-    _data->maxSampleCountTableSize = static_cast<size_t>(_data->tileDesc.ySize) *
-                                     static_cast<size_t>(_data->tileDesc.xSize) *
-                                     sizeof(int);
 
     _data->sampleCountTableBuffer.resizeErase(_data->maxSampleCountTableSize);
 
