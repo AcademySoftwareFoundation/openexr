@@ -851,7 +851,17 @@ void DeepScanLineInputFile::initialize(const Header& header)
         if (header.type() != DEEPSCANLINE)
             throw IEX_NAMESPACE::ArgExc("Can't build a DeepScanLineInputFile from "
             "a type-mismatched part.");
-        
+
+
+        if (_data->partNumber == -1)
+        {
+            if (isTiled (_data->version))
+                throw IEX_NAMESPACE::ArgExc ("Expected a deep scanline file but the file is tiled.");
+
+            if (!isNonImage (_data->version))
+                throw IEX_NAMESPACE::ArgExc ("Expected a deep scanline file but the file is not a deep image.");
+        }
+
         if(header.version()!=1)
         {
             THROW(IEX_NAMESPACE::ArgExc, "Version " << header.version() << " not supported for deepscanline images in this version of the library");
