@@ -133,11 +133,11 @@ struct LineBuffer
     Array< Array<char> >  buffer;
     Array<char>           consecutiveBuffer;
     const char *          dataPtr;
-    uint64_t                 uncompressedDataSize;
-    uint64_t                 dataSize;
+    uint64_t              uncompressedDataSize;
+    uint64_t              dataSize;
     Array<char>           sampleCountTableBuffer;
     const char *          sampleCountTablePtr;
-    uint64_t                 sampleCountTableSize;
+    uint64_t              sampleCountTableSize;
     Compressor*           sampleCountTableCompressor;
     int                   minY;                 // the min y scanline stored
     int                   maxY;                 // the max y scanline stored
@@ -192,7 +192,7 @@ struct DeepScanLineOutputFile::Data
     Header                      header;                // the image header
     int                         version;               // file format version
     bool                        multipart;             // from a multipart file
-    uint64_t                       previewPosition;       // file position for preview
+    uint64_t                    previewPosition;       // file position for preview
     DeepFrameBuffer             frameBuffer;           // framebuffer to write into
     int                         currentScanLine;       // next scanline to be written
     int                         missingScanLines;      // number of lines to write
@@ -201,13 +201,13 @@ struct DeepScanLineOutputFile::Data
     int                         maxX;                  // data window's max x coord
     int                         minY;                  // data window's min y coord
     int                         maxY;                  // data window's max x coord
-    vector<uint64_t>               lineOffsets;           // stores offsets in file for
+    vector<uint64_t>            lineOffsets;           // stores offsets in file for
                                                        // each scanline
     vector<size_t>              bytesPerLine;          // combined size of a line over
                                                        // all channels
     Compressor::Format          format;                // compressor's data format
     vector<OutSliceInfo*>       slices;                // info about channels in file
-    uint64_t                       lineOffsetsPosition;   // file position for line
+    uint64_t                    lineOffsetsPosition;   // file position for line
                                                        // offset table
 
     vector<LineBuffer*>         lineBuffers;           // each holds one line buffer
@@ -223,7 +223,7 @@ struct DeepScanLineOutputFile::Data
     Array<unsigned int>         lineSampleCount;       // the number of samples
                                                        // in each line
 
-    uint64_t                       maxSampleCountTableSize;
+    uint64_t                    maxSampleCountTableSize;
                                                        // the max size in bytes for a pixel
                                                        // sample count table
     OutputStreamMutex*  _streamData;

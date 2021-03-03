@@ -341,7 +341,7 @@ public:
     Iterator &                         operator ++ ();
 
     IMF_EXPORT
-    uint64_t                              id() const;
+    uint64_t                           id() const;
     IMF_EXPORT
     std::vector<std::string>&          text();
     
@@ -371,7 +371,7 @@ public:
     ConstIterator &                         operator ++ ();
 
     IMF_EXPORT
-    uint64_t                              id() const;
+    uint64_t                                 id() const;
     IMF_EXPORT
     const std::vector<std::string>&          text() const;
     

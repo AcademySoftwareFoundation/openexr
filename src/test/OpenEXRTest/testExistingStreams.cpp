@@ -128,8 +128,8 @@ class MMIFStream: public OPENEXR_IMF_NAMESPACE::IStream
   private:
 
     char*               _buffer;
-    uint64_t               _length;
-    uint64_t               _pos;
+    uint64_t            _length;
+    uint64_t            _pos;
 };
 
 

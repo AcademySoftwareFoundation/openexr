@@ -151,7 +151,7 @@ class FastHufDecoder
 
     int            _tableSymbol[1 << TABLE_LOOKUP_BITS];
     unsigned char  _tableCodeLen[1 << TABLE_LOOKUP_BITS];
-    uint64_t          _tableMin;
+    uint64_t       _tableMin;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

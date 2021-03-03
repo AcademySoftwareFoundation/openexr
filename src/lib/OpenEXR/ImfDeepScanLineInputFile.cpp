@@ -146,8 +146,8 @@ struct LineBuffer
 {
     const char *        uncompressedData;
     char *              buffer;
-    uint64_t               packedDataSize;
-    uint64_t               unpackedDataSize;
+    uint64_t            packedDataSize;
+    uint64_t            unpackedDataSize;
 
     int                 minY;
     int                 maxY;
@@ -206,7 +206,7 @@ struct DeepScanLineInputFile::Data
     int                         maxX;               // data window's max x coord
     int                         minY;               // data window's min y coord
     int                         maxY;               // data window's max x coord
-    vector<uint64_t>               lineOffsets;        // stores offsets in file for
+    vector<uint64_t>            lineOffsets;        // stores offsets in file for
                                                     // each line
     bool                        fileIsComplete;     // True if no scanlines are missing
                                                     // in the file

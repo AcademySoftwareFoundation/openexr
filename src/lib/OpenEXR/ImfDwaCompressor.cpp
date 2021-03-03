@@ -2382,7 +2382,7 @@ DwaCompressor::uncompress
 
     for (int i = 0; i < NUM_SIZES_SINGLE; ++i)
     {
-        uint64_t      *dst =  (((uint64_t *)inPtr) + i);
+        uint64_t   *dst =  (((uint64_t *)inPtr) + i);
         const char *src = (char *)(((uint64_t *)inPtr) + i);
 
         Xdr::read<CharPtrIO> (src, *dst);

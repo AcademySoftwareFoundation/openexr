@@ -142,8 +142,8 @@ struct TileBuffer
     Array2D<unsigned int>       sampleCount;
     const char *                uncompressedData;
     char *                      buffer;
-    uint64_t                         dataSize;
-    uint64_t                         uncompressedDataSize;
+    uint64_t                    dataSize;
+    uint64_t                    uncompressedDataSize;
     Compressor *                compressor;
     Compressor::Format          format;
     int                         dx;
@@ -258,7 +258,7 @@ struct DeepTiledInputFile::Data
 
     Compressor*     sampleCountTableComp;           // the decompressor for sample count table
 
-    uint64_t           maxSampleCountTableSize;        // the max size in bytes for a pixel
+    uint64_t        maxSampleCountTableSize;        // the max size in bytes for a pixel
                                                     // sample count table
     int             combinedSampleSize;             // total size of all channels combined to check sampletable size
     static const int gLargeChunkTableSize = 1024*1024;

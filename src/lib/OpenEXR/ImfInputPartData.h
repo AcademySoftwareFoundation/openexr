@@ -51,7 +51,7 @@ struct InputPartData
         int                     partNumber;
         int                     version;
         InputStreamMutex*       mutex;
-        std::vector<uint64_t>      chunkOffsets;
+        std::vector<uint64_t>   chunkOffsets;
         bool                    completed;
 
         IMF_EXPORT

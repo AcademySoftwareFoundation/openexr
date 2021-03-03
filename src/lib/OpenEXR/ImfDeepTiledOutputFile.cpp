@@ -175,10 +175,10 @@ struct TileCoord
 struct BufferedTile
 {
     char *      pixelData;
-    uint64_t         pixelDataSize;
-    uint64_t         unpackedDataSize;
+    uint64_t    pixelDataSize;
+    uint64_t    unpackedDataSize;
     char *      sampleCountTableData;
-    uint64_t         sampleCountTableSize;
+    uint64_t    sampleCountTableSize;
 
     BufferedTile (const char *data, int size, int unpackedSize,
                   const char *tableData, int tableSize):
@@ -215,12 +215,12 @@ struct TileBuffer
 {
     Array<char>         buffer;
     const char *        dataPtr;
-    uint64_t               dataSize;
-    uint64_t               uncompressedSize;
+    uint64_t            dataSize;
+    uint64_t            uncompressedSize;
     Compressor *        compressor;
     Array<char>         sampleCountTableBuffer;
     const char *        sampleCountTablePtr;
-    uint64_t               sampleCountTableSize;
+    uint64_t            sampleCountTableSize;
     Compressor*         sampleCountTableCompressor;
     TileCoord           tileCoord;
     bool                hasException;
@@ -272,7 +272,7 @@ struct DeepTiledOutputFile::Data
     bool                multipart;              // file is multipart
     TileDescription     tileDesc;               // describes the tile layout
     DeepFrameBuffer     frameBuffer;            // framebuffer to write into
-    uint64_t               previewPosition;
+    uint64_t            previewPosition;
     LineOrder           lineOrder;              // the file's lineorder
     int                 minX;                   // data window's min x coord
     int                 maxX;                   // data window's max x coord
@@ -292,7 +292,7 @@ struct DeepTiledOutputFile::Data
 
     vector<TileBuffer*> tileBuffers;
 
-    uint64_t               tileOffsetsPosition;    // position of the tile index
+    uint64_t            tileOffsetsPosition;    // position of the tile index
 
     TileMap             tileMap;                // the map of buffered tiles
     TileCoord           nextTileToWrite;
@@ -306,7 +306,7 @@ struct DeepTiledOutputFile::Data
     int                 sampleCountXTileCoords; // using x coordinates relative to current tile
     int                 sampleCountYTileCoords; // using y coordinates relative to current tile
 
-    uint64_t                 maxSampleCountTableSize;// the max size in bytes for a pixel
+    uint64_t            maxSampleCountTableSize;// the max size in bytes for a pixel
                                                 // sample count table
     OutputStreamMutex*  _streamData;
     bool                _deleteStream;

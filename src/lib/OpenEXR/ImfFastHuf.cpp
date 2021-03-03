@@ -118,7 +118,7 @@ FastHufDecoder::FastHufDecoder
     //
 
     const char *currByte     = table;
-    uint64_t       currBits     = 0;
+    uint64_t    currBits     = 0;
     int         currBitCount = 0;
 
     const int SHORT_ZEROCODE_RUN = 59;

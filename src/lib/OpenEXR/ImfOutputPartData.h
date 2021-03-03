@@ -45,8 +45,8 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 struct OutputPartData
 {
     Header                  header;
-    uint64_t                   chunkOffsetTablePosition;
-    uint64_t                   previewPosition;
+    uint64_t                chunkOffsetTablePosition;
+    uint64_t                previewPosition;
     int                     numThreads;
     int                     partNumber;
     bool                    multipart;

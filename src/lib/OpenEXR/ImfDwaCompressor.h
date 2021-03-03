@@ -171,15 +171,15 @@ class DwaCompressor: public Compressor
     std::vector<Classifier>    _channelRules;
 
     char*             _packedAcBuffer;
-    uint64_t             _packedAcBufferSize;
+    uint64_t          _packedAcBufferSize;
     char*             _packedDcBuffer;
-    uint64_t             _packedDcBufferSize;
+    uint64_t          _packedDcBufferSize;
     char*             _rleBuffer;
-    uint64_t             _rleBufferSize;
+    uint64_t          _rleBufferSize;
     char*             _outBuffer;
-    uint64_t             _outBufferSize;
+    uint64_t          _outBufferSize;
     char*             _planarUncBuffer[NUM_COMPRESSOR_SCHEMES];
-    uint64_t             _planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
+    uint64_t          _planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
 
     Zip              *_zip;
     float             _dwaCompressionLevel;
