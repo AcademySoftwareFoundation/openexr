@@ -272,7 +272,7 @@ StdIFStream::read (char c[/*n*/], int n)
 }
 
 
-Int64
+uint64_t
 StdIFStream::tellg ()
 {
     return std::streamoff (_is->tellg());
@@ -280,7 +280,7 @@ StdIFStream::tellg ()
 
 
 void
-StdIFStream::seekg (Int64 pos)
+StdIFStream::seekg (uint64_t pos)
 {
     _is->seekg (pos);
     checkError (*_is);
@@ -311,7 +311,7 @@ StdISStream::read (char c[/*n*/], int n)
 }
 
 
-Int64
+uint64_t
 StdISStream::tellg ()
 {
     return std::streamoff (_is.tellg());
@@ -319,7 +319,7 @@ StdISStream::tellg ()
 
 
 void
-StdISStream::seekg (Int64 pos)
+StdISStream::seekg (uint64_t pos)
 {
     _is.seekg (pos);
     checkError (_is);
@@ -386,7 +386,7 @@ StdOFStream::write (const char c[/*n*/], int n)
 }
 
 
-Int64
+uint64_t
 StdOFStream::tellp ()
 {
     return std::streamoff (_os->tellp());
@@ -394,7 +394,7 @@ StdOFStream::tellp ()
 
 
 void
-StdOFStream::seekp (Int64 pos)
+StdOFStream::seekp (uint64_t pos)
 {
     _os->seekp (pos);
     checkError (*_os);
@@ -416,7 +416,7 @@ StdOSStream::write (const char c[/*n*/], int n)
 }
 
 
-Int64
+uint64_t
 StdOSStream::tellp ()
 {
     return std::streamoff (_os.tellp());
@@ -424,7 +424,7 @@ StdOSStream::tellp ()
 
 
 void
-StdOSStream::seekp (Int64 pos)
+StdOSStream::seekp (uint64_t pos)
 {
     _os.seekp (pos);
     checkError (_os);

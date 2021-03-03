@@ -340,7 +340,7 @@ class DeepTiledInputPart
     void                rawTileData (int &dx, int &dy,
                                    int &lx, int &ly,
                                    char *data,
-                                   Int64 &dataSize
+                                   uint64_t &dataSize
                                    ) const;
 
     //------------------------------------------------------------------

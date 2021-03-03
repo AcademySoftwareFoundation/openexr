@@ -138,7 +138,7 @@ isOpenExrFile
 {
     try
     {
-	Int64 pos = is.tellg();
+	uint64_t pos = is.tellg();
 
 	if (pos != 0)
 	    is.seekg (0);

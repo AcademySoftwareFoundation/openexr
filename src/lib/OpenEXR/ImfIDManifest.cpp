@@ -83,7 +83,7 @@ namespace
     }
     */
 
-    size_t getVariableLengthIntegerSize(Int64 value)
+    size_t getVariableLengthIntegerSize(uint64_t value)
     {    
 
        if(value < 1llu<<7)
@@ -127,13 +127,13 @@ namespace
        
     }
 
-    Int64 readVariableLengthInteger(const char*& readPtr,const char* endPtr)
+    uint64_t readVariableLengthInteger(const char*& readPtr,const char* endPtr)
     {
         // bytes are stored LSB first, so each byte that is read from the stream must be
         // shifted before mixing into the existing length
         int shift=0;
         unsigned char byte=0;
-        Int64 value=0;
+        uint64_t value=0;
         do{
             if(readPtr>=endPtr)
             {
@@ -143,13 +143,13 @@ namespace
             // top bit of byte isn't part of actual number, it just indicates there's more info to come
             // so take bottom 7 bits, shift them to the right place, and insert them
             //
-            value|=(Int64(byte&127)) << shift; 
+            value|=(uint64_t(byte&127)) << shift; 
             shift+=7;
         }while(byte&128); //while top bit set on previous byte, there is more to come
         return value;
     }
     
-    void writeVariableLengthInteger(char*& outPtr,Int64 value)
+    void writeVariableLengthInteger(char*& outPtr,uint64_t value)
     {
         do
         {
@@ -491,11 +491,11 @@ void IDManifest::init(const char* data, const char* endOfData)
        int tableSize;
        Xdr::read<CharPtrIO>(data,tableSize);
        
-       Int64 previousId=0;
+       uint64_t previousId=0;
        
        for(int entry = 0 ; entry < tableSize ; ++entry)
        {
-           Int64 id;
+           uint64_t id;
       
            switch(storageScheme)
            {
@@ -532,7 +532,7 @@ void IDManifest::init(const char* data, const char* endOfData)
            //
            // insert into table - insert tells us if it was already there
            //
-           pair< map< Int64, vector<string> >::iterator,bool> insertion = m._table.insert(make_pair(id,vector<string>()));
+           pair< map< uint64_t, vector<string> >::iterator,bool> insertion = m._table.insert(make_pair(id,vector<string>()));
            if(insertion.second==false)
            {
                throw IEX_NAMESPACE::InputExc("ID manifest contains multiple entries for the same ID");
@@ -810,13 +810,13 @@ void IDManifest::serialize(std::vector< char >& data) const
        outputSize += 1; // ID scheme
        outputSize += 4; // size of storage for number of 32 bit entries in ID table
        
-       Int64 previousId=0;       
-       Int64 IdStorageForVariableScheme = 0;
+       uint64_t previousId=0;       
+       uint64_t IdStorageForVariableScheme = 0;
        bool canUse32Bits = true;
        for( IDManifest::ChannelGroupManifest::IDTable::const_iterator i = m._table.begin(); i!=m._table.end(); ++i)
        {
        
-           Int64 idToStore = i->first-previousId;
+           uint64_t idToStore = i->first-previousId;
            IdStorageForVariableScheme+=getVariableLengthIntegerSize(idToStore);
            if(idToStore >= 1llu<<32)
            {
@@ -931,14 +931,14 @@ void IDManifest::serialize(std::vector< char >& data) const
        
        Xdr::write<CharPtrIO>(outPtr,int(m._table.size()));
        
-       Int64 previousId=0;     
+       uint64_t previousId=0;     
        //
        // table
        //
        for( IDManifest::ChannelGroupManifest::IDTable::const_iterator i = m._table.begin(); i!=m._table.end(); ++i)
        {
         
-           Int64 idToWrite = i->first-previousId;
+           uint64_t idToWrite = i->first-previousId;
            switch(scheme)
            {
                case 0 : Xdr::write<CharPtrIO>(outPtr, idToWrite);break;
@@ -1196,13 +1196,13 @@ IDManifest::ChannelGroupManifest::Iterator IDManifest::ChannelGroupManifest::end
 }
 
 IDManifest::ChannelGroupManifest::ConstIterator
-IDManifest::ChannelGroupManifest::find(Int64 idValue) const
+IDManifest::ChannelGroupManifest::find(uint64_t idValue) const
 {
     return IDManifest::ChannelGroupManifest::ConstIterator(_table.find(idValue));
 }
 
 void
-IDManifest::ChannelGroupManifest::erase(Int64 idValue)
+IDManifest::ChannelGroupManifest::erase(uint64_t idValue)
 {
    _table.erase(idValue);
 }
@@ -1214,12 +1214,12 @@ IDManifest::ChannelGroupManifest::size() const
 
 
 
-IDManifest::ChannelGroupManifest::Iterator IDManifest::ChannelGroupManifest::find(Int64 idValue)
+IDManifest::ChannelGroupManifest::Iterator IDManifest::ChannelGroupManifest::find(uint64_t idValue)
 {
     return IDManifest::ChannelGroupManifest::Iterator(_table.find(idValue));
 }
 
-std::vector< std::string >& IDManifest::ChannelGroupManifest::operator[](Int64 idValue)
+std::vector< std::string >& IDManifest::ChannelGroupManifest::operator[](uint64_t idValue)
 {
      return _table[idValue];
 }
@@ -1227,7 +1227,7 @@ std::vector< std::string >& IDManifest::ChannelGroupManifest::operator[](Int64 i
 
 
 IDManifest::ChannelGroupManifest::Iterator
-IDManifest::ChannelGroupManifest::insert(Int64 idValue, const std::string& text)
+IDManifest::ChannelGroupManifest::insert(uint64_t idValue, const std::string& text)
 {
     if(_components.size()!=1)
     {
@@ -1240,7 +1240,7 @@ IDManifest::ChannelGroupManifest::insert(Int64 idValue, const std::string& text)
 
 
 IDManifest::ChannelGroupManifest::Iterator
-IDManifest::ChannelGroupManifest::insert(Int64 idValue, const std::vector< std::string >& text)
+IDManifest::ChannelGroupManifest::insert(uint64_t idValue, const std::vector< std::string >& text)
 {
    if(_components.size()!=text.size())
    {
@@ -1251,10 +1251,10 @@ IDManifest::ChannelGroupManifest::insert(Int64 idValue, const std::vector< std::
 
 
 
-Int64
+uint64_t
 IDManifest::ChannelGroupManifest::insert(const std::vector< std::string >& text)
 {
-    Int64 hash;
+    uint64_t hash;
     if(_hashScheme == MURMURHASH3_32)
     {
         hash = MurmurHash32(text);
@@ -1272,10 +1272,10 @@ IDManifest::ChannelGroupManifest::insert(const std::vector< std::string >& text)
     
 }
 
-Int64
+uint64_t
 IDManifest::ChannelGroupManifest::insert(const std::string & text)
 {
-    Int64 hash;
+    uint64_t hash;
     if(_hashScheme == MURMURHASH3_32)
     {
         hash = MurmurHash32(text);
@@ -1295,7 +1295,7 @@ IDManifest::ChannelGroupManifest::insert(const std::string & text)
 
 
 IDManifest::ChannelGroupManifest&
-IDManifest::ChannelGroupManifest::operator<<(Int64 idValue)
+IDManifest::ChannelGroupManifest::operator<<(uint64_t idValue)
 {
    if(_insertingEntry)
    {
@@ -1615,10 +1615,10 @@ unsigned int IDManifest::MurmurHash32(const std::string & idString)
     return out;
 }
 
-Int64 IDManifest::MurmurHash64(const std::string& idString)
+uint64_t IDManifest::MurmurHash64(const std::string& idString)
 {
 
-    Int64 out[2];
+    uint64_t out[2];
     MurmurHash3_x64_128(idString.c_str(),idString.size(),0 , out);
     return out[0];
 }
@@ -1638,7 +1638,7 @@ unsigned int IDManifest::MurmurHash32(const vector< string >& idString)
  
  
     
-Int64 IDManifest::MurmurHash64(const vector< string >& idString)
+uint64_t IDManifest::MurmurHash64(const vector< string >& idString)
 {
     if(idString.size()==0)
     {

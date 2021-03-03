@@ -175,10 +175,10 @@ struct TileCoord
 struct BufferedTile
 {
     char *      pixelData;
-    Int64         pixelDataSize;
-    Int64         unpackedDataSize;
+    uint64_t         pixelDataSize;
+    uint64_t         unpackedDataSize;
     char *      sampleCountTableData;
-    Int64         sampleCountTableSize;
+    uint64_t         sampleCountTableSize;
 
     BufferedTile (const char *data, int size, int unpackedSize,
                   const char *tableData, int tableSize):
@@ -215,12 +215,12 @@ struct TileBuffer
 {
     Array<char>         buffer;
     const char *        dataPtr;
-    Int64               dataSize;
-    Int64               uncompressedSize;
+    uint64_t               dataSize;
+    uint64_t               uncompressedSize;
     Compressor *        compressor;
     Array<char>         sampleCountTableBuffer;
     const char *        sampleCountTablePtr;
-    Int64               sampleCountTableSize;
+    uint64_t               sampleCountTableSize;
     Compressor*         sampleCountTableCompressor;
     TileCoord           tileCoord;
     bool                hasException;
@@ -272,7 +272,7 @@ struct DeepTiledOutputFile::Data
     bool                multipart;              // file is multipart
     TileDescription     tileDesc;               // describes the tile layout
     DeepFrameBuffer     frameBuffer;            // framebuffer to write into
-    Int64               previewPosition;
+    uint64_t               previewPosition;
     LineOrder           lineOrder;              // the file's lineorder
     int                 minX;                   // data window's min x coord
     int                 maxX;                   // data window's max x coord
@@ -292,7 +292,7 @@ struct DeepTiledOutputFile::Data
 
     vector<TileBuffer*> tileBuffers;
 
-    Int64               tileOffsetsPosition;    // position of the tile index
+    uint64_t               tileOffsetsPosition;    // position of the tile index
 
     TileMap             tileMap;                // the map of buffered tiles
     TileCoord           nextTileToWrite;
@@ -306,7 +306,7 @@ struct DeepTiledOutputFile::Data
     int                 sampleCountXTileCoords; // using x coordinates relative to current tile
     int                 sampleCountYTileCoords; // using y coordinates relative to current tile
 
-    Int64                 maxSampleCountTableSize;// the max size in bytes for a pixel
+    uint64_t                 maxSampleCountTableSize;// the max size in bytes for a pixel
                                                 // sample count table
     OutputStreamMutex*  _streamData;
     bool                _deleteStream;
@@ -504,10 +504,10 @@ writeTileData (DeepTiledOutputFile::Data *ofd,
                int dx, int dy,
                int lx, int ly,
                const char pixelData[],
-               Int64 pixelDataSize,
-               Int64 unpackedDataSize,
+               uint64_t pixelDataSize,
+               uint64_t unpackedDataSize,
                const char sampleCountTableData[],
-               Int64 sampleCountTableSize)
+               uint64_t sampleCountTableSize)
 {
     
     //
@@ -516,7 +516,7 @@ writeTileData (DeepTiledOutputFile::Data *ofd,
     // without calling tellp() (tellp() can be fairly expensive).
     //
 
-    Int64 currentPosition = ofd->_streamData->currentPosition;
+    uint64_t currentPosition = ofd->_streamData->currentPosition;
     ofd->_streamData->currentPosition = 0;
 
     if (currentPosition == 0)
@@ -573,7 +573,7 @@ writeTileData (DeepTiledOutputFile::Data *ofd,
 
     ofd->_streamData->currentPosition = currentPosition        +
                                   4 * Xdr::size<int>()   + // dx, dy, lx, ly,
-                                  3 * Xdr::size<Int64>() + // sampleCountTableSize,
+                                  3 * Xdr::size<uint64_t>() + // sampleCountTableSize,
                                                            // pixelDataSize,
                                                            // unpackedDataSize
                                   sampleCountTableSize   +
@@ -593,10 +593,10 @@ bufferedTileWrite (
                    int dx, int dy,
                    int lx, int ly,
                    const char pixelData[],
-                   Int64 pixelDataSize,
-                   Int64 unpackedDataSize,
+                   uint64_t pixelDataSize,
+                   uint64_t unpackedDataSize,
                    const char sampleCountTableData[],
-                   Int64 sampleCountTableSize)
+                   uint64_t sampleCountTableSize)
 {
     //
     // Check if a tile with coordinates (dx,dy,lx,ly) has already been written.
@@ -703,7 +703,7 @@ void
 convertToXdr (DeepTiledOutputFile::Data *ofd,
               Array<char>& tileBuffer,
               int numScanLines,
-              vector<Int64>& bytesPerLine)
+              vector<uint64_t>& bytesPerLine)
 {
     //
     // Convert the contents of a TiledOutputFile's tileBuffer from the
@@ -744,7 +744,7 @@ convertToXdr (DeepTiledOutputFile::Data *ofd,
             // Convert the samples in place.
             //
 
-            Int64 numPixelsPerScanLine = bytesPerLine[y];
+            uint64_t numPixelsPerScanLine = bytesPerLine[y];
 
             convertInPlace (writePtr, readPtr, slice.type,
                             numPixelsPerScanLine);
@@ -846,7 +846,7 @@ TileBufferTask::execute ()
         // Get the bytes for each line.
         //
 
-        vector<Int64> bytesPerLine(_ofd->tileDesc.ySize);
+        vector<uint64_t> bytesPerLine(_ofd->tileDesc.ySize);
         vector<int> xOffsets(_ofd->slices.size());
         vector<int> yOffsets(_ofd->slices.size());
         for (size_t i = 0; i < _ofd->slices.size(); i++)
@@ -870,8 +870,8 @@ TileBufferTask::execute ()
         // (TODO) more efficient memory management?
         //
 
-        Int64 totalBytes = 0;
-        Int64 maxBytesPerTileLine = 0;
+        uint64_t totalBytes = 0;
+        uint64_t maxBytesPerTileLine = 0;
         for (size_t i = 0; i < bytesPerLine.size(); i++)
         {
             totalBytes += bytesPerLine[i];
@@ -956,7 +956,7 @@ TileBufferTask::execute ()
         //
 
         char* ptr = _tileBuffer->sampleCountTableBuffer;
-        Int64 tableDataSize = 0;
+        uint64_t tableDataSize = 0;
         for (int i = tileRange.min.y; i <= tileRange.max.y; i++)
         {
             int count = 0;
@@ -1012,7 +1012,7 @@ TileBufferTask::execute ()
         {
             const char *compPtr;
 
-            Int64 compSize = _tileBuffer->compressor->compressTile
+            uint64_t compSize = _tileBuffer->compressor->compressTile
                                                 (_tileBuffer->dataPtr,
                                                  _tileBuffer->dataSize,
                                                  tileRange, compPtr);
@@ -1280,7 +1280,7 @@ DeepTiledOutputFile::~DeepTiledOutputFile ()
 #if ILMTHREAD_THREADING_ENABLED
             std::lock_guard<std::mutex> lock(*_data->_streamData);
 #endif
-            Int64 originalPosition = _data->_streamData->os->tellp();
+            uint64_t originalPosition = _data->_streamData->os->tellp();
 
             if (_data->tileOffsetsPosition > 0)
             {
@@ -1766,7 +1766,7 @@ DeepTiledOutputFile::copyPixels (DeepTiledInputFile &in)
         int lx = _data->nextTileToWrite.lx;
         int ly = _data->nextTileToWrite.ly;
 
-        Int64 dataSize = data.size();
+        uint64_t dataSize = data.size();
 
         in.rawTileData (dx, dy, lx, ly, &data[0], dataSize);
         if(dataSize>data.size())
@@ -1774,9 +1774,9 @@ DeepTiledOutputFile::copyPixels (DeepTiledInputFile &in)
             data.resize(dataSize);
             in.rawTileData (dx, dy, lx, ly, &data[0], dataSize);
         }
-        Int64 sampleCountTableSize = *(Int64 *)(&data[0] + 16);
-        Int64 pixelDataSize = *(Int64 *)(&data[0] + 24);
-        Int64 unpackedPixelDataSize = *(Int64 *)(&data[0] + 32);
+        uint64_t sampleCountTableSize = *(uint64_t *)(&data[0] + 16);
+        uint64_t pixelDataSize = *(uint64_t *)(&data[0] + 24);
+        uint64_t unpackedPixelDataSize = *(uint64_t *)(&data[0] + 32);
         char * sampleCountTable = &data[0]+40;
         char * pixelData = sampleCountTable + sampleCountTableSize;
         
@@ -2035,7 +2035,7 @@ DeepTiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
     // preview image, and jump back to the saved file position.
     //
 
-    Int64 savedPosition = _data->_streamData->os->tellp();
+    uint64_t savedPosition = _data->_streamData->os->tellp();
 
     try
     {
@@ -2063,7 +2063,7 @@ DeepTiledOutputFile::breakTile
 #if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
-    Int64 position = _data->tileOffsets (dx, dy, lx, ly);
+    uint64_t position = _data->tileOffsets (dx, dy, lx, ly);
 
     if (!position)
         THROW (IEX_NAMESPACE::ArgExc,

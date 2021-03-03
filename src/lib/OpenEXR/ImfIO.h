@@ -42,11 +42,11 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfInt64.h"
 #include "ImfNamespace.h"
 #include "ImfExport.h"
 
 #include <string>
+#include <cstdint>
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -114,7 +114,7 @@ class IStream
     // read the first byte in the file, tellg() returns 0.
     //--------------------------------------------------------
 
-    virtual Int64	tellg () = 0;
+    virtual uint64_t	tellg () = 0;
 
 
     //-------------------------------------------
@@ -122,7 +122,7 @@ class IStream
     // After calling seekg(i), tellg() returns i.
     //-------------------------------------------
 
-    virtual void	seekg (Int64 pos) = 0;
+    virtual void	seekg (uint64_t pos) = 0;
 
 
     //------------------------------------------------------
@@ -190,7 +190,7 @@ class OStream
     // returns 0.
     //---------------------------------------------------------
 
-    virtual Int64	tellp () = 0;
+    virtual uint64_t	tellp () = 0;
 
 
     //-------------------------------------------
@@ -198,7 +198,7 @@ class OStream
     // After calling seekp(i), tellp() returns i.
     //-------------------------------------------
 
-    virtual void	seekp (Int64 pos) = 0;
+    virtual void	seekp (uint64_t pos) = 0;
 
 
     //------------------------------------------------------

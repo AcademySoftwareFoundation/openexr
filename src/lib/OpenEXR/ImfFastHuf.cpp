@@ -81,21 +81,21 @@ FastHufDecoder::FastHufDecoder
     // the symbol.
     //
 
-    std::vector<Int64> symbols;
+    std::vector<uint64_t> symbols;
 
     //
     // The 'base' table is the minimum code at each code length. base[i]
     // is the smallest code (numerically) of length i.
     //
 
-    Int64 base[MAX_CODE_LEN + 1];     
+    uint64_t base[MAX_CODE_LEN + 1];     
 
     //
     // The 'offset' table is the position (in sorted order) of the first id
     // of a given code lenght. Array is indexed by code length, like base.  
     //
 
-    Int64 offset[MAX_CODE_LEN + 1];   
+    uint64_t offset[MAX_CODE_LEN + 1];   
 
     //
     // Count of how many codes at each length there are. Array is 
@@ -118,14 +118,14 @@ FastHufDecoder::FastHufDecoder
     //
 
     const char *currByte     = table;
-    Int64       currBits     = 0;
+    uint64_t       currBits     = 0;
     int         currBitCount = 0;
 
     const int SHORT_ZEROCODE_RUN = 59;
     const int LONG_ZEROCODE_RUN  = 63;
     const int SHORTEST_LONG_RUN  = 2 + LONG_ZEROCODE_RUN - SHORT_ZEROCODE_RUN;
 
-    for (Int64 symbol = static_cast<Int64>(minSymbol); symbol <= static_cast<Int64>(maxSymbol); symbol++)
+    for (uint64_t symbol = static_cast<uint64_t>(minSymbol); symbol <= static_cast<uint64_t>(maxSymbol); symbol++)
     {
         if (currByte - table >= numBytes)
         {
@@ -140,9 +140,9 @@ FastHufDecoder::FastHufDecoder
         //       63    (run of n 0's, with n is the next 8 bits)
         //
 
-        Int64 codeLen = readBits (6, currBits, currBitCount, currByte);
+        uint64_t codeLen = readBits (6, currBits, currBitCount, currByte);
 
-        if (codeLen == (Int64) LONG_ZEROCODE_RUN)
+        if (codeLen == (uint64_t) LONG_ZEROCODE_RUN)
         {
             if (currByte - table >= numBytes)
             {
@@ -153,7 +153,7 @@ FastHufDecoder::FastHufDecoder
             int runLen = readBits (8, currBits, currBitCount, currByte) +
                          SHORTEST_LONG_RUN;
 
-            if (symbol + runLen > static_cast<Int64>(maxSymbol + 1))
+            if (symbol + runLen > static_cast<uint64_t>(maxSymbol + 1))
             {
                 throw IEX_NAMESPACE::InputExc ("Error decoding Huffman table "
                                                "(Run beyond end of table).");
@@ -162,11 +162,11 @@ FastHufDecoder::FastHufDecoder
             symbol += runLen - 1;
 
         }
-        else if (codeLen >= static_cast<Int64>(SHORT_ZEROCODE_RUN))
+        else if (codeLen >= static_cast<uint64_t>(SHORT_ZEROCODE_RUN))
         {
             int runLen = codeLen - SHORT_ZEROCODE_RUN + 2;
 
-            if (symbol + runLen > static_cast<Int64>(maxSymbol + 1))
+            if (symbol + runLen > static_cast<uint64_t>(maxSymbol + 1))
             {
                 throw IEX_NAMESPACE::InputExc ("Error decoding Huffman table "
                                                "(Run beyond end of table).");
@@ -217,7 +217,7 @@ FastHufDecoder::FastHufDecoder
             
             tmp /= (double)(2ll << (_maxCodeLength - l));
 
-            base[l] = (Int64)ceil (tmp);
+            base[l] = (uint64_t)ceil (tmp);
         }
 
         delete [] countTmp;
@@ -242,20 +242,20 @@ FastHufDecoder::FastHufDecoder
 
     _idToSymbol = new int[_numSymbols];
 
-    Int64 mapping[MAX_CODE_LEN + 1];
+    uint64_t mapping[MAX_CODE_LEN + 1];
     for (int i = 0; i < MAX_CODE_LEN + 1; ++i) 
         mapping[i] = -1;
     for (int i = _minCodeLength; i <= _maxCodeLength; ++i)
         mapping[i] = offset[i];
 
-    for (std::vector<Int64>::const_iterator i = symbols.begin(); 
+    for (std::vector<uint64_t>::const_iterator i = symbols.begin(); 
          i != symbols.end();
          ++i)
     {
         int codeLen = *i & 63;
         int symbol  = *i >> 6;
 
-        if (mapping[codeLen] >= static_cast<Int64>(_numSymbols))
+        if (mapping[codeLen] >= static_cast<uint64_t>(_numSymbols))
         {
             delete[] _idToSymbol;
             _idToSymbol = NULL;
@@ -301,14 +301,14 @@ FastHufDecoder::~FastHufDecoder()
 //
 
 #define READ64(c) \
-    ((Int64)(c)[0] << 56) | ((Int64)(c)[1] << 48) | ((Int64)(c)[2] << 40) | \
-    ((Int64)(c)[3] << 32) | ((Int64)(c)[4] << 24) | ((Int64)(c)[5] << 16) | \
-    ((Int64)(c)[6] <<  8) | ((Int64)(c)[7] ) 
+    ((uint64_t)(c)[0] << 56) | ((uint64_t)(c)[1] << 48) | ((uint64_t)(c)[2] << 40) | \
+    ((uint64_t)(c)[3] << 32) | ((uint64_t)(c)[4] << 24) | ((uint64_t)(c)[5] << 16) | \
+    ((uint64_t)(c)[6] <<  8) | ((uint64_t)(c)[7] ) 
 
 #ifdef __INTEL_COMPILER // ICC built-in swap for LE hosts
     #if defined (__i386__) || defined(__x86_64__)
         #undef  READ64
-        #define READ64(c) _bswap64 (*(const Int64*)(c))
+        #define READ64(c) _bswap64 (*(const uint64_t*)(c))
     #endif
 #endif
 
@@ -359,7 +359,7 @@ FastHufDecoder::enabled()
 //
 
 void
-FastHufDecoder::buildTables (Int64 *base, Int64 *offset)
+FastHufDecoder::buildTables (uint64_t *base, uint64_t *offset)
 {
     //
     // Build the 'left justified' base table, by shifting base left..
@@ -397,9 +397,9 @@ FastHufDecoder::buildTables (Int64 *base, Int64 *offset)
     // short codes ( <= TABLE_LOOKUP_BITS long)
     //
 
-    for (Int64 i = 0; i < 1 << TABLE_LOOKUP_BITS; ++i)
+    for (uint64_t i = 0; i < 1 << TABLE_LOOKUP_BITS; ++i)
     {
-        Int64 value = i << (64 - TABLE_LOOKUP_BITS);
+        uint64_t value = i << (64 - TABLE_LOOKUP_BITS);
 
         _tableSymbol[i]  = 0xffff;
         _tableCodeLen[i] = 0; 
@@ -410,8 +410,8 @@ FastHufDecoder::buildTables (Int64 *base, Int64 *offset)
             {
                 _tableCodeLen[i] = codeLen;
 
-                Int64 id = _ljOffset[codeLen] + (value >> (64 - codeLen));
-                if (id < static_cast<Int64>(_numSymbols))
+                uint64_t id = _ljOffset[codeLen] + (value >> (64 - codeLen));
+                if (id < static_cast<uint64_t>(_numSymbols))
                 {
                     _tableSymbol[i] = _idToSymbol[id];
                 }
@@ -453,7 +453,7 @@ FastHufDecoder::buildTables (Int64 *base, Int64 *offset)
 
 
 // 
-// For decoding, we're holding onto 2 Int64's. 
+// For decoding, we're holding onto 2 uint64_t's. 
 //
 // The first (buffer), holds the next bits from the bitstream to be 
 // decoded. For certain paths in the decoder, we only need TABLE_LOOKUP_BITS
@@ -462,12 +462,12 @@ FastHufDecoder::buildTables (Int64 *base, Int64 *offset)
 //
 // When we need to refill 'buffer', we could pull bits straight from 
 // the bitstream. But this is very slow and requires lots of book keeping
-// (what's the next bit in the next byte?). Instead, we keep another Int64
+// (what's the next bit in the next byte?). Instead, we keep another uint64_t
 // around that we use to refill from. While this doesn't cut down on the
 // book keeping (still need to know how many valid bits), it does cut
 // down on some of the bit shifting crazy and byte access. 
 //
-// The refill Int64 (bufferBack) gets left-shifted after we've pulled
+// The refill uint64_t (bufferBack) gets left-shifted after we've pulled
 // off bits. If we run out of bits in the input bit stream, we just
 // shift in 0's to bufferBack. 
 //
@@ -478,9 +478,9 @@ FastHufDecoder::buildTables (Int64 *base, Int64 *offset)
 
 inline void
 FastHufDecoder::refill
-    (Int64 &buffer,
+    (uint64_t &buffer,
      int numBits,                       // number of bits to refill
-     Int64 &bufferBack,                 // the next 64-bits, to refill from
+     uint64_t &bufferBack,                 // the next 64-bits, to refill from
      int &bufferBackNumBits,            // number of bits left in bufferBack
      const unsigned char *&currByte,    // current byte in the bitstream
      int &currBitsLeft)                 // number of bits left in the bitsream
@@ -506,8 +506,8 @@ FastHufDecoder::refill
         {
             bufferBack        = READ64 (currByte); 
             bufferBackNumBits = 64;
-            currByte         += sizeof (Int64);
-            currBitsLeft     -= 8 * sizeof (Int64);
+            currByte         += sizeof (uint64_t);
+            currBitsLeft     -= 8 * sizeof (uint64_t);
 
         }
         else
@@ -515,11 +515,11 @@ FastHufDecoder::refill
             bufferBack        = 0;
             bufferBackNumBits = 64; 
 
-            Int64 shift = 56;
+            uint64_t shift = 56;
             
             while (currBitsLeft > 0)
             {
-                bufferBack |= ((Int64)(*currByte)) << shift;
+                bufferBack |= ((uint64_t)(*currByte)) << shift;
 
                 currByte++;
                 shift        -= 8;
@@ -564,10 +564,10 @@ FastHufDecoder::refill
 // (bufferNumBits).  Bitstream pointer (currByte) will be advanced when needed.
 //
 
-inline Int64 
+inline uint64_t 
 FastHufDecoder::readBits
     (int numBits,
-     Int64 &buffer,             // c
+     uint64_t &buffer,             // c
      int &bufferNumBits,        // lc
      const char *&currByte)     // in
 {
@@ -608,22 +608,22 @@ FastHufDecoder::decode
     // (after the first buffer fill)
     //
 
-    const unsigned char *currByte = src + 2 * sizeof (Int64);
+    const unsigned char *currByte = src + 2 * sizeof (uint64_t);
 
-    numSrcBits -= 8 * 2 * sizeof (Int64);
+    numSrcBits -= 8 * 2 * sizeof (uint64_t);
 
     //
     // 64-bit buffer holding the current bits in the stream
     //
 
-    Int64 buffer            = READ64 (src); 
+    uint64_t buffer            = READ64 (src); 
     int   bufferNumBits     = 64;
 
     //
     // 64-bit buffer holding the next bits in the stream
     //
 
-    Int64 bufferBack        = READ64 ((src + sizeof (Int64))); 
+    uint64_t bufferBack        = READ64 ((src + sizeof (uint64_t))); 
     int   bufferBackNumBits = 64;
 
     int dstIdx = 0;
@@ -688,8 +688,8 @@ FastHufDecoder::decode
                                                "(Decoded an invalid symbol).");
             }
 
-            Int64 id = _ljOffset[codeLen] + (buffer >> (64 - codeLen));
-            if (id < static_cast<Int64>(_numSymbols))
+            uint64_t id = _ljOffset[codeLen] + (buffer >> (64 - codeLen));
+            if (id < static_cast<uint64_t>(_numSymbols))
             {
                 symbol = _idToSymbol[id];
             }

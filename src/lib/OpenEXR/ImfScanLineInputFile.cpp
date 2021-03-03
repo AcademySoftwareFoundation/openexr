@@ -220,7 +220,7 @@ struct ScanLineInputFile::Data
     int			maxX;		    // data window's max x coord
     int			minY;		    // data window's min y coord
     int			maxY;		    // data window's max x coord
-    vector<Int64>	lineOffsets;	    // stores offsets in file for
+    vector<uint64_t>	lineOffsets;	    // stores offsets in file for
 					    // each line
     bool		fileIsComplete;	    // True if no scanlines are missing
     					    // in the file
@@ -290,15 +290,15 @@ namespace {
 void
 reconstructLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 			LineOrder lineOrder,
-			vector<Int64> &lineOffsets)
+			vector<uint64_t> &lineOffsets)
 {
-    Int64 position = is.tellg();
+    uint64_t position = is.tellg();
 
     try
     {
 	for (unsigned int i = 0; i < lineOffsets.size(); i++)
 	{
-	    Int64 lineOffset = is.tellg();
+	    uint64_t lineOffset = is.tellg();
 
 	    int y;
 	    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, y);
@@ -337,7 +337,7 @@ reconstructLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 void
 readLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 		 LineOrder lineOrder,
-		 vector<Int64> &lineOffsets,
+		 vector<uint64_t> &lineOffsets,
 		 bool &complete)
 {
     for (unsigned int i = 0; i < lineOffsets.size(); i++)
@@ -392,7 +392,7 @@ readPixelData (InputStreamMutex *streamData,
     if (lineBufferNumber < 0 || lineBufferNumber >= int(ifd->lineOffsets.size()))
         THROW (IEX_NAMESPACE::InputExc, "Invalid scan line " << minY << " requested or missing.");
 
-    Int64 lineOffset = ifd->lineOffsets[lineBufferNumber];
+    uint64_t lineOffset = ifd->lineOffsets[lineBufferNumber];
 
     if (lineOffset == 0)
 	THROW (IEX_NAMESPACE::InputExc, "Scan line " << minY << " is missing.");
@@ -1144,9 +1144,9 @@ void ScanLineInputFile::initialize(const Header& header)
         //
         if (lineOffsetSize * _data->linesInBuffer > gLargeChunkTableSize)
         {
-            Int64 pos = _streamData->is->tellg();
-            _streamData->is->seekg(pos + (lineOffsetSize-1)*sizeof(Int64));
-            Int64 temp;
+            uint64_t pos = _streamData->is->tellg();
+            _streamData->is->seekg(pos + (lineOffsetSize-1)*sizeof(uint64_t));
+            uint64_t temp;
             OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*_streamData->is, temp);
             _streamData->is->seekg(pos);
 

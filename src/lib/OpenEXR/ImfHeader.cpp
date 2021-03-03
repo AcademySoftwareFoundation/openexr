@@ -827,10 +827,10 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
     // (only reachable for unknown types or damaged files: will have thrown earlier
     //  for regular image types)
     if( maxImageHeight>0 && maxImageWidth>0 && 
-	hasChunkCount() && static_cast<Int64>(chunkCount())>Int64(maxImageWidth)*Int64(maxImageHeight))
+	hasChunkCount() && static_cast<uint64_t>(chunkCount())>uint64_t(maxImageWidth)*uint64_t(maxImageHeight))
     {
 	THROW (IEX_NAMESPACE::ArgExc, "chunkCount exceeds maximum area of "
-	       << Int64(maxImageWidth)*Int64(maxImageHeight) << " pixels." );
+	       << uint64_t(maxImageWidth)*uint64_t(maxImageHeight) << " pixels." );
        
     }
 
@@ -1127,7 +1127,7 @@ Header::readsNothing()
 }
 
 
-Int64
+uint64_t
 Header::writeTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, bool isTiled) const
 {
     //
@@ -1142,7 +1142,7 @@ Header::writeTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, bool isTiled) cons
     // keep track of its position in the file.
     //
 
-    Int64 previewPosition = 0;
+    uint64_t previewPosition = 0;
 
     const Attribute *preview =
 	    findTypedAttribute <PreviewImageAttribute> ("preview");

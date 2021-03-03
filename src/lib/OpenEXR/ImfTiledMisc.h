@@ -88,7 +88,7 @@ void calculateBytesPerLine (const Header &header,
                             int minY, int maxY,
                             std::vector<int>& xOffsets,
                             std::vector<int>& yOffsets,
-                            std::vector<Int64>& bytesPerLine);
+                            std::vector<uint64_t>& bytesPerLine);
 
 IMF_EXPORT 
 void precalculateTileInfo (const TileDescription& tileDesc,

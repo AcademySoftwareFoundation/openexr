@@ -103,7 +103,7 @@ DeepScanLineInputPart::readPixels (int scanLine)
 void
 DeepScanLineInputPart::rawPixelData (int firstScanLine,
                                      char *pixelData,
-                                     Int64 &pixelDataSize)
+                                     uint64_t &pixelDataSize)
 {
     file->rawPixelData(firstScanLine, pixelData, pixelDataSize);
 }

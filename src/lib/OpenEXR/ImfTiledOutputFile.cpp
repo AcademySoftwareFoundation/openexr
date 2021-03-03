@@ -248,7 +248,7 @@ struct TiledOutputFile::Data
     bool                multipart;              // part came from a multipart file
     TileDescription	tileDesc;		// describes the tile layout
     FrameBuffer		frameBuffer;		// framebuffer to write into
-    Int64		previewPosition;
+    uint64_t		previewPosition;
     LineOrder		lineOrder;		// the file's lineorder
     int			minX;			// data window's min x coord
     int			maxX;			// data window's max x coord
@@ -273,7 +273,7 @@ struct TiledOutputFile::Data
     vector<TileBuffer*> tileBuffers;
     size_t		tileBufferSize;         // size of a tile buffer
 
-    Int64		tileOffsetsPosition;	// position of the tile index
+    uint64_t		tileOffsetsPosition;	// position of the tile index
     
     TileMap		tileMap;
     TileCoord		nextTileToWrite;
@@ -458,7 +458,7 @@ writeTileData (OutputStreamMutex *streamData,
     // without calling tellp() (tellp() can be fairly expensive).
     //
 
-    Int64 currentPosition = streamData->currentPosition;
+    uint64_t currentPosition = streamData->currentPosition;
     streamData->currentPosition = 0;
 
     if (currentPosition == 0)
@@ -1080,7 +1080,7 @@ TiledOutputFile::~TiledOutputFile ()
 #if ILMTHREAD_THREADING_ENABLED
             std::lock_guard<std::mutex> lock(*_streamData);
 #endif
-            Int64 originalPosition = _streamData->os->tellp();
+            uint64_t originalPosition = _streamData->os->tellp();
 
             if (_data->tileOffsetsPosition > 0)
             {
@@ -1826,7 +1826,7 @@ TiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
     // preview image, and jump back to the saved file position.
     //
 
-    Int64 savedPosition = _streamData->os->tellp();
+    uint64_t savedPosition = _streamData->os->tellp();
 
     try
     {
@@ -1854,7 +1854,7 @@ TiledOutputFile::breakTile
 #if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
-    Int64 position = _data->tileOffsets (dx, dy, lx, ly);
+    uint64_t position = _data->tileOffsets (dx, dy, lx, ly);
 
     if (!position)
 	THROW (IEX_NAMESPACE::ArgExc,

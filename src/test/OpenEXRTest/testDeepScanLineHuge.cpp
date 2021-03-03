@@ -138,7 +138,7 @@ generateRandomFile (int channelCount,
 
     
     // count total size of all pixels
-    Int64 bytes_per_sample = 0;
+    uint64_t bytes_per_sample = 0;
     for (int i = 0; i < channelCount; i++)
     {
         PixelType type = NUM_PIXELTYPES;
@@ -176,13 +176,13 @@ generateRandomFile (int channelCount,
 
     cout << "writing file " << endl;
 
-    Int64 total_number_of_samples = 0;
+    uint64_t total_number_of_samples = 0;
     
     // compute ideal number of samples per pixel assuming we want abotut 5GiB of data
-    // int samples_per_pixel = int(5l*1024l*1024l*1024l/Int64(width*height)) / bytes_per_sample;
+    // int samples_per_pixel = int(5l*1024l*1024l*1024l/uint64_t(width*height)) / bytes_per_sample;
 
     // compute ideal number of samples per pixel assuming we want abotut 15GiB of data
-    int samples_per_pixel = int(numGib*1024l*1024l*1024l/Int64(width*height)) / bytes_per_sample;
+    int samples_per_pixel = int(numGib*1024l*1024l*1024l/uint64_t(width*height)) / bytes_per_sample;
     
     cout << "  generating approx. " << samples_per_pixel << " samples per pixel\n";
     
@@ -210,7 +210,7 @@ generateRandomFile (int channelCount,
     
 
     
-    Int64 write_pointer=0;
+    uint64_t write_pointer=0;
     
     for (int i = 0; i < height; i++)
     {
@@ -300,7 +300,7 @@ readFile (int channelCount, bool bulkRead, const std::string & fn)
                                         sizeof (unsigned int) * 1,          // xStride// 9
                                         sizeof (unsigned int) * width));    // yStride// 10
 
-    Int64 bytes_per_sample=0;
+    uint64_t bytes_per_sample=0;
     
     for (int i = 0; i < channelCount; i++)
     {
@@ -338,7 +338,7 @@ readFile (int channelCount, bool bulkRead, const std::string & fn)
     file.setFrameBuffer(frameBuffer);
 
     file.readPixelSampleCounts(dataWindow.min.y, dataWindow.max.y);
-    Int64 total_pixel_count = 0;
+    uint64_t total_pixel_count = 0;
     
     for (int i = 0; i < dataWindow.max.y - dataWindow.min.y + 1; i++)
     {
@@ -352,7 +352,7 @@ readFile (int channelCount, bool bulkRead, const std::string & fn)
     
     vector<char> localstorage(total_pixel_count*bytes_per_sample);
     
-    Int64 write_pointer=0;
+    uint64_t write_pointer=0;
     
     for (int i = 0; i < height; i++)
     {

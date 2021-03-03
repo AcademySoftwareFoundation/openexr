@@ -68,8 +68,8 @@ class C_IStream: public IStream
 	IStream (fileName), _file (file) {}
 
     virtual bool	read (char c[/*n*/], int n);
-    virtual Int64	tellg ();
-    virtual void	seekg (Int64 pos);
+    virtual uint64_t	tellg ();
+    virtual void	seekg (uint64_t pos);
     virtual void	clear ();
 
   private:
@@ -86,8 +86,8 @@ class C_OStream: public OStream
 	OStream (fileName), _file (file) {}
 
     virtual void	write (const char c[/*n*/], int n);
-    virtual Int64	tellp ();
-    virtual void	seekp (Int64 pos);
+    virtual uint64_t	tellp ();
+    virtual void	seekp (uint64_t pos);
 
   private:
 
@@ -116,7 +116,7 @@ C_IStream::read (char c[/*n*/], int n)
 }
 
 
-Int64
+uint64_t
 C_IStream::tellg ()
 {
     return ftell (_file);
@@ -124,7 +124,7 @@ C_IStream::tellg ()
 
 
 void
-C_IStream::seekg (Int64 pos)
+C_IStream::seekg (uint64_t pos)
 {
     clearerr (_file);
     fseek (_file, pos, SEEK_SET);
@@ -148,7 +148,7 @@ C_OStream::write (const char c[/*n*/], int n)
 }
 
 
-Int64
+uint64_t
 C_OStream::tellp ()
 {
     return ftell (_file);
@@ -156,7 +156,7 @@ C_OStream::tellp ()
 
 
 void
-C_OStream::seekp (Int64 pos)
+C_OStream::seekp (uint64_t pos)
 {
     clearerr (_file);
     fseek (_file, pos, SEEK_SET);

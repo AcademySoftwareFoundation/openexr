@@ -138,7 +138,7 @@ calculateBytesPerLine (const Header &header,
                        int minY, int maxY,
                        std::vector<int>& xOffsets,
                        std::vector<int>& yOffsets,
-                       std::vector<Int64>& bytesPerLine)
+                       std::vector<uint64_t>& bytesPerLine)
 {
     const ChannelList &channels = header.channels();
 
@@ -304,7 +304,7 @@ calculateNumTiles (int *numTiles,
     for (int i = 0; i < numLevels; i++)
     {
         // use 64 bits to avoid int overflow if size is large.
-        Int64 l = levelSize (min, max, i, rmode);
+        uint64_t l = levelSize (min, max, i, rmode);
         numTiles[i] = (l + size - 1) / size;
     }
 }
@@ -367,7 +367,7 @@ getTiledChunkOffsetTableSize(const Header& header)
         //
         // Calculate lineOffsetSize.
         //
-        Int64 lineOffsetSize = 0;
+        uint64_t lineOffsetSize = 0;
         const TileDescription &desc = header.tileDescription();
         switch (desc.mode)
         {
@@ -375,8 +375,8 @@ getTiledChunkOffsetTableSize(const Header& header)
             case MIPMAP_LEVELS:
                 for (int i = 0; i < numXLevels; i++)
                 {
-                    lineOffsetSize += static_cast<Int64>(numXTiles[i]) * static_cast<Int64>(numYTiles[i]);
-                    if ( lineOffsetSize > static_cast<Int64>(std::numeric_limits<int>::max()) )
+                    lineOffsetSize += static_cast<uint64_t>(numXTiles[i]) * static_cast<uint64_t>(numYTiles[i]);
+                    if ( lineOffsetSize > static_cast<uint64_t>(std::numeric_limits<int>::max()) )
                     {
                         throw IEX_NAMESPACE::LogicExc("Maximum number of tiles exceeded");
                     }
@@ -387,8 +387,8 @@ getTiledChunkOffsetTableSize(const Header& header)
                 {
                     for (int j = 0; j < numYLevels; j++)
                     {
-                        lineOffsetSize += static_cast<Int64>(numXTiles[i]) * static_cast<Int64>(numYTiles[j]);
-                        if ( lineOffsetSize > static_cast<Int64>(std::numeric_limits<int>::max()) )
+                        lineOffsetSize += static_cast<uint64_t>(numXTiles[i]) * static_cast<uint64_t>(numYTiles[j]);
+                        if ( lineOffsetSize > static_cast<uint64_t>(std::numeric_limits<int>::max()) )
                         {
                             throw IEX_NAMESPACE::LogicExc("Maximum number of tiles exceeded");
                         }

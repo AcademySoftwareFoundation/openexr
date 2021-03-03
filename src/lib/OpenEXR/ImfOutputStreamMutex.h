@@ -56,7 +56,7 @@ struct OutputStreamMutex
 #endif
 {
     OPENEXR_IMF_INTERNAL_NAMESPACE::OStream* os = nullptr;
-    Int64 currentPosition = 0;
+    uint64_t currentPosition = 0;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
