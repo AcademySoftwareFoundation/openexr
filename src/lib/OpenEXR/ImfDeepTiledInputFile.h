@@ -388,7 +388,7 @@ class DeepTiledInputFile : public GenericInputFile
     void                rawTileData (int &dx, int &dy,
                                      int &lx, int &ly,
                                      char *pixelData,
-                                     Int64 &dataSize) const;
+                                     uint64_t &dataSize) const;
 
     //------------------------------------------------------------------
     // Read pixel sample counts into a slice in the frame buffer.

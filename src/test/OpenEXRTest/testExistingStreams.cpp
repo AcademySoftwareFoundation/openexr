@@ -121,15 +121,15 @@ class MMIFStream: public OPENEXR_IMF_NAMESPACE::IStream
 
     virtual bool	read (char c[/*n*/], int n);
     virtual char*       readMemoryMapped (int n);
-    virtual Int64	tellg () {return _pos;}
-    virtual void	seekg (Int64 pos) {_pos = pos;}
+    virtual uint64_t	tellg () {return _pos;}
+    virtual void	seekg (uint64_t pos) {_pos = pos;}
     virtual void	clear () {}
 
   private:
 
     char*               _buffer;
-    Int64               _length;
-    Int64               _pos;
+    uint64_t            _length;
+    uint64_t            _pos;
 };
 
 
@@ -179,7 +179,7 @@ MMIFStream::read (char c[/*n*/], int n)
     if (_pos >= _length && n != 0)
 	throw IEX_NAMESPACE::InputExc ("Unexpected end of file.");
         
-    Int64 n2 = n;
+    uint64_t n2 = n;
     bool retVal = true;
 
     if (_length - _pos <= n2)

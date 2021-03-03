@@ -43,11 +43,12 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfTileDescription.h"
-#include "ImfInt64.h"
 #include <vector>
 #include "ImfNamespace.h"
 #include "ImfForward.h"
 #include "ImfExport.h"
+
+#include <cstdint>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -70,9 +71,9 @@ class TileOffsets
     IMF_EXPORT
     void		readFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,  bool &complete,bool isMultiPart,bool isDeep);
     IMF_EXPORT
-    void        readFrom (std::vector<Int64> chunkOffsets,bool &complete);
+    void        readFrom (std::vector<uint64_t> chunkOffsets,bool &complete);
     IMF_EXPORT
-    Int64		writeTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os) const;
+    uint64_t		writeTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os) const;
 
 
     //-----------------------------------------------------------
@@ -98,17 +99,17 @@ class TileOffsets
     //-----------------------
 
     IMF_EXPORT
-    Int64 &		operator () (int dx, int dy, int lx, int ly);
+    uint64_t &		operator () (int dx, int dy, int lx, int ly);
     IMF_EXPORT
-    Int64 &		operator () (int dx, int dy, int l);
+    uint64_t &		operator () (int dx, int dy, int l);
     IMF_EXPORT
-    const Int64 &	operator () (int dx, int dy, int lx, int ly) const;
+    const uint64_t &	operator () (int dx, int dy, int lx, int ly) const;
     IMF_EXPORT
-    const Int64 &	operator () (int dx, int dy, int l) const;
+    const uint64_t &	operator () (int dx, int dy, int l) const;
     IMF_EXPORT
     bool        isValidTile (int dx, int dy, int lx, int ly) const;
     IMF_EXPORT
-    const std::vector<std::vector<std::vector <Int64> > >& getOffsets() const;
+    const std::vector<std::vector<std::vector <uint64_t> > >& getOffsets() const;
     
   private:
 
@@ -123,7 +124,7 @@ class TileOffsets
     int			_numXLevels;
     int			_numYLevels;
 
-    std::vector<std::vector<std::vector <Int64> > > _offsets;
+    std::vector<std::vector<std::vector <uint64_t> > > _offsets;
     
 };
 

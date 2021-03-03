@@ -501,9 +501,9 @@ MultiPartOutputFile::Data::writeChunkTableOffsets (vector<OutputPartData*> &part
     {
         int chunkTableSize = getChunkOffsetTableSize(parts[i]->header);
 
-        Int64 pos = os->tellp();
+        uint64_t pos = os->tellp();
 
-        if (pos == static_cast<Int64>(-1))
+        if (pos == static_cast<uint64_t>(-1))
             IEX_NAMESPACE::throwErrnoExc ("Cannot determine current file position (%T).");
 
         parts[i]->chunkOffsetTablePosition = os->tellp();
@@ -514,7 +514,7 @@ MultiPartOutputFile::Data::writeChunkTableOffsets (vector<OutputPartData*> &part
 
         for (int j = 0; j < chunkTableSize; j++)
         {
-            Int64 empty = 0;
+            uint64_t empty = 0;
             OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*os, empty);
         }
     }

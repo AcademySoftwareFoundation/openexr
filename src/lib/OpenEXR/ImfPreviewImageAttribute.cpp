@@ -89,7 +89,7 @@ PreviewImageAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &i
     }
 
     // total attribute size should be four bytes per pixel + 8 bytes for width and height dimensions
-    if (static_cast<Int64>(width) * static_cast<Int64>(height) * 4l + 8l != static_cast<Int64>(size) )
+    if (static_cast<uint64_t>(width) * static_cast<uint64_t>(height) * 4l + 8l != static_cast<uint64_t>(size) )
     {
         throw IEX_NAMESPACE::InputExc("Mismatch between Preview Image Attribute size and dimensions");
     }

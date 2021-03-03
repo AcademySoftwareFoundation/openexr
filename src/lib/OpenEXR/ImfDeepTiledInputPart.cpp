@@ -233,7 +233,7 @@ void
 DeepTiledInputPart::rawTileData (int &dx, int &dy,
                                  int &lx, int &ly,
                                  char * pixelData,
-                                 Int64 & dataSize) const
+                                 uint64_t & dataSize) const
 {
     file->rawTileData(dx, dy, lx, ly, pixelData, dataSize );
 }

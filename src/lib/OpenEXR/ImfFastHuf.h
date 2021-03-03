@@ -34,9 +34,10 @@
 #ifndef INCLUDED_IMF_FAST_HUF_H
 #define INCLUDED_IMF_FAST_HUF_H
 
-#include "ImfInt64.h"
 #include "ImfNamespace.h"
 #include "ImfExport.h"
+
+#include <cstdint>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -108,9 +109,9 @@ class FastHufDecoder
 
   private:
 
-    void  buildTables (Int64*, Int64*);
-    void  refill (Int64&, int, Int64&, int&, const unsigned char *&, int&);
-    Int64 readBits (int, Int64&, int&, const char *&);
+    void  buildTables (uint64_t*, uint64_t*);
+    void  refill (uint64_t&, int, uint64_t&, int&, const unsigned char *&, int&);
+    uint64_t readBits (int, uint64_t&, int&, const char *&);
 
     int             _rleSymbol;        // RLE symbol written by the encoder.
                                        // This could be 65536, so beware
@@ -127,11 +128,11 @@ class FastHufDecoder
                                        // the same length. Ids run from 0
                                        // to mNumSymbols-1.
 
-    Int64 _ljBase[MAX_CODE_LEN + 1];   // the 'left justified base' table.
+    uint64_t _ljBase[MAX_CODE_LEN + 1];   // the 'left justified base' table.
                                        // Takes base[i] (i = code length)
-                                       // and 'left justifies' it into an Int64
+                                       // and 'left justifies' it into an uint64_t
 
-    Int64 _ljOffset[MAX_CODE_LEN +1 ]; // There are some other terms that can 
+    uint64_t _ljOffset[MAX_CODE_LEN +1 ]; // There are some other terms that can 
                                        // be folded into constants when taking
                                        // the 'left justified' decode path. This
                                        // holds those constants, indexed by
@@ -150,7 +151,7 @@ class FastHufDecoder
 
     int            _tableSymbol[1 << TABLE_LOOKUP_BITS];
     unsigned char  _tableCodeLen[1 << TABLE_LOOKUP_BITS];
-    Int64          _tableMin;
+    uint64_t       _tableMin;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

@@ -37,7 +37,8 @@
 
 //----------------------------------------------------------------------------
 //
-//	Int64 -- unsigned 64-bit integers, imported from namespace Imath
+//	Deprecated Int64/SInt64 unsigned 64-bit integer type.
+//      Use int64_t and uint64_t instead.
 //
 //----------------------------------------------------------------------------
 
@@ -46,8 +47,11 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-using IMATH_NAMESPACE::Int64;
-using IMATH_NAMESPACE::SInt64;
+IMATH_DEPRECATED("use int64_t")
+typedef IMATH_NAMESPACE::Int64 Int64;
+
+IMATH_DEPRECATED("use sint64_t")
+typedef IMATH_NAMESPACE::SInt64 Sint64;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

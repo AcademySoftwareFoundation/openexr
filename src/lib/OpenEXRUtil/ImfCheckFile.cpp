@@ -31,11 +31,11 @@ using Imath::Box2i;
 //
 // limits for reduceMemory mode
 //
-const Int64 gMaxScanlineWidth= 1000000;
-const Int64 gMaxTilePixelsPerScanline = 8000000;
-const Int64 gMaxTileSize = 1000*1000;
-const Int64 gMaxSamplesPerDeepPixel = 1000;
-const Int64 gMaxSamplesPerScanline = 1<<12;
+const uint64_t gMaxScanlineWidth= 1000000;
+const uint64_t gMaxTilePixelsPerScanline = 8000000;
+const uint64_t gMaxTileSize = 1000*1000;
+const uint64_t gMaxSamplesPerDeepPixel = 1000;
+const uint64_t gMaxSamplesPerScanline = 1<<12;
 
 //
 // limits for reduceTime mode
@@ -503,10 +503,10 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
         Box2i dataWindow = fileHeader.dataWindow();
 
         //
-        // use Int64 for dimensions, since dataWindow+1 could overflow int storage
+        // use uint64_t for dimensions, since dataWindow+1 could overflow int storage
         //
-        Int64 height = static_cast<Int64>(dataWindow.size().y)+1;
-        Int64 width = static_cast<Int64>(dataWindow.size().x)+1;
+        uint64_t height = static_cast<uint64_t>(dataWindow.size().y)+1;
+        uint64_t width = static_cast<uint64_t>(dataWindow.size().x)+1;
 
         const TileDescription& td = in.header().tileDescription();
         int tileWidth = td.xSize;
@@ -532,7 +532,7 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
         //
         // memOffset is difference in bytes between theoretical address of pixel (0,0) and the origin of the data window
         //
-        Int64 memOffset = sizeof(unsigned int) * (static_cast<Int64>(dataWindow.min.x) + static_cast<Int64>(dataWindow.min.y) * width);
+        uint64_t memOffset = sizeof(unsigned int) * (static_cast<uint64_t>(dataWindow.min.x) + static_cast<uint64_t>(dataWindow.min.y) * width);
 
         //
         // Use integer arithmetic instead of pointer arithmetic to compute offset into array.
@@ -738,7 +738,7 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
         bool widePart = false;
         bool largeTiles = false;
         Box2i b = in.header( part ).dataWindow();
-        Int64 imageWidth = static_cast<Int64>(b.max.x) - static_cast<Int64>(b.min.x) + 1ll;
+        uint64_t imageWidth = static_cast<uint64_t>(b.max.x) - static_cast<uint64_t>(b.min.x) + 1ll;
 
          //
          // very wide scanline parts take excessive memory to read.
@@ -760,8 +760,8 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
         {
             const TileDescription& tileDescription = in.header( part ).tileDescription();
 
-            Int64 tilesPerScanline = ( imageWidth + tileDescription.xSize - 1ll) / tileDescription.xSize;
-            Int64 tileSize = static_cast<Int64>(tileDescription.xSize) * static_cast<Int64>(tileDescription.ySize);
+            uint64_t tilesPerScanline = ( imageWidth + tileDescription.xSize - 1ll) / tileDescription.xSize;
+            uint64_t tileSize = static_cast<uint64_t>(tileDescription.xSize) * static_cast<uint64_t>(tileDescription.ySize);
 
             if ( tileSize * tilesPerScanline > gMaxTilePixelsPerScanline )
             {
@@ -909,11 +909,11 @@ class PtrIStream: public IStream
 
     }
 
-    virtual Int64	tellg ()
+    virtual uint64_t	tellg ()
     {
         return (current - base);
     }
-    virtual void	seekg (Int64 pos)
+    virtual void	seekg (uint64_t pos)
     {
 
         if( pos < 0 )
@@ -985,7 +985,7 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
       {
          MultiPartInputFile multi(source);
          Box2i b = multi.header(0).dataWindow();
-         Int64 imageWidth = static_cast<Int64>(b.max.x) - static_cast<Int64>(b.min.x) + 1ll;
+         uint64_t imageWidth = static_cast<uint64_t>(b.max.x) - static_cast<uint64_t>(b.min.x) + 1ll;
 
          // confirm first part is small enough to read without using excessive memory
          if ( imageWidth <= gMaxScanlineWidth )
@@ -1004,8 +1004,8 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
          if (isTiled(firstPartType))
          {
              const TileDescription& tileDescription = multi.header(0).tileDescription();
-             Int64 tilesPerScanline = ( imageWidth + tileDescription.xSize - 1ll) / tileDescription.xSize;
-             Int64 tileSize = static_cast<Int64>(tileDescription.xSize) * static_cast<Int64>(tileDescription.ySize);
+             uint64_t tilesPerScanline = ( imageWidth + tileDescription.xSize - 1ll) / tileDescription.xSize;
+             uint64_t tileSize = static_cast<uint64_t>(tileDescription.xSize) * static_cast<uint64_t>(tileDescription.ySize);
              if ( tileSize * tilesPerScanline > gMaxTilePixelsPerScanline )
              {
                  firstPartWide = true;

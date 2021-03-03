@@ -150,7 +150,7 @@ class DeepScanLineInputPart
     IMF_EXPORT
     void                rawPixelData (int firstScanLine,
                                       char * pixelData,
-                                      Int64 &pixelDataSize);
+                                      uint64_t &pixelDataSize);
                              
                                       
     //-----------------------------------------------------------

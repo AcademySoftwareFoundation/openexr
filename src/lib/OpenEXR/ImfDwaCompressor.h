@@ -40,14 +40,15 @@
 //
 //------------------------------------------------------------------------------
 
-#include <vector>
 #include <half.h>
 
-#include "ImfInt64.h"
 #include "ImfZip.h"
 #include "ImfChannelList.h"
 #include "ImfCompressor.h"
 #include "ImfNamespace.h"
+
+#include <vector>
+#include <cstdint>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -170,15 +171,15 @@ class DwaCompressor: public Compressor
     std::vector<Classifier>    _channelRules;
 
     char*             _packedAcBuffer;
-    Int64             _packedAcBufferSize;
+    uint64_t          _packedAcBufferSize;
     char*             _packedDcBuffer;
-    Int64             _packedDcBufferSize;
+    uint64_t          _packedDcBufferSize;
     char*             _rleBuffer;
-    Int64             _rleBufferSize;
+    uint64_t          _rleBufferSize;
     char*             _outBuffer;
-    Int64             _outBufferSize;
+    uint64_t          _outBufferSize;
     char*             _planarUncBuffer[NUM_COMPRESSOR_SCHEMES];
-    Int64             _planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
+    uint64_t          _planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
 
     Zip              *_zip;
     float             _dwaCompressionLevel;

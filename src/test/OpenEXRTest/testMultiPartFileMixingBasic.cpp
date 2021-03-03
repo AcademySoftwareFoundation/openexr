@@ -1433,8 +1433,8 @@ killOffsetTables (const std::string & fn)
     fsetpos (f, &position);
     
     // write blank offset table
-    vector<Int64> new_offset_tables(size);
-    fwrite(&new_offset_tables[0],sizeof(Int64),size,f);
+    vector<uint64_t> new_offset_tables(size);
+    fwrite(&new_offset_tables[0],sizeof(uint64_t),size,f);
 
     fclose(f);
     

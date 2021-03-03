@@ -47,7 +47,6 @@
 #include "ImfCompression.h"
 #include "ImfName.h"
 #include "ImfTileDescription.h"
-#include "ImfInt64.h"
 #include "ImathVec.h"
 #include "ImathBox.h"
 #include "IexBaseExc.h"
@@ -59,6 +58,7 @@
 #include <map>
 #include <iosfwd>
 #include <string>
+#include <cstdint>
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -488,7 +488,7 @@ class Header
 
 
     IMF_EXPORT
-    Int64			writeTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
+    uint64_t			writeTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
 					 bool isTiled = false) const;
 
     IMF_EXPORT

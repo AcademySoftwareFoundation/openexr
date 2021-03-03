@@ -178,7 +178,7 @@ struct OutputFile::Data
     Header		 header;		// the image header
     bool                 multiPart;		// is the file multipart?
     int			 version;               // version attribute \todo NOT BEING WRITTEN PROPERLY
-    Int64		 previewPosition;       // file position for preview
+    uint64_t		 previewPosition;       // file position for preview
     FrameBuffer		 frameBuffer;           // framebuffer to write into
     int			 currentScanLine;       // next scanline to be written
     int			 missingScanLines;      // number of lines to write
@@ -187,7 +187,7 @@ struct OutputFile::Data
     int			 maxX;			// data window's max x coord
     int			 minY;			// data window's min y coord
     int			 maxY;			// data window's max x coord
-    vector<Int64>	 lineOffsets;		// stores offsets in file for
+    vector<uint64_t>	 lineOffsets;		// stores offsets in file for
 						// each scanline
     vector<size_t>	 bytesPerLine;          // combined size of a line over
                                                 // all channels
@@ -195,7 +195,7 @@ struct OutputFile::Data
                                                 // its linebuffer
     Compressor::Format	 format;                // compressor's data format
     vector<OutSliceInfo> slices;		// info about channels in file
-    Int64		 lineOffsetsPosition;   // file position for line
+    uint64_t		 lineOffsetsPosition;   // file position for line
                                                 // offset table
 
     vector<LineBuffer*>  lineBuffers;           // each holds one line buffer
@@ -250,12 +250,12 @@ OutputFile::Data::getLineBuffer (int number)
 
 namespace {
 
-Int64
-writeLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, const vector<Int64> &lineOffsets)
+uint64_t
+writeLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, const vector<uint64_t> &lineOffsets)
 {
-    Int64 pos = os.tellp();
+    uint64_t pos = os.tellp();
 
-    if (pos == static_cast<Int64>(-1))
+    if (pos == static_cast<uint64_t>(-1))
 	IEX_NAMESPACE::throwErrnoExc ("Cannot determine current file position (%T).");
     
     for (unsigned int i = 0; i < lineOffsets.size(); i++)
@@ -278,7 +278,7 @@ writePixelData (OutputStreamMutex *filedata,
     // without calling tellp() (tellp() can be fairly expensive).
     //
 
-    Int64 currentPosition = filedata->currentPosition;
+    uint64_t currentPosition = filedata->currentPosition;
     filedata->currentPosition = 0;
 
     if (currentPosition == 0)
@@ -864,7 +864,7 @@ OutputFile::~OutputFile ()
 #if ILMTHREAD_THREADING_ENABLED
             std::lock_guard<std::mutex> lock(*_data->_streamData);
 #endif
-            Int64 originalPosition = _data->_streamData->os->tellp();
+            uint64_t originalPosition = _data->_streamData->os->tellp();
 
             if (_data->lineOffsetsPosition > 0)
             {
@@ -1377,7 +1377,7 @@ OutputFile::updatePreviewImage (const PreviewRgba newPixels[])
     // preview image, and jump back to the saved file position.
     //
 
-    Int64 savedPosition = _data->_streamData->os->tellp();
+    uint64_t savedPosition = _data->_streamData->os->tellp();
 
     try
     {
@@ -1400,7 +1400,7 @@ OutputFile::breakScanLine  (int y, int offset, int length, char c)
 #if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
-    Int64 position = 
+    uint64_t position = 
 	_data->lineOffsets[(y - _data->minY) / _data->linesInBuffer];
 
     if (!position)

@@ -122,7 +122,7 @@ TileOffsets::findTiles (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, bool isMult
 	{
 	    for (unsigned int dx = 0; dx < _offsets[l][dy].size(); ++dx)
 	    {
-		Int64 tileOffset = is.tellg();
+		uint64_t tileOffset = is.tellg();
 
 		if (isMultiPartFile)
 		{
@@ -144,8 +144,8 @@ TileOffsets::findTiles (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, bool isMult
 
                 if(isDeep)
                 {
-                     Int64 packed_offset_table_size;
-                     Int64 packed_sample_size;
+                     uint64_t packed_offset_table_size;
+                     uint64_t packed_sample_size;
                      
                      OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, packed_offset_table_size);
                      OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, packed_sample_size);
@@ -159,7 +159,7 @@ TileOffsets::findTiles (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, bool isMult
                           throw IEX_NAMESPACE::IoExc("Invalid deep tile size");
                      }
 
-                     // next Int64 is unpacked sample size - skip that too
+                     // next uint64_t is unpacked sample size - skip that too
                      Xdr::skip <StreamIO> (is, packed_offset_table_size+packed_sample_size+8);
                     
                 }
@@ -197,7 +197,7 @@ TileOffsets::reconstructFromFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,bo
     // of the tiles we find.
     //
 
-    Int64 position = is.tellg();
+    uint64_t position = is.tellg();
 
     try
     {
@@ -257,7 +257,7 @@ TileOffsets::readFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, bool &comple
 
 
 void
-TileOffsets::readFrom (std::vector<Int64> chunkOffsets,bool &complete)
+TileOffsets::readFrom (std::vector<uint64_t> chunkOffsets,bool &complete)
 {
     size_t totalSize = 0;
  
@@ -284,7 +284,7 @@ TileOffsets::readFrom (std::vector<Int64> chunkOffsets,bool &complete)
 }
 
 
-Int64
+uint64_t
 TileOffsets::writeTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os) const
 {
     //
@@ -293,9 +293,9 @@ TileOffsets::writeTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os) const
     // in the file.
     //
     
-    Int64 pos = os.tellp();
+    uint64_t pos = os.tellp();
 
-    if (pos == static_cast<Int64>(-1))
+    if (pos == static_cast<uint64_t>(-1))
 	IEX_NAMESPACE::throwErrnoExc ("Cannot determine current file position (%T).");
 
     for (unsigned int l = 0; l < _offsets.size(); ++l)
@@ -308,7 +308,7 @@ TileOffsets::writeTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os) const
 
 namespace {
 struct tilepos{
-    Int64 filePos;
+    uint64_t filePos;
     int dx;
     int dy;
     int l;
@@ -479,7 +479,7 @@ TileOffsets::isValidTile (int dx, int dy, int lx, int ly) const
 }
 
 
-Int64 &
+uint64_t &
 TileOffsets::operator () (int dx, int dy, int lx, int ly)
 {
     //
@@ -509,14 +509,14 @@ TileOffsets::operator () (int dx, int dy, int lx, int ly)
 }
 
 
-Int64 &
+uint64_t &
 TileOffsets::operator () (int dx, int dy, int l)
 {
     return operator () (dx, dy, l, l);
 }
 
 
-const Int64 &
+const uint64_t &
 TileOffsets::operator () (int dx, int dy, int lx, int ly) const
 {
     //
@@ -546,13 +546,13 @@ TileOffsets::operator () (int dx, int dy, int lx, int ly) const
 }
 
 
-const Int64 &
+const uint64_t &
 TileOffsets::operator () (int dx, int dy, int l) const
 {
     return operator () (dx, dy, l, l);
 }
 
-const std::vector<std::vector<std::vector <Int64> > >&
+const std::vector<std::vector<std::vector <uint64_t> > >&
 TileOffsets::getOffsets() const
 {
     return _offsets;

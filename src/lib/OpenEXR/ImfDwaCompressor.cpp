@@ -134,7 +134,6 @@
 #include "ImfStandardAttributes.h"
 #include "ImfHeader.h"
 #include "ImfHuf.h"
-#include "ImfInt64.h"
 #include "ImfIntAttribute.h"
 #include "ImfIO.h"
 #include "ImfMisc.h"
@@ -160,6 +159,7 @@
 
 #include <cstddef>
 
+#include <cstdint>
 
 // Windows specific addition to prevent the indirect import of the redefined min/max macros
 #if defined _WIN32 || defined _WIN64
@@ -1965,7 +1965,7 @@ DwaCompressor::compress
         _outBuffer = new char[outBufferSize];
     }
 
-    char *outDataPtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(OPENEXR_IMF_NAMESPACE::Int64) +
+    char *outDataPtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(uint64_t) +
                                    channelRuleSize];
 
     //
@@ -1980,21 +1980,21 @@ DwaCompressor::compress
     if (_packedDcBuffer)
         packedDcEnd = _packedDcBuffer;
 
-    #define OBIDX(x) (Int64 *)&_outBuffer[x * sizeof (Int64)]
+    #define OBIDX(x) (uint64_t *)&_outBuffer[x * sizeof (uint64_t)]
 
-    Int64 *version                 = OBIDX (VERSION);
-    Int64 *unknownUncompressedSize = OBIDX (UNKNOWN_UNCOMPRESSED_SIZE);
-    Int64 *unknownCompressedSize   = OBIDX (UNKNOWN_COMPRESSED_SIZE);
-    Int64 *acCompressedSize        = OBIDX (AC_COMPRESSED_SIZE);
-    Int64 *dcCompressedSize        = OBIDX (DC_COMPRESSED_SIZE);
-    Int64 *rleCompressedSize       = OBIDX (RLE_COMPRESSED_SIZE);
-    Int64 *rleUncompressedSize     = OBIDX (RLE_UNCOMPRESSED_SIZE);
-    Int64 *rleRawSize              = OBIDX (RLE_RAW_SIZE);
+    uint64_t *version                 = OBIDX (VERSION);
+    uint64_t *unknownUncompressedSize = OBIDX (UNKNOWN_UNCOMPRESSED_SIZE);
+    uint64_t *unknownCompressedSize   = OBIDX (UNKNOWN_COMPRESSED_SIZE);
+    uint64_t *acCompressedSize        = OBIDX (AC_COMPRESSED_SIZE);
+    uint64_t *dcCompressedSize        = OBIDX (DC_COMPRESSED_SIZE);
+    uint64_t *rleCompressedSize       = OBIDX (RLE_COMPRESSED_SIZE);
+    uint64_t *rleUncompressedSize     = OBIDX (RLE_UNCOMPRESSED_SIZE);
+    uint64_t *rleRawSize              = OBIDX (RLE_RAW_SIZE);
 
-    Int64 *totalAcUncompressedCount = OBIDX (AC_UNCOMPRESSED_COUNT);
-    Int64 *totalDcUncompressedCount = OBIDX (DC_UNCOMPRESSED_COUNT);
+    uint64_t *totalAcUncompressedCount = OBIDX (AC_UNCOMPRESSED_COUNT);
+    uint64_t *totalDcUncompressedCount = OBIDX (DC_UNCOMPRESSED_COUNT);
 
-    Int64 *acCompression            = OBIDX (AC_COMPRESSION);
+    uint64_t *acCompression            = OBIDX (AC_COMPRESSION);
 
     int minX   = range.min.x;
     int maxX   = std::min(range.max.x, _max[0]);
@@ -2005,7 +2005,7 @@ DwaCompressor::compress
     // Zero all the numbers in the chunk header
     //
 
-    memset (_outBuffer, 0, NUM_SIZES_SINGLE * sizeof (Int64));
+    memset (_outBuffer, 0, NUM_SIZES_SINGLE * sizeof (uint64_t));
 
     //
     // Setup the AC compression strategy and the version in the data block,
@@ -2018,7 +2018,7 @@ DwaCompressor::compress
 
     if (fileVersion >= 2) 
     {
-        char *writePtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(OPENEXR_IMF_NAMESPACE::Int64)];
+        char *writePtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(uint64_t)];
         Xdr::write<CharPtrIO> (writePtr, channelRuleSize);
         
         for (size_t i = 0; i < channelRules.size(); ++i) 
@@ -2314,8 +2314,8 @@ DwaCompressor::compress
 
     for (int i = 0; i < NUM_SIZES_SINGLE; ++i)
     {
-        Int64  src = *(((Int64 *)_outBuffer) + i);
-        char  *dst = (char *)(((Int64 *)_outBuffer) + i);
+        uint64_t  src = *(((uint64_t *)_outBuffer) + i);
+        char  *dst = (char *)(((uint64_t *)_outBuffer) + i);
 
         Xdr::write<CharPtrIO> (dst, src);
     }
@@ -2368,8 +2368,8 @@ DwaCompressor::uncompress
     int minY = range.min.y;
     int maxY = std::min (range.max.y, _max[1]);
 
-    Int64 iSize = static_cast<Int64>( inSize );
-    Int64 headerSize = NUM_SIZES_SINGLE*sizeof(Int64);
+    uint64_t iSize = static_cast<uint64_t>( inSize );
+    uint64_t headerSize = NUM_SIZES_SINGLE*sizeof(uint64_t);
     if (iSize < headerSize) 
     {
         throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
@@ -2382,8 +2382,8 @@ DwaCompressor::uncompress
 
     for (int i = 0; i < NUM_SIZES_SINGLE; ++i)
     {
-        Int64      *dst =  (((Int64 *)inPtr) + i);
-        const char *src = (char *)(((Int64 *)inPtr) + i);
+        uint64_t   *dst =  (((uint64_t *)inPtr) + i);
+        const char *src = (char *)(((uint64_t *)inPtr) + i);
 
         Xdr::read<CharPtrIO> (src, *dst);
     }
@@ -2392,28 +2392,28 @@ DwaCompressor::uncompress
     // Unwind all the counter info
     //
 
-    const Int64 *inPtr64 = (const Int64*) inPtr;
+    const uint64_t *inPtr64 = (const uint64_t*) inPtr;
 
-    Int64 version                  = *(inPtr64 + VERSION);
-    Int64 unknownUncompressedSize  = *(inPtr64 + UNKNOWN_UNCOMPRESSED_SIZE);
-    Int64 unknownCompressedSize    = *(inPtr64 + UNKNOWN_COMPRESSED_SIZE);
-    Int64 acCompressedSize         = *(inPtr64 + AC_COMPRESSED_SIZE);
-    Int64 dcCompressedSize         = *(inPtr64 + DC_COMPRESSED_SIZE);
-    Int64 rleCompressedSize        = *(inPtr64 + RLE_COMPRESSED_SIZE);
-    Int64 rleUncompressedSize      = *(inPtr64 + RLE_UNCOMPRESSED_SIZE);
-    Int64 rleRawSize               = *(inPtr64 + RLE_RAW_SIZE);
+    uint64_t version                  = *(inPtr64 + VERSION);
+    uint64_t unknownUncompressedSize  = *(inPtr64 + UNKNOWN_UNCOMPRESSED_SIZE);
+    uint64_t unknownCompressedSize    = *(inPtr64 + UNKNOWN_COMPRESSED_SIZE);
+    uint64_t acCompressedSize         = *(inPtr64 + AC_COMPRESSED_SIZE);
+    uint64_t dcCompressedSize         = *(inPtr64 + DC_COMPRESSED_SIZE);
+    uint64_t rleCompressedSize        = *(inPtr64 + RLE_COMPRESSED_SIZE);
+    uint64_t rleUncompressedSize      = *(inPtr64 + RLE_UNCOMPRESSED_SIZE);
+    uint64_t rleRawSize               = *(inPtr64 + RLE_RAW_SIZE);
  
-    Int64 totalAcUncompressedCount = *(inPtr64 + AC_UNCOMPRESSED_COUNT); 
-    Int64 totalDcUncompressedCount = *(inPtr64 + DC_UNCOMPRESSED_COUNT); 
+    uint64_t totalAcUncompressedCount = *(inPtr64 + AC_UNCOMPRESSED_COUNT); 
+    uint64_t totalDcUncompressedCount = *(inPtr64 + DC_UNCOMPRESSED_COUNT); 
 
-    Int64 acCompression            = *(inPtr64 + AC_COMPRESSION); 
+    uint64_t acCompression            = *(inPtr64 + AC_COMPRESSION); 
 
-    Int64 compressedSize           = unknownCompressedSize + 
+    uint64_t compressedSize           = unknownCompressedSize + 
                                      acCompressedSize +
                                      dcCompressedSize +
                                      rleCompressedSize;
 
-    const char *dataPtr            = inPtr + NUM_SIZES_SINGLE * sizeof(Int64);
+    const char *dataPtr            = inPtr + NUM_SIZES_SINGLE * sizeof(uint64_t);
 
     /* Both the sum and individual sizes are checked in case of overflow. */
     if (iSize < (headerSize + compressedSize) ||
@@ -2426,15 +2426,15 @@ DwaCompressor::uncompress
                             "(truncated file).");
     }
 
-    if ((SInt64)unknownUncompressedSize < 0  ||
-        (SInt64)unknownCompressedSize < 0    ||
-        (SInt64)acCompressedSize < 0         ||
-        (SInt64)dcCompressedSize < 0         ||
-        (SInt64)rleCompressedSize < 0        ||
-        (SInt64)rleUncompressedSize < 0      ||
-        (SInt64)rleRawSize < 0               ||
-        (SInt64)totalAcUncompressedCount < 0 ||
-        (SInt64)totalDcUncompressedCount < 0)
+    if ((int64_t)unknownUncompressedSize < 0  ||
+        (int64_t)unknownCompressedSize < 0    ||
+        (int64_t)acCompressedSize < 0         ||
+        (int64_t)dcCompressedSize < 0         ||
+        (int64_t)rleCompressedSize < 0        ||
+        (int64_t)rleUncompressedSize < 0      ||
+        (int64_t)rleRawSize < 0               ||
+        (int64_t)totalAcUncompressedCount < 0 ||
+        (int64_t)totalDcUncompressedCount < 0)
     {
         throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
                             " (corrupt header).");
@@ -2623,7 +2623,7 @@ DwaCompressor::uncompress
                                 "(corrupt header).");
         }
 
-        if (static_cast<Int64>(_zip->uncompress
+        if (static_cast<uint64_t>(_zip->uncompress
                     (compressedDcBuf, (int)dcCompressedSize, _packedDcBuffer))
             != totalDcUncompressedCount * sizeof (unsigned short))
         {
@@ -2667,7 +2667,7 @@ DwaCompressor::uncompress
         if (dstLen != rleUncompressedSize)
             throw IEX_NAMESPACE::BaseExc("RLE data corrupted");
 
-        if (static_cast<Int64>(rleUncompress
+        if (static_cast<uint64_t>(rleUncompress
                 ((int)rleUncompressedSize, 
                  (int)rleRawSize,
                  (signed char *)_rleBuffer,
@@ -2966,20 +2966,20 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     // of channels we have. 
     //
 
-    Int64 maxOutBufferSize  = 0;
-    Int64 numLossyDctChans  = 0;
-    Int64 unknownBufferSize = 0;
-    Int64 rleBufferSize     = 0;
+    uint64_t maxOutBufferSize  = 0;
+    uint64_t numLossyDctChans  = 0;
+    uint64_t unknownBufferSize = 0;
+    uint64_t rleBufferSize     = 0;
 
-    Int64 maxLossyDctAcSize = static_cast<Int64>(ceil ((float)numScanLines() / 8.0f)) *
-                            static_cast<Int64>(ceil ((float)(_max[0] - _min[0] + 1) / 8.0f)) *
+    uint64_t maxLossyDctAcSize = static_cast<uint64_t>(ceil ((float)numScanLines() / 8.0f)) *
+                            static_cast<uint64_t>(ceil ((float)(_max[0] - _min[0] + 1) / 8.0f)) *
                             63 * sizeof (unsigned short);
 
-    Int64 maxLossyDctDcSize = static_cast<Int64>(ceil ((float)numScanLines() / 8.0f)) *
-                            static_cast<Int64>(ceil ((float)(_max[0] - _min[0] + 1) / 8.0f)) *
+    uint64_t maxLossyDctDcSize = static_cast<uint64_t>(ceil ((float)numScanLines() / 8.0f)) *
+                            static_cast<uint64_t>(ceil ((float)(_max[0] - _min[0] + 1) / 8.0f)) *
                             sizeof (unsigned short);
 
-    Int64 pixelCount = static_cast<Int64>(numScanLines()) * static_cast<Int64>(_max[0] - _min[0] + 1);
+    uint64_t pixelCount = static_cast<uint64_t>(numScanLines()) * static_cast<uint64_t>(_max[0] - _min[0] + 1);
 
     for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
     {
@@ -2996,7 +2996,7 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
 
             maxOutBufferSize += std::max(
                             2lu * maxLossyDctAcSize + 65536lu,
-                            static_cast<Int64>(compressBound (maxLossyDctAcSize)) );
+                            static_cast<uint64_t>(compressBound (maxLossyDctAcSize)) );
             numLossyDctChans++;
             break;
 
@@ -3007,7 +3007,7 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
                 // of the source data.
                 //
 
-                Int64 rleAmount = 2 * pixelCount * OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
+                uint64_t rleAmount = 2 * pixelCount * OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
 
                 rleBufferSize += rleAmount;
             }
@@ -3033,13 +3033,13 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     // which could take slightly more space
     //
 
-    maxOutBufferSize += static_cast<Int64>(compressBound (rleBufferSize));
+    maxOutBufferSize += static_cast<uint64_t>(compressBound (rleBufferSize));
     
     //
     // And the same goes for the UNKNOWN data
     //
 
-    maxOutBufferSize += static_cast<Int64>(compressBound (unknownBufferSize));
+    maxOutBufferSize += static_cast<uint64_t>(compressBound (unknownBufferSize));
 
     //
     // Allocate a zip/deflate compressor big enought to hold the DC data
@@ -3063,7 +3063,7 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     // write out the size of our various packed and compressed data.
     //
 
-    maxOutBufferSize += NUM_SIZES_SINGLE * sizeof (Int64); 
+    maxOutBufferSize += NUM_SIZES_SINGLE * sizeof (uint64_t); 
                     
 
     //
@@ -3125,7 +3125,7 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     // all in one swoop (for each compression scheme).
     //
 
-    Int64 planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
+    uint64_t planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
     for (int i=0; i<NUM_COMPRESSOR_SCHEMES; ++i)
         planarUncBufferSize[i] = 0;
 
@@ -3160,7 +3160,7 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     if (planarUncBufferSize[UNKNOWN] > 0)
     {
         planarUncBufferSize[UNKNOWN] =
-                static_cast<Int64>( compressBound (planarUncBufferSize[UNKNOWN]) );
+                static_cast<uint64_t>( compressBound (planarUncBufferSize[UNKNOWN]) );
     }
 
     for (int i = 0; i < NUM_COMPRESSOR_SCHEMES; ++i)

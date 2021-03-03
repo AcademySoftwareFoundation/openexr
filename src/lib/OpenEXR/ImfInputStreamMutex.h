@@ -55,7 +55,7 @@ struct InputStreamMutex
 #endif
 {
     OPENEXR_IMF_INTERNAL_NAMESPACE::IStream* is = nullptr;
-    Int64 currentPosition = 0;
+    uint64_t currentPosition = 0;
 };
 
 

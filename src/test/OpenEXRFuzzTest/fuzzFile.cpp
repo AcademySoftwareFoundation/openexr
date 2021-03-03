@@ -56,7 +56,7 @@ using namespace IMATH_NAMESPACE;
 
 namespace {
 
-Int64
+uint64_t
 lengthOfFile (const char fileName[])
 {
     ifstream ifs;
@@ -74,8 +74,8 @@ lengthOfFile (const char fileName[])
 void
 fuzzFile (const char goodFile[],
           const char brokenFile[],
-	  Int64 offset,
-	  Int64 windowSize,
+	  uint64_t offset,
+	  uint64_t windowSize,
 	  Rand48 &random,
 	  double fuzzAmount)
 {
@@ -91,7 +91,7 @@ fuzzFile (const char goodFile[],
 	THROW_ERRNO ("Cannot open file " << goodFile << " (%T).");
 
     ifs.seekg (0, ios_base::end);
-    Int64 fileLength = ifs.tellg();
+    uint64_t fileLength = ifs.tellg();
     ifs.seekg (0, ios_base::beg);
 
     Array<char> data (fileLength);
@@ -105,7 +105,7 @@ fuzzFile (const char goodFile[],
     // in a window of size windowSize, starting at the specified offset.
     // 
 
-    for (Int64 i = offset; i < offset + windowSize; ++i)
+    for (uint64_t i = offset; i < offset + windowSize; ++i)
     {
 	if (random.nextf() < fuzzAmount)
 	    data[i] = char (random.nexti());
@@ -160,9 +160,9 @@ fuzzFile (const char goodFile[],
     //
 
     {
-	Int64 fileSize = lengthOfFile (goodFile);
-	Int64 windowSize = fileSize * 2 / nSlidingWindow;
-	Int64 lastWindowOffset = fileSize - windowSize;
+	uint64_t fileSize = lengthOfFile (goodFile);
+	uint64_t windowSize = fileSize * 2 / nSlidingWindow;
+	uint64_t lastWindowOffset = fileSize - windowSize;
 
 	cout << "sliding " << windowSize << "-byte window" << endl;
 
@@ -171,7 +171,7 @@ fuzzFile (const char goodFile[],
 	    if (i % 100 == 0)
 		cout << i << "\r" << flush;
 
-	    Int64 offset = lastWindowOffset * i / (nSlidingWindow - 1);
+	    uint64_t offset = lastWindowOffset * i / (nSlidingWindow - 1);
 	    double fuzzAmount = random.nextf (0.0, 0.1);
 
 	    fuzzFile (goodFile, brokenFile,
@@ -185,7 +185,7 @@ fuzzFile (const char goodFile[],
     }
 
     {
-	Int64 windowSize = 2048;
+	uint64_t windowSize = 2048;
 
 	cout << windowSize << "-byte window at start of file" << endl;
 

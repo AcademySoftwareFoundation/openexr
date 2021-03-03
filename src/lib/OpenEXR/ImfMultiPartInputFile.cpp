@@ -509,7 +509,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
     // Reconstruct broken chunk offset tables. Stop once we received any exception.
     //
 
-    Int64 position = is.tellg();
+    uint64_t position = is.tellg();
 
     
     //
@@ -590,7 +590,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
         // 
         //
         
-        Int64 chunk_start = position;
+        uint64_t chunk_start = position;
         for (size_t i = 0; i < total_chunks ; i++)
         {
             //
@@ -614,7 +614,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
 
             // size of chunk NOT including multipart field
             
-            Int64 size_of_chunk=0;
+            uint64_t size_of_chunk=0;
 
             if (isTiled(header.type()))
             {
@@ -649,8 +649,8 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                 // ones
                 if(header.type()==DEEPTILE)
                 {
-                    Int64 packed_offset;
-                    Int64 packed_sample;
+                    uint64_t packed_offset;
+                    uint64_t packed_sample;
                     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, packed_offset);
                     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, packed_sample);
                     
@@ -674,7 +674,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                           throw IEX_NAMESPACE::IoExc("Invalid chunk size");
                     }
 
-                    size_of_chunk=static_cast<Int64>(chunksize) + 20ll;
+                    size_of_chunk=static_cast<uint64_t>(chunksize) + 20ll;
                 }
             }
             else
@@ -699,8 +699,8 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                 
                 if(header.type()==DEEPSCANLINE)
                 {
-                    Int64 packed_offset;
-                    Int64 packed_sample;
+                    uint64_t packed_offset;
+                    uint64_t packed_sample;
                     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, packed_offset);
                     OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, packed_sample);
 
@@ -724,7 +724,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
                     {
                           throw IEX_NAMESPACE::IoExc("Invalid chunk size");
                     }
-                    size_of_chunk=static_cast<Int64>(chunksize) + 8ll;
+                    size_of_chunk=static_cast<uint64_t>(chunksize) + 8ll;
                 }
                 
             }
@@ -762,7 +762,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction(OPENEXR_IMF_INTERNAL_NAMESPA
         if(tileOffsets[partNumber])
         {
             size_t pos=0;
-            vector<vector<vector <Int64> > > offsets = tileOffsets[partNumber]->getOffsets();
+            vector<vector<vector <uint64_t> > > offsets = tileOffsets[partNumber]->getOffsets();
             for (size_t l = 0; l < offsets.size(); l++)
                 for (size_t y = 0; y < offsets[l].size(); y++)
                     for (size_t x = 0; x < offsets[l][y].size(); x++)
@@ -808,9 +808,9 @@ MultiPartInputFile::Data::readChunkOffsetTables(bool reconstructChunkOffsetTable
         //
         if (chunkOffsetTableSize > gLargeChunkTableSize)
         {
-            Int64 pos = is->tellg();
-            is->seekg(pos + (chunkOffsetTableSize-1)*sizeof(Int64));
-            Int64 temp;
+            uint64_t pos = is->tellg();
+            is->seekg(pos + (chunkOffsetTableSize-1)*sizeof(uint64_t));
+            uint64_t temp;
             OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*is, temp);
             is->seekg(pos);
 

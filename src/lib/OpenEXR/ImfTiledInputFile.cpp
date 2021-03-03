@@ -321,7 +321,7 @@ void
 TiledInputFile::Data::validateStreamSize()
 {
     const TileDescription& td = header.tileDescription();
-    Int64 chunkCount;
+    uint64_t chunkCount;
 
     if (td.mode==RIPMAP_LEVELS)
     {
@@ -335,11 +335,11 @@ TiledInputFile::Data::validateStreamSize()
         // but 'chunkCount' can be less than the real offset table size for a meaningful sanity check
         //
         const Box2i &dataWindow = header.dataWindow();
-        Int64 tileWidth = td.xSize;
-        Int64 tileHeight = td.ySize;
+        uint64_t tileWidth = td.xSize;
+        uint64_t tileHeight = td.ySize;
 
-        Int64 tilesX = (static_cast<Int64>(dataWindow.max.x+1-dataWindow.min.x) + tileWidth -1) / tileWidth;
-        Int64 tilesY = (static_cast<Int64>(dataWindow.max.y+1-dataWindow.min.y) + tileHeight -1) / tileHeight;
+        uint64_t tilesX = (static_cast<uint64_t>(dataWindow.max.x+1-dataWindow.min.x) + tileWidth -1) / tileWidth;
+        uint64_t tilesY = (static_cast<uint64_t>(dataWindow.max.y+1-dataWindow.min.y) + tileHeight -1) / tileHeight;
 
         chunkCount = tilesX*tilesY;
     }
@@ -347,9 +347,9 @@ TiledInputFile::Data::validateStreamSize()
     if (chunkCount > gLargeChunkTableSize)
     {
 
-       Int64 pos = _streamData->is->tellg();
-       _streamData->is->seekg(pos + (chunkCount-1)*sizeof(Int64));
-       Int64 temp;
+       uint64_t pos = _streamData->is->tellg();
+       _streamData->is->seekg(pos + (chunkCount-1)*sizeof(uint64_t));
+       uint64_t temp;
        OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*_streamData->is, temp);
        _streamData->is->seekg(pos);
     }
@@ -378,7 +378,7 @@ readTileData (InputStreamMutex *streamData,
     // seek to that position if necessary
     //
     
-    Int64 tileOffset = ifd->tileOffsets (dx, dy, lx, ly);
+    uint64_t tileOffset = ifd->tileOffsets (dx, dy, lx, ly);
 
     if (tileOffset == 0)
     {

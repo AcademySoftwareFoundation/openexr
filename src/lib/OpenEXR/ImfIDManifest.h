@@ -10,7 +10,7 @@
 //
 //-----------------------------------------------------------------------------
 #include "ImfNamespace.h"
-#include "ImfInt64.h"
+#include <cstdint>
 #include <map>
 #include <vector>
 #include <set>
@@ -92,7 +92,7 @@ public :
         std::string _hashScheme; //one of above strings or custom value e.g "nz.co.wetafx.cleverhash2"
         std::string _encodingScheme; //string identifying scheme to encode ID numbers within the image
 
-        typedef std::map<Int64, std::vector<std::string> > IDTable;
+        typedef std::map<uint64_t, std::vector<std::string> > IDTable;
         IDTable _table;
 
         // used for << operator to work: tracks the last item inserted into the Manifest 
@@ -164,38 +164,38 @@ public :
          
          // insert a new entry - text must contain same number of items as getComponents
          IMF_EXPORT
-         Iterator insert(Int64 idValue,  const std::vector<std::string>& text);
+         Iterator insert(uint64_t idValue,  const std::vector<std::string>& text);
          
          // insert a new entry - getComponents must be a single entry
          IMF_EXPORT
-         Iterator insert(Int64 idValue,  const std::string& text);
+         Iterator insert(uint64_t idValue,  const std::string& text);
          
          
          // compute hash of given entry, insert into manifest, and return 
          // the computed hash. Exception will be thrown if hash scheme isn't recognised
          IMF_EXPORT
-         Int64 insert(const std::vector<std::string>& text);
+         uint64_t insert(const std::vector<std::string>& text);
          IMF_EXPORT
-         Int64 insert(const std::string& text);
+         uint64_t insert(const std::string& text);
          
          IMF_EXPORT
-         Iterator find(Int64 idValue);
+         Iterator find(uint64_t idValue);
 
          IMF_EXPORT
-         ConstIterator find(Int64 idValue) const;
+         ConstIterator find(uint64_t idValue) const;
 
          IMF_EXPORT
-         void erase(Int64 idValue); 
+         void erase(uint64_t idValue); 
          
          // return reference to idName for given idValue. Adds the mapping to the vector if it doesn't exist
          IMF_EXPORT
-         std::vector<std::string>& operator[](Int64 idValue); 
+         std::vector<std::string>& operator[](uint64_t idValue); 
          
          // add a new entry to the manifest as an insertion operator: <<
          // the component strings must also be inserted using <<
          // throws an exception if the previous insert operation didn't insert the correct number of string components
          IMF_EXPORT
-         ChannelGroupManifest& operator<<(Int64 idValue);
+         ChannelGroupManifest& operator<<(uint64_t idValue);
          
          // insert a string as the next component of a previously inserted attribute
          IMF_EXPORT
@@ -283,9 +283,9 @@ public:
     static unsigned int MurmurHash32(const std::vector<std::string>& idString);
     
     IMF_EXPORT
-    static Int64 MurmurHash64(const std::string& idString);
+    static uint64_t MurmurHash64(const std::string& idString);
     IMF_EXPORT
-    static Int64 MurmurHash64(const std::vector<std::string>& idString);
+    static uint64_t MurmurHash64(const std::vector<std::string>& idString);
     
 
 };
@@ -341,12 +341,12 @@ public:
     Iterator &                         operator ++ ();
 
     IMF_EXPORT
-    Int64                              id() const;
+    uint64_t                           id() const;
     IMF_EXPORT
     std::vector<std::string>&          text();
     
 private:
-    std::map< Int64 , std::vector<std::string> >::iterator _i;
+    std::map< uint64_t , std::vector<std::string> >::iterator _i;
     
 };
 
@@ -371,13 +371,13 @@ public:
     ConstIterator &                         operator ++ ();
 
     IMF_EXPORT
-    Int64                              id() const;
+    uint64_t                                 id() const;
     IMF_EXPORT
     const std::vector<std::string>&          text() const;
     
     private:
         
-    std::map< Int64 , std::vector<std::string> >::const_iterator _i;
+    std::map< uint64_t , std::vector<std::string> >::const_iterator _i;
 
     friend bool operator == (const ConstIterator &, const ConstIterator &);
     friend bool operator != (const ConstIterator &, const ConstIterator &);
@@ -392,7 +392,7 @@ inline IDManifest::ChannelGroupManifest::Iterator::Iterator() {}
 inline IDManifest::ChannelGroupManifest::Iterator::Iterator(const IDManifest::ChannelGroupManifest::IDTable::iterator &i) :_i(i) {}
 
 
-inline Int64
+inline uint64_t
 IDManifest::ChannelGroupManifest::Iterator::id() const { return _i->first;}
 
 inline  std::vector<std::string>&
@@ -413,7 +413,7 @@ inline IDManifest::ChannelGroupManifest::ConstIterator::ConstIterator() {}
 inline IDManifest::ChannelGroupManifest::ConstIterator::ConstIterator(const IDManifest::ChannelGroupManifest::Iterator &other) : _i(other._i) {}
 inline IDManifest::ChannelGroupManifest::ConstIterator::ConstIterator(const IDManifest::ChannelGroupManifest::IDTable::const_iterator &i) :_i(i) {}
 
-inline Int64
+inline uint64_t
 IDManifest::ChannelGroupManifest::ConstIterator::id() const { return _i->first;}
 
 inline const  std::vector<std::string>&

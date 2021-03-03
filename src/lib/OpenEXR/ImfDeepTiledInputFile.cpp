@@ -142,8 +142,8 @@ struct TileBuffer
     Array2D<unsigned int>       sampleCount;
     const char *                uncompressedData;
     char *                      buffer;
-    Int64                         dataSize;
-    Int64                         uncompressedDataSize;
+    uint64_t                    dataSize;
+    uint64_t                    uncompressedDataSize;
     Compressor *                compressor;
     Compressor::Format          format;
     int                         dx;
@@ -258,7 +258,7 @@ struct DeepTiledInputFile::Data
 
     Compressor*     sampleCountTableComp;           // the decompressor for sample count table
 
-    Int64           maxSampleCountTableSize;        // the max size in bytes for a pixel
+    uint64_t        maxSampleCountTableSize;        // the max size in bytes for a pixel
                                                     // sample count table
     int             combinedSampleSize;             // total size of all channels combined to check sampletable size
     static const int gLargeChunkTableSize = 1024*1024;
@@ -343,23 +343,23 @@ void
 DeepTiledInputFile::Data::validateStreamSize()
 {
     const Box2i &dataWindow = header.dataWindow();
-    Int64 tileWidth = header.tileDescription().xSize;
-    Int64 tileHeight = header.tileDescription().ySize;
+    uint64_t tileWidth = header.tileDescription().xSize;
+    uint64_t tileHeight = header.tileDescription().ySize;
 
-    Int64 tilesX = (static_cast<Int64>(dataWindow.max.x+1-dataWindow.min.x) + tileWidth -1) / tileWidth;
+    uint64_t tilesX = (static_cast<uint64_t>(dataWindow.max.x+1-dataWindow.min.x) + tileWidth -1) / tileWidth;
 
-    Int64 tilesY = (static_cast<Int64>(dataWindow.max.y+1-dataWindow.min.y) + tileHeight -1) / tileHeight;
+    uint64_t tilesY = (static_cast<uint64_t>(dataWindow.max.y+1-dataWindow.min.y) + tileHeight -1) / tileHeight;
 
 
-    Int64 chunkCount = tilesX*tilesY;
+    uint64_t chunkCount = tilesX*tilesY;
     if ( chunkCount > gLargeChunkTableSize)
     {
 
         if (chunkCount > gLargeChunkTableSize)
         {
-            Int64 pos = _streamData->is->tellg();
-            _streamData->is->seekg(pos + (chunkCount-1)*sizeof(Int64));
-            Int64 temp;
+            uint64_t pos = _streamData->is->tellg();
+            _streamData->is->seekg(pos + (chunkCount-1)*sizeof(uint64_t));
+            uint64_t temp;
             OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*_streamData->is, temp);
             _streamData->is->seekg(pos);
 
@@ -377,8 +377,8 @@ readTileData (InputStreamMutex *streamData,
               int dx, int dy,
               int lx, int ly,
               char *&buffer,
-              Int64 &dataSize,
-              Int64 &unpackedDataSize)
+              uint64_t &dataSize,
+              uint64_t &unpackedDataSize)
 {
     //
     // Read a single tile block from the file and into the array pointed
@@ -392,7 +392,7 @@ readTileData (InputStreamMutex *streamData,
     // seek to that position if necessary
     //
 
-    Int64 tileOffset = ifd->tileOffsets (dx, dy, lx, ly);
+    uint64_t tileOffset = ifd->tileOffsets (dx, dy, lx, ly);
 
     if (tileOffset == 0)
     {
@@ -445,7 +445,7 @@ readTileData (InputStreamMutex *streamData,
     Xdr::read <StreamIO> (*streamData->is, levelX);
     Xdr::read <StreamIO> (*streamData->is, levelY);
 
-    Int64 tableSize;
+    uint64_t tableSize;
     Xdr::read <StreamIO> (*streamData->is, tableSize);
 
     Xdr::read <StreamIO> (*streamData->is, dataSize);
@@ -493,7 +493,7 @@ readTileData (InputStreamMutex *streamData,
     //
 
     streamData->currentPosition = tileOffset + 4 * Xdr::size<int>() +
-                                  3 * Xdr::size<Int64>()            +
+                                  3 * Xdr::size<uint64_t>()            +
                                   tableSize                         +
                                   dataSize;
 }
@@ -615,7 +615,7 @@ TileBufferTask::execute ()
         // Uncompress the data, if necessary
         //
 
-        if (_tileBuffer->compressor && _tileBuffer->dataSize < static_cast<Int64>(sizeOfTile))
+        if (_tileBuffer->compressor && _tileBuffer->dataSize < static_cast<uint64_t>(sizeOfTile))
         {
             _tileBuffer->format = _tileBuffer->compressor->format();
 
@@ -638,7 +638,7 @@ TileBufferTask::execute ()
 	// sanity check data size: the uncompressed data should be exactly 
 	// 'sizeOfTile' (if it's less, the file is corrupt and there'll be a buffer overrun)
 	//
-        if (_tileBuffer->dataSize != static_cast<Int64>(sizeOfTile))
+        if (_tileBuffer->dataSize != static_cast<uint64_t>(sizeOfTile))
 	{
 		THROW (IEX_NAMESPACE::InputExc, "size mismatch when reading deep tile: expected " << sizeOfTile << "bytes of uncompressed data but got " << _tileBuffer->dataSize);
 	}
@@ -1443,13 +1443,13 @@ void
 DeepTiledInputFile::rawTileData (int &dx, int &dy,
                              int &lx, int &ly,
                              char * pixelData,
-                             Int64 &pixelDataSize) const
+                             uint64_t &pixelDataSize) const
 {
      if (!isValidTile (dx, dy, lx, ly))
                throw IEX_NAMESPACE::ArgExc ("Tried to read a tile outside "
                                    "the image file's data window.");
     
-     Int64 tileOffset = _data->tileOffsets (dx, dy, lx, ly);
+     uint64_t tileOffset = _data->tileOffsets (dx, dy, lx, ly);
                                    
      if(tileOffset == 0)
      {
@@ -1488,8 +1488,8 @@ DeepTiledInputFile::rawTileData (int &dx, int &dy,
      Xdr::read <StreamIO> (*_data->_streamData->is, levelX);
      Xdr::read <StreamIO> (*_data->_streamData->is, levelY);
      
-     Int64 sampleCountTableSize;
-     Int64 packedDataSize;
+     uint64_t sampleCountTableSize;
+     uint64_t packedDataSize;
      Xdr::read <StreamIO> (*_data->_streamData->is, sampleCountTableSize);
      
      Xdr::read <StreamIO> (*_data->_streamData->is, packedDataSize);
@@ -1511,7 +1511,7 @@ DeepTiledInputFile::rawTileData (int &dx, int &dy,
      
      // total requirement for reading all the data
      
-     Int64 totalSizeRequired=40+sampleCountTableSize+packedDataSize;
+     uint64_t totalSizeRequired=40+sampleCountTableSize+packedDataSize;
      
      bool big_enough = totalSizeRequired<=pixelDataSize;
      
@@ -1535,11 +1535,11 @@ DeepTiledInputFile::rawTileData (int &dx, int &dy,
      *(int *) (pixelData+4) = dy;
      *(int *) (pixelData+8) = levelX;
      *(int *) (pixelData+12) = levelY;
-     *(Int64 *) (pixelData+16) =sampleCountTableSize;
-     *(Int64 *) (pixelData+24) = packedDataSize;
+     *(uint64_t *) (pixelData+16) =sampleCountTableSize;
+     *(uint64_t *) (pixelData+24) = packedDataSize;
      
      // didn't read the unpackedsize - do that now
-     Xdr::read<StreamIO> (*_data->_streamData->is, *(Int64 *) (pixelData+32));
+     Xdr::read<StreamIO> (*_data->_streamData->is, *(uint64_t *) (pixelData+32));
      
      // read the actual data
      _data->_streamData->is->read(pixelData+40, sampleCountTableSize+packedDataSize);
@@ -1762,7 +1762,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                                            int dy1, int dy2,
                                            int lx,  int ly)
 {
-    Int64 savedFilePos = 0;
+    uint64_t savedFilePos = 0;
 
     try
     {
@@ -1853,7 +1853,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                 if (lyInFile != ly)
                     throw IEX_NAMESPACE::InputExc ("Unexpected tile y level number coordinate.");
 
-                Int64 tableSize, dataSize, unpackedDataSize;
+                uint64_t tableSize, dataSize, unpackedDataSize;
                 Xdr::read <StreamIO> (*_data->_streamData->is, tableSize);
                 Xdr::read <StreamIO> (*_data->_streamData->is, dataSize);
                 Xdr::read <StreamIO> (*_data->_streamData->is, unpackedDataSize);
@@ -1875,7 +1875,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                 // @TODO refactor the compressor code to ensure full 64-bit support.
                 //
 
-                Int64 compressorMaxDataSize = static_cast<Int64>(std::numeric_limits<int>::max());
+                uint64_t compressorMaxDataSize = static_cast<uint64_t>(std::numeric_limits<int>::max());
                 if (dataSize         > compressorMaxDataSize ||
                     unpackedDataSize > compressorMaxDataSize ||
                     tableSize        > compressorMaxDataSize)
