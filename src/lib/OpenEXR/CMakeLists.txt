@@ -157,7 +157,6 @@ openexr_define_library(OpenEXR
     ImfRgbaYca.h
     ImfTestFile.h
     ImfThreading.h
-    ImfB44Compressor.h
     ImfStringVectorAttribute.h
     ImfMultiView.h
     ImfAcesFile.h
