@@ -868,6 +868,7 @@ DeepTiledInputFile::DeepTiledInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream 
         }
         else
         {
+
             _data->_streamData = new InputStreamMutex();
             _data->_streamData->is = &is;
             _data->header.readFrom (*_data->_streamData->is, _data->version);
@@ -977,9 +978,18 @@ DeepTiledInputFile::multiPartInitialize(InputPartData* part)
 void
 DeepTiledInputFile::initialize ()
 {
+
+    if (_data->header.type() != DEEPTILE)
+    {
+        throw IEX_NAMESPACE::ArgExc ("Expected a deep tiled file but the file is not deep tiled.");
+    }
+
     if (_data->partNumber == -1)
-        if (_data->header.type() != DEEPTILE)
-            throw IEX_NAMESPACE::ArgExc ("Expected a deep tiled file but the file is not deep tiled.");
+    {
+        if (!isNonImage (_data->version))
+            throw IEX_NAMESPACE::ArgExc ("Expected a deep tiled file but the file is not a deep image.");
+    }
+
    if(_data->header.version()!=1)
    {
        THROW(IEX_NAMESPACE::ArgExc, "Version " << _data->header.version() << " not supported for deeptiled images in this version of the library");
