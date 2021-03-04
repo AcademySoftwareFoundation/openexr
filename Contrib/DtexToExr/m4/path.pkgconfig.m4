@@ -1,6 +1,6 @@
 dnl
 dnl SPDX-License-Identifier: BSD-3-Clause
-dnl Copyright Contributors to the OpenEXR Project.
+dnl Copyright (c) Contributors to the OpenEXR Project.
 dnl
 
 AC_DEFUN([AM_PATH_PKGCONFIG],

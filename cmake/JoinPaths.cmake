@@ -2,7 +2,7 @@
 # known from from most languages
 #
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright Contributors to the OpenEXR Project.
+# Copyright (c) Contributors to the OpenEXR Project.
 # https://github.com/jtojnar/cmake-snips
 #
 # Modelled after Python’s os.path.join

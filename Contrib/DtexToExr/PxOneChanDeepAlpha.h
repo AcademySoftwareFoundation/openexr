@@ -1,6 +1,6 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright Contributors to the OpenEXR Project.
+// Copyright (c) Contributors to the OpenEXR Project.
 //
 
 #ifndef _PxOneChanDeepAlpha_h_
