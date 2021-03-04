@@ -157,14 +157,12 @@ write (T &out, signed long v);
 
 template <class S, class T>
 void
-write (T &out, unsigned long v);
+write (T &out, uint64_t v);
 
 #if ULONG_MAX != 18446744073709551615LU
-
     template <class S, class T>
     void
-    write (T &out, uint64_t v);
-
+    write (T &out, unsigned long v);
 #endif
 
 template <class S, class T>
@@ -240,13 +238,14 @@ read (T &in, signed long &v);
 
 template <class S, class T>
 void
-read (T &in, unsigned long &v);
+read (T &in, uint64_t &v);
+
 
 #if ULONG_MAX != 18446744073709551615LU
 
     template <class S, class T>
     void
-    read (T &in, uint64_t &v);
+    read (T &in, unsigned long &v);
 
 #endif
 
