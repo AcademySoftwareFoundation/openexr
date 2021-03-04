@@ -22,7 +22,8 @@ template <>
 void
 IDManifestAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
-    Xdr::write<StreamIO>(os,_value._uncompressedDataSize);
+    uint64_t uncompressedDataSize = _value._uncompressedDataSize;
+    Xdr::write<StreamIO>(os,uncompressedDataSize);
     const char* output = (const char*) _value._data;
     Xdr::write <StreamIO> (os, output,_value._compressedDataSize);
 
@@ -47,11 +48,13 @@ IDManifestAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
         _value._data = nullptr;
     }
 
+    uint64_t uncompressedDataSize;
+    //
+    // first eight bytes: data size once data is uncompressed
+    //
+    Xdr::read<StreamIO>(is,uncompressedDataSize);
 
-    //
-    // first four bytes: data size once data is uncompressed
-    //
-    Xdr::read<StreamIO>(is,_value._uncompressedDataSize);
+    _value._uncompressedDataSize = uncompressedDataSize;
 
     //
     // allocate memory for compressed storage and read data
