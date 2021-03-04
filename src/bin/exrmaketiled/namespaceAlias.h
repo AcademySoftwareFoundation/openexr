@@ -3,7 +3,7 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-ifndef NAMESPACEALIAS_H_
+#ifndef NAMESPACEALIAS_H_
 #define NAMESPACEALIAS_H_
 
 #include <ImfNamespace.h>
