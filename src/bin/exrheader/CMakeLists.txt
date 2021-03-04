@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright Contributors to the OpenEXR Project.
+# Copyright (c) Contributors to the OpenEXR Project.
 
 add_executable(exrheader main.cpp)
 target_link_libraries(exrheader OpenEXR::OpenEXR)

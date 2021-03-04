@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright Contributors to the OpenEXR Project.
+# Copyright (c) Contributors to the OpenEXR Project.
 
 # This is only an example of cross compiling, but to compile for windows
 # under linux, have the relevant bits installed, and

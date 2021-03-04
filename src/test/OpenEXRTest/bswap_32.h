@@ -1,6 +1,6 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright Contributors to the OpenEXR Project. See LICENSE file for details.
+// Copyright (c) Contributors to the OpenEXR Project. See LICENSE file for details.
 // 
 
 #if defined(_WIN32) || defined(_WIN64)

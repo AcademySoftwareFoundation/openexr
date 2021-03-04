@@ -439,9 +439,11 @@ define's such as ``INT_MAX``:
 
 All new source files should begin with a copyright and license stating:
 
-    // Copyright (c) Contributors to the OpenEXR Project. All rights reserved.
+    //
     // SPDX-License-Identifier: BSD-3-Clause
-
+    // Copyright (c) Contributors to the OpenEXR Project. 
+    //
+    
 #### Third-party libraries
 
 Prefer C++11 `std` over boost where possible.  Use boost classes you
