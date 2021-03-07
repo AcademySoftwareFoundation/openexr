@@ -189,7 +189,7 @@ if(OPENEXR_INSTALL_PKG_CONFIG)
   endfunction()
   openexr_pkg_config_help(OpenEXR.pc.in)
 else()
-  message(STATUS "-- pkg-config generation disabled")
+  message(STATUS "pkg-config generation disabled")
 endif()
 
 ###################################################
@@ -218,9 +218,3 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 )
 
-install(EXPORT ${PROJECT_NAME}
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-  FILE ${PROJECT_NAME}Targets.cmake
-  NAMESPACE ${PROJECT_NAME}::
-  EXPORT_LINK_INTERFACE_LIBRARIES
-)
