@@ -26,7 +26,7 @@ namespace {
 
 using std::vector;
 using std::max;
-using Imath::Box2i;
+using IMATH_NAMESPACE::Box2i;
 
 //
 // limits for reduceMemory mode
