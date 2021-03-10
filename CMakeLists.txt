@@ -9,10 +9,9 @@ if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW)
 endif()
 
-#######################################
-# Create project and include cmake
-# configuration files
-#######################################
+#
+# Create project and include cmake configuration files
+#
 
 include(cmake/OpenEXRVersion.cmake)
 
@@ -28,19 +27,20 @@ add_subdirectory(cmake)
 # here.
 ###set(CMAKE_PREFIX_PATH "/prefix")
 
-#######################################
+#
 # Add all source in subdirectories
-#######################################
+#
 
 # Include these two modules without enable/disable options
 add_subdirectory(src/lib)
 add_subdirectory(src/bin)
 
-# Tell CMake where to find the OpenEXRConfig.cmake file. Makes it posible to call 
-# find_package(OpenEXR) in downstream projects
+# Tell CMake where to find the OpenEXRConfig.cmake file. Makes it
+# posible to call find_package(OpenEXR) in downstream projects.
 set(OpenEXR_DIR "${CMAKE_CURRENT_BINARY_DIR}/cmake" CACHE PATH "" FORCE)
-# Add an empty OpenEXRTargets.cmake file for the config to use. 
-# Can be empty since we already defined the targets in add_subdirectory
+
+# Add an empty OpenEXRTargets.cmake file for the config to use.  Can
+# be empty since we already defined the targets in add_subdirectory.
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cmake/OpenEXRTargets.cmake" "# Dummy file")
 
 option(INSTALL_OPENEXR_EXAMPLES "Install OpenEXR examples" ON)
@@ -77,8 +77,9 @@ if(BUILD_TESTING AND NOT OPENEXR_IS_SUBPROJECT)
   add_subdirectory(src/test)
 endif()
 
-# Including this module will add a `clang-format` target to the build if
-# the clang-format executable can be found. Only do this if we are top level
+# Including this module will add a `clang-format` target to the build
+# if the clang-format executable can be found. Only do this if we are
+# top level
 if(NOT OPENEXR_IS_SUBPROJECT)
   include(cmake/clang-format.cmake)
 endif()

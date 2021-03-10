@@ -1,6 +1,20 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) Contributors to the OpenEXR Project.
 
+# From https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
+#
+# - If the library source code has changed at all since the last
+#   update, then increment revision (‘c.r.a’ becomes ‘c.r+1.a’).
+#
+# - If any interfaces have been added, removed, or changed since the
+#   last update, increment current, and set revision to 0.
+#
+# - If any interfaces have been added since the last public release,
+#   then increment age.
+#
+# - If any interfaces have been removed or changed since the last
+#   public release, then set age to 0.
+
 set(OPENEXR_VERSION_MAJOR 2)
 set(OPENEXR_VERSION_MINOR 5)
 set(OPENEXR_VERSION_PATCH 99)

@@ -6,12 +6,14 @@ include(CheckSymbolExists)
 include(CheckLibraryExists)
 include(CheckStructHasMember)
 include(CheckCXXSourceCompiles)
-include("${CMAKE_CURRENT_LIST_DIR}/JoinPaths.cmake")
 
-#################### Config headers and interface libs ######################
+#
+# Config headers and interface libs
+#
 
-###################################################
-####### OpenEXRConfig.h and OpenEXRConfigInternal.h
+# OpenEXRConfig.h and OpenEXRConfigInternal.h
+
+# Settings related to computation of DWA compression lookup tables
 
 if (NOT CMAKE_CROSSCOMPILING AND EXISTS "/proc/self/exe")
   set(OPENEXR_IMF_HAVE_LINUX_PROCFS TRUE)
@@ -46,9 +48,8 @@ int main()
 " OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX
 )
 
-
-# This is no longer something that needs to be tested if we have
-# C++14 support...
+# This is no longer something that needs to be tested if we have C++14
+# support.
 set(OPENEXR_IMF_HAVE_COMPLETE_IOMANIP TRUE)
 
 if(APPLE)
@@ -68,8 +69,7 @@ install(
     ${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}
 )
 
-###################################################
-####### IexConfig.h and IexConfigInternal.h
+# IexConfig.h and IexConfigInternal.h
 
 check_include_files(ucontext.h IEX_HAVE_UCONTEXT_H)
 if(IEX_HAVE_UCONTEXT_H)
@@ -84,7 +84,6 @@ if(IEX_HAVE_UCONTEXT_H)
   endif()
 endif()
 
-###check_include_files(pthread.h ILMTHREAD_HAVE_PTHREAD)
 if(OPENEXR_ENABLE_THREADING AND Threads_FOUND)
   set(ILMTHREAD_THREADING_ENABLED ON)
   if(CMAKE_HAVE_PTHREAD_H OR CMAKE_USE_PTHREADS_INIT OR CMAKE_HP_PTHREAD_INIT)
@@ -116,8 +115,9 @@ configure_file(IexConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/IexConfig.h)
 configure_file(IexConfigInternal.h.in ${CMAKE_CURRENT_BINARY_DIR}/IexConfigInternal.h)
 configure_file(IlmThreadConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/IlmThreadConfig.h)
 
-###################################################
-####### Install public config headers
+#
+# Install public config headers
+#
 
 install(
   FILES
@@ -128,39 +128,42 @@ install(
     ${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}
 )
 
-###################################################
-####### Interface libraries for configs
-
+#
+# OpenEXRConfig
+#
 add_library(OpenEXRConfig INTERFACE)
 target_include_directories(OpenEXRConfig INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}>)
-
 install(TARGETS OpenEXRConfig EXPORT ${PROJECT_NAME})
 add_library(${PROJECT_NAME}::Config ALIAS OpenEXRConfig)
 
+#
+# IexConfig
+#
 add_library(IexConfig INTERFACE)
 target_include_directories(IexConfig INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}>)
-
 install(TARGETS IexConfig EXPORT ${PROJECT_NAME})
 add_library(${PROJECT_NAME}::Config ALIAS IexConfig)
 
+#
+# IlmThreadConfig
+#
 add_library(IlmThreadConfig INTERFACE)
 target_include_directories(IlmThreadConfig INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}>)
-
 install(TARGETS IlmThreadConfig EXPORT ${PROJECT_NAME})
 add_library(${PROJECT_NAME}::Config ALIAS IlmThreadConfig)
 
-###################################################
-####### Install pkg-config files if requested
-
+#
+# Install pkg-config file if requested
+#
 if(OPENEXR_INSTALL_PKG_CONFIG)
   # use a helper function to avoid variable pollution, but pretty simple
   function(openexr_pkg_config_help pcinfile)
@@ -192,22 +195,16 @@ else()
   message(STATUS "-- pkg-config generation disabled")
 endif()
 
-###################################################
-####### Install cmake Config files
+# The main export of the configuration: this is the cmake equivalent
+# of a pkg-config file and replaces the Find*.cmake of the "old" cmake.
 
-# The main export of the configuration - This is the
-# moral equivalent of a pkg-config file for cmake
-# and replaces the Find*.cmake of the "old" cmake
-
-# The main export of the configuration - This is the
-# moral equivalent of a pkg-config file for cmake
-# and replaces the Find*.cmake of the "old" cmake
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(${PROJECT_NAME}Config.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 )
+
 write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY SameMajorVersion
