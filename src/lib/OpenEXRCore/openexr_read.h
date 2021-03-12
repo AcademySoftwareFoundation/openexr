@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 /** 
- * @defgroup File Reading Functions
+ * @defgroup Reading
  * @brief These are a group of functions used when reading data from files
  * @{
  */
