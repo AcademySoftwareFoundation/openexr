@@ -43,9 +43,15 @@ set(OpenEXR_DIR "${CMAKE_CURRENT_BINARY_DIR}/cmake" CACHE PATH "" FORCE)
 # Can be empty since we already defined the targets in add_subdirectory
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cmake/OpenEXRTargets.cmake" "# Dummy file")
 
-option(INSTALL_OPENEXR_EXAMPLES "Install OpenEXR examples" ON)
-if(INSTALL_OPENEXR_EXAMPLES)
+option(OPENEXR_INSTALL_EXAMPLES "Install OpenEXR examples" ON)
+if(OPENEXR_INSTALL_EXAMPLES)
   add_subdirectory( src/examples )
+endif()
+
+option(OPENEXR_INSTALL "Install OpenEXR libraries" ON)
+option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
+if(OPENEXR_INSTALL_TOOLS AND NOT OPENEXR_INSTALL)
+  message(SEND_ERROR "OPENEXR_INSTALL_TOOLS requires OPENEXR_INSTALL")
 endif()
 
 # If you want to use ctest to configure, build and
