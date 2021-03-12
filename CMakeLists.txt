@@ -35,11 +35,11 @@ add_subdirectory(cmake)
 add_subdirectory(src/lib)
 add_subdirectory(src/bin)
 
-# Tell CMake where to find the OpenEXRConfig.cmake file. Makes it
-# posible to call find_package(OpenEXR) in downstream projects.
+# OpenEXR_DIR points to the location of OpenEXRConfig.cmake, which tells
+# downstream projects where to find OpenEXR, via find_package(OpenEXR).
 set(OpenEXR_DIR "${CMAKE_CURRENT_BINARY_DIR}/cmake" CACHE PATH "" FORCE)
 
-# Add an empty OpenEXRTargets.cmake file for the config to use.  Can
+# Add an empty OpenEXRTargets.cmake file for the config to use.  It can
 # be empty since we already defined the targets in add_subdirectory.
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cmake/OpenEXRTargets.cmake" "# Dummy file")
 
