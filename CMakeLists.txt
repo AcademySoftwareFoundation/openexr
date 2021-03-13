@@ -18,6 +18,12 @@ include(cmake/OpenEXRVersion.cmake)
 
 project(OpenEXR VERSION ${OPENEXR_VERSION} LANGUAGES C CXX)
 
+option(OPENEXR_INSTALL "Install OpenEXR libraries" ON)
+option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
+if(OPENEXR_INSTALL_TOOLS AND NOT OPENEXR_INSTALL)
+  message(SEND_ERROR "OPENEXR_INSTALL_TOOLS requires OPENEXR_INSTALL")
+endif()
+
 include(cmake/LibraryDefine.cmake)
 include(cmake/OpenEXRSetup.cmake)
 add_subdirectory(cmake)
@@ -31,12 +37,6 @@ add_subdirectory(cmake)
 #######################################
 # Add all source in subdirectories
 #######################################
-
-option(OPENEXR_INSTALL "Install OpenEXR libraries" ON)
-option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
-if(OPENEXR_INSTALL_TOOLS AND NOT OPENEXR_INSTALL)
-  message(SEND_ERROR "OPENEXR_INSTALL_TOOLS requires OPENEXR_INSTALL")
-endif()
 
 # Include these two modules without enable/disable options
 add_subdirectory(src/lib)
