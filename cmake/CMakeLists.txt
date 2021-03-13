@@ -62,12 +62,14 @@ endif()
 configure_file(OpenEXRConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h)
 configure_file(OpenEXRConfigInternal.h.in ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigInternal.h)
 
+if(OPENEXR_INSTALL)
 install(
   FILES
     ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h
   DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}
 )
+endif()
 
 # IexConfig.h and IexConfigInternal.h
 
@@ -119,6 +121,7 @@ configure_file(IlmThreadConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/IlmThreadConfig.
 # Install public config headers
 #
 
+if(OPENEXR_INSTALL)
 install(
   FILES
     ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h
@@ -127,6 +130,7 @@ install(
   DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}
 )
+endif()
 
 #
 # OpenEXRConfig
@@ -136,7 +140,10 @@ target_include_directories(OpenEXRConfig INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}>)
-install(TARGETS OpenEXRConfig EXPORT ${PROJECT_NAME})
+if(OPENEXR_INSTALL)
+  install(TARGETS OpenEXRConfig EXPORT ${PROJECT_NAME})
+endif()
+
 add_library(${PROJECT_NAME}::Config ALIAS OpenEXRConfig)
 
 #
@@ -147,7 +154,10 @@ target_include_directories(IexConfig INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}>)
-install(TARGETS IexConfig EXPORT ${PROJECT_NAME})
+if(OPENEXR_INSTALL)
+  install(TARGETS IexConfig EXPORT ${PROJECT_NAME})
+endif()
+
 add_library(${PROJECT_NAME}::Config ALIAS IexConfig)
 
 #
@@ -158,7 +168,11 @@ target_include_directories(IlmThreadConfig INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}>)
-install(TARGETS IlmThreadConfig EXPORT ${PROJECT_NAME})
+
+if(OPENEXR_INSTALL)
+  install(TARGETS IlmThreadConfig EXPORT ${PROJECT_NAME})
+endif()
+
 add_library(${PROJECT_NAME}::Config ALIAS IlmThreadConfig)
 
 #
@@ -200,6 +214,7 @@ endif()
 
 include(CMakePackageConfigHelpers)
 
+if(OPENEXR_INSTALL)
 configure_package_config_file(${PROJECT_NAME}Config.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
@@ -221,3 +236,4 @@ install(EXPORT ${PROJECT_NAME}
   NAMESPACE ${PROJECT_NAME}::
   EXPORT_LINK_INTERFACE_LIBRARIES
 )
+endif()

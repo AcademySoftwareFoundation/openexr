@@ -31,6 +31,12 @@ add_subdirectory(cmake)
 # Add all source in subdirectories
 #
 
+option(OPENEXR_INSTALL "Install OpenEXR libraries" ON)
+option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
+if(OPENEXR_INSTALL_TOOLS AND NOT OPENEXR_INSTALL)
+  message(SEND_ERROR "OPENEXR_INSTALL_TOOLS requires OPENEXR_INSTALL")
+endif()
+
 # Include these two modules without enable/disable options
 add_subdirectory(src/lib)
 add_subdirectory(src/bin)
@@ -43,8 +49,8 @@ set(OpenEXR_DIR "${CMAKE_CURRENT_BINARY_DIR}/cmake" CACHE PATH "" FORCE)
 # be empty since we already defined the targets in add_subdirectory.
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cmake/OpenEXRTargets.cmake" "# Dummy file")
 
-option(INSTALL_OPENEXR_EXAMPLES "Install OpenEXR examples" ON)
-if(INSTALL_OPENEXR_EXAMPLES)
+option(OPENEXR_INSTALL_EXAMPLES "Install OpenEXR examples" ON)
+if(OPENEXR_INSTALL_EXAMPLES)
   add_subdirectory( src/examples )
 endif()
 
