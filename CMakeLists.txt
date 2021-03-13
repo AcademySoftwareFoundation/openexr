@@ -32,6 +32,12 @@ add_subdirectory(cmake)
 # Add all source in subdirectories
 #######################################
 
+option(OPENEXR_INSTALL "Install OpenEXR libraries" ON)
+option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
+if(OPENEXR_INSTALL_TOOLS AND NOT OPENEXR_INSTALL)
+  message(SEND_ERROR "OPENEXR_INSTALL_TOOLS requires OPENEXR_INSTALL")
+endif()
+
 # Include these two modules without enable/disable options
 add_subdirectory(src/lib)
 add_subdirectory(src/bin)
@@ -46,12 +52,6 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cmake/OpenEXRTargets.cmake" "# Dummy fil
 option(OPENEXR_INSTALL_EXAMPLES "Install OpenEXR examples" ON)
 if(OPENEXR_INSTALL_EXAMPLES)
   add_subdirectory( src/examples )
-endif()
-
-option(OPENEXR_INSTALL "Install OpenEXR libraries" ON)
-option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
-if(OPENEXR_INSTALL_TOOLS AND NOT OPENEXR_INSTALL)
-  message(SEND_ERROR "OPENEXR_INSTALL_TOOLS requires OPENEXR_INSTALL")
 endif()
 
 # If you want to use ctest to configure, build and
