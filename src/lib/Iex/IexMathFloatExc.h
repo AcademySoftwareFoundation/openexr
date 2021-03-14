@@ -9,7 +9,7 @@
 
 #include "IexExport.h"
 #include "IexNamespace.h"
-#include "IexMathExc.h"
+
 #include "IexMathIeeeExc.h"
 
 IEX_INTERNAL_NAMESPACE_HEADER_ENTER
