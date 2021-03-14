@@ -12,8 +12,10 @@
 //
 //------------------------------------------------------------------------
 
-#include "IexMathIeeeExc.h"
+#include "IexExport.h"
 #include "IexNamespace.h"
+
+#include "IexMathIeeeExc.h"
 
 IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -22,7 +24,7 @@ IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 // setFpExceptions() defines which floating
 // point exceptions cause SIGFPE signals.
 //-----------------------------------------
-
+IEX_EXPORT
 void setFpExceptions (int when = (IEEE_OVERFLOW | IEEE_DIVZERO | IEEE_INVALID));
 
 
@@ -30,7 +32,7 @@ void setFpExceptions (int when = (IEEE_OVERFLOW | IEEE_DIVZERO | IEEE_INVALID));
 // fpExceptions() tells you which floating
 // point exceptions cause SIGFPE signals.
 //----------------------------------------
-
+IEX_EXPORT
 int fpExceptions ();
 
 
@@ -40,7 +42,7 @@ int fpExceptions ();
 //------------------------------------------
 
 extern "C" typedef void (* FpExceptionHandler) (int type, const char explanation[]);
-
+IEX_EXPORT
 void setFpExceptionHandler (FpExceptionHandler handler);
 
 // -----------------------------------------
@@ -51,7 +53,7 @@ void setFpExceptionHandler (FpExceptionHandler handler);
 // allow trapping of exception register states
 // that can get set though no SIGFPE occurs.
 // -----------------------------------------
-
+IEX_EXPORT
 void handleExceptionsSetInRegisters();
 
 

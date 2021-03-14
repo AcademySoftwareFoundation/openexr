@@ -2,7 +2,6 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 add_subdirectory( Iex )
-add_subdirectory( IexMath )
 add_subdirectory( IlmThread )
 
 add_subdirectory( OpenEXR )
