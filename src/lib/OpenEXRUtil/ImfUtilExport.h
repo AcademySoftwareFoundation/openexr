@@ -12,7 +12,7 @@
 // are we making a DLL under windows (might be msvc or mingw or others)
 #if defined(OPENEXR_DLL)
 
-#  if defined(OPENEXR_EXPORTS)
+#  if defined(OPENEXRUTIL_EXPORTS)
 #    define IMFUTIL_EXPORT __declspec(dllexport)
 
 #    if defined(__MINGW32__)
