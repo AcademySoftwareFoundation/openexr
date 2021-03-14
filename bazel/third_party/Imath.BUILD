@@ -150,6 +150,7 @@ cc_library(
         "src/Imath/ImathRoots.h",
         "src/Imath/ImathShear.h",
         "src/Imath/ImathSphere.h",
+        "src/Imath/ImathTypeTraits.h",
         "src/Imath/ImathVec.h",
         "src/Imath/ImathVecAlgo.h",
         "src/Imath/half.h",
