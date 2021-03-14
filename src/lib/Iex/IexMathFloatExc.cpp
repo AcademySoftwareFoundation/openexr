@@ -13,6 +13,7 @@
 
 #include "IexMathFloatExc.h"
 #include "IexMacros.h"
+#include "IexMathExc.h"
 #include "IexMathFpu.h"
 
 #if 0

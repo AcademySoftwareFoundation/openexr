@@ -15,6 +15,8 @@ openexr_define_library(Iex
     IexThrowErrnoExc.h
     IexErrnoExc.h
     IexMacros.h
+    IexMathFloatExc.h
+    IexMathIeeeExc.h
     Iex.h
     IexNamespace.h
     IexExport.h
