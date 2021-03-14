@@ -3,16 +3,14 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-#ifdef NDEBUG
-#    undef NDEBUG
-#endif
-
 #include <tmpDir.h>
 
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
+#include <ImfFrameBuffer.h>
+#include <ImfHeader.h>
 #include <ImfVersion.h>
 #include <half.h>
 
@@ -34,7 +32,11 @@
 #include <ImfVecAttribute.h>
 
 #include <stdio.h>
+#ifdef NDEBUG
+#    undef NDEBUG
+#endif
 #include <assert.h>
+
 
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
@@ -290,7 +292,7 @@ writeReadAttr (const Array2D<float> &pf1,
         //
 
         const Attribute& a = hdr["a24"];
-        const OpaqueAttribute* oa = dynamic_cast_attr <OpaqueAttribute> (&a);
+        const OpaqueAttribute* oa = dynamic_cast <const OpaqueAttribute *> (&a);
         assert (oa);
         assert (!strcmp (a.typeName(), "testOpaque"));
 

@@ -74,7 +74,7 @@ OpaqueAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int
 void	
 OpaqueAttribute::copyValueFrom (const Attribute &other)
 {
-    const OpaqueAttribute *oa = dynamic_cast_attr <OpaqueAttribute> (&other);
+    const OpaqueAttribute *oa = dynamic_cast <const OpaqueAttribute *> (&other);
 
     if (oa == 0 || _typeName != oa->_typeName)
     {

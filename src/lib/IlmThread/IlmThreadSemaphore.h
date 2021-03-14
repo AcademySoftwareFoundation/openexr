@@ -38,17 +38,17 @@
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class ILMTHREAD_EXPORT Semaphore
+class ILMTHREAD_EXPORT_TYPE Semaphore
 {
   public:
 
-    Semaphore (unsigned int value = 0);
-    virtual ~Semaphore();
+    ILMTHREAD_EXPORT Semaphore (unsigned int value = 0);
+    ILMTHREAD_EXPORT virtual ~Semaphore();
 
-    void	wait();
-    bool	tryWait();
-    void	post();
-    int		value() const;
+    ILMTHREAD_EXPORT void wait();
+    ILMTHREAD_EXPORT bool tryWait();
+    ILMTHREAD_EXPORT void post();
+    ILMTHREAD_EXPORT int  value() const;
 
   private:
 

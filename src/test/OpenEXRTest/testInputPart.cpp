@@ -23,7 +23,10 @@
 #include <ImfMultiPartOutputFile.h>
 #include <ImfArray.h>
 #include <ImfChannelList.h>
+#include <ImfFrameBuffer.h>
+#include <ImfHeader.h>
 #include <ImfOutputPart.h>
+#include <ImfInputFile.h>
 #include <ImfInputPart.h>
 #include <ImfTiledOutputPart.h>
 #include <ImfPartType.h>

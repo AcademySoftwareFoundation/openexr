@@ -269,6 +269,10 @@ StdISStream::StdISStream (): OPENEXR_IMF_INTERNAL_NAMESPACE::IStream ("(string)"
     // empty
 }
 
+StdISStream::~StdISStream ()
+{
+}
+
 bool
 StdISStream::read (char c[/*n*/], int n)
 {
@@ -376,6 +380,9 @@ StdOSStream::StdOSStream (): OPENEXR_IMF_INTERNAL_NAMESPACE::OStream ("(string)"
     // empty
 }
 
+StdOSStream::~StdOSStream ()
+{
+}
 
 void
 StdOSStream::write (const char c[/*n*/], int n)

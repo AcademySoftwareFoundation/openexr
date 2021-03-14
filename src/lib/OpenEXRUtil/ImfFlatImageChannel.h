@@ -82,7 +82,7 @@ class IMFUTIL_EXPORT_TYPE FlatImageChannel: public ImageChannel
 };
 
 template <class T>
-class TypedFlatImageChannel: public FlatImageChannel
+class IMFUTIL_EXPORT_TEMPLATE_TYPE TypedFlatImageChannel: public FlatImageChannel
 {
   public:
     
@@ -139,11 +139,13 @@ class TypedFlatImageChannel: public FlatImageChannel
     // image channels exist only as parts of a flat image level.
     //
 
+    IMF_HIDDEN
     TypedFlatImageChannel (FlatImageLevel &level,
                            int xSampling,
                            int ySampling,
                            bool pLinear);
 
+    IMF_HIDDEN
     virtual ~TypedFlatImageChannel ();
 
     TypedFlatImageChannel (const TypedFlatImageChannel& other) = delete;
@@ -151,8 +153,10 @@ class TypedFlatImageChannel: public FlatImageChannel
     TypedFlatImageChannel (TypedFlatImageChannel&& other) = delete;
     TypedFlatImageChannel& operator = (TypedFlatImageChannel&& other) = delete;    
 
+    IMF_HIDDEN
     virtual void        resize ();
 
+    IMF_HIDDEN
     virtual void        resetBasePointer ();
 
     T *                 _pixels;        // Pointer to allocated storage

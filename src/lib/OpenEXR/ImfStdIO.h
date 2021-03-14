@@ -13,9 +13,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfIO.h"
-#include "ImfNamespace.h"
 #include "ImfExport.h"
+#include "ImfNamespace.h"
+
+#include "ImfIO.h"
 
 #include <fstream>
 #include <sstream>
@@ -50,15 +51,15 @@ class IMF_EXPORT_TYPE StdIFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStrea
 
 
     IMF_EXPORT virtual ~StdIFStream ();
+    StdIFStream (const StdIFStream &) = delete;
+    StdIFStream (StdIFStream &&) = delete;
+    StdIFStream &operator=(const StdIFStream &) = delete;
+    StdIFStream &operator=(StdIFStream &&) = delete;
 
-    IMF_EXPORT
-    virtual bool	read (char c[/*n*/], int n);
-    IMF_EXPORT
-    virtual uint64_t	tellg ();
-    IMF_EXPORT
-    virtual void	seekg (uint64_t pos);
-    IMF_EXPORT
-    virtual void	clear ();
+    IMF_EXPORT virtual bool     read (char c[/*n*/], int n);
+    IMF_EXPORT virtual uint64_t tellg ();
+    IMF_EXPORT virtual void     seekg (uint64_t pos);
+    IMF_EXPORT virtual void     clear ();
 
   private:
 
@@ -77,15 +78,16 @@ class IMF_EXPORT_TYPE StdISStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::IStrea
   public:
 
     IMF_EXPORT StdISStream ();
+    IMF_EXPORT ~StdISStream ();
+    StdISStream (const StdISStream &) = delete;
+    StdISStream (StdISStream &&) = delete;
+    StdISStream &operator=(const StdISStream &) = delete;
+    StdISStream &operator=(StdISStream &&) = delete;
 
-    IMF_EXPORT
-    virtual bool	read (char c[/*n*/], int n);
-    IMF_EXPORT
-    virtual uint64_t	tellg ();
-    IMF_EXPORT
-    virtual void	seekg (uint64_t pos);
-    IMF_EXPORT
-    virtual void	clear ();
+    IMF_EXPORT virtual bool     read (char c[/*n*/], int n);
+    IMF_EXPORT virtual uint64_t tellg ();
+    IMF_EXPORT virtual void     seekg (uint64_t pos);
+    IMF_EXPORT virtual void     clear ();
 
     IMF_EXPORT std::string   str () const; 
 
@@ -113,7 +115,7 @@ class IMF_EXPORT_TYPE StdOFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStrea
     //-------------------------------------------------------
 
     IMF_EXPORT StdOFStream (const char fileName[]);
-    
+
 
     //---------------------------------------------------------
     // A constructor that uses a std::ofstream that has already
@@ -125,13 +127,14 @@ class IMF_EXPORT_TYPE StdOFStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStrea
 
 
     IMF_EXPORT virtual ~StdOFStream ();
+    StdOFStream (const StdOFStream &) = delete;
+    StdOFStream (StdOFStream &&) = delete;
+    StdOFStream &operator=(const StdOFStream &) = delete;
+    StdOFStream &operator=(StdOFStream &&) = delete;
 
-    IMF_EXPORT
-    virtual void	write (const char c[/*n*/], int n);
-    IMF_EXPORT
-    virtual uint64_t	tellp ();
-    IMF_EXPORT
-    virtual void	seekp (uint64_t pos);
+    IMF_EXPORT virtual void     write (const char c[/*n*/], int n);
+    IMF_EXPORT virtual uint64_t tellp ();
+    IMF_EXPORT virtual void     seekp (uint64_t pos);
 
   private:
 
@@ -150,15 +153,17 @@ class IMF_EXPORT_TYPE StdOSStream: public OPENEXR_IMF_INTERNAL_NAMESPACE::OStrea
   public:
 
     IMF_EXPORT StdOSStream ();
+    IMF_EXPORT ~StdOSStream ();
+    StdOSStream (const StdOSStream &) = delete;
+    StdOSStream (StdOSStream &&) = delete;
+    StdOSStream &operator=(const StdOSStream &) = delete;
+    StdOSStream &operator=(StdOSStream &&) = delete;
 
-    IMF_EXPORT
-    virtual void	write (const char c[/*n*/], int n);
-    IMF_EXPORT
-    virtual uint64_t	tellp ();
-    IMF_EXPORT
-    virtual void	seekp (uint64_t pos);
+    IMF_EXPORT virtual void     write (const char c[/*n*/], int n);
+    IMF_EXPORT virtual uint64_t tellp ();
+    IMF_EXPORT virtual void     seekp (uint64_t pos);
 
-    IMF_EXPORT std::string   str () const;
+    IMF_EXPORT std::string      str () const;
 
   private:
 

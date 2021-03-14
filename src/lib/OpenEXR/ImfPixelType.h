@@ -13,12 +13,13 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfExport.h"
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-enum PixelType
+enum IMF_EXPORT_ENUM PixelType
 {
     UINT   = 0,		// unsigned int (32 bit)
     HALF   = 1,		// half (16 bit floating point)

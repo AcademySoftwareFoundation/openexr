@@ -14,11 +14,11 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfForward.h"
+
 #include "ImfName.h"
 #include "ImfPixelType.h"
 
-#include "ImfNamespace.h"
-#include "ImfExport.h"
 
 #include <map>
 #include <set>
@@ -27,7 +27,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-struct Channel
+struct IMF_EXPORT_TYPE Channel
 {
     //------------------------------
     // Data type; see ImfPixelType.h
@@ -86,7 +86,7 @@ struct Channel
 };
 
 
-class ChannelList
+class IMF_EXPORT_TYPE ChannelList
 {
   public:
 
@@ -268,7 +268,7 @@ class ChannelList
 // Iterators
 //----------
 
-class ChannelList::Iterator
+class IMF_EXPORT_TYPE ChannelList::Iterator
 {
   public:
 
@@ -295,7 +295,7 @@ class ChannelList::Iterator
 };
 
 
-class ChannelList::ConstIterator
+class IMF_EXPORT_TYPE ChannelList::ConstIterator
 {
   public:
 

@@ -6,10 +6,9 @@
 #ifndef IMFOUTPUTPARTDATA_H_
 #define IMFOUTPUTPARTDATA_H_
 
-#include "ImfHeader.h"
 #include "ImfForward.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
+
+#include "ImfHeader.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -23,7 +22,6 @@ struct OutputPartData
     bool                    multipart;
     OutputStreamMutex*      mutex;
 
-    IMF_EXPORT
     OutputPartData(OutputStreamMutex* mutex, const Header &header,
                    int partNumber, int numThreads, bool multipart);
 

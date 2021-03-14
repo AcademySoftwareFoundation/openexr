@@ -9,21 +9,23 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfDeepTiledInputFile.h>
-#include <ImfTileDescriptionAttribute.h>
-#include <ImfChannelList.h>
-#include <ImfMisc.h>
-#include <ImfTiledMisc.h>
-#include <ImfStdIO.h>
-#include <ImfCompressor.h>
-#include "ImathBox.h"
-#include <ImfXdr.h>
-#include <ImfConvert.h>
-#include <ImfVersion.h>
-#include <ImfTileOffsets.h>
-#include <ImfThreading.h>
-#include <ImfPartType.h>
-#include <ImfMultiPartInputFile.h>
+#include "ImfDeepTiledInputFile.h"
+
+#include "ImfDeepFrameBuffer.h"
+#include "ImfTileDescriptionAttribute.h"
+#include "ImfChannelList.h"
+#include "ImfMisc.h"
+#include "ImfTiledMisc.h"
+#include "ImfStdIO.h"
+#include "ImfCompressor.h"
+
+#include "ImfXdr.h"
+#include "ImfConvert.h"
+#include "ImfVersion.h"
+#include "ImfTileOffsets.h"
+#include "ImfThreading.h"
+#include "ImfPartType.h"
+#include "ImfMultiPartInputFile.h"
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
 #include "ImfInputStreamMutex.h"
@@ -36,8 +38,6 @@
 #include <string>
 #include <vector>
 #include <limits>
-
-#include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

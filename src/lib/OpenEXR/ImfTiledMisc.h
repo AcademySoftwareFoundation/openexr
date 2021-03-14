@@ -12,9 +12,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImathBox.h"
-#include "ImfHeader.h"
-#include "ImfNamespace.h"
+#include "ImfForward.h"
+
+#include "ImfTileDescription.h"
+#include <ImathBox.h>
 
 #include <stdio.h>
 #include <vector>

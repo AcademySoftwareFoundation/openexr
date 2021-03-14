@@ -9,28 +9,27 @@
 //        class IDManifest, to store a table mapping ID numbers to text
 //
 //-----------------------------------------------------------------------------
-#include "ImfNamespace.h"
+#include "ImfForward.h"
+
 #include <cstdint>
 #include <map>
 #include <vector>
 #include <set>
 #include <string>
-#include "ImfForward.h"
-#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class IDManifest
+class IMF_EXPORT_TYPE IDManifest
 {
 public:
            
     // indication of how long a mapping between an ID number and the text holds for
-    typedef enum 
+    enum IMF_EXPORT_ENUM IdLifetime
     {
         LIFETIME_FRAME, // The mapping may change every frame:
         LIFETIME_SHOT,  // The mapping is consistent for every frame of a shot
         LIFETIME_STABLE // The mapping is consistent for all time.
-    } IdLifetime;
+    };
 
     //
     // hashing scheme is stored as a string rather than an enum, to allow
@@ -77,13 +76,13 @@ public:
 
 private :
     // internal helper function called by constructors
-    void init(const char* data,const char* end);
+    IMF_HIDDEN void init(const char* data,const char* end);
 public :
     
     //
     // Description of the information represented by a single group of channels
     //
-    class ChannelGroupManifest
+    class IMF_EXPORT_TYPE ChannelGroupManifest
     {
     private:
         std::set<std::string> _channels; // group of channels this manifest represents
@@ -128,20 +127,14 @@ public :
          IMF_EXPORT
          void setComponent(const std::string& component);
          
-         IMF_EXPORT
          IdLifetime getLifetime() const { return _lifeTime;}
 
-         IMF_EXPORT
          void setLifetime(const IdLifetime& lifeTime)      { _lifeTime = lifeTime;}
          
-         IMF_EXPORT
          const std::string& getHashScheme() const { return _hashScheme;}
-         IMF_EXPORT
          void setHashScheme(const std::string& hashScheme)             { _hashScheme = hashScheme;}
          
-         IMF_EXPORT
          const std::string& getEncodingScheme() const { return _encodingScheme;}
-         IMF_EXPORT
          void setEncodingScheme(const std::string& encodingScheme)             { _encodingScheme = encodingScheme;}
          
          
@@ -203,7 +196,7 @@ public :
          
          IMF_EXPORT
          bool operator==(const ChannelGroupManifest& other) const;
-         IMF_EXPORT
+
          bool operator!=(const ChannelGroupManifest& other) const { return !(*this==other);}
          
          friend class IDManifest;

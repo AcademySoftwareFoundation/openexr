@@ -12,6 +12,9 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfExport.h"
+#include "ImfNamespace.h"
+
 #include "ImfAttribute.h"
 #include "ImfPreviewImage.h"
 
@@ -20,19 +23,9 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::PreviewImage> PreviewImageAttribute;
 
-template <>
-IMF_EXPORT
-const char *PreviewImageAttribute::staticTypeName ();
-
-template <>
-IMF_EXPORT
-void PreviewImageAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
-                                          int) const;
-
-template <>
-IMF_EXPORT
-void PreviewImageAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
-                                           int, int);
+#ifndef COMPILING_IMF_PREVIEW_IMAGE_ATTRIBUTE
+extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::PreviewImage>;
+#endif
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

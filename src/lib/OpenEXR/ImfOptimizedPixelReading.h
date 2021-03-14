@@ -8,6 +8,8 @@
 #ifndef INCLUDED_IMF_OPTIMIZED_PIXEL_READING_H
 #define INCLUDED_IMF_OPTIMIZED_PIXEL_READING_H
 
+#include "ImfNamespace.h"
+
 #include "ImfSimd.h"
 #include "ImfSystemSpecific.h"
 #include <iostream>

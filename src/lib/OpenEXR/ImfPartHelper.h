@@ -52,8 +52,6 @@ public:
   int part_number;          ///< part number: updated by SplitChannels
   std::string internal_name;///< name used in headers: in singlepart mode, may contain viewname
   
-  virtual ~MultiViewChannelName() {}
-    
     //return layer for this channel, or "" if no layer
     std::string getLayer() const 
     {
@@ -94,8 +92,8 @@ public:
 /// @return      total number of parts required
 //
 
-template<typename T> int 
-SplitChannels(const T & begin,const T & end,bool multipart=true,const std::string & heroView="")
+template<typename T> inline int 
+SplitChannels(const T & begin,const T & end,bool multipart=true,const std::string & heroView=std::string())
 {
     if(!multipart)
     {
@@ -186,7 +184,7 @@ SplitChannels(const T & begin,const T & end,bool multipart=true,const std::strin
 // populate the chans vector<MultiViewChannelName> with a list of channels in the file
 // and their corresponding part number
 //
-template<class T> void
+template<class T> inline void
 GetChannelsInMultiPartFile(const MultiPartInputFile & file,T & chans)
 {
     bool has_multiview=false;

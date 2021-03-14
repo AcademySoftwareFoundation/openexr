@@ -9,11 +9,15 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfCheckedArithmetic.h"
 #include "ImfInputFile.h"
+
+#include "ImfCheckedArithmetic.h"
+
 #include "ImfScanLineInputFile.h"
 #include "ImfTiledInputFile.h"
 #include "ImfChannelList.h"
+#include "ImfInputPartData.h"
+#include "ImfInputStreamMutex.h"
 #include "ImfMisc.h"
 #include "ImfStdIO.h"
 #include "ImfVersion.h"
@@ -21,17 +25,15 @@
 #include "ImfInputPartData.h"
 #include "ImfMultiPartInputFile.h"
 
-#include <ImfCompositeDeepScanLine.h>
-#include <ImfDeepScanLineInputFile.h>
+#include "ImfCompositeDeepScanLine.h"
+#include "ImfDeepScanLineInputFile.h"
 
-#include "ImathFun.h"
+#include <ImathFun.h>
 #include "Iex.h"
-#include "half.h"
+#include <half.h>
 
 #include <fstream>
 #include <algorithm>
-
-#include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

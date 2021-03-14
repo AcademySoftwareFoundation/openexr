@@ -11,6 +11,8 @@
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
+#include <ImfFrameBuffer.h>
+#include <ImfHeader.h>
 #include <ImfVersion.h>
 #include "half.h"
 

@@ -9,13 +9,18 @@
 
 #include "ImfInputFile.h"
 #include "ImfInputPart.h"
+#include "ImfOutputFile.h"
 #include "ImfTiledInputFile.h"
 #include "ImfTiledInputPart.h"
+#include "ImfTiledOutputFile.h"
 
 #include "ImfDeepScanLineInputFile.h"
 #include "ImfDeepScanLineInputPart.h"
 #include "ImfDeepTiledInputFile.h"
 #include "ImfDeepTiledInputPart.h"
+
+#include "ImfDeepScanLineOutputFile.h"
+#include "ImfDeepTiledOutputFile.h"
 
 #include "ImfChannelList.h"
 #include "ImfMultiPartInputFile.h"

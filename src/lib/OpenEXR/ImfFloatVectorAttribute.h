@@ -14,8 +14,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfAttribute.h"
+#include "ImfExport.h"
 #include "ImfNamespace.h"
+
+#include "ImfAttribute.h"
 
 #include <vector>
 
@@ -28,19 +30,9 @@ typedef std::vector<float>
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::FloatVector>
     FloatVectorAttribute;
 
-template <>
-IMF_EXPORT
-const char *FloatVectorAttribute::staticTypeName ();
-
-template <>
-IMF_EXPORT
-void FloatVectorAttribute::writeValueTo
-    (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
-
-template <>
-IMF_EXPORT
-void FloatVectorAttribute::readValueFrom
-    (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
+#ifndef COMPILING_IMF_FLOAT_VECTOR_ATTRIBUTE
+extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<FloatVector>;
+#endif
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

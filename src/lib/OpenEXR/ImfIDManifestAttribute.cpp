@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright (c) Contributors to the OpenEXR Project.
 
+#define COMPILING_IMF_IDMANIFEST_ATTRIBUTE
 #include "ImfIDManifestAttribute.h"
 
 #include <stdlib.h>
@@ -11,7 +12,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 
 template <>
-const char*
+IMF_EXPORT const char*
 IDManifestAttribute::staticTypeName()
 {
    return "idmanifest";
@@ -19,7 +20,7 @@ IDManifestAttribute::staticTypeName()
 
 
 template <>
-void
+IMF_EXPORT void
 IDManifestAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
     uint64_t uncompressedDataSize = _value._uncompressedDataSize;
@@ -31,7 +32,7 @@ IDManifestAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, 
 
 
 template <>
-void
+IMF_EXPORT void
 IDManifestAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
 
@@ -64,5 +65,6 @@ IDManifestAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
     Xdr::read<StreamIO>(is,input,_value._compressedDataSize);
 }
 
+template class IMF_EXPORT_TEMPLATE_INSTANCE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::CompressedIDManifest>;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

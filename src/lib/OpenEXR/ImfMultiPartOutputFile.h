@@ -6,12 +6,10 @@
 #ifndef MULTIPARTOUTPUTFILE_H_
 #define MULTIPARTOUTPUTFILE_H_
 
-#include "ImfHeader.h"
-#include "ImfGenericOutputFile.h"
 #include "ImfForward.h"
+
+#include "ImfGenericOutputFile.h"
 #include "ImfThreading.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -36,7 +34,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //  numThreads - number of threads that should be used in encoding the data.
 //
     
-class MultiPartOutputFile : public GenericOutputFile
+class IMF_EXPORT_TYPE MultiPartOutputFile : public GenericOutputFile
 {
     public:
         IMF_EXPORT
@@ -74,12 +72,12 @@ class MultiPartOutputFile : public GenericOutputFile
         MultiPartOutputFile(MultiPartOutputFile&& other) = delete;
         MultiPartOutputFile& operator = (MultiPartOutputFile&& other) = delete;
 
-        struct Data;
+        struct IMF_HIDDEN Data;
 
     private:
         Data*                           _data;
 
-        template<class T>         T*  getOutputPart(int partNumber);
+        template<class T> IMF_HIDDEN T*  getOutputPart(int partNumber);
 
     
     friend class OutputPart;

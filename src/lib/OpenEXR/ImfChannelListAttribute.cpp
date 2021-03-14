@@ -10,9 +10,15 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfChannelListAttribute.h>
+#define COMPILING_IMF_CHANNEL_LIST_ATTRIBUTE
+
+#include "ImfChannelListAttribute.h"
+
+#include "IexBaseExc.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
+
+using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 
 namespace {
 
@@ -33,16 +39,14 @@ void checkIsNullTerminated (const char (&str)[N], const char *what)
 
 
 template <>
-const char *
+IMF_EXPORT const char *
 ChannelListAttribute::staticTypeName ()
 {
     return "chlist";
 }
 
-using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
-
 template <>
-void
+IMF_EXPORT void
 ChannelListAttribute::writeValueTo (OStream &os, int version) const
 {
     for (ChannelList::ConstIterator i = _value.begin();
@@ -75,7 +79,7 @@ ChannelListAttribute::writeValueTo (OStream &os, int version) const
 
 
 template <>
-void
+IMF_EXPORT void
 ChannelListAttribute::readValueFrom (IStream &is,
                                      int size,
                                      int version)
@@ -129,5 +133,6 @@ ChannelListAttribute::readValueFrom (IStream &is,
     }
 }
 
+template class IMF_EXPORT_TEMPLATE_INSTANCE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::ChannelList>;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 

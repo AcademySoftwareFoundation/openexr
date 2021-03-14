@@ -13,7 +13,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfMatrixAttribute.h>
+#define COMPILING_IMF_MATRIX_ATTRIBUTE
+
+#include "ImfMatrixAttribute.h"
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -23,7 +25,7 @@ using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 
 
 template <>
-const char *
+IMF_EXPORT const char *
 M33fAttribute::staticTypeName ()
 {
     return "m33f";
@@ -31,7 +33,7 @@ M33fAttribute::staticTypeName ()
 
 
 template <>
-void
+IMF_EXPORT void
 M33fAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value[0][0]);
@@ -49,7 +51,7 @@ M33fAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int ve
 
 
 template <>
-void
+IMF_EXPORT void
 M33fAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
     Xdr::read <StreamIO> (is, _value[0][0]);
@@ -67,7 +69,7 @@ M33fAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int s
 
 
 template <>
-const char *
+IMF_EXPORT const char *
 M33dAttribute::staticTypeName ()
 {
     return "m33d";
@@ -75,7 +77,7 @@ M33dAttribute::staticTypeName ()
 
 
 template <>
-void
+IMF_EXPORT void
 M33dAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value[0][0]);
@@ -93,7 +95,7 @@ M33dAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int ve
 
 
 template <>
-void
+IMF_EXPORT void
 M33dAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
     Xdr::read <StreamIO> (is, _value[0][0]);
@@ -111,7 +113,7 @@ M33dAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int s
 
 
 template <>
-const char *
+IMF_EXPORT const char *
 M44fAttribute::staticTypeName ()
 {
     return "m44f";
@@ -119,7 +121,7 @@ M44fAttribute::staticTypeName ()
 
 
 template <>
-void
+IMF_EXPORT void
 M44fAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value[0][0]);
@@ -145,7 +147,7 @@ M44fAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int ve
 
 
 template <>
-void
+IMF_EXPORT void
 M44fAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
     Xdr::read <StreamIO> (is, _value[0][0]);
@@ -171,7 +173,7 @@ M44fAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int s
 
 
 template <>
-const char *
+IMF_EXPORT const char *
 M44dAttribute::staticTypeName ()
 {
     return "m44d";
@@ -179,7 +181,7 @@ M44dAttribute::staticTypeName ()
 
 
 template <>
-void
+IMF_EXPORT void
 M44dAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value[0][0]);
@@ -205,7 +207,7 @@ M44dAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int ve
 
 
 template <>
-void
+IMF_EXPORT void
 M44dAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
     Xdr::read <StreamIO> (is, _value[0][0]);
@@ -228,6 +230,11 @@ M44dAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int s
     Xdr::read <StreamIO> (is, _value[3][2]);
     Xdr::read <StreamIO> (is, _value[3][3]);
 }
+
+template class IMF_EXPORT_TEMPLATE_INSTANCE TypedAttribute<IMATH_NAMESPACE::M33f>;
+template class IMF_EXPORT_TEMPLATE_INSTANCE TypedAttribute<IMATH_NAMESPACE::M33d>;
+template class IMF_EXPORT_TEMPLATE_INSTANCE TypedAttribute<IMATH_NAMESPACE::M44f>;
+template class IMF_EXPORT_TEMPLATE_INSTANCE TypedAttribute<IMATH_NAMESPACE::M44d>;
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 

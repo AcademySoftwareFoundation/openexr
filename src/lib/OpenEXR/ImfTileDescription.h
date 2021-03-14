@@ -11,12 +11,13 @@
 //	class TileDescription and enum LevelMode
 //
 //-----------------------------------------------------------------------------
+#include "ImfExport.h"
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-enum LevelMode
+enum IMF_EXPORT_ENUM LevelMode
 {
     ONE_LEVEL = 0,
     MIPMAP_LEVELS = 1,
@@ -26,7 +27,7 @@ enum LevelMode
 };
 
 
-enum LevelRoundingMode
+enum IMF_EXPORT_ENUM LevelRoundingMode
 {
     ROUND_DOWN = 0,
     ROUND_UP = 1,
@@ -35,7 +36,7 @@ enum LevelRoundingMode
 };
 
 
-class TileDescription
+class IMF_EXPORT_TYPE TileDescription
 {
   public:
 
@@ -43,7 +44,7 @@ class TileDescription
     unsigned int	ySize;		// size of a tile in the y dimension
     LevelMode		mode;
     LevelRoundingMode	roundingMode;
-    
+
     TileDescription (unsigned int xs = 32,
 		     unsigned int ys = 32,
                      LevelMode m = ONE_LEVEL,

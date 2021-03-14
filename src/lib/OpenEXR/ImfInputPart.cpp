@@ -7,6 +7,7 @@
 #include "ImfNamespace.h"
 
 #include "ImfMultiPartInputFile.h"
+#include "ImfInputFile.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

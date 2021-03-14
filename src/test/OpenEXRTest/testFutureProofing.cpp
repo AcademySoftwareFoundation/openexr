@@ -25,14 +25,20 @@
 #include <ImfMultiPartOutputFile.h>
 #include <ImfArray.h>
 #include <ImfChannelList.h>
+#include <ImfDeepFrameBuffer.h>
+#include <ImfFrameBuffer.h>
 #include <ImfOutputPart.h>
+#include <ImfInputFile.h>
 #include <ImfInputPart.h>
 #include <ImfTiledOutputPart.h>
+#include <ImfTiledInputFile.h>
 #include <ImfTiledInputPart.h>
 #include <ImfDeepTiledOutputPart.h>
 #include <ImfDeepScanLineOutputPart.h>
+#include <ImfDeepTiledInputFile.h>
 #include <ImfDeepTiledInputPart.h>
 #include <ImfDeepScanLineInputPart.h>
+#include <ImfDeepScanLineInputFile.h>
 #include <ImfPartType.h>
 #include <ImfMisc.h>
 

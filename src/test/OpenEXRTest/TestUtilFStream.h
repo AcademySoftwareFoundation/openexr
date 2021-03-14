@@ -10,7 +10,9 @@
 #include <string>
 
 #ifdef _WIN32
-# define NOMINMAX
+# ifndef NOMINMAX
+#  define NOMINMAX
+# endif
 # define VC_EXTRALEAN
 # include <string.h>
 # include <windows.h>

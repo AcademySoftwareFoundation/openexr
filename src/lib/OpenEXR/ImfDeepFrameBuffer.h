@@ -6,9 +6,9 @@
 #ifndef IMFDEEPFRAMEBUFFER_H_
 #define IMFDEEPFRAMEBUFFER_H_
 
+#include "ImfForward.h"
+
 #include "ImfFrameBuffer.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -16,7 +16,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // Description of a single deep slice of the frame buffer:
 //--------------------------------------------------------
 
-struct DeepSlice : public Slice
+struct IMF_EXPORT_TYPE DeepSlice : public Slice
 {
     //---------------------------------------------------------------------
     // The stride for each sample in this slice.
@@ -62,7 +62,7 @@ struct DeepSlice : public Slice
 // DeepFrameBuffer.
 //-----------------
 
-class DeepFrameBuffer
+class IMF_EXPORT_TYPE DeepFrameBuffer
 {
   public:
 
@@ -160,7 +160,7 @@ class DeepFrameBuffer
 // Iterators
 //----------
 
-class DeepFrameBuffer::Iterator
+class IMF_EXPORT_TYPE DeepFrameBuffer::Iterator
 {
   public:
 
@@ -187,7 +187,7 @@ class DeepFrameBuffer::Iterator
 };
 
 
-class DeepFrameBuffer::ConstIterator
+class IMF_EXPORT_TYPE DeepFrameBuffer::ConstIterator
 {
   public:
 

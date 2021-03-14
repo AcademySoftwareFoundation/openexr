@@ -13,6 +13,8 @@
 
 #include "makeTiled.h"
 
+#include <ImfHeader.h>
+
 #include <iostream>
 #include <exception>
 #include <string>

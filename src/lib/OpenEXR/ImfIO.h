@@ -12,8 +12,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfNamespace.h"
-#include "ImfExport.h"
+#include "ImfForward.h"
 
 #include <string>
 #include <cstdint>

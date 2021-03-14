@@ -5,15 +5,17 @@
 
 #include "ImfGenericOutputFile.h"
 
-#include <ImfBoxAttribute.h>
-#include <ImfFloatAttribute.h>
-#include <ImfTimeCodeAttribute.h>
-#include <ImfChromaticitiesAttribute.h>
+#include "ImfVersion.h"
+#include "ImfIO.h"
+#include "ImfXdr.h"
+#include "ImfHeader.h"
+#include "ImfBoxAttribute.h"
+#include "ImfFloatAttribute.h"
+#include "ImfTimeCodeAttribute.h"
+#include "ImfChromaticitiesAttribute.h"
 
-#include <ImfMisc.h>
-#include <ImfPartType.h>
-
-#include "ImfNamespace.h"
+#include "ImfMisc.h"
+#include "ImfPartType.h"
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER

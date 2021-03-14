@@ -13,12 +13,12 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <IexBaseExc.h>
+#include "ImfForward.h"
+
 #include "ImfIO.h"
 #include "ImfXdr.h"
-#include "ImfForward.h"
-#include "ImfExport.h"
-#include "ImfNamespace.h"
+
+#include <IexBaseExc.h>
 
 #include <typeinfo>
 #include <cstring>
@@ -97,64 +97,12 @@ class IMF_EXPORT_TYPE Attribute
     static void		unRegisterAttributeType (const char typeName[]);
 };
 
-/// \defgroup TypeConversion type conversion helpers
-///
-/// We define these here for systems such as libc++ where the typeinfo
-/// may not be the same between what is compiled into the library, and
-/// the one used in code put into applications, especially with hidden
-/// visibility enabled by default. The internal type checks as one
-/// sets attributes into headers would then fail. As a result, we use
-/// these where the types are more loosely defined to only include the
-/// hash and name. With our custom, versioned namespace, this should
-/// be safe, and allows us to have hidden visibility on symbols and
-/// make a tidy shared object.
-///
-/// @{
-
-template <typename U>
-static U *dynamic_cast_attr (Attribute *a)
-{
-    if (!a)
-        return nullptr;
-    const auto &aid = typeid(*a);
-    const auto &uid = typeid(U);
-    // check the fast tests first before comparing names...
-    if (aid == uid || !strcmp(aid.name(), uid.name()))
-    {
-        return static_cast<U *>( a );
-    }
-    return nullptr;
-}
-template <typename U>
-static const U *dynamic_cast_attr (const Attribute *a)
-{
-    return dynamic_cast_attr <U> ( const_cast <Attribute *> ( a ) );
-}
-template<class U>
-static U &dynamic_cast_attr (Attribute &a)
-{
-    U *ret = dynamic_cast_attr <U> (&a);
-    if ( ! ret )
-        throw IEX_NAMESPACE::TypeExc ("Mismatched attribute type.");
-    return *ret;
-}
-template<class U>
-static const U &dynamic_cast_attr (const Attribute &a)
-{
-    const U *ret = dynamic_cast_attr <U> (&a);
-    if ( ! ret )
-        throw IEX_NAMESPACE::TypeExc ("Mismatched attribute type.");
-    return *ret;
-}
-
-/// @}
-
 //-------------------------------------------------
 // Class template for attributes of a specific type
 //-------------------------------------------------
     
 template <class T>
-class  TypedAttribute: public Attribute
+class IMF_EXPORT_TEMPLATE_TYPE TypedAttribute: public Attribute
 {
   public:
 
@@ -163,22 +111,29 @@ class  TypedAttribute: public Attribute
     // that the type T is copyable/assignable/moveable.
     //------------------------------------------------------------
 
+    IMF_EXPORT
     TypedAttribute () = default;
     TypedAttribute (const T &value);
+    IMF_EXPORT
     TypedAttribute (const TypedAttribute<T> &other) = default;
+    IMF_EXPORT
     TypedAttribute (TypedAttribute<T> &&other) = default;
+    //NB: if we use a default destructor, it wreaks havoc with where the vtable and such end up
+    //at least under mingw+windows, and since we are providing extern template instantiations
+    //this will be pretty trim and should reduce code bloat
+    virtual ~TypedAttribute ();
 
-    virtual ~TypedAttribute () = default;
-
+    IMF_EXPORT
     TypedAttribute& operator = (const TypedAttribute<T>& other) = default;
+    IMF_EXPORT
     TypedAttribute& operator = (TypedAttribute<T>&& other) = default;
     
     //--------------------------------
     // Access to the attribute's value
     //--------------------------------
 
-    T &					value ();
-    const T &				value () const;
+    T &      value ();
+    const T &value () const;
 
 
     //--------------------------------
@@ -215,24 +170,26 @@ class  TypedAttribute: public Attribute
     // Depending on type T, these functions may have to be specialized.
     //-----------------------------------------------------------------
 
-    virtual void		writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
-					      int version) const;
+    virtual void	writeValueTo (
+        OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
+        int version) const;
 
-    virtual void		readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
-					       int size,
-					       int version);
+    virtual void	readValueFrom (
+        OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
+        int size,
+        int version);
 
-    virtual void		copyValueFrom (const Attribute &other);
+    virtual void	copyValueFrom (const Attribute &other);
 
 
     //------------------------------------------------------------
     // Dynamic casts that throw exceptions instead of returning 0.
     //------------------------------------------------------------
 
-    static TypedAttribute *		cast (Attribute *attribute);
-    static const TypedAttribute *	cast (const Attribute *attribute);
-    static TypedAttribute &		cast (Attribute &attribute);
-    static const TypedAttribute &	cast (const Attribute &attribute);
+    static TypedAttribute *       cast (Attribute *attribute);
+    static const TypedAttribute * cast (const Attribute *attribute);
+    static TypedAttribute &       cast (Attribute &attribute);
+    static const TypedAttribute & cast (const Attribute &attribute);
 
 
     //---------------------------------------------------------------
@@ -247,14 +204,14 @@ class  TypedAttribute: public Attribute
     //
     //---------------------------------------------------------------
 
-    static void				registerAttributeType ();
+    static void registerAttributeType ();
 
 
     //-----------------------------------------------------
     // Un-register this attribute type (for debugging only)
     //-----------------------------------------------------
 
-    static void				 unRegisterAttributeType ();
+    static void unRegisterAttributeType ();
 
 
   private:
@@ -270,6 +227,12 @@ template <class T>
 TypedAttribute<T>::TypedAttribute (const T & value):
     Attribute (),
     _value (value)
+{
+    // empty
+}
+
+template <class T>
+TypedAttribute<T>::~TypedAttribute ()
 {
     // empty
 }
@@ -348,7 +311,7 @@ TypedAttribute<T> *
 TypedAttribute<T>::cast (Attribute *attribute)
 {
     TypedAttribute<T> *t =
-	dynamic_cast_attr <TypedAttribute<T>> (attribute);
+	dynamic_cast <TypedAttribute<T> *> (attribute);
 
     if (t == 0)
 	throw IEX_NAMESPACE::TypeExc ("Unexpected attribute type.");
@@ -362,7 +325,7 @@ const TypedAttribute<T> *
 TypedAttribute<T>::cast (const Attribute *attribute)
 {
     const TypedAttribute<T> *t =
-	dynamic_cast_attr <TypedAttribute<T>> (attribute);
+	dynamic_cast <const TypedAttribute<T> *> (attribute);
 
     if (t == 0)
 	throw IEX_NAMESPACE::TypeExc ("Unexpected attribute type.");

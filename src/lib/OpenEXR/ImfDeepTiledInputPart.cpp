@@ -4,8 +4,9 @@
 //
 
 #include "ImfDeepTiledInputPart.h"
+
 #include "ImfMultiPartInputFile.h"
-#include "ImfNamespace.h"
+#include "ImfDeepTiledInputFile.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

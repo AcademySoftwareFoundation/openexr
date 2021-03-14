@@ -13,12 +13,11 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfForward.h"
+
 #include "ImfPixelType.h"
 #include "ImfCompressor.h"
 #include "ImfArray.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
-#include "ImfForward.h"
 
 #include <cstddef>
 #include <vector>

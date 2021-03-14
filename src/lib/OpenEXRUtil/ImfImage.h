@@ -63,10 +63,12 @@
 //
 //----------------------------------------------------------------------------
 
+#include "ImfUtilExport.h"
+#include "ImfNamespace.h"
+
 #include "ImfImageLevel.h"
 #include <ImfTileDescription.h>
 #include <ImfArray.h>
-#include "ImfUtilExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -318,11 +320,10 @@ class IMFUTIL_EXPORT_TYPE Image
         newLevel (int lx, int ly, const IMATH_NAMESPACE::Box2i &dataWindow) = 0;
 
   private:
+    IMFUTIL_HIDDEN bool        levelNumberIsValid (int lx, int ly) const;
+    IMFUTIL_HIDDEN void        clearLevels ();
 
-    IMFUTIL_EXPORT_LOCAL bool        levelNumberIsValid (int lx, int ly) const;
-    IMFUTIL_EXPORT_LOCAL void        clearLevels ();
-
-    struct IMFUTIL_EXPORT_LOCAL ChannelInfo
+    struct IMFUTIL_HIDDEN ChannelInfo
     {
         ChannelInfo (PixelType type = HALF,
                      int xSampling = 1,

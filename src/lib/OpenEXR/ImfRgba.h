@@ -12,8 +12,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "half.h"
+#include "ImfExport.h"
 #include "ImfNamespace.h"
+
+#include <half.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -38,7 +40,7 @@ struct Rgba
 // Channels in an RGBA file
 //
 
-enum RgbaChannels
+enum IMF_EXPORT_ENUM RgbaChannels
 {
     WRITE_R	= 0x01,		// Red
     WRITE_G	= 0x02,		// Green

@@ -26,7 +26,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 class Image;
 
 
-class ImageLevel
+class IMFUTIL_EXPORT_TYPE ImageLevel
 {
   public:
 

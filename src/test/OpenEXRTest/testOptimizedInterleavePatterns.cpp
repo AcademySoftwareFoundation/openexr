@@ -13,6 +13,7 @@
 #include "ImfChannelList.h"
 #include "ImfOutputFile.h"
 #include "ImfCompression.h"
+#include "ImfFrameBuffer.h"
 #include "ImfStandardAttributes.h"
 #include <algorithm>
 #include <iostream>

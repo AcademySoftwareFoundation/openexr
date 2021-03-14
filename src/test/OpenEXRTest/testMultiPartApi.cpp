@@ -25,6 +25,8 @@
 #include <ImfTiledOutputFile.h>
 #include <ImfGenericOutputFile.h>
 #include <ImfArray.h>
+#include <ImfFrameBuffer.h>
+#include <ImfHeader.h>
 #include <ImfChannelList.h>
 #include <ImfOutputPart.h>
 #include <ImfInputPart.h>

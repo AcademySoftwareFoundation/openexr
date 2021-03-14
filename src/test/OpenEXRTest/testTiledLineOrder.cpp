@@ -11,8 +11,10 @@
 #include <ImfInputFile.h>
 #include <ImathRandom.h>
 #include <ImfTiledInputFile.h>
-#include <ImfChannelList.h>
 #include <ImfArray.h>
+#include <ImfChannelList.h>
+#include <ImfFrameBuffer.h>
+#include <ImfHeader.h>
 #include <ImfThreading.h>
 #include <IlmThread.h>
 #include <half.h>

@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include <ImfFrameBuffer.h>
 #include <ImfHeader.h>
 #include <ImfChannelList.h>
 #include <ImfOutputFile.h>

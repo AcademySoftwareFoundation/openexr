@@ -15,17 +15,19 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfHeader.h"
-#include "ImfFrameBuffer.h"
-#include "ImathVec.h"
-#include "ImathBox.h"
-#include "half.h"
+#include "ImfForward.h"
+
+#include "ImfCompression.h"
+#include "ImfLineOrder.h"
 #include "ImfTileDescription.h"
 #include "ImfRgba.h"
 #include "ImfThreading.h"
+
+#include <ImathVec.h>
+#include <ImathBox.h>
+#include <half.h>
+
 #include <string>
-#include "ImfNamespace.h"
-#include "ImfForward.h"
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -35,7 +37,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // Tiled RGBA output file.
 //
 
-class TiledRgbaOutputFile
+class IMF_EXPORT_TYPE TiledRgbaOutputFile
 {
   public:
 
@@ -291,7 +293,7 @@ class TiledRgbaOutputFile
     TiledRgbaOutputFile (TiledRgbaOutputFile &&) = delete;	
     TiledRgbaOutputFile & operator = (TiledRgbaOutputFile &&) = delete;
 
-    class ToYa;
+    class IMF_HIDDEN ToYa;
 
     TiledOutputFile *            _outputFile;
     ToYa *			_toYa;

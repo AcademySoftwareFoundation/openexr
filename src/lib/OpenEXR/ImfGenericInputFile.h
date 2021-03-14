@@ -6,14 +6,12 @@
 #ifndef IMFGENERICINPUTFILE_H_
 #define IMFGENERICINPUTFILE_H_
 
-#include "ImfIO.h"
-#include "ImfHeader.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
+#include "ImfForward.h"
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class GenericInputFile
+class IMF_EXPORT_TYPE GenericInputFile
 {
     public:
         IMF_EXPORT

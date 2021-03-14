@@ -13,11 +13,11 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfCompression.h"
-#include "ImathBox.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
 #include "ImfForward.h"
+
+#include "ImfCompression.h"
+
+#include <ImathBox.h>
 
 #include <stdlib.h>
 
@@ -25,7 +25,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class Compressor
+class IMF_EXPORT_TYPE Compressor
 {
   public:
 
@@ -62,7 +62,7 @@ class Compressor
     // returns XDR.
     //--------------------------------------------
 
-    enum Format
+    enum IMF_EXPORT_ENUM Format
     {
         NATIVE,		// the machine's native format
         XDR		// Xdr format
@@ -132,7 +132,6 @@ class Compressor
     //
     //-------------------------------------------------------------------------
 
-    IMF_EXPORT
     virtual int		compress (const char *inPtr,
 				  int inSize,
 				  int minY,
@@ -160,7 +159,6 @@ class Compressor
     //
     //-------------------------------------------------------------------------
 
-    IMF_EXPORT
     virtual int		uncompress (const char *inPtr,
 				    int inSize,
 				    int minY,

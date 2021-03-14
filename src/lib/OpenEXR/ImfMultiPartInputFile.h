@@ -6,16 +6,15 @@
 #ifndef IMFMULTIPARTINPUTFILE_H_
 #define IMFMULTIPARTINPUTFILE_H_
 
-#include "ImfGenericInputFile.h"
-#include "ImfNamespace.h"
 #include "ImfForward.h"
+
+#include "ImfGenericInputFile.h"
 #include "ImfThreading.h"
-#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class MultiPartInputFile : public GenericInputFile
+class IMF_EXPORT_TYPE MultiPartInputFile : public GenericInputFile
 {
   public:
     IMF_EXPORT
@@ -74,7 +73,7 @@ class MultiPartInputFile : public GenericInputFile
 
     IMF_EXPORT
     void flushPartCache();
-    struct Data;
+    struct IMF_HIDDEN Data;
 
 
   private:
@@ -89,10 +88,10 @@ class MultiPartInputFile : public GenericInputFile
     //
     // used internally by 'Part' types to access individual parts of the multipart file
     //
-    template<class T> T*    getInputPart(int partNumber);
-    InputPartData*          getPart(int);
+    template<class T> IMF_HIDDEN T*    getInputPart(int partNumber);
+    IMF_HIDDEN InputPartData*          getPart(int);
     
-    void                    initialize();
+    IMF_HIDDEN void                    initialize();
 
 
     

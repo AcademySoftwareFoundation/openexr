@@ -12,10 +12,13 @@
 //	class AutoArray -- a workaround for systems with
 //	insufficient stack space for large auto arrays.
 //
+//	NB: internal, so not exported at all
+//
 //-----------------------------------------------------------------------------
 
 #include "ImfNamespace.h"
-#include <string.h>
+
+#include <cstring>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 

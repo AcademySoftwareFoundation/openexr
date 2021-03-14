@@ -72,7 +72,7 @@ const Chromaticities &	acesChromaticities ();
 // ACES output file.
 //
 
-class AcesOutputFile
+class IMF_EXPORT_TYPE AcesOutputFile
 {
   public:
 
@@ -209,7 +209,7 @@ class AcesOutputFile
     AcesOutputFile (AcesOutputFile &&) = delete;
     AcesOutputFile & operator = (AcesOutputFile &&) = delete;
 
-    class Data;
+    class IMF_HIDDEN Data;
 
     Data *			_data;
 };
@@ -219,7 +219,7 @@ class AcesOutputFile
 // ACES input file
 //
 
-class AcesInputFile
+class IMF_EXPORT_TYPE AcesInputFile
 {
   public:
 
@@ -320,7 +320,7 @@ class AcesInputFile
     AcesInputFile (AcesInputFile &&) = delete;
     AcesInputFile & operator = (AcesInputFile &&) = delete;
 
-    class Data;
+    class IMF_HIDDEN Data;
 
     Data *			_data;
 };

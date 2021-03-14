@@ -10,7 +10,7 @@ function(OPENEXR_DEFINE_LIBRARY libname)
   cmake_parse_arguments(OPENEXR_CURLIB "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if (MSVC)
-    set(_imath_extra_flags "/EHsc")
+    set(_openexr_extra_flags "/EHsc")
   endif()
   set(objlib ${libname})
   add_library(${objlib}
@@ -41,9 +41,10 @@ function(OPENEXR_DEFINE_LIBRARY libname)
     POSITION_INDEPENDENT_CODE ON
     C_VISIBILITY_PRESET hidden
     CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
   )
-  if (_imath_extra_flags)
-    target_compile_options(${objlib} PUBLIC ${_imath_extra_flags})
+  if (_openexr_extra_flags)
+    target_compile_options(${objlib} PUBLIC ${_openexr_extra_flags})
   endif()
   set_property(TARGET ${objlib} PROPERTY PUBLIC_HEADER ${OPENEXR_CURLIB_HEADERS})
 

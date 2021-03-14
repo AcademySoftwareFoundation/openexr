@@ -12,19 +12,20 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfHeader.h"
-#include "ImfFrameBuffer.h"
-#include "ImathBox.h"
+#include "ImfForward.h"
+
 #include "ImfThreading.h"
 #include "ImfGenericOutputFile.h"
-#include "ImfNamespace.h"
-#include "ImfForward.h"
-#include "ImfExport.h"
+
+#include "ImfTileDescription.h"
+
+#include <ImathBox.h>
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class DeepTiledOutputFile : public GenericOutputFile
+class IMF_EXPORT_TYPE DeepTiledOutputFile : public GenericOutputFile
 {
   public:
 
