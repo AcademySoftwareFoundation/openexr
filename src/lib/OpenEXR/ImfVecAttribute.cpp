@@ -14,6 +14,14 @@
 //	class V3dAttribute
 //
 //-----------------------------------------------------------------------------
+#include "ImfExport.h"
+#include <ImathExport.h>
+#include <ImathNamespace.h>
+
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
+template <class V> class IMF_EXPORT_TEMPLATE_TYPE Vec2;
+template <class V> class IMF_EXPORT_TEMPLATE_TYPE Vec3;
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #define COMPILING_IMF_VECTOR_ATTRIBUTE
 #include "ImfVecAttribute.h"
