@@ -39,10 +39,16 @@ function(OPENEXR_DEFINE_LIBRARY libname)
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
     POSITION_INDEPENDENT_CODE ON
-    C_VISIBILITY_PRESET hidden
-    CXX_VISIBILITY_PRESET hidden
-    VISIBILITY_INLINES_HIDDEN ON
   )
+  if (NOT OPENEXR_USE_DEFAULT_VISIBILITY)
+    set_target_properties(${objlib} PROPERTIES
+      C_VISIBILITY_PRESET hidden
+      CXX_VISIBILITY_PRESET hidden
+      VISIBILITY_INLINES_HIDDEN ON
+      )
+  else()
+      target_compile_definitions(${objlib} PUBLIC OPENEXR_USE_DEFAULT_VISIBILITY)
+  endif()
   if (_openexr_extra_flags)
     target_compile_options(${objlib} PUBLIC ${_openexr_extra_flags})
   endif()

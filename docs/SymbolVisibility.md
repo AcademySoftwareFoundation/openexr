@@ -66,7 +66,7 @@ allow that to happen.
 | class(typeinfo) | N/A                 | N/A                 | visibility("default") | visibility("default")      |
 | template class  | N/A                 | N/A                 | visibility("default") | type_visibility("default") |
 | template data   | N/A                 | N/A                 | visibility("default") | visibility("default")      |
-| class template<br>instantiation | dllexport/dllimport | N/A | N/A                   | N/A                        |
+| class template<br>instantiation | dllexport/dllimport | N/A | N/A                   | visibility("default")      |
 | enum            | N/A                 | N/A                 | auto unhides (N/A)    | type_visibility("default") |
 | extern template | N/A                 | dllexport/dllimport | visibility("default") | visibility("default")      |
 
