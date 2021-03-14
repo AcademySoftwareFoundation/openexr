@@ -12,10 +12,14 @@
 /// motivation for these macros
 ///
 /// Iex is simple and does not need to do more than expose class types
-/// and functions, and does not have any private members to hide
+/// and functions, and does not have any private members to hide, so
+/// only provides a couple of the possible macros.
 ///
-/// Imf and ImfUtil have much more logic and have to deal with
-/// templates and template instantiation.
+/// Similarly, IlmThread is also simple.
+///
+/// OpenEXR and OpenEXRUtil have much more logic and have to deal with
+/// templates and template instantiation, and so define more of the
+/// macros.
 /// 
 /// @{
 

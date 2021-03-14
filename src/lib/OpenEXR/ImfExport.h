@@ -27,10 +27,10 @@
 #      define IMF_EXPORT_TEMPLATE_INSTANCE IMF_EXPORT
 #    endif
 
-#    else
-#	     define IMF_EXPORT __declspec(dllimport)
-#        define IMF_EXPORT_EXTERN_TEMPLATE IMF_EXPORT
-#    endif
+#  else // OPENEXR_EXPORTS, not in this DLL
+#    define IMF_EXPORT __declspec(dllimport)
+#    define IMF_EXPORT_EXTERN_TEMPLATE IMF_EXPORT
+#  endif
 
 #else // OPENEXR_DLL
 
