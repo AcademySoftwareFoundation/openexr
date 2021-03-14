@@ -111,21 +111,16 @@ class IMF_EXPORT_TEMPLATE_TYPE TypedAttribute: public Attribute
     // that the type T is copyable/assignable/moveable.
     //------------------------------------------------------------
 
-    IMF_EXPORT
     TypedAttribute () = default;
     TypedAttribute (const T &value);
-    IMF_EXPORT
     TypedAttribute (const TypedAttribute<T> &other) = default;
-    IMF_EXPORT
     TypedAttribute (TypedAttribute<T> &&other) = default;
     //NB: if we use a default destructor, it wreaks havoc with where the vtable and such end up
     //at least under mingw+windows, and since we are providing extern template instantiations
     //this will be pretty trim and should reduce code bloat
     virtual ~TypedAttribute ();
 
-    IMF_EXPORT
     TypedAttribute& operator = (const TypedAttribute<T>& other) = default;
-    IMF_EXPORT
     TypedAttribute& operator = (TypedAttribute<T>&& other) = default;
     
     //--------------------------------
