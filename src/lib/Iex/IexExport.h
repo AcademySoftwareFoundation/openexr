@@ -7,15 +7,19 @@
 #define IEXEXPORT_H
 
 #if defined(OPENEXR_DLL)
-    #if defined(IEX_EXPORTS)
-    #define IEX_EXPORT __declspec(dllexport)
-    #else
-    #define IEX_EXPORT __declspec(dllimport)
-    #endif
-    #define IEX_EXPORT_CONST
+#    if defined(IEX_EXPORTS)
+#        define IEX_EXPORT __declspec(dllexport)
+#    else
+#        define IEX_EXPORT __declspec(dllimport)
+#    endif
 #else
-    #define IEX_EXPORT
-    #define IEX_EXPORT_CONST const
+#    define IEX_EXPORT
+#endif
+#ifndef IEX_EXPORT_TYPE
+#    define IEX_EXPORT_TYPE
+#endif
+#ifndef IEX_EXPORT_ENUM
+#    define IEX_EXPORT_ENUM
 #endif
 
 #endif // #ifndef IEXEXPORT_H

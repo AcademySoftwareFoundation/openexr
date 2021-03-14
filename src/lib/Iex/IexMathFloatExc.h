@@ -7,26 +7,9 @@
 #ifndef INCLUDED_IEXMATHFLOATEXC_H
 #define INCLUDED_IEXMATHFLOATEXC_H
 
-#ifndef IEXMATH_EXPORT_H
-#define IEXMATH_EXPORT_H
-
-#if defined(OPENEXR_DLL)
-    #if defined(IEXMATH_EXPORTS)
-    #define IEXMATH_EXPORT __declspec(dllexport)
-    #else
-    #define IEXMATH_EXPORT __declspec(dllimport)
-    #endif
-    #define IEXMATH_EXPORT_CONST
-#else
-    #define IEXMATH_EXPORT
-    #define IEXMATH_EXPORT_CONST const
-#endif
-
-#endif
-
+#include "IexExport.h"
 #include "IexNamespace.h"
 #include "IexMathExc.h"
-//#include <IexBaseExc.h>
 #include "IexMathIeeeExc.h"
 
 IEX_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -37,7 +20,7 @@ IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 // will be trapped and converted to C++ exceptions.
 //-------------------------------------------------------------
 
-IEXMATH_EXPORT
+IEX_EXPORT
 void mathExcOn (int when = (IEEE_OVERFLOW | IEEE_DIVZERO | IEEE_INVALID));
 
 
@@ -46,7 +29,7 @@ void mathExcOn (int when = (IEEE_OVERFLOW | IEEE_DIVZERO | IEEE_INVALID));
 // trapping and conversion to C++ exceptions is currently enabled.
 //----------------------------------------------------------------------
 
-IEXMATH_EXPORT
+IEX_EXPORT
 int getMathExcOn();
 
 
@@ -70,12 +53,12 @@ int getMathExcOn();
 //					// point exception settings
 //------------------------------------------------------------------------
 
-class MathExcOn
+class IEX_EXPORT_TYPE MathExcOn
 {
   public:
 
-    IEXMATH_EXPORT MathExcOn (int when);
-    IEXMATH_EXPORT ~MathExcOn ();
+    IEX_EXPORT MathExcOn (int when);
+    IEX_EXPORT ~MathExcOn ();
     MathExcOn (const MathExcOn&) = delete;
     MathExcOn& operator= (const MathExcOn&) = delete;
     MathExcOn (MathExcOn&&) = delete;
@@ -90,7 +73,7 @@ class MathExcOn
     // It should be called wherever this class is commonly used where it has
     // been found that certain floating point exceptions are not being thrown.
 
-    IEXMATH_EXPORT void handleOutstandingExceptions();
+    IEX_EXPORT void handleOutstandingExceptions();
 
   private:
 

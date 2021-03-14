@@ -7,6 +7,8 @@ openexr_define_library(Iex
   SOURCES
     IexBaseExc.cpp
     IexThrowErrnoExc.cpp
+    IexMathFloatExc.cpp
+    IexMathFpu.cpp
   HEADERS
     IexBaseExc.h
     IexMathExc.h

@@ -13,12 +13,13 @@
 //
 //---------------------------------------------------------------------------
 
+#include "IexExport.h"
 #include "IexNamespace.h"
 
 IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-enum IeeeExcType
+enum IEX_EXPORT_ENUM IeeeExcType
 {
     IEEE_OVERFLOW  = 1,
     IEEE_UNDERFLOW = 2,
