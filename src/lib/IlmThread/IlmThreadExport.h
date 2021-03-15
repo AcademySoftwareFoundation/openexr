@@ -3,6 +3,11 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#ifndef INCLUDED_ILMTHREADEXPORT_H
+#define INCLUDED_ILMTHREADEXPORT_H
+
+#include "OpenEXRConfig.h"
+
 // See docs/SymbolVisibility.md for more discussion
 
 /// \addtogroup ExportMacros
@@ -11,39 +16,28 @@
 // are we making a DLL under windows (might be msvc or mingw or others)
 #if defined(OPENEXR_DLL)
 
-// our dll or nother location
+// when building as a DLL for windows, typical dllexport / import case
+// where we need to switch depending on whether we are compiling
+// internally or not
 #  if defined(ILMTHREAD_EXPORTS)
 #    define ILMTHREAD_EXPORT __declspec(dllexport)
 #  else
 #    define ILMTHREAD_EXPORT __declspec(dllimport)
 #  endif
 
+// DLLs don't support these types of visibility controls, just leave them as empty
+#  define ILMTHREAD_EXPORT_TYPE
+#  define ILMTHREAD_HIDDEN
+
 #else // OPENEXR_DLL
 
-// need to avoid the case when compiling a static lib under MSVC (not
-// a dll, not a compiler that has visibility attributes)
-#  ifndef _MSC_VER
-#    ifdef OPENEXR_USE_DEFAULT_VISIBILITY
-#      define ILMTHREAD_EXPORT
-#    else 
-#      define ILMTHREAD_EXPORT __attribute__ ((__visibility__ ("default")))
-#      define ILMTHREAD_EXPORT_TYPE ILMTHREAD_EXPORT
-#      define ILMTHREAD_HIDDEN __attribute__ ((__visibility__ ("hidden")))
-#    endif // OPENEXR_USE_DEFAULT_VISIBILITY
-
-#  else // _MSC_VER
-#    define ILMTHREAD_EXPORT
-#  endif
+// just pass these through from the top level config
+#  define ILMTHREAD_EXPORT OPENEXR_EXPORT
+#  define ILMTHREAD_HIDDEN OPENEXR_HIDDEN
+#  define ILMTHREAD_EXPORT_TYPE OPENEXR_EXPORT_TYPE
 
 #endif // OPENEXR_DLL
 
-// Provide defaults so we don't have to replicate lines as much
-
-#ifndef ILMTHREAD_EXPORT_TYPE
-#    define ILMTHREAD_EXPORT_TYPE
-#endif
-#ifndef ILMTHREAD_HIDDEN
-#    define ILMTHREAD_HIDDEN
-#endif
-
 /// @}
+
+#endif // INCLUDED_ILMTHREADEXPORT_H
