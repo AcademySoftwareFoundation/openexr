@@ -77,7 +77,7 @@ new features:
   - Header files have been pruned of extraneous ``#include``'s, which
     may require updates to application source code.
   - See the [porting
-    guide](https://github.com/AcademySoftwareFoundation/Imath/blob/master/PortingGuide2-3.md)
+    guide](https://github.com/AcademySoftwareFoundation/Imath/blob/master/docs/PortingGuide2-3.md)
     for details about differences from previous releases and how to
     address them.
   - Also refer to the porting guide for details about changes to
@@ -198,11 +198,11 @@ build support on macOS.
 
 Specific OSS-fuzz issues include:
 
-* OSS-fuzz [30291](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=30291)
-* OSS-fuzz [29106](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=29106)
-* OSS-fuzz [28971](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28971)
-* OSS-fuzz [29829](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=29829)
-* OSS-fuzz [30121](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=30121)
+* OSS-fuzz [30291](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=30291) Timeout in openexr_exrcheck_fuzzer
+* OSS-fuzz [29106](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=29106) Heap-buffer-overflow in Imf_2_5::FastHufDecoder::decode
+* OSS-fuzz [28971](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28971) Undefined-shift in Imf_2_5::cachePadding
+* OSS-fuzz [29829](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=29829) Integer-overflow in Imf_2_5::DwaCompressor::initializeBuffers
+* OSS-fuzz [30121](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=30121) Out-of-memory in openexr_exrcheck_fuzzer
 
 ### Merged Pull Requests
 
