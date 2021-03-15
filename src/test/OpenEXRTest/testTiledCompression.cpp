@@ -14,8 +14,10 @@
 #include <ImfInputFile.h>
 #include <ImfTiledOutputFile.h>
 #include <ImfTiledInputFile.h>
-#include <ImfChannelList.h>
 #include <ImfArray.h>
+#include <ImfChannelList.h>
+#include <ImfFrameBuffer.h>
+#include <ImfHeader.h>
 #include <half.h>
 #include <ImathRandom.h>
 #include <ImfTileDescriptionAttribute.h>

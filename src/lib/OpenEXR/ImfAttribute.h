@@ -13,17 +13,19 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IexBaseExc.h"
+#include "ImfForward.h"
+
 #include "ImfIO.h"
 #include "ImfXdr.h"
-#include "ImfForward.h"
-#include "ImfExport.h"
-#include "ImfNamespace.h"
+
+#include <IexBaseExc.h>
+
+#include <typeinfo>
+#include <cstring>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
-class Attribute
+class IMF_EXPORT_TYPE Attribute
 {
   public:
 
@@ -31,10 +33,8 @@ class Attribute
     // Constructor and destructor
     //---------------------------
 
-    IMF_EXPORT
-    Attribute ();
-    IMF_EXPORT
-    virtual ~Attribute ();
+    IMF_EXPORT Attribute ();
+    IMF_EXPORT virtual ~Attribute ();
 
 
     //-------------------------------
@@ -69,17 +69,14 @@ class Attribute
     // Attribute factory
     //------------------
 
-    IMF_EXPORT
-    static Attribute *		newAttribute (const char typeName[]);
+    IMF_EXPORT static Attribute *		newAttribute (const char typeName[]);
 
 
     //-----------------------------------------------------------
     // Test if a given attribute type has already been registered
     //-----------------------------------------------------------
 
-    IMF_EXPORT
-    static bool			knownType (const char typeName[]);
-
+    IMF_EXPORT static bool			knownType (const char typeName[]);
 
   protected:
 
@@ -87,7 +84,6 @@ class Attribute
     // Register an attribute type so that newAttribute()
     // knows how to make objects of this type.
     //--------------------------------------------------
-
     IMF_EXPORT
     static void		registerAttributeType (const char typeName[],
 					       Attribute *(*newAttribute)());
@@ -97,18 +93,16 @@ class Attribute
     // no longer knows how to make objects of this type (for
     // debugging only).
     //------------------------------------------------------
-
     IMF_EXPORT
     static void		unRegisterAttributeType (const char typeName[]);
 };
-
 
 //-------------------------------------------------
 // Class template for attributes of a specific type
 //-------------------------------------------------
     
 template <class T>
-class TypedAttribute: public Attribute
+class IMF_EXPORT_TEMPLATE_TYPE TypedAttribute: public Attribute
 {
   public:
 
@@ -121,8 +115,10 @@ class TypedAttribute: public Attribute
     TypedAttribute (const T &value);
     TypedAttribute (const TypedAttribute<T> &other) = default;
     TypedAttribute (TypedAttribute<T> &&other) = default;
-
-    virtual ~TypedAttribute () = default;
+    //NB: if we use a default destructor, it wreaks havoc with where the vtable and such end up
+    //at least under mingw+windows, and since we are providing extern template instantiations
+    //this will be pretty trim and should reduce code bloat
+    virtual ~TypedAttribute ();
 
     TypedAttribute& operator = (const TypedAttribute<T>& other) = default;
     TypedAttribute& operator = (TypedAttribute<T>&& other) = default;
@@ -131,8 +127,8 @@ class TypedAttribute: public Attribute
     // Access to the attribute's value
     //--------------------------------
 
-    T &					value ();
-    const T &				value () const;
+    T &      value ();
+    const T &value () const;
 
 
     //--------------------------------
@@ -169,24 +165,26 @@ class TypedAttribute: public Attribute
     // Depending on type T, these functions may have to be specialized.
     //-----------------------------------------------------------------
 
-    virtual void		writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
-					      int version) const;
+    virtual void	writeValueTo (
+        OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
+        int version) const;
 
-    virtual void		readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
-					       int size,
-					       int version);
+    virtual void	readValueFrom (
+        OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
+        int size,
+        int version);
 
-    virtual void		copyValueFrom (const Attribute &other);
+    virtual void	copyValueFrom (const Attribute &other);
 
 
     //------------------------------------------------------------
     // Dynamic casts that throw exceptions instead of returning 0.
     //------------------------------------------------------------
 
-    static TypedAttribute *		cast (Attribute *attribute);
-    static const TypedAttribute *	cast (const Attribute *attribute);
-    static TypedAttribute &		cast (Attribute &attribute);
-    static const TypedAttribute &	cast (const Attribute &attribute);
+    static TypedAttribute *       cast (Attribute *attribute);
+    static const TypedAttribute * cast (const Attribute *attribute);
+    static TypedAttribute &       cast (Attribute &attribute);
+    static const TypedAttribute & cast (const Attribute &attribute);
 
 
     //---------------------------------------------------------------
@@ -201,14 +199,14 @@ class TypedAttribute: public Attribute
     //
     //---------------------------------------------------------------
 
-    static void				registerAttributeType ();
+    static void registerAttributeType ();
 
 
     //-----------------------------------------------------
     // Un-register this attribute type (for debugging only)
     //-----------------------------------------------------
 
-    static void				 unRegisterAttributeType ();
+    static void unRegisterAttributeType ();
 
 
   private:
@@ -224,6 +222,12 @@ template <class T>
 TypedAttribute<T>::TypedAttribute (const T & value):
     Attribute (),
     _value (value)
+{
+    // empty
+}
+
+template <class T>
+TypedAttribute<T>::~TypedAttribute ()
 {
     // empty
 }

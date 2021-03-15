@@ -23,18 +23,9 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::DeepImageState>
     DeepImageStateAttribute;
 
-template <> IMF_EXPORT const char *DeepImageStateAttribute::staticTypeName ();
-
-template <> IMF_EXPORT
-void DeepImageStateAttribute::writeValueTo
-    (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &, int) const;
-
-template <> IMF_EXPORT
-void DeepImageStateAttribute::readValueFrom
-    (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &, int, int);
-
-template <> IMF_EXPORT
-void DeepImageStateAttribute::copyValueFrom (const OPENEXR_IMF_INTERNAL_NAMESPACE::Attribute &other);
+#ifndef COMPILING_IMF_DEEP_IMAGE_STATE_ATTRIBUTE
+extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::DeepImageState>;
+#endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

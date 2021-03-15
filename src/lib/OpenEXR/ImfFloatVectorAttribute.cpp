@@ -9,6 +9,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#define COMPILING_IMF_FLOAT_VECTOR_ATTRIBUTE
 #include <ImfFloatVectorAttribute.h>
 
 
@@ -19,7 +20,7 @@ using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 
 
 template <>
-const char *
+IMF_EXPORT const char *
 FloatVectorAttribute::staticTypeName ()
 {
     return "floatvector";
@@ -27,7 +28,7 @@ FloatVectorAttribute::staticTypeName ()
 
 
 template <>
-void
+IMF_EXPORT void
 FloatVectorAttribute::writeValueTo
     (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
@@ -39,7 +40,7 @@ FloatVectorAttribute::writeValueTo
 
 
 template <>
-void
+IMF_EXPORT void
 FloatVectorAttribute::readValueFrom
     (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
@@ -49,6 +50,8 @@ FloatVectorAttribute::readValueFrom
     for (int i = 0; i < n; ++i)
        Xdr::read <StreamIO> (is, _value[i]);
 }
+
+template class IMF_EXPORT_TEMPLATE_INSTANCE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::FloatVector>;
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 

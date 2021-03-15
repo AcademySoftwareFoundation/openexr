@@ -9,7 +9,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfDeepImageStateAttribute.h>
+#define COMPILING_IMF_DEEP_IMAGE_STATE_ATTRIBUTE
+
+#include "ImfDeepImageStateAttribute.h"
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -17,7 +19,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 
 template <>
-const char *
+IMF_EXPORT const char *
 DeepImageStateAttribute::staticTypeName ()
 {
     return "deepImageState";
@@ -25,7 +27,7 @@ DeepImageStateAttribute::staticTypeName ()
 
 
 template <>
-void
+IMF_EXPORT void
 DeepImageStateAttribute::writeValueTo
     (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
@@ -35,7 +37,7 @@ DeepImageStateAttribute::writeValueTo
 
 
 template <>
-void
+IMF_EXPORT void
 DeepImageStateAttribute::readValueFrom
     (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
@@ -45,11 +47,14 @@ DeepImageStateAttribute::readValueFrom
 }
 
 template <>
-void
+IMF_EXPORT void
 DeepImageStateAttribute::copyValueFrom (const OPENEXR_IMF_INTERNAL_NAMESPACE::Attribute &other)
 {
     _value = cast(other).value();
 
 }
+
+template class IMF_EXPORT_TEMPLATE_INSTANCE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::DeepImageState>;
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 

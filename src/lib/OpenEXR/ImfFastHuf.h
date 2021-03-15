@@ -7,7 +7,6 @@
 #define INCLUDED_IMF_FAST_HUF_H
 
 #include "ImfNamespace.h"
-#include "ImfExport.h"
 
 #include <cstdint>
 
@@ -55,14 +54,12 @@ class FastHufDecoder
 
     static const int TABLE_LOOKUP_BITS = 12;
 
-    IMF_EXPORT
     FastHufDecoder (const char*& table,
                     int numBytes,
                     int minSymbol,
                     int maxSymbol,
                     int rleSymbol);
 
-    IMF_EXPORT
     ~FastHufDecoder ();
 
     FastHufDecoder (const FastHufDecoder& other) = delete;
@@ -70,10 +67,8 @@ class FastHufDecoder
     FastHufDecoder (FastHufDecoder&& other) = delete;
     FastHufDecoder& operator = (FastHufDecoder&& other) = delete;
 
-    IMF_EXPORT
     static bool enabled ();
 
-    IMF_EXPORT
     void decode (const unsigned char *src,
                  int numSrcBits,
                  unsigned short *dst,

@@ -10,6 +10,8 @@
 //
 //-----------------------------------------------------------------------------
 
+#define COMPILING_IMF_COMPRESSION_ATTRIBUTE
+
 #include "ImfCompressionAttribute.h"
 
 
@@ -19,7 +21,7 @@ using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 
 
 template <>
-const char *
+IMF_EXPORT const char *
 CompressionAttribute::staticTypeName ()
 {
     return "compression";
@@ -27,7 +29,7 @@ CompressionAttribute::staticTypeName ()
 
 
 template <>
-void
+IMF_EXPORT void
 CompressionAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
     unsigned char tmp = _value;
@@ -36,7 +38,7 @@ CompressionAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
 
 
 template <>
-void
+IMF_EXPORT void
 CompressionAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
     unsigned char tmp;
@@ -65,6 +67,8 @@ CompressionAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is
 
     _value = Compression (tmp);
 }
+
+template class IMF_EXPORT_TEMPLATE_INSTANCE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Compression>;
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 

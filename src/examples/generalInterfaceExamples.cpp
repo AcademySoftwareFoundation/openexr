@@ -21,6 +21,7 @@
 
 #include "drawImage.h"
 
+#include <cfloat>
 #include <iostream>
 #include <limits>
 

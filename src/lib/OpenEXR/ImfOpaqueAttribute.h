@@ -19,14 +19,16 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfExport.h"
+#include "ImfNamespace.h"
+
 #include "ImfAttribute.h"
 #include "ImfArray.h"
-#include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class OpaqueAttribute: public Attribute
+class IMF_EXPORT_TYPE OpaqueAttribute: public Attribute
 {
   public:
 
@@ -34,45 +36,37 @@ class OpaqueAttribute: public Attribute
     // Constructors and destructor
     //----------------------------
 
-    IMF_EXPORT
-    OpaqueAttribute (const char typeName[]);
-    IMF_EXPORT
-    OpaqueAttribute (const OpaqueAttribute &other);
-    IMF_EXPORT
-    virtual ~OpaqueAttribute ();
+    IMF_EXPORT OpaqueAttribute (const char typeName[]);
+    IMF_EXPORT OpaqueAttribute (const OpaqueAttribute &other);
+    IMF_EXPORT virtual ~OpaqueAttribute ();
 
 
     //-------------------------------
     // Get this attribute's type name
     //-------------------------------
 
-    IMF_EXPORT
-    virtual const char *	typeName () const;
+    IMF_EXPORT virtual const char *	typeName () const;
     
 
     //------------------------------
     // Make a copy of this attribute
     //------------------------------
 
-    IMF_EXPORT
-    virtual Attribute *		copy () const;
+    IMF_EXPORT virtual Attribute *		copy () const;
 
 
     //----------------
     // I/O and copying
     //----------------
 
-    IMF_EXPORT
-    virtual void		writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
-					      int version) const;
+    IMF_EXPORT virtual void		writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
+                                              int version) const;
 
-    IMF_EXPORT
-    virtual void		readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
-					       int size,
-					       int version);
+    IMF_EXPORT virtual void		readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
+                                               int size,
+                                               int version);
 
-    IMF_EXPORT
-    virtual void		copyValueFrom (const Attribute &other);
+    IMF_EXPORT virtual void		copyValueFrom (const Attribute &other);
 
 
     int                         dataSize() const { return _dataSize; }

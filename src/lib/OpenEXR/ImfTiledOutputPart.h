@@ -6,11 +6,10 @@
 #ifndef IMFTILEDOUTPUTPART_H_
 #define IMFTILEDOUTPUTPART_H_
 
-#include "ImfMultiPartOutputFile.h"
-#include "ImfTiledOutputFile.h"
 #include "ImfForward.h"
-#include "ImfExport.h"
-#include "ImfNamespace.h"
+
+#include "ImfTileDescription.h"
+#include <ImathBox.h>
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER

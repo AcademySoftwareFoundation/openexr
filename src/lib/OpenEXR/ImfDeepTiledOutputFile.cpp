@@ -10,6 +10,8 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfDeepTiledOutputFile.h"
+
+#include "ImfDeepFrameBuffer.h"
 #include "ImfDeepTiledInputFile.h"
 #include "ImfDeepTiledInputPart.h"
 #include "ImfInputFile.h"

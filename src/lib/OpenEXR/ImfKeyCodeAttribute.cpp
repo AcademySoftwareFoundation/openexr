@@ -9,6 +9,8 @@
 //
 //-----------------------------------------------------------------------------
 
+#define COMPILING_IMF_KEYCODE_ATTRIBUTE
+
 #include <ImfKeyCodeAttribute.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -16,7 +18,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 
 template <>
-const char *
+IMF_EXPORT const char *
 KeyCodeAttribute::staticTypeName ()
 {
     return "keycode";
@@ -24,7 +26,7 @@ KeyCodeAttribute::staticTypeName ()
 
 
 template <>
-void
+IMF_EXPORT void
 KeyCodeAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value.filmMfcCode());
@@ -38,7 +40,7 @@ KeyCodeAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int
 
 
 template <>
-void
+IMF_EXPORT void
 KeyCodeAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
     int tmp;
@@ -64,6 +66,8 @@ KeyCodeAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, in
     Xdr::read <StreamIO> (is, tmp);
     _value.setPerfsPerCount (tmp);
 }
+
+template class IMF_EXPORT_TEMPLATE_INSTANCE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::KeyCode>;
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 

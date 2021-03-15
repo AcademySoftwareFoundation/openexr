@@ -27,7 +27,7 @@ IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 // Our most basic exception class
 //-------------------------------
 
-class BaseExc: public std::exception
+class IEX_EXPORT_TYPE BaseExc: public std::exception
 {
   public:
 
@@ -93,8 +93,8 @@ class BaseExc: public std::exception
 
   private:
 
-    std::string                     _message;
-    std::string                     _stackTrace;
+    std::string _message;
+    std::string _stackTrace;
 };
 
 
@@ -104,7 +104,7 @@ class BaseExc: public std::exception
 //-----------------------------------------------------
 
 #define DEFINE_EXC_EXP(exp, name, base)                             \
-    class name: public base                                         \
+    class IEX_EXPORT_TYPE name: public base                         \
     {                                                               \
       public:                                                       \
         exp name();                                                 \
@@ -129,7 +129,7 @@ exp name::name (const name &other) : base (other) {}             \
 exp name::name (name &&other) noexcept : base (other) {}         \
 exp name& name::operator = (name &other) { base::operator=(other); return *this; } \
 exp name& name::operator = (name &&other) noexcept { base::operator=(other); return *this; } \
-exp name::~name () throw () {}
+exp name::~name () noexcept {}
 
 // For backward compatibility.
 #define DEFINE_EXC(name, base) DEFINE_EXC_EXP(, name, base)

@@ -13,6 +13,9 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfExport.h"
+#include "ImfNamespace.h"
+
 #include "ImfAttribute.h"
 #include "ImfTimeCode.h"
 
@@ -21,19 +24,9 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::TimeCode> TimeCodeAttribute;
 
-template <>
-IMF_EXPORT
-const char *TimeCodeAttribute::staticTypeName ();
-
-template <>
-IMF_EXPORT
-void TimeCodeAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
-                                      int) const;
-
-template <>
-IMF_EXPORT
-void TimeCodeAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
-                                       int, int);
+#ifndef COMPILING_IMF_TIMECODE_ATTRIBUTE
+extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::TimeCode>;
+#endif
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

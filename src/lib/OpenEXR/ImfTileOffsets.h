@@ -12,18 +12,17 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfTileDescription.h"
-#include <vector>
-#include "ImfNamespace.h"
 #include "ImfForward.h"
-#include "ImfExport.h"
+
+#include "ImfTileDescription.h"
 
 #include <cstdint>
+#include <vector>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class TileOffsets
+class IMF_EXPORT_TYPE TileOffsets
 {
   public:
 
@@ -83,11 +82,15 @@ class TileOffsets
     
   private:
 
+    IMF_HIDDEN
     void		findTiles (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, bool isMultiPartFile,
                                    bool isDeep,
         		           bool skipOnly);
+    IMF_HIDDEN
     void		reconstructFromFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,bool isMultiPartFile,bool isDeep);
+    IMF_HIDDEN
     bool		readTile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is);
+    IMF_HIDDEN
     bool		anyOffsetsAreInvalid () const;
 
     LevelMode		_mode;

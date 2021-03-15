@@ -12,17 +12,16 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfForward.h"
+
 #include "ImfThreading.h"
 #include "ImfGenericInputFile.h"
-#include "ImfNamespace.h"
-#include "ImfForward.h"
-#include "ImfExport.h"
 #include "ImfDeepScanLineOutputFile.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class DeepScanLineInputFile : public GenericInputFile
+class IMF_EXPORT_TYPE DeepScanLineInputFile : public GenericInputFile
 {
   public:
 
@@ -250,7 +249,7 @@ class DeepScanLineInputFile : public GenericInputFile
                                                int scanLine1 , 
                                                int scanLine2) const;
 
-    struct Data;
+    struct IMF_HIDDEN Data;
 
   private:
 

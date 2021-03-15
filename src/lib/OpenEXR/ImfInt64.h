@@ -15,6 +15,7 @@
 
 #include "ImathInt64.h"
 #include "ImfNamespace.h"
+#include <stdint.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -22,7 +23,7 @@ IMATH_DEPRECATED("use int64_t")
 typedef IMATH_NAMESPACE::Int64 Int64;
 
 IMATH_DEPRECATED("use sint64_t")
-typedef IMATH_NAMESPACE::SInt64 Sint64;
+typedef IMATH_NAMESPACE::SInt64 SInt64;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

@@ -13,16 +13,17 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImathVec.h"
-#include "ImathMatrix.h"
-#include "ImfNamespace.h"
 #include "ImfExport.h"
+#include "ImfNamespace.h"
+
+#include "ImathMatrix.h"
+#include "ImathVec.h"
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
    
-struct Chromaticities
+struct IMF_EXPORT_TYPE Chromaticities
 {
     //-----------------------------------------------
     // The CIE x and y coordinates of the RGB triples

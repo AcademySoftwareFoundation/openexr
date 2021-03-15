@@ -12,11 +12,12 @@
 //	enum Compression
 //
 //-----------------------------------------------------------------------------
+#include "ImfExport.h"
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-enum Compression
+enum IMF_EXPORT_ENUM Compression
 {
     NO_COMPRESSION  = 0,	// no compression
 

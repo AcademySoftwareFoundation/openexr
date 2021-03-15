@@ -42,9 +42,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImathBox.h"
-#include "ImfNamespace.h"
 #include "ImfExport.h"
+#include "ImfNamespace.h"
+
+#include <ImathBox.h>
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -53,7 +54,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // Supported environment map types
 //--------------------------------
 
-enum Envmap : int
+enum IMF_EXPORT_ENUM Envmap : int
 {
     ENVMAP_LATLONG = 0,		// Latitude-longitude environment map
     ENVMAP_CUBE = 1,		// Cube map
@@ -222,7 +223,7 @@ namespace LatLongMap
 // Names for the six faces of the cube
 //------------------------------------
 
-enum CubeMapFace
+enum IMF_EXPORT_ENUM CubeMapFace
 {
     CUBEFACE_POS_X,	// +X face
     CUBEFACE_NEG_X,	// -X face

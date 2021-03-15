@@ -29,7 +29,7 @@ using Mutex ILMTHREAD_DEPRECATED ("replace with std::mutex") = std::mutex;
 // unfortunately we can't use std::unique_lock as a replacement for Lock since
 // they have different API. Let us deprecate for now and give people a chance
 // to clean up their code.
-class ILMTHREAD_EXPORT Lock
+class Lock
 {
   public:
 

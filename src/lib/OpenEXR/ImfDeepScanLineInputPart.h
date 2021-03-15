@@ -6,15 +6,13 @@
 #ifndef IMFDEEPSCANLINEINPUTPART_H_
 #define IMFDEEPSCANLINEINPUTPART_H_
 
-#include "ImfMultiPartInputFile.h"
-#include "ImfDeepScanLineInputFile.h"
-#include "ImfDeepScanLineOutputFile.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
+#include "ImfForward.h"
+
+#include <cstdint>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class DeepScanLineInputPart
+class IMF_EXPORT_TYPE DeepScanLineInputPart
 {
   public:
 
@@ -155,7 +153,7 @@ class DeepScanLineInputPart
     DeepScanLineInputFile *file;
     
     // needed for copyPixels 
-    friend void DeepScanLineOutputFile::copyPixels(DeepScanLineInputPart &);
+    friend class DeepScanLineOutputFile;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

@@ -15,8 +15,6 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfForward.h"
-#include "ImfExport.h"
-#include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 

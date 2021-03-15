@@ -17,11 +17,15 @@
 
 #include "ImfUtilExport.h"
 
+#include <IexBaseExc.h>
 #include <ImfPixelType.h>
 #include <ImfFrameBuffer.h>
 #include <ImfChannelList.h>
 #include <ImathBox.h>
 #include <half.h>
+
+#include <typeinfo>
+#include <cstring>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -37,7 +41,7 @@ class ImageLevel;
 
 class ImageLevel;
 
-class ImageChannel
+class IMFUTIL_EXPORT_TYPE ImageChannel
 {
   public:
 
@@ -94,8 +98,10 @@ class ImageChannel
 
   private:
 
-    ImageChannel (const ImageChannel &);                // not implemented
-    ImageChannel & operator = (const ImageChannel &);   // not implemented
+    ImageChannel (const ImageChannel &) = delete;
+    ImageChannel & operator = (const ImageChannel &) = delete;
+    ImageChannel (ImageChannel &&) = delete;
+    ImageChannel & operator = (ImageChannel &&) = delete;
 
     ImageLevel &        _level;
     int                 _xSampling;

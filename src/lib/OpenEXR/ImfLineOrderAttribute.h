@@ -13,29 +13,19 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfExport.h"
+#include "ImfNamespace.h"
+
 #include "ImfAttribute.h"
 #include "ImfLineOrder.h"
-#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
+using LineOrderAttribute = TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::LineOrder>;
 
-typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::LineOrder> LineOrderAttribute;
-
-template <> 
-IMF_EXPORT 
-const char *LineOrderAttribute::staticTypeName ();
-
-template <> 
-IMF_EXPORT 
-void LineOrderAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
-                                       int) const;
-
-template <> 
-IMF_EXPORT 
-void LineOrderAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
-                                        int, int);
-
+#ifndef COMPILING_IMF_LINE_ORDER_ATTRIBUTE
+extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::LineOrder>;
+#endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

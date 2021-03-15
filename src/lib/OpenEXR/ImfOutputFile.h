@@ -13,18 +13,16 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfHeader.h"
-#include "ImfFrameBuffer.h"
-#include "ImfThreading.h"
-#include "ImfGenericOutputFile.h"
-#include "ImfNamespace.h"
 #include "ImfForward.h"
-#include "ImfExport.h"
+
+#include "ImfGenericOutputFile.h"
+#include "ImfThreading.h"
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class OutputFile : public GenericOutputFile
+class IMF_EXPORT_TYPE OutputFile : public GenericOutputFile
 {
   public:
 
@@ -215,7 +213,7 @@ class OutputFile : public GenericOutputFile
     void		breakScanLine  (int y, int offset, int length, char c);
 
 
-    struct Data;
+    struct IMF_HIDDEN Data;
 
   private:
 
@@ -225,7 +223,7 @@ class OutputFile : public GenericOutputFile
     // and lineOffsetsPosition which have been acquired from
     // the constructor of MultiPartOutputFile as well.
     //------------------------------------------------------------
-    OutputFile (const OutputPartData* part);
+    IMF_HIDDEN OutputFile (const OutputPartData* part);
 
     OutputFile (const OutputFile &) = delete;
     OutputFile & operator = (const OutputFile &) = delete;

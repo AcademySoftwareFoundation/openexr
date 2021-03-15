@@ -10,6 +10,8 @@
 #include <ImfOutputFile.h>
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
+#include <ImfFrameBuffer.h>
+#include <ImfHeader.h>
 #include <ImfAttribute.h>
 #include <ImfIntAttribute.h>
 #include <ImfOpaqueAttribute.h>

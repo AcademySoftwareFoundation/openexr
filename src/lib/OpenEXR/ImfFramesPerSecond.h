@@ -35,9 +35,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfRational.h"
-#include "ImfNamespace.h"
 #include "ImfExport.h"
+#include "ImfNamespace.h"
+
+#include "ImfRational.h"
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER

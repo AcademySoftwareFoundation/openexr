@@ -46,6 +46,8 @@ endif()
 # are still used, just processed immediately
 option(OPENEXR_ENABLE_THREADING "Enables threaded processing of requests" ON)
 
+option(OPENEXR_USE_DEFAULT_VISIBILITY "Makes the compile use default visibility (by default compiles tidy, hidden-by-default)"     OFF)
+
 # This is primarily for the auto array that enables a stack
 # object (if you enable this) that contains member to avoid double allocations
 option(OPENEXR_ENABLE_LARGE_STACK "Enables code to take advantage of large stack support"     OFF)

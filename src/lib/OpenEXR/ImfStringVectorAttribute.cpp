@@ -10,7 +10,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfStringVectorAttribute.h>
+#define COMPILING_IMF_STRING_VECTOR_ATTRIBUTE
+
+#include "ImfStringVectorAttribute.h"
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -20,7 +22,7 @@ using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 
 
 template <>
-const char *
+IMF_EXPORT const char *
 StringVectorAttribute::staticTypeName ()
 {
     return "stringvector";
@@ -28,7 +30,7 @@ StringVectorAttribute::staticTypeName ()
 
 
 template <>
-void
+IMF_EXPORT void
 StringVectorAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
     int size = _value.size();
@@ -43,7 +45,7 @@ StringVectorAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os
 
 
 template <>
-void
+IMF_EXPORT void
 StringVectorAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
     int read = 0;
@@ -74,6 +76,8 @@ StringVectorAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &i
        _value.push_back (str);
     }
 }
+
+template class IMF_EXPORT_TEMPLATE_INSTANCE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::StringVector>;
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 

@@ -12,15 +12,13 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfHeader.h"
-#include "ImfFrameBuffer.h"
-#include "ImathBox.h"
-#include "ImfTileDescription.h"
+#include "ImfForward.h"
+
 #include "ImfThreading.h"
 #include "ImfGenericOutputFile.h"
-#include "ImfForward.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
+#include "ImfTileDescription.h"
+
+#include <ImathBox.h>
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -29,7 +27,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 struct PreviewRgba;
 
 
-class TiledOutputFile : public GenericOutputFile
+class IMF_EXPORT_TYPE TiledOutputFile : public GenericOutputFile
 {
   public:
 
@@ -461,7 +459,7 @@ class TiledOutputFile : public GenericOutputFile
 				    int offset,
 				    int length,
 				    char c);
-    struct Data;
+    struct IMF_HIDDEN Data;
 
   private:
 
@@ -471,6 +469,7 @@ class TiledOutputFile : public GenericOutputFile
     // and lineOffsetsPosition which have been acquired from
     // the constructor of MultiPartOutputFile as well.
     // ----------------------------------------------------------------
+    IMF_HIDDEN
     TiledOutputFile (const OutputPartData* part);
 
     TiledOutputFile (const TiledOutputFile &) = delete;
@@ -478,11 +477,14 @@ class TiledOutputFile : public GenericOutputFile
     TiledOutputFile (TiledOutputFile &&) = delete;
     TiledOutputFile & operator = (TiledOutputFile &&) = delete;
 
+    IMF_HIDDEN
     void		initialize (const Header &header);
 
+    IMF_HIDDEN
     bool		isValidTile (int dx, int dy,
 				     int lx, int ly) const;
 
+    IMF_HIDDEN
     size_t		bytesPerLineForTile (int dx, int dy,
 					     int lx, int ly) const;
 

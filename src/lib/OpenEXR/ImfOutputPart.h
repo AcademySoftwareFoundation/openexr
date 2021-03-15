@@ -6,11 +6,7 @@
 #ifndef IMFOUTPUTPART_H_
 #define IMFOUTPUTPART_H_
 
-#include "ImfMultiPartOutputFile.h"
-#include "ImfOutputFile.h"
 #include "ImfForward.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -21,7 +17,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // Same interface as OutputFile. Please refer to OutputFile.
 //---------------------------------------------------------------------
 
-class OutputPart
+class IMF_EXPORT_TYPE OutputPart
 {
     public:
         IMF_EXPORT

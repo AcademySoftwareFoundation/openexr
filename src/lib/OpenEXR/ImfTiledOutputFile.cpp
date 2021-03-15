@@ -17,6 +17,8 @@
 #include <ImfTileDescriptionAttribute.h>
 #include <ImfPreviewImageAttribute.h>
 #include <ImfChannelList.h>
+#include <ImfFrameBuffer.h>
+#include <ImfHeader.h>
 #include <ImfMisc.h>
 #include <ImfTiledMisc.h>
 #include <ImfStdIO.h>

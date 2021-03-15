@@ -20,12 +20,10 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Compression> CompressionAttribute;
-template <> IMF_EXPORT const char *CompressionAttribute::staticTypeName ();
-template <> IMF_EXPORT void CompressionAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
-                                                     int) const;
-template <> IMF_EXPORT void CompressionAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
-                                                      int,
-                                                      int);
+
+#ifndef COMPILING_IMF_COMPRESSION_ATTRIBUTE
+extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Compression>;
+#endif
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

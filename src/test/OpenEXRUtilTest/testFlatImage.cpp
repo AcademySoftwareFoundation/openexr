@@ -34,10 +34,10 @@ verifyPixelsAreEqual
      int dy)
 {
     const TypedFlatImageChannel<T> &tc1 =
-        dynamic_cast <const TypedFlatImageChannel<T>&> (c1);
+        dynamic_cast <const TypedFlatImageChannel<T> &> (c1);
 
     const TypedFlatImageChannel<T> &tc2 =
-        dynamic_cast <const TypedFlatImageChannel<T>&> (c2);
+        dynamic_cast <const TypedFlatImageChannel<T> &> (c2);
 
     const Box2i &dataWindow = c1.level().dataWindow();
     int xStep = c1.xSampling();
@@ -192,7 +192,7 @@ fillChannel (Rand48 &random, FlatImageChannel &c)
     //
 
     TypedFlatImageChannel<T> &tc =
-        dynamic_cast <TypedFlatImageChannel<T>&> (c);
+        dynamic_cast <TypedFlatImageChannel<T> &> (c);
 
     const Box2i &dataWindow = tc.level().dataWindow();
     int xStep = tc.xSampling();

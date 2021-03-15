@@ -14,18 +14,19 @@
 #include "ImfMisc.h"
 #include "ImfStdIO.h"
 #include "ImfCompressor.h"
-#include "ImathBox.h"
-#include "ImathFun.h"
-#include <ImfXdr.h>
-#include <ImfConvert.h>
-#include <ImfThreading.h>
-#include <ImfPartType.h>
+#include <ImathBox.h>
+#include <ImathFun.h>
+#include "ImfXdr.h"
+#include "ImfConvert.h"
+#include "ImfInputPartData.h"
+#include "ImfInputStreamMutex.h"
+#include "ImfThreading.h"
+#include "ImfPartType.h"
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
 #include "Iex.h"
 #include "ImfVersion.h"
 #include "ImfOptimizedPixelReading.h"
-#include "ImfNamespace.h"
 #include "ImfStandardAttributes.h"
 
 #include <algorithm>

@@ -5,6 +5,7 @@
 
 #include "ImfGenericInputFile.h"
 
+#include <ImfIO.h>
 #include <ImfVersion.h>
 #include <ImfXdr.h>
 #include <Iex.h>

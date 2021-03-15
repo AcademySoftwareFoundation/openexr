@@ -13,11 +13,10 @@
 #include "Iex.h"
 #include <ImfMisc.h>
 #include <ImfChannelList.h>
+#include <ImfHeader.h>
 #include <ImfTileDescription.h>
 #include <algorithm>
 #include <limits>
-
-#include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

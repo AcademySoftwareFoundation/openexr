@@ -26,7 +26,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class Rational
+class IMF_EXPORT_TYPE Rational
 {
   public:
 

@@ -28,7 +28,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class FlatImage;
 
-class FlatImageLevel : public ImageLevel
+class IMFUTIL_EXPORT_TYPE FlatImageLevel : public ImageLevel
 {
   public:
     
@@ -115,38 +115,46 @@ class FlatImageLevel : public ImageLevel
     // The constructor and destructor are private.
     // Image levels exist only as part of an image.
     //
-
+    IMFUTIL_HIDDEN
     FlatImageLevel (FlatImage& image,
                     int xLevelNumber,
                     int yLevelNumber,
                     const IMATH_NAMESPACE::Box2i& dataWindow);
 
+    IMFUTIL_HIDDEN
     virtual ~FlatImageLevel ();
 
+    IMFUTIL_HIDDEN
     virtual void    resize (const IMATH_NAMESPACE::Box2i& dataWindow);
 
+    IMFUTIL_HIDDEN
     virtual void    shiftPixels (int dx, int dy);
 
+    IMFUTIL_HIDDEN
     virtual void    insertChannel (const std::string& name,
                                    PixelType type,
                                    int xSampling,
                                    int ySampling,
                                    bool pLinear);
 
+    IMFUTIL_HIDDEN
     virtual void    eraseChannel (const std::string& name);
 
+    IMFUTIL_HIDDEN
     virtual void    clearChannels ();
 
+    IMFUTIL_HIDDEN
     virtual void    renameChannel (const std::string &oldName,
                                    const std::string &newName);
 
+    IMFUTIL_HIDDEN
     virtual void    renameChannels (const RenamingMap &oldToNewNames);
 
     ChannelMap      _channels;
 };
 
 
-class FlatImageLevel::Iterator
+class IMFUTIL_EXPORT_TYPE FlatImageLevel::Iterator
 {
   public:
 
@@ -184,7 +192,7 @@ class FlatImageLevel::Iterator
 };
 
 
-class FlatImageLevel::ConstIterator
+class IMFUTIL_EXPORT_TYPE FlatImageLevel::ConstIterator
 {
   public:
 
@@ -237,7 +245,7 @@ template <class T>
 TypedFlatImageChannel<T> *
 FlatImageLevel::findTypedChannel (const std::string& name)
 {
-    return dynamic_cast <TypedFlatImageChannel<T>*> (findChannel (name));
+    return dynamic_cast <TypedFlatImageChannel<T> *> (findChannel (name));
 }
 
 
@@ -245,7 +253,7 @@ template <class T>
 const TypedFlatImageChannel<T> *
 FlatImageLevel::findTypedChannel (const std::string& name) const
 {
-    return dynamic_cast <const TypedFlatImageChannel<T>*> (findChannel (name));
+    return dynamic_cast <const TypedFlatImageChannel<T> *> (findChannel (name));
 }
 
 

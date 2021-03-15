@@ -12,55 +12,56 @@
 //
 ////////////////////////////////////////////////////////////////////
 
+#include "ImfExport.h"
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 // classes for basic types;
-template<class T> class Array;
-template<class T> class Array2D;
-struct Channel;
-class  ChannelList;
-struct Chromaticities;
+template<class T> class IMF_EXPORT_TEMPLATE_TYPE Array;
+template<class T> class IMF_EXPORT_TEMPLATE_TYPE Array2D;
+struct IMF_EXPORT_TYPE Channel;
+class  IMF_EXPORT_TYPE ChannelList;
+struct IMF_EXPORT_TYPE Chromaticities;
 
 // attributes used in headers are TypedAttributes
-class Attribute;
+class IMF_EXPORT_TYPE Attribute;
 
-class Header;
+class IMF_EXPORT_TYPE Header;
 
 // file handling classes
-class OutputFile;
-class TiledInputFile;
-class ScanLineInputFile;
-class InputFile;
-class TiledOutputFile;
-class DeepScanLineInputFile;
-class DeepScanLineOutputFile;
-class DeepTiledInputFile;
-class DeepTiledOutputFile;
-class AcesInputFile;
-class AcesOutputFile;
-class TiledInputPart;
-class TiledInputFile;
-class TileOffsets;
+class IMF_EXPORT_TYPE OutputFile;
+class IMF_EXPORT_TYPE TiledInputFile;
+class IMF_EXPORT_TYPE ScanLineInputFile;
+class IMF_EXPORT_TYPE InputFile;
+class IMF_EXPORT_TYPE TiledOutputFile;
+class IMF_EXPORT_TYPE DeepScanLineInputFile;
+class IMF_EXPORT_TYPE DeepScanLineOutputFile;
+class IMF_EXPORT_TYPE DeepTiledInputFile;
+class IMF_EXPORT_TYPE DeepTiledOutputFile;
+class IMF_EXPORT_TYPE AcesInputFile;
+class IMF_EXPORT_TYPE AcesOutputFile;
+class IMF_EXPORT_TYPE TiledInputPart;
+class IMF_EXPORT_TYPE TiledInputFile;
+class IMF_EXPORT_TYPE TileOffsets;
 
 // multipart file handling
-class GenericInputFile;
-class GenericOutputFile;
-class MultiPartInputFile;
-class MultiPartOutputFile;
+class IMF_EXPORT_TYPE GenericInputFile;
+class IMF_EXPORT_TYPE GenericOutputFile;
+class IMF_EXPORT_TYPE MultiPartInputFile;
+class IMF_EXPORT_TYPE MultiPartOutputFile;
 
-class InputPart;
-class TiledInputPart;
-class DeepScanLineInputPart;
-class DeepTiledInputPart;
+class IMF_EXPORT_TYPE InputPart;
+class IMF_EXPORT_TYPE TiledInputPart;
+class IMF_EXPORT_TYPE DeepScanLineInputPart;
+class IMF_EXPORT_TYPE DeepTiledInputPart;
 
-class OutputPart;
-class ScanLineOutputPart;
-class TiledOutputPart;
-class DeepScanLineOutputPart;
-class DeepTiledOutputPart;
+class IMF_EXPORT_TYPE OutputPart;
+class IMF_EXPORT_TYPE ScanLineOutputPart;
+class IMF_EXPORT_TYPE TiledOutputPart;
+class IMF_EXPORT_TYPE DeepScanLineOutputPart;
+class IMF_EXPORT_TYPE DeepTiledOutputPart;
 
 
 // internal use only
@@ -71,24 +72,24 @@ struct InputStreamMutex;
 
 // frame buffers
 
-class  FrameBuffer;
-class  DeepFrameBuffer;
-struct DeepSlice;
+class  IMF_EXPORT_TYPE FrameBuffer;
+class  IMF_EXPORT_TYPE DeepFrameBuffer;
+struct IMF_EXPORT_TYPE DeepSlice;
 
 // compositing
-class DeepCompositing;
-class CompositeDeepScanLine;
+class IMF_EXPORT_TYPE DeepCompositing;
+class IMF_EXPORT_TYPE CompositeDeepScanLine;
 
 // preview image
-class PreviewImage;
-struct PreviewRgba;
+class IMF_EXPORT_TYPE PreviewImage;
+struct IMF_EXPORT_TYPE PreviewRgba;
 
 // streams
-class OStream;
-class IStream;
+class IMF_EXPORT_TYPE OStream;
+class IMF_EXPORT_TYPE IStream;
 
-class IDManifest;
-class CompressedIDManifest;
+class IMF_EXPORT_TYPE IDManifest;
+class IMF_EXPORT_TYPE CompressedIDManifest;
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

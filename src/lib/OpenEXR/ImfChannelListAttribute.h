@@ -13,29 +13,20 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfExport.h"
+#include "ImfNamespace.h"
+
 #include "ImfAttribute.h"
 #include "ImfChannelList.h"
-#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::ChannelList> ChannelListAttribute;
 
-template <>
-IMF_EXPORT
-const char *ChannelListAttribute::staticTypeName ();
-
-template <>
-IMF_EXPORT
-void ChannelListAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
-                                         int) const;
-
-template <>
-IMF_EXPORT
-void ChannelListAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
-                                          int, int);
-
+#ifndef COMPILING_IMF_CHANNEL_LIST_ATTRIBUTE
+extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::ChannelList>;
+#endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

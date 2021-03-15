@@ -6,11 +6,11 @@
 #ifndef IMFINPUTPARTDATA_H_
 #define IMFINPUTPARTDATA_H_
 
+#include "ImfForward.h"
+
 #include <vector>
 
-#include "ImfInputStreamMutex.h"
 #include "ImfHeader.h"
-#include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -25,7 +25,6 @@ struct InputPartData
         std::vector<uint64_t>   chunkOffsets;
         bool                    completed;
 
-        IMF_EXPORT
         InputPartData(InputStreamMutex* mutex, const Header &header,
                       int partNumber, int numThreads, int version);
 
