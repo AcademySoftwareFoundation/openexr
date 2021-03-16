@@ -21,18 +21,15 @@ openexr_generate_header(
 )
 
 # generate "IexConfigInternal.h"
-IEX_CONFIG_INTERNAL_H = """
-// SPDX-License-Identifier: BSD-3-Clause
-// Copyright (c) Contributors to the OpenEXR Project.
-
-#pragma once
-
-//
-// Dealing with FPEs
-/* #undef HAVE_UCONTEXT_H */
-/* #undef IEX_HAVE_CONTROL_REGISTER_SUPPORT */
-/* #undef IEX_HAVE_SIGCONTEXT_CONTROL_REGISTER_SUPPORT */
-"""
+openexr_generate_header(
+    name = "IexConfigInternal.h",
+    substitutions = {
+        "#cmakedefine HAVE_UCONTEXT_H 1": "/* #undef HAVE_UCONTEXT_H */",
+        "#cmakedefine IEX_HAVE_CONTROL_REGISTER_SUPPORT 1": "/* #undef IEX_HAVE_CONTROL_REGISTER_SUPPORT */",
+        "#cmakedefine IEX_HAVE_SIGCONTEXT_CONTROL_REGISTER_SUPPORT 1": "/* #undef IEX_HAVE_SIGCONTEXT_CONTROL_REGISTER_SUPPORT */",
+    },
+    template = "cmake/IexConfigInternal.h.in",
+)
 
 # generate "IlmThreadConfig.h"
 ILMTHREAD_CONFIG_H = """
@@ -80,21 +77,6 @@ ILMTHREAD_CONFIG_H = """
 
 #endif // INCLUDED_ILMTHREAD_CONFIG_H
 """
-
-genrule(
-    name = "generate_IexConfigInternal_h",
-    outs = ["//:config/IexConfigInternal.h"],
-    cmd = ("echo '%s' > $(OUTS)" % IEX_CONFIG_INTERNAL_H),
-    visibility = ["//visibility:private"],
-)
-
-cc_library(
-    name = "iex_config_internal",
-    srcs = [],
-    hdrs = ["//:config/IexConfigInternal.h"],
-    includes = ["config"],
-    visibility = ["//visibility:public"],
-)
 
 genrule(
     name = "generate_IlmThreadConfig_h",
@@ -187,7 +169,7 @@ cc_library(
     deps = [
         ":OpenEXRConfig.h",
         ":IexConfig.h",
-        ":iex_config_internal",
+        ":IexConfigInternal.h",
     ],
 )
 
@@ -449,7 +431,7 @@ cc_library(
     deps = [
         ":IlmThread",
         ":IexConfig.h",
-        ":iex_config_internal",
+        ":IexConfigInternal.h",
         ":ilmthread_config",
         ":OpenEXRConfig.h",
         ":openexr_config_internal",
