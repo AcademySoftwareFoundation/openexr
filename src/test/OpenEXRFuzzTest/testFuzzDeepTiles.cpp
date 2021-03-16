@@ -15,6 +15,7 @@
 #include <ImfPartType.h>
 #include <ImfArray.h>
 #include <ImfThreading.h>
+#include <ImfHeader.h>
 #include <IlmThread.h>
 #include <Iex.h>
 #include <iostream>

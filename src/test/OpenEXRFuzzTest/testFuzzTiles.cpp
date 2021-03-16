@@ -13,6 +13,8 @@
 #include <ImfTiledRgbaFile.h>
 #include <ImfArray.h>
 #include <ImfThreading.h>
+#include <ImfHeader.h>
+#include <ImfFrameBuffer.h>
 #include <IlmThread.h>
 #include <Iex.h>
 #include <iostream>
