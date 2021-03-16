@@ -1,6 +1,6 @@
-# OpenEXR Release Notes
+`# OpenEXR Release Notes
 
-* [Version 3.0.0-beta](#version-300-beta-march-15-2021) March 15, 2021
+* [Version 3.0.0-beta](#version-300-beta-march-16-2021) March 16, 2021
 * [Version 2.5.5](#version-255-february-12-2021) February 12, 2021
 * [Version 2.5.4](#version-254-december-31-2020) December 31, 2020
 * [Version 2.5.3](#version-253-august-12-2020) August 12, 2020
@@ -40,7 +40,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.0.0-beta (March 15, 2021)
+## Version 3.0.0-beta (March 16, 2021)
 
 Major release with major build restructing, security improvements, and
 new features:
@@ -74,8 +74,11 @@ new features:
   - Tiled DWAB files used STATIC_HUFFMAN compression.
   - ``Int64`` and ``SInt64`` types are deprecated in favor of
     ``uint64_t`` and ``int64_t``.
-  - Header files have been pruned of extraneous ``#include``'s, which
-    may require updates to application source code.
+  - Header files have been pruned of extraneous ``#include``'s
+    ("Include What You Use"), which may generate compiler errors in
+    application source code from undefined symbols or
+    partially-defined types. These can be resolved by identifying and
+    including the appropriate header.
   - See the [porting
     guide](https://github.com/AcademySoftwareFoundation/Imath/blob/master/docs/PortingGuide2-3.md)
     for details about differences from previous releases and how to
