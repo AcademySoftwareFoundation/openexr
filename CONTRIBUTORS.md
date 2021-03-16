@@ -3,6 +3,7 @@ alphabetically by first name.
 
 If you know of missing, please email: info@openexr.com.
 
+* Aloys Baillet
 * Andre Mazzone
 * Andrew Kunz
 * Arkady Shapkin
@@ -13,6 +14,7 @@ If you know of missing, please email: info@openexr.com.
 * Christopher Horvath
 * Christopher Kulla
 * Daniel Kaneider
+* Darby Johnston
 * Drew Hess
 * Ed Hanway
 * Edward Kmett
@@ -21,9 +23,11 @@ If you know of missing, please email: info@openexr.com.
 * E Sommerlade
 * Florian Kainz
 * Halfdan Ingvarsson
+* Harry Mallon
 * Ibraheem Alhashim
 * Jack Kingsman
 * Jamie Kenyon
+* Jan Tojnar
 * Ji Hun Yu
 * John Loy
 * John Mertic
@@ -35,22 +39,29 @@ If you know of missing, please email: info@openexr.com.
 * Larry Gritz
 * Liam Fernandez
 * Lucy Wilkes
+* Matthäus G. Chajdas
 * Michael Thomas
 * Nicholas Yue
 * Nick Porcino
 * Nick Rasmussen
 * Nicolas Chauvet
+* Niklas Hambüchen
+* Owen Thompson
 * Paul Schneider
 * Peter Hillman
+* Peter Steneteg
 * Piotr Stanczyk
 * Ralph Potter
+* Reto Kromer
 * Richard Goedeken
 * Shawn Walker-Salas
 * Simon Otter
 * Srinath Ravichandran
 * Thanh Ha
 * Thorsten Kaufmann
+* Vertexwahn
 * Wenzel Jakob
 * Wojciech Jarosz
 * Xo Wang
+* Yining Karl Li
 * Yujie Shu
