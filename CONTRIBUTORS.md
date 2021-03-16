@@ -32,6 +32,7 @@ If you know of missing, please email: info@openexr.com.
 * John Loy
 * John Mertic
 * Jonathan Stone
+* Julian Amann
 * Juri Abramov
 * Karl Rasche
 * Kevin Wheatley
@@ -59,7 +60,6 @@ If you know of missing, please email: info@openexr.com.
 * Srinath Ravichandran
 * Thanh Ha
 * Thorsten Kaufmann
-* Vertexwahn
 * Wenzel Jakob
 * Wojciech Jarosz
 * Xo Wang
