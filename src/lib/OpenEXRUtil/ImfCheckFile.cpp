@@ -20,6 +20,7 @@
 #include "ImfStdIO.h"
 #include "ImfMultiPartInputFile.h"
 #include "ImfStandardAttributes.h"
+#include "ImfTiledMisc.h"
 
 #include <vector>
 #include <algorithm>
@@ -37,10 +38,10 @@ using IMATH_NAMESPACE::Box2i;
 // limits for reduceMemory mode
 //
 const uint64_t gMaxScanlineWidth= 1000000;
-const uint64_t gMaxTilePixelsPerScanline = 8000000;
-const uint64_t gMaxTileSize = 1000*1000;
-const uint64_t gMaxSamplesPerDeepPixel = 1000;
-const uint64_t gMaxSamplesPerScanline = 1<<12;
+const uint64_t gMaxTileBytesPerScanline = 8000000;
+const uint64_t gMaxTileBytes = 1000*1000;
+const uint64_t gMaxBytesPerDeepPixel = 1000;
+const uint64_t gMaxBytesPerDeepScanline = 1<<12;
 
 //
 // limits for reduceTime mode
@@ -227,8 +228,9 @@ readTileRgba( T& in,bool reduceMemory, bool reduceTime)
 
         int w = dw.max.x - dw.min.x + 1;
         int h = dw.max.y - dw.min.y + 1;
+        int bytes = calculateBytesPerPixel(in.header());
 
-        if ( (reduceMemory || reduceTime ) && h*w > gMaxTileSize )
+        if ( (reduceMemory || reduceTime ) && h*w*bytes > gMaxTileBytes )
         {
             return false;
         }
@@ -267,9 +269,10 @@ readTile(T& in, bool reduceMemory , bool reduceTime)
         int numYLevels = in.numYLevels();
 
         const TileDescription& td = in.header().tileDescription();
+        int bytes = calculateBytesPerPixel(in.header());
 
 
-        if (reduceMemory && (w > gMaxScanlineWidth || (td.xSize*td.ySize) > gMaxTileSize) )
+        if (reduceMemory && (w > gMaxScanlineWidth || (td.xSize*td.ySize*bytes) > gMaxTileBytes) )
         {
                 return false;
         }
@@ -369,6 +372,9 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
         int w = dw.max.x - dw.min.x + 1;
         int dwx = dw.min.x;
 
+        int bytesPerSample = calculateBytesPerPixel(in.header());
+
+
         if ( reduceMemory && w > gMaxScanlineWidth )
         {
             return false;
@@ -430,7 +436,7 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
                     //
                     // don't read samples which require a lot of memory in reduceMemory mode
                     //
-                    if (!reduceMemory || localSampleCount[j] <= gMaxSamplesPerDeepPixel )
+                    if (!reduceMemory || localSampleCount[j]*bytesPerSample <= gMaxBytesPerDeepPixel )
                     {
                         bufferSize += localSampleCount[j];
                     }
@@ -453,7 +459,7 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
                     for (int k = 0; k < channelCount; k++)
                     {
 
-                        if (localSampleCount[j]==0 || ( reduceMemory && localSampleCount[j] > gMaxSamplesPerDeepPixel ) )
+                        if (localSampleCount[j]==0 || ( reduceMemory && localSampleCount[j]*bytesPerSample > gMaxBytesPerDeepPixel ) )
                         {
                             data[k][j] = nullptr;
                         }
@@ -512,6 +518,7 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
         //
         uint64_t height = static_cast<uint64_t>(dataWindow.size().y)+1;
         uint64_t width = static_cast<uint64_t>(dataWindow.size().x)+1;
+        int bytesPerSample = calculateBytesPerPixel(in.header());
 
         const TileDescription& td = in.header().tileDescription();
         int tileWidth = td.xSize;
@@ -619,7 +626,7 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
                                         {
                                             for (int tx = 0 ; tx < tileWidth ; ++tx )
                                             {
-                                                if (!reduceMemory || localSampleCount[ty][tx] < gMaxSamplesPerDeepPixel )
+                                                if (!reduceMemory || localSampleCount[ty][tx]*bytesPerSample < gMaxBytesPerDeepScanline )
                                                 {
                                                     bufferSize += channelCount * localSampleCount[ty][tx];
                                                 }
@@ -627,7 +634,7 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
                                         }
 
                                         // limit total samples allocated for this tile
-                                        if (!reduceMemory || bufferSize < gMaxSamplesPerScanline )
+                                        if (!reduceMemory || bufferSize*bytesPerSample < gMaxBytesPerDeepPixel )
                                         {
 
                                             pixelBuffer.resize( bufferSize );
@@ -637,7 +644,7 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
                                             {
                                                 for (int tx = 0 ; tx < tileWidth ; ++tx )
                                                 {
-                                                    if (!reduceMemory || localSampleCount[ty][tx] <  gMaxSamplesPerDeepPixel )
+                                                    if (!reduceMemory || localSampleCount[ty][tx]*bytesPerSample <  gMaxBytesPerDeepPixel )
                                                     {
                                                         for (int k = 0 ; k < channelCount ; ++k )
                                                         {
@@ -743,6 +750,7 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
         bool widePart = false;
         bool largeTiles = false;
         Box2i b = in.header( part ).dataWindow();
+        int bytesPerPixel = calculateBytesPerPixel(in.header(part));
         uint64_t imageWidth = static_cast<uint64_t>(b.max.x) - static_cast<uint64_t>(b.min.x) + 1ll;
 
          //
@@ -768,11 +776,12 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
             uint64_t tilesPerScanline = ( imageWidth + tileDescription.xSize - 1ll) / tileDescription.xSize;
             uint64_t tileSize = static_cast<uint64_t>(tileDescription.xSize) * static_cast<uint64_t>(tileDescription.ySize);
 
-            if ( tileSize * tilesPerScanline > gMaxTilePixelsPerScanline )
+
+            if ( tileSize * tilesPerScanline*bytesPerPixel > gMaxTileBytesPerScanline )
             {
                 widePart = true;
             }
-            if( tileSize > gMaxTileSize)
+            if( tileSize*bytesPerPixel > gMaxTileBytes)
             {
                  largeTiles = true;
             }
@@ -1010,12 +1019,13 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
              const TileDescription& tileDescription = multi.header(0).tileDescription();
              uint64_t tilesPerScanline = ( imageWidth + tileDescription.xSize - 1ll) / tileDescription.xSize;
              uint64_t tileSize = static_cast<uint64_t>(tileDescription.xSize) * static_cast<uint64_t>(tileDescription.ySize);
-             if ( tileSize * tilesPerScanline > gMaxTilePixelsPerScanline )
+             int bytesPerPixel = calculateBytesPerPixel(multi.header(0));
+             if ( tileSize * tilesPerScanline*bytesPerPixel > gMaxTileBytesPerScanline )
              {
                  firstPartWide = true;
              }
 
-             if( tileSize <= gMaxTileSize)
+             if( tileSize*bytesPerPixel <= gMaxTileBytes)
              {
                  largeTiles = false;
              }
