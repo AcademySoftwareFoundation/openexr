@@ -53,7 +53,9 @@ new features:
   - The library is now called ``libOpenEXR`` (instead of
     ``libIlmImf``).  No header files have been renamed, they retain
     the ``Imf`` prefix.
-  - Symbol linkage visibility is limited to specific public symbols.
+  - Symbol linkage visibility is limited to specific public
+    symbols. See [SymbolVisibility.md](SymbolVisibility.md) for more
+    details.
 
 * Build improvements:
   - No more simultaneous static/shared build option.
