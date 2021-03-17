@@ -6,8 +6,7 @@
 #ifndef INCLUDED_IMF_PREVIEW_IMAGE_H
 #define INCLUDED_IMF_PREVIEW_IMAGE_H
 
-#include "ImfNamespace.h"
-#include "ImfExport.h"
+#include "ImfForward.h"
 
 //-----------------------------------------------------------------------------
 //
@@ -22,7 +21,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-struct PreviewRgba
+struct IMF_EXPORT_TYPE PreviewRgba
 {
     unsigned char	r;	// Red, green and blue components of
     unsigned char	g;	// the pixel's color; intensity is
@@ -40,7 +39,7 @@ struct PreviewRgba
 };
 
 
-class PreviewImage
+class IMF_EXPORT_TYPE PreviewImage
 {
   public:
 

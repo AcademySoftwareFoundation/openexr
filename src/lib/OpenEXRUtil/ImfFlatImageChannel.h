@@ -38,7 +38,7 @@ class FlatImageLevel;
 // only for pixels within the data window of the level.
 //
 
-class FlatImageChannel: public ImageChannel
+class IMFUTIL_EXPORT_TYPE FlatImageChannel: public ImageChannel
 {
   public:
 
@@ -55,10 +55,8 @@ class FlatImageChannel: public ImageChannel
     // Access to the flat image level to which this channel belongs.
     //
 
-    IMFUTIL_EXPORT
-    FlatImageLevel &        flatLevel ();
-    IMFUTIL_EXPORT
-    const FlatImageLevel &  flatLevel () const;
+    IMFUTIL_EXPORT FlatImageLevel &        flatLevel ();
+    IMFUTIL_EXPORT const FlatImageLevel &  flatLevel () const;
 
   protected:
 
@@ -70,8 +68,7 @@ class FlatImageChannel: public ImageChannel
                       int ySampling,
                       bool pLinear);
 
-    IMFUTIL_EXPORT
-    virtual ~FlatImageChannel();
+    IMFUTIL_EXPORT virtual ~FlatImageChannel();
 
     FlatImageChannel (const FlatImageChannel& other) = delete;
     FlatImageChannel& operator = (const FlatImageChannel& other) = delete;
@@ -84,9 +81,8 @@ class FlatImageChannel: public ImageChannel
     virtual void            resetBasePointer () = 0;
 };
 
-
 template <class T>
-class TypedFlatImageChannel: public FlatImageChannel
+class IMFUTIL_EXPORT_TEMPLATE_TYPE TypedFlatImageChannel: public FlatImageChannel
 {
   public:
     
@@ -143,11 +139,13 @@ class TypedFlatImageChannel: public FlatImageChannel
     // image channels exist only as parts of a flat image level.
     //
 
+    IMFUTIL_HIDDEN
     TypedFlatImageChannel (FlatImageLevel &level,
                            int xSampling,
                            int ySampling,
                            bool pLinear);
 
+    IMFUTIL_HIDDEN
     virtual ~TypedFlatImageChannel ();
 
     TypedFlatImageChannel (const TypedFlatImageChannel& other) = delete;
@@ -155,8 +153,10 @@ class TypedFlatImageChannel: public FlatImageChannel
     TypedFlatImageChannel (TypedFlatImageChannel&& other) = delete;
     TypedFlatImageChannel& operator = (TypedFlatImageChannel&& other) = delete;    
 
+    IMFUTIL_HIDDEN
     virtual void        resize ();
 
+    IMFUTIL_HIDDEN
     virtual void        resetBasePointer ();
 
     T *                 _pixels;        // Pointer to allocated storage
@@ -178,63 +178,6 @@ typedef TypedFlatImageChannel<unsigned int> FlatUIntChannel;
 //-----------------------------------------------------------------------------
 
 
-template <class T>
-TypedFlatImageChannel<T>::TypedFlatImageChannel
-    (FlatImageLevel &level,
-     int xSampling,
-     int ySampling,
-     bool pLinear)
-:
-    FlatImageChannel (level, xSampling, ySampling, pLinear),
-    _pixels (0),
-    _base (0)
-{
-    resize();
-}
-
-
-template <class T>
-TypedFlatImageChannel<T>::~TypedFlatImageChannel ()
-{
-    delete [] _pixels;
-}
-
-
-template <>
-inline PixelType
-FlatHalfChannel::pixelType () const
-{
-    return HALF;
-}
-
-
-template <>
-inline PixelType
-FlatFloatChannel::pixelType () const
-{
-    return FLOAT;
-}
-
-
-template <>
-inline PixelType
-FlatUIntChannel::pixelType () const
-{
-    return UINT;
-}
-
-
-template <class T>
-Slice
-TypedFlatImageChannel<T>::slice () const
-{
-    return Slice (pixelType(),                 // type
-                  (char *) _base,              // base
-                  sizeof (T),                  // xStride
-                  pixelsPerRow() * sizeof (T), // yStride
-                  xSampling(),
-                  ySampling());
-}
 
 
 template <class T>
@@ -286,33 +229,11 @@ TypedFlatImageChannel<T>::row (int n) const
     return _base + n * pixelsPerRow();
 }
 
-
-template <class T>
-void
-TypedFlatImageChannel<T>::resize ()
-{
-    delete [] _pixels;
-    _pixels = 0;
-
-    FlatImageChannel::resize();  // may throw an exception
-
-    _pixels = new T [numPixels()];
-
-    for (size_t i = 0; i < numPixels(); ++i)
-        _pixels[i] = T (0);
-
-    resetBasePointer ();
-}
-
-
-template <class T>
-void
-TypedFlatImageChannel<T>::resetBasePointer ()
-{
-    _base = _pixels -
-            (level().dataWindow().min.y / ySampling()) * pixelsPerRow() -
-            (level().dataWindow().min.x / xSampling());
-}
+#ifndef COMPILING_IMF_FLAT_IMAGE_CHANNEL
+extern template class IMFUTIL_EXPORT_EXTERN_TEMPLATE TypedFlatImageChannel<half>;
+extern template class IMFUTIL_EXPORT_EXTERN_TEMPLATE TypedFlatImageChannel<float>;
+extern template class IMFUTIL_EXPORT_EXTERN_TEMPLATE TypedFlatImageChannel<unsigned int>;
+#endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

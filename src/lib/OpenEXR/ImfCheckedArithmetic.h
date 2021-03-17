@@ -13,9 +13,11 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <limits>
-#include "IexMathExc.h"
 #include "ImfNamespace.h"
+
+#include "IexMathExc.h"
+
+#include <limits>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -27,7 +29,7 @@ template <> struct StaticAssertionFailed <true> {};
 
 
 template <class T>
-T
+inline T
 uiMult (T a, T b)
 {
     //
@@ -45,7 +47,7 @@ uiMult (T a, T b)
 
 
 template <class T>
-T
+inline T
 uiDiv (T a, T b)
 {
     //
@@ -63,7 +65,7 @@ uiDiv (T a, T b)
 
 
 template <class T>
-T
+inline T
 uiAdd (T a, T b)
 {
     //
@@ -81,7 +83,7 @@ uiAdd (T a, T b)
 
 
 template <class T>
-T
+inline T
 uiSub (T a, T b)
 {
     //
@@ -99,7 +101,7 @@ uiSub (T a, T b)
 
 
 template <class T>
-size_t
+inline size_t
 checkArraySize (T n, size_t s)
 {
     //

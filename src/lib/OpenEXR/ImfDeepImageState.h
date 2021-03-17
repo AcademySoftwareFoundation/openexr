@@ -44,13 +44,13 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfNamespace.h"
 #include "ImfExport.h"
+#include "ImfNamespace.h"
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-enum DeepImageState : int
+enum IMF_EXPORT_ENUM DeepImageState : int
 {
     DIS_MESSY = 0,
     DIS_SORTED = 1,

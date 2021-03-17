@@ -12,20 +12,18 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfHeader.h"
-#include "ImfFrameBuffer.h"
-#include "ImathBox.h"
-#include "ImfTileDescription.h"
+#include "ImfForward.h"
+
 #include "ImfThreading.h"
 #include "ImfGenericInputFile.h"
-#include "ImfTiledOutputFile.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
+
+#include "ImfTileDescription.h"
+#include <ImathBox.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class TiledInputFile : public GenericInputFile
+class IMF_EXPORT_TYPE TiledInputFile : public GenericInputFile
 {
   public:
 
@@ -365,32 +363,40 @@ class TiledInputFile : public GenericInputFile
 				     const char *&pixelData,
 				     int &pixelDataSize);
 
-    struct Data;
+    struct IMF_HIDDEN Data;
 
   private:
 
     friend class InputFile;
     friend class MultiPartInputFile;
 
+    IMF_HIDDEN
     TiledInputFile (InputPartData* part);
 
+    IMF_HIDDEN
     TiledInputFile (const Header &header, OPENEXR_IMF_INTERNAL_NAMESPACE::IStream *is, int version,
                     int numThreads);
 
+    IMF_HIDDEN
     void		initialize ();
+    IMF_HIDDEN
     void                multiPartInitialize(InputPartData* part);
+    IMF_HIDDEN
     void                compatibilityInitialize(OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is);
 
+    IMF_HIDDEN
     bool		isValidTile (int dx, int dy,
 				     int lx, int ly) const;
 
+    IMF_HIDDEN
     size_t		bytesPerLineForTile (int dx, int dy,
 					     int lx, int ly) const;
 
+    IMF_HIDDEN
     void                tileOrder(int dx[],int dy[],int lx[],int ly[]) const;
     Data *		_data;
 
-    friend void TiledOutputFile::copyPixels(TiledInputFile &);
+    friend class TiledOutputFile;
 };
 
 

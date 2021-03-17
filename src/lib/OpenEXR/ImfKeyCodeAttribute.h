@@ -13,9 +13,12 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfAttribute.h"
-#include "ImfKeyCode.h"
 #include "ImfExport.h"
+#include "ImfNamespace.h"
+
+#include "ImfAttribute.h"
+
+#include "ImfKeyCode.h"
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -23,19 +26,9 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::KeyCode> KeyCodeAttribute;
 
-template <>
-IMF_EXPORT
-const char *KeyCodeAttribute::staticTypeName ();
-
-template <>
-IMF_EXPORT
-void KeyCodeAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
-                                     int) const;
-
-template <>
-IMF_EXPORT
-void KeyCodeAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
-                                      int, int);
+#ifndef COMPILING_IMF_KEYCODE_ATTRIBUTE
+extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::KeyCode>;
+#endif
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

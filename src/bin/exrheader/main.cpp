@@ -433,7 +433,7 @@ printInfo (const char fileName[])
                 cout << ": \"" << ta->value() << "\"";
             }
             else if (const StringVectorAttribute * ta =
-                            dynamic_cast<const StringVectorAttribute *>(a))
+                            dynamic_cast <const StringVectorAttribute *> (a))
             {
                 cout << ":";
 

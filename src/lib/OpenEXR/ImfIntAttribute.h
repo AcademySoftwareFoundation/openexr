@@ -13,14 +13,19 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfAttribute.h"
+#include "ImfExport.h"
 #include "ImfNamespace.h"
+
+#include "ImfAttribute.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 typedef TypedAttribute<int> IntAttribute;
-template <> IMF_EXPORT const char *IntAttribute::staticTypeName ();
+
+#ifndef COMPILING_IMF_INT_ATTRIBUTE
+extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<int>;
+#endif
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

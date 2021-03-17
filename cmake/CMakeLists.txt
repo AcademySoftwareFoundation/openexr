@@ -58,6 +58,15 @@ if(APPLE)
   endif()
 endif()
 
+if (OPENEXR_ENABLE_LARGE_STACK)
+  set(OPENEXR_HAVE_LARGE_STACK ON)
+endif()
+if (OPENEXR_USE_DEFAULT_VISIBILITY)
+  set(OPENEXR_ENABLE_API_VISIBILITY OFF)
+else()
+  set(OPENEXR_ENABLE_API_VISIBILITY ON)
+endif()
+
 configure_file(OpenEXRConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h)
 configure_file(OpenEXRConfigInternal.h.in ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigInternal.h)
 
@@ -108,10 +117,6 @@ if(OPENEXR_ENABLE_THREADING AND Threads_FOUND)
       set(CMAKE_REQUIRED_FLAGS)
     endif()
   endif()
-endif()
-
-if (OPENEXR_ENABLE_LARGE_STACK)
-  set(OPENEXR_HAVE_LARGE_STACK ON)
 endif()
 
 configure_file(IexConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/IexConfig.h)

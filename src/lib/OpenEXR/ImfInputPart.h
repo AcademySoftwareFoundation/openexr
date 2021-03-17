@@ -6,11 +6,7 @@
 #ifndef IMFINPUTPART_H_
 #define IMFINPUTPART_H_
 
-#include "ImfInputFile.h"
-#include "ImfOutputPart.h"
 #include "ImfForward.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -20,7 +16,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // Same interface as InputFile. Please refer to InputFile.
 //-------------------------------------------------------------------
 
-class InputPart
+class IMF_EXPORT_TYPE InputPart
 {
     public:
         IMF_EXPORT
@@ -65,8 +61,8 @@ class InputPart
     private:
         InputFile* file;
     // for internal use - give OutputFile and TiledOutputFile access to file for copyPixels
-    friend void OutputFile::copyPixels(InputPart&);
-    friend void TiledOutputFile::copyPixels(InputPart&);
+        friend class OutputFile;
+        friend class TiledOutputFile;
     
 };
 

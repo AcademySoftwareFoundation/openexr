@@ -4,7 +4,10 @@
 //
 
 #include "ImfDeepScanLineInputPart.h"
-#include "ImfNamespace.h"
+
+#include "ImfMultiPartInputFile.h"
+#include "ImfDeepScanLineInputFile.h"
+#include "ImfDeepScanLineOutputFile.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

@@ -15,6 +15,7 @@
 
 #include "ImathInt64.h"
 #include "ImfNamespace.h"
+#include <stdint.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 

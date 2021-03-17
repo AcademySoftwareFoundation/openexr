@@ -13,6 +13,9 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfExport.h"
+#include "ImfNamespace.h"
+
 #include "ImfAttribute.h"
 
 
@@ -20,7 +23,10 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 typedef TypedAttribute<float> FloatAttribute;
-template <> IMF_EXPORT const char *FloatAttribute::staticTypeName ();
+
+#ifndef COMPILING_IMF_FLOAT_ATTRIBUTE
+extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<float>;
+#endif
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

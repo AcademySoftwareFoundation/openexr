@@ -13,8 +13,9 @@
 #include <ImfTiledRgbaFile.h>
 #include <ImfTiledOutputFile.h>
 #include <ImfChannelList.h>
-#include <ImfFrameBuffer.h>
 #include <ImfArray.h>
+#include <ImfFrameBuffer.h>
+#include <ImfHeader.h>
 #include <ImfThreading.h>
 #include <IlmThread.h>
 #include <ImathRandom.h>

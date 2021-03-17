@@ -14,11 +14,12 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfForward.h"
+
 #include "ImfName.h"
 #include "ImfPixelType.h"
-#include "ImfExport.h"
-#include "ImfNamespace.h"
-#include "ImathBox.h"
+
+#include <ImathBox.h>
 
 #include <map>
 #include <string>
@@ -36,7 +37,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // component is called a "slice".
 //-------------------------------------------------------
 
-struct Slice
+struct IMF_EXPORT_TYPE Slice
 {
     //------------------------------
     // Data type; see ImfPixelType.h
@@ -154,7 +155,7 @@ struct Slice
 };
 
 
-class FrameBuffer
+class IMF_EXPORT_TYPE FrameBuffer
 {
   public:
 
@@ -242,7 +243,7 @@ class FrameBuffer
 // Iterators
 //----------
 
-class FrameBuffer::Iterator
+class IMF_EXPORT_TYPE FrameBuffer::Iterator
 {
   public:
 
@@ -269,7 +270,7 @@ class FrameBuffer::Iterator
 };
 
 
-class FrameBuffer::ConstIterator
+class IMF_EXPORT_TYPE FrameBuffer::ConstIterator
 {
   public:
 

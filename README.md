@@ -6,7 +6,7 @@
 
 # OpenEXR
 
-<img align="right" src="/OpenEXR/doc/images/windowExample1.png">
+<img align="right" src="docs/images/windowExample1.png">
 
 OpenEXR provides the specification and reference implementation of the
 EXR file format, the professional-grade image storage format of the
@@ -59,13 +59,21 @@ Platform](https://vfxplatform.com).
   namespaces to provide protection when using multiple versions of the
   library in the same process space.
 
-### The IlmBase Library
+### OpenEXR and Imath Version 3
 
-Also a part of OpenEXR, the IlmBase library is a basic, light-weight,
-and efficient representation of 2D and 3D vectors and matrices and
-other simple but useful mathematical objects, functions, and data
-types common in computer graphics applications, including the “half”
-16-bit floating-point type. 
+With the release of OpenEXR 3, the Imath library formerly distributed
+via the IlmBase component of OpenEXR is now an independent library
+dependency, available for download from https:://github.com/AcademySoftwareFoundation/Imath.
+You can choose to build OpenEXR against an external installation of
+Imath, or the default CMake configuration will download and build it
+automatically during the OpenEXR build process.  Note that the half
+16-bit floating point data type is included in Imath.
+
+See the [porting
+guide](https://github.com/AcademySoftwareFoundation/Imath/blob/master/docs/PortingGuide2-3.md)
+for details about differences from previous releases and how to
+address them. Also refer to the porting guide for details about
+changes to Imath.
 
 ### Supported Platforms
 

@@ -23,7 +23,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // a given file is an OpenEXR image file (see isImfMagic(), below).
 //
 
-const int MAGIC = 20000630;
+static const int MAGIC = 20000630;
 
 
 //
@@ -37,15 +37,15 @@ const int MAGIC = 20000630;
 // and a 24-bit flags field.
 //
 
-const int VERSION_NUMBER_FIELD	= 0x000000ff;
-const int VERSION_FLAGS_FIELD	= 0xffffff00;
+static const int VERSION_NUMBER_FIELD	= 0x000000ff;
+static const int VERSION_FLAGS_FIELD	= 0xffffff00;
 
 
 //
 // Value that goes into VERSION_NUMBER_FIELD.
 //
 
-const int EXR_VERSION		= 2;
+static const int EXR_VERSION		= 2;
 
 
 //
@@ -53,23 +53,23 @@ const int EXR_VERSION		= 2;
 // Flags can only occupy the 1 bits in VERSION_FLAGS_FIELD.
 //
 
-const int TILED_FLAG		= 0x00000200;   // File is tiled
-
+static const int TILED_FLAG		= 0x00000200;   // File is tiled
+static
 const int LONG_NAMES_FLAG       = 0x00000400;   // File contains long
                                                 // attribute or channel
                                                 // names
-
+static
 const int NON_IMAGE_FLAG        = 0x00000800;   // File has at least one part
                                                 // which is not a regular
                                                 // scanline image or regular tiled image
                                                 // (that is, it is a deep format)
-
+static
 const int MULTI_PART_FILE_FLAG  = 0x00001000;   // File has multiple parts
 
 //
 // Bitwise OR of all known flags.
 //
-
+static
 const int ALL_FLAGS		= TILED_FLAG | LONG_NAMES_FLAG |
                                   NON_IMAGE_FLAG | MULTI_PART_FILE_FLAG;
 

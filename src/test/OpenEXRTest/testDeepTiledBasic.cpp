@@ -15,8 +15,11 @@
 
 #include <ImfDeepTiledInputFile.h>
 #include <ImfDeepTiledOutputFile.h>
-#include <ImfChannelList.h>
+
 #include <ImfArray.h>
+#include <ImfChannelList.h>
+#include <ImfDeepFrameBuffer.h>
+#include <ImfHeader.h>
 #include <ImfPartType.h>
 #include <IlmThreadPool.h>
 

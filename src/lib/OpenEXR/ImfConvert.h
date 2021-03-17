@@ -16,9 +16,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "half.h"
 #include "ImfExport.h"
 #include "ImfNamespace.h"
+
+#include <half.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 

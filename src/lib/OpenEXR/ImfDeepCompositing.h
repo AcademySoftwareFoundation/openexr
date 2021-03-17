@@ -17,12 +17,11 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfForward.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class DeepCompositing
+class IMF_EXPORT_TYPE DeepCompositing
 {
     public:
         IMF_EXPORT

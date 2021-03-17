@@ -7,10 +7,15 @@
 #include "ImfArray.h"
 #include "ImfChannelList.h"
 #include "ImfFrameBuffer.h"
+#include "ImfDeepFrameBuffer.h"
 #include "ImfPartType.h"
+#include "ImfInputFile.h"
 #include "ImfInputPart.h"
+#include "ImfDeepScanLineInputFile.h"
 #include "ImfDeepScanLineInputPart.h"
+#include "ImfTiledInputFile.h"
 #include "ImfTiledInputPart.h"
+#include "ImfDeepTiledInputFile.h"
 #include "ImfDeepTiledInputPart.h"
 #include "ImfStdIO.h"
 #include "ImfMultiPartInputFile.h"
@@ -877,7 +882,6 @@ class PtrIStream: public IStream
     virtual bool        isMemoryMapped () const { return false;}
 
 
-    IMFUTIL_EXPORT
     virtual char *	readMemoryMapped (int n)
     {
 

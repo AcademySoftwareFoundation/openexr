@@ -9,7 +9,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfPreviewImageAttribute.h>
+#define COMPILING_IMF_PREVIEW_IMAGE_ATTRIBUTE
+#include "ImfPreviewImageAttribute.h"
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -17,7 +18,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 
 template <>
-const char *
+IMF_EXPORT const char *
 PreviewImageAttribute::staticTypeName ()
 {
     return "preview";
@@ -25,7 +26,7 @@ PreviewImageAttribute::staticTypeName ()
 
 
 template <>
-void
+IMF_EXPORT void
 PreviewImageAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
     Xdr::write <StreamIO> (os, _value.width());
@@ -45,7 +46,7 @@ PreviewImageAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os
 
 
 template <>
-void
+IMF_EXPORT void
 PreviewImageAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
     int width, height;
@@ -79,6 +80,8 @@ PreviewImageAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &i
 
     _value = p;
 }
+
+template class IMF_EXPORT_TEMPLATE_INSTANCE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::PreviewImage>;
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 

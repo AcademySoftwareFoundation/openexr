@@ -6,9 +6,7 @@
 #ifndef IMFOUTPUTSTREAMMUTEX_H_
 #define IMFOUTPUTSTREAMMUTEX_H_
 
-#include "ImfIO.h"
-#include "ImfGenericOutputFile.h"
-#include "ImfNamespace.h"
+#include "ImfForward.h"
 
 #include "IlmThreadConfig.h"
 

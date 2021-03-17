@@ -81,9 +81,11 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfExport.h"
+#include "ImfNamespace.h"
+
 #include "ImfRgba.h"
 #include "ImfChromaticities.h"
-#include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 

@@ -12,12 +12,13 @@
 //	enum LineOrder
 //
 //-----------------------------------------------------------------------------
+#include "ImfExport.h"
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-enum LineOrder
+enum IMF_EXPORT_ENUM LineOrder
 {
     INCREASING_Y = 0,	// first scan line has lowest y coordinate
 

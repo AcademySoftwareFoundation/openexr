@@ -44,7 +44,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 template <class T>
-class Array
+class IMF_EXPORT_TEMPLATE_TYPE Array
 {
   public:
 
@@ -101,7 +101,7 @@ class Array
 
 
 template <class T>
-class Array2D
+class IMF_EXPORT_TEMPLATE_TYPE Array2D
 {
   public:
 

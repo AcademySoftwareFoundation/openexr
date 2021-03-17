@@ -12,21 +12,18 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfHeader.h"
-#include "ImfFrameBuffer.h"
-#include "ImathBox.h"
-#include "ImfTileDescription.h"
+#include "ImfForward.h"
+
 #include "ImfThreading.h"
 #include "ImfGenericInputFile.h"
-#include "ImfDeepFrameBuffer.h"
-#include "ImfDeepTiledOutputFile.h"
-#include "ImfForward.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
+
+#include "ImfTileDescription.h"
+
+#include <ImathBox.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class DeepTiledInputFile : public GenericInputFile
+class IMF_EXPORT_TYPE DeepTiledInputFile : public GenericInputFile
 {
   public:
 
@@ -436,7 +433,7 @@ class DeepTiledInputFile : public GenericInputFile
 
 
     // needed for copyPixels
-    friend void DeepTiledOutputFile::copyPixels(DeepTiledInputFile &);
+    friend class DeepTiledOutputFile;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

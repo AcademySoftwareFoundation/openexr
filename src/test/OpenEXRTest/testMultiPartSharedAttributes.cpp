@@ -17,6 +17,8 @@
 #include <ImfGenericOutputFile.h>
 #include <ImfArray.h>
 #include <ImfChannelList.h>
+#include <ImfFrameBuffer.h>
+#include <ImfHeader.h>
 #include <ImfOutputPart.h>
 #include <ImfInputPart.h>
 #include <ImfTiledOutputPart.h>
@@ -24,6 +26,7 @@
 #include <ImfBoxAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfTimeCodeAttribute.h>
+#include <ImfFloatAttribute.h>
 #include <ImfIntAttribute.h>
 #include <ImfPartType.h>
 #include <IexBaseExc.h>
@@ -392,7 +395,9 @@ testHeaders (const std::string & fn)
         ia.push_back(ta);
         headers[i].insert(IntAttribute::staticTypeName(), ta);
     }
-
+    vector<FloatAttribute> ifa;
+    ifa.push_back( FloatAttribute( 3.14f ) );
+    headers[0].insert(FloatAttribute::staticTypeName(), ifa.back());
 
     // write out the file
     remove(fn.c_str());

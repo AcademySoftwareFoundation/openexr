@@ -20,7 +20,10 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 typedef TypedAttribute<double> DoubleAttribute;
-template <> IMF_EXPORT const char *DoubleAttribute::staticTypeName ();
+
+#ifndef COMPILING_IMF_DOUBLE_ATTRIBUTE
+extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<double>;
+#endif
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

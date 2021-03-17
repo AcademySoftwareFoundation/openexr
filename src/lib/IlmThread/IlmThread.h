@@ -79,7 +79,7 @@ ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 ILMTHREAD_EXPORT bool supportsThreads ();
 
 
-class Thread
+class ILMTHREAD_EXPORT_TYPE Thread
 {
   public:
 
@@ -87,13 +87,14 @@ class Thread
     ILMTHREAD_EXPORT virtual ~Thread ();
 
     ILMTHREAD_EXPORT void         start ();
-    ILMTHREAD_EXPORT virtual void run () = 0;
+
+    virtual void run () = 0;
 
     //
     // wait for thread to exit - must be called before deleting thread
     //
-    void join();
-    bool joinable() const;
+    ILMTHREAD_EXPORT void join();
+    ILMTHREAD_EXPORT bool joinable() const;
 
   private:
 

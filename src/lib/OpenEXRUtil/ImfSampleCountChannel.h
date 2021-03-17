@@ -15,8 +15,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "ImfImageChannel.h"
 #include "ImfUtilExport.h"
+#include "ImfImageChannel.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -38,7 +38,7 @@ class DeepImageLevel;
 //          x % c.xSampling() != 0 or y % c.ySampling() != 0,
 //
 
-class SampleCountChannel : public ImageChannel
+class IMFUTIL_EXPORT_TYPE SampleCountChannel : public ImageChannel
 {
   public:
 

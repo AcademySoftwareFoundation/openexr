@@ -13,6 +13,8 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfForward.h"
+
 #include "ImfLineOrder.h"
 #include "ImfCompression.h"
 #include "ImfName.h"
@@ -21,9 +23,7 @@
 #include "ImathBox.h"
 #include "IexBaseExc.h"
 
-#include "ImfForward.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
+#include "ImfAttribute.h"
 
 #include <map>
 #include <iosfwd>
@@ -36,7 +36,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 using std::string;
 
 
-class Header
+class IMF_EXPORT_TYPE Header
 {
   public:
     
@@ -478,7 +478,7 @@ class Header
 // Iterators
 //----------
 
-class Header::Iterator
+class IMF_EXPORT_TYPE Header::Iterator
 {
   public:
 
@@ -505,7 +505,7 @@ class Header::Iterator
 };
 
 
-class Header::ConstIterator
+class IMF_EXPORT_TYPE Header::ConstIterator
 {
   public:
 
@@ -549,7 +549,7 @@ class Header::ConstIterator
 //
 //------------------------------------------------------------------------
 
-void IMF_EXPORT staticInitialize ();
+IMF_EXPORT void staticInitialize ();
 
 
 //-----------------
@@ -677,7 +677,7 @@ T &
 Header::typedAttribute (const char name[])
 {
     Attribute *attr = &(*this)[name];
-    T *tattr = dynamic_cast <T*> (attr);
+    T *tattr = dynamic_cast <T *> (attr);
 
     if (tattr == 0)
 	throw IEX_NAMESPACE::TypeExc ("Unexpected attribute type.");
@@ -691,7 +691,7 @@ const T &
 Header::typedAttribute (const char name[]) const
 {
     const Attribute *attr = &(*this)[name];
-    const T *tattr = dynamic_cast <const T*> (attr);
+    const T *tattr = dynamic_cast <const T *> (attr);
 
     if (tattr == 0)
 	throw IEX_NAMESPACE::TypeExc ("Unexpected attribute type.");
@@ -721,7 +721,7 @@ T *
 Header::findTypedAttribute (const char name[])
 {
     AttributeMap::iterator i = _map.find (name);
-    return (i == _map.end())? 0: dynamic_cast <T*> (i->second);
+    return (i == _map.end())? 0: dynamic_cast <T *> (i->second);
 }
 
 
@@ -730,7 +730,7 @@ const T *
 Header::findTypedAttribute (const char name[]) const
 {
     AttributeMap::const_iterator i = _map.find (name);
-    return (i == _map.end())? 0: dynamic_cast <const T*> (i->second);
+    return (i == _map.end())? 0: dynamic_cast <const T *> (i->second);
 }
 
 

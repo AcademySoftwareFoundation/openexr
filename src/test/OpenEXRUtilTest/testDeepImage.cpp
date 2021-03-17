@@ -34,10 +34,10 @@ verifyPixelsAreEqual
      int dy)
 {
     const TypedDeepImageChannel<T> &tc1 =
-        dynamic_cast <const TypedDeepImageChannel<T>&> (c1);
+        dynamic_cast <const TypedDeepImageChannel<T> &> (c1);
 
     const TypedDeepImageChannel<T> &tc2 =
-        dynamic_cast <const TypedDeepImageChannel<T>&> (c2);
+        dynamic_cast <const TypedDeepImageChannel<T> &> (c2);
 
     const Box2i &dataWindow = c1.level().dataWindow();
     const SampleCountChannel &scc1 = c1.deepLevel().sampleCounts();
@@ -221,7 +221,7 @@ fillChannel (Rand48 &random, DeepImageChannel &c)
     //
 
     TypedDeepImageChannel<T> &tc =
-        dynamic_cast <TypedDeepImageChannel<T>&> (c);
+        dynamic_cast <TypedDeepImageChannel<T> &> (c);
 
     const Box2i &dataWindow = tc.level().dataWindow();
     const SampleCountChannel &scc = c.deepLevel().sampleCounts();

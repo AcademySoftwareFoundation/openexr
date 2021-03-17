@@ -86,7 +86,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
    
-class TimeCode
+class IMF_EXPORT_TYPE TimeCode
 {
   public:
 
@@ -94,7 +94,7 @@ class TimeCode
     // Bit packing variants
     //---------------------
 
-    enum Packing
+    enum IMF_EXPORT_ENUM Packing
     {
 	TV60_PACKING,		// packing for 60-field television
 	TV50_PACKING,		// packing for 50-field television

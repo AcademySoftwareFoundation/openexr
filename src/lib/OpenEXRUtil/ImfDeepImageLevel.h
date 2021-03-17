@@ -17,10 +17,12 @@
 //
 //----------------------------------------------------------------------------
 
+#include "ImfUtilExport.h"
+#include "ImfNamespace.h"
+
 #include "ImfDeepImageChannel.h"
 #include "ImfSampleCountChannel.h"
 #include "ImfImageLevel.h"
-#include "ImfUtilExport.h"
 
 #include <string>
 #include <map>
@@ -29,7 +31,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class DeepImage;
 
-class DeepImageLevel : public ImageLevel
+class IMFUTIL_EXPORT_TYPE DeepImageLevel : public ImageLevel
 {
   public:
 
@@ -126,46 +128,58 @@ class DeepImageLevel : public ImageLevel
     // The constructor and destructor are private.
     // Deep image levels exist only as part of a deep image.
     //
-
+    IMF_HIDDEN
      DeepImageLevel (DeepImage& image,
                      int xLevelNumber,
                      int yLevelNumber,
                      const IMATH_NAMESPACE::Box2i& dataWindow);
 
+    IMF_HIDDEN
     ~DeepImageLevel ();
 
+    IMF_HIDDEN
     void         setSamplesToZero (size_t i,
                                    unsigned int oldNumSamples,
                                    unsigned int newNumSamples);
 
+    IMF_HIDDEN
     void         moveSampleList (size_t i,
                                  unsigned int oldNumSamples,
                                  unsigned int newNumSamples,
                                  size_t newSampleListPosition);
 
+    IMF_HIDDEN
     void         moveSamplesToNewBuffer (const unsigned int * oldNumSamples,
                                          const unsigned int * newNumSamples,
                                          const size_t * newSampleListPositions);
 
+    IMF_HIDDEN
     void         initializeSampleLists ();
 
+    IMF_HIDDEN
     virtual void resize (const IMATH_NAMESPACE::Box2i& dataWindow);
 
+    IMF_HIDDEN
     virtual void shiftPixels (int dx, int dy);
 
+    IMF_HIDDEN
     virtual void insertChannel (const std::string& name,
                                 PixelType type,
                                 int xSampling,
                                 int ySampling,
                                 bool pLinear);
 
+    IMF_HIDDEN
     virtual void eraseChannel (const std::string& name);
 
+    IMF_HIDDEN
     virtual void clearChannels ();
 
+    IMF_HIDDEN
     virtual void renameChannel (const std::string &oldName,
                                 const std::string &newName);
 
+    IMF_HIDDEN
     virtual void renameChannels (const RenamingMap &oldToNewNames);
 
     ChannelMap          _channels;
@@ -173,7 +187,7 @@ class DeepImageLevel : public ImageLevel
 };
 
 
-class DeepImageLevel::Iterator
+class IMFUTIL_EXPORT_TYPE DeepImageLevel::Iterator
 {
   public:
 
@@ -211,7 +225,7 @@ class DeepImageLevel::Iterator
 };
 
 
-class DeepImageLevel::ConstIterator
+class IMFUTIL_EXPORT_TYPE DeepImageLevel::ConstIterator
 {
   public:
 
@@ -263,7 +277,7 @@ template <class T>
 TypedDeepImageChannel<T> *
 DeepImageLevel::findTypedChannel (const std::string& name)
 {
-    return dynamic_cast <TypedDeepImageChannel<T>*> (findChannel (name));
+    return dynamic_cast <TypedDeepImageChannel<T> *> (findChannel (name));
 }
 
 
@@ -271,7 +285,7 @@ template <class T>
 const TypedDeepImageChannel<T> *
 DeepImageLevel::findTypedChannel (const std::string& name) const
 {
-    return dynamic_cast <const TypedDeepImageChannel<T>*> (findChannel (name));
+    return dynamic_cast <const TypedDeepImageChannel<T> *> (findChannel (name));
 }
 
 

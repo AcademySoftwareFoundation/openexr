@@ -65,13 +65,13 @@
 // 			Latent Image Identification Information
 //
 //-----------------------------------------------------------------------------
-#include "ImfNamespace.h"
 #include "ImfExport.h"
+#include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
    
-class KeyCode
+class IMF_EXPORT_TYPE KeyCode
 {
   public:
 

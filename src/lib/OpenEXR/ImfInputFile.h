@@ -13,22 +13,15 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfHeader.h"
-#include "ImfFrameBuffer.h"
-#include "ImfTiledOutputFile.h"
-#include "ImfThreading.h"
-#include "ImfGenericInputFile.h"
-#include "ImfNamespace.h"
 #include "ImfForward.h"
-#include "ImfExport.h"
 
-#include <fstream>
-
+#include "ImfGenericInputFile.h"
+#include "ImfThreading.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class InputFile : public GenericInputFile
+class IMF_EXPORT_TYPE InputFile : public GenericInputFile
 {
   public:
 
@@ -221,23 +214,24 @@ class InputFile : public GenericInputFile
 				     const char *&pixelData,
 				     int &pixelDataSize);
 
-    struct Data;
+    struct IMF_HIDDEN Data;
     
   private:
 
-    InputFile (InputPartData* part);
+    IMF_HIDDEN InputFile (InputPartData* part);
 
     InputFile (const InputFile &) = delete;
     InputFile & operator = (const InputFile &) = delete;
     InputFile (InputFile &&) = delete;
     InputFile & operator = (InputFile &&) = delete;
 
-    void		initialize ();
-    void                multiPartInitialize(InputPartData* part);
-    void                compatibilityInitialize(OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is);
-    TiledInputFile *	tFile ();
-    
-    friend void TiledOutputFile::copyPixels (InputFile &);
+    IMF_HIDDEN void  initialize ();
+    IMF_HIDDEN void  multiPartInitialize(InputPartData* part);
+    IMF_HIDDEN void  compatibilityInitialize(OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is);
+    IMF_HIDDEN TiledInputFile *	tFile ();
+
+    // for copyPixels
+    friend class TiledOutputFile;
     
     Data *		_data;
 

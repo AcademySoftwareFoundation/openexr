@@ -12,12 +12,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfNamespace.h"
-#include "ImfExport.h"
+#include "ImfForward.h"
 
 #include <string>
 #include <cstdint>
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -25,7 +23,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // class IStream -- an abstract base class for input streams.
 //-----------------------------------------------------------
 
-class IStream
+class IMF_EXPORT_TYPE IStream
 {
   public:
 
@@ -33,8 +31,7 @@ class IStream
     // Destructor
     //-----------
 
-    IMF_EXPORT
-    virtual ~IStream ();
+    IMF_EXPORT virtual ~IStream ();
     
     
     //-------------------------------------------------
@@ -46,8 +43,7 @@ class IStream
     // into a buffer supplied by the caller.
     //-------------------------------------------------
 
-    IMF_EXPORT
-    virtual bool        isMemoryMapped () const;
+    IMF_EXPORT virtual bool        isMemoryMapped () const;
 
 
     //------------------------------------------------------
@@ -74,8 +70,7 @@ class IStream
     // mapped, readMemoryMapped(n) throws an exception.  
     //---------------------------------------------------
 
-    IMF_EXPORT
-    virtual char *	readMemoryMapped (int n);
+    IMF_EXPORT virtual char *	readMemoryMapped (int n);
 
 
     //--------------------------------------------------------
@@ -99,21 +94,18 @@ class IStream
     // Clear error conditions after an operation has failed.
     //------------------------------------------------------
 
-    IMF_EXPORT
-    virtual void	clear ();
+    IMF_EXPORT virtual void	clear ();
 
 
     //------------------------------------------------------
     // Get the name of the file associated with this stream.
     //------------------------------------------------------
 
-    IMF_EXPORT
-    const char *	fileName () const;
+    IMF_EXPORT const char *	fileName () const;
 
   protected:
 
-    IMF_EXPORT
-    IStream (const char fileName[]);
+    IMF_EXPORT IStream (const char fileName[]);
 
   private:
 
@@ -130,7 +122,7 @@ class IStream
 // class OStream -- an abstract base class for output streams
 //-----------------------------------------------------------
 
-class OStream
+class IMF_EXPORT_TYPE OStream
 {
   public:
 
@@ -138,8 +130,7 @@ class OStream
     // Destructor
     //-----------
 
-    IMF_EXPORT
-    virtual ~OStream ();
+    IMF_EXPORT virtual ~OStream ();
   
 
     //----------------------------------------------------------
@@ -175,13 +166,11 @@ class OStream
     // Get the name of the file associated with this stream.
     //------------------------------------------------------
 
-    IMF_EXPORT
-    const char *	fileName () const;
+    IMF_EXPORT const char *	fileName () const;
 
   protected:
 
-    IMF_EXPORT
-    OStream (const char fileName[]);
+    IMF_EXPORT OStream (const char fileName[]);
 
   private:
 
@@ -200,13 +189,13 @@ class OStream
 
 struct StreamIO
 {
-    static void
+    static inline void
     writeChars (OStream &os, const char c[/*n*/], int n)
     {
         os.write (c, n);
     }
 
-    static bool
+    static inline bool
     readChars (IStream &is, char c[/*n*/], int n)
     {
         return is.read (c, n);
@@ -216,14 +205,14 @@ struct StreamIO
 
 struct CharPtrIO
 {
-    static void
+    static inline void
     writeChars (char *&op, const char c[/*n*/], int n)
     {
         while (n--)
             *op++ = *c++;
     }
 
-    static bool
+    static inline bool
     readChars (const char *&ip, char c[/*n*/], int n)
     {
         while (n--)

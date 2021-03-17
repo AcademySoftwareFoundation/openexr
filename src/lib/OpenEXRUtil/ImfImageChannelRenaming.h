@@ -30,17 +30,8 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 typedef std::map <std::string, std::string> RenamingMap;
 
 template <class ChannelMap>
-void
-renameChannelsInMap (const RenamingMap oldToNewNames, ChannelMap &channels);
-
-
-//-----------------------------------------------------------------------------
-// Implementation
-//-----------------------------------------------------------------------------
-
-template <class ChannelMap>
-void
-renameChannelsInMap (const RenamingMap oldToNewNames, ChannelMap &channels)
+inline void
+renameChannelsInMap (const RenamingMap &oldToNewNames, ChannelMap &channels)
 {
     ChannelMap renamedChannels;
 

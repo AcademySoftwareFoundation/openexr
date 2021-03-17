@@ -12,19 +12,15 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfHeader.h"
-#include "ImfFrameBuffer.h"
-#include "ImfThreading.h"
-#include "ImfInputStreamMutex.h"
-#include "ImfInputPartData.h"
+#include "ImfForward.h"
+
 #include "ImfGenericInputFile.h"
-#include "ImfExport.h"
-#include "ImfNamespace.h"
+#include "ImfThreading.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-class ScanLineInputFile : public GenericInputFile
+class IMF_EXPORT_TYPE ScanLineInputFile : public GenericInputFile
 {
   public:
 
@@ -194,7 +190,7 @@ class ScanLineInputFile : public GenericInputFile
 					     int &pixelDataSize) const;
     
   
-    struct Data;
+    struct IMF_HIDDEN Data;
 
   private:
 
@@ -202,9 +198,9 @@ class ScanLineInputFile : public GenericInputFile
 
     InputStreamMutex*   _streamData;
 
-    ScanLineInputFile   (InputPartData* part);
+    IMF_HIDDEN ScanLineInputFile   (InputPartData* part);
 
-    void                initialize(const Header& header);
+    IMF_HIDDEN void initialize (const Header& header);
 
     friend class MultiPartInputFile;
     friend class InputFile;

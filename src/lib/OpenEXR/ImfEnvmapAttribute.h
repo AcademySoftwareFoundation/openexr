@@ -22,19 +22,9 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Envmap> EnvmapAttribute;
 
-template <> IMF_EXPORT const char *EnvmapAttribute::staticTypeName ();
-
-template <> IMF_EXPORT
-void EnvmapAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &,
-                                    int) const;
-
-template <> IMF_EXPORT
-void EnvmapAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &,
-                                     int,
-                                     int);
-template <> IMF_EXPORT
-void
-EnvmapAttribute::copyValueFrom (const OPENEXR_IMF_INTERNAL_NAMESPACE::Attribute &other);
+#ifndef COMPILING_IMF_ENVMAP_ATTRIBUTE
+extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Envmap>;
+#endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

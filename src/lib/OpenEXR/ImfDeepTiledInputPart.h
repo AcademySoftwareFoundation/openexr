@@ -6,14 +6,15 @@
 #ifndef IMFDEEPTILEDINPUTPART_H_
 #define IMFDEEPTILEDINPUTPART_H_
 
-#include "ImfDeepTiledInputFile.h"
-#include "ImfNamespace.h"
 #include "ImfForward.h"
-#include "ImfExport.h"
+
+#include "ImfTileDescription.h"
+
+#include <ImathBox.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class DeepTiledInputPart
+class IMF_EXPORT_TYPE DeepTiledInputPart
 {
   public:
 
@@ -355,7 +356,7 @@ class DeepTiledInputPart
   private:
     DeepTiledInputFile* file;
 
-    friend void DeepTiledOutputFile::copyPixels(DeepTiledInputPart &);
+    friend class DeepTiledOutputFile;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

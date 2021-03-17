@@ -16,11 +16,8 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 class Zip
 {
     public:
-        IMF_EXPORT
         explicit Zip(size_t rawMaxSize);
-        IMF_EXPORT
         Zip(size_t maxScanlineSize, size_t numScanLines);
-        IMF_EXPORT
         ~Zip();
 
         Zip (const Zip& other) = delete;
@@ -28,23 +25,19 @@ class Zip
         Zip (Zip&& other) = delete;
         Zip& operator = (Zip&& other) = delete;
 
-        IMF_EXPORT
         size_t maxRawSize();
-        IMF_EXPORT
         size_t maxCompressedSize();
 
         //
         // Compress the raw data into the provided buffer.
         // Returns the amount of compressed data.
         //
-        IMF_EXPORT
         int compress(const char *raw, int rawSize, char *compressed);
 
         // 
         // Uncompress the compressed data into the provided
         // buffer. Returns the amount of raw data actually decoded.
         //
-        IMF_EXPORT
         int uncompress(const char *compressed, int compressedSize,
                                                  char *raw);
 

@@ -6,17 +6,18 @@
 #ifndef IMFPARTTYPE_H_
 #define IMFPARTTYPE_H_
 
-#include <string>
-#include "ImfNamespace.h"
 #include "ImfExport.h"
+#include "ImfNamespace.h"
+
+#include <string>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
-const std::string SCANLINEIMAGE = "scanlineimage";
-const std::string TILEDIMAGE    = "tiledimage";
-const std::string DEEPSCANLINE  = "deepscanline";
-const std::string DEEPTILE      = "deeptile";
+static const std::string SCANLINEIMAGE = "scanlineimage";
+static const std::string TILEDIMAGE    = "tiledimage";
+static const std::string DEEPSCANLINE  = "deepscanline";
+static const std::string DEEPTILE      = "deeptile";
 
 IMF_EXPORT bool isImage(const std::string& name);
 

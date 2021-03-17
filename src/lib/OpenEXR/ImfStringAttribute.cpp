@@ -10,24 +10,34 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfStringAttribute.h>
+#define COMPILING_IMF_STRING_ATTRIBUTE
+
+#include "ImfStringAttribute.h"
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 
+//#if defined(__MINGW32__)
+//template <>
+//IMF_EXPORT
+//TypedAttribute<std::string>::~TypedAttribute ()
+//{
+//}
+//#endif
+
 template <>
-const char *
-StringAttribute::staticTypeName ()
+IMF_EXPORT const char *
+TypedAttribute<std::string>::staticTypeName ()
 {
     return "string";
 }
 
 
 template <>
-void
-StringAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
+IMF_EXPORT void
+TypedAttribute<std::string>::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int version) const
 {
     int size = _value.size();
 
@@ -37,14 +47,16 @@ StringAttribute::writeValueTo (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, int 
 
 
 template <>
-void
-StringAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
+IMF_EXPORT void
+TypedAttribute<std::string>::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int size, int version)
 {
     _value.resize (size);
 
     for (int i = 0; i < size; i++)
 	Xdr::read <StreamIO> (is, _value[i]);
 }
+
+template class IMF_EXPORT_TEMPLATE_INSTANCE TypedAttribute<std::string>;
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 

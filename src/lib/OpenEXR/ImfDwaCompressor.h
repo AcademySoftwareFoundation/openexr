@@ -12,12 +12,12 @@
 //
 //------------------------------------------------------------------------------
 
-#include <half.h>
+#include "ImfCompressor.h"
 
 #include "ImfZip.h"
 #include "ImfChannelList.h"
-#include "ImfCompressor.h"
-#include "ImfNamespace.h"
+
+#include <half.h>
 
 #include <vector>
 #include <cstdint>
@@ -35,13 +35,11 @@ class DwaCompressor: public Compressor
     };
 
 
-    IMF_EXPORT
     DwaCompressor (const Header &hdr, 
                    int           maxScanLineSize,
                    int           numScanLines,    // ideally is a multiple of 8
                    AcCompression acCompression);
 
-    IMF_EXPORT
     virtual ~DwaCompressor ();
 
     DwaCompressor (const DwaCompressor& other) = delete;
@@ -49,37 +47,30 @@ class DwaCompressor: public Compressor
     DwaCompressor (DwaCompressor&& other) = delete;
     DwaCompressor& operator = (DwaCompressor&& other) = delete;
     
-    IMF_EXPORT
     virtual int numScanLines () const;
 
-    IMF_EXPORT
     virtual OPENEXR_IMF_NAMESPACE::Compressor::Format format () const;
 
-    IMF_EXPORT
     virtual int compress (const char *inPtr,
                           int         inSize,
                           int         minY,
                           const char *&outPtr);
 
-    IMF_EXPORT
     virtual int compressTile (const char              *inPtr,
                               int                     inSize,
                               IMATH_NAMESPACE::Box2i  range,
                               const char              *&outPtr);
 
-    IMF_EXPORT
     virtual int uncompress (const char *inPtr,
                             int         inSize,
                             int         minY,
                             const char *&outPtr);
 
-    IMF_EXPORT
     virtual int uncompressTile (const char             *inPtr,
                                 int                    inSize,
                                 IMATH_NAMESPACE::Box2i range,
                                 const char             *&outPtr);
 
-    IMF_EXPORT
     static void initializeFuncs ();
 
   private:
