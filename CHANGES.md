@@ -54,7 +54,7 @@ new features:
     ``libIlmImf``).  No header files have been renamed, they retain
     the ``Imf`` prefix.
   - Symbol linkage visibility is limited to specific public
-    symbols. See [SymbolVisibility.md](SymbolVisibility.md) for more
+    symbols. See [SymbolVisibility.md](docs/SymbolVisibility.md) for more
     details.
 
 * Build improvements:
