@@ -1,4 +1,4 @@
-//
+                                                //
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright (c) Contributors to the OpenEXR Project.
 //
@@ -145,12 +145,12 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header &hdr)
 
       case DWAA_COMPRESSION:
 
-	return new DwaCompressor (hdr, maxScanLineSize, 32, 
+	return new DwaCompressor (hdr, static_cast<int>(maxScanLineSize), 32, 
                                DwaCompressor::STATIC_HUFFMAN);
 
       case DWAB_COMPRESSION:
 
-	return new DwaCompressor (hdr, maxScanLineSize, 256, 
+	return new DwaCompressor (hdr, static_cast<int>(maxScanLineSize), 256, 
                                DwaCompressor::STATIC_HUFFMAN);
 
       default:
@@ -226,12 +226,12 @@ newTileCompressor (Compression c,
 
       case DWAA_COMPRESSION:
 
-	return new DwaCompressor (hdr, tileLineSize, numTileLines, 
+	return new DwaCompressor (hdr, static_cast<int>(tileLineSize), static_cast<int>(numTileLines), 
                                DwaCompressor::DEFLATE);
 
       case DWAB_COMPRESSION:
 
-	return new DwaCompressor (hdr, tileLineSize, numTileLines, 
+	return new DwaCompressor (hdr, static_cast<int>(tileLineSize), static_cast<int>(numTileLines), 
                                DwaCompressor::STATIC_HUFFMAN);
 
       default:

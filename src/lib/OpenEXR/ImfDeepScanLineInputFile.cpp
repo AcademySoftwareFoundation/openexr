@@ -324,7 +324,7 @@ reconstructLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
             }
 
 
-            Xdr::skip <StreamIO> (is, packed_offset+packed_sample+8);
+            Xdr::skip <StreamIO> (is, static_cast<int>(packed_offset+packed_sample+8));
 
             if (lineOrder == INCREASING_Y)
                 lineOffsets[i] = lineOffset;
@@ -485,21 +485,21 @@ readPixelData (InputStreamMutex *streamData,
     // Skip the pixel sample count table because we have read this data.
     //
 
-    Xdr::skip <StreamIO> (*streamData->is, sampleCountTableSize);
+    Xdr::skip <StreamIO> (*streamData->is, static_cast<int>(sampleCountTableSize));
 
     //
     // Read the pixel data.
     //
 
     if (streamData->is->isMemoryMapped ())
-        buffer = streamData->is->readMemoryMapped (packedDataSize);
+        buffer = streamData->is->readMemoryMapped (static_cast<int>(packedDataSize));
     else
     {
         // (TODO) check if the packed data size is too big?
         // (TODO) better memory management. Don't delete buffer all the time.
         if (buffer != 0) delete[] buffer;
         buffer = new char[packedDataSize];
-        streamData->is->read (buffer, packedDataSize);
+        streamData->is->read (buffer, static_cast<int>(packedDataSize));
     }
 
     //
@@ -616,7 +616,7 @@ LineBufferTask::execute ()
                 _lineBuffer->format = _lineBuffer->compressor->format();
 
                 _lineBuffer->packedDataSize = _lineBuffer->compressor->uncompress
-                    (_lineBuffer->buffer, _lineBuffer->packedDataSize,
+                    (_lineBuffer->buffer, static_cast<int>(_lineBuffer->packedDataSize),
                      _lineBuffer->minY, _lineBuffer->uncompressedData);
             }
             else
@@ -1257,8 +1257,8 @@ DeepScanLineInputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
     else
     {
         _data->sampleCountSliceBase = sampleCountSlice.base;
-        _data->sampleCountXStride = sampleCountSlice.xStride;
-        _data->sampleCountYStride = sampleCountSlice.yStride;
+        _data->sampleCountXStride = static_cast<int>(sampleCountSlice.xStride);
+        _data->sampleCountYStride = static_cast<int>(sampleCountSlice.yStride);
     }
 
     //
@@ -1602,7 +1602,7 @@ DeepScanLineInputFile::rawPixelData (int firstScanLine,
     memcpy(pixelData+20,&tmp.b,8);
 
     // read the actual data
-    _data->_streamData->is->read(pixelData+28, sampleCountTableSize+packedDataSize);
+    _data->_streamData->is->read(pixelData+28, static_cast<int>(sampleCountTableSize+packedDataSize));
     
     // special case: seek stream back to start if we are at the beginning (regular reading pixels assumes it doesn't need to seek
     // in single part files)
@@ -1646,7 +1646,7 @@ void DeepScanLineInputFile::readPixels (const char* rawPixelData,
                                              _data->header);
                                              
         decomp->uncompress(rawPixelData+28+sampleCountTableDataSize,
-                           packedDataSize,
+                           static_cast<int>(packedDataSize),
                            data_scanline, uncompressed_data);
         format = decomp->format();
     }
@@ -1680,8 +1680,8 @@ void DeepScanLineInputFile::readPixels (const char* rawPixelData,
     
     
     const char* samplecount_base = frameBuffer.getSampleCountSlice().base;
-    int samplecount_xstride = frameBuffer.getSampleCountSlice().xStride;
-    int samplecount_ystride = frameBuffer.getSampleCountSlice().yStride;
+    int samplecount_xstride = static_cast<int>(frameBuffer.getSampleCountSlice().xStride);
+    int samplecount_ystride = static_cast<int>(frameBuffer.getSampleCountSlice().yStride);
     
     //
     // For each line within the block, get the count of bytes.
@@ -1851,15 +1851,15 @@ void DeepScanLineInputFile::readPixelSampleCounts (const char* rawPixelData,
                                _data->header);
                                                     
         decomp->uncompress(rawPixelData+28,
-                                               sampleCountTableDataSize,
+                                               static_cast<int>(sampleCountTableDataSize),
                                                data_scanline,
                                                readPtr);
     }
     else readPtr = rawPixelData+28;
     
     char* base = frameBuffer.getSampleCountSlice().base;
-    int xStride = frameBuffer.getSampleCountSlice().xStride;
-    int yStride = frameBuffer.getSampleCountSlice().yStride;
+    int xStride = static_cast<int>(frameBuffer.getSampleCountSlice().xStride);
+    int yStride = static_cast<int>(frameBuffer.getSampleCountSlice().yStride);
     
    
     
@@ -1964,7 +1964,7 @@ readSampleCountForLineBlock(InputStreamMutex* streamData,
               << compressorMaxDataSize
               << " file table size    :" << sampleCountTableDataSize << ".\n");
     }
-    streamData->is->read(data->sampleCountTableBuffer, sampleCountTableDataSize);
+    streamData->is->read(data->sampleCountTableBuffer, static_cast<int>(sampleCountTableDataSize));
     
     const char* readPtr;
 
@@ -1980,7 +1980,7 @@ readSampleCountForLineBlock(InputStreamMutex* streamData,
             THROW(IEX_NAMESPACE::ArgExc,"Deep scanline data corrupt at chunk " << lineBlockId << " (sampleCountTableDataSize error)");
         }
         data->sampleCountTableComp->uncompress(data->sampleCountTableBuffer,
-                                               sampleCountTableDataSize,
+                                               static_cast<int>(sampleCountTableDataSize),
                                                minY,
                                                readPtr);
     }

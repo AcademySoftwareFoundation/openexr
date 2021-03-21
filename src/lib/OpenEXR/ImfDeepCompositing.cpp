@@ -49,11 +49,11 @@ DeepCompositing::composite_pixel (float outputs[],
    {
        int s=(sources>1) ? sort_order[i] : i;
        float alpha=outputs[2]; 
-       if(alpha>=1.0) return;
+       if(alpha>=1.0f) return;
        
        for(int c=0;c<num_channels;c++)
        {
-           outputs[c]+=(1.0-alpha)*inputs[c][s];
+           outputs[c]+=(1.0f-alpha)*inputs[c][s];
        }
    }   
 }
