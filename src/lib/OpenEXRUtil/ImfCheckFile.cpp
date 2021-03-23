@@ -38,7 +38,7 @@ using IMATH_NAMESPACE::Box2i;
 //
 // limits for reduceMemory mode
 //
-const uint64_t gMaxBytesPerScanline = 1000000;
+const uint64_t gMaxBytesPerScanline = 8000000;
 const uint64_t gMaxTileBytesPerScanline = 8000000;
 const uint64_t gMaxTileBytes = 1000*1000;
 const uint64_t gMaxBytesPerDeepPixel = 1000;
