@@ -2,6 +2,7 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 
 #include "ImfCheckFile.h"
+#include "ImfCompressor.h"
 #include "Iex.h"
 #include "ImfRgbaFile.h"
 #include "ImfArray.h"
@@ -37,7 +38,7 @@ using IMATH_NAMESPACE::Box2i;
 //
 // limits for reduceMemory mode
 //
-const uint64_t gMaxScanlineWidth= 1000000;
+const uint64_t gMaxBytesPerScanline = 8000000;
 const uint64_t gMaxTileBytesPerScanline = 8000000;
 const uint64_t gMaxTileBytes = 1000*1000;
 const uint64_t gMaxBytesPerDeepPixel = 1000;
@@ -87,10 +88,13 @@ readRgba(T& in, bool reduceMemory , bool reduceTime)
     {
         const Box2i &dw = in.dataWindow();
 
-        int w = dw.max.x - dw.min.x + 1;
+        uint64_t w = static_cast<uint64_t>(dw.max.x) - static_cast<uint64_t>(dw.min.x) + 1;
         int dx = dw.min.x;
+        uint64_t bytesPerPixel = calculateBytesPerPixel(in.header());
+        uint64_t numLines = numLinesInBuffer(in.header().compression());
 
-        if (reduceMemory && w > gMaxScanlineWidth )
+
+        if (reduceMemory && w*bytesPerPixel*numLines > gMaxBytesPerScanline )
         {
             return false;
         }
@@ -145,10 +149,13 @@ readScanline(T& in, bool reduceMemory , bool reduceTime)
     {
         const Box2i &dw = in.header().dataWindow();
 
-        int w = dw.max.x - dw.min.x + 1;
+        uint64_t w = static_cast<uint64_t>(dw.max.x) - static_cast<uint64_t>(dw.min.x) + 1;
         int dx = dw.min.x;
+        uint64_t bytesPerPixel = calculateBytesPerPixel(in.header());
+        uint64_t numLines = numLinesInBuffer(in.header().compression());
 
-        if (reduceMemory && w > gMaxScanlineWidth )
+
+        if (reduceMemory && w*bytesPerPixel*numLines > gMaxBytesPerScanline )
         {
             return false;
         }
@@ -263,16 +270,16 @@ readTile(T& in, bool reduceMemory , bool reduceTime)
     {
         const Box2i& dw = in.header().dataWindow();
 
-        int w = dw.max.x - dw.min.x + 1;
+        uint64_t w = static_cast<uint64_t>(dw.max.x) - static_cast<uint64_t>(dw.min.x) + 1;
         int dwx = dw.min.x;
         int numXLevels = in.numXLevels();
         int numYLevels = in.numYLevels();
 
         const TileDescription& td = in.header().tileDescription();
-        int bytes = calculateBytesPerPixel(in.header());
+        uint64_t bytes = calculateBytesPerPixel(in.header());
 
 
-        if (reduceMemory && (w > gMaxScanlineWidth || (td.xSize*td.ySize*bytes) > gMaxTileBytes) )
+        if (reduceMemory && (w*bytes > gMaxBytesPerScanline || (td.xSize*td.ySize*bytes) > gMaxTileBytes) )
         {
                 return false;
         }
@@ -369,13 +376,16 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
         const Box2i &dw = fileHeader.dataWindow();
 
 
-        int w = dw.max.x - dw.min.x + 1;
+        uint64_t w = static_cast<uint64_t>(dw.max.x) - static_cast<uint64_t>(dw.min.x) + 1;
         int dwx = dw.min.x;
 
-        int bytesPerSample = calculateBytesPerPixel(in.header());
+        uint64_t bytesPerSample = calculateBytesPerPixel(in.header());
 
 
-        if ( reduceMemory && w > gMaxScanlineWidth )
+        //
+        // in reduce memory mode, check size required by sampleCount table
+        //
+        if ( reduceMemory && w * 4 > gMaxBytesPerScanline )
         {
             return false;
         }
@@ -446,7 +456,7 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
             //
             // limit total number of samples read in reduceMemory mode
             //
-            if (!reduceMemory || bufferSize < gMaxScanlineWidth )
+            if (!reduceMemory || bufferSize < gMaxBytesPerDeepScanline )
             {
                 //
                 // allocate sample buffer and set per-pixel pointers into buffer
@@ -752,14 +762,16 @@ readMultiPart(MultiPartInputFile& in,bool reduceMemory,bool reduceTime)
         Box2i b = in.header( part ).dataWindow();
         int bytesPerPixel = calculateBytesPerPixel(in.header(part));
         uint64_t imageWidth = static_cast<uint64_t>(b.max.x) - static_cast<uint64_t>(b.min.x) + 1ll;
+        uint64_t scanlinesInBuffer = numLinesInBuffer(in.header(part).compression());
 
          //
          // very wide scanline parts take excessive memory to read.
-         // detect that here so that tests can be skipped when reduceMemory is set
+         // compute memory required to store a group of scanlines
+         // so tests can be skipped when reduceMemory is set
          //
 
 
-        if ( imageWidth > gMaxScanlineWidth )
+        if ( imageWidth*bytesPerPixel*scanlinesInBuffer > gMaxBytesPerScanline )
         {
             widePart = true;
 
@@ -999,9 +1011,11 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
          MultiPartInputFile multi(source);
          Box2i b = multi.header(0).dataWindow();
          uint64_t imageWidth = static_cast<uint64_t>(b.max.x) - static_cast<uint64_t>(b.min.x) + 1ll;
+         uint64_t bytesPerPixel = calculateBytesPerPixel(multi.header(0));
+         uint64_t numLines = numLinesInBuffer(multi.header(0).compression());
 
          // confirm first part is small enough to read without using excessive memory
-         if ( imageWidth <= gMaxScanlineWidth )
+         if ( imageWidth*bytesPerPixel*numLines <= gMaxBytesPerScanline )
          {
              firstPartWide = false;
          }
