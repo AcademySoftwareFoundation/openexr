@@ -1,6 +1,6 @@
 # OpenEXR Release Notes
 
-* [Version 3.0.0-beta](#version-301-beta-march-26-2021) March 26, 2021
+* [Version 3.0.1-beta](#version-301-beta-march-26-2021) March 26, 2021
 * [Version 3.0.0-beta](#version-300-beta-march-16-2021) March 16, 2021
 * [Version 2.5.5](#version-255-february-12-2021) February 12, 2021
 * [Version 2.5.4](#version-254-december-31-2020) December 31, 2020
@@ -46,19 +46,14 @@
 Beta patch release:
 
 * OSS-fuzz [32370](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=32370) Out-of-memory in openexr_exrcheck_fuzzer
-
 * OSS-fuzz [32067](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=32067) account for size of pixels when estimating memory
 
 Merged Pull Requests:
 
 * [988](https://github.com/AcademySoftwareFoundation/openexr/pull/988) Remove deprecated argument to getChunkOffsetTableSize()
-
 * [987](https://github.com/AcademySoftwareFoundation/openexr/pull/987) exrcheck: reduceMemory now checks pixel size and scanline compression mode 
-
 * [980](https://github.com/AcademySoftwareFoundation/openexr/pull/980) Bazel cherry picks
-
 * [968](https://github.com/AcademySoftwareFoundation/openexr/pull/968) Fix typos in Int64/SInt64 deprecation warnings
-
 * [966](https://github.com/AcademySoftwareFoundation/openexr/pull/966) exrcheck: account for size of pixels when estimating memory
 
 ## Version 3.0.0-beta (March 16, 2021)
