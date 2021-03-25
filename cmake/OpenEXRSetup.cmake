@@ -252,9 +252,8 @@ endif()
 # Check to see if Imath is installed outside of the current build directory.
 set(IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING
     "Repo for auto-build of Imath")
-set(IMATH_TAG "master" CACHE STRING
+set(IMATH_TAG "v3.0.0-beta" CACHE STRING
     "Tag for auto-build of Imath (branch, tag, or SHA)")
-#TODO: ^^ Release should not clone from master, this is a place holder
 set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-build/config")
 find_package(Imath QUIET)
 set(CMAKE_IGNORE_PATH)
