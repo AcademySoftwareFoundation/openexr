@@ -561,7 +561,7 @@ makeTiled (const char inFileName[],
             // set tileDescription, type, and chunckcount for multipart
             //
             header.setType(TILEDIMAGE);
-            int chunkcount = getChunkOffsetTableSize(header, true);
+            int chunkcount = getChunkOffsetTableSize(header);
             header.setChunkCount(chunkcount);
 
             headers.push_back(header);

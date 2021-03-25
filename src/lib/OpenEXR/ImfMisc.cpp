@@ -1843,7 +1843,7 @@ int
 getTiledChunkOffsetTableSize(const Header& header);
 
 int
-getChunkOffsetTableSize(const Header& header,bool)
+getChunkOffsetTableSize(const Header& header)
 {
     //
     // if there is a type in the header which indicates the part is not a currently supported type,

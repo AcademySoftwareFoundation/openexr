@@ -442,7 +442,7 @@ bool usesLongNames (const Header &header);
 //
 
 IMF_EXPORT
-int getChunkOffsetTableSize(const Header& header,bool deprecated_attribute=false);
+int getChunkOffsetTableSize(const Header& header);
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
