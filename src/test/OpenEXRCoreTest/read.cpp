@@ -19,12 +19,12 @@
 #include <iomanip>
 #include <memory>
 
-static void err_cb( exr_file_t *f, int code, const char *msg )
+static void err_cb( exr_context_t f, int code, const char *msg )
 {
     std::cerr << "err_cb ERROR " << code << ": " << msg << std::endl;
 }
 
-int64_t dummyreadstream( exr_file_t *f, void *, void *, uint64_t, uint64_t,
+int64_t dummyreadstream( exr_context_t f, void *, void *, uint64_t, uint64_t,
                          exr_stream_error_func_ptr_t errcb )
 {
     return -1;
@@ -32,70 +32,76 @@ int64_t dummyreadstream( exr_file_t *f, void *, void *, uint64_t, uint64_t,
 
 void testReadBadArgs( const std::string &tempdir )
 {
-    exr_file_t *f;
+    exr_context_t f;
     std::string fn = tempdir + "invalid.exr";
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    cinit.error_handler_fn = &err_cb;
+
     assert(EXR_ERR_INVALID_ARGUMENT == exr_start_read( NULL, fn.c_str(), NULL ) );
     assert(EXR_ERR_INVALID_ARGUMENT == exr_start_read( &f, NULL, NULL ) );
-    assert(EXR_ERR_INVALID_ARGUMENT == exr_start_read( &f, NULL, &err_cb ) );
-
-    assert(EXR_ERR_INVALID_ARGUMENT == exr_start_read_stream(
-               &f, fn.c_str(), NULL, NULL, NULL, NULL, NULL ) );
-    assert(EXR_ERR_INVALID_ARGUMENT == exr_start_read_stream(
-               NULL, fn.c_str(), NULL, &dummyreadstream, NULL, NULL, NULL ) );
+    assert(EXR_ERR_INVALID_ARGUMENT == exr_start_read( &f, NULL, &cinit ) );
 
     assert(EXR_ERR_FILE_ACCESS == exr_start_read(
-               &f, fn.c_str(), &err_cb ) );
+               &f, fn.c_str(), &cinit ) );
 }
 
 void testReadBadFiles( const std::string &tempdir )
 {
-    exr_file_t *f;
+    exr_context_t f;
     std::string fn = ILM_IMF_TEST_IMAGEDIR;
     fn += "invalid.exr";
-    int rv;
-    rv = exr_start_read( &f, fn.c_str(), &err_cb );
+    exr_result_t rv;
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    cinit.error_handler_fn = &err_cb;
+
+    rv = exr_start_read( &f, fn.c_str(), &cinit );
     assert( rv != EXR_ERR_SUCCESS );
 }
 
 void testOpenScans( const std::string &tempdir )
 {
-    exr_file_t *f;
+    exr_context_t f;
     std::string fn = ILM_IMF_TEST_IMAGEDIR;
     fn += "v1.7.test.1.exr";
-    int rv;
-    rv = exr_start_read( &f, fn.c_str(), &err_cb );
+    exr_result_t rv;
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    cinit.error_handler_fn = &err_cb;
+
+    rv = exr_start_read( &f, fn.c_str(), &cinit );
     assert( rv == EXR_ERR_SUCCESS );
-    exr_close( &f );
+    exr_finish( &f );
 
     fn = ILM_IMF_TEST_IMAGEDIR;
     fn += "v1.7.test.planar.exr";
-    rv = exr_start_read( &f, fn.c_str(), &err_cb );
+    rv = exr_start_read( &f, fn.c_str(), &cinit );
     assert( rv == EXR_ERR_SUCCESS );
-    exr_close( &f );
+    exr_finish( &f );
 
     fn = ILM_IMF_TEST_IMAGEDIR;
     fn += "v1.7.test.interleaved.exr";
-    rv = exr_start_read( &f, fn.c_str(), &err_cb );
+    rv = exr_start_read( &f, fn.c_str(), &cinit );
     assert( rv == EXR_ERR_SUCCESS );
-    exr_close( &f );
+    exr_finish( &f );
 }
 
 void testOpenTiles( const std::string &tempdir )
 {
-    exr_file_t *f;
+    exr_context_t f;
     std::string fn = ILM_IMF_TEST_IMAGEDIR;
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    cinit.error_handler_fn = &err_cb;
 
     fn += "tiled.exr";
-    int rv;
-    rv = exr_start_read( &f, fn.c_str(), &err_cb );
+    exr_result_t rv;
+    rv = exr_start_read( &f, fn.c_str(), &cinit );
     assert( rv == EXR_ERR_SUCCESS );
-    exr_close( &f );
+    exr_finish( &f );
 
     fn = ILM_IMF_TEST_IMAGEDIR;
     fn += "v1.7.test.tiled.exr";
-    rv = exr_start_read( &f, fn.c_str(), &err_cb );
+    rv = exr_start_read( &f, fn.c_str(), &cinit );
     assert( rv == EXR_ERR_SUCCESS );
-    exr_close( &f );
+    exr_finish( &f );
 
 }
 
@@ -113,15 +119,20 @@ void testReadScans( const std::string &tempdir )
 
 void testReadTiles( const std::string &tempdir )
 {
-    exr_file_t *f;
+    exr_context_t f;
     std::string fn = ILM_IMF_TEST_IMAGEDIR;
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    cinit.error_handler_fn = &err_cb;
 
     fn += "v1.7.test.tiled.exr";
-    int rv;
-    rv = exr_start_read( &f, fn.c_str(), &err_cb );
+    exr_result_t rv;
+    rv = exr_start_read( &f, fn.c_str(), &cinit );
     assert( rv == EXR_ERR_SUCCESS );
 
-    assert( EXR_STORAGE_TILED == exr_get_part_storage( f, 0 ) );
+    exr_storage_t ps;
+    rv = exr_get_part_storage( f, 0, &ps );
+    assert( rv == EXR_ERR_SUCCESS );
+    assert( EXR_STORAGE_TILED == ps );
 
     int levelsx = -1, levelsy = -1;
     rv = exr_get_tile_levels( NULL, 0, &levelsx, &levelsy );
@@ -165,6 +176,7 @@ void testReadTiles( const std::string &tempdir )
     // actually read a tile...
     rv = exr_decode_chunk_init_tile( f, 0, &chunk, 4, 2, 0, 0, 1 );
     assert( rv == EXR_ERR_SUCCESS );
+    assert( chunk.own_scratch_buffers == 1 );
     assert( chunk.unpacked.size == exr_get_chunk_unpacked_size( f, 0 ) );
     assert( chunk.channel_count == 2 );
     assert( ! strcmp( chunk.channels[0].channel_name, "G" ) );
@@ -199,8 +211,10 @@ void testReadTiles( const std::string &tempdir )
 
     rv = exr_read_chunk( f, &chunk );
     assert( rv == EXR_ERR_SUCCESS );
-    assert( chunk.packed.buffer != NULL );
-    assert( chunk.unpacked.buffer != NULL );
+    // it is compression: none
+    assert( chunk.packed.buffer == NULL );
+    // it is compression: none
+    assert( chunk.unpacked.buffer == NULL );
     /* TODO: add actual comparison against C++ library */
     const uint16_t *curg = reinterpret_cast<const uint16_t *>( gptr.get() );
     const float *curz = reinterpret_cast<const float *>( zptr.get() );
@@ -214,8 +228,55 @@ void testReadTiles( const std::string &tempdir )
     //}
 
     exr_destroy_decode_chunk_info( &chunk );
-    exr_close( &f );
+    exr_finish( &f );
 
+    rv = exr_start_read( &f, "/home/kimball/Development/OSS/OpenEXR/kdt3rd/testmips.exr", &cinit );
+    assert( rv == EXR_ERR_SUCCESS );
+
+    exr_storage_t ps;
+    rv = exr_get_part_storage( f, 0, &ps );
+    assert( rv == EXR_ERR_SUCCESS );
+    assert( EXR_STORAGE_TILED == ps );
+
+    levelsx = -1;
+    levelsy = -1;
+    rv = exr_get_tile_levels( f, 0, &levelsx, &levelsy );
+    assert( rv == 0 );
+    assert( levelsx == 11 );
+    assert( levelsy == 11 );
+    
+    rv = exr_get_tile_sizes( f, 0, 0, 0, &levelsx, &levelsy );
+    assert( rv == EXR_ERR_SUCCESS );
+    assert( levelsx == 32 );
+    assert( levelsy == 32 );
+
+    rv = exr_get_tile_sizes( f, 0, 10, 10, &levelsx, &levelsy );
+    assert( rv == EXR_ERR_SUCCESS );
+    assert( levelsx == 1 );
+    assert( levelsy == 1 );
+
+    rv = exr_decode_chunk_init_tile( f, 0, &chunk, 4, 2, 0, 0, 1 );
+
+    assert( rv == EXR_ERR_SUCCESS );
+    assert( chunk.unpacked.size == exr_get_chunk_unpacked_size( f, 0 ) );
+    assert( chunk.channel_count == 3 );
+    exr_destroy_decode_chunk_info( &chunk );
+
+    rv = exr_decode_chunk_init_tile( f, 0, &chunk, 0, 0, 10, 10, 1 );
+    assert( rv == EXR_ERR_SUCCESS );
+    assert( chunk.unpacked.size == 1*1*2*3 );
+    assert( chunk.channel_count == 3 );
+    assert( chunk.width == 1 );
+    assert( chunk.height == 1 );
+    assert( chunk.channels[0].width == 1 );
+    assert( chunk.channels[0].height == 1 );
+    assert( chunk.channels[1].width == 1 );
+    assert( chunk.channels[1].height == 1 );
+    assert( chunk.channels[2].width == 1 );
+    assert( chunk.channels[2].height == 1 );
+
+    exr_destroy_decode_chunk_info( &chunk );
+    exr_finish( &f );
 }
 
 void testReadMultiPart( const std::string &tempdir )

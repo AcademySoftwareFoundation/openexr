@@ -36,7 +36,7 @@ typedef struct
  * attr_string_destroy to free any string prior to calling init
  */
 EXR_EXPORT int exr_attr_string_init(
-    exr_file_t *f, exr_attr_string_t *s, int32_t length );
+    exr_context_t *ctxt, exr_attr_string_t *s, int32_t length );
 
 /** Initializes a string with a static string (will not be freed)
  *
@@ -47,14 +47,14 @@ EXR_EXPORT int exr_attr_string_init(
  * attr_string_destroy to free any string prior to calling init
  */
 EXR_EXPORT int exr_attr_string_init_static_with_length(
-    exr_file_t *f, exr_attr_string_t *s, const char *v, int32_t length );
+    exr_context_t *ctxt, exr_attr_string_t *s, const char *v, int32_t length );
 
 /** Initializes a string with a static string (will not be freed).
  *
  * passes through to attr_string_init_static_with_length
  */
 EXR_EXPORT int exr_attr_string_init_static(
-    exr_file_t *f, exr_attr_string_t *s, const char *v );
+    exr_context_t *ctxt, exr_attr_string_t *s, const char *v );
 
 /** Initializes and assigns a string value to the string with a precomputed length
  *
@@ -62,25 +62,25 @@ EXR_EXPORT int exr_attr_string_init_static(
  * attr_string_destroy to free any string prior to calling init
  */
 EXR_EXPORT int exr_attr_string_create_with_length(
-    exr_file_t *f, exr_attr_string_t *s, const char *v, int32_t length );
+    exr_context_t *ctxt, exr_attr_string_t *s, const char *v, int32_t length );
 /** Initializes and assigns a string value to the string
  *
  * This function assumes the string is uninitialized, so make sure use
  * attr_string_destroy to free any string prior to calling init
  */
 EXR_EXPORT int exr_attr_string_create(
-    exr_file_t *f, exr_attr_string_t *s, const char *v );
+    exr_context_t *ctxt, exr_attr_string_t *s, const char *v );
 
 /** Assigns a string value to the string given a precomputed length, potentially resizing it */
 EXR_EXPORT int exr_attr_string_set_with_length(
-    exr_file_t *f, exr_attr_string_t *s, const char *v, int32_t length );
+    exr_context_t *ctxt, exr_attr_string_t *s, const char *v, int32_t length );
 
 /** Assigns a string value to the string, potentially resizing it */
 EXR_EXPORT int exr_attr_string_set(
-    exr_file_t *f, exr_attr_string_t *s, const char *v );
+    exr_context_t *ctxt, exr_attr_string_t *s, const char *v );
 
 /** Frees any owned memory associated with the string */
-EXR_EXPORT void exr_attr_string_destroy( exr_attr_string_t *s );
+EXR_EXPORT void exr_attr_string_destroy( exr_context_t *ctxt, exr_attr_string_t *s );
     
 /** @} */
 

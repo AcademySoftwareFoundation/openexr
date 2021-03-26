@@ -91,51 +91,48 @@ void testBaseErrors( const std::string &tempdir )
 
 void testBaseLimits( const std::string &tempdir )
 {
-    exr_set_maximum_image_size( 42, 42 );
-    if ( exr_get_maximum_image_width() != 42 ||
-         exr_get_maximum_image_height() != 42 )
+    int mxw, mxh;
+    exr_set_default_maximum_image_size( 42, 42 );
+    exr_get_default_maximum_image_size( &mxw, &mxh );
+    if ( mxw != 42 || mxh != 42 )
     {
-        std::cerr << "Unable to set_maximum_image_size: 42, 42 -> "
-                  << exr_get_maximum_image_width() << ", "
-                  << exr_get_maximum_image_height() << std::endl;
+        std::cerr << "Unable to set_default_maximum_image_size: 42, 42 -> "
+                  << mxw << ", " << mxh << std::endl;
         assert(false);
     }
-    exr_set_maximum_image_size( -1, -1 );
-    if ( exr_get_maximum_image_width() != 42 ||
-         exr_get_maximum_image_height() != 42 )
+    exr_set_default_maximum_image_size( -1, -1 );
+    exr_get_default_maximum_image_size( &mxw, &mxh );
+    if ( mxw != 42 || mxh != 42 )
     {
-        std::cerr << "Invalid request not ignored to set_maximum_image_size: 42, 42 -> "
-                  << exr_get_maximum_image_width() << ", "
-                  << exr_get_maximum_image_height() << std::endl;
+        std::cerr << "Invalid request not ignored to set_default_maximum_image_size: 42, 42 -> "
+                  << mxw << ", " << mxh << std::endl;
         assert(false);
     }
 
-    exr_set_maximum_tile_size( 128, 128 );
-    if ( exr_get_maximum_tile_width() != 128 ||
-         exr_get_maximum_tile_height() != 128 )
+    exr_set_default_maximum_tile_size( 128, 128 );
+    exr_get_default_maximum_tile_size( &mxw, &mxh );
+    if ( mxw != 128 || mxh != 128 )
     {
-        std::cerr << "Unable to set_maximum_tile_size: 128, 128 -> "
-                  << exr_get_maximum_tile_width() << ", "
-                  << exr_get_maximum_tile_height() << std::endl;
+        std::cerr << "Unable to set_default_maximum_tile_size: 128, 128 -> "
+                  << mxw << ", " << mxh << std::endl;
         assert(false);
     }
-    exr_set_maximum_tile_size( -1, -1 );
-    if ( exr_get_maximum_tile_width() != 128 ||
-         exr_get_maximum_tile_height() != 128 )
+    exr_set_default_maximum_tile_size( -1, -1 );
+    exr_get_default_maximum_tile_size( &mxw, &mxh );
+    if ( mxw != 128 || mxh != 128 )
     {
-        std::cerr << "Invalid request not ignored to set_maximum_image_size: 128, 128 -> "
-                  << exr_get_maximum_tile_width() << ", "
-                  << exr_get_maximum_tile_height() << std::endl;
+        std::cerr << "Invalid request not ignored to set_default_maximum_image_size: 128, 128 -> "
+                  << mxw << ", " << mxh << std::endl;
         assert(false);
     }
-    exr_set_maximum_image_size( 0, 0 );
-    exr_set_maximum_tile_size( 0, 0 );
+    exr_set_default_maximum_image_size( 0, 0 );
+    exr_set_default_maximum_tile_size( 0, 0 );
 }
 
 void testBaseDebug( const std::string &tempdir )
 {
-    exr_file_t *f = NULL;
+    exr_context_t c = NULL;
     // make sure we don't crash with null file handle (there should be error prints)
-    exr_print_info( NULL, 0 );
-    exr_print_info( f, 0 );
+    exr_print_context_info( NULL, 0 );
+    exr_print_context_info( c, 0 );
 }

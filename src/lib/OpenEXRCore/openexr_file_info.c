@@ -55,7 +55,7 @@ const char * exr_get_part_name(
 
 /**************************************/
 
-exr_STORAGE_TYPE_t exr_get_part_storage(
+exr_storage_t exr_get_part_storage(
     exr_file_t *file,
     int part_index )
 {

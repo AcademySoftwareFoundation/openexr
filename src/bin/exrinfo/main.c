@@ -23,16 +23,16 @@ usage( const char *argv0 )
 	fprintf( stderr, "Usage: %s [-v|--verbose] <filename> [<filename> ...]\n\n", argv0 );
 }
 
-static void error_handler_cb( exr_file_t *f, int code, const char *msg )
+static void error_handler_cb( exr_context_t f, int code, const char *msg )
 {
-    const char *fn = "<error>";
-    if ( f )
-        fn = exr_get_file_name( f );
+    const char *fn;
+    if ( EXR_ERR_SUCCESS != exr_get_file_name( f, &fn ) )
+        fn = "<error>";
 	fprintf( stderr, "ERROR '%s' (%d): %s\n", fn, code, msg );
 }
 
 static int64_t stdin_reader(
-    exr_file_t *file,
+    exr_context_t file,
     void *userdata, void *buffer, uint64_t sz, uint64_t offset,
     exr_stream_error_func_ptr_t error_cb )
 {
@@ -62,16 +62,19 @@ static int64_t stdin_reader(
 static int process_stdin( int verbose )
 {
     int rv;
-    exr_file_t *e = NULL;
+    exr_context_t e = NULL;
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    cinit.error_handler_fn = &error_handler_cb;
+    cinit.read_fn = &stdin_reader;
 
 #ifdef _WIN32
     _setmode( _fileno(stdin), _O_BINARY );
 #endif
-    rv = exr_start_read_stream( &e, "<stdin>", NULL, stdin_reader, NULL, NULL, error_handler_cb );
-	if ( rv == 0 )
+    rv = exr_start_read( &e, "<stdin>", &cinit );
+	if ( rv == EXR_ERR_SUCCESS )
 	{
-        exr_print_info( e, verbose );
-		exr_close( &e );
+        exr_print_context_info( e, verbose );
+		exr_finish( &e );
     }
     return rv;
 }
@@ -79,13 +82,15 @@ static int process_stdin( int verbose )
 static int process_file( const char *filename, int verbose )
 {
     int rv;
-    exr_file_t *e = NULL;
+    exr_context_t e = NULL;
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    cinit.error_handler_fn = &error_handler_cb;
 
-    rv = exr_start_read( &e, filename, error_handler_cb );
+    rv = exr_start_read( &e, filename, &cinit );
 	if ( rv == 0 )
 	{
         exr_print_info( e, verbose );
-		exr_close( &e );
+		exr_finish( &e );
     }
     return rv;
 }

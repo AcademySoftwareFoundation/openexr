@@ -620,8 +620,8 @@ int exr_decode_chunk_init_tile(
     else
     {
         cinfo->packed.size = tdata[4];
-        cinfo->unpacked.size = part->unpacked_size_per_chunk;
-        cinfo->spare.size = part->unpacked_size_per_chunk;
+        cinfo->unpacked.size = unpacksize;
+        cinfo->spare.size = unpacksize;
         cinfo->chunk_data_offset = dataoff;
     }
 
@@ -1161,9 +1161,9 @@ int exr_read_chunk(
                 return EXR_ERR_SUCCESS;
             }
         }
-        rv = exr_decompress_data( f, (exr_COMPRESSION_TYPE_t)cinfo->chunk_compression,
-                                       cinfo->packed.buffer, cinfo->packed.size,
-                                       cinfo->unpacked.buffer, cinfo->unpacked.size );
+        rv = exr_decompress_data( f, (exr_compression_t)cinfo->chunk_compression,
+                                  cinfo->packed.buffer, cinfo->packed.size,
+                                  cinfo->unpacked.buffer, cinfo->unpacked.size );
 
         if ( chanstofill > 0 )
             unpack_data( f, cinfo, cinfo->unpacked.buffer, chanstofill, samebpc, hassampling );

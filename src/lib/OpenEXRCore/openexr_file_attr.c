@@ -50,7 +50,7 @@ exr_attribute_list_t *exr_get_attribute_list(
 
 /**************************************/
 
-int exr_attr_declare_by_type(
+exr_result_t exr_attr_declare_by_type(
     exr_file_t *file,
     int part_index,
     const char *name,
@@ -77,7 +77,7 @@ int exr_attr_declare_by_type(
 
 /**************************************/
 
-int exr_attr_declare(
+exr_result_t exr_attr_declare(
     exr_file_t *file,
     int part_index,
     const char *name,

@@ -296,7 +296,7 @@ EXR_EXPORT int exr_read_chunk(
  */
 EXR_EXPORT int exr_decompress_data(
     exr_file_t *f,
-    const exr_COMPRESSION_TYPE_t ctype,
+    const exr_compression_t ctype,
     void *compressed_data, size_t comp_buf_size,
     void *uncompressed_data, size_t uncompressed_size );
 

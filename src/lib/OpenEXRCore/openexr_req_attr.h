@@ -32,6 +32,7 @@ EXR_EXPORT int exr_add_channels(
     exr_PIXEL_TYPE_t ptype,
     uint8_t islinear,
     int32_t xsamp, int32_t ysamp );
+
 /** @brief Copies the files from a source.
  *
  * Useful if you are manually constructing the list or simply copying
@@ -41,11 +42,11 @@ EXR_EXPORT int exr_set_channels(
     const exr_attr_chlist_t *channels );
 
 /** @brief Retrieves the compression method used for the specified part (use 0 for single part images). */
-EXR_EXPORT exr_COMPRESSION_TYPE_t exr_get_compression(
+EXR_EXPORT exr_compression_t exr_get_compression(
     exr_file_t *file, int part_index );
 /** @brief Sets the compression method used for the specified part (use 0 for single part images). */
 EXR_EXPORT int exr_set_compression(
-    exr_file_t *file, int part_index, exr_COMPRESSION_TYPE_t ctype );
+    exr_file_t *file, int part_index, exr_compression_t ctype );
 
 /** @brief Retrieves the data window for the specified part (use 0 for single part images). */
 EXR_EXPORT exr_attr_box2i_t exr_get_data_window(
@@ -64,11 +65,11 @@ EXR_EXPORT int exr_set_display_window(
     int32_t x_min, int32_t y_min, int32_t x_max, int32_t y_max );
 
 /** @brief Retrieves the line order for storing data in the specified part (use 0 for single part images). */
-EXR_EXPORT exr_LINEORDER_TYPE_t exr_get_line_order(
+EXR_EXPORT exr_lineorder_t exr_get_line_order(
     exr_file_t *file, int part_index );
 /** @brief Sets the line order for storing data in the specified part (use 0 for single part images). */
 EXR_EXPORT int exr_set_line_order(
-    exr_file_t *file, int part_index, exr_LINEORDER_TYPE_t lo );
+    exr_file_t *file, int part_index, exr_lineorder_t lo );
 
 /** @brief Retrieves the pixel aspect ratio for the specified part (use 0 for single part images). */
 EXR_EXPORT float exr_get_pixel_aspect_ratio(

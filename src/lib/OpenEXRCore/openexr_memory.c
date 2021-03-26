@@ -18,7 +18,7 @@ static exr_memory_free_func_t _glob_free_func = NULL;
 
 /**************************************/
 
-void exr_set_memory_routines(
+void exr_set_default_memory_routines(
     exr_memory_allocation_func_t alloc_func,
     exr_memory_free_func_t free_func )
 {

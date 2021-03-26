@@ -30,7 +30,7 @@ EXR_EXPORT int exr_set_longname_support(
 EXR_EXPORT int exr_add_part(
     exr_file_t *file,
     const char *partname,
-    exr_STORAGE_TYPE_t type,
+    exr_storage_t type,
     exr_attribute_list_t *attrs,
     int adopt_attr_ownership );
 
@@ -63,7 +63,7 @@ EXR_EXPORT int exr_add_simple_part(
     const char *partname,
     int numchans,
     exr_PIXEL_TYPE_t pixtype,
-    exr_COMPRESSION_TYPE_t compression,
+    exr_compression_t compression,
     int x_min,
     int y_min,
     int x_max,

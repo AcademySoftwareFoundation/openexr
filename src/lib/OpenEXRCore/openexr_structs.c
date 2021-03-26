@@ -3,278 +3,369 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
-#include "openexr_priv_structs.h"
-#include "openexr_priv_memory.h"
 #include "openexr_priv_constants.h"
+#include "openexr_priv_memory.h"
+#include "openexr_priv_structs.h"
 
-#include <IlmBaseConfig.h>
+#include "openexr_base.h"
 
-#include <stdio.h>
+#include <IlmThreadConfig.h>
+
 #include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 
-#ifdef ILMBASE_THREADING_ENABLED
-#  ifdef _WIN32
-#    include <synchapi.h>
-#  else
-#    include <pthread.h>
-#  endif
+#ifdef ILMTHREAD_THREADING_ENABLED
+#    ifdef _WIN32
+#        include <synchapi.h>
+#    else
+#        include <pthread.h>
+#    endif
 #endif
 
 /**************************************/
 
-static int default_error_cb( exr_file_t *f, int code, const char *msg )
+static exr_result_t
+default_error_handler (
+    const exr_context_t ctxt, exr_result_t code, const char* msg)
 {
-    exr_PRIV_FILE_t *file = EXR_GETFILE(f);
+    const struct _internal_exr_context* pctxt = EXR_CCTXT (ctxt);
+
 #ifdef ILMBASE_THREADING_ENABLED
-#  ifdef _WIN32
+#    ifdef _WIN32
     static CRITICAL_SECTION sMutex;
-    volatile static long initialized = 0;
-    if ( InterlockedIncrement( &initialized ) == 1 )
-        InitializeCriticalSection( &sMutex );
+    volatile static long    initialized = 0;
+    if (InterlockedIncrement (&initialized) == 1)
+        InitializeCriticalSection (&sMutex);
     initialized = 1; // avoids overflow on long running programs...
-#  else
+#    else
     static pthread_mutex_t sMutex = PTHREAD_MUTEX_INITIALIZER;
-#  endif
+#    endif
 #endif
-
-    if ( file && file->error_cb )
-    {
-        file->error_cb( file, code, msg );
-        return code;
-    }
 
 #ifdef ILMBASE_THREADING_ENABLED
-#  ifdef _WIN32
-    EnterCriticalSection( &sMutex );
-#  else
-    pthread_mutex_lock( &sMutex );
-#  endif
+#    ifdef _WIN32
+    EnterCriticalSection (&sMutex);
+#    else
+    pthread_mutex_lock (&sMutex);
+#    endif
 #endif
-    if ( file )
+    if (pctxt)
     {
-        if ( file->filename.str )
-            fprintf( stderr, "%s: %s\n", file->filename.str, msg );
+        if (pctxt->filename.str)
+            fprintf (stderr, "%s: %s\n", pctxt->filename.str, msg);
         else
-            fprintf( stderr, "File 0x%p: %s\n", (void *)file, msg );
+            fprintf (stderr, "File 0x%p: %s\n", (void*) ctxt, msg);
     }
     else
-        fprintf( stderr, "<ERROR>: %s\n", msg );
-    fflush( stderr );
+        fprintf (stderr, "<ERROR>: %s\n", msg);
+    fflush (stderr);
 
 #ifdef ILMBASE_THREADING_ENABLED
-#  ifdef _WIN32
-    LeaveCriticalSection( &sMutex );
-#  else
-    pthread_mutex_unlock( &sMutex );
-#  endif
+#    ifdef _WIN32
+    LeaveCriticalSection (&sMutex);
+#    else
+    pthread_mutex_unlock (&sMutex);
+#    endif
 #endif
     return code;
 }
 
-static int dispatch_error( exr_file_t *f, int code, const char *msg )
+static exr_result_t
+dispatch_error (const exr_context_t ctxt, exr_result_t code, const char* msg)
 {
-    exr_PRIV_FILE_t *file = EXR_GETFILE(f);
-    if ( file && file->error_cb )
+    if (ctxt)
     {
-        file->error_cb( file, code, msg );
+        EXR_CCTXT (ctxt)->error_handler_fn (ctxt, code, msg);
         return code;
     }
 
-    return default_error_cb( f, code, msg );
+    return default_error_handler (ctxt, code, msg);
 }
 
 /**************************************/
 
-static int dispatch_standard_error( exr_file_t *file, int code )
+static exr_result_t
+dispatch_standard_error (const exr_context_t ctxt, exr_result_t code)
 {
-    return dispatch_error( file, code, exr_get_default_error_message( code ) );
+    return dispatch_error (ctxt, code, exr_get_default_error_message (code));
 }
 
 /**************************************/
 
-static int dispatch_print_error( exr_file_t *file, int code, const char *msg, ... ) EXR_PRINTF_FUNC_ATTRIBUTE;
-static int dispatch_print_error( exr_file_t *f, int code, const char *msg, ... )
-{
-    exr_PRIV_FILE_t *file = EXR_GETFILE(f);
-    char stackbuf[256];
-    char *heapbuf = NULL;
-    int nwrit = 0;
-    va_list fmtargs;
+static exr_result_t dispatch_print_error (
+    const exr_context_t ctxt, exr_result_t code, const char* msg, ...)
+    EXR_PRINTF_FUNC_ATTRIBUTE;
 
-    va_start( fmtargs, msg );
+static exr_result_t
+dispatch_print_error (
+    const exr_context_t ctxt, exr_result_t code, const char* msg, ...)
+{
+    const struct _internal_exr_context* pctxt = EXR_CCTXT (ctxt);
+    char                                  stackbuf[256];
+    char*                                 heapbuf = NULL;
+    int                                   nwrit   = 0;
+    va_list                               fmtargs;
+
+    va_start (fmtargs, msg);
     {
         va_list stkargs;
 
-        va_copy( stkargs, fmtargs );
-        nwrit = vsnprintf( stackbuf, 256, msg, stkargs );
-        va_end( stkargs );
-        if ( nwrit >= 256 )
+        va_copy (stkargs, fmtargs);
+        nwrit = vsnprintf (stackbuf, 256, msg, stkargs);
+        va_end (stkargs);
+        if (nwrit >= 256)
         {
-            heapbuf = priv_alloc( nwrit + 1 );
-            if ( heapbuf )
+            heapbuf = pctxt->alloc_fn (nwrit + 1);
+            if (heapbuf)
             {
-                (void)vsnprintf( heapbuf, nwrit + 1, msg, fmtargs );
-                dispatch_error( file, code, heapbuf );
-                priv_free( heapbuf );
+                (void) vsnprintf (heapbuf, nwrit + 1, msg, fmtargs);
+                dispatch_error (ctxt, code, heapbuf);
+                pctxt->free_fn (heapbuf);
             }
             else
-                dispatch_error( file, code, "Unable to allocate temporary memory" );
+                dispatch_error (
+                    ctxt, code, "Unable to allocate temporary memory");
         }
         else
-            dispatch_error( file, code, stackbuf );
+            dispatch_error (ctxt, code, stackbuf);
     }
-    va_end( fmtargs );
+    va_end (fmtargs);
     return code;
 }
 
 /**************************************/
 
-static void priv_destroy_parts( exr_PRIV_FILE_t *f )
+static void
+internal_exr_destroy_parts (struct _internal_exr_context* ctxt)
 {
-    uint64_t *ctable;
-    exr_PRIV_PART_t nil = {0};
-    for ( int p = 0; p < f->num_parts; ++p )
-    {
-        exr_PRIV_PART_t *cur = f->parts[p];
+    uint64_t*              ctable;
+    exr_memory_free_func_t dofree = ctxt->free_fn;
 
-        exr_attr_list_destroy( &(cur->attributes) );
+    for (int p = 0; p < ctxt->num_parts; ++p)
+    {
+        struct _internal_exr_part* cur = ctxt->parts[p];
+
+        exr_attr_list_destroy (&(cur->attributes));
 
         /* we stack x and y together so only have to free the first */
-        priv_free( cur->tile_level_tile_count_x );
+        if (cur->tile_level_tile_count_x) dofree (cur->tile_level_tile_count_x);
 
-        ctable = (uint64_t *)atomic_load( &(cur->chunk_table) );
-        priv_free( ctable );
+        ctable = (uint64_t*) atomic_load (&(cur->chunk_table));
+        if (ctable) dofree (ctable);
 
         /* the first one is always the one that is part of the file */
-        if ( p > 0 )
-        {
-            priv_free( cur );
-        }
+        if (p > 0) { dofree (cur); }
         else
         {
-            *cur = nil;
+            memset (cur, 0, sizeof (struct _internal_exr_part));
         }
     }
 
-    if ( f->num_parts > 1 )
-        priv_free( f->parts );
-    f->parts = NULL;
-    f->num_parts = 0;
+    if (ctxt->num_parts > 1) dofree (ctxt->parts);
+    ctxt->parts     = NULL;
+    ctxt->num_parts = 0;
 }
 
 /**************************************/
 
-int priv_add_part( exr_PRIV_FILE_t *f, exr_PRIV_PART_t **outpart )
+int
+internal_exr_add_part (
+    struct _internal_exr_context* f, struct _internal_exr_part** outpart)
 {
-    int ncount = f->num_parts + 1;
-    exr_PRIV_PART_t *part;
-    exr_PRIV_PART_t **nptrs = NULL;
+    int                         ncount = f->num_parts + 1;
+    struct _internal_exr_part*  part;
+    struct _internal_exr_part** nptrs = NULL;
 
-    if ( ncount == 1 )
+    if (ncount == 1)
     {
         /* no need to zilch, the parent struct will have already been zero'ed */
-        part = &(f->first_part);
+        part         = &(f->first_part);
         f->init_part = part;
-        nptrs = &(f->init_part);
+        nptrs        = &(f->init_part);
     }
     else
     {
-        exr_PRIV_PART_t nil = {0};
+        struct _internal_exr_part nil = { 0 };
 
-        part = priv_alloc( sizeof(exr_PRIV_PART_t) );
-        if ( ! part )
-            return f->standard_error( (exr_file_t *)f, EXR_ERR_OUT_OF_MEMORY );
+        part = priv_alloc (sizeof (struct _internal_exr_part));
+        if (!part)
+            return f->standard_error (
+                (const exr_context_t) f, EXR_ERR_OUT_OF_MEMORY);
 
-        nptrs = priv_alloc( sizeof(exr_PRIV_PART_t *) * ncount );
-        if ( ! nptrs )
+        nptrs = priv_alloc (sizeof (struct _internal_exr_part*) * ncount);
+        if (!nptrs)
         {
-            priv_free( part );
-            return f->standard_error( (exr_file_t *)f, EXR_ERR_OUT_OF_MEMORY );
+            priv_free (part);
+            return f->standard_error (
+                (const exr_context_t) f, EXR_ERR_OUT_OF_MEMORY);
         }
         *part = nil;
     }
 
     /* assign appropriately invalid values */
-    part->storage_mode = EXR_STORAGE_LAST_TYPE;
-    part->data_window.x_max = -1;
-    part->data_window.y_max = -1;
+    part->storage_mode         = EXR_STORAGE_LAST_TYPE;
+    part->data_window.x_max    = -1;
+    part->data_window.y_max    = -1;
     part->display_window.x_max = -1;
     part->display_window.y_max = -1;
-    part->chunk_count = -1;
+    part->chunk_count          = -1;
 
     /* put it into the part table */
-    if ( ncount > 1 )
+    if (ncount > 1)
     {
-        for ( int p = 0; p < f->num_parts; ++p )
+        for (int p = 0; p < f->num_parts; ++p)
         {
             nptrs[p] = f->parts[p];
         }
         nptrs[ncount - 1] = part;
     }
 
-    if ( f->num_parts > 1 )
-    {
-        priv_free( f->parts );
-    }
-    f->parts = nptrs;
+    if (f->num_parts > 1) { priv_free (f->parts); }
+    f->parts     = nptrs;
     f->num_parts = ncount;
-    if ( outpart )
-        *outpart = part;
+    if (outpart) *outpart = part;
 
     return EXR_ERR_SUCCESS;
 }
 
 /**************************************/
 
-int priv_create_file( exr_PRIV_FILE_t **out, exr_error_handler_cb_t errcb, uint64_t userdatasz, int isread )
+exr_result_t
+internal_exr_alloc_context (
+    struct _internal_exr_context** out,
+    const exr_context_initializer_t* initializers,
+    enum _INTERNAL_EXR_CONTEXT_MODE  mode,
+    size_t                           default_size)
 {
-    uint8_t *ptr;
-    exr_PRIV_FILE_t *ret, nil = {0};
+    void*                           memptr;
+    exr_result_t                    rv;
+    struct _internal_exr_context* ret;
+    *out = NULL;
+    int    gmaxw, gmaxh;
+    size_t extra_data;
 
-    ptr = (uint8_t *)priv_alloc( sizeof(*ret) + userdatasz );
-    if ( ptr == NULL )
+    if (initializers->read_fn || initializers->write_fn)
+        extra_data = 0;
+    else
+        extra_data = default_size;
+
+    memptr = (initializers->alloc_fn) (
+        sizeof (struct _internal_exr_context) + extra_data);
+    if (memptr)
     {
-        if ( errcb )
-            (*errcb)( NULL, EXR_ERR_OUT_OF_MEMORY,
-                      exr_get_default_error_message( EXR_ERR_OUT_OF_MEMORY ) );
-        return EXR_ERR_OUT_OF_MEMORY;
+        memset (memptr, 0, sizeof (struct _internal_exr_context));
+
+        ret       = memptr;
+        ret->mode = mode;
+        if (initializers->read_fn || initializers->write_fn)
+            ret->user_data = initializers->user_data;
+        else if (extra_data > 0)
+            ret->user_data =
+                (((uint8_t*) memptr) + sizeof (struct _internal_exr_context));
+
+        ret->standard_error   = &dispatch_standard_error;
+        ret->report_error     = &dispatch_error;
+        ret->print_error      = &dispatch_print_error;
+        ret->error_handler_fn = initializers->error_handler_fn;
+        ret->alloc_fn         = initializers->alloc_fn;
+        ret->free_fn          = initializers->free_fn;
+
+        exr_get_default_maximum_image_size (&gmaxw, &gmaxh);
+        if (initializers->max_image_width <= 0)
+            ret->max_image_w = gmaxw;
+        else
+            ret->max_image_w = initializers->max_image_width;
+        if (ret->max_image_w > 0 && gmaxw > 0 && ret->max_image_w &&
+            ret->max_image_w > gmaxw)
+            ret->max_image_w = gmaxw;
+
+        if (initializers->max_image_height <= 0)
+            ret->max_image_h = gmaxh;
+        else
+            ret->max_image_h = initializers->max_image_height;
+        if (ret->max_image_h > 0 && gmaxh > 0 && ret->max_image_h &&
+            ret->max_image_h > gmaxh)
+            ret->max_image_h = gmaxh;
+
+        exr_get_default_maximum_tile_size (&gmaxw, &gmaxh);
+        if (initializers->max_tile_width <= 0)
+            ret->max_tile_w = gmaxw;
+        else
+            ret->max_tile_w = initializers->max_tile_width;
+        if (ret->max_tile_w > 0 && gmaxw > 0 && ret->max_tile_w &&
+            ret->max_tile_w > gmaxw)
+            ret->max_tile_w = gmaxw;
+
+        if (initializers->max_tile_height <= 0)
+            ret->max_tile_h = gmaxh;
+        else
+            ret->max_tile_h = initializers->max_tile_height;
+        if (ret->max_tile_h > 0 && gmaxh > 0 && ret->max_tile_h &&
+            ret->max_tile_h > gmaxh)
+            ret->max_tile_h = gmaxh;
+
+        ret->file_size       = -1;
+        ret->max_name_length = EXR_SHORTNAME_MAXLEN;
+
+        ret->destroy_fn = initializers->destroy_fn;
+        ret->read_fn    = initializers->read_fn;
+        ret->write_fn   = initializers->write_fn;
+
+        *out = ret;
+        rv   = EXR_ERR_SUCCESS;
+
+        /* if we are reading the file, go ahead and set up the first
+         * part to make parsing logic easier */
+        if (mode != EXR_CONTEXT_WRITE)
+        {
+            struct _internal_exr_part* part;
+            rv = internal_exr_add_part (ret, &part);
+            if (rv != EXR_ERR_SUCCESS)
+            {
+                /* this should never happen since we reserve space for
+                 * one in the struct, but maybe we changed
+                 * something */
+                (initializers->free_fn) (memptr);
+                *out = NULL;
+            }
+        }
     }
-    ret = (exr_PRIV_FILE_t *)ptr;
-    *ret = nil;
-
-    if ( userdatasz > 0 )
-        ret->user_data = ptr + sizeof(*ret);
-    ret->error_cb = errcb;
-
-    ret->standard_error = &dispatch_standard_error;
-    ret->report_error = &dispatch_error;
-    ret->print_error = &dispatch_print_error;
-
-    ret->file_size = -1;
-    ret->max_name_length = EXR_SHORTNAME_MAXLEN;
-
-    /* the first part will have been nil'ed out by our 0 struct,
-     * but set properly invalid arguments */
-    if ( isread )
+    else
     {
-        exr_PRIV_PART_t *part;
-        /* we know it won't be allocating, so there won't be anything to fail */
-        priv_add_part( ret, &part );
+        (initializers->error_handler_fn) (
+            NULL,
+            EXR_ERR_OUT_OF_MEMORY,
+            exr_get_default_error_message (EXR_ERR_OUT_OF_MEMORY));
+        rv = EXR_ERR_OUT_OF_MEMORY;
     }
 
-    *out = ret;
-    return EXR_ERR_SUCCESS;
+    return rv;
 }
 
 /**************************************/
 
-void priv_destroy_file( exr_PRIV_FILE_t *pf )
+void
+internal_exr_destroy_context (struct _internal_exr_context* ctxt)
 {
-    exr_attr_string_destroy( &(pf->filename) );
-    exr_attr_string_destroy( &(pf->tmp_filename) );
-    exr_attr_list_destroy( &(pf->custom_handlers) );
-    priv_destroy_parts( pf );
+    exr_memory_free_func_t dofree = ctxt->free_fn;
 
-    priv_free( pf );
+    exr_attr_string_destroy (&(ctxt->filename));
+    exr_attr_string_destroy (&(ctxt->tmp_filename));
+    exr_attr_list_destroy (&(ctxt->custom_handlers));
+    internal_exr_destroy_parts (ctxt);
+
+    dofree (ctxt);
+}
+
+/**************************************/
+
+void
+internal_exr_update_default_handlers (exr_context_initializer_t* inits)
+{
+    if (!inits->error_handler_fn)
+        inits->error_handler_fn = &default_error_handler;
+
+    if (!inits->alloc_fn) inits->alloc_fn = &priv_alloc;
+    if (!inits->free_fn) inits->free_fn = &priv_free;
 }

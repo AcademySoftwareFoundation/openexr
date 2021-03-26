@@ -6,11 +6,9 @@
 #ifndef OPENEXR_BASE_H
 #define OPENEXR_BASE_H
 
-#include <sys/types.h>
-#include <stddef.h>
-#include <stdint.h>
-
 #include "openexr_conf.h"
+
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,110 +16,141 @@ extern "C" {
 
 /** @brief Retrieve the current library version. The 'extra' string is for
  *  custom installs, and is a static string, do not free the returned pointer */
-EXR_EXPORT void exr_get_library_version( int *maj, int *min, int *patch, const char **extra );
-
-/** Opaque file handle
- *
- * The implementation of this is 'hidden', all accesses to relevant
- * file data should happen using provided functions for version
- * portability. This handle serves as a container and identifier
- * for all the metadata and parts associated with a file
- */
-typedef struct _priv_exr_file_t exr_file_t;
+EXR_EXPORT void
+exr_get_library_version (int* maj, int* min, int* patch, const char** extra);
 
 /** 
- * @defgroup error related definitions
- * @brief These are a group of definitons related to error handling
+ * @defgroup SafetyChecks Controls for internal safety checks
  * @{
  */
 
-/** error codes that may be returned by various functions */
-typedef enum
-{
-    EXR_ERR_SUCCESS = 0,
-    EXR_ERR_OUT_OF_MEMORY,
-    EXR_ERR_INVALID_ARGUMENT,
-    EXR_ERR_FILE_ACCESS,
-    EXR_ERR_FILE_BAD_HEADER,
-    EXR_ERR_NOT_OPEN_READ,
-    EXR_ERR_NOT_OPEN_WRITE,
-    EXR_ERR_READ_IO,
-    EXR_ERR_WRITE_IO,
-    EXR_ERR_NAME_TOO_LONG,
-    EXR_ERR_MISSING_REQ_ATTR,
-    EXR_ERR_INVALID_ATTR,
-    EXR_ERR_BAD_CHUNK_DATA,
-    EXR_ERR_TYPE_MISMATCH,
-    EXR_ERR_SIZE_MISMATCH,
-    EXR_ERR_SCAN_TILE_MIXEDAPI,
-    EXR_ERR_TILE_SCAN_MIXEDAPI,
-    EXR_ERR_UNKNOWN
-} exr_ERROR_CODES_t;
-
-/** Stream error notifier
+/** @brief Limit the size of image allowed to be parsed or created by
+ * the library
  *
- *  This is provided to the stream functions so they can provide a nice error message to the user
- *  during stream operations
- */
-typedef int (* exr_stream_error_func_ptr_t )( exr_file_t *file, int code, const char *fmt, ... ) EXR_PRINTF_FUNC_ATTRIBUTE;
-
-/** Error callback function
+ * This is used as a safety check against corrupt files, but can also
+ * serve to avoid potential issues on machines which have very
+ * constrained RAM
  *
- *  Because a file can be read from using many threads at once, it is
- *  difficult to store an error message for later retrieval. As such,
- *  when a file is constructed, a callback function can be provided
- *  which delivers an error message for the calling application to
- *  handle. This will be delivered on the same thread causing the
- *  error.
+ * These values are among the only globals in the core layer of
+ * OpenEXR. The intended use is for applications to define a global
+ * default, which will be combined with the values provided to the
+ * individual context creation routine. The values are used to check
+ * against parsed header values. This adds some level of safety from
+ * memory overruns where a corrupt file given to the system may cause
+ * a large allocation to happen, enabling buffer overruns or other
+ * potential security issue.
+ *
+ * These global values are combined with the values in
+ * @sa exr_context_initializer using the following rules:
+ *
+ * 1. negative values are ignored
+ *
+ * 2. if either value has a positive (non-zero) value, and the other
+ * has 0, the positive value is preferred.
+ *
+ * 3. If both are positive (non-zero), the minimum value is used
+ *
+ * 4. If both values are 0, this disables the constrained size checks.
+ *
+ * This function does not fail
  */
-typedef void (* exr_error_handler_cb_t )( exr_file_t *file, int code, const char *msg );
+EXR_EXPORT void exr_set_default_maximum_image_size (int w, int h);
 
-/** @brief Returns a string corresponding to the specified error code. */
-EXR_EXPORT const char *exr_get_default_error_message( int code );
-
-/** @brief Limit the size of image allowed to be created by the library */
-EXR_EXPORT void exr_set_maximum_image_size( int w, int h );
-/** @brief Maximum width of an data window allowed to be parsed by the library */
-EXR_EXPORT int exr_get_maximum_image_width();
-/** @brief Maximum height of an data window allowed to be parsed by the library */
-EXR_EXPORT int exr_get_maximum_image_height();
-
-/** @brief Limit the size of an image tile allowed to be created by the library */
-EXR_EXPORT void exr_set_maximum_tile_size( int w, int h );
-/** @brief Maximum width of an image tile allowed to be parsed by the library */
-EXR_EXPORT int exr_get_maximum_tile_width();
-/** @brief Maximum height of an image tile allowed to be parsed by the library */
-EXR_EXPORT int exr_get_maximum_tile_height();
-
-/** @} */
-
-/** 
- * @defgroup memory related functions
- * @brief These are a group of definitons related to memory handling
- * @{
+/** @brief Retrieve the global default maximum image size
+ *
+ * This function does not fail
  */
+EXR_EXPORT void exr_get_default_maximum_image_size (int* w, int* h);
 
-/** @brief function pointer used to hold a malloc-like routine */
-typedef void *(* exr_memory_allocation_func_t )( size_t bytes );
-/** @brief function pointer used to hold a free-like routine */
-typedef void (* exr_memory_free_func_t )( void *ptr );
+/** @brief Limit the size of an image tile allowed to be parsed or
+ * created by the library
+ *
+ * Similar to image size, this places constraints on the maximum tile
+ * size as a safety check against bad file data
+ *
+ * This is used as a safety check against corrupt files, but can also
+ * serve to avoid potential issues on machines which have very
+ * constrained RAM
+ *
+ * These values are among the only globals in the core layer of
+ * OpenEXR. The intended use is for applications to define a global
+ * default, which will be combined with the values provided to the
+ * individual context creation routine. The values are used to check
+ * against parsed header values. This adds some level of safety from
+ * memory overruns where a corrupt file given to the system may cause
+ * a large allocation to happen, enabling buffer overruns or other
+ * potential security issue.
+ *
+ * These global values are combined with the values in
+ * @sa exr_context_initializer using the following rules:
+ *
+ * 1. negative values are ignored
+ *
+ * 2. if either value has a positive (non-zero) value, and the other
+ * has 0, the positive value is preferred.
+ *
+ * 3. If both are positive (non-zero), the minimum value is used
+ *
+ * 4. If both values are 0, this disables the constrained size checks.
+ *
+ * This function does not fail
+ */
+EXR_EXPORT void exr_set_default_maximum_tile_size (int w, int h);
 
+/** @brief Retrieve the global maximum tile size.
+ *
+ * This function does not fail
+ */
+EXR_EXPORT void exr_get_default_maximum_tile_size (int* w, int* h);
 
-/** @brief Allows the user to override internal allocations necessary for
+/** @brief function pointer used to hold a malloc-like routine
+ *
+ * Providing these to a context will override what memory is used to
+ * allocate the context itself, as well as any allocations which
+ * happen during processing of a file or stream. This can be used by
+ * systems which provide rich malloc tracking routines to override the
+ * internal allocations performed by the library.
+ *
+ * This function is expected to allocate and return a new memory
+ * handle, or NULL if allocation failed (which the library will then
+ * handle and return an out-of-memory error).
+ *
+ * If providing one, probably need to provide both routines.
+ * @sa exr_memory_free_func_t
+ */
+typedef void* (*exr_memory_allocation_func_t) (size_t bytes);
+
+/** @brief function pointer used to hold a free-like routine
+ *
+ * Providing these to a context will override what memory is used to
+ * allocate the context itself, as well as any allocations which
+ * happen during processing of a file or stream. This can be used by
+ * systems which provide rich malloc tracking routines to override the
+ * internal allocations performed by the library.
+ *
+ * This function is expected to return memory to the system, ala free
+ * from the C library.
+ *
+ * If providing one, probably need to provide both routines.
+ * @sa exr_memory_allocation_func_t
+ */
+typedef void (*exr_memory_free_func_t) (void* ptr);
+
+/** @brief Allows the user to override default allocator used internal allocations necessary for
  * files, attributes, and other temporary memory.
  *
- * TODO: Should this be customizeable per file handle instead of global?
+ * These routines may be overridden when creating a specific context,
+ * however this provides global defaults such that the default can be
+ * applied.
+ *
+ * If either pointer is NULL, the appropriate malloc / free routine will be substituted
+ *
+ * This function does not fail
  */
-EXR_EXPORT void exr_set_memory_routines(
-    exr_memory_allocation_func_t alloc_func,
-    exr_memory_free_func_t free_func );
+EXR_EXPORT void exr_set_default_memory_routines (
+    exr_memory_allocation_func_t alloc_func, exr_memory_free_func_t free_func);
 
 /** @} */
-
-/**************************************/
-
-/** Debug function, prints to stdout the parts and attributes of the file passed in */
-EXR_EXPORT void exr_print_info( exr_file_t *f, int verbose );
 
 #ifdef __cplusplus
 } /* extern "C" */

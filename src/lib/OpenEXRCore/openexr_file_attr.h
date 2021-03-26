@@ -46,7 +46,7 @@ EXR_EXPORT exr_attribute_list_t *exr_get_attribute_list(
  *
  * Only valid when a file is opened for write.
  */
-EXR_EXPORT int exr_attr_declare_by_type(
+EXR_EXPORT exr_result_t exr_attr_declare_by_type(
     exr_file_t *file,
     int part_index,
     const char *name,
@@ -54,7 +54,7 @@ EXR_EXPORT int exr_attr_declare_by_type(
     exr_attribute_t **newattr );
 
 /** @brief Declare an attribute within the file. */
-EXR_EXPORT int exr_attr_declare(
+EXR_EXPORT exr_result_t exr_attr_declare(
     exr_file_t *file,
     int part_index,
     const char *name,

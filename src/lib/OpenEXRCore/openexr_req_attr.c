@@ -114,10 +114,10 @@ int exr_set_channels(
 
 /**************************************/
 
-exr_COMPRESSION_TYPE_t exr_get_compression(
+exr_compression_t exr_get_compression(
     exr_file_t *file, int part_index )
 {
-    exr_COMPRESSION_TYPE_t retval = EXR_COMPRESSION_LAST_TYPE;
+    exr_compression_t retval = EXR_COMPRESSION_LAST_TYPE;
     REQ_ATTR_GET_IMPL(compression, uc);
     return retval;
 }
@@ -125,7 +125,7 @@ exr_COMPRESSION_TYPE_t exr_get_compression(
 /**************************************/
 
 int exr_set_compression(
-    exr_file_t *file, int part_index, exr_COMPRESSION_TYPE_t ctype )
+    exr_file_t *file, int part_index, exr_compression_t ctype )
 {
     exr_attribute_t *attr = NULL;
     int rv;
@@ -207,11 +207,11 @@ int exr_set_display_window(
 
 /**************************************/
 
-exr_LINEORDER_TYPE_t exr_get_line_order(
+exr_lineorder_t exr_get_line_order(
     exr_file_t *file,
     int part_index )
 {
-    exr_LINEORDER_TYPE_t retval = EXR_LINEORDER_LAST_TYPE;
+    exr_lineorder_t retval = EXR_LINEORDER_LAST_TYPE;
     REQ_ATTR_GET_IMPL(lineOrder, uc);
     return retval;
 }
@@ -219,7 +219,7 @@ exr_LINEORDER_TYPE_t exr_get_line_order(
 /**************************************/
 
 int exr_set_line_order(
-    exr_file_t *file, int part_index, exr_LINEORDER_TYPE_t lo )
+    exr_file_t *file, int part_index, exr_lineorder_t lo )
 {
     exr_attribute_t *attr = NULL;
     int rv;

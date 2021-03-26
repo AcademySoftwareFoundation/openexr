@@ -226,7 +226,7 @@ static int undorle( const void *src, size_t packsz, void *out, size_t outsz )
 
 int exr_decompress_data(
     exr_file_t *f,
-    const exr_COMPRESSION_TYPE_t ctype,
+    const exr_compression_t ctype,
     void *compressed_data, size_t comp_buf_size,
     void *uncompressed_data, size_t uncompressed_size )
 {

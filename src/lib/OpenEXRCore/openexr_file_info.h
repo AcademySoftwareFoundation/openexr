@@ -40,7 +40,7 @@ EXR_EXPORT const char * exr_get_part_name(
     int part_index );
 
 /** @brief Query the storage type for the specified part */
-EXR_EXPORT exr_STORAGE_TYPE_t exr_get_part_storage(
+EXR_EXPORT exr_storage_t exr_get_part_storage(
     exr_file_t *file,
     int part_index );
 

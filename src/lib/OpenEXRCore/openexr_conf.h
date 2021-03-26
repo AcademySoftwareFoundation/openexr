@@ -9,20 +9,25 @@
 
 #include <OpenEXRConfig.h>
 
-/*  TODO: Move this stuff to OpenEXRConfig.h.in? */
+/// \addtogroup ExportMacros
+/// @{
 
+// are we making a DLL under windows (might be msvc or mingw or others)
 #if defined(OPENEXR_DLL)
-# if defined(OPENEXRCORE_EXPORTS)
-#  define EXR_EXPORT __declspec(dllexport)
-# else
-#  define EXR_EXPORT __declspec(dllimport)
-# endif
+
+// when building as a DLL for windows, typical dllexport / import case
+// where we need to switch depending on whether we are compiling
+// internally or not
+#    if defined(OPENEXRCORE_EXPORTS)
+#        define EXR_EXPORT __declspec(dllexport)
+#    else
+#        define EXR_EXPORT __declspec(dllimport)
+#    endif
+
 #else
-# if defined(__GNUC__) || defined(__clang__)
-#  define EXR_EXPORT __attribute__ ((visibility ("default")))
-#else
-#  define EXR_EXPORT extern
-# endif
+
+#    define EXR_EXPORT OPENEXR_EXPORT
+
 #endif
 
 /*
@@ -30,9 +35,11 @@
  * function attribute, so just skip for non-GCC / clang builds
  */
 #if defined(__GNUC__) || defined(__clang__)
-#  define EXR_PRINTF_FUNC_ATTRIBUTE __attribute__ ((format (printf, 3, 4)))
+#    define EXR_PRINTF_FUNC_ATTRIBUTE __attribute__ ((format (printf, 3, 4)))
 #else
-#  define EXR_PRINTF_FUNC_ATTRIBUTE
+#    define EXR_PRINTF_FUNC_ATTRIBUTE
 #endif
+
+/// @}
 
 #endif /* OPENEXR_CONF_H */

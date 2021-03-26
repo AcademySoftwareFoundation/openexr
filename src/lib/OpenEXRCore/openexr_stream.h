@@ -122,9 +122,12 @@ typedef int64_t (* exr_write_func_ptr_t )(
  * The provided @see read_fn must expect this if the application is
  * multi-threaded in this manner.
  *
- * @returns 0 upon success, otherwise returns a value indicating the error
+ * If you just want simple file i/o, you can also use @sa exr_start_read
+ * 
+ * @return 0 upon success (EXR_ERR_SUCCESS), otherwise returns a
+ * value indicating the error, and will call the error callback
  */
-EXR_EXPORT int exr_start_read_stream(
+EXR_EXPORT exr_result_t exr_start_read_stream(
     exr_file_t **file,
     const char *streamname,
     void *userdata,
@@ -147,9 +150,12 @@ EXR_EXPORT int exr_start_read_stream(
  * y or multiple parts), and so must be expected if the application is
  * multi-threaded in this manner.
  *
- * @returns 0 upon success, otherwise returns a value indicating the error
+ * If you just want simple file i/o, you can also use @sa exr_start_write
+ * 
+ * @return 0 upon success (EXR_ERR_SUCCESS), otherwise returns a
+ * value indicating the error, and will call the error callback
  */
-EXR_EXPORT int exr_start_write_stream(
+EXR_EXPORT exr_result_t exr_start_write_stream(
     exr_file_t **file,
     const char *streamname,
     void *userdata,
@@ -168,9 +174,13 @@ EXR_EXPORT int exr_start_write_stream(
  * The error callback is allowed to be null, if so it will default to printing
  * errors to stderr
  *
- * @returns 0 upon success, otherwise returns a value indicating the error
+ * If you just want simple file i/o, you can also use
+ * @sa exr_start_inplace_header_update
+ * 
+ * @return 0 upon success (EXR_ERR_SUCCESS), otherwise returns a
+ * value indicating the error, and will call the error callback
  */
-EXR_EXPORT int exr_start_inplace_header_update_stream(
+EXR_EXPORT exr_result_t exr_start_inplace_header_update_stream(
     exr_file_t **file,
     const char *streamname,
     void *userdata,

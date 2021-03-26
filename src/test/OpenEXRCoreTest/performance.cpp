@@ -18,28 +18,33 @@
 #include <ImfInputPart.h>
 #include <ImfCompressor.h>
 #include <ImfChannelList.h>
+#include <ImfFrameBuffer.h>
+#include <ImfHeader.h>
 #include <ImfThreading.h>
 #include <IlmThreadPool.h>
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
 
-static void error_handler_new( exr_file_t *file, int code, const char *msg )
+static void error_handler_new( exr_context_t file, int code, const char *msg )
 {
+    const char *fn;
+    exr_get_file_name( file, &fn );
     std::cerr << "Core EXR ERROR:";
     if ( file )
-        std::cerr << " '" << exr_get_file_name( file ) << "'";
+        std::cerr << " '" << fn << "'";
     std::cerr << " (" << code << "): " << msg << std::endl;
 }
 
 class CoreReadTask : public Task
 {
 public:
-    CoreReadTask( TaskGroup *g, exr_file_t *f, int y, uint8_t *ptr )
+    CoreReadTask( TaskGroup *g, exr_context_t f, int y, uint8_t *ptr )
         : Task( g ), _f( f ), _y( y ), _ptr( ptr )
     {}
     void execute() override
     {
+#if 0
         exr_decode_chunk_info_t chunk = {0};
         int rv = exr_decode_chunk_init_scanline( _f, 0, &chunk, _y, 1 );
         if ( rv == EXR_ERR_SUCCESS )
@@ -59,21 +64,23 @@ public:
             rv = exr_read_chunk( _f, &chunk );
         }
         exr_destroy_decode_chunk_info( &chunk );
+#endif
     }
 private:
-    exr_file_t *_f;
+    exr_context_t _f;
     int _y;
     uint8_t *_ptr;
 };
 
 #define THREADS 16
 
-static uint64_t read_pixels_raw( exr_file_t *f )
+static uint64_t read_pixels_raw( exr_context_t f )
 {
+    uint64_t ret = 0;
+#if 0
     exr_attr_box2i_t dw = exr_get_data_window( f, 0 );
     int64_t w = (int64_t)dw.x_max - (int64_t)dw.x_min + (int64_t)1;
     int64_t h = (int64_t)dw.x_max - (int64_t)dw.x_min + (int64_t)1;
-    uint64_t ret = 0;
 
     if ( w <= 0 )
         return ret;
@@ -178,7 +185,7 @@ static uint64_t read_pixels_raw( exr_file_t *f )
     }
     else
         throw std::runtime_error( "decreasing y not yet finished" );
-
+#endif
     return ret;
 }
 
@@ -188,15 +195,18 @@ static void readCore( const std::string &fn,
                       uint64_t &closeTimeAccum,
                       uint64_t &pixCount )
 {
-    exr_file_t *f = NULL;
+    exr_context_t c;
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+
+    cinit.error_handler_fn = &error_handler_new;
 
     auto hstart = std::chrono::steady_clock::now();
-    if ( EXR_ERR_SUCCESS == exr_start_read( &f, fn.c_str(), &error_handler_new ) )
+    if ( EXR_ERR_SUCCESS == exr_start_read( &c, fn.c_str(), &cinit ) )
     {
         auto hend = std::chrono::steady_clock::now();
-        pixCount += read_pixels_raw( f );
+        pixCount += read_pixels_raw( c );
         auto imgtime = std::chrono::steady_clock::now();
-        exr_close( &f );
+        exr_finish( &c );
         auto closetime = std::chrono::steady_clock::now();
         headerTimeAccum += std::chrono::duration_cast<std::chrono::nanoseconds>( hend - hstart ).count();
         imgDataTimeAccum += std::chrono::duration_cast<std::chrono::nanoseconds>( imgtime - hend ).count();

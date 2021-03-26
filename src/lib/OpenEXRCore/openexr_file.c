@@ -21,17 +21,18 @@
 
 /**************************************/
 
-static int dispatch_read( exr_file_t *f, void *buf, uint64_t sz, uint64_t *offsetp, int64_t *nread, __PRIV_READ_MODE rmode )
+static exr_result_t
+dispatch_read( exr_context_t *ctxt, void *buf, uint64_t sz, uint64_t *offsetp, int64_t *nread, __PRIV_READ_MODE rmode )
 {
-    exr_PRIV_FILE_t *file = EXR_GETFILE(f);
+    exr_PRIV_FILE_t *file = EXR_GETFILE(ctxt);
     int64_t rval = -1;
-    int rv = EXR_ERR_UNKNOWN;
+    exr_result_t rv = EXR_ERR_UNKNOWN;
 
     if ( nread )
         *nread = rval;
 
-    if ( ! file )
-        return file->report_error( f, EXR_ERR_INVALID_ARGUMENT, "No file provided for read" );
+    if ( ! ctxt )
+        return EXR_ERR_INVALID_ARGUMENT;
 
     if ( ! offsetp )
         return file->report_error(
@@ -39,9 +40,9 @@ static int dispatch_read( exr_file_t *f, void *buf, uint64_t sz, uint64_t *offse
             "read requested with no output offset pointer" );
 
     if ( file->read_fn )
-        rval = file->read_fn( file, file->user_data, buf, sz, *offsetp, file->print_error );
+        rval = file->read_fn( ctxt, file->user_data, buf, sz, *offsetp, file->print_error );
     else
-        return file->standard_error( f, EXR_ERR_NOT_OPEN_READ );
+        return file->standard_error( ctxt, EXR_ERR_NOT_OPEN_READ );
 
     if ( nread )
         *nread = rval;
@@ -57,24 +58,24 @@ static int dispatch_read( exr_file_t *f, void *buf, uint64_t sz, uint64_t *offse
 
 /**************************************/
 
-static int dispatch_write( exr_file_t *f, const void *buf, uint64_t sz, uint64_t *offsetp )
+static exr_result_t dispatch_write( exr_context_t *ctxt, const void *buf, uint64_t sz, uint64_t *offsetp )
 {
-    exr_PRIV_FILE_t *file = EXR_GETFILE(f);
+    exr_PRIV_FILE_t *file = EXR_GETFILE(ctxt);
     int64_t rval = -1;
-    int rv = EXR_ERR_UNKNOWN;
+    exr_result_t rv = EXR_ERR_UNKNOWN;
     uint64_t outpos;
 
-    if ( ! file )
-        return file->report_error( f, EXR_ERR_INVALID_ARGUMENT, "No file provided for write" );
+    if ( ! ctxt )
+        return EXR_ERR_INVALID_ARGUMENT;
 
     if ( ! offsetp )
         return file->report_error(
-            file, EXR_ERR_INVALID_ARGUMENT,
+            ctxt, EXR_ERR_INVALID_ARGUMENT,
             "write requested with no output offset pointer" );
 
     outpos = (uint64_t)atomic_fetch_add( &(file->file_offset), (uint64_t)sz );
     if ( file->write_fn )
-        rval = file->write_fn( file, file->user_data, buf, sz, outpos, file->print_error );
+        rval = file->write_fn( ctxt, file->user_data, buf, sz, outpos, file->print_error );
     else
         return file->standard_error( f, EXR_ERR_NOT_OPEN_WRITE );
 
@@ -82,25 +83,21 @@ static int dispatch_write( exr_file_t *f, const void *buf, uint64_t sz, uint64_t
         *offsetp = outpos + rval;
     else
         *offsetp = outpos;
-    
-    if ( rval == (int64_t)sz )
-        rv = EXR_ERR_SUCCESS;
-    else
-        rv = EXR_ERR_READ_IO;
-    return rv;
+
+    return ( rval == (int64_t)sz ) ? EXR_ERR_SUCCESS : EXR_ERR_WRITE_IO;
 }
 
 /**************************************/
 
-int exr_start_read(
-    exr_file_t **file,
+exr_result_t exr_start_read(
+    exr_context_t **ctxt,
     const char *filename,
     exr_error_handler_cb_t error_cb )
 {
     int rv = EXR_ERR_UNKNOWN;
     exr_PRIV_FILE_t *ret = NULL;
 
-    if ( ! file )
+    if ( ! ctxt )
     {
         if ( error_cb )
             error_cb( NULL, EXR_ERR_INVALID_ARGUMENT, "Invalid file output handle passed to start_read function" );
@@ -140,14 +137,14 @@ int exr_start_read(
         rv = EXR_ERR_INVALID_ARGUMENT;
     }
 
-    *file = (exr_file_t *)ret;
+    *ctxt = (exr_context_t *)ret;
     return rv;
 }
 
 /**************************************/
 
-int exr_start_read_stream(
-    exr_file_t **file,
+exr_result_t exr_start_read_stream(
+    exr_context_t **ctxt,
     const char *streamname,
     void *userdata,
     exr_read_func_ptr_t read_fn,
@@ -157,7 +154,7 @@ int exr_start_read_stream(
 {
     int rv = EXR_ERR_UNKNOWN;
     exr_PRIV_FILE_t *ret = NULL;
-    if ( ! file )
+    if ( ! ctxt )
     {
         if ( error_cb )
             error_cb( NULL, EXR_ERR_INVALID_ARGUMENT, "Invalid file output handle passed to start_read function" );
@@ -207,21 +204,21 @@ int exr_start_read_stream(
             destroy_fn( NULL, userdata, 1 );
     }
     
-    *file = (exr_file_t *)ret;
+    *ctxt = (exr_context_t *)ret;
     return rv;
 }
 
 /**************************************/
 
-int exr_start_write(
-    exr_file_t **file,
+exr_result_t exr_start_write(
+    exr_context_t **ctxt,
     const char *filename,
     int use_tempfile,
     exr_error_handler_cb_t error_cb )
 {
     int rv = EXR_ERR_UNKNOWN;
     exr_PRIV_FILE_t *ret = NULL;
-    if ( ! file )
+    if ( ! ctxt )
     {
         if ( error_cb )
             error_cb( NULL, EXR_ERR_INVALID_ARGUMENT, "Invalid file output handle passed to start_read function" );
@@ -254,14 +251,14 @@ int exr_start_write(
     else
         fprintf( stderr, "Invalid filename passed to start_write function\n" );
 
-    *file = (exr_file_t *)ret;
+    *ctxt = (exr_context_t *)ret;
     return rv;
 }
 
 /**************************************/
 
-int exr_start_write_stream(
-    exr_file_t **file,
+exr_result_t exr_start_write_stream(
+    exr_context_t **ctxt,
     const char *streamname,
     void *userdata,
     exr_write_func_ptr_t write_fn,
@@ -270,7 +267,7 @@ int exr_start_write_stream(
 {
     int rv = EXR_ERR_UNKNOWN;
     exr_PRIV_FILE_t *ret = NULL;
-    if ( ! file )
+    if ( ! ctxt )
     {
         if ( error_cb )
             error_cb( NULL, EXR_ERR_INVALID_ARGUMENT, "Invalid file output handle passed to start_read function" );
@@ -303,14 +300,14 @@ int exr_start_write_stream(
             destroy_fn( NULL, userdata, 1 );
     }
 
-    *file = (exr_file_t *)ret;
+    *ctxt = (exr_context_t *)ret;
     return rv;
 }
 
 /**************************************/
 
-int exr_start_inplace_header_update(
-    exr_file_t **file,
+exr_result_t exr_start_inplace_header_update(
+    exr_context_t **ctxt,
     const char *filename,
     exr_error_handler_cb_t error_cb )
 {
@@ -319,8 +316,8 @@ int exr_start_inplace_header_update(
 
 /**************************************/
 
-int exr_start_inplace_header_update_stream(
-    exr_file_t **file,
+exr_result_t exr_start_inplace_header_update_stream(
+    exr_context_t **ctxt,
     const char *streamname,
     void *userdata,
     exr_read_func_ptr_t read_fn,
@@ -334,14 +331,13 @@ int exr_start_inplace_header_update_stream(
 
 /**************************************/
 
-int exr_close( exr_file_t **f )
+exr_result_t exr_close( exr_context_t **ctxt )
 {
     int rv = 0;
-    if ( ! f )
+    if ( ! ctxt )
         return EXR_ERR_INVALID_ARGUMENT;
 
-    exr_PRIV_FILE_t *pf = EXR_GETFILE(*f);
-    *f = NULL;
+    exr_PRIV_FILE_t *pf = EXR_GETFILE(*ctxt);
 
     if ( pf )
     {
@@ -355,10 +351,11 @@ int exr_close( exr_file_t **f )
         }
 
         if ( pf->destroy_fn )
-            pf->destroy_fn( *f, pf->user_data, failed );
+            pf->destroy_fn( *ctxt, pf->user_data, failed );
 
         priv_destroy_file( pf );
     }
+    *ctxt = NULL;
 
     return rv;
 }

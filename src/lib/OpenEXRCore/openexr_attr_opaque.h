@@ -65,17 +65,18 @@ EXR_EXPORT void *exr_attr_opaquedata_pack(
  * unpacked data to the provided value. This memory will be freed at
  * destruction time
  */
-EXR_EXPORT int exr_attr_opaquedata_set_unpacked(
-    exr_file_t *, exr_attr_opaquedata_t *, void *unpacked, int32_t sz );
+EXR_EXPORT exr_result_t exr_attr_opaquedata_set_unpacked(
+    exr_context_t ctxt, exr_attr_opaquedata_t *, void *unpacked, int32_t sz );
 
 /** Any opaque data entry of the specified type is tagged with these
  * functions enabling downstream users to unpack (or pack) the data.
  */
-EXR_EXPORT int exr_register_attr_handler(
-    exr_file_t *file, const char *type,
+EXR_EXPORT exr_result_t exr_register_attr_type_handler(
+    exr_context_t file, const char *type,
     int (*unpack_func_ptr)( const void *data, int32_t attrsize, int32_t *outsize, void **outbuffer ),
     int (*pack_func_ptr)( const void *data, int32_t datasize, int32_t *outsize, void **outbuffer ),
-    void (*destroy_func_ptr)( void *data, int32_t datasize ) );
+    void (*destroy_packed_func_ptr)( void *data, int32_t datasize ),
+    void (*destroy_unpacked_func_ptr)( void *data, int32_t datasize ) );
 
 /** @} */
 

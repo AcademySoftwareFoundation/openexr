@@ -17,8 +17,15 @@ extern "C" {
 #endif
 
 /** 
- * @defgroup simple attribute value values
- * @brief These are a group of enum values defining valid values for some attributes
+ * @defgroup AttributeTypes Attribute / metadata value types and struct declarations
+ *
+ * @brief These are a group of enum values defining valid values for some attributes and then associated structs for other types.
+ *
+ * Some of these types will be directly representable / storable in
+ * the file, some not. There is some overlap here with Imath, and they
+ * should be kept in the same order for compatibility. However do note
+ * that these are just the raw data, and no useful functions are
+ * declared at this layer, that is what Imath is for.
  *
  * @{
  */
@@ -37,7 +44,7 @@ typedef enum
     EXR_COMPRESSION_DWAA = 8,
     EXR_COMPRESSION_DWAB = 9,
     EXR_COMPRESSION_LAST_TYPE /**< invalid value, provided for range checking */
-} exr_COMPRESSION_TYPE_t;
+} exr_compression_t;
 
 /** enum declaring allowed values for uint8_t value stored in built-in env map type */
 typedef enum
@@ -45,7 +52,7 @@ typedef enum
     EXR_ENVMAP_LATLONG = 0,
     EXR_ENVMAP_CUBE = 1,
     EXR_ENVMAP_LAST_TYPE /**< invalid value, provided for range checking */
-} exr_ENVMAP_TYPE_t;
+} exr_envmap_t;
 
 /** enum declaring allowed values for uint8_t value stored in lineOrder type */
 typedef enum
@@ -54,7 +61,7 @@ typedef enum
     EXR_LINEORDER_DECREASING_Y = 1,
     EXR_LINEORDER_RANDOM_Y = 2,
     EXR_LINEORDER_LAST_TYPE /**< invalid value, provided for range checking */
-} exr_LINEORDER_TYPE_t;
+} exr_lineorder_t;
 
 /** enum declaring allowed values for part type */
 typedef enum
@@ -64,20 +71,10 @@ typedef enum
     EXR_STORAGE_DEEP_SCANLINE, /**< corresponds to type of 'deepscanline' */
     EXR_STORAGE_DEEP_TILED, /**< corresponds to type of 'deeptile' */
     EXR_STORAGE_LAST_TYPE /**< invalid value, provided for range checking */
-} exr_STORAGE_TYPE_t;
+} exr_storage_t;
 
-/** @} */
-
-/** 
- * @defgroup simple attribute value structs
- * @brief These are a group of structures used to hold the values for predefined types
- *
- * The layout of these should be compatible with the corresponding
- * C++ type in Imath, however to enable C-only usage, we define the
- * simplistic structure here.
- * 
- * @{
- */
+/* /////////////////////////////////////// */
+/* First set of structs are data where we can read directly with no allocation needed... */
 
 /* Most are naturally aligned, but force some of these
  * structs to be tightly packed */

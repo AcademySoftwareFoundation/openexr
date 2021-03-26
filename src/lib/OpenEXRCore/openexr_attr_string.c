@@ -13,7 +13,7 @@
 /**************************************/
 
 int exr_attr_string_init(
-    exr_file_t *f, exr_attr_string_t *s, int32_t len )
+    exr_context_t *ctxt, exr_attr_string_t *s, int32_t len )
 {
     exr_attr_string_t nil = {0};
     if ( len < 0 )
@@ -54,7 +54,7 @@ int exr_attr_string_init(
 /**************************************/
 
 int exr_attr_string_init_static_with_length(
-    exr_file_t *f, exr_attr_string_t *s, const char *v, int32_t len )
+    exr_context_t *ctxt, exr_attr_string_t *s, const char *v, int32_t len )
 {
     exr_attr_string_t nil = {0};
     if ( len < 0 )
@@ -94,7 +94,7 @@ int exr_attr_string_init_static_with_length(
 /**************************************/
 
 int exr_attr_string_init_static(
-    exr_file_t *f, exr_attr_string_t *s, const char *v )
+    exr_context_t *ctxt, exr_attr_string_t *s, const char *v )
 {
     size_t fulllen = 0;
     int32_t length = 0;
@@ -117,7 +117,7 @@ int exr_attr_string_init_static(
 /**************************************/
 
 int exr_attr_string_create_with_length(
-    exr_file_t *f, exr_attr_string_t *s, const char *d, int32_t len )
+    exr_context_t *ctxt, exr_attr_string_t *s, const char *d, int32_t len )
 {
     if ( ! s )
     {
@@ -149,7 +149,7 @@ int exr_attr_string_create_with_length(
 /**************************************/
 
 int exr_attr_string_create(
-    exr_file_t *f, exr_attr_string_t *s, const char *d )
+    exr_context_t *ctxt, exr_attr_string_t *s, const char *d )
 {
     int32_t len = 0;
     if ( d )
@@ -160,12 +160,12 @@ int exr_attr_string_create(
 /**************************************/
 
 int exr_attr_string_set_with_length(
-    exr_file_t *f, exr_attr_string_t *s, const char *d, int32_t len )
+    exr_context_t *ctxt, exr_attr_string_t *s, const char *d, int32_t len )
 {
     if ( ! s )
     {
-        if ( f )
-            EXR_GETFILE(f)->report_error(
+        if ( ctxt )
+            EXR_CTXT(ctxt)->report_error(
                 f, EXR_ERR_INVALID_ARGUMENT,
                 "Invalid string argument to string set" );
         return EXR_ERR_INVALID_ARGUMENT;
@@ -196,24 +196,24 @@ int exr_attr_string_set_with_length(
         sstr[len] = '\0';
         return EXR_ERR_SUCCESS;
     }
-    exr_attr_string_destroy( s );
-    return exr_attr_string_create_with_length( f, s, d, len );
+    exr_attr_string_destroy( ctxt, s );
+    return exr_attr_string_create_with_length( ctxt, s, d, len );
 }
 
 /**************************************/
 
 int exr_attr_string_set(
-    exr_file_t *f, exr_attr_string_t *s, const char *d )
+    exr_context_t *ctxt, exr_attr_string_t *s, const char *d )
 {
     int32_t len = 0;
     if ( d )
         len = (int32_t)strlen( d );
-    return exr_attr_string_set_with_length( f, s, d, len );
+    return exr_attr_string_set_with_length( ctxt, s, d, len );
 }
 
 /**************************************/
 
-void exr_attr_string_destroy( exr_attr_string_t *s )
+void exr_attr_string_destroy( exr_context_t *ctxt, exr_attr_string_t *s )
 {
     if ( s )
     {

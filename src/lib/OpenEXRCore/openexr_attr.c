@@ -665,7 +665,7 @@ static void check_attr_handler(
 
 /**************************************/
 
-int exr_attr_list_add_by_type(
+exr_result_t exr_attr_list_add_by_type(
     exr_file_t *f,
     exr_attribute_list_t *list,
     const char *name,
@@ -825,7 +825,7 @@ int exr_attr_list_add_by_type(
 
 /**************************************/
 
-int exr_attr_list_add(
+exr_result_t exr_attr_list_add(
     exr_file_t *f,
     exr_attribute_list_t *list,
     const char *name,
@@ -937,7 +937,7 @@ int exr_attr_list_add(
 
 /**************************************/
 
-int exr_attr_list_add_static_name(
+exr_result_t exr_attr_list_add_static_name(
     exr_file_t *f,
     exr_attribute_list_t *list,
     const char *name,
@@ -1036,7 +1036,7 @@ int exr_attr_list_add_static_name(
 
 /**************************************/
 
-int exr_attr_list_remove(
+exr_result_t exr_attr_list_remove(
     exr_file_t *f,
     exr_attribute_list_t *list,
     exr_attribute_t *attr )

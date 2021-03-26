@@ -32,9 +32,13 @@ extern "C" {
  * multiple threads to request data from the same file at the same
  * time.
  *
- * @returns 0 upon success, otherwise returns a value indicating the error
+ * If you want to customize the read / write operations, consider
+ * using @sa exr_start_read_stream
+ * 
+ * @return 0 upon success (EXR_ERR_SUCCESS), otherwise returns a
+ * value indicating the error, and will call the error callback
  */
-EXR_EXPORT int exr_start_read(
+EXR_EXPORT exr_result_t exr_start_read(
     exr_file_t **file,
     const char *filename,
     exr_error_handler_cb_t error_cb );
@@ -45,9 +49,10 @@ EXR_EXPORT int exr_start_read(
  * The error callback is allowed to be null, if so it will default to printing
  * to stderr
  *
- * @returns 0 upon success, otherwise returns a value indicating the error
+ * @return 0 upon success (EXR_ERR_SUCCESS), otherwise returns a
+ * value indicating the error, and will call the error callback
  */
-EXR_EXPORT int exr_start_write(
+EXR_EXPORT exr_result_t exr_start_write(
     exr_file_t **file,
     const char *filename,
     int use_tempfile,
@@ -64,9 +69,10 @@ EXR_EXPORT int exr_start_write(
  * The error callback is allowed to be null, if so it will default to
  * printing errors to stderr
  *
- * @returns 0 upon success, otherwise returns a value indicating the error
+ * @return 0 upon success (EXR_ERR_SUCCESS), otherwise returns a
+ * value indicating the error, and will call the error callback
  */
-EXR_EXPORT int exr_start_inplace_header_update(
+EXR_EXPORT exr_result_t exr_start_inplace_header_update(
     exr_file_t **file,
     const char *filename,
     exr_error_handler_cb_t error_cb );
@@ -79,7 +85,7 @@ EXR_EXPORT int exr_start_inplace_header_update(
  * @return 0 upon success, error code otherwise. An error will
  * only be able to happen when the file is opened for write.
  */
-EXR_EXPORT int exr_close( exr_file_t **file );
+EXR_EXPORT exr_result_t exr_close( exr_file_t **file );
 
 /** @} */
 

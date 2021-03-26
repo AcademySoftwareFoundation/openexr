@@ -67,7 +67,11 @@ int exr_set_longname_support(
 /**************************************/
 
 int exr_add_part (
-    exr_file_t * file, const char* partname, exr_STORAGE_TYPE_t type)
+    exr_file_t * file,
+    const char* partname,
+    exr_storage_t type,
+    exr_attribute_list_t *attrs,
+    int adopt_attr_ownership )
 {
     exr_PRIV_PART_t * part;
     uint8_t*    namestr;
@@ -77,7 +81,7 @@ int exr_add_part (
 
     if (!file) return EXR_ERR_INVALID_ARGUMENT;
 
-    rv = priv_add_part (file, &part);
+    rv = internal_exr_add_part (file, &part);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     switch (type)

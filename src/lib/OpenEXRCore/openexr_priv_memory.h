@@ -11,8 +11,8 @@
 #if defined(__GNUC__) || defined(__clang__)
 __attribute__((malloc))
 #endif
-extern void *priv_alloc( size_t bytes );
+void *priv_alloc( size_t bytes );
 
-extern void priv_free( void *ptr );
+void priv_free( void *ptr );
 
 #endif /* OPENEXR_PRIVATE_MEMORY_H */
