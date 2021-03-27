@@ -531,13 +531,13 @@ writeTileData (DeepTiledOutputFile::Data *ofd,
     // Write the compressed pixel sample count table.
     //
 
-    ofd->_streamData->os->write (sampleCountTableData, sampleCountTableSize);
+    ofd->_streamData->os->write (sampleCountTableData, static_cast<int>(sampleCountTableSize));
 
     //
     // Write the compressed data.
     //
 
-    ofd->_streamData->os->write (pixelData, pixelDataSize);
+    ofd->_streamData->os->write (pixelData, static_cast<int>(pixelDataSize));
 
     //
     // Keep current position in the file so that we can avoid
@@ -666,8 +666,8 @@ bufferedTileWrite (
         //
 
         ofd->tileMap[currentTile] =
-            new BufferedTile ((const char *)pixelData, pixelDataSize, unpackedDataSize,
-                              sampleCountTableData, sampleCountTableSize);
+            new BufferedTile ((const char *)pixelData, static_cast<int>(pixelDataSize), static_cast<int>(unpackedDataSize),
+                              sampleCountTableData, static_cast<int>(sampleCountTableSize));
     }
 }
 
@@ -851,7 +851,7 @@ TileBufferTask::execute ()
             if (bytesPerLine[i] > maxBytesPerTileLine)
                 maxBytesPerTileLine = bytesPerLine[i];
         }
-        _tileBuffer->buffer.resizeErase(totalBytes);
+        _tileBuffer->buffer.resizeErase(static_cast<long>(totalBytes));
 
         char *writePtr = _tileBuffer->buffer;
 
@@ -947,7 +947,7 @@ TileBufferTask::execute ()
            _tileBuffer->sampleCountTableSize =
                 _tileBuffer->sampleCountTableCompressor->compress (
                                                     _tileBuffer->sampleCountTableBuffer,
-                                                    tableDataSize,
+                                                    static_cast<int>(tableDataSize),
                                                     tileRange.min.y,
                                                     _tileBuffer->sampleCountTablePtr);
        }
@@ -987,7 +987,7 @@ TileBufferTask::execute ()
 
             uint64_t compSize = _tileBuffer->compressor->compressTile
                                                 (_tileBuffer->dataPtr,
-                                                 _tileBuffer->dataSize,
+                                                 static_cast<int>(_tileBuffer->dataSize),
                                                  tileRange, compPtr);
 
             if (compSize < _tileBuffer->dataSize)
@@ -1232,7 +1232,7 @@ DeepTiledOutputFile::initialize (const Header &header)
         _data->tileBuffers[i] = new TileBuffer ();
 
         _data->tileBuffers[i]->sampleCountTableBuffer.
-                resizeErase(_data->maxSampleCountTableSize);
+                resizeErase(static_cast<long>(_data->maxSampleCountTableSize));
 
         char * p = &(_data->tileBuffers[i]->sampleCountTableBuffer[0]);
         memset (p, 0, _data->maxSampleCountTableSize);
@@ -1354,8 +1354,8 @@ DeepTiledOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
     else
     {
         _data->sampleCountSliceBase = sampleCountSlice.base;
-        _data->sampleCountXStride = sampleCountSlice.xStride;
-        _data->sampleCountYStride = sampleCountSlice.yStride;
+        _data->sampleCountXStride = static_cast<int>(sampleCountSlice.xStride);
+        _data->sampleCountYStride = static_cast<int>(sampleCountSlice.yStride);
         _data->sampleCountXTileCoords = sampleCountSlice.xTileCoords;
         _data->sampleCountYTileCoords = sampleCountSlice.yTileCoords;
     }
@@ -1706,7 +1706,7 @@ DeepTiledOutputFile::copyPixels (DeepTiledInputFile &in)
                               "already contains pixel data.");
 
  
-    int numAllTiles = in.totalTiles();                              
+    size_t numAllTiles = in.totalTiles();                              
                               
 #if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
