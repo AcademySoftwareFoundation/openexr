@@ -434,11 +434,10 @@ bool usesLongNames (const Header &header);
 
 //
 // compute size of chunk offset table - for existing types, computes
-// the chunk size from the image size, compression type, and tile description
-// (for tiled types). If the type is not supported, uses the chunkCount attribute
-// if present, or throws an exception otherwise
-// deprecated_attribute is no longer used by this function
-//
+// the chunk size from the image size, compression type, and tile
+// description (for tiled types). If the type is not supported, uses
+// the chunkCount attribute if present, or throws an exception
+// otherwise
 //
 
 IMF_EXPORT
