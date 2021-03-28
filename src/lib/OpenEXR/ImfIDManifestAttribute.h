@@ -13,6 +13,12 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
+#if defined(_MSC_VER)
+// suppress warning about non-exported base classes
+#pragma warning (disable : 4251)
+#pragma warning (disable : 4275)
+#endif
+
 
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::CompressedIDManifest>
     IDManifestAttribute;

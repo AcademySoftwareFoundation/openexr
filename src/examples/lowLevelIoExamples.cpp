@@ -30,6 +30,10 @@ using namespace std;
 using namespace IMATH_NAMESPACE;
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4996)
+#endif
+
 class C_IStream: public IStream
 {
   public:
@@ -97,7 +101,7 @@ void
 C_IStream::seekg (uint64_t pos)
 {
     clearerr (_file);
-    fseek (_file, pos, SEEK_SET);
+    fseek (_file, static_cast<long>(pos), SEEK_SET);
 }
 
 
@@ -129,7 +133,7 @@ void
 C_OStream::seekp (uint64_t pos)
 {
     clearerr (_file);
-    fseek (_file, pos, SEEK_SET);
+    fseek (_file, static_cast<long>(pos), SEEK_SET);
 }
 
 

@@ -346,13 +346,13 @@ writePixelData (OutputStreamMutex *filedata,
     // Write the packed pixel sample count table.
     //
 
-    filedata->os->write (sampleCountTableData, sampleCountTableSize);
+    filedata->os->write (sampleCountTableData, static_cast<int>(sampleCountTableSize));
 
     //
     // Write the compressed data.
     //
 
-    filedata->os->write (pixelData, packedDataSize);
+    filedata->os->write (pixelData, static_cast<int>(packedDataSize));
 
     //
     // Update stream position.
@@ -573,7 +573,7 @@ LineBufferTask::execute ()
         {
             // (TODO) don't do this all the time.
             _lineBuffer->buffer[i - _lineBuffer->minY].resizeErase(
-                            _ofd->bytesPerLine[i - _ofd->minY]);
+                            static_cast<long>(_ofd->bytesPerLine[i - _ofd->minY]));
 
             for (int j = _ofd->minX; j <= _ofd->maxX; j++)
                 _ofd->lineSampleCount[i - _ofd->minY] += _ofd->getSampleCount(j, i);
@@ -664,7 +664,7 @@ LineBufferTask::execute ()
             if (uint64_t(_lineBuffer->buffer[i].size()) > maxBytesPerLine)
                 maxBytesPerLine = _lineBuffer->buffer[i].size();
         }
-        _lineBuffer->consecutiveBuffer.resizeErase(totalBytes);
+        _lineBuffer->consecutiveBuffer.resizeErase(static_cast<long>(totalBytes));
 
         int pos = 0;
         for (int i = 0; i < _lineBuffer->maxY - _lineBuffer->minY + 1; i++)
@@ -702,7 +702,7 @@ LineBufferTask::execute ()
           _lineBuffer->sampleCountTableSize =
                   _lineBuffer->sampleCountTableCompressor->compress (
                                                       _lineBuffer->sampleCountTableBuffer,
-                                                      tableDataSize,
+                                                      static_cast<int>(tableDataSize),
                                                       _lineBuffer->minY,
                                                       _lineBuffer->sampleCountTablePtr);
        }
@@ -736,7 +736,7 @@ LineBufferTask::execute ()
             const char *compPtr;
 
             uint64_t compSize = compressor->compress (_lineBuffer->dataPtr,
-                                                 _lineBuffer->dataSize,
+                                                 static_cast<int>(_lineBuffer->dataSize),
                                                  _lineBuffer->minY, compPtr);
 
             if (compSize < _lineBuffer->dataSize)
@@ -754,7 +754,7 @@ LineBufferTask::execute ()
                 //
 
                 convertToXdr (_ofd, _lineBuffer->consecutiveBuffer, _lineBuffer->minY,
-                              _lineBuffer->maxY, _lineBuffer->dataSize);
+                              _lineBuffer->maxY, static_cast<int>(_lineBuffer->dataSize));
             }
         }
 
@@ -944,7 +944,7 @@ DeepScanLineOutputFile::initialize (const Header &header)
     for (size_t i = 0; i < _data->lineBuffers.size(); ++i)
     {
         _data->lineBuffers[i] = new LineBuffer (_data->linesInBuffer);
-        _data->lineBuffers[i]->sampleCountTableBuffer.resizeErase(_data->maxSampleCountTableSize);
+        _data->lineBuffers[i]->sampleCountTableBuffer.resizeErase(static_cast<long>(_data->maxSampleCountTableSize));
 
         _data->lineBuffers[i]->sampleCountTableCompressor =
         newCompressor (_data->header.compression(),
@@ -1069,8 +1069,8 @@ DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
     else
     {
         _data->sampleCountSliceBase = sampleCountSlice.base;
-        _data->sampleCountXStride = sampleCountSlice.xStride;
-        _data->sampleCountYStride = sampleCountSlice.yStride;
+        _data->sampleCountXStride = static_cast<int>(sampleCountSlice.xStride);
+        _data->sampleCountYStride = static_cast<int>(sampleCountSlice.yStride);
     }
 
     //

@@ -23,6 +23,14 @@
 #include <typeinfo>
 #include <cstring>
 
+
+#if defined(_MSC_VER)
+// suppress warning about non-exported base classes
+#pragma warning (push)
+#pragma warning (disable : 4251)
+#pragma warning (disable : 4275)
+#endif
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class IMF_EXPORT_TYPE Attribute
@@ -363,5 +371,9 @@ TypedAttribute<T>::unRegisterAttributeType ()
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
+
+#if defined(_MSC_VER)
+#pragma warning (pop)
+#endif
 
 #endif

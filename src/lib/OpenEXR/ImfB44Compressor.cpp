@@ -444,10 +444,10 @@ B44Compressor::B44Compressor
      bool optFlatFields)
 :
     Compressor (hdr),
-    _maxScanLineSize (maxScanLineSize),
+    _maxScanLineSize (static_cast<int>(maxScanLineSize)),
     _optFlatFields (optFlatFields),
     _format (XDR),
-    _numScanLines (numScanLines),
+    _numScanLines (static_cast<int>(numScanLines)),
     _tmpBuffer (0),
     _outBuffer (0),
     _numChans (0),
@@ -831,7 +831,7 @@ B44Compressor::compress (const char *inPtr,
 	}
     }
 
-    return outEnd - _outBuffer;
+    return static_cast<int>(outEnd - _outBuffer);
 }
 
 
@@ -1040,7 +1040,7 @@ B44Compressor::uncompress (const char *inPtr,
 	tooMuchData();
 
     outPtr = _outBuffer;
-    return outEnd - _outBuffer;
+    return static_cast<int>(outEnd - _outBuffer);
 }
 
 

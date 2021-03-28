@@ -28,6 +28,9 @@
 
 #include <string.h>
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4996)
+#endif
 
 using IMATH_NAMESPACE::Box2i;
 using IMATH_NAMESPACE::Box2f;
