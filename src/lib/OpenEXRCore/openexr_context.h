@@ -291,7 +291,7 @@ typedef struct _exr_context_initializer
 /** @brief simple macro to initialize the context initializer with default values */
 #define EXR_DEFAULT_CONTEXT_INITIALIZER                                        \
     {                                                                          \
-        sizeof (exr_context_initializer_t), 0                                    \
+        sizeof (exr_context_initializer_t), 0                                  \
     }
 
 /** @} */ /* context function pointer declarations */
@@ -376,9 +376,9 @@ enum exr_default_write_mode
  * is optional, if NULL, default values will be used.
  */
 EXR_EXPORT exr_result_t exr_start_write (
-    exr_context_t*                 ctxt,
-    const char*                    filename,
-    enum exr_default_write_mode    default_mode,
+    exr_context_t*                   ctxt,
+    const char*                      filename,
+    enum exr_default_write_mode      default_mode,
     const exr_context_initializer_t* ctxtdata);
 
 /** @brief Creates a new context for updating an exr file in place.
@@ -392,8 +392,8 @@ EXR_EXPORT exr_result_t exr_start_write (
  * is optional, if NULL, default values will be used.
  */
 EXR_EXPORT exr_result_t exr_start_inplace_header_update (
-    exr_context_t*                 ctxt,
-    const char*                    filename,
+    exr_context_t*                   ctxt,
+    const char*                      filename,
     const exr_context_initializer_t* ctxtdata);
 
 /** @brief retrieves the file name the context is for as provided
@@ -403,6 +403,59 @@ EXR_EXPORT exr_result_t exr_start_inplace_header_update (
  */
 EXR_EXPORT exr_result_t
 exr_get_file_name (const exr_context_t ctxt, const char** name);
+
+/** Any opaque attribute data entry of the specified type is tagged
+ * with these functions enabling downstream users to unpack (or pack)
+ * the data.
+ *
+ * The library handles the memory packed data internally, but the
+ * handler is expected to allocate and manage memory for the
+ * *unpacked* buffer (the library will call the destroy function).
+ *
+ * NB: the pack function will be called twice (unless there is a
+ * memory failure), the first with a NULL buffer, requesting the
+ * maximum size (or exact size if known) for the packed buffer, then
+ * the second to fill the output packed buffer, at which point the
+ * size can be re-updated to have the final, precise size to put into
+ * the file.
+ */
+EXR_EXPORT exr_result_t exr_register_attr_type_handler (
+    exr_context_t ctxt,
+    const char*   type,
+    exr_result_t (*unpack_func_ptr) (
+        exr_context_t ctxt,
+        const void*   data,
+        int32_t       attrsize,
+        int32_t*      outsize,
+        void**        outbuffer),
+    exr_result_t (*pack_func_ptr) (
+        exr_context_t ctxt,
+        const void*   data,
+        int32_t       datasize,
+        int32_t*      outsize,
+        void*         outbuffer),
+    void (*destroy_unpacked_func_ptr) (
+        exr_context_t ctxt, void* data, int32_t datasize));
+
+/** @brief Enable long name support in the output context */
+EXR_EXPORT exr_result_t
+exr_set_longname_support (exr_context_t ctxt, int onoff);
+
+/** @brief Writes the header data.
+ *
+ * Opening a new output file has a small initialization state problem
+ * compared to opening for read / update: we need to enable the user
+ * to specify an arbitrary set of metadata across an arbitrary number
+ * of parts. To avoid having to create the list of parts and entire
+ * metadata up front, prior to calling the above @sa exr_start_write,
+ * allow the data to be set, then once this is called, it switches
+ * into a mode where the library assumes the data is now valid.
+ * 
+ * It will recompute the number of chunks that will be written, and
+ * reset the chunk offsets. If you modify file attributes or part
+ * information after a call to this, it will error.
+ */
+EXR_EXPORT exr_result_t exr_write_header (exr_context_t ctxt);
 
 /** @} */
 

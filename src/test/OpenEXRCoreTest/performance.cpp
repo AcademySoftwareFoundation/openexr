@@ -44,7 +44,6 @@ public:
     {}
     void execute() override
     {
-#if 0
         exr_decode_chunk_info_t chunk = {0};
         int rv = exr_decode_chunk_init_scanline( _f, 0, &chunk, _y, 1 );
         if ( rv == EXR_ERR_SUCCESS )
@@ -63,8 +62,7 @@ public:
             }
             rv = exr_read_chunk( _f, &chunk );
         }
-        exr_destroy_decode_chunk_info( &chunk );
-#endif
+        exr_destroy_decode_chunk_info( _f, &chunk );
     }
 private:
     exr_context_t _f;
@@ -77,8 +75,10 @@ private:
 static uint64_t read_pixels_raw( exr_context_t f )
 {
     uint64_t ret = 0;
-#if 0
-    exr_attr_box2i_t dw = exr_get_data_window( f, 0 );
+
+    exr_attr_box2i_t dw;
+    if (EXR_ERR_SUCCESS != exr_part_get_data_window( f, 0, &dw ))
+        throw std::logic_error( "Unable to query data window from part" );
     int64_t w = (int64_t)dw.x_max - (int64_t)dw.x_min + (int64_t)1;
     int64_t h = (int64_t)dw.x_max - (int64_t)dw.x_min + (int64_t)1;
 
@@ -87,21 +87,31 @@ static uint64_t read_pixels_raw( exr_context_t f )
     if ( h <= 0 )
         return ret;
 
-    auto stortype = exr_get_part_storage( f, 0 );
+    exr_storage_t stortype;
+    if (EXR_ERR_SUCCESS != exr_part_get_storage( f, 0, &stortype ))
+        throw std::logic_error( "Unable to query storage type from part" );
 
     if ( stortype == EXR_STORAGE_TILED ||
          stortype == EXR_STORAGE_DEEP_TILED )
         throw std::logic_error( "Tiled performance read test NYI" );
 
-    if ( exr_get_line_order( f, 0 ) != EXR_LINEORDER_DECREASING_Y )
+    exr_lineorder_t lo;
+    if (EXR_ERR_SUCCESS != exr_part_get_lineorder( f, 0, &lo ))
+        throw std::logic_error( "Unable to query line order from part" );
+    if ( lo != EXR_LINEORDER_DECREASING_Y )
     {
         std::vector<uint8_t> rawBuf;
-        size_t sizePerChunk = exr_get_chunk_unpacked_size( f, 0 );
-        int32_t ccount = exr_get_chunk_count( f, 0 );
-        int32_t linesread = exr_get_scanlines_per_chunk( f, 0 );
+        uint64_t sizePerChunk = 0;
+        int32_t ccount = 0, linesread = 0;
+        if ( EXR_ERR_SUCCESS != exr_part_get_chunk_unpacked_size( f, 0, &sizePerChunk ) )
+            throw std::logic_error( "Unable to get chunk unpacked size for part 0" );
+        if ( EXR_ERR_SUCCESS != exr_part_get_chunk_count( f, 0, &ccount ) )
+            throw std::logic_error( "Unable to get chunk count for part 0" );
+        if ( EXR_ERR_SUCCESS != exr_part_get_scanlines_per_chunk( f, 0, &linesread ) )
+            throw std::logic_error( "Unable to get scanlines per chunk for part 0" );
         if ( ccount <= 0 || sizePerChunk == 0 || sizePerChunk == size_t(-1) )
         {
-            exr_print_info( f, 1 );
+            exr_print_context_info( f, 1 );
             std::cerr << "sizePerChunk: " << sizePerChunk << std::endl;
             std::cerr << "chunk_count: " << ccount << std::endl;
             std::cerr << "linesperchunk: " << linesread << std::endl;
@@ -185,7 +195,7 @@ static uint64_t read_pixels_raw( exr_context_t f )
     }
     else
         throw std::runtime_error( "decreasing y not yet finished" );
-#endif
+
     return ret;
 }
 

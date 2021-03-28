@@ -6,7 +6,7 @@
 #ifndef OPENEXR_ATTR_H
 #define OPENEXR_ATTR_H
 
-#include "openexr_conf.h"
+#include "openexr_context.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -33,16 +33,16 @@ extern "C" {
 /** enum declaring allowed values for uint8_t value stored in built-in compression type */
 typedef enum
 {
-    EXR_COMPRESSION_NONE = 0,
-    EXR_COMPRESSION_RLE = 1,
-    EXR_COMPRESSION_ZIPS = 2,
-    EXR_COMPRESSION_ZIP = 3,
-    EXR_COMPRESSION_PIZ = 4,
+    EXR_COMPRESSION_NONE  = 0,
+    EXR_COMPRESSION_RLE   = 1,
+    EXR_COMPRESSION_ZIPS  = 2,
+    EXR_COMPRESSION_ZIP   = 3,
+    EXR_COMPRESSION_PIZ   = 4,
     EXR_COMPRESSION_PXR24 = 5,
-    EXR_COMPRESSION_B44 = 6,
-    EXR_COMPRESSION_B44A = 7,
-    EXR_COMPRESSION_DWAA = 8,
-    EXR_COMPRESSION_DWAB = 9,
+    EXR_COMPRESSION_B44   = 6,
+    EXR_COMPRESSION_B44A  = 7,
+    EXR_COMPRESSION_DWAA  = 8,
+    EXR_COMPRESSION_DWAB  = 9,
     EXR_COMPRESSION_LAST_TYPE /**< invalid value, provided for range checking */
 } exr_compression_t;
 
@@ -50,7 +50,7 @@ typedef enum
 typedef enum
 {
     EXR_ENVMAP_LATLONG = 0,
-    EXR_ENVMAP_CUBE = 1,
+    EXR_ENVMAP_CUBE    = 1,
     EXR_ENVMAP_LAST_TYPE /**< invalid value, provided for range checking */
 } exr_envmap_t;
 
@@ -59,42 +59,42 @@ typedef enum
 {
     EXR_LINEORDER_INCREASING_Y = 0,
     EXR_LINEORDER_DECREASING_Y = 1,
-    EXR_LINEORDER_RANDOM_Y = 2,
+    EXR_LINEORDER_RANDOM_Y     = 2,
     EXR_LINEORDER_LAST_TYPE /**< invalid value, provided for range checking */
 } exr_lineorder_t;
 
 /** enum declaring allowed values for part type */
 typedef enum
 {
-    EXR_STORAGE_SCANLINE = 0, /**< corresponds to type of 'scanlineimage' */
-    EXR_STORAGE_TILED, /**< corresponds to type of 'tiledimage' */
+    EXR_STORAGE_SCANLINE = 0,  /**< corresponds to type of 'scanlineimage' */
+    EXR_STORAGE_TILED,         /**< corresponds to type of 'tiledimage' */
     EXR_STORAGE_DEEP_SCANLINE, /**< corresponds to type of 'deepscanline' */
-    EXR_STORAGE_DEEP_TILED, /**< corresponds to type of 'deeptile' */
+    EXR_STORAGE_DEEP_TILED,    /**< corresponds to type of 'deeptile' */
     EXR_STORAGE_LAST_TYPE /**< invalid value, provided for range checking */
 } exr_storage_t;
 
 /** @brief Enum representing what type of tile information is contained */
 typedef enum
 {
-    EXR_TILE_ONE_LEVEL = 0, /**< single level of image data */
+    EXR_TILE_ONE_LEVEL     = 0, /**< single level of image data */
     EXR_TILE_MIPMAP_LEVELS = 1, /**< mipmapped image data */
     EXR_TILE_RIPMAP_LEVELS = 2, /**< ripmapped image data */
-    EXR_TILE_LAST_TYPE /**< guard / out of range type */
+    EXR_TILE_LAST_TYPE          /**< guard / out of range type */
 } exr_tile_level_mode_t;
 
 /** @brief Enum representing how to scale positions between levels */
 typedef enum
 {
     EXR_TILE_ROUND_DOWN = 0,
-    EXR_TILE_ROUND_UP = 1,
+    EXR_TILE_ROUND_UP   = 1,
     EXR_TILE_ROUND_LAST_TYPE
 } exr_tile_round_mode_t;
 
 /** @brief Enum capturing the underlying data type on a channel */
 typedef enum
 {
-    EXR_PIXEL_UINT = 0,
-    EXR_PIXEL_HALF = 1,
+    EXR_PIXEL_UINT  = 0,
+    EXR_PIXEL_HALF  = 1,
     EXR_PIXEL_FLOAT = 2,
     EXR_PIXEL_LAST_TYPE
 } exr_pixel_type_t;
@@ -176,7 +176,7 @@ typedef struct
 /** @brief struct to hold an integer ratio value */
 typedef struct
 {
-    int32_t num;
+    int32_t  num;
     uint32_t denom;
 } exr_attr_rational_t;
 
@@ -190,9 +190,9 @@ typedef struct
 /** @brief struct to hold a 2-element integer vector */
 typedef struct
 {
-    union 
+    union
     {
-        struct 
+        struct
         {
             int32_t x, y;
         };
@@ -203,9 +203,9 @@ typedef struct
 /** @brief struct to hold a 2-element 32-bit float vector */
 typedef struct
 {
-    union 
+    union
     {
-        struct 
+        struct
         {
             float x, y;
         };
@@ -216,9 +216,9 @@ typedef struct
 /** @brief struct to hold a 2-element 64-bit float vector */
 typedef struct
 {
-    union 
+    union
     {
-        struct 
+        struct
         {
             double x, y;
         };
@@ -229,9 +229,9 @@ typedef struct
 /** @brief struct to hold a 3-element integer vector */
 typedef struct
 {
-    union 
+    union
     {
-        struct 
+        struct
         {
             int32_t x, y, z;
         };
@@ -242,9 +242,9 @@ typedef struct
 /** @brief struct to hold a 3-element 32-bit float vector */
 typedef struct
 {
-    union 
+    union
     {
-        struct 
+        struct
         {
             float x, y, z;
         };
@@ -255,9 +255,9 @@ typedef struct
 /** @brief struct to hold a 3-element 64-bit float vector */
 typedef struct
 {
-    union 
+    union
     {
-        struct 
+        struct
         {
             double x, y, z;
         };
@@ -274,15 +274,18 @@ typedef struct
 {
     uint32_t x_size;
     uint32_t y_size;
-    uint8_t level_and_round;
+    uint8_t  level_and_round;
 } exr_attr_tiledesc_t;
 
 /** @brief macro to access type of tiling from packed structure */
-#define EXR_GET_TILE_LEVEL_MODE(tiledesc) ((exr_tile_level_mode_t)(((tiledesc).level_and_round)&0xF))
+#define EXR_GET_TILE_LEVEL_MODE(tiledesc)                                      \
+    ((exr_tile_level_mode_t) (((tiledesc).level_and_round) & 0xF))
 /** @brief macro to access the rounding mode of tiling from packed structure */
-#define EXR_GET_TILE_ROUND_MODE(tiledesc) ((exr_tile_round_mode_t)((((tiledesc).level_and_round)>>4)&0xF))
+#define EXR_GET_TILE_ROUND_MODE(tiledesc)                                      \
+    ((exr_tile_round_mode_t) ((((tiledesc).level_and_round) >> 4) & 0xF))
 /** @brief macro to pack the tiling type and rounding mode into packed structure */
-#define EXR_PACK_TILE_LEVEL_ROUND(lvl, mode) ((uint8_t)((((uint8_t)((mode) & 0xF)<<4)) | ((uint8_t)((lvl) & 0xF))))
+#define EXR_PACK_TILE_LEVEL_ROUND(lvl, mode)                                   \
+    ((uint8_t) ((((uint8_t) ((mode) &0xF) << 4)) | ((uint8_t) ((lvl) &0xF))))
 
 #pragma pack(pop)
 
@@ -293,34 +296,40 @@ typedef struct
 typedef struct
 {
     int32_t length;
-    int32_t alloc_size; /**< if this is non-zero, the string owns the data, if 0, is a const ref */
-    const char *str;
+    /** if this is non-zero, the string owns the data, if 0, is a const ref to a static string */
+    int32_t alloc_size;
+
+    const char* str;
 } exr_attr_string_t;
 
 /** storage for a string vector */
 typedef struct
 {
     int32_t n_strings;
-    int32_t alloc_size; /**< if this is non-zero, the string vector owns the data, if 0, is a const ref */
-    const exr_attr_string_t *strings;
+    /** if this is non-zero, the string vector owns the data, if 0, is a const ref */
+    int32_t alloc_size;
+
+    const exr_attr_string_t* strings;
 } exr_attr_string_vector_t;
 
 /** float vector storage struct */
 typedef struct
 {
     int32_t length;
-    int32_t alloc_size; /**< if this is non-zero, the float vector owns the data, if 0, is a const ref */
-    const float *arr;
+    /** if this is non-zero, the float vector owns the data, if 0, is a const ref */
+    int32_t alloc_size;
+
+    const float* arr;
 } exr_attr_float_vector_t;
 
 /** Individual channel information*/
 typedef struct
 {
     exr_attr_string_t name;
-    exr_pixel_type_t pixel_type; /** Data representation for these pixels: uint, half, float */
-    uint8_t p_linear; /**< Possible values are 0 and 1 per docs,
-                       * appears deprecated and unused in openexr
-                       * lib */
+    /** Data representation for these pixels: uint, half, float */
+    exr_pixel_type_t pixel_type;
+    /** Possible values are 0 and 1 per docs */
+    uint8_t p_linear;
     uint8_t reserved[3];
     int32_t x_sampling;
     int32_t y_sampling;
@@ -331,7 +340,8 @@ typedef struct
 {
     int num_channels;
     int num_alloced;
-    exr_attr_chlist_entry_t *entries;
+
+    const exr_attr_chlist_entry_t* entries;
 } exr_attr_chlist_t;
 
 /** @brief Struct to define attributes of an embedded preview image */
@@ -339,41 +349,51 @@ typedef struct
 {
     uint32_t width;
     uint32_t height;
-    size_t alloc_size; /**< if this is non-zero, the preview owns the data, if 0, is a const ref */
-    const uint8_t *rgba;
+    /** if this is non-zero, the preview owns the data, if 0, is a const ref */
+    size_t alloc_size;
+
+    const uint8_t* rgba;
 } exr_attr_preview_t;
 
 /** Custom storage structure for opaque data
  *
  * Handlers for opaque types can be registered, then when a
  * non-builtin type is encountered with a registered handler, the
- * function poniters to unpack / pack it will be set up.
+ * function pointers to unpack / pack it will be set up.
  *
  * @sa exr_register_attr_type_handler
  */
 typedef struct
 {
     int32_t size;
-	int32_t unpacked_size;
+    int32_t unpacked_size;
 
-	size_t packed_alloc_size; /**< if this is non-zero, the struct owns the data, if 0, is a const ref */
-    void *packed_data;
+    size_t
+          packed_alloc_size; /**< if this is non-zero, the struct owns the data, if 0, is a const ref */
+    void* packed_data;
 
     /** when an application wants to have custom data, they can store an unpacked form here which will
 	 * be requested to be destroyed upon destruction of the attribute */
+    void* unpacked_data;
 
-    size_t unpacked_alloc_size; /**< if this is non-zero, the struct owns the data, if 0, is a const ref */
-	void *unpacked_data;
-
-	/* an application can register an attribute handler which then
+    /* an application can register an attribute handler which then
 	 * fills in these function pointers. This allows a user to delay
 	 * the expansion of the custom type until access is desired, and
 	 * similarly, to delay the packing of the data until write time */
-    int (*unpack_func_ptr)( const void *data, int32_t attrsize, int32_t *outsize, void **outbuffer );
-    int (*pack_func_ptr)( const void *data, int32_t datasize, int32_t *outsize, void **outbuffer );
-
-    void (*destroy_packed_func_ptr)( void *data, int32_t attrsize );
-    void (*destroy_unpacked_func_ptr)( void *data, int32_t attrsize );
+    exr_result_t (*unpack_func_ptr) (
+        exr_context_t ctxt,
+        const void*   data,
+        int32_t       attrsize,
+        int32_t*      outsize,
+        void**        outbuffer);
+    exr_result_t (*pack_func_ptr) (
+        exr_context_t ctxt,
+        const void*   data,
+        int32_t       datasize,
+        int32_t*      outsize,
+        void*         outbuffer);
+    void (*destroy_unpacked_func_ptr) (
+        exr_context_t ctxt, void* data, int32_t attrsize);
 } exr_attr_opaquedata_t;
 
 /* /////////////////////////////////////// */
@@ -385,36 +405,37 @@ typedef struct
  */
 typedef enum
 {
-    EXR_ATTR_UNKNOWN = 0, /**< type indicating an error or uninitialized attribute */
-    EXR_ATTR_BOX2I, /**< integer region definition. @see exr_box2i */
-    EXR_ATTR_BOX2F, /**< float region definition. @see exr_box2f */
+    EXR_ATTR_UNKNOWN =
+        0,           /**< type indicating an error or uninitialized attribute */
+    EXR_ATTR_BOX2I,  /**< integer region definition. @see exr_box2i */
+    EXR_ATTR_BOX2F,  /**< float region definition. @see exr_box2f */
     EXR_ATTR_CHLIST, /**< Definition of channels in file @see exr_chlist_entry */
-    EXR_ATTR_CHROMATICITIES, /**< Values to specify color space of colors in file @see exr_chromaticities */
-    EXR_ATTR_COMPRESSION, /**< uint8_t declaring compression present */
-    EXR_ATTR_DOUBLE, /**< double precision floating point number */
-    EXR_ATTR_ENVMAP, /**< uint8_t declaring environment map type */
+    EXR_ATTR_CHROMATICITIES, /**< Values to specify color space of colors in file @see exr_attr_chromaticities_t */
+    EXR_ATTR_COMPRESSION,    /**< uint8_t declaring compression present */
+    EXR_ATTR_DOUBLE,         /**< double precision floating point number */
+    EXR_ATTR_ENVMAP,         /**< uint8_t declaring environment map type */
     EXR_ATTR_FLOAT, /**< a normal (4 byte) precision floating point number */
     EXR_ATTR_FLOAT_VECTOR, /**< a list of normal (4 byte) precision floating point numbers */
-    EXR_ATTR_INT, /**< a 32-bit signed integer value */
-    EXR_ATTR_KEYCODE, /**< structure recording keycode @see exr_keycode */
+    EXR_ATTR_INT,     /**< a 32-bit signed integer value */
+    EXR_ATTR_KEYCODE, /**< structure recording keycode @see exr_attr_keycode_t */
     EXR_ATTR_LINEORDER, /**< uint8_t declaring scanline ordering */
-    EXR_ATTR_M33F, /**< 9 32-bit floats representing a 3x3 matrix */
-    EXR_ATTR_M33D, /**< 9 64-bit floats representing a 3x3 matrix */
-    EXR_ATTR_M44F, /**< 16 32-bit floats representing a 4x4 matrix */
-    EXR_ATTR_M44D, /**< 16 64-bit floats representing a 4x4 matrix */
+    EXR_ATTR_M33F,      /**< 9 32-bit floats representing a 3x3 matrix */
+    EXR_ATTR_M33D,      /**< 9 64-bit floats representing a 3x3 matrix */
+    EXR_ATTR_M44F,      /**< 16 32-bit floats representing a 4x4 matrix */
+    EXR_ATTR_M44D,      /**< 16 64-bit floats representing a 4x4 matrix */
     EXR_ATTR_PREVIEW, /**< 2 unsigned ints followed by 4 x w x h uint8_t image */
     EXR_ATTR_RATIONAL, /**< int followed by unsigned int */
-    EXR_ATTR_STRING, /**< int (length) followed by char string data */
+    EXR_ATTR_STRING,   /**< int (length) followed by char string data */
     EXR_ATTR_STRING_VECTOR, /**< 0 or more text strings (int + string). number is based on attribute size */
     EXR_ATTR_TILEDESC, /**< 2 unsigned ints xSize, ySize followed by mode */
     EXR_ATTR_TIMECODE, /**< 2 unsigned ints time and flags, user data */
-    EXR_ATTR_V2I, /**< pair of 32-bit integers */
-    EXR_ATTR_V2F, /**< pair of 32-bit floats */
-    EXR_ATTR_V2D, /**< pair of 64-bit floats */
-    EXR_ATTR_V3I, /**< set of 3 32-bit integers */
-    EXR_ATTR_V3F, /**< set of 3 32-bit floats */
-    EXR_ATTR_V3D, /**< set of 3 64-bit floats */
-    EXR_ATTR_OPAQUE, /**< user / unknown provided type */
+    EXR_ATTR_V2I,      /**< pair of 32-bit integers */
+    EXR_ATTR_V2F,      /**< pair of 32-bit floats */
+    EXR_ATTR_V2D,      /**< pair of 64-bit floats */
+    EXR_ATTR_V3I,      /**< set of 3 32-bit integers */
+    EXR_ATTR_V3F,      /**< set of 3 32-bit floats */
+    EXR_ATTR_V3D,      /**< set of 3 64-bit floats */
+    EXR_ATTR_OPAQUE,   /**< user / unknown provided type */
     EXR_ATTR_LAST_KNOWN_TYPE
 } exr_attribute_type_t;
 
@@ -432,13 +453,15 @@ typedef enum
  */
 typedef struct _exr_attribute_t
 {
-	const char *name; /**< name of the attribute */
-	const char *type_name; /**< string type name of the attribute */
-	uint8_t name_length; /**< length of name string (short flag is 31 max, long allows 255) */
-	uint8_t type_name_length; /**< length of type string (short flag is 31 max, long allows 255) */
+    const char* name;      /**< name of the attribute */
+    const char* type_name; /**< string type name of the attribute */
+    uint8_t
+        name_length; /**< length of name string (short flag is 31 max, long allows 255) */
+    uint8_t
+                         type_name_length; /**< length of type string (short flag is 31 max, long allows 255) */
     exr_attribute_type_t type; /**< enum of the attribute type */
 
-	/** Union of pointers of different types that can be used to type
+    /** Union of pointers of different types that can be used to type
 	 * pun to an appropriate type for builtins. Do note that while
 	 * this looks like a big thing, it is only the size of a single
 	 * pointer.  these are all pointers into some other data block
@@ -450,36 +473,36 @@ typedef struct _exr_attribute_t
 	 */
     union
     {
-		// NB: not pointers for POD types
+        // NB: not pointers for POD types
         uint8_t uc;
-        double d;
-        float f;
+        double  d;
+        float   f;
         int32_t i;
 
-        exr_attr_box2i_t *box2i;
-        exr_attr_box2f_t *box2f;
-        exr_attr_chlist_t *chlist;
-        exr_attr_chromaticities_t *chromaticities;
-        exr_attr_keycode_t *keycode;
-        exr_attr_float_vector_t *floatvector;
-        exr_attr_m33f_t *m33f;
-        exr_attr_m33d_t *m33d;
-        exr_attr_m44f_t *m44f;
-        exr_attr_m44d_t *m44d;
-        exr_attr_preview_t *preview;
-        exr_attr_rational_t *rational;
-        exr_attr_string_t *string;
-        exr_attr_string_vector_t *stringvector;
-        exr_attr_tiledesc_t *tiledesc;
-        exr_attr_timecode_t *timecode;
-        exr_attr_v2i_t *v2i;
-        exr_attr_v2f_t *v2f;
-        exr_attr_v2d_t *v2d;
-        exr_attr_v3i_t *v3i;
-        exr_attr_v3f_t *v3f;
-        exr_attr_v3d_t *v3d;
-        exr_attr_opaquedata_t *opaque;
-        uint8_t *rawptr;
+        exr_attr_box2i_t*          box2i;
+        exr_attr_box2f_t*          box2f;
+        exr_attr_chlist_t*         chlist;
+        exr_attr_chromaticities_t* chromaticities;
+        exr_attr_keycode_t*        keycode;
+        exr_attr_float_vector_t*   floatvector;
+        exr_attr_m33f_t*           m33f;
+        exr_attr_m33d_t*           m33d;
+        exr_attr_m44f_t*           m44f;
+        exr_attr_m44d_t*           m44d;
+        exr_attr_preview_t*        preview;
+        exr_attr_rational_t*       rational;
+        exr_attr_string_t*         string;
+        exr_attr_string_vector_t*  stringvector;
+        exr_attr_tiledesc_t*       tiledesc;
+        exr_attr_timecode_t*       timecode;
+        exr_attr_v2i_t*            v2i;
+        exr_attr_v2f_t*            v2f;
+        exr_attr_v2d_t*            v2d;
+        exr_attr_v3i_t*            v3i;
+        exr_attr_v3f_t*            v3f;
+        exr_attr_v3d_t*            v3d;
+        exr_attr_opaquedata_t*     opaque;
+        uint8_t*                   rawptr;
     };
 } exr_attribute_t;
 

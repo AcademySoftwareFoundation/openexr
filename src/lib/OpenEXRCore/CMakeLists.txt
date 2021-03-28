@@ -5,71 +5,60 @@ openexr_define_library(OpenEXRCore
   PRIV_EXPORT OPENEXRCORE_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
-    openexr_priv_constants.h
-    openexr_priv_file.h
-    openexr_priv_memory.h
-    openexr_priv_structs.h
-    openexr_priv_xdr.h
+    internal_attr.h
+    internal_channel_list.h
+    internal_constants.h
+    internal_file.h
+    internal_float_vector.h
+    internal_memory.h
+    internal_opaque.h
+    internal_posix_file_impl.h
+    internal_win32_file_impl.h
+    internal_preview.h
+    internal_string.h
+    internal_string_vector.h
+    internal_structs.h
+    internal_xdr.h
 
-    #openexr_attr.c
-    #openexr_attr_string.c
-    #openexr_attr_string_vector.c
-    #openexr_attr_float_vector.c
-    #openexr_attr_chlist.c
-    #openexr_attr_opaque.c
-    #openexr_attr_preview.c
+    attributes.c
+    string.c
+    string_vector.c
+    float_vector.c
+    channel_list.c
+    opaque.c
+    preview.c
 
-    #openexr_req_attr.c
-    #openexr_std_attr.c
-    #openexr_file_attr.c
+    base.c
+    context.c
+    memory.c
+    internal_structs.c
 
-    openexr_base.c
-    openexr_context.c
-    openexr_memory.c
-    openexr_structs.c
+    part.c
+    part_attr.c
+    std_attr.c
 
-    openexr_part.c
-    #openexr_file_info.c
+    parse_header.c
+    read.c
+    decompress.c
+    write.c
 
-    #openexr_parse_header.c
-    #openexr_read.c
-    #openexr_decompress.c
+    validation.c
 
-    openexr_validation.c
 
-    #openexr_write.c
-
-    openexr_debug.c
+    debug.c
 
   HEADERS
-    openexr_conf.h
-    openexr_base.h
-    openexr_context.h
-    openexr_part.h
-
-    openexr_debug.h
-
-    openexr_attr.h
-    openexr_attr_simple.h
-    openexr_attr_tiledesc.h
-    openexr_attr_string.h
-    openexr_attr_string_vector.h
-    openexr_attr_float_vector.h
-    openexr_attr_chlist.h
-    openexr_attr_preview.h
-    openexr_attr_opaque.h
-
-    openexr_std_attr.h
-    openexr_req_attr.h
-
-    openexr_file.h
-    openexr_stream.h
-
-    openexr_read.h
-    openexr_write.h
-
     openexr.h
 
+    openexr_attr.h
+    openexr_base.h
+    openexr_conf.h
+    openexr_context.h
+    openexr_debug.h
+    openexr_part.h
+    openexr_read.h
+    openexr_std_attr.h
+    openexr_write.h
   DEPENDENCIES
     ZLIB::ZLIB
   PRIVATE_DEPS

@@ -9,6 +9,8 @@
 void testReadBadArgs( const std::string &tempdir );
 void testReadBadFiles( const std::string &tempdir );
 
+void testReadMeta( const std::string &tempdir );
+
 void testOpenScans( const std::string &tempdir );
 void testOpenTiles( const std::string &tempdir );
 void testOpenMultiPart( const std::string &tempdir );

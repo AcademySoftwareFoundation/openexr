@@ -89,7 +89,7 @@ static int process_file( const char *filename, int verbose )
     rv = exr_start_read( &e, filename, &cinit );
 	if ( rv == 0 )
 	{
-        exr_print_info( e, verbose );
+        exr_print_context_info( e, verbose );
 		exr_finish( &e );
     }
     return rv;

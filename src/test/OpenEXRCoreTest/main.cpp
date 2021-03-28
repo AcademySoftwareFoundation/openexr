@@ -154,6 +154,7 @@ main (int argc, char *argv[])
 
     TEST( testReadBadArgs, "core_read" );
     TEST( testReadBadFiles, "core_read" );
+    TEST( testReadMeta, "core_read" );
     TEST( testOpenScans, "core_read" );
     TEST( testOpenTiles, "core_read" );
     TEST( testOpenMultiPart, "core_read" );

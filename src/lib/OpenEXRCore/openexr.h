@@ -12,19 +12,15 @@
 #include "openexr_errors.h"
 
 #include "openexr_context.h"
-#include "openexr_part.h"
-
-#include "openexr_debug.h"
-
 #include "openexr_attr.h"
 
-/*
-#include "openexr_file_attr.h"
-#include "openexr_file_info.h"
-#include "openexr_req_attr.h"
+#include "openexr_part.h"
+
 #include "openexr_std_attr.h"
+
 #include "openexr_read.h"
 #include "openexr_write.h"
-*/
+
+#include "openexr_debug.h"
 
 #endif /* OPENEXR_CORE_H */
