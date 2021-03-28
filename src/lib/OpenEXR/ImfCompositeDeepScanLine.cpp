@@ -249,7 +249,7 @@ CompositeDeepScanLine::setFrameBuffer(const FrameBuffer& fr)
         {
             _Data->_bufferMap.push_back(2);
         }else{
-            _Data->_bufferMap.push_back(_Data->_channels.size());
+            _Data->_bufferMap.push_back(static_cast<int>(_Data->_channels.size()));
             _Data->_channels.push_back(name);
         }
     }
@@ -341,7 +341,7 @@ composite_line(int y,
           comp->composite_pixel(&output_pixel[0],
                                 &inputs[0],
                                 &names[0],
-                                names.size(),
+                                static_cast<int>(names.size()),
                                 total_sizes[pixel],
                                 num_sources[pixel]
                                );

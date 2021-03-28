@@ -18,6 +18,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#pragma warning (disable : 4996)
 #endif
 
 IEX_INTERNAL_NAMESPACE_SOURCE_ENTER

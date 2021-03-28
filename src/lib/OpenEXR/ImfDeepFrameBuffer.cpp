@@ -24,7 +24,7 @@ DeepSlice::DeepSlice (PixelType t,
                       bool ytc)
 :
     Slice (t, b, xst, yst, xsm, ysm, fv, xtc, ytc),
-    sampleStride (spst)
+    sampleStride (static_cast<int>(spst))
 {
     // empty
 }

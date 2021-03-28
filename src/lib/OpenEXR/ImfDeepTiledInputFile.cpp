@@ -304,8 +304,8 @@ int&
 DeepTiledInputFile::Data::getSampleCount(int x, int y)
 {
     return sampleCount(sampleCountSliceBase,
-                       sampleCountXStride,
-                       sampleCountYStride,
+                       static_cast<int>(sampleCountXStride),
+                       static_cast<int>(sampleCountYStride),
                        x, y);
 }
 
@@ -427,7 +427,7 @@ readTileData (InputStreamMutex *streamData,
     // Skip the pixel sample count table because we have read this data.
     //
 
-    Xdr::skip <StreamIO> (*streamData->is, tableSize);
+    Xdr::skip <StreamIO> (*streamData->is, static_cast<int>(tableSize));
 
 
     if (tileXCoord != dx)
@@ -447,14 +447,14 @@ readTileData (InputStreamMutex *streamData,
     //
 
     if (streamData->is->isMemoryMapped ())
-        buffer = streamData->is->readMemoryMapped (dataSize);
+        buffer = streamData->is->readMemoryMapped (static_cast<int>(dataSize));
     else
     {
         // (TODO) check if the packed data size is too big?
         // (TODO) better memory management here. Don't delete buffer everytime.
         if (buffer != 0) delete[] buffer;
         buffer = new char[dataSize];
-        streamData->is->read (buffer, dataSize);
+        streamData->is->read (buffer, static_cast<int>(dataSize));
     }
 
     //
@@ -591,7 +591,7 @@ TileBufferTask::execute ()
             _tileBuffer->format = _tileBuffer->compressor->format();
 
             _tileBuffer->dataSize = _tileBuffer->compressor->uncompressTile
-                (_tileBuffer->buffer, _tileBuffer->dataSize,
+                (_tileBuffer->buffer, static_cast<int>(_tileBuffer->dataSize),
                  tileRange, _tileBuffer->uncompressedData);
         }
         else
@@ -1034,7 +1034,7 @@ DeepTiledInputFile::initialize ()
         _data->tileBuffers[i] = new TileBuffer ();
 
 
-    _data->sampleCountTableBuffer.resizeErase(_data->maxSampleCountTableSize);
+    _data->sampleCountTableBuffer.resizeErase(static_cast<int>(_data->maxSampleCountTableSize));
 
     _data->sampleCountTableComp = newCompressor(_data->header.compression(),
                                                 _data->maxSampleCountTableSize,
@@ -1513,7 +1513,7 @@ DeepTiledInputFile::rawTileData (int &dx, int &dy,
      Xdr::read<StreamIO> (*_data->_streamData->is, *(uint64_t *) (pixelData+32));
      
      // read the actual data
-     _data->_streamData->is->read(pixelData+40, sampleCountTableSize+packedDataSize);
+     _data->_streamData->is->read(pixelData+40, static_cast<int>(sampleCountTableSize+packedDataSize));
      
      
      if(!isMultiPart(_data->version))
@@ -1863,7 +1863,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                 // Read and uncompress the pixel sample count table.
                 //
 
-                _data->_streamData->is->read(_data->sampleCountTableBuffer, tableSize);
+                _data->_streamData->is->read(_data->sampleCountTableBuffer, static_cast<int>(tableSize));
 
                 const char* readPtr;
 
@@ -1874,7 +1874,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                         THROW(IEX_NAMESPACE::ArgExc,"Deep scanline data corrupt at tile " << dx << ',' << dy << ',' << lx << ',' <<  ly << " (sampleCountTableDataSize error)");
                     }
                     _data->sampleCountTableComp->uncompress(_data->sampleCountTableBuffer,
-                                                            tableSize,
+                                                            static_cast<int>(tableSize),
                                                             tileRange.min.y,
                                                             readPtr);
                 }

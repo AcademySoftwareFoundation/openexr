@@ -24,6 +24,14 @@
 #include "ImfAttribute.h"
 #include <ImathVec.h>
 
+
+#if defined(_MSC_VER)
+// suppress warning about non-exported base classes
+#pragma warning (push)
+#pragma warning (disable : 4251)
+#pragma warning (disable : 4275)
+#endif
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 typedef TypedAttribute<IMATH_NAMESPACE::V2i> V2iAttribute;
@@ -44,5 +52,11 @@ extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<IMATH_NAMESPACE:
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+
+#if defined(_MSC_VER)
+// suppress warning about non-exported base classes
+#pragma warning (pop)
+#endif
 
 #endif
