@@ -231,6 +231,8 @@ testReadTiles (const std::string& tempdir)
     EXRCORE_TEST_RVAL(exr_destroy_decode_chunk_info (f, &chunk));
     exr_finish (&f);
 
+#if 0
+    /* TODO: Need to get more test material */
     EXRCORE_TEST_RVAL(exr_start_read (
         &f,
         "/home/kimball/Development/OSS/OpenEXR/kdt3rd/testmips.exr",
@@ -273,6 +275,7 @@ testReadTiles (const std::string& tempdir)
 
     EXRCORE_TEST_RVAL(exr_destroy_decode_chunk_info (f, &chunk));
     EXRCORE_TEST_RVAL(exr_finish (&f));
+#endif
 }
 
 void
