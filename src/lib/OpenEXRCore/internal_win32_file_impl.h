@@ -46,13 +46,13 @@ print_error_helper (
             lpMsgBuf)))
     {
         return pf->print_error (
-            pf, EXR_ERR_OUT_OF_MEMORY, "Unable to format message print");
+            (const exr_context_t)pf, EXR_ERR_OUT_OF_MEMORY, "Unable to format message print");
     }
 
     if (error_cb)
         error_cb (pf, errcode, (const char*) lpDisplayBuf);
     else
-        pf->print_error (pf, errcode, (const char*) lpDisplayBuf);
+        pf->print_error ((const exr_context_t)pf, errcode, (const char*) lpDisplayBuf);
 
     LocalFree (lpMsgBuf);
     LocalFree (lpDisplayBuf);
@@ -78,14 +78,14 @@ send_error (
 }
 
 static wchar_t*
-widen_filename (const char* fn)
+widen_filename (struct _internal_exr_context* file, const char* fn)
 {
     int      wcSize = 0, fnlen = 0;
     wchar_t* wcFn = NULL;
 
     fnlen  = (int) strlen (fn);
     wcSize = MultiByteToWideChar (CP_UTF8, 0, fn, fnlen, NULL, 0);
-    wcFn   = priv_alloc (sizeof (wchar_t) * (wcSize + 1));
+    wcFn   = file->alloc_fn (sizeof (wchar_t) * (wcSize + 1));
     if (wcFn)
     {
         MultiByteToWideChar (CP_UTF8, 0, fn, fnlen, wcFn, wcSize);
@@ -123,25 +123,25 @@ finalize_write (struct _internal_exr_context* pf, int failed)
     {
         wchar_t* wcFn;
         if (pf->tmp_filename.str)
-            wcFn = widen_filename (pf->tmp_filename.str);
+            wcFn = widen_filename (pf, pf->tmp_filename.str);
         else
-            wcFn = widen_filename (pf->filename.str);
+            wcFn = widen_filename (pf, pf->filename.str);
         if (wcFn)
         {
             DeleteFileW (wcFn);
-            priv_free (wcFn);
+            pf->free_fn (wcFn);
         }
     }
 
     if (!failed && pf->tmp_filename.str)
     {
-        wchar_t* wcFnTmp = widen_filename (pf->tmp_filename.str);
-        wchar_t* wcFn    = widen_filename (pf->filename.str);
+        wchar_t* wcFnTmp = widen_filename (pf, pf->tmp_filename.str);
+        wchar_t* wcFn    = widen_filename (pf, pf->filename.str);
         BOOL     res     = FALSE;
         if (wcFn && wcFnTmp)
             res = ReplaceFileW (wcFn, wcFnTmp, NULL, 0, NULL, NULL);
-        priv_free (wcFn);
-        priv_free (wcFnTmp);
+        pf->free_fn (wcFn);
+        pf->free_fn (wcFnTmp);
 
         if (!res)
             return print_error (
@@ -208,7 +208,7 @@ default_read_func (
         if (dw != ERROR_HANDLE_EOF)
         {
             print_error_helper (
-                EXR_GETFILE (ctxt),
+                EXR_CTXT (ctxt),
                 EXR_ERR_READ_IO,
                 dw,
                 error_cb,
@@ -275,7 +275,7 @@ default_init_read_file (struct _internal_exr_context* file)
     file->destroy_fn = &default_shutdown;
     file->read_fn    = &default_read_func;
 
-    wcFn = widen_filename (file->filename.str);
+    wcFn = widen_filename (file, file->filename.str);
     if (wcFn)
     {
 #if defined(_WIN32_WINNT) && (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
@@ -291,7 +291,7 @@ default_init_read_file (struct _internal_exr_context* file)
             FILE_ATTRIBUTE_NORMAL, /* TBD: use overlapped? | FILE_FLAG_OVERLAPPED */
             NULL);
 #endif
-        priv_free (wcFn);
+        file->free_fn (wcFn);
 
         if (fd == INVALID_HANDLE_VALUE)
             return print_error (
@@ -322,7 +322,7 @@ default_init_write_file (struct _internal_exr_context* file)
     file->destroy_fn = &default_shutdown;
     file->write_fn   = &default_write_func;
 
-    wcFn = widen_filename (outfn);
+    wcFn = widen_filename (file, outfn);
     if (wcFn)
     {
 #if defined(_WIN32_WINNT) && (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
@@ -342,7 +342,7 @@ default_init_write_file (struct _internal_exr_context* file)
             FILE_ATTRIBUTE_NORMAL, /* TBD: use overlapped? | FILE_FLAG_OVERLAPPED */
             NULL);
 #endif
-        priv_free (wcFn);
+        file->free_fn (wcFn);
 
         if (fd == INVALID_HANDLE_VALUE)
             return print_error (
@@ -387,7 +387,7 @@ make_temp_filename (struct _internal_exr_context* ret)
         _snprintf_s (tmproot, 32, _TRUNCATE, "tmp.%d", GetCurrentProcessId ());
     if (nwr >= 32)
         return ret->report_error (
-            ret,
+            (const exr_context_t)ret,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid assumption in temporary filename");
 
@@ -397,7 +397,7 @@ make_temp_filename (struct _internal_exr_context* ret)
     if (newlen >= INT32_MAX)
         return ret->standard_error (ret, EXR_ERR_OUT_OF_MEMORY);
 
-    tmpname = priv_alloc (newlen + 1);
+    tmpname = ret->alloc_fn (newlen + 1);
     if (tmpname)
     {
         // windows allows both
@@ -440,7 +440,7 @@ make_temp_filename (struct _internal_exr_context* ret)
     }
     else
         return ret->print_error (
-            ret,
+            (const exr_context_t)ret,
             EXR_ERR_OUT_OF_MEMORY,
             "Unable to create %lu bytes for temporary filename",
             (unsigned long) newlen + 1);

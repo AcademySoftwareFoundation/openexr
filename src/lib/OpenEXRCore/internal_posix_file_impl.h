@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined __USE_UNIX98 || defined __USE_XOPEN2K8
+#if defined __USE_UNIX98 || defined __USE_XOPEN2K8 || (defined(_XOPEN_VERSION) && _XOPEN_VERSION >= 400)
 #    define CAN_USE_PREAD 1
 #else
 #    define CAN_USE_PREAD 0
@@ -311,10 +311,10 @@ default_init_read_file (struct _internal_exr_context* file)
     fd = pthread_mutex_init (&(fh->mutex), NULL);
     if (fd != 0)
         return file->print_error (
-            file,
+            (const exr_context_t)file,
             EXR_ERR_OUT_OF_MEMORY,
             "Unable to initialize file mutex: %s",
-            strerror (rv));
+            strerror (fd));
 #endif
 
     file->destroy_fn = &default_shutdown;
@@ -349,7 +349,7 @@ default_init_write_file (struct _internal_exr_context* file)
             (const exr_context_t) file,
             EXR_ERR_OUT_OF_MEMORY,
             "Unable to initialize file mutex: %s",
-            strerror (rv));
+            strerror (fd));
 #endif
 
     fh->fd           = -1;
