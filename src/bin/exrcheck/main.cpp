@@ -2,7 +2,7 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 
 #include <ImfCheckFile.h>
-
+#include <ImathConfig.h>
 
 #include <iostream>
 #include <fstream>
@@ -30,6 +30,7 @@ usageMessage (const char argv0[])
     cerr << "  -m : avoid excessive memory allocation (some files will not be fully checked)\n";
     cerr << "  -t : avoid spending excessive time (some files will not be fully checked)\n";
     cerr << "  -s : use stream API instead of file API\n";
+    cerr << "  -v : print version info\n";
 
 }
 
@@ -97,6 +98,17 @@ main(int argc, char **argv)
         else if (!strcmp (argv[i],"-s"))
         {
             useStream = true;
+        }
+        else if (!strcmp (argv[i],"-v"))
+        {
+            std::cout << OPENEXR_PACKAGE_STRING
+                      << " Lib API: " << OPENEXR_LIB_VERSION_STRING
+                      << ", " << IMATH_PACKAGE_STRING
+#if defined(IMATH_LIB_VERSION_STRING)
+                      << " Lib API: " << IMATH_LIB_VERSION_STRING
+#endif
+                      << std::endl;
+            exit(0);
         }
         else
         {
