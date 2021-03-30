@@ -30,7 +30,7 @@ usageMessage (const char argv0[])
     cerr << "  -m : avoid excessive memory allocation (some files will not be fully checked)\n";
     cerr << "  -t : avoid spending excessive time (some files will not be fully checked)\n";
     cerr << "  -s : use stream API instead of file API\n";
-    cerr << "  -v : print version info\n";
+    cerr << "  -v : print OpenEXR and Imath software libary version info\n";
 
 }
 
