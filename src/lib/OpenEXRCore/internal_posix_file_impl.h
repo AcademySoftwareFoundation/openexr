@@ -3,7 +3,9 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
-/* implementation for unix-like file io routines (used in openexr_file.c) */
+/* implementation for unix-like file io routines (used in context.c) */
+#include <IlmThreadConfig.h>
+
 #include <errno.h>
 
 #include <fcntl.h>
@@ -11,13 +13,16 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <pthread.h>
+#ifdef ILMTHREAD_THREADING_ENABLED
+#    include <pthread.h>
+#endif
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#if defined __USE_UNIX98 || defined __USE_XOPEN2K8 || (defined(_XOPEN_VERSION) && _XOPEN_VERSION >= 400)
+#if defined __USE_UNIX98 || defined __USE_XOPEN2K8 ||                          \
+    (defined(_XOPEN_VERSION) && _XOPEN_VERSION >= 400)
 #    define CAN_USE_PREAD 1
 #else
 #    define CAN_USE_PREAD 0
@@ -32,7 +37,9 @@ struct _internal_exr_filehandle
 struct _internal_exr_filehandle
 {
     int             fd;
+#    ifdef ILMTHREAD_THREADING_ENABLED
     pthread_mutex_t mutex;
+#    endif
 };
 #endif
 
@@ -47,7 +54,9 @@ default_shutdown (const exr_context_t c, void* userdata, int failed)
     {
         if (fh->fd >= 0) close (fh->fd);
 #if !CAN_USE_PREAD
+#    ifdef ILMTHREAD_THREADING_ENABLED
         pthread_mutex_destroy (&(fh->mutex));
+#    endif
 #endif
     }
 }
@@ -130,7 +139,9 @@ default_read_func (
     }
 
 #if !CAN_USE_PREAD
+#    ifdef ILMTHREAD_THREADING_ENABLED
     pthread_mutex_lock (&(fh->mutex));
+#    endif
     {
 #    if defined __USE_LARGEFILE64
         uint64_t spos = (uint64_t) lseek64 (fd, (off64_t) offset, SEEK_SET);
@@ -139,7 +150,9 @@ default_read_func (
 #    endif
         if (spos != offset)
         {
+#    ifdef ILMTHREAD_THREADING_ENABLED
             pthread_mutex_unlock (&(fh->mutex));
+#    endif
             if (error_cb)
             {
                 if (spos == (uint64_t) -1)
@@ -178,7 +191,9 @@ default_read_func (
     } while (retsz < sz);
 
 #if !CAN_USE_PREAD
+#    ifdef ILMTHREAD_THREADING_ENABLED
     pthread_mutex_unlock (&(fh->mutex));
+#    endif
 #endif
     if (retsz < 0 && error_cb)
         error_cb (
@@ -238,7 +253,9 @@ default_write_func (
     }
 
 #if !CAN_USE_PREAD
+#    ifdef ILMTHREAD_THREADING_ENABLED
     pthread_mutex_lock (&(fh->mutex));
+#    endif
     {
 #    if defined __USE_LARGEFILE64
         uint64_t spos = (uint64_t) lseek64 (fd, (off64_t) offset, SEEK_SET);
@@ -247,7 +264,9 @@ default_write_func (
 #    endif
         if (spos != offset)
         {
+#    ifdef ILMTHREAD_THREADING_ENABLED
             pthread_mutex_unlock (&(fh->mutex));
+#    endif
             if (error_cb)
             {
                 if (spos == (uint64_t) -1)
@@ -285,7 +304,9 @@ default_write_func (
     } while (retsz < sz);
 
 #if !CAN_USE_PREAD
+#    ifdef ILMTHREAD_THREADING_ENABLED
     pthread_mutex_unlock (&(fh->mutex));
+#    endif
 #endif
     if (retsz != (int64_t) sz && error_cb)
         error_cb (
@@ -308,13 +329,15 @@ default_init_read_file (struct _internal_exr_context* file)
 
     fh->fd = -1;
 #if !CAN_USE_PREAD
+#    ifdef ILMTHREAD_THREADING_ENABLED
     fd = pthread_mutex_init (&(fh->mutex), NULL);
     if (fd != 0)
         return file->print_error (
-            (const exr_context_t)file,
+            (const exr_context_t) file,
             EXR_ERR_OUT_OF_MEMORY,
             "Unable to initialize file mutex: %s",
             strerror (fd));
+#    endif
 #endif
 
     file->destroy_fn = &default_shutdown;
@@ -343,6 +366,7 @@ default_init_write_file (struct _internal_exr_context* file)
     if (outfn == NULL) outfn = file->filename.str;
 
 #if !CAN_USE_PREAD
+#    ifdef ILMTHREAD_THREADING_ENABLED
     fd = pthread_mutex_init (&(fh->mutex), NULL);
     if (fd != 0)
         return file->print_error (
@@ -350,6 +374,7 @@ default_init_write_file (struct _internal_exr_context* file)
             EXR_ERR_OUT_OF_MEMORY,
             "Unable to initialize file mutex: %s",
             strerror (fd));
+#    endif
 #endif
 
     fh->fd           = -1;

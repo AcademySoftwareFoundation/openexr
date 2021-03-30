@@ -26,6 +26,33 @@
 #include "../../lib/OpenEXRCore/string.c"
 #include "../../lib/OpenEXRCore/string_vector.c"
 
+int64_t dummy_write (
+    const exr_context_t         ctxt,
+    void*                       userdata,
+    const void*                 buffer,
+    uint64_t                    sz,
+    uint64_t                    offset,
+    exr_stream_error_func_ptr_t error_cb)
+{
+    return -1;
+}
+
+static exr_context_t
+createDummyFile (const char* test)
+{
+    exr_context_t f = NULL;
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+
+    // we won't actually write to this and so don't need a proper
+    // stream but need a writable context to test with.
+    cinit.write_fn = dummy_write;
+
+    EXRCORE_TEST_RVAL (
+        exr_start_write (&f, test, EXR_WRITE_FILE_DIRECTLY, &cinit));
+    EXRCORE_TEST_RVAL (exr_part_add (f, "dummy", EXR_STORAGE_SCANLINE));
+    return f;
+}
+
 void
 testAttrSizes (const std::string& tempdir)
 {
@@ -151,19 +178,6 @@ testStringHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (exr_attr_string_destroy (f, &s));
     // make sure we can re-delete something?
     EXRCORE_TEST_RVAL (exr_attr_string_destroy (f, &s));
-}
-
-static exr_context_t
-createDummyFile (const char* test)
-{
-    exr_context_t f = NULL;
-
-    // we won't actually write to this and so don't need a proper
-    // stream but need it to test a path with a valid file.
-    EXRCORE_TEST_RVAL (
-        exr_start_write (&f, test, EXR_WRITE_FILE_DIRECTLY, NULL));
-    EXRCORE_TEST_RVAL (exr_part_add (f, "dummy", EXR_STORAGE_SCANLINE));
-    return f;
 }
 
 void

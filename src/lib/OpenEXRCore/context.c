@@ -14,14 +14,6 @@
 
 #include <IlmThreadConfig.h>
 
-#ifdef ILMTHREAD_THREADING_ENABLED
-#    ifdef _WIN32
-#        include <synchapi.h>
-#    else
-#        include <pthread.h>
-#    endif
-#endif
-
 #if defined(_WIN32) || defined(_WIN64)
 #    include "internal_win32_file_impl.h"
 #else

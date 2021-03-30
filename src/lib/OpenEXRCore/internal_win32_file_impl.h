@@ -3,11 +3,13 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
-/* implementation for unix-like file io routines (used in openexr_file.c) */
+/* implementation for windows (win32) native file io routines (used in context.c) */
 
+#include <windows.h>
 #include <fileapi.h>
 #include <strsafe.h>
-#include <windows.h>
+
+#include <IlmThreadConfig.h>
 
 static exr_result_t
 print_error_helper (
