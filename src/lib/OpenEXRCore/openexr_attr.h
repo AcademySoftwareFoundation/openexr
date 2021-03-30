@@ -367,10 +367,9 @@ typedef struct
 {
     int32_t size;
     int32_t unpacked_size;
-
-    size_t
-          packed_alloc_size; /**< if this is non-zero, the struct owns the data, if 0, is a const ref */
-    void* packed_data;
+    /** if this is non-zero, the struct owns the data, if 0, is a const ref */
+    int32_t packed_alloc_size;
+    void*   packed_data;
 
     /** when an application wants to have custom data, they can store an unpacked form here which will
 	 * be requested to be destroyed upon destruction of the attribute */

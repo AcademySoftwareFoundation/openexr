@@ -120,10 +120,17 @@ exr_attr_string_create_with_length (
         /* someone might pass in a string shorter than requested length (or longer) */
         if (len > 0)
         {
+#ifdef _MSC_VER
+#    pragma warning(push)
+#    pragma warning(disable : 4996)
+#endif
             if (d)
                 strncpy (outs, d, len);
             else
                 memset (outs, 0, len);
+#ifdef _MSC_VER
+#    pragma warning(pop)
+#endif
         }
         outs[len] = '\0';
     }
@@ -168,10 +175,17 @@ exr_attr_string_set_with_length (
         char* sstr = (char*) s->str;
         if (len > 0)
         {
+#ifdef _MSC_VER
+#    pragma warning(push)
+#    pragma warning(disable : 4996)
+#endif
             if (d)
                 strncpy (sstr, d, len);
             else
                 memset (sstr, 0, len);
+#ifdef _MSC_VER
+#    pragma warning(pop)
+#endif
         }
         sstr[len] = '\0';
         return EXR_ERR_SUCCESS;

@@ -97,7 +97,7 @@ exr_part_get_attribute_list (
 
     if (outlist && *count >= part->attributes.num_attributes)
         memcpy (
-            outlist,
+            (exr_attribute_t**)outlist,
             srclist,
             sizeof (exr_attribute_t*) * part->attributes.num_attributes);
     *count = part->attributes.num_attributes;

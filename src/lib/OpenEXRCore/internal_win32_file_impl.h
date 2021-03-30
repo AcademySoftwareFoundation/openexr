@@ -50,7 +50,7 @@ print_error_helper (
     }
 
     if (error_cb)
-        error_cb (pf, errcode, (const char*) lpDisplayBuf);
+        error_cb ((const exr_context_t)pf, errcode, (const char*) lpDisplayBuf);
     else
         pf->print_error ((const exr_context_t)pf, errcode, (const char*) lpDisplayBuf);
 
@@ -395,7 +395,7 @@ make_temp_filename (struct _internal_exr_context* ret)
     newlen = tlen + (uint64_t) ret->filename.length;
 
     if (newlen >= INT32_MAX)
-        return ret->standard_error (ret, EXR_ERR_OUT_OF_MEMORY);
+        return ret->standard_error ((const exr_context_t)ret, EXR_ERR_OUT_OF_MEMORY);
 
     tmpname = ret->alloc_fn (newlen + 1);
     if (tmpname)

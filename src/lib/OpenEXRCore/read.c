@@ -56,12 +56,7 @@ initialize_part_read (
                 (const exr_context_t) ctxt, EXR_ERR_OUT_OF_MEMORY);
 
         rv = ctxt->do_read (
-            ctxt,
-            ctable,
-            chunkbytes,
-            &chunkoff,
-            &nread,
-            EXR_MUST_READ_ALL);
+            ctxt, ctable, chunkbytes, &chunkoff, &nread, EXR_MUST_READ_ALL);
         if (rv != EXR_ERR_SUCCESS)
         {
             ctxt->free_fn (ctable);
@@ -541,9 +536,9 @@ exr_decode_chunk_init_tile (
 
     tiledesc = part->tiles->tiledesc;
     tilew    = part->tile_level_tile_size_x[levelx];
-    if (tiledesc->x_size < tilew) tilew = tiledesc->x_size;
+    if (tiledesc->x_size < (uint32_t) tilew) tilew = tiledesc->x_size;
     tileh = part->tile_level_tile_size_y[levely];
-    if (tiledesc->y_size < tileh) tileh = tiledesc->y_size;
+    if (tiledesc->y_size < (uint32_t) tileh) tileh = tiledesc->y_size;
 
     cinfo->chunk_idx           = cidx;
     cinfo->chunk_type          = (uint8_t) part->storage_mode;
@@ -773,12 +768,7 @@ read_uncompressed_direct (
 
             /* actual read into the output pointer */
             rv = ctxt->do_read (
-                ctxt,
-                cdata,
-                nToRead,
-                &dataoffset,
-                NULL,
-                EXR_MUST_READ_ALL);
+                ctxt, cdata, nToRead, &dataoffset, NULL, EXR_MUST_READ_ALL);
             if (rv != EXR_ERR_SUCCESS) return rv;
 
             // need to swab them to native
@@ -929,7 +919,7 @@ unpack_16bit_all_chans (
     /* we know we're unpacking all the channels and there is no subsampling */
     const uint8_t* srcbuffer = unpackbuffer;
     uint8_t*       cdata;
-    int            w, bpc, pixincrement;
+    int            w, pixincrement;
     for (int y = 0; y < cinfo->height; ++y)
     {
         for (int c = 0; c < cinfo->channel_count; ++c)
@@ -1155,10 +1145,6 @@ unpack_data (
     int                      samebpc,
     int                      hassampling)
 {
-    const uint8_t* srcbuffer = unpackbuffer;
-    uint8_t*       cdata;
-    int            w, bpc;
-
     if (hassampling || chanstofill != cinfo->channel_count || samebpc <= 0)
     {
         generic_unpack_subsampled (cinfo, unpackbuffer);
@@ -1290,11 +1276,7 @@ exr_read_chunk (exr_context_t ctxt, exr_decode_chunk_info_t* cinfo)
     }
     else if (chanstofill > 0)
         unpack_data (
-            cinfo,
-            cinfo->packed.buffer,
-            chanstofill,
-            samebpc,
-            hassampling);
+            cinfo, cinfo->packed.buffer, chanstofill, samebpc, hassampling);
 
     return rv;
 }

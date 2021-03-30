@@ -19,10 +19,16 @@ core_test_fail (
     abort ();
 }
 
+#ifdef _MSC_VER
+#    define EXRCORE_TEST_FAIL(expr)                                            \
+        core_test_fail (#expr, __FILE__, __LINE__, __FUNCSIG__)
+#else
+#    define EXRCORE_TEST_FAIL(expr)                                            \
+        core_test_fail (#expr, __FILE__, __LINE__, __PRETTY_FUNCTION__)
+#endif
+
 #define EXRCORE_TEST(expr)                                                     \
-    (static_cast<bool> (expr))                                                 \
-        ? void (0)                                                             \
-        : core_test_fail (#expr, __FILE__, __LINE__, __PRETTY_FUNCTION__)
+    (static_cast<bool> (expr)) ? void (0) : EXRCORE_TEST_FAIL (expr)
 
 #define EXRCORE_TEST_RVAL(expr)                                                \
     {                                                                          \
@@ -32,7 +38,7 @@ core_test_fail (
             std::cerr << "Return Error: (" << (int) _test_rv << ") "           \
                       << exr_get_default_error_message (_test_rv)              \
                       << std::endl;                                            \
-            core_test_fail (#expr, __FILE__, __LINE__, __PRETTY_FUNCTION__);   \
+            EXRCORE_TEST_FAIL (expr);                                          \
         }                                                                      \
     }
 
@@ -43,9 +49,9 @@ core_test_fail (
         {                                                                      \
             std::cerr << "Return Error: (" << (int) _test_rv << ") "           \
                       << exr_get_default_error_message (_test_rv)              \
-                      << "\n    expected: (" << (int) (code) << ") "            \
+                      << "\n    expected: (" << (int) (code) << ") "           \
                       << exr_get_default_error_message (code) << std::endl;    \
-            core_test_fail (#expr, __FILE__, __LINE__, __PRETTY_FUNCTION__);   \
+            EXRCORE_TEST_FAIL (expr);                                          \
         }                                                                      \
     }
 #endif // OPENEXR_CORE_TEST_VALUE_H

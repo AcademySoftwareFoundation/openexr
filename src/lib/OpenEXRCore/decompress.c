@@ -154,13 +154,13 @@ undozip (
     void*                               out,
     size_t                              outsz)
 {
-    uLongf outSize = outsz;
+    uLongf outSize = (uLongf)outsz;
     int    rstat;
     /* TODO: find a way to not do this? */
     uint8_t* tmpbuf = ctxt->alloc_fn (outsz);
     if (tmpbuf == NULL) return EXR_ERR_OUT_OF_MEMORY;
 
-    rstat = uncompress ((Bytef*) tmpbuf, &outSize, (const Bytef*) src, packsz);
+    rstat = uncompress ((Bytef*) tmpbuf, &outSize, (const Bytef*) src, (uLong)packsz);
     if (rstat == Z_OK)
     {
         reconstruct (tmpbuf, outSize);

@@ -133,12 +133,10 @@ priv_init_scratch (
 /**************************************/
 
 static void
-priv_destroy_scratch (
-    struct _internal_exr_seq_scratch* scr)
+priv_destroy_scratch (struct _internal_exr_seq_scratch* scr)
 {
     struct _internal_exr_context* pctxt = scr->ctxt;
-    if (scr->scratch)
-        pctxt->free_fn (scr->scratch);
+    if (scr->scratch) pctxt->free_fn (scr->scratch);
 }
 
 /**************************************/
@@ -741,7 +739,7 @@ extract_attr_preview (
             sz[0],
             sz[1]);
 
-    if (fsize > 0 && bytes >= fsize)
+    if (fsize > 0 && bytes >= (uint64_t) fsize)
     {
         return ctxt->print_error (
             (const exr_context_t) ctxt,
@@ -2051,18 +2049,36 @@ internal_exr_compute_tile_information (
         {
             int64_t sx = calc_level_size (
                 dw.x_min, dw.x_max, l, EXR_GET_TILE_ROUND_MODE ((*tiledesc)));
+            if (sx < 0 || sx > (int64_t) INT32_MAX)
+                return ctxt->print_error (
+                    (const exr_context_t) ctxt,
+                    EXR_ERR_INVALID_ATTR,
+                    "Invalid data window x dims (%d, %d) resulting in invalid tile level size (%ld) for level %l",
+                    dw.x_min,
+                    dw.x_max,
+                    sx,
+                    l);
             levcntX[l] = (int32_t) (
                 ((uint64_t) sx + tiledesc->x_size - 1) / tiledesc->x_size);
-            levszX[l] = sx;
+            levszX[l] = (int32_t) sx;
         }
 
         for (int l = 0; l < numY; ++l)
         {
             int64_t sy = calc_level_size (
                 dw.y_min, dw.y_max, l, EXR_GET_TILE_ROUND_MODE ((*tiledesc)));
+            if (sy < 0 || sy > (int64_t) INT32_MAX)
+                return ctxt->print_error (
+                    (const exr_context_t) ctxt,
+                    EXR_ERR_INVALID_ATTR,
+                    "Invalid data window y dims (%d, %d) resulting in invalid tile level size (%ld) for level %l",
+                    dw.y_min,
+                    dw.y_max,
+                    sy,
+                    l);
             levcntY[l] = (int32_t) (
                 ((uint64_t) sy + tiledesc->y_size - 1) / tiledesc->y_size);
-            levszY[l] = sy;
+            levszY[l] = (int32_t) sy;
         }
 
         curpart->tile_level_tile_count_x = levcntX;
@@ -2245,7 +2261,6 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
     uint32_t     magic_and_version[2];
     uint32_t     flags;
     uint8_t      next_byte;
-    int          got_attr;
     exr_result_t rv        = EXR_ERR_UNKNOWN;
     uint64_t     curoffset = 0;
 

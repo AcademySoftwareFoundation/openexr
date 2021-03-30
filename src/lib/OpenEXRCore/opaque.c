@@ -205,26 +205,31 @@ exr_attr_opaquedata_set_unpacked (
 {
     EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
-    if (u)
-    {
-        exr_attr_opaquedata_t nil = { 0 };
-        if (u->unpacked_data)
-        {
-            if (u->destroy_unpacked_func_ptr)
-                u->destroy_unpacked_func_ptr (
-                    ctxt, u->unpacked_data, u->unpacked_size);
-        }
-        u->unpacked_data = unpacked;
-        u->unpacked_size = sz;
+    if (!u) return pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 
-        if (u->packed_data)
-        {
-            if (u->packed_alloc_size > 0) pctxt->free_fn (u->packed_data);
-            u->packed_data       = NULL;
-            u->size              = 0;
-            u->packed_alloc_size = 0;
-        }
-        *u = nil;
+    /* TODO: do we care if the incoming unpacked data is null? */
+    if (sz < 0)
+        return pctxt->print_error (
+            ctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Opaque data given invalid negative size (%d)",
+            sz);
+
+    if (u->unpacked_data)
+    {
+        if (u->destroy_unpacked_func_ptr)
+            u->destroy_unpacked_func_ptr (
+                ctxt, u->unpacked_data, u->unpacked_size);
+    }
+    u->unpacked_data = unpacked;
+    u->unpacked_size = sz;
+
+    if (u->packed_data)
+    {
+        if (u->packed_alloc_size > 0) pctxt->free_fn (u->packed_data);
+        u->packed_data       = NULL;
+        u->size              = 0;
+        u->packed_alloc_size = 0;
     }
     return EXR_ERR_SUCCESS;
 }

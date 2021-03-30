@@ -216,12 +216,12 @@ exr_part_get_tile_sizes (
         if (tilew)
         {
             *tilew = part->tile_level_tile_size_x[levelx];
-            if (tiledesc->x_size < *tilew) *tilew = tiledesc->x_size;
+            if (tiledesc->x_size < (uint32_t)*tilew) *tilew = tiledesc->x_size;
         }
         if (tileh)
         {
             *tileh = part->tile_level_tile_size_y[levely];
-            if (tiledesc->y_size < *tileh) *tileh = tiledesc->y_size;
+            if (tiledesc->y_size < (uint32_t)*tileh) *tileh = tiledesc->y_size;
         }
         return EXR_ERR_SUCCESS;
     }
