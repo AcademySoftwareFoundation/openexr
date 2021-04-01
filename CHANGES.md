@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 3.0.1](#version-301-april-1-2021) April 1, 2021
 * [Version 3.0.1-beta](#version-301-beta-march-28-2021) March 28, 2021
 * [Version 3.0.0-beta](#version-300-beta-march-16-2021) March 16, 2021
 * [Version 2.5.5](#version-255-february-12-2021) February 12, 2021
@@ -41,13 +42,60 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
+## Version 3.0.1 (April 1, 2021)
+
+Major release with major build restructing, security improvements, and
+new features:
+
+* Restructuring:
+  - The IlmBase/PyIlmBase submodules have been separated into the
+    Imath project, now included by OpenEXR via a CMake submodule
+    dependency, fetched automatically via CMake's FetchContent if
+    necessary.
+  - The library is now called ``libOpenEXR`` (instead of
+    ``libIlmImf``).  No header files have been renamed, they retain
+    the ``Imf`` prefix.
+  - Symbol linkage visibility is limited to specific public symbols.
+
+* Build improvements:
+  - No more simultaneous static/shared build option.
+  - Community-provided support for bazel.
+
+* New Features:
+  - ID Manifest Attributes, as described in ["A Scheme for Storing
+    Object ID Manifests in OpenEXR
+    Images"](https://doi.org/10.1145/3233085.3233086), Peter Hillman,
+    DigiPro 18: Proceedings of the 8th Annual Digital Production
+    Symposium, August 2018.
+  - New program: exrcheck validates the contents of an EXR file.
+
+* Changes:
+  - EXR files with no channels are no longer allowed.
+  - Hard limit on the size of deep tile sizes; tiles must be less than
+    2^30 pixels.
+  - Tiled DWAB files used STATIC_HUFFMAN compression.
+  - ``Int64`` and ``SInt64`` types are deprecated in favor of
+    ``uint64_t`` and ``int64_t``.
+  - Header files have been pruned of extraneous ``#include``'s
+    ("Include What You Use"), which may generate compiler errors in
+    application source code from undefined symbols or
+    partially-defined types. These can be resolved by identifying and
+    including the appropriate header.
+  - See the [porting
+    guide](https://github.com/AcademySoftwareFoundation/Imath/blob/master/docs/PortingGuide2-3.md)
+    for details about differences from previous releases and how to
+    address them.
+  - Also refer to the porting guide for details about changes to
+    Imath.
+
+Contains all changes in [3.0.1-beta](#version-301-beta-march-28-2021) and [3.0.0-beta](#version-300-beta-march-16-2021).
+
 ## Version 3.0.1-beta (March 28, 2021)
 
 Beta patch release:
 
 * OSS-fuzz [32370](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=32370) Out-of-memory in openexr_exrcheck_fuzzer
 * OSS-fuzz [32067](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=32067) account for size of pixels when estimating memory
-
 Merged Pull Requests:
 
 * [988](https://github.com/AcademySoftwareFoundation/openexr/pull/988) Remove deprecated argument to getChunkOffsetTableSize()
