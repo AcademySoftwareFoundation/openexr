@@ -8,33 +8,20 @@
 
 #include "internal_attr.h"
 
+#include <IlmThreadConfig.h>
+
+#ifdef ILMTHREAD_THREADING_ENABLED
+#    ifdef _WIN32
+#        include <windows.h>
+#    else
+#        include <pthread.h>
+#    endif
+#endif
+
 /* for testing, we include a bunch of internal stuff into the unit tests which are in c++ */
 #ifdef __cplusplus
 #    include <atomic>
-using atomic_uintptr_t     = std::atomic_uintptr_t;
-using atomic_int_least64_t = std::atomic_int_least64_t;
-inline int64_t
-atomic_load (const atomic_int_least64_t* v)
-{
-    return v->load ();
-}
-inline uintptr_t
-atomic_load (const atomic_uintptr_t* v)
-{
-    return v->load ();
-}
-inline int
-atomic_compare_exchange_strong (
-    atomic_int_least64_t* obj, int64_t* expected, int64_t desired)
-{
-    return obj->compare_exchange_strong (*expected, desired) ? 1 : 0;
-}
-inline int
-atomic_compare_exchange_strong (
-    atomic_uintptr_t* obj, uintptr_t* expected, uintptr_t desired)
-{
-    return obj->compare_exchange_strong (*expected, desired) ? 1 : 0;
-}
+using atomic_uintptr_t = std::atomic_uintptr_t;
 #else
 #    if defined __has_include
 #        if __has_include(<stdatomic.h>)
@@ -45,36 +32,11 @@ atomic_compare_exchange_strong (
 #    ifdef EXR_HAS_STD_ATOMICS
 #        include <stdatomic.h>
 #    elif defined(_MSC_VER)
-
 /* msvc w/ c11 support is only very new, until we know what the preprocessor checks are, provide defaults */
 #        include <windows.h>
-
-/* yeah, yeah, 32-bit is possible here, but if we make it the same, we
+/* yeah, yeah, might be a 32-bit pointer, but if we make it the same, we
  * can write less since we know support is coming (eventually) */
 typedef uint64_t atomic_uintptr_t;
-typedef int64_t  atomic_int_least64_t;
-
-#        define atomic_load(object)                                            \
-            InterlockedOr64 ((int64_t volatile*) object, 0)
-#        define atomic_fetch_add(object, val)                                  \
-            InterlockedExchangeAdd64 ((int64_t volatile*) object, val)
-
-static inline int
-atomic_compare_exchange_strong64 (
-    int64_t volatile* object, int64_t* expected, int64_t desired)
-{
-    int64_t prev = InterlockedCompareExchange64 (object, desired, *expected);
-    if (prev == *expected) return 1;
-    *expected = prev;
-    return 0;
-}
-#        define atomic_compare_exchange_strong(object, val, des)               \
-            ((sizeof (*object) == 8) ? atomic_compare_exchange_strong64 (      \
-                                           (int64_t volatile*) object,         \
-                                           (int64_t*) val,                     \
-                                           (int64_t) des)                      \
-                                     : 0)
-
 #    else
 #        error OS unimplemented support for atomics
 #    endif
@@ -151,7 +113,6 @@ struct _internal_exr_context
     uint8_t version;
     uint8_t max_name_length;
 
-    uint8_t is_new_version : 1;
     uint8_t is_singlepart_tiled : 1;
     uint8_t has_nonimage_data : 1;
     uint8_t is_multipart : 1;
@@ -176,6 +137,7 @@ struct _internal_exr_context
     exr_result_t (*print_error) (
         const exr_context_t ctxt, exr_result_t code, const char* msg, ...)
         EXR_PRINTF_FUNC_ATTRIBUTE;
+
     exr_error_handler_cb_t error_handler_fn;
 
     exr_memory_allocation_func_t alloc_fn;
@@ -193,8 +155,11 @@ struct _internal_exr_context
     exr_read_func_ptr_t read_fn;
 
     exr_write_func_ptr_t write_fn;
-    atomic_int_least64_t
-        file_offset; /**< used when writing, is there a better way? */
+    /* used when writing under a mutex, is there a better way? */
+    uint64_t output_file_offset;
+    int      cur_output_part;
+    int      last_output_chunk;
+    int      output_chunk_count;
 
     exr_attribute_list_t custom_handlers;
 
@@ -204,34 +169,97 @@ struct _internal_exr_context
     /* cheap array of one */
     struct _internal_exr_part*  init_part;
     struct _internal_exr_part** parts;
+
+    /* mostly needed for writing, but used during read to ensure
+     * custom attribute handlers are safe */
+#ifdef ILMTHREAD_THREADING_ENABLED
+#    ifdef _WIN32
+    CRITICAL_SECTION  mutex;
+    CRTIICAL_SECTION* need_unlock;
+#    else
+    pthread_mutex_t  mutex;
+    pthread_mutex_t* need_unlock;
+#    endif
+#endif
 };
 
 #define EXR_CTXT(c) ((struct _internal_exr_context*) (c))
 #define EXR_CCTXT(c) ((const struct _internal_exr_context*) (c))
-#define EXR_PROMOTE_CONTEXT_OR_ERROR(c)                                        \
+
+#ifdef ILMTHREAD_THREADING_ENABLED
+#    ifdef _WIN32
+#        define EXR_LOCK(c) EnterCriticalSection (&(EXR_CTXT (c)->mutex))
+#        define EXR_UNLOCK(c)                                                  \
+            ((void) LeaveCriticalSection (&(EXR_CTXT (c)->mutex)))
+
+#    else
+#        define EXR_LOCK(c) pthread_mutex_lock (&(EXR_CTXT (c)->mutex))
+#        define EXR_UNLOCK(c)                                                  \
+            ((void) pthread_mutex_unlock (&(EXR_CTXT (c)->mutex)))
+
+#    endif
+#else
+#    define EXR_LOCK(c) ((void) 0)
+#    define EXR_UNLOCK(c) ((void) 0)
+#endif
+
+#define EXR_LOCK_WRITE(c)                                                      \
+    if (c->mode == EXR_CONTEXT_WRITE) EXR_LOCK (c)
+
+#define EXR_UNLOCK_WRITE(c)                                                    \
+    if (c->mode == EXR_CONTEXT_WRITE) EXR_UNLOCK (c)
+
+#define EXR_RETURN_WRITE(c)                                                    \
+    ((c->mode == EXR_CONTEXT_WRITE) ? EXR_UNLOCK (c) : ((void) 0))
+
+#define INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR(c)                                 \
     struct _internal_exr_context* pctxt = EXR_CTXT (c);                        \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG
 
-#define EXR_PROMOTE_CONST_CONTEXT_OR_ERROR(c)                                  \
-    const struct _internal_exr_context* pctxt = EXR_CCTXT (c);                 \
+#define INTERN_EXR_PROMOTE_CONST_CONTEXT_OR_ERROR(c)                           \
+    const struct _internal_exr_context* pctxt = EXR_CTXT (c);                  \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG
 
-#define EXR_PROMOTE_CONTEXT_AND_PART_OR_ERROR(c, pi)                           \
+#define EXR_PROMOTE_LOCKED_CONTEXT_OR_ERROR(c)                                 \
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (c);                                   \
+    EXR_LOCK (c)
+
+#define EXR_PROMOTE_CONST_CONTEXT_OR_ERROR(c)                                  \
+    INTERN_EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (c);                             \
+    EXR_LOCK_WRITE (pctxt)
+
+#define EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR(c, pi)                    \
     struct _internal_exr_context* pctxt = EXR_CTXT (c);                        \
     struct _internal_exr_part*    part;                                        \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
+    EXR_LOCK (pctxt);                                                          \
     if (pi < 0 || pi >= pctxt->num_parts)                                      \
-        return pctxt->print_error (                                            \
-            c,                                                                 \
-            EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                     \
-            "Part index (%d) out of range",                                    \
-            pi);                                                               \
+        return EXR_UNLOCK (pctxt), pctxt->print_error (                        \
+                                       c,                                      \
+                                       EXR_ERR_ARGUMENT_OUT_OF_RANGE,          \
+                                       "Part index (%d) out of range",         \
+                                       pi);                                    \
     part = pctxt->parts[pi]
 
 #define EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR(c, pi)                     \
     const struct _internal_exr_context* pctxt = EXR_CCTXT (c);                 \
     const struct _internal_exr_part*    part;                                  \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
+    EXR_LOCK_WRITE (pctxt);                                                    \
+    if (pi < 0 || pi >= pctxt->num_parts)                                      \
+        return EXR_RETURN_WRITE (pctxt), pctxt->print_error (                  \
+                                             c,                                \
+                                             EXR_ERR_ARGUMENT_OUT_OF_RANGE,    \
+                                             "Part index (%d) out of range",   \
+                                             pi);                              \
+    part = pctxt->parts[pi]
+
+#define EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR(c, pi)                \
+    const struct _internal_exr_context* pctxt = EXR_CCTXT (c);                 \
+    const struct _internal_exr_part*    part;                                  \
+    if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
+    if (pctxt->mode != EXR_CONTEXT_READ)                                       \
+        return pctxt->standard_error (c, EXR_ERR_NOT_OPEN_READ);               \
     if (pi < 0 || pi >= pctxt->num_parts)                                      \
         return pctxt->print_error (                                            \
             c,                                                                 \
@@ -240,17 +268,11 @@ struct _internal_exr_context
             pi);                                                               \
     part = pctxt->parts[pi]
 
-#define EXR_VALIDATE_PART_IDX_OR_ERROR(pi)                                     \
-    if (pi < 0 || pi >= pctxt->num_parts)                                      \
-    return pctxt->standard_error (ctxt, EXR_ERR_ARGUMENT_OUT_OF_RANGE)
-
 void internal_exr_update_default_handlers (exr_context_initializer_t* inits);
 
 exr_result_t internal_exr_add_part (
-    struct _internal_exr_context*, struct _internal_exr_part**);
+    struct _internal_exr_context*, struct _internal_exr_part**, int* new_index);
 
-int internal_exr_add_part (
-    struct _internal_exr_context*, struct _internal_exr_part**);
 exr_result_t internal_exr_alloc_context (
     struct _internal_exr_context**   out,
     const exr_context_initializer_t* initializers,

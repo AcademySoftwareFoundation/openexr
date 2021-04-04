@@ -49,7 +49,7 @@ createDummyFile (const char* test)
 
     EXRCORE_TEST_RVAL (
         exr_start_write (&f, test, EXR_WRITE_FILE_DIRECTLY, &cinit));
-    EXRCORE_TEST_RVAL (exr_part_add (f, "dummy", EXR_STORAGE_SCANLINE));
+    EXRCORE_TEST_RVAL (exr_part_add (f, "dummy", EXR_STORAGE_SCANLINE, NULL));
     return f;
 }
 

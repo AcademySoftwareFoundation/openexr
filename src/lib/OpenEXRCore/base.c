@@ -33,6 +33,7 @@ static const char* the_default_errors[] = {
     "File is not an OpenEXR file or has a bad header value",
     "File not opened for read",
     "File not opened for write",
+    "File opened for write, but header not yet written",
     "Error reading from stream",
     "Error writing to stream",
     "Text too long for file flags",
@@ -46,6 +47,12 @@ static const char* the_default_errors[] = {
     "Attempt to use a tiled accessor function for a scanline image",
     "Attempt to modify a value when in update mode with different size",
     "File in write mode, but header already written, can no longer edit attributes",
+    "Previous part not yet finished writing",
+    "Not able to write chunk yet",
+    "Use deep scanline chunk writer with the sample count table arguments",
+    "Use deep tile chunk writer with the sample count table arguments",
+    "Use non-deep scanline chunk writer with the sample count table arguments",
+    "Use non-deep tile chunk writer with the sample count table arguments",
     "Unknown error code"
 };
 static int the_default_error_count =

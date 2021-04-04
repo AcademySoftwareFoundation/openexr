@@ -117,7 +117,7 @@ priv_init_scratch (
     struct _internal_exr_seq_scratch nil = { 0 };
 
     if (ctxt == NULL) return EXR_ERR_MISSING_CONTEXT_ARG;
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     *scr         = nil;
     scr->scratch = ctxt->alloc_fn (SCRATCH_BUFFER_SIZE);
@@ -470,28 +470,18 @@ extract_attr_string (
     int32_t                           attrsz,
     char*                             strptr)
 {
-    int32_t      n;
-    exr_result_t rv = check_bad_attrsz (ctxt, attrsz, 1, aname, tname, &n);
-    if (rv == EXR_ERR_SUCCESS)
-    {
-        if (n > 0)
-        {
-            if (scratch->sequential_read (
-                    scratch, (void*) strptr, (uint64_t) n))
-            {
-                return ctxt->print_error (
-                    (const exr_context_t) ctxt,
-                    EXR_ERR_READ_IO,
-                    "Unable to read '%s' %s data",
-                    aname,
-                    tname);
-            }
-        }
-        strptr[n] = '\0';
-        return exr_attr_string_init_static_with_length (
-            (exr_context_t) ctxt, attrdata, strptr, attrsz);
-    }
-    return rv;
+    exr_result_t rv =
+        scratch->sequential_read (scratch, (void*) strptr, (uint64_t) attrsz);
+    if (rv != EXR_ERR_SUCCESS)
+        return ctxt->print_error (
+            (const exr_context_t) ctxt,
+            rv,
+            "Unable to read '%s' %s data",
+            aname,
+            tname);
+    strptr[attrsz] = '\0';
+    return exr_attr_string_init_static_with_length (
+        (exr_context_t) ctxt, attrdata, strptr, attrsz);
 }
 
 /**************************************/
@@ -531,7 +521,7 @@ extract_attr_string_vector (
 
         pulled += sizeof (int32_t);
         nlen = (int32_t) one_to_native32 ((uint32_t) nlen);
-        if (nlen < 0)
+        if (nlen < 0 || (ctxt->file_size > 0 && nlen > ctxt->file_size))
         {
             rv = ctxt->print_error (
                 (const exr_context_t) ctxt,
@@ -1733,15 +1723,19 @@ pull_attr (
     rv = check_req_attr (ctxt, curpart, scratch, name, type, attrsz);
     if (rv != EXR_ERR_UNKNOWN) return rv;
 
-    /* not a required attr, just a normal one */
+    /* not a required attr, just a normal one, optimize for string type to avoid double malloc */
     if (!strcmp (type, "string"))
     {
-        rv = exr_attr_list_add_by_type (
+        int32_t n;
+        rv = check_bad_attrsz (ctxt, attrsz, 1, name, type, &n);
+        if (rv != EXR_ERR_SUCCESS) return rv;
+
+        rv = exr_attr_list_add (
             (exr_context_t) ctxt,
             &(curpart->attributes),
             name,
-            type,
-            attrsz + 1,
+            EXR_ATTR_STRING,
+            n + 1,
             &strptr,
             &nattr);
     }
@@ -2407,7 +2401,7 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
                 break;
             }
 
-            rv = internal_exr_add_part (ctxt, &curpart);
+            rv = internal_exr_add_part (ctxt, &curpart, NULL);
         }
 
         if (rv == EXR_ERR_SUCCESS)

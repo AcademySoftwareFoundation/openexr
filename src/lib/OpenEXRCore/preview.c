@@ -18,7 +18,7 @@ exr_attr_preview_init (
     exr_attr_preview_t nil   = { 0 };
     size_t             bytes = (size_t) w * (size_t) h * (size_t) 4;
 
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (bytes > (size_t) INT32_MAX)
         return pctxt->print_error (
@@ -72,7 +72,7 @@ exr_attr_preview_create (
 exr_result_t
 exr_attr_preview_destroy (exr_context_t ctxt, exr_attr_preview_t* p)
 {
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (p)
     {

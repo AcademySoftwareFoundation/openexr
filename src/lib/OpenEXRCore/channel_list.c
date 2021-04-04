@@ -18,7 +18,7 @@ exr_attr_chlist_init (exr_context_t ctxt, exr_attr_chlist_t* clist, int nchans)
     exr_attr_chlist_t        nil = { 0 };
     exr_attr_chlist_entry_t* nlist;
 
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (!clist)
         return pctxt->report_error (
@@ -86,7 +86,7 @@ exr_attr_chlist_add_with_length (
     int32_t                  maxlen;
     exr_result_t             rv;
 
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     maxlen = pctxt->max_name_length;
 
@@ -211,7 +211,7 @@ exr_attr_chlist_add_with_length (
 exr_result_t
 exr_attr_chlist_destroy (exr_context_t ctxt, exr_attr_chlist_t* clist)
 {
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (clist)
     {

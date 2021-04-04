@@ -4,9 +4,9 @@
 */
 
 #include "internal_structs.h"
-#include "internal_memory.h"
-#include "internal_constants.h"
 #include "internal_attr.h"
+#include "internal_constants.h"
+#include "internal_memory.h"
 
 #include <IlmThreadConfig.h>
 
@@ -101,10 +101,10 @@ dispatch_print_error (
     const exr_context_t ctxt, exr_result_t code, const char* msg, ...)
 {
     const struct _internal_exr_context* pctxt = EXR_CCTXT (ctxt);
-    char                                  stackbuf[256];
-    char*                                 heapbuf = NULL;
-    int                                   nwrit   = 0;
-    va_list                               fmtargs;
+    char                                stackbuf[256];
+    char*                               heapbuf = NULL;
+    int                                 nwrit   = 0;
+    va_list                             fmtargs;
 
     va_start (fmtargs, msg);
     {
@@ -145,7 +145,7 @@ internal_exr_destroy_parts (struct _internal_exr_context* ctxt)
     {
         struct _internal_exr_part* cur = ctxt->parts[p];
 
-        exr_attr_list_destroy ((exr_context_t)ctxt, &(cur->attributes));
+        exr_attr_list_destroy ((exr_context_t) ctxt, &(cur->attributes));
 
         /* we stack x and y together so only have to free the first */
         if (cur->tile_level_tile_count_x) dofree (cur->tile_level_tile_count_x);
@@ -170,11 +170,15 @@ internal_exr_destroy_parts (struct _internal_exr_context* ctxt)
 
 int
 internal_exr_add_part (
-    struct _internal_exr_context* f, struct _internal_exr_part** outpart)
+    struct _internal_exr_context* f,
+    struct _internal_exr_part**   outpart,
+    int*                          new_index)
 {
     int                         ncount = f->num_parts + 1;
     struct _internal_exr_part*  part;
     struct _internal_exr_part** nptrs = NULL;
+
+    if (new_index) *new_index = f->num_parts;
 
     if (ncount == 1)
     {
@@ -232,13 +236,13 @@ internal_exr_add_part (
 
 exr_result_t
 internal_exr_alloc_context (
-    struct _internal_exr_context** out,
+    struct _internal_exr_context**   out,
     const exr_context_initializer_t* initializers,
     enum _INTERNAL_EXR_CONTEXT_MODE  mode,
     size_t                           default_size)
 {
-    void*                           memptr;
-    exr_result_t                    rv;
+    void*                         memptr;
+    exr_result_t                  rv;
     struct _internal_exr_context* ret;
     *out = NULL;
     int    gmaxw, gmaxh;
@@ -311,6 +315,21 @@ internal_exr_alloc_context (
         ret->read_fn    = initializers->read_fn;
         ret->write_fn   = initializers->write_fn;
 
+#ifdef ILMTHREAD_THREADING_ENABLED
+#    ifdef _WIN32
+        InitializeCriticalSection( &(ret->mutex) );
+#    else
+        rv = pthread_mutex_init (&(ret->mutex), NULL);
+        if (rv != 0)
+        {
+            /* fairly unlikely... */
+            (initializers->free_fn) (memptr);
+            *out = NULL;
+            return EXR_ERR_OUT_OF_MEMORY;
+        }
+#    endif
+#endif
+
         *out = ret;
         rv   = EXR_ERR_SUCCESS;
 
@@ -319,7 +338,7 @@ internal_exr_alloc_context (
         if (mode != EXR_CONTEXT_WRITE)
         {
             struct _internal_exr_part* part;
-            rv = internal_exr_add_part (ret, &part);
+            rv = internal_exr_add_part (ret, &part, NULL);
             if (rv != EXR_ERR_SUCCESS)
             {
                 /* this should never happen since we reserve space for
@@ -349,10 +368,17 @@ internal_exr_destroy_context (struct _internal_exr_context* ctxt)
 {
     exr_memory_free_func_t dofree = ctxt->free_fn;
 
-    exr_attr_string_destroy ((exr_context_t)ctxt, &(ctxt->filename));
-    exr_attr_string_destroy ((exr_context_t)ctxt, &(ctxt->tmp_filename));
-    exr_attr_list_destroy ((exr_context_t)ctxt, &(ctxt->custom_handlers));
+    exr_attr_string_destroy ((exr_context_t) ctxt, &(ctxt->filename));
+    exr_attr_string_destroy ((exr_context_t) ctxt, &(ctxt->tmp_filename));
+    exr_attr_list_destroy ((exr_context_t) ctxt, &(ctxt->custom_handlers));
     internal_exr_destroy_parts (ctxt);
+#ifdef ILMTHREAD_THREADING_ENABLED
+#    ifdef _WIN32
+    DeleteCriticalSection( &(ctxt->mutex) );
+#    else
+    pthread_mutex_destroy (&(ctxt->mutex));
+#    endif
+#endif
 
     dofree (ctxt);
 }

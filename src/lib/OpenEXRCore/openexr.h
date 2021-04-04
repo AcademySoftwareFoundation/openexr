@@ -18,8 +18,10 @@
 
 #include "openexr_std_attr.h"
 
-#include "openexr_read.h"
-#include "openexr_write.h"
+#include "openexr_chunkio.h"
+
+#include "openexr_decode.h"
+#include "openexr_encode.h"
 
 #include "openexr_debug.h"
 

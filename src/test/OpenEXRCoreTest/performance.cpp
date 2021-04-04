@@ -44,25 +44,32 @@ public:
     {}
     void execute() override
     {
-        exr_decode_chunk_info_t chunk = {0};
-        int rv = exr_decode_chunk_init_scanline( _f, 0, &chunk, _y, 1 );
+        exr_chunk_block_info_t cinfo = {0};
+        exr_decode_pipeline_t chunk;
+        exr_result_t rv = exr_part_read_scanline_block_info (_f, 0, _y, &cinfo);
+        if ( rv == EXR_ERR_SUCCESS )
+            rv = exr_initialize_decoding (_f, 0, &cinfo, &chunk);
         if ( rv == EXR_ERR_SUCCESS )
         {
             uint8_t *curchanptr = _ptr;
             int bytesperpixel = 0;
             for ( int c = 0; c < chunk.channel_count; ++c )
-                bytesperpixel += chunk.channels[c].bytes_per_pel;
+                bytesperpixel += chunk.channels[c].bytes_per_element;
             for ( int c = 0; c < chunk.channel_count; ++c )
             {
-                exr_channel_decode_info_t &outc = chunk.channels[c];
-                outc.data_ptr = curchanptr;
+                exr_coding_channel_info_t &outc = chunk.channels[c];
+                outc.decode_to_ptr = curchanptr;
                 outc.output_pixel_stride = bytesperpixel;
                 outc.output_line_stride = outc.width * bytesperpixel;
-                curchanptr += chunk.channels[c].bytes_per_pel;
+                outc.output_bytes_per_element = chunk.channels[c].bytes_per_element;
+                curchanptr += chunk.channels[c].bytes_per_element;
             }
-            rv = exr_read_chunk( _f, &chunk );
+
+            rv = exr_decoding_choose_default_routines (_f, 0, &chunk);
         }
-        exr_destroy_decode_chunk_info( _f, &chunk );
+        if ( rv == EXR_ERR_SUCCESS )
+            rv = exr_decoding_run (_f, 0, &chunk);
+        exr_destroy_decoding( _f, &chunk );
     }
 private:
     exr_context_t _f;
@@ -70,6 +77,7 @@ private:
     uint8_t *_ptr;
 };
 
+//#define THREADS 0
 #define THREADS 16
 
 static uint64_t read_pixels_raw( exr_context_t f )
@@ -133,31 +141,47 @@ static uint64_t read_pixels_raw( exr_context_t f )
             ret += linesread * w;
         }
 #else
-        exr_decode_chunk_info_t chunk = {0};
+        exr_chunk_block_info_t cinfo = {0};
+        exr_decode_pipeline_t chunk = {0};
         for ( int y = dw.y_min; y <= dw.y_max; )
         {
-            int rv = exr_decode_chunk_init_scanline( f, 0, &chunk, y, 1 );
-            if ( rv == EXR_ERR_SUCCESS )
+            exr_result_t rv = exr_part_read_scanline_block_info (f, 0, y, &cinfo);
+            if ( rv != EXR_ERR_SUCCESS )
+                throw std::runtime_error( "unable to init scanline block info" );
+
+            if (y == dw.y_min)
+                rv = exr_initialize_decoding (f, 0, &cinfo, &chunk);
+            else
+                rv = exr_decoding_update (f, 0, &cinfo, &chunk);
+
+            if ( rv != EXR_ERR_SUCCESS )
+                throw std::runtime_error( "unable to init decoding pipeline" );
+
+            uint8_t *curchanptr = imgptr;
+            int bytesperpixel = 0;
+            for ( int c = 0; c < chunk.channel_count; ++c )
+                bytesperpixel += chunk.channels[c].bytes_per_element;
+            for ( int c = 0; c < chunk.channel_count; ++c )
             {
-                uint8_t *curchanptr = imgptr;
-                int bytesperpixel = 0;
-                for ( int c = 0; c < chunk.channel_count; ++c )
-                    bytesperpixel += chunk.channels[c].bytes_per_pel;
-                for ( int c = 0; c < chunk.channel_count; ++c )
-                {
-                    exr_channel_decode_info_t &outc = chunk.channels[c];
-                    outc.data_ptr = curchanptr;
-                    outc.output_pixel_stride = bytesperpixel;
-                    outc.output_line_stride = outc.width * bytesperpixel;
-                    curchanptr += chunk.channels[c].bytes_per_pel;
-                }
-                rv = exr_read_chunk( f, &chunk );
-                exr_destroy_decode_chunk_info( &chunk );
+                exr_coding_channel_info_t &outc = chunk.channels[c];
+                outc.decode_to_ptr = curchanptr;
+                outc.output_pixel_stride = bytesperpixel;
+                outc.output_line_stride = outc.width * bytesperpixel;
+                outc.output_bytes_per_element = chunk.channels[c].bytes_per_element;
+                curchanptr += chunk.channels[c].bytes_per_element;
             }
+
+            rv = exr_decoding_choose_default_routines (f, 0, &chunk);
+            if ( rv != EXR_ERR_SUCCESS )
+                throw std::runtime_error( "unable to choose default routines" );
+            rv = exr_decoding_run (f, 0, &chunk);
+            if ( rv != EXR_ERR_SUCCESS )
+                throw std::runtime_error( "unable to run decoding pipeline" );
             imgptr += sizePerChunk;
             y += linesread;
             ret += linesread * w;
         }
+        exr_destroy_decoding( f, &chunk );
 #endif
 #if 0
         std::vector<uint8_t> compBuf, rawBuf;
@@ -205,7 +229,9 @@ static void readCore( const std::string &fn,
                       uint64_t &closeTimeAccum,
                       uint64_t &pixCount )
 {
-    exr_context_t c;
+    try
+    {
+        exr_context_t c;
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
 
     cinit.error_handler_fn = &error_handler_new;
@@ -221,6 +247,12 @@ static void readCore( const std::string &fn,
         headerTimeAccum += std::chrono::duration_cast<std::chrono::nanoseconds>( hend - hstart ).count();
         imgDataTimeAccum += std::chrono::duration_cast<std::chrono::nanoseconds>( imgtime - hend ).count();
         closeTimeAccum += std::chrono::duration_cast<std::chrono::nanoseconds>( closetime - imgtime ).count();
+    }
+    }
+    catch ( std::exception &e )
+    {
+        std::cerr << "readCore: " << e.what() << std::endl;
+        throw;
     }
 }
 
@@ -386,7 +418,7 @@ int main(int argc, char *argv[])
     bool odd = false;
     uint64_t headerNanosN = 0, dataNanosN = 0, closeNanosN = 0, pixCountN = 0, fileCount = 0;
     uint64_t headerNanosO = 0, dataNanosO = 0, closeNanosO = 0, pixCountO = 0;
-    constexpr int count = 4;
+    constexpr int count = 20;
     for ( int c = 0; c < count; ++c )
     {
         for ( auto &f: files )
@@ -433,35 +465,41 @@ int main(int argc, char *argv[])
               << "  Close: " << std::setw(15) << std::left << std::setfill(' ') << closeNanosN  << " "
               << std::setw(15) << std::left << std::setfill(' ') << closeNanosO << " ns\n"
               << "  Total: " << std::setw(15) << std::left << std::setfill(' ') << totN  << " "
-              << std::setw(15) << std::left << std::setfill(' ') << totO << " ns\n";
+              << std::setw (15)
+              << std::left << std::setfill (' ') << totO << " ns\n";
 
-    double aveHN = double(headerNanosN) / double(fileCount);
-    double aveDN = double(dataNanosN) / double(fileCount);
-    double aveCN = double(closeNanosN) / double(fileCount);
-    double aveTN = double(totN) / double(fileCount);
-    double aveHO = double(headerNanosO) / double(fileCount);
-    double aveDO = double(dataNanosO) / double(fileCount);
-    double aveCO = double(closeNanosO) / double(fileCount);
-    double aveTO = double(totO) / double(fileCount);
+    double aveHN = double (headerNanosN) / double (fileCount);
+    double aveDN = double (dataNanosN) / double (fileCount);
+    double aveCN = double (closeNanosN) / double (fileCount);
+    double aveTN = double (totN) / double (fileCount);
+    double aveHO = double (headerNanosO) / double (fileCount);
+    double aveDO = double (dataNanosO) / double (fileCount);
+    double aveCO = double (closeNanosO) / double (fileCount);
+    double aveTO = double (totO) / double (fileCount);
 
     std::cout << "\n"
-              << " Ave     " << std::setw(15) << std::left << std::setfill(' ') << "Core" << " IlmImf\n"
-              << " Header: " << std::setw(15) << std::left << std::setfill(' ') << aveHN  << " "
-              << std::setw(15) << std::left << std::setfill(' ') << aveHO << " ns\n"
-              << "   Data: " << std::setw(15) << std::left << std::setfill(' ') << aveDN  << " "
-              << std::setw(15) << std::left << std::setfill(' ') << aveDO << " ns\n"
-              << "  Close: " << std::setw(15) << std::left << std::setfill(' ') << aveCN  << " "
-              << std::setw(15) << std::left << std::setfill(' ') << aveCO << " ns\n"
-              << "  Total: " << std::setw(15) << std::left << std::setfill(' ') << aveTN  << " "
-              << std::setw(15) << std::left << std::setfill(' ') << aveTO << " ns\n";
+              << " Ave     " << std::setw (15) << std::left
+              << std::setfill (' ') << "Core"
+              << " IlmImf\n"
+              << " Header: " << std::setw (15) << std::left
+              << std::setfill (' ') << aveHN << " " << std::setw (15)
+              << std::left << std::setfill (' ') << aveHO << " ns\n"
+              << "   Data: " << std::setw (15) << std::left
+              << std::setfill (' ') << aveDN << " " << std::setw (15)
+              << std::left << std::setfill (' ') << aveDO << " ns\n"
+              << "  Close: " << std::setw (15) << std::left
+              << std::setfill (' ') << aveCN << " " << std::setw (15)
+              << std::left << std::setfill (' ') << aveCO << " ns\n"
+              << "  Total: " << std::setw (15) << std::left
+              << std::setfill (' ') << aveTN << " " << std::setw (15)
+              << std::left << std::setfill (' ') << aveTO << " ns\n";
 
-    if ( imfOnly || coreOnly )
-        return 0;
+    if (imfOnly || coreOnly) return 0;
 
-    double ratioH = double(headerNanosO) / double(headerNanosN);
-    double ratioD = double(dataNanosO) / double(dataNanosN);
-    double ratioC = double(closeNanosO) / double(closeNanosN);
-    double ratioT = double(totO) / double(totN);
+    double ratioH = double (headerNanosO) / double (headerNanosN);
+    double ratioD = double (dataNanosO) / double (dataNanosN);
+    double ratioC = double (closeNanosO) / double (closeNanosN);
+    double ratioT = double (totO) / double (totN);
 
     std::cout << "\n"
               << " Ratios\n"
@@ -472,5 +510,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
-

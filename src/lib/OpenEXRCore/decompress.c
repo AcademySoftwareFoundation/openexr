@@ -3,9 +3,8 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
-#include "openexr_read.h"
+#include "internal_decompress.h"
 
-#include "internal_structs.h"
 #include "internal_xdr.h"
 
 #include <limits.h>
@@ -146,45 +145,48 @@ interleave (uint8_t* out, const uint8_t* source, size_t outSize)
 
 /**************************************/
 
-static int
-undozip (
-    const struct _internal_exr_context* ctxt,
-    const void*                         src,
-    size_t                              packsz,
-    void*                               out,
-    size_t                              outsz)
+exr_result_t
+internal_exr_undo_zip (
+    exr_decode_pipeline_t* decode,
+    const void*            compressed_data,
+    size_t                 comp_buf_size,
+    void*                  uncompressed_data,
+    size_t                 uncompressed_size,
+    void*                  scratch_data,
+    size_t                 scratch_size)
 {
-    uLongf outSize = (uLongf)outsz;
+    uLongf outSize = (uLongf) uncompressed_size;
     int    rstat;
-    /* TODO: find a way to not do this? */
-    uint8_t* tmpbuf = ctxt->alloc_fn (outsz);
-    if (tmpbuf == NULL) return EXR_ERR_OUT_OF_MEMORY;
 
-    rstat = uncompress ((Bytef*) tmpbuf, &outSize, (const Bytef*) src, (uLong)packsz);
+    if (scratch_size < uncompressed_size) return EXR_ERR_INVALID_ARGUMENT;
+
+    rstat = uncompress (
+        (Bytef*) scratch_data,
+        &outSize,
+        (const Bytef*) compressed_data,
+        (uLong) comp_buf_size);
     if (rstat == Z_OK)
     {
-        reconstruct (tmpbuf, outSize);
-        interleave (out, tmpbuf, outSize);
+        reconstruct (scratch_data, outSize);
+        interleave (uncompressed_data, scratch_data, outSize);
         rstat = EXR_ERR_SUCCESS;
     }
     else
     {
         rstat = EXR_ERR_BAD_CHUNK_DATA;
     }
-    ctxt->free_fn (tmpbuf);
 
     return rstat;
 }
 
 /**************************************/
 
-static int
-undorle (
-    const struct _internal_exr_context* ctxt,
-    const void*                         src,
-    size_t                              packsz,
-    void*                               out,
-    size_t                              outsz)
+exr_result_t internal_exr_undo_rle (
+    exr_decode_pipeline_t* decode,
+    const void*            src,
+    size_t                 packsz,
+    void*                  out,
+    size_t                 outsz)
 {
     const signed char* in  = (const signed char*) src;
     uint8_t*           dst = (uint8_t*) out;
@@ -230,79 +232,5 @@ undorle (
             ++in;
         }
     }
-    return EXR_ERR_SUCCESS;
-}
-
-/**************************************/
-
-exr_result_t
-exr_decompress_data (
-    const exr_context_t     ctxt,
-    const exr_compression_t ctype,
-    const void*             compressed_data,
-    size_t                  comp_buf_size,
-    void*                   uncompressed_data,
-    size_t                  uncompressed_size)
-{
-    exr_result_t rv;
-    EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (ctxt);
-
-    switch (ctype)
-    {
-        case EXR_COMPRESSION_NONE:
-            if (compressed_data == uncompressed_data) return EXR_ERR_SUCCESS;
-            if (comp_buf_size != uncompressed_size)
-                return pctxt->report_error (
-                    ctxt,
-                    EXR_ERR_INVALID_ARGUMENT,
-                    "no compresssion set but buffers do not match");
-            if (uncompressed_size > 0)
-                memcpy (uncompressed_data, compressed_data, uncompressed_size);
-            break;
-        case EXR_COMPRESSION_RLE:
-            if (compressed_data == uncompressed_data) return EXR_ERR_SUCCESS;
-            if (comp_buf_size > 0)
-            {
-                rv = undorle (
-                    pctxt,
-                    compressed_data,
-                    comp_buf_size,
-                    uncompressed_data,
-                    uncompressed_size);
-                if (rv != EXR_ERR_SUCCESS)
-                    return pctxt->report_error (
-                        ctxt, rv, "Unable to RLE decompress");
-            }
-            break;
-        case EXR_COMPRESSION_ZIP:
-        case EXR_COMPRESSION_ZIPS:
-            if (compressed_data == uncompressed_data) return EXR_ERR_SUCCESS;
-            if (comp_buf_size > 0)
-            {
-                rv = undozip (
-                    pctxt,
-                    compressed_data,
-                    comp_buf_size,
-                    uncompressed_data,
-                    uncompressed_size);
-                if (rv != EXR_ERR_SUCCESS)
-                    return pctxt->report_error (
-                        ctxt, rv, "Unable to decompress using zlib");
-            }
-            break;
-        case EXR_COMPRESSION_PIZ:
-        case EXR_COMPRESSION_PXR24:
-        case EXR_COMPRESSION_B44:
-        case EXR_COMPRESSION_B44A:
-        case EXR_COMPRESSION_DWAA:
-        case EXR_COMPRESSION_DWAB:
-        default:
-            return pctxt->print_error (
-                ctxt,
-                EXR_ERR_INVALID_ARGUMENT,
-                "Compression technique 0x%02X not yet implemented",
-                ctype);
-    }
-
     return EXR_ERR_SUCCESS;
 }

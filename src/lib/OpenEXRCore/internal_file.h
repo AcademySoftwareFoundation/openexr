@@ -25,6 +25,8 @@ exr_result_t internal_exr_compute_tile_information (
 int32_t
 internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart);
 
+exr_result_t internal_exr_write_header (struct _internal_exr_context* ctxt);
+
 /* in openexr_validate.c, functions to validate the header during read / pre-write */
 exr_result_t internal_exr_validate_read_part (
     struct _internal_exr_context* ctxt, struct _internal_exr_part* curpart);

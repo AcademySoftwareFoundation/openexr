@@ -5,9 +5,12 @@ openexr_define_library(OpenEXRCore
   PRIV_EXPORT OPENEXRCORE_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
+    #NB: If you make any of these public, make sure to update the
+    # locking macros in the relative source files
     internal_attr.h
     internal_channel_list.h
     internal_constants.h
+    internal_decompress.h
     internal_file.h
     internal_float_vector.h
     internal_memory.h
@@ -18,6 +21,7 @@ openexr_define_library(OpenEXRCore
     internal_string.h
     internal_string_vector.h
     internal_structs.h
+    internal_unpack.h
     internal_xdr.h
 
     attributes.c
@@ -38,12 +42,13 @@ openexr_define_library(OpenEXRCore
     std_attr.c
 
     parse_header.c
-    read.c
+    write_header.c
+
+    chunk.c
+    decoding.c
     decompress.c
-    write.c
-
+    unpack.c
     validation.c
-
 
     debug.c
 
@@ -52,13 +57,14 @@ openexr_define_library(OpenEXRCore
 
     openexr_attr.h
     openexr_base.h
+    openexr_chunkio.h
     openexr_conf.h
     openexr_context.h
+    openexr_decode.h
     openexr_debug.h
+    openexr_encode.h
     openexr_part.h
-    openexr_read.h
     openexr_std_attr.h
-    openexr_write.h
   DEPENDENCIES
     ZLIB::ZLIB
   PRIVATE_DEPS

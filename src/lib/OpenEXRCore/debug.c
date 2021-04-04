@@ -5,9 +5,9 @@
 
 #include "openexr_debug.h"
 
-#include "openexr_attr.h"
 #include "internal_constants.h"
 #include "internal_structs.h"
+#include "openexr_attr.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -251,92 +251,88 @@ print_attr (const exr_attribute_t* a, int verbose)
 
 /**************************************/
 
-void
+exr_result_t
 exr_print_context_info (const exr_context_t ctxt, int verbose)
 {
-    const struct _internal_exr_context* f = EXR_CCTXT (ctxt);
-    if (f)
+    EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (ctxt);
+    if (verbose)
     {
+        printf (
+            "File '%s': ver %d flags%s%s%s%s\n",
+            pctxt->filename.str,
+            (int) pctxt->version,
+            pctxt->is_singlepart_tiled ? " singletile" : "",
+            pctxt->max_name_length == EXR_LONGNAME_MAXLEN ? " longnames"
+                                                          : " shortnames",
+            pctxt->has_nonimage_data ? " deep" : "",
+            pctxt->is_multipart ? " multipart" : "");
+        printf (" parts: %d\n", pctxt->num_parts);
+    }
+    else
+    {
+        printf ("File '%s':\n", pctxt->filename.str);
+    }
+
+    for (int partidx = 0; partidx < pctxt->num_parts; ++partidx)
+    {
+        const struct _internal_exr_part* curpart = pctxt->parts[partidx];
+        if (verbose || pctxt->is_multipart || curpart->name)
+            printf (
+                " part %d: %s\n",
+                partidx + 1,
+                curpart->name ? curpart->name->string->str : "<single>");
         if (verbose)
         {
-            printf (
-                "File '%s': ver %d flags%s%s%s%s\n",
-                f->filename.str,
-                (int) f->version,
-                f->is_singlepart_tiled ? " singletile" : "",
-                f->max_name_length == EXR_LONGNAME_MAXLEN ? " longnames"
-                                                          : " shortnames",
-                f->has_nonimage_data ? " deep" : "",
-                f->is_multipart ? " multipart" : "");
-            printf (" parts: %d\n", f->num_parts);
+            for (int a = 0; a < curpart->attributes.num_attributes; ++a)
+            {
+                if (a > 0) printf ("\n");
+                printf ("  ");
+                print_attr (curpart->attributes.entries[a], verbose);
+            }
+            printf ("\n");
         }
         else
         {
-            printf ("File '%s':\n", f->filename.str);
-        }
-
-        for (int partidx = 0; partidx < f->num_parts; ++partidx)
-        {
-            const struct _internal_exr_part* curpart = f->parts[partidx];
-            if (verbose || f->is_multipart || curpart->name)
-                printf (
-                    " part %d: %s\n",
-                    partidx + 1,
-                    curpart->name ? curpart->name->string->str : "<single>");
-            if (verbose)
+            if (curpart->type)
             {
-                for (int a = 0; a < curpart->attributes.num_attributes; ++a)
-                {
-                    if (a > 0) printf ("\n");
-                    printf ("  ");
-                    print_attr (curpart->attributes.entries[a], verbose);
-                }
-                printf ("\n");
-            }
-            else
-            {
-                if (curpart->type)
-                {
-                    printf ("  ");
-                    print_attr (curpart->type, verbose);
-                }
                 printf ("  ");
-                print_attr (curpart->compression, verbose);
-                if (curpart->tiles)
-                {
-                    printf ("\n  ");
-                    print_attr (curpart->tiles, verbose);
-                }
-                printf ("\n  ");
-                print_attr (curpart->displayWindow, verbose);
-                printf ("\n  ");
-                print_attr (curpart->dataWindow, verbose);
-                printf ("\n  ");
-                print_attr (curpart->channels, verbose);
-                printf ("\n");
+                print_attr (curpart->type, verbose);
             }
+            printf ("  ");
+            print_attr (curpart->compression, verbose);
             if (curpart->tiles)
             {
-                printf (
-                    "  tiled image has levels: x %d y %d\n",
-                    curpart->num_tile_levels_x,
-                    curpart->num_tile_levels_y);
-                printf ("    x tile count:");
-                for (int l = 0; l < curpart->num_tile_levels_x; ++l)
-                    printf (
-                        " %d (sz %d)",
-                        curpart->tile_level_tile_count_x[l],
-                        curpart->tile_level_tile_size_x[l]);
-                printf ("\n    y tile count:");
-                for (int l = 0; l < curpart->num_tile_levels_y; ++l)
-                    printf (
-                        " %d (sz %d)",
-                        curpart->tile_level_tile_count_y[l],
-                        curpart->tile_level_tile_size_y[l]);
-                printf ("\n");
+                printf ("\n  ");
+                print_attr (curpart->tiles, verbose);
             }
+            printf ("\n  ");
+            print_attr (curpart->displayWindow, verbose);
+            printf ("\n  ");
+            print_attr (curpart->dataWindow, verbose);
+            printf ("\n  ");
+            print_attr (curpart->channels, verbose);
+            printf ("\n");
+        }
+        if (curpart->tiles)
+        {
+            printf (
+                "  tiled image has levels: x %d y %d\n",
+                curpart->num_tile_levels_x,
+                curpart->num_tile_levels_y);
+            printf ("    x tile count:");
+            for (int l = 0; l < curpart->num_tile_levels_x; ++l)
+                printf (
+                    " %d (sz %d)",
+                    curpart->tile_level_tile_count_x[l],
+                    curpart->tile_level_tile_size_x[l]);
+            printf ("\n    y tile count:");
+            for (int l = 0; l < curpart->num_tile_levels_y; ++l)
+                printf (
+                    " %d (sz %d)",
+                    curpart->tile_level_tile_count_y[l],
+                    curpart->tile_level_tile_size_y[l]);
+            printf ("\n");
         }
     }
-    else
-        printf ("ERROR: NULL context handle\n");
+    return EXR_RETURN_WRITE (pctxt), EXR_ERR_SUCCESS;
 }

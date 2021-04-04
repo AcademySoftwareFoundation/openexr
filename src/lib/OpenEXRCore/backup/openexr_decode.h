@@ -3,18 +3,16 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
-#ifndef OPENEXR_CORE_READ_H
-#define OPENEXR_CORE_READ_H
-
-#include "openexr_part.h"
+#ifndef OPENEXR_CORE_DECODE_H
+#define OPENEXR_CORE_DECODE_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /** 
- * @defgroup Reading
- * @brief These are a group of functions used when reading data from files
+ * @defgroup Decoding
+ * @brief These are a group of functions to assist with decoding data read from chunks
  * @{
  */
 
@@ -28,7 +26,7 @@ typedef struct
      */
 
     /** channel name, for reference (do not free, refers to internal data structure) */
-    const char* channel_name;
+    const char *channel_name;
 
     /** number of lines for this channel in this chunk
      *
@@ -55,12 +53,12 @@ typedef struct
      */
 
     /** if left to NULL, will skip writing this channel */
-    uint8_t* data_ptr;
+    uint8_t *data_ptr;
     /** increment to get to next pixel in bytes for a scanline */
     int output_pixel_stride;
     /** when lines > 1, increment to get from beginning of line to
      * beginning of next line (in bytes) */
-    int output_line_stride;
+    int output_line_stride; 
 
     /** @} */
 } exr_channel_decode_info_t;
@@ -79,7 +77,7 @@ typedef struct exr_decode_chunk_info__t
      * the decoding process shall be freed by a call to @see
      * destroy_chunk_decoder
      */
-    exr_channel_decode_info_t* channels;
+    exr_channel_decode_info_t *channels;
     /** faster than calling malloc when the channel count in the part
      * is small (RGBAZ) but do not rely on this being used */
     exr_channel_decode_info_t chan_store[5];
@@ -118,10 +116,10 @@ typedef struct exr_decode_chunk_info__t
      * count of bytes to decompress into, instead just provide a
      * buffer that has at least that many bytes.
      */
-    struct
+    struct 
     {
         uint64_t size;
-        uint8_t* buffer;
+        uint8_t *buffer;
     } packed;
 
     /** scratch buffer used to decompress the data from disk
@@ -141,7 +139,7 @@ typedef struct exr_decode_chunk_info__t
     struct
     {
         uint64_t size;
-        uint8_t* buffer;
+        uint8_t *buffer;
     } unpacked;
 
     /** for deep files
@@ -153,7 +151,7 @@ typedef struct exr_decode_chunk_info__t
     struct
     {
         uint64_t size;
-        uint8_t* buffer;
+        uint8_t *buffer;
     } sample_table;
 
     /** spare scratch buffer used to decompress the data from disk
@@ -172,7 +170,7 @@ typedef struct exr_decode_chunk_info__t
     struct
     {
         uint64_t size;
-        uint8_t* buffer;
+        uint8_t *buffer;
     } spare;
 
 } exr_decode_chunk_info_t;
@@ -201,12 +199,10 @@ typedef struct exr_decode_chunk_info__t
  *
  * @return 0 upon success, otherwise an appropriate error code
  */
-EXR_EXPORT exr_result_t exr_decode_chunk_init_scanline (
-    const exr_context_t      ctxt,
-    int                      part_index,
-    exr_decode_chunk_info_t* outinfo,
-    int                      y,
-    int                      own_scratch_space);
+EXR_EXPORT int exr_decode_chunk_init_scanline(
+    exr_file_t *file, int part_index,
+    exr_decode_chunk_info_t *outinfo,
+    int y, int own_scratch_space );
 
 /** @brief Initializes the chunk_info for a particular tile.
  *
@@ -233,75 +229,22 @@ EXR_EXPORT exr_result_t exr_decode_chunk_init_scanline (
  *
  * @return 0 upon success, otherwise an appropriate error code
  */
-EXR_EXPORT exr_result_t exr_decode_chunk_init_tile (
-    const exr_context_t      ctxt,
-    int                      part_index,
-    exr_decode_chunk_info_t* outinfo,
-    int                      tilex,
-    int                      tiley,
-    int                      levelx,
-    int                      levely,
-    int                      own_scratch_space);
+EXR_EXPORT int exr_decode_chunk_init_tile(
+    exr_file_t *file, int part_index,
+    exr_decode_chunk_info_t *outinfo,
+    int tilex, int tiley,
+    int levelx, int levely,
+    int own_scratch_space );
 
 /** @brief Free any allocated data owned by the decode_chunk_info struct */
-EXR_EXPORT exr_result_t exr_destroy_decode_chunk_info (
-    const exr_context_t ctxt, exr_decode_chunk_info_t* outinfo);
-
-/** @brief Read a chunk from a file.
- *
- * This is only valid on a file that has been opened for read. This is
- * the only access mechanism for reading data from the file. Do note
- * that this is only provided on a per-chunk basis. The C++ layer has
- * buffering and other conveniences to read the entire image in a
- * single call, or just a single scanline at a time.
- *
- * Steps performed:
- * 1. Read the (compressed) data into the compressed scratch space,
- *    allocating first if own_scratch_space is non-zero.
- * 2. Decompress as appropriate. This may allocate a scratch buffer
- *    for unpacked if needed and own_scratch_space is non-zero.
- *    NB: If own_scratch_space is 0 and the unpack buffer is NULL,
- *        the routine will return at this point, allowing the user
- *        to provide custom decompression calls
- * 3. If pointers and stride information are provided to the channel
- *    decode information list, propagate the decompressed data into
- *    the output.
- *
- * if own_scratch_space is zero, buffers must be provided. In this
- * mode, reading will stop as soon as a buffer needed is NULL, but
- * after the read of the compressed data, will not report an error.
- * In this way, one is able to read the compressed data only, or only
- * read and decompress, or go all the way to decoding into output
- * pixel locations. Do note that some interpretation of the
- * compression type is performed, in that if the data is not
- * compressed, the intermediate buffers are not needed, and so the
- * routine can jump straight to reading data into the output as a
- * "minimal-copy" (ignoring O.S. level buffering, zero-copy).
- *
- * @param file The file to read from
- * @param cinfo The chunk to read, as computed using
- *              @sa compute_chunk_for_scanline or @sa compute_chunk_for_tile.
- */
-EXR_EXPORT exr_result_t
-exr_read_chunk (const exr_context_t ctxt, exr_decode_chunk_info_t* cinfo);
-
-/** @brief Perform buffer decompression
- * TODO: This will need more info for all the compression types
- *       like b44 and pxr24 that do different things depending on
- *       the underlying buffer type
- */
-EXR_EXPORT exr_result_t exr_decompress_data (
-    const exr_context_t     ctxt,
-    const exr_compression_t ctype,
-    const void*             compressed_data,
-    size_t                  comp_buf_size,
-    void*                   uncompressed_data,
-    size_t                  uncompressed_size);
+EXR_EXPORT void exr_destroy_decode_chunk_info(
+    exr_decode_chunk_info_t *outinfo );
 
 /** @} */
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
 
 #endif /* OPENEXR_CORE_READ_H */

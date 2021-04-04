@@ -16,11 +16,14 @@
 exr_result_t
 exr_part_get_count (const exr_context_t ctxt, int* count)
 {
+    int cnt;
     EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (ctxt);
+    cnt = pctxt->num_parts;
+    EXR_UNLOCK_WRITE (pctxt);
 
     if (!count) return pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 
-    *count = pctxt->num_parts;
+    *count = cnt;
     return EXR_ERR_SUCCESS;
 }
 
@@ -30,18 +33,25 @@ exr_result_t
 exr_part_get_storage (
     const exr_context_t ctxt, int part_index, exr_storage_t* out)
 {
+    exr_storage_t smode;
     EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    smode = part->storage_mode;
+    EXR_UNLOCK_WRITE (pctxt);
 
     if (!out) return pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 
-    *out = part->storage_mode;
+    *out = smode;
     return EXR_ERR_SUCCESS;
 }
 
 /**************************************/
 
 exr_result_t
-exr_part_add (exr_context_t ctxt, const char* partname, exr_storage_t type)
+exr_part_add (
+    exr_context_t ctxt,
+    const char*   partname,
+    exr_storage_t type,
+    int*          new_index)
 {
     uint8_t*     namestr;
     exr_result_t rv;
@@ -50,13 +60,14 @@ exr_part_add (exr_context_t ctxt, const char* partname, exr_storage_t type)
 
     struct _internal_exr_part* part = NULL;
 
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    EXR_PROMOTE_LOCKED_CONTEXT_OR_ERROR (ctxt);
 
     if (pctxt->mode != EXR_CONTEXT_WRITE)
-        return pctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE);
+        return EXR_UNLOCK (pctxt),
+               pctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE);
 
-    rv = internal_exr_add_part (pctxt, &part);
-    if (rv != EXR_ERR_SUCCESS) return rv;
+    rv = internal_exr_add_part (pctxt, &part, new_index);
+    if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK (pctxt), rv;
 
     switch (type)
     {
@@ -77,11 +88,12 @@ exr_part_add (exr_context_t ctxt, const char* partname, exr_storage_t type)
             attrsz  = 8;
             break;
         default:
-            return pctxt->print_error (
-                ctxt,
-                EXR_ERR_INVALID_ATTR,
-                "Invalid storage type %d for new part",
-                (int) type);
+            return EXR_UNLOCK (pctxt),
+                   pctxt->print_error (
+                       ctxt,
+                       EXR_ERR_INVALID_ATTR,
+                       "Invalid storage type %d for new part",
+                       (int) type);
     }
 
     rv = exr_attr_list_add_static_name (
@@ -93,7 +105,7 @@ exr_part_add (exr_context_t ctxt, const char* partname, exr_storage_t type)
         &namestr,
         &(part->type));
 
-    if (rv != EXR_ERR_SUCCESS) return rv;
+    if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK (pctxt), rv;
 
     memcpy (namestr, typestr, attrsz + 1);
 
@@ -103,12 +115,13 @@ exr_part_add (exr_context_t ctxt, const char* partname, exr_storage_t type)
     {
         size_t pnamelen = strlen (partname);
         if (pnamelen >= INT32_MAX)
-            return pctxt->print_error (
-                ctxt,
-                EXR_ERR_INVALID_ATTR,
-                "Part name '%s': Invalid name length %lu",
-                partname,
-                pnamelen);
+            return EXR_UNLOCK (pctxt),
+                   pctxt->print_error (
+                       ctxt,
+                       EXR_ERR_INVALID_ATTR,
+                       "Part name '%s': Invalid name length %lu",
+                       partname,
+                       pnamelen);
 
         rv = exr_attr_list_add_static_name (
             ctxt,
@@ -148,6 +161,7 @@ exr_part_add (exr_context_t ctxt, const char* partname, exr_storage_t type)
             pctxt->is_singlepart_tiled = 0;
     }
 
+    EXR_UNLOCK (pctxt);
     return rv;
 }
 
@@ -166,18 +180,20 @@ exr_part_get_tile_levels (
             part->num_tile_levels_y <= 0 || !part->tile_level_tile_count_x ||
             !part->tile_level_tile_count_y)
         {
-            return pctxt->print_error (
-                ctxt,
-                EXR_ERR_BAD_CHUNK_DATA,
-                "Request for tile, but no tile data exists");
+            return EXR_RETURN_WRITE (pctxt),
+                   pctxt->print_error (
+                       ctxt,
+                       EXR_ERR_BAD_CHUNK_DATA,
+                       "Request for tile, but no tile data exists");
         }
 
         if (levelsx) *levelsx = part->num_tile_levels_x;
         if (levelsy) *levelsy = part->num_tile_levels_y;
-        return EXR_ERR_SUCCESS;
+        return EXR_RETURN_WRITE (pctxt), EXR_ERR_SUCCESS;
     }
 
-    return pctxt->standard_error (ctxt, EXR_ERR_TILE_SCAN_MIXEDAPI);
+    return EXR_RETURN_WRITE (pctxt),
+           pctxt->standard_error (ctxt, EXR_ERR_TILE_SCAN_MIXEDAPI);
 }
 
 /**************************************/
@@ -202,31 +218,34 @@ exr_part_get_tile_sizes (
             part->num_tile_levels_y <= 0 || !part->tile_level_tile_count_x ||
             !part->tile_level_tile_count_y)
         {
-            return pctxt->print_error (
-                ctxt,
-                EXR_ERR_BAD_CHUNK_DATA,
-                "Request for tile, but no tile data exists");
+            return EXR_RETURN_WRITE (pctxt),
+                   pctxt->print_error (
+                       ctxt,
+                       EXR_ERR_BAD_CHUNK_DATA,
+                       "Request for tile, but no tile data exists");
         }
 
         if (levelx >= part->num_tile_levels_x ||
             levely >= part->num_tile_levels_y)
-            return pctxt->standard_error (ctxt, EXR_ERR_ARGUMENT_OUT_OF_RANGE);
+            return EXR_RETURN_WRITE (pctxt),
+                   pctxt->standard_error (ctxt, EXR_ERR_ARGUMENT_OUT_OF_RANGE);
 
         tiledesc = part->tiles->tiledesc;
         if (tilew)
         {
             *tilew = part->tile_level_tile_size_x[levelx];
-            if (tiledesc->x_size < (uint32_t)*tilew) *tilew = tiledesc->x_size;
+            if (tiledesc->x_size < (uint32_t) *tilew) *tilew = tiledesc->x_size;
         }
         if (tileh)
         {
             *tileh = part->tile_level_tile_size_y[levely];
-            if (tiledesc->y_size < (uint32_t)*tileh) *tileh = tiledesc->y_size;
+            if (tiledesc->y_size < (uint32_t) *tileh) *tileh = tiledesc->y_size;
         }
-        return EXR_ERR_SUCCESS;
+        return EXR_RETURN_WRITE (pctxt), EXR_ERR_SUCCESS;
     }
 
-    return pctxt->standard_error (ctxt, EXR_ERR_TILE_SCAN_MIXEDAPI);
+    return EXR_RETURN_WRITE (pctxt),
+           pctxt->standard_error (ctxt, EXR_ERR_TILE_SCAN_MIXEDAPI);
 }
 
 /**************************************/
@@ -237,7 +256,9 @@ exr_part_get_chunk_count (
 {
     EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
 
-    if (!out) return pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+    if (!out)
+        return EXR_RETURN_WRITE (pctxt),
+               pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 
     if (part->dataWindow)
     {
@@ -247,10 +268,13 @@ exr_part_get_chunk_count (
             if (part->tiles)
             {
                 *out = part->chunk_count;
-                return EXR_ERR_SUCCESS;
+                return EXR_RETURN_WRITE (pctxt), EXR_ERR_SUCCESS;
             }
-            return pctxt->report_error (
-                ctxt, EXR_ERR_BAD_CHUNK_DATA, "Missing tile chunk information");
+            return EXR_RETURN_WRITE (pctxt),
+                   pctxt->report_error (
+                       ctxt,
+                       EXR_ERR_BAD_CHUNK_DATA,
+                       "Missing tile chunk information");
         }
         else if (
             part->storage_mode == EXR_STORAGE_SCANLINE ||
@@ -259,19 +283,21 @@ exr_part_get_chunk_count (
             if (part->compression)
             {
                 *out = part->chunk_count;
-                return EXR_ERR_SUCCESS;
+                return EXR_RETURN_WRITE (pctxt), EXR_ERR_SUCCESS;
             }
-            return pctxt->report_error (
-                ctxt,
-                EXR_ERR_BAD_CHUNK_DATA,
-                "Missing scanline chunk compression information");
+            return EXR_RETURN_WRITE (pctxt),
+                   pctxt->report_error (
+                       ctxt,
+                       EXR_ERR_BAD_CHUNK_DATA,
+                       "Missing scanline chunk compression information");
         }
     }
 
-    return pctxt->report_error (
-        ctxt,
-        EXR_ERR_BAD_CHUNK_DATA,
-        "Missing data window for chunk information");
+    return EXR_RETURN_WRITE (pctxt),
+           pctxt->report_error (
+               ctxt,
+               EXR_ERR_BAD_CHUNK_DATA,
+               "Missing data window for chunk information");
 }
 
 /**************************************/
@@ -282,18 +308,21 @@ exr_part_get_scanlines_per_chunk (
 {
     EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
 
-    if (!out) return pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+    if (!out)
+        return EXR_RETURN_WRITE (pctxt),
+               pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 
     if (part->storage_mode == EXR_STORAGE_SCANLINE ||
         part->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
     {
         *out = part->lines_per_chunk;
-        return EXR_ERR_SUCCESS;
+        return EXR_RETURN_WRITE (pctxt), EXR_ERR_SUCCESS;
     }
-    return pctxt->report_error (
-        ctxt,
-        EXR_ERR_BAD_CHUNK_DATA,
-        "Request for scanlines per chunk, but inspecting a scanline-stored part");
+    return EXR_RETURN_WRITE (pctxt),
+           pctxt->report_error (
+               ctxt,
+               EXR_ERR_BAD_CHUNK_DATA,
+               "Request for scanlines per chunk, but inspecting a scanline-stored part");
 }
 
 /**************************************/
@@ -302,10 +331,14 @@ exr_result_t
 exr_part_get_chunk_unpacked_size (
     const exr_context_t ctxt, int part_index, uint64_t* out)
 {
+    uint64_t sz;
     EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    sz = part->unpacked_size_per_chunk;
+    EXR_UNLOCK_WRITE (pctxt);
 
-    if (!out) return pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+    if (!out)
+        return pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 
-    *out = part->unpacked_size_per_chunk;
+    *out = sz;
     return EXR_ERR_SUCCESS;
 }

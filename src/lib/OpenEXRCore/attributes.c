@@ -286,7 +286,7 @@ exr_attr_list_destroy (exr_context_t ctxt, exr_attribute_list_t* list)
     exr_result_t         arv;
     exr_result_t         rv = EXR_ERR_SUCCESS;
 
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (list)
     {
@@ -313,7 +313,7 @@ exr_attr_list_compute_size (
     uint64_t     retval = 0;
     exr_result_t rv     = EXR_ERR_SUCCESS;
 
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (!list)
         return pctxt->report_error (
@@ -421,7 +421,7 @@ exr_attr_list_find_by_name (
     exr_attribute_t** first = NULL;
     exr_attribute_t** end   = NULL;
     int               step, count, cmp;
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (!out)
         return pctxt->report_error (
@@ -664,7 +664,7 @@ exr_attr_list_add_by_type (
     exr_attribute_t* nattr       = NULL;
     exr_attribute_t  nil         = { 0 };
 
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (!type || type[0] == '\0')
     {
@@ -818,7 +818,7 @@ exr_attr_list_add (
     exr_attribute_t* nattr       = NULL;
     exr_attribute_t  nil         = { 0 };
 
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     rval =
         validate_attr_arguments (pctxt, list, name, data_len, data_ptr, attr);
@@ -938,7 +938,7 @@ exr_attr_list_add_static_name (
     exr_attribute_t* nattr       = NULL;
     exr_attribute_t  nil         = { 0 };
 
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     rval =
         validate_attr_arguments (pctxt, list, name, data_len, data_ptr, attr);
@@ -1037,7 +1037,7 @@ exr_attr_list_remove (
     int               cattrsz, attridx = -1;
     exr_attribute_t** attrs;
 
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (!attr)
     {

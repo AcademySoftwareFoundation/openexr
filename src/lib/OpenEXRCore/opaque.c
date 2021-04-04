@@ -18,7 +18,7 @@ exr_attr_opaquedata_init (
 {
     exr_attr_opaquedata_t nil = { 0 };
 
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (!u)
         return pctxt->report_error (
@@ -62,7 +62,7 @@ exr_attr_opaquedata_create (
 exr_result_t
 exr_attr_opaquedata_destroy (exr_context_t ctxt, exr_attr_opaquedata_t* ud)
 {
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (ud)
     {
@@ -86,7 +86,7 @@ exr_attr_opaquedata_unpack (
 {
     exr_result_t rv;
 
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (sz) *sz = 0;
     if (unpacked) *unpacked = NULL;
@@ -134,7 +134,7 @@ exr_attr_opaquedata_pack (
     int32_t      nsize  = 0;
     void*        tmpptr = NULL;
 
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (sz) *sz = 0;
     if (packed) *packed = NULL;
@@ -203,7 +203,7 @@ exr_result_t
 exr_attr_opaquedata_set_unpacked (
     exr_context_t ctxt, exr_attr_opaquedata_t* u, void* unpacked, int32_t sz)
 {
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (!u) return pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 

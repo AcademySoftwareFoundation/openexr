@@ -19,7 +19,7 @@ exr_attr_float_vector_init (
     exr_attr_float_vector_t nil   = { 0 };
     size_t                  bytes = (size_t) nent * sizeof (float);
 
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (nent < 0)
         return pctxt->print_error (
@@ -63,7 +63,7 @@ exr_attr_float_vector_init_static (
 {
     exr_attr_float_vector_t nil = { 0 };
 
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (nent < 0)
         return pctxt->print_error (
@@ -99,7 +99,7 @@ exr_attr_float_vector_create (
     int32_t                  nent)
 {
     exr_result_t rv = EXR_ERR_UNKNOWN;
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (!fv || !arr)
         return pctxt->report_error (
@@ -118,7 +118,7 @@ exr_attr_float_vector_create (
 exr_result_t
 exr_attr_float_vector_destroy (exr_context_t ctxt, exr_attr_float_vector_t* fv)
 {
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (fv)
     {

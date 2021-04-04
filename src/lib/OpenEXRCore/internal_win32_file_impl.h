@@ -9,8 +9,6 @@
 #include <fileapi.h>
 #include <strsafe.h>
 
-#include <IlmThreadConfig.h>
-
 static exr_result_t
 print_error_helper (
     struct _internal_exr_context* pf,

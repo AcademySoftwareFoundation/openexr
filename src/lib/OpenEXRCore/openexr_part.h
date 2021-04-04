@@ -51,14 +51,17 @@ exr_part_get_name (const exr_context_t ctxt, int part_index, const char** out);
 EXR_EXPORT exr_result_t exr_part_get_storage (
     const exr_context_t ctxt, int part_index, exr_storage_t* out);
 
-/* @brief Define a new part in the file.
+/** @brief Define a new part in the file.
  *
  * If @param adopt_attr_ownership is non-zero, indicates that the
  * attribute list should be internalized and used as the attributes,
  * avoiding a number of memory copies.
  */
-EXR_EXPORT exr_result_t
-exr_part_add (exr_context_t ctxt, const char* partname, exr_storage_t type);
+EXR_EXPORT exr_result_t exr_part_add (
+    exr_context_t ctxt,
+    const char*   partname,
+    exr_storage_t type,
+    int*          new_index);
 
 /** @brief Query how many levels are in the specified part.
  *
@@ -238,6 +241,25 @@ EXR_EXPORT exr_result_t exr_part_initialize_required_attr_simple (
     int32_t           height,
     exr_compression_t ctype);
 
+/** @brief Copy the attributes from one part to another
+ *
+ * This allows one to quickly unassigned attributes from one source to another.
+ *
+ * If an attribute in the source part has not been yet set in the
+ * destination part, the item will be copied over.
+ *
+ * For example, when you add a part, the storage type and name
+ * attributes are required arguments to the definition of a new part,
+ * but channels has not yet been assigned. So by calling this with an
+ * input file as the source, you can copy the channel definitions (and
+ * any other unassigned attributes from the source).
+ */
+EXR_EXPORT exr_result_t exr_part_copy_unset_attributes (
+    exr_context_t       ctxt,
+    int                 part_index,
+    const exr_context_t source,
+    int                 src_part_index);
+
 /** @brief retrieves the list of channels */
 EXR_EXPORT exr_result_t exr_part_get_channels (
     const exr_context_t ctxt, int part_index, const exr_attr_chlist_t** chlist);
@@ -284,8 +306,8 @@ EXR_EXPORT int exr_part_set_display_window (
 EXR_EXPORT exr_result_t exr_part_get_lineorder (
     const exr_context_t ctxt, int part_index, exr_lineorder_t* out);
 /** @brief Sets the line order for storing data in the specified part (use 0 for single part images). */
-EXR_EXPORT exr_result_t exr_part_set_lineorder (
-    exr_context_t ctxt, int part_index, exr_lineorder_t lo);
+EXR_EXPORT exr_result_t
+exr_part_set_lineorder (exr_context_t ctxt, int part_index, exr_lineorder_t lo);
 
 /** @brief Retrieves the pixel aspect ratio for the specified part (use 0 for single part images). */
 EXR_EXPORT exr_result_t exr_part_get_pixel_aspect_ratio (
@@ -326,17 +348,17 @@ EXR_EXPORT exr_result_t exr_part_set_tile_descriptor (
     exr_tile_level_mode_t level_mode,
     exr_tile_round_mode_t round_mode);
 
-EXR_EXPORT exr_result_t exr_part_set_name (
-    exr_context_t ctxt, int part_index, const char *val);
+EXR_EXPORT exr_result_t
+exr_part_set_name (exr_context_t ctxt, int part_index, const char* val);
 
-EXR_EXPORT exr_result_t exr_part_get_version (
-    const exr_context_t ctxt, int part_index, int32_t *out);
+EXR_EXPORT exr_result_t
+exr_part_get_version (const exr_context_t ctxt, int part_index, int32_t* out);
 
-EXR_EXPORT exr_result_t exr_part_set_version (
-    exr_context_t ctxt, int part_index, int32_t val);
+EXR_EXPORT exr_result_t
+exr_part_set_version (exr_context_t ctxt, int part_index, int32_t val);
 
-EXR_EXPORT exr_result_t exr_part_set_chunk_count (
-    exr_context_t ctxt, int part_index, int32_t val);
+EXR_EXPORT exr_result_t
+exr_part_set_chunk_count (exr_context_t ctxt, int part_index, int32_t val);
 
 /** @} */ /* required attr group */
 

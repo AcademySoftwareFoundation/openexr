@@ -16,7 +16,7 @@ exr_result_t
 exr_attr_string_init (exr_context_t ctxt, exr_attr_string_t* s, int32_t len)
 {
     exr_attr_string_t nil = { 0 };
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (len < 0)
         return pctxt->print_error (
@@ -47,7 +47,7 @@ exr_attr_string_init_static_with_length (
     exr_context_t ctxt, exr_attr_string_t* s, const char* v, int32_t len)
 {
     exr_attr_string_t nil = { 0 };
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (len < 0)
         return pctxt->print_error (
@@ -82,7 +82,7 @@ exr_attr_string_init_static (
 {
     size_t  fulllen = 0;
     int32_t length  = 0;
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (v)
     {
@@ -104,7 +104,7 @@ exr_attr_string_create_with_length (
     exr_context_t ctxt, exr_attr_string_t* s, const char* d, int32_t len)
 {
     exr_result_t rv;
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (!s)
         return pctxt->report_error (
@@ -153,7 +153,7 @@ exr_result_t
 exr_attr_string_set_with_length (
     exr_context_t ctxt, exr_attr_string_t* s, const char* d, int32_t len)
 {
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (!s)
         return pctxt->report_error (
@@ -209,7 +209,7 @@ exr_attr_string_set (exr_context_t ctxt, exr_attr_string_t* s, const char* d)
 exr_result_t
 exr_attr_string_destroy (exr_context_t ctxt, exr_attr_string_t* s)
 {
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (s)
     {

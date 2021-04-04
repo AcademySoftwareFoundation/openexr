@@ -18,7 +18,7 @@ exr_attr_string_vector_init (
     exr_attr_string_vector_t nil   = { 0 };
     exr_attr_string_t        nils  = { 0 };
     size_t                   bytes = (size_t) nent * sizeof (exr_attr_string_t);
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (!sv)
         return pctxt->report_error (
@@ -60,7 +60,7 @@ exr_result_t
 exr_attr_string_vector_destroy (
     exr_context_t ctxt, exr_attr_string_vector_t* sv)
 {
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (sv)
     {
@@ -83,7 +83,7 @@ exr_result_t
 exr_attr_string_vector_init_entry (
     exr_context_t ctxt, exr_attr_string_vector_t* sv, int32_t idx, int32_t len)
 {
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (sv)
     {
@@ -116,7 +116,7 @@ exr_attr_string_vector_set_entry_with_length (
     const char*               s,
     int32_t                   len)
 {
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (!sv)
         return pctxt->report_error (
@@ -164,7 +164,7 @@ exr_attr_string_vector_add_entry_with_length (
     int32_t            nent;
     int                rv;
     exr_attr_string_t* nlist;
-    EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (!sv)
         return pctxt->report_error (

@@ -177,45 +177,58 @@ testReadTiles (const std::string& tempdir)
     EXRCORE_TEST (levelsx == 12);
     EXRCORE_TEST (levelsy == 24);
 
-    exr_decode_chunk_info_t chunk = { 0 };
-    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_SCAN_TILE_MIXEDAPI, exr_decode_chunk_init_scanline (f, 0, &chunk, 42, 1));
+    exr_chunk_block_info_t cinfo;
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_SCAN_TILE_MIXEDAPI, exr_part_read_scanline_block_info (f, 0, 42, &cinfo));
 
     // actually read a tile...
-    EXRCORE_TEST_RVAL(exr_decode_chunk_init_tile (f, 0, &chunk, 4, 2, 0, 0, 1));
-    EXRCORE_TEST (chunk.own_scratch_buffers == 1);
+    EXRCORE_TEST_RVAL(exr_part_read_tile_block_info (f, 0, 4, 2, 0, 0, &cinfo));
     uint64_t pchunksz = 0;
     EXRCORE_TEST_RVAL(exr_part_get_chunk_unpacked_size (f, 0, &pchunksz));
-    EXRCORE_TEST (chunk.unpacked.size == pchunksz);
-    EXRCORE_TEST (chunk.channel_count == 2);
-    EXRCORE_TEST (!strcmp (chunk.channels[0].channel_name, "G"));
-    EXRCORE_TEST (chunk.channels[0].bytes_per_pel == 2);
-    EXRCORE_TEST (chunk.channels[0].width == 12);
-    EXRCORE_TEST (chunk.channels[0].height == 24);
-    EXRCORE_TEST (chunk.channels[0].x_samples == 1);
-    EXRCORE_TEST (chunk.channels[0].y_samples == 1);
-    EXRCORE_TEST (!strcmp (chunk.channels[1].channel_name, "Z"));
-    EXRCORE_TEST (chunk.channels[1].bytes_per_pel == 4);
-    EXRCORE_TEST (chunk.channels[1].width == 12);
-    EXRCORE_TEST (chunk.channels[1].height == 24);
-    EXRCORE_TEST (chunk.channels[1].x_samples == 1);
-    EXRCORE_TEST (chunk.channels[1].y_samples == 1);
+    EXRCORE_TEST (cinfo.type == EXR_STORAGE_TILED);
+    EXRCORE_TEST (cinfo.compression == EXR_COMPRESSION_NONE);
+    EXRCORE_TEST (cinfo.packed_size == pchunksz);
+    EXRCORE_TEST (cinfo.unpacked_size == pchunksz);
+    EXRCORE_TEST (cinfo.sample_count_data_offset == 0);
+    EXRCORE_TEST (cinfo.sample_count_table_size == 0);
+
+    exr_decode_pipeline_t decoder;
+    EXRCORE_TEST_RVAL(exr_initialize_decoding (f, 0, &cinfo, &decoder));
+
+    EXRCORE_TEST (decoder.channel_count == 2);
+    EXRCORE_TEST (!strcmp (decoder.channels[0].channel_name, "G"));
+    EXRCORE_TEST (decoder.channels[0].bytes_per_element == 2);
+    EXRCORE_TEST (decoder.channels[0].width == 12);
+    EXRCORE_TEST (decoder.channels[0].height == 24);
+    EXRCORE_TEST (decoder.channels[0].x_samples == 1);
+    EXRCORE_TEST (decoder.channels[0].y_samples == 1);
+    EXRCORE_TEST (!strcmp (decoder.channels[1].channel_name, "Z"));
+    EXRCORE_TEST (decoder.channels[1].bytes_per_element == 4);
+    EXRCORE_TEST (decoder.channels[1].width == 12);
+    EXRCORE_TEST (decoder.channels[1].height == 24);
+    EXRCORE_TEST (decoder.channels[1].x_samples == 1);
+    EXRCORE_TEST (decoder.channels[1].y_samples == 1);
 
     std::unique_ptr<uint8_t[]> gptr{ new uint8_t[24 * 12 * 2] };
     std::unique_ptr<uint8_t[]> zptr{ new uint8_t[24 * 12 * 4] };
     memset (gptr.get (), 0, 24 * 12 * 2);
     memset (zptr.get (), 0, 24 * 12 * 4);
-    chunk.channels[0].data_ptr            = gptr.get ();
-    chunk.channels[0].output_pixel_stride = 2;
-    chunk.channels[0].output_line_stride  = 2 * 12;
-    chunk.channels[1].data_ptr            = zptr.get ();
-    chunk.channels[1].output_pixel_stride = 4;
-    chunk.channels[1].output_line_stride  = 4 * 12;
+    decoder.channels[0].decode_to_ptr            = gptr.get ();
+    decoder.channels[0].output_pixel_stride = 2;
+    decoder.channels[0].output_line_stride  = 2 * 12;
+    decoder.channels[0].output_bytes_per_element = 2;
+    decoder.channels[1].decode_to_ptr            = zptr.get ();
+    decoder.channels[1].output_pixel_stride = 4;
+    decoder.channels[1].output_line_stride  = 4 * 12;
+    decoder.channels[1].output_bytes_per_element = 4;
 
-    EXRCORE_TEST_RVAL(exr_read_chunk (f, &chunk));
+    EXRCORE_TEST_RVAL(exr_decoding_choose_default_routines (f, 0, &decoder));
+
+    EXRCORE_TEST_RVAL(exr_decoding_run (f, 0, &decoder));
+
     // it is compression: none
-    EXRCORE_TEST (chunk.packed.buffer == NULL);
+    EXRCORE_TEST (decoder.packed_buffer == NULL);
     // it is compression: none
-    EXRCORE_TEST (chunk.unpacked.buffer == NULL);
+    EXRCORE_TEST (decoder.unpacked_buffer == NULL);
     /* TODO: add actual comparison against C++ library */
     const uint16_t* curg = reinterpret_cast<const uint16_t*> (gptr.get ());
     const float*    curz = reinterpret_cast<const float*> (zptr.get ());
@@ -228,7 +241,7 @@ testReadTiles (const std::string& tempdir)
     //    std::cout << std::endl;
     //}
 
-    EXRCORE_TEST_RVAL(exr_destroy_decode_chunk_info (f, &chunk));
+    EXRCORE_TEST_RVAL(exr_destroy_decoding (f, &decoder));
     exr_finish (&f);
 
 #if 0
