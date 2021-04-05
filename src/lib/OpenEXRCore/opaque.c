@@ -43,7 +43,7 @@ exr_attr_opaquedata_init (
             return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
     }
     u->size              = (int32_t) b;
-    u->packed_alloc_size = b;
+    u->packed_alloc_size = (int32_t) b;
     return EXR_ERR_SUCCESS;
 }
 

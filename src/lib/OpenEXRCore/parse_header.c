@@ -1133,7 +1133,7 @@ check_populate_screenWindowCenter (
         return ctxt->print_error (
             (const exr_context_t) ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
-            "Required attribute '%s': Invalid size %d (exp " PRIu64 ")",
+            "Required attribute '%s': Invalid size %d (exp %" PRIu64 ")",
             EXR_REQ_SCR_WC_STR,
             attrsz,
             (uint64_t) sizeof (exr_attr_v2f_t));
@@ -1266,7 +1266,7 @@ check_populate_tiles (
         return ctxt->print_error (
             (const exr_context_t) ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
-            "Required attribute 'tiles': Invalid size %d (exp " PRIu64 ")",
+            "Required attribute 'tiles': Invalid size %d (exp %" PRIu64 ")",
             attrsz,
             (uint64_t) sizeof (exr_attr_tiledesc_t));
 
@@ -2061,7 +2061,7 @@ internal_exr_compute_tile_information (
                 return ctxt->print_error (
                     (const exr_context_t) ctxt,
                     EXR_ERR_INVALID_ATTR,
-                    "Invalid data window x dims (%d, %d) resulting in invalid tile level size (" PRId64
+                    "Invalid data window x dims (%d, %d) resulting in invalid tile level size (%" PRId64
                     ") for level %d",
                     dw.x_min,
                     dw.x_max,
@@ -2080,7 +2080,7 @@ internal_exr_compute_tile_information (
                 return ctxt->print_error (
                     (const exr_context_t) ctxt,
                     EXR_ERR_INVALID_ATTR,
-                    "Invalid data window y dims (%d, %d) resulting in invalid tile level size (" PRId64
+                    "Invalid data window y dims (%d, %d) resulting in invalid tile level size (%" PRId64
                     ") for level %d",
                     dw.y_min,
                     dw.y_max,

@@ -150,7 +150,12 @@ internal_exr_destroy_parts (struct _internal_exr_context* ctxt)
         /* we stack x and y together so only have to free the first */
         if (cur->tile_level_tile_count_x) dofree (cur->tile_level_tile_count_x);
 
+#if defined(_MSC_VER)
+        ctable = (uint64_t*) InterlockedOr64 (
+            (int64_t volatile*) &(cur->chunk_table), 0);
+#else
         ctable = (uint64_t*) atomic_load (&(cur->chunk_table));
+#endif
         if (ctable) dofree (ctable);
 
         /* the first one is always the one that is part of the file */
@@ -317,7 +322,7 @@ internal_exr_alloc_context (
 
 #ifdef ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
-        InitializeCriticalSection( &(ret->mutex) );
+        InitializeCriticalSection (&(ret->mutex));
 #    else
         rv = pthread_mutex_init (&(ret->mutex), NULL);
         if (rv != 0)
@@ -374,7 +379,7 @@ internal_exr_destroy_context (struct _internal_exr_context* ctxt)
     internal_exr_destroy_parts (ctxt);
 #ifdef ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
-    DeleteCriticalSection( &(ctxt->mutex) );
+    DeleteCriticalSection (&(ctxt->mutex));
 #    else
     pthread_mutex_destroy (&(ctxt->mutex));
 #    endif

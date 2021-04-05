@@ -110,19 +110,29 @@ alloc_chunk_table (
     const struct _internal_exr_part*    part,
     uint64_t**                          chunktable)
 {
-    uint64_t* ctable = NULL;
+    uint64_t*         ctable    = NULL;
+    atomic_uintptr_t* ctableptr = (atomic_uintptr_t*) &(part->chunk_table);
 
     /* we have the lock, but to access the type, we'll use the atomic function anyway */
-    ctable = (uint64_t*) atomic_load (&(part->chunk_table));
+    ctable = (uint64_t*) atomic_load (ctableptr);
     if (ctable == NULL)
     {
-        uint64_t chunkbytes = sizeof (uint64_t) * (uint64_t) part->chunk_count;
+        uint64_t  chunkbytes = sizeof (uint64_t) * (uint64_t) part->chunk_count;
+        uintptr_t eptr = 0, nptr = 0;
 
         ctable = (uint64_t*) ctxt->alloc_fn (chunkbytes);
         if (ctable == NULL)
             return ctxt->standard_error (
                 (const exr_context_t) ctxt, EXR_ERR_OUT_OF_MEMORY);
 
+        if (!atomic_compare_exchange_strong (ctableptr, &eptr, nptr))
+        {
+            ctxt->free_fn (ctable);
+            ctable = (uint64_t*) eptr;
+            if (ctable == NULL)
+                return ctxt->standard_error (
+                    (const exr_context_t) ctxt, EXR_ERR_OUT_OF_MEMORY);
+        }
         memset (ctable, 0, chunkbytes);
     }
     *chunktable = ctable;
@@ -659,7 +669,8 @@ exr_part_read_tile_block_info (
                 ctxt,
                 EXR_ERR_BAD_CHUNK_DATA,
                 "Request for deep tile (%d, %d), level (%d, %d) table (%" PRId64
-                ") and/or data (%" PRId64 ") size larger than file size %" PRId64,
+                ") and/or data (%" PRId64
+                ") size larger than file size %" PRId64,
                 tilex,
                 tiley,
                 levelx,
