@@ -5,9 +5,19 @@
 
 /* implementation for windows (win32) native file io routines (used in context.c) */
 
-#include <windows.h>
 #include <fileapi.h>
+#include <inttypes.h>
 #include <strsafe.h>
+#include <windows.h>
+
+#ifdef _MSC_VER
+#    ifndef PRId64
+#        define PRId64 "I64d"
+#    endif
+#    ifndef PRId64
+#        define PRIu64 "I64u"
+#    endif
+#endif
 
 static exr_result_t
 print_error_helper (
@@ -40,19 +50,23 @@ print_error_helper (
     if (FAILED (StringCchPrintf (
             (LPTSTR) lpDisplayBuf,
             bufsz,
-            TEXT ("%s: (%ld) %s"),
+            TEXT ("%s: (" PRId64 ") %s"),
             msg,
-            dw,
+            (int64_t) dw,
             lpMsgBuf)))
     {
         return pf->print_error (
-            (const exr_context_t)pf, EXR_ERR_OUT_OF_MEMORY, "Unable to format message print");
+            (const exr_context_t) pf,
+            EXR_ERR_OUT_OF_MEMORY,
+            "Unable to format message print");
     }
 
     if (error_cb)
-        error_cb ((const exr_context_t)pf, errcode, (const char*) lpDisplayBuf);
+        error_cb (
+            (const exr_context_t) pf, errcode, (const char*) lpDisplayBuf);
     else
-        pf->print_error ((const exr_context_t)pf, errcode, (const char*) lpDisplayBuf);
+        pf->print_error (
+            (const exr_context_t) pf, errcode, (const char*) lpDisplayBuf);
 
     LocalFree (lpMsgBuf);
     LocalFree (lpDisplayBuf);
@@ -387,7 +401,7 @@ make_temp_filename (struct _internal_exr_context* ret)
         _snprintf_s (tmproot, 32, _TRUNCATE, "tmp.%d", GetCurrentProcessId ());
     if (nwr >= 32)
         return ret->report_error (
-            (const exr_context_t)ret,
+            (const exr_context_t) ret,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid assumption in temporary filename");
 
@@ -395,7 +409,8 @@ make_temp_filename (struct _internal_exr_context* ret)
     newlen = tlen + (uint64_t) ret->filename.length;
 
     if (newlen >= INT32_MAX)
-        return ret->standard_error ((const exr_context_t)ret, EXR_ERR_OUT_OF_MEMORY);
+        return ret->standard_error (
+            (const exr_context_t) ret, EXR_ERR_OUT_OF_MEMORY);
 
     tmpname = ret->alloc_fn (newlen + 1);
     if (tmpname)
@@ -440,9 +455,9 @@ make_temp_filename (struct _internal_exr_context* ret)
     }
     else
         return ret->print_error (
-            (const exr_context_t)ret,
+            (const exr_context_t) ret,
             EXR_ERR_OUT_OF_MEMORY,
-            "Unable to create %lu bytes for temporary filename",
-            (unsigned long) newlen + 1);
+            "Unable to create " PRIu64 " bytes for temporary filename",
+            (uint64_t) newlen + 1);
     return EXR_ERR_SUCCESS;
 }

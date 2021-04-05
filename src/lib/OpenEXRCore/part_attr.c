@@ -226,7 +226,7 @@ copy_attr (
     struct _internal_exr_context* pctxt,
     struct _internal_exr_part*    part,
     const exr_attribute_t*        srca,
-           int *update_tiles)
+    int*                          update_tiles)
 {
     exr_result_t         rv    = EXR_ERR_UNKNOWN;
     const char*          aname = srca->name;
@@ -385,7 +385,7 @@ copy_attr (
                     0,
                     NULL,
                     &(part->tiles));
-                attr = part->tiles;
+                attr          = part->tiles;
                 *update_tiles = 1;
             }
             else if (0 == strcmp (aname, EXR_REQ_TYPE_STR))
@@ -965,8 +965,8 @@ exr_part_set_name (exr_context_t ctxt, int part_index, const char* val)
                pctxt->print_error (
                    ctxt,
                    EXR_ERR_INVALID_ARGUMENT,
-                   "String too large to store (%lu bytes) into 'name'",
-                   bytes);
+                   "String too large to store (" PRIu64 " bytes) into 'name'",
+                   (uint64_t) bytes);
 
     if (rv == EXR_ERR_SUCCESS)
     {
@@ -1807,8 +1807,8 @@ exr_part_attr_set_string (
                pctxt->print_error (
                    ctxt,
                    EXR_ERR_INVALID_ARGUMENT,
-                   "String too large to store (%lu bytes) into '%s'",
-                   bytes,
+                   "String too large to store (" PRIu64 " bytes) into '%s'",
+                   (uint64_t) bytes,
                    name);
 
     if (rv == EXR_ERR_NO_ATTR_BY_NAME)
@@ -1880,7 +1880,8 @@ exr_part_attr_get_string_vector (
                        EXR_ERR_INVALID_ARGUMENT,
                        "'%s' array buffer too small (%d) to hold string values (%d)",
                        name,
-                       attr->type_name);
+                       *size,
+                       attr->stringvector->n_strings);
         for (int32_t i = 0; i < attr->stringvector->n_strings; ++i)
             out[i] = attr->stringvector->strings[i].str;
     }

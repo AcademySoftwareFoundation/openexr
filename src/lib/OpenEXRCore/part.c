@@ -108,7 +108,8 @@ exr_part_add (
 
     if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK (pctxt), rv;
 
-    rv = exr_attr_string_init_static_with_length( ctxt, part->type->string, typestr, attrsz);
+    rv = exr_attr_string_init_static_with_length (
+        ctxt, part->type->string, typestr, attrsz);
 
     if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK (pctxt), rv;
 
@@ -122,9 +123,9 @@ exr_part_add (
                    pctxt->print_error (
                        ctxt,
                        EXR_ERR_INVALID_ATTR,
-                       "Part name '%s': Invalid name length %lu",
+                       "Part name '%s': Invalid name length " PRIu64,
                        partname,
-                       pnamelen);
+                       (uint64_t) pnamelen);
 
         rv = exr_attr_list_add_static_name (
             ctxt,
@@ -136,7 +137,8 @@ exr_part_add (
             &(part->name));
 
         if (rv == EXR_ERR_SUCCESS)
-            rv = exr_attr_string_create_with_length( ctxt, part->name->string, partname, (int32_t)pnamelen);
+            rv = exr_attr_string_create_with_length (
+                ctxt, part->name->string, partname, (int32_t) pnamelen);
     }
 
     if (rv == EXR_ERR_SUCCESS &&
@@ -340,8 +342,7 @@ exr_part_get_chunk_unpacked_size (
     sz = part->unpacked_size_per_chunk;
     EXR_UNLOCK_WRITE (pctxt);
 
-    if (!out)
-        return pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+    if (!out) return pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 
     *out = sz;
     return EXR_ERR_SUCCESS;

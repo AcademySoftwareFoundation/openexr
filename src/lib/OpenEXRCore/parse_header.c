@@ -12,7 +12,6 @@
 
 #include <limits.h>
 #include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -1134,10 +1133,10 @@ check_populate_screenWindowCenter (
         return ctxt->print_error (
             (const exr_context_t) ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
-            "Required attribute '%s': Invalid size %d (exp %lu)",
+            "Required attribute '%s': Invalid size %d (exp " PRIu64 ")",
             EXR_REQ_SCR_WC_STR,
             attrsz,
-            sizeof (exr_attr_v2f_t));
+            (uint64_t) sizeof (exr_attr_v2f_t));
 
     rv = scratch->sequential_read (scratch, &tmpdata, sizeof (exr_attr_v2f_t));
     if (rv != EXR_ERR_SUCCESS)
@@ -1267,9 +1266,9 @@ check_populate_tiles (
         return ctxt->print_error (
             (const exr_context_t) ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
-            "Required attribute 'tiles': Invalid size %d (exp %lu)",
+            "Required attribute 'tiles': Invalid size %d (exp " PRIu64 ")",
             attrsz,
-            sizeof (exr_attr_tiledesc_t));
+            (uint64_t) sizeof (exr_attr_tiledesc_t));
 
     rv = scratch->sequential_read (scratch, &tmpdata, sizeof (tmpdata));
     if (rv != EXR_ERR_SUCCESS)
@@ -1972,7 +1971,9 @@ calc_level_size (int mind, int maxd, int level, exr_tile_round_mode_t rounding)
 
 exr_result_t
 internal_exr_compute_tile_information (
-    struct _internal_exr_context* ctxt, struct _internal_exr_part* curpart, int rebuild)
+    struct _internal_exr_context* ctxt,
+    struct _internal_exr_part*    curpart,
+    int                           rebuild)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
     if (curpart->storage_mode == EXR_STORAGE_SCANLINE ||
@@ -1990,7 +1991,7 @@ internal_exr_compute_tile_information (
     {
         if (curpart->tile_level_tile_count_x)
         {
-            ctxt->free_fn(curpart->tile_level_tile_count_x);
+            ctxt->free_fn (curpart->tile_level_tile_count_x);
             curpart->tile_level_tile_count_x = NULL;
         }
     }
@@ -2060,7 +2061,8 @@ internal_exr_compute_tile_information (
                 return ctxt->print_error (
                     (const exr_context_t) ctxt,
                     EXR_ERR_INVALID_ATTR,
-                    "Invalid data window x dims (%d, %d) resulting in invalid tile level size (%ld) for level %l",
+                    "Invalid data window x dims (%d, %d) resulting in invalid tile level size (" PRId64
+                    ") for level %d",
                     dw.x_min,
                     dw.x_max,
                     sx,
@@ -2078,7 +2080,8 @@ internal_exr_compute_tile_information (
                 return ctxt->print_error (
                     (const exr_context_t) ctxt,
                     EXR_ERR_INVALID_ATTR,
-                    "Invalid data window y dims (%d, %d) resulting in invalid tile level size (%ld) for level %l",
+                    "Invalid data window y dims (%d, %d) resulting in invalid tile level size (" PRId64
+                    ") for level %d",
                     dw.y_min,
                     dw.y_max,
                     sy,

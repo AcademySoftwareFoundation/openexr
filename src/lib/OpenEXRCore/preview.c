@@ -16,7 +16,7 @@ exr_attr_preview_init (
     exr_context_t ctxt, exr_attr_preview_t* p, uint32_t w, uint32_t h)
 {
     exr_attr_preview_t nil   = { 0 };
-    size_t             bytes = (size_t) w * (size_t) h * (size_t) 4;
+    uint64_t           bytes = (uint64_t) w * (uint64_t) h * (uint64_t) 4;
 
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
@@ -24,10 +24,11 @@ exr_attr_preview_init (
         return pctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "Invalid very large size for preview image (%u x %u - %lu bytes)",
+            "Invalid very large size for preview image (%u x %u - " PRIu64
+            " bytes)",
             w,
             h,
-            bytes);
+            (uint64_t) bytes);
 
     if (!p)
         return pctxt->report_error (

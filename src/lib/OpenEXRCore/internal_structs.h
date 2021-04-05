@@ -13,8 +13,20 @@
 #ifdef ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
 #        include <windows.h>
+#        include <synchapi.h>
 #    else
 #        include <pthread.h>
+#    endif
+#endif
+
+#include <inttypes.h>
+
+#ifdef _MSC_VER
+#    ifndef PRId64
+#        define PRId64 "I64d"
+#    endif
+#    ifndef PRIu64
+#        define PRIu64 "I64u"
 #    endif
 #endif
 
@@ -175,10 +187,8 @@ struct _internal_exr_context
 #ifdef ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
     CRITICAL_SECTION  mutex;
-    CRTIICAL_SECTION* need_unlock;
 #    else
     pthread_mutex_t  mutex;
-    pthread_mutex_t* need_unlock;
 #    endif
 #endif
 };
