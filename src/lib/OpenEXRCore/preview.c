@@ -24,7 +24,7 @@ exr_attr_preview_init (
         return pctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "Invalid very large size for preview image (%u x %u - " PRIu64
+            "Invalid very large size for preview image (%u x %u - %" PRIu64
             " bytes)",
             w,
             h,

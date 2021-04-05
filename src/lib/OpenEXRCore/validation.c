@@ -131,7 +131,7 @@ validate_image_dimensions (
         return f->print_error (
             (const exr_context_t) f,
             EXR_ERR_INVALID_ATTR,
-            "Invalid width (" PRId64 ") too large (max %d)",
+            "Invalid width (%" PRId64 ") too large (max %d)",
             w,
             maxw);
 
@@ -139,7 +139,7 @@ validate_image_dimensions (
         return f->print_error (
             (const exr_context_t) f,
             EXR_ERR_INVALID_ATTR,
-            "Invalid height (" PRId64 ") too large (max %d)",
+            "Invalid height (%" PRId64 ") too large (max %d)",
             h,
             maxh);
 
@@ -152,8 +152,8 @@ validate_image_dimensions (
             return f->print_error (
                 (const exr_context_t) f,
                 EXR_ERR_INVALID_ATTR,
-                "Invalid chunkCount (" PRId64
-                ") exceeds maximum area of " PRId64 "",
+                "Invalid chunkCount (%" PRId64
+                ") exceeds maximum area of %" PRId64 "",
                 ccount,
                 maxNum);
     }
@@ -239,7 +239,7 @@ validate_channels (
             return f->print_error (
                 (const exr_context_t) f,
                 EXR_ERR_INVALID_ATTR,
-                "channel '%s': row width (" PRId64
+                "channel '%s': row width (%" PRId64
                 ") of the data window is not a multiple of the x subsampling factor (%d)",
                 channels->entries[c].name.str,
                 w,
@@ -248,7 +248,7 @@ validate_channels (
             return f->print_error (
                 (const exr_context_t) f,
                 EXR_ERR_INVALID_ATTR,
-                "channel '%s': column height (" PRId64
+                "channel '%s': column height (%" PRId64
                 ") of the data window is not a multiple of the y subsampling factor (%d)",
                 channels->entries[c].name.str,
                 h,

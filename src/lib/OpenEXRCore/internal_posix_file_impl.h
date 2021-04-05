@@ -199,7 +199,7 @@ default_read_func (
         error_cb (
             ctxt,
             EXR_ERR_READ_IO,
-            "Unable to read "PRIu64" bytes: %s",
+            "Unable to read " PRIu64 " bytes: %s",
             sz,
             strerror (errno));
     return retsz;
@@ -312,7 +312,7 @@ default_write_func (
         error_cb (
             ctxt,
             EXR_ERR_WRITE_IO,
-            "Unable to write "PRIu64" bytes to stream, wrote "PRId64": %s",
+            "Unable to write " PRIu64 " bytes to stream, wrote " PRId64 ": %s",
             sz,
             retsz,
             strerror (errno));
@@ -469,7 +469,7 @@ make_temp_filename (struct _internal_exr_context* ret)
         return ret->print_error (
             (const exr_context_t) ret,
             EXR_ERR_OUT_OF_MEMORY,
-            "Unable to create "PRIu64" bytes for temporary filename",
+            "Unable to create %" PRIu64 " bytes for temporary filename",
             newlen + 1);
     return EXR_ERR_SUCCESS;
 }

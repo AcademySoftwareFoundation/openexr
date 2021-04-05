@@ -60,7 +60,7 @@ alloc_buffer (
             return pctxt->print_error (
                 (const exr_context_t) pctxt,
                 EXR_ERR_OUT_OF_MEMORY,
-                "Unable to allocate " PRIu64 " bytes",
+                "Unable to allocate %" PRIu64 " bytes",
                 (uint64_t) newsz);
         *buf   = curbuf;
         *cursz = newsz;

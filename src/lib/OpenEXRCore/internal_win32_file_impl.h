@@ -50,7 +50,7 @@ print_error_helper (
     if (FAILED (StringCchPrintf (
             (LPTSTR) lpDisplayBuf,
             bufsz,
-            TEXT ("%s: (" PRId64 ") %s"),
+            TEXT ("%s: (%" PRId64 ") %s"),
             msg,
             (int64_t) dw,
             lpMsgBuf)))
@@ -457,7 +457,7 @@ make_temp_filename (struct _internal_exr_context* ret)
         return ret->print_error (
             (const exr_context_t) ret,
             EXR_ERR_OUT_OF_MEMORY,
-            "Unable to create " PRIu64 " bytes for temporary filename",
+            "Unable to create %" PRIu64 " bytes for temporary filename",
             (uint64_t) newlen + 1);
     return EXR_ERR_SUCCESS;
 }

@@ -30,7 +30,7 @@ exr_attr_opaquedata_init (
         return pctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "Invalid size for opaque data (" PRIu64
+            "Invalid size for opaque data (%" PRIu64
             " bytes, must be <= INT32_MAX)",
             (uint64_t) b);
 

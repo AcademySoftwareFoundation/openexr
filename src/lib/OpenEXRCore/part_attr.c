@@ -965,7 +965,7 @@ exr_part_set_name (exr_context_t ctxt, int part_index, const char* val)
                pctxt->print_error (
                    ctxt,
                    EXR_ERR_INVALID_ARGUMENT,
-                   "String too large to store (" PRIu64 " bytes) into 'name'",
+                   "String too large to store (%" PRIu64 " bytes) into 'name'",
                    (uint64_t) bytes);
 
     if (rv == EXR_ERR_SUCCESS)
@@ -1807,7 +1807,7 @@ exr_part_attr_set_string (
                pctxt->print_error (
                    ctxt,
                    EXR_ERR_INVALID_ARGUMENT,
-                   "String too large to store (" PRIu64 " bytes) into '%s'",
+                   "String too large to store (%" PRIu64 " bytes) into '%s'",
                    (uint64_t) bytes,
                    name);
 

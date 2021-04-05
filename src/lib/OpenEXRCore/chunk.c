@@ -52,9 +52,10 @@ extract_chunk_table (
     const struct _internal_exr_part*    part,
     uint64_t**                          chunktable)
 {
-    uint64_t*  ctable    = NULL;
-    uintptr_t* ctableptr = (uintptr_t*) &(part->chunk_table);
-    ctable               = (uint64_t*) atomic_load (ctableptr);
+    uint64_t*         ctable    = NULL;
+    atomic_uintptr_t* ctableptr = (atomic_uintptr_t*) &(part->chunk_table);
+
+    ctable = (uint64_t*) atomic_load (ctableptr);
     if (ctable == NULL)
     {
         uint64_t  chunkoff   = part->chunk_table_offset;
@@ -273,7 +274,7 @@ exr_part_read_scanline_block_info (
             return pctxt->print_error (
                 ctxt,
                 EXR_ERR_BAD_CHUNK_DATA,
-                "Request for deep scanline %d invalid sample table size " PRId64,
+                "Request for deep scanline %d invalid sample table size %" PRId64,
                 y,
                 ddata[0]);
         }
@@ -282,7 +283,7 @@ exr_part_read_scanline_block_info (
             return pctxt->print_error (
                 ctxt,
                 EXR_ERR_BAD_CHUNK_DATA,
-                "Request for deep scanline %d large packed size " PRId64
+                "Request for deep scanline %d large packed size %" PRId64
                 " not supported",
                 y,
                 ddata[1]);
@@ -292,7 +293,7 @@ exr_part_read_scanline_block_info (
             return pctxt->print_error (
                 ctxt,
                 EXR_ERR_BAD_CHUNK_DATA,
-                "Request for deep scanline %d large unpacked size " PRId64
+                "Request for deep scanline %d large unpacked size %" PRId64
                 " not supported",
                 y,
                 ddata[2]);
@@ -437,7 +438,7 @@ compute_tile_chunk_off (
         return ctxt->print_error (
             (const exr_context_t) ctxt,
             EXR_ERR_UNKNOWN,
-            "Invalid tile chunk offset " PRId64 " (%d avail)",
+            "Invalid tile chunk offset %" PRId64 " (%d avail)",
             chunkoff,
             part->chunk_count);
     }
@@ -536,8 +537,8 @@ exr_part_read_tile_block_info (
         return pctxt->print_error (
             ctxt,
             EXR_ERR_BAD_CHUNK_DATA,
-            "Request for tile (%d, %d), level (%d, %d) but unable to read " PRId64
-            " bytes from offset " PRId64 ", got " PRId64 " bytes",
+            "Request for tile (%d, %d), level (%d, %d) but unable to read %" PRId64
+            " bytes from offset %" PRId64 ", got %" PRId64 " bytes",
             tilex,
             tiley,
             levelx,
@@ -618,7 +619,7 @@ exr_part_read_tile_block_info (
             return pctxt->print_error (
                 ctxt,
                 EXR_ERR_BAD_CHUNK_DATA,
-                "Request for deep tile (%d, %d), level (%d, %d) invalid sample table size " PRId64,
+                "Request for deep tile (%d, %d), level (%d, %d) invalid sample table size %" PRId64,
                 tilex,
                 tiley,
                 levelx,
@@ -632,7 +633,7 @@ exr_part_read_tile_block_info (
             return pctxt->print_error (
                 ctxt,
                 EXR_ERR_BAD_CHUNK_DATA,
-                "Request for deep tile (%d, %d), level (%d, %d) invalid packed size " PRId64,
+                "Request for deep tile (%d, %d), level (%d, %d) invalid packed size %" PRId64,
                 tilex,
                 tiley,
                 levelx,
@@ -644,7 +645,7 @@ exr_part_read_tile_block_info (
             return pctxt->print_error (
                 ctxt,
                 EXR_ERR_BAD_CHUNK_DATA,
-                "Request for deep tile (%d, %d), level (%d, %d) invalid unpacked size " PRId64,
+                "Request for deep tile (%d, %d), level (%d, %d) invalid unpacked size %" PRId64,
                 tilex,
                 tiley,
                 levelx,
@@ -657,8 +658,8 @@ exr_part_read_tile_block_info (
             return pctxt->print_error (
                 ctxt,
                 EXR_ERR_BAD_CHUNK_DATA,
-                "Request for deep tile (%d, %d), level (%d, %d) table (" PRId64
-                ") and/or data (" PRId64 ") size larger than file size " PRId64,
+                "Request for deep tile (%d, %d), level (%d, %d) table (%" PRId64
+                ") and/or data (%" PRId64 ") size larger than file size %" PRId64,
                 tilex,
                 tiley,
                 levelx,
@@ -682,7 +683,7 @@ exr_part_read_tile_block_info (
             return pctxt->print_error (
                 ctxt,
                 EXR_ERR_BAD_CHUNK_DATA,
-                "Invalid data size found for tile (%d, %d) at level (%d, %d): %d unpack size %d file size " PRId64,
+                "Invalid data size found for tile (%d, %d) at level (%d, %d): %d unpack size %d file size %" PRId64,
                 tilex,
                 tiley,
                 levelx,
@@ -740,8 +741,8 @@ exr_part_read_chunk (
         return pctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "chunk block info data offset (" PRIu64
-            ") past end of file (" PRId64 ")",
+            "chunk block info data offset (%" PRIu64
+            ") past end of file (%" PRId64 ")",
             dataoffset,
             pctxt->file_size);
 
@@ -801,8 +802,8 @@ exr_part_read_deep_chunk (
         return pctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "chunk block info sample count offset (" PRIu64
-            ") past end of file (" PRId64 ")",
+            "chunk block info sample count offset (%" PRIu64
+            ") past end of file (%" PRId64 ")",
             cinfo->sample_count_data_offset,
             pctxt->file_size);
 
@@ -811,8 +812,8 @@ exr_part_read_deep_chunk (
         return pctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "chunk block info data offset (" PRIu64
-            ") past end of file (" PRId64 ")",
+            "chunk block info data offset (%" PRIu64
+            ") past end of file (%" PRId64 ")",
             cinfo->data_offset,
             pctxt->file_size);
 
@@ -883,7 +884,7 @@ write_scan_chunk (
         return pctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "Invalid packed data argument size " PRIu64 " pointer %p",
+            "Invalid packed data argument size %" PRIu64 " pointer %p",
             (uint64_t) packed_size,
             packed_data);
 
@@ -892,7 +893,7 @@ write_scan_chunk (
         return pctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "Packed data size " PRIu64 " too large (max " PRIu64 ")",
+            "Packed data size %" PRIu64 " too large (max %" PRIu64 ")",
             (uint64_t) packed_size,
             (uint64_t) INT32_MAX);
     psize = (int32_t) packed_size;
@@ -902,7 +903,7 @@ write_scan_chunk (
         return pctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "Invalid sample count data argument size " PRIu64 " pointer %p",
+            "Invalid sample count data argument size %" PRIu64 " pointer %p",
             (uint64_t) sample_data_size,
             sample_data);
 
@@ -1147,7 +1148,7 @@ write_tile_chunk (
         return pctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "Invalid packed data argument size " PRIu64 " pointer %p",
+            "Invalid packed data argument size %" PRIu64 " pointer %p",
             (uint64_t) packed_size,
             packed_data);
 
@@ -1156,7 +1157,7 @@ write_tile_chunk (
         return pctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "Packed data size " PRIu64 " too large (max " PRIu64 ")",
+            "Packed data size %" PRIu64 " too large (max %" PRIu64 ")",
             (uint64_t) packed_size,
             (uint64_t) INT32_MAX);
     psize = (int32_t) packed_size;
@@ -1166,7 +1167,7 @@ write_tile_chunk (
         return pctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "Invalid sample count data argument size " PRIu64 " pointer %p",
+            "Invalid sample count data argument size %" PRIu64 " pointer %p",
             (uint64_t) sample_data_size,
             sample_data);
 

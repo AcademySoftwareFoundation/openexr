@@ -123,7 +123,7 @@ exr_part_add (
                    pctxt->print_error (
                        ctxt,
                        EXR_ERR_INVALID_ATTR,
-                       "Part name '%s': Invalid name length " PRIu64,
+                       "Part name '%s': Invalid name length %" PRIu64,
                        partname,
                        (uint64_t) pnamelen);
 
