@@ -53,7 +53,6 @@ exr_part_add (
     exr_storage_t type,
     int*          new_index)
 {
-    uint8_t*     namestr;
     exr_result_t rv;
     int32_t      attrsz  = -1;
     const char*  typestr = NULL;

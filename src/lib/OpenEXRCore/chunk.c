@@ -766,7 +766,7 @@ exr_part_read_chunk (
         pctxt->do_read (pctxt, packed_data, toread, &dataoffset, &nread, rmode);
 
     if (rmode == EXR_ALLOW_SHORT_READ && nread < (int64_t) toread)
-        memset (packed_data + nread, 0, toread - nread);
+        memset (((uint8_t *)packed_data) + nread, 0, toread - nread);
     return rv;
 }
 

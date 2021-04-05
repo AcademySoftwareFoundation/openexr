@@ -21,7 +21,6 @@
 static exr_result_t
 save_attr_sz (struct _internal_exr_context* ctxt, size_t sz)
 {
-    exr_result_t rv;
     int32_t      isz;
 
     if (sz > (size_t) INT32_MAX)
