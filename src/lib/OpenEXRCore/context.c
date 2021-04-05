@@ -514,7 +514,7 @@ exr_write_header (exr_context_t ctxt)
 
         int32_t ccount = 0;
 
-        rv = internal_exr_compute_tile_information (pctxt, curp);
+        rv = internal_exr_compute_tile_information (pctxt, curp, 0);
         if (rv != EXR_ERR_SUCCESS) break;
 
         ccount = internal_exr_compute_chunk_offset_size (curp);
@@ -543,6 +543,12 @@ exr_write_header (exr_context_t ctxt)
         pctxt->cur_output_part    = 0;
         pctxt->last_output_chunk  = -1;
         pctxt->output_chunk_count = 0;
+        for (int p = 0; rv == EXR_ERR_SUCCESS && p < pctxt->num_parts; ++p)
+        {
+            struct _internal_exr_part* curp = pctxt->parts[p];
+            curp->chunk_table_offset = pctxt->output_file_offset;
+            pctxt->output_file_offset += curp->chunk_count * sizeof(uint64_t);
+        }
     }
 
     return EXR_UNLOCK (pctxt), rv;

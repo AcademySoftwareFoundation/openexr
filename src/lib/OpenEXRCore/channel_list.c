@@ -37,8 +37,8 @@ exr_attr_chlist_init (exr_context_t ctxt, exr_attr_chlist_t* clist, int nchans)
 
     if (nchans > 0)
     {
-        nlist =
-            (exr_attr_chlist_entry_t*) pctxt->alloc_fn (sizeof (*nlist) * nchans);
+        nlist = (exr_attr_chlist_entry_t*) pctxt->alloc_fn (
+            sizeof (*nlist) * nchans);
         if (nlist == NULL)
             return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
     }
@@ -204,6 +204,43 @@ exr_attr_chlist_add_with_length (
     clist->entries      = nlist;
     if (nlist != olist) pctxt->free_fn (olist);
     return EXR_ERR_SUCCESS;
+}
+
+/**************************************/
+
+exr_result_t
+exr_attr_chlist_duplicate (
+    exr_context_t ctxt, exr_attr_chlist_t* chl, const exr_attr_chlist_t* srcchl)
+{
+    exr_result_t rv;
+    int          numchans;
+
+    if (!chl || !srcchl) return EXR_ERR_INVALID_ARGUMENT;
+
+    numchans = srcchl->num_channels;
+    rv       = exr_attr_chlist_init (ctxt, chl, numchans);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+
+    for (int c = 0; c < numchans; ++c)
+    {
+        const exr_attr_chlist_entry_t* cur = srcchl->entries + c;
+
+        rv = exr_attr_chlist_add_with_length (
+            ctxt,
+            chl,
+            cur->name.str,
+            cur->name.length,
+            cur->pixel_type,
+            cur->p_linear,
+            cur->x_sampling,
+            cur->y_sampling);
+        if (rv != EXR_ERR_SUCCESS)
+        {
+            exr_attr_chlist_destroy (ctxt, chl);
+            return rv;
+        }
+    }
+    return rv;
 }
 
 /**************************************/

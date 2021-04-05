@@ -39,6 +39,9 @@ exr_result_t exr_attr_chlist_add_with_length (
     int32_t            xsamp,
     int32_t            ysamp);
 
+/** @brief initializes a channel list and duplicates from the source */
+exr_result_t exr_attr_chlist_duplicate( exr_context_t ctxt, exr_attr_chlist_t *chl, const exr_attr_chlist_t *srcchl);
+
 /** @brief Frees memory for the channel list and all channels inside */
 exr_result_t exr_attr_chlist_destroy (exr_context_t ctxt, exr_attr_chlist_t*);
 

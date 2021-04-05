@@ -1651,6 +1651,7 @@ check_req_attr (
             if (0 == strcmp (aname, EXR_REQ_TYPE_STR))
                 return check_populate_type (
                     ctxt, curpart, scratch, tname, attrsz);
+            break;
         case 'v':
             if (0 == strcmp (aname, EXR_REQ_VERSION_STR))
                 return check_populate_version (
@@ -1971,16 +1972,28 @@ calc_level_size (int mind, int maxd, int level, exr_tile_round_mode_t rounding)
 
 exr_result_t
 internal_exr_compute_tile_information (
-    struct _internal_exr_context* ctxt, struct _internal_exr_part* curpart)
+    struct _internal_exr_context* ctxt, struct _internal_exr_part* curpart, int rebuild)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
     if (curpart->storage_mode == EXR_STORAGE_SCANLINE ||
         curpart->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
         return EXR_ERR_SUCCESS;
 
+    if (rebuild && (!curpart->dataWindow || !curpart->tiles))
+        return EXR_ERR_SUCCESS;
+
     if (!curpart->tiles)
         return ctxt->standard_error (
             (const exr_context_t) ctxt, EXR_ERR_INVALID_ARGUMENT);
+
+    if (rebuild)
+    {
+        if (curpart->tile_level_tile_count_x)
+        {
+            ctxt->free_fn(curpart->tile_level_tile_count_x);
+            curpart->tile_level_tile_count_x = NULL;
+        }
+    }
 
     if (curpart->tile_level_tile_count_x == NULL)
     {
@@ -2205,7 +2218,7 @@ update_chunk_offsets (
     {
         curpart = ctxt->parts[p];
 
-        rv = internal_exr_compute_tile_information (ctxt, curpart);
+        rv = internal_exr_compute_tile_information (ctxt, curpart, 0);
         if (rv != EXR_ERR_SUCCESS) break;
 
         int32_t ccount = internal_exr_compute_chunk_offset_size (curpart);

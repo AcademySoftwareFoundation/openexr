@@ -80,6 +80,27 @@ exr_attr_string_vector_destroy (
 /**************************************/
 
 exr_result_t
+exr_attr_string_vector_copy (
+    exr_context_t                   ctxt,
+    exr_attr_string_vector_t*       sv,
+    const exr_attr_string_vector_t* src)
+{
+    exr_result_t rv;
+
+    if (!src) return EXR_ERR_INVALID_ARGUMENT;
+    rv = exr_attr_string_vector_init (ctxt, sv, src->n_strings);
+    for (int i = 0; rv == EXR_ERR_SUCCESS && i < src->n_strings; ++i)
+    {
+        rv = exr_attr_string_set_with_length (
+            ctxt, (exr_attr_string_t *)sv->strings + i, src->strings[i].str, src->strings[i].length);
+    }
+    if (rv != EXR_ERR_SUCCESS) exr_attr_string_vector_destroy (ctxt, sv);
+    return rv;
+}
+
+/**************************************/
+
+exr_result_t
 exr_attr_string_vector_init_entry (
     exr_context_t ctxt, exr_attr_string_vector_t* sv, int32_t idx, int32_t len)
 {

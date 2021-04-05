@@ -37,7 +37,6 @@ extern "C" {
 #endif
 
 int internal_exr_is_standard_type (const char* typen);
-exr_result_t internal_exr_validate_channels (const exr_context_t ctxt, int part_index, const exr_attr_chlist_t *channels);
 
 /** @addtogroup InternalAttributeFunctions
  * @{

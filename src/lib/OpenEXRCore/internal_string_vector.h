@@ -32,6 +32,11 @@ exr_result_t exr_attr_string_vector_init (
 exr_result_t exr_attr_string_vector_destroy (
     exr_context_t ctxt, exr_attr_string_vector_t* sv);
 
+exr_result_t exr_attr_string_vector_copy (
+    exr_context_t                   ctxt,
+    exr_attr_string_vector_t*       sv,
+    const exr_attr_string_vector_t* src);
+
 /** @brief Allocates memory for a particular string within the list
  *
  * This enables one to pre-allocate, then read directly into the string

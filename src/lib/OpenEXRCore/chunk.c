@@ -1196,7 +1196,8 @@ write_tile_chunk (
     if (part->lineorder != EXR_LINEORDER_RANDOM_Y &&
         pctxt->last_output_chunk != (cidx - 1))
     {
-        return pctxt->standard_error (ctxt, EXR_ERR_CHUNK_NOT_READY);
+        return pctxt->print_error (ctxt, EXR_ERR_CHUNK_NOT_READY,
+                                   "Chunk index %d is not the next chunk to be written (last %d)", cidx, pctxt->last_output_chunk);
     }
 
     wrcnt = 0;

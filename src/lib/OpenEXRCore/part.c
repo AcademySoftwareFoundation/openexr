@@ -69,6 +69,7 @@ exr_part_add (
     rv = internal_exr_add_part (pctxt, &part, new_index);
     if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK (pctxt), rv;
 
+    part->storage_mode = type;
     switch (type)
     {
         case EXR_STORAGE_SCANLINE:
@@ -101,13 +102,15 @@ exr_part_add (
         &(part->attributes),
         EXR_REQ_TYPE_STR,
         EXR_ATTR_STRING,
-        attrsz + 1,
-        &namestr,
+        0,
+        NULL,
         &(part->type));
 
     if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK (pctxt), rv;
 
-    memcpy (namestr, typestr, attrsz + 1);
+    rv = exr_attr_string_init_static_with_length( ctxt, part->type->string, typestr, attrsz);
+
+    if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK (pctxt), rv;
 
     /* make sure we put in SOME sort of partname */
     if (!partname) partname = "";
@@ -128,11 +131,12 @@ exr_part_add (
             &(part->attributes),
             EXR_REQ_NAME_STR,
             EXR_ATTR_STRING,
-            (int32_t) (pnamelen + 1),
-            &namestr,
+            0,
+            NULL,
             &(part->name));
 
-        if (rv == EXR_ERR_SUCCESS) memcpy (namestr, partname, pnamelen + 1);
+        if (rv == EXR_ERR_SUCCESS)
+            rv = exr_attr_string_create_with_length( ctxt, part->name->string, partname, (int32_t)pnamelen);
     }
 
     if (rv == EXR_ERR_SUCCESS &&

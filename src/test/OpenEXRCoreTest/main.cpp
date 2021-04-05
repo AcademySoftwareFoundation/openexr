@@ -23,6 +23,7 @@
 #include "base_units.h"
 #include "general_attr.h"
 #include "read.h"
+#include "write.h"
 
 #if defined(ANDROID) || defined(__ANDROID_API__)
     #define IMF_TMP_DIR "/sdcard/"
@@ -164,6 +165,14 @@ main (int argc, char *argv[])
     TEST( testReadMultiPart, "core_read" );
     TEST( testReadDeep, "core_read" );
 
+    TEST( testWriteBadArgs, "core_write" );
+    TEST( testWriteBadFiles, "core_write" );
+    TEST( testUpdateMeta, "core_write" );
+    TEST( testWriteScans, "core_write" );
+    TEST( testWriteTiles, "core_write" );
+    TEST( testWriteMultiPart, "core_write" );
+    TEST( testWriteDeep, "core_write" );
+
     if ( helpMode )
     {
         std::cout << "OpenEXR Core Test runs a series of tests to confirm\n"
@@ -200,7 +209,15 @@ main (int argc, char *argv[])
     else
     {
         std::cout << "removing temp dir " << tempDir << std::endl;
-        rmdir (tempDir.c_str());
+        int rv = rmdir (tempDir.c_str());
+        if (rv != 0)
+        {
+            if (errno == ENOTEMPTY)
+                std::cerr << "Temp dir "<< tempDir << " not empty" << std::endl;
+            else
+                std::cerr << "Error removing dir "<< tempDir << ": " << rv << std::endl;
+            return 1;
+        }
 
 #ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS
 

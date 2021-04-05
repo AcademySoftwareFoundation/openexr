@@ -6,8 +6,7 @@ add_executable(OpenEXRCoreTest
   base_units.cpp
   general_attr.cpp
   read.cpp
-#TODO#   req_attr.cpp
-#TODO#   write.cpp
+  write.cpp
   )
 target_compile_definitions(OpenEXRCoreTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/../OpenEXRTest/")
 target_link_libraries(OpenEXRCoreTest OpenEXR::OpenEXRCore)

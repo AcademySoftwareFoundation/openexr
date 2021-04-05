@@ -33,10 +33,14 @@ exr_attr_opaquedata_init (
             "Invalid size for opaque data (%lu bytes, must be <= INT32_MAX)",
             b);
 
-    *u             = nil;
-    u->packed_data = pctxt->alloc_fn (b);
-    if (!u->packed_data)
-        return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+    *u = nil;
+    if (b > 0)
+    {
+
+        u->packed_data = pctxt->alloc_fn (b);
+        if (!u->packed_data)
+            return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+    }
     u->size              = (int32_t) b;
     u->packed_alloc_size = b;
     return EXR_ERR_SUCCESS;
@@ -76,6 +80,26 @@ exr_attr_opaquedata_destroy (exr_context_t ctxt, exr_attr_opaquedata_t* ud)
         *ud = nil;
     }
     return EXR_ERR_SUCCESS;
+}
+
+/**************************************/
+
+exr_result_t
+exr_attr_opaquedata_copy (
+    exr_context_t                ctxt,
+    exr_attr_opaquedata_t*       ud,
+    const exr_attr_opaquedata_t* srcud)
+{
+    exr_result_t rv;
+    if (!srcud) return EXR_ERR_INVALID_ARGUMENT;
+    if (srcud->packed_data)
+        return exr_attr_opaquedata_create (
+            ctxt, ud, srcud->size, srcud->packed_data);
+    rv = exr_attr_opaquedata_init (ctxt, ud, 0);
+    if (rv == EXR_ERR_SUCCESS)
+        rv = exr_attr_opaquedata_set_unpacked (
+            ctxt, ud, srcud->unpacked_data, srcud->unpacked_size);
+    return rv;
 }
 
 /**************************************/

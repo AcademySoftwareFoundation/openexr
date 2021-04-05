@@ -21,7 +21,9 @@
 /* in openexr_parse_header.c, reads the header and populates the file structure */
 exr_result_t internal_exr_parse_header (struct _internal_exr_context* ctxt);
 exr_result_t internal_exr_compute_tile_information (
-    struct _internal_exr_context* ctxt, struct _internal_exr_part* curpart);
+    struct _internal_exr_context* ctxt,
+    struct _internal_exr_part*    curpart,
+    int                           rebuild);
 int32_t
 internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart);
 
