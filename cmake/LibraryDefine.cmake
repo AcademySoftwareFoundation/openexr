@@ -17,7 +17,16 @@ function(OPENEXR_DEFINE_LIBRARY libname)
     ${OPENEXR_CURLIB_HEADERS}
     ${OPENEXR_CURLIB_SOURCES})
 
-  target_compile_features(${objlib} PUBLIC cxx_std_${OPENEXR_CXX_STANDARD})
+  # Use ${OPENEXR_CXX_STANDARD} to determine the standard we use to compile
+  # OpenEXR itself. But the headers only require C++11 features, so that's
+  # all we need to pass on as interface reqirements to downstream projects.
+  # For example, it's fine for an OpenEXR built with C++14 to be called from
+  # an app that is compiled with C++11; OpenEXR needn't force the app to
+  # also use C++14.
+  target_compile_features(${objlib}
+                          PRIVATE cxx_std_${OPENEXR_CXX_STANDARD}
+                          INTERFACE cxx_std_11 )
+
   if(OPENEXR_CURLIB_PRIV_EXPORT AND BUILD_SHARED_LIBS)
     target_compile_definitions(${objlib} PRIVATE ${OPENEXR_CURLIB_PRIV_EXPORT})
     if(WIN32)
