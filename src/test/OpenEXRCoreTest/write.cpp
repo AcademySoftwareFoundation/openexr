@@ -68,30 +68,30 @@ testWriteTiles (const std::string& tempdir)
     outfn += "v1.7.test.tiled.exr";
     EXRCORE_TEST_RVAL (exr_start_write (&outf, outfn.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit));
     EXRCORE_TEST_RVAL (
-        exr_part_add (outf, "test", EXR_STORAGE_TILED, &partidx));
+        exr_add_part (outf, "test", EXR_STORAGE_TILED, &partidx));
     EXRCORE_TEST (partidx == 0);
 
-    EXRCORE_TEST_RVAL (exr_part_copy_unset_attributes (outf, 0, f, 0));
+    EXRCORE_TEST_RVAL (exr_copy_unset_attributes (outf, 0, f, 0));
 
     exr_storage_t ps;
-    EXRCORE_TEST_RVAL (exr_part_get_storage (outf, 0, &ps));
+    EXRCORE_TEST_RVAL (exr_get_storage (outf, 0, &ps));
     EXRCORE_TEST (EXR_STORAGE_TILED == ps);
 
     levelsx = levelsy = -1;
-    EXRCORE_TEST_RVAL (exr_part_get_tile_levels (outf, 0, &levelsx, &levelsy));
+    EXRCORE_TEST_RVAL (exr_get_tile_levels (outf, 0, &levelsx, &levelsy));
     EXRCORE_TEST (levelsx == 1);
     EXRCORE_TEST (levelsy == 1);
 
     EXRCORE_TEST_RVAL (
-        exr_part_get_tile_sizes (outf, 0, 0, 0, &levelsx, &levelsy));
+        exr_get_tile_sizes (outf, 0, 0, 0, &levelsx, &levelsy));
     EXRCORE_TEST (levelsx == 12);
     EXRCORE_TEST (levelsy == 24);
 
     EXRCORE_TEST_RVAL_FAIL (EXR_ERR_NOT_OPEN_WRITE, exr_write_header (f));
     EXRCORE_TEST_RVAL (exr_write_header (outf));
 
-    EXRCORE_TEST_RVAL (exr_part_get_chunk_count (f, 0, &partcnt));
-    EXRCORE_TEST_RVAL (exr_part_get_chunk_count (outf, 0, &outpartcnt));
+    EXRCORE_TEST_RVAL (exr_get_chunk_count (f, 0, &partcnt));
+    EXRCORE_TEST_RVAL (exr_get_chunk_count (outf, 0, &outpartcnt));
     EXRCORE_TEST (partcnt == outpartcnt);
 
     exr_attr_box2i_t dw;
@@ -100,7 +100,7 @@ testWriteTiles (const std::string& tempdir)
     void*            cmem     = NULL;
     size_t           cmemsize = 0;
 
-    EXRCORE_TEST_RVAL (exr_part_get_data_window (outf, 0, &dw));
+    EXRCORE_TEST_RVAL (exr_get_data_window (outf, 0, &dw));
     ty = 0;
     for (int32_t y = dw.y_min; y <= dw.y_max; y += levelsy)
     {
@@ -109,7 +109,7 @@ testWriteTiles (const std::string& tempdir)
         {
             exr_chunk_block_info_t cinfo;
             EXRCORE_TEST_RVAL (
-                exr_part_read_tile_block_info (f, 0, tx, ty, 0, 0, &cinfo));
+                exr_read_tile_block_info (f, 0, tx, ty, 0, 0, &cinfo));
             if (cmemsize < cinfo.packed_size)
             {
                 if (cmem) free (cmem);
@@ -117,8 +117,8 @@ testWriteTiles (const std::string& tempdir)
                 if (!cmem) throw std::runtime_error ("out of memory");
                 cmemsize = cinfo.packed_size;
             }
-            EXRCORE_TEST_RVAL (exr_part_read_chunk (f, 0, &cinfo, cmem));
-            EXRCORE_TEST_RVAL (exr_part_write_tile_chunk (outf, 0, tx, ty, 0, 0, cmem, cinfo.packed_size));
+            EXRCORE_TEST_RVAL (exr_read_chunk (f, 0, &cinfo, cmem));
+            EXRCORE_TEST_RVAL (exr_write_tile_chunk (outf, 0, tx, ty, 0, 0, cmem, cinfo.packed_size));
             ++tx;
         }
         ++ty;
@@ -126,12 +126,12 @@ testWriteTiles (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_finish (&outf));
 
     EXRCORE_TEST_RVAL (exr_start_read (&testf, outfn.c_str (), &cinit));
-    EXRCORE_TEST_RVAL (exr_part_get_tile_levels (testf, 0, &levelsx, &levelsy));
+    EXRCORE_TEST_RVAL (exr_get_tile_levels (testf, 0, &levelsx, &levelsy));
     EXRCORE_TEST (levelsx == 1);
     EXRCORE_TEST (levelsy == 1);
 
     EXRCORE_TEST_RVAL (
-        exr_part_get_tile_sizes (testf, 0, 0, 0, &levelsx, &levelsy));
+        exr_get_tile_sizes (testf, 0, 0, 0, &levelsx, &levelsy));
     EXRCORE_TEST (levelsx == 12);
     EXRCORE_TEST (levelsy == 24);
     EXRCORE_TEST_RVAL (exr_finish (&testf));

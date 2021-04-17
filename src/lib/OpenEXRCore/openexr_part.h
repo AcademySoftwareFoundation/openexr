@@ -37,7 +37,7 @@ extern "C" {
 
 /** @brief Query how many parts are in the file */
 EXR_EXPORT exr_result_t
-exr_part_get_count (const exr_context_t ctxt, int* count);
+exr_get_count (const exr_context_t ctxt, int* count);
 
 /** @brief Query the part name for the specified part
  *
@@ -45,10 +45,10 @@ exr_part_get_count (const exr_context_t ctxt, int* count);
  * will output NULL
  */
 EXR_EXPORT exr_result_t
-exr_part_get_name (const exr_context_t ctxt, int part_index, const char** out);
+exr_get_name (const exr_context_t ctxt, int part_index, const char** out);
 
 /** @brief Query the storage type for the specified part */
-EXR_EXPORT exr_result_t exr_part_get_storage (
+EXR_EXPORT exr_result_t exr_get_storage (
     const exr_context_t ctxt, int part_index, exr_storage_t* out);
 
 /** @brief Define a new part in the file.
@@ -57,7 +57,7 @@ EXR_EXPORT exr_result_t exr_part_get_storage (
  * attribute list should be internalized and used as the attributes,
  * avoiding a number of memory copies.
  */
-EXR_EXPORT exr_result_t exr_part_add (
+EXR_EXPORT exr_result_t exr_add_part (
     exr_context_t ctxt,
     const char*   partname,
     exr_storage_t type,
@@ -75,7 +75,7 @@ EXR_EXPORT exr_result_t exr_part_add (
  * if you don't need both (i.e. in the case of a mip-level tiled
  * image)
  */
-EXR_EXPORT exr_result_t exr_part_get_tile_levels (
+EXR_EXPORT exr_result_t exr_get_tile_levels (
     const exr_context_t ctxt,
     int                 part_index,
     int32_t*            levelsx,
@@ -93,7 +93,7 @@ EXR_EXPORT exr_result_t exr_part_get_tile_levels (
  * if you don't need both (i.e. in the case of a mip-level tiled
  * image)
  */
-EXR_EXPORT exr_result_t exr_part_get_tile_sizes (
+EXR_EXPORT exr_result_t exr_get_tile_sizes (
     const exr_context_t ctxt,
     int                 part_index,
     int                 levelx,
@@ -109,7 +109,7 @@ EXR_EXPORT exr_result_t exr_part_get_tile_sizes (
  * encoded / decoded as a block, the chunk should be the basis for I/O
  * as well.
  */
-EXR_EXPORT exr_result_t exr_part_get_chunk_count (
+EXR_EXPORT exr_result_t exr_get_chunk_count (
     const exr_context_t ctxt, int part_index, int32_t* out);
 
 /** Return the number of scanlines chunks for this file part
@@ -118,7 +118,7 @@ EXR_EXPORT exr_result_t exr_part_get_chunk_count (
  * for multi-threading or other access than only negotiating chunk
  * counts, and so is provided as a utility.
  */
-EXR_EXPORT exr_result_t exr_part_get_scanlines_per_chunk (
+EXR_EXPORT exr_result_t exr_get_scanlines_per_chunk (
     const exr_context_t ctxt, int part_index, int32_t* out);
 
 /** returns the maximum unpacked size of a chunk for the file part.
@@ -127,7 +127,7 @@ EXR_EXPORT exr_result_t exr_part_get_scanlines_per_chunk (
  * used to pre-allocate buffers for multiple threads in one block or
  * whatever your application may require.
  */
-EXR_EXPORT exr_result_t exr_part_get_chunk_unpacked_size (
+EXR_EXPORT exr_result_t exr_get_chunk_unpacked_size (
     const exr_context_t ctxt, int part_index, uint64_t* out);
 
 /**************************************/
@@ -138,7 +138,7 @@ EXR_EXPORT exr_result_t exr_part_get_chunk_unpacked_size (
  */
 
 /** @brief Query the count of attributes in a part */
-EXR_EXPORT exr_result_t exr_part_get_attribute_count (
+EXR_EXPORT exr_result_t exr_get_attribute_count (
     const exr_context_t ctxt, int part_index, int32_t* count);
 
 enum exr_attr_list_access_mode
@@ -148,7 +148,7 @@ enum exr_attr_list_access_mode
 };
 
 /** @brief Query a particular attribute by index */
-EXR_EXPORT exr_result_t exr_part_get_attribute_by_index (
+EXR_EXPORT exr_result_t exr_get_attribute_by_index (
     const exr_context_t            ctxt,
     int                            part_index,
     enum exr_attr_list_access_mode mode,
@@ -156,7 +156,7 @@ EXR_EXPORT exr_result_t exr_part_get_attribute_by_index (
     const exr_attribute_t**        outattr);
 
 /** @brief Query a particular attribute by name */
-EXR_EXPORT exr_result_t exr_part_get_attribute_by_name (
+EXR_EXPORT exr_result_t exr_get_attribute_by_name (
     const exr_context_t     ctxt,
     int                     part_index,
     const char*             name,
@@ -170,7 +170,7 @@ EXR_EXPORT exr_result_t exr_part_get_attribute_by_name (
  * count. In this manner, the user can allocate memory for the list of
  * attributes, then re-call this function to get the full list
  */
-EXR_EXPORT exr_result_t exr_part_get_attribute_list (
+EXR_EXPORT exr_result_t exr_get_attribute_list (
     const exr_context_t            ctxt,
     int                            part_index,
     enum exr_attr_list_access_mode mode,
@@ -181,7 +181,7 @@ EXR_EXPORT exr_result_t exr_part_get_attribute_list (
  *
  * Only valid when a file is opened for write.
  */
-EXR_EXPORT exr_result_t exr_part_attr_declare_by_type (
+EXR_EXPORT exr_result_t exr_attr_declare_by_type (
     exr_context_t     ctxt,
     int               part_index,
     const char*       name,
@@ -192,7 +192,7 @@ EXR_EXPORT exr_result_t exr_part_attr_declare_by_type (
  *
  * Only valid when a file is opened for write.
  */
-EXR_EXPORT exr_result_t exr_part_attr_declare (
+EXR_EXPORT exr_result_t exr_attr_declare (
     exr_context_t        ctxt,
     int                  part_index,
     const char*          name,
@@ -213,7 +213,7 @@ EXR_EXPORT exr_result_t exr_part_attr_declare (
  * NB: other file types do require other attributes, such as the tile
  * description for a tiled file
  */
-EXR_EXPORT exr_result_t exr_part_initialize_required_attr (
+EXR_EXPORT exr_result_t exr_initialize_required_attr (
     exr_context_t           ctxt,
     int                     part_index,
     const exr_attr_box2i_t* displayWindow,
@@ -234,7 +234,7 @@ EXR_EXPORT exr_result_t exr_part_initialize_required_attr (
  * lineorder is set to INCREASING_Y
  * compression is set to @param ctype
  */
-EXR_EXPORT exr_result_t exr_part_initialize_required_attr_simple (
+EXR_EXPORT exr_result_t exr_initialize_required_attr_simple (
     exr_context_t     ctxt,
     int               part_index,
     int32_t           width,
@@ -254,18 +254,18 @@ EXR_EXPORT exr_result_t exr_part_initialize_required_attr_simple (
  * input file as the source, you can copy the channel definitions (and
  * any other unassigned attributes from the source).
  */
-EXR_EXPORT exr_result_t exr_part_copy_unset_attributes (
+EXR_EXPORT exr_result_t exr_copy_unset_attributes (
     exr_context_t       ctxt,
     int                 part_index,
     const exr_context_t source,
     int                 src_part_index);
 
 /** @brief retrieves the list of channels */
-EXR_EXPORT exr_result_t exr_part_get_channels (
+EXR_EXPORT exr_result_t exr_get_channels (
     const exr_context_t ctxt, int part_index, const exr_attr_chlist_t** chlist);
 
 /** @brief Defines a new channel to the output file part. */
-EXR_EXPORT int exr_part_add_channel (
+EXR_EXPORT int exr_add_channel (
     exr_context_t    ctxt,
     int              part_index,
     const char*      name,
@@ -278,60 +278,60 @@ EXR_EXPORT int exr_part_add_channel (
  *
  * Useful if you are manually constructing the list or simply copying
  * from an input file */
-EXR_EXPORT exr_result_t exr_part_set_channels (
+EXR_EXPORT exr_result_t exr_set_channels (
     exr_context_t ctxt, int part_index, const exr_attr_chlist_t* channels);
 
 /** @brief Retrieves the compression method used for the specified part. */
-EXR_EXPORT exr_result_t exr_part_get_compression (
+EXR_EXPORT exr_result_t exr_get_compression (
     const exr_context_t ctxt, int part_index, exr_compression_t* compression);
 /** @brief Sets the compression method used for the specified part. */
-EXR_EXPORT exr_result_t exr_part_set_compression (
+EXR_EXPORT exr_result_t exr_set_compression (
     exr_context_t ctxt, int part_index, exr_compression_t ctype);
 
 /** @brief Retrieves the data window for the specified part. */
-EXR_EXPORT exr_result_t exr_part_get_data_window (
+EXR_EXPORT exr_result_t exr_get_data_window (
     const exr_context_t ctxt, int part_index, exr_attr_box2i_t* out);
 /** @brief Sets the data window for the specified part. */
-EXR_EXPORT int exr_part_set_data_window (
+EXR_EXPORT int exr_set_data_window (
     exr_context_t ctxt, int part_index, const exr_attr_box2i_t* dw);
 
 /** @brief Retrieves the display window for the specified part. */
-EXR_EXPORT exr_result_t exr_part_get_display_window (
+EXR_EXPORT exr_result_t exr_get_display_window (
     const exr_context_t ctxt, int part_index, exr_attr_box2i_t* out);
 /** @brief Sets the display window for the specified part. */
-EXR_EXPORT int exr_part_set_display_window (
+EXR_EXPORT int exr_set_display_window (
     exr_context_t ctxt, int part_index, const exr_attr_box2i_t* dw);
 
 /** @brief Retrieves the line order for storing data in the specified part (use 0 for single part images). */
-EXR_EXPORT exr_result_t exr_part_get_lineorder (
+EXR_EXPORT exr_result_t exr_get_lineorder (
     const exr_context_t ctxt, int part_index, exr_lineorder_t* out);
 /** @brief Sets the line order for storing data in the specified part (use 0 for single part images). */
 EXR_EXPORT exr_result_t
-exr_part_set_lineorder (exr_context_t ctxt, int part_index, exr_lineorder_t lo);
+exr_set_lineorder (exr_context_t ctxt, int part_index, exr_lineorder_t lo);
 
 /** @brief Retrieves the pixel aspect ratio for the specified part (use 0 for single part images). */
-EXR_EXPORT exr_result_t exr_part_get_pixel_aspect_ratio (
+EXR_EXPORT exr_result_t exr_get_pixel_aspect_ratio (
     const exr_context_t ctxt, int part_index, float* par);
 /** @brief Sets the pixel aspect ratio for the specified part (use 0 for single part images). */
 EXR_EXPORT exr_result_t
-exr_part_set_pixel_aspect_ratio (exr_context_t ctxt, int part_index, float par);
+exr_set_pixel_aspect_ratio (exr_context_t ctxt, int part_index, float par);
 
 /** @brief Retrieves the screen oriented window center for the specified part (use 0 for single part images). */
-EXR_EXPORT exr_result_t exr_part_get_screen_window_center (
+EXR_EXPORT exr_result_t exr_get_screen_window_center (
     const exr_context_t ctxt, int part_index, exr_attr_v2f_t* wc);
 /** @brief Sets the screen oriented window center for the specified part (use 0 for single part images). */
-EXR_EXPORT int exr_part_set_screen_window_center (
+EXR_EXPORT int exr_set_screen_window_center (
     exr_context_t ctxt, int part_index, const exr_attr_v2f_t* wc);
 
 /** @brief Retrieves the screen oriented window width for the specified part (use 0 for single part images). */
-EXR_EXPORT exr_result_t exr_part_get_screen_window_width (
+EXR_EXPORT exr_result_t exr_get_screen_window_width (
     const exr_context_t ctxt, int part_index, float* out);
 /** @brief Sets the screen oriented window width for the specified part (use 0 for single part images). */
-EXR_EXPORT exr_result_t exr_part_set_screen_window_width (
+EXR_EXPORT exr_result_t exr_set_screen_window_width (
     exr_context_t ctxt, int part_index, float ssw);
 
 /** @brief Retrieves the tiling info for a tiled part (use 0 for single part images). */
-EXR_EXPORT exr_result_t exr_part_get_tile_descriptor (
+EXR_EXPORT exr_result_t exr_get_tile_descriptor (
     const exr_context_t    ctxt,
     int                    part_index,
     uint32_t*              xsize,
@@ -340,7 +340,7 @@ EXR_EXPORT exr_result_t exr_part_get_tile_descriptor (
     exr_tile_round_mode_t* round);
 
 /** @brief Sets the tiling info for a tiled part (use 0 for single part images). */
-EXR_EXPORT exr_result_t exr_part_set_tile_descriptor (
+EXR_EXPORT exr_result_t exr_set_tile_descriptor (
     exr_context_t         ctxt,
     int                   part_index,
     uint32_t              x_size,
@@ -349,16 +349,16 @@ EXR_EXPORT exr_result_t exr_part_set_tile_descriptor (
     exr_tile_round_mode_t round_mode);
 
 EXR_EXPORT exr_result_t
-exr_part_set_name (exr_context_t ctxt, int part_index, const char* val);
+exr_set_name (exr_context_t ctxt, int part_index, const char* val);
 
 EXR_EXPORT exr_result_t
-exr_part_get_version (const exr_context_t ctxt, int part_index, int32_t* out);
+exr_get_version (const exr_context_t ctxt, int part_index, int32_t* out);
 
 EXR_EXPORT exr_result_t
-exr_part_set_version (exr_context_t ctxt, int part_index, int32_t val);
+exr_set_version (exr_context_t ctxt, int part_index, int32_t val);
 
 EXR_EXPORT exr_result_t
-exr_part_set_chunk_count (exr_context_t ctxt, int part_index, int32_t val);
+exr_set_chunk_count (exr_context_t ctxt, int part_index, int32_t val);
 
 /** @} */ /* required attr group */
 
@@ -370,25 +370,25 @@ exr_part_set_chunk_count (exr_context_t ctxt, int part_index, int32_t val);
  * @{
  */
 
-EXR_EXPORT exr_result_t exr_part_attr_get_box2i (
+EXR_EXPORT exr_result_t exr_attr_get_box2i (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_attr_box2i_t*   outval);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_box2i (
+EXR_EXPORT exr_result_t exr_attr_set_box2i (
     exr_context_t           ctxt,
     int                     part_index,
     const char*             name,
     const exr_attr_box2i_t* val);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_box2f (
+EXR_EXPORT exr_result_t exr_attr_get_box2f (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_attr_box2f_t*   outval);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_box2f (
+EXR_EXPORT exr_result_t exr_attr_set_box2f (
     exr_context_t           ctxt,
     int                     part_index,
     const char*             name,
@@ -400,61 +400,61 @@ EXR_EXPORT exr_result_t exr_part_attr_set_box2f (
  * Do not free or manipulate the const exr_attr_chlist_t data, or use
  * after the lifetime of the context
  */
-EXR_EXPORT exr_result_t exr_part_attr_get_channels (
+EXR_EXPORT exr_result_t exr_attr_get_channels (
     const exr_context_t       ctxt,
     int                       part_index,
     const char*               name,
     const exr_attr_chlist_t** chlist);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_channels (
+EXR_EXPORT exr_result_t exr_attr_set_channels (
     exr_context_t            ctxt,
     int                      part_index,
     const char*              name,
     const exr_attr_chlist_t* channels);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_chromaticities (
+EXR_EXPORT exr_result_t exr_attr_get_chromaticities (
     const exr_context_t        ctxt,
     int                        part_index,
     const char*                name,
     exr_attr_chromaticities_t* chroma);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_chromaticities (
+EXR_EXPORT exr_result_t exr_attr_set_chromaticities (
     exr_context_t                    ctxt,
     int                              part_index,
     const char*                      name,
     const exr_attr_chromaticities_t* chroma);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_compression (
+EXR_EXPORT exr_result_t exr_attr_get_compression (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_compression_t*  out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_compression (
+EXR_EXPORT exr_result_t exr_attr_set_compression (
     exr_context_t     ctxt,
     int               part_index,
     const char*       name,
     exr_compression_t comp);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_double (
+EXR_EXPORT exr_result_t exr_attr_get_double (
     const exr_context_t ctxt, int part_index, const char* name, double* out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_double (
+EXR_EXPORT exr_result_t exr_attr_set_double (
     exr_context_t ctxt, int part_index, const char* name, double val);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_envmap (
+EXR_EXPORT exr_result_t exr_attr_get_envmap (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_envmap_t*       out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_envmap (
+EXR_EXPORT exr_result_t exr_attr_set_envmap (
     exr_context_t ctxt, int part_index, const char* name, exr_envmap_t emap);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_float (
+EXR_EXPORT exr_result_t exr_attr_get_float (
     const exr_context_t ctxt, int part_index, const char* name, float* out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_float (
+EXR_EXPORT exr_result_t exr_attr_set_float (
     exr_context_t ctxt, int part_index, const char* name, float val);
 
 /** @brief zero copy query of float data.
@@ -462,114 +462,114 @@ EXR_EXPORT exr_result_t exr_part_attr_set_float (
  * Do not free or manipulate the const float * data, or use after the
  * lifetime of the context
  */
-EXR_EXPORT exr_result_t exr_part_attr_get_float_vector (
+EXR_EXPORT exr_result_t exr_attr_get_float_vector (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     int32_t*            sz,
     const float**       out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_float_vector (
+EXR_EXPORT exr_result_t exr_attr_set_float_vector (
     exr_context_t ctxt,
     int           part_index,
     const char*   name,
     int32_t       sz,
     const float*  vals);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_int (
+EXR_EXPORT exr_result_t exr_attr_get_int (
     const exr_context_t ctxt, int part_index, const char* name, int32_t* out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_int (
+EXR_EXPORT exr_result_t exr_attr_set_int (
     exr_context_t ctxt, int part_index, const char* name, int32_t val);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_keycode (
+EXR_EXPORT exr_result_t exr_attr_get_keycode (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_attr_keycode_t* out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_keycode (
+EXR_EXPORT exr_result_t exr_attr_set_keycode (
     exr_context_t             ctxt,
     int                       part_index,
     const char*               name,
     const exr_attr_keycode_t* kc);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_lineorder (
+EXR_EXPORT exr_result_t exr_attr_get_lineorder (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_lineorder_t*    out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_lineorder (
+EXR_EXPORT exr_result_t exr_attr_set_lineorder (
     exr_context_t ctxt, int part_index, const char* name, exr_lineorder_t lo);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_m33f (
+EXR_EXPORT exr_result_t exr_attr_get_m33f (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_attr_m33f_t*    out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_m33f (
+EXR_EXPORT exr_result_t exr_attr_set_m33f (
     exr_context_t          ctxt,
     int                    part_index,
     const char*            name,
     const exr_attr_m33f_t* m);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_m33d (
+EXR_EXPORT exr_result_t exr_attr_get_m33d (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_attr_m33d_t*    out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_m33d (
+EXR_EXPORT exr_result_t exr_attr_set_m33d (
     exr_context_t          ctxt,
     int                    part_index,
     const char*            name,
     const exr_attr_m33d_t* m);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_m44f (
+EXR_EXPORT exr_result_t exr_attr_get_m44f (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_attr_m44f_t*    out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_m44f (
+EXR_EXPORT exr_result_t exr_attr_set_m44f (
     exr_context_t          ctxt,
     int                    part_index,
     const char*            name,
     const exr_attr_m44f_t* m);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_m44d (
+EXR_EXPORT exr_result_t exr_attr_get_m44d (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_attr_m44d_t*    out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_m44d (
+EXR_EXPORT exr_result_t exr_attr_set_m44d (
     exr_context_t          ctxt,
     int                    part_index,
     const char*            name,
     const exr_attr_m44d_t* m);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_preview (
+EXR_EXPORT exr_result_t exr_attr_get_preview (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_attr_preview_t* out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_preview (
+EXR_EXPORT exr_result_t exr_attr_set_preview (
     exr_context_t             ctxt,
     int                       part_index,
     const char*               name,
     const exr_attr_preview_t* p);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_rational (
+EXR_EXPORT exr_result_t exr_attr_get_rational (
     const exr_context_t  ctxt,
     int                  part_index,
     const char*          name,
     exr_attr_rational_t* out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_rational (
+EXR_EXPORT exr_result_t exr_attr_set_rational (
     exr_context_t              ctxt,
     int                        part_index,
     const char*                name,
@@ -580,14 +580,14 @@ EXR_EXPORT exr_result_t exr_part_attr_set_rational (
  * Do not modify the string pointed to by @param out, and do not use
  * after the lifetime of the context
  */
-EXR_EXPORT exr_result_t exr_part_attr_get_string (
+EXR_EXPORT exr_result_t exr_attr_get_string (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     int32_t*            length,
     const char**        out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_string (
+EXR_EXPORT exr_result_t exr_attr_set_string (
     exr_context_t ctxt, int part_index, const char* name, const char* s);
 
 /** @brief zero copy query of string data.
@@ -599,117 +599,117 @@ EXR_EXPORT exr_result_t exr_part_attr_set_string (
  * @param out must be a const char** array large enough to hold the
  * string pointers for the string vector when provided
  */
-EXR_EXPORT exr_result_t exr_part_attr_get_string_vector (
+EXR_EXPORT exr_result_t exr_attr_get_string_vector (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     int32_t*            size,
     const char**        out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_string_vector (
+EXR_EXPORT exr_result_t exr_attr_set_string_vector (
     exr_context_t ctxt,
     int           part_index,
     const char*   name,
     int32_t       size,
     const char**  sv);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_tiledesc (
+EXR_EXPORT exr_result_t exr_attr_get_tiledesc (
     const exr_context_t  ctxt,
     int                  part_index,
     const char*          name,
     exr_attr_tiledesc_t* out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_tiledesc (
+EXR_EXPORT exr_result_t exr_attr_set_tiledesc (
     exr_context_t              ctxt,
     int                        part_index,
     const char*                name,
     const exr_attr_tiledesc_t* td);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_timecode (
+EXR_EXPORT exr_result_t exr_attr_get_timecode (
     const exr_context_t  ctxt,
     int                  part_index,
     const char*          name,
     exr_attr_timecode_t* out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_timecode (
+EXR_EXPORT exr_result_t exr_attr_set_timecode (
     exr_context_t              ctxt,
     int                        part_index,
     const char*                name,
     const exr_attr_timecode_t* tc);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_v2i (
+EXR_EXPORT exr_result_t exr_attr_get_v2i (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_attr_v2i_t*     out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_v2i (
+EXR_EXPORT exr_result_t exr_attr_set_v2i (
     exr_context_t         ctxt,
     int                   part_index,
     const char*           name,
     const exr_attr_v2i_t* v);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_v2f (
+EXR_EXPORT exr_result_t exr_attr_get_v2f (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_attr_v2f_t*     out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_v2f (
+EXR_EXPORT exr_result_t exr_attr_set_v2f (
     exr_context_t         ctxt,
     int                   part_index,
     const char*           name,
     const exr_attr_v2f_t* v);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_v2d (
+EXR_EXPORT exr_result_t exr_attr_get_v2d (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_attr_v2d_t*     out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_v2d (
+EXR_EXPORT exr_result_t exr_attr_set_v2d (
     exr_context_t         ctxt,
     int                   part_index,
     const char*           name,
     const exr_attr_v2d_t* v);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_v3i (
+EXR_EXPORT exr_result_t exr_attr_get_v3i (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_attr_v3i_t*     out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_v3i (
+EXR_EXPORT exr_result_t exr_attr_set_v3i (
     exr_context_t         ctxt,
     int                   part_index,
     const char*           name,
     const exr_attr_v3i_t* v);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_v3f (
+EXR_EXPORT exr_result_t exr_attr_get_v3f (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_attr_v3f_t*     out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_v3f (
+EXR_EXPORT exr_result_t exr_attr_set_v3f (
     exr_context_t         ctxt,
     int                   part_index,
     const char*           name,
     const exr_attr_v3f_t* v);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_v3d (
+EXR_EXPORT exr_result_t exr_attr_get_v3d (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
     exr_attr_v3d_t*     out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_v3d (
+EXR_EXPORT exr_result_t exr_attr_set_v3d (
     exr_context_t         ctxt,
     int                   part_index,
     const char*           name,
     const exr_attr_v3d_t* v);
 
-EXR_EXPORT exr_result_t exr_part_attr_get_user (
+EXR_EXPORT exr_result_t exr_attr_get_user (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -717,7 +717,7 @@ EXR_EXPORT exr_result_t exr_part_attr_get_user (
     int32_t*            size,
     const void**        out);
 
-EXR_EXPORT exr_result_t exr_part_attr_set_user (
+EXR_EXPORT exr_result_t exr_attr_set_user (
     exr_context_t ctxt,
     int           part_index,
     const char*   name,

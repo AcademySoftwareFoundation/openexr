@@ -49,7 +49,7 @@ createDummyFile (const char* test)
 
     EXRCORE_TEST_RVAL (
         exr_start_write (&f, test, EXR_WRITE_FILE_DIRECTLY, &cinit));
-    EXRCORE_TEST_RVAL (exr_part_add (f, "dummy", EXR_STORAGE_SCANLINE, NULL));
+    EXRCORE_TEST_RVAL (exr_add_part (f, "dummy", EXR_STORAGE_SCANLINE, NULL));
     return f;
 }
 
@@ -559,7 +559,7 @@ testAttrHandler (const std::string& tempdir)
     exr_context_t    f   = createDummyFile ("<attr_handler>");
     exr_attribute_t *foo = NULL, *bar = NULL;
     EXRCORE_TEST_RVAL (
-        exr_part_attr_declare_by_type (f, 0, "foo", "mytype", &foo));
+        exr_attr_declare_by_type (f, 0, "foo", "mytype", &foo));
     EXRCORE_TEST (foo != NULL);
     EXRCORE_TEST (foo->opaque->unpack_func_ptr == NULL);
 
@@ -579,7 +579,7 @@ testAttrHandler (const std::string& tempdir)
     EXRCORE_TEST (foo->opaque->destroy_unpacked_func_ptr == &test_hdlr_destroy);
 
     EXRCORE_TEST_RVAL (
-        exr_part_attr_declare_by_type (f, 0, "bar", "mytype", &bar));
+        exr_attr_declare_by_type (f, 0, "bar", "mytype", &bar));
     EXRCORE_TEST (bar != NULL);
     EXRCORE_TEST (bar->opaque->unpack_func_ptr == &test_unpack);
     EXRCORE_TEST (bar->opaque->pack_func_ptr == &test_pack);

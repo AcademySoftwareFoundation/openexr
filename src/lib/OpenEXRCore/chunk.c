@@ -142,7 +142,7 @@ alloc_chunk_table (
 /**************************************/
 
 exr_result_t
-exr_part_read_scanline_block_info (
+exr_read_scanline_block_info (
     const exr_context_t     ctxt,
     int                     part_index,
     int                     y,
@@ -460,7 +460,7 @@ compute_tile_chunk_off (
 /**************************************/
 
 exr_result_t
-exr_part_read_tile_block_info (
+exr_read_tile_block_info (
     const exr_context_t     ctxt,
     int                     part_index,
     int                     tilex,
@@ -713,7 +713,7 @@ exr_part_read_tile_block_info (
 }
 
 exr_result_t
-exr_part_read_chunk (
+exr_read_chunk (
     const exr_context_t           ctxt,
     int                           part_index,
     const exr_chunk_block_info_t* cinfo,
@@ -773,7 +773,7 @@ exr_part_read_chunk (
 /**************************************/
 
 exr_result_t
-exr_part_read_deep_chunk (
+exr_read_deep_chunk (
     const exr_context_t           ctxt,
     int                           part_index,
     const exr_chunk_block_info_t* cinfo,
@@ -1057,7 +1057,7 @@ write_scan_chunk (
 /**************************************/
 
 exr_result_t
-exr_part_write_scanline_chunk (
+exr_write_scanline_chunk (
     exr_context_t ctxt,
     int           part_index,
     int           y,
@@ -1079,7 +1079,7 @@ exr_part_write_scanline_chunk (
 /**************************************/
 
 exr_result_t
-exr_part_write_deep_scanline_chunk (
+exr_write_deep_scanline_chunk (
     exr_context_t ctxt,
     int           part_index,
     int           y,
@@ -1292,7 +1292,7 @@ write_tile_chunk (
 /**************************************/
 
 exr_result_t
-exr_part_write_tile_chunk (
+exr_write_tile_chunk (
     exr_context_t ctxt,
     int           part_index,
     int           tilex,
@@ -1329,7 +1329,7 @@ exr_part_write_tile_chunk (
 /**************************************/
 
 exr_result_t
-exr_part_write_deep_tile_chunk (
+exr_write_deep_tile_chunk (
     exr_context_t ctxt,
     int           part_index,
     int           tilex,

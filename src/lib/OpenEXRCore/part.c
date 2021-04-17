@@ -14,7 +14,7 @@
 /**************************************/
 
 exr_result_t
-exr_part_get_count (const exr_context_t ctxt, int* count)
+exr_get_count (const exr_context_t ctxt, int* count)
 {
     int cnt;
     EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (ctxt);
@@ -30,7 +30,7 @@ exr_part_get_count (const exr_context_t ctxt, int* count)
 /**************************************/
 
 exr_result_t
-exr_part_get_storage (
+exr_get_storage (
     const exr_context_t ctxt, int part_index, exr_storage_t* out)
 {
     exr_storage_t smode;
@@ -47,7 +47,7 @@ exr_part_get_storage (
 /**************************************/
 
 exr_result_t
-exr_part_add (
+exr_add_part (
     exr_context_t ctxt,
     const char*   partname,
     exr_storage_t type,
@@ -173,7 +173,7 @@ exr_part_add (
 /**************************************/
 
 exr_result_t
-exr_part_get_tile_levels (
+exr_get_tile_levels (
     const exr_context_t ctxt, int part_index, int* levelsx, int* levelsy)
 {
     EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
@@ -204,7 +204,7 @@ exr_part_get_tile_levels (
 /**************************************/
 
 exr_result_t
-exr_part_get_tile_sizes (
+exr_get_tile_sizes (
     const exr_context_t ctxt,
     int                 part_index,
     int                 levelx,
@@ -256,7 +256,7 @@ exr_part_get_tile_sizes (
 /**************************************/
 
 exr_result_t
-exr_part_get_chunk_count (
+exr_get_chunk_count (
     const exr_context_t ctxt, int part_index, int32_t* out)
 {
     EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
@@ -308,7 +308,7 @@ exr_part_get_chunk_count (
 /**************************************/
 
 exr_result_t
-exr_part_get_scanlines_per_chunk (
+exr_get_scanlines_per_chunk (
     const exr_context_t ctxt, int part_index, int32_t* out)
 {
     EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
@@ -333,7 +333,7 @@ exr_part_get_scanlines_per_chunk (
 /**************************************/
 
 exr_result_t
-exr_part_get_chunk_unpacked_size (
+exr_get_chunk_unpacked_size (
     const exr_context_t ctxt, int part_index, uint64_t* out)
 {
     uint64_t sz;

@@ -73,8 +73,8 @@ void testReadMeta( const std::string &tempdir )
 
     EXRCORE_TEST_RVAL(exr_start_read (&f, fn.c_str (), &cinit));
 
-    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_NOT_OPEN_WRITE,exr_part_attr_declare_by_type (f, 0, "foo", "box2i", &newattr));
-    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_NOT_OPEN_WRITE,exr_part_attr_declare (f, 0, "bar", EXR_ATTR_BOX2I, &newattr));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_NOT_OPEN_WRITE,exr_attr_declare_by_type (f, 0, "foo", "box2i", &newattr));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_NOT_OPEN_WRITE,exr_attr_declare (f, 0, "bar", EXR_ATTR_BOX2I, &newattr));
 
     exr_finish (&f);
 
@@ -146,44 +146,44 @@ testReadTiles (const std::string& tempdir)
     EXRCORE_TEST_RVAL(exr_start_read (&f, fn.c_str (), &cinit));
 
     exr_storage_t ps;
-    EXRCORE_TEST_RVAL(exr_part_get_storage (f, 0, &ps));
+    EXRCORE_TEST_RVAL(exr_get_storage (f, 0, &ps));
     EXRCORE_TEST (EXR_STORAGE_TILED == ps);
 
     int levelsx = -1, levelsy = -1;
-    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_MISSING_CONTEXT_ARG, exr_part_get_tile_levels (NULL, 0, &levelsx, &levelsy));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_MISSING_CONTEXT_ARG, exr_get_tile_levels (NULL, 0, &levelsx, &levelsy));
     EXRCORE_TEST (levelsx == -1);
     EXRCORE_TEST (levelsy == -1);
 
-    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_part_get_tile_levels (f, 1, &levelsx, &levelsy));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_tile_levels (f, 1, &levelsx, &levelsy));
     EXRCORE_TEST (levelsx == -1);
     EXRCORE_TEST (levelsy == -1);
 
-    EXRCORE_TEST_RVAL(exr_part_get_tile_levels (f, 0, NULL, NULL));
+    EXRCORE_TEST_RVAL(exr_get_tile_levels (f, 0, NULL, NULL));
 
     levelsx = -1;
-    EXRCORE_TEST_RVAL(exr_part_get_tile_levels (f, 0, &levelsx, NULL));
+    EXRCORE_TEST_RVAL(exr_get_tile_levels (f, 0, &levelsx, NULL));
     EXRCORE_TEST (levelsx == 1);
 
     levelsy = -1;
-    EXRCORE_TEST_RVAL(exr_part_get_tile_levels (f, 0, NULL, &levelsy));
+    EXRCORE_TEST_RVAL(exr_get_tile_levels (f, 0, NULL, &levelsy));
     EXRCORE_TEST (levelsy == 1);
 
     levelsx = levelsy = -1;
-    EXRCORE_TEST_RVAL(exr_part_get_tile_levels (f, 0, &levelsx, &levelsy));
+    EXRCORE_TEST_RVAL(exr_get_tile_levels (f, 0, &levelsx, &levelsy));
     EXRCORE_TEST (levelsx == 1);
     EXRCORE_TEST (levelsy == 1);
 
-    EXRCORE_TEST_RVAL(exr_part_get_tile_sizes (f, 0, 0, 0, &levelsx, &levelsy));
+    EXRCORE_TEST_RVAL(exr_get_tile_sizes (f, 0, 0, 0, &levelsx, &levelsy));
     EXRCORE_TEST (levelsx == 12);
     EXRCORE_TEST (levelsy == 24);
 
     exr_chunk_block_info_t cinfo;
-    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_SCAN_TILE_MIXEDAPI, exr_part_read_scanline_block_info (f, 0, 42, &cinfo));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_SCAN_TILE_MIXEDAPI, exr_read_scanline_block_info (f, 0, 42, &cinfo));
 
     // actually read a tile...
-    EXRCORE_TEST_RVAL(exr_part_read_tile_block_info (f, 0, 4, 2, 0, 0, &cinfo));
+    EXRCORE_TEST_RVAL(exr_read_tile_block_info (f, 0, 4, 2, 0, 0, &cinfo));
     uint64_t pchunksz = 0;
-    EXRCORE_TEST_RVAL(exr_part_get_chunk_unpacked_size (f, 0, &pchunksz));
+    EXRCORE_TEST_RVAL(exr_get_chunk_unpacked_size (f, 0, &pchunksz));
     EXRCORE_TEST (cinfo.type == EXR_STORAGE_TILED);
     EXRCORE_TEST (cinfo.compression == EXR_COMPRESSION_NONE);
     EXRCORE_TEST (cinfo.packed_size == pchunksz);
@@ -251,25 +251,25 @@ testReadTiles (const std::string& tempdir)
         "/home/kimball/Development/OSS/OpenEXR/kdt3rd/testmips.exr",
         &cinit));
 
-    EXRCORE_TEST_RVAL(exr_part_get_storage (f, 0, &ps));
+    EXRCORE_TEST_RVAL(exr_get_storage (f, 0, &ps));
     EXRCORE_TEST (EXR_STORAGE_TILED == ps);
 
     levelsx = -1;
     levelsy = -1;
-    EXRCORE_TEST_RVAL(exr_part_get_tile_levels (f, 0, &levelsx, &levelsy));
+    EXRCORE_TEST_RVAL(exr_get_tile_levels (f, 0, &levelsx, &levelsy));
     EXRCORE_TEST (levelsx == 11);
     EXRCORE_TEST (levelsy == 11);
 
-    EXRCORE_TEST_RVAL(exr_part_get_tile_sizes (f, 0, 0, 0, &levelsx, &levelsy));
+    EXRCORE_TEST_RVAL(exr_get_tile_sizes (f, 0, 0, 0, &levelsx, &levelsy));
     EXRCORE_TEST (levelsx == 32);
     EXRCORE_TEST (levelsy == 32);
 
-    EXRCORE_TEST_RVAL(exr_part_get_tile_sizes (f, 0, 10, 10, &levelsx, &levelsy));
+    EXRCORE_TEST_RVAL(exr_get_tile_sizes (f, 0, 10, 10, &levelsx, &levelsy));
     EXRCORE_TEST (levelsx == 1);
     EXRCORE_TEST (levelsy == 1);
 
     EXRCORE_TEST_RVAL(exr_decode_chunk_init_tile (f, 0, &chunk, 4, 2, 0, 0, 1));
-    EXRCORE_TEST_RVAL(exr_part_get_chunk_unpacked_size (f, 0, &pchunksz));
+    EXRCORE_TEST_RVAL(exr_get_chunk_unpacked_size (f, 0, &pchunksz));
     EXRCORE_TEST (chunk.unpacked.size == pchunksz);
     EXRCORE_TEST (chunk.channel_count == 3);
     EXRCORE_TEST_RVAL(exr_destroy_decode_chunk_info (f, &chunk));

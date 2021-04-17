@@ -16,7 +16,7 @@
 /**************************************/
 
 exr_result_t
-exr_part_get_attribute_count (
+exr_get_attribute_count (
     const exr_context_t ctxt, int part_index, int32_t* count)
 {
     int32_t cnt;
@@ -32,7 +32,7 @@ exr_part_get_attribute_count (
 /**************************************/
 
 exr_result_t
-exr_part_get_attribute_by_index (
+exr_get_attribute_by_index (
     const exr_context_t            ctxt,
     int                            part_index,
     enum exr_attr_list_access_mode mode,
@@ -62,7 +62,7 @@ exr_part_get_attribute_by_index (
 /**************************************/
 
 exr_result_t
-exr_part_get_attribute_by_name (
+exr_get_attribute_by_name (
     const exr_context_t     ctxt,
     int                     part_index,
     const char*             name,
@@ -88,7 +88,7 @@ exr_part_get_attribute_by_name (
 /**************************************/
 
 exr_result_t
-exr_part_get_attribute_list (
+exr_get_attribute_list (
     const exr_context_t            ctxt,
     int                            part_index,
     enum exr_attr_list_access_mode mode,
@@ -119,7 +119,7 @@ exr_part_get_attribute_list (
 /**************************************/
 
 exr_result_t
-exr_part_attr_declare_by_type (
+exr_attr_declare_by_type (
     exr_context_t     ctxt,
     int               part_index,
     const char*       name,
@@ -141,7 +141,7 @@ exr_part_attr_declare_by_type (
 /**************************************/
 
 exr_result_t
-exr_part_attr_declare (
+exr_attr_declare (
     exr_context_t        ctxt,
     int                  part_index,
     const char*          name,
@@ -163,7 +163,7 @@ exr_part_attr_declare (
 /**************************************/
 
 exr_result_t
-exr_part_initialize_required_attr (
+exr_initialize_required_attr (
     exr_context_t           ctxt,
     int                     part_index,
     const exr_attr_box2i_t* displayWindow,
@@ -176,28 +176,28 @@ exr_part_initialize_required_attr (
 {
     exr_result_t rv;
 
-    rv = exr_part_set_compression (ctxt, part_index, ctype);
+    rv = exr_set_compression (ctxt, part_index, ctype);
     if (rv != EXR_ERR_SUCCESS) return rv;
-    rv = exr_part_set_data_window (ctxt, part_index, dataWindow);
+    rv = exr_set_data_window (ctxt, part_index, dataWindow);
     if (rv != EXR_ERR_SUCCESS) return rv;
-    rv = exr_part_set_display_window (ctxt, part_index, displayWindow);
+    rv = exr_set_display_window (ctxt, part_index, displayWindow);
     if (rv != EXR_ERR_SUCCESS) return rv;
-    rv = exr_part_set_lineorder (ctxt, part_index, lineorder);
+    rv = exr_set_lineorder (ctxt, part_index, lineorder);
     if (rv != EXR_ERR_SUCCESS) return rv;
-    rv = exr_part_set_pixel_aspect_ratio (ctxt, part_index, pixelaspectratio);
+    rv = exr_set_pixel_aspect_ratio (ctxt, part_index, pixelaspectratio);
     if (rv != EXR_ERR_SUCCESS) return rv;
-    rv = exr_part_set_screen_window_center (
+    rv = exr_set_screen_window_center (
         ctxt, part_index, screenWindowCenter);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
-    return exr_part_set_screen_window_width (
+    return exr_set_screen_window_width (
         ctxt, part_index, screenWindowWidth);
 }
 
 /**************************************/
 
 exr_result_t
-exr_part_initialize_required_attr_simple (
+exr_initialize_required_attr_simple (
     exr_context_t     ctxt,
     int               part_index,
     int32_t           width,
@@ -206,7 +206,7 @@ exr_part_initialize_required_attr_simple (
 {
     exr_attr_box2i_t dispWindow = { 0, 0, width - 1, height - 1 };
     exr_attr_v2f_t   swc        = { 0.f, 0.f };
-    return exr_part_initialize_required_attr (
+    return exr_initialize_required_attr (
         ctxt,
         part_index,
         &dispWindow,
@@ -495,7 +495,7 @@ copy_attr (
 /**************************************/
 
 exr_result_t
-exr_part_copy_unset_attributes (
+exr_copy_unset_attributes (
     exr_context_t       ctxt,
     int                 part_index,
     const exr_context_t source,
@@ -631,7 +631,7 @@ exr_part_copy_unset_attributes (
 /**************************************/
 
 exr_result_t
-exr_part_get_channels (
+exr_get_channels (
     const exr_context_t ctxt, int part_index, const exr_attr_chlist_t** out)
 {
     REQ_ATTR_GET_IMPL (channels, chlist, EXR_ATTR_CHLIST);
@@ -640,7 +640,7 @@ exr_part_get_channels (
 /**************************************/
 
 exr_result_t
-exr_part_add_channel (
+exr_add_channel (
     exr_context_t    ctxt,
     int              part_index,
     const char*      name,
@@ -661,7 +661,7 @@ exr_part_add_channel (
 /**************************************/
 
 exr_result_t
-exr_part_set_channels (
+exr_set_channels (
     exr_context_t ctxt, int part_index, const exr_attr_chlist_t* channels)
 {
     REQ_ATTR_FIND_CREATE (channels, EXR_ATTR_CHLIST);
@@ -688,7 +688,7 @@ exr_part_set_channels (
 /**************************************/
 
 exr_result_t
-exr_part_get_compression (
+exr_get_compression (
     exr_context_t ctxt, int part_index, exr_compression_t* out)
 {
     REQ_ATTR_GET_IMPL (compression, uc, EXR_ATTR_COMPRESSION);
@@ -697,7 +697,7 @@ exr_part_get_compression (
 /**************************************/
 
 exr_result_t
-exr_part_set_compression (
+exr_set_compression (
     exr_context_t ctxt, int part_index, exr_compression_t ctype)
 {
     REQ_ATTR_FIND_CREATE (compression, EXR_ATTR_COMPRESSION);
@@ -712,7 +712,7 @@ exr_part_set_compression (
 /**************************************/
 
 exr_result_t
-exr_part_get_data_window (
+exr_get_data_window (
     exr_context_t ctxt, int part_index, exr_attr_box2i_t* out)
 {
     REQ_ATTR_GET_IMPL_DEREF (dataWindow, box2i, EXR_ATTR_BOX2I);
@@ -721,7 +721,7 @@ exr_part_get_data_window (
 /**************************************/
 
 exr_result_t
-exr_part_set_data_window (
+exr_set_data_window (
     exr_context_t ctxt, int part_index, const exr_attr_box2i_t* dw)
 {
     REQ_ATTR_FIND_CREATE (dataWindow, EXR_ATTR_BOX2I);
@@ -743,7 +743,7 @@ exr_part_set_data_window (
 /**************************************/
 
 exr_result_t
-exr_part_get_display_window (
+exr_get_display_window (
     exr_context_t ctxt, int part_index, exr_attr_box2i_t* out)
 {
     REQ_ATTR_GET_IMPL_DEREF (displayWindow, box2i, EXR_ATTR_BOX2I);
@@ -752,7 +752,7 @@ exr_part_get_display_window (
 /**************************************/
 
 exr_result_t
-exr_part_set_display_window (
+exr_set_display_window (
     exr_context_t ctxt, int part_index, const exr_attr_box2i_t* dw)
 {
     REQ_ATTR_FIND_CREATE (displayWindow, EXR_ATTR_BOX2I);
@@ -773,7 +773,7 @@ exr_part_set_display_window (
 /**************************************/
 
 exr_result_t
-exr_part_get_lineorder (
+exr_get_lineorder (
     exr_context_t ctxt, int part_index, exr_lineorder_t* out)
 {
     REQ_ATTR_GET_IMPL (lineOrder, uc, EXR_ATTR_LINEORDER);
@@ -782,7 +782,7 @@ exr_part_get_lineorder (
 /**************************************/
 
 exr_result_t
-exr_part_set_lineorder (exr_context_t ctxt, int part_index, exr_lineorder_t lo)
+exr_set_lineorder (exr_context_t ctxt, int part_index, exr_lineorder_t lo)
 {
     REQ_ATTR_FIND_CREATE (lineOrder, EXR_ATTR_LINEORDER);
     if (rv == EXR_ERR_SUCCESS)
@@ -797,7 +797,7 @@ exr_part_set_lineorder (exr_context_t ctxt, int part_index, exr_lineorder_t lo)
 /**************************************/
 
 exr_result_t
-exr_part_get_pixel_aspect_ratio (exr_context_t ctxt, int part_index, float* out)
+exr_get_pixel_aspect_ratio (exr_context_t ctxt, int part_index, float* out)
 {
     REQ_ATTR_GET_IMPL (pixelAspectRatio, f, EXR_ATTR_FLOAT);
 }
@@ -805,7 +805,7 @@ exr_part_get_pixel_aspect_ratio (exr_context_t ctxt, int part_index, float* out)
 /**************************************/
 
 exr_result_t
-exr_part_set_pixel_aspect_ratio (exr_context_t ctxt, int part_index, float par)
+exr_set_pixel_aspect_ratio (exr_context_t ctxt, int part_index, float par)
 {
     REQ_ATTR_FIND_CREATE (pixelAspectRatio, EXR_ATTR_FLOAT);
     if (rv == EXR_ERR_SUCCESS) attr->f = par;
@@ -815,7 +815,7 @@ exr_part_set_pixel_aspect_ratio (exr_context_t ctxt, int part_index, float par)
 /**************************************/
 
 exr_result_t
-exr_part_get_screen_window_center (
+exr_get_screen_window_center (
     exr_context_t ctxt, int part_index, exr_attr_v2f_t* out)
 {
     REQ_ATTR_GET_IMPL_DEREF (screenWindowCenter, v2f, EXR_ATTR_V2F);
@@ -824,7 +824,7 @@ exr_part_get_screen_window_center (
 /**************************************/
 
 exr_result_t
-exr_part_set_screen_window_center (
+exr_set_screen_window_center (
     exr_context_t ctxt, int part_index, const exr_attr_v2f_t* swc)
 {
     REQ_ATTR_FIND_CREATE (screenWindowCenter, EXR_ATTR_V2F);
@@ -844,7 +844,7 @@ exr_part_set_screen_window_center (
 /**************************************/
 
 exr_result_t
-exr_part_get_screen_window_width (
+exr_get_screen_window_width (
     exr_context_t ctxt, int part_index, float* out)
 {
     REQ_ATTR_GET_IMPL (screenWindowWidth, f, EXR_ATTR_FLOAT);
@@ -853,7 +853,7 @@ exr_part_get_screen_window_width (
 /**************************************/
 
 exr_result_t
-exr_part_set_screen_window_width (exr_context_t ctxt, int part_index, float ssw)
+exr_set_screen_window_width (exr_context_t ctxt, int part_index, float ssw)
 {
     REQ_ATTR_FIND_CREATE (screenWindowWidth, EXR_ATTR_FLOAT);
     if (rv == EXR_ERR_SUCCESS) attr->f = ssw;
@@ -863,7 +863,7 @@ exr_part_set_screen_window_width (exr_context_t ctxt, int part_index, float ssw)
 /**************************************/
 
 exr_result_t
-exr_part_get_tile_descriptor (
+exr_get_tile_descriptor (
     const exr_context_t    ctxt,
     int                    part_index,
     uint32_t*              xsize,
@@ -897,7 +897,7 @@ exr_part_get_tile_descriptor (
 /**************************************/
 
 exr_result_t
-exr_part_set_tile_descriptor (
+exr_set_tile_descriptor (
     exr_context_t         ctxt,
     int                   part_index,
     uint32_t              x_size,
@@ -922,7 +922,7 @@ exr_part_set_tile_descriptor (
 /**************************************/
 
 exr_result_t
-exr_part_get_name (exr_context_t ctxt, int part_index, const char** out)
+exr_get_name (exr_context_t ctxt, int part_index, const char** out)
 {
     EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
     if (!out)
@@ -946,7 +946,7 @@ exr_part_get_name (exr_context_t ctxt, int part_index, const char** out)
 }
 
 exr_result_t
-exr_part_set_name (exr_context_t ctxt, int part_index, const char* val)
+exr_set_name (exr_context_t ctxt, int part_index, const char* val)
 {
     size_t bytes;
     REQ_ATTR_FIND_CREATE (name, EXR_ATTR_STRING);
@@ -998,7 +998,7 @@ exr_part_set_name (exr_context_t ctxt, int part_index, const char* val)
 /**************************************/
 
 exr_result_t
-exr_part_get_version (exr_context_t ctxt, int part_index, int32_t* out)
+exr_get_version (exr_context_t ctxt, int part_index, int32_t* out)
 {
     REQ_ATTR_GET_IMPL (version, i, EXR_ATTR_INT);
 }
@@ -1006,7 +1006,7 @@ exr_part_get_version (exr_context_t ctxt, int part_index, int32_t* out)
 /**************************************/
 
 exr_result_t
-exr_part_set_version (exr_context_t ctxt, int part_index, int32_t val)
+exr_set_version (exr_context_t ctxt, int part_index, int32_t val)
 {
     REQ_ATTR_FIND_CREATE (version, EXR_ATTR_INT);
     if (rv == EXR_ERR_SUCCESS) { attr->i = val; }
@@ -1016,7 +1016,7 @@ exr_part_set_version (exr_context_t ctxt, int part_index, int32_t val)
 /**************************************/
 
 exr_result_t
-exr_part_set_chunk_count (exr_context_t ctxt, int part_index, int32_t val)
+exr_set_chunk_count (exr_context_t ctxt, int part_index, int32_t val)
 {
     REQ_ATTR_FIND_CREATE (chunkCount, EXR_ATTR_INT);
     if (rv == EXR_ERR_SUCCESS)
@@ -1129,7 +1129,7 @@ exr_part_set_chunk_count (exr_context_t ctxt, int part_index, int32_t val)
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_box2i (
+exr_attr_get_box2i (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -1139,23 +1139,23 @@ exr_part_attr_get_box2i (
 }
 
 exr_result_t
-exr_part_attr_set_box2i (
+exr_attr_set_box2i (
     exr_context_t           ctxt,
     int                     part_index,
     const char*             name,
     const exr_attr_box2i_t* val)
 {
     if (name && 0 == strcmp (name, EXR_REQ_DATA_STR))
-        return exr_part_set_data_window (ctxt, part_index, val);
+        return exr_set_data_window (ctxt, part_index, val);
     if (name && 0 == strcmp (name, EXR_REQ_DISP_STR))
-        return exr_part_set_display_window (ctxt, part_index, val);
+        return exr_set_display_window (ctxt, part_index, val);
     ATTR_SET_IMPL_DEREF (EXR_ATTR_BOX2I, box2i);
 }
 
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_box2f (
+exr_attr_get_box2f (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -1165,7 +1165,7 @@ exr_part_attr_get_box2f (
 }
 
 exr_result_t
-exr_part_attr_set_box2f (
+exr_attr_set_box2f (
     exr_context_t           ctxt,
     int                     part_index,
     const char*             name,
@@ -1177,7 +1177,7 @@ exr_part_attr_set_box2f (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_channels (
+exr_attr_get_channels (
     const exr_context_t       ctxt,
     int                       part_index,
     const char*               name,
@@ -1187,7 +1187,7 @@ exr_part_attr_get_channels (
 }
 
 exr_result_t
-exr_part_attr_set_channels (
+exr_attr_set_channels (
     exr_context_t            ctxt,
     int                      part_index,
     const char*              name,
@@ -1197,7 +1197,7 @@ exr_part_attr_set_channels (
     exr_result_t     rv   = EXR_ERR_SUCCESS;
 
     if (name && 0 == strcmp (name, EXR_REQ_CHANNELS_STR))
-        return exr_part_set_channels (ctxt, part_index, channels);
+        return exr_set_channels (ctxt, part_index, channels);
 
     EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
 
@@ -1268,7 +1268,7 @@ exr_part_attr_set_channels (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_chromaticities (
+exr_attr_get_chromaticities (
     const exr_context_t        ctxt,
     int                        part_index,
     const char*                name,
@@ -1278,7 +1278,7 @@ exr_part_attr_get_chromaticities (
 }
 
 exr_result_t
-exr_part_attr_set_chromaticities (
+exr_attr_set_chromaticities (
     exr_context_t                    ctxt,
     int                              part_index,
     const char*                      name,
@@ -1290,7 +1290,7 @@ exr_part_attr_set_chromaticities (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_compression (
+exr_attr_get_compression (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -1300,11 +1300,11 @@ exr_part_attr_get_compression (
 }
 
 exr_result_t
-exr_part_attr_set_compression (
+exr_attr_set_compression (
     exr_context_t ctxt, int part_index, const char* name, exr_compression_t val)
 {
     if (name && 0 == strcmp (name, EXR_REQ_COMP_STR))
-        return exr_part_set_compression (ctxt, part_index, val);
+        return exr_set_compression (ctxt, part_index, val);
 
     ATTR_SET_IMPL (EXR_ATTR_COMPRESSION, uc);
 }
@@ -1312,14 +1312,14 @@ exr_part_attr_set_compression (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_double (
+exr_attr_get_double (
     const exr_context_t ctxt, int part_index, const char* name, double* out)
 {
     ATTR_GET_IMPL (EXR_ATTR_DOUBLE, d);
 }
 
 exr_result_t
-exr_part_attr_set_double (
+exr_attr_set_double (
     exr_context_t ctxt, int part_index, const char* name, double val)
 {
     ATTR_SET_IMPL (EXR_ATTR_DOUBLE, d);
@@ -1328,7 +1328,7 @@ exr_part_attr_set_double (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_envmap (
+exr_attr_get_envmap (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -1338,7 +1338,7 @@ exr_part_attr_get_envmap (
 }
 
 exr_result_t
-exr_part_attr_set_envmap (
+exr_attr_set_envmap (
     exr_context_t ctxt, int part_index, const char* name, exr_envmap_t val)
 {
     ATTR_SET_IMPL (EXR_ATTR_ENVMAP, uc);
@@ -1347,26 +1347,26 @@ exr_part_attr_set_envmap (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_float (
+exr_attr_get_float (
     const exr_context_t ctxt, int part_index, const char* name, float* out)
 {
     ATTR_GET_IMPL (EXR_ATTR_FLOAT, f);
 }
 
 exr_result_t
-exr_part_attr_set_float (
+exr_attr_set_float (
     exr_context_t ctxt, int part_index, const char* name, float val)
 {
     if (name && 0 == strcmp (name, EXR_REQ_PAR_STR))
-        return exr_part_set_pixel_aspect_ratio (ctxt, part_index, val);
+        return exr_set_pixel_aspect_ratio (ctxt, part_index, val);
     if (name && 0 == strcmp (name, EXR_REQ_SCR_WW_STR))
-        return exr_part_set_screen_window_width (ctxt, part_index, val);
+        return exr_set_screen_window_width (ctxt, part_index, val);
 
     ATTR_SET_IMPL (EXR_ATTR_FLOAT, f);
 }
 
 exr_result_t
-exr_part_attr_get_float_vector (
+exr_attr_get_float_vector (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -1380,7 +1380,7 @@ exr_part_attr_get_float_vector (
 }
 
 exr_result_t
-exr_part_attr_set_float_vector (
+exr_attr_set_float_vector (
     exr_context_t ctxt,
     int           part_index,
     const char*   name,
@@ -1475,20 +1475,20 @@ exr_part_attr_set_float_vector (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_int (
+exr_attr_get_int (
     const exr_context_t ctxt, int part_index, const char* name, int32_t* out)
 {
     ATTR_GET_IMPL (EXR_ATTR_INT, i);
 }
 
 exr_result_t
-exr_part_attr_set_int (
+exr_attr_set_int (
     exr_context_t ctxt, int part_index, const char* name, int32_t val)
 {
     if (name && !strcmp (name, EXR_REQ_VERSION_STR))
-        return exr_part_set_version (ctxt, part_index, val);
+        return exr_set_version (ctxt, part_index, val);
     if (name && !strcmp (name, EXR_REQ_CHUNK_COUNT_STR))
-        return exr_part_set_chunk_count (ctxt, part_index, val);
+        return exr_set_chunk_count (ctxt, part_index, val);
 
     ATTR_SET_IMPL (EXR_ATTR_INT, i);
 }
@@ -1496,7 +1496,7 @@ exr_part_attr_set_int (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_keycode (
+exr_attr_get_keycode (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -1506,7 +1506,7 @@ exr_part_attr_get_keycode (
 }
 
 exr_result_t
-exr_part_attr_set_keycode (
+exr_attr_set_keycode (
     exr_context_t             ctxt,
     int                       part_index,
     const char*               name,
@@ -1518,7 +1518,7 @@ exr_part_attr_set_keycode (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_lineorder (
+exr_attr_get_lineorder (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -1528,11 +1528,11 @@ exr_part_attr_get_lineorder (
 }
 
 exr_result_t
-exr_part_attr_set_lineorder (
+exr_attr_set_lineorder (
     exr_context_t ctxt, int part_index, const char* name, exr_lineorder_t val)
 {
     if (name && 0 == strcmp (name, EXR_REQ_LO_STR))
-        return exr_part_set_lineorder (ctxt, part_index, val);
+        return exr_set_lineorder (ctxt, part_index, val);
 
     ATTR_SET_IMPL (EXR_ATTR_LINEORDER, uc);
 }
@@ -1540,7 +1540,7 @@ exr_part_attr_set_lineorder (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_m33f (
+exr_attr_get_m33f (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -1550,7 +1550,7 @@ exr_part_attr_get_m33f (
 }
 
 exr_result_t
-exr_part_attr_set_m33f (
+exr_attr_set_m33f (
     exr_context_t          ctxt,
     int                    part_index,
     const char*            name,
@@ -1562,7 +1562,7 @@ exr_part_attr_set_m33f (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_m33d (
+exr_attr_get_m33d (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -1572,7 +1572,7 @@ exr_part_attr_get_m33d (
 }
 
 exr_result_t
-exr_part_attr_set_m33d (
+exr_attr_set_m33d (
     exr_context_t          ctxt,
     int                    part_index,
     const char*            name,
@@ -1584,7 +1584,7 @@ exr_part_attr_set_m33d (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_m44f (
+exr_attr_get_m44f (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -1594,7 +1594,7 @@ exr_part_attr_get_m44f (
 }
 
 exr_result_t
-exr_part_attr_set_m44f (
+exr_attr_set_m44f (
     exr_context_t          ctxt,
     int                    part_index,
     const char*            name,
@@ -1606,7 +1606,7 @@ exr_part_attr_set_m44f (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_m44d (
+exr_attr_get_m44d (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -1616,7 +1616,7 @@ exr_part_attr_get_m44d (
 }
 
 exr_result_t
-exr_part_attr_set_m44d (
+exr_attr_set_m44d (
     exr_context_t          ctxt,
     int                    part_index,
     const char*            name,
@@ -1628,7 +1628,7 @@ exr_part_attr_set_m44d (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_preview (
+exr_attr_get_preview (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -1638,7 +1638,7 @@ exr_part_attr_get_preview (
 }
 
 exr_result_t
-exr_part_attr_set_preview (
+exr_attr_set_preview (
     exr_context_t             ctxt,
     int                       part_index,
     const char*               name,
@@ -1727,7 +1727,7 @@ exr_part_attr_set_preview (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_rational (
+exr_attr_get_rational (
     const exr_context_t  ctxt,
     int                  part_index,
     const char*          name,
@@ -1737,7 +1737,7 @@ exr_part_attr_get_rational (
 }
 
 exr_result_t
-exr_part_attr_set_rational (
+exr_attr_set_rational (
     exr_context_t              ctxt,
     int                        part_index,
     const char*                name,
@@ -1749,7 +1749,7 @@ exr_part_attr_set_rational (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_string (
+exr_attr_get_string (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -1763,7 +1763,7 @@ exr_part_attr_get_string (
 }
 
 exr_result_t
-exr_part_attr_set_string (
+exr_attr_set_string (
     exr_context_t ctxt, int part_index, const char* name, const char* val)
 {
     size_t           bytes;
@@ -1771,7 +1771,7 @@ exr_part_attr_set_string (
     exr_result_t     rv   = EXR_ERR_SUCCESS;
 
     if (name && !strcmp (name, EXR_REQ_NAME_STR))
-        return exr_part_set_name (ctxt, part_index, name);
+        return exr_set_name (ctxt, part_index, name);
 
     EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
 
@@ -1857,7 +1857,7 @@ exr_part_attr_set_string (
 }
 
 exr_result_t
-exr_part_attr_get_string_vector (
+exr_attr_get_string_vector (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -1890,7 +1890,7 @@ exr_part_attr_get_string_vector (
 }
 
 exr_result_t
-exr_part_attr_set_string_vector (
+exr_attr_set_string_vector (
     exr_context_t ctxt,
     int           part_index,
     const char*   name,
@@ -2021,7 +2021,7 @@ exr_part_attr_set_string_vector (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_tiledesc (
+exr_attr_get_tiledesc (
     const exr_context_t  ctxt,
     int                  part_index,
     const char*          name,
@@ -2031,7 +2031,7 @@ exr_part_attr_get_tiledesc (
 }
 
 exr_result_t
-exr_part_attr_set_tiledesc (
+exr_attr_set_tiledesc (
     exr_context_t              ctxt,
     int                        part_index,
     const char*                name,
@@ -2040,7 +2040,7 @@ exr_part_attr_set_tiledesc (
     if (name && 0 == strcmp (name, EXR_REQ_TILES_STR))
     {
         if (!val) return EXR_ERR_INVALID_ARGUMENT;
-        return exr_part_set_tile_descriptor (
+        return exr_set_tile_descriptor (
             ctxt,
             part_index,
             val->x_size,
@@ -2055,7 +2055,7 @@ exr_part_attr_set_tiledesc (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_timecode (
+exr_attr_get_timecode (
     const exr_context_t  ctxt,
     int                  part_index,
     const char*          name,
@@ -2065,7 +2065,7 @@ exr_part_attr_get_timecode (
 }
 
 exr_result_t
-exr_part_attr_set_timecode (
+exr_attr_set_timecode (
     exr_context_t              ctxt,
     int                        part_index,
     const char*                name,
@@ -2077,7 +2077,7 @@ exr_part_attr_set_timecode (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_v2i (
+exr_attr_get_v2i (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -2087,7 +2087,7 @@ exr_part_attr_get_v2i (
 }
 
 exr_result_t
-exr_part_attr_set_v2i (
+exr_attr_set_v2i (
     exr_context_t         ctxt,
     int                   part_index,
     const char*           name,
@@ -2099,7 +2099,7 @@ exr_part_attr_set_v2i (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_v2f (
+exr_attr_get_v2f (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -2109,14 +2109,14 @@ exr_part_attr_get_v2f (
 }
 
 exr_result_t
-exr_part_attr_set_v2f (
+exr_attr_set_v2f (
     exr_context_t         ctxt,
     int                   part_index,
     const char*           name,
     const exr_attr_v2f_t* val)
 {
     if (name && 0 == strcmp (name, EXR_REQ_SCR_WC_STR))
-        return exr_part_set_screen_window_center (ctxt, part_index, val);
+        return exr_set_screen_window_center (ctxt, part_index, val);
 
     ATTR_SET_IMPL_DEREF (EXR_ATTR_V2F, v2f);
 }
@@ -2124,7 +2124,7 @@ exr_part_attr_set_v2f (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_v2d (
+exr_attr_get_v2d (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -2134,7 +2134,7 @@ exr_part_attr_get_v2d (
 }
 
 exr_result_t
-exr_part_attr_set_v2d (
+exr_attr_set_v2d (
     exr_context_t         ctxt,
     int                   part_index,
     const char*           name,
@@ -2146,7 +2146,7 @@ exr_part_attr_set_v2d (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_v3i (
+exr_attr_get_v3i (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -2156,7 +2156,7 @@ exr_part_attr_get_v3i (
 }
 
 exr_result_t
-exr_part_attr_set_v3i (
+exr_attr_set_v3i (
     exr_context_t         ctxt,
     int                   part_index,
     const char*           name,
@@ -2168,7 +2168,7 @@ exr_part_attr_set_v3i (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_v3f (
+exr_attr_get_v3f (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -2178,7 +2178,7 @@ exr_part_attr_get_v3f (
 }
 
 exr_result_t
-exr_part_attr_set_v3f (
+exr_attr_set_v3f (
     exr_context_t         ctxt,
     int                   part_index,
     const char*           name,
@@ -2190,7 +2190,7 @@ exr_part_attr_set_v3f (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_v3d (
+exr_attr_get_v3d (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -2200,7 +2200,7 @@ exr_part_attr_get_v3d (
 }
 
 exr_result_t
-exr_part_attr_set_v3d (
+exr_attr_set_v3d (
     exr_context_t         ctxt,
     int                   part_index,
     const char*           name,
@@ -2212,7 +2212,7 @@ exr_part_attr_set_v3d (
 /**************************************/
 
 exr_result_t
-exr_part_attr_get_user (
+exr_attr_get_user (
     const exr_context_t ctxt,
     int                 part_index,
     const char*         name,
@@ -2224,7 +2224,7 @@ exr_part_attr_get_user (
 }
 
 exr_result_t
-exr_part_attr_set_user (
+exr_attr_set_user (
     exr_context_t ctxt,
     int           part_index,
     const char*   name,

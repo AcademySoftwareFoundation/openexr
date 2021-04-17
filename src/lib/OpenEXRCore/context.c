@@ -524,7 +524,7 @@ exr_write_header (exr_context_t ctxt)
         if (pctxt->has_nonimage_data || pctxt->is_multipart)
         {
             EXR_UNLOCK(pctxt);
-            rv = exr_part_attr_set_int (
+            rv = exr_attr_set_int (
                 ctxt, p, EXR_REQ_CHUNK_COUNT_STR, ccount);
             EXR_LOCK(pctxt);
             if (rv != EXR_ERR_SUCCESS) break;

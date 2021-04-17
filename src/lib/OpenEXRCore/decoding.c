@@ -181,7 +181,7 @@ default_read_chunk (exr_decode_pipeline_t* decode)
             &(decode->packed_sample_count_alloc_size),
             decode->chunk_block.sample_count_table_size);
         if (rv != EXR_ERR_SUCCESS) return rv;
-        rv = exr_part_read_deep_chunk (
+        rv = exr_read_deep_chunk (
             decode->context,
             decode->part_index,
             &(decode->chunk_block),
@@ -190,7 +190,7 @@ default_read_chunk (exr_decode_pipeline_t* decode)
     }
     else
     {
-        rv = exr_part_read_chunk (
+        rv = exr_read_chunk (
             decode->context,
             decode->part_index,
             &(decode->chunk_block),
