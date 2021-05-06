@@ -211,7 +211,7 @@ TimeCode::frame () const
 void
 TimeCode::setFrame (int value)
 {
-    if (value < 0 || value > 59)
+    if (value < 0 || value > 29)
 	throw IEX_NAMESPACE::ArgExc ("Cannot set frame field in time code. "
 			   "New value is out of range.");
 
