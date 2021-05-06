@@ -291,6 +291,16 @@ Specific OSS-fuzz issues include:
 Patch release with various bug/sanitizer/security fixes, primarily
 related to reading corrupted input files.
 
+Security vulnerabilities fixed:
+
+* [CVE-2021-20296](https://nvd.nist.gov/vuln/detail/CVE-2021-20296) Segv on unknown address in Imf_2_5::hufUncompress - Null Pointer dereference
+* [CVE-2021-3479](https://nvd.nist.gov/vuln/detail/CVE-2021-3479) Out-of-memory in openexr_exrenvmap_fuzzer
+* [CVE-2021-3478](https://nvd.nist.gov/vuln/detail/CVE-2021-3478) Out-of-memory in openexr_exrcheck_fuzzer
+* [CVE-2021-3477](https://nvd.nist.gov/vuln/detail/CVE-2021-3477) Heap-buffer-overflow in Imf_2_5::DeepTiledInputFile::readPixelSampleCounts
+* [CVE-2021-3476](https://nvd.nist.gov/vuln/detail/CVE-2021-3476) Undefined-shift in Imf_2_5::unpack14
+* [CVE-2021-3475](https://nvd.nist.gov/vuln/detail/CVE-2021-3475) Integer-overflow in Imf_2_5::calculateNumTiles
+* [CVE-2021-3474](https://nvd.nist.gov/vuln/detail/CVE-2021-3474) Undefined-shift in Imf_2_5::FastHufDecoder::FastHufDecoder
+
 Specific OSS-fuzz issues include:
 
 * OSS-fuzz [24854](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=24854) Segv on unknown address in Imf_2_5::hufUncompress
