@@ -260,9 +260,6 @@ find_package(Imath QUIET)
 set(CMAKE_IGNORE_PATH)
 
 if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
-  if (${CMAKE_VERSION} VERSION_LESS "3.11.0")
-    message(FATAL_ERROR "CMake 3.11 or newer is required for FetchContent, you must manually install Imath if you are using an earlier version of CMake")
-  endif()
   message(STATUS "Imath was not found, installing from ${IMATH_REPO} (${IMATH_TAG})")
   
   include(FetchContent)
