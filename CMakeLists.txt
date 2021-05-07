@@ -19,15 +19,26 @@ endif()
 # configuration files
 #######################################
 
-include(cmake/OpenEXRVersion.cmake)
+project(OpenEXR VERSION 3.0.2 LANGUAGES C CXX)
 
-project(OpenEXR VERSION ${OPENEXR_VERSION} LANGUAGES C CXX)
+set(OPENEXR_VERSION_EXTRA "dev" CACHE STRING "Extra version tag string for OpenEXR build")
 
-option(OPENEXR_INSTALL "Install OpenEXR libraries" ON)
-option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
-if(OPENEXR_INSTALL_TOOLS AND NOT OPENEXR_INSTALL)
-  message(SEND_ERROR "OPENEXR_INSTALL_TOOLS requires OPENEXR_INSTALL")
+# See https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
+set(OPENEXR_SOVERSION 28)
+set(OPENEXR_SOAGE 0) 
+set(OPENEXR_SOREVISION 0) 
+set(OPENEXR_LIB_VERSION "${OPENEXR_SOVERSION}.${OPENEXR_SOAGE}.${OPENEXR_SOREVISION}")
+
+set(OPENEXR_VERSION_MAJOR ${CMAKE_PROJECT_VERSION_MAJOR})
+set(OPENEXR_VERSION_MINOR ${CMAKE_PROJECT_VERSION_MINOR})
+set(OPENEXR_VERSION_PATCH ${CMAKE_PROJECT_VERSION_PATCH})
+set(OPENEXR_VERSION ${CMAKE_PROJECT_VERSION})
+if (NOT OPENEXR_VERSION_EXTRA STREQUAL "")
+  set(OPENEXR_VERSION "${CMAKE_PROJECT_VERSION}-${OPENEXR_VERSION_EXTRA}")
 endif()
+set(OPENEXR_VERSION_API "${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}")
+
+message(STATUS "Configure OpenEXR Version: ${OPENEXR_VERSION} Lib API: ${OPENEXR_LIB_VERSION}")
 
 include(cmake/LibraryDefine.cmake)
 include(cmake/OpenEXRSetup.cmake)
