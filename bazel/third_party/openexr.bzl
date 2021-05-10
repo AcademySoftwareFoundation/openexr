@@ -21,34 +21,7 @@ def openexr_deps():
         http_archive,
         name = "Imath",
         build_file = "@openexr//:bazel/third_party/Imath.BUILD",
-        strip_prefix = "Imath-3.0.0-beta",
-        sha256 = "69fe9cb97bcaf155a1441aac8e12f35cfe826fb1f60feeb7afb4ceec079e5034",
-        urls = ["https://github.com/AcademySoftwareFoundation/Imath/archive/v3.0.0-beta.tar.gz"],
+        strip_prefix = "Imath-3.0.1",
+        sha256 = "9cd984bb6b0a9572dd4a373b1fab60bc4c992a52ec5c68328fe0f48f194ba3c0",
+        urls = ["https://github.com/AcademySoftwareFoundation/Imath/archive/refs/tags/v3.0.1.tar.gz"],
     )
-
-def _generate_header_impl(ctx):
-    out = ctx.actions.declare_file(ctx.label.name)
-    ctx.actions.expand_template(
-        output = out,
-        template = ctx.file.template,
-        substitutions = ctx.attr.substitutions,
-    )
-    return [CcInfo(
-        compilation_context = cc_common.create_compilation_context(
-            includes = depset([out.dirname]),
-            headers = depset([out]),
-        ),
-    )]
-
-openexr_generate_header = rule(
-    implementation = _generate_header_impl,
-    attrs = {
-        "substitutions": attr.string_dict(
-            mandatory = True,
-        ),
-        "template": attr.label(
-            allow_single_file = [".h.in"],
-            mandatory = True,
-        ),
-    },
-)
