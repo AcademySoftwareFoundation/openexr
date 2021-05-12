@@ -21,12 +21,12 @@ endif()
 
 project(OpenEXR VERSION 3.0.2 LANGUAGES C CXX)
 
-set(OPENEXR_VERSION_EXTRA "dev" CACHE STRING "Extra version tag string for OpenEXR build")
+set(OPENEXR_VERSION_EXTRA "" CACHE STRING "Extra version tag string for OpenEXR build")
 
 # See https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 set(OPENEXR_SOVERSION 28)
 set(OPENEXR_SOAGE 0) 
-set(OPENEXR_SOREVISION 0) 
+set(OPENEXR_SOREVISION 1) 
 set(OPENEXR_LIB_VERSION "${OPENEXR_SOVERSION}.${OPENEXR_SOAGE}.${OPENEXR_SOREVISION}")
 
 set(OPENEXR_VERSION_MAJOR ${CMAKE_PROJECT_VERSION_MAJOR})
