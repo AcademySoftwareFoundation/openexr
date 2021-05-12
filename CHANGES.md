@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 2.5.6](#version-256-may-13-2021) May 13, 2021
 * [Version 2.5.5](#version-255-february-12-2021) February 12, 2021
 * [Version 2.5.4](#version-254-december-31-2020) December 31, 2020
 * [Version 2.5.3](#version-253-august-12-2020) August 12, 2020
@@ -39,6 +40,13 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
+## Version 2.5.6 (May 13, 2021)
+
+Patch release that fixes a regression in Imath::succf()/Imath::predf():
+
+* [#1013](https://github.com/AcademySoftwareFoundation/openexr/pull/1013)
+Fixed regression in Imath::succf() and Imath::predf() when negative values are given
+
 ## Version 2.5.5 (February 12, 2021)
 
 Patch release with various bug/sanitizer/security fixes, primarily
@@ -69,6 +77,14 @@ Specific OSS-fuzz issues include:
  
 Patch release with various bug/sanitizer/security fixes, primarily
 related to reading corrupted input files.
+
+* [CVE-2021-20296](https://nvd.nist.gov/vuln/detail/CVE-2021-20296) Segv on unknown address in Imf_2_5::hufUncompress - Null Pointer dereference
+* [CVE-2021-3479](https://nvd.nist.gov/vuln/detail/CVE-2021-3479) Out-of-memory in openexr_exrenvmap_fuzzer
+* [CVE-2021-3478](https://nvd.nist.gov/vuln/detail/CVE-2021-3478) Out-of-memory in openexr_exrcheck_fuzzer
+* [CVE-2021-3477](https://nvd.nist.gov/vuln/detail/CVE-2021-3477) Heap-buffer-overflow in Imf_2_5::DeepTiledInputFile::readPixelSampleCounts
+* [CVE-2021-3476](https://nvd.nist.gov/vuln/detail/CVE-2021-3476) Undefined-shift in Imf_2_5::unpack14
+* [CVE-2021-3475](https://nvd.nist.gov/vuln/detail/CVE-2021-3475) Integer-overflow in Imf_2_5::calculateNumTiles
+* [CVE-2021-3474](https://nvd.nist.gov/vuln/detail/CVE-2021-3474) Undefined-shift in Imf_2_5::FastHufDecoder::FastHufDecoder
 
 Specific OSS-fuzz issues include:
 
