@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 3.0.2](#version-302-may-13-2021) May 13, 2021
 * [Version 3.0.1](#version-301-april-1-2021) April 1, 2021
 * [Version 3.0.1-beta](#version-301-beta-march-28-2021) March 28, 2021
 * [Version 3.0.0-beta](#version-300-beta-march-16-2021) March 16, 2021
@@ -41,6 +42,33 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.0.2 (May 13, 2021)
+
+Patch release with miscellaneous bug/build fixes,, including:
+
+* Fix TimeCode.frame max value
+* Don't impose C++14 on downstream projects
+* Restore fix to macOS universal 2 build lost from #854
+
+Specific OSS-fuzz issues:
+
+* OSS-fuzz [33741](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=33741) Integer-overflow in Imf_3_0::getScanlineChunkOffsetTableSize
+* OSS-fuzz [32620](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=32620) Out-of-memory in openexr_exrcheck_fuzzer
+
+Merged Pull Requests:
+
+* [1015](https://github.com/AcademySoftwareFoundation/openexr/pull/1015)  Improvements for Bazel build support                            
+* [1011](https://github.com/AcademySoftwareFoundation/openexr/pull/1011)  Restore fix to macOS universal 2 build lost from #854           
+* [1009](https://github.com/AcademySoftwareFoundation/openexr/pull/1009)  Remove test/warning about CMake version < 3.11                  
+* [1008](https://github.com/AcademySoftwareFoundation/openexr/pull/1008)  Clean up setting of OpenEXR version                             
+* [1007](https://github.com/AcademySoftwareFoundation/openexr/pull/1007)  Fix TimeCode.frame max value to be 29 instead of 59             
+* [1003](https://github.com/AcademySoftwareFoundation/openexr/pull/1003)  Prevent overflow in getScanlineChunkOffsetTableSize             
+* [1001](https://github.com/AcademySoftwareFoundation/openexr/pull/1001)  Update CHANGES and SECURITY with recent CVE's                   
+* [995](https://github.com/AcademySoftwareFoundation/openexr/pull/995)   Don't impose C++14 on downstream projects                       
+* [993](https://github.com/AcademySoftwareFoundation/openexr/pull/993)   Add STATUS message showing Imath_DIR                            
+* [992](https://github.com/AcademySoftwareFoundation/openexr/pull/992)   exrcheck -v prints OpenEXR and Imath versions and lib versions  
+* [991](https://github.com/AcademySoftwareFoundation/openexr/pull/991)   exrcheck: make readDeepTile allocate memory for just one tile   
 
 ## Version 3.0.1 (April 1, 2021)
 
@@ -96,6 +124,7 @@ Beta patch release:
 
 * OSS-fuzz [32370](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=32370) Out-of-memory in openexr_exrcheck_fuzzer
 * OSS-fuzz [32067](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=32067) account for size of pixels when estimating memory
+
 Merged Pull Requests:
 
 * [988](https://github.com/AcademySoftwareFoundation/openexr/pull/988) Remove deprecated argument to getChunkOffsetTableSize()
