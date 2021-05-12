@@ -54,7 +54,7 @@ succf (float f)
 
         u.i = 0x00000001;
     }
-    else if (u.i > 0)
+    else if (u.f > 0)
     {
         // Positive float, normalized or denormalized.
         // Incrementing the largest positive float
@@ -89,7 +89,7 @@ predf (float f)
 
         u.i = 0x80000001;
     }
-    else if (u.i > 0)
+    else if (u.f > 0)
     {
         // Positive float, normalized or denormalized.
 
