@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 2.4.3](#version-243-may-13-2021) May 13, 2021
 * [Version 2.4.2](#version-242-june-15-2020) June 15, 2020
 * [Version 2.4.1](#version-241-february-11-2020) February 11, 2020
 * [Version 2.4.0](#version-240-september-19-2019) September 19, 2019
@@ -32,6 +33,22 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 2.4.3 (May 13, 2021)
+
+Patch release that addresses the following security vulnerabilities:
+
+* [CVE-2021-20296](https://nvd.nist.gov/vuln/detail/CVE-2021-20296) Segv on unknown address in Imf_2_5::hufUncompress - Null Pointer dereference ([817](https://github.com/AcademySoftwareFoundation/openexr/pull/817))
+* [CVE-2021-3479](https://nvd.nist.gov/vuln/detail/CVE-2021-3479) Out-of-memory in openexr_exrenvmap_fuzzer ([830](https://github.com/AcademySoftwareFoundation/openexr/pull/830))
+* [CVE-2021-3478](https://nvd.nist.gov/vuln/detail/CVE-2021-3478) Out-of-memory in openexr_exrcheck_fuzzer ([863](https://github.com/AcademySoftwareFoundation/openexr/pull/863))
+* [CVE-2021-3477](https://nvd.nist.gov/vuln/detail/CVE-2021-3477) Heap-buffer-overflow in Imf_2_5::DeepTiledInputFile::readPixelSampleCounts ([861](https://github.com/AcademySoftwareFoundation/openexr/pull/861))
+* [CVE-2021-3476](https://nvd.nist.gov/vuln/detail/CVE-2021-3476) Undefined-shift in Imf_2_5::unpack14 ([832](https://github.com/AcademySoftwareFoundation/openexr/pull/832))
+* [CVE-2021-3475](https://nvd.nist.gov/vuln/detail/CVE-2021-3475) Integer-overflow in Imf_2_5::calculateNumTiles ([825](https://github.com/AcademySoftwareFoundation/openexr/pull/825))
+* [CVE-2021-3474](https://nvd.nist.gov/vuln/detail/CVE-2021-3474) Undefined-shift in Imf_2_5::FastHufDecoder::FastHufDecoder ([818](https://github.com/AcademySoftwareFoundation/openexr/pull/818))
+
+Also:
+
+* [1013](https://github.com/AcademySoftwareFoundation/openexr/pull/1013) Fixed regression in Imath::succf() and Imath::predf() when negative values are given
 
 ## Version 2.4.2 (June 15, 2020)
 
