@@ -47,11 +47,12 @@
 
 ## Version 3.0.2 (May 17, 2021)
 
-Patch release with miscellaneous bug/build fixes,, including:
+Patch release with miscellaneous bug/build fixes, including:
 
 * Fix TimeCode.frame max value
 * Don't impose C++14 on downstream projects
 * Restore fix to macOS universal 2 build lost from #854
+* Imath auto-build version defaults to v3.0.2
 
 Specific OSS-fuzz issues:
 
