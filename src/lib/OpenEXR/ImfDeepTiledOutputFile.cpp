@@ -1731,7 +1731,7 @@ DeepTiledOutputFile::copyPixels (DeepTiledInputFile &in)
     
 
     vector<char> data(4096);
-    for (int i = 0; i < numAllTiles; ++i)
+    for (size_t i = 0; i < numAllTiles; ++i)
     {
 
         int dx = _data->nextTileToWrite.dx;
