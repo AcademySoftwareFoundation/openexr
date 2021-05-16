@@ -976,8 +976,8 @@ DeepTiledInputFile::initialize ()
     for (size_t i = 0; i < _data->tileBuffers.size(); i++)
         _data->tileBuffers[i] = new TileBuffer ();
 
-    _data->maxSampleCountTableSize = _data->tileDesc.ySize *
-                                     _data->tileDesc.xSize *
+    _data->maxSampleCountTableSize = static_cast<size_t>(_data->tileDesc.ySize) *
+                                     static_cast<size_t>(_data->tileDesc.xSize) *
                                      sizeof(int);
 
     _data->sampleCountTableBuffer.resizeErase(_data->maxSampleCountTableSize);
