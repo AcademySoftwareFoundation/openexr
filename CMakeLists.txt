@@ -40,6 +40,12 @@ set(OPENEXR_VERSION_API "${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}")
 
 message(STATUS "Configure OpenEXR Version: ${OPENEXR_VERSION} Lib API: ${OPENEXR_LIB_VERSION}")
 
+option(OPENEXR_INSTALL "Install OpenEXR libraries" ON)
+option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
+if(OPENEXR_INSTALL_TOOLS AND NOT OPENEXR_INSTALL)
+  message(SEND_ERROR "OPENEXR_INSTALL_TOOLS requires OPENEXR_INSTALL")
+endif()
+
 include(cmake/LibraryDefine.cmake)
 include(cmake/OpenEXRSetup.cmake)
 add_subdirectory(cmake)
