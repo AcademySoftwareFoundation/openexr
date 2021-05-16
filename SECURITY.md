@@ -16,6 +16,13 @@ post patches as quickly as possible.
 
 These vulnerabilities are present in the given versions:
 
+* [CVE-2021-20296](https://nvd.nist.gov/vuln/detail/CVE-2021-20296) 2.4.0, 2.4.1, 2.4.2, 2.5.0, 2.5.1, 2.5.2, 2.5.3 
+* [CVE-2021-3479](https://nvd.nist.gov/vuln/detail/CVE-2021-3479) 2.4.0, 2.4.1, 2.4.2, 2.5.0, 2.5.1, 2.5.2, 2.5.3 
+* [CVE-2021-3478](https://nvd.nist.gov/vuln/detail/CVE-2021-3478) 2.4.0, 2.4.1, 2.4.2, 2.5.0, 2.5.1, 2.5.2, 2.5.3 
+* [CVE-2021-3477](https://nvd.nist.gov/vuln/detail/CVE-2021-3477) 2.4.0, 2.4.1, 2.4.2, 2.5.0, 2.5.1, 2.5.2, 2.5.3 
+* [CVE-2021-3476](https://nvd.nist.gov/vuln/detail/CVE-2021-3476) 2.4.0, 2.4.1, 2.4.2, 2.5.0, 2.5.1, 2.5.2, 2.5.3 
+* [CVE-2021-3475](https://nvd.nist.gov/vuln/detail/CVE-2021-3475) 2.4.0, 2.4.1, 2.4.2, 2.5.0, 2.5.1, 2.5.2, 2.5.3 
+* [CVE-2021-3474](https://nvd.nist.gov/vuln/detail/CVE-2021-3474) 2.4.0, 2.4.1, 2.4.2, 2.5.0, 2.5.1, 2.5.2, 2.5.3 
 * [CVE-2020-16589](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-16589) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0
 * [CVE-2020-16588](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-16588) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0
 * [CVE-2020-16587](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-16587) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0
