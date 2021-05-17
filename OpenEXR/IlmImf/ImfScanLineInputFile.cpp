@@ -1117,14 +1117,14 @@ void ScanLineInputFile::initialize(const Header& header)
                               _data->linesInBuffer) / _data->linesInBuffer;
 
         //
-        // avoid allocating excessive memory due to large lineOffsets table size.
+        // avoid allocating excessive memory due to large lineOffsets and bytesPerLine table sizes.
         // If the chunktablesize claims to be large,
-        // check the file is big enough to contain the table before allocating memory
+        // check the file is big enough to contain the lineOffsets table before allocating memory
         // in the bytesPerLineTable and the lineOffsets table.
         // Attempt to read the last entry in the table. Either the seekg() or the read()
         // call will throw an exception if the file is too small to contain the table
         //
-        if (lineOffsetSize > gLargeChunkTableSize)
+        if (lineOffsetSize * _data->linesInBuffer > gLargeChunkTableSize)
         {
             Int64 pos = _streamData->is->tellg();
             _streamData->is->seekg(pos + (lineOffsetSize-1)*sizeof(Int64));
@@ -1133,7 +1133,6 @@ void ScanLineInputFile::initialize(const Header& header)
             _streamData->is->seekg(pos);
 
         }
-
 
         size_t maxBytesPerLine = bytesPerLineTable (_data->header,
                                                     _data->bytesPerLine);
