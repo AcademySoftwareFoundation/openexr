@@ -454,8 +454,6 @@ B44Compressor::B44Compressor
     _channels (hdr.channels()),
     _channelData (0)
 {
-    // TODO: Remove this when we can change the ABI
-    (void)_maxScanLineSize;
     //
     // Allocate buffers for compressed an uncompressed pixel data,
     // allocate a set of ChannelData structs to help speed up the
