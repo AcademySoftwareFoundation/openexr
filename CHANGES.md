@@ -1,6 +1,7 @@
 # OpenEXR Release Notes
 
 
+* [Version 3.0.3](#version-303-may-18-2021) May 18, 2021
 * [Version 3.0.2](#version-302-may-17-2021) May 17, 2021
 * [Version 3.0.1](#version-301-april-1-2021) April 1, 2021
 * [Version 3.0.1-beta](#version-301-beta-march-28-2021) March 28, 2021
@@ -45,6 +46,11 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.0.3 (May 18, 2021)
+
+Patch release that fixes a regression in v3.0.2 the prevented headers
+from being installed properly.
 
 ## Version 3.0.2 (May 17, 2021)
 
