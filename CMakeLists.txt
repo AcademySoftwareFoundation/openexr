@@ -19,7 +19,7 @@ endif()
 # configuration files
 #######################################
 
-project(OpenEXR VERSION 3.0.2 LANGUAGES C CXX)
+project(OpenEXR VERSION 3.0.3 LANGUAGES C CXX)
 
 set(OPENEXR_VERSION_EXTRA "" CACHE STRING "Extra version tag string for OpenEXR build")
 
