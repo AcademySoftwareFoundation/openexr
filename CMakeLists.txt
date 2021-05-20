@@ -21,24 +21,16 @@ endif()
 
 project(OpenEXR VERSION 3.1.0 LANGUAGES C CXX)
 
-set(OPENEXR_VERSION_EXTRA "dev" CACHE STRING "Extra version tag string for OpenEXR build")
+set(OPENEXR_VERSION_RELEASE_TYPE "-dev" CACHE STRING "Extra version tag string for OpenEXR build, such as -dev, -beta1, etc.")
+
+set(OPENEXR_VERSION ${OpenEXR_VERSION})
+set(OPENEXR_VERSION_API "${OpenEXR_VERSION_MAJOR}_${OpenEXR_VERSION_MINOR}")
 
 # See https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 set(OPENEXR_SOVERSION 29)
 set(OPENEXR_SOAGE 0) 
 set(OPENEXR_SOREVISION 0) 
 set(OPENEXR_LIB_VERSION "${OPENEXR_SOVERSION}.${OPENEXR_SOREVISION}.${OPENEXR_SOAGE}")
-
-set(OPENEXR_VERSION_MAJOR ${CMAKE_PROJECT_VERSION_MAJOR})
-set(OPENEXR_VERSION_MINOR ${CMAKE_PROJECT_VERSION_MINOR})
-set(OPENEXR_VERSION_PATCH ${CMAKE_PROJECT_VERSION_PATCH})
-set(OPENEXR_VERSION ${CMAKE_PROJECT_VERSION})
-if (NOT OPENEXR_VERSION_EXTRA STREQUAL "")
-  set(OPENEXR_VERSION "${CMAKE_PROJECT_VERSION}-${OPENEXR_VERSION_EXTRA}")
-endif()
-set(OPENEXR_VERSION_API "${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}")
-
-message(STATUS "Configure OpenEXR Version: ${OPENEXR_VERSION} Lib API: ${OPENEXR_LIB_VERSION}")
 
 option(OPENEXR_INSTALL "Install OpenEXR libraries" ON)
 option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
@@ -49,6 +41,8 @@ endif()
 include(cmake/LibraryDefine.cmake)
 include(cmake/OpenEXRSetup.cmake)
 add_subdirectory(cmake)
+
+message(STATUS "Configure ${OPENEXR_PACKAGE_NAME}, library API version: ${OPENEXR_LIB_VERSION}")
 
 # Hint: This can be set to enable custom find_package
 # search paths, probably best to set it when configuring
