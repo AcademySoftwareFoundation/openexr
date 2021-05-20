@@ -877,7 +877,7 @@ exr_get_tile_descriptor (
     {
         const exr_attr_tiledesc_t* out = part->tiles->tiledesc;
 
-        if (part->tiles->type != EXR_ATTR_STRING)
+        if (part->tiles->type != EXR_ATTR_TILEDESC)
             return EXR_RETURN_WRITE (pctxt),
                    pctxt->print_error (
                        ctxt,
