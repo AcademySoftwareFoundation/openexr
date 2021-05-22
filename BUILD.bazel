@@ -12,7 +12,7 @@ config_setting(
 generate_header(
     name = "IexConfig.h",
     substitutions = {
-        "@IEX_INTERNAL_NAMESPACE@": "Iex_3_0",
+        "@IEX_INTERNAL_NAMESPACE@": "Iex_3_1",
         "@IEX_NAMESPACE_CUSTOM@": "0",
         "@IEX_NAMESPACE@": "Iex",
     },
@@ -46,14 +46,14 @@ generate_header(
     substitutions = {
         "@OPENEXR_IMF_NAMESPACE@": "Imf",
         "@OPENEXR_INTERNAL_IMF_NAMESPACE@": "Imf_3_0",
-        "@OPENEXR_LIB_VERSION@": "3.0.1",
+        "@OPENEXR_LIB_VERSION@": "3.0.3",
         "@OPENEXR_NAMESPACE_CUSTOM@": "0",
-        "@OPENEXR_PACKAGE_NAME@": "OpenEXR 3.0.1",
+        "@OPENEXR_PACKAGE_NAME@": "OpenEXR 3.0.3",
         "@OPENEXR_VERSION_EXTRA@": "",
         "@OPENEXR_VERSION_MAJOR@": "3",
         "@OPENEXR_VERSION_MINOR@": "0",
-        "@OPENEXR_VERSION_PATCH@": "1",
-        "@OPENEXR_VERSION@": "3.0.1",
+        "@OPENEXR_VERSION_PATCH@": "3",
+        "@OPENEXR_VERSION@": "3.0.3",
         "#cmakedefine OPENEXR_ENABLE_API_VISIBILITY": "#define OPENEXR_ENABLE_API_VISIBILITY",
         "#cmakedefine OPENEXR_HAVE_LARGE_STACK 1": "/* #undef OPENEXR_HAVE_LARGE_STACK */",
     },
@@ -351,9 +351,7 @@ cc_library(
         select({
             ":windows_x86_64": [],
             "//conditions:default": [
-                #"-ldl",
                 "-lpthread",
-                #"-lrt",
             ],
         }),
     visibility = ["//visibility:public"],
