@@ -7,7 +7,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 def openexr_deps():
-    # zlib
+    """Fetches dependencies (zlib and Imath) of OpenEXR."""
+
     maybe(
         http_archive,
         name = "zlib",
