@@ -12,7 +12,7 @@ config_setting(
 generate_header(
     name = "IexConfig.h",
     substitutions = {
-        "@IEX_INTERNAL_NAMESPACE@": "Iex_3_1",
+        "@IEX_INTERNAL_NAMESPACE@": "Iex_3_0",
         "@IEX_NAMESPACE_CUSTOM@": "0",
         "@IEX_NAMESPACE@": "Iex",
     },
