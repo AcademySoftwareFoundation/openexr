@@ -366,3 +366,17 @@ cc_library(
         "@zlib",
     ],
 )
+
+cc_test(
+    name = "IexTest",
+    srcs = [
+        "src/test/IexTest/main.cpp",
+        "src/test/IexTest/testBaseExc.cpp",
+        "src/test/IexTest/testBaseExc.h",
+    ],
+    includes = ["src/test/IexTest"],
+    tags = ["manual"],  # This test is not build and executed in the CI
+    deps = [
+        ":Iex",
+    ],
+)
