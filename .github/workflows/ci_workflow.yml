@@ -4,7 +4,7 @@
 # GitHub Actions workflow file
 # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
 
-name: CI_WORKFLOW
+name: CI
 
 on:
   push:
