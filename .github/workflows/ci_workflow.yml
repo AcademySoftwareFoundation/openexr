@@ -4,7 +4,7 @@
 # GitHub Actions workflow file
 # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
 
-name: CI
+name: CI_WORKFLOW
 
 on:
   push:
@@ -204,6 +204,7 @@ jobs:
         run: |
           mkdir _install
           mkdir _build
+          mkdir _examples
       - name: Configure
         run: |
           cmake ../. \
@@ -225,6 +226,22 @@ jobs:
                 --config ${{ matrix.build-type }} \
                 -- -j4
         working-directory: _build
+      - name: Examples
+        run: |
+          # Build and run the examples as a standalone program linking 
+          # against the OpenEXR isntallation.
+          cmake -B . \
+                -S ../src/examples \
+                -DOpenEXR_DIR=../../_install/lib64/cmake/OpenEXR \
+                -DImath_DIR=../../_install/lib64/cmake/Imath \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
+                -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
+                -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }}
+          cmake --build . \
+                --config ${{ matrix.build-type }} \
+                -- -j4
+          ./OpenEXRExamples
+        working-directory: _examples
       - name: Test
         run: |
           ctest -T Test ${{ matrix.exclude-tests }} \
