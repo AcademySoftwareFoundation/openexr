@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.12)
 
 project(OpenEXRExamples)
 
-find_package (OpenEXR)
+find_package(OpenEXR)
 
 add_executable(OpenEXRExamples
   drawImage.cpp
