@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) Contributors to the OpenEXR Project.
 
-# If the project name is set, this is being configured as a # part of
-# OpenEXR.  If there is no project name, it's being invoked as a 
+# If the project name is set, this is being configured as a part of
+# OpenEXR.  If there is no project name, it's being configured as a
 # standalone program linking against an already-installed OpenEXR
 # library.
 
