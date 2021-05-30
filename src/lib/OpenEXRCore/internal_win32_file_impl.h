@@ -5,10 +5,10 @@
 
 /* implementation for windows (win32) native file io routines (used in context.c) */
 
+#include <windows.h>
 #include <fileapi.h>
 #include <inttypes.h>
 #include <strsafe.h>
-#include <windows.h>
 
 #ifdef _MSC_VER
 #    ifndef PRId64

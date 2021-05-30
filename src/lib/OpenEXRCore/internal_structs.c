@@ -16,6 +16,7 @@
 
 #ifdef ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
+#        include <windows.h>
 #        include <synchapi.h>
 #    else
 #        include <pthread.h>
