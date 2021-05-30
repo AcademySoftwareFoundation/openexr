@@ -1,7 +1,7 @@
 # OpenEXR Release Notes
 
 
-* [Version 3.0.4](#version-303-june-2-2021) June 2, 2021
+* [Version 3.0.4](#version-303-june-3-2021) June 3, 2021
 * [Version 3.0.3](#version-303-may-18-2021) May 18, 2021
 * [Version 3.0.2](#version-302-may-17-2021) May 17, 2021
 * [Version 3.0.1](#version-301-april-1-2021) April 1, 2021
@@ -48,7 +48,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.0.4 (June 2, 2021)
+## Version 3.0.4 (June 3, 2021)
 
 Patch release that corrects a problem with the release version number
 of v3.0.2/v3.0.3:
