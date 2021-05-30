@@ -58,7 +58,7 @@ alloc_buffer (
             curbuf = pctxt->alloc_fn (newsz);
         if (curbuf == NULL)
             return pctxt->print_error (
-                (const exr_context_t) pctxt,
+                pctxt,
                 EXR_ERR_OUT_OF_MEMORY,
                 "Unable to allocate %" PRIu64 " bytes",
                 (uint64_t) newsz);
@@ -117,13 +117,13 @@ read_uncompressed_direct (exr_decode_pipeline_t* decode)
     start_y = decode->chunk_block.start_y;
     for (int y = 0; y < height; ++y)
     {
-        int cury = y + start_y;
         for (int c = 0; c < decode->channel_count; ++c)
         {
             exr_coding_channel_info_t* decc = (decode->channels + c);
 
-            cdata  = decc->decode_to_ptr;
-            toread = decc->width * decc->bytes_per_element;
+            cdata = decc->decode_to_ptr;
+            toread =
+                (uint64_t) decc->width * (uint64_t) decc->bytes_per_element;
 
             if (decc->height == 0) continue;
 
@@ -216,7 +216,7 @@ decompress_data (
     {
         case EXR_COMPRESSION_NONE:
             return pctxt->report_error (
-                (const exr_context_t) pctxt,
+                pctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "no compresssion set but still trying to decompress");
 
@@ -250,11 +250,17 @@ decompress_data (
         case EXR_COMPRESSION_B44A:
         case EXR_COMPRESSION_DWAA:
         case EXR_COMPRESSION_DWAB:
-        default:
             return pctxt->print_error (
-                (const exr_context_t) pctxt,
+                pctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Compression technique 0x%02X not yet implemented",
+                ctype);
+        case EXR_COMPRESSION_LAST_TYPE:
+        default:
+            return pctxt->print_error (
+                pctxt,
+                EXR_ERR_INVALID_ARGUMENT,
+                "Compression technique 0x%02X invalid",
                 ctype);
     }
     return rv;
@@ -274,7 +280,7 @@ default_decompress_chunk (exr_decode_pipeline_t* decode)
         part->storage_mode == EXR_STORAGE_DEEP_TILED)
     {
         size_t unpack_sample_size =
-            decode->chunk_block.width * sizeof (int32_t);
+            (size_t) (decode->chunk_block.width) * sizeof (int32_t);
 
         rv = alloc_buffer (
             pctxt,
@@ -321,7 +327,7 @@ default_decompress_chunk (exr_decode_pipeline_t* decode)
 
 exr_result_t
 exr_initialize_decoding (
-    const exr_context_t           ctxt,
+    exr_const_context_t           ctxt,
     int                           part_index,
     const exr_chunk_block_info_t* cinfo,
     exr_decode_pipeline_t*        decode)
@@ -333,7 +339,7 @@ exr_initialize_decoding (
 
     EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
     if (!cinfo || !decode)
-        return pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+        return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
 
     *decode = nil;
 
@@ -342,15 +348,18 @@ exr_initialize_decoding (
     if (chans <= 5) { chandecodes = decode->_quick_chan_store; }
     else
     {
-        chandecodes =
-            pctxt->alloc_fn (chans * sizeof (exr_coding_channel_info_t));
+        chandecodes = pctxt->alloc_fn (
+            (size_t) (chans) * sizeof (exr_coding_channel_info_t));
         if (chandecodes == NULL)
-            return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
-        memset (chandecodes, 0, chans * sizeof (exr_coding_channel_info_t));
+            return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
+        memset (
+            chandecodes,
+            0,
+            (size_t) (chans) * sizeof (exr_coding_channel_info_t));
     }
 
     decode->channels      = chandecodes;
-    decode->channel_count = chans;
+    decode->channel_count = (int16_t) chans;
     for (int c = 0; c < chans; ++c)
     {
         const exr_attr_chlist_entry_t* curc = (chanlist->entries + c);
@@ -378,7 +387,7 @@ exr_initialize_decoding (
         decc->channel_name      = curc->name.str;
     }
 
-    decode->context     = (exr_context_t) ctxt;
+    decode->context     = ctxt;
     decode->part_index  = part_index;
     decode->chunk_block = *cinfo;
     return EXR_ERR_SUCCESS;
@@ -386,19 +395,18 @@ exr_initialize_decoding (
 
 exr_result_t
 exr_decoding_choose_default_routines (
-    const exr_context_t ctxt, int part_index, exr_decode_pipeline_t* decode)
+    exr_const_context_t ctxt, int part_index, exr_decode_pipeline_t* decode)
 {
     int isdeep = 0, chanstofill = 0, chanstounpack = 0, samebpc = 0,
         sameoutbpc = 0, hassampling = 0, hastypechange = 0, simpinterleave = 0,
         simplineoff = 0, sameoutinc = 0;
     uint8_t* interleaveptr = NULL;
     EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
-    if (!decode) return pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+    if (!decode) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
 
-    if (decode->context != (exr_context_t) ctxt ||
-        decode->part_index != part_index)
+    if (decode->context != ctxt || decode->part_index != part_index)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Cross-wired request for default routines from different context / part");
 
@@ -491,7 +499,7 @@ exr_decoding_choose_default_routines (
 
     if (!decode->unpack_and_convert_fn)
         return pctxt->report_error (
-            decode->context,
+            pctxt,
             EXR_ERR_ARGUMENT_OUT_OF_RANGE,
             "Unable to choose valid unpack routine");
 
@@ -502,7 +510,7 @@ exr_decoding_choose_default_routines (
 
 exr_result_t
 exr_decoding_update (
-    const exr_context_t           ctxt,
+    exr_const_context_t           ctxt,
     int                           part_index,
     const exr_chunk_block_info_t* cinfo,
     exr_decode_pipeline_t*        decode)
@@ -510,16 +518,14 @@ exr_decoding_update (
     int                        chans;
     exr_attr_chlist_t*         chanlist;
     exr_coding_channel_info_t* chandecodes;
-    exr_decode_pipeline_t      nil = { 0 };
 
     EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
     if (!cinfo || !decode)
-        return pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+        return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
 
-    if (decode->context != (exr_context_t) ctxt ||
-        decode->part_index != part_index)
+    if (decode->context != ctxt || decode->part_index != part_index)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid request for decoding update from different context / part");
 
@@ -532,7 +538,7 @@ exr_decoding_update (
 
     if (decode->channel_count != chanlist->num_channels)
         return pctxt->report_error (
-            ctxt, EXR_ERR_INVALID_ARGUMENT, "Mismatch in channel counts");
+            pctxt, EXR_ERR_INVALID_ARGUMENT, "Mismatch in channel counts");
 
     for (int c = 0; c < chans; ++c)
     {
@@ -569,22 +575,21 @@ exr_decoding_update (
 
 exr_result_t
 exr_decoding_run (
-    const exr_context_t ctxt, int part_index, exr_decode_pipeline_t* decode)
+    exr_const_context_t ctxt, int part_index, exr_decode_pipeline_t* decode)
 {
     exr_result_t rv;
     EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
 
-    if (!decode) return pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
-    if (decode->context != (exr_context_t) ctxt ||
-        decode->part_index != part_index)
+    if (!decode) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
+    if (decode->context != ctxt || decode->part_index != part_index)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid request for decoding update from different context / part");
 
     if (!decode->read_fn)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Decode pipeline has no read_fn declared");
     rv = decode->read_fn (decode);
@@ -618,7 +623,7 @@ exr_decoding_run (
 /**************************************/
 
 exr_result_t
-exr_destroy_decoding (const exr_context_t ctxt, exr_decode_pipeline_t* decode)
+exr_destroy_decoding (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
 {
     INTERN_EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (ctxt);
     if (decode)

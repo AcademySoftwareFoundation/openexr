@@ -22,13 +22,13 @@ exr_attr_chlist_init (exr_context_t ctxt, exr_attr_chlist_t* clist, int nchans)
 
     if (!clist)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid channel list pointer to chlist_add_with_length");
 
     if (nchans < 0)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Negative number of channels requested (%d)",
             nchans);
@@ -38,9 +38,9 @@ exr_attr_chlist_init (exr_context_t ctxt, exr_attr_chlist_t* clist, int nchans)
     if (nchans > 0)
     {
         nlist = (exr_attr_chlist_entry_t*) pctxt->alloc_fn (
-            sizeof (*nlist) * nchans);
+            sizeof (*nlist) * (size_t) nchans);
         if (nlist == NULL)
-            return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+            return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
     }
     else
         nlist = NULL;
@@ -92,20 +92,20 @@ exr_attr_chlist_add_with_length (
 
     if (!clist)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid channel list pointer to chlist_add_with_length");
 
     if (!name || name[0] == '\0' || namelen == 0)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Channel name must not be empty, received '%s'",
             (name ? name : "<NULL>"));
 
     if (namelen > maxlen)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Channel name must shorter than length allowed by file (%d), received '%s' (%d)",
             maxlen,
@@ -115,7 +115,7 @@ exr_attr_chlist_add_with_length (
     if (ptype != EXR_PIXEL_UINT && ptype != EXR_PIXEL_HALF &&
         ptype != EXR_PIXEL_FLOAT)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid pixel type specified (%d) adding channel '%s' to list",
             (int) ptype,
@@ -123,7 +123,7 @@ exr_attr_chlist_add_with_length (
 
     if (islinear >= 2)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid linear flag value (%d) adding channel '%s' to list",
             (int) islinear,
@@ -131,7 +131,7 @@ exr_attr_chlist_add_with_length (
 
     if (xsamp <= 0 || ysamp <= 0)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid pixel sampling (x %d y %d) adding channel '%s' to list",
             xsamp,
@@ -139,7 +139,7 @@ exr_attr_chlist_add_with_length (
             name);
 
     insertpos = 0;
-    olist     = (exr_attr_chlist_entry_t*) clist->entries;
+    olist     = EXR_CONST_CAST (exr_attr_chlist_entry_t*, clist->entries);
     for (int32_t c = 0; c < clist->num_channels; ++c)
     {
         int ord = strcmp (name, olist[c].name.str);
@@ -151,7 +151,7 @@ exr_attr_chlist_add_with_length (
         else if (ord == 0)
         {
             return pctxt->print_error (
-                ctxt,
+                pctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Attempt to add duplicate channel '%s' to channel list",
                 name);
@@ -174,17 +174,17 @@ exr_attr_chlist_add_with_length (
     {
         int nsz = clist->num_alloced * 2;
         if (newcount > nsz) nsz = newcount + 1;
-        nlist =
-            (exr_attr_chlist_entry_t*) pctxt->alloc_fn (sizeof (*nlist) * nsz);
+        nlist = (exr_attr_chlist_entry_t*) pctxt->alloc_fn (
+            sizeof (*nlist) * (size_t) nsz);
         if (nlist == NULL)
         {
             exr_attr_string_destroy (ctxt, &(nent.name));
-            return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+            return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
         }
         clist->num_alloced = nsz;
     }
     else
-        nlist = (exr_attr_chlist_entry_t*) clist->entries;
+        nlist = EXR_CONST_CAST (exr_attr_chlist_entry_t*, clist->entries);
 
     /* since we can re-use same memory, have to have slightly more
      * complex logic to avoid overwrites, find where we will insert
@@ -255,7 +255,7 @@ exr_attr_chlist_destroy (exr_context_t ctxt, exr_attr_chlist_t* clist)
         exr_attr_chlist_t        nil = { 0 };
         int                      nc  = clist->num_channels;
         exr_attr_chlist_entry_t* entries =
-            (exr_attr_chlist_entry_t*) clist->entries;
+            EXR_CONST_CAST (exr_attr_chlist_entry_t*, clist->entries);
 
         for (int i = 0; i < nc; ++i)
             exr_attr_string_destroy (ctxt, &(entries[i].name));

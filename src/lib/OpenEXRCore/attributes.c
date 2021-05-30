@@ -13,7 +13,7 @@
 struct _internal_exr_attr_map
 {
     const char*          name;
-    uint8_t              name_len;
+    uint32_t             name_len;
     exr_attribute_type_t type;
     size_t               exp_size;
 };
@@ -193,7 +193,7 @@ attr_init (struct _internal_exr_context* ctxt, exr_attribute_t* nattr)
         default:
             if (ctxt)
                 ctxt->print_error (
-                    (const exr_context_t) ctxt,
+                    ctxt,
                     EXR_ERR_INVALID_ARGUMENT,
                     "Invalid / unimplemented type (%s) in attr_init",
                     nattr->type_name);
@@ -313,20 +313,20 @@ exr_attr_list_compute_size (
     uint64_t     retval = 0;
     exr_result_t rv     = EXR_ERR_SUCCESS;
 
-    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (ctxt);
 
     if (!list)
         return pctxt->report_error (
-            ctxt, EXR_ERR_INVALID_ARGUMENT, "Missing list to compute size");
+            pctxt, EXR_ERR_INVALID_ARGUMENT, "Missing list to compute size");
 
     if (!out)
         return pctxt->report_error (
-            ctxt, EXR_ERR_INVALID_ARGUMENT, "Expected output pointer");
+            pctxt, EXR_ERR_INVALID_ARGUMENT, "Expected output pointer");
 
     *out = 0;
     for (int i = 0; i < list->num_attributes; ++i)
     {
-        exr_attribute_t* cur = list->entries[i];
+        const exr_attribute_t* cur = list->entries[i];
         retval += (size_t) cur->name_length + 1;
         retval += (size_t) cur->type_name_length + 1;
         retval += sizeof (int32_t);
@@ -337,7 +337,7 @@ exr_attr_list_compute_size (
             case EXR_ATTR_CHLIST:
                 for (int c = 0; c < cur->chlist->num_channels; ++c)
                 {
-                    retval += cur->chlist->entries[c].name.length + 1;
+                    retval += (size_t) cur->chlist->entries[c].name.length + 1;
                     retval += sizeof (int32_t) * 4;
                 }
                 break;
@@ -350,7 +350,7 @@ exr_attr_list_compute_size (
             case EXR_ATTR_DOUBLE: retval += sizeof (double); break;
             case EXR_ATTR_FLOAT: retval += sizeof (float); break;
             case EXR_ATTR_FLOAT_VECTOR:
-                retval += sizeof (float) * cur->floatvector->length;
+                retval += sizeof (float) * (size_t) (cur->floatvector->length);
                 break;
             case EXR_ATTR_INT: retval += sizeof (int32_t); break;
             case EXR_ATTR_KEYCODE: retval += sizeof (*(cur->keycode)); break;
@@ -367,7 +367,7 @@ exr_attr_list_compute_size (
             case EXR_ATTR_STRING_VECTOR:
                 for (int s = 0; s < cur->stringvector->n_strings; ++s)
                 {
-                    retval += cur->stringvector->strings[s].length;
+                    retval += (size_t) cur->stringvector->strings[s].length;
                     retval += sizeof (int32_t);
                 }
                 break;
@@ -381,7 +381,7 @@ exr_attr_list_compute_size (
             case EXR_ATTR_V3D: retval += sizeof (*(cur->v3d)); break;
             case EXR_ATTR_OPAQUE:
                 if (cur->opaque->packed_data)
-                    retval += cur->opaque->size;
+                    retval += (size_t) cur->opaque->size;
                 else if (cur->opaque->unpacked_data)
                 {
                     int32_t sz = 0;
@@ -389,14 +389,14 @@ exr_attr_list_compute_size (
                         exr_attr_opaquedata_pack (ctxt, cur->opaque, &sz, NULL);
                     if (rv != EXR_ERR_SUCCESS) return rv;
 
-                    retval += sz;
+                    retval += (size_t) sz;
                 }
                 break;
             case EXR_ATTR_UNKNOWN:
             case EXR_ATTR_LAST_KNOWN_TYPE:
             default:
                 return pctxt->print_error (
-                    ctxt,
+                    pctxt,
                     EXR_ERR_INVALID_ARGUMENT,
                     "Invalid / unhandled type '%s' for attribute '%s', unable to compute size",
                     cur->type_name,
@@ -412,7 +412,7 @@ exr_attr_list_compute_size (
 
 exr_result_t
 exr_attr_list_find_by_name (
-    exr_context_t         ctxt,
+    exr_const_context_t   ctxt,
     exr_attribute_list_t* list,
     const char*           name,
     exr_attribute_t**     out)
@@ -421,23 +421,23 @@ exr_attr_list_find_by_name (
     exr_attribute_t** first = NULL;
     exr_attribute_t** end   = NULL;
     int               step, count, cmp;
-    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    INTERN_EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (ctxt);
 
     if (!out)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid output pointer passed to find_by_name");
 
     if (!name || name[0] == '\0')
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid name passed to find_by_name");
 
     if (!list)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid list pointer passed to find_by_name");
 
@@ -491,17 +491,17 @@ add_to_list (
     exr_attribute_t** sorted_attrs = list->sorted_entries;
     exr_result_t      rv           = EXR_ERR_SUCCESS;
 
+    (void) name;
     if (nattrsz > list->num_alloced)
     {
-        size_t nsize = list->num_alloced * 2;
-        if (nattrsz > nsize) nsize = nattrsz + 1;
+        size_t nsize = (size_t) (list->num_alloced) * 2;
+        if ((size_t) nattrsz > nsize) nsize = (size_t) (nattrsz) + 1;
         attrs = (exr_attribute_t**) ctxt->alloc_fn (
             sizeof (exr_attribute_t*) * nsize * 2);
         if (!attrs)
         {
             ctxt->free_fn (nattr);
-            return ctxt->standard_error (
-                (const exr_context_t) ctxt, EXR_ERR_OUT_OF_MEMORY);
+            return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
         }
 
         list->num_alloced = (int32_t) nsize;
@@ -557,7 +557,7 @@ validate_attr_arguments (
     if (!list)
     {
         return ctxt->report_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid list pointer to attr_list_add");
     }
@@ -565,7 +565,7 @@ validate_attr_arguments (
     if (!attr)
     {
         return ctxt->report_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid output attribute pointer location to attr_list_add");
     }
@@ -575,7 +575,7 @@ validate_attr_arguments (
     if (data_len < 0)
     {
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Extra data storage requested negative length (%d)",
             data_len);
@@ -583,7 +583,7 @@ validate_attr_arguments (
     else if (data_len > 0 && !data_ptr)
     {
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Extra data storage output pointer must be provided when requesting extra data (%d)",
             data_len);
@@ -594,19 +594,19 @@ validate_attr_arguments (
     if (!name || name[0] == '\0')
     {
         return ctxt->report_error (
-            (const exr_context_t) ctxt,
-            EXR_ERR_INVALID_ARGUMENT,
-            "Invalid name to add_by_type");
+            ctxt, EXR_ERR_INVALID_ARGUMENT, "Invalid name to add_by_type");
     }
 
     /* is it already in the list? */
-    rv = exr_attr_list_find_by_name ((exr_context_t) ctxt, list, name, &nattr);
+    rv = exr_attr_list_find_by_name (
+        (exr_const_context_t) ctxt, list, name, &nattr);
+
     if (rv == EXR_ERR_SUCCESS)
     {
         if (data_ptr && data_len > 0)
         {
             return ctxt->print_error (
-                (const exr_context_t) ctxt,
+                ctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Entry '%s' (type %s) already in list but requesting additional data",
                 name,
@@ -629,7 +629,7 @@ check_attr_handler (struct _internal_exr_context* pctxt, exr_attribute_t* attr)
     {
         exr_attribute_t* handler = NULL;
         exr_result_t     rv      = exr_attr_list_find_by_name (
-            (exr_context_t) pctxt,
+            (exr_const_context_t) pctxt,
             &(pctxt->custom_handlers),
             attr->type_name,
             &handler);
@@ -669,7 +669,7 @@ exr_attr_list_add_by_type (
     if (!type || type[0] == '\0')
     {
         return pctxt->report_error (
-            ctxt, EXR_ERR_INVALID_ARGUMENT, "Invalid type to add_by_type");
+            pctxt, EXR_ERR_INVALID_ARGUMENT, "Invalid type to add_by_type");
     }
 
     rval =
@@ -683,7 +683,7 @@ exr_attr_list_add_by_type (
                 nattr = *attr;
                 *attr = NULL;
                 return pctxt->print_error (
-                    ctxt,
+                    pctxt,
                     EXR_ERR_INVALID_ARGUMENT,
                     "Entry '%s' already in list but with different type ('%s' vs requested '%s')",
                     name,
@@ -701,7 +701,7 @@ exr_attr_list_add_by_type (
     if (nlen > mlen)
     {
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Provided name '%s' too long for file (len %d, max %d)",
             name,
@@ -713,7 +713,7 @@ exr_attr_list_add_by_type (
     if (tlen > mlen)
     {
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Provided type name '%s' too long for file (len %d, max %d)",
             type,
@@ -732,16 +732,16 @@ exr_attr_list_add_by_type (
 
     if (known)
     {
-        attrblocksz += nlen + 1;
+        attrblocksz += (size_t) (nlen + 1);
         attrblocksz += known->exp_size;
-        attrblocksz += data_len;
+        attrblocksz += (size_t) data_len;
         ptr = (uint8_t*) pctxt->alloc_fn (attrblocksz);
-        if (!ptr) return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+        if (!ptr) return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
         nattr  = (exr_attribute_t*) ptr;
         *nattr = nil;
         ptr += sizeof (exr_attribute_t);
 
-        memcpy (ptr, name, nlen + 1);
+        memcpy (ptr, name, (size_t) (nlen + 1));
         nattr->name = (char*) ptr;
         ptr += nlen + 1;
 
@@ -757,21 +757,21 @@ exr_attr_list_add_by_type (
     }
     else
     {
-        attrblocksz += nlen + 1;
-        attrblocksz += tlen + 1;
+        attrblocksz += (size_t) (nlen + 1);
+        attrblocksz += (size_t) (tlen + 1);
         attrblocksz += sizeof (exr_attr_opaquedata_t);
-        attrblocksz += data_len;
+        attrblocksz += (size_t) data_len;
         ptr = (uint8_t*) pctxt->alloc_fn (attrblocksz);
-        if (!ptr) return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+        if (!ptr) return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
         nattr  = (exr_attribute_t*) ptr;
         *nattr = nil;
         ptr += sizeof (exr_attribute_t);
 
-        memcpy (ptr, name, nlen + 1);
+        memcpy (ptr, name, (size_t) (nlen + 1));
         nattr->name = (char*) ptr;
         ptr += nlen + 1;
 
-        memcpy (ptr, type, tlen + 1);
+        memcpy (ptr, type, (size_t) (tlen + 1));
         nattr->type_name = (char*) ptr;
         ptr += tlen + 1;
 
@@ -831,7 +831,7 @@ exr_attr_list_add (
                 nattr = *attr;
                 *attr = NULL;
                 return pctxt->print_error (
-                    ctxt,
+                    pctxt,
                     EXR_ERR_INVALID_ARGUMENT,
                     "Entry '%s' already in list but with different type ('%s')",
                     name,
@@ -847,7 +847,7 @@ exr_attr_list_add (
     if (nlen > mlen)
     {
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Provided name '%s' too long for file (len %d, max %d)",
             name,
@@ -860,13 +860,13 @@ exr_attr_list_add (
     {
         if (type == EXR_ATTR_OPAQUE)
             return pctxt->print_error (
-                ctxt,
+                pctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Invalid type enum for '%s': the opaque type is not actually a built-in type",
                 name);
 
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid type enum for '%s' in create by builtin type (type %d)",
             name,
@@ -875,23 +875,23 @@ exr_attr_list_add (
 
     known = &(the_predefined_attr_typenames[tidx]);
 
-    attrblocksz += nlen + 1;
+    attrblocksz += (size_t) (nlen + 1);
     attrblocksz += known->exp_size;
-    attrblocksz += data_len;
+    attrblocksz += (size_t) (data_len);
     ptr = (uint8_t*) pctxt->alloc_fn (attrblocksz);
-    if (!ptr) return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+    if (!ptr) return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
 
     nattr  = (exr_attribute_t*) ptr;
     *nattr = nil;
 
     ptr += sizeof (exr_attribute_t);
-    memcpy (ptr, name, nlen + 1);
+    memcpy (ptr, name, (size_t) (nlen + 1));
     nattr->name = (char*) ptr;
 
     ptr += nlen + 1;
     nattr->type_name        = known->name;
     nattr->name_length      = (uint8_t) nlen;
-    nattr->type_name_length = known->name_len;
+    nattr->type_name_length = (uint8_t) known->name_len;
     nattr->type             = known->type;
     if (known->exp_size > 0)
     {
@@ -951,7 +951,7 @@ exr_attr_list_add_static_name (
                 nattr = *attr;
                 *attr = NULL;
                 return pctxt->print_error (
-                    ctxt,
+                    pctxt,
                     EXR_ERR_INVALID_ARGUMENT,
                     "Entry '%s' already in list but with different type ('%s')",
                     name,
@@ -967,7 +967,7 @@ exr_attr_list_add_static_name (
     if (nlen > mlen)
     {
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Provided name '%s' too long for file (len %d, max %d)",
             name,
@@ -980,13 +980,13 @@ exr_attr_list_add_static_name (
     {
         if (type == EXR_ATTR_OPAQUE)
             return pctxt->print_error (
-                ctxt,
+                pctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Invalid type enum for '%s': the opaque type is not actually a built-in type",
                 name);
 
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid type enum for '%s' in create by builtin type (type %d)",
             name,
@@ -995,16 +995,16 @@ exr_attr_list_add_static_name (
     known = &(the_predefined_attr_typenames[tidx]);
 
     attrblocksz += known->exp_size;
-    attrblocksz += data_len;
+    attrblocksz += (size_t) data_len;
     ptr = (uint8_t*) pctxt->alloc_fn (attrblocksz);
-    if (!ptr) return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+    if (!ptr) return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
     nattr  = (exr_attribute_t*) ptr;
     *nattr = nil;
     ptr += sizeof (exr_attribute_t);
     nattr->name             = name;
     nattr->type_name        = known->name;
     nattr->name_length      = (uint8_t) nlen;
-    nattr->type_name_length = known->name_len;
+    nattr->type_name_length = (uint8_t) known->name_len;
     nattr->type             = known->type;
     if (known->exp_size > 0)
     {
@@ -1042,13 +1042,13 @@ exr_attr_list_remove (
     if (!attr)
     {
         return pctxt->report_error (
-            ctxt, EXR_ERR_INVALID_ARGUMENT, "NULL attribute passed to remove");
+            pctxt, EXR_ERR_INVALID_ARGUMENT, "NULL attribute passed to remove");
     }
 
     if (!list)
     {
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid list pointer to remove attribute");
     }
@@ -1067,7 +1067,7 @@ exr_attr_list_remove (
     if (attridx == -1)
     {
         return pctxt->report_error (
-            ctxt, EXR_ERR_INVALID_ARGUMENT, "Attribute not in list");
+            pctxt, EXR_ERR_INVALID_ARGUMENT, "Attribute not in list");
     }
 
     list->entries[attridx] = NULL;

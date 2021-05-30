@@ -26,7 +26,7 @@
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;
 
-static void error_handler_new( exr_context_t file, int code, const char *msg )
+static void error_handler_new( exr_const_context_t file, int code, const char *msg )
 {
     const char *fn;
     exr_get_file_name( file, &fn );

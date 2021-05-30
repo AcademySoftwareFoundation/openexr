@@ -34,10 +34,10 @@ print_attr (const exr_attribute_t* a, int verbose)
         case EXR_ATTR_BOX2F:
             printf (
                 "[ %g, %g - %g %g ]",
-                a->box2f->x_min,
-                a->box2f->y_min,
-                a->box2f->x_max,
-                a->box2f->y_max);
+                (double) a->box2f->x_min,
+                (double) a->box2f->y_min,
+                (double) a->box2f->x_max,
+                (double) a->box2f->y_max);
             break;
         case EXR_ATTR_CHLIST:
             printf ("%d channels\n", a->chlist->num_channels);
@@ -62,14 +62,14 @@ print_attr (const exr_attribute_t* a, int verbose)
         case EXR_ATTR_CHROMATICITIES:
             printf (
                 "r[%g, %g] g[%g, %g] b[%g, %g] w[%g, %g]",
-                a->chromaticities->red_x,
-                a->chromaticities->red_y,
-                a->chromaticities->green_x,
-                a->chromaticities->green_y,
-                a->chromaticities->blue_x,
-                a->chromaticities->blue_y,
-                a->chromaticities->white_x,
-                a->chromaticities->white_y);
+                (double) a->chromaticities->red_x,
+                (double) a->chromaticities->red_y,
+                (double) a->chromaticities->green_x,
+                (double) a->chromaticities->green_y,
+                (double) a->chromaticities->blue_x,
+                (double) a->chromaticities->blue_y,
+                (double) a->chromaticities->white_x,
+                (double) a->chromaticities->white_y);
             break;
         case EXR_ATTR_COMPRESSION: {
             static char* compressionnames[] = { "none", "rle",   "zips", "zip",
@@ -84,11 +84,11 @@ print_attr (const exr_attribute_t* a, int verbose)
         case EXR_ATTR_ENVMAP:
             printf ("%s", a->uc == 0 ? "latlong" : "cube");
             break;
-        case EXR_ATTR_FLOAT: printf ("%g", a->f); break;
+        case EXR_ATTR_FLOAT: printf ("%g", (double) a->f); break;
         case EXR_ATTR_FLOAT_VECTOR:
             printf ("[%d entries]:\n   ", a->floatvector->length);
             for (int i = 0; i < a->floatvector->length; ++i)
-                printf (" %g", a->floatvector->arr[i]);
+                printf (" %g", (double) a->floatvector->arr[i]);
             break;
         case EXR_ATTR_INT: printf ("%d", a->i); break;
         case EXR_ATTR_KEYCODE:
@@ -116,48 +116,48 @@ print_attr (const exr_attribute_t* a, int verbose)
         case EXR_ATTR_M33F:
             printf (
                 "[ [%g %g %g] [%g %g %g] [%g %g %g] ]",
-                a->m33f->m[0],
-                a->m33f->m[1],
-                a->m33f->m[2],
-                a->m33f->m[3],
-                a->m33f->m[4],
-                a->m33f->m[5],
-                a->m33f->m[6],
-                a->m33f->m[7],
-                a->m33f->m[8]);
+                (double) a->m33f->m[0],
+                (double) a->m33f->m[1],
+                (double) a->m33f->m[2],
+                (double) a->m33f->m[3],
+                (double) a->m33f->m[4],
+                (double) a->m33f->m[5],
+                (double) a->m33f->m[6],
+                (double) a->m33f->m[7],
+                (double) a->m33f->m[8]);
             break;
         case EXR_ATTR_M33D:
             printf (
                 "[ [%g %g %g] [%g %g %g] [%g %g %g] ]",
                 a->m33d->m[0],
                 a->m33d->m[1],
-                a->m33f->m[2],
+                a->m33d->m[2],
                 a->m33d->m[3],
                 a->m33d->m[4],
-                a->m33f->m[5],
+                a->m33d->m[5],
                 a->m33d->m[6],
                 a->m33d->m[7],
-                a->m33f->m[8]);
+                a->m33d->m[8]);
             break;
         case EXR_ATTR_M44F:
             printf (
                 "[ [%g %g %g %g] [%g %g %g %g] [%g %g %g %g] [%g %g %g %g] ]",
-                a->m44f->m[0],
-                a->m44f->m[1],
-                a->m44f->m[2],
-                a->m44f->m[3],
-                a->m44f->m[4],
-                a->m44f->m[5],
-                a->m44f->m[6],
-                a->m44f->m[7],
-                a->m44f->m[8],
-                a->m44f->m[9],
-                a->m44f->m[10],
-                a->m44f->m[11],
-                a->m44f->m[12],
-                a->m44f->m[13],
-                a->m44f->m[14],
-                a->m44f->m[15]);
+                (double) a->m44f->m[0],
+                (double) a->m44f->m[1],
+                (double) a->m44f->m[2],
+                (double) a->m44f->m[3],
+                (double) a->m44f->m[4],
+                (double) a->m44f->m[5],
+                (double) a->m44f->m[6],
+                (double) a->m44f->m[7],
+                (double) a->m44f->m[8],
+                (double) a->m44f->m[9],
+                (double) a->m44f->m[10],
+                (double) a->m44f->m[11],
+                (double) a->m44f->m[12],
+                (double) a->m44f->m[13],
+                (double) a->m44f->m[14],
+                (double) a->m44f->m[15]);
             break;
         case EXR_ATTR_M44D:
             printf (
@@ -205,8 +205,10 @@ print_attr (const exr_attribute_t* a, int verbose)
             static const char* lvlModes[] = { "single image",
                                               "mipmap",
                                               "ripmap" };
-            uint8_t lvlMode = EXR_GET_TILE_LEVEL_MODE (*(a->tiledesc));
-            uint8_t rndMode = EXR_GET_TILE_ROUND_MODE (*(a->tiledesc));
+            uint8_t            lvlMode =
+                (uint8_t) EXR_GET_TILE_LEVEL_MODE (*(a->tiledesc));
+            uint8_t rndMode =
+                (uint8_t) EXR_GET_TILE_ROUND_MODE (*(a->tiledesc));
             printf (
                 "size %u x %u level %u (%s) round %u (%s)",
                 a->tiledesc->x_size,
@@ -224,13 +226,19 @@ print_attr (const exr_attribute_t* a, int verbose)
                 a->timecode->user_data);
             break;
         case EXR_ATTR_V2I: printf ("[ %d, %d ]", a->v2i->x, a->v2i->y); break;
-        case EXR_ATTR_V2F: printf ("[ %g, %g ]", a->v2f->x, a->v2f->y); break;
+        case EXR_ATTR_V2F:
+            printf ("[ %g, %g ]", (double) a->v2f->x, (double) a->v2f->y);
+            break;
         case EXR_ATTR_V2D: printf ("[ %g, %g ]", a->v2d->x, a->v2d->y); break;
         case EXR_ATTR_V3I:
             printf ("[ %d, %d, %d ]", a->v3i->x, a->v3i->y, a->v3i->z);
             break;
         case EXR_ATTR_V3F:
-            printf ("[ %g, %g, %g ]", a->v3f->x, a->v3f->y, a->v3f->z);
+            printf (
+                "[ %g, %g, %g ]",
+                (double) a->v3f->x,
+                (double) a->v3f->y,
+                (double) a->v3f->z);
             break;
         case EXR_ATTR_V3D:
             printf ("[ %g, %g, %g ]", a->v3d->x, a->v3d->y, a->v3d->z);
@@ -240,11 +248,12 @@ print_attr (const exr_attribute_t* a, int verbose)
                 "(size %d unp size %d hdlrs %p %p %p)",
                 a->opaque->size,
                 a->opaque->unpacked_size,
-                a->opaque->unpack_func_ptr,
-                a->opaque->pack_func_ptr,
-                a->opaque->destroy_unpacked_func_ptr);
+                (void*) a->opaque->unpack_func_ptr,
+                (void*) a->opaque->pack_func_ptr,
+                (void*) a->opaque->destroy_unpacked_func_ptr);
             break;
         case EXR_ATTR_UNKNOWN:
+        case EXR_ATTR_LAST_KNOWN_TYPE:
         default: printf ("<ERROR Unknown type '%s'>", a->type_name); break;
     }
 }
@@ -252,7 +261,7 @@ print_attr (const exr_attribute_t* a, int verbose)
 /**************************************/
 
 exr_result_t
-exr_print_context_info (const exr_context_t ctxt, int verbose)
+exr_print_context_info (exr_const_context_t ctxt, int verbose)
 {
     EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (ctxt);
     if (verbose)
@@ -334,5 +343,5 @@ exr_print_context_info (const exr_context_t ctxt, int verbose)
             printf ("\n");
         }
     }
-    return EXR_RETURN_WRITE (pctxt), EXR_ERR_SUCCESS;
+    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
 }

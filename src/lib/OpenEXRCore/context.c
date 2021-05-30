@@ -40,24 +40,23 @@ dispatch_read (
 
     if (!offsetp)
         return ctxt->report_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "read requested with no output offset pointer");
 
     if (ctxt->read_fn)
         rval = ctxt->read_fn (
-            (const exr_context_t) ctxt,
+            (exr_const_context_t) ctxt,
             ctxt->user_data,
             buf,
             sz,
             *offsetp,
-            ctxt->print_error);
+            (exr_stream_error_func_ptr_t) ctxt->print_error);
     else
-        return ctxt->standard_error (
-            (const exr_context_t) ctxt, EXR_ERR_NOT_OPEN_READ);
+        return ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_READ);
 
     if (nread) *nread = rval;
-    if (rval > 0) *offsetp += rval;
+    if (rval > 0) *offsetp += (uint64_t) rval;
 
     if (rval == (int64_t) sz || (rmode == EXR_ALLOW_SHORT_READ && rval >= 0))
         rv = EXR_ERR_SUCCESS;
@@ -75,30 +74,28 @@ dispatch_write (
     uint64_t                      sz,
     uint64_t*                     offsetp)
 {
-    int64_t      rval = -1;
-    exr_result_t rv   = EXR_ERR_UNKNOWN;
+    int64_t rval = -1;
 
     if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
 
     if (!offsetp)
         return ctxt->report_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "write requested with no output offset pointer");
 
     if (ctxt->write_fn)
         rval = ctxt->write_fn (
-            (const exr_context_t) ctxt,
+            (exr_const_context_t) ctxt,
             ctxt->user_data,
             buf,
             sz,
             *offsetp,
-            ctxt->print_error);
+            (exr_stream_error_func_ptr_t) ctxt->print_error);
     else
-        return ctxt->standard_error (
-            (const exr_context_t) ctxt, EXR_ERR_NOT_OPEN_WRITE);
+        return ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE);
 
-    if (rval > 0) *offsetp += rval;
+    if (rval > 0) *offsetp += (uint64_t)rval;
 
     return (rval == (int64_t) sz) ? EXR_ERR_SUCCESS : EXR_ERR_WRITE_IO;
 }
@@ -112,7 +109,7 @@ process_query_size (
     if (inits->size_fn)
     {
         ctxt->file_size =
-            (inits->size_fn) ((const exr_context_t) ctxt, ctxt->user_data);
+            (inits->size_fn) ((exr_const_context_t) ctxt, ctxt->user_data);
     }
     else
     {
@@ -298,13 +295,16 @@ exr_start_inplace_header_update (
     const exr_context_initializer_t* ctxtdata)
 {
     /* TODO: not yet implemented */
+    (void)ctxt;
+    (void)filename;
+    (void)ctxtdata;
     return EXR_ERR_INVALID_ARGUMENT;
 }
 
 /**************************************/
 
 exr_result_t
-exr_get_file_name (const exr_context_t ctxt, const char** name)
+exr_get_file_name (exr_const_context_t ctxt, const char** name)
 {
     EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (ctxt);
 
@@ -312,11 +312,11 @@ exr_get_file_name (const exr_context_t ctxt, const char** name)
     if (name)
     {
         *name = pctxt->filename.str;
-        return EXR_RETURN_WRITE (pctxt), EXR_ERR_SUCCESS;
+        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
     }
 
-    return EXR_RETURN_WRITE (pctxt),
-           pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
+        pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT));
 }
 
 /**************************************/
@@ -343,9 +343,6 @@ exr_register_attr_type_handler (
     exr_attribute_t*      ent;
     exr_result_t          rv;
     int32_t               tlen, mlen = EXR_SHORTNAME_MAXLEN;
-    char*                 ptr         = NULL;
-    size_t                attrblocksz = sizeof (exr_attribute_t);
-    int                   partcount   = 0;
     exr_attribute_list_t* curattrs;
 
     EXR_PROMOTE_LOCKED_CONTEXT_OR_ERROR (ctxt);
@@ -353,50 +350,46 @@ exr_register_attr_type_handler (
     mlen = (int32_t) pctxt->max_name_length;
 
     if (!type || type[0] == '\0')
-        return EXR_UNLOCK (pctxt), pctxt->report_error (
-                                       ctxt,
-                                       EXR_ERR_INVALID_ARGUMENT,
-                                       "Invalid type to register_attr_handler");
+        return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->report_error (
+            pctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Invalid type to register_attr_handler"));
 
     tlen = (int32_t) strlen (type);
     if (tlen > mlen)
-        return EXR_UNLOCK (pctxt),
-               pctxt->print_error (
-                   ctxt,
-                   EXR_ERR_INVALID_ARGUMENT,
-                   "Provided type name '%s' too long for file (len %d, max %d)",
-                   type,
-                   tlen,
-                   mlen);
+        return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
+            pctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Provided type name '%s' too long for file (len %d, max %d)",
+            type,
+            tlen,
+            mlen));
 
     if (internal_exr_is_standard_type (type))
-        return EXR_UNLOCK (pctxt),
-               pctxt->print_error (
-                   ctxt,
-                   EXR_ERR_INVALID_ARGUMENT,
-                   "Provided type name '%s' is a reserved / internal type name",
-                   type);
+        return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
+            pctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Provided type name '%s' is a reserved / internal type name",
+            type));
 
     rv = exr_attr_list_find_by_name (
         ctxt, &(pctxt->custom_handlers), type, &ent);
     if (rv == EXR_ERR_SUCCESS)
-        return EXR_UNLOCK (pctxt),
-               pctxt->print_error (
-                   ctxt,
-                   EXR_ERR_INVALID_ARGUMENT,
-                   "Attribute handler for '%s' previously registered",
-                   type);
+        return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
+            pctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Attribute handler for '%s' previously registered",
+            type));
 
     ent = NULL;
     rv  = exr_attr_list_add_by_type (
         ctxt, &(pctxt->custom_handlers), type, type, 0, NULL, &ent);
     if (rv != EXR_ERR_SUCCESS)
-        return EXR_UNLOCK (pctxt),
-               pctxt->print_error (
-                   ctxt,
-                   rv,
-                   "Unable to register custom handler for type '%s'",
-                   type);
+        return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
+            pctxt,
+            rv,
+            "Unable to register custom handler for type '%s'",
+            type));
 
     ent->opaque->unpack_func_ptr           = unpack_func_ptr;
     ent->opaque->pack_func_ptr             = pack_func_ptr;
@@ -423,7 +416,7 @@ exr_register_attr_type_handler (
         }
     }
 
-    return EXR_UNLOCK (pctxt), rv;
+    return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
 }
 
 /**************************************/
@@ -436,8 +429,8 @@ exr_set_longname_support (exr_context_t ctxt, int onoff)
     EXR_PROMOTE_LOCKED_CONTEXT_OR_ERROR (ctxt);
 
     if (pctxt->mode != EXR_CONTEXT_WRITE)
-        return EXR_UNLOCK (pctxt),
-               pctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE);
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_WRITE));
 
     oldval = pctxt->max_name_length;
     newval = EXR_SHORTNAME_MAXLEN;
@@ -454,15 +447,14 @@ exr_set_longname_support (exr_context_t ctxt, int onoff)
                 if (curattr->name_length > newval ||
                     curattr->type_name_length > newval)
                 {
-                    return EXR_UNLOCK (pctxt),
-                           pctxt->print_error (
-                               ctxt,
-                               EXR_ERR_NAME_TOO_LONG,
-                               "Part %d, attribute '%s' (type '%s') has a name too long for new longname setting (%d)",
-                               curp->part_index,
-                               curattr->name,
-                               curattr->type_name,
-                               (int) newval);
+                    return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
+                        pctxt,
+                        EXR_ERR_NAME_TOO_LONG,
+                        "Part %d, attribute '%s' (type '%s') has a name too long for new longname setting (%d)",
+                        curp->part_index,
+                        curattr->name,
+                        curattr->type_name,
+                        (int) newval));
                 }
                 if (curattr->type == EXR_ATTR_CHLIST)
                 {
@@ -471,14 +463,13 @@ exr_set_longname_support (exr_context_t ctxt, int onoff)
                     {
                         if (chs->entries[c].name.length > newval)
                         {
-                            return EXR_UNLOCK (pctxt),
-                                   pctxt->print_error (
-                                       ctxt,
-                                       EXR_ERR_NAME_TOO_LONG,
-                                       "Part %d, channel '%s' has a name too long for new longname setting (%d)",
-                                       curp->part_index,
-                                       chs->entries[c].name.str,
-                                       (int) newval);
+                            return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
+                                pctxt,
+                                EXR_ERR_NAME_TOO_LONG,
+                                "Part %d, channel '%s' has a name too long for new longname setting (%d)",
+                                curp->part_index,
+                                chs->entries[c].name.str,
+                                (int) newval));
                         }
                     }
                 }
@@ -486,7 +477,7 @@ exr_set_longname_support (exr_context_t ctxt, int onoff)
         }
     }
     pctxt->max_name_length = newval;
-    return EXR_UNLOCK (pctxt), EXR_ERR_SUCCESS;
+    return EXR_UNLOCK_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
 }
 
 /**************************************/
@@ -498,15 +489,14 @@ exr_write_header (exr_context_t ctxt)
     EXR_PROMOTE_LOCKED_CONTEXT_OR_ERROR (ctxt);
 
     if (pctxt->mode != EXR_CONTEXT_WRITE)
-        return EXR_UNLOCK (pctxt),
-               pctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE);
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_WRITE));
 
     if (pctxt->num_parts == 0)
-        return EXR_UNLOCK (pctxt),
-               pctxt->report_error (
-                   ctxt,
-                   EXR_ERR_FILE_BAD_HEADER,
-                   "No parts defined in file prior to writing data");
+        return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->report_error (
+            pctxt,
+            EXR_ERR_FILE_BAD_HEADER,
+            "No parts defined in file prior to writing data"));
 
     for (int p = 0; rv == EXR_ERR_SUCCESS && p < pctxt->num_parts; ++p)
     {
@@ -523,10 +513,9 @@ exr_write_header (exr_context_t ctxt)
 
         if (pctxt->has_nonimage_data || pctxt->is_multipart)
         {
-            EXR_UNLOCK(pctxt);
-            rv = exr_attr_set_int (
-                ctxt, p, EXR_REQ_CHUNK_COUNT_STR, ccount);
-            EXR_LOCK(pctxt);
+            EXR_UNLOCK (pctxt);
+            rv = exr_attr_set_int (ctxt, p, EXR_REQ_CHUNK_COUNT_STR, ccount);
+            EXR_LOCK (pctxt);
             if (rv != EXR_ERR_SUCCESS) break;
         }
 
@@ -546,10 +535,10 @@ exr_write_header (exr_context_t ctxt)
         for (int p = 0; rv == EXR_ERR_SUCCESS && p < pctxt->num_parts; ++p)
         {
             struct _internal_exr_part* curp = pctxt->parts[p];
-            curp->chunk_table_offset = pctxt->output_file_offset;
-            pctxt->output_file_offset += curp->chunk_count * sizeof(uint64_t);
+            curp->chunk_table_offset        = pctxt->output_file_offset;
+            pctxt->output_file_offset += (uint64_t)(curp->chunk_count) * sizeof (uint64_t);
         }
     }
 
-    return EXR_UNLOCK (pctxt), rv;
+    return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
 }

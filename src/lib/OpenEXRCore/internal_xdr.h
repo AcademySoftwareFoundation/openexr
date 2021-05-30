@@ -98,6 +98,9 @@ static inline void priv_to_native64( void *ptr, int n )
     uint64_t *vals = (uint64_t *)ptr;
     for ( int i = 0; i < n; ++i )
         vals[i] = le64toh( vals[i] );
+#else
+    (void)ptr;
+    (void)n;
 #endif
 }
 
@@ -107,6 +110,9 @@ static inline void priv_from_native64( void *ptr, int n )
     uint64_t *vals = (uint64_t *)ptr;
     for ( int i = 0; i < n; ++i )
         vals[i] = htole64( vals[i] );
+#else
+    (void)ptr;
+    (void)n;
 #endif
 }
 
@@ -128,6 +134,9 @@ static inline void priv_to_native32( void *ptr, int n )
     uint32_t *vals = (uint32_t *)ptr;
     for ( int i = 0; i < n; ++i )
         vals[i] = le32toh( vals[i] );
+#else
+    (void)ptr;
+    (void)n;
 #endif
 }
 
@@ -137,6 +146,9 @@ static inline void priv_from_native32( void *ptr, int n )
     uint32_t *vals = (uint32_t *)ptr;
     for ( int i = 0; i < n; ++i )
         vals[i] = htole32( vals[i] );
+#else
+    (void)ptr;
+    (void)n;
 #endif
 }
 
@@ -158,6 +170,9 @@ static inline void priv_to_native16( void *ptr, int n )
     uint16_t *vals = (uint16_t *)ptr;
     for ( int i = 0; i < n; ++i )
         vals[i] = le16toh( vals[i] );
+#else
+    (void)ptr;
+    (void)n;
 #endif
 }
 
@@ -167,6 +182,9 @@ static inline void priv_from_native16( void *ptr, int n )
     uint16_t *vals = (uint16_t *)ptr;
     for ( int i = 0; i < n; ++i )
         vals[i] = htole16( vals[i] );
+#else
+    (void)ptr;
+    (void)n;
 #endif
 }
 

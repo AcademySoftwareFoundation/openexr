@@ -69,6 +69,12 @@ typedef int32_t exr_result_t;
  */
 EXR_EXPORT const char* exr_get_default_error_message (exr_result_t code);
 
+/** @brief Returns a static string corresponding to the specified error code.
+ *
+ * The string should not be freed (it is compiled into the binary)
+ */
+EXR_EXPORT const char* exr_get_error_code_as_string (exr_result_t code);
+
 /** @} */
 
 #ifdef __cplusplus

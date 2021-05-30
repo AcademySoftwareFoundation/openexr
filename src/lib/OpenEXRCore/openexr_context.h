@@ -38,6 +38,7 @@ extern "C" {
  */
 
 typedef struct _priv_exr_context_t* exr_context_t;
+typedef const struct _priv_exr_context_t* exr_const_context_t;
 
 /** 
  * @defgroup ContextFunctions OpenEXR Context Stream / File Functions
@@ -56,7 +57,7 @@ typedef struct _priv_exr_context_t* exr_context_t;
  *  user during stream operations.
  */
 typedef exr_result_t (*exr_stream_error_func_ptr_t) (
-    const exr_context_t ctxt, exr_result_t code, const char* fmt, ...)
+    exr_const_context_t ctxt, exr_result_t code, const char* fmt, ...)
     EXR_PRINTF_FUNC_ATTRIBUTE;
 
 /** @brief Error callback function
@@ -69,7 +70,7 @@ typedef exr_result_t (*exr_stream_error_func_ptr_t) (
  *  error.
  */
 typedef void (*exr_error_handler_cb_t) (
-    const exr_context_t ctxt, exr_result_t code, const char* msg);
+    exr_const_context_t ctxt, exr_result_t code, const char* msg);
 
 /** Destroy custom stream function pointer
  *
@@ -82,7 +83,7 @@ typedef void (*exr_error_handler_cb_t) (
  *                  files
  */
 typedef void (*exr_destroy_stream_func_ptr_t) (
-    const exr_context_t ctxt, void* userdata, int failed);
+    exr_const_context_t ctxt, void* userdata, int failed);
 
 /** Query stream size function pointer
  *
@@ -95,7 +96,7 @@ typedef void (*exr_destroy_stream_func_ptr_t) (
  * place in the calling application.
  */
 typedef int64_t (*exr_query_size_func_ptr_t) (
-    const exr_context_t ctxt, void* userdata);
+    exr_const_context_t ctxt, void* userdata);
 
 /** @brief Read custom function pointer
  *
@@ -123,7 +124,7 @@ typedef int64_t (*exr_query_size_func_ptr_t) (
  * atomically.
  */
 typedef int64_t (*exr_read_func_ptr_t) (
-    const exr_context_t         ctxt,
+    exr_const_context_t         ctxt,
     void*                       userdata,
     void*                       buffer,
     uint64_t                    sz,
@@ -155,7 +156,7 @@ typedef int64_t (*exr_read_func_ptr_t) (
  *  - at file close, the chunk offset tables are written to the file
  */
 typedef int64_t (*exr_write_func_ptr_t) (
-    const exr_context_t         ctxt,
+    exr_const_context_t         ctxt,
     void*                       userdata,
     const void*                 buffer,
     uint64_t                    sz,
@@ -291,7 +292,7 @@ typedef struct _exr_context_initializer
 /** @brief simple macro to initialize the context initializer with default values */
 #define EXR_DEFAULT_CONTEXT_INITIALIZER                                        \
     {                                                                          \
-        sizeof (exr_context_initializer_t), 0                                  \
+        sizeof (exr_context_initializer_t), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 \
     }
 
 /** @} */ /* context function pointer declarations */
@@ -402,7 +403,7 @@ EXR_EXPORT exr_result_t exr_start_inplace_header_update (
  * do not free the resulting string.
  */
 EXR_EXPORT exr_result_t
-exr_get_file_name (const exr_context_t ctxt, const char** name);
+exr_get_file_name (exr_const_context_t ctxt, const char** name);
 
 /** Any opaque attribute data entry of the specified type is tagged
  * with these functions enabling downstream users to unpack (or pack)

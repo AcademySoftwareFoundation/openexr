@@ -22,19 +22,19 @@ exr_attr_string_vector_init (
 
     if (!sv)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to string vector object to assign to");
 
     if (nent < 0)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Received request to allocate negative sized string vector (%d entries)",
             nent);
     if (bytes > (size_t) INT32_MAX)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid too large size for string vector (%d entries)",
             nent);
@@ -44,11 +44,11 @@ exr_attr_string_vector_init (
     {
         sv->strings = (exr_attr_string_t*) pctxt->alloc_fn (bytes);
         if (sv->strings == NULL)
-            return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+            return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
         sv->n_strings  = nent;
         sv->alloc_size = nent;
         for (int32_t i = 0; i < nent; ++i)
-            *((exr_attr_string_t*) (sv->strings + i)) = nils;
+            *(EXR_CONST_CAST (exr_attr_string_t*, (sv->strings + i))) = nils;
     }
 
     return EXR_ERR_SUCCESS;
@@ -67,7 +67,7 @@ exr_attr_string_vector_destroy (
         exr_attr_string_vector_t nil = { 0 };
         if (sv->alloc_size > 0)
         {
-            exr_attr_string_t* strs = (exr_attr_string_t*) sv->strings;
+            exr_attr_string_t* strs = EXR_CONST_CAST(exr_attr_string_t*, sv->strings);
             for (int32_t i = 0; i < sv->n_strings; ++i)
                 exr_attr_string_destroy (ctxt, strs + i);
             if (strs) pctxt->free_fn (strs);
@@ -92,7 +92,10 @@ exr_attr_string_vector_copy (
     for (int i = 0; rv == EXR_ERR_SUCCESS && i < src->n_strings; ++i)
     {
         rv = exr_attr_string_set_with_length (
-            ctxt, (exr_attr_string_t *)sv->strings + i, src->strings[i].str, src->strings[i].length);
+            ctxt,
+            EXR_CONST_CAST(exr_attr_string_t*, sv->strings + i),
+            src->strings[i].str,
+            src->strings[i].length);
     }
     if (rv != EXR_ERR_SUCCESS) exr_attr_string_vector_destroy (ctxt, sv);
     return rv;
@@ -110,18 +113,18 @@ exr_attr_string_vector_init_entry (
     {
         if (idx < 0 || idx >= sv->n_strings)
             return pctxt->print_error (
-                ctxt,
+                pctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Invalid index (%d of %d) initializing string vector",
                 idx,
                 sv->n_strings);
 
         return exr_attr_string_init (
-            ctxt, (exr_attr_string_t*) sv->strings + idx, len);
+            ctxt, EXR_CONST_CAST(exr_attr_string_t*, sv->strings + idx), len);
     }
 
     return pctxt->print_error (
-        ctxt,
+        pctxt,
         EXR_ERR_INVALID_ARGUMENT,
         "Invalid reference to string vector object to initialize index %d",
         idx);
@@ -141,13 +144,13 @@ exr_attr_string_vector_set_entry_with_length (
 
     if (!sv)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to string vector object to assign to");
 
     if (idx < 0 || idx >= sv->n_strings)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid index (%d of %d) assigning string vector ('%s', len %d)",
             idx,
@@ -156,7 +159,7 @@ exr_attr_string_vector_set_entry_with_length (
             len);
 
     return exr_attr_string_set_with_length (
-        ctxt, (exr_attr_string_t*) sv->strings + idx, s, len);
+        ctxt, EXR_CONST_CAST(exr_attr_string_t*, sv->strings + idx), s, len);
 }
 
 /**************************************/
@@ -189,32 +192,37 @@ exr_attr_string_vector_add_entry_with_length (
 
     if (!sv)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to string vector object to assign to");
 
     nent = sv->n_strings + 1;
     if (nent > sv->alloc_size)
     {
-        exr_attr_string_t nil = { 0 };
-        size_t            bytes;
-        int32_t           allsz = sv->alloc_size * 2;
+        if (sv->alloc_size > (INT32_MAX / 2))
+            return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
+
+        size_t  bytes;
+        int32_t allsz = sv->alloc_size * 2;
 
         if (nent > allsz) allsz = nent + 1;
-        bytes = allsz * sizeof (exr_attr_string_t);
+        bytes = ((size_t) allsz) * sizeof (exr_attr_string_t);
         nlist = (exr_attr_string_t*) pctxt->alloc_fn (bytes);
         if (nlist == NULL)
-            return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+            return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
+
         for (int32_t i = 0; i < sv->n_strings; ++i)
             *(nlist + i) = sv->strings[i];
-        if (sv->alloc_size > 0) pctxt->free_fn ((void*) sv->strings);
+
+        if (sv->alloc_size > 0)
+            pctxt->free_fn (EXR_CONST_CAST (void*, sv->strings));
         sv->strings    = nlist;
         sv->alloc_size = allsz;
     }
     else
     {
         /* that means we own this and can write into, cast away const */
-        nlist = (exr_attr_string_t*) sv->strings;
+        nlist = EXR_CONST_CAST (exr_attr_string_t*, sv->strings);
     }
 
     rv = exr_attr_string_create_with_length (

@@ -23,19 +23,19 @@ exr_attr_float_vector_init (
 
     if (nent < 0)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Received request to allocate negative sized float vector (%d entries)",
             nent);
     if (bytes > (size_t) INT32_MAX)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid too large size for float vector (%d entries)",
             nent);
     if (!fv)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to float vector object to initialize");
 
@@ -44,7 +44,7 @@ exr_attr_float_vector_init (
     {
         fv->arr = (float*) pctxt->alloc_fn (bytes);
         if (fv->arr == NULL)
-            return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+            return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
         fv->length     = nent;
         fv->alloc_size = nent;
     }
@@ -67,18 +67,18 @@ exr_attr_float_vector_init_static (
 
     if (nent < 0)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Received request to allocate negative sized float vector (%d entries)",
             nent);
     if (!fv)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to float vector object to initialize");
     if (!arr)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to float array object to initialize");
 
@@ -103,13 +103,13 @@ exr_attr_float_vector_create (
 
     if (!fv || !arr)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid (NULL) arguments to float vector create");
 
     rv = exr_attr_float_vector_init (ctxt, fv, nent);
     if (rv == EXR_ERR_SUCCESS && nent > 0)
-        memcpy ((float*) fv->arr, arr, nent * sizeof (float));
+        memcpy (EXR_CONST_CAST (float*, fv->arr), arr, (size_t)(nent) * sizeof (float));
     return rv;
 }
 
@@ -123,7 +123,8 @@ exr_attr_float_vector_destroy (exr_context_t ctxt, exr_attr_float_vector_t* fv)
     if (fv)
     {
         exr_attr_float_vector_t nil = { 0 };
-        if (fv->arr && fv->alloc_size > 0) pctxt->free_fn ((void*) fv->arr);
+        if (fv->arr && fv->alloc_size > 0)
+            pctxt->free_fn (EXR_CONST_CAST (void*, fv->arr));
         *fv = nil;
     }
     return EXR_ERR_SUCCESS;

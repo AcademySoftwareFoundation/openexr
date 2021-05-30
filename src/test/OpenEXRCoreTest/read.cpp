@@ -17,14 +17,14 @@
 #include <memory>
 
 static void
-err_cb (exr_context_t f, int code, const char* msg)
+err_cb (exr_const_context_t f, int code, const char* msg)
 {
     std::cerr << "err_cb ERROR " << code << ": " << msg << std::endl;
 }
 
 int64_t
 dummyreadstream (
-    exr_context_t f,
+    exr_const_context_t f,
     void*,
     void*,
     uint64_t,

@@ -68,9 +68,9 @@ scratch_seq_read (struct _internal_exr_seq_scratch* scr, void* buf, uint64_t sz)
                 EXR_MUST_READ_ALL);
             if (nread > 0)
             {
-                notdone -= nread;
+                notdone -= (uint64_t) nread;
                 outbuf += nread;
-                nCopied += nread;
+                nCopied += (uint64_t) nread;
             }
             if (nread <= 0) break;
         }
@@ -121,8 +121,7 @@ priv_init_scratch (
     *scr         = nil;
     scr->scratch = ctxt->alloc_fn (SCRATCH_BUFFER_SIZE);
     if (scr->scratch == NULL)
-        return ctxt->standard_error (
-            (const exr_context_t) ctxt, EXR_ERR_OUT_OF_MEMORY);
+        return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
     scr->sequential_read = &scratch_seq_read;
     scr->fileoff         = offset;
     scr->ctxt            = ctxt;
@@ -155,7 +154,7 @@ check_bad_attrsz (
     *outsz = n;
     if (attrsz < 0)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
             "Attribute '%s', type '%s': Invalid negative size %d",
             aname,
@@ -163,7 +162,7 @@ check_bad_attrsz (
             attrsz);
     if (fsize > 0 && attrsz > fsize)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
             "Attribute '%s', type '%s': Invalid size %d",
             aname,
@@ -175,7 +174,7 @@ check_bad_attrsz (
         n = attrsz / eltsize;
         if (attrsz != (int32_t) (n * eltsize))
             return ctxt->print_error (
-                (const exr_context_t) ctxt,
+                ctxt,
                 EXR_ERR_ATTR_SIZE_MISMATCH,
                 "Attribute '%s': Invalid size %d (exp '%s' size 4 * n, found odd bytes %d)",
                 aname,
@@ -220,7 +219,7 @@ read_text (
     *outlen = namelen;
     if (namelen > maxlen)
         return ctxt->print_error (
-            (exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_NAME_TOO_LONG,
             "Invalid %s encountered: start '%s' (max %d)",
             type,
@@ -249,7 +248,7 @@ extract_attr_chlist (
 
     if (attrsz <= 0)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
             "Attribute '%s': Invalid size %d (exp at least 1 byte for '%s')",
             aname,
@@ -268,7 +267,7 @@ extract_attr_chlist (
         if (attrsz < 16)
         {
             return ctxt->print_error (
-                (const exr_context_t) ctxt,
+                ctxt,
                 EXR_ERR_ATTR_SIZE_MISMATCH,
                 "Out of data parsing '%s', last channel '%s'",
                 aname,
@@ -290,7 +289,7 @@ extract_attr_chlist (
         ysamp = (int32_t) one_to_native32 ((uint32_t) ysamp);
 
         rv = exr_attr_chlist_add_with_length (
-            (const exr_context_t) ctxt,
+            (exr_context_t) ctxt,
             attrdata,
             chname,
             chlen,
@@ -316,7 +315,7 @@ extract_attr_uint8 (
 {
     if (attrsz != 1)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
             "Attribute '%s': Invalid size %d (exp '%s' size 1)",
             aname,
@@ -325,15 +324,11 @@ extract_attr_uint8 (
 
     if (scratch->sequential_read (scratch, attrdata, sizeof (uint8_t)))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
-            EXR_ERR_READ_IO,
-            "Unable to read '%s' %s data",
-            aname,
-            tname);
+            ctxt, EXR_ERR_READ_IO, "Unable to read '%s' %s data", aname, tname);
 
     if (*attrdata >= maxval)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Attribute '%s' (type '%s'): Invalid value %d (max allowed %d)",
             aname,
@@ -359,7 +354,7 @@ extract_attr_64bit (
     exr_result_t rv;
     if (attrsz != 8 * num)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
             "Attribute '%s': Invalid size %d (exp '%s' size 8 * %d (%d))",
             aname,
@@ -368,14 +363,10 @@ extract_attr_64bit (
             num,
             8 * num);
 
-    rv = scratch->sequential_read (scratch, attrdata, 8 * num);
+    rv = scratch->sequential_read (scratch, attrdata, 8 * (uint64_t) num);
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
-            rv,
-            "Unable to read '%s' %s data",
-            aname,
-            tname);
+            ctxt, rv, "Unable to read '%s' %s data", aname, tname);
 
     priv_to_native64 (attrdata, num);
     return rv;
@@ -396,7 +387,7 @@ extract_attr_32bit (
     exr_result_t rv;
     if (attrsz != 4 * num)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
             "Attribute '%s': Invalid size %d (exp '%s' size 4 * %d (%d))",
             aname,
@@ -405,14 +396,10 @@ extract_attr_32bit (
             num,
             4 * num);
 
-    rv = scratch->sequential_read (scratch, attrdata, 4 * num);
+    rv = scratch->sequential_read (scratch, attrdata, 4 * (uint64_t) num);
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
-            rv,
-            "Unable to read '%s' %s data",
-            aname,
-            tname);
+            ctxt, rv, "Unable to read '%s' %s data", aname, tname);
 
     priv_to_native32 (attrdata, num);
     return rv;
@@ -439,12 +426,12 @@ extract_attr_float_vector (
         if (rv != EXR_ERR_SUCCESS) return rv;
 
         rv = scratch->sequential_read (
-            scratch, (void*) attrdata->arr, (uint64_t) attrsz);
+            scratch, EXR_CONST_CAST (void*, attrdata->arr), (uint64_t) attrsz);
         if (rv != EXR_ERR_SUCCESS)
         {
             exr_attr_float_vector_destroy ((exr_context_t) ctxt, attrdata);
             return ctxt->print_error (
-                (const exr_context_t) ctxt,
+                ctxt,
                 EXR_ERR_READ_IO,
                 "Unable to read '%s' %s data",
                 aname,
@@ -473,11 +460,7 @@ extract_attr_string (
         scratch->sequential_read (scratch, (void*) strptr, (uint64_t) attrsz);
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
-            rv,
-            "Unable to read '%s' %s data",
-            aname,
-            tname);
+            ctxt, rv, "Unable to read '%s' %s data", aname, tname);
     strptr[attrsz] = '\0';
     return exr_attr_string_init_static_with_length (
         (exr_context_t) ctxt, attrdata, strptr, attrsz);
@@ -511,7 +494,7 @@ extract_attr_string_vector (
         if (rv != EXR_ERR_SUCCESS)
         {
             rv = ctxt->print_error (
-                (const exr_context_t) ctxt,
+                ctxt,
                 rv,
                 "Attribute '%s': Unable to read string length",
                 aname);
@@ -523,7 +506,7 @@ extract_attr_string_vector (
         if (nlen < 0 || (ctxt->file_size > 0 && nlen > ctxt->file_size))
         {
             rv = ctxt->print_error (
-                (const exr_context_t) ctxt,
+                ctxt,
                 EXR_ERR_INVALID_ATTR,
                 "Attribute '%s': Invalid size (%d) encountered parsing string vector",
                 aname,
@@ -536,8 +519,7 @@ extract_attr_string_vector (
             clist = ctxt->alloc_fn (4 * sizeof (exr_attr_string_t));
             if (clist == NULL)
             {
-                rv = ctxt->standard_error (
-                    (const exr_context_t) ctxt, EXR_ERR_OUT_OF_MEMORY);
+                rv = ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
                 goto extract_string_vector_fail;
             }
             nalloced = 4;
@@ -545,11 +527,11 @@ extract_attr_string_vector (
         if ((nstr + 1) >= nalloced)
         {
             nalloced *= 2;
-            nlist = ctxt->alloc_fn (nalloced * sizeof (exr_attr_string_t));
+            nlist = ctxt->alloc_fn (
+                (size_t) (nalloced) * sizeof (exr_attr_string_t));
             if (nlist == NULL)
             {
-                rv = ctxt->standard_error (
-                    (const exr_context_t) ctxt, EXR_ERR_OUT_OF_MEMORY);
+                rv = ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
                 goto extract_string_vector_fail;
             }
             for (int32_t i = 0; i < nstr; ++i)
@@ -564,18 +546,18 @@ extract_attr_string_vector (
         if (rv != EXR_ERR_SUCCESS) goto extract_string_vector_fail;
 
         rv = scratch->sequential_read (
-            scratch, (void*) nlist->str, (uint64_t) nlen);
+            scratch, EXR_CONST_CAST (void*, nlist->str), (uint64_t) nlen);
         if (rv != EXR_ERR_SUCCESS)
         {
             rv = ctxt->print_error (
-                (const exr_context_t) ctxt,
+                ctxt,
                 rv,
                 "Attribute '%s': Unable to read string of length (%d)",
                 aname,
                 nlen);
             goto extract_string_vector_fail;
         }
-        *(((char*) nlist->str) + nlen) = '\0';
+        *((EXR_CONST_CAST (char*, nlist->str)) + nlen) = '\0';
         pulled += nlen;
     }
 
@@ -604,7 +586,7 @@ extract_attr_tiledesc (
     exr_result_t rv;
     if (attrsz != (int32_t) sizeof (*attrdata))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
             "Attribute '%s': Invalid size %d (exp '%s' size %d)",
             aname,
@@ -615,18 +597,14 @@ extract_attr_tiledesc (
     rv = scratch->sequential_read (scratch, attrdata, sizeof (*attrdata));
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
-            rv,
-            "Unable to read '%s' %s data",
-            aname,
-            tname);
+            ctxt, rv, "Unable to read '%s' %s data", aname, tname);
 
     attrdata->x_size = one_to_native32 (attrdata->x_size);
     attrdata->y_size = one_to_native32 (attrdata->y_size);
 
     if ((int) EXR_GET_TILE_LEVEL_MODE (*attrdata) >= (int) EXR_TILE_LAST_TYPE)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Attribute '%s': Invalid tile level specification encountered: found enum %d",
             aname,
@@ -635,7 +613,7 @@ extract_attr_tiledesc (
     if ((int) EXR_GET_TILE_ROUND_MODE (*attrdata) >=
         (int) EXR_TILE_ROUND_LAST_TYPE)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Attribute '%s': Invalid tile rounding specification encountered: found enum %d",
             aname,
@@ -671,7 +649,7 @@ extract_attr_opaque (
     {
         exr_attr_opaquedata_destroy ((exr_context_t) ctxt, attrdata);
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_READ_IO,
             "Attribute '%s': Unable to read opaque %s data (%d bytes)",
             aname,
@@ -699,7 +677,7 @@ extract_attr_preview (
 
     if (attrsz < 8)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
             "Attribute '%s': Invalid size %d (exp '%s' size >= 8)",
             aname,
@@ -709,17 +687,14 @@ extract_attr_preview (
     rv = scratch->sequential_read (scratch, sz, sizeof (uint32_t) * 2);
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
-            rv,
-            "Attribute '%s': Unable to read preview sizes",
-            aname);
+            ctxt, rv, "Attribute '%s': Unable to read preview sizes", aname);
 
     sz[0] = one_to_native32 (sz[0]);
     sz[1] = one_to_native32 (sz[1]);
     bytes = 4 * sz[0] * sz[1];
     if ((uint64_t) attrsz != (8 + bytes))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Attribute '%s': Invalid size %d (exp '%s' %u x %u * 4 + sizevals)",
             aname,
@@ -731,7 +706,7 @@ extract_attr_preview (
     if (fsize > 0 && bytes >= (uint64_t) fsize)
     {
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
             "Attribute '%s', type '%s': Invalid size for preview %u x %u",
             aname,
@@ -744,12 +719,12 @@ extract_attr_preview (
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     rv = scratch->sequential_read (
-        scratch, (void*) attrdata->rgba, sz[0] * sz[1] * 4);
+        scratch, EXR_CONST_CAST (void*, attrdata->rgba), sz[0] * sz[1] * 4);
     if (rv != EXR_ERR_SUCCESS)
     {
         exr_attr_preview_destroy ((exr_context_t) ctxt, attrdata);
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Attribute '%s': Unable to read preview data (%d bytes)",
             aname,
@@ -774,13 +749,13 @@ check_populate_channels (
 
     if (curpart->channels)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Duplicate copy of required attribute 'channels' encountered");
 
     if (0 != strcmp (tname, "chlist"))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
             "Required attribute 'channels': Invalid type '%s'",
             tname);
@@ -801,7 +776,7 @@ check_populate_channels (
     {
         exr_attr_chlist_destroy ((exr_context_t) ctxt, &tmpchans);
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Unable initialize attribute '%s', type 'int'",
             EXR_REQ_CHANNELS_STR);
@@ -826,14 +801,14 @@ check_populate_compression (
 
     if (curpart->compression)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Duplicate copy of required attribute '%s' encountered",
             EXR_REQ_COMP_STR);
 
     if (0 != strcmp (tname, EXR_REQ_COMP_STR))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
             "Required attribute '%s': Invalid type '%s'",
             EXR_REQ_COMP_STR,
@@ -859,7 +834,7 @@ check_populate_compression (
         &(curpart->compression));
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Unable initialize attribute '%s', type 'int'",
             EXR_REQ_COMP_STR);
@@ -884,14 +859,14 @@ check_populate_dataWindow (
 
     if (curpart->dataWindow)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Duplicate copy of required attribute '%s' encountered",
             EXR_REQ_DATA_STR);
 
     if (0 != strcmp (tname, "box2i"))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
             "Required attribute '%s': Invalid type '%s'",
             EXR_REQ_DATA_STR,
@@ -911,7 +886,7 @@ check_populate_dataWindow (
         &(curpart->dataWindow));
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Unable initialize attribute '%s', type 'box2i'",
             EXR_REQ_DATA_STR);
@@ -936,14 +911,14 @@ check_populate_displayWindow (
 
     if (curpart->displayWindow)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Duplicate copy of required attribute '%s' encountered",
             EXR_REQ_DISP_STR);
 
     if (0 != strcmp (tname, "box2i"))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
             "Required attribute '%s': Invalid type '%s'",
             EXR_REQ_DISP_STR,
@@ -963,7 +938,7 @@ check_populate_displayWindow (
         &(curpart->displayWindow));
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Unable initialize attribute '%s', type 'box2i'",
             EXR_REQ_DISP_STR);
@@ -988,14 +963,14 @@ check_populate_lineOrder (
 
     if (curpart->lineOrder)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Duplicate copy of required attribute '%s' encountered",
             EXR_REQ_LO_STR);
 
     if (0 != strcmp (tname, EXR_REQ_LO_STR))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
             "Required attribute '%s': Invalid type '%s'",
             EXR_REQ_LO_STR,
@@ -1021,7 +996,7 @@ check_populate_lineOrder (
         &(curpart->lineOrder));
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Unable initialize attribute '%s', type 'int'",
             EXR_REQ_LO_STR);
@@ -1050,14 +1025,14 @@ check_populate_pixelAspectRatio (
 
     if (curpart->pixelAspectRatio)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Duplicate copy of required attribute '%s' encountered",
             EXR_REQ_PAR_STR);
 
     if (0 != strcmp (tname, "float"))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
             "Required attribute '%s': Invalid type '%s'",
             EXR_REQ_PAR_STR,
@@ -1065,7 +1040,7 @@ check_populate_pixelAspectRatio (
 
     if (attrsz != sizeof (float))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
             "Required attribute '%s': Invalid size %d (exp 4)",
             EXR_REQ_PAR_STR,
@@ -1074,7 +1049,7 @@ check_populate_pixelAspectRatio (
     rv = scratch->sequential_read (scratch, &(tpun.ival), sizeof (uint32_t));
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Attribute '%s': Unable to read data (%d bytes)",
             EXR_REQ_PAR_STR,
@@ -1092,7 +1067,7 @@ check_populate_pixelAspectRatio (
         &(curpart->pixelAspectRatio));
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Unable initialize attribute '%s', type 'int'",
             EXR_REQ_PAR_STR);
@@ -1116,14 +1091,14 @@ check_populate_screenWindowCenter (
 
     if (curpart->screenWindowCenter)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Duplicate copy of required attribute '%s' encountered",
             EXR_REQ_SCR_WC_STR);
 
     if (0 != strcmp (tname, "v2f"))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
             "Required attribute '%s': Invalid type '%s'",
             EXR_REQ_SCR_WC_STR,
@@ -1131,7 +1106,7 @@ check_populate_screenWindowCenter (
 
     if (attrsz != sizeof (exr_attr_v2f_t))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
             "Required attribute '%s': Invalid size %d (exp %" PRIu64 ")",
             EXR_REQ_SCR_WC_STR,
@@ -1141,7 +1116,7 @@ check_populate_screenWindowCenter (
     rv = scratch->sequential_read (scratch, &tmpdata, sizeof (exr_attr_v2f_t));
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Attribute '%s': Unable to read data (%d bytes)",
             EXR_REQ_SCR_WC_STR,
@@ -1159,7 +1134,7 @@ check_populate_screenWindowCenter (
         &(curpart->screenWindowCenter));
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Unable initialize attribute '%s', type 'int'",
             EXR_REQ_SCR_WC_STR);
@@ -1185,14 +1160,14 @@ check_populate_screenWindowWidth (
 
     if (curpart->screenWindowWidth)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Duplicate copy of required attribute '%s' encountered",
             EXR_REQ_SCR_WW_STR);
 
     if (0 != strcmp (tname, "float"))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
             "Required attribute '%s': Invalid type '%s'",
             EXR_REQ_SCR_WW_STR,
@@ -1200,7 +1175,7 @@ check_populate_screenWindowWidth (
 
     if (attrsz != sizeof (float))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
             "Required attribute '%s': Invalid size %d (exp 4)",
             EXR_REQ_SCR_WW_STR,
@@ -1209,7 +1184,7 @@ check_populate_screenWindowWidth (
     rv = scratch->sequential_read (scratch, &(tpun.ival), sizeof (uint32_t));
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Attribute '%s': Unable to read data (%d bytes)",
             EXR_REQ_SCR_WW_STR,
@@ -1227,7 +1202,7 @@ check_populate_screenWindowWidth (
         &(curpart->screenWindowWidth));
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Unable initialize attribute '%s', type 'int'",
             EXR_REQ_SCR_WW_STR);
@@ -1251,20 +1226,20 @@ check_populate_tiles (
 
     if (curpart->tiles)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Duplicate copy of required attribute 'tiles' encountered");
 
     if (0 != strcmp (tname, "tiledesc"))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
             "Required attribute 'tiles': Invalid type '%s'",
             tname);
 
     if (attrsz != sizeof (exr_attr_tiledesc_t))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
             "Required attribute 'tiles': Invalid size %d (exp %" PRIu64 ")",
             attrsz,
@@ -1272,8 +1247,7 @@ check_populate_tiles (
 
     rv = scratch->sequential_read (scratch, &tmpdata, sizeof (tmpdata));
     if (rv != EXR_ERR_SUCCESS)
-        return ctxt->report_error (
-            (const exr_context_t) ctxt, rv, "Unable to read 'tiles' data");
+        return ctxt->report_error (ctxt, rv, "Unable to read 'tiles' data");
 
     tmpdata.x_size = one_to_native32 (tmpdata.x_size);
     tmpdata.y_size = one_to_native32 (tmpdata.y_size);
@@ -1288,7 +1262,7 @@ check_populate_tiles (
         &(curpart->tiles));
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Unable initialize attribute '%s', type 'tiledesc'",
             EXR_REQ_TILES_STR);
@@ -1316,13 +1290,13 @@ check_populate_name (
 
     if (curpart->name)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Duplicate copy of required attribute 'name' encountered");
 
     if (0 != strcmp (tname, "string"))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
             "attribute 'name': Invalid type '%s'",
             tname);
@@ -1338,20 +1312,19 @@ check_populate_name (
     if (rv != EXR_ERR_SUCCESS)
     {
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Unable initialize attribute '%s', type 'string'",
             EXR_REQ_NAME_STR);
     }
 
-    rv = scratch->sequential_read (scratch, outstr, attrsz);
+    rv = scratch->sequential_read (scratch, outstr, (uint64_t)attrsz);
     if (rv != EXR_ERR_SUCCESS)
     {
         exr_attr_list_remove (
             (exr_context_t) ctxt, &(curpart->attributes), curpart->name);
         curpart->name = NULL;
-        return ctxt->report_error (
-            (const exr_context_t) ctxt, rv, "Unable to read 'name' data");
+        return ctxt->report_error (ctxt, rv, "Unable to read 'name' data");
     }
     outstr[attrsz] = '\0';
 
@@ -1365,8 +1338,7 @@ check_populate_name (
         exr_attr_list_remove (
             (exr_context_t) ctxt, &(curpart->attributes), curpart->name);
         curpart->name = NULL;
-        return ctxt->report_error (
-            (const exr_context_t) ctxt, rv, "Unable to read 'name' data");
+        return ctxt->report_error (ctxt, rv, "Unable to read 'name' data");
     }
 
     return rv;
@@ -1391,13 +1363,13 @@ check_populate_type (
 
     if (curpart->type)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Duplicate copy of required attribute 'type' encountered");
 
     if (0 != strcmp (tname, "string"))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
             "Required attribute 'type': Invalid type '%s'",
             tname);
@@ -1413,20 +1385,19 @@ check_populate_type (
     if (rv != EXR_ERR_SUCCESS)
     {
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Unable initialize attribute '%s', type 'string'",
             EXR_REQ_TYPE_STR);
     }
 
-    rv = scratch->sequential_read (scratch, outstr, attrsz);
+    rv = scratch->sequential_read (scratch, outstr, (uint64_t)attrsz);
     if (rv != EXR_ERR_SUCCESS)
     {
         exr_attr_list_remove (
             (exr_context_t) ctxt, &(curpart->attributes), curpart->type);
         curpart->type = NULL;
-        return ctxt->report_error (
-            (const exr_context_t) ctxt, rv, "Unable to read 'name' data");
+        return ctxt->report_error (ctxt, rv, "Unable to read 'name' data");
     }
     outstr[attrsz] = '\0';
 
@@ -1440,8 +1411,7 @@ check_populate_type (
         exr_attr_list_remove (
             (exr_context_t) ctxt, &(curpart->attributes), curpart->type);
         curpart->type = NULL;
-        return ctxt->report_error (
-            (const exr_context_t) ctxt, rv, "Unable to read 'name' data");
+        return ctxt->report_error (ctxt, rv, "Unable to read 'name' data");
     }
 
     if (strcmp ((const char*) outstr, "scanlineimage") == 0)
@@ -1458,7 +1428,7 @@ check_populate_type (
             (exr_context_t) ctxt, &(curpart->attributes), curpart->type);
         curpart->type = NULL;
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "attribute 'type': Invalid type string '%s'",
             outstr);
@@ -1481,36 +1451,32 @@ check_populate_version (
 
     if (curpart->version)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Duplicate copy of required attribute 'version' encountered");
 
     if (0 != strcmp (tname, "int"))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
             "attribute 'version': Invalid type '%s'",
             tname);
 
     if (attrsz != sizeof (int32_t))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "attribute 'version': Invalid size %d (exp 4)",
             attrsz);
 
     rv = scratch->sequential_read (scratch, &attrsz, sizeof (int32_t));
     if (rv != EXR_ERR_SUCCESS)
-        return ctxt->report_error (
-            (const exr_context_t) ctxt, rv, "Unable to read version data");
+        return ctxt->report_error (ctxt, rv, "Unable to read version data");
 
     attrsz = (int32_t) one_to_native32 ((uint32_t) attrsz);
     if (attrsz != 1)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
-            EXR_ERR_INVALID_ATTR,
-            "Invalid version %d: expect 1",
-            attrsz);
+            ctxt, EXR_ERR_INVALID_ATTR, "Invalid version %d: expect 1", attrsz);
 
     rv = exr_attr_list_add_static_name (
         (exr_context_t) ctxt,
@@ -1522,7 +1488,7 @@ check_populate_version (
         &(curpart->version));
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Unable initialize attribute '%s', type 'int'",
             EXR_REQ_VERSION_STR);
@@ -1544,28 +1510,27 @@ check_populate_chunk_count (
 
     if (curpart->chunkCount)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Duplicate copy of required attribute 'chunkCount' encountered");
 
     if (0 != strcmp (tname, "int"))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_ATTR_TYPE_MISMATCH,
             "attribute 'chunkCount': Invalid type '%s'",
             tname);
 
     if (attrsz != sizeof (int32_t))
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_INVALID_ATTR,
             "Required attribute 'chunkCount': Invalid size %d (exp 4)",
             attrsz);
 
     rv = scratch->sequential_read (scratch, &attrsz, sizeof (int32_t));
     if (rv != EXR_ERR_SUCCESS)
-        return ctxt->report_error (
-            (const exr_context_t) ctxt, rv, "Unable to read chunkCount data");
+        return ctxt->report_error (ctxt, rv, "Unable to read chunkCount data");
 
     rv = exr_attr_list_add_static_name (
         (exr_context_t) ctxt,
@@ -1577,7 +1542,7 @@ check_populate_chunk_count (
         &(curpart->chunkCount));
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Unable initialize attribute '%s', type 'int'",
             EXR_REQ_CHUNK_COUNT_STR);
@@ -1676,7 +1641,7 @@ pull_attr (
     int32_t          namelen = 0, typelen = 0;
     int32_t          attrsz = 0;
     exr_attribute_t* nattr  = NULL;
-    uint8_t*         strptr;
+    uint8_t*         strptr = NULL;
     const int32_t    maxlen = ctxt->max_name_length;
 
     if (init_byte > 0 &&
@@ -1699,13 +1664,13 @@ pull_attr (
 
     if (namelen == 0)
         return ctxt->report_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_FILE_BAD_HEADER,
             "Invalid empty string encountered parsing attribute name");
 
     if (typelen == 0)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_FILE_BAD_HEADER,
             "Invalid empty string encountered parsing attribute type for attribute '%s'",
             name);
@@ -1713,12 +1678,12 @@ pull_attr (
     rv = scratch->sequential_read (scratch, &attrsz, sizeof (int32_t));
     if (rv != 0)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Unable to read attribute size for attribute '%s', type '%s'",
             name,
             type);
-    attrsz = one_to_native32 (attrsz);
+    attrsz = (int32_t)one_to_native32 ((uint32_t)attrsz);
 
     rv = check_req_attr (ctxt, curpart, scratch, name, type, attrsz);
     if (rv != EXR_ERR_UNKNOWN) return rv;
@@ -1753,7 +1718,7 @@ pull_attr (
 
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             rv,
             "Unable initialize attribute '%s', type '%s'",
             name,
@@ -1905,7 +1870,7 @@ pull_attr (
         case EXR_ATTR_LAST_KNOWN_TYPE:
         default:
             rv = ctxt->print_error (
-                (const exr_context_t) ctxt,
+                ctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Invalid type '%s' for attribute '%s'",
                 type,
@@ -1984,8 +1949,7 @@ internal_exr_compute_tile_information (
         return EXR_ERR_SUCCESS;
 
     if (!curpart->tiles)
-        return ctxt->standard_error (
-            (const exr_context_t) ctxt, EXR_ERR_INVALID_ARGUMENT);
+        return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 
     if (rebuild)
     {
@@ -2039,16 +2003,16 @@ internal_exr_compute_tile_information (
                     numY = ceil_log2 (h) + 1;
                 }
                 break;
+            case EXR_TILE_LAST_TYPE:
             default: return -1;
         }
 
         curpart->num_tile_levels_x = numX;
         curpart->num_tile_levels_y = numY;
         levcntX =
-            (int32_t*) ctxt->alloc_fn (2 * (numX + numY) * sizeof (int32_t));
+            (int32_t*) ctxt->alloc_fn (2 * (size_t)(numX + numY) * sizeof (int32_t));
         if (levcntX == NULL)
-            return ctxt->standard_error (
-                (const exr_context_t) ctxt, EXR_ERR_OUT_OF_MEMORY);
+            return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
         levszX  = levcntX + numX;
         levcntY = levszX + numX;
         levszY  = levcntY + numY;
@@ -2059,7 +2023,7 @@ internal_exr_compute_tile_information (
                 dw.x_min, dw.x_max, l, EXR_GET_TILE_ROUND_MODE ((*tiledesc)));
             if (sx < 0 || sx > (int64_t) INT32_MAX)
                 return ctxt->print_error (
-                    (const exr_context_t) ctxt,
+                    ctxt,
                     EXR_ERR_INVALID_ATTR,
                     "Invalid data window x dims (%d, %d) resulting in invalid tile level size (%" PRId64
                     ") for level %d",
@@ -2078,7 +2042,7 @@ internal_exr_compute_tile_information (
                 dw.y_min, dw.y_max, l, EXR_GET_TILE_ROUND_MODE ((*tiledesc)));
             if (sy < 0 || sy > (int64_t) INT32_MAX)
                 return ctxt->print_error (
-                    (const exr_context_t) ctxt,
+                    ctxt,
                     EXR_ERR_INVALID_ATTR,
                     "Invalid data window y dims (%d, %d) resulting in invalid tile level size (%" PRId64
                     ") for level %d",
@@ -2141,6 +2105,7 @@ internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart)
                 if (tilecount > (int64_t) INT_MAX) return -1;
                 retval = (int32_t) tilecount;
                 break;
+            case EXR_TILE_LAST_TYPE:
             default: return -1;
         }
 
@@ -2154,8 +2119,13 @@ internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart)
             else
                 cunpsz = 4;
             unpackedsize +=
-                (cunpsz * (uint64_t) ((tiledesc->x_size + xsamp - 1) / xsamp) *
-                 (uint64_t) ((tiledesc->y_size + ysamp - 1) / ysamp));
+                (cunpsz *
+                 (uint64_t) (
+                     ((uint64_t) tiledesc->x_size + (uint64_t) xsamp - 1) /
+                     (uint64_t) xsamp) *
+                 (uint64_t) (
+                     ((uint64_t) tiledesc->y_size + (uint64_t) ysamp - 1) /
+                     (uint64_t) ysamp));
         }
         curpart->unpacked_size_per_chunk = unpackedsize;
     }
@@ -2174,6 +2144,7 @@ internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart)
             case EXR_COMPRESSION_B44A:
             case EXR_COMPRESSION_DWAA: linePerChunk = 32; break;
             case EXR_COMPRESSION_DWAB: linePerChunk = 256; break;
+            case EXR_COMPRESSION_LAST_TYPE:
             default:
                 /* ERROR CONDITION */
                 return -1;
@@ -2215,8 +2186,9 @@ update_chunk_offsets (
 
     if (!ctxt->parts) return EXR_ERR_INVALID_ARGUMENT;
 
-    ctxt->parts[0]->chunk_table_offset = scratch->fileoff - scratch->navail;
-    prevpart                           = ctxt->parts[0];
+    ctxt->parts[0]->chunk_table_offset =
+        scratch->fileoff - (uint64_t) scratch->navail;
+    prevpart = ctxt->parts[0];
     for (int p = 0; p < ctxt->num_parts; ++p)
     {
         curpart = ctxt->parts[p];
@@ -2228,7 +2200,7 @@ update_chunk_offsets (
         if (ccount < 0)
         {
             rv = ctxt->print_error (
-                (const exr_context_t) ctxt,
+                ctxt,
                 EXR_ERR_INVALID_ATTR,
                 "Invalid chunk count (%d) for part '%s'",
                 ccount,
@@ -2243,7 +2215,7 @@ update_chunk_offsets (
             /* fatal error or just ignore it? c++ seemed to just ignore it entirely, we can at least warn */
             /* rv = */
             ctxt->print_error (
-                (const exr_context_t) ctxt,
+                ctxt,
                 EXR_ERR_INVALID_ATTR,
                 "Invalid chunk count (%d) for part '%s', expect (%d)",
                 curpart->chunk_count,
@@ -2254,7 +2226,7 @@ update_chunk_offsets (
         if (prevpart != curpart)
             curpart->chunk_table_offset =
                 prevpart->chunk_table_offset +
-                sizeof (uint64_t) * prevpart->chunk_count;
+                sizeof (uint64_t) * (size_t) (prevpart->chunk_count);
         prevpart = curpart;
     }
     return rv;
@@ -2271,8 +2243,7 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
     uint32_t     magic_and_version[2];
     uint32_t     flags;
     uint8_t      next_byte;
-    exr_result_t rv        = EXR_ERR_UNKNOWN;
-    uint64_t     curoffset = 0;
+    exr_result_t rv = EXR_ERR_UNKNOWN;
 
     rv = priv_init_scratch (ctxt, &scratch, 0);
     if (rv != EXR_ERR_SUCCESS)
@@ -2286,9 +2257,7 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
     if (rv != EXR_ERR_SUCCESS)
     {
         ctxt->report_error (
-            (const exr_context_t) ctxt,
-            EXR_ERR_READ_IO,
-            "Unable to read magic and version flags");
+            ctxt, EXR_ERR_READ_IO, "Unable to read magic and version flags");
         priv_destroy_scratch (&scratch);
         return rv;
     }
@@ -2297,7 +2266,7 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
     if (magic_and_version[0] != 20000630)
     {
         rv = ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_FILE_BAD_HEADER,
             "File is not an OpenEXR file: magic 0x%08X (%d) flags 0x%08X",
             magic_and_version[0],
@@ -2313,7 +2282,7 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
     if (ctxt->version != 2)
     {
         rv = ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_FILE_BAD_HEADER,
             "File is of an unsupported version: %d, magic 0x%08X flags 0x%08X",
             (int) ctxt->version,
@@ -2323,11 +2292,11 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
         return rv;
     }
 
-    flags = flags & ~(EXR_FILE_VERSION_MASK);
-    if ((flags & ~EXR_VALID_FLAGS) != 0)
+    flags = flags & ~((uint32_t) EXR_FILE_VERSION_MASK);
+    if ((flags & ~((uint32_t) EXR_VALID_FLAGS)) != 0)
     {
         rv = ctxt->print_error (
-            (const exr_context_t) ctxt,
+            ctxt,
             EXR_ERR_FILE_BAD_HEADER,
             "File has an unsupported flags: magic 0x%08X flags 0x%08X",
             magic_and_version[0],
@@ -2340,9 +2309,7 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
     if (!curpart)
     {
         rv = ctxt->report_error (
-            (const exr_context_t) ctxt,
-            EXR_ERR_INVALID_ARGUMENT,
-            "Error during file initialization");
+            ctxt, EXR_ERR_INVALID_ARGUMENT, "Error during file initialization");
         priv_destroy_scratch (&scratch);
         return rv;
     }
@@ -2358,7 +2325,7 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
         if (ctxt->has_nonimage_data || ctxt->is_multipart)
         {
             rv = ctxt->print_error (
-                (const exr_context_t) ctxt,
+                ctxt,
                 EXR_ERR_FILE_BAD_HEADER,
                 "Invalid combination of version flags: single part found, but also marked as deep (%d) or multipart (%d)",
                 (int) ctxt->has_nonimage_data,
@@ -2377,9 +2344,7 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
         if (rv != EXR_ERR_SUCCESS)
         {
             rv = ctxt->report_error (
-                (const exr_context_t) ctxt,
-                EXR_ERR_FILE_BAD_HEADER,
-                "Unable to extract header byte");
+                ctxt, EXR_ERR_FILE_BAD_HEADER, "Unable to extract header byte");
             priv_destroy_scratch (&scratch);
             return rv;
         }
@@ -2403,7 +2368,7 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
             if (rv != EXR_ERR_SUCCESS)
             {
                 rv = ctxt->report_error (
-                    (const exr_context_t) ctxt,
+                    ctxt,
                     EXR_ERR_FILE_BAD_HEADER,
                     "Unable to go to next part definition");
                 priv_destroy_scratch (&scratch);

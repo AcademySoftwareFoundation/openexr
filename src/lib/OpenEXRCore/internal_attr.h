@@ -42,7 +42,7 @@ int internal_exr_is_standard_type (const char* typen);
  * @{
  */
 
-typedef struct
+typedef struct exr_attribute_list
 {
     int num_attributes; /**< number of attribute entries in the list */
     int num_alloced; /**< allocation count. if > 0, attribute list owns pointer */
@@ -59,12 +59,12 @@ exr_result_t
 exr_attr_list_destroy (exr_context_t ctxt, exr_attribute_list_t* l);
 
 /** Computes the number of bytes required to store this attribute list in a file */
-exr_result_t
-exr_attr_list_compute_size (exr_context_t ctxt, exr_attribute_list_t* l, uint64_t* out);
+exr_result_t exr_attr_list_compute_size (
+    exr_context_t ctxt, exr_attribute_list_t* l, uint64_t* out);
 
 /** Finds an attribute in the list by name */
 exr_result_t exr_attr_list_find_by_name (
-    exr_context_t         ctxt,
+    exr_const_context_t   ctxt,
     exr_attribute_list_t* l,
     const char*           name,
     exr_attribute_t**     out);

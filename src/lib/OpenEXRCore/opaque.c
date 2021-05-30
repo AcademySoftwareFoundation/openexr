@@ -22,13 +22,13 @@ exr_attr_opaquedata_init (
 
     if (!u)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to opaque data object to initialize");
 
     if (b > (size_t) INT32_MAX)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid size for opaque data (%" PRIu64
             " bytes, must be <= INT32_MAX)",
@@ -40,7 +40,7 @@ exr_attr_opaquedata_init (
 
         u->packed_data = pctxt->alloc_fn (b);
         if (!u->packed_data)
-            return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+            return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
     }
     u->size              = (int32_t) b;
     u->packed_alloc_size = (int32_t) b;
@@ -95,7 +95,7 @@ exr_attr_opaquedata_copy (
     if (!srcud) return EXR_ERR_INVALID_ARGUMENT;
     if (srcud->packed_data)
         return exr_attr_opaquedata_create (
-            ctxt, ud, srcud->size, srcud->packed_data);
+            ctxt, ud, (size_t)srcud->size, srcud->packed_data);
     rv = exr_attr_opaquedata_init (ctxt, ud, 0);
     if (rv == EXR_ERR_SUCCESS)
         rv = exr_attr_opaquedata_set_unpacked (
@@ -118,7 +118,7 @@ exr_attr_opaquedata_unpack (
 
     if (!u)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to opaque data object to initialize");
 
@@ -131,7 +131,7 @@ exr_attr_opaquedata_unpack (
 
     if (!u->unpack_func_ptr)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "No unpack provider specified for opaque data");
     rv = u->unpack_func_ptr (
@@ -166,7 +166,7 @@ exr_attr_opaquedata_pack (
 
     if (!u)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to opaque data object to initialize");
 
@@ -179,7 +179,7 @@ exr_attr_opaquedata_pack (
 
     if (!u->pack_func_ptr)
         return pctxt->report_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "No pack provider specified for opaque data");
 
@@ -187,7 +187,7 @@ exr_attr_opaquedata_pack (
         ctxt, u->unpacked_data, u->unpacked_size, &nsize, NULL);
     if (rv != EXR_ERR_SUCCESS)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             rv,
             "Pack function failed finding pack buffer size, unpacked size %d",
             u->unpacked_size);
@@ -196,7 +196,7 @@ exr_attr_opaquedata_pack (
     {
         tmpptr = pctxt->alloc_fn ((size_t) nsize);
         if (tmpptr == NULL)
-            return pctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+            return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
 
         u->packed_alloc_size = nsize;
 
@@ -208,7 +208,7 @@ exr_attr_opaquedata_pack (
             nsize                = u->packed_alloc_size;
             u->packed_alloc_size = 0;
             return pctxt->print_error (
-                ctxt,
+                pctxt,
                 rv,
                 "Pack function failed to pack data, unpacked size %d, packed buffer size %d",
                 u->unpacked_size,
@@ -230,12 +230,12 @@ exr_attr_opaquedata_set_unpacked (
 {
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
-    if (!u) return pctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+    if (!u) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
 
     /* TODO: do we care if the incoming unpacked data is null? */
     if (sz < 0)
         return pctxt->print_error (
-            ctxt,
+            pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Opaque data given invalid negative size (%d)",
             sz);

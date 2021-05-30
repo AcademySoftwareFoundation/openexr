@@ -26,7 +26,7 @@
 
 static void
 default_error_handler (
-    const exr_context_t ctxt, exr_result_t code, const char* msg)
+    exr_const_context_t ctxt, exr_result_t code, const char* msg)
 {
     const struct _internal_exr_context* pctxt = EXR_CCTXT (ctxt);
 
@@ -52,9 +52,19 @@ default_error_handler (
     if (pctxt)
     {
         if (pctxt->filename.str)
-            fprintf (stderr, "%s: %s\n", pctxt->filename.str, msg);
+            fprintf (
+                stderr,
+                "%s: (%s) %s\n",
+                pctxt->filename.str,
+                exr_get_error_code_as_string (code),
+                msg);
         else
-            fprintf (stderr, "File 0x%p: %s\n", (void*) ctxt, msg);
+            fprintf (
+                stderr,
+                "Context 0x%p: (%s) %s\n",
+                (const void*) ctxt,
+                exr_get_error_code_as_string (code),
+                msg);
     }
     else
         fprintf (stderr, "<ERROR>: %s\n", msg);
@@ -70,11 +80,15 @@ default_error_handler (
 }
 
 static exr_result_t
-dispatch_error (const exr_context_t ctxt, exr_result_t code, const char* msg)
+dispatch_error (
+    const struct _internal_exr_context* pctxt,
+    exr_result_t                        code,
+    const char*                         msg)
 {
-    if (ctxt)
+    exr_const_context_t ctxt = (exr_const_context_t)(pctxt);
+    if (pctxt)
     {
-        EXR_CCTXT (ctxt)->error_handler_fn (ctxt, code, msg);
+        pctxt->error_handler_fn (ctxt, code, msg);
         return code;
     }
 
@@ -85,26 +99,31 @@ dispatch_error (const exr_context_t ctxt, exr_result_t code, const char* msg)
 /**************************************/
 
 static exr_result_t
-dispatch_standard_error (const exr_context_t ctxt, exr_result_t code)
+dispatch_standard_error (
+    const struct _internal_exr_context* pctxt, exr_result_t code)
 {
-    return dispatch_error (ctxt, code, exr_get_default_error_message (code));
+    return dispatch_error (pctxt, code, exr_get_default_error_message (code));
 }
 
 /**************************************/
 
 static exr_result_t dispatch_print_error (
-    const exr_context_t ctxt, exr_result_t code, const char* msg, ...)
-    EXR_PRINTF_FUNC_ATTRIBUTE;
+    const struct _internal_exr_context* pctxt,
+    exr_result_t                        code,
+    const char*                         msg,
+    ...) EXR_PRINTF_FUNC_ATTRIBUTE;
 
 static exr_result_t
 dispatch_print_error (
-    const exr_context_t ctxt, exr_result_t code, const char* msg, ...)
+    const struct _internal_exr_context* pctxt,
+    exr_result_t                        code,
+    const char*                         msg,
+    ...)
 {
-    const struct _internal_exr_context* pctxt = EXR_CCTXT (ctxt);
-    char                                stackbuf[256];
-    char*                               heapbuf = NULL;
-    int                                 nwrit   = 0;
-    va_list                             fmtargs;
+    char    stackbuf[256];
+    char*   heapbuf = NULL;
+    int     nwrit   = 0;
+    va_list fmtargs;
 
     va_start (fmtargs, msg);
     {
@@ -115,19 +134,19 @@ dispatch_print_error (
         va_end (stkargs);
         if (nwrit >= 256)
         {
-            heapbuf = pctxt->alloc_fn (nwrit + 1);
+            heapbuf = pctxt->alloc_fn ((size_t) (nwrit + 1));
             if (heapbuf)
             {
-                (void) vsnprintf (heapbuf, nwrit + 1, msg, fmtargs);
-                dispatch_error (ctxt, code, heapbuf);
+                (void) vsnprintf (heapbuf, (size_t) (nwrit + 1), msg, fmtargs);
+                dispatch_error (pctxt, code, heapbuf);
                 pctxt->free_fn (heapbuf);
             }
             else
                 dispatch_error (
-                    ctxt, code, "Unable to allocate temporary memory");
+                    pctxt, code, "Unable to allocate temporary memory");
         }
         else
-            dispatch_error (ctxt, code, stackbuf);
+            dispatch_error (pctxt, code, stackbuf);
     }
     va_end (fmtargs);
     return code;
@@ -197,16 +216,14 @@ internal_exr_add_part (
         struct _internal_exr_part nil = { 0 };
 
         part = f->alloc_fn (sizeof (struct _internal_exr_part));
-        if (!part)
-            return f->standard_error (
-                (const exr_context_t) f, EXR_ERR_OUT_OF_MEMORY);
+        if (!part) return f->standard_error (f, EXR_ERR_OUT_OF_MEMORY);
 
-        nptrs = f->alloc_fn (sizeof (struct _internal_exr_part*) * ncount);
+        nptrs =
+            f->alloc_fn (sizeof (struct _internal_exr_part*) * (size_t) ncount);
         if (!nptrs)
         {
             f->free_fn (part);
-            return f->standard_error (
-                (const exr_context_t) f, EXR_ERR_OUT_OF_MEMORY);
+            return f->standard_error (f, EXR_ERR_OUT_OF_MEMORY);
         }
         *part = nil;
     }
@@ -265,7 +282,7 @@ internal_exr_alloc_context (
         memset (memptr, 0, sizeof (struct _internal_exr_context));
 
         ret       = memptr;
-        ret->mode = mode;
+        ret->mode = (uint8_t) mode;
         if (initializers->read_fn || initializers->write_fn)
             ret->user_data = initializers->user_data;
         else if (extra_data > 0)

@@ -27,6 +27,16 @@ enum transcoding_pipeline_buffer_id
     EXR_TRANSCODE_BUFFER_SAMPLES
 };
 
+/**
+ * Enum indicating the data type in the buffer
+ */
+enum transcoding_pipeline_buffer_type
+{
+    EXR_BUFFER_TYPE_HALF,
+    EXR_BUFFER_TYPE_FLOAT,
+    EXR_BUFFER_TYPE_UINT32
+};
+
 /** @brief Structure for negotiating buffers when decoding / encoding
  * chunks of data
  *

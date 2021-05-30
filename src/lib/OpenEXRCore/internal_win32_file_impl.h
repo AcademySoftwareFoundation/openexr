@@ -56,17 +56,14 @@ print_error_helper (
             lpMsgBuf)))
     {
         return pf->print_error (
-            (const exr_context_t) pf,
-            EXR_ERR_OUT_OF_MEMORY,
-            "Unable to format message print");
+            pf, EXR_ERR_OUT_OF_MEMORY, "Unable to format message print");
     }
 
     if (error_cb)
         error_cb (
-            (const exr_context_t) pf, errcode, (const char*) lpDisplayBuf);
+            (exr_const_context_t) pf, errcode, (const char*) lpDisplayBuf);
     else
-        pf->print_error (
-            (const exr_context_t) pf, errcode, (const char*) lpDisplayBuf);
+        pf->print_error (pf, errcode, (const char*) lpDisplayBuf);
 
     LocalFree (lpMsgBuf);
     LocalFree (lpDisplayBuf);
@@ -116,7 +113,7 @@ struct _internal_exr_filehandle
 /**************************************/
 
 static void
-default_shutdown (const exr_context_t c, void* userdata, int failed)
+default_shutdown (exr_const_context_t c, void* userdata, int failed)
 {
     /* we will handle failure before here */
     struct _internal_exr_filehandle* fh = userdata;
@@ -171,7 +168,7 @@ finalize_write (struct _internal_exr_context* pf, int failed)
 
 static int64_t
 default_read_func (
-    const exr_context_t         ctxt,
+    exr_const_context_t         ctxt,
     void*                       userdata,
     void*                       buffer,
     uint64_t                    sz,
@@ -241,7 +238,7 @@ default_read_func (
 
 static int64_t
 default_write_func (
-    exr_context_t               ctxt,
+    exr_const_context_t         ctxt,
     void*                       userdata,
     const void*                 buffer,
     uint64_t                    sz,
@@ -373,7 +370,7 @@ default_init_write_file (struct _internal_exr_context* file)
 /**************************************/
 
 static int64_t
-default_query_size_func (const exr_context_t ctxt, void* userdata)
+default_query_size_func (exr_const_context_t ctxt, void* userdata)
 {
     struct _internal_exr_filehandle* fh = userdata;
     int64_t                          sz = -1;
@@ -401,7 +398,7 @@ make_temp_filename (struct _internal_exr_context* ret)
         _snprintf_s (tmproot, 32, _TRUNCATE, "tmp.%d", GetCurrentProcessId ());
     if (nwr >= 32)
         return ret->report_error (
-            (const exr_context_t) ret,
+            ret,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid assumption in temporary filename");
 
@@ -409,8 +406,7 @@ make_temp_filename (struct _internal_exr_context* ret)
     newlen = tlen + (uint64_t) ret->filename.length;
 
     if (newlen >= INT32_MAX)
-        return ret->standard_error (
-            (const exr_context_t) ret, EXR_ERR_OUT_OF_MEMORY);
+        return ret->standard_error (ret, EXR_ERR_OUT_OF_MEMORY);
 
     tmpname = ret->alloc_fn (newlen + 1);
     if (tmpname)
@@ -455,7 +451,7 @@ make_temp_filename (struct _internal_exr_context* ret)
     }
     else
         return ret->print_error (
-            (const exr_context_t) ret,
+            ret,
             EXR_ERR_OUT_OF_MEMORY,
             "Unable to create %" PRIu64 " bytes for temporary filename",
             (uint64_t) newlen + 1);

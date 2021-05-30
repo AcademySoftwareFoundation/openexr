@@ -20,12 +20,15 @@ extern "C" {
 typedef struct
 {
     int32_t idx;
-    uint8_t type;
-    uint8_t compression;
 
     int32_t start_y;
     int32_t height; /**< for this chunk */
     int32_t width;  /**< for this chunk */
+
+    uint8_t type;
+    uint8_t compression;
+
+    uint8_t pad[6];
 
     uint64_t data_offset;
     uint64_t packed_size;
@@ -37,14 +40,14 @@ typedef struct
 
 EXR_EXPORT
 exr_result_t exr_read_scanline_block_info (
-    const exr_context_t     ctxt,
+    exr_const_context_t     ctxt,
     int                     part_index,
     int                     y,
     exr_chunk_block_info_t* cinfo);
 
 EXR_EXPORT
 exr_result_t exr_read_tile_block_info (
-    const exr_context_t     ctxt,
+    exr_const_context_t     ctxt,
     int                     part_index,
     int                     tilex,
     int                     tiley,
@@ -59,7 +62,7 @@ exr_result_t exr_read_tile_block_info (
  */
 EXR_EXPORT
 exr_result_t exr_read_chunk (
-    const exr_context_t           ctxt,
+    exr_const_context_t           ctxt,
     int                           part_index,
     const exr_chunk_block_info_t* cinfo,
     void*                         packed_data);
@@ -75,7 +78,7 @@ exr_result_t exr_read_chunk (
  */
 EXR_EXPORT
 exr_result_t exr_read_deep_chunk (
-    const exr_context_t           ctxt,
+    exr_const_context_t           ctxt,
     int                           part_index,
     const exr_chunk_block_info_t* cinfo,
     void*                         packed_data,

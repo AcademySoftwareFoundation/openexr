@@ -4,6 +4,7 @@
 */
 
 #include "internal_unpack.h"
+#include "internal_xdr.h"
 
 #include <string.h>
 
@@ -29,11 +30,12 @@ unpack_16bit_3chan_interleave (exr_decode_pipeline_t* decode)
     for (int y = 0; y < h; ++y)
     {
         uint16_t* out = (uint16_t*) out0;
-        in0           = (const uint16_t*) srcbuffer;
-        in1           = in0 + w;
-        in2           = in1 + w;
 
-        srcbuffer += w * 3 * sizeof (uint16_t);
+        in0 = (const uint16_t*) srcbuffer;
+        in1 = in0 + w;
+        in2 = in1 + w;
+
+        srcbuffer += w * 6; // 3 * sizeof(uint16_t), avoid type conversion
         for (int x = 0; x < w; ++x)
         {
 #if EXR_HOST_IS_NOT_LITTLE_ENDIAN
@@ -83,7 +85,7 @@ unpack_16bit_3chan_planar (exr_decode_pipeline_t* decode)
         in0 = (const uint16_t*) srcbuffer;
         in1 = in0 + w;
         in2 = in1 + 1;
-        srcbuffer += w * 3 * sizeof (uint16_t);
+        srcbuffer += w * 6; // 3 * sizeof(uint16_t), avoid type conversion
 #if EXR_HOST_IS_NOT_LITTLE_ENDIAN
         for (int x = 0; x < w; ++x)
             *(((uint16_t*) out0) + x) = le16toh (in0[x]);
@@ -92,9 +94,9 @@ unpack_16bit_3chan_planar (exr_decode_pipeline_t* decode)
         for (int x = 0; x < w; ++x)
             *(((uint16_t*) out2) + x) = le16toh (in2[x]);
 #else
-        memcpy (out0, in0, w * sizeof (uint16_t));
-        memcpy (out1, in1, w * sizeof (uint16_t));
-        memcpy (out2, in2, w * sizeof (uint16_t));
+        memcpy (out0, in0, (size_t) (w) * sizeof (uint16_t));
+        memcpy (out1, in1, (size_t) (w) * sizeof (uint16_t));
+        memcpy (out2, in2, (size_t) (w) * sizeof (uint16_t));
 #endif
         out0 += linc0;
         out1 += linc1;
@@ -135,7 +137,7 @@ unpack_16bit_3chan (exr_decode_pipeline_t* decode)
         in0 = (const uint16_t*) srcbuffer;
         in1 = in0 + w;
         in2 = in1 + w;
-        srcbuffer += w * 6;
+        srcbuffer += w * 6; // 3 * sizeof(uint16_t), avoid type conversion
 #if EXR_HOST_IS_NOT_LITTLE_ENDIAN
         for (int x = 0; x < w; ++x)
             *((uint16_t*) (out0 + x * inc0)) = le16toh (in0[x]);
@@ -198,7 +200,7 @@ unpack_16bit_4chan_interleave (exr_decode_pipeline_t* decode)
         in2              = in1 + w;
         in3              = in2 + w;
 
-        srcbuffer += w * 4 * sizeof (uint16_t);
+        srcbuffer += w * 8; // 4 * sizeof(uint16_t), avoid type conversion
         for (int x = 0; x < w; ++x)
         {
 #if EXR_HOST_IS_NOT_LITTLE_ENDIAN
@@ -250,7 +252,7 @@ unpack_16bit_4chan_planar (exr_decode_pipeline_t* decode)
         in1 = in0 + w;
         in2 = in1 + w;
         in3 = in2 + w;
-        srcbuffer += w * 4 * sizeof (uint16_t);
+        srcbuffer += w * 8; // 4 * sizeof(uint16_t), avoid type conversion
 #if EXR_HOST_IS_NOT_LITTLE_ENDIAN
         for (int x = 0; x < w; ++x)
             *(((uint16_t*) out0) + x) = le16toh (in0[x]);
@@ -261,10 +263,10 @@ unpack_16bit_4chan_planar (exr_decode_pipeline_t* decode)
         for (int x = 0; x < w; ++x)
             *(((uint16_t*) out3) + x) = le16toh (in3[x]);
 #else
-        memcpy (out0, in0, w * sizeof (uint16_t));
-        memcpy (out1, in1, w * sizeof (uint16_t));
-        memcpy (out2, in2, w * sizeof (uint16_t));
-        memcpy (out3, in3, w * sizeof (uint16_t));
+        memcpy (out0, in0, (size_t) (w) * sizeof (uint16_t));
+        memcpy (out1, in1, (size_t) (w) * sizeof (uint16_t));
+        memcpy (out2, in2, (size_t) (w) * sizeof (uint16_t));
+        memcpy (out3, in3, (size_t) (w) * sizeof (uint16_t));
 #endif
         out0 += linc0;
         out1 += linc1;
@@ -305,11 +307,11 @@ unpack_16bit_4chan (exr_decode_pipeline_t* decode)
 
     for (int y = 0; y < h; ++y)
     {
-        in0 = (uint16_t*) srcbuffer;
+        in0 = (const uint16_t*) srcbuffer;
         in1 = in0 + w;
         in2 = in1 + w;
         in3 = in2 + w;
-        srcbuffer += w * 4 * sizeof(uint16_t);
+        srcbuffer += w * 8; // 4 * sizeof(uint16_t), avoid type conversion
 #if EXR_HOST_IS_NOT_LITTLE_ENDIAN
         for (int x = 0; x < w; ++x)
             *((uint16_t*) (out0 + x * inc0)) = le16toh (in0[x]);
@@ -380,7 +382,7 @@ unpack_16bit (exr_decode_pipeline_t* decode)
 #else
             if (pixincrement == 2)
             {
-                memcpy (cdata, srcbuffer, w * pixincrement);
+                memcpy (cdata, srcbuffer, (size_t)( w ) * 2);
             }
             else
             {
@@ -444,7 +446,7 @@ unpack_32bit (exr_decode_pipeline_t* decode)
 #else
             if (pixincrement == 4)
             {
-                memcpy (cdata, srcbuffer, w * pixincrement);
+                memcpy (cdata, srcbuffer, (size_t) (w) *4);
             }
             else
             {
@@ -543,7 +545,10 @@ generic_unpack_subsampled (exr_decode_pipeline_t* decode)
 #else
                 if (bpc == pixincrement)
                 {
-                    memcpy (cdata, srcbuffer, w * pixincrement);
+                    memcpy (
+                        cdata,
+                        srcbuffer,
+                        (size_t) (w) * (size_t) (pixincrement));
                 }
                 else if (bpc == 2)
                 {
@@ -592,6 +597,8 @@ internal_exr_match_decode (
         sameoutbpc <= 0)
         return &generic_unpack_subsampled;
 
+    (void) chanstounpack;
+    (void) simplineoff;
     /*
     if (hastypechange > 0)
     {

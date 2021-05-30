@@ -19,7 +19,7 @@ extern "C" {
  *
  * This presumes the attr_string_vector passed in is uninitialized prior to this call
  *
- * @param f file for associated string vector (used for error reporting)
+ * @param ctxt context for associated string vector (used for error reporting)
  * @param sv pointer to attribute to initialize. Assumed uninitialized
  * @param nelt desired size of string vector
  *
@@ -41,7 +41,7 @@ exr_result_t exr_attr_string_vector_copy (
  *
  * This enables one to pre-allocate, then read directly into the string
  *
- * @param f file for associated string vector (used for error reporting)
+ * @param ctxt context for associated string vector (used for error reporting)
  * @param sv pointer to string vector. It should have been resized ahead of calling
  * @param idx index of the string to initialize
  * @param length desired size of string 

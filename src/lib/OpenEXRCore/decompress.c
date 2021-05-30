@@ -78,7 +78,7 @@ reconstruct (uint8_t* buf, size_t sz)
     while (t < stop)
     {
         int d = (int) (t[-1]) + (int) (t[0]) - 128;
-        t[0]  = d;
+        t[0]  = (uint8_t) d;
         ++t;
     }
 }
@@ -176,12 +176,14 @@ internal_exr_undo_zip (
         rstat = EXR_ERR_BAD_CHUNK_DATA;
     }
 
+    (void)decode;
     return rstat;
 }
 
 /**************************************/
 
-exr_result_t internal_exr_undo_rle (
+exr_result_t
+internal_exr_undo_rle (
     exr_decode_pipeline_t* decode,
     const void*            src,
     size_t                 packsz,
@@ -191,11 +193,12 @@ exr_result_t internal_exr_undo_rle (
     const signed char* in  = (const signed char*) src;
     uint8_t*           dst = (uint8_t*) out;
 
+    (void)decode;
     while (packsz > 0)
     {
         if (*in < 0)
         {
-            int count = -((int) *in++);
+            size_t count = (size_t)(-((int) *in++));
             if (packsz >= (count + 1))
             {
                 packsz -= (count + 1);
@@ -217,11 +220,11 @@ exr_result_t internal_exr_undo_rle (
         }
         else if (packsz >= 2)
         {
-            int count = *in++;
+            size_t count = (size_t)( *in++ );
             packsz -= 2;
             if (outsz >= (count + 1))
             {
-                memset (dst, *(uint8_t*) in, count + 1);
+                memset (dst, *(const uint8_t*) in, (count + 1));
                 dst += count + 1;
                 outsz -= (count + 1);
             }

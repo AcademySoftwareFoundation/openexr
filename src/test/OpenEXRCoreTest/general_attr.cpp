@@ -26,8 +26,9 @@
 #include "../../lib/OpenEXRCore/string.c"
 #include "../../lib/OpenEXRCore/string_vector.c"
 
-int64_t dummy_write (
-    const exr_context_t         ctxt,
+int64_t
+dummy_write (
+    exr_const_context_t         ctxt,
     void*                       userdata,
     const void*                 buffer,
     uint64_t                    sz,
@@ -40,7 +41,7 @@ int64_t dummy_write (
 static exr_context_t
 createDummyFile (const char* test)
 {
-    exr_context_t f = NULL;
+    exr_context_t             f     = NULL;
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
 
     // we won't actually write to this and so don't need a proper
@@ -558,8 +559,7 @@ testAttrHandler (const std::string& tempdir)
 
     exr_context_t    f   = createDummyFile ("<attr_handler>");
     exr_attribute_t *foo = NULL, *bar = NULL;
-    EXRCORE_TEST_RVAL (
-        exr_attr_declare_by_type (f, 0, "foo", "mytype", &foo));
+    EXRCORE_TEST_RVAL (exr_attr_declare_by_type (f, 0, "foo", "mytype", &foo));
     EXRCORE_TEST (foo != NULL);
     EXRCORE_TEST (foo->opaque->unpack_func_ptr == NULL);
 
@@ -578,8 +578,7 @@ testAttrHandler (const std::string& tempdir)
     EXRCORE_TEST (foo->opaque->pack_func_ptr == &test_pack);
     EXRCORE_TEST (foo->opaque->destroy_unpacked_func_ptr == &test_hdlr_destroy);
 
-    EXRCORE_TEST_RVAL (
-        exr_attr_declare_by_type (f, 0, "bar", "mytype", &bar));
+    EXRCORE_TEST_RVAL (exr_attr_declare_by_type (f, 0, "bar", "mytype", &bar));
     EXRCORE_TEST (bar != NULL);
     EXRCORE_TEST (bar->opaque->unpack_func_ptr == &test_unpack);
     EXRCORE_TEST (bar->opaque->pack_func_ptr == &test_pack);
@@ -591,17 +590,18 @@ testAttrHandler (const std::string& tempdir)
 static void
 testAttrListHelper (exr_context_t f)
 {
-    exr_attribute_list_t al = { 0 };
-    exr_attribute_t*     out;
-    uint8_t*             extra;
-    uint64_t             sz;
+    exr_attribute_list_t   al = { 0 };
+    exr_attribute_t*       out;
+    uint8_t*               extra;
+    uint64_t               sz;
 
     exr_attr_list_destroy (NULL, NULL);
     exr_attr_list_destroy (NULL, &al);
     exr_attr_list_destroy (f, NULL);
     exr_attr_list_destroy (f, &al);
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_NO_ATTR_BY_NAME, exr_attr_list_find_by_name (f, &al, "exr", &out));
+        EXR_ERR_NO_ATTR_BY_NAME,
+        exr_attr_list_find_by_name (f, &al, "exr", &out));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT, exr_attr_list_compute_size (f, NULL, NULL));
     EXRCORE_TEST_RVAL_FAIL (

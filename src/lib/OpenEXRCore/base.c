@@ -23,6 +23,44 @@ exr_get_library_version (int* maj, int* min, int* patch, const char** extra)
 
 /**************************************/
 
+static const char * the_error_code_names[] = 
+{
+    "EXR_ERR_SUCCESS",
+    "EXR_ERR_OUT_OF_MEMORY",
+    "EXR_ERR_MISSING_CONTEXT_ARG",
+    "EXR_ERR_INVALID_ARGUMENT",
+    "EXR_ERR_ARGUMENT_OUT_OF_RANGE",
+    "EXR_ERR_FILE_ACCESS",
+    "EXR_ERR_FILE_BAD_HEADER",
+    "EXR_ERR_NOT_OPEN_READ",
+    "EXR_ERR_NOT_OPEN_WRITE",
+    "EXR_ERR_HEADER_NOT_WRITTEN",
+    "EXR_ERR_READ_IO",
+    "EXR_ERR_WRITE_IO",
+    "EXR_ERR_NAME_TOO_LONG",
+    "EXR_ERR_MISSING_REQ_ATTR",
+    "EXR_ERR_INVALID_ATTR",
+    "EXR_ERR_NO_ATTR_BY_NAME",
+    "EXR_ERR_BAD_CHUNK_DATA",
+    "EXR_ERR_ATTR_TYPE_MISMATCH",
+    "EXR_ERR_ATTR_SIZE_MISMATCH",
+    "EXR_ERR_SCAN_TILE_MIXEDAPI",
+    "EXR_ERR_TILE_SCAN_MIXEDAPI",
+    "EXR_ERR_MODIFY_SIZE_CHANGE",
+    "EXR_ERR_ALREADY_WROTE_ATTRS",
+    "EXR_ERR_PART_NOT_READY",
+    "EXR_ERR_CHUNK_NOT_READY",
+    "EXR_ERR_USE_SCAN_DEEP_WRITE",
+    "EXR_ERR_USE_TILE_DEEP_WRITE",
+    "EXR_ERR_USE_SCAN_NONDEEP_WRITE",
+    "EXR_ERR_USE_TILE_NONDEEP_WRITE",
+    "EXR_ERR_UNKNOWN"
+};
+static int the_error_code_count =
+    sizeof (the_error_code_names) / sizeof (const char*);
+
+/**************************************/
+
 static const char* the_default_errors[] = {
     "Success",
     "Unable to allocate memory",
@@ -67,6 +105,17 @@ exr_get_default_error_message (exr_result_t code)
     if (idx < 0 || idx >= the_default_error_count)
         idx = the_default_error_count - 1;
     return the_default_errors[idx];
+}
+
+/**************************************/
+
+const char*
+exr_get_error_code_as_string (exr_result_t code)
+{
+    int idx = (int) code;
+    if (idx < 0 || idx >= the_error_code_count)
+        idx = the_error_code_count - 1;
+    return the_error_code_names[idx];
 }
 
 /**************************************/

@@ -369,6 +369,8 @@ typedef struct
     int32_t unpacked_size;
     /** if this is non-zero, the struct owns the data, if 0, is a const ref */
     int32_t packed_alloc_size;
+    uint8_t pad[4];
+
     void*   packed_data;
 
     /** when an application wants to have custom data, they can store an unpacked form here which will
@@ -452,13 +454,19 @@ typedef enum
  */
 typedef struct _exr_attribute_t
 {
-    const char* name;      /**< name of the attribute */
-    const char* type_name; /**< string type name of the attribute */
-    uint8_t
-        name_length; /**< length of name string (short flag is 31 max, long allows 255) */
-    uint8_t
-                         type_name_length; /**< length of type string (short flag is 31 max, long allows 255) */
-    exr_attribute_type_t type; /**< enum of the attribute type */
+    /** name of the attribute */
+    const char* name;
+    /** string type name of the attribute */
+    const char* type_name;
+    /** length of name string (short flag is 31 max, long allows 255) */
+    uint8_t name_length;
+    /** length of type string (short flag is 31 max, long allows 255) */
+    uint8_t type_name_length;
+
+    uint8_t pad[2];
+
+    /** enum of the attribute type */
+    exr_attribute_type_t type;
 
     /** Union of pointers of different types that can be used to type
 	 * pun to an appropriate type for builtins. Do note that while

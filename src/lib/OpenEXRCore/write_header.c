@@ -21,11 +21,10 @@
 static exr_result_t
 save_attr_sz (struct _internal_exr_context* ctxt, size_t sz)
 {
-    int32_t      isz;
+    int32_t isz;
 
     if (sz > (size_t) INT32_MAX)
-        return ctxt->standard_error (
-            (const exr_context_t) ctxt, EXR_ERR_INVALID_ARGUMENT);
+        return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 
     isz = (int32_t) sz;
     priv_from_native32 (&isz, 1);
@@ -42,7 +41,10 @@ save_attr_32 (struct _internal_exr_context* ctxt, void* ptr, int n)
     priv_from_native32 (ptr, n);
 
     return ctxt->do_write (
-        ctxt, ptr, sizeof (int32_t) * n, &(ctxt->output_file_offset));
+        ctxt,
+        ptr,
+        sizeof (int32_t) * (uint64_t) (n),
+        &(ctxt->output_file_offset));
 }
 
 /**************************************/
@@ -53,7 +55,10 @@ save_attr_64 (struct _internal_exr_context* ctxt, void* ptr, int n)
     priv_from_native64 (ptr, n);
 
     return ctxt->do_write (
-        ctxt, ptr, sizeof (int64_t) * n, &(ctxt->output_file_offset));
+        ctxt,
+        ptr,
+        sizeof (int64_t) * (uint64_t) (n),
+        &(ctxt->output_file_offset));
 }
 
 /**************************************/
@@ -149,7 +154,7 @@ save_chlist (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
     for (int c = 0; c < a->chlist->num_channels; ++c)
     {
         const exr_attr_chlist_entry_t* centry = a->chlist->entries + c;
-        attrsz += centry->name.length + 1;
+        attrsz += (size_t) (centry->name.length + 1);
         attrsz += 16;
     }
 
@@ -172,7 +177,7 @@ save_chlist (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
         rv = ctxt->do_write (
             ctxt,
             centry->name.str,
-            centry->name.length + 1,
+            (uint64_t) (centry->name.length + 1),
             &(ctxt->output_file_offset));
         if (rv != EXR_ERR_SUCCESS) break;
         rv = ctxt->do_write (
@@ -208,29 +213,32 @@ save_float_vector (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 {
     exr_result_t rv;
 
-    rv = save_attr_sz (ctxt, sizeof (float) * a->floatvector->length);
+    rv =
+        save_attr_sz (ctxt, sizeof (float) * (size_t) (a->floatvector->length));
     if (rv == EXR_ERR_SUCCESS && a->floatvector->length > 0)
     {
         if (a->floatvector->alloc_size > 0)
         {
             /* we own the data, so we can swap it, then swap it back */
             rv = save_attr_32 (
-                ctxt, (void*) a->floatvector->arr, a->floatvector->length);
+                ctxt,
+                EXR_CONST_CAST (void*, a->floatvector->arr),
+                a->floatvector->length);
             priv_to_native32 (
-                (void*) a->floatvector->arr, a->floatvector->length);
+                EXR_CONST_CAST (void*, a->floatvector->arr),
+                a->floatvector->length);
         }
         else
         {
             /* might be static data, take a copy first */
             float* tmp =
-                ctxt->alloc_fn (a->floatvector->length * sizeof (float));
+                ctxt->alloc_fn ((size_t)(a->floatvector->length) * sizeof (float));
             if (tmp == NULL)
-                return ctxt->standard_error (
-                    (const exr_context_t) ctxt, EXR_ERR_OUT_OF_MEMORY);
+                return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
             memcpy (
                 tmp,
                 a->floatvector->arr,
-                a->floatvector->length * sizeof (float));
+                (size_t)(a->floatvector->length) * sizeof (float));
             rv = save_attr_32 (ctxt, tmp, a->floatvector->length);
             ctxt->free_fn (tmp);
         }
@@ -347,10 +355,10 @@ save_string (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
     exr_result_t       rv;
     exr_attr_string_t* tmp = a->string;
 
-    rv = save_attr_sz (ctxt, tmp->length);
+    rv = save_attr_sz (ctxt, (size_t) tmp->length);
     if (rv == EXR_ERR_SUCCESS)
         rv = ctxt->do_write (
-            ctxt, tmp->str, tmp->length, &(ctxt->output_file_offset));
+            ctxt, tmp->str, (uint64_t)(tmp->length), &(ctxt->output_file_offset));
     return rv;
 }
 
@@ -366,7 +374,7 @@ save_string_vector (
     for (int i = 0; i < a->stringvector->n_strings; ++i)
     {
         attrsz += sizeof (int32_t);
-        attrsz += a->stringvector->strings[i].length;
+        attrsz += (size_t)a->stringvector->strings[i].length;
     }
 
     rv = save_attr_sz (ctxt, attrsz);
@@ -376,10 +384,10 @@ save_string_vector (
     {
         const exr_attr_string_t* s = a->stringvector->strings + i;
 
-        rv = save_attr_sz (ctxt, s->length);
+        rv = save_attr_sz (ctxt, (size_t) s->length);
         if (rv == EXR_ERR_SUCCESS)
             rv = ctxt->do_write (
-                ctxt, s->str, s->length, &(ctxt->output_file_offset));
+                ctxt, s->str, (uint64_t)s->length, &(ctxt->output_file_offset));
     }
 
     return rv;
@@ -512,9 +520,10 @@ save_opaque (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
         exr_attr_opaquedata_pack ((exr_context_t) ctxt, a->opaque, &sz, &pdata);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
-    rv = save_attr_sz (ctxt, sz);
+    rv = save_attr_sz (ctxt, (uint64_t) sz);
     if (rv == EXR_ERR_SUCCESS && sz > 0)
-        rv = ctxt->do_write (ctxt, pdata, sz, &(ctxt->output_file_offset));
+        rv = ctxt->do_write (
+            ctxt, pdata, (uint64_t) sz, &(ctxt->output_file_offset));
     return rv;
 }
 
@@ -566,11 +575,10 @@ save_attr (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
         case EXR_ATTR_V3F: rv = save_v3f (ctxt, a); break;
         case EXR_ATTR_V3D: rv = save_v3d (ctxt, a); break;
         case EXR_ATTR_OPAQUE: rv = save_opaque (ctxt, a); break;
+
         case EXR_ATTR_UNKNOWN:
-        default:
-            rv = ctxt->standard_error (
-                (const exr_context_t) ctxt, EXR_ERR_INVALID_ATTR);
-            break;
+        case EXR_ATTR_LAST_KNOWN_TYPE:
+        default: rv = ctxt->standard_error (ctxt, EXR_ERR_INVALID_ATTR); break;
     }
     return rv;
 }

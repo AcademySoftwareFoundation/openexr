@@ -36,16 +36,18 @@ typedef struct _exr_decode_pipeline
     exr_coding_channel_info_t* channels;
     int16_t                    channel_count;
 
+    uint8_t pad[2];
+
+    /** copy of the parameters given to the initialize / update for convenience */
+    int                    part_index;
+    exr_const_context_t    context;
+    exr_chunk_block_info_t chunk_block;
+
     /**
      * can be used by the user to pass custom context data through
      * the decode pipeline
      */
     void* decoding_user_data;
-
-    /** copy of the parameters given to the initialize / update for convenience */
-    exr_context_t          context;
-    int                    part_index;
-    exr_chunk_block_info_t chunk_block;
 
     /** the (compressed) buffer.
      *
@@ -112,7 +114,7 @@ typedef struct _exr_decode_pipeline
     int32_t* sample_count_table;
     /** for deep data */
     size_t sample_count_alloc_size;
-    
+
     /**
      * enables a custom allocator for the different buffers (i.e. if
      * decoding on a GPU). If NULL, will use the allocator from the
@@ -186,7 +188,7 @@ typedef struct _exr_decode_pipeline
  */
 EXR_EXPORT
 exr_result_t exr_initialize_decoding (
-    const exr_context_t           ctxt,
+    exr_const_context_t           ctxt,
     int                           part_index,
     const exr_chunk_block_info_t* cinfo,
     exr_decode_pipeline_t*        decode);
@@ -199,9 +201,7 @@ exr_result_t exr_initialize_decoding (
  */
 EXR_EXPORT
 exr_result_t exr_decoding_choose_default_routines (
-    const exr_context_t    ctxt,
-    int                    part_index,
-    exr_decode_pipeline_t* decode);
+    exr_const_context_t ctxt, int part_index, exr_decode_pipeline_t* decode);
 
 /** Given a decode pipeline previously initialized, updates it for the
  * new chunk to be read.
@@ -212,7 +212,7 @@ exr_result_t exr_decoding_choose_default_routines (
  */
 EXR_EXPORT
 exr_result_t exr_decoding_update (
-    const exr_context_t           ctxt,
+    exr_const_context_t           ctxt,
     int                           part_index,
     const exr_chunk_block_info_t* cinfo,
     exr_decode_pipeline_t*        decode);
@@ -220,7 +220,7 @@ exr_result_t exr_decoding_update (
 /** Execute the decoding pipeline */
 EXR_EXPORT
 exr_result_t exr_decoding_run (
-    const exr_context_t ctxt, int part_index, exr_decode_pipeline_t* decode);
+    exr_const_context_t ctxt, int part_index, exr_decode_pipeline_t* decode);
 
 /** Free any intermediate memory in the decoding pipeline
  *
@@ -229,8 +229,8 @@ exr_result_t exr_decoding_run (
  * for the structure itself.
  */
 EXR_EXPORT
-exr_result_t exr_destroy_decoding (
-    const exr_context_t ctxt, exr_decode_pipeline_t* decode);
+exr_result_t
+exr_destroy_decoding (exr_const_context_t ctxt, exr_decode_pipeline_t* decode);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -16,42 +16,32 @@ validate_req_attr (
 {
     if (!curpart->channels)
         return f->print_error (
-            (const exr_context_t) f,
-            EXR_ERR_MISSING_REQ_ATTR,
-            "'channels' attribute not found");
+            f, EXR_ERR_MISSING_REQ_ATTR, "'channels' attribute not found");
     if (!curpart->compression)
         return f->print_error (
-            (const exr_context_t) f,
-            EXR_ERR_MISSING_REQ_ATTR,
-            "'compression' attribute not found");
+            f, EXR_ERR_MISSING_REQ_ATTR, "'compression' attribute not found");
     if (!curpart->dataWindow)
         return f->print_error (
-            (const exr_context_t) f,
-            EXR_ERR_MISSING_REQ_ATTR,
-            "'dataWindow' attribute not found");
+            f, EXR_ERR_MISSING_REQ_ATTR, "'dataWindow' attribute not found");
     if (!curpart->displayWindow)
         return f->print_error (
-            (const exr_context_t) f,
-            EXR_ERR_MISSING_REQ_ATTR,
-            "'displayWindow' attribute not found");
+            f, EXR_ERR_MISSING_REQ_ATTR, "'displayWindow' attribute not found");
     if (!curpart->lineOrder)
         return f->print_error (
-            (const exr_context_t) f,
-            EXR_ERR_MISSING_REQ_ATTR,
-            "'lineOrder' attribute not found");
+            f, EXR_ERR_MISSING_REQ_ATTR, "'lineOrder' attribute not found");
     if (!curpart->pixelAspectRatio)
         return f->print_error (
-            (const exr_context_t) f,
+            f,
             EXR_ERR_MISSING_REQ_ATTR,
             "'pixelAspectRatio' attribute not found");
     if (!curpart->screenWindowCenter)
         return f->print_error (
-            (const exr_context_t) f,
+            f,
             EXR_ERR_MISSING_REQ_ATTR,
             "'screenWindowCenter' attribute not found");
     if (!curpart->screenWindowWidth)
         return f->print_error (
-            (const exr_context_t) f,
+            f,
             EXR_ERR_MISSING_REQ_ATTR,
             "'screenWindowWidth' attribute not found");
 
@@ -59,22 +49,22 @@ validate_req_attr (
     {
         if (!curpart->name)
             return f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_MISSING_REQ_ATTR,
                 "'name' attribute for multipart / deep file not found");
         if (!curpart->type)
             return f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_MISSING_REQ_ATTR,
                 "'type' attribute for multipart / deep file not found");
         if (f->has_nonimage_data && !curpart->version)
             return f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_MISSING_REQ_ATTR,
                 "'version' attribute for deep file not found");
         if (!curpart->chunkCount)
             return f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_MISSING_REQ_ATTR,
                 "'chunkCount' attribute for multipart / deep file not found");
     }
@@ -107,7 +97,7 @@ validate_image_dimensions (
         dspw.x_min <= -kLargeVal || dspw.y_min <= -kLargeVal ||
         dspw.x_max >= kLargeVal || dspw.y_max >= kLargeVal)
         return f->print_error (
-            (const exr_context_t) f,
+            f,
             EXR_ERR_INVALID_ATTR,
             "Invalid display window (%d, %d - %d, %d)",
             dspw.x_min,
@@ -119,7 +109,7 @@ validate_image_dimensions (
         dw.y_min <= -kLargeVal || dw.x_max >= kLargeVal ||
         dw.y_max >= kLargeVal)
         return f->print_error (
-            (const exr_context_t) f,
+            f,
             EXR_ERR_INVALID_ATTR,
             "Invalid data window (%d, %d - %d, %d)",
             dw.x_min,
@@ -129,7 +119,7 @@ validate_image_dimensions (
 
     if (maxw > 0 && maxw < w)
         return f->print_error (
-            (const exr_context_t) f,
+            f,
             EXR_ERR_INVALID_ATTR,
             "Invalid width (%" PRId64 ") too large (max %d)",
             w,
@@ -137,7 +127,7 @@ validate_image_dimensions (
 
     if (maxh > 0 && maxh < h)
         return f->print_error (
-            (const exr_context_t) f,
+            f,
             EXR_ERR_INVALID_ATTR,
             "Invalid height (%" PRId64 ") too large (max %d)",
             h,
@@ -150,7 +140,7 @@ validate_image_dimensions (
         if (curpart->chunkCount) ccount = (int64_t) curpart->chunk_count;
         if (ccount > maxNum)
             return f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_INVALID_ATTR,
                 "Invalid chunkCount (%" PRId64
                 ") exceeds maximum area of %" PRId64 "",
@@ -161,17 +151,11 @@ validate_image_dimensions (
     /* isnormal will return true when par is 0, which should also be disallowed */
     if (!isnormal (par) || par < 1e-6f || par > 1e+6f)
         return f->print_error (
-            (const exr_context_t) f,
-            EXR_ERR_INVALID_ATTR,
-            "Invalid pixel aspect ratio %g",
-            par);
+            f, EXR_ERR_INVALID_ATTR, "Invalid pixel aspect ratio %g", (double)par);
 
     if (sww < 0.f)
         return f->print_error (
-            (const exr_context_t) f,
-            EXR_ERR_INVALID_ATTR,
-            "Invalid screen window width %g",
-            sww);
+            f, EXR_ERR_INVALID_ATTR, "Invalid screen window width %g", (double)sww);
 
     return EXR_ERR_SUCCESS;
 }
@@ -189,12 +173,12 @@ validate_channels (
 
     if (!channels)
         return f->report_error (
-            (const exr_context_t) f,
+            f,
             EXR_ERR_INVALID_ARGUMENT,
             "Missing required channels attribute to validate against");
     if (!curpart->dataWindow)
         return f->report_error (
-            (const exr_context_t) f,
+            f,
             EXR_ERR_NO_ATTR_BY_NAME,
             "request to validate channel list, but data window not set to validate against");
 
@@ -207,21 +191,21 @@ validate_channels (
         int32_t ysamp = channels->entries[c].y_sampling;
         if (xsamp < 1)
             return f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_INVALID_ATTR,
                 "channel '%s': x subsampling factor is invalid (%d)",
                 channels->entries[c].name.str,
                 xsamp);
         if (ysamp < 1)
             return f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_INVALID_ATTR,
                 "channel '%s': y subsampling factor is invalid (%d)",
                 channels->entries[c].name.str,
                 ysamp);
         if (dw.x_min % xsamp)
             return f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_INVALID_ATTR,
                 "channel '%s': minimum x coordinate (%d) of the data window is not a multiple of the x subsampling factor (%d)",
                 channels->entries[c].name.str,
@@ -229,7 +213,7 @@ validate_channels (
                 xsamp);
         if (dw.y_min % ysamp)
             return f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_INVALID_ATTR,
                 "channel '%s': minimum y coordinate (%d) of the data window is not a multiple of the y subsampling factor (%d)",
                 channels->entries[c].name.str,
@@ -237,7 +221,7 @@ validate_channels (
                 ysamp);
         if (w % xsamp)
             return f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_INVALID_ATTR,
                 "channel '%s': row width (%" PRId64
                 ") of the data window is not a multiple of the x subsampling factor (%d)",
@@ -246,7 +230,7 @@ validate_channels (
                 xsamp);
         if (h % ysamp)
             return f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_INVALID_ATTR,
                 "channel '%s': column height (%" PRId64
                 ") of the data window is not a multiple of the y subsampling factor (%d)",
@@ -281,7 +265,7 @@ validate_part_type (
             //exr_attr_list_remove( f, &(curpart->attributes), curpart->type );
             //curpart->type = NULL;
             f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_INVALID_ATTR,
                 "attribute 'type': Mismatch between file flags and type string '%s', believing file flags",
                 curpart->type->string->str);
@@ -292,7 +276,7 @@ validate_part_type (
                 (exr_context_t) f, curpart->type->string, "tiledimage", 10);
             if (rv != EXR_ERR_SUCCESS)
                 return f->print_error (
-                    (const exr_context_t) f,
+                    f,
                     EXR_ERR_INVALID_ATTR,
                     "attribute 'type': Mismatch between file flags and type attribute, unable to fix");
         }
@@ -317,7 +301,7 @@ validate_tile_data (
 
         if (!curpart->tiles)
             return f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_MISSING_REQ_ATTR,
                 "'tiles' attribute for tiled file not found");
 
@@ -326,21 +310,21 @@ validate_tile_data (
             desc->x_size > (uint32_t) INT_MAX ||
             desc->y_size > (uint32_t) INT_MAX)
             return f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_INVALID_ATTR,
                 "Invalid tile description size (%u x %u)",
                 desc->x_size,
                 desc->y_size);
         if (maxtilew > 0 && maxtilew < (int) (desc->x_size))
             return f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_INVALID_ATTR,
                 "Width of tile exceeds max size (%d vs max %d)",
                 (int) desc->x_size,
                 maxtilew);
         if (maxtileh > 0 && maxtileh < (int) (desc->y_size))
             return f->print_error (
-                (const exr_context_t) f,
+                f,
                 EXR_ERR_INVALID_ATTR,
                 "Width of tile exceeds max size (%d vs max %d)",
                 (int) desc->y_size,
@@ -350,14 +334,14 @@ validate_tile_data (
         {
             if (channels->entries[c].x_sampling != 1)
                 return f->print_error (
-                    (const exr_context_t) f,
+                    f,
                     EXR_ERR_INVALID_ATTR,
                     "channel '%s': x subsampling factor is not 1 (%d) for a tiled image",
                     channels->entries[c].name.str,
                     channels->entries[c].x_sampling);
             if (channels->entries[c].y_sampling != 1)
                 return f->print_error (
-                    (const exr_context_t) f,
+                    f,
                     EXR_ERR_INVALID_ATTR,
                     "channel '%s': y subsampling factor is not 1 (%d) for a tiled image",
                     channels->entries[c].name.str,
@@ -384,22 +368,20 @@ validate_deep_data (
             curpart->comp_type != EXR_COMPRESSION_RLE &&
             curpart->comp_type != EXR_COMPRESSION_ZIPS)
             return f->report_error (
-                (const exr_context_t) f,
-                EXR_ERR_INVALID_ATTR,
-                "Invalid compression for deep data");
+                f, EXR_ERR_INVALID_ATTR, "Invalid compression for deep data");
 
         for (int c = 0; c < channels->num_channels; ++c)
         {
             if (channels->entries[c].x_sampling != 1)
                 return f->print_error (
-                    (const exr_context_t) f,
+                    f,
                     EXR_ERR_INVALID_ATTR,
                     "channel '%s': x subsampling factor is not 1 (%d) for a deep image",
                     channels->entries[c].name.str,
                     channels->entries[c].x_sampling);
             if (channels->entries[c].y_sampling != 1)
                 return f->print_error (
-                    (const exr_context_t) f,
+                    f,
                     EXR_ERR_INVALID_ATTR,
                     "channel '%s': y subsampling factor is not 1 (%d) for a deep image",
                     channels->entries[c].name.str,

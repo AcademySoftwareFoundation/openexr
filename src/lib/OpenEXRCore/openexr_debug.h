@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 /** Debug function, prints to stdout the parts and attributes of the context passed in */
-EXR_EXPORT exr_result_t exr_print_context_info( const exr_context_t c, int verbose );
+EXR_EXPORT exr_result_t exr_print_context_info( exr_const_context_t c, int verbose );
 
 #ifdef __cplusplus
 } /* extern "C" */

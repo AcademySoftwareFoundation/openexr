@@ -46,7 +46,7 @@ struct _internal_exr_filehandle
 /**************************************/
 
 static void
-default_shutdown (const exr_context_t c, void* userdata, int failed)
+default_shutdown (exr_const_context_t c, void* userdata, int failed)
 {
     /* we will handle failure before here */
     struct _internal_exr_filehandle* fh = userdata;
@@ -59,6 +59,8 @@ default_shutdown (const exr_context_t c, void* userdata, int failed)
 #    endif
 #endif
     }
+    (void) c;
+    (void) failed;
 }
 
 /**************************************/
@@ -82,7 +84,7 @@ finalize_write (struct _internal_exr_context* pf, int failed)
         int mvret = rename (pf->tmp_filename.str, pf->filename.str);
         if (mvret < 0)
             return pf->print_error (
-                (const exr_context_t) pf,
+                pf,
                 EXR_ERR_FILE_ACCESS,
                 "Unable to rename temporary file: %s",
                 strerror (rv));
@@ -95,7 +97,7 @@ finalize_write (struct _internal_exr_context* pf, int failed)
 
 static int64_t
 default_read_func (
-    const exr_context_t         ctxt,
+    exr_const_context_t         ctxt,
     void*                       userdata,
     void*                       buffer,
     uint64_t                    sz,
@@ -186,9 +188,9 @@ default_read_func (
         if (rv == 0) break;
         retsz += rv;
         curbuf += rv;
-        readsz -= rv;
-        offset += rv;
-    } while (retsz < sz);
+        readsz -= (uint64_t) rv;
+        offset += (uint64_t) rv;
+    } while (retsz < (int64_t) sz);
 
 #if !CAN_USE_PREAD
 #    ifdef ILMTHREAD_THREADING_ENABLED
@@ -209,7 +211,7 @@ default_read_func (
 
 static int64_t
 default_write_func (
-    exr_context_t               ctxt,
+    exr_const_context_t         ctxt,
     void*                       userdata,
     const void*                 buffer,
     uint64_t                    sz,
@@ -299,9 +301,9 @@ default_write_func (
         }
         retsz += rv;
         curbuf += rv;
-        writesz -= rv;
-        offset += rv;
-    } while (retsz < sz);
+        writesz -= (uint64_t) rv;
+        offset += (uint64_t) rv;
+    } while (retsz < (int64_t) sz);
 
 #if !CAN_USE_PREAD
 #    ifdef ILMTHREAD_THREADING_ENABLED
@@ -333,7 +335,7 @@ default_init_read_file (struct _internal_exr_context* file)
     fd = pthread_mutex_init (&(fh->mutex), NULL);
     if (fd != 0)
         return file->print_error (
-            (const exr_context_t) file,
+            file,
             EXR_ERR_OUT_OF_MEMORY,
             "Unable to initialize file mutex: %s",
             strerror (fd));
@@ -346,7 +348,7 @@ default_init_read_file (struct _internal_exr_context* file)
     fd = open (file->filename.str, O_RDONLY | O_CLOEXEC);
     if (fd < 0)
         return file->print_error (
-            (const exr_context_t) file,
+            file,
             EXR_ERR_FILE_ACCESS,
             "Unable to open file for read: %s",
             strerror (errno));
@@ -370,7 +372,7 @@ default_init_write_file (struct _internal_exr_context* file)
     fd = pthread_mutex_init (&(fh->mutex), NULL);
     if (fd != 0)
         return file->print_error (
-            (const exr_context_t) file,
+            file,
             EXR_ERR_OUT_OF_MEMORY,
             "Unable to initialize file mutex: %s",
             strerror (fd));
@@ -387,7 +389,7 @@ default_init_write_file (struct _internal_exr_context* file)
         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
     if (fd < 0)
         return file->print_error (
-            (const exr_context_t) file,
+            file,
             EXR_ERR_FILE_ACCESS,
             "Unable to open file for write: %s",
             strerror (errno));
@@ -399,7 +401,7 @@ default_init_write_file (struct _internal_exr_context* file)
 /**************************************/
 
 static int64_t
-default_query_size_func (const exr_context_t ctxt, void* userdata)
+default_query_size_func (exr_const_context_t ctxt, void* userdata)
 {
     struct stat                      sbuf;
     struct _internal_exr_filehandle* fh = userdata;
@@ -411,6 +413,7 @@ default_query_size_func (const exr_context_t ctxt, void* userdata)
         if (rv == 0) sz = (int64_t) sbuf.st_size;
     }
 
+    (void) ctxt;
     return sz;
 }
 
@@ -427,7 +430,7 @@ make_temp_filename (struct _internal_exr_context* ret)
     int         nwr     = snprintf (tmproot, 32, "tmp.%d", getpid ());
     if (nwr >= 32)
         return ret->report_error (
-            (const exr_context_t) ret,
+            ret,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid assumption in temporary filename");
 
@@ -435,8 +438,7 @@ make_temp_filename (struct _internal_exr_context* ret)
     newlen = tlen + (uint64_t) ret->filename.length;
 
     if (newlen >= INT32_MAX)
-        return ret->standard_error (
-            (const exr_context_t) ret, EXR_ERR_OUT_OF_MEMORY);
+        return ret->standard_error (ret, EXR_ERR_OUT_OF_MEMORY);
 
     tmpname = ret->alloc_fn (newlen + 1);
     if (tmpname)
@@ -455,19 +457,19 @@ make_temp_filename (struct _internal_exr_context* ret)
             strncpy (
                 tmpname + nPrev + tlen,
                 srcfile + nPrev,
-                ret->filename.length - nPrev);
+                (uint64_t)(ret->filename.length) - nPrev);
             tmpname[newlen] = '\0';
         }
         else
         {
             strncpy (tmpname, tmproot, tlen);
-            strncpy (tmpname + tlen, srcfile, ret->filename.length);
+            strncpy (tmpname + tlen, srcfile, (size_t) ret->filename.length);
             tmpname[newlen] = '\0';
         }
     }
     else
         return ret->print_error (
-            (const exr_context_t) ret,
+            ret,
             EXR_ERR_OUT_OF_MEMORY,
             "Unable to create %" PRIu64 " bytes for temporary filename",
             newlen + 1);

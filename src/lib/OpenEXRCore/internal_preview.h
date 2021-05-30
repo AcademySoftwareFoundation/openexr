@@ -19,7 +19,7 @@ extern "C" {
  *
  * This presumes the attr_preview passed in is uninitialized prior to this call
  *
- * @param f file for associated preview attribute (used for error reporting)
+ * @param ctxt context for associated preview attribute (used for error reporting)
  * @param p pointer to attribute to fill. Assumed uninitialized
  * @param w width of preview image
  * @param h height of preview image
@@ -33,7 +33,7 @@ exr_result_t exr_attr_preview_init (
  *
  * This presumes the attr_preview passed in is uninitialized prior to this call.
  *
- * @param f file for associated preview attribute (used for error reporting)
+ * @param ctxt context for associated preview attribute (used for error reporting)
  * @param p pointer to attribute to fill. Assumed uninitialized
  * @param w width of preview image
  * @param h height of preview image

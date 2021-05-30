@@ -42,7 +42,7 @@ typedef struct _exr_encode_pipeline
     void* encoding_user_data;
 
     /** copy of the parameters given to the initialize / update for convenience */
-    const exr_context_t    context;
+    exr_const_context_t          context;
     int                    part_index;
     exr_chunk_block_info_t chunk_block;
 
@@ -204,7 +204,7 @@ typedef struct _exr_encode_pipeline
  */
 EXR_EXPORT
 exr_result_t exr_initialize_encoding (
-    const exr_context_t           ctxt,
+    exr_const_context_t           ctxt,
     int                           part_index,
     const exr_chunk_block_info_t* cinfo,
     exr_encode_pipeline_t*        encode_pipe);
@@ -218,7 +218,7 @@ exr_result_t exr_initialize_encoding (
  */
 EXR_EXPORT
 exr_result_t exr_choose_pack_routine (
-    const exr_context_t    ctxt,
+    exr_const_context_t    ctxt,
     int                    part_index,
     exr_encode_pipeline_t* encode_pipe);
 
@@ -231,7 +231,7 @@ exr_result_t exr_choose_pack_routine (
  */
 EXR_EXPORT
 exr_result_t exr_update_encoding (
-    const exr_context_t           ctxt,
+    exr_const_context_t           ctxt,
     int                           part_index,
     const exr_chunk_block_info_t* cinfo,
     exr_encode_pipeline_t*        encode_pipe);
@@ -239,7 +239,7 @@ exr_result_t exr_update_encoding (
 /** Execute the encoding pipeline */
 EXR_EXPORT
 exr_result_t exr_run_encoding (
-    const exr_context_t ctxt, int part_index, exr_encode_pipeline_t* encode);
+    exr_const_context_t ctxt, int part_index, exr_encode_pipeline_t* encode);
 
 /** Free any intermediate memory in the encoding pipeline
  *
@@ -249,7 +249,7 @@ exr_result_t exr_run_encoding (
  */
 EXR_EXPORT
 exr_result_t exr_destroy_encoding (
-    const exr_context_t ctxt, exr_encode_pipeline_t* encode_pipe);
+    exr_const_context_t ctxt, exr_encode_pipeline_t* encode_pipe);
 
 #ifdef __cplusplus
 } /* extern "C" */
