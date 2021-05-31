@@ -365,6 +365,8 @@ exr_initialize_decoding (
         const exr_attr_chlist_entry_t* curc = (chanlist->entries + c);
         exr_coding_channel_info_t*     decc = (chandecodes + c);
 
+        decc->channel_name = curc->name.str;
+
         if (curc->y_sampling > 1)
         {
             if (cinfo->height == 1)
@@ -381,10 +383,16 @@ exr_initialize_decoding (
         else
             decc->width = cinfo->width;
 
-        decc->bytes_per_element = (curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4;
         decc->x_samples         = curc->x_sampling;
         decc->y_samples         = curc->y_sampling;
-        decc->channel_name      = curc->name.str;
+        decc->bytes_per_element = (curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4;
+        decc->data_type         = (uint16_t) (curc->pixel_type);
+
+        /* initialize these so they don't trip us up during decoding
+         * when the user also chooses to skip a channel */
+        decc->output_bytes_per_element = decc->bytes_per_element;
+        decc->output_data_type         = decc->data_type;
+        /* but leave the rest as zero for the user to fill in */
     }
 
     decode->context     = ctxt;
@@ -397,9 +405,10 @@ exr_result_t
 exr_decoding_choose_default_routines (
     exr_const_context_t ctxt, int part_index, exr_decode_pipeline_t* decode)
 {
-    int isdeep = 0, chanstofill = 0, chanstounpack = 0, samebpc = 0,
-        sameoutbpc = 0, hassampling = 0, hastypechange = 0, simpinterleave = 0,
-        simplineoff = 0, sameoutinc = 0;
+    int32_t isdeep = 0, chanstofill = 0, chanstounpack = 0, sametype = -2,
+            sameouttype = -2, samebpc = 0, sameoutbpc = 0, hassampling = 0,
+            hastypechange = 0, simpinterleave = 0, simplineoff = 0,
+            sameoutinc     = 0;
     uint8_t* interleaveptr = NULL;
     EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
     if (!decode) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
@@ -421,6 +430,43 @@ exr_decoding_choose_default_routines (
 
         if (decc->height == 0 || !decc->decode_to_ptr) continue;
 
+        /*
+         * if a user specifies a bad pixel stride / line stride
+         * we can't know this realistically, and they may want to
+         * use 0 to cause things to collapse for testing purposes
+         * so only test the values we know we use for decisions
+         */
+        if (decc->output_bytes_per_element != 2 &&
+            decc->output_bytes_per_element != 4)
+            return pctxt->print_error (
+                pctxt,
+                EXR_ERR_INVALID_ARGUMENT,
+                "Invalid / unsupported output bytes per element (%d) for channel %c (%s)",
+                (int) decc->output_bytes_per_element,
+                c,
+                decc->channel_name);
+
+        if (decc->output_data_type != (uint16_t)(EXR_PIXEL_HALF) &&
+            decc->output_data_type != (uint16_t)(EXR_PIXEL_FLOAT) &&
+            decc->output_data_type != (uint16_t)(EXR_PIXEL_UINT) )
+            return pctxt->print_error (
+                pctxt,
+                EXR_ERR_INVALID_ARGUMENT,
+                "Invalid / unsupported output data type (%d) for channel %c (%s)",
+                (int) decc->output_data_type,
+                c,
+                decc->channel_name);
+
+        if (sametype == -2)
+            sametype = (int32_t) decc->data_type;
+        else if (sametype != (int32_t) decc->data_type)
+            sametype = -1;
+
+        if (sameouttype == -2)
+            sameouttype = (int32_t) decc->output_data_type;
+        else if (sameouttype != (int32_t) decc->output_data_type)
+            sameouttype = -1;
+
         if (samebpc == 0)
             samebpc = decc->bytes_per_element;
         else if (samebpc != decc->bytes_per_element)
@@ -436,8 +482,7 @@ exr_decoding_choose_default_routines (
         ++chanstofill;
         if (decc->output_pixel_stride != decc->bytes_per_element)
             ++chanstounpack;
-        if (decc->output_bytes_per_element != decc->bytes_per_element)
-            ++hastypechange;
+        if (decc->output_data_type != decc->data_type) ++hastypechange;
 
         if (simplineoff == 0)
             simplineoff = decc->output_line_stride;
@@ -489,6 +534,8 @@ exr_decoding_choose_default_routines (
         isdeep,
         chanstofill,
         chanstounpack,
+        sametype,
+        sameouttype,
         samebpc,
         sameoutbpc,
         hassampling,
@@ -545,6 +592,8 @@ exr_decoding_update (
         const exr_attr_chlist_entry_t* curc = (chanlist->entries + c);
         exr_coding_channel_info_t*     decc = (chandecodes + c);
 
+        decc->channel_name = curc->name.str;
+
         if (curc->y_sampling > 1)
         {
             if (cinfo->height == 1)
@@ -560,11 +609,11 @@ exr_decoding_update (
             decc->width = cinfo->width / curc->x_sampling;
         else
             decc->width = cinfo->width;
+        decc->x_samples = curc->x_sampling;
+        decc->y_samples = curc->y_sampling;
 
         decc->bytes_per_element = (curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4;
-        decc->x_samples         = curc->x_sampling;
-        decc->y_samples         = curc->y_sampling;
-        decc->channel_name      = curc->name.str;
+        decc->data_type         = (uint16_t) (curc->pixel_type);
     }
 
     decode->chunk_block = *cinfo;

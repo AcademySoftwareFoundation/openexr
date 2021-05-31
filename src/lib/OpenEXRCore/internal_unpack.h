@@ -19,6 +19,8 @@ internal_exr_unpack_fn internal_exr_match_decode (
     int                    isdeep,
     int                    chanstofill,
     int                    chanstounpack,
+    int                    sametype,
+    int                    sameouttype,
     int                    samebpc,
     int                    sameoutbpc,
     int                    hassampling,

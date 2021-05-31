@@ -65,7 +65,8 @@ openexr_define_library(OpenEXRCore
     openexr_encode.h
     openexr_part.h
     openexr_std_attr.h
-  DEPENDENCIES
+    DEPENDENCIES
+    Imath::ImathConfig
     ZLIB::ZLIB
   PRIVATE_DEPS
     ${OPENEXR_EXTRA_MATH_LIB}
