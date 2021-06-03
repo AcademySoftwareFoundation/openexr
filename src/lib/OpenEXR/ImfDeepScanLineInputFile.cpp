@@ -628,6 +628,11 @@ LineBufferTask::execute ()
 
                 _lineBuffer->format = Compressor::XDR;
                 _lineBuffer->uncompressedData = _lineBuffer->buffer;
+
+                if(_lineBuffer->packedDataSize!=maxBytesPerLine)
+                {
+                    THROW (IEX_NAMESPACE::InputExc, "Incorrect size for uncompressed data. Expected " << maxBytesPerLine << " got " << _lineBuffer->packedDataSize << " bytes");
+                }
             }
         }
 
