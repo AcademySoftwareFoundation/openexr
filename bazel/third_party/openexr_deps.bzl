@@ -22,7 +22,7 @@ def openexr_deps():
         http_archive,
         name = "Imath",
         build_file = "@openexr//:bazel/third_party/Imath.BUILD",
-        strip_prefix = "Imath-3.0.2",
-        sha256 = "49073a3f187612916fef6dcd31610a6206f69c5110fa8afae022d74b3852661a",
-        urls = ["https://github.com/AcademySoftwareFoundation/Imath/archive/refs/tags/v3.0.2.zip"],
+        strip_prefix = "Imath-3.0.4",
+        sha256 = "43c2bff33e7da75c915c817c2a19b42d27dd30d5516cd8b5695ea7d37831f878",
+        urls = ["https://github.com/AcademySoftwareFoundation/Imath/archive/refs/tags/v3.0.4.zip"],
     )
