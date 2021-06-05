@@ -5,9 +5,9 @@
 
 #include "openexr_decode.h"
 
+#include "internal_coding.h"
 #include "internal_decompress.h"
 #include "internal_structs.h"
-#include "internal_unpack.h"
 #include "internal_xdr.h"
 
 #include <stdio.h>
@@ -131,11 +131,11 @@ read_uncompressed_direct (exr_decode_pipeline_t* decode)
             {
                 cdata +=
                     ((uint64_t) (y / decc->y_samples) *
-                     (uint64_t) decc->output_line_stride);
+                     (uint64_t) decc->user_line_stride);
             }
             else
             {
-                cdata += (uint64_t) y * (uint64_t) decc->output_line_stride;
+                cdata += (uint64_t) y * (uint64_t) decc->user_line_stride;
             }
 
             /* actual read into the output pointer */
@@ -326,16 +326,14 @@ default_decompress_chunk (exr_decode_pipeline_t* decode)
 /**************************************/
 
 exr_result_t
-exr_initialize_decoding (
+exr_decoding_initialize (
     exr_const_context_t           ctxt,
     int                           part_index,
     const exr_chunk_block_info_t* cinfo,
     exr_decode_pipeline_t*        decode)
 {
-    int                        chans;
-    exr_attr_chlist_t*         chanlist;
-    exr_coding_channel_info_t* chandecodes;
-    exr_decode_pipeline_t      nil = { 0 };
+    exr_result_t          rv;
+    exr_decode_pipeline_t nil = { 0 };
 
     EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
     if (!cinfo || !decode)
@@ -343,62 +341,21 @@ exr_initialize_decoding (
 
     *decode = nil;
 
-    chanlist = part->channels->chlist;
-    chans    = chanlist->num_channels;
-    if (chans <= 5) { chandecodes = decode->_quick_chan_store; }
-    else
+    rv = internal_coding_fill_channel_info (
+        &(decode->channels),
+        &(decode->channel_count),
+        decode->_quick_chan_store,
+        cinfo,
+        pctxt,
+        part);
+
+    if (rv == EXR_ERR_SUCCESS)
     {
-        chandecodes = pctxt->alloc_fn (
-            (size_t) (chans) * sizeof (exr_coding_channel_info_t));
-        if (chandecodes == NULL)
-            return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
-        memset (
-            chandecodes,
-            0,
-            (size_t) (chans) * sizeof (exr_coding_channel_info_t));
+        decode->part_index  = part_index;
+        decode->context     = ctxt;
+        decode->chunk_block = *cinfo;
     }
-
-    decode->channels      = chandecodes;
-    decode->channel_count = (int16_t) chans;
-    for (int c = 0; c < chans; ++c)
-    {
-        const exr_attr_chlist_entry_t* curc = (chanlist->entries + c);
-        exr_coding_channel_info_t*     decc = (chandecodes + c);
-
-        decc->channel_name = curc->name.str;
-
-        if (curc->y_sampling > 1)
-        {
-            if (cinfo->height == 1)
-                decc->height = ((cinfo->start_y % curc->y_sampling) == 0) ? 1
-                                                                          : 0;
-            else
-                decc->height = cinfo->height / curc->y_sampling;
-        }
-        else
-            decc->height = cinfo->height;
-
-        if (curc->x_sampling > 1)
-            decc->width = cinfo->width / curc->x_sampling;
-        else
-            decc->width = cinfo->width;
-
-        decc->x_samples         = curc->x_sampling;
-        decc->y_samples         = curc->y_sampling;
-        decc->bytes_per_element = (curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4;
-        decc->data_type         = (uint16_t) (curc->pixel_type);
-
-        /* initialize these so they don't trip us up during decoding
-         * when the user also chooses to skip a channel */
-        decc->output_bytes_per_element = decc->bytes_per_element;
-        decc->output_data_type         = decc->data_type;
-        /* but leave the rest as zero for the user to fill in */
-    }
-
-    decode->context     = ctxt;
-    decode->part_index  = part_index;
-    decode->chunk_block = *cinfo;
-    return EXR_ERR_SUCCESS;
+    return rv;
 }
 
 exr_result_t
@@ -436,24 +393,24 @@ exr_decoding_choose_default_routines (
          * use 0 to cause things to collapse for testing purposes
          * so only test the values we know we use for decisions
          */
-        if (decc->output_bytes_per_element != 2 &&
-            decc->output_bytes_per_element != 4)
+        if (decc->user_bytes_per_element != 2 &&
+            decc->user_bytes_per_element != 4)
             return pctxt->print_error (
                 pctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Invalid / unsupported output bytes per element (%d) for channel %c (%s)",
-                (int) decc->output_bytes_per_element,
+                (int) decc->user_bytes_per_element,
                 c,
                 decc->channel_name);
 
-        if (decc->output_data_type != (uint16_t)(EXR_PIXEL_HALF) &&
-            decc->output_data_type != (uint16_t)(EXR_PIXEL_FLOAT) &&
-            decc->output_data_type != (uint16_t)(EXR_PIXEL_UINT) )
+        if (decc->user_data_type != (uint16_t) (EXR_PIXEL_HALF) &&
+            decc->user_data_type != (uint16_t) (EXR_PIXEL_FLOAT) &&
+            decc->user_data_type != (uint16_t) (EXR_PIXEL_UINT))
             return pctxt->print_error (
                 pctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Invalid / unsupported output data type (%d) for channel %c (%s)",
-                (int) decc->output_data_type,
+                (int) decc->user_data_type,
                 c,
                 decc->channel_name);
 
@@ -463,8 +420,8 @@ exr_decoding_choose_default_routines (
             sametype = -1;
 
         if (sameouttype == -2)
-            sameouttype = (int32_t) decc->output_data_type;
-        else if (sameouttype != (int32_t) decc->output_data_type)
+            sameouttype = (int32_t) decc->user_data_type;
+        else if (sameouttype != (int32_t) decc->user_data_type)
             sameouttype = -1;
 
         if (samebpc == 0)
@@ -473,39 +430,39 @@ exr_decoding_choose_default_routines (
             samebpc = -1;
 
         if (sameoutbpc == 0)
-            sameoutbpc = decc->output_bytes_per_element;
-        else if (sameoutbpc != decc->output_bytes_per_element)
+            sameoutbpc = decc->user_bytes_per_element;
+        else if (sameoutbpc != decc->user_bytes_per_element)
             sameoutbpc = -1;
 
         if (decc->x_samples != 1 || decc->y_samples != 1) hassampling = 1;
 
         ++chanstofill;
-        if (decc->output_pixel_stride != decc->bytes_per_element)
+        if (decc->user_pixel_stride != decc->bytes_per_element)
             ++chanstounpack;
-        if (decc->output_data_type != decc->data_type) ++hastypechange;
+        if (decc->user_data_type != decc->data_type) ++hastypechange;
 
         if (simplineoff == 0)
-            simplineoff = decc->output_line_stride;
-        else if (simplineoff != decc->output_line_stride)
+            simplineoff = decc->user_line_stride;
+        else if (simplineoff != decc->user_line_stride)
             simplineoff = -1;
 
         if (simpinterleave == 0)
         {
             interleaveptr  = decc->decode_to_ptr;
-            simpinterleave = decc->output_pixel_stride;
+            simpinterleave = decc->user_pixel_stride;
         }
         else if (
-            simpinterleave != decc->output_pixel_stride ||
+            simpinterleave != decc->user_pixel_stride ||
             decc->decode_to_ptr !=
-                (interleaveptr + c * decc->output_bytes_per_element))
+                (interleaveptr + c * decc->user_bytes_per_element))
         {
             interleaveptr  = NULL;
             simpinterleave = -1;
         }
 
         if (sameoutinc == 0)
-            sameoutinc = decc->output_pixel_stride;
-        else if (sameoutinc != decc->output_pixel_stride)
+            sameoutinc = decc->user_pixel_stride;
+        else if (sameoutinc != decc->user_pixel_stride)
             sameoutinc = -1;
     }
 
@@ -562,10 +519,7 @@ exr_decoding_update (
     const exr_chunk_block_info_t* cinfo,
     exr_decode_pipeline_t*        decode)
 {
-    int                        chans;
-    exr_attr_chlist_t*         chanlist;
-    exr_coding_channel_info_t* chandecodes;
-
+    exr_result_t rv;
     EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
     if (!cinfo || !decode)
         return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
@@ -576,48 +530,13 @@ exr_decoding_update (
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid request for decoding update from different context / part");
 
-    chanlist    = part->channels->chlist;
-    chans       = chanlist->num_channels;
-    chandecodes = decode->channels;
-
     if (decode->unpacked_buffer == decode->packed_buffer)
         decode->unpacked_buffer = NULL;
 
-    if (decode->channel_count != chanlist->num_channels)
-        return pctxt->report_error (
-            pctxt, EXR_ERR_INVALID_ARGUMENT, "Mismatch in channel counts");
-
-    for (int c = 0; c < chans; ++c)
-    {
-        const exr_attr_chlist_entry_t* curc = (chanlist->entries + c);
-        exr_coding_channel_info_t*     decc = (chandecodes + c);
-
-        decc->channel_name = curc->name.str;
-
-        if (curc->y_sampling > 1)
-        {
-            if (cinfo->height == 1)
-                decc->height = ((cinfo->start_y % curc->y_sampling) == 0) ? 1
-                                                                          : 0;
-            else
-                decc->height = cinfo->height / curc->y_sampling;
-        }
-        else
-            decc->height = cinfo->height;
-
-        if (curc->x_sampling > 1)
-            decc->width = cinfo->width / curc->x_sampling;
-        else
-            decc->width = cinfo->width;
-        decc->x_samples = curc->x_sampling;
-        decc->y_samples = curc->y_sampling;
-
-        decc->bytes_per_element = (curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4;
-        decc->data_type         = (uint16_t) (curc->pixel_type);
-    }
-
-    decode->chunk_block = *cinfo;
-    return EXR_ERR_SUCCESS;
+    rv = internal_coding_update_channel_info( decode->channels, decode->channel_count, cinfo, pctxt, part );
+    if (rv == EXR_ERR_SUCCESS)
+        decode->chunk_block = *cinfo;
+    return rv;
 }
 
 /**************************************/
@@ -672,7 +591,7 @@ exr_decoding_run (
 /**************************************/
 
 exr_result_t
-exr_destroy_decoding (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
+exr_decoding_destroy (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
 {
     INTERN_EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (ctxt);
     if (decode)

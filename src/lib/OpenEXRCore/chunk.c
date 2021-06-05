@@ -7,6 +7,7 @@
 
 #include "internal_structs.h"
 #include "internal_xdr.h"
+#include "internal_coding.h"
 
 #include <limits.h>
 #include <string.h>
@@ -201,6 +202,7 @@ exr_read_scanline_block_info (
     cinfo->idx         = cidx;
     cinfo->type        = (uint8_t) part->storage_mode;
     cinfo->compression = (uint8_t) part->comp_type;
+    cinfo->start_x     = dw.x_min;
     cinfo->start_y     = miny;
     cinfo->width       = dw.x_max - dw.x_min + 1;
     cinfo->height      = lpc;
@@ -213,6 +215,8 @@ exr_read_scanline_block_info (
     {
         cinfo->height = (dw.y_max - miny + 1);
     }
+    cinfo->level_x = 0;
+    cinfo->level_y = 0;
 
     /* need to read from the file to get the packed chunk size */
     rv = extract_chunk_table (pctxt, part, &ctable);
@@ -511,6 +515,16 @@ exr_read_tile_block_info (
     cinfo->start_y     = tileh * tiley;
     cinfo->height      = tileh;
     cinfo->width       = tilew;
+    if (levelx > 255 || levely > 255)
+        return pctxt->print_error (
+            pctxt,
+            EXR_ERR_ATTR_SIZE_MISMATCH,
+            "Unable to represent tile level %d, %d in chunk structure",
+            levelx,
+            levely);
+
+    cinfo->level_x = (uint8_t) levelx;
+    cinfo->level_y = (uint8_t) levely;
 
     chanlist = part->channels->chlist;
     for (int c = 0; c < chanlist->num_channels; ++c)
@@ -859,10 +873,10 @@ write_scan_chunk (
     struct _internal_exr_part*    part,
     int                           y,
     const void*                   packed_data,
-    size_t                        packed_size,
-    size_t                        unpacked_size,
+    uint64_t                      packed_size,
+    uint64_t                      unpacked_size,
     const void*                   sample_data,
-    size_t                        sample_data_size)
+    uint64_t                      sample_data_size)
 {
     exr_result_t rv;
     int32_t      data[3];
@@ -895,7 +909,7 @@ write_scan_chunk (
             packed_data);
 
     if (part->storage_mode != EXR_STORAGE_DEEP_SCANLINE &&
-        packed_size > (size_t) INT32_MAX)
+        packed_size > (uint64_t) INT32_MAX)
         return pctxt->print_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
@@ -1060,7 +1074,7 @@ exr_write_scanline_chunk (
     int           part_index,
     int           y,
     const void*   packed_data,
-    size_t        packed_size)
+    uint64_t      packed_size)
 {
     exr_result_t rv;
     EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
@@ -1082,10 +1096,10 @@ exr_write_deep_scanline_chunk (
     int           part_index,
     int           y,
     const void*   packed_data,
-    size_t        packed_size,
-    size_t        unpacked_size,
+    uint64_t      packed_size,
+    uint64_t      unpacked_size,
     const void*   sample_data,
-    size_t        sample_data_size)
+    uint64_t      sample_data_size)
 {
     exr_result_t rv;
     EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
@@ -1121,10 +1135,10 @@ write_tile_chunk (
     int                           levelx,
     int                           levely,
     const void*                   packed_data,
-    size_t                        packed_size,
-    size_t                        unpacked_size,
+    uint64_t                      packed_size,
+    uint64_t                      unpacked_size,
     const void*                   sample_data,
-    size_t                        sample_data_size)
+    uint64_t                      sample_data_size)
 {
     exr_result_t rv;
     int32_t      data[6];
@@ -1157,7 +1171,7 @@ write_tile_chunk (
             packed_data);
 
     if (part->storage_mode != EXR_STORAGE_DEEP_TILED &&
-        packed_size > (size_t) INT32_MAX)
+        packed_size > (uint64_t) INT32_MAX)
         return pctxt->print_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
@@ -1296,7 +1310,7 @@ exr_write_tile_chunk (
     int           levelx,
     int           levely,
     const void*   packed_data,
-    size_t        packed_size)
+    uint64_t      packed_size)
 {
     exr_result_t rv;
     EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
@@ -1332,10 +1346,10 @@ exr_write_deep_tile_chunk (
     int           levelx,
     int           levely,
     const void*   packed_data,
-    size_t        packed_size,
-    size_t        unpacked_size,
+    uint64_t      packed_size,
+    uint64_t      unpacked_size,
     const void*   sample_data,
-    size_t        sample_data_size)
+    uint64_t      sample_data_size)
 {
     exr_result_t rv;
     EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
@@ -1358,4 +1372,68 @@ exr_write_deep_tile_chunk (
         sample_data,
         sample_data_size);
     return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+}
+
+/**************************************/
+
+exr_result_t
+internal_validate_next_chunk (
+    exr_encode_pipeline_t*              encode,
+    const struct _internal_exr_context* pctxt,
+    const struct _internal_exr_part*    part)
+{
+    exr_result_t rv = EXR_ERR_SUCCESS;
+    int          cidx, lpc;
+
+    if (pctxt->cur_output_part != encode->part_index)
+        return pctxt->standard_error (pctxt, EXR_ERR_PART_NOT_READY);
+
+    cidx = -1;
+
+    if (part->storage_mode == EXR_STORAGE_TILED ||
+        part->storage_mode == EXR_STORAGE_DEEP_TILED)
+    {
+        rv = compute_tile_chunk_off (
+            pctxt,
+            part,
+            encode->chunk_block.start_x,
+            encode->chunk_block.start_y,
+            encode->chunk_block.level_x,
+            encode->chunk_block.level_y,
+            &cidx);
+    }
+    else
+    {
+        lpc  = part->lines_per_chunk;
+        cidx = (encode->chunk_block.start_y - part->data_window.y_min);
+        if (lpc > 1) cidx /= lpc;
+
+        if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
+        {
+            cidx = part->chunk_count - (cidx + 1);
+        }
+    }
+
+    if (rv == EXR_ERR_SUCCESS)
+    {
+        if (cidx < 0 || cidx >= part->chunk_count)
+        {
+            rv = pctxt->print_error (
+                pctxt,
+                EXR_ERR_INVALID_ARGUMENT,
+                "Chunk index for scanline %d in chunk %d outside chunk count %d",
+                encode->chunk_block.start_y,
+                cidx,
+                part->chunk_count);
+        }
+        else if (part->lineorder != EXR_LINEORDER_RANDOM_Y &&
+                 pctxt->last_output_chunk != (cidx - 1))
+        {
+            rv = pctxt->print_error (
+                pctxt,
+                EXR_ERR_CHUNK_NOT_READY,
+                "Attempt to write chunk %d, but last output chunk is %d", cidx, pctxt->last_output_chunk);
+        }
+    }
+    return rv;
 }

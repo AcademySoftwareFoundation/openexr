@@ -21,6 +21,7 @@ enum transcoding_pipeline_buffer_id
 {
     EXR_TRANSCODE_BUFFER_PACKED,
     EXR_TRANSCODE_BUFFER_UNPACKED,
+    EXR_TRANSCODE_BUFFER_COMPRESSED,
     EXR_TRANSCODE_BUFFER_SCRATCH1,
     EXR_TRANSCODE_BUFFER_SCRATCH2,
     EXR_TRANSCODE_BUFFER_PACKED_SAMPLES,
@@ -82,35 +83,35 @@ typedef struct
 
     /**************************************************
      * Elements below must be edited by the caller
-     * to control decoding
+     * to control encoding / decoding
      **************************************************/
 
     /**
-     * how many bytes per pixel the output should be (i.e. 2 for
-     * float16, 4 for float32 / uint32).
+     * how many bytes per pixel the input is or output should be
+     * (i.e. 2 for float16, 4 for float32 / uint32).
      */
-    int16_t output_bytes_per_element;
+    int16_t user_bytes_per_element;
     /** small form of exr_pixel_type_t enum (EXR_PIXEL_UINT/HALF/FLOAT) */
-    uint16_t output_data_type;
+    uint16_t user_data_type;
 
     /** increment to get to next pixel
      *
-     * This is in bytes. Must be specified if the pointer above is
-     * specified.
+     * This is in bytes. Must be specified when the decode pointer is
+     * specified (and always for encode).
      *
      * This is useful for implementing transcoding generically of
      * planar or interleaved data. For planar data, where the layout
      * is RRRRRGGGGGBBBBB, you can pass in 1 * bytes per component
      */
-    int32_t output_pixel_stride;
+    int32_t user_pixel_stride;
     /**
      * When lines > 1 for a chunk, this is the increment used to get
      * from beginning of line to beginning of next line.
      *
-     * This is in bytes. Must be specified if the pointer above is
-     * specified.
+     * This is in bytes. Must be specified when the decode pointer is
+     * specified (and always for encode).
      */
-    int32_t output_line_stride;
+    int32_t user_line_stride;
 
     /**
      * This data member has different requirements reading vs

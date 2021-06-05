@@ -3,32 +3,10 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
-#include "internal_unpack.h"
+#include "internal_coding.h"
 #include "internal_xdr.h"
 
 #include "openexr_attr.h"
-
-#include <ImathConfig.h>
-/* only recently has imath supported half in C (C++ only before),
- * allow an older version to still work, and if that is available, we
- * will favor the implementation there as it will be the latest
- * up-to-date optimizations */
-#if (IMATH_VERSION_MAJOR > 3) ||                                               \
-    (IMATH_VERSION_MAJOR == 3 && IMATH_VERSION_MINOR >= 1)
-#    define IMATH_HALF_SAFE_FOR_C
-/* avoid the library dependency */
-#    define IMATH_HALF_NO_TABLES_AT_ALL
-#    include <half.h>
-#endif
-
-#if defined(__has_include)
-#    if __has_include(<x86intrin.h>)
-#        include <x86intrin.h>
-#    elif __has_include(<intrin.h>)
-#        include <intrin.h>
-#    endif
-#endif
-#include <math.h>
 
 #include <string.h>
 
@@ -37,155 +15,6 @@
 #        include <cpuid.h>
 #    endif
 #endif
-
-/**************************************/
-
-static inline float
-half_to_float (uint16_t hv)
-{
-#ifdef IMATH_HALF_SAFE_FOR_C
-    return imath_half_to_float (hv);
-#else
-    /* replicate the code here from imath 3.1 since we are on an older
-     * version which doesn't have a half that is safe for C code. Same
-     * author, so free to do so. */
-#    if defined(__GNUC__) || defined(__clang__) || defined(__INTEL_COMPILER)
-#        define OUR_LIKELY(x) (__builtin_expect ((x), 1))
-#        define OUR_UNLIKELY(x) (__builtin_expect ((x), 0))
-#    else
-#        define OUR_LIKELY(x) (x)
-#        define OUR_UNLIKELY(x) (x)
-#    endif
-    union
-    {
-        uint32_t i;
-        float    f;
-    } v;
-    uint32_t hexpmant = ((uint32_t) (hv) << 17) >> 4;
-    v.i               = ((uint32_t) (hv >> 15)) << 31;
-    if (OUR_LIKELY ((hexpmant >= 0x00800000)))
-    {
-        v.i |= hexpmant;
-        if (OUR_LIKELY ((hexpmant < 0x0f800000)))
-            v.i += 0x38000000;
-        else
-            v.i |= 0x7f800000;
-    }
-    else if (hexpmant != 0)
-    {
-        uint32_t lc;
-#    if defined(_MSC_VER)
-        lc = __lzcnt (hexpmant);
-#    elif defined(__GNUC__) || defined(__clang__)
-        lc = (uint32_t) __builtin_clz (hexpmant);
-#    else
-        lc = 0;
-        while (0 == ((hexpmant << lc) & 0x80000000))
-            ++lc;
-#    endif
-        lc -= 8;
-        v.i |= 0x38800000;
-        v.i |= (hexpmant << lc);
-        v.i -= (lc << 23);
-    }
-    return v.f;
-#endif
-}
-
-static inline uint16_t
-float_to_half (uint32_t fint)
-{
-#ifdef IMATH_HALF_SAFE_FOR_C
-    union
-    {
-        uint32_t i;
-        float    f;
-    } v;
-    v.i = fint;
-    return imath_float_to_half (v.f);
-#else
-    uint16_t ret;
-    uint32_t e, m, ui, r, shift;
-
-    ui  = (fint & ~0x80000000);
-    ret = ((fint >> 16) & 0x8000);
-
-    if (ui >= 0x38800000)
-    {
-        if (OUR_UNLIKELY (ui >= 0x7f800000))
-        {
-            ret |= 0x7c00;
-            if (ui == 0x7f800000) return ret;
-            m = (ui & 0x7fffff) >> 13;
-            return (uint16_t) (ret | m | (m == 0));
-        }
-
-        if (OUR_UNLIKELY (ui > 0x477fefff)) return ret | 0x7c00;
-
-        ui -= 0x38000000;
-        ui = ((ui + 0x00000fff + ((ui >> 13) & 1)) >> 13);
-        return (uint16_t) (ret | ui);
-    }
-
-    // zero or flush to 0
-    if (ui < 0x33000001) return ret;
-
-    // produce a denormalized half
-    e     = (ui >> 23);
-    shift = 0x7e - e;
-    m     = 0x800000 | (ui & 0x7fffff);
-    r     = m << (32 - shift);
-    ret |= (m >> shift);
-    if (r > 0x80000000 || (r == 0x80000000 && (ret & 0x1) != 0)) ++ret;
-    return ret;
-#endif
-}
-
-/**************************************/
-
-static inline uint32_t
-half_to_uint (uint16_t hv)
-{
-    /* replicating logic from imfmisc if negative or nan, return 0, if
-     * inf, return uint32 max otherwise convert to float and cast to
-     * uint */
-    if (hv & 0x8000) return 0;
-    if ((hv & 0x7c00) == 0x7c00)
-    {
-        if ((hv & 0x3ff) != 0) return 0;
-        return UINT32_MAX;
-    }
-    return (uint32_t) (half_to_float (hv));
-}
-
-static inline uint32_t
-float_to_uint (uint32_t fint)
-{
-    union
-    {
-        uint32_t i;
-        float    f;
-    } v;
-    v.i = fint;
-    if (v.f < 0.f || isnan (v.f)) return 0;
-    if (isinf (v.f) || v.f > (float) (UINT32_MAX)) return UINT32_MAX;
-    return (uint32_t) (v.f);
-}
-
-static inline uint16_t
-uint_to_half (uint32_t ui)
-{
-    if (ui > 65504) return 0x7c00;
-
-    /* this may look upside down, but re-using code */
-    union
-    {
-        uint32_t i;
-        float    f;
-    } v;
-    v.f = (float) ui;
-    return float_to_half (v.i);
-}
 
 /**************************************/
 
@@ -397,7 +226,7 @@ unpack_16bit_3chan_interleave (exr_decode_pipeline_t* decode)
 
     w     = decode->channels[0].width;
     h     = decode->chunk_block.height;
-    linc0 = decode->channels[0].output_line_stride;
+    linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
 
@@ -437,7 +266,7 @@ unpack_half_to_float_3chan_interleave (exr_decode_pipeline_t* decode)
 
     w     = decode->channels[0].width;
     h     = decode->chunk_block.height;
-    linc0 = decode->channels[0].output_line_stride;
+    linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
 
@@ -478,12 +307,12 @@ unpack_16bit_3chan_planar (exr_decode_pipeline_t* decode)
 
     w     = decode->channels[0].width;
     h     = decode->chunk_block.height;
-    inc0  = decode->channels[0].output_pixel_stride;
-    inc1  = decode->channels[1].output_pixel_stride;
-    inc2  = decode->channels[2].output_pixel_stride;
-    linc0 = decode->channels[0].output_line_stride;
-    linc1 = decode->channels[1].output_line_stride;
-    linc2 = decode->channels[2].output_line_stride;
+    inc0  = decode->channels[0].user_pixel_stride;
+    inc1  = decode->channels[1].user_pixel_stride;
+    inc2  = decode->channels[2].user_pixel_stride;
+    linc0 = decode->channels[0].user_line_stride;
+    linc1 = decode->channels[1].user_line_stride;
+    linc2 = decode->channels[2].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
     out1 = decode->channels[1].decode_to_ptr;
@@ -532,12 +361,12 @@ unpack_half_to_float_3chan_planar (exr_decode_pipeline_t* decode)
 
     w     = decode->channels[0].width;
     h     = decode->chunk_block.height;
-    inc0  = decode->channels[0].output_pixel_stride;
-    inc1  = decode->channels[1].output_pixel_stride;
-    inc2  = decode->channels[2].output_pixel_stride;
-    linc0 = decode->channels[0].output_line_stride;
-    linc1 = decode->channels[1].output_line_stride;
-    linc2 = decode->channels[2].output_line_stride;
+    inc0  = decode->channels[0].user_pixel_stride;
+    inc1  = decode->channels[1].user_pixel_stride;
+    inc2  = decode->channels[2].user_pixel_stride;
+    linc0 = decode->channels[0].user_line_stride;
+    linc1 = decode->channels[1].user_line_stride;
+    linc2 = decode->channels[2].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
     out1 = decode->channels[1].decode_to_ptr;
@@ -578,12 +407,12 @@ unpack_16bit_3chan (exr_decode_pipeline_t* decode)
 
     w     = decode->channels[0].width;
     h     = decode->chunk_block.height;
-    inc0  = decode->channels[0].output_pixel_stride;
-    inc1  = decode->channels[1].output_pixel_stride;
-    inc2  = decode->channels[2].output_pixel_stride;
-    linc0 = decode->channels[0].output_line_stride;
-    linc1 = decode->channels[1].output_line_stride;
-    linc2 = decode->channels[2].output_line_stride;
+    inc0  = decode->channels[0].user_pixel_stride;
+    inc1  = decode->channels[1].user_pixel_stride;
+    inc2  = decode->channels[2].user_pixel_stride;
+    linc0 = decode->channels[0].user_line_stride;
+    linc1 = decode->channels[1].user_line_stride;
+    linc2 = decode->channels[2].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
     out1 = decode->channels[1].decode_to_ptr;
@@ -635,7 +464,7 @@ unpack_16bit_4chan_interleave (exr_decode_pipeline_t* decode)
 
     w     = decode->channels[0].width;
     h     = decode->chunk_block.height;
-    linc0 = decode->channels[0].output_line_stride;
+    linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
 
@@ -676,7 +505,7 @@ unpack_half_to_float_4chan_interleave (exr_decode_pipeline_t* decode)
 
     w     = decode->channels[0].width;
     h     = decode->chunk_block.height;
-    linc0 = decode->channels[0].output_line_stride;
+    linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
 
@@ -717,10 +546,10 @@ unpack_16bit_4chan_planar (exr_decode_pipeline_t* decode)
 
     w     = decode->channels[0].width;
     h     = decode->chunk_block.height;
-    linc0 = decode->channels[0].output_line_stride;
-    linc1 = decode->channels[1].output_line_stride;
-    linc2 = decode->channels[2].output_line_stride;
-    linc3 = decode->channels[3].output_line_stride;
+    linc0 = decode->channels[0].user_line_stride;
+    linc1 = decode->channels[1].user_line_stride;
+    linc2 = decode->channels[2].user_line_stride;
+    linc3 = decode->channels[3].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
     out1 = decode->channels[1].decode_to_ptr;
@@ -773,10 +602,10 @@ unpack_half_to_float_4chan_planar (exr_decode_pipeline_t* decode)
 
     w     = decode->channels[0].width;
     h     = decode->chunk_block.height;
-    linc0 = decode->channels[0].output_line_stride;
-    linc1 = decode->channels[1].output_line_stride;
-    linc2 = decode->channels[2].output_line_stride;
-    linc3 = decode->channels[3].output_line_stride;
+    linc0 = decode->channels[0].user_line_stride;
+    linc1 = decode->channels[1].user_line_stride;
+    linc2 = decode->channels[2].user_line_stride;
+    linc3 = decode->channels[3].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
     out1 = decode->channels[1].decode_to_ptr;
@@ -820,14 +649,14 @@ unpack_16bit_4chan (exr_decode_pipeline_t* decode)
 
     w     = decode->channels[0].width;
     h     = decode->chunk_block.height;
-    inc0  = decode->channels[0].output_pixel_stride;
-    inc1  = decode->channels[1].output_pixel_stride;
-    inc2  = decode->channels[2].output_pixel_stride;
-    inc3  = decode->channels[3].output_pixel_stride;
-    linc0 = decode->channels[0].output_line_stride;
-    linc1 = decode->channels[1].output_line_stride;
-    linc2 = decode->channels[2].output_line_stride;
-    linc3 = decode->channels[3].output_line_stride;
+    inc0  = decode->channels[0].user_pixel_stride;
+    inc1  = decode->channels[1].user_pixel_stride;
+    inc2  = decode->channels[2].user_pixel_stride;
+    inc3  = decode->channels[3].user_pixel_stride;
+    linc0 = decode->channels[0].user_line_stride;
+    linc1 = decode->channels[1].user_line_stride;
+    linc2 = decode->channels[2].user_line_stride;
+    linc3 = decode->channels[3].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
     out1 = decode->channels[1].decode_to_ptr;
@@ -876,8 +705,8 @@ unpack_16bit (exr_decode_pipeline_t* decode)
 
             cdata        = decc->decode_to_ptr;
             w            = decc->width;
-            pixincrement = decc->output_pixel_stride;
-            cdata += (uint64_t) y * (uint64_t) decc->output_line_stride;
+            pixincrement = decc->user_pixel_stride;
+            cdata += (uint64_t) y * (uint64_t) decc->user_line_stride;
             /* specialize to memcpy if we can */
 #if EXR_HOST_IS_NOT_LITTLE_ENDIAN
             if (pixincrement == 2)
@@ -941,8 +770,8 @@ unpack_32bit (exr_decode_pipeline_t* decode)
 
             cdata        = decc->decode_to_ptr;
             w            = decc->width;
-            pixincrement = decc->output_pixel_stride;
-            cdata += y * (int64_t) decc->output_line_stride;
+            pixincrement = decc->user_pixel_stride;
+            cdata += y * (int64_t) decc->user_line_stride;
             /* specialize to memcpy if we can */
 #if EXR_HOST_IS_NOT_LITTLE_ENDIAN
             if (pixincrement == 4)
@@ -1010,20 +839,20 @@ generic_unpack (exr_decode_pipeline_t* decode)
                 if (cdata)
                     cdata +=
                         ((uint64_t) (y / decc->y_samples) *
-                         (uint64_t) decc->output_line_stride);
+                         (uint64_t) decc->user_line_stride);
             }
             else if (cdata)
             {
-                cdata += (uint64_t) y * (uint64_t) decc->output_line_stride;
+                cdata += (uint64_t) y * (uint64_t) decc->user_line_stride;
             }
 
             if (cdata)
             {
-                int pixincrement = decc->output_pixel_stride;
+                int pixincrement = decc->user_pixel_stride;
                 switch (decc->data_type)
                 {
                     case EXR_PIXEL_HALF:
-                        switch (decc->output_data_type)
+                        switch (decc->user_data_type)
                         {
                             case EXR_PIXEL_HALF: {
                                 const uint16_t* src =
@@ -1062,7 +891,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
                         }
                         break;
                     case EXR_PIXEL_FLOAT:
-                        switch (decc->output_data_type)
+                        switch (decc->user_data_type)
                         {
                             case EXR_PIXEL_HALF: {
                                 const uint32_t* src =
@@ -1070,7 +899,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                 for (int x = 0; x < w; ++x)
                                 {
                                     uint32_t fint = one_to_native32 (*src++);
-                                    *((uint16_t*) cdata) = float_to_half (fint);
+                                    *((uint16_t*) cdata) = float_to_half_int (fint);
                                     cdata += pixincrement;
                                 }
                                 break;
@@ -1092,7 +921,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                 for (int x = 0; x < w; ++x)
                                 {
                                     uint32_t fint = one_to_native32 (*src++);
-                                    *((uint32_t*) cdata) = float_to_uint (fint);
+                                    *((uint32_t*) cdata) = float_to_uint_int (fint);
                                     cdata += pixincrement;
                                 }
                                 break;
@@ -1101,7 +930,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
                         }
                         break;
                     case EXR_PIXEL_UINT:
-                        switch (decc->output_data_type)
+                        switch (decc->user_data_type)
                         {
                             case EXR_PIXEL_HALF: {
                                 const uint32_t* src =
@@ -1120,7 +949,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                 for (int x = 0; x < w; ++x)
                                 {
                                     uint32_t uv = one_to_native32 (*src++);
-                                    *((float*) cdata) = (float) (uv);
+                                    *((float*) cdata) = uint_to_float (uv);
                                     cdata += pixincrement;
                                 }
                                 break;

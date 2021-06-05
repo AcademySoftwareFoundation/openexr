@@ -192,7 +192,7 @@ testReadTiles (const std::string& tempdir)
     EXRCORE_TEST (cinfo.sample_count_table_size == 0);
 
     exr_decode_pipeline_t decoder;
-    EXRCORE_TEST_RVAL(exr_initialize_decoding (f, 0, &cinfo, &decoder));
+    EXRCORE_TEST_RVAL(exr_decoding_initialize (f, 0, &cinfo, &decoder));
 
     EXRCORE_TEST (decoder.channel_count == 2);
     EXRCORE_TEST (!strcmp (decoder.channels[0].channel_name, "G"));
@@ -213,13 +213,13 @@ testReadTiles (const std::string& tempdir)
     memset (gptr.get (), 0, 24 * 12 * 2);
     memset (zptr.get (), 0, 24 * 12 * 4);
     decoder.channels[0].decode_to_ptr            = gptr.get ();
-    decoder.channels[0].output_pixel_stride = 2;
-    decoder.channels[0].output_line_stride  = 2 * 12;
-    decoder.channels[0].output_bytes_per_element = 2;
+    decoder.channels[0].user_pixel_stride = 2;
+    decoder.channels[0].user_line_stride  = 2 * 12;
+    decoder.channels[0].user_bytes_per_element = 2;
     decoder.channels[1].decode_to_ptr            = zptr.get ();
-    decoder.channels[1].output_pixel_stride = 4;
-    decoder.channels[1].output_line_stride  = 4 * 12;
-    decoder.channels[1].output_bytes_per_element = 4;
+    decoder.channels[1].user_pixel_stride = 4;
+    decoder.channels[1].user_line_stride  = 4 * 12;
+    decoder.channels[1].user_bytes_per_element = 4;
 
     EXRCORE_TEST_RVAL(exr_decoding_choose_default_routines (f, 0, &decoder));
 
@@ -241,7 +241,7 @@ testReadTiles (const std::string& tempdir)
     //    std::cout << std::endl;
     //}
 
-    EXRCORE_TEST_RVAL(exr_destroy_decoding (f, &decoder));
+    EXRCORE_TEST_RVAL(exr_decoding_destroy (f, &decoder));
     exr_finish (&f);
 
 #if 0

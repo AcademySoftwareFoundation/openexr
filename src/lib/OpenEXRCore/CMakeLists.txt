@@ -9,7 +9,9 @@ openexr_define_library(OpenEXRCore
     # locking macros in the relative source files
     internal_attr.h
     internal_channel_list.h
+    internal_coding.h
     internal_constants.h
+    internal_compress.h
     internal_decompress.h
     internal_file.h
     internal_float_vector.h
@@ -21,7 +23,6 @@ openexr_define_library(OpenEXRCore
     internal_string.h
     internal_string_vector.h
     internal_structs.h
-    internal_unpack.h
     internal_xdr.h
 
     attributes.c
@@ -45,8 +46,12 @@ openexr_define_library(OpenEXRCore
     write_header.c
 
     chunk.c
+    coding.c
     decoding.c
+    encoding.c
+    compress.c
     decompress.c
+    pack.c
     unpack.c
     validation.c
 

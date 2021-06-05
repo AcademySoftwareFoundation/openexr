@@ -12,8 +12,8 @@
 
 #ifdef ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
-#        include <windows.h>
 #        include <synchapi.h>
+#        include <windows.h>
 #    else
 #        include <pthread.h>
 #    endif
@@ -286,6 +286,20 @@ internal_exr_unlock (const struct _internal_exr_context* c)
     const struct _internal_exr_part*    part;                                  \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
     EXR_LOCK_WRITE (pctxt);                                                    \
+    if (pi < 0 || pi >= pctxt->num_parts)                                      \
+        return (                                                               \
+            (void) (EXR_RETURN_WRITE (pctxt)),                                 \
+            pctxt->print_error (                                               \
+                pctxt,                                                         \
+                EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                 \
+                "Part index (%d) out of range",                                \
+                pi));                                                          \
+    part = pctxt->parts[pi]
+
+#define EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR_NO_LOCK(c, pi)             \
+    const struct _internal_exr_context* pctxt = EXR_CCTXT (c);                 \
+    const struct _internal_exr_part*    part;                                  \
+    if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
     if (pi < 0 || pi >= pctxt->num_parts)                                      \
         return (                                                               \
             (void) (EXR_RETURN_WRITE (pctxt)),                                 \

@@ -187,7 +187,7 @@ typedef struct _exr_decode_pipeline
  * call @sa exr_choose_unpack_routine
  */
 EXR_EXPORT
-exr_result_t exr_initialize_decoding (
+exr_result_t exr_decoding_initialize (
     exr_const_context_t           ctxt,
     int                           part_index,
     const exr_chunk_block_info_t* cinfo,
@@ -230,7 +230,7 @@ exr_result_t exr_decoding_run (
  */
 EXR_EXPORT
 exr_result_t
-exr_destroy_decoding (exr_const_context_t ctxt, exr_decode_pipeline_t* decode);
+exr_decoding_destroy (exr_const_context_t ctxt, exr_decode_pipeline_t* decode);
 
 #ifdef __cplusplus
 } /* extern "C" */

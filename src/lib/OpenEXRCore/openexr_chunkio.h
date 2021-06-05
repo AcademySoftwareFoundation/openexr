@@ -21,14 +21,16 @@ typedef struct
 {
     int32_t idx;
 
+    int32_t start_x;
     int32_t start_y;
     int32_t height; /**< for this chunk */
     int32_t width;  /**< for this chunk */
 
+    uint8_t level_x; /**< for tiled files */
+    uint8_t level_y; /**< for tiled files */
+
     uint8_t type;
     uint8_t compression;
-
-    uint8_t pad[6];
 
     uint64_t data_offset;
     uint64_t packed_size;
@@ -91,7 +93,7 @@ exr_result_t exr_write_scanline_chunk (
     int           part_index,
     int           y,
     const void*   packed_data,
-    size_t        packed_size);
+    uint64_t      packed_size);
 
 /** y must the appropriate starting y for the specified chunk */
 EXR_EXPORT
@@ -100,10 +102,10 @@ exr_result_t exr_write_deep_scanline_chunk (
     int           part_index,
     int           y,
     const void*   packed_data,
-    size_t        packed_size,
-    size_t        unpacked_size,
+    uint64_t      packed_size,
+    uint64_t      unpacked_size,
     const void*   sample_data,
-    size_t        sample_data_size);
+    uint64_t      sample_data_size);
 
 EXR_EXPORT
 exr_result_t exr_write_tile_chunk (
@@ -114,7 +116,7 @@ exr_result_t exr_write_tile_chunk (
     int           levelx,
     int           levely,
     const void*   packed_data,
-    size_t        packed_size);
+    uint64_t      packed_size);
 
 EXR_EXPORT
 exr_result_t exr_write_deep_tile_chunk (
@@ -125,10 +127,10 @@ exr_result_t exr_write_deep_tile_chunk (
     int           levelx,
     int           levely,
     const void*   packed_data,
-    size_t        packed_size,
-    size_t        unpacked_size,
+    uint64_t      packed_size,
+    uint64_t      unpacked_size,
     const void*   sample_data,
-    size_t        sample_data_size);
+    uint64_t      sample_data_size);
 
 #ifdef __cplusplus
 } /* extern "C" */

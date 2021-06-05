@@ -35,16 +35,18 @@ typedef struct _exr_encode_pipeline
     exr_coding_channel_info_t* channels;
     int16_t                    channel_count;
 
+    uint8_t pad[2];
+
+    /** copy of the parameters given to the initialize / update for convenience */
+    int                    part_index;
+    exr_const_context_t    context;
+    exr_chunk_block_info_t chunk_block;
+
     /**
      * can be used by the user to pass custom context data through
      * the encode pipeline
      */
     void* encoding_user_data;
-
-    /** copy of the parameters given to the initialize / update for convenience */
-    exr_const_context_t          context;
-    int                    part_index;
-    exr_chunk_block_info_t chunk_block;
 
     /** the (compressed) buffer.
      *
@@ -55,6 +57,9 @@ typedef struct _exr_encode_pipeline
      * custom allocators.
      */
     void* packed_buffer;
+    /** for deep data */
+    uint64_t packed_bytes;
+
     /** used when re-using the same encode pipeline struct to know if
      * chunk is changed size whether current buffer is large enough
      *
@@ -65,8 +70,14 @@ typedef struct _exr_encode_pipeline
      * custom allocators.
      */
     size_t packed_alloc_size;
-    /** the decompressed buffer (unpacked_size from the chunk block
-     * info), but still packed into storage order, only needed for
+    /** for deep data */
+    void* packed_sample_count_table;
+    /** for deep data */
+    size_t packed_sample_count_bytes;
+    /** for deep data */
+    size_t packed_sample_count_alloc_size;
+
+    /** the compressed buffer, only needed for
      * compressed files
      *
      * If null, will be allocated during the run of the pipeline when
@@ -76,7 +87,17 @@ typedef struct _exr_encode_pipeline
      * adopt the pointer and set it to null here. Be cognizant of any
      * custom allocators.
      */
-    void* unpacked_buffer;
+    void* compressed_buffer;
+    /** must be filled in as the pipeline runs to inform the writing
+     * software about the compressed size of the chunk (if it is an
+     * uncompressed file or the compression would make the file
+     * larger, it is expected to be the packed_buffer)
+     *
+     * If the caller wishes to take control of the buffer, simple
+     * adopt the pointer and set it to zero here. Be cognizant of any
+     * custom allocators.
+     */
+    size_t compressed_bytes;
     /** used when re-using the same encode pipeline struct to know if
      * chunk is changed size whether current buffer is large enough
      *
@@ -84,11 +105,12 @@ typedef struct _exr_encode_pipeline
      * needed.
      *
      * If the caller wishes to take control of the buffer, simple
-     * adopt the pointer and set it to null here. Be cognizant of any
+     * adopt the pointer and set it to zero here. Be cognizant of any
      * custom allocators.
      */
-    size_t unpacked_alloc_size;
-    /** a scratch buffer of unpacked_size for intermediate results
+    size_t compressed_alloc_size;
+
+    /** a scratch buffer for intermediate results
      *
      * If null, will be allocated during the run of the pipeline when
      * needed.
@@ -203,7 +225,7 @@ typedef struct _exr_encode_pipeline
  * call @sa exr_choose_unpack_routine
  */
 EXR_EXPORT
-exr_result_t exr_initialize_encoding (
+exr_result_t exr_encoding_initialize (
     exr_const_context_t           ctxt,
     int                           part_index,
     const exr_chunk_block_info_t* cinfo,
@@ -217,10 +239,8 @@ exr_result_t exr_initialize_encoding (
  * if just the raw decompressed data is desired.
  */
 EXR_EXPORT
-exr_result_t exr_choose_pack_routine (
-    exr_const_context_t    ctxt,
-    int                    part_index,
-    exr_encode_pipeline_t* encode_pipe);
+exr_result_t exr_encoding_choose_default_routines (
+    exr_const_context_t ctxt, int part_index, exr_encode_pipeline_t* encode_pipe);
 
 /** Given a encode pipeline previously initialized, updates it for the
  * new chunk to be written.
@@ -230,7 +250,7 @@ exr_result_t exr_choose_pack_routine (
  * the various functions to be quickly re-used.
  */
 EXR_EXPORT
-exr_result_t exr_update_encoding (
+exr_result_t exr_encoding_update (
     exr_const_context_t           ctxt,
     int                           part_index,
     const exr_chunk_block_info_t* cinfo,
@@ -238,8 +258,8 @@ exr_result_t exr_update_encoding (
 
 /** Execute the encoding pipeline */
 EXR_EXPORT
-exr_result_t exr_run_encoding (
-    exr_const_context_t ctxt, int part_index, exr_encode_pipeline_t* encode);
+exr_result_t exr_encoding_run (
+    exr_const_context_t ctxt, int part_index, exr_encode_pipeline_t* encode_pipe);
 
 /** Free any intermediate memory in the encoding pipeline
  *
@@ -248,7 +268,7 @@ exr_result_t exr_run_encoding (
  * for the structure itself.
  */
 EXR_EXPORT
-exr_result_t exr_destroy_encoding (
+exr_result_t exr_encoding_destroy (
     exr_const_context_t ctxt, exr_encode_pipeline_t* encode_pipe);
 
 #ifdef __cplusplus
