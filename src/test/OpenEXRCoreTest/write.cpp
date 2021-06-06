@@ -441,7 +441,7 @@ testWriteAttrs (const std::string& tempdir)
     EXRCORE_TEST_RVAL (
         exr_add_part (outf, "beauty", EXR_STORAGE_SCANLINE, &partidx));
     EXRCORE_TEST_RVAL (exr_initialize_required_attr_simple (
-        outf, partidx, 512, 512, EXR_COMPRESSION_ZIPS));
+        outf, partidx, 1, 1, EXR_COMPRESSION_ZIPS));
     EXRCORE_TEST_RVAL (
         exr_add_channel (outf, partidx, "R", EXR_PIXEL_HALF, 1, 1, 1));
     EXRCORE_TEST_RVAL (
@@ -782,6 +782,27 @@ testWriteAttrs (const std::string& tempdir)
     }
 
     EXRCORE_TEST_RVAL (exr_write_header (outf));
+    exr_chunk_block_info_t cinfo = { 0, 0, 0, 1, 1, 0, 0, (uint8_t)EXR_STORAGE_SCANLINE, EXR_COMPRESSION_ZIP, 0};
+    exr_encode_pipeline_t encoder;
+    EXRCORE_TEST_RVAL(exr_encoding_initialize (outf, 0, &cinfo, &encoder));
+    const uint8_t rgb[] = { 0, 0, 0, 0, 0, 0 };
+    encoder.channels[0].encode_from_ptr = rgb + 2;
+    encoder.channels[0].user_pixel_stride = 6;
+    encoder.channels[0].user_line_stride  = 6;
+    encoder.channels[1].encode_from_ptr = rgb + 1;
+    encoder.channels[1].user_pixel_stride = 6;
+    encoder.channels[1].user_line_stride  = 6;
+    encoder.channels[2].encode_from_ptr = rgb;
+    encoder.channels[2].user_pixel_stride = 6;
+    encoder.channels[2].user_line_stride  = 6;
+
+    EXRCORE_TEST_RVAL(exr_encoding_choose_default_routines (outf, 0, &encoder));
+    EXRCORE_TEST_RVAL(exr_encoding_run (outf, 0, &encoder));
+    EXRCORE_TEST_RVAL(exr_encoding_destroy (outf, &encoder));
+    EXRCORE_TEST_RVAL (exr_finish (&outf));
+
+    EXRCORE_TEST_RVAL (exr_start_read (
+        &outf, outfn.c_str (), &cinit));
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
 }

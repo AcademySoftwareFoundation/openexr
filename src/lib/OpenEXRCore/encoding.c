@@ -83,7 +83,7 @@ default_compress_chunk (exr_encode_pipeline_t* encode)
         EXR_TRANSCODE_BUFFER_COMPRESSED,
         &(encode->compressed_buffer),
         &(encode->compressed_alloc_size),
-        encode->packed_bytes * 2);
+        encode->packed_bytes * 101 / 100 + 100);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     switch (part->comp_type)
@@ -334,7 +334,7 @@ exr_encoding_run (
 {
     exr_result_t rv           = EXR_ERR_SUCCESS;
     uint64_t     packed_bytes = 0;
-    EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
 
     if (!encode)
         return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
@@ -417,6 +417,7 @@ exr_encoding_run (
             EXR_ERR_INVALID_ARGUMENT,
             "Encode pipeline has no packing function declared and packed buffer is null / 0 sized"));
     }
+    EXR_UNLOCK_WRITE(pctxt);
 
     if (rv == EXR_ERR_SUCCESS)
     {
@@ -441,7 +442,7 @@ exr_encoding_run (
     if (rv == EXR_ERR_SUCCESS && encode->write_fn)
         rv = encode->write_fn (encode);
 
-    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (rv);
+    return rv;
 }
 
 /**************************************/
