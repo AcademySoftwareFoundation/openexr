@@ -70,9 +70,17 @@ openexr_define_library(OpenEXRCore
     openexr_encode.h
     openexr_part.h
     openexr_std_attr.h
-    DEPENDENCIES
-    Imath::ImathConfig
+  DEPENDENCIES
     ZLIB::ZLIB
   PRIVATE_DEPS
     ${OPENEXR_EXTRA_MATH_LIB}
   )
+
+# when building with an internal imath, this isn't generated until
+# install time, so need to use private header only include path (we
+# aren't linking to imath or anything c++)
+if (TARGET Imath::ImathConfig)
+  target_link_libraries(OpenEXRCore PRIVATE Imath::ImathConfig)
+else()
+  target_include_directories(OpenEXRCore PRIVATE ${IMATH_HEADER_ONLY_INCLUDE_DIRS})
+endif()
