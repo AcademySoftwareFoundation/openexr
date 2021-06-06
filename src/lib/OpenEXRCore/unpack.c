@@ -36,23 +36,27 @@ half_to_float8 (float* out, const uint16_t* src)
 }
 #endif
 
-#if (defined(__x86_64__) || defined(_M_X64)) && (defined(__F16C__) || defined(__GNUC__) || defined(__clang__))
+#if (defined(__x86_64__) || defined(_M_X64)) &&                                \
+    (defined(__F16C__) || defined(__GNUC__) || defined(__clang__))
 
-#if defined(__F16C__)
+#    if defined(__F16C__)
 static inline void
 half_to_float_buffer (float* out, const uint16_t* in, int w)
-#elif defined(__GNUC__) || defined(__clang__)
+#    elif defined(__GNUC__) || defined(__clang__)
 __attribute__ ((target ("f16c"))) static void
 half_to_float_buffer_f16c (float* out, const uint16_t* in, int w)
-#endif
+#    endif
 {
     while (w >= 8)
     {
-        _mm256_storeu_ps (out, _mm256_cvtph_ps (_mm_loadu_si128 ((const __m128i *)in)));
+        _mm256_storeu_ps (
+            out, _mm256_cvtph_ps (_mm_loadu_si128 ((const __m128i*) in)));
         out += 8;
         in += 8;
         w -= 8;
     }
+    // gcc < 9 does not have loadu_si64
+#    if defined(__clang__) || (__GNUC__ >= 9)
     switch (w)
     {
         case 7:
@@ -82,9 +86,16 @@ half_to_float_buffer_f16c (float* out, const uint16_t* in, int w)
             break;
         case 1: out[0] = half_to_float (in[0]); break;
     }
+#    else
+    while (w > 0)
+    {
+        *out++ = half_to_float(*in++);
+        --w;
+    }
+#    endif
 }
 
-#ifndef __F16C__
+#    ifndef __F16C__
 static void
 half_to_float_buffer_impl (float* out, const uint16_t* in, int w)
 {
@@ -126,47 +137,45 @@ half_to_float_buffer_impl (float* out, const uint16_t* in, int w)
     }
 }
 
-static void (*half_to_float_buffer)(float *, const uint16_t *, int) = &half_to_float_buffer_impl;
+static void (*half_to_float_buffer) (float*, const uint16_t*, int) =
+    &half_to_float_buffer_impl;
 
-static void choose_half_to_float_impl()
+static void
+choose_half_to_float_impl ()
 {
-#    ifdef _WIN32
+#        ifdef _WIN32
     int regs[4];
 
     __cpuid (regs, 0);
-    if (regs[0] >= 1)
-    {
-        __cpuidex (regs, 1, 0);
-    }
-#    else
+    if (regs[0] >= 1) { __cpuidex (regs, 1, 0); }
+#        else
     unsigned int regs[4];
     __get_cpuid (0, &regs[0], &regs[1], &regs[2], &regs[3]);
     if (regs[0] >= 1)
     {
         __get_cpuid (1, &regs[0], &regs[1], &regs[2], &regs[3]);
     }
-#    endif
+#        endif
     /* F16C is indicated by bit 29 */
-    if (regs[0] & (1 << 29)) 
-        half_to_float_buffer = &half_to_float_buffer_f16c;
+    if (regs[0] & (1 << 29)) half_to_float_buffer = &half_to_float_buffer_f16c;
 }
-#else
+#    else
 /* when we explicitly compile against f16, force it in */
-static void choose_half_to_float_impl()
-{
-}
+static void
+choose_half_to_float_impl ()
+{}
 
-#endif /* F16C */
+#    endif /* F16C */
 
 #else
 
 static inline void
 half_to_float_buffer (float* out, const uint16_t* in, int w)
 {
-#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
+#    if EXR_HOST_IS_NOT_LITTLE_ENDIAN
     for (int x = 0; x < w; ++x)
         out[x] = half_to_float (one_to_native16 (in[x]));
-#else
+#    else
     while (w >= 8)
     {
         half_to_float8 (out, in);
@@ -203,12 +212,12 @@ half_to_float_buffer (float* out, const uint16_t* in, int w)
             break;
         case 1: out[0] = half_to_float (in[0]); break;
     }
-#endif
+#    endif
 }
 
-static void choose_half_to_float_impl()
-{
-}
+static void
+choose_half_to_float_impl ()
+{}
 
 #endif
 
@@ -899,7 +908,8 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                 for (int x = 0; x < w; ++x)
                                 {
                                     uint32_t fint = one_to_native32 (*src++);
-                                    *((uint16_t*) cdata) = float_to_half_int (fint);
+                                    *((uint16_t*) cdata) =
+                                        float_to_half_int (fint);
                                     cdata += pixincrement;
                                 }
                                 break;
@@ -921,7 +931,8 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                 for (int x = 0; x < w; ++x)
                                 {
                                     uint32_t fint = one_to_native32 (*src++);
-                                    *((uint32_t*) cdata) = float_to_uint_int (fint);
+                                    *((uint32_t*) cdata) =
+                                        float_to_uint_int (fint);
                                     cdata += pixincrement;
                                 }
                                 break;
@@ -996,12 +1007,12 @@ internal_exr_match_decode (
     int                    simplineoff)
 {
     static int init_cpu_check = 1;
-    if ( init_cpu_check )
+    if (init_cpu_check)
     {
-        choose_half_to_float_impl();
+        choose_half_to_float_impl ();
         init_cpu_check = 0;
     }
-    
+
     /* TODO */
     if (isdeep) return NULL;
 
