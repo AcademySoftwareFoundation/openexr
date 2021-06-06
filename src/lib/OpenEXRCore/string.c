@@ -82,16 +82,18 @@ exr_attr_string_init_static (
 {
     size_t  fulllen = 0;
     int32_t length  = 0;
-    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (v)
     {
         fulllen = strlen (v);
         if (fulllen >= (size_t) INT32_MAX)
+        {
+            INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
             return pctxt->report_error (
                 pctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Invalid string too long for attribute");
+        }
         length = (int32_t) fulllen;
     }
     return exr_attr_string_init_static_with_length (ctxt, s, v, length);
@@ -142,8 +144,21 @@ exr_attr_string_create_with_length (
 exr_result_t
 exr_attr_string_create (exr_context_t ctxt, exr_attr_string_t* s, const char* d)
 {
+    size_t  fulllen = 0;
     int32_t len = 0;
-    if (d) len = (int32_t) strlen (d);
+    if (d)
+    {
+        fulllen = strlen (d);
+        if (fulllen >= (size_t) INT32_MAX)
+        {
+            INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+            return pctxt->report_error (
+                pctxt,
+                EXR_ERR_INVALID_ARGUMENT,
+                "Invalid string too long for attribute");
+        }
+        len = (int32_t) fulllen;
+    }
     return exr_attr_string_create_with_length (ctxt, s, d, len);
 }
 
@@ -199,8 +214,21 @@ exr_attr_string_set_with_length (
 exr_result_t
 exr_attr_string_set (exr_context_t ctxt, exr_attr_string_t* s, const char* d)
 {
+    size_t  fulllen = 0;
     int32_t len = 0;
-    if (d) len = (int32_t) strlen (d);
+    if (d)
+    {
+        fulllen = strlen (d);
+        if (fulllen >= (size_t) INT32_MAX)
+        {
+            INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+            return pctxt->report_error (
+                pctxt,
+                EXR_ERR_INVALID_ARGUMENT,
+                "Invalid string too long for attribute");
+        }
+        len = (int32_t) fulllen;
+    }
     return exr_attr_string_set_with_length (ctxt, s, d, len);
 }
 

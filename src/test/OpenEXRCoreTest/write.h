@@ -9,6 +9,8 @@
 void testWriteBadArgs( const std::string &tempdir );
 void testWriteBadFiles( const std::string &tempdir );
 
+void testWriteAttrs( const std::string &tempdir );
+
 void testUpdateMeta( const std::string &tempdir );
 
 void testWriteScans( const std::string &tempdir );

@@ -659,6 +659,7 @@ exr_attr_list_add_by_type (
 
     exr_result_t     rval = EXR_ERR_INVALID_ARGUMENT;
     int32_t          nlen, tlen, mlen;
+    size_t           slen;
     size_t           attrblocksz = sizeof (exr_attribute_t);
     uint8_t*         ptr         = NULL;
     exr_attribute_t* nattr       = NULL;
@@ -695,31 +696,33 @@ exr_attr_list_add_by_type (
         return rval;
     }
 
+    slen = strlen (name);
     mlen = (int32_t) pctxt->max_name_length;
-    nlen = (int32_t) strlen (name);
 
-    if (nlen > mlen)
+    if (slen > (size_t) mlen)
     {
         return pctxt->print_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Provided name '%s' too long for file (len %d, max %d)",
             name,
-            nlen,
+            (int) slen,
             mlen);
     }
+    nlen = (int32_t) slen;
 
-    tlen = (int32_t) strlen (type);
-    if (tlen > mlen)
+    slen = strlen (type);
+    if (slen > (size_t) mlen)
     {
         return pctxt->print_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Provided type name '%s' too long for file (len %d, max %d)",
             type,
-            nlen,
+            (int) slen,
             mlen);
     }
+    tlen = (int32_t) slen;
 
     for (int i = 0; i < the_predefined_attr_count; ++i)
     {
@@ -813,6 +816,7 @@ exr_attr_list_add (
 
     exr_result_t     rval = EXR_ERR_INVALID_ARGUMENT;
     int32_t          nlen, tidx, mlen;
+    size_t           slen;
     size_t           attrblocksz = sizeof (exr_attribute_t);
     uint8_t*         ptr         = NULL;
     exr_attribute_t* nattr       = NULL;
@@ -842,18 +846,19 @@ exr_attr_list_add (
         return rval;
     }
 
+    slen = strlen (name);
     mlen = (int32_t) pctxt->max_name_length;
-    nlen = (int32_t) strlen (name);
-    if (nlen > mlen)
+    if (slen > (size_t) mlen)
     {
         return pctxt->print_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Provided name '%s' too long for file (len %d, max %d)",
             name,
-            nlen,
+            (int) slen,
             mlen);
     }
+    nlen = (int32_t) slen;
 
     tidx = ((int) type) - 1;
     if (tidx < 0 || tidx >= the_predefined_attr_count)
@@ -933,6 +938,7 @@ exr_attr_list_add_static_name (
 
     int              rval = EXR_ERR_INVALID_ARGUMENT;
     int32_t          nlen, tidx, mlen;
+    size_t           slen;
     size_t           attrblocksz = sizeof (exr_attribute_t);
     uint8_t*         ptr         = NULL;
     exr_attribute_t* nattr       = NULL;
@@ -963,17 +969,18 @@ exr_attr_list_add_static_name (
     }
 
     mlen = (int32_t) pctxt->max_name_length;
-    nlen = (int32_t) strlen (name);
-    if (nlen > mlen)
+    slen = strlen (name);
+    if (slen > (size_t) mlen)
     {
         return pctxt->print_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Provided name '%s' too long for file (len %d, max %d)",
             name,
-            nlen,
+            (int) slen,
             mlen);
     }
+    nlen = (int32_t) slen;
 
     tidx = ((int) type) - 1;
     if (tidx < 0 || tidx >= the_predefined_attr_count)

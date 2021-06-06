@@ -95,7 +95,7 @@ exr_attr_opaquedata_copy (
     if (!srcud) return EXR_ERR_INVALID_ARGUMENT;
     if (srcud->packed_data)
         return exr_attr_opaquedata_create (
-            ctxt, ud, (size_t)srcud->size, srcud->packed_data);
+            ctxt, ud, (size_t) srcud->size, srcud->packed_data);
     rv = exr_attr_opaquedata_init (ctxt, ud, 0);
     if (rv == EXR_ERR_SUCCESS)
         rv = exr_attr_opaquedata_set_unpacked (
@@ -110,6 +110,8 @@ exr_attr_opaquedata_unpack (
     exr_context_t ctxt, exr_attr_opaquedata_t* u, int32_t* sz, void** unpacked)
 {
     exr_result_t rv;
+    int32_t tmpusz;
+    void *tmpuptr;
 
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
@@ -138,12 +140,14 @@ exr_attr_opaquedata_unpack (
         ctxt,
         u->packed_data,
         u->size,
-        &(u->unpacked_size),
-        &(u->unpacked_data));
+        &(tmpusz),
+        &(tmpuptr));
     if (rv == EXR_ERR_SUCCESS)
     {
-        if (sz) *sz = u->unpacked_size;
-        if (unpacked) *unpacked = u->unpacked_data;
+        u->unpacked_size = tmpusz;
+        u->unpacked_data = tmpuptr;
+        if (sz) *sz = tmpusz;
+        if (unpacked) *unpacked = tmpuptr;
     }
 
     return rv;
@@ -256,5 +260,55 @@ exr_attr_opaquedata_set_unpacked (
         u->size              = 0;
         u->packed_alloc_size = 0;
     }
+    return EXR_ERR_SUCCESS;
+}
+
+/**************************************/
+
+exr_result_t
+exr_attr_opaquedata_set_packed (
+    exr_context_t          ctxt,
+    exr_attr_opaquedata_t* u,
+    const void*            packed,
+    int32_t                sz)
+{
+    void* nmem;
+    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+
+    if (!u) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
+
+    /* TODO: do we care if the incoming unpacked data is null? */
+    if (sz < 0)
+        return pctxt->print_error (
+            pctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Opaque data given invalid negative size (%d)",
+            sz);
+
+    nmem = pctxt->alloc_fn ((size_t)sz);
+    if (!nmem) return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
+
+    if (u->unpacked_data)
+    {
+        if (u->destroy_unpacked_func_ptr)
+            u->destroy_unpacked_func_ptr (
+                ctxt, u->unpacked_data, u->unpacked_size);
+    }
+    u->unpacked_data = NULL;
+    u->unpacked_size = 0;
+
+    if (u->packed_data)
+    {
+        if (u->packed_alloc_size > 0) pctxt->free_fn (u->packed_data);
+        u->packed_data       = NULL;
+        u->size              = 0;
+        u->packed_alloc_size = 0;
+    }
+
+    u->packed_data       = nmem;
+    u->size              = sz;
+    u->packed_alloc_size = sz;
+    if (packed) memcpy ((void*) u->packed_data, packed, (size_t)sz);
+
     return EXR_ERR_SUCCESS;
 }

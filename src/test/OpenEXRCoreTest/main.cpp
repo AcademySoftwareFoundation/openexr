@@ -168,6 +168,7 @@ main (int argc, char *argv[])
     TEST( testWriteBadArgs, "core_write" );
     TEST( testWriteBadFiles, "core_write" );
     TEST( testUpdateMeta, "core_write" );
+    TEST( testWriteAttrs, "core_write" );
     TEST( testWriteScans, "core_write" );
     TEST( testWriteTiles, "core_write" );
     TEST( testWriteMultiPart, "core_write" );

@@ -69,6 +69,41 @@ testBaseErrors (const std::string& tempdir)
     {
         EXRCORE_TEST (false);
     }
+
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_SUCCESS), "EXR_ERR_SUCCESS" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_UNKNOWN), "EXR_ERR_UNKNOWN" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string((int)EXR_ERR_UNKNOWN + 1), "EXR_ERR_UNKNOWN" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(-1), "EXR_ERR_UNKNOWN" ) );
+
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_MISSING_REQ_ATTR), "EXR_ERR_MISSING_REQ_ATTR" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_OUT_OF_MEMORY), "EXR_ERR_OUT_OF_MEMORY" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_MISSING_CONTEXT_ARG), "EXR_ERR_MISSING_CONTEXT_ARG" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_INVALID_ARGUMENT), "EXR_ERR_INVALID_ARGUMENT" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_ARGUMENT_OUT_OF_RANGE), "EXR_ERR_ARGUMENT_OUT_OF_RANGE" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_FILE_ACCESS), "EXR_ERR_FILE_ACCESS" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_FILE_BAD_HEADER), "EXR_ERR_FILE_BAD_HEADER" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_NOT_OPEN_READ), "EXR_ERR_NOT_OPEN_READ" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_NOT_OPEN_WRITE), "EXR_ERR_NOT_OPEN_WRITE" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_HEADER_NOT_WRITTEN), "EXR_ERR_HEADER_NOT_WRITTEN" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_READ_IO), "EXR_ERR_READ_IO" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_WRITE_IO), "EXR_ERR_WRITE_IO" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_NAME_TOO_LONG), "EXR_ERR_NAME_TOO_LONG" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_MISSING_REQ_ATTR), "EXR_ERR_MISSING_REQ_ATTR" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_INVALID_ATTR), "EXR_ERR_INVALID_ATTR" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_NO_ATTR_BY_NAME), "EXR_ERR_NO_ATTR_BY_NAME" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_BAD_CHUNK_DATA), "EXR_ERR_BAD_CHUNK_DATA" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_ATTR_TYPE_MISMATCH), "EXR_ERR_ATTR_TYPE_MISMATCH" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_ATTR_SIZE_MISMATCH), "EXR_ERR_ATTR_SIZE_MISMATCH" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_SCAN_TILE_MIXEDAPI), "EXR_ERR_SCAN_TILE_MIXEDAPI" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_TILE_SCAN_MIXEDAPI), "EXR_ERR_TILE_SCAN_MIXEDAPI" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_MODIFY_SIZE_CHANGE), "EXR_ERR_MODIFY_SIZE_CHANGE" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_ALREADY_WROTE_ATTRS), "EXR_ERR_ALREADY_WROTE_ATTRS" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_PART_NOT_READY), "EXR_ERR_PART_NOT_READY" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_CHUNK_NOT_READY), "EXR_ERR_CHUNK_NOT_READY" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_USE_SCAN_DEEP_WRITE), "EXR_ERR_USE_SCAN_DEEP_WRITE" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_USE_TILE_DEEP_WRITE), "EXR_ERR_USE_TILE_DEEP_WRITE" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_USE_SCAN_NONDEEP_WRITE), "EXR_ERR_USE_SCAN_NONDEEP_WRITE" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_USE_TILE_NONDEEP_WRITE), "EXR_ERR_USE_TILE_NONDEEP_WRITE" ) );
 }
 
 void
@@ -84,6 +119,26 @@ testBaseLimits (const std::string& tempdir)
         EXRCORE_TEST (false);
     }
     exr_set_default_maximum_image_size (-1, -1);
+    exr_get_default_maximum_image_size (&mxw, &mxh);
+    if (mxw != 42 || mxh != 42)
+    {
+        std::cerr
+            << "Invalid request not ignored to set_default_maximum_image_size: 42, 42 -> "
+            << mxw << ", " << mxh << std::endl;
+        EXRCORE_TEST (false);
+    }
+
+    exr_set_default_maximum_image_size (84, -1);
+    exr_get_default_maximum_image_size (&mxw, &mxh);
+    if (mxw != 42 || mxh != 42)
+    {
+        std::cerr
+            << "Invalid request not ignored to set_default_maximum_image_size: 42, 42 -> "
+            << mxw << ", " << mxh << std::endl;
+        EXRCORE_TEST (false);
+    }
+
+    exr_set_default_maximum_image_size (-1, 84);
     exr_get_default_maximum_image_size (&mxw, &mxh);
     if (mxw != 42 || mxh != 42)
     {
@@ -110,6 +165,24 @@ testBaseLimits (const std::string& tempdir)
             << mxw << ", " << mxh << std::endl;
         EXRCORE_TEST (false);
     }
+    exr_set_default_maximum_tile_size (84, -1);
+    exr_get_default_maximum_tile_size (&mxw, &mxh);
+    if (mxw != 128 || mxh != 128)
+    {
+        std::cerr
+            << "Invalid request not ignored to set_default_maximum_image_size: 128, 128 -> "
+            << mxw << ", " << mxh << std::endl;
+        EXRCORE_TEST (false);
+    }
+    exr_set_default_maximum_tile_size (-1, 84);
+    exr_get_default_maximum_tile_size (&mxw, &mxh);
+    if (mxw != 128 || mxh != 128)
+    {
+        std::cerr
+            << "Invalid request not ignored to set_default_maximum_image_size: 128, 128 -> "
+            << mxw << ", " << mxh << std::endl;
+        EXRCORE_TEST (false);
+    }
     exr_set_default_maximum_image_size (0, 0);
     exr_set_default_maximum_tile_size (0, 0);
 }
@@ -118,7 +191,9 @@ void
 testBaseDebug (const std::string& tempdir)
 {
     exr_context_t c = NULL;
+
     // make sure we don't crash with null file handle (there should be error prints)
     exr_print_context_info (NULL, 0);
     exr_print_context_info (c, 0);
+    exr_print_context_info (c, 1);
 }

@@ -109,7 +109,7 @@ exr_attr_chlist_add_with_length (
             EXR_ERR_INVALID_ARGUMENT,
             "Channel name must shorter than length allowed by file (%d), received '%s' (%d)",
             maxlen,
-            (name ? name : "<NULL>"),
+            name,
             namelen);
 
     if (ptype != EXR_PIXEL_UINT && ptype != EXR_PIXEL_HALF &&

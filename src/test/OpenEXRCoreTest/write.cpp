@@ -31,11 +31,14 @@ testWriteBadArgs (const std::string& tempdir)
     cinit.error_handler_fn          = &err_cb;
 
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_INVALID_ARGUMENT, exr_start_write (NULL, fn.c_str (), EXR_WRITE_FILE_DIRECTLY, NULL));
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_start_write (NULL, fn.c_str (), EXR_WRITE_FILE_DIRECTLY, NULL));
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_INVALID_ARGUMENT, exr_start_write (&f, NULL, EXR_WRITE_FILE_DIRECTLY, NULL));
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_start_write (&f, NULL, EXR_WRITE_FILE_DIRECTLY, NULL));
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_INVALID_ARGUMENT, exr_start_write (&f, NULL, EXR_WRITE_FILE_DIRECTLY, &cinit));
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_start_write (&f, NULL, EXR_WRITE_FILE_DIRECTLY, &cinit));
 
     //    EXRCORE_TEST_RVAL_FAIL (EXR_ERR_FILE_ACCESS, exr_start_write (&f, fn.c_str (), &cinit));
 }
@@ -43,6 +46,23 @@ testWriteBadArgs (const std::string& tempdir)
 void
 testWriteBadFiles (const std::string& tempdir)
 {}
+
+void
+testWriteAttrs (const std::string& tempdir)
+{
+    exr_context_t outf;
+    std::string   outfn = tempdir + "testattr.exr";
+    int                       partidx;
+
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    cinit.error_handler_fn          = &err_cb;
+    EXRCORE_TEST_RVAL (exr_start_write (
+        &outf, outfn.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit));
+    EXRCORE_TEST_RVAL (
+        exr_add_part (outf, "beauty", EXR_STORAGE_TILED, &partidx));
+    EXRCORE_TEST_RVAL (exr_finish (&outf));
+    remove (outfn.c_str ());
+}
 
 void
 testUpdateMeta (const std::string& tempdir)
@@ -66,7 +86,8 @@ testWriteTiles (const std::string& tempdir)
     fn += "v1.7.test.tiled.exr";
     EXRCORE_TEST_RVAL (exr_start_read (&f, fn.c_str (), &cinit));
     outfn += "v1.7.test.tiled.exr";
-    EXRCORE_TEST_RVAL (exr_start_write (&outf, outfn.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit));
+    EXRCORE_TEST_RVAL (exr_start_write (
+        &outf, outfn.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit));
     EXRCORE_TEST_RVAL (
         exr_add_part (outf, "test", EXR_STORAGE_TILED, &partidx));
     EXRCORE_TEST (partidx == 0);
@@ -82,8 +103,7 @@ testWriteTiles (const std::string& tempdir)
     EXRCORE_TEST (levelsx == 1);
     EXRCORE_TEST (levelsy == 1);
 
-    EXRCORE_TEST_RVAL (
-        exr_get_tile_sizes (outf, 0, 0, 0, &levelsx, &levelsy));
+    EXRCORE_TEST_RVAL (exr_get_tile_sizes (outf, 0, 0, 0, &levelsx, &levelsy));
     EXRCORE_TEST (levelsx == 12);
     EXRCORE_TEST (levelsy == 24);
 
@@ -118,7 +138,8 @@ testWriteTiles (const std::string& tempdir)
                 cmemsize = cinfo.packed_size;
             }
             EXRCORE_TEST_RVAL (exr_read_chunk (f, 0, &cinfo, cmem));
-            EXRCORE_TEST_RVAL (exr_write_tile_chunk (outf, 0, tx, ty, 0, 0, cmem, cinfo.packed_size));
+            EXRCORE_TEST_RVAL (exr_write_tile_chunk (
+                outf, 0, tx, ty, 0, 0, cmem, cinfo.packed_size));
             ++tx;
         }
         ++ty;
@@ -130,13 +151,12 @@ testWriteTiles (const std::string& tempdir)
     EXRCORE_TEST (levelsx == 1);
     EXRCORE_TEST (levelsy == 1);
 
-    EXRCORE_TEST_RVAL (
-        exr_get_tile_sizes (testf, 0, 0, 0, &levelsx, &levelsy));
+    EXRCORE_TEST_RVAL (exr_get_tile_sizes (testf, 0, 0, 0, &levelsx, &levelsy));
     EXRCORE_TEST (levelsx == 12);
     EXRCORE_TEST (levelsy == 24);
     EXRCORE_TEST_RVAL (exr_finish (&testf));
 
-    remove( outfn.c_str() );
+    remove (outfn.c_str ());
 }
 
 void

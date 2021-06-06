@@ -34,6 +34,35 @@ dummyreadstream (
     return -1;
 }
 
+static int s_malloc_fail_on = 0;
+static void*
+failable_malloc (size_t bytes)
+{
+    if (s_malloc_fail_on == 1) return NULL;
+    if (s_malloc_fail_on > 0) --s_malloc_fail_on;
+    return malloc (bytes);
+}
+
+static void
+failable_free( void *p )
+{
+    if ( ! p )
+        abort();
+    free( p );
+}
+
+static void
+set_malloc_fail_on (int count)
+{
+    s_malloc_fail_on = count;
+}
+
+static void
+set_malloc_fail_off ()
+{
+    s_malloc_fail_on = 0;
+}
+
 void
 testReadBadArgs (const std::string& tempdir)
 {
@@ -42,11 +71,16 @@ testReadBadArgs (const std::string& tempdir)
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
     cinit.error_handler_fn          = &err_cb;
 
+    exr_set_default_memory_routines( &failable_malloc, &failable_free );
+
     EXRCORE_TEST_RVAL_FAIL (EXR_ERR_INVALID_ARGUMENT, exr_start_read (NULL, fn.c_str (), NULL));
     EXRCORE_TEST_RVAL_FAIL (EXR_ERR_INVALID_ARGUMENT, exr_start_read (&f, NULL, NULL));
     EXRCORE_TEST_RVAL_FAIL (EXR_ERR_INVALID_ARGUMENT, exr_start_read (&f, NULL, &cinit));
 
     EXRCORE_TEST_RVAL_FAIL (EXR_ERR_FILE_ACCESS, exr_start_read (&f, fn.c_str (), &cinit));
+    EXRCORE_TEST_RVAL_FAIL_MALLOC (EXR_ERR_OUT_OF_MEMORY, exr_start_read (&f, fn.c_str (), &cinit));
+
+    exr_set_default_memory_routines( NULL, NULL );
 }
 
 void
@@ -91,16 +125,22 @@ testOpenScans (const std::string& tempdir)
     cinit.error_handler_fn          = &err_cb;
 
     EXRCORE_TEST_RVAL(exr_start_read (&f, fn.c_str (), &cinit));
+    exr_print_context_info (f, 0);
+    exr_print_context_info (f, 1);
     exr_finish (&f);
 
     fn = ILM_IMF_TEST_IMAGEDIR;
     fn += "v1.7.test.planar.exr";
     EXRCORE_TEST_RVAL(exr_start_read (&f, fn.c_str (), &cinit));
+    exr_print_context_info (f, 0);
+    exr_print_context_info (f, 1);
     exr_finish (&f);
 
     fn = ILM_IMF_TEST_IMAGEDIR;
     fn += "v1.7.test.interleaved.exr";
     EXRCORE_TEST_RVAL(exr_start_read (&f, fn.c_str (), &cinit));
+    exr_print_context_info (f, 0);
+    exr_print_context_info (f, 1);
     exr_finish (&f);
 }
 

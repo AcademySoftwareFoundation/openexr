@@ -60,10 +60,7 @@ exr_attr_preview_create (
     if (rv == EXR_ERR_SUCCESS)
     {
         size_t copybytes = w * h * 4;
-        if (p->alloc_size >= copybytes)
-            memcpy (EXR_CONST_CAST (uint8_t*, p->rgba), d, copybytes);
-        else
-            rv = EXR_ERR_INVALID_ARGUMENT;
+        memcpy (EXR_CONST_CAST (uint8_t*, p->rgba), d, copybytes);
     }
     return rv;
 }

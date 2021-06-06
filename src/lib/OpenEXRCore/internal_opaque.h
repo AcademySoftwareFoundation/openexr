@@ -50,6 +50,9 @@ exr_result_t exr_attr_opaquedata_pack (
 exr_result_t exr_attr_opaquedata_set_unpacked (
     exr_context_t ctxt, exr_attr_opaquedata_t*, void* unpacked, int32_t sz);
 
+exr_result_t exr_attr_opaquedata_set_packed (
+    exr_context_t ctxt, exr_attr_opaquedata_t*, const void* packed, int32_t sz);
+
 /** @} */
 
 #ifdef __cplusplus

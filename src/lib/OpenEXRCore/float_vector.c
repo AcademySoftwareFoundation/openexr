@@ -119,7 +119,6 @@ exr_result_t
 exr_attr_float_vector_destroy (exr_context_t ctxt, exr_attr_float_vector_t* fv)
 {
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
-
     if (fv)
     {
         exr_attr_float_vector_t nil = { 0 };

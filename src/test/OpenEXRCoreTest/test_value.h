@@ -54,4 +54,37 @@ core_test_fail (
             EXRCORE_TEST_FAIL (expr);                                          \
         }                                                                      \
     }
+
+#define EXRCORE_TEST_RVAL_FAIL_MALLOC(code, expr)                              \
+    {                                                                          \
+        exr_result_t _test_rv;                                                 \
+        set_malloc_fail_on (1);                                                \
+        _test_rv = expr;                                                       \
+        set_malloc_fail_off ();                                                \
+        if (_test_rv != code)                                                  \
+        {                                                                      \
+            std::cerr << "Return Error: (" << (int) _test_rv << ") "           \
+                      << exr_get_default_error_message (_test_rv)              \
+                      << "\n    expected: (" << (int) (code) << ") "           \
+                      << exr_get_default_error_message (code) << std::endl;    \
+            EXRCORE_TEST_FAIL (expr);                                          \
+        }                                                                      \
+    }
+
+#define EXRCORE_TEST_RVAL_FAIL_MALLOC_AFTER(count, code, expr)                 \
+    {                                                                          \
+        exr_result_t _test_rv;                                                 \
+        set_malloc_fail_on (1 + count);                                        \
+        _test_rv = expr;                                                       \
+        set_malloc_fail_off ();                                                \
+        if (_test_rv != code)                                                  \
+        {                                                                      \
+            std::cerr << "Return Error: (" << (int) _test_rv << ") "           \
+                      << exr_get_default_error_message (_test_rv)              \
+                      << "\n    expected: (" << (int) (code) << ") "           \
+                      << exr_get_default_error_message (code) << std::endl;    \
+            EXRCORE_TEST_FAIL (expr);                                          \
+        }                                                                      \
+    }
+
 #endif // OPENEXR_CORE_TEST_VALUE_H
