@@ -110,6 +110,18 @@ void testReadMeta( const std::string &tempdir )
     EXRCORE_TEST_RVAL_FAIL(EXR_ERR_NOT_OPEN_WRITE,exr_attr_declare_by_type (f, 0, "foo", "box2i", &newattr));
     EXRCORE_TEST_RVAL_FAIL(EXR_ERR_NOT_OPEN_WRITE,exr_attr_declare (f, 0, "bar", EXR_ATTR_BOX2I, &newattr));
 
+    int partidx;
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_NOT_OPEN_WRITE,
+        exr_add_part (f, "beauty", EXR_STORAGE_TILED, &partidx));
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_NOT_OPEN_WRITE,
+        exr_set_longname_support (f, 0));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_NOT_OPEN_WRITE,
+        exr_set_longname_support (f, 1));
+
     exr_finish (&f);
 
 }
@@ -125,22 +137,16 @@ testOpenScans (const std::string& tempdir)
     cinit.error_handler_fn          = &err_cb;
 
     EXRCORE_TEST_RVAL(exr_start_read (&f, fn.c_str (), &cinit));
-    exr_print_context_info (f, 0);
-    exr_print_context_info (f, 1);
     exr_finish (&f);
 
     fn = ILM_IMF_TEST_IMAGEDIR;
     fn += "v1.7.test.planar.exr";
     EXRCORE_TEST_RVAL(exr_start_read (&f, fn.c_str (), &cinit));
-    exr_print_context_info (f, 0);
-    exr_print_context_info (f, 1);
     exr_finish (&f);
 
     fn = ILM_IMF_TEST_IMAGEDIR;
     fn += "v1.7.test.interleaved.exr";
     EXRCORE_TEST_RVAL(exr_start_read (&f, fn.c_str (), &cinit));
-    exr_print_context_info (f, 0);
-    exr_print_context_info (f, 1);
     exr_finish (&f);
 }
 
@@ -172,7 +178,122 @@ testOpenDeep (const std::string& tempdir)
 
 void
 testReadScans (const std::string& tempdir)
-{}
+{
+    exr_context_t             f;
+    std::string               fn    = ILM_IMF_TEST_IMAGEDIR;
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    cinit.error_handler_fn          = &err_cb;
+
+    fn += "v1.7.test.interleaved.exr";
+    EXRCORE_TEST_RVAL(exr_start_read (&f, fn.c_str (), &cinit));
+
+    int32_t ccount;
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_MISSING_CONTEXT_ARG, exr_get_chunk_count (NULL, 0, &ccount));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_chunk_count (f, -1, &ccount));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_chunk_count (f, 11, &ccount));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_INVALID_ARGUMENT, exr_get_chunk_count (f, 0, NULL));
+    EXRCORE_TEST_RVAL(exr_get_chunk_count (f, 0, &ccount));
+
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_MISSING_CONTEXT_ARG, exr_get_scanlines_per_chunk (NULL, 0, &ccount));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_scanlines_per_chunk (f, -1, &ccount));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_scanlines_per_chunk (f, 11, &ccount));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_INVALID_ARGUMENT, exr_get_scanlines_per_chunk (f, 0, NULL));
+    EXRCORE_TEST_RVAL(exr_get_scanlines_per_chunk (f, 0, &ccount));
+    EXRCORE_TEST(ccount == 1);
+
+    exr_attr_box2i_t dw;
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_MISSING_CONTEXT_ARG, exr_get_data_window (NULL, 0, &dw));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_data_window (f, -1, &dw));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_data_window (f, 1, &dw));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_INVALID_ARGUMENT, exr_get_data_window (f, 0, NULL));
+    EXRCORE_TEST_RVAL(exr_get_data_window (f, 0, &dw));
+    
+    exr_chunk_block_info_t cinfo;
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_MISSING_CONTEXT_ARG, exr_read_scanline_block_info (NULL, 0, 42, &cinfo));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_read_scanline_block_info (f, -1, 42, &cinfo));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_read_scanline_block_info (f, 1, 42, &cinfo));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_INVALID_ARGUMENT, exr_read_scanline_block_info (f, 0, 42, NULL));
+
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_TILE_SCAN_MIXEDAPI, exr_read_tile_block_info (f, 0, 4, 2, 0, 0, &cinfo));
+
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_INVALID_ARGUMENT, exr_read_scanline_block_info (f, 0, dw.y_min - 1, &cinfo));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_INVALID_ARGUMENT, exr_read_scanline_block_info (f, 0, dw.y_max + 1, &cinfo));
+    EXRCORE_TEST_RVAL(exr_read_scanline_block_info (f, 0, dw.y_min, &cinfo));
+
+    uint64_t pchunksz = 0;
+    EXRCORE_TEST_RVAL(exr_get_chunk_unpacked_size (f, 0, &pchunksz));
+    EXRCORE_TEST (cinfo.type == EXR_STORAGE_SCANLINE);
+    EXRCORE_TEST (cinfo.compression == EXR_COMPRESSION_NONE);
+    EXRCORE_TEST (cinfo.packed_size == pchunksz);
+    EXRCORE_TEST (cinfo.unpacked_size == pchunksz);
+    EXRCORE_TEST (cinfo.sample_count_data_offset == 0);
+    EXRCORE_TEST (cinfo.sample_count_table_size == 0);
+
+    exr_decode_pipeline_t decoder;
+    EXRCORE_TEST_RVAL(exr_decoding_initialize (f, 0, &cinfo, &decoder));
+
+    EXRCORE_TEST (decoder.channel_count == 2);
+    EXRCORE_TEST (!strcmp (decoder.channels[0].channel_name, "R"));
+    EXRCORE_TEST (decoder.channels[0].bytes_per_element == 2);
+    EXRCORE_TEST (decoder.channels[0].data_type == EXR_PIXEL_HALF);
+    EXRCORE_TEST (decoder.channels[0].width == 178);
+    EXRCORE_TEST (decoder.channels[0].height == 1);
+    EXRCORE_TEST (decoder.channels[0].x_samples == 1);
+    EXRCORE_TEST (decoder.channels[0].y_samples == 1);
+    EXRCORE_TEST (!strcmp (decoder.channels[1].channel_name, "Z"));
+    EXRCORE_TEST (decoder.channels[1].bytes_per_element == 4);
+    EXRCORE_TEST (decoder.channels[1].data_type == EXR_PIXEL_FLOAT);
+    EXRCORE_TEST (decoder.channels[1].width == 178);
+    EXRCORE_TEST (decoder.channels[1].height == 1);
+    EXRCORE_TEST (decoder.channels[1].x_samples == 1);
+    EXRCORE_TEST (decoder.channels[1].y_samples == 1);
+
+    std::unique_ptr<uint8_t[]> rptr{ new uint8_t[178 * 2] };
+    std::unique_ptr<uint8_t[]> zptr{ new uint8_t[178 * 4] };
+    memset (rptr.get (), -1, 178 * 2);
+    memset (zptr.get (), -1, 178 * 4);
+    decoder.channels[0].decode_to_ptr            = rptr.get ();
+    decoder.channels[0].user_pixel_stride = 2;
+    decoder.channels[0].user_line_stride  = 2 * 178;
+    decoder.channels[1].decode_to_ptr            = zptr.get ();
+    decoder.channels[1].user_pixel_stride = 4;
+    decoder.channels[1].user_line_stride  = 4 * 178;
+
+    EXRCORE_TEST_RVAL(exr_decoding_choose_default_routines (f, 0, &decoder));
+
+    EXRCORE_TEST_RVAL(exr_decoding_run (f, 0, &decoder));
+
+    // it is compression: none
+    EXRCORE_TEST (decoder.packed_buffer == NULL);
+    // it is compression: none
+    EXRCORE_TEST (decoder.unpacked_buffer == NULL);
+    /* TODO: add actual comparison against C++ library */
+    const uint16_t* curr = reinterpret_cast<const uint16_t*> (rptr.get ());
+    const float*    curz = reinterpret_cast<const float*> (zptr.get ());
+    EXRCORE_TEST (*curr == 0);
+    EXRCORE_TEST (fabsf (*curz - 0.101991f) < 0.000001f);
+
+    EXRCORE_TEST_RVAL(exr_decoding_destroy (f, &decoder));
+
+    EXRCORE_TEST_RVAL(exr_decoding_initialize (f, 0, &cinfo, &decoder));
+    rptr.reset( new uint8_t[178 * 4] );
+    decoder.channels[0].decode_to_ptr            = rptr.get ();
+    decoder.channels[0].user_pixel_stride = 4;
+    decoder.channels[0].user_line_stride  = 4 * 178;
+    decoder.channels[0].user_bytes_per_element = 4;
+    decoder.channels[0].user_data_type = EXR_PIXEL_FLOAT;
+    decoder.channels[1].decode_to_ptr            = zptr.get ();
+    decoder.channels[1].user_pixel_stride = 4;
+    decoder.channels[1].user_line_stride  = 4 * 178;
+
+    EXRCORE_TEST_RVAL(exr_decoding_choose_default_routines (f, 0, &decoder));
+
+    EXRCORE_TEST_RVAL(exr_decoding_run (f, 0, &decoder));
+
+    EXRCORE_TEST_RVAL(exr_decoding_destroy (f, &decoder));
+
+    exr_finish (&f);
+}
 
 void
 testReadTiles (const std::string& tempdir)
@@ -189,6 +310,14 @@ testReadTiles (const std::string& tempdir)
     EXRCORE_TEST_RVAL(exr_get_storage (f, 0, &ps));
     EXRCORE_TEST (EXR_STORAGE_TILED == ps);
 
+    int32_t ccount;
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_MISSING_CONTEXT_ARG, exr_get_chunk_count (NULL, 0, &ccount));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_chunk_count (f, -1, &ccount));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_chunk_count (f, 11, &ccount));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_INVALID_ARGUMENT, exr_get_chunk_count (f, 0, NULL));
+    EXRCORE_TEST_RVAL(exr_get_chunk_count (f, 0, &ccount));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_SCAN_TILE_MIXEDAPI, exr_get_scanlines_per_chunk (f, 0, &ccount));
+    
     int levelsx = -1, levelsy = -1;
     EXRCORE_TEST_RVAL_FAIL(EXR_ERR_MISSING_CONTEXT_ARG, exr_get_tile_levels (NULL, 0, &levelsx, &levelsy));
     EXRCORE_TEST (levelsx == -1);
@@ -213,12 +342,32 @@ testReadTiles (const std::string& tempdir)
     EXRCORE_TEST (levelsx == 1);
     EXRCORE_TEST (levelsy == 1);
 
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_MISSING_CONTEXT_ARG, exr_get_tile_sizes (NULL, 0, 0, 0, NULL, NULL));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_tile_sizes (f, 0, -1, 0, &levelsx, &levelsy));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_tile_sizes (f, 0, 0, -1, &levelsx, &levelsy));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_tile_sizes (f, 0, 0, 100, &levelsx, &levelsy));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_tile_sizes (f, 0, 100, 0, &levelsx, &levelsy));
     EXRCORE_TEST_RVAL(exr_get_tile_sizes (f, 0, 0, 0, &levelsx, &levelsy));
     EXRCORE_TEST (levelsx == 12);
+    EXRCORE_TEST (levelsy == 24);
+    levelsx = -1;
+    EXRCORE_TEST_RVAL(exr_get_tile_sizes (f, 0, 0, 0, &levelsx, NULL));
+    EXRCORE_TEST (levelsx == 12);
+    levelsy = -1;
+    EXRCORE_TEST_RVAL(exr_get_tile_sizes (f, 0, 0, 0, NULL, &levelsy));
     EXRCORE_TEST (levelsy == 24);
 
     exr_chunk_block_info_t cinfo;
     EXRCORE_TEST_RVAL_FAIL(EXR_ERR_SCAN_TILE_MIXEDAPI, exr_read_scanline_block_info (f, 0, 42, &cinfo));
+
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_MISSING_CONTEXT_ARG, exr_read_tile_block_info (NULL, 0, 4, 2, 0, 0, &cinfo));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_read_tile_block_info (f, -1, 4, 2, 0, 0, &cinfo));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_read_tile_block_info (f, 1, 4, 2, 0, 0, &cinfo));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_INVALID_ARGUMENT, exr_read_tile_block_info (f, 0, 4, 2, 0, 0, NULL));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_INVALID_ARGUMENT, exr_read_tile_block_info (f, 0, 4, 2, 0, -1, &cinfo));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_INVALID_ARGUMENT, exr_read_tile_block_info (f, 0, 4, 2, -1, 0, &cinfo));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_INVALID_ARGUMENT, exr_read_tile_block_info (f, 0, 4, -2, 0, 0, &cinfo));
+    EXRCORE_TEST_RVAL_FAIL(EXR_ERR_INVALID_ARGUMENT, exr_read_tile_block_info (f, 0, -4, 2, 0, 0, &cinfo));
 
     // actually read a tile...
     EXRCORE_TEST_RVAL(exr_read_tile_block_info (f, 0, 4, 2, 0, 0, &cinfo));
@@ -283,52 +432,6 @@ testReadTiles (const std::string& tempdir)
 
     EXRCORE_TEST_RVAL(exr_decoding_destroy (f, &decoder));
     exr_finish (&f);
-
-#if 0
-    /* TODO: Need to get more test material */
-    EXRCORE_TEST_RVAL(exr_start_read (
-        &f,
-        "/home/kimball/Development/OSS/OpenEXR/kdt3rd/testmips.exr",
-        &cinit));
-
-    EXRCORE_TEST_RVAL(exr_get_storage (f, 0, &ps));
-    EXRCORE_TEST (EXR_STORAGE_TILED == ps);
-
-    levelsx = -1;
-    levelsy = -1;
-    EXRCORE_TEST_RVAL(exr_get_tile_levels (f, 0, &levelsx, &levelsy));
-    EXRCORE_TEST (levelsx == 11);
-    EXRCORE_TEST (levelsy == 11);
-
-    EXRCORE_TEST_RVAL(exr_get_tile_sizes (f, 0, 0, 0, &levelsx, &levelsy));
-    EXRCORE_TEST (levelsx == 32);
-    EXRCORE_TEST (levelsy == 32);
-
-    EXRCORE_TEST_RVAL(exr_get_tile_sizes (f, 0, 10, 10, &levelsx, &levelsy));
-    EXRCORE_TEST (levelsx == 1);
-    EXRCORE_TEST (levelsy == 1);
-
-    EXRCORE_TEST_RVAL(exr_decode_chunk_init_tile (f, 0, &chunk, 4, 2, 0, 0, 1));
-    EXRCORE_TEST_RVAL(exr_get_chunk_unpacked_size (f, 0, &pchunksz));
-    EXRCORE_TEST (chunk.unpacked.size == pchunksz);
-    EXRCORE_TEST (chunk.channel_count == 3);
-    EXRCORE_TEST_RVAL(exr_destroy_decode_chunk_info (f, &chunk));
-
-    EXRCORE_TEST_RVAL(exr_decode_chunk_init_tile (f, 0, &chunk, 0, 0, 10, 10, 1));
-    EXRCORE_TEST (chunk.unpacked.size == 1 * 1 * 2 * 3);
-    EXRCORE_TEST (chunk.channel_count == 3);
-    EXRCORE_TEST (chunk.width == 1);
-    EXRCORE_TEST (chunk.height == 1);
-    EXRCORE_TEST (chunk.channels[0].width == 1);
-    EXRCORE_TEST (chunk.channels[0].height == 1);
-    EXRCORE_TEST (chunk.channels[1].width == 1);
-    EXRCORE_TEST (chunk.channels[1].height == 1);
-    EXRCORE_TEST (chunk.channels[2].width == 1);
-    EXRCORE_TEST (chunk.channels[2].height == 1);
-
-    EXRCORE_TEST_RVAL(exr_destroy_decode_chunk_info (f, &chunk));
-    EXRCORE_TEST_RVAL(exr_finish (&f));
-#endif
 }
 
 void

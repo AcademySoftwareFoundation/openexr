@@ -9,7 +9,13 @@
 void testWriteBadArgs( const std::string &tempdir );
 void testWriteBadFiles( const std::string &tempdir );
 
+void testWriteBaseHeader( const std::string &tempdir );
 void testWriteAttrs( const std::string &tempdir );
+
+void testStartWriteScan( const std::string &tempdir );
+void testStartWriteTile( const std::string &tempdir );
+void testStartWriteDeepScan( const std::string &tempdir );
+void testStartWriteDeepTile( const std::string &tempdir );
 
 void testUpdateMeta( const std::string &tempdir );
 

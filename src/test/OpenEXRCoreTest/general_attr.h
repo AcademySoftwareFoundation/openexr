@@ -17,4 +17,6 @@ void testAttrHandler( const std::string &tempdir );
 
 void testAttrLists( const std::string &tempdir );
 
+void testXDR( const std::string &tempdir );
+
 #endif // OPENEXR_CORE_TEST_GEN_ATTR_H

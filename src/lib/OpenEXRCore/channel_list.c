@@ -106,7 +106,7 @@ exr_attr_chlist_add_with_length (
     if (namelen > maxlen)
         return pctxt->print_error (
             pctxt,
-            EXR_ERR_INVALID_ARGUMENT,
+            EXR_ERR_NAME_TOO_LONG,
             "Channel name must shorter than length allowed by file (%d), received '%s' (%d)",
             maxlen,
             name,

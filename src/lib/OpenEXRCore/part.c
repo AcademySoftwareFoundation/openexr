@@ -88,9 +88,10 @@ exr_add_part (
             break;
         case EXR_STORAGE_LAST_TYPE:
         default:
+            internal_exr_revert_add_part (pctxt, &part, new_index);
             return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
                 pctxt,
-                EXR_ERR_INVALID_ATTR,
+                EXR_ERR_INVALID_ARGUMENT,
                 "Invalid storage type %d for new part",
                 (int) type));
     }
@@ -104,12 +105,20 @@ exr_add_part (
         NULL,
         &(part->type));
 
-    if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+    if (rv != EXR_ERR_SUCCESS)
+    {
+        internal_exr_revert_add_part (pctxt, &part, new_index);
+        return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+    }
 
     rv = exr_attr_string_init_static_with_length (
         ctxt, part->type->string, typestr, attrsz);
 
-    if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+    if (rv != EXR_ERR_SUCCESS)
+    {
+        internal_exr_revert_add_part (pctxt, &part, new_index);
+        return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+    }
 
     /* make sure we put in SOME sort of partname */
     if (!partname) partname = "";
@@ -117,12 +126,15 @@ exr_add_part (
     {
         size_t pnamelen = strlen (partname);
         if (pnamelen >= INT32_MAX)
+        {
+            internal_exr_revert_add_part (pctxt, &part, new_index);
             return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
                 pctxt,
                 EXR_ERR_INVALID_ATTR,
                 "Part name '%s': Invalid name length %" PRIu64,
                 partname,
                 (uint64_t) pnamelen));
+        }
 
         rv = exr_attr_list_add_static_name (
             ctxt,
@@ -163,6 +175,8 @@ exr_add_part (
         else
             pctxt->is_singlepart_tiled = 0;
     }
+    else
+        internal_exr_revert_add_part (pctxt, &part, new_index);
 
     return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
 }
@@ -225,7 +239,7 @@ exr_get_tile_sizes (
                 "Request for tile, but no tile data exists"));
         }
 
-        if (levelx >= part->num_tile_levels_x ||
+        if (levelx < 0 || levely < 0 || levelx >= part->num_tile_levels_x ||
             levely >= part->num_tile_levels_y)
             return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
                 pctxt->standard_error (pctxt, EXR_ERR_ARGUMENT_OUT_OF_RANGE));
@@ -315,10 +329,8 @@ exr_get_scanlines_per_chunk (
         *out = part->lines_per_chunk;
         return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
     }
-    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->report_error (
-        pctxt,
-        EXR_ERR_BAD_CHUNK_DATA,
-        "Request for scanlines per chunk, but inspecting a scanline-stored part"));
+    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
+        pctxt->standard_error (pctxt, EXR_ERR_SCAN_TILE_MIXEDAPI));
 }
 
 /**************************************/

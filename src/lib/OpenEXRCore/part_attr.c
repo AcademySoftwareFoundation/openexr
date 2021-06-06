@@ -609,17 +609,14 @@ exr_copy_unset_attributes (
         rv = exr_attr_list_add (                                               \
             ctxt, &(part->attributes), #name, t, 0, NULL, &(part->name));      \
     }                                                                          \
-    else                                                                       \
-    {                                                                          \
-        if (part->name->type != t)                                             \
-            return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (           \
-                pctxt,                                                         \
-                EXR_ERR_FILE_BAD_HEADER,                                       \
-                "Invalid required attribute type '%s' for '%s'",               \
-                part->name->type_name,                                         \
-                #name));                                                       \
-        attr = part->name;                                                     \
-    }
+    else if (part->name->type != t)                                            \
+        return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (               \
+            pctxt,                                                             \
+            EXR_ERR_FILE_BAD_HEADER,                                           \
+            "Invalid required attribute type '%s' for '%s'",                   \
+            part->name->type_name,                                             \
+            #name));                                                           \
+    attr = part->name
 
 /**************************************/
 
@@ -642,7 +639,7 @@ exr_add_channel (
     int32_t          xsamp,
     int32_t          ysamp)
 {
-    REQ_ATTR_FIND_CREATE (channels, EXR_ATTR_CHLIST)
+    REQ_ATTR_FIND_CREATE (channels, EXR_ATTR_CHLIST);
     if (rv == EXR_ERR_SUCCESS)
     {
         rv = exr_attr_chlist_add (
@@ -663,7 +660,7 @@ exr_set_channels (
             EXR_ERR_INVALID_ARGUMENT,
             "No channels provided for channel list");
 
-    REQ_ATTR_FIND_CREATE (channels, EXR_ATTR_CHLIST)
+    REQ_ATTR_FIND_CREATE (channels, EXR_ATTR_CHLIST);
     if (rv == EXR_ERR_SUCCESS)
     {
         exr_attr_chlist_t clist;
@@ -692,7 +689,7 @@ exr_result_t
 exr_set_compression (
     exr_context_t ctxt, int part_index, exr_compression_t ctype)
 {
-    REQ_ATTR_FIND_CREATE (compression, EXR_ATTR_COMPRESSION)
+    REQ_ATTR_FIND_CREATE (compression, EXR_ATTR_COMPRESSION);
     if (rv == EXR_ERR_SUCCESS)
     {
         attr->uc        = (uint8_t) ctype;
@@ -722,7 +719,7 @@ exr_set_data_window (
             EXR_ERR_INVALID_ARGUMENT,
             "Missing value for data window assignment");
 
-    REQ_ATTR_FIND_CREATE (dataWindow, EXR_ATTR_BOX2I)
+    REQ_ATTR_FIND_CREATE (dataWindow, EXR_ATTR_BOX2I);
 
     if (rv == EXR_ERR_SUCCESS)
     {
@@ -756,7 +753,7 @@ exr_set_display_window (
             EXR_ERR_INVALID_ARGUMENT,
             "Missing value for data window assignment");
 
-    REQ_ATTR_FIND_CREATE (displayWindow, EXR_ATTR_BOX2I)
+    REQ_ATTR_FIND_CREATE (displayWindow, EXR_ATTR_BOX2I);
     if (rv == EXR_ERR_SUCCESS)
     {
         *(attr->box2i)       = *dw;
@@ -789,7 +786,7 @@ exr_set_lineorder (exr_context_t ctxt, int part_index, exr_lineorder_t lo)
             0,
             (int) EXR_LINEORDER_LAST_TYPE);
 
-    REQ_ATTR_FIND_CREATE (lineOrder, EXR_ATTR_LINEORDER)
+    REQ_ATTR_FIND_CREATE (lineOrder, EXR_ATTR_LINEORDER);
     if (rv == EXR_ERR_SUCCESS)
     {
         attr->uc        = (uint8_t) lo;
@@ -813,7 +810,7 @@ exr_get_pixel_aspect_ratio (
 exr_result_t
 exr_set_pixel_aspect_ratio (exr_context_t ctxt, int part_index, float par)
 {
-    REQ_ATTR_FIND_CREATE (pixelAspectRatio, EXR_ATTR_FLOAT)
+    REQ_ATTR_FIND_CREATE (pixelAspectRatio, EXR_ATTR_FLOAT);
     if (rv == EXR_ERR_SUCCESS) attr->f = par;
     return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
 }
@@ -833,7 +830,7 @@ exr_result_t
 exr_set_screen_window_center (
     exr_context_t ctxt, int part_index, const exr_attr_v2f_t* swc)
 {
-    REQ_ATTR_FIND_CREATE (screenWindowCenter, EXR_ATTR_V2F)
+    REQ_ATTR_FIND_CREATE (screenWindowCenter, EXR_ATTR_V2F);
     if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
     if (!swc)
         return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->report_error (
@@ -860,7 +857,7 @@ exr_get_screen_window_width (
 exr_result_t
 exr_set_screen_window_width (exr_context_t ctxt, int part_index, float ssw)
 {
-    REQ_ATTR_FIND_CREATE (screenWindowWidth, EXR_ATTR_FLOAT)
+    REQ_ATTR_FIND_CREATE (screenWindowWidth, EXR_ATTR_FLOAT);
     if (rv == EXR_ERR_SUCCESS) attr->f = ssw;
     return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
 }
@@ -909,7 +906,45 @@ exr_set_tile_descriptor (
     exr_tile_level_mode_t level_mode,
     exr_tile_round_mode_t round_mode)
 {
-    REQ_ATTR_FIND_CREATE (tiles, EXR_ATTR_TILEDESC)
+    exr_result_t     rv   = EXR_ERR_SUCCESS;
+    exr_attribute_t* attr = NULL;
+    EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    if (pctxt->mode == EXR_CONTEXT_READ)
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_WRITE));
+    if (pctxt->mode == EXR_CONTEXT_WRITING_DATA)
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->standard_error (pctxt, EXR_ERR_ALREADY_WROTE_ATTRS));
+    if (part->storage_mode == EXR_STORAGE_SCANLINE ||
+        part->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
+        return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->report_error (
+            pctxt,
+            EXR_ERR_TILE_SCAN_MIXEDAPI,
+            "Attempt to set tile descriptor on scanline part"));
+
+    if (!part->tiles)
+    {
+        rv = exr_attr_list_add (
+            ctxt,
+            &(part->attributes),
+            "tiles",
+            EXR_ATTR_TILEDESC,
+            0,
+            NULL,
+            &(part->tiles));
+    }
+    else if (part->tiles->type != EXR_ATTR_TILEDESC)
+    {
+        return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
+            pctxt,
+            EXR_ERR_FILE_BAD_HEADER,
+            "Invalid required attribute type '%s' for '%s'",
+            part->tiles->type_name,
+            "tiles"));
+    }
+
+    attr = part->tiles;
+
     if (rv == EXR_ERR_SUCCESS)
     {
         attr->tiledesc->x_size = x_size;
@@ -951,7 +986,7 @@ exr_result_t
 exr_set_name (exr_context_t ctxt, int part_index, const char* val)
 {
     size_t bytes;
-    REQ_ATTR_FIND_CREATE (name, EXR_ATTR_STRING)
+    REQ_ATTR_FIND_CREATE (name, EXR_ATTR_STRING);
 
     if (!val || val[0] == '\0')
         return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->report_error (
@@ -1008,7 +1043,7 @@ exr_get_version (exr_const_context_t ctxt, int part_index, int32_t* out)
 exr_result_t
 exr_set_version (exr_context_t ctxt, int part_index, int32_t val)
 {
-    REQ_ATTR_FIND_CREATE (version, EXR_ATTR_INT)
+    REQ_ATTR_FIND_CREATE (version, EXR_ATTR_INT);
     if (rv == EXR_ERR_SUCCESS) { attr->i = val; }
     return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
 }
@@ -1018,7 +1053,7 @@ exr_set_version (exr_context_t ctxt, int part_index, int32_t val)
 exr_result_t
 exr_set_chunk_count (exr_context_t ctxt, int part_index, int32_t val)
 {
-    REQ_ATTR_FIND_CREATE (chunkCount, EXR_ATTR_INT)
+    REQ_ATTR_FIND_CREATE (chunkCount, EXR_ATTR_INT);
     if (rv == EXR_ERR_SUCCESS)
     {
         attr->i           = val;
@@ -1105,7 +1140,7 @@ exr_set_chunk_count (exr_context_t ctxt, int part_index, int32_t val)
 
 #define ATTR_SET_IMPL(t, entry)                                                \
     ATTR_FIND_CREATE (t, entry);                                               \
-    attr->entry = val;                                                         \
+    if (rv == EXR_ERR_SUCCESS) attr->entry = val;                              \
     return EXR_UNLOCK_AND_RETURN_PCTXT (rv)
 
 #define ATTR_SET_IMPL_DEREF(t, entry)                                          \
@@ -1117,7 +1152,7 @@ exr_set_chunk_count (exr_context_t ctxt, int part_index, int32_t val)
             "No input value for setting '%s', type '%s'",                      \
             name,                                                              \
             #entry));                                                          \
-    *(attr->entry) = *val;                                                     \
+    if (rv == EXR_ERR_SUCCESS) *(attr->entry) = *val;                          \
     return EXR_UNLOCK_AND_RETURN_PCTXT (rv)
 
 /**************************************/
@@ -2240,8 +2275,17 @@ exr_attr_get_user (
     if (rv == EXR_ERR_SUCCESS)
     {
         if (type) *type = attr->type_name;
-        if (size) *size = attr->opaque->unpacked_size;
-        if (out) *out = attr->opaque->unpacked_data;
+
+        if (attr->opaque->pack_func_ptr)
+        {
+            if (size) *size = attr->opaque->unpacked_size;
+            if (out) *out = attr->opaque->unpacked_data;
+        }
+        else
+        {
+            if (size) *size = attr->opaque->packed_alloc_size;
+            if (out) *out = attr->opaque->packed_data;
+        }
     }
 
     return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (rv);
@@ -2256,6 +2300,47 @@ exr_attr_set_user (
     int32_t       size,
     const void*   out)
 {
-    ATTR_FIND_CREATE (EXR_ATTR_OPAQUE, opaque);
-    return EXR_ERR_UNKNOWN;
+    exr_attr_opaquedata_t* opq;
+    exr_attribute_t*       attr = NULL;
+    exr_result_t           rv   = EXR_ERR_SUCCESS;
+    EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    if (pctxt->mode == EXR_CONTEXT_READ)
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_WRITE));
+    if (pctxt->mode == EXR_CONTEXT_WRITING_DATA)
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->standard_error (pctxt, EXR_ERR_ALREADY_WROTE_ATTRS));
+    rv = exr_attr_list_find_by_name (
+        ctxt, (exr_attribute_list_t*) &(part->attributes), name, &attr);
+    if (rv == EXR_ERR_NO_ATTR_BY_NAME)
+    {
+        if (pctxt->mode != EXR_CONTEXT_WRITE)
+            return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+        rv = exr_attr_list_add_by_type (
+            ctxt, &(part->attributes), name, type, 0, NULL, &(attr));
+    }
+    else if (rv == EXR_ERR_SUCCESS)
+    {
+        if (attr->type != EXR_ATTR_OPAQUE)
+            return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
+                pctxt,
+                EXR_ERR_ATTR_TYPE_MISMATCH,
+                "'%s' requested type '%s', but stored attributes is type '%s'",
+                name,
+                type,
+                attr->type_name));
+    }
+    else
+        return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+
+    opq = attr->opaque;
+    if (opq->pack_func_ptr)
+    {
+        rv = exr_attr_opaquedata_set_unpacked (ctxt, attr->opaque, EXR_CONST_CAST(void*, out), size);
+        if (rv == EXR_ERR_SUCCESS)
+            rv = exr_attr_opaquedata_pack (ctxt, attr->opaque, NULL, NULL);
+    }
+    else
+        rv = exr_attr_opaquedata_set_packed (ctxt, attr->opaque, out, size);
+    return rv;
 }

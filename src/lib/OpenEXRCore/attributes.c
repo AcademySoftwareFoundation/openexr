@@ -703,7 +703,7 @@ exr_attr_list_add_by_type (
     {
         return pctxt->print_error (
             pctxt,
-            EXR_ERR_INVALID_ARGUMENT,
+            EXR_ERR_NAME_TOO_LONG,
             "Provided name '%s' too long for file (len %d, max %d)",
             name,
             (int) slen,
@@ -716,7 +716,7 @@ exr_attr_list_add_by_type (
     {
         return pctxt->print_error (
             pctxt,
-            EXR_ERR_INVALID_ARGUMENT,
+            EXR_ERR_NAME_TOO_LONG,
             "Provided type name '%s' too long for file (len %d, max %d)",
             type,
             (int) slen,
@@ -852,7 +852,7 @@ exr_attr_list_add (
     {
         return pctxt->print_error (
             pctxt,
-            EXR_ERR_INVALID_ARGUMENT,
+            EXR_ERR_NAME_TOO_LONG,
             "Provided name '%s' too long for file (len %d, max %d)",
             name,
             (int) slen,
@@ -974,7 +974,7 @@ exr_attr_list_add_static_name (
     {
         return pctxt->print_error (
             pctxt,
-            EXR_ERR_INVALID_ARGUMENT,
+            EXR_ERR_NAME_TOO_LONG,
             "Provided name '%s' too long for file (len %d, max %d)",
             name,
             (int) slen,

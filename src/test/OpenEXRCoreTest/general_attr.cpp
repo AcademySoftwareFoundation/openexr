@@ -17,14 +17,20 @@
 #    pragma GCC diagnostic ignored "-Wstringop-overflow"
 #endif
 
+#if defined(OPENEXR_ENABLE_API_VISIBILITY)
 #include "../../lib/OpenEXRCore/attributes.c"
 #include "../../lib/OpenEXRCore/channel_list.c"
 #include "../../lib/OpenEXRCore/float_vector.c"
 #include "../../lib/OpenEXRCore/internal_attr.h"
+#include "../../lib/OpenEXRCore/internal_xdr.h"
 #include "../../lib/OpenEXRCore/opaque.c"
 #include "../../lib/OpenEXRCore/preview.c"
 #include "../../lib/OpenEXRCore/string.c"
 #include "../../lib/OpenEXRCore/string_vector.c"
+#else
+#include "../../lib/OpenEXRCore/internal_attr.h"
+#include "../../lib/OpenEXRCore/internal_xdr.h"
+#endif
 
 int64_t
 dummy_write (
@@ -48,11 +54,10 @@ failable_malloc (size_t bytes)
 }
 
 static void
-failable_free( void *p )
+failable_free (void* p)
 {
-    if ( ! p )
-        abort();
-    free( p );
+    if (!p) abort ();
+    free (p);
 }
 
 static void
@@ -597,7 +602,7 @@ testChlistHelper (exr_context_t f)
         exr_attr_chlist_add_with_length (
             f, &cl, "R", 0, EXR_PIXEL_HALF, 1, 1, 1));
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_INVALID_ARGUMENT,
+        EXR_ERR_NAME_TOO_LONG,
         exr_attr_chlist_add_with_length (
             f, &cl, "R", 1024, EXR_PIXEL_HALF, 1, 1, 1));
     EXRCORE_TEST_RVAL_FAIL (
@@ -662,7 +667,7 @@ testChlistHelper (exr_context_t f)
 
     /* without a file, max will be 31 */
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_INVALID_ARGUMENT,
+        EXR_ERR_NAME_TOO_LONG,
         exr_attr_chlist_add (
             f,
             &cl,
@@ -905,12 +910,20 @@ testAttrHandler (const std::string& tempdir)
         EXR_ERR_INVALID_ARGUMENT,
         exr_register_attr_type_handler (
             f, "", &test_unpack, &test_pack, &test_hdlr_destroy));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_NAME_TOO_LONG,
+        exr_register_attr_type_handler (
+            f, "reallongreallongreallonglongname", &test_unpack, &test_pack, &test_hdlr_destroy));
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
         exr_register_attr_type_handler (
-        f, "box2i", &test_unpack, &test_pack, &test_hdlr_destroy));
+            f, "box2i", &test_unpack, &test_pack, &test_hdlr_destroy));
     EXRCORE_TEST_RVAL (exr_register_attr_type_handler (
+        f, "mytype", &test_unpack, &test_pack, &test_hdlr_destroy));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_register_attr_type_handler (
         f, "mytype", &test_unpack, &test_pack, &test_hdlr_destroy));
     EXRCORE_TEST (foo->opaque->unpack_func_ptr == &test_unpack);
     EXRCORE_TEST (foo->opaque->pack_func_ptr == &test_pack);
@@ -1038,7 +1051,8 @@ testAttrListHelper (exr_context_t f)
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT, exr_attr_list_compute_size (f, &al, NULL));
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_MISSING_CONTEXT_ARG, exr_attr_list_compute_size (NULL, &al, NULL));
+        EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_attr_list_compute_size (NULL, &al, NULL));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT, exr_attr_list_compute_size (f, NULL, &sz));
     EXRCORE_TEST_RVAL (exr_attr_list_compute_size (f, &al, &sz));
@@ -1083,7 +1097,7 @@ testAttrListHelper (exr_context_t f)
         exr_attr_list_add_by_type (f, &al, "myattr", "mytype", 1, NULL, &out));
 
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_INVALID_ARGUMENT,
+        EXR_ERR_NAME_TOO_LONG,
         exr_attr_list_add_by_type (
             f,
             &al,
@@ -1093,7 +1107,7 @@ testAttrListHelper (exr_context_t f)
             NULL,
             &out));
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_INVALID_ARGUMENT,
+        EXR_ERR_NAME_TOO_LONG,
         exr_attr_list_add_by_type (
             f, &al, "x", "reallongreallongreallonglongname", 0, NULL, &out));
 
@@ -1190,14 +1204,14 @@ testAttrListHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (exr_attr_list_add_by_type (
         f, &al, "tnst42", "string", 42, &extra, &out));
     EXRCORE_TEST (extra != NULL);
-    EXRCORE_TEST_RVAL (exr_attr_list_add_by_type (
-        f, &al, "tnst0", "string", 0, &extra, &out));
+    EXRCORE_TEST_RVAL (
+        exr_attr_list_add_by_type (f, &al, "tnst0", "string", 0, &extra, &out));
     EXRCORE_TEST (extra == NULL);
-    EXRCORE_TEST_RVAL (exr_attr_list_add (
-        f, &al, "nst42", EXR_ATTR_STRING, 42, &extra, &out));
+    EXRCORE_TEST_RVAL (
+        exr_attr_list_add (f, &al, "nst42", EXR_ATTR_STRING, 42, &extra, &out));
     EXRCORE_TEST (extra != NULL);
-    EXRCORE_TEST_RVAL (exr_attr_list_add (
-        f, &al, "nst0", EXR_ATTR_STRING, 0, &extra, &out));
+    EXRCORE_TEST_RVAL (
+        exr_attr_list_add (f, &al, "nst0", EXR_ATTR_STRING, 0, &extra, &out));
     EXRCORE_TEST (extra == NULL);
     EXRCORE_TEST_RVAL (exr_attr_list_add_static_name (
         f, &al, "t42", EXR_ATTR_STRING, 42, &extra, &out));
@@ -1257,7 +1271,7 @@ testAttrListHelper (exr_context_t f)
         exr_attr_chlist_add (f, out->chlist, "G", EXR_PIXEL_HALF, 1, 1, 1));
     EXRCORE_TEST_RVAL (
         exr_attr_chlist_add (f, out->chlist, "B", EXR_PIXEL_HALF, 1, 1, 1));
-    
+
     EXRCORE_TEST_RVAL (exr_attr_list_add_by_type (
         f, &al, "e", "chromaticities", 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_CHROMATICITIES);
@@ -1361,7 +1375,7 @@ testAttrListHelper (exr_context_t f)
     EXRCORE_TEST (out->type == EXR_ATTR_BOX2I);
     EXRCORE_TEST (al.num_attributes == 1);
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_INVALID_ARGUMENT,
+        EXR_ERR_NAME_TOO_LONG,
         exr_attr_list_add (
             f,
             &al,
@@ -1482,7 +1496,7 @@ testAttrListHelper (exr_context_t f)
     EXRCORE_TEST (out == NULL);
 
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_INVALID_ARGUMENT,
+        EXR_ERR_NAME_TOO_LONG,
         exr_attr_list_add_static_name (
             f,
             &al,
@@ -1500,7 +1514,8 @@ testAttrListHelper (exr_context_t f)
 
     EXRCORE_TEST_RVAL_FAIL_MALLOC (
         EXR_ERR_OUT_OF_MEMORY,
-        exr_attr_list_add_static_name (f, &al, "c", EXR_ATTR_BOX2F, 0, NULL, &out));
+        exr_attr_list_add_static_name (
+            f, &al, "c", EXR_ATTR_BOX2F, 0, NULL, &out));
     EXRCORE_TEST (al.num_attributes == 1);
 
     EXRCORE_TEST_RVAL (exr_attr_list_add_static_name (
@@ -1598,6 +1613,45 @@ testAttrLists (const std::string& tempdir)
     testAttrListHelper (f);
     exr_finish (&f);
 }
+
+void
+testXDR (const std::string& tempdir)
+{
+    uint64_t v64      = 0x123456789ABCDEF0;
+    uint32_t v32      = 0x12345678;
+    uint16_t v16      = 0x1234;
+#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
+    uint64_t ov64     = 0xF0DEBC9A78563412;
+    uint32_t ov32     = 0x78563412;
+    uint16_t ov16     = 0x3412;
+#endif
+    uint8_t  v8buf[]  = { 0xAA, 0xBB, 0xCC, 0xDD, 0xEE };
+    uint16_t v16buf[] = { 0xAA00, 0xBB11, 0xCC22, 0xDD33, 0xEE44 };
+    uint32_t v32buf[] = { 0xAA00BB11, 0xCC22DD33 };
+    uint64_t v64buf[] = { 0xAA00BB11CC22DD33, 0xEE44FF5500661177 };
+
+    EXRCORE_TEST (one_from_native64 (one_to_native64 (v64)) == v64);
+    EXRCORE_TEST (one_from_native32 (one_to_native32 (v32)) == v32);
+    EXRCORE_TEST (one_from_native16 (one_to_native16 (v16)) == v16);
+#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
+    EXRCORE_TEST (one_to_native64 (v64) == ov64);
+    EXRCORE_TEST (one_to_native32 (v32) == ov32);
+    EXRCORE_TEST (one_to_native16 (v16) == ov16);
+#endif
+    priv_to_native( v8buf, 5, sizeof(uint8_t) );
+    priv_from_native( v8buf, 5, sizeof(uint8_t) );
+    EXRCORE_TEST (v8buf[2] == 0xCC );
+    priv_to_native( v16buf, 5, sizeof(uint16_t) );
+    priv_from_native( v16buf, 5, sizeof(uint16_t) );
+    EXRCORE_TEST (v16buf[2] == 0xCC22 );
+    priv_to_native( v32buf, 2, sizeof(uint32_t) );
+    priv_from_native( v32buf, 2, sizeof(uint32_t) );
+    EXRCORE_TEST (v32buf[1] == 0xCC22DD33 );
+    priv_to_native( v64buf, 2, sizeof(uint64_t) );
+    priv_from_native( v64buf, 2, sizeof(uint64_t) );
+    EXRCORE_TEST (v64buf[0] == 0xAA00BB11CC22DD33 );
+}
+
 #if defined(__GNUC__) && __GNUC__ > 7
 #    pragma GCC diagnostic pop
 #endif

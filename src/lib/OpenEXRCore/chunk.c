@@ -482,6 +482,8 @@ exr_read_tile_block_info (
 
     if (!cinfo) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
 
+    if (tilex < 0 || tiley < 0 || levelx < 0 || levely < 0)
+        return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
     if (part->storage_mode == EXR_STORAGE_SCANLINE ||
         part->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
     {

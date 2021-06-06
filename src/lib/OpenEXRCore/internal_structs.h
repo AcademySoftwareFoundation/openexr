@@ -328,6 +328,8 @@ void internal_exr_update_default_handlers (exr_context_initializer_t* inits);
 
 exr_result_t internal_exr_add_part (
     struct _internal_exr_context*, struct _internal_exr_part**, int* new_index);
+void internal_exr_revert_add_part (
+    struct _internal_exr_context*, struct _internal_exr_part**, int* new_index);
 
 exr_result_t internal_exr_alloc_context (
     struct _internal_exr_context**   out,

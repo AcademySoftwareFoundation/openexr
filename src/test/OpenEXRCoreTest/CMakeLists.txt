@@ -50,6 +50,7 @@ define_openexrcore_tests(
  testBaseErrors
  testBaseLimits
  testBaseDebug
+ testXDR
 
  testAttrSizes
  testAttrStrings
@@ -75,6 +76,11 @@ define_openexrcore_tests(
  testWriteBadArgs
  testWriteBadFiles
  testUpdateMeta
+ testWriteBaseHeader
+ testStartWriteScan
+ testStartWriteDeepScan
+ testStartWriteTile
+ testStartWriteDeepTile
  testWriteAttrs
  testWriteScans
  testWriteTiles

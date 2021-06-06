@@ -222,6 +222,12 @@ exr_attr_opaquedata_pack (
         u->packed_data = tmpptr;
         if (sz) *sz = nsize;
         if (packed) *packed = tmpptr;
+
+        if (u->destroy_unpacked_func_ptr)
+            u->destroy_unpacked_func_ptr (
+                ctxt, u->unpacked_data, u->unpacked_size);
+        u->unpacked_data = NULL;
+        u->unpacked_size = 0;
     }
     return rv;
 }

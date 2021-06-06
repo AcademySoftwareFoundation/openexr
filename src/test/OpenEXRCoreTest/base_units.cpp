@@ -74,6 +74,8 @@ testBaseErrors (const std::string& tempdir)
     EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_UNKNOWN), "EXR_ERR_UNKNOWN" ) );
     EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string((int)EXR_ERR_UNKNOWN + 1), "EXR_ERR_UNKNOWN" ) );
     EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(-1), "EXR_ERR_UNKNOWN" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(-2), "EXR_ERR_UNKNOWN" ) );
+    EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(INT32_MIN), "EXR_ERR_UNKNOWN" ) );
 
     EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_MISSING_REQ_ATTR), "EXR_ERR_MISSING_REQ_ATTR" ) );
     EXRCORE_TEST( 0 == strcmp( exr_get_error_code_as_string(EXR_ERR_OUT_OF_MEMORY), "EXR_ERR_OUT_OF_MEMORY" ) );

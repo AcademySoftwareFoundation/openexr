@@ -16,8 +16,8 @@
 
 #ifdef ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
-#        include <windows.h>
 #        include <synchapi.h>
+#        include <windows.h>
 #    else
 #        include <pthread.h>
 #    endif
@@ -86,7 +86,7 @@ dispatch_error (
     exr_result_t                        code,
     const char*                         msg)
 {
-    exr_const_context_t ctxt = (exr_const_context_t)(pctxt);
+    exr_const_context_t ctxt = (exr_const_context_t) (pctxt);
     if (pctxt)
     {
         pctxt->error_handler_fn (ctxt, code, msg);
@@ -156,30 +156,40 @@ dispatch_print_error (
 /**************************************/
 
 static void
+internal_exr_destroy_part (
+    struct _internal_exr_context* ctxt, struct _internal_exr_part* cur)
+{
+    exr_memory_free_func_t dofree = ctxt->free_fn;
+    uint64_t*              ctable;
+
+    exr_attr_list_destroy ((exr_context_t) ctxt, &(cur->attributes));
+
+    /* we stack x and y together so only have to free the first */
+    if (cur->tile_level_tile_count_x) dofree (cur->tile_level_tile_count_x);
+
+#if defined(_MSC_VER)
+    ctable = (uint64_t*) InterlockedOr64 (
+        (int64_t volatile*) &(cur->chunk_table), 0);
+#else
+    ctable = (uint64_t*) atomic_load (&(cur->chunk_table));
+#endif
+    if (ctable) dofree (ctable);
+}
+
+/**************************************/
+
+static void
 internal_exr_destroy_parts (struct _internal_exr_context* ctxt)
 {
-    uint64_t*              ctable;
     exr_memory_free_func_t dofree = ctxt->free_fn;
-
     for (int p = 0; p < ctxt->num_parts; ++p)
     {
         struct _internal_exr_part* cur = ctxt->parts[p];
 
-        exr_attr_list_destroy ((exr_context_t) ctxt, &(cur->attributes));
-
-        /* we stack x and y together so only have to free the first */
-        if (cur->tile_level_tile_count_x) dofree (cur->tile_level_tile_count_x);
-
-#if defined(_MSC_VER)
-        ctable = (uint64_t*) InterlockedOr64 (
-            (int64_t volatile*) &(cur->chunk_table), 0);
-#else
-        ctable = (uint64_t*) atomic_load (&(cur->chunk_table));
-#endif
-        if (ctable) dofree (ctable);
+        internal_exr_destroy_part (ctxt, cur);
 
         /* the first one is always the one that is part of the file */
-        if (p > 0) { dofree (cur); }
+        if (cur != &(ctxt->first_part)) { dofree (cur); }
         else
         {
             memset (cur, 0, sizeof (struct _internal_exr_part));
@@ -193,7 +203,7 @@ internal_exr_destroy_parts (struct _internal_exr_context* ctxt)
 
 /**************************************/
 
-int
+exr_result_t
 internal_exr_add_part (
     struct _internal_exr_context* f,
     struct _internal_exr_part**   outpart,
@@ -253,6 +263,48 @@ internal_exr_add_part (
     if (outpart) *outpart = part;
 
     return EXR_ERR_SUCCESS;
+}
+
+/**************************************/
+
+void
+internal_exr_revert_add_part (
+    struct _internal_exr_context* ctxt,
+    struct _internal_exr_part**   outpart,
+    int*                          new_index)
+{
+    int                        ncount = ctxt->num_parts - 1;
+    struct _internal_exr_part* part   = *outpart;
+
+    *outpart   = NULL;
+    *new_index = -1;
+
+    internal_exr_destroy_part (ctxt, part);
+    if (ncount == 0)
+    {
+        ctxt->num_parts = 0;
+        ctxt->init_part = NULL;
+        ctxt->parts     = NULL;
+    }
+    else if (ncount == 1)
+    {
+        if (part == &(ctxt->first_part))
+            ctxt->first_part = *(ctxt->parts[1]);
+        ctxt->init_part = &(ctxt->first_part);
+        ctxt->free_fn (ctxt->parts);
+        ctxt->parts = &(ctxt->init_part);
+    }
+    else
+    {
+        int np = 0;
+        for (int p = 0; p < ctxt->num_parts; ++p)
+        {
+            if (ctxt->parts[p] == part) continue;
+            ctxt->parts[np] = ctxt->parts[p];
+            ++np;
+        }
+    }
+    ctxt->num_parts = ncount;
 }
 
 /**************************************/

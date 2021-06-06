@@ -95,7 +95,7 @@ dispatch_write (
     else
         return ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE);
 
-    if (rval > 0) *offsetp += (uint64_t)rval;
+    if (rval > 0) *offsetp += (uint64_t) rval;
 
     return (rval == (int64_t) sz) ? EXR_ERR_SUCCESS : EXR_ERR_WRITE_IO;
 }
@@ -295,9 +295,9 @@ exr_start_inplace_header_update (
     const exr_context_initializer_t* ctxtdata)
 {
     /* TODO: not yet implemented */
-    (void)ctxt;
-    (void)filename;
-    (void)ctxtdata;
+    (void) ctxt;
+    (void) filename;
+    (void) ctxtdata;
     return EXR_ERR_INVALID_ARGUMENT;
 }
 
@@ -343,6 +343,7 @@ exr_register_attr_type_handler (
     exr_attribute_t*      ent;
     exr_result_t          rv;
     int32_t               tlen, mlen = EXR_SHORTNAME_MAXLEN;
+    size_t                slen;
     exr_attribute_list_t* curattrs;
 
     EXR_PROMOTE_LOCKED_CONTEXT_OR_ERROR (ctxt);
@@ -355,15 +356,16 @@ exr_register_attr_type_handler (
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid type to register_attr_handler"));
 
-    tlen = (int32_t) strlen (type);
-    if (tlen > mlen)
+    slen = strlen (type);
+    if (slen > (size_t) mlen)
         return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
             pctxt,
-            EXR_ERR_INVALID_ARGUMENT,
+            EXR_ERR_NAME_TOO_LONG,
             "Provided type name '%s' too long for file (len %d, max %d)",
             type,
-            tlen,
+            (int) slen,
             mlen));
+    tlen = (int32_t) slen;
 
     if (internal_exr_is_standard_type (type))
         return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
@@ -504,6 +506,13 @@ exr_write_header (exr_context_t ctxt)
 
         int32_t ccount = 0;
 
+        if (!curp->channels)
+            return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
+                pctxt,
+                EXR_ERR_MISSING_REQ_ATTR,
+                "Part %d is missing channel list",
+                p));
+
         rv = internal_exr_compute_tile_information (pctxt, curp, 0);
         if (rv != EXR_ERR_SUCCESS) break;
 
@@ -536,7 +545,8 @@ exr_write_header (exr_context_t ctxt)
         {
             struct _internal_exr_part* curp = pctxt->parts[p];
             curp->chunk_table_offset        = pctxt->output_file_offset;
-            pctxt->output_file_offset += (uint64_t)(curp->chunk_count) * sizeof (uint64_t);
+            pctxt->output_file_offset +=
+                (uint64_t) (curp->chunk_count) * sizeof (uint64_t);
         }
     }
 

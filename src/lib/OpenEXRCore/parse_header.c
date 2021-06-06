@@ -1949,7 +1949,7 @@ internal_exr_compute_tile_information (
         return EXR_ERR_SUCCESS;
 
     if (!curpart->tiles)
-        return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+        return ctxt->standard_error (ctxt, EXR_ERR_MISSING_REQ_ATTR);
 
     if (rebuild)
     {

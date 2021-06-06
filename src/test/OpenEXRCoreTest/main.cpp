@@ -142,6 +142,7 @@ main (int argc, char *argv[])
     TEST( testBaseErrors, "core" );
     TEST( testBaseLimits, "core" );
     TEST( testBaseDebug, "core" );
+    TEST( testXDR, "core" );
 
     TEST( testAttrSizes, "gen_attr" );
     TEST( testAttrStrings, "gen_attr" );
@@ -168,7 +169,12 @@ main (int argc, char *argv[])
     TEST( testWriteBadArgs, "core_write" );
     TEST( testWriteBadFiles, "core_write" );
     TEST( testUpdateMeta, "core_write" );
+    TEST( testWriteBaseHeader, "core_write" );
     TEST( testWriteAttrs, "core_write" );
+    TEST( testStartWriteScan, "core_write" );
+    TEST( testStartWriteTile, "core_write" );
+    TEST( testStartWriteDeepScan, "core_write" );
+    TEST( testStartWriteDeepTile, "core_write" );
     TEST( testWriteScans, "core_write" );
     TEST( testWriteTiles, "core_write" );
     TEST( testWriteMultiPart, "core_write" );
