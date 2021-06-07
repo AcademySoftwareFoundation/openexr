@@ -692,7 +692,8 @@ testWriteAttrs (const std::string& tempdir)
     }
 
     {
-        uint8_t            dummy[]   = { 0xDE, 0xAD, 0xBE, 0xEF };
+        uint8_t dummy[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF,
+                            0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF };
         exr_attr_preview_t mypreview = { 2, 2, 0, dummy };
         TEST_CORNER_CASE_NAME (preview, mypreview, int);
     }
@@ -709,9 +710,9 @@ testWriteAttrs (const std::string& tempdir)
     //    }
 
     {
-        const char *mysvec[] = { "foo", "bar" };
+        const char* mysvec[] = { "foo", "bar" };
         const char* outsvec  = NULL;
-        int          svsz     = 2;
+        int         svsz     = 2;
         TEST_CORNER_CASE_NAME_C (string_vector, mysvec, svsz, outsvec, int);
         EXRCORE_TEST (svsz == 2);
     }
@@ -771,38 +772,49 @@ testWriteAttrs (const std::string& tempdir)
     }
 
     {
-        EXRCORE_TEST_RVAL (exr_attr_set_user (outf, partidx, "tuser", "mytype", 4, "foo"));
-        int32_t sz;
-        const void *ptr;
-        const char *type;
-        EXRCORE_TEST_RVAL (exr_attr_get_user (outf, partidx, "tuser", &type, &sz, &ptr));
-        EXRCORE_TEST(0 == strcmp(type, "mytype"));
-        EXRCORE_TEST(sz == 4);
-        EXRCORE_TEST(0 == strcmp((const char *)ptr, "foo"));
+        EXRCORE_TEST_RVAL (
+            exr_attr_set_user (outf, partidx, "tuser", "mytype", 4, "foo"));
+        int32_t     sz;
+        const void* ptr;
+        const char* type;
+        EXRCORE_TEST_RVAL (
+            exr_attr_get_user (outf, partidx, "tuser", &type, &sz, &ptr));
+        EXRCORE_TEST (0 == strcmp (type, "mytype"));
+        EXRCORE_TEST (sz == 4);
+        EXRCORE_TEST (0 == strcmp ((const char*) ptr, "foo"));
     }
 
     EXRCORE_TEST_RVAL (exr_write_header (outf));
-    exr_chunk_block_info_t cinfo = { 0, 0, 0, 1, 1, 0, 0, (uint8_t)EXR_STORAGE_SCANLINE, EXR_COMPRESSION_ZIP, 0};
-    exr_encode_pipeline_t encoder;
-    EXRCORE_TEST_RVAL(exr_encoding_initialize (outf, 0, &cinfo, &encoder));
-    const uint8_t rgb[] = { 0, 0, 0, 0, 0, 0 };
-    encoder.channels[0].encode_from_ptr = rgb + 2;
+    exr_chunk_block_info_t cinfo = { 0,
+                                     0,
+                                     0,
+                                     1,
+                                     1,
+                                     0,
+                                     0,
+                                     (uint8_t) EXR_STORAGE_SCANLINE,
+                                     EXR_COMPRESSION_ZIP,
+                                     0 };
+    exr_encode_pipeline_t  encoder;
+    EXRCORE_TEST_RVAL (exr_encoding_initialize (outf, 0, &cinfo, &encoder));
+    const uint8_t rgb[]                   = { 0, 0, 0, 0, 0, 0 };
+    encoder.channels[0].encode_from_ptr   = rgb + 4;
     encoder.channels[0].user_pixel_stride = 6;
     encoder.channels[0].user_line_stride  = 6;
-    encoder.channels[1].encode_from_ptr = rgb + 1;
+    encoder.channels[1].encode_from_ptr   = rgb + 2;
     encoder.channels[1].user_pixel_stride = 6;
     encoder.channels[1].user_line_stride  = 6;
-    encoder.channels[2].encode_from_ptr = rgb;
+    encoder.channels[2].encode_from_ptr   = rgb;
     encoder.channels[2].user_pixel_stride = 6;
     encoder.channels[2].user_line_stride  = 6;
 
-    EXRCORE_TEST_RVAL(exr_encoding_choose_default_routines (outf, 0, &encoder));
-    EXRCORE_TEST_RVAL(exr_encoding_run (outf, 0, &encoder));
-    EXRCORE_TEST_RVAL(exr_encoding_destroy (outf, &encoder));
+    EXRCORE_TEST_RVAL (
+        exr_encoding_choose_default_routines (outf, 0, &encoder));
+    EXRCORE_TEST_RVAL (exr_encoding_run (outf, 0, &encoder));
+    EXRCORE_TEST_RVAL (exr_encoding_destroy (outf, &encoder));
     EXRCORE_TEST_RVAL (exr_finish (&outf));
 
-    EXRCORE_TEST_RVAL (exr_start_read (
-        &outf, outfn.c_str (), &cinit));
+    EXRCORE_TEST_RVAL (exr_start_read (&outf, outfn.c_str (), &cinit));
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
 }
@@ -887,6 +899,9 @@ testWriteTiles (const std::string& tempdir)
         }
         ++ty;
     }
+    if (cmem)
+        free (cmem);
+    EXRCORE_TEST_RVAL (exr_finish (&f));
     EXRCORE_TEST_RVAL (exr_finish (&outf));
 
     EXRCORE_TEST_RVAL (exr_start_read (&testf, outfn.c_str (), &cinit));

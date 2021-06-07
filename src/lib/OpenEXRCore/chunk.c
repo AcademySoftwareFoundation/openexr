@@ -5,9 +5,9 @@
 
 #include "openexr_chunkio.h"
 
+#include "internal_coding.h"
 #include "internal_structs.h"
 #include "internal_xdr.h"
-#include "internal_coding.h"
 
 #include <limits.h>
 #include <string.h>
@@ -53,11 +53,10 @@ extract_chunk_table (
     const struct _internal_exr_part*    part,
     uint64_t**                          chunktable)
 {
-    uint64_t*         ctable = NULL;
-    atomic_uintptr_t* ctableptr =
-        EXR_CONST_CAST (atomic_uintptr_t*, &(part->chunk_table));
+    uint64_t* ctable = NULL;
 
-    ctable = (uint64_t*) atomic_load (ctableptr);
+    ctable = (uint64_t*) atomic_load (
+        EXR_CONST_CAST (atomic_uintptr_t*, &(part->chunk_table)));
     if (ctable == NULL)
     {
         uint64_t  chunkoff   = part->chunk_table_offset;
@@ -87,7 +86,10 @@ extract_chunk_table (
         //EXR_GETFILE(f)->report_error( ctxt, EXR_ERR_UNKNOWN, "TODO: implement reconstructLineOffsets and similar" );
         nptr = (uintptr_t) ctable;
         // see if we win or not
-        if (!atomic_compare_exchange_strong (ctableptr, &eptr, nptr))
+        if (!atomic_compare_exchange_strong (
+                EXR_CONST_CAST (atomic_uintptr_t*, &(part->chunk_table)),
+                &eptr,
+                nptr))
         {
             ctxt->free_fn (ctable);
             ctable = (uint64_t*) eptr;
@@ -108,12 +110,11 @@ alloc_chunk_table (
     const struct _internal_exr_part*    part,
     uint64_t**                          chunktable)
 {
-    uint64_t*         ctable = NULL;
-    atomic_uintptr_t* ctableptr =
-        EXR_CONST_CAST (atomic_uintptr_t*, &(part->chunk_table));
+    uint64_t* ctable = NULL;
 
     /* we have the lock, but to access the type, we'll use the atomic function anyway */
-    ctable = (uint64_t*) atomic_load (ctableptr);
+    ctable = (uint64_t*) atomic_load (
+        EXR_CONST_CAST (atomic_uintptr_t*, &(part->chunk_table)));
     if (ctable == NULL)
     {
         uint64_t  chunkbytes = sizeof (uint64_t) * (uint64_t) part->chunk_count;
@@ -122,15 +123,19 @@ alloc_chunk_table (
         ctable = (uint64_t*) ctxt->alloc_fn (chunkbytes);
         if (ctable == NULL)
             return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+        memset (ctable, 0, chunkbytes);
 
-        if (!atomic_compare_exchange_strong (ctableptr, &eptr, nptr))
+        nptr = (uintptr_t) ctable;
+        if (!atomic_compare_exchange_strong (
+                EXR_CONST_CAST (atomic_uintptr_t*, &(part->chunk_table)),
+                &eptr,
+                nptr))
         {
             ctxt->free_fn (ctable);
             ctable = (uint64_t*) eptr;
             if (ctable == NULL)
                 return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
         }
-        memset (ctable, 0, chunkbytes);
     }
     *chunktable = ctable;
     return EXR_ERR_SUCCESS;
@@ -1428,13 +1433,16 @@ internal_validate_next_chunk (
                 cidx,
                 part->chunk_count);
         }
-        else if (part->lineorder != EXR_LINEORDER_RANDOM_Y &&
-                 pctxt->last_output_chunk != (cidx - 1))
+        else if (
+            part->lineorder != EXR_LINEORDER_RANDOM_Y &&
+            pctxt->last_output_chunk != (cidx - 1))
         {
             rv = pctxt->print_error (
                 pctxt,
                 EXR_ERR_CHUNK_NOT_READY,
-                "Attempt to write chunk %d, but last output chunk is %d", cidx, pctxt->last_output_chunk);
+                "Attempt to write chunk %d, but last output chunk is %d",
+                cidx,
+                pctxt->last_output_chunk);
         }
     }
     return rv;

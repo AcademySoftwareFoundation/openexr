@@ -48,6 +48,12 @@ alloc_buffer (
     size_t                              newsz)
 {
     void* curbuf = *buf;
+    if (newsz == 0)
+        return pctxt->print_error (
+            pctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Attempt to allocate 0 byte buffer for transcode buffer %d",
+            (int) bufid);
     if (!curbuf || *cursz < newsz)
     {
         free_buffer (pctxt, encode, bufid, buf, cursz);
@@ -406,7 +412,7 @@ exr_encoding_run (
             EXR_TRANSCODE_BUFFER_PACKED,
             &(encode->packed_buffer),
             &(encode->packed_alloc_size),
-            packed_bytes);
+            part->unpacked_size_per_chunk);
 
         if (rv == EXR_ERR_SUCCESS) rv = encode->convert_and_pack_fn (encode);
     }
@@ -417,7 +423,7 @@ exr_encoding_run (
             EXR_ERR_INVALID_ARGUMENT,
             "Encode pipeline has no packing function declared and packed buffer is null / 0 sized"));
     }
-    EXR_UNLOCK_WRITE(pctxt);
+    EXR_UNLOCK_WRITE (pctxt);
 
     if (rv == EXR_ERR_SUCCESS)
     {

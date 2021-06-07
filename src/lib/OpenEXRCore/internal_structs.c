@@ -170,8 +170,10 @@ internal_exr_destroy_part (
 #if defined(_MSC_VER)
     ctable = (uint64_t*) InterlockedOr64 (
         (int64_t volatile*) &(cur->chunk_table), 0);
+    cur->chunk_table = 0;
 #else
     ctable = (uint64_t*) atomic_load (&(cur->chunk_table));
+    atomic_store (&(cur->chunk_table), (uintptr_t)(0));
 #endif
     if (ctable) dofree (ctable);
 }

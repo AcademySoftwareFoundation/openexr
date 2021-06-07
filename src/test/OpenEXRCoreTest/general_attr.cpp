@@ -170,6 +170,7 @@ testStringHelper (exr_context_t f)
     EXRCORE_TEST (s.str != NULL && s.str[0] == '\0');
     EXRCORE_TEST (s.length == 10);
     EXRCORE_TEST (s.alloc_size == 11);
+    EXRCORE_TEST_RVAL (exr_attr_string_destroy (f, &s));
 
     EXRCORE_TEST_RVAL_FAIL_MALLOC (
         EXR_ERR_OUT_OF_MEMORY, exr_attr_string_create (f, &s, "exr"));
