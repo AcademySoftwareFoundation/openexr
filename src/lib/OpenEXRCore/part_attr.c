@@ -515,7 +515,7 @@ exr_copy_unset_attributes (
     int                                 update_tiles = 0;
     EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
 
-    if (!srcctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
+    if (!srcctxt) return EXR_UNLOCK_AND_RETURN_PCTXT (EXR_ERR_MISSING_CONTEXT_ARG);
     if (srcctxt != pctxt) EXR_LOCK (srcctxt);
 
     if (src_part_index < 0 || src_part_index >= srcctxt->num_parts)
@@ -1830,7 +1830,7 @@ exr_attr_get_string (
     ATTR_FIND_ATTR (EXR_ATTR_STRING, string);
     if (length) *length = attr->string->length;
     if (out) *out = attr->string->str;
-    return rv;
+    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (rv);
 }
 
 exr_result_t
