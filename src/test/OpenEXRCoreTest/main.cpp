@@ -165,6 +165,7 @@ main (int argc, char *argv[])
     TEST( testReadTiles, "core_read" );
     TEST( testReadMultiPart, "core_read" );
     TEST( testReadDeep, "core_read" );
+    TEST( testReadUnpack, "core_read" );
 
     TEST( testWriteBadArgs, "core_write" );
     TEST( testWriteBadFiles, "core_write" );

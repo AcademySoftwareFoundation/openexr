@@ -72,6 +72,7 @@ define_openexrcore_tests(
  testReadTiles
  testReadMultiPart
  testReadDeep
+ testReadUnpack
 
  testWriteBadArgs
  testWriteBadFiles

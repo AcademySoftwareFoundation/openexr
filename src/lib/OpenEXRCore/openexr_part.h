@@ -401,6 +401,9 @@ EXR_EXPORT exr_result_t exr_attr_get_channels (
     const char*               name,
     const exr_attr_chlist_t** chlist);
 
+/** @brief This allows one to quickly copy the channels from one file
+ * to another
+ */
 EXR_EXPORT exr_result_t exr_attr_set_channels (
     exr_context_t            ctxt,
     int                      part_index,

@@ -412,6 +412,24 @@ testWriteBaseHeader (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_set_tile_descriptor (
         outf, partidx, 32, 32, EXR_TILE_ONE_LEVEL, EXR_TILE_ROUND_DOWN));
 
+    uint32_t              txsize, tysize;
+    exr_tile_level_mode_t lmode;
+    exr_tile_round_mode_t rmode;
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_get_tile_descriptor (
+            NULL, partidx, &txsize, &tysize, &lmode, &rmode));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_tile_descriptor (outf, -1, &txsize, &tysize, &lmode, &rmode));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_tile_descriptor (
+            outf, partidx + 10, &txsize, &tysize, &lmode, &rmode));
+    EXRCORE_TEST_RVAL (exr_get_tile_descriptor (
+        outf, partidx, &txsize, &tysize, &lmode, &rmode));
+    EXRCORE_TEST (txsize == 32 && tysize == 32);
+
     EXRCORE_TEST_RVAL (exr_write_header (outf));
 
     EXRCORE_TEST_RVAL (exr_finish (&outf));
@@ -432,6 +450,7 @@ testWriteAttrs (const std::string& tempdir)
     exr_context_t outf;
     std::string   outfn = tempdir + "testattr.exr";
     int           partidx;
+    const char*   partname;
 
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
     cinit.error_handler_fn          = &err_cb;
@@ -439,7 +458,7 @@ testWriteAttrs (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_start_write (
         &outf, outfn.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit));
     EXRCORE_TEST_RVAL (
-        exr_add_part (outf, "beauty", EXR_STORAGE_SCANLINE, &partidx));
+        exr_add_part (outf, "tester", EXR_STORAGE_SCANLINE, &partidx));
     EXRCORE_TEST_RVAL (exr_initialize_required_attr_simple (
         outf, partidx, 1, 1, EXR_COMPRESSION_ZIPS));
     EXRCORE_TEST_RVAL (
@@ -448,6 +467,42 @@ testWriteAttrs (const std::string& tempdir)
         exr_add_channel (outf, partidx, "G", EXR_PIXEL_HALF, 1, 1, 1));
     EXRCORE_TEST_RVAL (
         exr_add_channel (outf, partidx, "B", EXR_PIXEL_HALF, 1, 1, 1));
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG, exr_set_name (NULL, partidx, "a"));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_set_name (outf, -1, "a"));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_set_name (outf, 1, "a"));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT, exr_set_name (outf, partidx, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT, exr_set_name (outf, partidx, ""));
+    EXRCORE_TEST_RVAL (exr_set_name (outf, partidx, "beauty"));
+    EXRCORE_TEST_RVAL (exr_get_name (outf, partidx, &partname));
+    EXRCORE_TEST (0 == strcmp (partname, "beauty"));
+
+    const exr_attr_chlist_t* chans;
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG, exr_get_channels (NULL, partidx, &chans));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_channels (outf, -1, &chans));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_channels (outf, 1, &chans));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT, exr_get_channels (outf, partidx, NULL));
+    EXRCORE_TEST_RVAL (exr_get_channels (outf, partidx, &chans));
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG, exr_set_channels (NULL, partidx, chans));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_set_channels (outf, -1, chans));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_set_channels (outf, 1, chans));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT, exr_set_channels (outf, partidx, NULL));
+    EXRCORE_TEST_RVAL (exr_set_channels (outf, partidx, chans));
+    EXRCORE_TEST_RVAL (exr_get_channels (outf, partidx, &chans));
 
 #define TEST_CORNER_CASE_GET(fn, arg)                                          \
     EXRCORE_TEST_RVAL_FAIL (                                                   \
@@ -572,13 +627,100 @@ testWriteAttrs (const std::string& tempdir)
         exr_attr_get_##fnt (outf, partidx, "", &arg));                         \
     EXRCORE_TEST_RVAL (exr_attr_get_##fnt (outf, partidx, #arg, &arg))
 
+#define TEST_CORNER_CASE_NAME_NOALT(fnt, arg, oarg)                            \
+    EXRCORE_TEST_RVAL_FAIL (                                                   \
+        EXR_ERR_MISSING_CONTEXT_ARG,                                           \
+        exr_attr_set_##fnt (NULL, partidx, #arg, arg));                        \
+    EXRCORE_TEST_RVAL_FAIL (                                                   \
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                         \
+        exr_attr_set_##fnt (outf, -1, #arg, arg));                             \
+    EXRCORE_TEST_RVAL_FAIL (                                                   \
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                         \
+        exr_attr_set_##fnt (outf, 1, #arg, arg));                              \
+    EXRCORE_TEST_RVAL_FAIL (                                                   \
+        EXR_ERR_INVALID_ARGUMENT,                                              \
+        exr_attr_set_##fnt (outf, partidx, #arg, NULL));                       \
+    EXRCORE_TEST_RVAL (exr_attr_set_##fnt (outf, partidx, #arg, arg));         \
+    EXRCORE_TEST_RVAL_FAIL (                                                   \
+        EXR_ERR_MISSING_CONTEXT_ARG,                                           \
+        exr_attr_get_##fnt (NULL, partidx, #arg, &oarg));                      \
+    EXRCORE_TEST_RVAL_FAIL (                                                   \
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                         \
+        exr_attr_get_##fnt (outf, -1, #arg, &oarg));                           \
+    EXRCORE_TEST_RVAL_FAIL (                                                   \
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                         \
+        exr_attr_get_##fnt (outf, 1, #arg, &oarg));                            \
+    EXRCORE_TEST_RVAL_FAIL (                                                   \
+        EXR_ERR_INVALID_ARGUMENT,                                              \
+        exr_attr_get_##fnt (outf, partidx, NULL, &oarg));                      \
+    EXRCORE_TEST_RVAL_FAIL (                                                   \
+        EXR_ERR_INVALID_ARGUMENT,                                              \
+        exr_attr_get_##fnt (outf, partidx, "", &oarg));                        \
+    EXRCORE_TEST_RVAL (exr_attr_get_##fnt (outf, partidx, #arg, &oarg))
+
+    {
+        int32_t version = -1;
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_set_version (outf, partidx, 2));
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_set_version (outf, partidx, 0));
+        TEST_CORNER_CASE_SET (exr_set_version, 1);
+        TEST_CORNER_CASE_GET (exr_get_version, &version);
+        EXRCORE_TEST (version == 1);
+    }
+
     {
         exr_compression_t ct;
         TEST_CORNER_CASE_GET (exr_get_compression, &ct);
         EXRCORE_TEST (ct == EXR_COMPRESSION_ZIPS);
-        TEST_CORNER_CASE_GET (exr_set_compression, EXR_COMPRESSION_ZIP);
+        TEST_CORNER_CASE_SET (exr_set_compression, EXR_COMPRESSION_ZIP);
         EXRCORE_TEST_RVAL (exr_get_compression (outf, partidx, &ct));
         EXRCORE_TEST (ct == EXR_COMPRESSION_ZIP);
+    }
+
+    {
+        TEST_CORNER_CASE_SET (exr_set_chunk_count, 1);
+    }
+
+    {
+        exr_attr_box2i_t dw;
+        TEST_CORNER_CASE_GET (exr_get_data_window, &dw);
+        TEST_CORNER_CASE_SET (exr_set_data_window, &dw);
+    }
+
+    {
+        exr_attr_box2i_t dpw;
+        TEST_CORNER_CASE_GET (exr_get_display_window, &dpw);
+        TEST_CORNER_CASE_SET (exr_set_display_window, &dpw);
+    }
+
+    {
+        exr_lineorder_t lo;
+        TEST_CORNER_CASE_GET (exr_get_lineorder, &lo);
+        EXRCORE_TEST (lo == EXR_LINEORDER_INCREASING_Y);
+        TEST_CORNER_CASE_SET (exr_set_lineorder, EXR_LINEORDER_DECREASING_Y);
+        EXRCORE_TEST_RVAL (exr_get_lineorder (outf, partidx, &lo));
+        EXRCORE_TEST (lo == EXR_LINEORDER_DECREASING_Y);
+        EXRCORE_TEST_RVAL (
+            exr_set_lineorder (outf, partidx, EXR_LINEORDER_INCREASING_Y));
+    }
+
+    {
+        float par;
+        TEST_CORNER_CASE_GET (exr_get_pixel_aspect_ratio, &par);
+        TEST_CORNER_CASE_SET (exr_set_pixel_aspect_ratio, 1.f);
+    }
+
+    {
+        exr_attr_v2f_t swc;
+        TEST_CORNER_CASE_GET (exr_get_screen_window_center, &swc);
+        TEST_CORNER_CASE_SET (exr_set_screen_window_center, &swc);
+    }
+
+    {
+        float sww;
+        TEST_CORNER_CASE_GET (exr_get_screen_window_width, &sww);
+        TEST_CORNER_CASE_SET (exr_set_screen_window_width, 1.f);
     }
 
     {
@@ -597,6 +739,11 @@ testWriteAttrs (const std::string& tempdir)
         double doublev = 42.0;
         TEST_CORNER_CASE_NAME_V (double, doublev, int);
         EXRCORE_TEST (doublev == 42.0);
+    }
+
+    {
+        const exr_attr_chlist_t* addlchans = chans;
+        TEST_CORNER_CASE_NAME_NOALT (channels, addlchans, addlchans);
     }
 
     {
@@ -705,9 +852,48 @@ testWriteAttrs (const std::string& tempdir)
         EXRCORE_TEST (myrational.denom == 1001);
     }
 
-    //    {
-    //        TEST_CORNER_CASE_NAME (string, mystring, int);
-    //    }
+    {
+        const char* sname = "teststrattr";
+        const char* scal  = "testvalue";
+        const char* outsv;
+        int32_t     outssz;
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_MISSING_CONTEXT_ARG,
+            exr_attr_set_string (NULL, partidx, sname, scal));
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+            exr_attr_set_string (outf, -1, sname, scal));
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+            exr_attr_set_string (outf, 1, sname, scal));
+        EXRCORE_TEST_RVAL (exr_attr_set_string (outf, partidx, sname, NULL));
+        EXRCORE_TEST_RVAL (exr_attr_set_string (outf, partidx, sname, ""));
+        EXRCORE_TEST_RVAL (exr_attr_set_string (outf, partidx, sname, NULL));
+        EXRCORE_TEST_RVAL (exr_attr_set_string (outf, partidx, sname, scal));
+        int altv = 0;
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_ATTR_TYPE_MISMATCH,
+            exr_attr_set_int (outf, partidx, sname, altv));
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_MISSING_CONTEXT_ARG,
+            exr_attr_get_string (NULL, partidx, sname, &outssz, &outsv));
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+            exr_attr_get_string (outf, -1, sname, &outssz, &outsv));
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+            exr_attr_get_string (outf, 1, sname, &outssz, &outsv));
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_INVALID_ARGUMENT,
+            exr_attr_get_string (outf, partidx, NULL, &outssz, &outsv));
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_INVALID_ARGUMENT,
+            exr_attr_get_string (outf, partidx, "", &outssz, &outsv));
+        EXRCORE_TEST_RVAL (
+            exr_attr_get_string (outf, partidx, sname, &outssz, &outsv));
+        EXRCORE_TEST (outssz == 9);
+        EXRCORE_TEST (0 == strcmp (outsv, scal));
+    }
 
     {
         const char* mysvec[] = { "foo", "bar" };
@@ -782,6 +968,116 @@ testWriteAttrs (const std::string& tempdir)
         EXRCORE_TEST (0 == strcmp (type, "mytype"));
         EXRCORE_TEST (sz == 4);
         EXRCORE_TEST (0 == strcmp ((const char*) ptr, "foo"));
+    }
+
+    int32_t attrcnt = -1;
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_get_attribute_count (NULL, partidx, &attrcnt));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_attribute_count (outf, -1, &attrcnt));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_attribute_count (outf, 1, &attrcnt));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_get_attribute_count (outf, partidx, NULL));
+    EXRCORE_TEST_RVAL (exr_get_attribute_count (outf, partidx, &attrcnt));
+    std::cout << "Testing writing of " << attrcnt << " attributes" << std::endl;
+
+    const exr_attribute_t* attrget;
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_get_attribute_by_index (
+            NULL, partidx, EXR_ATTR_LIST_FILE_ORDER, 15, &attrget));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_attribute_by_index (
+            outf, -1, EXR_ATTR_LIST_FILE_ORDER, 15, &attrget));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_attribute_by_index (
+            outf, 1, EXR_ATTR_LIST_FILE_ORDER, 15, &attrget));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_get_attribute_by_index (
+            outf, partidx, EXR_ATTR_LIST_FILE_ORDER, 15, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_get_attribute_by_index (
+            outf, partidx, (enum exr_attr_list_access_mode) 42, 15, &attrget));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_attribute_by_index (
+            outf, partidx, EXR_ATTR_LIST_FILE_ORDER, -1, &attrget));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_attribute_by_index (
+            outf, partidx, EXR_ATTR_LIST_FILE_ORDER, 1234, &attrget));
+    EXRCORE_TEST_RVAL (exr_get_attribute_by_index (
+        outf, partidx, EXR_ATTR_LIST_FILE_ORDER, 15, &attrget));
+    EXRCORE_TEST_RVAL (exr_get_attribute_by_index (
+        outf, partidx, EXR_ATTR_LIST_SORTED_ORDER, 15, &attrget));
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_get_attribute_by_name (NULL, partidx, "tv3f", &attrget));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_attribute_by_name (outf, -1, "tv3f", &attrget));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_attribute_by_name (outf, 1, "tv3f", &attrget));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_get_attribute_by_name (outf, partidx, "tv3f", NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_get_attribute_by_name (outf, partidx, NULL, &attrget));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_get_attribute_by_name (outf, partidx, "", &attrget));
+    EXRCORE_TEST_RVAL (
+        exr_get_attribute_by_name (outf, partidx, "tv3f", &attrget));
+
+    const exr_attribute_t** attrlistget;
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_get_attribute_list (
+            NULL, partidx, EXR_ATTR_LIST_FILE_ORDER, &attrcnt, &attrget));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_attribute_list (
+            outf, -1, EXR_ATTR_LIST_FILE_ORDER, &attrcnt, &attrget));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_attribute_list (
+            outf, 1, EXR_ATTR_LIST_FILE_ORDER, &attrcnt, &attrget));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_get_attribute_list (
+            outf, partidx, EXR_ATTR_LIST_FILE_ORDER, NULL, &attrget));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_get_attribute_list (
+            outf,
+            partidx,
+            (enum exr_attr_list_access_mode) 42,
+            &attrcnt,
+            &attrget));
+    attrcnt = 1;
+    EXRCORE_TEST_RVAL (exr_get_attribute_list (
+        outf, partidx, EXR_ATTR_LIST_FILE_ORDER, &attrcnt, &attrget));
+    attrlistget =
+        (const exr_attribute_t**) malloc (attrcnt * sizeof (exr_attribute_t*));
+    if (attrlistget)
+    {
+        EXRCORE_TEST_RVAL (exr_get_attribute_list (
+            outf, partidx, EXR_ATTR_LIST_FILE_ORDER, &attrcnt, attrlistget));
+        EXRCORE_TEST_RVAL (exr_get_attribute_list (
+            outf, partidx, EXR_ATTR_LIST_SORTED_ORDER, &attrcnt, attrlistget));
+        free (attrlistget);
     }
 
     EXRCORE_TEST_RVAL (exr_write_header (outf));
@@ -899,8 +1195,7 @@ testWriteTiles (const std::string& tempdir)
         }
         ++ty;
     }
-    if (cmem)
-        free (cmem);
+    if (cmem) free (cmem);
     EXRCORE_TEST_RVAL (exr_finish (&f));
     EXRCORE_TEST_RVAL (exr_finish (&outf));
 

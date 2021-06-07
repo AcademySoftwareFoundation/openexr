@@ -21,4 +21,6 @@ void testReadTiles( const std::string &tempdir );
 void testReadMultiPart( const std::string &tempdir );
 void testReadDeep( const std::string &tempdir );
 
+void testReadUnpack( const std::string &tempdir );
+
 #endif // OPENEXR_CORE_TEST_READ_H
