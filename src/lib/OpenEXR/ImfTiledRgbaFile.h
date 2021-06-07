@@ -305,7 +305,7 @@ class IMF_EXPORT_TYPE TiledRgbaOutputFile
 // Tiled RGBA input file
 //
 
-class TiledRgbaInputFile
+class IMF_EXPORT_TYPE TiledRgbaInputFile
 {
   public:
 
