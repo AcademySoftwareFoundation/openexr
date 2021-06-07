@@ -5,10 +5,10 @@
 
 /* implementation for windows (win32) native file io routines (used in context.c) */
 
-#include <windows.h>
 #include <fileapi.h>
 #include <inttypes.h>
 #include <strsafe.h>
+#include <windows.h>
 
 #ifdef _MSC_VER
 #    ifndef PRId64
@@ -248,7 +248,9 @@ default_write_func (
     int64_t                          retsz = -1;
     struct _internal_exr_filehandle* fh    = userdata;
     HANDLE                           fd;
-    const uint8_t*                   curbuf = buffer;
+    DWORD                            nwrote = 0;
+    LARGE_INTEGER                    lint;
+    OVERLAPPED                       overlap = { 0 };
 
     if (!fh)
     {
@@ -267,9 +269,34 @@ default_write_func (
         return retsz;
     }
 
-    /****** TODO ******/
-    if (error_cb)
-        error_cb (ctxt, EXR_ERR_WRITE_IO, "Win32 write function is NYI");
+    if (sz > (uint64_t) (INT32_MAX))
+    {
+        if (error_cb)
+            error_cb (
+                ctxt,
+                EXR_ERR_INVALID_ARGUMENT,
+                "Read request too large for win32 api");
+        return retsz;
+    }
+
+    lint.QuadPart      = offset;
+    overlap.Offset     = lint.LowPart;
+    overlap.OffsetHigh = lint.HighPart;
+    if (WriteFile (fd, buffer, (DWORD) sz, &nwrote, &overlap))
+    {
+        retsz = nwrote;
+    }
+    else
+    {
+        DWORD dw = GetLastError ();
+        print_error_helper (
+            EXR_CTXT (ctxt),
+            EXR_ERR_READ_IO,
+            dw,
+            error_cb,
+            "Unable to write requested data");
+    }
+
     return retsz;
 }
 
