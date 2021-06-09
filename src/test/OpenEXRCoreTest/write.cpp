@@ -579,20 +579,20 @@ testWriteAttrs (const std::string& tempdir)
     memset (&arg, 0, sizeof (arg));                                            \
     EXRCORE_TEST_RVAL_FAIL (                                                   \
         EXR_ERR_MISSING_CONTEXT_ARG,                                           \
-        exr_attr_get_##fnt (NULL, partidx, #arg, &cnt, &oarg));                \
+        exr_attr_get_##fnt (NULL, partidx, #arg, &cnt, oarg));                \
     EXRCORE_TEST_RVAL_FAIL (                                                   \
         EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                         \
-        exr_attr_get_##fnt (outf, -1, #arg, &cnt, &oarg));                     \
+        exr_attr_get_##fnt (outf, -1, #arg, &cnt, oarg));                     \
     EXRCORE_TEST_RVAL_FAIL (                                                   \
         EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                         \
-        exr_attr_get_##fnt (outf, 1, #arg, &cnt, &oarg));                      \
+        exr_attr_get_##fnt (outf, 1, #arg, &cnt, oarg));                      \
     EXRCORE_TEST_RVAL_FAIL (                                                   \
         EXR_ERR_INVALID_ARGUMENT,                                              \
-        exr_attr_get_##fnt (outf, partidx, NULL, &cnt, &oarg));                \
+        exr_attr_get_##fnt (outf, partidx, NULL, &cnt, oarg));                \
     EXRCORE_TEST_RVAL_FAIL (                                                   \
         EXR_ERR_INVALID_ARGUMENT,                                              \
-        exr_attr_get_##fnt (outf, partidx, "", &cnt, &oarg));                  \
-    EXRCORE_TEST_RVAL (exr_attr_get_##fnt (outf, partidx, #arg, &cnt, &oarg))
+        exr_attr_get_##fnt (outf, partidx, "", &cnt, oarg));                  \
+    EXRCORE_TEST_RVAL (exr_attr_get_##fnt (outf, partidx, #arg, &cnt, oarg))
 
 #define TEST_CORNER_CASE_NAME_V(fnt, arg, alt)                                 \
     EXRCORE_TEST_RVAL_FAIL (                                                   \
@@ -770,7 +770,7 @@ testWriteAttrs (const std::string& tempdir)
         float        myfvec[] = { 1.f, 2.f };
         const float* outfvec  = NULL;
         int          fvsz     = 2;
-        TEST_CORNER_CASE_NAME_C (float_vector, myfvec, fvsz, outfvec, int);
+        TEST_CORNER_CASE_NAME_C (float_vector, myfvec, fvsz, &outfvec, int);
         EXRCORE_TEST (fvsz == 2);
         EXRCORE_TEST (outfvec[1] == 2.f);
     }
@@ -897,7 +897,7 @@ testWriteAttrs (const std::string& tempdir)
 
     {
         const char* mysvec[] = { "foo", "bar" };
-        const char* outsvec  = NULL;
+        const char* outsvec[3] = { NULL, NULL, NULL };
         int         svsz     = 2;
         TEST_CORNER_CASE_NAME_C (string_vector, mysvec, svsz, outsvec, int);
         EXRCORE_TEST (svsz == 2);
