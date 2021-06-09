@@ -70,7 +70,7 @@ jobs:
             cc-compiler: gcc
             compiler-desc: GCC 6.3.1
             threads-enabled: 'ON'
-            vfx-cy: 2021.4
+            vfx-cy: 2021
             exclude-tests:
           # Shared, Debug
           - build: 13
@@ -81,7 +81,7 @@ jobs:
             cc-compiler: gcc
             compiler-desc: GCC 6.3.1
             threads-enabled: 'ON'
-            vfx-cy: 2021.4
+            vfx-cy: 2021
             exclude-tests:
           # Static, Release
           - build: 14
@@ -92,7 +92,7 @@ jobs:
             cc-compiler: gcc
             compiler-desc: GCC 6.3.1
             threads-enabled: 'ON'
-            vfx-cy: 2021.4
+            vfx-cy: 2021
             exclude-tests:
           # Static, Debug
           - build: 15
@@ -103,7 +103,7 @@ jobs:
             cc-compiler: gcc
             compiler-desc: GCC 6.3.1
             threads-enabled: 'ON'
-            vfx-cy: 2021.4
+            vfx-cy: 2021
             exclude-tests:
           # -------------------------------------------------------------------
           # GCC, VFX CY2020
@@ -178,7 +178,7 @@ jobs:
             cc-compiler: clang
             compiler-desc: Clang 7
             threads-enabled: 'ON'
-            vfx-cy: 2021.4
+            vfx-cy: 2021
             exclude-tests:
           # Debug
           - build: 17
@@ -189,7 +189,7 @@ jobs:
             cc-compiler: clang
             compiler-desc: Clang 7
             threads-enabled: 'ON'
-            vfx-cy: 2021.4
+            vfx-cy: 2021
             exclude-tests:
           # Static, Release
           - build: 18
@@ -200,7 +200,7 @@ jobs:
             cc-compiler: clang
             compiler-desc: Clang 7
             threads-enabled: 'ON'
-            vfx-cy: 2021.4
+            vfx-cy: 2021
             exclude-tests:
           # Static, Debug
           - build: 19
@@ -211,7 +211,7 @@ jobs:
             cc-compiler: clang
             compiler-desc: Clang 7
             threads-enabled: 'ON'
-            vfx-cy: 2021.4
+            vfx-cy: 2021
             exclude-tests:
           # -------------------------------------------------------------------
           # Clang, VFX CY2020
