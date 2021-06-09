@@ -10,6 +10,7 @@ on:
   schedule:
     # Weekly Sunday build
     - cron: "0 0 * * 0"
+  workflow_dispatch:
 
 jobs:
 
@@ -18,14 +19,14 @@ jobs:
   # ---------------------------------------------------------------------------
 
   linux_sonarcloud:
-    name: 'SonarCloud Linux CentOS 7 VFX CY2020 <GCC 6.3.1>'
+    name: 'SonarCloud Linux CentOS 7 VFX CY2021 <GCC 6.3.1>'
     if: github.repository == 'AcademySoftwareFoundation/openexr'
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
       # DockerHub: https://hub.docker.com/u/aswf
       # Source: https://github.com/AcademySoftwareFoundation/aswf-docker
-      image: aswf/ci-openexr:2020
+      image: aswf/ci-openexr:2021
     env:
       CXX: g++
       CC: gcc
@@ -57,12 +58,13 @@ jobs:
                 -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
                 -DOPENEXR_ENABLE_THREADING='ON'
         working-directory: _build
-      - name: Build
+      - name: Build OpenEXR with build-wrapper
         shell: bash
         run: |
-          cmake --build . \
-                --target install \
-                --config Release
+          build-wrapper-linux-x86-64 --out-dir bw_output \
+                cmake --build . \
+                      --target install \
+                      --config Release
         working-directory: _build
       - name: Test
         run: |
@@ -85,14 +87,14 @@ jobs:
   #  Valgrind memcheck test
   # ------------------------------------------------------------------------------
   linux_valgrind:
-    name: 'Valgrind Linux CentOS 7 VFX CY2020 <GCC 6.3.1>'
+    name: 'Valgrind Linux CentOS 7 VFX CY2021 <GCC 6.3.1>'
     if: github.repository == 'AcademySoftwareFoundation/openexr'
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
       # DockerHub: https://hub.docker.com/u/aswf
       # Source: https://github.com/AcademySoftwareFoundation/aswf-docker
-      image: aswf/ci-openexr:2020
+      image: aswf/ci-openexr:2021
     env:
       CXX: g++
       CC: gcc
@@ -150,14 +152,14 @@ jobs:
   #  Fuzz test
   # ------------------------------------------------------------------------------
   linux_fuzz:
-    name: 'Fuzz Test Linux CentOS 7 VFX CY2020 <GCC 6.3.1>'
+    name: 'Fuzz Test Linux CentOS 7 VFX CY2021 <GCC 6.3.1>'
     if: github.repository == 'AcademySoftwareFoundation/openexr'
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
       # DockerHub: https://hub.docker.com/u/aswf
       # Source: https://github.com/AcademySoftwareFoundation/aswf-docker
-      image: aswf/ci-openexr:2020
+      image: aswf/ci-openexr:2021
     env:
       CXX: g++
       CC: gcc
