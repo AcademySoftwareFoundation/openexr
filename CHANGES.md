@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 2.5.7](#version-257-june-16-2021) June 16, 2021
 * [Version 2.5.6](#version-256-may-17-2021) May 17, 2021
 * [Version 2.5.5](#version-255-february-12-2021) February 12, 2021
 * [Version 2.5.4](#version-254-december-31-2020) December 31, 2020
@@ -40,6 +41,21 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 2.5.7 (June 16, 2021)
+
+Patch release with security and build fixes:
+
+* OSS-fuzz [28051](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28051) Heap-buffer-overflow in Imf_2_5::copyIntoFrameBuffer
+* OSS-fuzz [28155](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28155) Crash in Imf_2_5::PtrIStream::read 
+* Fix pkg-config lib suffix for cmake debug builds
+
+### Merged Pull Requests
+
+* [#1037](https://github.com/AcademySoftwareFoundation/openexr/pull/1037) verify data size in deepscanlines which are not compressed
+* [#1036](https://github.com/AcademySoftwareFoundation/openexr/pull/1036) detect buffer overflows in RleUncompress
+* [#1032](https://github.com/AcademySoftwareFoundation/openexr/pull/1032) Fix pkg-config lib suffix for cmake debug builds
+* [#872](https://github.com/AcademySoftwareFoundation/openexr/pull/872) Handle xsampling and bad seekg() calls in exrcheck
 
 ## Version 2.5.6 (May 17, 2021)
 
