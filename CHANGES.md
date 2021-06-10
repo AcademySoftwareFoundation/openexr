@@ -6,6 +6,7 @@
 * [Version 3.0.1](#version-301-april-1-2021) April 1, 2021
 * [Version 3.0.1-beta](#version-301-beta-march-28-2021) March 28, 2021
 * [Version 3.0.0-beta](#version-300-beta-march-16-2021) March 16, 2021
+* [Version 2.5.7](#version-257-june-16-2021) June 16, 2021
 * [Version 2.5.6](#version-256-may-17-2021) May 17, 2021
 * [Version 2.5.5](#version-255-february-12-2021) February 12, 2021
 * [Version 2.5.4](#version-254-december-31-2020) December 31, 2020
@@ -301,6 +302,21 @@ Specific OSS-fuzz issues addressed include:
 * [796](https://github.com/AcademySoftwareFoundation/openexr/pull/796)  Initial rename of OpenEXR and IlmBase directories and seperation of Test
 * [791](https://github.com/AcademySoftwareFoundation/openexr/pull/791)  Initial removal of all Imath source files and minimal cmake adjustments
 * [769](https://github.com/AcademySoftwareFoundation/openexr/pull/769)  Bugfix/arkellr remove cvsignore files
+
+## Version 2.5.7 (June 16, 2021)
+
+Patch release with security and build fixes:
+
+* OSS-fuzz [28051](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28051) Heap-buffer-overflow in Imf_2_5::copyIntoFrameBuffer
+* OSS-fuzz [28155](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28155) Crash in Imf_2_5::PtrIStream::read 
+* Fix pkg-config lib suffix for cmake debug builds
+
+### Merged Pull Requests
+
+* [#1037](https://github.com/AcademySoftwareFoundation/openexr/pull/1037) verify data size in deepscanlines which are not compressed
+* [#1036](https://github.com/AcademySoftwareFoundation/openexr/pull/1036) detect buffer overflows in RleUncompress
+* [#1032](https://github.com/AcademySoftwareFoundation/openexr/pull/1032) Fix pkg-config lib suffix for cmake debug builds
+* [#872](https://github.com/AcademySoftwareFoundation/openexr/pull/872) Handle xsampling and bad seekg() calls in exrcheck
 
 ## Version 2.5.6 (May 17, 2021)
 
