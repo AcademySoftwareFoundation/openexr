@@ -186,10 +186,6 @@ template DeepTiledInputFile* MultiPartInputFile::getInputPart<DeepTiledInputFile
 InputPartData*
 MultiPartInputFile::getPart(int partNumber)
 {
-    if(partNumber<0 || partNumber >= _data->_headers.size())
-    {
-        THROW ( IEX_NAMESPACE::ArgExc , "MultiPartInputFile::getPart called with invalid part " << partNumber << " on file with " << _data->_headers.size() << " parts");
-    }
     return _data->getPart(partNumber);
 }
 
