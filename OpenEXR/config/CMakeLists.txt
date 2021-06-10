@@ -77,7 +77,8 @@ if(OPENEXR_INSTALL_PKG_CONFIG)
     set(exec_prefix "\${prefix}")
     set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
     set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
-    set(LIB_SUFFIX_DASH ${OPENEXR_LIB_SUFFIX})
+    string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
+    set(LIB_SUFFIX_DASH ${OPENEXR_LIB_SUFFIX}${CMAKE_${uppercase_CMAKE_BUILD_TYPE}_POSTFIX})
     if(TARGET Threads::Threads)
       # hrm, can't use properties as they end up as generator expressions
       # which don't seem to evaluate
