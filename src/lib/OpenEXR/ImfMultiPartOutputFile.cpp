@@ -263,9 +263,9 @@ MultiPartOutputFile::MultiPartOutputFile(OStream& os,
 const Header &
 MultiPartOutputFile::header(int n) const
 {
-    if(n<0 || n>int(_data->_headers.size()))
+    if(n<0 || n >= int(_data->_headers.size()))
     {
-        throw IEX_NAMESPACE::ArgExc("MultiPartOutputFile::header called with invalid part number");
+        THROW ( IEX_NAMESPACE::ArgExc , "MultiPartOutputFile::header called with invalid part number " << n << " on file with " << _data->_headers.size() << " parts");
     }
     return _data->_headers[n];
 }
@@ -292,6 +292,12 @@ template <class T>
 T*
 MultiPartOutputFile::getOutputPart(int partNumber)
 {
+
+    if(partNumber<0 || partNumber >= int(_data->_headers.size()))
+    {
+        THROW ( IEX_NAMESPACE::ArgExc , "MultiPartOutputFile::getOutputPart called with invalid part number  " << partNumber << " on file with " << _data->_headers.size() << " parts");
+    }
+
 #if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock(*_data);
 #endif
