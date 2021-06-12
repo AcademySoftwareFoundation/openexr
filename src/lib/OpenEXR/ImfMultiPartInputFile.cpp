@@ -194,6 +194,10 @@ MultiPartInputFile::getPart(int partNumber)
 const Header &
  MultiPartInputFile::header(int n) const
 {
+    if(n<0 || n >= _data->_headers.size())
+    {
+        THROW ( IEX_NAMESPACE::ArgExc , " MultiPartInputFile::header called with invalid part " << n << " on file with " << _data->_headers.size() << " parts");
+    }
     return _data->_headers[n];
 }
 
@@ -753,7 +757,9 @@ InputPartData*
 MultiPartInputFile::Data::getPart(int partNumber)
 {
     if (partNumber < 0 || partNumber >= (int) parts.size())
-        throw IEX_NAMESPACE::ArgExc ("Part number is not in valid range.");
+    {
+            THROW ( IEX_NAMESPACE::ArgExc , "MultiPartInputFile::getPart called with invalid part " << partNumber << " on file with " << parts.size() << " parts");
+    }
     return parts[partNumber];
 }
 
@@ -823,6 +829,11 @@ MultiPartInputFile::version() const
 bool 
 MultiPartInputFile::partComplete(int part) const
 {
+
+    if(part<0 || part >= _data->_headers.size())
+    {
+        THROW ( IEX_NAMESPACE::ArgExc , "MultiPartInputFile::partComplete called with invalid part " << part << " on file with " << _data->_headers.size() << " parts");
+    }
   return _data->parts[part]->completed;
 }
 
