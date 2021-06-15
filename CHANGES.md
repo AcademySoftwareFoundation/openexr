@@ -48,14 +48,15 @@ Patch release with security and build fixes:
 
 * OSS-fuzz [28051](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28051) Heap-buffer-overflow in Imf_2_5::copyIntoFrameBuffer
 * OSS-fuzz [28155](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28155) Crash in Imf_2_5::PtrIStream::read 
-* Fix pkg-config lib suffix for cmake debug builds
+* Fix broken symlink and pkg-config lib suffix for cmake debug builds
 
 ### Merged Pull Requests
 
-* [#1037](https://github.com/AcademySoftwareFoundation/openexr/pull/1037) verify data size in deepscanlines which are not compressed
-* [#1036](https://github.com/AcademySoftwareFoundation/openexr/pull/1036) detect buffer overflows in RleUncompress
-* [#1032](https://github.com/AcademySoftwareFoundation/openexr/pull/1032) Fix pkg-config lib suffix for cmake debug builds
-* [#872](https://github.com/AcademySoftwareFoundation/openexr/pull/872) Handle xsampling and bad seekg() calls in exrcheck
+* [1052](https://github.com/AcademySoftwareFoundation/openexr/pull/1052) Fix non-versioned library symlinks in debug build. 
+* [1037](https://github.com/AcademySoftwareFoundation/openexr/pull/1037) verify data size in deepscanlines which are not compressed
+* [1036](https://github.com/AcademySoftwareFoundation/openexr/pull/1036) detect buffer overflows in RleUncompress
+* [1032](https://github.com/AcademySoftwareFoundation/openexr/pull/1032) Fix pkg-config lib suffix for cmake debug builds
+* [872](https://github.com/AcademySoftwareFoundation/openexr/pull/872) Handle xsampling and bad seekg() calls in exrcheck
 
 ## Version 2.5.6 (May 17, 2021)
 
