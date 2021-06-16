@@ -29,6 +29,7 @@
 #include "ImfChromaticitiesAttribute.h"
 #include "ImfEnvmapAttribute.h"
 #include "ImfDeepImageStateAttribute.h"
+#include "ImfIntAttribute.h"
 #include "ImfFloatAttribute.h"
 #include "ImfKeyCodeAttribute.h"
 #include "ImfMatrixAttribute.h"
