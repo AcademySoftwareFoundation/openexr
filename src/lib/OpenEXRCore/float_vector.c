@@ -17,7 +17,7 @@ exr_attr_float_vector_init (
     exr_context_t ctxt, exr_attr_float_vector_t* fv, int32_t nent)
 {
     exr_attr_float_vector_t nil   = { 0 };
-    size_t                  bytes = (size_t) nent * sizeof (float);
+    size_t                  bytes = (size_t)(nent) * sizeof (float);
 
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 

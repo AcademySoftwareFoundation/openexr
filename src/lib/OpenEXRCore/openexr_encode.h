@@ -48,7 +48,7 @@ typedef struct _exr_encode_pipeline
      */
     void* encoding_user_data;
 
-    /** the (compressed) buffer.
+    /** the packed buffer where individual channels have been put into here.
      *
      * If null, will be allocated during the run of the pipeline.
      *
@@ -57,7 +57,6 @@ typedef struct _exr_encode_pipeline
      * custom allocators.
      */
     void* packed_buffer;
-    /** for deep data */
     uint64_t packed_bytes;
 
     /** used when re-using the same encode pipeline struct to know if

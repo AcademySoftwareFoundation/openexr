@@ -441,37 +441,41 @@ exr_attr_list_find_by_name (
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid list pointer passed to find_by_name");
 
-    first = list->sorted_entries;
-    count = list->num_attributes;
-    end   = first + count;
-    /* lower bound search w/ equality check */
-    while (count > 0)
+    if (list->sorted_entries)
     {
-        it   = first;
-        step = count / 2;
-        it += step;
-        cmp = strcmp ((*it)->name, name);
-        if (cmp == 0)
+        first = list->sorted_entries;
+        count = list->num_attributes;
+        end   = first + count;
+        /* lower bound search w/ equality check */
+        while (count > 0)
         {
-            // early exit
-            *out = (*it);
+            it   = first;
+            step = count / 2;
+            it += step;
+            cmp = strcmp ((*it)->name, name);
+            if (cmp == 0)
+            {
+                // early exit
+                *out = (*it);
+                return EXR_ERR_SUCCESS;
+            }
+
+            if (cmp < 0)
+            {
+                first = ++it;
+                count -= step + 1;
+            }
+            else
+                count = step;
+        }
+
+        if (first && first < end && 0 == strcmp ((*first)->name, name))
+        {
+            *out = (*first);
             return EXR_ERR_SUCCESS;
         }
-
-        if (cmp < 0)
-        {
-            first = ++it;
-            count -= step + 1;
-        }
-        else
-            count = step;
     }
 
-    if (first && first < end && 0 == strcmp ((*first)->name, name))
-    {
-        *out = (*first);
-        return EXR_ERR_SUCCESS;
-    }
     return EXR_ERR_NO_ATTR_BY_NAME;
 }
 
@@ -645,6 +649,92 @@ check_attr_handler (struct _internal_exr_context* pctxt, exr_attribute_t* attr)
 
 /**************************************/
 
+static exr_result_t
+create_attr_block (
+    struct _internal_exr_context* pctxt,
+    exr_attribute_t**             attr,
+    size_t                        dblocksize,
+    int32_t                       data_len,
+    uint8_t**                     data_ptr,
+    const char*                   name,
+    int32_t                       nlen,
+    const char*                   type,
+    int32_t                       tlen)
+{
+    size_t           alignpad1, alignpad2;
+    size_t           attrblocksz = sizeof (exr_attribute_t);
+    uint8_t*         ptr;
+    exr_attribute_t* nattr;
+    exr_attribute_t  nil = { 0 };
+
+    if (nlen > 0) attrblocksz += (size_t) (nlen + 1);
+    if (tlen > 0) attrblocksz += (size_t) (tlen + 1);
+
+    if (dblocksize > 0)
+    {
+        alignpad1 = _Alignof(void*) - (attrblocksz % _Alignof(void*));
+        if (alignpad1 == _Alignof(void*)) alignpad1 = 0;
+        attrblocksz += alignpad1;
+        attrblocksz += dblocksize;
+    }
+    else
+        alignpad1 = 0;
+
+    if (data_len > 0)
+    {
+        /* align the extra data to a pointer */
+        alignpad2 = _Alignof(void*) - (attrblocksz % _Alignof(void*));
+        if (alignpad2 == _Alignof(void*)) alignpad2 = 0;
+        attrblocksz += alignpad2;
+        attrblocksz += (size_t) data_len;
+    }
+    else
+        alignpad2 = 0;
+
+    ptr = (uint8_t*) pctxt->alloc_fn (attrblocksz);
+    if (!ptr) return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
+
+    nattr  = (exr_attribute_t*) ptr;
+    *nattr = nil;
+    *attr  = nattr;
+    ptr += sizeof (exr_attribute_t);
+    if (nlen > 0)
+    {
+        memcpy (ptr, name, (size_t) (nlen + 1));
+        nattr->name        = (char*) ptr;
+        nattr->name_length = (uint8_t) nlen;
+
+        ptr += nlen + 1;
+    }
+    if (tlen > 0)
+    {
+        memcpy (ptr, type, (size_t) (tlen + 1));
+        nattr->type_name        = (char*) ptr;
+        nattr->type_name_length = (uint8_t) tlen;
+
+        ptr += tlen + 1;
+    }
+    ptr += alignpad1;
+    if (dblocksize > 0)
+    {
+        nattr->rawptr = ptr;
+        ptr += dblocksize;
+    }
+    if (data_ptr)
+    {
+        if (data_len > 0)
+        {
+            ptr += alignpad2;
+            *data_ptr = ptr;
+        }
+        else
+            *data_ptr = NULL;
+    }
+    return EXR_ERR_SUCCESS;
+}
+
+/**************************************/
+
 exr_result_t
 exr_attr_list_add_by_type (
     exr_context_t         ctxt,
@@ -660,10 +750,7 @@ exr_attr_list_add_by_type (
     exr_result_t     rval = EXR_ERR_INVALID_ARGUMENT;
     int32_t          nlen, tlen, mlen;
     size_t           slen;
-    size_t           attrblocksz = sizeof (exr_attribute_t);
-    uint8_t*         ptr         = NULL;
-    exr_attribute_t* nattr       = NULL;
-    exr_attribute_t  nil         = { 0 };
+    exr_attribute_t* nattr = NULL;
 
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
@@ -735,68 +822,48 @@ exr_attr_list_add_by_type (
 
     if (known)
     {
-        attrblocksz += (size_t) (nlen + 1);
-        attrblocksz += known->exp_size;
-        attrblocksz += (size_t) data_len;
-        ptr = (uint8_t*) pctxt->alloc_fn (attrblocksz);
-        if (!ptr) return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
-        nattr  = (exr_attribute_t*) ptr;
-        *nattr = nil;
-        ptr += sizeof (exr_attribute_t);
+        rval = create_attr_block (
+            pctxt,
+            &nattr,
+            known->exp_size,
+            data_len,
+            data_ptr,
+            name,
+            nlen,
+            NULL,
+            0);
 
-        memcpy (ptr, name, (size_t) (nlen + 1));
-        nattr->name = (char*) ptr;
-        ptr += nlen + 1;
-
-        nattr->type_name        = known->name;
-        nattr->name_length      = (uint8_t) nlen;
-        nattr->type_name_length = (uint8_t) tlen;
-        nattr->type             = known->type;
-        if (known->exp_size > 0)
+        if (rval == EXR_ERR_SUCCESS)
         {
-            nattr->rawptr = ptr;
-            ptr += known->exp_size;
+            nattr->type_name        = known->name;
+            nattr->type_name_length = (uint8_t) known->name_len;
+            nattr->type             = known->type;
         }
     }
     else
     {
-        attrblocksz += (size_t) (nlen + 1);
-        attrblocksz += (size_t) (tlen + 1);
-        attrblocksz += sizeof (exr_attr_opaquedata_t);
-        attrblocksz += (size_t) data_len;
-        ptr = (uint8_t*) pctxt->alloc_fn (attrblocksz);
-        if (!ptr) return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
-        nattr  = (exr_attribute_t*) ptr;
-        *nattr = nil;
-        ptr += sizeof (exr_attribute_t);
+        rval = create_attr_block (
+            pctxt,
+            &nattr,
+            sizeof (exr_attr_opaquedata_t),
+            data_len,
+            data_ptr,
+            name,
+            nlen,
+            type,
+            tlen);
 
-        memcpy (ptr, name, (size_t) (nlen + 1));
-        nattr->name = (char*) ptr;
-        ptr += nlen + 1;
-
-        memcpy (ptr, type, (size_t) (tlen + 1));
-        nattr->type_name = (char*) ptr;
-        ptr += tlen + 1;
-
-        nattr->name_length      = (uint8_t) nlen;
-        nattr->type_name_length = (uint8_t) tlen;
-        nattr->type             = EXR_ATTR_OPAQUE;
-        nattr->opaque           = (exr_attr_opaquedata_t*) ptr;
-        ptr += sizeof (exr_attr_opaquedata_t);
+        if (rval == EXR_ERR_SUCCESS) nattr->type = EXR_ATTR_OPAQUE;
     }
-    rval = add_to_list (pctxt, list, nattr, name);
+    if (rval == EXR_ERR_SUCCESS) rval = add_to_list (pctxt, list, nattr, name);
     if (rval == EXR_ERR_SUCCESS)
     {
         *attr = nattr;
-        if (data_ptr)
-        {
-            if (data_len > 0)
-                *data_ptr = ptr;
-            else
-                *data_ptr = NULL;
-        }
         check_attr_handler (pctxt, nattr);
     }
+    else if (data_ptr)
+        *data_ptr = NULL;
+
     return rval;
 }
 
@@ -817,10 +884,7 @@ exr_attr_list_add (
     exr_result_t     rval = EXR_ERR_INVALID_ARGUMENT;
     int32_t          nlen, tidx, mlen;
     size_t           slen;
-    size_t           attrblocksz = sizeof (exr_attribute_t);
-    uint8_t*         ptr         = NULL;
-    exr_attribute_t* nattr       = NULL;
-    exr_attribute_t  nil         = { 0 };
+    exr_attribute_t* nattr = NULL;
 
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
@@ -880,45 +944,32 @@ exr_attr_list_add (
 
     known = &(the_predefined_attr_typenames[tidx]);
 
-    attrblocksz += (size_t) (nlen + 1);
-    attrblocksz += known->exp_size;
-    attrblocksz += (size_t) (data_len);
-    ptr = (uint8_t*) pctxt->alloc_fn (attrblocksz);
-    if (!ptr) return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
+    rval = create_attr_block (
+        pctxt,
+        &nattr,
+        known->exp_size,
+        data_len,
+        data_ptr,
+        name,
+        nlen,
+        NULL,
+        0);
 
-    nattr  = (exr_attribute_t*) ptr;
-    *nattr = nil;
-
-    ptr += sizeof (exr_attribute_t);
-    memcpy (ptr, name, (size_t) (nlen + 1));
-    nattr->name = (char*) ptr;
-
-    ptr += nlen + 1;
-    nattr->type_name        = known->name;
-    nattr->name_length      = (uint8_t) nlen;
-    nattr->type_name_length = (uint8_t) known->name_len;
-    nattr->type             = known->type;
-    if (known->exp_size > 0)
+    if (rval == EXR_ERR_SUCCESS)
     {
-        nattr->rawptr = ptr;
-        ptr += known->exp_size;
+        nattr->type_name        = known->name;
+        nattr->type_name_length = (uint8_t) known->name_len;
+        nattr->type             = known->type;
+        rval                    = add_to_list (pctxt, list, nattr, name);
     }
-    else
-        nattr->rawptr = NULL;
 
-    rval = add_to_list (pctxt, list, nattr, name);
     if (rval == EXR_ERR_SUCCESS)
     {
         *attr = nattr;
-        if (data_ptr)
-        {
-            if (data_len > 0)
-                *data_ptr = ptr;
-            else
-                *data_ptr = NULL;
-        }
         check_attr_handler (pctxt, nattr);
     }
+    else if (data_ptr)
+        *data_ptr = NULL;
     return rval;
 }
 
@@ -939,10 +990,7 @@ exr_attr_list_add_static_name (
     int              rval = EXR_ERR_INVALID_ARGUMENT;
     int32_t          nlen, tidx, mlen;
     size_t           slen;
-    size_t           attrblocksz = sizeof (exr_attribute_t);
-    uint8_t*         ptr         = NULL;
-    exr_attribute_t* nattr       = NULL;
-    exr_attribute_t  nil         = { 0 };
+    exr_attribute_t* nattr = NULL;
 
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
@@ -1001,37 +1049,26 @@ exr_attr_list_add_static_name (
     }
     known = &(the_predefined_attr_typenames[tidx]);
 
-    attrblocksz += known->exp_size;
-    attrblocksz += (size_t) data_len;
-    ptr = (uint8_t*) pctxt->alloc_fn (attrblocksz);
-    if (!ptr) return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
-    nattr  = (exr_attribute_t*) ptr;
-    *nattr = nil;
-    ptr += sizeof (exr_attribute_t);
-    nattr->name             = name;
-    nattr->type_name        = known->name;
-    nattr->name_length      = (uint8_t) nlen;
-    nattr->type_name_length = (uint8_t) known->name_len;
-    nattr->type             = known->type;
-    if (known->exp_size > 0)
+    rval = create_attr_block (
+        pctxt, &nattr, known->exp_size, data_len, data_ptr, NULL, 0, NULL, 0);
+
+    if (rval == EXR_ERR_SUCCESS)
     {
-        nattr->rawptr = ptr;
-        ptr += known->exp_size;
+        nattr->name             = name;
+        nattr->type_name        = known->name;
+        nattr->name_length      = (uint8_t) nlen;
+        nattr->type_name_length = (uint8_t) known->name_len;
+        nattr->type             = known->type;
+        rval                    = add_to_list (pctxt, list, nattr, name);
     }
 
-    rval = add_to_list (pctxt, list, nattr, name);
     if (rval == EXR_ERR_SUCCESS)
     {
         *attr = nattr;
-        if (data_ptr)
-        {
-            if (data_len > 0)
-                *data_ptr = ptr;
-            else
-                *data_ptr = NULL;
-        }
         check_attr_handler (pctxt, nattr);
     }
+    else if (data_ptr)
+        *data_ptr = NULL;
     return rval;
 }
 

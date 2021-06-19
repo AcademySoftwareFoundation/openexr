@@ -1081,16 +1081,8 @@ testWriteAttrs (const std::string& tempdir)
     }
 
     EXRCORE_TEST_RVAL (exr_write_header (outf));
-    exr_chunk_block_info_t cinfo = { 0,
-                                     0,
-                                     0,
-                                     1,
-                                     1,
-                                     0,
-                                     0,
-                                     (uint8_t) EXR_STORAGE_SCANLINE,
-                                     EXR_COMPRESSION_ZIP,
-                                     0 };
+    exr_chunk_block_info_t cinfo;
+    EXRCORE_TEST_RVAL (exr_write_scanline_block_info (outf, 0, 0, &cinfo));
     exr_encode_pipeline_t  encoder;
     EXRCORE_TEST_RVAL (exr_encoding_initialize (outf, 0, &cinfo, &encoder));
     const uint8_t rgb[]                   = { 0, 0, 0, 0, 0, 0 };

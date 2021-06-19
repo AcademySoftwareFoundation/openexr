@@ -24,6 +24,9 @@ openexr_define_library(OpenEXRCore
     internal_string_vector.h
     internal_structs.h
     internal_xdr.h
+    internal_rle.c
+    internal_zip.c
+    internal_pxr24.c
 
     attributes.c
     string.c
@@ -49,8 +52,6 @@ openexr_define_library(OpenEXRCore
     coding.c
     decoding.c
     encoding.c
-    compress.c
-    decompress.c
     pack.c
     unpack.c
     validation.c

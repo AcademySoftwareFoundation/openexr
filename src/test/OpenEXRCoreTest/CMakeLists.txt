@@ -7,6 +7,7 @@ add_executable(OpenEXRCoreTest
   general_attr.cpp
   read.cpp
   write.cpp
+  compression.cpp
   )
 target_compile_definitions(OpenEXRCoreTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/../OpenEXRTest/")
 target_link_libraries(OpenEXRCoreTest OpenEXR::OpenEXRCore)
@@ -20,9 +21,7 @@ set_target_properties(OpenEXRCoreTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
   )
 
-if(WIN32)
-  target_link_libraries(OpenEXRCoreTest Imath::Imath)
-endif()
+target_link_libraries(OpenEXRCoreTest Imath::Imath)
 
 if(WIN32 AND (BUILD_SHARED_LIBS OR OPENEXR_BUILD_BOTH_STATIC_SHARED))
   target_compile_definitions(OpenEXRCoreTest PRIVATE OPENEXR_DLL)
@@ -87,4 +86,18 @@ define_openexrcore_tests(
  testWriteTiles
  testWriteMultiPart
  testWriteDeep
+
+ testNoCompression
+ testRLECompression
+ testZIPCompression
+ testZIPSCompression
+ testPIZCompression
+ testPXR24Compression
+ testB44Compression
+ testB44ACompression
+ testDWAACompression
+ testDWABCompression
+ testDeepNoCompression
+ testDeepZIPCompression
+ testDeepZIPSCompression
 )

@@ -109,6 +109,7 @@ testAttrSizes (const std::string& tempdir)
     EXRCORE_TEST (sizeof (exr_attr_v3i_t) == (3 * 4));
     EXRCORE_TEST (sizeof (exr_attr_v3f_t) == (3 * 4));
     EXRCORE_TEST (sizeof (exr_attr_v3d_t) == (3 * 8));
+    EXRCORE_TEST ((offsetof(exr_attr_opaquedata_t, unpack_func_ptr) & alignof (exr_result_t (*) (exr_context_t, const void *, int32_t, int32_t *, void **))) == 0);
 }
 
 static void

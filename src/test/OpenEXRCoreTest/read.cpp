@@ -66,19 +66,24 @@ void
 testReadBadArgs (const std::string& tempdir)
 {
     exr_context_t             f;
-    std::string               fn    = tempdir + "invalid.exr";
+    std::string               fn;
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
     cinit.error_handler_fn          = &err_cb;
 
     exr_set_default_memory_routines (&failable_malloc, &failable_free);
-
+    fn = tempdir;
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT, exr_start_read (NULL, fn.c_str (), NULL));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT, exr_start_read (&f, NULL, NULL));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT, exr_start_read (&f, NULL, &cinit));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT, exr_start_read (&f, "", &cinit));
 
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_READ_IO, exr_start_read (&f, fn.c_str (), &cinit));
+    fn.append( "invalid.exr" );
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_FILE_ACCESS, exr_start_read (&f, fn.c_str (), &cinit));
     EXRCORE_TEST_RVAL_FAIL_MALLOC (
@@ -534,20 +539,20 @@ testReadUnpack (const std::string& tempdir)
         exr_decode_pipeline_t decoder;
         EXRCORE_TEST_RVAL (exr_decoding_initialize (f, 0, &cinfo, &decoder));
 
-        std::unique_ptr<uint8_t[]> gptr{ new uint8_t[24 * 12 * 4] };
-        std::unique_ptr<uint8_t[]> zptr{ new uint8_t[24 * 12 * 2] };
+        std::unique_ptr<float[]> gptr{ new float[24 * 12] };
+        std::unique_ptr<uint16_t[]> zptr{ new uint16_t[24 * 12] };
         memset (gptr.get (), 0, 24 * 12 * 4);
         memset (zptr.get (), 0, 24 * 12 * 2);
-        decoder.channels[0].decode_to_ptr          = gptr.get ();
+        decoder.channels[0].decode_to_ptr          = (uint8_t *)gptr.get ();
         decoder.channels[0].user_pixel_stride      = 4;
         decoder.channels[0].user_line_stride       = 4 * 12;
         decoder.channels[0].user_bytes_per_element = 4;
         decoder.channels[0].user_data_type         = EXR_PIXEL_FLOAT;
-        decoder.channels[1].decode_to_ptr          = zptr.get ();
+        decoder.channels[1].decode_to_ptr          = (uint8_t *)zptr.get ();
         decoder.channels[1].user_pixel_stride      = 2;
         decoder.channels[1].user_line_stride       = 2 * 12;
         decoder.channels[1].user_bytes_per_element = 2;
-        decoder.channels[0].user_data_type         = EXR_PIXEL_HALF;
+        decoder.channels[1].user_data_type         = EXR_PIXEL_HALF;
 
         EXRCORE_TEST_RVAL (
             exr_decoding_choose_default_routines (f, 0, &decoder));

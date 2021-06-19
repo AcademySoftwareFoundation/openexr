@@ -8,6 +8,11 @@
 
 #include "openexr_decode.h"
 
+/*
+ * for uncompressing, we might be doing either the deep sample count
+ * table or the actual pixel data so need to receive the destination
+ * pointers
+ */
 exr_result_t internal_exr_undo_rle (
     exr_decode_pipeline_t* decode,
     const void*            compressed_data,
@@ -16,6 +21,24 @@ exr_result_t internal_exr_undo_rle (
     size_t                 uncompressed_size);
 
 exr_result_t internal_exr_undo_zip (
+    exr_decode_pipeline_t* decode,
+    const void*            compressed_data,
+    size_t                 comp_buf_size,
+    void*                  uncompressed_data,
+    size_t                 uncompressed_size,
+    void*                  scratch_data,
+    size_t                 scratch_size);
+
+exr_result_t internal_exr_undo_piz (
+    exr_decode_pipeline_t* decode,
+    const void*            compressed_data,
+    size_t                 comp_buf_size,
+    void*                  uncompressed_data,
+    size_t                 uncompressed_size,
+    void*                  scratch_data,
+    size_t                 scratch_size);
+
+exr_result_t internal_exr_undo_pxr24 (
     exr_decode_pipeline_t* decode,
     const void*            compressed_data,
     size_t                 comp_buf_size,

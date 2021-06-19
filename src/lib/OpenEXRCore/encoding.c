@@ -115,7 +115,23 @@ default_compress_chunk (exr_encode_pipeline_t* encode)
             rv = internal_exr_apply_zip (encode);
             break;
         case EXR_COMPRESSION_PIZ:
+            return pctxt->print_error (
+                pctxt,
+                EXR_ERR_INVALID_ARGUMENT,
+                "Compression technique 0x%02X not yet implemented",
+                (int) part->comp_type);
         case EXR_COMPRESSION_PXR24:
+            rv = alloc_buffer (
+                pctxt,
+                encode,
+                EXR_TRANSCODE_BUFFER_SCRATCH1,
+                &(encode->scratch_buffer_1),
+                &(encode->scratch_alloc_size_1),
+                encode->packed_bytes);
+            if (rv != EXR_ERR_SUCCESS) return rv;
+
+            rv = internal_exr_apply_pxr24 (encode);
+            break;
         case EXR_COMPRESSION_B44:
         case EXR_COMPRESSION_B44A:
         case EXR_COMPRESSION_DWAA:
@@ -158,8 +174,6 @@ default_write_chunk (exr_encode_pipeline_t* encode)
     exr_result_t rv;
 
     if (!encode) return EXR_ERR_INVALID_ARGUMENT;
-    if (!encode->compressed_buffer || encode->compressed_bytes == 0)
-        return EXR_ERR_INVALID_ARGUMENT;
 
     switch (encode->chunk_block.type)
     {
@@ -355,16 +369,14 @@ exr_encoding_run (
     {
         const exr_coding_channel_info_t* encc = (encode->channels + c);
 
+        if (encc->height == 0)
+            continue;
+
         if (encc->width == 0)
             return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->print_error (
                 pctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Unexpected 0-width chunk to encode"));
-        if (encc->height == 0)
-            return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->print_error (
-                pctxt,
-                EXR_ERR_INVALID_ARGUMENT,
-                "Unexpected 0-height chunk to encode"));
         if (!encc->encode_from_ptr)
             return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->print_error (
                 pctxt,
@@ -427,7 +439,7 @@ exr_encoding_run (
 
     if (rv == EXR_ERR_SUCCESS)
     {
-        if (encode->compress_fn) { rv = encode->compress_fn (encode); }
+        if (encode->compress_fn && encode->packed_bytes > 0) { rv = encode->compress_fn (encode); }
         else
         {
             free_buffer (
@@ -438,6 +450,7 @@ exr_encoding_run (
                 &(encode->compressed_alloc_size));
 
             encode->compressed_buffer     = encode->packed_buffer;
+            encode->compressed_bytes      = encode->packed_bytes;
             encode->compressed_alloc_size = 0;
         }
     }

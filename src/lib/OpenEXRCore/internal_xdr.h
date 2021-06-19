@@ -82,6 +82,8 @@
 
 #endif
 
+#include <string.h>
+
 static inline uint64_t one_to_native64( uint64_t v )
 {
     return le64toh( v );
@@ -208,6 +210,36 @@ static inline void priv_from_native( void *ptr, int n, size_t eltsize )
         priv_from_native32( ptr, n );
     else if ( eltsize == 2 )
         priv_from_native16( ptr, n );
+}
+
+/**************************************/
+
+static inline void unaligned_store16( void *dst, uint16_t v )
+{
+    uint16_t xe = one_from_native16( v );
+    memcpy( dst, &xe, 2 );
+}
+
+static inline void unaligned_store32( void *dst, uint32_t v )
+{
+    uint32_t xe = one_from_native32( v );
+    memcpy( dst, &xe, 4 );
+}
+
+/**************************************/
+
+static inline uint16_t unaligned_load16( const void *src )
+{
+    uint16_t tmp;
+    memcpy( &tmp, src, 2 );
+    return one_to_native16( tmp );
+}
+
+static inline uint32_t unaligned_load32( const void *src )
+{
+    uint32_t tmp;
+    memcpy( &tmp, src, 4 );
+    return one_to_native32( tmp );
 }
 
 #endif /* OPENEXR_PRIVATE_XDR_H */

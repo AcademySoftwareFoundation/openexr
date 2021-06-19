@@ -4,8 +4,8 @@
 */
 
 #include "internal_compress.h"
+#include "internal_decompress.h"
 
-#include <zlib.h>
 #include <string.h>
 
 exr_result_t
@@ -19,7 +19,6 @@ internal_exr_apply_rle (exr_encode_pipeline_t* encode)
     size_t        outb = 0;
 
     if (encode->packed_bytes == 0) return EXR_ERR_OUT_OF_MEMORY;
-    if (!encode->scratch_buffer_1) return EXR_ERR_OUT_OF_MEMORY;
     if (!encode->packed_buffer) return EXR_ERR_OUT_OF_MEMORY;
     if (!encode->compressed_buffer) return EXR_ERR_OUT_OF_MEMORY;
 #define MIN_RUN_LENGTH 3
@@ -46,7 +45,7 @@ internal_exr_apply_rle (exr_encode_pipeline_t* encode)
                 ++rune;
             cbuf[outb++] = (int8_t)(runs - rune);
             while (runs < rune)
-                cbuf[outb++] = *(rune++);
+                cbuf[outb++] = *(runs++);
         }
         if (outb > encode->compressed_alloc_size)
             break;
@@ -61,60 +60,63 @@ internal_exr_apply_rle (exr_encode_pipeline_t* encode)
         outb = encode->packed_bytes;
     }
     encode->compressed_bytes = outb;
-    return EXR_ERR_CHUNK_NOT_READY;
+    return EXR_ERR_SUCCESS;
 }
 
+/**************************************/
+
 exr_result_t
-internal_exr_apply_zip (exr_encode_pipeline_t* encode)
+internal_exr_undo_rle (
+    exr_decode_pipeline_t* decode,
+    const void*            src,
+    size_t                 packsz,
+    void*                  out,
+    size_t                 outsz)
 {
-    uint8_t*       t1   = encode->scratch_buffer_1;
-    uint8_t*       t2   = t1 + (encode->packed_bytes + 1) / 2;
-    const uint8_t* raw  = encode->packed_buffer;
-    const uint8_t* stop = raw + encode->packed_bytes;
-    int            p;
-    uLongf         compbufsz = encode->compressed_alloc_size;
+    const signed char* in  = (const signed char*) src;
+    uint8_t*           dst = (uint8_t*) out;
 
-    if (encode->packed_bytes == 0) return EXR_ERR_OUT_OF_MEMORY;
-    if (!encode->scratch_buffer_1) return EXR_ERR_OUT_OF_MEMORY;
-    if (!encode->packed_buffer) return EXR_ERR_OUT_OF_MEMORY;
-    if (!encode->compressed_buffer) return EXR_ERR_OUT_OF_MEMORY;
-
-    /* reorder */
-    while (raw < stop)
+    (void)decode;
+    while (packsz > 0)
     {
-        *(t1++) = *(raw++);
-        if (raw < stop) *(t2++) = *(raw++);
+        if (*in < 0)
+        {
+            size_t count = (size_t)(-((int) *in++));
+            if (packsz >= (count + 1))
+            {
+                packsz -= (count + 1);
+                if (outsz >= count)
+                {
+                    memcpy (dst, in, count);
+                    in += count;
+                    dst += count;
+                }
+                else
+                {
+                    return EXR_ERR_BAD_CHUNK_DATA;
+                }
+            }
+            else
+            {
+                return EXR_ERR_BAD_CHUNK_DATA;
+            }
+        }
+        else if (packsz >= 2)
+        {
+            size_t count = (size_t)( *in++ );
+            packsz -= 2;
+            if (outsz >= (count + 1))
+            {
+                memset (dst, *(const uint8_t*) in, (count + 1));
+                dst += count + 1;
+                outsz -= (count + 1);
+            }
+            else
+            {
+                return EXR_ERR_BAD_CHUNK_DATA;
+            }
+            ++in;
+        }
     }
-
-    /* reorder */
-    t1 = encode->scratch_buffer_1;
-    t2 = t1 + encode->packed_bytes;
-    t1++;
-    p = (int) t1[-1];
-    while (t1 < t2)
-    {
-        int d = (int) (t1[0]) - p + (128 + 256);
-        p     = (int) t1[0];
-        t1[0] = (uint8_t) d;
-        ++t1;
-    }
-
-    if (Z_OK != compress (
-                    (Bytef*) encode->compressed_buffer,
-                    &compbufsz,
-                    (const Bytef*) encode->scratch_buffer_1,
-                    encode->packed_bytes))
-    {
-        return EXR_ERR_BAD_CHUNK_DATA;
-    }
-    if (compbufsz > encode->packed_bytes)
-    {
-        memcpy (
-            encode->compressed_buffer,
-            encode->packed_buffer,
-            encode->packed_bytes);
-        compbufsz = encode->packed_bytes;
-    }
-    encode->compressed_bytes = compbufsz;
     return EXR_ERR_SUCCESS;
 }

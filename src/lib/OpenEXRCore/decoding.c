@@ -25,15 +25,18 @@ free_buffer (
 {
     void*  curbuf = *buf;
     size_t cursz  = *sz;
-    if (curbuf && cursz > 0)
+    if (curbuf)
     {
-        if (decode->free_fn)
-            decode->free_fn (bufid, curbuf);
-        else
-            pctxt->free_fn (curbuf);
+        if (cursz > 0)
+        {
+            if (decode->free_fn)
+                decode->free_fn (bufid, curbuf);
+            else
+                pctxt->free_fn (curbuf);
+        }
         *buf = NULL;
-        *sz  = 0;
     }
+    *sz = 0;
 }
 
 /**************************************/
@@ -84,9 +87,8 @@ update_pack_unpack_ptrs (
             &(decode->unpacked_buffer),
             &(decode->unpacked_alloc_size));
 
-        decode->unpacked_alloc_size = 0;
-        decode->unpacked_buffer     = decode->packed_buffer;
-        rv                          = EXR_ERR_SUCCESS;
+        decode->unpacked_buffer = decode->packed_buffer;
+        rv                      = EXR_ERR_SUCCESS;
     }
     else
     {
@@ -160,6 +162,10 @@ default_read_chunk (exr_decode_pipeline_t* decode)
     exr_result_t rv;
     EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR (
         decode->context, decode->part_index);
+
+    if (decode->unpacked_buffer == decode->packed_buffer &&
+        decode->unpacked_alloc_size == 0)
+        decode->unpacked_buffer = NULL;
 
     rv = alloc_buffer (
         pctxt,
@@ -245,7 +251,30 @@ decompress_data (
                 decode->scratch_alloc_size_1);
             break;
         case EXR_COMPRESSION_PIZ:
+            return pctxt->print_error (
+                pctxt,
+                EXR_ERR_INVALID_ARGUMENT,
+                "Compression technique 0x%02X not yet implemented",
+                ctype);
         case EXR_COMPRESSION_PXR24:
+            rv = alloc_buffer (
+                pctxt,
+                decode,
+                EXR_TRANSCODE_BUFFER_SCRATCH1,
+                &(decode->scratch_buffer_1),
+                &(decode->scratch_alloc_size_1),
+                unpacksz);
+            if (rv != EXR_ERR_SUCCESS) return rv;
+
+            rv = internal_exr_undo_pxr24 (
+                decode,
+                packbufptr,
+                packsz,
+                unpackbufptr,
+                unpacksz,
+                decode->scratch_buffer_1,
+                decode->scratch_alloc_size_1);
+            break;
         case EXR_COMPRESSION_B44:
         case EXR_COMPRESSION_B44A:
         case EXR_COMPRESSION_DWAA:
@@ -272,9 +301,6 @@ default_decompress_chunk (exr_decode_pipeline_t* decode)
     exr_result_t rv;
     EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR (
         decode->context, decode->part_index);
-
-    rv = update_pack_unpack_ptrs (pctxt, decode);
-    if (rv != EXR_ERR_SUCCESS) return rv;
 
     if (part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
         part->storage_mode == EXR_STORAGE_DEEP_TILED)
@@ -318,6 +344,10 @@ default_decompress_chunk (exr_decode_pipeline_t* decode)
             decode->chunk_block.packed_size,
             decode->unpacked_buffer,
             decode->chunk_block.unpacked_size);
+    }
+    else
+    {
+        rv = EXR_ERR_SUCCESS;
     }
 
     return rv;
@@ -437,8 +467,7 @@ exr_decoding_choose_default_routines (
         if (decc->x_samples != 1 || decc->y_samples != 1) hassampling = 1;
 
         ++chanstofill;
-        if (decc->user_pixel_stride != decc->bytes_per_element)
-            ++chanstounpack;
+        if (decc->user_pixel_stride != decc->bytes_per_element) ++chanstounpack;
         if (decc->user_data_type != decc->data_type) ++hastypechange;
 
         if (simplineoff == 0)
@@ -530,12 +559,10 @@ exr_decoding_update (
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid request for decoding update from different context / part");
 
-    if (decode->unpacked_buffer == decode->packed_buffer)
-        decode->unpacked_buffer = NULL;
+    rv = internal_coding_update_channel_info (
+        decode->channels, decode->channel_count, cinfo, pctxt, part);
 
-    rv = internal_coding_update_channel_info( decode->channels, decode->channel_count, cinfo, pctxt, part );
-    if (rv == EXR_ERR_SUCCESS)
-        decode->chunk_block = *cinfo;
+    if (rv == EXR_ERR_SUCCESS) decode->chunk_block = *cinfo;
     return rv;
 }
 
@@ -561,26 +588,12 @@ exr_decoding_run (
             EXR_ERR_INVALID_ARGUMENT,
             "Decode pipeline has no read_fn declared");
     rv = decode->read_fn (decode);
-    if (rv == EXR_ERR_SUCCESS)
-    {
-        if (decode->decompress_fn)
-            rv = decode->decompress_fn (decode);
-        else
-        {
-            free_buffer (
-                pctxt,
-                decode,
-                EXR_TRANSCODE_BUFFER_UNPACKED,
-                &(decode->unpacked_buffer),
-                &(decode->unpacked_alloc_size));
 
-            if (decode->chunk_block.packed_size ==
-                decode->chunk_block.unpacked_size)
-            {
-                decode->unpacked_buffer = decode->packed_buffer;
-            }
-        }
-    }
+    if (rv == EXR_ERR_SUCCESS)
+        rv = update_pack_unpack_ptrs (pctxt, decode);
+
+    if (rv == EXR_ERR_SUCCESS && decode->decompress_fn)
+        rv = decode->decompress_fn (decode);
 
     if (rv == EXR_ERR_SUCCESS && decode->unpack_and_convert_fn)
         rv = decode->unpack_and_convert_fn (decode);

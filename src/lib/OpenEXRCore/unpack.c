@@ -822,8 +822,6 @@ unpack_32bit (exr_decode_pipeline_t* decode)
     return EXR_ERR_SUCCESS;
 }
 
-/**************************************/
-
 static exr_result_t
 generic_unpack (exr_decode_pipeline_t* decode)
 {
@@ -868,8 +866,8 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint16_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    *((uint16_t*) cdata) =
-                                        one_to_native16 (*src++);
+                                    *((uint16_t*) cdata) = unaligned_load16( src );
+                                    ++src;
                                     cdata += pixincrement;
                                 }
                                 break;
@@ -879,7 +877,8 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint16_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    uint16_t cval = one_to_native16 (*src++);
+                                    uint16_t cval = unaligned_load16( src );
+                                    ++src;
                                     *((float*) cdata) = half_to_float (cval);
                                     cdata += pixincrement;
                                 }
@@ -890,7 +889,8 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint16_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    uint16_t cval = one_to_native16 (*src++);
+                                    uint16_t cval = unaligned_load16( src );
+                                    ++src;
                                     *((uint32_t*) cdata) = half_to_uint (cval);
                                     cdata += pixincrement;
                                 }
@@ -907,7 +907,8 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint32_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    uint32_t fint = one_to_native32 (*src++);
+                                    uint32_t fint = unaligned_load32( src );
+                                    ++src;
                                     *((uint16_t*) cdata) =
                                         float_to_half_int (fint);
                                     cdata += pixincrement;
@@ -919,8 +920,8 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint32_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    *((uint32_t*) cdata) =
-                                        one_to_native32 (*src++);
+                                    *((uint32_t*) cdata) = unaligned_load32( src );
+                                    ++src;
                                     cdata += pixincrement;
                                 }
                                 break;
@@ -930,7 +931,8 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint32_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    uint32_t fint = one_to_native32 (*src++);
+                                    uint32_t fint = unaligned_load32( src );
+                                    ++src;
                                     *((uint32_t*) cdata) =
                                         float_to_uint_int (fint);
                                     cdata += pixincrement;
@@ -948,8 +950,9 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint32_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    uint32_t uv = one_to_native32 (*src++);
-                                    *((uint16_t*) cdata) = uint_to_half (uv);
+                                    uint32_t fint = unaligned_load32( src );
+                                    ++src;
+                                    *((uint16_t*) cdata) = uint_to_half (fint);
                                     cdata += pixincrement;
                                 }
                                 break;
@@ -959,8 +962,9 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint32_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    uint32_t uv = one_to_native32 (*src++);
-                                    *((float*) cdata) = uint_to_float (uv);
+                                    uint32_t fint = unaligned_load32( src );
+                                    ++src;
+                                    *((float*) cdata) = uint_to_float (fint);
                                     cdata += pixincrement;
                                 }
                                 break;
@@ -970,8 +974,8 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint32_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    *((uint32_t*) cdata) =
-                                        one_to_native32 (*src++);
+                                    *((uint32_t*) cdata) = unaligned_load32( src );
+                                    ++src;
                                     cdata += pixincrement;
                                 }
                                 break;

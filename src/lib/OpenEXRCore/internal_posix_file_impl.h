@@ -201,7 +201,7 @@ default_read_func (
         error_cb (
             ctxt,
             EXR_ERR_READ_IO,
-            "Unable to read " PRIu64 " bytes: %s",
+            "Unable to read %" PRIu64 " bytes: %s",
             sz,
             strerror (errno));
     return retsz;
@@ -314,7 +314,7 @@ default_write_func (
         error_cb (
             ctxt,
             EXR_ERR_WRITE_IO,
-            "Unable to write " PRIu64 " bytes to stream, wrote " PRId64 ": %s",
+            "Unable to write %" PRIu64 " bytes to stream, wrote %" PRId64 ": %s",
             sz,
             retsz,
             strerror (errno));

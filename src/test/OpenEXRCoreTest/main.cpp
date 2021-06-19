@@ -24,6 +24,7 @@
 #include "general_attr.h"
 #include "read.h"
 #include "write.h"
+#include "compression.h"
 
 #if defined(ANDROID) || defined(__ANDROID_API__)
     #define IMF_TMP_DIR "/sdcard/"
@@ -71,7 +72,7 @@ std::string makeTempDir()
         tempDir = tmpbuf;
         // windows does this automatically
         // tempDir += IMF_PATH_SEPARATOR;
-        tempDir += "IlmImfTest_";
+        tempDir += "OpenEXRTest_";
 
         for (int i = 0; i < 8; ++i)
             tempDir += ('A' + rand48.nexti() % 26);
@@ -89,8 +90,12 @@ std::string makeTempDir()
         }
 #else
         char tmpbuf[4096];
-        strncpy( tmpbuf, IMF_TMP_DIR "OpenEXR_XXXXXX", 4095 );
-        tmpbuf[4095] = '\0';
+
+        memset(tmpbuf, 0, 4096);
+        const char *tmpdirname = IMF_TMP_DIR "OpenEXR_XXXXXX";
+        size_t tlen = strlen(tmpdirname);
+        memcpy( tmpbuf, tmpdirname, tlen );
+
         char *tmpd = mkdtemp( tmpbuf );
         if ( tmpd )
         {
@@ -103,11 +108,11 @@ std::string makeTempDir()
         }
         int status = 0;
 #endif
-        std::cout << "tempDir = " << tempDir << std::endl;
-
         if (status == 0)
         {
             tempDir += IMF_PATH_SEPARATOR;
+
+            std::cout << "tempDir = '" << tempDir << "': " << tempDir.size() << std::endl;
             break; // success
         }
     }
@@ -180,6 +185,21 @@ main (int argc, char *argv[])
     TEST( testWriteTiles, "core_write" );
     TEST( testWriteMultiPart, "core_write" );
     TEST( testWriteDeep, "core_write" );
+
+    TEST( testNoCompression, "core_compression" );
+    TEST( testRLECompression, "core_compression" );
+    TEST( testZIPCompression, "core_compression" );
+    TEST( testZIPSCompression, "core_compression" );
+    TEST( testPIZCompression, "core_compression" );
+    TEST( testPXR24Compression, "core_compression" );
+    TEST( testB44Compression, "core_compression" );
+    TEST( testB44ACompression, "core_compression" );
+    TEST( testDWAACompression, "core_compression" );
+    TEST( testDWABCompression, "core_compression" );
+
+    TEST( testDeepNoCompression, "core_compression" );
+    TEST( testDeepZIPCompression, "core_compression" );
+    TEST( testDeepZIPSCompression, "core_compression" );
 
     if ( helpMode )
     {

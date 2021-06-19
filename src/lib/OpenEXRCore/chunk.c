@@ -511,6 +511,24 @@ exr_read_tile_block_info (
     tileh = part->tile_level_tile_size_y[levely];
     if (tiledesc->y_size < (uint32_t) tileh) tileh = (int) tiledesc->y_size;
 
+    if (((int64_t) (tilex) * (int64_t) (tilew) + (int64_t) (tilew) +
+         (int64_t) (part->data_window.x_min) - 1) >
+        (int64_t) (part->data_window.x_max))
+    {
+        int64_t sz = (int64_t) (part->data_window.x_max) -
+                     (int64_t) (part->data_window.x_min) + 1;
+        tilew = (int) (sz - ((int64_t) (tilex) * (int64_t) (tilew)));
+    }
+
+    if (((int64_t) (tiley) * (int64_t) (tileh) + (int64_t) (tileh) +
+         (int64_t) (part->data_window.y_min) - 1) >
+        (int64_t) (part->data_window.y_max))
+    {
+        int64_t sz = (int64_t) (part->data_window.y_max) -
+                     (int64_t) (part->data_window.y_min) + 1;
+        tileh = (int) (sz - ((int64_t) (tiley) * (int64_t) (tileh)));
+    }
+
     cidx = 0;
     rv   = compute_tile_chunk_off (
         pctxt, part, tilex, tiley, levelx, levely, &cidx);
@@ -519,7 +537,8 @@ exr_read_tile_block_info (
     cinfo->idx         = cidx;
     cinfo->type        = (uint8_t) part->storage_mode;
     cinfo->compression = (uint8_t) part->comp_type;
-    cinfo->start_y     = tileh * tiley;
+    cinfo->start_x     = tilex;
+    cinfo->start_y     = tiley;
     cinfo->height      = tileh;
     cinfo->width       = tilew;
     if (levelx > 255 || levely > 255)
@@ -537,7 +556,6 @@ exr_read_tile_block_info (
     for (int c = 0; c < chanlist->num_channels; ++c)
     {
         const exr_attr_chlist_entry_t* curc = (chanlist->entries + c);
-        //*(chandecodes + c) = nilcd;
         unpacksize +=
             tilew * tileh * ((curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4);
     }
@@ -742,7 +760,7 @@ exr_read_chunk (
     EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
 
     if (!cinfo) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
-    if (!packed_data)
+    if (cinfo->packed_size > 0 && !packed_data)
         return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
 
     if (cinfo->idx < 0 || cinfo->idx >= part->chunk_count)
@@ -777,13 +795,21 @@ exr_read_chunk (
     if (part->comp_type == EXR_COMPRESSION_NONE) rmode = EXR_ALLOW_SHORT_READ;
 
     toread = cinfo->packed_size;
-    nread  = 0;
-    rv =
-        pctxt->do_read (pctxt, packed_data, toread, &dataoffset, &nread, rmode);
+    if (toread > 0)
+    {
+        nread = 0;
+        rv    = pctxt->do_read (
+            pctxt, packed_data, toread, &dataoffset, &nread, rmode);
 
-    if (rmode == EXR_ALLOW_SHORT_READ && nread < (int64_t) toread)
-        memset (
-            ((uint8_t*) packed_data) + nread, 0, toread - (uint64_t) (nread));
+        if (rmode == EXR_ALLOW_SHORT_READ && nread < (int64_t) toread)
+            memset (
+                ((uint8_t*) packed_data) + nread,
+                0,
+                toread - (uint64_t) (nread));
+    }
+    else
+        rv = EXR_ERR_SUCCESS;
+
     return rv;
 }
 
@@ -857,7 +883,7 @@ exr_read_deep_chunk (
 
     if (rv != EXR_ERR_SUCCESS) return rv;
 
-    if (packed_data)
+    if (packed_data && cinfo->packed_size > 0)
     {
         dataoffset = cinfo->data_offset;
         toread     = cinfo->packed_size;
@@ -907,7 +933,7 @@ write_scan_chunk (
     if (pctxt->cur_output_part != part_index)
         return pctxt->standard_error (pctxt, EXR_ERR_PART_NOT_READY);
 
-    if (!packed_data || packed_size == 0)
+    if (packed_size > 0 && !packed_data)
         return pctxt->print_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
@@ -1038,7 +1064,7 @@ write_scan_chunk (
                 sample_data_size,
                 &(pctxt->output_file_offset));
     }
-    if (rv == EXR_ERR_SUCCESS)
+    if (rv == EXR_ERR_SUCCESS && packed_size > 0)
         rv = pctxt->do_write (
             pctxt, packed_data, packed_size, &(pctxt->output_file_offset));
 
@@ -1071,6 +1097,224 @@ write_scan_chunk (
     }
 
     return rv;
+}
+
+/**************************************/
+
+exr_result_t
+exr_write_scanline_block_info (
+    exr_context_t ctxt, int part_index, int y, exr_chunk_block_info_t* cinfo)
+{
+    exr_attr_box2i_t       dw;
+    int                    lpc, miny, cidx;
+    exr_chunk_block_info_t nil = { 0 };
+
+    EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+
+    if (!cinfo)
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT));
+
+    if (part->storage_mode == EXR_STORAGE_TILED ||
+        part->storage_mode == EXR_STORAGE_DEEP_TILED)
+    {
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->standard_error (pctxt, EXR_ERR_SCAN_TILE_MIXEDAPI));
+    }
+
+    if (pctxt->mode != EXR_CONTEXT_WRITING_DATA)
+    {
+        if (pctxt->mode == EXR_CONTEXT_WRITE)
+            return EXR_UNLOCK_AND_RETURN_PCTXT (
+                pctxt->standard_error (pctxt, EXR_ERR_HEADER_NOT_WRITTEN));
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_WRITE));
+    }
+
+    dw = part->data_window;
+    if (y < dw.y_min || y > dw.y_max)
+    {
+        return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
+            pctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Invalid request for scanline %d outside range of data window (%d - %d)",
+            y,
+            dw.y_min,
+            dw.y_max));
+    }
+
+    lpc  = part->lines_per_chunk;
+    cidx = (y - dw.y_min);
+    if (lpc > 1) cidx /= lpc;
+
+    if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
+    {
+        cidx = part->chunk_count - (cidx + 1);
+        miny = dw.y_max - (cidx + 1) * lpc;
+    }
+    else
+    {
+        miny = cidx * lpc + dw.y_min;
+    }
+
+    if (cidx < 0 || cidx >= part->chunk_count)
+    {
+        return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
+            pctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Invalid request for scanline %d in chunk %d outside chunk count %d",
+            y,
+            cidx,
+            part->chunk_count));
+    }
+
+    *cinfo             = nil;
+    cinfo->idx         = cidx;
+    cinfo->type        = (uint8_t) part->storage_mode;
+    cinfo->compression = (uint8_t) part->comp_type;
+    cinfo->start_x     = dw.x_min;
+    cinfo->start_y     = miny;
+    cinfo->width       = dw.x_max - dw.x_min + 1;
+    cinfo->height      = lpc;
+    if (miny < dw.y_min)
+    {
+        cinfo->start_y = dw.y_min;
+        cinfo->height -= (dw.y_min - miny);
+    }
+    else if ((miny + lpc) > dw.y_max)
+    {
+        cinfo->height = (dw.y_max - miny + 1);
+    }
+    cinfo->level_x = 0;
+    cinfo->level_y = 0;
+
+    cinfo->sample_count_data_offset = 0;
+    cinfo->sample_count_table_size  = 0;
+    cinfo->data_offset              = 0;
+    cinfo->packed_size              = 0;
+    cinfo->unpacked_size            = part->unpacked_size_per_chunk;
+
+    return EXR_UNLOCK_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
+}
+
+/**************************************/
+
+exr_result_t
+exr_write_tile_block_info (
+    exr_context_t           ctxt,
+    int                     part_index,
+    int                     tilex,
+    int                     tiley,
+    int                     levelx,
+    int                     levely,
+    exr_chunk_block_info_t* cinfo)
+{
+    exr_result_t               rv;
+    int                        cidx;
+    const exr_attr_chlist_t*   chanlist;
+    const exr_attr_tiledesc_t* tiledesc;
+    int                        tilew, tileh;
+    uint64_t                   unpacksize = 0;
+    exr_chunk_block_info_t     nil        = { 0 };
+
+    EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+
+    if (!cinfo)
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT));
+
+    if (tilex < 0 || tiley < 0 || levelx < 0 || levely < 0)
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT));
+    if (part->storage_mode == EXR_STORAGE_SCANLINE ||
+        part->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
+    {
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->standard_error (pctxt, EXR_ERR_TILE_SCAN_MIXEDAPI));
+    }
+
+    if (!part->tiles || part->num_tile_levels_x <= 0 ||
+        part->num_tile_levels_y <= 0 || !part->tile_level_tile_count_x ||
+        !part->tile_level_tile_count_y)
+    {
+        return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
+            pctxt,
+            EXR_ERR_BAD_CHUNK_DATA,
+            "Request for tile, but no tile data exists"));
+    }
+
+    if (pctxt->mode != EXR_CONTEXT_WRITING_DATA)
+    {
+        if (pctxt->mode == EXR_CONTEXT_WRITE)
+            return EXR_UNLOCK_AND_RETURN_PCTXT (
+                pctxt->standard_error (pctxt, EXR_ERR_HEADER_NOT_WRITTEN));
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_WRITE));
+    }
+
+    tiledesc = part->tiles->tiledesc;
+    tilew    = part->tile_level_tile_size_x[levelx];
+    if (tiledesc->x_size < (uint32_t) tilew) tilew = (int) tiledesc->x_size;
+    tileh = part->tile_level_tile_size_y[levely];
+    if (tiledesc->y_size < (uint32_t) tileh) tileh = (int) tiledesc->y_size;
+
+    if (((int64_t) (tilex) * (int64_t) (tilew) + (int64_t) (tilew) +
+         (int64_t) (part->data_window.x_min) - 1) >
+        (int64_t) (part->data_window.x_max))
+    {
+        int64_t sz = (int64_t) (part->data_window.x_max) -
+                     (int64_t) (part->data_window.x_min) + 1;
+        tilew = (int) (sz - ((int64_t) (tilex) * (int64_t) (tilew)));
+    }
+
+    if (((int64_t) (tiley) * (int64_t) (tileh) + (int64_t) (tileh) +
+         (int64_t) (part->data_window.y_min) - 1) >
+        (int64_t) (part->data_window.y_max))
+    {
+        int64_t sz = (int64_t) (part->data_window.y_max) -
+                     (int64_t) (part->data_window.y_min) + 1;
+        tileh = (int) (sz - ((int64_t) (tiley) * (int64_t) (tileh)));
+    }
+
+    cidx = 0;
+    rv   = compute_tile_chunk_off (
+        pctxt, part, tilex, tiley, levelx, levely, &cidx);
+    if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+
+    *cinfo             = nil;
+    cinfo->idx         = cidx;
+    cinfo->type        = (uint8_t) part->storage_mode;
+    cinfo->compression = (uint8_t) part->comp_type;
+    cinfo->start_x     = tilex;
+    cinfo->start_y     = tiley;
+    cinfo->height      = tileh;
+    cinfo->width       = tilew;
+    if (levelx > 255 || levely > 255)
+        return pctxt->print_error (
+            pctxt,
+            EXR_ERR_ATTR_SIZE_MISMATCH,
+            "Unable to represent tile level %d, %d in chunk structure",
+            levelx,
+            levely);
+
+    cinfo->level_x = (uint8_t) levelx;
+    cinfo->level_y = (uint8_t) levely;
+
+    chanlist = part->channels->chlist;
+    for (int c = 0; c < chanlist->num_channels; ++c)
+    {
+        const exr_attr_chlist_entry_t* curc = (chanlist->entries + c);
+        unpacksize += (uint64_t) (tilew) * (uint64_t) (tileh) *
+                      (uint64_t) ((curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4);
+    }
+
+    cinfo->sample_count_data_offset = 0;
+    cinfo->sample_count_table_size  = 0;
+    cinfo->data_offset              = 0;
+    cinfo->packed_size              = 0;
+    cinfo->unpacked_size            = unpacksize;
+
+    return EXR_UNLOCK_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
 }
 
 /**************************************/
