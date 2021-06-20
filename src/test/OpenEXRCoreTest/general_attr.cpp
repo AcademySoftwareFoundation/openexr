@@ -556,89 +556,89 @@ testChlistHelper (exr_context_t f)
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_MISSING_CONTEXT_ARG,
-        exr_attr_chlist_add (NULL, &cl, "foo", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_attr_chlist_add (NULL, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, NULL, "foo", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_attr_chlist_add (f, NULL, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_LAST_TYPE, 1, 1, 1));
+        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_LAST_TYPE, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "foo", (exr_pixel_type_t) -1, 1, 1, 1));
+        exr_attr_chlist_add (f, &cl, "foo", (exr_pixel_type_t) -1, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, 2, 1, 1));
+        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, (exr_perceptual_treatment_t)2, 1, 1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, 1, 0, 1));
+        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 0, 1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, 1, -1, 1));
+        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, -1, 1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, 1, 1, 0));
+        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 0));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, 1, 1, -1));
+        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LINEAR, 1, -1));
 
     EXRCORE_TEST_RVAL (
-        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, 1, 1, 2));
+        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LINEAR, 1, 2));
     EXRCORE_TEST (cl.num_channels == 1);
     EXRCORE_TEST (0 == strcmp (cl.entries[0].name.str, "foo"));
     EXRCORE_TEST (cl.entries[0].pixel_type == EXR_PIXEL_HALF);
-    EXRCORE_TEST (cl.entries[0].p_linear == EXR_PIXEL_HALF);
+    EXRCORE_TEST (cl.entries[0].p_linear == (uint8_t)EXR_PERCEPTUALLY_LINEAR);
     EXRCORE_TEST (cl.entries[0].x_sampling == 1);
     EXRCORE_TEST (cl.entries[0].y_sampling == 2);
     EXRCORE_TEST_RVAL (exr_attr_chlist_destroy (f, &cl));
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_attr_chlist_add (f, &cl, "", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LINEAR, 1, 1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, NULL, EXR_PIXEL_HALF, 1, 1, 1));
+        exr_attr_chlist_add (f, &cl, NULL, EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LINEAR, 1, 1));
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
         exr_attr_chlist_add_with_length (
-            f, &cl, "R", 0, EXR_PIXEL_HALF, 1, 1, 1));
+            f, &cl, "R", 0, EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LINEAR, 1, 1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_NAME_TOO_LONG,
         exr_attr_chlist_add_with_length (
-            f, &cl, "R", 1024, EXR_PIXEL_HALF, 1, 1, 1));
+            f, &cl, "R", 1024, EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LINEAR, 1, 1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
         exr_attr_chlist_add_with_length (
-            f, &cl, "R", 1, EXR_PIXEL_LAST_TYPE, 1, 1, 1));
+            f, &cl, "R", 1, EXR_PIXEL_LAST_TYPE, EXR_PERCEPTUALLY_LINEAR, 1, 1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
         exr_attr_chlist_add_with_length (
-            f, &cl, "R", 1, EXR_PIXEL_HALF, 7, 1, 1));
+            f, &cl, "R", 1, EXR_PIXEL_HALF, (exr_perceptual_treatment_t)7, 1, 1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
         exr_attr_chlist_add_with_length (
-            f, &cl, "R", 1, EXR_PIXEL_FLOAT, 1, 0, 1));
+            f, &cl, "R", 1, EXR_PIXEL_FLOAT, EXR_PERCEPTUALLY_LOGARITHMIC, 0, 1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
         exr_attr_chlist_add_with_length (
-            f, &cl, "R", 1, EXR_PIXEL_UINT, 1, 1, -1));
+            f, &cl, "R", 1, EXR_PIXEL_UINT, EXR_PERCEPTUALLY_LOGARITHMIC, 1, -1));
     EXRCORE_TEST_RVAL_FAIL_MALLOC (
         EXR_ERR_OUT_OF_MEMORY,
         exr_attr_chlist_add_with_length (
-            f, &cl, "R", 1, EXR_PIXEL_HALF, 1, 1, 1));
+            f, &cl, "R", 1, EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST_RVAL_FAIL_MALLOC_AFTER (
         1,
         EXR_ERR_OUT_OF_MEMORY,
         exr_attr_chlist_add_with_length (
-            f, &cl, "R", 1, EXR_PIXEL_HALF, 1, 1, 1));
+            f, &cl, "R", 1, EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
 
     EXRCORE_TEST_RVAL (
-        exr_attr_chlist_add (f, &cl, "R", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_attr_chlist_add (f, &cl, "R", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST_RVAL (
-        exr_attr_chlist_add (f, &cl, "G", EXR_PIXEL_FLOAT, 1, 1, 1));
+        exr_attr_chlist_add (f, &cl, "G", EXR_PIXEL_FLOAT, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST_RVAL (
-        exr_attr_chlist_add (f, &cl, "B", EXR_PIXEL_UINT, 1, 1, 1));
+        exr_attr_chlist_add (f, &cl, "B", EXR_PIXEL_UINT, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST (cl.num_channels == 3);
     EXRCORE_TEST (0 == strcmp (cl.entries[0].name.str, "B"));
     EXRCORE_TEST (0 == strcmp (cl.entries[1].name.str, "G"));
@@ -646,7 +646,7 @@ testChlistHelper (exr_context_t f)
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "B", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_attr_chlist_add (f, &cl, "B", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST (cl.num_channels == 3);
 
     exr_attr_chlist_t cl2 = { 0 };
@@ -675,7 +675,7 @@ testChlistHelper (exr_context_t f)
             &cl,
             "reallongreallongreallonglongname",
             EXR_PIXEL_HALF,
-            1,
+            EXR_PERCEPTUALLY_LOGARITHMIC,
             1,
             1));
     EXRCORE_TEST_RVAL (exr_attr_chlist_destroy (f, &cl));
@@ -1268,11 +1268,11 @@ testAttrListHelper (exr_context_t f)
         exr_attr_list_add_by_type (f, &al, "d", "chlist", 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_CHLIST);
     EXRCORE_TEST_RVAL (
-        exr_attr_chlist_add (f, out->chlist, "R", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_attr_chlist_add (f, out->chlist, "R", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST_RVAL (
-        exr_attr_chlist_add (f, out->chlist, "G", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_attr_chlist_add (f, out->chlist, "G", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST_RVAL (
-        exr_attr_chlist_add (f, out->chlist, "B", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_attr_chlist_add (f, out->chlist, "B", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
 
     EXRCORE_TEST_RVAL (exr_attr_list_add_by_type (
         f, &al, "e", "chromaticities", 0, NULL, &out));

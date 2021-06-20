@@ -515,7 +515,8 @@ exr_copy_unset_attributes (
     int                                 update_tiles = 0;
     EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
 
-    if (!srcctxt) return EXR_UNLOCK_AND_RETURN_PCTXT (EXR_ERR_MISSING_CONTEXT_ARG);
+    if (!srcctxt)
+        return EXR_UNLOCK_AND_RETURN_PCTXT (EXR_ERR_MISSING_CONTEXT_ARG);
     if (srcctxt != pctxt) EXR_LOCK (srcctxt);
 
     if (src_part_index < 0 || src_part_index >= srcctxt->num_parts)
@@ -637,13 +638,13 @@ exr_get_channels (
 
 exr_result_t
 exr_add_channel (
-    exr_context_t    ctxt,
-    int              part_index,
-    const char*      name,
-    exr_pixel_type_t ptype,
-    uint8_t          islinear,
-    int32_t          xsamp,
-    int32_t          ysamp)
+    exr_context_t              ctxt,
+    int                        part_index,
+    const char*                name,
+    exr_pixel_type_t           ptype,
+    exr_perceptual_treatment_t islinear,
+    int32_t                    xsamp,
+    int32_t                    ysamp)
 {
     REQ_ATTR_FIND_CREATE (channels, EXR_ATTR_CHLIST);
     if (rv == EXR_ERR_SUCCESS)
@@ -1050,8 +1051,7 @@ exr_result_t
 exr_set_version (exr_context_t ctxt, int part_index, int32_t val)
 {
     /* version number for deep data, expect 1 */
-    if (val <= 0 || val > 1)
-        return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+    if (val <= 0 || val > 1) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
 
     REQ_ATTR_FIND_CREATE (version, EXR_ATTR_INT);
     if (rv == EXR_ERR_SUCCESS) { attr->i = val; }
@@ -2340,7 +2340,8 @@ exr_attr_set_user (
     opq = attr->opaque;
     if (opq->pack_func_ptr)
     {
-        rv = exr_attr_opaquedata_set_unpacked (ctxt, attr->opaque, EXR_CONST_CAST(void*, out), size);
+        rv = exr_attr_opaquedata_set_unpacked (
+            ctxt, attr->opaque, EXR_CONST_CAST (void*, out), size);
         if (rv == EXR_ERR_SUCCESS)
             rv = exr_attr_opaquedata_pack (ctxt, attr->opaque, NULL, NULL);
     }

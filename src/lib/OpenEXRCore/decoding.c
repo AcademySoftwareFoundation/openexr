@@ -15,73 +15,13 @@
 
 /**************************************/
 
-static void
-free_buffer (
-    const struct _internal_exr_context* pctxt,
-    exr_decode_pipeline_t*              decode,
-    enum transcoding_pipeline_buffer_id bufid,
-    void**                              buf,
-    size_t*                             sz)
-{
-    void*  curbuf = *buf;
-    size_t cursz  = *sz;
-    if (curbuf)
-    {
-        if (cursz > 0)
-        {
-            if (decode->free_fn)
-                decode->free_fn (bufid, curbuf);
-            else
-                pctxt->free_fn (curbuf);
-        }
-        *buf = NULL;
-    }
-    *sz = 0;
-}
-
-/**************************************/
-
 static exr_result_t
-alloc_buffer (
-    const struct _internal_exr_context* pctxt,
-    exr_decode_pipeline_t*              decode,
-    enum transcoding_pipeline_buffer_id bufid,
-    void**                              buf,
-    size_t*                             cursz,
-    size_t                              newsz)
-{
-    void* curbuf = *buf;
-    if (!curbuf || *cursz < newsz)
-    {
-        free_buffer (pctxt, decode, bufid, buf, cursz);
-
-        if (decode->alloc_fn)
-            curbuf = decode->alloc_fn (bufid, newsz);
-        else
-            curbuf = pctxt->alloc_fn (newsz);
-        if (curbuf == NULL)
-            return pctxt->print_error (
-                pctxt,
-                EXR_ERR_OUT_OF_MEMORY,
-                "Unable to allocate %" PRIu64 " bytes",
-                (uint64_t) newsz);
-        *buf   = curbuf;
-        *cursz = newsz;
-    }
-    return EXR_ERR_SUCCESS;
-}
-
-/**************************************/
-
-static exr_result_t
-update_pack_unpack_ptrs (
-    const struct _internal_exr_context* pctxt, exr_decode_pipeline_t* decode)
+update_pack_unpack_ptrs (exr_decode_pipeline_t* decode)
 {
     exr_result_t rv;
     if (decode->chunk_block.packed_size == decode->chunk_block.unpacked_size)
     {
-        free_buffer (
-            pctxt,
+        internal_decode_free_buffer (
             decode,
             EXR_TRANSCODE_BUFFER_UNPACKED,
             &(decode->unpacked_buffer),
@@ -92,8 +32,7 @@ update_pack_unpack_ptrs (
     }
     else
     {
-        rv = alloc_buffer (
-            pctxt,
+        rv = internal_decode_alloc_buffer (
             decode,
             EXR_TRANSCODE_BUFFER_UNPACKED,
             &(decode->unpacked_buffer),
@@ -131,6 +70,7 @@ read_uncompressed_direct (exr_decode_pipeline_t* decode)
 
             if (decc->y_samples > 1)
             {
+                if (((start_y + y) % decc->y_samples) != 0) continue;
                 cdata +=
                     ((uint64_t) (y / decc->y_samples) *
                      (uint64_t) decc->user_line_stride);
@@ -167,8 +107,7 @@ default_read_chunk (exr_decode_pipeline_t* decode)
         decode->unpacked_alloc_size == 0)
         decode->unpacked_buffer = NULL;
 
-    rv = alloc_buffer (
-        pctxt,
+    rv = internal_decode_alloc_buffer (
         decode,
         EXR_TRANSCODE_BUFFER_PACKED,
         &(decode->packed_buffer),
@@ -179,8 +118,7 @@ default_read_chunk (exr_decode_pipeline_t* decode)
     if (part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
         part->storage_mode == EXR_STORAGE_DEEP_TILED)
     {
-        rv = alloc_buffer (
-            pctxt,
+        rv = internal_decode_alloc_buffer (
             decode,
             EXR_TRANSCODE_BUFFER_PACKED_SAMPLES,
             &(decode->packed_sample_count_table),
@@ -218,6 +156,15 @@ decompress_data (
 {
     exr_result_t rv;
 
+    if (packsz == 0) return EXR_ERR_SUCCESS;
+
+    if (packsz == unpacksz && ctype != EXR_COMPRESSION_B44 && ctype != EXR_COMPRESSION_B44A)
+    {
+        if (unpackbufptr != packbufptr)
+            memcpy (unpackbufptr, packbufptr, unpacksz);
+        return EXR_ERR_SUCCESS;
+    }
+
     switch (ctype)
     {
         case EXR_COMPRESSION_NONE:
@@ -232,58 +179,33 @@ decompress_data (
             break;
         case EXR_COMPRESSION_ZIP:
         case EXR_COMPRESSION_ZIPS:
-            rv = alloc_buffer (
-                pctxt,
-                decode,
-                EXR_TRANSCODE_BUFFER_SCRATCH1,
-                &(decode->scratch_buffer_1),
-                &(decode->scratch_alloc_size_1),
-                unpacksz);
-            if (rv != EXR_ERR_SUCCESS) return rv;
-
             rv = internal_exr_undo_zip (
-                decode,
-                packbufptr,
-                packsz,
-                unpackbufptr,
-                unpacksz,
-                decode->scratch_buffer_1,
-                decode->scratch_alloc_size_1);
+                decode, packbufptr, packsz, unpackbufptr, unpacksz);
             break;
         case EXR_COMPRESSION_PIZ:
-            return pctxt->print_error (
-                pctxt,
-                EXR_ERR_INVALID_ARGUMENT,
-                "Compression technique 0x%02X not yet implemented",
-                ctype);
+            rv = internal_exr_undo_piz (
+                decode, packbufptr, packsz, unpackbufptr, unpacksz);
+            break;
         case EXR_COMPRESSION_PXR24:
-            rv = alloc_buffer (
-                pctxt,
-                decode,
-                EXR_TRANSCODE_BUFFER_SCRATCH1,
-                &(decode->scratch_buffer_1),
-                &(decode->scratch_alloc_size_1),
-                unpacksz);
-            if (rv != EXR_ERR_SUCCESS) return rv;
-
             rv = internal_exr_undo_pxr24 (
-                decode,
-                packbufptr,
-                packsz,
-                unpackbufptr,
-                unpacksz,
-                decode->scratch_buffer_1,
-                decode->scratch_alloc_size_1);
+                decode, packbufptr, packsz, unpackbufptr, unpacksz);
             break;
         case EXR_COMPRESSION_B44:
+            rv = internal_exr_undo_b44 (
+                decode, packbufptr, packsz, unpackbufptr, unpacksz);
+            break;
         case EXR_COMPRESSION_B44A:
+            rv = internal_exr_undo_b44a (
+                decode, packbufptr, packsz, unpackbufptr, unpacksz);
+            break;
         case EXR_COMPRESSION_DWAA:
+            rv = internal_exr_undo_dwaa (
+                decode, packbufptr, packsz, unpackbufptr, unpacksz);
+            break;
         case EXR_COMPRESSION_DWAB:
-            return pctxt->print_error (
-                pctxt,
-                EXR_ERR_INVALID_ARGUMENT,
-                "Compression technique 0x%02X not yet implemented",
-                ctype);
+            rv = internal_exr_undo_dwab (
+                decode, packbufptr, packsz, unpackbufptr, unpacksz);
+            break;
         case EXR_COMPRESSION_LAST_TYPE:
         default:
             return pctxt->print_error (
@@ -292,6 +214,7 @@ decompress_data (
                 "Compression technique 0x%02X invalid",
                 ctype);
     }
+
     return rv;
 }
 
@@ -308,8 +231,7 @@ default_decompress_chunk (exr_decode_pipeline_t* decode)
         size_t unpack_sample_size =
             (size_t) (decode->chunk_block.width) * sizeof (int32_t);
 
-        rv = alloc_buffer (
-            pctxt,
+        rv = internal_decode_alloc_buffer (
             decode,
             EXR_TRANSCODE_BUFFER_SAMPLES,
             (void**) &(decode->sample_count_table),
@@ -318,37 +240,24 @@ default_decompress_chunk (exr_decode_pipeline_t* decode)
 
         if (rv != EXR_ERR_SUCCESS) return rv;
 
-        if (decode->chunk_block.sample_count_table_size == unpack_sample_size)
-            memcpy (
-                decode->sample_count_table,
-                decode->packed_sample_count_table,
-                unpack_sample_size);
-        else
-            rv = decompress_data (
-                pctxt,
-                part->comp_type,
-                decode,
-                decode->packed_sample_count_table,
-                decode->chunk_block.sample_count_table_size,
-                decode->sample_count_table,
-                unpack_sample_size);
-    }
-
-    if (decode->unpacked_buffer != decode->packed_buffer)
-    {
         rv = decompress_data (
             pctxt,
             part->comp_type,
             decode,
-            decode->packed_buffer,
-            decode->chunk_block.packed_size,
-            decode->unpacked_buffer,
-            decode->chunk_block.unpacked_size);
+            decode->packed_sample_count_table,
+            decode->chunk_block.sample_count_table_size,
+            decode->sample_count_table,
+            unpack_sample_size);
     }
-    else
-    {
-        rv = EXR_ERR_SUCCESS;
-    }
+
+    rv = decompress_data (
+        pctxt,
+        part->comp_type,
+        decode,
+        decode->packed_buffer,
+        decode->chunk_block.packed_size,
+        decode->unpacked_buffer,
+        decode->chunk_block.unpacked_size);
 
     return rv;
 }
@@ -381,9 +290,18 @@ exr_decoding_initialize (
 
     if (rv == EXR_ERR_SUCCESS)
     {
-        decode->part_index  = part_index;
-        decode->context     = ctxt;
-        decode->chunk_block = *cinfo;
+        size_t unpackbytes = 0;
+        for (int c = 0; c < decode->channel_count; ++c)
+        {
+            const exr_coding_channel_info_t* encc = (decode->channels + c);
+            unpackbytes +=
+                ((uint64_t) (encc->height) * (uint64_t) (encc->width) *
+                 (uint64_t) (encc->bytes_per_element));
+        }
+        decode->part_index                = part_index;
+        decode->context                   = ctxt;
+        decode->chunk_block               = *cinfo;
+        decode->chunk_block.unpacked_size = unpackbytes;
     }
     return rv;
 }
@@ -501,8 +419,7 @@ exr_decoding_choose_default_routines (
 
     /* special case, uncompressed and reading planar data straight in
      * to all the channels */
-    if (!isdeep &&
-        decode->chunk_block.packed_size == decode->chunk_block.unpacked_size &&
+    if (!isdeep && part->comp_type == EXR_COMPRESSION_NONE &&
         chanstounpack == 0 && hastypechange == 0 && chanstofill > 0 &&
         chanstofill == decode->channel_count)
     {
@@ -561,8 +478,20 @@ exr_decoding_update (
 
     rv = internal_coding_update_channel_info (
         decode->channels, decode->channel_count, cinfo, pctxt, part);
+    {
+        size_t unpackbytes = 0;
 
-    if (rv == EXR_ERR_SUCCESS) decode->chunk_block = *cinfo;
+        decode->chunk_block = *cinfo;
+        for (int c = 0; c < decode->channel_count; ++c)
+        {
+            const exr_coding_channel_info_t* encc = (decode->channels + c);
+            unpackbytes +=
+                ((uint64_t) (encc->height) * (uint64_t) (encc->width) *
+                 (uint64_t) (encc->bytes_per_element));
+        }
+        decode->chunk_block.unpacked_size = unpackbytes;
+    }
+
     return rv;
 }
 
@@ -589,8 +518,7 @@ exr_decoding_run (
             "Decode pipeline has no read_fn declared");
     rv = decode->read_fn (decode);
 
-    if (rv == EXR_ERR_SUCCESS)
-        rv = update_pack_unpack_ptrs (pctxt, decode);
+    if (rv == EXR_ERR_SUCCESS) rv = update_pack_unpack_ptrs (decode);
 
     if (rv == EXR_ERR_SUCCESS && decode->decompress_fn)
         rv = decode->decompress_fn (decode);
@@ -617,38 +545,32 @@ exr_decoding_destroy (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
             decode->unpacked_alloc_size == 0)
             decode->unpacked_buffer = NULL;
 
-        free_buffer (
-            pctxt,
+        internal_decode_free_buffer (
             decode,
             EXR_TRANSCODE_BUFFER_PACKED,
             &(decode->packed_buffer),
             &(decode->packed_alloc_size));
-        free_buffer (
-            pctxt,
+        internal_decode_free_buffer (
             decode,
             EXR_TRANSCODE_BUFFER_UNPACKED,
             &(decode->unpacked_buffer),
             &(decode->unpacked_alloc_size));
-        free_buffer (
-            pctxt,
+        internal_decode_free_buffer (
             decode,
             EXR_TRANSCODE_BUFFER_SCRATCH1,
             &(decode->scratch_buffer_1),
             &(decode->scratch_alloc_size_1));
-        free_buffer (
-            pctxt,
+        internal_decode_free_buffer (
             decode,
             EXR_TRANSCODE_BUFFER_SCRATCH2,
             &(decode->scratch_buffer_2),
             &(decode->scratch_alloc_size_2));
-        free_buffer (
-            pctxt,
+        internal_decode_free_buffer (
             decode,
             EXR_TRANSCODE_BUFFER_PACKED_SAMPLES,
             &(decode->packed_sample_count_table),
             &(decode->packed_sample_count_alloc_size));
-        free_buffer (
-            pctxt,
+        internal_decode_free_buffer (
             decode,
             EXR_TRANSCODE_BUFFER_SAMPLES,
             (void**) &(decode->sample_count_table),

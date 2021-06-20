@@ -6,6 +6,7 @@
 #include "internal_compress.h"
 #include "internal_decompress.h"
 
+#include "internal_coding.h"
 #include "internal_xdr.h"
 
 #include <string.h>
@@ -85,26 +86,27 @@ float_to_float24 (float f)
 
 /**************************************/
 
-exr_result_t
-internal_exr_apply_pxr24 (exr_encode_pipeline_t* encode)
+static exr_result_t
+apply_pxr24_impl (exr_encode_pipeline_t* encode)
 {
     uint8_t*       out       = encode->scratch_buffer_1;
-    size_t         nOut      = 0;
+    uint64_t       nOut      = 0;
     const uint8_t* lastIn    = encode->packed_buffer;
     uLongf         compbufsz = encode->compressed_alloc_size;
 
-    if (encode->packed_bytes == 0) return EXR_ERR_OUT_OF_MEMORY;
-    if (!encode->scratch_buffer_1) return EXR_ERR_OUT_OF_MEMORY;
-    if (!encode->packed_buffer) return EXR_ERR_OUT_OF_MEMORY;
-    if (!encode->compressed_buffer) return EXR_ERR_OUT_OF_MEMORY;
-
     for (int y = 0; y < encode->chunk_block.height; ++y)
     {
+        int cury = y + encode->chunk_block.start_y;
+
         for (int c = 0; c < encode->channel_count; ++c)
         {
             const exr_coding_channel_info_t* curc   = encode->channels + c;
             int                              w      = curc->width;
-            size_t                           nBytes = (size_t) (w);
+            uint64_t                         nBytes = (uint64_t) (w);
+
+            if (curc->height == 0 ||
+                (curc->y_samples > 1 && (cury % curc->y_samples) != 0))
+                continue;
 
             switch (curc->data_type)
             {
@@ -233,20 +235,39 @@ internal_exr_apply_pxr24 (exr_encode_pipeline_t* encode)
     return EXR_ERR_SUCCESS;
 }
 
+exr_result_t
+internal_exr_apply_pxr24 (exr_encode_pipeline_t* encode)
+{
+    exr_result_t rv;
+    rv = internal_encode_alloc_buffer (
+        encode,
+        EXR_TRANSCODE_BUFFER_SCRATCH1,
+        &(encode->scratch_buffer_1),
+        &(encode->scratch_alloc_size_1),
+        encode->packed_bytes);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+
+    return apply_pxr24_impl (encode);
+}
+
 /**************************************/
 
-exr_result_t
-internal_exr_undo_pxr24 (
+static exr_result_t
+undo_pxr24_impl (
     exr_decode_pipeline_t* decode,
     const void*            compressed_data,
-    size_t                 comp_buf_size,
+    uint64_t               comp_buf_size,
     void*                  uncompressed_data,
-    size_t                 uncompressed_size,
+    uint64_t               uncompressed_size,
     void*                  scratch_data,
-    size_t                 scratch_size)
+    uint64_t               scratch_size)
 {
-    uLongf outSize = (uLongf) uncompressed_size;
-    int    rstat;
+    uLongf         outSize = (uLongf) uncompressed_size;
+    int            rstat;
+    uint8_t*       out    = uncompressed_data;
+    uint64_t       nOut   = 0;
+    uint64_t       nDec   = 0;
+    const uint8_t* lastIn = scratch_data;
 
     if (scratch_size < uncompressed_size) return EXR_ERR_INVALID_ARGUMENT;
 
@@ -256,122 +277,140 @@ internal_exr_undo_pxr24 (
         (const Bytef*) compressed_data,
         (uLong) comp_buf_size);
 
-    if (rstat == Z_OK)
-    {
-        uint8_t*       out    = uncompressed_data;
-        size_t         nOut   = 0;
-        size_t         nDec   = 0;
-        const uint8_t* lastIn = scratch_data;
+    if (rstat != Z_OK) return EXR_ERR_BAD_CHUNK_DATA;
 
-        for (int y = 0; y < decode->chunk_block.height; ++y)
+    for (int y = 0; y < decode->chunk_block.height; ++y)
+    {
+        int cury = y + decode->chunk_block.start_y;
+
+        for (int c = 0; c < decode->channel_count; ++c)
         {
-            for (int c = 0; c < decode->channel_count; ++c)
+            const exr_coding_channel_info_t* curc = decode->channels + c;
+            int                              w    = curc->width;
+            uint64_t                         nBytes =
+                (uint64_t) (w) * (uint64_t) (curc->bytes_per_element);
+
+            if (curc->height == 0 ||
+                (curc->y_samples > 1 && (cury % curc->y_samples) != 0))
+                continue;
+
+            if (nOut + nBytes > uncompressed_size) return EXR_ERR_OUT_OF_MEMORY;
+
+            switch (curc->data_type)
             {
-                const exr_coding_channel_info_t* curc = decode->channels + c;
-                int                              w    = curc->width;
-                size_t                           nBytes =
-                    (size_t) (w) * (size_t) (curc->bytes_per_element);
-                if (nOut + nBytes > uncompressed_size)
-                    return EXR_ERR_OUT_OF_MEMORY;
+                case EXR_PIXEL_UINT: {
+                    const uint8_t* ptr[4];
+                    uint32_t       pixel = 0;
+                    uint32_t*      dout  = (uint32_t*) (out);
 
-                switch (curc->data_type)
-                {
-                    case EXR_PIXEL_UINT: {
-                        const uint8_t* ptr[4];
-                        uint32_t       pixel = 0;
-                        uint32_t*      dout  = (uint32_t*) (out);
+                    ptr[0] = lastIn;
+                    lastIn += w;
+                    ptr[1] = lastIn;
+                    lastIn += w;
+                    ptr[2] = lastIn;
+                    lastIn += w;
+                    ptr[3] = lastIn;
+                    lastIn += w;
 
-                        ptr[0] = lastIn;
-                        lastIn += w;
-                        ptr[1] = lastIn;
-                        lastIn += w;
-                        ptr[2] = lastIn;
-                        lastIn += w;
-                        ptr[3] = lastIn;
-                        lastIn += w;
+                    if (nDec + nBytes > outSize) return EXR_ERR_BAD_CHUNK_DATA;
 
-                        if (nDec + nBytes > outSize)
-                            return EXR_ERR_BAD_CHUNK_DATA;
-
-                        for (int x = 0; x < w; ++x)
-                        {
-                            uint32_t diff =
-                                (((uint32_t) (*(ptr[0]++)) << 24) |
-                                 ((uint32_t) (*(ptr[1]++)) << 16) |
-                                 ((uint32_t) (*(ptr[2]++)) << 8) |
-                                 ((uint32_t) (*(ptr[3]++))));
-                            pixel += diff;
-                            unaligned_store32( dout, pixel );
-                            ++dout;
-                        }
-                        nDec += nBytes;
-                        break;
+                    for (int x = 0; x < w; ++x)
+                    {
+                        uint32_t diff =
+                            (((uint32_t) (*(ptr[0]++)) << 24) |
+                             ((uint32_t) (*(ptr[1]++)) << 16) |
+                             ((uint32_t) (*(ptr[2]++)) << 8) |
+                             ((uint32_t) (*(ptr[3]++))));
+                        pixel += diff;
+                        unaligned_store32 (dout, pixel);
+                        ++dout;
                     }
-                    case EXR_PIXEL_HALF: {
-                        const uint8_t* ptr[2];
-                        uint32_t       pixel = 0;
-                        uint16_t*      dout  = (uint16_t*) (out);
-
-                        ptr[0] = lastIn;
-                        lastIn += w;
-                        ptr[1] = lastIn;
-                        lastIn += w;
-
-                        if (nDec + nBytes > outSize)
-                            return EXR_ERR_BAD_CHUNK_DATA;
-
-                        for (int x = 0; x < w; ++x)
-                        {
-                            uint32_t diff =
-                                (((uint32_t) (*(ptr[0]++)) << 8) |
-                                 ((uint32_t) (*(ptr[1]++))));
-                            pixel += diff;
-                            unaligned_store16( dout, (uint16_t)pixel );
-                            ++dout;
-                        }
-                        nDec += nBytes;
-                        break;
-                    }
-                    case EXR_PIXEL_FLOAT: {
-                        const uint8_t* ptr[3];
-                        uint32_t       pixel = 0;
-                        uint32_t*      dout  = (uint32_t*) (out);
-
-                        ptr[0] = lastIn;
-                        lastIn += w;
-                        ptr[1] = lastIn;
-                        lastIn += w;
-                        ptr[2] = lastIn;
-                        lastIn += w;
-
-                        if (nDec + (size_t) (w * 3) > outSize)
-                            return EXR_ERR_BAD_CHUNK_DATA;
-
-                        for (int x = 0; x < w; ++x)
-                        {
-                            uint32_t diff =
-                                (((uint32_t) (*(ptr[0]++)) << 24) |
-                                 ((uint32_t) (*(ptr[1]++)) << 16) |
-                                 ((uint32_t) (*(ptr[2]++)) << 8));
-                            pixel += diff;
-                            unaligned_store32( dout, pixel );
-                            ++dout;
-                        }
-                        nDec += (size_t) (w * 3);
-                        break;
-                    }
-                    default: return EXR_ERR_INVALID_ARGUMENT;
+                    nDec += nBytes;
+                    break;
                 }
-                out += nBytes;
-                nOut += nBytes;
-            }
-        }
-        rstat = EXR_ERR_SUCCESS;
-    }
-    else
-    {
-        rstat = EXR_ERR_BAD_CHUNK_DATA;
-    }
+                case EXR_PIXEL_HALF: {
+                    const uint8_t* ptr[2];
+                    uint32_t       pixel = 0;
+                    uint16_t*      dout  = (uint16_t*) (out);
 
-    return rstat;
+                    ptr[0] = lastIn;
+                    lastIn += w;
+                    ptr[1] = lastIn;
+                    lastIn += w;
+
+                    if (nDec + nBytes > outSize) return EXR_ERR_BAD_CHUNK_DATA;
+
+                    for (int x = 0; x < w; ++x)
+                    {
+                        uint32_t diff =
+                            (((uint32_t) (*(ptr[0]++)) << 8) |
+                             ((uint32_t) (*(ptr[1]++))));
+                        pixel += diff;
+                        unaligned_store16 (dout, (uint16_t) pixel);
+                        ++dout;
+                    }
+                    nDec += nBytes;
+                    break;
+                }
+                case EXR_PIXEL_FLOAT: {
+                    const uint8_t* ptr[3];
+                    uint32_t       pixel = 0;
+                    uint32_t*      dout  = (uint32_t*) (out);
+
+                    ptr[0] = lastIn;
+                    lastIn += w;
+                    ptr[1] = lastIn;
+                    lastIn += w;
+                    ptr[2] = lastIn;
+                    lastIn += w;
+
+                    if (nDec + (uint64_t) (w * 3) > outSize)
+                        return EXR_ERR_BAD_CHUNK_DATA;
+
+                    for (int x = 0; x < w; ++x)
+                    {
+                        uint32_t diff =
+                            (((uint32_t) (*(ptr[0]++)) << 24) |
+                             ((uint32_t) (*(ptr[1]++)) << 16) |
+                             ((uint32_t) (*(ptr[2]++)) << 8));
+                        pixel += diff;
+                        unaligned_store32 (dout, pixel);
+                        ++dout;
+                    }
+                    nDec += (uint64_t) (w * 3);
+                    break;
+                }
+                default: return EXR_ERR_INVALID_ARGUMENT;
+            }
+            out += nBytes;
+            nOut += nBytes;
+        }
+    }
+    return EXR_ERR_SUCCESS;
+}
+
+exr_result_t
+internal_exr_undo_pxr24 (
+    exr_decode_pipeline_t* decode,
+    const void*            compressed_data,
+    uint64_t               comp_buf_size,
+    void*                  uncompressed_data,
+    uint64_t               uncompressed_size)
+{
+    exr_result_t rv;
+    rv = internal_decode_alloc_buffer (
+        decode,
+        EXR_TRANSCODE_BUFFER_SCRATCH1,
+        &(decode->scratch_buffer_1),
+        &(decode->scratch_alloc_size_1),
+        uncompressed_size);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+    return undo_pxr24_impl (
+        decode,
+        compressed_data,
+        comp_buf_size,
+        uncompressed_data,
+        uncompressed_size,
+        decode->scratch_buffer_1,
+        decode->scratch_alloc_size_1);
 }

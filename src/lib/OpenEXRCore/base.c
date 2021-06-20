@@ -54,6 +54,7 @@ static const char * the_error_code_names[] =
     "EXR_ERR_USE_TILE_DEEP_WRITE",
     "EXR_ERR_USE_SCAN_NONDEEP_WRITE",
     "EXR_ERR_USE_TILE_NONDEEP_WRITE",
+    "EXR_ERR_FEATURE_NOT_IMPLEMENTED",
     "EXR_ERR_UNKNOWN"
 };
 static int the_error_code_count =
@@ -78,7 +79,7 @@ static const char* the_default_errors[] = {
     "Missing required attribute in part header",
     "Invalid attribute in part header",
     "No attribute by that name in part header",
-    "Mismatch in chunk data vs programmatic value",
+    "Mismatch in chunk data vs computed value",
     "Attribute type mismatch",
     "Attribute type vs. size mismatch",
     "Attempt to use a scanline accessor function for a tiled image",
@@ -91,6 +92,7 @@ static const char* the_default_errors[] = {
     "Use deep tile chunk writer with the sample count table arguments",
     "Use non-deep scanline chunk writer with the sample count table arguments",
     "Use non-deep tile chunk writer with the sample count table arguments",
+    "Feature not yet implemented, please use C++ library",
     "Unknown error code"
 };
 static int the_default_error_count =

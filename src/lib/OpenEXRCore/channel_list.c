@@ -53,13 +53,13 @@ exr_attr_chlist_init (exr_context_t ctxt, exr_attr_chlist_t* clist, int nchans)
 
 exr_result_t
 exr_attr_chlist_add (
-    exr_context_t      ctxt,
-    exr_attr_chlist_t* clist,
-    const char*        name,
-    exr_pixel_type_t   ptype,
-    uint8_t            islinear,
-    int32_t            xsamp,
-    int32_t            ysamp)
+    exr_context_t              ctxt,
+    exr_attr_chlist_t*         clist,
+    const char*                name,
+    exr_pixel_type_t           ptype,
+    exr_perceptual_treatment_t islinear,
+    int32_t                    xsamp,
+    int32_t                    ysamp)
 {
     int32_t len = 0;
     if (name) len = (int32_t) strlen (name);
@@ -71,14 +71,14 @@ exr_attr_chlist_add (
 
 exr_result_t
 exr_attr_chlist_add_with_length (
-    exr_context_t      ctxt,
-    exr_attr_chlist_t* clist,
-    const char*        name,
-    int32_t            namelen,
-    exr_pixel_type_t   ptype,
-    uint8_t            islinear,
-    int32_t            xsamp,
-    int32_t            ysamp)
+    exr_context_t              ctxt,
+    exr_attr_chlist_t*         clist,
+    const char*                name,
+    int32_t                    namelen,
+    exr_pixel_type_t           ptype,
+    exr_perceptual_treatment_t islinear,
+    int32_t                    xsamp,
+    int32_t                    ysamp)
 {
     exr_attr_chlist_entry_t  nent = { 0 };
     exr_attr_chlist_entry_t *nlist, *olist;
@@ -121,11 +121,11 @@ exr_attr_chlist_add_with_length (
             (int) ptype,
             name);
 
-    if (islinear >= 2)
+    if (islinear != EXR_PERCEPTUALLY_LOGARITHMIC && islinear != EXR_PERCEPTUALLY_LINEAR)
         return pctxt->print_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "Invalid linear flag value (%d) adding channel '%s' to list",
+            "Invalid perceptual linear flag value (%d) adding channel '%s' to list",
             (int) islinear,
             name);
 
@@ -166,7 +166,7 @@ exr_attr_chlist_add_with_length (
 
     newcount        = clist->num_channels + 1;
     nent.pixel_type = ptype;
-    nent.p_linear   = islinear;
+    nent.p_linear   = (uint8_t)islinear;
     nent.x_sampling = xsamp;
     nent.y_sampling = ysamp;
 
@@ -231,7 +231,7 @@ exr_attr_chlist_duplicate (
             cur->name.str,
             cur->name.length,
             cur->pixel_type,
-            cur->p_linear,
+            (exr_perceptual_treatment_t)cur->p_linear,
             cur->x_sampling,
             cur->y_sampling);
         if (rv != EXR_ERR_SUCCESS)

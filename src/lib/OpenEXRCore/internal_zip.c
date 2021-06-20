@@ -3,8 +3,11 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
-#include "internal_decompress.h"
 #include "internal_compress.h"
+#include "internal_decompress.h"
+
+#include "internal_coding.h"
+#include "internal_structs.h"
 
 #include <limits.h>
 #include <stdlib.h>
@@ -24,14 +27,14 @@
 
 #ifdef IMF_HAVE_SSE4_1
 static void
-reconstruct (uint8_t* buf, size_t outSize)
+reconstruct (uint8_t* buf, uint64_t outSize)
 {
-    static const size_t bytesPerChunk = sizeof (__m128i);
-    const size_t        vOutSize      = outSize / bytesPerChunk;
-    const __m128i       c             = _mm_set1_epi8 (-128);
-    const __m128i       shuffleMask   = _mm_set1_epi8 (15);
-    __m128i *           vBuf, vPrev;
-    uint8_t             prev;
+    static const uint64_t bytesPerChunk = sizeof (__m128i);
+    const uint64_t        vOutSize      = outSize / bytesPerChunk;
+    const __m128i         c             = _mm_set1_epi8 (-128);
+    const __m128i         shuffleMask   = _mm_set1_epi8 (15);
+    __m128i *             vBuf, vPrev;
+    uint8_t               prev;
 
     /*
      * The first element doesn't have its high bit flipped during compression,
@@ -42,7 +45,7 @@ reconstruct (uint8_t* buf, size_t outSize)
     vBuf  = (__m128i*) buf;
     vPrev = _mm_setzero_si128 ();
 
-    for (size_t i = 0; i < vOutSize; ++i)
+    for (uint64_t i = 0; i < vOutSize; ++i)
     {
         __m128i d = _mm_add_epi8 (_mm_loadu_si128 (vBuf), c);
 
@@ -61,7 +64,7 @@ reconstruct (uint8_t* buf, size_t outSize)
     }
 
     prev = _mm_extract_epi8 (vPrev, 15);
-    for (size_t i = vOutSize * bytesPerChunk; i < outSize; ++i)
+    for (uint64_t i = vOutSize * bytesPerChunk; i < outSize; ++i)
     {
         uint8_t d = prev + buf[i] - 128;
         buf[i]    = d;
@@ -70,7 +73,7 @@ reconstruct (uint8_t* buf, size_t outSize)
 }
 #else
 static void
-reconstruct (uint8_t* buf, size_t sz)
+reconstruct (uint8_t* buf, uint64_t sz)
 {
     uint8_t* t    = buf + 1;
     uint8_t* stop = buf + sz;
@@ -87,17 +90,17 @@ reconstruct (uint8_t* buf, size_t sz)
 
 #ifdef IMF_HAVE_SSE2
 static void
-interleave (uint8_t* out, const uint8_t* source, size_t outSize)
+interleave (uint8_t* out, const uint8_t* source, uint64_t outSize)
 {
-    static const size_t bytesPerChunk = 2 * sizeof (__m128i);
-    const size_t        vOutSize      = outSize / bytesPerChunk;
-    const __m128i*      v1            = (const __m128i*) source;
-    const __m128i*      v2   = (const __m128i*) (source + (outSize + 1) / 2);
-    __m128i*            vOut = (__m128i*) out;
-    const uint8_t *     t1, *t2;
-    uint8_t*            sOut;
+    static const uint64_t bytesPerChunk = 2 * sizeof (__m128i);
+    const uint64_t        vOutSize      = outSize / bytesPerChunk;
+    const __m128i*        v1            = (const __m128i*) source;
+    const __m128i*        v2   = (const __m128i*) (source + (outSize + 1) / 2);
+    __m128i*              vOut = (__m128i*) out;
+    const uint8_t *       t1, *t2;
+    uint8_t*              sOut;
 
-    for (size_t i = 0; i < vOutSize; ++i)
+    for (uint64_t i = 0; i < vOutSize; ++i)
     {
         __m128i a  = _mm_loadu_si128 (v1++);
         __m128i b  = _mm_loadu_si128 (v2++);
@@ -112,14 +115,14 @@ interleave (uint8_t* out, const uint8_t* source, size_t outSize)
     t2   = (const uint8_t*) v2;
     sOut = (uint8_t*) vOut;
 
-    for (size_t i = vOutSize * bytesPerChunk; i < outSize; ++i)
+    for (uint64_t i = vOutSize * bytesPerChunk; i < outSize; ++i)
         *(sOut++) = (i % 2 == 0) ? *(t1++) : *(t2++);
 }
 
 #else
 
 static void
-interleave (uint8_t* out, const uint8_t* source, size_t outSize)
+interleave (uint8_t* out, const uint8_t* source, uint64_t outSize)
 {
     const char* t1   = source;
     const char* t2   = source + (outSize + 1) / 2;
@@ -144,15 +147,14 @@ interleave (uint8_t* out, const uint8_t* source, size_t outSize)
 
 /**************************************/
 
-exr_result_t
-internal_exr_undo_zip (
-    exr_decode_pipeline_t* decode,
-    const void*            compressed_data,
-    size_t                 comp_buf_size,
-    void*                  uncompressed_data,
-    size_t                 uncompressed_size,
-    void*                  scratch_data,
-    size_t                 scratch_size)
+static exr_result_t
+undo_zip_impl (
+    const void* compressed_data,
+    uint64_t    comp_buf_size,
+    void*       uncompressed_data,
+    uint64_t    uncompressed_size,
+    void*       scratch_data,
+    uint64_t    scratch_size)
 {
     uLongf outSize = (uLongf) uncompressed_size;
     int    rstat;
@@ -175,14 +177,40 @@ internal_exr_undo_zip (
         rstat = EXR_ERR_BAD_CHUNK_DATA;
     }
 
-    (void)decode;
-    return (exr_result_t)rstat;
+    return (exr_result_t) rstat;
 }
 
 /**************************************/
 
 exr_result_t
-internal_exr_apply_zip (exr_encode_pipeline_t* encode)
+internal_exr_undo_zip (
+    exr_decode_pipeline_t* decode,
+    const void*            compressed_data,
+    uint64_t               comp_buf_size,
+    void*                  uncompressed_data,
+    uint64_t               uncompressed_size)
+{
+    exr_result_t rv;
+    rv = internal_decode_alloc_buffer (
+        decode,
+        EXR_TRANSCODE_BUFFER_SCRATCH1,
+        &(decode->scratch_buffer_1),
+        &(decode->scratch_alloc_size_1),
+        uncompressed_size);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+    return undo_zip_impl (
+        compressed_data,
+        comp_buf_size,
+        uncompressed_data,
+        uncompressed_size,
+        decode->scratch_buffer_1,
+        decode->scratch_alloc_size_1);
+}
+
+/**************************************/
+
+static exr_result_t
+apply_zip_impl (exr_encode_pipeline_t* encode)
 {
     uint8_t*       t1   = encode->scratch_buffer_1;
     uint8_t*       t2   = t1 + (encode->packed_bytes + 1) / 2;
@@ -190,11 +218,6 @@ internal_exr_apply_zip (exr_encode_pipeline_t* encode)
     const uint8_t* stop = raw + encode->packed_bytes;
     int            p;
     uLongf         compbufsz = encode->compressed_alloc_size;
-
-    if (encode->packed_bytes == 0) return EXR_ERR_OUT_OF_MEMORY;
-    if (!encode->scratch_buffer_1) return EXR_ERR_OUT_OF_MEMORY;
-    if (!encode->packed_buffer) return EXR_ERR_OUT_OF_MEMORY;
-    if (!encode->compressed_buffer) return EXR_ERR_OUT_OF_MEMORY;
 
     /* reorder */
     while (raw < stop)
@@ -234,4 +257,20 @@ internal_exr_apply_zip (exr_encode_pipeline_t* encode)
     }
     encode->compressed_bytes = compbufsz;
     return EXR_ERR_SUCCESS;
+}
+
+exr_result_t
+internal_exr_apply_zip (exr_encode_pipeline_t* encode)
+{
+    exr_result_t rv;
+
+    rv = internal_encode_alloc_buffer (
+        encode,
+        EXR_TRANSCODE_BUFFER_SCRATCH1,
+        &(encode->scratch_buffer_1),
+        &(encode->scratch_alloc_size_1),
+        encode->packed_bytes);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+
+    return apply_zip_impl (encode);
 }

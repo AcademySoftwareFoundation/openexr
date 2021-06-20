@@ -148,6 +148,7 @@ save_chlist (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
     exr_result_t rv;
     size_t       attrsz = 0;
     int32_t      ptype;
+    uint8_t      eol;
     uint8_t      flags[4];
     int32_t      samps[2];
 
@@ -157,6 +158,8 @@ save_chlist (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
         attrsz += (size_t) (centry->name.length + 1);
         attrsz += 16;
     }
+    // for end of list marker
+    attrsz += 1;
 
     rv = save_attr_sz (ctxt, attrsz);
 
@@ -188,6 +191,12 @@ save_chlist (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
         if (rv != EXR_ERR_SUCCESS) break;
         rv = ctxt->do_write (
             ctxt, samps, sizeof (int32_t) * 2, &(ctxt->output_file_offset));
+    }
+    if (rv == EXR_ERR_SUCCESS)
+    {
+        eol = 0;
+        rv = ctxt->do_write (
+            ctxt, &eol, sizeof (uint8_t), &(ctxt->output_file_offset));
     }
     return rv;
 }
@@ -231,14 +240,14 @@ save_float_vector (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
         else
         {
             /* might be static data, take a copy first */
-            float* tmp =
-                ctxt->alloc_fn ((size_t)(a->floatvector->length) * sizeof (float));
+            float* tmp = ctxt->alloc_fn (
+                (size_t) (a->floatvector->length) * sizeof (float));
             if (tmp == NULL)
                 return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
             memcpy (
                 tmp,
                 a->floatvector->arr,
-                (size_t)(a->floatvector->length) * sizeof (float));
+                (size_t) (a->floatvector->length) * sizeof (float));
             rv = save_attr_32 (ctxt, tmp, a->floatvector->length);
             ctxt->free_fn (tmp);
         }
@@ -358,7 +367,10 @@ save_string (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
     rv = save_attr_sz (ctxt, (size_t) tmp->length);
     if (rv == EXR_ERR_SUCCESS)
         rv = ctxt->do_write (
-            ctxt, tmp->str, (uint64_t)(tmp->length), &(ctxt->output_file_offset));
+            ctxt,
+            tmp->str,
+            (uint64_t) (tmp->length),
+            &(ctxt->output_file_offset));
     return rv;
 }
 
@@ -374,7 +386,7 @@ save_string_vector (
     for (int i = 0; i < a->stringvector->n_strings; ++i)
     {
         attrsz += sizeof (int32_t);
-        attrsz += (size_t)a->stringvector->strings[i].length;
+        attrsz += (size_t) a->stringvector->strings[i].length;
     }
 
     rv = save_attr_sz (ctxt, attrsz);
@@ -387,7 +399,10 @@ save_string_vector (
         rv = save_attr_sz (ctxt, (size_t) s->length);
         if (rv == EXR_ERR_SUCCESS)
             rv = ctxt->do_write (
-                ctxt, s->str, (uint64_t)s->length, &(ctxt->output_file_offset));
+                ctxt,
+                s->str,
+                (uint64_t) s->length,
+                &(ctxt->output_file_offset));
     }
 
     return rv;
@@ -621,6 +636,7 @@ internal_exr_write_header (struct _internal_exr_context* ctxt)
             if (rv != EXR_ERR_SUCCESS) break;
         }
 
+        /* indicate this part is finished */
         if (rv == EXR_ERR_SUCCESS)
         {
             next_byte = 0;
@@ -633,7 +649,7 @@ internal_exr_write_header (struct _internal_exr_context* ctxt)
     }
 
     /* for multipart write a double terminator at the end */
-    if (ctxt->is_multipart)
+    if (rv == EXR_ERR_SUCCESS && ctxt->is_multipart)
     {
         next_byte = 0;
         rv        = ctxt->do_write (

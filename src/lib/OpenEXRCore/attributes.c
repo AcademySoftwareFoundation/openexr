@@ -666,14 +666,17 @@ create_attr_block (
     uint8_t*         ptr;
     exr_attribute_t* nattr;
     exr_attribute_t  nil = { 0 };
+    // not all compilers have this :(
+    //const size_t ptralign = _Alignof(void*);
+    const size_t ptralign = 8;
 
     if (nlen > 0) attrblocksz += (size_t) (nlen + 1);
     if (tlen > 0) attrblocksz += (size_t) (tlen + 1);
 
     if (dblocksize > 0)
     {
-        alignpad1 = _Alignof(void*) - (attrblocksz % _Alignof(void*));
-        if (alignpad1 == _Alignof(void*)) alignpad1 = 0;
+        alignpad1 = ptralign - (attrblocksz % ptralign);
+        if (alignpad1 == ptralign) alignpad1 = 0;
         attrblocksz += alignpad1;
         attrblocksz += dblocksize;
     }
@@ -683,8 +686,8 @@ create_attr_block (
     if (data_len > 0)
     {
         /* align the extra data to a pointer */
-        alignpad2 = _Alignof(void*) - (attrblocksz % _Alignof(void*));
-        if (alignpad2 == _Alignof(void*)) alignpad2 = 0;
+        alignpad2 = ptralign - (attrblocksz % ptralign);
+        if (alignpad2 == ptralign) alignpad2 = 0;
         attrblocksz += alignpad2;
         attrblocksz += (size_t) data_len;
     }

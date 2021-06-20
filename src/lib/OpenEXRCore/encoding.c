@@ -12,70 +12,6 @@
 
 /**************************************/
 
-static void
-free_buffer (
-    const struct _internal_exr_context* pctxt,
-    exr_encode_pipeline_t*              encode,
-    enum transcoding_pipeline_buffer_id bufid,
-    void**                              buf,
-    size_t*                             sz)
-{
-    void*  curbuf = *buf;
-    size_t cursz  = *sz;
-    if (curbuf)
-    {
-        if (cursz > 0)
-        {
-            if (encode->free_fn)
-                encode->free_fn (bufid, curbuf);
-            else
-                pctxt->free_fn (curbuf);
-        }
-        *buf = NULL;
-        *sz  = 0;
-    }
-}
-
-/**************************************/
-
-static exr_result_t
-alloc_buffer (
-    const struct _internal_exr_context* pctxt,
-    exr_encode_pipeline_t*              encode,
-    enum transcoding_pipeline_buffer_id bufid,
-    void**                              buf,
-    size_t*                             cursz,
-    size_t                              newsz)
-{
-    void* curbuf = *buf;
-    if (newsz == 0)
-        return pctxt->print_error (
-            pctxt,
-            EXR_ERR_INVALID_ARGUMENT,
-            "Attempt to allocate 0 byte buffer for transcode buffer %d",
-            (int) bufid);
-    if (!curbuf || *cursz < newsz)
-    {
-        free_buffer (pctxt, encode, bufid, buf, cursz);
-
-        if (encode->alloc_fn)
-            curbuf = encode->alloc_fn (bufid, newsz);
-        else
-            curbuf = pctxt->alloc_fn (newsz);
-        if (curbuf == NULL)
-            return pctxt->print_error (
-                pctxt,
-                EXR_ERR_OUT_OF_MEMORY,
-                "Unable to allocate %" PRIu64 " bytes",
-                (uint64_t) newsz);
-        *buf   = curbuf;
-        *cursz = newsz;
-    }
-    return EXR_ERR_SUCCESS;
-}
-
-/**************************************/
-
 static exr_result_t
 default_compress_chunk (exr_encode_pipeline_t* encode)
 {
@@ -83,13 +19,13 @@ default_compress_chunk (exr_encode_pipeline_t* encode)
     EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR_NO_LOCK (
         encode->context, encode->part_index);
 
-    rv = alloc_buffer (
-        pctxt,
+    rv = internal_encode_alloc_buffer (
         encode,
         EXR_TRANSCODE_BUFFER_COMPRESSED,
         &(encode->compressed_buffer),
         &(encode->compressed_alloc_size),
-        encode->packed_bytes * 101 / 100 + 100);
+        (((size_t) encode->packed_bytes) * (size_t) 110) / ((size_t) 100) +
+            65536);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     switch (part->comp_type)
@@ -98,49 +34,19 @@ default_compress_chunk (exr_encode_pipeline_t* encode)
             return pctxt->report_error (
                 pctxt,
                 EXR_ERR_INVALID_ARGUMENT,
-                "no compresssion set but still trying to decompress");
+                "no compresssion set but still trying to compress");
 
         case EXR_COMPRESSION_RLE: rv = internal_exr_apply_rle (encode); break;
         case EXR_COMPRESSION_ZIP:
-        case EXR_COMPRESSION_ZIPS:
-            rv = alloc_buffer (
-                pctxt,
-                encode,
-                EXR_TRANSCODE_BUFFER_SCRATCH1,
-                &(encode->scratch_buffer_1),
-                &(encode->scratch_alloc_size_1),
-                encode->packed_bytes);
-            if (rv != EXR_ERR_SUCCESS) return rv;
-
-            rv = internal_exr_apply_zip (encode);
-            break;
-        case EXR_COMPRESSION_PIZ:
-            return pctxt->print_error (
-                pctxt,
-                EXR_ERR_INVALID_ARGUMENT,
-                "Compression technique 0x%02X not yet implemented",
-                (int) part->comp_type);
+        case EXR_COMPRESSION_ZIPS: rv = internal_exr_apply_zip (encode); break;
+        case EXR_COMPRESSION_PIZ: rv = internal_exr_apply_piz (encode); break;
         case EXR_COMPRESSION_PXR24:
-            rv = alloc_buffer (
-                pctxt,
-                encode,
-                EXR_TRANSCODE_BUFFER_SCRATCH1,
-                &(encode->scratch_buffer_1),
-                &(encode->scratch_alloc_size_1),
-                encode->packed_bytes);
-            if (rv != EXR_ERR_SUCCESS) return rv;
-
             rv = internal_exr_apply_pxr24 (encode);
             break;
-        case EXR_COMPRESSION_B44:
-        case EXR_COMPRESSION_B44A:
-        case EXR_COMPRESSION_DWAA:
-        case EXR_COMPRESSION_DWAB:
-            return pctxt->print_error (
-                pctxt,
-                EXR_ERR_INVALID_ARGUMENT,
-                "Compression technique 0x%02X not yet implemented",
-                (int) part->comp_type);
+        case EXR_COMPRESSION_B44: rv = internal_exr_apply_b44 (encode); break;
+        case EXR_COMPRESSION_B44A: rv = internal_exr_apply_b44a (encode); break;
+        case EXR_COMPRESSION_DWAA: rv = internal_exr_apply_dwaa (encode); break;
+        case EXR_COMPRESSION_DWAB: rv = internal_exr_apply_dwab (encode); break;
         case EXR_COMPRESSION_LAST_TYPE:
         default:
             return pctxt->print_error (
@@ -369,8 +275,7 @@ exr_encoding_run (
     {
         const exr_coding_channel_info_t* encc = (encode->channels + c);
 
-        if (encc->height == 0)
-            continue;
+        if (encc->height == 0) continue;
 
         if (encc->width == 0)
             return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->print_error (
@@ -410,40 +315,45 @@ exr_encoding_run (
                 c,
                 encc->channel_name));
 
-        if (encc->y_samples > 1)
-            packed_bytes += (uint64_t) (encc->height / encc->y_samples) *
-                            (uint64_t) (encc->width) *
-                            (uint64_t) (encc->bytes_per_element);
+        packed_bytes +=
+            ((uint64_t) (encc->height) * (uint64_t) (encc->width) *
+             (uint64_t) (encc->bytes_per_element));
     }
 
+    encode->packed_bytes = 0;
     if (encode->convert_and_pack_fn)
     {
-        rv = alloc_buffer (
-            pctxt,
-            encode,
-            EXR_TRANSCODE_BUFFER_PACKED,
-            &(encode->packed_buffer),
-            &(encode->packed_alloc_size),
-            part->unpacked_size_per_chunk);
+        if (packed_bytes > 0)
+        {
+            rv = internal_encode_alloc_buffer (
+                encode,
+                EXR_TRANSCODE_BUFFER_PACKED,
+                &(encode->packed_buffer),
+                &(encode->packed_alloc_size),
+                packed_bytes);
 
-        if (rv == EXR_ERR_SUCCESS) rv = encode->convert_and_pack_fn (encode);
+            if (rv == EXR_ERR_SUCCESS)
+                rv = encode->convert_and_pack_fn (encode);
+        }
     }
-    else if (!encode->packed_buffer || encode->packed_bytes == 0)
+    else if (!encode->packed_buffer || packed_bytes != encode->compressed_bytes)
     {
         return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->report_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "Encode pipeline has no packing function declared and packed buffer is null / 0 sized"));
+            "Encode pipeline has no packing function declared and packed buffer is null or appears to need packing"));
     }
     EXR_UNLOCK_WRITE (pctxt);
 
     if (rv == EXR_ERR_SUCCESS)
     {
-        if (encode->compress_fn && encode->packed_bytes > 0) { rv = encode->compress_fn (encode); }
+        if (encode->compress_fn && encode->packed_bytes > 0)
+        {
+            rv = encode->compress_fn (encode);
+        }
         else
         {
-            free_buffer (
-                pctxt,
+            internal_encode_free_buffer (
                 encode,
                 EXR_TRANSCODE_BUFFER_UNPACKED,
                 &(encode->compressed_buffer),
@@ -476,32 +386,27 @@ exr_encoding_destroy (exr_const_context_t ctxt, exr_encode_pipeline_t* encode)
         if (encode->channels != encode->_quick_chan_store)
             pctxt->free_fn (encode->channels);
 
-        free_buffer (
-            pctxt,
+        internal_encode_free_buffer (
             encode,
             EXR_TRANSCODE_BUFFER_PACKED,
             &(encode->packed_buffer),
             &(encode->packed_alloc_size));
-        free_buffer (
-            pctxt,
+        internal_encode_free_buffer (
             encode,
             EXR_TRANSCODE_BUFFER_COMPRESSED,
             &(encode->compressed_buffer),
             &(encode->compressed_alloc_size));
-        free_buffer (
-            pctxt,
+        internal_encode_free_buffer (
             encode,
             EXR_TRANSCODE_BUFFER_SCRATCH1,
             &(encode->scratch_buffer_1),
             &(encode->scratch_alloc_size_1));
-        free_buffer (
-            pctxt,
+        internal_encode_free_buffer (
             encode,
             EXR_TRANSCODE_BUFFER_SCRATCH2,
             &(encode->scratch_buffer_2),
             &(encode->scratch_alloc_size_2));
-        free_buffer (
-            pctxt,
+        internal_encode_free_buffer (
             encode,
             EXR_TRANSCODE_BUFFER_PACKED_SAMPLES,
             &(encode->packed_sample_count_table),

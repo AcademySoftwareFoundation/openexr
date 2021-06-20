@@ -10,7 +10,9 @@ add_executable(OpenEXRCoreTest
   compression.cpp
   )
 target_compile_definitions(OpenEXRCoreTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/../OpenEXRTest/")
-target_link_libraries(OpenEXRCoreTest OpenEXR::OpenEXRCore)
+# TODO: remove exr once we are happy everything is identical
+#target_link_libraries(OpenEXRCoreTest OpenEXR::OpenEXRCore)
+target_link_libraries(OpenEXRCoreTest OpenEXR::OpenEXRCore OpenEXR::OpenEXR)
 target_compile_definitions(OpenEXRCoreTest PRIVATE
   COMP_MAJ=${OpenEXR_VERSION_MAJOR}
   COMP_MIN=${OpenEXR_VERSION_MINOR}
@@ -87,6 +89,7 @@ define_openexrcore_tests(
  testWriteMultiPart
  testWriteDeep
 
+ testHUF
  testNoCompression
  testRLECompression
  testZIPCompression

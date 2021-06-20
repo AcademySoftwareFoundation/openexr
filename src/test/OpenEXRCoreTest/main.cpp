@@ -186,6 +186,7 @@ main (int argc, char *argv[])
     TEST( testWriteMultiPart, "core_write" );
     TEST( testWriteDeep, "core_write" );
 
+    TEST( testHUF, "core_compression" );
     TEST( testNoCompression, "core_compression" );
     TEST( testRLECompression, "core_compression" );
     TEST( testZIPCompression, "core_compression" );

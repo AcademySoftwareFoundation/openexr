@@ -24,9 +24,15 @@ openexr_define_library(OpenEXRCore
     internal_string_vector.h
     internal_structs.h
     internal_xdr.h
+
     internal_rle.c
     internal_zip.c
     internal_pxr24.c
+    internal_b44.c
+    internal_b44_table.c
+    internal_piz.c
+    internal_dwa.c
+    internal_huf.c
 
     attributes.c
     string.c

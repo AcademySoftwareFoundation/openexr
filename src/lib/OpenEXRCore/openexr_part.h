@@ -36,8 +36,7 @@ extern "C" {
  */
 
 /** @brief Query how many parts are in the file */
-EXR_EXPORT exr_result_t
-exr_get_count (exr_const_context_t ctxt, int* count);
+EXR_EXPORT exr_result_t exr_get_count (exr_const_context_t ctxt, int* count);
 
 /** @brief Query the part name for the specified part
  *
@@ -48,8 +47,8 @@ EXR_EXPORT exr_result_t
 exr_get_name (exr_const_context_t ctxt, int part_index, const char** out);
 
 /** @brief Query the storage type for the specified part */
-EXR_EXPORT exr_result_t exr_get_storage (
-    exr_const_context_t ctxt, int part_index, exr_storage_t* out);
+EXR_EXPORT exr_result_t
+exr_get_storage (exr_const_context_t ctxt, int part_index, exr_storage_t* out);
 
 /** @brief Define a new part in the file. */
 EXR_EXPORT exr_result_t exr_add_part (
@@ -104,8 +103,8 @@ EXR_EXPORT exr_result_t exr_get_tile_sizes (
  * encoded / decoded as a block, the chunk should be the basis for I/O
  * as well.
  */
-EXR_EXPORT exr_result_t exr_get_chunk_count (
-    exr_const_context_t ctxt, int part_index, int32_t* out);
+EXR_EXPORT exr_result_t
+exr_get_chunk_count (exr_const_context_t ctxt, int part_index, int32_t* out);
 
 /** Return the number of scanlines chunks for this file part
  *
@@ -259,15 +258,21 @@ EXR_EXPORT exr_result_t exr_copy_unset_attributes (
 EXR_EXPORT exr_result_t exr_get_channels (
     exr_const_context_t ctxt, int part_index, const exr_attr_chlist_t** chlist);
 
-/** @brief Defines a new channel to the output file part. */
+/** @brief Defines a new channel to the output file part.
+ *
+ * the @param percept parameter is used for lossy compression
+ * techniques to indicate that the value represented is closer to
+ * linear (1) or closer to logarithmic (0). For r, g, b, luminance,
+ * this is normally 0
+ */
 EXR_EXPORT int exr_add_channel (
-    exr_context_t    ctxt,
-    int              part_index,
-    const char*      name,
-    exr_pixel_type_t ptype,
-    uint8_t          islinear,
-    int32_t          xsamp,
-    int32_t          ysamp);
+    exr_context_t              ctxt,
+    int                        part_index,
+    const char*                name,
+    exr_pixel_type_t           ptype,
+    exr_perceptual_treatment_t percept,
+    int32_t                    xsamp,
+    int32_t                    ysamp);
 
 /** @brief Copies the channels from another source.
  *
@@ -322,8 +327,8 @@ EXR_EXPORT int exr_set_screen_window_center (
 EXR_EXPORT exr_result_t exr_get_screen_window_width (
     exr_const_context_t ctxt, int part_index, float* out);
 /** @brief Sets the screen oriented window width for the specified part (use 0 for single part images). */
-EXR_EXPORT exr_result_t exr_set_screen_window_width (
-    exr_context_t ctxt, int part_index, float ssw);
+EXR_EXPORT exr_result_t
+exr_set_screen_window_width (exr_context_t ctxt, int part_index, float ssw);
 
 /** @brief Retrieves the tiling info for a tiled part (use 0 for single part images). */
 EXR_EXPORT exr_result_t exr_get_tile_descriptor (

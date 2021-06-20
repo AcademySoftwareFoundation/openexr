@@ -73,11 +73,13 @@ typedef struct
     /** vertical subsampling information */
     int32_t y_samples;
 
+    /** linear flag from channel definition (used by b44)*/
+    uint8_t p_linear;
     /**
      * how many bytes per pixel this channel consumes (i.e. 2 for
      * float16, 4 for float32 / uint32)
      */
-    int16_t bytes_per_element;
+    int8_t bytes_per_element;
     /** small form of exr_pixel_type_t enum (EXR_PIXEL_UINT/HALF/FLOAT) */
     uint16_t data_type;
 

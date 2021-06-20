@@ -322,13 +322,25 @@ typedef struct
     const float* arr;
 } exr_attr_float_vector_t;
 
+/** Hint for lossy compression methods about how to treat values
+ * (logarithmic or linear), meaning a human sees values like R, G, B,
+ * luminance difference between 0.1 and 0.2 as about the same as 1.0
+ * to 2.0 (logarithmic), where chroma coordinates are closer to linear
+ * (0.1 and 0.2 is about the same difference as 1.0 and 1.1)
+ */
+typedef enum
+{
+    EXR_PERCEPTUALLY_LOGARITHMIC  = 0,
+    EXR_PERCEPTUALLY_LINEAR   = 1
+} exr_perceptual_treatment_t;
+
 /** Individual channel information*/
 typedef struct
 {
     exr_attr_string_t name;
     /** Data representation for these pixels: uint, half, float */
     exr_pixel_type_t pixel_type;
-    /** Possible values are 0 and 1 per docs */
+    /** Possible values are 0 and 1 per docs @sa exr_perceptual_treatment_t */
     uint8_t p_linear;
     uint8_t reserved[3];
     int32_t x_sampling;

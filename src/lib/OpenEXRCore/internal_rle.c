@@ -6,31 +6,36 @@
 #include "internal_compress.h"
 #include "internal_decompress.h"
 
+#include "internal_coding.h"
+
+#include <stdio.h>
 #include <string.h>
 
-exr_result_t
-internal_exr_apply_rle (exr_encode_pipeline_t* encode)
-{
-    int8_t*       cbuf = encode->compressed_buffer;
-    const int8_t* in   = encode->packed_buffer;
-    const int8_t* end  = in + encode->packed_bytes;
-    const int8_t* runs = in;
-    const int8_t* rune = runs + 1;
-    size_t        outb = 0;
-
-    if (encode->packed_bytes == 0) return EXR_ERR_OUT_OF_MEMORY;
-    if (!encode->packed_buffer) return EXR_ERR_OUT_OF_MEMORY;
-    if (!encode->compressed_buffer) return EXR_ERR_OUT_OF_MEMORY;
 #define MIN_RUN_LENGTH 3
 #define MAX_RUN_LENGTH 127
+
+uint64_t
+internal_rle_compress (
+    void* out, uint64_t outbytes, const void* src, uint64_t srcbytes)
+{
+    int8_t*       cbuf = out;
+    const int8_t* runs = src;
+    const int8_t* end  = runs + srcbytes;
+    const int8_t* rune = runs + 1;
+    uint64_t      outb = 0;
+
     while (runs < end)
     {
-        while (rune < end && *runs == *rune &&
-               (rune - runs - 1) < MAX_RUN_LENGTH)
-            ++rune;
-        if ((rune - runs) >= MIN_RUN_LENGTH)
+        uint8_t curcount = 0;
+        while (rune < end && *runs == *rune && curcount < MAX_RUN_LENGTH)
         {
-            cbuf[outb++] = (int8_t) ((rune - runs) - 1);
+            ++rune;
+            ++curcount;
+        }
+
+        if (curcount >= (MIN_RUN_LENGTH - 1))
+        {
+            cbuf[outb++] = (int8_t) curcount;
             cbuf[outb++] = *runs;
 
             runs = rune;
@@ -38,26 +43,79 @@ internal_exr_apply_rle (exr_encode_pipeline_t* encode)
         else
         {
             /* uncompressable */
+            ++curcount;
             while (rune < end &&
                    ((rune + 1 >= end || *rune != *(rune + 1)) ||
                     (rune + 2 >= end || *(rune + 1) != *(rune + 2))) &&
-                   (rune - runs) < MAX_RUN_LENGTH)
+                   curcount < MAX_RUN_LENGTH)
+            {
+                ++curcount;
                 ++rune;
-            cbuf[outb++] = (int8_t)(runs - rune);
+            }
+            cbuf[outb++] = (int8_t) (-((int) curcount));
             while (runs < rune)
-                cbuf[outb++] = *(runs++);
+                cbuf[outb++] = *runs++;
         }
-        if (outb > encode->compressed_alloc_size)
-            break;
+        ++rune;
+        if (outb >= outbytes) break;
+    }
+    return outb;
+}
+
+/**************************************/
+
+static void
+reorder_and_predict (void* scratch, const void* packed, uint64_t packedbytes)
+{
+    int8_t*       t1   = scratch;
+    int8_t*       t2   = t1 + (packedbytes + 1) / 2;
+    const int8_t* in   = packed;
+    const int8_t* stop = in + packedbytes;
+    while (in < stop)
+    {
+        *(t1++) = *(in++);
+        if (in < stop) *(t2++) = *(in++);
     }
 
-    if (outb > encode->packed_bytes)
+    t1    = scratch;
+    stop  = t1 + packedbytes;
+    int p = *(t1++);
+    while (t1 < stop)
     {
-        memcpy (
-            encode->compressed_buffer,
-            encode->packed_buffer,
-            encode->packed_bytes);
-        outb = encode->packed_bytes;
+        int d = (int) (*t1) - p + (128 + 256);
+        p     = *t1;
+        *t1++ = (int8_t) (d);
+    }
+}
+
+exr_result_t
+internal_exr_apply_rle (exr_encode_pipeline_t* encode)
+{
+    exr_result_t rv;
+    uint64_t     outb, srcb;
+
+    srcb = encode->packed_bytes;
+
+    rv = internal_encode_alloc_buffer (
+        encode,
+        EXR_TRANSCODE_BUFFER_SCRATCH1,
+        &(encode->scratch_buffer_1),
+        &(encode->scratch_alloc_size_1),
+        srcb);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+
+    reorder_and_predict (encode->scratch_buffer_1, encode->packed_buffer, srcb);
+
+    outb = internal_rle_compress (
+        encode->compressed_buffer,
+        encode->compressed_alloc_size,
+        encode->scratch_buffer_1,
+        srcb);
+
+    if (outb >= srcb)
+    {
+        memcpy (encode->compressed_buffer, encode->packed_buffer, srcb);
+        outb = srcb;
     }
     encode->compressed_bytes = outb;
     return EXR_ERR_SUCCESS;
@@ -65,58 +123,95 @@ internal_exr_apply_rle (exr_encode_pipeline_t* encode)
 
 /**************************************/
 
+uint64_t
+internal_rle_decompress (
+    uint8_t* out, uint64_t outsz, const uint8_t* src, uint64_t packsz)
+{
+    const int8_t* in          = (const int8_t*) src;
+    uint8_t*      dst         = (uint8_t*) out;
+    uint64_t      unpackbytes = 0;
+    uint64_t      outbytes    = 0;
+
+    while (unpackbytes < packsz)
+    {
+        if (*in < 0)
+        {
+            uint64_t count = (uint64_t) (-((int) *in++));
+            ++unpackbytes;
+            if (unpackbytes + count > packsz) return EXR_ERR_BAD_CHUNK_DATA;
+            if (outbytes + count > outsz) return EXR_ERR_BAD_CHUNK_DATA;
+
+            memcpy (dst, in, count);
+            in += count;
+            dst += count;
+            unpackbytes += count;
+            outbytes += count;
+        }
+        else
+        {
+            uint64_t count = (uint64_t) (*in++);
+            if (unpackbytes + 2 > packsz) return EXR_ERR_BAD_CHUNK_DATA;
+            unpackbytes += 2;
+
+            ++count;
+            if (outbytes + count > outsz) return EXR_ERR_BAD_CHUNK_DATA;
+
+            memset (dst, *(const uint8_t*) in, count);
+            dst += count;
+            outbytes += count;
+            ++in;
+        }
+    }
+    return outbytes;
+}
+
+static void
+unpredict_and_reorder (void* out, void* scratch, uint64_t packedbytes)
+{
+    int8_t*       t1   = scratch;
+    int8_t*       t2   = t1 + (packedbytes + 1) / 2;
+    int8_t*       s    = out;
+    const int8_t* stop = t1 + packedbytes;
+
+    ++t1;
+    while (t1 < stop)
+    {
+        int d = (int) (t1[-1]) + (int) (t1[0]) - 128;
+        t1[0] = (int8_t)d;
+        ++t1;
+    }
+
+    t1   = scratch;
+    stop = s + packedbytes;
+    while (s < stop)
+    {
+        *(s++) = *(t1++);
+        if (s < stop) *(s++) = *(t2++);
+    }
+}
+
 exr_result_t
 internal_exr_undo_rle (
     exr_decode_pipeline_t* decode,
     const void*            src,
-    size_t                 packsz,
+    uint64_t               packsz,
     void*                  out,
-    size_t                 outsz)
+    uint64_t               outsz)
 {
-    const signed char* in  = (const signed char*) src;
-    uint8_t*           dst = (uint8_t*) out;
+    exr_result_t rv;
+    uint64_t     unpackb;
+    rv = internal_decode_alloc_buffer (
+        decode,
+        EXR_TRANSCODE_BUFFER_SCRATCH1,
+        &(decode->scratch_buffer_1),
+        &(decode->scratch_alloc_size_1),
+        outsz);
+    if (rv != EXR_ERR_SUCCESS) return rv;
 
-    (void)decode;
-    while (packsz > 0)
-    {
-        if (*in < 0)
-        {
-            size_t count = (size_t)(-((int) *in++));
-            if (packsz >= (count + 1))
-            {
-                packsz -= (count + 1);
-                if (outsz >= count)
-                {
-                    memcpy (dst, in, count);
-                    in += count;
-                    dst += count;
-                }
-                else
-                {
-                    return EXR_ERR_BAD_CHUNK_DATA;
-                }
-            }
-            else
-            {
-                return EXR_ERR_BAD_CHUNK_DATA;
-            }
-        }
-        else if (packsz >= 2)
-        {
-            size_t count = (size_t)( *in++ );
-            packsz -= 2;
-            if (outsz >= (count + 1))
-            {
-                memset (dst, *(const uint8_t*) in, (count + 1));
-                dst += count + 1;
-                outsz -= (count + 1);
-            }
-            else
-            {
-                return EXR_ERR_BAD_CHUNK_DATA;
-            }
-            ++in;
-        }
-    }
+    unpackb =
+        internal_rle_decompress (decode->scratch_buffer_1, outsz, src, packsz);
+    if (unpackb != outsz) return EXR_ERR_BAD_CHUNK_DATA;
+
+    unpredict_and_reorder (out, decode->scratch_buffer_1, outsz);
     return EXR_ERR_SUCCESS;
 }

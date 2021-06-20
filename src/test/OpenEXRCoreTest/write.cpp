@@ -326,7 +326,7 @@ testWriteBaseHeader (const std::string& tempdir)
         partidx,
         "reallongreallongreallonglongchannelname",
         EXR_PIXEL_HALF,
-        1,
+        EXR_PERCEPTUALLY_LOGARITHMIC,
         1,
         1));
     EXRCORE_TEST_RVAL_FAIL (
@@ -373,11 +373,11 @@ testWriteBaseHeader (const std::string& tempdir)
         EXR_LINEORDER_INCREASING_Y,
         EXR_COMPRESSION_ZIPS));
     EXRCORE_TEST_RVAL (
-        exr_add_channel (outf, partidx, "R", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_add_channel (outf, partidx, "R", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST_RVAL (
-        exr_add_channel (outf, partidx, "G", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_add_channel (outf, partidx, "G", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST_RVAL (
-        exr_add_channel (outf, partidx, "B", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_add_channel (outf, partidx, "B", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
 
     EXRCORE_TEST_RVAL (exr_write_header (outf));
 
@@ -402,11 +402,11 @@ testWriteBaseHeader (const std::string& tempdir)
         EXR_LINEORDER_INCREASING_Y,
         EXR_COMPRESSION_ZIPS));
     EXRCORE_TEST_RVAL (
-        exr_add_channel (outf, partidx, "R", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_add_channel (outf, partidx, "R", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST_RVAL (
-        exr_add_channel (outf, partidx, "G", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_add_channel (outf, partidx, "G", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST_RVAL (
-        exr_add_channel (outf, partidx, "B", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_add_channel (outf, partidx, "B", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
 
     EXRCORE_TEST_RVAL_FAIL (EXR_ERR_MISSING_REQ_ATTR, exr_write_header (outf));
     EXRCORE_TEST_RVAL (exr_set_tile_descriptor (
@@ -462,11 +462,11 @@ testWriteAttrs (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_initialize_required_attr_simple (
         outf, partidx, 1, 1, EXR_COMPRESSION_ZIPS));
     EXRCORE_TEST_RVAL (
-        exr_add_channel (outf, partidx, "R", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_add_channel (outf, partidx, "R", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST_RVAL (
-        exr_add_channel (outf, partidx, "G", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_add_channel (outf, partidx, "G", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST_RVAL (
-        exr_add_channel (outf, partidx, "B", EXR_PIXEL_HALF, 1, 1, 1));
+        exr_add_channel (outf, partidx, "B", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_MISSING_CONTEXT_ARG, exr_set_name (NULL, partidx, "a"));

@@ -199,3 +199,4 @@ testBaseDebug (const std::string& tempdir)
     exr_print_context_info (c, 0);
     exr_print_context_info (c, 1);
 }
+

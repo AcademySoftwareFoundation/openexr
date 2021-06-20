@@ -30,6 +30,15 @@ core_test_fail (
 #define EXRCORE_TEST(expr)                                                     \
     (static_cast<bool> (expr)) ? void (0) : EXRCORE_TEST_FAIL (expr)
 
+#define EXRCORE_TEST_LOCATION(expr, x, y)                                      \
+    {                                                                          \
+        if (!static_cast<bool> (expr))                                         \
+        {                                                                      \
+            std::cerr << "At " << x << ", " << y << ":\n";                     \
+            EXRCORE_TEST_FAIL (expr);                                          \
+        }                                                                      \
+    }
+
 #define EXRCORE_TEST_RVAL(expr)                                                \
     {                                                                          \
         exr_result_t _test_rv = expr;                                          \

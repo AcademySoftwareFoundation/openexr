@@ -6,6 +6,8 @@
 
 #include <string>
 
+void testHUF( const std::string &tempdir );
+
 void testNoCompression( const std::string &tempdir );
 void testRLECompression( const std::string &tempdir );
 void testZIPCompression( const std::string &tempdir );
