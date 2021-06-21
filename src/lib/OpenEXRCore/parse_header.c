@@ -1318,7 +1318,7 @@ check_populate_name (
             EXR_REQ_NAME_STR);
     }
 
-    rv = scratch->sequential_read (scratch, outstr, (uint64_t)attrsz);
+    rv = scratch->sequential_read (scratch, outstr, (uint64_t) attrsz);
     if (rv != EXR_ERR_SUCCESS)
     {
         exr_attr_list_remove (
@@ -1391,7 +1391,7 @@ check_populate_type (
             EXR_REQ_TYPE_STR);
     }
 
-    rv = scratch->sequential_read (scratch, outstr, (uint64_t)attrsz);
+    rv = scratch->sequential_read (scratch, outstr, (uint64_t) attrsz);
     if (rv != EXR_ERR_SUCCESS)
     {
         exr_attr_list_remove (
@@ -1683,7 +1683,7 @@ pull_attr (
             "Unable to read attribute size for attribute '%s', type '%s'",
             name,
             type);
-    attrsz = (int32_t)one_to_native32 ((uint32_t)attrsz);
+    attrsz = (int32_t) one_to_native32 ((uint32_t) attrsz);
 
     rv = check_req_attr (ctxt, curpart, scratch, name, type, attrsz);
     if (rv != EXR_ERR_UNKNOWN) return rv;
@@ -2009,8 +2009,8 @@ internal_exr_compute_tile_information (
 
         curpart->num_tile_levels_x = numX;
         curpart->num_tile_levels_y = numY;
-        levcntX =
-            (int32_t*) ctxt->alloc_fn (2 * (size_t)(numX + numY) * sizeof (int32_t));
+        levcntX                    = (int32_t*) ctxt->alloc_fn (
+            2 * (size_t) (numX + numY) * sizeof (int32_t));
         if (levcntX == NULL)
             return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
         levszX  = levcntX + numX;
@@ -2031,8 +2031,8 @@ internal_exr_compute_tile_information (
                     dw.x_max,
                     sx,
                     l);
-            levcntX[l] = (int32_t) (
-                ((uint64_t) sx + tiledesc->x_size - 1) / tiledesc->x_size);
+            levcntX[l] =
+                (int32_t) (((uint64_t) sx + tiledesc->x_size - 1) / tiledesc->x_size);
             levszX[l] = (int32_t) sx;
         }
 
@@ -2050,8 +2050,8 @@ internal_exr_compute_tile_information (
                     dw.y_max,
                     sy,
                     l);
-            levcntY[l] = (int32_t) (
-                ((uint64_t) sy + tiledesc->y_size - 1) / tiledesc->y_size);
+            levcntY[l] =
+                (int32_t) (((uint64_t) sy + tiledesc->y_size - 1) / tiledesc->y_size);
             levszY[l] = (int32_t) sy;
         }
 
@@ -2120,12 +2120,8 @@ internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart)
                 cunpsz = 4;
             unpackedsize +=
                 (cunpsz *
-                 (uint64_t) (
-                     ((uint64_t) tiledesc->x_size + (uint64_t) xsamp - 1) /
-                     (uint64_t) xsamp) *
-                 (uint64_t) (
-                     ((uint64_t) tiledesc->y_size + (uint64_t) ysamp - 1) /
-                     (uint64_t) ysamp));
+                 (uint64_t) (((uint64_t) tiledesc->x_size + (uint64_t) xsamp - 1) / (uint64_t) xsamp) *
+                 (uint64_t) (((uint64_t) tiledesc->y_size + (uint64_t) ysamp - 1) / (uint64_t) ysamp));
         }
         curpart->unpacked_size_per_chunk = unpackedsize;
     }
@@ -2234,33 +2230,33 @@ update_chunk_offsets (
 
 /**************************************/
 
-exr_result_t
-internal_exr_parse_header (struct _internal_exr_context* ctxt)
+static exr_result_t
+read_magic_and_flags (
+    struct _internal_exr_context*     ctxt,
+    uint32_t*                         outflags,
+    uint64_t*                         initpos)
 {
-    struct _internal_exr_seq_scratch scratch;
-    struct _internal_exr_part*       curpart;
-
     uint32_t     magic_and_version[2];
     uint32_t     flags;
-    uint8_t      next_byte;
-    exr_result_t rv = EXR_ERR_UNKNOWN;
+    exr_result_t rv      = EXR_ERR_UNKNOWN;
+    uint64_t     fileoff = 0;
+    int64_t      nread   = 0;
 
-    rv = priv_init_scratch (ctxt, &scratch, 0);
-    if (rv != EXR_ERR_SUCCESS)
-    {
-        priv_destroy_scratch (&scratch);
-        return rv;
-    }
-
-    rv = scratch.sequential_read (
-        &scratch, magic_and_version, sizeof (uint32_t) * 2);
+    rv = ctxt->do_read (
+        ctxt,
+        magic_and_version,
+        sizeof (uint32_t) * 2,
+        &fileoff,
+        &nread,
+        EXR_MUST_READ_ALL);
     if (rv != EXR_ERR_SUCCESS)
     {
         ctxt->report_error (
             ctxt, EXR_ERR_READ_IO, "Unable to read magic and version flags");
-        priv_destroy_scratch (&scratch);
         return rv;
     }
+
+    *initpos = sizeof (uint32_t) * 2;
 
     priv_to_native32 (magic_and_version, 2);
     if (magic_and_version[0] != 20000630)
@@ -2272,7 +2268,6 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
             magic_and_version[0],
             (int) magic_and_version[0],
             magic_and_version[1]);
-        priv_destroy_scratch (&scratch);
         return rv;
     }
 
@@ -2288,7 +2283,6 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
             (int) ctxt->version,
             magic_and_version[0],
             magic_and_version[1]);
-        priv_destroy_scratch (&scratch);
         return rv;
     }
 
@@ -2301,6 +2295,44 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
             "File has an unsupported flags: magic 0x%08X flags 0x%08X",
             magic_and_version[0],
             magic_and_version[1]);
+        return rv;
+    }
+    *outflags = flags;
+    return EXR_ERR_SUCCESS;
+}
+
+/**************************************/
+
+exr_result_t
+internal_exr_check_magic (struct _internal_exr_context* ctxt)
+{
+    uint32_t     flags;
+    uint64_t     initpos;
+    exr_result_t rv = EXR_ERR_UNKNOWN;
+
+    rv = read_magic_and_flags (ctxt, &flags, &initpos);
+    return rv;
+}
+
+/**************************************/
+
+exr_result_t
+internal_exr_parse_header (struct _internal_exr_context* ctxt)
+{
+    struct _internal_exr_seq_scratch scratch;
+    struct _internal_exr_part*       curpart;
+    uint32_t                         flags;
+    uint64_t                         initpos;
+    uint8_t                          next_byte;
+    exr_result_t                     rv = EXR_ERR_UNKNOWN;
+
+    rv = read_magic_and_flags (ctxt, &flags, &initpos);
+    if (rv != EXR_ERR_SUCCESS)
+        return rv;
+
+    rv = priv_init_scratch (ctxt, &scratch, initpos);
+    if (rv != EXR_ERR_SUCCESS)
+    {
         priv_destroy_scratch (&scratch);
         return rv;
     }

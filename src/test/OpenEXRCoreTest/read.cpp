@@ -89,7 +89,7 @@ testReadBadArgs (const std::string& tempdir)
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_READ_IO, exr_start_read (&f, fn.c_str (), &cinit));
 #endif
-    fn.append( "invalid.exr" );
+    fn.append ("invalid.exr");
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_FILE_ACCESS, exr_start_read (&f, fn.c_str (), &cinit));
     EXRCORE_TEST_RVAL_FAIL_MALLOC (
@@ -109,6 +109,10 @@ testReadBadFiles (const std::string& tempdir)
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_FILE_BAD_HEADER, exr_start_read (&f, fn.c_str (), &cinit));
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_FILE_ACCESS,
+        exr_test_file_header ("somenonexistentexrfile.exr", &cinit));
 }
 
 void
@@ -122,6 +126,7 @@ testReadMeta (const std::string& tempdir)
     exr_attribute_t*       newattr;
     const exr_attribute_t* attr;
 
+    EXRCORE_TEST_RVAL (exr_test_file_header (fn.c_str (), &cinit));
     EXRCORE_TEST_RVAL (exr_start_read (&f, fn.c_str (), &cinit));
 
     EXRCORE_TEST_RVAL_FAIL (
@@ -140,6 +145,15 @@ testReadMeta (const std::string& tempdir)
         EXR_ERR_NOT_OPEN_WRITE, exr_set_longname_support (f, 0));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_NOT_OPEN_WRITE, exr_set_longname_support (f, 1));
+
+    void* udata = (void*) 3;
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG, exr_get_user_data (NULL, &udata));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT, exr_get_user_data (f, NULL));
+    udata = (void*) 3;
+    EXRCORE_TEST_RVAL (exr_get_user_data (f, &udata));
+    EXRCORE_TEST (udata == NULL);
 
     exr_finish (&f);
 }
@@ -545,16 +559,16 @@ testReadUnpack (const std::string& tempdir)
         exr_decode_pipeline_t decoder;
         EXRCORE_TEST_RVAL (exr_decoding_initialize (f, 0, &cinfo, &decoder));
 
-        std::unique_ptr<float[]> gptr{ new float[24 * 12] };
+        std::unique_ptr<float[]>    gptr{ new float[24 * 12] };
         std::unique_ptr<uint16_t[]> zptr{ new uint16_t[24 * 12] };
         memset (gptr.get (), 0, 24 * 12 * 4);
         memset (zptr.get (), 0, 24 * 12 * 2);
-        decoder.channels[0].decode_to_ptr          = (uint8_t *)gptr.get ();
+        decoder.channels[0].decode_to_ptr          = (uint8_t*) gptr.get ();
         decoder.channels[0].user_pixel_stride      = 4;
         decoder.channels[0].user_line_stride       = 4 * 12;
         decoder.channels[0].user_bytes_per_element = 4;
         decoder.channels[0].user_data_type         = EXR_PIXEL_FLOAT;
-        decoder.channels[1].decode_to_ptr          = (uint8_t *)zptr.get ();
+        decoder.channels[1].decode_to_ptr          = (uint8_t*) zptr.get ();
         decoder.channels[1].user_pixel_stride      = 2;
         decoder.channels[1].user_line_stride       = 2 * 12;
         decoder.channels[1].user_bytes_per_element = 2;

@@ -338,6 +338,9 @@ internal_exr_alloc_context (
 
         ret       = memptr;
         ret->mode = (uint8_t) mode;
+        /* stash this separately so when a user queries they don't see
+         * any of our internal hijinx */
+        ret->real_user_data = initializers->user_data;
         if (initializers->read_fn || initializers->write_fn)
             ret->user_data = initializers->user_data;
         else if (extra_data > 0)

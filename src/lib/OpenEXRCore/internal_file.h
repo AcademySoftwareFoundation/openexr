@@ -18,6 +18,8 @@
     (EXR_TILED_FLAG | EXR_LONG_NAMES_FLAG | EXR_NON_IMAGE_FLAG |               \
      EXR_MULTI_PART_FLAG)
 
+/* in openexr_parse_header.c, just checks the magic number and header */
+exr_result_t internal_exr_check_magic (struct _internal_exr_context* ctxt);
 /* in openexr_parse_header.c, reads the header and populates the file structure */
 exr_result_t internal_exr_parse_header (struct _internal_exr_context* ctxt);
 exr_result_t internal_exr_compute_tile_information (

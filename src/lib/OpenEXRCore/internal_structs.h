@@ -166,6 +166,7 @@ struct _internal_exr_context
     int max_tile_w;
     int max_tile_h;
 
+    void*                         real_user_data;
     void*                         user_data;
     exr_destroy_stream_func_ptr_t destroy_fn;
 

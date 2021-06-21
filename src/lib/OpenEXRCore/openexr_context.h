@@ -37,7 +37,7 @@ extern "C" {
  * file and/or stream
  */
 
-typedef struct _priv_exr_context_t* exr_context_t;
+typedef struct _priv_exr_context_t*       exr_context_t;
 typedef const struct _priv_exr_context_t* exr_const_context_t;
 
 /** 
@@ -297,6 +297,14 @@ typedef struct _exr_context_initializer
 
 /** @} */ /* context function pointer declarations */
 
+/** @brief Checks the magic number of the file and reports
+ * EXR_ERR_SUCCESS if the file appears to be a valid file (or at least
+ * has the correct magic number and can be read)
+ */
+EXR_EXPORT exr_result_t exr_test_file_header (
+    const char*                      filename,
+    const exr_context_initializer_t* ctxtdata);
+
 /** @brief Closes and frees any internally allocated memory,
  * calling any provided destroy function for custom streams
  *
@@ -404,6 +412,13 @@ EXR_EXPORT exr_result_t exr_start_inplace_header_update (
  */
 EXR_EXPORT exr_result_t
 exr_get_file_name (exr_const_context_t ctxt, const char** name);
+
+/** @brief query the user data the context was constructed with. This
+ * is perhaps useful in the error handler callback to jump back into
+ * an object the user controls.
+ */
+EXR_EXPORT exr_result_t
+exr_get_user_data (exr_const_context_t ctxt, void** userdata);
 
 /** Any opaque attribute data entry of the specified type is tagged
  * with these functions enabling downstream users to unpack (or pack)

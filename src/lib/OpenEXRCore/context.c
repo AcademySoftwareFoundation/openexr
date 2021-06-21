@@ -121,6 +121,62 @@ process_query_size (
 /**************************************/
 
 exr_result_t
+exr_test_file_header (
+    const char* filename, const exr_context_initializer_t* ctxtdata)
+{
+    exr_result_t                  rv    = EXR_ERR_SUCCESS;
+    struct _internal_exr_context* ret   = NULL;
+    exr_context_initializer_t     inits = EXR_DEFAULT_CONTEXT_INITIALIZER;
+
+    if (ctxtdata) inits = *ctxtdata;
+
+    internal_exr_update_default_handlers (&inits);
+
+    if (filename && filename[0] != '\0')
+    {
+        rv = internal_exr_alloc_context (
+            &ret,
+            &inits,
+            EXR_CONTEXT_READ,
+            sizeof (struct _internal_exr_filehandle));
+        if (rv == EXR_ERR_SUCCESS)
+        {
+            ret->do_read = &dispatch_read;
+
+            rv = exr_attr_string_create (
+                (exr_context_t) ret, &(ret->filename), filename);
+            if (rv == EXR_ERR_SUCCESS)
+            {
+                if (!inits.read_fn)
+                {
+                    inits.size_fn = &default_query_size_func;
+                    rv            = default_init_read_file (ret);
+                }
+
+                if (rv == EXR_ERR_SUCCESS)
+                    rv = process_query_size (ret, &inits);
+                if (rv == EXR_ERR_SUCCESS) rv = internal_exr_check_magic (ret);
+            }
+
+            exr_finish ((exr_context_t*) &ret);
+        }
+        else
+            rv = EXR_ERR_OUT_OF_MEMORY;
+    }
+    else
+    {
+        inits.error_handler_fn (
+            NULL,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Invalid filename passed to test file header function");
+        rv = EXR_ERR_INVALID_ARGUMENT;
+    }
+    return rv;
+}
+
+/**************************************/
+
+exr_result_t
 exr_finish (exr_context_t* pctxt)
 {
     struct _internal_exr_context* ctxt;
@@ -312,6 +368,24 @@ exr_get_file_name (exr_const_context_t ctxt, const char** name)
     if (name)
     {
         *name = pctxt->filename.str;
+        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
+    }
+
+    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
+        pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT));
+}
+
+/**************************************/
+
+exr_result_t
+exr_get_user_data (exr_const_context_t ctxt, void** userdata)
+{
+    EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (ctxt);
+
+    /* not changeable after construction, no locking needed */
+    if (userdata)
+    {
+        *userdata = pctxt->real_user_data;
         return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
     }
 
