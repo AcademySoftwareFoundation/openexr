@@ -56,7 +56,7 @@ option(OPENEXR_ENABLE_LARGE_STACK "Enables code to take advantage of large stack
 ## Build related options
 
 # Whether to build & install the various command line utility programs
-option(OPENEXR_BUILD_UTILS "Enables building of utility programs" ON)
+option(OPENEXR_BUILD_TOOLS "Enables building of utility programs" ON)
 
 # This is a variable here for use in controlling where include files are 
 # installed. Care must be taken when changing this, as many things
