@@ -4,9 +4,8 @@
 load("//:bazel/third_party/generate_header.bzl", "generate_header")
 
 config_setting(
-    name = "windows_x86_64",
-    values = {"cpu": "x64_windows"},
-    visibility = ["//visibility:public"],
+    name = "windows",
+    constraint_values = ["@platforms//os:windows"],
 )
 
 generate_header(
@@ -94,6 +93,10 @@ cc_library(
         "src/lib/Iex/IexNamespace.h",
         "src/lib/Iex/IexThrowErrnoExc.h",
     ],
+    features = select({
+        ":windows": ["windows_export_all_symbols"],
+        "//conditions:default": [],
+    }),
     includes = ["src/lib/Iex"],
     deps = [
         ":IexConfig.h",
@@ -122,6 +125,10 @@ cc_library(
         "src/lib/IlmThread/IlmThreadPool.h",
         "src/lib/IlmThread/IlmThreadSemaphore.h",
     ],
+    features = select({
+        ":windows": ["windows_export_all_symbols"],
+        "//conditions:default": [],
+    }),
     includes = ["src/lib/IlmThread"],
     deps = [
         ":Iex",
@@ -341,15 +348,19 @@ cc_library(
         "src/lib/OpenEXR/ImfZipCompressor.h",
     ],
     copts = select({
-        ":windows_x86_64": [],
+        ":windows": [],
         "//conditions:default": [
             "-Wno-error",
         ],
     }),
+    features = select({
+        ":windows": ["windows_export_all_symbols"],
+        "//conditions:default": [],
+    }),
     includes = ["src/lib/OpenEXR"],
     linkopts =
         select({
-            ":windows_x86_64": [],
+            ":windows": [],
             "//conditions:default": [
                 "-pthread",
             ],
