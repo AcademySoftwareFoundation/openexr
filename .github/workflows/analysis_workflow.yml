@@ -54,7 +54,7 @@ jobs:
                 -DCMAKE_EXE_LINKER_FLAGS="-lgcov" \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS='OFF' \
-                -DOPENEXR_BUILD_UTILS='ON' \
+                -DOPENEXR_BUILD_TOOLS='ON' \
                 -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
                 -DOPENEXR_ENABLE_THREADING='ON'
         working-directory: _build
@@ -124,7 +124,7 @@ jobs:
                 -DCMAKE_CXX_STANDARD=14 \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS='OFF' \
-                -DOPENEXR_BUILD_UTILS='ON' \
+                -DOPENEXR_BUILD_TOOLS='ON' \
                 -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
                 -DOPENEXR_ENABLE_THREADING='ON'
         working-directory: _build
@@ -185,7 +185,7 @@ jobs:
                 -DCMAKE_CXX_STANDARD=14 \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS='OFF' \
-                -DOPENEXR_BUILD_UTILS='ON' \
+                -DOPENEXR_BUILD_TOOLS='ON' \
                 -DOPENEXR_RUN_FUZZ_TESTS='ON' \
                 -DOPENEXR_ENABLE_THREADING='ON'
         working-directory: _build

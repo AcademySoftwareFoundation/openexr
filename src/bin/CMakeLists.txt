@@ -4,7 +4,7 @@
 ##########################
 # Binaries / Utilities
 ##########################
-if(OPENEXR_BUILD_UTILS)
+if(OPENEXR_BUILD_TOOLS)
   add_subdirectory( exr2aces )
   add_subdirectory( exrheader )
   add_subdirectory( exrmaketiled )
