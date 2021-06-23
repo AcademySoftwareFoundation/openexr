@@ -334,7 +334,7 @@ void IDManifest::init(const char* data, const char* endOfData)
    Xdr::read<CharPtrIO>( data,version);
    if(version!=0)
    {
-       IEX_NAMESPACE::InputExc ("Unrecognized IDmanifest version");
+       throw IEX_NAMESPACE::InputExc ("Unrecognized IDmanifest version");
    }
        
    //
