@@ -70,11 +70,13 @@ openexr_define_library(OpenEXRCore
     openexr_attr.h
     openexr_base.h
     openexr_chunkio.h
+    openexr_coding.h
     openexr_conf.h
     openexr_context.h
     openexr_decode.h
     openexr_debug.h
     openexr_encode.h
+    openexr_errors.h
     openexr_part.h
     openexr_std_attr.h
   DEPENDENCIES
