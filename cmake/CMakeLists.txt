@@ -64,6 +64,11 @@ else()
   set(OPENEXR_ENABLE_API_VISIBILITY ON)
 endif()
 
+if (UNIX AND NOT APPLE AND NOT BEOS)
+  find_library(OPENEXR_EXTRA_MATH_LIB m)
+  mark_as_advanced(OPENEXR_EXTRA_MATH_LIB)
+endif()
+
 configure_file(OpenEXRConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h)
 configure_file(OpenEXRConfigInternal.h.in ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigInternal.h)
 

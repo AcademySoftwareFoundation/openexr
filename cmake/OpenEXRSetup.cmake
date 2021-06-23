@@ -249,19 +249,25 @@ endif()
 # Find or install Imath
 #######################################
 
+option(OPENEXR_FORCE_INTERNAL_IMATH "Force using an internal imath" OFF)
 # Check to see if Imath is installed outside of the current build directory.
 set(IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING
     "Repo for auto-build of Imath")
 set(IMATH_TAG "master" CACHE STRING
-    "Tag for auto-build of Imath (branch, tag, or SHA)")
-#TODO: ^^ Release should not clone from master, this is a place holder
-set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-build/config")
-find_package(Imath QUIET)
-set(CMAKE_IGNORE_PATH)
+  "Tag for auto-build of Imath (branch, tag, or SHA)")
+if(NOT OPENEXR_FORCE_INTERNAL_IMATH)
+  #TODO: ^^ Release should not clone from master, this is a place holder
+  set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-build/config")
+  find_package(Imath QUIET)
+  set(CMAKE_IGNORE_PATH)
+endif()
 
 if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
-  message(STATUS "Imath was not found, installing from ${IMATH_REPO} (${IMATH_TAG})")
-  
+  if(OPENEXR_FORCE_INTERNAL_IMATH)
+    message(STATUS "Imath forced internal, installing from ${IMATH_REPO} (${IMATH_TAG})")
+  else()
+    message(STATUS "Imath was not found, installing from ${IMATH_REPO} (${IMATH_TAG})")
+  endif()
   include(FetchContent)
   FetchContent_Declare(Imath
     GIT_REPOSITORY ${IMATH_REPO}
@@ -274,6 +280,16 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
     FetchContent_Populate(Imath)
     # hrm, cmake makes Imath lowercase for the properties (to imath)
     add_subdirectory(${imath_SOURCE_DIR} ${imath_BINARY_DIR})
+  endif()
+  # the install creates this but if we're using the library locally we
+  # haven't installed the header files yet, so need to extract those
+  # and make a variable for header only usage
+  if(NOT TARGET Imath::ImathConfig)
+    get_target_property(imathinc Imath INTERFACE_INCLUDE_DIRECTORIES)
+    get_target_property(imathconfinc ImathConfig INTERFACE_INCLUDE_DIRECTORIES)
+    list(APPEND imathinc ${imathconfinc})
+    set(IMATH_HEADER_ONLY_INCLUDE_DIRS ${imathinc})
+    message(STATUS "Imath interface dirs ${IMATH_HEADER_ONLY_INCLUDE_DIRS}")
   endif()
 else()
   message(STATUS "Using Imath from ${Imath_DIR}")
