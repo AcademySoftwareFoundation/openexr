@@ -388,3 +388,11 @@ cc_binary(
         ":OpenEXR",
     ],
 )
+
+cc_binary(
+    name = "exrstdattr",
+    srcs = ["src/bin/exrstdattr/main.cpp"],
+    deps = [
+        ":OpenEXR",
+    ],
+)
