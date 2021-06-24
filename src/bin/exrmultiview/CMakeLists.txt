@@ -2,9 +2,9 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 add_executable(exrmultiview
-  makeMultiView.cpp
-  main.cpp
   Image.cpp
+  main.cpp
+  makeMultiView.cpp
 )
 target_link_libraries(exrmultiview OpenEXR::OpenEXR)
 set_target_properties(exrmultiview PROPERTIES

@@ -6,7 +6,9 @@ add_executable(OpenEXRTest
   compareDwa.cpp
   compareFloat.cpp
   main.cpp
+  random.cpp
   testAttributes.cpp
+  testB44ExpLogTable.cpp
   testBackwardCompatibility.cpp
   testBadTypeAttributes.cpp
   testChannels.cpp
@@ -23,11 +25,14 @@ add_executable(OpenEXRTest
   testDeepScanLineMultipleRead.cpp
   testDeepTiledBasic.cpp
   testDwaCompressorSimd.cpp
+  testDwaLookups.cpp
   testExistingStreams.cpp
   testFutureProofing.cpp
   testHuf.cpp
+  testIDManifest.cpp
   testInputPart.cpp
   testIsComplete.cpp
+  testLargeDataWindowOffsets.cpp
   testLineOrder.cpp
   testLut.cpp
   testMagic.cpp
@@ -59,11 +64,6 @@ add_executable(OpenEXRTest
   testWav.cpp
   testXdr.cpp
   testYca.cpp
-  testLargeDataWindowOffsets.cpp
-  testB44ExpLogTable.cpp
-  testDwaLookups.cpp
-  testIDManifest.cpp
-  random.cpp
 )
 target_compile_definitions(OpenEXRTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 target_link_libraries(OpenEXRTest OpenEXR::OpenEXR)

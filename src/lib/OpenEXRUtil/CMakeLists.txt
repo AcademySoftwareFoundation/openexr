@@ -5,39 +5,39 @@ openexr_define_library(OpenEXRUtil
   PRIV_EXPORT OPENEXRUTIL_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
-    ImfImageChannel.cpp
-    ImfFlatImageChannel.cpp
-    ImfDeepImageChannel.cpp
-    ImfSampleCountChannel.cpp
-    ImfImageLevel.cpp
-    ImfFlatImageLevel.cpp
-    ImfDeepImageLevel.cpp
-    ImfImage.cpp
-    ImfFlatImage.cpp
-    ImfDeepImage.cpp
-    ImfImageIO.cpp
-    ImfFlatImageIO.cpp
-    ImfDeepImageIO.cpp
-    ImfImageDataWindow.cpp
     ImfCheckFile.cpp
+    ImfDeepImage.cpp
+    ImfDeepImageChannel.cpp
+    ImfDeepImageIO.cpp
+    ImfDeepImageLevel.cpp
+    ImfFlatImage.cpp
+    ImfFlatImageChannel.cpp
+    ImfFlatImageIO.cpp
+    ImfFlatImageLevel.cpp
+    ImfImage.cpp
+    ImfImageChannel.cpp
+    ImfImageDataWindow.cpp
+    ImfImageIO.cpp
+    ImfImageLevel.cpp
+    ImfSampleCountChannel.cpp
   HEADERS
-    ImfImageChannel.h
-    ImfFlatImageChannel.h
-    ImfDeepImageChannel.h
-    ImfSampleCountChannel.h
-    ImfImageLevel.h
-    ImfFlatImageLevel.h
-    ImfDeepImageLevel.h
-    ImfImage.h
-    ImfFlatImage.h
-    ImfDeepImage.h
-    ImfImageIO.h
-    ImfFlatImageIO.h
-    ImfDeepImageIO.h
-    ImfImageDataWindow.h
-    ImfImageChannelRenaming.h
-    ImfUtilExport.h
     ImfCheckFile.h
+    ImfDeepImage.h
+    ImfDeepImageChannel.h
+    ImfDeepImageIO.h
+    ImfDeepImageLevel.h
+    ImfFlatImage.h
+    ImfFlatImageChannel.h
+    ImfFlatImageIO.h
+    ImfFlatImageLevel.h
+    ImfImage.h
+    ImfImageChannel.h
+    ImfImageChannelRenaming.h
+    ImfImageDataWindow.h
+    ImfImageIO.h
+    ImfImageLevel.h
+    ImfSampleCountChannel.h
+    ImfUtilExport.h
   DEPENDENCIES
     OpenEXR::OpenEXR
 )

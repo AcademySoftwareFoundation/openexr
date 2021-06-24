@@ -2,9 +2,9 @@
 # Copyright (c) Contributors (c) to the OpenEXR Project.
 
 add_executable(exrmaketiled 
-  makeTiled.cpp
-  main.cpp
   Image.cpp
+  main.cpp
+  makeTiled.cpp
 )
 target_link_libraries(exrmaketiled OpenEXR::OpenEXR)
 set_target_properties(exrmaketiled PROPERTIES

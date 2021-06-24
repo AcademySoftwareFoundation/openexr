@@ -8,18 +8,18 @@ openexr_define_library(IlmThread
     IlmThread.cpp
     IlmThreadPool.cpp
     IlmThreadSemaphore.cpp
-    IlmThreadSemaphorePosixCompat.cpp
-    IlmThreadSemaphorePosix.cpp
     IlmThreadSemaphoreOSX.cpp
+    IlmThreadSemaphorePosix.cpp
+    IlmThreadSemaphorePosixCompat.cpp
     IlmThreadSemaphoreWin32.cpp
   HEADERS
-    IlmThreadPool.h
     IlmThread.h
-    IlmThreadSemaphore.h
-    IlmThreadMutex.h
-    IlmThreadNamespace.h
     IlmThreadExport.h
     IlmThreadForward.h
+    IlmThreadMutex.h
+    IlmThreadNamespace.h
+    IlmThreadPool.h
+    IlmThreadSemaphore.h
   DEPENDENCIES
     OpenEXR::Config
     OpenEXR::Iex
