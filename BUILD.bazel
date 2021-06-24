@@ -382,6 +382,14 @@ cc_test(
 )
 
 cc_binary(
+    name = "exr2aces",
+    srcs = ["src/bin/exr2aces/main.cpp"],
+    deps = [
+        ":OpenEXR",
+    ],
+)
+
+cc_binary(
     name = "exrheader",
     srcs = ["src/bin/exrheader/main.cpp"],
     deps = [
