@@ -380,3 +380,11 @@ cc_test(
         ":Iex",
     ],
 )
+
+cc_binary(
+    name = "exrheader",
+    srcs = ["src/bin/exrheader/main.cpp"],
+    deps = [
+        ":OpenEXR",
+    ],
+)
