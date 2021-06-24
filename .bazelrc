@@ -7,3 +7,7 @@ build --symlink_prefix=/ # Out of source build
 #build --cxxopt=-Wall
 #build --cxxopt=-Werror
 #build --cxxopt=-Wextra
+
+# To be able to load test artifacts on Windows this must
+# be enabled - use this config to run bazel test on Windows
+build:vs2019 --enable_runfiles # https://github.com/bazelbuild/bazel/issues/8843

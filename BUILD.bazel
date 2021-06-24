@@ -2,6 +2,7 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 load("//:bazel/third_party/generate_header.bzl", "generate_header")
+load("//:bazel/define_openexr_tests.bzl", "define_openexr_tests")
 
 config_setting(
     name = "windows",
@@ -432,5 +433,65 @@ cc_binary(
     srcs = ["src/bin/exrstdattr/main.cpp"],
     deps = [
         ":OpenEXR",
+    ],
+)
+
+define_openexr_tests(
+    [
+        "testAttributes",
+        "testB44ExpLogTable",
+        "testBackwardCompatibility",
+        "testBadTypeAttributes",
+        "testChannels",
+        "testCompositeDeepScanLine",
+        "testCompression",
+        "testConversion",
+        "testCopyDeepScanLine",
+        "testCopyDeepTiled",
+        "testCopyMultiPartFile",
+        "testCopyPixels",
+        "testCustomAttributes",
+        "testDeepScanLineBasic",
+        "testDeepScanLineMultipleRead",
+        "testDeepTiledBasic",
+        "testDwaCompressorSimd",
+        "testDwaLookups",
+        "testExistingStreams",
+        "testFutureProofing",
+        "testHuf",
+        "testInputPart",
+        "testIsComplete",
+        "testLargeDataWindowOffsets",
+        "testLineOrder",
+        "testLut",
+        "testMagic",
+        "testMultiPartApi",
+        "testMultiPartFileMixingBasic",
+        "testMultiPartSharedAttributes",
+        "testMultiPartThreading",
+        "testMultiScanlinePartThreading",
+        "testMultiTiledPartThreading",
+        "testMultiView",
+        "testNativeFormat",
+        "testOptimized",
+        "testOptimizedInterleavePatterns",
+        "testPartHelper",
+        "testPreviewImage",
+        "testRgba",
+        "testRgbaThreading",
+        "testRle",
+        "testSampleImages",
+        "testScanLineApi",
+        "testSharedFrameBuffer",
+        "testStandardAttributes",
+        "testTiledCompression",
+        "testTiledCopyPixels",
+        "testTiledLineOrder",
+        "testTiledRgba",
+        "testTiledYa",
+        "testWav",
+        "testXdr",
+        "testYca",
+        "testIDManifest",
     ],
 )
