@@ -391,3 +391,48 @@ cc_test(
         ":Iex",
     ],
 )
+
+cc_binary(
+    name = "exr2aces",
+    srcs = ["src/bin/exr2aces/main.cpp"],
+    deps = [
+        ":OpenEXR",
+    ],
+)
+
+cc_binary(
+    name = "exrheader",
+    srcs = ["src/bin/exrheader/main.cpp"],
+    deps = [
+        ":OpenEXR",
+    ],
+)
+
+cc_binary(
+    name = "exrenvmap",
+    srcs = [
+        "src/bin/exrenvmap/EnvmapImage.cpp",
+        "src/bin/exrenvmap/blurImage.cpp",
+        "src/bin/exrenvmap/main.cpp",
+        "src/bin/exrenvmap/makeCubeMap.cpp",
+        "src/bin/exrenvmap/makeCubeMap.h",
+        "src/bin/exrenvmap/makeLatLongMap.cpp",
+        "src/bin/exrenvmap/readInputImage.cpp",
+        "src/bin/exrenvmap/readInputImage.h",
+        "src/bin/exrenvmap/resizeImage.cpp",
+    ],
+    includes = [
+        "src/bin/exrenvmap",
+    ],
+    deps = [
+        ":OpenEXR",
+    ],
+)
+
+cc_binary(
+    name = "exrstdattr",
+    srcs = ["src/bin/exrstdattr/main.cpp"],
+    deps = [
+        ":OpenEXR",
+    ],
+)
