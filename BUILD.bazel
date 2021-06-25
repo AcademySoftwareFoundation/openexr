@@ -415,12 +415,10 @@ cc_binary(
         "src/bin/exrenvmap/blurImage.cpp",
         "src/bin/exrenvmap/main.cpp",
         "src/bin/exrenvmap/makeCubeMap.cpp",
-        "src/bin/exrenvmap/makeCubeMap.h",
         "src/bin/exrenvmap/makeLatLongMap.cpp",
         "src/bin/exrenvmap/readInputImage.cpp",
-        "src/bin/exrenvmap/readInputImage.h",
         "src/bin/exrenvmap/resizeImage.cpp",
-    ],
+    ] + glob(["src/bin/exrenvmap/*.h"]),
     includes = [
         "src/bin/exrenvmap",
     ],
