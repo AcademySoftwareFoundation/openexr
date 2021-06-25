@@ -7,7 +7,16 @@
 name: Bazel
 
 on:
-  push: {}
+  push:
+    # Versioned branches and tags are ignored for OpenEXR <= 1.x.x
+    branches-ignore:
+      - RB-2.*
+    tags-ignore:
+      - v1.*
+      - v2.*
+    # Jobs are skipped when ONLY Markdown (*.md) files are changed
+    paths-ignore:
+      - '**.md'
 
 jobs:
   build:
