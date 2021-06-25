@@ -27,22 +27,22 @@ target_link_libraries(OpenEXRExamples OpenEXR::OpenEXR)
 # Examples
 install(
   FILES
-    main.cpp
     drawImage.cpp
-    rgbaInterfaceExamples.cpp
-    rgbaInterfaceTiledExamples.cpp
+    drawImage.h
     generalInterfaceExamples.cpp
-    lowLevelIoExamples.cpp
-    previewImageExamples.cpp
+    generalInterfaceExamples.h
     generalInterfaceTiledExamples.cpp
     generalInterfaceTiledExamples.h
-    drawImage.h
-    rgbaInterfaceExamples.h
-    generalInterfaceExamples.h
-    rgbaInterfaceTiledExamples.h
+    lowLevelIoExamples.cpp
     lowLevelIoExamples.h
-    previewImageExamples.h
+    main.cpp
     namespaceAlias.h
+    previewImageExamples.cpp
+    previewImageExamples.h
+    rgbaInterfaceExamples.cpp
+    rgbaInterfaceExamples.h
+    rgbaInterfaceTiledExamples.cpp
+    rgbaInterfaceTiledExamples.h
   DESTINATION
     ${CMAKE_INSTALL_DOCDIR}/examples
   )

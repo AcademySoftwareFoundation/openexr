@@ -6,21 +6,21 @@ openexr_define_library(Iex
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
     IexBaseExc.cpp
-    IexThrowErrnoExc.cpp
     IexMathFloatExc.cpp
     IexMathFpu.cpp
+    IexThrowErrnoExc.cpp
   HEADERS
-    IexBaseExc.h
-    IexMathExc.h
-    IexThrowErrnoExc.h
-    IexErrnoExc.h
-    IexMacros.h
-    IexMathFloatExc.h
-    IexMathIeeeExc.h
     Iex.h
-    IexNamespace.h
+    IexBaseExc.h
+    IexErrnoExc.h
     IexExport.h
     IexForward.h
+    IexMacros.h
+    IexMathExc.h
+    IexMathFloatExc.h
+    IexMathIeeeExc.h
+    IexNamespace.h
+    IexThrowErrnoExc.h
   DEPENDENCIES
     OpenEXR::Config
   )

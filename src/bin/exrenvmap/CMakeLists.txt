@@ -2,13 +2,13 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 add_executable( exrenvmap
+  blurImage.cpp
+  EnvmapImage.cpp
+  main.cpp
+  makeCubeMap.cpp
   makeLatLongMap.cpp
   readInputImage.cpp
   resizeImage.cpp
-  makeCubeMap.cpp
-  main.cpp
-  blurImage.cpp
-  EnvmapImage.cpp
 )
 
 target_link_libraries(exrenvmap OpenEXR::OpenEXR)
