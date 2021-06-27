@@ -168,29 +168,29 @@ exr_read_scanline_block_info (
     }
 
     dw = part->data_window;
-    if (y < dw.y_min || y > dw.y_max)
+    if (y < dw.min.y || y > dw.max.y)
     {
         return pctxt->print_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid request for scanline %d outside range of data window (%d - %d)",
             y,
-            dw.y_min,
-            dw.y_max);
+            dw.min.y,
+            dw.max.y);
     }
 
     lpc  = part->lines_per_chunk;
-    cidx = (y - dw.y_min);
+    cidx = (y - dw.min.y);
     if (lpc > 1) cidx /= lpc;
 
     if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
     {
         cidx = part->chunk_count - (cidx + 1);
-        miny = dw.y_max - (cidx + 1) * lpc;
+        miny = dw.max.y - (cidx + 1) * lpc;
     }
     else
     {
-        miny = cidx * lpc + dw.y_min;
+        miny = cidx * lpc + dw.min.y;
     }
 
     if (cidx < 0 || cidx >= part->chunk_count)
@@ -207,18 +207,18 @@ exr_read_scanline_block_info (
     cinfo->idx         = cidx;
     cinfo->type        = (uint8_t) part->storage_mode;
     cinfo->compression = (uint8_t) part->comp_type;
-    cinfo->start_x     = dw.x_min;
+    cinfo->start_x     = dw.min.x;
     cinfo->start_y     = miny;
-    cinfo->width       = dw.x_max - dw.x_min + 1;
+    cinfo->width       = dw.max.x - dw.min.x + 1;
     cinfo->height      = lpc;
-    if (miny < dw.y_min)
+    if (miny < dw.min.y)
     {
-        cinfo->start_y = dw.y_min;
-        cinfo->height -= (dw.y_min - miny);
+        cinfo->start_y = dw.min.y;
+        cinfo->height -= (dw.min.y - miny);
     }
-    else if ((miny + lpc) > dw.y_max)
+    else if ((miny + lpc) > dw.max.y)
     {
-        cinfo->height = (dw.y_max - miny + 1);
+        cinfo->height = (dw.max.y - miny + 1);
     }
     cinfo->level_x = 0;
     cinfo->level_y = 0;
@@ -512,20 +512,20 @@ exr_read_tile_block_info (
     if (tiledesc->y_size < (uint32_t) tileh) tileh = (int) tiledesc->y_size;
 
     if (((int64_t) (tilex) * (int64_t) (tilew) + (int64_t) (tilew) +
-         (int64_t) (part->data_window.x_min) - 1) >
-        (int64_t) (part->data_window.x_max))
+         (int64_t) (part->data_window.min.x) - 1) >
+        (int64_t) (part->data_window.max.x))
     {
-        int64_t sz = (int64_t) (part->data_window.x_max) -
-                     (int64_t) (part->data_window.x_min) + 1;
+        int64_t sz = (int64_t) (part->data_window.max.x) -
+                     (int64_t) (part->data_window.min.x) + 1;
         tilew = (int) (sz - ((int64_t) (tilex) * (int64_t) (tilew)));
     }
 
     if (((int64_t) (tiley) * (int64_t) (tileh) + (int64_t) (tileh) +
-         (int64_t) (part->data_window.y_min) - 1) >
-        (int64_t) (part->data_window.y_max))
+         (int64_t) (part->data_window.min.y) - 1) >
+        (int64_t) (part->data_window.max.y))
     {
-        int64_t sz = (int64_t) (part->data_window.y_max) -
-                     (int64_t) (part->data_window.y_min) + 1;
+        int64_t sz = (int64_t) (part->data_window.max.y) -
+                     (int64_t) (part->data_window.min.y) + 1;
         tileh = (int) (sz - ((int64_t) (tiley) * (int64_t) (tileh)));
     }
 
@@ -960,29 +960,29 @@ write_scan_chunk (
             (uint64_t) sample_data_size,
             sample_data);
 
-    if (y < part->data_window.y_min || y > part->data_window.y_max)
+    if (y < part->data_window.min.y || y > part->data_window.max.y)
     {
         return pctxt->print_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid attempt to write scanlines starting at %d outside range of data window (%d - %d)",
             y,
-            part->data_window.y_min,
-            part->data_window.y_max);
+            part->data_window.min.y,
+            part->data_window.max.y);
     }
 
     lpc  = part->lines_per_chunk;
-    cidx = (y - part->data_window.y_min);
+    cidx = (y - part->data_window.min.y);
     if (lpc > 1) cidx /= lpc;
 
     if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
     {
         cidx = part->chunk_count - (cidx + 1);
-        miny = part->data_window.y_max - (cidx + 1) * lpc;
+        miny = part->data_window.max.y - (cidx + 1) * lpc;
     }
     else
     {
-        miny = cidx * lpc + part->data_window.y_min;
+        miny = cidx * lpc + part->data_window.min.y;
     }
 
     if (y != miny)
@@ -1132,29 +1132,29 @@ exr_write_scanline_block_info (
     }
 
     dw = part->data_window;
-    if (y < dw.y_min || y > dw.y_max)
+    if (y < dw.min.y || y > dw.max.y)
     {
         return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid request for scanline %d outside range of data window (%d - %d)",
             y,
-            dw.y_min,
-            dw.y_max));
+            dw.min.y,
+            dw.max.y));
     }
 
     lpc  = part->lines_per_chunk;
-    cidx = (y - dw.y_min);
+    cidx = (y - dw.min.y);
     if (lpc > 1) cidx /= lpc;
 
     if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
     {
         cidx = part->chunk_count - (cidx + 1);
-        miny = dw.y_max - (cidx + 1) * lpc;
+        miny = dw.max.y - (cidx + 1) * lpc;
     }
     else
     {
-        miny = cidx * lpc + dw.y_min;
+        miny = cidx * lpc + dw.min.y;
     }
 
     if (cidx < 0 || cidx >= part->chunk_count)
@@ -1172,18 +1172,18 @@ exr_write_scanline_block_info (
     cinfo->idx         = cidx;
     cinfo->type        = (uint8_t) part->storage_mode;
     cinfo->compression = (uint8_t) part->comp_type;
-    cinfo->start_x     = dw.x_min;
+    cinfo->start_x     = dw.min.x;
     cinfo->start_y     = miny;
-    cinfo->width       = dw.x_max - dw.x_min + 1;
+    cinfo->width       = dw.max.x - dw.min.x + 1;
     cinfo->height      = lpc;
-    if (miny < dw.y_min)
+    if (miny < dw.min.y)
     {
-        cinfo->start_y = dw.y_min;
-        cinfo->height -= (dw.y_min - miny);
+        cinfo->start_y = dw.min.y;
+        cinfo->height -= (dw.min.y - miny);
     }
-    else if ((miny + lpc) > dw.y_max)
+    else if ((miny + lpc) > dw.max.y)
     {
-        cinfo->height = (dw.y_max - miny + 1);
+        cinfo->height = (dw.max.y - miny + 1);
     }
     cinfo->level_x = 0;
     cinfo->level_y = 0;
@@ -1259,20 +1259,20 @@ exr_write_tile_block_info (
     if (tiledesc->y_size < (uint32_t) tileh) tileh = (int) tiledesc->y_size;
 
     if (((int64_t) (tilex) * (int64_t) (tilew) + (int64_t) (tilew) +
-         (int64_t) (part->data_window.x_min) - 1) >
-        (int64_t) (part->data_window.x_max))
+         (int64_t) (part->data_window.min.x) - 1) >
+        (int64_t) (part->data_window.max.x))
     {
-        int64_t sz = (int64_t) (part->data_window.x_max) -
-                     (int64_t) (part->data_window.x_min) + 1;
+        int64_t sz = (int64_t) (part->data_window.max.x) -
+                     (int64_t) (part->data_window.min.x) + 1;
         tilew = (int) (sz - ((int64_t) (tilex) * (int64_t) (tilew)));
     }
 
     if (((int64_t) (tiley) * (int64_t) (tileh) + (int64_t) (tileh) +
-         (int64_t) (part->data_window.y_min) - 1) >
-        (int64_t) (part->data_window.y_max))
+         (int64_t) (part->data_window.min.y) - 1) >
+        (int64_t) (part->data_window.max.y))
     {
-        int64_t sz = (int64_t) (part->data_window.y_max) -
-                     (int64_t) (part->data_window.y_min) + 1;
+        int64_t sz = (int64_t) (part->data_window.max.y) -
+                     (int64_t) (part->data_window.min.y) + 1;
         tileh = (int) (sz - ((int64_t) (tiley) * (int64_t) (tileh)));
     }
 
@@ -1656,7 +1656,7 @@ internal_validate_next_chunk (
     else
     {
         lpc  = part->lines_per_chunk;
-        cidx = (encode->chunk_block.start_y - part->data_window.y_min);
+        cidx = (encode->chunk_block.start_y - part->data_window.min.y);
         if (lpc > 1) cidx /= lpc;
 
         if (part->lineorder == EXR_LINEORDER_DECREASING_Y)

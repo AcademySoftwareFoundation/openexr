@@ -209,7 +209,7 @@ exr_initialize_required_attr_simple (
     int32_t           height,
     exr_compression_t ctype)
 {
-    exr_attr_box2i_t dispWindow = { 0, 0, width - 1, height - 1 };
+    exr_attr_box2i_t dispWindow = { .min={ .x=0, .y=0 }, .max={ .x=(width - 1), .y=(height - 1) } };
     exr_attr_v2f_t   swc        = { .x = 0.f, .y = 0.f };
     return exr_initialize_required_attr (
         ctxt,

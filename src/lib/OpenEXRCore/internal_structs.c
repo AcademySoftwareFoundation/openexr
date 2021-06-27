@@ -243,10 +243,10 @@ internal_exr_add_part (
 
     /* assign appropriately invalid values */
     part->storage_mode         = EXR_STORAGE_LAST_TYPE;
-    part->data_window.x_max    = -1;
-    part->data_window.y_max    = -1;
-    part->display_window.x_max = -1;
-    part->display_window.y_max = -1;
+    part->data_window.max.x    = -1;
+    part->data_window.max.y    = -1;
+    part->display_window.max.x = -1;
+    part->display_window.max.y = -1;
     part->chunk_count          = -1;
 
     /* put it into the part table */

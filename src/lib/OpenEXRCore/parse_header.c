@@ -1971,8 +1971,8 @@ internal_exr_compute_tile_information (
         int32_t*                   levszX  = NULL;
         int32_t*                   levszY  = NULL;
 
-        w = dw.x_max - dw.x_min + 1;
-        h = dw.y_max - dw.y_min + 1;
+        w = ((int64_t) dw.max.x) - ((int64_t) dw.min.x) + 1;
+        h = ((int64_t) dw.max.y) - ((int64_t) dw.min.y) + 1;
 
         switch (EXR_GET_TILE_LEVEL_MODE ((*tiledesc)))
         {
@@ -2020,15 +2020,15 @@ internal_exr_compute_tile_information (
         for (int l = 0; l < numX; ++l)
         {
             int64_t sx = calc_level_size (
-                dw.x_min, dw.x_max, l, EXR_GET_TILE_ROUND_MODE ((*tiledesc)));
+                dw.min.x, dw.max.x, l, EXR_GET_TILE_ROUND_MODE ((*tiledesc)));
             if (sx < 0 || sx > (int64_t) INT32_MAX)
                 return ctxt->print_error (
                     ctxt,
                     EXR_ERR_INVALID_ATTR,
                     "Invalid data window x dims (%d, %d) resulting in invalid tile level size (%" PRId64
                     ") for level %d",
-                    dw.x_min,
-                    dw.x_max,
+                    dw.min.x,
+                    dw.max.x,
                     sx,
                     l);
             levcntX[l] =
@@ -2039,15 +2039,15 @@ internal_exr_compute_tile_information (
         for (int l = 0; l < numY; ++l)
         {
             int64_t sy = calc_level_size (
-                dw.y_min, dw.y_max, l, EXR_GET_TILE_ROUND_MODE ((*tiledesc)));
+                dw.min.y, dw.max.y, l, EXR_GET_TILE_ROUND_MODE ((*tiledesc)));
             if (sy < 0 || sy > (int64_t) INT32_MAX)
                 return ctxt->print_error (
                     ctxt,
                     EXR_ERR_INVALID_ATTR,
                     "Invalid data window y dims (%d, %d) resulting in invalid tile level size (%" PRId64
                     ") for level %d",
-                    dw.y_min,
-                    dw.y_max,
+                    dw.min.y,
+                    dw.max.y,
                     sy,
                     l);
             levcntY[l] =
@@ -2074,7 +2074,7 @@ internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart)
     uint64_t                 unpackedsize = 0;
     int64_t                  w;
 
-    w = (int64_t) dw.x_max - (int64_t) dw.x_min + 1;
+    w = ((int64_t) dw.max.x) - ((int64_t) dw.min.x) + 1;
 
     if (curpart->tiles)
     {
@@ -2164,7 +2164,7 @@ internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart)
 
         /* h = max - min + 1, but to do size / divide by round,
          * we'd do linePerChunk - 1, so the math cancels */
-        retval = (dw.y_max - dw.y_min + linePerChunk) / linePerChunk;
+        retval = (dw.max.y - dw.min.y + linePerChunk) / linePerChunk;
     }
     return retval;
 }
@@ -2232,9 +2232,7 @@ update_chunk_offsets (
 
 static exr_result_t
 read_magic_and_flags (
-    struct _internal_exr_context*     ctxt,
-    uint32_t*                         outflags,
-    uint64_t*                         initpos)
+    struct _internal_exr_context* ctxt, uint32_t* outflags, uint64_t* initpos)
 {
     uint32_t     magic_and_version[2];
     uint32_t     flags;
@@ -2327,8 +2325,7 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
     exr_result_t                     rv = EXR_ERR_UNKNOWN;
 
     rv = read_magic_and_flags (ctxt, &flags, &initpos);
-    if (rv != EXR_ERR_SUCCESS)
-        return rv;
+    if (rv != EXR_ERR_SUCCESS) return rv;
 
     rv = priv_init_scratch (ctxt, &scratch, initpos);
     if (rv != EXR_ERR_SUCCESS)

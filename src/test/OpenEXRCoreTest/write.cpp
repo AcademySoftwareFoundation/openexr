@@ -790,19 +790,19 @@ testWriteAttrs (const std::string& tempdir)
     {
         exr_attr_box2i_t tb2i = { 1, 2, 3, 4 };
         TEST_CORNER_CASE_NAME (box2i, tb2i, int);
-        EXRCORE_TEST (tb2i.x_min == 1);
-        EXRCORE_TEST (tb2i.y_min == 2);
-        EXRCORE_TEST (tb2i.x_max == 3);
-        EXRCORE_TEST (tb2i.y_max == 4);
+        EXRCORE_TEST (tb2i.min.x == 1);
+        EXRCORE_TEST (tb2i.min.y == 2);
+        EXRCORE_TEST (tb2i.max.x == 3);
+        EXRCORE_TEST (tb2i.max.y == 4);
     }
 
     {
         exr_attr_box2f_t tb2f = { 1.f, 2.f, 3.f, 4.f };
         TEST_CORNER_CASE_NAME (box2f, tb2f, int);
-        EXRCORE_TEST (tb2f.x_min == 1.f);
-        EXRCORE_TEST (tb2f.y_min == 2.f);
-        EXRCORE_TEST (tb2f.x_max == 3.f);
-        EXRCORE_TEST (tb2f.y_max == 4.f);
+        EXRCORE_TEST (tb2f.min.x == 1.f);
+        EXRCORE_TEST (tb2f.min.y == 2.f);
+        EXRCORE_TEST (tb2f.max.x == 3.f);
+        EXRCORE_TEST (tb2f.max.y == 4.f);
     }
 
     {
@@ -1165,10 +1165,10 @@ testWriteTiles (const std::string& tempdir)
 
     EXRCORE_TEST_RVAL (exr_get_data_window (outf, 0, &dw));
     ty = 0;
-    for (int32_t y = dw.y_min; y <= dw.y_max; y += levelsy)
+    for (int32_t y = dw.min.y; y <= dw.max.y; y += levelsy)
     {
         tx = 0;
-        for (int32_t x = dw.x_min; x <= dw.x_max; x += levelsx)
+        for (int32_t x = dw.min.x; x <= dw.max.x; x += levelsx)
         {
             exr_chunk_block_info_t cinfo;
             EXRCORE_TEST_RVAL (

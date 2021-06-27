@@ -90,32 +90,32 @@ validate_image_dimensions (
     par = curpart->pixelAspectRatio->f;
     sww = curpart->screenWindowWidth->f;
 
-    w = (int64_t) dw.x_max - (int64_t) dw.x_min + 1;
-    h = (int64_t) dw.y_max - (int64_t) dw.y_min + 1;
+    w = (int64_t) dw.max.x - (int64_t) dw.min.x + 1;
+    h = (int64_t) dw.max.y - (int64_t) dw.min.y + 1;
 
-    if (dspw.x_min > dspw.x_max || dspw.y_min > dspw.y_max ||
-        dspw.x_min <= -kLargeVal || dspw.y_min <= -kLargeVal ||
-        dspw.x_max >= kLargeVal || dspw.y_max >= kLargeVal)
+    if (dspw.min.x > dspw.max.x || dspw.min.y > dspw.max.y ||
+        dspw.min.x <= -kLargeVal || dspw.min.y <= -kLargeVal ||
+        dspw.max.x >= kLargeVal || dspw.max.y >= kLargeVal)
         return f->print_error (
             f,
             EXR_ERR_INVALID_ATTR,
             "Invalid display window (%d, %d - %d, %d)",
-            dspw.x_min,
-            dspw.y_min,
-            dspw.x_max,
-            dspw.y_max);
+            dspw.min.x,
+            dspw.min.y,
+            dspw.max.x,
+            dspw.max.y);
 
-    if (dw.x_min > dw.x_max || dw.y_min > dw.y_max || dw.x_min <= -kLargeVal ||
-        dw.y_min <= -kLargeVal || dw.x_max >= kLargeVal ||
-        dw.y_max >= kLargeVal)
+    if (dw.min.x > dw.max.x || dw.min.y > dw.max.y || dw.min.x <= -kLargeVal ||
+        dw.min.y <= -kLargeVal || dw.max.x >= kLargeVal ||
+        dw.max.y >= kLargeVal)
         return f->print_error (
             f,
             EXR_ERR_INVALID_ATTR,
             "Invalid data window (%d, %d - %d, %d)",
-            dw.x_min,
-            dw.y_min,
-            dw.x_max,
-            dw.y_max);
+            dw.min.x,
+            dw.min.y,
+            dw.max.x,
+            dw.max.y);
 
     if (maxw > 0 && maxw < w)
         return f->print_error (
@@ -183,8 +183,8 @@ validate_channels (
             "request to validate channel list, but data window not set to validate against");
 
     dw = curpart->data_window;
-    w  = dw.x_max - dw.x_min + 1;
-    h  = dw.y_max - dw.y_min + 1;
+    w  = dw.max.x - dw.min.x + 1;
+    h  = dw.max.y - dw.min.y + 1;
     for (int c = 0; c < channels->num_channels; ++c)
     {
         int32_t xsamp = channels->entries[c].x_sampling;
@@ -203,21 +203,21 @@ validate_channels (
                 "channel '%s': y subsampling factor is invalid (%d)",
                 channels->entries[c].name.str,
                 ysamp);
-        if (dw.x_min % xsamp)
+        if (dw.min.x % xsamp)
             return f->print_error (
                 f,
                 EXR_ERR_INVALID_ATTR,
                 "channel '%s': minimum x coordinate (%d) of the data window is not a multiple of the x subsampling factor (%d)",
                 channels->entries[c].name.str,
-                dw.x_min,
+                dw.min.x,
                 xsamp);
-        if (dw.y_min % ysamp)
+        if (dw.min.y % ysamp)
             return f->print_error (
                 f,
                 EXR_ERR_INVALID_ATTR,
                 "channel '%s': minimum y coordinate (%d) of the data window is not a multiple of the y subsampling factor (%d)",
                 channels->entries[c].name.str,
-                dw.y_min,
+                dw.min.y,
                 ysamp);
         if (w % xsamp)
             return f->print_error (

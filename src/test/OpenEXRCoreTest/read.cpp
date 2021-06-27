@@ -275,11 +275,11 @@ testReadScans (const std::string& tempdir)
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_read_scanline_block_info (f, 0, dw.y_min - 1, &cinfo));
+        exr_read_scanline_block_info (f, 0, dw.min.y - 1, &cinfo));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_read_scanline_block_info (f, 0, dw.y_max + 1, &cinfo));
-    EXRCORE_TEST_RVAL (exr_read_scanline_block_info (f, 0, dw.y_min, &cinfo));
+        exr_read_scanline_block_info (f, 0, dw.max.y + 1, &cinfo));
+    EXRCORE_TEST_RVAL (exr_read_scanline_block_info (f, 0, dw.min.y, &cinfo));
 
     uint64_t pchunksz = 0;
     EXRCORE_TEST_RVAL (exr_get_chunk_unpacked_size (f, 0, &pchunksz));
