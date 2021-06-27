@@ -478,7 +478,7 @@ exr_read_tile_block_info (
     int32_t*                   tdata;
     int32_t                    cidx, ntoread;
     uint64_t                   dataoff;
-    int64_t                    fsize;
+    int64_t                    fsize, tend, dend;
     const exr_attr_chlist_t*   chanlist;
     const exr_attr_tiledesc_t* tiledesc;
     int                        tilew, tileh, unpacksize = 0;
@@ -506,27 +506,25 @@ exr_read_tile_block_info (
     }
 
     tiledesc = part->tiles->tiledesc;
-    tilew    = part->tile_level_tile_size_x[levelx];
-    if (tiledesc->x_size < (uint32_t) tilew) tilew = (int) tiledesc->x_size;
-    tileh = part->tile_level_tile_size_y[levely];
-    if (tiledesc->y_size < (uint32_t) tileh) tileh = (int) tiledesc->y_size;
 
-    if (((int64_t) (tilex) * (int64_t) (tilew) + (int64_t) (tilew) +
-         (int64_t) (part->data_window.min.x) - 1) >
-        (int64_t) (part->data_window.max.x))
+    tilew = (int) (tiledesc->x_size);
+    dend  = ((int64_t) part->tile_level_tile_size_x[levelx]);
+    tend  = ((int64_t) tilew) * ((int64_t) (tilex + 1));
+    if (tend > dend)
     {
-        int64_t sz = (int64_t) (part->data_window.max.x) -
-                     (int64_t) (part->data_window.min.x) + 1;
-        tilew = (int) (sz - ((int64_t) (tilex) * (int64_t) (tilew)));
+        tend -= dend;
+        if (tend < tilew)
+            tilew = tilew - ((int) tend);
     }
 
-    if (((int64_t) (tiley) * (int64_t) (tileh) + (int64_t) (tileh) +
-         (int64_t) (part->data_window.min.y) - 1) >
-        (int64_t) (part->data_window.max.y))
+    tileh = (int) (tiledesc->y_size);
+    dend  = ((int64_t) part->tile_level_tile_size_y[levely]);
+    tend  = ((int64_t) tileh) * ((int64_t) (tiley + 1));
+    if (tend > dend)
     {
-        int64_t sz = (int64_t) (part->data_window.max.y) -
-                     (int64_t) (part->data_window.min.y) + 1;
-        tileh = (int) (sz - ((int64_t) (tiley) * (int64_t) (tileh)));
+        tend -= dend;
+        if (tend < tileh)
+            tileh = tileh - ((int) tend);
     }
 
     cidx = 0;

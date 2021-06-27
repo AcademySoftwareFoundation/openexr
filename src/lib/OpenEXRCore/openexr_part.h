@@ -95,6 +95,26 @@ EXR_EXPORT exr_result_t exr_get_tile_sizes (
     int32_t*            tilew,
     int32_t*            tileh);
 
+/** @brief Query the data sizes for a particular level in the specified part.
+ *
+ * If the part is a tiled part, fills in the width / height for the
+ * specified levels
+ *
+ * return ERR_SUCCESS on sucess, an error otherwise (i.e. if the part
+ * is not tiled)
+ *
+ * it is valid to pass NULL to either of the levw or levh
+ * arguments, which enables testing if this part is a tiled part, or
+ * if you don't need both for some reason
+ */
+EXR_EXPORT exr_result_t exr_get_level_sizes (
+    exr_const_context_t ctxt,
+    int                 part_index,
+    int                 levelx,
+    int                 levely,
+    int32_t*            levw,
+    int32_t*            levh);
+
 /** Return the number of chunks contained in this part of the file
  *
  * This should be used as a basis for splitting up how a file is
