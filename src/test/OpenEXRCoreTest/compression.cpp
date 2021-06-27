@@ -759,10 +759,10 @@ doDecodeScan (exr_context_t f, pixels& p, int xs, int ys)
     bool                   first = true;
 
     EXRCORE_TEST_RVAL (exr_get_data_window (f, 0, &dw));
-    EXRCORE_TEST (dw.x_min == IMG_DATA_X * xs);
-    EXRCORE_TEST (dw.x_max == IMG_DATA_X * xs + IMG_WIDTH * xs - 1);
-    EXRCORE_TEST (dw.y_min == IMG_DATA_Y * ys);
-    EXRCORE_TEST (dw.y_max == IMG_DATA_Y * ys + IMG_HEIGHT * ys - 1);
+    EXRCORE_TEST (dw.min.x == IMG_DATA_X * xs);
+    EXRCORE_TEST (dw.max.x == IMG_DATA_X * xs + IMG_WIDTH * xs - 1);
+    EXRCORE_TEST (dw.min.y == IMG_DATA_Y * ys);
+    EXRCORE_TEST (dw.max.y == IMG_DATA_Y * ys + IMG_HEIGHT * ys - 1);
 
     EXRCORE_TEST_RVAL (exr_get_scanlines_per_chunk (f, 0, &scansperchunk));
 
@@ -771,7 +771,7 @@ doDecodeScan (exr_context_t f, pixels& p, int xs, int ys)
     EXRCORE_TEST (stortype == EXR_STORAGE_SCANLINE);
 
     //const uint8_t* tmp;
-    for (int y = dw.y_min; y <= dw.y_max; y += scansperchunk)
+    for (int y = dw.min.y; y <= dw.max.y; y += scansperchunk)
     {
         EXRCORE_TEST_RVAL (exr_read_scanline_block_info (f, 0, y, &cinfo));
         if (first)
@@ -783,7 +783,7 @@ doDecodeScan (exr_context_t f, pixels& p, int xs, int ys)
         {
             EXRCORE_TEST_RVAL (exr_decoding_update (f, 0, &cinfo, &decoder));
         }
-        int32_t idxoffset = ((y - dw.y_min) / ys) * p._stride_x;
+        int32_t idxoffset = ((y - dw.min.y) / ys) * p._stride_x;
 
         for (int c = 0; c < decoder.channel_count; ++c)
         {
@@ -1131,10 +1131,10 @@ doWriteRead (
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
     exr_attr_box2i_t          dataW;
 
-    dataW.x_min = dwx;
-    dataW.y_min = dwy;
-    dataW.x_max = dwx + fw - 1;
-    dataW.y_max = dwy + fh - 1;
+    dataW.min.x = dwx;
+    dataW.min.y = dwy;
+    dataW.max.x = dwx + fw - 1;
+    dataW.max.y = dwy + fh - 1;
 
     std::cout << "  " << pattern << " tiled: " << (tiled ? "yes" : "no")
               << " sampling " << xs << ", " << ys << " comp " << (int) comp

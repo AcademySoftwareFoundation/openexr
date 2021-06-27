@@ -24,20 +24,20 @@ print_attr (const exr_attribute_t* a, int verbose)
         case EXR_ATTR_BOX2I:
             printf (
                 "[ %d, %d - %d %d ] %d x %d",
-                a->box2i->x_min,
-                a->box2i->y_min,
-                a->box2i->x_max,
-                a->box2i->y_max,
-                a->box2i->x_max - a->box2i->x_min + 1,
-                a->box2i->y_max - a->box2i->y_min + 1);
+                a->box2i->min.x,
+                a->box2i->min.y,
+                a->box2i->max.x,
+                a->box2i->max.y,
+                a->box2i->max.x - a->box2i->min.x + 1,
+                a->box2i->max.y - a->box2i->min.y + 1);
             break;
         case EXR_ATTR_BOX2F:
             printf (
                 "[ %g, %g - %g %g ]",
-                (double) a->box2f->x_min,
-                (double) a->box2f->y_min,
-                (double) a->box2f->x_max,
-                (double) a->box2f->y_max);
+                (double) a->box2f->min.x,
+                (double) a->box2f->min.y,
+                (double) a->box2f->max.x,
+                (double) a->box2f->max.y);
             break;
         case EXR_ATTR_CHLIST:
             printf ("%d channels\n", a->chlist->num_channels);

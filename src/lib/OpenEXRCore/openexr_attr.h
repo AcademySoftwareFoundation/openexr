@@ -106,24 +106,6 @@ typedef enum
  * structs to be tightly packed */
 #pragma pack(push, 1)
 
-/** @brief struct to hold an integer box / region definition */
-typedef struct
-{
-    int32_t x_min;
-    int32_t y_min;
-    int32_t x_max;
-    int32_t y_max;
-} exr_attr_box2i_t;
-
-/** @brief struct to hold a floating-point box / region definition */
-typedef struct
-{
-    float x_min;
-    float y_min;
-    float x_max;
-    float y_max;
-} exr_attr_box2f_t;
-
 /** @brief struct to hold color chromaticities to interpret the tristimulus color values in the image data */
 typedef struct
 {
@@ -264,6 +246,20 @@ typedef struct
         double arr[3];
     };
 } exr_attr_v3d_t;
+
+/** @brief struct to hold an integer box / region definition */
+typedef struct
+{
+    exr_attr_v2i_t min;
+    exr_attr_v2i_t max;
+} exr_attr_box2i_t;
+
+/** @brief struct to hold a floating-point box / region definition */
+typedef struct
+{
+    exr_attr_v2f_t min;
+    exr_attr_v2f_t max;
+} exr_attr_box2f_t;
 
 /** @brief Struct holding base tiledesc attribute type defined in spec
  *
