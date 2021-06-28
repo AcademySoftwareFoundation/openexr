@@ -47,16 +47,16 @@ validate_req_attr (
 
     if (f->is_multipart || f->has_nonimage_data)
     {
-        if (!curpart->name)
+        if (f->is_multipart && !curpart->name)
             return f->print_error (
                 f,
                 EXR_ERR_MISSING_REQ_ATTR,
-                "'name' attribute for multipart / deep file not found");
+                "'name' attribute for multipart file not found");
         if (!curpart->type)
             return f->print_error (
                 f,
                 EXR_ERR_MISSING_REQ_ATTR,
-                "'type' attribute for multipart / deep file not found");
+                "'type' attribute for v2+ file not found");
         if (f->has_nonimage_data && !curpart->version)
             return f->print_error (
                 f,

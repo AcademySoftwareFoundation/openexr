@@ -435,12 +435,40 @@ compute_tile_chunk_off (
                     part->num_tile_levels_y);
             }
 
-            // TODO
-            return ctxt->print_error (
-                ctxt,
-                EXR_ERR_UNKNOWN,
-                "RIPMAP support not yet finished in C layer");
-            //break;
+            numx = part->tile_level_tile_count_x[levelx];
+            numy = part->tile_level_tile_count_y[levely];
+
+            if (tilex >= numx || tiley >= numy)
+            {
+                return ctxt->print_error (
+                    ctxt,
+                    EXR_ERR_INVALID_ARGUMENT,
+                    "Request for tile (%d, %d) at rip level %d, %d level only has %d x %d tiles",
+                    tilex,
+                    tiley,
+                    levelx,
+                    levely,
+                    numx,
+                    numy);
+            }
+
+            for (int ly = 0; ly < levely; ++ly)
+            {
+                for (int lx = 0; lx < levelx; ++lx)
+                {
+                    chunkoff +=
+                        ((int64_t) part->tile_level_tile_count_x[lx] *
+                         (int64_t) part->tile_level_tile_count_y[ly]);
+                }
+            }
+            for (int lx = 0; lx < levelx; ++lx)
+            {
+                chunkoff +=
+                    ((int64_t) part->tile_level_tile_count_x[lx] *
+                     (int64_t) numy);
+            }
+            chunkoff += tiley * numx + tilex;
+            break;
         case EXR_TILE_LAST_TYPE:
         default:
             return ctxt->print_error (
@@ -513,8 +541,7 @@ exr_read_tile_block_info (
     if (tend > dend)
     {
         tend -= dend;
-        if (tend < tilew)
-            tilew = tilew - ((int) tend);
+        if (tend < tilew) tilew = tilew - ((int) tend);
     }
 
     tileh = (int) (tiledesc->y_size);
@@ -523,8 +550,7 @@ exr_read_tile_block_info (
     if (tend > dend)
     {
         tend -= dend;
-        if (tend < tileh)
-            tileh = tileh - ((int) tend);
+        if (tend < tileh) tileh = tileh - ((int) tend);
     }
 
     cidx = 0;
@@ -561,7 +587,14 @@ exr_read_tile_block_info (
     rv = extract_chunk_table (pctxt, part, &ctable);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
-    if (pctxt->is_multipart && part->storage_mode != EXR_STORAGE_DEEP_TILED)
+    if (part->storage_mode == EXR_STORAGE_DEEP_TILED)
+    {
+        if (pctxt->is_multipart)
+            ntoread = 5;
+        else
+            ntoread = 4;
+    }
+    else if (pctxt->is_multipart)
         ntoread = 6;
     else
         ntoread = 5;
@@ -828,8 +861,6 @@ exr_read_deep_chunk (
     EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
 
     if (!cinfo) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
-    if (!packed_data && !sample_data)
-        return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
 
     if (cinfo->idx < 0 || cinfo->idx >= part->chunk_count)
         return pctxt->print_error (
@@ -870,7 +901,7 @@ exr_read_deep_chunk (
             pctxt->file_size);
 
     rv = EXR_ERR_SUCCESS;
-    if (sample_data)
+    if (sample_data && cinfo->sample_count_table_size > 0)
     {
         dataoffset = cinfo->sample_count_data_offset;
         toread     = cinfo->sample_count_table_size;

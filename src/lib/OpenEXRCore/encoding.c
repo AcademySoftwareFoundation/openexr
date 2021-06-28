@@ -271,6 +271,21 @@ exr_encoding_run (
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid request for encoding update from different context / part"));
 
+    if (part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
+        part->storage_mode == EXR_STORAGE_DEEP_TILED)
+    {
+        if (encode->sample_count_table == NULL ||
+            encode->sample_count_alloc_size !=
+                (((size_t) encode->chunk_block.width) *
+                 ((size_t) encode->chunk_block.height) * sizeof (int32_t)))
+        {
+            return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->report_error (
+                pctxt,
+                EXR_ERR_INVALID_ARGUMENT,
+                "Invalid / missing sample count table for deep data"));
+        }
+    }
+
     for (int c = 0; c < encode->channel_count; ++c)
     {
         const exr_coding_channel_info_t* encc = (encode->channels + c);
@@ -345,6 +360,15 @@ exr_encoding_run (
     }
     EXR_UNLOCK_WRITE (pctxt);
 
+    if ((part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
+         part->storage_mode == EXR_STORAGE_DEEP_TILED) &&
+        encode->sample_count_table != NULL)
+    {
+        priv_from_native32 (
+            encode->sample_count_table,
+            encode->chunk_block.width * encode->chunk_block.height);
+    }
+
     if (rv == EXR_ERR_SUCCESS)
     {
         if (encode->compress_fn && encode->packed_bytes > 0)
@@ -355,13 +379,25 @@ exr_encoding_run (
         {
             internal_encode_free_buffer (
                 encode,
-                EXR_TRANSCODE_BUFFER_UNPACKED,
+                EXR_TRANSCODE_BUFFER_COMPRESSED,
                 &(encode->compressed_buffer),
                 &(encode->compressed_alloc_size));
+
+            internal_encode_free_buffer (
+                encode,
+                EXR_TRANSCODE_BUFFER_PACKED_SAMPLES,
+                &(encode->packed_sample_count_table),
+                &(encode->packed_sample_count_alloc_size));
 
             encode->compressed_buffer     = encode->packed_buffer;
             encode->compressed_bytes      = encode->packed_bytes;
             encode->compressed_alloc_size = 0;
+
+            encode->packed_sample_count_table      = encode->sample_count_table;
+            encode->packed_sample_count_alloc_size = 0;
+            encode->packed_sample_count_bytes =
+                (((size_t) encode->chunk_block.width) *
+                 ((size_t) encode->chunk_block.height) * sizeof (int32_t));
         }
     }
 
@@ -370,6 +406,15 @@ exr_encoding_run (
 
     if (rv == EXR_ERR_SUCCESS && encode->write_fn)
         rv = encode->write_fn (encode);
+
+    if ((part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
+         part->storage_mode == EXR_STORAGE_DEEP_TILED) &&
+        encode->sample_count_table != NULL)
+    {
+        priv_to_native32 (
+            encode->sample_count_table,
+            encode->chunk_block.width * encode->chunk_block.height);
+    }
 
     return rv;
 }

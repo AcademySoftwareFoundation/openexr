@@ -57,6 +57,7 @@ typedef struct _exr_encode_pipeline
      * custom allocators.
      */
     void* packed_buffer;
+    /** differing from the allocation size, the number of actual bytes */
     uint64_t packed_bytes;
 
     /** used when re-using the same encode pipeline struct to know if
@@ -69,6 +70,14 @@ typedef struct _exr_encode_pipeline
      * custom allocators.
      */
     size_t packed_alloc_size;
+
+    /** for deep data. NB: this is NOT const because we need to
+     * temporarily swap it to xdr order and restore it (to avoid a
+     * duplicate buffer allocation) */
+    int32_t* sample_count_table;
+    /** for deep data, in bytes, assumed to be width * height */
+    size_t sample_count_alloc_size;
+
     /** for deep data */
     void* packed_sample_count_table;
     /** for deep data */

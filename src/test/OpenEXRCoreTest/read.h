@@ -19,7 +19,6 @@ void testOpenDeep( const std::string &tempdir );
 void testReadScans( const std::string &tempdir );
 void testReadTiles( const std::string &tempdir );
 void testReadMultiPart( const std::string &tempdir );
-void testReadDeep( const std::string &tempdir );
 
 void testReadUnpack( const std::string &tempdir );
 

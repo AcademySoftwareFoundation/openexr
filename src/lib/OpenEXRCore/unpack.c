@@ -89,7 +89,7 @@ half_to_float_buffer_f16c (float* out, const uint16_t* in, int w)
 #    else
     while (w > 0)
     {
-        *out++ = half_to_float(*in++);
+        *out++ = half_to_float (*in++);
         --w;
     }
 #    endif
@@ -866,7 +866,8 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint16_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    *((uint16_t*) cdata) = unaligned_load16( src );
+                                    *((uint16_t*) cdata) =
+                                        unaligned_load16 (src);
                                     ++src;
                                     cdata += pixincrement;
                                 }
@@ -877,7 +878,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint16_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    uint16_t cval = unaligned_load16( src );
+                                    uint16_t cval = unaligned_load16 (src);
                                     ++src;
                                     *((float*) cdata) = half_to_float (cval);
                                     cdata += pixincrement;
@@ -889,7 +890,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint16_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    uint16_t cval = unaligned_load16( src );
+                                    uint16_t cval = unaligned_load16 (src);
                                     ++src;
                                     *((uint32_t*) cdata) = half_to_uint (cval);
                                     cdata += pixincrement;
@@ -907,7 +908,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint32_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    uint32_t fint = unaligned_load32( src );
+                                    uint32_t fint = unaligned_load32 (src);
                                     ++src;
                                     *((uint16_t*) cdata) =
                                         float_to_half_int (fint);
@@ -920,7 +921,8 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint32_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    *((uint32_t*) cdata) = unaligned_load32( src );
+                                    *((uint32_t*) cdata) =
+                                        unaligned_load32 (src);
                                     ++src;
                                     cdata += pixincrement;
                                 }
@@ -931,7 +933,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint32_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    uint32_t fint = unaligned_load32( src );
+                                    uint32_t fint = unaligned_load32 (src);
                                     ++src;
                                     *((uint32_t*) cdata) =
                                         float_to_uint_int (fint);
@@ -950,7 +952,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint32_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    uint32_t fint = unaligned_load32( src );
+                                    uint32_t fint = unaligned_load32 (src);
                                     ++src;
                                     *((uint16_t*) cdata) = uint_to_half (fint);
                                     cdata += pixincrement;
@@ -962,7 +964,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint32_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    uint32_t fint = unaligned_load32( src );
+                                    uint32_t fint = unaligned_load32 (src);
                                     ++src;
                                     *((float*) cdata) = uint_to_float (fint);
                                     cdata += pixincrement;
@@ -974,7 +976,8 @@ generic_unpack (exr_decode_pipeline_t* decode)
                                     (const uint32_t*) srcbuffer;
                                 for (int x = 0; x < w; ++x)
                                 {
-                                    *((uint32_t*) cdata) = unaligned_load32( src );
+                                    *((uint32_t*) cdata) =
+                                        unaligned_load32 (src);
                                     ++src;
                                     cdata += pixincrement;
                                 }
@@ -991,6 +994,186 @@ generic_unpack (exr_decode_pipeline_t* decode)
     }
     return EXR_ERR_SUCCESS;
 }
+
+//static exr_result_t
+//generic_unpack_deep (exr_decode_pipeline_t* decode)
+//{
+//    const uint8_t* srcbuffer  = decode->unpacked_buffer;
+//    const int32_t* sampbuffer = decode->sample_count_table;
+//    uint8_t*       cdata;
+//    int            w, h, bpc;
+//
+//    if (decode->sample_count_alloc_size !=
+//        (sizeof (int32_t) * decode->chunk_block.height *
+//         decode->chunk_block.width))
+//    {
+//        return EXR_ERR_INVALID_ARGUMENT;
+//    }
+//
+//    w = decode->chunk_block.width;
+//    h = decode->chunk_block.height;
+//    for (int y = 0; y < h; ++y)
+//    {
+//        for (int c = 0; c < decode->channel_count; ++c)
+//        {
+//            exr_coding_channel_info_t* decc = (decode->channels + c);
+//
+//            bpc = decc->bytes_per_element;
+//
+//            cdata = decc->decode_to_ptr;
+//            if (!cdata)
+//            {
+//                for (int x = 0; x < w; ++x)
+//                    srcbuffer += bpc * sampbuffer[x];
+//                continue;
+//            }
+//
+//            for (int x = 0; x < w; ++x)
+//            {
+//                int32_t samps = sampbuffer[x];
+//
+//                int pixincrement = decc->user_pixel_stride;
+//                switch (decc->data_type)
+//                {
+//                    case EXR_PIXEL_HALF:
+//                        switch (decc->user_data_type)
+//                        {
+//                            case EXR_PIXEL_HALF: {
+//                                const uint16_t* src =
+//                                    (const uint16_t*) srcbuffer;
+//                                for (int s = 0; s < samps; ++s)
+//                                {
+//                                    *((uint16_t*) cdata) =
+//                                        unaligned_load16 (src);
+//                                    ++src;
+//                                    cdata += pixincrement;
+//                                }
+//                                break;
+//                            }
+//                            case EXR_PIXEL_FLOAT: {
+//                                const uint16_t* src =
+//                                    (const uint16_t*) srcbuffer;
+//                                for (int s = 0; s < samps; ++s)
+//                                {
+//                                    uint16_t cval = unaligned_load16 (src);
+//                                    ++src;
+//                                    *((float*) cdata) = half_to_float (cval);
+//                                    cdata += pixincrement;
+//                                }
+//                                break;
+//                            }
+//                            case EXR_PIXEL_UINT: {
+//                                const uint16_t* src =
+//                                    (const uint16_t*) srcbuffer;
+//                                for (int s = 0; s < samps; ++s)
+//                                {
+//                                    uint16_t cval = unaligned_load16 (src);
+//                                    ++src;
+//                                    *((uint32_t*) cdata) = half_to_uint (cval);
+//                                    cdata += pixincrement;
+//                                }
+//                                break;
+//                            }
+//                            default: return EXR_ERR_INVALID_ARGUMENT;
+//                        }
+//                        break;
+//                    case EXR_PIXEL_FLOAT:
+//                        switch (decc->user_data_type)
+//                        {
+//                            case EXR_PIXEL_HALF: {
+//                                const uint32_t* src =
+//                                    (const uint32_t*) srcbuffer;
+//                                for (int s = 0; s < samps; ++s)
+//                                {
+//                                    uint32_t fint = unaligned_load32 (src);
+//                                    ++src;
+//                                    *((uint16_t*) cdata) =
+//                                        float_to_half_int (fint);
+//                                    cdata += pixincrement;
+//                                }
+//                                break;
+//                            }
+//                            case EXR_PIXEL_FLOAT: {
+//                                const uint32_t* src =
+//                                    (const uint32_t*) srcbuffer;
+//                                for (int s = 0; s < samps; ++s)
+//                                {
+//                                    *((uint32_t*) cdata) =
+//                                        unaligned_load32 (src);
+//                                    ++src;
+//                                    cdata += pixincrement;
+//                                }
+//                                break;
+//                            }
+//                            case EXR_PIXEL_UINT: {
+//                                const uint32_t* src =
+//                                    (const uint32_t*) srcbuffer;
+//                                for (int s = 0; s < samps; ++s)
+//                                {
+//                                    uint32_t fint = unaligned_load32 (src);
+//                                    ++src;
+//                                    *((uint32_t*) cdata) =
+//                                        float_to_uint_int (fint);
+//                                    cdata += pixincrement;
+//                                }
+//                                break;
+//                            }
+//                            default: return EXR_ERR_INVALID_ARGUMENT;
+//                        }
+//                        break;
+//                    case EXR_PIXEL_UINT:
+//                        switch (decc->user_data_type)
+//                        {
+//                            case EXR_PIXEL_HALF: {
+//                                const uint32_t* src =
+//                                    (const uint32_t*) srcbuffer;
+//                                for (int s = 0; s < samps; ++s)
+//                                {
+//                                    uint32_t fint = unaligned_load32 (src);
+//                                    ++src;
+//                                    *((uint16_t*) cdata) = uint_to_half (fint);
+//                                    cdata += pixincrement;
+//                                }
+//                                break;
+//                            }
+//                            case EXR_PIXEL_FLOAT: {
+//                                const uint32_t* src =
+//                                    (const uint32_t*) srcbuffer;
+//                                for (int s = 0; s < samps; ++s)
+//                                {
+//                                    uint32_t fint = unaligned_load32 (src);
+//                                    ++src;
+//                                    *((float*) cdata) = uint_to_float (fint);
+//                                    cdata += pixincrement;
+//                                }
+//                                break;
+//                            }
+//                            case EXR_PIXEL_UINT: {
+//                                const uint32_t* src =
+//                                    (const uint32_t*) srcbuffer;
+//                                for (int s = 0; s < samps; ++s)
+//                                {
+//                                    *((uint32_t*) cdata) =
+//                                        unaligned_load32 (src);
+//                                    ++src;
+//                                    cdata += pixincrement;
+//                                }
+//                                break;
+//                            }
+//                            default: return EXR_ERR_INVALID_ARGUMENT;
+//                        }
+//                        break;
+//                    default: return EXR_ERR_INVALID_ARGUMENT;
+//                }
+//
+//                srcbuffer += bpc * samps;
+//            }
+//            decc->decode_to_ptr = cdata;
+//        }
+//    }
+//
+//    return EXR_ERR_SUCCESS;
+//}
 
 /**************************************/
 
@@ -1017,7 +1200,8 @@ internal_exr_match_decode (
         init_cpu_check = 0;
     }
 
-    /* TODO */
+    /* we don't decode deep for now, it is up to the user to do that (for efficiency) */
+    //if (isdeep) return &generic_unpack_deep;
     if (isdeep) return NULL;
 
     if (hastypechange > 0)

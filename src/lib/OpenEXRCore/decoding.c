@@ -158,7 +158,8 @@ decompress_data (
 
     if (packsz == 0) return EXR_ERR_SUCCESS;
 
-    if (packsz == unpacksz && ctype != EXR_COMPRESSION_B44 && ctype != EXR_COMPRESSION_B44A)
+    if (packsz == unpacksz && ctype != EXR_COMPRESSION_B44 &&
+        ctype != EXR_COMPRESSION_B44A)
     {
         if (unpackbufptr != packbufptr)
             memcpy (unpackbufptr, packbufptr, unpacksz);
@@ -447,7 +448,10 @@ exr_decoding_choose_default_routines (
         simpinterleave,
         simplineoff);
 
-    if (!decode->unpack_and_convert_fn)
+    /* we don't decode deep for now */
+    if (!(part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
+          part->storage_mode == EXR_STORAGE_DEEP_TILED) &&
+        !decode->unpack_and_convert_fn)
         return pctxt->report_error (
             pctxt,
             EXR_ERR_ARGUMENT_OUT_OF_RANGE,
@@ -522,6 +526,17 @@ exr_decoding_run (
 
     if (rv == EXR_ERR_SUCCESS && decode->decompress_fn)
         rv = decode->decompress_fn (decode);
+
+    if (rv == EXR_ERR_SUCCESS &&
+        (part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
+         part->storage_mode == EXR_STORAGE_DEEP_TILED) &&
+        decode->sample_count_table != NULL &&
+        decode->sample_count_alloc_size > 0)
+    {
+        priv_to_native32 (
+            decode->sample_count_table,
+            decode->sample_count_alloc_size / sizeof (int32_t));
+    }
 
     if (rv == EXR_ERR_SUCCESS && decode->unpack_and_convert_fn)
         rv = decode->unpack_and_convert_fn (decode);
