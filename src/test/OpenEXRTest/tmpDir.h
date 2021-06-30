@@ -15,6 +15,8 @@
     #define rmdir _rmdir
 #else
     #include <sys/stat.h> // for mkdir
-    #define IMF_TMP_DIR "/var/tmp/"
+    #ifndef IMF_TMP_DIR
+        #define IMF_TMP_DIR "/var/tmp/"
+    #endif
     #define IMF_PATH_SEPARATOR "/"
 #endif
