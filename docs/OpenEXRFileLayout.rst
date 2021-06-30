@@ -10,7 +10,7 @@ deep data is handled.
 
 The text assumes that the reader is familiar with OpenEXR terms such as
 "channel", "attribute", "data window" or "chunk". For an explanation of
-those terms see the _`Technical Introduction to OpenEXR`.
+those terms see the `Technical Introduction to OpenEXR`_.
 
 **Note:** This document does not define the OpenEXR file format.  OpenEXR is
 defined as the file format that is read and written by the IlmImf open-source
@@ -50,28 +50,28 @@ features:
    * - Version field
      - Bits 11 and 12 indicate whether the file contains deep data
        (bit 11), or more than one part (bit 12).
-     - _`Deep Data`
+     - `Deep Data`_
    * - Header
      - To store more than one part in the file, you need to have a
        header for each part.
-     - _`Structure`
+     - `Structure`_
    * - Header attributes
      - There are a number of attributes which have been defined to
        store data which is relevant to deep data and multi-part
        files. These include: name (one for each part), data type (you
        can have different types of data in different views), and the
        maximum number of samples to take in a deep data channel.
-     - _`Multi-Part and Deep Data Header Attributes`
+     - `Multi-Part and Deep Data Header Attributes`_
    * - Offset tables and chunks
      - To store more than one part in the file, you need to have an
        offset table for each part, and chunks for each part.
 
        The chunks must begin with a part number.
-     - _`Component Four: Offset Tables` and _`Chunk Layout`.
+     - `Component Four: Offset Tables`_ and `Chunk Layout`_.
        
    * - Deep Data
      - Deep data has a unique storage format.
-     - _`Deep Data`.
+     - `Deep Data`_.
 
 Basic Data Types
 ================
@@ -411,10 +411,10 @@ Both single-part and multi-part files use the same attribute types.
 The ``attribute size``, of type ``int``, indicates the size (in bytes) of
 the attribute value.
 
-The layout of the ``attribute value`` depends on the attribute type. The
-IlmImf library predefines several different attribute types (see page
-_`14`. Application programs can define and store
-additional attribute types.
+The layout of the ``attribute value`` depends on the attribute
+type. The IlmImf library predefines several different attribute
+types. Application programs can define and store additional attribute
+types.
 
 Header Attributes (All Files)
 -----------------------------
@@ -862,15 +862,16 @@ The IlmImf library predefines the following attribute types:
 +--------------------+----------------------------------------------------------------+
 | type name          | data                                                           |
 +====================+================================================================+
-| ``box2i``          | Four ``int``'s: ``xMin``, ``yMin``, ``xMax``, ``yMax``         |
+| ``box2i``          | Four ``int``\ 's: ``xMin``, ``yMin``, ``xMax``, ``yMax``       |
 +--------------------+----------------------------------------------------------------+
-| ``box2f``          | Four ``float``'s: ``xMin``, ``yMin``, ``xMax``, ``yMax``       |
+| ``box2f``          | Four ``float``\ 's: ``xMin``, ``yMin``, ``xMax``, ``yMax``     |
 +--------------------+----------------------------------------------------------------+
 | ``chlist``         | A sequence of channels followed by a null byte (``0x00``).     |
 |                    | Channel layout:                                                |
-|                    +------------+---------------------------------------------------+
-|                    | name       | zero-terminated string, from 1 to 255 bytes long  |
-|                    +------------+---------------------------------------------------+
+|                    +----------------+-----------------------------------------------+
+|                    | name           | zero-terminated string, from 1 to 255 bytes   |
+|                    |                | long                                          |
+|                    +----------------+-----------------------------------------------+
 |                    | ``pixel type`` | ``int``, possible values are:                 |
 |                    |                |                                               |
 |                    |                | * ``UINT`` = 0                                |
@@ -911,7 +912,7 @@ The IlmImf library predefines the following attribute types:
 +--------------------+----------------------------------------------------------------+
 | ``int``            | ``int``                                                        |
 +--------------------+----------------------------------------------------------------+
-| ``keycode``        | Seven ``int``'s: ``filmMfcCode``, ``filmType``, ``prefix``,    |
+| ``keycode``        | Seven ``int``\ 's: ``filmMfcCode``, ``filmType``, ``prefix``,  |
 |                    | ``count``,``perfOffset``, ``perfsPerFrame``, ``perfsPerCount`` |
 +--------------------+----------------------------------------------------------------+
 | ``lineOrder``      | ``unsigned char``, possible values are:                        |
@@ -920,31 +921,31 @@ The IlmImf library predefines the following attribute types:
 |                    | * ``RANDOM_Y`` = 2                                             |
 |                    |                                                                |
 +--------------------+----------------------------------------------------------------+
-| ``m33f``           | 9 ``float``'s                                                  |
+| ``m33f``           | 9 ``float``\ 's                                                |
 +--------------------+----------------------------------------------------------------+
-| ``m44f``           | 16 ``float``'s                                                 |
+| ``m44f``           | 16 ``float``\ 's                                               |
 +--------------------+----------------------------------------------------------------+
-| ``preview``        | Two ``unsigned int``'s, width and height, followed by          |
-|                    | 4×width×height ``unsigned char``'s of pixel data.              |
+| ``preview``        | Two ``unsigned int``\ 's, width and height, followed by        |
+|                    | 4×width×height ``unsigned char``\ 's of pixel data.            |
 |                    | Scan lines are stored top to bottom; within a scan line        |
 |                    | pixels are stored from left to right. A pixel consists of      |
-|                    | four ``unsigned char``s, ``R``, ``G``, ``B``, ``A``.           |
+|                    | four ``unsigned char``\ 's, ``R``, ``G``, ``B``, ``A``.        |
 +--------------------+----------------------------------------------------------------+
 | ``rational``       | An ``int``, followed by an ``unsigned int``.                   |
 +--------------------+----------------------------------------------------------------+
 | ``string``         | String length, of type ``int``, followed by a sequence of      |
-|                    | ``char``'s.                                                    |
+|                    | ``char``\ 's.                                                  |
 +--------------------+----------------------------------------------------------------+
 | ``stringvector``   | A sequence of zero or more text strings. Each string is        | 
 |                    | represented as a string length, of type ``int``, followed by a |
 |                    | sequence of ``chars``. The number of strings can be inferred   |
 |                    | from the total attribute size                                  |
-|                    | (see the _`Attribute Layout` section.                          |
+|                    | (see the `Attribute Layout`_ section.                          |
 +--------------------+----------------------------------------------------------------+
-| ``tiledesc``       | Two ``unsigned`` ``int``'s: ``xSize``, ``ySize``, followed by  |
-|                    | ``mode``, of type ``unsigned char``, where                     |
+| ``tiledesc``       | Two ``unsigned int``\ 's: ``xSize``, ``ySize``, followed       |
+|                    | by ``mode``, of type ``unsigned char``, where                  |
 |                    |                                                                |
-|                    |   mode = levelMode + roundingMode×16                           |
+|                    |     mode = levelMode + roundingMode×16                         |
 |                    |                                                                |
 |                    | Possible values for ``levelMode``:                             |
 |                    | * ``ONE_LEVEL`` = 0                                            |
@@ -956,15 +957,15 @@ The IlmImf library predefines the following attribute types:
 |                    | * ``ROUND_UP`` = 1                                             |
 |                    |                                                                |
 +--------------------+----------------------------------------------------------------+
-| ``timecode``       | Two ``unsigned int``'s: ``timeAndFlags``, ``userData``.        |
+| ``timecode``       | Two ``unsigned int``\ 's: ``timeAndFlags``, ``userData``.      |
 +--------------------+----------------------------------------------------------------+
-| ``v2i``            | Two ``int``'s                                                  |
+| ``v2i``            | Two ``int``\ 's                                                |
 +--------------------+----------------------------------------------------------------+
-| ``v2f``            | Two ``float``'s                                                |
+| ``v2f``            | Two ``float``\ 's                                              |
 +--------------------+----------------------------------------------------------------+
-| ``v3i``            | Three ``int``'s.                                               |
+| ``v3i``            | Three ``int``\ 's.                                             |
 +--------------------+----------------------------------------------------------------+
-| ``v3f``            | Three ``float``'s.                                             |
+| ``v3f``            | Three ``float``\ 's.                                           |
 +--------------------+----------------------------------------------------------------+
 
 
