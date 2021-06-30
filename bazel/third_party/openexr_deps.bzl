@@ -18,11 +18,15 @@ def openexr_deps():
         urls = ["https://zlib.net/zlib-1.2.11.tar.gz"],
     )
 
+    # sha256 was determined using:
+    # curl -sL https://github.com/AcademySoftwareFoundation/Imath/archive/refs/tags/v3.0.5.tar.gz --output Imath-3.0.5.tar.gz
+    # sha256sum Imath-3.0.5.tar.gz
+    # If the hash is incorrect Bazel will report an error and show the actual hash of the file.
     maybe(
         http_archive,
         name = "Imath",
         build_file = "@openexr//:bazel/third_party/Imath.BUILD",
-        strip_prefix = "Imath-3.0.4",
-        sha256 = "43c2bff33e7da75c915c817c2a19b42d27dd30d5516cd8b5695ea7d37831f878",
-        urls = ["https://github.com/AcademySoftwareFoundation/Imath/archive/refs/tags/v3.0.4.zip"],
+        strip_prefix = "Imath-3.0.5",
+        sha256 = "38b94c840c6400959ccf647bc1631f96f3170cb081021d774813803e798208bd",
+        urls = ["https://github.com/AcademySoftwareFoundation/Imath/archive/refs/tags/v3.0.5.tar.gz"],
     )
