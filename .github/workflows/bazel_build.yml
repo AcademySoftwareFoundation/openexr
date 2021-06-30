@@ -17,6 +17,14 @@ on:
     # Jobs are skipped when ONLY Markdown (*.md) files are changed
     paths-ignore:
       - '**.md'
+  pull_request:
+    branches-ignore:
+      - RB-2.*
+    tags-ignore:
+      - v1.*
+      - v2.*
+    paths-ignore:
+      - '**.md'
 
 jobs:
   build:
