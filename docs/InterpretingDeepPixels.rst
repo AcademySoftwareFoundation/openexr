@@ -325,10 +325,16 @@ functions:
 
 .. math:: c_{i}\left( z \right) = \left\{ \begin{matrix} 0, & z < \ S_{i}(Z) \\ S_{i}\left( c \right), & z \geq \ S_{i}(Z) \\ \end{matrix} \right.
 
+.. image:: images/InterpetingDeepPixels1.png
+   :align: center           
+
 For a volume sample, we define a helper function :math:`x(z)` that
 consists of two constant segments and a linear ramp:
 
 .. math:: x\left( z \right) = \left\{ \begin{matrix} 0, & z \leq S_{i}\left( Z \right) \\ \frac{z - S_{i}(Z)}{S_{i}\left( \text{ZBack} \right) - S_{i}(Z)}, & S_{i}\left( Z \right) < z < S_{i}(ZBack) \\ 1, & z \geq S_{i}\left( \text{ZBack} \right) \\ \end{matrix} \right.
+
+.. image:: images/InterpetingDeepPixels2.png
+   :align: center           
 
 With this helper function, :math:`\alpha_{i}(z)` and :math:`c_{i}(z)`
 are defined as follows:
@@ -345,6 +351,9 @@ The figure below shows an example of :math:`\alpha_{i}\left( z \right)`
 and :math:`c_{i}\left( z \right)` for a volume sample. Alpha and color
 are zero up to :math:`Z`, increase gradually between ``Z`` and
 ``ZBack``, and then remain constant.
+
+.. image:: images/InterpetingDeepPixels3.png
+   :align: center           
 
 Whole Pixel
 -----------
