@@ -1,6 +1,6 @@
 # OpenEXR Release Notes
 
-* [Version 3.0.5](#version-305-june-30-2021) June 30, 2021
+* [Version 3.0.5](#version-305-july-1-2021) July 1, 2021
 * [Version 3.0.4](#version-304-june-3-2021) June 3, 2021
 * [Version 3.0.3](#version-303-may-18-2021) May 18, 2021
 * [Version 3.0.2](#version-302-may-17-2021) May 17, 2021
@@ -49,7 +49,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.0.5 (June 30, 2021)
+## Version 3.0.5 (July 1, 2021)
 
 Patch release that fixes problems with library symlinks and
 pkg-config, as well as miscellaneous bugs/security issues.
@@ -60,7 +60,8 @@ pkg-config, as well as miscellaneous bugs/security issues.
 * [1045](https://github.com/AcademySoftwareFoundation/openexr/pull/1045) Fixes #1039: The vtable for TiledRgbaInputFile was not properly tagged as export 
 * [1038](https://github.com/AcademySoftwareFoundation/openexr/pull/1038) fix/extend part number validation in MultiPart methods
 * [1037](https://github.com/AcademySoftwareFoundation/openexr/pull/1037) verify data size in deepscanlines with NO_COMPRESSION
-* [1036](https://github.com/AcademySoftwareFoundation/openexr/pull/1036) detect buffer overflows in RleUncompress 
+* [1036](https://github.com/AcademySoftwareFoundation/openexr/pull/1036) detect buffer overflows in RleUncompress
+* The Imath auto-build version defaults to Imath v3.0.5.
 
 ## Version 3.0.4 (June 3, 2021)
 
