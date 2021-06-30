@@ -22,6 +22,6 @@ def openexr_deps():
         name = "Imath",
         build_file = "@openexr//:bazel/third_party/Imath.BUILD",
         strip_prefix = "Imath-3.0.5",
-        sha256 = "50c62962835bbab237c6f0c3ebbbb8c694dc5033",
+        sha256 = "38b94c840c6400959ccf647bc1631f96f3170cb081021d774813803e798208bd",
         urls = ["https://github.com/AcademySoftwareFoundation/Imath/archive/refs/tags/v3.0.5.tar.gz"],
     )
