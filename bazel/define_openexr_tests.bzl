@@ -2,7 +2,7 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 def define_openexr_tests(test_list):
-    for test_name in test_list:        
+    for test_name in test_list:
         native.cc_test(
             name = "OpenEXR." + test_name,
             timeout = "moderate",
@@ -70,11 +70,14 @@ def define_openexr_tests(test_list):
                 "src/test/OpenEXRTest/testXdr.cpp",
                 "src/test/OpenEXRTest/testYca.cpp",
             ] + native.glob(["src/test/OpenEXRTest/*.h"]),
-            args = [ test_name ],
+            args = [test_name],
             data = native.glob([
                 "src/test/OpenEXRTest/*.exr",
             ]),
-            defines = ["ILM_IMF_TEST_IMAGEDIR=\\\"src/test/OpenEXRTest/\\\""],
+            defines = [
+                "ILM_IMF_TEST_IMAGEDIR=\\\"src/test/OpenEXRTest/\\\"",
+                "IMF_TMP_DIR=\\\"/tmp/\\\"",
+            ],
             includes = ["src/test/OpenEXRTest"],
             deps = [
                 ":OpenEXR",
