@@ -1,7 +1,22 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+#
+# GitHub Actions workflow file
+# https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
+
 name: Bazel
 
 on:
-  push: {}
+  push:
+    # Versioned branches and tags are ignored for OpenEXR <= 1.x.x
+    branches-ignore:
+      - RB-2.*
+    tags-ignore:
+      - v1.*
+      - v2.*
+    # Jobs are skipped when ONLY Markdown (*.md) files are changed
+    paths-ignore:
+      - '**.md'
 
 jobs:
   build:
