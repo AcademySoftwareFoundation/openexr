@@ -10,7 +10,9 @@ OpenEXR Documentation
    TechnicalIntroduction
    ReadingAndWritingImageFiles
    OpenEXRFileLayout
-   
+   MultiViewOpenEXR
+   InterpretingDeepPixels
+
 :ref:`genindex`
 
 
