@@ -325,7 +325,7 @@ functions:
 
 .. math:: c_{i}\left( z \right) = \left\{ \begin{matrix} 0, & z < \ S_{i}(Z) \\ S_{i}\left( c \right), & z \geq \ S_{i}(Z) \\ \end{matrix} \right.
 
-.. image:: images/InterpetingDeepPixels1.png
+.. image:: images/InterpretingDeepPixels1.png
    :align: center           
 
 For a volume sample, we define a helper function :math:`x(z)` that
@@ -333,7 +333,7 @@ consists of two constant segments and a linear ramp:
 
 .. math:: x\left( z \right) = \left\{ \begin{matrix} 0, & z \leq S_{i}\left( Z \right) \\ \frac{z - S_{i}(Z)}{S_{i}\left( \text{ZBack} \right) - S_{i}(Z)}, & S_{i}\left( Z \right) < z < S_{i}(ZBack) \\ 1, & z \geq S_{i}\left( \text{ZBack} \right) \\ \end{matrix} \right.
 
-.. image:: images/InterpetingDeepPixels2.png
+.. image:: images/InterpretingDeepPixels2.png
    :align: center           
 
 With this helper function, :math:`\alpha_{i}(z)` and :math:`c_{i}(z)`
@@ -352,7 +352,7 @@ and :math:`c_{i}\left( z \right)` for a volume sample. Alpha and color
 are zero up to :math:`Z`, increase gradually between ``Z`` and
 ``ZBack``, and then remain constant.
 
-.. image:: images/InterpetingDeepPixels3.png
+.. image:: images/InterpretingDeepPixels3.png
    :align: center           
 
 Whole Pixel
@@ -437,7 +437,7 @@ For a color channel, ``c``, and its associated alpha channel,
 If it is not done exactly right, splitting a sample can lead to large
 rounding errors for the colors of the new samples when the opacity of
 the original sample is very small. For C++ code that splits a volume
-sample in a numerically stable way, see `Spitting a Volume Sample`_.
+sample in a numerically stable way, see `splitting a volume sample appendix`_.
 
 Merging Overlapping Samples
 ---------------------------
@@ -481,21 +481,18 @@ with :math:`k = i` or :math:`k = j`, and
 
 Evaluating the expressions above directly can lead to large rounding
 errors when the opacity of one or both of the input samples is very
-small. For C++ code that
-computes\ :math:`\ S_{i,new}\left( \alpha \right)` and
-:math:`S_{i,new}\left( c \right)` in a numerically robust way, see
-      `Merging Two Overlapping Samples`_.
+small. For C++ code that computes\ :math:`\ S_{i,new}\left( \alpha
+\right)` and :math:`S_{i,new}\left( c \right)` in a numerically robust
+way, see `Merging Two Overlapping Samples`_.
 
-For details on how the expressions for
-:math:`S_{i,new}\left( \alpha \right)` and
-:math:`S_{i,new}\left( c \right)`, can be derived, see Peter Hillman’s
-paper, “The Theory of OpenEXR Deep Samples”
+For details on how the expressions for :math:`S_{i,new}\left( \alpha
+\right)` and :math:`S_{i,new}\left( c \right)`, can be derived, see
+Peter Hillman’s paper, “The Theory of OpenEXR Deep Samples”
 
-Note that the expressions for computing
-:math:`S_{i,new}\left( \alpha \right)` and
-:math:`S_{i,new}\left( c \right)` do not refer to depth at all. This
-allows us to reuse the same expressions for merging two perfectly
-overlapping (that is, coincident) point samples.
+Note that the expressions for computing :math:`S_{i,new}\left( \alpha
+\right)` and :math:`S_{i,new}\left( c \right)` do not refer to depth
+at all. This allows us to reuse the same expressions for merging two
+perfectly overlapping (that is, coincident) point samples.
 
 A point sample cannot perfectly overlap a volume sample; therefore point
 samples are never merged with volume samples.
@@ -630,6 +627,8 @@ with alpha significantly below 1.0.
 Appendix: C++ Code
 ==================
 
+.. _splitting a volume sample appendix:
+
 Splitting a Volume Sample
 -------------------------
 
@@ -641,3 +640,6 @@ Merging two Overlapping Samples
 
 .. literalinclude:: src/mergeOverlappingSamples.cpp
    :linenos:
+
+
+      
