@@ -1235,7 +1235,3 @@ testWriteMultiPart (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
 }
-
-void
-testWriteDeep (const std::string& tempdir)
-{}

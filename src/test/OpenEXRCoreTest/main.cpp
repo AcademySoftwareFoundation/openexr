@@ -25,6 +25,7 @@
 #include "read.h"
 #include "write.h"
 #include "compression.h"
+#include "deep.h"
 
 #if defined(ANDROID) || defined(__ANDROID_API__)
     #define IMF_TMP_DIR "/sdcard/"

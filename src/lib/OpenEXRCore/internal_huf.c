@@ -798,7 +798,7 @@ hufEncode (
     {                                                                          \
         if (po == rlc)                                                         \
         {                                                                      \
-            if (lc < 8) getChar (c, lc, in);                                   \
+            if (lc < 8) { getChar (c, lc, in); }                               \
                                                                                \
             lc -= 8;                                                           \
                                                                                \
@@ -1079,6 +1079,7 @@ internal_huf_decompress (
     iM = readUInt (compressed + 4);
     // uint32_t tableLength = readUInt (compressed + 8);
     nBits = readUInt (compressed + 12);
+    // uint32_t future = readUInt (compressed + 16);
 
     if (im >= HUF_ENCSIZE || iM >= HUF_ENCSIZE) return EXR_ERR_BAD_CHUNK_DATA;
 
@@ -1087,11 +1088,11 @@ internal_huf_decompress (
     nBytes = (((uint64_t) (nBits) + 7)) / 8;
     if (ptr + nBytes > compressed + nCompressed) return EXR_ERR_OUT_OF_MEMORY;
 
-        //
-        // Fast decoder needs at least 2x64-bits of compressed data, and
-        // needs to be run-able on this platform. Otherwise, fall back
-        // to the original decoder
-        //
+    //
+    // Fast decoder needs at least 2x64-bits of compressed data, and
+    // needs to be run-able on this platform. Otherwise, fall back
+    // to the original decoder
+    //
 #if 0
     if (FastHufDecoder::enabled () && nBits > 128)
     {
@@ -1109,10 +1110,9 @@ internal_huf_decompress (
     else
 #endif
     {
-        uint64_t* freq = (uint64_t*) spare;
-        HufDec*   hdec = (HufDec*) (freq + HUF_ENCSIZE);
-        uint64_t  nLeft =
-            nCompressed - (((uintptr_t) ptr) - ((uintptr_t) compressed));
+        uint64_t* freq  = (uint64_t*) spare;
+        HufDec*   hdec  = (HufDec*) (freq + HUF_ENCSIZE);
+        uint64_t  nLeft = nCompressed - 20;
 
         hufClearDecTable (hdec);
         hufUnpackEncTable (&ptr, nLeft, im, iM, freq);

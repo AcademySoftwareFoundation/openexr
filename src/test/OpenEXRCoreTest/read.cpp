@@ -205,10 +205,6 @@ testOpenMultiPart (const std::string& tempdir)
 {}
 
 void
-testOpenDeep (const std::string& tempdir)
-{}
-
-void
 testReadScans (const std::string& tempdir)
 {
     exr_context_t             f;
@@ -535,10 +531,6 @@ testReadTiles (const std::string& tempdir)
 
 void
 testReadMultiPart (const std::string& tempdir)
-{}
-
-void
-testReadDeep (const std::string& tempdir)
 {}
 
 void

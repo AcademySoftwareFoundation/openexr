@@ -22,6 +22,5 @@ void testUpdateMeta( const std::string &tempdir );
 void testWriteScans( const std::string &tempdir );
 void testWriteTiles( const std::string &tempdir );
 void testWriteMultiPart( const std::string &tempdir );
-void testWriteDeep( const std::string &tempdir );
 
 #endif // OPENEXR_CORE_TEST_WRITE_H

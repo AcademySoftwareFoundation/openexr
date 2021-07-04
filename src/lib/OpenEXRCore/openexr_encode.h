@@ -13,6 +13,37 @@
 extern "C" {
 #endif
 
+/** Can be bit-wise or'ed into the decode_flags in the decode pipeline.
+ *
+ * Indicates that the sample count table should be encoded from an
+ * individual sample count list (n, m, o, ...), meaning it will have
+ * to compute the cumulative counts on the fly.
+ *
+ * Without this (i.e. a value of 0 in that bit), indicates the sample
+ * count table is already a cumulative list (n, n+m, n+m+o, ...),
+ * which is the on-disk representation */
+#define EXR_ENCODE_DATA_SAMPLE_COUNTS_ARE_INDIVIDUAL ((uint16_t)(1 << 0))
+
+/** Can be bit-wise or'ed into the decode_flags in the decode pipeline.
+ *
+ * Indicates that the data in the channel pointers to encode from is not
+ * a direct pointer, but instead is a pointer-to-pointers. In this
+ * mode, the user_pixel_stride and user_line_stride are used to
+ * advance the pointer offsets for each pixel in the output, but the
+ * user_bytes_per_element and user_data_type are used to put
+ * (successive) entries into each destination.
+ *
+ * So each channel pointer must then point to an array of
+ * chunk_block.width * chunk_block.height pointers. If an entry is
+ * NULL, 0 samples will be placed in the output.
+ *
+ * If this is NOT set (0), the default packing routine assumes the
+ * data will be planar and contiguous (each channel is a separate
+ * memory block), ignoring user_line_stride and user_pixel_stride and
+ * advancing only by the sample counts and bytes per element
+ */
+#define EXR_ENCODE_NON_IMAGE_DATA_AS_POINTERS ((uint16_t)(1 << 1))
+
 /**
  * Structure meant to be used on a per-thread basis for writing exr data
  *
@@ -35,7 +66,8 @@ typedef struct _exr_encode_pipeline
     exr_coding_channel_info_t* channels;
     int16_t                    channel_count;
 
-    uint8_t pad[2];
+    /** Encode flags to control the behavior*/
+    uint16_t                   encode_flags;
 
     /** copy of the parameters given to the initialize / update for convenience */
     int                    part_index;
@@ -57,6 +89,7 @@ typedef struct _exr_encode_pipeline
      * custom allocators.
      */
     void* packed_buffer;
+    /** differing from the allocation size, the number of actual bytes */
     uint64_t packed_bytes;
 
     /** used when re-using the same encode pipeline struct to know if
@@ -69,11 +102,27 @@ typedef struct _exr_encode_pipeline
      * custom allocators.
      */
     size_t packed_alloc_size;
-    /** for deep data */
+
+    /** for deep data. NB: the members NOT const because we need to
+     * temporarily swap it to xdr order and restore it (to avoid a
+     * duplicate buffer allocation)
+     *
+     * Depending on the flag set above, will be treated either as a
+     * cumulative list (n, n+m, n+m+o, ...), or an individual table
+     * (n, m, o, ...). */
+    int32_t* sample_count_table;
+    /** allocated table size (to avoid re-allocations). Number of
+     * samples must always be width * height for the chunk */
+    size_t sample_count_alloc_size;
+
+    /** packed sample table (i.e. compressed, raw on disk
+     * representation) for deep or other non-image data */
     void* packed_sample_count_table;
-    /** for deep data */
+    /** Number of bytes to write (actual size) for the
+     * packed_sample_count_table */
     size_t packed_sample_count_bytes;
-    /** for deep data */
+    /** Allocated size (to avoid re-allocations) for the
+     * packed_sample_count_table */
     size_t packed_sample_count_alloc_size;
 
     /** the compressed buffer, only needed for
@@ -215,6 +264,9 @@ typedef struct _exr_encode_pipeline
      */
     exr_coding_channel_info_t _quick_chan_store[5];
 } exr_encode_pipeline_t;
+
+/** @brief simple macro to initialize an empty decode pipeline */
+#define EXR_ENCODE_PIPELINE_INITIALIZER { 0 }
 
 /** initializes the encoding pipeline structure with the channel info
  * for the specified part, and the first block to be written.

@@ -154,6 +154,7 @@ exr_read_scanline_block_info (
     int              miny, cidx, rdcnt, lpc;
     int32_t          data[3];
     int64_t          ddata[3];
+    int64_t          fsize;
     uint64_t         dataoff;
     exr_attr_box2i_t dw;
     uint64_t*        ctable;
@@ -179,19 +180,14 @@ exr_read_scanline_block_info (
             dw.max.y);
     }
 
-    lpc  = part->lines_per_chunk;
+    lpc = part->lines_per_chunk;
     cidx = (y - dw.min.y);
     if (lpc > 1) cidx /= lpc;
 
-    if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
-    {
-        cidx = part->chunk_count - (cidx + 1);
-        miny = dw.max.y - (cidx + 1) * lpc;
-    }
-    else
-    {
-        miny = cidx * lpc + dw.min.y;
-    }
+    // do we need to invert this when reading decreasing y? it appears not
+    //if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
+    //    cidx = part->chunk_count - (cidx + 1);
+    miny = (dw.min.y + cidx * lpc);
 
     if (cidx < 0 || cidx >= part->chunk_count)
     {
@@ -272,6 +268,7 @@ exr_read_scanline_block_info (
             cidx);
     }
 
+    fsize = pctxt->file_size;
     if (part->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
     {
         rv = pctxt->do_read (
@@ -319,9 +316,49 @@ exr_read_scanline_block_info (
         cinfo->data_offset              = dataoff + (uint64_t) ddata[0];
         cinfo->packed_size              = (uint64_t) ddata[1];
         cinfo->unpacked_size            = (uint64_t) ddata[2];
+
+        if (fsize > 0 &&
+            ((cinfo->sample_count_data_offset +
+              cinfo->sample_count_table_size) > ((uint64_t) fsize) ||
+             (cinfo->data_offset + cinfo->packed_size) > ((uint64_t) fsize)))
+        {
+            return pctxt->print_error (
+                pctxt,
+                EXR_ERR_BAD_CHUNK_DATA,
+                "Request for deep scanline %d sample table (%" PRId64
+                ") and/or data (%" PRId64
+                ") size larger than file size %" PRId64,
+                y,
+                ddata[0],
+                ddata[1],
+                fsize);
+        }
     }
     else
     {
+        uint64_t unpacksize = 0;
+        if (cinfo->height == lpc)
+        {
+            unpacksize = part->unpacked_size_per_chunk;
+        }
+        else
+        {
+            const exr_attr_chlist_t* chanlist = part->channels->chlist;
+            for (int c = 0; c < chanlist->num_channels; ++c)
+            {
+                const exr_attr_chlist_entry_t* curc = (chanlist->entries + c);
+                if (curc->y_sampling > 1 || curc->x_sampling > 1)
+                    unpacksize +=
+                        (((uint64_t) (cinfo->height / curc->y_sampling)) *
+                         ((uint64_t) (cinfo->width / curc->x_sampling)) *
+                         ((curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4));
+                else
+                    unpacksize +=
+                        ((uint64_t) cinfo->height) * ((uint64_t) cinfo->width) *
+                        ((curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4);
+            }
+        }
+
         ++rdcnt;
         if (data[rdcnt] < 0 ||
             (uint64_t) data[rdcnt] > part->unpacked_size_per_chunk)
@@ -336,9 +373,22 @@ exr_read_scanline_block_info (
 
         cinfo->data_offset              = dataoff;
         cinfo->packed_size              = (uint64_t) data[rdcnt];
-        cinfo->unpacked_size            = part->unpacked_size_per_chunk;
+        cinfo->unpacked_size            = unpacksize;
         cinfo->sample_count_data_offset = 0;
         cinfo->sample_count_table_size  = 0;
+
+        if (fsize > 0 &&
+            (cinfo->data_offset + cinfo->packed_size) > ((uint64_t) fsize))
+        {
+            return pctxt->print_error (
+                pctxt,
+                EXR_ERR_BAD_CHUNK_DATA,
+                "Request for scanline %d data (%" PRIu64
+                ") size larger than file size %" PRId64,
+                y,
+                cinfo->packed_size,
+                fsize);
+        }
     }
     return EXR_ERR_SUCCESS;
 }
@@ -435,12 +485,40 @@ compute_tile_chunk_off (
                     part->num_tile_levels_y);
             }
 
-            // TODO
-            return ctxt->print_error (
-                ctxt,
-                EXR_ERR_UNKNOWN,
-                "RIPMAP support not yet finished in C layer");
-            //break;
+            numx = part->tile_level_tile_count_x[levelx];
+            numy = part->tile_level_tile_count_y[levely];
+
+            if (tilex >= numx || tiley >= numy)
+            {
+                return ctxt->print_error (
+                    ctxt,
+                    EXR_ERR_INVALID_ARGUMENT,
+                    "Request for tile (%d, %d) at rip level %d, %d level only has %d x %d tiles",
+                    tilex,
+                    tiley,
+                    levelx,
+                    levely,
+                    numx,
+                    numy);
+            }
+
+            for (int ly = 0; ly < levely; ++ly)
+            {
+                for (int lx = 0; lx < levelx; ++lx)
+                {
+                    chunkoff +=
+                        ((int64_t) part->tile_level_tile_count_x[lx] *
+                         (int64_t) part->tile_level_tile_count_y[ly]);
+                }
+            }
+            for (int lx = 0; lx < levelx; ++lx)
+            {
+                chunkoff +=
+                    ((int64_t) part->tile_level_tile_count_x[lx] *
+                     (int64_t) numy);
+            }
+            chunkoff += tiley * numx + tilex;
+            break;
         case EXR_TILE_LAST_TYPE:
         default:
             return ctxt->print_error (
@@ -513,8 +591,7 @@ exr_read_tile_block_info (
     if (tend > dend)
     {
         tend -= dend;
-        if (tend < tilew)
-            tilew = tilew - ((int) tend);
+        if (tend < tilew) tilew = tilew - ((int) tend);
     }
 
     tileh = (int) (tiledesc->y_size);
@@ -523,8 +600,7 @@ exr_read_tile_block_info (
     if (tend > dend)
     {
         tend -= dend;
-        if (tend < tileh)
-            tileh = tileh - ((int) tend);
+        if (tend < tileh) tileh = tileh - ((int) tend);
     }
 
     cidx = 0;
@@ -561,7 +637,14 @@ exr_read_tile_block_info (
     rv = extract_chunk_table (pctxt, part, &ctable);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
-    if (pctxt->is_multipart && part->storage_mode != EXR_STORAGE_DEEP_TILED)
+    if (part->storage_mode == EXR_STORAGE_DEEP_TILED)
+    {
+        if (pctxt->is_multipart)
+            ntoread = 5;
+        else
+            ntoread = 4;
+    }
+    else if (pctxt->is_multipart)
         ntoread = 6;
     else
         ntoread = 5;
@@ -694,8 +777,16 @@ exr_read_tile_block_info (
                 levely,
                 ddata[1]);
         }
-        if (fsize > 0 && (ddata[0] > fsize || ddata[1] > fsize ||
-                          (ddata[0] + ddata[1]) > fsize))
+        cinfo->sample_count_data_offset = dataoff;
+        cinfo->sample_count_table_size  = (uint64_t) ddata[0];
+        cinfo->packed_size              = (uint64_t) ddata[1];
+        cinfo->unpacked_size            = (uint64_t) ddata[2];
+        cinfo->data_offset              = dataoff + (uint64_t) ddata[0];
+
+        if (fsize > 0 &&
+            ((cinfo->sample_count_data_offset +
+              cinfo->sample_count_table_size) > ((uint64_t) fsize) ||
+             (cinfo->data_offset + cinfo->packed_size) > ((uint64_t) fsize)))
         {
             return pctxt->print_error (
                 pctxt,
@@ -711,12 +802,6 @@ exr_read_tile_block_info (
                 ddata[1],
                 fsize);
         }
-
-        cinfo->sample_count_data_offset = dataoff;
-        cinfo->sample_count_table_size  = (uint64_t) ddata[0];
-        cinfo->packed_size              = (uint64_t) ddata[1];
-        cinfo->unpacked_size            = (uint64_t) ddata[2];
-        cinfo->data_offset              = dataoff + (uint64_t) ddata[0];
     }
     else
     {
@@ -828,8 +913,6 @@ exr_read_deep_chunk (
     EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
 
     if (!cinfo) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
-    if (!packed_data && !sample_data)
-        return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
 
     if (cinfo->idx < 0 || cinfo->idx >= part->chunk_count)
         return pctxt->print_error (
@@ -870,7 +953,7 @@ exr_read_deep_chunk (
             pctxt->file_size);
 
     rv = EXR_ERR_SUCCESS;
-    if (sample_data)
+    if (sample_data && cinfo->sample_count_table_size > 0)
     {
         dataoffset = cinfo->sample_count_data_offset;
         toread     = cinfo->sample_count_table_size;
@@ -973,15 +1056,10 @@ write_scan_chunk (
     cidx = (y - part->data_window.min.y);
     if (lpc > 1) cidx /= lpc;
 
-    if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
-    {
-        cidx = part->chunk_count - (cidx + 1);
-        miny = part->data_window.max.y - (cidx + 1) * lpc;
-    }
-    else
-    {
-        miny = cidx * lpc + part->data_window.min.y;
-    }
+    //if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
+    //    cidx = part->chunk_count - (cidx + 1);
+
+    miny = cidx * lpc + part->data_window.min.y;
 
     if (y != miny)
     {
@@ -1145,15 +1223,9 @@ exr_write_scanline_block_info (
     cidx = (y - dw.min.y);
     if (lpc > 1) cidx /= lpc;
 
-    if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
-    {
-        cidx = part->chunk_count - (cidx + 1);
-        miny = dw.max.y - (cidx + 1) * lpc;
-    }
-    else
-    {
-        miny = cidx * lpc + dw.min.y;
-    }
+    //if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
+    //    cidx = part->chunk_count - (cidx + 1);
+    miny = cidx * lpc + dw.min.y;
 
     if (cidx < 0 || cidx >= part->chunk_count)
     {
@@ -1657,10 +1729,10 @@ internal_validate_next_chunk (
         cidx = (encode->chunk_block.start_y - part->data_window.min.y);
         if (lpc > 1) cidx /= lpc;
 
-        if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
-        {
-            cidx = part->chunk_count - (cidx + 1);
-        }
+        //if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
+        //{
+        //    cidx = part->chunk_count - (cidx + 1);
+        //}
     }
 
     if (rv == EXR_ERR_SUCCESS)

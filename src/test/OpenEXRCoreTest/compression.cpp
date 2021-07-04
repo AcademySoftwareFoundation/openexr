@@ -1417,6 +1417,40 @@ testHUF (const std::string& tempdir)
     {
         EXRCORE_TEST (decode.h[i] == p.h[i]);
     }
+
+    p.fillRandom ();
+    EXRCORE_TEST_RVAL (internal_huf_compress (
+        &ebytes,
+        encoded.data (),
+        encoded.size (),
+        p.h.data (),
+        IMG_WIDTH,
+        hspare.data (),
+        esize));
+    cppebytes = hufCompress (p.h.data (), IMG_WIDTH, (char*) (&cppencoded[0]));
+    EXRCORE_TEST (ebytes == cppebytes);
+    for (size_t i = 0; i < ebytes; ++i)
+    {
+        if (encoded[i] != cppencoded[i])
+        {
+            std::cerr << "Error: byte " << i << " differs between new (0x"
+                      << std::hex << (int) encoded[i] << std::dec
+                      << ") and old (0x" << std::hex << (int) cppencoded[i]
+                      << std::dec << ")" << std::endl;
+            EXRCORE_TEST (encoded[i] == cppencoded[i]);
+        }
+    }
+    EXRCORE_TEST_RVAL (internal_huf_decompress (
+        encoded.data (),
+        ebytes,
+        decode.h.data (),
+        IMG_WIDTH,
+        hspare.data (),
+        dsize));
+    for (size_t i = 0; i < IMG_WIDTH; ++i)
+    {
+        EXRCORE_TEST (decode.h[i] == p.h[i]);
+    }
 }
 
 ////////////////////////////////////////

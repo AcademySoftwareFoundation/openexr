@@ -89,7 +89,7 @@ half_to_float_buffer_f16c (float* out, const uint16_t* in, int w)
 #    else
     while (w > 0)
     {
-        *out++ = half_to_float(*in++);
+        *out++ = half_to_float (*in++);
         --w;
     }
 #    endif
@@ -264,6 +264,46 @@ unpack_16bit_3chan_interleave (exr_decode_pipeline_t* decode)
 /**************************************/
 
 static exr_result_t
+unpack_16bit_3chan_interleave_rev (exr_decode_pipeline_t* decode)
+{
+    /* we know we're unpacking all the channels and there is no subsampling */
+    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint16_t *in0, *in1, *in2;
+    uint8_t*        out0;
+    int             w, h;
+    int             linc0;
+
+    w     = decode->channels[0].width;
+    h     = decode->chunk_block.height;
+    linc0 = decode->channels[0].user_line_stride;
+
+    out0 = decode->channels[2].decode_to_ptr;
+
+    /* interleaving case, we can do this! */
+    for (int y = 0; y < h; ++y)
+    {
+        uint16_t* out = (uint16_t*) out0;
+
+        in0 = (const uint16_t*) srcbuffer; // B
+        in1 = in0 + w; // G
+        in2 = in1 + w; // R
+
+        srcbuffer += w * 6; // 3 * sizeof(uint16_t), avoid type conversion
+        for (int x = 0; x < w; ++x)
+        {
+            out[0] = one_to_native16 (in2[x]);
+            out[1] = one_to_native16 (in1[x]);
+            out[2] = one_to_native16 (in0[x]);
+            out += 3;
+        }
+        out0 += linc0;
+    }
+    return EXR_ERR_SUCCESS;
+}
+
+/**************************************/
+
+static exr_result_t
 unpack_half_to_float_3chan_interleave (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
@@ -294,6 +334,46 @@ unpack_half_to_float_3chan_interleave (exr_decode_pipeline_t* decode)
             out[0] = half_to_float (one_to_native16 (in0[x]));
             out[1] = half_to_float (one_to_native16 (in1[x]));
             out[2] = half_to_float (one_to_native16 (in2[x]));
+            out += 3;
+        }
+        out0 += linc0;
+    }
+    return EXR_ERR_SUCCESS;
+}
+
+/**************************************/
+
+static exr_result_t
+unpack_half_to_float_3chan_interleave_rev (exr_decode_pipeline_t* decode)
+{
+    /* we know we're unpacking all the channels and there is no subsampling */
+    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint16_t *in0, *in1, *in2;
+    uint8_t*        out0;
+    int             w, h;
+    int             linc0;
+
+    w     = decode->channels[0].width;
+    h     = decode->chunk_block.height;
+    linc0 = decode->channels[0].user_line_stride;
+
+    out0 = decode->channels[2].decode_to_ptr;
+
+    /* interleaving case, we can do this! */
+    for (int y = 0; y < h; ++y)
+    {
+        float* out = (float*) out0;
+
+        in0 = (const uint16_t*) srcbuffer;
+        in1 = in0 + w;
+        in2 = in1 + w;
+
+        srcbuffer += w * 6; // 3 * sizeof(uint16_t), avoid type conversion
+        for (int x = 0; x < w; ++x)
+        {
+            out[0] = half_to_float (one_to_native16 (in2[x]));
+            out[1] = half_to_float (one_to_native16 (in1[x]));
+            out[2] = half_to_float (one_to_native16 (in0[x]));
             out += 3;
         }
         out0 += linc0;
@@ -503,6 +583,59 @@ unpack_16bit_4chan_interleave (exr_decode_pipeline_t* decode)
 /**************************************/
 
 static exr_result_t
+unpack_16bit_4chan_interleave_rev (exr_decode_pipeline_t* decode)
+{
+    /* we know we're unpacking all the channels and there is no subsampling */
+    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint16_t *in0, *in1, *in2, *in3;
+    uint8_t*        out0;
+    int             w, h;
+    int             linc0;
+    /* TODO: can do this with sse and do 2 outpixels at once */
+    union
+    {
+        struct
+        {
+            uint16_t r;
+            uint16_t g;
+            uint16_t b;
+            uint16_t a;
+        };
+        uint64_t allc;
+    } combined;
+
+    w     = decode->channels[0].width;
+    h     = decode->chunk_block.height;
+    linc0 = decode->channels[0].user_line_stride;
+
+    out0 = decode->channels[3].decode_to_ptr;
+
+    /* interleaving case, we can do this! */
+    for (int y = 0; y < h; ++y)
+    {
+        uint64_t* outall = (uint64_t*) out0;
+        in0              = (const uint16_t*) srcbuffer;
+        in1              = in0 + w;
+        in2              = in1 + w;
+        in3              = in2 + w;
+
+        srcbuffer += w * 8; // 4 * sizeof(uint16_t), avoid type conversion
+        for (int x = 0; x < w; ++x)
+        {
+            combined.a = one_to_native16 (in0[x]);
+            combined.b = one_to_native16 (in1[x]);
+            combined.g = one_to_native16 (in2[x]);
+            combined.r = one_to_native16 (in3[x]);
+            outall[x]  = combined.allc;
+        }
+        out0 += linc0;
+    }
+    return EXR_ERR_SUCCESS;
+}
+
+/**************************************/
+
+static exr_result_t
 unpack_half_to_float_4chan_interleave (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
@@ -517,6 +650,47 @@ unpack_half_to_float_4chan_interleave (exr_decode_pipeline_t* decode)
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
+
+    /* interleaving case, we can do this! */
+    for (int y = 0; y < h; ++y)
+    {
+        float* out = (float*) out0;
+        in0        = (const uint16_t*) srcbuffer;
+        in1        = in0 + w;
+        in2        = in1 + w;
+        in3        = in2 + w;
+
+        srcbuffer += w * 8; // 4 * sizeof(uint16_t), avoid type conversion
+        for (int x = 0; x < w; ++x)
+        {
+            out[0] = half_to_float (one_to_native16 (in3[x]));
+            out[1] = half_to_float (one_to_native16 (in2[x]));
+            out[2] = half_to_float (one_to_native16 (in1[x]));
+            out[3] = half_to_float (one_to_native16 (in0[x]));
+            out += 4;
+        }
+        out0 += linc0;
+    }
+    return EXR_ERR_SUCCESS;
+}
+
+/**************************************/
+
+static exr_result_t
+unpack_half_to_float_4chan_interleave_rev (exr_decode_pipeline_t* decode)
+{
+    /* we know we're unpacking all the channels and there is no subsampling */
+    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint16_t *in0, *in1, *in2, *in3;
+    uint8_t*        out0;
+    int             w, h;
+    int             linc0;
+
+    w     = decode->channels[0].width;
+    h     = decode->chunk_block.height;
+    linc0 = decode->channels[0].user_line_stride;
+
+    out0 = decode->channels[3].decode_to_ptr;
 
     /* interleaving case, we can do this! */
     for (int y = 0; y < h; ++y)
@@ -822,16 +996,137 @@ unpack_32bit (exr_decode_pipeline_t* decode)
     return EXR_ERR_SUCCESS;
 }
 
+#define UNPACK_SAMPLES(samps)                                                  \
+    switch (decc->data_type)                                                   \
+    {                                                                          \
+        case EXR_PIXEL_HALF:                                                   \
+            switch (decc->user_data_type)                                      \
+            {                                                                  \
+                case EXR_PIXEL_HALF: {                                         \
+                    const uint16_t* src = (const uint16_t*) srcbuffer;         \
+                    for (int s = 0; s < samps; ++s)                            \
+                    {                                                          \
+                        *((uint16_t*) cdata) = unaligned_load16 (src);         \
+                        ++src;                                                 \
+                        cdata += ubpc;                                         \
+                    }                                                          \
+                    break;                                                     \
+                }                                                              \
+                case EXR_PIXEL_FLOAT: {                                        \
+                    const uint16_t* src = (const uint16_t*) srcbuffer;         \
+                    for (int s = 0; s < samps; ++s)                            \
+                    {                                                          \
+                        uint16_t cval = unaligned_load16 (src);                \
+                        ++src;                                                 \
+                        *((float*) cdata) = half_to_float (cval);              \
+                        cdata += ubpc;                                         \
+                    }                                                          \
+                    break;                                                     \
+                }                                                              \
+                case EXR_PIXEL_UINT: {                                         \
+                    const uint16_t* src = (const uint16_t*) srcbuffer;         \
+                    for (int s = 0; s < samps; ++s)                            \
+                    {                                                          \
+                        uint16_t cval = unaligned_load16 (src);                \
+                        ++src;                                                 \
+                        *((uint32_t*) cdata) = half_to_uint (cval);            \
+                        cdata += ubpc;                                         \
+                    }                                                          \
+                    break;                                                     \
+                }                                                              \
+                default: return EXR_ERR_INVALID_ARGUMENT;                      \
+            }                                                                  \
+            break;                                                             \
+        case EXR_PIXEL_FLOAT:                                                  \
+            switch (decc->user_data_type)                                      \
+            {                                                                  \
+                case EXR_PIXEL_HALF: {                                         \
+                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
+                    for (int s = 0; s < samps; ++s)                            \
+                    {                                                          \
+                        uint32_t fint = unaligned_load32 (src);                \
+                        ++src;                                                 \
+                        *((uint16_t*) cdata) = float_to_half_int (fint);       \
+                        cdata += ubpc;                                         \
+                    }                                                          \
+                    break;                                                     \
+                }                                                              \
+                case EXR_PIXEL_FLOAT: {                                        \
+                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
+                    for (int s = 0; s < samps; ++s)                            \
+                    {                                                          \
+                        *((uint32_t*) cdata) = unaligned_load32 (src);         \
+                        ++src;                                                 \
+                        cdata += ubpc;                                         \
+                    }                                                          \
+                    break;                                                     \
+                }                                                              \
+                case EXR_PIXEL_UINT: {                                         \
+                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
+                    for (int s = 0; s < samps; ++s)                            \
+                    {                                                          \
+                        uint32_t fint = unaligned_load32 (src);                \
+                        ++src;                                                 \
+                        *((uint32_t*) cdata) = float_to_uint_int (fint);       \
+                        cdata += ubpc;                                         \
+                    }                                                          \
+                    break;                                                     \
+                }                                                              \
+                default: return EXR_ERR_INVALID_ARGUMENT;                      \
+            }                                                                  \
+            break;                                                             \
+        case EXR_PIXEL_UINT:                                                   \
+            switch (decc->user_data_type)                                      \
+            {                                                                  \
+                case EXR_PIXEL_HALF: {                                         \
+                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
+                    for (int s = 0; s < samps; ++s)                            \
+                    {                                                          \
+                        uint32_t fint = unaligned_load32 (src);                \
+                        ++src;                                                 \
+                        *((uint16_t*) cdata) = uint_to_half (fint);            \
+                        cdata += ubpc;                                         \
+                    }                                                          \
+                    break;                                                     \
+                }                                                              \
+                case EXR_PIXEL_FLOAT: {                                        \
+                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
+                    for (int s = 0; s < samps; ++s)                            \
+                    {                                                          \
+                        uint32_t fint = unaligned_load32 (src);                \
+                        ++src;                                                 \
+                        *((float*) cdata) = uint_to_float (fint);              \
+                        cdata += ubpc;                                         \
+                    }                                                          \
+                    break;                                                     \
+                }                                                              \
+                case EXR_PIXEL_UINT: {                                         \
+                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
+                    for (int s = 0; s < samps; ++s)                            \
+                    {                                                          \
+                        *((uint32_t*) cdata) = unaligned_load32 (src);         \
+                        ++src;                                                 \
+                        cdata += ubpc;                                         \
+                    }                                                          \
+                    break;                                                     \
+                }                                                              \
+                default: return EXR_ERR_INVALID_ARGUMENT;                      \
+            }                                                                  \
+            break;                                                             \
+        default: return EXR_ERR_INVALID_ARGUMENT;                              \
+    }
+
 static exr_result_t
 generic_unpack (exr_decode_pipeline_t* decode)
 {
     const uint8_t* srcbuffer = decode->unpacked_buffer;
     uint8_t*       cdata;
-    int            w, bpc;
+    int            w, bpc, ubpc;
 
     for (int y = 0; y < decode->chunk_block.height; ++y)
     {
         int cury = y + decode->chunk_block.start_y;
+
         for (int c = 0; c < decode->channel_count; ++c)
         {
             exr_coding_channel_info_t* decc = (decode->channels + c);
@@ -839,6 +1134,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
             cdata = decc->decode_to_ptr;
             w     = decc->width;
             bpc   = decc->bytes_per_element;
+            ubpc  = decc->user_pixel_stride;
 
             if (decc->y_samples > 1)
             {
@@ -847,148 +1143,160 @@ generic_unpack (exr_decode_pipeline_t* decode)
                     cdata +=
                         ((uint64_t) (y / decc->y_samples) *
                          (uint64_t) decc->user_line_stride);
+                else
+                {
+                    srcbuffer += w * bpc;
+                    continue;
+                }
             }
             else if (cdata)
             {
-                cdata += (uint64_t) y * (uint64_t) decc->user_line_stride;
+                cdata +=
+                    ((uint64_t) y) * ((uint64_t) decc->user_line_stride);
+            }
+            else
+            {
+                srcbuffer += w * bpc;
+                continue;
             }
 
-            if (cdata)
-            {
-                int pixincrement = decc->user_pixel_stride;
-                switch (decc->data_type)
-                {
-                    case EXR_PIXEL_HALF:
-                        switch (decc->user_data_type)
-                        {
-                            case EXR_PIXEL_HALF: {
-                                const uint16_t* src =
-                                    (const uint16_t*) srcbuffer;
-                                for (int x = 0; x < w; ++x)
-                                {
-                                    *((uint16_t*) cdata) = unaligned_load16( src );
-                                    ++src;
-                                    cdata += pixincrement;
-                                }
-                                break;
-                            }
-                            case EXR_PIXEL_FLOAT: {
-                                const uint16_t* src =
-                                    (const uint16_t*) srcbuffer;
-                                for (int x = 0; x < w; ++x)
-                                {
-                                    uint16_t cval = unaligned_load16( src );
-                                    ++src;
-                                    *((float*) cdata) = half_to_float (cval);
-                                    cdata += pixincrement;
-                                }
-                                break;
-                            }
-                            case EXR_PIXEL_UINT: {
-                                const uint16_t* src =
-                                    (const uint16_t*) srcbuffer;
-                                for (int x = 0; x < w; ++x)
-                                {
-                                    uint16_t cval = unaligned_load16( src );
-                                    ++src;
-                                    *((uint32_t*) cdata) = half_to_uint (cval);
-                                    cdata += pixincrement;
-                                }
-                                break;
-                            }
-                            default: return EXR_ERR_INVALID_ARGUMENT;
-                        }
-                        break;
-                    case EXR_PIXEL_FLOAT:
-                        switch (decc->user_data_type)
-                        {
-                            case EXR_PIXEL_HALF: {
-                                const uint32_t* src =
-                                    (const uint32_t*) srcbuffer;
-                                for (int x = 0; x < w; ++x)
-                                {
-                                    uint32_t fint = unaligned_load32( src );
-                                    ++src;
-                                    *((uint16_t*) cdata) =
-                                        float_to_half_int (fint);
-                                    cdata += pixincrement;
-                                }
-                                break;
-                            }
-                            case EXR_PIXEL_FLOAT: {
-                                const uint32_t* src =
-                                    (const uint32_t*) srcbuffer;
-                                for (int x = 0; x < w; ++x)
-                                {
-                                    *((uint32_t*) cdata) = unaligned_load32( src );
-                                    ++src;
-                                    cdata += pixincrement;
-                                }
-                                break;
-                            }
-                            case EXR_PIXEL_UINT: {
-                                const uint32_t* src =
-                                    (const uint32_t*) srcbuffer;
-                                for (int x = 0; x < w; ++x)
-                                {
-                                    uint32_t fint = unaligned_load32( src );
-                                    ++src;
-                                    *((uint32_t*) cdata) =
-                                        float_to_uint_int (fint);
-                                    cdata += pixincrement;
-                                }
-                                break;
-                            }
-                            default: return EXR_ERR_INVALID_ARGUMENT;
-                        }
-                        break;
-                    case EXR_PIXEL_UINT:
-                        switch (decc->user_data_type)
-                        {
-                            case EXR_PIXEL_HALF: {
-                                const uint32_t* src =
-                                    (const uint32_t*) srcbuffer;
-                                for (int x = 0; x < w; ++x)
-                                {
-                                    uint32_t fint = unaligned_load32( src );
-                                    ++src;
-                                    *((uint16_t*) cdata) = uint_to_half (fint);
-                                    cdata += pixincrement;
-                                }
-                                break;
-                            }
-                            case EXR_PIXEL_FLOAT: {
-                                const uint32_t* src =
-                                    (const uint32_t*) srcbuffer;
-                                for (int x = 0; x < w; ++x)
-                                {
-                                    uint32_t fint = unaligned_load32( src );
-                                    ++src;
-                                    *((float*) cdata) = uint_to_float (fint);
-                                    cdata += pixincrement;
-                                }
-                                break;
-                            }
-                            case EXR_PIXEL_UINT: {
-                                const uint32_t* src =
-                                    (const uint32_t*) srcbuffer;
-                                for (int x = 0; x < w; ++x)
-                                {
-                                    *((uint32_t*) cdata) = unaligned_load32( src );
-                                    ++src;
-                                    cdata += pixincrement;
-                                }
-                                break;
-                            }
-                            default: return EXR_ERR_INVALID_ARGUMENT;
-                        }
-                        break;
-                    default: return EXR_ERR_INVALID_ARGUMENT;
-                }
-            }
+            UNPACK_SAMPLES (w)
             srcbuffer += w * bpc;
         }
     }
+    return EXR_ERR_SUCCESS;
+}
+
+static exr_result_t
+generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
+{
+    const uint8_t* srcbuffer  = decode->unpacked_buffer;
+    const int32_t* sampbuffer = decode->sample_count_table;
+    void**         pdata;
+    int            w, h, bpc, ubpc;
+
+    w = decode->chunk_block.width;
+    h = decode->chunk_block.height;
+
+    for (int y = 0; y < h; ++y)
+    {
+        for (int c = 0; c < decode->channel_count; ++c)
+        {
+            exr_coding_channel_info_t* decc      = (decode->channels + c);
+            int32_t                    prevsamps = 0;
+            size_t                     pixstride;
+            bpc   = decc->bytes_per_element;
+            ubpc  = decc->user_bytes_per_element;
+            pdata = (void**) decc->decode_to_ptr;
+
+            if (!pdata)
+            {
+                prevsamps = 0;
+                if ((decode->decode_flags &
+                     EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))
+                {
+                    for (int x = 0; x < w; ++x)
+                        prevsamps += sampbuffer[x];
+                }
+                else
+                    prevsamps = sampbuffer[w - 1];
+                srcbuffer += ((size_t) bpc) * ((size_t) prevsamps);
+                continue;
+            }
+
+            pdata += ((size_t)y) * (((size_t)decc->user_line_stride) / sizeof (void*));
+            pixstride = ((size_t)decc->user_pixel_stride) / sizeof (void*);
+
+            for (int x = 0; x < w; ++x)
+            {
+                void*   outpix = *pdata;
+                int32_t samps  = sampbuffer[x];
+                if (0 == (decode->decode_flags &
+                          EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))
+                {
+                    int32_t tmp = samps - prevsamps;
+                    prevsamps   = samps;
+                    samps       = tmp;
+                }
+
+                pdata += pixstride;
+                if (outpix)
+                {
+                    uint8_t* cdata = outpix;
+                    UNPACK_SAMPLES (samps)
+                }
+                srcbuffer += bpc * samps;
+            }
+        }
+        sampbuffer += w;
+    }
+    return EXR_ERR_SUCCESS;
+}
+
+static exr_result_t
+generic_unpack_deep (exr_decode_pipeline_t* decode)
+{
+    const uint8_t* srcbuffer  = decode->unpacked_buffer;
+    const int32_t* sampbuffer = decode->sample_count_table;
+    uint8_t*       cdata;
+    int            w, h, bpc, ubpc;
+    size_t         totsamps = 0;
+
+    w = decode->chunk_block.width;
+    h = decode->chunk_block.height;
+
+    for (int y = 0; y < h; ++y)
+    {
+        for (int c = 0; c < decode->channel_count; ++c)
+        {
+            exr_coding_channel_info_t* decc      = (decode->channels + c);
+            int32_t                    prevsamps = 0;
+
+            int incr_tot = ((c + 1) == decode->channel_count);
+
+            bpc   = decc->bytes_per_element;
+            ubpc  = decc->user_bytes_per_element;
+            cdata = decc->decode_to_ptr;
+
+            if (!cdata)
+            {
+                prevsamps = 0;
+                if ((decode->decode_flags &
+                     EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))
+                {
+                    for (int x = 0; x < w; ++x)
+                        prevsamps += sampbuffer[x];
+                }
+                else
+                    prevsamps = sampbuffer[w - 1];
+                srcbuffer += ((size_t) bpc) * ((size_t) prevsamps);
+
+                if (incr_tot) totsamps += (size_t) prevsamps;
+
+                continue;
+            }
+            cdata += totsamps * ((size_t) ubpc);
+
+            for (int x = 0; x < w; ++x)
+            {
+                int32_t samps = sampbuffer[x];
+                if (0 == (decode->decode_flags &
+                          EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))
+                {
+                    int32_t tmp = samps - prevsamps;
+                    prevsamps   = samps;
+                    samps       = tmp;
+                }
+
+                UNPACK_SAMPLES (samps)
+
+                srcbuffer += bpc * samps;
+                if (incr_tot) totsamps += (size_t) samps;
+            }
+        }
+        sampbuffer += w;
+    }
+
     return EXR_ERR_SUCCESS;
 }
 
@@ -1008,6 +1316,7 @@ internal_exr_match_decode (
     int                    hastypechange,
     int                    sameoutinc,
     int                    simpinterleave,
+    int                    simpinterleaverev,
     int                    simplineoff)
 {
     static int init_cpu_check = 1;
@@ -1017,8 +1326,12 @@ internal_exr_match_decode (
         init_cpu_check = 0;
     }
 
-    /* TODO */
-    if (isdeep) return NULL;
+    if (isdeep)
+    {
+        if ((decode->decode_flags & EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))
+            return &generic_unpack_deep_pointers;
+        return &generic_unpack_deep;
+    }
 
     if (hastypechange > 0)
     {
@@ -1034,6 +1347,14 @@ internal_exr_match_decode (
                     return &unpack_half_to_float_4chan_interleave;
                 if (decode->channel_count == 3)
                     return &unpack_half_to_float_3chan_interleave;
+            }
+
+            if (simpinterleaverev > 0)
+            {
+                if (decode->channel_count == 4)
+                    return &unpack_half_to_float_4chan_interleave_rev;
+                if (decode->channel_count == 3)
+                    return &unpack_half_to_float_3chan_interleave_rev;
             }
 
             if (sameoutinc == 4)
@@ -1065,6 +1386,14 @@ internal_exr_match_decode (
                 return &unpack_16bit_3chan_interleave;
         }
 
+        if (simpinterleaverev > 0)
+        {
+            if (decode->channel_count == 4)
+                return &unpack_16bit_4chan_interleave_rev;
+            if (decode->channel_count == 3)
+                return &unpack_16bit_3chan_interleave_rev;
+        }
+
         if (sameoutinc == 2)
         {
             if (decode->channel_count == 4) return &unpack_16bit_4chan_planar;
@@ -1084,5 +1413,5 @@ internal_exr_match_decode (
         return &unpack_32bit;
     }
 
-    return NULL;
+    return &generic_unpack;
 }

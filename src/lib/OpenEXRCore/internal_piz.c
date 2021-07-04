@@ -416,7 +416,7 @@ internal_exr_apply_piz (exr_encode_pipeline_t* encode)
     size_t         hufSpareBytes = internal_exr_huf_compress_spare_bytes ();
     uint16_t       minNonZero, maxNonZero, maxValue;
     uint64_t       packedbytes = encode->packed_bytes;
-    uint64_t       ndata = packedbytes / 2;
+    uint64_t       ndata       = packedbytes / 2;
     uint16_t*      wavbuf;
 
     rv = internal_encode_alloc_buffer (
@@ -480,11 +480,7 @@ internal_exr_apply_piz (exr_encode_pipeline_t* encode)
     }
 
     bitmapFromData (
-        encode->scratch_buffer_1,
-        ndata,
-        bitmap,
-        &minNonZero,
-        &maxNonZero);
+        encode->scratch_buffer_1, ndata, bitmap, &minNonZero, &maxNonZero);
 
     maxValue = forwardLutFromBitmap (bitmap, lut);
 
@@ -540,10 +536,7 @@ internal_exr_apply_piz (exr_encode_pipeline_t* encode)
     }
     else
     {
-        memcpy (
-            encode->compressed_buffer,
-            encode->packed_buffer,
-            packedbytes);
+        memcpy (encode->compressed_buffer, encode->packed_buffer, packedbytes);
         nOut = packedbytes;
     }
     encode->compressed_bytes = nOut;
@@ -565,7 +558,7 @@ internal_exr_undo_piz (
     uint8_t *      scratch, *tmp;
     const uint8_t* packed;
     int            nx, ny, wcount;
-    uint64_t       bpl, nBytes;
+    uint64_t       nBytes;
     exr_result_t   rv;
     uint8_t*       bitmap;
     uint16_t*      lut;
@@ -593,10 +586,8 @@ internal_exr_undo_piz (
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     hufspare = decode->scratch_buffer_2;
-    bitmap   = hufspare + hufSpareBytes;
-    lut      = (uint16_t*) (bitmap + BITMAP_SIZE);
-
-    wavbuf = decode->scratch_buffer_1;
+    lut      = (uint16_t*) (hufspare + hufSpareBytes);
+    bitmap   = (uint8_t*) (lut + USHORT_RANGE);
 
     //
     // Read range compression data
@@ -636,6 +627,7 @@ internal_exr_undo_piz (
 
     if (nBytes + hufbytes > packsz) return EXR_ERR_BAD_CHUNK_DATA;
 
+    wavbuf = decode->scratch_buffer_1;
     rv = internal_huf_decompress (
         packed + nBytes, hufbytes, wavbuf, outsz / 2, hufspare, hufSpareBytes);
     if (rv != EXR_ERR_SUCCESS) return rv;
@@ -679,34 +671,30 @@ internal_exr_undo_piz (
         {
             const exr_coding_channel_info_t* curc = decode->channels + c;
 
-            nx     = curc->width;
-            ny     = curc->height;
-            bpl    = ((uint64_t) (nx)) * (uint64_t) (curc->bytes_per_element);
-            nBytes = ((uint64_t) (ny)) * bpl;
+            nx = curc->width;
+            ny = curc->height;
+            nBytes =
+                ((uint64_t) curc->width) * ((uint64_t) curc->bytes_per_element);
 
             if (nBytes == 0) continue;
 
             tmp = scratch;
             if (curc->y_samples > 1)
             {
-                if ((cury % curc->y_samples) != 0)
-                {
-                    scratch += nBytes;
-                    continue;
-                }
-                tmp += ((uint64_t) (y / curc->y_samples)) * bpl;
+                if ((cury % curc->y_samples) != 0) continue;
+                tmp += ((uint64_t) (y / curc->y_samples)) * nBytes;
             }
             else
-            {
-                tmp += ((uint64_t) y) * bpl;
-            }
+                tmp += ((uint64_t) y) * nBytes;
 
-            memcpy (out, tmp, bpl);
+            memcpy (out, tmp, nBytes);
             priv_from_native16 (out, nx * (curc->bytes_per_element / 2));
-            out += bpl;
-            nOut += bpl;
-            scratch += nBytes;
+            out += nBytes;
+            nOut += nBytes;
+            scratch += ((uint64_t) ny) * nBytes;
         }
     }
+
+    if (nOut != outsz) return EXR_ERR_BAD_CHUNK_DATA;
     return EXR_ERR_SUCCESS;
 }

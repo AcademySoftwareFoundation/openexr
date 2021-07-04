@@ -8,6 +8,7 @@ add_executable(OpenEXRCoreTest
   main.cpp
   read.cpp
   write.cpp
+  deep.cpp
   )
 target_compile_definitions(OpenEXRCoreTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/../OpenEXRTest/")
 # TODO: remove exr once we are happy everything is identical
