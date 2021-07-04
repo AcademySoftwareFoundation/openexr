@@ -13,6 +13,42 @@
 extern "C" {
 #endif
 
+/** Can be bit-wise or'ed into the decode_flags in the decode pipeline.
+ *
+ * Indicates that the sample count table should be decoded to a an
+ * individual sample count list (n, m, o, ...), with an extra int at
+ * the end containing the total samples.
+ *
+ * Without this (i.e. a value of 0 in that bit), indicates the sample
+ * count table should be decoded to a cumulative list (n, n+m, n+m+o,
+ * ...), which is the on-disk representation */
+#define EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL ((uint16_t) (1 << 0))
+
+/** Can be bit-wise or'ed into the decode_flags in the decode pipeline.
+ *
+ * Indicates that the data in the channel pointers to decode to is not
+ * a direct pointer, but instead is a pointer-to-pointers. In this
+ * mode, the user_pixel_stride and user_line_stride are used to
+ * advance the pointer offsets for each pixel in the output, but the
+ * user_bytes_per_element and user_data_type are used to put
+ * (successive) entries into each destination pointer (if not null).
+ *
+ * So each channel pointer must then point to an array of
+ * chunk_block.width * chunk_block.height pointers.
+ *
+ * With this, you can only extract desired pixels (although all the
+ * pixels must be initially decompressed) to handle such operations
+ * like proxying where you might want to read every other pixel.
+ *
+ * If this is NOT set (0), the default unpacking routine assumes the
+ * data will be planar and contiguous (each channel is a separate
+ * memory block), ignoring user_line_stride and user_pixel_stride
+ */
+#define EXR_DECODE_NON_IMAGE_DATA_AS_POINTERS ((uint16_t) (1 << 1))
+
+/** When reading non-image data (i.e. deep), only read the sample table */
+#define EXR_DECODE_SAMPLE_DATA_ONLY ((uint16_t) (1 << 2))
+
 /**
  * Structure meant to be used on a per-thread basis for reading exr data
  *
@@ -36,7 +72,8 @@ typedef struct _exr_decode_pipeline
     exr_coding_channel_info_t* channels;
     int16_t                    channel_count;
 
-    uint8_t pad[2];
+    /** Decode flags to control the behavior*/
+    uint16_t decode_flags;
 
     /** copy of the parameters given to the initialize / update for convenience */
     int                    part_index;
@@ -78,6 +115,21 @@ typedef struct _exr_decode_pipeline
      * chunk is changed size whether current buffer is large enough
      */
     size_t unpacked_alloc_size;
+
+    /** for deep or other non-image data */
+    /** packed sample table (i.e. compressed, raw on disk representation)*/
+    void*  packed_sample_count_table;
+    size_t packed_sample_count_alloc_size;
+    /** usable, native sample count table. Depending on the flag set
+     * above, will be decoded to either a cumulative list (n, n+m,
+     * n+m+o, ...), or an individual table (n, m, o, ...). As an
+     * optimization, if the latter individual count table is chosen,
+     * an extra int32_t will be allocated at the end of the table to
+     * contain the total count of samples, so the table will be n+1
+     * samples in size */
+    int32_t* sample_count_table;
+    size_t   sample_count_alloc_size;
+
     /** a scratch buffer of unpacked_size for intermediate results
      *
      * If null, will be allocated during the run of the pipeline when
@@ -105,15 +157,6 @@ typedef struct _exr_decode_pipeline
     /** used when re-using the same decode pipeline struct to know if
      * chunk is changed size whether current buffer is large enough */
     size_t scratch_alloc_size_2;
-
-    /** for deep data */
-    void* packed_sample_count_table;
-    /** for deep data */
-    size_t packed_sample_count_alloc_size;
-    /** for deep data */
-    int32_t* sample_count_table;
-    /** for deep data */
-    size_t sample_count_alloc_size;
 
     /**
      * enables a custom allocator for the different buffers (i.e. if
@@ -157,6 +200,16 @@ typedef struct _exr_decode_pipeline
      */
     exr_result_t (*decompress_fn) (struct _exr_decode_pipeline* pipeline);
     /**
+     * Function which can be provided if you have bespoke handling for
+     * non-image data and need to re-allocate the data to handle the
+     * about-to-be unpacked data.
+     *
+     * If left NULL, will assume the memory pointed to by the channel
+     * pointers is sufficient
+     */
+    exr_result_t (*realloc_nonimage_data_fn) (
+        struct _exr_decode_pipeline* pipeline);
+    /**
      * Function chosen based on the output layout of the channels of the part to
      * decompress data.
      *
@@ -179,6 +232,9 @@ typedef struct _exr_decode_pipeline
      */
     exr_coding_channel_info_t _quick_chan_store[5];
 } exr_decode_pipeline_t;
+
+/** @brief simple macro to initialize an empty decode pipeline */
+#define EXR_DECODE_PIPELINE_INITIALIZER { 0 }
 
 /** initializes the decoding pipeline structure with the channel info for the specified part, and the first block to be read.
  *

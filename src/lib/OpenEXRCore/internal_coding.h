@@ -52,6 +52,7 @@ internal_exr_unpack_fn internal_exr_match_decode (
     int                    hastypechange,
     int                    sameoutinc,
     int                    simpinterleave,
+    int                    simpinterleaverev,
     int                    simplineoff);
 
 typedef exr_result_t (*internal_exr_pack_fn) (exr_encode_pipeline_t*);

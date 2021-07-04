@@ -35,9 +35,8 @@ enum transcoding_pipeline_buffer_id
  * in that the same structure is used for both decoding and encoding
  * chunks for read and write, respectively.
  *
- * The first 4 elements are meant to be controlled by the caller of
- * the encode / decode routines and provide memory to the library to
- * either read from or fill up.
+ * The first half of the structure will be filled by the library, and
+ * the caller is expected to fill the second half appropriately.
  */
 typedef struct
 {
@@ -90,10 +89,12 @@ typedef struct
 
     /**
      * how many bytes per pixel the input is or output should be
-     * (i.e. 2 for float16, 4 for float32 / uint32).
+     * (i.e. 2 for float16, 4 for float32 / uint32). Defaults to same
+     * size as input
      */
     int16_t user_bytes_per_element;
-    /** small form of exr_pixel_type_t enum (EXR_PIXEL_UINT/HALF/FLOAT) */
+    /** small form of exr_pixel_type_t enum
+     * (EXR_PIXEL_UINT/HALF/FLOAT). Defaults to same type as input */
     uint16_t user_data_type;
 
     /** increment to get to next pixel

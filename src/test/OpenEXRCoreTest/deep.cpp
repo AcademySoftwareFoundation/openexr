@@ -441,6 +441,27 @@ testReadDeep (const std::string& tempdir)
             packed.resize(cinfo.packed_size);
             sampdata.resize(cinfo.sample_count_table_size);
             EXRCORE_TEST_RVAL (exr_read_deep_chunk (f, 0, &cinfo, &packed[0], &sampdata[0]));
+            if (comps[cp] == NO_COMPRESSION)
+            {
+                const uint32_t *sampcount = reinterpret_cast<const uint32_t *>( sampdata.data() );
+                size_t N = sampdata.size() / sizeof(uint32_t);
+                EXRCORE_TEST(N == width);
+                size_t bps = 0;
+                for (auto &c: channelTypes)
+                {
+                    if (c == 0) bps += sizeof(uint32_t);
+                    if (c == 1) bps += sizeof(uint16_t);
+                    if (c == 2) bps += sizeof(float);
+                }
+                EXRCORE_TEST(packed.size() == (sampcount[N-1]) * bps);
+            }
+
+            EXRCORE_TEST_RVAL (exr_read_scanline_block_info (f, 0, minY + height / 4, &cinfo));
+            packed.resize(cinfo.packed_size);
+            sampdata.resize(cinfo.sample_count_table_size);
+            // we support reading the two bits separately
+            EXRCORE_TEST_RVAL (exr_read_deep_chunk (f, 0, &cinfo, &packed[0], NULL));
+            EXRCORE_TEST_RVAL (exr_read_deep_chunk (f, 0, &cinfo, NULL, &sampdata[0]));
 
             exr_finish (&f);
 
