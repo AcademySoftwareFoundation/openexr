@@ -34,7 +34,7 @@ extern "C" {
  * (successive) entries into each destination pointer (if not null).
  *
  * So each channel pointer must then point to an array of
- * chunk_block.width * chunk_block.height pointers.
+ * chunk.width * chunk.height pointers.
  *
  * With this, you can only extract desired pixels (although all the
  * pixels must be initially decompressed) to handle such operations
@@ -76,9 +76,9 @@ typedef struct _exr_decode_pipeline
     uint16_t decode_flags;
 
     /** copy of the parameters given to the initialize / update for convenience */
-    int                    part_index;
-    exr_const_context_t    context;
-    exr_chunk_block_info_t chunk_block;
+    int                 part_index;
+    exr_const_context_t context;
+    exr_chunk_info_t    chunk;
 
     /**
      * can be used by the user to pass custom context data through
@@ -234,7 +234,10 @@ typedef struct _exr_decode_pipeline
 } exr_decode_pipeline_t;
 
 /** @brief simple macro to initialize an empty decode pipeline */
-#define EXR_DECODE_PIPELINE_INITIALIZER { 0 }
+#define EXR_DECODE_PIPELINE_INITIALIZER                                        \
+    {                                                                          \
+        0                                                                      \
+    }
 
 /** initializes the decoding pipeline structure with the channel info for the specified part, and the first block to be read.
  *
@@ -244,10 +247,10 @@ typedef struct _exr_decode_pipeline
  */
 EXR_EXPORT
 exr_result_t exr_decoding_initialize (
-    exr_const_context_t           ctxt,
-    int                           part_index,
-    const exr_chunk_block_info_t* cinfo,
-    exr_decode_pipeline_t*        decode);
+    exr_const_context_t     ctxt,
+    int                     part_index,
+    const exr_chunk_info_t* cinfo,
+    exr_decode_pipeline_t*  decode);
 
 /** Given an initialized decode pipeline, finds appropriate functions
  * to read and shuffle / convert data into the defined channel outputs
@@ -268,10 +271,10 @@ exr_result_t exr_decoding_choose_default_routines (
  */
 EXR_EXPORT
 exr_result_t exr_decoding_update (
-    exr_const_context_t           ctxt,
-    int                           part_index,
-    const exr_chunk_block_info_t* cinfo,
-    exr_decode_pipeline_t*        decode);
+    exr_const_context_t     ctxt,
+    int                     part_index,
+    const exr_chunk_info_t* cinfo,
+    exr_decode_pipeline_t*  decode);
 
 /** Execute the decoding pipeline */
 EXR_EXPORT

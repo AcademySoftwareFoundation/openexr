@@ -44,9 +44,9 @@ public:
     {}
     void execute () override
     {
-        exr_chunk_block_info_t cinfo = { 0 };
-        exr_decode_pipeline_t  chunk;
-        exr_result_t rv = exr_read_scanline_block_info (_f, 0, _y, &cinfo);
+        exr_chunk_info_t      cinfo = { 0 };
+        exr_decode_pipeline_t chunk;
+        exr_result_t rv = exr_read_scanline_chunk_info (_f, 0, _y, &cinfo);
         if (rv == EXR_ERR_SUCCESS)
             rv = exr_decoding_initialize (_f, 0, &cinfo, &chunk);
         if (rv == EXR_ERR_SUCCESS)
@@ -143,11 +143,11 @@ read_pixels_raw (exr_context_t f)
             ret += linesread * w;
         }
 #else
-        exr_chunk_block_info_t cinfo = { 0 };
-        exr_decode_pipeline_t  chunk = { 0 };
+        exr_chunk_info_t      cinfo = { 0 };
+        exr_decode_pipeline_t chunk = { 0 };
         for (int y = dw.min.y; y <= dw.max.y;)
         {
-            exr_result_t rv = exr_read_scanline_block_info (f, 0, y, &cinfo);
+            exr_result_t rv = exr_read_scanline_chunk_info (f, 0, y, &cinfo);
             if (rv != EXR_ERR_SUCCESS)
                 throw std::runtime_error ("unable to init scanline block info");
 

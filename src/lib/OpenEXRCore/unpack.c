@@ -234,7 +234,7 @@ unpack_16bit_3chan_interleave (exr_decode_pipeline_t* decode)
     int             linc0;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk_block.height;
+    h     = decode->chunk.height;
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
@@ -274,7 +274,7 @@ unpack_16bit_3chan_interleave_rev (exr_decode_pipeline_t* decode)
     int             linc0;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk_block.height;
+    h     = decode->chunk.height;
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[2].decode_to_ptr;
@@ -314,7 +314,7 @@ unpack_half_to_float_3chan_interleave (exr_decode_pipeline_t* decode)
     int             linc0;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk_block.height;
+    h     = decode->chunk.height;
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
@@ -354,7 +354,7 @@ unpack_half_to_float_3chan_interleave_rev (exr_decode_pipeline_t* decode)
     int             linc0;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk_block.height;
+    h     = decode->chunk.height;
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[2].decode_to_ptr;
@@ -395,7 +395,7 @@ unpack_16bit_3chan_planar (exr_decode_pipeline_t* decode)
     int             linc0, linc1, linc2;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk_block.height;
+    h     = decode->chunk.height;
     inc0  = decode->channels[0].user_pixel_stride;
     inc1  = decode->channels[1].user_pixel_stride;
     inc2  = decode->channels[2].user_pixel_stride;
@@ -449,7 +449,7 @@ unpack_half_to_float_3chan_planar (exr_decode_pipeline_t* decode)
     int             linc0, linc1, linc2;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk_block.height;
+    h     = decode->chunk.height;
     inc0  = decode->channels[0].user_pixel_stride;
     inc1  = decode->channels[1].user_pixel_stride;
     inc2  = decode->channels[2].user_pixel_stride;
@@ -495,7 +495,7 @@ unpack_16bit_3chan (exr_decode_pipeline_t* decode)
     int             linc0, linc1, linc2;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk_block.height;
+    h     = decode->chunk.height;
     inc0  = decode->channels[0].user_pixel_stride;
     inc1  = decode->channels[1].user_pixel_stride;
     inc2  = decode->channels[2].user_pixel_stride;
@@ -552,7 +552,7 @@ unpack_16bit_4chan_interleave (exr_decode_pipeline_t* decode)
     } combined;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk_block.height;
+    h     = decode->chunk.height;
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
@@ -605,7 +605,7 @@ unpack_16bit_4chan_interleave_rev (exr_decode_pipeline_t* decode)
     } combined;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk_block.height;
+    h     = decode->chunk.height;
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[3].decode_to_ptr;
@@ -646,7 +646,7 @@ unpack_half_to_float_4chan_interleave (exr_decode_pipeline_t* decode)
     int             linc0;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk_block.height;
+    h     = decode->chunk.height;
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
@@ -687,7 +687,7 @@ unpack_half_to_float_4chan_interleave_rev (exr_decode_pipeline_t* decode)
     int             linc0;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk_block.height;
+    h     = decode->chunk.height;
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[3].decode_to_ptr;
@@ -728,7 +728,7 @@ unpack_16bit_4chan_planar (exr_decode_pipeline_t* decode)
     int             linc0, linc1, linc2, linc3;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk_block.height;
+    h     = decode->chunk.height;
     linc0 = decode->channels[0].user_line_stride;
     linc1 = decode->channels[1].user_line_stride;
     linc2 = decode->channels[2].user_line_stride;
@@ -784,7 +784,7 @@ unpack_half_to_float_4chan_planar (exr_decode_pipeline_t* decode)
     int             linc0, linc1, linc2, linc3;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk_block.height;
+    h     = decode->chunk.height;
     linc0 = decode->channels[0].user_line_stride;
     linc1 = decode->channels[1].user_line_stride;
     linc2 = decode->channels[2].user_line_stride;
@@ -831,7 +831,7 @@ unpack_16bit_4chan (exr_decode_pipeline_t* decode)
     int             linc0, linc1, linc2, linc3;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk_block.height;
+    h     = decode->chunk.height;
     inc0  = decode->channels[0].user_pixel_stride;
     inc1  = decode->channels[1].user_pixel_stride;
     inc2  = decode->channels[2].user_pixel_stride;
@@ -879,7 +879,7 @@ unpack_16bit (exr_decode_pipeline_t* decode)
     uint8_t*       cdata;
     int            w, h, pixincrement;
 
-    h = decode->chunk_block.height;
+    h = decode->chunk.height;
     for (int y = 0; y < h; ++y)
     {
         for (int c = 0; c < decode->channel_count; ++c)
@@ -943,7 +943,7 @@ unpack_32bit (exr_decode_pipeline_t* decode)
     int64_t        w, h, pixincrement;
     int            chans = decode->channel_count;
 
-    h = (int64_t) decode->chunk_block.height;
+    h = (int64_t) decode->chunk.height;
 
     for (int64_t y = 0; y < h; ++y)
     {
@@ -1123,9 +1123,9 @@ generic_unpack (exr_decode_pipeline_t* decode)
     uint8_t*       cdata;
     int            w, bpc, ubpc;
 
-    for (int y = 0; y < decode->chunk_block.height; ++y)
+    for (int y = 0; y < decode->chunk.height; ++y)
     {
-        int cury = y + decode->chunk_block.start_y;
+        int cury = y + decode->chunk.start_y;
 
         for (int c = 0; c < decode->channel_count; ++c)
         {
@@ -1175,8 +1175,8 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
     void**         pdata;
     int            w, h, bpc, ubpc;
 
-    w = decode->chunk_block.width;
-    h = decode->chunk_block.height;
+    w = decode->chunk.width;
+    h = decode->chunk.height;
 
     for (int y = 0; y < h; ++y)
     {
@@ -1242,8 +1242,8 @@ generic_unpack_deep (exr_decode_pipeline_t* decode)
     int            w, h, bpc, ubpc;
     size_t         totsamps = 0;
 
-    w = decode->chunk_block.width;
-    h = decode->chunk_block.height;
+    w = decode->chunk.width;
+    h = decode->chunk.height;
 
     for (int y = 0; y < h; ++y)
     {

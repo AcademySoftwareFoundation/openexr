@@ -22,7 +22,7 @@ extern "C" {
  * Without this (i.e. a value of 0 in that bit), indicates the sample
  * count table is already a cumulative list (n, n+m, n+m+o, ...),
  * which is the on-disk representation */
-#define EXR_ENCODE_DATA_SAMPLE_COUNTS_ARE_INDIVIDUAL ((uint16_t)(1 << 0))
+#define EXR_ENCODE_DATA_SAMPLE_COUNTS_ARE_INDIVIDUAL ((uint16_t) (1 << 0))
 
 /** Can be bit-wise or'ed into the decode_flags in the decode pipeline.
  *
@@ -34,7 +34,7 @@ extern "C" {
  * (successive) entries into each destination.
  *
  * So each channel pointer must then point to an array of
- * chunk_block.width * chunk_block.height pointers. If an entry is
+ * chunk.width * chunk.height pointers. If an entry is
  * NULL, 0 samples will be placed in the output.
  *
  * If this is NOT set (0), the default packing routine assumes the
@@ -42,7 +42,7 @@ extern "C" {
  * memory block), ignoring user_line_stride and user_pixel_stride and
  * advancing only by the sample counts and bytes per element
  */
-#define EXR_ENCODE_NON_IMAGE_DATA_AS_POINTERS ((uint16_t)(1 << 1))
+#define EXR_ENCODE_NON_IMAGE_DATA_AS_POINTERS ((uint16_t) (1 << 1))
 
 /**
  * Structure meant to be used on a per-thread basis for writing exr data
@@ -67,12 +67,12 @@ typedef struct _exr_encode_pipeline
     int16_t                    channel_count;
 
     /** Encode flags to control the behavior*/
-    uint16_t                   encode_flags;
+    uint16_t encode_flags;
 
     /** copy of the parameters given to the initialize / update for convenience */
-    int                    part_index;
-    exr_const_context_t    context;
-    exr_chunk_block_info_t chunk_block;
+    int                 part_index;
+    exr_const_context_t context;
+    exr_chunk_info_t    chunk;
 
     /**
      * can be used by the user to pass custom context data through
@@ -266,10 +266,13 @@ typedef struct _exr_encode_pipeline
 } exr_encode_pipeline_t;
 
 /** @brief simple macro to initialize an empty decode pipeline */
-#define EXR_ENCODE_PIPELINE_INITIALIZER { 0 }
+#define EXR_ENCODE_PIPELINE_INITIALIZER                                        \
+    {                                                                          \
+        0                                                                      \
+    }
 
 /** initializes the encoding pipeline structure with the channel info
- * for the specified part, and the first block to be written.
+ * for the specified part based on the chunk to be written.
  *
  * NB: The pack_and_convert_fn will be NULL after this. If that
  * stage is desired, initialize the channel output information and
@@ -277,10 +280,10 @@ typedef struct _exr_encode_pipeline
  */
 EXR_EXPORT
 exr_result_t exr_encoding_initialize (
-    exr_const_context_t           ctxt,
-    int                           part_index,
-    const exr_chunk_block_info_t* cinfo,
-    exr_encode_pipeline_t*        encode_pipe);
+    exr_const_context_t     ctxt,
+    int                     part_index,
+    const exr_chunk_info_t* cinfo,
+    exr_encode_pipeline_t*  encode_pipe);
 
 /** Given an initialized encode pipeline, finds an appropriate
  * function to shuffle and convert data into the defined channel
@@ -291,7 +294,9 @@ exr_result_t exr_encoding_initialize (
  */
 EXR_EXPORT
 exr_result_t exr_encoding_choose_default_routines (
-    exr_const_context_t ctxt, int part_index, exr_encode_pipeline_t* encode_pipe);
+    exr_const_context_t    ctxt,
+    int                    part_index,
+    exr_encode_pipeline_t* encode_pipe);
 
 /** Given a encode pipeline previously initialized, updates it for the
  * new chunk to be written.
@@ -302,15 +307,17 @@ exr_result_t exr_encoding_choose_default_routines (
  */
 EXR_EXPORT
 exr_result_t exr_encoding_update (
-    exr_const_context_t           ctxt,
-    int                           part_index,
-    const exr_chunk_block_info_t* cinfo,
-    exr_encode_pipeline_t*        encode_pipe);
+    exr_const_context_t     ctxt,
+    int                     part_index,
+    const exr_chunk_info_t* cinfo,
+    exr_encode_pipeline_t*  encode_pipe);
 
 /** Execute the encoding pipeline */
 EXR_EXPORT
 exr_result_t exr_encoding_run (
-    exr_const_context_t ctxt, int part_index, exr_encode_pipeline_t* encode_pipe);
+    exr_const_context_t    ctxt,
+    int                    part_index,
+    exr_encode_pipeline_t* encode_pipe);
 
 /** Free any intermediate memory in the encoding pipeline
  *

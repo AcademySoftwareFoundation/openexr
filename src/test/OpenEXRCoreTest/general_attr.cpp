@@ -854,7 +854,7 @@ test_unpack (exr_context_t, const void*, int32_t, int32_t* ns, void** ptr)
     if (ns) *ns = 4;
     static uint8_t data4[] = { 0xDE, 0xAD, 0xBE, 0xEF };
     if (ptr) *ptr = data4;
-    if (s_unpack_fail > 0) return EXR_ERR_BAD_CHUNK_DATA;
+    if (s_unpack_fail > 0) return EXR_ERR_CORRUPT_CHUNK;
     return EXR_ERR_SUCCESS;
 }
 
@@ -864,7 +864,7 @@ test_pack (exr_context_t, const void*, int32_t, int32_t* nsize, void* ptr)
 {
     *nsize = 1;
     if (ptr) *((char*) ptr) = 'E';
-    if (s_pack_fail == 1) return EXR_ERR_BAD_CHUNK_DATA;
+    if (s_pack_fail == 1) return EXR_ERR_CORRUPT_CHUNK;
     if (s_pack_fail > 0) --s_pack_fail;
     return EXR_ERR_SUCCESS;
 }
@@ -981,7 +981,7 @@ testAttrHandler (const std::string& tempdir)
 
     s_unpack_fail = 1;
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_BAD_CHUNK_DATA,
+        EXR_ERR_CORRUPT_CHUNK,
         exr_attr_opaquedata_unpack (f, bar->opaque, &nsz, &packed));
     s_unpack_fail = 0;
     EXRCORE_TEST_RVAL (
@@ -1001,11 +1001,11 @@ testAttrHandler (const std::string& tempdir)
         exr_attr_opaquedata_set_unpacked (f, foo->opaque, data4, 4));
     s_pack_fail = 1;
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_BAD_CHUNK_DATA,
+        EXR_ERR_CORRUPT_CHUNK,
         exr_attr_opaquedata_pack (f, foo->opaque, &nsz, &packed));
     s_pack_fail = 2;
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_BAD_CHUNK_DATA,
+        EXR_ERR_CORRUPT_CHUNK,
         exr_attr_opaquedata_pack (f, foo->opaque, &nsz, &packed));
     s_pack_fail = 0;
     EXRCORE_TEST_RVAL_FAIL_MALLOC (

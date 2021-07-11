@@ -117,6 +117,10 @@ EXR_EXPORT exr_result_t exr_get_level_sizes (
 
 /** Return the number of chunks contained in this part of the file
  *
+ * As in the technical documentation for OpenEXR, the chunk is the
+ * generic term for a pixel data block. This is the atomic unit that
+ * this library uses to negotiate data to and from a context.
+ * 
  * This should be used as a basis for splitting up how a file is
  * processed. Depending on the compression, a different number of
  * scanlines are encoded in each chunk, and since those need to be

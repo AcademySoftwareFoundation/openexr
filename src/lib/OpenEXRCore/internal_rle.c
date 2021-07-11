@@ -138,8 +138,8 @@ internal_rle_decompress (
         {
             uint64_t count = (uint64_t) (-((int) *in++));
             ++unpackbytes;
-            if (unpackbytes + count > packsz) return EXR_ERR_BAD_CHUNK_DATA;
-            if (outbytes + count > outsz) return EXR_ERR_BAD_CHUNK_DATA;
+            if (unpackbytes + count > packsz) return EXR_ERR_CORRUPT_CHUNK;
+            if (outbytes + count > outsz) return EXR_ERR_CORRUPT_CHUNK;
 
             memcpy (dst, in, count);
             in += count;
@@ -150,11 +150,11 @@ internal_rle_decompress (
         else
         {
             uint64_t count = (uint64_t) (*in++);
-            if (unpackbytes + 2 > packsz) return EXR_ERR_BAD_CHUNK_DATA;
+            if (unpackbytes + 2 > packsz) return EXR_ERR_CORRUPT_CHUNK;
             unpackbytes += 2;
 
             ++count;
-            if (outbytes + count > outsz) return EXR_ERR_BAD_CHUNK_DATA;
+            if (outbytes + count > outsz) return EXR_ERR_CORRUPT_CHUNK;
 
             memset (dst, *(const uint8_t*) in, count);
             dst += count;
@@ -210,7 +210,7 @@ internal_exr_undo_rle (
 
     unpackb =
         internal_rle_decompress (decode->scratch_buffer_1, outsz, src, packsz);
-    if (unpackb != outsz) return EXR_ERR_BAD_CHUNK_DATA;
+    if (unpackb != outsz) return EXR_ERR_CORRUPT_CHUNK;
 
     unpredict_and_reorder (out, decode->scratch_buffer_1, outsz);
     return EXR_ERR_SUCCESS;

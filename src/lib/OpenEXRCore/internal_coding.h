@@ -20,7 +20,7 @@
     (IMATH_VERSION_MAJOR == 3 && IMATH_VERSION_MINOR >= 1)
 #    define IMATH_HALF_SAFE_FOR_C
 /* avoid the library dependency */
-#    define IMATH_HALF_NO_TABLES_AT_ALL
+#    define IMATH_HALF_NO_LOOKUP_TABLE
 #    include <half.h>
 #endif
 
@@ -64,14 +64,14 @@ exr_result_t internal_coding_fill_channel_info (
     exr_coding_channel_info_t**         channels,
     int16_t*                            num_chans,
     exr_coding_channel_info_t*          builtinextras,
-    const exr_chunk_block_info_t*       cinfo,
+    const exr_chunk_info_t*             cinfo,
     const struct _internal_exr_context* pctxt,
     const struct _internal_exr_part*    part);
 
 exr_result_t internal_coding_update_channel_info (
     exr_coding_channel_info_t*          channels,
     int16_t                             num_chans,
-    const exr_chunk_block_info_t*       cinfo,
+    const exr_chunk_info_t*             cinfo,
     const struct _internal_exr_context* pctxt,
     const struct _internal_exr_part*    part);
 
@@ -82,30 +82,26 @@ exr_result_t internal_validate_next_chunk (
 
 /**************************************/
 
-exr_result_t
-internal_encode_free_buffer (
+exr_result_t internal_encode_free_buffer (
     exr_encode_pipeline_t*              encode,
     enum transcoding_pipeline_buffer_id bufid,
     void**                              buf,
     size_t*                             sz);
 
-exr_result_t
-internal_encode_alloc_buffer (
+exr_result_t internal_encode_alloc_buffer (
     exr_encode_pipeline_t*              encode,
     enum transcoding_pipeline_buffer_id bufid,
     void**                              buf,
     size_t*                             cursz,
     size_t                              newsz);
 
-exr_result_t
-internal_decode_free_buffer (
+exr_result_t internal_decode_free_buffer (
     exr_decode_pipeline_t*              decode,
     enum transcoding_pipeline_buffer_id bufid,
     void**                              buf,
     size_t*                             sz);
 
-exr_result_t
-internal_decode_alloc_buffer (
+exr_result_t internal_decode_alloc_buffer (
     exr_decode_pipeline_t*              decode,
     enum transcoding_pipeline_buffer_id bufid,
     void**                              buf,

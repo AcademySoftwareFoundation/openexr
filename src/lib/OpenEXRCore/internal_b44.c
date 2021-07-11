@@ -319,9 +319,9 @@ compress_b44_impl (exr_encode_pipeline_t* encode, int flat_field)
 
     nOut   = 0;
     packed = encode->packed_buffer;
-    for (int y = 0; y < encode->chunk_block.height; ++y)
+    for (int y = 0; y < encode->chunk.height; ++y)
     {
-        int cury = y + encode->chunk_block.start_y;
+        int cury = y + encode->chunk.start_y;
 
         scratch = encode->scratch_buffer_1;
         for (int c = 0; c < encode->channel_count; ++c)
@@ -565,9 +565,9 @@ uncompress_b44_impl (
 
     /* now put it back so each scanline has channel data */
     bIn = 0;
-    for (int y = 0; y < decode->chunk_block.height; ++y)
+    for (int y = 0; y < decode->chunk.height; ++y)
     {
-        int cury = y + decode->chunk_block.start_y;
+        int cury = y + decode->chunk.start_y;
 
         scratch = decode->scratch_buffer_1;
         for (int c = 0; c < decode->channel_count; ++c)

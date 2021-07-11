@@ -81,10 +81,10 @@ testStartWriteScan (const std::string& tempdir)
     EXRCORE_TEST (partidx == 1);
     partidx = 0;
 
-    exr_chunk_block_info_t cinfo;
+    exr_chunk_info_t cinfo;
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_NOT_OPEN_READ,
-        exr_read_scanline_block_info (outf, partidx, 42, &cinfo));
+        exr_read_scanline_chunk_info (outf, partidx, 42, &cinfo));
 
     const char* partname;
     EXRCORE_TEST_RVAL_FAIL (
@@ -185,10 +185,10 @@ testStartWriteTile (const std::string& tempdir)
     EXRCORE_TEST (partidx == 1);
     partidx = 0;
 
-    exr_chunk_block_info_t cinfo;
+    exr_chunk_info_t cinfo;
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_NOT_OPEN_READ,
-        exr_read_scanline_block_info (outf, partidx, 42, &cinfo));
+        exr_read_scanline_chunk_info (outf, partidx, 42, &cinfo));
 
     const char* partname;
     EXRCORE_TEST_RVAL_FAIL (
@@ -282,10 +282,10 @@ testWriteBaseHeader (const std::string& tempdir)
     EXRCORE_TEST (partidx == 1);
     partidx = 0;
 
-    exr_chunk_block_info_t cinfo;
+    exr_chunk_info_t cinfo;
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_NOT_OPEN_READ,
-        exr_read_scanline_block_info (outf, partidx, 42, &cinfo));
+        exr_read_scanline_chunk_info (outf, partidx, 42, &cinfo));
 
     const char* partname;
     EXRCORE_TEST_RVAL_FAIL (
@@ -1081,8 +1081,8 @@ testWriteAttrs (const std::string& tempdir)
     }
 
     EXRCORE_TEST_RVAL (exr_write_header (outf));
-    exr_chunk_block_info_t cinfo;
-    EXRCORE_TEST_RVAL (exr_write_scanline_block_info (outf, 0, 0, &cinfo));
+    exr_chunk_info_t cinfo;
+    EXRCORE_TEST_RVAL (exr_write_scanline_chunk_info (outf, 0, 0, &cinfo));
     exr_encode_pipeline_t  encoder;
     EXRCORE_TEST_RVAL (exr_encoding_initialize (outf, 0, &cinfo, &encoder));
     const uint8_t rgb[]                   = { 0, 0, 0, 0, 0, 0 };
@@ -1170,9 +1170,9 @@ testWriteTiles (const std::string& tempdir)
         tx = 0;
         for (int32_t x = dw.min.x; x <= dw.max.x; x += levelsx)
         {
-            exr_chunk_block_info_t cinfo;
+            exr_chunk_info_t cinfo;
             EXRCORE_TEST_RVAL (
-                exr_read_tile_block_info (f, 0, tx, ty, 0, 0, &cinfo));
+                exr_read_tile_chunk_info (f, 0, tx, ty, 0, 0, &cinfo));
             if (cmemsize < cinfo.packed_size)
             {
                 if (cmem) free (cmem);
