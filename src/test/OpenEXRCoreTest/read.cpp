@@ -251,31 +251,31 @@ testReadScans (const std::string& tempdir)
         EXR_ERR_INVALID_ARGUMENT, exr_get_data_window (f, 0, NULL));
     EXRCORE_TEST_RVAL (exr_get_data_window (f, 0, &dw));
 
-    exr_chunk_block_info_t cinfo;
+    exr_chunk_info_t cinfo;
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_MISSING_CONTEXT_ARG,
-        exr_read_scanline_block_info (NULL, 0, 42, &cinfo));
+        exr_read_scanline_chunk_info (NULL, 0, 42, &cinfo));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_ARGUMENT_OUT_OF_RANGE,
-        exr_read_scanline_block_info (f, -1, 42, &cinfo));
+        exr_read_scanline_chunk_info (f, -1, 42, &cinfo));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_ARGUMENT_OUT_OF_RANGE,
-        exr_read_scanline_block_info (f, 1, 42, &cinfo));
+        exr_read_scanline_chunk_info (f, 1, 42, &cinfo));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_read_scanline_block_info (f, 0, 42, NULL));
+        exr_read_scanline_chunk_info (f, 0, 42, NULL));
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_TILE_SCAN_MIXEDAPI,
-        exr_read_tile_block_info (f, 0, 4, 2, 0, 0, &cinfo));
+        exr_read_tile_chunk_info (f, 0, 4, 2, 0, 0, &cinfo));
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_read_scanline_block_info (f, 0, dw.min.y - 1, &cinfo));
+        exr_read_scanline_chunk_info (f, 0, dw.min.y - 1, &cinfo));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_read_scanline_block_info (f, 0, dw.max.y + 1, &cinfo));
-    EXRCORE_TEST_RVAL (exr_read_scanline_block_info (f, 0, dw.min.y, &cinfo));
+        exr_read_scanline_chunk_info (f, 0, dw.max.y + 1, &cinfo));
+    EXRCORE_TEST_RVAL (exr_read_scanline_chunk_info (f, 0, dw.min.y, &cinfo));
 
     uint64_t pchunksz = 0;
     EXRCORE_TEST_RVAL (exr_get_chunk_unpacked_size (f, 0, &pchunksz));
@@ -434,38 +434,38 @@ testReadTiles (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_get_tile_sizes (f, 0, 0, 0, NULL, &levelsy));
     EXRCORE_TEST (levelsy == 24);
 
-    exr_chunk_block_info_t cinfo;
+    exr_chunk_info_t cinfo;
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_SCAN_TILE_MIXEDAPI,
-        exr_read_scanline_block_info (f, 0, 42, &cinfo));
+        exr_read_scanline_chunk_info (f, 0, 42, &cinfo));
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_MISSING_CONTEXT_ARG,
-        exr_read_tile_block_info (NULL, 0, 4, 2, 0, 0, &cinfo));
+        exr_read_tile_chunk_info (NULL, 0, 4, 2, 0, 0, &cinfo));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_ARGUMENT_OUT_OF_RANGE,
-        exr_read_tile_block_info (f, -1, 4, 2, 0, 0, &cinfo));
+        exr_read_tile_chunk_info (f, -1, 4, 2, 0, 0, &cinfo));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_ARGUMENT_OUT_OF_RANGE,
-        exr_read_tile_block_info (f, 1, 4, 2, 0, 0, &cinfo));
+        exr_read_tile_chunk_info (f, 1, 4, 2, 0, 0, &cinfo));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_read_tile_block_info (f, 0, 4, 2, 0, 0, NULL));
+        exr_read_tile_chunk_info (f, 0, 4, 2, 0, 0, NULL));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_read_tile_block_info (f, 0, 4, 2, 0, -1, &cinfo));
+        exr_read_tile_chunk_info (f, 0, 4, 2, 0, -1, &cinfo));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_read_tile_block_info (f, 0, 4, 2, -1, 0, &cinfo));
+        exr_read_tile_chunk_info (f, 0, 4, 2, -1, 0, &cinfo));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_read_tile_block_info (f, 0, 4, -2, 0, 0, &cinfo));
+        exr_read_tile_chunk_info (f, 0, 4, -2, 0, 0, &cinfo));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_read_tile_block_info (f, 0, -4, 2, 0, 0, &cinfo));
+        exr_read_tile_chunk_info (f, 0, -4, 2, 0, 0, &cinfo));
 
     // actually read a tile...
-    EXRCORE_TEST_RVAL (exr_read_tile_block_info (f, 0, 4, 2, 0, 0, &cinfo));
+    EXRCORE_TEST_RVAL (exr_read_tile_chunk_info (f, 0, 4, 2, 0, 0, &cinfo));
     uint64_t pchunksz = 0;
     EXRCORE_TEST_RVAL (exr_get_chunk_unpacked_size (f, 0, &pchunksz));
     EXRCORE_TEST (cinfo.type == EXR_STORAGE_TILED);
@@ -544,8 +544,8 @@ testReadUnpack (const std::string& tempdir)
     fn += "v1.7.test.tiled.exr";
     EXRCORE_TEST_RVAL (exr_start_read (&f, fn.c_str (), &cinit));
 
-    exr_chunk_block_info_t cinfo;
-    EXRCORE_TEST_RVAL (exr_read_tile_block_info (f, 0, 4, 2, 0, 0, &cinfo));
+    exr_chunk_info_t cinfo;
+    EXRCORE_TEST_RVAL (exr_read_tile_chunk_info (f, 0, 4, 2, 0, 0, &cinfo));
 
     {
         exr_decode_pipeline_t decoder;

@@ -441,9 +441,9 @@ internal_exr_apply_piz (exr_encode_pipeline_t* encode)
     lut      = (uint16_t*) (bitmap + BITMAP_SIZE);
 
     packed = encode->packed_buffer;
-    for (int y = 0; y < encode->chunk_block.height; ++y)
+    for (int y = 0; y < encode->chunk.height; ++y)
     {
-        int cury = y + encode->chunk_block.start_y;
+        int cury = y + encode->chunk.start_y;
 
         scratch = encode->scratch_buffer_1;
         for (int c = 0; c < encode->channel_count; ++c)
@@ -596,7 +596,7 @@ internal_exr_undo_piz (
     memset (bitmap, 0, sizeof (uint8_t) * BITMAP_SIZE);
 
     nBytes = 0;
-    if (sizeof (uint16_t) * 2 > packsz) return EXR_ERR_BAD_CHUNK_DATA;
+    if (sizeof (uint16_t) * 2 > packsz) return EXR_ERR_CORRUPT_CHUNK;
 
     packed     = src;
     minNonZero = unaligned_load16 (packed + nBytes);
@@ -604,12 +604,12 @@ internal_exr_undo_piz (
     maxNonZero = unaligned_load16 (packed + nBytes);
     nBytes += sizeof (uint16_t);
 
-    if (maxNonZero >= BITMAP_SIZE) return EXR_ERR_BAD_CHUNK_DATA;
+    if (maxNonZero >= BITMAP_SIZE) return EXR_ERR_CORRUPT_CHUNK;
 
     if (minNonZero <= maxNonZero)
     {
         uint64_t bytesToRead = maxNonZero - minNonZero + 1;
-        if (nBytes + bytesToRead > packsz) return EXR_ERR_BAD_CHUNK_DATA;
+        if (nBytes + bytesToRead > packsz) return EXR_ERR_CORRUPT_CHUNK;
 
         memcpy (bitmap + minNonZero, packed + nBytes, bytesToRead);
         nBytes += bytesToRead;
@@ -620,12 +620,12 @@ internal_exr_undo_piz (
     //
     // Huffman decoding
     //
-    if (nBytes + sizeof (uint32_t) > packsz) return EXR_ERR_BAD_CHUNK_DATA;
+    if (nBytes + sizeof (uint32_t) > packsz) return EXR_ERR_CORRUPT_CHUNK;
 
     hufbytes = unaligned_load32 (packed + nBytes);
     nBytes += sizeof (uint32_t);
 
-    if (nBytes + hufbytes > packsz) return EXR_ERR_BAD_CHUNK_DATA;
+    if (nBytes + hufbytes > packsz) return EXR_ERR_CORRUPT_CHUNK;
 
     wavbuf = decode->scratch_buffer_1;
     rv = internal_huf_decompress (
@@ -662,9 +662,9 @@ internal_exr_undo_piz (
     // Rearrange the pixel data into the format expected by the caller.
     //
 
-    for (int y = 0; y < decode->chunk_block.height; ++y)
+    for (int y = 0; y < decode->chunk.height; ++y)
     {
-        int cury = y + decode->chunk_block.start_y;
+        int cury = y + decode->chunk.start_y;
 
         scratch = decode->scratch_buffer_1;
         for (int c = 0; c < decode->channel_count; ++c)
@@ -695,6 +695,6 @@ internal_exr_undo_piz (
         }
     }
 
-    if (nOut != outsz) return EXR_ERR_BAD_CHUNK_DATA;
+    if (nOut != outsz) return EXR_ERR_CORRUPT_CHUNK;
     return EXR_ERR_SUCCESS;
 }

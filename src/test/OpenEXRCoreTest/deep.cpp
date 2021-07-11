@@ -418,7 +418,7 @@ testReadDeep (const std::string& tempdir)
     Compression comps[] = { NO_COMPRESSION, RLE_COMPRESSION, ZIPS_COMPRESSION };
     std::vector<uint8_t> packed;
     std::vector<uint8_t> sampdata;
-    exr_chunk_block_info_t cinfo;
+    exr_chunk_info_t cinfo;
 
     for (int c = 0; chancounts[c] > 0; ++c)
     {
@@ -437,7 +437,7 @@ testReadDeep (const std::string& tempdir)
 
             EXRCORE_TEST_RVAL (exr_start_read (&f, fn.c_str (), &cinit));
 
-            EXRCORE_TEST_RVAL (exr_read_scanline_block_info (f, 0, minY + height / 2, &cinfo));
+            EXRCORE_TEST_RVAL (exr_read_scanline_chunk_info (f, 0, minY + height / 2, &cinfo));
             packed.resize(cinfo.packed_size);
             sampdata.resize(cinfo.sample_count_table_size);
             EXRCORE_TEST_RVAL (exr_read_deep_chunk (f, 0, &cinfo, &packed[0], &sampdata[0]));
@@ -456,7 +456,7 @@ testReadDeep (const std::string& tempdir)
                 EXRCORE_TEST(packed.size() == (sampcount[N-1]) * bps);
             }
 
-            EXRCORE_TEST_RVAL (exr_read_scanline_block_info (f, 0, minY + height / 4, &cinfo));
+            EXRCORE_TEST_RVAL (exr_read_scanline_chunk_info (f, 0, minY + height / 4, &cinfo));
             packed.resize(cinfo.packed_size);
             sampdata.resize(cinfo.sample_count_table_size);
             // we support reading the two bits separately
@@ -468,7 +468,7 @@ testReadDeep (const std::string& tempdir)
             generateRandomTileFile (fn, chancounts[c], comps[cp]);
             EXRCORE_TEST_RVAL (exr_start_read (&f, fn.c_str (), &cinit));
 
-            EXRCORE_TEST_RVAL (exr_read_tile_block_info (f, 0, 0, 1, 0, 0, &cinfo));
+            EXRCORE_TEST_RVAL (exr_read_tile_chunk_info (f, 0, 0, 1, 0, 0, &cinfo));
             packed.resize(cinfo.packed_size);
             sampdata.resize(cinfo.sample_count_table_size);
             EXRCORE_TEST_RVAL (exr_read_deep_chunk (f, 0, &cinfo, &packed[0], &sampdata[0]));

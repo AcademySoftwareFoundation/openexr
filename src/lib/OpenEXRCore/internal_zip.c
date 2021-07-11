@@ -177,12 +177,12 @@ undo_zip_impl (
         }
         else
         {
-            rstat = EXR_ERR_BAD_CHUNK_DATA;
+            rstat = EXR_ERR_CORRUPT_CHUNK;
         }
     }
     else
     {
-        rstat = EXR_ERR_BAD_CHUNK_DATA;
+        rstat = EXR_ERR_CORRUPT_CHUNK;
     }
 
     return (exr_result_t) rstat;
@@ -253,7 +253,7 @@ apply_zip_impl (exr_encode_pipeline_t* encode)
                     (const Bytef*) encode->scratch_buffer_1,
                     encode->packed_bytes))
     {
-        return EXR_ERR_BAD_CHUNK_DATA;
+        return EXR_ERR_CORRUPT_CHUNK;
     }
     if (compbufsz > encode->packed_bytes)
     {

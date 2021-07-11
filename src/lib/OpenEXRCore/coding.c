@@ -12,7 +12,7 @@ internal_coding_fill_channel_info (
     exr_coding_channel_info_t**         channels,
     int16_t*                            num_chans,
     exr_coding_channel_info_t*          builtinextras,
-    const exr_chunk_block_info_t*       cinfo,
+    const exr_chunk_info_t*             cinfo,
     const struct _internal_exr_context* pctxt,
     const struct _internal_exr_part*    part)
 {
@@ -81,7 +81,7 @@ exr_result_t
 internal_coding_update_channel_info (
     exr_coding_channel_info_t*          channels,
     int16_t                             num_chans,
-    const exr_chunk_block_info_t*       cinfo,
+    const exr_chunk_info_t*             cinfo,
     const struct _internal_exr_context* pctxt,
     const struct _internal_exr_part*    part)
 {

@@ -15,7 +15,11 @@ extern "C" {
 #endif
 
 /**
- * Structure describing raw data information about a chunk
+ * Structure describing raw data information about a chunk.
+ *
+ * A chunk is the generic term for a pixel data block in an EXR file,
+ * as described in the OpenEXR File Layout documentation. This is
+ * common between all different forms of data that can be stored.
  */
 typedef struct
 {
@@ -40,24 +44,21 @@ typedef struct
 
     uint64_t sample_count_data_offset;
     uint64_t sample_count_table_size;
-} exr_chunk_block_info_t;
+} exr_chunk_info_t;
 
 EXR_EXPORT
-exr_result_t exr_read_scanline_block_info (
-    exr_const_context_t     ctxt,
-    int                     part_index,
-    int                     y,
-    exr_chunk_block_info_t* cinfo);
+exr_result_t exr_read_scanline_chunk_info (
+    exr_const_context_t ctxt, int part_index, int y, exr_chunk_info_t* cinfo);
 
 EXR_EXPORT
-exr_result_t exr_read_tile_block_info (
-    exr_const_context_t     ctxt,
-    int                     part_index,
-    int                     tilex,
-    int                     tiley,
-    int                     levelx,
-    int                     levely,
-    exr_chunk_block_info_t* cinfo);
+exr_result_t exr_read_tile_chunk_info (
+    exr_const_context_t ctxt,
+    int                 part_index,
+    int                 tilex,
+    int                 tiley,
+    int                 levelx,
+    int                 levely,
+    exr_chunk_info_t*   cinfo);
 
 /** Read the packed data block for a chunk
  *
@@ -66,10 +67,10 @@ exr_result_t exr_read_tile_block_info (
  */
 EXR_EXPORT
 exr_result_t exr_read_chunk (
-    exr_const_context_t           ctxt,
-    int                           part_index,
-    const exr_chunk_block_info_t* cinfo,
-    void*                         packed_data);
+    exr_const_context_t     ctxt,
+    int                     part_index,
+    const exr_chunk_info_t* cinfo,
+    void*                   packed_data);
 
 /**
  * Read chunk for deep data.
@@ -82,32 +83,32 @@ exr_result_t exr_read_chunk (
  */
 EXR_EXPORT
 exr_result_t exr_read_deep_chunk (
-    exr_const_context_t           ctxt,
-    int                           part_index,
-    const exr_chunk_block_info_t* cinfo,
-    void*                         packed_data,
-    void*                         sample_data);
+    exr_const_context_t     ctxt,
+    int                     part_index,
+    const exr_chunk_info_t* cinfo,
+    void*                   packed_data,
+    void*                   sample_data);
 
 /**************************************/
 
-/** Initializes a chunk_block_info_t structure when encoding scanline
+/** Initializes a @sa exr_chunk_info_t structure when encoding scanline
  * data (similar to read but does not do anything with a chunk
  * table) */
 EXR_EXPORT
-exr_result_t exr_write_scanline_block_info (
-    exr_context_t ctxt, int part_index, int y, exr_chunk_block_info_t* cinfo);
+exr_result_t exr_write_scanline_chunk_info (
+    exr_context_t ctxt, int part_index, int y, exr_chunk_info_t* cinfo);
 
-/** Initializes a chunk_block_info_t structure when encoding tiled data
+/** Initializes a chunk_info_t structure when encoding tiled data
  * (similar to read but does not do anything with a chunk table) */
 EXR_EXPORT
-exr_result_t exr_write_tile_block_info (
-    exr_context_t           ctxt,
-    int                     part_index,
-    int                     tilex,
-    int                     tiley,
-    int                     levelx,
-    int                     levely,
-    exr_chunk_block_info_t* cinfo);
+exr_result_t exr_write_tile_chunk_info (
+    exr_context_t     ctxt,
+    int               part_index,
+    int               tilex,
+    int               tiley,
+    int               levelx,
+    int               levely,
+    exr_chunk_info_t* cinfo);
 
 /** y must the appropriate starting y for the specified chunk */
 EXR_EXPORT

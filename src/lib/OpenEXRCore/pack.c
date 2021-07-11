@@ -26,9 +26,9 @@ default_pack (exr_encode_pipeline_t* encode)
     uint64_t       packed_bytes = 0;
     uint64_t       chan_bytes   = 0;
 
-    for (int y = 0; y < encode->chunk_block.height; ++y)
+    for (int y = 0; y < encode->chunk.height; ++y)
     {
-        int cury = y + encode->chunk_block.start_y;
+        int cury = y + encode->chunk.start_y;
 
         for (int c = 0; c < encode->channel_count; ++c)
         {

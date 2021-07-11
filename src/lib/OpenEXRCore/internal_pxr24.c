@@ -94,9 +94,9 @@ apply_pxr24_impl (exr_encode_pipeline_t* encode)
     const uint8_t* lastIn    = encode->packed_buffer;
     uLongf         compbufsz = encode->compressed_alloc_size;
 
-    for (int y = 0; y < encode->chunk_block.height; ++y)
+    for (int y = 0; y < encode->chunk.height; ++y)
     {
-        int cury = y + encode->chunk_block.start_y;
+        int cury = y + encode->chunk.start_y;
 
         for (int c = 0; c < encode->channel_count; ++c)
         {
@@ -221,7 +221,7 @@ apply_pxr24_impl (exr_encode_pipeline_t* encode)
                     (const Bytef*) encode->scratch_buffer_1,
                     nOut))
     {
-        return EXR_ERR_BAD_CHUNK_DATA;
+        return EXR_ERR_CORRUPT_CHUNK;
     }
     if (compbufsz > encode->packed_bytes)
     {
@@ -277,11 +277,11 @@ undo_pxr24_impl (
         (const Bytef*) compressed_data,
         (uLong) comp_buf_size);
 
-    if (rstat != Z_OK) return EXR_ERR_BAD_CHUNK_DATA;
+    if (rstat != Z_OK) return EXR_ERR_CORRUPT_CHUNK;
 
-    for (int y = 0; y < decode->chunk_block.height; ++y)
+    for (int y = 0; y < decode->chunk.height; ++y)
     {
-        int cury = y + decode->chunk_block.start_y;
+        int cury = y + decode->chunk.start_y;
 
         for (int c = 0; c < decode->channel_count; ++c)
         {
@@ -312,7 +312,7 @@ undo_pxr24_impl (
                     ptr[3] = lastIn;
                     lastIn += w;
 
-                    if (nDec + nBytes > outSize) return EXR_ERR_BAD_CHUNK_DATA;
+                    if (nDec + nBytes > outSize) return EXR_ERR_CORRUPT_CHUNK;
 
                     for (int x = 0; x < w; ++x)
                     {
@@ -338,7 +338,7 @@ undo_pxr24_impl (
                     ptr[1] = lastIn;
                     lastIn += w;
 
-                    if (nDec + nBytes > outSize) return EXR_ERR_BAD_CHUNK_DATA;
+                    if (nDec + nBytes > outSize) return EXR_ERR_CORRUPT_CHUNK;
 
                     for (int x = 0; x < w; ++x)
                     {
@@ -365,7 +365,7 @@ undo_pxr24_impl (
                     lastIn += w;
 
                     if (nDec + (uint64_t) (w * 3) > outSize)
-                        return EXR_ERR_BAD_CHUNK_DATA;
+                        return EXR_ERR_CORRUPT_CHUNK;
 
                     for (int x = 0; x < w; ++x)
                     {
