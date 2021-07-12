@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 3.1.0](#version-310-???) ???
 * [Version 3.0.5](#version-305-july-1-2021) July 1, 2021
 * [Version 3.0.4](#version-304-june-3-2021) June 3, 2021
 * [Version 3.0.3](#version-303-may-18-2021) May 18, 2021
@@ -48,6 +49,21 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.1.0 (???)
+
+Minor release introducing new an optimized C-language I/O core.
+
+* [1077](https://github.com/AcademySoftwareFoundation/openexr/pull/1077) Initial doxygen/sphinx/breathe/readthedocs docs
+* [1076](https://github.com/AcademySoftwareFoundation/openexr/pull/1076) Refactor deep tests to separate file, fix deep chunk reads, ripmap reading
+* [1074](https://github.com/AcademySoftwareFoundation/openexr/pull/1074) Add utility function for ease of use in other libraries
+* [1073](https://github.com/AcademySoftwareFoundation/openexr/pull/1073) Use same struct scheme as box from imath for consistency
+* [1062](https://github.com/AcademySoftwareFoundation/openexr/pull/1062) Add missing "throw" before InputExc in IDManifest::init()
+* [1045](https://github.com/AcademySoftwareFoundation/openexr/pull/1045) Fix #1039 The vtable for TiledRgbaInputFile was not properly tagged
+* [1038](https://github.com/AcademySoftwareFoundation/openexr/pull/1038) fix/extend part number validation in MultiPart methods
+* [1024](https://github.com/AcademySoftwareFoundation/openexr/pull/1024) Remove dead code in ImfB44Compressor.cpp
+* [1020](https://github.com/AcademySoftwareFoundation/openexr/pull/1020) Fix comparison of integer expressions of different signedness warning
+* [870](https://github.com/AcademySoftwareFoundation/openexr/pull/870) WIP: New C core
 
 ## Version 3.0.5 (July 1, 2021)
 
