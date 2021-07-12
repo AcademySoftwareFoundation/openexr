@@ -41,7 +41,7 @@ EXR_EXPORT exr_result_t exr_get_count (exr_const_context_t ctxt, int* count);
 /** @brief Query the part name for the specified part
  *
  * NB: If this file is a single part file and name has not been set, this
- * will output NULL
+ * will return NULL.
  */
 EXR_EXPORT exr_result_t
 exr_get_name (exr_const_context_t ctxt, int part_index, const char** out);
@@ -50,7 +50,7 @@ exr_get_name (exr_const_context_t ctxt, int part_index, const char** out);
 EXR_EXPORT exr_result_t
 exr_get_storage (exr_const_context_t ctxt, int part_index, exr_storage_t* out);
 
-/** @brief Define a new part in the file. */
+/** @brief Define a new part in the file */
 EXR_EXPORT exr_result_t exr_add_part (
     exr_context_t ctxt,
     const char*   partname,
@@ -59,12 +59,12 @@ EXR_EXPORT exr_result_t exr_add_part (
 
 /** @brief Query how many levels are in the specified part.
  *
- * If the part is a tiled part, fills in how many tile levels are present.
+ * If the part is a tiled part, fill in how many tile levels are present.
  *
- * return ERR_SUCCESS on sucess, an error otherwise (i.e. if the part
- * is not tiled)
+ * Return `ERR_SUCCESS` on success, an error otherwise (i.e. if the part
+ * is not tiled).
  *
- * it is valid to pass NULL to either of the levelsx or levelsy
+ * It is valid to pass NULL to either of the @p levelsx or @p levelsy
  * arguments, which enables testing if this part is a tiled part, or
  * if you don't need both (i.e. in the case of a mip-level tiled
  * image)
@@ -75,14 +75,15 @@ EXR_EXPORT exr_result_t exr_get_tile_levels (
     int32_t*            levelsx,
     int32_t*            levelsy);
 
-/** @brief Query the tile size for a particular level in the specified part.
+/** @brief Query the tile size for a particular level in the specified part
  *
- * If the part is a tiled part, fills in the tile size for the specified part / level
+ * If the part is a tiled part, fill in the tile size for the
+ * specified part / level.
  *
- * return ERR_SUCCESS on sucess, an error otherwise (i.e. if the part
- * is not tiled)
+ * Return `ERR_SUCCESS` on `success`, an error otherwise (i.e. if the
+ * part is not tiled).
  *
- * it is valid to pass NULL to either of the tilew or tileh
+ * It is valid to pass NULL to either of the @p tilew or @p tileh
  * arguments, which enables testing if this part is a tiled part, or
  * if you don't need both (i.e. in the case of a mip-level tiled
  * image)
@@ -95,15 +96,15 @@ EXR_EXPORT exr_result_t exr_get_tile_sizes (
     int32_t*            tilew,
     int32_t*            tileh);
 
-/** @brief Query the data sizes for a particular level in the specified part.
+/** @brief Query the data sizes for a particular level in the specified part
  *
- * If the part is a tiled part, fills in the width / height for the
- * specified levels
+ * If the part is a tiled part, fill in the width / height for the
+ * specified levels.
  *
- * return ERR_SUCCESS on sucess, an error otherwise (i.e. if the part
+ * Return `ERR_SUCCESS` on success, an error otherwise (i.e. if the part
  * is not tiled)
  *
- * it is valid to pass NULL to either of the levw or levh
+ * It is valid to pass NULL to either of the @p levw or @p levh
  * arguments, which enables testing if this part is a tiled part, or
  * if you don't need both for some reason
  */
@@ -139,7 +140,7 @@ exr_get_chunk_count (exr_const_context_t ctxt, int part_index, int32_t* out);
 EXR_EXPORT exr_result_t exr_get_scanlines_per_chunk (
     exr_const_context_t ctxt, int part_index, int32_t* out);
 
-/** returns the maximum unpacked size of a chunk for the file part.
+/** Return the maximum unpacked size of a chunk for the file part
  *
  * This may be used ahead of any actual reading of data, so can be
  * used to pre-allocate buffers for multiple threads in one block or
@@ -182,11 +183,11 @@ EXR_EXPORT exr_result_t exr_get_attribute_by_name (
 
 /** @brief Query the list of attributes in a part
  *
- * This retrieves a list of attributes currently defined in a part
+ * This retrieves a list of attributes currently defined in a part.
  *
- * if outlist is NULL, this function still succeeds, filling only the
+ * If outlist is NULL, this function still succeeds, filling only the
  * count. In this manner, the user can allocate memory for the list of
- * attributes, then re-call this function to get the full list
+ * attributes, then re-call this function to get the full list.
  */
 EXR_EXPORT exr_result_t exr_get_attribute_list (
     exr_const_context_t            ctxt,
@@ -195,7 +196,7 @@ EXR_EXPORT exr_result_t exr_get_attribute_list (
     int32_t*                       count,
     const exr_attribute_t**        outlist);
 
-/** Declare an attribute within the specified part.
+/** Declare an attribute within the specified part
  *
  * Only valid when a file is opened for write.
  */
@@ -206,7 +207,7 @@ EXR_EXPORT exr_result_t exr_attr_declare_by_type (
     const char*       type,
     exr_attribute_t** newattr);
 
-/** @brief Declare an attribute within the specified part.
+/** @brief Declare an attribute within the specified part
  *
  * Only valid when a file is opened for write.
  */
@@ -226,10 +227,10 @@ EXR_EXPORT exr_result_t exr_attr_declare (
  * @{
  */
 
-/** @brief initialize all required attributes for all files.
+/** @brief Initialize all required attributes for all files
  *
  * NB: other file types do require other attributes, such as the tile
- * description for a tiled file
+ * description for a tiled file.
  */
 EXR_EXPORT exr_result_t exr_initialize_required_attr (
     exr_context_t           ctxt,
@@ -242,15 +243,15 @@ EXR_EXPORT exr_result_t exr_initialize_required_attr (
     exr_lineorder_t         lineorder,
     exr_compression_t       ctype);
 
-/** @brief initializes all required attributes to default values
+/** @brief Initialize all required attributes to default values:
  *
- * displayWindow is set to (0, 0 -> width - 1, height - 1)
- * dataWindow is set to (0, 0 -> width - 1, height - 1)
- * pixelAspectRatio is set to 1.0
- * screenWindowCenter is set to 0.f, 0.f
- * screenWindowWidth is set to 1.f
- * lineorder is set to INCREASING_Y
- * compression is set to @p ctype
+ * - `displayWindow` is set to (0, 0 -> @p width - 1, @p height - 1)
+ * - `dataWindow` is set to (0, 0 -> @p width - 1, @p height - 1)
+ * - `pixelAspectRatio` is set to 1.0
+ * - `screenWindowCenter` is set to 0.f, 0.f
+ * - `screenWindowWidth` is set to 1.f
+ * - `lineorder` is set to `INCREASING_Y`
+ * - `compression` is set to @p ctype
  */
 EXR_EXPORT exr_result_t exr_initialize_required_attr_simple (
     exr_context_t     ctxt,
@@ -278,16 +279,16 @@ EXR_EXPORT exr_result_t exr_copy_unset_attributes (
     exr_const_context_t source,
     int                 src_part_index);
 
-/** @brief retrieves the list of channels */
+/** @brief Retrieve the list of channels */
 EXR_EXPORT exr_result_t exr_get_channels (
     exr_const_context_t ctxt, int part_index, const exr_attr_chlist_t** chlist);
 
-/** @brief Defines a new channel to the output file part.
+/** @brief Define a new channel to the output file part
  *
- * the @param percept parameter is used for lossy compression
- * techniques to indicate that the value represented is closer to
- * linear (1) or closer to logarithmic (0). For r, g, b, luminance,
- * this is normally 0
+ * The @p percept parameter is used for lossy compression techniques
+ * to indicate that the value represented is closer to linear (1) or
+ * closer to logarithmic (0). For r, g, b, luminance, this is normally
+ * 0
  */
 EXR_EXPORT int exr_add_channel (
     exr_context_t              ctxt,
@@ -298,63 +299,64 @@ EXR_EXPORT int exr_add_channel (
     int32_t                    xsamp,
     int32_t                    ysamp);
 
-/** @brief Copies the channels from another source.
+/** @brief Copy the channels from another source
  *
  * Useful if you are manually constructing the list or simply copying
- * from an input file */
+ * from an input file
+ */
 EXR_EXPORT exr_result_t exr_set_channels (
     exr_context_t ctxt, int part_index, const exr_attr_chlist_t* channels);
 
-/** @brief Retrieves the compression method used for the specified part. */
+/** @brief Retrieve the compression method used for the specified part */
 EXR_EXPORT exr_result_t exr_get_compression (
     exr_const_context_t ctxt, int part_index, exr_compression_t* compression);
-/** @brief Sets the compression method used for the specified part. */
+/** @brief Set the compression method used for the specified part */
 EXR_EXPORT exr_result_t exr_set_compression (
     exr_context_t ctxt, int part_index, exr_compression_t ctype);
 
-/** @brief Retrieves the data window for the specified part. */
+/** @brief Retrieve the data window for the specified part */
 EXR_EXPORT exr_result_t exr_get_data_window (
     exr_const_context_t ctxt, int part_index, exr_attr_box2i_t* out);
-/** @brief Sets the data window for the specified part. */
+/** @brief Set the data window for the specified part */
 EXR_EXPORT int exr_set_data_window (
     exr_context_t ctxt, int part_index, const exr_attr_box2i_t* dw);
 
-/** @brief Retrieves the display window for the specified part. */
+/** @brief Retrieve the display window for the specified part */
 EXR_EXPORT exr_result_t exr_get_display_window (
     exr_const_context_t ctxt, int part_index, exr_attr_box2i_t* out);
-/** @brief Sets the display window for the specified part. */
+/** @brief Set the display window for the specified part */
 EXR_EXPORT int exr_set_display_window (
     exr_context_t ctxt, int part_index, const exr_attr_box2i_t* dw);
 
-/** @brief Retrieves the line order for storing data in the specified part (use 0 for single part images). */
+/** @brief Retrieve the line order for storing data in the specified part (use 0 for single part images) */
 EXR_EXPORT exr_result_t exr_get_lineorder (
     exr_const_context_t ctxt, int part_index, exr_lineorder_t* out);
-/** @brief Sets the line order for storing data in the specified part (use 0 for single part images). */
+/** @brief Set the line order for storing data in the specified part (use 0 for single part images) */
 EXR_EXPORT exr_result_t
 exr_set_lineorder (exr_context_t ctxt, int part_index, exr_lineorder_t lo);
 
-/** @brief Retrieves the pixel aspect ratio for the specified part (use 0 for single part images). */
+/** @brief Retrieve the pixel aspect ratio for the specified part (use 0 for single part images). */
 EXR_EXPORT exr_result_t exr_get_pixel_aspect_ratio (
     exr_const_context_t ctxt, int part_index, float* par);
-/** @brief Sets the pixel aspect ratio for the specified part (use 0 for single part images). */
+/** @brief Set the pixel aspect ratio for the specified part (use 0 for single part images) */
 EXR_EXPORT exr_result_t
 exr_set_pixel_aspect_ratio (exr_context_t ctxt, int part_index, float par);
 
-/** @brief Retrieves the screen oriented window center for the specified part (use 0 for single part images). */
+/** @brief Retrieve the screen oriented window center for the specified part (use 0 for single part images) */
 EXR_EXPORT exr_result_t exr_get_screen_window_center (
     exr_const_context_t ctxt, int part_index, exr_attr_v2f_t* wc);
-/** @brief Sets the screen oriented window center for the specified part (use 0 for single part images). */
+/** @brief Set the screen oriented window center for the specified part (use 0 for single part images) */
 EXR_EXPORT int exr_set_screen_window_center (
     exr_context_t ctxt, int part_index, const exr_attr_v2f_t* wc);
 
-/** @brief Retrieves the screen oriented window width for the specified part (use 0 for single part images). */
+/** @brief Retrieve the screen oriented window width for the specified part (use 0 for single part images) */
 EXR_EXPORT exr_result_t exr_get_screen_window_width (
     exr_const_context_t ctxt, int part_index, float* out);
-/** @brief Sets the screen oriented window width for the specified part (use 0 for single part images). */
+/** @brief Set the screen oriented window width for the specified part (use 0 for single part images) */
 EXR_EXPORT exr_result_t
 exr_set_screen_window_width (exr_context_t ctxt, int part_index, float ssw);
 
-/** @brief Retrieves the tiling info for a tiled part (use 0 for single part images). */
+/** @brief Retrieve the tiling info for a tiled part (use 0 for single part images) */
 EXR_EXPORT exr_result_t exr_get_tile_descriptor (
     exr_const_context_t    ctxt,
     int                    part_index,
@@ -363,7 +365,7 @@ EXR_EXPORT exr_result_t exr_get_tile_descriptor (
     exr_tile_level_mode_t* level,
     exr_tile_round_mode_t* round);
 
-/** @brief Sets the tiling info for a tiled part (use 0 for single part images). */
+/** @brief Set the tiling info for a tiled part (use 0 for single part images) */
 EXR_EXPORT exr_result_t exr_set_tile_descriptor (
     exr_context_t         ctxt,
     int                   part_index,
@@ -387,9 +389,9 @@ exr_set_chunk_count (exr_context_t ctxt, int part_index, int32_t val);
 /** @} */ /* required attr group */
 
 /** 
- * @defgroup BuiltinAttributeHelpers Attribute Utililities for builtin types
+ * @defgroup BuiltinAttributeHelpers Attribute utilities for builtin types
  *
- * @brief These are a group of functions for attributes that use the builtin types
+ * @brief These are a group of functions for attributes that use the builtin types.
  *
  * @{
  */
@@ -418,11 +420,10 @@ EXR_EXPORT exr_result_t exr_attr_set_box2f (
     const char*             name,
     const exr_attr_box2f_t* val);
 
-/** @brief zero copy query of channel data.
+/** @brief Zero-copy query of channel data
  *
- *
- * Do not free or manipulate the const exr_attr_chlist_t data, or use
- * after the lifetime of the context
+ * Do not free or manipulate the @p chlist data, or use
+ * after the lifetime of the context.
  */
 EXR_EXPORT exr_result_t exr_attr_get_channels (
     exr_const_context_t       ctxt,
@@ -484,10 +485,10 @@ EXR_EXPORT exr_result_t exr_attr_get_float (
 EXR_EXPORT exr_result_t exr_attr_set_float (
     exr_context_t ctxt, int part_index, const char* name, float val);
 
-/** @brief zero copy query of float data.
+/** @brief Zero-copy query of float data
  *
- * Do not free or manipulate the const float * data, or use after the
- * lifetime of the context
+ * Do not free or manipulate the @p out data, or use after the
+ * lifetime of the context.
  */
 EXR_EXPORT exr_result_t exr_attr_get_float_vector (
     exr_const_context_t ctxt,
@@ -602,10 +603,10 @@ EXR_EXPORT exr_result_t exr_attr_set_rational (
     const char*                name,
     const exr_attr_rational_t* r);
 
-/** @brief zero copy query of string value.
+/** @brief Zero-copy query of string value
  *
  * Do not modify the string pointed to by @p out, and do not use
- * after the lifetime of the context
+ * after the lifetime of the context.
  */
 EXR_EXPORT exr_result_t exr_attr_get_string (
     exr_const_context_t ctxt,
@@ -617,14 +618,14 @@ EXR_EXPORT exr_result_t exr_attr_get_string (
 EXR_EXPORT exr_result_t exr_attr_set_string (
     exr_context_t ctxt, int part_index, const char* name, const char* s);
 
-/** @brief zero copy query of string data.
+/** @brief Zero-copy query of string data
  *
  * Do not free the strings pointed to by the array.
  *
- * Must provide @p size
+ * Must provide @p size.
  *
- * @param out must be a const char** array large enough to hold the
- * string pointers for the string vector when provided
+ * @param out must be a ``const char**`` array large enough to hold
+ * the string pointers for the string vector when provided.
  */
 EXR_EXPORT exr_result_t exr_attr_get_string_vector (
     exr_const_context_t ctxt,

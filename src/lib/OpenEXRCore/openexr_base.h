@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-/** @brief Retrieve the current library version. The 'extra' string is for
+/** @brief Retrieve the current library version. The @p extra string is for
  *  custom installs, and is a static string, do not free the returned pointer */
 EXR_EXPORT void
 exr_get_library_version (int* maj, int* min, int* patch, const char** extra);
@@ -41,24 +41,24 @@ exr_get_library_version (int* maj, int* min, int* patch, const char** extra);
  * potential security issue.
  *
  * These global values are combined with the values in
- * @sa exr_context_initializer using the following rules:
+ * \ref exr_context_initializer_t using the following rules:
  *
- * 1. negative values are ignored
+ * 1. negative values are ignored.
  *
  * 2. if either value has a positive (non-zero) value, and the other
- * has 0, the positive value is preferred.
+ *    has 0, the positive value is preferred.
  *
- * 3. If both are positive (non-zero), the minimum value is used
+ * 3. If both are positive (non-zero), the minimum value is used.
  *
  * 4. If both values are 0, this disables the constrained size checks.
  *
- * This function does not fail
+ * This function does not fail.
  */
 EXR_EXPORT void exr_set_default_maximum_image_size (int w, int h);
 
 /** @brief Retrieve the global default maximum image size
  *
- * This function does not fail
+ * This function does not fail.
  */
 EXR_EXPORT void exr_get_default_maximum_image_size (int* w, int* h);
 
@@ -82,24 +82,24 @@ EXR_EXPORT void exr_get_default_maximum_image_size (int* w, int* h);
  * potential security issue.
  *
  * These global values are combined with the values in
- * @sa exr_context_initializer using the following rules:
+ * \ref exr_context_initializer_t using the following rules:
  *
- * 1. negative values are ignored
+ * 1. negative values are ignored.
  *
  * 2. if either value has a positive (non-zero) value, and the other
  * has 0, the positive value is preferred.
  *
- * 3. If both are positive (non-zero), the minimum value is used
+ * 3. If both are positive (non-zero), the minimum value is used.
  *
  * 4. If both values are 0, this disables the constrained size checks.
  *
- * This function does not fail
+ * This function does not fail.
  */
 EXR_EXPORT void exr_set_default_maximum_tile_size (int w, int h);
 
 /** @brief Retrieve the global maximum tile size.
  *
- * This function does not fail
+ * This function does not fail.
  */
 EXR_EXPORT void exr_get_default_maximum_tile_size (int* w, int* h);
 
@@ -115,7 +115,7 @@ EXR_EXPORT void exr_get_default_maximum_tile_size (int* w, int* h);
  * handle, or NULL if allocation failed (which the library will then
  * handle and return an out-of-memory error).
  *
- * If providing one, probably need to provide both routines.
+ * If one is provided, both should be provided.
  * @sa exr_memory_free_func_t
  */
 typedef void* (*exr_memory_allocation_func_t) (size_t bytes);
@@ -143,9 +143,9 @@ typedef void (*exr_memory_free_func_t) (void* ptr);
  * however this provides global defaults such that the default can be
  * applied.
  *
- * If either pointer is NULL, the appropriate malloc / free routine will be substituted
+ * If either pointer is 0, the appropriate malloc/free routine will be substituted.
  *
- * This function does not fail
+ * This function does not fail.
  */
 EXR_EXPORT void exr_set_default_memory_routines (
     exr_memory_allocation_func_t alloc_func, exr_memory_free_func_t free_func);

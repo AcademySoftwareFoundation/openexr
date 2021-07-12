@@ -57,11 +57,11 @@ typedef struct _exr_encode_pipeline
      *
      * User is expected to fill the channel pointers for the input
      * channels. For writing, all channels must be initialized prior
-     * to using @sa exr_choose_pack_routine. If a custom pack routine
+     * to using \ref exr_choose_pack_routine. If a custom pack routine
      * is written, that is up to the implementor.
      *
      * Describes the channel information. This information is
-     * allocated dynamically during @sa exr_initialize_encoding
+     * allocated dynamically during \ref exr_initialize_encoding
      */
     exr_coding_channel_info_t* channels;
     int16_t                    channel_count;
@@ -271,12 +271,12 @@ typedef struct _exr_encode_pipeline
         0                                                                      \
     }
 
-/** initializes the encoding pipeline structure with the channel info
- * for the specified part based on the chunk to be written.
+/** Initialize the encoding pipeline structure with the channel info
+ * for the specified part based on the chunk to be written
  *
- * NB: The pack_and_convert_fn will be NULL after this. If that
+ * NB: The \ref pack_and_convert_fn will be NULL after this. If that
  * stage is desired, initialize the channel output information and
- * call @sa exr_choose_unpack_routine
+ * call \ref exr_choose_unpack_routine
  */
 EXR_EXPORT
 exr_result_t exr_encoding_initialize (
@@ -285,7 +285,7 @@ exr_result_t exr_encoding_initialize (
     const exr_chunk_info_t* cinfo,
     exr_encode_pipeline_t*  encode_pipe);
 
-/** Given an initialized encode pipeline, finds an appropriate
+/** Given an initialized encode pipeline, find an appropriate
  * function to shuffle and convert data into the defined channel
  * outputs
  *
@@ -298,7 +298,7 @@ exr_result_t exr_encoding_choose_default_routines (
     int                    part_index,
     exr_encode_pipeline_t* encode_pipe);
 
-/** Given a encode pipeline previously initialized, updates it for the
+/** Given a encode pipeline previously initialized, update it for the
  * new chunk to be written.
  *
  * In this manner, memory buffers can be re-used to avoid continual
