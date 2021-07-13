@@ -9,6 +9,7 @@ OpenEXR Documentation
 
    TechnicalIntroduction
    ReadingAndWritingImageFiles
+   OpenEXRCoreAPI
    OpenEXRFileLayout
    MultiViewOpenEXR
    InterpretingDeepPixels
