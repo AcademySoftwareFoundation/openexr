@@ -1,6 +1,6 @@
 # OpenEXR Release Notes
 
-* [Version 3.1.0](#version-310-???) ???
+* [Version 3.1.0-beta](#version-310-beta-july-19-2021) July 19, 2021
 * [Version 3.0.5](#version-305-july-1-2021) July 1, 2021
 * [Version 3.0.4](#version-304-june-3-2021) June 3, 2021
 * [Version 3.0.3](#version-303-may-18-2021) May 18, 2021
@@ -50,9 +50,79 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.1.0 (???)
+## Version 3.1.0-beta (July 19, 2021)
 
-Minor release introducing new an optimized C-language I/O core.
+The 3.1 release of OpenEXR introduces a new library, OpenEXRCore,
+which is the result of a significant re-thinking of how OpenEXR
+manages file I/O and provides access to image data. It begins to
+address long-standing scalability issues with multithreaded image
+reading and writing.
+
+The OpenEXRCore library provides thread-safe, non-blocking access to
+files, which was not possible with the current API, where the
+framebuffer management is separate from read requests. It is written
+entirely in C and provides a new C-language API alongside the existing
+C++ API. This new low-level API allows applications to do custom
+unpacking of EXR data, such as on the GPU, while still benefiting from
+efficient I/O, file validation, and other semantics. It provides
+efficient direct access to EXR files in texturing applications. This C
+library also introduces an easier path to implementing OpenEXR
+bindings in other languages, such as Rust.
+
+The 3.1 release represents a technology preview for upcoming
+releases. The initial release is incremental; the existing API and
+underlying behavior has not changed. The new API is available now for
+performance validation testing, and then in future OpenEXR releases,
+the C++ API will migrate to use the new core in stages.  It is not the
+intention to entirely deprecate the C++ API, nor must all applications
+re-implement EXR I/O in terms of the C library. The C API does not,
+and will not, provide the rich set of utility classes that exist in
+the C++ layer. The 3.1 release of the OpenEXRCore library simply
+offers new functionality for specialty applications seeking the
+highest possible performance. In the future, the ABI will evolve, but
+the API will remain consistent, or only have additions.
+
+Technical Design
+
+The OpenEXRCore API introduces a ``context`` object to manage file
+I/O. The context provides customization for I/O, memory allocation,
+and error handling.  This makes it possible to use a decode and/or
+encode pipeline to customize how the chunks are written and read, and
+how they are packed or unpacked.
+
+The OpenEXRCore library is built around the concept of “chunks”, or
+atomic blocks of data in a file, the smallest unit of data to be read
+or written.  The contents of a chunk vary from file to file based on
+compression (i.e. zip and zips) and layout (scanline
+vs. tiled). Currently this is either 1, 16, or 32 scanlines, or 1 tile
+(or subset of a tile on edge boundaries / small mip level).
+
+The OpenEXRCore library is specifically designed for multipart EXR
+files. It will continue to produce legacy-compatible single part files
+as needed, but the API assumes you are always dealing with a
+multi-part file. It also fully supports attributes, although being C,
+it lacks some of the C++ layer’s abstraction.
+
+Limitations:
+
+* No support yet for DWAA and DWAB compression during decode and
+  encode pipelines. The low-level chunk I/O still works with DWAA and
+  DWAB compressed files, but the encoder and decoder are not yet
+  included in this release.
+
+* For deep files, reading of deep data is functional, but the path for
+  encoding deep data into chunk-level data (i.e. packing and
+  compressing) is not yet complete.
+
+* For both of these deficiencies, it is easy to define a custom
+  routine to implement this, should it be needed prior to the library
+  providing full support.
+
+* No attempt to search through the file and find missing chunks is
+  made when a corrupt chunk table is encountered. However, if a
+  particular chunk is corrupt, this is handled such that the other
+  chunks may be read without rendering the context unusable
+
 
 * [1077](https://github.com/AcademySoftwareFoundation/openexr/pull/1077) Initial doxygen/sphinx/breathe/readthedocs docs
 * [1076](https://github.com/AcademySoftwareFoundation/openexr/pull/1076) Refactor deep tests to separate file, fix deep chunk reads, ripmap reading
