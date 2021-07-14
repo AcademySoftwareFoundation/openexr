@@ -152,7 +152,7 @@ jobs:
   #  Fuzz test
   # ------------------------------------------------------------------------------
   linux_fuzz:
-    name: 'Fuzz Test Linux CentOS 7 VFX CY2021 <GCC 6.3.1>'
+    name: 'Fuzz Test ${{ matrix.build-descrip }} Linux CentOS 7 VFX CY2021 <GCC 6.3.1>'
     if: github.repository == 'AcademySoftwareFoundation/openexr'
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
@@ -160,6 +160,20 @@ jobs:
       # DockerHub: https://hub.docker.com/u/aswf
       # Source: https://github.com/AcademySoftwareFoundation/aswf-docker
       image: aswf/ci-openexr:2021
+    strategy:
+      matrix:
+        build: [1, 2]
+        include:
+          # Fuzz test
+          - build: 1
+            build-descrip: 
+            cflags: 
+            cxxflags: 
+          # Fuzz with sanitizer
+          - build: 2
+            build-descrip: With Sanitizer 
+            cflags: -DCFLAGS='-fsanitize=address'
+            cxxflags: -DCXXFLAGS='-fsanitize=address'
     env:
       CXX: g++
       CC: gcc
@@ -187,7 +201,9 @@ jobs:
                 -DBUILD_SHARED_LIBS='OFF' \
                 -DOPENEXR_BUILD_TOOLS='ON' \
                 -DOPENEXR_RUN_FUZZ_TESTS='ON' \
-                -DOPENEXR_ENABLE_THREADING='ON'
+                -DOPENEXR_ENABLE_THREADING='ON' \
+                ${{ matrix.cxxflags }} \
+                ${{ matrix.cflags }} 
         working-directory: _build
       - name: Build
         run: |
@@ -197,7 +213,7 @@ jobs:
         working-directory: _build
       - name: Fuzz test
         run: |
-          bin/IlmImfFuzzTest
+          bin/OpenEXRFuzzTest
         working-directory: _build
 
 
