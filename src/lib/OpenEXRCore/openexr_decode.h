@@ -62,12 +62,12 @@ typedef struct _exr_decode_pipeline
      *
      * User is expected to fill the channel pointers for the desired
      * output channels (any that are NULL will be skipped) if you are
-     * going to use @sa exr_choose_unpack_routine. If all that is
+     * going to use \ref exr_choose_unpack_routine. If all that is
      * desired is to read and decompress the data, this can be left
      * uninitialized.
      *
      * Describes the channel information. This information is
-     * allocated dynamically during @sa exr_initialize_decoding
+     * allocated dynamically during \ref exr_initialize_decoding
      */
     exr_coding_channel_info_t* channels;
     int16_t                    channel_count;
@@ -175,7 +175,7 @@ typedef struct _exr_decode_pipeline
      * Function chosen to read chunk data from the context.
      *
      * Initialized to a default generic read routine, may be updated
-     * based on channel information when @sa
+     * based on channel information when \ref
      * exr_choose_default_routines is called. This is done such that
      * if the file is uncompressed and the output channel data is
      * planar and the same type, the read function can read straight
@@ -215,7 +215,7 @@ typedef struct _exr_decode_pipeline
      *
      * This will be NULL after initialization, until the user
      * specifies a custom routine, or initializes the channel data and
-     * calls @sa exr_choose_unpack_routine.
+     * calls \ref exr_choose_unpack_routine.
      *
      * If only compressed data is desired, then leave or assign this
      * to NULL after initialization.
@@ -239,11 +239,12 @@ typedef struct _exr_decode_pipeline
         0                                                                      \
     }
 
-/** initializes the decoding pipeline structure with the channel info for the specified part, and the first block to be read.
+/** Initialize the decoding pipeline structure with the channel info
+ * for the specified part, and the first block to be read.
  *
- * NB: The unpack_and_convert_fn will be NULL after this. If that
+ * NB: The \ref unpack_and_convert_fn will be NULL after this. If that
  * stage is desired, initialize the channel output information and
- * call @sa exr_choose_unpack_routine
+ * call \ref exr_choose_unpack_routine
  */
 EXR_EXPORT
 exr_result_t exr_decoding_initialize (
@@ -252,17 +253,19 @@ exr_result_t exr_decoding_initialize (
     const exr_chunk_info_t* cinfo,
     exr_decode_pipeline_t*  decode);
 
-/** Given an initialized decode pipeline, finds appropriate functions
+/** Given an initialized decode pipeline, find appropriate functions
  * to read and shuffle / convert data into the defined channel outputs
  *
- * Calling this is not required if custom routines will be used, or
- * if just the raw compressed data is desired. Although in that scenario, it is probably easier to just read the chunk directly using @sa exr_read_chunk
+ * Calling this is not required if custom routines will be used, or if
+ * just the raw compressed data is desired. Although in that scenario,
+ * it is probably easier to just read the chunk directly using \ref
+ * exr_read_chunk
  */
 EXR_EXPORT
 exr_result_t exr_decoding_choose_default_routines (
     exr_const_context_t ctxt, int part_index, exr_decode_pipeline_t* decode);
 
-/** Given a decode pipeline previously initialized, updates it for the
+/** Given a decode pipeline previously initialized, update it for the
  * new chunk to be read.
  *
  * In this manner, memory buffers can be re-used to avoid continual
@@ -283,7 +286,7 @@ exr_result_t exr_decoding_run (
 
 /** Free any intermediate memory in the decoding pipeline
  *
- * This does NOT free any pointers referred to in the channel info
+ * This does *not* free any pointers referred to in the channel info
  * areas, but rather only the intermediate buffers and memory needed
  * for the structure itself.
  */

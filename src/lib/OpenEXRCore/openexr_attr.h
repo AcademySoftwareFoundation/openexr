@@ -336,7 +336,7 @@ typedef struct
     exr_attr_string_t name;
     /** Data representation for these pixels: uint, half, float */
     exr_pixel_type_t pixel_type;
-    /** Possible values are 0 and 1 per docs @sa exr_perceptual_treatment_t */
+    /** Possible values are 0 and 1 per docs \ref exr_perceptual_treatment_t */
     uint8_t p_linear;
     uint8_t reserved[3];
     int32_t x_sampling;
@@ -483,7 +483,7 @@ typedef struct _exr_attribute_t
 	 * storing the value you want, with the exception of the pod types
 	 * which are just put in place (i.e. small value optimization)
 	 *
-	 * The attribute type @sa type should directly correlate to one of
+	 * The attribute type \ref type should directly correlate to one of
 	 * these entries
 	 */
     union

@@ -173,7 +173,7 @@ typedef int64_t (*exr_write_func_ptr_t) (
  *
  * The size member is required for version portability
  *
- * It can be initialized using @sa EXR_DEFAULT_CONTEXT_INITIALIZER
+ * It can be initialized using \ref EXR_DEFAULT_CONTEXT_INITIALIZER
  *
  * \code{.c}
  * exr_context_initializer_t myctxtinit = DEFAULT_CONTEXT_INITIALIZER;
@@ -213,7 +213,7 @@ typedef struct _exr_context_initializer
      * This is only used during read or update contexts. If this is
      * provided, it is expected that the caller has previously made
      * the stream available, and placed whatever stream / file data
-     * into @sa user_data above.
+     * into \ref user_data above.
      *
      * If this is NULL, and the context requested is for reading an
      * exr file, an internal implementation is provided for reading
@@ -249,7 +249,7 @@ typedef struct _exr_context_initializer
      * This is only used during write or update contexts. If this is
      * provided, it is expected that the caller has previously made
      * the stream available, and placed whatever stream / file data
-     * into @sa user_data above.
+     * into \ref user_data above.
      *
      * If this is NULL, and the context requested is for writing an
      * exr file, an internal implementation is provided for reading
@@ -272,19 +272,19 @@ typedef struct _exr_context_initializer
     exr_destroy_stream_func_ptr_t destroy_fn;
 
     /** initializes a field specifying what the maximum image width
-     * allowed by the context is. @sa exr_set_maximum_image_size to
+     * allowed by the context is. See \ref exr_set_default_maximum_image_size to
      * understand how this interacts with global defaults */
     int max_image_width;
     /** initializes a field specifying what the maximum image height
-     * allowed by the context is. @sa exr_set_maximum_image_size to
+     * allowed by the context is. See \ref exr_set_default_maximum_image_size to
      * understand how this interacts with global defaults */
     int max_image_height;
     /** initializes a field specifying what the maximum tile width
-     * allowed by the context is. @sa exr_set_maximum_tile_size to
+     * allowed by the context is. See \ref exr_set_default_maximum_tile_size to
      * understand how this interacts with global defaults */
     int max_tile_width;
     /** initializes a field specifying what the maximum tile height
-     * allowed by the context is. @sa exr_set_maximum_tile_size to
+     * allowed by the context is. See \ref exr_set_default_maximum_tile_size to
      * understand how this interacts with global defaults */
     int max_tile_height;
 } exr_context_initializer_t;
@@ -297,23 +297,23 @@ typedef struct _exr_context_initializer
 
 /** @} */ /* context function pointer declarations */
 
-/** @brief Checks the magic number of the file and reports
- * EXR_ERR_SUCCESS if the file appears to be a valid file (or at least
+/** @brief Check the magic number of the file and report
+ * `EXR_ERR_SUCCESS` if the file appears to be a valid file (or at least
  * has the correct magic number and can be read)
  */
 EXR_EXPORT exr_result_t exr_test_file_header (
     const char*                      filename,
     const exr_context_initializer_t* ctxtdata);
 
-/** @brief Closes and frees any internally allocated memory,
+/** @brief Close and free any internally allocated memory,
  * calling any provided destroy function for custom streams
  *
- * If the file was opened for write, will first save the chunk offsets
+ * If the file was opened for write, first save the chunk offsets
  * or any other unwritten data.
  */
 EXR_EXPORT exr_result_t exr_finish (exr_context_t* ctxt);
 
-/** @brief Creates and initializes a read-only exr read context.
+/** @brief Create and initialize a read-only exr read context
  *
  * If a custom read function is provided, the filename is for
  * informational purposes only, the system assumes the user has
@@ -326,12 +326,12 @@ EXR_EXPORT exr_result_t exr_finish (exr_context_t* ctxt);
  * provide a safe context for multiple threads to request data from
  * the same context concurrently.
  *
- * Once finished reading data, use @sa exr_context_finish to clean up
+ * Once finished reading data, use \ref exr_finish to clean up
  * the context.
  *
  * If you have custom I/O requirements, see the initializer context
- * documentation @sa exr_context_initializer_t. The ctxtdata parameter
- * is optional, if NULL, default values will be used.
+ * documentation \ref exr_context_initializer_t. The @p ctxtdata parameter
+ * is optional, if `NULL`, default values will be used.
  */
 EXR_EXPORT exr_result_t exr_start_read (
     exr_context_t*                   ctxt,
@@ -350,7 +350,7 @@ enum exr_default_write_mode
 /** @brief Creates and initializes a write-only context. 
  *
  * If a custom write function is provided, the filename is for
- * informational purposes only, and the default_mode parameter will be
+ * informational purposes only, and the @p default_mode parameter will be
  * ignored. As such, the system assumes the user has previously opened
  * a stream, file, or whatever and placed relevant data in userdata to
  * access that.
@@ -376,13 +376,13 @@ enum exr_default_write_mode
  * temporarily cache chunks until the data is received to flush in
  * order. The concurrency around this is handled by the library
  *
- * 6. Once finished writing data, use @sa exr_context_finish to clean
+ * 6. Once finished writing data, use \ref exr_finish to clean
  * up the context, which will flush any unwritten data such as the
  * final chunk offset tables, and handle the temporary file flags.
  *
  * If you have custom I/O requirements, see the initializer context
- * documentation @sa exr_context_initializer_t. The ctxtdata parameter
- * is optional, if NULL, default values will be used.
+ * documentation \ref exr_context_initializer_t. The @p ctxtdata
+ * parameter is optional, if NULL, default values will be used.
  */
 EXR_EXPORT exr_result_t exr_start_write (
     exr_context_t*                   ctxt,
@@ -390,14 +390,14 @@ EXR_EXPORT exr_result_t exr_start_write (
     enum exr_default_write_mode      default_mode,
     const exr_context_initializer_t* ctxtdata);
 
-/** @brief Creates a new context for updating an exr file in place.
+/** @brief Creates a new context for updating an exr file in place
  *
  * This is a custom mode that allows one to modify the value of a
  * metadata entry, although not to change the size of the header, or
  * any of the image data.
  *
  * If you have custom I/O requirements, see the initializer context
- * documentation @sa exr_context_initializer_t. The ctxtdata parameter
+ * documentation \ref exr_context_initializer_t. The @p ctxtdata parameter
  * is optional, if NULL, default values will be used.
  */
 EXR_EXPORT exr_result_t exr_start_inplace_header_update (
@@ -405,15 +405,15 @@ EXR_EXPORT exr_result_t exr_start_inplace_header_update (
     const char*                      filename,
     const exr_context_initializer_t* ctxtdata);
 
-/** @brief retrieves the file name the context is for as provided
+/** @brief Retrieve the file name the context is for as provided
  * during the start routine.
  *
- * do not free the resulting string.
+ * Do not free the resulting string.
  */
 EXR_EXPORT exr_result_t
 exr_get_file_name (exr_const_context_t ctxt, const char** name);
 
-/** @brief query the user data the context was constructed with. This
+/** @brief Query the user data the context was constructed with. This
  * is perhaps useful in the error handler callback to jump back into
  * an object the user controls.
  */
@@ -457,13 +457,13 @@ EXR_EXPORT exr_result_t exr_register_attr_type_handler (
 EXR_EXPORT exr_result_t
 exr_set_longname_support (exr_context_t ctxt, int onoff);
 
-/** @brief Writes the header data.
+/** @brief Write the header data
  *
  * Opening a new output file has a small initialization state problem
  * compared to opening for read / update: we need to enable the user
  * to specify an arbitrary set of metadata across an arbitrary number
  * of parts. To avoid having to create the list of parts and entire
- * metadata up front, prior to calling the above @sa exr_start_write,
+ * metadata up front, prior to calling the above \ref exr_start_write,
  * allow the data to be set, then once this is called, it switches
  * into a mode where the library assumes the data is now valid.
  * 
