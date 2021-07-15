@@ -460,7 +460,7 @@ typedef enum
  * for those as necessary with the pointers pointing to static strings
  * (not to be freed). Finally, small values are optimized for.
  */
-typedef struct _exr_attribute_t
+typedef struct 
 {
     /** name of the attribute */
     const char* name;

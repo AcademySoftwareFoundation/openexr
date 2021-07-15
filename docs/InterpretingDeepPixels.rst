@@ -71,16 +71,18 @@ channel name that follows the last period is the **base name**. If a
 channel name contains no periods, then the entire channel name is the
 base name.
 
-[Examples: the base name of channel ``R`` is ``R``; the base
-name of channel ``L1.L2.R`` is ``R``.]
+Examples:
+- the base name of channel ``R`` is ``R``
+- the base name of channel ``L1.L2.R`` is ``R``
 
 If a channel name contains one or more periods, then the part of the
 channel name before the last period is the channel's **layer name**. If
 a channel name contains no periods, then the layer name is an empty
 string.
 
-[Examples: the layer name of channel ``R`` is the empty string; the
-layer name of channel ``L1.L2.R`` is ``L1.L2``.]
+Examples:
+- the layer name of channel ``R`` is the empty string
+- the layer name of channel ``L1.L2.R`` is ``L1.L2``
 
 The set of all channels in an image that share the same layer name is
 called a **layer**.
@@ -96,9 +98,10 @@ other string, the base layer encloses all other layers.
 A layer **directly encloses** a second layer if there is no third layer
 that is nested in the first layer and encloses the second layer.
 
-[Examples: layer ``L1`` encloses layers ``L1.L2`` and
-``L1.L2.L3``. Layer L1 directly encloses layer ``L1.L2``, but
-``L1`` does not directly enclose ``L1.L2.L3``.]
+Examples:
+- Layer ``L1`` encloses layers ``L1.L2`` and ``L1.L2.L3``
+- Layer ``L1`` directly encloses layer ``L1.L2``, but ``L1`` does not
+  directly enclose ``L1.L2.L3``
 
 Alpha, Color, Depth and Auxiliary Channels 
 -------------------------------------------
@@ -193,7 +196,7 @@ the following table:
    * - (any auxiliary channel)
      - ``A``
 
-[Example: The following table shows the list of channels in a deep
+Example: The following table shows the list of channels in a deep
 image, and the associated alpha channel for each color or auxiliary
 channel.
 
@@ -518,8 +521,8 @@ tidy in three steps:
 
 2. Merge overlapping samples: if there are indices :math:`i` and
    :math:`j` such that samples :math:`i` and :math:`j` overlap
-   perfectly, then merge those two samples as shown in “Merging
-   Overlapping Samples,” above. Repeat this until there are no more
+   perfectly, then merge those two samples as shown in `Merging
+   Overlapping Samples`_ above. Repeat this until there are no more
    perfectly overlapping samples.
 
 3. Sort the samples according to ``Z`` and ``ZBack`` (see
@@ -529,7 +532,7 @@ Note that this procedure can be made more efficient by first sorting the
 samples, and then splitting and merging overlapping samples in a single
 front-to-back sweep through the sample list.
 
-Merging two Images
+Merging Two Images
 ------------------
 
 Merging two deep images forms a new deep image that represents all of
@@ -635,7 +638,7 @@ Splitting a Volume Sample
 .. literalinclude:: src/splitVolumeSample.cpp
    :linenos:
       
-Merging two Overlapping Samples
+Merging Two Overlapping Samples
 -------------------------------
 
 .. literalinclude:: src/mergeOverlappingSamples.cpp
