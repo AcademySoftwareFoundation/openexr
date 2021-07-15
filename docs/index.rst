@@ -59,7 +59,8 @@ Technical Documents
    OpenEXRFileLayout
    MultiViewOpenEXR
    InterpretingDeepPixels
-
+   StandardOptionalAttributes
+              
 * :ref:`genindex`
 
 Resources
@@ -83,5 +84,4 @@ individuals have made contributions to the code base.
 
 OpenEXR is included in the `VFX Reference Platform <https://vfxplatform.com>`_.
 
-
-
+                  
