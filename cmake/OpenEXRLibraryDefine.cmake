@@ -40,7 +40,7 @@ function(OPENEXR_DEFINE_LIBRARY libname)
 
   if(BUILD_SHARED_LIBS)
     set_target_properties(${libname} PROPERTIES
-      SOVERSION ${OPENEXR_SOVERSION}
+      SOVERSION ${OPENEXR_LIB_SOVERSION}
       VERSION ${OPENEXR_LIB_VERSION}
     )
   endif()
