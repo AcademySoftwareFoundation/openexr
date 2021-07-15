@@ -123,11 +123,14 @@ Limitations:
   particular chunk is corrupt, this is handled such that the other
   chunks may be read without rendering the context unusable
 
-
+* [1088](https://github.com/AcademySoftwareFoundation/openexr/pull/1088) First draft of rst/readthedocs for C API/OpenEXRCore
+* [1087](https://github.com/AcademySoftwareFoundation/openexr/pull/1087) Edit doxygen comments for consistency and style
+* [1086](https://github.com/AcademySoftwareFoundation/openexr/pull/1086) Simplify names, improve error messages, fix imath usage in Core
 * [1077](https://github.com/AcademySoftwareFoundation/openexr/pull/1077) Initial doxygen/sphinx/breathe/readthedocs docs
 * [1076](https://github.com/AcademySoftwareFoundation/openexr/pull/1076) Refactor deep tests to separate file, fix deep chunk reads, ripmap reading
 * [1074](https://github.com/AcademySoftwareFoundation/openexr/pull/1074) Add utility function for ease of use in other libraries
 * [1073](https://github.com/AcademySoftwareFoundation/openexr/pull/1073) Use same struct scheme as box from imath for consistency
+* [1069](https://github.com/AcademySoftwareFoundation/openexr/pull/1069) Clean up library VERSION and SOVERSION
 * [1062](https://github.com/AcademySoftwareFoundation/openexr/pull/1062) Add missing "throw" before InputExc in IDManifest::init()
 * [1045](https://github.com/AcademySoftwareFoundation/openexr/pull/1045) Fix #1039 The vtable for TiledRgbaInputFile was not properly tagged
 * [1038](https://github.com/AcademySoftwareFoundation/openexr/pull/1038) fix/extend part number validation in MultiPart methods
