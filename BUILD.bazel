@@ -374,7 +374,7 @@ cc_library(
         ":OpenEXRConfig.h",
         ":OpenEXRConfigInternal.h",
         "@Imath",
-        "@zlib",
+        "@net_zlib_zlib//:zlib",
     ],
 )
 
