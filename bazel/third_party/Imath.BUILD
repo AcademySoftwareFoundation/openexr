@@ -3,21 +3,22 @@
 
 load("@openexr//:bazel/third_party/generate_header.bzl", "generate_header")
 
-# generate "ImathConfig.h"
 generate_header(
     name = "ImathConfig.h",
     substitutions = {
-        "@IMATH_INTERNAL_NAMESPACE@": "Imath_3_0",
-        "@IMATH_LIB_VERSION@": "3.0.5",
+        "@IMATH_INTERNAL_NAMESPACE@": "Imath_3_1",
+        "@IMATH_LIB_VERSION@": "3.1.0",
         "@IMATH_NAMESPACE_CUSTOM@": "0",
         "@IMATH_NAMESPACE@": "Imath",
-        "@IMATH_PACKAGE_NAME@": "Imath 3.0.5",
+        "@IMATH_PACKAGE_NAME@": "Imath 3.1.0",
         "@IMATH_VERSION_MAJOR@": "3",
-        "@IMATH_VERSION_MINOR@": "0",
-        "@IMATH_VERSION_PATCH@": "5",
-        "@IMATH_VERSION@": "3.0.5",
-        "#cmakedefine IMATH_ENABLE_API_VISIBILITY": "",
-        "#cmakedefine IMATH_HAVE_LARGE_STACK": "",
+        "@IMATH_VERSION_MINOR@": "1",
+        "@IMATH_VERSION_PATCH@": "0",
+        "@IMATH_VERSION@": "3.1.0",
+        "#cmakedefine IMATH_HALF_USE_LOOKUP_TABLE": "#define IMATH_HALF_USE_LOOKUP_TABLE",
+        "#cmakedefine IMATH_ENABLE_API_VISIBILITY": "#define IMATH_ENABLE_API_VISIBILITY",
+        "#cmakedefine IMATH_HAVE_LARGE_STACK": "/* #undef IMATH_HAVE_LARGE_STACK */",
+        "#cmakedefine01 IMATH_USE_NOEXCEPT": "#define IMATH_USE_NOEXCEPT 1",
     },
     template = "config/ImathConfig.h.in",
 )
@@ -29,7 +30,6 @@ cc_library(
         "src/Imath/ImathFun.cpp",
         "src/Imath/ImathMatrixAlgo.cpp",
         "src/Imath/ImathRandom.cpp",
-        "src/Imath/eLut.h",
         "src/Imath/half.cpp",
         "src/Imath/toFloat.h",
     ],
