@@ -67,8 +67,8 @@
 #include "ImfNamespace.h"
 
 #include "ImfImageLevel.h"
-#include <ImfTileDescription.h>
-#include <ImfArray.h>
+#include "ImfTileDescription.h"
+#include "ImfArray.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 

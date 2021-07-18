@@ -20,8 +20,8 @@
 #include "ImfUtilExport.h"
 #include "ImfImageLevel.h"
 
-#include <ImfPixelType.h>
-#include <ImfFrameBuffer.h>
+#include "ImfPixelType.h"
+#include "ImfFrameBuffer.h"
 #include <ImathBox.h>
 #include <half.h>
 

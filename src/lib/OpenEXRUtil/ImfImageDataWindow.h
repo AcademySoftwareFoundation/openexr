@@ -14,7 +14,7 @@
 //----------------------------------------------------------------------------
 
 #include "ImfUtilExport.h"
-#include <ImfNamespace.h>
+#include "ImfNamespace.h"
 #include <ImathBox.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
