@@ -123,6 +123,8 @@ Limitations:
   particular chunk is corrupt, this is handled such that the other
   chunks may be read without rendering the context unusable
 
+Merged Pull Requests:
+
 * [1097](https://github.com/AcademySoftwareFoundation/openexr/pull/1097) Include exported OpenEXR headers with "" instead of <>
 * [1092](https://github.com/AcademySoftwareFoundation/openexr/pull/1092) Document current standard optional attributes
 * [1088](https://github.com/AcademySoftwareFoundation/openexr/pull/1088) First draft of rst/readthedocs for C API/OpenEXRCore
