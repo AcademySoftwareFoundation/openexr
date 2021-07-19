@@ -17,10 +17,10 @@
 
 #include "ImfUtilExport.h"
 
-#include <IexBaseExc.h>
 #include "ImfPixelType.h"
 #include "ImfFrameBuffer.h"
 #include "ImfChannelList.h"
+#include "IexBaseExc.h"
 #include <ImathBox.h>
 #include <half.h>
 
