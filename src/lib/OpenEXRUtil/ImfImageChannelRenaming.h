@@ -13,7 +13,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include <ImfNamespace.h>
+#include "ImfNamespace.h"
 #include <string>
 #include <map>
 

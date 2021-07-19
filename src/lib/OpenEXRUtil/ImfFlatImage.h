@@ -19,7 +19,7 @@
 #include "ImfImage.h"
 #include "ImfUtilExport.h"
 
-#include <ImfTileDescription.h>
+#include "ImfTileDescription.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
