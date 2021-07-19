@@ -1,6 +1,6 @@
 # OpenEXR Release Notes
 
-* [Version 3.1.0-beta](#version-310-beta-july-19-2021) July 19, 2021
+* [Version 3.1.0](#version-310-july-22-2021) July 22, 2021
 * [Version 3.0.5](#version-305-july-1-2021) July 1, 2021
 * [Version 3.0.4](#version-304-june-3-2021) June 3, 2021
 * [Version 3.0.3](#version-303-may-18-2021) May 18, 2021
@@ -50,7 +50,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.1.0-beta (July 19, 2021)
+## Version 3.1.0 (July 22, 2021)
 
 The 3.1 release of OpenEXR introduces a new library, OpenEXRCore,
 which is the result of a significant re-thinking of how OpenEXR
@@ -123,6 +123,8 @@ Limitations:
   particular chunk is corrupt, this is handled such that the other
   chunks may be read without rendering the context unusable
 
+* [1097](https://github.com/AcademySoftwareFoundation/openexr/pull/1097) Include exported OpenEXR headers with "" instead of <>
+* [1092](https://github.com/AcademySoftwareFoundation/openexr/pull/1092) Document current standard optional attributes
 * [1088](https://github.com/AcademySoftwareFoundation/openexr/pull/1088) First draft of rst/readthedocs for C API/OpenEXRCore
 * [1087](https://github.com/AcademySoftwareFoundation/openexr/pull/1087) Edit doxygen comments for consistency and style
 * [1086](https://github.com/AcademySoftwareFoundation/openexr/pull/1086) Simplify names, improve error messages, fix imath usage in Core
