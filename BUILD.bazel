@@ -11,7 +11,7 @@ config_setting(
 generate_header(
     name = "IexConfig.h",
     substitutions = {
-        "@IEX_INTERNAL_NAMESPACE@": "Iex_3_0",
+        "@IEX_INTERNAL_NAMESPACE@": "Iex_3_1",
         "@IEX_NAMESPACE_CUSTOM@": "0",
         "@IEX_NAMESPACE@": "Iex",
     },
@@ -31,7 +31,7 @@ generate_header(
 generate_header(
     name = "IlmThreadConfig.h",
     substitutions = {
-        "@ILMTHREAD_INTERNAL_NAMESPACE@": "IlmThread_3_0",
+        "@ILMTHREAD_INTERNAL_NAMESPACE@": "IlmThread_3_1",
         "@ILMTHREAD_NAMESPACE_CUSTOM@": "0",
         "@ILMTHREAD_NAMESPACE@": "IlmThread",
         "#cmakedefine01 ILMTHREAD_HAVE_POSIX_SEMAPHORES": "#define ILMTHREAD_HAVE_POSIX_SEMAPHORES 0",
@@ -44,15 +44,15 @@ generate_header(
     name = "OpenEXRConfig.h",
     substitutions = {
         "@OPENEXR_IMF_NAMESPACE@": "Imf",
-        "@OPENEXR_INTERNAL_IMF_NAMESPACE@": "Imf_3_0",
-        "@OPENEXR_LIB_VERSION@": "3.0.4",
-        "@OPENEXR_NAMESPACE_CUSTOM@": "0",
-        "@OPENEXR_PACKAGE_NAME@": "OpenEXR 3.0.4",
+        "@OPENEXR_INTERNAL_IMF_NAMESPACE@": "Imf_3_1",
+        "@OPENEXR_LIB_VERSION@": "3.1.0",
+        "@OPENEXR_NAMESPACE_CUSTOM@": "3.1.0",
+        "@OPENEXR_PACKAGE_NAME@": "OpenEXR 3.1.0",
         "@OPENEXR_VERSION_EXTRA@": "",
         "@OPENEXR_VERSION_MAJOR@": "3",
-        "@OPENEXR_VERSION_MINOR@": "0",
-        "@OPENEXR_VERSION_PATCH@": "4",
-        "@OPENEXR_VERSION@": "3.0.4",
+        "@OPENEXR_VERSION_MINOR@": "1",
+        "@OPENEXR_VERSION_PATCH@": "0",
+        "@OPENEXR_VERSION@": "3.1.0",
         "#cmakedefine OPENEXR_ENABLE_API_VISIBILITY": "#define OPENEXR_ENABLE_API_VISIBILITY",
         "#cmakedefine OPENEXR_HAVE_LARGE_STACK 1": "/* #undef OPENEXR_HAVE_LARGE_STACK */",
     },
