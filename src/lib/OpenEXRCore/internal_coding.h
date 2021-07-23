@@ -25,10 +25,10 @@
 #endif
 
 #if defined(__has_include)
-#    if __has_include(<x86intrin.h>)
-#        include <x86intrin.h>
-#    elif __has_include(<intrin.h>)
+#    if __has_include(<intrin.h>)
 #        include <intrin.h>
+#    elif __has_include(<x86intrin.h>)
+#        include <x86intrin.h>
 #    endif
 #endif
 #include <math.h>

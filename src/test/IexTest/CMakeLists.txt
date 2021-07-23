@@ -13,4 +13,4 @@ set_target_properties(IexTest PROPERTIES
 if(WIN32 AND BUILD_SHARED_LIBS)
   target_compile_definitions(IexTest PRIVATE OPENEXR_DLL)
 endif()
-add_test(NAME OpenEXR.Iex COMMAND $<TARGET_FILE:IexTest>)
+add_test(NAME OpenEXR.Iex COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:IexTest>)

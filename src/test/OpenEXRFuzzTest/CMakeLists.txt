@@ -18,7 +18,7 @@ if(OPENEXR_RUN_FUZZ_TESTS)
 
 function(DEFINE_OPENEXR_FUZZ_TESTS)
   foreach(curtest IN LISTS ARGN)
-    add_test(NAME OpenEXR.Fuzz.${curtest} COMMAND $<TARGET_FILE:OpenEXRFuzzTest> ${curtest})
+    add_test(NAME OpenEXR.Fuzz.${curtest} COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRFuzzTest> ${curtest})
     set_tests_properties(OpenEXR.Fuzz.${curtest} PROPERTIES TIMEOUT 36000)
   endforeach()
 endfunction()
@@ -28,7 +28,7 @@ endfunction()
     testFuzzDeepScanLines
     testFuzzDeepTiles
   )
-  #add_test(NAME OpenEXR.Fuzz COMMAND $<TARGET_FILE:OpenEXRFuzzTest>)
+  #add_test(NAME OpenEXR.Fuzz COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRFuzzTest>)
   #set_tests_properties(OpenEXR.Fuzz PROPERTIES TIMEOUT 36000)
 
   add_custom_target(fuzz $<TARGET_FILE:OpenEXRFuzzTest>)
