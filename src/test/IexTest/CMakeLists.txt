@@ -13,4 +13,6 @@ set_target_properties(IexTest PROPERTIES
 if(WIN32 AND BUILD_SHARED_LIBS)
   target_compile_definitions(IexTest PRIVATE OPENEXR_DLL)
 endif()
+
+# CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
 add_test(NAME OpenEXR.Iex COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:IexTest>)

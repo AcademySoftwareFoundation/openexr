@@ -28,6 +28,7 @@ endfunction()
     testFuzzDeepScanLines
     testFuzzDeepTiles
   )
+  # CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
   #add_test(NAME OpenEXR.Fuzz COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRFuzzTest>)
   #set_tests_properties(OpenEXR.Fuzz PROPERTIES TIMEOUT 36000)
 

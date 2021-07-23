@@ -74,6 +74,7 @@ if(WIN32 AND BUILD_SHARED_LIBS)
   target_compile_definitions(OpenEXRTest PRIVATE OPENEXR_DLL)
 endif()
 
+# CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
 #add_test(NAME OpenEXR.Core COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRTest> core)
 #add_test(NAME OpenEXR.Basic COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRTest> basic)
 #add_test(NAME OpenEXR.Deep COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRTest> deep)
