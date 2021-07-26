@@ -72,6 +72,7 @@ channel name contains no periods, then the entire channel name is the
 base name.
 
 Examples:
+
 - the base name of channel ``R`` is ``R``
 - the base name of channel ``L1.L2.R`` is ``R``
 
@@ -81,6 +82,7 @@ a channel name contains no periods, then the layer name is an empty
 string.
 
 Examples:
+
 - the layer name of channel ``R`` is the empty string
 - the layer name of channel ``L1.L2.R`` is ``L1.L2``
 
@@ -99,6 +101,7 @@ A layer **directly encloses** a second layer if there is no third layer
 that is nested in the first layer and encloses the second layer.
 
 Examples:
+
 - Layer ``L1`` encloses layers ``L1.L2`` and ``L1.L2.L3``
 - Layer ``L1`` directly encloses layer ``L1.L2``, but ``L1`` does not
   directly enclose ``L1.L2.L3``
@@ -235,26 +238,26 @@ the sample depths or depth ranges may or may not overlap each other.
 A pixel in a deep image is **sorted** if for every ``i`` and
 ``j`` with ``i`` < ``j``,
 
-.. math:: S_{i}\left( Z \right) < \ S_{j}\left( Z \right)\ \ \text{or}\ \left( S_{i}\left( Z \right) = S_{j}\left( Z \right)\ \text{and}\ S_{i}\left( \text{ZBack} \right) \leq S_{j}\left( \text{ZBack} \right) \right).
+.. math:: S_{i}\left( Z \right) < \ S_{j}\left( Z \right) \lor \left( S_{i}\left( Z \right) = S_{j}\left( Z \right) \land S_{i}\left( \text{ZBack} \right) \leq S_{j}\left( \text{ZBack} \right) \right).
 
 A pixel in a deep image is **non-overlapping** if for every :math:`i`
 and :math:`j` with :math:`i \neq j`,
 
-.. math:: \left( S_{i}\left( Z \right) < \ S_{j}\left( Z \right)\ \
-          \text{and}\ \ S_{i}\left( \text{ZBack} \right) \leq \
-          S_{j}\left( Z \right) \right)\ \text{or}\left( S_{j}\left( Z
-          \right) < \ S_{i}\left( Z \right)\ \ \text{and}\ \
+.. math:: \left( S_{i}\left( Z \right) < \ S_{j}\left( Z \right) 
+          \land S_{i}\left( \text{ZBack} \right) \leq \
+          S_{j}\left( Z \right) \right) \lor \left( S_{j}\left( Z
+          \right) < \ S_{i}\left( Z \right) \land
           S_{j}\left( \text{ZBack} \right) \leq \ S_{i}\left( Z
-          \right) \right)\ \text{or}
+          \right) \right) \lor
 
 .. math:: \left( S_{i}\left( Z \right) = \ S_{j}\left( Z
-          \right)\ \ \text{and}\ \ S_{i}\left( \text{ZBack} \right) \leq \
-          S_{i}\left( Z \right)\ \ \text{and}\ \ S_{j}\left( \text{ZBack}
-          \right) > \ S_{j}\left( Z \right) \right)\text{or}
+          \right) \land S_{i}\left( \text{ZBack} \right) \leq \
+          S_{i}\left( Z \right) \land S_{j}\left( \text{ZBack}
+          \right) > \ S_{j}\left( Z \right) \right) \lor
 
-.. math:: \left( S_{j}\left( Z \right) = \ S_{i}\left( Z \right)\ \
-          \text{and}\ \ S_{j}\left( \text{ZBack} \right) \leq \
-          S_{j}\left( Z \right)\ \ \text{and}\ \ S_{i}\left(
+.. math:: \left( S_{j}\left( Z \right) = \ S_{i}\left( Z \right)
+          \land S_{j}\left( \text{ZBack} \right) \leq \
+          S_{j}\left( Z \right) \land S_{i}\left(
           \text{ZBack} \right) > \ S_{i}\left( Z \right) \right).
 
 A pixel in a deep image is **tidy** if it is sorted and non-overlapping.
@@ -276,26 +279,26 @@ shadow maps, shadow lookups are faster if the samples in each pixel are
 sorted and non-overlapping.
 
 Application programs that write deep OpenEXR files can add a
-deepImageState attribute to the header to let file readers know if the
+**deepImageState** attribute to the header to let file readers know if the
 pixels in the image are tidy or not. The attribute is of type
-DeepImageState, and can have the following values:
+``DeepImageState``, and can have the following values:
 
-=============== =====================================================
-Value           Interpretation
-=============== =====================================================
-MESSY           Samples may not be sorted, and overlaps are possible.
-SORTED          Samples are sorted, but overlaps are possible.
-NON_OVERLAPPING Samples do not overlap, but may not be sorted.
-TIDY            Samples are sorted and do not overlap.
-=============== =====================================================
+=================== =====================================================
+Value               Interpretation
+=================== =====================================================
+``MESSY``           Samples may not be sorted, and overlaps are possible.
+``SORTED``          Samples are sorted, but overlaps are possible.
+``NON_OVERLAPPING`` Samples do not overlap, but may not be sorted.
+``TIDY``            Samples are sorted and do not overlap.
+=================== =====================================================
 
-If the header does not contain a deepImageState attribute, then file
-readers should assume that the image is MESSY. The OpenEXR file I/O
+If the header does not contain a **deepImageState** attribute, then file
+readers should assume that the image is ``MESSY``. The OpenEXR file I/O
 library does not verify that the samples in the pixels are consistent
-with the deepImageState attribute. Application software that handles
+with the **deepImageState** attribute. Application software that handles
 deep images may assume that the attribute value is valid, as long as the
 software will not crash or lock up if any pixels are inconsistent with
-the deepImageState.
+the **deepImageState**.
 
 Alpha and Color as Functions of Depth
 =====================================
@@ -440,7 +443,7 @@ For a color channel, ``c``, and its associated alpha channel,
 If it is not done exactly right, splitting a sample can lead to large
 rounding errors for the colors of the new samples when the opacity of
 the original sample is very small. For C++ code that splits a volume
-sample in a numerically stable way, see `splitting a volume sample appendix`_.
+sample in a numerically stable way, see `Example: Splitting a Volume Sample`_.
 
 Merging Overlapping Samples
 ---------------------------
@@ -470,7 +473,7 @@ as follows:
 
 .. math:: S_{i,new}\left( \alpha \right) = 1 - \left( {1 - S}_{i}(\alpha) \right) \bullet \left( {1 - S}_{j}(\alpha) \right)
 
-.. math:: S_{i,new}\left( c \right) = \left\{ \begin{matrix} \frac{S_{i}\left( c \right) + S_{j}(c)}{2}, & S_{i}\left( \alpha \right) = 1\ \text{and}\ S_{j}\left( \alpha \right) = 1 \\ \begin{matrix} S_{i}\left( c \right), \\ S_{j}\left( c \right), \\ \end{matrix} & \begin{matrix} S_{i}\left( \alpha \right) = 1\ \text{and}\ S_{j}\left( \alpha \right) < 1 \\ S_{i}\left( \alpha \right) < 1\ \text{and}\ S_{j}\left( \alpha \right) = 1 \\ \end{matrix} \\ {\text{w\ }(S}_{i}\left( c \right) \bullet v_{i} + S_{j}(c) \bullet v_{j}) & S_{i}\left( \alpha \right) < 1\ \text{and}\ S_{j}\left( \alpha \right) < 1 \\ \end{matrix} \right.
+.. math:: S_{i,new}\left( c \right) = \left\{ \begin{matrix} \frac{S_{i}\left( c \right) + S_{j}(c)}{2}, & S_{i}\left( \alpha \right) = 1 \land S_{j}\left( \alpha \right) = 1 \\ \begin{matrix} S_{i}\left( c \right), \\ S_{j}\left( c \right), \\ \end{matrix} & \begin{matrix} S_{i}\left( \alpha \right) = 1 \land S_{j}\left( \alpha \right) < 1 \\ S_{i}\left( \alpha \right) < 1 \land S_{j}\left( \alpha \right) = 1 \\ \end{matrix} \\ {\text{w\ }(S}_{i}\left( c \right) \bullet v_{i} + S_{j}(c) \bullet v_{j}) & S_{i}\left( \alpha \right) < 1 \land S_{j}\left( \alpha \right) < 1 \\ \end{matrix} \right.
 
 where
 
@@ -486,7 +489,7 @@ Evaluating the expressions above directly can lead to large rounding
 errors when the opacity of one or both of the input samples is very
 small. For C++ code that computes\ :math:`\ S_{i,new}\left( \alpha
 \right)` and :math:`S_{i,new}\left( c \right)` in a numerically robust
-way, see `Merging Two Overlapping Samples`_.
+way, see `Example: Merging Two Overlapping Samples`_.
 
 For details on how the expressions for :math:`S_{i,new}\left( \alpha
 \right)` and :math:`S_{i,new}\left( c \right)`, can be derived, see
@@ -632,14 +635,14 @@ Appendix: C++ Code
 
 .. _splitting a volume sample appendix:
 
-Splitting a Volume Sample
--------------------------
+Example: Splitting a Volume Sample
+----------------------------------
 
 .. literalinclude:: src/splitVolumeSample.cpp
    :linenos:
       
-Merging Two Overlapping Samples
--------------------------------
+Example: Merging Two Overlapping Samples
+----------------------------------------
 
 .. literalinclude:: src/mergeOverlappingSamples.cpp
    :linenos:
