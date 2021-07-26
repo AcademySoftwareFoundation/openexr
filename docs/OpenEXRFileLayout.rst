@@ -1,3 +1,5 @@
+.. _openexr-file-layout-label:
+
 OpenEXR File Layout
 ###################
 
@@ -10,11 +12,11 @@ deep data is handled.
 
 The text assumes that the reader is familiar with OpenEXR terms such as
 "channel", "attribute", "data window" or "chunk". For an explanation of
-those terms see :doc:`Technical Introduction to OpenEXR`.
+those terms see :ref:`technical-introduction-to-openexr-label`.
 
 **Note:** This document does not define the OpenEXR file format.  OpenEXR is
-defined as the file format that is read and written by the IlmImf open-source
-C++ library. If this document and the IlmImf library disagree, then the library
+defined as the file format that is read and written by the OpenEXR open-source
+C++ library. If this document and the OpenEXR library disagree, then the library
 takes precedence.
 
 Backwards Compatibility and New or Changed Functionality
@@ -412,7 +414,7 @@ The ``attribute size``, of type ``int``, indicates the size (in bytes) of
 the attribute value.
 
 The layout of the ``attribute value`` depends on the attribute
-type. The IlmImf library predefines several different attribute
+type. The OpenEXR library predefines several different attribute
 types. Application programs can define and store additional attribute
 types.
 
@@ -444,8 +446,8 @@ attributes:
    * - ``screenWindowWidth``
      - ``float``
 
-For descriptions of what these attributes are for, see the
-:doc:`Technical Introduction to OpenEXR`.
+For descriptions of what these attributes are for, see
+:ref:`technical-introduction-to-openexr-label`.
 
 Tile Header Attribute
 ---------------------
@@ -464,7 +466,7 @@ one or more tiles:
      - Determines the size of the tiles and the number of resolution levels
        in the file. 
 
-       **Note:** The IlmImf library ignores tile description attributes in
+       **Note:** The OpenEXR library ignores tile description attributes in
        scan line based files. The decision whether the file contains scan
        lines or tiles is based on the value of bit 9 in the file's version
        field, not on the presence of a tile description attribute.
@@ -522,8 +524,8 @@ deep data OpenEXR files.
      - ``tileDesc``
      - Required for parts of type ``tiledimage`` and ``deeptile``.
 
-Deep Data Header Attributes (New in 2.0)
-----------------------------------------
+Deep Data Header Attributes
+---------------------------
 
 These attributes are required in the header for all files which contain
 deep data (deepscanline or deeptile):
@@ -553,8 +555,9 @@ deep data (deepscanline or deeptile):
      - ``string``
      - Must be set to ``deepscanline`` or ``deeptile``.
 
-For information about channel layout and a list of reserved channel names, see
-the _`Technical Introduction to OpenEXR` document, _`Channel Names` section.
+For information about channel layout and a list of reserved channel
+names, see :ref:`channel-names-label` in
+:ref:`technical-introduction-to-openexr-label`.
 
 Component Four: Offset Tables
 =============================
@@ -595,8 +598,8 @@ For tiles, the offset table is a sequence of tile offsets, one offset
 per tile. In the table, scan line offsets are sorted the same way as
 tiles in ``INCREASING_Y`` order.
 
-Multi-part (New in 2.0)
------------------------
+Multi-Part
+----------
 
 For multi-part files, each part defined in the header component has a
 corresponding chunk offset table.
@@ -649,8 +652,6 @@ same format:
    * - deep tile
      - indicated by a type attribute of “deeptile”
      - See `Deep tiled layout`_.
-
-For more information about data types, see XXX.
 
 Regular Scan Line Blocks
 ------------------------
@@ -720,7 +721,7 @@ whichever is smaller.
 The layout of the compressed data depends on which compression method
 was applied. The compressed formats are not described here. For
 information on the compressed data formats, see the source code for the
-IlmImf library.
+OpenEXR library.
 
 Regular ImageTiles
 ------------------
@@ -857,7 +858,7 @@ data:
 Predefined Attribute Types
 ==========================
 
-The IlmImf library predefines the following attribute types:
+The OpenEXR library predefines the following attribute types:
 
 +--------------------+----------------------------------------------------------------+
 | type name          | data                                                           |
@@ -940,7 +941,7 @@ The IlmImf library predefines the following attribute types:
 |                    | represented as a string length, of type ``int``, followed by a |
 |                    | sequence of ``chars``. The number of strings can be inferred   |
 |                    | from the total attribute size                                  |
-|                    | (see the `Attribute Layout`_ section.                          |
+|                    | (see the `Attribute Layout`_ section).                         |
 +--------------------+----------------------------------------------------------------+
 | ``tiledesc``       | Two ``unsigned int``\ 's: ``xSize``, ``ySize``, followed       |
 |                    | by ``mode``, of type ``unsigned char``, where                  |
