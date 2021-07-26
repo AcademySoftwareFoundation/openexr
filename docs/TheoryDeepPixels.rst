@@ -1,36 +1,39 @@
-======================
 Theory of Deep Samples
-======================
+######################
 
 
 This document derives the techniques for splitting and combining two non-solid samples of
-equal depth and thickness. These should should be used by deep image "flattening" algorithms to compute the combined colour of two samples. The formulas are defined in the document "Interpreting OpenEXR Deep Pixels". This document derives those formulas, and is for information only.
+equal depth and thickness. These should should be used by deep image "flattening" algorithms to compute the combined colour of two samples. The formulas are defined in the document :doc:`InterpretingDeepPixels`. This document derives those formulas, and is for information only.
 
 
 
 Definitions
 ===========
 
--  ratio of length of original sample to a subsample:
-   :math: 0\le r \le 1
-
--  Colour of sample :math:`i`
-
--  Colour of a subsample of :math:`i`
-
--  alpha value of sample :math:`i`
-
--  alpha value of a subsample of :math:`i`
-
--  transparency/transmission of sample :math:`i`; :math:`T_a=1-\alpha_a`
--  colour per unit length (‘instantaneous colour’) of :math:`i`
--  transparency per unit length (‘intenstaneous transparency’) of
-   :math:`i`
++-----------------------+--------------------------------------------------------------------------+
+|       symbol          | descripion                                                               |
++=======================+==========================================================================+
+| :math:`r`             | ratio of length of original sample to a subsample: :math:`0\le r \le 1`  |
++-----------------------+--------------------------------------------------------------------------+
+| :math:`\mathbf{C_i}`  | Colour of sample :math:`i`                                               |
++-----------------------+--------------------------------------------------------------------------+
+| :math:`\mathbf{C'_i}` | Colour of a subsample of :math:`i`                                       |
++-----------------------+--------------------------------------------------------------------------+
+| :math:`\alpha_i`      | alpha value of sample :math:`i`                                          |
++-----------------------+--------------------------------------------------------------------------+
+| :math:`\alpha'_i`     | alpha value of a subsample of :math:`i`                                  |
++-----------------------+--------------------------------------------------------------------------+
+| :math:`T_i`           | transparency/transmission of sample :math:`i`; :math:`T_a=1-\alpha_a`    |
++-----------------------+--------------------------------------------------------------------------+
+| :math:`\mathbf{c_i}`  | colour per unit length (‘instantaneous colour’) of :math:`i`             |
++-----------------------+--------------------------------------------------------------------------+
+| :math:`t_i`           | transparency per unit length (‘intanstaneous transparency’) of :math:`i` |
++-----------------------+--------------------------------------------------------------------------+
 
 Subscripts :math:`_a` and :math:`_b` refer to the input samples;
 subscript :math:`_c` refers to the combined output sample
 
-Sample model
+Sample Model
 ============
 
 Many deep compositing operations require subdividing a sample into two
@@ -112,7 +115,7 @@ and the sample length :math:`n` can be used to compute the transmission per unit
 .. math:: t=T^\frac{1}{n}
   :label: t
 
-Sample properties
+Sample Properties
 -----------------
 
 The following are assumptions made by the formulas derived here:
@@ -163,10 +166,10 @@ The following are assumptions made by the formulas derived here:
    yield the RGBA colour of the original sample (assuming sufficient
    numerical precision).
 
-Sample splitting
+Sample Splitting
 ================
 
-Alpha of a subsample
+Alpha of a Subsample
 --------------------
 
 When a subsample of length :math:`n'` is extracted from an original
@@ -202,7 +205,7 @@ length*, we can substitute this ratio for :math:`r` for the remainder.
 This is equivalent to considering subdivision of a sample of unit
 length.
 
-Colour of a subsample
+Colour of a Subsample
 ---------------------
 
 A sample with RGB information is modelled as a cylinder. The alpha
@@ -287,7 +290,7 @@ This is exactly equivalent to **unpremultiplying** the colour by the
 original alpha value, computing the new alpha value, and
 **premultiplying** by the new value.
 
-Splitting transparent samples
+Splitting Transparent Samples
 -----------------------------
 
 When :math:`\alpha=0` (or alternatively, :math:`T=1`), unpremultiplying in :eq:`splitcolour` would require a division by zero.
@@ -314,7 +317,7 @@ A subsection :math:`\mathbf{C'}` of length :math:`r` is given by
 That is, if :math:`\alpha=0`, then scaling a sample’s length by
 :math:`r` scales the colour by the same amount.
 
-Sample merging
+Sample Merging
 ==============
 
 Now, consider combining two samples :math:`a` and :math:`b` together.
@@ -371,7 +374,7 @@ This is the **premultiplied** combined colour. For the unpremultiplied
 colour, the :math:`\alpha_c` term can be omitted. This gives the
 transmission weighted average of the unpremultiplied input colours.
 
-Merging when one sample is transparent
+Merging when One Sample is Transparent
 --------------------------------------
 
 Now suppose one of the samples (say, :math:`b`) has no alpha, so
@@ -393,14 +396,14 @@ and substituting into :eq:`solve` gives:
    \mathbf{C_c}&=\frac{\left(\frac{\mathbf{C_a}\log(1-\alpha_a)}{\alpha_a} -
    \mathbf{C_b}\right)\alpha_a}{\log(1-\alpha_a)}\end{aligned}
 
-Merging two transparent samples
+Merging Two Transparent Samples
 -------------------------------
 
 Where both samples are transparent, the colours simply add together:
 
 .. math:: \mathbf{C_c}=\mathbf{C_a}+\mathbf{C_b}
 
-Merging solid samples
+Merging Solid Samples
 ---------------------
 
 For numerical stability, we must give a sensible value for
