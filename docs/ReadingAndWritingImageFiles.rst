@@ -9,7 +9,7 @@ This document shows how to write C++ code that reads and writes OpenEXR
 
 The text assumes that the reader is familiar with OpenEXR terms like
 “channel”, “attribute”, “data window” or “deep data”. For an explanation
-of those terms see the `Technical Introduction to OpenEXR`_ document.
+of those terms see the :doc:`Technical Introduction to OpenEXR` document.
 
 The OpenEXR source distribution contains a subdirectory, OpenEXRExamples,
 with most of the code examples below. A Makefile is also provided, so

@@ -10,7 +10,7 @@ deep data is handled.
 
 The text assumes that the reader is familiar with OpenEXR terms such as
 "channel", "attribute", "data window" or "chunk". For an explanation of
-those terms see the `Technical Introduction to OpenEXR`_.
+those terms see :doc:`Technical Introduction to OpenEXR`.
 
 **Note:** This document does not define the OpenEXR file format.  OpenEXR is
 defined as the file format that is read and written by the IlmImf open-source
@@ -444,8 +444,8 @@ attributes:
    * - ``screenWindowWidth``
      - ``float``
 
-For descriptions of what these attributes are for, see the _`Technical
-Introduction to OpenEXR`.
+For descriptions of what these attributes are for, see the
+:doc:`Technical Introduction to OpenEXR`.
 
 Tile Header Attribute
 ---------------------
@@ -484,8 +484,8 @@ This attribute can be used in the header for multi-part files:
      - ``text``
      -
 
-Multi-Part and Deep Data Header Attributes (New in 2.0)
--------------------------------------------------------
+Multi-Part and Deep Data Header Attributes
+------------------------------------------
 
 These attributes are required in the header for all multi-part and/or
 deep data OpenEXR files.
@@ -604,8 +604,8 @@ corresponding chunk offset table.
 Component Five: Pixel data
 ==========================
 
-Chunk Layout (New in 2.0)
--------------------------
+Chunk Layout
+------------
 
 A “chunk” is a general term for a pixel data block. The scan line and
 tile images have the same format that they did in OpenEXR 1.7. OpenEXR
@@ -639,16 +639,16 @@ same format:
      - indicated by a type attribute of “scanlineimage”
      - Each chunk stores a scan line block, with the minimum y coordinate of the
        scan line(s) within the chunk.
-       See `Regular scan line image block layout`.
+       See `Regular scan line image block layout`_.
    * - tiled
      - indicated by a type attribute of “tiledimage”
-     - See _`Regular image tile layout`.
+     - See `Regular image tile layout`_.
    * - deep scan line
      - indicated by a type attribute of “deepscanline”
-     - See _`Deep scan line layout`.
+     - See `Deep scan line layout`_.
    * - deep tile
      - indicated by a type attribute of “deeptile”
-     - See _`Deep tiled layout`.
+     - See `Deep tiled layout`_.
 
 For more information about data types, see XXX.
 
@@ -752,8 +752,8 @@ shorter scan lines. Similarly, if the height of a resolution level is
 not a multiple of the file's tile height, then tiles at the bottom edge
 of the resolution level have fewer scan lines.
 
-Deep Data (New in 2.0)
-----------------------
+Deep Data
+---------
 
 Deep images store an arbitrarily long list of data at each pixel
 location (each pixel contains a list of samples, and each sample
