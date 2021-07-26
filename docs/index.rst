@@ -59,6 +59,7 @@ Technical Documents
    OpenEXRFileLayout
    MultiViewOpenEXR
    InterpretingDeepPixels
+   TheoryDeepPixels
    StandardOptionalAttributes
               
 * :ref:`genindex`
