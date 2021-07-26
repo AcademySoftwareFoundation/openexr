@@ -39,17 +39,6 @@ hufCode (uint64_t code)
     return code >> 6;
 }
 
-//#define outputBits(nBits, bits)                                                \
-//    do                                                                         \
-//    {                                                                          \
-//        c <<= nBits;                                                           \
-//        lc += nBits;                                                           \
-//        c |= ((uint64_t) bits);                                                \
-//        while (lc >= 8)                                                        \
-//        {                                                                      \
-//            *out++ = (uint8_t) (c >> (lc -= 8));                               \
-//        }                                                                      \
-//    } while (0)
 static inline void
 outputBits (int nBits, uint64_t bits, uint64_t* c, int* lc, uint8_t** outptr)
 {
@@ -674,40 +663,12 @@ hufFreeDecTable (HufDec* hdecod) // io: Decoding table
 // ENCODING
 //
 
-//#define outputCode(code)                                                       \
-//    do                                                                         \
-//    {                                                                          \
-//        uint64_t tmpnBits = hufLength (code);                                  \
-//        uint64_t tmpcode  = hufCode (code);                                    \
-//        outputBits (tmpnBits, tmpcode);                                        \
-//    } while (0)
 static inline void
 outputCode (uint64_t code, uint64_t* c, int* lc, uint8_t** out)
 {
     outputBits (hufLength (code), hufCode (code), c, lc, out);
 }
 
-//#define sendCode(sCode, runCount, runCode)                                     \
-//    do                                                                         \
-//    {                                                                          \
-//        uint64_t tmpscode  = sCode;                                            \
-//        uint64_t tmprcode  = runCode;                                          \
-//        uint64_t tmprcount = (uint64_t) runCount;                              \
-//        if (hufLength (tmpscode) + hufLength (tmprcode) + 8 <                  \
-//            hufLength (tmpscode) * tmprcount)                                  \
-//        {                                                                      \
-//            outputCode (sCode);                                                \
-//            outputCode (runCode);                                              \
-//            outputBits (8, tmprcount);                                         \
-//        }                                                                      \
-//        else                                                                   \
-//        {                                                                      \
-//            while (tmprcount-- >= 0)                                           \
-//            {                                                                  \
-//                outputCode (tmpscode);                                         \
-//            }                                                                  \
-//        }                                                                      \
-//    } while (0)
 static inline void
 sendCode (
     uint64_t  sCode,
