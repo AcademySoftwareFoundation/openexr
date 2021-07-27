@@ -18,6 +18,7 @@ if(OPENEXR_RUN_FUZZ_TESTS)
 
 function(DEFINE_OPENEXR_FUZZ_TESTS)
   foreach(curtest IN LISTS ARGN)
+    # CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
     add_test(NAME OpenEXR.Fuzz.${curtest} COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRFuzzTest> ${curtest})
     set_tests_properties(OpenEXR.Fuzz.${curtest} PROPERTIES TIMEOUT 36000)
   endforeach()
@@ -28,9 +29,6 @@ endfunction()
     testFuzzDeepScanLines
     testFuzzDeepTiles
   )
-  # CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
-  #add_test(NAME OpenEXR.Fuzz COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRFuzzTest>)
-  #set_tests_properties(OpenEXR.Fuzz PROPERTIES TIMEOUT 36000)
 
   add_custom_target(fuzz $<TARGET_FILE:OpenEXRFuzzTest>)
   add_dependencies(fuzz OpenEXRFuzzTest)

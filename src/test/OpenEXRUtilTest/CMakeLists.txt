@@ -21,7 +21,6 @@ function(DEFINE_OPENEXR_UTIL_TESTS)
     add_test(NAME OpenEXRUtil.${curtest} COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRUtilTest> ${curtest})
   endforeach()
 endfunction()
-#add_test(NAME OpenEXR.OpenEXRUtil COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRUtilTest>)
 
 define_openexr_util_tests(
   testFlatImage
