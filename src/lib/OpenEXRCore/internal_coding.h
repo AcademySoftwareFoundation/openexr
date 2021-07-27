@@ -24,8 +24,8 @@
 #    include <half.h>
 #endif
 
-#if defined(__has_include) 
-#    if __has_include(<x86intrin.h>) && defined(__x86_64__)
+#if defined(__has_include) && defined(__x86_64__)
+#    if __has_include(<x86intrin.h>)
 #        include <x86intrin.h>
 #    elif __has_include(<intrin.h>)
 #        include <intrin.h>
