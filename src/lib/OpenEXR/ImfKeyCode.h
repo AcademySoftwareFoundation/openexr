@@ -90,7 +90,6 @@ class IMF_EXPORT_TYPE KeyCode
 
     IMF_EXPORT
     KeyCode (const KeyCode &other);
-    IMF_EXPORT
     ~KeyCode() = default;
     IMF_EXPORT
     KeyCode & operator = (const KeyCode &other);

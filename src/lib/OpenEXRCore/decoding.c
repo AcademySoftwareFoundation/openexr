@@ -306,7 +306,7 @@ default_decompress_chunk (exr_decode_pipeline_t* decode)
             return pctxt->print_error (
                 pctxt,
                 rv,
-                "Unable to decompress sample table %lu -> %lu",
+                "Unable to decompress sample table %llu -> %zu",
                 decode->chunk.sample_count_table_size,
                 sampsize);
         }
@@ -328,7 +328,7 @@ default_decompress_chunk (exr_decode_pipeline_t* decode)
         return pctxt->print_error (
             pctxt,
             rv,
-            "Unable to decompress image data %lu -> %lu",
+            "Unable to decompress image data %llu -> %llu",
             decode->chunk.packed_size,
             decode->chunk.unpacked_size);
     }
