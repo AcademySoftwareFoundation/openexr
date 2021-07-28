@@ -17,10 +17,10 @@ endif()
 
 function(DEFINE_OPENEXR_UTIL_TESTS)
   foreach(curtest IN LISTS ARGN)
-    add_test(NAME OpenEXRUtil.${curtest} COMMAND $<TARGET_FILE:OpenEXRUtilTest> ${curtest})
+    # CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
+    add_test(NAME OpenEXRUtil.${curtest} COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRUtilTest> ${curtest})
   endforeach()
 endfunction()
-#add_test(NAME OpenEXR.OpenEXRUtil COMMAND $<TARGET_FILE:OpenEXRUtilTest>)
 
 define_openexr_util_tests(
   testFlatImage
