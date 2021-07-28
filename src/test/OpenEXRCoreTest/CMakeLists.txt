@@ -40,10 +40,10 @@ if(WIN32 AND (BUILD_SHARED_LIBS OR OPENEXR_BUILD_BOTH_STATIC_SHARED))
   target_compile_definitions(CorePerfTest PRIVATE OPENEXR_DLL)
 endif()
 
-#add_test(NAME OpenEXR.Core COMMAND $<TARGET_FILE:OpenEXRCoreTest>)
 function(DEFINE_OPENEXRCORE_TESTS)
   foreach(curtest IN LISTS ARGN)
-    add_test(NAME OpenEXRCore.${curtest} COMMAND $<TARGET_FILE:OpenEXRCoreTest> ${curtest})
+    # CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
+    add_test(NAME OpenEXRCore.${curtest} COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRCoreTest> ${curtest})
   endforeach()
 endfunction()
 

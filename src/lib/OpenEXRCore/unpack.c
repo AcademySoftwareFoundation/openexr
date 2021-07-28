@@ -9,6 +9,7 @@
 #include "openexr_attr.h"
 
 #include <string.h>
+#include <stdbool.h>
 
 #if defined(__x86_64__) || defined(_M_X64)
 #    ifndef _WIN32

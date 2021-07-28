@@ -61,9 +61,9 @@ print_error_helper (
 
     if (error_cb)
         error_cb (
-            (exr_const_context_t) pf, errcode, (const char*) lpDisplayBuf);
+            (exr_const_context_t) pf, errcode, "%s", (const char*) lpDisplayBuf);
     else
-        pf->print_error (pf, errcode, (const char*) lpDisplayBuf);
+        pf->print_error (pf, errcode, "%s", (const char*) lpDisplayBuf);
 
     LocalFree (lpMsgBuf);
     LocalFree (lpDisplayBuf);
