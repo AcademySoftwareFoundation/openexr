@@ -1,5 +1,3 @@
-.. _technical-introduction-to-openexr-label:
-
 Technical Introduction to OpenEXR
 #################################
 
@@ -565,7 +563,7 @@ This attribute is required in the header for multi-view OpenEXR files.
        contains information not dependent on a particular eye. 
 
 For more information about multi-view files, see
-:ref:`storing-multi-view-images-in-openexr-files-label`.
+:doc:`MultiViewOpenEXR`.
 
 Multi-part and Deep Data Attributes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -591,7 +589,7 @@ deep data OpenEXR files.
        4. Deep tiled images:  indicated by a type attribute of ``deeptile``.      
    * - ``version``
      - version 1 data for all part types is described in
-       :ref:`openexr-file-layout-label`.
+       :doc:`OpenEXRFileLayout`.
    * - ``chunkCount``
      - ``chunkCount`` indicates the number of chunks in this part. 
        Required if the multipart bit (12) is set.
@@ -1049,7 +1047,7 @@ stacking order or any compositing operations for combining the layers
 into a final image.
 
 For another example of a channel naming convention, see
-:ref:`storing-multi-view-images-in-openexr-files-label`.
+:doc:`MultiViewOpenEXR`.
 
 Deep Data - Special Purpose Channels and Reserved Channel Names
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

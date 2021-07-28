@@ -1,5 +1,3 @@
-.. _storing-multi-view-images-in-openexr-files-label:
-   
 Storing Multi-View Images in OpenEXR Files
 ##########################################
 

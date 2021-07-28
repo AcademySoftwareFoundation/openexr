@@ -1,5 +1,3 @@
-.. _openexr-file-layout-label:
-
 OpenEXR File Layout
 ###################
 
@@ -12,7 +10,7 @@ deep data is handled.
 
 The text assumes that the reader is familiar with OpenEXR terms such as
 "channel", "attribute", "data window" or "chunk". For an explanation of
-those terms see :ref:`technical-introduction-to-openexr-label`.
+those terms see :doc:`TechnicalIntroduction`.
 
 **Note:** This document does not define the OpenEXR file format.  OpenEXR is
 defined as the file format that is read and written by the OpenEXR open-source
@@ -447,7 +445,7 @@ attributes:
      - ``float``
 
 For descriptions of what these attributes are for, see
-:ref:`technical-introduction-to-openexr-label`.
+:doc:`TechnicalIntroduction`.
 
 Tile Header Attribute
 ---------------------
@@ -556,8 +554,7 @@ deep data (deepscanline or deeptile):
      - Must be set to ``deepscanline`` or ``deeptile``.
 
 For information about channel layout and a list of reserved channel
-names, see :ref:`channel-names-label` in
-:ref:`technical-introduction-to-openexr-label`.
+names, see :ref:`channel-names-label` in :doc:`TechnicalIntroduction`.
 
 Component Four: Offset Tables
 =============================
