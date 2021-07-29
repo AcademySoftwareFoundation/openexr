@@ -288,8 +288,8 @@ default_decompress_chunk (exr_decode_pipeline_t* decode)
     if (part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
         part->storage_mode == EXR_STORAGE_DEEP_TILED)
     {
-        size_t sampsize =
-            (((size_t) decode->chunk.width) * ((size_t) decode->chunk.height));
+        uint64_t sampsize =
+            (((uint64_t) decode->chunk.width) * ((uint64_t) decode->chunk.height));
         sampsize *= sizeof (int32_t);
 
         rv = decompress_data (
@@ -306,9 +306,9 @@ default_decompress_chunk (exr_decode_pipeline_t* decode)
             return pctxt->print_error (
                 pctxt,
                 rv,
-                "Unable to decompress sample table %llu -> %zu",
+                "Unable to decompress sample table %" PRIu64 " -> %" PRIu64,
                 decode->chunk.sample_count_table_size,
-                sampsize);
+                (uint64_t)sampsize);
         }
         if ((decode->decode_flags & EXR_DECODE_SAMPLE_DATA_ONLY)) return rv;
     }
@@ -328,7 +328,7 @@ default_decompress_chunk (exr_decode_pipeline_t* decode)
         return pctxt->print_error (
             pctxt,
             rv,
-            "Unable to decompress image data %llu -> %llu",
+            "Unable to decompress image data %" PRIu64 " -> %" PRIu64,
             decode->chunk.packed_size,
             decode->chunk.unpacked_size);
     }
