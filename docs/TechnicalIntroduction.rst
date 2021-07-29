@@ -452,8 +452,8 @@ and the view header attribute. This is usually used to store stereo
 files, with one view for each eye. Views can be stored in separate
 files, or together in a single file.
 
-Part (New in 2.0)
-~~~~~~~~~~~~~~~~~
+Part
+~~~~
 
 A *part* is made up of a header and an associated offset table and
 pixels. In a single-part file, there is one header, one offset table,
@@ -464,8 +464,8 @@ corresponding pixel data.
 **Note:** This is different from a multi-view file, though you can
 store views as separate parts if you wish.
 
-Deep data (New in 2.0)
-~~~~~~~~~~~~~~~~~~~~~~
+Deep Data
+~~~~~~~~~
 
 OpenEXR 2.0 supports *deep data*. Deep data images store an
 arbitrarily long list of data at each pixel location. This is
@@ -562,11 +562,11 @@ This attribute is required in the header for multi-view OpenEXR files.
        If there is no ``view`` attribute in the header, the entire part
        contains information not dependent on a particular eye. 
 
-For more information about multi-view files, see `Storing Multi-View Image in
-OpenEXR Files`_.
+For more information about multi-view files, see
+:doc:`MultiViewOpenEXR`.
 
-Multi-part and deep data attributes (New in 2.0)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Multi-part and Deep Data Attributes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 These attributes are required in the header for all multi-part and/or
 deep data OpenEXR files.
@@ -588,15 +588,16 @@ deep data OpenEXR files.
        3. Deep scan line images:  indicated by a type attribute of ``deepscanline``. 
        4. Deep tiled images:  indicated by a type attribute of ``deeptile``.      
    * - ``version``
-     - version 1 data for all part types is described in `OpenEXR File Layout`_.
+     - version 1 data for all part types is described in
+       :doc:`OpenEXRFileLayout`.
    * - ``chunkCount``
      - ``chunkCount`` indicates the number of chunks in this part. 
        Required if the multipart bit (12) is set.
    * - ``tiles``
      - Required for parts of type ``tiledimage`` and ``deeptile``.
 
-Deep data header attributes (New in 2.0)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Deep Data Header Attributes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 These attributes are required in the header for all files which contain
 deep data (deepscanline or deeptile):
@@ -993,6 +994,8 @@ attribute with the following values:
 | white | 1/3, 1/3       |
 +-------+----------------+
 
+.. _channel-names-label:
+   
 Channel Names
 -------------
 
@@ -1043,10 +1046,10 @@ Note that this naming convention does not describe a back-to-front
 stacking order or any compositing operations for combining the layers
 into a final image.
 
-For another example of a channel naming convention, see `Storing
-Multi-View Images in OpenEXR Files`_.
+For another example of a channel naming convention, see
+:doc:`MultiViewOpenEXR`.
 
-Deep Data - Ppecial Purpose Channels and Reserved Channel Names
+Deep Data - Special Purpose Channels and Reserved Channel Names
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Deep data parts reserve a set of channel names for sorts of data often
