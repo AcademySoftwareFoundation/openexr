@@ -141,7 +141,7 @@ For example, the following table shows several different combinations of
      - channel names
    * - ``left right``
      - ``R`` ``G`` ``B`` ``A``
-       ``right.R`` ``right.G`` ``right.B`` ``right.A
+       ``right.R`` ``right.G`` ``right.B`` ``right.A``
    * - ``right left``
      - ``R`` ``G`` ``B`` ``A
        ``left.R`` ``left.G`` ``left.B`` ``left.A``
@@ -176,7 +176,7 @@ interaction or other external information.
 Library Support
 ===============
 
-The OpenEXR file I/O library, IlmImf, provides utility functions to
+The OpenEXR file I/O library, OpenEXR, provides utility functions to
 support reading and writing multi-view files. Header file
 ``ImfStandardAttributes.h`` defines functions to add a ``multiView``
 attribute to a file header, to test if a file header contains a
