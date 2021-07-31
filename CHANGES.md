@@ -54,8 +54,8 @@
 ## Version 3.1.1 (August 2, 2021)
 
 Patch release that fixes build failures on various systems, introduces
-CMake CROSSCOMILINE_EMULATOR support, and fixes a few other minor
-issues.
+CMake ``CMAKE_CROSSCOMPILING_EMULATOR`` support, and fixes a few other
+minor issues.
 
 Merged Pull Requests:
 
@@ -67,7 +67,7 @@ Merged Pull Requests:
   Remove an old check for bsd behaviour, all the bsd-ish oses have the
   leXXtoh functions
 * [1106](https://github.com/AcademySoftwareFoundation/openexr/pull/1106)
-  CMAKE_CROSSCOMPILING_EMULATOR and misc. fixes
+  ``CMAKE_CROSSCOMPILING_EMULATOR`` and misc. fixes
 * [1112](https://github.com/AcademySoftwareFoundation/openexr/pull/1112)
   Include ``<x86intrin.h>`` only if ``defined(__x86_64__)``
 * [1109](https://github.com/AcademySoftwareFoundation/openexr/pull/1109)
