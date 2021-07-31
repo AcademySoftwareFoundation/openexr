@@ -66,12 +66,12 @@ Merged Pull Requests:
 * [1115](https://github.com/AcademySoftwareFoundation/openexr/pull/1115)
   Remove an old check for bsd behaviour, all the bsd-ish oses have the
   leXXtoh functions
-* [1106](https://github.com/AcademySoftwareFoundation/openexr/pull/1106)
-  ``CMAKE_CROSSCOMPILING_EMULATOR`` and misc. fixes
 * [1112](https://github.com/AcademySoftwareFoundation/openexr/pull/1112)
   Include ``<x86intrin.h>`` only if ``defined(__x86_64__)``
 * [1109](https://github.com/AcademySoftwareFoundation/openexr/pull/1109)
   Remove commented-out code in internal_huf.c
+* [1106](https://github.com/AcademySoftwareFoundation/openexr/pull/1106)
+  ``CMAKE_CROSSCOMPILING_EMULATOR`` and misc. fixes
 
 ## Version 3.1.0 (July 22, 2021)
 
