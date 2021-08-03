@@ -4,7 +4,7 @@
 
 To build the latest release of OpenEXR, begin by downloading the
 source from the GitHub Releases page: 
-https://github.com/AcademySoftwareFoundation/releases.
+https://github.com/AcademySoftwareFoundation/openexr/releases.
 
 To build from the latest development version, which may not be stable,
 clone the GitHub repo and build from the master branch:
