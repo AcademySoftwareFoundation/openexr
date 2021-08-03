@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 3.1.1](#version-311-august-2-2021) August 2, 2021
 * [Version 3.1.0](#version-310-july-22-2021) July 22, 2021
 * [Version 3.0.5](#version-305-july-1-2021) July 1, 2021
 * [Version 3.0.4](#version-304-june-3-2021) June 3, 2021
@@ -49,6 +50,28 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.1.1 (August 2, 2021)
+
+Patch release that fixes build failures on various systems, introduces
+CMake ``CMAKE_CROSSCOMPILING_EMULATOR`` support, and fixes a few other
+minor issues.
+
+Merged Pull Requests:
+
+* [1117](https://github.com/AcademySoftwareFoundation/openexr/pull/1117)
+  Improve handling of ``#include <*intrin.h>``
+* [1116](https://github.com/AcademySoftwareFoundation/openexr/pull/1116)
+  Fix up some printf warnings by using appropriate macros
+* [1115](https://github.com/AcademySoftwareFoundation/openexr/pull/1115)
+  Remove an old check for bsd behaviour, all the bsd-ish oses have the
+  leXXtoh functions
+* [1112](https://github.com/AcademySoftwareFoundation/openexr/pull/1112)
+  Include ``<x86intrin.h>`` only if ``defined(__x86_64__)``
+* [1109](https://github.com/AcademySoftwareFoundation/openexr/pull/1109)
+  Remove commented-out code in internal_huf.c
+* [1106](https://github.com/AcademySoftwareFoundation/openexr/pull/1106)
+  ``CMAKE_CROSSCOMPILING_EMULATOR`` and misc. fixes
 
 ## Version 3.1.0 (July 22, 2021)
 
