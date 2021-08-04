@@ -416,7 +416,7 @@ namespace
        //
        // basic merge tests
        //
-       Imf::IDManifest m1 , m2;
+       IDManifest m1 , m2;
        
 
        m1.add("id");
@@ -428,11 +428,11 @@ namespace
            // two manifests with non-colliding channels - should append the two
            m2.add("id2");
            m2[0].setComponent("name");
-           m2[0].setEncodingScheme(Imf::IDManifest::ID2_SCHEME); // different scheme should not cause issues
+           m2[0].setEncodingScheme(IDManifest::ID2_SCHEME); // different scheme should not cause issues
            m2[0].insert(2,"entryTwo");
            
            
-           Imf::IDManifest m3;
+           IDManifest m3;
            
            bool reply = m3.merge(m1);
            if(reply)
@@ -468,25 +468,25 @@ namespace
        // two manifests with the same channel - should combine
        
        {
-           Imf::IDManifest m3;
+           IDManifest m3;
            m3.add("id");
            //
            // these values should be ignored - merge will succeed
            // but merged manifest m5 should contain values from m1, not m3;
            //
-           m3[0].setEncodingScheme(Imf::IDManifest::ID2_SCHEME);
-           m3[0].setLifetime(Imf::IDManifest::LIFETIME_SHOT);
-           m3[0].setHashScheme(Imf::IDManifest::NOTHASHED);
+           m3[0].setEncodingScheme(IDManifest::ID2_SCHEME);
+           m3[0].setLifetime(IDManifest::LIFETIME_SHOT);
+           m3[0].setHashScheme(IDManifest::NOTHASHED);
            m3[0].setComponent("name");
            m3[0].insert(2,"entryTwo");
            
-           Imf::IDManifest m4;
+           IDManifest m4;
            m4.add("id");
            m4[0].setComponent("name");
            m4[0].insert(1,"entryOne");
            m4[0].insert(2,"entryTwo");
            
-           Imf::IDManifest m5 = m1;
+           IDManifest m5 = m1;
            
            bool reply = m5.merge(m3);
            if(reply)
@@ -508,11 +508,11 @@ namespace
        // check expected failure situations
        
        {
-           Imf::IDManifest m6;
+           IDManifest m6;
            m6.add("id");
            m6[0].setComponent("notname");
            
-           Imf::IDManifest m7 = m1;
+           IDManifest m7 = m1;
            bool reply = m7.merge(m6);
            if( reply == false )
            {
@@ -520,13 +520,13 @@ namespace
                assert(reply);
            }
            
-           Imf::IDManifest m8;
+           IDManifest m8;
            m8.add("id");
            m8[0].setComponent("name");
            m8[0].insert(1,"a_different_value");
            m8[0].insert(3,"a further value");
            
-           Imf::IDManifest m9 = m1;
+           IDManifest m9 = m1;
            reply = m9.merge(m8);
            if( reply == false )
            {
@@ -536,7 +536,7 @@ namespace
            //
            // what m9 should be
            //
-           Imf::IDManifest m10;
+           IDManifest m10;
            m10.add("id");
            m10[0].setComponent("name");
            m10[0].insert(1,"entryOne");
