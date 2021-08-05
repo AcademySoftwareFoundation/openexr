@@ -258,7 +258,7 @@ set(IMATH_TAG "v3.1.2" CACHE STRING
 if(NOT OPENEXR_FORCE_INTERNAL_IMATH)
   #TODO: ^^ Release should not clone from master, this is a place holder
   set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-build/config")
-  find_package(Imath QUIET)
+  find_package(Imath 3.1)
   set(CMAKE_IGNORE_PATH)
 endif()
 
