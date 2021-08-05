@@ -2833,7 +2833,7 @@ DwaCompressor::uncompress
                     //
                     if ((cd->planarUncBufferEnd + static_cast<size_t>(dstScanlineSize))  > (_planarUncBuffer[UNKNOWN] + _planarUncBufferSize[UNKNOWN]) )
                     {
-                        throw Iex::InputExc("DWA data corrupt");
+                        throw IEX_NAMESPACE::InputExc("DWA data corrupt");
                     }
 
                     memcpy (rowPtrs[chan][row],
