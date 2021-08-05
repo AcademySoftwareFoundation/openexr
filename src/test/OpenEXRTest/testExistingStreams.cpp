@@ -542,7 +542,7 @@ writeReadScanLines (int width,
 
     {
         cout << "writing";
-        Imf::StdOSStream oss;
+        StdOSStream oss;
         Header header (width, height);
         RgbaOutputFile out (oss, header, WRITE_RGBA);
         out.setFrameBuffer (&p1[0][0], 1, width);
@@ -552,7 +552,7 @@ writeReadScanLines (int width,
 
     {
         cout << ", reading";
-        Imf::StdISStream iss;
+        StdISStream iss;
         iss.clear();
         iss.str(strEXRFile);
         RgbaInputFile in (iss);

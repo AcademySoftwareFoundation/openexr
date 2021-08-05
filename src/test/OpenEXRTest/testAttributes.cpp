@@ -658,7 +658,7 @@ struct TestType
     }
 };
 
-typedef Imf::TypedAttribute<TestType> TestTypedAttribute;
+typedef TypedAttribute<TestType> TestTypedAttribute;
 
 template <>
 const char *

@@ -308,13 +308,13 @@ read_pixels_raw (MultiPartInputFile* f)
         char* data = rawBuf.data ();
         char* buf  = (char*) data - dw.min.x * bpp - dw.min.y * scanlinebytes;
 
-        Imf::FrameBuffer frameBuffer;
+        FrameBuffer frameBuffer;
         int              chanoffset = 0;
         for (auto c = chans.begin (), e = chans.end (); c != e; ++c)
         {
             frameBuffer.insert (
                 c.name (),
-                Imf::Slice (
+                Slice (
                     c.channel ().type, buf + chanoffset, bpp, scanlinebytes));
             if (c.channel ().type == HALF)
                 chanoffset += 2;

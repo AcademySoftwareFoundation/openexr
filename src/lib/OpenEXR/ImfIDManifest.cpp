@@ -962,7 +962,7 @@ void IDManifest::serialize(std::vector< char >& data) const
    //
    if(outPtr!=&data[0]+data.size())
    {
-       throw Iex::ArgExc("Error - IDManifest size error");
+       throw IEX_NAMESPACE::ArgExc("Error - IDManifest size error");
    }
 }
 
