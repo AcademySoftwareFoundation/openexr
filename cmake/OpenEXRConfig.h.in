@@ -99,7 +99,7 @@
    // for enums and templates, and isn't well documented, but causes
    // the vtable and typeinfo to be made visible, but not necessarily
    // all the members
-#  if __has_attribute(__type_visibility__)
+#  if defined(__has_attribute) && __has_attribute(__type_visibility__)
 #    define OPENEXR_PUBLIC_TYPE_VISIBILITY_ATTRIBUTE __attribute__ ((__type_visibility__ ("default")))
 #  endif
 
