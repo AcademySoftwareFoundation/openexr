@@ -56,6 +56,14 @@
                              (uint32_t(OPENEXR_VERSION_MINOR) << 16) | \
                              (uint32_t(OPENEXR_VERSION_PATCH) <<  8))
 
+
+// On modern versions of gcc & clang, __has_attribute can test support for
+// __attribute__((attr)).  Make sure it's safe for other compilers.
+#ifndef __has_attribute
+#    define __has_attribute(x) 0
+#endif
+
+
 // Whether the user configured the library to have symbol visibility
 // tagged
 #cmakedefine OPENEXR_ENABLE_API_VISIBILITY
@@ -99,7 +107,7 @@
    // for enums and templates, and isn't well documented, but causes
    // the vtable and typeinfo to be made visible, but not necessarily
    // all the members
-#  if defined(__has_attribute) && __has_attribute(__type_visibility__)
+#  if __has_attribute(__type_visibility__)
 #    define OPENEXR_PUBLIC_TYPE_VISIBILITY_ATTRIBUTE __attribute__ ((__type_visibility__ ("default")))
 #  endif
 
