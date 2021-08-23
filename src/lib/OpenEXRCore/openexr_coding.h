@@ -12,10 +12,12 @@
 extern "C" {
 #endif
 
+/** @file */
+
 /**
- * Enum for use in a custom allocator in the encode / decode pipelines
- * (i.e. so the implementor knows whether to allocate on which device
- * based on the buffer disposition)
+ * Enum for use in a custom allocator in the encode/decode pipelines
+ * (that is, so the implementor knows whether to allocate on which
+ * device based on the buffer disposition).
  */
 enum transcoding_pipeline_buffer_id
 {
@@ -28,8 +30,8 @@ enum transcoding_pipeline_buffer_id
     EXR_TRANSCODE_BUFFER_SAMPLES
 };
 
-/** @brief Structure for negotiating buffers when decoding / encoding
- * chunks of data
+/** @brief Struct for negotiating buffers when decoding/encoding
+ * chunks of data.
  *
  * This is generic and meant to negotiate exr data bi-directionally,
  * in that the same structure is used for both decoding and encoding
@@ -42,73 +44,76 @@ typedef struct
 {
     /**************************************************
      * Elements below are populated by the library when
-     * decoding is initialized / updated and must be left
-     * untouched when using the default decoder routines
+     * decoding is initialized/updated and must be left
+     * untouched when using the default decoder routines.
      **************************************************/
 
-    /** channel name
+    /** Channel name.
      *
      * This is provided as a convenient reference. Do not free, this
      * refers to the internal data structure in the context.
      */
     const char* channel_name;
 
-    /** number of lines for this channel in this chunk
+    /** Number of lines for this channel in this chunk.
      *
      * May be 0 or less than overall image height based on sampling
      * (i.e. when in 4:2:0 type sampling)
      */
     int32_t height;
 
-    /** width in pixel count
+    /** Width in pixel count.
      *
      * May be 0 or less than overall image width based on sampling
-     * (i.e. 4:2:2 will have some channels have fewer values)
+     * (i.e. 4:2:2 will have some channels have fewer values).
      */
     int32_t width;
 
-    /** horizontal subsampling information */
+    /** Horizontal subsampling information. */
     int32_t x_samples;
-    /** vertical subsampling information */
+    /** Vertical subsampling information. */
     int32_t y_samples;
 
-    /** linear flag from channel definition (used by b44)*/
+    /** Linear flag from channel definition (used by b44). */
     uint8_t p_linear;
-    /**
-     * how many bytes per pixel this channel consumes (i.e. 2 for
-     * float16, 4 for float32 / uint32)
+
+    /** How many bytes per pixel this channel consumes (2 for float16,
+     * 4 for float32/uint32).
      */
     int8_t bytes_per_element;
-    /** small form of exr_pixel_type_t enum (EXR_PIXEL_UINT/HALF/FLOAT) */
+
+    /** Small form of exr_pixel_type_t enum (EXR_PIXEL_UINT/HALF/FLOAT). */
     uint16_t data_type;
 
     /**************************************************
      * Elements below must be edited by the caller
-     * to control encoding / decoding
+     * to control encoding/decoding.
      **************************************************/
 
-    /**
-     * how many bytes per pixel the input is or output should be
-     * (i.e. 2 for float16, 4 for float32 / uint32). Defaults to same
-     * size as input
+    /** How many bytes per pixel the input is or output should be
+     * (2 for float16, 4 for float32/uint32). Defaults to same
+     * size as input.
      */
     int16_t user_bytes_per_element;
-    /** small form of exr_pixel_type_t enum
-     * (EXR_PIXEL_UINT/HALF/FLOAT). Defaults to same type as input */
+
+    /** Small form of exr_pixel_type_t enum
+     * (EXR_PIXEL_UINT/HALF/FLOAT). Defaults to same type as input.
+     */
     uint16_t user_data_type;
 
-    /** increment to get to next pixel
+    /** Increment to get to next pixel.
      *
      * This is in bytes. Must be specified when the decode pointer is
      * specified (and always for encode).
      *
      * This is useful for implementing transcoding generically of
      * planar or interleaved data. For planar data, where the layout
-     * is RRRRRGGGGGBBBBB, you can pass in 1 * bytes per component
+     * is RRRRRGGGGGBBBBB, you can pass in 1 * bytes per component.
      */
+
     int32_t user_pixel_stride;
-    /**
-     * When lines > 1 for a chunk, this is the increment used to get
+
+    /** When \c lines > 1 for a chunk, this is the increment used to get
      * from beginning of line to beginning of next line.
      *
      * This is in bytes. Must be specified when the decode pointer is
@@ -116,9 +121,8 @@ typedef struct
      */
     int32_t user_line_stride;
 
-    /**
-     * This data member has different requirements reading vs
-     * writing. When reading, if this is left as NULL, the channel
+    /** This data member has different requirements reading vs
+     * writing. When reading, if this is left as `NULL`, the channel
      * will be skipped during read and not filled in.  During a write
      * operation, this pointer is considered const and not
      * modified. To make this more clear, a union is used here.

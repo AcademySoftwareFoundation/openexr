@@ -44,25 +44,25 @@ int internal_exr_is_standard_type (const char* typen);
 
 typedef struct exr_attribute_list
 {
-    int num_attributes; /**< number of attribute entries in the list */
-    int num_alloced; /**< allocation count. if > 0, attribute list owns pointer */
-    exr_attribute_t** entries; /**< creation order list of attributes */
+    int num_attributes; /**< Number of attribute entries in the list */
+    int num_alloced; /**< Allocation count. if > 0, attribute list owns pointer */
+    exr_attribute_t** entries; /**< Creation order list of attributes */
     exr_attribute_t**
-        sorted_entries; /**< sorted order list of attributes for fast lookup */
+        sorted_entries; /**< Sorted order list of attributes for fast lookup */
 } exr_attribute_list_t;
 
-/** Initializes a list to an empty attribute list */
+/** Initialize a list to an empty attribute list */
 exr_result_t exr_attr_list_init (exr_context_t ctxt, exr_attribute_list_t* l);
 
-/** Frees memory for all the owned attributes in the list as well as the list itself */
+/** Free memory for all the owned attributes in the list as well as the list itself */
 exr_result_t
 exr_attr_list_destroy (exr_context_t ctxt, exr_attribute_list_t* l);
 
-/** Computes the number of bytes required to store this attribute list in a file */
+/** Compute the number of bytes required to store this attribute list in a file */
 exr_result_t exr_attr_list_compute_size (
     exr_context_t ctxt, exr_attribute_list_t* l, uint64_t* out);
 
-/** Finds an attribute in the list by name */
+/** Find an attribute in the list by name */
 exr_result_t exr_attr_list_find_by_name (
     exr_const_context_t   ctxt,
     exr_attribute_list_t* l,

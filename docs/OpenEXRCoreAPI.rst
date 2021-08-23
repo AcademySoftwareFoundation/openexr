@@ -88,6 +88,7 @@ a sorted order, or the order within which they appear in the file. One
 example might be to retrieve the data window:
 
 .. code-block::
+   :linenos:
 
     exr_attr_box2i_t datawindow;
     exr_result_t rv = exr_get_data_window(ctxt, 0, &datawindow);
@@ -172,6 +173,12 @@ would result from unpacking that chunk, and it’s raw position on disk.
 Reference
 ---------
 
+Basic Types
+^^^^^^^^^^^
+
+.. doxygentypedef:: exr_result_t
+                    
+
 Basic Enumerated Types
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -188,6 +195,9 @@ Basic Enumerated Types
 
 Global State
 ^^^^^^^^^^^^
+
+.. doxygentypedef:: exr_memory_allocation_func_t
+.. doxygentypedef:: exr_memory_free_func_t
 
 .. doxygenfunction:: exr_get_library_version
 .. doxygenfunction:: exr_set_default_maximum_image_size
@@ -236,12 +246,17 @@ Open for Write
 Close
 ^^^^^
 
+.. doxygentypedef:: exr_destroy_stream_func_ptr_t
+
 .. doxygenfunction:: exr_finish
 
 
 Context
 ^^^^^^^
 
+.. doxygentypedef:: exr_context_t
+.. doxygentypedef:: exr_const_context_t
+                    
 .. doxygenstruct:: _exr_context_initializer
    :members:
 .. doxygentypedef:: exr_context_initializer_t
@@ -266,6 +281,8 @@ Decoding
 Encoding
 ^^^^^^^^
 
+.. doxygenenum:: transcoding_pipeline_buffer_id
+                    
 .. doxygenstruct:: _exr_encode_pipeline
    :members:
 .. doxygentypedef:: exr_encode_pipeline_t
@@ -283,6 +300,8 @@ Encoding
 Attribute Values
 ^^^^^^^^^^^^^^^^
 
+
+
 .. doxygenstruct:: exr_attr_chromaticities_t
    :members:
    :undoc-members:
@@ -297,12 +316,95 @@ Attribute Values
    :members:
    :undoc-members:
       
+.. doxygenstruct:: exr_attr_v2i_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_v2f_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_v2d_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_v3i_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_v3f_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_v3d_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_m33f_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_m33d_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_m44f_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_m44d_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_box2i_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_box2f_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_string_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_string_vector_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_float_vector_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_chlist_entry_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_chlist_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_preview_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_tiledesc_t
+   :members:
+   :undoc-members:
+
+.. doxygenstruct:: exr_attr_timecode_t
+   :members:
+   :undoc-members:
+
 .. doxygenstruct:: exr_attr_opaquedata_t
    :members:
    :undoc-members:
 
 Reading
 ^^^^^^^
+
+.. doxygentypedef:: exr_read_func_ptr_t
+.. doxygentypedef:: exr_query_size_func_ptr_t
 
 .. doxygenfunction:: exr_get_count
 .. doxygenfunction:: exr_get_name
@@ -368,6 +470,8 @@ Reading
 Writing
 ^^^^^^^
 
+.. doxygentypedef:: exr_write_func_ptr_t
+
 .. doxygenfunction:: exr_add_part
 
 .. doxygenfunction:: exr_add_channel
@@ -420,6 +524,8 @@ Error Handling
 ^^^^^^^^^^^^^^
 
 .. doxygenenum:: exr_error_code_t
+
+.. doxygentypedef:: exr_error_handler_cb_t
 
 .. doxygenfunction:: exr_get_default_error_message
 .. doxygenfunction:: exr_get_error_code_as_string
