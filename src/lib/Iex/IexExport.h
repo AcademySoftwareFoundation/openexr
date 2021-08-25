@@ -33,7 +33,5 @@
 
 #endif // OPENEXR_DLL
 
-/// @}
-
 #endif // #ifndef INCLUDED_IEXEXPORT_H
 
