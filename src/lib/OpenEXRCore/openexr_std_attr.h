@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+/** @file */
+
 /** 
  * @defgroup Standard attributes
  * @brief These are a group of attributes which are not strictly required,

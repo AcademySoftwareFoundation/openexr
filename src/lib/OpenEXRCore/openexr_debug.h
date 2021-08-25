@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+/** @file */
+
 /** Debug function: print to stdout the parts and attributes of the
  * context @p c
  */

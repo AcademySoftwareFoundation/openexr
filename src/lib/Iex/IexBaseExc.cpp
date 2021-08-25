@@ -191,6 +191,8 @@ BaseExc::stackTrace () const noexcept
     return _stackTrace;
 }
 
+/// @cond Doxygen_Suppress
+
 DEFINE_EXC_EXP_IMPL (IEX_EXPORT, ArgExc, BaseExc)
 DEFINE_EXC_EXP_IMPL (IEX_EXPORT, LogicExc, BaseExc)
 DEFINE_EXC_EXP_IMPL (IEX_EXPORT, InputExc, BaseExc)
@@ -362,6 +364,8 @@ DEFINE_EXC_EXP_IMPL (IEX_EXPORT, UnderflowExc, MathExc)
 DEFINE_EXC_EXP_IMPL (IEX_EXPORT, DivzeroExc, MathExc)
 DEFINE_EXC_EXP_IMPL (IEX_EXPORT, InexactExc, MathExc)
 DEFINE_EXC_EXP_IMPL (IEX_EXPORT, InvalidFpOpExc, MathExc)
+
+/// @endcond Doxygen_Suppress
 
 IEX_INTERNAL_NAMESPACE_SOURCE_EXIT
 

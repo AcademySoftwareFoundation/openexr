@@ -14,9 +14,11 @@
 extern "C" {
 #endif
 
+/** @file */
+
 /** 
  * @defgroup ErrorCodes Error Handling
- * @brief These are a group of definitions related to error handling
+ * @brief These are a group of definitions related to error handling.
  *
  * All functions in the C layer will return a result, which will
  * correspond to one of these codes. To ensure binary stability, the
@@ -25,7 +27,7 @@ extern "C" {
  * @{
  */
 
-/** error codes that may be returned by various functions */
+/** Error codes that may be returned by various functions. */
 typedef enum
 {
     EXR_ERR_SUCCESS = 0,
@@ -63,16 +65,16 @@ typedef enum
     EXR_ERR_UNKNOWN
 } exr_error_code_t;
 
-/** Return type for all functions */
+/** Return type for all functions. */
 typedef int32_t exr_result_t;
 
-/** @brief Return a static string corresponding to the specified error code
+/** @brief Return a static string corresponding to the specified error code.
  *
  * The string should not be freed (it is compiled into the binary).
  */
 EXR_EXPORT const char* exr_get_default_error_message (exr_result_t code);
 
-/** @brief Return a static string corresponding to the specified error code
+/** @brief Return a static string corresponding to the specified error code.
  *
  * The string should not be freed (it is compiled into the binary).
  */
