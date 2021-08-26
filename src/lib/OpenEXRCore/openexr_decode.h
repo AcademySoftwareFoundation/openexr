@@ -178,13 +178,13 @@ typedef struct _exr_decode_pipeline
      * decoding on a GPU). If `NULL`, will use the allocator from the
      * context.
      */
-    void* (*alloc_fn) (enum transcoding_pipeline_buffer_id, size_t);
+    void* (*alloc_fn) (exr_transcoding_pipeline_buffer_id_t, size_t);
 
     /** Enable a custom allocator for the different buffers (if
      * decoding on a GPU). If `NULL`, will use the allocator from the
      * context.
      */
-    void (*free_fn) (enum transcoding_pipeline_buffer_id, void*);
+    void (*free_fn) (exr_transcoding_pipeline_buffer_id_t, void*);
 
     /** Function chosen to read chunk data from the context.
      *

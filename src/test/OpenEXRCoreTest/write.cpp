@@ -1006,7 +1006,7 @@ testWriteAttrs (const std::string& tempdir)
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
         exr_get_attribute_by_index (
-            outf, partidx, (enum exr_attr_list_access_mode) 42, 15, &attrget));
+            outf, partidx, (exr_attr_list_access_mode_t) 42, 15, &attrget));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_ARGUMENT_OUT_OF_RANGE,
         exr_get_attribute_by_index (
@@ -1063,7 +1063,7 @@ testWriteAttrs (const std::string& tempdir)
         exr_get_attribute_list (
             outf,
             partidx,
-            (enum exr_attr_list_access_mode) 42,
+            (exr_attr_list_access_mode_t) 42,
             &attrcnt,
             &attrget));
     attrcnt = 1;

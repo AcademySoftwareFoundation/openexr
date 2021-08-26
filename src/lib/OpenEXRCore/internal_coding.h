@@ -82,30 +82,30 @@ exr_result_t internal_validate_next_chunk (
 /**************************************/
 
 exr_result_t internal_encode_free_buffer (
-    exr_encode_pipeline_t*              encode,
-    enum transcoding_pipeline_buffer_id bufid,
-    void**                              buf,
-    size_t*                             sz);
+    exr_encode_pipeline_t*               encode,
+    exr_transcoding_pipeline_buffer_id_t bufid,
+    void**                               buf,
+    size_t*                              sz);
 
 exr_result_t internal_encode_alloc_buffer (
-    exr_encode_pipeline_t*              encode,
-    enum transcoding_pipeline_buffer_id bufid,
-    void**                              buf,
-    size_t*                             cursz,
-    size_t                              newsz);
+    exr_encode_pipeline_t*               encode,
+    exr_transcoding_pipeline_buffer_id_t bufid,
+    void**                               buf,
+    size_t*                              cursz,
+    size_t                               newsz);
 
 exr_result_t internal_decode_free_buffer (
-    exr_decode_pipeline_t*              decode,
-    enum transcoding_pipeline_buffer_id bufid,
-    void**                              buf,
-    size_t*                             sz);
+    exr_decode_pipeline_t*               decode,
+    exr_transcoding_pipeline_buffer_id_t bufid,
+    void**                               buf,
+    size_t*                              sz);
 
 exr_result_t internal_decode_alloc_buffer (
-    exr_decode_pipeline_t*              decode,
-    enum transcoding_pipeline_buffer_id bufid,
-    void**                              buf,
-    size_t*                             cursz,
-    size_t                              newsz);
+    exr_decode_pipeline_t*               decode,
+    exr_transcoding_pipeline_buffer_id_t bufid,
+    void**                               buf,
+    size_t*                              cursz,
+    size_t                               newsz);
 
 /**************************************/
 
