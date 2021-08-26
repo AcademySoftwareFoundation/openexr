@@ -16,8 +16,8 @@ extern "C" {
 
 /**
  * Enum for use in a custom allocator in the encode / decode pipelines
- * (i.e. so the implementor knows whether to allocate on which device
- * based on the buffer disposition)
+ * (that is, so the implementor knows whether to allocate on which
+ * device based on the buffer disposition)
  */
 typedef enum 
 {
@@ -30,8 +30,8 @@ typedef enum
     EXR_TRANSCODE_BUFFER_SAMPLES
 } exr_transcoding_pipeline_buffer_id_t;
 
-/** @brief Structure for negotiating buffers when decoding / encoding
- * chunks of data
+/** @brief Struct for negotiating buffers when decoding/encoding
+ * chunks of data.
  *
  * This is generic and meant to negotiate exr data bi-directionally,
  * in that the same structure is used for both decoding and encoding

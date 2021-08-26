@@ -352,7 +352,7 @@ EXR_EXPORT exr_result_t exr_start_read (
     const char*                      filename,
     const exr_context_initializer_t* ctxtdata);
 
-/** @brief enum describing how default files are handled during write */
+/** @brief Enum describing how default files are handled during write */
 typedef enum 
 {
     EXR_WRITE_FILE_DIRECTLY =
