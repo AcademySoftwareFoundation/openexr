@@ -19,7 +19,7 @@ extern "C" {
  * (that is, so the implementor knows whether to allocate on which
  * device based on the buffer disposition).
  */
-typedef enum 
+typedef enum exr_transcoding_pipeline_buffer_id
 {
     EXR_TRANSCODE_BUFFER_PACKED,
     EXR_TRANSCODE_BUFFER_UNPACKED,

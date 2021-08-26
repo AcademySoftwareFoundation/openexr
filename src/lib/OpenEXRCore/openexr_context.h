@@ -353,7 +353,7 @@ EXR_EXPORT exr_result_t exr_start_read (
     const exr_context_initializer_t* ctxtdata);
 
 /** @brief Enum describing how default files are handled during write. */
-typedef enum 
+typedef enum exr_default_write_mode
 {
     EXR_WRITE_FILE_DIRECTLY =
         0, /**< Overwrite filename provided directly, deleted upon error. */
