@@ -417,7 +417,7 @@ unpack_16bit_3chan_planar (exr_decode_pipeline_t* decode)
     {
         in0 = (const uint16_t*) srcbuffer;
         in1 = in0 + w;
-        in2 = in1 + 1;
+        in2 = in1 + w;
         srcbuffer += w * 6; // 3 * sizeof(uint16_t), avoid type conversion
                             /* specialise to memcpy if we can */
 #if EXR_HOST_IS_NOT_LITTLE_ENDIAN
@@ -471,7 +471,7 @@ unpack_half_to_float_3chan_planar (exr_decode_pipeline_t* decode)
     {
         in0 = (const uint16_t*) srcbuffer;
         in1 = in0 + w;
-        in2 = in1 + 1;
+        in2 = in1 + w;
         srcbuffer += w * 6; // 3 * sizeof(uint16_t), avoid type conversion
                             /* specialise to memcpy if we can */
         half_to_float_buffer ((float*) out0, in0, w);
