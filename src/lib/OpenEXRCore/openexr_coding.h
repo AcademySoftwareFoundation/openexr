@@ -15,9 +15,9 @@ extern "C" {
 /** @file */
 
 /**
- * Enum for use in a custom allocator in the encode / decode pipelines
+ * Enum for use in a custom allocator in the encode/decode pipelines
  * (that is, so the implementor knows whether to allocate on which
- * device based on the buffer disposition)
+ * device based on the buffer disposition).
  */
 typedef enum 
 {
