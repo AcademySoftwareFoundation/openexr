@@ -121,3 +121,8 @@ endif()
 if(NOT OPENEXR_IS_SUBPROJECT)
   include(cmake/clang-format.cmake)
 endif()
+
+option(DOCS "Set ON to build html documentation")
+if (DOCS)
+  add_subdirectory(docs)
+endif()

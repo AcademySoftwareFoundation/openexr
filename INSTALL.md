@@ -71,13 +71,35 @@ can specify a local install directory to cmake via the
 
     % cmake .. -DCMAKE_INSTALL_PREFIX=$install_directory
 
-## Porting Application from OpenEXR v2 to v3
+## Porting Applications from OpenEXR v2 to v3
 
 See the [porting
 guide](https://github.com/AcademySoftwareFoundation/Imath/blob/master/docs/PortingGuide2-3.md)
 for details about differences from previous releases and how to
 address them. Also refer to the porting guide for details about
 changes to Imath.
+
+## Documentation
+
+The OpenEXR technical documentation at
+[openexr.readthedocs.io](https://openexr.readthedocs.io) is generated
+via [Sphinx](https://www.sphinx-doc.org) with the
+[Breathe](https://breathe.readthedocs.io) extension using information
+extracted from header comments by [Doxgen](https://www.doxygen.nl).
+
+To build the documentation locally from the source headers and
+``.rst`` files, set the CMake option ``DOCS=ON``. This adds
+``Doxygen`` and ``Sphinx`` CMake targets. Local documentation
+generation is off by default.
+
+Building the documentation requires that sphinx, breathe, and doxygen
+are installed.
+
+Note that the [openexr.readthedocs.io](https://openexr.readthedocs.io)
+documentation takes the place of the formerly distributed .pdf
+documents in the ``docs`` folder, although readthedocs supports
+downloading of documentation in pdf format, for those who prefer it
+that way.
 
 ## Library Names
 
