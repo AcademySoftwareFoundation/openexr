@@ -19,7 +19,7 @@ extern "C" {
  * (that is, so the implementor knows whether to allocate on which
  * device based on the buffer disposition).
  */
-enum transcoding_pipeline_buffer_id
+typedef enum exr_transcoding_pipeline_buffer_id
 {
     EXR_TRANSCODE_BUFFER_PACKED,
     EXR_TRANSCODE_BUFFER_UNPACKED,
@@ -28,7 +28,7 @@ enum transcoding_pipeline_buffer_id
     EXR_TRANSCODE_BUFFER_SCRATCH2,
     EXR_TRANSCODE_BUFFER_PACKED_SAMPLES,
     EXR_TRANSCODE_BUFFER_SAMPLES
-};
+} exr_transcoding_pipeline_buffer_id_t;
 
 /** @brief Struct for negotiating buffers when decoding/encoding
  * chunks of data.

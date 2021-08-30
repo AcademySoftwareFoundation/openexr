@@ -279,7 +279,7 @@ exr_result_t
 exr_start_write (
     exr_context_t*                   ctxt,
     const char*                      filename,
-    enum exr_default_write_mode      default_mode,
+    exr_default_write_mode_t         default_mode,
     const exr_context_initializer_t* initdata)
 {
     int                           rv    = EXR_ERR_UNKNOWN;
