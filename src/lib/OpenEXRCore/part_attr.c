@@ -35,7 +35,7 @@ exr_result_t
 exr_get_attribute_by_index (
     exr_const_context_t            ctxt,
     int                            part_index,
-    enum exr_attr_list_access_mode mode,
+    exr_attr_list_access_mode_t    mode,
     int32_t                        idx,
     const exr_attribute_t**        outattr)
 {
@@ -94,7 +94,7 @@ exr_result_t
 exr_get_attribute_list (
     exr_const_context_t            ctxt,
     int                            part_index,
-    enum exr_attr_list_access_mode mode,
+    exr_attr_list_access_mode_t    mode,
     int32_t*                       count,
     const exr_attribute_t**        outlist)
 {

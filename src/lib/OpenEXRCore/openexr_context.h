@@ -353,13 +353,13 @@ EXR_EXPORT exr_result_t exr_start_read (
     const exr_context_initializer_t* ctxtdata);
 
 /** @brief Enum describing how default files are handled during write. */
-enum exr_default_write_mode
+typedef enum exr_default_write_mode
 {
     EXR_WRITE_FILE_DIRECTLY =
         0, /**< Overwrite filename provided directly, deleted upon error. */
     EXR_INTERMEDIATE_TEMP_FILE =
-        1 /**< Create a temporary file, renaming it upon successful write, leaving original upon error. */
-};
+        1 /**< Create a temporary file, renaming it upon successful write, leaving original upon error */
+} exr_default_write_mode_t;
 
 /** @brief Create and initialize a write-only context. 
  *
@@ -402,7 +402,7 @@ enum exr_default_write_mode
 EXR_EXPORT exr_result_t exr_start_write (
     exr_context_t*                   ctxt,
     const char*                      filename,
-    enum exr_default_write_mode      default_mode,
+    exr_default_write_mode_t         default_mode,
     const exr_context_initializer_t* ctxtdata);
 
 /** @brief Create a new context for updating an exr file in place.

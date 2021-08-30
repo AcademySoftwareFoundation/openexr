@@ -136,10 +136,10 @@ internal_coding_update_channel_info (
 
 exr_result_t
 internal_encode_free_buffer (
-    exr_encode_pipeline_t*              encode,
-    enum transcoding_pipeline_buffer_id bufid,
-    void**                              buf,
-    size_t*                             sz)
+    exr_encode_pipeline_t*                  encode,
+    exr_transcoding_pipeline_buffer_id_t    bufid,
+    void**                                  buf,
+    size_t*                                 sz)
 {
     void*  curbuf = *buf;
     size_t cursz  = *sz;
@@ -165,11 +165,11 @@ internal_encode_free_buffer (
 
 exr_result_t
 internal_encode_alloc_buffer (
-    exr_encode_pipeline_t*              encode,
-    enum transcoding_pipeline_buffer_id bufid,
-    void**                              buf,
-    size_t*                             cursz,
-    size_t                              newsz)
+    exr_encode_pipeline_t*               encode,
+    exr_transcoding_pipeline_buffer_id_t bufid,
+    void**                               buf,
+    size_t*                              cursz,
+    size_t                               newsz)
 {
     void* curbuf = *buf;
     if (newsz == 0)
@@ -218,10 +218,10 @@ internal_encode_alloc_buffer (
 
 exr_result_t
 internal_decode_free_buffer (
-    exr_decode_pipeline_t*              decode,
-    enum transcoding_pipeline_buffer_id bufid,
-    void**                              buf,
-    size_t*                             sz)
+    exr_decode_pipeline_t*               decode,
+    exr_transcoding_pipeline_buffer_id_t bufid,
+    void**                               buf,
+    size_t*                              sz)
 {
     void*  curbuf = *buf;
     size_t cursz  = *sz;
@@ -247,11 +247,11 @@ internal_decode_free_buffer (
 
 exr_result_t
 internal_decode_alloc_buffer (
-    exr_decode_pipeline_t*              decode,
-    enum transcoding_pipeline_buffer_id bufid,
-    void**                              buf,
-    size_t*                             cursz,
-    size_t                              newsz)
+    exr_decode_pipeline_t*               decode,
+    exr_transcoding_pipeline_buffer_id_t bufid,
+    void**                               buf,
+    size_t*                              cursz,
+    size_t                               newsz)
 {
     void* curbuf = *buf;
     if (!curbuf || *cursz < newsz)

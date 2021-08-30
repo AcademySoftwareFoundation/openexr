@@ -162,17 +162,17 @@ EXR_EXPORT exr_result_t exr_get_chunk_unpacked_size (
 EXR_EXPORT exr_result_t exr_get_attribute_count (
     exr_const_context_t ctxt, int part_index, int32_t* count);
 
-enum exr_attr_list_access_mode
+typedef enum exr_attr_list_access_mode
 {
-    EXR_ATTR_LIST_FILE_ORDER,  /**< Order they appear in the file. */
-    EXR_ATTR_LIST_SORTED_ORDER /**< Alphabetically sorted. */
-};
+    EXR_ATTR_LIST_FILE_ORDER,  /**< Order they appear in the file */
+    EXR_ATTR_LIST_SORTED_ORDER /**< Alphabetically sorted */
+} exr_attr_list_access_mode_t;
 
 /** @brief Query a particular attribute by index. */
 EXR_EXPORT exr_result_t exr_get_attribute_by_index (
     exr_const_context_t            ctxt,
     int                            part_index,
-    enum exr_attr_list_access_mode mode,
+    exr_attr_list_access_mode_t    mode,
     int32_t                        idx,
     const exr_attribute_t**        outattr);
 
@@ -194,7 +194,7 @@ EXR_EXPORT exr_result_t exr_get_attribute_by_name (
 EXR_EXPORT exr_result_t exr_get_attribute_list (
     exr_const_context_t            ctxt,
     int                            part_index,
-    enum exr_attr_list_access_mode mode,
+    exr_attr_list_access_mode_t    mode,
     int32_t*                       count,
     const exr_attribute_t**        outlist);
 
