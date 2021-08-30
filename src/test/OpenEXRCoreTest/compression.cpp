@@ -1333,7 +1333,7 @@ testHUF (const std::string& tempdir)
 {
     uint64_t esize = internal_exr_huf_compress_spare_bytes ();
     uint64_t dsize = internal_exr_huf_decompress_spare_bytes ();
-    EXRCORE_TEST (esize == 65537 * (8 + 8 + 8 + 4));
+    EXRCORE_TEST (esize == 65537 * (8 + 8 + sizeof(void*) + 4));
     EXRCORE_TEST (dsize == (65537 * 8 + (1 << 14) * 16));
 
     std::vector<uint8_t> hspare;
