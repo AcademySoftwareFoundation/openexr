@@ -1,10 +1,10 @@
 PROJECT_NAME     = "OpenEXR"
-XML_OUTPUT       = doxyxml
 GENERATE_LATEX   = NO
 GENERATE_MAN     = NO
 GENERATE_RTF     = NO
 CASE_SENSE_NAMES = NO
-INPUT            = ../src/lib
+INPUT            = "@DOXYGEN_INPUT_DIR@"
+OUTPUT_DIRECTORY = "@DOXYGEN_OUTPUT_DIR@"
 RECURSIVE        = YES
 QUIET            = YES
 JAVADOC_AUTOBRIEF    = YES
@@ -38,5 +38,5 @@ PREDEFINED = \
              IMF_EXPORT_ENUM="" \
              IMF_EXPORT_TEMPLATE_TYPE="" \
              IMF_EXPORT_TEMPLATE_INSTANCE="" \
-             OPENEXR_EXPORT=""
-             
+             OPENEXR_EXPORT="" \
+             EXR_EXPORT=""
