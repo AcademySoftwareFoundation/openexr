@@ -72,7 +72,6 @@ class B44Compressor: public Compressor
 				    IMATH_NAMESPACE::Box2i range,
 				    const char *&outPtr);
 
-    int			_maxScanLineSize;
     bool		_optFlatFields;
     Format		_format;
     int			_numScanLines;

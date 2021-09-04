@@ -444,7 +444,6 @@ B44Compressor::B44Compressor
      bool optFlatFields)
 :
     Compressor (hdr),
-    _maxScanLineSize (static_cast<int>(maxScanLineSize)),
     _optFlatFields (optFlatFields),
     _format (XDR),
     _numScanLines (static_cast<int>(numScanLines)),
