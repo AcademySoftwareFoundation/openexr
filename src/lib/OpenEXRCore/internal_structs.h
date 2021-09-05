@@ -97,7 +97,8 @@ struct _internal_exr_part
     int32_t* tile_level_tile_size_y;
 
     uint64_t unpacked_size_per_chunk;
-    int32_t  lines_per_chunk;
+    int16_t  lines_per_chunk;
+    int16_t  chan_has_line_sampling;
 
     int32_t          chunk_count;
     uint64_t         chunk_table_offset;
