@@ -21,7 +21,7 @@ set(OPENEXR_CXX_STANDARD "${tmp}" CACHE STRING "C++ standard to compile against"
 set(tmp)
 
 set(OPENEXR_NAMESPACE_CUSTOM "0" CACHE STRING "Whether the namespace has been customized (so external users know)")
-set(OPENEXR_INTERNAL_IMF_NAMESPACE "Imf_${OPENEXR_VERSION_API}" CACHE STRING "Real namespace for Imath that will end up in compiled symbols")
+set(OPENEXR_INTERNAL_IMF_NAMESPACE "Imf_${OPENEXR_VERSION_API}" CACHE STRING "Real namespace for OpenEXR that will end up in compiled symbols")
 set(OPENEXR_IMF_NAMESPACE "Imf" CACHE STRING "Public namespace alias for OpenEXR")
 set(OPENEXR_PACKAGE_NAME "OpenEXR ${OPENEXR_VERSION}${OPENEXR_VERSION_RELEASE_TYPE}" CACHE STRING "Public string / label for displaying package")
 
@@ -148,13 +148,11 @@ endif()
 # so we know how to add the thread stuff to the pkg-config package
 # which is the only (but good) reason.
 if(OPENEXR_ENABLE_THREADING)
-
   if(NOT TARGET Threads::Threads)
-    set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-    set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads)
     if(NOT Threads_FOUND)
-      message(FATAL_ERROR "Unable to find a threading library which is required for OpenEXR")
+      message(FATAL_ERROR "Unable to find a threading library, disable with OPENEXR_ENABLE_THREADING=OFF")
     endif()
   endif()
 endif()

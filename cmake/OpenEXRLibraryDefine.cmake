@@ -14,6 +14,9 @@ function(OPENEXR_DEFINE_LIBRARY libname)
     ${OPENEXR_CURLIB_HEADERS}
     ${OPENEXR_CURLIB_SOURCES})
 
+  # we use atomics internally for the core library, so need C11, but
+  # is only a private requirement
+  target_compile_features(${objlib} PRIVATE c_std_11)
   target_compile_features(${objlib} PUBLIC cxx_std_${OPENEXR_CXX_STANDARD})
   if(OPENEXR_CURLIB_PRIV_EXPORT AND BUILD_SHARED_LIBS)
     target_compile_definitions(${objlib} PRIVATE ${OPENEXR_CURLIB_PRIV_EXPORT})
@@ -32,6 +35,7 @@ function(OPENEXR_DEFINE_LIBRARY libname)
     target_link_libraries(${objlib} PRIVATE ${OPENEXR_CURLIB_PRIVATE_DEPS})
   endif()
   set_target_properties(${objlib} PROPERTIES
+    C_STANDARD_REQUIRED ON
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
     POSITION_INDEPENDENT_CODE ON
