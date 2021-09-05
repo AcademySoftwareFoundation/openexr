@@ -143,6 +143,42 @@ alloc_chunk_table (
 
 /**************************************/
 
+static uint64_t
+compute_chunk_unpack_size (
+    int                              y,
+    int                              width,
+    int                              height,
+    int                              lpc,
+    const struct _internal_exr_part* part)
+{
+    uint64_t unpacksize = 0;
+    if (part->chan_has_line_sampling || height != lpc)
+    {
+        const exr_attr_chlist_t* chanlist = part->channels->chlist;
+        for (int c = 0; c < chanlist->num_channels; ++c)
+        {
+            const exr_attr_chlist_entry_t* curc = (chanlist->entries + c);
+            uint64_t chansz = ((curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4);
+            chansz *= ((uint64_t) width);
+            if (curc->x_sampling > 1) chansz /= ((uint64_t) curc->x_sampling);
+            chansz *= ((uint64_t) height);
+            if (curc->y_sampling > 1)
+            {
+                if (height > 1)
+                    chansz /= ((uint64_t) curc->y_sampling);
+                else if ((y % ((int) curc->y_sampling)) != 0)
+                    chansz = 0;
+            }
+            unpacksize += chansz;
+        }
+    }
+    else
+        unpacksize = part->unpacked_size_per_chunk;
+    return unpacksize;
+}
+
+/**************************************/
+
 exr_result_t
 exr_read_scanline_chunk_info (
     exr_const_context_t ctxt, int part_index, int y, exr_chunk_info_t* cinfo)
@@ -335,28 +371,8 @@ exr_read_scanline_chunk_info (
     }
     else
     {
-        uint64_t unpacksize = 0;
-        if (cinfo->height == lpc)
-        {
-            unpacksize = part->unpacked_size_per_chunk;
-        }
-        else
-        {
-            const exr_attr_chlist_t* chanlist = part->channels->chlist;
-            for (int c = 0; c < chanlist->num_channels; ++c)
-            {
-                const exr_attr_chlist_entry_t* curc = (chanlist->entries + c);
-                if (curc->y_sampling > 1 || curc->x_sampling > 1)
-                    unpacksize +=
-                        (((uint64_t) (cinfo->height / curc->y_sampling)) *
-                         ((uint64_t) (cinfo->width / curc->x_sampling)) *
-                         ((curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4));
-                else
-                    unpacksize +=
-                        ((uint64_t) cinfo->height) * ((uint64_t) cinfo->width) *
-                        ((curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4);
-            }
-        }
+        uint64_t unpacksize = compute_chunk_unpack_size (
+            y, cinfo->width, cinfo->height, lpc, part);
 
         ++rdcnt;
         if (data[rdcnt] < 0 ||
@@ -846,8 +862,8 @@ exr_read_tile_chunk_info (
                 levelx,
                 levely,
                 cidx,
-                (int)tdata[4],
-                (int)unpacksize,
+                (int) tdata[4],
+                (int) unpacksize,
                 fsize);
         }
         cinfo->packed_size              = (uint64_t) tdata[4];
@@ -1292,7 +1308,8 @@ exr_write_scanline_chunk_info (
     cinfo->sample_count_table_size  = 0;
     cinfo->data_offset              = 0;
     cinfo->packed_size              = 0;
-    cinfo->unpacked_size            = part->unpacked_size_per_chunk;
+    cinfo->unpacked_size =
+        compute_chunk_unpack_size (y, cinfo->width, cinfo->height, lpc, part);
 
     return EXR_UNLOCK_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
 }

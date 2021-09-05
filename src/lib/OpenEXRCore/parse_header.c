@@ -2073,6 +2073,7 @@ internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart)
     const exr_attr_chlist_t* channels     = curpart->channels->chlist;
     uint64_t                 unpackedsize = 0;
     int64_t                  w;
+    int                      hasLineSample = 0;
 
     w = ((int64_t) dw.max.x) - ((int64_t) dw.min.x) + 1;
 
@@ -2118,12 +2119,20 @@ internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart)
                 cunpsz = 2;
             else
                 cunpsz = 4;
-            unpackedsize +=
-                (cunpsz *
-                 (uint64_t) (((uint64_t) tiledesc->x_size + (uint64_t) xsamp - 1) / (uint64_t) xsamp) *
-                 (uint64_t) (((uint64_t) tiledesc->y_size + (uint64_t) ysamp - 1) / (uint64_t) ysamp));
+            cunpsz *=
+                (uint64_t) (((uint64_t) tiledesc->x_size + (uint64_t) xsamp - 1) / (uint64_t) xsamp);
+            if (ysamp > 1)
+            {
+                hasLineSample = 1;
+                cunpsz *=
+                    (uint64_t) (((uint64_t) tiledesc->y_size + (uint64_t) ysamp - 1) / (uint64_t) ysamp);
+            }
+            else
+                cunpsz *= (uint64_t) tiledesc->y_size;
+            unpackedsize += cunpsz;
         }
         curpart->unpacked_size_per_chunk = unpackedsize;
+        curpart->chan_has_line_sampling  = ((int16_t) hasLineSample);
     }
     else
     {
@@ -2146,7 +2155,6 @@ internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart)
                 return -1;
         }
 
-        curpart->lines_per_chunk = linePerChunk;
         for (int c = 0; c < channels->num_channels; ++c)
         {
             int32_t  xsamp  = channels->entries[c].x_sampling;
@@ -2156,11 +2164,20 @@ internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart)
                 cunpsz = 2;
             else
                 cunpsz = 4;
-            unpackedsize +=
-                (cunpsz * (uint64_t) ((w + xsamp - 1) / xsamp) *
-                 (uint64_t) ((linePerChunk + ysamp - 1) / ysamp));
+            cunpsz *= (uint64_t) (w / xsamp);
+            cunpsz *= ((uint64_t) linePerChunk);
+            if (ysamp > 1)
+            {
+                hasLineSample = 1;
+                if (linePerChunk > 1)
+                    cunpsz *= (uint64_t) (linePerChunk / ysamp);
+            }
+            unpackedsize += cunpsz;
         }
+
         curpart->unpacked_size_per_chunk = unpackedsize;
+        curpart->lines_per_chunk         = ((int16_t) linePerChunk);
+        curpart->chan_has_line_sampling  = ((int16_t) hasLineSample);
 
         /* h = max - min + 1, but to do size / divide by round,
          * we'd do linePerChunk - 1, so the math cancels */
