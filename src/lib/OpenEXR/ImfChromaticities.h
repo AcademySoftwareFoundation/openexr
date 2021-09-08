@@ -80,14 +80,14 @@ struct IMF_EXPORT_TYPE Chromaticities
 // 	   Xr / (Xr + Yr + Zr) == c.red.x
 // 	   Yr / (Xr + Yr + Zr) == c.red.y
 // 
-// 	   Xg / (Xg + Yg + Zg) == c.red.x
-// 	   Yg / (Xg + Yg + Zg) == c.red.y
+// 	   Xg / (Xg + Yg + Zg) == c.green.x
+// 	   Yg / (Xg + Yg + Zg) == c.green.y
 // 
-// 	   Xb / (Xb + Yb + Zb) == c.red.x
-// 	   Yb / (Xb + Yb + Zb) == c.red.y
+// 	   Xb / (Xb + Yb + Zb) == c.blue.x
+// 	   Yb / (Xb + Yb + Zb) == c.blue.y
 // 
-// 	   Xw / (Xw + Yw + Zw) == c.red.x
-// 	   Yw / (Xw + Yw + Zw) == c.red.y
+// 	   Xw / (Xw + Yw + Zw) == c.white.x
+// 	   Yw / (Xw + Yw + Zw) == c.white.y
 // 
 // 	   Yw == Y.
 // 
