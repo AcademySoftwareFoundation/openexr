@@ -49,6 +49,15 @@ using namespace IMATH_NAMESPACE;
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
 
+#if (IMATH_VERSION_MAJOR < 3) || (IMATH_VERSION_MAJOR == 3 && IMATH_VERSION_MINOR < 1)
+inline float imath_half_to_float( uint16_t a )
+{
+    half tmp;
+    tmp.setBits( a );
+    return static_cast<float>( tmp );
+}
+#endif
+
 ////////////////////////////////////////
 
 inline int
