@@ -16,8 +16,8 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 class Zip
 {
     public:
-        explicit Zip(size_t rawMaxSize);
-        Zip(size_t maxScanlineSize, size_t numScanLines);
+        explicit Zip (size_t rawMaxSize, int level);
+        Zip (size_t maxScanlineSize, size_t numScanLines, int level);
         ~Zip();
 
         Zip (const Zip& other) = delete;
@@ -44,6 +44,7 @@ class Zip
     private:
         size_t _maxRawSize;
         char  *_tmpBuffer;
+        int    _zipLevel;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

@@ -45,6 +45,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <cmath>
+#include <zlib.h>
 
 #include "ImfTiledMisc.h"
 #include "ImfNamespace.h"
@@ -60,8 +61,11 @@ using IMATH_NAMESPACE::Box2i;
 using IMATH_NAMESPACE::V2i;
 using IMATH_NAMESPACE::V2f;
 
+namespace
+{
 
-namespace {
+static const int   kDefaultZipCompressionLevel = Z_DEFAULT_COMPRESSION;
+static const float kDefaultDwaCompressionLevel = 45.f;
 
 int maxImageWidth = 0;
 int maxImageHeight = 0;
@@ -119,16 +123,18 @@ sanityCheckDisplayWindow (int width, int height)
 
 } // namespace
 
-
-Header::Header (int width,
-		int height,
-		float pixelAspectRatio,
-		const V2f &screenWindowCenter,
-		float screenWindowWidth,
-		LineOrder lineOrder,
-		Compression compression)
-:
-    _map()
+Header::Header (
+    int         width,
+    int         height,
+    float       pixelAspectRatio,
+    const V2f&  screenWindowCenter,
+    float       screenWindowWidth,
+    LineOrder   lineOrder,
+    Compression compression)
+    : _map ()
+    , _zipCompressionLevel (kDefaultZipCompressionLevel)
+    , _dwaCompressionLevel (kDefaultDwaCompressionLevel)
+    , _readsNothing (false)
 {
     sanityCheckDisplayWindow (width, height);
 
@@ -146,17 +152,19 @@ Header::Header (int width,
 		compression);
 }
 
-
-Header::Header (int width,
-		int height,
-		const Box2i &dataWindow,
-		float pixelAspectRatio,
-		const V2f &screenWindowCenter,
-		float screenWindowWidth,
-		LineOrder lineOrder,
-		Compression compression)
-:
-    _map()
+Header::Header (
+    int          width,
+    int          height,
+    const Box2i& dataWindow,
+    float        pixelAspectRatio,
+    const V2f&   screenWindowCenter,
+    float        screenWindowWidth,
+    LineOrder    lineOrder,
+    Compression  compression)
+    : _map ()
+    , _zipCompressionLevel (kDefaultZipCompressionLevel)
+    , _dwaCompressionLevel (kDefaultDwaCompressionLevel)
+    , _readsNothing (false)
 {
     sanityCheckDisplayWindow (width, height);
 
@@ -174,16 +182,18 @@ Header::Header (int width,
 		compression);
 }
 
-
-Header::Header (const Box2i &displayWindow,
-		const Box2i &dataWindow,
-		float pixelAspectRatio,
-		const V2f &screenWindowCenter,
-		float screenWindowWidth,
-		LineOrder lineOrder,
-		Compression compression)
-:
-    _map()
+Header::Header (
+    const Box2i& displayWindow,
+    const Box2i& dataWindow,
+    float        pixelAspectRatio,
+    const V2f&   screenWindowCenter,
+    float        screenWindowWidth,
+    LineOrder    lineOrder,
+    Compression  compression)
+    : _map ()
+    , _zipCompressionLevel (kDefaultZipCompressionLevel)
+    , _dwaCompressionLevel (kDefaultDwaCompressionLevel)
+    , _readsNothing (false)
 {
     staticInitialize();
 
@@ -197,8 +207,11 @@ Header::Header (const Box2i &displayWindow,
 		compression);
 }
 
-
-Header::Header (const Header &other): _map()
+Header::Header (const Header& other)
+    : _map ()
+    , _zipCompressionLevel (other._zipCompressionLevel)
+    , _dwaCompressionLevel (other._dwaCompressionLevel)
+    , _readsNothing (other._readsNothing)
 {
     for (AttributeMap::const_iterator i = other._map.begin();
 	 i != other._map.end();
@@ -208,6 +221,12 @@ Header::Header (const Header &other): _map()
     }
 }
 
+Header::Header (Header&& other)
+    : _map (std::move (other._map))
+    , _zipCompressionLevel (other._zipCompressionLevel)
+    , _dwaCompressionLevel (other._dwaCompressionLevel)
+    , _readsNothing (other._readsNothing)
+{}
 
 Header::~Header ()
 {
@@ -219,32 +238,45 @@ Header::~Header ()
     }
 }
 
-
-Header &		
-Header::operator = (const Header &other)
+Header&
+Header::operator= (const Header& other)
 {
     if (this != &other)
     {
-	for (AttributeMap::iterator i = _map.begin();
-	     i != _map.end();
-	     ++i)
-	{
-	     delete i->second;
-	}
+        for (AttributeMap::iterator i = _map.begin (); i != _map.end (); ++i)
+        {
+            delete i->second;
+        }
 
-	_map.erase (_map.begin(), _map.end());
+        _map.clear ();
 
-	for (AttributeMap::const_iterator i = other._map.begin();
-	     i != other._map.end();
-	     ++i)
-	{
-	    insert (*i->first, *i->second);
-	}
+        for (AttributeMap::const_iterator i = other._map.begin ();
+             i != other._map.end ();
+             ++i)
+        {
+            insert (*i->first, *i->second);
+        }
+        _zipCompressionLevel = other._zipCompressionLevel;
+        _dwaCompressionLevel = other._dwaCompressionLevel;
+        _readsNothing        = other._readsNothing;
     }
 
     return *this;
 }
 
+Header&
+Header::operator= (Header&& other)
+{
+    if (this != &other)
+    {
+        std::swap (_map, other._map);
+        _zipCompressionLevel = other._zipCompressionLevel;
+        _dwaCompressionLevel = other._dwaCompressionLevel;
+        _readsNothing        = other._readsNothing;
+    }
+
+    return *this;
+}
 
 void
 Header::erase (const char name[])
@@ -274,6 +306,12 @@ Header::insert (const char name[], const Attribute &attribute)
 	THROW (IEX_NAMESPACE::ArgExc, "Image attribute name cannot be an empty string.");
 
     AttributeMap::iterator i = _map.find (name);
+    if (!strcmp (name, "dwaCompressionLevel"))
+    {
+        const TypedAttribute<float>& dwaattr =
+            dynamic_cast<const TypedAttribute<float>&> (attribute);
+        _dwaCompressionLevel = dwaattr.value ();
+    }
 
     if (i == _map.end())
     {
@@ -532,6 +570,36 @@ Header::compression () const
 	((*this)["compression"]).value();
 }
 
+void
+Header::resetDefaultCompressionLevels ()
+{
+    _zipCompressionLevel = kDefaultZipCompressionLevel;
+    _dwaCompressionLevel = kDefaultDwaCompressionLevel;
+}
+
+int&
+Header::zipCompressionLevel ()
+{
+    return _zipCompressionLevel;
+}
+
+int
+Header::zipCompressionLevel () const
+{
+    return _zipCompressionLevel;
+}
+
+float&
+Header::dwaCompressionLevel ()
+{
+    return _dwaCompressionLevel;
+}
+
+float
+Header::dwaCompressionLevel () const
+{
+    return _dwaCompressionLevel;
+}
 
 void
 Header::setName(const string& name)
