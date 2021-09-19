@@ -23,6 +23,8 @@
 #include "ImfStandardAttributes.h"
 #include "ImfTiledMisc.h"
 
+#include "openexr.h"
+
 #include <vector>
 #include <algorithm>
 
@@ -1155,22 +1157,418 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
     return threw;
 }
 
+////////////////////////////////////////
+
+bool readCoreScanlinePart(exr_context_t f, int part, bool reduceMemory, bool reduceTime)
+{
+    exr_result_t rv;
+    exr_attr_box2i_t datawin;
+    rv = exr_get_data_window (f, part, &datawin);
+    if (rv != EXR_ERR_SUCCESS)
+        return true;
+
+    uint64_t width  = (uint64_t)datawin.max.x - (uint64_t)datawin.min.x + 1;
+    uint64_t height = (uint64_t)datawin.max.y - (uint64_t)datawin.min.y + 1;
+
+    std::vector<uint8_t> imgdata;
+    bool doread = false;
+    exr_chunk_info_t cinfo;
+    exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
+
+    int32_t lines_per_chunk;
+    rv = exr_get_scanlines_per_chunk(f, part, &lines_per_chunk);
+    if (rv != EXR_ERR_SUCCESS)
+        return true;
+
+    for (int y = datawin.min.y; y <= datawin.max.y; y += lines_per_chunk)
+    {
+        exr_chunk_info_t cinfo = { 0 };
+        rv = exr_read_scanline_chunk_info (f, part, y, &cinfo);
+        if (rv != EXR_ERR_SUCCESS)
+        {
+            if (reduceTime)
+                break;
+            continue;
+        }
+
+        if (decoder.channels == NULL)
+        {
+            rv = exr_decoding_initialize (f, part, &cinfo, &decoder);
+            if (rv != EXR_ERR_SUCCESS)
+                break;
+
+            uint64_t bytes = 0;
+            for (int c = 0; c < decoder.channel_count; c++)
+            {
+                exr_coding_channel_info_t & outc = decoder.channels[c];
+                // fake addr for default rouines
+                outc.decode_to_ptr = (uint8_t*)0x1000;
+                outc.user_pixel_stride = outc.user_bytes_per_element;
+                outc.user_line_stride = outc.user_pixel_stride * width;
+                bytes += width * (uint64_t)outc.user_bytes_per_element * (uint64_t)lines_per_chunk;
+            }
+
+            // TODO: check we are supposed to multiple by lines per chunk above
+            doread = true;
+            if (reduceMemory && bytes >= gMaxBytesPerScanline)
+                doread = false;
+
+            if (doread)
+                imgdata.resize( bytes );
+            rv = exr_decoding_choose_default_routines (f, part, &decoder);
+            if (rv != EXR_ERR_SUCCESS)
+                break;
+        }
+        else
+        {
+            rv = exr_decoding_update (f, part, &cinfo, &decoder);
+            if (rv != EXR_ERR_SUCCESS)
+            {
+                if (reduceTime)
+                    break;
+                continue;
+            }
+        }
+
+        if (doread)
+        {
+            uint8_t *dptr = &(imgdata[0]);
+            for (int c = 0; c < decoder.channel_count; c++)
+            {
+                exr_coding_channel_info_t & outc = decoder.channels[c];
+                outc.decode_to_ptr = dptr;
+                outc.user_pixel_stride = outc.user_bytes_per_element;
+                outc.user_line_stride = outc.user_pixel_stride * width;
+                dptr += width * (uint64_t)outc.user_bytes_per_element * (uint64_t)lines_per_chunk;
+            }
+
+            rv = exr_decoding_run (f, part, &decoder);
+            if (rv != EXR_ERR_SUCCESS)
+            {
+                if (reduceTime)
+                    break;
+            }
+        }
+    }
+
+    exr_decoding_destroy (f, &decoder);
+    
+    return (rv != EXR_ERR_SUCCESS);
+}
+
+////////////////////////////////////////
+
+bool readCoreTiledPart(exr_context_t f, int part, bool reduceMemory, bool reduceTime)
+{
+    exr_result_t rv;
+
+    exr_attr_box2i_t datawin;
+    rv = exr_get_data_window (f, part, &datawin);
+    if (rv != EXR_ERR_SUCCESS)
+        return true;
+
+    uint32_t txsz, tysz;
+    exr_tile_level_mode_t levelmode;
+    exr_tile_round_mode_t roundingmode;
+
+    rv = exr_get_tile_descriptor (f, part, &txsz, &tysz, &levelmode, &roundingmode);
+    if (rv != EXR_ERR_SUCCESS)
+        return true;
+
+    int32_t levelsx, levelsy;
+    rv = exr_get_tile_levels (f, part, &levelsx, &levelsy);
+    if (rv != EXR_ERR_SUCCESS)
+        return true;
+
+    bool keepgoing = true;
+    for (int32_t ylevel = 0; keepgoing && ylevel < levelsy; ++ylevel )
+    {
+        for (int32_t xlevel = 0; keepgoing && xlevel < levelsx; ++xlevel )
+        {
+            int32_t levw, levh;
+            rv = exr_get_level_sizes (f, part, xlevel, ylevel, &levw, &levh);
+            if (rv != EXR_ERR_SUCCESS)
+            {
+                if (reduceTime)
+                {
+                    keepgoing = false;
+                    break;
+                }
+                continue;
+            }
+
+            int32_t curtw, curth;
+            rv = exr_get_tile_sizes (f, part, xlevel, ylevel, &curtw, &curth);
+            if (rv != EXR_ERR_SUCCESS)
+            {
+                if (reduceTime)
+                {
+                    keepgoing = false;
+                    break;
+                }
+                continue;
+            }
+
+            // we could make this over all levels but then would have to
+            // re-check the allocation size, let's leave it here to check when
+            // tile size is < full / top level tile size
+            std::vector<uint8_t> tiledata;
+            bool doread = false;
+            exr_chunk_info_t cinfo;
+            exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
+
+            int tx, ty;
+            ty = 0;
+            for (int32_t cury = datawin.min.y; keepgoing && cury < levh; cury += curth, ++ty)
+            {
+                tx = 0;
+                for (int32_t curx = datawin.min.x; keepgoing && curx < levw; curx += curtw, ++tx)
+                {
+                    rv = exr_read_tile_chunk_info (f, part, tx, ty, xlevel, ylevel, &cinfo);
+                    if (rv != EXR_ERR_SUCCESS)
+                    {
+                        if (reduceTime)
+                        {
+                            keepgoing = false;
+                            break;
+                        }
+                        continue;
+                    }
+                    
+                    if (decoder.channels == NULL)
+                    {
+                        rv = exr_decoding_initialize (f, part, &cinfo, &decoder);
+                        if (rv != EXR_ERR_SUCCESS)
+                        {
+                            keepgoing = false;
+                            break;
+                        }
+
+                        uint64_t bytes = 0;
+                        for (int c = 0; c < decoder.channel_count; c++)
+                        {
+                            exr_coding_channel_info_t & outc = decoder.channels[c];
+                            // fake addr for default rouines
+                            outc.decode_to_ptr = (uint8_t*)0x1000;
+                            outc.user_pixel_stride = outc.user_bytes_per_element;
+                            outc.user_line_stride = outc.user_pixel_stride * curtw;
+                            bytes += curtw * (uint64_t)outc.user_bytes_per_element * (uint64_t)curth;
+                        }
+
+                        doread = true;
+                        if (reduceMemory && bytes >= gMaxTileBytes)
+                            doread = false;
+
+                        if (doread)
+                            tiledata.resize( bytes );
+                        rv = exr_decoding_choose_default_routines (f, part, &decoder);
+                        if (rv != EXR_ERR_SUCCESS)
+                        {
+                            keepgoing = false;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        rv = exr_decoding_update (f, part, &cinfo, &decoder);
+                        if (rv != EXR_ERR_SUCCESS)
+                        {
+                            if (reduceTime)
+                            {
+                                keepgoing = false;
+                                break;
+                            }
+                            continue;
+                        }
+                    }
+
+                    if (doread)
+                    {
+                        uint8_t *dptr = &(tiledata[0]);
+                        for (int c = 0; c < decoder.channel_count; c++)
+                        {
+                            exr_coding_channel_info_t & outc = decoder.channels[c];
+                            outc.decode_to_ptr = dptr;
+                            outc.user_pixel_stride = outc.user_bytes_per_element;
+                            outc.user_line_stride = outc.user_pixel_stride * curth;
+                            dptr += curtw * (uint64_t)outc.user_bytes_per_element * (uint64_t)curth;
+                        }
+
+                        rv = exr_decoding_run (f, part, &decoder);
+                        if (rv != EXR_ERR_SUCCESS)
+                        {
+                            if (reduceTime)
+                            {
+                                keepgoing = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            exr_decoding_destroy (f, &decoder);
+        }
+    }
+
+    return (rv != EXR_ERR_SUCCESS);
+}
+
+////////////////////////////////////////
+
+bool checkCoreFile(exr_context_t f, bool reduceMemory, bool reduceTime)
+{
+    exr_result_t rv;
+    int numparts;
+
+    rv = exr_get_count (f, &numparts);
+    if (rv != EXR_ERR_SUCCESS)
+        return true;
+
+    for (int p = 0; p < numparts; ++p)
+    {
+        exr_storage_t store;
+        rv = exr_get_storage (f, p, &store);
+        if (rv != EXR_ERR_SUCCESS)
+            return true;
+    
+        // TODO: Need to fill this in
+        if (store == EXR_STORAGE_DEEP_SCANLINE || store == EXR_STORAGE_DEEP_TILED)
+            continue;
+
+        if (store == EXR_STORAGE_SCANLINE)
+        {
+            if ( readCoreScanlinePart (f, p, reduceMemory, reduceTime) )
+                return true;
+        }
+        else if (store == EXR_STORAGE_TILED)
+        {
+            if ( readCoreTiledPart (f, p, reduceMemory, reduceTime) )
+                return true;
+        }
+    }
+
+    return false;
+}
+
+////////////////////////////////////////
+
+bool
+runCoreChecks (const char *filename, bool reduceMemory, bool reduceTime)
+{
+    exr_result_t rv;
+    bool hadfail = false;
+    exr_context_t f;
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+
+    rv = exr_start_read (&f, filename, &cinit);
+    if (rv != EXR_ERR_SUCCESS)
+        return true;
+
+    hadfail = checkCoreFile (f, reduceMemory, reduceTime);
+
+    exr_finish (&f);
+
+    return hadfail;
+}
+
+////////////////////////////////////////
+
+struct memdata
+{
+    const char *data;
+    size_t bytes;
+};
+
+int64_t
+memstream_read (
+    exr_const_context_t f,
+    void* userdata,
+    void* buffer,
+    uint64_t sz,
+    uint64_t offset,
+    exr_stream_error_func_ptr_t errcb)
+{
+    int64_t rdsz = -1;
+    if (userdata)
+    {
+        memdata *md = static_cast<memdata *>( userdata );
+        uint64_t left = sz;
+        if ( (offset + sz) > md->bytes )
+            left = md->bytes - offset;
+        if ( left > 0 )
+            memcpy( buffer, md->data + offset, left );
+        rdsz = static_cast<int64_t>( left );
+    }
+
+    return rdsz;
+}
+
+int64_t memstream_size (
+    exr_const_context_t ctxt, void* userdata)
+{
+    if (userdata)
+    {
+        memdata *md = static_cast<memdata *>( userdata );
+        return static_cast<int64_t>( md->bytes );
+    }
+    return -1;
+}
+
+bool
+runCoreChecks (const char *data, size_t numBytes, bool reduceMemory, bool reduceTime)
+{
+    bool hadfail = false;
+    exr_result_t rv;
+    exr_context_t f;
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    memdata md;
+
+    md.data = data;
+    md.bytes = numBytes;
+
+    cinit.user_data = &md;
+    cinit.read_fn = &memstream_read;
+    cinit.size_fn = &memstream_size;
+
+    rv = exr_start_read (&f, "<memstream>", &cinit);
+    if (rv != EXR_ERR_SUCCESS)
+        return true;
+
+    hadfail = checkCoreFile (f, reduceMemory, reduceTime);
+
+    exr_finish (&f);
+
+    return hadfail;
+}
 
 }
 
 
 bool
-checkOpenEXRFile(const char* fileName, bool reduceMemory,bool reduceTime)
+checkOpenEXRFile (const char* fileName, bool reduceMemory, bool reduceTime, bool enableCoreCheck)
 {
-   return runChecks( fileName , reduceMemory , reduceTime );
+    bool threw = false;
+    if ( enableCoreCheck )
+        threw = runCoreChecks (fileName, reduceMemory, reduceTime);
+    if (!threw)
+        threw = runChecks (fileName, reduceMemory, reduceTime);
+    return threw;
 }
 
 
 bool
-checkOpenEXRFile(const char* data, size_t numBytes, bool reduceMemory , bool reduceTime )
+checkOpenEXRFile (const char* data, size_t numBytes, bool reduceMemory, bool reduceTime, bool enableCoreCheck)
 {
-  PtrIStream stream(data,numBytes);
-  return runChecks( stream , reduceMemory , reduceTime );
+    bool threw = false;
+    if ( enableCoreCheck )
+        threw = runCoreChecks (data, numBytes, reduceMemory, reduceTime);
+    if (!threw)
+    {
+        PtrIStream stream (data,numBytes);
+        threw = runChecks (stream, reduceMemory, reduceTime);
+    }
+    return threw;
 }
 
 

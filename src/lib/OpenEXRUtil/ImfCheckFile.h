@@ -32,7 +32,8 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 IMFUTIL_EXPORT bool
 checkOpenEXRFile(const char* fileName,
                  bool reduceMemory  = false,
-                 bool reduceTime = false
+                 bool reduceTime = false,
+                 bool enableCoreCheck = false
                 );
 
 
@@ -44,7 +45,8 @@ IMFUTIL_EXPORT bool
 checkOpenEXRFile(const char* data,
                  size_t numBytes,
                  bool reduceMemory = false,
-                 bool reduceTime = false
+                 bool reduceTime = false,
+                 bool enableCoreCheck = false
                 );
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
