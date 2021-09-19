@@ -1804,16 +1804,17 @@ DwaCompressor::DwaCompressor
     _maxScanLineSize(maxScanLineSize),
     _numScanLines(numScanLines),
     _channels(hdr.channels()),
-    _packedAcBuffer(0),
+    _packedAcBuffer(nullptr),
     _packedAcBufferSize(0),
-    _packedDcBuffer(0),
+    _packedDcBuffer(nullptr),
     _packedDcBufferSize(0),
-    _rleBuffer(0),
+    _rleBuffer(nullptr),
     _rleBufferSize(0),
-    _outBuffer(0),
+    _outBuffer(nullptr),
     _outBufferSize(0),
-    _zip(0),
-    _dwaCompressionLevel(45.0)
+    _zip(nullptr),
+    _zipLevel(hdr.zipCompressionLevel()),
+    _dwaCompressionLevel(hdr.dwaCompressionLevel())
 {
     _min[0] = hdr.dataWindow().min.x;
     _min[1] = hdr.dataWindow().min.y;
@@ -1825,13 +1826,6 @@ DwaCompressor::DwaCompressor
         _planarUncBuffer[i] = 0;
         _planarUncBufferSize[i] = 0;
     }
-    
-    //
-    // Check the header for a quality attribute
-    //
-
-    if (hasDwaCompressionLevel (hdr))
-        _dwaCompressionLevel = dwaCompressionLevel (hdr);
 }
 
 
@@ -3020,11 +3014,11 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     //
 
     if (_zip == 0) 
-        _zip = new Zip (maxLossyDctDcSize * numLossyDctChans);
+        _zip = new Zip (maxLossyDctDcSize * numLossyDctChans, _zipLevel);
     else if (_zip->maxRawSize() < static_cast<size_t>(maxLossyDctDcSize * numLossyDctChans))
     {
         delete _zip;
-        _zip = new Zip (maxLossyDctDcSize * numLossyDctChans);
+        _zip = new Zip (maxLossyDctDcSize * numLossyDctChans, _zipLevel);
     }
 
 
