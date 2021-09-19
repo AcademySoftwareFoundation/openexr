@@ -45,19 +45,38 @@
 #define IMF_HAS_SUFFIX(suffix) has##suffix
 #define IMF_NAME_ATTRIBUTE(name) name##Attribute
 
-#define IMF_STD_ATTRIBUTE_DEF(name,suffix,object)                            \
-                                                                             \
-    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER                              \
-    IMF_EXPORT void           IMF_ADD_SUFFIX(suffix) (Header &header, const object &v); \
-    IMF_EXPORT bool           IMF_HAS_SUFFIX(suffix) (const Header &header);     \
-    IMF_EXPORT const TypedAttribute<object> &                                \
-                              IMF_NAME_ATTRIBUTE(name) (const Header &header); \
-    IMF_EXPORT TypedAttribute<object> &                                      \
-                              IMF_NAME_ATTRIBUTE(name) (Header &header);     \
-    IMF_EXPORT const object &                                                \
-                              name (const Header &header);                   \
-    IMF_EXPORT object &       name (Header &header);                         \
-    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT                               \
+#define IMF_STD_ATTRIBUTE_DEF(name, suffix, object)                            \
+                                                                               \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER                                \
+    IMF_EXPORT void IMF_ADD_SUFFIX (suffix) (                                  \
+        Header & header, const object& v);                                     \
+    IMF_EXPORT bool  IMF_HAS_SUFFIX (suffix) (const Header& header);           \
+    IMF_EXPORT const TypedAttribute<object>& IMF_NAME_ATTRIBUTE (name) (       \
+        const Header& header);                                                 \
+    IMF_EXPORT TypedAttribute<object>& IMF_NAME_ATTRIBUTE (name) (             \
+        Header & header);                                                      \
+    IMF_EXPORT const object& name (const Header& header);                      \
+    IMF_EXPORT object& name (Header& header);                                  \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+#define IMF_STD_ATTRIBUTE_DEF_DEPRECATED(name, suffix, object, msg)            \
+                                                                               \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER                                \
+    OPENEXR_DEPRECATED (msg)                                                   \
+    IMF_EXPORT void IMF_ADD_SUFFIX (suffix) (                                  \
+        Header & header, const object& v);                                     \
+    OPENEXR_DEPRECATED (msg)                                                   \
+    IMF_EXPORT bool IMF_HAS_SUFFIX (suffix) (const Header& header);            \
+    OPENEXR_DEPRECATED (msg)                                                   \
+    IMF_EXPORT const TypedAttribute<object>& IMF_NAME_ATTRIBUTE (name) (       \
+        const Header& header);                                                 \
+    OPENEXR_DEPRECATED (msg)                                                   \
+    IMF_EXPORT TypedAttribute<object>& IMF_NAME_ATTRIBUTE (name) (             \
+        Header & header);                                                      \
+    OPENEXR_DEPRECATED (msg)                                                   \
+    IMF_EXPORT const object&            name (const Header& header);           \
+    OPENEXR_DEPRECATED (msg) IMF_EXPORT object& name (Header& header);         \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 //
 // chromaticities -- for RGB images, specifies the CIE (x,y)
@@ -350,8 +369,12 @@ IMF_STD_ATTRIBUTE_DEF
 // dwaCompressionLevel -- sets the quality level for images compressed
 // with the DWAA or DWAB method.
 //
-
-IMF_STD_ATTRIBUTE_DEF (dwaCompressionLevel, DwaCompressionLevel, float)
+// DEPRECATED: use the methods directly in the header
+IMF_STD_ATTRIBUTE_DEF_DEPRECATED (
+    dwaCompressionLevel,
+    DwaCompressionLevel,
+    float,
+    "use compression method in ImfHeader")
 
 //
 // ID Manifest
