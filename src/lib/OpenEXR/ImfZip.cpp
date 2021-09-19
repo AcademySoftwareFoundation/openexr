@@ -14,16 +14,18 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-Zip::Zip(size_t maxRawSize):
+Zip::Zip(size_t maxRawSize, int level):
     _maxRawSize(maxRawSize),
-    _tmpBuffer(0)
+    _tmpBuffer(0),
+    _zipLevel(level)
 {
     _tmpBuffer = new char[_maxRawSize];
 }
 
-Zip::Zip(size_t maxScanLineSize, size_t numScanLines):
+Zip::Zip(size_t maxScanLineSize, size_t numScanLines, int level):
     _maxRawSize(0),
-    _tmpBuffer(0)
+    _tmpBuffer(0),
+    _zipLevel(level)
 {
     _maxRawSize = uiMult (maxScanLineSize, numScanLines);
     _tmpBuffer  = new char[_maxRawSize];
@@ -98,8 +100,8 @@ Zip::compress(const char *raw, int rawSize, char *compressed)
 
     uLongf outSize = int(ceil(rawSize * 1.01)) + 100;
 
-    if (Z_OK != ::compress ((Bytef *)compressed, &outSize,
-                (const Bytef *) _tmpBuffer, rawSize))
+    if (Z_OK != ::compress2 ((Bytef *)compressed, &outSize,
+                             (const Bytef *) _tmpBuffer, rawSize, _zipLevel))
     {
         throw IEX_NAMESPACE::BaseExc ("Data compression (zlib) failed.");
     }
