@@ -393,3 +393,88 @@ exr_get_chunk_unpacked_size (
     *out = sz;
     return EXR_ERR_SUCCESS;
 }
+
+/**************************************/
+
+exr_result_t exr_get_zip_compression_level (
+    exr_const_context_t ctxt, int part_index, int* level)
+{
+    int l;
+    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    l = part->zip_compression_level;
+    EXR_UNLOCK_WRITE (pctxt);
+
+    if (!level) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
+    *level = l;
+    return EXR_ERR_SUCCESS;
+}
+
+/**************************************/
+
+exr_result_t exr_set_zip_compression_level (
+    exr_context_t ctxt, int part_index, int level)
+{
+    exr_result_t rv;
+    EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+
+    if (pctxt->mode != EXR_CONTEXT_WRITE)
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_WRITE));
+
+    if (level >= -1 && level < 10)
+    {
+        part->zip_compression_level = level;
+        rv = EXR_ERR_SUCCESS;
+    }
+    else
+    {
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->report_error (pctxt, EXR_ERR_INVALID_ARGUMENT, "Invalid zip level specified"));
+    }
+
+    return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+}
+
+
+/**************************************/
+
+ exr_result_t exr_get_dwa_compression_level (
+     exr_const_context_t ctxt, int part_index, float* level)
+ {
+    float l;
+    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    l = part->dwa_compression_level;
+    EXR_UNLOCK_WRITE (pctxt);
+
+    if (!level) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
+    *level = l;
+    return EXR_ERR_SUCCESS;
+ }
+
+
+/**************************************/
+
+exr_result_t exr_set_dwa_compression_level (
+    exr_context_t ctxt, int part_index, float level)
+{
+    exr_result_t rv;
+    EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+
+    if (pctxt->mode != EXR_CONTEXT_WRITE)
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_WRITE));
+
+    if (level > 0.f && level <= 100.f)
+    {
+        part->dwa_compression_level = level;
+        rv = EXR_ERR_SUCCESS;
+    }
+    else
+    {
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            pctxt->report_error (pctxt, EXR_ERR_INVALID_ARGUMENT, "Invalid dwa quality level specified"));
+    }
+
+    return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+}
+

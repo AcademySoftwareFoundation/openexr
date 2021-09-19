@@ -155,6 +155,22 @@ testReadMeta (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_get_user_data (f, &udata));
     EXRCORE_TEST (udata == NULL);
 
+    int zlev = -2;
+    EXRCORE_TEST_RVAL (
+        exr_get_zip_compression_level (f, 0, &zlev));
+    EXRCORE_TEST (zlev == -1);
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_NOT_OPEN_WRITE,
+        exr_set_zip_compression_level (f, 0, 4));
+
+    float dlev = -3.f;
+    EXRCORE_TEST_RVAL (
+        exr_get_dwa_compression_level (f, 0, &dlev));
+    EXRCORE_TEST (dlev == 45.f);
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_NOT_OPEN_WRITE,
+        exr_set_dwa_compression_level (f, 0, 42.f));
+
     exr_finish (&f);
 }
 
