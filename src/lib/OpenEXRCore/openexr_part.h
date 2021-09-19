@@ -151,6 +151,52 @@ EXR_EXPORT exr_result_t exr_get_scanlines_per_chunk (
 EXR_EXPORT exr_result_t exr_get_chunk_unpacked_size (
     exr_const_context_t ctxt, int part_index, uint64_t* out);
 
+/** @brief Retrieve the zip compression level used for the specified part.
+ *
+ * This only applies when the compression method involves using zip
+ * compression (zip, zips, some modes of DWAA/DWAB).
+ *
+ * This value is NOT persisted in the file, and only exists for the
+ * lifetime of the context, so will be at the default value when just
+ * reading a file.
+ */
+EXR_EXPORT exr_result_t exr_get_zip_compression_level (
+    exr_const_context_t ctxt, int part_index, int* level);
+
+/** @brief Set the zip compression method used for the specified part.
+ *
+ * This only applies when the compression method involves using zip
+ * compression (zip, zips, some modes of DWAA/DWAB).
+ *
+ * This value is NOT persisted in the file, and only exists for the
+ * lifetime of the context, so this value will be ignored when
+ * reading a file.
+ */
+EXR_EXPORT exr_result_t exr_set_zip_compression_level (
+    exr_context_t ctxt, int part_index, int level);
+
+/** @brief Retrieve the dwa compression level used for the specified part.
+ *
+ * This only applies when the compression method is DWAA/DWAB.
+ *
+ * This value is NOT persisted in the file, and only exists for the
+ * lifetime of the context, so will be at the default value when just
+ * reading a file.
+ */
+EXR_EXPORT exr_result_t exr_get_dwa_compression_level (
+    exr_const_context_t ctxt, int part_index, float* level);
+
+/** @brief Set the dwa compression method used for the specified part.
+ *
+ * This only applies when the compression method is DWAA/DWAB.
+ *
+ * This value is NOT persisted in the file, and only exists for the
+ * lifetime of the context, so this value will be ignored when
+ * reading a file.
+ */
+EXR_EXPORT exr_result_t exr_set_dwa_compression_level (
+    exr_context_t ctxt, int part_index, float level);
+
 /**************************************/
 
 /** @defgroup PartMetadata Functions to get and set metadata for a particular part.

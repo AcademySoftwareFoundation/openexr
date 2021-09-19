@@ -249,6 +249,9 @@ internal_exr_add_part (
     part->display_window.max.y = -1;
     part->chunk_count          = -1;
 
+    part->zip_compression_level = -1;
+    part->dwa_compression_level = 45.f;
+
     /* put it into the part table */
     if (ncount > 1)
     {

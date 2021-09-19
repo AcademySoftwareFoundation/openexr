@@ -350,10 +350,84 @@ testWriteBaseHeader (const std::string& tempdir)
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_NAME_TOO_LONG, exr_set_longname_support (outf, 0));
 
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_get_zip_compression_level (NULL, 1, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_zip_compression_level (outf, -1, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_zip_compression_level (outf, 5, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_get_zip_compression_level (outf, 0, NULL));
+    int zlev = -2;
+    EXRCORE_TEST_RVAL (
+        exr_get_zip_compression_level (outf, 0, &zlev));
+    EXRCORE_TEST (zlev == -1);
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_set_zip_compression_level (NULL, 0, 5));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_set_zip_compression_level (outf, -1, 5));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_set_zip_compression_level (outf, 5, 5));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_set_zip_compression_level (outf, 0, -2));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_set_zip_compression_level (outf, 0, 42));
+    EXRCORE_TEST_RVAL (
+        exr_set_zip_compression_level (outf, 0, 4));
+    EXRCORE_TEST_RVAL (
+        exr_get_zip_compression_level (outf, 0, &zlev));
+    EXRCORE_TEST (zlev == 4);
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_get_dwa_compression_level (NULL, 0, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_dwa_compression_level (outf, -1, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_dwa_compression_level (outf, 5, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_get_dwa_compression_level (outf, 0, NULL));
+    float dlev = -3.f;
+    EXRCORE_TEST_RVAL (
+        exr_get_dwa_compression_level (outf, 0, &dlev));
+    EXRCORE_TEST (dlev == 45.f);
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_set_dwa_compression_level (NULL, 0, 5));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_set_dwa_compression_level (outf, -1, 5));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_set_dwa_compression_level (outf, 5, 5));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_set_dwa_compression_level (outf, 0, -2.f));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_set_dwa_compression_level (outf, 0, 420.f));
+    EXRCORE_TEST_RVAL (
+        exr_set_dwa_compression_level (outf, 0, 42.f));
+    EXRCORE_TEST_RVAL (
+        exr_get_dwa_compression_level (outf, 0, &dlev));
+    EXRCORE_TEST (dlev == 42.f);
+
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
-
-    ////
 
     EXRCORE_TEST_RVAL (exr_start_write (
         &outf, outfn.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit));

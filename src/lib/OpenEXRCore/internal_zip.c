@@ -10,8 +10,8 @@
 #include "internal_structs.h"
 
 #include <limits.h>
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <string.h>
 #include <zlib.h>
 
@@ -225,8 +225,13 @@ apply_zip_impl (exr_encode_pipeline_t* encode)
     uint8_t*       t2   = t1 + (encode->packed_bytes + 1) / 2;
     const uint8_t* raw  = encode->packed_buffer;
     const uint8_t* stop = raw + encode->packed_bytes;
-    int            p;
+    int            p, level;
     uLongf         compbufsz = encode->compressed_alloc_size;
+    exr_result_t   rv        = EXR_ERR_SUCCESS;
+
+    rv = exr_get_zip_compression_level (
+        encode->context, encode->part_index, &level);
+    if (rv != EXR_ERR_SUCCESS) return rv;
 
     /* reorder */
     while (raw < stop)
@@ -248,11 +253,12 @@ apply_zip_impl (exr_encode_pipeline_t* encode)
         ++t1;
     }
 
-    if (Z_OK != compress (
+    if (Z_OK != compress2 (
                     (Bytef*) encode->compressed_buffer,
                     &compbufsz,
                     (const Bytef*) encode->scratch_buffer_1,
-                    encode->packed_bytes))
+                    encode->packed_bytes,
+                    level))
     {
         return EXR_ERR_CORRUPT_CHUNK;
     }
