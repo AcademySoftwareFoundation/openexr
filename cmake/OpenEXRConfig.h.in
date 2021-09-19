@@ -147,4 +147,16 @@
 
 #endif
 
+#if defined(__cplusplus) && (__cplusplus >= 201402L)
+# define OPENEXR_DEPRECATED(msg) [[deprecated(msg)]]
+#endif
+
+#ifndef OPENEXR_DEPRECATED
+# ifdef _MSC_VER
+#  define OPENEXR_DEPRECATED(msg) __declspec(deprecated(msg))
+# else
+#  define OPENEXR_DEPRECATED(msg) __attribute__((deprecated(msg)))
+# endif
+#endif
+
 #endif // INCLUDED_OPENEXR_CONFIG_H
