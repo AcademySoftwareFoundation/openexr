@@ -91,8 +91,9 @@ class IMF_EXPORT_TYPE Header
     //-----------------
 
     IMF_EXPORT
-    Header (const Header &other);
-
+    Header (const Header& other);
+    IMF_EXPORT
+    Header (Header&& other);
 
     //-----------
     // Destructor
@@ -107,8 +108,9 @@ class IMF_EXPORT_TYPE Header
     //-----------
 
     IMF_EXPORT
-    Header &			operator = (const Header &other);
-
+    Header& operator= (const Header& other);
+    IMF_EXPORT
+    Header& operator= (Header&& other);
 
     //---------------------------------------------------------------
     // Add an attribute:
@@ -271,6 +273,25 @@ class IMF_EXPORT_TYPE Header
     IMF_EXPORT
     const Compression &		compression () const;
 
+    //-----------------------------------------------------
+    // The header object allows one to store a compression level to be
+    // used when writing a file.
+    //
+    // NB: These are NOT attributes, and will not be written to the
+    // file, but are instead ephemeral settings to be used for this
+    // instance of the header object.
+    //
+    // -----------------------------------------------------
+    IMF_EXPORT
+    void resetDefaultCompressionLevels ();
+    IMF_EXPORT
+    int& zipCompressionLevel ();
+    IMF_EXPORT
+    int zipCompressionLevel () const;
+    IMF_EXPORT
+    float& dwaCompressionLevel ();
+    IMF_EXPORT
+    float dwaCompressionLevel () const;
 
     //-----------------------------------------------------
     // Access to required attributes for multipart files
@@ -466,11 +487,13 @@ class IMF_EXPORT_TYPE Header
         			          int &version);
     
 
-  private:
+private:
+    AttributeMap _map;
 
-    AttributeMap		_map;
+    int   _zipCompressionLevel;
+    float _dwaCompressionLevel;
 
-    bool                        _readsNothing;
+    bool _readsNothing;
 };
 
 

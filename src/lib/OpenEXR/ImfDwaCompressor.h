@@ -144,8 +144,9 @@ class DwaCompressor: public Compressor
     char*             _planarUncBuffer[NUM_COMPRESSOR_SCHEMES];
     uint64_t          _planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
 
-    Zip              *_zip;
-    float             _dwaCompressionLevel;
+    Zip*  _zip;
+    int   _zipLevel;
+    float _dwaCompressionLevel;
 
     int compress (const char              *inPtr,
                   int                     inSize,
