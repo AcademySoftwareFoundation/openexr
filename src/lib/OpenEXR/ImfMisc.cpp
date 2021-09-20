@@ -131,7 +131,7 @@ bytesPerDeepLineTable (const Header &header,
     {
         const int ySampling = abs(c.channel().ySampling);
         const int xSampling = abs(c.channel().xSampling);
-        uint64_t pixelSize = pixelTypeSize (c.channel().type);
+        const uint64_t pixelSize = pixelTypeSize (c.channel().type);
 
         // Here we transform from the domain over all pixels into the domain
         // of actual samples.  We want to sample points in [minY, maxY] where
