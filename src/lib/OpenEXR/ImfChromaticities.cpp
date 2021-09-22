@@ -66,6 +66,11 @@ RGBtoXYZ (const Chromaticities &chroma, float Y)
     // X and Z values of RGB value (1, 1, 1), or "white"
     //
 
+    if (chroma.white.y==0.0f)
+    {
+        throw std::invalid_argument("Bad chromaticities: white.y cannot be zero");
+    }
+
     float X = chroma.white.x * Y / chroma.white.y;
     float Z = (1 - chroma.white.x - chroma.white.y) * Y / chroma.white.y;
 
@@ -76,6 +81,16 @@ RGBtoXYZ (const Chromaticities &chroma, float Y)
     float d = chroma.red.x   * (chroma.blue.y  - chroma.green.y) +
 	      chroma.blue.x  * (chroma.green.y - chroma.red.y) +
 	      chroma.green.x * (chroma.red.y   - chroma.blue.y);
+
+
+    if (d==0.0f)
+    {
+        // cannot generate matrix if all RGB primaries have the same y value
+        // or if they all have the an x value of zero
+        // in both cases, the primaries are colinear, which makes them unusable
+        throw std::invalid_argument("Bad chromaticities: RGBtoXYZ matrix is degenerate");
+    }
+
 
     float Sr = (X * (chroma.blue.y - chroma.green.y) -
 	        chroma.green.x * (Y * (chroma.blue.y - 1) +
