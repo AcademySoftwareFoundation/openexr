@@ -20,10 +20,8 @@
 #define bswap_32(x) swap32(x)
 #elif defined(__NetBSD__)
 #include <sys/types.h>
-#include <machine/bswap.h>
-#if defined(__BSWAP_RENAME) && !defined(__bswap_32)
+#include <sys/bswap.h>
 #define bswap_32(x) bswap32(x)
-#endif
 #else
 #include <byteswap.h>
 #endif
