@@ -14,7 +14,7 @@
 using OPENEXR_IMF_NAMESPACE::checkOpenEXRFile;
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-  checkOpenEXRFile( (const char*) data , size , true , true );
-  return 0;
+    checkOpenEXRFile ((const char*) data , size , true , true, true);
+    return 0;
 }
 

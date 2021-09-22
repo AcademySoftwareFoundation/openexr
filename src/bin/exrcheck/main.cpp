@@ -30,13 +30,14 @@ usageMessage (const char argv0[])
     cerr << "  -m : avoid excessive memory allocation (some files will not be fully checked)\n";
     cerr << "  -t : avoid spending excessive time (some files will not be fully checked)\n";
     cerr << "  -s : use stream API instead of file API\n";
+    cerr << "  -c : add core library checks\n";
     cerr << "  -v : print OpenEXR and Imath software libary version info\n";
 
 }
 
 
 bool
-exrCheck(const char* filename, bool reduceMemory, bool reduceTime, bool useStream)
+exrCheck(const char* filename, bool reduceMemory, bool reduceTime, bool useStream, bool enableCoreCheck)
 {
   if (useStream)
   {
@@ -58,11 +59,11 @@ exrCheck(const char* filename, bool reduceMemory, bool reduceTime, bool useStrea
           cerr << "internal error: failed to read file " << filename << endl;
 
       }
-      return checkOpenEXRFile( data.data() , length , reduceMemory , reduceTime);
+      return checkOpenEXRFile ( data.data(), length, reduceMemory, reduceTime, enableCoreCheck);
   }
   else
   {
-      return checkOpenEXRFile( filename , reduceMemory , reduceTime);
+      return checkOpenEXRFile ( filename, reduceMemory, reduceTime, enableCoreCheck);
   }
 
 }
@@ -78,6 +79,7 @@ main(int argc, char **argv)
 
     bool reduceMemory = false;
     bool reduceTime = false;
+    bool enableCoreCheck = false;
     bool badFileFound = false;
     bool useStream = false;
     for (int i = 1; i < argc; ++i)
@@ -98,6 +100,10 @@ main(int argc, char **argv)
         else if (!strcmp (argv[i],"-s"))
         {
             useStream = true;
+        }
+        else if (!strcmp (argv[i],"-c"))
+        {
+            enableCoreCheck = true;
         }
         else if (!strcmp (argv[i],"-v"))
         {
@@ -126,7 +132,7 @@ main(int argc, char **argv)
             cout << " file " << argv[i] << ' ';
             cout.flush();
 
-            bool hasError = exrCheck(argv[i],reduceMemory,reduceTime,useStream);
+            bool hasError = exrCheck (argv[i], reduceMemory, reduceTime, useStream, enableCoreCheck);
             if (hasError)
             {
                 cout << "bad\n";
