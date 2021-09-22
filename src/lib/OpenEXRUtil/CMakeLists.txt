@@ -40,4 +40,5 @@ openexr_define_library(OpenEXRUtil
     ImfUtilExport.h
   DEPENDENCIES
     OpenEXR::OpenEXR
+    OpenEXR::OpenEXRCore
 )
