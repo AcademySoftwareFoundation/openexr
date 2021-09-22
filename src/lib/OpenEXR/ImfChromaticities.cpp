@@ -14,6 +14,8 @@
 #include "ImfNamespace.h"
 #include <string.h>
 
+#include <stdexcept>
+
 #if defined(_MSC_VER)
 // suppress warning about non-exported base classes
 #pragma warning (disable : 4251)
