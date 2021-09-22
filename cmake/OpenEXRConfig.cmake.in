@@ -1,9 +1,14 @@
 @PACKAGE_INIT@
 
 include(CMakeFindDependencyMacro)
-if (@OPENEXR_ENABLE_THREADING@)
+
+set(openexr_needthreads @OPENEXR_ENABLE_THREADING@)
+if (openexr_needthreads)
+  set(THREADS_PREFER_PTHREAD_FLAG ON)
   find_dependency(Threads REQUIRED)
 endif()
+unset(openexr_needthreads)
+
 find_dependency(ZLIB REQUIRED)
 find_dependency(Imath REQUIRED)
 
