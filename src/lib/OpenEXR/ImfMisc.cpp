@@ -131,7 +131,7 @@ bytesPerDeepLineTable (const Header &header,
     {
         const int ySampling = abs(c.channel().ySampling);
         const int xSampling = abs(c.channel().xSampling);
-        const int pixelSize = pixelTypeSize (c.channel().type);
+        const uint64_t pixelSize = pixelTypeSize (c.channel().type);
 
         // Here we transform from the domain over all pixels into the domain
         // of actual samples.  We want to sample points in [minY, maxY] where
@@ -148,12 +148,22 @@ bytesPerDeepLineTable (const Header &header,
 
         for (int y = sampleMinY; y <= sampleMaxY; y+=ySampling)
         {
-            int nBytes = 0;
+            uint64_t nBytes = 0;
             for (int x = sampleMinX; x <= sampleMaxX; x += xSampling)
             {
                 nBytes += pixelSize *
-                          sampleCount(base, xStride, yStride, x, y);
+                          static_cast<uint64_t>(sampleCount(base, xStride, yStride, x, y));
             }
+
+            //
+            // architectures where size_t is smaller than 64 bits may overflow
+            // (scanlines with more than 2^32 bytes are not currently supported so this should not occur with valid files)
+            //
+            if( static_cast<uint64_t>(bytesPerLine[y - dataWindow.min.y]) + nBytes > SIZE_MAX)
+            {
+                throw IEX_NAMESPACE::IoExc("Scanline size too large");
+            }
+
             bytesPerLine[y - dataWindow.min.y] += nBytes;
         }
     }
@@ -161,8 +171,12 @@ bytesPerDeepLineTable (const Header &header,
     size_t maxBytesPerLine = 0;
 
     for (int y = minY; y <= maxY; ++y)
+    {
         if (maxBytesPerLine < bytesPerLine[y - dataWindow.min.y])
+        {
             maxBytesPerLine = bytesPerLine[y - dataWindow.min.y];
+        }
+    }
 
     return maxBytesPerLine;
 }
