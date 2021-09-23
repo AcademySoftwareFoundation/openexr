@@ -490,9 +490,6 @@ class IMF_EXPORT_TYPE Header
 private:
     AttributeMap _map;
 
-    int   _zipCompressionLevel;
-    float _dwaCompressionLevel;
-
     bool _readsNothing;
 };
 

@@ -46,6 +46,7 @@
 #include <time.h>
 #include <cmath>
 #include <zlib.h>
+#include <mutex>
 
 #include "ImfTiledMisc.h"
 #include "ImfNamespace.h"
@@ -66,6 +67,47 @@ namespace
 
 static const int   kDefaultZipCompressionLevel = Z_DEFAULT_COMPRESSION;
 static const float kDefaultDwaCompressionLevel = 45.f;
+static std::mutex s_globCompressionMutex;
+struct CompressionRecord
+{
+    int zip_level = kDefaultZipCompressionLevel;
+    float dwa_level = kDefaultDwaCompressionLevel;
+};
+static std::map<const void *, CompressionRecord> s_globCompressionStore;
+
+static void clearCompressionRecord (Header *hdr)
+{
+    std::lock_guard<std::mutex> lk(s_globCompressionMutex);
+    auto i = s_globCompressionStore.find (hdr);
+    if ( i != s_globCompressionStore.end () )
+        s_globCompressionStore.erase (i);
+}
+
+static CompressionRecord retrieveCompressionRecord (const Header *hdr)
+{
+    CompressionRecord retval;
+
+    std::lock_guard<std::mutex> lk (s_globCompressionMutex);
+    auto i = s_globCompressionStore.find (hdr);
+    if ( i != s_globCompressionStore.end () )
+        retval = i->second;
+    return retval;
+}
+
+static CompressionRecord &retrieveCompressionRecord (Header *hdr)
+{
+    std::lock_guard<std::mutex> lk (s_globCompressionMutex);
+    return s_globCompressionStore[hdr];
+}
+
+static void copyCompressionLevel( Header *dst, const Header *src )
+{
+    std::lock_guard<std::mutex> lk (s_globCompressionMutex);
+    auto i = s_globCompressionStore.find (src);
+    if ( i != s_globCompressionStore.end () )
+        s_globCompressionStore[dst] = i->second;
+}
+
 
 int maxImageWidth = 0;
 int maxImageHeight = 0;
@@ -132,8 +174,6 @@ Header::Header (
     LineOrder   lineOrder,
     Compression compression)
     : _map ()
-    , _zipCompressionLevel (kDefaultZipCompressionLevel)
-    , _dwaCompressionLevel (kDefaultDwaCompressionLevel)
     , _readsNothing (false)
 {
     sanityCheckDisplayWindow (width, height);
@@ -162,8 +202,6 @@ Header::Header (
     LineOrder    lineOrder,
     Compression  compression)
     : _map ()
-    , _zipCompressionLevel (kDefaultZipCompressionLevel)
-    , _dwaCompressionLevel (kDefaultDwaCompressionLevel)
     , _readsNothing (false)
 {
     sanityCheckDisplayWindow (width, height);
@@ -191,8 +229,6 @@ Header::Header (
     LineOrder    lineOrder,
     Compression  compression)
     : _map ()
-    , _zipCompressionLevel (kDefaultZipCompressionLevel)
-    , _dwaCompressionLevel (kDefaultDwaCompressionLevel)
     , _readsNothing (false)
 {
     staticInitialize();
@@ -209,8 +245,6 @@ Header::Header (
 
 Header::Header (const Header& other)
     : _map ()
-    , _zipCompressionLevel (other._zipCompressionLevel)
-    , _dwaCompressionLevel (other._dwaCompressionLevel)
     , _readsNothing (other._readsNothing)
 {
     for (AttributeMap::const_iterator i = other._map.begin();
@@ -223,8 +257,6 @@ Header::Header (const Header& other)
 
 Header::Header (Header&& other)
     : _map (std::move (other._map))
-    , _zipCompressionLevel (other._zipCompressionLevel)
-    , _dwaCompressionLevel (other._dwaCompressionLevel)
     , _readsNothing (other._readsNothing)
 {}
 
@@ -236,6 +268,7 @@ Header::~Header ()
     {
 	 delete i->second;
     }
+    clearCompressionRecord( this );
 }
 
 Header&
@@ -256,8 +289,7 @@ Header::operator= (const Header& other)
         {
             insert (*i->first, *i->second);
         }
-        _zipCompressionLevel = other._zipCompressionLevel;
-        _dwaCompressionLevel = other._dwaCompressionLevel;
+        copyCompressionLevel( this, &other );
         _readsNothing        = other._readsNothing;
     }
 
@@ -270,8 +302,8 @@ Header::operator= (Header&& other)
     if (this != &other)
     {
         std::swap (_map, other._map);
-        _zipCompressionLevel = other._zipCompressionLevel;
-        _dwaCompressionLevel = other._dwaCompressionLevel;
+        // don't have to move or anything as it's pod types
+        copyCompressionLevel( this, &other );
         _readsNothing        = other._readsNothing;
     }
 
@@ -310,7 +342,7 @@ Header::insert (const char name[], const Attribute &attribute)
     {
         const TypedAttribute<float>& dwaattr =
             dynamic_cast<const TypedAttribute<float>&> (attribute);
-        _dwaCompressionLevel = dwaattr.value ();
+        dwaCompressionLevel() = dwaattr.value ();
     }
 
     if (i == _map.end())
@@ -573,32 +605,31 @@ Header::compression () const
 void
 Header::resetDefaultCompressionLevels ()
 {
-    _zipCompressionLevel = kDefaultZipCompressionLevel;
-    _dwaCompressionLevel = kDefaultDwaCompressionLevel;
+    clearCompressionRecord( this );
 }
 
 int&
 Header::zipCompressionLevel ()
 {
-    return _zipCompressionLevel;
+    return retrieveCompressionRecord( this ).zip_level;
 }
 
 int
 Header::zipCompressionLevel () const
 {
-    return _zipCompressionLevel;
+    return retrieveCompressionRecord( this ).zip_level;
 }
 
 float&
 Header::dwaCompressionLevel ()
 {
-    return _dwaCompressionLevel;
+    return retrieveCompressionRecord( this ).dwa_level;
 }
 
 float
 Header::dwaCompressionLevel () const
 {
-    return _dwaCompressionLevel;
+    return retrieveCompressionRecord( this ).dwa_level;
 }
 
 void
