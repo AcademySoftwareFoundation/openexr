@@ -49,6 +49,13 @@ enum IMF_EXPORT_ENUM Compression
     NUM_COMPRESSION_METHODS	// number of different compression methods
 };
 
+/// Controls the default zip compression level used. Zip is used for
+/// the 2 zip levels as well as some modes of the DWAA/B compression.
+IMF_EXPORT void setDefaultZipCompressionLevel (int level);
+
+/// Controls the default quality level for the DWA lossy compression
+IMF_EXPORT void setDefaultDwaCompressionLevel (float level);
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 
