@@ -65,13 +65,17 @@ using IMATH_NAMESPACE::V2f;
 namespace
 {
 
-static const int   kDefaultZipCompressionLevel = Z_DEFAULT_COMPRESSION;
-static const float kDefaultDwaCompressionLevel = 45.f;
+static int   s_DefaultZipCompressionLevel = Z_DEFAULT_COMPRESSION;
+static float s_DefaultDwaCompressionLevel = 45.f;
 static std::mutex s_globCompressionMutex;
 struct CompressionRecord
 {
-    int zip_level = kDefaultZipCompressionLevel;
-    float dwa_level = kDefaultDwaCompressionLevel;
+    CompressionRecord()
+        : zip_level (s_DefaultZipCompressionLevel),
+          dwa_level (s_DefaultDwaCompressionLevel)
+    {}
+    int zip_level;
+    float dwa_level;
 };
 static std::map<const void *, CompressionRecord> s_globCompressionStore;
 
@@ -164,6 +168,16 @@ sanityCheckDisplayWindow (int width, int height)
 }
 
 } // namespace
+
+void setDefaultZipCompressionLevel (int level)
+{
+    s_DefaultZipCompressionLevel = level;
+}
+
+void setDefaultDwaCompressionLevel (float level)
+{
+    s_DefaultDwaCompressionLevel = level;
+}
 
 Header::Header (
     int         width,
