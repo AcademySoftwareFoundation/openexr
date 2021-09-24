@@ -14,6 +14,9 @@
 #include "ImfNamespace.h"
 #include <string.h>
 
+#include <stdexcept>
+#include <float.h>
+
 #if defined(_MSC_VER)
 // suppress warning about non-exported base classes
 #pragma warning (disable : 4251)
@@ -66,34 +69,59 @@ RGBtoXYZ (const Chromaticities &chroma, float Y)
     // X and Z values of RGB value (1, 1, 1), or "white"
     //
 
+    // prevent a division that rounds to zero
+    if (abs(chroma.white.y) <= 1.f && abs(chroma.white.x * Y) >= abs(chroma.white.y) * FLT_MAX)
+    {
+        throw std::invalid_argument("Bad chromaticities: white.y cannot be zero");
+    }
+
     float X = chroma.white.x * Y / chroma.white.y;
     float Z = (1 - chroma.white.x - chroma.white.y) * Y / chroma.white.y;
 
     //
-    // Scale factors for matrix rows
+    // Scale factors for matrix rows, compute numerators and common denominator
     //
 
     float d = chroma.red.x   * (chroma.blue.y  - chroma.green.y) +
 	      chroma.blue.x  * (chroma.green.y - chroma.red.y) +
 	      chroma.green.x * (chroma.red.y   - chroma.blue.y);
 
-    float Sr = (X * (chroma.blue.y - chroma.green.y) -
+
+
+    float SrN = (X * (chroma.blue.y - chroma.green.y) -
 	        chroma.green.x * (Y * (chroma.blue.y - 1) +
 		chroma.blue.y  * (X + Z)) +
 		chroma.blue.x  * (Y * (chroma.green.y - 1) +
-		chroma.green.y * (X + Z))) / d;
+		chroma.green.y * (X + Z)));
 
-    float Sg = (X * (chroma.red.y - chroma.blue.y) +
+
+    float SgN = (X * (chroma.red.y - chroma.blue.y) +
 		chroma.red.x   * (Y * (chroma.blue.y - 1) +
 		chroma.blue.y  * (X + Z)) -
 		chroma.blue.x  * (Y * (chroma.red.y - 1) +
-		chroma.red.y   * (X + Z))) / d;
+		chroma.red.y   * (X + Z)));
 
-    float Sb = (X * (chroma.green.y - chroma.red.y) -
+    float SbN = (X * (chroma.green.y - chroma.red.y) -
 		chroma.red.x   * (Y * (chroma.green.y - 1) +
 		chroma.green.y * (X + Z)) +
 		chroma.green.x * (Y * (chroma.red.y - 1) +
-		chroma.red.y   * (X + Z))) / d;
+		chroma.red.y   * (X + Z)));
+
+
+    if ( abs(d)<1.f && (abs(SrN) >= abs(d)* FLT_MAX || abs(SgN) >= abs(d)* FLT_MAX || abs(SbN) >= abs(d)* FLT_MAX) )
+    {
+        // cannot generate matrix if all RGB primaries have the same y value
+        // or if they all have the an x value of zero
+        // in both cases, the primaries are colinear, which makes them unusable
+        throw std::invalid_argument("Bad chromaticities: RGBtoXYZ matrix is degenerate");
+    }
+
+
+
+    float Sr = SrN / d;
+    float Sg = SgN / d;
+    float Sb = SbN / d;
+
 
     //
     // Assemble the matrix
