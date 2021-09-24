@@ -72,7 +72,10 @@ scratch_seq_read (struct _internal_exr_seq_scratch* scr, void* buf, uint64_t sz)
                 outbuf += nread;
                 nCopied += (uint64_t) nread;
             }
-            if (nread <= 0) break;
+            else
+            {
+                break;
+            }
         }
         else
         {
@@ -91,6 +94,11 @@ scratch_seq_read (struct _internal_exr_seq_scratch* scr, void* buf, uint64_t sz)
             }
             else
             {
+                if (nread == 0)
+                    rv = scr->ctxt->report_error (
+                        scr->ctxt,
+                        EXR_ERR_READ_IO,
+                        "End of file attempting to read header");
                 break;
             }
         }
