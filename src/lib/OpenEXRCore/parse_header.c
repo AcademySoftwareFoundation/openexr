@@ -762,7 +762,11 @@ check_populate_channels (
 
     rv = extract_attr_chlist (
         ctxt, scratch, &(tmpchans), EXR_REQ_CHANNELS_STR, tname, attrsz);
-    if (rv != EXR_ERR_SUCCESS) return rv;
+    if (rv != EXR_ERR_SUCCESS)
+    {
+        exr_attr_chlist_destroy ((exr_context_t) ctxt, &(tmpchans));
+        return rv;
+    }
 
     rv = exr_attr_list_add_static_name (
         (exr_context_t) ctxt,
@@ -778,7 +782,7 @@ check_populate_channels (
         return ctxt->print_error (
             ctxt,
             rv,
-            "Unable initialize attribute '%s', type 'int'",
+            "Unable initialize attribute '%s', type 'chlist'",
             EXR_REQ_CHANNELS_STR);
     }
 
