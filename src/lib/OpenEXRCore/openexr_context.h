@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 /** @file */
-    
+
 /** 
  * @defgroup Context Context related definitions
  *
@@ -185,7 +185,7 @@ typedef int64_t (*exr_write_func_ptr_t) (
  * \endcode
  *
  */
-typedef struct _exr_context_initializer
+typedef struct _exr_context_initializer_v2
 {
     /** @brief Size member to tag initializer for version stability.
      *
@@ -301,12 +301,25 @@ typedef struct _exr_context_initializer
      * understand how this interacts with global defaults.
      */
     int max_tile_height;
+
+    /** Initialize a field specifying what the default zip compression level should be
+     * for this context. See exr_set_default_zip_compresion_level() to
+     * set it for all contexts.
+     */
+    int zip_level;
+
+    /** Initialize the default dwa compression quality. See
+     * exr_set_default_dwa_compression_quality() to set the default
+     * for all contexts.
+     */
+    float dwa_quality;
 } exr_context_initializer_t;
 
 /** @brief Simple macro to initialize the context initializer with default values. */
 #define EXR_DEFAULT_CONTEXT_INITIALIZER                                        \
     {                                                                          \
-        sizeof (exr_context_initializer_t), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 \
+        sizeof (exr_context_initializer_t), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   \
+            0, -2, -1.f                                                        \
     }
 
 /** @} */ /* context function pointer declarations */
@@ -316,8 +329,7 @@ typedef struct _exr_context_initializer
  * has the correct magic number and can be read).
  */
 EXR_EXPORT exr_result_t exr_test_file_header (
-    const char*                      filename,
-    const exr_context_initializer_t* ctxtdata);
+    const char* filename, const exr_context_initializer_t* ctxtdata);
 
 /** @brief Close and free any internally allocated memory,
  * calling any provided destroy function for custom streams.

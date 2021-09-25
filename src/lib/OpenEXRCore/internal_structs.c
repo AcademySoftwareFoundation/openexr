@@ -7,6 +7,7 @@
 #include "internal_attr.h"
 #include "internal_constants.h"
 #include "internal_memory.h"
+#include "backward_compatibility.h"
 
 #include <IlmThreadConfig.h>
 
@@ -249,8 +250,8 @@ internal_exr_add_part (
     part->display_window.max.y = -1;
     part->chunk_count          = -1;
 
-    part->zip_compression_level = -1;
-    part->dwa_compression_level = 45.f;
+    part->zip_compression_level = f->default_zip_level;
+    part->dwa_compression_level = f->default_dwa_quality;
 
     /* put it into the part table */
     if (ncount > 1)
@@ -390,6 +391,16 @@ internal_exr_alloc_context (
         if (ret->max_tile_h > 0 && gmaxh > 0 && ret->max_tile_h &&
             ret->max_tile_h > gmaxh)
             ret->max_tile_h = gmaxh;
+
+        exr_get_default_zip_compression_level (&ret->default_zip_level);
+        exr_get_default_dwa_compression_quality (&ret->default_dwa_quality);
+        if (initializers->size >= sizeof(struct _exr_context_initializer_v2))
+        {
+            if (initializers->zip_level >= 0)
+                ret->default_zip_level = initializers->zip_level;
+            if (initializers->dwa_quality >= 0.f)
+                ret->default_dwa_quality = initializers->dwa_quality;
+        }
 
         ret->file_size       = -1;
         ret->max_name_length = EXR_SHORTNAME_MAXLEN;
