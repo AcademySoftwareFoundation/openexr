@@ -1432,14 +1432,14 @@ check_populate_type (
         curpart->storage_mode = EXR_STORAGE_DEEP_TILED;
     else
     {
-        exr_attr_list_remove (
-            (exr_context_t) ctxt, &(curpart->attributes), curpart->type);
-        curpart->type = NULL;
-        return ctxt->print_error (
+        rv = ctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ATTR,
             "attribute 'type': Invalid type string '%s'",
             outstr);
+        exr_attr_list_remove (
+            (exr_context_t) ctxt, &(curpart->attributes), curpart->type);
+        curpart->type = NULL;
     }
 
     return rv;
