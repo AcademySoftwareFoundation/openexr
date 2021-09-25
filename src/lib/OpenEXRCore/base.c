@@ -119,8 +119,7 @@ const char*
 exr_get_error_code_as_string (exr_result_t code)
 {
     int idx = (int) code;
-    if (idx < 0 || idx >= the_error_code_count)
-        idx = the_error_code_count - 1;
+    if (idx < 0 || idx >= the_error_code_count) idx = the_error_code_count - 1;
     return the_error_code_names[idx];
 }
 
@@ -170,4 +169,44 @@ exr_get_default_maximum_tile_size (int* w, int* h)
 {
     if (w) *w = sTileMaxW;
     if (h) *h = sTileMaxH;
+}
+
+/**************************************/
+
+static int sDefaultZipLevel = -1;
+
+void
+exr_set_default_zip_compression_level (int l)
+{
+    if (l < 0) l = -1;
+    if (l > 9) l = 9;
+    sDefaultZipLevel = l;
+}
+
+/**************************************/
+
+void
+exr_get_default_zip_compression_level (int* l)
+{
+    if (l) *l = sDefaultZipLevel;
+}
+
+/**************************************/
+
+static float sDefaultDwaLevel = 45.f;
+
+void
+exr_set_default_dwa_compression_quality (float q)
+{
+    if (q < 0.f) q = 0.f;
+    if (q > 100.f) q = 100.f;
+    sDefaultDwaLevel = q;
+}
+
+/**************************************/
+
+void
+exr_get_default_dwa_compression_quality (float* q)
+{
+    if (q) *q = sDefaultDwaLevel;
 }

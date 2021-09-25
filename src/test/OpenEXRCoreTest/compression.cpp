@@ -49,12 +49,14 @@ using namespace IMATH_NAMESPACE;
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
 
-#if (IMATH_VERSION_MAJOR < 3) || (IMATH_VERSION_MAJOR == 3 && IMATH_VERSION_MINOR < 1)
-inline float imath_half_to_float( uint16_t a )
+#if (IMATH_VERSION_MAJOR < 3) ||                                               \
+    (IMATH_VERSION_MAJOR == 3 && IMATH_VERSION_MINOR < 1)
+inline float
+imath_half_to_float (uint16_t a)
 {
     half tmp;
-    tmp.setBits( a );
-    return static_cast<float>( tmp );
+    tmp.setBits (a);
+    return static_cast<float> (tmp);
 }
 #endif
 
@@ -930,7 +932,10 @@ saveCPP (
         (Box2i (V2i (0, 0), V2i (fw - 1, fh - 1))),
         (Box2i (V2i (dwx, dwy), V2i (dwx + fw - 1, dwy + fh - 1))));
 
-    hdr.compression () = (IMF::Compression) ((int) comp);
+    hdr.compression ()         = (IMF::Compression) ((int) comp);
+    hdr.zipCompressionLevel () = 3;
+    EXRCORE_TEST (((const Header&) hdr).zipCompressionLevel () == 3);
+
     hdr.channels ().insert ("I", Channel (IMF::UINT, xs, ys));
     for (int c = 0; c < 5; ++c)
         hdr.channels ().insert (channels[c], Channel (IMF::HALF, xs, ys));
@@ -1140,6 +1145,9 @@ doWriteRead (
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
     exr_attr_box2i_t          dataW;
 
+    exr_set_default_zip_compression_level (-1);
+    cinit.zip_level = 3;
+
     dataW.min.x = dwx;
     dataW.min.y = dwy;
     dataW.max.x = dwx + fw - 1;
@@ -1166,6 +1174,10 @@ doWriteRead (
         exr_initialize_required_attr_simple (f, partidx, fw, fh, comp));
     EXRCORE_TEST_RVAL (exr_set_data_window (f, partidx, &dataW));
 
+    int zlev;
+    EXRCORE_TEST_RVAL (exr_get_zip_compression_level (f, partidx, &zlev));
+    EXRCORE_TEST (zlev == 3);
+    EXRCORE_TEST_RVAL (exr_set_zip_compression_level (f, partidx, 4));
     if (tiled)
     {
         EXRCORE_TEST_RVAL (exr_set_tile_descriptor (
