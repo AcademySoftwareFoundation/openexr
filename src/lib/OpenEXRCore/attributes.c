@@ -612,7 +612,7 @@ validate_attr_arguments (
             return ctxt->print_error (
                 ctxt,
                 EXR_ERR_INVALID_ARGUMENT,
-                "Entry '%s' (type %s) already in list but requesting additional data",
+                "Attribute '%s' (type %s) already in list but requesting additional data",
                 name,
                 nattr->type_name);
         }
