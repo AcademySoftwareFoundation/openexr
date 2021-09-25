@@ -226,6 +226,8 @@ read_text (
     }
     *outlen = namelen;
     if (namelen > maxlen)
+    {
+        text[maxlen - 1] = '\0';
         return ctxt->print_error (
             ctxt,
             EXR_ERR_NAME_TOO_LONG,
@@ -233,6 +235,7 @@ read_text (
             type,
             text,
             maxlen);
+    }
     return EXR_ERR_SUCCESS;
 }
 
