@@ -46,7 +46,7 @@
 #include <time.h>
 #include <cmath>
 #include <zlib.h>
-#include <mutex>
+#include <atomic>
 
 #include "ImfTiledMisc.h"
 #include "ImfNamespace.h"
@@ -78,36 +78,61 @@ struct CompressionRecord
     float dwa_level;
 };
 // NB: This is extra complicated than one would normally write to
-// handle scenario that seems to happen on MacOS with a static
-// library, where the header is being destroyed after the shutdown of
+// handle scenario that seems to happen on MacOS/Windows (probably
+// linux too, but unobserved) with a static library, where a
+// (static/global) Header is being destroyed after the shutdown of
 // this translation unit happens, causing use after destroy.
 //
 // but if we just use the once_flag / call_once mechanism, windows
 // then starts crashing on exit in a different way.
 
 struct CompressionStash;
-// assignments to here happen either in static singleton ctor or
-// shutdown should be thread safe
-static CompressionStash *s_stash = nullptr;
+// assignments to here happen in static singleton ctor which is
+// guaranteed construction safe.
+//
+// we could potentially solve with using an atomic shared ptr instead
+// of needing the ctor/dtor and getstash thing, but gcc 4.8 does not
+// include proper support for those.
+static std::atomic<CompressionStash *> s_stash {nullptr};
 
 struct CompressionStash
 {
     CompressionStash()
     {
-        s_stash = this;
+        s_stash.store( this );
     }
     ~CompressionStash()
     {
-        s_stash = nullptr;
+        // technically not safe in that if there are multiple threads
+        // running at object destruction time, another thread may have
+        // retrieved the pointer, but not yet entered the mutex, but
+        // then we run, destroying the mutex, and then they crash
+        // against a destroyed mutex. But this code only happens at
+        // static object destruction time, and only has
+        // non-deterministic behavior when compiled statically.
+        // so. this is about all we can do to add this feature without
+        // changing the abi other than say don't have static/global
+        // Header objects?
+        s_stash.store( nullptr );
+#if ILMTHREAD_THREADING_ENABLED
+        // let's explicitly grab the lock and clear the map in case
+        // there is someone waiting on a lock concurrently at static
+        // destruction time, just to be pedantic
+        _mutex.lock();
+        _store.clear();
+        _mutex.unlock();
+#endif
     }
+#if ILMTHREAD_THREADING_ENABLED
     std::mutex _mutex;
+#endif
     std::map<const void *, CompressionRecord> _store;
 };
 
 static CompressionStash *getStash()
 {
     static CompressionStash stash_impl;
-    return s_stash;
+    return s_stash.load();
 }
 
 static void clearCompressionRecord (Header *hdr)
@@ -115,7 +140,9 @@ static void clearCompressionRecord (Header *hdr)
     CompressionStash *s = getStash();
     if ( s )
     {
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lk (s->_mutex);
+#endif
         auto i = s->_store.find (hdr);
         if (i != s->_store.end ())
             s->_store.erase (i);
@@ -129,7 +156,9 @@ static CompressionRecord retrieveCompressionRecord (const Header *hdr)
     CompressionStash *s = getStash();
     if ( s )
     {
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lk (s->_mutex);
+#endif
         auto i = s->_store.find (hdr);
         if (i != s->_store.end ())
             retval = i->second;
@@ -142,9 +171,13 @@ static CompressionRecord &retrieveCompressionRecord (Header *hdr)
     CompressionStash *s = getStash();
     if ( s )
     {
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lk (s->_mutex);
+#endif
         return s->_store[hdr];
     }
+    // this will only happen at app shutdown, so it'd be an invalid
+    // store anyway, but just return something to avoid a crash
     static CompressionRecord defrec;
     return defrec;
 }
@@ -154,7 +187,9 @@ static void copyCompressionRecord (Header *dst, const Header *src)
     CompressionStash *s = getStash();
     if ( s )
     {
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lk (s->_mutex);
+#endif
         auto i = s->_store.find (src);
         if (i != s->_store.end ())
         {
