@@ -67,6 +67,7 @@ namespace
 
 static int   s_DefaultZipCompressionLevel = Z_DEFAULT_COMPRESSION;
 static float s_DefaultDwaCompressionLevel = 45.f;
+
 struct CompressionRecord
 {
     CompressionRecord()
@@ -80,28 +81,44 @@ struct CompressionRecord
 // handle scenario that seems to happen on MacOS with a static
 // library, where the header is being destroyed after the shutdown of
 // this translation unit happens, causing use after destroy.
+//
+// but if we just use the once_flag / call_once mechanism, windows
+// then starts crashing on exit in a different way.
+
+struct CompressionStash;
+// assignments to here happen either in static singleton ctor or
+// shutdown should be thread safe
+static CompressionStash *s_stash = nullptr;
+
 struct CompressionStash
 {
+    CompressionStash()
+    {
+        s_stash = this;
+    }
+    ~CompressionStash()
+    {
+        s_stash = nullptr;
+    }
     std::mutex _mutex;
     std::map<const void *, CompressionRecord> _store;
 };
 
-static std::once_flag c_init;
-static std::unique_ptr<CompressionStash> s_stash {nullptr};
-static void init_stash ()
+static CompressionStash *getStash()
 {
-    s_stash.reset( new CompressionStash );
+    static CompressionStash stash_impl;
+    return s_stash;
 }
 
 static void clearCompressionRecord (Header *hdr)
 {
-    std::call_once( c_init, init_stash );
-    if ( s_stash )
+    CompressionStash *s = getStash();
+    if ( s )
     {
-        std::lock_guard<std::mutex> lk (s_stash->_mutex);
-        auto i = s_stash->_store.find (hdr);
-        if (i != s_stash->_store.end ())
-            s_stash->_store.erase (i);
+        std::lock_guard<std::mutex> lk (s->_mutex);
+        auto i = s->_store.find (hdr);
+        if (i != s->_store.end ())
+            s->_store.erase (i);
     }
 }
 
@@ -109,12 +126,12 @@ static CompressionRecord retrieveCompressionRecord (const Header *hdr)
 {
     CompressionRecord retval;
 
-    std::call_once( c_init, init_stash );
-    if ( s_stash )
+    CompressionStash *s = getStash();
+    if ( s )
     {
-        std::lock_guard<std::mutex> lk (s_stash->_mutex);
-        auto i = s_stash->_store.find (hdr);
-        if (i != s_stash->_store.end ())
+        std::lock_guard<std::mutex> lk (s->_mutex);
+        auto i = s->_store.find (hdr);
+        if (i != s->_store.end ())
             retval = i->second;
     }
     return retval;
@@ -122,11 +139,11 @@ static CompressionRecord retrieveCompressionRecord (const Header *hdr)
 
 static CompressionRecord &retrieveCompressionRecord (Header *hdr)
 {
-    std::call_once( c_init, init_stash );
-    if ( s_stash )
+    CompressionStash *s = getStash();
+    if ( s )
     {
-        std::lock_guard<std::mutex> lk (s_stash->_mutex);
-        return s_stash->_store[hdr];
+        std::lock_guard<std::mutex> lk (s->_mutex);
+        return s->_store[hdr];
     }
     static CompressionRecord defrec;
     return defrec;
@@ -134,20 +151,20 @@ static CompressionRecord &retrieveCompressionRecord (Header *hdr)
 
 static void copyCompressionRecord (Header *dst, const Header *src)
 {
-    std::call_once( c_init, init_stash );
-    if ( s_stash )
+    CompressionStash *s = getStash();
+    if ( s )
     {
-        std::lock_guard<std::mutex> lk (s_stash->_mutex);
-        auto i = s_stash->_store.find (src);
-        if (i != s_stash->_store.end ())
+        std::lock_guard<std::mutex> lk (s->_mutex);
+        auto i = s->_store.find (src);
+        if (i != s->_store.end ())
         {
-            s_stash->_store[dst] = i->second;
+            s->_store[dst] = i->second;
         }
         else
         {
-            i = s_stash->_store.find (dst);
-            if (i != s_stash->_store.end())
-                s_stash->_store.erase (i);
+            i = s->_store.find (dst);
+            if (i != s->_store.end())
+                s->_store.erase (i);
         }
     }
 };
