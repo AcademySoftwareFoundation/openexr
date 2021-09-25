@@ -67,7 +67,6 @@ namespace
 
 static int   s_DefaultZipCompressionLevel = Z_DEFAULT_COMPRESSION;
 static float s_DefaultDwaCompressionLevel = 45.f;
-static std::mutex s_globCompressionMutex;
 struct CompressionRecord
 {
     CompressionRecord()
@@ -77,41 +76,81 @@ struct CompressionRecord
     int zip_level;
     float dwa_level;
 };
-static std::map<const void *, CompressionRecord> s_globCompressionStore;
+// NB: This is extra complicated than one would normally write to
+// handle scenario that seems to happen on MacOS with a static
+// library, where the header is being destroyed after the shutdown of
+// this translation unit happens, causing use after destroy.
+struct CompressionStash
+{
+    std::mutex _mutex;
+    std::map<const void *, CompressionRecord> _store;
+};
+
+static std::once_flag c_init;
+static std::unique_ptr<CompressionStash> s_stash {nullptr};
+static void init_stash ()
+{
+    s_stash.reset( new CompressionStash );
+}
 
 static void clearCompressionRecord (Header *hdr)
 {
-    std::lock_guard<std::mutex> lk(s_globCompressionMutex);
-    auto i = s_globCompressionStore.find (hdr);
-    if ( i != s_globCompressionStore.end () )
-        s_globCompressionStore.erase (i);
+    std::call_once( c_init, init_stash );
+    if ( s_stash )
+    {
+        std::lock_guard<std::mutex> lk (s_stash->_mutex);
+        auto i = s_stash->_store.find (hdr);
+        if (i != s_stash->_store.end ())
+            s_stash->_store.erase (i);
+    }
 }
 
 static CompressionRecord retrieveCompressionRecord (const Header *hdr)
 {
     CompressionRecord retval;
 
-    std::lock_guard<std::mutex> lk (s_globCompressionMutex);
-    auto i = s_globCompressionStore.find (hdr);
-    if ( i != s_globCompressionStore.end () )
-        retval = i->second;
+    std::call_once( c_init, init_stash );
+    if ( s_stash )
+    {
+        std::lock_guard<std::mutex> lk (s_stash->_mutex);
+        auto i = s_stash->_store.find (hdr);
+        if (i != s_stash->_store.end ())
+            retval = i->second;
+    }
     return retval;
 }
 
 static CompressionRecord &retrieveCompressionRecord (Header *hdr)
 {
-    std::lock_guard<std::mutex> lk (s_globCompressionMutex);
-    return s_globCompressionStore[hdr];
+    std::call_once( c_init, init_stash );
+    if ( s_stash )
+    {
+        std::lock_guard<std::mutex> lk (s_stash->_mutex);
+        return s_stash->_store[hdr];
+    }
+    static CompressionRecord defrec;
+    return defrec;
 }
 
-static void copyCompressionLevel( Header *dst, const Header *src )
+static void copyCompressionRecord (Header *dst, const Header *src)
 {
-    std::lock_guard<std::mutex> lk (s_globCompressionMutex);
-    auto i = s_globCompressionStore.find (src);
-    if ( i != s_globCompressionStore.end () )
-        s_globCompressionStore[dst] = i->second;
-}
-
+    std::call_once( c_init, init_stash );
+    if ( s_stash )
+    {
+        std::lock_guard<std::mutex> lk (s_stash->_mutex);
+        auto i = s_stash->_store.find (src);
+        if (i != s_stash->_store.end ())
+        {
+            s_stash->_store[dst] = i->second;
+        }
+        else
+        {
+            i = s_stash->_store.find (dst);
+            if (i != s_stash->_store.end())
+                s_stash->_store.erase (i);
+        }
+    }
+};
 
 int maxImageWidth = 0;
 int maxImageHeight = 0;
@@ -282,7 +321,7 @@ Header::~Header ()
     {
 	 delete i->second;
     }
-    clearCompressionRecord( this );
+    clearCompressionRecord (this);
 }
 
 Header&
@@ -303,7 +342,7 @@ Header::operator= (const Header& other)
         {
             insert (*i->first, *i->second);
         }
-        copyCompressionLevel( this, &other );
+        copyCompressionRecord (this, &other);
         _readsNothing        = other._readsNothing;
     }
 
@@ -317,7 +356,7 @@ Header::operator= (Header&& other)
     {
         std::swap (_map, other._map);
         // don't have to move or anything as it's pod types
-        copyCompressionLevel( this, &other );
+        copyCompressionRecord (this, &other);
         _readsNothing        = other._readsNothing;
     }
 
@@ -619,31 +658,31 @@ Header::compression () const
 void
 Header::resetDefaultCompressionLevels ()
 {
-    clearCompressionRecord( this );
+    clearCompressionRecord (this);
 }
 
 int&
 Header::zipCompressionLevel ()
 {
-    return retrieveCompressionRecord( this ).zip_level;
+    return retrieveCompressionRecord (this).zip_level;
 }
 
 int
 Header::zipCompressionLevel () const
 {
-    return retrieveCompressionRecord( this ).zip_level;
+    return retrieveCompressionRecord (this).zip_level;
 }
 
 float&
 Header::dwaCompressionLevel ()
 {
-    return retrieveCompressionRecord( this ).dwa_level;
+    return retrieveCompressionRecord (this).dwa_level;
 }
 
 float
 Header::dwaCompressionLevel () const
 {
-    return retrieveCompressionRecord( this ).dwa_level;
+    return retrieveCompressionRecord (this).dwa_level;
 }
 
 void
