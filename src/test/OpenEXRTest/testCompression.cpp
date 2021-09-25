@@ -196,6 +196,7 @@ writeRead (pixelArray& array1,
 		        V2i (xOffset + width - 1, yOffset + height - 1))));
 
     hdr.compression() = comp;
+	hdr.zipCompressionLevel() = 4;
 
     hdr.channels().insert ("I",			// name
 			   Channel (IMF::UINT,	// type

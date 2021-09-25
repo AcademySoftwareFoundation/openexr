@@ -5,6 +5,8 @@ openexr_define_library(OpenEXRCore
   PRIV_EXPORT OPENEXRCORE_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
+    # old versions of structures
+    backward_compatibility.h
     #NB: If you make any of these public, make sure to update the
     # locking macros in the relative source files
     internal_attr.h

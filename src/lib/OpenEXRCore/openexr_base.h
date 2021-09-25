@@ -107,6 +107,42 @@ EXR_EXPORT void exr_set_default_maximum_tile_size (int w, int h);
  */
 EXR_EXPORT void exr_get_default_maximum_tile_size (int* w, int* h);
 
+/** @} */
+
+/**
+ * @defgroup CompressionDefaults Provides default compression settings
+ * @{
+ */
+
+/** @brief Assigns a default zip compression level.
+ *
+ * This value may be controlled separately on each part, but this
+ * global control determines the initial value.
+ */
+EXR_EXPORT void exr_set_default_zip_compression_level (int l);
+
+/** @brief Retrieve the global default zip compression value
+ */
+EXR_EXPORT void exr_get_default_zip_compression_level (int* l);
+
+/** @brief Assigns a default DWA compression quality level.
+ *
+ * This value may be controlled separately on each part, but this
+ * global control determines the initial value.
+ */
+EXR_EXPORT void exr_set_default_dwa_compression_quality (float q);
+
+/** @brief Retrieve the global default dwa compression quality
+ */
+EXR_EXPORT void exr_get_default_dwa_compression_quality (float* q);
+
+/** @} */
+
+/**
+ * @defgroup MemoryAllocators Provides global control over memory allocators
+ * @{
+ */
+
 /** @brief Function pointer used to hold a malloc-like routine.
  *
  * Providing these to a context will override what memory is used to
