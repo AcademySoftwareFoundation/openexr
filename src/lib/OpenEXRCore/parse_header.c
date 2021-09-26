@@ -780,7 +780,11 @@ check_populate_channels (
 
     rv = extract_attr_chlist (
         ctxt, scratch, &(tmpchans), EXR_REQ_CHANNELS_STR, tname, attrsz);
-    if (rv != EXR_ERR_SUCCESS) return rv;
+    if (rv != EXR_ERR_SUCCESS)
+    {
+        exr_attr_chlist_destroy ((exr_context_t) ctxt, &(tmpchans));
+        return rv;
+    }
 
     rv = exr_attr_list_add_static_name (
         (exr_context_t) ctxt,
@@ -797,7 +801,7 @@ check_populate_channels (
         return ctxt->print_error (
             ctxt,
             rv,
-            "Unable initialize attribute '%s', type 'int'",
+            "Unable to initialize attribute '%s', type 'chlist'",
             EXR_REQ_CHANNELS_STR);
     }
 
@@ -856,7 +860,7 @@ check_populate_compression (
         return ctxt->print_error (
             ctxt,
             rv,
-            "Unable initialize attribute '%s', type 'int'",
+            "Unable to initialize attribute '%s', type 'compression'",
             EXR_REQ_COMP_STR);
 
     curpart->compression->uc = data;
@@ -908,7 +912,7 @@ check_populate_dataWindow (
         return ctxt->print_error (
             ctxt,
             rv,
-            "Unable initialize attribute '%s', type 'box2i'",
+            "Unable to initialize attribute '%s', type 'box2i'",
             EXR_REQ_DATA_STR);
 
     *(curpart->dataWindow->box2i) = tmpdata;
@@ -960,7 +964,7 @@ check_populate_displayWindow (
         return ctxt->print_error (
             ctxt,
             rv,
-            "Unable initialize attribute '%s', type 'box2i'",
+            "Unable to initialize attribute '%s', type 'box2i'",
             EXR_REQ_DISP_STR);
 
     *(curpart->displayWindow->box2i) = tmpdata;
@@ -1018,7 +1022,7 @@ check_populate_lineOrder (
         return ctxt->print_error (
             ctxt,
             rv,
-            "Unable initialize attribute '%s', type 'int'",
+            "Unable to initialize attribute '%s', type 'lineOrder'",
             EXR_REQ_LO_STR);
 
     curpart->lineOrder->uc = data;
@@ -1089,7 +1093,7 @@ check_populate_pixelAspectRatio (
         return ctxt->print_error (
             ctxt,
             rv,
-            "Unable initialize attribute '%s', type 'int'",
+            "Unable to initialize attribute '%s', type 'float'",
             EXR_REQ_PAR_STR);
 
     curpart->pixelAspectRatio->f = tpun.fval;
@@ -1156,8 +1160,10 @@ check_populate_screenWindowCenter (
         return ctxt->print_error (
             ctxt,
             rv,
-            "Unable initialize attribute '%s', type 'int'",
+            "Unable to initialize attribute '%s', type 'v2f'",
             EXR_REQ_SCR_WC_STR);
+
+    *(curpart->screenWindowCenter->v2f) = tmpdata;
     return rv;
 }
 
@@ -1224,7 +1230,7 @@ check_populate_screenWindowWidth (
         return ctxt->print_error (
             ctxt,
             rv,
-            "Unable initialize attribute '%s', type 'int'",
+            "Unable to initialize attribute '%s', type 'float'",
             EXR_REQ_SCR_WW_STR);
 
     curpart->screenWindowWidth->f = tpun.fval;
@@ -1284,7 +1290,7 @@ check_populate_tiles (
         return ctxt->print_error (
             ctxt,
             rv,
-            "Unable initialize attribute '%s', type 'tiledesc'",
+            "Unable to initialize attribute '%s', type 'tiledesc'",
             EXR_REQ_TILES_STR);
 
     *(curpart->tiles->tiledesc) = tmpdata;
@@ -1334,7 +1340,7 @@ check_populate_name (
         return ctxt->print_error (
             ctxt,
             rv,
-            "Unable initialize attribute '%s', type 'string'",
+            "Unable to initialize attribute '%s', type 'string'",
             EXR_REQ_NAME_STR);
     }
 
@@ -1407,7 +1413,7 @@ check_populate_type (
         return ctxt->print_error (
             ctxt,
             rv,
-            "Unable initialize attribute '%s', type 'string'",
+            "Unable to initialize attribute '%s', type 'string'",
             EXR_REQ_TYPE_STR);
     }
 
@@ -1510,7 +1516,7 @@ check_populate_version (
         return ctxt->print_error (
             ctxt,
             rv,
-            "Unable initialize attribute '%s', type 'int'",
+            "Unable to initialize attribute '%s', type 'int'",
             EXR_REQ_VERSION_STR);
     curpart->version->i = attrsz;
     return rv;
@@ -1564,7 +1570,7 @@ check_populate_chunk_count (
         return ctxt->print_error (
             ctxt,
             rv,
-            "Unable initialize attribute '%s', type 'int'",
+            "Unable to initialize attribute '%s', type 'int'",
             EXR_REQ_CHUNK_COUNT_STR);
 
     attrsz                 = (int32_t) one_to_native32 ((uint32_t) attrsz);
@@ -1740,7 +1746,7 @@ pull_attr (
         return ctxt->print_error (
             ctxt,
             rv,
-            "Unable initialize attribute '%s', type '%s'",
+            "Unable to initialize attribute '%s', type '%s'",
             name,
             type);
 
