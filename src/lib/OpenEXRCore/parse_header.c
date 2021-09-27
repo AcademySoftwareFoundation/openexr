@@ -2196,7 +2196,7 @@ internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart)
         curpart->lines_per_chunk         = ((int16_t) linePerChunk);
         curpart->chan_has_line_sampling  = ((int16_t) hasLineSample);
 
-        h      = (uint64_t) dw.max.y - (uint64_t) dw.min.y + 1;
+        h      = (uint64_t) ((int64_t) dw.max.y - (int64_t) dw.min.y + 1);
         retval = (int32_t) ((h + linePerChunk - 1) / linePerChunk);
     }
     return retval;

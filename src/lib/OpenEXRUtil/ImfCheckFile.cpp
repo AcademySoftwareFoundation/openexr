@@ -1167,8 +1167,8 @@ bool readCoreScanlinePart(exr_context_t f, int part, bool reduceMemory, bool red
     if (rv != EXR_ERR_SUCCESS)
         return true;
 
-    uint64_t width  = (uint64_t)datawin.max.x - (uint64_t)datawin.min.x + 1;
-    uint64_t height = (uint64_t)datawin.max.y - (uint64_t)datawin.min.y + 1;
+    uint64_t width  = (uint64_t) ((int64_t)datawin.max.x - (int64_t)datawin.min.x + 1);
+    uint64_t height = (uint64_t) ((int64_t)datawin.max.y - (int64_t)datawin.min.y + 1);
 
     std::vector<uint8_t> imgdata;
     bool doread = false;
