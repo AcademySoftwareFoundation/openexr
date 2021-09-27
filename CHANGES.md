@@ -59,11 +59,33 @@ documentation updates.
 
 Specific OSS-fuzz issues:
 
-* OSS-fuzz [38912](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=38912) Integer-overflow in Imf_3_1::bytesPerDeepLineTable
-* OSS-fuzz [39084](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39084) Divide-by-zero in Imf_3_1::RGBtoXYZ
+* OSS-fuzz [39196](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39196)
+  Stack-buffer-overflow in dispatch_print_error
+* OSS-fuzz [39198](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39198)
+  Direct-leak in exr_attr_chlist_add_with_length
+* OSS-fuzz [39206](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39206)
+  Direct-leak in extract_attr_string_vector
+* OSS-fuzz [39212](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39212)
+  Heap-use-after-free in dispatch_print_error
+* OSS-fuzz [39205](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39205)
+  Timeout in openexr_exrcheck_fuzzer
+* OSS-fuzz [38912](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=38912)
+  Integer-overflow in Imf_3_1::bytesPerDeepLineTable
+* OSS-fuzz [39084](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39084)
+  Divide-by-zero in Imf_3_1::RGBtoXYZ
 
 Merged Pull Requests:
 
+* [1159](https://github.com/AcademySoftwareFoundation/openexr/pull/1159)
+  Fix unterminated string causing issue with print
+* [1158](https://github.com/AcademySoftwareFoundation/openexr/pull/1158)
+  Fix memory leak when unable to parse the channel list 
+* [1157](https://github.com/AcademySoftwareFoundation/openexr/pull/1157)
+  Fix leak when parsing header with duplicate attribute names 
+* [1156](https://github.com/AcademySoftwareFoundation/openexr/pull/1156)
+  Fixes a use-after-free when an invalid type string is provided
+* [1155](https://github.com/AcademySoftwareFoundation/openexr/pull/1155)
+  Fix hang when there is EOF while extracting string from attr type/name
 * [1153](https://github.com/AcademySoftwareFoundation/openexr/pull/1153)
   Avoid div by zero with test for bad chromaticities in RGBtoXYZ
 * [1152](https://github.com/AcademySoftwareFoundation/openexr/pull/1152)
