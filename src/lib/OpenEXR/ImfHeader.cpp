@@ -65,7 +65,7 @@ using IMATH_NAMESPACE::V2f;
 namespace
 {
 
-static int   s_DefaultZipCompressionLevel = Z_DEFAULT_COMPRESSION;
+static int   s_DefaultZipCompressionLevel = 4;
 static float s_DefaultDwaCompressionLevel = 45.f;
 
 struct CompressionRecord
@@ -358,12 +358,15 @@ Header::Header (const Header& other)
     {
 	insert (*i->first, *i->second);
     }
+    copyCompressionRecord(this, &other);
 }
 
 Header::Header (Header&& other)
     : _map (std::move (other._map))
     , _readsNothing (other._readsNothing)
-{}
+{
+    copyCompressionRecord(this, &other);
+}
 
 Header::~Header ()
 {
