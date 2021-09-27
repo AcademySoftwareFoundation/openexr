@@ -443,7 +443,7 @@ Header::insert (const char name[], const Attribute &attribute)
 	THROW (IEX_NAMESPACE::ArgExc, "Image attribute name cannot be an empty string.");
 
     AttributeMap::iterator i = _map.find (name);
-    if (!strcmp (name, "dwaCompressionLevel"))
+    if (!strcmp (name, "dwaCompressionLevel") && !strcmp (attribute.typeName(),"float") )
     {
         const TypedAttribute<float>& dwaattr =
             dynamic_cast<const TypedAttribute<float>&> (attribute);
