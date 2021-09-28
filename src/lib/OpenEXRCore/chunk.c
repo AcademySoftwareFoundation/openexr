@@ -70,6 +70,17 @@ extract_chunk_table (
             return ctxt->report_error (
                 ctxt, EXR_ERR_INVALID_ARGUMENT, "Invalid file with no chunks");
 
+        if (chunkbytes + chunkoff > (uint64_t) ctxt->file_size)
+           return ctxt->print_error (
+               ctxt,
+               EXR_ERR_INVALID_ARGUMENT,
+               "chunk table size (%" PRIu64
+               ") too big for file size (%" PRId64 ")",
+               chunkbytes,
+               ctxt->file_size);
+
+
+
         ctable = (uint64_t*) ctxt->alloc_fn (chunkbytes);
         if (ctable == NULL)
             return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
