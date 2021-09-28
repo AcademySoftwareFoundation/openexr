@@ -57,6 +57,11 @@
 Patch release with various bug fixes, build improvements, and
 documentation updates.
 
+With this version, the OpenEXR technical documentation formerly
+distributed exclusivly as pdf's is now published online at
+https://openexr.readthedocs.io, with the document source now
+maintained as .rst files in the repo's docs subfolder.
+
 Specific OSS-fuzz issues:
 
 * OSS-fuzz [39196](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39196)
