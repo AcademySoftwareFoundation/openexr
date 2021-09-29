@@ -70,7 +70,8 @@ extract_chunk_table (
             return ctxt->report_error (
                 ctxt, EXR_ERR_INVALID_ARGUMENT, "Invalid file with no chunks");
 
-        if (chunkbytes + chunkoff > (uint64_t) ctxt->file_size)
+        if (ctxt->file_size > 0 &&
+             chunkbytes + chunkoff > (uint64_t) ctxt->file_size)
            return ctxt->print_error (
                ctxt,
                EXR_ERR_INVALID_ARGUMENT,
