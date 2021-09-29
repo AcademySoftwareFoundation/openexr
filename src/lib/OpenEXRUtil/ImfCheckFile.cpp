@@ -1319,10 +1319,10 @@ bool readCoreTiledPart(exr_context_t f, int part, bool reduceMemory, bool reduce
 
             int tx, ty;
             ty = 0;
-            for (int32_t cury = datawin.min.y; keepgoing && cury < levh; cury += curth, ++ty)
+            for (int64_t cury = datawin.min.y; keepgoing && cury < levh; cury += curth, ++ty)
             {
                 tx = 0;
-                for (int32_t curx = datawin.min.x; keepgoing && curx < levw; curx += curtw, ++tx)
+                for (int64_t curx = datawin.min.x; keepgoing && curx < levw; curx += curtw, ++tx)
                 {
                     rv = exr_read_tile_chunk_info (f, part, tx, ty, xlevel, ylevel, &cinfo);
                     if (rv != EXR_ERR_SUCCESS)
