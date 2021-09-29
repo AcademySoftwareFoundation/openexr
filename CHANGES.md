@@ -1,6 +1,6 @@
 # OpenEXR Release Notes
 
-* [Version 3.1.2](#version-312-september-30-2021) September 30, 2021
+* [Version 3.1.2](#version-312-september-30-2021) October 4, 2021
 * [Version 3.1.1](#version-311-august-2-2021) August 2, 2021
 * [Version 3.1.0](#version-310-july-22-2021) July 22, 2021
 * [Version 3.0.5](#version-305-july-1-2021) July 1, 2021
@@ -52,10 +52,15 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.1.2 (September 30, 2021)
+## Version 3.1.2 (October 4, 2021)
 
 Patch release with various bug fixes, build improvements, and
-documentation updates.
+documentation updates. In particular:
+
+* Fix a test failure on arm7
+* Proper handling of pthread with glibc 2.34+
+* Miscellaneous fixes for handling of invalid input by the new
+  OpenEXRCore library
 
 With this version, the OpenEXR technical documentation formerly
 distributed exclusivly as pdf's is now published online at
@@ -99,6 +104,8 @@ Merged Pull Requests:
   Add additional text to ensure correct detection for threads 
 * [1147](https://github.com/AcademySoftwareFoundation/openexr/pull/1147)
   Simplify the definition for bswap_32 for NetBSD 
+* [1146](https://github.com/AcademySoftwareFoundation/openexr/pull/1146)
+  Fix typo in comment in ImfChromaticities.h
 * [1142](https://github.com/AcademySoftwareFoundation/openexr/pull/1142)
   Cleanup cmake thread detection 
 * [1141](https://github.com/AcademySoftwareFoundation/openexr/pull/1141)
