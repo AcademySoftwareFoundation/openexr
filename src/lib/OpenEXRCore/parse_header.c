@@ -1949,7 +1949,7 @@ static int64_t
 calc_level_size (int mind, int maxd, int level, exr_tile_round_mode_t rounding)
 {
     int64_t dsize   = (int64_t) maxd - (int64_t) mind + 1;
-    int     b       = (1 << level);
+    int64_t b       = ( (int64_t) 1) << level;
     int64_t retsize = dsize / b;
 
     if (rounding == EXR_TILE_ROUND_UP && retsize * b < dsize) retsize += 1;
