@@ -54,10 +54,10 @@ exrCheck(const char* filename, bool reduceMemory, bool reduceTime, bool useStrea
       //
       vector<char> data(length);
       instream.read( data.data() , length);
-      if (instream.bad())
+      if (instream.gcount() != length)
       {
           cerr << "internal error: failed to read file " << filename << endl;
-
+          return true;
       }
       return checkOpenEXRFile ( data.data(), length, reduceMemory, reduceTime, enableCoreCheck);
   }
