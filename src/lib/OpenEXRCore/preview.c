@@ -36,13 +36,16 @@ exr_attr_preview_init (
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to preview object to initialize");
 
-    *p      = nil;
-    p->rgba = (uint8_t*) pctxt->alloc_fn (bytes);
-    if (p->rgba == NULL)
-        return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
-    p->alloc_size = bytes;
-    p->width      = w;
-    p->height     = h;
+    *p = nil;
+    if (bytes > 0)
+    {
+        p->rgba = (uint8_t*) pctxt->alloc_fn (bytes);
+        if (p->rgba == NULL)
+            return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
+        p->alloc_size = bytes;
+        p->width      = w;
+        p->height     = h;
+    }
     return EXR_ERR_SUCCESS;
 }
 
@@ -60,7 +63,8 @@ exr_attr_preview_create (
     if (rv == EXR_ERR_SUCCESS)
     {
         size_t copybytes = w * h * 4;
-        memcpy (EXR_CONST_CAST (uint8_t*, p->rgba), d, copybytes);
+        if (copybytes > 0)
+            memcpy (EXR_CONST_CAST (uint8_t*, p->rgba), d, copybytes);
     }
     return rv;
 }
