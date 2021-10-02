@@ -139,7 +139,7 @@ priv_init_scratch (
 {
     scr->curpos          = 0;
     scr->navail          = 0;
-    scr->fileoff         = 0;
+    scr->fileoff         = offset;
     scr->sequential_read = &scratch_seq_read;
     scr->ctxt            = ctxt;
     scr->scratch         = ctxt->alloc_fn (SCRATCH_BUFFER_SIZE);
