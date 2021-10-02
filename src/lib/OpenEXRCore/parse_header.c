@@ -720,7 +720,7 @@ extract_attr_preview (
             sz[0],
             sz[1]);
 
-    if (fsize > 0 && bytes >= (uint64_t) fsize)
+    if (bytes == 0 || (fsize > 0 && bytes >= (uint64_t) fsize))
     {
         return ctxt->print_error (
             ctxt,
