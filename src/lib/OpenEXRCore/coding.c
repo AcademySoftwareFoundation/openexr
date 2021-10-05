@@ -254,6 +254,18 @@ internal_decode_alloc_buffer (
     size_t                               newsz)
 {
     void* curbuf = *buf;
+    if (newsz == 0)
+    {
+        EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR_NO_LOCK (
+            decode->context, decode->part_index);
+
+        return pctxt->print_error (
+            pctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Attempt to allocate 0 byte buffer for transcode buffer %d",
+            (int) bufid);
+    }
+
     if (!curbuf || *cursz < newsz)
     {
         internal_decode_free_buffer (decode, bufid, buf, cursz);
