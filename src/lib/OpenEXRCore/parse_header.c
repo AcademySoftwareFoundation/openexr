@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <stdio.h>
+
 /**************************************/
 
 struct _internal_exr_seq_scratch
@@ -29,6 +31,20 @@ struct _internal_exr_seq_scratch
 
     struct _internal_exr_context* ctxt;
 };
+
+static inline int
+scratch_attr_too_big (
+    struct _internal_exr_seq_scratch* scr, int32_t attrsz, int64_t fsize)
+{
+    int64_t acmp = (int64_t) attrsz;
+    if (fsize > 0 && (acmp > scr->navail))
+    {
+        int64_t test = acmp - scr->navail;
+        int64_t foff = (int64_t) scr->fileoff;
+        if ((foff + test) > fsize) return 1;
+    }
+    return 0;
+}
 
 #define SCRATCH_BUFFER_SIZE 4096
 
@@ -121,18 +137,14 @@ priv_init_scratch (
     struct _internal_exr_seq_scratch* scr,
     uint64_t                          offset)
 {
-    struct _internal_exr_seq_scratch nil = { 0 };
-
-    if (ctxt == NULL) return EXR_ERR_MISSING_CONTEXT_ARG;
-    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
-
-    *scr         = nil;
-    scr->scratch = ctxt->alloc_fn (SCRATCH_BUFFER_SIZE);
+    scr->curpos          = 0;
+    scr->navail          = 0;
+    scr->fileoff         = offset;
+    scr->sequential_read = &scratch_seq_read;
+    scr->ctxt            = ctxt;
+    scr->scratch         = ctxt->alloc_fn (SCRATCH_BUFFER_SIZE);
     if (scr->scratch == NULL)
         return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
-    scr->sequential_read = &scratch_seq_read;
-    scr->fileoff         = offset;
-    scr->ctxt            = ctxt;
     return EXR_ERR_SUCCESS;
 }
 
@@ -149,15 +161,15 @@ priv_destroy_scratch (struct _internal_exr_seq_scratch* scr)
 
 static exr_result_t
 check_bad_attrsz (
-    struct _internal_exr_context* ctxt,
-    int                           attrsz,
-    int                           eltsize,
-    const char*                   aname,
-    const char*                   tname,
-    int32_t*                      outsz)
+    struct _internal_exr_context*     ctxt,
+    struct _internal_exr_seq_scratch* scratch,
+    int32_t                           attrsz,
+    int32_t                           eltsize,
+    const char*                       aname,
+    const char*                       tname,
+    int32_t*                          outsz)
 {
-    int64_t fsize = ctxt->file_size;
-    int32_t n     = attrsz;
+    int32_t n = attrsz;
 
     *outsz = n;
     if (attrsz < 0)
@@ -168,7 +180,8 @@ check_bad_attrsz (
             aname,
             tname,
             attrsz);
-    if (fsize > 0 && attrsz > fsize)
+
+    if (scratch_attr_too_big (scratch, attrsz, ctxt->file_size))
         return ctxt->print_error (
             ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
@@ -206,9 +219,10 @@ read_text (
     struct _internal_exr_seq_scratch* scratch,
     const char*                       type)
 {
-    char    b;
-    int     rv;
-    int32_t namelen = *outlen;
+    char         b;
+    exr_result_t rv      = EXR_ERR_SUCCESS;
+    int32_t      namelen = *outlen;
+
     while (namelen <= maxlen)
     {
         rv = scratch->sequential_read (scratch, &b, 1);
@@ -255,16 +269,9 @@ extract_attr_chlist (
     int32_t      ptype, xsamp, ysamp;
     uint8_t      flags[4];
     int32_t      maxlen = ctxt->max_name_length;
-    exr_result_t rv     = EXR_ERR_SUCCESS;
+    exr_result_t rv;
 
-    if (attrsz <= 0)
-        return ctxt->print_error (
-            ctxt,
-            EXR_ERR_ATTR_SIZE_MISMATCH,
-            "Attribute '%s': Invalid size %d (exp at least 1 byte for '%s')",
-            aname,
-            attrsz,
-            tname);
+    rv = check_bad_attrsz (ctxt, scratch, attrsz, 1, aname, tname, &chlen);
 
     while (rv == EXR_ERR_SUCCESS && attrsz > 0)
     {
@@ -427,14 +434,15 @@ extract_attr_float_vector (
     const char*                       tname,
     int32_t                           attrsz)
 {
-    int32_t      n = 0;
-    exr_result_t rv =
-        check_bad_attrsz (ctxt, attrsz, (int) sizeof (float), aname, tname, &n);
+    int32_t      n  = 0;
+    exr_result_t rv = check_bad_attrsz (
+        ctxt, scratch, attrsz, (int) sizeof (float), aname, tname, &n);
+
+    /* in case of duplicate attr name in header (mostly fuzz testing) */
+    exr_attr_float_vector_destroy ((exr_context_t) ctxt, attrdata);
 
     if (rv == EXR_ERR_SUCCESS && n > 0)
     {
-        /* in case of duplicate attr name in header (mostly fuzz testing) */
-        exr_attr_float_vector_destroy ((exr_context_t) ctxt, attrdata);
         rv = exr_attr_float_vector_init ((exr_context_t) ctxt, attrdata, n);
         if (rv != EXR_ERR_SUCCESS) return rv;
 
@@ -471,10 +479,13 @@ extract_attr_string (
 {
     exr_result_t rv =
         scratch->sequential_read (scratch, (void*) strptr, (uint64_t) attrsz);
+
     if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
             ctxt, rv, "Unable to read '%s' %s data", aname, tname);
+
     strptr[attrsz] = '\0';
+
     return exr_attr_string_init_static_with_length (
         (exr_context_t) ctxt, attrdata, strptr, attrsz);
 }
@@ -494,7 +505,7 @@ extract_attr_string_vector (
     int32_t            n, nstr, nalloced, nlen, pulled = 0;
     exr_attr_string_t *nlist, *clist, nil = { 0 };
 
-    rv = check_bad_attrsz (ctxt, attrsz, 1, aname, tname, &n);
+    rv = check_bad_attrsz (ctxt, scratch, attrsz, 1, aname, tname, &n);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     nstr     = 0;
@@ -652,7 +663,7 @@ extract_attr_opaque (
     int32_t      n;
     exr_result_t rv;
 
-    rv = check_bad_attrsz (ctxt, attrsz, 1, aname, tname, &n);
+    rv = check_bad_attrsz (ctxt, scratch, attrsz, 1, aname, tname, &n);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     exr_attr_opaquedata_destroy ((exr_context_t) ctxt, attrdata);
@@ -691,6 +702,9 @@ extract_attr_preview (
     uint32_t     sz[2];
     exr_result_t rv;
     int64_t      fsize = ctxt->file_size;
+
+    /* mostly for fuzzing, but just in case there's a duplicate name */
+    exr_attr_preview_destroy ((exr_context_t) ctxt, attrdata);
 
     if (attrsz < 8)
         return ctxt->print_error (
@@ -732,21 +746,23 @@ extract_attr_preview (
             sz[1]);
     }
 
-    exr_attr_preview_destroy ((exr_context_t) ctxt, attrdata);
     rv = exr_attr_preview_init ((exr_context_t) ctxt, attrdata, sz[0], sz[1]);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
-    rv = scratch->sequential_read (
-        scratch, EXR_CONST_CAST (void*, attrdata->rgba), sz[0] * sz[1] * 4);
-    if (rv != EXR_ERR_SUCCESS)
+    if (bytes > 0)
     {
-        exr_attr_preview_destroy ((exr_context_t) ctxt, attrdata);
-        return ctxt->print_error (
-            ctxt,
-            rv,
-            "Attribute '%s': Unable to read preview data (%d bytes)",
-            aname,
-            attrsz);
+        rv = scratch->sequential_read (
+            scratch, EXR_CONST_CAST (void*, attrdata->rgba), sz[0] * sz[1] * 4);
+        if (rv != EXR_ERR_SUCCESS)
+        {
+            exr_attr_preview_destroy ((exr_context_t) ctxt, attrdata);
+            return ctxt->print_error (
+                ctxt,
+                rv,
+                "Attribute '%s': Unable to read preview data (%d bytes)",
+                aname,
+                attrsz);
+        }
     }
 
     return rv;
@@ -1040,7 +1056,7 @@ check_populate_pixelAspectRatio (
     const char*                       tname,
     int32_t                           attrsz)
 {
-    int rv;
+    exr_result_t rv;
     union
     {
         uint32_t ival;
@@ -1311,7 +1327,8 @@ check_populate_name (
     uint8_t*     outstr;
     int32_t      n;
 
-    rv = check_bad_attrsz (ctxt, attrsz, 1, EXR_REQ_NAME_STR, tname, &n);
+    rv = check_bad_attrsz (
+        ctxt, scratch, attrsz, 1, EXR_REQ_NAME_STR, tname, &n);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     if (curpart->name)
@@ -1384,7 +1401,8 @@ check_populate_type (
     uint8_t*     outstr;
     int32_t      n;
 
-    rv = check_bad_attrsz (ctxt, attrsz, 1, EXR_REQ_TYPE_STR, tname, &n);
+    rv = check_bad_attrsz (
+        ctxt, scratch, attrsz, 1, EXR_REQ_TYPE_STR, tname, &n);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     if (curpart->type)
@@ -1702,7 +1720,7 @@ pull_attr (
             name);
 
     rv = scratch->sequential_read (scratch, &attrsz, sizeof (int32_t));
-    if (rv != 0)
+    if (rv != EXR_ERR_SUCCESS)
         return ctxt->print_error (
             ctxt,
             rv,
@@ -1718,7 +1736,7 @@ pull_attr (
     if (!strcmp (type, "string"))
     {
         int32_t n;
-        rv = check_bad_attrsz (ctxt, attrsz, 1, name, type, &n);
+        rv = check_bad_attrsz (ctxt, scratch, attrsz, 1, name, type, &n);
         if (rv != EXR_ERR_SUCCESS) return rv;
 
         rv = exr_attr_list_add (
@@ -1946,10 +1964,11 @@ ceil_log2 (int64_t x)
 /**************************************/
 
 static int64_t
-calc_level_size (int mind, int maxd, int level, exr_tile_round_mode_t rounding)
+calc_level_size (
+    int64_t mind, int64_t maxd, int level, exr_tile_round_mode_t rounding)
 {
     int64_t dsize   = (int64_t) maxd - (int64_t) mind + 1;
-    int64_t b       = ( (int64_t) 1) << level;
+    int64_t b       = ((int64_t) 1) << level;
     int64_t retsize = dsize / b;
 
     if (rounding == EXR_TILE_ROUND_UP && retsize * b < dsize) retsize += 1;
@@ -2043,7 +2062,7 @@ internal_exr_compute_tile_information (
         levcntY = levszX + numX;
         levszY  = levcntY + numY;
 
-        for (int l = 0; l < numX; ++l)
+        for (int32_t l = 0; l < numX; ++l)
         {
             int64_t sx = calc_level_size (
                 dw.min.x, dw.max.x, l, EXR_GET_TILE_ROUND_MODE ((*tiledesc)));
@@ -2062,7 +2081,7 @@ internal_exr_compute_tile_information (
             levszX[l] = (int32_t) sx;
         }
 
-        for (int l = 0; l < numY; ++l)
+        for (int32_t l = 0; l < numY; ++l)
         {
             int64_t sy = calc_level_size (
                 dw.min.y, dw.max.y, l, EXR_GET_TILE_ROUND_MODE ((*tiledesc)));
@@ -2112,7 +2131,7 @@ internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart)
         {
             case EXR_TILE_ONE_LEVEL:
             case EXR_TILE_MIPMAP_LEVELS:
-                for (int l = 0; l < curpart->num_tile_levels_x; ++l)
+                for (int32_t l = 0; l < curpart->num_tile_levels_x; ++l)
                     tilecount +=
                         ((int64_t) curpart->tile_level_tile_count_x[l] *
                          (int64_t) curpart->tile_level_tile_count_y[l]);
@@ -2120,9 +2139,9 @@ internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart)
                 retval = (int32_t) tilecount;
                 break;
             case EXR_TILE_RIPMAP_LEVELS:
-                for (int lx = 0; lx < curpart->num_tile_levels_x; ++lx)
+                for (int32_t lx = 0; lx < curpart->num_tile_levels_x; ++lx)
                 {
-                    for (int ly = 0; ly < curpart->num_tile_levels_y; ++ly)
+                    for (int32_t ly = 0; ly < curpart->num_tile_levels_y; ++ly)
                     {
                         tilecount +=
                             ((int64_t) curpart->tile_level_tile_count_x[lx] *
