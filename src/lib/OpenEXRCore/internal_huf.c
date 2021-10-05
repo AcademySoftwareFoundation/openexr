@@ -919,9 +919,9 @@ writeUInt (uint8_t* b, uint32_t i)
 static inline uint32_t
 readUInt (const uint8_t* b)
 {
-    return (
-        ((uint32_t) (b[0])) | ((uint32_t) (b[1] << 8)) |
-        ((uint32_t) (b[2] << 16)) | ((uint32_t) (b[3] << 24)));
+     return (
+        ((uint32_t) b[0]) | (((uint32_t) b[1]) << 8u) |
+        (((uint32_t) b[2]) << 16u) | (((uint32_t) b[3]) << 24u));
 }
 
 /**************************************/
