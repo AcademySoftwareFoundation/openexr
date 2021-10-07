@@ -27,6 +27,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <stdlib.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -1456,16 +1457,17 @@ bool checkCoreFile(exr_context_t f, bool reduceMemory, bool reduceTime)
 static void
 core_error_handler_cb (exr_const_context_t f, int code, const char* msg)
 {
-#if 0
-    const char* fn;
-    if (EXR_ERR_SUCCESS != exr_get_file_name (f, &fn)) fn = "<error>";
-    fprintf (
-        stderr,
-        "ERROR '%s' (%s): %s\n",
-        fn,
-        exr_get_error_code_as_string (code),
-        msg);
-#endif
+    if (getenv ("EXR_CHECK_ENABLE_PRINTS") != NULL)
+    {
+        const char* fn;
+        if (EXR_ERR_SUCCESS != exr_get_file_name (f, &fn)) fn = "<error>";
+        fprintf (
+            stderr,
+            "ERROR '%s' (%s): %s\n",
+            fn,
+            exr_get_error_code_as_string (code),
+            msg);
+    }
 }
 
 ////////////////////////////////////////
