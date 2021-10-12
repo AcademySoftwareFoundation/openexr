@@ -96,21 +96,36 @@ Developers who wish to contribute code to be considered for inclusion
 in the OpenEXR distribution must first complete a **Contributor
 License Agreement**.
 
-OpenEXR uses [EasyCLA](https://lfx.linuxfoundation.org/tools/easycla) 
-for managing CLAs, which automatically checks to ensure CLAs are signed 
-by a contributor before a commit can be merged. 
+To contribute to OpenEXR, you must sign a CLA through the
+[EasyCLA](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7?redirect=https:%2F%2Fgithub.com%2FAcademySoftwareFoundation%2Fopenexr%2Fpull%2F1154)
+system, which is integrated with GitHub as a pull request check.
+
+Sign the form through [this
+link](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7?redirect=https:%2F%2Fgithub.com%2FAcademySoftwareFoundation%2Fopenexr%2Fpull%2F1154)
+prior to submitting a pull request. If you submit a pull request
+before the form is signed, the "linux-foundation-easycla" check will
+fail and a red "NOT COVERED" button will appear in the PR
+comments. Click that link to sign the form.
 
 * If you are an individual writing the code on your own time and
-  you're SURE you are the sole owner of any intellectual property you
-  contribute, you can [sign the CLA as an individual contributor](https://docs.linuxfoundation.org/lfx/easycla/contributors/individual-contributor).
+  you're **sure** you are the sole owner of any intellectual property you
+  contribute, you can sign the CLA as an **Individual Contributor**.
 
-* If you are writing the code as part of your job, or if there is any
-  possibility that your employers might think they own any intellectual 
-  property you create, then you should use the [Corporate Contributor Licence
-  Agreement](https://docs.linuxfoundation.org/lfx/easycla/contributors/corporate-contributor).
+* If you are writing the code as part of your job, or if your employer
+  retains ownership to intellectual property you create, no matter how
+  small, then your company's legal affairs representatives should sign
+  a **Corporate Contributor Licence Agreement**. If your company already
+  has a signed CCLA on file, ask your local CLA manager to add you
+  (via your GitHub account name/email address) to your company's
+  "approved" list.
+
+The downloadable PDF's on the EasyCLA page are provided for reference
+only. To execute the signature, sign the form online through the
+releveant links.
 
 The OpenEXR CLAs are the standard forms used by Linux Foundation
-projects and [recommended by the ASWF TAC](https://github.com/AcademySoftwareFoundation/tac/blob/master/process/contributing.md#contributor-license-agreement-cla).
+projects and [recommended by the ASWF
+TAC](https://github.com/AcademySoftwareFoundation/tac/blob/master/process/contributing.md#contributor-license-agreement-cla).
 
 ### Commit Sign-Off
 
