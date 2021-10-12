@@ -796,7 +796,7 @@ hufDecode (
     const uint8_t*  in,     // i : compressed input buffer
     uint64_t        ni,     // i : input size (in bits)
     uint32_t        rlc,    // i : run-length code
-    uint64_t        no,     // i : expected output size (in bytes)
+    uint64_t        no,     // i : expected output size (count of uint16 items)
     uint16_t*       out)
 {
     uint64_t       c    = 0;
@@ -894,7 +894,7 @@ hufDecode (
             return EXR_ERR_CORRUPT_CHUNK;
     }
 
-    if ((((uintptr_t) out) - ((uintptr_t) outb)) != no)
+    if (out != oe)
         return EXR_ERR_OUT_OF_MEMORY;
     return EXR_ERR_SUCCESS;
 }

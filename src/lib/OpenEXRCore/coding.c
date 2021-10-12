@@ -254,6 +254,15 @@ internal_decode_alloc_buffer (
     size_t                               newsz)
 {
     void* curbuf = *buf;
+
+    /* We might have a zero size here due to y sampling on a scanline
+     * image where there is an attempt to read that portion of the
+     * image. Just shortcut here and handle at a higher level where
+     * there is more context
+     */
+    if (newsz == 0)
+        return EXR_ERR_SUCCESS;
+
     if (!curbuf || *cursz < newsz)
     {
         internal_decode_free_buffer (decode, bufid, buf, cursz);
