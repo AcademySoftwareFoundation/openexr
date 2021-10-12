@@ -70,7 +70,7 @@ RGBtoXYZ (const Chromaticities &chroma, float Y)
     //
 
     // prevent a division that rounds to zero
-    if (abs(chroma.white.y) <= 1.f && abs(chroma.white.x * Y) >= abs(chroma.white.y) * FLT_MAX)
+    if (std::abs(chroma.white.y) <= 1.f && std::abs(chroma.white.x * Y) >= std::abs(chroma.white.y) * FLT_MAX)
     {
         throw std::invalid_argument("Bad chromaticities: white.y cannot be zero");
     }
@@ -108,7 +108,7 @@ RGBtoXYZ (const Chromaticities &chroma, float Y)
 		chroma.red.y   * (X + Z)));
 
 
-    if ( abs(d)<1.f && (abs(SrN) >= abs(d)* FLT_MAX || abs(SgN) >= abs(d)* FLT_MAX || abs(SbN) >= abs(d)* FLT_MAX) )
+    if ( std::abs(d)<1.f && (std::abs(SrN) >= std::abs(d)* FLT_MAX || std::abs(SgN) >= std::abs(d)* FLT_MAX || std::abs(SbN) >= std::abs(d)* FLT_MAX) )
     {
         // cannot generate matrix if all RGB primaries have the same y value
         // or if they all have the an x value of zero
