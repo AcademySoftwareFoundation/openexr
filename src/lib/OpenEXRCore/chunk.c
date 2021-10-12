@@ -51,17 +51,20 @@ static exr_result_t
 extract_chunk_table (
     const struct _internal_exr_context* ctxt,
     const struct _internal_exr_part*    part,
-    uint64_t**                          chunktable)
+    uint64_t**                          chunktable,
+    uint64_t*                           chunkminoffset)
 {
-    uint64_t* ctable = NULL;
+    uint64_t* ctable     = NULL;
+    uint64_t  chunkoff   = part->chunk_table_offset;
+    uint64_t  chunkbytes = sizeof (uint64_t) * (uint64_t) part->chunk_count;
+
+    *chunkminoffset = chunkoff + chunkbytes;
 
     ctable = (uint64_t*) atomic_load (
         EXR_CONST_CAST (atomic_uintptr_t*, &(part->chunk_table)));
     if (ctable == NULL)
     {
-        uint64_t  chunkoff   = part->chunk_table_offset;
-        uint64_t  chunkbytes = sizeof (uint64_t) * (uint64_t) part->chunk_count;
-        int64_t   nread      = 0;
+        int64_t   nread = 0;
         uintptr_t eptr = 0, nptr = 0;
 
         exr_result_t rv;
@@ -198,7 +201,7 @@ exr_read_scanline_chunk_info (
     int32_t          data[3];
     int64_t          ddata[3];
     int64_t          fsize;
-    uint64_t         dataoff;
+    uint64_t         chunkmin, dataoff;
     exr_attr_box2i_t dw;
     uint64_t*        ctable;
     EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
@@ -263,10 +266,23 @@ exr_read_scanline_chunk_info (
     cinfo->level_y = 0;
 
     /* need to read from the file to get the packed chunk size */
-    rv = extract_chunk_table (pctxt, part, &ctable);
+    rv = extract_chunk_table (pctxt, part, &ctable, &chunkmin);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
+    fsize = pctxt->file_size;
+
     dataoff = ctable[cidx];
+    if (dataoff < chunkmin || (fsize > 0 && dataoff > (uint64_t) fsize))
+    {
+        return pctxt->print_error (
+            pctxt,
+            EXR_ERR_BAD_CHUNK_LEADER,
+            "Corrupt chunk offset table: scanline %d, chunk index %d recorded at file offset %" PRIu64,
+            y,
+            cidx,
+            dataoff);
+    }
+
     /* multi part files have the part for validation */
     rdcnt = (pctxt->is_multipart) ? 2 : 1;
     /* deep has 64-bit data, so be variable about what we read */
@@ -312,7 +328,6 @@ exr_read_scanline_chunk_info (
             miny);
     }
 
-    fsize = pctxt->file_size;
     if (part->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
     {
         rv = pctxt->do_read (
@@ -584,8 +599,8 @@ exr_read_tile_chunk_info (
     int32_t                    data[6];
     int32_t*                   tdata;
     int32_t                    cidx, ntoread;
-    uint64_t                   dataoff;
-    int64_t                    fsize, tend, dend;
+    uint64_t                   chunkmin, dataoff;
+    int64_t                    nread, fsize, tend, dend;
     const exr_attr_chlist_t*   chanlist;
     const exr_attr_tiledesc_t* tiledesc;
     int                        tilew, tileh;
@@ -655,14 +670,15 @@ exr_read_tile_chunk_info (
     cinfo->level_y = (uint8_t) levely;
 
     chanlist = part->channels->chlist;
-    texels = (uint64_t) tilew * (uint64_t) tileh;
+    texels   = (uint64_t) tilew * (uint64_t) tileh;
     for (int c = 0; c < chanlist->num_channels; ++c)
     {
         const exr_attr_chlist_entry_t* curc = (chanlist->entries + c);
-        unpacksize += texels * (uint64_t) ((curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4);
+        unpacksize +=
+            texels * (uint64_t) ((curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4);
     }
 
-    rv = extract_chunk_table (pctxt, part, &ctable);
+    rv = extract_chunk_table (pctxt, part, &ctable, &chunkmin);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     if (part->storage_mode == EXR_STORAGE_DEEP_TILED)
@@ -677,13 +693,29 @@ exr_read_tile_chunk_info (
     else
         ntoread = 5;
 
+    fsize = pctxt->file_size;
+
     dataoff = ctable[cidx];
-    rv      = pctxt->do_read (
+    if (dataoff < chunkmin || (fsize > 0 && dataoff > (uint64_t) fsize))
+    {
+        return pctxt->print_error (
+            pctxt,
+            EXR_ERR_BAD_CHUNK_LEADER,
+            "Corrupt chunk offset table: tile (%d, %d), level (%d, %d), chunk index %d recorded at file offset %" PRIu64,
+            tilex,
+            tiley,
+            levelx,
+            levely,
+            cidx,
+            dataoff);
+    }
+
+    rv = pctxt->do_read (
         pctxt,
         data,
         (uint64_t) (ntoread) * sizeof (int32_t),
         &dataoff,
-        &fsize,
+        &nread,
         EXR_MUST_READ_ALL);
     if (rv != EXR_ERR_SUCCESS)
     {
@@ -698,7 +730,7 @@ exr_read_tile_chunk_info (
             levely,
             (uint64_t) (ntoread) * sizeof (int32_t),
             ctable[cidx],
-            fsize);
+            (uint64_t) nread);
     }
     priv_to_native32 (data, ntoread);
 
@@ -778,7 +810,6 @@ exr_read_tile_chunk_info (
             levely);
     }
 
-    fsize = pctxt->file_size;
     if (part->storage_mode == EXR_STORAGE_DEEP_TILED)
     {
         int64_t ddata[3];
