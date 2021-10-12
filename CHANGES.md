@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 3.1.2](#version-312-october-4-2021) October 4, 2021
 * [Version 3.1.1](#version-311-august-2-2021) August 2, 2021
 * [Version 3.1.0](#version-310-july-22-2021) July 22, 2021
 * [Version 3.0.5](#version-305-july-1-2021) July 1, 2021
@@ -50,6 +51,90 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.1.2 (October 4, 2021)
+
+Patch release with various bug fixes, build improvements, and
+documentation updates.
+
+With this version, the OpenEXR technical documentation formerly
+distributed exclusivly as pdf's is now published online at
+https://openexr.readthedocs.io, with the document source now
+maintained as .rst files in the repo's docs subfolder.
+
+Specific OSS-fuzz issues:
+
+* OSS-fuzz [39196](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39196)
+  Stack-buffer-overflow in dispatch_print_error
+* OSS-fuzz [39198](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39198)
+  Direct-leak in exr_attr_chlist_add_with_length
+* OSS-fuzz [39206](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39206)
+  Direct-leak in extract_attr_string_vector
+* OSS-fuzz [39212](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39212)
+  Heap-use-after-free in dispatch_print_error
+* OSS-fuzz [39205](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39205)
+  Timeout in openexr_exrcheck_fuzzer
+* OSS-fuzz [38912](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=38912)
+  Integer-overflow in Imf_3_1::bytesPerDeepLineTable
+* OSS-fuzz [39084](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39084)
+  Divide-by-zero in Imf_3_1::RGBtoXYZ
+
+Merged Pull Requests:
+
+* [1159](https://github.com/AcademySoftwareFoundation/openexr/pull/1159)
+  Fix unterminated string causing issue with print
+* [1158](https://github.com/AcademySoftwareFoundation/openexr/pull/1158)
+  Fix memory leak when unable to parse the channel list 
+* [1157](https://github.com/AcademySoftwareFoundation/openexr/pull/1157)
+  Fix leak when parsing header with duplicate attribute names 
+* [1156](https://github.com/AcademySoftwareFoundation/openexr/pull/1156)
+  Fixes a use-after-free when an invalid type string is provided
+* [1155](https://github.com/AcademySoftwareFoundation/openexr/pull/1155)
+  Fix hang when there is EOF while extracting string from attr type/name
+* [1153](https://github.com/AcademySoftwareFoundation/openexr/pull/1153)
+  Avoid div by zero with test for bad chromaticities in RGBtoXYZ
+* [1152](https://github.com/AcademySoftwareFoundation/openexr/pull/1152)
+  prevent overflow in bytesPerDeepLineTable 
+* [1151](https://github.com/AcademySoftwareFoundation/openexr/pull/1151)
+  Add additional text to ensure correct detection for threads 
+* [1147](https://github.com/AcademySoftwareFoundation/openexr/pull/1147)
+  Simplify the definition for bswap_32 for NetBSD 
+* [1142](https://github.com/AcademySoftwareFoundation/openexr/pull/1142)
+  Cleanup cmake thread detection 
+* [1141](https://github.com/AcademySoftwareFoundation/openexr/pull/1141)
+  Fix issue with unpacked size computation 
+* [1138](https://github.com/AcademySoftwareFoundation/openexr/pull/1138)
+  the HufDec struct used during decompression also contains a pointer 
+* [1136](https://github.com/AcademySoftwareFoundation/openexr/pull/1136)
+  Fixes #1135, test which assumed 64-bit pointer size 
+* [1134](https://github.com/AcademySoftwareFoundation/openexr/pull/1134)
+  Clean up enum declarations in OpenEXRCore 
+* [1133](https://github.com/AcademySoftwareFoundation/openexr/pull/1133)
+  Fix copy/paste error in special case unpack routine 
+* [1132](https://github.com/AcademySoftwareFoundation/openexr/pull/1132)
+  Build sphinx/doxygen docs with CMake 
+* [1131](https://github.com/AcademySoftwareFoundation/openexr/pull/1131)
+  Retire old docs 
+* [1130](https://github.com/AcademySoftwareFoundation/openexr/pull/1130)
+  Clean up OpenEXRCore doxygen comments 
+* [1129](https://github.com/AcademySoftwareFoundation/openexr/pull/1129)
+  Guard `__has_attribute` for compilers that don't support it 
+* [1124](https://github.com/AcademySoftwareFoundation/openexr/pull/1124)
+  Remove throw from ~IlmThread 
+* [1123](https://github.com/AcademySoftwareFoundation/openexr/pull/1123)
+  Require Imath 3.1 
+* [1122](https://github.com/AcademySoftwareFoundation/openexr/pull/1122)
+  Remove stray and unnecessary Imf:: namespace prefixes 
+* [1120](https://github.com/AcademySoftwareFoundation/openexr/pull/1120)
+  Docs: fixed wrong code examples in "how to read a file" section 
+* [1111](https://github.com/AcademySoftwareFoundation/openexr/pull/1111)
+  Fix document cross-references in .rst files and other gotchas 
+* [1108](https://github.com/AcademySoftwareFoundation/openexr/pull/1108)
+  Fix formatting in InterpretingDeepPixels.rst: 
+* [1104](https://github.com/AcademySoftwareFoundation/openexr/pull/1104)
+  'TheoryDeepPixels.rst' first pass converson from latex 
+* [1042](https://github.com/AcademySoftwareFoundation/openexr/pull/1042)
+  Fix broken link for releases 
 
 ## Version 3.1.1 (August 2, 2021)
 
