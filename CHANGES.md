@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 3.1.3](#version-313-october-25-2021) October 25, 2021
 * [Version 3.1.2](#version-312-october-4-2021) October 4, 2021
 * [Version 3.1.1](#version-311-august-2-2021) August 2, 2021
 * [Version 3.1.0](#version-310-july-22-2021) July 22, 2021
@@ -51,6 +52,127 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.1.3 (October 25, 2021)
+
+Patch release with a change to default zip compression level:
+
+* Default zip compression level is now 4 (instead of 6), which in our
+  tests improves compression times by 2x with only a tiny drop in
+  compression ratio.
+* ``setDefaultZipCompression()`` and ``setDefaultDwaCompression()``
+  now set default compression levels for writing.
+* The Header how has ``zipCompressionLevel()`` and
+  ``dwaCompressionLevel()`` to return the levels used for writing.
+
+Also, various bug fixes, build improvements, and documentation
+updates. In particular:
+
+* Fixes a build failure with Imath prior to v3.1
+* Fixes a bug in detecting invalid chromaticity values
+* Man page filenames (if generated) no longer have spaces.
+
+Specific OSS-fuzz issues:
+
+* OSS-fuzz [39836](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39836)
+  Heap-buffer-overflow in internal_huf_decompress
+* OSS-fuzz [39799](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39799)
+  Heap-buffer-overflow in unpack_32bit
+* OSS-fuzz [39754](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39754)
+  Abrt in internal_decode_alloc_buffer
+* OSS-fuzz [39737](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39737)
+  Heap-buffer-overflow in unpack_16bit
+* OSS-fuzz [39683](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39683)
+  Null-dereference in Imf_3_1::readCoreScanlinePart
+* OSS-fuzz [39630](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39630)
+  Direct-leak in internal_decode_alloc_buffer
+* OSS-fuzz [39623](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39623)
+  Heap-buffer-overflow in unpack_16bit
+* OSS-fuzz [39616](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39616)
+  Heap-buffer-overflow in Imf_3_1::memstream_read
+* OSS-fuzz [39604](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39604)
+  Abrt in internal_decode_free_buffer
+* OSS-fuzz [39601](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39601)
+  Heap-buffer-overflow in internal_huf_decompress
+* OSS-fuzz [39591](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39591)
+  Integer-overflow in Imf_3_1::readCoreTiledPart
+* OSS-fuzz [39579](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39579)
+  Undefined-shift in internal_huf_decompress
+* OSS-fuzz [39571](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39571)
+  Heap-buffer-overflow in generic_unpack
+* OSS-fuzz [39568](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39568)
+  Null-dereference in Imf_3_1::readCoreScanlinePart
+* OSS-fuzz [39542](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39542)
+  Heap-buffer-overflow in Imf_3_1::memstream_read
+* OSS-fuzz [39538](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39538)
+  Heap-buffer-overflow in unpack_16bit_4chan_planar
+* OSS-fuzz [39532](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39532)
+  Heap-buffer-overflow in unpack_16bit_4chan_planar
+* OSS-fuzz [39529](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39529)
+  Null-dereference in Imf_3_1::readCoreTiledPart
+* OSS-fuzz [39526](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39526)
+  Integer-overflow in exr_read_tile_chunk_info
+* OSS-fuzz [39522](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39522)
+  Direct-leak in internal_decode_alloc_buffer
+* OSS-fuzz [39472](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39472)
+  Heap-buffer-overflow in unpack_16bit
+* OSS-fuzz [39421](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39421)
+  Stack-overflow in Imf_3_1::memstream_read
+* OSS-fuzz [39399](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39399)
+  Direct-leak in exr_attr_preview_init
+* OSS-fuzz [39397](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39397)
+  Timeout in openexr_exrcheck_fuzzer
+* OSS-fuzz [39343](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39343)
+  Null-dereference READ in ubsan_GetStackTrace
+* OSS-fuzz [39342](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39342)
+  Direct-leak in Imf_3_1::OpaqueAttribute::copy
+* OSS-fuzz [39340](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39340)
+  Stack-overflow in Imf_3_1::memstream_read
+* OSS-fuzz [39332](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39332)
+  Out-of-memory in openexr_exrcheck_fuzzer
+* OSS-fuzz [39329](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39329)
+  Negative-size-param in Imf_3_1::memstream_read
+* OSS-fuzz [39328](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39328)
+  Undefined-shift in internal_exr_compute_tile_information
+* OSS-fuzz [39323](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39323)
+  Integer-overflow in Imf_3_1::readCoreTiledPart
+
+Merged Pull Requests:
+
+* [1178](https://github.com/AcademySoftwareFoundation/openexr/pull/1178)
+  use std::abs in chromaticity sanity tests (fixes #1177)
+* [1174](https://github.com/AcademySoftwareFoundation/openexr/pull/1174)
+  Update docs with link to EasyCLA
+* [1173](https://github.com/AcademySoftwareFoundation/openexr/pull/1173)
+  Fix misc issues due to OSS-fuzz
+* [1172](https://github.com/AcademySoftwareFoundation/openexr/pull/1172)
+  fix casts in readUInt shifts
+* [1169](https://github.com/AcademySoftwareFoundation/openexr/pull/1169)
+  Clean up error messages, check against packed size of 0, integer overflow
+* [1168](https://github.com/AcademySoftwareFoundation/openexr/pull/1168)
+  Refactor attribute size checks
+* [1167](https://github.com/AcademySoftwareFoundation/openexr/pull/1167)
+  Fix loop iterators in ImfCheckFile.cpp
+* [1166](https://github.com/AcademySoftwareFoundation/openexr/pull/1166)
+  fix int overflow in calc_level_size
+* [1165](https://github.com/AcademySoftwareFoundation/openexr/pull/1165)
+  Prevent read when offset past the end of the memstream
+* [1164](https://github.com/AcademySoftwareFoundation/openexr/pull/1164)
+  Also fail when the user provides a preview image that has a zero size coordinate
+* [1163](https://github.com/AcademySoftwareFoundation/openexr/pull/1163)
+  don't validate chunk size when file_size unknown
+* [1161](https://github.com/AcademySoftwareFoundation/openexr/pull/1161)
+  validate filesize before allocating chunk memory
+* [1160](https://github.com/AcademySoftwareFoundation/openexr/pull/1160)
+  validate dwaCompressionLevel attribute type
+* [1150](https://github.com/AcademySoftwareFoundation/openexr/pull/1150)
+  Enable Google OSS Fuzz to also test Core library
+* [1149](https://github.com/AcademySoftwareFoundation/openexr/pull/1145)
+  Enable ephemeral compression levels
+* [1145](https://github.com/AcademySoftwareFoundation/openexr/pull/1145)
+  Fix when compiling against pre-3.1 version of Imath
+* [1125](https://github.com/AcademySoftwareFoundation/openexr/pull/1125)
+  Zip: switch to compression level 4 instead of default 6
 
 ## Version 3.1.2 (October 4, 2021)
 
