@@ -42,12 +42,12 @@ jobs:
   # TODO: Add ARM build. Add sanitize build.
 
   linux:
-    name: 'Linux CentOS 7 VFX CY${{ matrix.vfx-cy }} 
-      <${{ matrix.compiler-desc }} 
-       config=${{ matrix.build-type }}, 
-       shared=${{ matrix.build-shared }}, 
-       threads=${{ matrix.threads-enabled }}, 
-       cxx=${{ matrix.cxx-standard }}>'
+    name: 'Linux ${{ matrix.label }}VFXP-${{ matrix.vfx-cy }} centos7
+       <${{ matrix.compiler-desc }},
+       C++${{ matrix.cxx-standard }},
+       config=${{ matrix.build-type }},
+       shared=${{ matrix.build-shared }},
+       threads=${{ matrix.threads-enabled }}>'
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
@@ -56,10 +56,165 @@ jobs:
       image: aswf/ci-openexr:${{ matrix.vfx-cy }}
     strategy:
       matrix:
-        build: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+        build: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
         include:
           # -------------------------------------------------------------------
-          # GCC, VFX CY2021
+          # VFX CY2022 - GCC, Release
+          # -------------------------------------------------------------------
+          # Shared, Release
+          - build: 1
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 17
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: gcc9.3.1
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2022
+            exclude-tests:
+
+          # -------------------------------------------------------------------
+          # VFX CY2021 - GCC
+          # -------------------------------------------------------------------
+          # Shared, Release
+          - build: 2
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 17
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: gcc9.3.1
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2021
+            exclude-tests:
+
+          # Shared, Release, Threads OFF
+          - build: 3
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 17
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: gcc9.3.1
+            label: 
+            threads-enabled: 'OFF'
+            vfx-cy: 2021
+            exclude-tests:
+
+          # Shared, Debug
+          - build: 4
+            build-type: Debug
+            build-shared: 'ON'
+            cxx-standard: 17
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: gcc9.3.1
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2021
+            exclude-tests:
+
+          # Static, Release
+          - build: 5
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 17
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: gcc9.3.1
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2021
+            exclude-tests:
+
+          # Static, Debug
+          - build: 6
+            build-type: Debug
+            build-shared: 'OFF'
+            cxx-standard: 17
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: gcc9.3.1
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2021
+            exclude-tests:
+
+          # -------------------------------------------------------------------
+          # VFX CY2021 - Clang
+          # -------------------------------------------------------------------
+          # Release
+          - build: 7
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 17
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: clang10
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2021
+            exclude-tests:
+
+          # Debug
+          - build: 8
+            build-type: Debug
+            build-shared: 'ON'
+            cxx-standard: 17
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: clang10
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2021
+            exclude-tests:
+
+          # Static, Release
+          - build: 9
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 17
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: clang10
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2021
+            exclude-tests:
+
+          # Static, Debug
+          - build: 10
+            build-type: Debug
+            build-shared: 'OFF'
+            cxx-standard: 17
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: clang10
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2021
+            exclude-tests:
+
+          # -------------------------------------------------------------------
+          # VFX CY2020 - GCC, Release
+          # -------------------------------------------------------------------
+          # Shared, Release
+          - build: 11
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 14
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: gcc6.3.1
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2020
+            exclude-tests:
+
+          # -------------------------------------------------------------------
+          # VFX CY2019 - GCC, Release
           # -------------------------------------------------------------------
           # Shared, Release
           - build: 12
@@ -68,226 +223,28 @@ jobs:
             cxx-standard: 14
             cxx-compiler: g++
             cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
-            threads-enabled: 'ON'
-            vfx-cy: 2021
-            exclude-tests:
-          # Shared, Debug
-          - build: 13
-            build-type: Debug
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
-            threads-enabled: 'ON'
-            vfx-cy: 2021
-            exclude-tests:
-          # Static, Release
-          - build: 14
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
-            threads-enabled: 'ON'
-            vfx-cy: 2021
-            exclude-tests:
-          # Static, Debug
-          - build: 15
-            build-type: Debug
-            build-shared: 'OFF'
-            cxx-standard: 14
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
-            threads-enabled: 'ON'
-            vfx-cy: 2021
-            exclude-tests:
-          # -------------------------------------------------------------------
-          # GCC, VFX CY2020
-          # -------------------------------------------------------------------
-          # Shared, Release
-          - build: 1
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
-            threads-enabled: 'ON'
-            vfx-cy: 2020
-            exclude-tests:
-          # Shared, Debug
-          - build: 2
-            build-type: Debug
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
-            threads-enabled: 'ON'
-            vfx-cy: 2020
-            exclude-tests:
-          # Static, Release
-          - build: 3
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
-            threads-enabled: 'ON'
-            vfx-cy: 2020
-            exclude-tests:
-          # Static, Debug
-          - build: 4
-            build-type: Debug
-            build-shared: 'OFF'
-            cxx-standard: 14
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
-            threads-enabled: 'ON'
-            vfx-cy: 2020
-            exclude-tests:
-          # -------------------------------------------------------------------
-          # GCC, VFX CY2019
-          # -------------------------------------------------------------------
-          #
-          - build: 5
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
+            compiler-desc: gcc6.3.1
+            label: 
             threads-enabled: 'ON'
             vfx-cy: 2019
             exclude-tests: 
+
           # -------------------------------------------------------------------
-          # Clang, VFX CY2021
+          # Legacy - VFX CY2019 - C++11
           # -------------------------------------------------------------------
-          # Release
-          - build: 16
+          # Shared, Release
+          - build: 13
             build-type: Release
             build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: clang++
-            cc-compiler: clang
-            compiler-desc: Clang 7
-            threads-enabled: 'ON'
-            vfx-cy: 2021
-            exclude-tests:
-          # Debug
-          - build: 17
-            build-type: Debug
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: clang++
-            cc-compiler: clang
-            compiler-desc: Clang 7
-            threads-enabled: 'ON'
-            vfx-cy: 2021
-            exclude-tests:
-          # Static, Release
-          - build: 18
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: clang++
-            cc-compiler: clang
-            compiler-desc: Clang 7
-            threads-enabled: 'ON'
-            vfx-cy: 2021
-            exclude-tests:
-          # Static, Debug
-          - build: 19
-            build-type: Debug
-            build-shared: 'OFF'
-            cxx-standard: 14
-            cxx-compiler: clang++
-            cc-compiler: clang
-            compiler-desc: Clang 7
-            threads-enabled: 'ON'
-            vfx-cy: 2021
-            exclude-tests:
-          # -------------------------------------------------------------------
-          # Clang, VFX CY2020
-          # -------------------------------------------------------------------
-          # Release
-          - build: 6
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: clang++
-            cc-compiler: clang
-            compiler-desc: Clang 7
-            threads-enabled: 'ON'
-            vfx-cy: 2020
-            exclude-tests:
-          # Debug
-          - build: 7
-            build-type: Debug
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: clang++
-            cc-compiler: clang
-            compiler-desc: Clang 7
-            threads-enabled: 'ON'
-            vfx-cy: 2020
-            exclude-tests:
-          # Static, Release
-          - build: 8
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: clang++
-            cc-compiler: clang
-            compiler-desc: Clang 7
-            threads-enabled: 'ON'
-            vfx-cy: 2020
-            exclude-tests:
-          # Static, Debug
-          - build: 9
-            build-type: Debug
-            build-shared: 'OFF'
-            cxx-standard: 14
-            cxx-compiler: clang++
-            cc-compiler: clang
-            compiler-desc: Clang 7
-            threads-enabled: 'ON'
-            vfx-cy: 2020
-            exclude-tests:
-          # -------------------------------------------------------------------
-          # Clang, VFX CY2019
-          # -------------------------------------------------------------------
-          # 
-          - build: 10
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: clang++
-            cc-compiler: clang
-            compiler-desc: Clang 7
+            cxx-standard: 11
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: gcc6.3.1
+            label: 'Legacy '
             threads-enabled: 'ON'
             vfx-cy: 2019
             exclude-tests:
-          # -------------------------------------------------------------------
-          # Other config variants
-          # -------------------------------------------------------------------
-          # 
-          - build: 11
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
-            threads-enabled: 'OFF'
-            vfx-cy: 2020
-            exclude-tests:
+
     env:
       CXX: ${{ matrix.cxx-compiler }}
       CC: ${{ matrix.cc-compiler }}
@@ -351,51 +308,49 @@ jobs:
   # TODO: Add ARM64/x86_64 (universal 2) build
   
   macos:
-    name: 'macOS 10.15 
-      <AppleClang 11.0 
-       config=${{ matrix.build-type }}, 
-       shared=${{ matrix.build-shared }}, 
-       cxx=${{ matrix.cxx-standard }}, 
+    name: 'Mac VFXP-2021 macos-${{ matrix.osver }}
+      <${{ matrix.compiler-desc }},
+       C++${{ matrix.cxx-standard }},
+       config=${{ matrix.build-type }},
+       shared=${{ matrix.build-shared }},
+       cxx=${{ matrix.cxx-standard }},
        docs=${{ matrix.build-docs }}>'
-    runs-on: macos-10.15
+    runs-on: macos-${{ matrix.osver }}
     strategy:
       matrix:
-        build: [1, 2, 3, 4, 5]
+        build: [1, 2, 3]
         include:
-          # C++11, Release
+          # -------------------------------------------------------------------
+          # VFX CY2021 - C++17 
+          # -------------------------------------------------------------------
+          # Shared, Release
           - build: 1
             build-type: Release
             build-shared: 'ON'
-            build-docs: 'ON'
-            cxx-standard: 11
+            build-docs: 'OFF'
+            compiler-desc: AppleClang11.0
+            cxx-standard: 17
+            osver: 10.15
             exclude-tests:
-          # Debug
+
+          # Static, Release
           - build: 2
-            build-type: Debug
-            build-shared: 'ON'
-            build-docs: 'OFF'
-            cxx-standard: 11
-            exclude-tests:
-          # C++14
-          - build: 3
-            build-type: Release
-            build-shared: 'ON'
-            build-docs: 'OFF'
-            cxx-standard: 14
-            exclude-tests:
-          # Static
-          - build: 4
             build-type: Release
             build-shared: 'OFF'
             build-docs: 'OFF'
-            cxx-standard: 14
+            compiler-desc: AppleClang11.0
+            cxx-standard: 17
+            osver: 10.15
             exclude-tests:
-          # Static, Debug
-          - build: 5
-            build-type: Release
+
+          # Shared, Debug
+          - build: 3
+            build-type: Debug
             build-shared: 'ON'
             build-docs: 'OFF'
-            cxx-standard: 14
+            compiler-desc: AppleClang11.0
+            cxx-standard: 17
+            osver: 10.15
             exclude-tests:
     steps:
       - name: Checkout
@@ -452,8 +407,8 @@ jobs:
   # ---------------------------------------------------------------------------
   # TODO: Debug mode is catatonically slow under windows
   windows:
-    name: 'Windows 2019 
-      <MSVC 16.4 
+    name: 'Windows VFXP-2021
+      <${{ matrix.compiler-desc }},
        config=${{ matrix.build-type }}, 
        shared=${{ matrix.build-shared }}, 
        cxx=${{ matrix.cxx-standard }}, 
@@ -461,37 +416,31 @@ jobs:
     runs-on: windows-2019
     strategy:
       matrix:
-        #build: [1, 2, 3, 4]
-        build: [1, 2, 3, 4]
+        build: [1, 2]
         include:
-          # C++11, Shared, Release
+          # -------------------------------------------------------------------
+          # VFX CY2021 - C++17
+          # -------------------------------------------------------------------
+          # Shared, Release
           - build: 1
             build-type: Release
             build-shared: 'ON'
-            build-docs: 'ON'
-            cxx-standard: 11
-            exclude-tests:
-          # C++14, Shared, Release
+            build-docs: 'OFF'
+            compiler-desc: msvc16.11
+            cxx-standard: 17
+            vfx-cy: 2021
+            exclude-tests: ''
+
+          # Static, Release
           - build: 2
             build-type: Release
-            build-shared: 'ON'
-            build-docs: 'OFF'
-            cxx-standard: 14
-            exclude-tests: ''
-          # C++11, Static, Release
-          - build: 3
-            build-type: Release
             build-shared: 'OFF'
             build-docs: 'OFF'
-            cxx-standard: 14
+            compiler-desc: msvc16.11
+            cxx-standard: 17
+            vfx-cy: 2021
             exclude-tests: ''
-          # C++14, Static, Release
-          - build: 4
-            build-type: Release
-            build-shared: 'OFF'
-            build-docs: 'OFF'
-            cxx-standard: 14
-            exclude-tests: ''
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
