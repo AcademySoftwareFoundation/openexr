@@ -151,11 +151,17 @@ validate_image_dimensions (
     /* isnormal will return true when par is 0, which should also be disallowed */
     if (!isnormal (par) || par < 1e-6f || par > 1e+6f)
         return f->print_error (
-            f, EXR_ERR_INVALID_ATTR, "Invalid pixel aspect ratio %g", (double)par);
+            f,
+            EXR_ERR_INVALID_ATTR,
+            "Invalid pixel aspect ratio %g",
+            (double) par);
 
     if (sww < 0.f)
         return f->print_error (
-            f, EXR_ERR_INVALID_ATTR, "Invalid screen window width %g", (double)sww);
+            f,
+            EXR_ERR_INVALID_ATTR,
+            "Invalid screen window width %g",
+            (double) sww);
 
     return EXR_ERR_SUCCESS;
 }
@@ -183,8 +189,8 @@ validate_channels (
             "request to validate channel list, but data window not set to validate against");
 
     dw = curpart->data_window;
-    w  = dw.max.x - dw.min.x + 1;
-    h  = dw.max.y - dw.min.y + 1;
+    w  = (int64_t) dw.max.x - (int64_t) dw.min.x + 1;
+    h  = (int64_t) dw.max.y - (int64_t) dw.min.y + 1;
     for (int c = 0; c < channels->num_channels; ++c)
     {
         int32_t xsamp = channels->entries[c].x_sampling;

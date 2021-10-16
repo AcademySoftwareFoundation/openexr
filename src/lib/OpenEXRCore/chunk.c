@@ -178,7 +178,12 @@ compute_chunk_unpack_size (
             if (curc->y_sampling > 1)
             {
                 if (height > 1)
-                    chansz /= ((uint64_t) curc->y_sampling);
+                {
+                    if (curc->y_sampling > height)
+                        chansz /= ((uint64_t) height);
+                    else
+                        chansz /= ((uint64_t) curc->y_sampling);
+                }
                 else if ((y % ((int) curc->y_sampling)) != 0)
                     chansz = 0;
             }
