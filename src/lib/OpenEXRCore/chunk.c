@@ -823,7 +823,7 @@ exr_read_tile_chunk_info (
         if (rv != EXR_ERR_SUCCESS) { return rv; }
         priv_to_native64 (ddata, 3);
 
-        if (ddata[0] < 0)
+        if (ddata[0] < 0 || (ddata[0] == 0 && (ddata[1] != 0 || ddata[2] != 0)))
         {
             return pctxt->print_error (
                 pctxt,
@@ -838,7 +838,8 @@ exr_read_tile_chunk_info (
         }
 
         /* not all compressors support 64-bit */
-        if (ddata[1] <= 0 || ddata[1] > (int64_t) INT32_MAX)
+        if (ddata[1] < 0 || ddata[1] > (int64_t) INT32_MAX ||
+            (ddata[1] == 0 && ddata[2] != 0))
         {
             return pctxt->print_error (
                 pctxt,
@@ -851,7 +852,9 @@ exr_read_tile_chunk_info (
                 cidx,
                 ddata[1]);
         }
-        if (ddata[2] < 0 || ddata[2] > (int64_t) INT32_MAX)
+
+        if (ddata[2] < 0 || ddata[2] > (int64_t) INT32_MAX ||
+            (ddata[2] == 0 && ddata[1] != 0))
         {
             return pctxt->print_error (
                 pctxt,
@@ -892,7 +895,8 @@ exr_read_tile_chunk_info (
     }
     else
     {
-        if (tdata[4] <= 0 || ((uint64_t) tdata[4] > unpacksize))
+        if (tdata[4] < 0 || ((uint64_t) tdata[4]) > unpacksize ||
+            (tdata[4] == 0 && unpacksize != 0))
         {
             return pctxt->print_error (
                 pctxt,
