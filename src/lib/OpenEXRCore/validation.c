@@ -182,6 +182,12 @@ validate_channels (
             EXR_ERR_NO_ATTR_BY_NAME,
             "request to validate channel list, but data window not set to validate against");
 
+    if (channels->num_channels <= 0)
+        return f->report_error (
+            f,
+            EXR_ERR_FILE_BAD_HEADER,
+            "At least one channel required");
+
     dw = curpart->data_window;
     w  = dw.max.x - dw.min.x + 1;
     h  = dw.max.y - dw.min.y + 1;
