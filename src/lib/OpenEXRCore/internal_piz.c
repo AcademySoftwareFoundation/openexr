@@ -458,13 +458,10 @@ internal_exr_apply_piz (exr_encode_pipeline_t* encode)
             if (nBytes == 0) continue;
 
             tmp = scratch;
+            scratch += nBytes;
             if (curc->y_samples > 1)
             {
-                if ((cury % curc->y_samples) != 0)
-                {
-                    scratch += nBytes;
-                    continue;
-                }
+                if ((cury % curc->y_samples) != 0) continue;
                 tmp += ((uint64_t) (y / curc->y_samples)) * bpl;
             }
             else
@@ -475,7 +472,6 @@ internal_exr_apply_piz (exr_encode_pipeline_t* encode)
             memcpy (tmp, packed, bpl);
             priv_to_native16 (tmp, nx * (curc->bytes_per_element / 2));
             packed += bpl;
-            scratch += nBytes;
         }
     }
 
@@ -628,7 +624,7 @@ internal_exr_undo_piz (
     if (nBytes + hufbytes > packsz) return EXR_ERR_CORRUPT_CHUNK;
 
     wavbuf = decode->scratch_buffer_1;
-    rv = internal_huf_decompress (
+    rv     = internal_huf_decompress (
         packed + nBytes, hufbytes, wavbuf, outsz / 2, hufspare, hufSpareBytes);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
@@ -679,6 +675,8 @@ internal_exr_undo_piz (
             if (nBytes == 0) continue;
 
             tmp = scratch;
+            scratch += ((uint64_t) ny) * nBytes;
+
             if (curc->y_samples > 1)
             {
                 if ((cury % curc->y_samples) != 0) continue;
@@ -691,7 +689,6 @@ internal_exr_undo_piz (
             priv_from_native16 (out, nx * (curc->bytes_per_element / 2));
             out += nBytes;
             nOut += nBytes;
-            scratch += ((uint64_t) ny) * nBytes;
         }
     }
 
