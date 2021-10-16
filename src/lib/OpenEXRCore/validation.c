@@ -151,11 +151,17 @@ validate_image_dimensions (
     /* isnormal will return true when par is 0, which should also be disallowed */
     if (!isnormal (par) || par < 1e-6f || par > 1e+6f)
         return f->print_error (
-            f, EXR_ERR_INVALID_ATTR, "Invalid pixel aspect ratio %g", (double)par);
+            f,
+            EXR_ERR_INVALID_ATTR,
+            "Invalid pixel aspect ratio %g",
+            (double) par);
 
     if (sww < 0.f)
         return f->print_error (
-            f, EXR_ERR_INVALID_ATTR, "Invalid screen window width %g", (double)sww);
+            f,
+            EXR_ERR_INVALID_ATTR,
+            "Invalid screen window width %g",
+            (double) sww);
 
     return EXR_ERR_SUCCESS;
 }
@@ -184,9 +190,7 @@ validate_channels (
 
     if (channels->num_channels <= 0)
         return f->report_error (
-            f,
-            EXR_ERR_FILE_BAD_HEADER,
-            "At least one channel required");
+            f, EXR_ERR_FILE_BAD_HEADER, "At least one channel required");
 
     dw = curpart->data_window;
     w  = dw.max.x - dw.min.x + 1;
