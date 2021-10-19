@@ -190,9 +190,7 @@ validate_channels (
 
     if (channels->num_channels <= 0)
         return f->report_error (
-            f,
-            EXR_ERR_FILE_BAD_HEADER,
-            "At least one channel required");
+            f, EXR_ERR_FILE_BAD_HEADER, "At least one channel required");
 
     dw = curpart->data_window;
     w  = (int64_t) dw.max.x - (int64_t) dw.min.x + 1;
@@ -310,6 +308,8 @@ validate_tile_data (
         const int                  maxtilew = f->max_tile_w;
         const int                  maxtileh = f->max_tile_h;
         const exr_attr_chlist_t*   channels = curpart->channels->chlist;
+        exr_tile_level_mode_t      levmode;
+        exr_tile_round_mode_t      rndmode;
 
         if (!curpart->tiles)
             return f->print_error (
@@ -317,10 +317,13 @@ validate_tile_data (
                 EXR_ERR_MISSING_REQ_ATTR,
                 "'tiles' attribute for tiled file not found");
 
-        desc = curpart->tiles->tiledesc;
+        desc    = curpart->tiles->tiledesc;
+        levmode = EXR_GET_TILE_LEVEL_MODE (*desc);
+        rndmode = EXR_GET_TILE_ROUND_MODE (*desc);
+
         if (desc->x_size == 0 || desc->y_size == 0 ||
-            desc->x_size > (uint32_t) INT_MAX ||
-            desc->y_size > (uint32_t) INT_MAX)
+            desc->x_size > (uint32_t) (INT_MAX / 4) ||
+            desc->y_size > (uint32_t) (INT_MAX / 4))
             return f->print_error (
                 f,
                 EXR_ERR_INVALID_ATTR,
@@ -341,6 +344,22 @@ validate_tile_data (
                 "Width of tile exceeds max size (%d vs max %d)",
                 (int) desc->y_size,
                 maxtileh);
+
+        if ((int) levmode < EXR_TILE_ONE_LEVEL ||
+            (int) levmode >= EXR_TILE_LAST_TYPE)
+            return f->print_error (
+                f,
+                EXR_ERR_INVALID_ATTR,
+                "Invalid level mode (%d) in tile description header",
+                (int) levmode);
+
+        if ((int) rndmode < EXR_TILE_ROUND_DOWN ||
+            (int) rndmode >= EXR_TILE_ROUND_LAST_TYPE)
+            return f->print_error (
+                f,
+                EXR_ERR_INVALID_ATTR,
+                "Invalid rounding mode (%d) in tile description header",
+                (int) rndmode);
 
         for (int c = 0; c < channels->num_channels; ++c)
         {
