@@ -1181,9 +1181,11 @@ bool readCoreScanlinePart(exr_context_t f, int part, bool reduceMemory, bool red
     if (rv != EXR_ERR_SUCCESS)
         return true;
 
-    for (int y = datawin.min.y; y <= datawin.max.y; y += lines_per_chunk)
+    for (uint64_t chunk = 0; chunk < height; chunk += lines_per_chunk)
     {
         exr_chunk_info_t cinfo = { 0 };
+        int y = ((int) chunk) + datawin.min.y;
+
         rv = exr_read_scanline_chunk_info (f, part, y, &cinfo);
         if (rv != EXR_ERR_SUCCESS)
         {
