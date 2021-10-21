@@ -1,6 +1,6 @@
 # OpenEXR Release Notes
 
-* [Version 3.1.3](#version-313-october-25-2021) October 25, 2021
+* [Version 3.1.3](#version-313-october-27-2021) October 27, 2021
 * [Version 3.1.2](#version-312-october-4-2021) October 4, 2021
 * [Version 3.1.1](#version-311-august-2-2021) August 2, 2021
 * [Version 3.1.0](#version-310-july-22-2021) July 22, 2021
@@ -53,7 +53,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.1.3 (October 25, 2021)
+## Version 3.1.3 (October 27, 2021)
 
 Patch release with a change to default zip compression level:
 
@@ -70,10 +70,17 @@ updates. In particular:
 
 * Fixes a build failure with Imath prior to v3.1
 * Fixes a bug in detecting invalid chromaticity values
-* Man page filenames (if generated) no longer have spaces.
 
 Specific OSS-fuzz issues:
 
+* OSS-fuzz [40091](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=40091)
+  Heap-buffer-overflow in hufDecode
+* OSS-fuzz [39997](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39997)
+  Null-dereference in Imf_3_1::readCoreScanlinePart
+* OSS-fuzz [39996](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39996)
+  Heap-buffer-overflow in generic_unpack
+* OSS-fuzz [39936](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39936)
+  Heap-buffer-overflow in Imf_3_1::memstream_read
 * OSS-fuzz [39836](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39836)
   Heap-buffer-overflow in internal_huf_decompress
 * OSS-fuzz [39799](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39799)
@@ -138,9 +145,24 @@ Specific OSS-fuzz issues:
   Integer-overflow in Imf_3_1::readCoreTiledPart
 
 Merged Pull Requests:
-
+* [1187](https://github.com/AcademySoftwareFoundation/openexr/pull/1187)
+  Add size check to memory stream check program
+* [1186](https://github.com/AcademySoftwareFoundation/openexr/pull/1186)
+  Add extra tile validation
+* [1185](https://github.com/AcademySoftwareFoundation/openexr/pull/1185)
+  Fix test for bad chunk data to allow for 0-sample deep chunks
+* [1184](https://github.com/AcademySoftwareFoundation/openexr/pull/1184)
+  Fixes an issue computing the unpacked size of a chunk
+* [1183](https://github.com/AcademySoftwareFoundation/openexr/pull/1183)
+  Fix decoding of piz when y sampling is not the same for all channels
+* [1182](https://github.com/AcademySoftwareFoundation/openexr/pull/1182)
+  Require at least one channel
+* [1180](https://github.com/AcademySoftwareFoundation/openexr/pull/1180)
+  reduce iterations in testIDManifest to speed up
 * [1178](https://github.com/AcademySoftwareFoundation/openexr/pull/1178)
   use std::abs in chromaticity sanity tests (fixes #1177)
+* [1176](https://github.com/AcademySoftwareFoundation/openexr/pull/1176)
+  Update CI builds
 * [1174](https://github.com/AcademySoftwareFoundation/openexr/pull/1174)
   Update docs with link to EasyCLA
 * [1173](https://github.com/AcademySoftwareFoundation/openexr/pull/1173)
