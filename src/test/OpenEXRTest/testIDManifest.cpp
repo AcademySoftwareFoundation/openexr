@@ -318,9 +318,9 @@ namespace
         const string fn = tempDir + "id_manifest.exr";
         random_reseed(1);
         //
-        // generate 100 random files, looking for trouble
+        // generate 20 random files, looking for trouble
         
-        for(int pass=0;pass<100;++pass)
+        for(int pass=0;pass<20;++pass)
         {
         
             //
@@ -380,7 +380,7 @@ namespace
                 //
                 // insert entries - each will have the correct number of components
                 //
-                int entriesInGroup = random_int(300*(pass+1));
+                int entriesInGroup = random_int(1200*(pass+1));
                 
                 cerr << entriesInGroup << ' ';
                 cerr.flush();
