@@ -108,7 +108,7 @@ highest possible performance. In the future, the ABI will evolve, but
 the API will remain consistent, or only have additions.
 
 See [Reading and Writing OpenEXR Image Files with the C-language
-API](https://cary-ilm-openexr.readthedocs.io/en/latest/OpenEXRCoreAPI.html)
+API](https://openexr.readthedocs.io/en/latest/OpenEXRCoreAPI.html)
 for more information.
 
 ### Supported Platforms
