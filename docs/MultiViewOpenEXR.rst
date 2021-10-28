@@ -60,7 +60,7 @@ is used when sharing files with others and for long-term storage.
 
 
 Storing Multi-View Images in Multi-Part OpenEXR Files
-====================================================
+=====================================================
 
 Multi-part EXR files use the ``view`` attribute within the header for each part
 to indicate that all the channels within that part are associated with that view.
@@ -158,7 +158,7 @@ Stereo EXR containing non-view part::
           channels notes.R notes.G notes.B
 
 
-Storing Multi-View Images in Single part OpenEXR files
+Storing Multi-View Images in Single Part OpenEXR files
 ======================================================
 
 A single part multi-view OpenEXR file is identified by the presence of a
@@ -238,8 +238,8 @@ For example, ``background.data`` is not associated with any view, but
 ``background`` belongs to the default view, and ``got.it.right.now`` may be
 part of the ``right`` view.
 
-The multiView Attribute 
------------------------
+The ``multiView`` Attribute
+---------------------------
 
 A single part multi-view OpenEXR file is identified by the presence of an attribute
 called ``multiView`` in the file header. The value of the attribute is of
