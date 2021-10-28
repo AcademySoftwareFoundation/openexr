@@ -45,7 +45,7 @@ may ignore all other views.
 Other view names should be kept as short as possible
 
 
-Single Part and Multi-part Conventions
+Single Part and Multi-Part Conventions
 ======================================
 
 This document describes two schemes. The preferred scheme requires
