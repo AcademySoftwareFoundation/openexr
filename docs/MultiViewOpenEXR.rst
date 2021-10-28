@@ -59,7 +59,7 @@ Since such files are increasingly rare, it is strongly recommended that the mult
 is used when sharing files with others and for long-term storage.
 
 
-Storing Multi-View Images in Multipart OpenEXR files
+Storing Multi-View Images in Multi-Part OpenEXR Files
 ====================================================
 
 Multi-part EXR files use the ``view`` attribute within the header for each part
