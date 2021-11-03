@@ -564,8 +564,8 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
                                                    reinterpret_cast<char*>(&localSampleCount[0][0]),
                                                    sizeof (unsigned int) * 1,
                                                    sizeof (unsigned int) * width,
+                                                   1, 1, // x/ysampling
                                                    0.0, // fill
-                                                   1 , 1, // x/ysampling
                                                    true,  // relative x
                                                    true  // relative y
                                                   )
@@ -584,8 +584,8 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
                                             pointerSize * 1,
                                             pointerSize * width,
                                             sampleSize,
+                                            1, 1,
                                             0.0,
-                                            1 , 1,
                                             true,
                                             true
                                            ) );
