@@ -1975,3 +1975,77 @@ locations and back. Those routines are useful in application programs
 that create environment maps and in programs that perform map lookups.
 For details, see the header file ``ImfEnvmap.h``.
 
+Compression
+-----------
+
+Data written to OpenEXR files can be compressed using one of several
+compression algorithms.
+
+To specify the compression algorithm, set the ``compression()`` value
+on the ``Header`` object:
+
+.. code-block::
+   :linenos
+
+    Header header (width, height);
+    header.channels().insert ("G", Channel (HALF));
+    header.channels().insert ("Z", Channel (FLOAT));
+    header.compression() = ZIP_COMPRESSION;
+
+Supported compression types are:
+
++-------------------+------------------------------------------------+
+| RLE_COMPRESSION   | run length encoding                            |
++-------------------+------------------------------------------------+
+| ZIPS_COMPRESSION  | zlib compression, one scan line at a time      |
++-------------------+------------------------------------------------+
+| ZIP_COMPRESSION   | zlib compression, in blocks of 16 scan lines   |
++-------------------+------------------------------------------------+
+| PIZ_COMPRESSION   | piz-based wavelet compression                  |
++-------------------+------------------------------------------------+
+| PXR24_COMPRESSION | lossy 24-bit float compression                 |
++-------------------+------------------------------------------------+
+| B44_COMPRESSION   | lossy 4-by-4 pixel block compression,          |
+|                   | fixed compression rate                         |
++-------------------+------------------------------------------------+
+| B44A_COMPRESSION  | lossy 4-by-4 pixel block compression,          |
+|                   | flat fields are compressed more                |
++-------------------+------------------------------------------------+
+| DWAA_COMPRESSION  | lossy DCT based compression, in blocks of      |
+|                   | 32 scanlines. More efficient for partial       |
+|                   | buffer access.                                 |
++-------------------+------------------------------------------------+
+| DWAB_COMPRESSION  | lossy DCT based compression, in blocks of 256  |
+|                   | scanlines. More efficient space-wise and       |
+|                   | faster to decode full frames than              |
+|                   | ``DWAA_COMPRESSION``.                          |
++-------------------+------------------------------------------------+
+
+
+``ZIP_COMPRESSION`` and ``DWA`` compression compress to a
+user-controllable compression level, which determines the space/time
+tradeoff. You can control these levels either by setting a global
+default or by setting the level directly on the ``Header`` object.
+
+.. code-block::
+
+   setDefaultZipCompressionLevel (6);
+   setDefaultDwaCompressionLevel (45.0f);
+
+The default zip compression level is 4 for OpenEXR v3.1.3+ and 6 for
+previous versions. The default DWA compression level is 45.0f.
+
+Alternatively, set the compression level on the ``Header`` object:
+
+.. code-block::
+   :linenos
+
+    Header header (width, height);
+    header.channels().insert ("G", Channel (HALF));
+    header.channels().insert ("Z", Channel (FLOAT));
+    header.compression() = ZIP_COMPRESSION;
+    header.zipCompressionLevel() = 6;
+
+   
+    
+
