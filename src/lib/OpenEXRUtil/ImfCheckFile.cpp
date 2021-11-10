@@ -636,8 +636,8 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
                                     }
                                 }
 
-                                // limit total samples allocated for this tile
-                                if (!reduceMemory || bufferSize*bytesPerSample < gMaxBytesPerDeepPixel )
+                                // skip reading if no data to read, or limiting memory and tile is too large
+                                if ( bufferSize>0 && (!reduceMemory || bufferSize*bytesPerSample < gMaxBytesPerDeepPixel ))
                                 {
 
                                     pixelBuffer.resize( bufferSize );
